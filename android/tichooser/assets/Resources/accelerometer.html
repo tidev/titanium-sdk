@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title>Window</title>
+  <script>
+	var toggle = false;
+	var counter = 0;
+	var listenerId = -1;
+	var updateListenerId = -1;
+
+  	function onShake(data) {
+  	  	var d = document.getElementById("indicator");
+
+  	  	if (toggle == false) {
+  	  		d.style.backgroundColor = "red";
+  	  	} else {
+  	  	  	d.style.backgroundColor = "green";
+  	  	}
+  	  	toggle = !toggle;
+  	  	counter = counter + 1;
+  	  	document.getElementById("counter").innerHTML = String(counter);
+  	}
+
+  	function onUpdate(data) {
+		var x = document.getElementById("x");
+		var y = document.getElementById("y");
+		var z = document.getElementById("z");
+
+		x.innerHTML = "X=" + data.x.toPrecision(5);
+		y.innerHTML = "Y=" + data.y.toPrecision(5);
+		z.innerHTML = "Z=" + data.z.toPrecision(5);
+
+		x.style.width = Math.abs(data.x * 10);
+		y.style.width = Math.abs(data.y * 10);
+		z.style.width = Math.abs(data.z * 10);
+  	}
+
+  	function waxOn() {
+  	  	if (listenerId == -1) {
+ 	  		listenerId = Titanium.Gesture.addEventListener("shake", onShake);
+  	  	}
+  	}
+
+ 	function waxOff() {
+ 	 	if (listenerId != -1) {
+ 	 		Titanium.Gesture.removeEventListener("shake", listenerId);
+ 	 		listenerId = -1;
+ 	 	}
+ 	}
+
+  	function updateOn() {
+  	  	if (updateListenerId == -1) {
+ 	  		updateListenerId = Titanium.Accelerometer.addEventListener("update", onUpdate);
+  	  	}
+  	}
+
+ 	function updateOff() {
+ 	 	if (updateListenerId != -1) {
+ 	 		Titanium.Accelerometer.removeEventListener("update", updateListenerId);
+ 	 		updateListenerId = -1;
+ 	 	}
+ 	}
+
+  </script>
+</head>
+<body style="background-color: white;">
+Content Chooser<br/>
+	<div>
+	  	<div id = "indicator" style="width: 200px; height: 100px; background-color: white; border: solid thin black;" />
+	  	<div id="counter">0</div>
+	  	<div style="clear: both;">
+	  		<input type="button" onclick="waxOn(); return false;" value="On"></input>
+	  		<input type="button" onclick="waxOff(); return false;" value="Off"></input>
+	  	</div>
+	</div>
+	<div style="margin-top: 20px; width: 90%">
+		<div id="x" style="height: 20px; background-color: red; white-space: nowrap;">X</div>
+		<div id="y" style="height: 20px; background-color: green;white-space: nowrap;">Y</div>
+		<div id="z" style="height: 20px; background-color: blue;white-space: nowrap;">Z</div>
+		<div style="clear: both;">
+	  		<input type="button" onclick="updateOn(); return false;" value="On"></input>
+	  		<input type="button" onclick="updateOff(); return false;" value="Off"></input>
+	  	</div>
+
+	</div>
+</body>
+</html>

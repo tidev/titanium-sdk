@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright(c) 2009 by Appcelerator, Inc. All Rights Reserved.       -->
+<!-- This is proprietary software. Do not redistribute without express -->
+<!-- written permission.                                               -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">
+  <TabHost android:id="@+id/tabhost"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <TabWidget android:id="@android:id/tabs"
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:paddingTop="4px"
+    />
+    <FrameLayout android:id="@android:id/tabcontent"
+      android:layout_width="fill_parent"
+      android:layout_height="fill_parent"
+      android:paddingTop="67px"
+    >
+    	<WebView
+			android:id="@+id/tab_community"
+			android:layout_width="fill_parent"
+        	android:layout_height="fill_parent"
+		/>
+      	<ListView android:id="@+id/tab_apps"
+        	android:layout_width="fill_parent"
+        	android:layout_height="fill_parent"
+      	/>
+      	<TextView android:id="@+id/tab_profile"
+        	android:layout_width="fill_parent"
+        	android:layout_height="fill_parent"
+      	/>
+    </FrameLayout>
+  </TabHost>
+</LinearLayout>

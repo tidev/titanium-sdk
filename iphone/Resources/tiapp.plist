@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>id</key>
+	<string>com.titaniumapp.test</string>
+	<key>name</key>
+	<string>Titanium Test App</string>
+	<key>version</key>
+	<string>0.1</string>
+	<key>startup</key>
+	<array>
+		<dict>
+			<key>orientation</key>
+			<string>either</string>
+			<key>url</key>
+			<string>unitTest.html</string>
+			<key>title</key>
+			<string>Units</string>
+		</dict>
+		<dict>
+			<key>orientation</key>
+			<string>either</string>
+			<key>url</key>
+			<string>sound.html</string>
+			<key>title</key>
+			<string>Media</string>
+		</dict>
+		<dict>
+			<key>barColor</key>
+			<string>red</string>
+			<key>orientation</key>
+			<string>either</string>
+			<key>url</key>
+			<string>ui.html</string>
+			<key>title</key>
+			<string>Native UI</string>
+		</dict>
+		<dict>
+			<key>orientation</key>
+			<string>either</string>
+			<key>url</key>
+			<string>network.html</string>
+			<key>title</key>
+			<string>Network</string>
+		</dict>
+	</array>
+	<key>modules</key>
+	<dict>
+		<key>analytics</key>
+		<real>0.4</real>
+		<key>media</key>
+		<real>0.4</real>
+		<key>api</key>
+		<real>0.4</real>
+		<key>app</key>
+		<real>0.4</real>
+		<key>database</key>
+		<real>0.4</real>
+		<key>filesystem</key>
+		<real>0.4</real>
+		<key>geolocation</key>
+		<real>0.4</real>
+		<key>accelerometer</key>
+		<real>0.4</real>
+		<key>network</key>
+		<real>0.4</real>
+		<key>platform</key>
+		<real>0.4</real>
+		<key>gesture</key>
+		<real>0.4</real>
+		<key>ui</key>
+		<real>0.4</real>
+	</dict>
+</dict>
+</plist>

@@ -1,0 +1,63 @@
+<html>
+	<head>
+		<title>Geolocation</title>
+		<script type="text/javascript" src="tiui/js/tiui.js"></script>
+		<link href="tiui/css/tiui.css" rel="stylesheet" type="text/css">
+	</head>
+	<body>
+		<div id="text" style="margin:10px">Location Data</div>
+		<div id="geolocation">
+		</div>
+
+		<script>
+
+		Titanium.UI.ready = function()
+		{
+			Titanium.UI.createTextElement('text',true);
+			Titanium.UI.setPropertyBackground();
+
+			var data= [
+						{title:'Latitude',type:'readonly',value:'-',id:'lat'},
+						{title:'Longitude',type:'readonly',value:'-',id:'long'},
+						{title:'Altitude',type:'readonly',value:'-',id:'alt'},
+						{title:'Accuracy',type:'readonly',value:'-',id:'accuracy'},
+						{title:'Altitude Accuracy',type:'readonly',value:'-',id:'alt_accuracy'},
+						{title:'Heading',type:'readonly',value:'-',id:'heading'},
+						{title:'Speed',type:'readonly',value:'-',id:'speed'},
+						{title:'Status',type:'readonly',value:'-',id:'status'}
+					];
+					Titanium.UI.createGroupedView('geolocation','input',data,function(index)
+					{
+					});
+
+			var watchId = Titanium.Geolocation.watchPosition(
+
+				function(pos)
+				{
+					var coords = pos.coords;
+					var ts = pos.timestamp;
+				 	document.getElementById('lat').innerHTML = coords.latitude;
+					document.getElementById('long').innerHTML = coords.longitude;
+					document.getElementById('alt').innerHTML = coords.altitude;
+					document.getElementById('accuracy').innerHTML = coords.accuracy;
+					document.getElementById('alt_accuracy').innerHTML = coords.altitudeAccuracy;
+					document.getElementById('heading').innerHTML = coords.heading;
+					document.getElementById('speed').innerHTML = coords.speed;
+
+				},
+				function(error)
+				{
+					var status = document.getElementById('status');
+					var msg = status.innerHTML;
+					if (msg !== error.message) {
+						document.getElementById('status').innerHTML = "";
+						setTimeout(function(){document.getElementById('status').innerHTML = error.message;}, 250);
+					}
+				},
+				{ enableHighAccuracy : true }
+			);
+		};
+		</script>
+
+	</body>
+</html>

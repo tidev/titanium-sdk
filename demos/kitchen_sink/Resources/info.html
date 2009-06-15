@@ -1,0 +1,93 @@
+<html>
+<head>
+	<title>UI</title>
+	<script type="text/javascript" src="tiui/js/tiui.js"></script>
+	<link href="tiui/css/tiui.css" rel="stylesheet" type="text/css">
+
+	<script>
+	
+	Titanium.UI.ready = function()
+	{
+		// create data for table view
+		var data = [
+			{title:'Platform Data',hasChild:true},
+			{title:'App Data',hasChild:true},
+			{title:'Properties',hasChild:true},
+			{title:'Database',hasChild:true},
+			{title:'Network',hasChild:true}
+			
+		];
+
+		// create a table view
+		Titanium.UI.createTableView('table',data,function(index)
+		{
+			switch(index)
+			{
+				case 0:
+				{
+					platform();
+					break;
+				}
+				case 1:
+				{
+					app();
+					break;
+				}
+				case 2:
+				{
+					properties();
+					break;
+				}
+				case 3:
+				{
+					db();
+					break;
+				}
+				case 4:
+				{
+					network();
+					break;
+				}
+
+			}
+
+			function network()
+			{
+				var win = Titanium.UI.createWindow();
+				win.setURL('network.html');
+				win.open({animate:true});
+			};
+			function properties()
+			{
+				var win = Titanium.UI.createWindow();
+				win.setURL('properties.html');
+				win.open({animate:true});
+			};
+			function db()
+			{
+				var win = Titanium.UI.createWindow();
+				win.setURL('db.html');
+				win.open({animate:true});
+			};
+			function platform()
+			{
+				var win = Titanium.UI.createWindow();
+				win.setURL('platform.html');
+				win.open({animate:true});
+			};
+			function app()
+			{
+				var win = Titanium.UI.createWindow();
+				win.setURL('app.html');
+				win.open({animate:true});
+			};
+		
+		});
+	
+	};
+	</script>
+</head>
+<body>
+	<div id="table"></div>
+</body>
+</html>

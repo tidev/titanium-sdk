@@ -1,0 +1,43 @@
+<html>
+	<head>
+		<title>Properties</title>
+		<script type="text/javascript" src="tiui/js/tiui.js"></script>
+
+		<link href="tiui/css/tiui.css" rel="stylesheet" type="text/css">
+
+		
+	</head>
+	<body>
+		<div id="text" style="margin:10px">Table of Properties</div>
+		<div id="properties">
+		</div>
+
+		<script>
+
+
+		Titanium.App.Properties.setString('string','i am a string');
+		Titanium.App.Properties.setInt('int',1);
+		Titanium.App.Properties.setBool('bool',false);
+		Titanium.App.Properties.setDouble('double',125.12);
+
+		Titanium.UI.ready = function()
+		{
+			Titanium.UI.createTextElement('text',true);
+
+			Titanium.UI.setPropertyBackground();
+
+			var data= [
+				{title:'Bool (false)',type:'readonly',value:Titanium.App.Properties.getBool('bool'), id:'bool'},
+				{title:'Int (1)',type:'readonly',value:Titanium.App.Properties.getInt('int'), id:'int'},
+				{title:'Double (125.12)',type:'readonly',value:Titanium.App.Properties.getDouble('double'), id:'double'},
+				{title:'String (i am a string)',type:'readonly',value:Titanium.App.Properties.getString('string'), id:'string'}
+			
+			];
+			Titanium.UI.createGroupedView('properties','input',data,function(index)
+			{
+			});
+		};
+		</script>
+
+	</body>
+</html>

@@ -1,0 +1,38 @@
+<html>
+<head>
+  <title>Window</title>
+  <script>
+	var listenerId = -1;
+	var errorId = -1;
+
+	var sound = null;
+	window.onload = function() {
+		sound = Titanium.Media.createSound("cricket.wav");
+		listenerId = sound.addEventListener("complete", function() {
+			alert("Audio completed");
+			sound.removeEventListener('complete', listenerId);
+			sound.removeEventListener('error', errorId);
+			sound = null;
+		});
+		errorId = sound.addEventListener("error", function(err) {
+			sound.removeEventListener('complete', listenerId);
+			sound.removeEventListener('error', errorId);
+			sound = null;
+
+			var dlg = Titanium.UI.createAlertDialog({
+				'title' : 'Media Error',
+				'message' : err.message,
+				'buttonNames' : [ 'OK' ]
+			});
+			dlg.show();
+		});
+
+		sound.play();
+	};
+
+  </script>
+</head>
+<body style="background-color: white;">
+Sound on Load<br/>
+</body>
+</html>

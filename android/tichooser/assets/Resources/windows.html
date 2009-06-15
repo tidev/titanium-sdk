@@ -1,0 +1,38 @@
+<html>
+<head>
+  <title>Window</title>
+  <script>
+  window.onload = function()
+  {
+		menu = Titanium.UI.createMenu();
+		menu.addItem("Add", function() {alert("ADDING");} , Titanium.UI.Android.SystemIcon.ADD);
+		menu.addItem("Action", function() {alert("ACTION");}, Titanium.UI.Android.SystemIcon.ACTION);
+		Titanium.UI.setMenu(menu);
+
+		var w = Titanium.UI.currentWindow;
+		w.addEventListener("focused", function(e) {
+			alert("FOCUSED: " + e.type);
+			Titanium.Media.vibrate();
+			document.getElementById('event').innerHTML = 'FOCUSED: ' + e.type;
+			 });
+		w.addEventListener("unfocused", function(e) { alert("UNFOCUSED" + e.type);});
+  }
+
+  function doProgress() {
+	  var w = Titanium.UI.createWindow();
+	  w.setTitle("Progress");
+	  w.setURL("progress.html");
+	  w.setType("single");
+	  w.setTitleImage('images/refresh.png');
+	  w.setFullscreen(false);
+
+	  w.open();
+  }
+  </script>
+</head>
+<body style="background-color: white;">
+Content Chooser<br/>
+<a href="#" onclick='doProgress(); return false;'>Progress</a><br/>
+<div id="event" />
+</body>
+</html>

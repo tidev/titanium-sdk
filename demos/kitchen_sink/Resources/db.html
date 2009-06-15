@@ -1,0 +1,88 @@
+<html>
+	<head>
+		<title>Database</title>
+		<script type="text/javascript" src="tiui/js/tiui.js"></script>
+
+		<link href="tiui/css/tiui.css" rel="stylesheet" type="text/css">
+
+
+	</head>
+	<body>
+		<div id="text1" style="margin:10px">Add or Remove DB Rows</div>
+		<div id="add"></div>
+		<div id="remove"></div>
+		<div id="text2" style="margin:10px">Data Rows</div>
+		<div id="data"></div>
+
+		<script>
+		Titanium.UI.ready = function()
+		{
+			Titanium.UI.setPropertyBackground();
+			Titanium.UI.createTextElement('text2',true);
+			Titanium.UI.createTextElement('text1',true);
+
+			var b1= [
+				{title:'Add Row'}
+			];
+			var b2= [
+				{title:'Remove Row'}
+			];
+			var data= [
+				{title:'Row',type:'readonly',value:'apples'},
+				{title:'Row',type:'readonly',value:'oranges'},
+				{title:'Row',type:'readonly',value:'pears'},
+				{title:'Row',type:'readonly',value:'plums'}
+			];
+
+			var rowcount = 1;
+			var db = Titanium.Database.open('demo');
+			db.execute('CREATE TABLE IF NOT EXISTS DATAROWS (ID INTEGER, TITLE VARCHAR(20), VALUE VACHAR(20))');
+			db.execute('DELETE FROM DATAROWS');
+			for (var i=0;i<4;i++)
+			{
+				var x = db.execute('INSERT INTO DATAROWS (ID, TITLE, VALUE) VALUES (?,?,?)',rowcount,'Row',data[i].value);
+				rowcount++;
+			}
+
+			Titanium.UI.createGroupedView('add','button',b1,function(index)
+			{
+				db.execute('INSERT INTO DATAROWS (ID, TITLE, VALUE) VALUES(?,?,?)',rowcount,'Row','new row ' + rowcount);
+				rowcount++;
+				repaintTable();
+			});
+			Titanium.UI.createGroupedView('remove','button',b2,function(index)
+			{
+				rowcount--;
+				db.execute('DELETE FROM DATAROWS WHERE ID = ?',rowcount);
+				repaintTable();
+			});
+			function repaintTable()
+			{
+				var rows = db.execute('SELECT TITLE, VALUE FROM DATAROWS');
+				var d = [];
+				for (var i=0;i<rows.rowCount();i++)
+				{
+					var title = rows.fieldByName('title');
+
+					var value = rows.fieldByName('value');
+					d.push({title:title,type:'readonly',value:value});
+					rows.next();
+				}
+				rows.close();
+
+				Titanium.UI.createGroupedView('data','input',d,function(index)
+				{
+
+				});
+			};
+
+			repaintTable();
+
+
+
+
+		};
+		</script>
+
+	</body>
+</html>

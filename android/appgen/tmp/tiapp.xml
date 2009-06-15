@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:app xmlns:ti="http://ti.appcelerator.org" xmlns:appc="http://www.appcelerator.org">
+    <id>com.appcelerator.tidev</id>
+    <title>Titanium Developer</title>
+    <version>0.1</version>
+    <icon>/images/app.png</icon>
+    <windows>
+        <window>
+            <id>initial</id>
+             <title>Titanium Mobile Developer</title>
+            <url>/index.html</url>
+            <type>tabbed</type>
+            <references>
+                <ref>community</ref>
+                <ref>apps</ref>
+                <ref>profile</ref>
+            </references>
+        </window>
+        <window>
+            <id>community</id>
+            <title>Community</title>
+            <url>/community.html</url>
+            <type>single</type>
+            <icon>/images/community.png</icon>
+        </window>
+		<window>
+            <id>apps</id>
+            <title>Applications</title>
+            <url>/apps.html</url>
+            <type>single</type>
+            <icon>/images/apps.png</icon>
+        </window>
+        <window>
+            <id>profile</id>
+            <title>Profile</title>
+            <url>/profile.html</url>
+            <type>single</type>
+            <icon>/images/profile.png</icon>
+        </window>
+        <window>
+            <id>app</id>
+            <title>App Info</title>
+            <url>app.html</url>
+            <type>single</type>
+            <size>fullscreen</size>
+        </window>
+        <window>
+            <id>credentials</id>
+            <title>Titanium Credentials</title>
+            <url>login.html</url>
+            <type>dialog</type>
+        </window>
+    </windows>
+</ti:app>

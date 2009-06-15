@@ -1,0 +1,209 @@
+<html>
+<head>
+<title>Titanium Sound Unit Tests</title>
+<style>body{background-color:#fff;margin-top:20px;font-size:11px} .passed{color:#090} .failed{color:#900} #summary{margin:0;margin-bottom:10px;padding:10px;border-bottom:1px solid #bbb;font-size:18px;} h1 {margin-bottom:0}</style>
+<meta name="viewport" content="width=device-width" />
+<script>
+	function $(id)
+	{
+		return document.getElementById(id);
+	}
+	window.onload = function()
+	{
+		var activeSound = null;
+		$('beep').onclick = function()
+		{
+			Titanium.Media.beep();
+		};
+		$('vibrate').onclick = function()
+		{
+			Titanium.Media.vibrate();
+		};
+		$('pause').onclick = function()
+		{
+			if (activeSound)
+			{
+				activeSound.pause();
+			}
+		};
+		$('resume').onclick = function()
+		{
+			if (activeSound)
+			{
+				activeSound.resume();
+			}
+		};
+		$('reset').onclick = function()
+		{
+			if (activeSound)
+			{
+				activeSound.reset();
+				$('sound').removeAttribute('disabled');
+				activeSound = null;
+			}
+		};
+		$('sound').onclick = function()
+		{
+			$('sound').setAttribute('disabled','true');
+			activeSound = Titanium.Media.createSound('sound.wav');
+			activeSound.addEventListener('complete',function()
+			{
+				$('sound').removeAttribute('disabled');
+				activeSound=null;
+			});
+			activeSound.play();
+		};
+		
+		var activeSong = Titanium.Media.createSound('song.mp3');
+		$('song').onclick = function()
+		{	activeSong.play();	};
+
+		$('stop').onclick = function()
+		{	activeSong.stop();	};
+
+		$('louder').onclick = function()
+		{	activeSong.setVolume(1.0);	};
+
+		$('softer').onclick = function()
+		{	activeSong.setVolume(0.0);	};
+
+		var activeMovie = Titanium.Media.createVideoPlayer({contentURL:'movie.m4v',
+				backgroundColor:'black', //movieControlMode:Titanium.Media.VIDEO_CONTROL_HIDDEN,
+				scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL,initialPlaybackTime:0});
+		$('stopMovie').onclick = function()
+		{
+			if (activeMovie)
+			{
+				activeMovie.stop();
+				//activeMovie = null;
+			}
+		};
+		$('movie').onclick = function()
+		{
+			activeMovie.stop();
+			activeMovie.play();
+		};
+
+		var movieSnippetThing = Titanium.Media.createVideoPlayer({contentURL:'movie.m4v',
+			backgroundColor:'red',movieControlMode:Titanium.Media.VIDEO_CONTROL_HIDDEN,
+			scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL});
+
+		$('movieSnippet').onclick = function()
+		{
+			movieSnippetThing.play();
+			setTimeout("doStopSnippet()",10000);
+		};
+		doStopSnippet = function()
+		{
+			movieSnippetThing.stop();
+		};
+
+
+		var lastPhoto = null;
+		$('camera').onclick = function()
+		{
+			try{alert('We got: ' + Titanium.Media.showCamera({success:function(blob,details){
+					$('outputImage').innerHTML = "<img src='" + blob.url + "'>";
+					lastPhoto = blob;
+				}, cancel:function(){
+					$('outputImage').innerHTML = '<B>Cancelled</B>';
+				}, error:function(Error){
+					if (Error.code == Titanium.Media.NO_CAMERA){
+						$('outputImage').innerHTML ='<B>No camera!</b>';
+					} else {
+						$('outputImage').innerHTML ='<B>Error:</b> ' + Error.code;
+					}
+				}}));
+			}catch(E){alert('Exception:'+E);}
+		};
+
+		$('photos').onclick = function()
+		{
+			try{alert('We got: ' + Titanium.Media.openPhotoGallery({success:function(blob,details){
+					$('outputImage').innerHTML = "<img src='" + blob.url + "'>";
+					lastPhoto = blob;
+				}, cancel:function(){
+					$('outputImage').innerHTML = '<B>Cancelled</B>';
+				}, error:function(Error){
+					$('outputImage').innerHTML ='<B>Error:</b> ' + Error.code;
+				},allowImageEditing:true,animated:false}));
+			}catch(E){alert('Exception:'+E);}
+		};
+
+		$('savePhoto').onclick = function()
+		{
+			try{
+				if (lastPhoto == null)return;
+				var ourDB = Ti.Database.open('images');
+				ourDB.execute('CREATE TABLE IF NOT EXISTS recents (image BLOB)');
+				ourDB.execute('INSERT INTO recents (image) VALUES (?)',lastPhoto);
+				ourDB.close();
+			}catch(E){alert('Exception:'+E);}
+		};
+		
+		$('loadPhotos').onclick = function()
+		{
+			try{
+				var ourDB = Ti.Database.open('images');
+				ourDB.execute('CREATE TABLE IF NOT EXISTS recents (image BLOB)');
+				var ourSearch = ourDB.execute('SELECT image FROM recents');
+				var result = 'Database storage:'
+				while (ourSearch.isValidRow()){
+					var image = ourSearch.getField(0);
+					result = result + '<br><img src="' + image.url + '">'
+				
+					ourSearch.next();
+				}
+				ourSearch.close();
+				ourDB.close();
+				$('outputImage').innerHTML = result;
+			}catch(E){alert('Exception:'+E);}
+		};
+		Ti.UI.currentWindow.setBarColor('black');
+
+	};
+</script>
+</head>
+<body>
+
+<div class="test">
+	<h2>Titanium.Media.beep()</h2>
+	<button id="beep">Test Beep</button>
+</div>
+
+<div class="test">
+	<h2>Titanium.Media.vibrate()</h2>
+	<button id="vibrate">Test Vibrate</button>
+</div>
+
+<div class="test">
+	<h2>Titanium.Media.createSound()</h2>
+	<button id="sound">Play Sound</button>
+	<button id="pause">Pause Sound</button> 
+	<button id="resume">Resume Sound</button>
+	<button id="reset">Reset Sound</button>
+	<hr>
+	<button id="song">Play Song</button>
+	<button id="stop">Stop Song</button> 
+	<button id="louder">Vol up</button>
+	<button id="softer">Vol down</button>
+</div>
+
+<div class="test">
+	<h2>Titanium.Media.createMoviePlayer()</h2>
+	<button id="movie">Play Movie</button>
+	<button id="stopMovie">Stop Movie</button> 
+	<button id="movieSnippet">Play Movie Snippet</button> 
+</div>
+
+<div class="test">
+	<h2>Titanium.Media.Camera</h2>
+	<button id="camera">Camera</button>
+	<button id="photos">Image List</button> 
+	<button id="savePhoto">Save</button>
+	<button id="loadPhotos">Load</button> 
+	<div id='outputImage'></div>
+</div>
+
+</body>
+</html>

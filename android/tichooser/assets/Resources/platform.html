@@ -1,0 +1,35 @@
+<html>
+<head>
+  <title>Window</title>
+  <script>
+
+  window.onload = function() {
+
+	  var p = Titanium.Platform;
+
+	  var html = "<h3>Platform</h3>\n";
+
+	  html += "ostype: " + p.ostype + "<br />\n";
+	  html += "name: " + p.name + "<br />\n";
+	  html += "version: " + p.version + "<br />\n";
+	  html += "architecture: " + p.architecture + "<br />\n";
+	  html += "address: " + p.address + "<br />\n";
+	  html += "id: " + p.id + "<br />\n";
+	  html += "macaddress: " + p.macaddress + "<br />\n";
+	  html += "processorCount: " + p.processorCount + "<br />\n";
+	  html += "username: " + p.username + "<br />\n";
+	  html += "createUUID: " + p.createUUID() + "<br />\n";
+	  html += "availableMemory: " + p.availableMemory + "<br />\n";
+	  html += "phoneNumber: " + p.phoneNumber + "<br />\n";
+
+	  document.getElementById("platform").innerHTML = html;
+  }
+
+  </script>
+</head>
+<body style="background-color: white;">
+Content<br/>
+	<div id="platform">
+	</div>
+</body>
+</html>

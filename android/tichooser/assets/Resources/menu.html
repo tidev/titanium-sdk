@@ -1,0 +1,31 @@
+<html>
+<head>
+  <title>Window</title>
+  <script>
+   window.onload = function()
+  {
+	   var menu = Titanium.UI.createMenu();
+
+		menu.addItem("Google", function() {
+			Titanium.Platform.openURL('http://google.com');
+			} , Titanium.UI.Android.SystemIcon.ADD);
+		menu.addItem("Yahoo", function() {
+			Titanium.Platform.openURL('http://yahoo.com');
+			}, 'images/refresh.png');
+		Titanium.UI.setMenu(menu);
+
+		var w = Titanium.UI.currentWindow;
+		w.addEventListener("focused", function(e) {
+			alert("FOCUSED: " + e.type);
+			Titanium.Media.vibrate();
+			document.getElementById('event').innerHTML = 'FOCUSED: ' + e.type;
+			 });
+		w.addEventListener("unfocused", function(e) { alert("UNFOCUSED" + e.type);});
+  }
+  </script>
+</head>
+<body style="background-color: white;">
+Menu Test. Use option menu to launch stuff.<br/>
+<div id="event" />
+</body>
+</html>

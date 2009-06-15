@@ -1,0 +1,72 @@
+<html>
+	<head>
+		<title>Alert</title>
+		<script type="text/javascript" src="tiui/js/tiui.js"></script>
+
+		<link href="tiui/css/tiui.css" rel="stylesheet" type="text/css">
+
+
+	</head>
+	<body>
+		<div id="alert_1"></div>
+		<div id="alert_2"></div>
+		<div id="alert_3"></div>
+
+		<script>
+
+		Titanium.UI.ready = function()
+		{
+			Titanium.UI.setPropertyBackground();
+
+			var b1= [
+				{title:'alert one'}
+			];
+			var b2= [
+				{title:'alert two'}
+			];
+			var b3= [
+				{title:'alert three'}
+			];
+
+			var a = Titanium.UI.createAlert();
+			var c = Titanium.UI.createAlert();
+
+			Titanium.UI.createGroupedView('alert_1','button',b1,function(index)
+			{
+				a.setTitle('Title 1');
+				a.setMessage('this is message one');
+				a.setButtonNames(['OK','Cancel']);
+				a.show();
+			});
+			Titanium.UI.createGroupedView('alert_2','button',b2,function(index)
+			{
+				a.setTitle('Title 2');
+				a.setMessage('this is message two');
+				a.setButtonNames(['One','Two','Three']);
+				a.show();
+			});
+			Titanium.UI.createGroupedView('alert_3','button',b3,function(index)
+			{
+				c.setTitle('Title 3');
+				c.setMessage('this is message three');
+				c.setButtonNames(['One','Two','Three', 'Four']);
+				c.show();
+
+			});
+
+			c.addEventListener('click',function(e)
+			{
+				var idx = e.index;
+				var text = (idx==0)?'One':(idx==1)?'Two':(idx==2)?'Three':'Four';
+				a.setTitle('Listener');
+				a.setButtonNames(['OK']);
+				a.setMessage('You clicked ' + text);
+				a.show();
+			})
+
+
+		};
+		</script>
+
+	</body>
+</html>

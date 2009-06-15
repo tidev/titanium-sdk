@@ -1,0 +1,78 @@
+<html>
+<head>
+<title>Titanium Sound Unit Tests</title>
+<style>body{background-color:#fff;margin-top:20px;font-size:11px} .passed{color:#090} .failed{color:#900} #summary{margin:0;margin-bottom:10px;padding:10px;border-bottom:1px solid #bbb;font-size:18px;} h1 {margin-bottom:0}</style>
+<meta name="viewport" content="width=device-width" />
+<script>
+	function $(id)
+	{
+		return document.getElementById(id);
+	}
+	window.onload = function()
+	{
+		try{
+		var btn1 = Ti.UI.createButton('yum');
+		btn1.style = Ti.UI.iPhone.SystemButtonStyle.BORDERED;
+		btn1.width = 50;
+//		btn1.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'green'});newWindow.open();})
+		btn1.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'rgba(0,255,0,1.0)'});newWindow.open();})
+//		Ti.UI.currentWindow.setRightNavButton(btn1);
+		var btn2 = Ti.UI.createButton('play');
+		var btn3 = Ti.UI.createButton('pause');
+//		btn2.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'black'});newWindow.open();})
+		btn2.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'rgb(0,0,0)',hideNavBar:true});newWindow.open();})
+		btn3.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'clear'});newWindow.open();})
+		var btn4 = Ti.UI.createButton('action');
+		btn4.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:null});newWindow.open();})
+
+		var btn5 = Ti.UI.createButton('Moo');
+		btn5.addEventListener('click',function(){Ti.UI.currentWindow.setFullscreen(true);});
+
+		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5]);
+		
+		Titanium.Gesture.addEventListener('shake',function(){
+			var alerty = Titanium.UI.createAlertDialog();
+			alerty.setTitle("Not stirred!");
+			alerty.show();
+		},false);
+
+		Titanium.Gesture.addEventListener('orientationchange',function(evt){
+			var alerty = Titanium.UI.createAlertDialog();
+			alerty.setTitle("Woah!");
+//			alerty.setMessage('Tilty!');
+			alerty.setMessage('We went from ' + evt.from + ' to ' + evt.to +
+				', which is landscape?' + Ti.Gesture.isLandscape(evt.to) +
+				', or Portrait?' + Ti.Gesture.isPortrait(evt.to));
+
+			alerty.show();
+		},false);
+
+		Ti.UI.currentWindow.addEventListener('focused',function(evt){Ti.API.info('Focused!')});
+		Ti.UI.currentWindow.addEventListener('unfocused',function(evt){Ti.API.info('Unfocused!')});
+
+		}catch(E){var alerty=Titanium.UI.createAlertDialog();alerty.setMessage(E);alerty.show();}
+
+
+
+	};
+//	alert('Orientation:' + window.orientation);
+</script>
+</head>
+<body>
+	<button onclick="Ti.UI.currentWindow.close()">Close window</button>
+
+	<button onclick="alert('Testing')">Alert</button>
+	<button onclick="try{var ourAlert=Ti.UI.createAlertDialog({message:'foo'});ourAlert.show();}catch(E){alert('E:'+E)}">Alert</button>
+
+	<hr>
+	Landscape: <script>document.write(Ti.Gesture.LANDSCAPE);</script><br>
+	isLandscape: <script>document.write(Ti.Gesture.isLandscape(Ti.Gesture.LANDSCAPE_LEFT));</script><br>
+	1&1: <script>document.write(1 & 1);</script><br>
+	Landscape: <script>document.write(Ti.Gesture.LANDSCAPE);</script><br>
+	Landscape: <script>document.write(Ti.Gesture.LANDSCAPE);</script><br>
+	Landscape: <script>document.write(Ti.UI.LANDSCAPE);</script><br>
+
+	<a href="tel:1234567">Call me</a>
+	<a href="tel:1234567">Call me</a>
+</body>
+</html>

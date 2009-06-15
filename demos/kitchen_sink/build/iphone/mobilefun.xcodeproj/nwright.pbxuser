@@ -1,0 +1,148 @@
+// !$*UTF8*$!
+{
+	1D6058900D05DD3D006BFB54 /* mobilefun */ = {
+		activeExec = 0;
+		executables = (
+			255183250FCF917B00744591 /* mobilefun */,
+		);
+	};
+	255183250FCF917B00744591 /* mobilefun */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 0;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = mobilefun;
+		sourceDirectories = (
+		);
+	};
+	255183C60FCF919B00744591 /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+		};
+	};
+	255183C70FCF919B00744591 /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	2554065C0FD5F059001F3478 /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 8D1107310486CEB800E47090 /* Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = /Users/nwright/Appcelerator/aluminum/demos/kitchen_sink/build/iphone/Info.plist;
+		rLen = 0;
+		rLoc = 2147483647;
+	};
+	2554065E0FD5F059001F3478 /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 2418F5910FCB9EB100BFE545 /* tiapp.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = /Users/nwright/Appcelerator/aluminum/demos/kitchen_sink/build/iphone/Resources/tiapp.plist;
+		rLen = 0;
+		rLoc = 2147483647;
+	};
+	2554065F0FD5F059001F3478 /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 8D1107310486CEB800E47090 /* Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = /Users/nwright/Appcelerator/aluminum/demos/kitchen_sink/build/iphone/Info.plist;
+		rLen = 0;
+		rLoc = 2147483647;
+	};
+	25AEC0230FD99994006E7F8B /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 2418F5910FCB9EB100BFE545 /* tiapp.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = /Users/nwright/Appcelerator/aluminum/demos/kitchen_sink/build/iphone/Resources/tiapp.plist;
+		rLen = 0;
+		rLoc = 2147483647;
+	};
+	25AEC15A0FD9F064006E7F8B /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 2418F5910FCB9EB100BFE545 /* tiapp.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = /Users/nwright/Appcelerator/aluminum/demos/kitchen_sink/build/iphone/Resources/tiapp.plist;
+		rLen = 0;
+		rLoc = 2147483647;
+	};
+	29B97313FDCFA39411CA2CEA /* Project object */ = {
+		activeBuildConfigurationName = Debug;
+		activeExecutable = 255183250FCF917B00744591 /* mobilefun */;
+		activeSDKPreference = iphonesimulator3.0;
+		activeTarget = 1D6058900D05DD3D006BFB54 /* mobilefun */;
+		addToTargets = (
+			1D6058900D05DD3D006BFB54 /* mobilefun */,
+		);
+		codeSenseManager = 255183C70FCF919B00744591 /* Code sense */;
+		executables = (
+			255183250FCF917B00744591 /* mobilefun */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					341,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 265918871;
+			PBXWorkspaceStateSaveDate = 265918871;
+		};
+		perUserProjectItems = {
+			2554065C0FD5F059001F3478 /* PlistBookmark */ = 2554065C0FD5F059001F3478 /* PlistBookmark */;
+			2554065E0FD5F059001F3478 /* PlistBookmark */ = 2554065E0FD5F059001F3478 /* PlistBookmark */;
+			2554065F0FD5F059001F3478 /* PlistBookmark */ = 2554065F0FD5F059001F3478 /* PlistBookmark */;
+			25AEC0230FD99994006E7F8B /* PlistBookmark */ = 25AEC0230FD99994006E7F8B /* PlistBookmark */;
+			25AEC15A0FD9F064006E7F8B /* PlistBookmark */ = 25AEC15A0FD9F064006E7F8B /* PlistBookmark */;
+		};
+		sourceControlManager = 255183C60FCF919B00744591 /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+}

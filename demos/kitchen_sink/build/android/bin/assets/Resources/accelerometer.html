@@ -1,0 +1,39 @@
+<html>
+	<head>
+		<title>Accelerometer</title>
+		<script type="text/javascript" src="tiui/js/tiui.js"></script>
+		<link href="tiui/css/tiui.css" rel="stylesheet" type="text/css">
+	</head>
+	<body>
+		<div id="text" style="margin:10px">Accelerometer Data</div>
+		<div id="accelerometer">
+		</div>
+
+		<script>
+
+		Titanium.UI.ready = function()
+		{
+			Titanium.UI.createTextElement('text',true);
+			Titanium.UI.setPropertyBackground();
+			var data= [
+				{title:'X',type:'readonly',value:'-',id:'x'},
+				{title:'Y',type:'readonly',value:'-',id:'y'},
+				{title:'Z',type:'readonly',value:'-',id:'z'}
+			];
+			Titanium.UI.createGroupedView('accelerometer','input',data,function(index)
+			{
+			});
+
+			Titanium.Accelerometer.addEventListener('update',function(e)
+			{
+			 	document.getElementById('x').innerHTML = e.x;
+				document.getElementById('y').innerHTML = e.y;
+				document.getElementById('z').innerHTML = e.z
+
+			});
+
+		};
+		</script>
+
+	</body>
+</html>

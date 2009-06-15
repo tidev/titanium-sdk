@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/background"
+    >
+
+<TextView
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/launch_description_1"
+	android:paddingTop = "20dip"
+	android:paddingBottom = "20dip"
+	android:paddingLeft="10dip"
+	android:paddingRight="10dip"
+	android:textSize="24sp"
+	android:textStyle="bold"
+	android:gravity="center_horizontal"
+    />
+
+<ProgressBar
+	android:id="@+id/launch_progress"
+	style="?android:attr/progressBarStyleHorizontal"
+
+	android:max="100"
+
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:paddingTop = "10dip"
+	android:paddingBottom = "10dip"
+	android:paddingLeft="30dip"
+	android:paddingRight="30dip"
+/>
+<TextView
+	android:id="@+id/progress_message"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:text=""
+	android:paddingTop = "10dip"
+	android:paddingBottom = "10dip"
+	android:paddingLeft="30dip"
+	android:paddingRight="30dip"
+	android:textSize="15sp"
+	android:gravity="left"
+/>
+
+<TextView
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/launch_description_2"
+	android:paddingTop = "20dip"
+	android:paddingBottom = "20dip"
+	android:paddingLeft="10dip"
+	android:paddingRight="10dip"
+	android:textSize="18sp"
+	android:gravity="center_horizontal"
+    />
+
+</LinearLayout>

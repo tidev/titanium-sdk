@@ -1,0 +1,47 @@
+<html>
+	<head>
+		<title>Platform Data</title>
+		<script type="text/javascript" src="tiui/js/tiui.js"></script>
+
+		<link href="tiui/css/tiui.css" rel="stylesheet" type="text/css">
+
+
+	</head>
+	<body>
+		<div id="platform">
+		</div>
+
+		<script>
+
+		Titanium.UI.ready = function()
+		{
+			Titanium.UI.setPropertyBackground();
+			var platformId = Titanium.Platform.id;
+			if (platformId.length > 20) {
+				platformId = platformId.substring(0,20) + '...';
+			}
+
+			var data= [
+			{title:'Online',type:'readonly',value:Titanium.Network.online, id:'online'},
+			{title:'Network Type',type:'readonly',value:Titanium.Network.networkType, id:'type'},
+
+			{title:'Name',type:'readonly', value:Titanium.Platform.name,id:'name'},
+			{title:'Version',type:'readonly', value:Titanium.Platform.version,id:'version'},
+			{title:'Architecture',type:'readonly', value:Titanium.Platform.architecture,id:'architecture'},
+			{title:'Model',type:'readonly', value:Titanium.Platform.model,id:'model'},
+			{title:'Mac Address',type:'readonly', value:Titanium.Platform.macaddress,id:'macaddress'},
+			{title:'Address',type:'readonly', value:Titanium.Platform.address,id:'address'},
+			{title:'Phone Number',type:'readonly', value:Titanium.Platform.phoneNumber,id:'phoneNumber'},
+			{title:'Processor Count',type:'readonly', value:Titanium.Platform.processorCount,id:'processorCount'},
+			{title:'User',type:'readonly', value:Titanium.Platform.username,id:'username'},
+			{title:'ID',type:'readonly', value:platformId ,id:'id'}
+
+			];
+			Titanium.UI.createGroupedView('platform','input',data,function(index)
+			{
+			});
+		};
+		</script>
+
+	</body>
+</html>

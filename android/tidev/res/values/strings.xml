@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, TitaniumDeveloperActivity</string>
+    <string name="app_name">Titanium Developer</string>
+    <string name="launch_title">Titanium Developer Embedded Launcher</string>
+    <string name="launch_description_1">Downloading Application</string>
+    <string name="launch_description_2">The application will be launched after it has been installed.</string>
+</resources>

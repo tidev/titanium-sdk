@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:app xmlns:ti="http://ti.appcelerator.org" xmlns:appc="http://www.appcelerator.org">
+    <id>com.appcelerator.tichooser</id>
+    <name>Titanium TestBed</name>
+    <version>0.1</version>
+    <icon>/images/app.png</icon>
+    <persistent-wifi>false</persistent-wifi>
+	<prerendered-icon>false</prerendered-icon>
+	<statusbar-style>opaque</statusbar-style>
+    <windows>
+        <window>
+            <id>initial</id>
+            <title>Titanium Connectivity</title>
+            <url>menu.html</url>
+            <type>single</type>
+            <fullscreen>false</fullscreen>
+            <backgroundColor>argb(0,255,255,255)</backgroundColor>
+            <barColor>#000</barColor>
+        </window>
+    </windows>
+    <property name="ti.android.flushjscache" type="bool">true</property>
+    <property name="ti.android.minifyjs" type="bool">false</property>
+    <property name="ti.android.watchlog" type="bool">false</property>
+    <!-- ti.deploytype will be set by the development toolkit -->
+    <property name="ti.deploytype">development</property>
+</ti:app>

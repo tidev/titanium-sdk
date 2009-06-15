@@ -1,0 +1,321 @@
+/*****************************
+ * element styles
+ *****************************/
+body
+{
+	font-family:"Helvetica Neue";
+	overflow:auto;
+	height:100%;
+	margin:0;
+}
+
+input[type=text], input[type=password]
+{
+	background:url(../images/input.png) no-repeat stretch;
+	border:none;
+	font-size:15px;
+}
+select
+{
+	font-size:15px;
+}
+
+/*****************************
+ * notification
+ *****************************/
+.iPhone .notification, .android .notification
+{
+	color:#fff;
+	position:fixed;
+	bottom:0px;
+	width:320px;
+	opacity:0.95;
+	right:0px;
+
+}
+.iPhone .notification div,.android .notification div
+{
+	-webkit-transition-property: height;
+	-webkit-transition-duration: 400ms;
+}
+/*****************************
+ * activity indicator
+ *****************************/
+.iPhone .activity_indicator,.android .activity_indicator
+{
+	text-align:center;
+	color:#111;
+	font-size:16px;
+	vertical-align:middle;
+	height:30px;
+	width:320px;
+	height:480px;
+	line-height:30px;
+	background-color:#fff;
+	position:absolute;
+	top:0px;
+	margin-left:auto;
+	margin-right:auto;
+	z-index:1000;
+
+}
+.iPhone .activity_indicator div,.android .activity_indicator div
+{
+
+	text-align:center;
+	position:relative;
+}
+
+/*****************************
+ * system property background
+ *****************************/
+.iPhone.property_background,.android.property_background
+{
+	background:url(../images/stripes.png) repeat-y;
+}
+
+/*****************************
+ * progress bar
+ *****************************/
+.iPhone .progress_bar,.android .progress_bar
+{
+	background:url(../images/progress_container2.png) repeat-x;
+	position:relative;
+	height:12px;
+	z-index:1;
+	width:280px;
+}
+.iPhone .value,.android  .value
+{
+	background:url(../images/progress_bar2.png) repeat-x;
+	position:relative;
+	z-index:2;
+	height:12px;
+	width:0;
+	border-left:1px solid #5b90c5;
+	border-right:1px solid #5b90c5;
+}
+
+/*****************************
+ * label text
+ *****************************/
+.iPhone .label,.android .label
+{
+	color:#4c566c;
+	text-shadow: 1px 1px 1px #fff;
+	font-size:13px;
+
+}
+.iPhone .label.bold,.android .label.bold
+{
+	font-weight:bold;
+	font-size:16px;
+}
+
+/*****************************
+ * switcher
+ *****************************/
+.iPhone .switch_container,.android .switch_container
+{
+	width:94px;
+	overflow:hidden;
+	height:27px;
+}
+.iPhone .switch,.android .switch
+{
+	width:188px;
+	height:27px;
+	position:relative;
+	-webkit-transition-property: right;
+	-webkit-transition-duration: 250ms;
+}
+.iPhone .switch_on,.android .switch_on
+{
+	background:url(../images/switch_on_whole.png) no-repeat;
+	height:27px;
+	width:94px;
+	float:left;
+}
+.iPhone .switch_off,.android .switch_off
+{
+	background:url(../images/switch_off_whole.png) no-repeat;
+	height:27px;
+	width:94px;
+	float:left;
+}
+
+/*****************************
+ * Grouped View
+ *****************************/
+.iPhone .grouped_view,.android .grouped_view
+{
+	margin:10px;
+	background-color:#fff;
+	-webkit-border-top-right-radius: 10px;
+	-webkit-border-top-left-radius: 10px;
+	-webkit-border-bottom-right-radius: 10px;
+	-webkit-border-bottom-left-radius: 10px;
+}
+
+.iPhone .grouped_view .top,.android .grouped_view .top
+{
+	-webkit-border-top-right-radius: 10px;
+	-webkit-border-top-left-radius: 10px;
+	border-top:1px solid #adadad;
+	border-left:1px solid #adadad;
+	border-right:1px solid #adadad;
+
+}
+.iPhone .grouped_view .bottom,.android .grouped_view .bottom
+{
+	-webkit-border-bottom-right-radius: 10px;
+	-webkit-border-bottom-left-radius: 10px;
+	border-bottom:1px solid #adadad;
+	border-left:1px solid #adadad;
+	border-right:1px solid #adadad;
+}
+.iPhone .grouped_view .single_row,.android .grouped_view .single_row
+{
+	border:1px solid #adadad;
+	-webkit-border-bottom-right-radius: 10px;
+	-webkit-border-bottom-left-radius: 10px;
+	-webkit-border-top-right-radius: 10px;
+	-webkit-border-top-left-radius: 10px;
+
+}
+.iPhone .grouped_view .row,.android .grouped_view .row
+{
+	height:43px;
+	line-height:43px;
+	font-weight:bold;
+	border-bottom:1px solid #adadad;
+	padding-left:10px;
+	font-size:17px;
+	border-left:1px solid #adadad;
+	border-right:1px solid #adadad;
+	position:relative;
+	-webkit-transition-property: background-color;
+	-webkit-transition-duration: 350ms;
+}
+.iPhone  .grouped_view .row .input,.android .grouped_view .row .input
+{
+	position:absolute;
+	left:90px;
+	top:7px;
+}
+.iPhone  .grouped_view input[type=text],.android .grouped_view input[type=text]
+{
+	background-color:#fff;
+	color:#385487;
+	font-weight:normal;
+	-webkit-appearance: none;
+	-webkit-border-radius: 0 0;
+	font-size:15px;
+	border:none;
+}
+
+.iPhone .grouped_view .row .select,.android .grouped_view .row .select
+{
+	position:absolute;
+	right:5px;
+	color:#385487;
+	font-weight:normal;
+	background:url(../images/list_arrow.png) no-repeat  center right;
+}
+
+.iPhone .grouped_view .row .readonly,.android .grouped_view .row .readonly
+{
+	position:absolute;
+	right:10px;
+	color:#385487;
+	font-weight:normal;
+}
+
+.iPhone .grouped_view .row .active,.android .grouped_view .row .active
+{
+	color:#385487;
+}
+.iPhone .grouped_view .row .button,.android .grouped_view .row .button
+{
+	text-align:center;
+}
+
+.iPhone .grouped_view .row.row_click,.android .grouped_view .row.row_click
+{
+	background:#194fdb url(../images/selected_45.png) repeat-x;
+	color:#ffffff;
+	height:43px;
+
+}
+.iPhone .grouped_view .row .option_selected,.android .grouped_view .row .option_selected
+{
+	position:absolute;
+	right:10px;
+	top:12px;
+	height:15px;
+	width:15px;
+	background:url(../images/check_blue.png) no-repeat;
+}
+.iPhone .grouped_view .row .option_press_check,.android .grouped_view .row .option_press_check
+{
+	position:absolute;
+	right:10px;
+	top:12px;
+	height:15px;
+	width:15px;
+	background:url(../images/check_white.png) no-repeat;
+}
+.iPhone .grouped_view .row .option_press_text,.android .grouped_view .row .option_press_text
+{
+	color:#fff;
+}
+/*****************************
+ * Table View
+ *****************************/
+.iPhone .table_view,.android .table_view
+{
+	background-color:#fff;
+	height:43px;
+	border-bottom:1px solid #e0e0e0;
+	position:relative;
+	font-size:21px;
+	line-height:43px;
+	color:#000;
+	font-weight:bold;
+	padding-left:10px;
+}
+.iPhone .table_view .arrow,.android .table_view .arrow
+{
+	position:absolute;
+	right:10px;
+	top:16px;
+	height:13px;
+	width:9px;
+	background:url(../images/list_arrow.png) no-repeat;
+}
+.iPhone .table_view .arrow_touch,.android .table_view .arrow_touch
+{
+	position:absolute;
+	right:10px;
+	top:16px;
+	height:13px;
+	width:9px;
+	background:url(../images/list_arrow_white.png) no-repeat;
+
+}
+
+.iPhone .table_view .detail,.android .table_view .detail
+{
+	position:absolute;
+	right:0px;
+	top:8px;
+	height:29px;
+	width:31px;
+	background:url(../images/list_detail.jpg) no-repeat;
+}
+.iPhone .table_view.row_click,.android .table_view.row_click
+{
+	background:#194fdb url(../images/selected_45.png) repeat-x;
+	color:white;
+	height:43px;
+}

@@ -1,0 +1,45 @@
+<html>
+<head>
+	<title>Video</title>
+
+<script>
+	var listenerId = -1;
+
+	function textFor(orientation) {
+		var G = Titanium.Gesture;
+		switch (orientation) {
+		case G.PORTRAIT : return "Portrait (" + orientation + ")";
+		case G.UPSIDE_PORTRAIT : return "Upside Portrait (" + orientation + ")";
+		case G.LANDSCAPE :
+		case G.LANDSCAPE_LEFT : return "Landscape ( " + orientation + ")";
+		case G.LANDSCAPE_RIGHT : return "Landscape Right (" + orientation + ")";
+		default : return "Disoriented (" + orientation + ")";
+		}
+	}
+
+	function listen(enable) {
+		if (enable && listenerId == -1) {
+			listenerId = Titanium.Gesture.addEventListener("orientationchange", function(result) {
+				var msg = "from: " + textFor(result.from) + " to " + textFor(result.to);
+				document.getElementById("status").innerHTML = "Code: " + msg;
+			});
+		} else if (enable == false && listenerId != -1) {
+			Titanium.Gesture.removeEventListener("orientationchange", listenerId);
+			listenerId = -1;
+			document.getElementById("status").innerHTML = "Code: ";
+		}
+	}
+
+ </script>
+</head>
+<body>
+Orientation<br/>
+	<div>
+	  	<div style="clear: both; margin-bottom: 20px">
+	  		<input type="button" onclick="listen(true); return false;" value="Add"></input>
+	  		<input type="button" onclick="listen(false); return false;" value="Remove"></input>
+	  	</div>
+	</div>
+	<div id="status" />
+</body>
+</html>

@@ -1,0 +1,158 @@
+<html>
+<head>
+<title>Camera</title>
+<script>
+cameraHandler = {
+	success : function(img, details) {
+		alert("Width: " + img.width);
+		alert("Height: " + img.height);
+		alert("Url: " + img.url);
+		alert("obj: " + img.obj);
+
+		Titanium.Media.previewImage({
+			image : img,
+			success : function() {},
+			error : function(err) {
+				Titanium.UI.createAlertDialog({
+					title : "Preview Error",
+					message : transformObjectValue(err.message, "Unknown error."),
+					buttonNames : "OK"
+				}).show();
+			}
+		});
+	},
+	cancel : function() {
+	},
+	error : function(err) {
+		Titanium.UI.createAlertDialog({
+			title : "Camera Error",
+			message : transformObjectValue(err.message, "Unknown error."),
+			buttonNames : "OK"
+		}).show();
+	},
+	allowImageEditing:true
+};
+function takePhoto() {
+	document.getElementById("photo").src = null;
+	setTimeout(function (){Titanium.Media.showCamera(cameraHandler)}, 1000);
+}
+
+cameraHandler2 = {
+	success : function(img) {
+		alert("Width: " + img.width);
+		alert("Height: " + img.height);
+		alert("Url: " + img.url);
+		alert("obj: " + img.obj);
+
+		Titanium.Media.previewImage({
+			image : img,
+			success : function() {},
+			error : function(err) {
+				Titanium.UI.createAlertDialog({
+					title : "Preview Error",
+					message : transformObjectValue(err.message, "Unknown error."),
+					buttonNames : "OK"
+				}).show();
+			}
+		});
+	},
+	cancel : function() {
+	},
+	error : function(err) {
+		Titanium.UI.createAlertDialog({
+			title : "Camera Error",
+			message : transformObjectValue(err.message, "Unknown error."),
+			buttonNames : "OK"
+		}).show();
+	},
+	saveToPhotoGallery : true
+};
+
+function takePhotoForGallery() {
+	document.getElementById("photo").src = null;
+	setTimeout(function (){Titanium.Media.showCamera(cameraHandler2)}, 1000);
+}
+
+galleryHandler = {
+	success : function(img) {
+		var photo = document.getElementById("photo");
+		photo.onload = function() {
+			photo.width = 200;
+			photo.height = 200;
+		};
+
+		alert("Width: " + img.width);
+		alert("Height: " + img.height);
+
+		photo.src = img.url;
+	},
+	cancel : function() {
+	},
+	error : function(err) {
+		Titanium.UI.createAlertDialog({
+			title : "Gallery Error",
+			message : transformObjectValue(err.message, "Unknown error."),
+			buttonNames : "OK"
+		}).show();
+	}
+};
+
+function browsePhoto() {
+	setTimeout(function (){Titanium.Media.openPhotoGallery(galleryHandler)}, 1000);
+}
+
+viewHandler = {
+	success : function() {
+	},
+	error : function(err) {
+		Titanium.UI.createAlertDialog({
+			title : "View Error",
+			message : transformObjectValue(err.message, "Unknown error."),
+			buttonNames : "OK"
+		}).show();
+	}
+};
+
+function viewPhoto() {
+	var galleryHandler = {
+		success : function(img) {
+			alert("Width: " + img.width);
+			alert("Height: " + img.height);
+			alert("Url: " + img.url);
+			alert("obj: " + img.obj);
+
+			Titanium.Media.previewImage({
+				image : img,
+				success : function() {},
+				error : function(err) {
+					Titanium.UI.createAlertDialog({
+						title : "Preview Error",
+						message : transformObjectValue(err.message, "Unknown error."),
+						buttonNames : "OK"
+					}).show();
+				}
+			});
+		},
+		cancel : function() {
+		},
+		error : function(err) {
+			Titanium.UI.createAlertDialog({
+				title : "Gallery Error",
+				message : transformObjectValue(err.message, "Unknown error."),
+				buttonNames : "OK"
+			}).show();
+		}
+	};
+
+	Titanium.Media.openPhotoGallery(galleryHandler);
+}
+</script>
+<body>
+  	<div style="clear: both; margin-bottom: 20px">
+  		<input type="button" onclick="takePhoto(); return false;" value="Camera"></input>
+ 		<input type="button" onclick="takePhotoForGallery(); return false;" value="Camera(Gallery)"></input>
+  		<input type="button" onclick="browsePhoto(); return false;" value="Gallery"></input>
+  		<input type="button" onclick="viewPhoto(); return false;" value="View"></input>
+  	</div>
+  	<img id="photo" />
+</body>

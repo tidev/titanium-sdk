@@ -1,0 +1,30 @@
+<html>
+	<head>
+		<title>Activity Indicator</title>
+		<script type="text/javascript" src="tiui/js/tiui.js"></script>
+		<link href="tiui/css/tiui.css" rel="stylesheet" type="text/css">
+	</head>
+	<body style="background-color:#fff">
+
+		<script>
+//		Titanium.UI.ready = function()
+//		{
+//			var i = Titanium.UI.createActivityIndicator({message:'Loading....'});
+//			i.show();
+//			setTimeout(function() { i.hide();}, 5000);
+//		};
+        var ind = Titanium.UI.createActivityIndicator();
+        ind.setMessage('Loading...');
+        ind.setLocation(Titanium.UI.ActivityIndicator.DIALOG)
+        ind.setType(Titanium.UI.ActivityIndicator.DETERMINANT)
+        ind.show();
+
+        setTimeout(function()
+        {
+            alert("HIDE");
+                ind.hide();
+        },2000);
+		</script>
+
+	</body>
+</html>

@@ -1,0 +1,230 @@
+<html>
+<head>
+	<script>
+
+	var sound = null;
+	var listenerId = -1;
+	var errorId = -1;
+	var shakeId = -1;
+
+	var canPlay = true;
+
+	function allowPlay(allow) {
+		canPlay = allow;
+	};
+
+	function play() {
+		if (sound != null) {
+			if (canPlay) {
+				allowPlay(false);
+			}
+			sound.play();
+		}
+	};
+
+	function pause() {
+		if (sound != null) {
+			sound.pause();
+			canPlay = true;
+		}
+	};
+
+	function stop()
+	{
+		if (sound != null) {
+			sound.stop();
+			allowPlay(true);
+		}
+	};
+
+	function release()
+	{
+		if (sound != null) {
+			sound.release();
+			allowPlay(true);
+		}
+	};
+
+	function level(v) {
+		if (sound != null) {
+			sound.setVolume(v);
+			v = sound.getVolume();
+			alert("Volume: " + v);
+			var l = document.getElementById("level");
+			if (!isUndefined(l)) {
+				l.innerHTML = v;
+			}
+		}
+	};
+
+	function up() {
+		if (sound != null) {
+			var v = sound.getVolume();
+			v = v + 0.1;
+			if (v < 0.1) {
+				v = 0.0;
+			}
+			level(v);
+		}
+	};
+
+	function down() {
+		if (sound != null) {
+			var v = sound.getVolume();
+			v = v - 0.1;
+			if (v < 0.1) {
+				v = 0.0;
+			}
+			level(v);
+		}
+	};
+
+	// trap shake for playing audio
+	Titanium.Gesture.addEventListener('shake',function(){
+		if (shakeId != -1) {
+			clearTimeout(shakeId);
+			shakeId = -1;
+		}
+		shakeId = setTimeout(function() {
+			if (canPlay) {
+				play();
+			} else {
+				pause();
+			}
+			shakeId = -1;
+		}, 500);
+	});
+
+	// trap orientation change
+	Titanium.Gesture.addEventListener('orientationchange',function(e)
+	{
+		if (Titanium.Gesture.isLandscape(e.to))
+		{
+			if(Titanium.Platform.model === 'iPhone') {
+				document.getElementById('cricket').src = '/cricket_landscape.png';
+			} else {
+				document.body.style.backgroundImage = "url(cricket_landscape.png)";
+			}
+		}
+		else
+		{
+			if(Titanium.Platform.model === 'iPhone') {
+				document.getElementById('cricket').src = 'cricket.png';
+			} else {
+				document.body.style.backgroundImage = "url(cricket.png)";
+			}
+		}
+		Titanium.Media.vibrate();
+	});
+
+	window.onload = function()
+	{
+
+		Titanium.UI.currentWindow.orientation = 'either';
+
+		// create sound
+		if (Titanium.Platform.model === 'iPhone') {
+
+			//
+			// create toolbar buttons and toolbar
+			//
+			// set status bar
+			Titanium.UI.iPhone.setStatusBarStyle(Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK);
+
+
+			// create flex space buttons
+			var flexSpace = Titanium.UI.createButton({
+				systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+			});
+
+			// create fixed space buttons
+			var flexSpace2 = Titanium.UI.createButton({
+				systemButton:Titanium.UI.iPhone.SystemButton.FIXED_SPACE,
+				width:25
+			});
+
+			// create pause button
+			var pause = Titanium.UI.createButton({
+				systemButton:Titanium.UI.iPhone.SystemButton.PAUSE
+			});
+			pause.addEventListener('click', pause);
+
+			// create rewind button
+			var rewind = Titanium.UI.createButton({
+				systemButton:Titanium.UI.iPhone.SystemButton.REWIND
+			});
+			rewind.addEventListener('click',reset);
+
+			// create play button
+			var play = Titanium.UI.createButton({
+				systemButton:Titanium.UI.iPhone.SystemButton.PLAY
+			});
+			play.addEventListener('click', play);
+
+			// create next button
+			var up = Titanium.UI.createButton({
+				title:'+',
+				style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+			});
+			up.addEventListener('click', up);
+
+			// create prev button
+			var down = Titanium.UI.createButton({
+				title:'-',
+				style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+			});
+			down.addEventListener('click',down);
+
+			// set toolbar
+			Titanium.UI.currentWindow.setToolbar([down,up,flexSpace,rewind,flexSpace2,pause,flexSpace2,play,flexSpace]);
+
+			document.body.innerHTML = "<img id='cricket' src='/cricket.png' style='position:relative;top:-60px'/>";
+		} else {
+			document.body.style.backgroundImage = "url(cricket.png)";
+
+			document.body.innerHTML = "<div style='padding-top; 20px'>&nbsp;" +
+				"  	<div style='clear: both; margin-bottom: 20px;'>" +
+				"  		<input type='button' onclick='play(); return false;' value='Play'></input>" +
+				"  		<input type='button' onclick='pause(); return false;' value='Pause'></input>" +
+				"  		<input type='button' onclick='stop(); return false;' value='Stop'></input>" +
+			//	"  		<input type='button' onclick='release(); return false;' value='Release'></input>" +
+			//	"  		<input type='button' onclick='destroy(); return false;' value='Destroy(local)'></input>" +
+				"  	</div>" +
+				"  	<div style='clear: both; margin-bottom: 20px'>" +
+				"  		<input type='button' onclick='level(0.0); return false;' value='min'></input>" +
+				"  		<input type='button' onclick='down(); return false;' value=' - '></input>" +
+				"  		<input type='button' onclick='up(); return false;' value=' + '></input>" +
+				"  		<input type='button' onclick='level(1.0); return false;' value='max'></input>" +
+				"  		<br />Vol: <span id='level'></span>" +
+				"  	</div>" +
+				"  	<div style='clear: both; margin-bottom: 20px'>" +
+				"  		<input type='button' onclick='Titanium.Media.beep(); return false;' value='Beep'></input>" +
+				"  		<input type='button' onclick='Titanium.Media.vibrate(); return false;' value='Vibrate'></input>" +
+				"  	</div>" +
+				"</div>";
+		}
+
+
+		sound = Titanium.Media.createSound('cricket.wav');
+
+		// add event listener for when audio is done
+		listenerId = sound.addEventListener('complete', function() {
+			allowPlay(true);
+		});
+		errorId = sound.addEventListener('error', function(err) {
+			var dlg = Titanium.UI.createAlertDialog({
+				'title' : 'Media Error',
+				'message' : err.message,
+				'buttonNames' : [ 'OK' ]
+			});
+			dlg.show();
+		});
+
+		// start audio
+		sound.play();
+	};
+	</script>
+</head>
+<body style="margin:0;background-color:#333;text-align:center; font-size: 110%">
+</body>
+</html>

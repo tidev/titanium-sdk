@@ -1,0 +1,69 @@
+<html>
+<head>
+	<title>Property View</title>
+	<script type="text/javascript" src="tiui/js/tiui.js"></script>
+	<link rel="stylesheet" href="tiui/css/tiui.css" type="text/css" media="screen" charset="utf-8">
+
+	<style>
+	body
+	{
+		margin:0;
+		padding:0;
+	}
+	</style>
+	<script>
+		Titanium.UI.ready = function()
+		{
+		
+			Titanium.UI.setPropertyBackground();
+			var data = [
+				{title:'First Name',image:'Mail.png'},
+				{title:'Last Name',selected:true, image:'Phone.png'},
+				{title:'Social Security',image:'Safari.png'},
+				{title:'Location',image:'iTunes.png'}
+				
+			];
+			var data2= [
+				{title:'<img src="tiui/images/check_blue.png" style="position:relative;top:10px"/>'},
+				{title:'FriendFeed'},
+				{title:'Twitter'}
+				
+			];
+			var data3= [
+			{title:'Name',type:'input', value:'Fred Jones',id:'input2'},
+			{title:'Address ',type:'select', value:'select value',id:'input3'},
+			{title:'Password',type:'readonly', value:'readonly',id:'input4'},
+			{title:'Description',type:'switch', value:true,id:'input1'},
+			{title:'Like Pie',type:'switch', value:false,id:'input6'}
+			];
+
+			Titanium.UI.createGroupedView('option_list','option',data,function(index)
+			{
+			});
+			Titanium.UI.createGroupedView('input_list','input',data3,function(index)
+			{
+			});
+			Titanium.UI.createGroupedView('button_list','button',data2,function(index)
+			{
+			});
+			
+			Titanium.UI.createTextElement('text',true);
+			Titanium.UI.createTextElement('text1',true);
+			Titanium.UI.createTextElement('text2',true);
+				
+
+		};
+		
+	</script>
+</head>
+<body>
+
+<div id="text" style="margin:10px;margin-left:20px">GroupedView (options)</div>
+<div id="option_list" style="margin-top:10px"></div>
+<div id="text1" style="margin:10px;margin-left:20px">GroupedView (Input)</div>
+<div id="input_list" style="margin-top:10px"></div>
+<div id="text2" style="margin:10px;margin-left:20px">GroupedView (Buttons)</div>
+<div id="button_list" style="margin-top:10px"></div>
+
+</body>
+</html>

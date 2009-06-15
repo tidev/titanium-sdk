@@ -1,0 +1,65 @@
+<html>
+<head>
+	<title>Custom Toolbar</title>
+	<script>
+
+	// set status bar
+	Titanium.UI.setStatusBarStyle(Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK);
+
+
+	var action = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.ACTION
+	});
+	action.addEventListener('click',function(event)
+	{
+		document.getElementById('message').innerHTML = 'You clicked ACTION';
+	});
+
+	var flexSpace = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+	});
+
+	var camera = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.CAMERA
+	});
+	camera.addEventListener('click',function(event)
+	{
+		document.getElementById('message').innerHTML = 'You clicked CAMERA';
+	});
+
+	var compose = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.COMPOSE
+	});
+	compose.addEventListener('click',function(event)
+	{
+		document.getElementById('message').innerHTML = 'You clicked COMPOSE';
+	});
+
+	var bookmarks = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.BOOKMARKS
+	});
+	bookmarks.addEventListener('click',function(event)
+	{
+		document.getElementById('message').innerHTML = 'You clicked BOOKMARKS';
+	});
+
+	var search = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.SEARCH
+	});
+	search.addEventListener('click',function(event)
+	{
+		document.getElementById('message').innerHTML = 'You clicked SEARCH';
+	});
+	// set toolbar
+	Titanium.UI.currentWindow.setToolbar([action,flexSpace,camera,flexSpace,compose,flexSpace,bookmarks,flexSpace,search]);
+	
+
+	
+	</script>
+</head>
+<body style="height:360px;line-height:360px;color:white; 
+	background-color:#111;text-align:center;font-size:18px;font-family:Arial">
+	<div id="message">Status Bar should be black </div>
+	<div>click toolbar buttons</div>
+</body>
+</html>

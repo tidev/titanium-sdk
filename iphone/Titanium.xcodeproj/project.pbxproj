@@ -1,0 +1,907 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1D3623260D0F684500981E51 /* TitaniumAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* TitaniumAppDelegate.m */; };
+		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
+		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
+		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
+		2418F4220FCB629A00BFE545 /* sound.html in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4210FCB629A00BFE545 /* sound.html */; };
+		2418F4670FCB6A2100BFE545 /* sound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4660FCB6A2100BFE545 /* sound.wav */; };
+		24440B9B0FC9DFA0000A025D /* iPhone_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 24440B9A0FC9DFA0000A025D /* iPhone_icon.png */; };
+		2444F8370FC9FCA400063972 /* ApiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8090FC9FCA400063972 /* ApiModule.m */; };
+		2444F8380FC9FCA400063972 /* AppModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F80C0FC9FCA400063972 /* AppModule.m */; };
+		2444F8390FC9FCA400063972 /* DatabaseModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F80F0FC9FCA400063972 /* DatabaseModule.m */; };
+		2444F83A0FC9FCA400063972 /* PlausibleDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8120FC9FCA400063972 /* PlausibleDatabase.m */; };
+		2444F83B0FC9FCA400063972 /* PLSqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8170FC9FCA400063972 /* PLSqliteDatabase.m */; };
+		2444F83C0FC9FCA400063972 /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8190FC9FCA400063972 /* PLSqlitePreparedStatement.m */; };
+		2444F83D0FC9FCA400063972 /* PLSqliteResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F81B0FC9FCA400063972 /* PLSqliteResultSet.m */; };
+		2444F83E0FC9FCA400063972 /* FilesystemModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F81E0FC9FCA400063972 /* FilesystemModule.m */; };
+		2444F83F0FC9FCA400063972 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8210FC9FCA400063972 /* GeolocationModule.m */; };
+		2444F8400FC9FCA400063972 /* MediaModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8240FC9FCA400063972 /* MediaModule.m */; };
+		2444F8430FC9FCA400063972 /* NetworkModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F82D0FC9FCA400063972 /* NetworkModule.m */; };
+		2444F8440FC9FCA400063972 /* PlatformModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8300FC9FCA400063972 /* PlatformModule.m */; };
+		2444F8460FC9FCA400063972 /* UiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8360FC9FCA400063972 /* UiModule.m */; };
+		2444F8470FC9FCA400063972 /* ApiModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8080FC9FCA400063972 /* ApiModule.h */; };
+		2444F8480FC9FCA400063972 /* ApiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8090FC9FCA400063972 /* ApiModule.m */; };
+		2444F8490FC9FCA400063972 /* AppModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F80B0FC9FCA400063972 /* AppModule.h */; };
+		2444F84A0FC9FCA400063972 /* AppModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F80C0FC9FCA400063972 /* AppModule.m */; };
+		2444F84B0FC9FCA400063972 /* DatabaseModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F80E0FC9FCA400063972 /* DatabaseModule.h */; };
+		2444F84C0FC9FCA400063972 /* DatabaseModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F80F0FC9FCA400063972 /* DatabaseModule.m */; };
+		2444F84D0FC9FCA400063972 /* PlausibleDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8110FC9FCA400063972 /* PlausibleDatabase.h */; };
+		2444F84E0FC9FCA400063972 /* PlausibleDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8120FC9FCA400063972 /* PlausibleDatabase.m */; };
+		2444F84F0FC9FCA400063972 /* PLDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8130FC9FCA400063972 /* PLDatabase.h */; };
+		2444F8500FC9FCA400063972 /* PLPreparedStatement.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8140FC9FCA400063972 /* PLPreparedStatement.h */; };
+		2444F8510FC9FCA400063972 /* PLResultSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8150FC9FCA400063972 /* PLResultSet.h */; };
+		2444F8520FC9FCA400063972 /* PLSqliteDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8160FC9FCA400063972 /* PLSqliteDatabase.h */; };
+		2444F8530FC9FCA400063972 /* PLSqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8170FC9FCA400063972 /* PLSqliteDatabase.m */; };
+		2444F8540FC9FCA400063972 /* PLSqlitePreparedStatement.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8180FC9FCA400063972 /* PLSqlitePreparedStatement.h */; };
+		2444F8550FC9FCA400063972 /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8190FC9FCA400063972 /* PLSqlitePreparedStatement.m */; };
+		2444F8560FC9FCA400063972 /* PLSqliteResultSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F81A0FC9FCA400063972 /* PLSqliteResultSet.h */; };
+		2444F8570FC9FCA400063972 /* PLSqliteResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F81B0FC9FCA400063972 /* PLSqliteResultSet.m */; };
+		2444F8580FC9FCA400063972 /* FilesystemModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F81D0FC9FCA400063972 /* FilesystemModule.h */; };
+		2444F8590FC9FCA400063972 /* FilesystemModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F81E0FC9FCA400063972 /* FilesystemModule.m */; };
+		2444F85A0FC9FCA400063972 /* GeolocationModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8200FC9FCA400063972 /* GeolocationModule.h */; };
+		2444F85B0FC9FCA400063972 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8210FC9FCA400063972 /* GeolocationModule.m */; };
+		2444F85C0FC9FCA400063972 /* MediaModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8230FC9FCA400063972 /* MediaModule.h */; };
+		2444F85D0FC9FCA400063972 /* MediaModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8240FC9FCA400063972 /* MediaModule.m */; };
+		2444F8620FC9FCA400063972 /* NetworkModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F82C0FC9FCA400063972 /* NetworkModule.h */; };
+		2444F8630FC9FCA400063972 /* NetworkModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F82D0FC9FCA400063972 /* NetworkModule.m */; };
+		2444F8640FC9FCA400063972 /* PlatformModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F82F0FC9FCA400063972 /* PlatformModule.h */; };
+		2444F8650FC9FCA400063972 /* PlatformModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8300FC9FCA400063972 /* PlatformModule.m */; };
+		2444F8680FC9FCA400063972 /* UiModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8350FC9FCA400063972 /* UiModule.h */; };
+		2444F8690FC9FCA400063972 /* UiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8360FC9FCA400063972 /* UiModule.m */; };
+		2444F98B0FCA417C00063972 /* tiapp.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2444F98A0FCA417C00063972 /* tiapp.plist */; };
+		2444FA550FCA4E2E00063972 /* IPAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FA540FCA4E2E00063972 /* IPAddress.c */; };
+		2444FA560FCA4E2E00063972 /* IPAddress.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444FA530FCA4E2E00063972 /* IPAddress.h */; };
+		2444FA570FCA4E2E00063972 /* IPAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FA540FCA4E2E00063972 /* IPAddress.c */; };
+		2444FC7D0FCA6F8000063972 /* NSData+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444FC7B0FCA6F8000063972 /* NSData+Additions.h */; };
+		2444FC7E0FCA6F8000063972 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444FC7C0FCA6F8000063972 /* NSData+Additions.m */; };
+		2444FC7F0FCA6F8000063972 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444FC7C0FCA6F8000063972 /* NSData+Additions.m */; };
+		2444FCD20FCA741E00063972 /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444FCD00FCA741E00063972 /* base64.h */; };
+		2444FCD30FCA741E00063972 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FCD10FCA741E00063972 /* base64.c */; };
+		2444FCD40FCA741E00063972 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FCD10FCA741E00063972 /* base64.c */; };
+		24BBD83E0FCD245F00A261A4 /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BBD83D0FCD245F00A261A4 /* GestureModule.m */; };
+		24BBD83F0FCD245F00A261A4 /* GestureModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BBD83C0FCD245F00A261A4 /* GestureModule.h */; };
+		24BBD8400FCD245F00A261A4 /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BBD83D0FCD245F00A261A4 /* GestureModule.m */; };
+		24F02E460FD482D2007894DA /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F02E450FD482D2007894DA /* AnalyticsModule.m */; };
+		24F02E470FD482D2007894DA /* AnalyticsModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24F02E440FD482D2007894DA /* AnalyticsModule.h */; };
+		24F02E480FD482D2007894DA /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F02E450FD482D2007894DA /* AnalyticsModule.m */; };
+		288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
+		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
+		28D7ACF80DDB3853001CB0EB /* TitaniumViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */; };
+		B408AD480F97FA010051FD67 /* TitaniumActionSheetHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B408AD470F97FA010051FD67 /* TitaniumActionSheetHelper.m */; };
+		B40A40A70FCF60BF00C5DD7C /* movie.m4v in Resources */ = {isa = PBXBuildFile; fileRef = B40A40A60FCF60BF00C5DD7C /* movie.m4v */; };
+		B40F54530F746D11008E0A55 /* TitaniumView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B40F54520F746D11008E0A55 /* TitaniumView.xib */; };
+		B41068A80FBB745600310448 /* TitaniumAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* TitaniumAppDelegate.m */; };
+		B41068AA0FBB745600310448 /* TitaniumViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */; };
+		B41068AB0FBB745600310448 /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BB640F842C9400DD709C /* SBJSON.m */; };
+		B41068B00FBB745600310448 /* TitaniumAppProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */; };
+		B41068B20FBB745600310448 /* TitaniumCmdThread.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */; };
+		B41068B40FBB745600310448 /* TitaniumUIViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4864F5B0F7C48E700A851C5 /* TitaniumUIViewController.m */; };
+		B41068B60FBB745600310448 /* TitaniumHost.m in Sources */ = {isa = PBXBuildFile; fileRef = B45CA77E0F81565D00B80900 /* TitaniumHost.m */; };
+		B41068B80FBB745600310448 /* TitaniumAccessorTuple.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9B9C30F82030700DD709C /* TitaniumAccessorTuple.m */; };
+		B41068BA0FBB745600310448 /* TitaniumJSConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BC080F85491F00DD709C /* TitaniumJSConstants.m */; };
+		B41068BE0FBB745600310448 /* TitaniumInvocationGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FC656E0F95078000B21EA1 /* TitaniumInvocationGenerator.m */; };
+		B41068C00FBB745600310448 /* TitaniumJSCode.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FC66FB0F95590D00B21EA1 /* TitaniumJSCode.m */; };
+		B41068C20FBB745600310448 /* TitaniumActionSheetHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B408AD470F97FA010051FD67 /* TitaniumActionSheetHelper.m */; };
+		B41068C40FBB745600310448 /* Webcolor.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FECD120FAA4B3E0015B658 /* Webcolor.m */; };
+		B41069C80FBB756B00310448 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */; };
+		B41069C90FBB756B00310448 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4B587000FB00B670047B651 /* AudioToolbox.framework */; };
+		B41069CB0FBB756B00310448 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */; };
+		B41069CC0FBB756B00310448 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4676CB40FB0E492009B81F4 /* AVFoundation.framework */; };
+		B41069CD0FBB756B00310448 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
+		B41069CE0FBB756B00310448 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
+		B41069CF0FBB756B00310448 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
+		B4106C230FBB8CFE00310448 /* TitaniumAppDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 1D3623240D0F684500981E51 /* TitaniumAppDelegate.h */; settings = {ATTRIBUTES = (); }; };
+		B4106C240FBB8D2300310448 /* TitaniumViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 28D7ACF60DDB3853001CB0EB /* TitaniumViewController.h */; };
+		B4110C9D0FD4653A00BE17F8 /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */; };
+		B4110C9E0FD4653A00BE17F8 /* AccelerometerModule.h in Headers */ = {isa = PBXBuildFile; fileRef = B4110C9B0FD4653A00BE17F8 /* AccelerometerModule.h */; };
+		B4110C9F0FD4653A00BE17F8 /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */; };
+		B413A6800F7998C500B1C47D /* TitaniumAppProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */; };
+		B413A7530F79A58000B1C47D /* TitaniumCmdThread.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */; };
+		B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
+		B44BCFDA0FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
+		B45CA77F0F81565D00B80900 /* TitaniumHost.m in Sources */ = {isa = PBXBuildFile; fileRef = B45CA77E0F81565D00B80900 /* TitaniumHost.m */; };
+		B4676CB50FB0E492009B81F4 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4676CB40FB0E492009B81F4 /* AVFoundation.framework */; };
+		B4676CBF0FB0E4AE009B81F4 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */; };
+		B481D3370FD4C45A00F0A961 /* song.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = B481D3360FD4C45A00F0A961 /* song.mp3 */; };
+		B4864F5C0F7C48E700A851C5 /* TitaniumUIViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4864F5B0F7C48E700A851C5 /* TitaniumUIViewController.m */; };
+		B48E4AE40FC1DBEE00204C8E /* iPhone_BG.png in Resources */ = {isa = PBXBuildFile; fileRef = B4880BA20F96B4E3007589FC /* iPhone_BG.png */; };
+		B48E4AE50FC1DBF200204C8E /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = B4F51CB00F981F23004D9D2D /* Default.png */; };
+		B492D43E0FCC6DB20030772B /* network.html in Resources */ = {isa = PBXBuildFile; fileRef = B492D43D0FCC6DB20030772B /* network.html */; };
+		B4A10F3E0F86BC490040D850 /* AppDownloadView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B4A10F3D0F86BC490040D850 /* AppDownloadView.xib */; };
+		B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
+		B4A49BA30FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
+		B4A49BBA0FCE08DA0049ED60 /* TitaniumBlobWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */; };
+		B4A49BBB0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */; };
+		B4A49BBC0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */; };
+		B4B587010FB00B670047B651 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4B587000FB00B670047B651 /* AudioToolbox.framework */; };
+		B4C3F8B60FB3B11C0037F210 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */; };
+		B4CAF1530FC368B9000BB476 /* TitaniumUIViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4864F5A0F7C48E700A851C5 /* TitaniumUIViewController.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		B4DD427D0FD982FD00CD427F /* profile.png in Resources */ = {isa = PBXBuildFile; fileRef = B4DD427C0FD982FD00CD427F /* profile.png */; };
+		B4DDBE2B0FD0AE31004DD79E /* ui.html in Resources */ = {isa = PBXBuildFile; fileRef = B4DDBE2A0FD0AE31004DD79E /* ui.html */; };
+		B4E9B9C40F82030700DD709C /* TitaniumAccessorTuple.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9B9C30F82030700DD709C /* TitaniumAccessorTuple.m */; };
+		B4E9BB660F842C9400DD709C /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BB640F842C9400DD709C /* SBJSON.m */; };
+		B4E9BC090F85491F00DD709C /* TitaniumJSConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BC080F85491F00DD709C /* TitaniumJSConstants.m */; };
+		B4FC656F0F95078000B21EA1 /* TitaniumInvocationGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FC656E0F95078000B21EA1 /* TitaniumInvocationGenerator.m */; };
+		B4FC66FC0F95590D00B21EA1 /* TitaniumJSCode.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FC66FB0F95590D00B21EA1 /* TitaniumJSCode.m */; };
+		B4FECD130FAA4B3E0015B658 /* Webcolor.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FECD120FAA4B3E0015B658 /* Webcolor.m */; };
+		B4FFBE3E0FD4A778001D5E81 /* unitTest.html in Resources */ = {isa = PBXBuildFile; fileRef = B4FFBE3D0FD4A778001D5E81 /* unitTest.html */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		1D3623240D0F684500981E51 /* TitaniumAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumAppDelegate.h; sourceTree = "<group>"; };
+		1D3623250D0F684500981E51 /* TitaniumAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumAppDelegate.m; sourceTree = "<group>"; };
+		1D6058910D05DD3D006BFB54 /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		2418F4210FCB629A00BFE545 /* sound.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = sound.html; sourceTree = "<group>"; };
+		2418F4660FCB6A2100BFE545 /* sound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound.wav; sourceTree = "<group>"; };
+		24440B9A0FC9DFA0000A025D /* iPhone_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iPhone_icon.png; sourceTree = "<group>"; };
+		2444F8080FC9FCA400063972 /* ApiModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ApiModule.h; sourceTree = "<group>"; };
+		2444F8090FC9FCA400063972 /* ApiModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ApiModule.m; sourceTree = "<group>"; };
+		2444F80B0FC9FCA400063972 /* AppModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppModule.h; sourceTree = "<group>"; };
+		2444F80C0FC9FCA400063972 /* AppModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppModule.m; sourceTree = "<group>"; };
+		2444F80E0FC9FCA400063972 /* DatabaseModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseModule.h; sourceTree = "<group>"; };
+		2444F80F0FC9FCA400063972 /* DatabaseModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DatabaseModule.m; sourceTree = "<group>"; };
+		2444F8110FC9FCA400063972 /* PlausibleDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlausibleDatabase.h; sourceTree = "<group>"; };
+		2444F8120FC9FCA400063972 /* PlausibleDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlausibleDatabase.m; sourceTree = "<group>"; };
+		2444F8130FC9FCA400063972 /* PLDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLDatabase.h; sourceTree = "<group>"; };
+		2444F8140FC9FCA400063972 /* PLPreparedStatement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLPreparedStatement.h; sourceTree = "<group>"; };
+		2444F8150FC9FCA400063972 /* PLResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLResultSet.h; sourceTree = "<group>"; };
+		2444F8160FC9FCA400063972 /* PLSqliteDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLSqliteDatabase.h; sourceTree = "<group>"; };
+		2444F8170FC9FCA400063972 /* PLSqliteDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLSqliteDatabase.m; sourceTree = "<group>"; };
+		2444F8180FC9FCA400063972 /* PLSqlitePreparedStatement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLSqlitePreparedStatement.h; sourceTree = "<group>"; };
+		2444F8190FC9FCA400063972 /* PLSqlitePreparedStatement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLSqlitePreparedStatement.m; sourceTree = "<group>"; };
+		2444F81A0FC9FCA400063972 /* PLSqliteResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLSqliteResultSet.h; sourceTree = "<group>"; };
+		2444F81B0FC9FCA400063972 /* PLSqliteResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLSqliteResultSet.m; sourceTree = "<group>"; };
+		2444F81D0FC9FCA400063972 /* FilesystemModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilesystemModule.h; sourceTree = "<group>"; };
+		2444F81E0FC9FCA400063972 /* FilesystemModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilesystemModule.m; sourceTree = "<group>"; };
+		2444F8200FC9FCA400063972 /* GeolocationModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeolocationModule.h; sourceTree = "<group>"; };
+		2444F8210FC9FCA400063972 /* GeolocationModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeolocationModule.m; sourceTree = "<group>"; };
+		2444F8230FC9FCA400063972 /* MediaModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MediaModule.h; sourceTree = "<group>"; };
+		2444F8240FC9FCA400063972 /* MediaModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MediaModule.m; sourceTree = "<group>"; };
+		2444F82C0FC9FCA400063972 /* NetworkModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkModule.h; sourceTree = "<group>"; };
+		2444F82D0FC9FCA400063972 /* NetworkModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkModule.m; sourceTree = "<group>"; };
+		2444F82F0FC9FCA400063972 /* PlatformModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformModule.h; sourceTree = "<group>"; };
+		2444F8300FC9FCA400063972 /* PlatformModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlatformModule.m; sourceTree = "<group>"; };
+		2444F8350FC9FCA400063972 /* UiModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UiModule.h; sourceTree = "<group>"; };
+		2444F8360FC9FCA400063972 /* UiModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UiModule.m; sourceTree = "<group>"; };
+		2444F98A0FCA417C00063972 /* tiapp.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = tiapp.plist; sourceTree = "<group>"; };
+		2444FA530FCA4E2E00063972 /* IPAddress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPAddress.h; sourceTree = "<group>"; };
+		2444FA540FCA4E2E00063972 /* IPAddress.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = IPAddress.c; sourceTree = "<group>"; };
+		2444FC7B0FCA6F8000063972 /* NSData+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Additions.h"; sourceTree = "<group>"; };
+		2444FC7C0FCA6F8000063972 /* NSData+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Additions.m"; sourceTree = "<group>"; };
+		2444FCD00FCA741E00063972 /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base64.h; sourceTree = "<group>"; };
+		2444FCD10FCA741E00063972 /* base64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = base64.c; sourceTree = "<group>"; };
+		249075290FC9D55B00D38073 /* TitaniumModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumModule.h; sourceTree = "<group>"; };
+		24BBD83C0FCD245F00A261A4 /* GestureModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GestureModule.h; sourceTree = "<group>"; };
+		24BBD83D0FCD245F00A261A4 /* GestureModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GestureModule.m; sourceTree = "<group>"; };
+		24F02E440FD482D2007894DA /* AnalyticsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnalyticsModule.h; sourceTree = "<group>"; };
+		24F02E450FD482D2007894DA /* AnalyticsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnalyticsModule.m; sourceTree = "<group>"; };
+		288765A40DF7441C002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		28AD733E0D9D9553002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
+		28D7ACF60DDB3853001CB0EB /* TitaniumViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumViewController.h; sourceTree = "<group>"; };
+		28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumViewController.m; sourceTree = "<group>"; };
+		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		32CA4F630368D1EE00C91783 /* Titanium_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Titanium_Prefix.pch; sourceTree = "<group>"; };
+		B408AD460F97FA010051FD67 /* TitaniumActionSheetHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumActionSheetHelper.h; sourceTree = "<group>"; };
+		B408AD470F97FA010051FD67 /* TitaniumActionSheetHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumActionSheetHelper.m; sourceTree = "<group>"; };
+		B40A40A60FCF60BF00C5DD7C /* movie.m4v */ = {isa = PBXFileReference; lastKnownFileType = file; path = movie.m4v; sourceTree = "<group>"; };
+		B40F54520F746D11008E0A55 /* TitaniumView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TitaniumView.xib; sourceTree = "<group>"; };
+		B41068A20FBB730F00310448 /* libTitanium.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libTitanium.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		B4110C9B0FD4653A00BE17F8 /* AccelerometerModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccelerometerModule.h; sourceTree = "<group>"; };
+		B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AccelerometerModule.m; sourceTree = "<group>"; };
+		B413A67E0F7998C500B1C47D /* TitaniumAppProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumAppProtocol.h; sourceTree = "<group>"; };
+		B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumAppProtocol.m; sourceTree = "<group>"; };
+		B413A7510F79A58000B1C47D /* TitaniumCmdThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumCmdThread.h; sourceTree = "<group>"; };
+		B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumCmdThread.m; sourceTree = "<group>"; };
+		B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
+		B45CA77D0F81565D00B80900 /* TitaniumHost.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumHost.h; sourceTree = "<group>"; };
+		B45CA77E0F81565D00B80900 /* TitaniumHost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumHost.m; sourceTree = "<group>"; };
+		B4676CB40FB0E492009B81F4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		B481D3360FD4C45A00F0A961 /* song.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = song.mp3; sourceTree = "<group>"; };
+		B4864C3B0F7B134B00A851C5 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../Info.plist; sourceTree = "<group>"; };
+		B4864F5A0F7C48E700A851C5 /* TitaniumUIViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumUIViewController.h; sourceTree = "<group>"; };
+		B4864F5B0F7C48E700A851C5 /* TitaniumUIViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumUIViewController.m; sourceTree = "<group>"; };
+		B4880BA20F96B4E3007589FC /* iPhone_BG.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iPhone_BG.png; sourceTree = "<group>"; };
+		B492D43D0FCC6DB20030772B /* network.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = network.html; sourceTree = "<group>"; };
+		B4A10F3D0F86BC490040D850 /* AppDownloadView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AppDownloadView.xib; sourceTree = "<group>"; };
+		B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
+		B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumBlobWrapper.h; sourceTree = "<group>"; };
+		B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumBlobWrapper.m; sourceTree = "<group>"; };
+		B4B587000FB00B670047B651 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		B4DD427C0FD982FD00CD427F /* profile.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = profile.png; sourceTree = "<group>"; };
+		B4DDBE2A0FD0AE31004DD79E /* ui.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ui.html; sourceTree = "<group>"; };
+		B4E9B9C20F82030700DD709C /* TitaniumAccessorTuple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumAccessorTuple.h; sourceTree = "<group>"; };
+		B4E9B9C30F82030700DD709C /* TitaniumAccessorTuple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumAccessorTuple.m; sourceTree = "<group>"; };
+		B4E9BB640F842C9400DD709C /* SBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJSON.m; sourceTree = "<group>"; };
+		B4E9BB650F842C9400DD709C /* SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJSON.h; sourceTree = "<group>"; };
+		B4E9BC070F85491F00DD709C /* TitaniumJSConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumJSConstants.h; sourceTree = "<group>"; };
+		B4E9BC080F85491F00DD709C /* TitaniumJSConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumJSConstants.m; sourceTree = "<group>"; };
+		B4F51CB00F981F23004D9D2D /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		B4FC656D0F95078000B21EA1 /* TitaniumInvocationGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumInvocationGenerator.h; sourceTree = "<group>"; };
+		B4FC656E0F95078000B21EA1 /* TitaniumInvocationGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumInvocationGenerator.m; sourceTree = "<group>"; };
+		B4FC66FA0F95590D00B21EA1 /* TitaniumJSCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumJSCode.h; sourceTree = "<group>"; };
+		B4FC66FB0F95590D00B21EA1 /* TitaniumJSCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumJSCode.m; sourceTree = "<group>"; };
+		B4FECD110FAA4B3E0015B658 /* Webcolor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Webcolor.h; sourceTree = "<group>"; };
+		B4FECD120FAA4B3E0015B658 /* Webcolor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Webcolor.m; sourceTree = "<group>"; };
+		B4FFBE3D0FD4A778001D5E81 /* unitTest.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = unitTest.html; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1D60588F0D05DD3D006BFB54 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
+				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
+				288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */,
+				B4B587010FB00B670047B651 /* AudioToolbox.framework in Frameworks */,
+				B4676CB50FB0E492009B81F4 /* AVFoundation.framework in Frameworks */,
+				B4676CBF0FB0E4AE009B81F4 /* SystemConfiguration.framework in Frameworks */,
+				B4C3F8B60FB3B11C0037F210 /* CoreLocation.framework in Frameworks */,
+				B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */,
+				B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B41068A00FBB730F00310448 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B41069C80FBB756B00310448 /* SystemConfiguration.framework in Frameworks */,
+				B41069C90FBB756B00310448 /* AudioToolbox.framework in Frameworks */,
+				B41069CB0FBB756B00310448 /* CoreLocation.framework in Frameworks */,
+				B41069CC0FBB756B00310448 /* AVFoundation.framework in Frameworks */,
+				B41069CD0FBB756B00310448 /* UIKit.framework in Frameworks */,
+				B41069CE0FBB756B00310448 /* Foundation.framework in Frameworks */,
+				B41069CF0FBB756B00310448 /* CoreGraphics.framework in Frameworks */,
+				B44BCFDA0FC5E03400733BDD /* libsqlite3.dylib in Frameworks */,
+				B4A49BA30FCE01070049ED60 /* MediaPlayer.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		080E96DDFE201D6D7F000001 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				1D3623240D0F684500981E51 /* TitaniumAppDelegate.h */,
+				1D3623250D0F684500981E51 /* TitaniumAppDelegate.m */,
+				28D7ACF60DDB3853001CB0EB /* TitaniumViewController.h */,
+				28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */,
+				B4E9BB640F842C9400DD709C /* SBJSON.m */,
+				B4E9BB650F842C9400DD709C /* SBJSON.h */,
+				B413A67E0F7998C500B1C47D /* TitaniumAppProtocol.h */,
+				B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */,
+				B413A7510F79A58000B1C47D /* TitaniumCmdThread.h */,
+				B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */,
+				B4864F5A0F7C48E700A851C5 /* TitaniumUIViewController.h */,
+				B4864F5B0F7C48E700A851C5 /* TitaniumUIViewController.m */,
+				B45CA77D0F81565D00B80900 /* TitaniumHost.h */,
+				B45CA77E0F81565D00B80900 /* TitaniumHost.m */,
+				B4E9B9C20F82030700DD709C /* TitaniumAccessorTuple.h */,
+				B4E9B9C30F82030700DD709C /* TitaniumAccessorTuple.m */,
+				B4E9BC070F85491F00DD709C /* TitaniumJSConstants.h */,
+				B4E9BC080F85491F00DD709C /* TitaniumJSConstants.m */,
+				B4FC656D0F95078000B21EA1 /* TitaniumInvocationGenerator.h */,
+				B4FC656E0F95078000B21EA1 /* TitaniumInvocationGenerator.m */,
+				B4FC66FA0F95590D00B21EA1 /* TitaniumJSCode.h */,
+				B4FC66FB0F95590D00B21EA1 /* TitaniumJSCode.m */,
+				B408AD460F97FA010051FD67 /* TitaniumActionSheetHelper.h */,
+				B408AD470F97FA010051FD67 /* TitaniumActionSheetHelper.m */,
+				B4FECD110FAA4B3E0015B658 /* Webcolor.h */,
+				B4FECD120FAA4B3E0015B658 /* Webcolor.m */,
+				249075290FC9D55B00D38073 /* TitaniumModule.h */,
+				2444FA530FCA4E2E00063972 /* IPAddress.h */,
+				2444FA540FCA4E2E00063972 /* IPAddress.c */,
+				2444FC7B0FCA6F8000063972 /* NSData+Additions.h */,
+				2444FC7C0FCA6F8000063972 /* NSData+Additions.m */,
+				2444FCD00FCA741E00063972 /* base64.h */,
+				2444FCD10FCA741E00063972 /* base64.c */,
+				B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */,
+				B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
+		19C28FACFE9D520D11CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1D6058910D05DD3D006BFB54 /* Titanium.app */,
+				B41068A20FBB730F00310448 /* libTitanium.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2444F8060FC9FCA400063972 /* modules */ = {
+			isa = PBXGroup;
+			children = (
+				24F02E430FD482D2007894DA /* AnalyticsModule */,
+				24BBD83B0FCD245F00A261A4 /* GestureModule */,
+				2444F8070FC9FCA400063972 /* ApiModule */,
+				2444F80A0FC9FCA400063972 /* AppModule */,
+				2444F80D0FC9FCA400063972 /* DatabaseModule */,
+				2444F81C0FC9FCA400063972 /* FilesystemModule */,
+				2444F81F0FC9FCA400063972 /* GeolocationModule */,
+				2444F8220FC9FCA400063972 /* MediaModule */,
+				B4110C9A0FD4653A00BE17F8 /* AccelerometerModule */,
+				2444F82B0FC9FCA400063972 /* NetworkModule */,
+				2444F82E0FC9FCA400063972 /* PlatformModule */,
+				2444F8340FC9FCA400063972 /* UiModule */,
+			);
+			path = modules;
+			sourceTree = "<group>";
+		};
+		2444F8070FC9FCA400063972 /* ApiModule */ = {
+			isa = PBXGroup;
+			children = (
+				2444F8080FC9FCA400063972 /* ApiModule.h */,
+				2444F8090FC9FCA400063972 /* ApiModule.m */,
+			);
+			path = ApiModule;
+			sourceTree = "<group>";
+		};
+		2444F80A0FC9FCA400063972 /* AppModule */ = {
+			isa = PBXGroup;
+			children = (
+				2444F80B0FC9FCA400063972 /* AppModule.h */,
+				2444F80C0FC9FCA400063972 /* AppModule.m */,
+			);
+			path = AppModule;
+			sourceTree = "<group>";
+		};
+		2444F80D0FC9FCA400063972 /* DatabaseModule */ = {
+			isa = PBXGroup;
+			children = (
+				2444F80E0FC9FCA400063972 /* DatabaseModule.h */,
+				2444F80F0FC9FCA400063972 /* DatabaseModule.m */,
+				2444F8100FC9FCA400063972 /* PlausableDatabase */,
+			);
+			path = DatabaseModule;
+			sourceTree = "<group>";
+		};
+		2444F8100FC9FCA400063972 /* PlausableDatabase */ = {
+			isa = PBXGroup;
+			children = (
+				2444F8110FC9FCA400063972 /* PlausibleDatabase.h */,
+				2444F8120FC9FCA400063972 /* PlausibleDatabase.m */,
+				2444F8130FC9FCA400063972 /* PLDatabase.h */,
+				2444F8140FC9FCA400063972 /* PLPreparedStatement.h */,
+				2444F8150FC9FCA400063972 /* PLResultSet.h */,
+				2444F8160FC9FCA400063972 /* PLSqliteDatabase.h */,
+				2444F8170FC9FCA400063972 /* PLSqliteDatabase.m */,
+				2444F8180FC9FCA400063972 /* PLSqlitePreparedStatement.h */,
+				2444F8190FC9FCA400063972 /* PLSqlitePreparedStatement.m */,
+				2444F81A0FC9FCA400063972 /* PLSqliteResultSet.h */,
+				2444F81B0FC9FCA400063972 /* PLSqliteResultSet.m */,
+			);
+			path = PlausableDatabase;
+			sourceTree = "<group>";
+		};
+		2444F81C0FC9FCA400063972 /* FilesystemModule */ = {
+			isa = PBXGroup;
+			children = (
+				2444F81D0FC9FCA400063972 /* FilesystemModule.h */,
+				2444F81E0FC9FCA400063972 /* FilesystemModule.m */,
+			);
+			path = FilesystemModule;
+			sourceTree = "<group>";
+		};
+		2444F81F0FC9FCA400063972 /* GeolocationModule */ = {
+			isa = PBXGroup;
+			children = (
+				2444F8200FC9FCA400063972 /* GeolocationModule.h */,
+				2444F8210FC9FCA400063972 /* GeolocationModule.m */,
+			);
+			path = GeolocationModule;
+			sourceTree = "<group>";
+		};
+		2444F8220FC9FCA400063972 /* MediaModule */ = {
+			isa = PBXGroup;
+			children = (
+				2444F8230FC9FCA400063972 /* MediaModule.h */,
+				2444F8240FC9FCA400063972 /* MediaModule.m */,
+			);
+			path = MediaModule;
+			sourceTree = "<group>";
+		};
+		2444F82B0FC9FCA400063972 /* NetworkModule */ = {
+			isa = PBXGroup;
+			children = (
+				2444F82C0FC9FCA400063972 /* NetworkModule.h */,
+				2444F82D0FC9FCA400063972 /* NetworkModule.m */,
+			);
+			path = NetworkModule;
+			sourceTree = "<group>";
+		};
+		2444F82E0FC9FCA400063972 /* PlatformModule */ = {
+			isa = PBXGroup;
+			children = (
+				2444F82F0FC9FCA400063972 /* PlatformModule.h */,
+				2444F8300FC9FCA400063972 /* PlatformModule.m */,
+			);
+			path = PlatformModule;
+			sourceTree = "<group>";
+		};
+		2444F8340FC9FCA400063972 /* UiModule */ = {
+			isa = PBXGroup;
+			children = (
+				2444F8350FC9FCA400063972 /* UiModule.h */,
+				2444F8360FC9FCA400063972 /* UiModule.m */,
+			);
+			path = UiModule;
+			sourceTree = "<group>";
+		};
+		24BBD83B0FCD245F00A261A4 /* GestureModule */ = {
+			isa = PBXGroup;
+			children = (
+				24BBD83C0FCD245F00A261A4 /* GestureModule.h */,
+				24BBD83D0FCD245F00A261A4 /* GestureModule.m */,
+			);
+			path = GestureModule;
+			sourceTree = "<group>";
+		};
+		24F02E430FD482D2007894DA /* AnalyticsModule */ = {
+			isa = PBXGroup;
+			children = (
+				24F02E440FD482D2007894DA /* AnalyticsModule.h */,
+				24F02E450FD482D2007894DA /* AnalyticsModule.m */,
+			);
+			path = AnalyticsModule;
+			sourceTree = "<group>";
+		};
+		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
+			isa = PBXGroup;
+			children = (
+				2444F8060FC9FCA400063972 /* modules */,
+				32CA4F630368D1EE00C91783 /* Titanium_Prefix.pch */,
+				29B97316FDCFA39411CA2CEA /* main.m */,
+				080E96DDFE201D6D7F000001 /* Classes */,
+				29B97317FDCFA39411CA2CEA /* Resources */,
+				29B97323FDCFA39411CA2CEA /* Frameworks */,
+				19C28FACFE9D520D11CA2CBB /* Products */,
+			);
+			name = CustomTemplate;
+			sourceTree = "<group>";
+		};
+		29B97317FDCFA39411CA2CEA /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2418F4660FCB6A2100BFE545 /* sound.wav */,
+				B4DDBE2A0FD0AE31004DD79E /* ui.html */,
+				B481D3360FD4C45A00F0A961 /* song.mp3 */,
+				B4864C3B0F7B134B00A851C5 /* Info.plist */,
+				B40A40A60FCF60BF00C5DD7C /* movie.m4v */,
+				24440B9A0FC9DFA0000A025D /* iPhone_icon.png */,
+				B4DD427C0FD982FD00CD427F /* profile.png */,
+				B4880BA20F96B4E3007589FC /* iPhone_BG.png */,
+				B492D43D0FCC6DB20030772B /* network.html */,
+				B4F51CB00F981F23004D9D2D /* Default.png */,
+				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
+				B40F54520F746D11008E0A55 /* TitaniumView.xib */,
+				B4A10F3D0F86BC490040D850 /* AppDownloadView.xib */,
+				B4FFBE3D0FD4A778001D5E81 /* unitTest.html */,
+				2444F98A0FCA417C00063972 /* tiapp.plist */,
+				2418F4210FCB629A00BFE545 /* sound.html */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */,
+				B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */,
+				B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */,
+				B4B587000FB00B670047B651 /* AudioToolbox.framework */,
+				B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */,
+				B4676CB40FB0E492009B81F4 /* AVFoundation.framework */,
+				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
+				1D30AB110D05D00D00671497 /* Foundation.framework */,
+				288765A40DF7441C002DB57D /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B4110C9A0FD4653A00BE17F8 /* AccelerometerModule */ = {
+			isa = PBXGroup;
+			children = (
+				B4110C9B0FD4653A00BE17F8 /* AccelerometerModule.h */,
+				B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */,
+			);
+			path = AccelerometerModule;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		B410689E0FBB730F00310448 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B4106C230FBB8CFE00310448 /* TitaniumAppDelegate.h in Headers */,
+				B4106C240FBB8D2300310448 /* TitaniumViewController.h in Headers */,
+				B4CAF1530FC368B9000BB476 /* TitaniumUIViewController.h in Headers */,
+				2444F8470FC9FCA400063972 /* ApiModule.h in Headers */,
+				2444F8490FC9FCA400063972 /* AppModule.h in Headers */,
+				2444F84B0FC9FCA400063972 /* DatabaseModule.h in Headers */,
+				2444F84D0FC9FCA400063972 /* PlausibleDatabase.h in Headers */,
+				2444F84F0FC9FCA400063972 /* PLDatabase.h in Headers */,
+				2444F8500FC9FCA400063972 /* PLPreparedStatement.h in Headers */,
+				2444F8510FC9FCA400063972 /* PLResultSet.h in Headers */,
+				2444F8520FC9FCA400063972 /* PLSqliteDatabase.h in Headers */,
+				2444F8540FC9FCA400063972 /* PLSqlitePreparedStatement.h in Headers */,
+				2444F8560FC9FCA400063972 /* PLSqliteResultSet.h in Headers */,
+				2444F8580FC9FCA400063972 /* FilesystemModule.h in Headers */,
+				2444F85A0FC9FCA400063972 /* GeolocationModule.h in Headers */,
+				2444F85C0FC9FCA400063972 /* MediaModule.h in Headers */,
+				2444F8620FC9FCA400063972 /* NetworkModule.h in Headers */,
+				2444F8640FC9FCA400063972 /* PlatformModule.h in Headers */,
+				2444F8680FC9FCA400063972 /* UiModule.h in Headers */,
+				2444FA560FCA4E2E00063972 /* IPAddress.h in Headers */,
+				2444FC7D0FCA6F8000063972 /* NSData+Additions.h in Headers */,
+				2444FCD20FCA741E00063972 /* base64.h in Headers */,
+				24BBD83F0FCD245F00A261A4 /* GestureModule.h in Headers */,
+				B4A49BBA0FCE08DA0049ED60 /* TitaniumBlobWrapper.h in Headers */,
+				B4110C9E0FD4653A00BE17F8 /* AccelerometerModule.h in Headers */,
+				24F02E470FD482D2007894DA /* AnalyticsModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		1D6058900D05DD3D006BFB54 /* Titanium */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Titanium" */;
+			buildPhases = (
+				1D60588D0D05DD3D006BFB54 /* Resources */,
+				1D60588E0D05DD3D006BFB54 /* Sources */,
+				1D60588F0D05DD3D006BFB54 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Titanium;
+			productName = Titanium;
+			productReference = 1D6058910D05DD3D006BFB54 /* Titanium.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B41068A10FBB730F00310448 /* libTitanium */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B41068A50FBB732E00310448 /* Build configuration list for PBXNativeTarget "libTitanium" */;
+			buildPhases = (
+				B410689E0FBB730F00310448 /* Headers */,
+				B410689F0FBB730F00310448 /* Sources */,
+				B41068A00FBB730F00310448 /* Frameworks */,
+				B49D34F60FBC919D0029ABEB /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libTitanium;
+			productName = Titanium;
+			productReference = B41068A20FBB730F00310448 /* libTitanium.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		29B97313FDCFA39411CA2CEA /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Titanium" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 1;
+			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1D6058900D05DD3D006BFB54 /* Titanium */,
+				B41068A10FBB730F00310448 /* libTitanium */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1D60588D0D05DD3D006BFB54 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
+				B40F54530F746D11008E0A55 /* TitaniumView.xib in Resources */,
+				B4A10F3E0F86BC490040D850 /* AppDownloadView.xib in Resources */,
+				B48E4AE40FC1DBEE00204C8E /* iPhone_BG.png in Resources */,
+				B48E4AE50FC1DBF200204C8E /* Default.png in Resources */,
+				24440B9B0FC9DFA0000A025D /* iPhone_icon.png in Resources */,
+				2444F98B0FCA417C00063972 /* tiapp.plist in Resources */,
+				2418F4220FCB629A00BFE545 /* sound.html in Resources */,
+				2418F4670FCB6A2100BFE545 /* sound.wav in Resources */,
+				B492D43E0FCC6DB20030772B /* network.html in Resources */,
+				B40A40A70FCF60BF00C5DD7C /* movie.m4v in Resources */,
+				B4DDBE2B0FD0AE31004DD79E /* ui.html in Resources */,
+				B4FFBE3E0FD4A778001D5E81 /* unitTest.html in Resources */,
+				B481D3370FD4C45A00F0A961 /* song.mp3 in Resources */,
+				B4DD427D0FD982FD00CD427F /* profile.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		B49D34F60FBC919D0029ABEB /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# lipo ../build/iphone/Debug-iphonesimulator/libTitanium.a ../build/iphone/Debug-iphoneos/libTitanium.a -create -output ../support/iphone/libTitanium.a";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1D60588E0D05DD3D006BFB54 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
+				1D3623260D0F684500981E51 /* TitaniumAppDelegate.m in Sources */,
+				28D7ACF80DDB3853001CB0EB /* TitaniumViewController.m in Sources */,
+				B413A6800F7998C500B1C47D /* TitaniumAppProtocol.m in Sources */,
+				B413A7530F79A58000B1C47D /* TitaniumCmdThread.m in Sources */,
+				B4864F5C0F7C48E700A851C5 /* TitaniumUIViewController.m in Sources */,
+				B45CA77F0F81565D00B80900 /* TitaniumHost.m in Sources */,
+				B4E9B9C40F82030700DD709C /* TitaniumAccessorTuple.m in Sources */,
+				B4E9BB660F842C9400DD709C /* SBJSON.m in Sources */,
+				B4E9BC090F85491F00DD709C /* TitaniumJSConstants.m in Sources */,
+				B4FC656F0F95078000B21EA1 /* TitaniumInvocationGenerator.m in Sources */,
+				B4FC66FC0F95590D00B21EA1 /* TitaniumJSCode.m in Sources */,
+				B408AD480F97FA010051FD67 /* TitaniumActionSheetHelper.m in Sources */,
+				B4FECD130FAA4B3E0015B658 /* Webcolor.m in Sources */,
+				2444F8370FC9FCA400063972 /* ApiModule.m in Sources */,
+				2444F8380FC9FCA400063972 /* AppModule.m in Sources */,
+				2444F8390FC9FCA400063972 /* DatabaseModule.m in Sources */,
+				2444F83A0FC9FCA400063972 /* PlausibleDatabase.m in Sources */,
+				2444F83B0FC9FCA400063972 /* PLSqliteDatabase.m in Sources */,
+				2444F83C0FC9FCA400063972 /* PLSqlitePreparedStatement.m in Sources */,
+				2444F83D0FC9FCA400063972 /* PLSqliteResultSet.m in Sources */,
+				2444F83E0FC9FCA400063972 /* FilesystemModule.m in Sources */,
+				2444F83F0FC9FCA400063972 /* GeolocationModule.m in Sources */,
+				2444F8400FC9FCA400063972 /* MediaModule.m in Sources */,
+				2444F8430FC9FCA400063972 /* NetworkModule.m in Sources */,
+				2444F8440FC9FCA400063972 /* PlatformModule.m in Sources */,
+				2444F8460FC9FCA400063972 /* UiModule.m in Sources */,
+				2444FA550FCA4E2E00063972 /* IPAddress.c in Sources */,
+				2444FC7F0FCA6F8000063972 /* NSData+Additions.m in Sources */,
+				2444FCD40FCA741E00063972 /* base64.c in Sources */,
+				24BBD83E0FCD245F00A261A4 /* GestureModule.m in Sources */,
+				B4A49BBC0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */,
+				B4110C9D0FD4653A00BE17F8 /* AccelerometerModule.m in Sources */,
+				24F02E460FD482D2007894DA /* AnalyticsModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B410689F0FBB730F00310448 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B41068A80FBB745600310448 /* TitaniumAppDelegate.m in Sources */,
+				B41068AA0FBB745600310448 /* TitaniumViewController.m in Sources */,
+				B41068AB0FBB745600310448 /* SBJSON.m in Sources */,
+				B41068B00FBB745600310448 /* TitaniumAppProtocol.m in Sources */,
+				B41068B20FBB745600310448 /* TitaniumCmdThread.m in Sources */,
+				B41068B40FBB745600310448 /* TitaniumUIViewController.m in Sources */,
+				B41068B60FBB745600310448 /* TitaniumHost.m in Sources */,
+				B41068B80FBB745600310448 /* TitaniumAccessorTuple.m in Sources */,
+				B41068BA0FBB745600310448 /* TitaniumJSConstants.m in Sources */,
+				B41068BE0FBB745600310448 /* TitaniumInvocationGenerator.m in Sources */,
+				B41068C00FBB745600310448 /* TitaniumJSCode.m in Sources */,
+				B41068C20FBB745600310448 /* TitaniumActionSheetHelper.m in Sources */,
+				B41068C40FBB745600310448 /* Webcolor.m in Sources */,
+				2444F8480FC9FCA400063972 /* ApiModule.m in Sources */,
+				2444F84A0FC9FCA400063972 /* AppModule.m in Sources */,
+				2444F84C0FC9FCA400063972 /* DatabaseModule.m in Sources */,
+				2444F84E0FC9FCA400063972 /* PlausibleDatabase.m in Sources */,
+				2444F8530FC9FCA400063972 /* PLSqliteDatabase.m in Sources */,
+				2444F8550FC9FCA400063972 /* PLSqlitePreparedStatement.m in Sources */,
+				2444F8570FC9FCA400063972 /* PLSqliteResultSet.m in Sources */,
+				2444F8590FC9FCA400063972 /* FilesystemModule.m in Sources */,
+				2444F85B0FC9FCA400063972 /* GeolocationModule.m in Sources */,
+				2444F85D0FC9FCA400063972 /* MediaModule.m in Sources */,
+				2444F8630FC9FCA400063972 /* NetworkModule.m in Sources */,
+				2444F8650FC9FCA400063972 /* PlatformModule.m in Sources */,
+				2444F8690FC9FCA400063972 /* UiModule.m in Sources */,
+				2444FA570FCA4E2E00063972 /* IPAddress.c in Sources */,
+				2444FC7E0FCA6F8000063972 /* NSData+Additions.m in Sources */,
+				2444FCD30FCA741E00063972 /* base64.c in Sources */,
+				24BBD8400FCD245F00A261A4 /* GestureModule.m in Sources */,
+				B4A49BBB0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */,
+				B4110C9F0FD4653A00BE17F8 /* AccelerometerModule.m in Sources */,
+				24F02E480FD482D2007894DA /* AnalyticsModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1D6058940D05DD3E006BFB54 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Blain Hamon";
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_VERSION = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
+				PRODUCT_NAME = Titanium;
+			};
+			name = Debug;
+		};
+		1D6058950D05DD3E006BFB54 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				FRAMEWORK_VERSION = "";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
+				PRODUCT_NAME = Titanium;
+			};
+			name = Release;
+		};
+		B41068A30FBB730F00310448 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_VERSION = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CPLUSPLUSFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = Titanium;
+			};
+			name = Debug;
+		};
+		B41068A40FBB730F00310448 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_VERSION = "";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				OTHER_CPLUSPLUSFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = Titanium;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		C01FCF4F08A954540054247B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Blain Hamon";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					MODULE_TI_GESTURE,
+					MODULE_TI_APP,
+					MODULE_TI_UI,
+					MODULE_TI_API,
+					MODULE_TI_DATABASE,
+					MODULE_TI_GEOLOCATION,
+					MODULE_TI_ACCELEROMETER,
+					MODULE_TI_MEDIA,
+					MODULE_TI_FILESYSTEM,
+					MODULE_TI_NETWORK,
+					MODULE_TI_PLATFORM,
+					MODULE_TI_GESTURE,
+					MODULE_TI_SYSTEM,
+				);
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = Info.plist;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "-DPL_DB_PRIVATE=1";
+				OTHER_CODE_SIGN_FLAGS = "";
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				PREBINDING = NO;
+				SDKROOT = iphonesimulator3.0;
+				SYMROOT = build;
+			};
+			name = Debug;
+		};
+		C01FCF5008A954540054247B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					MODULE_TI_GESTURE,
+					MODULE_TI_APP,
+					MODULE_TI_UI,
+					MODULE_TI_API,
+					MODULE_TI_DATABASE,
+					MODULE_TI_GEOLOCATION,
+					MODULE_TI_ACCELEROMETER,
+					MODULE_TI_MEDIA,
+					MODULE_TI_FILESYSTEM,
+					MODULE_TI_NETWORK,
+					MODULE_TI_PLATFORM,
+					MODULE_TI_GESTURE,
+					MODULE_TI_SYSTEM,
+				);
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = Info.plist;
+				OTHER_CFLAGS = "-DPL_DB_PRIVATE=1";
+				OTHER_CODE_SIGN_FLAGS = "";
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				PREBINDING = NO;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				SDKROOT = iphonesimulator2.2.1;
+				SYMROOT = build;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Titanium" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1D6058940D05DD3E006BFB54 /* Debug */,
+				1D6058950D05DD3E006BFB54 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B41068A50FBB732E00310448 /* Build configuration list for PBXNativeTarget "libTitanium" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B41068A30FBB730F00310448 /* Debug */,
+				B41068A40FBB730F00310448 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Titanium" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C01FCF4F08A954540054247B /* Debug */,
+				C01FCF5008A954540054247B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 29B97313FDCFA39411CA2CEA /* Project object */;
+}

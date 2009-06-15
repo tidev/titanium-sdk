@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+#
+# Scons script for building the iphone library
+#
+import os
+
+# add your module here for it to get compiled into
+# the library
+modules = [	'api',
+			'app',
+			'ui',
+			'database',
+			'accelerometer',
+			'geolocation',
+			'media',
+			'filesystem',
+			'network',
+			'platform',
+            'analytics',
+			'gesture']
+
+try:
+	# pull in the version from the top-level SConstruct
+	Import('version')
+except:
+	if ARGUMENTS.get('PRODUCT_VERSION', 0):
+		version = ARGUMENTS['PRODUCT_VERSION']
+	else:
+		version = '0.0.0'
+
+defines='TI_VERSION=%s ' % version
+
+for api in modules:
+	defines+="MODULE_TI_%s=1 " % (api.upper())
+
+
+config = 'Release'
+
+
+for apiversion in ['2.2.1','3.0']:
+    # execute the phone and simulator release builds
+    os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target libTitanium -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s' clean build" % (apiversion,config,defines))
+    os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target libTitanium -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s' clean build" % (apiversion,config,defines))
+
+    # build the merged library using lipo
+    os.system("lipo build/%s-iphonesimulator/libTitanium.a build/%s-iphoneos/libTitanium.a -create -output build/libTitanium-%s.a" %(config,config,apiversion))
+
+

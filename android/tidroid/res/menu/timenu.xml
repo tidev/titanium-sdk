@@ -1,0 +1,23 @@
+<!--Copyright(c) 2009 by Appcelerator, Inc. All Rights Reserved.       -->
+<!-- This is proprietary software. Do not redistribute without express -->
+<!-- written permission.                                               -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item
+		android:title="@string/refresh_title"
+		android:id="@+id/refresh"
+		android:enabled="true"
+		android:icon="@drawable/refresh"
+	/>
+	<item
+		android:id="@+id/settings"
+		android:title="@string/settings_title"
+		android:icon="@android:drawable/ic_menu_preferences"
+	/>
+	<item
+		android:id="@+id/about"
+		android:title="@string/about_title"
+		android:icon="@drawable/about"
+	/>
+
+</menu>

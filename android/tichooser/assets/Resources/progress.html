@@ -1,0 +1,84 @@
+<html>
+<head>
+  <title>Content Chooser</title>
+  <script>
+  window.onload = function()
+  {
+	progress = Titanium.UI.createActivityIndicator();
+	progress.setLocation(Titanium.UI.ActivityIndicator.DIALOG);
+	progress.setType(Titanium.UI.ActivityIndicator.INDETERMINANT);
+	progress.setMessage("Some message");
+	progress.setMin(0); // doesn't matter for indeterminant
+	progress.setMax(100);
+	progress.setPos(0);
+
+	p2 = Titanium.UI.createActivityIndicator({
+		'location' : Titanium.UI.ActivityIndicator.DIALOG,
+		'type' : Titanium.UI.ActivityIndicator.DETERMINANT,
+		'message' : 'Starting...',
+		'min' : 0, 'max' : 100, 'pos' : 0
+	});
+
+	p3 = Titanium.UI.createActivityIndicator({
+		'location' : Titanium.UI.ActivityIndicator.STATUS_BAR,
+		'type' : Titanium.UI.ActivityIndicator.INDETERMINANT,
+		'message' : 'Starting...'
+	});
+
+	p4 = Titanium.UI.createActivityIndicator({
+		'location' : Titanium.UI.ActivityIndicator.STATUS_BAR,
+		'type' : Titanium.UI.ActivityIndicator.DETERMINANT,
+		'message' : 'Starting...',
+		'min' : 0, 'max' : 100, 'pos' : 0
+	});
+
+  }
+
+  function doProgress1() {
+	  progress.show();
+	  setTimeout(function() {progress.hide()}, 5000);
+  }
+
+  function doProgress2() {
+	  p2.show();
+	  var i = 0;
+	  var timer = setInterval(function() {
+		  p2.setPos(i);
+		  p2.setMessage("Step " + i);
+		  i++;
+		  if(i == 100) {
+			  clearInterval(timer);
+			  p2.hide();
+		  }
+		}, 100);
+  }
+
+  function doProgress3() {
+	  p3.show();
+	  setTimeout(function() {p3.hide()}, 5000);
+  }
+
+  function doProgress4() {
+	  p4.show();
+	  var i = 0;
+	  var timer = setInterval(function() {
+		  p4.setPos(i);
+		  p4.setMessage("Step " + i);
+		  i++;
+		  if(i == 100) {
+			  clearInterval(timer);
+			  p4.hide();
+		  }
+		}, 100);
+  }
+  </script>
+</head>
+<body style="background-color: white;">
+Content Chooser<br/>
+<a href="#" onclick='doProgress1(); return false;'>Progress 1</a><br/>
+<a href="#" onclick='doProgress2(); return false;'>Progress 2</a><br/>
+<a href="#" onclick='doProgress3(); return false;'>Progress 3</a><br/>
+<a href="#" onclick='doProgress4(); return false;'>Progress 4</a><br/>
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+<html>
+	<head>
+		<title>Network</title>
+		<script type="text/javascript" src="tiui/js/tiui.js"></script>
+
+		<link href="tiui/css/tiui.css" rel="stylesheet" type="text/css">
+
+
+	</head>
+	<body>
+		<div id="data"></div>
+
+		<script>
+		Titanium.UI.ready = function()
+		{
+			Titanium.UI.setPropertyBackground();
+			var type = (Titanium.Network.networkType==0)?'None':
+					   (Titanium.Network.networkType==1)?'WIFI':
+					   (Titanium.Network.networkType==2)?'Mobile':
+					   (Titanium.Network.networkType==3)?'LAN':'Unknown'
+			var data= [
+				{title:'Online (true|false)',type:'readonly',value:Titanium.Network.online},
+				{title:'Network Type',type:'readonly',value:type}
+			];
+
+
+			// // add a connectivity listener
+			// var id = Titanium.Network.addConnectivityListener(function(state)
+			// {
+			//
+			// });
+			//
+			Titanium.UI.createGroupedView('data','input',data,function(index)
+			{
+
+			});
+
+		};
+		</script>
+
+	</body>
+</html>

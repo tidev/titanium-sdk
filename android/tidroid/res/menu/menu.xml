@@ -1,0 +1,20 @@
+<!--Copyright(c) 2009 by Appcelerator, Inc. All Rights Reserved.       -->
+<!-- This is proprietary software. Do not redistribute without express -->
+<!-- written permission.                                               -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<group android:id="@+id/menu_group_app_uninstalled" android:visible="true"><item android:title="@string/install_title" android:id="@+id/install" android:icon="@android:drawable/ic_menu_add"></item></group><group android:id="@+id/menu_group_app_installed" android:visible="false"><item android:id="@+id/launch" android:title="Launch" android:icon="@android:drawable/ic_menu_view"/><item android:title="@string/refresh_title" android:id="@+id/refresh" android:enabled="false"></item><item android:title="@string/uninstall_title" android:id="@+id/uninstall" android:icon="@android:drawable/ic_menu_delete"></item></group>
+	<item android:id="@+id/settings"
+		android:title="@string/settings_title"
+	android:icon="@android:drawable/ic_menu_preferences"/>
+	<item
+		android:id="@+id/about"
+		android:title="@string/about_title"
+		android:icon="@drawable/about"
+	/>
+
+
+
+
+
+</menu>

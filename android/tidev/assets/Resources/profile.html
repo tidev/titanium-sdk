@@ -1,0 +1,31 @@
+<html>
+<head>
+	<link rel="stylesheet" href="css/profile.css" type="text/css" media="screen" charset="utf-8">
+	<script type="text/javascript" src="js/common.js"></script>
+	<script type="text/javascript" src="js/profile.js"></script>
+</head>
+<body>
+	<div id="login_table">
+		<div style="margin-bottom:20px;">Enter your Appcelerator Developer login to continue.</div>
+		<table>
+			<tr>
+				<td>Username:</td>
+				<td><input type="text" id="un" value=""/></td>
+			</tr>
+			<tr>
+				<td>Password:</td>
+				<td><input type="password" id="pw" value=""/></td>
+			</tr>
+			<tr colspan="2">
+				<td align="center">
+					<button id="login">Login</button>
+				</td>
+			</tr>
+		</table>
+		<div id="login_error" style="visiblity:hidden"></div>
+	</div>
+	<div id="profile_table" style="display:none">
+		<button id="logout">Logout</button>
+	</div>
+</body>
+</html>

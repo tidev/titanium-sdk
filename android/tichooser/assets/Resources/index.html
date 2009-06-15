@@ -1,0 +1,42 @@
+<html>
+<head>
+  <title>Content Chooser</title>
+  <script>
+  window.onload = function()
+  {
+	  adlg = Titanium.UI.createAlertDialog();
+	  adlg.setTitle("Alert Dialog 1");
+	  adlg.setMessage("My alert dialog message.");
+	  adlg.setButtonNames(["OK", "Undo", "Cancel"]);
+	  adlg.addEventListener('click', function(r) { alert("Got result " + r); });
+
+	  odlg = Titanium.UI.createOptionDialog();
+	  odlg.setTitle("Alert Dialog 1");
+	  odlg.setOptions(["Apples", "Pears", "Bananas", "Oranges", "Mangos", "Grapes", "Tomatoes"]);
+	  odlg.addEventListener('click', function(r) { alert("Got result " + r); });
+
+	  adlg2 = Titanium.UI.createAlertDialog({
+		  'title' : 'Alert Dialog 2',
+		  'message' : 'Alert Message 2',
+		  'buttonNames' : [ 'Btn0', 'Btn1', 'Btn2' ]
+	  });
+	  adlg2.addEventListener('click', function(r) { alert("Got result " + r); });
+
+	  odlg2 = Titanium.UI.createOptionDialog({
+		  'title' : 'Option Dialog 2',
+		  'options' : [ 'Opt0', 'Opt1', 'Opt2', 'Opt3' ]
+	  });
+	  odlg2.addEventListener('click', function(r) { alert("Got result " + r); });
+
+  }
+  </script>
+</head>
+<body style="background-color: white;">
+Content Chooser<br/>
+<a href="#" onclick='adlg.show(); return false;'>Alert Dialog</a><br/>
+<a href="#" onclick='odlg.show(); return false;'>Option Dialog</a><br />
+<a href="#" onclick='adlg2.show(); return false;'>Alert Dialog w/ options</a><br/>
+<a href="#" onclick='odlg2.show(); return false;'>Option Dialog w/ options</a>
+
+</body>
+</html>

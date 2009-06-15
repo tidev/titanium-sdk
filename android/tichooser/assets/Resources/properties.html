@@ -1,0 +1,52 @@
+<html>
+<head>
+  <title>Window</title>
+  <script>
+
+  window.onload = function() {
+
+	  var sp = Titanium.App.SystemProperties;
+	  var ap = Titanium.App.Properties;
+
+	  sp.setInt("system.int", 100);
+	  sp.setDouble("system.double", 100.0);
+	  sp.setString("system.string", "a string");
+	  sp.setBool("system.bool", true);
+
+	  var html = "<h3>System</h3>";
+	  html += "ti.android.flushjscache=" + sp.getBool("ti.android.flushjscache") + "<br\>";
+	  html += "ti.android.minifyjs=" + sp.getBool("ti.android.minifyjs") + "<br\>";
+	  html += "ti.network.userAgent=" + sp.getString("ti.network.userAgent") + "<br\>";
+	  html += "system.int=" + sp.getInt("system.int") + "<br\>";
+	  html += "system.double=" + sp.getDouble("system.double") + "<br\>";
+	  html += "system.string=" + sp.getString("system.string") + "<br\>";
+	  html += "system.bool=" + sp.getBool("system.bool") + "<br\>";
+
+	  document.getElementById("system").innerHTML = html;
+
+	  html = "<h3>App</h3>";
+
+	  ap.setInt("app.int", 200);
+	  ap.setDouble("app.double", 100.1);
+	  ap.setString("app.string", "a string too");
+	  ap.setBool("app.bool", false);
+
+	  html += "app.int=" + ap.getInt("app.int") + "<br\>";
+	  html += "app.double=" + ap.getDouble("app.double") + "<br\>";
+	  html += "app.string=" + ap.getString("app.string") + "<br\>";
+	  html += "app.bool=" + ap.getBool("app.bool") + "<br\>";
+
+	  document.getElementById("app").innerHTML = html;
+
+  }
+
+  </script>
+</head>
+<body style="background-color: white;">
+Content<br/>
+	<div id="system">
+	</div>
+	<div id="app" style="margin-top: 20px">
+	</div>
+</body>
+</html>

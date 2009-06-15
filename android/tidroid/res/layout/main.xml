@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright(c) 2009 by Appcelerator, Inc. All Rights Reserved.       -->
+<!-- This is proprietary software. Do not redistribute without express -->
+<!-- written permission.                                               -->
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+	<ImageView
+		android:src="@drawable/background"
+		android:scaleType="center"
+		android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+	/>
+
+	<TableLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+	>
+	<TableRow>
+		<TextView
+			android:text="App: "
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_gravity="top"
+			android:layout_marginTop="10dip"
+			android:textSize="15sp"
+		/>
+		<TextView
+			android:id="@+id/status_app_text"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_gravity="top"
+			android:layout_marginTop="10dip"
+			android:textSize="15sp"
+		/>
+	</TableRow>
+		<TableRow>
+		<TextView
+			android:text="Repository: "
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_gravity="top"
+			android:layout_marginTop="10dip"
+			android:textSize="15sp"
+		/>
+		<TextView
+			android:id="@+id/status_repository_text"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_gravity="top"
+			android:layout_marginTop="10dip"
+			android:textSize="15sp"
+		/>
+	</TableRow>
+	</TableLayout>
+</merge>
