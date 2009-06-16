@@ -337,6 +337,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	{
 		[self loadModulesFromDict:[appProperties objectForKey:@"modules"]];
 		[self setAppID:[appProperties objectForKey:@"id"]];
+		[appProperties retain];
 	}
 	
 	if (appID == nil) { appID = @"com.unknown.application"; }

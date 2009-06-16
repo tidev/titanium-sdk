@@ -47,6 +47,7 @@
 	return [NSNumber numberWithBool:result];
 }
 
+#define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
 
 - (BOOL) startModule;
 {
@@ -102,28 +103,20 @@
 	if (strstr([model UTF8String],"Simulator"))
 	{
 		phoneNumber = @"1 (650) 867-5309"; // tommy says: call jenny
-	}
-	else if (phoneNumber == nil)
-	{
-		phoneNumber =(id)[NSNull null];
-	}
-	
-	if (deviceIP == nil) deviceIP = (id)[NSNull null];
-	if (deviceMac == nil) deviceMac = (id)[NSNull null];
-	
+	}	
 	
 	NSDictionary * platformDict = [NSDictionary dictionaryWithObjectsAndKeys:
 								   [theDevice systemName],@"name",
 								   model,@"model",
 								   [theDevice systemVersion],@"version",
 								   @"arm",@"architecture",
-								   deviceMac,@"macaddress",
+								   VAL_OR_NSNULL(deviceMac),@"macaddress",
 								   [theDevice uniqueIdentifier],@"id",
 								   [NSNumber numberWithInt:1],@"processorCount",
 								   [theDevice name],@"username",
 								   UUIDGenerator,@"createUUID",
-								   deviceIP,@"address",
-								   phoneNumber,@"phoneNumber",
+								   VAL_OR_NSNULL(deviceIP),@"address",
+								   VAL_OR_NSNULL(phoneNumber),@"phoneNumber",
 								   memoryAccessor,@"availableMemory",
 								   openURLInvoc,@"openURL",
 								   @"32bit",@"ostype",

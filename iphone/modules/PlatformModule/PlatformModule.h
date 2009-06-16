@@ -10,7 +10,6 @@
 #import "TitaniumModule.h"
 
 @interface PlatformModule : NSObject<TitaniumModule> {
-	
 }
 
 - (NSString *) createUUID;

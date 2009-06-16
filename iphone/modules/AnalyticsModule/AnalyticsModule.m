@@ -112,6 +112,7 @@ NSString * analyticsModuleDictString = @"function(name,value){"
 
 
 @implementation AnalyticsModule
+@synthesize sessionID;
 
 #pragma mark startModule
 
@@ -126,10 +127,49 @@ NSString * analyticsModuleDictString = @"function(name,value){"
 	[encoder release];
 }
 
+#define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
+
 - (void) pageLoaded;
 {
 	if(callsMade == 0){
-		[self addEvent:@"ti.start" value:nil];
+		NSString * deploytypeString = nil;
+		NSDictionary * platformDict = [[[TitaniumHost sharedHost] titaniumObject] objectForKey:@"Platform"];
+		NSString * macAddressString = [platformDict objectForKey:@"macaddress"];
+		NSString * ipAddressString = [platformDict objectForKey:@"address"];
+
+		NSDictionary * appPropertiesDict = [[TitaniumHost sharedHost] appProperties];
+		NSString * appVersionString = [appPropertiesDict objectForKey:@"version"];
+		NSString * appGUIDString = [appPropertiesDict objectForKey:@"guid"];
+		NSString * appIDString = [appPropertiesDict objectForKey:@"id"];
+		NSString * appNameString = [appPropertiesDict objectForKey:@"name"];
+		NSString * appPublisherString = [appPropertiesDict objectForKey:@"publisher"];
+
+		UIDevice * theDevice = [UIDevice currentDevice];		
+		NSDictionary * deviceInfo = [[NSDictionary alloc] initWithObjectsAndKeys:
+				@"iPhone",@"platform",
+				@"0.4",@"version",
+				VAL_OR_NSNULL(deploytypeString),@"deploytype",
+
+				[theDevice model],@"model",
+				[theDevice uniqueIdentifier],@"mid",
+				VAL_OR_NSNULL(macAddressString),@"mac_addr",
+				[theDevice systemVersion],@"osver",
+				[theDevice systemName],@"os",
+				@"32bit",@"ostype",
+				@"arm",@"osarch",
+				[NSNumber numberWithInt:1],@"oscpu",
+				VAL_OR_NSNULL(ipAddressString),@"ip",
+				[theDevice name],@"un",
+
+				VAL_OR_NSNULL(appVersionString),@"app_version",
+				VAL_OR_NSNULL(appGUIDString),@"app_guid",
+				VAL_OR_NSNULL(appIDString),@"app_id",
+				VAL_OR_NSNULL(appNameString),@"app_name",
+				VAL_OR_NSNULL(appPublisherString),@"app_publisher",
+									 
+				nil];
+		[self addEvent:@"ti.start" value:deviceInfo];
+		[deviceInfo release];
 	}
 	callsMade ++;
 }
@@ -141,12 +181,12 @@ NSString * analyticsModuleDictString = @"function(name,value){"
 
 	NSInvocation * handlePageInvoc = [TitaniumInvocationGenerator invocationWithTarget:self	selector:@selector(pageLoaded) object:nil];
 
-	NSString * ourSid = [(PlatformModule *)[[TitaniumHost sharedHost] moduleNamed:@"PlatformModule"] createUUID];
+	[self setSessionID:[(PlatformModule *)[[TitaniumHost sharedHost] moduleNamed:@"PlatformModule"] createUUID]];
 
 	NSDictionary * analyticsDict = [NSDictionary dictionaryWithObjectsAndKeys:
 			handlePageInvoc,@"_START",
 			addEventCode,@"addEvent",
-			ourSid,@"sid",
+			sessionID,@"sid",
 			nil];
 	
 	[[[TitaniumHost sharedHost] titaniumObject] setObject:analyticsDict forKey:@"Analytics"];

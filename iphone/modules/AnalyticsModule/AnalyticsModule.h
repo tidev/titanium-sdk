@@ -9,7 +9,10 @@
 
 @interface AnalyticsModule : NSObject<TitaniumModule> {
 	int callsMade;
+	NSString * sessionID;
 }
+
+@property(readwrite,retain,nonatomic)	NSString * sessionID;
 
 /**
  * @tiapi(method=True,name=Analytics.addEvent,since=0.4) send an analytics event associated with the application
