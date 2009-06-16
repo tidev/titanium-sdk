@@ -331,7 +331,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 		}
 	}
 	
-	NSLog(@"Application Properties = %@", appProperties);
+//	NSLog(@"Application Properties = %@", appProperties);
 
 	if (appProperties!=nil)
 	{

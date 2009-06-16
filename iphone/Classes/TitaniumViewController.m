@@ -53,11 +53,11 @@ UIStatusBarStyle statusBarStyleFromObject(id inputObject){
 
 TitaniumViewControllerOrientationsAllowed orientationsFromObject(id inputObject){
 
-	NSLog(@"Portrait: %x, upsidedown: %x, llLeft: %x, llRight: %x, LL: %x, LPort: %x,",
-	TitaniumViewControllerPortrait,TitaniumViewControllerPortraitUpsideDown,TitaniumViewControllerLandscapeLeft,
-	TitaniumViewControllerLandscapeRight,TitaniumViewControllerLandscape,TitaniumViewControllerLandscapeOrPortrait
-	
-	);
+//	NSLog(@"Portrait: %x, upsidedown: %x, llLeft: %x, llRight: %x, LL: %x, LPort: %x,",
+//	TitaniumViewControllerPortrait,TitaniumViewControllerPortraitUpsideDown,TitaniumViewControllerLandscapeLeft,
+//	TitaniumViewControllerLandscapeRight,TitaniumViewControllerLandscape,TitaniumViewControllerLandscapeOrPortrait
+//	
+//	);
 	
 
 
@@ -465,7 +465,6 @@ TitaniumViewController * mostRecentController = nil;
 
 // Override to allow orientations other than the default portrait orientation.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-	NSLog(@"%@ should rotate to %d",self,interfaceOrientation);
 	
 	TitaniumViewControllerOrientationsAllowed newOrientation = (1 << interfaceOrientation);
 
