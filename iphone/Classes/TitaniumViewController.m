@@ -342,7 +342,15 @@ TitaniumViewController * mostRecentController = nil;
 	
 	NSString * docHeightString = [webView stringByEvaluatingJavaScriptFromString:@"document.height"];
 	CGFloat docHeight = [docHeightString floatValue];
-	BOOL allowsScrolling = (webFrame.size.height < docHeight);	
+	
+	for(UIView * thisView in [[self view] subviews]){
+		if (thisView == webView) continue;
+		CGRect thisFrame = [thisView frame];
+		CGFloat bottom = thisFrame.size.height + thisFrame.origin.y;
+		if (bottom > docHeight) docHeight = bottom;
+	}
+	
+	BOOL allowsScrolling = (webFrame.size.height < docHeight);
 	if(allowsScrolling){
 		webFrame.size.height = docHeight;
 	}

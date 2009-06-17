@@ -11,11 +11,27 @@
 
 NSDictionary * barButtonSystemItemForStringDict = nil;
 
-#define UITitaniumNativeItemNone	-1
-#define UITitaniumNativeItemSpinner	-2
-#define UITitaniumNativeItemSlider	-3
+enum { //MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemItem
+	UITitaniumNativeItemNone = -1, //Also is a bog-standard button.
+	UITitaniumNativeItemSpinner = -2,
+	UITitaniumNativeItemProgressBar = -3,
 
-UIBarButtonSystemItem barButtonSystemItemForString(NSString * inputString){
+	UITitaniumNativeItemSlider = -4,
+	UITitaniumNativeItemSwitch = -5,
+	UITitaniumNativeItemMultiButton = -6,
+
+	UITitaniumNativeItemSegmented = -7,
+
+	UITitaniumNativeItemTextView = -8,
+	UITitaniumNativeItemTextField = -9,
+	UITitaniumNativeItemSearchBar = -10,
+
+	UITitaniumNativeItemPicker = -11,
+	UITitaniumNativeItemDatePicker = -12,
+};
+
+
+int barButtonSystemItemForString(NSString * inputString){
 	if (barButtonSystemItemForStringDict == nil) {
 		barButtonSystemItemForStringDict = [[NSDictionary alloc] initWithObjectsAndKeys:
 				[NSNumber numberWithInt:UIBarButtonSystemItemAction],@"action",
@@ -51,18 +67,24 @@ UIBarButtonSystemItem barButtonSystemItemForString(NSString * inputString){
 @interface UIButtonProxy : TitaniumProxyObject
 {
 //Properties that are stored until the time is right
+	BOOL needsRefreshing;
+
 	NSString * titleString;
 	NSString * iconPath;
-	
+	CGRect	frame;
 	int templateValue;
+
+//For Bar buttons
 	UIBarButtonItemStyle barButtonStyle;
 
+//For activity spinners
 	UIActivityIndicatorViewStyle spinnerStyle;
 	
-	
-	CGRect	frame;
+
 
 //Connections to the native side
+	UILabel * labelView;
+	UIProgressView * progressView;
 	UIView * nativeView;
 	UIBarButtonItem * nativeBarButton;
 
@@ -74,6 +96,8 @@ UIBarButtonSystemItem barButtonSystemItemForString(NSString * inputString){
 @property(nonatomic,readwrite,assign)	int templateValue;
 @property(nonatomic,readwrite,assign)	UIBarButtonItemStyle barButtonStyle;
 
+@property(nonatomic,readwrite,retain)	UILabel * labelView;
+@property(nonatomic,readwrite,retain)	UIProgressView * progressView;
 @property(nonatomic,readwrite,retain)	UIView * nativeView;
 @property(nonatomic,readwrite,retain)	UIBarButtonItem * nativeBarButton;
 
@@ -84,7 +108,7 @@ UIBarButtonSystemItem barButtonSystemItemForString(NSString * inputString){
 
 @implementation UIButtonProxy
 @synthesize nativeBarButton;
-@synthesize titleString, iconPath, templateValue, barButtonStyle, nativeView;
+@synthesize titleString, iconPath, templateValue, barButtonStyle, nativeView, labelView, progressView;
 
 - (id) init;
 {
@@ -99,29 +123,22 @@ UIBarButtonSystemItem barButtonSystemItemForString(NSString * inputString){
 	{id newObject=[newDict objectForKey:keyString];	\
 	if ([newObject respondsToSelector:@selector(methodName)]){	\
 		resultOutput = [newObject methodName];	\
+		needsRefreshing = YES;	\
+	}}
+
+#define GRAB_IF_STRING(keyString,resultOutput)	\
+	{id newObject=[newDict objectForKey:keyString];	\
+	if ([newObject isKindOfClass:[NSString class]] && ![resultOutput isEqualToString:newObject]) {	\
+		self.resultOutput = newObject;	\
+		needsRefreshing = YES;	\
 	}}
 
 - (void) setPropertyDict: (NSDictionary *) newDict;
-{
-	BOOL dirtyBit = NO;
-	
-	id newTitle = [newDict objectForKey:@"title"];
-	if ([newTitle isKindOfClass:[NSString class]] && ![titleString isEqualToString:newTitle]) {
-		[self setTitleString:newTitle];
-		dirtyBit = YES;
-	}
+{	
+	GRAB_IF_STRING(@"title",titleString);
+	GRAB_IF_STRING(@"image",iconPath);
 
-	id newImage = [newDict objectForKey:@"image"];
-	if ([newImage isKindOfClass:[NSString class]] && ![iconPath isEqualToString:newImage]) {
-		[self setIconPath:newImage];
-		dirtyBit = YES;
-	}
-
-	id newStyle = [newDict objectForKey:@"style"];
-	if ([newStyle respondsToSelector:@selector(intValue)]) {
-		[self setBarButtonStyle:[newStyle intValue]];
-		dirtyBit = YES;
-	}
+	GRAB_IF_SELECTOR(@"style",intValue,barButtonStyle);
 
 	GRAB_IF_SELECTOR(@"width",floatValue,frame.size.width);
 	GRAB_IF_SELECTOR(@"height",floatValue,frame.size.height);
@@ -132,23 +149,19 @@ UIBarButtonSystemItem barButtonSystemItemForString(NSString * inputString){
 	id newTemplate = [newDict objectForKey:@"systemButton"];
 	if ([newTemplate isKindOfClass:[NSString class]]) {
 		[self setTemplateValue:barButtonSystemItemForString(newTemplate)];
-		dirtyBit = YES;
+		needsRefreshing = YES;
 	} else if ([newTemplate isKindOfClass:[NSNumber class]]) {
 		[self setTemplateValue:[newTemplate intValue]];
-		dirtyBit = YES;
+		needsRefreshing = YES;
 	}
 	
 	
 	
-	if (dirtyBit){
-		[self setNativeBarButton:nil];
-		[self setNativeView:nil];
-	}
 }
 
-- (void) generateNewView: (BOOL) forBar;
+- (BOOL) updateNativeView: (BOOL) forBar;
 {
-	id result=nil;
+	id resultView=nil;
 
 	CGRect viewFrame=frame;
 	if (forBar){
@@ -160,34 +173,52 @@ UIBarButtonSystemItem barButtonSystemItemForString(NSString * inputString){
 
 
 	if (templateValue == UITitaniumNativeItemSpinner){
-		result = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:spinnerStyle];
-		[(UIActivityIndicatorView *)result startAnimating];
+		if ([nativeView isKindOfClass:[UIActivityIndicatorView class]]){
+			resultView = [nativeView retain];
+			[(UIActivityIndicatorView *)resultView setActivityIndicatorViewStyle:spinnerStyle];
+		} else {
+			resultView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:spinnerStyle];
+			[(UIActivityIndicatorView *)resultView startAnimating];
+		}
+		viewFrame.size = [(UIView *)resultView frame].size;
+		[(UIView *)resultView setFrame:viewFrame];
+
 	} else if (templateValue == UITitaniumNativeItemSlider){
-		result = [[UISlider alloc] initWithFrame:viewFrame];
-		[(UISlider *)result addTarget:self action:@selector(onValueChange:) forControlEvents:UIControlEventValueChanged];
+		if ([nativeView isKindOfClass:[UISlider class]]){
+			resultView = [nativeView retain];
+			[(UIView *)resultView setFrame:viewFrame];
+		} else {
+			resultView = [[UISlider alloc] initWithFrame:viewFrame];
+		}
+		[(UISlider *)resultView addTarget:self action:@selector(onValueChange:) forControlEvents:UIControlEventValueChanged];
 	}
 	
-	if (result == nil) {
-		result = [[UIButton alloc] initWithFrame:viewFrame];
+	if (resultView == nil) {
+		resultView = [[UIButton alloc] initWithFrame:viewFrame];
 		UIImage * iconImage = [[TitaniumHost sharedHost] imageForResource:iconPath];
-		if (iconImage != nil) {
-			[(UIButton *)result setImage:iconImage forState:UIControlStateNormal];
-		}
-		[(UIButton *)result setTitle:titleString forState:UIControlStateNormal];
+		[(UIButton *)resultView setImage:iconImage forState:UIControlStateNormal];
+		[(UIButton *)resultView setTitle:titleString forState:UIControlStateNormal];
 	}	
 		
 	[nativeView autorelease];
-	nativeView = result;
+	BOOL isNewView = (nativeView != resultView);
+	nativeView = resultView;
+	return isNewView;
 }
 
-- (void) generateNewNativeBarButton;
+- (void) updateNativeBarButton;
 {
 	UIBarButtonItem * result = nil;
 	SEL onClickSel = @selector(onClick:);
 	
 	if (templateValue <= UITitaniumNativeItemSpinner){
-		[self generateNewView:YES];
-		result = [[UIBarButtonItem alloc] initWithCustomView:nativeView];
+		[self updateNativeView:YES];
+		if ([nativeBarButton customView]==nativeView) {
+			result = [nativeBarButton retain]; //Why waste a good bar button?
+		} else {
+			result = [[UIBarButtonItem alloc] initWithCustomView:nativeView];
+		}
+
 		[result setStyle:barButtonStyle];
 
 	} else if (templateValue != UITitaniumNativeItemNone){
@@ -211,16 +242,18 @@ UIBarButtonSystemItem barButtonSystemItemForString(NSString * inputString){
 
 - (UIBarButtonItem *) nativeBarButton;
 {
-	if (nativeBarButton == nil) {
-		[self generateNewNativeBarButton];
+	if ((nativeBarButton == nil) || needsRefreshing) {
+		[self updateNativeBarButton];
+		needsRefreshing = NO;
 	}
 	return nativeBarButton;
 }
 
 - (UIView *) nativeView;
 {
-	if (nativeView == nil){
-		[self generateNewView:NO];
+	if ((nativeView == nil) || needsRefreshing){
+		[self updateNativeView:NO];
+		needsRefreshing = NO;
 	}
 	return nativeView;
 }

@@ -51,6 +51,13 @@
 			alerty.show();
 		},false);
 
+		var btn8 = Ti.UI.createButton('activity');
+		btn8.width=100;
+		btn8.addEventListener('click',function(foo){document.getElementById('sliderValue').innerHTML='Clicked!';});
+
+		btn8.bindToDiv($('buttony'));
+
+
 //		Titanium.Gesture.addEventListener('orientationchange',function(evt){
 //			var alerty = Titanium.UI.createAlertDialog();
 //			alerty.setTitle("Woah!");
@@ -87,7 +94,7 @@
 	Landscape: <script>document.write(Ti.Gesture.LANDSCAPE);</script><br>
 	Landscape: <script>document.write(Ti.UI.LANDSCAPE);</script><br>
 
-	<a href="tel:1234567">Call me</a>
+	<a href="tel:1234567">Call me</a><div id='buttony'>Button goes here!</div>
 	<a href="tel:1234567">Call me</a>
 	
 	<div id='sliderValue'>Unchanged slider value!</div>
