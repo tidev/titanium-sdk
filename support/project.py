@@ -7,7 +7,9 @@
 #
 
 import os, sys, subprocess, shutil
-
+def run(args):
+	return subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
+	
 def main(args,argc):
 	if argc < 5 or args[1]=='--help':
 		print "Usage: %s <name> <id> <directory> [iphone,android] [android_sdk]" % os.path.basename(args[0])
@@ -60,18 +62,14 @@ def main(args,argc):
 		iphone_resources = os.path.join(resources_dir,'iphone')
 		if not os.path.exists(iphone_resources): os.makedirs(iphone_resources)
 		iphone_gen = os.path.join(template_dir,'iphone','iphone.py')
-		cmd = sys.executable + " \"%s\" \"%s\" \"%s\" \"%s\"" % (iphone_gen,name,appid,directory)
-		print cmd
-		os.system(cmd)
+		run([sys.executable, iphone_gen, name, appid, directory])
 		
 	if android:
 		android_resources = os.path.join(resources_dir,'android')
 		if not os.path.exists(android_resources): os.makedirs(android_resources)
 		android_gen = os.path.join(template_dir,'android','android.py')
-		cmd = sys.executable + " \"%s\" \"%s\" \"%s\" \"%s\" \"%s\"" % (android_gen,name,appid,directory,android_sdk)
-		print cmd
-		os.system(cmd)
-
+		run([sys.executable, android_gen, name, appid, directory, android_sdk])
+		
 	# copy LICENSE and README
 	for file in ['LICENSE','README']:
 		shutil.copy(os.path.join(all_dir,file),os.path.join(project_dir,file))
