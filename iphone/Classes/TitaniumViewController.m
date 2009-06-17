@@ -574,7 +574,7 @@ TitaniumViewController * mostRecentController = nil;
 		NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
 		[self setTitle:newTitle];
 	}
-	[webView setAlpha:1.0];
+	[scrollView setAlpha:1.0];
 	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
 //	[UIView commitAnimations];
 	[self probeWebViewForTokenInContext:@"window"];
