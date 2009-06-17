@@ -13,6 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * Appcelerator Titanium Mobile
+ * Portions Copyright (c) 2009 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ *
+ * Changed to handle video from assets and contents locations
+ */
+
 
 package android.widget;
 
