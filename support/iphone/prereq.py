@@ -71,7 +71,7 @@ def check_for_wwdr(props,line):
 		props['wwdr_message']=None
 	
 def check_for_iphone_dev(props,line):
-	m = re.search(r'\"iPhone Developer: (.*)\(.*\)\"',line)
+	m = re.search(r'\"iPhone Developer: (.*)\"',line)
 	if not m == None:
 		name = m.group(1).strip()
 		props['iphone_dev']=True
