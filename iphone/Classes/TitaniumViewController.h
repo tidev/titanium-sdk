@@ -31,7 +31,7 @@ typedef enum {
 	IBOutlet UIWebView * webView;
 	IBOutlet UIImageView * backgroundView;
 	IBOutlet UIScrollView * scrollView;
-	NSMutableDictionary * nativeElementsDict;
+//	NSMutableSet * nativeElementsSet;
 
 
 	IBOutlet UIView * modalProgressView;
@@ -96,8 +96,6 @@ typedef enum {
 - (void)updateLayout: (BOOL)animated;
 - (BOOL)needsUpdate: (TitaniumViewControllerDirtyFlags) newFlags;
 - (void)doUpdateLayout;
-
-
 
 
 @end

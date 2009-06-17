@@ -27,7 +27,23 @@
 		var btn5 = Ti.UI.createButton('Moo');
 		btn5.addEventListener('click',function(){Ti.UI.currentWindow.setFullscreen(true);});
 
-		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5]);
+		var btn6 = Ti.UI.createButton('slider');
+		btn6.width=100;
+		btn6.addEventListener('valuechange',function(foo){document.getElementById('sliderValue').innerHTML='Newvalue' + foo.value;});
+//		btn6.addEventListener('valuechange',function(foo){
+//			var msg = 'Value: ' + foo.value;
+//			$('sliderValue').
+//			var alerty = Titanium.UI.createAlertDialog();
+//			alerty.setTitle(msg);
+//			alerty.show();
+//		},false);
+
+		btn6.bindToDiv($('sliderPlace'));
+//		Ti.UI.currentWindow.insertButton(btn6);
+
+		var btn7 = Ti.UI.createButton('activity');
+
+		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5,btn7]);
 		
 		Titanium.Gesture.addEventListener('shake',function(){
 			var alerty = Titanium.UI.createAlertDialog();
@@ -35,21 +51,21 @@
 			alerty.show();
 		},false);
 
-		Titanium.Gesture.addEventListener('orientationchange',function(evt){
-			var alerty = Titanium.UI.createAlertDialog();
-			alerty.setTitle("Woah!");
-//			alerty.setMessage('Tilty!');
-			alerty.setMessage('We went from ' + evt.from + ' to ' + evt.to +
-				', which is landscape?' + Ti.Gesture.isLandscape(evt.to) +
-				', or Portrait?' + Ti.Gesture.isPortrait(evt.to));
-
-			alerty.show();
-		},false);
+//		Titanium.Gesture.addEventListener('orientationchange',function(evt){
+//			var alerty = Titanium.UI.createAlertDialog();
+//			alerty.setTitle("Woah!");
+////			alerty.setMessage('Tilty!');
+//			alerty.setMessage('We went from ' + evt.from + ' to ' + evt.to +
+//				', which is landscape?' + Ti.Gesture.isLandscape(evt.to) +
+//				', or Portrait?' + Ti.Gesture.isPortrait(evt.to));
+//
+//			alerty.show();
+//		},false);
 
 		Ti.UI.currentWindow.addEventListener('focused',function(evt){Ti.API.info('Focused!')});
 		Ti.UI.currentWindow.addEventListener('unfocused',function(evt){Ti.API.info('Unfocused!')});
 
-		}catch(E){var alerty=Titanium.UI.createAlertDialog();alerty.setMessage(E);alerty.show();}
+		}catch(E){var alerty=Titanium.UI.createAlertDialog();alerty.setMessage('Error:'+E);alerty.show();}
 
 
 
@@ -73,5 +89,11 @@
 
 	<a href="tel:1234567">Call me</a>
 	<a href="tel:1234567">Call me</a>
+	
+	<div id='sliderValue'>Unchanged slider value!</div>
+
+	<div id='sliderPlace'></div>
+	
+	
 </body>
 </html>

@@ -332,6 +332,28 @@ TitaniumViewController * mostRecentController = nil;
 	[pool release];
 }
 
+- (void)updateScrollBounds;
+{
+	if ([self view]==nil) return;
+	CGRect webFrame;
+	webFrame.origin = CGPointZero;
+	webFrame.size = [scrollView frame].size;
+	[webView setFrame:webFrame];
+	
+	NSString * docHeightString = [webView stringByEvaluatingJavaScriptFromString:@"document.height"];
+	CGFloat docHeight = [docHeightString floatValue];
+	BOOL allowsScrolling = (webFrame.size.height < docHeight);	
+	if(allowsScrolling){
+		webFrame.size.height = docHeight;
+	}
+	[scrollView setContentSize:webFrame.size];
+	[webView setFrame:webFrame];
+	[scrollView setScrollEnabled:YES];
+	[scrollView setBounces:allowsScrolling];
+	[scrollView setShowsVerticalScrollIndicator:allowsScrolling];
+	[scrollView setShowsHorizontalScrollIndicator:allowsScrolling];
+}
+
 - (void)updateLayout: (BOOL)animated;
 {
 	UIApplication * theApp = [UIApplication sharedApplication];
@@ -343,19 +365,15 @@ TitaniumViewController * mostRecentController = nil;
 	
 	UINavigationBar * theNB = [theNC navigationBar];
 	
-//	if ((navBarTint != nil) && ![navBarTint isEqual:[theNB tintColor]]) {
-		NSLog(@"View %@ is updating tint to %@. Foreground View is: %@",self,navBarTint,[[TitaniumHost sharedHost] currentTitaniumViewController]);
-//		[self navigationItem];
-		[theNB setTintColor:navBarTint];
-		if (navBarTint != nil){
-			navBarStyle = ([[[self navigationController] navigationBar] barStyle]==UIBarStyleBlackOpaque) ?
-				UIBarStyleDefault : UIBarStyleBlackOpaque;
-		}
-		
-		[theNB setBarStyle:navBarStyle];
-		[theNB setOpaque:(navBarStyle != UIBarStyleBlackTranslucent)];
-//		navBarTint = nil;
-//	}
+//	NSLog(@"View %@ is updating tint to %@. Foreground View is: %@",self,navBarTint,[[TitaniumHost sharedHost] currentTitaniumViewController]);
+	[theNB setTintColor:navBarTint];
+	if (navBarTint != nil){
+		navBarStyle = ([[[self navigationController] navigationBar] barStyle]==UIBarStyleBlackOpaque) ?
+			UIBarStyleDefault : UIBarStyleBlackOpaque;
+	}
+	
+	[theNB setBarStyle:navBarStyle];
+	[theNB setOpaque:(navBarStyle != UIBarStyleBlackTranslucent)];
 
 	BOOL shouldShowToolBar = [toolbarItems count] > 0;
 	BOOL isShowingToolBar = (toolBar != nil) && (![toolBar isHidden]);
@@ -378,7 +396,7 @@ TitaniumViewController * mostRecentController = nil;
 			toolBarFrame = [toolBar frame];
 		}
 		if (animated){
-			[UIView beginAnimations:@"Toolbar" context:nil];
+//			[UIView beginAnimations:@"Toolbar" context:nil];
 		}
 		CGRect scrollViewFrame;
 		if(navBarStyle == UIBarStyleBlackTranslucent){
@@ -393,18 +411,18 @@ TitaniumViewController * mostRecentController = nil;
 		[toolBar setHidden:NO];
 		
 		if (animated) {
-			[UIView commitAnimations];
+//			[UIView commitAnimations];
 		}
 		
 		[toolBar setItems:toolbarItems animated:animated];
 	} else if (isShowingToolBar){ //Hide the toolbar.
 		if (animated){
-			[UIView beginAnimations:@"Toolbar" context:nil];
+//			[UIView beginAnimations:@"Toolbar" context:nil];
 		}
 		[toolBar setHidden:YES];
 		[scrollView setFrame:[[self view] bounds]];
 		if (animated) {
-			[UIView commitAnimations];
+//			[UIView commitAnimations];
 		}
 	}
 	[self updateScrollBounds];
@@ -500,6 +518,11 @@ TitaniumViewController * mostRecentController = nil;
 	[super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
+{
+	[self updateScrollBounds];
+}
+
 #endif		//END OF TI_MODULE_GESTURE
 
 #pragma mark UIWebViewDelegate methods
@@ -542,31 +565,9 @@ TitaniumViewController * mostRecentController = nil;
 	NSLog(@"Dict is now: %@",magicTokenDict);
 }
 
-- (void)updateScrollBounds;
-{
-	CGRect webFrame;
-	webFrame.origin = CGPointZero;
-	webFrame.size = [scrollView frame].size;
-	[webView setFrame:webFrame];
-
-	NSString * docHeightString = [webView stringByEvaluatingJavaScriptFromString:@"document.height"];
-	CGFloat docHeight = [docHeightString floatValue];
-	BOOL allowsScrolling = (webFrame.size.height < docHeight);	
-	if(allowsScrolling){
-		webFrame.size.height = docHeight;
-	}
-	[scrollView setContentSize:webFrame.size];
-	[webView setFrame:webFrame];
-	[scrollView setScrollEnabled:YES];
-	[scrollView setBounces:YES];
-//	[scrollView setShowsVerticalScrollIndicator:allowsScrolling];
-//	[scrollView setShowsHorizontalScrollIndicator:allowsScrolling];
-}
-
-
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
 {
-	[UIView beginAnimations:@"webView" context:nil];
+//	[UIView beginAnimations:@"webView" context:nil];
 	[self updateScrollBounds];
 	
 	if ([[self title] length] == 0){
@@ -575,7 +576,7 @@ TitaniumViewController * mostRecentController = nil;
 	}
 	[webView setAlpha:1.0];
 	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
-	[UIView commitAnimations];
+//	[UIView commitAnimations];
 	[self probeWebViewForTokenInContext:@"window"];
 }
 
@@ -809,6 +810,9 @@ TitaniumViewController * mostRecentController = nil;
 	//TODO: if thisIndex is 0, and we've got tabs, remove the tab? That doesn't sound like a good idea.
 }
 
-
+- (void) addNativeView: (UIView *) newView;
+{
+	[scrollView addSubview:newView];
+}
 
 @end

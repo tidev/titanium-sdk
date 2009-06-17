@@ -103,8 +103,10 @@
 - (void) doCommand;
 {
 	[self setModuleThread:[NSThread currentThread]];
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	[theHost registerThread:self];
 	
-	id ourObject = [[TitaniumHost sharedHost] valueForKeyPath:objectName];
+	id ourObject = [theHost valueForKeyPath:objectName];
 	id objectResult = nil;
 	NSError * error = nil;
 	
@@ -172,6 +174,7 @@
 		[jasonEncoder release];
 	}
 	
+	[theHost unregisterThread:self];
 	[self setModuleThread:nil];
 }
 
@@ -180,13 +183,10 @@
 - (void) multiThreadedDoCommand; //This is the root function of the new thread.
 {
 	NSAutoreleasePool * ourPool = [[NSAutoreleasePool alloc] init];
-	TitaniumHost * theHost = [TitaniumHost sharedHost];
-	[theHost registerThread:self];
 	[statusLock lockWhenCondition:TitaniumHasDataForModule];
 	
 	[self doCommand];
 	[statusLock unlockWithCondition:TitaniumHasDataForJavascript];
-	[theHost unregisterThread:self];
 	[ourPool release];
 }
 

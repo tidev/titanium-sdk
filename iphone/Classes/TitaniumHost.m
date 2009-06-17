@@ -25,7 +25,8 @@
 {
 	self = [super init];
 	if (self != nil) {
-		parentPageToken = [[[[TitaniumHost sharedHost] currentThread] magicToken] retain];
+		TitaniumCmdThread * ourThread = [[TitaniumHost sharedHost] currentThread];
+		parentPageToken = [[ourThread magicToken] retain];
 	}
 	return self;
 }
