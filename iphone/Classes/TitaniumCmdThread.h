@@ -48,5 +48,7 @@ enum {
 - (void) multiThreadedDoCommand; //This is the root function of the new thread.
 - (NSString *) pauseForJavascriptFetch: (NSString *) javaScriptFunction; //This is called (indirectly) by the module. It sets up the moduleResult and blocks for the foreground thread.
 
+- (void) doCommand;
+
 @end
 

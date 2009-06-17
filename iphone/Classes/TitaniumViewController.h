@@ -30,6 +30,9 @@ typedef enum {
 @interface TitaniumViewController : UIViewController<UIWebViewDelegate> {
 	IBOutlet UIWebView * webView;
 	IBOutlet UIImageView * backgroundView;
+	IBOutlet UIScrollView * scrollView;
+	NSMutableDictionary * nativeElementsDict;
+
 
 	IBOutlet UIView * modalProgressView;
 	IBOutlet UIActivityIndicatorView * modalProgressViewSpinny;

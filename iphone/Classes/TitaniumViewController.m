@@ -380,14 +380,14 @@ TitaniumViewController * mostRecentController = nil;
 		if (animated){
 			[UIView beginAnimations:@"Toolbar" context:nil];
 		}
-		CGRect webViewFrame;
+		CGRect scrollViewFrame;
 		if(navBarStyle == UIBarStyleBlackTranslucent){
-			webViewFrame = viewBounds;
+			scrollViewFrame = viewBounds;
 		} else {
-			webViewFrame = [webView frame];
-			webViewFrame.size.height = toolBarFrame.origin.y - webViewFrame.origin.y;
+			scrollViewFrame = [scrollView frame];
+			scrollViewFrame.size.height = toolBarFrame.origin.y - scrollViewFrame.origin.y;
 		}
-		[webView setFrame:webViewFrame];
+		[scrollView setFrame:scrollViewFrame];
 		[toolBar setTintColor:[theNB tintColor]];
 		[toolBar setBarStyle:navBarStyle];
 		[toolBar setHidden:NO];
@@ -402,11 +402,13 @@ TitaniumViewController * mostRecentController = nil;
 			[UIView beginAnimations:@"Toolbar" context:nil];
 		}
 		[toolBar setHidden:YES];
-		[webView setFrame:[[self view] bounds]];
+		[scrollView setFrame:[[self view] bounds]];
 		if (animated) {
 			[UIView commitAnimations];
 		}
 	}
+	[self updateScrollBounds];
+
 	dirtyFlags = TitaniumViewControllerIsClean;	
 }
 
@@ -540,9 +542,33 @@ TitaniumViewController * mostRecentController = nil;
 	NSLog(@"Dict is now: %@",magicTokenDict);
 }
 
+- (void)updateScrollBounds;
+{
+	CGRect webFrame;
+	webFrame.origin = CGPointZero;
+	webFrame.size = [scrollView frame].size;
+	[webView setFrame:webFrame];
+
+	NSString * docHeightString = [webView stringByEvaluatingJavaScriptFromString:@"document.height"];
+	CGFloat docHeight = [docHeightString floatValue];
+	BOOL allowsScrolling = (webFrame.size.height < docHeight);	
+	if(allowsScrolling){
+		webFrame.size.height = docHeight;
+	}
+	[scrollView setContentSize:webFrame.size];
+	[webView setFrame:webFrame];
+	[scrollView setScrollEnabled:YES];
+	[scrollView setBounces:YES];
+//	[scrollView setShowsVerticalScrollIndicator:allowsScrolling];
+//	[scrollView setShowsHorizontalScrollIndicator:allowsScrolling];
+}
+
+
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
 {
 	[UIView beginAnimations:@"webView" context:nil];
+	[self updateScrollBounds];
+	
 	if ([[self title] length] == 0){
 		NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
 		[self setTitle:newTitle];
