@@ -13,6 +13,7 @@
 #import "TitaniumUIViewController.h"
 #import "TitaniumAppDelegate.h"
 #import "TitaniumViewController.h"
+#import "TitaniumWebViewController.h"
 #import "TitaniumBlobWrapper.h"
 #import "TitaniumJSCode.h"
 #import "SBJSON.h"
@@ -705,7 +706,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 - (NSString *) javaScriptForResource: (NSURL *) resourceUrl
 {
 	NSString * thisThreadHashString = [NSString stringWithFormat:@"x%Xx",lastThreadHash];
-	[[TitaniumViewController mostRecentController] acceptToken:thisThreadHashString forContext:@"window"];
+	[[TitaniumWebViewController mostRecentController] acceptToken:thisThreadHashString forContext:@"window"];
 	NSString * result = [NSString stringWithFormat:(NSString*)titaniumJavascriptInjection,thisThreadHashString,thisThreadHashString,STRING(TI_VERSION),[self generateJavaScriptWrappingKeyPath:(NSString*)titaniumObjectKey makeObject:NO]];
 	lastThreadHash+=1;
 	return result;

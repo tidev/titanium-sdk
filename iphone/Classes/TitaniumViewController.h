@@ -71,15 +71,11 @@ typedef enum {
 	TitaniumViewControllerDirtyFlags	dirtyFlags;
 }
 
-+ (TitaniumViewController *) mostRecentController;
 + (TitaniumViewController *) viewController;
 
 //For WebView
 @property (nonatomic,retain)	IBOutlet UIWebView * webView;
 @property (nonatomic,retain)	NSURL * currentContentURL;	//Used as a base url.
-- (NSString *) performJavascript: (NSString *) inputString onPageWithToken: (NSString *) token;
-- (NSString *) contextForToken: (NSString *) tokenString;
-- (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
 
 //Common
 @property (nonatomic,retain)	NSMutableDictionary * viewProperties;

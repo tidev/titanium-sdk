@@ -13,4 +13,12 @@
 
 }
 
++ (TitaniumViewController *) mostRecentController;
+
+- (NSString *) performJavascript: (NSString *) inputString onPageWithToken: (NSString *) token;
+- (NSString *) contextForToken: (NSString *) tokenString;
+- (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
+
+- (void)reloadWebView;
+
 @end
