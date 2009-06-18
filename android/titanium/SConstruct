@@ -66,6 +66,6 @@ if platform.system() == 'Windows':
 android_jar = os.path.join(android_sdk, 'platforms', 'android-1.5', 'android.jar')
 commons_logging_jar = os.path.join(cwd, 'lib', 'commons-logging-1.1.1.jar')
 
-j = env.Java('bin/classes', 'src', JAVACFLAGS="-classpath "+android_jar+os.pathsep+commons_logging_jar)
+j = env.Java('bin/classes', 'src', JAVACFLAGS="-target 1.5 -classpath "+android_jar+os.pathsep+commons_logging_jar)
 env.AddPostAction(j,JarAction())
 env.Depends(j, targets)
