@@ -13,6 +13,11 @@ from mako.template import Template
 def run(args):
 	return subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
 
+def pipe(args1,args2):
+	p1 = subprocess.Popen(args1, stdout=subprocess.PIPE)
+	p2 = subprocess.Popen(args2, stdin=p1.stdout, stdout=subprocess.PIPE)
+	return p2.communicate()[0]
+	
 class Android(object):
 
 	def __init__(self, name, myid, sdk):
@@ -109,14 +114,10 @@ class Android(object):
 		
 		# only create the avd if we can't find it
 		if len(re.findall('titanium\.avd',avd_output))==0:
-
 			# create a special AVD for the project
-			cmd = "\"%s\" --verbose create avd --name titanium --target 2 --force" %(android)
 			inputgen = os.path.join(template_dir,'input.py')
-			pcmd = sys.executable + " \"%s\" | %s" % (inputgen,cmd)
-			print pcmd
-			os.system(pcmd)
-		
+			pipe([sys.executable, inputgen], [android, '--verbose', 'create', 'avd', '--name', 'titanium', '--target', '2', '--force'])
+			
 		# create a 10M SDCard for the project
 		if not os.path.exists(sdcard):
 			mksdcard = os.path.join(self.sdk,'tools','mksdcard')
