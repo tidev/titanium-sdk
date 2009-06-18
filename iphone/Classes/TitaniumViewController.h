@@ -28,20 +28,26 @@ typedef enum {
 
 
 @interface TitaniumViewController : UIViewController<UIWebViewDelegate> {
+
+//For TitaniumWebViewController:
 	IBOutlet UIWebView * webView;
+	NSURL * currentContentURL;	//Used as a base url.
+	NSMutableDictionary * magicTokenDict;
+	//TODO: What about views that never have magic tokens?
+
+//Commont to all viewControllers:
 	IBOutlet UIImageView * backgroundView;
-	IBOutlet UIScrollView * scrollView;
+	IBOutlet UIView * contentView;
+	IBOutlet UIToolbar * toolBar;
 //	NSMutableSet * nativeElementsSet;
 
 
-	IBOutlet UIView * modalProgressView;
-	IBOutlet UIActivityIndicatorView * modalProgressViewSpinny;
-	IBOutlet UIProgressView * modalProgressViewBar;
-	IBOutlet UILabel * modalProgressViewMessage;
+//For the modal progress view
+//	IBOutlet UIView * modalProgressView;
+//	IBOutlet UIActivityIndicatorView * modalProgressViewSpinny;
+//	IBOutlet UIProgressView * modalProgressViewBar;
+//	IBOutlet UILabel * modalProgressViewMessage;
 
-	IBOutlet UIToolbar * toolBar;
-
-	NSURL * currentContentURL;	//Used as a base url.
 	NSMutableDictionary * viewProperties;
 	
 	TitaniumViewControllerOrientationsAllowed allowedOrientations;
@@ -61,8 +67,6 @@ typedef enum {
 	BOOL		fullscreen;
 	UIStatusBarStyle statusBarStyle;
 
-	NSMutableDictionary * magicTokenDict;
-	
 	//TODO: organize and add in a set of dirty flags to speed things up.
 	TitaniumViewControllerDirtyFlags	dirtyFlags;
 }
@@ -70,8 +74,14 @@ typedef enum {
 + (TitaniumViewController *) mostRecentController;
 + (TitaniumViewController *) viewController;
 
+//For WebView
 @property (nonatomic,retain)	IBOutlet UIWebView * webView;
 @property (nonatomic,retain)	NSURL * currentContentURL;	//Used as a base url.
+- (NSString *) performJavascript: (NSString *) inputString onPageWithToken: (NSString *) token;
+- (NSString *) contextForToken: (NSString *) tokenString;
+- (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
+
+//Common
 @property (nonatomic,retain)	NSMutableDictionary * viewProperties;
 
 @property (nonatomic,retain)	UIColor *	navBarTint;
@@ -85,10 +95,8 @@ typedef enum {
 @property (nonatomic,copy)		NSArray *	toolbarItems;
 - (void)setNavBarTint: (UIColor *) newColor;
 
++ (TitaniumViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
-- (NSString *) performJavascript: (NSString *) inputString onPageWithToken: (NSString *) token;
-- (NSString *) contextForToken: (NSString *) tokenString;
-- (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
 - (void) setStatusBarStyleObject: (id) object;
 
 #pragma mark Functionality exposed to Titanium

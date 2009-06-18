@@ -123,6 +123,12 @@
 		B4A49BBC0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */; };
 		B4B587010FB00B670047B651 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4B587000FB00B670047B651 /* AudioToolbox.framework */; };
 		B4C3F8B60FB3B11C0037F210 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */; };
+		B4C6D7040FE99F4E00D62384 /* TitaniumWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7030FE99F4E00D62384 /* TitaniumWebViewController.m */; };
+		B4C6D7050FE99F4E00D62384 /* TitaniumWebViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4C6D7020FE99F4E00D62384 /* TitaniumWebViewController.h */; };
+		B4C6D7060FE99F4E00D62384 /* TitaniumWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7030FE99F4E00D62384 /* TitaniumWebViewController.m */; };
+		B4C6D7330FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */; };
+		B4C6D7340FE9AB0600D62384 /* TitaniumTableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4C6D7310FE9AB0600D62384 /* TitaniumTableViewController.h */; };
+		B4C6D7350FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */; };
 		B4CAF1530FC368B9000BB476 /* TitaniumUIViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4864F5A0F7C48E700A851C5 /* TitaniumUIViewController.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		B4DD427D0FD982FD00CD427F /* profile.png in Resources */ = {isa = PBXBuildFile; fileRef = B4DD427C0FD982FD00CD427F /* profile.png */; };
 		B4DDBE2B0FD0AE31004DD79E /* ui.html in Resources */ = {isa = PBXBuildFile; fileRef = B4DDBE2A0FD0AE31004DD79E /* ui.html */; };
@@ -219,6 +225,10 @@
 		B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumBlobWrapper.m; sourceTree = "<group>"; };
 		B4B587000FB00B670047B651 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		B4C6D7020FE99F4E00D62384 /* TitaniumWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumWebViewController.h; sourceTree = "<group>"; };
+		B4C6D7030FE99F4E00D62384 /* TitaniumWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumWebViewController.m; sourceTree = "<group>"; };
+		B4C6D7310FE9AB0600D62384 /* TitaniumTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumTableViewController.h; sourceTree = "<group>"; };
+		B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumTableViewController.m; sourceTree = "<group>"; };
 		B4DD427C0FD982FD00CD427F /* profile.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = profile.png; sourceTree = "<group>"; };
 		B4DDBE2A0FD0AE31004DD79E /* ui.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ui.html; sourceTree = "<group>"; };
 		B4E9B9C20F82030700DD709C /* TitaniumAccessorTuple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumAccessorTuple.h; sourceTree = "<group>"; };
@@ -276,12 +286,11 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				B4C6D7640FE9B54800D62384 /* Data wrappers */,
+				B4C6D7630FE9B50C00D62384 /* Utilities */,
+				B4C6D7560FE9B34D00D62384 /* TitaniumViewControllers */,
 				1D3623240D0F684500981E51 /* TitaniumAppDelegate.h */,
 				1D3623250D0F684500981E51 /* TitaniumAppDelegate.m */,
-				28D7ACF60DDB3853001CB0EB /* TitaniumViewController.h */,
-				28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */,
-				B4E9BB640F842C9400DD709C /* SBJSON.m */,
-				B4E9BB650F842C9400DD709C /* SBJSON.h */,
 				B413A67E0F7998C500B1C47D /* TitaniumAppProtocol.h */,
 				B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */,
 				B413A7510F79A58000B1C47D /* TitaniumCmdThread.h */,
@@ -290,27 +299,11 @@
 				B4864F5B0F7C48E700A851C5 /* TitaniumUIViewController.m */,
 				B45CA77D0F81565D00B80900 /* TitaniumHost.h */,
 				B45CA77E0F81565D00B80900 /* TitaniumHost.m */,
-				B4E9B9C20F82030700DD709C /* TitaniumAccessorTuple.h */,
-				B4E9B9C30F82030700DD709C /* TitaniumAccessorTuple.m */,
 				B4E9BC070F85491F00DD709C /* TitaniumJSConstants.h */,
 				B4E9BC080F85491F00DD709C /* TitaniumJSConstants.m */,
-				B4FC656D0F95078000B21EA1 /* TitaniumInvocationGenerator.h */,
-				B4FC656E0F95078000B21EA1 /* TitaniumInvocationGenerator.m */,
-				B4FC66FA0F95590D00B21EA1 /* TitaniumJSCode.h */,
-				B4FC66FB0F95590D00B21EA1 /* TitaniumJSCode.m */,
 				B408AD460F97FA010051FD67 /* TitaniumActionSheetHelper.h */,
 				B408AD470F97FA010051FD67 /* TitaniumActionSheetHelper.m */,
-				B4FECD110FAA4B3E0015B658 /* Webcolor.h */,
-				B4FECD120FAA4B3E0015B658 /* Webcolor.m */,
 				249075290FC9D55B00D38073 /* TitaniumModule.h */,
-				2444FA530FCA4E2E00063972 /* IPAddress.h */,
-				2444FA540FCA4E2E00063972 /* IPAddress.c */,
-				2444FC7B0FCA6F8000063972 /* NSData+Additions.h */,
-				2444FC7C0FCA6F8000063972 /* NSData+Additions.m */,
-				2444FCD00FCA741E00063972 /* base64.h */,
-				2444FCD10FCA741E00063972 /* base64.c */,
-				B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */,
-				B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -523,6 +516,51 @@
 			path = AccelerometerModule;
 			sourceTree = "<group>";
 		};
+		B4C6D7560FE9B34D00D62384 /* TitaniumViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				B4C6D7020FE99F4E00D62384 /* TitaniumWebViewController.h */,
+				B4C6D7030FE99F4E00D62384 /* TitaniumWebViewController.m */,
+				B4C6D7310FE9AB0600D62384 /* TitaniumTableViewController.h */,
+				B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */,
+				28D7ACF60DDB3853001CB0EB /* TitaniumViewController.h */,
+				28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */,
+			);
+			name = TitaniumViewControllers;
+			sourceTree = "<group>";
+		};
+		B4C6D7630FE9B50C00D62384 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				B4E9BB640F842C9400DD709C /* SBJSON.m */,
+				B4E9BB650F842C9400DD709C /* SBJSON.h */,
+				2444FA530FCA4E2E00063972 /* IPAddress.h */,
+				2444FA540FCA4E2E00063972 /* IPAddress.c */,
+				2444FC7B0FCA6F8000063972 /* NSData+Additions.h */,
+				2444FC7C0FCA6F8000063972 /* NSData+Additions.m */,
+				2444FCD00FCA741E00063972 /* base64.h */,
+				2444FCD10FCA741E00063972 /* base64.c */,
+				B4FECD110FAA4B3E0015B658 /* Webcolor.h */,
+				B4FECD120FAA4B3E0015B658 /* Webcolor.m */,
+			);
+			name = Utilities;
+			sourceTree = "<group>";
+		};
+		B4C6D7640FE9B54800D62384 /* Data wrappers */ = {
+			isa = PBXGroup;
+			children = (
+				B4FC656D0F95078000B21EA1 /* TitaniumInvocationGenerator.h */,
+				B4FC656E0F95078000B21EA1 /* TitaniumInvocationGenerator.m */,
+				B4E9B9C20F82030700DD709C /* TitaniumAccessorTuple.h */,
+				B4E9B9C30F82030700DD709C /* TitaniumAccessorTuple.m */,
+				B4FC66FA0F95590D00B21EA1 /* TitaniumJSCode.h */,
+				B4FC66FB0F95590D00B21EA1 /* TitaniumJSCode.m */,
+				B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */,
+				B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */,
+			);
+			name = "Data wrappers";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -556,6 +594,8 @@
 				B4A49BBA0FCE08DA0049ED60 /* TitaniumBlobWrapper.h in Headers */,
 				B4110C9E0FD4653A00BE17F8 /* AccelerometerModule.h in Headers */,
 				24F02E470FD482D2007894DA /* AnalyticsModule.h in Headers */,
+				B4C6D7050FE99F4E00D62384 /* TitaniumWebViewController.h in Headers */,
+				B4C6D7340FE9AB0600D62384 /* TitaniumTableViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -695,6 +735,8 @@
 				B4A49BBC0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */,
 				B4110C9D0FD4653A00BE17F8 /* AccelerometerModule.m in Sources */,
 				24F02E460FD482D2007894DA /* AnalyticsModule.m in Sources */,
+				B4C6D7040FE99F4E00D62384 /* TitaniumWebViewController.m in Sources */,
+				B4C6D7330FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -735,6 +777,8 @@
 				B4A49BBB0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */,
 				B4110C9F0FD4653A00BE17F8 /* AccelerometerModule.m in Sources */,
 				24F02E480FD482D2007894DA /* AnalyticsModule.m in Sources */,
+				B4C6D7060FE99F4E00D62384 /* TitaniumWebViewController.m in Sources */,
+				B4C6D7350FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -507,8 +507,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	token = [NSString stringWithFormat:@"VWIN%d",nextWindowToken++];
 	
 	TitaniumViewController * thisVC = [[TitaniumHost sharedHost] currentTitaniumViewController];
-	TitaniumViewController * resultVC = [TitaniumViewController viewController];
-	[resultVC readState:windowObject relativeToUrl:[thisVC currentContentURL]];
+	TitaniumViewController * resultVC = [TitaniumViewController viewControllerForState:windowObject relativeToUrl:[thisVC currentContentURL]];
 	
 	[virtualWindowsDict setObject:resultVC forKey:token];
 	id leftNavButton=[windowObject objectForKey:@"lNavBtn"];

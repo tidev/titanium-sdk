@@ -292,8 +292,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 
 - (UIViewController *) viewControllerForDict: (NSDictionary *) sourceDict
 {
-	TitaniumViewController * titaniumVC = [TitaniumViewController viewController];
-	[titaniumVC readState:sourceDict relativeToUrl:[NSURL URLWithString:@"index.html" relativeToURL:appBaseUrl]];
+	TitaniumViewController * titaniumVC = [TitaniumViewController viewControllerForState:sourceDict relativeToUrl:[NSURL URLWithString:@"index.html" relativeToURL:appBaseUrl]];
 
 	UINavigationController * navVC = [[UINavigationController alloc] initWithRootViewController:titaniumVC];	
 	return [navVC autorelease];

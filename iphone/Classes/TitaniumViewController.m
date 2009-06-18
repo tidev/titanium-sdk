@@ -10,6 +10,9 @@
 #import "TitaniumHost.h"
 #import "Webcolor.h"
 
+#import "TitaniumTableViewController.h"
+#import "TitaniumWebViewController.h"
+
 NSDictionary * tabBarItemFromObjectDict = nil;
 
 UITabBarSystemItem tabBarItemFromObject(id inputObject){
@@ -97,15 +100,36 @@ TitaniumViewController * mostRecentController = nil;
 		ourClassNibName = [ourClassNibName substringToIndex:[ourClassNibName length]-[ControllerString length]];
 	}
 	NSString * nibPath = [[NSBundle mainBundle] pathForResource:ourClassNibName ofType:@"nib"];
+
 	//We don't actually use the path, we just want to make sure it exists.
 	TitaniumViewController * result= nil;
 	if (nibPath != nil) {
 		result = [[self alloc] initWithNibName:ourClassNibName bundle:nil];
 	} else {
-		result = [[self alloc] init];
+		result = [[self alloc] initWithNibName:@"TitaniumView" bundle:nil];
 	}
 	
 	return [result autorelease];
+}
+
++ (TitaniumViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
+{
+	//NOTE: ViewControllerFactory here.
+	Class dictionaryClass = [NSDictionary class];
+	TitaniumViewController * result=nil;
+
+	if ([inputState isKindOfClass:dictionaryClass]){
+		id dataObject = [(NSDictionary *)inputState objectForKey:@"data"];
+		BOOL validTableView = [dataObject isKindOfClass:dictionaryClass];
+		if (validTableView){
+			result = [TitaniumTableViewController viewController];
+		}
+	}
+	if (result == nil){
+		result = [TitaniumWebViewController viewController];
+	}
+	[result readState:inputState relativeToUrl:baseUrl];
+	return result;	
 }
 
 - (void)didReceiveMemoryWarning {
@@ -337,7 +361,7 @@ TitaniumViewController * mostRecentController = nil;
 	if ([self view]==nil) return;
 	CGRect webFrame;
 	webFrame.origin = CGPointZero;
-	webFrame.size = [scrollView frame].size;
+	webFrame.size = [contentView frame].size;
 	[webView setFrame:webFrame];
 	
 	NSString * docHeightString = [webView stringByEvaluatingJavaScriptFromString:@"document.height"];
@@ -354,12 +378,12 @@ TitaniumViewController * mostRecentController = nil;
 	if(allowsScrolling){
 		webFrame.size.height = docHeight;
 	}
-	[scrollView setContentSize:webFrame.size];
+	[(UIScrollView *)contentView setContentSize:webFrame.size];
 	[webView setFrame:webFrame];
-	[scrollView setScrollEnabled:YES];
-	[scrollView setBounces:allowsScrolling];
-	[scrollView setShowsVerticalScrollIndicator:allowsScrolling];
-	[scrollView setShowsHorizontalScrollIndicator:allowsScrolling];
+	[(UIScrollView *)contentView setScrollEnabled:YES];
+	[(UIScrollView *)contentView setBounces:allowsScrolling];
+	[(UIScrollView *)contentView setShowsVerticalScrollIndicator:allowsScrolling];
+	[(UIScrollView *)contentView setShowsHorizontalScrollIndicator:allowsScrolling];
 }
 
 - (void)updateLayout: (BOOL)animated;
@@ -410,10 +434,10 @@ TitaniumViewController * mostRecentController = nil;
 		if(navBarStyle == UIBarStyleBlackTranslucent){
 			scrollViewFrame = viewBounds;
 		} else {
-			scrollViewFrame = [scrollView frame];
+			scrollViewFrame = [contentView frame];
 			scrollViewFrame.size.height = toolBarFrame.origin.y - scrollViewFrame.origin.y;
 		}
-		[scrollView setFrame:scrollViewFrame];
+		[contentView setFrame:scrollViewFrame];
 		[toolBar setTintColor:[theNB tintColor]];
 		[toolBar setBarStyle:navBarStyle];
 		[toolBar setHidden:NO];
@@ -428,7 +452,7 @@ TitaniumViewController * mostRecentController = nil;
 //			[UIView beginAnimations:@"Toolbar" context:nil];
 		}
 		[toolBar setHidden:YES];
-		[scrollView setFrame:[[self view] bounds]];
+		[contentView setFrame:[[self view] bounds]];
 		if (animated) {
 //			[UIView commitAnimations];
 		}
@@ -582,7 +606,7 @@ TitaniumViewController * mostRecentController = nil;
 		NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
 		[self setTitle:newTitle];
 	}
-	[scrollView setAlpha:1.0];
+	[contentView setAlpha:1.0];
 	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
 //	[UIView commitAnimations];
 	[self probeWebViewForTokenInContext:@"window"];
@@ -595,117 +619,92 @@ TitaniumViewController * mostRecentController = nil;
 
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
+	if (![inputState isKindOfClass:[NSDictionary class]])return;
+
 	TitaniumHost * theTiHost = [TitaniumHost sharedHost];
 	Class NSStringClass = [NSString class]; //Because this might be from the web where you could have nsnulls and nsnumbers,
-		//We can't assume that the inputState is 
+	//We can't assume that the inputState is 
 
-	NSString * newUrlString = nil;
-	NSURL * newUrl = nil;
+	BOOL animatedOrYes = YES;
+	BOOL animatedOrNo = NO;
+	id animatedObject = [inputState objectForKey:@"animated"];
+	if ([animatedObject respondsToSelector:@selector(boolValue)]){
+		animatedOrYes = [animatedObject boolValue];
+		animatedOrNo = animatedOrYes;
+	}
 
-	if ([inputState isKindOfClass:NSStringClass]){
-		newUrlString = inputState;
-	} else if ([inputState isKindOfClass:[NSURL class]]){
-		newUrl = inputState;
-	} else if ([inputState isKindOfClass:[NSDictionary class]]) {
-		BOOL animatedOrYes = YES;
-		BOOL animatedOrNo = NO;
-		id animatedObject = [inputState objectForKey:@"animated"];
-		if ([animatedObject respondsToSelector:@selector(boolValue)]){
-			animatedOrYes = [animatedObject boolValue];
-			animatedOrNo = animatedOrYes;
+	NSString * newTitle = [inputState objectForKey:@"title"];
+	if (newTitle != nil) {
+		[self setTitle:newTitle];
+	}
+
+	NSString * newTitleImagePath = [inputState objectForKey:@"titleImage"];
+	if (newTitleImagePath != nil) {
+		[self setTitleViewImagePath:newTitleImagePath];
+	}
+
+	UITabBarItem * newTabBarItem = nil;
+	NSString * tabIconName = [inputState objectForKey:@"icon"];
+	if (tabIconName != nil) {
+		// comes in as ti://<name> or ti:<name> or path or app://path
+		if ([tabIconName hasPrefix:@"ti:"])
+		{
+			// this is a built-in system image
+			NSString *tabTemplate = [tabIconName substringFromIndex:3];
+			if ([tabTemplate characterAtIndex:0]=='/') tabTemplate = [tabTemplate substringFromIndex:1];
+			if ([tabTemplate characterAtIndex:0]=='/') tabTemplate = [tabTemplate substringFromIndex:1];
+			newTabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:tabBarItemFromObject(tabTemplate) tag:0];
 		}
-
-		NSString * newUrlElement = [inputState objectForKey:@"url"];
-		if (newUrlElement != nil) {
-			newUrlString = newUrlElement;
-		}	
-		NSString * newTitle = [inputState objectForKey:@"title"];
-		if (newTitle != nil) {
-			[self setTitle:newTitle];
-		}
-
-		NSString * newTitleImagePath = [inputState objectForKey:@"titleImage"];
-		if (newTitleImagePath != nil) {
-			[self setTitleViewImagePath:newTitleImagePath];
-		}
-
-		UITabBarItem * newTabBarItem = nil;
-		NSString * tabIconName = [inputState objectForKey:@"icon"];
-		if (tabIconName != nil) {
-			// comes in as ti://<name> or ti:<name> or path or app://path
-			if ([tabIconName hasPrefix:@"ti:"])
-			{
-				// this is a built-in system image
-				NSString *tabTemplate = [tabIconName substringFromIndex:3];
-				if ([tabTemplate characterAtIndex:0]=='/') tabTemplate = [tabTemplate substringFromIndex:1];
-				if ([tabTemplate characterAtIndex:0]=='/') tabTemplate = [tabTemplate substringFromIndex:1];
-				newTabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:tabBarItemFromObject(tabTemplate) tag:0];
+		else
+		{
+			UIImage * tabImage = [theTiHost imageForResource:tabIconName];
+			if (tabImage != nil) {
+				newTabBarItem = [[UITabBarItem alloc] initWithTitle:[self title] image:tabImage tag:0];
 			}
-			else
-			{
-				UIImage * tabImage = [theTiHost imageForResource:tabIconName];
-				if (tabImage != nil) {
-					newTabBarItem = [[UITabBarItem alloc] initWithTitle:[self title] image:tabImage tag:0];
-				}
-			}
-		}
-		
-		NSString * navTintName = [inputState objectForKey:@"barColor"];
-		[self setNavBarTint:UIColorWebColorNamed(navTintName)];
-		
-		NSString * backgroundColorName = [inputState objectForKey:@"backgroundColor"];
-		if ([backgroundColorName isKindOfClass:NSStringClass]){
-			[self setBackgroundColor:UIColorWebColorNamed(backgroundColorName)];
-		}
-		
-		NSString * backgroundImageName = [inputState objectForKey:@"backgroundImage"];
-		if ([backgroundImageName isKindOfClass:NSStringClass]){
-			[self setBackgroundImage:[theTiHost imageForResource:backgroundImageName]];
-		}
-				
-		id orientationObject = [inputState objectForKey:@"orientation"];
-		if (orientationObject != nil) {
-			allowedOrientations = orientationsFromObject(orientationObject);
-		}
-		
-		id hidesNavBarObject = [inputState objectForKey:@"hideNavBar"];
-		if (hidesNavBarObject == nil) hidesNavBarObject = [inputState objectForKey:@"_hideNavBar"];
-		if ([hidesNavBarObject respondsToSelector:@selector(boolValue)]) {
-			[self setHidesNavBar:[hidesNavBarObject boolValue]];
-		}
-
-		id hidesTabBarObject = [inputState objectForKey:@"hideTabBar"];
-		if (hidesTabBarObject == nil) hidesTabBarObject = [inputState objectForKey:@"_hideTabBar"];
-		if ([hidesTabBarObject respondsToSelector:@selector(boolValue)]) {
-			[self setHidesBottomBarWhenPushed:[hidesTabBarObject boolValue]];
-		}
-
-		id fullScreenObject = [inputState objectForKey:@"fullscreen"];
-		if ([fullScreenObject respondsToSelector:@selector(boolValue)]) {
-			[self setFullscreen:[fullScreenObject boolValue]];
-		}
-		
-		[self setStatusBarStyleObject:[inputState objectForKey:@"statusBarStyle"]];
-		
-		
-		if (newTabBarItem != nil) {
-			[self setTabBarItem:newTabBarItem];
-			[newTabBarItem release];
 		}
 	}
 	
-	if([newUrlString isKindOfClass:NSStringClass]){
-		if (baseUrl != nil){
-			newUrl = [NSURL URLWithString:newUrlString relativeToURL:baseUrl];
-		} else if (currentContentURL != nil){
-			newUrl = [NSURL URLWithString:newUrlString relativeToURL:currentContentURL];
-		} else {
-			newUrl = [NSURL URLWithString:newUrlString relativeToURL:[[TitaniumHost sharedHost] appBaseUrl]];
-		}
+	NSString * navTintName = [inputState objectForKey:@"barColor"];
+	[self setNavBarTint:UIColorWebColorNamed(navTintName)];
+	
+	NSString * backgroundColorName = [inputState objectForKey:@"backgroundColor"];
+	if ([backgroundColorName isKindOfClass:NSStringClass]){
+		[self setBackgroundColor:UIColorWebColorNamed(backgroundColorName)];
 	}
 	
-	if(newUrl != nil){
-		[self setCurrentContentURL:newUrl];
+	NSString * backgroundImageName = [inputState objectForKey:@"backgroundImage"];
+	if ([backgroundImageName isKindOfClass:NSStringClass]){
+		[self setBackgroundImage:[theTiHost imageForResource:backgroundImageName]];
+	}
+			
+	id orientationObject = [inputState objectForKey:@"orientation"];
+	if (orientationObject != nil) {
+		allowedOrientations = orientationsFromObject(orientationObject);
+	}
+	
+	id hidesNavBarObject = [inputState objectForKey:@"hideNavBar"];
+	if (hidesNavBarObject == nil) hidesNavBarObject = [inputState objectForKey:@"_hideNavBar"];
+	if ([hidesNavBarObject respondsToSelector:@selector(boolValue)]) {
+		[self setHidesNavBar:[hidesNavBarObject boolValue]];
+	}
+
+	id hidesTabBarObject = [inputState objectForKey:@"hideTabBar"];
+	if (hidesTabBarObject == nil) hidesTabBarObject = [inputState objectForKey:@"_hideTabBar"];
+	if ([hidesTabBarObject respondsToSelector:@selector(boolValue)]) {
+		[self setHidesBottomBarWhenPushed:[hidesTabBarObject boolValue]];
+	}
+
+	id fullScreenObject = [inputState objectForKey:@"fullscreen"];
+	if ([fullScreenObject respondsToSelector:@selector(boolValue)]) {
+		[self setFullscreen:[fullScreenObject boolValue]];
+	}
+	
+	[self setStatusBarStyleObject:[inputState objectForKey:@"statusBarStyle"]];
+	
+	
+	if (newTabBarItem != nil) {
+		[self setTabBarItem:newTabBarItem];
+		[newTabBarItem release];
 	}
 }
 
@@ -820,7 +819,7 @@ TitaniumViewController * mostRecentController = nil;
 
 - (void) addNativeView: (UIView *) newView;
 {
-	[scrollView addSubview:newView];
+	[contentView addSubview:newView];
 }
 
 @end
