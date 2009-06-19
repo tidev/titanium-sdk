@@ -9,14 +9,13 @@
 #import <UIKit/UIKit.h>
 #import "TitaniumViewController.h"
 
-@interface TitaniumWebViewController : TitaniumViewController {
+@interface TitaniumWebViewController : TitaniumViewController<UIWebViewDelegate> {
 
 }
 
 + (TitaniumViewController *) mostRecentController;
 
 - (NSString *) performJavascript: (NSString *) inputString onPageWithToken: (NSString *) token;
-- (NSString *) contextForToken: (NSString *) tokenString;
 - (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
 
 - (void)reloadWebView;

@@ -9,6 +9,49 @@
 #import <Foundation/Foundation.h>
 #import "TitaniumModule.h"
 
+@interface UIButtonProxy : TitaniumProxyObject
+{
+	//Properties that are stored until the time is right
+	BOOL needsRefreshing;
+	
+	NSString * titleString;
+	NSString * iconPath;
+	CGRect	frame;
+	int templateValue;
+	
+	//For Bar buttons
+	UIBarButtonItemStyle barButtonStyle;
+	
+	//For activity spinners
+	UIActivityIndicatorViewStyle spinnerStyle;
+	
+	
+	
+	//Connections to the native side
+	UILabel * labelView;
+	UIProgressView * progressView;
+	UIView * nativeView;
+	UIBarButtonItem * nativeBarButton;
+	
+	//Note: For some elements (Textview, activityIndicator, statusIndicator)
+}
+
+@property(nonatomic,readwrite,retain)	NSString * titleString;
+@property(nonatomic,readwrite,retain)	NSString * iconPath;
+@property(nonatomic,readwrite,assign)	int templateValue;
+@property(nonatomic,readwrite,assign)	UIBarButtonItemStyle barButtonStyle;
+
+@property(nonatomic,readwrite,retain)	UILabel * labelView;
+@property(nonatomic,readwrite,retain)	UIProgressView * progressView;
+@property(nonatomic,readwrite,retain)	UIView * nativeView;
+@property(nonatomic,readwrite,retain)	UIBarButtonItem * nativeBarButton;
+
+- (IBAction) onClick: (id) sender;
+- (void) setPropertyDict: (NSDictionary *) newDict;
+
+@end
+
+
 @interface UiModule : NSObject<TitaniumModule> {
 	NSUInteger nextButtonToken;
 	NSUInteger nextWindowToken;
@@ -21,24 +64,9 @@
 - (void) setWindow:(NSString *)tokenString navSide:(id) isLeftObject button: (NSDictionary *) buttonObject options: (NSDictionary *) optionsObject;
 - (void) setWindow:(NSString *)tokenString toolbar: (id) barObject options: (id) optionsObject;
 
-@end
+- (UIButtonProxy *) proxyForToken: (NSString *) tokenString;
 
-NSString * const iPhoneBarButtonGeneratorFunction = @"function(token){"
-//	"var token=;"
-"var result={_TOKEN:token,onClick:Ti._ONEVT,"
-"_EVT:{click:[],valuechange:[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
-"title:null,image:null,style:null,systemButton:null,useDivProperties:function(div){"
-	"if(!div)return;"
-	"var attr=div.attributes;if(attr){"
-		"var i=attr.length;while(i>0){"
-			"i--;this[attr[i].name]=attr[i].value;"
-	"}}"
-	"this.y=0;this.x=0;this.width=div.offsetWidth;this.height=div.offsetHeight;"
-	"while(div){this.x+=div.offsetLeft;this.y+=div.offsetTop;div=div.offsetParent;}"
-"},bindToDiv:function(div){this._DIV=div;this.useDivProperties(div);Ti.UI.currentWindow.insertButton(this);}};"
-"Ti.UI._BTN[token]=result;"
-"return result;"
-"}";
+@end
 
 /****** UI functions
  * @tiapi(method=True,name=UI.setAppBadge,version=0.4) Sets the application's badge value

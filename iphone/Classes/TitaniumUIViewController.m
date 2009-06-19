@@ -10,7 +10,7 @@
 TitaniumViewController * TitaniumViewControllerForToken(UIViewController * baseController, NSString * token)
 {
 	if ([baseController isKindOfClass:[TitaniumViewController class]]){
-		if ([(TitaniumViewController *)baseController contextForToken:token] != nil) return (TitaniumViewController *)baseController;
+		if ([(TitaniumViewController *)baseController hasToken:token]) return (TitaniumViewController *)baseController;
 		return nil;
 	}
 	if ([baseController isKindOfClass:[UITabBarController class]] || [baseController isKindOfClass:[UINavigationController class]]){

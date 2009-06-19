@@ -75,13 +75,14 @@ TitaniumViewControllerOrientationsAllowed orientationsFromObject(id inputObject)
 	return TitaniumViewControllerDefaultOrientation;
 }
 
+int nextWindowToken = 0;
 
 NSString * const ControllerString = @"Controller";
 
 
 @implementation TitaniumViewController
-@synthesize currentContentURL, viewProperties;
-@synthesize webView;
+@synthesize currentContentURL, viewProperties, primaryToken;
+@synthesize webView, contentView;
 @synthesize navBarTint, titleViewImagePath, cancelOpening;
 @synthesize backgroundColor, backgroundImage;
 @synthesize hidesNavBar, fullscreen, statusBarStyle, toolbarItems;
@@ -103,7 +104,7 @@ NSString * const ControllerString = @"Controller";
 	} else {
 		result = [[self alloc] initWithNibName:@"TitaniumView" bundle:nil];
 	}
-	
+		
 	return [result autorelease];
 }
 
@@ -123,6 +124,10 @@ NSString * const ControllerString = @"Controller";
 	if (result == nil){
 		result = [TitaniumWebViewController viewController];
 	}
+
+	NSString * token = [[NSString alloc] initWithFormat:@"WIN%d",nextWindowToken++];
+	[result setPrimaryToken:token];
+	[token release];
 	[result readState:inputState relativeToUrl:baseUrl];
 	return result;	
 }
@@ -546,6 +551,12 @@ NSString * const ControllerString = @"Controller";
 	}
 
 	//TODO: if thisIndex is 0, and we've got tabs, remove the tab? That doesn't sound like a good idea.
+}
+
+#pragma mark Token shuffles
+- (BOOL) hasToken: (NSString *) tokenString;
+{
+	return ([primaryToken isEqualToString:tokenString]);
 }
 
 @end

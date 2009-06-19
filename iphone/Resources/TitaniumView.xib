@@ -70,6 +70,8 @@
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<float key="IBUIAlpha">0.000000e+00</float>
 						<bool key="IBUIMultipleTouchEnabled">YES</bool>
+						<bool key="IBUIDelaysContentTouches">NO</bool>
+						<bool key="IBUICanCancelContentTouches">NO</bool>
 						<bool key="IBUIBouncesZoom">NO</bool>
 					</object>
 				</object>
@@ -238,21 +240,13 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>backgroundView</string>
 							<string>contentView</string>
-							<string>modalProgressView</string>
-							<string>modalProgressViewBar</string>
-							<string>modalProgressViewMessage</string>
-							<string>modalProgressViewSpinny</string>
 							<string>toolBar</string>
 							<string>webView</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>UIImageView</string>
-							<string>UIScrollView</string>
 							<string>UIView</string>
-							<string>UIProgressView</string>
-							<string>UILabel</string>
-							<string>UIActivityIndicatorView</string>
 							<string>UIToolbar</string>
 							<string>UIWebView</string>
 						</object>

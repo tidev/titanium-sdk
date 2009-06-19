@@ -36,6 +36,7 @@ typedef enum {
 	//TODO: What about views that never have magic tokens?
 
 //Commont to all viewControllers:
+	NSString * primaryToken;
 	IBOutlet UIImageView * backgroundView;
 	IBOutlet UIView * contentView;
 	IBOutlet UIToolbar * toolBar;
@@ -78,9 +79,12 @@ typedef enum {
 @property (nonatomic,retain)	NSURL * currentContentURL;	//Used as a base url.
 
 //Common
+@property (nonatomic,retain)	IBOutlet UIView * contentView;
 @property (nonatomic,retain)	NSMutableDictionary * viewProperties;
 
 @property (nonatomic,retain)	UIColor *	navBarTint;
+@property (nonatomic,retain)	NSString * primaryToken;
+
 @property (nonatomic,retain)	NSString *	titleViewImagePath;
 @property (nonatomic,retain)	UIColor *	backgroundColor;
 @property (nonatomic,retain)	UIImage *	backgroundImage;
@@ -97,6 +101,7 @@ typedef enum {
 
 #pragma mark Functionality exposed to Titanium
 
+- (BOOL) hasToken: (NSString *) tokenString;
 - (void)updateLayout: (BOOL)animated;
 - (BOOL)needsUpdate: (TitaniumViewControllerDirtyFlags) newFlags;
 - (void)doUpdateLayout;

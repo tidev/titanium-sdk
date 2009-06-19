@@ -372,11 +372,8 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 		}
 		[(UITabBarController *) rootViewController setViewControllers:viewControllerArray];
 		[viewControllerArray release];
-	} else if (rootViewControllerDescriptor && [rootViewControllerDescriptor isKindOfClass:[NSDictionary class]]) {
-		rootViewController = [self viewControllerForDict:rootViewControllerDescriptor];
 	} else {
-		rootViewController = [TitaniumViewController viewController];
-		[(TitaniumViewController *)rootViewController setCurrentContentURL:[NSURL URLWithString:@"index.html" relativeToURL:appBaseUrl]];
+		rootViewController = [self viewControllerForDict:rootViewControllerDescriptor];
 	}
 
 	//If needed, set up the tab bar.

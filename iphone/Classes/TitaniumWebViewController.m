@@ -116,6 +116,7 @@ TitaniumViewController * mostRecentController = nil;
 	if (newWebView == webView) return;
 	if (webView == nil){ //Setting up for the first time.
 		webView = [newWebView retain];
+		[[webView layer] setBackgroundColor:[UIColor clearColor]];  //TODO: What color should this be?
 		return;
 	}
 	
@@ -130,11 +131,13 @@ TitaniumViewController * mostRecentController = nil;
 	
 	//Now if we have an old view and new view, the old view has to kill the new one. There can be only one!
 	//But we're not fully set yet? Let's find out.
-	NSLog(@"Two web views go in, one comes out! NewWebView has %@ as a superview",[newWebView superview]);
+	NSLog(@"Two web views go in! NewWebView %@ has %@ as a superview",[newWebView superview]);
 	
-	[[newWebView superview] insertSubview:webView aboveSubview:newWebView];
+	[[newWebView superview] insertSubview:webView belowSubview:newWebView];
 	[webView setFrame:[newWebView frame]];
 	[newWebView removeFromSuperview];
+
+	NSLog(@"One comes out! webView %@ has %@ as a superview",[webView superview]);
 }
 
 
@@ -144,7 +147,6 @@ TitaniumViewController * mostRecentController = nil;
 - (void)viewDidLoad {
 	mostRecentController = self;
     [super viewDidLoad];
-	[[webView layer] setBackgroundColor:[UIColor clearColor]];  //TODO: What color should this be?
 	if ([webView request] == nil){
 		[self reloadWebView];
 	}
@@ -162,8 +164,9 @@ TitaniumViewController * mostRecentController = nil;
 {
 	if ([super respondsToSelector:@selector(_clearBecomeFirstResponderWhenCapable)]){
 		[(id)super _clearBecomeFirstResponderWhenCapable];
+	} else {
+		NSLog(@"This is because 2.2.1 fails if we give a viewController -[becomeFirstResponder]");
 	}
-	NSLog(@"This is because 2.2.1 fails if we give a viewController -[becomeFirstResponder]");
 }
 
 - (void)viewWillDisappear:(BOOL)animated;
@@ -206,11 +209,6 @@ TitaniumViewController * mostRecentController = nil;
 {
 	
 	
-}
-
-- (NSString *) contextForToken: (NSString *) tokenString;
-{
-	return [magicTokenDict objectForKey:tokenString];
 }
 
 - (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
@@ -383,6 +381,12 @@ TitaniumViewController * mostRecentController = nil;
 
 
 #pragma mark Interpage communication
+
+- (BOOL) hasToken: (NSString *) tokenString;
+{
+	if ([super hasToken:tokenString]) return YES;
+	return ([magicTokenDict objectForKey:tokenString] != nil);
+}
 
 - (NSString *) performJavascript: (NSString *) inputString onPageWithToken: (NSString *) token;
 {

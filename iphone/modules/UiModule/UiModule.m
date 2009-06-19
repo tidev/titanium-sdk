@@ -9,6 +9,24 @@
 #import "UiModule.h"
 
 
+NSString * const iPhoneBarButtonGeneratorFunction = @"function(token){"
+//	"var token=;"
+"var result={_TOKEN:token,onClick:Ti._ONEVT,"
+	"_EVT:{click:[],valuechange:[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
+	"title:null,image:null,style:null,systemButton:null,useDivProperties:function(div){"
+		"if(!div)return;"
+		"var attr=div.attributes;if(attr){"
+			"var i=attr.length;while(i>0){"
+				"i--;this[attr[i].name]=attr[i].value;"
+			"}}"
+		"this.y=0;this.x=0;this.width=div.offsetWidth;this.height=div.offsetHeight;"
+		"while(div){this.x+=div.offsetLeft;this.y+=div.offsetTop;div=div.offsetParent;}"
+	"},bindToDiv:function(div){this._DIV=div;this.useDivProperties(div);Ti.UI.currentWindow.insertButton(this);}};"
+"Ti.UI._BTN[token]=result;"
+"return result;"
+"}";
+
+
 NSDictionary * barButtonSystemItemForStringDict = nil;
 
 enum { //MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemItem
@@ -63,48 +81,6 @@ int barButtonSystemItemForString(NSString * inputString){
 	if (result != nil) return [result intValue];
 	return UITitaniumNativeItemNone;
 }
-
-@interface UIButtonProxy : TitaniumProxyObject
-{
-//Properties that are stored until the time is right
-	BOOL needsRefreshing;
-
-	NSString * titleString;
-	NSString * iconPath;
-	CGRect	frame;
-	int templateValue;
-
-//For Bar buttons
-	UIBarButtonItemStyle barButtonStyle;
-
-//For activity spinners
-	UIActivityIndicatorViewStyle spinnerStyle;
-	
-
-
-//Connections to the native side
-	UILabel * labelView;
-	UIProgressView * progressView;
-	UIView * nativeView;
-	UIBarButtonItem * nativeBarButton;
-
-	//Note: For some elements (Textview, activityIndicator, statusIndicator)
-}
-
-@property(nonatomic,readwrite,retain)	NSString * titleString;
-@property(nonatomic,readwrite,retain)	NSString * iconPath;
-@property(nonatomic,readwrite,assign)	int templateValue;
-@property(nonatomic,readwrite,assign)	UIBarButtonItemStyle barButtonStyle;
-
-@property(nonatomic,readwrite,retain)	UILabel * labelView;
-@property(nonatomic,readwrite,retain)	UIProgressView * progressView;
-@property(nonatomic,readwrite,retain)	UIView * nativeView;
-@property(nonatomic,readwrite,retain)	UIBarButtonItem * nativeBarButton;
-
-- (IBAction) onClick: (id) sender;
-- (void) setPropertyDict: (NSDictionary *) newDict;
-
-@end
 
 @implementation UIButtonProxy
 @synthesize nativeBarButton;
@@ -451,15 +427,15 @@ int barButtonSystemItemForString(NSString * inputString){
 
 @implementation UiModule
 #pragma mark Utility methods
-- (TitaniumViewController *) titaniumViewControllerForToken: (NSString *) tokenString;
-{
-	if (![tokenString isKindOfClass:[NSString class]]) return nil;
-	TitaniumViewController * ourVC = [virtualWindowsDict objectForKey:tokenString];
-	if(ourVC == nil) {
-		ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
-	}
-	return ourVC;
-}
+//- (TitaniumViewController *) titaniumViewControllerForToken: (NSString *) tokenString;
+//{
+//	if (![tokenString isKindOfClass:[NSString class]]) return nil;
+//	TitaniumViewController * ourVC = [virtualWindowsDict objectForKey:tokenString];
+//	if(ourVC == nil) {
+//		ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
+//	}
+//	return ourVC;
+//}
 
 #pragma mark button
 
@@ -494,6 +470,11 @@ int barButtonSystemItemForString(NSString * inputString){
 	return [TitaniumJSCode codeWithString:result];
 }
 
+- (UIButtonProxy *) proxyForToken: (NSString *) tokenString;
+{
+	return [buttonContexts objectForKey:tokenString];
+}
+
 #pragma mark Window actions
 
 - (NSString *) openWindow: (id)windowObject animated: (id) animatedObject; //Defaults to true.
@@ -501,15 +482,14 @@ int barButtonSystemItemForString(NSString * inputString){
 	if (![windowObject isKindOfClass:[NSDictionary class]]){
 		return nil;
 	}
-	NSString * token = [windowObject objectForKey:@"token"];
+	NSString * token = [windowObject objectForKey:@"_TOKEN"];
 	if ([token isKindOfClass:[NSString class]]) return token; //So that it doesn't drop its token.
-	
-	token = [NSString stringWithFormat:@"VWIN%d",nextWindowToken++];
-	
+		
 	TitaniumViewController * thisVC = [[TitaniumHost sharedHost] currentTitaniumViewController];
 	TitaniumViewController * resultVC = [TitaniumViewController viewControllerForState:windowObject relativeToUrl:[thisVC currentContentURL]];
+	token = [resultVC primaryToken];
 	
-	[virtualWindowsDict setObject:resultVC forKey:token];
+//	[virtualWindowsDict setObject:resultVC forKey:token];
 	id leftNavButton=[windowObject objectForKey:@"lNavBtn"];
 	if (leftNavButton != nil){
 		[self setWindow:token navSide:[NSNumber numberWithBool:YES] button:leftNavButton options:nil];
@@ -538,7 +518,7 @@ int barButtonSystemItemForString(NSString * inputString){
 
 - (void) closeWindow: (NSString *) tokenString animated: (id) animatedObject; //Defaults to true.
 {
-	TitaniumViewController * doomedVC = [self titaniumViewControllerForToken:tokenString];
+	TitaniumViewController * doomedVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 	[doomedVC setCancelOpening:YES]; //Just in case of race conditions.
 	[doomedVC performSelectorOnMainThread:@selector(close:) withObject:animatedObject waitUntilDone:NO];
 }
@@ -548,7 +528,7 @@ int barButtonSystemItemForString(NSString * inputString){
 - (void) setWindow:(NSString *)tokenString URL:(NSString *)newURLString baseURL:(NSString *)baseURLString;
 {
 	if (![newURLString isKindOfClass:[NSString class]]) return;
-	TitaniumViewController * ourVC = [self titaniumViewControllerForToken:tokenString];
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 
 	NSURL * baseURL = nil;
 	if ([newURLString isKindOfClass:[NSString class]] && ([newURLString length]>0)){
@@ -567,7 +547,7 @@ int barButtonSystemItemForString(NSString * inputString){
 
 - (void) setWindow:(NSString *)tokenString fullscreen:(id) fullscreenObject;
 {
-	TitaniumViewController * ourVC = [self titaniumViewControllerForToken:tokenString];
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 	[ourVC performSelectorOnMainThread:@selector(setFullscreenObject:) withObject:fullscreenObject waitUntilDone:NO];
 }
 
@@ -578,7 +558,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		else newTitle = nil;
 	}
 
-	TitaniumViewController * ourVC = [self titaniumViewControllerForToken:tokenString];
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 	[ourVC performSelectorOnMainThread:@selector(setTitle:) withObject:newTitle waitUntilDone:NO];
 }
 
@@ -588,33 +568,33 @@ int barButtonSystemItemForString(NSString * inputString){
 		newTitleImagePath = nil;
 	}
 
-	TitaniumViewController * ourVC = [self titaniumViewControllerForToken:tokenString];
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 	[ourVC performSelectorOnMainThread:@selector(setTitleViewImagePath:) withObject:newTitleImagePath waitUntilDone:NO];	
 }
 
 - (void) setWindow:(NSString *)tokenString showNavBar: (id) animatedObject;
 {
-	TitaniumViewController * ourVC = [self titaniumViewControllerForToken:tokenString];
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 	[ourVC performSelectorOnMainThread:@selector(showNavBarWithAnimation:) withObject:animatedObject waitUntilDone:NO];
 }
 
 - (void) setWindow:(NSString *)tokenString hideNavBar: (id) animatedObject;
 {
-	TitaniumViewController * ourVC = [self titaniumViewControllerForToken:tokenString];
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 	[ourVC performSelectorOnMainThread:@selector(hideNavBarWithAnimation:) withObject:animatedObject waitUntilDone:NO];
 }
 
 - (void) setWindow:(NSString *)tokenString barColor: (NSString *) newColorName;
 {
 	UIColor * newColor = UIColorWebColorNamed(newColorName);
-	TitaniumViewController * ourVC = [self titaniumViewControllerForToken:tokenString];
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 	
 	[ourVC performSelectorOnMainThread:@selector(setNavBarTint:) withObject:newColor waitUntilDone:NO];
 }
 
 - (void) setWindow:(NSString *)tokenString navSide:(id) isLeftObject button: (NSDictionary *) buttonObject options: (NSDictionary *) optionsObject;
 {	
-	TitaniumViewController * ourVC = [self titaniumViewControllerForToken:tokenString];
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 	if ((ourVC == nil) || (![isLeftObject respondsToSelector:@selector(boolValue)])) return;
 	
 	UIButtonProxy * ourButton = nil;
@@ -655,7 +635,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	//		id animatedObject = [optionsObject objectForKey:@"animated"];
 	//		if ([animatedObject respondsToSelector:@selector(boolValue)]) animated = [animatedObject boolValue];
 	//	}
-	TitaniumViewController * ourVC = [self titaniumViewControllerForToken:tokenString];
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 	if (ourVC == nil) return;
 	
 	if ([barObject isKindOfClass:[NSArray class]]){
@@ -679,7 +659,7 @@ int barButtonSystemItemForString(NSString * inputString){
 - (void) addWindow: (NSString *) tokenString nativeView: (id) viewObject options: (id) optionsObject;
 {
 	Class dictClass = [NSDictionary class];
-	TitaniumViewController * ourVC = [self titaniumViewControllerForToken:tokenString];
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 	if ((ourVC == nil) || ![viewObject isKindOfClass:dictClass]) return;
 	
 	NSString * buttonToken = [viewObject objectForKey:@"_TOKEN"];
@@ -804,7 +784,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSInvocation * insertNativeViewInvoc = [invocGen invocation];
 	
 	buttonContexts = [[NSMutableDictionary alloc] init];
-	virtualWindowsDict = [[NSMutableDictionary alloc] init];
+//	virtualWindowsDict = [[NSMutableDictionary alloc] init];
 	
 //	TitaniumAccessorTuple * addressAccessor = [[TitaniumAccessorTuple alloc] init];
 //	[addressAccessor setGetterTarget:self];
@@ -941,7 +921,7 @@ int barButtonSystemItemForString(NSString * inputString){
 
 - (void) dealloc
 {
-	[virtualWindowsDict release];
+//	[virtualWindowsDict release];
 	[buttonContexts release];
 	[super dealloc];
 }

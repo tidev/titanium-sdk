@@ -9,8 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "TitaniumViewController.h"
 
-@interface TitaniumTableViewController : TitaniumViewController {
-
+@interface TitaniumTableViewController : TitaniumViewController<UITableViewDelegate,UITableViewDataSource> {
+	UITableViewStyle tableStyle;
+	CGFloat tableRowHeight;
 }
 
 @end
