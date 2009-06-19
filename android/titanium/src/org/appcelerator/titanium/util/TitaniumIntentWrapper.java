@@ -24,7 +24,6 @@ public class TitaniumIntentWrapper implements Serializable
 
 	public static final String ACTIVITY_PREFIX = "TA-";
 
-	public static final String EXTRA_APP_INFO = "appinfo";
 	public static final String EXTRA_WINDOW_ID = "windowId";
 	public static final String EXTRA_IS_FULLSCREEN = "isFullscreen";
 	public static final String EXTRA_ICON_URL = "iconUrl";
@@ -45,7 +44,6 @@ public class TitaniumIntentWrapper implements Serializable
 
 	public static TitaniumIntentWrapper createUsing(TitaniumIntentWrapper prototype) {
 		TitaniumIntentWrapper result = new TitaniumIntentWrapper(new Intent());
-		result.setAppInfoId(prototype.getAppInfoId()); // Same Titanium "context"
 		// Set defaults. Can be overwritten after finished.
 		result.setFullscreen(false);
 		result.setActivityType("single");
@@ -61,23 +59,14 @@ public class TitaniumIntentWrapper implements Serializable
 		setActivityType(window.getWindowType());
 		setIconUrl(window.getWindowIconUrl());
 		//TODO windowsize
-		// TODO references
 	}
 
 	public Intent getIntent() {
 		return intent;
 	}
 
-	public String getAppInfoId() {
-		return intent.getExtras().getString(EXTRA_APP_INFO);
-	}
-
 	public TitaniumAppInfo getAppInfo(Activity activity) {
 		return ((TitaniumApplication) activity.getApplication()).getAppInfo();
-	}
-
-	public void setAppInfoId(String id) {
-		intent.putExtra(EXTRA_APP_INFO, id);
 	}
 
 	public TitaniumWindowInfo getWindowInfo(TitaniumAppInfo appInfo) {
