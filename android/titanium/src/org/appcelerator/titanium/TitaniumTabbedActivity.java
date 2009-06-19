@@ -16,7 +16,6 @@ import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 
-import android.app.Activity;
 import android.app.ActivityGroup;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
@@ -24,7 +23,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Config;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -130,28 +128,8 @@ public class TitaniumTabbedActivity extends ActivityGroup
 	}
 
 	@Override
-	public void finishFromChild(Activity child) {
-		//super.finishFromChild(child);
-	}
-
-
-	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.e(LCAT, "Tabbed Activity Received Result!");
 		super.onActivityResult(requestCode, resultCode, data);
-	}
-
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		/*
-        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
-        	if (DBG) {
-        		Log.d(LCAT, "Tab Activity got back, passing to parent.");
-        	}
-    		return getParent().onKeyDown(keyCode, event);
-        }
-        return super.onKeyDown(keyCode, event);
-        */
-		return false;
 	}
 }
