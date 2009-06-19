@@ -68,6 +68,14 @@ public class TitaniumApplication
 				defaultHandler.uncaughtException(t, e);
 			}
 		});
+
+		try {
+			loadAppInfo(getApplicationContext());
+		} catch (SAXException e) {
+			Log.e(LCAT, "Error parsing tiapp.xml", e);
+		} catch (IOException e) {
+			Log.e(LCAT, "Error loading tiapp.xml", e);
+		}
 	}
 
 	public void pushActivityStack() {
@@ -107,14 +115,13 @@ public class TitaniumApplication
 		String appInfoKey = null;
 
 		try {
-
 			is = context.getAssets().open("tiapp.xml");
 			appInfo = TitaniumAppInfo.loadFromXml(is, context);
-			 Context appContext = context.getApplicationContext();
-			 synchronized(appContext) {
+			Context appContext = context.getApplicationContext();
+			synchronized(appContext) {
 				 Log.i(LCAT, "tiapp.xml processed, notifying components");
 				 appContext.notifyAll();
-			 }
+			}
 		} finally {
 			if (is != null) {
 				try {

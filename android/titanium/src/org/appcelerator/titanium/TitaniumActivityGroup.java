@@ -7,7 +7,6 @@
 
 package org.appcelerator.titanium;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -16,7 +15,6 @@ import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.appcelerator.titanium.util.TitaniumUIHelper;
-import org.xml.sax.SAXException;
 
 import android.app.Activity;
 import android.app.ActivityGroup;
@@ -61,51 +59,40 @@ public class TitaniumActivityGroup extends ActivityGroup
         	return;
         }
 
-		try {
-			TitaniumIntentWrapper intent = new TitaniumIntentWrapper(getIntent());
-			String appInfoKey = app.loadAppInfo(this);
-			TitaniumAppInfo appInfo = app.getAppInfo();
+		TitaniumAppInfo appInfo = app.getAppInfo();
 
-			ArrayList<TitaniumWindowInfo> windows = appInfo.getWindows();
+		ArrayList<TitaniumWindowInfo> windows = appInfo.getWindows();
 
-			int numWindows = windows.size();
+		int numWindows = windows.size();
 
-			if (numWindows == 0) {
-				fatalDialog("tiapp.xml needs at least one window");
-				return;
-			}
-
-			String type = "single";
-			if (numWindows > 1) {
-				type = "tabbed";
-			}
-
-			Class<?> activity = TitaniumApplication.getActivityForType(type);
-
-			TitaniumIntentWrapper appIntent = new TitaniumIntentWrapper(new Intent(this, activity));
-			appIntent.setAppInfoId(appInfoKey);
-			if (numWindows == 1) {
-				TitaniumWindowInfo info = windows.get(0);
-				appIntent.setWindowId(info.getWindowId());
-				if (info.isWindowFullscreen()) {
-					this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-				} else {
-			        this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
-			        this.requestWindowFeature(Window.FEATURE_PROGRESS);
-			        this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-				}
-			} else {
-				appIntent.setWindowId(TitaniumIntentWrapper.ACTIVITY_PREFIX +"TABBED-ROOT");
-			}
-
-			launch(appIntent);
-		} catch (IOException e) {
-			fatalDialog("Unable to load tiapp.xml: msg=" + e.getMessage());
-			return; // force return, prevents breakage if code added after this block
-		} catch (SAXException e) {
-			fatalDialog("Error parsing tiapp.xml: msg=" + e.getMessage());
-			return; // force return, prevents breakage if code added after this block
+		if (numWindows == 0) {
+			fatalDialog("tiapp.xml needs at least one window");
+			return;
 		}
+
+		String type = "single";
+		if (numWindows > 1) {
+			type = "tabbed";
+		}
+
+		Class<?> activity = TitaniumApplication.getActivityForType(type);
+
+		TitaniumIntentWrapper appIntent = new TitaniumIntentWrapper(new Intent(this, activity));
+		if (numWindows == 1) {
+			TitaniumWindowInfo info = windows.get(0);
+			appIntent.setWindowId(info.getWindowId());
+			if (info.isWindowFullscreen()) {
+				this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+			} else {
+		        this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
+		        this.requestWindowFeature(Window.FEATURE_PROGRESS);
+		        this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+			}
+		} else {
+			appIntent.setWindowId(TitaniumIntentWrapper.ACTIVITY_PREFIX +"TABBED-ROOT");
+		}
+
+		launch(appIntent);
 	}
 
 	public void launch(Intent intent) {
@@ -243,16 +230,12 @@ public class TitaniumActivityGroup extends ActivityGroup
     		}
 
     		if (activityStack.size() > 0) {
-    			Window w = getLocalActivityManager().destroyActivity(activityInfo.getActivityId(), true);
+    			getLocalActivityManager().destroyActivity(activityInfo.getActivityId(), true);
 
            		activateActivity(activityStack.peek());
                 return true;
-    		} else {
-    			//getLocalActivityManager().destroyActivity(activityInfo.getActivityId(), false);
-       			//return true;
-
     		}
-         }
+        }
 
 		return super.dispatchKeyEvent(event);
 	}
