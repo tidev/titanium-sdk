@@ -63,9 +63,8 @@ public class TitaniumActivityGroup extends ActivityGroup
 
 		try {
 			TitaniumIntentWrapper intent = new TitaniumIntentWrapper(getIntent());
-			boolean isContent = intent.isContent();
-			String appInfoKey = app.loadAppInfo(this, isContent);
-			TitaniumAppInfo appInfo = app.getAppInfo(appInfoKey);
+			String appInfoKey = app.loadAppInfo(this);
+			TitaniumAppInfo appInfo = app.getAppInfo();
 
 			ArrayList<TitaniumWindowInfo> windows = appInfo.getWindows();
 
@@ -98,7 +97,6 @@ public class TitaniumActivityGroup extends ActivityGroup
 			} else {
 				appIntent.setWindowId(TitaniumIntentWrapper.ACTIVITY_PREFIX +"TABBED-ROOT");
 			}
-			appIntent.setIsContent(isContent);
 
 			launch(appIntent);
 		} catch (IOException e) {
@@ -119,7 +117,7 @@ public class TitaniumActivityGroup extends ActivityGroup
 		String name = intent.getWindowId();
 
 		if (!intent.isAutoNamed()) {
-			TitaniumAppInfo appInfo = app.getAppInfo(intent.getAppInfoId());
+			TitaniumAppInfo appInfo = app.getAppInfo();
 			TitaniumWindowInfo window = appInfo.findWindowInfo(name);
 			if (window == null) {
 				Toast.makeText(this.getCurrentActivity(), "Window with name " + intent.getWindowId() + "not found in tiapp.xml", Toast.LENGTH_LONG).show();

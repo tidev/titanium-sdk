@@ -92,7 +92,7 @@ public class TitaniumTabbedActivity extends ActivityGroup
 				InputStream is = null;
 				try {
 					TitaniumFileHelper tfh = new TitaniumFileHelper(this);
-					is = tfh.openInputStream(windowIconUrl, intent.isContent(), false);
+					is = tfh.openInputStream(windowIconUrl, false);
 					if (is != null) {
 						d = new BitmapDrawable(is);
 					}
@@ -121,7 +121,6 @@ public class TitaniumTabbedActivity extends ActivityGroup
 			TitaniumIntentWrapper tabIntent = new TitaniumIntentWrapper(new Intent(this, activity));
 			tabIntent.setAppInfoId(intent.getAppInfoId());
 			tabIntent.setWindowId(info.getWindowId());
-			tabIntent.setIsContent(intent.isContent());
 			tabIntent.updateUsing(info);
 			spec.setContent(tabIntent.getIntent());
 

@@ -29,7 +29,6 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.util.Config;
 import android.util.Log;
 
@@ -87,7 +86,7 @@ public class TitaniumFileHelper
 		}
 	}
 
-	public InputStream openInputStream(String path, boolean isContent,  boolean report)
+	public InputStream openInputStream(String path, boolean report)
 		throws IOException
 	{
 		InputStream is = null;
@@ -116,9 +115,6 @@ public class TitaniumFileHelper
 				} else {
 					Log.e(LCAT, "Unknown section identifier: " + section);
 				}
-			} else if (isContent) {
-					path = joinPaths(TitaniumUrlHelper.getContentUrlResourcesRoot(context), path);
-					is = context.getContentResolver().openInputStream(Uri.parse(path));
 			} else {
 					path = joinPaths("Resources", path);
 					is = context.getAssets().open(path);
@@ -137,7 +133,7 @@ public class TitaniumFileHelper
 			try
 			{
 				if (intent != null) {
-					is = openInputStream(path, intent.isContent(), report);
+					is = openInputStream(path, report);
 					d = new BitmapDrawable(is);
 				}
 			} catch (IOException e) {
@@ -215,20 +211,7 @@ public class TitaniumFileHelper
 */
 	public String getResourceUrl(TitaniumIntentWrapper intent, String path)
 	{
-		String url = null;
-        if (intent.isContent())
-		{
-        	Context context = softContext.get();
-        	if (context != null) {
-        		url = TitaniumUrlHelper.getContentUrlResourcesRoot(context);
-        	} else {
-        		url = ""; // if the context is GC'd we have bigger problems.
-        	}
-        }
-		else {
-            url = RESOURCE_ROOT_ASSETS;
-        }
-        return joinPaths(url, path);
+        return joinPaths(RESOURCE_ROOT_ASSETS, path);
 	}
 
 	public String joinPaths(String pre, String post) {

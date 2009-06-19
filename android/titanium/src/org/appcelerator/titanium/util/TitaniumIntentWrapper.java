@@ -26,7 +26,6 @@ public class TitaniumIntentWrapper implements Serializable
 
 	public static final String EXTRA_APP_INFO = "appinfo";
 	public static final String EXTRA_WINDOW_ID = "windowId";
-	public static final String EXTRA_IS_CONTENT = "isContent";
 	public static final String EXTRA_IS_FULLSCREEN = "isFullscreen";
 	public static final String EXTRA_ICON_URL = "iconUrl";
 	public static final String EXTRA_ACTIVITY_TYPE = "activityType";
@@ -47,7 +46,6 @@ public class TitaniumIntentWrapper implements Serializable
 	public static TitaniumIntentWrapper createUsing(TitaniumIntentWrapper prototype) {
 		TitaniumIntentWrapper result = new TitaniumIntentWrapper(new Intent());
 		result.setAppInfoId(prototype.getAppInfoId()); // Same Titanium "context"
-		result.setIsContent(prototype.isContent()); // Needed to determine where root is.
 		// Set defaults. Can be overwritten after finished.
 		result.setFullscreen(false);
 		result.setActivityType("single");
@@ -75,8 +73,7 @@ public class TitaniumIntentWrapper implements Serializable
 	}
 
 	public TitaniumAppInfo getAppInfo(Activity activity) {
-		String key = intent.getExtras().getString(EXTRA_APP_INFO);
-		return ((TitaniumApplication) activity.getApplication()).getAppInfo(key);
+		return ((TitaniumApplication) activity.getApplication()).getAppInfo();
 	}
 
 	public void setAppInfoId(String id) {
@@ -92,19 +89,6 @@ public class TitaniumIntentWrapper implements Serializable
 	}
 	public void setWindowId(String id) {
 		intent.putExtra(EXTRA_WINDOW_ID, id);
-	}
-
-	public boolean isContent() {
-		Bundle b = intent.getExtras();
-		if (intent != null && b != null && b.get(EXTRA_IS_CONTENT) != null) {
-			return b.getBoolean(EXTRA_IS_CONTENT);
-		} else {
-			return false;
-		}
-	}
-
-	public void setIsContent(boolean isContent) {
-		intent.putExtra(EXTRA_IS_CONTENT, isContent);
 	}
 
 	public boolean isFullscreen() {
