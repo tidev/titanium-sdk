@@ -124,7 +124,7 @@ public class TitaniumApplication
 		if ("tabbed".compareTo(windowType) == 0) {
 			activity = TitaniumTabbedActivity.class;
 		} else if ("single".compareTo(windowType) == 0) {
-			activity = TitaniumActivity.class;
+			activity = TitaniumSingleActivity.class;
 		} else {
 			throw new IllegalStateException("Unknown window type: " + windowType);
 		}

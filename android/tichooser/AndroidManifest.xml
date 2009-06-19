@@ -29,6 +29,10 @@
     		android:name="org.appcelerator.titanium.TitaniumTabbedActivity"
     		android:label="TTA"
     	></activity>
+    	    	<activity
+    		android:name="org.appcelerator.titanium.TitaniumSingleActivity"
+    		android:label="TSA"
+    	></activity>
     	<activity
     		android:name="org.appcelerator.titanium.TitaniumActivityGroup"
     		android:label="TAG"

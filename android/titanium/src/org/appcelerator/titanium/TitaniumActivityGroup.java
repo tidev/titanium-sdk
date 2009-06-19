@@ -34,6 +34,7 @@ public class TitaniumActivityGroup extends ActivityGroup
 	private static final boolean DBG = Config.LOGD;
 
 	protected TitaniumApplication app;
+	protected TitaniumAppInfo appInfo;
 
 	public TitaniumActivityGroup() {
 	}
@@ -58,40 +59,18 @@ public class TitaniumActivityGroup extends ActivityGroup
         	return;
         }
 
-		TitaniumAppInfo appInfo = app.getAppInfo();
+		this.appInfo = app.getAppInfo();
 
 		ArrayList<TitaniumWindowInfo> windows = appInfo.getWindows();
 
-		int numWindows = windows.size();
-
-		if (numWindows == 0) {
-			fatalDialog("tiapp.xml needs at least one window");
-			return;
-		}
-
-		String type = "single";
-		if (numWindows > 1) {
-			type = "tabbed";
-		}
-
-		Class<?> activity = TitaniumApplication.getActivityForType(type);
-
-		TitaniumIntentWrapper appIntent = new TitaniumIntentWrapper(new Intent(this, activity));
-		if (numWindows == 1) {
-			TitaniumWindowInfo info = windows.get(0);
-			appIntent.setWindowId(info.getWindowId());
-			if (info.isWindowFullscreen()) {
-				this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-			} else {
-		        this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
-		        this.requestWindowFeature(Window.FEATURE_PROGRESS);
-		        this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-			}
+		TitaniumWindowInfo info = windows.get(0);
+		if (info.isWindowFullscreen()) {
+			this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		} else {
-			appIntent.setWindowId(TitaniumIntentWrapper.ACTIVITY_PREFIX +"TABBED-ROOT");
+	        this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
+	        this.requestWindowFeature(Window.FEATURE_PROGRESS);
+	        this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		}
-
-		launch(appIntent);
 	}
 
 	public void launch(Intent intent) {
@@ -209,16 +188,13 @@ public class TitaniumActivityGroup extends ActivityGroup
         {
 
         	Stack<LocalActivityInfo> activityStack  = app.getActivityStack();
-    		LocalActivityInfo activityInfo = activityStack.pop();
+        	LocalActivityInfo activityInfo = null;
+    		if (!activityStack.isEmpty()) {
+        		 activityInfo = activityStack.pop();
 
-    		if (DBG) {
-    			Log.d(LCAT, "Popping current activity off of stack: " + activityInfo.getActivityId());
-    		}
-
-    		if (activityStack.isEmpty()) {
-    			if (DBG) {
-    				Log.d(LCAT, "not Pushing root activity back on stack: " + activityInfo.getActivityId());
-    			}
+        		if (DBG) {
+        			Log.d(LCAT, "Popping current activity off of stack: " + activityInfo.getActivityId());
+        		}
     		}
 
     		if (activityStack.size() > 0) {
@@ -235,15 +211,12 @@ public class TitaniumActivityGroup extends ActivityGroup
 	@Override
 	public void finishFromChild(Activity child) {
     	Stack<LocalActivityInfo> activityStack  = app.getActivityStack();
-		LocalActivityInfo activityInfo = activityStack.pop();
+		LocalActivityInfo activityInfo = null;
 
-		if (DBG) {
-			Log.d(LCAT, "Popping current activity off of stack: " + activityInfo.getActivityId());
-		}
-
-		if (activityStack.isEmpty()) {
+		if (!activityStack.isEmpty()) {
+			activityInfo = activityStack.pop();
 			if (DBG) {
-				Log.d(LCAT, "not Pushing root activity back on stack: " + activityInfo.getActivityId());
+				Log.d(LCAT, "Popping current activity off of stack: " + activityInfo.getActivityId());
 			}
 		}
 
@@ -254,8 +227,6 @@ public class TitaniumActivityGroup extends ActivityGroup
 		} else {
 			getLocalActivityManager().destroyActivity(activityInfo.getActivityId(), false);
 		}
-
-
 	}
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {

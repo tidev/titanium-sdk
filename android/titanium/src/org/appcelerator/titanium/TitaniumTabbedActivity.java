@@ -11,12 +11,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 
-import android.app.ActivityGroup;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -29,37 +27,19 @@ import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 
-public class TitaniumTabbedActivity extends ActivityGroup
+public class TitaniumTabbedActivity extends TitaniumActivityGroup
 {
 	private static final String LCAT = "TiTabbedActivity";
 	private static final boolean DBG = Config.LOGD;
-
-	protected TitaniumAppInfo appInfo;
-
-	public TitaniumTabbedActivity()
-	{
-	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 
-        TitaniumIntentWrapper intent = new TitaniumIntentWrapper(getIntent());
-
-        if (getIntent() != null) {
-        	appInfo = intent.getAppInfo(this);
-         } else {
-        	if (DBG) {
-        		Log.d(LCAT, "Intent was empty");
-        	}
-        }
-
         TabHost tabHost = new TabHost(this);
         LinearLayout.LayoutParams linearParams = new LinearLayout.LayoutParams(
                 LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-
-        //tabHost.setLayoutParams(linearParams);
 
         TabWidget tabWidget = new TabWidget(this);
 
