@@ -37,13 +37,13 @@ public class TitaniumApplication
 
 	private boolean needsStartEvent;
 
-	protected Stack<Stack<LocalActivityInfo>> activityStacks;
+	protected Stack<LocalActivityInfo> activityStack;
 	protected TitaniumAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
 
 
 	public TitaniumApplication() {
-		activityStacks = new Stack<Stack<LocalActivityInfo>>();
+		activityStack = new Stack<LocalActivityInfo>();
 		needsStartEvent = true;
 	}
 
@@ -78,30 +78,8 @@ public class TitaniumApplication
 		}
 	}
 
-	public void pushActivityStack() {
-		if (DBG) {
-			Log.d(LCAT, "Push Activity Stack");
-		}
-		activityStacks.push(new Stack<LocalActivityInfo>()); //TODO May need to store more data
-	}
-
-	public void popActivityStack() {
-		if (DBG) {
-			Log.d(LCAT, "Pop Activity Stack");
-		}
-		activityStacks.pop();
-	}
-
-	public boolean isLastActivityStack() {
-		return activityStacks.size() == 1;
-	}
-
 	public Stack<LocalActivityInfo> getActivityStack() {
-		Stack<LocalActivityInfo> stack = null;
-		if (!activityStacks.empty()) {
-			stack = activityStacks.peek();
-		}
-		return stack;
+		return activityStack;
 	}
 
 	public TitaniumAppInfo getAppInfo() {

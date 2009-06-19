@@ -48,7 +48,6 @@ public class TitaniumActivityGroup extends ActivityGroup
 
         try {
         	app = (TitaniumApplication) getApplication();
-        	app.pushActivityStack();
         } catch (ClassCastException e) {
         	Log.e(LCAT, "Configuration problem: " + e.getMessage(), e);
         	setContentView(new TextView(this));
@@ -217,13 +216,6 @@ public class TitaniumActivityGroup extends ActivityGroup
     		}
 
     		if (activityStack.isEmpty()) {
-    			if (!app.isLastActivityStack()) {
-    				app.popActivityStack();
-    	    		activityStack = app.getActivityStack();
-    			} else {
-    				//activityStack.push(activityInfo);
-    				//return true;
-    			}
     			if (DBG) {
     				Log.d(LCAT, "not Pushing root activity back on stack: " + activityInfo.getActivityId());
     			}
@@ -250,13 +242,6 @@ public class TitaniumActivityGroup extends ActivityGroup
 		}
 
 		if (activityStack.isEmpty()) {
-			if (!app.isLastActivityStack()) {
-				app.popActivityStack();
-	    		activityStack = app.getActivityStack();
-			} else {
-				//activityStack.push(activityInfo);
-				//return true;
-			}
 			if (DBG) {
 				Log.d(LCAT, "not Pushing root activity back on stack: " + activityInfo.getActivityId());
 			}
