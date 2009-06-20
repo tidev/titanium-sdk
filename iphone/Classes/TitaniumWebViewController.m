@@ -230,7 +230,7 @@ TitaniumViewController * mostRecentController = nil;
 
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
 {
-	//	[UIView beginAnimations:@"webView" context:nil];
+	[UIView beginAnimations:@"webView" context:nil];
 	[self updateScrollBounds];
 	
 	if ([[self title] length] == 0){
@@ -239,7 +239,7 @@ TitaniumViewController * mostRecentController = nil;
 	}
 	[contentView setAlpha:1.0];
 	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
-	//	[UIView commitAnimations];
+	[UIView commitAnimations];
 	[self probeWebViewForTokenInContext:@"window"];
 }
 

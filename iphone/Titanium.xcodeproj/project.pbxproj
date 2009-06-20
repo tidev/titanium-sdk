@@ -135,6 +135,10 @@
 		B4E9B9C40F82030700DD709C /* TitaniumAccessorTuple.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9B9C30F82030700DD709C /* TitaniumAccessorTuple.m */; };
 		B4E9BB660F842C9400DD709C /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BB640F842C9400DD709C /* SBJSON.m */; };
 		B4E9BC090F85491F00DD709C /* TitaniumJSConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BC080F85491F00DD709C /* TitaniumJSConstants.m */; };
+		B4FC30A70FEC89E800D31C75 /* Phone.png in Resources */ = {isa = PBXBuildFile; fileRef = B4FC30A30FEC89E800D31C75 /* Phone.png */; };
+		B4FC30A80FEC89E800D31C75 /* Safari.png in Resources */ = {isa = PBXBuildFile; fileRef = B4FC30A40FEC89E800D31C75 /* Safari.png */; };
+		B4FC30A90FEC89E800D31C75 /* iTunes.png in Resources */ = {isa = PBXBuildFile; fileRef = B4FC30A50FEC89E800D31C75 /* iTunes.png */; };
+		B4FC30AA0FEC89E800D31C75 /* Mail.png in Resources */ = {isa = PBXBuildFile; fileRef = B4FC30A60FEC89E800D31C75 /* Mail.png */; };
 		B4FC656F0F95078000B21EA1 /* TitaniumInvocationGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FC656E0F95078000B21EA1 /* TitaniumInvocationGenerator.m */; };
 		B4FC66FC0F95590D00B21EA1 /* TitaniumJSCode.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FC66FB0F95590D00B21EA1 /* TitaniumJSCode.m */; };
 		B4FECD130FAA4B3E0015B658 /* Webcolor.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FECD120FAA4B3E0015B658 /* Webcolor.m */; };
@@ -238,6 +242,10 @@
 		B4E9BC070F85491F00DD709C /* TitaniumJSConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumJSConstants.h; sourceTree = "<group>"; };
 		B4E9BC080F85491F00DD709C /* TitaniumJSConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumJSConstants.m; sourceTree = "<group>"; };
 		B4F51CB00F981F23004D9D2D /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		B4FC30A30FEC89E800D31C75 /* Phone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Phone.png; sourceTree = "<group>"; };
+		B4FC30A40FEC89E800D31C75 /* Safari.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Safari.png; sourceTree = "<group>"; };
+		B4FC30A50FEC89E800D31C75 /* iTunes.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iTunes.png; sourceTree = "<group>"; };
+		B4FC30A60FEC89E800D31C75 /* Mail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Mail.png; sourceTree = "<group>"; };
 		B4FC656D0F95078000B21EA1 /* TitaniumInvocationGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumInvocationGenerator.h; sourceTree = "<group>"; };
 		B4FC656E0F95078000B21EA1 /* TitaniumInvocationGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumInvocationGenerator.m; sourceTree = "<group>"; };
 		B4FC66FA0F95590D00B21EA1 /* TitaniumJSCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumJSCode.h; sourceTree = "<group>"; };
@@ -474,6 +482,10 @@
 				2418F4660FCB6A2100BFE545 /* sound.wav */,
 				B4DDBE2A0FD0AE31004DD79E /* ui.html */,
 				B481D3360FD4C45A00F0A961 /* song.mp3 */,
+				B4FC30A30FEC89E800D31C75 /* Phone.png */,
+				B4FC30A40FEC89E800D31C75 /* Safari.png */,
+				B4FC30A50FEC89E800D31C75 /* iTunes.png */,
+				B4FC30A60FEC89E800D31C75 /* Mail.png */,
 				B4864C3B0F7B134B00A851C5 /* Info.plist */,
 				B40A40A60FCF60BF00C5DD7C /* movie.m4v */,
 				24440B9A0FC9DFA0000A025D /* iPhone_icon.png */,
@@ -675,6 +687,10 @@
 				B4FFBE3E0FD4A778001D5E81 /* unitTest.html in Resources */,
 				B481D3370FD4C45A00F0A961 /* song.mp3 in Resources */,
 				B4DD427D0FD982FD00CD427F /* profile.png in Resources */,
+				B4FC30A70FEC89E800D31C75 /* Phone.png in Resources */,
+				B4FC30A80FEC89E800D31C75 /* Safari.png in Resources */,
+				B4FC30A90FEC89E800D31C75 /* iTunes.png in Resources */,
+				B4FC30AA0FEC89E800D31C75 /* Mail.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

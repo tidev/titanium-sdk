@@ -333,6 +333,13 @@
 
 
 - (void)dealloc {
+	for (UIWebView * thisView in webViews){
+		[thisView setDelegate:nil];
+	}
+	[webViews release];
+	[sectionArray release];
+	[callbackProxyPath release];
+	[callbackWindowToken release];
     [super dealloc];
 }
 
@@ -373,6 +380,8 @@
 // Row display. Implementers should *always* try to reuse cells by setting each cell's reuseIdentifier and querying for available reusable cells with dequeueReusableCellWithIdentifier:
 // Cell gets various attributes set automatically based on table (separators) and data source (accessory views, editing controls)
 
+
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 {
 	TableRowWrapper * ourRow = [[self sectionForIndex:[indexPath section]] rowForIndex:[indexPath row]];
@@ -387,13 +396,23 @@
 			UIView * cellContentView = [result contentView];
 			htmlLabel = [[UIWebView alloc] initWithFrame:[cellContentView frame]];
 			[htmlLabel setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+			[htmlLabel setAlpha:0.0];
+			[htmlLabel setDelegate:self];
 			[htmlLabel setExclusiveTouch:NO];
 			[htmlLabel setUserInteractionEnabled:NO];
 			[htmlLabel setBackgroundColor:[UIColor blueColor]];
 			[cellContentView addSubview:htmlLabel];
 			[htmlLabel release];
+			
+			if (webViews == nil) {
+				webViews = [[NSMutableSet alloc] initWithObjects:htmlLabel,nil];
+			} else {
+				[webViews addObject:htmlLabel];
+			}
+			
 		} else {
 			htmlLabel = [[[result contentView] subviews] objectAtIndex:0];
+			[htmlLabel setAlpha:0.0];
 		}
 		[htmlLabel loadHTMLString:htmlString baseURL:[[TitaniumHost sharedHost] appBaseUrl]];
 		
@@ -454,6 +473,12 @@
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
+- (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
+{
+	[UIView beginAnimations:@"webView" context:nil];
+	[inputWebView setAlpha:1.0];
+	[UIView commitAnimations];
+}	
 
 
 @end

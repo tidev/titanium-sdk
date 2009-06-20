@@ -411,7 +411,7 @@ NSString * const ControllerString = @"Controller";
 			toolBarFrame = [toolBar frame];
 		}
 		if (animated){
-//			[UIView beginAnimations:@"Toolbar" context:nil];
+			[UIView beginAnimations:@"Toolbar" context:nil];
 		}
 		CGRect scrollViewFrame;
 		if(navBarStyle == UIBarStyleBlackTranslucent){
@@ -426,18 +426,18 @@ NSString * const ControllerString = @"Controller";
 		[toolBar setHidden:NO];
 		
 		if (animated) {
-//			[UIView commitAnimations];
+			[UIView commitAnimations];
 		}
 		
 		[toolBar setItems:toolbarItems animated:animated];
 	} else if (isShowingToolBar){ //Hide the toolbar.
 		if (animated){
-//			[UIView beginAnimations:@"Toolbar" context:nil];
+			[UIView beginAnimations:@"Toolbar" context:nil];
 		}
 		[toolBar setHidden:YES];
 		[contentView setFrame:[[self view] bounds]];
 		if (animated) {
-//			[UIView commitAnimations];
+			[UIView commitAnimations];
 		}
 	}
 
