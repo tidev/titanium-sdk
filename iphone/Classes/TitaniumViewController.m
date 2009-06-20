@@ -116,7 +116,7 @@ NSString * const ControllerString = @"Controller";
 
 	if ([inputState isKindOfClass:dictionaryClass]){
 		id dataObject = [(NSDictionary *)inputState objectForKey:@"data"];
-		BOOL validTableView = [dataObject isKindOfClass:dictionaryClass];
+		BOOL validTableView = [dataObject isKindOfClass:[NSArray class]];
 		if (validTableView){
 			result = [TitaniumTableViewController viewController];
 		}

@@ -71,7 +71,6 @@
 						<float key="IBUIAlpha">0.000000e+00</float>
 						<bool key="IBUIMultipleTouchEnabled">YES</bool>
 						<bool key="IBUIDelaysContentTouches">NO</bool>
-						<bool key="IBUICanCancelContentTouches">NO</bool>
 						<bool key="IBUIBouncesZoom">NO</bool>
 					</object>
 				</object>

@@ -116,7 +116,7 @@ TitaniumViewController * mostRecentController = nil;
 	if (newWebView == webView) return;
 	if (webView == nil){ //Setting up for the first time.
 		webView = [newWebView retain];
-		[[webView layer] setBackgroundColor:[UIColor clearColor]];  //TODO: What color should this be?
+		[webView setBackgroundColor:[UIColor clearColor]];  //TODO: What color should this be?
 		return;
 	}
 	
@@ -263,7 +263,7 @@ TitaniumViewController * mostRecentController = nil;
 	NSString * docHeightString = [webView stringByEvaluatingJavaScriptFromString:@"document.height"];
 	CGFloat docHeight = [docHeightString floatValue];
 	
-	for(UIView * thisView in [[self view] subviews]){
+	for(UIView * thisView in [[self contentView] subviews]){
 		if (thisView == webView) continue;
 		CGRect thisFrame = [thisView frame];
 		CGFloat bottom = thisFrame.size.height + thisFrame.origin.y;

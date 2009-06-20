@@ -12,6 +12,10 @@
 @interface TitaniumTableViewController : TitaniumViewController<UITableViewDelegate,UITableViewDataSource> {
 	UITableViewStyle tableStyle;
 	CGFloat tableRowHeight;
+	
+	NSMutableArray * sectionArray;
+	NSString * callbackWindowToken;
+	NSString * callbackProxyPath;
 }
 
 @end

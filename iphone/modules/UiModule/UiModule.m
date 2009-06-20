@@ -472,8 +472,18 @@ int barButtonSystemItemForString(NSString * inputString){
 
 - (UIButtonProxy *) proxyForToken: (NSString *) tokenString;
 {
+	if (tokenString == nil) return nil;
 	return [buttonContexts objectForKey:tokenString];
 }
+
+- (UIButtonProxy *) proxyForObject: (id) proxyObject;
+{
+	if ([proxyObject isKindOfClass:[NSDictionary class]]) proxyObject = [proxyObject objectForKey:@"_TOKEN"];
+	if ([proxyObject isKindOfClass:[NSString class]]) return [buttonContexts objectForKey:proxyObject];
+	
+	return nil;
+}
+
 
 #pragma mark Window actions
 
@@ -833,7 +843,9 @@ int barButtonSystemItemForString(NSString * inputString){
 					"Ti.UI._WTOOL(this._TOKEN,bar,args);}};"
 			"res.insertButton=function(btn,args){Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
 			"return res;}";
-			
+
+	NSString * createTableWindowString = @"function(args,callback){var res=Ti.UI.createWindow(args);res._WINTKN=Ti._TOKEN;res.handleRowClick=callback;"
+			"var tkn='TBL'+(Ti.UI._NEXTTBL++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}";	
 	
 	NSString * openWindowString = @"function(args){var res=Ti.UI._OPN(this,args);this._TOKEN=res;if(typeof(this.toolbar)=='object'){this.toolbar._TOKEN=this._TOKEN;}}";
 	
@@ -898,8 +910,11 @@ int barButtonSystemItemForString(NSString * inputString){
 			appBadgeInvoc,@"setAppBadge",
 			tabBadgeInvoc,@"setTabBadge",					 
 
+			[TitaniumJSCode codeWithString:@"{}"],@"_TBL",
+			[NSNumber numberWithInt:1],@"_NEXTTBL",
 			[TitaniumJSCode codeWithString:currentWindowString],@"currentWindow",
 			[TitaniumJSCode codeWithString:createWindowString],@"createWindow",
+			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",
 			[TitaniumJSCode codeWithString:openWindowString],@"_WINOPNF",
 			[NSNumber numberWithInt:TitaniumViewControllerPortrait],@"PORTRAIT",
 			[NSNumber numberWithInt:TitaniumViewControllerLandscape],@"LANDSCAPE",

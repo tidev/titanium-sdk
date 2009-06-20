@@ -41,7 +41,40 @@
 		btn6.bindToDiv($('sliderPlace'));
 //		Ti.UI.currentWindow.insertButton(btn6);
 
-		var btn7 = Ti.UI.createButton('activity');
+		var btn7 = Ti.UI.createButton('fastforward');
+function test1()
+{
+try{
+	var data = [
+		{title:'row 1', hasChild:true},
+		{title:'row 2', hasDetail:true},
+		{title:'row 3'},
+		{html:'<html><head><style>*{background-color:transparent}</style></head><body><b>row</b> 4 has <i>html?</i></body></html>'}
+
+	];
+	var tableView = Titanium.UI.createTableView({data:data}, function(eventObject) {
+		var rowData = eventObject.rowData;
+
+		var section = eventObject.section;
+		var row = eventObject.row;
+		var index = eventObject.index;
+		var detail = eventObject.detail;
+		Titanium.UI.createAlertDialog({message:(
+			'ROWDATA = ' + rowData +
+			', SECTION = ' + section +
+			', ROW = ' + row +
+			', INDEX = ' + index +
+			', DETAIL = ' + detail
+		)}).show();
+	});
+
+	tableView.open({animated:true});
+} catch(E){Titanium.UI.createAlertDialog({title:"Error!",message:('Msg:'+E)}).show();};
+};
+		btn7.addEventListener('click',test1);
+
+
+
 
 		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5,btn7]);
 		
@@ -51,7 +84,7 @@
 			alerty.show();
 		},false);
 
-		var btn8 = Ti.UI.createButton('activity');
+		var btn8 = Ti.UI.createButton('moo');
 		btn8.width=100;
 		btn8.addEventListener('click',function(foo){document.getElementById('sliderValue').innerHTML='Clicked!';});
 
@@ -94,12 +127,12 @@
 	Landscape: <script>document.write(Ti.Gesture.LANDSCAPE);</script><br>
 	Landscape: <script>document.write(Ti.UI.LANDSCAPE);</script><br>
 
-	<a href="tel:1234567">Call me</a><div id='buttony'>Button goes here!</div>
+	<a href="tel:1234567">Call me</a><div id='buttony' style='position:absolute;top:50;right:100;width:200px;height:50px'>Button goes here!</div>
 	<a href="tel:1234567">Call me</a>
 	
 	<div id='sliderValue'>Unchanged slider value!</div>
 
-	<div id='sliderPlace'></div>
+	<div id='sliderPlace' style="width:200px;height:50px;"></div>
 	
 	
 </body>

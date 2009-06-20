@@ -65,6 +65,7 @@
 - (void) setWindow:(NSString *)tokenString toolbar: (id) barObject options: (id) optionsObject;
 
 - (UIButtonProxy *) proxyForToken: (NSString *) tokenString;
+- (UIButtonProxy *) proxyForObject: (id) proxyObject;
 
 @end
 
