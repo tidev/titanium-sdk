@@ -109,7 +109,8 @@ public class TitaniumActivityGroup extends ActivityGroup
 		activateActivity(stack.peek());
 	}
 
-	public void activateActivity(LocalActivityInfo lai) {
+	public void activateActivity(LocalActivityInfo lai)
+	{
 		String name = lai.getActivityId();
 		TitaniumIntentWrapper intent = lai.getIntent();
 
@@ -186,7 +187,7 @@ public class TitaniumActivityGroup extends ActivityGroup
         if ((event.getKeyCode() == KeyEvent.KEYCODE_BACK &&
         		event.getAction() == KeyEvent.ACTION_DOWN))
         {
-
+        	Log.e(LCAT, "DISPATCH: BACK");
         	Stack<LocalActivityInfo> activityStack  = app.getActivityStack();
         	LocalActivityInfo activityInfo = null;
     		if (!activityStack.isEmpty()) {
@@ -210,6 +211,7 @@ public class TitaniumActivityGroup extends ActivityGroup
 
 	@Override
 	public void finishFromChild(Activity child) {
+		Log.e(LCAT, "finishFromChild");
     	Stack<LocalActivityInfo> activityStack  = app.getActivityStack();
 		LocalActivityInfo activityInfo = null;
 

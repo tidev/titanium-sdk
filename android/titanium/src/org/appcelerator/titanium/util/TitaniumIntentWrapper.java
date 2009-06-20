@@ -22,7 +22,7 @@ public class TitaniumIntentWrapper implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	public static final String ACTIVITY_PREFIX = "TA-";
+	protected static final String ACTIVITY_PREFIX = "TA-";
 
 	public static final String EXTRA_WINDOW_ID = "windowId";
 	public static final String EXTRA_IS_FULLSCREEN = "isFullscreen";
@@ -49,6 +49,10 @@ public class TitaniumIntentWrapper implements Serializable
 		result.setActivityType("single");
 
 		return result;
+	}
+
+	public static String createActivityName(String name) {
+		return ACTIVITY_PREFIX + name;
 	}
 
 	public void updateUsing(TitaniumWindowInfo window)

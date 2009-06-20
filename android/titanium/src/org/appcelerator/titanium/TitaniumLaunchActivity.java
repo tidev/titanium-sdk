@@ -59,7 +59,7 @@ public class TitaniumLaunchActivity extends Activity
 			return;
 		}
 
-		String type = "single";
+		String type = "single-root";
 		if (numWindows > 1) {
 			type = "tabbed";
 		}
@@ -71,7 +71,7 @@ public class TitaniumLaunchActivity extends Activity
 			TitaniumWindowInfo info = windows.get(0);
 			appIntent.setWindowId(info.getWindowId());
 		} else {
-			appIntent.setWindowId(TitaniumIntentWrapper.ACTIVITY_PREFIX +"TI-ROOT");
+			appIntent.setWindowId(TitaniumIntentWrapper.createActivityName("ROOT"));
 		}
 
 		startActivity(appIntent.getIntent());

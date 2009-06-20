@@ -97,7 +97,6 @@ public class TitaniumTabbedActivity extends TitaniumActivityGroup
 
 			Class<?> activity = TitaniumApplication.getActivityForType(info.getWindowType());
 			TitaniumIntentWrapper tabIntent = new TitaniumIntentWrapper(new Intent(this, activity));
-			tabIntent.setWindowId(info.getWindowId());
 			tabIntent.updateUsing(info);
 			spec.setContent(tabIntent.getIntent());
 

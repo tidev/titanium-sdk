@@ -27,7 +27,6 @@ public class TitaniumUserWindow implements ITitaniumUserWindow, ITitaniumLifecyc
 {
 	private static final String LCAT = "TiUserWindow";
 	private static final boolean DBG = Config.LOGD;
-	private static final String ACTIVITY_PREFIX = "TA-";
 
 	public static final String EVENT_FOCUSED = "focused";
 	public static final String EVENT_FOCUSED_JSON = "{type:'" + EVENT_FOCUSED + "'}";
@@ -103,7 +102,7 @@ public class TitaniumUserWindow implements ITitaniumUserWindow, ITitaniumLifecyc
 			}
 			intent.setFullscreen(fullscreen);
 			if (windowId == null) {
-				intent.setWindowId(ACTIVITY_PREFIX + activityCounter.incrementAndGet());
+				intent.setWindowId(TitaniumIntentWrapper.createActivityName("UW-" + activityCounter.incrementAndGet()));
 			} else {
 				TitaniumAppInfo appInfo = ((TitaniumApplication)activity.getApplication()).getAppInfo();
 				TitaniumWindowInfo windowInfo = appInfo.findWindowInfo(windowId);

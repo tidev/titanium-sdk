@@ -11,7 +11,9 @@ import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 
 import org.appcelerator.titanium.api.ITitaniumModule;
+import org.appcelerator.titanium.util.TitaniumActivityHelper;
 
+import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 import android.webkit.WebView;
@@ -21,11 +23,13 @@ public class TitaniumModuleManager
 	private static final String LCAT = "TiModuleMgr";
 
 	private ArrayList<ITitaniumModule> modules;
+	private SoftReference<TitaniumActivityGroup> softActivityGroup;
 	private SoftReference<TitaniumActivity> softActivity;
 	private SoftReference<Handler> softHandler;
 
 	public TitaniumModuleManager(TitaniumActivity activity, Handler handler)
 	{
+		this.softActivityGroup = new SoftReference<TitaniumActivityGroup>(TitaniumActivityHelper.getTitaniumActivityGroup(activity));
 		this.softActivity = new SoftReference<TitaniumActivity>(activity);
 		this.softHandler = new SoftReference<Handler>(handler);
 		this.modules = new ArrayList<ITitaniumModule>();
@@ -38,6 +42,7 @@ public class TitaniumModuleManager
 	public Handler getHandler() {
 		return softHandler.get();
 	}
+
 	public void addModule(ITitaniumModule m) {
 		if (! modules.contains(m)) {
 			modules.add(m);

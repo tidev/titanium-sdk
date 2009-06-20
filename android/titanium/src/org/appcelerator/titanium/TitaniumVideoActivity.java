@@ -80,7 +80,7 @@ public class TitaniumVideoActivity extends Activity implements MediaPlayer.OnCom
 		        		vv.start();
 		        	}
 
-		        	handled = true;
+		        	handled = false;
 		        	finish();
 		        }
 		        return  handled;
@@ -204,7 +204,6 @@ public class TitaniumVideoActivity extends Activity implements MediaPlayer.OnCom
 			pause();
 			playOnResume = true;
 		}
-		finish(); //TODO have managed by TiActivityGroup
 	}
 
 	@Override

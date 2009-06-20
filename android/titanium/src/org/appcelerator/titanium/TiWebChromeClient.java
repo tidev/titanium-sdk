@@ -7,6 +7,8 @@
 
 package org.appcelerator.titanium;
 
+import org.appcelerator.titanium.util.TitaniumActivityHelper;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -23,7 +25,7 @@ public class TiWebChromeClient extends WebChromeClient {
 	private Activity activity;
 	public TiWebChromeClient(TitaniumActivity activity) {
 		super();
-		this.activity = activity.getRootActivity();
+		this.activity = TitaniumActivityHelper.getTitaniumActivityGroup(activity);
 	}
 
     @Override

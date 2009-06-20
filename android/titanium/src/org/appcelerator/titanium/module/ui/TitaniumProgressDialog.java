@@ -9,6 +9,7 @@ package org.appcelerator.titanium.module.ui;
 
 import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.api.ITitaniumProgressDialog;
+import org.appcelerator.titanium.util.TitaniumActivityHelper;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -45,7 +46,7 @@ public class TitaniumProgressDialog implements ITitaniumProgressDialog
 		this.min = 0;
 		this.max = 100;
 		this.incrementFactor = 10000 / (this.max - this.min);
-		this.parent = activity.getRootActivity();
+		this.parent = TitaniumActivityHelper.getTitaniumActivityGroup(activity);
 
 	}
 
@@ -164,7 +165,6 @@ public class TitaniumProgressDialog implements ITitaniumProgressDialog
 	public void hide() {
 		visible = false;
 		if (location == Location.STATUS_BAR) {
-			final Activity parent = activity.getRootActivity();
 			if (parent != null) {
 				parent.runOnUiThread(new Runnable(){
 					public void run() {

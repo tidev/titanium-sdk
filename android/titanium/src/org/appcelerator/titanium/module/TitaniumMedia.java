@@ -25,6 +25,7 @@ import org.appcelerator.titanium.api.ITitaniumVideo;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.module.fs.TitaniumBlob;
 import org.appcelerator.titanium.module.media.TitaniumSound;
+import org.appcelerator.titanium.module.media.TitaniumVideo;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.appcelerator.titanium.util.TitaniumUrlHelper;
@@ -32,7 +33,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -62,7 +62,6 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 	public TitaniumMedia(TitaniumModuleManager moduleMgr, String name) {
 		super(moduleMgr, name);
 		mediaObjects = new HashSet<ITitaniumLifecycle>();
-		TitaniumIntentWrapper intent = new TitaniumIntentWrapper(moduleMgr.getActivity().getIntent());
 	}
 
 	@Override
@@ -252,58 +251,56 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 		final File finalImageFile = imageFile;
 		final String imageUrl = "file://" + imageFile.getAbsolutePath();
 
-		Intent cameraIntent = new Intent();
-		cameraIntent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-		cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.parse(imageUrl));
-		cameraIntent.addCategory(Intent.CATEGORY_DEFAULT);
+		TitaniumIntentWrapper cameraIntent = new TitaniumIntentWrapper(new Intent());
+		cameraIntent.getIntent().setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+		cameraIntent.getIntent().putExtra(MediaStore.EXTRA_OUTPUT, Uri.parse(imageUrl));
+		cameraIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
+		cameraIntent.setWindowId(TitaniumIntentWrapper.createActivityName("CAMERA"));
 
 		final int code = activity.getUniqueResultCode();
 		final boolean finalSaveToPhotoGallery = saveToPhotoGallery;
 
-		try {
-			activity.registerResultHandler(code,
-				new TitaniumResultHandler() {
+		activity.launchActivityForResult(cameraIntent, code,
+			new TitaniumResultHandler() {
 
-					public void onResult(TitaniumActivity activity, int requestCode, int resultCode, Intent data)
-					{
-						if (resultCode == Activity.RESULT_CANCELED) {
-							if (finalImageFile != null) {
-								finalImageFile.delete();
-							}
-							invokeUserCallback(cancelCallback, null);
-						} else {
-							ContentValues values = new ContentValues(7);
-							values.put(Images.Media.TITLE, finalImageFile.getName());
-							values.put(Images.Media.DISPLAY_NAME, finalImageFile.getName());
-							values.put(Images.Media.DATE_TAKEN, new Date().getTime());
-							values.put(Images.Media.MIME_TYPE, "image/jpeg");
-							if (finalSaveToPhotoGallery) {
-								values.put(Images.ImageColumns.BUCKET_ID, PHOTO_DCIM_CAMERA.toLowerCase().hashCode());
-								values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, "Camera");
-							} else {
-								values.put(Images.ImageColumns.BUCKET_ID, finalImageFile.getPath().toLowerCase().hashCode());
-								values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, finalImageFile.getName());
-							}
-							values.put("_data", finalImageFile.getAbsolutePath());
-
-							Uri imageUri = activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-
-							String result = fillBlob(activity, blob, imageUri.toString());
-							invokeUserCallback(successCallback, result);
+				public void onResult(TitaniumActivity activity, int requestCode, int resultCode, Intent data)
+				{
+					if (resultCode == Activity.RESULT_CANCELED) {
+						if (finalImageFile != null) {
+							finalImageFile.delete();
 						}
-						activity.removeResultHandler(code);
-					}
-				});
+						invokeUserCallback(cancelCallback, null);
+					} else {
+						ContentValues values = new ContentValues(7);
+						values.put(Images.Media.TITLE, finalImageFile.getName());
+						values.put(Images.Media.DISPLAY_NAME, finalImageFile.getName());
+						values.put(Images.Media.DATE_TAKEN, new Date().getTime());
+						values.put(Images.Media.MIME_TYPE, "image/jpeg");
+						if (finalSaveToPhotoGallery) {
+							values.put(Images.ImageColumns.BUCKET_ID, PHOTO_DCIM_CAMERA.toLowerCase().hashCode());
+							values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, "Camera");
+						} else {
+							values.put(Images.ImageColumns.BUCKET_ID, finalImageFile.getPath().toLowerCase().hashCode());
+							values.put(Images.ImageColumns.BUCKET_DISPLAY_NAME, finalImageFile.getName());
+						}
+						values.put("_data", finalImageFile.getAbsolutePath());
 
-			activity.startActivityForResult(cameraIntent, code);
-		} catch (ActivityNotFoundException e) {
-			activity.removeResultHandler(code);
-			if (finalImageFile != null) {
-				finalImageFile.delete();
-			}
-			Log.e(LCAT, "Camera problem: ", e);
-			invokeUserCallback(errorCallback, createJSONError(0, e.getMessage()));
-		}
+						Uri imageUri = activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+
+						String result = fillBlob(activity, blob, imageUri.toString());
+						invokeUserCallback(successCallback, result);
+					}
+				}
+
+				public void onError(TitaniumActivity activity, int requestCode, Exception e) {
+					if (finalImageFile != null) {
+						finalImageFile.delete();
+					}
+					Log.e(LCAT, "Camera problem: ", e);
+					invokeUserCallback(errorCallback, createJSONError(0, e.getMessage()));
+				}
+			});
+
 	}
 
 	public void openPhotoGallery(final String successCallback, final String cancelCallback, final String errorCallback, ITitaniumFile file)
@@ -317,38 +314,35 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 
 		final TitaniumBlob blob = (TitaniumBlob) file;
 		TitaniumActivity activity = getActivity();
-		Intent galleryIntent = new Intent();
-		galleryIntent.setAction(Intent.ACTION_PICK);
-		galleryIntent.setType("image/*");
-		galleryIntent.addCategory(Intent.CATEGORY_DEFAULT);
+		TitaniumIntentWrapper galleryIntent = new TitaniumIntentWrapper(new Intent());
+		galleryIntent.getIntent().setAction(Intent.ACTION_PICK);
+		galleryIntent.getIntent().setType("image/*");
+		galleryIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
+		galleryIntent.setWindowId(TitaniumIntentWrapper.createActivityName("GALLERY"));
 
 		final int code = activity.getUniqueResultCode();
-		try {
-			 activity.registerResultHandler(code,
-				new TitaniumResultHandler() {
+		 activity.launchActivityForResult(galleryIntent, code,
+			new TitaniumResultHandler() {
 
-					public void onResult(TitaniumActivity activity, int requestCode, int resultCode, Intent data)
-					{
-						Log.e(LCAT, "OnResult called: " + resultCode);
-						if (resultCode == Activity.RESULT_CANCELED) {
-							invokeUserCallback(cancelCallback, null);
-						} else {
-							String path = data.getDataString();
-							String result = fillBlob(activity, blob, path);
+				public void onResult(TitaniumActivity activity, int requestCode, int resultCode, Intent data)
+				{
+					Log.e(LCAT, "OnResult called: " + resultCode);
+					if (resultCode == Activity.RESULT_CANCELED) {
+						invokeUserCallback(cancelCallback, null);
+					} else {
+						String path = data.getDataString();
+						String result = fillBlob(activity, blob, path);
 
-							invokeUserCallback(successCallback, result);
-						}
-						activity.removeResultHandler(code);
+						invokeUserCallback(successCallback, result);
 					}
-				});
+				}
 
-			activity.startActivityForResult(galleryIntent, code);
-		} catch (ActivityNotFoundException e) {
-			activity.removeResultHandler(code);
-			Log.e(LCAT, "Gallery problem: ", e);
-			invokeUserCallback(errorCallback, createJSONError(0, e.getMessage()));
-		}
-
+				public void onError(TitaniumActivity activity, int requestCode, Exception e)
+				{
+					Log.e(LCAT, "Gallery problem: ", e);
+					invokeUserCallback(errorCallback, createJSONError(0, e.getMessage()));
+				}
+			});
 	}
 
 	String fillBlob(TitaniumActivity activity, TitaniumBlob blob, String path)
@@ -375,7 +369,7 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 		return sb.toString();
 	}
 
-	public void previewImage(final String successCallback, String errorCallback, final ITitaniumFile file)
+	public void previewImage(final String successCallback, final String errorCallback, final ITitaniumFile file)
 	{
 		if (DBG) {
 			Log.d(LCAT, "previewImage");
@@ -392,29 +386,27 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 
 		String type = activity.getContentResolver().getType(uri);
 
-		Intent previewIntent = new Intent();
-		previewIntent.setAction(Intent.ACTION_VIEW);
-		previewIntent.setType(type);
-		previewIntent.setData(uri);
+		TitaniumIntentWrapper previewIntent = new TitaniumIntentWrapper(new Intent());
+		previewIntent.getIntent().setAction(Intent.ACTION_VIEW);
+		previewIntent.getIntent().setType(type);
+		previewIntent.getIntent().setData(uri);
+		previewIntent.setWindowId(TitaniumIntentWrapper.createActivityName("PREVIEW"));
 
 		final int code = activity.getUniqueResultCode();
-		try {
-			 activity.registerResultHandler(code,
-				new TitaniumResultHandler() {
+		activity.launchActivityForResult(previewIntent, code,
+			new TitaniumResultHandler() {
 
-					public void onResult(TitaniumActivity activity, int requestCode, int resultCode, Intent data)
-					{
-						invokeUserCallback(successCallback, null);
-						activity.removeResultHandler(code);
-					}
-				});
+				public void onResult(TitaniumActivity activity, int requestCode, int resultCode, Intent data)
+				{
+					invokeUserCallback(successCallback, null);
+				}
 
-			activity.startActivityForResult(previewIntent, code);
-		} catch (ActivityNotFoundException e) {
-			activity.removeResultHandler(code);
-			Log.e(LCAT, "preview problem: ", e);
-			invokeUserCallback(errorCallback, createJSONError(0, e.getMessage()));
-		}
+				public void onError(TitaniumActivity activity, int requestCode, Exception e)
+				{
+					Log.e(LCAT, "preview problem: ", e);
+					invokeUserCallback(errorCallback, createJSONError(0, e.getMessage()));
+				}
+			});
 	}
 
 	public ITitaniumFile createBlob() {
@@ -445,7 +437,9 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 				}
 				Intent intent = new Intent(getActivity(), TitaniumVideoActivity.class);
 				intent.setData(uri);
-				getActivity().startActivity(intent);
+				TitaniumIntentWrapper videoIntent = new TitaniumIntentWrapper(intent);
+				videoIntent.setWindowId(TitaniumIntentWrapper.createActivityName("VIDEO"));
+				result = new TitaniumVideo(this, videoIntent);
 			} catch (JSONException e2) {
 				String msg = "contentURL is required.";
 				Log.e(LCAT, msg);

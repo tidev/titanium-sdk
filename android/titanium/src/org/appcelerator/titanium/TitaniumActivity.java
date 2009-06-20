@@ -31,6 +31,7 @@ import org.appcelerator.titanium.module.TitaniumPlatform;
 import org.appcelerator.titanium.module.TitaniumUI;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
 import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
+import org.appcelerator.titanium.util.TitaniumActivityHelper;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.appcelerator.titanium.util.TitaniumJavascriptHelper;
@@ -39,6 +40,7 @@ import org.appcelerator.titanium.util.TitaniumUIHelper;
 import org.appcelerator.titanium.util.TitaniumUrlHelper;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -332,20 +334,41 @@ public class TitaniumActivity extends Activity
 			launchIntent.setClass(this, activityClass);
     	}
 
+    	final TitaniumActivity me = this;
+
 		handler.post(new Runnable(){
 
 			public void run() {
-				Activity parent = getRootActivity();
-				if (parent instanceof TitaniumActivityGroup) {
-					TitaniumActivityGroup tag = (TitaniumActivityGroup) parent;
-					tag.launch(launchIntent);
-				} else {
-					if (DBG) {
-						Log.d(LCAT, "No local activity manager");
-					}
-					parent.startActivity(launchIntent);
-				}
-			}});
+				TitaniumActivityGroup parent = TitaniumActivityHelper.getTitaniumActivityGroup(me);
+				parent.launch(launchIntent);
+			}
+		});
+    }
+
+    public void launchActivityForResult(final TitaniumIntentWrapper intent, final int code,
+    		final TitaniumResultHandler resultHandler)
+    {
+    	TitaniumResultHandler wrapper = new TitaniumResultHandler() {
+
+			public void onError(TitaniumActivity activity, int requestCode, Exception e)
+			{
+				resultHandler.onError(activity, requestCode, e);
+				removeResultHandler(code);
+			}
+
+			public void onResult(TitaniumActivity activity, int requestCode, int resultCode, Intent data)
+			{
+				resultHandler.onResult(activity, requestCode, resultCode, data);
+				removeResultHandler(code);
+			}
+		};
+
+    	registerResultHandler(code, wrapper);
+    	try {
+    		startActivityForResult(intent.getIntent(), code);
+     	} catch (ActivityNotFoundException e) {
+			wrapper.onError(this,code,e);
+		}
     }
 
 	@Override
@@ -512,26 +535,18 @@ public class TitaniumActivity extends Activity
 		return loadOnPageEnd;
 	}
 
-	public Activity getRootActivity() {
-		Activity parent = getParent();
-		while(parent.getParent() != null && ! parent.isTaskRoot()) {
-			parent = parent.getParent();
-		}
-		return parent;
-	}
-
 	public int getUniqueResultCode() {
 		return uniqueResultCodeAllocator.getAndIncrement();
 	}
 
-	public void registerResultHandler(int code, TitaniumResultHandler handler) {
+	protected void registerResultHandler(int code, TitaniumResultHandler handler) {
 		if (handler == null) {
 			Log.w(LCAT, "Received a null result handler");
 		}
 		resultHandlers.put(code, handler);
 	}
 
-	public void removeResultHandler(int code) {
+	protected void removeResultHandler(int code) {
 		resultHandlers.remove(code);
 	}
 

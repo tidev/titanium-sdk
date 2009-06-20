@@ -28,14 +28,12 @@
     	<activity
     		android:name="org.appcelerator.titanium.TitaniumTabbedActivity"
     		android:label="TTA"
-    	></activity>
-    	    	<activity
-    		android:name="org.appcelerator.titanium.TitaniumSingleActivity"
-    		android:label="TSA"
+    		android:launchMode="singleTask"
     	></activity>
     	<activity
-    		android:name="org.appcelerator.titanium.TitaniumActivityGroup"
-    		android:label="TAG"
+    		android:name="org.appcelerator.titanium.TitaniumSingleActivity"
+    		android:label="TSA"
+    		android:launchMode="singleTask"
     	></activity>
     	<activity
     		android:name="org.appcelerator.titanium.TitaniumVideoActivity"
