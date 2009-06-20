@@ -105,7 +105,7 @@ public class TitaniumUserWindow implements ITitaniumUserWindow, ITitaniumLifecyc
 			if (windowId == null) {
 				intent.setWindowId(ACTIVITY_PREFIX + activityCounter.incrementAndGet());
 			} else {
-				TitaniumAppInfo appInfo = ((TitaniumApplication)activity.getApplication()).getAppInfo(intent.getAppInfoId());
+				TitaniumAppInfo appInfo = ((TitaniumApplication)activity.getApplication()).getAppInfo();
 				TitaniumWindowInfo windowInfo = appInfo.findWindowInfo(windowId);
 				intent.updateUsing(windowInfo);
 			}

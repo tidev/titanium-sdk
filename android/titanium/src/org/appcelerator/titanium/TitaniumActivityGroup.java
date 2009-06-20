@@ -7,7 +7,6 @@
 
 package org.appcelerator.titanium;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -16,7 +15,6 @@ import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.appcelerator.titanium.util.TitaniumUIHelper;
-import org.xml.sax.SAXException;
 
 import android.app.Activity;
 import android.app.ActivityGroup;
@@ -36,6 +34,7 @@ public class TitaniumActivityGroup extends ActivityGroup
 	private static final boolean DBG = Config.LOGD;
 
 	protected TitaniumApplication app;
+	protected TitaniumAppInfo appInfo;
 
 	public TitaniumActivityGroup() {
 	}
@@ -50,7 +49,6 @@ public class TitaniumActivityGroup extends ActivityGroup
 
         try {
         	app = (TitaniumApplication) getApplication();
-        	app.pushActivityStack();
         } catch (ClassCastException e) {
         	Log.e(LCAT, "Configuration problem: " + e.getMessage(), e);
         	setContentView(new TextView(this));
@@ -61,52 +59,17 @@ public class TitaniumActivityGroup extends ActivityGroup
         	return;
         }
 
-		try {
-			TitaniumIntentWrapper intent = new TitaniumIntentWrapper(getIntent());
-			boolean isContent = intent.isContent();
-			String appInfoKey = app.loadAppInfo(this, isContent);
-			TitaniumAppInfo appInfo = app.getAppInfo(appInfoKey);
+		this.appInfo = app.getAppInfo();
 
-			ArrayList<TitaniumWindowInfo> windows = appInfo.getWindows();
+		ArrayList<TitaniumWindowInfo> windows = appInfo.getWindows();
 
-			int numWindows = windows.size();
-
-			if (numWindows == 0) {
-				fatalDialog("tiapp.xml needs at least one window");
-				return;
-			}
-
-			String type = "single";
-			if (numWindows > 1) {
-				type = "tabbed";
-			}
-
-			Class<?> activity = TitaniumApplication.getActivityForType(type);
-
-			TitaniumIntentWrapper appIntent = new TitaniumIntentWrapper(new Intent(this, activity));
-			appIntent.setAppInfoId(appInfoKey);
-			if (numWindows == 1) {
-				TitaniumWindowInfo info = windows.get(0);
-				appIntent.setWindowId(info.getWindowId());
-				if (info.isWindowFullscreen()) {
-					this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-				} else {
-			        this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
-			        this.requestWindowFeature(Window.FEATURE_PROGRESS);
-			        this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-				}
-			} else {
-				appIntent.setWindowId(TitaniumIntentWrapper.ACTIVITY_PREFIX +"TABBED-ROOT");
-			}
-			appIntent.setIsContent(isContent);
-
-			launch(appIntent);
-		} catch (IOException e) {
-			fatalDialog("Unable to load tiapp.xml: msg=" + e.getMessage());
-			return; // force return, prevents breakage if code added after this block
-		} catch (SAXException e) {
-			fatalDialog("Error parsing tiapp.xml: msg=" + e.getMessage());
-			return; // force return, prevents breakage if code added after this block
+		TitaniumWindowInfo info = windows.get(0);
+		if (info.isWindowFullscreen()) {
+			this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		} else {
+	        this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
+	        this.requestWindowFeature(Window.FEATURE_PROGRESS);
+	        this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		}
 	}
 
@@ -119,7 +82,7 @@ public class TitaniumActivityGroup extends ActivityGroup
 		String name = intent.getWindowId();
 
 		if (!intent.isAutoNamed()) {
-			TitaniumAppInfo appInfo = app.getAppInfo(intent.getAppInfoId());
+			TitaniumAppInfo appInfo = app.getAppInfo();
 			TitaniumWindowInfo window = appInfo.findWindowInfo(name);
 			if (window == null) {
 				Toast.makeText(this.getCurrentActivity(), "Window with name " + intent.getWindowId() + "not found in tiapp.xml", Toast.LENGTH_LONG).show();
@@ -225,36 +188,22 @@ public class TitaniumActivityGroup extends ActivityGroup
         {
 
         	Stack<LocalActivityInfo> activityStack  = app.getActivityStack();
-    		LocalActivityInfo activityInfo = activityStack.pop();
+        	LocalActivityInfo activityInfo = null;
+    		if (!activityStack.isEmpty()) {
+        		 activityInfo = activityStack.pop();
 
-    		if (DBG) {
-    			Log.d(LCAT, "Popping current activity off of stack: " + activityInfo.getActivityId());
-    		}
-
-    		if (activityStack.isEmpty()) {
-    			if (!app.isLastActivityStack()) {
-    				app.popActivityStack();
-    	    		activityStack = app.getActivityStack();
-    			} else {
-    				//activityStack.push(activityInfo);
-    				//return true;
-    			}
-    			if (DBG) {
-    				Log.d(LCAT, "not Pushing root activity back on stack: " + activityInfo.getActivityId());
-    			}
+        		if (DBG) {
+        			Log.d(LCAT, "Popping current activity off of stack: " + activityInfo.getActivityId());
+        		}
     		}
 
     		if (activityStack.size() > 0) {
-    			Window w = getLocalActivityManager().destroyActivity(activityInfo.getActivityId(), true);
+    			getLocalActivityManager().destroyActivity(activityInfo.getActivityId(), true);
 
            		activateActivity(activityStack.peek());
                 return true;
-    		} else {
-    			//getLocalActivityManager().destroyActivity(activityInfo.getActivityId(), false);
-       			//return true;
-
     		}
-         }
+        }
 
 		return super.dispatchKeyEvent(event);
 	}
@@ -262,22 +211,12 @@ public class TitaniumActivityGroup extends ActivityGroup
 	@Override
 	public void finishFromChild(Activity child) {
     	Stack<LocalActivityInfo> activityStack  = app.getActivityStack();
-		LocalActivityInfo activityInfo = activityStack.pop();
+		LocalActivityInfo activityInfo = null;
 
-		if (DBG) {
-			Log.d(LCAT, "Popping current activity off of stack: " + activityInfo.getActivityId());
-		}
-
-		if (activityStack.isEmpty()) {
-			if (!app.isLastActivityStack()) {
-				app.popActivityStack();
-	    		activityStack = app.getActivityStack();
-			} else {
-				//activityStack.push(activityInfo);
-				//return true;
-			}
+		if (!activityStack.isEmpty()) {
+			activityInfo = activityStack.pop();
 			if (DBG) {
-				Log.d(LCAT, "not Pushing root activity back on stack: " + activityInfo.getActivityId());
+				Log.d(LCAT, "Popping current activity off of stack: " + activityInfo.getActivityId());
 			}
 		}
 
@@ -288,8 +227,6 @@ public class TitaniumActivityGroup extends ActivityGroup
 		} else {
 			getLocalActivityManager().destroyActivity(activityInfo.getActivityId(), false);
 		}
-
-
 	}
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -58,13 +58,11 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 	private static final String PHOTO_DCIM_CAMERA = "/sdcard/dcim/Camera";
 
 	protected HashSet<ITitaniumLifecycle> mediaObjects;
-	protected boolean isContentRoot;
 
 	public TitaniumMedia(TitaniumModuleManager moduleMgr, String name) {
 		super(moduleMgr, name);
 		mediaObjects = new HashSet<ITitaniumLifecycle>();
 		TitaniumIntentWrapper intent = new TitaniumIntentWrapper(moduleMgr.getActivity().getIntent());
-		isContentRoot = intent.isContent();
 	}
 
 	@Override
@@ -119,11 +117,7 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 	public ITitaniumSound createSound(String url) {
 		TitaniumSound s = null;
 
-		if (isContentRoot) {
-			url = TitaniumUrlHelper.buildContentUrlFromResourcesRoot(getActivity(), url);
-		} else {
-			url = TitaniumUrlHelper.buildAssetUrlFromResourcesRoot(getActivity(), url);
-		}
+		url = TitaniumUrlHelper.buildAssetUrlFromResourcesRoot(getActivity(), url);
 
 		Uri uri = Uri.parse(url);
 		s = new TitaniumSound(this, uri);

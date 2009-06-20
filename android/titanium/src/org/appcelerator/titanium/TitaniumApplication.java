@@ -10,21 +10,17 @@ package org.appcelerator.titanium;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.HashMap;
 import java.util.Stack;
 
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEvent;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
-import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumPlatformHelper;
-import org.appcelerator.titanium.util.TitaniumUrlHelper;
 import org.xml.sax.SAXException;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.util.Config;
 import android.util.Log;
 
@@ -37,18 +33,17 @@ public class TitaniumApplication
 	public static final String APP_ASSET_KEY = "tiapp";
 	public static final String APP_CONTENT_KEY = "ticontent";
 
-	private HashMap<String, TitaniumAppInfo> map;
+	private TitaniumAppInfo appInfo;
 
 	private boolean needsStartEvent;
 
-	protected Stack<Stack<LocalActivityInfo>> activityStacks;
+	protected Stack<LocalActivityInfo> activityStack;
 	protected TitaniumAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
 
 
 	public TitaniumApplication() {
-		map = new HashMap<String, TitaniumAppInfo>();
-		activityStacks = new Stack<Stack<LocalActivityInfo>>();
+		activityStack = new Stack<LocalActivityInfo>();
 		needsStartEvent = true;
 	}
 
@@ -73,66 +68,38 @@ public class TitaniumApplication
 				defaultHandler.uncaughtException(t, e);
 			}
 		});
-	}
 
-	public void pushActivityStack() {
-		if (DBG) {
-			Log.d(LCAT, "Push Activity Stack");
+		try {
+			loadAppInfo(getApplicationContext());
+		} catch (SAXException e) {
+			Log.e(LCAT, "Error parsing tiapp.xml", e);
+		} catch (IOException e) {
+			Log.e(LCAT, "Error loading tiapp.xml", e);
 		}
-		activityStacks.push(new Stack<LocalActivityInfo>()); //TODO May need to store more data
-	}
-	public void popActivityStack() {
-		if (DBG) {
-			Log.d(LCAT, "Pop Activity Stack");
-		}
-		activityStacks.pop();
-	}
-
-	public boolean isLastActivityStack() {
-		return activityStacks.size() == 1;
 	}
 
 	public Stack<LocalActivityInfo> getActivityStack() {
-		Stack<LocalActivityInfo> stack = null;
-		if (!activityStacks.empty()) {
-			stack = activityStacks.peek();
-		}
-		return stack;
+		return activityStack;
 	}
 
-	public void addAppInfo(String key, TitaniumAppInfo appInfo) {
-		map.put(key, appInfo);
+	public TitaniumAppInfo getAppInfo() {
+		return appInfo;
 	}
 
-	public TitaniumAppInfo getAppInfo(String key) {
-		return map.get(key);
-	}
-
-	public String loadAppInfo(Context context, boolean isContent)
+	public String loadAppInfo(Context context)
 		throws IOException, SAXException
 	{
 		InputStream is = null;
 		String appInfoKey = null;
 
 		try {
-
-			if (isContent) { // Loaded using content://PACKAGE.NAME.titanium
-				appInfoKey = APP_CONTENT_KEY;
-				String url = TitaniumUrlHelper.getContentUrlRoot(this);
-				TitaniumFileHelper tfh = new TitaniumFileHelper(this);
-				url = tfh.joinPaths(url, "tiapp.xml");
-				is = context.getContentResolver().openInputStream(Uri.parse(url));
-			} else { // Loaded from file:///android_asset
-				appInfoKey = APP_ASSET_KEY;
-				is = context.getAssets().open("tiapp.xml");
-			}
-
-			addAppInfo(appInfoKey, TitaniumAppInfo.loadFromXml(is, context));
-			 Context appContext = context.getApplicationContext();
-			 synchronized(appContext) {
+			is = context.getAssets().open("tiapp.xml");
+			appInfo = TitaniumAppInfo.loadFromXml(is, context);
+			Context appContext = context.getApplicationContext();
+			synchronized(appContext) {
 				 Log.i(LCAT, "tiapp.xml processed, notifying components");
 				 appContext.notifyAll();
-			 }
+			}
 		} finally {
 			if (is != null) {
 				try {
@@ -157,7 +124,7 @@ public class TitaniumApplication
 		if ("tabbed".compareTo(windowType) == 0) {
 			activity = TitaniumTabbedActivity.class;
 		} else if ("single".compareTo(windowType) == 0) {
-			activity = TitaniumActivity.class;
+			activity = TitaniumSingleActivity.class;
 		} else {
 			throw new IllegalStateException("Unknown window type: " + windowType);
 		}

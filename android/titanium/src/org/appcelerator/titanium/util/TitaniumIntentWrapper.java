@@ -24,9 +24,7 @@ public class TitaniumIntentWrapper implements Serializable
 
 	public static final String ACTIVITY_PREFIX = "TA-";
 
-	public static final String EXTRA_APP_INFO = "appinfo";
 	public static final String EXTRA_WINDOW_ID = "windowId";
-	public static final String EXTRA_IS_CONTENT = "isContent";
 	public static final String EXTRA_IS_FULLSCREEN = "isFullscreen";
 	public static final String EXTRA_ICON_URL = "iconUrl";
 	public static final String EXTRA_ACTIVITY_TYPE = "activityType";
@@ -46,8 +44,6 @@ public class TitaniumIntentWrapper implements Serializable
 
 	public static TitaniumIntentWrapper createUsing(TitaniumIntentWrapper prototype) {
 		TitaniumIntentWrapper result = new TitaniumIntentWrapper(new Intent());
-		result.setAppInfoId(prototype.getAppInfoId()); // Same Titanium "context"
-		result.setIsContent(prototype.isContent()); // Needed to determine where root is.
 		// Set defaults. Can be overwritten after finished.
 		result.setFullscreen(false);
 		result.setActivityType("single");
@@ -63,24 +59,14 @@ public class TitaniumIntentWrapper implements Serializable
 		setActivityType(window.getWindowType());
 		setIconUrl(window.getWindowIconUrl());
 		//TODO windowsize
-		// TODO references
 	}
 
 	public Intent getIntent() {
 		return intent;
 	}
 
-	public String getAppInfoId() {
-		return intent.getExtras().getString(EXTRA_APP_INFO);
-	}
-
 	public TitaniumAppInfo getAppInfo(Activity activity) {
-		String key = intent.getExtras().getString(EXTRA_APP_INFO);
-		return ((TitaniumApplication) activity.getApplication()).getAppInfo(key);
-	}
-
-	public void setAppInfoId(String id) {
-		intent.putExtra(EXTRA_APP_INFO, id);
+		return ((TitaniumApplication) activity.getApplication()).getAppInfo();
 	}
 
 	public TitaniumWindowInfo getWindowInfo(TitaniumAppInfo appInfo) {
@@ -92,19 +78,6 @@ public class TitaniumIntentWrapper implements Serializable
 	}
 	public void setWindowId(String id) {
 		intent.putExtra(EXTRA_WINDOW_ID, id);
-	}
-
-	public boolean isContent() {
-		Bundle b = intent.getExtras();
-		if (intent != null && b != null && b.get(EXTRA_IS_CONTENT) != null) {
-			return b.getBoolean(EXTRA_IS_CONTENT);
-		} else {
-			return false;
-		}
-	}
-
-	public void setIsContent(boolean isContent) {
-		intent.putExtra(EXTRA_IS_CONTENT, isContent);
 	}
 
 	public boolean isFullscreen() {

@@ -11,7 +11,7 @@
         <window>
             <id>initial</id>
             <title>Titanium Connectivity</title>
-            <url>menu.html</url>
+            <url>camera.html</url>
             <type>single</type>
             <fullscreen>false</fullscreen>
             <backgroundColor>argb(0,255,255,255)</backgroundColor>

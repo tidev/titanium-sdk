@@ -11,57 +11,35 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 
-import android.app.Activity;
-import android.app.ActivityGroup;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Config;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 
-public class TitaniumTabbedActivity extends ActivityGroup
+public class TitaniumTabbedActivity extends TitaniumActivityGroup
 {
 	private static final String LCAT = "TiTabbedActivity";
 	private static final boolean DBG = Config.LOGD;
-
-	protected TitaniumAppInfo appInfo;
-
-	public TitaniumTabbedActivity()
-	{
-	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 
-        TitaniumIntentWrapper intent = new TitaniumIntentWrapper(getIntent());
-
-        if (getIntent() != null) {
-        	appInfo = intent.getAppInfo(this);
-         } else {
-        	if (DBG) {
-        		Log.d(LCAT, "Intent was empty");
-        	}
-        }
-
         TabHost tabHost = new TabHost(this);
         LinearLayout.LayoutParams linearParams = new LinearLayout.LayoutParams(
                 LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-
-        //tabHost.setLayoutParams(linearParams);
 
         TabWidget tabWidget = new TabWidget(this);
 
@@ -92,7 +70,7 @@ public class TitaniumTabbedActivity extends ActivityGroup
 				InputStream is = null;
 				try {
 					TitaniumFileHelper tfh = new TitaniumFileHelper(this);
-					is = tfh.openInputStream(windowIconUrl, intent.isContent(), false);
+					is = tfh.openInputStream(windowIconUrl, false);
 					if (is != null) {
 						d = new BitmapDrawable(is);
 					}
@@ -119,9 +97,7 @@ public class TitaniumTabbedActivity extends ActivityGroup
 
 			Class<?> activity = TitaniumApplication.getActivityForType(info.getWindowType());
 			TitaniumIntentWrapper tabIntent = new TitaniumIntentWrapper(new Intent(this, activity));
-			tabIntent.setAppInfoId(intent.getAppInfoId());
 			tabIntent.setWindowId(info.getWindowId());
-			tabIntent.setIsContent(intent.isContent());
 			tabIntent.updateUsing(info);
 			spec.setContent(tabIntent.getIntent());
 
@@ -132,28 +108,8 @@ public class TitaniumTabbedActivity extends ActivityGroup
 	}
 
 	@Override
-	public void finishFromChild(Activity child) {
-		//super.finishFromChild(child);
-	}
-
-
-	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.e(LCAT, "Tabbed Activity Received Result!");
 		super.onActivityResult(requestCode, resultCode, data);
-	}
-
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		/*
-        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
-        	if (DBG) {
-        		Log.d(LCAT, "Tab Activity got back, passing to parent.");
-        	}
-    		return getParent().onKeyDown(keyCode, event);
-        }
-        return super.onKeyDown(keyCode, event);
-        */
-		return false;
 	}
 }
