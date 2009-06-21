@@ -107,6 +107,9 @@
 		B413A7530F79A58000B1C47D /* TitaniumCmdThread.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */; };
 		B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
 		B44BCFDA0FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
+		B45C717F0FEDAF93002A8675 /* WebTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */; };
+		B45C71800FEDAF93002A8675 /* WebTableViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = B45C717D0FEDAF93002A8675 /* WebTableViewCell.h */; };
+		B45C71810FEDAF93002A8675 /* WebTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */; };
 		B45CA77F0F81565D00B80900 /* TitaniumHost.m in Sources */ = {isa = PBXBuildFile; fileRef = B45CA77E0F81565D00B80900 /* TitaniumHost.m */; };
 		B4676CB50FB0E492009B81F4 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4676CB40FB0E492009B81F4 /* AVFoundation.framework */; };
 		B4676CBF0FB0E4AE009B81F4 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */; };
@@ -213,6 +216,8 @@
 		B413A7510F79A58000B1C47D /* TitaniumCmdThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumCmdThread.h; sourceTree = "<group>"; };
 		B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumCmdThread.m; sourceTree = "<group>"; };
 		B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
+		B45C717D0FEDAF93002A8675 /* WebTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebTableViewCell.h; sourceTree = "<group>"; };
+		B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebTableViewCell.m; sourceTree = "<group>"; };
 		B45CA77D0F81565D00B80900 /* TitaniumHost.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumHost.h; sourceTree = "<group>"; };
 		B45CA77E0F81565D00B80900 /* TitaniumHost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumHost.m; sourceTree = "<group>"; };
 		B4676CB40FB0E492009B81F4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
@@ -312,6 +317,8 @@
 				B408AD460F97FA010051FD67 /* TitaniumActionSheetHelper.h */,
 				B408AD470F97FA010051FD67 /* TitaniumActionSheetHelper.m */,
 				249075290FC9D55B00D38073 /* TitaniumModule.h */,
+				B45C717D0FEDAF93002A8675 /* WebTableViewCell.h */,
+				B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -608,6 +615,7 @@
 				24F02E470FD482D2007894DA /* AnalyticsModule.h in Headers */,
 				B4C6D7050FE99F4E00D62384 /* TitaniumWebViewController.h in Headers */,
 				B4C6D7340FE9AB0600D62384 /* TitaniumTableViewController.h in Headers */,
+				B45C71800FEDAF93002A8675 /* WebTableViewCell.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -753,6 +761,7 @@
 				24F02E460FD482D2007894DA /* AnalyticsModule.m in Sources */,
 				B4C6D7040FE99F4E00D62384 /* TitaniumWebViewController.m in Sources */,
 				B4C6D7330FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */,
+				B45C717F0FEDAF93002A8675 /* WebTableViewCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -795,6 +804,7 @@
 				24F02E480FD482D2007894DA /* AnalyticsModule.m in Sources */,
 				B4C6D7060FE99F4E00D62384 /* TitaniumWebViewController.m in Sources */,
 				B4C6D7350FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */,
+				B45C71810FEDAF93002A8675 /* WebTableViewCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -10,6 +10,7 @@
 #import "TitaniumBlobWrapper.h"
 #import "UiModule.h"
 #import "SBJSON.h"
+#import "WebTableViewCell.h"
 
 @interface TableRowWrapper : NSObject
 {
@@ -212,6 +213,12 @@
 		tableStyle = UITableViewStylePlain;
 	}
 
+	NSNumber * tableRowHeightObject = [inputState objectForKey:@"rowHeight"];
+	
+	if ([tableRowHeightObject respondsToSelector:@selector(intValue)]){
+		tableRowHeight = [tableRowHeightObject intValue];
+	}
+	
 	SEL stringSel = @selector(stringValue);
 	Class stringClass = [NSString class];
 //	Class blobClass = [TitaniumBlobWrapper class];
@@ -333,10 +340,6 @@
 
 
 - (void)dealloc {
-	for (UIWebView * thisView in webViews){
-		[thisView setDelegate:nil];
-	}
-	[webViews release];
 	[sectionArray release];
 	[callbackProxyPath release];
 	[callbackWindowToken release];
@@ -390,31 +393,10 @@
 
 	if (htmlString != nil){ //HTML cell
 		result = [tableView dequeueReusableCellWithIdentifier:@"html"];
-		UIWebView * htmlLabel = nil;
 		if (result == nil) {
-			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"html"] autorelease];
-			UIView * cellContentView = [result contentView];
-			htmlLabel = [[UIWebView alloc] initWithFrame:[cellContentView frame]];
-			[htmlLabel setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-			[htmlLabel setAlpha:0.0];
-			[htmlLabel setDelegate:self];
-			[htmlLabel setExclusiveTouch:NO];
-			[htmlLabel setUserInteractionEnabled:NO];
-			[htmlLabel setBackgroundColor:[UIColor blueColor]];
-			[cellContentView addSubview:htmlLabel];
-			[htmlLabel release];
-			
-			if (webViews == nil) {
-				webViews = [[NSMutableSet alloc] initWithObjects:htmlLabel,nil];
-			} else {
-				[webViews addObject:htmlLabel];
-			}
-			
-		} else {
-			htmlLabel = [[[result contentView] subviews] objectAtIndex:0];
-			[htmlLabel setAlpha:0.0];
+			result = [[[WebTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"html"] autorelease];
 		}
-		[htmlLabel loadHTMLString:htmlString baseURL:[[TitaniumHost sharedHost] appBaseUrl]];
+		[[(WebTableViewCell *)result htmlLabel] loadHTMLString:htmlString baseURL:[[TitaniumHost sharedHost] appBaseUrl]];
 		
 	} else { //plain cell
 		result = [tableView dequeueReusableCellWithIdentifier:@"text"];
@@ -472,13 +454,6 @@
 	[self triggerActionForIndexPath:indexPath wasAccessory:NO];
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
-
-- (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
-{
-	[UIView beginAnimations:@"webView" context:nil];
-	[inputWebView setAlpha:1.0];
-	[UIView commitAnimations];
-}	
 
 
 @end

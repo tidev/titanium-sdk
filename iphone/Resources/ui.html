@@ -49,7 +49,9 @@ try{
 		{title:'row 1', hasChild:true},
 		{title:'row 2', hasDetail:true},
 		{title:'row 3'},
-		{html:'<html><head><style>*{background-color:transparent}</style></head><body><b>row</b> 4 has <i>html?</i></body></html>'},
+		{html:'<script>setSelected=function(sel){var color;' +
+			'if(sel){color="white";}else{color="black";};document.body.style["color"]=color;};</' +
+			'script><b>row</b> 4 has <i>html?</i>'},
 
 		{title:'row 1', hasChild:true, image:'Mail.png'},
 		{title:'row 2', hasDetail:true, image:'Safari.png'},
@@ -82,7 +84,7 @@ try{
 
 
 	];
-	var tableView = Titanium.UI.createTableView({data:data}, function(eventObject) {
+	var tableView = Titanium.UI.createTableView({data:data,rowHeight:80}, function(eventObject) {
 		var rowData = eventObject.rowData;
 
 		var section = eventObject.section;
