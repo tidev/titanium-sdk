@@ -34,7 +34,7 @@ public class TitaniumAnalyticsEventFactory
 		try {
 			json = new JSONObject();
 			json.put("platform", "android");
-			json.put("version", "0.4"); //TODO get from build
+			json.put("version", application.getSystemProperties().getString("ti.version", "0.0.0"));
 			json.put("deploytype", deployType);
 
 			json.put("model", platform.getModel());

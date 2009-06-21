@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Properties;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -61,10 +62,37 @@ public class TitaniumAppInfo
 		modules = new ArrayList<TitaniumModuleInfo>();
 		systemProperties = new TitaniumProperties(ctx, TISYS_PREFS, true); // clear on construct
 
+		Properties props = new Properties();
+
+		InputStream is = null;
+		try {
+			is = TitaniumAppInfo.class.getResourceAsStream("/org/appcelerator/titanium/titanium.properties");
+			props.load(is);
+			Iterator<Object> e = props.keySet().iterator();
+			while(e.hasNext()) {
+				String key = (String) e.next();
+				systemProperties.setString(key, props.getProperty(key));
+			}
+			props.clear();
+			props = null;
+		} catch (IOException e) {
+			Log.w(LCAT, "Unable to process titanium.properties.",e);
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					// Ignore
+				}
+				is = null;
+			}
+		}
+
 		systemProperties.setBool(PROP_ANDROID_FLUSHJSCACHE, false);
 		systemProperties.setBool(PROP_ANDROID_MINIFYJS, true);
 		systemProperties.setBool(PROP_ANDROID_WATCHLOG, false);
-		systemProperties.setString(PROP_NETWORK_USER_AGENT, NETWORK_USER_AGENT + " Titanium/0.4"); //TODO get from build
+		String versionString = systemProperties.getString("ti.version", "0.0.0");
+		systemProperties.setString(PROP_NETWORK_USER_AGENT, NETWORK_USER_AGENT + " Titanium/" + versionString);
 
 		if (DBG) {
 			Log.d(LCAT, "Default Titanium system properties loaded.");
