@@ -495,15 +495,25 @@
 	int section = [indexPath section];
 	int row = [indexPath row];
 	int index = [self rowCountBeforeSection:section] + row;
-	NSString * rowData = [[[self sectionForIndex:section] rowForIndex:row] stringValue];
+	TableSectionWrapper * sectionWrapper = [self sectionForIndex:section];
+	NSString * rowData = [[sectionWrapper rowForIndex:row] stringValue];
 	if (rowData==nil) rowData = @"{}";
 	NSString * detail = accessoryTapped ? @"true" : @"false";
 
-	NSString * triggeredCode = [[NSString alloc] initWithFormat:@"%@.handleRowClick({"
-			"index:%d,row:%d,section:%d,rowData:%@,detail:%@})",callbackProxyPath,
+	NSString * triggeredCode = [[NSString alloc] initWithFormat:@".onClick({type:'click',"
+			"index:%d,row:%d,section:%d,rowData:%@,detail:%@})",
 			index,row,section,rowData,detail];
 	
-	[[TitaniumHost sharedHost] sendJavascript:triggeredCode toPageWithToken:callbackWindowToken];
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	[theHost sendJavascript:[callbackProxyPath stringByAppendingString:triggeredCode] toPageWithToken:callbackWindowToken];
+	int groupNum = [sectionWrapper groupNum];
+	
+	if (groupNum >= 0) {
+		NSString * groupCode = [[NSString alloc] initWithFormat:@"%@._GRP[%d]%@",callbackProxyPath,groupNum,triggeredCode];
+		[theHost sendJavascript:groupCode toPageWithToken:callbackWindowToken];
+		[groupCode release];
+	}
+	[triggeredCode release];
 }
 
 - (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath;
@@ -519,6 +529,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 {
 	[self triggerActionForIndexPath:indexPath wasAccessory:NO];
+	
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 

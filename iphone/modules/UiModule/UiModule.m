@@ -844,7 +844,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res.insertButton=function(btn,args){Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
 			"return res;}";
 
-	NSString * createTableWindowString = @"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.handleRowClick=callback;"
+	NSString * createTableWindowString = @"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
 			"var tkn='TBL'+(Ti.UI._NEXTTBL++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}";	
 
 	NSString * createGroupedViewString = @"function(args,callback){var res=Ti.UI.createTableView(args,callback);res.grouped=true;"

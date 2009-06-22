@@ -73,6 +73,24 @@
 			}
 		};
 
+		var c = Titanium.Network.createHTTPClient();
+		
+		// set on ready state change function
+		c.onreadystatechange = function()
+		{
+			if (this.readyState == 4)
+			{
+				$('google').innerHTML = (this.responseText)
+				
+			}
+		};
+		
+		// open the client
+		c.open('GET','http://www.google.com');
+		
+		
+		// send the data
+		c.send();
 
 	};
 </script>
@@ -120,5 +138,11 @@
 	<button id="reset">Reset Sound</button>
 </div>
 -->
+
+
+
+
+<div id='google'></div>
+
 </body>
 </html>

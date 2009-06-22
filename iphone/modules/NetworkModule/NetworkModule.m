@@ -267,8 +267,8 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection;
 {
 	[self setConnected:NO];
-	[[TitaniumHost sharedHost] sendJavascript:[javaScriptPath stringByAppendingString:@".ondatastream()"] toPageWithToken:parentPageToken];
 	[self setReadyState:clientStateDone];
+	[[TitaniumHost sharedHost] sendJavascript:[javaScriptPath stringByAppendingString:@".ondatastream()"] toPageWithToken:parentPageToken];
 	[[TitaniumHost sharedHost] decrementActivityIndicator];
 }
 
