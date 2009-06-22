@@ -11,6 +11,7 @@
 #import "UiModule.h"
 #import "SBJSON.h"
 #import "WebTableViewCell.h"
+#import "Webcolor.h"
 
 @interface TableRowWrapper : NSObject
 {
@@ -58,13 +59,15 @@
 	NSString * accessoryString;
 	switch (accessoryType) {
 		case UITableViewCellAccessoryDetailDisclosureButton:
-			accessoryString = @"hasDetail:true,hasChild:false";
+			accessoryString = @"hasDetail:true,hasChild:false,selected:false";
 			break;
 		case UITableViewCellAccessoryDisclosureIndicator:
-			accessoryString = @"hasDetail:false,hasChild:true";
+			accessoryString = @"hasDetail:false,hasChild:true,selected:false";
 			break;
+		case UITableViewCellAccessoryCheckmark:
+			accessoryString = @"hasDetail:false,hasChild:false,selected:true";
 		default:
-			accessoryString = @"hasDetail:false,hasChild:false";
+			accessoryString = @"hasDetail:false,hasChild:false,selected:false";
 			break;
 	}
 
@@ -319,6 +322,7 @@
 	sectionArray = [[NSMutableArray alloc] init];
 	TableSectionWrapper * thisSectionWrapper = nil;
 	
+	int groupNum = 0;
 	for(NSDictionary * thisSectionEntry in groupEntries){
 		id headerString = [thisSectionEntry objectForKey:@"header"];
 		if ([headerString respondsToSelector:stringSel]) headerString = [headerString stringValue];
@@ -331,6 +335,13 @@
 			[sectionArray addObject:thisSectionWrapper];
 			[thisSectionWrapper release];
 		}
+		
+		NSString * sectionGroupType = [thisSectionEntry objectForKey:@"type"];
+		if ([sectionGroupType isKindOfClass:stringClass]){
+			[thisSectionWrapper setGroupType:sectionGroupType];
+			[thisSectionWrapper setGroupNum:groupNum];
+		}
+		groupNum++;
 		
 		NSArray * thisDataArray = [thisSectionEntry objectForKey:@"data"];
 		if ([thisDataArray isKindOfClass:arrayClass]){
@@ -528,9 +539,47 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 {
-	[self triggerActionForIndexPath:indexPath wasAccessory:NO];
-	
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
+
+	int section = [indexPath section];
+	TableSectionWrapper * sectionWrapper = [self sectionForIndex:section];
+	NSString * groupType = [sectionWrapper groupType];
+	if ([groupType isEqualToString:@"option"]){
+		int blessedRow = [indexPath row];
+		for (int row=0;row<[sectionWrapper rowCount];row++) {
+			TableRowWrapper * rowWrapper = [sectionWrapper rowForIndex:row];
+			UITableViewCellAccessoryType rowType = [rowWrapper accessoryType];
+			BOOL isBlessed = (row == blessedRow);
+			BOOL isUpdated = NO;
+			
+			UITableViewCell * thisCell = [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:section]];
+			
+			if (!isBlessed && (rowType == UITableViewCellAccessoryCheckmark)) {
+				[rowWrapper setAccessoryType:UITableViewCellAccessoryNone];
+				if (thisCell != nil){
+					[thisCell setAccessoryType:UITableViewCellAccessoryNone];
+					[thisCell setTextColor:[UIColor blackColor]];
+					isUpdated = YES;
+				}
+			} else if (isBlessed && (rowType == UITableViewCellAccessoryNone)){
+				[rowWrapper setAccessoryType:UITableViewCellAccessoryCheckmark];
+				if (thisCell != nil){
+					[thisCell setAccessoryType:UITableViewCellAccessoryCheckmark];
+					[thisCell setTextColor:[UIColor blackColor]];
+					isUpdated = YES;
+				}
+			}
+			
+			if (isUpdated && [thisCell respondsToSelector:@selector(updateState:)]){
+				[(WebTableViewCell *)thisCell updateState:YES];
+			}
+			
+		}
+		
+		
+	}
+
+	[self triggerActionForIndexPath:indexPath wasAccessory:NO];
 }
 
 
