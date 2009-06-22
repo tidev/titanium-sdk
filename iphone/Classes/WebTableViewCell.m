@@ -38,27 +38,27 @@ NSString * const falseString = @"false";
 	[super prepareForReuse];
 }
 
-- (void)setHighlighted:(BOOL)selected animated:(BOOL)animated;
+- (void)updateState: (BOOL) animated;
 {
-	if (selected != [self isHighlighted]){
-		NSString * command = [[NSString alloc] initWithFormat:@"setSelected(%@,%@)",(selected ? trueString : falseString),(animated ? trueString : falseString)];
+		NSString * command = [[NSString alloc] initWithFormat:@"setState(%@,%@,%@)",
+				(([self accessoryType]==UITableViewCellAccessoryCheckmark) ? trueString : falseString),
+				([self isHighlighted] ? trueString : falseString),
+				(animated ? trueString : falseString)];
 		NSLog(@"Value from %@: %@",command,[htmlLabel stringByEvaluatingJavaScriptFromString:command]);
 		[command release];
-	}
-	[super setHighlighted:selected animated:animated];
 }
 
-//- (void)setSelected:(BOOL)selected animated:(BOOL)animated;
-//{
-//	if (selected != [self isSelected]){
-//		NSString * command = [[NSString alloc] initWithFormat:@"setSelected(%@,%@)",(selected ? trueString : falseString),(animated ? trueString : falseString)];
-//		NSLog(@"Typeof Setselected: %@",[htmlLabel stringByEvaluatingJavaScriptFromString:command]);
-//		[command release];
-//	}
-//	[super setSelected:selected animated:animated];
-//}
+- (void)setHighlighted:(BOOL)hilighted animated:(BOOL)animated;
+{
+	[super setHighlighted:hilighted animated:animated];
+	[self updateState:animated];
+}
 
-//- (void)setHighlighted:(BOOL)highlighted animated:(BOOL)animated;
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated;
+{
+	[super setSelected:selected animated:animated];
+	[self updateState:animated];
+}
 
 
 - (void)dealloc {
@@ -69,6 +69,7 @@ NSString * const falseString = @"false";
 
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
 {
+	[self updateState:NO];
 	[UIView beginAnimations:@"webView" context:nil];
 	[inputWebView setAlpha:1.0];
 	[UIView commitAnimations];

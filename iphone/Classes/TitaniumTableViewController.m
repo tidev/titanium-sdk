@@ -29,6 +29,7 @@
 @property(nonatomic,readwrite,assign)	UITableViewCellAccessoryType accessoryType;
 @property(nonatomic,readwrite,retain)	UIButtonProxy * inputProxy;
 
+- (void) useProperties: (NSDictionary *) propDict withUrl: (NSURL *) baseUrl;
 - (NSString *) stringValue;
 
 @end
@@ -91,16 +92,69 @@
 	NSString * result = [NSString stringWithFormat:@"{%@,title:%@,html:%@,image:%@,input:%@}",
 			accessoryString,titleString,htmlString,imageURLString,inputProxyString];
 	[packer release];
+	return result;
 }
+
+- (void) useProperties: (NSDictionary *) propDict withUrl: (NSURL *) baseUrl;
+{
+	SEL boolSel = @selector(boolValue);
+	SEL stringSel = @selector(stringValue);
+	Class stringClass = [NSString class];
+	
+	NSNumber * hasDetail = [propDict objectForKey:@"hasDetail"];
+	if ([hasDetail respondsToSelector:boolSel] && [hasDetail boolValue]){
+		accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+	} else {
+		NSNumber * hasChild = [propDict objectForKey:@"hasChild"];
+		if ([hasChild respondsToSelector:boolSel] && [hasChild boolValue]){
+			[self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
+		} else {
+			NSNumber * isSelected = [propDict objectForKey:@"selected"];
+			if ([isSelected respondsToSelector:boolSel] && [isSelected boolValue]){
+				[self setAccessoryType:UITableViewCellAccessoryCheckmark];
+			} else {
+				[self setAccessoryType:UITableViewCellAccessoryNone];
+			}
+		}
+	}
+
+	id titleString = [propDict objectForKey:@"title"];
+	if ([titleString respondsToSelector:stringSel]) titleString = [titleString stringValue];
+	if ([titleString isKindOfClass:stringClass] && ([titleString length] != 0)){
+		[self setTitle:titleString];
+	}
+
+	id htmlString = [propDict objectForKey:@"html"];
+	if ([htmlString respondsToSelector:stringSel]) htmlString = [htmlString stringValue];
+	if ([htmlString isKindOfClass:stringClass] && ([htmlString length] != 0)){
+		[self setHtml:htmlString];
+	}
+
+	id imageString = [propDict objectForKey:@"image"];
+	if ([imageString isKindOfClass:stringClass]){
+		[self setImageURL:[NSURL URLWithString:imageString relativeToURL:baseUrl]];
+	}
+
+	NSDictionary * inputProxyDict = [propDict objectForKey:@"input"];
+	if ([inputProxyDict isKindOfClass:[NSDictionary class]]){
+		UiModule * theUiModule = (UiModule *)[[TitaniumHost sharedHost] moduleNamed:@"UiModule"];
+		UIButtonProxy * thisInputProxy = [theUiModule proxyForObject:inputProxyDict];
+		if (thisInputProxy != nil) [self setInputProxy:thisInputProxy];
+	}
+}
+
 
 @end
 
 @interface TableSectionWrapper : NSObject
 {
+	NSInteger groupNum;
+	NSString * groupType;
 	NSString * header;
 	NSString * footer;
 	NSMutableArray * rowArray;
 }
+- (id) initWithHeader: (NSString *) headerString footer: (NSString *) footerString;
 - (void) addRow: (TableRowWrapper *) newRow;
 - (TableRowWrapper *) rowForIndex: (NSUInteger) rowIndex;
 - (BOOL) accceptsHeader: (NSString *) newHeader footer: (NSString *) footer;
@@ -108,11 +162,25 @@
 @property(nonatomic,readwrite,copy)		NSString * header;
 @property(nonatomic,readwrite,copy)		NSString * footer;
 @property(nonatomic,readonly,assign)	NSUInteger rowCount;
+@property(nonatomic,readwrite,assign)	NSInteger groupNum;
+@property(nonatomic,readwrite,copy)		NSString * groupType;
 
 @end
 
 @implementation TableSectionWrapper
-@synthesize header,footer;
+@synthesize header,footer,groupNum,groupType;
+
+- (id) initWithHeader: (NSString *) headerString footer: (NSString *) footerString;
+{
+	self = [super init];
+	if (self != nil) {
+		groupNum = -1;
+		Class stringClass = [NSString class];
+		if ([headerString isKindOfClass:stringClass])[self setHeader:headerString];
+		if ([footerString isKindOfClass:stringClass])[self setFooter:footerString];
+	}
+	return self;
+}
 
 - (NSUInteger) rowCount;
 {
@@ -138,7 +206,7 @@
 - (BOOL) accceptsHeader: (id) newHeader footer: (id) newFooter;
 {
 	BOOL result;
-	if (newHeader == nil){
+	if ((newHeader == nil) || ([rowArray count]==0)){
 		result = YES;
 	} else if (![newHeader isKindOfClass:[NSString class]]){
 		result = NO;
@@ -197,12 +265,6 @@
 	}
 
 	Class arrayClass = [NSArray class];
-	NSArray * dataEntries = [inputState objectForKey:@"data"];
-
-	if (![dataEntries isKindOfClass:arrayClass]){
-		NSLog(@"SHOULDN'T HAPPEN: %@ is trying to read the data which isn't an array %@!",self,dataEntries);
-		return;
-	}
 	
 	NSNumber * isGrouped = [inputState objectForKey:@"grouped"];
 	SEL boolSel = @selector(boolValue);
@@ -234,70 +296,71 @@
 		[callbackProxyPath release];
 		callbackProxyPath = [pathObject copy];
 	}
+		
+	NSArray * groupEntries = [inputState objectForKey:@"_GRP"];
+	NSArray * dataEntries = [inputState objectForKey:@"data"];
+	BOOL isValidDataEntries = [dataEntries isKindOfClass:arrayClass];
 
+	if (![groupEntries isKindOfClass:arrayClass]){
+		if (isValidDataEntries){
+			groupEntries = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:dataEntries forKey:@"data"]];
+			//While it's tempting to just use inputState as a shortcut, that could lead to undocumented pain.
+		} else {
+			groupEntries = nil; //Just so we don't interate on the wrong things.
+		}
+	} else {
+		if (isValidDataEntries){
+			groupEntries = [groupEntries arrayByAddingObject:[NSDictionary dictionaryWithObject:dataEntries forKey:@"data"]];
+			//While it's tempting to just use inputState as a shortcut, that could lead to undocumented pain.
+		}
+	}
+	
 	[sectionArray release];
 	sectionArray = [[NSMutableArray alloc] init];
-	UiModule * theUiModule = (UiModule *)[[TitaniumHost sharedHost] moduleNamed:@"UiModule"];
-	TableSectionWrapper * thisSection = nil;
+	TableSectionWrapper * thisSectionWrapper = nil;
 	
-	for(NSDictionary * thisEntry in dataEntries){
-		if (![thisEntry isKindOfClass:dictClass]) continue;
+	for(NSDictionary * thisSectionEntry in groupEntries){
+		id headerString = [thisSectionEntry objectForKey:@"header"];
+		if ([headerString respondsToSelector:stringSel]) headerString = [headerString stringValue];
 		
-		TableRowWrapper * thisRow = [[TableRowWrapper alloc] init];
+		id footerString = [thisSectionEntry objectForKey:@"footer"];
+		if ([footerString respondsToSelector:stringSel]) footerString = [footerString stringValue];
 		
-		NSNumber * hasDetail = [thisEntry objectForKey:@"hasDetail"];
-		if ([hasDetail respondsToSelector:boolSel] && [hasDetail boolValue]){
-			[thisRow setAccessoryType:UITableViewCellAccessoryDetailDisclosureButton];
-		} else {
-			NSNumber * hasChild = [thisEntry objectForKey:@"hasChild"];
-			if ([hasChild respondsToSelector:boolSel] && [hasChild boolValue]){
-				[thisRow setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
-			} else {
-				[thisRow setAccessoryType:UITableViewCellAccessoryNone];
+		if (![thisSectionWrapper accceptsHeader:headerString footer:footerString]){
+			thisSectionWrapper = [[TableSectionWrapper alloc] initWithHeader:headerString footer:footerString];
+			[sectionArray addObject:thisSectionWrapper];
+			[thisSectionWrapper release];
+		}
+		
+		NSArray * thisDataArray = [thisSectionEntry objectForKey:@"data"];
+		if ([thisDataArray isKindOfClass:arrayClass]){
+			for(NSDictionary * thisEntry in thisDataArray){
+				if (![thisEntry isKindOfClass:dictClass]) continue;
+				
+				TableRowWrapper * thisRow = [[TableRowWrapper alloc] init];
+				[thisRow useProperties:thisEntry withUrl:baseUrl];
+				
+				id headerString = [thisEntry objectForKey:@"header"];
+				if ([headerString respondsToSelector:stringSel]) headerString = [headerString stringValue];
+				
+				id footerString = [thisEntry objectForKey:@"footer"];
+				if ([footerString respondsToSelector:stringSel]) footerString = [footerString stringValue];
+				
+				if ([thisSectionWrapper accceptsHeader:headerString footer:footerString]){
+					[thisSectionWrapper addRow:thisRow];
+				} else {
+					thisSectionWrapper = [[TableSectionWrapper alloc] initWithHeader:headerString footer:footerString];
+					
+					[thisSectionWrapper addRow:thisRow];
+
+					[sectionArray addObject:thisSectionWrapper];
+					[thisSectionWrapper release];
+				}
 			}
 		}
 		
-		id titleString = [thisEntry objectForKey:@"title"];
-		if ([titleString respondsToSelector:stringSel]) titleString = [titleString stringValue];
-		if ([titleString isKindOfClass:stringClass] && ([titleString length] != 0)){
-			[thisRow setTitle:titleString];
-		}
-		
-		id htmlString = [thisEntry objectForKey:@"html"];
-		if ([htmlString respondsToSelector:stringSel]) htmlString = [htmlString stringValue];
-		if ([htmlString isKindOfClass:stringClass] && ([htmlString length] != 0)){
-			[thisRow setHtml:htmlString];
-		}
-
-		id imageString = [thisEntry objectForKey:@"image"];
-		if ([imageString isKindOfClass:stringClass]){
-			[thisRow setImageURL:[NSURL URLWithString:imageString relativeToURL:baseUrl]];
-		}
-		
-		UIButtonProxy * thisInputProxy = [theUiModule proxyForObject:[thisEntry objectForKey:@"input"]];
-		if (thisInputProxy != nil) [thisRow setInputProxy:thisInputProxy];
-		
-		id headerString = [thisEntry objectForKey:@"header"];
-		if ([headerString respondsToSelector:stringSel]) headerString = [headerString stringValue];
-		
-		id footerString = [thisEntry objectForKey:@"footer"];
-		if ([footerString respondsToSelector:stringSel]) footerString = [footerString stringValue];
-		
-		if ([thisSection accceptsHeader:headerString footer:footerString]){
-			[thisSection addRow:thisRow];
-		} else {
-			thisSection = [[TableSectionWrapper alloc] init];
-			if ([headerString isKindOfClass:stringClass])[thisSection setHeader:headerString];
-			if ([footerString isKindOfClass:stringClass])[footerString setHeader:footerString];
-			
-			[thisSection addRow:thisRow];
-
-			[sectionArray addObject:thisSection];
-			[thisSection release];
-		}
 		
 	}
-
 }
 
 /*
@@ -389,6 +452,7 @@
 {
 	TableRowWrapper * ourRow = [[self sectionForIndex:[indexPath section]] rowForIndex:[indexPath row]];
 	NSString * htmlString = [ourRow html];
+	UITableViewCellAccessoryType ourType = [ourRow accessoryType];
 	UITableViewCell * result = nil;
 
 	if (htmlString != nil){ //HTML cell
@@ -402,10 +466,13 @@
 		result = [tableView dequeueReusableCellWithIdentifier:@"text"];
 		if (result == nil) result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"text"] autorelease];
 		[result setText:[ourRow title]];
+		UIColor * textColor = [UIColor blackColor];
+		if (ourType == UITableViewCellAccessoryCheckmark) textColor = [UIColor blueColor];
+		[result setTextColor:textColor];
 	}
 
 	[result setImage:[ourRow image]];
-	[result setAccessoryType:[ourRow accessoryType]];
+	[result setAccessoryType:ourType];
 	[result setAccessoryView:[[ourRow inputProxy] nativeView]];
 
 	return result;

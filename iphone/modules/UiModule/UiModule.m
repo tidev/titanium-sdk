@@ -844,8 +844,17 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res.insertButton=function(btn,args){Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
 			"return res;}";
 
-	NSString * createTableWindowString = @"function(args,callback){var res=Ti.UI.createWindow(args);res._WINTKN=Ti._TOKEN;res.handleRowClick=callback;"
+	NSString * createTableWindowString = @"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.handleRowClick=callback;"
 			"var tkn='TBL'+(Ti.UI._NEXTTBL++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}";	
+
+	NSString * createGroupedViewString = @"function(args,callback){var res=Ti.UI.createTableView(args,callback);res.grouped=true;"
+			"res._GRP=[];res.addSection=function(section){this._GRP.push(section);};return res;}";
+	
+	NSString * createGroupedSectionString = @"function(args){var res={header:null};for(prop in args){res[prop]=args[prop]};"
+			"res._EVT={click:[]};res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res.onClick=Ti.ONEVT;return res;}";
+	
+	NSString * createSwitchString = @"function(args){var res=Ti.UI.createButton(args);res.systemButton='switch';return res;}";
+	
 	
 	NSString * openWindowString = @"function(args){var res=Ti.UI._OPN(this,args);this._TOKEN=res;if(typeof(this.toolbar)=='object'){this.toolbar._TOKEN=this._TOKEN;}}";
 	
@@ -899,6 +908,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			buttonContexts, @"_BTN",
 			[TitaniumJSCode codeWithString:iPhoneBarButtonGeneratorFunction],@"_BTNGEN",
 			makeButtonInvoc,@"createButton",
+			[TitaniumJSCode codeWithString:createSwitchString],@"createSwitch",
 
 
 			[TitaniumJSCode codeWithString:@"{}"],@"_MODAL",
@@ -908,13 +918,14 @@ int barButtonSystemItemForString(NSString * inputString){
 			createAlertCode,@"createAlertDialog",
 			
 			appBadgeInvoc,@"setAppBadge",
-			tabBadgeInvoc,@"setTabBadge",					 
+			tabBadgeInvoc,@"setTabBadge",
 
 			[TitaniumJSCode codeWithString:@"{}"],@"_TBL",
 			[NSNumber numberWithInt:1],@"_NEXTTBL",
 			[TitaniumJSCode codeWithString:currentWindowString],@"currentWindow",
 			[TitaniumJSCode codeWithString:createWindowString],@"createWindow",
 			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",
+			
 			[TitaniumJSCode codeWithString:openWindowString],@"_WINOPNF",
 			[NSNumber numberWithInt:TitaniumViewControllerPortrait],@"PORTRAIT",
 			[NSNumber numberWithInt:TitaniumViewControllerLandscape],@"LANDSCAPE",
@@ -922,6 +933,8 @@ int barButtonSystemItemForString(NSString * inputString){
 
 
 			[NSDictionary dictionaryWithObjectsAndKeys:
+					[TitaniumJSCode codeWithString:createGroupedViewString],@"createGroupedView",
+					[TitaniumJSCode codeWithString:createGroupedSectionString],@"createGroupedSection",
 					statusBarStyleInvoc,@"setStatusBarStyle",
 					[TitaniumJSCode codeWithString:systemButtonStyleString],@"SystemButtonStyle",
 					[TitaniumJSCode codeWithString:systemButtonString],@"SystemButton",
