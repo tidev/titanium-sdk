@@ -111,10 +111,21 @@ public class TitaniumActivity extends Activity
 		public void configurationChanged(Configuration config);
 	}
 
+	private long start;
+
+	private void ts(String s) {
+		long now = System.currentTimeMillis();
+		long ms = now - start;
+		Log.w(LCAT, s + " : " + ms);
+		start = now;
+	}
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
+    	start = System.currentTimeMillis();
+
     	if (DBG) {
     		Log.d(LCAT, "onCreate");
     	}
@@ -138,6 +149,8 @@ public class TitaniumActivity extends Activity
         			);
         	return;
         }
+
+        ts("After getApplication()");
 
         loadOnPageEnd = true;
         initialOrientation = this.getRequestedOrientation();
@@ -193,6 +206,8 @@ public class TitaniumActivity extends Activity
 	        this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         }
 
+        ts("After Window Configuration");
+
         String backgroundImage = "default.png";
 
         if (windowInfo != null) {
@@ -220,6 +235,8 @@ public class TitaniumActivity extends Activity
 		}
 		setContentView(splashView);
 
+		ts("After splash");
+
 		layout = new FrameLayout(this);
 
 		configurationChangeListeners = new HashSet<OnConfigChange>();
@@ -230,6 +247,7 @@ public class TitaniumActivity extends Activity
 			idGenerator = new AtomicInteger(1);
 		}
 
+		ts ("Starting WebView config");
 		handler = new Handler();
         webView = new WebView(me);
 
@@ -257,6 +275,8 @@ public class TitaniumActivity extends Activity
         settings.setLoadsImagesAutomatically(true);
         settings.setLightTouchEnabled(true);
 
+        ts("After webview configured, before modules");
+
         // Add Modules
         moduleMgr = new TitaniumModuleManager(this, handler);
         this.tiUI = new TitaniumUI(moduleMgr, "TitaniumUI");
@@ -279,6 +299,8 @@ public class TitaniumActivity extends Activity
 		app.addModule(moduleMgr);
 
 		moduleMgr.registerModules();
+
+		ts ("After modules");
 
 		if (app.needsStartEvent()) {
 			String deployType = appInfo.getSystemProperties().getString("ti.deploytype", "unknown");
@@ -308,6 +330,7 @@ public class TitaniumActivity extends Activity
 				Log.d(LCAT, "Intent was empty");
 			}
 		}
+        ts("end of onCreate");
 	}
 
     public WebView getWebView() {
@@ -517,6 +540,8 @@ public class TitaniumActivity extends Activity
 					public void run() {
 						layout.addView(me.webView);
 				 	    me.setContentView(layout);
+				 	    ts("webview is content");
+
 				 	    if (!me.webView.hasFocus()) {
 				 	    	me.webView.requestFocus();
 				 	    }

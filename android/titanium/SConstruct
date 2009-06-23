@@ -48,9 +48,9 @@ if platform.system() == "Windows":
 	env["JAVAC"] = os.path.join(os.environ['JAVA_HOME'],'bin','javac.exe')
 
 targets = []
-for f in Glob('src/org/appcelerator/titanium/js/*.js'):
+for f in Glob('src/assets/ti/debug/*'):
 	fname = os.path.basename(str(f))
-	target = env.Command(os.path.join('bin/classes/org/appcelerator/titanium/js', fname), f, Copy("bin/classes/org/appcelerator/titanium/js", "$SOURCE"))
+	target = env.Command(os.path.join('bin/classes/assets/ti/debug', fname), f, Copy("bin/classes/assets/ti/debug", "$SOURCE"))
 	env.AddPostAction(target, ReplaceVarsAction(target[0], replacements))
 	targets.append(target)
 
@@ -69,9 +69,12 @@ android_sdk = '/opt/android-sdk'
 if platform.system() == 'Windows':
 	android_sdk = 'C:\\android-sdk'
 
+tiall = env.Command('bin/classes/assets/ti/release/tiall.js', 'bin/classes/assets/ti/debug', os.path.join(cwd, 'gen-tiall.py') + " $TARGET $SOURCE")
+
 android_jar = os.path.join(android_sdk, 'platforms', 'android-1.5', 'android.jar')
 commons_logging_jar = os.path.join(cwd, 'lib', 'commons-logging-1.1.1.jar')
 
 j = env.Java('bin/classes', 'src', JAVACFLAGS="-target 1.5 -classpath "+android_jar+os.pathsep+commons_logging_jar)
 env.AddPostAction(j,JarAction())
-env.Depends(j, targets)
+env.Depends(j, tiall)
+env.Depends(tiall, targets)

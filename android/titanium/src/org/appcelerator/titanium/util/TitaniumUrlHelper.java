@@ -70,11 +70,12 @@ public class TitaniumUrlHelper
 
 				InputStreamReader br = null;
 				try {
-
+/*
 					for(int i = 0; i < files.length; i++) {
 						bos.write("<script type='text/javascript' src='" + getUrlForCachedJavascript(webView.getContext(), files[i]) + "'></script>\n");
 					}
-
+*/
+					bos.write("<script type='text/javascript' src='file:///android_asset/ti/release/tiall.js'></script>\n");
 					if (URLUtil.isAssetUrl(url)) {
 						String path = url.substring(ASSET_PATH.length());
 						if (DBG) {
@@ -131,12 +132,13 @@ public class TitaniumUrlHelper
 
     public static String getUrlForCachedJavascript(Context context, String file)
     {
-    	StringBuilder sb = new StringBuilder();
-    	sb.append("content://")
-    		.append(context.getPackageName())
-    		.append(".titanium.js/")
-    		.append(file);
-    	return sb.toString();
+//    	StringBuilder sb = new StringBuilder();
+//    	sb.append("content://")
+//    		.append(context.getPackageName())
+//    		.append(".titanium.js/")
+//    		.append(file);
+//    	return sb.toString();
+    	return ASSET_PATH + "ti/debug/" + file;
     }
 
     public static String getContentUrlRoot(Context context) {

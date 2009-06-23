@@ -54,11 +54,6 @@ public class TitaniumApplication
 			Log.d(LCAT, "Application.onCreate()");
 		}
 
-		analyticsIntent = new Intent(this, TitaniumAnalyticsService.class);
-
-		TitaniumPlatformHelper.initialize(this);
-		analyticsModel = new TitaniumAnalyticsModel(this);
-
 		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 
@@ -76,6 +71,11 @@ public class TitaniumApplication
 		} catch (IOException e) {
 			Log.e(LCAT, "Error loading tiapp.xml", e);
 		}
+
+		analyticsIntent = new Intent(this, TitaniumAnalyticsService.class);
+
+		TitaniumPlatformHelper.initialize(this);
+		analyticsModel = new TitaniumAnalyticsModel(this);
 	}
 
 	public Stack<LocalActivityInfo> getActivityStack() {

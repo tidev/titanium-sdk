@@ -16,10 +16,6 @@ import java.io.InputStream;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumUrlHelper;
-import org.inconspicuous.jsmin.JSMin;
-import org.inconspicuous.jsmin.JSMin.UnterminatedCommentException;
-import org.inconspicuous.jsmin.JSMin.UnterminatedRegExpLiteralException;
-import org.inconspicuous.jsmin.JSMin.UnterminatedStringLiteralException;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -64,10 +60,11 @@ public class TitaniumJSContentProvider extends ContentProvider
 			}
 		}
 		ParcelFileDescriptor pfd = null;
-		File f = new File(tijsdir, uri.getPath());
-		//if (DBG) {
-		//	Log.d(LCAT, "Absolute path:" + f.toString());
-		//}
+		//File f = new File(tijsdir, uri.getPath());
+		File f = new File("file:///android_asset/Resources/ti", uri.getPath());
+		if (DBG) {
+			Log.d(LCAT, "Absolute path:" + f.toString());
+		}
 		if (f.exists()) {
 			int pfdmode = 0;
 			if (mode == null) {
@@ -182,16 +179,7 @@ public class TitaniumJSContentProvider extends ContentProvider
 
 							fos = new FileOutputStream(new File(tijsdir, file));
 							if (!fDebuggable) {
-								JSMin jsmin = new JSMin(is, fos);
-								try {
-									jsmin.jsmin();
-								} catch (UnterminatedRegExpLiteralException e1) {
-									Log.e(LCAT, e1.getMessage(), e1);
-								} catch (UnterminatedStringLiteralException e1) {
-									Log.e(LCAT, e1.getMessage(), e1);
-								} catch (UnterminatedCommentException e1) {
-									Log.e(LCAT, e1.getMessage(), e1);
-								}
+
 							} else {
 								while((len = is.read(buf)) != -1) {
 									fos.write(buf, 0, len);
