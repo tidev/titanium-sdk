@@ -13,6 +13,8 @@
 #import "WebTableViewCell.h"
 #import "Webcolor.h"
 
+UIColor * checkmarkColor = nil;
+
 @interface TableRowWrapper : NSObject
 {
 	NSString * title;
@@ -66,6 +68,7 @@
 			break;
 		case UITableViewCellAccessoryCheckmark:
 			accessoryString = @"hasDetail:false,hasChild:false,selected:true";
+			break;
 		default:
 			accessoryString = @"hasDetail:false,hasChild:false,selected:false";
 			break;
@@ -208,16 +211,21 @@
 
 - (BOOL) accceptsHeader: (id) newHeader footer: (id) newFooter;
 {
+	Class * stringClass = [NSString class];
 	BOOL result;
+	
 	if ((newHeader == nil) || ([rowArray count]==0)){
 		result = YES;
-	} else if (![newHeader isKindOfClass:[NSString class]]){
+	} else if (![newHeader isKindOfClass:stringClass){
 		result = NO;
 	} else {
 		result = ([newHeader length] == 0) || [newHeader isEqualToString:header];
 	}
 	if (result) {
-		if ([newFooter isKindOfClass:[NSString class]]){
+		if ([newHeader isKindOfClass:stringClass]){
+			[self setHeader:newHeader];
+		}
+		if ([newFooter isKindOfClass:stringClass]){
 			[self setFooter:newFooter];
 		} else if (newFooter == [NSNull null]) {
 			[self setFooter:nil];
@@ -259,6 +267,10 @@
 
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
+	if (checkmarkColor == nil){
+		checkmarkColor = [[UIColor alloc] initWithRed:(55.0/255.0) green:(79.0/255.0) blue:(130.0/255.0) alpha:1.0];
+	}
+
 	[super readState:inputState relativeToUrl:baseUrl];
 
 	Class dictClass = [NSDictionary class];
@@ -461,9 +473,10 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 {
-	TableRowWrapper * ourRow = [[self sectionForIndex:[indexPath section]] rowForIndex:[indexPath row]];
-	NSString * htmlString = [ourRow html];
-	UITableViewCellAccessoryType ourType = [ourRow accessoryType];
+	TableSectionWrapper * sectionWrapper = [self sectionForIndex:[indexPath section]];
+	TableRowWrapper * rowWrapper = [sectionWrapper rowForIndex:[indexPath row]];
+	NSString * htmlString = [rowWrapper html];
+	UITableViewCellAccessoryType ourType = [rowWrapper accessoryType];
 	UITableViewCell * result = nil;
 
 	if (htmlString != nil){ //HTML cell
@@ -476,15 +489,15 @@
 	} else { //plain cell
 		result = [tableView dequeueReusableCellWithIdentifier:@"text"];
 		if (result == nil) result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"text"] autorelease];
-		[result setText:[ourRow title]];
+		[result setText:[rowWrapper title]];
 		UIColor * textColor = [UIColor blackColor];
-		if (ourType == UITableViewCellAccessoryCheckmark) textColor = [UIColor blueColor];
+		if (ourType == UITableViewCellAccessoryCheckmark) textColor = checkmarkColor;
 		[result setTextColor:textColor];
 	}
 
-	[result setImage:[ourRow image]];
+	[result setImage:[rowWrapper image]];
 	[result setAccessoryType:ourType];
-	[result setAccessoryView:[[ourRow inputProxy] nativeView]];
+	[result setAccessoryView:[[rowWrapper inputProxy] nativeView]];
 
 	return result;
 }
@@ -565,7 +578,7 @@
 				[rowWrapper setAccessoryType:UITableViewCellAccessoryCheckmark];
 				if (thisCell != nil){
 					[thisCell setAccessoryType:UITableViewCellAccessoryCheckmark];
-					[thisCell setTextColor:[UIColor blackColor]];
+					[thisCell setTextColor:checkmarkColor];
 					isUpdated = YES;
 				}
 			}
@@ -575,8 +588,6 @@
 			}
 			
 		}
-		
-		
 	}
 
 	[self triggerActionForIndexPath:indexPath wasAccessory:NO];

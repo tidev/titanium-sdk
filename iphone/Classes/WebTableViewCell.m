@@ -40,12 +40,20 @@ NSString * const falseString = @"false";
 
 - (void)updateState: (BOOL) animated;
 {
-		NSString * command = [[NSString alloc] initWithFormat:@"setState(%@,%@,%@)",
-				(([self accessoryType]==UITableViewCellAccessoryCheckmark) ? trueString : falseString),
-				([self isHighlighted] ? trueString : falseString),
-				(animated ? trueString : falseString)];
-		NSLog(@"Value from %@: %@",command,[htmlLabel stringByEvaluatingJavaScriptFromString:command]);
-		[command release];
+		if ([self isHighlighted]) {
+			[htmlLabel stringByEvaluatingJavaScriptFromString:@"document.body.style['color']='white';"];
+		} else if ([self accessoryType] == UITableViewCellAccessoryCheckmark){
+			[htmlLabel stringByEvaluatingJavaScriptFromString:@"document.body.style['color']='#374F82';"];
+		} else {
+			[htmlLabel stringByEvaluatingJavaScriptFromString:@"document.body.style['color']='black';"];
+		}
+
+//		NSString * command = [[NSString alloc] initWithFormat:@"setState(%@,%@,%@)",
+//				(([self accessoryType]==UITableViewCellAccessoryCheckmark) ? trueString : falseString),
+//				([self isHighlighted] ? trueString : falseString),
+//				(animated ? trueString : falseString)];
+//		NSLog(@"Value from %@: %@",command,[htmlLabel stringByEvaluatingJavaScriptFromString:command]);
+//		[command release];
 }
 
 - (void)setHighlighted:(BOOL)hilighted animated:(BOOL)animated;
