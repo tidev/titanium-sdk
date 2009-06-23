@@ -75,6 +75,7 @@ int barButtonSystemItemForString(NSString * inputString){
 				[NSNumber numberWithInt:UIBarButtonSystemItemFastForward],@"fastforward",
 				[NSNumber numberWithInt:UITitaniumNativeItemSpinner],@"activity",
 				[NSNumber numberWithInt:UITitaniumNativeItemSlider],@"slider",
+				[NSNumber numberWithInt:UITitaniumNativeItemSwitch],@"switch",
 				nil];
 	}
 	NSNumber * result = [barButtonSystemItemForStringDict objectForKey:[inputString lowercaseString]];
@@ -167,6 +168,15 @@ int barButtonSystemItemForString(NSString * inputString){
 			resultView = [[UISlider alloc] initWithFrame:viewFrame];
 		}
 		[(UISlider *)resultView addTarget:self action:@selector(onValueChange:) forControlEvents:UIControlEventValueChanged];
+
+	} else if (templateValue == UITitaniumNativeItemSwitch){
+		if ([nativeView isKindOfClass:[UISwitch class]]){
+			resultView = [nativeView retain];
+			[(UIView *)resultView setFrame:viewFrame];
+		} else {
+			resultView = [[UISwitch alloc] initWithFrame:viewFrame];
+		}
+		[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
 	}
 	
 	if (resultView == nil) {
@@ -239,6 +249,14 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'click'});}).call(Titanium.UI._BTN.%@);",token,token];
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
+
+- (IBAction) onSwitchChange: (id) sender;
+{
+	NSString * newValue = ([(UISwitch *)sender isOn] ? @"true":@"false");
+	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'valuechange',value:%@});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
+	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
+}
+
 
 - (IBAction) onValueChange: (id) sender;
 {
@@ -478,9 +496,18 @@ int barButtonSystemItemForString(NSString * inputString){
 
 - (UIButtonProxy *) proxyForObject: (id) proxyObject;
 {
-	if ([proxyObject isKindOfClass:[NSDictionary class]]) proxyObject = [proxyObject objectForKey:@"_TOKEN"];
-	if ([proxyObject isKindOfClass:[NSString class]]) return [buttonContexts objectForKey:proxyObject];
-	
+	NSString * token = nil;
+	if ([proxyObject isKindOfClass:[NSDictionary class]]){
+		token = [proxyObject objectForKey:@"_TOKEN"];
+		if (![token isKindOfClass:[NSString class]]) return nil;
+		UIButtonProxy * result = [buttonContexts objectForKey:token];
+		[result setPropertyDict:proxyObject];
+		return result;
+		
+	} else if ([proxyObject isKindOfClass:[NSString class]]){
+		return [buttonContexts objectForKey:proxyObject];
+	}
+
 	return nil;
 }
 

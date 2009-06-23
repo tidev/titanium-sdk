@@ -23,6 +23,8 @@ UIColor * checkmarkColor = nil;
 	TitaniumBlobWrapper * imageWrapper;
 	UITableViewCellAccessoryType accessoryType;
 	UIButtonProxy * inputProxy;
+
+	BOOL isButton;
 }
 @property(nonatomic,readwrite,copy)	NSString * title;
 @property(nonatomic,readwrite,copy)	NSString * html;
@@ -31,6 +33,7 @@ UIColor * checkmarkColor = nil;
 @property(nonatomic,readwrite,retain)	TitaniumBlobWrapper * imageWrapper;
 @property(nonatomic,readwrite,assign)	UITableViewCellAccessoryType accessoryType;
 @property(nonatomic,readwrite,retain)	UIButtonProxy * inputProxy;
+@property(nonatomic,readwrite,assign)	BOOL isButton;
 
 - (void) useProperties: (NSDictionary *) propDict withUrl: (NSURL *) baseUrl;
 - (NSString *) stringValue;
@@ -38,7 +41,7 @@ UIColor * checkmarkColor = nil;
 @end
 
 @implementation TableRowWrapper
-@synthesize title,html,imageURL,imageWrapper,accessoryType,inputProxy;
+@synthesize title,html,imageURL,imageWrapper,accessoryType,inputProxy,isButton;
 
 - (UIImage *) image;
 {
@@ -124,6 +127,12 @@ UIColor * checkmarkColor = nil;
 		}
 	}
 
+	NSString * rowType = [propDict objectForKey:@"type"];
+	if ([rowType isKindOfClass:stringClass]){
+		isButton = [rowType isEqualToString:@"button"];
+	}
+
+
 	id titleString = [propDict objectForKey:@"title"];
 	if ([titleString respondsToSelector:stringSel]) titleString = [titleString stringValue];
 	if ([titleString isKindOfClass:stringClass] && ([titleString length] != 0)){
@@ -159,6 +168,7 @@ UIColor * checkmarkColor = nil;
 	NSString * header;
 	NSString * footer;
 	NSMutableArray * rowArray;
+	BOOL isOptionList;
 }
 - (id) initWithHeader: (NSString *) headerString footer: (NSString *) footerString;
 - (void) addRow: (TableRowWrapper *) newRow;
@@ -170,11 +180,12 @@ UIColor * checkmarkColor = nil;
 @property(nonatomic,readonly,assign)	NSUInteger rowCount;
 @property(nonatomic,readwrite,assign)	NSInteger groupNum;
 @property(nonatomic,readwrite,copy)		NSString * groupType;
+@property(nonatomic,readwrite,assign)	BOOL isOptionList;
 
 @end
 
 @implementation TableSectionWrapper
-@synthesize header,footer,groupNum,groupType;
+@synthesize header,footer,groupNum,groupType,isOptionList;
 
 - (id) initWithHeader: (NSString *) headerString footer: (NSString *) footerString;
 {
@@ -211,12 +222,12 @@ UIColor * checkmarkColor = nil;
 
 - (BOOL) accceptsHeader: (id) newHeader footer: (id) newFooter;
 {
-	Class * stringClass = [NSString class];
+	Class stringClass = [NSString class];
 	BOOL result;
 	
 	if ((newHeader == nil) || ([rowArray count]==0)){
 		result = YES;
-	} else if (![newHeader isKindOfClass:stringClass){
+	} else if (![newHeader isKindOfClass:stringClass]){
 		result = NO;
 	} else {
 		result = ([newHeader length] == 0) || [newHeader isEqualToString:header];
@@ -347,10 +358,16 @@ UIColor * checkmarkColor = nil;
 			[sectionArray addObject:thisSectionWrapper];
 			[thisSectionWrapper release];
 		}
-		
-		NSString * sectionGroupType = [thisSectionEntry objectForKey:@"type"];
-		if ([sectionGroupType isKindOfClass:stringClass]){
-			[thisSectionWrapper setGroupType:sectionGroupType];
+
+		BOOL isButtonGroup = NO;
+		NSString * rowType = [thisSectionEntry objectForKey:@"type"];
+		if ([rowType isKindOfClass:stringClass]){
+			[thisSectionWrapper setGroupType:rowType];
+			if([rowType isEqualToString:@"button"]){
+				isButtonGroup = YES;
+			} else if ([rowType isEqualToString:@"option"]){
+				[thisSectionWrapper setIsOptionList:YES];
+			}
 			[thisSectionWrapper setGroupNum:groupNum];
 		}
 		groupNum++;
@@ -361,6 +378,8 @@ UIColor * checkmarkColor = nil;
 				if (![thisEntry isKindOfClass:dictClass]) continue;
 				
 				TableRowWrapper * thisRow = [[TableRowWrapper alloc] init];
+				if (isButtonGroup) [thisRow setIsButton:YES];
+				
 				[thisRow useProperties:thisEntry withUrl:baseUrl];
 				
 				id headerString = [thisEntry objectForKey:@"header"];
@@ -385,37 +404,6 @@ UIColor * checkmarkColor = nil;
 		
 	}
 }
-
-/*
- // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        // Custom initialization
-    }
-    return self;
-}
-*/
-
-/*
-// Implement loadView to create a view hierarchy programmatically, without using a nib.
-- (void)loadView {
-}
-*/
-
-/*
-// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
-- (void)viewDidLoad {
-    [super viewDidLoad];
-}
-*/
-
-/*
-// Override to allow orientations other than the default portrait orientation.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-*/
 
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
@@ -486,6 +474,14 @@ UIColor * checkmarkColor = nil;
 		}
 		[[(WebTableViewCell *)result htmlLabel] loadHTMLString:htmlString baseURL:[[TitaniumHost sharedHost] appBaseUrl]];
 		
+	} else if ([rowWrapper isButton]) {
+		result = [tableView dequeueReusableCellWithIdentifier:@"button"];
+		if (result == nil){
+			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"button"] autorelease];
+			[result setTextAlignment:UITextAlignmentCenter];
+		}
+		[result setText:[rowWrapper title]];
+		
 	} else { //plain cell
 		result = [tableView dequeueReusableCellWithIdentifier:@"text"];
 		if (result == nil) result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"text"] autorelease];
@@ -555,10 +551,10 @@ UIColor * checkmarkColor = nil;
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
 
 	int section = [indexPath section];
+	int blessedRow = [indexPath row];
 	TableSectionWrapper * sectionWrapper = [self sectionForIndex:section];
-	NSString * groupType = [sectionWrapper groupType];
-	if ([groupType isEqualToString:@"option"]){
-		int blessedRow = [indexPath row];
+
+	if ([sectionWrapper isOptionList] && ![[sectionWrapper rowForIndex:blessedRow] isButton]){
 		for (int row=0;row<[sectionWrapper rowCount];row++) {
 			TableRowWrapper * rowWrapper = [sectionWrapper rowForIndex:row];
 			UITableViewCellAccessoryType rowType = [rowWrapper accessoryType];
