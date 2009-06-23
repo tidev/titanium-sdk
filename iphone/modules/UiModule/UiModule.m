@@ -76,6 +76,11 @@ int barButtonSystemItemForString(NSString * inputString){
 				[NSNumber numberWithInt:UITitaniumNativeItemSpinner],@"activity",
 				[NSNumber numberWithInt:UITitaniumNativeItemSlider],@"slider",
 				[NSNumber numberWithInt:UITitaniumNativeItemSwitch],@"switch",
+				[NSNumber numberWithInt:UITitaniumNativeItemPicker],@"picker",
+				[NSNumber numberWithInt:UITitaniumNativeItemDatePicker],@"datepicker",
+				[NSNumber numberWithInt:UITitaniumNativeItemTextView],@"text",
+				[NSNumber numberWithInt:UITitaniumNativeItemTextField],@"textarea",
+				[NSNumber numberWithInt:UITitaniumNativeItemSearchBar],@"search",
 				nil];
 	}
 	NSNumber * result = [barButtonSystemItemForStringDict objectForKey:[inputString lowercaseString]];
@@ -86,12 +91,14 @@ int barButtonSystemItemForString(NSString * inputString){
 @implementation UIButtonProxy
 @synthesize nativeBarButton;
 @synthesize titleString, iconPath, templateValue, barButtonStyle, nativeView, labelView, progressView;
+@synthesize minValue,maxValue,floatValue;
 
 - (id) init;
 {
 	if ((self = [super init])){
 		templateValue = UITitaniumNativeItemNone;
 		spinnerStyle = UIActivityIndicatorViewStyleWhite;
+		maxValue = 1.0;
 	}
 	return self;
 }
@@ -116,6 +123,10 @@ int barButtonSystemItemForString(NSString * inputString){
 	GRAB_IF_STRING(@"image",iconPath);
 
 	GRAB_IF_SELECTOR(@"style",intValue,barButtonStyle);
+
+	GRAB_IF_SELECTOR(@"value",floatValue,floatValue);
+	GRAB_IF_SELECTOR(@"min",floatValue,minValue);
+	GRAB_IF_SELECTOR(@"max",floatValue,maxValue);
 
 	GRAB_IF_SELECTOR(@"width",floatValue,frame.size.width);
 	GRAB_IF_SELECTOR(@"height",floatValue,frame.size.height);
@@ -167,6 +178,10 @@ int barButtonSystemItemForString(NSString * inputString){
 		} else {
 			resultView = [[UISlider alloc] initWithFrame:viewFrame];
 		}
+		[(UISlider *)resultView setMinimumValue:minValue];
+		[(UISlider *)resultView setMaximumValue:maxValue];
+		[(UISlider *)resultView setValue:floatValue];
+		
 		[(UISlider *)resultView addTarget:self action:@selector(onValueChange:) forControlEvents:UIControlEventValueChanged];
 
 	} else if (templateValue == UITitaniumNativeItemSwitch){
@@ -176,8 +191,20 @@ int barButtonSystemItemForString(NSString * inputString){
 		} else {
 			resultView = [[UISwitch alloc] initWithFrame:viewFrame];
 		}
+		[(UISwitch *)resultView setOn:(floatValue > ((minValue + maxValue)/2))];
 		[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
+
+//	} else if (templateValue == UITitaniumNativeItemPicker){
+//		if ([nativeView isKindOfClass:[UIPickerView class]]){
+//			resultView = [nativeView retain];
+//			[(UIView *)resultView setFrame:viewFrame];
+//		} else {
+//			resultView = [[UISwitch alloc] initWithFrame:viewFrame];
+//		}
+//		[(UISwitch *)resultView setOn:(floatValue > ((minValue + maxValue)/2))];
+//		[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
 	}
+	
 	
 	if (resultView == nil) {
 		resultView = [[UIButton alloc] initWithFrame:viewFrame];

@@ -25,6 +25,10 @@
 	//For activity spinners
 	UIActivityIndicatorViewStyle spinnerStyle;
 	
+	//Yes, even integer and bools are represented as floats.
+	float minValue;		//Default is 0
+	float maxValue;		//Default is 1
+	float floatValue;	//Default is 0
 	
 	
 	//Connections to the native side
@@ -45,6 +49,10 @@
 @property(nonatomic,readwrite,retain)	UIProgressView * progressView;
 @property(nonatomic,readwrite,retain)	UIView * nativeView;
 @property(nonatomic,readwrite,retain)	UIBarButtonItem * nativeBarButton;
+
+@property(nonatomic,readwrite,assign)	float minValue;	
+@property(nonatomic,readwrite,assign)	float maxValue;	
+@property(nonatomic,readwrite,assign)	float floatValue;
 
 - (IBAction) onClick: (id) sender;
 - (void) setPropertyDict: (NSDictionary *) newDict;

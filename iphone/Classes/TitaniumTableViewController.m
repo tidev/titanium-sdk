@@ -19,6 +19,7 @@ UIColor * checkmarkColor = nil;
 {
 	NSString * title;
 	NSString * html;
+	NSString * value;
 	NSURL * imageURL;
 	TitaniumBlobWrapper * imageWrapper;
 	UITableViewCellAccessoryType accessoryType;
@@ -28,6 +29,7 @@ UIColor * checkmarkColor = nil;
 }
 @property(nonatomic,readwrite,copy)	NSString * title;
 @property(nonatomic,readwrite,copy)	NSString * html;
+@property(nonatomic,readwrite,copy)	NSString * value;
 @property(nonatomic,readwrite,copy)	NSURL * imageURL;
 @property(nonatomic,readonly,copy)	UIImage * image;
 @property(nonatomic,readwrite,retain)	TitaniumBlobWrapper * imageWrapper;
@@ -41,7 +43,7 @@ UIColor * checkmarkColor = nil;
 @end
 
 @implementation TableRowWrapper
-@synthesize title,html,imageURL,imageWrapper,accessoryType,inputProxy,isButton;
+@synthesize title,html,imageURL,imageWrapper,accessoryType,inputProxy,isButton, value;
 
 - (UIImage *) image;
 {
@@ -83,6 +85,11 @@ UIColor * checkmarkColor = nil;
 		titleString = [packer stringWithFragment:title error:nil];
 	} else { titleString = @"null"; }
 
+	NSString * valueString;
+	if (value != nil){
+		valueString = [packer stringWithFragment:value error:nil];
+	} else { valueString = @"null"; }
+	
 	NSString * htmlString;
 	if (html != nil){
 		htmlString = [packer stringWithFragment:html error:nil];
@@ -98,8 +105,8 @@ UIColor * checkmarkColor = nil;
 		inputProxyString = [@"Ti.UI._BTN." stringByAppendingString:[inputProxy token]];
 	} else { inputProxyString = @"null"; }
 	
-	NSString * result = [NSString stringWithFormat:@"{%@,title:%@,html:%@,image:%@,input:%@}",
-			accessoryString,titleString,htmlString,imageURLString,inputProxyString];
+	NSString * result = [NSString stringWithFormat:@"{%@,title:%@,html:%@,image:%@,input:%@,value:%@}",
+			accessoryString,titleString,htmlString,imageURLString,inputProxyString,valueString];
 	[packer release];
 	return result;
 }
