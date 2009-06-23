@@ -43,7 +43,7 @@
 
 /* Begin PBXFileReference section */
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		1D6058910D05DD3D006BFB54 /* __PROJECT_NAME__.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = __PRODUCT_NAME__.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D6058910D05DD3D006BFB54 /* __PROJECT_NAME__.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "__PROJECT_NAME__.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
         2418F31D0FCB095700BFE545 /* ApplicationRouting.h */ = {isa = PBXFileReference; fileEncoding =     4; lastKnownFileType = sourcecode.c.h; path = ApplicationRouting.h; sourceTree = "<group>"; };
         2418F31E0FCB095700BFE545 /* ApplicationRouting.m */ = {isa = PBXFileReference; fileEncoding =     4; lastKnownFileType = sourcecode.c.objc; path = ApplicationRouting.m; sourceTree = "<group>"; };
@@ -54,7 +54,7 @@
 		25C89E2D0FD0671D000A63BB /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		28AD733E0D9D9553002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Resources/MainWindow.xib; name = MainWindow.xib; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		32CA4F630368D1EE00C91783 /* __PROJECT_NAME___Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = __PROJECT_NAME___Prefix.pch; sourceTree = "<group>"; };
+		32CA4F630368D1EE00C91783 /* __PROJECT_NAME___Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "__PROJECT_NAME___Prefix.pch"; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 		B49D35000FBC943A0029ABEB /* libTitanium.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libTitanium.a; path = Resources/libTitanium.a; sourceTree = "<group>"; };
 		B4EA72030FBC9549005AA7FB /* TitaniumView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = TitaniumView.xib; path = Resources/TitaniumView.xib; sourceTree = "<group>"; };
@@ -175,8 +175,8 @@
 			);
 			dependencies = (
 			);
-			name = __PROJECT_NAME__;
-			productName = __PROJECT_NAME__;
+			name = "__PROJECT_NAME__";
+			productName = "__PROJECT_NAME__";
 			productReference = 1D6058910D05DD3D006BFB54 /* __PROJECT_NAME__.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -248,14 +248,14 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = __PROJECT_NAME___Prefix.pch;
+				GCC_PREFIX_HEADER = "__PROJECT_NAME___Prefix.pch";
 				INFOPLIST_FILE = Info.plist;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 					"Resources",
 				);
-				PRODUCT_NAME = __PROJECT_NAME__;
+				PRODUCT_NAME = "__PROJECT_NAME__";
 			};
 			name = Debug;
 		};
@@ -265,14 +265,14 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = __PROJECT_NAME___Prefix.pch;
+				GCC_PREFIX_HEADER = "__PROJECT_NAME___Prefix.pch";
 				INFOPLIST_FILE = Info.plist;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 					"Resources",
 				);
-				PRODUCT_NAME = __PROJECT_NAME__;
+				PRODUCT_NAME = "__PROJECT_NAME__";
 			};
 			name = Release;
 		};
