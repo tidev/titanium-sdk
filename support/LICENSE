@@ -1,0 +1,8 @@
+The files in this directory are excluded from the Apache Public License and are 
+Copyright (c) 2009 Appcelerator, Inc. All Rights Reserved.  These files are 
+proprietary to Appcelerator and provided as part of the distribution of 
+Appcelerator Titanium Mobile.  You can redistribute these files only in whole
+if you build the SDK and redistribute the entire SDK.  However, please don't
+copy or redistribute these individual files without express written permission.
+Please see the LICENSE file in the distribution for the full text of the terms 
+and conditions.
