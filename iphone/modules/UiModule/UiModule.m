@@ -249,7 +249,7 @@ int barButtonSystemItemForString(NSString * inputString){
 //				break;
 //		}
 
-		if([nativeView isKindOfClass:[UIButton class]] && ([nativeView buttonType]==resultType)){
+		if([nativeView isKindOfClass:[UIButton class]] && ([(UIButton *)nativeView buttonType]==resultType)){
 			resultView = [nativeView retain];
 		} else {
 			resultView = [[UIButton buttonWithType:resultType] retain];
@@ -329,7 +329,7 @@ int barButtonSystemItemForString(NSString * inputString){
 - (IBAction) onSwitchChange: (id) sender;
 {
 	NSString * newValue = ([(UISwitch *)sender isOn] ? @"true":@"false");
-	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'valuechange',value:%@});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
+	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'change',value:%@});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
 
@@ -338,7 +338,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	SBJSON * parser = [[SBJSON alloc] init];
 	NSString * valueString = [parser stringWithFragment:[sender text] error:nil];
 	[parser release];
-	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'valuechange',value:%@});}).call(Titanium.UI._BTN.%@);",token,valueString,token];
+	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'change',value:%@});}).call(Titanium.UI._BTN.%@);",token,valueString,token];
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
 
@@ -357,7 +357,7 @@ int barButtonSystemItemForString(NSString * inputString){
 - (IBAction) onValueChange: (id) sender;
 {
 	float newValue = [(UISlider *)sender value];
-	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'valuechange',value:%f});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
+	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'change',value:%f});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
 		
@@ -976,10 +976,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	
 	NSString * createGroupedSectionString = @"function(args){var res={header:null};for(prop in args){res[prop]=args[prop]};"
 			"res._EVT={click:[]};res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res.onClick=Ti.ONEVT;return res;}";
-	
-	NSString * createSwitchString = @"function(args){var res=Ti.UI.createButton(args);res.systemButton='switch';return res;}";
-	
-	
+		
 	NSString * openWindowString = @"function(args){var res=Ti.UI._OPN(this,args);this._TOKEN=res;if(typeof(this.toolbar)=='object'){this.toolbar._TOKEN=this._TOKEN;}}";
 	
 	NSString * systemButtonStyleString = [NSString stringWithFormat:@"{PLAIN:%d,BORDERED:%d,DONE:%d}",
@@ -1032,7 +1029,11 @@ int barButtonSystemItemForString(NSString * inputString){
 			buttonContexts, @"_BTN",
 			[TitaniumJSCode codeWithString:iPhoneBarButtonGeneratorFunction],@"_BTNGEN",
 			makeButtonInvoc,@"createButton",
-			[TitaniumJSCode codeWithString:createSwitchString],@"createSwitch",
+			[TitaniumJSCode codeWithString:@"function(args){var res=Ti.UI.createButton(args);res.systemButton='switch';return res;}"],@"createSwitch",
+			[TitaniumJSCode codeWithString:@"function(args){var res=Ti.UI.createButton(args);res.systemButton='slider';return res;}"],@"createSlider",
+			[TitaniumJSCode codeWithString:@"function(args){var res=Ti.UI.createButton(args);res.systemButton='text';return res;}"],@"createTextField",
+			[TitaniumJSCode codeWithString:@"function(args){var res=Ti.UI.createButton(args);res.systemButton='textarea';return res;}"],@"createTextArea",
+			[TitaniumJSCode codeWithString:@"function(args){var res=Ti.UI.createButton(args);res.systemButton='multibutton';return res;}"],@"createButtonBar",
 
 
 			[TitaniumJSCode codeWithString:@"{}"],@"_MODAL",

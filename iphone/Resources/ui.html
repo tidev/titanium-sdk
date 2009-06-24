@@ -29,7 +29,7 @@
 
 		var btn6 = Ti.UI.createButton('Moo');
 		btn6.width=100;
-		btn6.addEventListener('valuechange',function(foo){document.getElementById('sliderValue').innerHTML='Newvalue' + foo.value;});
+		btn6.addEventListener('change',function(foo){document.getElementById('sliderValue').innerHTML='Newvalue' + foo.value;});
 //		btn6.addEventListener('valuechange',function(foo){
 //			var msg = 'Value: ' + foo.value;
 //			$('sliderValue').
@@ -198,6 +198,51 @@ try{
 
 		Ti.UI.currentWindow.addEventListener('focused',function(evt){Ti.API.info('Focused!')});
 		Ti.UI.currentWindow.addEventListener('unfocused',function(evt){Ti.API.info('Unfocused!')});
+
+
+
+//	Titanium.UI.createTextElement('text',true);
+//	Titanium.UI.setPropertyBackground();
+//	var data= [
+//		{title:'From',type:'readonly',value:'-',id:'from'},
+//		{title:'To',type:'readonly',value:'-',id:'to'}
+//	];
+//	Titanium.UI.createGroupedView('orientation','input',data,function(index){});
+	
+	var a = Titanium.UI.createAlertDialog();
+	a.setTitle('Orientation Test');
+	a.addEventListener('click', function(resulty) {
+		var E="success";
+		try{
+		Titanium.API.debug(resulty);
+		}catch(newE){E=newE;}
+		Titanium.UI.createAlertDialog({title:"Log!",message:('Msg:'+E)}).show();
+	});
+	a.setButtonNames(['OK']);
+	
+	// trap orientation change
+	Titanium.Gesture.addEventListener('orientationchange',function(e)
+	{	
+		if (Titanium.Gesture.isLandscape(e.to))
+		{
+			a.setMessage('Orientation is Landscape');
+			a.show();
+
+		} else if (Titanium.Gesture.isPortrait(e.to)) {
+			a.setMessage('Orientation is Portrait');
+			a.show();
+		} else {
+			a.setMessage('Orientation is Unknown');
+			a.show();
+		}
+		
+		document.getElementById('from').innerHTML = textFor(e.from);
+		document.getElementById('to').innerHTML = textFor(e.to);
+	});
+
+
+
+
 
 		}catch(E){var alerty=Titanium.UI.createAlertDialog();alerty.setMessage('Error:'+E);alerty.show();}
 
