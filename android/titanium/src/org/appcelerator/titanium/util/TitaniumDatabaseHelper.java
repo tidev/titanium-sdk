@@ -11,7 +11,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 
 
@@ -19,7 +19,7 @@ public class TitaniumDatabaseHelper extends SQLiteOpenHelper
 {
 	private static final String LCAT = "TiDbHelper";
 	@SuppressWarnings("unused")
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private static final String name = "Titanium";
 	private static final int version = 1;

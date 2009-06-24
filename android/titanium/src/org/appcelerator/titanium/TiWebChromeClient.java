@@ -12,7 +12,7 @@ import org.appcelerator.titanium.util.TitaniumActivityHelper;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -20,7 +20,7 @@ import android.webkit.WebView;
 public class TiWebChromeClient extends WebChromeClient {
 
 	private static final String LCAT = "TiWebChromeClient";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private Activity activity;
 	public TiWebChromeClient(TitaniumActivity activity) {

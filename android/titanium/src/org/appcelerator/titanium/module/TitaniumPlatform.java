@@ -29,14 +29,14 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.telephony.TelephonyManager;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumPlatform extends TitaniumBaseModule implements ITitaniumPlatform
 {
 	private static final String LCAT = "TiPlatform";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	public static final String EMULATOR_PHONE_NUMBER = "650-657-5309";
 

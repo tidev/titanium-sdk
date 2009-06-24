@@ -19,7 +19,7 @@ import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
@@ -30,7 +30,7 @@ import android.widget.TabWidget;
 public class TitaniumTabbedActivity extends TitaniumActivityGroup
 {
 	private static final String LCAT = "TiTabbedActivity";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)

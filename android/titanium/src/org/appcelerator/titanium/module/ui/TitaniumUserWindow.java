@@ -20,13 +20,13 @@ import org.appcelerator.titanium.module.TitaniumUI;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 
 public class TitaniumUserWindow implements ITitaniumUserWindow, ITitaniumLifecycle
 {
 	private static final String LCAT = "TiUserWindow";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	public static final String EVENT_FOCUSED = "focused";
 	public static final String EVENT_FOCUSED_JSON = "{type:'" + EVENT_FOCUSED + "'}";

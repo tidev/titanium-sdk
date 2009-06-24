@@ -20,13 +20,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 
 public class TitaniumContentProvider extends ContentProvider
 {
 	public static final String LCAT = "TiContent";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	protected File tidir;
 	protected String uriPrefix;

@@ -12,13 +12,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 
 public class TitaniumFile extends TitaniumBaseFile
 {
 	private static final String LCAT = "TiFile";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private final File file;
 	private final String path;

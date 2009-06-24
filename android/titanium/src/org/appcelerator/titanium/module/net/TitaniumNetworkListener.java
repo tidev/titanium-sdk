@@ -16,7 +16,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 
 /**
@@ -26,7 +26,7 @@ import android.util.Log;
  */
 public class TitaniumNetworkListener {
     private static final String LCAT = "TiNetListener";
-    private static final boolean DBG = Config.LOGD;
+    private static final boolean DBG = TitaniumConfig.LOGD;
 
     public static final String EXTRA_CONNECTED = "connected";
     public static final String EXTRA_NETWORK_TYPE = "networkType";

@@ -19,7 +19,7 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
@@ -28,7 +28,7 @@ public class TitaniumSound
 	implements ITitaniumSound, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, ITitaniumLifecycle
 {
 	private static final String LCAT = "TiSnd";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private static final String ASSET_URL = "file:///android_asset/"; // class scope on URLUtil
 	public static final String EVENT_COMPLETE = "complete";

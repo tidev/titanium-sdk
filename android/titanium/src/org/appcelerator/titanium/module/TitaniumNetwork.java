@@ -21,14 +21,14 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumNetwork extends TitaniumBaseModule implements ITitaniumNetwork
 {
 	private static final String LCAT = "TiNetwork";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	public static final String EVENT_CONNECTIVITY = "connectivity";
 

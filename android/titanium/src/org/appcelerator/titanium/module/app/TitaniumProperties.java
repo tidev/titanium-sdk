@@ -11,13 +11,13 @@ import org.appcelerator.titanium.api.ITitaniumProperties;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 
 public class TitaniumProperties implements ITitaniumProperties
 {
 	private static final String LCAT = "TiAppProperties";
-	private static final boolean DBG = Config.LOGD;
+	public static boolean DBG = TitaniumConfig.LOGD;
 
 	SharedPreferences preferences;
 

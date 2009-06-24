@@ -43,14 +43,14 @@ import org.appcelerator.titanium.util.TitaniumJavascriptHelper;
 
 import android.net.Uri;
 import android.os.Handler;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumHttpClient implements ITitaniumHttpClient
 {
 	private static final String LCAT = "TiHttpClient";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private WeakReference<Handler> weakGuiHandler;
 	private WeakReference<WebView> weakWebView;
@@ -391,7 +391,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 					WebView webView = weakWebView.get();
 					Handler guiHandler = weakGuiHandler.get();
 					if (webView != null && guiHandler != null) {
-						if (Config.LOGD) {
+						if (TitaniumConfig.LOGD) {
 							Log.e(LCAT, "Error trying to handle request. ", e);
 						}
 						//TODO possibly add error handler callback

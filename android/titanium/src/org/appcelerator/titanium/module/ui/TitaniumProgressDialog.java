@@ -13,14 +13,14 @@ import org.appcelerator.titanium.util.TitaniumActivityHelper;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 
 public class TitaniumProgressDialog implements ITitaniumProgressDialog
 {
 	@SuppressWarnings("unused")
 	private static final String LCAT = "TiProgressDlg";
 	@SuppressWarnings("unused")
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	protected TitaniumActivity activity;
 	protected String message;

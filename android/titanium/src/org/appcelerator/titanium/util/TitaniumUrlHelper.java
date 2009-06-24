@@ -16,7 +16,7 @@ import org.appcelerator.titanium.config.TitaniumAppInfo;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
@@ -25,7 +25,7 @@ import android.webkit.WebView;
 public class TitaniumUrlHelper
 {
 	private static final String LCAT = "TiUrlHlpr";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	public static final String ASSET_PATH = "file:///android_asset/";
 

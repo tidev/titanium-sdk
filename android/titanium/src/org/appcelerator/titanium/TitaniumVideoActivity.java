@@ -13,7 +13,7 @@ import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -29,7 +29,7 @@ import android.widget.TiVideoView;
 public class TitaniumVideoActivity extends Activity implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener
 {
 	private static final String LCAT = "TiVideoActivity";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private String url;
 	private TiVideoView vv;

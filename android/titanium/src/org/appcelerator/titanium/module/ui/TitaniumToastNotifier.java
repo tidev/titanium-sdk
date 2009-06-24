@@ -10,7 +10,7 @@ package org.appcelerator.titanium.module.ui;
 
 
 import android.os.Handler;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
@@ -20,7 +20,7 @@ public class TitaniumToastNotifier extends TitaniumNotifier
 	@SuppressWarnings("unused")
 	private static final String LCAT = "TiToastNotifier";
 	@SuppressWarnings("unused")
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	protected Toast toast;
 

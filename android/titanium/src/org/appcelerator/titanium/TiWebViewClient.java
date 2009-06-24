@@ -14,7 +14,7 @@ import org.appcelerator.titanium.util.TitaniumUrlHelper;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
@@ -23,7 +23,7 @@ import android.webkit.WebViewClient;
 public class TiWebViewClient extends WebViewClient
 {
 	private static final String LCAT = "TiWVC";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private final TitaniumActivity activity;
 

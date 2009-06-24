@@ -12,13 +12,13 @@ import java.util.HashMap;
 import org.appcelerator.titanium.api.ITitaniumResultSet;
 
 import android.database.Cursor;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 
 public class TitaniumResultSet implements ITitaniumResultSet
 {
 	private static final String LCAT = "TiResultSet";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	protected Cursor rs;
 	protected String lastException;

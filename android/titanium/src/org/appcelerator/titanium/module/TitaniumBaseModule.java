@@ -17,14 +17,14 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.os.Handler;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
 public abstract class TitaniumBaseModule implements ITitaniumModule
 {
 	private static final String LCAT = "TiBaseModule";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private TitaniumModuleManager manager;
 	private String moduleName;

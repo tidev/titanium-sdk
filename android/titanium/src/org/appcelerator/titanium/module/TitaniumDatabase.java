@@ -15,7 +15,7 @@ import org.appcelerator.titanium.module.db.TitaniumDB;
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
@@ -23,7 +23,7 @@ public class TitaniumDatabase extends TitaniumBaseModule implements
 		ITitaniumDatabase
 {
 	private static final String LCAT = "TiDatabase";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	protected String lastException;
 

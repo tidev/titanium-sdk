@@ -20,14 +20,14 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumGeolocation extends TitaniumBaseModule implements ITitaniumGeolocation
 {
 	private static final String LCAT = "TiGeo";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	protected static final int ERR_UNKNOWN_ERROR = 0;
 	protected static final int ERR_PERMISSION_DENIED = 1;

@@ -17,13 +17,13 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 
 public class TitaniumDB implements ITitaniumDB
 {
 	private static final String LCAT = "TiDB";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	protected String name;
 	protected SQLiteDatabase db;
@@ -68,7 +68,7 @@ public class TitaniumDB implements ITitaniumDB
 				sb.append(s).append("\"");
 			}
 			sb.append(" ]");
-			if (Config.LOGV) {
+			if (TitaniumConfig.LOGV) {
 				Log.v(LCAT,  sb.toString());
 			}
 		}

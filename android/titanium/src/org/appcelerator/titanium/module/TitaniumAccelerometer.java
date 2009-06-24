@@ -18,14 +18,14 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumAccelerometer extends TitaniumBaseModule implements ITitaniumAccelerometer
 {
 	private static final String LCAT = "TiAccelerometer";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	public static final String EVENT_UPDATE = "update";
 

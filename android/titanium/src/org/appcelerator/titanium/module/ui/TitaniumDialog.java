@@ -14,14 +14,14 @@ import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Handler;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumDialog implements ITitaniumDialog
 {
 	private static final String LCAT = "TiDialog";
-	private static boolean DBG = Config.LOGD;
+	private static boolean DBG = TitaniumConfig.LOGD;
 
 	public static final String CLICK_EVENT = "click";
 

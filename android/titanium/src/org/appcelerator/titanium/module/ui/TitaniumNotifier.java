@@ -13,7 +13,7 @@ import org.appcelerator.titanium.api.ITitaniumNotifier;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 
 import android.os.Handler;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.webkit.WebView;
 
 public abstract class TitaniumNotifier implements ITitaniumNotifier
@@ -21,7 +21,7 @@ public abstract class TitaniumNotifier implements ITitaniumNotifier
 	@SuppressWarnings("unused")
 	private static final String LCAT = "TiNotifier";
 	@SuppressWarnings("unused")
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	protected SoftReference<WebView> softWebView;
 	protected boolean showing;

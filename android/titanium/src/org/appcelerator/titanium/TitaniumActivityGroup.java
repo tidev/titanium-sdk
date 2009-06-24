@@ -20,7 +20,7 @@ import android.app.Activity;
 import android.app.ActivityGroup;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -31,7 +31,7 @@ import android.widget.Toast;
 public class TitaniumActivityGroup extends ActivityGroup
 {
 	private static final String LCAT = "TiActivityGrp";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	protected TitaniumApplication app;
 	protected TitaniumAppInfo appInfo;
@@ -102,7 +102,7 @@ public class TitaniumActivityGroup extends ActivityGroup
 				Log.d(LCAT, "Pushing new activity on stack: " + name);
 			}
 		} else {
-			if (Config.LOGD) {
+			if (TitaniumConfig.LOGD) {
 				Log.d(LCAT, "Activity already exists on top: activity name=" + name);
 			}
 		}

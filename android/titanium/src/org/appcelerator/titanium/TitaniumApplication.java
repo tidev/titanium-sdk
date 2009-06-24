@@ -15,20 +15,21 @@ import java.util.Stack;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEvent;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
+import org.appcelerator.titanium.module.app.TitaniumProperties;
 import org.appcelerator.titanium.util.TitaniumPlatformHelper;
 import org.xml.sax.SAXException;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 
 public class TitaniumApplication
 	extends Application
 {
 	public static final String LCAT = "TiApp";
-	private static final boolean DBG = Config.LOGD;
+	private static boolean DBG = TitaniumConfig.LOGD;
 
 	public static final String APP_ASSET_KEY = "tiapp";
 	public static final String APP_CONTENT_KEY = "ticontent";
@@ -96,6 +97,11 @@ public class TitaniumApplication
 			is = context.getAssets().open("tiapp.xml");
 			appInfo = TitaniumAppInfo.loadFromXml(is, context);
 			Context appContext = context.getApplicationContext();
+			TitaniumConfig.LOGV = appInfo.getSystemProperties().getBool(TitaniumAppInfo.PROP_ANDROID_DEBUG, false);
+			TitaniumConfig.LOGD = TitaniumConfig.LOGV;
+			TitaniumProperties.DBG = TitaniumConfig.LOGV;
+			TitaniumApplication.DBG = TitaniumConfig.LOGV;
+
 			synchronized(appContext) {
 				 Log.i(LCAT, "tiapp.xml processed, notifying components");
 				 appContext.notifyAll();

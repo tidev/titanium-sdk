@@ -50,7 +50,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -74,7 +74,7 @@ import android.widget.TextView;
 public class TitaniumActivity extends Activity
 {
 	private static final String LCAT = "TiActivity";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	protected static final int ACCELEROMETER_DELAY = 100; // send event no more frequently than
 

@@ -17,14 +17,14 @@ import org.appcelerator.titanium.module.fs.TitaniumFile;
 import org.appcelerator.titanium.module.fs.TitaniumResourceFile;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumFilesystem extends TitaniumBaseModule implements ITitaniumFilesystem
 {
 	private static final String LCAT = "TiFilesystem";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	public TitaniumFilesystem(TitaniumModuleManager moduleMgr, String name) {
 		super(moduleMgr, name);

@@ -45,14 +45,14 @@ import android.net.Uri;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 {
 	private static final String LCAT = "TiMedia";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 	private static final long[] DEFAULT_VIBRATE_PATTERN = { 100L,250L };
 
 	private static final String PHOTO_DCIM_CAMERA = "/sdcard/dcim/Camera";

@@ -12,14 +12,14 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 
 public class TiAppXmlHandler extends DefaultHandler
 {
 	private static final String LCAT = "TiAppXmlHandler";
 	@SuppressWarnings("unused")
-	private static boolean DBG = Config.LOGD;
+	private static boolean DBG = TitaniumConfig.LOGD;
 
 	protected static final String TYPE_STRING = "string";
 	protected static final String TYPE_BOOL = "bool";

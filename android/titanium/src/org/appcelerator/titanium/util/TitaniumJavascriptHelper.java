@@ -10,14 +10,14 @@ package org.appcelerator.titanium.util;
 import org.json.JSONObject;
 
 import android.os.Handler;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumJavascriptHelper
 {
 	private static final String LCAT = "TiJSHelper";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private static final String JAVASCRIPT = "javascript:";
 	private static final String TITANIUM_CALLBACK = "Titanium.callbacks"; //Sent from ti.js

@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.api.ITitaniumMenuItem;
 
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
@@ -22,7 +22,7 @@ public class TitaniumMenuItem implements ITitaniumMenuItem
 
 	private static final String LCAT = "TiMenuItem";
 	@SuppressWarnings("unused")
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	WeakReference<WebView> weakWebView;
 

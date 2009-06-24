@@ -12,14 +12,14 @@ import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumAnalytics;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
 
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumAnalytics extends TitaniumBaseModule implements ITitaniumAnalytics
 {
 	private static final String LCAT = "TiAnalytics";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private TitaniumApplication app;
 

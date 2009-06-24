@@ -24,14 +24,14 @@ import org.appcelerator.titanium.module.ui.TitaniumProgressDialog;
 import org.appcelerator.titanium.module.ui.TitaniumToastNotifier;
 import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
 
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI
 {
 	private static final String LCAT = "TiUI";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	protected TitaniumMenuItem menu;
 	protected TitaniumUserWindow userWindow;

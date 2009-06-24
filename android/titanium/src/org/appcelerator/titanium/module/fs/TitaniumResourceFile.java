@@ -15,14 +15,14 @@ import org.appcelerator.titanium.api.ITitaniumFile;
 import org.appcelerator.titanium.api.ITitaniumFilesystem;
 
 import android.content.Context;
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 
 public class TitaniumResourceFile extends TitaniumBaseFile
 {
 	@SuppressWarnings("unused")
 	private static final String LCAT = "TiResourceFile";
 	@SuppressWarnings("unused")
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private final ITitaniumFilesystem filesystem;
 	private final SoftReference<Context> softContext;

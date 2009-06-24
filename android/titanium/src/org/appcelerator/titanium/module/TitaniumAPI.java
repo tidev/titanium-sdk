@@ -10,14 +10,14 @@ package org.appcelerator.titanium.module;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumAPI;
 
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumAPI extends TitaniumBaseModule implements ITitaniumAPI
 {
 	private static final String LCAT = "TiAPI";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	public TitaniumAPI(TitaniumModuleManager manager, String name) {
 		super(manager, name);

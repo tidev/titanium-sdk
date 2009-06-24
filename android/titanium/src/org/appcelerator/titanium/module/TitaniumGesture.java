@@ -10,6 +10,7 @@ package org.appcelerator.titanium.module;
 import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumGesture;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.appcelerator.titanium.util.TitaniumSensorHelper;
 import org.json.JSONException;
@@ -20,14 +21,13 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Config;
 import android.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumGesture extends TitaniumBaseModule implements ITitaniumGesture
 {
 	private static final String LCAT = "TiGesture";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	public static final String EVENT_SHAKE = "shake";
 	public static final String EVENT_ORIENTATION = "orientationchange";

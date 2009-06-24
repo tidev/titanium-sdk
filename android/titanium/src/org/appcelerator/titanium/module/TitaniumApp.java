@@ -14,14 +14,14 @@ import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.module.app.TitaniumProperties;
 import org.appcelerator.titanium.util.TitaniumUrlHelper;
 
-import android.util.Config;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumApp extends TitaniumBaseModule implements ITitaniumApp
 {
 	private static final String LCAT = "TiApp";
-	private static final boolean DBG = Config.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private final TitaniumAppInfo appInfo;
 	private final TitaniumProperties appProperties; // commits on each set
