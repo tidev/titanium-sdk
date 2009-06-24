@@ -8,9 +8,6 @@
 
 #import "WebTableViewCell.h"
 
-NSString * const trueString = @"true";
-NSString * const falseString = @"false";
-
 @implementation WebTableViewCell
 @synthesize htmlLabel;
 
@@ -48,12 +45,6 @@ NSString * const falseString = @"false";
 			[htmlLabel stringByEvaluatingJavaScriptFromString:@"document.body.style['color']='black';"];
 		}
 
-//		NSString * command = [[NSString alloc] initWithFormat:@"setState(%@,%@,%@)",
-//				(([self accessoryType]==UITableViewCellAccessoryCheckmark) ? trueString : falseString),
-//				([self isHighlighted] ? trueString : falseString),
-//				(animated ? trueString : falseString)];
-//		NSLog(@"Value from %@: %@",command,[htmlLabel stringByEvaluatingJavaScriptFromString:command]);
-//		[command release];
 }
 
 - (void)setHighlighted:(BOOL)hilighted animated:(BOOL)animated;

@@ -11,6 +11,7 @@
 #import "UiModule.h"
 #import "SBJSON.h"
 #import "WebTableViewCell.h"
+#import "ValueTableViewCell.h"
 #import "Webcolor.h"
 
 UIColor * checkmarkColor = nil;
@@ -152,6 +153,12 @@ UIColor * checkmarkColor = nil;
 		[self setHtml:htmlString];
 	}
 
+	id valueString = [propDict objectForKey:@"value"];
+	if ([valueString respondsToSelector:stringSel]) valueString = [valueString stringValue];
+	if ([valueString isKindOfClass:stringClass] && ([valueString length] != 0)){
+		[self setValue:valueString];
+	}
+	
 	id imageString = [propDict objectForKey:@"image"];
 	if ([imageString isKindOfClass:stringClass]){
 		[self setImageURL:[NSURL URLWithString:imageString relativeToURL:baseUrl]];
@@ -490,8 +497,22 @@ UIColor * checkmarkColor = nil;
 		[result setText:[rowWrapper title]];
 		
 	} else { //plain cell
-		result = [tableView dequeueReusableCellWithIdentifier:@"text"];
-		if (result == nil) result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"text"] autorelease];
+		NSString * valueString = [rowWrapper value];
+		if (valueString == nil){
+			result = [tableView dequeueReusableCellWithIdentifier:@"text"];
+			if (result == nil) result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"text"] autorelease];
+		} else {
+			UILabel * valueLabel;
+			result = [tableView dequeueReusableCellWithIdentifier:@"value"];
+			if (result == nil){
+				result = [[[ValueTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"value"] autorelease];
+				valueLabel = [(ValueTableViewCell *)result valueLabel];
+				[valueLabel setTextColor:checkmarkColor];
+			} else {
+				valueLabel = [(ValueTableViewCell *)result valueLabel];
+			}
+			[valueLabel setText:valueString];
+		}
 		[result setText:[rowWrapper title]];
 		UIColor * textColor = [UIColor blackColor];
 		if (ourType == UITableViewCellAccessoryCheckmark) textColor = checkmarkColor;

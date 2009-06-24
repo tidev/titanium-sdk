@@ -78,8 +78,8 @@ int barButtonSystemItemForString(NSString * inputString){
 				[NSNumber numberWithInt:UITitaniumNativeItemSwitch],@"switch",
 				[NSNumber numberWithInt:UITitaniumNativeItemPicker],@"picker",
 				[NSNumber numberWithInt:UITitaniumNativeItemDatePicker],@"datepicker",
-				[NSNumber numberWithInt:UITitaniumNativeItemTextView],@"text",
-				[NSNumber numberWithInt:UITitaniumNativeItemTextField],@"textarea",
+				[NSNumber numberWithInt:UITitaniumNativeItemTextField],@"text",
+				[NSNumber numberWithInt:UITitaniumNativeItemTextView],@"textarea",
 				[NSNumber numberWithInt:UITitaniumNativeItemSearchBar],@"search",
 				nil];
 	}
@@ -91,7 +91,7 @@ int barButtonSystemItemForString(NSString * inputString){
 @implementation UIButtonProxy
 @synthesize nativeBarButton;
 @synthesize titleString, iconPath, templateValue, barButtonStyle, nativeView, labelView, progressView;
-@synthesize minValue,maxValue,floatValue;
+@synthesize minValue,maxValue,floatValue,stringValue;
 
 - (id) init;
 {
@@ -124,9 +124,21 @@ int barButtonSystemItemForString(NSString * inputString){
 
 	GRAB_IF_SELECTOR(@"style",intValue,barButtonStyle);
 
-	GRAB_IF_SELECTOR(@"value",floatValue,floatValue);
 	GRAB_IF_SELECTOR(@"min",floatValue,minValue);
 	GRAB_IF_SELECTOR(@"max",floatValue,maxValue);
+
+	id valueObject = [newDict objectForKey:@"value"];
+	if ([valueObject respondsToSelector:@selector(floatValue)]){
+		floatValue = [valueObject floatValue];
+		needsRefreshing = YES;
+	}
+	if ([valueObject respondsToSelector:@selector(stringValue)]){
+		[self setStringValue:[valueObject stringValue]];
+		needsRefreshing = YES;
+	} else if ([valueObject isKindOfClass:[NSString class]]) {
+		[self setStringValue:valueObject];
+		needsRefreshing = YES;
+	}
 
 	GRAB_IF_SELECTOR(@"width",floatValue,frame.size.width);
 	GRAB_IF_SELECTOR(@"height",floatValue,frame.size.height);
@@ -177,12 +189,12 @@ int barButtonSystemItemForString(NSString * inputString){
 			[(UIView *)resultView setFrame:viewFrame];
 		} else {
 			resultView = [[UISlider alloc] initWithFrame:viewFrame];
+			[(UISlider *)resultView addTarget:self action:@selector(onValueChange:) forControlEvents:UIControlEventValueChanged];
 		}
 		[(UISlider *)resultView setMinimumValue:minValue];
 		[(UISlider *)resultView setMaximumValue:maxValue];
 		[(UISlider *)resultView setValue:floatValue];
 		
-		[(UISlider *)resultView addTarget:self action:@selector(onValueChange:) forControlEvents:UIControlEventValueChanged];
 
 	} else if (templateValue == UITitaniumNativeItemSwitch){
 		if ([nativeView isKindOfClass:[UISwitch class]]){
@@ -190,10 +202,31 @@ int barButtonSystemItemForString(NSString * inputString){
 			[(UIView *)resultView setFrame:viewFrame];
 		} else {
 			resultView = [[UISwitch alloc] initWithFrame:viewFrame];
+			[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
 		}
 		[(UISwitch *)resultView setOn:(floatValue > ((minValue + maxValue)/2))];
-		[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
 
+	} else if (templateValue == UITitaniumNativeItemTextField){
+		if ([nativeView isKindOfClass:[UITextField class]]){
+			resultView = [nativeView retain];
+			[(UIView *)resultView setFrame:viewFrame];
+		} else {
+			resultView = [[UITextField alloc] initWithFrame:viewFrame];
+			[(UITextField *)resultView setDelegate:self];
+		}
+		[(UITextField *)resultView setText:stringValue];
+		
+	} else if (templateValue == UITitaniumNativeItemTextView){
+		if ([nativeView isKindOfClass:[UITextView class]]){
+			resultView = [nativeView retain];
+			[(UIView *)resultView setFrame:viewFrame];
+		} else {
+			resultView = [[UITextView alloc] initWithFrame:viewFrame];
+			[(UITextView *)resultView setDelegate:self];
+		}
+		[(UITextView *)resultView setText:stringValue];
+		
+		
 //	} else if (templateValue == UITitaniumNativeItemPicker){
 //		if ([nativeView isKindOfClass:[UIPickerView class]]){
 //			resultView = [nativeView retain];
@@ -207,7 +240,23 @@ int barButtonSystemItemForString(NSString * inputString){
 	
 	
 	if (resultView == nil) {
-		resultView = [[UIButton alloc] initWithFrame:viewFrame];
+		UIButtonType resultType = UIButtonTypeRoundedRect;
+//		switch (<#expression#>) {
+//			case <#constant#>:
+//				<#statements#>
+//				break;
+//			default:
+//				break;
+//		}
+
+		if([nativeView isKindOfClass:[UIButton class]] && ([nativeView buttonType]==resultType)){
+			resultView = [nativeView retain];
+		} else {
+			resultView = [[UIButton buttonWithType:resultType] retain];
+			[(UIButton *)resultView addTarget:self action:@selector(onClick:) forControlEvents:UIControlEventTouchUpInside];
+		}
+	
+		[resultView setFrame:viewFrame];
 		UIImage * iconImage = [[TitaniumHost sharedHost] imageForResource:iconPath];
 		[(UIButton *)resultView setImage:iconImage forState:UIControlStateNormal];
 		[(UIButton *)resultView setTitle:titleString forState:UIControlStateNormal];
@@ -283,6 +332,26 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'valuechange',value:%@});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
+
+- (IBAction) onTextChange: (id) sender;
+{
+	SBJSON * parser = [[SBJSON alloc] init];
+	NSString * valueString = [parser stringWithFragment:[sender text] error:nil];
+	[parser release];
+	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'valuechange',value:%@});}).call(Titanium.UI._BTN.%@);",token,valueString,token];
+	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField;
+{
+	[self onTextChange:textField];
+}
+
+- (void)textViewDidEndEditing:(UITextView *)textView;
+{
+	[self onTextChange:textView];
+}
+
 
 
 - (IBAction) onValueChange: (id) sender;
@@ -733,7 +802,8 @@ int barButtonSystemItemForString(NSString * inputString){
 	if (ourNativeViewProxy == nil) return;
 	[ourNativeViewProxy setPropertyDict:viewObject];
 	
-	[ourVC performSelectorOnMainThread:@selector(addNativeView:) withObject:[ourNativeViewProxy nativeView] waitUntilDone:NO];
+	
+	[ourVC performSelectorOnMainThread:@selector(addNativeViewProxy:) withObject:ourNativeViewProxy waitUntilDone:NO];
 }
 
 
