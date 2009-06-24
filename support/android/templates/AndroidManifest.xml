@@ -40,10 +40,6 @@
 			android:authorities="${config['appid']}.titanium"
 			android:name="org.appcelerator.titanium.TitaniumContentProvider"
 		/>
-		<provider
-			android:authorities="${config['appid']}.titanium.js"
-			android:name="org.appcelerator.titanium.TitaniumJSContentProvider"
-		/>
 		<service
 			android:name="org.appcelerator.titanium.TitaniumAnalyticsService"
 			android:exported="false"

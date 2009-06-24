@@ -63,7 +63,7 @@ public class TiWebViewClient extends WebViewClient
 		if (URLUtil.isAssetUrl(url) || URLUtil.isContentUrl(url) || URLUtil.isFileUrl(url)) {
 			boolean result = false;
 			try {
-				result = TitaniumUrlHelper.loadFromSource(view, url, null);
+				result = TitaniumUrlHelper.loadFromSource(activity.getAppInfo(), view, url, null);
 			} catch (IOException e) {
             	TitaniumUIHelper.doOkDialog(
             			view.getContext(),

@@ -36,8 +36,7 @@ public class TitaniumAppInfo
 
 	public static final String TISYS_PREFS = "tisys";
 
-	public static final String PROP_ANDROID_FLUSHJSCACHE = "ti.android.flushjscache";
-	public static final String PROP_ANDROID_MINIFYJS = "ti.android.minifyjs";
+	public static final String PROP_ANDROID_DEBUG = "ti.android.debug";
 	public static final String PROP_ANDROID_WATCHLOG = "ti.android.watchlog";
 
 	public static final String NETWORK_USER_AGENT = "Mozilla/5.0 (Linux; U; Android 1.1; en-us; generic) AppleWebKit/525.10+ (KHTML, like Gecko) Version/3.0.4 Mobile Safari/523.12.2";
@@ -88,8 +87,7 @@ public class TitaniumAppInfo
 			}
 		}
 
-		systemProperties.setBool(PROP_ANDROID_FLUSHJSCACHE, false);
-		systemProperties.setBool(PROP_ANDROID_MINIFYJS, true);
+		systemProperties.setBool(PROP_ANDROID_DEBUG, false);
 		systemProperties.setBool(PROP_ANDROID_WATCHLOG, false);
 		String versionString = systemProperties.getString("ti.version", "0.0.0");
 		systemProperties.setString(PROP_NETWORK_USER_AGENT, NETWORK_USER_AGENT + " Titanium/" + versionString);

@@ -312,7 +312,7 @@ public class TitaniumActivity extends Activity
 		{
           	String url = tfh.getResourceUrl(intent, intent.getData().toString());
           	try {
-          		loadFromSource(url);
+          		loadFromSource(appInfo, url);
           	} catch (Exception e) {
             	setContentView(new TextView(this));
             	TitaniumUIHelper.doOkDialog(
@@ -335,6 +335,10 @@ public class TitaniumActivity extends Activity
 
     public WebView getWebView() {
     	return this.webView;
+    }
+
+    public TitaniumAppInfo getAppInfo() {
+    	return appInfo;
     }
 
     public void launchTitaniumActivity(final String name) {
@@ -479,19 +483,19 @@ public class TitaniumActivity extends Activity
 		return result;
 	}
 
-	protected boolean loadFromSource(String url)
+	protected boolean loadFromSource(TitaniumAppInfo appInfo, String url)
 		throws IOException
 	{
-    	return loadFromSource(url, null);
+    	return loadFromSource(appInfo, url, null);
     }
 
-    protected boolean loadFromSource(String url, String[] files)
+    protected boolean loadFromSource(TitaniumAppInfo appInfo, String url, String[] files)
     	throws IOException
     {
     	if (DBG) {
     		Log.d(LCAT,"Full url: " + url);
     	}
-    	return TitaniumUrlHelper.loadFromSource(webView, url, null);
+    	return TitaniumUrlHelper.loadFromSource(appInfo, webView, url, null);
     }
 
     protected void buildMenuTree(Menu menu, TitaniumMenuItem md, HashMap<Integer, String> map)

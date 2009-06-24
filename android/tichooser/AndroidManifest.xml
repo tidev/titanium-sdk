@@ -46,10 +46,6 @@
 			android:authorities="org.appcelerator.tichooser.titanium"
 			android:name="org.appcelerator.titanium.TitaniumContentProvider"
 		/>
-		<provider
-			android:authorities="org.appcelerator.tichooser.titanium.js"
-			android:name="org.appcelerator.titanium.TitaniumJSContentProvider"
-		/>
 
 		<service
 			android:name="org.appcelerator.titanium.TitaniumAnalyticsService"

@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 
+import org.appcelerator.titanium.config.TitaniumAppInfo;
+
 import android.content.Context;
 import android.net.Uri;
 import android.util.Config;
@@ -43,7 +45,7 @@ public class TitaniumUrlHelper
 		"tigeo.js"
 	};
 
-    public static boolean loadFromSource(WebView webView, String url, String[] files)
+    public static boolean loadFromSource(TitaniumAppInfo appInfo, WebView webView, String url, String[] files)
     	throws IOException
     {
  		MimeTypeMap mtm = MimeTypeMap.getSingleton();
@@ -70,12 +72,14 @@ public class TitaniumUrlHelper
 
 				InputStreamReader br = null;
 				try {
-/*
-					for(int i = 0; i < files.length; i++) {
-						bos.write("<script type='text/javascript' src='" + getUrlForCachedJavascript(webView.getContext(), files[i]) + "'></script>\n");
+					if (appInfo.getSystemProperties().getBool(TitaniumAppInfo.PROP_ANDROID_DEBUG, false)) {
+						Log.i(LCAT, "Loading Titanium JS from debug");
+						for(int i = 0; i < files.length; i++) {
+							bos.write("<script type='text/javascript' src='file:///android_asset/ti/debug/" + files[i] + "'></script>\n");
+						}
+					} else {
+						bos.write("<script type='text/javascript' src='file:///android_asset/ti/release/tiall.js'></script>\n");
 					}
-*/
-					bos.write("<script type='text/javascript' src='file:///android_asset/ti/release/tiall.js'></script>\n");
 					if (URLUtil.isAssetUrl(url)) {
 						String path = url.substring(ASSET_PATH.length());
 						if (DBG) {
