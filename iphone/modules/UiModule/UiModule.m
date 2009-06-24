@@ -75,6 +75,12 @@ int barButtonSystemItemForString(NSString * inputString){
 				[NSNumber numberWithInt:UIBarButtonSystemItemFastForward],@"fastforward",
 				[NSNumber numberWithInt:UITitaniumNativeItemSpinner],@"activity",
 				[NSNumber numberWithInt:UITitaniumNativeItemSlider],@"slider",
+				[NSNumber numberWithInt:UITitaniumNativeItemSwitch],@"switch",
+				[NSNumber numberWithInt:UITitaniumNativeItemPicker],@"picker",
+				[NSNumber numberWithInt:UITitaniumNativeItemDatePicker],@"datepicker",
+				[NSNumber numberWithInt:UITitaniumNativeItemTextField],@"text",
+				[NSNumber numberWithInt:UITitaniumNativeItemTextView],@"textarea",
+				[NSNumber numberWithInt:UITitaniumNativeItemSearchBar],@"search",
 				nil];
 	}
 	NSNumber * result = [barButtonSystemItemForStringDict objectForKey:[inputString lowercaseString]];
@@ -85,12 +91,14 @@ int barButtonSystemItemForString(NSString * inputString){
 @implementation UIButtonProxy
 @synthesize nativeBarButton;
 @synthesize titleString, iconPath, templateValue, barButtonStyle, nativeView, labelView, progressView;
+@synthesize minValue,maxValue,floatValue,stringValue;
 
 - (id) init;
 {
 	if ((self = [super init])){
 		templateValue = UITitaniumNativeItemNone;
 		spinnerStyle = UIActivityIndicatorViewStyleWhite;
+		maxValue = 1.0;
 	}
 	return self;
 }
@@ -115,6 +123,22 @@ int barButtonSystemItemForString(NSString * inputString){
 	GRAB_IF_STRING(@"image",iconPath);
 
 	GRAB_IF_SELECTOR(@"style",intValue,barButtonStyle);
+
+	GRAB_IF_SELECTOR(@"min",floatValue,minValue);
+	GRAB_IF_SELECTOR(@"max",floatValue,maxValue);
+
+	id valueObject = [newDict objectForKey:@"value"];
+	if ([valueObject respondsToSelector:@selector(floatValue)]){
+		floatValue = [valueObject floatValue];
+		needsRefreshing = YES;
+	}
+	if ([valueObject respondsToSelector:@selector(stringValue)]){
+		[self setStringValue:[valueObject stringValue]];
+		needsRefreshing = YES;
+	} else if ([valueObject isKindOfClass:[NSString class]]) {
+		[self setStringValue:valueObject];
+		needsRefreshing = YES;
+	}
 
 	GRAB_IF_SELECTOR(@"width",floatValue,frame.size.width);
 	GRAB_IF_SELECTOR(@"height",floatValue,frame.size.height);
@@ -165,12 +189,74 @@ int barButtonSystemItemForString(NSString * inputString){
 			[(UIView *)resultView setFrame:viewFrame];
 		} else {
 			resultView = [[UISlider alloc] initWithFrame:viewFrame];
+			[(UISlider *)resultView addTarget:self action:@selector(onValueChange:) forControlEvents:UIControlEventValueChanged];
 		}
-		[(UISlider *)resultView addTarget:self action:@selector(onValueChange:) forControlEvents:UIControlEventValueChanged];
+		[(UISlider *)resultView setMinimumValue:minValue];
+		[(UISlider *)resultView setMaximumValue:maxValue];
+		[(UISlider *)resultView setValue:floatValue];
+		
+
+	} else if (templateValue == UITitaniumNativeItemSwitch){
+		if ([nativeView isKindOfClass:[UISwitch class]]){
+			resultView = [nativeView retain];
+			[(UIView *)resultView setFrame:viewFrame];
+		} else {
+			resultView = [[UISwitch alloc] initWithFrame:viewFrame];
+			[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
+		}
+		[(UISwitch *)resultView setOn:(floatValue > ((minValue + maxValue)/2))];
+
+	} else if (templateValue == UITitaniumNativeItemTextField){
+		if ([nativeView isKindOfClass:[UITextField class]]){
+			resultView = [nativeView retain];
+			[(UIView *)resultView setFrame:viewFrame];
+		} else {
+			resultView = [[UITextField alloc] initWithFrame:viewFrame];
+			[(UITextField *)resultView setDelegate:self];
+		}
+		[(UITextField *)resultView setText:stringValue];
+		
+	} else if (templateValue == UITitaniumNativeItemTextView){
+		if ([nativeView isKindOfClass:[UITextView class]]){
+			resultView = [nativeView retain];
+			[(UIView *)resultView setFrame:viewFrame];
+		} else {
+			resultView = [[UITextView alloc] initWithFrame:viewFrame];
+			[(UITextView *)resultView setDelegate:self];
+		}
+		[(UITextView *)resultView setText:stringValue];
+		
+		
+//	} else if (templateValue == UITitaniumNativeItemPicker){
+//		if ([nativeView isKindOfClass:[UIPickerView class]]){
+//			resultView = [nativeView retain];
+//			[(UIView *)resultView setFrame:viewFrame];
+//		} else {
+//			resultView = [[UISwitch alloc] initWithFrame:viewFrame];
+//		}
+//		[(UISwitch *)resultView setOn:(floatValue > ((minValue + maxValue)/2))];
+//		[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
 	}
 	
+	
 	if (resultView == nil) {
-		resultView = [[UIButton alloc] initWithFrame:viewFrame];
+		UIButtonType resultType = UIButtonTypeRoundedRect;
+//		switch (<#expression#>) {
+//			case <#constant#>:
+//				<#statements#>
+//				break;
+//			default:
+//				break;
+//		}
+
+		if([nativeView isKindOfClass:[UIButton class]] && ([nativeView buttonType]==resultType)){
+			resultView = [nativeView retain];
+		} else {
+			resultView = [[UIButton buttonWithType:resultType] retain];
+			[(UIButton *)resultView addTarget:self action:@selector(onClick:) forControlEvents:UIControlEventTouchUpInside];
+		}
+	
+		[resultView setFrame:viewFrame];
 		UIImage * iconImage = [[TitaniumHost sharedHost] imageForResource:iconPath];
 		[(UIButton *)resultView setImage:iconImage forState:UIControlStateNormal];
 		[(UIButton *)resultView setTitle:titleString forState:UIControlStateNormal];
@@ -239,6 +325,34 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'click'});}).call(Titanium.UI._BTN.%@);",token,token];
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
+
+- (IBAction) onSwitchChange: (id) sender;
+{
+	NSString * newValue = ([(UISwitch *)sender isOn] ? @"true":@"false");
+	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'valuechange',value:%@});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
+	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
+}
+
+- (IBAction) onTextChange: (id) sender;
+{
+	SBJSON * parser = [[SBJSON alloc] init];
+	NSString * valueString = [parser stringWithFragment:[sender text] error:nil];
+	[parser release];
+	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'valuechange',value:%@});}).call(Titanium.UI._BTN.%@);",token,valueString,token];
+	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField;
+{
+	[self onTextChange:textField];
+}
+
+- (void)textViewDidEndEditing:(UITextView *)textView;
+{
+	[self onTextChange:textView];
+}
+
+
 
 - (IBAction) onValueChange: (id) sender;
 {
@@ -478,9 +592,18 @@ int barButtonSystemItemForString(NSString * inputString){
 
 - (UIButtonProxy *) proxyForObject: (id) proxyObject;
 {
-	if ([proxyObject isKindOfClass:[NSDictionary class]]) proxyObject = [proxyObject objectForKey:@"_TOKEN"];
-	if ([proxyObject isKindOfClass:[NSString class]]) return [buttonContexts objectForKey:proxyObject];
-	
+	NSString * token = nil;
+	if ([proxyObject isKindOfClass:[NSDictionary class]]){
+		token = [proxyObject objectForKey:@"_TOKEN"];
+		if (![token isKindOfClass:[NSString class]]) return nil;
+		UIButtonProxy * result = [buttonContexts objectForKey:token];
+		[result setPropertyDict:proxyObject];
+		return result;
+		
+	} else if ([proxyObject isKindOfClass:[NSString class]]){
+		return [buttonContexts objectForKey:proxyObject];
+	}
+
 	return nil;
 }
 
@@ -679,7 +802,8 @@ int barButtonSystemItemForString(NSString * inputString){
 	if (ourNativeViewProxy == nil) return;
 	[ourNativeViewProxy setPropertyDict:viewObject];
 	
-	[ourVC performSelectorOnMainThread:@selector(addNativeView:) withObject:[ourNativeViewProxy nativeView] waitUntilDone:NO];
+	
+	[ourVC performSelectorOnMainThread:@selector(addNativeViewProxy:) withObject:ourNativeViewProxy waitUntilDone:NO];
 }
 
 
@@ -844,8 +968,17 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res.insertButton=function(btn,args){Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
 			"return res;}";
 
-	NSString * createTableWindowString = @"function(args,callback){var res=Ti.UI.createWindow(args);res._WINTKN=Ti._TOKEN;res.handleRowClick=callback;"
+	NSString * createTableWindowString = @"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
 			"var tkn='TBL'+(Ti.UI._NEXTTBL++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}";	
+
+	NSString * createGroupedViewString = @"function(args,callback){var res=Ti.UI.createTableView(args,callback);res.grouped=true;"
+			"res._GRP=[];res.addSection=function(section){this._GRP.push(section);};return res;}";
+	
+	NSString * createGroupedSectionString = @"function(args){var res={header:null};for(prop in args){res[prop]=args[prop]};"
+			"res._EVT={click:[]};res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res.onClick=Ti.ONEVT;return res;}";
+	
+	NSString * createSwitchString = @"function(args){var res=Ti.UI.createButton(args);res.systemButton='switch';return res;}";
+	
 	
 	NSString * openWindowString = @"function(args){var res=Ti.UI._OPN(this,args);this._TOKEN=res;if(typeof(this.toolbar)=='object'){this.toolbar._TOKEN=this._TOKEN;}}";
 	
@@ -899,6 +1032,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			buttonContexts, @"_BTN",
 			[TitaniumJSCode codeWithString:iPhoneBarButtonGeneratorFunction],@"_BTNGEN",
 			makeButtonInvoc,@"createButton",
+			[TitaniumJSCode codeWithString:createSwitchString],@"createSwitch",
 
 
 			[TitaniumJSCode codeWithString:@"{}"],@"_MODAL",
@@ -908,13 +1042,14 @@ int barButtonSystemItemForString(NSString * inputString){
 			createAlertCode,@"createAlertDialog",
 			
 			appBadgeInvoc,@"setAppBadge",
-			tabBadgeInvoc,@"setTabBadge",					 
+			tabBadgeInvoc,@"setTabBadge",
 
 			[TitaniumJSCode codeWithString:@"{}"],@"_TBL",
 			[NSNumber numberWithInt:1],@"_NEXTTBL",
 			[TitaniumJSCode codeWithString:currentWindowString],@"currentWindow",
 			[TitaniumJSCode codeWithString:createWindowString],@"createWindow",
 			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",
+			
 			[TitaniumJSCode codeWithString:openWindowString],@"_WINOPNF",
 			[NSNumber numberWithInt:TitaniumViewControllerPortrait],@"PORTRAIT",
 			[NSNumber numberWithInt:TitaniumViewControllerLandscape],@"LANDSCAPE",
@@ -922,6 +1057,8 @@ int barButtonSystemItemForString(NSString * inputString){
 
 
 			[NSDictionary dictionaryWithObjectsAndKeys:
+					[TitaniumJSCode codeWithString:createGroupedViewString],@"createGroupedView",
+					[TitaniumJSCode codeWithString:createGroupedSectionString],@"createGroupedSection",
 					statusBarStyleInvoc,@"setStatusBarStyle",
 					[TitaniumJSCode codeWithString:systemButtonStyleString],@"SystemButtonStyle",
 					[TitaniumJSCode codeWithString:systemButtonString],@"SystemButton",

@@ -16,8 +16,6 @@
 	NSMutableArray * sectionArray;
 	NSString * callbackWindowToken;
 	NSString * callbackProxyPath;
-	
-	NSMutableSet * webViews;
 }
 
 @end

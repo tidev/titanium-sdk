@@ -8,6 +8,7 @@
 
 #import "TitaniumWebViewController.h"
 #import "TitaniumHost.h"
+#import "UiModule.h"
 
 TitaniumViewController * mostRecentController = nil;
 
@@ -144,10 +145,11 @@ TitaniumViewController * mostRecentController = nil;
 #pragma mark viewController methods
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
-- (void)viewDidLoad {
+- (void)loadView{
+	BOOL needsLoad = (webView == nil);
+    [super loadView];
 	mostRecentController = self;
-    [super viewDidLoad];
-	if ([webView request] == nil){
+	if (needsLoad){
 		[self reloadWebView];
 	}
 }
@@ -396,6 +398,11 @@ TitaniumViewController * mostRecentController = nil;
 	NSString * javascriptString = [NSString stringWithFormat:@"(function(){%@}).call(%@)",inputString,contextString];
 	
 	return [webView stringByEvaluatingJavaScriptFromString:javascriptString];
+}
+
+- (void) addNativeViewProxy: (UIButtonProxy *) proxyObject;
+{
+	[contentView addSubview:[proxyObject nativeView]];
 }
 
 - (void) addNativeView: (UIView *) newView;

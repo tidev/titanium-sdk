@@ -115,10 +115,11 @@ NSString * const ControllerString = @"Controller";
 	TitaniumViewController * result=nil;
 
 	if ([inputState isKindOfClass:dictionaryClass]){
-		id dataObject = [(NSDictionary *)inputState objectForKey:@"data"];
-		BOOL validTableView = [dataObject isKindOfClass:[NSArray class]];
-		if (validTableView){
-			result = [TitaniumTableViewController viewController];
+		NSString * typeString = [(NSDictionary *)inputState objectForKey:@"_TYPE"];
+		if ([typeString isKindOfClass:[NSString class]]) {
+			if ([typeString isEqualToString:@"table"]){
+				result = [TitaniumTableViewController viewController];
+			}
 		}
 	}
 	if (result == nil){

@@ -10,30 +10,41 @@
 #import "TitaniumBlobWrapper.h"
 #import "UiModule.h"
 #import "SBJSON.h"
+#import "WebTableViewCell.h"
+#import "ValueTableViewCell.h"
+#import "Webcolor.h"
+
+UIColor * checkmarkColor = nil;
 
 @interface TableRowWrapper : NSObject
 {
 	NSString * title;
 	NSString * html;
+	NSString * value;
 	NSURL * imageURL;
 	TitaniumBlobWrapper * imageWrapper;
 	UITableViewCellAccessoryType accessoryType;
 	UIButtonProxy * inputProxy;
+
+	BOOL isButton;
 }
 @property(nonatomic,readwrite,copy)	NSString * title;
 @property(nonatomic,readwrite,copy)	NSString * html;
+@property(nonatomic,readwrite,copy)	NSString * value;
 @property(nonatomic,readwrite,copy)	NSURL * imageURL;
 @property(nonatomic,readonly,copy)	UIImage * image;
 @property(nonatomic,readwrite,retain)	TitaniumBlobWrapper * imageWrapper;
 @property(nonatomic,readwrite,assign)	UITableViewCellAccessoryType accessoryType;
 @property(nonatomic,readwrite,retain)	UIButtonProxy * inputProxy;
+@property(nonatomic,readwrite,assign)	BOOL isButton;
 
+- (void) useProperties: (NSDictionary *) propDict withUrl: (NSURL *) baseUrl;
 - (NSString *) stringValue;
 
 @end
 
 @implementation TableRowWrapper
-@synthesize title,html,imageURL,imageWrapper,accessoryType,inputProxy;
+@synthesize title,html,imageURL,imageWrapper,accessoryType,inputProxy,isButton, value;
 
 - (UIImage *) image;
 {
@@ -56,13 +67,16 @@
 	NSString * accessoryString;
 	switch (accessoryType) {
 		case UITableViewCellAccessoryDetailDisclosureButton:
-			accessoryString = @"hasDetail:true,hasChild:false";
+			accessoryString = @"hasDetail:true,hasChild:false,selected:false";
 			break;
 		case UITableViewCellAccessoryDisclosureIndicator:
-			accessoryString = @"hasDetail:false,hasChild:true";
+			accessoryString = @"hasDetail:false,hasChild:true,selected:false";
+			break;
+		case UITableViewCellAccessoryCheckmark:
+			accessoryString = @"hasDetail:false,hasChild:false,selected:true";
 			break;
 		default:
-			accessoryString = @"hasDetail:false,hasChild:false";
+			accessoryString = @"hasDetail:false,hasChild:false,selected:false";
 			break;
 	}
 
@@ -72,6 +86,11 @@
 		titleString = [packer stringWithFragment:title error:nil];
 	} else { titleString = @"null"; }
 
+	NSString * valueString;
+	if (value != nil){
+		valueString = [packer stringWithFragment:value error:nil];
+	} else { valueString = @"null"; }
+	
 	NSString * htmlString;
 	if (html != nil){
 		htmlString = [packer stringWithFragment:html error:nil];
@@ -87,19 +106,85 @@
 		inputProxyString = [@"Ti.UI._BTN." stringByAppendingString:[inputProxy token]];
 	} else { inputProxyString = @"null"; }
 	
-	NSString * result = [NSString stringWithFormat:@"{%@,title:%@,html:%@,image:%@,input:%@}",
-			accessoryString,titleString,htmlString,imageURLString,inputProxyString];
+	NSString * result = [NSString stringWithFormat:@"{%@,title:%@,html:%@,image:%@,input:%@,value:%@}",
+			accessoryString,titleString,htmlString,imageURLString,inputProxyString,valueString];
 	[packer release];
+	return result;
 }
+
+- (void) useProperties: (NSDictionary *) propDict withUrl: (NSURL *) baseUrl;
+{
+	SEL boolSel = @selector(boolValue);
+	SEL stringSel = @selector(stringValue);
+	Class stringClass = [NSString class];
+	
+	NSNumber * hasDetail = [propDict objectForKey:@"hasDetail"];
+	if ([hasDetail respondsToSelector:boolSel] && [hasDetail boolValue]){
+		accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+	} else {
+		NSNumber * hasChild = [propDict objectForKey:@"hasChild"];
+		if ([hasChild respondsToSelector:boolSel] && [hasChild boolValue]){
+			[self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
+		} else {
+			NSNumber * isSelected = [propDict objectForKey:@"selected"];
+			if ([isSelected respondsToSelector:boolSel] && [isSelected boolValue]){
+				[self setAccessoryType:UITableViewCellAccessoryCheckmark];
+			} else {
+				[self setAccessoryType:UITableViewCellAccessoryNone];
+			}
+		}
+	}
+
+	NSString * rowType = [propDict objectForKey:@"type"];
+	if ([rowType isKindOfClass:stringClass]){
+		isButton = [rowType isEqualToString:@"button"];
+	}
+
+
+	id titleString = [propDict objectForKey:@"title"];
+	if ([titleString respondsToSelector:stringSel]) titleString = [titleString stringValue];
+	if ([titleString isKindOfClass:stringClass] && ([titleString length] != 0)){
+		[self setTitle:titleString];
+	}
+
+	id htmlString = [propDict objectForKey:@"html"];
+	if ([htmlString respondsToSelector:stringSel]) htmlString = [htmlString stringValue];
+	if ([htmlString isKindOfClass:stringClass] && ([htmlString length] != 0)){
+		[self setHtml:htmlString];
+	}
+
+	id valueString = [propDict objectForKey:@"value"];
+	if ([valueString respondsToSelector:stringSel]) valueString = [valueString stringValue];
+	if ([valueString isKindOfClass:stringClass] && ([valueString length] != 0)){
+		[self setValue:valueString];
+	}
+	
+	id imageString = [propDict objectForKey:@"image"];
+	if ([imageString isKindOfClass:stringClass]){
+		[self setImageURL:[NSURL URLWithString:imageString relativeToURL:baseUrl]];
+	}
+
+	NSDictionary * inputProxyDict = [propDict objectForKey:@"input"];
+	if ([inputProxyDict isKindOfClass:[NSDictionary class]]){
+		UiModule * theUiModule = (UiModule *)[[TitaniumHost sharedHost] moduleNamed:@"UiModule"];
+		UIButtonProxy * thisInputProxy = [theUiModule proxyForObject:inputProxyDict];
+		if (thisInputProxy != nil) [self setInputProxy:thisInputProxy];
+	}
+}
+
 
 @end
 
 @interface TableSectionWrapper : NSObject
 {
+	NSInteger groupNum;
+	NSString * groupType;
 	NSString * header;
 	NSString * footer;
 	NSMutableArray * rowArray;
+	BOOL isOptionList;
 }
+- (id) initWithHeader: (NSString *) headerString footer: (NSString *) footerString;
 - (void) addRow: (TableRowWrapper *) newRow;
 - (TableRowWrapper *) rowForIndex: (NSUInteger) rowIndex;
 - (BOOL) accceptsHeader: (NSString *) newHeader footer: (NSString *) footer;
@@ -107,11 +192,26 @@
 @property(nonatomic,readwrite,copy)		NSString * header;
 @property(nonatomic,readwrite,copy)		NSString * footer;
 @property(nonatomic,readonly,assign)	NSUInteger rowCount;
+@property(nonatomic,readwrite,assign)	NSInteger groupNum;
+@property(nonatomic,readwrite,copy)		NSString * groupType;
+@property(nonatomic,readwrite,assign)	BOOL isOptionList;
 
 @end
 
 @implementation TableSectionWrapper
-@synthesize header,footer;
+@synthesize header,footer,groupNum,groupType,isOptionList;
+
+- (id) initWithHeader: (NSString *) headerString footer: (NSString *) footerString;
+{
+	self = [super init];
+	if (self != nil) {
+		groupNum = -1;
+		Class stringClass = [NSString class];
+		if ([headerString isKindOfClass:stringClass])[self setHeader:headerString];
+		if ([footerString isKindOfClass:stringClass])[self setFooter:footerString];
+	}
+	return self;
+}
 
 - (NSUInteger) rowCount;
 {
@@ -136,16 +236,21 @@
 
 - (BOOL) accceptsHeader: (id) newHeader footer: (id) newFooter;
 {
+	Class stringClass = [NSString class];
 	BOOL result;
-	if (newHeader == nil){
+	
+	if ((newHeader == nil) || ([rowArray count]==0)){
 		result = YES;
-	} else if (![newHeader isKindOfClass:[NSString class]]){
+	} else if (![newHeader isKindOfClass:stringClass]){
 		result = NO;
 	} else {
 		result = ([newHeader length] == 0) || [newHeader isEqualToString:header];
 	}
 	if (result) {
-		if ([newFooter isKindOfClass:[NSString class]]){
+		if ([newHeader isKindOfClass:stringClass]){
+			[self setHeader:newHeader];
+		}
+		if ([newFooter isKindOfClass:stringClass]){
 			[self setFooter:newFooter];
 		} else if (newFooter == [NSNull null]) {
 			[self setFooter:nil];
@@ -187,6 +292,10 @@
 
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
+	if (checkmarkColor == nil){
+		checkmarkColor = [[UIColor alloc] initWithRed:(55.0/255.0) green:(79.0/255.0) blue:(130.0/255.0) alpha:1.0];
+	}
+
 	[super readState:inputState relativeToUrl:baseUrl];
 
 	Class dictClass = [NSDictionary class];
@@ -196,12 +305,6 @@
 	}
 
 	Class arrayClass = [NSArray class];
-	NSArray * dataEntries = [inputState objectForKey:@"data"];
-
-	if (![dataEntries isKindOfClass:arrayClass]){
-		NSLog(@"SHOULDN'T HAPPEN: %@ is trying to read the data which isn't an array %@!",self,dataEntries);
-		return;
-	}
 	
 	NSNumber * isGrouped = [inputState objectForKey:@"grouped"];
 	SEL boolSel = @selector(boolValue);
@@ -212,6 +315,12 @@
 		tableStyle = UITableViewStylePlain;
 	}
 
+	NSNumber * tableRowHeightObject = [inputState objectForKey:@"rowHeight"];
+	
+	if ([tableRowHeightObject respondsToSelector:@selector(intValue)]){
+		tableRowHeight = [tableRowHeightObject intValue];
+	}
+	
 	SEL stringSel = @selector(stringValue);
 	Class stringClass = [NSString class];
 //	Class blobClass = [TitaniumBlobWrapper class];
@@ -227,102 +336,88 @@
 		[callbackProxyPath release];
 		callbackProxyPath = [pathObject copy];
 	}
+		
+	NSArray * groupEntries = [inputState objectForKey:@"_GRP"];
+	NSArray * dataEntries = [inputState objectForKey:@"data"];
+	BOOL isValidDataEntries = [dataEntries isKindOfClass:arrayClass];
 
+	if (![groupEntries isKindOfClass:arrayClass]){
+		if (isValidDataEntries){
+			groupEntries = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:dataEntries forKey:@"data"]];
+			//While it's tempting to just use inputState as a shortcut, that could lead to undocumented pain.
+		} else {
+			groupEntries = nil; //Just so we don't interate on the wrong things.
+		}
+	} else {
+		if (isValidDataEntries){
+			groupEntries = [groupEntries arrayByAddingObject:[NSDictionary dictionaryWithObject:dataEntries forKey:@"data"]];
+			//While it's tempting to just use inputState as a shortcut, that could lead to undocumented pain.
+		}
+	}
+	
 	[sectionArray release];
 	sectionArray = [[NSMutableArray alloc] init];
-	UiModule * theUiModule = (UiModule *)[[TitaniumHost sharedHost] moduleNamed:@"UiModule"];
-	TableSectionWrapper * thisSection = nil;
+	TableSectionWrapper * thisSectionWrapper = nil;
 	
-	for(NSDictionary * thisEntry in dataEntries){
-		if (![thisEntry isKindOfClass:dictClass]) continue;
+	int groupNum = 0;
+	for(NSDictionary * thisSectionEntry in groupEntries){
+		id headerString = [thisSectionEntry objectForKey:@"header"];
+		if ([headerString respondsToSelector:stringSel]) headerString = [headerString stringValue];
 		
-		TableRowWrapper * thisRow = [[TableRowWrapper alloc] init];
+		id footerString = [thisSectionEntry objectForKey:@"footer"];
+		if ([footerString respondsToSelector:stringSel]) footerString = [footerString stringValue];
 		
-		NSNumber * hasDetail = [thisEntry objectForKey:@"hasDetail"];
-		if ([hasDetail respondsToSelector:boolSel] && [hasDetail boolValue]){
-			[thisRow setAccessoryType:UITableViewCellAccessoryDetailDisclosureButton];
-		} else {
-			NSNumber * hasChild = [thisEntry objectForKey:@"hasChild"];
-			if ([hasChild respondsToSelector:boolSel] && [hasChild boolValue]){
-				[thisRow setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
-			} else {
-				[thisRow setAccessoryType:UITableViewCellAccessoryNone];
+		if (![thisSectionWrapper accceptsHeader:headerString footer:footerString]){
+			thisSectionWrapper = [[TableSectionWrapper alloc] initWithHeader:headerString footer:footerString];
+			[sectionArray addObject:thisSectionWrapper];
+			[thisSectionWrapper release];
+		}
+
+		BOOL isButtonGroup = NO;
+		NSString * rowType = [thisSectionEntry objectForKey:@"type"];
+		if ([rowType isKindOfClass:stringClass]){
+			[thisSectionWrapper setGroupType:rowType];
+			if([rowType isEqualToString:@"button"]){
+				isButtonGroup = YES;
+			} else if ([rowType isEqualToString:@"option"]){
+				[thisSectionWrapper setIsOptionList:YES];
+			}
+			[thisSectionWrapper setGroupNum:groupNum];
+		}
+		groupNum++;
+		
+		NSArray * thisDataArray = [thisSectionEntry objectForKey:@"data"];
+		if ([thisDataArray isKindOfClass:arrayClass]){
+			for(NSDictionary * thisEntry in thisDataArray){
+				if (![thisEntry isKindOfClass:dictClass]) continue;
+				
+				TableRowWrapper * thisRow = [[TableRowWrapper alloc] init];
+				if (isButtonGroup) [thisRow setIsButton:YES];
+				
+				[thisRow useProperties:thisEntry withUrl:baseUrl];
+				
+				id headerString = [thisEntry objectForKey:@"header"];
+				if ([headerString respondsToSelector:stringSel]) headerString = [headerString stringValue];
+				
+				id footerString = [thisEntry objectForKey:@"footer"];
+				if ([footerString respondsToSelector:stringSel]) footerString = [footerString stringValue];
+				
+				if ([thisSectionWrapper accceptsHeader:headerString footer:footerString]){
+					[thisSectionWrapper addRow:thisRow];
+				} else {
+					thisSectionWrapper = [[TableSectionWrapper alloc] initWithHeader:headerString footer:footerString];
+					
+					[thisSectionWrapper addRow:thisRow];
+
+					[sectionArray addObject:thisSectionWrapper];
+					[thisSectionWrapper release];
+				}
 			}
 		}
 		
-		id titleString = [thisEntry objectForKey:@"title"];
-		if ([titleString respondsToSelector:stringSel]) titleString = [titleString stringValue];
-		if ([titleString isKindOfClass:stringClass] && ([titleString length] != 0)){
-			[thisRow setTitle:titleString];
-		}
-		
-		id htmlString = [thisEntry objectForKey:@"html"];
-		if ([htmlString respondsToSelector:stringSel]) htmlString = [htmlString stringValue];
-		if ([htmlString isKindOfClass:stringClass] && ([htmlString length] != 0)){
-			[thisRow setHtml:htmlString];
-		}
-
-		id imageString = [thisEntry objectForKey:@"image"];
-		if ([imageString isKindOfClass:stringClass]){
-			[thisRow setImageURL:[NSURL URLWithString:imageString relativeToURL:baseUrl]];
-		}
-		
-		UIButtonProxy * thisInputProxy = [theUiModule proxyForObject:[thisEntry objectForKey:@"input"]];
-		if (thisInputProxy != nil) [thisRow setInputProxy:thisInputProxy];
-		
-		id headerString = [thisEntry objectForKey:@"header"];
-		if ([headerString respondsToSelector:stringSel]) headerString = [headerString stringValue];
-		
-		id footerString = [thisEntry objectForKey:@"footer"];
-		if ([footerString respondsToSelector:stringSel]) footerString = [footerString stringValue];
-		
-		if ([thisSection accceptsHeader:headerString footer:footerString]){
-			[thisSection addRow:thisRow];
-		} else {
-			thisSection = [[TableSectionWrapper alloc] init];
-			if ([headerString isKindOfClass:stringClass])[thisSection setHeader:headerString];
-			if ([footerString isKindOfClass:stringClass])[footerString setHeader:footerString];
-			
-			[thisSection addRow:thisRow];
-
-			[sectionArray addObject:thisSection];
-			[thisSection release];
-		}
 		
 	}
-
 }
-
-/*
- // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        // Custom initialization
-    }
-    return self;
-}
-*/
-
-/*
-// Implement loadView to create a view hierarchy programmatically, without using a nib.
-- (void)loadView {
-}
-*/
-
-/*
-// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
-- (void)viewDidLoad {
-    [super viewDidLoad];
-}
-*/
-
-/*
-// Override to allow orientations other than the default portrait orientation.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-*/
 
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
@@ -333,10 +428,6 @@
 
 
 - (void)dealloc {
-	for (UIWebView * thisView in webViews){
-		[thisView setDelegate:nil];
-	}
-	[webViews release];
 	[sectionArray release];
 	[callbackProxyPath release];
 	[callbackWindowToken release];
@@ -384,47 +475,53 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 {
-	TableRowWrapper * ourRow = [[self sectionForIndex:[indexPath section]] rowForIndex:[indexPath row]];
-	NSString * htmlString = [ourRow html];
+	TableSectionWrapper * sectionWrapper = [self sectionForIndex:[indexPath section]];
+	TableRowWrapper * rowWrapper = [sectionWrapper rowForIndex:[indexPath row]];
+	NSString * htmlString = [rowWrapper html];
+	UITableViewCellAccessoryType ourType = [rowWrapper accessoryType];
 	UITableViewCell * result = nil;
 
 	if (htmlString != nil){ //HTML cell
 		result = [tableView dequeueReusableCellWithIdentifier:@"html"];
-		UIWebView * htmlLabel = nil;
 		if (result == nil) {
-			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"html"] autorelease];
-			UIView * cellContentView = [result contentView];
-			htmlLabel = [[UIWebView alloc] initWithFrame:[cellContentView frame]];
-			[htmlLabel setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-			[htmlLabel setAlpha:0.0];
-			[htmlLabel setDelegate:self];
-			[htmlLabel setExclusiveTouch:NO];
-			[htmlLabel setUserInteractionEnabled:NO];
-			[htmlLabel setBackgroundColor:[UIColor blueColor]];
-			[cellContentView addSubview:htmlLabel];
-			[htmlLabel release];
-			
-			if (webViews == nil) {
-				webViews = [[NSMutableSet alloc] initWithObjects:htmlLabel,nil];
-			} else {
-				[webViews addObject:htmlLabel];
-			}
-			
-		} else {
-			htmlLabel = [[[result contentView] subviews] objectAtIndex:0];
-			[htmlLabel setAlpha:0.0];
+			result = [[[WebTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"html"] autorelease];
 		}
-		[htmlLabel loadHTMLString:htmlString baseURL:[[TitaniumHost sharedHost] appBaseUrl]];
+		[[(WebTableViewCell *)result htmlLabel] loadHTMLString:htmlString baseURL:[[TitaniumHost sharedHost] appBaseUrl]];
+		
+	} else if ([rowWrapper isButton]) {
+		result = [tableView dequeueReusableCellWithIdentifier:@"button"];
+		if (result == nil){
+			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"button"] autorelease];
+			[result setTextAlignment:UITextAlignmentCenter];
+		}
+		[result setText:[rowWrapper title]];
 		
 	} else { //plain cell
-		result = [tableView dequeueReusableCellWithIdentifier:@"text"];
-		if (result == nil) result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"text"] autorelease];
-		[result setText:[ourRow title]];
+		NSString * valueString = [rowWrapper value];
+		if (valueString == nil){
+			result = [tableView dequeueReusableCellWithIdentifier:@"text"];
+			if (result == nil) result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"text"] autorelease];
+		} else {
+			UILabel * valueLabel;
+			result = [tableView dequeueReusableCellWithIdentifier:@"value"];
+			if (result == nil){
+				result = [[[ValueTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"value"] autorelease];
+				valueLabel = [(ValueTableViewCell *)result valueLabel];
+				[valueLabel setTextColor:checkmarkColor];
+			} else {
+				valueLabel = [(ValueTableViewCell *)result valueLabel];
+			}
+			[valueLabel setText:valueString];
+		}
+		[result setText:[rowWrapper title]];
+		UIColor * textColor = [UIColor blackColor];
+		if (ourType == UITableViewCellAccessoryCheckmark) textColor = checkmarkColor;
+		[result setTextColor:textColor];
 	}
 
-	[result setImage:[ourRow image]];
-	[result setAccessoryType:[ourRow accessoryType]];
-	[result setAccessoryView:[[ourRow inputProxy] nativeView]];
+	[result setImage:[rowWrapper image]];
+	[result setAccessoryType:ourType];
+	[result setAccessoryView:[[rowWrapper inputProxy] nativeView]];
 
 	return result;
 }
@@ -446,15 +543,25 @@
 	int section = [indexPath section];
 	int row = [indexPath row];
 	int index = [self rowCountBeforeSection:section] + row;
-	NSString * rowData = [[[self sectionForIndex:section] rowForIndex:row] stringValue];
+	TableSectionWrapper * sectionWrapper = [self sectionForIndex:section];
+	NSString * rowData = [[sectionWrapper rowForIndex:row] stringValue];
 	if (rowData==nil) rowData = @"{}";
 	NSString * detail = accessoryTapped ? @"true" : @"false";
 
-	NSString * triggeredCode = [[NSString alloc] initWithFormat:@"%@.handleRowClick({"
-			"index:%d,row:%d,section:%d,rowData:%@,detail:%@})",callbackProxyPath,
+	NSString * triggeredCode = [[NSString alloc] initWithFormat:@".onClick({type:'click',"
+			"index:%d,row:%d,section:%d,rowData:%@,detail:%@})",
 			index,row,section,rowData,detail];
 	
-	[[TitaniumHost sharedHost] sendJavascript:triggeredCode toPageWithToken:callbackWindowToken];
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	[theHost sendJavascript:[callbackProxyPath stringByAppendingString:triggeredCode] toPageWithToken:callbackWindowToken];
+	int groupNum = [sectionWrapper groupNum];
+	
+	if (groupNum >= 0) {
+		NSString * groupCode = [[NSString alloc] initWithFormat:@"%@._GRP[%d]%@",callbackProxyPath,groupNum,triggeredCode];
+		[theHost sendJavascript:groupCode toPageWithToken:callbackWindowToken];
+		[groupCode release];
+	}
+	[triggeredCode release];
 }
 
 - (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath;
@@ -469,16 +576,46 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 {
-	[self triggerActionForIndexPath:indexPath wasAccessory:NO];
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
-}
 
-- (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
-{
-	[UIView beginAnimations:@"webView" context:nil];
-	[inputWebView setAlpha:1.0];
-	[UIView commitAnimations];
-}	
+	int section = [indexPath section];
+	int blessedRow = [indexPath row];
+	TableSectionWrapper * sectionWrapper = [self sectionForIndex:section];
+
+	if ([sectionWrapper isOptionList] && ![[sectionWrapper rowForIndex:blessedRow] isButton]){
+		for (int row=0;row<[sectionWrapper rowCount];row++) {
+			TableRowWrapper * rowWrapper = [sectionWrapper rowForIndex:row];
+			UITableViewCellAccessoryType rowType = [rowWrapper accessoryType];
+			BOOL isBlessed = (row == blessedRow);
+			BOOL isUpdated = NO;
+			
+			UITableViewCell * thisCell = [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:section]];
+			
+			if (!isBlessed && (rowType == UITableViewCellAccessoryCheckmark)) {
+				[rowWrapper setAccessoryType:UITableViewCellAccessoryNone];
+				if (thisCell != nil){
+					[thisCell setAccessoryType:UITableViewCellAccessoryNone];
+					[thisCell setTextColor:[UIColor blackColor]];
+					isUpdated = YES;
+				}
+			} else if (isBlessed && (rowType == UITableViewCellAccessoryNone)){
+				[rowWrapper setAccessoryType:UITableViewCellAccessoryCheckmark];
+				if (thisCell != nil){
+					[thisCell setAccessoryType:UITableViewCellAccessoryCheckmark];
+					[thisCell setTextColor:checkmarkColor];
+					isUpdated = YES;
+				}
+			}
+			
+			if (isUpdated && [thisCell respondsToSelector:@selector(updateState:)]){
+				[(WebTableViewCell *)thisCell updateState:YES];
+			}
+			
+		}
+	}
+
+	[self triggerActionForIndexPath:indexPath wasAccessory:NO];
+}
 
 
 @end

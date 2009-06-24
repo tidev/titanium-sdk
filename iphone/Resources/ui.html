@@ -27,7 +27,7 @@
 		var btn5 = Ti.UI.createButton('Moo');
 		btn5.addEventListener('click',function(){Ti.UI.currentWindow.setFullscreen(true);});
 
-		var btn6 = Ti.UI.createButton('slider');
+		var btn6 = Ti.UI.createButton('Moo');
 		btn6.width=100;
 		btn6.addEventListener('valuechange',function(foo){document.getElementById('sliderValue').innerHTML='Newvalue' + foo.value;});
 //		btn6.addEventListener('valuechange',function(foo){
@@ -49,7 +49,7 @@ try{
 		{title:'row 1', hasChild:true},
 		{title:'row 2', hasDetail:true},
 		{title:'row 3'},
-		{html:'<html><head><style>*{background-color:transparent}</style></head><body><b>row</b> 4 has <i>html?</i></body></html>'},
+		{html:'<b>row</b> 4 has <i>html?</i>',selected:true},
 
 		{title:'row 1', hasChild:true, image:'Mail.png'},
 		{title:'row 2', hasDetail:true, image:'Safari.png'},
@@ -71,18 +71,18 @@ try{
 		{title:'row 8'},
 		{title:'row 9', header:'Header 3', hasChild:true, },
 		{title:'row 10', hasDetail:true},
-		{title:'row 11'},
+		{title:'row 11',selected:true},
 		{title:'row 12'},
 
 		{html:'<div><div style="font-weight:bold;font-size:18px">Row 1</div><div style="font-size:11px;margin-top:5px;>row 1 detail...</div></div>"',hasChild:true},
 		{html:'<div><div style="font-weight:bold;font-size:18px">Row 2</div><div style="font-size:11px;margin-top:5px;>row 2 detail...</div></div>"',hasChild:true},
-		{html:'<div><div style="font-weight:bold;font-size:18px">Row 3</div><div style="font-size:11px;margin-top:5px;>row 3 detail...</div></div>"'},
+		{html:'<div><div style="font-weight:bold;font-size:18px">Row 3</div><div style="font-size:11px;margin-top:5px;>row 3 detail...</div></div>"',selected:true},
 		{html:'<div><div style="font-weight:bold;font-size:18px">Row 4</div><div style="font-size:11px;margin-top:5px;>row 4 detail...</div></div>"'},
 		{html:'<div><div style="font-weight:bold;font-size:18px">Row 5</div><div style="font-size:11px;margin-top:5px;>row 5 detail...</div></div>"'}		
 
 
 	];
-	var tableView = Titanium.UI.createTableView({data:data}, function(eventObject) {
+	var tableView = Titanium.UI.createTableView({data:data,rowHeight:80}, function(eventObject) {
 		var rowData = eventObject.rowData;
 
 		var section = eventObject.section;
@@ -104,9 +104,73 @@ try{
 		btn7.addEventListener('click',test1);
 
 
+function test2()
+{
+try{
+	var buttonData = [
+		{title:'Button 1', image:'images/one.png'},
+		{title:'Button 2', image:'images/two.png'}
+	];
+
+	var buttonSection = Titanium.UI.iPhone.createGroupedSection({type:'button',data:buttonData});
+	buttonSection.addEventListener('click',function(e)
+	{
+		e.index // index of clicked button
+	});
+
+	var optionData = [
+		{title:'Option 1', image:'images/one.png'},
+		{title:'Option 2', image:'images/two.png', selected:true},
+		{title:'Option 3', image:'images/three.png'}	
+	];
+
+	var optionSection = Titanium.UI.iPhone.createGroupedSection({type:'option', data:optionData});
+	optionSection.addEventListener('click',function(e)
+	{
+		e.index // index of clicked button
+	});
+
+	var switchInstance = Titanium.UI.createSwitch({value:false});
+//	var switchInstance = Ti.UI.createButton('activity');
+
+	var inputData = [
+		{title:'Input 1', image:'images/one.png', input:switchInstance},
+		{title:'Input 2', image:'images/two.png', value:'foo', hasChild:true},
+		{title:'Input 3', image:'images/three.png'}	
+	];
+
+	var inputSection = Titanium.UI.iPhone.createGroupedSection({type:'input', data:inputData});
+	inputSection.addEventListener('click',function(e)
+	{
+		e.index // index of row that was clicked (used if you row will create a new window)
+	});
+	var groupedView = Titanium.UI.iPhone.createGroupedView();
+//{data:data,rowHeight:80}, function(eventObject) {
+//		var rowData = eventObject.rowData;
+//
+//		var section = eventObject.section;
+//		var row = eventObject.row;
+//		var index = eventObject.index;
+//		var detail = eventObject.detail;
+//		Titanium.UI.createAlertDialog({message:(
+//			'ROWDATA = ' + rowData +
+//			', SECTION = ' + section +
+//			', ROW = ' + row +
+//			', INDEX = ' + index +
+//			', DETAIL = ' + detail
+//		)}).show();
+//	});
+	groupedView.addSection(optionSection);
+	groupedView.addSection(buttonSection);
+	groupedView.addSection(inputSection);
+	groupedView.open({animated:true});
+} catch(E){Titanium.UI.createAlertDialog({title:"Error!",message:('Msg:'+E)}).show();};
+};
+		var btn8 = Ti.UI.createButton('rewind');
+		btn8.addEventListener('click',test2);
 
 
-		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5,btn7]);
+		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5,btn7,btn8]);
 		
 		Titanium.Gesture.addEventListener('shake',function(){
 			var alerty = Titanium.UI.createAlertDialog();
@@ -162,7 +226,7 @@ try{
 	
 	<div id='sliderValue'>Unchanged slider value!</div>
 
-	<div id='sliderPlace' style="width:200px;height:50px;"></div>
+	<div id='sliderPlace' style="width:200px;height:70px;"></div>
 	
 	
 </body>

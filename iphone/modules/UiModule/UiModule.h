@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "TitaniumModule.h"
 
-@interface UIButtonProxy : TitaniumProxyObject
+@interface UIButtonProxy : TitaniumProxyObject<UITextViewDelegate,UITextFieldDelegate>
 {
 	//Properties that are stored until the time is right
 	BOOL needsRefreshing;
@@ -20,12 +20,16 @@
 	int templateValue;
 	
 	//For Bar buttons
-	UIBarButtonItemStyle barButtonStyle;
+	int barButtonStyle;
 	
 	//For activity spinners
 	UIActivityIndicatorViewStyle spinnerStyle;
 	
-	
+	//Yes, even integer and bools are represented as floats.
+	float minValue;		//Default is 0
+	float maxValue;		//Default is 1
+	float floatValue;	//Default is 0
+	NSString * stringValue;
 	
 	//Connections to the native side
 	UILabel * labelView;
@@ -36,15 +40,20 @@
 	//Note: For some elements (Textview, activityIndicator, statusIndicator)
 }
 
-@property(nonatomic,readwrite,retain)	NSString * titleString;
-@property(nonatomic,readwrite,retain)	NSString * iconPath;
+@property(nonatomic,readwrite,copy)		NSString * titleString;
+@property(nonatomic,readwrite,copy)		NSString * iconPath;
 @property(nonatomic,readwrite,assign)	int templateValue;
-@property(nonatomic,readwrite,assign)	UIBarButtonItemStyle barButtonStyle;
+@property(nonatomic,readwrite,assign)	int barButtonStyle;
 
 @property(nonatomic,readwrite,retain)	UILabel * labelView;
 @property(nonatomic,readwrite,retain)	UIProgressView * progressView;
 @property(nonatomic,readwrite,retain)	UIView * nativeView;
 @property(nonatomic,readwrite,retain)	UIBarButtonItem * nativeBarButton;
+
+@property(nonatomic,readwrite,assign)	float minValue;	
+@property(nonatomic,readwrite,assign)	float maxValue;	
+@property(nonatomic,readwrite,assign)	float floatValue;
+@property(nonatomic,readwrite,copy)		NSString * stringValue;
 
 - (IBAction) onClick: (id) sender;
 - (void) setPropertyDict: (NSDictionary *) newDict;
