@@ -26,10 +26,6 @@
         	android:label="TA"
         	android:configChanges="keyboardHidden|orientation"
       	/>
-		<activity
-        	android:name="org.appcelerator.titanium.TitaniumTabbedActivity"
-        	android:label="TTA"
-      	/>
     	<activity
     		android:name="org.appcelerator.titanium.TitaniumVideoActivity"
     		android:label="TVA"

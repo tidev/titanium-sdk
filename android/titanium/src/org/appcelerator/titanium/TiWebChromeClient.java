@@ -25,7 +25,7 @@ public class TiWebChromeClient extends WebChromeClient {
 	private Activity activity;
 	public TiWebChromeClient(TitaniumActivity activity) {
 		super();
-		this.activity = TitaniumActivityHelper.getTitaniumActivityGroup(activity);
+		this.activity = TitaniumActivityHelper.getRootActivity(activity);
 	}
 
     @Override

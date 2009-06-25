@@ -16,6 +16,7 @@ import org.appcelerator.titanium.api.ITitaniumApp;
 import org.appcelerator.titanium.api.ITitaniumNetwork;
 import org.appcelerator.titanium.api.ITitaniumPlatform;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.module.TitaniumAPI;
 import org.appcelerator.titanium.module.TitaniumAccelerometer;
@@ -50,7 +51,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
-import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -210,6 +210,7 @@ public class TitaniumActivity extends Activity
 
         String backgroundImage = "default.png";
 
+    	Activity root = TitaniumActivityHelper.getRootActivity(this);
         if (windowInfo != null) {
         	String orientation = windowInfo.getWindowOrientation();
         	if ("portrait".compareTo(orientation) == 0) {
@@ -222,7 +223,16 @@ public class TitaniumActivity extends Activity
         	if(windowInfo.hasWindowBackgroundImage()) {
         		backgroundImage = windowInfo.getWindowBackgroundImage();
         	}
+
+        	if(windowInfo.getWindowTitle() != null) {
+        		root.setTitle(windowInfo.getWindowTitle());
+        	}
+        } else {
+        	if (intent.getTitle() != null) {
+        		root.setTitle(intent.getTitle());
+        	}
         }
+    	root = null;
 
         TitaniumFileHelper tfh = new TitaniumFileHelper(this);
 		splashView=new ImageView(this);
@@ -350,7 +360,7 @@ public class TitaniumActivity extends Activity
 		launchTitaniumActivity(intent);
     }
 
-    public void launchTitaniumActivity(TitaniumIntentWrapper intent) {
+    public void launchTitaniumActivity(final TitaniumIntentWrapper intent) {
     	final Intent launchIntent = intent.getIntent();
     	if (launchIntent.getComponent() == null) {
 			Class<?> activityClass = TitaniumApplication.getActivityForType(intent.getActivityType());
@@ -366,8 +376,9 @@ public class TitaniumActivity extends Activity
 		handler.post(new Runnable(){
 
 			public void run() {
-				TitaniumActivityGroup parent = TitaniumActivityHelper.getTitaniumActivityGroup(me);
-				parent.launch(launchIntent);
+				startActivity(intent.getIntent());
+				//TitaniumActivityGroup parent = TitaniumActivityHelper.getTitaniumActivityGroup(me);
+				//parent.launch(launchIntent);
 			}
 		});
     }
@@ -419,6 +430,8 @@ public class TitaniumActivity extends Activity
         		webView.goBack();
         		Log.e(LCAT, "Activity back key and has webView back");
                 return true;
+        	} else {
+        		finish();
         	}
         }
         return false;
@@ -641,7 +654,7 @@ public class TitaniumActivity extends Activity
 			moduleMgr.onDestroy();
 		}
 		if (loaded) {
-			//webView.destroy();
+			webView.destroy();
 		}
 		destroyed = true;
 	}

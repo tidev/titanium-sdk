@@ -23,13 +23,11 @@ public class TitaniumModuleManager
 	private static final String LCAT = "TiModuleMgr";
 
 	private ArrayList<ITitaniumModule> modules;
-	private SoftReference<TitaniumActivityGroup> softActivityGroup;
 	private SoftReference<TitaniumActivity> softActivity;
 	private SoftReference<Handler> softHandler;
 
 	public TitaniumModuleManager(TitaniumActivity activity, Handler handler)
 	{
-		this.softActivityGroup = new SoftReference<TitaniumActivityGroup>(TitaniumActivityHelper.getTitaniumActivityGroup(activity));
 		this.softActivity = new SoftReference<TitaniumActivity>(activity);
 		this.softHandler = new SoftReference<Handler>(handler);
 		this.modules = new ArrayList<ITitaniumModule>();

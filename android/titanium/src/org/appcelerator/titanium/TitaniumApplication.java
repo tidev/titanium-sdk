@@ -10,9 +10,9 @@ package org.appcelerator.titanium;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.Stack;
 
 import org.appcelerator.titanium.config.TitaniumAppInfo;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEvent;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
 import org.appcelerator.titanium.module.app.TitaniumProperties;
@@ -22,7 +22,6 @@ import org.xml.sax.SAXException;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 
 public class TitaniumApplication
@@ -38,13 +37,11 @@ public class TitaniumApplication
 
 	private boolean needsStartEvent;
 
-	protected Stack<LocalActivityInfo> activityStack;
 	protected TitaniumAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
 
 
 	public TitaniumApplication() {
-		activityStack = new Stack<LocalActivityInfo>();
 		needsStartEvent = true;
 	}
 
@@ -79,8 +76,12 @@ public class TitaniumApplication
 		analyticsModel = new TitaniumAnalyticsModel(this);
 	}
 
-	public Stack<LocalActivityInfo> getActivityStack() {
-		return activityStack;
+	@Override
+	public void onTerminate() {
+		super.onTerminate();
+		if (DBG) {
+			Log.d(LCAT, "Application.onTerminate()");
+		}
 	}
 
 	public TitaniumAppInfo getAppInfo() {
@@ -127,11 +128,7 @@ public class TitaniumApplication
 			windowType = "single";
 		}
 
-		if ("tabbed".compareTo(windowType) == 0) {
-			activity = TitaniumTabbedActivity.class;
-		} else if ("single-root".compareTo(windowType) == 0) {
-			activity = TitaniumSingleActivity.class;
-		} else if ("single".compareTo(windowType) == 0) {
+		if ("single".compareTo(windowType) == 0) {
 			activity = TitaniumActivity.class;
 		} else {
 			throw new IllegalStateException("Unknown window type: " + windowType);
@@ -148,7 +145,9 @@ public class TitaniumApplication
 		return needsStartEvent;
 	}
 
-	public synchronized void postAnalyticsEvent(TitaniumAnalyticsEvent event) {
+	public synchronized void postAnalyticsEvent(TitaniumAnalyticsEvent event)
+	{
+
 		if (DBG) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Analytics Event: name=").append(event.getEventName())

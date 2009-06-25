@@ -1,21 +1,18 @@
 package org.appcelerator.titanium.util;
 
-import org.appcelerator.titanium.TitaniumActivityGroup;
-
 import android.app.Activity;
 
 public class TitaniumActivityHelper
 {
-	public static TitaniumActivityGroup getTitaniumActivityGroup(Activity activity)
+	public static Activity getRootActivity(Activity activity)
 	{
-		Activity parent = activity.getParent();
+		Activity parent = activity;
 
 		while(parent.getParent() != null && ! parent.isTaskRoot()) {
 			parent = parent.getParent();
 		}
-		// ClassCast Exception will guarantee all Titanium Mobile extend
-		// TitaniumActivityGroup
-		return (TitaniumActivityGroup) parent;
+
+		return  parent;
 	}
 
 
