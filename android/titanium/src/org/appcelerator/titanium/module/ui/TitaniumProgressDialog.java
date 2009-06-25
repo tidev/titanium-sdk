@@ -46,7 +46,7 @@ public class TitaniumProgressDialog implements ITitaniumProgressDialog
 		this.min = 0;
 		this.max = 100;
 		this.incrementFactor = 10000 / (this.max - this.min);
-		this.parent = TitaniumActivityHelper.getTitaniumActivityGroup(activity);
+		this.parent = TitaniumActivityHelper.getRootActivity(activity);
 
 	}
 
