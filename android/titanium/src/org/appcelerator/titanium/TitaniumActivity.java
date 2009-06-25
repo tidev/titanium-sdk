@@ -165,7 +165,7 @@ public class TitaniumActivity extends Activity
     	Activity root = TitaniumActivityHelper.getRootActivity(this);
 		handler = new Handler();
         webView = new WebView(me);
-        
+
         if (intent != null) {
         	appInfo = intent.getAppInfo(me);
         	windowInfo = intent.getWindowInfo(appInfo);
@@ -182,7 +182,7 @@ public class TitaniumActivity extends Activity
 
 			public void run() {
 				try {
-					source = TitaniumUrlHelper.getSource(appInfo, webView, url, null);
+					source = TitaniumUrlHelper.getSource(app, app.getApplicationContext(), url, null);
 				} catch (IOException e) {
 					Log.e(LCAT, "Unable to load source for " + url);
 				} finally {
@@ -562,12 +562,6 @@ public class TitaniumActivity extends Activity
 			}
 		}
 		return result;
-	}
-
-	protected String getSource(TitaniumAppInfo appInfo, String url, String[] files)
-		throws IOException
-	{
-		return TitaniumUrlHelper.getSource(appInfo, webView, url, files);
 	}
 
     protected boolean loadFromSource(TitaniumAppInfo appInfo, String url, String source)

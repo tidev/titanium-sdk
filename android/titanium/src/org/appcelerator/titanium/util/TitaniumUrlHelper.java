@@ -12,11 +12,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 
+import org.appcelerator.titanium.TitaniumApplication;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
+import org.appcelerator.titanium.config.TitaniumConfig;
 
 import android.content.Context;
 import android.net.Uri;
-import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
@@ -45,91 +46,94 @@ public class TitaniumUrlHelper
 		"tigeo.js"
 	};
 
-	public static String getSource(TitaniumAppInfo appInfo, WebView webView, String url, String[] files)
+	public static String getSource(TitaniumApplication app, Context context, String url, String[] files)
 		throws IOException
 	{
-		String source = null;
+		String source = app.getSourceFor(url);
 
- 		MimeTypeMap mtm = MimeTypeMap.getSingleton();
-		String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-		String mimetype = "application/octet-stream";
+		if (source == null) {
+	 		MimeTypeMap mtm = MimeTypeMap.getSingleton();
+			String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+			String mimetype = "application/octet-stream";
 
-		if (files == null) {
-			files = DEFAULT_JS_FILES;
-			Log.i(LCAT, "Using default javascript files.");
-		}
-
-		if (extension != null) {
-			String type = mtm.getMimeTypeFromExtension(extension);
-			if (type != null) {
-				mimetype = type;
-			} else {
-				mimetype = "text/html";
+			if (files == null) {
+				files = DEFAULT_JS_FILES;
+				Log.i(LCAT, "Using default javascript files.");
 			}
 
-			if("text/html".equals(mimetype)) {
-
-				StringWriter bos = new StringWriter(16192);
-				boolean haveSource = false;
-
-				InputStreamReader br = null;
-				try {
-					if (appInfo.getSystemProperties().getBool(TitaniumAppInfo.PROP_ANDROID_DEBUG, false)) {
-						Log.i(LCAT, "Loading Titanium JS from debug");
-						for(int i = 0; i < files.length; i++) {
-							bos.write("<script type='text/javascript' src='file:///android_asset/ti/debug/" + files[i] + "'></script>\n");
-						}
-					} else {
-						bos.write("<script type='text/javascript' src='file:///android_asset/ti/release/tiall.js'></script>\n");
-					}
-					if (URLUtil.isAssetUrl(url)) {
-						String path = url.substring(ASSET_PATH.length());
-						if (DBG) {
-							Log.d(LCAT, "Loading file from assets: " + path);
-						}
-
-						br = new InputStreamReader(webView.getContext().getAssets().open(path));
-
-					} else if (URLUtil.isContentUrl(url)) {
-						br = new InputStreamReader(webView.getContext().getContentResolver().openInputStream(Uri.parse(url)));
-					} else {
-						Log.e(LCAT, "HANDLE URL! " + url); //TODO implement for content, sdcard, etc
-					}
-
-					if (br != null) {
-						char[] buf = new char[16192];
-						int len = 0;
-						while((len = br.read(buf)) != -1) {
-							bos.write(buf, 0, len);
-						}
-						haveSource = true;
-					}
-				} catch (IOException e) {
-					Log.e(LCAT, "XError loading file: " + url, e);
-					throw e;
-				} finally {
-					if (br != null) {
-						try {
-							br.close();
-						} catch (IOException e) {
-							// Ignore
-						}
-					}
-					if (bos != null) {
-						try {
-							bos.close();
-						} catch (IOException e) {
-							// Ignore
-						}
-					}
+			if (extension != null) {
+				String type = mtm.getMimeTypeFromExtension(extension);
+				if (type != null) {
+					mimetype = type;
+				} else {
+					mimetype = "text/html";
 				}
 
-				if (haveSource) {
-					source = bos.toString();
+				if("text/html".equals(mimetype)) {
+
+					StringWriter bos = new StringWriter(16192);
+					boolean haveSource = false;
+
+					InputStreamReader br = null;
+					try {
+						if (app.getAppInfo().getSystemProperties().getBool(TitaniumAppInfo.PROP_ANDROID_DEBUG, false)) {
+							Log.i(LCAT, "Loading Titanium JS from debug");
+							for(int i = 0; i < files.length; i++) {
+								bos.write("<script type='text/javascript' src='file:///android_asset/ti/debug/" + files[i] + "'></script>\n");
+							}
+						} else {
+							bos.write("<script type='text/javascript' src='file:///android_asset/ti/release/tiall.js'></script>\n");
+						}
+						if (URLUtil.isAssetUrl(url)) {
+							String path = url.substring(ASSET_PATH.length());
+							if (DBG) {
+								Log.d(LCAT, "Loading file from assets: " + path);
+							}
+
+							br = new InputStreamReader(context.getAssets().open(path));
+
+						} else if (URLUtil.isContentUrl(url)) {
+							br = new InputStreamReader(context.getContentResolver().openInputStream(Uri.parse(url)));
+						} else {
+							Log.e(LCAT, "HANDLE URL! " + url); //TODO implement for content, sdcard, etc
+						}
+
+						if (br != null) {
+							char[] buf = new char[16192];
+							int len = 0;
+							while((len = br.read(buf)) != -1) {
+								bos.write(buf, 0, len);
+							}
+							haveSource = true;
+						}
+					} catch (IOException e) {
+						Log.e(LCAT, "XError loading file: " + url, e);
+						throw e;
+					} finally {
+						if (br != null) {
+							try {
+								br.close();
+							} catch (IOException e) {
+								// Ignore
+							}
+						}
+						if (bos != null) {
+							try {
+								bos.close();
+							} catch (IOException e) {
+								// Ignore
+							}
+						}
+					}
+
+					if (haveSource) {
+						source = bos.toString();
+					}
 				}
 			}
+		} else {
+			Log.i(LCAT, "Source from cache for " + url);
 		}
-
 		return source;
 	}
 

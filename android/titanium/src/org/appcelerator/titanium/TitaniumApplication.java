@@ -10,6 +10,7 @@ package org.appcelerator.titanium;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.HashMap;
 
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.config.TitaniumConfig;
@@ -40,9 +41,11 @@ public class TitaniumApplication
 	protected TitaniumAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
 
+	HashMap<String,String> sourceCache;
 
 	public TitaniumApplication() {
 		needsStartEvent = true;
+		sourceCache = new HashMap<String,String>(8);
 	}
 
 	@Override
@@ -74,6 +77,14 @@ public class TitaniumApplication
 
 		TitaniumPlatformHelper.initialize(this);
 		analyticsModel = new TitaniumAnalyticsModel(this);
+	}
+
+	@Override
+	public void onLowMemory() {
+		super.onLowMemory();
+		synchronized(sourceCache) {
+			sourceCache.clear();
+		}
 	}
 
 	@Override
@@ -118,6 +129,18 @@ public class TitaniumApplication
 		}
 
 		return appInfoKey;
+	}
+
+	public String getSourceFor(String url) {
+		synchronized(sourceCache) {
+			return sourceCache.get(url);
+		}
+	}
+
+	public void setSourceFor(String url, String source) {
+		synchronized(sourceCache) {
+			sourceCache.put(url, source);
+		}
 	}
 
 	public static Class<?> getActivityForType(String windowType)

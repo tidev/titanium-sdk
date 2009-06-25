@@ -7,14 +7,17 @@
 
 package org.appcelerator.titanium;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
+import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.appcelerator.titanium.util.TitaniumUIHelper;
+import org.appcelerator.titanium.util.TitaniumUrlHelper;
 
 import android.app.Activity;
 import android.app.ActivityGroup;
@@ -64,9 +67,24 @@ public class TitaniumActivityGroup extends ActivityGroup
 
 		this.appInfo = app.getAppInfo();
 
-		ArrayList<TitaniumWindowInfo> windows = appInfo.getWindows();
+		final ArrayList<TitaniumWindowInfo> windows = appInfo.getWindows();
 
 		TitaniumWindowInfo info = windows.get(0);
+		final TitaniumFileHelper tfh = new TitaniumFileHelper(this.getApplicationContext());
+		Thread sourceThread = new Thread(new Runnable(){
+
+			public void run() {
+				for (TitaniumWindowInfo wi : windows) {
+					String url = tfh.getResourceUrl(null, wi.getWindowUrl());
+					try {
+						app.setSourceFor(url, TitaniumUrlHelper.getSource(app, app.getApplicationContext(), url, null));
+					} catch (IOException e) {
+						Log.e(LCAT, "Unable to pre-load source for " + url);
+					}
+				}
+			}});
+		sourceThread.start();
+
 		if (info.isWindowFullscreen()) {
 			this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		} else {
