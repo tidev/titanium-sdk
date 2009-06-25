@@ -10,6 +10,7 @@ package org.appcelerator.titanium;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.api.ITitaniumApp;
@@ -79,6 +80,9 @@ public class TitaniumActivity extends Activity
 	protected static final int ACCELEROMETER_DELAY = 100; // send event no more frequently than
 
 	protected TitaniumApplication app;
+	protected TitaniumIntentWrapper intent;
+	protected TitaniumFileHelper tfh;
+
 	protected TitaniumAppInfo appInfo;
 	protected TitaniumWindowInfo windowInfo;
 	protected TitaniumModuleManager moduleMgr;
@@ -91,6 +95,7 @@ public class TitaniumActivity extends Activity
 
 	protected WebView webView;
 	protected Handler handler;
+	protected WebSettings settings;
 
 	private HashMap<Integer, String> optionMenuCallbacks;
 	private boolean loaded;
@@ -104,6 +109,11 @@ public class TitaniumActivity extends Activity
 	private TitaniumLogWatcher logWatcher;
 
 	private FrameLayout layout;
+	private Drawable backgroundDrawable;
+
+	private String url;
+	private String source;
+	private Semaphore sourceReady;
 
 	private boolean showingJSError;
 
@@ -134,6 +144,8 @@ public class TitaniumActivity extends Activity
         logWatcher = new TitaniumLogWatcher(this);
 
         final TitaniumActivity me = this;
+        tfh = new TitaniumFileHelper(this);
+        intent = new TitaniumIntentWrapper(getIntent());
 
         try {
         	app = (TitaniumApplication) getApplication();
@@ -150,9 +162,74 @@ public class TitaniumActivity extends Activity
         	return;
         }
 
-        ts("After getApplication()");
+    	Activity root = TitaniumActivityHelper.getRootActivity(this);
+		handler = new Handler();
+        webView = new WebView(me);
+        
+        if (intent != null) {
+        	appInfo = intent.getAppInfo(me);
+        	windowInfo = intent.getWindowInfo(appInfo);
+         	url = tfh.getResourceUrl(intent, intent.getData().toString());
+         } else {
+        	 if (DBG) {
+        		 Log.d(LCAT, "Intent was empty");
+        	 }
+         }
+
+        sourceReady = new Semaphore(0);
+
+		Thread sourceLoadThread = new Thread(new Runnable(){
+
+			public void run() {
+				try {
+					source = TitaniumUrlHelper.getSource(appInfo, webView, url, null);
+				} catch (IOException e) {
+					Log.e(LCAT, "Unable to load source for " + url);
+				} finally {
+					synchronized(sourceReady) {
+						sourceReady.release();
+					}
+				}
+			}});
+        sourceLoadThread.start();
+
+		layout = new FrameLayout(this);
+        settings = webView.getSettings();
+
+		configurationChangeListeners = new HashSet<OnConfigChange>();
+
+		resultHandlers = new HashMap<Integer, TitaniumResultHandler>();
+		uniqueResultCodeAllocator = new AtomicInteger();
+		if (idGenerator == null) {
+			idGenerator = new AtomicInteger(1);
+		}
 
         loadOnPageEnd = true;
+
+        ts("After getApplication()");
+
+        String backgroundImage = "default.png";
+        final String fBackgroundImage = backgroundImage;
+    	if(windowInfo != null && windowInfo.hasWindowBackgroundImage()) {
+    		backgroundImage = windowInfo.getWindowBackgroundImage();
+    	}
+
+        Thread backgroundDrawableThread = new Thread(new Runnable(){
+
+			public void run() {
+				backgroundDrawable = tfh.loadDrawable(intent, fBackgroundImage, false); // Ok to not have background
+			}});
+        backgroundDrawableThread.start();
+
+        initializeModules();
+
+        Thread webViewThread = new Thread(new Runnable(){
+
+			public void run() {
+				buildWebView();
+			}});
+        webViewThread.start();
+
         initialOrientation = this.getRequestedOrientation();
         Intent activityIntent = getIntent();
         if (activityIntent != null) {
@@ -175,18 +252,9 @@ public class TitaniumActivity extends Activity
 					}});
         		layout.addView(ok, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT,0.25f));
         		this.setContentView(layout);
+
+        		webViewThread.interrupt();
         		return;
-        	}
-        }
-
-        TitaniumIntentWrapper intent = new TitaniumIntentWrapper(getIntent());
-
-        if (getIntent() != null) {
-        	appInfo = intent.getAppInfo(me);
-        	windowInfo = intent.getWindowInfo(appInfo);
-        } else {
-        	if (DBG) {
-        		Log.d(LCAT, "Intent was empty");
         	}
         }
 
@@ -208,9 +276,6 @@ public class TitaniumActivity extends Activity
 
         ts("After Window Configuration");
 
-        String backgroundImage = "default.png";
-
-    	Activity root = TitaniumActivityHelper.getRootActivity(this);
         if (windowInfo != null) {
         	String orientation = windowInfo.getWindowOrientation();
         	if ("portrait".compareTo(orientation) == 0) {
@@ -220,10 +285,6 @@ public class TitaniumActivity extends Activity
         	} else {
         		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         	}
-        	if(windowInfo.hasWindowBackgroundImage()) {
-        		backgroundImage = windowInfo.getWindowBackgroundImage();
-        	}
-
         	if(windowInfo.getWindowTitle() != null) {
         		root.setTitle(windowInfo.getWindowTitle());
         	}
@@ -234,32 +295,24 @@ public class TitaniumActivity extends Activity
         }
     	root = null;
 
-        TitaniumFileHelper tfh = new TitaniumFileHelper(this);
 		splashView=new ImageView(this);
-
 		splashView.setScaleType(ImageView.ScaleType.FIT_XY);
-		Drawable d = tfh.loadDrawable(intent, backgroundImage, false); // Ok to not have background
-		if (d != null) {
-			((BitmapDrawable) d).setGravity(Gravity.TOP);
-			splashView.setImageDrawable(d);
+
+		try {
+			backgroundDrawableThread.join();
+		} catch (InterruptedException e) {
+			Log.w(LCAT, "Interrupted");
+		}
+
+		if (backgroundDrawable != null) {
+			((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
+			splashView.setImageDrawable(backgroundDrawable);
 		}
 		setContentView(splashView);
 
 		ts("After splash");
 
-		layout = new FrameLayout(this);
-
-		configurationChangeListeners = new HashSet<OnConfigChange>();
-
-		resultHandlers = new HashMap<Integer, TitaniumResultHandler>();
-		uniqueResultCodeAllocator = new AtomicInteger();
-		if (idGenerator == null) {
-			idGenerator = new AtomicInteger(1);
-		}
-
 		ts ("Starting WebView config");
-		handler = new Handler();
-        webView = new WebView(me);
 
 //        if (d != null) {
 //          // If you want the background to show, you have to have a ZERO alpha channel
@@ -267,26 +320,10 @@ public class TitaniumActivity extends Activity
 //        	webView.setBackgroundDrawable(d);
 //        }
 
-        // Setup webView
-        webView.setId(idGenerator.incrementAndGet()); //ToDo unique
-        webView.setWebViewClient(new TiWebViewClient(me));
-        webView.setWebChromeClient(new TiWebChromeClient(me));
-		webView.clearCache(true);
-		webView.setVerticalScrollbarOverlay(true);
-		if (windowInfo != null && windowInfo.hasBackgroundColor()) {
-			webView.setBackgroundColor(windowInfo.getBackgroundColor());
-		}
+        ts("end of onCreate");
+	}
 
-        WebSettings settings = webView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setSupportMultipleWindows(false);
-        settings.setJavaScriptCanOpenWindowsAutomatically(true);
-        settings.setSupportZoom(false);
-        settings.setLoadsImagesAutomatically(true);
-        settings.setLightTouchEnabled(true);
-
-        ts("After webview configured, before modules");
-
+    protected void initializeModules() {
         // Add Modules
         moduleMgr = new TitaniumModuleManager(this, handler);
         this.tiUI = new TitaniumUI(moduleMgr, "TitaniumUI");
@@ -317,20 +354,52 @@ public class TitaniumActivity extends Activity
 
 			app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createAppStartEvent(tiNetwork, tiPlatform, tiApp, deployType));
 		}
+    }
 
-        if (getIntent() != null)
+    protected void buildWebView()
+    {
+        // Setup webView
+        webView.setId(idGenerator.incrementAndGet()); //ToDo unique
+        webView.setWebViewClient(new TiWebViewClient(this));
+        webView.setWebChromeClient(new TiWebChromeClient(this));
+		//webView.clearCache(true);
+		webView.setVerticalScrollbarOverlay(true);
+		if (windowInfo != null && windowInfo.hasBackgroundColor()) {
+			webView.setBackgroundColor(windowInfo.getBackgroundColor());
+		}
+
+        settings.setJavaScriptEnabled(true);
+        settings.setSupportMultipleWindows(false);
+        settings.setJavaScriptCanOpenWindowsAutomatically(true);
+        settings.setSupportZoom(false);
+        settings.setLoadsImagesAutomatically(true);
+        settings.setLightTouchEnabled(true);
+
+        ts("After webview configured");
+
+        if (intent != null)
 		{
-          	String url = tfh.getResourceUrl(intent, intent.getData().toString());
           	try {
-          		loadFromSource(appInfo, url);
+          		synchronized(sourceReady) {
+          			sourceReady.acquire();
+          		}
+          		loadFromSource(appInfo, url, source);
+          		source = null; // Free up space
           	} catch (Exception e) {
-            	setContentView(new TextView(this));
-            	TitaniumUIHelper.doOkDialog(
-            			this.getParent(),
-            			"Fatal",
-            			"Error loading source: " + e.getMessage(),
-            			TitaniumUIHelper.createKillListener()
-            			);
+          		final Activity me = this;
+          		final Activity parent = this.getParent();
+          		final String emsg = e.getMessage();
+          		runOnUiThread(new Runnable(){
+
+					public void run() {
+		            	setContentView(new TextView(me));
+		            	TitaniumUIHelper.doOkDialog(
+		            			parent,
+		            			"Fatal",
+		            			"Error loading source: " + emsg,
+		            			TitaniumUIHelper.createKillListener()
+		            			);
+					}});
             	return;
           	}
 	    }
@@ -340,8 +409,7 @@ public class TitaniumActivity extends Activity
 				Log.d(LCAT, "Intent was empty");
 			}
 		}
-        ts("end of onCreate");
-	}
+    }
 
     public WebView getWebView() {
     	return this.webView;
@@ -496,19 +564,19 @@ public class TitaniumActivity extends Activity
 		return result;
 	}
 
-	protected boolean loadFromSource(TitaniumAppInfo appInfo, String url)
+	protected String getSource(TitaniumAppInfo appInfo, String url, String[] files)
 		throws IOException
 	{
-    	return loadFromSource(appInfo, url, null);
-    }
+		return TitaniumUrlHelper.getSource(appInfo, webView, url, files);
+	}
 
-    protected boolean loadFromSource(TitaniumAppInfo appInfo, String url, String[] files)
+    protected boolean loadFromSource(TitaniumAppInfo appInfo, String url, String source)
     	throws IOException
     {
     	if (DBG) {
     		Log.d(LCAT,"Full url: " + url);
     	}
-    	return TitaniumUrlHelper.loadFromSource(appInfo, webView, url, null);
+    	return TitaniumUrlHelper.loadFromSource(appInfo, webView, url, source);
     }
 
     protected void buildMenuTree(Menu menu, TitaniumMenuItem md, HashMap<Integer, String> map)

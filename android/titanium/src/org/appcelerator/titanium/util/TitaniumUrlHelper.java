@@ -45,9 +45,11 @@ public class TitaniumUrlHelper
 		"tigeo.js"
 	};
 
-    public static boolean loadFromSource(TitaniumAppInfo appInfo, WebView webView, String url, String[] files)
-    	throws IOException
-    {
+	public static String getSource(TitaniumAppInfo appInfo, WebView webView, String url, String[] files)
+		throws IOException
+	{
+		String source = null;
+
  		MimeTypeMap mtm = MimeTypeMap.getSingleton();
 		String extension = MimeTypeMap.getFileExtensionFromUrl(url);
 		String mimetype = "application/octet-stream";
@@ -123,7 +125,32 @@ public class TitaniumUrlHelper
 				}
 
 				if (haveSource) {
-						webView.loadDataWithBaseURL(url, bos.toString(), mimetype, "utf-8", "about:blank");
+					source = bos.toString();
+				}
+			}
+		}
+
+		return source;
+	}
+
+    public static boolean loadFromSource(TitaniumAppInfo appInfo, WebView webView, String url, String source)
+    	throws IOException
+    {
+ 		MimeTypeMap mtm = MimeTypeMap.getSingleton();
+		String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+		String mimetype = "application/octet-stream";
+		if (extension != null) {
+			String type = mtm.getMimeTypeFromExtension(extension);
+			if (type != null) {
+				mimetype = type;
+			} else {
+				mimetype = "text/html";
+			}
+
+			if("text/html".equals(mimetype)) {
+
+				if (source != null) {
+						webView.loadDataWithBaseURL(url, source, mimetype, "utf-8", "about:blank");
 						return true;
 				} else {
 					webView.loadUrl(url); // For testing, doesn't normally run.
