@@ -156,7 +156,7 @@ public class TitaniumAnalyticsService extends Service
 				}
 			}
 		});
-
+		t.setPriority(Thread.MIN_PRIORITY);
 		t.start();
 	}
 

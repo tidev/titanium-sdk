@@ -52,6 +52,8 @@ public class TitaniumTabbedAppStrategy implements ITitaniumAppStrategy
         tabHost.setup(tag.getLocalActivityManager());
 
         ArrayList<TitaniumWindowInfo> windows = app.getAppInfo().getWindows();
+        boolean addedToContentView = false;
+
         int len = windows.size();
         for (int i = 0; i < len; i++) {
         	TitaniumWindowInfo info = windows.get(i);
@@ -97,9 +99,13 @@ public class TitaniumTabbedAppStrategy implements ITitaniumAppStrategy
 			spec.setContent(tabIntent.getIntent());
 
 			tabHost.addTab(spec);
+
+			if (!addedToContentView) {
+		 		tag.setContentView(tabHost,linearParams);
+		 		addedToContentView = true;
+			}
         }
 
- 		tag.setContentView(tabHost,linearParams);
 	}
 
 }

@@ -60,6 +60,7 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.AlphaAnimation;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -67,6 +68,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.ViewAnimator;
 
 /**
  * Class that controls a mobile Titanium application.
@@ -108,7 +110,7 @@ public class TitaniumActivity extends Activity
 	private HashSet<OnConfigChange> configurationChangeListeners;
 	private TitaniumLogWatcher logWatcher;
 
-	private FrameLayout layout;
+	private ViewAnimator layout;
 	private Drawable backgroundDrawable;
 
 	private String url;
@@ -193,7 +195,12 @@ public class TitaniumActivity extends Activity
 			}});
         sourceLoadThread.start();
 
-		layout = new FrameLayout(this);
+		layout = new ViewAnimator(this);
+		layout.setAnimateFirstView(true);
+		AlphaAnimation inAnim = new AlphaAnimation(0.0f, 1.0f);
+		inAnim.setDuration(200);
+		layout.setInAnimation(inAnim);
+
         settings = webView.getSettings();
 
 		configurationChangeListeners = new HashSet<OnConfigChange>();
@@ -228,6 +235,7 @@ public class TitaniumActivity extends Activity
 			public void run() {
 				buildWebView();
 			}});
+        webViewThread.setPriority(Thread.MAX_PRIORITY);
         webViewThread.start();
 
         initialOrientation = this.getRequestedOrientation();
@@ -308,7 +316,8 @@ public class TitaniumActivity extends Activity
 			((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
 			splashView.setImageDrawable(backgroundDrawable);
 		}
-		setContentView(splashView);
+		layout.addView(splashView);
+		setContentView(layout);
 
 		ts("After splash");
 
@@ -618,7 +627,8 @@ public class TitaniumActivity extends Activity
 	 			handler.post(new Runnable(){
 					public void run() {
 						layout.addView(me.webView);
-				 	    me.setContentView(layout);
+						layout.showNext();
+						layout.removeView(splashView);
 				 	    ts("webview is content");
 
 				 	    if (!me.webView.hasFocus()) {

@@ -69,21 +69,43 @@ public class TitaniumActivityGroup extends ActivityGroup
 
 		final ArrayList<TitaniumWindowInfo> windows = appInfo.getWindows();
 
-		TitaniumWindowInfo info = windows.get(0);
+		final TitaniumWindowInfo info = windows.get(0);
 		final TitaniumFileHelper tfh = new TitaniumFileHelper(this.getApplicationContext());
-		Thread sourceThread = new Thread(new Runnable(){
 
+		Thread initialSourceThread = new Thread(new Runnable(){
 			public void run() {
-				for (TitaniumWindowInfo wi : windows) {
-					String url = tfh.getResourceUrl(null, wi.getWindowUrl());
-					try {
-						app.setSourceFor(url, TitaniumUrlHelper.getSource(app, app.getApplicationContext(), url, null));
-					} catch (IOException e) {
-						Log.e(LCAT, "Unable to pre-load source for " + url);
-					}
+				String url = tfh.getResourceUrl(null, info.getWindowUrl());
+				try {
+					app.setSourceFor(url, TitaniumUrlHelper.getSource(app, app.getApplicationContext(), url, null));
+				} catch (IOException e) {
+					Log.e(LCAT, "Unable to pre-load source for " + url);
 				}
 			}});
-		sourceThread.start();
+		initialSourceThread.setPriority(Thread.NORM_PRIORITY);
+		initialSourceThread.start();
+
+		final int len = windows.size();
+
+		if (len > 1) {
+			Thread sourceThread = new Thread(new Runnable(){
+				public void run() {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						Log.w(LCAT, "Secondary source cache thread interrupted");
+					}
+					for (int i = 1; i < len; i++) {
+						String url = tfh.getResourceUrl(null, windows.get(i).getWindowUrl());
+						try {
+							app.setSourceFor(url, TitaniumUrlHelper.getSource(app, app.getApplicationContext(), url, null));
+						} catch (IOException e) {
+							Log.e(LCAT, "Unable to pre-load source for " + url);
+						}
+					}
+				}});
+			sourceThread.setPriority(Thread.MIN_PRIORITY);
+			sourceThread.start();
+		}
 
 		if (info.isWindowFullscreen()) {
 			this.requestWindowFeature(Window.FEATURE_NO_TITLE);
