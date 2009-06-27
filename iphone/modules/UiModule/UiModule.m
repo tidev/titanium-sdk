@@ -553,41 +553,14 @@ int barButtonSystemItemForString(NSString * inputString){
 
 #pragma mark button
 
-- (TitaniumJSCode *) makeButton: (id) property;
+- (NSString *) makeButtonToken;
 {
-	//The nativeside object is mostly a shell to know the proxy context (IE, token, etc) and the 
-	//The Javascript side has most of the logic, in that addEventListener and onClick stores all the functions
-	//To manage. 'click' is the the event.
-	
-	//TODO: There's a lot of ways to improve this, especially in making this a factory.
 	UIButtonProxy * newProxy = [[UIButtonProxy alloc] init];
-	if ([property isKindOfClass:[NSString class]]){
-		UIBarButtonSystemItem possibleSystemItem=barButtonSystemItemForString(property);
-		if (possibleSystemItem == UITitaniumNativeItemNone) {
-			[newProxy setTitleString:property];
-		} else {
-			[newProxy setTemplateValue:possibleSystemItem];
-		}
-	}
-	
-	if ([property isKindOfClass:[NSDictionary class]]){
-		[newProxy setPropertyDict:property];
-	}
-	
 	NSString * buttonToken = [NSString stringWithFormat:@"BTN%X",nextButtonToken++];
-		
 	[newProxy setToken:buttonToken];
 	[buttonContexts setObject:newProxy forKey:buttonToken];
 	[newProxy release];
-	
-	NSString * result = [NSString stringWithFormat:@"Titanium.UI._BTNGEN('%@')",buttonToken];
-	return [TitaniumJSCode codeWithString:result];
-}
-
-- (UIButtonProxy *) proxyForToken: (NSString *) tokenString;
-{
-	if (tokenString == nil) return nil;
-	return [buttonContexts objectForKey:tokenString];
+	return buttonToken;
 }
 
 - (UIButtonProxy *) proxyForObject: (id) proxyObject;
@@ -597,9 +570,13 @@ int barButtonSystemItemForString(NSString * inputString){
 		token = [proxyObject objectForKey:@"_TOKEN"];
 		if (![token isKindOfClass:[NSString class]]) return nil;
 		UIButtonProxy * result = [buttonContexts objectForKey:token];
+
+		NSDictionary * divAttributeDict = [proxyObject objectForKey:@"divAttr"];
+		if ([divAttributeDict isKindOfClass:[NSDictionary class]])[result setPropertyDict:divAttributeDict];
+
 		[result setPropertyDict:proxyObject];
 		return result;
-		
+
 	} else if ([proxyObject isKindOfClass:[NSString class]]){
 		return [buttonContexts objectForKey:proxyObject];
 	}
@@ -732,12 +709,8 @@ int barButtonSystemItemForString(NSString * inputString){
 	
 	UIButtonProxy * ourButton = nil;
 	if ([buttonObject isKindOfClass:[NSDictionary class]]){
-		NSString * buttonToken = [buttonObject objectForKey:@"_TOKEN"];
-		if (![buttonToken isKindOfClass:[NSString class]]) return;
-		
-		UIButtonProxy * ourButton = [buttonContexts objectForKey:buttonToken];
+		ourButton = [self proxyForObject:buttonObject];
 		if (ourButton == nil) return;
-		[ourButton setPropertyDict:buttonObject];
 	} else if ((buttonObject != nil) && (buttonObject != (id)[NSNull null])) {
 		return;
 	}
@@ -774,11 +747,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	if ([barObject isKindOfClass:[NSArray class]]){
 		NSMutableArray *result = [NSMutableArray arrayWithCapacity:[barObject count]];
 		for (NSDictionary * thisButtonDict in barObject){
-			if (![thisButtonDict isKindOfClass:[NSDictionary class]]) return;
-			NSString * buttonToken = [thisButtonDict objectForKey:@"_TOKEN"];
-			UIButtonProxy * thisButtonProxy = [buttonContexts objectForKey:buttonToken];
-			[thisButtonProxy setPropertyDict:thisButtonDict];
-			UIBarButtonItem * thisButton = [thisButtonProxy nativeBarButton];
+			UIBarButtonItem * thisButton = [[self proxyForObject:thisButtonDict] nativeBarButton];
 			if (thisButton == nil) return;
 			[result addObject:thisButton];
 		}
@@ -795,13 +764,8 @@ int barButtonSystemItemForString(NSString * inputString){
 	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 	if ((ourVC == nil) || ![viewObject isKindOfClass:dictClass]) return;
 	
-	NSString * buttonToken = [viewObject objectForKey:@"_TOKEN"];
-	if (![buttonToken isKindOfClass:[NSString class]]) return;
-	
-	UIButtonProxy * ourNativeViewProxy = [buttonContexts objectForKey:buttonToken];
+	UIButtonProxy * ourNativeViewProxy = [self proxyForObject:viewObject];
 	if (ourNativeViewProxy == nil) return;
-	[ourNativeViewProxy setPropertyDict:viewObject];
-	
 	
 	[ourVC performSelectorOnMainThread:@selector(addNativeViewProxy:) withObject:ourNativeViewProxy waitUntilDone:NO];
 }
@@ -896,8 +860,9 @@ int barButtonSystemItemForString(NSString * inputString){
 	[(UiModule *)invocGen setWindow:nil navSide:nil button:nil options:nil];
 	NSInvocation * setNavButtonInvoc = [invocGen invocation];
 
-	[(UiModule *)invocGen makeButton:nil];
-	NSInvocation * makeButtonInvoc = [invocGen invocation];
+	[(UiModule *)invocGen makeButtonToken];
+	NSInvocation * buttonTokenGen = [invocGen invocation];
+
 
 	[(UiModule *)invocGen setAppBadge:nil];
 	NSInvocation * appBadgeInvoc = [invocGen invocation];
@@ -918,15 +883,9 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSInvocation * insertNativeViewInvoc = [invocGen invocation];
 	
 	buttonContexts = [[NSMutableDictionary alloc] init];
-//	virtualWindowsDict = [[NSMutableDictionary alloc] init];
 	
-//	TitaniumAccessorTuple * addressAccessor = [[TitaniumAccessorTuple alloc] init];
-//	[addressAccessor setGetterTarget:self];
-//	[addressAccessor setGetterSelector:@selector(networkAddy)];
-
 	//NOTE: createWindow doesn't actually create a native-side window. Instead, it simply sets up the dict.
 	//The actual actions are performed at open time.
-	//NOTE: currentWindow doesn't actually 
 	
 	NSString * currentWindowString = @"{"
 			"toolbar:{},_EVT:{close:[],unfocused:[],focused:[]},doEvent:Ti._ONEVT,"
@@ -940,16 +899,16 @@ int barButtonSystemItemForString(NSString * inputString){
 			"showNavBar:function(args){Ti.UI._WSHNAV(Ti._TOKEN,args);},"
 			"hideNavBar:function(args){Ti.UI._WHDNAV(Ti._TOKEN,args);},"
 			"setTitleImage:function(args){Ti.UI._WTITLEIMG(Ti._TOKEN,args);},"
-			"setLeftNavButton:function(btn,args){Ti.UI._WNAVBTN(Ti._TOKEN,true,btn,args);},"
-			"setRightNavButton:function(btn,args){Ti.UI._WNAVBTN(Ti._TOKEN,false,btn,args);},"
-			"setToolbar:function(bar,args){"
+			"setLeftNavButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WNAVBTN(Ti._TOKEN,true,btn,args);},"
+			"setRightNavButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WNAVBTN(Ti._TOKEN,false,btn,args);},"
+			"setToolbar:function(bar,args){if(bar){var i=bar.length;while(i>0){i--;bar[i].ensureToken();};};"
 				"Ti.UI._WTOOL(Ti._TOKEN,bar,args);},"
-			"insertButton:function(btn,args){Ti.UI._WINSBTN(Ti._TOKEN,btn,args);}"
+			"insertButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(Ti._TOKEN,btn,args);}"
 			"}";
 
 	NSString * createWindowString = @"function(args){var res={};"
 			"for(property in args){res[property]=args[property];res['_'+property]=args[property];};"
-			"res._TOKEN=null;"
+//			"delete res._TOKEN;"
 			"res.setURL=function(newUrl){this.url=newUrl;if(this._TOKEN){Ti.UI._WURL(this._TOKEN,newUrl,document.location);};};"
 			"res.setFullscreen=function(newBool){this.fullscreen=newBool;if(this._TOKEN){Ti.UI._WFSCN(this._TOKEN,newBool);};};"
 			"res.setTitle=function(args){this.title=args;if(this._TOKEN){Ti.UI._WTITLE(this._TOKEN,args);};};"
@@ -957,15 +916,20 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res.hideNavBar=function(args){this._hideNavBar=true;if(this._TOKEN){Ti.UI._WHDNAV(this._TOKEN,args);};};"
 			"res.setTitleImage=function(args){this.titleImage=args;if(this._TOKEN){Ti.UI._WTITLEIMG(this._TOKEN,args);};};"
 			"res.setBarColor=function(args){this.barColor=args;if(this._TOKEN){Ti.UI._WNAVTNT(this._TOKEN,args);};};"
-			"res.setLeftNavButton=function(btn,args){this.lNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,true,btn,args);};};"
-			"res.setRightNavButton=function(btn,args){this.rNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,false,btn,args);};};"
+			"res.setLeftNavButton=function(btn,args){if(btn)btn.ensureToken();this.lNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,true,btn,args);};};"
+			"res.setRightNavButton=function(btn,args){if(btn)btn.ensureToken();this.rNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,false,btn,args);};};"
 			"res.close=function(args){Ti.UI._CLS(this._TOKEN,args);};"
-			"res.open=Ti.UI._WINOPNF;"
-			"res.setToolbar=function(bar,args){"
+			"res.open=function(args){"
+				"if(this.data){var data=this.data;var i=data.length;while(i>0){i--;var inp=data[i].input;if(inp)inp.ensureToken();}};"
+				"if(this._GRP){var grp=this._GRP;var j=grp.length;while(j>0){j--;var data=grp[j].data;var i=data.length;"
+					"while(i>0){i--;var inp=data[i].input;if(inp)inp.ensureToken();}"
+				"}};"
+				"var res=Ti.UI._OPN(this,args);this._TOKEN=res;};"
+			"res.setToolbar=function(bar,args){if(bar){var i=bar.length;while(i>0){i--;bar[i].ensureToken();};};"
 				"this.toolbar=bar;"
 				"if(this._TOKEN){"
 					"Ti.UI._WTOOL(this._TOKEN,bar,args);}};"
-			"res.insertButton=function(btn,args){Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
+			"res.insertButton=function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
 			"return res;}";
 
 	NSString * createTableWindowString = @"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
@@ -976,9 +940,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	
 	NSString * createGroupedSectionString = @"function(args){var res={header:null};for(prop in args){res[prop]=args[prop]};"
 			"res._EVT={click:[]};res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res.onClick=Ti.ONEVT;return res;}";
-		
-	NSString * openWindowString = @"function(args){var res=Ti.UI._OPN(this,args);this._TOKEN=res;if(typeof(this.toolbar)=='object'){this.toolbar._TOKEN=this._TOKEN;}}";
-	
+
 	NSString * systemButtonStyleString = [NSString stringWithFormat:@"{PLAIN:%d,BORDERED:%d,DONE:%d}",
 										  UIBarButtonItemStylePlain,UIBarButtonItemStyleBordered,UIBarButtonItemStyleDone];
 	NSString * systemIconString = @"{BOOKMARKS:'ti:bookmarks',CONTACTS:'ti:contacts',DOWNLOADS:'ti:downloads',"
@@ -991,6 +953,18 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSString * statusBarString = [NSString stringWithFormat:@"{GREY:%d,DEFAULT:%d,OPAQUE_BLACK:%d,TRANSLUCENT_BLACK:%d}",
 								  UIStatusBarStyleDefault,UIStatusBarStyleDefault,UIStatusBarStyleBlackOpaque,UIStatusBarStyleBlackTranslucent];
 	
+	NSString * createButtonString = @"function(args,buttonType){var res={"
+			"onClick:Ti._ONEVT,_EVT:{click:[],change:[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
+			"ensureToken:function(){if(this._TOKEN)return;var tkn=Ti.UI._BTNTKN();this._TOKEN=tkn;Ti.UI._BTN[tkn]=this;},"
+			"setDiv:function(div){this.div=div;divObj=document.getElementById(div);this.divObj=divObj;divAttr={};this.divAttr=divAttr;if(!divObj)return;"
+//				"var attr=divObj.attributes;if(attr){var i=attr.length;while(i>0){i--;divAttr[attr[i].name]=attr[i].value;}};"
+				"divAttr.y=0;divAttr.x=0;divAttr.width=divObj.offsetWidth;divAttr.height=divObj.offsetHeight;"
+				"while(divObj){divAttr.x+=divObj.offsetLeft;divAttr.y+=divObj.offsetTop;divObj=divObj.offsetParent;}"
+			"}};"
+			"if(args){for(prop in args){res[prop]=args[prop];}};"
+			"if(buttonType)res.systemButton=buttonType;"
+			"if(res.div){res.setDiv(res.div);Ti.UI.currentWindow.insertButton(res);}"
+			"return res;}";
 
 	NSString * createOptionDialogString = @"function(args){var res={};for(prop in args){res[prop]=args[prop];};"
 			"res._TOKEN='MDL'+(Ti.UI._NEXTMODAL++);Ti.UI._MODAL[res._TOKEN]=res;res.onClick=Ti._ONEVT;"
@@ -1027,14 +1001,15 @@ int barButtonSystemItemForString(NSString * inputString){
 			insertNativeViewInvoc,@"_WINSBTN",
 			
 			buttonContexts, @"_BTN",
+			buttonTokenGen,@"_BTNTKN",
 			[TitaniumJSCode codeWithString:iPhoneBarButtonGeneratorFunction],@"_BTNGEN",
-			makeButtonInvoc,@"createButton",
-			[TitaniumJSCode codeWithString:@"function(args){var res=Ti.UI.createButton(args);res.systemButton='switch';return res;}"],@"createSwitch",
-			[TitaniumJSCode codeWithString:@"function(args){var res=Ti.UI.createButton(args);res.systemButton='slider';return res;}"],@"createSlider",
-			[TitaniumJSCode codeWithString:@"function(args){var res=Ti.UI.createButton(args);res.systemButton='text';return res;}"],@"createTextField",
-			[TitaniumJSCode codeWithString:@"function(args){var res=Ti.UI.createButton(args);res.systemButton='textarea';return res;}"],@"createTextArea",
-			[TitaniumJSCode codeWithString:@"function(args){var res=Ti.UI.createButton(args);res.systemButton='multibutton';return res;}"],@"createButtonBar",
+			[TitaniumJSCode codeWithString:createButtonString],@"createButton",
 
+			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'switch');}"],@"createSwitch",
+			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'slider');}"],@"createSlider",
+			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'text');}"],@"createTextField",
+			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'textarea');}"],@"createTextArea",
+			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'multibutton');}"],@"createButtonBar",
 
 			[TitaniumJSCode codeWithString:@"{}"],@"_MODAL",
 			[NSNumber numberWithInt:1],@"_NEXTMODAL",
@@ -1051,7 +1026,6 @@ int barButtonSystemItemForString(NSString * inputString){
 			[TitaniumJSCode codeWithString:createWindowString],@"createWindow",
 			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",
 			
-			[TitaniumJSCode codeWithString:openWindowString],@"_WINOPNF",
 			[NSNumber numberWithInt:TitaniumViewControllerPortrait],@"PORTRAIT",
 			[NSNumber numberWithInt:TitaniumViewControllerLandscape],@"LANDSCAPE",
 			[NSNumber numberWithInt:TitaniumViewControllerLandscapeOrPortrait],@"PORTRAIT_AND_LANDSCAPE",

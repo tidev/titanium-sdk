@@ -10,25 +10,25 @@
 	window.onload = function()
 	{
 		try{
-		var btn1 = Ti.UI.createButton('yum');
+		var btn1 = Ti.UI.createButton({title:'yum'});
 		btn1.style = Ti.UI.iPhone.SystemButtonStyle.BORDERED;
 		btn1.width = 50;
 //		btn1.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'green'});newWindow.open();})
 		btn1.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'rgba(0,255,0,1.0)'});newWindow.open();})
 //		Ti.UI.currentWindow.setRightNavButton(btn1);
-		var btn2 = Ti.UI.createButton('play');
-		var btn3 = Ti.UI.createButton('pause');
+		var btn2 = Ti.UI.createButton({systemButton:'play'});
+		var btn3 = Ti.UI.createButton({systemButton:'pause'});
 //		btn2.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'black'});newWindow.open();})
 		btn2.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'rgb(0,0,0)',hideNavBar:true});newWindow.open();})
 		btn3.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'clear'});newWindow.open();})
-		var btn4 = Ti.UI.createButton('action');
+		var btn4 = Ti.UI.createButton({systemButton:'action'});
 		btn4.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:null});newWindow.open();})
 
-		var btn5 = Ti.UI.createButton('Moo');
+		var btn5 = Ti.UI.createButton({title:'Moo'});
 		btn5.addEventListener('click',function(){Ti.UI.currentWindow.setFullscreen(true);});
 
-		var btn6 = Ti.UI.createButton('Moo');
-		btn6.width=100;
+		var btn6 = Ti.UI.createSwitch({value:true,div:'sliderPlace'});
+//		btn6.width=100;
 		btn6.addEventListener('change',function(foo){document.getElementById('sliderValue').innerHTML='Newvalue' + foo.value;});
 //		btn6.addEventListener('valuechange',function(foo){
 //			var msg = 'Value: ' + foo.value;
@@ -38,10 +38,10 @@
 //			alerty.show();
 //		},false);
 
-		btn6.bindToDiv($('sliderPlace'));
+//		btn6.bindToDiv($('sliderPlace'));
 //		Ti.UI.currentWindow.insertButton(btn6);
 
-		var btn7 = Ti.UI.createButton('fastforward');
+		var btn7 = Ti.UI.createButton({systemButton:'fastforward'});
 function test1()
 {
 try{
@@ -130,7 +130,9 @@ try{
 		e.index // index of clicked button
 	});
 
-	var switchInstance = Titanium.UI.createSwitch({value:false});
+	var switchInstance = Titanium.UI.createSlider({value:0.5});
+	switchInstance.addEventListener('change',function(foo){document.getElementById('sliderValue').innerHTML='NewText: ' + foo.value;});
+
 //	var switchInstance = Ti.UI.createButton('activity');
 
 	var inputData = [
@@ -163,14 +165,16 @@ try{
 	groupedView.addSection(optionSection);
 	groupedView.addSection(buttonSection);
 	groupedView.addSection(inputSection);
+	groupedView.setRightNavButton(Ti.UI.createButton({systemButton:'rewind'}));
 	groupedView.open({animated:true});
 } catch(E){Titanium.UI.createAlertDialog({title:"Error!",message:('Msg:'+E)}).show();};
 };
-		var btn8 = Ti.UI.createButton('rewind');
+		var btn8 = Ti.UI.createButton({systemButton:'rewind'});
 		btn8.addEventListener('click',test2);
+//		test2();
 
-
-		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5,btn7,btn8]);
+		Ti.UI.currentWindow.setLeftNavButton(btn8);
+		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5,btn7]);
 		
 		Titanium.Gesture.addEventListener('shake',function(){
 			var alerty = Titanium.UI.createAlertDialog();
@@ -178,11 +182,11 @@ try{
 			alerty.show();
 		},false);
 
-		var btn8 = Ti.UI.createButton('moo');
-		btn8.width=100;
+		var btn8 = Ti.UI.createButton({title:'moo',div:'buttony'});
+//		btn8.width=100;
 		btn8.addEventListener('click',function(foo){document.getElementById('sliderValue').innerHTML='Clicked!';});
 
-		btn8.bindToDiv($('buttony'));
+//		btn8.bindToDiv($('buttony'));
 
 
 //		Titanium.Gesture.addEventListener('orientationchange',function(evt){
