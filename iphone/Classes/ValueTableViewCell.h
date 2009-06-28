@@ -1,11 +1,9 @@
-//
-//  ValueTableViewCell.h
-//  Titanium
-//
-//  Created by Blain Hamon on 6/23/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
-//
-
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 #import <UIKit/UIKit.h>
 
 
