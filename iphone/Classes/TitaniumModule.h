@@ -24,6 +24,7 @@
 
 #import "TitaniumHost.h"
 #import "TitaniumViewController.h"
+#import "TitaniumWebViewController.h"
 #import "TitaniumAppDelegate.h"
 #import "TitaniumCmdThread.h"
 #import "TitaniumInvocationGenerator.h"

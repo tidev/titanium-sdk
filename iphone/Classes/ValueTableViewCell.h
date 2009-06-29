@@ -10,6 +10,7 @@
 @interface ValueTableViewCell : UITableViewCell {
 	UILabel * valueLabel;
 }
+- (id)initWithFrame:(CGRect)frame reuseIdentifier:(NSString *)reuseIdentifier;
 
 @property(nonatomic,readonly)	UILabel * valueLabel;
 @end

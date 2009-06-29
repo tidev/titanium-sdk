@@ -78,10 +78,10 @@
 		
         if (theAddr == 0) break;
         if (theAddr == localHost) continue;
-		NSString *s = [NSString stringWithCString:if_names[i]];
+		NSString *s = [NSString stringWithCString:if_names[i] encoding:NSUTF8StringEncoding];
 		if ([s hasPrefix:@"lo"]) continue;
-		deviceMac = [NSString stringWithCString:hw_addrs[i]];
-		deviceIP = [NSString stringWithCString:ip_names[i]];
+		deviceMac = [NSString stringWithCString:hw_addrs[i] encoding:NSUTF8StringEncoding];
+		deviceIP = [NSString stringWithCString:ip_names[i] encoding:NSUTF8StringEncoding];
 		break;
 	}
 	

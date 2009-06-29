@@ -43,7 +43,7 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 		[destData appendBytes:MultiPartEntryPrelude length:sizeof(MultiPartEntryPrelude)-1];
 		[destData appendData:[keyString dataUsingEncoding:NSUTF8StringEncoding]];
 
-		NSString *glue = [NSString stringWithCString:MultiPartBlobGlue];
+		NSString *glue = [NSString stringWithCString:MultiPartBlobGlue encoding:NSUTF8StringEncoding];
 
 		if([valueObject isKindOfClass:[TitaniumBlobWrapper class]]){
 			TitaniumBlobWrapper *w = (TitaniumBlobWrapper*)valueObject;

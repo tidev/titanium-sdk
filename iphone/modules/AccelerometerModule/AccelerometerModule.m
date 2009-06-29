@@ -8,7 +8,6 @@
 
 #import "AccelerometerModule.h"
 
-
 //static NSUInteger lastWatchID = 0;
 
 @implementation AccelerometerModule
@@ -49,7 +48,7 @@
 	NSString * message = [NSString stringWithFormat:@"Ti.Accelerometer.onUpdate({type:'update',x:%f,y:%f,z:%f,timestamp:%qu})",
 			[acceleration x],[acceleration y],[acceleration z],(long long)([acceleration timestamp] * 1000)];
 
-	TitaniumViewController * currentView = [theHost visibleTitaniumViewController];
+	TitaniumWebViewController * currentView = (TitaniumWebViewController*)[theHost visibleTitaniumViewController];
 
 	for (NSString * currentPageToken in watchingPages){
 		[currentView performJavascript:message onPageWithToken:currentPageToken];

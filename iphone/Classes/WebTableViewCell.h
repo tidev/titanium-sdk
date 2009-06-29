@@ -12,6 +12,8 @@
 	UIWebView * htmlLabel;
 }
 
+- (void)updateState: (BOOL) animated;
+
 @property(nonatomic,retain,readonly) UIWebView * htmlLabel;
 
 @end

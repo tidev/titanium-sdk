@@ -17,7 +17,7 @@ NSData * decode64 (NSData * thedata)
 	const char *str = (const char*)[thedata bytes];
 	char* decoded = (char*)malloc(sizeof(char) * Base64decode_len(str));
 	Base64decode(decoded,str);
-	NSData *result = [[NSString stringWithCString:decoded] dataUsingEncoding:NSUTF8StringEncoding];
+	NSData *result = [[NSString stringWithCString:decoded encoding:NSUTF8StringEncoding] dataUsingEncoding:NSUTF8StringEncoding];
 	free(decoded);
 	return result;
 }
@@ -27,7 +27,7 @@ NSData * encode64 (NSData * thedata)
 	const char *str = (const char*)[thedata bytes];
 	char* encoded = (char*)malloc(sizeof(char) * Base64encode_len([thedata length]));
 	Base64encode(encoded,str,[thedata length]);
-	NSData *result = [[NSString stringWithCString:encoded] dataUsingEncoding:NSUTF8StringEncoding];
+	NSData *result = [[NSString stringWithCString:encoded encoding:NSUTF8StringEncoding] dataUsingEncoding:NSUTF8StringEncoding];
 	free(encoded);
 	return result;
 }

@@ -603,7 +603,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	
 	if (![ourObject respondsToSelector:@selector(allKeys)]){
 		NSLog(@"ERROR: %@ (%@) does not respond to allKeys",keyPath,ourObject);
-		return @""; //FAILED!
+		return [NSMutableString stringWithFormat:@""]; //FAILED!
 	}
 
 	NSMutableString * result;
@@ -703,7 +703,8 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 - (NSString *) javaScriptForResource: (NSURL *) resourceUrl
 {
 	NSString * thisThreadHashString = [NSString stringWithFormat:@"x%Xx",lastThreadHash];
-	[[TitaniumWebViewController mostRecentController] acceptToken:thisThreadHashString forContext:@"window"];
+	TitaniumWebViewController *wvc = (TitaniumWebViewController*)[TitaniumWebViewController mostRecentController];
+	[wvc acceptToken:thisThreadHashString forContext:@"window"];
 	NSString * result = [NSString stringWithFormat:(NSString*)titaniumJavascriptInjection,thisThreadHashString,thisThreadHashString,STRING(TI_VERSION),[self generateJavaScriptWrappingKeyPath:(NSString*)titaniumObjectKey makeObject:NO]];
 	lastThreadHash+=1;
 	return result;

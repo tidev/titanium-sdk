@@ -389,7 +389,7 @@ UIColor * checkmarkColor = nil;
 			for(NSDictionary * thisEntry in thisDataArray){
 				if (![thisEntry isKindOfClass:dictClass]) continue;
 				
-				TableRowWrapper * thisRow = [[TableRowWrapper alloc] init];
+				TableRowWrapper * thisRow = [[[TableRowWrapper alloc] init] autorelease];
 				if (isButtonGroup) [thisRow setIsButton:YES];
 				
 				[thisRow useProperties:thisEntry withUrl:baseUrl];

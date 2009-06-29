@@ -26,7 +26,6 @@ typedef enum {
 } TitaniumViewControllerOrientationsAllowed;
 
 
-
 @interface TitaniumViewController : UIViewController<UIWebViewDelegate> {
 
 //For TitaniumWebViewController:
