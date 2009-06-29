@@ -166,11 +166,8 @@ int barButtonSystemItemForString(NSString * inputString){
 	CGRect viewFrame=frame;
 	if (forBar){
 		viewFrame.size.height = 40.0;
-	}
-	if (viewFrame.size.width < 1.0){
-		viewFrame.size.width = 30.0;
-	}
-
+	} else if (viewFrame.size.height < 2) viewFrame.size.height = 20;
+	if (viewFrame.size.width < 2) viewFrame.size.width = 30;
 
 	if (templateValue == UITitaniumNativeItemSpinner){
 		if ([nativeView isKindOfClass:[UIActivityIndicatorView class]]){
@@ -207,6 +204,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		[(UISwitch *)resultView setOn:(floatValue > ((minValue + maxValue)/2))];
 
 	} else if (templateValue == UITitaniumNativeItemTextField){
+		if (viewFrame.size.height < 20) viewFrame.size.height = 20;
 		if ([nativeView isKindOfClass:[UITextField class]]){
 			resultView = [nativeView retain];
 			[(UIView *)resultView setFrame:viewFrame];
@@ -217,6 +215,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		[(UITextField *)resultView setText:stringValue];
 		
 	} else if (templateValue == UITitaniumNativeItemTextView){
+		if (viewFrame.size.height < 20) viewFrame.size.height = 20;
 		if ([nativeView isKindOfClass:[UITextView class]]){
 			resultView = [nativeView retain];
 			[(UIView *)resultView setFrame:viewFrame];
@@ -747,12 +746,12 @@ int barButtonSystemItemForString(NSString * inputString){
 	if ([barObject isKindOfClass:[NSArray class]]){
 		NSMutableArray *result = [NSMutableArray arrayWithCapacity:[barObject count]];
 		for (NSDictionary * thisButtonDict in barObject){
-			UIBarButtonItem * thisButton = [[self proxyForObject:thisButtonDict] nativeBarButton];
-			if (thisButton == nil) return;
-			[result addObject:thisButton];
+			UIButtonProxy * thisProxy = [self proxyForObject:thisButtonDict];
+			if (thisProxy == nil) return;
+			[result addObject:thisProxy];
 		}
 		
-		[ourVC performSelectorOnMainThread:@selector(setToolbarItems:) withObject:result waitUntilDone:NO];
+		[ourVC performSelectorOnMainThread:@selector(setToolbarProxies:) withObject:result waitUntilDone:NO];
 	} else if ((barObject == nil) || (barObject == [NSNull null])) {
 		[ourVC performSelectorOnMainThread:@selector(setToolbarItems:) withObject:nil waitUntilDone:NO];
 	}

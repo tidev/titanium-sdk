@@ -27,7 +27,7 @@
 		var btn5 = Ti.UI.createButton({title:'Moo'});
 		btn5.addEventListener('click',function(){Ti.UI.currentWindow.setFullscreen(true);});
 
-		var btn6 = Ti.UI.createSwitch({value:true,div:'sliderPlace'});
+		var btn6 = Ti.UI.createTextField({value:'Texty!',div:'sliderPlace'});
 //		btn6.width=100;
 		btn6.addEventListener('change',function(foo){document.getElementById('sliderValue').innerHTML='Newvalue' + foo.value;});
 //		btn6.addEventListener('valuechange',function(foo){
@@ -130,7 +130,7 @@ try{
 		e.index // index of clicked button
 	});
 
-	var switchInstance = Titanium.UI.createSlider({value:0.5});
+	var switchInstance = Titanium.UI.createTextField({value:'More text',width:170});
 	switchInstance.addEventListener('change',function(foo){document.getElementById('sliderValue').innerHTML='NewText: ' + foo.value;});
 
 //	var switchInstance = Ti.UI.createButton('activity');
