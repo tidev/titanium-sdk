@@ -254,6 +254,77 @@ try{
 
 	};
 //	alert('Orientation:' + window.orientation);
+	function showOptionsDialog()
+	{
+		// create dialog
+		var dialog = Titanium.UI.createOptionDialog();
+
+		// set button titles
+		dialog.setOptions(["Pick A","Pick B","cancel"]);
+
+		// set index for destructive button (IPHONE ONLY)
+		dialog.setDestructive(1);
+
+		// set index for cancel (IPHONE ONLY)
+		dialog.setCancel(2);
+
+		// set title
+		dialog.setTitle('My Title');
+
+		// add event listener
+		dialog.addEventListener('click',function(event)
+		{
+			var a = Titanium.UI.createAlertDialog();
+			a.setMessage('you clicked ' + event.index);
+			a.show();
+		});
+
+		// show dialog
+		dialog.show();
+		
+	};
+
+
+	function openPhotoGallery()
+	{
+		Titanium.Media.openPhotoGallery({
+			success: function(image,details)
+			{
+				var win = Titanium.UI.createWindow();
+				win.setURL('image.html');
+				Titanium.App.Properties.setString('photo',image.url);
+				if (details) {
+					Titanium.App.Properties.setString('x',details.cropRect.x);
+					Titanium.App.Properties.setString('y',details.cropRect.y);
+					Titanium.App.Properties.setString('height',details.cropRect.height);
+					Titanium.App.Properties.setString('width',details.cropRect.width);
+				} else {
+					Titanium.App.Properties.setString('x',0);
+					Titanium.App.Properties.setString('y',0);
+					Titanium.App.Properties.setString('height',image.height);
+					Titanium.App.Properties.setString('width',image.width);
+				}
+				win.open({animated:true});
+			},
+			error: function(error)
+			{
+				Titanium.UI.createAlertDialog( {
+					title: "Error from Gallery",
+					message: error.message,
+					buttonNames: OK
+				} ).show();
+			},
+			cancel: function()
+			{
+
+			},
+			allowImageEditing:true
+		});
+		
+	};
+
+
+
 </script>
 </head>
 <body>
@@ -276,7 +347,7 @@ try{
 	<div id='sliderValue'>Unchanged slider value!</div>
 
 	<div id='sliderPlace' style="width:200px;height:70px;"></div>
-	
+	<button onclick="showOptionsDialog()">
 	
 </body>
 </html>

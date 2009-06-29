@@ -25,6 +25,10 @@
 	//For activity spinners
 	UIActivityIndicatorViewStyle spinnerStyle;
 	
+	//Tinting or BG controls
+	UIColor * elementColor;
+	UIColor * elementBackgroundColor;	
+
 	//Yes, even integer and bools are represented as floats.
 	float minValue;		//Default is 0
 	float maxValue;		//Default is 1

@@ -976,6 +976,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			"return res;}";
 	TitaniumJSCode * createAlertCode = [TitaniumJSCode codeWithString:
 			@"function(args){var res={};for(prop in args){res[prop]=args[prop];};"
+			"if(args && args.buttonNames){res.options=args.buttonNames;}"
 			"res._TOKEN='MDL'+(Ti.UI._NEXTMODAL++);Ti.UI._MODAL[res._TOKEN]=res;res.onClick=Ti._ONEVT;"
 			"res._EVT={click:[]};res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;"
 			"res.setButtonNames=function(args){this.options=args;};"
