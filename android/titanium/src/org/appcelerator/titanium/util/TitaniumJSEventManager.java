@@ -123,7 +123,7 @@ public class TitaniumJSEventManager
 
 	public void removeListener(String eventName, int eventId)
 	{
-		if (eventId < 0 || eventListeners == null) {
+		if (eventId > -1 && eventListeners != null) {
 			checkSupportsEvent(eventName); // Throws exception of failure
 
 			HashMap<Integer, TitaniumJSEvent> listeners = eventListeners.get(eventName);
