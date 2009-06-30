@@ -40,16 +40,16 @@ NSString * const netHTTPClientGeneratorFormat = @"Ti.%@ = {"
 "getAllResponseHeaders:function(){return Ti._TICMD('titaniumObject.%@','responseHeaders',arguments);},"
 "UNSENT:0,OPENED:1,HEADERS_RECEIVED:2,LOADING:3,DONE:4,"
 "setOnReadyStateChange:function(newFun){this.onreadystatechange=newFun;},"
-"onreadystatechange:null,ondatastream:null,onsendstream:null"
+"onreadystatechange:null,ondatastream:null,onsendstream:null,onload:null"
 "};"
 "Ti.%@.__defineGetter__('readyState',function(){return Ti._TICMD('titaniumObject.%@','readyState',[])});"
 "Ti.%@.__defineGetter__('responseText',function(){return Ti._TICMD('titaniumObject.%@','responseText',[])});"
-"Ti.%@.__defineGetter__('responseXML',function(){return Ti._TICMD('titaniumObject.%@','responseXML',[])});"
+"Ti.%@.__defineGetter__('responseXML',function(){var xml = Ti._TICMD('titaniumObject.%@','responseText',[]); return new DOMParser().parseFromString(xml,'text/xml'); });"
 "Ti.%@.__defineGetter__('status',function(){return Ti._TICMD('titaniumObject.%@','status',[])});"
 "Ti.%@.__defineGetter__('connected',function(){return Ti._TICMD('titaniumObject.%@','connected',[])});";
 
 /************ Network module functions
- * @tiapi(method=True,name=Network.createHTTPClient,since=0.4) Creates an HTTPClient objecy
+ * @tiapi(method=True,name=Network.createHTTPClient,since=0.4) Creates an HTTPClient object
  * @tiresult(for=Network.createHTTPClient,type=object) an HTTPClient object
 
  * @tiapi(method=True,name=Network.encodeURIComponent,since=0.4) Encodes a URI Component
@@ -113,9 +113,6 @@ NSString * const netHTTPClientGeneratorFormat = @"Ti.%@ = {"
 
  * @tiapi(method=True,name=Network.HTTPClient.getResponseHeader,since=0.4) Returns all response headers
  * @tiresult(for=Network.HTTPClient.getResponseHeader,type=object) the response headers (keys and values) object
-
- * @tiapi(method=True,name=Network.HTTPClient.setOnReadyStateChange,since=0.4) Convenience method to set the onreadystatechange property
- * @tiarg(for=Network.HTTPClient.setOnReadyStateChange,type=method,name=callback) the new onreadystatechange method
  
  * Not currently implemented: @/tiapi(method=True,name=Network.HTTPClient.setTimeout,since=0.4) Sets the timeout for the request
  * @/tiarg(for=Network.HTTPClient.setTimeout,type=integer,name=timeout) timeout value in milliseconds
@@ -133,6 +130,7 @@ NSString * const netHTTPClientGeneratorFormat = @"Ti.%@ = {"
  * @tiapi(property=True,type=integer,name=Network.HTTPClient.status,since=0.4) The response status code of an HTTP request
  * @tiapi(property=True,type=integer,name=Network.HTTPClient.connected,since=0.4) Whether an HTTPClient object is connected or not
  * @tiapi(property=True,type=method,name=Network.HTTPClient.onreadystatechange,since=0.4) The handler function that will be fired when the ready-state code of an HTTPClient object changes
+ * @tiapi(property=True,type=method,name=Network.HTTPClient.onload,since=0.5) The handler function that will be fired when the ready-state code of an HTTPClient object changes to ready state (DONE)
  
  * @tiapi(property=True,type=method,name=Network.HTTPClient.ondatastream,since=0.4) The handler function that will be fired as stream data is received from an HTTP request
  * Currently not implemented: @/tiapi(property=True,type=method,name=Network.HTTPClient.onsendstream,since=0.4) The handler function that will be fired as the stream data is sent
