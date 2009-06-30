@@ -23,4 +23,6 @@ public interface ITitaniumUI
 
 	public ITitaniumNotifier createNotification();
 
+	public ITitaniumTableView createTableView();
+
 }

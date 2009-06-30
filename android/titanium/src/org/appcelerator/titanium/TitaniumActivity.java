@@ -171,7 +171,7 @@ public class TitaniumActivity extends Activity
         if (intent != null) {
         	appInfo = intent.getAppInfo(me);
         	windowInfo = intent.getWindowInfo(appInfo);
-         	url = tfh.getResourceUrl(intent, intent.getData().toString());
+         	url = tfh.getResourceUrl(intent.getData().toString());
          } else {
         	 if (DBG) {
         		 Log.d(LCAT, "Intent was empty");
@@ -224,7 +224,7 @@ public class TitaniumActivity extends Activity
         Thread backgroundDrawableThread = new Thread(new Runnable(){
 
 			public void run() {
-				backgroundDrawable = tfh.loadDrawable(intent, fBackgroundImage, false); // Ok to not have background
+				backgroundDrawable = tfh.loadDrawable(fBackgroundImage, false); // Ok to not have background
 			}});
         backgroundDrawableThread.start();
 
@@ -601,7 +601,7 @@ public class TitaniumActivity extends Activity
     		if (s != null) {
      			Drawable d = null;
 				TitaniumFileHelper tfh = new TitaniumFileHelper(this.getParent());
-				d = tfh.loadDrawable(new TitaniumIntentWrapper(getIntent()), s, true);
+				d = tfh.loadDrawable(s, true);
 				if (d != null) {
 					mi.setIcon(d);
 				}

@@ -24,12 +24,13 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.appcelerator.titanium.config.TitaniumConfig;
+
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 
 public class TitaniumFileHelper
@@ -124,7 +125,7 @@ public class TitaniumFileHelper
 		return is;
 	}
 
-	public Drawable loadDrawable(TitaniumIntentWrapper intent, String path, boolean report)
+	public Drawable loadDrawable(String path, boolean report)
 	{
 		Drawable d = null;
 		InputStream is = null;
@@ -132,10 +133,8 @@ public class TitaniumFileHelper
 		if (context != null) {
 			try
 			{
-				if (intent != null) {
-					is = openInputStream(path, report);
-					d = new BitmapDrawable(is);
-				}
+				is = openInputStream(path, report);
+				d = new BitmapDrawable(is);
 			} catch (IOException e) {
 				Log.i(LCAT, path + " not found.");
 				if (report) {
@@ -209,7 +208,7 @@ public class TitaniumFileHelper
 		return d;
 	}
 */
-	public String getResourceUrl(TitaniumIntentWrapper intent, String path)
+	public String getResourceUrl(String path)
 	{
         return joinPaths(RESOURCE_ROOT_ASSETS, path);
 	}

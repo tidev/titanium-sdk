@@ -74,7 +74,7 @@ public class TitaniumActivityGroup extends ActivityGroup
 
 		Thread initialSourceThread = new Thread(new Runnable(){
 			public void run() {
-				String url = tfh.getResourceUrl(null, info.getWindowUrl());
+				String url = tfh.getResourceUrl(info.getWindowUrl());
 				try {
 					app.setSourceFor(url, TitaniumUrlHelper.getSource(app, app.getApplicationContext(), url, null));
 				} catch (IOException e) {
@@ -95,7 +95,7 @@ public class TitaniumActivityGroup extends ActivityGroup
 						Log.w(LCAT, "Secondary source cache thread interrupted");
 					}
 					for (int i = 1; i < len; i++) {
-						String url = tfh.getResourceUrl(null, windows.get(i).getWindowUrl());
+						String url = tfh.getResourceUrl(windows.get(i).getWindowUrl());
 						try {
 							app.setSourceFor(url, TitaniumUrlHelper.getSource(app, app.getApplicationContext(), url, null));
 						} catch (IOException e) {
