@@ -58,6 +58,13 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	if (self=[super init]) {
 		titaniumObject = [[NSMutableDictionary alloc] init];
 		threadRegistry = [[NSMutableDictionary alloc] init];
+		CFDictionaryValueCallBacks noRetainCallbacks;
+		noRetainCallbacks.version = 0;
+		noRetainCallbacks.copyDescription = kCFTypeDictionaryValueCallBacks.copyDescription;
+		noRetainCallbacks.equal = kCFTypeDictionaryValueCallBacks.equal;
+		noRetainCallbacks.retain = NULL;	noRetainCallbacks.release = NULL;
+		
+		viewControllerRegistry = CFDictionaryCreateMutable(NULL, 5, &kCFTypeDictionaryKeyCallBacks, &noRetainCallbacks);
 //		threadForNSThreadDict = [[NSMutableDictionary alloc] init];
 
 		//TODO: flush imagecache when things get close.
@@ -74,7 +81,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	
 	//Dynamic objects:
 	[threadRegistry release];
-	
+	CFRelease(viewControllerRegistry);
 	[nativeModules release];
 	
 	[titaniumObject release];
@@ -388,6 +395,18 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	for (id thisModule in [nativeModules objectEnumerator]) {
 		if ([thisModule respondsToSelector:@selector(endModule)]) [thisModule endModule];
 	}
+}
+
+
+
+- (void) registerViewController: (UIViewController *) viewController forKey: (NSString *) key;
+{
+	CFDictionarySetValue(viewControllerRegistry, key, viewController);
+}
+
+- (void) unregisterViewControllerForKey: (NSString *) key;
+{
+	CFDictionaryRemoveValue(viewControllerRegistry, key);
 }
 
 
@@ -778,8 +797,11 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 {
 	TitaniumViewController * result = nil;	
 	if ([token length] > 1) {
-		UIViewController * rootVC = [[TitaniumAppDelegate sharedDelegate] viewController];
-		result = TitaniumViewControllerForToken(rootVC, token);
+		result = CFDictionaryGetValue(viewControllerRegistry, token);
+		if (result == nil) {
+			UIViewController * rootVC = [[TitaniumAppDelegate sharedDelegate] viewController];
+			result = TitaniumViewControllerForToken(rootVC, token);
+		}
 	}
 	return result;
 }

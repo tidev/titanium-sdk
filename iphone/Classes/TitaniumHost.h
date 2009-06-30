@@ -56,6 +56,8 @@ typedef enum {
 	TitaniumCmdThread * threadStack[MAXTHREADDEPTH];
 	int threadStackCount;
 	
+	CFMutableDictionaryRef viewControllerRegistry; //Say what? Yeah. Because we don't want to retain views unnecessairly, this will be core foundation!
+	
 	NSMutableDictionary * nativeModules;
 
 	NSInteger lastBlobHash;
@@ -92,6 +94,10 @@ typedef enum {
 - (BOOL) registerModuleNamed: (NSString *) moduleClassName;
 - (void) startModules;
 - (void) endModules;
+
+#pragma mark View registration
+- (void) registerViewController: (UIViewController *) viewController forKey: (NSString *) key;
+- (void) unregisterViewController: (UIViewController *) viewController;
 
 #pragma mark Blob Management
 

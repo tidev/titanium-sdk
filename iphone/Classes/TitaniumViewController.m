@@ -128,6 +128,7 @@ NSString * const ControllerString = @"Controller";
 
 	NSString * token = [[NSString alloc] initWithFormat:@"WIN%d",nextWindowToken++];
 	[result setPrimaryToken:token];
+	[[TitaniumHost sharedHost] registerViewController:result forKey:token];
 	[token release];
 	[result readState:inputState relativeToUrl:baseUrl];
 	return result;	
@@ -142,9 +143,9 @@ NSString * const ControllerString = @"Controller";
 
 - (void)dealloc {
 //	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'close'})"];
-
 	[webView release];
 	webView = nil;
+	[[TitaniumHost sharedHost] unregisterViewControllerForKey:primaryToken];
 	[currentContentURL release];	//Used as a base url.
 	[viewProperties release];
 	[magicTokenDict release];
@@ -419,14 +420,16 @@ NSString * const ControllerString = @"Controller";
 		if (animated){
 			[UIView beginAnimations:@"Toolbar" context:nil];
 		}
-		CGRect scrollViewFrame;
-		if(navBarStyle == UIBarStyleBlackTranslucent){
-			scrollViewFrame = viewBounds;
+		CGRect contentViewFrame;
+		if(floatingUITop > 1.0){ //Toolbar style or not, the keyboard trumps all!
+			CGPoint bottomPoint = CGPointMake(0,floatingUITop);
+		} else if(navBarStyle == UIBarStyleBlackTranslucent){
+			contentViewFrame = viewBounds;
 		} else {
-			scrollViewFrame = [contentView frame];
-			scrollViewFrame.size.height = toolBarFrame.origin.y - scrollViewFrame.origin.y;
+			contentViewFrame = [contentView frame];
+			contentViewFrame.size.height = toolBarFrame.origin.y - contentViewFrame.origin.y;
 		}
-		[contentView setFrame:scrollViewFrame];
+		[contentView setFrame:contentViewFrame];
 		[toolBar setTintColor:[theNB tintColor]];
 		[toolBar setBarStyle:navBarStyle];
 		[toolBar setHidden:NO];

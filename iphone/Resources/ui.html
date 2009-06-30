@@ -165,8 +165,10 @@ try{
 	groupedView.addSection(optionSection);
 	groupedView.addSection(buttonSection);
 	groupedView.addSection(inputSection);
-	groupedView.setRightNavButton(Ti.UI.createButton({systemButton:'rewind'}));
-	groupedView.open({animated:true});
+	groupedView.setLeftNavButton(Ti.UI.createButton({systemButton:'rewind'}));
+
+//	groupedView.setLeftNavButton(null);
+	groupedView.open({animated:false});
 } catch(E){Titanium.UI.createAlertDialog({title:"Error!",message:('Msg:'+E)}).show();};
 };
 		var btn8 = Ti.UI.createButton({systemButton:'rewind'});

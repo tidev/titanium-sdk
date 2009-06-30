@@ -67,6 +67,8 @@ typedef enum {
 	BOOL		fullscreen;
 	UIStatusBarStyle statusBarStyle;
 
+	CGFloat		floatingUITop;
+
 	//TODO: organize and add in a set of dirty flags to speed things up.
 	TitaniumViewControllerDirtyFlags	dirtyFlags;
 }
