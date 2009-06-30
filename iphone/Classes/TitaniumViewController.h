@@ -104,6 +104,7 @@ typedef enum {
 - (void)updateLayout: (BOOL)animated;
 - (BOOL)needsUpdate: (TitaniumViewControllerDirtyFlags) newFlags;
 - (void)doUpdateLayout;
+- (void) setToolbarProxies: (NSArray *) newProxies;
 
 
 @end

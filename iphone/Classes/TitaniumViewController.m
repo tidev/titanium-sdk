@@ -332,6 +332,11 @@ NSString * const ControllerString = @"Controller";
 	[self needsUpdate:TitaniumViewControllerRefreshIsAnimated];
 }
 
+- (void) setToolbarProxies: (NSArray *) newProxies;
+{
+	[self setToolbarItems:[newProxies valueForKey:@"nativeBarButton"]];
+}
+
 - (void) setToolbarItems: (NSArray *) newItems;
 {
 	if (newItems == toolbarItems) return;

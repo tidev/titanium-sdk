@@ -93,6 +93,38 @@
 		c.send();
 
 	};
+	
+	
+Titanium.Media.openPhotoGallery({
+	success: function(image,details) {
+		var query = 'http://twitpic.com/api/uploadAndPost?password=rogue10&username=kevinwhinnery';
+    var xhr = Titanium.Network.createHTTPClient();
+		xhr.onreadystatechange = function() {
+      if (this.readyState == 4) {
+				Titanium.API.debug(this.responseText);
+			}
+		};
+		xhr.open('POST',query);
+		xhr.send({media:image});
+		//Titanium.Platform.openURL($(this).attr("href"));
+	},
+	error: function(error) {
+		Titanium.UI.createAlertDialog( {
+			title: "Error from Gallery",
+			message: error.message,
+			buttonNames: OK
+			}).show();
+	},
+	cancel: function() {
+		//no op
+	},
+	allowImageEditing:true
+});
+
+	
+	
+	
+	
 </script>
 </head>
 <body>

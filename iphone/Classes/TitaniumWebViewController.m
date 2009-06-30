@@ -107,9 +107,16 @@ TitaniumViewController * mostRecentController = nil;
 {
 	[super setView:newView];
 	if (newView == nil) {
+		[self setContentView:nil];
 		[self setWebView:nil];
 	}
 }
+
+//- (void) setContentView: (UIView *) newContentView;
+//{
+//	[super setContentView:newContentView];
+//}
+
 
 - (void) setWebView: (UIWebView *) newWebView;
 {
@@ -121,7 +128,7 @@ TitaniumViewController * mostRecentController = nil;
 	}
 	
 	if (newWebView == nil) { //Possibly deallocation.
-		if (1) { //This should be a javascript check.
+		if (0) { //This should be a javascript check.
 			[webView removeFromSuperview];
 			[webView release];
 			webView = nil;
@@ -131,13 +138,13 @@ TitaniumViewController * mostRecentController = nil;
 	
 	//Now if we have an old view and new view, the old view has to kill the new one. There can be only one!
 	//But we're not fully set yet? Let's find out.
-	NSLog(@"Two web views go in! NewWebView %@ has %@ as a superview",[newWebView superview]);
+	NSLog(@"Two web views go in! NewWebView %@ has %@ as a superview",newWebView,[newWebView superview]);
 	
 	[[newWebView superview] insertSubview:webView belowSubview:newWebView];
 	[webView setFrame:[newWebView frame]];
 	[newWebView removeFromSuperview];
-
-	NSLog(@"One comes out! webView %@ has %@ as a superview",[webView superview]);
+	[[webView superview] setAlpha:1.0];
+	NSLog(@"One comes out! webView %@ has %@ as a superview",webView,[webView superview]);
 }
 
 
