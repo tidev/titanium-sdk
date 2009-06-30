@@ -27,7 +27,11 @@
 	
 	//Tinting or BG controls
 	UIColor * elementColor;
-	UIColor * elementBackgroundColor;	
+	UIColor * elementBackgroundColor;
+	
+	//For Multibutton/segmented
+	NSArray * segmentLabelArray;
+	NSArray * segmentImageArray;
 
 	//Yes, even integer and bools are represented as floats.
 	float minValue;		//Default is 0
@@ -48,6 +52,9 @@
 @property(nonatomic,readwrite,copy)		NSString * iconPath;
 @property(nonatomic,readwrite,assign)	int templateValue;
 @property(nonatomic,readwrite,assign)	int barButtonStyle;
+
+@property(nonatomic,readwrite,copy)		NSArray * segmentLabelArray;
+@property(nonatomic,readwrite,copy)		NSArray * segmentImageArray;
 
 @property(nonatomic,readwrite,retain)	UILabel * labelView;
 @property(nonatomic,readwrite,retain)	UIProgressView * progressView;

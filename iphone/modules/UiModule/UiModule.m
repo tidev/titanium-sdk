@@ -37,7 +37,6 @@ enum { //MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemIte
 	UITitaniumNativeItemSlider = -4,
 	UITitaniumNativeItemSwitch = -5,
 	UITitaniumNativeItemMultiButton = -6,
-
 	UITitaniumNativeItemSegmented = -7,
 
 	UITitaniumNativeItemTextView = -8,
@@ -81,6 +80,8 @@ int barButtonSystemItemForString(NSString * inputString){
 				[NSNumber numberWithInt:UITitaniumNativeItemTextField],@"text",
 				[NSNumber numberWithInt:UITitaniumNativeItemTextView],@"textarea",
 				[NSNumber numberWithInt:UITitaniumNativeItemSearchBar],@"search",
+				[NSNumber numberWithInt:UITitaniumNativeItemMultiButton],@"multibutton",
+				[NSNumber numberWithInt:UITitaniumNativeItemSegmented],@"segmented",
 				nil];
 	}
 	NSNumber * result = [barButtonSystemItemForStringDict objectForKey:[inputString lowercaseString]];
@@ -89,7 +90,7 @@ int barButtonSystemItemForString(NSString * inputString){
 }
 
 @implementation UIButtonProxy
-@synthesize nativeBarButton;
+@synthesize nativeBarButton, segmentLabelArray, segmentImageArray;
 @synthesize titleString, iconPath, templateValue, barButtonStyle, nativeView, labelView, progressView;
 @synthesize minValue,maxValue,floatValue,stringValue;
 
@@ -140,6 +141,22 @@ int barButtonSystemItemForString(NSString * inputString){
 		needsRefreshing = YES;
 	}
 
+	id labelArray = [newDict objectForKey:@"labels"];
+	if ([labelArray isKindOfClass:[NSArray class]]){
+		[self setSegmentLabelArray:labelArray];
+	} else if (labelArray == [NSNull null]){
+		[self setSegmentLabelArray:nil];
+	}
+
+	id imageArray = [newDict objectForKey:@"images"];
+	if ([imageArray isKindOfClass:[NSArray class]]){
+		[self setSegmentImageArray:imageArray];
+	} else if (imageArray == [NSNull null]) {
+		[self setSegmentImageArray:nil];
+	}
+
+	id bgColorObject = [newDict objectForKey:@"backgroundColor"];
+
 	GRAB_IF_SELECTOR(@"width",floatValue,frame.size.width);
 	GRAB_IF_SELECTOR(@"height",floatValue,frame.size.height);
 	GRAB_IF_SELECTOR(@"x",floatValue,frame.origin.x);
@@ -165,7 +182,7 @@ int barButtonSystemItemForString(NSString * inputString){
 
 	CGRect viewFrame=frame;
 	if (forBar){
-		viewFrame.size.height = 40.0;
+		viewFrame.size.height = 30.0;
 	} else if (viewFrame.size.height < 2) viewFrame.size.height = 20;
 	if (viewFrame.size.width < 2) viewFrame.size.width = 30;
 
@@ -224,7 +241,62 @@ int barButtonSystemItemForString(NSString * inputString){
 			[(UITextView *)resultView setDelegate:self];
 		}
 		[(UITextView *)resultView setText:stringValue];
+
+	} else if ((templateValue == UITitaniumNativeItemMultiButton) || (templateValue == UITitaniumNativeItemSegmented)){
+//		if (forBar) viewFrame.size.height = 30;
+		int imageCount = [segmentImageArray count];
+		int titleCount = [segmentLabelArray count];
+		int segmentCount = MAX(imageCount,titleCount);
 		
+		TitaniumHost * theHost = [TitaniumHost sharedHost];
+		NSMutableArray * thingArray = [[NSMutableArray alloc] initWithCapacity:segmentCount];
+		for(int segmentIndex=0; segmentIndex < segmentCount; segmentIndex ++){
+			UIImage * thisImage;
+			if(segmentIndex < imageCount){
+				thisImage = [theHost imageForResource:[segmentImageArray objectAtIndex:segmentIndex]];
+			} else {
+				thisImage = nil;
+			}
+			
+			NSString * thisTitle;
+			if(segmentIndex < titleCount){
+				thisTitle = [segmentLabelArray objectAtIndex:segmentIndex];
+			} else {
+				thisTitle = nil;
+			}
+			
+			if(thisImage != nil){
+				[thingArray addObject:thisImage];
+//				[(UISegmentedControl *)resultView insertSegmentWithImage:thisImage atIndex:segmentIndex animated:NO];
+			} else if ([thisTitle isKindOfClass:[NSString class]]){
+				[thingArray addObject:thisTitle];
+//				[(UISegmentedControl *)resultView insertSegmentWithTitle:thisTitle atIndex:segmentIndex animated:NO];
+			} else {
+				[thingArray addObject:@""];
+//				[(UISegmentedControl *)resultView insertSegmentWithTitle:@"" atIndex:segmentIndex animated:NO];
+			}
+		}
+		
+		resultView = [[UISegmentedControl alloc] initWithItems:thingArray];
+		[thingArray release];
+		
+		[(UISegmentedControl *)resultView addTarget:self action:@selector(onSegmentChange:) forControlEvents:UIControlEventValueChanged];
+		
+//		if ([nativeView isKindOfClass:[UISegmentedControl class]]){
+//			resultView = [nativeView retain];
+//			[(UISegmentedControl *)resultView removeAllSegments];
+//		} else {
+//			resultView = [[UISegmentedControl alloc] initWithFrame:viewFrame];
+//			[(UISegmentedControl *)resultView addTarget:self action:@selector(onSegmentChange:) forControlEvents:UIControlEventValueChanged];
+//		}
+		[(UISegmentedControl *)resultView setMomentary:(templateValue == UITitaniumNativeItemMultiButton)];
+		[(UISegmentedControl *)resultView setSegmentedControlStyle:(forBar?UISegmentedControlStyleBar:UISegmentedControlStylePlain)];
+		if (elementBackgroundColor != nil) [(UISegmentedControl *)resultView setTintColor:elementBackgroundColor];
+
+		CGRect oldFrame = [resultView frame];
+		viewFrame.size.height = oldFrame.size.height;
+		if (viewFrame.size.width < oldFrame.size.width) viewFrame.size.width = oldFrame.size.width;
+
 		
 //	} else if (templateValue == UITitaniumNativeItemPicker){
 //		if ([nativeView isKindOfClass:[UIPickerView class]]){
@@ -328,7 +400,7 @@ int barButtonSystemItemForString(NSString * inputString){
 - (IBAction) onSwitchChange: (id) sender;
 {
 	NSString * newValue = ([(UISwitch *)sender isOn] ? @"true":@"false");
-	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'change',value:%@});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
+	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'click',value:%@});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
 
@@ -351,7 +423,12 @@ int barButtonSystemItemForString(NSString * inputString){
 	[self onTextChange:textView];
 }
 
-
+- (IBAction) onSegmentChange: (id) sender;
+{
+	int newValue = [(UISegmentedControl *)sender selectedSegmentIndex];
+	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'click',value:%d});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
+	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
+}
 
 - (IBAction) onValueChange: (id) sender;
 {
@@ -680,6 +757,15 @@ int barButtonSystemItemForString(NSString * inputString){
 	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 	[ourVC performSelectorOnMainThread:@selector(setTitleViewImagePath:) withObject:newTitleImagePath waitUntilDone:NO];	
 }
+
+- (void) setWindow:(NSString *)tokenString titleButtonProxy: (id) newTitleButtonProxy;
+{
+	
+	
+//	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
+//	[ourVC performSelectorOnMainThread:@selector(setTitleViewImagePath:) withObject:newTitleImagePath waitUntilDone:NO];	
+}
+
 
 - (void) setWindow:(NSString *)tokenString showNavBar: (id) animatedObject;
 {
@@ -1010,6 +1096,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'text');}"],@"createTextField",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'textarea');}"],@"createTextArea",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'multibutton');}"],@"createButtonBar",
+			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'segmented');}"],@"createTabbedBar",
 
 			[TitaniumJSCode codeWithString:@"{}"],@"_MODAL",
 			[NSNumber numberWithInt:1],@"_NEXTMODAL",

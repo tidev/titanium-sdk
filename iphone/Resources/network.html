@@ -94,18 +94,16 @@
 
 	};
 	
-	
+	twitpicer = function(){
 Titanium.Media.openPhotoGallery({
 	success: function(image,details) {
-		var query = 'http://twitpic.com/api/uploadAndPost?password=rogue10&username=kevinwhinnery';
-    var xhr = Titanium.Network.createHTTPClient();
+		var query = 'http://twitpic.com/api/uploadAndPost';
+		var xhr = Titanium.Network.createHTTPClient();
 		xhr.onreadystatechange = function() {
-      if (this.readyState == 4) {
-				Titanium.API.debug(this.responseText);
-			}
+			document.getElementById('twitpicresults').innerHTML = 'State: ' + this.readyState + '<br>Message: ' + this.responseText;
 		};
 		xhr.open('POST',query);
-		xhr.send({media:image});
+		xhr.send({media:image,username:'blainhamon',password:'tweetme',message:'Testing uploading'});
 		//Titanium.Platform.openURL($(this).attr("href"));
 	},
 	error: function(error) {
@@ -117,10 +115,15 @@ Titanium.Media.openPhotoGallery({
 	},
 	cancel: function() {
 		//no op
+		Titanium.UI.createAlertDialog( {
+			title: "Cancel from Gallery",
+			message: '',
+			buttonNames: OK
+			}).show();
 	},
 	allowImageEditing:true
 });
-
+}
 	
 	
 	
@@ -160,6 +163,9 @@ Titanium.Media.openPhotoGallery({
 
 <div id='echo'>
 </div>
+
+<button onclick="twitpicer()">Tweet?</button>
+<div id='twitpicresults'>Message?</div>
 
 <!--
 <div class="test">

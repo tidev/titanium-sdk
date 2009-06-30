@@ -108,13 +108,30 @@ TitaniumViewController * mostRecentController = nil;
 	[super setView:newView];
 	if (newView == nil) {
 		[self setContentView:nil];
-		[self setWebView:nil];
 	}
 }
 
 //- (void) setContentView: (UIView *) newContentView;
 //{
-//	[super setContentView:newContentView];
+//	if (newContentView == contentView) return;
+//	if (contentView == nil){
+//		contentView = [newContentView retain];
+//		return;
+//	}
+//	
+//	if (newContentView == nil){
+//		[self setWebView:nil];
+//		if((webView == nil) || ([[contentView subviews] count] <= 1)){ //Okay, clear on out!
+//			[contentView removeFromSuperview];
+//			[contentView release];
+//			contentView = nil;
+//		}
+//		return;
+//	}
+//	
+//	[[newContentView superview] insertSubview:contentView belowSubview:newContentView];
+//	[contentView setFrame:[newContentView frame]];
+//	[newContentView removeFromSuperview];
 //}
 
 

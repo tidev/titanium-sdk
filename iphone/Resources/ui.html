@@ -173,8 +173,13 @@ try{
 		btn8.addEventListener('click',test2);
 //		test2();
 
+		var multiBtn = Ti.UI.createButtonBar({labels:['fee','fi','fo','fum']});
+		function reportEvent(e){Titanium.UI.createAlertDialog({title:"Thing happened!",message:"You clicked "+e.value}).show();};
+		multiBtn.addEventListener('click',reportEvent);
+
 		Ti.UI.currentWindow.setLeftNavButton(btn8);
-		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5,btn7]);
+//		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5,btn7]);
+		Ti.UI.currentWindow.setToolbar([btn1,btn2,multiBtn]);
 		
 		Titanium.Gesture.addEventListener('shake',function(){
 			var alerty = Titanium.UI.createAlertDialog();
