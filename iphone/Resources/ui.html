@@ -20,14 +20,14 @@
 		var btn3 = Ti.UI.createButton({systemButton:'pause'});
 //		btn2.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'black'});newWindow.open();})
 		btn2.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'rgb(0,0,0)',hideNavBar:true});newWindow.open();})
-		btn3.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'clear'});newWindow.open();})
+		btn3.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'transparent'});newWindow.open();})
 		var btn4 = Ti.UI.createButton({systemButton:'action'});
 		btn4.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:null});newWindow.open();})
 
 		var btn5 = Ti.UI.createButton({title:'Moo'});
 		btn5.addEventListener('click',function(){Ti.UI.currentWindow.setFullscreen(true);});
 
-		var btn6 = Ti.UI.createTextField({value:'Texty!',div:'sliderPlace'});
+		var btn6 = Ti.UI.createTextField({value:'Texty!',div:'sliderPlace',color:'red',backgroundColor:'blue',borderColor:'green'});
 //		btn6.width=100;
 		btn6.addEventListener('change',function(foo){document.getElementById('sliderValue').innerHTML='Newvalue' + foo.value;});
 //		btn6.addEventListener('valuechange',function(foo){

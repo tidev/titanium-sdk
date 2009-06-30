@@ -26,8 +26,9 @@
 	UIActivityIndicatorViewStyle spinnerStyle;
 	
 	//Tinting or BG controls
-	UIColor * elementColor;
-	UIColor * elementBackgroundColor;
+	UIColor * elementColor; //The text color
+	UIColor * elementBackgroundColor; //The color that fills the element.
+	UIColor * elementBorderColor; //Actually, the color that appears behind the element.
 	
 	//For Multibutton/segmented
 	NSArray * segmentLabelArray;
@@ -55,6 +56,10 @@
 
 @property(nonatomic,readwrite,copy)		NSArray * segmentLabelArray;
 @property(nonatomic,readwrite,copy)		NSArray * segmentImageArray;
+
+@property(nonatomic,readwrite,retain)	UIColor * elementColor;
+@property(nonatomic,readwrite,retain)	UIColor * elementBackgroundColor;
+@property(nonatomic,readwrite,retain)	UIColor * elementBorderColor;
 
 @property(nonatomic,readwrite,retain)	UILabel * labelView;
 @property(nonatomic,readwrite,retain)	UIProgressView * progressView;
@@ -181,7 +186,7 @@ There's no way to use anything of UI.iPhone.SystemIcon, since tab bar properties
  * @tiarg(for=UI.currentWindow.setTitleImage,type=string,name=url) the relative url for the image. Must be local.
  
  * @tiapi(method=True,name=UI.currentWindow.setBarColor,since=0.4) Sets the tint and style of the nav bar and tool bar. If foreground, this is animated.
- * @tiarg(for=UI.currentWindow.setBarColor,type=string,name=color) a web color. Null causes the default style. 'clear' causes the translucent black style, and stretches the web page to reach to underneath the nav bar and tool bar. Any other color for an opaque tinted bar of that color.
+ * @tiarg(for=UI.currentWindow.setBarColor,type=string,name=color) a web color. Null causes the default style. 'transparent' causes the translucent black style, and stretches the web page to reach to underneath the nav bar and tool bar. Any other color for an opaque tinted bar of that color.
  
  * @tiapi(method=True,name=UI.currentWindow.showNavBar,since=0.4) Makes the nav bar visible, resizing the web page if necessary.
  * @tiarg(for=UI.currentWindow.showNavBar,name=options,type=object) set to {animated:true} to enable animation of showing the nav bar if the window is foreground.
@@ -234,7 +239,7 @@ There's no way to use anything of UI.iPhone.SystemIcon, since tab bar properties
  * @tiarg(for=UI.UserWindow.setTitleImage,type=string,name=url) the relative url for the image. Must be local.
 
  * @tiapi(method=True,name=UI.UserWindow.setBarColor,since=0.4) Sets the tint and style of the nav bar and tool bar. If foreground, this is animated.
- * @tiarg(for=UI.UserWindow.setBarColor,type=string,name=color) a web color. Null causes the default style. 'clear' causes the translucent black style, and stretches the web page to reach to underneath the nav bar and tool bar. Any other color for an opaque tinted bar of that color.
+ * @tiarg(for=UI.UserWindow.setBarColor,type=string,name=color) a web color. Null causes the default style. 'transparent' causes the translucent black style, and stretches the web page to reach to underneath the nav bar and tool bar. Any other color for an opaque tinted bar of that color.
  
  * @tiapi(method=True,name=UI.UserWindow.showNavBar,since=0.4) Makes the nav bar visible, resizing the web page if necessary.
  * @tiarg(for=UI.UserWindow.showNavBar,name=options,type=object) set to {animated:true} to enable animation of showing the nav bar if the window is foreground.

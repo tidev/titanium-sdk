@@ -34,7 +34,7 @@ UIColor * UIColorWebColorNamed(NSString * colorName)
 					   [UIColor orangeColor],@"orange",
 					   [UIColor purpleColor],@"purple",
 					   [UIColor brownColor],@"brown",
-					   [UIColor clearColor],@"clear",
+					   [UIColor clearColor],@"transparent",
 
 					   white,@"fff",
 					   white,@"ffff",

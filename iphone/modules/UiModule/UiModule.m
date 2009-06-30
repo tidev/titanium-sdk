@@ -7,6 +7,7 @@
 #ifdef MODULE_TI_UI
 
 #import "UiModule.h"
+#import "Webcolor.h"
 
 
 NSString * const iPhoneBarButtonGeneratorFunction = @"function(token){"
@@ -93,6 +94,8 @@ int barButtonSystemItemForString(NSString * inputString){
 @synthesize nativeBarButton, segmentLabelArray, segmentImageArray;
 @synthesize titleString, iconPath, templateValue, barButtonStyle, nativeView, labelView, progressView;
 @synthesize minValue,maxValue,floatValue,stringValue;
+@synthesize elementColor, elementBorderColor, elementBackgroundColor;
+
 
 - (id) init;
 {
@@ -156,6 +159,14 @@ int barButtonSystemItemForString(NSString * inputString){
 	}
 
 	id bgColorObject = [newDict objectForKey:@"backgroundColor"];
+	if (bgColorObject != nil)[self setElementBackgroundColor:UIColorWebColorNamed(bgColorObject)];
+
+	id colorObject = [newDict objectForKey:@"color"];
+	if (colorObject != nil)[self setElementColor:UIColorWebColorNamed(colorObject)];
+
+	id borderColorObject = [newDict objectForKey:@"borderColor"];
+	if (borderColorObject != nil)[self setElementBorderColor:UIColorWebColorNamed(borderColorObject)];
+
 
 	GRAB_IF_SELECTOR(@"width",floatValue,frame.size.width);
 	GRAB_IF_SELECTOR(@"height",floatValue,frame.size.height);
@@ -196,6 +207,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		}
 		viewFrame.size = [(UIView *)resultView frame].size;
 		[(UIView *)resultView setFrame:viewFrame];
+		[resultView setBackgroundColor:elementBorderColor];
 
 	} else if (templateValue == UITitaniumNativeItemSlider){
 		if ([nativeView isKindOfClass:[UISlider class]]){
@@ -208,6 +220,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		[(UISlider *)resultView setMinimumValue:minValue];
 		[(UISlider *)resultView setMaximumValue:maxValue];
 		[(UISlider *)resultView setValue:floatValue];
+		[resultView setBackgroundColor:elementBorderColor];
 		
 
 	} else if (templateValue == UITitaniumNativeItemSwitch){
@@ -219,28 +232,32 @@ int barButtonSystemItemForString(NSString * inputString){
 			[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
 		}
 		[(UISwitch *)resultView setOn:(floatValue > ((minValue + maxValue)/2))];
+		[resultView setBackgroundColor:elementBorderColor];
 
-	} else if (templateValue == UITitaniumNativeItemTextField){
+	} else if ((templateValue == UITitaniumNativeItemTextField) || (templateValue == UITitaniumNativeItemTextView)){
 		if (viewFrame.size.height < 20) viewFrame.size.height = 20;
-		if ([nativeView isKindOfClass:[UITextField class]]){
-			resultView = [nativeView retain];
-			[(UIView *)resultView setFrame:viewFrame];
-		} else {
-			resultView = [[UITextField alloc] initWithFrame:viewFrame];
-			[(UITextField *)resultView setDelegate:self];
-		}
-		[(UITextField *)resultView setText:stringValue];
 		
-	} else if (templateValue == UITitaniumNativeItemTextView){
-		if (viewFrame.size.height < 20) viewFrame.size.height = 20;
-		if ([nativeView isKindOfClass:[UITextView class]]){
-			resultView = [nativeView retain];
-			[(UIView *)resultView setFrame:viewFrame];
+		if (templateValue == UITitaniumNativeItemTextField){
+			if ([nativeView isKindOfClass:[UITextField class]]){
+				resultView = [nativeView retain];
+				[(UIView *)resultView setFrame:viewFrame];
+			} else {
+				resultView = [[UITextField alloc] initWithFrame:viewFrame];
+				[(UITextField *)resultView setDelegate:self];
+			}
 		} else {
-			resultView = [[UITextView alloc] initWithFrame:viewFrame];
-			[(UITextView *)resultView setDelegate:self];
+			if ([nativeView isKindOfClass:[UITextView class]]){
+				resultView = [nativeView retain];
+				[(UIView *)resultView setFrame:viewFrame];
+			} else {
+				resultView = [[UITextView alloc] initWithFrame:viewFrame];
+				[(UITextView *)resultView setDelegate:self];
+			}
 		}
-		[(UITextView *)resultView setText:stringValue];
+		if (elementColor != nil) [(UITextField *)resultView setTextColor:elementColor];
+		[(UITextField *)resultView setText:stringValue];
+		[resultView setBackgroundColor:elementBackgroundColor];
+		
 
 	} else if ((templateValue == UITitaniumNativeItemMultiButton) || (templateValue == UITitaniumNativeItemSegmented)){
 //		if (forBar) viewFrame.size.height = 30;
@@ -331,7 +348,8 @@ int barButtonSystemItemForString(NSString * inputString){
 		UIImage * iconImage = [[TitaniumHost sharedHost] imageForResource:iconPath];
 		[(UIButton *)resultView setImage:iconImage forState:UIControlStateNormal];
 		[(UIButton *)resultView setTitle:titleString forState:UIControlStateNormal];
-	}	
+		[resultView setBackgroundColor:elementBorderColor];
+	}
 		
 	[nativeView autorelease];
 	BOOL isNewView = (nativeView != resultView);
