@@ -2,7 +2,7 @@
 #
 # Scons script for building the iphone library
 #
-import os
+import os,platform
 
 # add your module here for it to get compiled into
 # the library
@@ -36,8 +36,12 @@ for api in modules:
 
 config = 'Release'
 
+versions = ['3.0']
+if platform.platform()!='Darwin-10.0.0b2-i386-64bit':
+	versions.append('2.2.1')
 
-for apiversion in ['2.2.1','3.0']:
+
+for apiversion in versions:
     # execute the phone and simulator release builds
     os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target libTitanium -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s' clean build" % (apiversion,config,defines))
     os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target libTitanium -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s' clean build" % (apiversion,config,defines))

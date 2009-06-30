@@ -114,6 +114,10 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 	if (newState == readyState) return;
 	readyState = newState;
 	[[TitaniumHost sharedHost] sendJavascript:[javaScriptPath stringByAppendingString:@".onreadystatechange()"] toPageWithToken:parentPageToken];
+	if (readyState == clientStateDone)
+	{
+		[[TitaniumHost sharedHost] sendJavascript:[javaScriptPath stringByAppendingString:@".onload()"] toPageWithToken:parentPageToken];
+	}
 }
 
 - (void) runSend;
@@ -127,7 +131,7 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 
 - (id) runFunctionNamed: (NSString *) functionName withObject: (id) objectValue error: (NSError **) error;
 {
-//	NSLog(@"%@ Got function named: %@ with object %@",self,functionName,objectValue);
+///	NSLog(@"%@ Got function named: %@ with object %@",self,functionName,objectValue);
 
 	if ([functionName isEqualToString:@"open"]){
 		NSUInteger arrayCount = [objectValue count];
@@ -196,7 +200,6 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 				[urlRequest addValue:contentType forHTTPHeaderField: @"Content-Type"];
 				[resultData appendBytes:MultiPartFormEpilogue length:sizeof(MultiPartFormEpilogue)-1];
 			}
-
 			[urlRequest setHTTPBody:resultData];
 			[resultData release];
 		}
@@ -225,9 +228,6 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 		NSString * result = [[NSString alloc] initWithData:loadedData encoding:NSUTF8StringEncoding];
 		return [result autorelease];
 
-	} else if ([functionName isEqualToString:@"responseXML"]) {
-		
-		
 	} else if ([functionName isEqualToString:@"status"]) {
 		return [NSNumber numberWithInt:currentStatus];
 
