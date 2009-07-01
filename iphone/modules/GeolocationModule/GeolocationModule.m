@@ -12,7 +12,7 @@
 
 NSUInteger lastWatchID = 0;
 
-#define MAX_DELAY_BEFORE_TRANSMIT_GEO_EVENT_IN_MS (60000) * 5
+#define MAX_DELAY_BEFORE_TRANSMIT_GEO_EVENT_IN_MS (60000) * 1
 
 
 @interface GeolocationProxy : TitaniumProxyObject {
