@@ -27,7 +27,7 @@
 		var btn5 = Ti.UI.createButton({title:'Moo'});
 		btn5.addEventListener('click',function(){Ti.UI.currentWindow.setFullscreen(true);});
 
-		var btn6 = Ti.UI.createTextArea({value:'Texty!',div:'sliderPlace',keyboardType:Ti.UI.KEYBOARD_EMAIL_ADDRESS,textAlign:'center',color:'red',backgroundColor:'blue',borderColor:'green'});
+		var btn6 = Ti.UI.createTextField({min:-1,max:10,hintText:'Hint me!',id:'sliderPlace',keyboardType:Ti.UI.KEYBOARD_EMAIL_ADDRESS,textAlign:'center',color:'red',backgroundColor:'blue',borderColor:'green'});
 //		btn6.width=100;
 		btn6.addEventListener('change',function(foo){document.getElementById('sliderValue').innerHTML='Newvalue' + foo.value;});
 //		btn6.addEventListener('valuechange',function(foo){
@@ -115,7 +115,7 @@ try{
 	var buttonSection = Titanium.UI.iPhone.createGroupedSection({type:'button',data:buttonData});
 	buttonSection.addEventListener('click',function(e)
 	{
-		e.index // index of clicked button
+		Titanium.UI.createAlertDialog({title:"Click!",message:('Button:'+e.index)}).show();
 	});
 
 	var optionData = [
@@ -127,7 +127,7 @@ try{
 	var optionSection = Titanium.UI.iPhone.createGroupedSection({type:'option', data:optionData});
 	optionSection.addEventListener('click',function(e)
 	{
-		e.index // index of clicked button
+		Titanium.UI.createAlertDialog({title:"Option!",message:('Button:'+e.index)}).show();
 	});
 
 	var switchInstance = Titanium.UI.createTextField({value:'More text',width:170});
@@ -144,7 +144,7 @@ try{
 	var inputSection = Titanium.UI.iPhone.createGroupedSection({type:'input', data:inputData});
 	inputSection.addEventListener('click',function(e)
 	{
-		e.index // index of row that was clicked (used if you row will create a new window)
+		Titanium.UI.createAlertDialog({title:"Input!",message:('Button:'+e.index)}).show();
 	});
 	var groupedView = Titanium.UI.iPhone.createGroupedView();
 //{data:data,rowHeight:80}, function(eventObject) {
@@ -176,12 +176,13 @@ try{
 //		test2();
 
 		var multiBtn = Ti.UI.createButtonBar({labels:['fee','fi','fo','fum']});
-		function reportEvent(e){Titanium.UI.createAlertDialog({title:"Thing happened!",message:"You clicked "+e.value}).show();};
+		function reportEvent(e){Titanium.UI.createAlertDialog({title:"Thing happened!",message:"You clicked "+e.index}).show();};
 		multiBtn.addEventListener('click',reportEvent);
 
 		Ti.UI.currentWindow.setLeftNavButton(btn8);
-//		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5,btn7]);
-		Ti.UI.currentWindow.setToolbar([btn1,btn2,multiBtn]);
+		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5,btn7]);
+//		Ti.UI.currentWindow.setToolbar([btn1,btn2,multiBtn]);
+		Ti.UI.currentWindow.setTitleControl(multiBtn);
 		
 		Titanium.Gesture.addEventListener('shake',function(){
 			var alerty = Titanium.UI.createAlertDialog();
@@ -189,7 +190,7 @@ try{
 			alerty.show();
 		},false);
 
-		var btn8 = Ti.UI.createButton({title:'moo',div:'buttony'});
+		var btn8 = Ti.UI.createButton({title:'moo',id:'buttony'});
 //		btn8.width=100;
 		btn8.addEventListener('click',function(foo){document.getElementById('sliderValue').innerHTML='Clicked!';});
 

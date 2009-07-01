@@ -282,6 +282,7 @@ int barButtonSystemItemForString(NSString * inputString){
 				resultView = [[UITextField alloc] initWithFrame:viewFrame];
 				[(UITextField *)resultView setDelegate:self];
 			}
+			[(UITextField *)resultView setPlaceholder:placeholderText];
 			[(UITextField *)resultView setBorderStyle:borderStyle];
 			[(UITextField *)resultView setClearsOnBeginEditing:clearsOnBeginEditing];
 			[(UITextField *)resultView setClearButtonMode:clearButtonMode];
@@ -363,7 +364,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		CGRect oldFrame = [resultView frame];
 		viewFrame.size.height = oldFrame.size.height;
 		if (viewFrame.size.width < oldFrame.size.width) viewFrame.size.width = oldFrame.size.width;
-
+		[resultView setFrame:viewFrame];
 		
 //	} else if (templateValue == UITitaniumNativeItemPicker){
 //		if ([nativeView isKindOfClass:[UIPickerView class]]){
@@ -450,6 +451,15 @@ int barButtonSystemItemForString(NSString * inputString){
 	return nativeBarButton;
 }
 
+- (UIView *) nativeBarView;
+{
+	if ((nativeView == nil) || needsRefreshing){
+		[self updateNativeView:YES];
+		needsRefreshing = NO;
+	}
+	return nativeView;
+}
+
 - (UIView *) nativeView;
 {
 	if ((nativeView == nil) || needsRefreshing){
@@ -468,7 +478,7 @@ int barButtonSystemItemForString(NSString * inputString){
 - (IBAction) onSwitchChange: (id) sender;
 {
 	NSString * newValue = ([(UISwitch *)sender isOn] ? @"true":@"false");
-	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'click',value:%@});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
+	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'change',value:%@});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
 
@@ -494,7 +504,7 @@ int barButtonSystemItemForString(NSString * inputString){
 - (IBAction) onSegmentChange: (id) sender;
 {
 	int newValue = [(UISegmentedControl *)sender selectedSegmentIndex];
-	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'click',value:%d});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
+	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'click',index:%d});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
 
@@ -838,14 +848,13 @@ int barButtonSystemItemForString(NSString * inputString){
 	[ourVC performSelectorOnMainThread:@selector(setTitleViewImagePath:) withObject:newTitleImagePath waitUntilDone:NO];	
 }
 
-- (void) setWindow:(NSString *)tokenString titleButtonProxy: (id) newTitleButtonProxy;
+- (void) setWindow:(NSString *)tokenString titleProxy: (id) newTitleProxyObject;
 {
+	UIButtonProxy * newTitleProxy = [self proxyForObject:newTitleProxyObject recurse:YES];
 	
-	
-//	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
-//	[ourVC performSelectorOnMainThread:@selector(setTitleViewImagePath:) withObject:newTitleImagePath waitUntilDone:NO];	
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
+	[ourVC performSelectorOnMainThread:@selector(setTitleViewProxy:) withObject:newTitleProxy waitUntilDone:NO];	
 }
-
 
 - (void) setWindow:(NSString *)tokenString showNavBar: (id) animatedObject;
 {
@@ -1001,6 +1010,9 @@ int barButtonSystemItemForString(NSString * inputString){
 	[(UiModule *)invocGen setWindow:nil titleImage:nil];
 	NSInvocation * setTitleImageInvoc = [invocGen invocation];
 
+	[(UiModule *)invocGen setWindow:nil titleProxy:nil];
+	NSInvocation * setTitleImageProxyInvoc = [invocGen invocation];
+
 	[(UiModule *)invocGen openWindow:nil animated:nil];
 	NSInvocation * openWinInvoc = [invocGen invocation];
 	
@@ -1064,6 +1076,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			"showNavBar:function(args){Ti.UI._WSHNAV(Ti._TOKEN,args);},"
 			"hideNavBar:function(args){Ti.UI._WHDNAV(Ti._TOKEN,args);},"
 			"setTitleImage:function(args){Ti.UI._WTITLEIMG(Ti._TOKEN,args);},"
+			"setTitleControl:function(args){if(args)args.ensureToken();Ti.UI._WTITLEPXY(Ti._TOKEN,args);},"
 			"setLeftNavButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WNAVBTN(Ti._TOKEN,true,btn,args);},"
 			"setRightNavButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WNAVBTN(Ti._TOKEN,false,btn,args);},"
 			"setToolbar:function(bar,args){if(bar){var i=bar.length;while(i>0){i--;bar[i].ensureToken();};};"
@@ -1079,6 +1092,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res.setTitle=function(args){this.title=args;if(this._TOKEN){Ti.UI._WTITLE(this._TOKEN,args);};};"
 			"res.showNavBar=function(args){this._hideNavBar=false;if(this._TOKEN){Ti.UI._WSHNAV(this._TOKEN,args);};};"
 			"res.hideNavBar=function(args){this._hideNavBar=true;if(this._TOKEN){Ti.UI._WHDNAV(this._TOKEN,args);};};"
+			"res.setTitleControl=function(args){if(args)args.ensureToken();Ti.UI._WTITLEPXY(this._TOKEN,args);};"
 			"res.setTitleImage=function(args){this.titleImage=args;if(this._TOKEN){Ti.UI._WTITLEIMG(this._TOKEN,args);};};"
 			"res.setBarColor=function(args){this.barColor=args;if(this._TOKEN){Ti.UI._WNAVTNT(this._TOKEN,args);};};"
 			"res.setLeftNavButton=function(btn,args){if(btn)btn.ensureToken();this.lNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,true,btn,args);};};"
@@ -1104,7 +1118,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res._GRP=[];res.addSection=function(section){this._GRP.push(section);};return res;}";
 	
 	NSString * createGroupedSectionString = @"function(args){var res={header:null};for(prop in args){res[prop]=args[prop]};"
-			"res._EVT={click:[]};res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res.onClick=Ti.ONEVT;return res;}";
+			"res._EVT={click:[]};res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res.onClick=Ti._ONEVT;return res;}";
 
 	NSString * systemButtonStyleString = [NSString stringWithFormat:@"{PLAIN:%d,BORDERED:%d,DONE:%d}",
 										  UIBarButtonItemStylePlain,UIBarButtonItemStyleBordered,UIBarButtonItemStyleDone];
@@ -1121,14 +1135,14 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSString * createButtonString = @"function(args,buttonType){var res={"
 			"onClick:Ti._ONEVT,_EVT:{click:[],change:[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
 			"ensureToken:function(){if(this._TOKEN)return;var tkn=Ti.UI._BTNTKN();this._TOKEN=tkn;Ti.UI._BTN[tkn]=this;},"
-			"setDiv:function(div){this.div=div;divObj=document.getElementById(div);this.divObj=divObj;divAttr={};this.divAttr=divAttr;if(!divObj)return;"
+			"setId:function(div){this.id=div;divObj=document.getElementById(div);this.divObj=divObj;divAttr={};this.divAttr=divAttr;if(!divObj)return;"
 //				"var attr=divObj.attributes;if(attr){var i=attr.length;while(i>0){i--;divAttr[attr[i].name]=attr[i].value;}};"
 				"divAttr.y=0;divAttr.x=0;divAttr.width=divObj.offsetWidth;divAttr.height=divObj.offsetHeight;"
 				"while(divObj){divAttr.x+=divObj.offsetLeft;divAttr.y+=divObj.offsetTop;divObj=divObj.offsetParent;}"
 			"}};"
 			"if(args){for(prop in args){res[prop]=args[prop];}};"
 			"if(buttonType)res.systemButton=buttonType;"
-			"if(res.div){res.setDiv(res.div);Ti.UI.currentWindow.insertButton(res);}"
+			"if(res.id){res.setId(res.id);Ti.UI.currentWindow.insertButton(res);}"
 			"return res;}";
 
 	NSString * createOptionDialogString = @"function(args){var res={};for(prop in args){res[prop]=args[prop];};"
@@ -1161,6 +1175,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			hideNavBarInvoc,@"_WHDNAV",
 			setTitleInvoc,@"_WTITLE",
 			setTitleImageInvoc,@"_WTITLEIMG",
+			setTitleImageProxyInvoc,@"_WTITLEPXY",
 			changeWinNavColorInvoc,@"_WNAVTNT",
 			setNavButtonInvoc,@"_WNAVBTN",
 			updateToolbarInvoc,@"_WTOOL",

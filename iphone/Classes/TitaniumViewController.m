@@ -12,6 +12,7 @@
 
 #import "TitaniumTableViewController.h"
 #import "TitaniumWebViewController.h"
+#import "UiModule.h"
 
 NSDictionary * tabBarItemFromObjectDict = nil;
 
@@ -255,11 +256,21 @@ NSString * const ControllerString = @"Controller";
 {
 	UIImage * newTitleViewImage = [[TitaniumHost sharedHost] imageForResource:titleViewImagePath];
 	UIImageView * newTitleView = nil;
-	
-	if (newTitleViewImage != nil) newTitleView = [[UIImageView alloc] initWithImage:newTitleViewImage];
+
+	if (titleViewProxy != nil) newTitleView = [[titleViewProxy nativeBarView] retain];
+	else if (newTitleViewImage != nil) newTitleView = [[UIImageView alloc] initWithImage:newTitleViewImage];
 	
 	[[self navigationItem] setTitleView:newTitleView];
 	[newTitleView release];
+}
+
+- (void)setTitleViewProxy: (UIButtonProxy *) newProxy;
+{
+	[newProxy retain];
+	[titleViewProxy release];
+	titleViewProxy = newProxy;
+	
+	[self refreshTitleView];
 }
 
 - (void)setTitleViewImagePath: (NSString *) newPath;

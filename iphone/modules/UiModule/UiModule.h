@@ -86,6 +86,7 @@
 @property(nonatomic,readwrite,retain)	UIProgressView * progressView;
 @property(nonatomic,readwrite,retain)	UIView * nativeView;
 @property(nonatomic,readwrite,retain)	UIBarButtonItem * nativeBarButton;
+- (UIView *) nativeBarView;
 
 @property(nonatomic,readwrite,assign)	float minValue;	
 @property(nonatomic,readwrite,assign)	float maxValue;	
