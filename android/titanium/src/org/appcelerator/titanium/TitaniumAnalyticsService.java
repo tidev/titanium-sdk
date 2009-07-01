@@ -10,6 +10,7 @@ package org.appcelerator.titanium;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
@@ -20,7 +21,6 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Service;
@@ -39,8 +39,8 @@ public class TitaniumAnalyticsService extends Service
 	@SuppressWarnings("unused")
 	private final static int BUCKET_SIZE_SLOW_NETWORK = 5;
 
-	private final static String ANALYTICS_URL = "https://api.appcelerator.net/p/v1/mobile-track";
-//	private final static String ANALYTICS_URL = "http://10.0.1.154/test";
+//	private final static String ANALYTICS_URL = "https://api.appcelerator.net/p/v1/mobile-track";
+	private final static String ANALYTICS_URL = "http://192.168.123.102:8000/test";
 
 	private ConnectivityManager connectivityManager;
 
@@ -89,7 +89,7 @@ public class TitaniumAnalyticsService extends Service
 					while(model.hasEvents()) {
 						if(canSend())
 						{
-							HashMap<Integer,String> events = model.getEventsAsJSON(BUCKET_SIZE_FAST_NETWORK);
+							HashMap<Integer,JSONObject> events = model.getEventsAsJSON(BUCKET_SIZE_FAST_NETWORK);
 
 							int len = events.size();
 							int[] eventIds = new int[len];
@@ -102,31 +102,31 @@ public class TitaniumAnalyticsService extends Service
 								// ids are kept even on error JSON to prevent unrestrained growth
 								// and a queue blocked by bad records.
 								eventIds[i] = id;
-								try {
-									String data = events.get(id);
-									records.put(new JSONObject(data));
-								} catch (JSONException e) {
-									Log.e(LCAT, "Data should be welformed at this point.", e);
-								}
+								records.put(events.get(id));
 							}
 							boolean deleteEvents = true;
 							if (records.length() > 0) {
-								String jsonData = records.toString();
+								String jsonData = records.toString() + "\n";
 
 								Log.i(LCAT, "Sending " + records.length() + " analytics events.");
 						   		try {
 							   		HttpPost httpPost = new HttpPost(ANALYTICS_URL);
-							   		httpPost.setEntity(new StringEntity(jsonData));
+							   		StringEntity entity = new StringEntity(jsonData);
+							   		entity.setContentType("text/json");
+							   		httpPost.setEntity(entity);
 
 							   		HttpParams httpParams = new BasicHttpParams();
-							   		HttpConnectionParams.setConnectionTimeout(httpParams, 15000); //TODO use property
-							   		HttpConnectionParams.setSoTimeout(httpParams, 15000); //TODO use property
+							   		HttpConnectionParams.setConnectionTimeout(httpParams, 5000); //TODO use property
+							   		//HttpConnectionParams.setSoTimeout(httpParams, 15000); //TODO use property
 							   		HttpClient client = new DefaultHttpClient(httpParams);
 
 							   		ResponseHandler<String> responseHandler = new BasicResponseHandler();
+							   		client.getParams().setBooleanParameter("http.protocol.expect-continue", false);
 
 						   			@SuppressWarnings("unused")
-									String response = client.execute(httpPost, responseHandler);
+									//String response = client.execute(httpPost, responseHandler);
+						   			HttpResponse response = client.execute(httpPost);
+
 						   		} catch (Throwable t) {
 						   			Log.e(LCAT, "Error posting events" + t.getMessage());
 						   			deleteEvents = false;

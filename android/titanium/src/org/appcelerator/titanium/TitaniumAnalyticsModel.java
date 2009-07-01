@@ -26,7 +26,7 @@ public class TitaniumAnalyticsModel extends SQLiteOpenHelper{
 	private static final String LCAT = "TiAnalyticsDb";
 
 	private static final String DB_NAME = "tianalytics.db";
-	private static final int DB_VERSION = 1;
+	private static final int DB_VERSION = 3;
 
 	public TitaniumAnalyticsModel(Context context)
 	{
@@ -57,8 +57,8 @@ public class TitaniumAnalyticsModel extends SQLiteOpenHelper{
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
-		// Log.d(LCAT, "Upgrading Database from " + oldVersion + " to " + newVersion);
-		/* Template for later migrations
+		Log.i(LCAT, "Upgrading Database from " + oldVersion + " to " + newVersion);
+
 		int version = oldVersion;
 		while(version < newVersion) {
 			switch(oldVersion) {
@@ -66,9 +66,50 @@ public class TitaniumAnalyticsModel extends SQLiteOpenHelper{
 				doMigration_1(db);
 				version = 2;
 				break;
+			case 2 :
+				doMigration_2(db);
+				version = 3;
+				break;
 			}
 		}
-		 */
+	}
+
+	private void doMigration_1(SQLiteDatabase db) {
+		String sql =
+			"drop table if exists Events"
+			;
+		db.execSQL(sql);
+
+		sql =
+			"create table Events (" +
+			"  _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			"  EventId TEXT, " +
+			"  Name TEXT, " +
+			"  Timestamp TEXT, " +
+			"  MID TEXT, " +
+			"  SID TEXT, " +
+			"  AppID TEXT, " +
+			"  isJSON INTEGER, " +
+			"  Payload TEXT " +
+			");"
+			;
+		db.execSQL(sql);
+	}
+
+	private void doMigration_2(SQLiteDatabase db) {
+		String sql =
+			"create table Props (" +
+			"  _id INTEGER PRIMARY KEY, " +
+			"  Name TEXT, " +
+			"  Value TEXT " +
+			");"
+			;
+		db.execSQL(sql);
+
+		sql =
+			"insert into Props(Name, Value) values ('Enrolled', '0')"
+			;
+		db.execSQL(sql);
 	}
 
 	public void addEvent(final TitaniumAnalyticsEvent event)
@@ -77,7 +118,7 @@ public class TitaniumAnalyticsModel extends SQLiteOpenHelper{
 		try {
 			db = getWritableDatabase();
 			String sql =
-				"insert into Events(EventId, Name, Timestamp, MID, SID, isJSON, Payload) values(?,?,?,?,?,?,?)"
+				"insert into Events(EventId, Name, Timestamp, MID, SID, AppID, isJSON, Payload) values(?,?,?,?,?,?,?,?)"
 				;
 			Object[] args = {
 				TitaniumPlatformHelper.createEventId(),
@@ -85,6 +126,7 @@ public class TitaniumAnalyticsModel extends SQLiteOpenHelper{
 				event.getEventTimestamp(),
 				event.getEventMid(),
 				event.getEventSid(),
+				event.getEventAppId(),
 				event.mustExpandPayload() ? 1 : 0,
 				event.getEventPayload()
 			};
@@ -155,8 +197,8 @@ public class TitaniumAnalyticsModel extends SQLiteOpenHelper{
 		return result;
 	}
 
-	public HashMap<Integer,String> getEventsAsJSON(int limit) {
-		HashMap<Integer, String> result = new HashMap<Integer,String>(limit);
+	public HashMap<Integer,JSONObject> getEventsAsJSON(int limit) {
+		HashMap<Integer, JSONObject> result = new HashMap<Integer,JSONObject>(limit);
 
 		SQLiteDatabase db = null;
 		Cursor c = null;
@@ -164,27 +206,32 @@ public class TitaniumAnalyticsModel extends SQLiteOpenHelper{
 			db = getReadableDatabase();
 
 			String sql =
-				"select _id, EventId, Name, Timestamp, MID, SID, isJSON, Payload from Events limit " +
+				"select _id, EventId, Name, Timestamp, MID, SID, AppID, isJSON, Payload from Events " +
+				" order by 1 limit " +
 				limit
 				;
 
 			c = db.rawQuery(sql, null);
 
 			while(c.moveToNext()) {
+				int seq = c.getInt(0);
 				JSONObject json = new JSONObject();
-				json.put("eventId", c.getString(1));
-				json.put("eventName", c.getString(2));
-				json.put("eventTimestamp", c.getString(3));
-				json.put("eventMid", c.getString(4));
-				json.put("eventSid", c.getString(5));
-				boolean isJSON = c.getInt(6) == 1 ? true : false;
+				json.put("seq", seq);
+				json.put("ver", "1");
+				json.put("id", c.getString(1));
+				json.put("name", c.getString(2));
+				json.put("ts", c.getString(3));
+				json.put("mid", c.getString(4));
+				json.put("sid", c.getString(5));
+				json.put("aguid", c.getString(6));
+				boolean isJSON = c.getInt(7) == 1 ? true : false;
 				if (isJSON) {
-					json.put("eventPayload", new JSONObject(c.getString(7)));
+					json.put("data", new JSONObject(c.getString(8)));
 				} else {
-					json.put("eventPayload", c.getString(7));
+					json.put("data", c.getString(8));
 				}
 
-				result.put(c.getInt(0), json.toString());
+				result.put(seq, json);
 			}
 
 		} catch (JSONException e) {
@@ -201,5 +248,54 @@ public class TitaniumAnalyticsModel extends SQLiteOpenHelper{
 		}
 
 		return result;
+	}
+
+	public boolean needsEnrollEvent() {
+		boolean result = false;
+
+		SQLiteDatabase db = null;
+		Cursor c = null;
+		try {
+			db = getReadableDatabase();
+
+			String sql =
+				"select Value from Props where Name = 'Enrolled'"
+				;
+
+			c = db.rawQuery(sql, null);
+
+			if(c.moveToNext()) {
+				result = c.getInt(0) == 0;
+			}
+		} catch (SQLException e) {
+			Log.e(LCAT, "Error retrieving events to send as JSON: ", e);
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+			if (db != null) {
+				db.close();
+			}
+		}
+
+		return result;
+	}
+
+	public void markEnrolled() {
+		String sql =
+			"update Props set Value = '1' where Name = 'Enrolled'"
+			;
+
+		SQLiteDatabase db = null;
+		try {
+			db = getWritableDatabase();
+			db.execSQL(sql);
+		} catch (SQLException e) {
+			Log.e(LCAT, "Error marking enrolled :" + e);
+		} finally {
+			if (db != null) {
+				db.close();
+			}
+		}
 	}
 }

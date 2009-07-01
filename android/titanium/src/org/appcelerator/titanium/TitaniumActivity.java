@@ -64,7 +64,6 @@ import android.view.animation.AlphaAnimation;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -357,6 +356,10 @@ public class TitaniumActivity extends Activity
 		moduleMgr.registerModules();
 
 		ts ("After modules");
+
+		if (app.needsEnrollEvent()) {
+			app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createAppEnrollEvent(tiPlatform, tiApp));
+		}
 
 		if (app.needsStartEvent()) {
 			String deployType = appInfo.getSystemProperties().getString("ti.deploytype", "unknown");

@@ -37,15 +37,23 @@ public class TitaniumApplication
 	private TitaniumAppInfo appInfo;
 
 	private boolean needsStartEvent;
+	private boolean needsEnrollEvent;
 
 	protected TitaniumAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
 
 	HashMap<String,String> sourceCache;
 
+	private static TitaniumApplication me;
+
 	public TitaniumApplication() {
+		needsEnrollEvent = false; // test is after DB is available
 		needsStartEvent = true;
 		sourceCache = new HashMap<String,String>(8);
+	}
+
+	public static TitaniumApplication getInstance() {
+		return me;
 	}
 
 	@Override
@@ -53,6 +61,12 @@ public class TitaniumApplication
 		super.onCreate();
 		if (DBG) {
 			Log.d(LCAT, "Application.onCreate()");
+		}
+
+		if (me == null) {
+			me = this;
+		} else {
+			throw new IllegalStateException("Attempt to contruct more than on TitaniumApplication.");
 		}
 
 		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
@@ -77,6 +91,8 @@ public class TitaniumApplication
 
 		TitaniumPlatformHelper.initialize(this);
 		analyticsModel = new TitaniumAnalyticsModel(this);
+
+		needsEnrollEvent = analyticsModel.needsEnrollEvent();
 	}
 
 	@Override
@@ -168,6 +184,10 @@ public class TitaniumApplication
 		return needsStartEvent;
 	}
 
+	public synchronized boolean needsEnrollEvent() {
+		return needsEnrollEvent;
+	}
+
 	public synchronized void postAnalyticsEvent(TitaniumAnalyticsEvent event)
 	{
 
@@ -183,7 +203,15 @@ public class TitaniumApplication
 			Log.d(LCAT, sb.toString());
 		}
 
-		if (event.getEventName() == TitaniumAnalyticsEventFactory.EVENT_APP_START) {
+		if (event.getEventName() == TitaniumAnalyticsEventFactory.EVENT_APP_ENROLL) {
+			if (needsEnrollEvent) {
+				analyticsModel.addEvent(event);
+				needsEnrollEvent = false;
+				sendAnalytics();
+				analyticsModel.markEnrolled();
+			}
+			return;
+		} else if (event.getEventName() == TitaniumAnalyticsEventFactory.EVENT_APP_START) {
 			if (needsStartEvent) {
 				analyticsModel.addEvent(event);
 				needsStartEvent = false;

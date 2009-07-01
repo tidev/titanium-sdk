@@ -11,8 +11,22 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.appcelerator.titanium.TitaniumApplication;
 import org.appcelerator.titanium.util.TitaniumPlatformHelper;
 import org.json.JSONObject;
+
+//All event payloads MUST have the following key/value pairs at the root of the
+//JSON object:
+//
+//- id       	-- the globally unique event ID (string)
+//- seq     	-- a monotonically incrementing event sequence number (long)
+//- aguid     	-- the application GUID (string)
+//- mid       	-- the phone's unique device id (string)
+//- ts 		-- the event timestamp in UTC (string)  -- example: 2009-06-15T21:46:28.685+0000
+//- ver   	-- the version of the specification (string)
+//- sid     	-- the session id (created once per application start/stop) (string)
+//- name     	-- the name of the event (string)
+//- data		-- the event data (NULL value if none provided) (object)
 
 public class TitaniumAnalyticsEvent
 {
@@ -27,6 +41,7 @@ public class TitaniumAnalyticsEvent
 	private String eventTimestamp;
 	private String eventMid;
 	private String eventSid;
+	private String eventAppId;
 	private String eventPayload;
 
 	private boolean expandPayload;
@@ -36,6 +51,7 @@ public class TitaniumAnalyticsEvent
 		this.eventTimestamp = getTimestamp();
 		this.eventMid = TitaniumPlatformHelper.getMobileId();
 		this.eventSid = TitaniumPlatformHelper.getSessionId();
+		this.eventAppId = TitaniumApplication.getInstance().getAppInfo().getAppId();
 		this.eventPayload = eventPayload;
 		this.expandPayload = expandPayload;
 	}
@@ -62,6 +78,10 @@ public class TitaniumAnalyticsEvent
 
 	public String getEventSid() {
 		return eventSid;
+	}
+
+	public String getEventAppId() {
+		return eventAppId;
 	}
 
 	public String getEventPayload() {

@@ -198,6 +198,11 @@ public class TitaniumNetwork extends TitaniumBaseModule implements ITitaniumNetw
 	public int getNetworkType() {
 		int type = NETWORK_UNKNOWN;
 
+		// start event needs network type. So get it if we don't have it.
+		if (connectivityManager == null) {
+			connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+		}
+
 		NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
 		if(ni != null && ni.isAvailable() && ni.isConnected()) {
 			type = networkTypeToTitanium(true, ni.getType());
@@ -248,10 +253,14 @@ public class TitaniumNetwork extends TitaniumBaseModule implements ITitaniumNetw
 		}
 	}
 
+	private ConnectivityManager getConnectivityManager() {
+		return (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+	}
+
 	@Override
 	public void onResume() {
 		super.onResume();
-		connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+		connectivityManager = getConnectivityManager();
 		manageConnectivityListener(true);
 	}
 

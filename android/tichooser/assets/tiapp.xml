@@ -18,7 +18,7 @@
             <barColor>#000</barColor>
         </window>
     </windows>
-    <property name="ti.android.debug" type="bool">true</property>
+    <property name="ti.android.debug" type="bool">false</property>
     <property name="ti.android.watchlog" type="bool">false</property>
     <!-- ti.deploytype will be set by the development toolkit -->
     <property name="ti.deploytype">development</property>
