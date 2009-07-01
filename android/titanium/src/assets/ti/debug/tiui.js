@@ -158,7 +158,19 @@ var OptionDialog = function(proxy) {
 			throw new Error("OptionDialog only handles click events. Use event name 'click'");
 		}
 
-		this.proxy.addListener('click', registerCallback(this, listener));
+		return this.proxy.addListener(eventName, registerCallback(this, listener));
+	};
+	/**
+	 * @tiapi(method=true,name=UI.OptionDialog.removeEventListener,since=0.5) Remove listener added for the 'click' event.
+	 * @tiarg[string,eventName] name of the event to listen for.
+	 * @tiarg[int,listenerId] id returned by addEventListener
+	 */
+	this.removeEventListener = function(eventName, listenerId) {
+		if (eventName !== "click") {
+			throw new Error("OptionDialog only handles click events. Use event name 'click'");
+		}
+
+		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	/**
 	 * @tiapi(method=true,name=UI.OptionDialog.show,since=0.4) Show this dialog.
@@ -208,14 +220,30 @@ var AlertDialog = function(proxy) {
 	 * @tiapi(method=true,name=UI.AlertDialog.addEventListener,since=0.4) Add a listener for the 'click' event.
 	 * @tiarg[string,eventName] name of the event to listen for
 	 * @tiarg[function,listener] function to call when button is clicked.
+	 * @tiresult[int] id used to remove the added listener
 	 */
 	this.addEventListener = function(eventName, listener) {
 		if (eventName !== "click") {
 			throw new Error("AlertDialog only handles click events. Use event name 'click'");
 		}
 
-		this.proxy.addListener('click', registerCallback(this, listener));
-	}
+		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
+	};
+	/**
+	 * @tiapi(method=true,name=UI.AlertDialog.removeEventListener,since=0.5) Remove listener added for the 'click' event.
+	 * @tiarg[string,eventName] name of the event to listen for.
+	 * @tiarg[int,listenerId] id returned by addEventListener
+	 */
+	this.removeEventListener = function(eventName, listenerId) {
+		if (eventName !== "click") {
+			throw new Error("AlertDialog only handles click events. Use event name 'click'");
+		}
+
+		this.proxy.removeEventListener(eventName, listenerId);
+	};
+	/**
+	 * @tiapi(method=true,name=UI.AlertDialog.show,since=0.4) Show the alert dialog
+	 */
 	this.show = function() {
 		this.proxy.show();
 	}
@@ -322,6 +350,43 @@ var TitaniumNotifier = function(proxy) {
 	 */
 	this.hide = function(animate) {
 		this.proxy.hide(transformObjectValue(animate, false));
+	}
+};
+
+var TableView = function(proxy) {
+	this.proxy = proxy; // reference to Java object
+	this._callback;
+
+	/**
+	 * @tiapi(method=true,name=UI.TableView.setData,since=0.5) set options data describing view
+	 * @tiarg[string,data] options data
+	 */
+	this.setData = function(data) {
+		this.proxy.setData(data);
+	};
+	/**
+	 * @tiapi(method=true,name=UI.TableView.setRowHeight,since=0.5) set the height of each row
+	 * @tiarg[string,rowHeight] height of row
+	 */
+	this.setRowHeight = function(height) {
+		this.proxy.setRowHeight(height);
+	};
+	/**
+	 * @tiapi(method=true,name=UI.TableView.open,since=0.5) open the table view
+	 * @tiarg[string, options] open options
+	 */
+	this.open = function(options) {
+		var opt = null;
+		if (!isUndefined(options)) {
+			opt = Titanium.JSON.stringify(options);
+		}
+		this.proxy.open(opt, registerCallback(this, this._callback));
+	};
+	/**
+	 * @tiapi(method=true,name=UI.TableView.close,since=0.5) close an open table view
+	 */
+	this.close = function() {
+		this.proxy.close();
 	}
 };
 
@@ -590,6 +655,30 @@ Titanium.UI = {
 			}
 		}
 		return ind;
+	},
+	/**
+	 * @tiapi(method=true,name=UI.createTableView,since=0.5) Create a table view
+	 * @tiarg[object, options] a dictionary/hash of options
+	 * @tiresult[TableView] the table view.
+	 */
+	createTableView : function(options, callback) {
+		 var tv = new TableView(Titanium.uiProxy.createTableView());
+
+		 tv._callback = callback;
+
+		 if(!isUndefined(options)) {
+			 var data = options['data'];
+			 var rowHeight = options['rowHeight'];
+
+			 if (!isUndefined(data)) {
+				 tv.setData(Titanium.JSON.stringify(data));
+			 }
+			 if (!isUndefined(rowHeight)) {
+				 tv.setRowHeight(rowHeight);
+			 }
+		 }
+
+		 return tv;
 	},
 
 	// createNotification is below. It needs the property currentWindow

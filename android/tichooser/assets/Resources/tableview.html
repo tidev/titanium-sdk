@@ -1,0 +1,148 @@
+<html>
+<head>
+	<title>Table View</title>
+  	<script><!--
+
+  	// title : row title
+  	//
+	// html : HTML string for creating custom row view. This is used in lieu of title
+	//
+	// image : optional. path of an image. Images are placed on the far left side of a row
+	//
+	// hasChild : optional. valid values are true|false. indicates that clicking the row will
+	// create another window. the default value is false. also, if hasChild is true the default
+	// "more icon" should be displayed (e.g., for iphone the ">" would be displayed).
+	//
+	// hasDetail : optional. valid values are true|false. indicates that clicking the row
+	// will create another window. the default value is false. also, if hasDetail is true,
+	// the "detail" icon should be displayed. this option is for iphone only.
+	//
+	// header : optional header text for a row (e.g., contacts lists sorted alphabetically)
+	//
+	// input : optional instance variable of an input control (e.g., checkbox, slider, input field).
+	//
+	// Note: the callback responsibility falls onto the input control not the table view.
+	//
+
+  	var page1 = [
+  	    {
+  	  	    header : 'Section 1'
+  	    },
+		{
+			title : 'Row 1',
+			image : 'images/icon.png'
+		},
+		{
+			title : 'Row 2',
+			html : '<b>Row 2</b><br/><span>Hello</span>',
+			image : 'images/icon.png'
+		},
+		{
+			title : 'Row 3'
+		},
+		{
+			header : 'Section 2'
+		},
+		{
+			title : 'Row 4',
+			image : 'images/icon.png',
+			hasChild : true
+		},
+		{
+			title : 'Row 5'
+		},
+		{
+			title : 'Exit'
+		}
+  	];
+
+	var page2 = [
+        {
+         header : 'Some config stuff'
+        },
+        {
+         title : 'click for option dlg'
+        },
+        {
+         html : '<font size="+2"><b>EXIT</b></font>'
+        }
+	];
+
+	var tableView = Titanium.UI.createTableView({
+ 	  		'data' : page1,
+ 	  		'rowHeight' : '65'
+ 		},
+ 			function(e) {
+ 				// rowData, section, row, index, detail
+ 				var ext = false;
+
+ 				var s = "index: " + e.index +
+ 					" section: " + e.section +
+ 					" row: " + e.row +
+ 					" detail: " + e.detail + "\n" +
+ 					" rowData: " + Titanium.JSON.stringify(e.rowData)
+ 					;
+
+ 				if (e.rowData.title === 'Exit') {
+ 	 				ext = true;
+ 				}
+
+				var dlg = Titanium.UI.createAlertDialog({
+					title : 'Click',
+					message : s,
+					buttonNames : "OK",
+
+				});
+
+				var lid = dlg.addEventListener("click", function() {
+					if (ext) {
+						tableView.close();
+						dlg.removeEventListener("click", lid);
+					} else if (e.index == 5) {
+						var tv2 = Titanium.UI.createTableView({
+							'data' : page2, 'rowHeight' : '75',
+						},
+						function(e1) {
+							if (e1.index == 2) {
+								tv2.close();
+							} else if (e1.index == 1) {
+								var odlg = Titanium.UI.createOptionDialog({
+									title : 'Greeting',
+									options : [ 'Hello', 'Hola']
+								});
+								odlg.show();
+							}
+						}
+						);
+						tv2.open({});
+					}
+				});
+				alert('LID: ' + lid);
+				dlg.show();
+  			}
+ 		);
+
+  	window.onload = function()
+  	{
+  	  	var btn_launch = document.getElementById('launch');
+  	  	if (btn_launch !== null) {
+
+  	  		btn_launch.onclick = function () {
+  	  	  		alert('CLICK');
+  	  	  		tableView.open({});
+   	  		}
+  	  	} else {
+  	  	  	Titanium.UI.createAlertDialog({
+  	  	  	  	title : 'Error',
+  	  	  	  	message : 'Missing element "launch"',
+  	  	  	  	buttonNames : 'OK'
+  	  	  	}).show();
+  	  	}
+  	}
+  --></script>
+</head>
+<body style="background-color: white;">
+<input id='launch' type='button' value='Launch TableView' />
+
+</body>
+</html>

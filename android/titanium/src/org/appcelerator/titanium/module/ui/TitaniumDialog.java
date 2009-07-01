@@ -58,12 +58,20 @@ public class TitaniumDialog implements ITitaniumDialog
 		builder.setTitle(title);
 	}
 
-	public void addListener(String eventName, String listener) {
+	public int addEventListener(String eventName, String listener) {
 		if(eventName == null || !eventName.toLowerCase().equals(CLICK_EVENT)) {
 			throw new IllegalStateException("TitaniumDialog only handles listeners named: " + CLICK_EVENT);
 		}
 
-		eventListeners.addListener(eventName, listener);
+		return eventListeners.addListener(eventName, listener);
+	}
+
+	public void removeEventListener(String eventName, int listenerId) {
+		if(eventName == null || !eventName.toLowerCase().equals(CLICK_EVENT)) {
+			throw new IllegalStateException("TitaniumDialog only handles listeners named: " + CLICK_EVENT);
+		}
+
+		eventListeners.removeListener(eventName, listenerId);
 	}
 
 	public void setButtons(String[] buttonText)

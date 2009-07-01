@@ -16,15 +16,17 @@ import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumMenuItem;
 import org.appcelerator.titanium.api.ITitaniumNotifier;
 import org.appcelerator.titanium.api.ITitaniumProgressDialog;
+import org.appcelerator.titanium.api.ITitaniumTableView;
 import org.appcelerator.titanium.api.ITitaniumUI;
 import org.appcelerator.titanium.api.ITitaniumUserWindow;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.ui.TitaniumDialog;
 import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
 import org.appcelerator.titanium.module.ui.TitaniumProgressDialog;
+import org.appcelerator.titanium.module.ui.TitaniumTableView;
 import org.appcelerator.titanium.module.ui.TitaniumToastNotifier;
 import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
 
-import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
@@ -115,6 +117,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI
 		return  new TitaniumToastNotifier(getHandler(), getWebView());
 	}
 
+	public ITitaniumTableView createTableView() {
+		return new TitaniumTableView(getActivity());
+	}
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
