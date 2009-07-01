@@ -8,9 +8,13 @@
 #import <UIKit/UIKit.h>
 
 typedef enum {
-	TitaniumViewControllerIsClean			= 0,
-	TitaniumViewControllerNeedsRefresh		= 0x01,
-	TitaniumViewControllerRefreshIsAnimated	= 0x02,
+	TitaniumViewControllerIsClean				= 0,
+	TitaniumViewControllerNeedsRefresh			= 0x01,
+	TitaniumViewControllerRefreshIsAnimated		= 0x02,
+
+	TitaniumViewControllerToolbarChanged		= 0x04,
+	TitaniumViewControllerVisibleAreaChanged	= 0x08,
+
 } TitaniumViewControllerDirtyFlags;
 
 typedef enum {
@@ -67,8 +71,6 @@ typedef enum {
 	
 	BOOL		fullscreen;
 	UIStatusBarStyle statusBarStyle;
-
-	CGFloat		floatingUITop;
 
 	//TODO: organize and add in a set of dirty flags to speed things up.
 	TitaniumViewControllerDirtyFlags	dirtyFlags;

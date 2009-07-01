@@ -165,7 +165,9 @@ try{
 	groupedView.addSection(optionSection);
 	groupedView.addSection(buttonSection);
 	groupedView.addSection(inputSection);
-	groupedView.setLeftNavButton(Ti.UI.createButton({systemButton:'rewind'}));
+	groupedView.isPrimary=true;
+	groupedView.title="I'm the root view?";
+//	groupedView.setLeftNavButton(Ti.UI.createButton({systemButton:'rewind'}));
 
 //	groupedView.setLeftNavButton(null);
 	groupedView.open({animated:false});

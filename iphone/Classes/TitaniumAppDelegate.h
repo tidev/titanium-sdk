@@ -32,7 +32,7 @@ static BOOL L0AccelerationIsShaking(UIAcceleration* last, UIAcceleration* curren
 	IBOutlet UIView *loadingView;
 	UIView *notificationView;
 	NSMutableArray *notifications;
-	
+		
 #if !defined(__IPHONE_3_0) && defined(MODULE_TI_GESTURE)
 	BOOL histeresisExcited;
 	UIAcceleration * lastAcceleration;
@@ -66,6 +66,7 @@ static BOOL L0AccelerationIsShaking(UIAcceleration* last, UIAcceleration* curren
 
 @property (nonatomic, retain)	TitaniumHost * currentHost;
 @property (nonatomic, assign)	BOOL isShowingDialog;
+
 
 @end
 

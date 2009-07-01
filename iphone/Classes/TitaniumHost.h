@@ -49,6 +49,8 @@ typedef enum {
 	NSURL * appBaseUrl;
 	NSString * appDocumentsPath;
 
+	CGFloat keyboardTop;
+
 //Dynamic objects:
 	NSInteger lastThreadHash;
 	NSMutableDictionary * threadRegistry; //Stack-based Registry based on thread ID
@@ -77,6 +79,8 @@ typedef enum {
 @property(readwrite,copy)	NSString * appResourcesPath;
 @property(readonly,retain)	NSMutableDictionary * titaniumObject;
 @property(readonly,retain)	NSDictionary * appProperties;
+
+@property (nonatomic, assign)	CGFloat keyboardTop;
 
 + (TitaniumHost *) sharedHost;
 

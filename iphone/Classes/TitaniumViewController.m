@@ -254,11 +254,13 @@ NSString * const ControllerString = @"Controller";
 
 - (void)refreshTitleView;
 {
-	UIImage * newTitleViewImage = [[TitaniumHost sharedHost] imageForResource:titleViewImagePath];
 	UIImageView * newTitleView = nil;
 
 	if (titleViewProxy != nil) newTitleView = [[titleViewProxy nativeBarView] retain];
-	else if (newTitleViewImage != nil) newTitleView = [[UIImageView alloc] initWithImage:newTitleViewImage];
+	else {
+		UIImage * newTitleViewImage = [[TitaniumHost sharedHost] imageForResource:titleViewImagePath];
+		if (newTitleViewImage != nil) newTitleView = [[UIImageView alloc] initWithImage:newTitleViewImage];
+	}
 	
 	[[self navigationItem] setTitleView:newTitleView];
 	[newTitleView release];
@@ -417,56 +419,54 @@ NSString * const ControllerString = @"Controller";
 	BOOL shouldShowToolBar = [toolbarItems count] > 0;
 	BOOL isShowingToolBar = (toolBar != nil) && (![toolBar isHidden]);
 	
+	UIView * ourView = [self view];
+	CGRect contentViewBounds = [ourView bounds];
+
 	if (shouldShowToolBar){ //Update the list, and show it if needed.
-		UIView * ourView = [self view];
 		CGRect toolBarFrame;
-		CGRect viewBounds = [ourView bounds];
 		if (toolBar == nil){
 			toolBar = [[UIToolbar alloc] init];
 			[toolBar setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin];
-			toolBarFrame.size.width = viewBounds.size.width;
-			toolBarFrame.origin.x = viewBounds.origin.x;
+			toolBarFrame.size.width = contentViewBounds.size.width;
+			toolBarFrame.origin.x = contentViewBounds.origin.x;
 			toolBarFrame.size.height = 44;
-			toolBarFrame.origin.y = viewBounds.size.height - toolBarFrame.size.height;
+			toolBarFrame.origin.y = contentViewBounds.size.height - toolBarFrame.size.height;
 			[toolBar setFrame:toolBarFrame];
 			[toolBar setHidden:YES];
 			[ourView addSubview:toolBar];
 		} else {
 			toolBarFrame = [toolBar frame];
 		}
-		if (animated){
-			[UIView beginAnimations:@"Toolbar" context:nil];
+
+		if(navBarStyle != UIBarStyleBlackTranslucent){
+			contentViewBounds = [contentView frame];
+			contentViewBounds.size.height = toolBarFrame.origin.y - contentViewBounds.origin.y;
 		}
-		CGRect contentViewFrame;
-		if(floatingUITop > 1.0){ //Toolbar style or not, the keyboard trumps all!
-			CGPoint bottomPoint = CGPointMake(0,floatingUITop);
-		} else if(navBarStyle == UIBarStyleBlackTranslucent){
-			contentViewFrame = viewBounds;
-		} else {
-			contentViewFrame = [contentView frame];
-			contentViewFrame.size.height = toolBarFrame.origin.y - contentViewFrame.origin.y;
-		}
-		[contentView setFrame:contentViewFrame];
+		
 		[toolBar setTintColor:[theNB tintColor]];
 		[toolBar setBarStyle:navBarStyle];
 		[toolBar setHidden:NO];
 		
-		if (animated) {
-			[UIView commitAnimations];
-		}
-		
 		[toolBar setItems:toolbarItems animated:animated];
 	} else if (isShowingToolBar){ //Hide the toolbar.
-		if (animated){
-			[UIView beginAnimations:@"Toolbar" context:nil];
-		}
 		[toolBar setHidden:YES];
-		[contentView setFrame:[[self view] bounds]];
-		if (animated) {
-			[UIView commitAnimations];
-		}
 	}
 
+	CGFloat floatingUITop = [[TitaniumHost sharedHost] keyboardTop];
+	if(floatingUITop > 1.0){ //Toolbar style or not, the keyboard trumps all!
+		CGPoint bottomPoint = [[self view] convertPoint:CGPointMake(0,floatingUITop) fromView:nil];
+		contentViewBounds.size.height = MIN(contentViewBounds.size.height,(bottomPoint.y - contentViewBounds.origin.y));
+	}
+	
+	if (animated){
+		[UIView beginAnimations:@"Toolbar" context:nil];
+	}
+	
+	[contentView setFrame:contentViewBounds];
+	
+	if (animated) {
+		[UIView commitAnimations];
+	}
 	dirtyFlags = TitaniumViewControllerIsClean;	
 }
 

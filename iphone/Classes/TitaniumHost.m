@@ -46,7 +46,7 @@
 NSString const * titaniumObjectKey = @"titaniumObject";
 
 @implementation TitaniumHost
-@synthesize appID, threadRegistry, appResourcesPath, titaniumObject, appBaseUrl, appProperties;
+@synthesize appID, threadRegistry, appResourcesPath, titaniumObject, appBaseUrl, appProperties,keyboardTop;
 
 + (TitaniumHost *) sharedHost
 {
@@ -66,6 +66,9 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 		
 		viewControllerRegistry = CFDictionaryCreateMutable(NULL, 5, &kCFTypeDictionaryKeyCallBacks, &noRetainCallbacks);
 //		threadForNSThreadDict = [[NSMutableDictionary alloc] init];
+		NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
+		[theNC addObserver:self selector:@selector(handleKeyboardHiding:) name:UIKeyboardWillHideNotification object:nil];
+		[theNC addObserver:self selector:@selector(handleKeyboardShowing:) name:UIKeyboardDidShowNotification object:nil];
 
 		//TODO: flush imagecache when things get close.
 	}
@@ -97,6 +100,29 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	return appResourcesPath;
 }
 
+- (void)handleKeyboardShowing: (NSNotification *) notification;
+{
+	NSDictionary * userInfo = [notification userInfo];
+	NSValue * keyboardBoundsObject = [userInfo objectForKey:UIKeyboardBoundsUserInfoKey];
+	NSValue * keyboardCenterObject = [userInfo objectForKey:UIKeyboardCenterEndUserInfoKey];
+
+	CGPoint keyboardCenter = CGPointZero;
+	if (keyboardCenterObject != nil)[keyboardCenterObject getValue:&keyboardCenter];
+
+	CGRect keyboardBounds = CGRectZero;
+	if (keyboardBoundsObject != nil)[keyboardBoundsObject getValue:&keyboardBounds];
+
+	keyboardTop = keyboardCenter.y - keyboardBounds.size.height/2;
+
+	TitaniumViewController * ourVC = [self visibleTitaniumViewController];
+	[ourVC needsUpdate:TitaniumViewControllerVisibleAreaChanged];
+}
+
+- (void)handleKeyboardHiding: (NSNotification *) notification;
+{
+	keyboardTop = 0;
+	[[self visibleTitaniumViewController] needsUpdate:TitaniumViewControllerVisibleAreaChanged];
+}
 
 #pragma mark Thread registration
 
