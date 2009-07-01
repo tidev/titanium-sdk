@@ -165,7 +165,7 @@ UIColor * checkmarkColor = nil;
 	NSDictionary * inputProxyDict = [propDict objectForKey:@"input"];
 	if ([inputProxyDict isKindOfClass:[NSDictionary class]]){
 		UiModule * theUiModule = (UiModule *)[[TitaniumHost sharedHost] moduleNamed:@"UiModule"];
-		UIButtonProxy * thisInputProxy = [theUiModule proxyForObject:inputProxyDict];
+		UIButtonProxy * thisInputProxy = [theUiModule proxyForObject:inputProxyDict recurse:YES];
 		if (thisInputProxy != nil) [self setInputProxy:thisInputProxy];
 	}
 }

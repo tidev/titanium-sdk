@@ -211,6 +211,7 @@ NSString * const ControllerString = @"Controller";
 	if ([backgroundImageName isKindOfClass:NSStringClass]){
 		[self setBackgroundImage:[theTiHost imageForResource:backgroundImageName]];
 	}
+
 	
 	id orientationObject = [inputState objectForKey:@"orientation"];
 	if (orientationObject != nil) {
@@ -232,6 +233,11 @@ NSString * const ControllerString = @"Controller";
 	id fullScreenObject = [inputState objectForKey:@"fullscreen"];
 	if ([fullScreenObject respondsToSelector:@selector(boolValue)]) {
 		[self setFullscreen:[fullScreenObject boolValue]];
+	}
+
+	id hidesBackObject = [inputState objectForKey:@"isPrimary"];
+	if ([hidesBackObject respondsToSelector:@selector(boolValue)]) {
+		[[self navigationItem] setHidesBackButton:[hidesBackObject boolValue]];
 	}
 	
 	[self setStatusBarStyleObject:[inputState objectForKey:@"statusBarStyle"]];
