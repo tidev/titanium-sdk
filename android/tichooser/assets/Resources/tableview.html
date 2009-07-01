@@ -56,9 +56,21 @@
 		}
   	];
 
+	var page2 = [
+        {
+         header : 'Some config stuff'
+        },
+        {
+         title : 'click for option dlg'
+        },
+        {
+         html : '<font size="+2"><b>EXIT</b></font>'
+        }
+	];
+
 	var tableView = Titanium.UI.createTableView({
  	  		'data' : page1,
- 	  		'rowHeight' : '43'
+ 	  		'rowHeight' : '65'
  		},
  			function(e) {
  				// rowData, section, row, index, detail
@@ -86,8 +98,25 @@
 					if (ext) {
 						tableView.close();
 						dlg.removeEventListener("click", lid);
+					} else if (e.index == 5) {
+						var tv2 = Titanium.UI.createTableView({
+							'data' : page2, 'rowHeight' : '75',
+						},
+						function(e1) {
+							if (e1.index == 2) {
+								tv2.close();
+							} else if (e1.index == 1) {
+								var odlg = Titanium.UI.createOptionDialog({
+									title : 'Greeting',
+									options : [ 'Hello', 'Hola']
+								});
+								odlg.show();
+							}
+						}
+						);
+						tv2.open({});
 					}
-					});
+				});
 				alert('LID: ' + lid);
 				dlg.show();
   			}

@@ -503,6 +503,7 @@ public class TitaniumActivity extends Activity
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0)) {
+        	Log.e(LCAT, "BACK in Activity");
         	if (webView.canGoBack()) {
         		webView.goBack();
         		Log.e(LCAT, "Activity back key and has webView back");

@@ -9,9 +9,9 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
-import android.text.Spannable;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -29,15 +29,24 @@ public class TitaniumTableViewItem extends RelativeLayout
 		super(context);
 
 		setGravity(Gravity.CENTER_VERTICAL);
+		setPadding(10, 2, 10, 2);
+		//setFocusable(true);
+		//requestFocus();
 
 		iconView = new ImageView(context);
 		iconView.setId(100);
+		iconView.setFocusable(false);
+		iconView.setFocusableInTouchMode(false);
 
 		textView = new TextView(context);
 		textView.setId(101);
+		textView.setFocusable(false);
+		textView.setFocusableInTouchMode(false);
 
 		hasChildView = new ImageView(context);
 		hasChildView.setId(102);
+		hasChildView.setFocusable(false);
+		hasChildView.setFocusableInTouchMode(false);
 
 		LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(CENTER_VERTICAL);
@@ -114,7 +123,7 @@ public class TitaniumTableViewItem extends RelativeLayout
 		if (data.has("hasChild")) {
 			try {
 				if (data.getBoolean("hasChild")) {
-					BitmapDrawable d = new BitmapDrawable(getClass().getResourceAsStream("/org/appcelerator/titanium/module/ui/btn_more.png"));
+					BitmapDrawable d = new BitmapDrawable(getClass().getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));
 					if (d != null) {
 						hasChildView.setImageDrawable(d);
 					}
@@ -125,5 +134,18 @@ public class TitaniumTableViewItem extends RelativeLayout
 			}
 		}
 	}
+
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		Log.e(LCAT, "TTVI d1");
+		return super.dispatchKeyEvent(event);
+	}
+
+	@Override
+	public boolean dispatchKeyEventPreIme(KeyEvent event) {
+		Log.e(LCAT, "TTVI d2");
+		return super.dispatchKeyEventPreIme(event);
+	}
+
 
 }

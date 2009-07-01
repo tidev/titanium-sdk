@@ -7,23 +7,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.graphics.Color;
+import android.app.Dialog;
 import android.os.Handler;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class TitaniumTableView extends PopupWindow implements ITitaniumTableView
+public class TitaniumTableView extends Dialog implements ITitaniumTableView
 {
 	private static final String LCAT = "TitaniumTableView";
 
@@ -75,10 +72,11 @@ public class TitaniumTableView extends PopupWindow implements ITitaniumTableView
 	}
 
 	public TitaniumTableView(TitaniumActivity activity) {
-		super(activity);
+		super(activity,android.R.style.Theme_NoTitleBar);
 
 		this.activity = activity;
 		this.handler = new Handler();
+		this.rowHeight = 65;
 	}
 
 	public void setData(String data) {
@@ -92,40 +90,35 @@ public class TitaniumTableView extends PopupWindow implements ITitaniumTableView
 	public void open(String json, final String callback)
 	{
 		Log.e(LCAT, "OPEN");
-		WebView wv = activity.getWebView();
-
-		setWindowLayoutMode(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-		setHeight(wv.getHeight());
-		setWidth(wv.getWidth());
-		setFocusable(true);
 
 		FrameLayout layout = new FrameLayout(activity);
-		layout.setBackgroundColor(Color.rgb(64, 64, 64));
-		//layout.setBackgroundColor(Color.RED);
-		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		layout.setLayoutParams(params);
-		layout.setPadding(5, 5, 5, 5);
+		layout.setPadding(5,5,5,5);
 
 		ListView view = new ListView(activity);
-
+		view.setFocusable(true);
+		view.setFocusableInTouchMode(true);
 
 		final JSONArray jdata = processData(data);
 
 		view.setAdapter(new TTVListAdapter(jdata));
-
-		view.setOnKeyListener(new View.OnKeyListener(){
+		view.setOnKeyListener(new View.OnKeyListener() {
 
 			public boolean onKey(View view, int keyCode, KeyEvent keyEvent)
 			{
-				Log.e(LCAT, "A Key");
-				if (keyCode == KeyEvent.KEYCODE_BACK && keyEvent.getRepeatCount() == 0) {
+				if (keyCode == KeyEvent.KEYCODE_BACK &&
+						keyEvent.getRepeatCount() == 0 &&
+						keyEvent.getAction() == KeyEvent.ACTION_DOWN
+						)
+				{
 					close();
 					return true;
 				}
 				return false;
 			}});
 
-		view.setOnItemClickListener(new OnItemClickListener(){
+		view.setOnItemClickListener(new OnItemClickListener() {
 
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 			{
@@ -147,11 +140,8 @@ public class TitaniumTableView extends PopupWindow implements ITitaniumTableView
 
 		layout.addView(view, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		setContentView(layout);
-		view.requestFocus();
-		int[] coords = new int[2];
-		wv.getLocationInWindow(coords);
-		this.showAtLocation(wv, Gravity.CENTER, coords[0], coords[1]+20);
-		this.update();
+		show();
+		//layout.requestFocus();
 	}
 
 	public void close()
