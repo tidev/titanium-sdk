@@ -39,8 +39,8 @@ public class TitaniumAnalyticsService extends Service
 	@SuppressWarnings("unused")
 	private final static int BUCKET_SIZE_SLOW_NETWORK = 5;
 
-//	private final static String ANALYTICS_URL = "https://api.appcelerator.net/p/v1/mobile-track";
-	private final static String ANALYTICS_URL = "http://192.168.123.102:8000/test";
+	private final static String ANALYTICS_URL = "https://api.appcelerator.net/p/v1/mobile-track";
+	//private final static String ANALYTICS_URL = "http://192.168.123.102:8000/test";
 
 	private ConnectivityManager connectivityManager;
 
