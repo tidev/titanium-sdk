@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 #endif
 
 #ifdef DEPLOYTYPE
-	APPLICATION_DEPLOYTYPE = [NSString stringWithCString:STRING(DEPLOYTYPE)];
+	APPLICATION_DEPLOYTYPE = [NSString stringWithCString:STRING(DEPLOYTYPE) encoding:NSUTF8StringEncoding];
 #endif
 
     int retVal = UIApplicationMain(argc, argv, nil, nil);

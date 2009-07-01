@@ -15,9 +15,12 @@
 	NSMutableDictionary * proxyDictionary;
 	CLLocationManager * locationManager;
 	int	watchEventsFired;
+	NSDate *lastEvent;
 //	NSMutableDictionary * listeningPageTokens;
 //	id	previousDelegate;
 }
+
+-(void)transmitGeoEvent:(CLLocation*)location fromLocation:(CLLocation*)fromLocation;
 
 @end
 

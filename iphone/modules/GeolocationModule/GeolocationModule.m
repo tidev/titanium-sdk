@@ -9,7 +9,11 @@
 #import "GeolocationModule.h"
 #import "AnalyticsModule.h"
 
+
 NSUInteger lastWatchID = 0;
+
+#define MAX_DELAY_BEFORE_TRANSMIT_GEO_EVENT_IN_MS (60000) * 5
+
 
 @interface GeolocationProxy : TitaniumProxyObject {
 //	NSString * 
@@ -96,6 +100,7 @@ NSUInteger lastWatchID = 0;
 			(long long)([[newLocation timestamp] timeIntervalSinceReferenceDate] * 1000)];
 }
 
+
 + (NSString *) stringFromError: (NSError *) error timedout: (BOOL) isTimeout;
 {
 	int failCode = 0;
@@ -133,6 +138,37 @@ NSUInteger lastWatchID = 0;
 	[locationManager setDesiredAccuracy:kCLLocationAccuracyKilometer];
 }
 
+-(NSDictionary*)getGeoData:(CLLocation*)newLocation;
+{
+	if ([newLocation timestamp] == 0)
+	{
+		// this happens when the location object is essentially null (as in no location)
+		return nil;
+	}
+		
+	CLLocationCoordinate2D latlon = [newLocation coordinate];
+	
+	
+	NSDictionary * data = [NSDictionary dictionaryWithObjectsAndKeys:
+						   [NSNumber numberWithFloat:latlon.latitude],@"latitude",
+						   [NSNumber numberWithFloat:latlon.longitude],@"longitude",
+						   [NSNumber numberWithFloat:[newLocation altitude]],@"altitude",
+						   [NSNumber numberWithFloat:[newLocation horizontalAccuracy]],@"accuracy",
+						   [NSNumber numberWithFloat:[newLocation verticalAccuracy]],@"altitudeAccuracy",
+						   [NSNumber numberWithFloat:[newLocation course]],@"heading",
+						   [NSNumber numberWithFloat:[newLocation speed]],@"speed",
+						   [NSNumber numberWithLongLong:(long long)([[newLocation timestamp] timeIntervalSinceReferenceDate] * 1000)],@"timestamp",
+						   nil];
+	return data;
+}
+
+-(void)transmitGeoEvent:(CLLocation*)location fromLocation:(CLLocation*)fromLocation;
+{
+	AnalyticsModule *module = (AnalyticsModule*)[[TitaniumHost sharedHost] moduleNamed:@"AnalyticsModule"];
+	NSDictionary * data = [NSDictionary dictionaryWithObjectsAndKeys:[self getGeoData:location],@"to",[self getGeoData:fromLocation],@"from",nil];
+	[module sendPlatformEvent:@"ti.geo" data:data];
+}
+
 - (void) updatePolling;
 {
 	for (GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator]){
@@ -153,10 +189,14 @@ NSUInteger lastWatchID = 0;
 			[thisProxy runCallback:locationString];
 		}
 	}
-	if(watchEventsFired == 0){
-		[(AnalyticsModule *)[[TitaniumHost sharedHost] moduleNamed:@"AnalyticsModule"] addEvent:@"Geolocation" value:@"Success"];
+	
+	if (lastEvent == nil || [[NSDate date] timeIntervalSince1970]-[lastEvent timeIntervalSince1970] >= MAX_DELAY_BEFORE_TRANSMIT_GEO_EVENT_IN_MS)
+	{
+		[self transmitGeoEvent:newLocation fromLocation:oldLocation];
 	}
-	watchEventsFired ++;
+	
+	watchEventsFired++;
+	lastEvent = [NSDate date];
 	[self updatePolling];
 }
 
@@ -171,10 +211,8 @@ NSUInteger lastWatchID = 0;
 			[thisProxy runCallback:errorString];
 		}
 	}
-	if(watchEventsFired == 0){
-		[(AnalyticsModule *)[[TitaniumHost sharedHost] moduleNamed:@"AnalyticsModule"] addEvent:@"Geolocation" value:@"Failed"];
-	}
-	watchEventsFired ++;
+	lastEvent = nil; // on failure, reset recording time
+	watchEventsFired++;
 	[self updatePolling];
 }
 
@@ -216,9 +254,8 @@ NSUInteger lastWatchID = 0;
 	locationManager = [[CLLocationManager alloc] init];
 	[locationManager setDelegate:self];
 
-//	if ([locationManager locationServicesEnabled]) {
-//		[locationManager startUpdatingLocation];
-//	}
+	// initialize the date reference (for events) to nil to cause it to fire initially
+	lastEvent = nil;
 
 	proxyDictionary = [[NSMutableDictionary alloc] init];
 	
@@ -240,6 +277,16 @@ NSUInteger lastWatchID = 0;
 			[NSDictionary dictionary],@"_WATCH",
 			nil];
 	[[[TitaniumHost sharedHost] titaniumObject] setObject: geoDict forKey:@"Geolocation"];
+
+	if ([locationManager locationServicesEnabled]) 
+	{
+		// start monitoring one-shot so we can get the initial geo
+		// will automatically stop after the first location if no listeners
+		// have been added - this also has the benefit of warming up geo
+		// for apps that use it initially
+		[self updateLocManagerAccuracy];
+		[locationManager startUpdatingLocation];
+	}
 	
 	return YES;
 }

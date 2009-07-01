@@ -75,7 +75,8 @@ class Compiler(object):
 		self.resources_dir = os.path.join(project_dir,'Resources')
 		self.classes_dir = os.path.join(self.project_dir,'build','iphone','Classes')
 		self.temp_build_dir = os.path.join(self.project_dir,'build','iphone','tmp')
-		self.modules = []
+		# these modules are always required 
+		self.modules = ['App','Network','Platform','Analytics']
 
 	def extract_modules(self,out):
 		for line in out.split(';'):
