@@ -124,9 +124,7 @@ public class TitaniumAnalyticsService extends Service
 							   		client.getParams().setBooleanParameter("http.protocol.expect-continue", false);
 
 						   			@SuppressWarnings("unused")
-									//String response = client.execute(httpPost, responseHandler);
-						   			HttpResponse response = client.execute(httpPost);
-
+									String response = client.execute(httpPost, responseHandler);
 						   		} catch (Throwable t) {
 						   			Log.e(LCAT, "Error posting events" + t.getMessage());
 						   			deleteEvents = false;

@@ -61,7 +61,7 @@ public class TitaniumAnalyticsModel extends SQLiteOpenHelper{
 
 		int version = oldVersion;
 		while(version < newVersion) {
-			switch(oldVersion) {
+			switch(version) {
 			case 1 :
 				doMigration_1(db);
 				version = 2;
@@ -70,6 +70,8 @@ public class TitaniumAnalyticsModel extends SQLiteOpenHelper{
 				doMigration_2(db);
 				version = 3;
 				break;
+			default :
+				throw new IllegalStateException("Missing migration path version=" + version);
 			}
 		}
 	}

@@ -12,9 +12,11 @@ import java.util.GregorianCalendar;
 import org.appcelerator.titanium.api.ITitaniumApp;
 import org.appcelerator.titanium.api.ITitaniumNetwork;
 import org.appcelerator.titanium.api.ITitaniumPlatform;
+import org.appcelerator.titanium.module.TitaniumGeolocation;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.location.Location;
 import android.util.Log;
 
 public class TitaniumAnalyticsEventFactory
@@ -26,6 +28,8 @@ public class TitaniumAnalyticsEventFactory
 	public static final String EVENT_APP_END = "ti.end";
 	public static final String EVENT_ERROR = "ti.crash";
 	public static final String EVENT_APP_GEO = "ti.geo";
+
+	protected static Location lastLocation;
 
 //	1. Application Enrollment
 //
@@ -224,8 +228,44 @@ public class TitaniumAnalyticsEventFactory
 //	- speed                 -- the speed (double)
 //	- timestamp             -- timestamp reference (long)
 
-	public static TitaniumAnalyticsEvent createAppGeoEvent() {
-		return null;
+	public static TitaniumAnalyticsEvent createAppGeoEvent(Location location)
+	{
+		TitaniumAnalyticsEvent result = null;
+		if (lastLocation == null || (location.getTime() - lastLocation.getTime() > TitaniumGeolocation.MAX_GEO_ANALYTICS_FREQUENCY))
+		{
+			try {
+				JSONObject wrapper = new JSONObject();
+
+				wrapper.put("to", locationToJSONObject(location));
+				if (lastLocation != null) {
+					wrapper.put("from", locationToJSONObject(lastLocation));
+				} else {
+					wrapper.put("from", null);
+				}
+
+				result = new TitaniumAnalyticsEvent(EVENT_APP_GEO, wrapper);
+				lastLocation = location;
+			} catch (JSONException e) {
+				Log.e(LCAT, "Error building ti.geo event", e);
+			}
+		}
+		return result;
+	}
+
+	protected static JSONObject locationToJSONObject(Location loc) throws JSONException
+	{
+		JSONObject result = new JSONObject();
+
+		result.put("latitude", loc.getLatitude());
+		result.put("longitude", loc.getLongitude());
+		result.put("altitude", loc.getAltitude());
+		result.put("accuracy", loc.getAccuracy());
+		result.put("altitudeAccuracy", null); // Not provided
+		result.put("heading", loc.getBearing());
+		result.put("speed", loc.getSpeed());
+		result.put("timestamp", loc.getTime());
+
+		return result;
 	}
 
 //	User defined Events

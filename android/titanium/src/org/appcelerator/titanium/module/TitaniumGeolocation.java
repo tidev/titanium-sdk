@@ -7,8 +7,12 @@
 
 package org.appcelerator.titanium.module;
 
+import org.appcelerator.titanium.TitaniumApplication;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumGeolocation;
+import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEvent;
+import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,7 +24,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
-import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
@@ -34,22 +37,30 @@ public class TitaniumGeolocation extends TitaniumBaseModule implements ITitanium
 	protected static final int ERR_POSITION_UNAVAILABLE = 2;
 	protected static final int ERR_TIMEOUT = 3;
 
+	public static final long MAX_GEO_ANALYTICS_FREQUENCY = 60000L;
+
 	protected static final String OPTION_HIGH_ACCURACY = "enableHighAccuracy";
 
 	public static final String EVENT_GEO = "geo";
 
+	protected TitaniumApplication app;
 	protected TitaniumJSEventManager eventManager;
 	protected LocationManager locationManager;
 	protected LocationListener geoListener;
 	protected boolean listeningForGeo;
 	protected Criteria criteria;
 
+	protected long lastEventTimestamp; // This counter is instance specific. The actually queuing code
+	                                   // will arbitrate between other instances. Since only one activity
+									   // at a time can be active, there shouldn't be any contention.
 
 	public TitaniumGeolocation(TitaniumModuleManager manager, String moduleName)
 	{
 		super(manager, moduleName);
 		eventManager = new TitaniumJSEventManager(manager);
 		eventManager.supportEvent(EVENT_GEO);
+		lastEventTimestamp = 0;
+		app = (TitaniumApplication) manager.getActivity().getApplication();
 
 		listeningForGeo = false;
 
@@ -59,6 +70,14 @@ public class TitaniumGeolocation extends TitaniumBaseModule implements ITitanium
 				LocationProvider provider = locationManager.getProvider(location.getProvider());
 				try {
 					eventManager.invokeSuccessListeners(EVENT_GEO, locationToJSONString(location, provider));
+					if (location.getTime() - lastEventTimestamp > MAX_GEO_ANALYTICS_FREQUENCY) {
+						// Null is returned if it's too early to send another event.
+						TitaniumAnalyticsEvent event = TitaniumAnalyticsEventFactory.createAppGeoEvent(location);
+						if (event != null) {
+							app.postAnalyticsEvent(event);
+							lastEventTimestamp = location.getTime();
+						}
+					}
 				} catch (JSONException e) {
 					eventManager.invokeErrorListeners(EVENT_GEO, createJSONError(ERR_UNKNOWN_ERROR, e.getMessage()));
 				}
