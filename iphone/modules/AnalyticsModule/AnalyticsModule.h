@@ -10,9 +10,17 @@
 @interface AnalyticsModule : NSObject<TitaniumModule> {
 	int callsMade;
 	NSString * sessionID;
+	int sequence;
+	NSMutableArray * events;
+	NSTimer * timer;
+	NSLock * mutex;
 }
 
 @property(readwrite,retain,nonatomic)	NSString * sessionID;
+
+- (void) sendAsyncData: (NSData*)data  timeout:(NSTimeInterval)timeout;
+- (NSData*) generateEventObject: (NSString*)name data:(id)data;
+- (void)sendPlatformEvent:(NSString*)name data:(NSDictionary*)data;
 
 /**
  * @tiapi(method=True,name=Analytics.addEvent,since=0.4) send an analytics event associated with the application

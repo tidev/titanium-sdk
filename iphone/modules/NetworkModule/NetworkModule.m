@@ -26,6 +26,23 @@ typedef enum {
 	clientStateDone = 4,
 } NetHTTPClientState;
 
+NSString * const netHTTPClientGeneratorFormat = @"Ti.%@ = {"
+"abort:function(){return Ti._TICMD('titaniumObject.%@','abort',arguments);},"
+"open:function(){return Ti._TICMD('titaniumObject.%@','open',arguments);},"
+"setRequestHeader:function(){return Ti._TICMD('titaniumObject.%@','setRequestHeader',arguments);},"
+"send:function(){return Ti._TICMD('titaniumObject.%@','send',arguments);},"
+"getResponseHeader:function(){return Ti._TICMD('titaniumObject.%@','responseHeader',arguments);},"
+"getAllResponseHeaders:function(){return Ti._TICMD('titaniumObject.%@','responseHeaders',arguments);},"
+"UNSENT:0,OPENED:1,HEADERS_RECEIVED:2,LOADING:3,DONE:4,"
+"setOnReadyStateChange:function(newFun){this.onreadystatechange=newFun;},"
+"onreadystatechange:null,ondatastream:null,onsendstream:null,onload:null"
+"};"
+"Ti.%@.__defineGetter__('readyState',function(){return Ti._TICMD('titaniumObject.%@','readyState',[])});"
+"Ti.%@.__defineGetter__('responseText',function(){return Ti._TICMD('titaniumObject.%@','responseText',[])});"
+"Ti.%@.__defineGetter__('responseXML',function(){var xml = Ti._TICMD('titaniumObject.%@','responseText',[]); return new DOMParser().parseFromString(xml,'text/xml'); });"
+"Ti.%@.__defineGetter__('status',function(){return Ti._TICMD('titaniumObject.%@','status',[])});"
+"Ti.%@.__defineGetter__('connected',function(){return Ti._TICMD('titaniumObject.%@','connected',[])});";
+
 NSString * const MultiPartBoundaryString = @"XxX~Titanium~HTTPClient~Boundary~XxX";
 const char MultiPartEntryPrelude[] = "--XxX~Titanium~HTTPClient~Boundary~XxX\r\nContent-Disposition: form-data; name=\"";
 const char MultiPartKeyValueGlue[] = "\"\r\n\r\n";

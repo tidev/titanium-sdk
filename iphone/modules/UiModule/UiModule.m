@@ -93,9 +93,9 @@ int barButtonSystemItemForString(NSString * inputString){
 @implementation UIButtonProxy
 @synthesize nativeBarButton, segmentLabelArray, segmentImageArray;
 @synthesize titleString, iconPath, templateValue, barButtonStyle, nativeView, labelView, progressView;
-@synthesize minValue,maxValue,floatValue,stringValue;
+@synthesize minValue,maxValue,floatValue,stringValue, placeholderText;
 @synthesize elementColor, elementBorderColor, elementBackgroundColor;
-
+@synthesize leftViewProxy, rightViewProxy, leftViewMode, rightViewMode;
 
 - (id) init;
 {
@@ -123,11 +123,11 @@ int barButtonSystemItemForString(NSString * inputString){
 
 - (void) setPropertyDict: (NSDictionary *) newDict;
 {	
+//General purpose
 	GRAB_IF_STRING(@"title",titleString);
 	GRAB_IF_STRING(@"image",iconPath);
-
-	GRAB_IF_SELECTOR(@"style",intValue,barButtonStyle);
-
+	
+//Sliders and other value-based things.
 	GRAB_IF_SELECTOR(@"min",floatValue,minValue);
 	GRAB_IF_SELECTOR(@"max",floatValue,maxValue);
 
@@ -144,6 +144,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		needsRefreshing = YES;
 	}
 
+//Segmented
 	id labelArray = [newDict objectForKey:@"labels"];
 	if ([labelArray isKindOfClass:[NSArray class]]){
 		[self setSegmentLabelArray:labelArray];
@@ -158,6 +159,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		[self setSegmentImageArray:nil];
 	}
 
+//Colors
 	id bgColorObject = [newDict objectForKey:@"backgroundColor"];
 	if (bgColorObject != nil)[self setElementBackgroundColor:UIColorWebColorNamed(bgColorObject)];
 
@@ -167,13 +169,13 @@ int barButtonSystemItemForString(NSString * inputString){
 	id borderColorObject = [newDict objectForKey:@"borderColor"];
 	if (borderColorObject != nil)[self setElementBorderColor:UIColorWebColorNamed(borderColorObject)];
 
-
+//Sizes
 	GRAB_IF_SELECTOR(@"width",floatValue,frame.size.width);
 	GRAB_IF_SELECTOR(@"height",floatValue,frame.size.height);
 	GRAB_IF_SELECTOR(@"x",floatValue,frame.origin.x);
 	GRAB_IF_SELECTOR(@"y",floatValue,frame.origin.y);
 
-	
+//System button	
 	id newTemplate = [newDict objectForKey:@"systemButton"];
 	if ([newTemplate isKindOfClass:[NSString class]]) {
 		[self setTemplateValue:barButtonSystemItemForString(newTemplate)];
@@ -183,8 +185,43 @@ int barButtonSystemItemForString(NSString * inputString){
 		needsRefreshing = YES;
 	}
 	
+//Tab bar stuff
+	GRAB_IF_SELECTOR(@"style",intValue,barButtonStyle);
+
+//Text view/field stuff
+	GRAB_IF_SELECTOR(@"autocapitalize",intValue,autocapitalizationType);
+
+	GRAB_IF_SELECTOR(@"enableReturnKey",boolValue,enablesReturnKeyAutomatically);
+
+	GRAB_IF_SELECTOR(@"returnKeyType",intValue,returnKeyType);
+	GRAB_IF_SELECTOR(@"keyboardType",intValue,keyboardType);
+
+	id autoCorrectObject = [newDict objectForKey:@"autocorrect"];
+	if ([autoCorrectObject respondsToSelector:@selector(boolValue)]){
+		autocorrectionType = ([autoCorrectObject boolValue]?UITextAutocorrectionTypeYes:UITextAutocorrectionTypeNo);
+	} else if (autoCorrectObject == [NSNull null]) {
+		autocorrectionType = UITextAutocorrectionTypeDefault;
+	}
 	
+	GRAB_IF_STRING(@"hintText",placeholderText);
+
+	id alignmentObject = [newDict objectForKey:@"textAlign"];
+	if ([alignmentObject isKindOfClass:[NSString class]]){
+		alignmentObject = [alignmentObject lowercaseString];
+		if ([alignmentObject isEqualToString:@"left"]) textAlignment = UITextAlignmentLeft;
+		else if ([alignmentObject isEqualToString:@"center"]) textAlignment = UITextAlignmentCenter;
+		else if ([alignmentObject isEqualToString:@"right"]) textAlignment = UITextAlignmentRight;
+	}
+
+	GRAB_IF_SELECTOR(@"clearOnEdit",boolValue,clearsOnBeginEditing);
+
+	GRAB_IF_SELECTOR(@"borderStyle",intValue,borderStyle);
 	
+	GRAB_IF_SELECTOR(@"clearButtonMode",intValue,clearButtonMode);
+	GRAB_IF_SELECTOR(@"leftButtonMode",intValue,leftViewMode);
+	GRAB_IF_SELECTOR(@"rightButtonMode",intValue,rightViewMode);
+	
+	//Because the proxies are best from the UIModule itself, we don't check here.
 }
 
 - (BOOL) updateNativeView: (BOOL) forBar;
@@ -245,6 +282,14 @@ int barButtonSystemItemForString(NSString * inputString){
 				resultView = [[UITextField alloc] initWithFrame:viewFrame];
 				[(UITextField *)resultView setDelegate:self];
 			}
+			[(UITextField *)resultView setPlaceholder:placeholderText];
+			[(UITextField *)resultView setBorderStyle:borderStyle];
+			[(UITextField *)resultView setClearsOnBeginEditing:clearsOnBeginEditing];
+			[(UITextField *)resultView setClearButtonMode:clearButtonMode];
+			[(UITextField *)resultView setLeftViewMode:leftViewMode];
+			[(UITextField *)resultView setLeftView:[leftViewProxy nativeView]];
+			[(UITextField *)resultView setRightViewMode:rightViewMode];
+			[(UITextField *)resultView setRightView:[rightViewProxy nativeView]];
 		} else {
 			if ([nativeView isKindOfClass:[UITextView class]]){
 				resultView = [nativeView retain];
@@ -256,6 +301,12 @@ int barButtonSystemItemForString(NSString * inputString){
 		}
 		if (elementColor != nil) [(UITextField *)resultView setTextColor:elementColor];
 		[(UITextField *)resultView setText:stringValue];
+		[(UITextField *)resultView setAutocorrectionType:autocorrectionType];
+		[(UITextField *)resultView setAutocapitalizationType:autocapitalizationType];
+		[(UITextField *)resultView setTextAlignment:textAlignment];
+		[(UITextField *)resultView setKeyboardType:keyboardType];
+		[(UITextField *)resultView setReturnKeyType:returnKeyType];
+		[(UITextField *)resultView setEnablesReturnKeyAutomatically:enablesReturnKeyAutomatically];
 		[resultView setBackgroundColor:elementBackgroundColor];
 		
 
@@ -313,7 +364,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		CGRect oldFrame = [resultView frame];
 		viewFrame.size.height = oldFrame.size.height;
 		if (viewFrame.size.width < oldFrame.size.width) viewFrame.size.width = oldFrame.size.width;
-
+		[resultView setFrame:viewFrame];
 		
 //	} else if (templateValue == UITitaniumNativeItemPicker){
 //		if ([nativeView isKindOfClass:[UIPickerView class]]){
@@ -400,6 +451,15 @@ int barButtonSystemItemForString(NSString * inputString){
 	return nativeBarButton;
 }
 
+- (UIView *) nativeBarView;
+{
+	if ((nativeView == nil) || needsRefreshing){
+		[self updateNativeView:YES];
+		needsRefreshing = NO;
+	}
+	return nativeView;
+}
+
 - (UIView *) nativeView;
 {
 	if ((nativeView == nil) || needsRefreshing){
@@ -418,7 +478,7 @@ int barButtonSystemItemForString(NSString * inputString){
 - (IBAction) onSwitchChange: (id) sender;
 {
 	NSString * newValue = ([(UISwitch *)sender isOn] ? @"true":@"false");
-	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'click',value:%@});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
+	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'change',value:%@});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
 
@@ -444,7 +504,7 @@ int barButtonSystemItemForString(NSString * inputString){
 - (IBAction) onSegmentChange: (id) sender;
 {
 	int newValue = [(UISegmentedControl *)sender selectedSegmentIndex];
-	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'click',value:%d});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
+	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'click',index:%d});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
 
@@ -657,7 +717,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	return buttonToken;
 }
 
-- (UIButtonProxy *) proxyForObject: (id) proxyObject;
+- (UIButtonProxy *) proxyForObject: (id) proxyObject recurse: (BOOL) recursion;
 {
 	NSString * token = nil;
 	if ([proxyObject isKindOfClass:[NSDictionary class]]){
@@ -669,6 +729,18 @@ int barButtonSystemItemForString(NSString * inputString){
 		if ([divAttributeDict isKindOfClass:[NSDictionary class]])[result setPropertyDict:divAttributeDict];
 
 		[result setPropertyDict:proxyObject];
+
+		if (recursion){
+			id leftProxy = [proxyObject objectForKey:@"leftButton"];
+			if (leftProxy != nil){
+				[result setLeftViewProxy:[self proxyForObject:leftProxy recurse:NO]];
+			}
+			id rightProxy = [proxyObject objectForKey:@"rightButton"];
+			if (rightProxy != nil){
+				[result setLeftViewProxy:[self proxyForObject:rightProxy recurse:NO]];
+			}
+		}
+		
 		return result;
 
 	} else if ([proxyObject isKindOfClass:[NSString class]]){
@@ -776,14 +848,13 @@ int barButtonSystemItemForString(NSString * inputString){
 	[ourVC performSelectorOnMainThread:@selector(setTitleViewImagePath:) withObject:newTitleImagePath waitUntilDone:NO];	
 }
 
-- (void) setWindow:(NSString *)tokenString titleButtonProxy: (id) newTitleButtonProxy;
+- (void) setWindow:(NSString *)tokenString titleProxy: (id) newTitleProxyObject;
 {
+	UIButtonProxy * newTitleProxy = [self proxyForObject:newTitleProxyObject recurse:YES];
 	
-	
-//	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
-//	[ourVC performSelectorOnMainThread:@selector(setTitleViewImagePath:) withObject:newTitleImagePath waitUntilDone:NO];	
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
+	[ourVC performSelectorOnMainThread:@selector(setTitleViewProxy:) withObject:newTitleProxy waitUntilDone:NO];	
 }
-
 
 - (void) setWindow:(NSString *)tokenString showNavBar: (id) animatedObject;
 {
@@ -812,7 +883,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	
 	UIButtonProxy * ourButton = nil;
 	if ([buttonObject isKindOfClass:[NSDictionary class]]){
-		ourButton = [self proxyForObject:buttonObject];
+		ourButton = [self proxyForObject:buttonObject recurse:YES];
 		if (ourButton == nil) return;
 	} else if ((buttonObject != nil) && (buttonObject != (id)[NSNull null])) {
 		return;
@@ -850,7 +921,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	if ([barObject isKindOfClass:[NSArray class]]){
 		NSMutableArray *result = [NSMutableArray arrayWithCapacity:[barObject count]];
 		for (NSDictionary * thisButtonDict in barObject){
-			UIButtonProxy * thisProxy = [self proxyForObject:thisButtonDict];
+			UIButtonProxy * thisProxy = [self proxyForObject:thisButtonDict recurse:YES];
 			if (thisProxy == nil) return;
 			[result addObject:thisProxy];
 		}
@@ -867,7 +938,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 	if ((ourVC == nil) || ![viewObject isKindOfClass:dictClass]) return;
 	
-	UIButtonProxy * ourNativeViewProxy = [self proxyForObject:viewObject];
+	UIButtonProxy * ourNativeViewProxy = [self proxyForObject:viewObject recurse:YES];
 	if (ourNativeViewProxy == nil) return;
 	
 	[ourVC performSelectorOnMainThread:@selector(addNativeViewProxy:) withObject:ourNativeViewProxy waitUntilDone:NO];
@@ -939,6 +1010,9 @@ int barButtonSystemItemForString(NSString * inputString){
 	[(UiModule *)invocGen setWindow:nil titleImage:nil];
 	NSInvocation * setTitleImageInvoc = [invocGen invocation];
 
+	[(UiModule *)invocGen setWindow:nil titleProxy:nil];
+	NSInvocation * setTitleImageProxyInvoc = [invocGen invocation];
+
 	[(UiModule *)invocGen openWindow:nil animated:nil];
 	NSInvocation * openWinInvoc = [invocGen invocation];
 	
@@ -1002,6 +1076,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			"showNavBar:function(args){Ti.UI._WSHNAV(Ti._TOKEN,args);},"
 			"hideNavBar:function(args){Ti.UI._WHDNAV(Ti._TOKEN,args);},"
 			"setTitleImage:function(args){Ti.UI._WTITLEIMG(Ti._TOKEN,args);},"
+			"setTitleControl:function(args){if(args)args.ensureToken();Ti.UI._WTITLEPXY(Ti._TOKEN,args);},"
 			"setLeftNavButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WNAVBTN(Ti._TOKEN,true,btn,args);},"
 			"setRightNavButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WNAVBTN(Ti._TOKEN,false,btn,args);},"
 			"setToolbar:function(bar,args){if(bar){var i=bar.length;while(i>0){i--;bar[i].ensureToken();};};"
@@ -1017,6 +1092,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res.setTitle=function(args){this.title=args;if(this._TOKEN){Ti.UI._WTITLE(this._TOKEN,args);};};"
 			"res.showNavBar=function(args){this._hideNavBar=false;if(this._TOKEN){Ti.UI._WSHNAV(this._TOKEN,args);};};"
 			"res.hideNavBar=function(args){this._hideNavBar=true;if(this._TOKEN){Ti.UI._WHDNAV(this._TOKEN,args);};};"
+			"res.setTitleControl=function(args){if(args)args.ensureToken();Ti.UI._WTITLEPXY(this._TOKEN,args);};"
 			"res.setTitleImage=function(args){this.titleImage=args;if(this._TOKEN){Ti.UI._WTITLEIMG(this._TOKEN,args);};};"
 			"res.setBarColor=function(args){this.barColor=args;if(this._TOKEN){Ti.UI._WNAVTNT(this._TOKEN,args);};};"
 			"res.setLeftNavButton=function(btn,args){if(btn)btn.ensureToken();this.lNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,true,btn,args);};};"
@@ -1042,7 +1118,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res._GRP=[];res.addSection=function(section){this._GRP.push(section);};return res;}";
 	
 	NSString * createGroupedSectionString = @"function(args){var res={header:null};for(prop in args){res[prop]=args[prop]};"
-			"res._EVT={click:[]};res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res.onClick=Ti.ONEVT;return res;}";
+			"res._EVT={click:[]};res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res.onClick=Ti._ONEVT;return res;}";
 
 	NSString * systemButtonStyleString = [NSString stringWithFormat:@"{PLAIN:%d,BORDERED:%d,DONE:%d}",
 										  UIBarButtonItemStylePlain,UIBarButtonItemStyleBordered,UIBarButtonItemStyleDone];
@@ -1059,14 +1135,14 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSString * createButtonString = @"function(args,buttonType){var res={"
 			"onClick:Ti._ONEVT,_EVT:{click:[],change:[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
 			"ensureToken:function(){if(this._TOKEN)return;var tkn=Ti.UI._BTNTKN();this._TOKEN=tkn;Ti.UI._BTN[tkn]=this;},"
-			"setDiv:function(div){this.div=div;divObj=document.getElementById(div);this.divObj=divObj;divAttr={};this.divAttr=divAttr;if(!divObj)return;"
+			"setId:function(div){this.id=div;divObj=document.getElementById(div);this.divObj=divObj;divAttr={};this.divAttr=divAttr;if(!divObj)return;"
 //				"var attr=divObj.attributes;if(attr){var i=attr.length;while(i>0){i--;divAttr[attr[i].name]=attr[i].value;}};"
 				"divAttr.y=0;divAttr.x=0;divAttr.width=divObj.offsetWidth;divAttr.height=divObj.offsetHeight;"
 				"while(divObj){divAttr.x+=divObj.offsetLeft;divAttr.y+=divObj.offsetTop;divObj=divObj.offsetParent;}"
 			"}};"
 			"if(args){for(prop in args){res[prop]=args[prop];}};"
 			"if(buttonType)res.systemButton=buttonType;"
-			"if(res.div){res.setDiv(res.div);Ti.UI.currentWindow.insertButton(res);}"
+			"if(res.id){res.setId(res.id);Ti.UI.currentWindow.insertButton(res);}"
 			"return res;}";
 
 	NSString * createOptionDialogString = @"function(args){var res={};for(prop in args){res[prop]=args[prop];};"
@@ -1099,6 +1175,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			hideNavBarInvoc,@"_WHDNAV",
 			setTitleInvoc,@"_WTITLE",
 			setTitleImageInvoc,@"_WTITLEIMG",
+			setTitleImageProxyInvoc,@"_WTITLEPXY",
 			changeWinNavColorInvoc,@"_WNAVTNT",
 			setNavButtonInvoc,@"_WNAVBTN",
 			updateToolbarInvoc,@"_WTOOL",
@@ -1134,7 +1211,35 @@ int barButtonSystemItemForString(NSString * inputString){
 			[NSNumber numberWithInt:TitaniumViewControllerPortrait],@"PORTRAIT",
 			[NSNumber numberWithInt:TitaniumViewControllerLandscape],@"LANDSCAPE",
 			[NSNumber numberWithInt:TitaniumViewControllerLandscapeOrPortrait],@"PORTRAIT_AND_LANDSCAPE",
+			[NSNumber numberWithInt:UIReturnKeyGo],@"RETURNKEY_GO",
+			[NSNumber numberWithInt:UIReturnKeyGoogle],@"RETURNKEY_GOOGLE",
+			[NSNumber numberWithInt:UIReturnKeyJoin],@"RETURNKEY_JOIN",
+			[NSNumber numberWithInt:UIReturnKeyNext],@"RETURNKEY_NEXT",
+			[NSNumber numberWithInt:UIReturnKeySearch],@"RETURNKEY_SEARCH",
+			[NSNumber numberWithInt:UIReturnKeySend],@"RETURNKEY_SEND",
+			[NSNumber numberWithInt:UIReturnKeyDone],@"RETURNKEY_DONE",
+			[NSNumber numberWithInt:UIReturnKeyDefault],@"RETURNKEY_DEFAULT",
+			[NSNumber numberWithInt:UIReturnKeyRoute],@"RETURNKEY_ROUTE",
+			[NSNumber numberWithInt:UIReturnKeyYahoo],@"RETURNKEY_YAHOO",
+			[NSNumber numberWithInt:UIReturnKeyEmergencyCall],@"RETURNKEY_EMERGENCY_CALL",
 
+			[NSNumber numberWithInt:UIKeyboardTypeASCIICapable],@"KEYBOARD_ASCII",
+			[NSNumber numberWithInt:UIKeyboardTypeURL],@"KEYBOARD_URL",
+			[NSNumber numberWithInt:UIKeyboardTypePhonePad],@"KEYBOARD_PHONE_PAD",
+			[NSNumber numberWithInt:UIKeyboardTypeNumbersAndPunctuation],@"KEYBOARD_NUMBERS_PUNCTUATION",
+			[NSNumber numberWithInt:UIKeyboardTypeNumberPad],@"KEYBOARD_NUMBER_PAD",
+			[NSNumber numberWithInt:UIKeyboardTypeEmailAddress],@"KEYBOARD_EMAIL_ADDRESS",
+			[NSNumber numberWithInt:UIKeyboardTypeDefault],@"KEYBOARD_DEFAULT",
+
+			[NSNumber numberWithInt:UITextFieldViewModeNever],@"INPUT_BUTTONMODE_NEVER",
+			[NSNumber numberWithInt:UITextFieldViewModeAlways],@"INPUT_BUTTONMODE_ALWAYS",
+			[NSNumber numberWithInt:UITextFieldViewModeWhileEditing],@"INPUT_BUTTONMODE_ONFOCUS",
+			[NSNumber numberWithInt:UITextFieldViewModeUnlessEditing],@"INPUT_BUTTONMODE_ONBLUR",
+
+			[NSNumber numberWithInt:UITextBorderStyleNone],@"INPUT_BORDERSTYLE_NONE",
+			[NSNumber numberWithInt:UITextBorderStyleLine],@"INPUT_BORDERSTYLE_LINE",
+			[NSNumber numberWithInt:UITextBorderStyleBezel],@"INPUT_BORDERSTYLE_BEZEL",
+			[NSNumber numberWithInt:UITextBorderStyleRoundedRect],@"INPUT_BORDERSTYLE_ROUNDED",
 
 			[NSDictionary dictionaryWithObjectsAndKeys:
 					[TitaniumJSCode codeWithString:createGroupedViewString],@"createGroupedView",

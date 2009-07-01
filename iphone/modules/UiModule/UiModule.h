@@ -34,6 +34,27 @@
 	NSArray * segmentLabelArray;
 	NSArray * segmentImageArray;
 
+	//For texts
+	UITextAutocapitalizationType autocapitalizationType; // default is UITextAutocapitalizationTypeNone
+	UITextAutocorrectionType autocorrectionType;         // default is UITextAutocorrectionTypeDefault
+	UIKeyboardType keyboardType;                         // default is UIKeyboardTypeDefault
+	UIKeyboardAppearance keyboardAppearance;             // default is UIKeyboardAppearanceDefault
+	UIReturnKeyType returnKeyType;                       // default is UIReturnKeyDefault (See note under UIReturnKeyType enum)
+	BOOL enablesReturnKeyAutomatically;                  // default is NO (when YES, will automatically disable return key when text widget has zero-length contents, and will automatically enable when text widget has non-zero-length contents)
+	BOOL secureTextEntry;      // default is NO
+	UITextAlignment         textAlignment;
+	UITextBorderStyle       borderStyle;
+	BOOL                    clearsOnBeginEditing;
+	UITextFieldViewMode	clearButtonMode;
+	UIButtonProxy	*leftViewProxy;
+	UITextFieldViewMode	leftViewMode;   
+	UIButtonProxy	*rightViewProxy;
+	UITextFieldViewMode	rightViewMode;  
+	
+	
+	
+	NSString * placeholderText;
+
 	//Yes, even integer and bools are represented as floats.
 	float minValue;		//Default is 0
 	float maxValue;		//Default is 1
@@ -65,11 +86,20 @@
 @property(nonatomic,readwrite,retain)	UIProgressView * progressView;
 @property(nonatomic,readwrite,retain)	UIView * nativeView;
 @property(nonatomic,readwrite,retain)	UIBarButtonItem * nativeBarButton;
+- (UIView *) nativeBarView;
 
 @property(nonatomic,readwrite,assign)	float minValue;	
 @property(nonatomic,readwrite,assign)	float maxValue;	
 @property(nonatomic,readwrite,assign)	float floatValue;
 @property(nonatomic,readwrite,copy)		NSString * stringValue;
+
+@property(nonatomic,readwrite,copy)		NSString * placeholderText;
+
+@property(nonatomic,readwrite,assign)	UITextFieldViewMode	leftViewMode;	
+@property(nonatomic,readwrite,assign)	UITextFieldViewMode	rightViewMode;	
+@property(nonatomic,readwrite,retain)	UIButtonProxy	*leftViewProxy;
+@property(nonatomic,readwrite,retain)	UIButtonProxy	*rightViewProxy;
+
 
 - (IBAction) onClick: (id) sender;
 - (void) setPropertyDict: (NSDictionary *) newDict;
@@ -89,7 +119,7 @@
 - (void) setWindow:(NSString *)tokenString navSide:(id) isLeftObject button: (NSDictionary *) buttonObject options: (NSDictionary *) optionsObject;
 - (void) setWindow:(NSString *)tokenString toolbar: (id) barObject options: (id) optionsObject;
 
-- (UIButtonProxy *) proxyForObject: (id) proxyObject;
+- (UIButtonProxy *) proxyForObject: (id) proxyObject recurse: (BOOL) recursion;
 
 @end
 

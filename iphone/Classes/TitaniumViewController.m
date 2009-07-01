@@ -12,6 +12,7 @@
 
 #import "TitaniumTableViewController.h"
 #import "TitaniumWebViewController.h"
+#import "UiModule.h"
 
 NSDictionary * tabBarItemFromObjectDict = nil;
 
@@ -211,6 +212,7 @@ NSString * const ControllerString = @"Controller";
 	if ([backgroundImageName isKindOfClass:NSStringClass]){
 		[self setBackgroundImage:[theTiHost imageForResource:backgroundImageName]];
 	}
+
 	
 	id orientationObject = [inputState objectForKey:@"orientation"];
 	if (orientationObject != nil) {
@@ -233,6 +235,11 @@ NSString * const ControllerString = @"Controller";
 	if ([fullScreenObject respondsToSelector:@selector(boolValue)]) {
 		[self setFullscreen:[fullScreenObject boolValue]];
 	}
+
+	id hidesBackObject = [inputState objectForKey:@"isPrimary"];
+	if ([hidesBackObject respondsToSelector:@selector(boolValue)]) {
+		[[self navigationItem] setHidesBackButton:[hidesBackObject boolValue]];
+	}
 	
 	[self setStatusBarStyleObject:[inputState objectForKey:@"statusBarStyle"]];
 	
@@ -249,11 +256,21 @@ NSString * const ControllerString = @"Controller";
 {
 	UIImage * newTitleViewImage = [[TitaniumHost sharedHost] imageForResource:titleViewImagePath];
 	UIImageView * newTitleView = nil;
-	
-	if (newTitleViewImage != nil) newTitleView = [[UIImageView alloc] initWithImage:newTitleViewImage];
+
+	if (titleViewProxy != nil) newTitleView = [[titleViewProxy nativeBarView] retain];
+	else if (newTitleViewImage != nil) newTitleView = [[UIImageView alloc] initWithImage:newTitleViewImage];
 	
 	[[self navigationItem] setTitleView:newTitleView];
 	[newTitleView release];
+}
+
+- (void)setTitleViewProxy: (UIButtonProxy *) newProxy;
+{
+	[newProxy retain];
+	[titleViewProxy release];
+	titleViewProxy = newProxy;
+	
+	[self refreshTitleView];
 }
 
 - (void)setTitleViewImagePath: (NSString *) newPath;

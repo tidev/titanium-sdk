@@ -7,196 +7,245 @@
 
 #import "AnalyticsModule.h"
 #import "PlatformModule.h"
+#import "NetworkModule.h"
+#import <sys/utsname.h>
 
+#define TI_ANALYTICS_TIMER_DELAY_IN_SEC 10
+#define TI_ANALYTICS_NETWORK_TIMEOUT_IN_SEC 30
+#define TI_ANALYTICS_NETWORK_TIMEOUT_ON_SHUTDOWN_IN_SEC 10
+
+
+//NOTE: this is defined in the application at build time and we pull this in
 extern NSString * APPLICATION_DEPLOYTYPE;
-
-//TODO: we only need to send this once per unique phone detection
-//and thereafter we can just send MID
-
-//http://www.webdevelopersnotes.com/tips/html/finding_the_number_of_seconds_and_milliseconds.php3
-NSString * analyticsModuleDictString = @"function(name,value){"
-	"try{"
-		"var url = 'https://api.appcelerator.net/p/v1/mobile-track';"
-		"var stamp=new Date();"
-		"var utcdate=stamp.getUTCDate();if(utcdate<10)utcdate='0'+utcdate;"
-		"var utcmonth=stamp.getUTCMonth();if(utcmonth<10)utcmonth='0'+utcmonth;"
-
-		"var utchour=stamp.getUTCHours();if(utchour<10)utchour='0'+utchour;"
-		"var utcmin=stamp.getUTCMinutes();if(utcmin<10)utcmin='0'+utcmin;"
-		"var utcsec=stamp.getUTCSeconds();if(utcsec<10)utcsec='0'+utcsec;"
-
-
-		"var qsv='[{\"eventSid\":\"'+Titanium.Analytics.sid+"
-			"'\",\"eventPayload\":'+Ti._JSON(value)+"
-			"',\"eventId\",\"'+Titanium.App.getGUID()+"
-			"'\",\"eventName\":\"'+name+"
-			"'\",\"eventTimestamp\":\"'+stamp.getUTCFullYear()+'-'+"
-			"utcmonth+'-'+utcdate+'T'+utchour+':'+utcmin+':'+utcsec+"
-			"'\",\"eventMid\":\"'+Titanium.Platform.id+'\"}]';"
-
-		"Titanium.API.debug(qsv);"
-
-//		"qsv.mid = Titanium.Platform.id;"
-//		"qsv.guid = Titanium.App.getGUID();"
-//		"qsv.sid = Titanium.Analytics.sid;"
-//		"qsv.mac_addr = Titanium.Platform.macaddress;"
-//		"qsv.osver = Titanium.Platform.version;"
-//		"qsv.platform = Titanium.platform;"
-//		"qsv.version = Titanium.version;"
-//		"qsv.model = Titanium.Platform.model;"
-//		"qsv.app_version = Titanium.App.getVersion();"
-//		"qsv.os = Titanium.Platform.name;"
-//		"qsv.ostype = Titanium.Platform.ostype;"
-//		"qsv.osarch = Titanium.Platform.architecture;"
-//		"qsv.oscpu = Titanium.Platform.processorCount;"
-//		"qsv.un = Titanium.Platform.username;"
-//		"qsv.ip = Titanium.Platform.address;"
-//		"qsv.phoneNumber = Titanium.Platform.phoneNumber;"
-		"var xhr = Titanium.Network.createHTTPClient();"
-		"xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');"
-		"xhr.open('POST',url,true);"
-		"xhr.send(qsv);"
-		"delete qsv;"
-	//	"alert(qsv);"
-	"}catch(E){"
-		"Titanium.API.debug('Error sending analytics data: '+E);"
-	"}"
-"}";
-
-
-//[{	"eventSid":"bf577f87-98a4-474b-a614-5c3f448926a3",
-//	"eventPayload":"",
-//	"eventId":"b5687c06-6b6d-429a-a9fd-ef1c761b7b33:20013fd8f4da6591",
-//	"eventName":"ti.end",
-//	"eventTimestamp":"2009-06-15T21:46:28.685+0000",
-//"eventMid":"20013fd8f4da6591"}]
-//
-//192.168.123.109 - - [15/Jun/2009 16:46:33] "POST / HTTP/1.1" 200 -
-//[{	"eventSid":"bf577f87-98a4-474b-a614-5c3f448926a3",
-//	"eventPayload":"",
-//	"eventId":"b5687c06-6b6d-429a-a9fd-ef1c761b7b33:20013fd8f4da6591",
-//	"eventName":"ti.end",
-//	"eventTimestamp":"2009-06-15T21:46:28.685+0000",
-//"eventMid":"20013fd8f4da6591"},
-//
-//{	"eventSid":"bf577f87-98a4-474b-a614-5c3f448926a3",
-//	"eventPayload":
-//	{"deploytype":"development",
-//		"mac_addr":"00:18:41:d1:bc:a9",
-//		"os":"Android Dev Phone 1",
-//		"oscpu":1,
-//		"ip":"127.0.0.1",
-//		"mid":"20013fd8f4da6591",
-//		"app_name":"Quick Brightkite Photo",
-//		"model":"Android Dev Phone 1",
-//		"platform":"android",
-//		"version":"0.4",
-//		"app_id":"net.donthorp.qbp",
-//		"un":"android-build",
-//		"app_version":"0.1",
-//		"osarch":"ARMv6-compatible processor rev 2 (v6l)",
-//		"ostype":"32bit",
-//	"osver":"1.5"},
-//	
-//	"eventId":"6f8d55f3-a83c-4e46-85ab-283b03ba5bc4:20013fd8f4da6591",
-//	"eventName":"ti.start",
-//	"eventTimestamp":"2009-06-15T21:46:52.699+0000",
-//	"eventMid":"20013fd8f4da6591"
-//}]
-//
-//192.168.123.109 - - [15/Jun/2009 16:46:57] "POST / HTTP/1.1" 200 -
-//[{"eventSid":"bf577f87-98a4-474b-a614-5c3f448926a3",
-//	"eventPayload":"",
-//	"eventId":"b5687c06-6b6d-429a-a9fd-ef1c761b7b33:20013fd8f4da6591",
-//"eventName":"ti.end","eventTimestamp":"2009-06-15T21:46:28.685+0000","eventMid":"20013fd8f4da6591"},{"eventSid":"bf577f87-98a4-474b-a614-5c3f448926a3","eventPayload":{"deploytype":"development","mac_addr":"00:18:41:d1:bc:a9","os":"Android Dev Phone 1","oscpu":1,"ip":"127.0.0.1","mid":"20013fd8f4da6591","app_name":"Quick Brightkite Photo","model":"Android Dev Phone 1","platform":"android","version":"0.4","app_id":"net.donthorp.qbp","un":"android-build","app_version":"0.1","osarch":"ARMv6-compatible processor rev 2 (v6l)","ostype":"32bit","osver":"1.5"},"eventId":"6f8d55f3-a83c-4e46-85ab-283b03ba5bc4:20013fd8f4da6591","eventName":"ti.start","eventTimestamp":"2009-06-15T21:46:52.699+0000","eventMid":"20013fd8f4da6591"},{"eventSid":"bf577f87-98a4-474b-a614-5c3f448926a3","eventPayload":"","eventId":"72a9ae2b-e6cb-48ce-a340-4131da13a0b2:20013fd8f4da6591","eventName":"ti.end","eventTimestamp":"2009-06-15T21:47:06.249+0000","eventMid":"20013fd8f4da6591"}]
-
 
 @implementation AnalyticsModule
 @synthesize sessionID;
+
+- (void)dealloc
+{
+	[timer release];
+	[events release];
+	[super dealloc];
+}
 
 #pragma mark startModule
 
 - (void) addEvent: (NSString *) name value: (id) value;
 {
-	SBJSON * encoder = [[SBJSON alloc] init];
-
-	NSString * commandString = [NSString stringWithFormat:@"Ti.Analytics.addEvent(%@,%@)",
-			[encoder stringWithFragment:name error:nil],[encoder stringWithFragment:value error:nil]];
-	[[TitaniumHost sharedHost] sendJavascript:commandString];
-
-	[encoder release];
+	NSDictionary * data = [NSDictionary dictionaryWithObjectsAndKeys:name,@"name",value,@"data",nil];
+	[self sendPlatformEvent:@"ti.user" data:data];
 }
 
 #define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
 
 - (void) pageLoaded;
 {
-	if(callsMade == 0){
-		NSString * deploytypeString = nil;
+	if (callsMade == 0)
+	{
+		NSString * supportFolderPath = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+		NSString * folderPath = [[supportFolderPath stringByAppendingPathComponent:@"analytics"] retain];
+		NSFileManager * theFM = [[NSFileManager alloc] init];
+		BOOL isDirectory;
+		BOOL exists = [theFM fileExistsAtPath:folderPath isDirectory:&isDirectory];
+		
+		// we create the directory (it's empty for now) that let's us differentiate between first install and subsequent run
+		if (!exists) [theFM createDirectoryAtPath:folderPath withIntermediateDirectories:YES attributes:nil error:nil];
+		[theFM release];
+		
+		// on the first install we need to notify with ti.enroll
+		if (!exists)
+		{
+			NSDictionary * platformDict = [[[TitaniumHost sharedHost] titaniumObject] objectForKey:@"Platform"];
+			NSDictionary * appPropertiesDict = [[TitaniumHost sharedHost] appProperties];
+			
+			NSString * mac_addr = [platformDict objectForKey:@"macaddress"];
+			NSString * phonenumber = [platformDict objectForKey:@"phoneNumber"];
+			NSString * model = [platformDict objectForKey:@"model"];
+			NSString * app_name = [appPropertiesDict objectForKey:@"name"];
+			NSString * app_id = [appPropertiesDict objectForKey:@"id"];
+			
+			NSDictionary * data = [NSDictionary dictionaryWithObjectsAndKeys:
+								   VAL_OR_NSNULL(mac_addr),@"mac_addr",
+								   VAL_OR_NSNULL(app_name),@"app_name",
+								   [NSNumber numberWithInt:1],@"oscpu",
+								   @"iphone",@"platform",
+								   VAL_OR_NSNULL(app_id),@"app_id",
+								   @"32bit",@"ostype",
+								   @"arm",@"osarch",
+								   VAL_OR_NSNULL(phonenumber),@"phonenumber",
+								   VAL_OR_NSNULL(model),@"model",
+								   nil
+								   ];
+			[self sendPlatformEvent:@"ti.enroll" data:data];
+		}
+		
+		
+		int tz = [[NSTimeZone systemTimeZone] secondsFromGMT] / 3600; // get the timezone offset to UTC
+		struct utsname u;
+		uname(&u);
+
 		NSDictionary * platformDict = [[[TitaniumHost sharedHost] titaniumObject] objectForKey:@"Platform"];
-		NSString * macAddressString = [platformDict objectForKey:@"macaddress"];
-		NSString * ipAddressString = [platformDict objectForKey:@"address"];
-
 		NSDictionary * appPropertiesDict = [[TitaniumHost sharedHost] appProperties];
-		NSString * appVersionString = [appPropertiesDict objectForKey:@"version"];
-		NSString * appGUIDString = [appPropertiesDict objectForKey:@"guid"];
-		NSString * appIDString = [appPropertiesDict objectForKey:@"id"];
-		NSString * appNameString = [appPropertiesDict objectForKey:@"name"];
-		NSString * appPublisherString = [appPropertiesDict objectForKey:@"publisher"];
 
-		UIDevice * theDevice = [UIDevice currentDevice];		
-		NSDictionary * deviceInfo = [[NSDictionary alloc] initWithObjectsAndKeys:
-				@"iPhone",@"platform",
-				@"0.4",@"version",
-				VAL_OR_NSNULL(deploytypeString),@"deploytype",
+		NSString * app_ver = [appPropertiesDict objectForKey:@"version"];
+		NSString * version = [NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding];
+		NSString * os = [NSString stringWithCString:u.release encoding:NSUTF8StringEncoding];
+		NSString * username = [platformDict objectForKey:@"username"];
 
-				[theDevice model],@"model",
-				[theDevice uniqueIdentifier],@"mid",
-				VAL_OR_NSNULL(macAddressString),@"mac_addr",
-				[theDevice systemVersion],@"osver",
-				[theDevice systemName],@"os",
-				@"32bit",@"ostype",
-				@"arm",@"osarch",
-				[NSNumber numberWithInt:1],@"oscpu",
-				VAL_OR_NSNULL(ipAddressString),@"ip",
-				[theDevice name],@"un",
-
-				VAL_OR_NSNULL(appVersionString),@"app_version",
-				VAL_OR_NSNULL(appGUIDString),@"app_guid",
-				VAL_OR_NSNULL(appIDString),@"app_id",
-				VAL_OR_NSNULL(appNameString),@"app_name",
-				VAL_OR_NSNULL(appPublisherString),@"app_publisher",
-									 
-				nil];
-		[self addEvent:@"ti.start" value:deviceInfo];
-		[deviceInfo release];
+#ifdef MODULE_TI_NETWORK
+		NSString * nettype = [((NetworkModule *)[[TitaniumHost sharedHost] moduleNamed:@"NetworkModule"]) networkTypeName];
+#else
+		NSString * nettype = @"UNKNOWN";
+#endif
+		
+		NSDictionary * data = [NSDictionary dictionaryWithObjectsAndKeys:
+			[NSNumber numberWithInt:tz],@"tz",
+			VAL_OR_NSNULL(APPLICATION_DEPLOYTYPE),@"deploytype",
+			@"iphone",@"os",
+			version,@"version",
+			VAL_OR_NSNULL(username),@"un",
+			VAL_OR_NSNULL(app_ver),@"app_version",
+			os,@"osver",
+			VAL_OR_NSNULL(nettype),@"nettype",
+			nil
+		];
+		[self sendPlatformEvent:@"ti.start" data:data];
 	}
 	callsMade ++;
 }
 
+- (void) sendAsyncData: (NSData*)data timeout:(NSTimeInterval)timeout
+{
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	NSMutableURLRequest *request = [ [ NSMutableURLRequest alloc ] initWithURL: [ NSURL URLWithString: @"https://api.appcelerator.net/p/v1/mobile-track" ] ]; 
+	[request setHTTPMethod: @"POST"];
+	[request setHTTPBody:data];
+	[request setHTTPShouldHandleCookies:YES];
+	[request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+	[request setValue:@"text/json" forHTTPHeaderField:@"Content-Type"];
+	[request setTimeoutInterval:timeout];
+	[NSURLConnection sendSynchronousRequest: request returningResponse: nil error: nil ];
+	[pool release];
+}
+
+-(NSString *)getUTCDate
+{
+	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+	NSTimeZone *timeZone = [NSTimeZone timeZoneWithName:@"UTC"];
+	[dateFormatter setTimeZone:timeZone];
+	//Example UTC full format: 2009-06-15T21:46:28.685+0000
+	[dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000"];
+	return [dateFormatter stringFromDate:[NSDate date]];
+}
+
+- (NSData*) generateEventObject: (NSString*)name data:(id)data
+{
+	SBJSON * encoder = [[SBJSON alloc] init];
+
+	NSDictionary * appPropertiesDict = [[TitaniumHost sharedHost] appProperties];
+	NSString * aguid = [appPropertiesDict objectForKey:@"guid"];
+	
+	int seq = sequence++;
+	
+	NSString *ts = [self getUTCDate];
+	NSString *sid = sessionID;
+	UIDevice *theDevice = [UIDevice currentDevice];	
+	NSString *mid = [theDevice uniqueIdentifier];
+	NSString *eventId = [(PlatformModule *)[[TitaniumHost sharedHost] moduleNamed:@"PlatformModule"] createUUID];
+	
+	NSString *json = [encoder stringWithObject:[NSDictionary dictionaryWithObjectsAndKeys: 
+		VAL_OR_NSNULL(eventId), @"id",
+		[NSNumber numberWithInt:seq],@"seq",
+		VAL_OR_NSNULL(aguid),@"aguid",
+		VAL_OR_NSNULL(mid),@"mid",
+		VAL_OR_NSNULL(ts),@"ts",
+		@"1",@"ver", // spec version
+		VAL_OR_NSNULL(sid),@"sid",
+		VAL_OR_NSNULL(name),@"name",
+		VAL_OR_NSNULL(data),@"data",
+		nil] error:nil];
+		
+	[encoder release];
+
+#ifdef DEBUG 
+	NSLog(@"Generating Analytics event data: %@",json);
+#endif
+	
+	return [json dataUsingEncoding:NSUTF8StringEncoding];
+}
+
 - (BOOL) startModule
 {
-	TitaniumJSCode * addEventCode = [TitaniumJSCode codeWithString:analyticsModuleDictString];
-	[addEventCode setEpilogueCode:@"Ti.Analytics._START();"];
-
-	NSInvocation * handlePageInvoc = [TitaniumInvocationGenerator invocationWithTarget:self	selector:@selector(pageLoaded) object:nil];
-
 	[self setSessionID:[(PlatformModule *)[[TitaniumHost sharedHost] moduleNamed:@"PlatformModule"] createUUID]];
+	sequence = 1;
+	callsMade = 0;
+	timer = nil;
+	events = [[NSMutableArray alloc] init];
 
-	NSDictionary * analyticsDict = [NSDictionary dictionaryWithObjectsAndKeys:
-			handlePageInvoc,@"_START",
-			addEventCode,@"addEvent",
-			sessionID,@"sid",
-			nil];
-	
-	[[[TitaniumHost sharedHost] titaniumObject] setObject:analyticsDict forKey:@"Analytics"];
+	TitaniumJSCode * epilogueCode = [TitaniumJSCode codeWithString:@"Ti.Analytics._START()"];
+
+	TitaniumInvocationGenerator * invocGen = [TitaniumInvocationGenerator generatorWithTarget:self];
+	[(AnalyticsModule *)invocGen addEvent:nil value:nil];
+	NSInvocation * setInvoc = [invocGen invocation];
+	NSInvocation * handlePageInvoc = [TitaniumInvocationGenerator invocationWithTarget:self	selector:@selector(pageLoaded) object:nil];
+	NSDictionary * methods = [NSDictionary dictionaryWithObjectsAndKeys:handlePageInvoc,@"_START",setInvoc,@"addEvent",epilogueCode,@"init",nil];
+	[[[TitaniumHost sharedHost] titaniumObject] setObject:methods forKey:@"Analytics"];
+
 	return YES;
+}
+
+-(NSData*) getEventQueue;
+{
+	NSMutableData * data = [[NSMutableData alloc] init];
+	[data appendData:[@"[" dataUsingEncoding:NSUTF8StringEncoding]];
+	[mutex lock];
+	int count = 0;
+	for (NSData *eventdata in events)
+	{
+		[data appendData:eventdata];
+		if (++count < [events count])
+		{
+			[data appendData:[@"," dataUsingEncoding:NSUTF8StringEncoding]];
+		}
+	}
+	[data appendData:[@"]" dataUsingEncoding:NSUTF8StringEncoding]];
+	[events removeAllObjects];
+	[mutex unlock];
+	return data;
+}
+
+- (void) timerFired:(NSTimer*)theTimer;
+{
+	timer = nil; // for one-shot, has already been released
+	NSData * data = [self getEventQueue];
+	[self sendAsyncData:data timeout:TI_ANALYTICS_NETWORK_TIMEOUT_IN_SEC];
+}
+
+- (void)sendPlatformEvent:(NSString*)name data:(NSDictionary*)data;
+{
+	[mutex lock];
+	[events addObject:[self generateEventObject:name data:data]];
+	[mutex unlock];
+	if (timer == nil)
+	{
+		timer = [NSTimer scheduledTimerWithTimeInterval:TI_ANALYTICS_TIMER_DELAY_IN_SEC target:self selector:@selector(timerFired:) userInfo:nil repeats:NO];
+	}
 }
 
 - (BOOL) endModule;
 {
-	NSLog(@"ti.analytics endModule");
-	[self addEvent:@"ti.end" value:nil];
+	// first add to our queue (so we can flush)
+	[mutex lock];
+	[timer release];
+	[events addObject:[self generateEventObject:@"ti.end" data:nil]];
+	[mutex unlock];
+
+	// make sure we attempt to flush the queue to get all events (if any are pending)
+	NSData * data = [self getEventQueue];
+	
+	// make sure we do this on this main thread so it has more likelihood to succeed
+	[self sendAsyncData:data timeout:TI_ANALYTICS_NETWORK_TIMEOUT_ON_SHUTDOWN_IN_SEC];
+	
 	return YES;
 }
 @end
