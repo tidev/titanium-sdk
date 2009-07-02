@@ -432,6 +432,25 @@ UIColor * checkmarkColor = nil;
     [super dealloc];
 }
 
+- (void)updateLayout: (BOOL)animated;
+{
+	UITableViewCell * targetCell = nil;
+	for (UITableViewCell * thisCell in [(UITableView *)contentView visibleCells]){
+		UIView * thisAccessoryView = [thisCell accessoryView];
+		if ([thisAccessoryView isFirstResponder]){
+			targetCell = thisCell;
+			break;
+		}
+	}
+	[super updateLayout:animated];
+
+	if(targetCell != nil){
+		NSIndexPath * ourPath = [(UITableView *)contentView indexPathForCell:targetCell];
+		[(UITableView *)contentView scrollToRowAtIndexPath:ourPath atScrollPosition:UITableViewScrollPositionMiddle animated:animated];
+	}
+}
+
+
 #pragma mark Datasource methods
 
 - (NSUInteger) rowCountBeforeSection: (NSInteger) section;

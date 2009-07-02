@@ -96,6 +96,7 @@ int barButtonSystemItemForString(NSString * inputString){
 @synthesize minValue,maxValue,floatValue,stringValue, placeholderText;
 @synthesize elementColor, elementBorderColor, elementBackgroundColor;
 @synthesize leftViewProxy, rightViewProxy, leftViewMode, rightViewMode;
+@synthesize backgroundImagePath, backgroundDisabledImagePath, backgroundSelectedImagePath;
 
 - (id) init;
 {
@@ -126,6 +127,9 @@ int barButtonSystemItemForString(NSString * inputString){
 //General purpose
 	GRAB_IF_STRING(@"title",titleString);
 	GRAB_IF_STRING(@"image",iconPath);
+	GRAB_IF_STRING(@"backgroundImage",backgroundImagePath);
+	GRAB_IF_STRING(@"backgroundDisabledImage",backgroundDisabledImagePath);
+	GRAB_IF_STRING(@"backgroundSelectedImage",backgroundSelectedImagePath);
 	
 //Sliders and other value-based things.
 	GRAB_IF_SELECTOR(@"min",floatValue,minValue);
@@ -290,6 +294,16 @@ int barButtonSystemItemForString(NSString * inputString){
 			[(UITextField *)resultView setLeftView:[leftViewProxy nativeView]];
 			[(UITextField *)resultView setRightViewMode:rightViewMode];
 			[(UITextField *)resultView setRightView:[rightViewProxy nativeView]];
+			
+			TitaniumHost * theHost = [TitaniumHost sharedHost];
+			UIImage * bgImage = [theHost stretchableImageForResource:backgroundImagePath];
+			[(UITextField *)resultView setBackground:bgImage];
+
+			if(bgImage != nil){
+				UIImage * bgDisImage = [theHost stretchableImageForResource:backgroundDisabledImagePath];
+				[(UITextField *)resultView setDisabledBackground:bgDisImage];
+			}
+			
 		} else {
 			if ([nativeView isKindOfClass:[UITextView class]]){
 				resultView = [nativeView retain];
@@ -379,14 +393,10 @@ int barButtonSystemItemForString(NSString * inputString){
 	
 	
 	if (resultView == nil) {
-		UIButtonType resultType = UIButtonTypeRoundedRect;
-//		switch (<#expression#>) {
-//			case <#constant#>:
-//				<#statements#>
-//				break;
-//			default:
-//				break;
-//		}
+		TitaniumHost * theHost = [TitaniumHost sharedHost];
+		UIImage * bgImage = [theHost stretchableImageForResource:backgroundImagePath];
+
+		UIButtonType resultType = (bgImage==nil)?UIButtonTypeRoundedRect:UIButtonTypeCustom;
 
 		if([nativeView isKindOfClass:[UIButton class]] && ([(UIButton *)nativeView buttonType]==resultType)){
 			resultView = [nativeView retain];
@@ -396,7 +406,30 @@ int barButtonSystemItemForString(NSString * inputString){
 		}
 	
 		[resultView setFrame:viewFrame];
-		UIImage * iconImage = [[TitaniumHost sharedHost] imageForResource:iconPath];
+
+		if(bgImage != nil){
+			[(UIButton *)resultType setBackgroundImage:bgImage forState:UIControlStateNormal];
+
+			UIImage * bgSelImage = [theHost stretchableImageForResource:backgroundSelectedImagePath];
+			if(bgSelImage != nil){
+				[(UIButton *)resultType setBackgroundImage:bgSelImage forState:UIControlStateHighlighted];
+				[(UIButton *)resultType setAdjustsImageWhenHighlighted:NO];
+			} else {
+				[(UIButton *)resultType setBackgroundImage:bgImage forState:UIControlStateHighlighted];
+				[(UIButton *)resultType setAdjustsImageWhenHighlighted:YES];
+			}
+			
+			UIImage * bgDisImage = [theHost stretchableImageForResource:backgroundDisabledImagePath];
+			if(bgDisImage != nil){
+				[(UIButton *)resultType setBackgroundImage:bgDisImage forState:UIControlStateDisabled];
+				[(UIButton *)resultType setAdjustsImageWhenDisabled:NO];
+			} else {
+				[(UIButton *)resultType setBackgroundImage:bgImage forState:UIControlStateDisabled];
+				[(UIButton *)resultType setAdjustsImageWhenDisabled:YES];
+			}
+		}
+		
+		UIImage * iconImage = [theHost imageForResource:iconPath];
 		[(UIButton *)resultView setImage:iconImage forState:UIControlStateNormal];
 		[(UIButton *)resultView setTitle:titleString forState:UIControlStateNormal];
 		[resultView setBackgroundColor:elementBorderColor];
@@ -1134,7 +1167,9 @@ int barButtonSystemItemForString(NSString * inputString){
 	
 	NSString * createButtonString = @"function(args,buttonType){var res={"
 			"onClick:Ti._ONEVT,_EVT:{click:[],change:[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
-			"ensureToken:function(){if(this._TOKEN)return;var tkn=Ti.UI._BTNTKN();this._TOKEN=tkn;Ti.UI._BTN[tkn]=this;},"
+			"ensureToken:function(){"
+				"if(!this._TOKEN){var tkn=Ti.UI._BTNTKN();this._TOKEN=tkn;Ti.UI._BTN[tkn]=this;}"
+				"if(this.rightButton)this.rightButton.ensureToken();if(this.leftButton)this.leftButton.ensureToken();},"
 			"setId:function(div){this.id=div;divObj=document.getElementById(div);this.divObj=divObj;divAttr={};this.divAttr=divAttr;if(!divObj)return;"
 //				"var attr=divObj.attributes;if(attr){var i=attr.length;while(i>0){i--;divAttr[attr[i].name]=attr[i].value;}};"
 				"divAttr.y=0;divAttr.x=0;divAttr.width=divObj.offsetWidth;divAttr.height=divObj.offsetHeight;"

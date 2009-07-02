@@ -256,7 +256,7 @@ TitaniumViewController * mostRecentController = nil;
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
 {
 	[UIView beginAnimations:@"webView" context:nil];
-	[self updateScrollBounds];
+	[self updateScrollBounds:NO];
 	
 	if ([[self title] length] == 0){
 		NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
@@ -277,13 +277,15 @@ TitaniumViewController * mostRecentController = nil;
 
 #pragma mark Updating things
 
-- (void)updateScrollBounds;
+- (void)updateScrollBounds: (BOOL) animated;
 {
 	if ([self view]==nil) return;
 	CGRect webFrame;
 	webFrame.origin = CGPointZero;
 	webFrame.size = [contentView frame].size;
 	[webView setFrame:webFrame];
+
+	UIView * firstResponder=nil;
 	
 	NSString * docHeightString = [webView stringByEvaluatingJavaScriptFromString:@"document.height"];
 	CGFloat docHeight = [docHeightString floatValue];
@@ -292,6 +294,11 @@ TitaniumViewController * mostRecentController = nil;
 		if (thisView == webView) continue;
 		CGRect thisFrame = [thisView frame];
 		CGFloat bottom = thisFrame.size.height + thisFrame.origin.y;
+		
+		if([thisView isFirstResponder]){
+			firstResponder = thisView;
+		}
+
 		if (bottom > docHeight) docHeight = bottom;
 	}
 	
@@ -305,12 +312,16 @@ TitaniumViewController * mostRecentController = nil;
 	[(UIScrollView *)contentView setBounces:allowsScrolling];
 	[(UIScrollView *)contentView setShowsVerticalScrollIndicator:allowsScrolling];
 	[(UIScrollView *)contentView setShowsHorizontalScrollIndicator:allowsScrolling];
+
+	if(firstResponder != nil){
+		[(UIScrollView *)contentView scrollRectToVisible:[firstResponder frame] animated:animated];
+	}
 }
 
 - (void)updateLayout: (BOOL)animated;
 {
 	[super updateLayout:animated];
-	[self updateScrollBounds];
+	[self updateScrollBounds:animated];
 }
 
 - (void)reloadWebView;
@@ -399,7 +410,7 @@ TitaniumViewController * mostRecentController = nil;
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
 {
-	[self updateScrollBounds];
+	[self updateScrollBounds:YES];
 }
 
 #endif		//END OF TI_MODULE_GESTURE

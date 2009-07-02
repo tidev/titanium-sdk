@@ -27,12 +27,18 @@
 	
 	//Tinting or BG controls
 	UIColor * elementColor; //The text color
+	UIColor * elementSelectedColor; //The text color on a button being pressed
 	UIColor * elementBackgroundColor; //The color that fills the element.
 	UIColor * elementBorderColor; //Actually, the color that appears behind the element.
 	
 	//For Multibutton/segmented
 	NSArray * segmentLabelArray;
 	NSArray * segmentImageArray;
+
+	//Background images
+	NSString * backgroundImagePath;
+	NSString * backgroundDisabledImagePath;
+	NSString * backgroundSelectedImagePath;
 
 	//For texts
 	UITextAutocapitalizationType autocapitalizationType; // default is UITextAutocapitalizationTypeNone
@@ -74,6 +80,10 @@
 @property(nonatomic,readwrite,copy)		NSString * iconPath;
 @property(nonatomic,readwrite,assign)	int templateValue;
 @property(nonatomic,readwrite,assign)	int barButtonStyle;
+
+@property(nonatomic,readwrite,copy)		NSString * backgroundImagePath;
+@property(nonatomic,readwrite,copy)		NSString * backgroundDisabledImagePath;
+@property(nonatomic,readwrite,copy)		NSString * backgroundSelectedImagePath;
 
 @property(nonatomic,readwrite,copy)		NSArray * segmentLabelArray;
 @property(nonatomic,readwrite,copy)		NSArray * segmentImageArray;

@@ -71,6 +71,7 @@ typedef enum {
 //Caching objects:
 	NSDictionary * appProperties;
 	NSMutableDictionary * imageCache;
+	NSMutableDictionary * stretchableImageCache;
 }
 
 @property(readwrite,copy)	NSString * appID;
