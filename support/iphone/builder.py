@@ -7,7 +7,7 @@
 # the application on the device via iTunes
 #
 
-import os, sys, uuid, subprocess, shutil, signal, time, re, run
+import os, sys, uuid, subprocess, shutil, signal, time, re, run, glob
 from compiler import Compiler
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
@@ -51,8 +51,10 @@ def main(args):
 
 		sys.exit(1)
 
+	print "One moment, building ..."
+	
 	simulator = os.path.abspath(os.path.join(template_dir,'iphonesim'))
-
+	
 	command = args[1]
 	iphone_version = dequote(args[2])
 	project_dir = os.path.expanduser(dequote(args[3]))
@@ -74,7 +76,7 @@ def main(args):
 		appuuid = dequote(args[6])
 		dist_name = dequote(args[7])
 		
-
+	
 	iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
 	project_resources = os.path.join(project_dir,'Resources')
 	
@@ -85,11 +87,11 @@ def main(args):
 	app_bundle = os.path.join(app_bundle_folder,app_name)
 	iphone_resources_dir = os.path.join(iphone_dir,'Resources')
 	iphone_tmp_dir = os.path.join(iphone_dir,'tmp')
-
+	
 	if not os.path.exists(iphone_dir):
 		print "Could not find directory: %s" % iphone_dir
 		sys.exit(1)
-
+	
 	cwd = os.getcwd()
 	
 	# compile resources
@@ -106,7 +108,13 @@ def main(args):
 	
 	# copy in the write version of the titanium runtime based on which iphone
 	# version the project is building for
-	shutil.copy(os.path.join(template_dir,'libTitanium-%s.a'%iphone_version),os.path.join(iphone_resources_dir,'libTitanium.a'))	
+	shutil.copy(os.path.join(template_dir,'libTitanium-%s.a'%iphone_version),os.path.join(iphone_resources_dir,'libTitanium.a'))
+	
+	# must copy the XIBs each time since they can change per SDK
+	os.chdir(template_dir)
+	for xib in glob.glob('*.xib'):
+		shutil.copy(os.path.join(template_dir,xib),os.path.join(iphone_resources_dir,xib))
+	os.chdir(cwd)		
 		
 	# cleanup compiled resources
 	def cleanup_compiled_resources(dir):
@@ -128,19 +136,19 @@ def main(args):
 			
 		if not os.path.exists(dir):		
 			os.makedirs(dir)
-
+	
 		plist_f = os.path.join(dir,'tiapp.plist')
 		plist = open(plist_f,'w+')
-
+	
 		module_str = ''
 		# write out the modules we're using in the APP
 		for m in compiler.modules:
 			module_str += '   <key>%s</key>\n   <real>0.0</real>\n' % (m.lower())
-
+	
 		ti = TiAppXML(tiapp_xml)
 		tip = TiPlist(ti)
 		plist_template = tip.generate(module_str,appid,deploytype)
-
+	
 		# write out the generated tiapp.plist
 		plist.write(plist_template)
 		plist.close()
@@ -155,27 +163,27 @@ def main(args):
 		iconf_dest = os.path.join(dir,appicon)
 		if os.path.exists(iconf):
 			shutil.copy(iconf, iconf_dest)
-
+	
 		# compile to binary plist
 		os.system("/usr/bin/plutil -convert binary1 \"%s\"" % plist_f)
-
+	
 	try:
 		os.chdir(iphone_dir)
 		
 		# write out plist
 		add_plist(os.path.join(iphone_dir,'Resources'))
-
+	
 		if command == 'simulator':
-
+	
 			# first build it
 			log_id = uuid.uuid4()
 			
 			# make sure it's clean
 			if os.path.exists(app_dir):
 				shutil.rmtree(app_dir)
-
+	
 			os.system("xcodebuild -configuration Debug -sdk iphonesimulator%s WEB_SRC_ROOT='%s' GCC_PREPROCESSOR_DEFINITIONS='__LOG__ID__=%s DEPLOYTYPE=development'" % (iphone_version,iphone_tmp_dir,log_id))
-
+	
 			# clean since the xcodebuild copies
 			cleanup_compiled_resources(app_dir)
 			
@@ -183,7 +191,7 @@ def main(args):
 			kill_simulator()
 			
 			logger = os.path.realpath(os.path.join(template_dir,'logger.py'))
-
+	
 			# start the logger
 			log = subprocess.Popen([
 			  	logger,
@@ -191,7 +199,7 @@ def main(args):
 			])	
 			
 			sim = None
-
+	
 			def handler(signum, frame):
 				print "signal caught: %d" % signum
 				if not log == None:
@@ -209,13 +217,13 @@ def main(args):
 					
 				kill_simulator()
 				sys.exit(0)
-    
+	    
 			signal.signal(signal.SIGHUP, handler)
 			signal.signal(signal.SIGINT, handler)
 			signal.signal(signal.SIGQUIT, handler)
 			signal.signal(signal.SIGABRT, handler)
 			signal.signal(signal.SIGTERM, handler)
-
+	
 			# launch the simulator
 			sim = subprocess.Popen("\"%s\" launch \"%s\" %s" % (simulator,app_dir,iphone_version),shell=True)
 			
@@ -226,19 +234,19 @@ def main(args):
 			
 			os.waitpid(sim.pid,0)
 			sim = None
-
+	
 			handler(3,None)
 			sys.exit(0)
 			
 		elif command == 'install':
-
+	
 			# make sure it's clean
 			if os.path.exists(app_bundle):
 				shutil.rmtree(app_bundle)
-
+	
 			# clean since the xcodebuild copies
 			cleanup_compiled_resources(app_bundle)
-
+	
 			output = run.run(["xcodebuild",
 				"-configuration",
 				"Debug",
@@ -248,7 +256,7 @@ def main(args):
 				"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name
 			])
-
+	
 			# look for a code signing error
 			error = re.findall(r'Code Sign error:(.*)',output)
 			if len(error) > 0:
@@ -264,13 +272,13 @@ def main(args):
 			ass = os.path.join(template_dir,'itunes_sync.scpt')
 			cmd = "osascript \"%s\"" % ass
 			os.system(cmd)
-
+	
 		elif command == 'distribute':
-
+	
 			# make sure it's clean
 			if os.path.exists(app_bundle):
 				shutil.rmtree(app_bundle)
-
+	
 			# build the final release distribution
 			output = run.run(["xcodebuild",
 				"-configuration",
@@ -299,10 +307,10 @@ def main(args):
 			print "Unknown command: %s" % command
 			sys.exit(2)
 			
-
+	
 	finally:
 		os.chdir(cwd)
-
+	
 
 
 if __name__ == "__main__":
