@@ -115,13 +115,13 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	keyboardTop = keyboardCenter.y - keyboardBounds.size.height/2;
 
 	TitaniumViewController * ourVC = [self visibleTitaniumViewController];
-	[ourVC needsUpdate:TitaniumViewControllerVisibleAreaChanged];
+	[ourVC needsUpdate:TitaniumViewControllerVisibleAreaChanged | TitaniumViewControllerRefreshIsAnimated];
 }
 
 - (void)handleKeyboardHiding: (NSNotification *) notification;
 {
 	keyboardTop = 0;
-	[[self visibleTitaniumViewController] needsUpdate:TitaniumViewControllerVisibleAreaChanged];
+	[[self visibleTitaniumViewController] needsUpdate:TitaniumViewControllerVisibleAreaChanged | TitaniumViewControllerRefreshIsAnimated];
 }
 
 #pragma mark Thread registration
@@ -625,6 +625,28 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 		imageCache = [[NSMutableDictionary alloc] initWithObjectsAndKeys:result,filePath,nil];
 	} else {
 		[imageCache setObject:result forKey:filePath];
+	}
+	
+	return result;
+}
+
+- (UIImage *) stretchableImageForResource: (id) pathOrUrl;
+{
+	if (pathOrUrl == nil) return nil;
+
+	UIImage * result = [stretchableImageCache objectForKey:pathOrUrl];
+	if (result != nil) return result;
+	
+	UIImage * staticImage = [self imageForResource:pathOrUrl];
+	CGSize imageSize = [staticImage size];
+	
+	result = [staticImage stretchableImageWithLeftCapWidth:(imageSize.width/2)-1 topCapHeight:(imageSize.height/2)-1];
+	if(result == nil)return nil;
+
+	if (stretchableImageCache == nil){
+		stretchableImageCache = [[NSMutableDictionary alloc] initWithObjectsAndKeys:result,pathOrUrl,nil];
+	} else {
+		[stretchableImageCache setObject:result forKey:pathOrUrl];
 	}
 	
 	return result;
