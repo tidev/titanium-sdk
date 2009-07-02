@@ -190,13 +190,14 @@ NSUInteger lastWatchID = 0;
 		}
 	}
 	
-	if (lastEvent == nil || [[NSDate date] timeIntervalSince1970]-[lastEvent timeIntervalSince1970] >= MAX_DELAY_BEFORE_TRANSMIT_GEO_EVENT_IN_MS)
+	if ((lastEvent == nil) || ([[NSDate date] timeIntervalSince1970]-[lastEvent timeIntervalSince1970] >= MAX_DELAY_BEFORE_TRANSMIT_GEO_EVENT_IN_MS))
 	{
 		[self transmitGeoEvent:newLocation fromLocation:oldLocation];
 	}
-	
+
 	watchEventsFired++;
-	lastEvent = [NSDate date];
+	[lastEvent release];
+	lastEvent = [[NSDate alloc] init];
 	[self updatePolling];
 }
 
@@ -211,6 +212,7 @@ NSUInteger lastWatchID = 0;
 			[thisProxy runCallback:errorString];
 		}
 	}
+	[lastEvent release];
 	lastEvent = nil; // on failure, reset recording time
 	watchEventsFired++;
 	[self updatePolling];
@@ -278,6 +280,9 @@ NSUInteger lastWatchID = 0;
 			nil];
 	[[[TitaniumHost sharedHost] titaniumObject] setObject: geoDict forKey:@"Geolocation"];
 
+/* according to the doc this should work and tell us the user has already granted permission to this app.
+   however, on 3.0 GA, it doesn't work on device.
+
 	if ([locationManager locationServicesEnabled]) 
 	{
 		// start monitoring one-shot so we can get the initial geo
@@ -287,6 +292,7 @@ NSUInteger lastWatchID = 0;
 		[self updateLocManagerAccuracy];
 		[locationManager startUpdatingLocation];
 	}
+*/
 	
 	return YES;
 }
