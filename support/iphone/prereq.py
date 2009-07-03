@@ -11,6 +11,14 @@ import poorjson, run
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
+def sdk_found(apiversion):
+	if not os.path.exists('/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%s.sdk' % apiversion):
+		return False
+	if not os.path.exists('/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator%s.sdk' % apiversion):
+		return False
+	return True
+
+
 def get_sdks():
 	found = []
 	output = run.run(["xcodebuild","-showsdks"])
@@ -20,12 +28,16 @@ def get_sdks():
 			i = line.index('-sdk')
 			type = line[0:i]
 			cmd = line[i+5:]
+			m = re.findall(r"iphoneos3\.1$",cmd)
+			if len(m) > 0 and sdk_found('3.1'):
+				found.append('3.1')
+
 			m = re.findall(r"iphoneos3\.0$",cmd)
-			if len(m) > 0:
+			if len(m) > 0 and sdk_found('3.0'):
 				found.append('3.0')
 			
 			m = re.findall(r"iphoneos2\.2\.1$",cmd)
-			if len(m) > 0:
+			if len(m) > 0 and sdk_found('2.2.1'):
 				found.append('2.2.1')
 	return found
 	

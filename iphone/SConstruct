@@ -2,7 +2,7 @@
 #
 # Scons script for building the iphone library
 #
-import os,platform
+import os,platform,sys
 
 # add your module here for it to get compiled into
 # the library
@@ -36,15 +36,22 @@ for api in modules:
 
 config = 'Release'
 
-versions = ['3.0']
-if platform.platform()!='Darwin-10.0.0b2-i386-64bit':
-	versions.append('2.2.1')
 
 
-for apiversion in versions:
+iphone_dir = os.path.abspath(os.path.join(os.path.dirname(sys._getframe(0).f_code.co_filename),'../','support','iphone'))
+sys.path.append(iphone_dir)
+
+import run,prereq
+
+for apiversion in prereq.get_sdks():
     # execute the phone and simulator release builds
-    os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target libTitanium -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s' clean build" % (apiversion,config,defines))
-    os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target libTitanium -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s' clean build" % (apiversion,config,defines))
+
+    if os.path.exists('/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%s.sdk' % apiversion):
+    	os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target libTitanium -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s' clean build" % (apiversion,config,defines))
+
+    if os.path.exists('/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator%s.sdk' % apiversion):
+    	os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target libTitanium -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s' clean build" % (apiversion,config,defines))
+	
 
     # build the merged library using lipo
     os.system("lipo build/%s-iphonesimulator/libTitanium.a build/%s-iphoneos/libTitanium.a -create -output build/libTitanium-%s.a" %(config,config,apiversion))
