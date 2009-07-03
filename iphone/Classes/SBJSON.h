@@ -113,6 +113,7 @@ anything else not in the JSON specification.
 @property NSUInteger maxDepth;
 
 + (id)decodeUrlQuery:(NSURL *) inputUrl;
++ (NSString *) stringify: (id) inputObject;
 
 /// Return JSON representation of an array  or dictionary
 - (NSString*)stringWithObject:(id)value error:(NSError**)error;
