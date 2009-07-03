@@ -120,6 +120,7 @@ typedef enum {
 - (void) decrementActivityIndicator;
 
 - (UIImage *) imageForResource: (id) pathString;
+- (UIImage *) stretchableImageForResource: (id) pathOrUrl;
 
 #pragma mark JavaScript Generation
 

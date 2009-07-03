@@ -27,7 +27,8 @@
 		var btn5 = Ti.UI.createButton({title:'Moo'});
 		btn5.addEventListener('click',function(){Ti.UI.currentWindow.setFullscreen(true);});
 
-		var btn6 = Ti.UI.createTextField({min:-1,max:10,hintText:'Hint me!',id:'sliderPlace',keyboardType:Ti.UI.KEYBOARD_EMAIL_ADDRESS,textAlign:'center',color:'red',backgroundColor:'blue',borderColor:'green'});
+		var sideBtn = Ti.UI.createButton({width:16,height:16,title:'Y'});
+		var btn6 = Ti.UI.createTextField({min:-1,max:10,leftButton:sideBtn,leftButtonMode:Ti.UI.INPUT_BUTTONMODE_ALWAYS,clearButtonMode:Ti.UI.INPUT_BUTTONMODE_ALWAYS,hintText:'Hint me!',id:'sliderPlace',keyboardType:Ti.UI.KEYBOARD_EMAIL_ADDRESS,textAlign:'center',color:'red',backgroundColor:'blue',borderColor:'green'});
 //		btn6.width=100;
 		btn6.addEventListener('change',function(foo){document.getElementById('sliderValue').innerHTML='Newvalue' + foo.value;});
 //		btn6.addEventListener('valuechange',function(foo){
@@ -40,7 +41,7 @@
 
 //		btn6.bindToDiv($('sliderPlace'));
 //		Ti.UI.currentWindow.insertButton(btn6);
-
+		btn6.focus();
 		var btn7 = Ti.UI.createButton({systemButton:'fastforward'});
 function test1()
 {
@@ -132,6 +133,13 @@ try{
 
 	var switchInstance = Titanium.UI.createTextField({value:'More text',width:170});
 	switchInstance.addEventListener('change',function(foo){document.getElementById('sliderValue').innerHTML='NewText: ' + foo.value;});
+	switchInstance.addEventListener('return',function(foo){
+		var msg = typeof(foo.target.blur) + 'value: ' + typeof(foo.target._TOKEN);
+		try{
+			switchInstance.blur();
+		}catch(E){msg=E}
+		Ti.UI.createAlertDialog({title:'return',message:msg}).show();
+	});
 
 //	var switchInstance = Ti.UI.createButton('activity');
 
@@ -192,7 +200,9 @@ try{
 			alerty.show();
 		},false);
 
-		var btn8 = Ti.UI.createButton({title:'moo',id:'buttony'});
+//		var btn8 = Ti.UI.createButton({title:'moo',id:'buttony',image:'Safari.png'});
+
+		var btn8 = Ti.UI.createButton({title:'moo',id:'buttony',image:'Safari.png',backgroundImage:'Mail.png'});
 //		btn8.width=100;
 		btn8.addEventListener('click',function(foo){document.getElementById('sliderValue').innerHTML='Clicked!';});
 
@@ -351,7 +361,7 @@ try{
 	Landscape: <script>document.write(Ti.Gesture.LANDSCAPE);</script><br>
 	Landscape: <script>document.write(Ti.UI.LANDSCAPE);</script><br>
 
-	<a href="tel:1234567">Call me</a><div id='buttony' style='position:absolute;top:50;right:100;width:200px;height:50px'>Button goes here!</div>
+	<a href="tel:1234567">Call me</a><div id='buttony' style='position:absolute;top:50;right:100;width:200px;height:80px'>Button goes here!</div>
 	<a href="tel:1234567">Call me</a>
 	
 	<div id='sliderValue'>Unchanged slider value!</div>

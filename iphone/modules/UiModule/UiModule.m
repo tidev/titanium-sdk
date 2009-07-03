@@ -8,24 +8,7 @@
 
 #import "UiModule.h"
 #import "Webcolor.h"
-
-
-NSString * const iPhoneBarButtonGeneratorFunction = @"function(token){"
-//	"var token=;"
-"var result={_TOKEN:token,onClick:Ti._ONEVT,"
-	"_EVT:{click:[],valuechange:[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
-	"title:null,image:null,style:null,systemButton:null,useDivProperties:function(div){"
-		"if(!div)return;"
-		"var attr=div.attributes;if(attr){"
-			"var i=attr.length;while(i>0){"
-				"i--;this[attr[i].name]=attr[i].value;"
-			"}}"
-		"this.y=0;this.x=0;this.width=div.offsetWidth;this.height=div.offsetHeight;"
-		"while(div){this.x+=div.offsetLeft;this.y+=div.offsetTop;div=div.offsetParent;}"
-	"},bindToDiv:function(div){this._DIV=div;this.useDivProperties(div);Ti.UI.currentWindow.insertButton(this);}};"
-"Ti.UI._BTN[token]=result;"
-"return result;"
-"}";
+#import "TitaniumHost.h"
 
 
 NSDictionary * barButtonSystemItemForStringDict = nil;
@@ -95,7 +78,7 @@ int barButtonSystemItemForString(NSString * inputString){
 @synthesize titleString, iconPath, templateValue, barButtonStyle, nativeView, labelView, progressView;
 @synthesize minValue,maxValue,floatValue,stringValue, placeholderText;
 @synthesize elementColor, elementBorderColor, elementBackgroundColor;
-@synthesize leftViewProxy, rightViewProxy, leftViewMode, rightViewMode;
+@synthesize leftViewProxy, rightViewProxy, leftViewMode, rightViewMode, surpressReturnCharacter;
 @synthesize backgroundImagePath, backgroundDisabledImagePath, backgroundSelectedImagePath;
 
 - (id) init;
@@ -196,6 +179,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	GRAB_IF_SELECTOR(@"autocapitalize",intValue,autocapitalizationType);
 
 	GRAB_IF_SELECTOR(@"enableReturnKey",boolValue,enablesReturnKeyAutomatically);
+	GRAB_IF_SELECTOR(@"noReturnCharacter",boolValue,surpressReturnCharacter);
 
 	GRAB_IF_SELECTOR(@"returnKeyType",intValue,returnKeyType);
 	GRAB_IF_SELECTOR(@"keyboardType",intValue,keyboardType);
@@ -408,30 +392,36 @@ int barButtonSystemItemForString(NSString * inputString){
 		[resultView setFrame:viewFrame];
 
 		if(bgImage != nil){
-			[(UIButton *)resultType setBackgroundImage:bgImage forState:UIControlStateNormal];
+			[(UIButton *)resultView setBackgroundImage:bgImage forState:UIControlStateNormal];
 
 			UIImage * bgSelImage = [theHost stretchableImageForResource:backgroundSelectedImagePath];
 			if(bgSelImage != nil){
-				[(UIButton *)resultType setBackgroundImage:bgSelImage forState:UIControlStateHighlighted];
-				[(UIButton *)resultType setAdjustsImageWhenHighlighted:NO];
+				[(UIButton *)resultView setBackgroundImage:bgSelImage forState:UIControlStateHighlighted];
+//				[(UIButton *)resultView setAdjustsImageWhenHighlighted:YES];
 			} else {
-				[(UIButton *)resultType setBackgroundImage:bgImage forState:UIControlStateHighlighted];
-				[(UIButton *)resultType setAdjustsImageWhenHighlighted:YES];
+				[(UIButton *)resultView setBackgroundImage:nil forState:UIControlStateHighlighted];
+//				[(UIButton *)resultView setAdjustsImageWhenHighlighted:NO];
 			}
 			
 			UIImage * bgDisImage = [theHost stretchableImageForResource:backgroundDisabledImagePath];
 			if(bgDisImage != nil){
-				[(UIButton *)resultType setBackgroundImage:bgDisImage forState:UIControlStateDisabled];
-				[(UIButton *)resultType setAdjustsImageWhenDisabled:NO];
+				[(UIButton *)resultView setBackgroundImage:bgDisImage forState:UIControlStateDisabled];
+//				[(UIButton *)resultView setAdjustsImageWhenDisabled:NO];
 			} else {
-				[(UIButton *)resultType setBackgroundImage:bgImage forState:UIControlStateDisabled];
-				[(UIButton *)resultType setAdjustsImageWhenDisabled:YES];
+				[(UIButton *)resultView setBackgroundImage:nil forState:UIControlStateDisabled];
+//				[(UIButton *)resultView setAdjustsImageWhenDisabled:YES];
 			}
 		}
 		
 		UIImage * iconImage = [theHost imageForResource:iconPath];
 		[(UIButton *)resultView setImage:iconImage forState:UIControlStateNormal];
 		[(UIButton *)resultView setTitle:titleString forState:UIControlStateNormal];
+		if (elementColor != nil) [(UIButton *)resultView setTitleColor:elementColor forState:UIControlStateNormal];
+		else if(resultType == UIButtonTypeCustom)[(UIButton *)resultView setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+		
+		if (elementSelectedColor != nil) [(UIButton *)resultView setTitleColor:elementSelectedColor forState:UIControlStateHighlighted];
+		else if(resultType == UIButtonTypeCustom)[(UIButton *)resultView setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+		
 		[resultView setBackgroundColor:elementBorderColor];
 	}
 		
@@ -502,50 +492,95 @@ int barButtonSystemItemForString(NSString * inputString){
 	return nativeView;
 }
 
+- (BOOL) hasNativeView;
+{
+	return (nativeView != nil);
+}
+
+- (BOOL) hasNativeBarButton;
+{
+	return (nativeBarButton != nil);
+}
+
+- (void) reportEvent: (NSString *) eventType value: (NSString *) newValue index: (int) index;
+{
+	if (newValue == nil) newValue = @"null";
+	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'%@',value:%@,index:%d});}).call(Titanium.UI._BTN.%@);",token,eventType,newValue,index,token];
+	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
+}
+
+- (void) reportClick: (int) index;
+{
+	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'click',index:%d});}).call(Titanium.UI._BTN.%@);",token,index,token];
+	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
+}
+
+
 - (IBAction) onClick: (id) sender;
 {
-	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'click'});}).call(Titanium.UI._BTN.%@);",token,token];
-	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
+	[self reportEvent:@"click" value:nil index:0];
 }
 
 - (IBAction) onSwitchChange: (id) sender;
 {
-	NSString * newValue = ([(UISwitch *)sender isOn] ? @"true":@"false");
-	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'change',value:%@});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
-	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
-}
-
-- (IBAction) onTextChange: (id) sender;
-{
-	SBJSON * parser = [[SBJSON alloc] init];
-	NSString * valueString = [parser stringWithFragment:[sender text] error:nil];
-	[parser release];
-	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'change',value:%@});}).call(Titanium.UI._BTN.%@);",token,valueString,token];
-	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
+	[self reportEvent:@"change" value:([(UISwitch *)sender isOn] ? @"true":@"false") index:0];
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField;
 {
-	[self onTextChange:textField];
+	[self reportEvent:@"blur" value:[SBJSON stringify:[textField text]] index:0];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView;
 {
-	[self onTextChange:textView];
+	[self reportEvent:@"blur" value:[SBJSON stringify:[textView text]] index:0];
 }
+
+- (void)textFieldDidBeginEditing:(UITextField *)textField;           // became first responder
+{
+	[self reportEvent:@"focus" value:[SBJSON stringify:[textField text]] index:0];
+}
+
+- (void)textViewDidBeginEditing:(UITextView *)textView;
+{
+	[self reportEvent:@"focus" value:[SBJSON stringify:[textView text]] index:0];
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;   // return NO to not change text
+{
+	NSString * newText = [[textField text] stringByReplacingCharactersInRange:range withString:string];
+	[self reportEvent:@"change" value:[SBJSON stringify:newText] index:0];
+	return YES;
+}
+
+- (void)textViewDidChange:(UITextView *)textView;
+{
+	[self reportEvent:@"change" value:[SBJSON stringify:[textView text]] index:0];
+}
+
+- (BOOL)textFieldShouldClear:(UITextField *)textField;               // called when clear button pressed. return NO to ignore (no notifications)
+{
+	[self reportEvent:@"change" value:@"''" index:0];
+	return YES;
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField;              // called when 'return' key pressed. return NO to ignore.
+{
+	[self reportEvent:@"return" value:[SBJSON stringify:[textField text]] index:0];
+	return !surpressReturnCharacter;
+}
+
 
 - (IBAction) onSegmentChange: (id) sender;
 {
-	int newValue = [(UISegmentedControl *)sender selectedSegmentIndex];
-	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'click',index:%d});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
-	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
+	[self reportEvent:@"click" value:nil index:[(UISegmentedControl *)sender selectedSegmentIndex]];
 }
 
 - (IBAction) onValueChange: (id) sender;
 {
-	float newValue = [(UISlider *)sender value];
-	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'change',value:%f});}).call(Titanium.UI._BTN.%@);",token,newValue,token];
-	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
+	NSString * newValue = [[NSString alloc] initWithFormat:@"%f",[(UISlider *)sender value]];
+	[self reportEvent:@"change" value:newValue index:0];
+	[newValue release];
 }
 		
 
@@ -750,7 +785,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	return buttonToken;
 }
 
-- (UIButtonProxy *) proxyForObject: (id) proxyObject recurse: (BOOL) recursion;
+- (UIButtonProxy *) proxyForObject: (id) proxyObject scan: (BOOL) scanning recurse: (BOOL) recursion;
 {
 	NSString * token = nil;
 	if ([proxyObject isKindOfClass:[NSDictionary class]]){
@@ -758,19 +793,21 @@ int barButtonSystemItemForString(NSString * inputString){
 		if (![token isKindOfClass:[NSString class]]) return nil;
 		UIButtonProxy * result = [buttonContexts objectForKey:token];
 
+		if(!scanning)return result;
+
 		NSDictionary * divAttributeDict = [proxyObject objectForKey:@"divAttr"];
 		if ([divAttributeDict isKindOfClass:[NSDictionary class]])[result setPropertyDict:divAttributeDict];
-
+		
 		[result setPropertyDict:proxyObject];
-
+		
 		if (recursion){
 			id leftProxy = [proxyObject objectForKey:@"leftButton"];
 			if (leftProxy != nil){
-				[result setLeftViewProxy:[self proxyForObject:leftProxy recurse:NO]];
+				[result setLeftViewProxy:[self proxyForObject:leftProxy scan:YES recurse:NO]];
 			}
 			id rightProxy = [proxyObject objectForKey:@"rightButton"];
 			if (rightProxy != nil){
-				[result setLeftViewProxy:[self proxyForObject:rightProxy recurse:NO]];
+				[result setLeftViewProxy:[self proxyForObject:rightProxy scan:YES recurse:NO]];
 			}
 		}
 		
@@ -783,6 +820,19 @@ int barButtonSystemItemForString(NSString * inputString){
 	return nil;
 }
 
+- (void) setButton: (id)proxyObject focus:(id) isFocusObject;
+{
+	if(![isFocusObject respondsToSelector:@selector(boolValue)]) return;
+	
+	UIButtonProxy * target = [self proxyForObject:proxyObject scan:NO recurse:YES];
+	if (![target hasNativeView]) return;
+	
+	if ([isFocusObject boolValue]){
+		[[target nativeView] performSelectorOnMainThread:@selector(becomeFirstResponder) withObject:nil waitUntilDone:NO];
+	} else {
+		[[target nativeView] performSelectorOnMainThread:@selector(resignFirstResponder) withObject:nil waitUntilDone:NO];
+	}
+}
 
 #pragma mark Window actions
 
@@ -883,7 +933,7 @@ int barButtonSystemItemForString(NSString * inputString){
 
 - (void) setWindow:(NSString *)tokenString titleProxy: (id) newTitleProxyObject;
 {
-	UIButtonProxy * newTitleProxy = [self proxyForObject:newTitleProxyObject recurse:YES];
+	UIButtonProxy * newTitleProxy = [self proxyForObject:newTitleProxyObject scan:YES recurse:YES];
 	
 	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 	[ourVC performSelectorOnMainThread:@selector(setTitleViewProxy:) withObject:newTitleProxy waitUntilDone:NO];	
@@ -916,7 +966,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	
 	UIButtonProxy * ourButton = nil;
 	if ([buttonObject isKindOfClass:[NSDictionary class]]){
-		ourButton = [self proxyForObject:buttonObject recurse:YES];
+		ourButton = [self proxyForObject:buttonObject scan:YES recurse:YES];
 		if (ourButton == nil) return;
 	} else if ((buttonObject != nil) && (buttonObject != (id)[NSNull null])) {
 		return;
@@ -954,7 +1004,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	if ([barObject isKindOfClass:[NSArray class]]){
 		NSMutableArray *result = [NSMutableArray arrayWithCapacity:[barObject count]];
 		for (NSDictionary * thisButtonDict in barObject){
-			UIButtonProxy * thisProxy = [self proxyForObject:thisButtonDict recurse:YES];
+			UIButtonProxy * thisProxy = [self proxyForObject:thisButtonDict scan:YES recurse:YES];
 			if (thisProxy == nil) return;
 			[result addObject:thisProxy];
 		}
@@ -971,7 +1021,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 	if ((ourVC == nil) || ![viewObject isKindOfClass:dictClass]) return;
 	
-	UIButtonProxy * ourNativeViewProxy = [self proxyForObject:viewObject recurse:YES];
+	UIButtonProxy * ourNativeViewProxy = [self proxyForObject:viewObject scan:YES recurse:YES];
 	if (ourNativeViewProxy == nil) return;
 	
 	[ourVC performSelectorOnMainThread:@selector(addNativeViewProxy:) withObject:ourNativeViewProxy waitUntilDone:NO];
@@ -1073,6 +1123,8 @@ int barButtonSystemItemForString(NSString * inputString){
 	[(UiModule *)invocGen makeButtonToken];
 	NSInvocation * buttonTokenGen = [invocGen invocation];
 
+	[(UiModule *)invocGen setButton:nil focus:nil];
+	NSInvocation * setButtonFocusInvoc = [invocGen invocation];
 
 	[(UiModule *)invocGen setAppBadge:nil];
 	NSInvocation * appBadgeInvoc = [invocGen invocation];
@@ -1166,7 +1218,9 @@ int barButtonSystemItemForString(NSString * inputString){
 								  UIStatusBarStyleDefault,UIStatusBarStyleDefault,UIStatusBarStyleBlackOpaque,UIStatusBarStyleBlackTranslucent];
 	
 	NSString * createButtonString = @"function(args,buttonType){var res={"
-			"onClick:Ti._ONEVT,_EVT:{click:[],change:[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
+			"onClick:Ti._ONEVT,_EVT:{click:[],change:[],focus:[],blur:[],'return':[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
+//			"onClick:Ti._ONEVT,_EVT:{click:[],change:[],focus:[],blur:[],return:[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
+			"focus:function(){Ti.UI._BTNFOC(this,true);},blur:function(){Ti.UI._BTNFOC(this,false);},"
 			"ensureToken:function(){"
 				"if(!this._TOKEN){var tkn=Ti.UI._BTNTKN();this._TOKEN=tkn;Ti.UI._BTN[tkn]=this;}"
 				"if(this.rightButton)this.rightButton.ensureToken();if(this.leftButton)this.leftButton.ensureToken();},"
@@ -1218,7 +1272,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			
 			buttonContexts, @"_BTN",
 			buttonTokenGen,@"_BTNTKN",
-			[TitaniumJSCode codeWithString:iPhoneBarButtonGeneratorFunction],@"_BTNGEN",
+			setButtonFocusInvoc,@"_BTNFOC",
 			[TitaniumJSCode codeWithString:createButtonString],@"createButton",
 
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'switch');}"],@"createSwitch",

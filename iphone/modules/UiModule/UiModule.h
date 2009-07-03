@@ -51,6 +51,7 @@
 	UITextAlignment         textAlignment;
 	UITextBorderStyle       borderStyle;
 	BOOL                    clearsOnBeginEditing;
+	BOOL					surpressReturnCharacter;
 	UITextFieldViewMode	clearButtonMode;
 	UIButtonProxy	*leftViewProxy;
 	UITextFieldViewMode	leftViewMode;   
@@ -80,6 +81,7 @@
 @property(nonatomic,readwrite,copy)		NSString * iconPath;
 @property(nonatomic,readwrite,assign)	int templateValue;
 @property(nonatomic,readwrite,assign)	int barButtonStyle;
+@property(nonatomic,readwrite,assign)	BOOL surpressReturnCharacter;
 
 @property(nonatomic,readwrite,copy)		NSString * backgroundImagePath;
 @property(nonatomic,readwrite,copy)		NSString * backgroundDisabledImagePath;
@@ -110,6 +112,8 @@
 @property(nonatomic,readwrite,retain)	UIButtonProxy	*leftViewProxy;
 @property(nonatomic,readwrite,retain)	UIButtonProxy	*rightViewProxy;
 
+- (BOOL) hasNativeView;
+- (BOOL) hasNativeBarButton;
 
 - (IBAction) onClick: (id) sender;
 - (void) setPropertyDict: (NSDictionary *) newDict;
@@ -129,7 +133,7 @@
 - (void) setWindow:(NSString *)tokenString navSide:(id) isLeftObject button: (NSDictionary *) buttonObject options: (NSDictionary *) optionsObject;
 - (void) setWindow:(NSString *)tokenString toolbar: (id) barObject options: (id) optionsObject;
 
-- (UIButtonProxy *) proxyForObject: (id) proxyObject recurse: (BOOL) recursion;
+- (UIButtonProxy *) proxyForObject: (id) proxyObject scan: (BOOL) scanning recurse: (BOOL) recursion;
 
 @end
 

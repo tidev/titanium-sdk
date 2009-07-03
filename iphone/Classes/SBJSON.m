@@ -118,6 +118,18 @@ static char ctrl[0x22];
 	return nil;	
 }
 
++ (NSString *) stringify: (id) inputObject;
+{
+	NSError * error = nil;
+	SBJSON * stringer = [[self alloc] init];
+	NSString * result = [stringer stringWithFragment:inputObject error:&error];
+	[stringer release];
+	if (error != nil) {
+		NSLog(@"Error in stringify(%@): %@",inputObject,error);
+	}
+	return result;
+}
+
 - (id)init {
     if (self = [super init]) {
         [self setMaxDepth:512];
