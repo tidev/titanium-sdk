@@ -51,10 +51,9 @@ def zip_it(dist_dir,osname,version):
 	zf.write(android_jar,'%s/android/titanium.jar' % basepath)
 
 	if osname == "osx":
-		versions = ['3.0']
-		if platform.platform()!='Darwin-10.0.0b2-i386-64bit':
-			versions.append('2.2.1')
-		for apiversion in versions:
+		sys.path.append(iphone_dir)
+		import run,prereq
+		for apiversion in prereq.get_sdks():
 			iphone_lib = os.path.join(cur_dir,'iphone','build','libTitanium-%s.a' % apiversion)
 			zf.write(iphone_lib,'%s/iphone/libTitanium-%s.a' % (basepath,apiversion))
 
