@@ -39,11 +39,14 @@ public class TitaniumActivityGroup extends ActivityGroup
 	protected TitaniumAppInfo appInfo;
 	protected ITitaniumAppStrategy appStrategy;
 
+	protected boolean fullscreen;
+
 	public TitaniumActivityGroup() {
 	}
 
 	public TitaniumActivityGroup(boolean singleActivityMode) {
 		super(singleActivityMode);
+		fullscreen = false;
 	}
 
 	@Override
@@ -109,6 +112,7 @@ public class TitaniumActivityGroup extends ActivityGroup
 
 		if (info.isWindowFullscreen()) {
 			this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+			fullscreen = true;
 		} else {
 	        this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
 	        this.requestWindowFeature(Window.FEATURE_PROGRESS);
@@ -129,6 +133,10 @@ public class TitaniumActivityGroup extends ActivityGroup
 		}
 
 		appStrategy.onCreate(this, savedInstanceState);
+	}
+
+	public boolean isFullscreen() {
+		return fullscreen;
 	}
 
 	public void launch(Intent intent) {

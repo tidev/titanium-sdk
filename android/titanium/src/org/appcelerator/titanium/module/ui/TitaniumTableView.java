@@ -85,8 +85,9 @@ public class TitaniumTableView extends Dialog implements ITitaniumTableView
 		}
 	}
 
-	public TitaniumTableView(TitaniumActivity activity) {
-		super(activity,android.R.style.Theme_NoTitleBar);
+	public TitaniumTableView(TitaniumActivity activity, int themeId)
+	{
+		super(activity, themeId);
 
 		this.activity = activity;
 		this.handler = new Handler();

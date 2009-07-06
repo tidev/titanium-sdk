@@ -118,6 +118,8 @@ public class TitaniumActivity extends Activity
 
 	private boolean showingJSError;
 
+	private boolean fullscreen;
+
 	public interface OnConfigChange {
 		public void configurationChanged(Configuration config);
 	}
@@ -272,6 +274,7 @@ public class TitaniumActivity extends Activity
         		Log.d(LCAT, "Enabling No Title feature");
         	}
         	this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        	fullscreen = true;
         } else {
         	if (DBG) {
         		Log.d(LCAT, "Enabling Title area features");
@@ -330,6 +333,11 @@ public class TitaniumActivity extends Activity
 
         ts("end of onCreate");
 	}
+
+    public boolean isFullscreen() {
+    	TitaniumActivityGroup parent = (TitaniumActivityGroup) getParent();
+    	return parent != null ? parent.isFullscreen() : fullscreen;
+    }
 
     protected void initializeModules() {
         // Add Modules

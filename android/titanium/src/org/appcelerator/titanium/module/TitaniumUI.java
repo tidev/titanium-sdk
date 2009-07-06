@@ -10,6 +10,7 @@ package org.appcelerator.titanium.module;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumDialog;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
@@ -118,7 +119,17 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI
 	}
 
 	public ITitaniumTableView createTableView() {
-		return new TitaniumTableView(getActivity());
+		TitaniumActivity activity = getActivity();
+		int themeId = android.R.style.Theme;
+
+		if (activity.isFullscreen()) {
+			themeId = android.R.style.Theme_NoTitleBar;
+		}
+		TitaniumTableView ttv = new TitaniumTableView(activity, themeId);
+		if (!activity.isFullscreen()) {
+			ttv.setTitle(activity.getParent().getTitle());
+		}
+		return ttv;
 	}
 	@Override
 	public void onDestroy() {
