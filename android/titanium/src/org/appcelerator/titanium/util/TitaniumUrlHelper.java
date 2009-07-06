@@ -104,6 +104,8 @@ public class TitaniumUrlHelper
 							while((len = br.read(buf)) != -1) {
 								bos.write(buf, 0, len);
 							}
+
+							bos.write("<script>Titanium.doPostProcessing()</script>\n");
 							haveSource = true;
 						}
 					} catch (IOException e) {

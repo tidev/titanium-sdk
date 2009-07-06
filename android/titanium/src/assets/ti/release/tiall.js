@@ -1,5 +1,6 @@
 
-var Titanium=new function(){this.platform='android';this.version='TI_VERSION';this.window=window;this.document=document;this.callbacks=new Array();this.apiProxy=window.TitaniumAPI;this.rethrow=function(e){throw e;}};function TitaniumCallback(obj,method){this.obj=obj;this.method=method;this.invoke=function(data)
+var Titanium=new function(){this.platform='android';this.version='TI_VERSION';this.window=window;this.document=document;this.callbacks=new Array();this.apiProxy=window.TitaniumAPI;this.rethrow=function(e){throw e;}
+this.doPostProcessing=function(){var imgs=document.getElementsByTagName('img');for(i=0;i<imgs.length;i++){var s=imgs[i].src;if(s.indexOf('file:///')==0){if(s.indexOf('file:///sdcard/')==-1&&s.indexOf('file:///android_asset')==-1){imgs[i].src=s.substring(8);}}else if(s.indexOf('app://')==0){imgs[i].src=s.substring(6);}};}};function TitaniumCallback(obj,method){this.obj=obj;this.method=method;this.invoke=function(data)
 {method.call(obj,data);};};function registerCallback(o,f){var i=Titanium.callbacks.length;Titanium.callbacks[i]=new TitaniumCallback(o,f);return"Titanium.callbacks["+i+"]";};function isUndefined(value)
 {if(value===null||typeof(value)==='undefined')
 {return true;}

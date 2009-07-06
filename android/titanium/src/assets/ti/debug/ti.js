@@ -17,6 +17,22 @@ var Titanium = new function() {
 
 	this.rethrow = function(e) { throw e; }
 
+	this.doPostProcessing = function () {
+		var imgs = document.getElementsByTagName('img');
+		for(i=0; i < imgs.length;i++) {
+			var s = imgs[i].src;
+			//alert('BEFORE: ' + s);
+			if (s.indexOf('file:///') == 0) {
+				if (s.indexOf('file:///sdcard/') == -1 && s.indexOf('file:///android_asset') == -1) {
+					imgs[i].src = s.substring(8);
+				}
+			} else if (s.indexOf('app://') == 0) {
+				imgs[i].src = s.substring(6);
+			}
+
+			//alert('AFTER: ' + imgs[i].src);
+		};
+	}
 };
 
 function TitaniumCallback(obj, method) {
