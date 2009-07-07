@@ -51,7 +51,7 @@
 	TitaniumWebViewController * currentView = (TitaniumWebViewController*)[theHost visibleTitaniumViewController];
 
 	for (NSString * currentPageToken in watchingPages){
-		[currentView performJavascript:message onPageWithToken:currentPageToken];
+		if([currentView hasToken:currentPageToken]) [currentView performJavascript:message onPageWithToken:currentPageToken];
 	}
 	//TODO: turn acceleration on and off with changes in visibility.
 }
