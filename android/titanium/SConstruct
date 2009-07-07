@@ -62,7 +62,7 @@ for f in Glob('src/org/appcelerator/titanium/*.properties'):
 
 for f in Glob('src/org/appcelerator/titanium/res/drawable/*',strings=True):
 	fname = os.path.basename(str(f))
-	t = env.Command(os.path.join('bin/classes', fname), f, Copy("$TARGET", "$SOURCE"))
+	t = env.Command(os.path.join('bin/classes/org/appcelerator/titanium/res/drawable', fname), f, Copy("bin/classes/org/appcelerator/titanium/res/drawable", "$SOURCE"))
 	targets.append(t)
 
 android_sdk = '/opt/android-sdk'
