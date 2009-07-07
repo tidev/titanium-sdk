@@ -194,7 +194,7 @@ public class TiAppXmlHandler extends DefaultHandler
 			} else if ("copyright".compareTo(localName) == 0) {
 				tai.setAppCopyright(getTextAndClear());
 			} else if ("url".compareTo(localName) == 0) {
-				tai.setAppIconUrl(getTextAndClear());
+				tai.setAppURL(getTextAndClear());
 			} else if ("property".compareTo(localName) == 0) {
 				if (currentPropertyName == null) {
 					Log.e(LCAT, "property element missing name attribute value: " + currentText.toString());
