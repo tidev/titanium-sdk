@@ -286,6 +286,10 @@ int barButtonSystemItemForString(NSString * inputString){
 			if(bgImage != nil){
 				UIImage * bgDisImage = [theHost stretchableImageForResource:backgroundDisabledImagePath];
 				[(UITextField *)resultView setDisabledBackground:bgDisImage];
+			} else if (borderStyle == UITextBorderStyleRoundedRect){
+				[resultView setBackgroundColor:elementBorderColor];
+			} else {
+				[resultView setBackgroundColor:elementBackgroundColor];
 			}
 			
 		} else {
@@ -296,6 +300,7 @@ int barButtonSystemItemForString(NSString * inputString){
 				resultView = [[UITextView alloc] initWithFrame:viewFrame];
 				[(UITextView *)resultView setDelegate:self];
 			}
+			[resultView setBackgroundColor:elementBackgroundColor];
 		}
 		if (elementColor != nil) [(UITextField *)resultView setTextColor:elementColor];
 		[(UITextField *)resultView setText:stringValue];
@@ -305,7 +310,6 @@ int barButtonSystemItemForString(NSString * inputString){
 		[(UITextField *)resultView setKeyboardType:keyboardType];
 		[(UITextField *)resultView setReturnKeyType:returnKeyType];
 		[(UITextField *)resultView setEnablesReturnKeyAutomatically:enablesReturnKeyAutomatically];
-		[resultView setBackgroundColor:elementBackgroundColor];
 		
 
 	} else if ((templateValue == UITitaniumNativeItemMultiButton) || (templateValue == UITitaniumNativeItemSegmented)){
@@ -1177,7 +1181,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res.setTitle=function(args){this.title=args;if(this._TOKEN){Ti.UI._WTITLE(this._TOKEN,args);};};"
 			"res.showNavBar=function(args){this._hideNavBar=false;if(this._TOKEN){Ti.UI._WSHNAV(this._TOKEN,args);};};"
 			"res.hideNavBar=function(args){this._hideNavBar=true;if(this._TOKEN){Ti.UI._WHDNAV(this._TOKEN,args);};};"
-			"res.setTitleControl=function(args){if(args)args.ensureToken();Ti.UI._WTITLEPXY(this._TOKEN,args);};"
+			"res.setTitleControl=function(args){if(args)args.ensureToken();this.titleControl=args;if(this._TOKEN){Ti.UI._WTITLEPXY(this._TOKEN,args);}};"
 			"res.setTitleImage=function(args){this.titleImage=args;if(this._TOKEN){Ti.UI._WTITLEIMG(this._TOKEN,args);};};"
 			"res.setBarColor=function(args){this.barColor=args;if(this._TOKEN){Ti.UI._WNAVTNT(this._TOKEN,args);};};"
 			"res.setLeftNavButton=function(btn,args){if(btn)btn.ensureToken();this.lNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,true,btn,args);};};"
