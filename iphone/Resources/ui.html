@@ -28,7 +28,7 @@
 		var btn5 = Ti.UI.createButton({title:'Moo'});
 		btn5.addEventListener('click',function(){Ti.UI.currentWindow.setFullscreen(true);});
 
-		var sideBtn = Ti.UI.createButton({width:16,height:16,title:'Y'});
+		var sideBtn = Ti.UI.createButton({width:16,height:16,title:'Y',style:Ti.UI.iPhone.SystemButtonStyle.PLAIN});
 		var btn6 = Ti.UI.createTextField({borderStyle:Ti.UI.INPUT_BORDERSTYLE_ROUNDED,min:-1,max:10,leftButton:sideBtn,leftButtonMode:Ti.UI.INPUT_BUTTONMODE_ALWAYS,clearButtonMode:Ti.UI.INPUT_BUTTONMODE_ALWAYS,hintText:'Hint me!',id:'sliderPlace',keyboardType:Ti.UI.KEYBOARD_EMAIL_ADDRESS,textAlign:'center',color:'red',backgroundColor:'blue',borderColor:'green'});
 //		btn6.width=100;
 		btn6.addEventListener('change',function(foo){document.getElementById('sliderValue').innerHTML='Newvalue' + foo.value;});
