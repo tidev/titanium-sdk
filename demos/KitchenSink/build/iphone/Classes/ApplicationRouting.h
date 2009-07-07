@@ -27,6 +27,7 @@
 - (NSData*) pageNamedImage;
 - (NSData*) scriptNamedIndex;
 - (NSData*) pageNamedIphone_ui;
+- (NSData*) scriptNamedJquery;
 - (NSData*) pageNamedNavbar_color;
 - (NSData*) pageNamedNavbar_hide;
 - (NSData*) pageNamedNavbar_left;

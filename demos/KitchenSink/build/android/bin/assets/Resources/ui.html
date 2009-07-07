@@ -11,12 +11,8 @@
 	<!-- hasChild not working -->
 	<!-- menu not working -->
 	<!-- when exiting camera test, screen flips to landscape -->
+	<!-- URL null on application data (platform tab - application data ) -->
 	
-	<!-- ISSUES -->
-
-	<!-- left button works, but not as expected - just get empty button control RESTEST WITH IMAGE -->
-	<!-- backgroundColor on buttons -->
-	<!-- image issue from Kevin?? -->
 
 	<script>
 	// data for tableview
@@ -362,7 +358,7 @@
 	{
 		var a = Titanium.UI.createAlertDialog({title:'Alert Test',message:'it worked',buttonNames:['OK','Cancel']});
 		a.show();
-		var b = Titanium.UI.createAlertDialog();
+		var b = Titanium.UI.createAlertDialog({buttonNames:['OK']});
 		b.setTitle('Click Event');
 		a.addEventListener('click',function(e)
 		{
@@ -386,6 +382,7 @@
 	{
 		var a = Titanium.UI.createAlertDialog();
 		a.setTitle('Dialog Test');
+		a.setButtonNames(['OK']);
 		
 		// create dialog
 		var dialog = Titanium.UI.createOptionDialog();

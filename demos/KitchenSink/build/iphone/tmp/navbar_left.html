@@ -69,6 +69,12 @@
 	<div style="margin-bottom:5px">
 		<input type="button" value="DONE system button" id="button_20" style="font-size:18px"/>
 	</div>
+	<div style="margin-bottom:5px">
+		<input type="button" value="INFO_DARK system button" id="button_21" style="font-size:18px"/>
+	</div>
+	<div style="margin-bottom:5px">
+		<input type="button" value="INFO_LIGHT system button" id="button_22" style="font-size:18px"/>
+	</div>
 	
 	<script>
 	var a= Titanium.UI.createAlertDialog();
@@ -353,6 +359,34 @@
 		b.addEventListener('click',function()
 		{
 			a.setMessage('you click the DONE button');
+			a.show();
+			
+		})
+		Titanium.UI.currentWindow.setLeftNavButton(b);
+	};
+
+	document.getElementById('button_21').onclick = function()
+	{
+		var b = Titanium.UI.createButton({
+			systemButton:Titanium.UI.iPhone.SystemButton.INFO_DARK
+		});
+		b.addEventListener('click',function()
+		{
+			a.setMessage('you click the INFO DARK button');
+			a.show();
+			
+		})
+		Titanium.UI.currentWindow.setLeftNavButton(b);
+	};
+
+	document.getElementById('button_22').onclick = function()
+	{
+		var b = Titanium.UI.createButton({
+			systemButton:Titanium.UI.iPhone.SystemButton.INFO_LIGHT
+		});
+		b.addEventListener('click',function()
+		{
+			a.setMessage('you click the INFO LIGHT button');
 			a.show();
 			
 		})
