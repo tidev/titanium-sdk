@@ -74,7 +74,7 @@ int barButtonSystemItemForString(NSString * inputString){
 }
 
 @implementation UIButtonProxy
-@synthesize nativeBarButton, segmentLabelArray, segmentImageArray;
+@synthesize nativeBarButton, segmentLabelArray, segmentImageArray, segmentSelectedIndex;
 @synthesize titleString, iconPath, templateValue, barButtonStyle, nativeView, labelView, progressView;
 @synthesize minValue,maxValue,floatValue,stringValue, placeholderText;
 @synthesize elementColor, elementBorderColor, elementBackgroundColor;
@@ -87,6 +87,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		templateValue = UITitaniumNativeItemNone;
 		spinnerStyle = UIActivityIndicatorViewStyleWhite;
 		maxValue = 1.0;
+		segmentSelectedIndex = -1;
 	}
 	return self;
 }
@@ -132,6 +133,8 @@ int barButtonSystemItemForString(NSString * inputString){
 	}
 
 //Segmented
+	GRAB_IF_SELECTOR(@"index",intValue,segmentSelectedIndex);
+
 	id labelArray = [newDict objectForKey:@"labels"];
 	if ([labelArray isKindOfClass:[NSArray class]]){
 		[self setSegmentLabelArray:labelArray];
@@ -359,7 +362,12 @@ int barButtonSystemItemForString(NSString * inputString){
 //			resultView = [[UISegmentedControl alloc] initWithFrame:viewFrame];
 //			[(UISegmentedControl *)resultView addTarget:self action:@selector(onSegmentChange:) forControlEvents:UIControlEventValueChanged];
 //		}
-		[(UISegmentedControl *)resultView setMomentary:(templateValue == UITitaniumNativeItemMultiButton)];
+		if(templateValue==UITitaniumNativeItemMultiButton){
+			[(UISegmentedControl *)resultView setMomentary:YES];
+		} else {
+			[(UISegmentedControl *)resultView setMomentary:NO];
+			[(UISegmentedControl *)resultView setSelectedSegmentIndex:segmentSelectedIndex];
+		}
 		[(UISegmentedControl *)resultView setSegmentedControlStyle:(forBar?UISegmentedControlStyleBar:UISegmentedControlStylePlain)];
 		if (elementBackgroundColor != nil) [(UISegmentedControl *)resultView setTintColor:elementBackgroundColor];
 
@@ -367,7 +375,8 @@ int barButtonSystemItemForString(NSString * inputString){
 		viewFrame.size.height = oldFrame.size.height;
 		if (viewFrame.size.width < oldFrame.size.width) viewFrame.size.width = oldFrame.size.width;
 		[resultView setFrame:viewFrame];
-		
+		if(elementBorderColor != nil)[resultView setBackgroundColor:elementBorderColor];
+
 //	} else if (templateValue == UITitaniumNativeItemPicker){
 //		if ([nativeView isKindOfClass:[UIPickerView class]]){
 //			resultView = [nativeView retain];

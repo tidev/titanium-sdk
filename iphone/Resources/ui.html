@@ -42,7 +42,7 @@
 
 //		btn6.bindToDiv($('sliderPlace'));
 //		Ti.UI.currentWindow.insertButton(btn6);
-		btn6.focus();
+//		btn6.focus();
 		var btn7 = Ti.UI.createButton({systemButton:'fastforward'});
 function test1()
 {
@@ -91,13 +91,18 @@ try{
 		var row = eventObject.row;
 		var index = eventObject.index;
 		var detail = eventObject.detail;
-		Titanium.UI.createAlertDialog({message:(
-			'ROWDATA = ' + rowData +
-			', SECTION = ' + section +
-			', ROW = ' + row +
-			', INDEX = ' + index +
-			', DETAIL = ' + detail
-		)}).show();
+		if (index > 0){
+			Titanium.UI.createAlertDialog({message:(
+				'ROWDATA = ' + rowData +
+				', SECTION = ' + section +
+				', ROW = ' + row +
+				', INDEX = ' + index +
+				', DETAIL = ' + detail
+			)}).show();
+		} else {
+			var nextWin = Ti.UI.createWindow({url:"misc.html"});
+			nextWin.open();
+		}
 	});
 
 	tableView.open({animated:true});
@@ -190,9 +195,12 @@ try{
 		function reportEvent(e){Titanium.UI.createAlertDialog({title:"Thing happened!",message:"You clicked "+e.index}).show();};
 		multiBtn.addEventListener('click',reportEvent);
 
+		var multiBtn2 = Ti.UI.createTabbedBar({labels:['fee','fi','fo','fum'],color:'red',backgroundColor:'#CCCCCC',index:2});
+		multiBtn2.addEventListener('click',reportEvent);
+
 		Ti.UI.currentWindow.setLeftNavButton(btn8);
 		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5,btn7]);
-//		Ti.UI.currentWindow.setToolbar([btn1,btn2,multiBtn]);
+//		Ti.UI.currentWindow.setToolbar([btn1,btn2,multiBtn2]);
 		Ti.UI.currentWindow.setTitleControl(multiBtn);
 		
 		Titanium.Gesture.addEventListener('shake',function(){
@@ -364,8 +372,8 @@ try{
 
 żźćłóąś
 	<a href="tel:1234567">Call me</a>
-	<!--div id='buttony' style='position:absolute;top:50;right:100;width:200px;height:80px'>Button goes here!</div-->
-	<div id='buttony' style=''>Button goes here!</div>
+	<div id='buttony' style='position:absolute;top:200;right:120;width:200px;height:80px'>Button goes here!</div>
+	<!--div id='buttony' style=''>Button goes here!</div-->
 	<a href="tel:1234567">Call me</a>
 	
 	<div id='sliderValue'>Unchanged slider value!</div>
