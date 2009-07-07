@@ -6,7 +6,7 @@
 	<dict>
 		<key>.DS_Store</key>
 		<data>
-		aU68UlnXdBIlpOvXnfFgMG9EMF8=
+		4BdLBwtp1M3MiN6jfnXdjSYJVEY=
 		</data>
 		<key>Default.png</key>
 		<data>
@@ -22,7 +22,7 @@
 		</data>
 		<key>MainWindow.nib</key>
 		<data>
-		w700rYoS6Cii1Stg4KsfW3vufxM=
+		pe+vEcgWzDY7n02ZsMWgw4q3Kaw=
 		</data>
 		<key>Phone.png</key>
 		<data>
@@ -38,7 +38,7 @@
 		</data>
 		<key>TitaniumView.nib</key>
 		<data>
-		xOn5z+OTo9Kss8bdwGRp55tqNn0=
+		9Hbf2h8s96EtjkpXja4mVPCFDyQ=
 		</data>
 		<key>appicon.png</key>
 		<data>
@@ -79,6 +79,10 @@
 		<key>tiapp.plist</key>
 		<data>
 		cYVKg7Sx2KFJNRUYrU0Pv4liM6Q=
+		</data>
+		<key>twitter.png</key>
+		<data>
+		VMp9e0q48rPhbBCMm4GCXKgHwcQ=
 		</data>
 	</dict>
 	<key>rules</key>
