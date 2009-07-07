@@ -30,10 +30,13 @@
 	<script>
 	document.getElementById('button_title').onclick = function()
 	{
+		Titanium.UI.currentWindow.setTitleImage(null);
+		Titanium.UI.currentWindow.setTitleControl(null);
 		Titanium.UI.currentWindow.setTitle('Title Changed!');
 	};
 	document.getElementById('button_image').onclick = function()
 	{
+		Titanium.UI.currentWindow.setTitleControl(null);
 		Titanium.UI.currentWindow.setTitleImage('chat.png');
 		
 	};

@@ -16,6 +16,7 @@
 }
 - (NSData*) resolveAppAsset:(NSURL*)url;
 - (NSData*) pageNamedAccelerometer;
+- (NSData*) pageNamedAnimated_false;
 - (NSData*) pageNamedApplication_data;
 - (NSData*) pageNamedButtonbar;
 - (NSData*) pageNamedButtons;
@@ -27,7 +28,6 @@
 - (NSData*) pageNamedImage;
 - (NSData*) scriptNamedIndex;
 - (NSData*) pageNamedIphone_ui;
-- (NSData*) scriptNamedJquery;
 - (NSData*) pageNamedNavbar_color;
 - (NSData*) pageNamedNavbar_hide;
 - (NSData*) pageNamedNavbar_left;
@@ -46,6 +46,7 @@
 - (NSData*) pageNamedTabbar;
 - (NSData*) pageNamedTabbar_hide;
 - (NSData*) pageNamedTextfields;
+- (NSData*) pageNamedToolbar_fixedspace;
 - (NSData*) pageNamedToolbar_left;
 - (NSData*) pageNamedToolbar_lots;
 - (NSData*) pageNamedToolbar_middle;
