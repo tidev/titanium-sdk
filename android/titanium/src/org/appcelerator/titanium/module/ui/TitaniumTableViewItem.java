@@ -55,6 +55,7 @@ public class TitaniumTableViewItem extends RelativeLayout
 
 		LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(CENTER_VERTICAL);
+		params.setMargins(0, 0, 5, 0);
 		addView(iconView, params);
 
 		params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);

@@ -158,7 +158,7 @@ var OptionDialog = function(proxy) {
 			throw new Error("OptionDialog only handles click events. Use event name 'click'");
 		}
 
-		return this.proxy.addListener(eventName, registerCallback(this, listener));
+		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
 	/**
 	 * @tiapi(method=true,name=UI.OptionDialog.removeEventListener,since=0.5) Remove listener added for the 'click' event.
