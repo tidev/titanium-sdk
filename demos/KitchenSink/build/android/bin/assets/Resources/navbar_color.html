@@ -1,0 +1,40 @@
+<html>
+<head>
+
+
+</head>
+<body  style="font-family:'Helvetica Neue'">
+
+	<div style="margin-bottom:5px">
+		<input type="button" value="Blue Bar" id="button" style="font-size:18px"/>
+	</div>
+	<div style="margin-bottom:5px">
+		<input type="button" value="Red Bar" id="button_1" style="font-size:18px"/>
+	</div>
+	<div style="margin-bottom:5px">
+		<input type="button" value="Orange Bar" id="button_2" style="font-size:18px"/>
+	</div>
+	<div style="margin-bottom:5px">
+		<input type="button" value="Default Style" id="button_3" style="font-size:18px"/>
+	</div>
+	
+	<script>
+	document.getElementById('button').onclick = function()
+	{
+		Titanium.UI.currentWindow.setBarColor('#336699');
+	};
+	document.getElementById('button_1').onclick = function()
+	{
+		Titanium.UI.currentWindow.setBarColor('#FF0000');
+	};
+	document.getElementById('button_2').onclick = function()
+	{
+		Titanium.UI.currentWindow.setBarColor('#FF9900');
+	};
+	document.getElementById('button_3').onclick = function()
+	{
+		Titanium.UI.currentWindow.setBarColor(null);
+	};
+	</script>
+</body>
+</html>

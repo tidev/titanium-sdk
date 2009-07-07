@@ -1,0 +1,25 @@
+<html>
+<head>
+
+
+</head>
+<body  style="font-family:'Helvetica Neue';font-size:12px">
+	
+	<div style="margin-bottom:10px">
+	You can use tab bars in the content area, the nav bar and in the toolbar.
+	</div>
+	<div id="tabbar" style="width:200px;height:30px;margin:auto;margin-top:10px;"></div>
+	
+	
+	<script>
+	var tabbar = Titanium.UI.createTabbedBar({id:'tabbar', index:1,labels:['Tab3', 'Tab4']});
+	tabbar.addEventListener('click',function(e)
+	{
+		var a = Titanium.UI.createAlertDialog();
+		a.setTitle('Tabbar Test');
+		a.setMessage('You click tab index = ' + e.index);
+		a.show();
+	})
+	</script>
+</body>
+</html>

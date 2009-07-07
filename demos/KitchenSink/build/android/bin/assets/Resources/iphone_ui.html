@@ -1,0 +1,32 @@
+<html>
+<head>
+	<title>iPhone UI</title>
+	<script>
+	// data for tableview
+	var data = [
+		{title:'XHR Request', hasChild:true},
+		{title:'Logging'},
+		{title:'Application Data',hasChild:true},
+		{title:'Properties',hasChild:true},
+		{title:'Database', hasChild:true},
+		{title:'Platform Data', hasChild:true},
+		{title:'Filesystem', hasChild:true}
+		
+	];
+	
+	// tableview object
+	var tableView = Titanium.UI.createTableView({data:data,title:'iPhone UI',isPrimary:true}, function(eventObject) 
+	{
+		// handle tableview click events
+		var idx = eventObject.index;
+		switch(idx)
+		{
+		}
+	});
+	tableView.open({animated:false});
+	</script>
+</head>
+<body>
+	
+</body>
+</html>

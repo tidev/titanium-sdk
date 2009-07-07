@@ -1,0 +1,48 @@
+<html>
+	<head>
+
+	</head>
+	<body style="margin:0;background-color:#000;text-align:center">
+		<img id="image" border="0" height="360" width="320" />
+		<input id="btn" style="visibility:hidden" type="button" value="OK" />
+
+		<script>
+			var listener = function(e)
+			{
+				var x=Titanium.App.Properties.getString('x');
+				var y=Titanium.App.Properties.getString('y');
+				var height=Titanium.App.Properties.getString('height');
+				var width=Titanium.App.Properties.getString('width');
+
+				var b = Titanium.UI.createAlertDialog();
+
+				b.setMessage('Height ' + height + ' Width ' + width + ' X ' + x + ' Y ' +y);
+				b.setTitle('Photo Details');
+				b.setButtonNames(['OK']);
+				b.show();
+			};
+
+			// load image from properties
+			
+			document.getElementById('image').src = Titanium.App.Properties.getString('photo');
+			if (Titanium.Platform.name.indexOf('iPhone')  != -1) {
+				// create buttton
+				var button = Titanium.UI.createButton({
+					title:'Details',
+					style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+				});
+
+				// set button on right nav
+				Titanium.UI.currentWindow.setRightNavButton(button);
+
+				// add event listneer
+				button.addEventListener('click', listener);
+			} else {
+				var button = document.getElementById('btn');
+				button.style.visibility = 'visible';
+				button.onclick = listener;
+			}
+		</script>
+
+	</body>
+</html>

@@ -1,0 +1,25 @@
+<html>
+<head>
+
+
+</head>
+<body  style="font-family:'Helvetica Neue'">
+	<div id="message"></div>
+	
+	<script>
+	Titanium.App.Properties.setString('String','I am a String Value');
+	Titanium.App.Properties.setInt('Int',10);
+	Titanium.App.Properties.setBool('Bool',true);
+	Titanium.App.Properties.setDouble('Double',10.6);
+
+	var html  = '';
+	html+= 'String: ' + Titanium.App.Properties.getString('String') + '<br/>';
+	html+= 'Int: ' + Titanium.App.Properties.getInt('Int') + '<br/>';
+	html+= 'Bool: ' + Titanium.App.Properties.getBool('Bool') + '<br/>';
+	html+= 'Double: ' + Titanium.App.Properties.getDouble('Double') + '<br/>';
+
+	document.getElementById('message').innerHTML = html;
+
+	</script>
+</body>
+</html>

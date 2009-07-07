@@ -1,0 +1,24 @@
+<html>
+<head>
+
+
+</head>
+<body  style="font-family:'Helvetica Neue'">
+	<div id="message"></div>
+	
+	<script>
+	var html  = '';
+	html+= 'ID: ' + Titanium.App.getID() + '<br/>';
+	html+= 'Name: ' + Titanium.App.getName() + '<br/>';
+	html+= 'Version: ' + Titanium.App.getVersion() + '<br/>';
+	html+= 'Publisher: ' + Titanium.App.getPublisher() + '<br/>';
+	html+= 'URL: ' + Titanium.App.getURL() + '<br/>';
+	html+= 'Description: ' + Titanium.App.getDescription() + '<br/>';
+	html+= 'Copyright: ' + Titanium.App.getCopyright() + '<br/>';
+	html+= 'GUID: ' + Titanium.App.getGUID() + '<br/>';
+	html+= 'Path: ' + Titanium.App.appURLToPath('index.html') + '<br/>';
+	document.getElementById('message').innerHTML = html;
+
+	</script>
+</body>
+</html>
