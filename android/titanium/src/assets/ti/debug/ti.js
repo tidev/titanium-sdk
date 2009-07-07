@@ -6,7 +6,13 @@
  */
 
 var Titanium = new function() {
+	/*
+	 * @tiapi(method=False,property=True,name=platform,since=0.4,type=string) titanium platform name property
+	 */
 	this.platform = 'android';
+	/*
+	 * @tiapi(method=False,property=True,name=version,since=0.4,type=string) titanium platform version property
+	 */
 	this.version = 'TI_VERSION';  // this is build driven
 	this.window = window;
 	this.document = document;
