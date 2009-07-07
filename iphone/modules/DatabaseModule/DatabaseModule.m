@@ -221,7 +221,7 @@
 				"execute:function(query){"
 					"var args=[];"
 					"for(var i=1;i<arguments.length;i++){args.push(arguments[i]);}"
-					"var comm=Ti.Database._EXEDB(this._TOKEN,query,args);this.rowsAffected=comm.rowsAffected;this.lastInsertRowID=comm.lastRow;"
+					"var comm=Ti.Database._EXEDB(this._TOKEN,query,args);this.rowsAffected=comm.rowsAffected;this.lastInsertRowId=comm.lastRow;"
 					"var res={_TOKEN:comm.token,"
 						"fields:comm.fields,rowCount:comm.rowCount,values:comm.values,"
 						"close:function(){Ti.Database._CLSRS(this._TOKEN);},"

@@ -80,7 +80,7 @@ int barButtonSystemItemForString(NSString * inputString){
 
 @implementation UIButtonProxy
 @synthesize nativeBarButton, segmentLabelArray, segmentImageArray, segmentSelectedIndex;
-@synthesize titleString, iconPath, templateValue, barButtonStyle, nativeView, labelView, progressView;
+@synthesize titleString, iconPath, templateValue, buttonStyle, nativeView, labelView, progressView;
 @synthesize minValue,maxValue,floatValue,stringValue, placeholderText;
 @synthesize elementColor, elementBorderColor, elementBackgroundColor;
 @synthesize leftViewProxy, rightViewProxy, leftViewMode, rightViewMode, surpressReturnCharacter;
@@ -93,6 +93,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		spinnerStyle = UIActivityIndicatorViewStyleWhite;
 		maxValue = 1.0;
 		segmentSelectedIndex = -1;
+		buttonStyle = -1; 
 	}
 	return self;
 }
@@ -181,7 +182,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	}
 	
 //Tab bar stuff
-	GRAB_IF_SELECTOR(@"style",intValue,barButtonStyle);
+	GRAB_IF_SELECTOR(@"style",intValue,buttonStyle);
 
 //Text view/field stuff
 	GRAB_IF_SELECTOR(@"autocapitalize",intValue,autocapitalizationType);
@@ -410,7 +411,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		TitaniumHost * theHost = [TitaniumHost sharedHost];
 		UIImage * bgImage = [theHost stretchableImageForResource:backgroundImagePath];
 
-		UIButtonType resultType = (bgImage==nil)?UIButtonTypeRoundedRect:UIButtonTypeCustom;
+		UIButtonType resultType = ((bgImage==nil) && (buttonStyle != UIBarButtonItemStylePlain))?UIButtonTypeRoundedRect:UIButtonTypeCustom;
 
 		if([nativeView isKindOfClass:[UIButton class]] && ([(UIButton *)nativeView buttonType]==resultType)){
 			resultView = [nativeView retain];
@@ -464,6 +465,7 @@ int barButtonSystemItemForString(NSString * inputString){
 - (void) updateNativeBarButton;
 {
 	UIBarButtonItem * result = nil;
+	UIBarButtonItemStyle barButtonStyle = ((buttonStyle==-1)?UIBarButtonItemStylePlain:buttonStyle);
 	SEL onClickSel = @selector(onClick:);
 	
 	if (templateValue <= UITitaniumNativeItemSpinner){

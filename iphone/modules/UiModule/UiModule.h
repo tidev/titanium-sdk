@@ -20,7 +20,7 @@
 	int templateValue;
 	
 	//For Bar buttons
-	int barButtonStyle;
+	int buttonStyle;
 	
 	//For activity spinners
 	UIActivityIndicatorViewStyle spinnerStyle;
@@ -81,7 +81,7 @@
 @property(nonatomic,readwrite,copy)		NSString * titleString;
 @property(nonatomic,readwrite,copy)		NSString * iconPath;
 @property(nonatomic,readwrite,assign)	int templateValue;
-@property(nonatomic,readwrite,assign)	int barButtonStyle;
+@property(nonatomic,readwrite,assign)	int buttonStyle;
 @property(nonatomic,readwrite,assign)	BOOL surpressReturnCharacter;
 
 @property(nonatomic,readwrite,copy)		NSString * backgroundImagePath;
