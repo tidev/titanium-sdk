@@ -185,7 +185,7 @@ UIColor * checkmarkColor = nil;
 - (id) initWithHeader: (NSString *) headerString footer: (NSString *) footerString;
 - (void) addRow: (TableRowWrapper *) newRow;
 - (TableRowWrapper *) rowForIndex: (NSUInteger) rowIndex;
-- (BOOL) accceptsHeader: (NSString *) newHeader footer: (NSString *) footer;
+- (BOOL) accceptsHeader: (id) newHeader footer: (id) newFooter;
 
 @property(nonatomic,readwrite,copy)		NSString * header;
 @property(nonatomic,readwrite,copy)		NSString * footer;

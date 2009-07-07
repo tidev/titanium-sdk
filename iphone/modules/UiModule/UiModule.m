@@ -29,6 +29,9 @@ enum { //MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemIte
 
 	UITitaniumNativeItemPicker = -11,
 	UITitaniumNativeItemDatePicker = -12,
+	
+	UITitaniumNativeItemInfoLight = -13,
+	UITitaniumNativeItemInfoDark = -14,
 };
 
 
@@ -66,6 +69,8 @@ int barButtonSystemItemForString(NSString * inputString){
 				[NSNumber numberWithInt:UITitaniumNativeItemSearchBar],@"search",
 				[NSNumber numberWithInt:UITitaniumNativeItemMultiButton],@"multibutton",
 				[NSNumber numberWithInt:UITitaniumNativeItemSegmented],@"segmented",
+				[NSNumber numberWithInt:UITitaniumNativeItemInfoLight],@"infolight",
+				[NSNumber numberWithInt:UITitaniumNativeItemInfoDark],@"infodark",
 				nil];
 	}
 	NSNumber * result = [barButtonSystemItemForStringDict objectForKey:[inputString lowercaseString]];
@@ -376,6 +381,18 @@ int barButtonSystemItemForString(NSString * inputString){
 		if (viewFrame.size.width < oldFrame.size.width) viewFrame.size.width = oldFrame.size.width;
 		[resultView setFrame:viewFrame];
 		if(elementBorderColor != nil)[resultView setBackgroundColor:elementBorderColor];
+
+	} else if ((templateValue == UITitaniumNativeItemInfoLight) || (templateValue == UITitaniumNativeItemInfoDark)){
+		UIButtonType resultType = (templateValue == UITitaniumNativeItemInfoLight)?UIButtonTypeInfoLight:UIButtonTypeInfoDark;
+
+		if([nativeView isKindOfClass:[UIButton class]] && ([(UIButton *)nativeView buttonType]==resultType)){
+			resultView = [nativeView retain];
+		} else {
+			resultView = [[UIButton buttonWithType:resultType] retain];
+			[(UIButton *)resultView addTarget:self action:@selector(onClick:) forControlEvents:UIControlEventTouchUpInside];
+		}
+		
+		[resultView setBackgroundColor:elementBorderColor];
 
 //	} else if (templateValue == UITitaniumNativeItemPicker){
 //		if ([nativeView isKindOfClass:[UIPickerView class]]){
@@ -1226,7 +1243,8 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSString * systemButtonString = @"{ACTION:'action',ACTIVITY:'activity',CAMERA:'camera',COMPOSE:'compose',BOOKMARKS:'bookmarks',"
 			"SEARCH:'search',ADD:'add',TRASH:'trash',ORGANIZE:'organize',REPLY:'reply',STOP:'stop',REFRESH:'refresh',"
 			"PLAY:'play',FAST_FORWARD:'fastforward',PAUSE:'pause',REWIND:'rewind',EDIT:'edit',CANCEL:'cancel',"
-			"SAVE:'save',DONE:'done',FLEXIBLE_SPACE:'flexiblespace',FIXED_SPACE:'fixedspace'}";
+			"SAVE:'save',DONE:'done',FLEXIBLE_SPACE:'flexiblespace',FIXED_SPACE:'fixedspace',INFO_LIGHT:'infolight',INFO_DARK:'infodark'}";
+
 	NSString * statusBarString = [NSString stringWithFormat:@"{GREY:%d,DEFAULT:%d,OPAQUE_BLACK:%d,TRANSLUCENT_BLACK:%d}",
 								  UIStatusBarStyleDefault,UIStatusBarStyleDefault,UIStatusBarStyleBlackOpaque,UIStatusBarStyleBlackTranslucent];
 	

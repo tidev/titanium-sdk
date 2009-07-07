@@ -129,6 +129,9 @@
 		B4A49BBB0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */; };
 		B4A49BBC0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */; };
 		B4B587010FB00B670047B651 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4B587000FB00B670047B651 /* AudioToolbox.framework */; };
+		B4B9E4621003D3DE004B8831 /* logo-m.png in Resources */ = {isa = PBXBuildFile; fileRef = B4B9E4611003D3DE004B8831 /* logo-m.png */; };
+		B4B9E4641003D3E6004B8831 /* ext-core.js in Sources */ = {isa = PBXBuildFile; fileRef = B4B9E4631003D3E6004B8831 /* ext-core.js */; };
+		B4B9E4721003D52F004B8831 /* jquery.js in Sources */ = {isa = PBXBuildFile; fileRef = B4B9E4711003D52F004B8831 /* jquery.js */; };
 		B4C3F8B60FB3B11C0037F210 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */; };
 		B4C6D7040FE99F4E00D62384 /* TitaniumWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7030FE99F4E00D62384 /* TitaniumWebViewController.m */; };
 		B4C6D7050FE99F4E00D62384 /* TitaniumWebViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4C6D7020FE99F4E00D62384 /* TitaniumWebViewController.h */; };
@@ -240,6 +243,9 @@
 		B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumBlobWrapper.h; sourceTree = "<group>"; };
 		B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumBlobWrapper.m; sourceTree = "<group>"; };
 		B4B587000FB00B670047B651 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		B4B9E4611003D3DE004B8831 /* logo-m.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo-m.png"; sourceTree = "<group>"; };
+		B4B9E4631003D3E6004B8831 /* ext-core.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-core.js"; sourceTree = "<group>"; };
+		B4B9E4711003D52F004B8831 /* jquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.js; sourceTree = "<group>"; };
 		B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		B4C6D7020FE99F4E00D62384 /* TitaniumWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumWebViewController.h; sourceTree = "<group>"; };
 		B4C6D7030FE99F4E00D62384 /* TitaniumWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumWebViewController.m; sourceTree = "<group>"; };
@@ -502,14 +508,17 @@
 				B4FC30A40FEC89E800D31C75 /* Safari.png */,
 				B4FC30A50FEC89E800D31C75 /* iTunes.png */,
 				B4FC30A60FEC89E800D31C75 /* Mail.png */,
+				B4B9E4631003D3E6004B8831 /* ext-core.js */,
 				B4864C3B0F7B134B00A851C5 /* Info.plist */,
 				B40A40A60FCF60BF00C5DD7C /* movie.m4v */,
+				B4B9E4611003D3DE004B8831 /* logo-m.png */,
 				24440B9A0FC9DFA0000A025D /* iPhone_icon.png */,
 				B4DD427C0FD982FD00CD427F /* profile.png */,
 				B4880BA20F96B4E3007589FC /* iPhone_BG.png */,
 				B492D43D0FCC6DB20030772B /* network.html */,
 				B4F51CB00F981F23004D9D2D /* Default.png */,
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
+				B4B9E4711003D52F004B8831 /* jquery.js */,
 				B40F54520F746D11008E0A55 /* TitaniumView.xib */,
 				B4A10F3D0F86BC490040D850 /* AppDownloadView.xib */,
 				B4FFBE3D0FD4A778001D5E81 /* unitTest.html */,
@@ -711,6 +720,7 @@
 				B4FC30A90FEC89E800D31C75 /* iTunes.png in Resources */,
 				B4FC30AA0FEC89E800D31C75 /* Mail.png in Resources */,
 				B4468EFD10027417002BAC64 /* misc.html in Resources */,
+				B4B9E4621003D3DE004B8831 /* logo-m.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -775,6 +785,8 @@
 				B4C6D7330FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */,
 				B45C717F0FEDAF93002A8675 /* WebTableViewCell.m in Sources */,
 				B47B52D60FF1B2F400BD7229 /* ValueTableViewCell.m in Sources */,
+				B4B9E4641003D3E6004B8831 /* ext-core.js in Sources */,
+				B4B9E4721003D52F004B8831 /* jquery.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
