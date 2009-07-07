@@ -10,8 +10,8 @@
     <windows>
         <window>
             <id>initial</id>
-            <title>Titanium Connectivity</title>
-            <url>geo.html</url>
+            <title>Testbed</title>
+            <url>tableview.html</url>
             <type>single</type>
             <fullscreen>false</fullscreen>
             <backgroundColor>argb(0,255,255,255)</backgroundColor>

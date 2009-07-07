@@ -178,6 +178,13 @@ NSString * const ControllerString = @"Controller";
 	if (newTitleImagePath != nil) {
 		[self setTitleViewImagePath:newTitleImagePath];
 	}
+
+	id newTitleProxy = [inputState objectForKey:@"titleControl"];
+	if (newTitleProxy != nil) {
+		UiModule * theUiModule = (UiModule *)[[TitaniumHost sharedHost] moduleNamed:@"UiModule"];
+		UIButtonProxy * thisInputProxy = [theUiModule proxyForObject:newTitleProxy scan:YES recurse:YES];
+		[self setTitleViewProxy:thisInputProxy];
+	}
 	
 	UITabBarItem * newTabBarItem = nil;
 	NSString * tabIconName = [inputState objectForKey:@"icon"];

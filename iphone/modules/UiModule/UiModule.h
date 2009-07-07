@@ -34,6 +34,7 @@
 	//For Multibutton/segmented
 	NSArray * segmentLabelArray;
 	NSArray * segmentImageArray;
+	int		segmentSelectedIndex;
 
 	//Background images
 	NSString * backgroundImagePath;
@@ -89,6 +90,7 @@
 
 @property(nonatomic,readwrite,copy)		NSArray * segmentLabelArray;
 @property(nonatomic,readwrite,copy)		NSArray * segmentImageArray;
+@property(nonatomic,readwrite,assign)	int segmentSelectedIndex;
 
 @property(nonatomic,readwrite,retain)	UIColor * elementColor;
 @property(nonatomic,readwrite,retain)	UIColor * elementBackgroundColor;

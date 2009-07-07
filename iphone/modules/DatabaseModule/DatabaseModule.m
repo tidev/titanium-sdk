@@ -131,6 +131,9 @@
 
 	PLSqliteResultSet * ourResultSet = (PLSqliteResultSet *)[commandStatement executeQuery];
 	int resultsRowCount = 0;
+	sqlite3 * actualDB = [ourDB sqliteDB];
+	int lastInsertRowID = sqlite3_last_insert_rowid(actualDB);
+	int affectedRowCount = sqlite3_changes(actualDB);
 
 	if ([@"select" isEqualToString:commandPrefix]){
 		resultsRowCount = [ourResultSet fullCount];
@@ -138,11 +141,8 @@
 
 //TODO: Don't bother with a token when there's no actual result back.
 	[ourResultSet next];
-	sqlite3 * actualDB = [ourDB sqliteDB];
 
 	NSString * tokenString = [NSString stringWithFormat:@"DBRS%d",nextDatabaseResultsToken++];
-	int affectedRowCount = sqlite3_changes(actualDB);
-	int lastInsertRowID = sqlite3_last_insert_rowid(actualDB);
 	NSArray * fieldsArray = [ourResultSet fieldNames];
 	NSArray * valuesArray = [ourResultSet valuesForRow];
 	

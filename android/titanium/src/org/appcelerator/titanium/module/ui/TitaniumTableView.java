@@ -62,12 +62,26 @@ public class TitaniumTableView extends Dialog implements ITitaniumTableView
 				v = (TitaniumTableViewItem) convertView;
 			} else {
 				v = new TitaniumTableViewItem(activity);
-				v.setMinimumHeight(rowHeight);
 			}
 
 			v.setRowData((JSONObject) getItem(position), rowHeight);
 
 			return v;
+		}
+
+		@Override
+		public boolean areAllItemsEnabled() {
+			return false;
+		}
+
+		@Override
+		public boolean isEnabled(int position) {
+			boolean enabled = true;
+			JSONObject o = (JSONObject) getItem(position);
+			if (o.has("header")) {
+				enabled = false;
+			}
+			return enabled;
 		}
 	}
 

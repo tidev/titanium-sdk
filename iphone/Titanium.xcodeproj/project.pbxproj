@@ -105,6 +105,7 @@
 		B4110C9F0FD4653A00BE17F8 /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */; };
 		B413A6800F7998C500B1C47D /* TitaniumAppProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */; };
 		B413A7530F79A58000B1C47D /* TitaniumCmdThread.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */; };
+		B4468EFD10027417002BAC64 /* misc.html in Resources */ = {isa = PBXBuildFile; fileRef = B4468EFC10027417002BAC64 /* misc.html */; };
 		B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
 		B44BCFDA0FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
 		B45C717F0FEDAF93002A8675 /* WebTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */; };
@@ -218,6 +219,7 @@
 		B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumAppProtocol.m; sourceTree = "<group>"; };
 		B413A7510F79A58000B1C47D /* TitaniumCmdThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumCmdThread.h; sourceTree = "<group>"; };
 		B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumCmdThread.m; sourceTree = "<group>"; };
+		B4468EFC10027417002BAC64 /* misc.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = misc.html; sourceTree = "<group>"; };
 		B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		B45C717D0FEDAF93002A8675 /* WebTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebTableViewCell.h; sourceTree = "<group>"; };
 		B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebTableViewCell.m; sourceTree = "<group>"; };
@@ -513,6 +515,7 @@
 				B4FFBE3D0FD4A778001D5E81 /* unitTest.html */,
 				2444F98A0FCA417C00063972 /* tiapp.plist */,
 				2418F4210FCB629A00BFE545 /* sound.html */,
+				B4468EFC10027417002BAC64 /* misc.html */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -707,6 +710,7 @@
 				B4FC30A80FEC89E800D31C75 /* Safari.png in Resources */,
 				B4FC30A90FEC89E800D31C75 /* iTunes.png in Resources */,
 				B4FC30AA0FEC89E800D31C75 /* Mail.png in Resources */,
+				B4468EFD10027417002BAC64 /* misc.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

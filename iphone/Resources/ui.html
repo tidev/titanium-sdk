@@ -1,5 +1,6 @@
 <html>
 <head>
+<meta http-equiv="content-type" content="text-html; charset=utf-8">
 <title>Titanium Sound Unit Tests</title>
 <style>body{background-color:#fff;margin-top:20px;font-size:11px} .passed{color:#090} .failed{color:#900} #summary{margin:0;margin-bottom:10px;padding:10px;border-bottom:1px solid #bbb;font-size:18px;} h1 {margin-bottom:0}</style>
 <script>
@@ -28,7 +29,7 @@
 		btn5.addEventListener('click',function(){Ti.UI.currentWindow.setFullscreen(true);});
 
 		var sideBtn = Ti.UI.createButton({width:16,height:16,title:'Y'});
-		var btn6 = Ti.UI.createTextField({min:-1,max:10,leftButton:sideBtn,leftButtonMode:Ti.UI.INPUT_BUTTONMODE_ALWAYS,clearButtonMode:Ti.UI.INPUT_BUTTONMODE_ALWAYS,hintText:'Hint me!',id:'sliderPlace',keyboardType:Ti.UI.KEYBOARD_EMAIL_ADDRESS,textAlign:'center',color:'red',backgroundColor:'blue',borderColor:'green'});
+		var btn6 = Ti.UI.createTextField({borderStyle:Ti.UI.INPUT_BORDERSTYLE_ROUNDED,min:-1,max:10,leftButton:sideBtn,leftButtonMode:Ti.UI.INPUT_BUTTONMODE_ALWAYS,clearButtonMode:Ti.UI.INPUT_BUTTONMODE_ALWAYS,hintText:'Hint me!',id:'sliderPlace',keyboardType:Ti.UI.KEYBOARD_EMAIL_ADDRESS,textAlign:'center',color:'red',backgroundColor:'blue',borderColor:'green'});
 //		btn6.width=100;
 		btn6.addEventListener('change',function(foo){document.getElementById('sliderValue').innerHTML='Newvalue' + foo.value;});
 //		btn6.addEventListener('valuechange',function(foo){
@@ -41,7 +42,7 @@
 
 //		btn6.bindToDiv($('sliderPlace'));
 //		Ti.UI.currentWindow.insertButton(btn6);
-		btn6.focus();
+//		btn6.focus();
 		var btn7 = Ti.UI.createButton({systemButton:'fastforward'});
 function test1()
 {
@@ -90,13 +91,18 @@ try{
 		var row = eventObject.row;
 		var index = eventObject.index;
 		var detail = eventObject.detail;
-		Titanium.UI.createAlertDialog({message:(
-			'ROWDATA = ' + rowData +
-			', SECTION = ' + section +
-			', ROW = ' + row +
-			', INDEX = ' + index +
-			', DETAIL = ' + detail
-		)}).show();
+		if (index > 0){
+			Titanium.UI.createAlertDialog({message:(
+				'ROWDATA = ' + rowData +
+				', SECTION = ' + section +
+				', ROW = ' + row +
+				', INDEX = ' + index +
+				', DETAIL = ' + detail
+			)}).show();
+		} else {
+			var nextWin = Ti.UI.createWindow({url:"misc.html"});
+			nextWin.open();
+		}
 	});
 
 	tableView.open({animated:true});
@@ -185,13 +191,16 @@ try{
 		btn8.addEventListener('click',test2);
 //		test2();
 
-		var multiBtn = Ti.UI.createButtonBar({labels:['fee','fi','fo','fum']});
+		var multiBtn = Ti.UI.createButtonBar({labels:['fee','fi','fo','fum'],color:'white',backgroundColor:'blue'});
 		function reportEvent(e){Titanium.UI.createAlertDialog({title:"Thing happened!",message:"You clicked "+e.index}).show();};
 		multiBtn.addEventListener('click',reportEvent);
 
+		var multiBtn2 = Ti.UI.createTabbedBar({labels:['fee','fi','fo','fum'],color:'red',backgroundColor:'#CCCCCC',index:2});
+		multiBtn2.addEventListener('click',reportEvent);
+
 		Ti.UI.currentWindow.setLeftNavButton(btn8);
 		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5,btn7]);
-//		Ti.UI.currentWindow.setToolbar([btn1,btn2,multiBtn]);
+//		Ti.UI.currentWindow.setToolbar([btn1,btn2,multiBtn2]);
 		Ti.UI.currentWindow.setTitleControl(multiBtn);
 		
 		Titanium.Gesture.addEventListener('shake',function(){
@@ -361,12 +370,16 @@ try{
 	Landscape: <script>document.write(Ti.Gesture.LANDSCAPE);</script><br>
 	Landscape: <script>document.write(Ti.UI.LANDSCAPE);</script><br>
 
-	<a href="tel:1234567">Call me</a><div id='buttony' style='position:absolute;top:50;right:100;width:200px;height:80px'>Button goes here!</div>
+żźćłóąś
+	<a href="tel:1234567">Call me</a>
+	<div id='buttony' style='position:absolute;top:200;right:120;width:200px;height:80px'>Button goes here!</div>
+	<!--div id='buttony' style=''>Button goes here!</div-->
 	<a href="tel:1234567">Call me</a>
 	
 	<div id='sliderValue'>Unchanged slider value!</div>
 
-	<div id='sliderPlace' style="width:200px;height:70px;"></div>
+	<!--div id='sliderPlace' style="width:200px;height:70px;"></div-->
+	<div id='sliderPlace' style=""></div>
 	<button onclick="showOptionsDialog()">
 	
 </body>

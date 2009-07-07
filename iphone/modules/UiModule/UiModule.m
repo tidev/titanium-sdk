@@ -74,7 +74,7 @@ int barButtonSystemItemForString(NSString * inputString){
 }
 
 @implementation UIButtonProxy
-@synthesize nativeBarButton, segmentLabelArray, segmentImageArray;
+@synthesize nativeBarButton, segmentLabelArray, segmentImageArray, segmentSelectedIndex;
 @synthesize titleString, iconPath, templateValue, barButtonStyle, nativeView, labelView, progressView;
 @synthesize minValue,maxValue,floatValue,stringValue, placeholderText;
 @synthesize elementColor, elementBorderColor, elementBackgroundColor;
@@ -87,6 +87,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		templateValue = UITitaniumNativeItemNone;
 		spinnerStyle = UIActivityIndicatorViewStyleWhite;
 		maxValue = 1.0;
+		segmentSelectedIndex = -1;
 	}
 	return self;
 }
@@ -132,6 +133,8 @@ int barButtonSystemItemForString(NSString * inputString){
 	}
 
 //Segmented
+	GRAB_IF_SELECTOR(@"index",intValue,segmentSelectedIndex);
+
 	id labelArray = [newDict objectForKey:@"labels"];
 	if ([labelArray isKindOfClass:[NSArray class]]){
 		[self setSegmentLabelArray:labelArray];
@@ -286,6 +289,10 @@ int barButtonSystemItemForString(NSString * inputString){
 			if(bgImage != nil){
 				UIImage * bgDisImage = [theHost stretchableImageForResource:backgroundDisabledImagePath];
 				[(UITextField *)resultView setDisabledBackground:bgDisImage];
+			} else if (borderStyle == UITextBorderStyleRoundedRect){
+				[resultView setBackgroundColor:elementBorderColor];
+			} else {
+				[resultView setBackgroundColor:elementBackgroundColor];
 			}
 			
 		} else {
@@ -296,6 +303,7 @@ int barButtonSystemItemForString(NSString * inputString){
 				resultView = [[UITextView alloc] initWithFrame:viewFrame];
 				[(UITextView *)resultView setDelegate:self];
 			}
+			[resultView setBackgroundColor:elementBackgroundColor];
 		}
 		if (elementColor != nil) [(UITextField *)resultView setTextColor:elementColor];
 		[(UITextField *)resultView setText:stringValue];
@@ -305,7 +313,6 @@ int barButtonSystemItemForString(NSString * inputString){
 		[(UITextField *)resultView setKeyboardType:keyboardType];
 		[(UITextField *)resultView setReturnKeyType:returnKeyType];
 		[(UITextField *)resultView setEnablesReturnKeyAutomatically:enablesReturnKeyAutomatically];
-		[resultView setBackgroundColor:elementBackgroundColor];
 		
 
 	} else if ((templateValue == UITitaniumNativeItemMultiButton) || (templateValue == UITitaniumNativeItemSegmented)){
@@ -355,7 +362,12 @@ int barButtonSystemItemForString(NSString * inputString){
 //			resultView = [[UISegmentedControl alloc] initWithFrame:viewFrame];
 //			[(UISegmentedControl *)resultView addTarget:self action:@selector(onSegmentChange:) forControlEvents:UIControlEventValueChanged];
 //		}
-		[(UISegmentedControl *)resultView setMomentary:(templateValue == UITitaniumNativeItemMultiButton)];
+		if(templateValue==UITitaniumNativeItemMultiButton){
+			[(UISegmentedControl *)resultView setMomentary:YES];
+		} else {
+			[(UISegmentedControl *)resultView setMomentary:NO];
+			[(UISegmentedControl *)resultView setSelectedSegmentIndex:segmentSelectedIndex];
+		}
 		[(UISegmentedControl *)resultView setSegmentedControlStyle:(forBar?UISegmentedControlStyleBar:UISegmentedControlStylePlain)];
 		if (elementBackgroundColor != nil) [(UISegmentedControl *)resultView setTintColor:elementBackgroundColor];
 
@@ -363,7 +375,8 @@ int barButtonSystemItemForString(NSString * inputString){
 		viewFrame.size.height = oldFrame.size.height;
 		if (viewFrame.size.width < oldFrame.size.width) viewFrame.size.width = oldFrame.size.width;
 		[resultView setFrame:viewFrame];
-		
+		if(elementBorderColor != nil)[resultView setBackgroundColor:elementBorderColor];
+
 //	} else if (templateValue == UITitaniumNativeItemPicker){
 //		if ([nativeView isKindOfClass:[UIPickerView class]]){
 //			resultView = [nativeView retain];
@@ -1177,7 +1190,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res.setTitle=function(args){this.title=args;if(this._TOKEN){Ti.UI._WTITLE(this._TOKEN,args);};};"
 			"res.showNavBar=function(args){this._hideNavBar=false;if(this._TOKEN){Ti.UI._WSHNAV(this._TOKEN,args);};};"
 			"res.hideNavBar=function(args){this._hideNavBar=true;if(this._TOKEN){Ti.UI._WHDNAV(this._TOKEN,args);};};"
-			"res.setTitleControl=function(args){if(args)args.ensureToken();Ti.UI._WTITLEPXY(this._TOKEN,args);};"
+			"res.setTitleControl=function(args){if(args)args.ensureToken();this.titleControl=args;if(this._TOKEN){Ti.UI._WTITLEPXY(this._TOKEN,args);}};"
 			"res.setTitleImage=function(args){this.titleImage=args;if(this._TOKEN){Ti.UI._WTITLEIMG(this._TOKEN,args);};};"
 			"res.setBarColor=function(args){this.barColor=args;if(this._TOKEN){Ti.UI._WNAVTNT(this._TOKEN,args);};};"
 			"res.setLeftNavButton=function(btn,args){if(btn)btn.ensureToken();this.lNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,true,btn,args);};};"

@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
@@ -24,12 +25,16 @@ public class TitaniumTableViewItem extends RelativeLayout
 	private ImageView iconView;
 	private TextView textView;
 	private ImageView hasChildView;
+	private boolean header;
+
+	private Drawable defaultBackground;
+	private int defaultTextColor;
+	private float defaultTextSize;
 
 	public TitaniumTableViewItem(Context context) {
 		super(context);
 
 		setGravity(Gravity.CENTER_VERTICAL);
-		setPadding(10, 2, 10, 2);
 		//setFocusable(true);
 		//requestFocus();
 
@@ -63,6 +68,10 @@ public class TitaniumTableViewItem extends RelativeLayout
 		params.addRule(ALIGN_PARENT_RIGHT, textView.getId());
 		addView(hasChildView, params);
 
+		defaultBackground = getBackground();
+		defaultTextColor = textView.getCurrentTextColor();
+		defaultTextSize = textView.getTextSize();
+
 	}
 
 	public void setRowData(JSONObject data, int rowHeight)
@@ -73,6 +82,16 @@ public class TitaniumTableViewItem extends RelativeLayout
 		iconView.destroyDrawingCache();
 		textView.setVisibility(View.GONE);
 		hasChildView.setVisibility(View.GONE);
+		setMinimumHeight(rowHeight);
+		header = false;
+
+		setBackgroundDrawable(defaultBackground);
+		textView.setTextColor(defaultTextColor);
+		textView.setTextSize(defaultTextSize);
+		textView.setPadding(0, 0, 0, 0);
+
+		setVerticalFadingEdgeEnabled(true);
+		setPadding(10, 2, 10, 2);
 
 		if (data.has("image")) {
 			try {
@@ -94,8 +113,16 @@ public class TitaniumTableViewItem extends RelativeLayout
 
 		if (data.has("header")) {
 			textView.setVisibility(View.VISIBLE);
+			header = true;
 			try {
 				textView.setText(data.getString("header"), TextView.BufferType.NORMAL);
+				setBackgroundColor(Color.DKGRAY);
+				textView.setTextColor(Color.LTGRAY);
+				textView.setTextSize(12.0f);
+				textView.setPadding(4, 2, 4, 2);
+				setMinimumHeight(17);
+				setVerticalFadingEdgeEnabled(false);
+				setPadding(0, 0, 0, 0);
 			} catch (JSONException e) {
 				textView.setText(e.getMessage());
 				Log.e(LCAT, "Error retrieving header", e);
@@ -147,5 +174,7 @@ public class TitaniumTableViewItem extends RelativeLayout
 		return super.dispatchKeyEventPreIme(event);
 	}
 
-
+	public boolean isHeader() {
+		return header;
+	}
 }
