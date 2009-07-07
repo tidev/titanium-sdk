@@ -1,0 +1,26 @@
+<html>
+<head>
+
+
+</head>
+<body  style="font-family:'Helvetica Neue';font-size:12px">
+	
+	<div style="margin-bottom:10px">
+	You can use button bars in the content area, the nav bar and in the toolbar.
+	</div>
+	<div id="buttonbar" style="width:200px;height:30px;margin:auto;margin-top:10px;"></div>
+	
+	
+	<script>
+	var buttonBar = Titanium.UI.createButtonBar({id:'buttonbar', 
+		labels:['Button3', 'Button4'],backgroundColor:'#336699'});
+	buttonBar.addEventListener('click',function(e)
+	{
+		var a = Titanium.UI.createAlertDialog();
+		a.setTitle('Buttonbar Test');
+		a.setMessage('You click button index = ' + e.index);
+		a.show();
+	})
+	</script>
+</body>
+</html>

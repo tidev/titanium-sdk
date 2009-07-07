@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:app xmlns:ti="http://ti.appcelerator.org">
+<id>com.nolanwright.kitchensink</id>
+<name>KitchenSink</name>
+<version>1.0</version>
+<publisher>nwright</publisher>
+<url>appcelerator.com</url>
+<copyright>2009 by nwright</copyright>
+	<description>Mobile Unit Test App</description>
+
+<icon>appicon.png</icon>
+    <windows>
+        <window>
+            <id>initial</id>
+            <url>phone.html</url>
+ 			<title>Phone API</title>
+ 			<icon>profile.png</icon>
+			<orientation>either</orientation>
+        </window>
+        <window>
+            <id>two</id>
+            <url>ui.html</url>
+ 			<title>UI API</title>
+ 			<icon>profile.png</icon>
+			<orientation>either</orientation>
+        </window>
+        <window>
+            <id>three</id>
+            <url>platform.html</url>
+ 			<title>Platform API</title>
+ 			<icon>profile.png</icon>
+			<orientation>either</orientation>
+        </window>
+
+    </windows>
+</ti:app>

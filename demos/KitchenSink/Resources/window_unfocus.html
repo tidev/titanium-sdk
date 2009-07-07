@@ -1,0 +1,21 @@
+<html>
+<head>
+
+
+</head>
+<body  style="font-family:'Helvetica Neue'">
+
+	When you leave this page, you should get an alert.
+	
+	<script>
+	Titanium.UI.currentWindow.addEventListener('unfocused',function()
+	{
+		var a = Titanium.UI.createAlertDialog({buttonNames:['OK']});
+		a.setTitle('Unfocus Test')
+		a.setMessage('unfocused event received');
+		a.show();
+	});
+
+	</script>
+</body>
+</html>

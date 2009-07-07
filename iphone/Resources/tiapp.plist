@@ -29,7 +29,7 @@
 			<string>Media</string>
 		</dict>
 		<dict>
-			<key>barColor</key>
+			<key>blarColor</key>
 			<string>red</string>
 			<key>orientation</key>
 			<string>either</string>
@@ -45,6 +45,14 @@
 			<string>network.html</string>
 			<key>title</key>
 			<string>Network</string>
+		</dict>
+		<dict>
+			<key>orientation</key>
+			<string>either</string>
+			<key>url</key>
+			<string>misc.html</string>
+			<key>title</key>
+			<string>Other</string>
 		</dict>
 	</array>
 	<key>modules</key>

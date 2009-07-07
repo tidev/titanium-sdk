@@ -1,0 +1,45 @@
+<html>
+<head>
+
+
+</head>
+<body  style="font-family:'Helvetica Neue';font-size:11px">
+	
+	<div id="button1" style="height:50px"></div>
+	<div id="button2" style="height:50px"></div>
+	
+	
+	<script>
+	var a = Titanium.UI.createAlertDialog();
+	a.setTitle('Button Test');
+
+	var button1 = Titanium.UI.createButton({
+		id:'button1',
+		backgroundImage:'blue.png',
+		backgroundSelectedImage:'blue_pressed.png',
+		title:'Hello',
+		color:'#ffffff',
+		height:47,
+	});
+	button1.addEventListener('click',function(e)
+	{
+		a.setMessage('You clicked the first button.');
+		a.show();
+	})
+
+	var button2 = Titanium.UI.createButton({
+		id:'button2',
+		title:'Hello',
+		color:'#336699',
+		height:30,
+		width:100
+	});
+	button2.addEventListener('click',function(e)
+	{
+		a.setMessage('You clicked the second button.');
+		a.show();
+	})
+
+	</script>
+</body>
+</html>

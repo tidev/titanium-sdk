@@ -432,6 +432,12 @@ UIColor * checkmarkColor = nil;
     [super dealloc];
 }
 
+- (void)viewWillAppear:(BOOL)animated;
+{
+	[super viewWillAppear:animated];
+	[self updateLayout:animated];
+}
+
 - (void)updateLayout: (BOOL)animated;
 {
 	UITableViewCell * targetCell = nil;

@@ -1,0 +1,128 @@
+<html>
+<head>
+
+
+</head>
+<body style="background-color:#fff;font-size:20px;font-family:'Helvetica Neue';font-weight:bold">
+
+	<div><input type="button" id="play" value="play" style="font-size:18px;width:150px;text-align:center"/></div>
+	<div><input type="button" id="pause" value="pause" style="font-size:18px;width:150px;text-align:center"/></div>
+	<div><input type="button" id="reset" value="reset" style="font-size:18px;width:150px;text-align:center"/></div>
+	<div><input type="button" id="startloop" value="start loop" style="font-size:18px;width:150px;text-align:center"/></div>
+	<div><input type="button" id="endloop" value="end loop" style="font-size:18px;width:150px;text-align:center"/></div>
+	<div><input type="button" id="volume_up" value="volume +" style="font-size:18px;width:150px;text-align:center"/></div>
+	<div><input type="button" id="volume_down" value="volume -" style="font-size:18px;width:150px;text-align:center"/></div>
+	<div id="isPlaying"></div>
+	<div id="isPaused"></div>
+	<div id="isLooping"></div>
+	<div id="volume"></div>
+		
+
+	
+	<script>
+	var isPlaying = document.getElementById('isPlaying');
+	var isPaused = document.getElementById('isPaused');
+	var isLooping = document.getElementById('isLooping');
+	var volume = document.getElementById('volume');
+	
+	// create a sound object
+	var s = Titanium.Media.createSound('cricket.wav');
+
+	Titanium.UI.currentWindow.addEventListener('unfocused',function()
+	{
+		document.getElementById('audio_controls').style.display = 'none';
+		s.stop();
+		s.release();
+	});
+	
+	document.getElementById('play').onclick = function()
+	{
+		s.play();
+		isPlaying.innerHTML = 'isPlaying = ' + s.isPlaying();
+		isPaused.innerHTML = 'isPaused = ' + s.isPaused();
+		isLooping.innerHTML = 'isLooping = ' + s.isLooping();
+		volume.innerHTML = 'volume = ' + s.getVolume();
+		
+	};
+	document.getElementById('pause').onclick = function()
+	{
+		s.pause();
+		isPlaying.innerHTML = 'isPlaying = ' + s.isPlaying();
+		isPaused.innerHTML = 'isPaused = ' + s.isPaused();
+		isLooping.innerHTML = 'isLooping = ' + s.isLooping();
+		volume.innerHTML = 'volume = ' + s.getVolume();
+
+	};
+	document.getElementById('reset').onclick = function()
+	{
+		s.reset();
+		isPlaying.innerHTML = 'isPlaying = ' + s.isPlaying();
+		isPaused.innerHTML = 'isPaused = ' + s.isPaused();
+		isLooping.innerHTML = 'isLooping = ' + s.isLooping();
+		volume.innerHTML = 'volume = ' + s.getVolume();
+	};
+	document.getElementById('startloop').onclick = function()
+	{
+		s.setLooping(true)
+		isPlaying.innerHTML = 'isPlaying = ' + s.isPlaying();
+		isPaused.innerHTML = 'isPaused = ' + s.isPaused();
+		isLooping.innerHTML = 'isLooping = ' + s.isLooping();
+		volume.innerHTML = 'volume = ' + s.getVolume();
+	};
+	document.getElementById('endloop').onclick = function()
+	{
+		s.setLooping(false);
+		isPlaying.innerHTML = 'isPlaying = ' + s.isPlaying();
+		isPaused.innerHTML = 'isPaused = ' + s.isPaused();
+		isLooping.innerHTML = 'isLooping = ' + s.isLooping();
+		volume.innerHTML = 'volume = ' + s.getVolume();
+	};
+	document.getElementById('volume_up').onclick = function()
+	{
+		var v = s.getVolume();
+		if (v < 1.0)
+		{
+			s.setVolume(v+0.1);
+		}
+		isPlaying.innerHTML = 'isPlaying = ' + s.isPlaying();
+		isPaused.innerHTML = 'isPaused = ' + s.isPaused();
+		isLooping.innerHTML = 'isLooping = ' + s.isLooping();
+		volume.innerHTML = 'volume = ' + s.getVolume();
+		
+	};
+	document.getElementById('volume_down').onclick = function()
+	{
+		var v = s.getVolume();
+		if (v > 0)
+		{
+			s.setVolume(v-0.1);
+		}
+		isPlaying.innerHTML = 'isPlaying = ' + s.isPlaying();
+		isPaused.innerHTML = 'isPaused = ' + s.isPaused();
+		isLooping.innerHTML = 'isLooping = ' + s.isLooping();
+		volume.innerHTML = 'volume = ' + s.getVolume();
+	};
+
+
+	// add event listener on sound
+	s.addEventListener('complete',function()
+	{
+		var a = Titanium.UI.createAlertDialog();
+		a.setTitle('Sound Test');
+		a.setButtonNames(['OK']);
+		
+		a.setMessage('sound completed');
+		a.show();
+		isPlaying.innerHTML = 'isPlaying = ' + s.isPlaying();
+		isPaused.innerHTML = 'isPaused = ' + s.isPaused();
+		isLooping.innerHTML = 'isLooping = ' + s.isLooping();
+		volume.innerHTML = 'volume = ' + s.getVolume();
+
+		
+	});
+
+
+
+	</script>
+</body>
+</html>

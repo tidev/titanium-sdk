@@ -113,3 +113,12 @@ NSString * const titaniumJavascriptInjection =
 
 
 
+/*
+ * @tiapi(method=False,property=True,name=platform,since=0.4,type=string) titanium platform name property
+ */
+/*
+ * @tiapi(method=False,property=True,name=version,since=0.4,type=string) titanium platform version property
+ */
+/*
+ * @tiapi(method=False,property=True,name=userAgent,since=0.4,type=string) titanium platform userAgent property
+ */

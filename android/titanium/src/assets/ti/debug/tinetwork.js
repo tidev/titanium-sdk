@@ -167,7 +167,7 @@ Titanium.Network = {
 		//TODO implement Network.createIPAddress
 	},
 	/**
-	 * @tiapi(method=true,name=Network.createHTTPClient.,since=0.4) Create an HTTPClient object
+	 * @tiapi(method=true,name=Network.createHTTPClient,since=0.4) Create an HTTPClient object
 	 * @tiresult[HTTPClient] the HTTP client
 	 */
 	createHTTPClient : function() {
