@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # Titanium API Coverage Generator
 #
@@ -121,6 +122,7 @@ class APIReturnType(dict):
 
 def get_api_names(name):
 	tok = name.split('.')
+	if len(tok)==1: return name,name
 	module = tok[0]
 	tok.pop(0)
 	return module,'.'.join(tok)
@@ -177,13 +179,15 @@ def generate_api_coverage(dirs,fs):
 				match = m
 				description,metadata = parse_pattern(m)
 				module_name,fn_name = get_api_names(metadata['name'])
-				print "adding %s -- %s" % (module_name, fn_name)
 				if not apis.has_key(module_name):
 					apis[module_name] = {}
 					module_count+=1
 				if not apis[module_name].has_key(fn_name):
 					api = API(metadata,fn_name,description)
-					apis[module_name][fn_name]=api
+					if module_name==fn_name: # this means we have a property at the top level (no .)
+						apis[module_name]=api
+					else:
+						apis[module_name][fn_name]=api
 					api_count+=1
 					found = True
 
