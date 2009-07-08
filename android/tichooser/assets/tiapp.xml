@@ -17,6 +17,16 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
+        <window>
+            <id>appendage</id>
+            <title>Testbed2</title>
+            <url>tableview.html</url>
+            <type>single</type>
+            <fullscreen>false</fullscreen>
+            <backgroundColor>argb(0,255,255,255)</backgroundColor>
+            <barColor>#000</barColor>
+        </window>
+
     </windows>
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.android.watchlog" type="bool">false</property>

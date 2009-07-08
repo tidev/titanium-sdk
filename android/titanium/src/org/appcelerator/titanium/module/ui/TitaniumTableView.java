@@ -7,20 +7,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Dialog;
 import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class TitaniumTableView extends Dialog implements ITitaniumTableView
+public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 {
 	private static final String LCAT = "TitaniumTableView";
 
@@ -87,7 +85,7 @@ public class TitaniumTableView extends Dialog implements ITitaniumTableView
 
 	public TitaniumTableView(TitaniumActivity activity, int themeId)
 	{
-		super(activity, themeId);
+		super(activity, null, themeId);
 
 		this.activity = activity;
 		this.handler = new Handler();
@@ -106,10 +104,9 @@ public class TitaniumTableView extends Dialog implements ITitaniumTableView
 	{
 		Log.e(LCAT, "OPEN");
 
-		FrameLayout layout = new FrameLayout(activity);
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-		layout.setLayoutParams(params);
-		layout.setPadding(5,5,5,5);
+		setLayoutParams(params);
+		setPadding(5,5,5,5);
 
 		ListView view = new ListView(activity);
 		view.setFocusable(true);
@@ -128,7 +125,7 @@ public class TitaniumTableView extends Dialog implements ITitaniumTableView
 						)
 				{
 					close();
-					return true;
+					return false;
 				}
 				return false;
 			}});
@@ -153,15 +150,18 @@ public class TitaniumTableView extends Dialog implements ITitaniumTableView
 				}
 			}});
 
-		layout.addView(view, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-		setContentView(layout);
-		show();
+		addView(view, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		activity.pushView(this);
+		//setContentView(layout);
+		//show();
 		//layout.requestFocus();
 	}
 
 	public void close()
 	{
-		super.dismiss();
+		activity.popView(this);
+		this.destroyDrawingCache();
+		this.removeAllViews();
 	}
 
 	private JSONArray processData(String data) {

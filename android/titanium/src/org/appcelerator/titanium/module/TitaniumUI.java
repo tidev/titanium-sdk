@@ -126,9 +126,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI
 			themeId = android.R.style.Theme_NoTitleBar;
 		}
 		TitaniumTableView ttv = new TitaniumTableView(activity, themeId);
-		if (!activity.isFullscreen()) {
-			ttv.setTitle(activity.getParent().getTitle());
-		}
+//		if (!activity.isFullscreen()) {
+//			ttv.setTitle(activity.getParent().getTitle());
+//		}
 		return ttv;
 	}
 	@Override

@@ -59,6 +59,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.AlphaAnimation;
 import android.webkit.WebSettings;
@@ -68,6 +69,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
+import android.widget.RelativeLayout.LayoutParams;
 
 /**
  * Class that controls a mobile Titanium application.
@@ -638,14 +640,18 @@ public class TitaniumActivity extends Activity
 				final TitaniumActivity me = this;
 	 			handler.post(new Runnable(){
 					public void run() {
-						layout.addView(me.webView);
-						layout.showNext();
-						layout.removeView(splashView);
-				 	    ts("webview is content");
+						View current = layout.getCurrentView();
+						if (current == splashView) {
+							layout.addView(me.webView);
+							layout.showNext();
+							layout.removeView(splashView);
 
-				 	    if (!me.webView.hasFocus()) {
-				 	    	me.webView.requestFocus();
-				 	    }
+							ts("webview is content");
+
+					 	    if (!me.webView.hasFocus()) {
+					 	    	me.webView.requestFocus();
+					 	    }
+						}
 						loaded = true;
 					}
 				});
@@ -654,6 +660,31 @@ public class TitaniumActivity extends Activity
 			}
 		}
 	}
+
+	public void pushView(final View v) {
+		handler.post(new Runnable(){
+			public void run() {
+				View current = layout.getCurrentView();
+				layout.addView(v, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));
+				layout.showNext();
+				if (current != null && current != v) {
+					layout.removeView(current);
+				}
+
+				if (!v.hasFocus()) {
+					v.requestFocus();
+				}
+			}});
+	}
+
+	public void popView(final View v) {
+		handler.post(new Runnable(){
+			public void run() {
+				layout.showPrevious();
+				layout.removeView(v);
+			}});
+	}
+
 	public void setLoadOnPageEnd(boolean load) {
 		loadOnPageEnd = load;
 	}
