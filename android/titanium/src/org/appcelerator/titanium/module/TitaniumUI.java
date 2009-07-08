@@ -102,11 +102,11 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI
 
 	public ITitaniumDialog createAlertDialog()
 	{
-		return new TitaniumDialog(getHandler(), getWebView());
+		return new TitaniumDialog(getHandler(), getActivity());
 	}
 
 	public ITitaniumDialog createOptionDialog() {
-		return new TitaniumDialog(getHandler(), getWebView());
+		return new TitaniumDialog(getHandler(), getActivity());
 	}
 
 	public ITitaniumProgressDialog createProgressDialog() {
