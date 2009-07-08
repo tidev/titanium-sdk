@@ -5,24 +5,24 @@
 </head>
 <body  style="font-family:'Helvetica Neue'">
 	<div style="margin-bottom:10px">Watch Position</div>
-	<div id="timestamp"></div>
-	<div id="latitude"></div>
-	<div id="longitude"></div>
-	<div id="altitude"></div>
-	<div id="accuracy"></div>
-	<div id="altitudeAccuracy"></div>
-	<div id="heading"></div>
-	<div id="speed"></div>
+	<div style="height:20px" id="timestamp"></div>
+	<div style="height:20px" id="latitude"></div>
+	<div style="height:20px" id="longitude"></div>
+	<div style="height:20px" id="altitude"></div>
+	<div style="height:20px" id="accuracy"></div>
+	<div style="height:20px" id="altitudeAccuracy"></div>
+	<div style="height:20px" id="heading"></div>
+	<div style="height:20px" id="speed"></div>
 	
 	<div style="margin-top:10px">Current Position</div>
-	<div id="timestamp2"></div>
-	<div id="latitude2"></div>
-	<div id="longitude2"></div>
-	<div id="altitude2"></div>
-	<div id="accuracy2"></div>
-	<div id="altitudeAccuracy2"></div>
-	<div id="heading2"></div>
-	<div id="speed2"></div>
+	<div style="height:20px" id="timestamp2"></div>
+	<div style="height:20px" id="latitude2"></div>
+	<div style="height:20px" id="longitude2"></div>
+	<div style="height:20px" id="altitude2"></div>
+	<div style="height:20px" id="accuracy2"></div>
+	<div style="height:20px" id="altitudeAccuracy2"></div>
+	<div style="height:20px" id="heading2"></div>
+	<div style="height:20px" id="speed2"></div>
 	
 	<script>
 	Titanium.Geolocation.getCurrentPosition(
@@ -31,6 +31,7 @@
 			var timestamp = document.getElementById('timestamp2');
 			var latitude = document.getElementById('latitude2');
 			var longitude = document.getElementById('longitude2');
+			var altitude = document.getElementById('altitude2');
 			var accuracy = document.getElementById('accuracy2');
 			var altitudeAccuracy = document.getElementById('altitudeAccuracy2');
 			var heading = document.getElementById('heading2');
@@ -60,7 +61,6 @@
 			var latitude = document.getElementById('latitude');
 			var longitude = document.getElementById('longitude');
 			var altitude = document.getElementById('altitude');
-
 			var accuracy = document.getElementById('accuracy');
 			var altitudeAccuracy = document.getElementById('altitudeAccuracy');
 			var heading = document.getElementById('heading');
