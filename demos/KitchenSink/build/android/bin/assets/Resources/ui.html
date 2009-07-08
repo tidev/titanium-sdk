@@ -41,9 +41,11 @@
 		{title:'Toolbar - Middle Align (iPhone)',hasChild:true},
 		{title:'Toolbar - Right Align (iPhone)',hasChild:true},
 		{title:'Toolbar - Many Buttons (iPhone)',hasChild:true},
+		{title:'Toolbar - Fixed Space (iPhone)',hasChild:true},
 		{title:'Tabbar - Hide (iPhone)',hasChild:true},
 		{title:'Composite View (iPhone)',hasChild:true},
 		{title:'Switch (iPhone)',hasChild:true},
+		{title:'Open (animated false) (iPhone)',hasChild:true},
 		{title:'Notifications (Android)'},
 		{title:'Activity Indicator (Android)'},
 		{title:'Menu (Android)'}
@@ -162,34 +164,18 @@
 			case 14:
 			{
 				var tabbar = Titanium.UI.createTabbedBar({labels:['Tab1', 'Tab2'],index:1});
-				tabbar.addEventListener('click',function(e)
-				{
-					var a = Titanium.UI.createAlertDialog();
-					a.setTitle('Tabbar Test');
-					a.setMessage('You click tab index = ' + e.index);
-					a.show();
-				});
-
 				var flexSpace = Titanium.UI.createButton({
 					systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 				});
-
 				var tabbar2 = Titanium.UI.createTabbedBar({
 					labels:['Tab5', 'Tab6','Tab7', 'Tab8','Tab9'],
 					backgroundColor:'#336699',
 					index:2
 				});
-				tabbar2.addEventListener('click',function(e)
-				{
-					var a = Titanium.UI.createAlertDialog();
-					a.setTitle('Tabbar Test');
-					a.setMessage('You click tab index = ' + e.index);
-					a.show();
-				});
 				
 				var win = Titanium.UI.createWindow({url:'tabbar.html',title:'Tab Bar'});
-				win.setTitleControl(tabbar);
 				win.setToolbar([flexSpace,tabbar2,flexSpace]);
+				win.setRightNavButton(tabbar);
 				win.open({animated:true});		
 				break;
 			}
@@ -276,17 +262,25 @@
 			}
 			case 24:
 			{
+				var win = Titanium.UI.createWindow({url:'toolbar_fixedspace.html',
+					title:'Toolbar Fixed Space',hideTabBar:true});
+				win.open({animated:true});		
+				break;
+			}
+
+			case 25:
+			{
 				var win = Titanium.UI.createWindow({url:'tabbar_hide.html',title:'Tabbar Hide',hideTabBar:true});
 				win.open({animated:true});		
 				break;
 			}
-			case 25:
+			case 26:
 			{
 				var win = Titanium.UI.createWindow({url:'composite.html',title:'Composite'});
 				win.open({animated:true});		
 				break;
 			}
-			case 26:
+			case 27:
 			{
 				var win = Titanium.UI.createWindow({url:'switch.html',title:'Switch'});
 				var inst = Titanium.UI.createSwitch({value:true});
@@ -294,7 +288,14 @@
 				win.open({animated:true});		
 				break;
 			}
-			case 27:
+			case 28:
+			{
+				var win = Titanium.UI.createWindow({url:'animated_false.html',title:'Animated False'});
+				win.open({animated:false});		
+				break;
+			}
+
+			case 29:
 			{
 				if (Titanium.Platform.name == 'android')
 				{
@@ -304,7 +305,7 @@
 				}
 				break;
 			}
-			case 28:
+			case 30:
 			{
 				if (Titanium.Platform.name == 'android')
 				{
@@ -324,7 +325,7 @@
 				break;
 			}
 			
-			case 29:
+			case 31:
 			{
 				if (Titanium.Platform.name == 'android')
 				{
@@ -474,7 +475,7 @@
 	{
 		// data for tableview
 		var data = [
-			{title:'Row 1',header:'Seciton 0'},
+			{title:'Row 1',header:'Section 0'},
 			{title:'Row 2'},
 			{title:'Row 3'},
 			{title:'Row 4'},
@@ -482,7 +483,7 @@
 			{title:'Row 6'},
 			{title:'Row 7'},
 			{title:'Row 8'},
-			{title:'Row 9',header:'Seciton 1'},
+			{title:'Row 9',header:'Section 1'},
 			{title:'Row 10'},
 			{title:'Row 11'},
 			{title:'Row 12'},
@@ -490,7 +491,7 @@
 			{title:'Row 14'},
 			{title:'Row 15'},
 			{title:'Row 16'},
-			{title:'Row 17',header:'Seciton 2'},
+			{title:'Row 17',header:'Section 2'},
 			{title:'Row 18'},
 			{title:'Row 19'},
 			{title:'Row 20'},
@@ -498,7 +499,7 @@
 			{title:'Row 22'},
 			{title:'Row 23'},
 			{title:'Row 24'},
-			{title:'Row 25',header:'Seciton 3'},
+			{title:'Row 25',header:'Section 3'},
 			{title:'Row 26'},
 			{title:'Row 27'},
 			{title:'Row 28'},
