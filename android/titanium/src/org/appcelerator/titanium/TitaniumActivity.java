@@ -69,7 +69,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
-import android.widget.RelativeLayout.LayoutParams;
 
 /**
  * Class that controls a mobile Titanium application.
@@ -102,6 +101,7 @@ public class TitaniumActivity extends Activity
 
 	private HashMap<Integer, String> optionMenuCallbacks;
 	private boolean loaded;
+	private boolean allowVisible;
 	private boolean destroyed;
 
 	private HashMap<Integer, TitaniumResultHandler> resultHandlers;
@@ -124,6 +124,10 @@ public class TitaniumActivity extends Activity
 
 	public interface OnConfigChange {
 		public void configurationChanged(Configuration config);
+	}
+
+	public interface CheckedRunnable {
+		public void run(boolean isUISafe);
 	}
 
 	private long start;
@@ -716,6 +720,15 @@ public class TitaniumActivity extends Activity
 		}
 	}
 
+	public void runOnUiThreadWithCheck(final CheckedRunnable r)
+	{
+		runOnUiThread(new Runnable(){
+
+			public void run() {
+				r.run(allowVisible);
+			}});
+	}
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.e(LCAT, "TitaniumActivity, onActivityResult");
@@ -737,6 +750,7 @@ public class TitaniumActivity extends Activity
 	@Override
 	protected void onResume()
 	{
+		allowVisible = true;
 		super.onResume();
 		if (!showingJSError) {
 			if (appInfo != null && appInfo.getSystemProperties().getBool(TitaniumAppInfo.PROP_ANDROID_WATCHLOG, false)) {
@@ -748,6 +762,7 @@ public class TitaniumActivity extends Activity
 
 	@Override
 	protected void onPause() {
+		allowVisible = false;
 		super.onPause();
 		if (!showingJSError) {
 			moduleMgr.onPause();
@@ -759,6 +774,7 @@ public class TitaniumActivity extends Activity
 
 	@Override
 	protected void onDestroy() {
+		allowVisible = false;
 		Log.e(LCAT, "ON DESTROY: " + webView.getId());
 		Log.e(LCAT, "Loaded? " + loaded);
 		super.onDestroy();
