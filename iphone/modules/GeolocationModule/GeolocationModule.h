@@ -16,6 +16,7 @@
 	CLLocationManager * locationManager;
 	int	watchEventsFired;
 	NSDate *lastEvent;
+	NSLock *proxyLock;
 //	NSMutableDictionary * listeningPageTokens;
 //	id	previousDelegate;
 }

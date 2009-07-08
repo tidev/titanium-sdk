@@ -147,7 +147,7 @@
 
  * @tiapi(method=True,name=UI.createButton,version=0.4) Creates an UI.button object for use in UI.Window's setLeftNavButton, setRightNavButton, or setToolbar methods
  * @tiarg(for=UI.createButton,type=mixed,optional=True,name=properties) If object, the UI.button properties to copy over on initialization. If a string, the title or template to use
- * @tiresult(for=UI.createButton,type=object) the resulting UI.button
+ * @tiresult(for=UI.createButton,type=NativeControl) the resulting UI.button
  
  * @tiapi(method=True,name=UI.createOptionDialog,version=0.4) Creates an UI.optionDialog object
  * @tiarg(for=UI.createOptionDialog,type=mixed,optional=True,name=properties) UI.optionDialog properties to copy over on initialization
@@ -160,6 +160,9 @@
  * @tiapi(method=True,name=UI.createWindow,since=0.4) Creates a new window as a child of the current window
  * @tiarg(for=UI.createWindow,name=options,type=mixed,optional=True) a string containing a url of the new window's content or an object containing properties for the new window
  * @tiresult(for=UI.createWindow,type=object) a UserWindow object
+ 
+ 
+ 
  
  ******* UI properties
 
