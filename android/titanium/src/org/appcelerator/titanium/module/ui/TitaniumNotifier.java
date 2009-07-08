@@ -9,12 +9,12 @@ package org.appcelerator.titanium.module.ui;
 
 import java.lang.ref.SoftReference;
 
+import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.api.ITitaniumNotifier;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 
 import android.os.Handler;
 import org.appcelerator.titanium.config.TitaniumConfig;
-import android.webkit.WebView;
 
 public abstract class TitaniumNotifier implements ITitaniumNotifier
 {
@@ -23,7 +23,7 @@ public abstract class TitaniumNotifier implements ITitaniumNotifier
 	@SuppressWarnings("unused")
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
-	protected SoftReference<WebView> softWebView;
+	protected SoftReference<TitaniumActivity> softActivity;
 	protected boolean showing;
 	protected String callback;
 	protected int delay;
@@ -32,16 +32,16 @@ public abstract class TitaniumNotifier implements ITitaniumNotifier
 	protected String title;
 	protected TitaniumJSEventManager eventListeners;
 
-	public TitaniumNotifier(Handler handler, WebView webView) {
-		this.softWebView = new SoftReference<WebView>(webView);
+	public TitaniumNotifier(Handler handler, TitaniumActivity activity) {
+		this.softActivity = new SoftReference<TitaniumActivity>(activity);
 		showing = false;
 		delay = 0;
-		eventListeners = new TitaniumJSEventManager(handler, webView);
+		eventListeners = new TitaniumJSEventManager(handler, activity.getWebView());
 	}
 
-	protected SoftReference<WebView> getWebView()
+	protected SoftReference<TitaniumActivity> getActivity()
 	{
-		return this.softWebView;
+		return this.softActivity;
 	}
 
 	public void addEventListener(String eventName, String listener) {

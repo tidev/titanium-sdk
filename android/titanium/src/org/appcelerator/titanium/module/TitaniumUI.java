@@ -115,7 +115,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI
 
 	public ITitaniumNotifier createNotification()
 	{
-		return  new TitaniumToastNotifier(getHandler(), getWebView());
+		return  new TitaniumToastNotifier(getHandler(), getActivity());
 	}
 
 	public ITitaniumTableView createTableView() {
