@@ -198,7 +198,7 @@ NSUInteger lastWatchID = 0;
 	watchEventsFired++;
 	[lastEvent release];
 	lastEvent = [[NSDate alloc] init];
-	[self updatePolling];
+	[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 }
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error;
@@ -215,7 +215,7 @@ NSUInteger lastWatchID = 0;
 	[lastEvent release];
 	lastEvent = nil; // on failure, reset recording time
 	watchEventsFired++;
-	[self updatePolling];
+	[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 }
 
 - (NSString *) tokenForWatchProperties: (id) propertiesDict isOneShot: (id) isOneShotObj;
@@ -226,10 +226,10 @@ NSUInteger lastWatchID = 0;
 	[proxyDictionary setObject:newProxy forKey:newToken];
 	if ([propertiesDict isKindOfClass:[NSDictionary dictionary]]) [newProxy takeDetails:propertiesDict];
 
-	[self updatePolling];
+	[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 	if ([isOneShotObj respondsToSelector:@selector(boolValue)]){
 		[newProxy setSingleShot:[isOneShotObj boolValue]];
-		[self updateLocManagerAccuracy];
+		[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];
 	}
 	[newProxy release];
 	
@@ -241,9 +241,9 @@ NSUInteger lastWatchID = 0;
 	if (![token isKindOfClass:[NSString class]]) return nil;
 	[proxyDictionary removeObjectForKey:token];
 	
-	[self updateLocManagerAccuracy];
+	[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];
 	if ([proxyDictionary count] == 0){
-		[self updatePolling];
+		[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 	}
 	
 	return [TitaniumJSCode codeWithString:[NSString stringWithFormat:@"delete Ti.Geolocation._WATCH.%@;",token]];

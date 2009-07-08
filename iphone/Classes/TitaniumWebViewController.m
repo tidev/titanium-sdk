@@ -250,7 +250,9 @@ TitaniumViewController * mostRecentController = nil;
 	if (contextString == nil) return;
 	NSString * tokenQuery = [contextString stringByAppendingString:@".Titanium._TOKEN"];
 	[self acceptToken:[webView stringByEvaluatingJavaScriptFromString:tokenQuery] forContext:contextString];
+#if VERBOSE_DEBUG
 	NSLog(@"Dict is now: %@",magicTokenDict);
+#endif
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
@@ -330,8 +332,9 @@ TitaniumViewController * mostRecentController = nil;
 	if (currentContentURL == nil) return;
 	
 	NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:currentContentURL];
+#if VERBOSE_DEBUG
 	NSLog(@"Url request: %@",[urlRequest allHTTPHeaderFields]);
-	
+#endif	
 	[webView loadRequest:urlRequest];
 }
 

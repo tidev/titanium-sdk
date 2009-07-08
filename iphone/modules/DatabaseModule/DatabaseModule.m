@@ -131,9 +131,11 @@
 
 	PLSqliteResultSet * ourResultSet = (PLSqliteResultSet *)[commandStatement executeQuery];
 	int resultsRowCount = 0;
+#ifdef EARLY_EVAL
 	sqlite3 * actualDB = [ourDB sqliteDB];
 	int lastInsertRowID = sqlite3_last_insert_rowid(actualDB);
 	int affectedRowCount = sqlite3_changes(actualDB);
+#endif
 
 	if ([@"select" isEqualToString:commandPrefix]){
 		resultsRowCount = [ourResultSet fullCount];
@@ -145,6 +147,12 @@
 	NSString * tokenString = [NSString stringWithFormat:@"DBRS%d",nextDatabaseResultsToken++];
 	NSArray * fieldsArray = [ourResultSet fieldNames];
 	NSArray * valuesArray = [ourResultSet valuesForRow];
+
+#ifndef EARLY_EVAL
+	sqlite3 * actualDB = [ourDB sqliteDB];
+	int lastInsertRowID = sqlite3_last_insert_rowid(actualDB);
+	int affectedRowCount = sqlite3_changes(actualDB);
+#endif
 	
 	[databaseResultsDict setObject:ourResultSet forKey:tokenString];
 	

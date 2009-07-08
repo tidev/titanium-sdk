@@ -563,7 +563,9 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	// comes in as ti://<name> or ti:<name> or path or app://path
 	if (pathOrUrl == nil) return nil;
 	
+#if VERBOSE_DEBUG
 	NSLog(@"imageForResource = %@",pathOrUrl);
+#endif
 
 	// first check the image cache
 	
