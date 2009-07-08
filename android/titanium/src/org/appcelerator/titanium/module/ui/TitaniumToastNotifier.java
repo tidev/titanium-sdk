@@ -10,9 +10,10 @@ package org.appcelerator.titanium.module.ui;
 
 
 import android.os.Handler;
+
+import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.Toast;
 
 public class TitaniumToastNotifier extends TitaniumNotifier
@@ -24,8 +25,8 @@ public class TitaniumToastNotifier extends TitaniumNotifier
 
 	protected Toast toast;
 
-	public TitaniumToastNotifier(Handler handler, WebView webView) {
-		super(handler, webView);
+	public TitaniumToastNotifier(Handler handler, TitaniumActivity activity) {
+		super(handler, activity);
 	}
 
 	private int getToastDelay() {
@@ -34,30 +35,32 @@ public class TitaniumToastNotifier extends TitaniumNotifier
 	@Override
 	public void show(boolean animate, boolean autohide)
 	{
-		final View view = getWebView().get();
-		if (view != null) {
+		final TitaniumActivity activity = getActivity().get();
+		if (activity != null) {
 			if (toast == null) {
-				toast = Toast.makeText(view.getContext(), getMessage(), getToastDelay());
+				toast = Toast.makeText(activity, getMessage(), getToastDelay());
 			} else {
 				toast.setText(getMessage());
 				toast.setDuration(getToastDelay());
 			}
 		}
 
-		view.post(new Runnable()
-		{
-			public void run()
+		if (activity != null) {
+			activity.runOnUiThread(new Runnable()
 			{
-				toast.show();
-			}
-		});
+				public void run()
+				{
+					toast.show();
+				}
+			});
+		}
 	}
 
 	public void hide(boolean animate) {
 		if (toast != null && showing) {
-			View view = getWebView().get();
-			if (view != null) {
-				view.post(new Runnable(){
+			TitaniumActivity activity = getActivity().get();
+			if (activity != null) {
+				activity.runOnUiThread(new Runnable(){
 
 					public void run() {
 						toast.cancel();
