@@ -26,6 +26,7 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 	private String data;
 	private int rowHeight;
 	private Handler handler;
+	private boolean root;
 
 	class TTVListAdapter extends BaseAdapter
 	{
@@ -90,6 +91,7 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 		this.activity = activity;
 		this.handler = new Handler();
 		this.rowHeight = 65;
+		this.root = false;
 	}
 
 	public void setData(String data) {
@@ -103,6 +105,17 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 	public void open(String json, final String callback)
 	{
 		Log.e(LCAT, "OPEN");
+
+		root = false;
+
+		try {
+			JSONObject o = new JSONObject(json);
+			if (o.has("root")) {
+				root = o.getBoolean("root");
+			}
+		} catch (JSONException e) {
+			Log.w(LCAT, "Problem access json passed to open: " + e.getMessage());
+		}
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		setLayoutParams(params);
@@ -125,7 +138,7 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 						)
 				{
 					close();
-					return false;
+					return root ? false : true;
 				}
 				return false;
 			}});

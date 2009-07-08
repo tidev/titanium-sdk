@@ -667,9 +667,6 @@ public class TitaniumActivity extends Activity
 				View current = layout.getCurrentView();
 				layout.addView(v, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));
 				layout.showNext();
-				if (current != null && current != v) {
-					layout.removeView(current);
-				}
 
 				if (!v.hasFocus()) {
 					v.requestFocus();
