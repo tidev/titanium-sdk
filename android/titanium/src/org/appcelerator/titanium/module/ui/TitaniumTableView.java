@@ -102,20 +102,13 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 		this.rowHeight = Integer.parseInt(height);
 	}
 
+	public void setIsRoot(boolean root) {
+		this.root = root;
+	}
+
 	public void open(String json, final String callback)
 	{
 		Log.e(LCAT, "OPEN");
-
-		root = false;
-
-		try {
-			JSONObject o = new JSONObject(json);
-			if (o.has("root")) {
-				root = o.getBoolean("root");
-			}
-		} catch (JSONException e) {
-			Log.w(LCAT, "Problem access json passed to open: " + e.getMessage());
-		}
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		setLayoutParams(params);

@@ -371,6 +371,9 @@ var TableView = function(proxy) {
 	this.setRowHeight = function(height) {
 		this.proxy.setRowHeight(height);
 	};
+	this.setIsPrimary = function(primary) {
+		this.proxy.setIsRoot(primary);
+	};
 	/**
 	 * @tiapi(method=true,name=UI.TableView.open,since=0.5) open the table view
 	 * @tiarg[string, options] open options
@@ -669,12 +672,16 @@ Titanium.UI = {
 		 if(!isUndefined(options)) {
 			 var data = options['data'];
 			 var rowHeight = options['rowHeight'];
+			 var isPrimary = options['isPrimary'];
 
 			 if (!isUndefined(data)) {
 				 tv.setData(Titanium.JSON.stringify(data));
 			 }
 			 if (!isUndefined(rowHeight)) {
 				 tv.setRowHeight(rowHeight);
+			 }
+			 if (!isUndefined(isPrimary)) {
+				 tv.setIsPrimary(isPrimary);
 			 }
 		 }
 

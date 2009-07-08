@@ -4,6 +4,7 @@ public interface ITitaniumTableView
 {
 	public void setData(String data);
 	public void setRowHeight(String height);
+	public void setIsRoot(boolean root);
 	public void open(String json, String callback);
 	public void close();
 }
