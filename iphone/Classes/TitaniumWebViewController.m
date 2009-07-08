@@ -70,6 +70,7 @@ TitaniumViewController * mostRecentController = nil;
 }
 
 - (void)dealloc {
+	[webView setDelegate:nil];
     [super dealloc];
 }
 
