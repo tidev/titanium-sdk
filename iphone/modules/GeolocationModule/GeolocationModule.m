@@ -129,12 +129,15 @@ NSUInteger lastWatchID = 0;
 
 - (void) updateLocManagerAccuracy;
 {
+	[proxyLock lock];
 	for (GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator]){
 		if ([thisProxy highAccuracy]) {
 			[locationManager setDesiredAccuracy:kCLLocationAccuracyBest];
+			[proxyLock unlock];
 			return;
 		}
 	}
+	[proxyLock unlock];
 	[locationManager setDesiredAccuracy:kCLLocationAccuracyKilometer];
 }
 
@@ -171,25 +174,32 @@ NSUInteger lastWatchID = 0;
 
 - (void) updatePolling;
 {
+	[proxyLock lock];
 	for (GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator]){
 		if (1) { //TODO: Do we want to expose a way to disable polling yet keep the listener?
 			[locationManager startUpdatingLocation];
+			[proxyLock unlock];
 			return;
 		}
 	}
+	[proxyLock unlock];
+
 	[locationManager stopUpdatingLocation];
 }
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation;
 {
 	NSString * locationString = nil;
+	
+	[proxyLock lock];
 	for (GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator]){
 		if ([thisProxy handlesLocation:newLocation]) {
 			if (locationString == nil){ locationString = [GeolocationProxy stringFromLocation:newLocation]; }
 			[thisProxy runCallback:locationString];
 		}
 	}
-	
+	[proxyLock unlock];
+
 	if ((lastEvent == nil) || ([[NSDate date] timeIntervalSince1970]-[lastEvent timeIntervalSince1970] >= MAX_DELAY_BEFORE_TRANSMIT_GEO_EVENT_IN_MS))
 	{
 		[self transmitGeoEvent:newLocation fromLocation:oldLocation];
@@ -198,7 +208,7 @@ NSUInteger lastWatchID = 0;
 	watchEventsFired++;
 	[lastEvent release];
 	lastEvent = [[NSDate alloc] init];
-	[self updatePolling];
+	[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 }
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error;
@@ -206,16 +216,19 @@ NSUInteger lastWatchID = 0;
 	NSString * errorString = nil;
 	if ([error code] == kCLErrorDenied) [manager stopUpdatingLocation];
 
+	[proxyLock lock];
 	for (GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator]){
 		if ([thisProxy handlesError:error]) {
 			if (errorString == nil){ errorString = [GeolocationProxy stringFromError:error timedout:NO]; }
 			[thisProxy runCallback:errorString];
 		}
 	}
+	[proxyLock unlock];
+
 	[lastEvent release];
 	lastEvent = nil; // on failure, reset recording time
 	watchEventsFired++;
-	[self updatePolling];
+	[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 }
 
 - (NSString *) tokenForWatchProperties: (id) propertiesDict isOneShot: (id) isOneShotObj;
@@ -223,13 +236,17 @@ NSUInteger lastWatchID = 0;
 	NSString * newToken = [NSString stringWithFormat:@"GEO%d",lastWatchID++];
 	GeolocationProxy * newProxy = [[GeolocationProxy alloc] init];
 	[newProxy setToken:newToken];
+
+	[proxyLock lock];
 	[proxyDictionary setObject:newProxy forKey:newToken];
+	[proxyLock unlock];
+
 	if ([propertiesDict isKindOfClass:[NSDictionary dictionary]]) [newProxy takeDetails:propertiesDict];
 
-	[self updatePolling];
+	[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 	if ([isOneShotObj respondsToSelector:@selector(boolValue)]){
 		[newProxy setSingleShot:[isOneShotObj boolValue]];
-		[self updateLocManagerAccuracy];
+		[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];
 	}
 	[newProxy release];
 	
@@ -239,12 +256,14 @@ NSUInteger lastWatchID = 0;
 - (TitaniumJSCode *) clearWatch: (id) token;
 {
 	if (![token isKindOfClass:[NSString class]]) return nil;
+	[proxyLock lock];
 	[proxyDictionary removeObjectForKey:token];
 	
-	[self updateLocManagerAccuracy];
+	[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];
 	if ([proxyDictionary count] == 0){
-		[self updatePolling];
+		[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 	}
+	[proxyLock unlock];
 	
 	return [TitaniumJSCode codeWithString:[NSString stringWithFormat:@"delete Ti.Geolocation._WATCH.%@;",token]];
 }
@@ -255,6 +274,8 @@ NSUInteger lastWatchID = 0;
 {
 	locationManager = [[CLLocationManager alloc] init];
 	[locationManager setDelegate:self];
+	proxyLock = [[NSLock alloc] init];
+	[proxyLock setName:@"Geolocation lock"];
 
 	// initialize the date reference (for events) to nil to cause it to fire initially
 	lastEvent = nil;
@@ -302,6 +323,7 @@ NSUInteger lastWatchID = 0;
 	[proxyDictionary release];
 	[locationManager stopUpdatingLocation];
 	[locationManager release];
+	[proxyLock release];
 	[super dealloc];
 }
 

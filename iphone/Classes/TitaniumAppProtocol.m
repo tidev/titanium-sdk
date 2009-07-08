@@ -132,7 +132,9 @@ id<TitaniumAppAssetResolver> resolver = nil;
 	TitaniumAppResourceType ourType = [theHost appResourceTypeForUrl:url];
 	NSString * resourcePath;
 	
+#if VERBOSE_DEBUG
 	NSLog(@"loading request for url = %@, type = %d", url, ourType);
+#endif
 
 	if (resolver!=nil && ourType==TitaniumAppResourceFileType)
 	{
