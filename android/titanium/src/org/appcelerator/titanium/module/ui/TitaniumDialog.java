@@ -8,15 +8,15 @@
 package org.appcelerator.titanium.module.ui;
 
 
+import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.api.ITitaniumDialog;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Handler;
-import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
-import android.webkit.WebView;
 
 public class TitaniumDialog implements ITitaniumDialog
 {
@@ -25,7 +25,7 @@ public class TitaniumDialog implements ITitaniumDialog
 
 	public static final String CLICK_EVENT = "click";
 
-	protected WebView webView;
+	protected TitaniumActivity activity;
 	protected AlertDialog.Builder builder;
 	protected TitaniumJSEventManager eventListeners;
 
@@ -41,12 +41,12 @@ public class TitaniumDialog implements ITitaniumDialog
 			dialog.dismiss();
 		}
 	}
-	public TitaniumDialog(Handler handler, WebView webView)
+	public TitaniumDialog(Handler handler, TitaniumActivity activity)
 	{
-		this.webView = webView;
-		this.eventListeners = new TitaniumJSEventManager(handler, webView);
+		this.activity = activity;
+		this.eventListeners = new TitaniumJSEventManager(handler, activity.getWebView());
 		this.eventListeners.supportEvent(CLICK_EVENT);
-		this.builder = new AlertDialog.Builder(webView.getContext());
+		this.builder = new AlertDialog.Builder(activity);
 		this.builder.setCancelable(true);
 	}
 
@@ -119,6 +119,14 @@ public class TitaniumDialog implements ITitaniumDialog
 	}
 
 	public void show() {
-		builder.create().show();
+		activity.runOnUiThreadWithCheck(new TitaniumActivity.CheckedRunnable(){
+
+			public void run(boolean isUISafe) {
+				if (isUISafe) {
+					builder.create().show();
+				} else {
+					Log.w(LCAT, "Attempt to show dialog ignored, UI is not available.");
+				}
+			}});
 	}
 }
