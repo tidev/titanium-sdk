@@ -211,6 +211,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	}
 
 	GRAB_IF_SELECTOR(@"clearOnEdit",boolValue,clearsOnBeginEditing);
+	GRAB_IF_SELECTOR(@"passwordMask",boolValue,passwordMask);
 
 	GRAB_IF_SELECTOR(@"borderStyle",intValue,borderStyle);
 	
@@ -287,6 +288,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			[(UITextField *)resultView setLeftView:[leftViewProxy nativeView]];
 			[(UITextField *)resultView setRightViewMode:rightViewMode];
 			[(UITextField *)resultView setRightView:[rightViewProxy nativeView]];
+			[(UITextField *)resultView setSecureTextEntry:passwordMask];
 			
 			TitaniumHost * theHost = [TitaniumHost sharedHost];
 			UIImage * bgImage = [theHost stretchableImageForResource:backgroundImagePath];

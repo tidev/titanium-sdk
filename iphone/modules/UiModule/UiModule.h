@@ -53,6 +53,7 @@
 	UITextBorderStyle       borderStyle;
 	BOOL                    clearsOnBeginEditing;
 	BOOL					surpressReturnCharacter;
+	BOOL                    passwordMask;
 	UITextFieldViewMode	clearButtonMode;
 	UIButtonProxy	*leftViewProxy;
 	UITextFieldViewMode	leftViewMode;   
