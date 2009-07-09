@@ -146,9 +146,9 @@
  * @tiapi(method=True,name=UI.setTabBadge,version=0.4) Sets the tab bar's badge value, must be on the root of the nav controller
  * @tiarg(for=UI.setTabBadge,type=string,name=badge) badge value
 
- * @tiapi(method=True,name=UI.createButton,version=0.4) Creates a UI.NativeControl button object for use in UI.Window's setLeftNavButton, setRightNavButton, or setToolbar methods
- * @tiarg(for=UI.createButton,type=mixed,optional=True,name=properties) If object, the UI.NativeControl properties to copy over on initialization.
- * @tiresult(for=UI.createButton,type=UI.NativeControl) the resulting button
+ * @tiapi(method=True,name=UI.createButton,version=0.4) Creates a UI.Button button object for use in UI.Window's setLeftNavButton, setRightNavButton, or setToolbar methods
+ * @tiarg(for=UI.createButton,type=mixed,optional=True,name=properties) If object, the UI.Button properties to copy over on initialization.
+ * @tiresult(for=UI.createButton,type=UI.Button) the resulting button
  
  * @tiapi(method=True,name=UI.createOptionDialog,version=0.4) Creates an UI.optionDialog object
  * @tiarg(for=UI.createOptionDialog,type=mixed,optional=True,name=properties) UI.optionDialog properties to copy over on initialization
@@ -162,33 +162,29 @@
  * @tiarg(for=UI.createWindow,name=options,type=mixed,optional=True) a string containing a url of the new window's content or an object containing properties for the new window
  * @tiresult(for=UI.createWindow,type=object) a UserWindow object
  
- * @tiapi(method=true,since=0.5,name=UI.createSwitch) Create a new switch 
- * @tiarg[object,properties] Properties to apply to the new switch on creation
- * @tiresult[UI.NativeControl] the new switch.
- 
  * @tiapi(method=true,since=0.5,name=UI.createSlider) Create a new slider 
  * @tiarg[object,properties] Properties to apply to the new slider on creation
- * @tiresult[UI.NativeControl] the new slider.
+ * @tiresult[UI.Slider] the new slider.
  
  * @tiapi(method=true,since=0.5,name=UI.createSwitch) Create a new switch 
  * @tiarg[object,properties] Properties to apply to the new switch on creation
- * @tiresult[UI.NativeControl] the new switch.
+ * @tiresult[UI.Switch] the new switch.
  
  * @tiapi(method=true,since=0.5,name=UI.createTextField) Create a new single-line text field 
  * @tiarg[object,properties] Properties to apply to the new text field on creation
- * @tiresult[UI.NativeControl] the new text field.
+ * @tiresult[UI.TextField] the new text field.
  
  * @tiapi(method=true,since=0.5,name=UI.createTextArea) Create a new multi-line text area 
  * @tiarg[object,properties] Properties to apply to the new text area on creation
- * @tiresult[UI.NativeControl] the new text area.
+ * @tiresult[UI.Button] the new text area.
  
  * @tiapi(method=true,since=0.5,name=UI.createButtonBar) Create a new segmented control that acts as a nonmodal group of buttons. Pressing an element causes a momentary selection
  * @tiarg[object,properties] Properties to apply to the new button bar on creation
- * @tiresult[UI.NativeControl] the button bar field.
+ * @tiresult[UI.ButtonBar] the button bar field.
  
  * @tiapi(method=true,since=0.5,name=UI.createTabbedBar) Create a new segmented control that acts as a modal tab bar. Pressing an element causes a the selection to change which lasts until a different element is touched
  * @tiarg[object,properties] Properties to apply to the new tab bar on creation
- * @tiresult[UI.NativeControl] the new tab bar.
+ * @tiresult[UI.TabBar] the new tab bar.
  
  
  * @tiapi(method=true,since=0.5,name=UI.createTableView) Create a new table view.
@@ -209,11 +205,11 @@
  * @tiapi(method=true,since=0.5,name=UI.GroupedView.addSection) Add a UI.GroupedSection to a UI.GroupedView. UI changes only take effect upon UI.GroupedView.open()
  * @tiarg[UI.GroupedSection,section] Section to add
  
- * @tiapi(method=true,since=0.5,name=UI.UserWindow.setTitleControl) Replaces the title area of the nav bar with a UI.NativeControl 
- * @tiarg[UI.NativeControl,titleControl] Control to place. Pass in null to remove the current UI.NativeControl and reveal the title image or title.
+ * @tiapi(method=true,since=0.5,name=UI.UserWindow.setTitleControl) Replaces the title area of the nav bar with a UI.Button 
+ * @tiarg[UI.Button,titleControl] Control to place. Pass in null to remove the current UI.Button and reveal the title image or title.
  
- * @tiapi(method=true,since=0.5,name=UI.currentWindow.setTitleControl) Replaces the title area of the nav bar with a UI.NativeControl 
- * @tiarg[UI.NativeControl,titleControl] Control to place. Pass in null to remove the current UI.NativeControl and reveal the title image or title. 
+ * @tiapi(method=true,since=0.5,name=UI.currentWindow.setTitleControl) Replaces the title area of the nav bar with a UI.Button 
+ * @tiarg[UI.Button,titleControl] Control to place. Pass in null to remove the current UI.Button and reveal the title image or title. 
  
  ******* UI properties
 
@@ -222,36 +218,36 @@
  * @tiapi(property=True,name=UI.LANDSCAPE,since=0.4,type=int) integer that represents both landscape left or landscape right orientation - this is the same as Gesture.LANDSCAPE
  * @tiapi(property=True,name=UI.PORTRAIT_AND_LANDSCAPE,since=0.4,type=int) integer that represents portrait or landscape (But not upside-down portrait) orientation
  
- * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_GO) A possible value for UI.NativeControl.returnKeyType; indicates the lower right keyboard button will be labelled "Go"
- * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_GOOGLE) A possible value for UI.NativeControl.returnKeyType; indicates the lower right keyboard button will be labelled "Google"
- * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_JOIN) A possible value for UI.NativeControl.returnKeyType; indicates the lower right keyboard button will be labelled "Join"
- * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_NEXT) A possible value for UI.NativeControl.returnKeyType; indicates the lower right keyboard button will be labelled "Next"
- * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_SEARCH) A possible value for UI.NativeControl.returnKeyType; indicates the lower right keyboard button will be labelled "Search"
- * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_SEND) A possible value for UI.NativeControl.returnKeyType; indicates the lower right keyboard button will be labelled "Send"
- * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_DONE) A possible value for UI.NativeControl.returnKeyType; indicates the lower right keyboard button will be labelled "Done"
- * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_DEFAULT) A possible value for UI.NativeControl.returnKeyType; indicates the lower right keyboard button will be labelled "Return"
- * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_ROUTE) A possible value for UI.NativeControl.returnKeyType; indicates the lower right keyboard button will be labelled "Route"
- * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_YAHOO) A possible value for UI.NativeControl.returnKeyType; indicates the lower right keyboard button will be labelled "Yahoo"
- * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_EMERGENCY_CALL) A possible value for UI.NativeControl.returnKeyType; indicates the lower right keyboard button will be labelled "Emergency Call"
+ * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_GO) A possible value for UI.TextView.returnKeyType or UI.TextField.returnKeyType; indicates the lower right keyboard button will be labelled "Go"
+ * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_GOOGLE) A possible value for UI.TextView.returnKeyType or UI.TextField.returnKeyType; indicates the lower right keyboard button will be labelled "Google"
+ * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_JOIN) A possible value for UI.TextView.returnKeyType or UI.TextField.returnKeyType; indicates the lower right keyboard button will be labelled "Join"
+ * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_NEXT) A possible value for UI.TextView.returnKeyType or UI.TextField.returnKeyType; indicates the lower right keyboard button will be labelled "Next"
+ * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_SEARCH) A possible value for UI.TextView.returnKeyType or UI.TextField.returnKeyType; indicates the lower right keyboard button will be labelled "Search"
+ * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_SEND) A possible value for UI.TextView.returnKeyType or UI.TextField.returnKeyType; indicates the lower right keyboard button will be labelled "Send"
+ * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_DONE) A possible value for UI.TextView.returnKeyType or UI.TextField.returnKeyType; indicates the lower right keyboard button will be labelled "Done"
+ * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_DEFAULT) A possible value for UI.TextView.returnKeyType or UI.TextField.returnKeyType; indicates the lower right keyboard button will be labelled "Return"
+ * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_ROUTE) A possible value for UI.TextView.returnKeyType or UI.TextField.returnKeyType; indicates the lower right keyboard button will be labelled "Route"
+ * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_YAHOO) A possible value for UI.TextView.returnKeyType or UI.TextField.returnKeyType; indicates the lower right keyboard button will be labelled "Yahoo"
+ * @tiapi(property=true,since=0.5,name=UI.RETURNKEY_EMERGENCY_CALL) A possible value for UI.TextView.returnKeyType or UI.TextField.returnKeyType; indicates the lower right keyboard button will be labelled "Emergency Call"
  
  
- * @tiapi(property=true,since=0.5,name=UI.KEYBOARD_ASCII) A possible value for UI.NativeControl.keyboardType; indicates the keyboard will be standard QWERTY keyboard
- * @tiapi(property=true,since=0.5,name=UI.KEYBOARD_URL) A possible value for UI.NativeControl.keyboardType; indicates the keyboard will be the standard QWERTY keyboard, but with the space bar replaced with .,/, and .com keys
- * @tiapi(property=true,since=0.5,name=UI.KEYBOARD_PHONE_PAD) A possible value for UI.NativeControl.keyboardType; indicates the keyboard will be a 12-key keypad, with +*# to the left of the 0 key, and delete to the right
- * @tiapi(property=true,since=0.5,name=UI.KEYBOARD_NUMBERS_PUNCTUATION) A possible value for UI.NativeControl.keyboardType; indicates the keyboard will be the standard QUERTY keyboard, but displaying numbers and punctuation by default
- * @tiapi(property=true,since=0.5,name=UI.KEYBOARD_NUMBER_PAD) A possible value for UI.NativeControl.keyboardType; indicates the keyboard will be a 12-key keypad, with a blank key to the left of the 0, and delete to the right
- * @tiapi(property=true,since=0.5,name=UI.KEYBOARD_EMAIL_ADDRESS) A possible value for UI.NativeControl.keyboardType; indicates the keyboard will be the standard QWERTY keyboard, but with @ and period keys next to the space key
- * @tiapi(property=true,since=0.5,name=UI.KEYBOARD_DEFAULT) A possible value for UI.NativeControl.keyboardType; indicates the keyboard will be whatever the user has chosen as the default (in the case of foriegn character support)
+ * @tiapi(property=true,since=0.5,name=UI.KEYBOARD_ASCII) A possible value for UI.TextView.keyboardType or UI.TextField.keyboardType; indicates the keyboard will be standard QWERTY keyboard
+ * @tiapi(property=true,since=0.5,name=UI.KEYBOARD_URL) A possible value for UI.TextView.keyboardType or UI.TextField.keyboardType; indicates the keyboard will be the standard QWERTY keyboard, but with the space bar replaced with .,/, and .com keys
+ * @tiapi(property=true,since=0.5,name=UI.KEYBOARD_PHONE_PAD) A possible value for UI.TextView.keyboardType or UI.TextField.keyboardType; indicates the keyboard will be a 12-key keypad, with +*# to the left of the 0 key, and delete to the right
+ * @tiapi(property=true,since=0.5,name=UI.KEYBOARD_NUMBERS_PUNCTUATION) A possible value for UI.TextView.keyboardType or UI.TextField.keyboardType; indicates the keyboard will be the standard QUERTY keyboard, but displaying numbers and punctuation by default
+ * @tiapi(property=true,since=0.5,name=UI.KEYBOARD_NUMBER_PAD) A possible value for UI.TextView.keyboardType or UI.TextField.keyboardType; indicates the keyboard will be a 12-key keypad, with a blank key to the left of the 0, and delete to the right
+ * @tiapi(property=true,since=0.5,name=UI.KEYBOARD_EMAIL_ADDRESS) A possible value for UI.TextView.keyboardType or UI.TextField.keyboardType; indicates the keyboard will be the standard QWERTY keyboard, but with @ and period keys next to the space key
+ * @tiapi(property=true,since=0.5,name=UI.KEYBOARD_DEFAULT) A possible value for UI.TextView.keyboardType or UI.TextField.keyboardType; indicates the keyboard will be whatever the user has chosen as the default (in the case of foriegn character support)
  
- * @tiapi(property=true,since=0.5,name=UI.INPUT_BUTTONMODE_NEVER) A possible value for UI.NativeControl.clearButtonMode, UI.NativeControl.leftButtonMode, or UI.NativeControl.rightButtonMode; indicates that the control or button will never appear
- * @tiapi(property=true,since=0.5,name=UI.INPUT_BUTTONMODE_ALWAYS) A possible value for UI.NativeControl.clearButtonMode, UI.NativeControl.leftButtonMode, or UI.NativeControl.rightButtonMode; indicates that the control or button will always appear
- * @tiapi(property=true,since=0.5,name=UI.INPUT_BUTTONMODE_ONFOCUS) A possible value for UI.NativeControl.clearButtonMode, UI.NativeControl.leftButtonMode, or UI.NativeControl.rightButtonMode; indicates that the control or button will appear only when the text is being edited
- * @tiapi(property=true,since=0.5,name=UI.INPUT_BUTTONMODE_ONBLUR) A possible value for UI.NativeControl.clearButtonMode, UI.NativeControl.leftButtonMode, or UI.NativeControl.rightButtonMode; indicates that the control or button will appear only when the text is not being edited
+ * @tiapi(property=true,since=0.5,name=UI.INPUT_BUTTONMODE_NEVER) A possible value for UI.TextField.clearButtonMode, UI.TextField.leftButtonMode, or UI.TextField.rightButtonMode; indicates that the control or button will never appear
+ * @tiapi(property=true,since=0.5,name=UI.INPUT_BUTTONMODE_ALWAYS) A possible value for UI.TextField.clearButtonMode, UI.TextField.leftButtonMode, or UI.TextField.rightButtonMode; indicates that the control or button will always appear
+ * @tiapi(property=true,since=0.5,name=UI.INPUT_BUTTONMODE_ONFOCUS) A possible value for UI.TextField.clearButtonMode, UI.TextField.leftButtonMode, or UI.TextField.rightButtonMode; indicates that the control or button will appear only when the text is being edited
+ * @tiapi(property=true,since=0.5,name=UI.INPUT_BUTTONMODE_ONBLUR) A possible value for UI.TextField.clearButtonMode, UI.TextField.leftButtonMode, or UI.TextField.rightButtonMode; indicates that the control or button will appear only when the text is not being edited
  
- * @tiapi(property=true,since=0.5,name=UI.INPUT_BORDERSTYLE_NONE) A possible value for UI.NativeControl.borderStyle when UI.NativeControl is a text field; indicates no outline will be used.
- * @tiapi(property=true,since=0.5,name=UI.INPUT_BORDERSTYLE_LINE) A possible value for UI.NativeControl.borderStyle when UI.NativeControl is a text field; indicates a simple line will be used.
- * @tiapi(property=true,since=0.5,name=UI.INPUT_BORDERSTYLE_BEZEL) A possible value for UI.NativeControl.borderStyle when UI.NativeControl is a text field; indicates a shaded rectangular bezel will be used.
- * @tiapi(property=true,since=0.5,name=UI.INPUT_BORDERSTYLE_ROUNDED) A possible value for UI.NativeControl.borderStyle when UI.NativeControl is a text field; indicates a round-rectangle-shaped bezel will be used.
+ * @tiapi(property=true,since=0.5,name=UI.INPUT_BORDERSTYLE_NONE) A possible value for UI.TextField.borderStyle; indicates no outline will be used.
+ * @tiapi(property=true,since=0.5,name=UI.INPUT_BORDERSTYLE_LINE) A possible value for UI.TextField.borderStyle; indicates a simple line will be used.
+ * @tiapi(property=true,since=0.5,name=UI.INPUT_BORDERSTYLE_BEZEL) A possible value for UI.TextField.borderStyle; indicates a shaded rectangular bezel will be used.
+ * @tiapi(property=true,since=0.5,name=UI.INPUT_BORDERSTYLE_ROUNDED) A possible value for UI.TextField.borderStyle; indicates a round-rectangle-shaped bezel will be used.
  
  ******* UI.iPhone.* properties
  
@@ -264,38 +260,31 @@
  * @tiapi(property=True,name=UI.iPhone.SystemButtonStyle.DONE,version=0.4,type=int) constant representing the done button style. The button will appear with a blue background, in a recessed rounded rectangle shape.
 
  * @tiapi(property=True,name=UI.iPhone.SystemButton,version=0.4,type=object) object containing iPhone system-provided button constants. Refer to http://developer.apple.com/iphone/library/documentation/UserExperience/Conceptual/MobileHIG/SystemProvided/SystemProvided.html
- * @tiapi(property=True,name=UI.iPhone.SystemButton.ACTION,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Action" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.ACTIVITY,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to have an activity spinner in the button's place
- * @tiapi(property=True,name=UI.iPhone.SystemButton.CAMERA,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Camera" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.COMPOSE,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Compose" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.BOOKMARKS,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Bookmarks" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.SEARCH,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Search" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.ADD,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Add" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.TRASH,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Trash" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.ORGANIZE,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Organize" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.REPLY,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Reply" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.STOP,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Stop" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.REFRESH,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Refresh" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.PLAY,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Play" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.FAST_FORWARD,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "FastForward" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.PAUSE,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Pause" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.REWIND,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Rewind" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.EDIT,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Edit" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.CANCEL,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Cancel" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.SAVE,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Save" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.DONE,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get the system-provided "Done" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.FLEXIBLE_SPACE,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to have a spacer to place between tool bar buttons to seperate them as much as possible
- * @tiapi(property=True,name=UI.iPhone.SystemButton.FIXED_SPACE,version=0.4,type=string) Set a UI.NativeControl's "systemButton" property to this in order to have a space of a fixed size to place between tool bar buttons
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.ACTION,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Action" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.ACTIVITY,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to have an activity spinner in the button's place
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.CAMERA,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Camera" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.COMPOSE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Compose" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.BOOKMARKS,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Bookmarks" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.SEARCH,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Search" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.ADD,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Add" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.TRASH,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Trash" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.ORGANIZE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Organize" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.REPLY,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Reply" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.STOP,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Stop" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.REFRESH,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Refresh" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.PLAY,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Play" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.FAST_FORWARD,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "FastForward" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.PAUSE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Pause" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.REWIND,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Rewind" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.EDIT,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Edit" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.CANCEL,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Cancel" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.SAVE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Save" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.DONE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Done" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.FLEXIBLE_SPACE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to have a spacer to place between tool bar buttons to seperate them as much as possible
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.FIXED_SPACE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to have a space of a fixed size to place between tool bar buttons
 
- * @tiapi(property=True,name=UI.iPhone.SystemButton.INFO_LIGHT,version=0.5,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get a white system-provided "info" button
- * @tiapi(property=True,name=UI.iPhone.SystemButton.INFO_DARK,version=0.5,type=string) Set a UI.NativeControl's "systemButton" property to this in order to get a dark system-provided "info" button
-
- * @/tiapi(property=True,name=UI.iPhone.SystemIcon,version=0.4,type=object) object containing iPhone tab template constants. Refer to http://developer.apple.com/iphone/library/documentation/UserExperience/Conceptual/MobileHIG/SystemProvided/SystemProvided.html
- * @/tiapi(property=True,name=UI.iPhone.SystemIcon.BOOKMARKS,version=0.4,type=string) Set a UI.userWindow's "systemButton" property to this in order to get the system-provided "Action" button
-There's no way to use anything of UI.iPhone.SystemIcon, since tab bar properties are set in tiapp.xml, long before any web rendering.
- NSString * systemIconString = @"{BOOKMARKS:'bookmarks',CONTACTS:'contacts',DOWNLOADS:'downloads',"
- "FAVORITES:'favorites',DOWNLOADS:'downloads',FEATURED:'featured',MORE:'more',MOST_RECENT:'most_recent',"
- "MOST_VIEWED:'most_viewed',RECENTS:'recents',SEARCH:'search',TOP_RATED:'top_rated'}";
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.INFO_LIGHT,version=0.5,type=string) Set a UI.Button's "systemButton" property to this in order to get a white system-provided "info" button
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.INFO_DARK,version=0.5,type=string) Set a UI.Button's "systemButton" property to this in order to get a dark system-provided "info" button
 
  * @tiapi(property=True,name=UI.iPhone.StatusBar,version=0.4,type=object) object containing iPhone status bar style constants
  * @tiapi(property=True,name=UI.iPhone.StatusBar.DEFAULT,version=0.4,type=int) constant representing the default status bar style. The status bar appears opaque and grey. This is the same as grey
@@ -330,16 +319,16 @@ There's no way to use anything of UI.iPhone.SystemIcon, since tab bar properties
  * @tiapi(method=True,name=UI.currentWindow.showNavBar,since=0.4) Makes the nav bar visible, resizing the web page if necessary.
  * @tiarg(for=UI.currentWindow.showNavBar,name=options,type=object) set to {animated:true} to enable animation of showing the nav bar if the window is foreground.
  
- * @tiapi(method=True,name=UI.currentWindow.setLeftNavButton,since=0.4) replaces the button or item on the left side of the nav bar with an UI.NativeControl.
- * @tiarg(for=UI.currentWindow.setLeftNavButton,name=button,type=UI.NativeControl) the UI.NativeControl object. Use null to indicate no button
+ * @tiapi(method=True,name=UI.currentWindow.setLeftNavButton,since=0.4) replaces the button or item on the left side of the nav bar with an UI.Button.
+ * @tiarg(for=UI.currentWindow.setLeftNavButton,name=button,type=UI.Button) the UI.Button object. Use null to indicate no button
  * @tiarg(for=UI.currentWindow.setLeftNavButton,name=options,type=object) set to {animated:true} to enable animation of changing the nav button.
  
- * @tiapi(method=True,name=UI.currentWindow.setRightNavButton,since=0.4) replaces the button or item on the right side of the nav bar with an UI.NativeControl.
- * @tiarg(for=UI.currentWindow.setRightNavButton,name=button,type=UI.NativeControl) the UI.NativeControl object. Use null to indicate no button
+ * @tiapi(method=True,name=UI.currentWindow.setRightNavButton,since=0.4) replaces the button or item on the right side of the nav bar with an UI.Button.
+ * @tiarg(for=UI.currentWindow.setRightNavButton,name=button,type=UI.Button) the UI.Button object. Use null to indicate no button
  * @tiarg(for=UI.currentWindow.setRightNavButton,name=options,type=object) set to {animated:true} to enable animation of changing the nav button.
  
- * @tiapi(method=True,name=UI.currentWindow.setToolbar,since=0.4) replaces the contents of the tool bar with an array of UI.NativeControls.
- * @tiarg(for=UI.currentWindow.setToolbar,name=buttons,type=object) the array of UI.NativeControl objects, including fixed and variables spaces. Use an empty array to hide the tool bar.
+ * @tiapi(method=True,name=UI.currentWindow.setToolbar,since=0.4) replaces the contents of the tool bar with an array of UI.Buttons, UI.Sliders, UI.ButtonBar, or UI.TabbedBar.
+ * @tiarg(for=UI.currentWindow.setToolbar,name=buttons,type=object) the array of UI.Button objects, including fixed and variables spaces. Use an empty array to hide the tool bar.
  * @tiarg(for=UI.currentWindow.setToolbar,name=options,type=object) set to {animated:true} to enable animation of changing the tool bar.
  
  * @tiapi(method=True,returns=integer,name=UI.currentWindow.addEventListener,since=0.4) add an event listener to be called for a focus event and returns the function to use when removing
@@ -383,16 +372,16 @@ There's no way to use anything of UI.iPhone.SystemIcon, since tab bar properties
  * @tiapi(method=True,name=UI.UserWindow.showNavBar,since=0.4) Makes the nav bar visible, resizing the web page if necessary.
  * @tiarg(for=UI.UserWindow.showNavBar,name=options,type=object) set to {animated:true} to enable animation of showing the nav bar if the window is foreground.
 
- * @tiapi(method=True,name=UI.UserWindow.setLeftNavButton,since=0.4) replaces the button or item on the left side of the nav bar with an UI.NativeControl.
- * @tiarg(for=UI.UserWindow.setLeftNavButton,name=button,type=UI.NativeControl) the UI.NativeControl object. Use null to indicate no button
+ * @tiapi(method=True,name=UI.UserWindow.setLeftNavButton,since=0.4) replaces the button or item on the left side of the nav bar with an UI.Button.
+ * @tiarg(for=UI.UserWindow.setLeftNavButton,name=button,type=UI.Button) the UI.Button object. Use null to indicate no button
  * @tiarg(for=UI.UserWindow.setLeftNavButton,name=options,type=object) set to {animated:true} to enable animation of changing the nav button.
 
- * @tiapi(method=True,name=UI.UserWindow.setRightNavButton,since=0.4) replaces the button or item on the right side of the nav bar with an UI.NativeControl.
- * @tiarg(for=UI.UserWindow.setRightNavButton,name=button,type=UI.NativeControl) the UI.NativeControl object. Use null to indicate no button
+ * @tiapi(method=True,name=UI.UserWindow.setRightNavButton,since=0.4) replaces the button or item on the right side of the nav bar with an UI.Button.
+ * @tiarg(for=UI.UserWindow.setRightNavButton,name=button,type=UI.Button) the UI.Button object. Use null to indicate no button
  * @tiarg(for=UI.UserWindow.setRightNavButton,name=options,type=object) set to {animated:true} to enable animation of changing the nav button.
  
- * @tiapi(method=True,name=UI.UserWindow.setToolbar,since=0.4) replaces the contents of the tool bar with an array of UI.NativeControls.
- * @tiarg(for=UI.UserWindow.setToolbar,name=buttons,type=array) the array of UI.NativeControl objects, including fixed and variables spaces. Use an empty array to hide the tool bar.
+ * @tiapi(method=True,name=UI.UserWindow.setToolbar,since=0.4) replaces the contents of the tool bar with an array of UI.Buttons.
+ * @tiarg(for=UI.UserWindow.setToolbar,name=buttons,type=array) the array of UI.Button objects, including fixed and variables spaces. Use an empty array to hide the tool bar.
  * @tiarg(for=UI.UserWindow.setToolbar,name=options,type=object) set to {animated:true} to enable animation of changing the tool bar.
  
  ********* optionDialog object methods
@@ -451,22 +440,22 @@ There's no way to use anything of UI.iPhone.SystemIcon, since tab bar properties
   
  ******** button object methods
 
- * @tiapi(method=True,returns=integer,name=UI.NativeControl.addEventListener,since=0.4) add an event listener to be called for a click event and returns the function to use when removing
- * @tiarg(for=UI.NativeControl.addEventListener,type=string,name=type) the type of gesture event to listen for.  Must be 'click'
- * @tiarg(for=UI.NativeControl.addEventListener,type=method,name=listener) listener method
- * @tiresult(for=UI.NativeControl.addEventListener,type=function) return the listener to be used as an id
+ * @tiapi(method=True,returns=integer,name=UI.Button.addEventListener,since=0.4) add an event listener to be called for a click event and returns the function to use when removing
+ * @tiarg(for=UI.Button.addEventListener,type=string,name=type) the type of gesture event to listen for.  Must be 'click'
+ * @tiarg(for=UI.Button.addEventListener,type=method,name=listener) listener method
+ * @tiresult(for=UI.Button.addEventListener,type=function) return the listener to be used as an id
  
- * @tiapi(method=True,name=UI.NativeControl.removeEventListener,since=0.4) removes an event listener from click events
- * @tiarg(for=UI.NativeControl.removeEventListener,type=string,name=type) the type of event to be removed from addEventListener. Must be 'click'
- * @tiarg(for=UI.NativeControl.removeEventListener,type=function,name=id) the function to be removed from addEventListener
- * @tiresult(for=UI.NativeControl.removeEventListener,type=boolean) return true if removed
+ * @tiapi(method=True,name=UI.Button.removeEventListener,since=0.4) removes an event listener from click events
+ * @tiarg(for=UI.Button.removeEventListener,type=string,name=type) the type of event to be removed from addEventListener. Must be 'click'
+ * @tiarg(for=UI.Button.removeEventListener,type=function,name=id) the function to be removed from addEventListener
+ * @tiresult(for=UI.Button.removeEventListener,type=boolean) return true if removed
  
  ******** button object properties
 
- * @tiapi(property=True,name=UI.NativeControl.title,version=0.4,type=string) Title that will appear if systemButton and image are not used
- * @tiapi(property=True,name=UI.NativeControl.image,version=0.4,type=string) relative or app: path to the image that will appear if systemButton is not used
- * @tiapi(property=True,name=UI.NativeControl.systemButton,version=0.4,type=string) one of the UI.iPhone.SystemButton constants to use a system-supplied button
- * @tiapi(property=True,name=UI.NativeControl.style,version=0.4,type=int) one of the UI.iPhone.SystemButtonStyle constants to choose a button style
+ * @tiapi(property=True,name=UI.Button.title,version=0.4,type=string) Title that will appear if systemButton and image are not used
+ * @tiapi(property=True,name=UI.Button.image,version=0.4,type=string) relative or app: path to the image that will appear if systemButton is not used
+ * @tiapi(property=True,name=UI.Button.systemButton,version=0.4,type=string) one of the UI.iPhone.SystemButton constants to use a system-supplied button
+ * @tiapi(property=True,name=UI.Button.style,version=0.4,type=int) one of the UI.iPhone.SystemButtonStyle constants to choose a button style
 
  */
 
