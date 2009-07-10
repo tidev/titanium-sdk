@@ -190,27 +190,19 @@
  * @tiapi(method=true,since=0.5,name=UI.createTableView) Create a new table view.
  * @tiarg[object,properties] Properties to apply to the table view on creation
  * @tiarg[function,callback] Function to invoke when a row is selected
- * @tiresult[UI.TableView] the table view. This is a subclass of UI.UserWindow.
+ * @tiresult[UI.TableView] the table view. This has similar properties and methods as UI.UserWindow.
  
  * @tiapi(method=true,since=0.5,name=UI.createGroupedView) Create a new grouped view.
  * @tiarg[object,properties] Properties to apply to the grouped view on creation
  * @tiarg[function,callback] Function to invoke when a row is selected
- * @tiresult[UI.GroupedView] the grouped view. This is a subclass of UI.TableView, which is a subclass of UI.UserWindow.
+ * @tiresult[UI.GroupedView] the grouped view. This has similar properties and methods as UI.TableView and UI.UserWindow.
  
  * @tiapi(method=true,since=0.5,name=UI.createGroupedSection) Create a grouped section to add to a grouped view.
  * @tiarg[object,properties] Properties to apply to the table view on creation
  * @tiarg[function,callback] Function to invoke when a row is selected
  * @tiresult[UI.GroupedSection] 
  
- * @tiapi(method=true,since=0.5,name=UI.GroupedView.addSection) Add a UI.GroupedSection to a UI.GroupedView. UI changes only take effect upon UI.GroupedView.open()
- * @tiarg[UI.GroupedSection,section] Section to add
- 
- * @tiapi(method=true,since=0.5,name=UI.UserWindow.setTitleControl) Replaces the title area of the nav bar with a UI.Button 
- * @tiarg[UI.Button,titleControl] Control to place. Pass in null to remove the current UI.Button and reveal the title image or title.
- 
- * @tiapi(method=true,since=0.5,name=UI.currentWindow.setTitleControl) Replaces the title area of the nav bar with a UI.Button 
- * @tiarg[UI.Button,titleControl] Control to place. Pass in null to remove the current UI.Button and reveal the title image or title. 
- 
+   
  ******* UI properties
 
  * @tiapi(property=True,name=UI.currentWindow,version=0.4,type=object) the CurrentWindow object representing the window of the calling javascript. CurrentWindow currently has some slight differences from a created UI.UserWindow
@@ -255,7 +247,7 @@
 
  * @tiapi(property=True,name=UI.iPhone,version=0.4,type=object) object containing iPhone constants
  * @tiapi(property=True,name=UI.iPhone.SystemButtonStyle,version=0.4,type=object) object containing iPhone button style constants
- * @tiapi(property=True,name=UI.iPhone.SystemButtonStyle.PLAIN,version=0.4,type=int) constant representing the plain button style. On the nav bar, this is the same as bordered. On the tool bar, this lacks a border.
+ * @tiapi(property=True,name=UI.iPhone.SystemButtonStyle.PLAIN,version=0.4,type=int) constant representing the plain button style. On the nav bar, this is the same as bordered. On the tool bar, this lacks a border. When a button is covering a div, this hides the default rounded rectangle background
  * @tiapi(property=True,name=UI.iPhone.SystemButtonStyle.BORDERED,version=0.4,type=int) constant representing the bordered button style. The button will appear slightly darker background than the bar, in a recessed rounded rectangle shape.
  * @tiapi(property=True,name=UI.iPhone.SystemButtonStyle.DONE,version=0.4,type=int) constant representing the done button style. The button will appear with a blue background, in a recessed rounded rectangle shape.
 
@@ -328,10 +320,10 @@
  * @tiarg(for=UI.currentWindow.setRightNavButton,name=options,type=object) set to {animated:true} to enable animation of changing the nav button.
  
  * @tiapi(method=True,name=UI.currentWindow.setToolbar,since=0.4) replaces the contents of the tool bar with an array of UI.Buttons, UI.Sliders, UI.ButtonBar, or UI.TabbedBar.
- * @tiarg(for=UI.currentWindow.setToolbar,name=buttons,type=object) the array of UI.Button objects, including fixed and variables spaces. Use an empty array to hide the tool bar.
+ * @tiarg(for=UI.currentWindow.setToolbar,name=buttons,type=object) the array of objects, including fixed and variables spaces. Use an empty array to hide the tool bar.
  * @tiarg(for=UI.currentWindow.setToolbar,name=options,type=object) set to {animated:true} to enable animation of changing the tool bar.
  
- * @tiapi(method=True,returns=integer,name=UI.currentWindow.addEventListener,since=0.4) add an event listener to be called for a focus event and returns the function to use when removing
+ * @tiapi(method=True,name=UI.currentWindow.addEventListener,since=0.4) add an event listener to be called for a focus event and returns the function to use when removing
  * @tiarg(for=UI.currentWindow.addEventListener,type=string,name=type) the type of gesture event to listen for.  May be either 'focused' or 'unfocused'
  * @tiarg(for=UI.currentWindow.addEventListener,type=method,name=listener) listener method
  * @tiresult(for=UI.currentWindow.addEventListener,type=function) return the listener to be used as an id
@@ -341,6 +333,9 @@
  * @tiarg(for=UI.currentWindow.removeEventListener,type=function,name=id) the function to be removed from addEventListener
  * @tiresult(for=UI.currentWindow.removeEventListener,type=boolean) return true if removed
  
+ * @tiapi(method=true,since=0.5,name=UI.currentWindow.setTitleControl) Replaces the title area of the nav bar with a UI.Button 
+ * @tiarg[UI.Button,titleControl] Control to place. Pass in null to remove the current UI.Button and reveal the title image or title. 
+
  
  ********* userWindow object methods
   
@@ -380,9 +375,116 @@
  * @tiarg(for=UI.UserWindow.setRightNavButton,name=button,type=UI.Button) the UI.Button object. Use null to indicate no button
  * @tiarg(for=UI.UserWindow.setRightNavButton,name=options,type=object) set to {animated:true} to enable animation of changing the nav button.
  
- * @tiapi(method=True,name=UI.UserWindow.setToolbar,since=0.4) replaces the contents of the tool bar with an array of UI.Buttons.
- * @tiarg(for=UI.UserWindow.setToolbar,name=buttons,type=array) the array of UI.Button objects, including fixed and variables spaces. Use an empty array to hide the tool bar.
+ * @tiapi(method=True,name=UI.UserWindow.setToolbar,since=0.4) replaces the contents of the tool bar with an array of UI.Buttons, UI.Sliders, UI.ButtonBar, or UI.TabbedBar.
+ * @tiarg(for=UI.UserWindow.setToolbar,name=buttons,type=array) the array of objects, including fixed and variables spaces. Use an empty array to hide the tool bar.
  * @tiarg(for=UI.UserWindow.setToolbar,name=options,type=object) set to {animated:true} to enable animation of changing the tool bar.
+ 
+ * @tiapi(method=true,since=0.5,name=UI.UserWindow.setTitleControl) Replaces the title area of the nav bar with a UI.Button 
+ * @tiarg[UI.Button,titleControl] Control to place. Pass in null to remove the current UI.Button and reveal the title image or title.
+
+ ********* TableView Object methods (Copypasta from UserWindow)
+ 
+ * @tiapi(method=True,name=UI.TableView.setFullScreen,since=0.5) Makes a window fullscreen, including hiding the nav bar and tab bar if the window is not open
+ * @tiarg(for=UI.TableView.setFullScreen,name=fullscreen,type=boolean) set to true for fullscreen, false if otherwise
+ 
+ * @tiapi(method=True,name=UI.TableView.open,since=0.5) Opens a window if wasn't previously opened - pushes it to the navigation and hides the parent window. Properties that were set are applied now.
+ * @tiarg(for=UI.TableView.open,name=options,type=object) set to {animated:false} to disable the navigation animation
+ 
+ * @tiapi(method=True,name=UI.TableView.close,since=0.5) Closes a window - pops it from the navigation and returns to the parent window
+ * @tiarg(for=UI.TableView.close,name=options,type=object) set to {animated:false} to disable the navigation animation
+ 
+ * @tiapi(method=True,name=UI.TableView.setTitle,since=0.5) Sets the title of a window, visible in the middle of the window's nav bar and as the back button in the child window's nav bar
+ * @tiarg(for=UI.TableView.setTitle,type=string,name=title) the title of the window
+ 
+ * @tiapi(method=True,name=UI.TableView.setTitleImage,since=0.5) Sets the window title image, visible in the middle of the window's bav bar
+ * @tiarg(for=UI.TableView.setTitleImage,type=string,name=url) the relative url for the image. Must be local.
+ 
+ * @tiapi(method=True,name=UI.TableView.setBarColor,since=0.5) Sets the tint and style of the nav bar and tool bar. If foreground, this is animated.
+ * @tiarg(for=UI.TableView.setBarColor,type=string,name=color) a web color. Null causes the default style. 'transparent' causes the translucent black style, and stretches the web page to reach to underneath the nav bar and tool bar. Any other color for an opaque tinted bar of that color.
+ 
+ * @tiapi(method=True,name=UI.TableView.showNavBar,since=0.5) Makes the nav bar visible, resizing the web page if necessary.
+ * @tiarg(for=UI.TableView.showNavBar,name=options,type=object) set to {animated:true} to enable animation of showing the nav bar if the window is foreground.
+ 
+ * @tiapi(method=True,name=UI.TableView.hideNavBar,since=0.5) Makes the nav bar invisible, resizing the web page if necessary.
+ * @tiarg(for=UI.TableView.hideNavBar,name=options,type=object) set to {animated:true} to enable animation of hiding the nav bar if the window is foreground.
+ * @tiapi(method=True,name=UI.TableView.showNavBar,since=0.5) Makes the nav bar visible, resizing the web page if necessary.
+ * @tiarg(for=UI.TableView.showNavBar,name=options,type=object) set to {animated:true} to enable animation of showing the nav bar if the window is foreground.
+ 
+ * @tiapi(method=True,name=UI.TableView.setLeftNavButton,since=0.5) replaces the button or item on the left side of the nav bar with an UI.Button.
+ * @tiarg(for=UI.TableView.setLeftNavButton,name=button,type=UI.Button) the UI.Button object. Use null to indicate no button
+ * @tiarg(for=UI.TableView.setLeftNavButton,name=options,type=object) set to {animated:true} to enable animation of changing the nav button.
+ 
+ * @tiapi(method=True,name=UI.TableView.setRightNavButton,since=0.5) replaces the button or item on the right side of the nav bar with an UI.Button.
+ * @tiarg(for=UI.TableView.setRightNavButton,name=button,type=UI.Button) the UI.Button object. Use null to indicate no button
+ * @tiarg(for=UI.TableView.setRightNavButton,name=options,type=object) set to {animated:true} to enable animation of changing the nav button.
+ 
+ * @tiapi(method=True,name=UI.TableView.setToolbar,since=0.5) replaces the contents of the tool bar with an array of UI.Buttons, UI.Sliders, UI.ButtonBar, or UI.TabbedBar.
+ * @tiarg(for=UI.TableView.setToolbar,name=buttons,type=array) the array of objects, including fixed and variables spaces. Use an empty array to hide the tool bar.
+ * @tiarg(for=UI.TableView.setToolbar,name=options,type=object) set to {animated:true} to enable animation of changing the tool bar.
+ 
+ * @tiapi(method=true,since=0.5,name=UI.TableView.setTitleControl) Replaces the title area of the nav bar with a UI.Button 
+ * @tiarg[UI.Button,titleControl] Control to place. Pass in null to remove the current UI.Button and reveal the title image or title.
+ 
+ * @tiapi(property=True,name=UI.TableView.data,version=0.5,type=object) Array of objects specifying table rows
+ 
+ ********* GroupedView Object methods (Copypasta from TableView)
+ 
+ * @tiapi(method=True,name=UI.GroupedView.setFullScreen,since=0.5) Makes a window fullscreen, including hiding the nav bar and tab bar if the window is not open
+ * @tiarg(for=UI.GroupedView.setFullScreen,name=fullscreen,type=boolean) set to true for fullscreen, false if otherwise
+ 
+ * @tiapi(method=True,name=UI.GroupedView.open,since=0.5) Opens a window if wasn't previously opened - pushes it to the navigation and hides the parent window. Properties that were set are applied now.
+ * @tiarg(for=UI.GroupedView.open,name=options,type=object) set to {animated:false} to disable the navigation animation
+ 
+ * @tiapi(method=True,name=UI.GroupedView.close,since=0.5) Closes a window - pops it from the navigation and returns to the parent window
+ * @tiarg(for=UI.GroupedView.close,name=options,type=object) set to {animated:false} to disable the navigation animation
+ 
+ * @tiapi(method=True,name=UI.GroupedView.setTitle,since=0.5) Sets the title of a window, visible in the middle of the window's nav bar and as the back button in the child window's nav bar
+ * @tiarg(for=UI.GroupedView.setTitle,type=string,name=title) the title of the window
+ 
+ * @tiapi(method=True,name=UI.GroupedView.setTitleImage,since=0.5) Sets the window title image, visible in the middle of the window's bav bar
+ * @tiarg(for=UI.GroupedView.setTitleImage,type=string,name=url) the relative url for the image. Must be local.
+ 
+ * @tiapi(method=True,name=UI.GroupedView.setBarColor,since=0.5) Sets the tint and style of the nav bar and tool bar. If foreground, this is animated.
+ * @tiarg(for=UI.GroupedView.setBarColor,type=string,name=color) a web color. Null causes the default style. 'transparent' causes the translucent black style, and stretches the web page to reach to underneath the nav bar and tool bar. Any other color for an opaque tinted bar of that color.
+ 
+ * @tiapi(method=True,name=UI.GroupedView.showNavBar,since=0.5) Makes the nav bar visible, resizing the web page if necessary.
+ * @tiarg(for=UI.GroupedView.showNavBar,name=options,type=object) set to {animated:true} to enable animation of showing the nav bar if the window is foreground.
+ 
+ * @tiapi(method=True,name=UI.GroupedView.hideNavBar,since=0.5) Makes the nav bar invisible, resizing the web page if necessary.
+ * @tiarg(for=UI.GroupedView.hideNavBar,name=options,type=object) set to {animated:true} to enable animation of hiding the nav bar if the window is foreground.
+ * @tiapi(method=True,name=UI.GroupedView.showNavBar,since=0.5) Makes the nav bar visible, resizing the web page if necessary.
+ * @tiarg(for=UI.GroupedView.showNavBar,name=options,type=object) set to {animated:true} to enable animation of showing the nav bar if the window is foreground.
+ 
+ * @tiapi(method=True,name=UI.GroupedView.setLeftNavButton,since=0.5) replaces the button or item on the left side of the nav bar with an UI.Button.
+ * @tiarg(for=UI.GroupedView.setLeftNavButton,name=button,type=UI.Button) the UI.Button object. Use null to indicate no button
+ * @tiarg(for=UI.GroupedView.setLeftNavButton,name=options,type=object) set to {animated:true} to enable animation of changing the nav button.
+ 
+ * @tiapi(method=True,name=UI.GroupedView.setRightNavButton,since=0.5) replaces the button or item on the right side of the nav bar with an UI.Button.
+ * @tiarg(for=UI.GroupedView.setRightNavButton,name=button,type=UI.Button) the UI.Button object. Use null to indicate no button
+ * @tiarg(for=UI.GroupedView.setRightNavButton,name=options,type=object) set to {animated:true} to enable animation of changing the nav button.
+ 
+ * @tiapi(method=True,name=UI.GroupedView.setToolbar,since=0.5) replaces the contents of the tool bar with an array of UI.Buttons, UI.Sliders, UI.ButtonBar, or UI.TabbedBar.
+ * @tiarg(for=UI.GroupedView.setToolbar,name=buttons,type=array) the array of objects, including fixed and variables spaces. Use an empty array to hide the tool bar.
+ * @tiarg(for=UI.GroupedView.setToolbar,name=options,type=object) set to {animated:true} to enable animation of changing the tool bar.
+ 
+ * @tiapi(method=true,since=0.5,name=UI.GroupedView.setTitleControl) Replaces the title area of the nav bar with a UI.Button 
+ * @tiarg[UI.Button,titleControl] Control to place. Pass in null to remove the current UI.Button and reveal the title image or title.
+  
+ * @tiapi(method=true,since=0.5,name=UI.GroupedView.addSection) Add a UI.GroupedSection to a UI.GroupedView. UI changes only take effect upon UI.GroupedView.open()
+ * @tiarg[UI.GroupedSection,section] Section to add
+
+ ********* GroupedSection object methods
+
+ * @tiapi(method=True,name=UI.createGroupedSection.addEventListener,since=0.5) add an event listener to be called for a click event and returns the function to use when removing
+ * @tiarg[string,type] the type of event to listen for.  Must be 'click'
+ * @tiarg[method,listener] listener method to call back
+ * @tiresult[function] return the listener to be used as an id
+ 
+ * @tiapi(method=True,name=UI.createGroupedSection.removeEventListener,since=0.5) removes an event listener from click events
+ * @tiarg[string,type] the type of event to be removed from addEventListener. Must be 'click'
+ * @tiarg[function,id] the function to be removed from addEventListener
+ * @tiresult[boolean] return true if removed
+ 
  
  ********* optionDialog object methods
  
@@ -398,7 +500,7 @@
  * @tiapi(method=True,name=UI.OptionDialog.setCancel,since=0.4) Convenience method to set the cancel index property
  * @tiarg(for=UI.OptionDialog.setCancel,type=int,name=cancel) the new cancel index
 
- * @tiapi(method=True,returns=integer,name=UI.OptionDialog.addEventListener,since=0.4) add an event listener to be called for a click event and returns the function to use when removing
+ * @tiapi(method=True,name=UI.OptionDialog.addEventListener,since=0.4) add an event listener to be called for a click event and returns the function to use when removing
  * @tiarg(for=UI.OptionDialog.addEventListener,type=string,name=type) the type of gesture event to listen for.  Must be 'click'
  * @tiarg(for=UI.OptionDialog.addEventListener,type=method,name=listener) listener method
  * @tiresult(for=UI.OptionDialog.addEventListener,type=function) return the listener to be used as an id
@@ -425,7 +527,7 @@
  * @tiapi(method=True,name=UI.AlertDialog.setMessage,since=0.4) Convenience method to set the message property
  * @tiarg(for=UI.AlertDialog.setMessage,type=string,name=title) the new message
  
- * @tiapi(method=True,returns=integer,name=UI.AlertDialog.addEventListener,since=0.4) add an event listener to be called for a click event and returns the function to use when removing
+ * @tiapi(method=True,name=UI.AlertDialog.addEventListener,since=0.4) add an event listener to be called for a click event and returns the function to use when removing
  * @tiarg(for=UI.AlertDialog.addEventListener,type=string,name=type) the type of gesture event to listen for.  Must be 'click'
  * @tiarg(for=UI.AlertDialog.addEventListener,type=method,name=listener) listener method
  * @tiresult(for=UI.AlertDialog.addEventListener,type=function) return the listener to be used as an id
@@ -440,15 +542,18 @@
   
  ******** button object methods
 
- * @tiapi(method=True,returns=integer,name=UI.Button.addEventListener,since=0.4) add an event listener to be called for a click event and returns the function to use when removing
- * @tiarg(for=UI.Button.addEventListener,type=string,name=type) the type of gesture event to listen for.  Must be 'click'
- * @tiarg(for=UI.Button.addEventListener,type=method,name=listener) listener method
- * @tiresult(for=UI.Button.addEventListener,type=function) return the listener to be used as an id
+ * @tiapi(method=True,name=UI.Button.addEventListener,since=0.4) add an event listener to be called for a click event and returns the function to use when removing
+ * @tiarg[string,type] the type of event to listen for.  Must be 'click'
+ * @tiarg[method,listener] listener method to call back
+ * @tiresult[function] return the listener to be used as an id
  
  * @tiapi(method=True,name=UI.Button.removeEventListener,since=0.4) removes an event listener from click events
- * @tiarg(for=UI.Button.removeEventListener,type=string,name=type) the type of event to be removed from addEventListener. Must be 'click'
- * @tiarg(for=UI.Button.removeEventListener,type=function,name=id) the function to be removed from addEventListener
- * @tiresult(for=UI.Button.removeEventListener,type=boolean) return true if removed
+ * @tiarg[string,type] the type of event to be removed from addEventListener. Must be 'click'
+ * @tiarg[function,id] the function to be removed from addEventListener
+ * @tiresult[boolean] return true if removed
+
+ * @tiapi(method=True,name=UI.Button.setId,since=0.5) embeds the UI.Button onto the web page, taking the location and size of the div specified on the page, if those properties have not already been defined.
+ * @tiarg[string,div] the name of the div element in the current window to take the position of. Note that this position is not updated if the div is moved.
  
  ******** button object properties
 
@@ -456,6 +561,42 @@
  * @tiapi(property=True,name=UI.Button.image,version=0.4,type=string) relative or app: path to the image that will appear if systemButton is not used
  * @tiapi(property=True,name=UI.Button.systemButton,version=0.4,type=string) one of the UI.iPhone.SystemButton constants to use a system-supplied button
  * @tiapi(property=True,name=UI.Button.style,version=0.4,type=int) one of the UI.iPhone.SystemButtonStyle constants to choose a button style
+
+ * @tiapi(property=True,name=UI.Button.backgroundImage,version=0.5,type=string) relative or app: path to the image that will appear as the stretchable background if the button is not in the toolbar or navbar.
+ * @tiapi(property=True,name=UI.Button.backgroundDisabledImage,version=0.5,type=string) relative or app: path to the image that will appear as the stretchable background if the button is not in the toolbar or navbar and is disabled.
+ * @tiapi(property=True,name=UI.Button.backgroundSelectedImage,version=0.5,type=string) relative or app: path to the image that will appear as the stretchable background if the button is not in the toolbar or navbar and is selected.
+ 
+
+ * @tiapi(property=True,name=UI.Slider.min,version=0.5,type=float) the minimum value allowed for the UI.Slider
+ * @tiapi(property=True,name=UI.Slider.max,version=0.5,type=float) the minimum value allowed for the UI.Slider
+ * @tiapi(property=True,name=UI.Slider.value,version=0.5,type=float) the starting value for the UI.Slider
+
+ * @tiapi(property=True,name=UI.TextField.value,version=0.5,type=string) the starting text for the UI.TextField
+
+ * @tiapi(property=True,name=UI.TabbedBar.index,version=0.5,type=int) the index of the section that should be selected when tabbedBar is placed
+ * @tiapi(property=True,name=UI.TabbedBar.images,version=0.5,type=arrray) An array of strings specifying images to use in the segments. If the corresponding label should be used instead, use 'null' 
+ * @tiapi(property=True,name=UI.TabbedBar.labels,version=0.5,type=array) An array of strings specifying labels to use in the segments.
+
+ * @tiapi(property=True,name=UI.Button.color,version=0.5,type=string) a web color that the label text should have, if the button is in the content area.
+ * @/tiapi(property=True,name=UI.Button.backgroundColor,version=0.5,type=string) a web color that indicates the background area, if the button is in the content area.
+ * @/tiapi(property=True,name=UI.Button.borderColor,version=0.5,type=string) a web color of the rectangle behind the slider. Default is transparent.
+
+ * @tiapi(property=True,name=UI.Button.width,version=0.5,type=float) the width of the button to make
+ * @tiapi(property=True,name=UI.Button.height,version=0.5,type=float) the height of the button to make, if the button is in the content area.
+ * @tiapi(property=True,name=UI.Button.x,version=0.5,type=float) the horizontal position of the button to make, if the button is in the content area.
+ * @tiapi(property=True,name=UI.Button.y,version=0.5,type=float) the vertical position of the button to make, if the button is in the content area.
+ 
+ * @/tiapi(property=True,name=UI.TextField.autocapitalize,version=0.5,type=int) the autocapitalization pattern to follow
+ 
+ * @tiapi(property=True,name=UI.TextField.enableReturnKey,version=0.5,type=boolean) if true, will have the return key enabled if and only if there field is not empty
+ * @tiapi(property=True,name=UI.TextField.noReturnCharacter,version=0.5,type=boolean) if true, pressing the return key will not insert a return character into the textfield value. The return event will still be triggered.
+ * @tiapi(property=True,name=UI.TextField.clearOnEdit,version=0.5,type=boolean) if true, starting to edit a text
+ * @tiapi(property=True,name=UI.TextField.passwordMask,version=0.5,type=boolean) if true, the contents of the textField will be obscured after entering
+
+
+
+ * @tiapi(method=True,name=UI.Button.focus,since=0.5) captures the user's focus, bringing up the keyboard.
+ 
 
  */
 
