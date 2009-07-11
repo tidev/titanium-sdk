@@ -176,7 +176,7 @@
  
  * @tiapi(method=true,since=0.5,name=UI.createTextArea) Create a new multi-line text area 
  * @tiarg[object,properties] Properties to apply to the new text area on creation
- * @tiresult[UI.Button] the new text area.
+ * @tiresult[UI.TextArea] the new text area.
  
  * @tiapi(method=true,since=0.5,name=UI.createButtonBar) Create a new segmented control that acts as a nonmodal group of buttons. Pressing an element causes a momentary selection
  * @tiarg[object,properties] Properties to apply to the new button bar on creation
@@ -279,8 +279,8 @@
  * @tiapi(property=True,name=UI.iPhone.SystemButton.INFO_DARK,version=0.5,type=string) Set a UI.Button's "systemButton" property to this in order to get a dark system-provided "info" button
 
  * @tiapi(property=True,name=UI.iPhone.StatusBar,version=0.4,type=object) object containing iPhone status bar style constants
- * @tiapi(property=True,name=UI.iPhone.StatusBar.DEFAULT,version=0.4,type=int) constant representing the default status bar style. The status bar appears opaque and grey. This is the same as grey
- * @tiapi(property=True,name=UI.iPhone.StatusBar.GREY,version=0.4,type=int) constant representing the default status bar style. The status bar appears opaque and grey. This is the same as default
+ * @tiapi(property=True,name=UI.iPhone.StatusBar.DEFAULT,version=0.4,type=int) constant representing the default status bar style. The status bar appears opaque and gray. This is the same as gray
+ * @tiapi(property=True,name=UI.iPhone.StatusBar.gray,version=0.4,type=int) constant representing the default status bar style. The status bar appears opaque and gray. This is the same as default
  * @tiapi(property=True,name=UI.iPhone.StatusBar.OPAQUE_BLACK,version=0.4,type=int) constant representing the opaque black status bar style. The status bar appears opaque and black.
  * @tiapi(property=True,name=UI.iPhone.StatusBar.TRANSLUCENT_BLACK,version=0.4,type=int) constant representing the translucent black status bar style. The status bar appears translucent and black.
  
@@ -542,17 +542,107 @@
   
  ******** button object methods
 
- * @tiapi(method=True,name=UI.Button.addEventListener,since=0.4) add an event listener to be called for a click event and returns the function to use when removing
+ * @tiapi(method=True,name=UI.Button.addEventListener,since=0.4) add an event listener to be called for an event and returns the function to use when removing
  * @tiarg[string,type] the type of event to listen for.  Must be 'click'
  * @tiarg[method,listener] listener method to call back
  * @tiresult[function] return the listener to be used as an id
  
- * @tiapi(method=True,name=UI.Button.removeEventListener,since=0.4) removes an event listener from click events
+ * @tiapi(method=True,name=UI.Button.removeEventListener,since=0.4) removes an event listener from events
  * @tiarg[string,type] the type of event to be removed from addEventListener. Must be 'click'
  * @tiarg[function,id] the function to be removed from addEventListener
  * @tiresult[boolean] return true if removed
 
  * @tiapi(method=True,name=UI.Button.setId,since=0.5) embeds the UI.Button onto the web page, taking the location and size of the div specified on the page, if those properties have not already been defined.
+ * @tiarg[string,div] the name of the div element in the current window to take the position of. Note that this position is not updated if the div is moved.
+
+ ******** slider object methods
+ * @tiapi(method=True,name=UI.Slider.addEventListener,since=0.5) add an event listener to be called for an event and returns the function to use when removing
+ * @tiarg[string,type] the type of event to listen for.  Must be 'change'
+ * @tiarg[method,listener] listener method to call back
+ * @tiresult[function] return the listener to be used as an id
+ 
+ * @tiapi(method=True,name=UI.Slider.removeEventListener,since=0.5) removes an event listener from events
+ * @tiarg[string,type] the type of event to be removed from addEventListener. Must be 'change'
+ * @tiarg[function,id] the function to be removed from addEventListener
+ * @tiresult[boolean] return true if removed
+ 
+ * @tiapi(method=True,name=UI.Slider.setId,since=0.5) embeds the UI.Slider onto the web page, taking the location and width of the div specified on the page, if those properties have not already been defined.
+ * @tiarg[string,div] the name of the div element in the current window to take the position of. Note that this position is not updated if the div is moved.
+
+ ******** switch object methods
+ * @tiapi(method=True,name=UI.Switch.addEventListener,since=0.5) add an event listener to be called for an event and returns the function to use when removing
+ * @tiarg[string,type] the type of event to listen for.  Must be 'change'
+ * @tiarg[method,listener] listener method to call back
+ * @tiresult[function] return the listener to be used as an id
+ 
+ * @tiapi(method=True,name=UI.Switch.removeEventListener,since=0.5) removes an event listener from events
+ * @tiarg[string,type] the type of event to be removed from addEventListener. Must be 'change'
+ * @tiarg[function,id] the function to be removed from addEventListener
+ * @tiresult[boolean] return true if removed
+ 
+ * @tiapi(method=True,name=UI.Switch.setId,since=0.5) embeds the UI.Switch onto the web page, taking the location and size of the div specified on the page, if those properties have not already been defined.
+ * @tiarg[string,div] the name of the div element in the current window to take the position of. Note that this position is not updated if the div is moved.
+
+ ******** TextField object methods
+ * @tiapi(method=True,name=UI.TextField.addEventListener,since=0.4) add an event listener to be called for an event and returns the function to use when removing
+ * @tiarg[string,type] the type of event to listen for.  May be 'focus', 'change', 'return', or 'blur'
+ * @tiarg[method,listener] listener method to call back
+ * @tiresult[function] return the listener to be used as an id
+ 
+ * @tiapi(method=True,name=UI.TextField.removeEventListener,since=0.4) removes an event listener from events
+ * @tiarg[string,type] the type of event to be removed from addEventListener. May be 'focus', 'change', 'return', or 'blur'
+ * @tiarg[function,id] the function to be removed from addEventListener
+ * @tiresult[boolean] return true if removed
+ 
+ * @tiapi(method=True,name=UI.TextField.focus,since=0.5) captures the user's focus, bringing up the keyboard.
+ * @tiapi(method=True,name=UI.TextField.blur,since=0.5) if the TextField has the user's focus, it releases it, hiding the keyboard.
+
+ * @tiapi(method=True,name=UI.TextField.setId,since=0.5) embeds the UI.TextField onto the web page, taking the location and size of the div specified on the page, if those properties have not already been defined.
+ * @tiarg[string,div] the name of the div element in the current window to take the position of. Note that this position is not updated if the div is moved.
+
+ ******** TextArea object methods
+ * @tiapi(method=True,name=UI.TextArea.addEventListener,since=0.4) add an event listener to be called for an event and returns the function to use when removing
+ * @tiarg[string,type] the type of event to listen for.  May be 'focus', 'change', 'return', or 'blur'
+ * @tiarg[method,listener] listener method to call back
+ * @tiresult[function] return the listener to be used as an id
+ 
+ * @tiapi(method=True,name=UI.TextArea.removeEventListener,since=0.4) removes an event listener from events
+ * @tiarg[string,type] the type of event to be removed from addEventListener. May be 'focus', 'change', 'return', or 'blur'
+ * @tiarg[function,id] the function to be removed from addEventListener
+ * @tiresult[boolean] return true if removed
+ 
+ * @tiapi(method=True,name=UI.TextArea.focus,since=0.5) captures the user's focus, bringing up the keyboard.
+ * @tiapi(method=True,name=UI.TextArea.blur,since=0.5) if the TextArea has the user's focus, it releases it, hiding the keyboard.
+
+ * @tiapi(method=True,name=UI.TextArea.setId,since=0.5) embeds the UI.TextArea onto the web page, taking the location and size of the div specified on the page, if those properties have not already been defined.
+ * @tiarg[string,div] the name of the div element in the current window to take the position of. Note that this position is not updated if the div is moved.
+
+ ******** buttonBar object methods
+ * @tiapi(method=True,name=UI.ButtonBar.addEventListener,since=0.5) add an event listener to be called for a click event and returns the function to use when removing
+ * @tiarg[string,type] the type of event to listen for.  Must be 'click'
+ * @tiarg[method,listener] listener method to call back
+ * @tiresult[function] return the listener to be used as an id
+ 
+ * @tiapi(method=True,name=UI.ButtonBar.removeEventListener,since=0.5) removes an event listener from click events
+ * @tiarg[string,type] the type of event to be removed from addEventListener. Must be 'click'
+ * @tiarg[function,id] the function to be removed from addEventListener
+ * @tiresult[boolean] return true if removed
+ 
+ * @tiapi(method=True,name=UI.ButtonBar.setId,since=0.5) embeds the UI.ButtonBar onto the web page, taking the location and size of the div specified on the page, if those properties have not already been defined.
+ * @tiarg[string,div] the name of the div element in the current window to take the position of. Note that this position is not updated if the div is moved.
+
+ ******** tabbedBar object methods
+ * @tiapi(method=True,name=UI.TabbedBar.addEventListener,since=0.5) add an event listener to be called for a click event and returns the function to use when removing
+ * @tiarg[string,type] the type of event to listen for.  Must be 'click'
+ * @tiarg[method,listener] listener method to call back
+ * @tiresult[function] return the listener to be used as an id
+ 
+ * @tiapi(method=True,name=UI.TabbedBar.removeEventListener,since=0.5) removes an event listener from click events
+ * @tiarg[string,type] the type of event to be removed from addEventListener. Must be 'click'
+ * @tiarg[function,id] the function to be removed from addEventListener
+ * @tiresult[boolean] return true if removed
+ 
+ * @tiapi(method=True,name=UI.TabbedBar.setId,since=0.5) embeds the UI.TabbedBar onto the web page, taking the location and size of the div specified on the page, if those properties have not already been defined.
  * @tiarg[string,div] the name of the div element in the current window to take the position of. Note that this position is not updated if the div is moved.
  
  ******** button object properties
@@ -565,39 +655,119 @@
  * @tiapi(property=True,name=UI.Button.backgroundImage,version=0.5,type=string) relative or app: path to the image that will appear as the stretchable background if the button is not in the toolbar or navbar.
  * @tiapi(property=True,name=UI.Button.backgroundDisabledImage,version=0.5,type=string) relative or app: path to the image that will appear as the stretchable background if the button is not in the toolbar or navbar and is disabled.
  * @tiapi(property=True,name=UI.Button.backgroundSelectedImage,version=0.5,type=string) relative or app: path to the image that will appear as the stretchable background if the button is not in the toolbar or navbar and is selected.
- 
-
- * @tiapi(property=True,name=UI.Slider.min,version=0.5,type=float) the minimum value allowed for the UI.Slider
- * @tiapi(property=True,name=UI.Slider.max,version=0.5,type=float) the minimum value allowed for the UI.Slider
- * @tiapi(property=True,name=UI.Slider.value,version=0.5,type=float) the starting value for the UI.Slider
-
- * @tiapi(property=True,name=UI.TextField.value,version=0.5,type=string) the starting text for the UI.TextField
-
- * @tiapi(property=True,name=UI.TabbedBar.index,version=0.5,type=int) the index of the section that should be selected when tabbedBar is placed
- * @tiapi(property=True,name=UI.TabbedBar.images,version=0.5,type=arrray) An array of strings specifying images to use in the segments. If the corresponding label should be used instead, use 'null' 
- * @tiapi(property=True,name=UI.TabbedBar.labels,version=0.5,type=array) An array of strings specifying labels to use in the segments.
 
  * @tiapi(property=True,name=UI.Button.color,version=0.5,type=string) a web color that the label text should have, if the button is in the content area.
- * @/tiapi(property=True,name=UI.Button.backgroundColor,version=0.5,type=string) a web color that indicates the background area, if the button is in the content area.
- * @/tiapi(property=True,name=UI.Button.borderColor,version=0.5,type=string) a web color of the rectangle behind the slider. Default is transparent.
-
+ * @tiapi(property=True,name=UI.Button.borderColor,version=0.5,type=string) a web color of the corners behind the button. Default is transparent.
+ 
  * @tiapi(property=True,name=UI.Button.width,version=0.5,type=float) the width of the button to make
  * @tiapi(property=True,name=UI.Button.height,version=0.5,type=float) the height of the button to make, if the button is in the content area.
  * @tiapi(property=True,name=UI.Button.x,version=0.5,type=float) the horizontal position of the button to make, if the button is in the content area.
  * @tiapi(property=True,name=UI.Button.y,version=0.5,type=float) the vertical position of the button to make, if the button is in the content area.
  
- * @/tiapi(property=True,name=UI.TextField.autocapitalize,version=0.5,type=int) the autocapitalization pattern to follow
+ ******** slider object properties
+
+ * @tiapi(property=True,name=UI.Slider.min,version=0.5,type=float) the minimum value allowed for the UI.Slider
+ * @tiapi(property=True,name=UI.Slider.max,version=0.5,type=float) the minimum value allowed for the UI.Slider
+ * @tiapi(property=True,name=UI.Slider.value,version=0.5,type=float) the starting value for the UI.Slider
  
- * @tiapi(property=True,name=UI.TextField.enableReturnKey,version=0.5,type=boolean) if true, will have the return key enabled if and only if there field is not empty
+ * @tiapi(property=True,name=UI.Slider.borderColor,version=0.5,type=string) a web color of the rectangle behind the slider. Default is transparent.
+
+ * @tiapi(property=True,name=UI.Slider.width,version=0.5,type=float) the width of the slider to make
+ * @tiapi(property=True,name=UI.Slider.x,version=0.5,type=float) the horizontal position of the slider to make, if the slider is in the content area.
+ * @tiapi(property=True,name=UI.Slider.y,version=0.5,type=float) the vertical position of the slider to make, if the slider is in the content area.
+ 
+ ******** switch object properties
+ 
+ * @tiapi(property=True,name=UI.Switch.value,version=0.5,type=bool) the starting value for the UI.Switch
+ * @tiapi(property=True,name=UI.Switch.borderColor,version=0.5,type=string) a web color of the rectangle behind the switch. Default is transparent.
+ 
+ * @tiapi(property=True,name=UI.Switch.x,version=0.5,type=float) the horizontal position of the switch to make, if the switch is in the content area.
+ * @tiapi(property=True,name=UI.Switch.y,version=0.5,type=float) the vertical position of the switch to make, if the switch is in the content area.
+
+ ******** TextField object properties
+ 
  * @tiapi(property=True,name=UI.TextField.noReturnCharacter,version=0.5,type=boolean) if true, pressing the return key will not insert a return character into the textfield value. The return event will still be triggered.
+ * @tiapi(property=True,name=UI.TextField.hintText,version=0.5,type=string) the light gray text that appears when the TextField is empty to indicate what should be entered
+ * @tiapi(property=True,name=UI.TextField.borderStyle,version=0.5,type=int) the style of border used by the TextField. If unset, UI.INPUT_BORDERSTYLE_NONE is used.
  * @tiapi(property=True,name=UI.TextField.clearOnEdit,version=0.5,type=boolean) if true, starting to edit a text
  * @tiapi(property=True,name=UI.TextField.passwordMask,version=0.5,type=boolean) if true, the contents of the textField will be obscured after entering
 
+ * @tiapi(property=True,name=UI.TextField.clearButtonMode,version=0.5,type=int) Indicates when the TextField clear button is shown when the TextField is not empty. When the TextField is empty, the clearButton is always hidden.
+ * @tiapi(property=True,name=UI.TextField.leftButtonMode,version=0.5,type=int) Indicates when the TextField leftButton is shown
+ * @tiapi(property=True,name=UI.TextField.rightButtonMode,version=0.5,type=int) Indicates when the TextField rightButton is shown
+ * @tiapi(property=True,name=UI.TextField.leftButton,version=0.5,type=UI.Button) UI.Button placed in the left edge of the TextField
+ * @tiapi(property=True,name=UI.TextField.rightButton,version=0.5,type=UI.Button) UI.Button placed in the right edge of the TextField. Replaces the clearButton
+ 
+ * @tiapi(property=True,name=UI.TextField.backgroundImage,version=0.5,type=string) relative or app: path to the image that will appear as the stretchable background
+ * @tiapi(property=True,name=UI.TextField.backgroundDisabledImage,version=0.5,type=string) relative or app: path to the image that will appear as the stretchable background
+ 
+ * @tiapi(property=True,name=UI.TextField.color,version=0.5,type=string) a web color that the text should have
+ * @tiapi(property=True,name=UI.TextField.backgroundColor,version=0.5,type=string) a web color that indicates the background area, if backgroundImage nor INPUT_BORDERSTYLE_ROUNDED is used
+ * @tiapi(property=True,name=UI.TextField.borderColor,version=0.5,type=string) a web color of corners behind the text field if INPUT_BORDERSTYLE_ROUNDED is used. Default is transparent
 
+ * @tiapi(property=True,name=UI.TextField.value,version=0.5,type=string) the starting text for the UI.TextField
 
- * @tiapi(method=True,name=UI.Button.focus,since=0.5) captures the user's focus, bringing up the keyboard.
+ * @/tiapi(property=True,name=UI.TextField.autocapitalize,version=0.5,type=int) the autocapitalization pattern to follow
+ * @tiapi(property=True,name=UI.TextField.returnKeyType,version=0.5,type=int) the text of the lower right key on the software keyboard. If unset, UI.RETURNKEY_DEFAULT is used.
+ * @tiapi(property=True,name=UI.TextField.keyboardType,version=0.5,type=int) the style of software keyboard used for entry. If unset, UI.KEYBOARD_DEFAULT is used.
+ * @tiapi(property=True,name=UI.TextField.enableReturnKey,version=0.5,type=boolean) if true, will have the return key enabled if and only if there field is not empty 
+ 
+ * @tiapi(property=True,name=UI.TextField.width,version=0.5,type=float) the width of the text field to make
+ * @tiapi(property=True,name=UI.TextField.height,version=0.5,type=float) the height of the text field to make, if it is in the content area.
+ * @tiapi(property=True,name=UI.TextField.x,version=0.5,type=float) the horizontal position of the text field to make, if it is in the content area.
+ * @tiapi(property=True,name=UI.TextField.y,version=0.5,type=float) the vertical position of the text field to make, if it is in the content area.
+ 
+ * @tiapi(property=True,name=UI.TextField.autocorrect,version=0.5,type=boolean) the autocorrection behavior of TextField. If the default is to be used, provide null instead
+ * @tiapi(property=True,name=UI.TextField.textAlign,version=0.5,type=string) the alignment of the text inside the TextField. May be either 'left', 'center', or 'right'
  
 
+ ******** TextArea object properties
+
+ * @tiapi(property=True,name=UI.TextArea.color,version=0.5,type=string) a web color that the text should have
+ * @tiapi(property=True,name=UI.TextArea.backgroundColor,version=0.5,type=string) a web color that indicates the background area
+
+ * @tiapi(property=True,name=UI.TextArea.value,version=0.5,type=string) the starting text for the UI.TextArea
+
+ * @/tiapi(property=True,name=UI.TextArea.autocapitalize,version=0.5,type=int) the autocapitalization pattern to follow
+ * @tiapi(property=True,name=UI.TextArea.returnKeyType,version=0.5,type=int) the text of the lower right key on the software keyboard. If unset, UI.RETURNKEY_DEFAULT is used.
+ * @tiapi(property=True,name=UI.TextArea.keyboardType,version=0.5,type=int) the style of software keyboard used for entry. If unset, UI.KEYBOARD_DEFAULT is used.
+ * @tiapi(property=True,name=UI.TextArea.enableReturnKey,version=0.5,type=boolean) if true, will have the return key enabled if and only if there field is not empty 
+
+ * @tiapi(property=True,name=UI.TextArea.width,version=0.5,type=float) the width of the text area to make
+ * @tiapi(property=True,name=UI.TextArea.height,version=0.5,type=float) the height of the text area to make, if it is in the content area.
+ * @tiapi(property=True,name=UI.TextArea.x,version=0.5,type=float) the horizontal position of the text area to make, if it is in the content area.
+ * @tiapi(property=True,name=UI.TextArea.y,version=0.5,type=float) the vertical position of the text area to make, if it is in the content area.
+ 
+ * @tiapi(property=True,name=UI.TextArea.autocorrect,version=0.5,type=boolean) the autocorrection behavior. If the default is to be used, provide null instead
+ * @tiapi(property=True,name=UI.TextArea.textAlign,version=0.5,type=string) the alignment of the text. May be either 'left', 'center', or 'right'
+
+ ******** buttonBar object properties
+
+ * @tiapi(property=True,name=UI.ButtonBar.images,version=0.5,type=arrray) An array of strings specifying images to use in the segments. If the corresponding label should be used instead, use 'null' 
+ * @tiapi(property=True,name=UI.ButtonBar.labels,version=0.5,type=array) An array of strings specifying labels to use in the segments.
+ 
+ * @tiapi(property=True,name=UI.ButtonBar.color,version=0.5,type=string) a web color that the label text should have, if the button is in the content area.
+ * @tiapi(property=True,name=UI.ButtonBar.backgroundColor,version=0.5,type=string) a web color that indicates the tint, if the button bar is in the tool bar.
+ * @/tiapi(property=True,name=UI.ButtonBar.borderColor,version=0.5,type=string) a web color of the rectangle behind the slider. Default is transparent.
+ 
+ * @tiapi(property=True,name=UI.ButtonBar.width,version=0.5,type=float) the width of the button bar to make
+ * @tiapi(property=True,name=UI.ButtonBar.x,version=0.5,type=float) the horizontal position of the button bar to make, if it is in the content area.
+ * @tiapi(property=True,name=UI.ButtonBar.y,version=0.5,type=float) the vertical position of the button bar to make, if it is in the content area.
+ 
+ ******** tabbedBar object properties
+
+ * @tiapi(property=True,name=UI.TabbedBar.index,version=0.5,type=int) the index of the section that should be selected when tabbedBar is placed
+ * @tiapi(property=True,name=UI.TabbedBar.images,version=0.5,type=arrray) An array of strings specifying images to use in the segments. If the corresponding label should be used instead, use 'null' 
+ * @tiapi(property=True,name=UI.TabbedBar.labels,version=0.5,type=array) An array of strings specifying labels to use in the segments.
+ 
+ * @tiapi(property=True,name=UI.TabbedBar.color,version=0.5,type=string) a web color that the label text should have, if the tabbed bar is in the content area.
+ * @tiapi(property=True,name=UI.TabbedBar.backgroundColor,version=0.5,type=string) a web color that indicates the tint, if the tabbed bar is in the tool bar.
+ * @tiapi(property=True,name=UI.TabbedBar.borderColor,version=0.5,type=string) a web color of the rectangle behind the tabbed bar. Default is transparent.
+ 
+ * @tiapi(property=True,name=UI.TabbedBar.width,version=0.5,type=float) the width of the tabbed bar to make
+ * @tiapi(property=True,name=UI.TabbedBar.x,version=0.5,type=float) the horizontal position of the tabbed bar to make, if it is in the content area.
+ * @tiapi(property=True,name=UI.TabbedBar.y,version=0.5,type=float) the vertical position of the tabbed bar to make, if it is in the content area.
+ 
  */
 
 #endif
