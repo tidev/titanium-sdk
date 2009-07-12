@@ -10,6 +10,7 @@ package org.appcelerator.titanium.module.net;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -34,16 +35,16 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicNameValuePair;
+import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.api.ITitaniumFile;
 import org.appcelerator.titanium.api.ITitaniumHttpClient;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.fs.TitaniumBlob;
 import org.appcelerator.titanium.module.fs.TitaniumFile;
 import org.appcelerator.titanium.module.fs.TitaniumResourceFile;
-import org.appcelerator.titanium.util.TitaniumJavascriptHelper;
 
 import android.net.Uri;
 import android.os.Handler;
-import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.WebView;
 
@@ -53,7 +54,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private WeakReference<Handler> weakGuiHandler;
-	private WeakReference<WebView> weakWebView;
+	private SoftReference<TitaniumWebView> softWebView;
 
 	private String userAgent;
 	private String onReadyStateChangeCallback;
@@ -94,13 +95,13 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 		}
 
 	}
-	public TitaniumHttpClient(WebView webView, Handler handler, String userAgent)
+	public TitaniumHttpClient(TitaniumWebView webView, Handler handler, String userAgent)
 	{
 		onReadyStateChangeCallback = null;
 		readyState = 0;
 		responseText = "";
 		this.userAgent = userAgent;
-		this.weakWebView = new WeakReference<WebView>(webView);
+		this.softWebView = new SoftReference<TitaniumWebView>(webView);
 		this.weakGuiHandler = new WeakReference<Handler>(handler);
 		this.nvPairs = new ArrayList<NameValuePair>();
 		this.parts = new HashMap<String,ContentBody>();
@@ -136,13 +137,10 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	public synchronized void setReadyState(final int readyState) {
 		Log.d(LCAT, "Setting ready state to " + readyState);
 		this.readyState = readyState;
-		Handler guiHandler = weakGuiHandler.get();
-		if (guiHandler != null) {
-			WebView webView = weakWebView.get();
-			if (webView != null) {
-				if (getOnReadyStateChangeCallback() != null) {
-					TitaniumJavascriptHelper.evalJS(webView, guiHandler, getOnReadyStateChangeCallback());
-				}
+		TitaniumWebView webView = softWebView.get();
+		if (webView != null) {
+			if (getOnReadyStateChangeCallback() != null) {
+				webView.evalJS(getOnReadyStateChangeCallback());
 			}
 		}
 	}
@@ -388,7 +386,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 					me.setResponseText(result);
 					me.setReadyState(READY_STATE_COMPLETE);
 				} catch(Exception e) {
-					WebView webView = weakWebView.get();
+					TitaniumWebView webView = softWebView.get();
 					Handler guiHandler = weakGuiHandler.get();
 					if (webView != null && guiHandler != null) {
 						if (TitaniumConfig.LOGD) {

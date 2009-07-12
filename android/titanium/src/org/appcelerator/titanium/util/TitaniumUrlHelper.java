@@ -21,7 +21,6 @@ import android.net.Uri;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
-import android.webkit.WebView;
 
 public class TitaniumUrlHelper
 {
@@ -138,34 +137,6 @@ public class TitaniumUrlHelper
 		}
 		return source;
 	}
-
-    public static boolean loadFromSource(TitaniumAppInfo appInfo, WebView webView, String url, String source)
-    	throws IOException
-    {
- 		MimeTypeMap mtm = MimeTypeMap.getSingleton();
-		String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-		String mimetype = "application/octet-stream";
-		if (extension != null) {
-			String type = mtm.getMimeTypeFromExtension(extension);
-			if (type != null) {
-				mimetype = type;
-			} else {
-				mimetype = "text/html";
-			}
-
-			if("text/html".equals(mimetype)) {
-
-				if (source != null) {
-						webView.loadDataWithBaseURL(url, source, mimetype, "utf-8", "about:blank");
-						return true;
-				} else {
-					webView.loadUrl(url); // For testing, doesn't normally run.
-				}
-			}
-		}
-
-		return false;
-    }
 
     public static String getUrlForCachedJavascript(Context context, String file)
     {
