@@ -16,12 +16,11 @@ var Titanium = new function() {
 	this.version = 'TI_VERSION';  // this is build driven
 	this.window = window;
 	this.document = document;
-	this.callbacks = new Array();
 
 	//TODO: hide these once we map them
 	this.apiProxy = window.TitaniumAPI;
 
-	this.rethrow = function(e) { throw e; }
+	this.rethrow = function(e) { throw e; };
 
 	this.doPostProcessing = function () {
 		var imgs = document.getElementsByTagName('img');
@@ -38,23 +37,50 @@ var Titanium = new function() {
 
 			//alert('AFTER: ' + imgs[i].src);
 		};
+	};
+
+	this.callbackCounter = 0;
+	this.callbacks = new Object();
+
+	this.nextCallbackId = function() {
+		return 'cb' + this.callbackCounter++;
+	}
+
+	this.addCallback = function(o,f,os) {
+		var cb = new TitaniumCallback(o, f, os);
+		return (new TitaniumCallback(o, f, os)).register();
+	}
+	this.removeCallback = function(name) {
+		delete this.callbacks[name];
+		Titanium.API.debug('Deleted callback with name: ' + name);
 	}
 };
 
-function TitaniumCallback(obj, method) {
+function TitaniumCallback(obj, method, oneShot) {
+	this.name = 'cb' + Titanium.nextCallbackId();
 	this.obj = obj;
 	this.method = method;
+	this.oneShot = oneShot;
 	this.invoke = function (data)
 	{
-		method.call(obj,data);
+		this.method.call(this.obj,data);
+		if (oneShot) {
+			Titanium.removeCallback(this.name);
+		}
 	};
+	this.register = function() {
+		Titanium.callbacks[this.name] = this;
+		return 'Titanium.callbacks["' + this.name + '"]'; // Don't pass javascript: native layer will prepend as needed
+	}
 };
 
 function registerCallback(o, f) {
-	var i = Titanium.callbacks.length;
-	Titanium.callbacks[i] = new TitaniumCallback(o,f);
-	return "Titanium.callbacks[" + i + "]"; // Don't pass javascript: native layer will prepend as needed
+	return Titanium.addCallback(o, f, false);
 };
+
+function registerOneShot(o, f) {
+	return Titanium.addCallback(o, f, true);
+}
 
 //this is a special androidized bridge conversion routine
 //to determine if the thing passed is really undefined
