@@ -13,6 +13,10 @@
 
 NSDictionary * barButtonSystemItemForStringDict = nil;
 
+enum {
+	UITitaniumSegmentedStyleBar = -32,
+};
+
 enum { //MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemItem
 	UITitaniumNativeItemNone = -1, //Also is a bog-standard button.
 	UITitaniumNativeItemSpinner = -2,
@@ -376,11 +380,16 @@ int barButtonSystemItemForString(NSString * inputString){
 			[(UISegmentedControl *)resultView setMomentary:NO];
 			[(UISegmentedControl *)resultView setSelectedSegmentIndex:segmentSelectedIndex];
 		}
-		[(UISegmentedControl *)resultView setSegmentedControlStyle:(forBar?UISegmentedControlStyleBar:UISegmentedControlStylePlain)];
+		if (forBar || (buttonStyle == UITitaniumSegmentedStyleBar)){
+			[(UISegmentedControl *)resultView setSegmentedControlStyle:UISegmentedControlStyleBar];
+		} else {
+			[(UISegmentedControl *)resultView setSegmentedControlStyle:((buttonStyle==UIBarButtonItemStyleBordered)?UISegmentedControlStyleBar:UISegmentedControlStylePlain)];
+		}
+		
 		if (elementBackgroundColor != nil) [(UISegmentedControl *)resultView setTintColor:elementBackgroundColor];
 
 		CGRect oldFrame = [resultView frame];
-		viewFrame.size.height = oldFrame.size.height;
+		if (viewFrame.size.height < 15) viewFrame.size.height = oldFrame.size.height;
 		if (viewFrame.size.width < oldFrame.size.width) viewFrame.size.width = oldFrame.size.width;
 		[resultView setFrame:viewFrame];
 		if(elementBorderColor != nil)[resultView setBackgroundColor:elementBorderColor];
@@ -467,7 +476,7 @@ int barButtonSystemItemForString(NSString * inputString){
 - (void) updateNativeBarButton;
 {
 	UIBarButtonItem * result = nil;
-	UIBarButtonItemStyle barButtonStyle = ((buttonStyle==-1)?UIBarButtonItemStylePlain:buttonStyle);
+	UIBarButtonItemStyle barButtonStyle = ((buttonStyle<0)?UIBarButtonItemStylePlain:buttonStyle);
 	SEL onClickSel = @selector(onClick:);
 	
 	if (templateValue <= UITitaniumNativeItemSpinner){
@@ -1232,8 +1241,8 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSString * createGroupedSectionString = @"function(args){var res={header:null};for(prop in args){res[prop]=args[prop]};"
 			"res._EVT={click:[]};res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res.onClick=Ti._ONEVT;return res;}";
 
-	NSString * systemButtonStyleString = [NSString stringWithFormat:@"{PLAIN:%d,BORDERED:%d,DONE:%d}",
-										  UIBarButtonItemStylePlain,UIBarButtonItemStyleBordered,UIBarButtonItemStyleDone];
+	NSString * systemButtonStyleString = [NSString stringWithFormat:@"{PLAIN:%d,BORDERED:%d,DONE:%d,BAR:%d}",
+										  UIBarButtonItemStylePlain,UIBarButtonItemStyleBordered,UIBarButtonItemStyleDone,UITitaniumSegmentedStyleBar];
 	NSString * systemIconString = @"{BOOKMARKS:'ti:bookmarks',CONTACTS:'ti:contacts',DOWNLOADS:'ti:downloads',"
 			"FAVORITES:'ti:favorites',DOWNLOADS:'ti:downloads',FEATURED:'ti:featured',MORE:'ti:more',MOST_RECENT:'ti:most_recent',"
 			"MOST_VIEWED:'ti:most_viewed',RECENTS:'ti:recents',SEARCH:'ti:search',TOP_RATED:'ti:top_rated'}";
