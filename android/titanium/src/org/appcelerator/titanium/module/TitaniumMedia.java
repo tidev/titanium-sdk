@@ -110,7 +110,7 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 	}
 
 	public void beep() {
-		getHandler().post(new SimpleAudioEffect(getContext(), RingtoneManager.TYPE_NOTIFICATION));
+		handler.post(new SimpleAudioEffect(getContext(), RingtoneManager.TYPE_NOTIFICATION));
 	}
 
 	public ITitaniumSound createSound(String url) {

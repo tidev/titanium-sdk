@@ -83,6 +83,7 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 	protected static final int MSG_ACTIVATE_WEBVIEW = 301;
 	protected static final int MSG_PUSH_VIEW = 302;
 	protected static final int MSG_POP_VIEW = 303;
+	protected static final int MSG_SET_LOAD_ON_PAGE_END = 304;
 
 	protected TitaniumApplication app;
 	protected TitaniumIntentWrapper intent;

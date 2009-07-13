@@ -28,20 +28,22 @@ public abstract class TitaniumBaseModule implements ITitaniumModule
 	private String moduleName;
 
 	private SoftReference<TitaniumActivity> softActivity;
-	private SoftReference<Handler> softHandler;
 	private SoftReference<TitaniumWebView> softWebView;
+	protected Handler handler;
 
 	protected TitaniumBaseModule(TitaniumModuleManager manager, String moduleName)
 	{
+		manager.checkThread();
+
 		this.manager = manager;
 		this.moduleName = moduleName;
+		this.handler = new Handler();
 
 		// Cache references to other objects.
 		TitaniumActivity activity = manager.getActivity();
 
 		if (activity != null) {
 			this.softActivity = new SoftReference<TitaniumActivity>(activity);
-			this.softHandler = new SoftReference<Handler>(manager.getHandler());
 			this.softWebView = new SoftReference<TitaniumWebView>(activity.getWebView());
 		} else {
 			throw new IllegalStateException("Unable to get references to required objects.");
@@ -60,10 +62,6 @@ public abstract class TitaniumBaseModule implements ITitaniumModule
 
 	public TitaniumWebView getWebView() {
 		return softWebView.get();
-	}
-
-	public Handler getHandler() {
-		return softHandler.get();
 	}
 
 	public Context getContext()
