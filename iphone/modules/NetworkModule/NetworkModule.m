@@ -35,9 +35,16 @@ NSString * const netHTTPClientGeneratorFormat = @"Ti.%@ = {"
 "getAllResponseHeaders:function(){return Ti._TICMD('titaniumObject.%@','responseHeaders',arguments);},"
 "UNSENT:0,OPENED:1,HEADERS_RECEIVED:2,LOADING:3,DONE:4,"
 "setOnReadyStateChange:function(newFun){this.onreadystatechange=newFun;},"
-"onreadystatechange:null,ondatastream:null,onsendstream:null,onload:null"
+"onreadystatechange:null,ondatastream:null,onsendstream:null,onload:null,readyState:-1,"
+"_changestate:function(newstate){this.readyState = newstate;"
+" if(this.onreadystatechange){"
+"  this.onreadystatechange();"
+" }"
+" if(this.onload && newstate==4){"
+"  this.onload();"
+" }"
+"}"
 "};"
-"Ti.%@.__defineGetter__('readyState',function(){return Ti._TICMD('titaniumObject.%@','readyState',[])});"
 "Ti.%@.__defineGetter__('responseText',function(){return Ti._TICMD('titaniumObject.%@','responseText',[])});"
 "Ti.%@.__defineGetter__('responseXML',function(){var xml = Ti._TICMD('titaniumObject.%@','responseText',[]); return new DOMParser().parseFromString(xml,'text/xml'); });"
 "Ti.%@.__defineGetter__('status',function(){return Ti._TICMD('titaniumObject.%@','status',[])});"
@@ -97,7 +104,7 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 	NetHTTPClientState readyState;
 	NSInteger currentStatus;
 	BOOL connected;
-
+	NSRecursiveLock *stateLock;
 }
 
 @property(nonatomic,readwrite,retain)	NSMutableURLRequest * urlRequest;
@@ -117,31 +124,42 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 @synthesize urlRequest, urlConnection, urlResponse, loadedData;
 @synthesize readyState, currentStatus, connected;
 
+-(id) init; 
+{
+	if ((self = [super init])){
+		stateLock = [[NSRecursiveLock alloc] init];
+	}
+	return self;
+}
 - (void) dealloc;
 {
 	[urlRequest release];
 	[urlConnection release];
 	[urlResponse release];
 	[loadedData release];
+	[stateLock release];
 	[super dealloc];
 }
 
 - (void) setReadyState: (NetHTTPClientState) newState;
 {
+	[stateLock lock];
 	if (newState == readyState) return;
 	readyState = newState;
-	[[TitaniumHost sharedHost] sendJavascript:[javaScriptPath stringByAppendingString:@".onreadystatechange()"] toPageWithToken:parentPageToken];
-	if (readyState == clientStateDone)
-	{
-		[[TitaniumHost sharedHost] sendJavascript:[javaScriptPath stringByAppendingString:@".onload()"] toPageWithToken:parentPageToken];
-	}
+	[stateLock unlock];
+	
+	// we call a change state method which sets the local object's readyState to prevent a race condition
+	// since the callback usually calls back on readyState to get the state which calls back into this (and it's 
+	// not efficient either anyway). this is faster and safer.
+	NSString *jscode = [NSString stringWithFormat:@"._changestate(%d)",readyState];
+	[[TitaniumHost sharedHost] sendJavascript:[javaScriptPath stringByAppendingString:jscode] toPageWithToken:parentPageToken];
 }
 
 - (void) runSend;
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	[self setReadyState:clientStateOpened]; // set state before we call open to prevent out of order state
 	[self setUrlConnection:[NSURLConnection connectionWithRequest:urlRequest delegate:self]];
-	[self setReadyState:clientStateOpened];
 	[pool release];
 }
 
@@ -238,9 +256,6 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 			return [(NSHTTPURLResponse *)urlResponse allHeaderFields];
 		}
 
-	} else if ([functionName isEqualToString:@"readyState"]) {
-		return [NSNumber numberWithInt:readyState];
-		
 	} else if ([functionName isEqualToString:@"responseText"]) {
 		NSString * result = [[NSString alloc] initWithData:loadedData encoding:NSUTF8StringEncoding];
 		return [result autorelease];
