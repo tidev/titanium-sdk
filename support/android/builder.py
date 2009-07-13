@@ -55,6 +55,8 @@ class Builder(object):
 		#dear friends windoooz
 		
 		print "Launching Android emulator...one moment"
+		print "From: " + self.emulator
+		print "SDCard: " + self.sdcard
 
 		# start the emulator
 		p = subprocess.Popen([
@@ -263,10 +265,12 @@ class Builder(object):
 					cmd = [self.adb]
 					if install:
 						self.wait_for_device('d')
+						print "Installing application on emulator"
 						cmd += ['-d', 'install', '-r', app_apk]
 						#cmd = "\"%s\" -d install -r bin/app.apk" % self.adb
 					else:
 						self.wait_for_device('e')
+						print "Installing application on device"
 						cmd += ['-e', 'install', '-r', app_apk]
 						#cmd = "\"%s\" -e install -r bin/app.apk" % self.adb
 					run(cmd)
@@ -284,6 +288,8 @@ class Builder(object):
 				run([self.adb, 'shell', 'am', 'start', '-a', 'android.intent.action.MAIN', '-n', '%s/%s.%s' % (self.app_id, self.app_id , self.classname)])
 				#os.system("adb shell am start -a android.intent.action.MAIN -n %s/%s.%s" % (self.app_id, self.app_id , self.classname))
 				print "Deployed %s ... " % self.name
+			else :
+				print "Application installed. Launch from drawer on Home Screen"
 
 		finally:
 			os.chdir(curdir)
