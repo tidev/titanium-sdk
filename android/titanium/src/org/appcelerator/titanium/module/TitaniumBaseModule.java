@@ -13,8 +13,6 @@ import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.api.ITitaniumModule;
-import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.TitaniumJavascriptHelper;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -23,8 +21,8 @@ import android.webkit.WebView;
 
 public abstract class TitaniumBaseModule implements ITitaniumModule
 {
-	private static final String LCAT = "TiBaseModule";
-	private static final boolean DBG = TitaniumConfig.LOGD;
+	//private static final String LCAT = "TiBaseModule";
+	//private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private TitaniumModuleManager manager;
 	private String moduleName;

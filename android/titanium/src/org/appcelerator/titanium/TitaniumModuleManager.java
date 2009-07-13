@@ -11,9 +11,7 @@ import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 
 import org.appcelerator.titanium.api.ITitaniumModule;
-import org.appcelerator.titanium.util.TitaniumActivityHelper;
 
-import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 import android.webkit.WebView;

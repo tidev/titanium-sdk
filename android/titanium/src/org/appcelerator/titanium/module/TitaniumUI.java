@@ -49,6 +49,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	protected Handler handler;
 
 	class Holder extends Semaphore {
+		private static final long serialVersionUID = 1L;
 		public Holder() {
 			super(0);
 		}

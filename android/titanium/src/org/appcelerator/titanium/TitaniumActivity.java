@@ -79,6 +79,10 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 
 	protected static final int ACCELEROMETER_DELAY = 100; // send event no more frequently than
 
+	protected static final int MSG_START_ACTIVITY = 300;
+	protected static final int MSG_ACTIVATE_WEBVIEW = 301;
+	protected static final int MSG_PUSH_VIEW = 302;
+	protected static final int MSG_POP_VIEW = 303;
 
 	protected TitaniumApplication app;
 	protected TitaniumIntentWrapper intent;
@@ -411,13 +415,47 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 
 	public boolean handleMessage(Message msg)
 	{
-		boolean handled = false;
-		Bundle b = msg.getData();
+		//Bundle b = msg.getData();
 
 		switch(msg.what) {
+			case MSG_START_ACTIVITY :
+				startActivity((Intent) msg.obj);
+				return true;
+			case MSG_ACTIVATE_WEBVIEW : {
+				View current = layout.getCurrentView();
+				if (current == splashView) {
+					layout.addView(webView);
+					layout.showNext();
+					layout.removeView(splashView);
+
+					ts("webview is content");
+
+			 	    if (!webView.hasFocus()) {
+			 	    	webView.requestFocus();
+			 	    }
+				}
+				loaded = true;
+				return true;
+			}
+			case MSG_PUSH_VIEW: {
+				View v = (View)msg.obj;
+				layout.addView(v, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));
+				layout.showNext();
+
+				if (!v.hasFocus()) {
+					v.requestFocus();
+				}
+				return true;
+			}
+			case MSG_POP_VIEW : {
+				View v = (View) msg.obj;
+				layout.showPrevious();
+				layout.removeView(v);
+				return true;
+			}
 		}
 
-		return handled;
+		return false;
 	}
 
 	public Handler getHandler() {
@@ -452,16 +490,7 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 			launchIntent.setClass(this, activityClass);
     	}
 
-    	final TitaniumActivity me = this;
-
-		handler.post(new Runnable(){
-
-			public void run() {
-				startActivity(intent.getIntent());
-				//TitaniumActivityGroup parent = TitaniumActivityHelper.getTitaniumActivityGroup(me);
-				//parent.launch(launchIntent);
-			}
-		});
+    	handler.obtainMessage(MSG_START_ACTIVITY, intent.getIntent()).sendToTarget();
     }
 
     public void launchActivityForResult(final TitaniumIntentWrapper intent, final int code,
@@ -619,24 +648,7 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 		if (false == loaded)
 		{
 			if (!destroyed) {
-				final TitaniumActivity me = this;
-	 			handler.post(new Runnable(){
-					public void run() {
-						View current = layout.getCurrentView();
-						if (current == splashView) {
-							layout.addView(me.webView);
-							layout.showNext();
-							layout.removeView(splashView);
-
-							ts("webview is content");
-
-					 	    if (!me.webView.hasFocus()) {
-					 	    	me.webView.requestFocus();
-					 	    }
-						}
-						loaded = true;
-					}
-				});
+				handler.obtainMessage(MSG_ACTIVATE_WEBVIEW).sendToTarget();
 			} else {
 				webView.destroy();
 			}
@@ -644,24 +656,11 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 	}
 
 	public void pushView(final View v) {
-		handler.post(new Runnable(){
-			public void run() {
-				View current = layout.getCurrentView();
-				layout.addView(v, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));
-				layout.showNext();
-
-				if (!v.hasFocus()) {
-					v.requestFocus();
-				}
-			}});
+		handler.obtainMessage(MSG_PUSH_VIEW, v).sendToTarget();
 	}
 
 	public void popView(final View v) {
-		handler.post(new Runnable(){
-			public void run() {
-				layout.showPrevious();
-				layout.removeView(v);
-			}});
+		handler.obtainMessage(MSG_POP_VIEW, v).sendToTarget();
 	}
 
 	public void setLoadOnPageEnd(boolean load) {

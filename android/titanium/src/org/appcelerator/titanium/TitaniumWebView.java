@@ -1,9 +1,6 @@
 package org.appcelerator.titanium;
 
-import java.io.IOException;
-
 import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.TitaniumUIHelper;
 import org.json.JSONObject;
 
 import android.os.Bundle;
@@ -13,7 +10,6 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.widget.TextView;
 
 public class TitaniumWebView extends WebView implements Handler.Callback
 {

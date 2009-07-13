@@ -46,7 +46,6 @@ import org.appcelerator.titanium.module.fs.TitaniumResourceFile;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
-import android.webkit.WebView;
 
 public class TitaniumHttpClient implements ITitaniumHttpClient
 {
@@ -304,12 +303,13 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 		if (DBG) {
 			Log.d(LCAT, "send()");
 		}
+		/*
 		Header[] h = request.getAllHeaders();
 		for(int i=0; i < h.length; i++) {
 			Header hdr = h[i];
 			//Log.e(LCAT, "HEADER: " + hdr.toString());
 		}
-
+		 */
 		final LocalResponseHandler handler = new LocalResponseHandler(this);
 		client = new DefaultHttpClient();
 

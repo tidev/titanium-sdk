@@ -9,11 +9,10 @@ package org.appcelerator.titanium.module.ui;
 
 
 
-import android.os.Handler;
-
 import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.config.TitaniumConfig;
-import android.view.View;
+
+import android.os.Handler;
 import android.widget.Toast;
 
 public class TitaniumToastNotifier extends TitaniumNotifier
