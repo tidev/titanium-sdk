@@ -144,7 +144,11 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 - (void) setReadyState: (NetHTTPClientState) newState;
 {
 	[stateLock lock];
-	if (newState == readyState) return;
+	if (newState == readyState)
+	{
+		[stateLock unlock];
+		return;
+	}
 	readyState = newState;
 	[stateLock unlock];
 	
