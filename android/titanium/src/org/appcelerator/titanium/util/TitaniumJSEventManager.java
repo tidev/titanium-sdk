@@ -13,40 +13,36 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
+import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.module.TitaniumBaseModule;
 
 import android.os.Handler;
 import android.util.Log;
-import android.webkit.WebView;
 
 
 public class TitaniumJSEventManager
 {
 	private static final String LCAT = "TiJSEvntMgr";
 
-	protected SoftReference<WebView> softWebView;
+	protected SoftReference<TitaniumWebView> softWebView;
 	protected SoftReference<Handler> softHandler;
 	protected AtomicInteger idGenerator;
 	protected HashMap<String, HashMap<Integer, TitaniumJSEvent>> eventListeners;
 	protected TreeSet<String> supportedEventNames;
 
 	public TitaniumJSEventManager(TitaniumModuleManager manager) {
-		this(manager.getHandler(), manager.getActivity().getWebView());
+		this(manager.getActivity().getWebView());
 	}
 	public TitaniumJSEventManager(TitaniumBaseModule module) {
-		this(module.getHandler(), module.getWebView());
+		this(module.getWebView());
 	}
 
-	public TitaniumJSEventManager(Handler handler, WebView webView)
+	public TitaniumJSEventManager(TitaniumWebView webView)
 	{
-		if (handler == null) {
-			throw new IllegalArgumentException("Handler must not be null");
-		}
 		if (webView == null) {
 			throw new IllegalArgumentException("WebView must not be null");
 		}
-		this.softHandler = new SoftReference<Handler>(handler);
-		this.softWebView = new SoftReference<WebView>(webView);
+		this.softWebView = new SoftReference<TitaniumWebView>(webView);
 		idGenerator = new AtomicInteger();
 		this.eventListeners = new HashMap<String, HashMap<Integer, TitaniumJSEvent>>();
 		this.supportedEventNames = new TreeSet<String>();
@@ -167,21 +163,18 @@ public class TitaniumJSEventManager
 		if (eventListeners != null) {
 			checkSupportsEvent(eventName); // Throws exception on failure
 
-			final WebView webView = softWebView.get();
-			if (webView != null) {
-				final HashMap<Integer, TitaniumJSEvent> listeners = eventListeners.get(eventName);
+			final HashMap<Integer, TitaniumJSEvent> listeners = eventListeners.get(eventName);
 
-				if (listeners != null) {
-					synchronized(listeners) {
-						final Handler handler = softHandler.get();
-						if (handler == null) {
-							throw new IllegalStateException("Handler is null");
-						}
-						for (TitaniumJSEvent event : listeners.values()) {
-							String listener = event.getSuccessListener();
-							if (listener != null) {
-								TitaniumJavascriptHelper.evalJS(webView, handler, listener, data);
-							}
+			if (listeners != null) {
+				synchronized(listeners) {
+					final TitaniumWebView webView = softWebView.get();
+					if (webView == null) {
+						throw new IllegalStateException("webView is null");
+					}
+					for (TitaniumJSEvent event : listeners.values()) {
+						String listener = event.getSuccessListener();
+						if (listener != null) {
+							webView.evalJS(listener, data);
 						}
 					}
 				}
@@ -195,21 +188,18 @@ public class TitaniumJSEventManager
 		if (eventListeners != null) {
 			checkSupportsEvent(eventName); // Throws exception on failure
 
-			final WebView webView = softWebView.get();
-			if (webView != null) {
-				final HashMap<Integer, TitaniumJSEvent> listeners = eventListeners.get(eventName);
+			final HashMap<Integer, TitaniumJSEvent> listeners = eventListeners.get(eventName);
 
-				if (listeners != null) {
-					synchronized(listeners) {
-						final Handler handler = softHandler.get();
-						if (handler == null) {
-							throw new IllegalStateException("Handler is null");
-						}
-						for (TitaniumJSEvent event : listeners.values()) {
-							String listener = event.getErrorListener();
-							if (listener != null) {
-								TitaniumJavascriptHelper.evalJS(webView, handler, listener, data);
-							}
+			if (listeners != null) {
+				synchronized(listeners) {
+					final TitaniumWebView webView = softWebView.get();
+					if (webView == null) {
+						throw new IllegalStateException("WebView is null");
+					}
+					for (TitaniumJSEvent event : listeners.values()) {
+						String listener = event.getErrorListener();
+						if (listener != null) {
+							webView.evalJS(listener, data);
 						}
 					}
 				}

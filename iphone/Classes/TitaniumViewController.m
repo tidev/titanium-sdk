@@ -45,8 +45,7 @@ UITabBarSystemItem tabBarItemFromObject(id inputObject){
 UIStatusBarStyle statusBarStyleFromObject(id inputObject){
 	if ([inputObject isKindOfClass:[NSString class]]){
 		inputObject = [inputObject lowercaseString];
-		if ([inputObject isEqualToString:@"grey"]) return UIStatusBarStyleDefault;
-		if ([inputObject isEqualToString:@"default"]) return UIStatusBarStyleDefault;
+		if ([inputObject isEqualToString:@"grey"] || [inputObject isEqualToString:@"gray"] || [inputObject isEqualToString:@"default"]) return UIStatusBarStyleDefault;
 		if ([inputObject isEqualToString:@"opaque_black"]) return UIStatusBarStyleBlackOpaque;
 		if ([inputObject isEqualToString:@"translucent_black"]) return UIStatusBarStyleBlackTranslucent;
 	}

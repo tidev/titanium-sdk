@@ -1,7 +1,9 @@
 
-var Titanium=new function(){this.platform='android';this.version='TI_VERSION';this.window=window;this.document=document;this.callbacks=new Array();this.apiProxy=window.TitaniumAPI;this.rethrow=function(e){throw e;}
-this.doPostProcessing=function(){var imgs=document.getElementsByTagName('img');for(i=0;i<imgs.length;i++){var s=imgs[i].src;if(s.indexOf('file:///')==0){if(s.indexOf('file:///sdcard/')==-1&&s.indexOf('file:///android_asset')==-1){imgs[i].src=s.substring(8);}}else if(s.indexOf('app://')==0){imgs[i].src=s.substring(6);}};}};function TitaniumCallback(obj,method){this.obj=obj;this.method=method;this.invoke=function(data)
-{method.call(obj,data);};};function registerCallback(o,f){var i=Titanium.callbacks.length;Titanium.callbacks[i]=new TitaniumCallback(o,f);return"Titanium.callbacks["+i+"]";};function isUndefined(value)
+var Titanium=new function(){this.platform='android';this.version='TI_VERSION';this.window=window;this.document=document;this.apiProxy=window.TitaniumAPI;this.rethrow=function(e){throw e;};this.doPostProcessing=function(){var imgs=document.getElementsByTagName('img');for(i=0;i<imgs.length;i++){var s=imgs[i].src;if(s.indexOf('file:///')==0){if(s.indexOf('file:///sdcard/')==-1&&s.indexOf('file:///android_asset')==-1){imgs[i].src=s.substring(8);}}else if(s.indexOf('app://')==0){imgs[i].src=s.substring(6);}};};this.callbackCounter=0;this.callbacks=new Object();this.nextCallbackId=function(){return'cb'+this.callbackCounter++;}
+this.addCallback=function(o,f,os){var cb=new TitaniumCallback(o,f,os);return(new TitaniumCallback(o,f,os)).register();}
+this.removeCallback=function(name){delete this.callbacks[name];Titanium.API.debug('Deleted callback with name: '+name);}};function TitaniumCallback(obj,method,oneShot){this.name='cb'+Titanium.nextCallbackId();this.obj=obj;this.method=method;this.oneShot=oneShot;this.invoke=function(data)
+{this.method.call(this.obj,data);if(oneShot){Titanium.removeCallback(this.name);}};this.register=function(){Titanium.callbacks[this.name]=this;return'Titanium.callbacks["'+this.name+'"]';}};function registerCallback(o,f){return Titanium.addCallback(o,f,false);};function registerOneShot(o,f){return Titanium.addCallback(o,f,true);}
+function isUndefined(value)
 {if(value===null||typeof(value)==='undefined')
 {return true;}
 return(typeof(value)=='object'&&String(value).length===0);}

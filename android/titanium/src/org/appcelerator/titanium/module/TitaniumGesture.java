@@ -79,6 +79,7 @@ public class TitaniumGesture extends TitaniumBaseModule implements ITitaniumGest
 		return (cur * FILTER_FACTOR) + (prev * (1.0f - FILTER_FACTOR));
 	}
 
+	@SuppressWarnings("unused")
 	private float highPass(float cur, float prev) {
 		return cur - lowPass(cur, prev);
 	}

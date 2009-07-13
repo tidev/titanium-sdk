@@ -11,9 +11,7 @@ import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 
 import org.appcelerator.titanium.api.ITitaniumModule;
-import org.appcelerator.titanium.util.TitaniumActivityHelper;
 
-import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 import android.webkit.WebView;
@@ -24,13 +22,34 @@ public class TitaniumModuleManager
 
 	private ArrayList<ITitaniumModule> modules;
 	private SoftReference<TitaniumActivity> softActivity;
-	private SoftReference<Handler> softHandler;
+	private Handler handler;
+
+	private long creationThreadId;
+	private String creationThreadName;
 
 	public TitaniumModuleManager(TitaniumActivity activity, Handler handler)
 	{
 		this.softActivity = new SoftReference<TitaniumActivity>(activity);
-		this.softHandler = new SoftReference<Handler>(handler);
 		this.modules = new ArrayList<ITitaniumModule>();
+
+		Thread t = Thread.currentThread();
+		creationThreadId = t.getId();
+		creationThreadName = t.getName();
+	}
+
+	public void checkThread() {
+		if (creationThreadId != Thread.currentThread().getId()) {
+			Thread t = Thread.currentThread();
+			StringBuilder sb = new StringBuilder(256);
+
+			sb
+				.append("Modules must be constructed on the manager(ui) thread.\n This thread ")
+				.append(t.getName()).append("(").append(t.getId()).append(") is not the creation thread ")
+				.append(creationThreadName).append("(").append(creationThreadId).append(").")
+				;
+
+			throw new IllegalStateException(sb.toString());
+		}
 	}
 
 	public TitaniumActivity getActivity() {
@@ -38,7 +57,7 @@ public class TitaniumModuleManager
 	}
 
 	public Handler getHandler() {
-		return softHandler.get();
+		return handler;
 	}
 
 	public void addModule(ITitaniumModule m) {

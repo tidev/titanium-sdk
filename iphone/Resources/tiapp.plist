@@ -47,6 +47,10 @@
 			<string>Network</string>
 		</dict>
 		<dict>
+			<key>background</key>
+			<string>white</string>
+			<key>backgroundImage</key>
+			<string>default.png</string>
 			<key>orientation</key>
 			<string>either</string>
 			<key>url</key>

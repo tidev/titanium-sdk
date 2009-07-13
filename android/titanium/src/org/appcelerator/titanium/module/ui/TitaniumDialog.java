@@ -15,7 +15,6 @@ import org.appcelerator.titanium.util.TitaniumJSEventManager;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.os.Handler;
 import android.util.Log;
 
 public class TitaniumDialog implements ITitaniumDialog
@@ -41,10 +40,10 @@ public class TitaniumDialog implements ITitaniumDialog
 			dialog.dismiss();
 		}
 	}
-	public TitaniumDialog(Handler handler, TitaniumActivity activity)
+	public TitaniumDialog(TitaniumActivity activity)
 	{
 		this.activity = activity;
-		this.eventListeners = new TitaniumJSEventManager(handler, activity.getWebView());
+		this.eventListeners = new TitaniumJSEventManager(activity.getWebView());
 		this.eventListeners.supportEvent(CLICK_EVENT);
 		this.builder = new AlertDialog.Builder(activity);
 		this.builder.setCancelable(true);

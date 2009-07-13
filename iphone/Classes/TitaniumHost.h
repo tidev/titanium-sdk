@@ -8,8 +8,12 @@
 #import "TitaniumModule.h"
 #import "TitaniumCmdThread.h"
 
+// TI_VERSION will be set via an external source if not set
+// display a warning and set it to 0.0.0
+
 #ifndef TI_VERSION
-#define TI_VERSION 0.4.0
+#warning TI_VERSION was undefined!
+#define TI_VERSION 0.0.0
 #endif
 
 #define _QUOTEME(x) #x

@@ -10,7 +10,6 @@ package org.appcelerator.titanium;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;

@@ -11,10 +11,8 @@ import java.lang.ref.SoftReference;
 
 import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.api.ITitaniumNotifier;
-import org.appcelerator.titanium.util.TitaniumJSEventManager;
-
-import android.os.Handler;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.TitaniumJSEventManager;
 
 public abstract class TitaniumNotifier implements ITitaniumNotifier
 {
@@ -32,11 +30,11 @@ public abstract class TitaniumNotifier implements ITitaniumNotifier
 	protected String title;
 	protected TitaniumJSEventManager eventListeners;
 
-	public TitaniumNotifier(Handler handler, TitaniumActivity activity) {
+	public TitaniumNotifier(TitaniumActivity activity) {
 		this.softActivity = new SoftReference<TitaniumActivity>(activity);
 		showing = false;
 		delay = 0;
-		eventListeners = new TitaniumJSEventManager(handler, activity.getWebView());
+		eventListeners = new TitaniumJSEventManager(activity.getWebView());
 	}
 
 	protected SoftReference<TitaniumActivity> getActivity()
