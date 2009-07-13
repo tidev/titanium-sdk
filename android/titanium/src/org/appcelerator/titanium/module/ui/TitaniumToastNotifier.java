@@ -12,7 +12,6 @@ package org.appcelerator.titanium.module.ui;
 import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.config.TitaniumConfig;
 
-import android.os.Handler;
 import android.widget.Toast;
 
 public class TitaniumToastNotifier extends TitaniumNotifier
@@ -24,8 +23,8 @@ public class TitaniumToastNotifier extends TitaniumNotifier
 
 	protected Toast toast;
 
-	public TitaniumToastNotifier(Handler handler, TitaniumActivity activity) {
-		super(handler, activity);
+	public TitaniumToastNotifier(TitaniumActivity activity) {
+		super(activity);
 	}
 
 	private int getToastDelay() {

@@ -14,8 +14,6 @@ import org.appcelerator.titanium.api.ITitaniumNotifier;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 
-import android.os.Handler;
-
 public abstract class TitaniumNotifier implements ITitaniumNotifier
 {
 	@SuppressWarnings("unused")
@@ -32,7 +30,7 @@ public abstract class TitaniumNotifier implements ITitaniumNotifier
 	protected String title;
 	protected TitaniumJSEventManager eventListeners;
 
-	public TitaniumNotifier(Handler handler, TitaniumActivity activity) {
+	public TitaniumNotifier(TitaniumActivity activity) {
 		this.softActivity = new SoftReference<TitaniumActivity>(activity);
 		showing = false;
 		delay = 0;

@@ -39,7 +39,14 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	private static final String LCAT = "TiUI";
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
+	private static final int MSG_START_CREATE_SECTION = 300;
+
 	private static final int MSG_CREATE_TABLEVIEW = 300;
+	private static final int MSG_CREATE_ALERTDIALOG = 301;
+	private static final int MSG_CREATE_OPTIONDIALOG = 302;
+	private static final int MSG_CREATE_TOASTNOTIFIER = 303;
+
+	private static final int MSG_END_CREATE_SECTION = 330;
 
 	protected TitaniumMenuItem menu;
 	protected TitaniumUserWindow userWindow;
@@ -80,17 +87,35 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	public boolean handleMessage(Message msg)
 	{
 
-		switch (msg.what) {
-		case MSG_CREATE_TABLEVIEW:
-			TitaniumActivity activity = getActivity();
-			int themeId = android.R.style.Theme;
+		if (msg.what >= MSG_START_CREATE_SECTION && msg.what <= MSG_END_CREATE_SECTION)
+		{
+			Holder h = (Holder) msg.obj;
+			TitaniumActivity activity = null;
 
-			if (activity.isFullscreen()) {
-				themeId = android.R.style.Theme_NoTitleBar;
+			switch (msg.what) {
+				case MSG_CREATE_TABLEVIEW:
+					activity = getActivity();
+					int themeId = android.R.style.Theme;
+
+					if (activity.isFullscreen()) {
+						themeId = android.R.style.Theme_NoTitleBar;
+					}
+
+					h.o = new TitaniumTableView(activity, themeId);
+					break;
+				case MSG_CREATE_ALERTDIALOG:
+					h.o = new TitaniumDialog(getActivity());
+					break;
+				case MSG_CREATE_OPTIONDIALOG:
+					h.o = new TitaniumDialog(getActivity());
+					break;
+				case MSG_CREATE_TOASTNOTIFIER :
+					h.o = new TitaniumToastNotifier(getActivity());
+					break;
+				default :
+					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
 			}
 
-			Holder h = (Holder) msg.obj;
-			h.o = new TitaniumTableView(activity, themeId);
 			h.release();
 			return true;
 		}
@@ -140,28 +165,27 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 		return userWindow;
 	}
 
-	public ITitaniumDialog createAlertDialog()
-	{
-		return new TitaniumDialog(getHandler(), getActivity());
+	public ITitaniumDialog createAlertDialog() {
+		return (ITitaniumDialog) create(MSG_CREATE_ALERTDIALOG);
 	}
 
 	public ITitaniumDialog createOptionDialog() {
-		return new TitaniumDialog(getHandler(), getActivity());
+		return (ITitaniumDialog) create(MSG_CREATE_OPTIONDIALOG);
 	}
 
 	public ITitaniumProgressDialog createProgressDialog() {
 		return new TitaniumProgressDialog(getActivity());
 	}
 
-	public ITitaniumNotifier createNotification()
-	{
-		return  new TitaniumToastNotifier(getHandler(), getActivity());
+	public ITitaniumNotifier createNotification() {
+		return (ITitaniumNotifier) create(MSG_CREATE_TOASTNOTIFIER);
 	}
 
 	public ITitaniumTableView createTableView() {
 		return (ITitaniumTableView) create(MSG_CREATE_TABLEVIEW);
 	}
 
+	// Expects the message handler to put the object in h.o and release the holder
 	private Object create(int what)
 	{
 		Holder h = new Holder();

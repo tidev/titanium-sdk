@@ -44,7 +44,6 @@ import org.appcelerator.titanium.module.fs.TitaniumFile;
 import org.appcelerator.titanium.module.fs.TitaniumResourceFile;
 
 import android.net.Uri;
-import android.os.Handler;
 import android.util.Log;
 
 public class TitaniumHttpClient implements ITitaniumHttpClient
@@ -52,7 +51,6 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	private static final String LCAT = "TiHttpClient";
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
-	private WeakReference<Handler> weakGuiHandler;
 	private SoftReference<TitaniumWebView> softWebView;
 
 	private String userAgent;
@@ -94,14 +92,13 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 		}
 
 	}
-	public TitaniumHttpClient(TitaniumWebView webView, Handler handler, String userAgent)
+	public TitaniumHttpClient(TitaniumWebView webView, String userAgent)
 	{
 		onReadyStateChangeCallback = null;
 		readyState = 0;
 		responseText = "";
 		this.userAgent = userAgent;
 		this.softWebView = new SoftReference<TitaniumWebView>(webView);
-		this.weakGuiHandler = new WeakReference<Handler>(handler);
 		this.nvPairs = new ArrayList<NameValuePair>();
 		this.parts = new HashMap<String,ContentBody>();
 	}
@@ -386,16 +383,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 					me.setResponseText(result);
 					me.setReadyState(READY_STATE_COMPLETE);
 				} catch(Exception e) {
-					TitaniumWebView webView = softWebView.get();
-					Handler guiHandler = weakGuiHandler.get();
-					if (webView != null && guiHandler != null) {
-						if (TitaniumConfig.LOGD) {
-							Log.e(LCAT, "Error trying to handle request. ", e);
-						}
-						//TODO possibly add error handler callback
-					} else {
-						Log.e(LCAT, "HTTP Error: " + e.getMessage(), e);
-					}
+					Log.e(LCAT, "HTTP Error: " + e.getMessage(), e);
 				}
 			}});
 
