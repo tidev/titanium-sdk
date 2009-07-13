@@ -2,12 +2,13 @@ package org.appcelerator.titanium.module.ui;
 
 import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.api.ITitaniumTableView;
-import org.appcelerator.titanium.util.TitaniumJavascriptHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -18,9 +19,15 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
+public class TitaniumTableView extends FrameLayout implements ITitaniumTableView, Handler.Callback
 {
 	private static final String LCAT = "TitaniumTableView";
+
+	private static final int MSG_OPEN = 300;
+	private static final int MSG_CLOSE = 301;
+
+	private static final String MSG_EXTRA_CALLBACK = "cb";
+	private static final String MSG_EXTRA_JSON = "json";
 
 	private TitaniumActivity activity;
 	private String data;
@@ -89,9 +96,12 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 		super(activity, null, themeId);
 
 		this.activity = activity;
-		this.handler = new Handler();
+		this.handler = new Handler(this);
 		this.rowHeight = 65;
 		this.root = false;
+
+		Log.e(LCAT, "ThreadName: " + Thread.currentThread().getName());
+		Log.e(LCAT, "HandlerThread: " + handler.getLooper().getThread().getName());
 	}
 
 	public void setData(String data) {
@@ -106,8 +116,34 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 		this.root = root;
 	}
 
+
+	public boolean handleMessage(Message msg)
+	{
+		Bundle b = msg.getData();
+
+		switch(msg.what) {
+		case MSG_OPEN:
+			doOpen(b.getString(MSG_EXTRA_JSON), b.getString(MSG_EXTRA_CALLBACK));
+			return true;
+		case MSG_CLOSE:
+			doClose();
+			return true;
+		}
+		return false;
+	}
+
 	public void open(String json, final String callback)
 	{
+		Message m = handler.obtainMessage(MSG_OPEN);
+		m.getData().putString(MSG_EXTRA_JSON, json);
+		m.getData().putString(MSG_EXTRA_CALLBACK, callback);
+		m.sendToTarget();
+	}
+
+	private void doOpen(final String json, final String callback)
+	{
+		Log.e(LCAT, "WVThreadNameOpen: " + Thread.currentThread().getName());
+
 		Log.e(LCAT, "OPEN");
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
@@ -150,7 +186,8 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 					event.put("index", position);
 					event.put("detail", false);
 
-					TitaniumJavascriptHelper.evalJS(activity.getWebView(), handler, callback,event);
+					activity.getWebView().evalJS(callback, event);
+
 				} catch (JSONException e) {
 					Log.e(LCAT, "Error handling event at position: " + position);
 				}
@@ -165,9 +202,13 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 
 	public void close()
 	{
+		handler.sendEmptyMessage(MSG_CLOSE);
+	}
+
+	private void doClose() {
 		activity.popView(this);
-		this.destroyDrawingCache();
-		this.removeAllViews();
+		destroyDrawingCache();
+		removeAllViews();
 	}
 
 	private JSONArray processData(String data) {

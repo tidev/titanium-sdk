@@ -44,7 +44,7 @@ public class TitaniumDialog implements ITitaniumDialog
 	public TitaniumDialog(Handler handler, TitaniumActivity activity)
 	{
 		this.activity = activity;
-		this.eventListeners = new TitaniumJSEventManager(handler, activity.getWebView());
+		this.eventListeners = new TitaniumJSEventManager(activity.getWebView());
 		this.eventListeners.supportEvent(CLICK_EVENT);
 		this.builder = new AlertDialog.Builder(activity);
 		this.builder.setCancelable(true);

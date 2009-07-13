@@ -7,14 +7,11 @@
 
 package org.appcelerator.titanium;
 
-import java.io.IOException;
-
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.TitaniumUIHelper;
-import org.appcelerator.titanium.util.TitaniumUrlHelper;
 
 import android.content.Intent;
 import android.net.Uri;
-import org.appcelerator.titanium.config.TitaniumConfig;
 import android.util.Log;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
@@ -61,18 +58,9 @@ public class TiWebViewClient extends WebViewClient
 		}
 
 		if (URLUtil.isAssetUrl(url) || URLUtil.isContentUrl(url) || URLUtil.isFileUrl(url)) {
-			boolean result = false;
-			try {
-				result = TitaniumUrlHelper.loadFromSource(activity.getAppInfo(), view, url, null);
-			} catch (IOException e) {
-            	TitaniumUIHelper.doOkDialog(
-            			view.getContext(),
-            			"Fatal",
-            			"Error loading source: " + e.getMessage(),
-            			TitaniumUIHelper.createKillListener()
-            			);
-			}
-			return result;
+			TitaniumWebView twv = (TitaniumWebView) view;
+			twv.loadFromSource(url, null);
+			return true;
 		} else if (URLUtil.isNetworkUrl(url)) {
             Intent i = new Intent( Intent.ACTION_VIEW, Uri.parse(url) );
             i.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK);

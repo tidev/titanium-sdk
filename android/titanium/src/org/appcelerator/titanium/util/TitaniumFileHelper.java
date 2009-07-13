@@ -100,6 +100,7 @@ public class TitaniumFileHelper
 					Log.w(LCAT, "malformed titanium resource url, resource not loaded: " + path);
 					return null;
 				}
+				@SuppressWarnings("unused")
 				String titanium = parts[0];
 				String section = parts[1];
 				String resid = parts[2];
