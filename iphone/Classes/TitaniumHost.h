@@ -9,7 +9,8 @@
 #import "TitaniumCmdThread.h"
 
 #ifndef TI_VERSION
-#define TI_VERSION 0.4.0
+#warning TI_VERSION was undefined!
+#define TI_VERSION 0.5.0
 #endif
 
 #define _QUOTEME(x) #x
