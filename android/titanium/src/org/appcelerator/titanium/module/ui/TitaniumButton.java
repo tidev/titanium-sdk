@@ -95,18 +95,19 @@ public class TitaniumButton implements ITitaniumButton, ITitaniumNativeControl, 
 		TitaniumModuleManager ttm = softModuleMgr.get();
 		if (ttm != null && control == null) {
 			control = new Button(ttm.getActivity());
+			control.isFocusable();
+			control.setId(100);
+
 			if (title != null) {
 				control.setText(title);
 			}
 			if (id != null) {
-				if (ttm != null) {
-					ttm.addListener(this); //TODO consider needing an immediate layout.
-					TitaniumWebView wv = ttm.getActivity().getWebView();
-					if (wv != null) {
-						wv.addControl(control);
-					} else {
-						Log.e(LCAT, "No webview, control not added");
-					}
+				TitaniumWebView wv = ttm.getActivity().getWebView();
+				if (wv != null) {
+					wv.addListener(this); //TODO consider needing an immediate layout.
+					wv.addControl(control);
+				} else {
+					Log.e(LCAT, "No webview, control not added");
 				}
 			}
 		}

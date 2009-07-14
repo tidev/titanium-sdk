@@ -1,9 +1,16 @@
 package org.appcelerator.titanium;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.appcelerator.titanium.api.ITitaniumNativeControl;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -34,10 +41,12 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 	private TitaniumActivity activity;
 	private Handler handler;
 	private MimeTypeMap mtm;
-	private AbsoluteLayout nativeLayout;
+
+	private HashMap<String, ITitaniumNativeControl> nativeControls;
 
 
-	public TitaniumWebView(TitaniumActivity activity) {
+	public TitaniumWebView(TitaniumActivity activity)
+	{
 		super(activity);
 		this.activity = activity;
 		this.handler = new Handler(this);
@@ -55,10 +64,6 @@ public class TitaniumWebView extends WebView implements Handler.Callback
         settings.setLightTouchEnabled(true);
 
 		Log.e(LCAT, "WVThreadName: " + Thread.currentThread().getName());
-        nativeLayout = new AbsoluteLayout(activity);
-        nativeLayout.setBackgroundColor(Color.argb(25, 0, 255, 0));
-        addView(nativeLayout, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
-                        ViewGroup.LayoutParams.FILL_PARENT));
 	}
 
 	public void evalJS(final String method) {
@@ -138,7 +143,11 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 			handled = true;
 			break;
 		case MSG_ADD_CONTROL :
-			nativeLayout.addView((View) msg.obj);
+			if (isFocusable()) {
+				setFocusable(false);
+			}
+			View v = (View) msg.obj;
+			addView(v);
 			handled = true;
 			break;
 		}
@@ -155,7 +164,109 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 		m.sendToTarget();
 	}
 
+	public synchronized void addListener(ITitaniumNativeControl control) {
+		String id = control.getHtmlId();
+
+		if (id == null) {
+			throw new IllegalArgumentException("Control must have a non-null id");
+		}
+		if (nativeControls == null) {
+			nativeControls = new HashMap<String, ITitaniumNativeControl>();
+		} else if(nativeControls.containsKey(id)) {
+			throw new IllegalArgumentException("Control has already been registered id=" + id);
+		}
+
+		nativeControls.put(id, control);
+		requestNativeLayout(id);
+
+		if (DBG) {
+			Log.d(LCAT, "Native control linked to html id " + id);
+		}
+	}
+
+	public synchronized void removeListener(ITitaniumNativeControl control) {
+		if (nativeControls != null) {
+			String id = control.getHtmlId();
+			if (nativeControls.containsKey(id)) {
+				nativeControls.remove(id);
+				if (DBG) {
+					Log.d(LCAT, "Native control unlinked from html id " + id);
+				}
+			} else {
+				Log.w(LCAT, "Attempt to unlink a non registered control. html id " + id);
+			}
+		}
+	}
+
+	public synchronized void requestNativeLayout() {
+		if (nativeControls != null && nativeControls.size() > 0) {
+			JSONArray a = new JSONArray();
+			for (String id : nativeControls.keySet()) {
+				a.put(id);
+			}
+			requestNativeLayout(a);
+		} else {
+			if (DBG) {
+				Log.d(LCAT, "No native controls, layout request ignored");
+			}
+		}
+	}
+
+	public synchronized void requestNativeLayout(String id)
+	{
+		JSONArray a = new JSONArray();
+		a.put(id);
+		requestNativeLayout(a);
+	}
+
+	protected void requestNativeLayout(JSONArray a)
+	{
+		StringBuilder sb = new StringBuilder(256);
+		sb.append("Titanium.sendLayoutToNative(")
+			.append(a.toString())
+			.append(")");
+
+		evalJS(sb.toString());
+		sb.setLength(0);
+	}
+
+	public void updateNativeControls(String json) {
+		try {
+			JSONObject o = new JSONObject(json);
+			for (String id : nativeControls.keySet()) {
+				if (o.has(id)) {
+					JSONObject pos = o.getJSONObject(id);
+					Bundle b = new Bundle(4);
+					b.putInt("top", pos.getInt("top"));
+					b.putInt("left", pos.getInt("left"));
+					b.putInt("width", pos.getInt("width"));
+					b.putInt("height", pos.getInt("height"));
+
+					nativeControls.get(id).handleLayoutRequest(b);
+				} else {
+					Log.w(LCAT, "Position data not found for id " + id);
+				}
+			}
+		} catch (JSONException e) {
+			Log.e(LCAT, "Malformed location object from Titanium.API: " + json);
+		}
+	}
+
+
 	public void addControl(View control) {
 		handler.obtainMessage(MSG_ADD_CONTROL, control).sendToTarget();
 	}
+
+	@Override
+	protected void onSizeChanged(int w, int h, int ow, int oh) {
+		// TODO Auto-generated method stub
+		super.onSizeChanged(w, h, ow, oh);
+		handler.post(
+				new Runnable() {
+					public void run() {
+						requestNativeLayout();
+					}
+		        });
+	}
+
 }
