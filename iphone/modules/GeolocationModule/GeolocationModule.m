@@ -243,11 +243,11 @@ NSUInteger lastWatchID = 0;
 
 	if ([propertiesDict isKindOfClass:[NSDictionary dictionary]]) [newProxy takeDetails:propertiesDict];
 
-	[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 	if ([isOneShotObj respondsToSelector:@selector(boolValue)]){
 		[newProxy setSingleShot:[isOneShotObj boolValue]];
 		[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];
 	}
+	[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 	[newProxy release];
 	
 	return newToken;
@@ -259,10 +259,10 @@ NSUInteger lastWatchID = 0;
 	[proxyLock lock];
 	[proxyDictionary removeObjectForKey:token];
 	
-	[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];
 	if ([proxyDictionary count] == 0){
 		[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 	}
+	[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];
 	[proxyLock unlock];
 	
 	return [TitaniumJSCode codeWithString:[NSString stringWithFormat:@"delete Ti.Geolocation._WATCH.%@;",token]];

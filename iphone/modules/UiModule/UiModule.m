@@ -10,6 +10,8 @@
 #import "Webcolor.h"
 #import "TitaniumHost.h"
 
+#import <MessageUI/MessageUI.h>
+#import <MessageUI/MFMailComposeViewController.h>
 
 NSDictionary * barButtonSystemItemForStringDict = nil;
 
@@ -793,6 +795,93 @@ int barButtonSystemItemForString(NSString * inputString){
 
 @end
 
+@interface EmailComposerProxy : TitaniumProxyObject<MFMailComposeViewControllerDelegate>
+{
+	BOOL animated;
+	MFMailComposeViewController * emailComposer;
+	NSURL * urlVersion;
+}
+
+@property(nonatomic,readwrite,assign)	BOOL animated;
+
+- (void) setPropertyDict: (NSDictionary *) newDict;
+- (void) performComposition;
+
+@end
+
+@implementation EmailComposerProxy
+@synthesize animated;
+
+- (id) init
+{
+	self = [super init];
+	if (self != nil) {
+		animated = YES;
+	}
+	return self;
+}
+
+- (NSString *) sanitizeString:(id) inputObject;
+{
+	if ([inputObject isKindOfClass:[NSString class]]) return inputObject;
+	return nil;
+}
+
+- (NSArray *) sanitizeArray:(id) inputObject;
+{
+	Class stringClass = [NSString class];
+
+	if ([inputObject isKindOfClass:[NSArray class]]){
+		for (NSString * thisEntry in inputObject){
+			if (![thisEntry isKindOfClass:stringClass]) return nil;
+		}
+		return inputObject;
+	}
+	
+	if ([inputObject isKindOfClass:stringClass]){
+		return [NSArray arrayWithObject:inputObject];
+	}
+	
+	return nil;
+}
+
+- (void) setPropertyDict: (NSDictionary *) newDict;
+{
+	Class mailClass = NSClassFromString(@"MFMailComposeViewController");
+	NSString * subject = [self sanitizeString:[newDict objectForKey:@"subject"]];
+	NSArray * toArray = [self sanitizeArray:[newDict objectForKey:@"toRecipients"]];
+	NSArray * bccArray = [self sanitizeArray:[newDict objectForKey:@"bccRecipients"]];
+	NSArray * ccArray = [self sanitizeArray:[newDict objectForKey:@"ccRecipients"]];
+	
+	if ((mailClass != nil) && [mailClass canSendMail]){
+		if(emailComposer==nil){
+			emailComposer = [[mailClass alloc] init];
+		}
+		[emailComposer setSubject:subject];
+		[emailComposer setToRecipients:toArray];
+		[emailComposer setBccRecipients:bccArray];
+		[emailComposer setCcRecipients:ccArray];
+		
+		return;
+	}
+
+	[urlVersion release];
+	NSMutableString * resultString = [[NSMutableString alloc] initWithString:@"mailto:"];
+	urlVersion = [[NSURL alloc] initWithString:resultString];
+	[resultString release];
+}
+
+- (void) performComposition;
+{
+	if (urlVersion != nil){
+		[[UIApplication sharedApplication] openURL:urlVersion];
+		return;
+	}
+	
+	
+}
+
+@end
 
 
 
@@ -1116,6 +1205,20 @@ int barButtonSystemItemForString(NSString * inputString){
 	[result release];
 }
 
+#pragma mark Email thingy generation
+
+- (void) openEmailComposer: (NSDictionary *) emailComposerObject options: (NSDictionary *) optionsObject;
+{
+	Class dictClass = [NSDictionary class];
+	if (![emailComposerObject isKindOfClass:dictClass]) return;
+	
+	if([optionsObject isKindOfClass:dictClass]){
+		
+	}
+	
+	
+}
+
 
 #pragma mark startModule
 
@@ -1185,6 +1288,17 @@ int barButtonSystemItemForString(NSString * inputString){
 	//NOTE: createWindow doesn't actually create a native-side window. Instead, it simply sets up the dict.
 	//The actual actions are performed at open time.
 	
+	NSString * createEmailString = @"function(args){var res={};for(property in args){res[property]=args[property];};"
+			"res.attachments=[];"
+			"res.setSubject=function(arg){this.subject=arg;};"
+			"res.setToRecipients=function(arg){this.toRecipients=arg;};"
+			"res.setCcRecipients=function(arg){this.ccRecipients=arg;};"
+			"res.setBccRecipients=function(arg){this.bccRecipients=arg;};"
+			"res.setMessageBody=function(arg){this.messageBody=arg;};"
+			"res.addAttachment=function(arg){this.attachments.push(arg);};"
+			"res.open=function(arg){if(!this._TOKEN){var tkn='eml'+Ti.UI._NEXTTKN++;this._TOKEN=tkn;Ti.UI._EMAIL[tkn]=this;}Ti.UI._EMAIL(this,arg);};"
+			"return res;}";
+	
 	NSString * currentWindowString = @"{"
 			"toolbar:{},_EVT:{close:[],unfocused:[],focused:[]},doEvent:Ti._ONEVT,"
 			"addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
@@ -1233,7 +1347,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			"return res;}";
 
 	NSString * createTableWindowString = @"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
-			"var tkn='TBL'+(Ti.UI._NEXTTBL++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}";	
+			"var tkn='TBL'+(Ti.UI._NEXTTKN++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}";	
 
 	NSString * createGroupedViewString = @"function(args,callback){var res=Ti.UI.createTableView(args,callback);res.grouped=true;"
 			"res._GRP=[];res.addSection=function(section){this._GRP.push(section);};return res;}";
@@ -1272,7 +1386,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			"return res;}";
 
 	NSString * createOptionDialogString = @"function(args){var res={};for(prop in args){res[prop]=args[prop];};"
-			"res._TOKEN='MDL'+(Ti.UI._NEXTMODAL++);Ti.UI._MODAL[res._TOKEN]=res;res.onClick=Ti._ONEVT;"
+			"res._TOKEN='MDL'+(Ti.UI._NEXTTKN++);Ti.UI._MODAL[res._TOKEN]=res;res.onClick=Ti._ONEVT;"
 			"res._EVT={click:[]};res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;"
 			"res.setOptions=function(args){this.options=args;};"
 			"res.setTitle=function(args){this.title=args;};"
@@ -1283,7 +1397,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	TitaniumJSCode * createAlertCode = [TitaniumJSCode codeWithString:
 			@"function(args){var res={};for(prop in args){res[prop]=args[prop];};"
 			"if(args && args.buttonNames){res.options=args.buttonNames;}"
-			"res._TOKEN='MDL'+(Ti.UI._NEXTMODAL++);Ti.UI._MODAL[res._TOKEN]=res;res.onClick=Ti._ONEVT;"
+			"res._TOKEN='MDL'+(Ti.UI._NEXTTKN++);Ti.UI._MODAL[res._TOKEN]=res;res.onClick=Ti._ONEVT;"
 			"res._EVT={click:[]};res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;"
 			"res.setButtonNames=function(args){this.options=args;};"
 			"res.setTitle=function(args){this.title=args;};"
@@ -1312,6 +1426,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			setButtonFocusInvoc,@"_BTNFOC",
 			[TitaniumJSCode codeWithString:createButtonString],@"createButton",
 
+			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'activity');}"],@"createActivityIndicator",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'switch');}"],@"createSwitch",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'slider');}"],@"createSlider",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'text');}"],@"createTextField",
@@ -1319,17 +1434,18 @@ int barButtonSystemItemForString(NSString * inputString){
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'multibutton');}"],@"createButtonBar",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'segmented');}"],@"createTabbedBar",
 
-			[TitaniumJSCode codeWithString:@"{}"],@"_MODAL",
-			[NSNumber numberWithInt:1],@"_NEXTMODAL",
+			[NSNumber numberWithInt:1],@"_NEXTTKN",
 			showModalInvoc,@"_MSHOW",
 			[TitaniumJSCode codeWithString:createOptionDialogString],@"createOptionDialog",
 			createAlertCode,@"createAlertDialog",
+
 			
 			appBadgeInvoc,@"setAppBadge",
 			tabBadgeInvoc,@"setTabBadge",
 
+			[TitaniumJSCode codeWithString:@"{}"],@"_MODAL",
 			[TitaniumJSCode codeWithString:@"{}"],@"_TBL",
-			[NSNumber numberWithInt:1],@"_NEXTTBL",
+			[TitaniumJSCode codeWithString:@"{}"],@"_EMAIL",
 			[TitaniumJSCode codeWithString:currentWindowString],@"currentWindow",
 			[TitaniumJSCode codeWithString:createWindowString],@"createWindow",
 			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",

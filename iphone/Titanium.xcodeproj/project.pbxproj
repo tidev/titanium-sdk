@@ -105,6 +105,8 @@
 		B4110C9F0FD4653A00BE17F8 /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */; };
 		B413A6800F7998C500B1C47D /* TitaniumAppProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */; };
 		B413A7530F79A58000B1C47D /* TitaniumCmdThread.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */; };
+		B425068A100C0A4B00AD6A6B /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		B425068B100C0A4B00AD6A6B /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		B4468EFD10027417002BAC64 /* misc.html in Resources */ = {isa = PBXBuildFile; fileRef = B4468EFC10027417002BAC64 /* misc.html */; };
 		B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
 		B44BCFDA0FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
@@ -222,6 +224,7 @@
 		B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumAppProtocol.m; sourceTree = "<group>"; };
 		B413A7510F79A58000B1C47D /* TitaniumCmdThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumCmdThread.h; sourceTree = "<group>"; };
 		B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumCmdThread.m; sourceTree = "<group>"; };
+		B4250689100C0A4B00AD6A6B /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		B4468EFC10027417002BAC64 /* misc.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = misc.html; sourceTree = "<group>"; };
 		B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		B45C717D0FEDAF93002A8675 /* WebTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebTableViewCell.h; sourceTree = "<group>"; };
@@ -287,6 +290,7 @@
 				B4C3F8B60FB3B11C0037F210 /* CoreLocation.framework in Frameworks */,
 				B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */,
 				B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */,
+				B425068A100C0A4B00AD6A6B /* MessageUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -303,6 +307,7 @@
 				B41069CF0FBB756B00310448 /* CoreGraphics.framework in Frameworks */,
 				B44BCFDA0FC5E03400733BDD /* libsqlite3.dylib in Frameworks */,
 				B4A49BA30FCE01070049ED60 /* MediaPlayer.framework in Frameworks */,
+				B425068B100C0A4B00AD6A6B /* MessageUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -532,6 +537,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B4250689100C0A4B00AD6A6B /* MessageUI.framework */,
 				B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */,
 				B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */,
 				B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */,
