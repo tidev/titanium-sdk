@@ -105,6 +105,8 @@ typedef enum {
 - (void) endModules;
 
 #pragma mark View registration
+- (void) applyDefaultViewSettings: (UIViewController *) viewController;
+
 - (void) registerViewController: (UIViewController *) viewController forKey: (NSString *) key;
 - (void) unregisterViewController: (UIViewController *) viewController;
 
