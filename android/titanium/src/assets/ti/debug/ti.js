@@ -36,8 +36,32 @@ var Titanium = new function() {
 			}
 
 			//alert('AFTER: ' + imgs[i].src);
-		};
+		}
 	};
+
+	this.getPosition = function(obj) {
+        var pos = { top: 0, left: 0, width: 0, height: 0 };
+        pos.width = obj.offsetWidth;
+        pos.height = obj.offsetHeight;
+	    while(obj){
+            pos.left+= obj.offsetLeft;
+            pos.top+= obj.offsetTop;
+            obj= obj.offsetParent;
+	    }
+	    return pos;
+	};
+
+	this.sendLayoutToNative = function(ids) {
+		var positions = {};
+
+		for(i=0; i < ids.length; i++) {
+			var id = ids[i];
+			var o = document.getElementById(id);
+			positions[id] = this.getPosition(o);
+		}
+
+		this.apiProxy.updateNativeControls(Titanium.JSON.stringify(positions));
+	}
 
 	this.callbackCounter = 0;
 	this.callbacks = new Object();

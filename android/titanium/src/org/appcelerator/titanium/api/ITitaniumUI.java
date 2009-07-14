@@ -9,6 +9,7 @@ package org.appcelerator.titanium.api;
 
 public interface ITitaniumUI
 {
+	// In 0.4.0
 	public ITitaniumUserWindow createWindow();
 
 	public ITitaniumMenuItem createMenu();
@@ -23,6 +24,10 @@ public interface ITitaniumUI
 
 	public ITitaniumNotifier createNotification();
 
+	// In 0.5.0
 	public ITitaniumTableView createTableView();
+
+	// In 0.5.1
+	public ITitaniumButton createButton(String json);
 
 }
