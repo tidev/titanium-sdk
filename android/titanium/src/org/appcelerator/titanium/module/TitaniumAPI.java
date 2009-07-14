@@ -64,4 +64,8 @@ public class TitaniumAPI extends TitaniumBaseModule implements ITitaniumAPI
 			Log.e(LCAT,msg);
 		}
 	}
+
+	public void updateNativeControls(String json) {
+		getModuleManager().updateNativeControls(json);
+	}
 }

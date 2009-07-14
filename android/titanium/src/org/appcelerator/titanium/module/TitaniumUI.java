@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.TitaniumModuleManager;
+import org.appcelerator.titanium.api.ITitaniumButton;
 import org.appcelerator.titanium.api.ITitaniumDialog;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumMenuItem;
@@ -22,6 +23,7 @@ import org.appcelerator.titanium.api.ITitaniumTableView;
 import org.appcelerator.titanium.api.ITitaniumUI;
 import org.appcelerator.titanium.api.ITitaniumUserWindow;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.ui.TitaniumButton;
 import org.appcelerator.titanium.module.ui.TitaniumDialog;
 import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
 import org.appcelerator.titanium.module.ui.TitaniumProgressDialog;
@@ -45,6 +47,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	private static final int MSG_CREATE_ALERTDIALOG = 301;
 	private static final int MSG_CREATE_OPTIONDIALOG = 302;
 	private static final int MSG_CREATE_TOASTNOTIFIER = 303;
+	private static final int MSG_CREATE_BUTTON = 304;
 
 	private static final int MSG_END_CREATE_SECTION = 330;
 
@@ -111,6 +114,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 					break;
 				case MSG_CREATE_TOASTNOTIFIER :
 					h.o = new TitaniumToastNotifier(getActivity());
+					break;
+				case MSG_CREATE_BUTTON :
+					h.o = new TitaniumButton(getModuleManager());
 					break;
 				default :
 					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
@@ -185,6 +191,11 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 		return (ITitaniumTableView) create(MSG_CREATE_TABLEVIEW);
 	}
 
+	public ITitaniumButton createButton(String json) {
+		TitaniumButton btn =  (TitaniumButton) create(MSG_CREATE_BUTTON);
+		btn.setOptions(json);
+		return btn;
+	}
 	// Expects the message handler to put the object in h.o and release the holder
 	private Object create(int what)
 	{

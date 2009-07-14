@@ -125,6 +125,8 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 
 	private boolean fullscreen;
 
+	private Runnable layoutRunnable;
+
 	public interface OnConfigChange {
 		public void configurationChanged(Configuration config);
 	}
@@ -184,6 +186,12 @@ public class TitaniumActivity extends Activity implements Handler.Callback
         webView.setWebViewClient(new TiWebViewClient(this));
         webView.setWebChromeClient(new TiWebChromeClient(this));
 
+        layoutRunnable = new Runnable() {
+
+			public void run() {
+				moduleMgr.requestLayout();
+			}
+        };
 
         if (intent != null) {
         	appInfo = intent.getAppInfo(me);
@@ -352,7 +360,7 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 
     protected void initializeModules() {
         // Add Modules
-        moduleMgr = new TitaniumModuleManager(this, handler);
+        moduleMgr = new TitaniumModuleManager(this);
         this.tiUI = new TitaniumUI(moduleMgr, "TitaniumUI");
 
         new TitaniumMedia(moduleMgr, "TitaniumMedia");
@@ -434,6 +442,8 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 			 	    if (!webView.hasFocus()) {
 			 	    	webView.requestFocus();
 			 	    }
+
+			 	    moduleMgr.requestLayout();
 				}
 				loaded = true;
 				return true;
@@ -531,6 +541,10 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 					Log.e(LCAT, "Error invoking configuration changed on a listener");
 				}
 			}
+		}
+
+		if (loaded && !destroyed) {
+			handler.postDelayed(layoutRunnable, 50);
 		}
 	}
 

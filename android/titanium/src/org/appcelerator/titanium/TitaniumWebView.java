@@ -3,13 +3,18 @@ package org.appcelerator.titanium;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.json.JSONObject;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.AbsoluteLayout;
+import android.widget.FrameLayout;
 
 public class TitaniumWebView extends WebView implements Handler.Callback
 {
@@ -21,6 +26,7 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 
 	public static final int MSG_RUN_JAVASCRIPT = 300;
 	public static final int MSG_LOAD_FROM_SOURCE = 301;
+	public static final int MSG_ADD_CONTROL = 302;
 
 	protected static final String MSG_EXTRA_URL = "url";
 	protected static final String MSG_EXTRA_SOURCE = "source";
@@ -28,6 +34,7 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 	private TitaniumActivity activity;
 	private Handler handler;
 	private MimeTypeMap mtm;
+	private AbsoluteLayout nativeLayout;
 
 
 	public TitaniumWebView(TitaniumActivity activity) {
@@ -48,6 +55,10 @@ public class TitaniumWebView extends WebView implements Handler.Callback
         settings.setLightTouchEnabled(true);
 
 		Log.e(LCAT, "WVThreadName: " + Thread.currentThread().getName());
+        nativeLayout = new AbsoluteLayout(activity);
+        nativeLayout.setBackgroundColor(Color.argb(25, 0, 255, 0));
+        addView(nativeLayout, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+                        ViewGroup.LayoutParams.FILL_PARENT));
 	}
 
 	public void evalJS(final String method) {
@@ -126,6 +137,10 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 			}
 			handled = true;
 			break;
+		case MSG_ADD_CONTROL :
+			nativeLayout.addView((View) msg.obj);
+			handled = true;
+			break;
 		}
 
 		return handled;
@@ -138,5 +153,9 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 		b.putString(MSG_EXTRA_URL, url);
 		b.putString(MSG_EXTRA_SOURCE, source);
 		m.sendToTarget();
+	}
+
+	public void addControl(View control) {
+		handler.obtainMessage(MSG_ADD_CONTROL, control).sendToTarget();
 	}
 }

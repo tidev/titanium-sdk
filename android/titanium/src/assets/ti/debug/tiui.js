@@ -496,6 +496,20 @@ var UserWindow = function(proxy) {
 UserWindow.prototype.__defineGetter__("window", function() {
 	return this._window;
 });
+//TODO doc
+var Button = function(proxy) {
+	this.proxy = proxy;
+
+	this.addEventListener = function(eventName, listener) {
+		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
+	};
+	this.removeEventListener = function(eventname, listenerId) {
+		this.proxy.removeEventListener(eventName, listenerId);
+	};
+	this.open = function(options) {
+		this.proxy.open(options);
+	};
+};
 
 Titanium.UI = {
 	/**
@@ -687,12 +701,17 @@ Titanium.UI = {
 
 		 return tv;
 	},
+	/**
+	 * @tiapi(method=true,name=UI.createButton,since=0.5.1) Create a native button
+	 * @tiarg[object, options] a set of configuration options for the button
+	 * @tiresult[Button] the button.
+	 */
+	createButton : function(options) {
+		return new Button(Titanium.uiProxy.createButton(Titanium.JSON.stringify(options)));
+	},
 
 	// createNotification is below. It needs the property currentWindow
 	// iPhone only methods
-	createButton : function(options) {
-		return null;
-	},
 	createToolbar : function(options) {
 		return null;
 	},

@@ -7,8 +7,9 @@
 
 package org.appcelerator.titanium.api;
 
-public interface ITitaniumAPI
+public interface ITitaniumButton
 {
-	public void log(int severity, String msg);
-	public void updateNativeControls(String json);
+	public void open(String json);
+	public int addEventListener(String eventName, String listener);
+	public void removeEventListener(String eventName, int listenerId);
 }
