@@ -423,7 +423,10 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	}
 }
 
-
+- (void) applyDefaultViewSettings: (UIViewController *) viewController;
+{
+	
+}
 
 - (void) registerViewController: (UIViewController *) viewController forKey: (NSString *) key;
 {
