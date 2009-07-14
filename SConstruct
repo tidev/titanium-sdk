@@ -29,7 +29,7 @@ if os.path.exists('android/titanium/bin'):
 #
 
 build_dirs = ['android/titanium']
-if not platform.system() == "Windows":
+if platform.system() == "Darwin":
 	build_dirs.append('iphone')
 
 for dir in build_dirs:
