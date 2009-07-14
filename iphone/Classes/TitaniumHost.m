@@ -18,6 +18,7 @@
 #import "TitaniumJSCode.h"
 #import "SBJSON.h"
 
+BOOL VERBOSE_DEBUG = NO;
 
 @implementation TitaniumProxyObject : NSObject
 @synthesize token, javaScriptPath, parentPageToken;
@@ -339,7 +340,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 		NSString * thisModuleClassName = [NSString stringWithFormat:@"%@%@Module",
 										  [[thisModuleName substringToIndex:1] uppercaseString],[thisModuleName substringFromIndex:1]];
 
-		NSLog(@"loading module %@, class name = %@",thisModuleName,thisModuleClassName);
+		if(VERBOSE_DEBUG)NSLog(@"loading module %@, class name = %@",thisModuleName,thisModuleClassName);
 		
 		@try
 		{
@@ -366,6 +367,9 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	}
 	
 //	NSLog(@"Application Properties = %@", appProperties);
+	id verboseObject = [appProperties objectForKey:@"verboseDebugging"];
+	if ([verboseObject respondsToSelector:@selector(boolValue)])VERBOSE_DEBUG=[verboseObject boolValue];
+
 
 	if (appProperties!=nil)
 	{
@@ -411,7 +415,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 
 	//If needed, set up the tab bar.
 	//Then set up the heirarchy.
-
+	if(VERBOSE_DEBUG)NSLog(@"Modules loaded. TitaniumObject is now:%@",titaniumObject);
 	[[TitaniumAppDelegate sharedDelegate] setViewController:rootViewController];
 	
 }
@@ -566,9 +570,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	// comes in as ti://<name> or ti:<name> or path or app://path
 	if (pathOrUrl == nil) return nil;
 	
-#if VERBOSE_DEBUG
-	NSLog(@"imageForResource = %@",pathOrUrl);
-#endif
+	if(VERBOSE_DEBUG)NSLog(@"imageForResource = %@",pathOrUrl);
 
 	// first check the image cache
 	
@@ -778,6 +780,9 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	TitaniumWebViewController *wvc = (TitaniumWebViewController*)[TitaniumWebViewController mostRecentController];
 	[wvc acceptToken:thisThreadHashString forContext:@"window"];
 	NSString * result = [NSString stringWithFormat:(NSString*)titaniumJavascriptInjection,thisThreadHashString,thisThreadHashString,STRING(TI_VERSION),[self generateJavaScriptWrappingKeyPath:(NSString*)titaniumObjectKey makeObject:NO]];
+	if(VERBOSE_DEBUG){
+		NSLog(@"Javascript for resource (%@) \n%@",resourceUrl,result);
+	}
 	lastThreadHash+=1;
 	return result;
 }
