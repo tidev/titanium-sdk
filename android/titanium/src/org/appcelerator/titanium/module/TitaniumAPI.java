@@ -66,6 +66,6 @@ public class TitaniumAPI extends TitaniumBaseModule implements ITitaniumAPI
 	}
 
 	public void updateNativeControls(String json) {
-		getModuleManager().updateNativeControls(json);
+		getModuleManager().getActivity().getWebView().updateNativeControls(json);
 	}
 }
