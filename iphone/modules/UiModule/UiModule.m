@@ -9,9 +9,11 @@
 #import "UiModule.h"
 #import "Webcolor.h"
 #import "TitaniumHost.h"
+#import "TitaniumBlobWrapper.h"
 
 #import <MessageUI/MessageUI.h>
 #import <MessageUI/MFMailComposeViewController.h>
+
 
 NSDictionary * barButtonSystemItemForStringDict = nil;
 
@@ -847,21 +849,34 @@ int barButtonSystemItemForString(NSString * inputString){
 
 - (void) setPropertyDict: (NSDictionary *) newDict;
 {
+	[self setToken:[self sanitizeString:[newDict objectForKey:@"_TOKEN"]]];
 	Class mailClass = NSClassFromString(@"MFMailComposeViewController");
 	NSString * subject = [self sanitizeString:[newDict objectForKey:@"subject"]];
 	NSArray * toArray = [self sanitizeArray:[newDict objectForKey:@"toRecipients"]];
 	NSArray * bccArray = [self sanitizeArray:[newDict objectForKey:@"bccRecipients"]];
 	NSArray * ccArray = [self sanitizeArray:[newDict objectForKey:@"ccRecipients"]];
+	NSString * message = [self sanitizeString:[newDict objectForKey:@"messageBody"]];
+	NSArray * attachmentArray = [newDict objectForKey:@"attachments"];
 	
 	if ((mailClass != nil) && [mailClass canSendMail]){
 		if(emailComposer==nil){
 			emailComposer = [[mailClass alloc] init];
+			[emailComposer setMailComposeDelegate:self];
 		}
 		[emailComposer setSubject:subject];
 		[emailComposer setToRecipients:toArray];
 		[emailComposer setBccRecipients:bccArray];
 		[emailComposer setCcRecipients:ccArray];
-		
+		[emailComposer setMessageBody:message isHTML:NO];
+		if([attachmentArray isKindOfClass:[NSArray class]]){
+			for (id thisAttachment in attachmentArray){
+				if ([thisAttachment isKindOfClass:[TitaniumBlobWrapper class]]){
+					[emailComposer addAttachmentData:[(TitaniumBlobWrapper *)thisAttachment dataBlob]
+							mimeType:[(TitaniumBlobWrapper *)thisAttachment mimeType]
+							fileName:[(TitaniumBlobWrapper *)thisAttachment virtualFileName]];
+				}
+			}
+		}
 		return;
 	}
 
@@ -875,10 +890,36 @@ int barButtonSystemItemForString(NSString * inputString){
 {
 	if (urlVersion != nil){
 		[[UIApplication sharedApplication] openURL:urlVersion];
+		[self autorelease];
 		return;
 	}
+	UIViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[self parentPageToken]];
+	[[ourVC navigationController] presentModalViewController:emailComposer animated:animated];
+}
+
+- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error;
+{
+
+	if(error){
+		NSLog(@"Unexpected composing error: %@",error);
+	}
+
+	switch (result) {
+		case MFMailComposeResultSent:
+			break;
+		case MFMailComposeResultSaved:
+			break;
+		case MFMailComposeResultCancelled:
+			break;
+		case MFMailComposeResultFailed:
+			break;
+		default:
+			break;
+	}
 	
-	
+	UIViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[self parentPageToken]];
+	[[ourVC navigationController] dismissModalViewControllerAnimated:animated];
+	[self autorelease];
 }
 
 @end
@@ -1212,11 +1253,17 @@ int barButtonSystemItemForString(NSString * inputString){
 	Class dictClass = [NSDictionary class];
 	if (![emailComposerObject isKindOfClass:dictClass]) return;
 	
+	EmailComposerProxy * ourProxy = [[EmailComposerProxy alloc] init];
+	[ourProxy setPropertyDict:emailComposerObject];
+	
 	if([optionsObject isKindOfClass:dictClass]){
-		
+		NSNumber * isAnimatedObject = [optionsObject objectForKey:@"animated"];
+		if ([isAnimatedObject respondsToSelector:@selector(boolValue)]){
+			[ourProxy setAnimated:[isAnimatedObject boolValue]];
+		}
 	}
 	
-	
+	[ourProxy performSelectorOnMainThread:@selector(performComposition) withObject:nil waitUntilDone:NO];
 }
 
 
@@ -1283,6 +1330,9 @@ int barButtonSystemItemForString(NSString * inputString){
 	[(UiModule *)invocGen addWindow:nil nativeView:nil options:nil];
 	NSInvocation * insertNativeViewInvoc = [invocGen invocation];
 	
+	[(UiModule *)invocGen openEmailComposer:nil options:nil];
+	NSInvocation * emailComposeInvoc = [invocGen invocation];
+	
 	buttonContexts = [[NSMutableDictionary alloc] init];
 	
 	//NOTE: createWindow doesn't actually create a native-side window. Instead, it simply sets up the dict.
@@ -1296,7 +1346,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res.setBccRecipients=function(arg){this.bccRecipients=arg;};"
 			"res.setMessageBody=function(arg){this.messageBody=arg;};"
 			"res.addAttachment=function(arg){this.attachments.push(arg);};"
-			"res.open=function(arg){if(!this._TOKEN){var tkn='eml'+Ti.UI._NEXTTKN++;this._TOKEN=tkn;Ti.UI._EMAIL[tkn]=this;}Ti.UI._EMAIL(this,arg);};"
+			"res.open=function(arg){if(!this._TOKEN){var tkn='eml'+Ti.UI._NEXTTKN++;this._TOKEN=tkn;Ti.UI._EMAIL[tkn]=this;}Ti.UI._OPNEMAIL(this,arg);};"
 			"return res;}";
 	
 	NSString * currentWindowString = @"{"
@@ -1446,6 +1496,8 @@ int barButtonSystemItemForString(NSString * inputString){
 			[TitaniumJSCode codeWithString:@"{}"],@"_MODAL",
 			[TitaniumJSCode codeWithString:@"{}"],@"_TBL",
 			[TitaniumJSCode codeWithString:@"{}"],@"_EMAIL",
+			emailComposeInvoc,@"_OPNEMAIL",
+			[TitaniumJSCode codeWithString:createEmailString],@"createEmailDialog",
 			[TitaniumJSCode codeWithString:currentWindowString],@"currentWindow",
 			[TitaniumJSCode codeWithString:createWindowString],@"createWindow",
 			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",

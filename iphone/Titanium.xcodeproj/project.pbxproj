@@ -107,6 +107,9 @@
 		B413A7530F79A58000B1C47D /* TitaniumCmdThread.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */; };
 		B425068A100C0A4B00AD6A6B /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		B425068B100C0A4B00AD6A6B /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		B4290A75100D31FD00C4FF98 /* TweakedNavController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4290A73100D31FD00C4FF98 /* TweakedNavController.h */; };
+		B4290A76100D31FD00C4FF98 /* TweakedNavController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4290A74100D31FD00C4FF98 /* TweakedNavController.m */; };
+		B4290A77100D31FD00C4FF98 /* TweakedNavController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4290A74100D31FD00C4FF98 /* TweakedNavController.m */; };
 		B4468EFD10027417002BAC64 /* misc.html in Resources */ = {isa = PBXBuildFile; fileRef = B4468EFC10027417002BAC64 /* misc.html */; };
 		B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
 		B44BCFDA0FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
@@ -225,6 +228,8 @@
 		B413A7510F79A58000B1C47D /* TitaniumCmdThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumCmdThread.h; sourceTree = "<group>"; };
 		B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumCmdThread.m; sourceTree = "<group>"; };
 		B4250689100C0A4B00AD6A6B /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		B4290A73100D31FD00C4FF98 /* TweakedNavController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TweakedNavController.h; sourceTree = "<group>"; };
+		B4290A74100D31FD00C4FF98 /* TweakedNavController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TweakedNavController.m; sourceTree = "<group>"; };
 		B4468EFC10027417002BAC64 /* misc.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = misc.html; sourceTree = "<group>"; };
 		B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		B45C717D0FEDAF93002A8675 /* WebTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebTableViewCell.h; sourceTree = "<group>"; };
@@ -339,6 +344,8 @@
 				B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */,
 				B47B52D40FF1B2F400BD7229 /* ValueTableViewCell.h */,
 				B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */,
+				B4290A73100D31FD00C4FF98 /* TweakedNavController.h */,
+				B4290A74100D31FD00C4FF98 /* TweakedNavController.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -642,6 +649,7 @@
 				B4C6D7340FE9AB0600D62384 /* TitaniumTableViewController.h in Headers */,
 				B45C71800FEDAF93002A8675 /* WebTableViewCell.h in Headers */,
 				B47B52D70FF1B2F400BD7229 /* ValueTableViewCell.h in Headers */,
+				B4290A75100D31FD00C4FF98 /* TweakedNavController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -793,6 +801,7 @@
 				B47B52D60FF1B2F400BD7229 /* ValueTableViewCell.m in Sources */,
 				B4B9E4641003D3E6004B8831 /* ext-core.js in Sources */,
 				B4B9E4721003D52F004B8831 /* jquery.js in Sources */,
+				B4290A77100D31FD00C4FF98 /* TweakedNavController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -837,6 +846,7 @@
 				B4C6D7350FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */,
 				B45C71810FEDAF93002A8675 /* WebTableViewCell.m in Sources */,
 				B47B52D80FF1B2F400BD7229 /* ValueTableViewCell.m in Sources */,
+				B4290A76100D31FD00C4FF98 /* TweakedNavController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

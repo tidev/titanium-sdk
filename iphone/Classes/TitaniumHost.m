@@ -18,6 +18,8 @@
 #import "TitaniumJSCode.h"
 #import "SBJSON.h"
 
+#import "TweakedNavController.h"
+
 BOOL VERBOSE_DEBUG = NO;
 
 @implementation TitaniumProxyObject : NSObject
@@ -329,7 +331,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 {
 	TitaniumViewController * titaniumVC = [TitaniumViewController viewControllerForState:sourceDict relativeToUrl:[NSURL URLWithString:@"index.html" relativeToURL:appBaseUrl]];
 
-	UINavigationController * navVC = [[UINavigationController alloc] initWithRootViewController:titaniumVC];	
+	UINavigationController * navVC = [[TweakedNavController alloc] initWithRootViewController:titaniumVC];	
 	return [navVC autorelease];
 }
 

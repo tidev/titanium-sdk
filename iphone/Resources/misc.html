@@ -44,6 +44,16 @@
 		Ti.UI.currentWindow.setFullscreen(false);
 	}
 
+	doEmailTest=function(){
+		var emailDialog = Titanium.UI.createEmailDialog()
+		emailDialog.setSubject('foo');
+		emailDialog.setToRecipients(['fred@gmail.com', 'joe@hotmail.com']);
+		emailDialog.setCcRecipients(['joe@gmail.com']);
+		emailDialog.setBccRecipients(['obama@whitehouse.gov']);
+		emailDialog.setMessageBody('my body string');
+		emailDialog.addAttachment({mimeType:'image/jpeg', file:'path/to/image'});
+		emailDialog.open();
+	}
 </script>
 </head>
 <body>
@@ -56,6 +66,8 @@
 
 	<button onclick="testFun('fullScreen()')">Full</button>
 	<button onclick="testFun('noFullScreen()')">Empty</button>
+
+	<button onclick="testFun('doEmailTest()')">Email</button>
 
 	<hr>
 	Landscape: <script>document.write(Ti.Gesture.LANDSCAPE);</script><br>
