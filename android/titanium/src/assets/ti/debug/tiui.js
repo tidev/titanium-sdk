@@ -511,6 +511,20 @@ var Button = function(proxy) {
 	};
 };
 
+var Switch = function(proxy) {
+	this.proxy = proxy;
+
+	this.addEventListener = function(eventName, listener) {
+		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
+	};
+	this.removeEventListener = function(eventname, listenerId) {
+		this.proxy.removeEventListener(eventName, listenerId);
+	};
+	this.open = function(options) {
+		this.proxy.open(options);
+	};
+};
+
 Titanium.UI = {
 	/**
 	 * @tiapi(property=true,name=UI.WINDOW_TABBED,since=0.4) Used in UserWindow.setType for a tabbed window
@@ -708,6 +722,15 @@ Titanium.UI = {
 	 */
 	createButton : function(options) {
 		return new Button(Titanium.uiProxy.createButton(Titanium.JSON.stringify(options)));
+	},
+
+	/**
+	 * @tiapi(method=true,name=UI.createSwitch,since=0.5.1) Create a native toggle
+	 * @tiarg[object, options] a set of configuration options for the switch/toggle.
+	 * @tiresult[Switch] the Switch.
+	 */
+	createSwitch : function(options) {
+		return new Switch(Titanium.uiProxy.createSwitch(Titanium.JSON.stringify(options)));
 	},
 
 	// createNotification is below. It needs the property currentWindow

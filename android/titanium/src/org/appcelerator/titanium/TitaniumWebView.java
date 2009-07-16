@@ -43,6 +43,7 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 	private MimeTypeMap mtm;
 
 	private HashMap<String, ITitaniumNativeControl> nativeControls;
+	private AbsoluteLayout.LayoutParams offScreen;
 
 
 	public TitaniumWebView(TitaniumActivity activity)
@@ -63,6 +64,7 @@ public class TitaniumWebView extends WebView implements Handler.Callback
         settings.setLoadsImagesAutomatically(true);
         settings.setLightTouchEnabled(true);
 
+        offScreen = new AbsoluteLayout.LayoutParams(1, 1, -100, -100);
 		Log.e(LCAT, "WVThreadName: " + Thread.currentThread().getName());
 	}
 
@@ -147,7 +149,7 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 				setFocusable(false);
 			}
 			View v = (View) msg.obj;
-			addView(v);
+			addView(v, offScreen);
 			handled = true;
 			break;
 		}
@@ -177,7 +179,7 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 		}
 
 		nativeControls.put(id, control);
-		requestNativeLayout(id);
+		//requestNativeLayout(id);
 
 		if (DBG) {
 			Log.d(LCAT, "Native control linked to html id " + id);

@@ -121,4 +121,5 @@ public abstract class TitaniumBaseNativeControl
 		}
 	}
 
+	public abstract void open(String json);
 }

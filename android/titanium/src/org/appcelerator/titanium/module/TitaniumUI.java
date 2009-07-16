@@ -19,6 +19,7 @@ import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumMenuItem;
 import org.appcelerator.titanium.api.ITitaniumNotifier;
 import org.appcelerator.titanium.api.ITitaniumProgressDialog;
+import org.appcelerator.titanium.api.ITitaniumSwitch;
 import org.appcelerator.titanium.api.ITitaniumTableView;
 import org.appcelerator.titanium.api.ITitaniumUI;
 import org.appcelerator.titanium.api.ITitaniumUserWindow;
@@ -27,6 +28,7 @@ import org.appcelerator.titanium.module.ui.TitaniumButton;
 import org.appcelerator.titanium.module.ui.TitaniumDialog;
 import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
 import org.appcelerator.titanium.module.ui.TitaniumProgressDialog;
+import org.appcelerator.titanium.module.ui.TitaniumSwitch;
 import org.appcelerator.titanium.module.ui.TitaniumTableView;
 import org.appcelerator.titanium.module.ui.TitaniumToastNotifier;
 import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
@@ -48,6 +50,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	private static final int MSG_CREATE_OPTIONDIALOG = 302;
 	private static final int MSG_CREATE_TOASTNOTIFIER = 303;
 	private static final int MSG_CREATE_BUTTON = 304;
+	private static final int MSG_CREATE_SWITCH = 305;
 
 	private static final int MSG_END_CREATE_SECTION = 330;
 
@@ -117,6 +120,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 					break;
 				case MSG_CREATE_BUTTON :
 					h.o = new TitaniumButton(getModuleManager());
+					break;
+				case MSG_CREATE_SWITCH :
+					h.o = new TitaniumSwitch(getModuleManager());
 					break;
 				default :
 					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
@@ -196,6 +202,13 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 		btn.setOptions(json);
 		return btn;
 	}
+
+	public ITitaniumSwitch createSwitch(String json) {
+		TitaniumSwitch btn =  (TitaniumSwitch) create(MSG_CREATE_SWITCH);
+		btn.setOptions(json);
+		return btn;
+	}
+
 	// Expects the message handler to put the object in h.o and release the holder
 	private Object create(int what)
 	{
