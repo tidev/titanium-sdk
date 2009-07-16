@@ -10,8 +10,8 @@
     <windows>
         <window>
             <id>initial</id>
-            <title>Testbed</title>
-            <url>tableview.html</url>
+            <title>Button Test</title>
+            <url>button.html</url>
             <type>single</type>
             <fullscreen>false</fullscreen>
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
