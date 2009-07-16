@@ -18,7 +18,9 @@
 NSDictionary * barButtonSystemItemForStringDict = nil;
 
 enum {
-	UITitaniumSegmentedStyleBar = -32,
+	UITitaniumNativeStyleBar = -32,
+	UITitaniumNativeStyleBig = -33,
+	UITitaniumNativeStyleDark = -34,
 };
 
 enum { //MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemItem
@@ -90,7 +92,7 @@ int barButtonSystemItemForString(NSString * inputString){
 @implementation UIButtonProxy
 @synthesize nativeBarButton, segmentLabelArray, segmentImageArray, segmentSelectedIndex;
 @synthesize titleString, iconPath, templateValue, buttonStyle, nativeView, labelView, wrapperView;
-@synthesize minValue,maxValue,floatValue,stringValue, placeholderText;
+@synthesize minValue,maxValue,floatValue,stringValue, placeholderText, isHidden;
 @synthesize elementColor, elementBorderColor, elementBackgroundColor;
 @synthesize leftViewProxy, rightViewProxy, leftViewMode, rightViewMode, surpressReturnCharacter;
 @synthesize backgroundImagePath, backgroundDisabledImagePath, backgroundSelectedImagePath;
@@ -135,6 +137,8 @@ int barButtonSystemItemForString(NSString * inputString){
 	GRAB_IF_SELECTOR(@"max",floatValue,maxValue);
 
 	id valueObject = [newDict objectForKey:@"value"];
+	if (valueObject == nil) valueObject = [newDict objectForKey:@"pos"];
+
 	if ([valueObject respondsToSelector:@selector(floatValue)]){
 		floatValue = [valueObject floatValue];
 		needsRefreshing = YES;
@@ -220,6 +224,8 @@ int barButtonSystemItemForString(NSString * inputString){
 	}
 
 	GRAB_IF_SELECTOR(@"clearOnEdit",boolValue,clearsOnBeginEditing);
+	GRAB_IF_SELECTOR(@"hidden",boolValue,isHidden);
+
 	GRAB_IF_SELECTOR(@"passwordMask",boolValue,passwordMask);
 
 	GRAB_IF_SELECTOR(@"borderStyle",intValue,borderStyle);
@@ -385,7 +391,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			[(UISegmentedControl *)resultView setMomentary:NO];
 			[(UISegmentedControl *)resultView setSelectedSegmentIndex:segmentSelectedIndex];
 		}
-		if (forBar || (buttonStyle == UITitaniumSegmentedStyleBar)){
+		if (forBar || (buttonStyle == UITitaniumNativeStyleBar)){
 			[(UISegmentedControl *)resultView setSegmentedControlStyle:UISegmentedControlStyleBar];
 		} else {
 			[(UISegmentedControl *)resultView setSegmentedControlStyle:((buttonStyle==UIBarButtonItemStyleBordered)?UISegmentedControlStyleBar:UISegmentedControlStylePlain)];
@@ -471,7 +477,8 @@ int barButtonSystemItemForString(NSString * inputString){
 		
 		[resultView setBackgroundColor:elementBorderColor];
 	}
-		
+	
+	[resultView setHidden:isHidden];
 	BOOL isNewView = (nativeView != resultView);
 	if(isNewView){
 		UIView * parentView = [nativeView superview];
@@ -1025,7 +1032,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	return nil;
 }
 
-- (void) updateButton: (id)proxyObject option: (id) optionObject;
+- (void) updateButton: (id)proxyObject options: (id) optionObject;
 {
 	UIButtonProxy * ourProxy = [self proxyForObject:proxyObject scan:YES recurse:YES];
 	[ourProxy performSelectorOnMainThread:@selector(updateWithOptions:) withObject:optionObject waitUntilDone:NO];
@@ -1454,8 +1461,8 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSString * createGroupedSectionString = @"function(args){var res={header:null};for(prop in args){res[prop]=args[prop]};"
 			"res._EVT={click:[]};res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res.onClick=Ti._ONEVT;return res;}";
 
-	NSString * systemButtonStyleString = [NSString stringWithFormat:@"{PLAIN:%d,BORDERED:%d,DONE:%d,BAR:%d}",
-										  UIBarButtonItemStylePlain,UIBarButtonItemStyleBordered,UIBarButtonItemStyleDone,UITitaniumSegmentedStyleBar];
+	NSString * systemButtonStyleString = [NSString stringWithFormat:@"{PLAIN:%d,BORDERED:%d,DONE:%d,BAR:%d,BIG:%d,DARK:%d}",
+										  UIBarButtonItemStylePlain,UIBarButtonItemStyleBordered,UIBarButtonItemStyleDone,UITitaniumNativeStyleBar,UITitaniumNativeStyleBig,UITitaniumNativeStyleDark];
 	NSString * systemIconString = @"{BOOKMARKS:'ti:bookmarks',CONTACTS:'ti:contacts',DOWNLOADS:'ti:downloads',"
 			"FAVORITES:'ti:favorites',DOWNLOADS:'ti:downloads',FEATURED:'ti:featured',MORE:'ti:more',MOST_RECENT:'ti:most_recent',"
 			"MOST_VIEWED:'ti:most_viewed',RECENTS:'ti:recents',SEARCH:'ti:search',TOP_RATED:'ti:top_rated'}";
@@ -1470,7 +1477,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSString * animationStyleString = [NSString stringWithFormat:@"{CURL_UP:%d,CURL_DOWN:%d,FLIP_FROM_LEFT:%d,FLIP_FROM_RIGHT:%d}",
 				UIViewAnimationTransitionCurlUp,UIViewAnimationTransitionCurlDown,UIViewAnimationTransitionFlipFromLeft,UIViewAnimationTransitionFlipFromRight];
 	
-	NSString * createButtonString = @"function(args,buttonType){var res={"
+	NSString * createButtonString = @"function(args,btnType){var res={"
 			"onClick:Ti._ONEVT,_EVT:{click:[],change:[],focus:[],blur:[],'return':[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
 //			"onClick:Ti._ONEVT,_EVT:{click:[],change:[],focus:[],blur:[],return:[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
 			"focus:function(){Ti.UI._BTNFOC(this,true);},blur:function(){Ti.UI._BTNFOC(this,false);},"
@@ -1484,10 +1491,12 @@ int barButtonSystemItemForString(NSString * inputString){
 //				"var attr=divObj.attributes;if(attr){var i=attr.length;while(i>0){i--;divAttr[attr[i].name]=attr[i].value;}};"
 				"divAttr.y=0;divAttr.x=0;divAttr.width=divObj.offsetWidth;divAttr.height=divObj.offsetHeight;"
 				"while(divObj){divAttr.x+=divObj.offsetLeft;divAttr.y+=divObj.offsetTop;divObj=divObj.offsetParent;}"
-				"Ti.UI.currentWindow.insertButton(this);"
-			"}};"
+				"Ti.UI.currentWindow.insertButton(this);},"
+			"hide:function(){this.hidden=true;this.update();},"
+			"show:function(){this.hidden=false;this.update();},"
+			"};"
 			"if(args){for(prop in args){res[prop]=args[prop];}};"
-			"if(buttonType)res.systemButton=buttonType;"
+			"if(btnType)res.systemButton=btnType;"
 			"if(res.id){res.setId(res.id);}"
 			"return res;}";
 
@@ -1512,6 +1521,14 @@ int barButtonSystemItemForString(NSString * inputString){
 			"return res;}"];
 	[createAlertCode setEpilogueCode:@"window.alert=function(args){Ti.API.log('alert',args);};"];
 
+	NSString * createActivityIndicatorString = @"function(args,btnType){if(!btnType)btnType='activity';var res=Ti.UI.createButton(args,btnType);"
+			"res.setMin=function(val){this.min=val;};res.setMax=function(val){this.max=val;};res.setPos=function(val){this.value=val;this.pos=val;this.update()};"
+			"res.setType=function(val){if(val)this.systemButton='progressbar';else this.systemButton='activity';};res.setMessage=function(val){this.title=val;this.update();};"
+			"res.DETERMINATE=true;res.INDETERMINATE=false;"
+			"return res;}";
+
+	NSString * createProgressBarString = @"function(args){var res=Ti.UI.createActivityIndicator(args,'progress');return res;}";
+
 	NSDictionary * uiDict = [NSDictionary dictionaryWithObjectsAndKeys:
 			closeWinInvoc,@"_CLS",
 			openWinInvoc,@"_OPN",
@@ -1533,8 +1550,8 @@ int barButtonSystemItemForString(NSString * inputString){
 			updateButtonInvoc,@"_BTNUPD",
 			[TitaniumJSCode codeWithString:createButtonString],@"createButton",
 
-			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'activity');}"],@"createActivityIndicator",
-			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'progress');}"],@"createProgressBar",
+			[TitaniumJSCode codeWithString:createActivityIndicatorString],@"createActivityIndicator",
+			[TitaniumJSCode codeWithString:createProgressBarString],@"createProgressBar",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'switch');}"],@"createSwitch",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'slider');}"],@"createSlider",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'text');}"],@"createTextField",
@@ -1598,6 +1615,8 @@ int barButtonSystemItemForString(NSString * inputString){
 					[TitaniumJSCode codeWithString:createGroupedSectionString],@"createGroupedSection",
 					statusBarStyleInvoc,@"setStatusBarStyle",
 					[TitaniumJSCode codeWithString:systemButtonStyleString],@"SystemButtonStyle",
+					[TitaniumJSCode codeWithString:systemButtonStyleString],@"ProgessBarStyle",
+					[TitaniumJSCode codeWithString:systemButtonStyleString],@"ActivityIndicatorStyle",
 					[TitaniumJSCode codeWithString:systemButtonString],@"SystemButton",
 					[TitaniumJSCode codeWithString:systemIconString],@"SystemIcon",
 					[TitaniumJSCode codeWithString:statusBarString],@"StatusBar",
