@@ -30,6 +30,7 @@
 	UIColor * elementSelectedColor; //The text color on a button being pressed
 	UIColor * elementBackgroundColor; //The color that fills the element.
 	UIColor * elementBorderColor; //Actually, the color that appears behind the element.
+	BOOL isHidden;
 	
 	//For Multibutton/segmented
 	NSArray * segmentLabelArray;
@@ -84,6 +85,7 @@
 @property(nonatomic,readwrite,assign)	int templateValue;
 @property(nonatomic,readwrite,assign)	int buttonStyle;
 @property(nonatomic,readwrite,assign)	BOOL surpressReturnCharacter;
+@property(nonatomic,readwrite,assign)	BOOL isHidden;
 
 @property(nonatomic,readwrite,copy)		NSString * backgroundImagePath;
 @property(nonatomic,readwrite,copy)		NSString * backgroundDisabledImagePath;
