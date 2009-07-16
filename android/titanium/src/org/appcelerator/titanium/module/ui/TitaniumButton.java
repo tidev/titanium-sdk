@@ -7,23 +7,30 @@ import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.api.ITitaniumButton;
 import org.appcelerator.titanium.api.ITitaniumNativeControl;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.TitaniumColorHelper;
+import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AbsoluteLayout;
 import android.widget.Button;
+import android.widget.ImageButton;
 
-public class TitaniumButton implements ITitaniumButton, ITitaniumNativeControl, Handler.Callback
+public class TitaniumButton implements ITitaniumButton, ITitaniumNativeControl, Handler.Callback, OnClickListener
 {
 	private static final String LCAT = "TiButton";
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private static final int MSG_LAYOUT = 300;
+	private static final int MSG_CLICK = 301;
 
 	public static final String CLICK_EVENT = "click";
 
@@ -40,7 +47,7 @@ public class TitaniumButton implements ITitaniumButton, ITitaniumNativeControl, 
 	private String color;
 	private String backgroundColor;
 
-	private Button control;
+	private View control;
 
 	public TitaniumButton(TitaniumModuleManager tmm)
 	{
@@ -91,16 +98,46 @@ public class TitaniumButton implements ITitaniumButton, ITitaniumNativeControl, 
 		return eventManager.addListener(eventName, listener);
 	}
 
+	private boolean isImageButton() {
+		return (imagePath != null || backgroundImage != null);
+	}
+
 	public void open(String json) {
 		TitaniumModuleManager ttm = softModuleMgr.get();
 		if (ttm != null && control == null) {
-			control = new Button(ttm.getActivity());
+			if(!isImageButton()) {
+				Button b = new Button(ttm.getActivity());
+				if (title != null && !isImageButton()) {
+					b.setText(title);
+				}
+
+				if (color != null) {
+					b.setTextColor(TitaniumColorHelper.parseColor(color));
+				}
+
+				if (backgroundColor != null) {
+					b.setBackgroundColor(TitaniumColorHelper.parseColor(backgroundColor));
+				}
+				control = b;
+			} else {
+				ImageButton b = new ImageButton(ttm.getActivity());
+
+				TitaniumFileHelper tfh = new TitaniumFileHelper(ttm.getActivity());
+				if (imagePath != null) {
+					Drawable d = tfh.loadDrawable(imagePath, false);
+					if (d != null) {
+						b.setImageDrawable(d);
+					} else {
+						Log.w(LCAT, "Error loading image: " + imagePath);
+					}
+				}
+
+				control = b;
+			}
+			control.setOnClickListener(this);
 			control.isFocusable();
 			control.setId(100);
 
-			if (title != null) {
-				control.setText(title);
-			}
 			if (id != null) {
 				TitaniumWebView wv = ttm.getActivity().getWebView();
 				if (wv != null) {
@@ -157,8 +194,15 @@ public class TitaniumButton implements ITitaniumButton, ITitaniumNativeControl, 
 			}
 			AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(w, h, left, top);
 			control.setLayoutParams(params);
+
 			return true;
+		} else if (msg.what == MSG_CLICK) {
+			eventManager.invokeSuccessListeners("click", null);
 		}
 		return false;
+	}
+
+	public void onClick(View view) {
+		handler.obtainMessage(MSG_CLICK).sendToTarget();
 	}
 }

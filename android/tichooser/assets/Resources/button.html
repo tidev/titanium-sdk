@@ -1,0 +1,58 @@
+<html>
+<head>
+	<title>Button</title>
+  	<script><!--
+
+	// private String id; // HTML element id
+	// private String title; // Button text
+	// private String imagePath;
+	// private Integer width;
+	// private Integer height;
+	// private String backgroundImage;
+	// private String color;
+	// private String backgroundColor;
+
+  	Titanium.UI.createButton({id : 'n1', title : 'Button1'}).open();
+  	var n2 = Titanium.UI.createButton({
+  	  		id : 'n2', 'title' : 'Button 2',
+  	  		width : 160, height: 40,
+  	  		backgroundColor : 'rgb(255,0,0)',
+  	  		color : '#FFFF00'
+  		});
+	var n2id = n2.addEventListener('click', function() {
+			Titanium.UI.createAlertDialog({
+				'title' : 'click',
+				'message' : 'button 2 clicked',
+				'buttonNames' : 'OK'
+			}).show();
+
+			n2.removeEventListener('click',n2id);
+		});
+
+	n2.open();
+
+	var n3 = Titanium.UI.createButton({
+			id : 'n3', title : 'invisible',
+			image : 'images/icon-32x32.png'
+		});
+	n3.open();
+
+	var n4 = Titanium.UI.createButton({
+		id : 'n4', title : 'invisible',
+		image : 'images/icon-32x32.png'
+	});
+	n4.open();
+
+
+  --></script>
+</head>
+<body style="background-color: white;">
+<div id='n1' style='height: 40px;'>&nbsp;</div>
+<div id='n2' style='height: 70px; width: 300px; background-color: blue; '></div>
+<div>
+<div id='n4' style='height: 70px; width: 70px; float: left; backgroundColor: blue; margin-right: 20px'>&nbsp;</div>
+<div id='n3' style='height: 70px; width: 70px; float: left; backgroundColor: red; '>&nbsp;</div>
+</div>
+
+</body>
+</html>
