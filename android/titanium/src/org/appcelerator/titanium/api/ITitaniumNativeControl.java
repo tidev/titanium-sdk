@@ -6,4 +6,5 @@ public interface ITitaniumNativeControl
 {
 	public String getHtmlId();
 	public void handleLayoutRequest(Bundle position);
+	public void setOptions(String json);
 }

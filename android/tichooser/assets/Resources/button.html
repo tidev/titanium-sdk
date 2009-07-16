@@ -43,7 +43,23 @@
 	});
 	n4.open();
 
+	// switch
+	//
+	// id
+	// value (boolean, default true)
+	// color (optional, text color)
+	// backgroundColor (optional)
 
+	var s1 = Titanium.UI.createSwitch({ id : 's1', 'value' : true });
+	s1.open();
+	var s2 = Titanium.UI.createSwitch({ id : 's2', 'value' : false});
+	s2.addEventListener('click', function(e) {
+		Titanium.UI.createAlertDialog({
+			title : 'Switch Clicked',
+			message : 'Value is now ' + e.value,
+			buttonNames : 'OK'
+		}).show();
+	});
   --></script>
 </head>
 <body style="background-color: white;">
