@@ -72,7 +72,7 @@
 	
 	//Connections to the native side
 	UILabel * labelView;
-	UIProgressView * progressView;
+	UIView * wrapperView;
 	UIView * nativeView;
 	UIBarButtonItem * nativeBarButton;
 	
@@ -98,7 +98,7 @@
 @property(nonatomic,readwrite,retain)	UIColor * elementBorderColor;
 
 @property(nonatomic,readwrite,retain)	UILabel * labelView;
-@property(nonatomic,readwrite,retain)	UIProgressView * progressView;
+@property(nonatomic,readwrite,retain)	UIView * wrapperView;
 @property(nonatomic,readwrite,retain)	UIView * nativeView;
 @property(nonatomic,readwrite,retain)	UIBarButtonItem * nativeBarButton;
 - (UIView *) nativeBarView;

@@ -79,6 +79,7 @@ int barButtonSystemItemForString(NSString * inputString){
 				[NSNumber numberWithInt:UITitaniumNativeItemSegmented],@"segmented",
 				[NSNumber numberWithInt:UITitaniumNativeItemInfoLight],@"infolight",
 				[NSNumber numberWithInt:UITitaniumNativeItemInfoDark],@"infodark",
+				[NSNumber numberWithInt:UITitaniumNativeItemProgressBar],@"progressbar",
 				nil];
 	}
 	NSNumber * result = [barButtonSystemItemForStringDict objectForKey:[inputString lowercaseString]];
@@ -88,7 +89,7 @@ int barButtonSystemItemForString(NSString * inputString){
 
 @implementation UIButtonProxy
 @synthesize nativeBarButton, segmentLabelArray, segmentImageArray, segmentSelectedIndex;
-@synthesize titleString, iconPath, templateValue, buttonStyle, nativeView, labelView, progressView;
+@synthesize titleString, iconPath, templateValue, buttonStyle, nativeView, labelView, wrapperView;
 @synthesize minValue,maxValue,floatValue,stringValue, placeholderText;
 @synthesize elementColor, elementBorderColor, elementBackgroundColor;
 @synthesize leftViewProxy, rightViewProxy, leftViewMode, rightViewMode, surpressReturnCharacter;
@@ -471,8 +472,13 @@ int barButtonSystemItemForString(NSString * inputString){
 		[resultView setBackgroundColor:elementBorderColor];
 	}
 		
-	[nativeView autorelease];
 	BOOL isNewView = (nativeView != resultView);
+	if(isNewView){
+		UIView * parentView = [nativeView superview];
+		[parentView insertSubview:resultView aboveSubview:nativeView];
+		[nativeView removeFromSuperview];
+	}
+	[nativeView autorelease];
 	nativeView = resultView;
 	return isNewView;
 }
@@ -547,6 +553,39 @@ int barButtonSystemItemForString(NSString * inputString){
 - (BOOL) hasNativeBarButton;
 {
 	return (nativeBarButton != nil);
+}
+
+- (void) updateWithOptions: (NSDictionary *) optionObject;
+{
+	BOOL animated = NO;
+	
+	if([optionObject isKindOfClass:[NSDictionary class]]){
+		id animatedObject = [optionObject objectForKey:@"animated"];
+		if ([animatedObject respondsToSelector:@selector(boolValue)])animated=[animatedObject boolValue];
+		
+		if (animated) {
+			[UIView beginAnimations:nil context:nil];
+			if(nativeView != nil){
+				id animatedStyleObject = [optionObject objectForKey:@"animationStyle"];
+				if ([animatedStyleObject respondsToSelector:@selector(intValue)]){
+					[UIView setAnimationTransition:[animatedStyleObject intValue] forView:nativeView cache:YES];
+				}
+			}
+
+			id animatedDurationObject = [optionObject objectForKey:@"animationDuration"];
+			if([animatedDurationObject respondsToSelector:@selector(floatValue)]){
+				[UIView setAnimationDuration:[animatedDurationObject floatValue]/1000.0];
+			}
+		}
+	}
+	
+	[self nativeView];
+
+
+	if (animated){
+		[UIView commitAnimations];
+	}
+
 }
 
 - (void) reportEvent: (NSString *) eventType value: (NSString *) newValue index: (int) index;
@@ -986,6 +1025,13 @@ int barButtonSystemItemForString(NSString * inputString){
 	return nil;
 }
 
+- (void) updateButton: (id)proxyObject option: (id) optionObject;
+{
+	UIButtonProxy * ourProxy = [self proxyForObject:proxyObject scan:YES recurse:YES];
+	[ourProxy performSelectorOnMainThread:@selector(updateWithOptions:) withObject:optionObject waitUntilDone:NO];
+
+}
+
 - (void) setButton: (id)proxyObject focus:(id) isFocusObject;
 {
 	if(![isFocusObject respondsToSelector:@selector(boolValue)]) return;
@@ -1333,6 +1379,9 @@ int barButtonSystemItemForString(NSString * inputString){
 	[(UiModule *)invocGen openEmailComposer:nil options:nil];
 	NSInvocation * emailComposeInvoc = [invocGen invocation];
 	
+	[(UiModule *)invocGen updateButton:nil options:nil];
+	NSInvocation * updateButtonInvoc = [invocGen invocation];
+	
 	buttonContexts = [[NSMutableDictionary alloc] init];
 	
 	//NOTE: createWindow doesn't actually create a native-side window. Instead, it simply sets up the dict.
@@ -1418,10 +1467,16 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSString * statusBarString = [NSString stringWithFormat:@"{GREY:%d,GRAY:%d,DEFAULT:%d,OPAQUE_BLACK:%d,TRANSLUCENT_BLACK:%d}",
 								  UIStatusBarStyleDefault,UIStatusBarStyleDefault,UIStatusBarStyleDefault,UIStatusBarStyleBlackOpaque,UIStatusBarStyleBlackTranslucent];
 	
+	NSString * animationStyleString = [NSString stringWithFormat:@"{CURL_UP:%d,CURL_DOWN:%d,FLIP_FROM_LEFT:%d,FLIP_FROM_RIGHT:%d}",
+				UIViewAnimationTransitionCurlUp,UIViewAnimationTransitionCurlDown,UIViewAnimationTransitionFlipFromLeft,UIViewAnimationTransitionFlipFromRight];
+	
 	NSString * createButtonString = @"function(args,buttonType){var res={"
 			"onClick:Ti._ONEVT,_EVT:{click:[],change:[],focus:[],blur:[],'return':[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
 //			"onClick:Ti._ONEVT,_EVT:{click:[],change:[],focus:[],blur:[],return:[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
 			"focus:function(){Ti.UI._BTNFOC(this,true);},blur:function(){Ti.UI._BTNFOC(this,false);},"
+			"update:function(arg){if(!this._TOKEN)return;"
+				"if(this.rightButton)this.rightButton.ensureToken();if(this.leftButton)this.leftButton.ensureToken();"
+				"Ti.UI._BTNUPD(this,arg);},"
 			"ensureToken:function(){"
 				"if(!this._TOKEN){var tkn=Ti.UI._BTNTKN();this._TOKEN=tkn;Ti.UI._BTN[tkn]=this;}"
 				"if(this.rightButton)this.rightButton.ensureToken();if(this.leftButton)this.leftButton.ensureToken();},"
@@ -1429,10 +1484,11 @@ int barButtonSystemItemForString(NSString * inputString){
 //				"var attr=divObj.attributes;if(attr){var i=attr.length;while(i>0){i--;divAttr[attr[i].name]=attr[i].value;}};"
 				"divAttr.y=0;divAttr.x=0;divAttr.width=divObj.offsetWidth;divAttr.height=divObj.offsetHeight;"
 				"while(divObj){divAttr.x+=divObj.offsetLeft;divAttr.y+=divObj.offsetTop;divObj=divObj.offsetParent;}"
+				"Ti.UI.currentWindow.insertButton(this);"
 			"}};"
 			"if(args){for(prop in args){res[prop]=args[prop];}};"
 			"if(buttonType)res.systemButton=buttonType;"
-			"if(res.id){res.setId(res.id);Ti.UI.currentWindow.insertButton(res);}"
+			"if(res.id){res.setId(res.id);}"
 			"return res;}";
 
 	NSString * createOptionDialogString = @"function(args){var res={};for(prop in args){res[prop]=args[prop];};"
@@ -1474,9 +1530,11 @@ int barButtonSystemItemForString(NSString * inputString){
 			buttonContexts, @"_BTN",
 			buttonTokenGen,@"_BTNTKN",
 			setButtonFocusInvoc,@"_BTNFOC",
+			updateButtonInvoc,@"_BTNUPD",
 			[TitaniumJSCode codeWithString:createButtonString],@"createButton",
 
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'activity');}"],@"createActivityIndicator",
+			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'progress');}"],@"createProgressBar",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'switch');}"],@"createSwitch",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'slider');}"],@"createSlider",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'text');}"],@"createTextField",
@@ -1543,6 +1601,7 @@ int barButtonSystemItemForString(NSString * inputString){
 					[TitaniumJSCode codeWithString:systemButtonString],@"SystemButton",
 					[TitaniumJSCode codeWithString:systemIconString],@"SystemIcon",
 					[TitaniumJSCode codeWithString:statusBarString],@"StatusBar",
+					[TitaniumJSCode codeWithString:animationStyleString],@"AnimationStyle",
 					nil],@"iPhone",
 			nil];
 	[[[TitaniumHost sharedHost] titaniumObject] setObject:uiDict forKey:@"UI"];

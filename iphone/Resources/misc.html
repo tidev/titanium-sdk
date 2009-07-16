@@ -11,49 +11,52 @@
 		return document.getElementById(id);
 	}
 	window.onload = function()
-	{};
+	{
+		testFun = function(act){
+			var msg = "Success!";
+			try{eval(act)}catch(E){msg="Fail! " + E;}
+			Ti.UI.createAlertDialog({message:msg}).show();
+		}
 
-	testFun = function(act){
-		var msg = "Success!";
-		try{eval(act)}catch(E){msg="Fail! " + E;}
-		Ti.UI.createAlertDialog({message:msg}).show();
-	}
+		goBlack=function(){
+		Ti.UI.iPhone.setStatusBarStyle(Ti.UI.iPhone.StatusBar.TRANSLUCENT_BLACK)
+		}
+		
+		gogray=function(){
+		Ti.UI.iPhone.setStatusBarStyle(Ti.UI.iPhone.StatusBar.DEFAULT)
+		}
+		
+		pushPage=function(){
+		var btn = Ti.UI.createButton({title:'Push'});
+	//	Ti.UI.currentWindow.setTitleControl(btn);
 
-	goBlack=function(){
-	Ti.UI.iPhone.setStatusBarStyle(Ti.UI.iPhone.StatusBar.TRANSLUCENT_BLACK)
-	}
-	
-	gogray=function(){
-	Ti.UI.iPhone.setStatusBarStyle(Ti.UI.iPhone.StatusBar.DEFAULT)
-	}
-	
-	pushPage=function(){
-	var btn = Ti.UI.createButton({title:'Push'});
-//	Ti.UI.currentWindow.setTitleControl(btn);
+		var win = Ti.UI.createWindow({url:"misc.html"});
+		win.setTitleControl(btn);
+		win.open();
+		}
 
-	var win = Ti.UI.createWindow({url:"misc.html"});
-	win.setTitleControl(btn);
-	win.open();
-	}
+		fullScreen=function(){
+			Ti.UI.currentWindow.setFullscreen(true);
+		}
 
-	fullScreen=function(){
-		Ti.UI.currentWindow.setFullscreen(true);
-	}
+		noFullScreen=function(){
+			Ti.UI.currentWindow.setFullscreen(false);
+		}
 
-	noFullScreen=function(){
-		Ti.UI.currentWindow.setFullscreen(false);
-	}
+		doEmailTest=function(){
+			var emailDialog = Titanium.UI.createEmailDialog()
+			emailDialog.setSubject('foo');
+			emailDialog.setToRecipients(['fred@gmail.com', 'joe@hotmail.com']);
+			emailDialog.setCcRecipients(['joe@gmail.com']);
+			emailDialog.setBccRecipients(['obama@whitehouse.gov']);
+			emailDialog.setMessageBody('my body string');
+			emailDialog.addAttachment({mimeType:'image/jpeg', file:'path/to/image'});
+			emailDialog.open();
+		}
+		
+		
+	};
 
-	doEmailTest=function(){
-		var emailDialog = Titanium.UI.createEmailDialog()
-		emailDialog.setSubject('foo');
-		emailDialog.setToRecipients(['fred@gmail.com', 'joe@hotmail.com']);
-		emailDialog.setCcRecipients(['joe@gmail.com']);
-		emailDialog.setBccRecipients(['obama@whitehouse.gov']);
-		emailDialog.setMessageBody('my body string');
-		emailDialog.addAttachment({mimeType:'image/jpeg', file:'path/to/image'});
-		emailDialog.open();
-	}
 </script>
 </head>
 <body>
