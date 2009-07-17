@@ -236,14 +236,38 @@ int barButtonSystemItemForString(NSString * inputString){
 	//Because the proxies are best from the UIModule itself, we don't check here.
 }
 
+- (void) setLabelViewFrame: (CGRect) newFrame background: (UIColor *) bgColor;
+{
+	if(labelView == nil){
+		labelView = [[UILabel alloc] initWithFrame:newFrame];
+		[labelView setMinimumFontSize:9.0];
+	} else {
+		[labelView setFrame:newFrame];
+	}
+	
+	[labelView setText:titleString];
+	[labelView setBackgroundColor:((bgColor != nil)?bgColor:[UIColor clearColor])];
+	[labelView setTextColor:((elementColor != nil)?elementColor:[UIColor whiteColor])];
+	
+	if([labelView superview]!=wrapperView){
+		[wrapperView addSubview:labelView];
+	}
+}
+
 - (BOOL) updateNativeView;
 {
-	id resultView=nil;
+	UIView * resultView=nil;
+	BOOL customPlacement = NO;
+
+	if(wrapperView == nil){
+		wrapperView = [[UIView alloc] init];
+	}
+	
 
 	CGRect viewFrame=frame;
 	if (placedInBar){
 		viewFrame.size.height = 30.0;
-		if (nativeView != nil) viewFrame.origin = [nativeView frame].origin;
+		if (wrapperView != nil) viewFrame.origin = [wrapperView frame].origin;
 	} else if (viewFrame.size.height < 2) viewFrame.size.height = 20;
 	if (viewFrame.size.width < 2) viewFrame.size.width = 30;
 
@@ -267,14 +291,23 @@ int barButtonSystemItemForString(NSString * inputString){
 			resultView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:spinnerStyle];
 			[(UIActivityIndicatorView *)resultView startAnimating];
 		}
-		viewFrame.size = [(UIView *)resultView frame].size;
-		[(UIView *)resultView setFrame:viewFrame];
+		if(titleString != nil){
+			CGRect newResultFrame = [resultView frame];
+			viewFrame.size.height = newResultFrame.size.height;
+			newResultFrame.origin = CGPointZero;
+			[resultView setFrame:newResultFrame];
+			newResultFrame.origin.x = newResultFrame.size.width + 5;
+			newResultFrame.size.width = viewFrame.size.width - newResultFrame.origin.x;
+			[self setLabelViewFrame:newResultFrame background:elementBorderColor];
+			customPlacement = YES;
+		} else {
+			viewFrame.size = [(UIView *)resultView frame].size;
+		}
 		[resultView setBackgroundColor:elementBorderColor];
 
 	} else if (templateValue == UITitaniumNativeItemSlider){
 		if ([nativeView isKindOfClass:[UISlider class]]){
 			resultView = [nativeView retain];
-			[(UIView *)resultView setFrame:viewFrame];
 		} else {
 			resultView = [[UISlider alloc] initWithFrame:viewFrame];
 			[(UISlider *)resultView addTarget:self action:@selector(onValueChange:) forControlEvents:UIControlEventValueChanged];
@@ -288,7 +321,6 @@ int barButtonSystemItemForString(NSString * inputString){
 	} else if (templateValue == UITitaniumNativeItemSwitch){
 		if ([nativeView isKindOfClass:[UISwitch class]]){
 			resultView = [nativeView retain];
-			[(UIView *)resultView setFrame:viewFrame];
 		} else {
 			resultView = [[UISwitch alloc] initWithFrame:viewFrame];
 			[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
@@ -302,7 +334,6 @@ int barButtonSystemItemForString(NSString * inputString){
 		if (templateValue == UITitaniumNativeItemTextField){
 			if ([nativeView isKindOfClass:[UITextField class]]){
 				resultView = [nativeView retain];
-				[(UIView *)resultView setFrame:viewFrame];
 			} else {
 				resultView = [[UITextField alloc] initWithFrame:viewFrame];
 				[(UITextField *)resultView setDelegate:self];
@@ -333,7 +364,6 @@ int barButtonSystemItemForString(NSString * inputString){
 		} else {
 			if ([nativeView isKindOfClass:[UITextView class]]){
 				resultView = [nativeView retain];
-				[(UIView *)resultView setFrame:viewFrame];
 			} else {
 				resultView = [[UITextView alloc] initWithFrame:viewFrame];
 				[(UITextView *)resultView setDelegate:self];
@@ -414,7 +444,6 @@ int barButtonSystemItemForString(NSString * inputString){
 		CGRect oldFrame = [resultView frame];
 		if (viewFrame.size.height < 15) viewFrame.size.height = oldFrame.size.height;
 		if (viewFrame.size.width < oldFrame.size.width) viewFrame.size.width = oldFrame.size.width;
-		[resultView setFrame:viewFrame];
 		if(elementBorderColor != nil)[resultView setBackgroundColor:elementBorderColor];
 
 	} else if ((templateValue == UITitaniumNativeItemInfoLight) || (templateValue == UITitaniumNativeItemInfoDark)){
@@ -432,7 +461,6 @@ int barButtonSystemItemForString(NSString * inputString){
 //	} else if (templateValue == UITitaniumNativeItemPicker){
 //		if ([nativeView isKindOfClass:[UIPickerView class]]){
 //			resultView = [nativeView retain];
-//			[(UIView *)resultView setFrame:viewFrame];
 //		} else {
 //			resultView = [[UISwitch alloc] initWithFrame:viewFrame];
 //		}
@@ -446,9 +474,26 @@ int barButtonSystemItemForString(NSString * inputString){
 		} else {
 			resultView = [[UIProgressView alloc] initWithProgressViewStyle:progressStyle];
 		}
-		viewFrame.size.height = [resultView frame].size.height;
-		[resultView setFrame:viewFrame];
 		[(UIProgressView *)resultView setProgress:(floatValue - minValue)/(maxValue - minValue)];
+		
+		if(titleString != nil){
+			CGRect newResultFrame = [resultView frame];
+			
+			newResultFrame.size.width = viewFrame.size.width;
+			newResultFrame.origin.x = 0;
+			newResultFrame.origin.y = viewFrame.size.height - newResultFrame.size.height;
+			
+			[resultView setFrame:newResultFrame];
+			
+			newResultFrame.size.height = newResultFrame.origin.y;
+			newResultFrame.origin.y = 0;
+			[self setLabelViewFrame:newResultFrame background:elementBorderColor];
+			customPlacement = YES;
+		} else {
+			viewFrame.size.height = [resultView frame].size.height;
+		}
+		
+		
 	}
 	
 	
@@ -465,8 +510,6 @@ int barButtonSystemItemForString(NSString * inputString){
 			[(UIButton *)resultView addTarget:self action:@selector(onClick:) forControlEvents:UIControlEventTouchUpInside];
 		}
 	
-		[resultView setFrame:viewFrame];
-
 		if(bgImage != nil){
 			[(UIButton *)resultView setBackgroundImage:bgImage forState:UIControlStateNormal];
 
@@ -501,11 +544,16 @@ int barButtonSystemItemForString(NSString * inputString){
 		[resultView setBackgroundColor:elementBorderColor];
 	}
 	
+	[wrapperView setFrame:viewFrame];
+	if(!customPlacement){
+		[labelView removeFromSuperview];
+		viewFrame.origin = CGPointZero;
+		[resultView setFrame:viewFrame];
+	}
 	[resultView setHidden:isHidden];
 	BOOL isNewView = (nativeView != resultView);
 	if(isNewView){
-		UIView * parentView = [nativeView superview];
-		[parentView insertSubview:resultView aboveSubview:nativeView];
+		[wrapperView addSubview:resultView];
 		[nativeView removeFromSuperview];
 	}
 	[nativeView autorelease];
@@ -524,10 +572,10 @@ int barButtonSystemItemForString(NSString * inputString){
 	
 	if (templateValue <= UITitaniumNativeItemSpinner){
 		[self updateNativeView];
-		if ([nativeBarButton customView]==nativeView) {
+		if ([nativeBarButton customView]==wrapperView) {
 			result = [nativeBarButton retain]; //Why waste a good bar button?
 		} else {
-			result = [[UIBarButtonItem alloc] initWithCustomView:nativeView];
+			result = [[UIBarButtonItem alloc] initWithCustomView:wrapperView];
 		}
 
 		[result setStyle:barButtonStyle];
@@ -566,7 +614,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		placedInBar = YES;
 		[self updateNativeView];
 	}
-	return nativeView;
+	return wrapperView;
 }
 
 - (UIView *) nativeView;
@@ -575,7 +623,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		placedInBar = NO;
 		[self updateNativeView];
 	}
-	return nativeView;
+	return wrapperView;
 }
 
 - (BOOL) hasNativeView;

@@ -447,6 +447,12 @@ UIColor * checkmarkColor = nil;
 			targetCell = thisCell;
 			break;
 		}
+		for (UIView * thisAccessorySubView in [thisAccessoryView subviews]){
+			if ([thisAccessorySubView isFirstResponder]){
+				targetCell = thisCell;
+				break;
+			}			
+		}
 	}
 	[super updateLayout:animated];
 
