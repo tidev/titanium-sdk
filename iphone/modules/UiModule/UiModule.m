@@ -240,12 +240,14 @@ int barButtonSystemItemForString(NSString * inputString){
 {
 	if(labelView == nil){
 		labelView = [[UILabel alloc] initWithFrame:newFrame];
+		[labelView setAdjustsFontSizeToFitWidth:YES];
 		[labelView setMinimumFontSize:9.0];
 	} else {
 		[labelView setFrame:newFrame];
 	}
 	
 	[labelView setText:titleString];
+	[labelView setFont:[UIFont systemFontOfSize:newFrame.size.height-4]];
 	[labelView setBackgroundColor:((bgColor != nil)?bgColor:[UIColor clearColor])];
 	[labelView setTextColor:((elementColor != nil)?elementColor:[UIColor whiteColor])];
 	
@@ -299,6 +301,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			newResultFrame.origin.x = newResultFrame.size.width + 5;
 			newResultFrame.size.width = viewFrame.size.width - newResultFrame.origin.x;
 			[self setLabelViewFrame:newResultFrame background:elementBorderColor];
+			[labelView setTextAlignment:UITextAlignmentLeft];
 			customPlacement = YES;
 		} else {
 			viewFrame.size = [(UIView *)resultView frame].size;
@@ -485,9 +488,10 @@ int barButtonSystemItemForString(NSString * inputString){
 			
 			[resultView setFrame:newResultFrame];
 			
-			newResultFrame.size.height = newResultFrame.origin.y;
+			newResultFrame.size.height = newResultFrame.origin.y-2;
 			newResultFrame.origin.y = 0;
 			[self setLabelViewFrame:newResultFrame background:elementBorderColor];
+			[labelView setTextAlignment:UITextAlignmentCenter];
 			customPlacement = YES;
 		} else {
 			viewFrame.size.height = [resultView frame].size.height;
