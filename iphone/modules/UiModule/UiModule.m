@@ -101,7 +101,6 @@ int barButtonSystemItemForString(NSString * inputString){
 {
 	if ((self = [super init])){
 		templateValue = UITitaniumNativeItemNone;
-		spinnerStyle = UIActivityIndicatorViewStyleWhite;
 		maxValue = 1.0;
 		segmentSelectedIndex = -1;
 		buttonStyle = -1; 
@@ -237,17 +236,56 @@ int barButtonSystemItemForString(NSString * inputString){
 	//Because the proxies are best from the UIModule itself, we don't check here.
 }
 
-- (BOOL) updateNativeView: (BOOL) forBar;
+- (void) setLabelViewFrame: (CGRect) newFrame background: (UIColor *) bgColor;
 {
-	id resultView=nil;
+	if(labelView == nil){
+		labelView = [[UILabel alloc] initWithFrame:newFrame];
+		[labelView setAdjustsFontSizeToFitWidth:YES];
+		[labelView setMinimumFontSize:9.0];
+	} else {
+		[labelView setFrame:newFrame];
+	}
+	
+	[labelView setText:titleString];
+	[labelView setFont:[UIFont systemFontOfSize:newFrame.size.height-4]];
+	[labelView setBackgroundColor:((bgColor != nil)?bgColor:[UIColor clearColor])];
+	[labelView setTextColor:((elementColor != nil)?elementColor:[UIColor whiteColor])];
+	
+	if([labelView superview]!=wrapperView){
+		[wrapperView addSubview:labelView];
+	}
+}
+
+- (BOOL) updateNativeView;
+{
+	UIView * resultView=nil;
+	BOOL customPlacement = NO;
+
+	if(wrapperView == nil){
+		wrapperView = [[UIView alloc] init];
+	}
+	
 
 	CGRect viewFrame=frame;
-	if (forBar){
+	if (placedInBar){
 		viewFrame.size.height = 30.0;
+		if (wrapperView != nil) viewFrame.origin = [wrapperView frame].origin;
 	} else if (viewFrame.size.height < 2) viewFrame.size.height = 20;
 	if (viewFrame.size.width < 2) viewFrame.size.width = 30;
 
 	if (templateValue == UITitaniumNativeItemSpinner){
+		UIActivityIndicatorViewStyle spinnerStyle;
+		switch (buttonStyle) {
+			case UITitaniumNativeStyleBig:
+				spinnerStyle = UIActivityIndicatorViewStyleWhiteLarge;
+				break;
+			case UITitaniumNativeStyleDark:
+				spinnerStyle = UIActivityIndicatorViewStyleGray;
+				break;
+			default:
+				spinnerStyle = UIActivityIndicatorViewStyleWhite;
+				break;
+		}
 		if ([nativeView isKindOfClass:[UIActivityIndicatorView class]]){
 			resultView = [nativeView retain];
 			[(UIActivityIndicatorView *)resultView setActivityIndicatorViewStyle:spinnerStyle];
@@ -255,14 +293,24 @@ int barButtonSystemItemForString(NSString * inputString){
 			resultView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:spinnerStyle];
 			[(UIActivityIndicatorView *)resultView startAnimating];
 		}
-		viewFrame.size = [(UIView *)resultView frame].size;
-		[(UIView *)resultView setFrame:viewFrame];
+		if(titleString != nil){
+			CGRect newResultFrame = [resultView frame];
+			viewFrame.size.height = newResultFrame.size.height;
+			newResultFrame.origin = CGPointZero;
+			[resultView setFrame:newResultFrame];
+			newResultFrame.origin.x = newResultFrame.size.width + 5;
+			newResultFrame.size.width = viewFrame.size.width - newResultFrame.origin.x;
+			[self setLabelViewFrame:newResultFrame background:elementBorderColor];
+			[labelView setTextAlignment:UITextAlignmentLeft];
+			customPlacement = YES;
+		} else {
+			viewFrame.size = [(UIView *)resultView frame].size;
+		}
 		[resultView setBackgroundColor:elementBorderColor];
 
 	} else if (templateValue == UITitaniumNativeItemSlider){
 		if ([nativeView isKindOfClass:[UISlider class]]){
 			resultView = [nativeView retain];
-			[(UIView *)resultView setFrame:viewFrame];
 		} else {
 			resultView = [[UISlider alloc] initWithFrame:viewFrame];
 			[(UISlider *)resultView addTarget:self action:@selector(onValueChange:) forControlEvents:UIControlEventValueChanged];
@@ -276,7 +324,6 @@ int barButtonSystemItemForString(NSString * inputString){
 	} else if (templateValue == UITitaniumNativeItemSwitch){
 		if ([nativeView isKindOfClass:[UISwitch class]]){
 			resultView = [nativeView retain];
-			[(UIView *)resultView setFrame:viewFrame];
 		} else {
 			resultView = [[UISwitch alloc] initWithFrame:viewFrame];
 			[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
@@ -290,7 +337,6 @@ int barButtonSystemItemForString(NSString * inputString){
 		if (templateValue == UITitaniumNativeItemTextField){
 			if ([nativeView isKindOfClass:[UITextField class]]){
 				resultView = [nativeView retain];
-				[(UIView *)resultView setFrame:viewFrame];
 			} else {
 				resultView = [[UITextField alloc] initWithFrame:viewFrame];
 				[(UITextField *)resultView setDelegate:self];
@@ -321,7 +367,6 @@ int barButtonSystemItemForString(NSString * inputString){
 		} else {
 			if ([nativeView isKindOfClass:[UITextView class]]){
 				resultView = [nativeView retain];
-				[(UIView *)resultView setFrame:viewFrame];
 			} else {
 				resultView = [[UITextView alloc] initWithFrame:viewFrame];
 				[(UITextView *)resultView setDelegate:self];
@@ -339,7 +384,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		
 
 	} else if ((templateValue == UITitaniumNativeItemMultiButton) || (templateValue == UITitaniumNativeItemSegmented)){
-//		if (forBar) viewFrame.size.height = 30;
+//		if (placedInBar) viewFrame.size.height = 30;
 		int imageCount = [segmentImageArray count];
 		int titleCount = [segmentLabelArray count];
 		int segmentCount = MAX(imageCount,titleCount);
@@ -391,7 +436,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			[(UISegmentedControl *)resultView setMomentary:NO];
 			[(UISegmentedControl *)resultView setSelectedSegmentIndex:segmentSelectedIndex];
 		}
-		if (forBar || (buttonStyle == UITitaniumNativeStyleBar)){
+		if (placedInBar || (buttonStyle == UITitaniumNativeStyleBar)){
 			[(UISegmentedControl *)resultView setSegmentedControlStyle:UISegmentedControlStyleBar];
 		} else {
 			[(UISegmentedControl *)resultView setSegmentedControlStyle:((buttonStyle==UIBarButtonItemStyleBordered)?UISegmentedControlStyleBar:UISegmentedControlStylePlain)];
@@ -402,7 +447,6 @@ int barButtonSystemItemForString(NSString * inputString){
 		CGRect oldFrame = [resultView frame];
 		if (viewFrame.size.height < 15) viewFrame.size.height = oldFrame.size.height;
 		if (viewFrame.size.width < oldFrame.size.width) viewFrame.size.width = oldFrame.size.width;
-		[resultView setFrame:viewFrame];
 		if(elementBorderColor != nil)[resultView setBackgroundColor:elementBorderColor];
 
 	} else if ((templateValue == UITitaniumNativeItemInfoLight) || (templateValue == UITitaniumNativeItemInfoDark)){
@@ -420,12 +464,40 @@ int barButtonSystemItemForString(NSString * inputString){
 //	} else if (templateValue == UITitaniumNativeItemPicker){
 //		if ([nativeView isKindOfClass:[UIPickerView class]]){
 //			resultView = [nativeView retain];
-//			[(UIView *)resultView setFrame:viewFrame];
 //		} else {
 //			resultView = [[UISwitch alloc] initWithFrame:viewFrame];
 //		}
 //		[(UISwitch *)resultView setOn:(floatValue > ((minValue + maxValue)/2))];
 //		[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
+	} else if (templateValue == UITitaniumNativeItemProgressBar) {
+		UIProgressViewStyle progressStyle = (placedInBar || (buttonStyle = UITitaniumNativeStyleBar))?UIProgressViewStyleBar:UIProgressViewStyleDefault;
+		if([nativeView isKindOfClass:[UIProgressView class]]){
+			resultView = [nativeView retain];
+			[(UIProgressView *)resultView setProgressViewStyle:progressStyle];
+		} else {
+			resultView = [[UIProgressView alloc] initWithProgressViewStyle:progressStyle];
+		}
+		[(UIProgressView *)resultView setProgress:(floatValue - minValue)/(maxValue - minValue)];
+		
+		if(titleString != nil){
+			CGRect newResultFrame = [resultView frame];
+			
+			newResultFrame.size.width = viewFrame.size.width;
+			newResultFrame.origin.x = 0;
+			newResultFrame.origin.y = viewFrame.size.height - newResultFrame.size.height;
+			
+			[resultView setFrame:newResultFrame];
+			
+			newResultFrame.size.height = newResultFrame.origin.y-2;
+			newResultFrame.origin.y = 0;
+			[self setLabelViewFrame:newResultFrame background:elementBorderColor];
+			[labelView setTextAlignment:UITextAlignmentCenter];
+			customPlacement = YES;
+		} else {
+			viewFrame.size.height = [resultView frame].size.height;
+		}
+		
+		
 	}
 	
 	
@@ -442,8 +514,6 @@ int barButtonSystemItemForString(NSString * inputString){
 			[(UIButton *)resultView addTarget:self action:@selector(onClick:) forControlEvents:UIControlEventTouchUpInside];
 		}
 	
-		[resultView setFrame:viewFrame];
-
 		if(bgImage != nil){
 			[(UIButton *)resultView setBackgroundImage:bgImage forState:UIControlStateNormal];
 
@@ -478,30 +548,38 @@ int barButtonSystemItemForString(NSString * inputString){
 		[resultView setBackgroundColor:elementBorderColor];
 	}
 	
+	[wrapperView setFrame:viewFrame];
+	if(!customPlacement){
+		[labelView removeFromSuperview];
+		viewFrame.origin = CGPointZero;
+		[resultView setFrame:viewFrame];
+	}
 	[resultView setHidden:isHidden];
 	BOOL isNewView = (nativeView != resultView);
 	if(isNewView){
-		UIView * parentView = [nativeView superview];
-		[parentView insertSubview:resultView aboveSubview:nativeView];
+		[wrapperView addSubview:resultView];
 		[nativeView removeFromSuperview];
 	}
 	[nativeView autorelease];
 	nativeView = resultView;
+	needsRefreshing = NO;
 	return isNewView;
 }
 
 - (void) updateNativeBarButton;
 {
+	placedInBar = YES;
+
 	UIBarButtonItem * result = nil;
 	UIBarButtonItemStyle barButtonStyle = ((buttonStyle<0)?UIBarButtonItemStylePlain:buttonStyle);
 	SEL onClickSel = @selector(onClick:);
 	
 	if (templateValue <= UITitaniumNativeItemSpinner){
-		[self updateNativeView:YES];
-		if ([nativeBarButton customView]==nativeView) {
+		[self updateNativeView];
+		if ([nativeBarButton customView]==wrapperView) {
 			result = [nativeBarButton retain]; //Why waste a good bar button?
 		} else {
-			result = [[UIBarButtonItem alloc] initWithCustomView:nativeView];
+			result = [[UIBarButtonItem alloc] initWithCustomView:wrapperView];
 		}
 
 		[result setStyle:barButtonStyle];
@@ -523,13 +601,13 @@ int barButtonSystemItemForString(NSString * inputString){
 	[result setWidth:frame.size.width];
 	[nativeBarButton autorelease];
 	nativeBarButton = result;
+	needsRefreshing = NO;
 }
 
 - (UIBarButtonItem *) nativeBarButton;
 {
 	if ((nativeBarButton == nil) || needsRefreshing) {
 		[self updateNativeBarButton];
-		needsRefreshing = NO;
 	}
 	return nativeBarButton;
 }
@@ -537,19 +615,19 @@ int barButtonSystemItemForString(NSString * inputString){
 - (UIView *) nativeBarView;
 {
 	if ((nativeView == nil) || needsRefreshing){
-		[self updateNativeView:YES];
-		needsRefreshing = NO;
+		placedInBar = YES;
+		[self updateNativeView];
 	}
-	return nativeView;
+	return wrapperView;
 }
 
 - (UIView *) nativeView;
 {
 	if ((nativeView == nil) || needsRefreshing){
-		[self updateNativeView:NO];
-		needsRefreshing = NO;
+		placedInBar = NO;
+		[self updateNativeView];
 	}
-	return nativeView;
+	return wrapperView;
 }
 
 - (BOOL) hasNativeView;
@@ -586,7 +664,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		}
 	}
 	
-	[self nativeView];
+	[self updateNativeView];
 
 
 	if (animated){
@@ -1492,8 +1570,8 @@ int barButtonSystemItemForString(NSString * inputString){
 				"divAttr.y=0;divAttr.x=0;divAttr.width=divObj.offsetWidth;divAttr.height=divObj.offsetHeight;"
 				"while(divObj){divAttr.x+=divObj.offsetLeft;divAttr.y+=divObj.offsetTop;divObj=divObj.offsetParent;}"
 				"Ti.UI.currentWindow.insertButton(this);},"
-			"hide:function(){this.hidden=true;this.update();},"
-			"show:function(){this.hidden=false;this.update();},"
+			"hide:function(args){this.hidden=true;this.update(args);},"
+			"show:function(arts){this.hidden=false;this.update(args);},"
 			"};"
 			"if(args){for(prop in args){res[prop]=args[prop];}};"
 			"if(btnType)res.systemButton=btnType;"
@@ -1522,12 +1600,12 @@ int barButtonSystemItemForString(NSString * inputString){
 	[createAlertCode setEpilogueCode:@"window.alert=function(args){Ti.API.log('alert',args);};"];
 
 	NSString * createActivityIndicatorString = @"function(args,btnType){if(!btnType)btnType='activity';var res=Ti.UI.createButton(args,btnType);"
-			"res.setMin=function(val){this.min=val;};res.setMax=function(val){this.max=val;};res.setPos=function(val){this.value=val;this.pos=val;this.update()};"
-			"res.setType=function(val){if(val)this.systemButton='progressbar';else this.systemButton='activity';};res.setMessage=function(val){this.title=val;this.update();};"
+			"res.setMin=function(val){this.min=val;};res.setMax=function(val){this.max=val;};res.setPos=function(val,args){this.value=val;this.pos=val;this.update(args)};"
+			"res.setType=function(val){if(val)this.systemButton='progressbar';else this.systemButton='activity';};res.setMessage=function(val,args){this.title=val;this.update(args);};"
 			"res.DETERMINATE=true;res.INDETERMINATE=false;"
 			"return res;}";
 
-	NSString * createProgressBarString = @"function(args){var res=Ti.UI.createActivityIndicator(args,'progress');return res;}";
+	NSString * createProgressBarString = @"function(args){var res=Ti.UI.createActivityIndicator(args,'progressbar');return res;}";
 
 	NSDictionary * uiDict = [NSDictionary dictionaryWithObjectsAndKeys:
 			closeWinInvoc,@"_CLS",

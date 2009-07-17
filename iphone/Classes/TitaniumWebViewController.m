@@ -296,10 +296,15 @@ TitaniumViewController * mostRecentController = nil;
 		CGRect thisFrame = [thisView frame];
 		CGFloat bottom = thisFrame.size.height + thisFrame.origin.y;
 		
-		if([thisView isFirstResponder]){
+		if ([thisView isFirstResponder]){
 			firstResponder = thisView;
 		}
-
+		for (UIView * thisSubView in [thisView subviews]){
+			if ([thisSubView isFirstResponder]){
+				firstResponder = thisView;
+			}			
+		}
+		
 		if (bottom > docHeight) docHeight = bottom;
 	}
 	

@@ -13,17 +13,15 @@
 {
 	//Properties that are stored until the time is right
 	BOOL needsRefreshing;
+	BOOL placedInBar;
 	
 	NSString * titleString;
 	NSString * iconPath;
 	CGRect	frame;
 	int templateValue;
 	
-	//For Bar buttons
+	//For buttons
 	int buttonStyle;
-	
-	//For activity spinners
-	UIActivityIndicatorViewStyle spinnerStyle;
 	
 	//Tinting or BG controls
 	UIColor * elementColor; //The text color

@@ -54,7 +54,20 @@
 			emailDialog.open();
 		}
 		
-		
+		var btn1=Ti.UI.createButton({title:'-'});
+		var btn2=Ti.UI.createButton({title:'+'});
+		var spinny=Ti.UI.createActivityIndicator({width:80,title:'Foo'});
+		var barry=Ti.UI.createProgressBar({width:150,min:0,max:10,value:5,title:'Starting download...'});
+//		btn1.addEventListener('click',function(foo){spinny.hide({animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT});barry.value-=1;barry.update({animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:1000});});
+//		btn2.addEventListener('click',function(foo){spinny.show({animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT});barry.value+=1;barry.update({animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,animationDuration:1000});});
+		btn1.addEventListener('click',function(foo){spinny.hide({animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT});barry.value-=1;
+				barry.title = '' + barry.value + ' of ' + barry.max + ' remaining';
+				barry.update({animated:true,animationDuration:1000});});
+		btn2.addEventListener('click',function(foo){spinny.show({animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT});barry.value+=1;
+				barry.title = 'Completed ' + barry.value + ' of ' + barry.max;
+				barry.update({animated:true,animationDuration:1000});});
+		Ti.UI.currentWindow.setToolbar([btn1,btn2,spinny,barry]);
+
 	};
 
 </script>
