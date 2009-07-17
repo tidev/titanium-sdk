@@ -21,7 +21,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumGesture extends TitaniumBaseModule implements ITitaniumGesture

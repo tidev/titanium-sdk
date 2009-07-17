@@ -13,7 +13,7 @@ import org.appcelerator.titanium.api.ITitaniumAnalytics;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
 
 import org.appcelerator.titanium.config.TitaniumConfig;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumAnalytics extends TitaniumBaseModule implements ITitaniumAnalytics

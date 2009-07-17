@@ -1,28 +1,28 @@
 package org.appcelerator.titanium;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.api.ITitaniumNativeControl;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.graphics.Color;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.AbsoluteLayout;
-import android.widget.FrameLayout;
 
+@SuppressWarnings("deprecation")
 public class TitaniumWebView extends WebView implements Handler.Callback
 {
 	private static final String LCAT = "TiWebView";
@@ -38,20 +38,24 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 	protected static final String MSG_EXTRA_URL = "url";
 	protected static final String MSG_EXTRA_SOURCE = "source";
 
-	private TitaniumActivity activity;
 	private Handler handler;
+	private Handler evalHandler;
+
 	private MimeTypeMap mtm;
 
 	private HashMap<String, ITitaniumNativeControl> nativeControls;
 	private AbsoluteLayout.LayoutParams offScreen;
 
+	private HashMap<String, Semaphore> locks;
+	private AtomicInteger uniqueLockId;
 
 	public TitaniumWebView(TitaniumActivity activity)
 	{
 		super(activity);
-		this.activity = activity;
 		this.handler = new Handler(this);
 		this.mtm = MimeTypeMap.getSingleton();
+		this.locks = new HashMap<String,Semaphore>();
+		this.uniqueLockId = new AtomicInteger();
 
 		WebSettings settings = getSettings();
 
@@ -65,11 +69,92 @@ public class TitaniumWebView extends WebView implements Handler.Callback
         settings.setLightTouchEnabled(true);
 
         offScreen = new AbsoluteLayout.LayoutParams(1, 1, -100, -100);
-		Log.e(LCAT, "WVThreadName: " + Thread.currentThread().getName());
+        final TitaniumWebView me = this;
+
+        HandlerThread ht = new HandlerThread("TiJSEvalThread"){
+
+			@Override
+			protected void onLooperPrepared() {
+				super.onLooperPrepared();
+				evalHandler = new Handler(Looper.myLooper(), new Handler.Callback(){
+
+					public boolean handleMessage(Message msg) {
+						if(msg.what == MSG_RUN_JAVASCRIPT) {
+							if (DBG) {
+								Log.d(LCAT, "Invoking: " + msg.obj);
+							}
+							String id = msg.getData().getString("syncId");
+							loadUrl((String) msg.obj);
+							syncOn(id);
+							if (DBG) {
+								Log.w(LCAT, "AFTER: " + msg.obj);
+							}
+
+							return true;
+						}
+						return false;
+					}});
+				synchronized(me) {
+					me.notify();
+				}
+			}
+
+        };
+        ht.start();
+        // wait for eval hander to initialize
+        synchronized(me) {
+        	try {
+        		me.wait();
+        	} catch (InterruptedException e) {
+
+        	}
+        }
+	}
+
+	public String registerLock() {
+		String syncId = "S:" + uniqueLockId.incrementAndGet();
+		synchronized(locks) {
+			Semaphore l = locks.get(syncId);
+			if (l != null) {
+				throw new IllegalStateException("Attempt to register duplicate lock id: " + syncId);
+			}
+			l = new Semaphore(0);
+			locks.put(syncId, l);
+			return syncId;
+		}
+	}
+
+	public Semaphore getLockFor(String syncId) {
+		synchronized(locks) {
+			return locks.get(syncId);
+		}
+	}
+
+	public void unregisterLock(String syncId) {
+		synchronized(locks) {
+			if (locks.containsKey(syncId)) {
+				locks.remove(syncId);
+			}
+		}
+	}
+
+	public void signal(String syncId) {
+		if (DBG) {
+			Log.d(LCAT, "Signaling " + syncId);
+		}
+		Semaphore l = null;
+		synchronized(locks) {
+			l = locks.get(syncId);
+		}
+			l.release();
 	}
 
 	public void evalJS(final String method) {
-		evalJS(method, (String) null);
+		evalJS(method, (String) null, (String) null);
+	}
+
+	public void evalJS(final String method, final String data) {
+		evalJS(method, data, (String) null);
 	}
 
 	public void evalJS(final String method, final JSONObject data)
@@ -80,17 +165,39 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 			dataValue = data.toString();
 		}
 
-		evalJS(method, dataValue);
+		evalJS(method, dataValue, (String) null);
 	}
 
-	public void evalJS(final String method, final String data)
+	private void syncOn(String syncId) {
+		if (syncId != null) {
+			Semaphore l = null;
+			synchronized(locks) {
+				l = locks.get(syncId);
+			}
+			try {
+				l.acquire();
+			} catch (InterruptedException e) {
+
+			}
+		}
+	}
+
+	public void evalJS(final String method, final String data, final String syncId)
 	{
 		String expr = method;
 		if (expr != null && expr.startsWith(TITANIUM_CALLBACK)) {
 			if (data != null) {
-				expr += ".invoke(" + data + ")";
+				if (syncId == null) {
+					expr += ".invoke(" + data + ")";
+				}  else {
+					expr += ".invoke(" + data + ",'" + syncId + "')";
+				}
 			} else {
-				expr += ".invoke()";
+				if (syncId == null) {
+					expr += ".invoke()";
+				} else {
+					expr += ".invoke(null,'" + syncId + "')";
+				}
 			}
 			if (DBG) {
 				Log.d(LCAT, expr);
@@ -101,7 +208,23 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 			if (!expr.startsWith(JAVASCRIPT)) {
 				expr = JAVASCRIPT + expr;
 			}
-			handler.obtainMessage(MSG_RUN_JAVASCRIPT, expr).sendToTarget();
+
+			if (DBG) {
+				Log.w(LCAT, " BEFORE: " + expr);
+			}
+			final String f = expr;
+			// If someone tries to invoke from WebViewCoreThread, use our eval thread
+			if ("WebViewCoreThread".equals(Thread.currentThread().getName())) {
+				Message m = evalHandler.obtainMessage(MSG_RUN_JAVASCRIPT, expr);
+				m.getData().putString("syncId", syncId);
+				m.sendToTarget();
+			} else {
+				loadUrl(f);
+				syncOn(syncId);
+				if (DBG) {
+					Log.w(LCAT, "AFTER: " + f);
+				}
+			}
 		} else {
 			Log.w(LCAT, "Handler not available for dispatching event");
 		}
@@ -114,10 +237,6 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 		Bundle b = msg.getData();
 
 		switch (msg.what) {
-		case MSG_RUN_JAVASCRIPT :
-				loadUrl((String) msg.obj);
-				handled = true;
-			break;
 		case MSG_LOAD_FROM_SOURCE:
       		String url = b.getString(MSG_EXTRA_URL);
       		String source = b.getString(MSG_EXTRA_SOURCE);

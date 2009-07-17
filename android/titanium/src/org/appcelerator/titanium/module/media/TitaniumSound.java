@@ -20,7 +20,7 @@ import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import org.appcelerator.titanium.config.TitaniumConfig;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 

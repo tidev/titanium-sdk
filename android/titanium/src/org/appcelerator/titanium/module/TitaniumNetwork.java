@@ -22,7 +22,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import org.appcelerator.titanium.config.TitaniumConfig;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumNetwork extends TitaniumBaseModule implements ITitaniumNetwork

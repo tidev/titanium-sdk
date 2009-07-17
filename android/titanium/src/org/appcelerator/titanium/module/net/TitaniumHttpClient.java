@@ -42,9 +42,9 @@ import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.fs.TitaniumBlob;
 import org.appcelerator.titanium.module.fs.TitaniumFile;
 import org.appcelerator.titanium.module.fs.TitaniumResourceFile;
+import org.appcelerator.titanium.util.Log;
 
 import android.net.Uri;
-import android.util.Log;
 
 public class TitaniumHttpClient implements ITitaniumHttpClient
 {
@@ -67,6 +67,8 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 
 	private ArrayList<NameValuePair> nvPairs;
 	private HashMap<String, ContentBody> parts;
+	private final TitaniumHttpClient me;
+	String syncId;
 
 	class LocalResponseHandler extends BasicResponseHandler
 	{
@@ -83,10 +85,10 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 			TitaniumHttpClient c = client.get();
 			if (c != null) {
 				c.response = response;
-				c.setReadyState(READY_STATE_LOADED);
+				c.setReadyState(READY_STATE_LOADED, syncId);
 				c.setStatus(response.getStatusLine().getStatusCode());
 				c.setStatusText(response.getStatusLine().getReasonPhrase());
-				c.setReadyState(READY_STATE_INTERACTIVE);
+				c.setReadyState(READY_STATE_INTERACTIVE, syncId);
 			}
 			return super.handleResponse(response);
 		}
@@ -94,6 +96,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	}
 	public TitaniumHttpClient(TitaniumWebView webView, String userAgent)
 	{
+		me = this;
 		onReadyStateChangeCallback = null;
 		readyState = 0;
 		responseText = "";
@@ -106,14 +109,14 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#getOnReadyStateChangeCallback()
 	 */
-	public synchronized String getOnReadyStateChangeCallback() {
+	public  String getOnReadyStateChangeCallback() {
 		return onReadyStateChangeCallback;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#setOnReadyStateChangeCallback(java.lang.String)
 	 */
-	public synchronized void setOnReadyStateChangeCallback(String onReadyStateChangeCallback) {
+	public  void setOnReadyStateChangeCallback(String onReadyStateChangeCallback) {
 		if (DBG) {
 			Log.d(LCAT, "Setting callback to " + onReadyStateChangeCallback);
 		}
@@ -123,20 +126,27 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#getReadyState()
 	 */
-	public synchronized int getReadyState() {
+	public  int getReadyState() {
+		synchronized(this) {
+			this.notify();
+		}
 		return readyState;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#setReadyState(int)
 	 */
-	public synchronized void setReadyState(final int readyState) {
+	public void setReadyState(final int readyState) {
+		setReadyState(readyState, null);
+	}
+	public void setReadyState(final int readyState, final String syncId) {
 		Log.d(LCAT, "Setting ready state to " + readyState);
 		this.readyState = readyState;
-		TitaniumWebView webView = softWebView.get();
+		final TitaniumWebView webView = softWebView.get();
 		if (webView != null) {
-			if (getOnReadyStateChangeCallback() != null) {
-				webView.evalJS(getOnReadyStateChangeCallback());
+			final String cb = getOnReadyStateChangeCallback();
+			if (cb != null) {
+				webView.evalJS(cb, null, syncId);
 			}
 		}
 	}
@@ -144,49 +154,49 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#getResponseText()
 	 */
-	public synchronized String getResponseText() {
+	public  String getResponseText() {
 		return responseText;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#setResponseText(java.lang.String)
 	 */
-	public synchronized void setResponseText(String responseText) {
+	public  void setResponseText(String responseText) {
 		this.responseText = responseText;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#getStatus()
 	 */
-	public synchronized int getStatus() {
+	public  int getStatus() {
 		return status;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#setStatus(int)
 	 */
-	public synchronized void setStatus(int status) {
+	public  void setStatus(int status) {
 		this.status = status;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#getStatusText()
 	 */
-	public synchronized String getStatusText() {
+	public  String getStatusText() {
 		return statusText;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#setStatusText(java.lang.String)
 	 */
-	public synchronized void setStatusText(String statusText) {
+	public  void setStatusText(String statusText) {
 		this.statusText = statusText;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#abort()
 	 */
-	public synchronized void abort() {
+	public void abort() {
 		if (readyState > READY_STATE_UNINITIALIZED && readyState < READY_STATE_COMPLETE) {
 			if (client != null) {
 				if (DBG) {
@@ -200,7 +210,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#getAllResponseHeaders()
 	 */
-	public synchronized String getAllResponseHeaders() {
+	public String getAllResponseHeaders() {
 		String result = "";
 		if (readyState >= READY_STATE_LOADED)
 		{
@@ -223,7 +233,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#setRequestHeader(java.lang.String, java.lang.String)
 	 */
-	public synchronized void setRequestHeader(String header, String value)
+	public void setRequestHeader(String header, String value)
 	{
 		if (readyState == READY_STATE_LOADING) {
 			request.addHeader(header, value);
@@ -235,7 +245,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#getResponseHeader(java.lang.String)
 	 */
-	public synchronized String getResponseHeader(String header) {
+	public String getResponseHeader(String header) {
 		String result = "";
 
 		if (readyState > READY_STATE_LOADING) {
@@ -250,20 +260,25 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#open(java.lang.String, java.lang.String)
 	 */
-	public synchronized void open(String method, String url) throws MethodNotSupportedException
+	public void open(String method, String url) throws MethodNotSupportedException
 	{
 		if (DBG) {
 			Log.d(LCAT, "open request method=" + method + " url=" + url);
 		}
+		TitaniumWebView wv = softWebView.get();
+		if (wv != null) {
+			me.syncId = wv.registerLock();
+		}
+
 		request = new DefaultHttpRequestFactory().newHttpRequest(method, url);
 		Uri uri = Uri.parse(url);
 		host = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
-		setReadyState(READY_STATE_LOADING);
+		setReadyState(READY_STATE_LOADING, syncId);
 		setRequestHeader("User-Agent",userAgent);
 		setRequestHeader("X-Requested-With","XMLHttpRequest");
 	}
 
-	public synchronized void addPostData(String name, String value) {
+	public void addPostData(String name, String value) {
 		if (value == null) {
 			value = "";
 		}
@@ -274,7 +289,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 		}
 	}
 
-	public synchronized void addTitaniumFileAsPostData(String name, ITitaniumFile value) {
+	public void addTitaniumFileAsPostData(String name, ITitaniumFile value) {
 		if (value instanceof TitaniumBlob) {
 			TitaniumBlob blob = (TitaniumBlob) value;
 			FileBody body = new FileBody(blob.getFile(), blob.getContentType());
@@ -295,99 +310,112 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#send(java.lang.String)
 	 */
-	public synchronized void send(String data)
+	public void send(final String data)
 	{
-		if (DBG) {
-			Log.d(LCAT, "send()");
-		}
-		/*
-		Header[] h = request.getAllHeaders();
-		for(int i=0; i < h.length; i++) {
-			Header hdr = h[i];
-			//Log.e(LCAT, "HEADER: " + hdr.toString());
-		}
-		 */
-		final LocalResponseHandler handler = new LocalResponseHandler(this);
-		client = new DefaultHttpClient();
-
-		final TitaniumHttpClient me = this;
-
-		if(request instanceof BasicHttpEntityEnclosingRequest) {
-
-			UrlEncodedFormEntity form = null;
-			MultipartEntity mpe = null;
-
-			if (nvPairs.size() > 0) {
-				try {
-					form = new UrlEncodedFormEntity(nvPairs, "UTF-8");
-				} catch (UnsupportedEncodingException e) {
-					Log.e(LCAT, "Unsupported encoding: ", e);
-				}
-			}
-
-			if(parts.size() > 0) {
-				mpe = new MultipartEntity();
-
-				for(String name : parts.keySet()) {
-					mpe.addPart(name, parts.get(name));
-				}
-				if (form != null) {
-					try {
-						ByteArrayOutputStream bos = new ByteArrayOutputStream((int) form.getContentLength());
-						form.writeTo(bos);
-						mpe.addPart("form", new StringBody(bos.toString(), "application/x-www-form-urlencoded", Charset.forName("UTF-8")));
-					} catch (UnsupportedEncodingException e) {
-						Log.e(LCAT, "Unsupported encoding: ", e);
-					} catch (IOException e) {
-						Log.e(LCAT, "Error converting form to string: ", e);
-					}
-				}
-
-				HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest) request;
-				e.setEntity(mpe);
-			} else {
-				HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest) request;
-				e.setEntity(form);
-			}
-
-			if (data!=null)
-			{
-				try
-				{
-					StringEntity requestEntity = new StringEntity(data, "UTF-8");
-					//TODO: you'll only want to do this if you don't have a header
-					requestEntity.setContentType("application/x-www-form-urlencoded");
-					HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest)request;
-					e.setEntity(requestEntity);
-
-				}
-				catch(Exception ex)
-				{
-					//FIXME
-					Log.e(LCAT, "Exception, implement recovery: ", ex);
-				}
-			}
-		}
 
 		// TODO consider using task manager
-
+		final TitaniumHttpClient me = this;
 		Thread t = new Thread(new Runnable(){
 
 			public void run() {
 				try {
-					Log.d(LCAT, "Preparing to execute request");
+
+					Thread.sleep(10);
+					if (DBG) {
+						Log.d(LCAT, "send()");
+					}
+					/*
+					Header[] h = request.getAllHeaders();
+					for(int i=0; i < h.length; i++) {
+						Header hdr = h[i];
+						//Log.e(LCAT, "HEADER: " + hdr.toString());
+					}
+					 */
+					final LocalResponseHandler handler = new LocalResponseHandler(me);
+					client = new DefaultHttpClient();
+
+					if(request instanceof BasicHttpEntityEnclosingRequest) {
+
+						UrlEncodedFormEntity form = null;
+						MultipartEntity mpe = null;
+
+						if (nvPairs.size() > 0) {
+							try {
+								form = new UrlEncodedFormEntity(nvPairs, "UTF-8");
+							} catch (UnsupportedEncodingException e) {
+								Log.e(LCAT, "Unsupported encoding: ", e);
+							}
+						}
+
+						if(parts.size() > 0) {
+							mpe = new MultipartEntity();
+
+							for(String name : parts.keySet()) {
+								mpe.addPart(name, parts.get(name));
+							}
+							if (form != null) {
+								try {
+									ByteArrayOutputStream bos = new ByteArrayOutputStream((int) form.getContentLength());
+									form.writeTo(bos);
+									mpe.addPart("form", new StringBody(bos.toString(), "application/x-www-form-urlencoded", Charset.forName("UTF-8")));
+								} catch (UnsupportedEncodingException e) {
+									Log.e(LCAT, "Unsupported encoding: ", e);
+								} catch (IOException e) {
+									Log.e(LCAT, "Error converting form to string: ", e);
+								}
+							}
+
+							HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest) request;
+							e.setEntity(mpe);
+						} else {
+							HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest) request;
+							e.setEntity(form);
+						}
+
+						if (data!=null)
+						{
+							try
+							{
+								StringEntity requestEntity = new StringEntity(data, "UTF-8");
+								//TODO: you'll only want to do this if you don't have a header
+								requestEntity.setContentType("application/x-www-form-urlencoded");
+								HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest)request;
+								e.setEntity(requestEntity);
+
+							}
+							catch(Exception ex)
+							{
+								//FIXME
+								Log.e(LCAT, "Exception, implement recovery: ", ex);
+							}
+						}
+					}
+					if (DBG) {
+						Log.d(LCAT, "Preparing to execute request");
+					}
 					String result = client.execute(me.host, me.request, handler);
 					if(result != null) {
 						Log.d(LCAT, "Have result back from request len=" + result.length());
 					}
 					me.setResponseText(result);
-					me.setReadyState(READY_STATE_COMPLETE);
+					me.setReadyState(READY_STATE_COMPLETE, syncId);
 				} catch(Exception e) {
 					Log.e(LCAT, "HTTP Error: " + e.getMessage(), e);
+				} finally {
+					TitaniumWebView wv = softWebView.get();
+					if (wv != null) {
+						wv.unregisterLock(syncId);
+						wv = null;
+					}
+					syncId = null;
 				}
 			}});
+		t.setPriority(Thread.MIN_PRIORITY);
 
 		t.start();
 
+		if (DBG) {
+			Log.d(LCAT, "Leaving send()");
+		}
 	}
 }

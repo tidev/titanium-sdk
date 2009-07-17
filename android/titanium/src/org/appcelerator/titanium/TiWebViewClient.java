@@ -12,7 +12,7 @@ import org.appcelerator.titanium.util.TitaniumUIHelper;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;

@@ -23,7 +23,7 @@ import android.app.Activity;
 import android.app.ActivityGroup;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;

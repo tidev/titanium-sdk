@@ -27,7 +27,7 @@ import org.xml.sax.XMLReader;
 
 import android.content.Context;
 import org.appcelerator.titanium.config.TitaniumConfig;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 
 public class TitaniumAppInfo
 {

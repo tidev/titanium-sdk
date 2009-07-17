@@ -10,7 +10,7 @@ package org.appcelerator.titanium.config;
 import org.appcelerator.titanium.util.TitaniumColorHelper;
 
 import android.graphics.Color;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 
 
 public class TitaniumWindowInfo implements Comparable<TitaniumWindowInfo>

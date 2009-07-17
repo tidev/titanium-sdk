@@ -35,7 +35,7 @@ import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
 
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handler.Callback

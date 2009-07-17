@@ -11,4 +11,5 @@ public interface ITitaniumAPI
 {
 	public void log(int severity, String msg);
 	public void updateNativeControls(String json);
+	public void signal(String syncId);
 }

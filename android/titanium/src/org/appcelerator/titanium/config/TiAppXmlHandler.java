@@ -13,7 +13,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import org.appcelerator.titanium.config.TitaniumConfig;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 
 public class TiAppXmlHandler extends DefaultHandler
 {

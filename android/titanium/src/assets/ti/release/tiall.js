@@ -4,8 +4,9 @@ return pos;};this.sendLayoutToNative=function(ids){var positions={};for(i=0;i<id
 this.apiProxy.updateNativeControls(Titanium.JSON.stringify(positions));}
 this.callbackCounter=0;this.callbacks=new Object();this.nextCallbackId=function(){return'cb'+this.callbackCounter++;}
 this.addCallback=function(o,f,os){var cb=new TitaniumCallback(o,f,os);return(new TitaniumCallback(o,f,os)).register();}
-this.removeCallback=function(name){delete this.callbacks[name];Titanium.API.debug('Deleted callback with name: '+name);}};function TitaniumCallback(obj,method,oneShot){this.name='cb'+Titanium.nextCallbackId();this.obj=obj;this.method=method;this.oneShot=oneShot;this.invoke=function(data)
-{this.method.call(this.obj,data);if(oneShot){Titanium.removeCallback(this.name);}};this.register=function(){Titanium.callbacks[this.name]=this;return'Titanium.callbacks["'+this.name+'"]';}};function registerCallback(o,f){return Titanium.addCallback(o,f,false);};function registerOneShot(o,f){return Titanium.addCallback(o,f,true);}
+this.removeCallback=function(name){delete this.callbacks[name];Titanium.API.debug('Deleted callback with name: '+name);}};function TitaniumCallback(obj,method,oneShot){this.name=Titanium.nextCallbackId();this.obj=obj;this.method=method;this.oneShot=oneShot;this.invoke=function(data,syncId)
+{this.method.call(this.obj,data);if(!isUndefined(syncId)){Titanium.apiProxy.signal(syncId);}
+if(oneShot){Titanium.removeCallback(this.name);}};this.register=function(){Titanium.callbacks[this.name]=this;return'Titanium.callbacks["'+this.name+'"]';}};function registerCallback(o,f){return Titanium.addCallback(o,f,false);};function registerOneShot(o,f){return Titanium.addCallback(o,f,true);}
 function isUndefined(value)
 {if(value===null||typeof(value)==='undefined')
 {return true;}
