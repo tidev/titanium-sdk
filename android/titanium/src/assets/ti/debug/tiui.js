@@ -525,6 +525,21 @@ var Switch = function(proxy) {
 	};
 };
 
+var Slider = function(proxy) {
+	this.proxy = proxy;
+
+	this.addEventListener = function(eventName, listener) {
+		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
+	};
+	this.removeEventListener = function(eventname, listenerId) {
+		this.proxy.removeEventListener(eventName, listenerId);
+	};
+	this.open = function(options) {
+		this.proxy.open(options);
+	};
+};
+
+
 Titanium.UI = {
 	/**
 	 * @tiapi(property=true,name=UI.WINDOW_TABBED,since=0.4) Used in UserWindow.setType for a tabbed window
@@ -731,6 +746,15 @@ Titanium.UI = {
 	 */
 	createSwitch : function(options) {
 		return new Switch(Titanium.uiProxy.createSwitch(Titanium.JSON.stringify(options)));
+	},
+
+	/**
+	 * @tiapi(method=true,name=UI.createSlider,since=0.5.1) Create a native slider
+	 * @tiarg[object, options] a set of configuration options for the slider.
+	 * @tiresult[Slider] the Slider.
+	 */
+	createSlider : function(options) {
+		return new Slider(Titanium.uiProxy.createSlider(Titanium.JSON.stringify(options)));
 	},
 
 	// createNotification is below. It needs the property currentWindow

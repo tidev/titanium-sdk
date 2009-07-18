@@ -13,11 +13,11 @@
 	// private String backgroundColor;
 
   	Titanium.UI.createButton({id : 'n1', title : 'Button1'}).open();
+
   	var n2 = Titanium.UI.createButton({
   	  		id : 'n2', 'title' : 'Button 2',
   	  		width : 160, height: 40,
-  	  		backgroundColor : 'rgb(255,0,0)',
-  	  		color : '#FFFF00'
+  	  		color : '#660000'
   		});
 	var n2id = n2.addEventListener('click', function() {
 			Titanium.UI.createAlertDialog({
@@ -61,11 +61,18 @@
 		}).show();
 	});
 	s2.open();
+
+	var sl1 = Titanium.UI.createSlider({ id : 'sl1', min : 0, max : 5, pos : 3});
+	sl1.addEventListener('change', function(e) {
+		document.getElementById('pos').innerHTML = e.value;
+	});
+	sl1.open();
+
   --></script>
 </head>
 <body style="background-color: white;">
 <div id='n1' style='height: 40px;'>&nbsp;</div>
-<div id='n2' style='height: 70px; width: 300px; background-color: blue; '></div>
+<div id='n2' style='height: 40px; width: 300px; background-color: blue; '></div>
 <div>
 <div id='n4' style='height: 70px; width: 70px; float: left; backgroundColor: blue; margin-right: 20px'>&nbsp;</div>
 <div id='n3' style='height: 70px; width: 70px; float: left; backgroundColor: red; '>&nbsp;</div>
@@ -73,6 +80,10 @@
 <div style='clear : both'>
 <div id='s1' style='height: 60px; width: 60px; float: left; '>&nbsp;</div>
 <div id='s2' style='height: 60px; width: 120px; float: left; '>&nbsp;</div>
+</div>
+<div style='clear : both'>
+<div id='sl1' style='height: 30px'>&nbsp;</div>
+<div id='pos' style='border: solid thin black; padding: 3px; background-color : green; color: yellow; margin-top:10px;'>3</div>
 </div>
 </body>
 </html>

@@ -19,6 +19,7 @@ import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumMenuItem;
 import org.appcelerator.titanium.api.ITitaniumNotifier;
 import org.appcelerator.titanium.api.ITitaniumProgressDialog;
+import org.appcelerator.titanium.api.ITitaniumSlider;
 import org.appcelerator.titanium.api.ITitaniumSwitch;
 import org.appcelerator.titanium.api.ITitaniumTableView;
 import org.appcelerator.titanium.api.ITitaniumUI;
@@ -28,6 +29,7 @@ import org.appcelerator.titanium.module.ui.TitaniumButton;
 import org.appcelerator.titanium.module.ui.TitaniumDialog;
 import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
 import org.appcelerator.titanium.module.ui.TitaniumProgressDialog;
+import org.appcelerator.titanium.module.ui.TitaniumSlider;
 import org.appcelerator.titanium.module.ui.TitaniumSwitch;
 import org.appcelerator.titanium.module.ui.TitaniumTableView;
 import org.appcelerator.titanium.module.ui.TitaniumToastNotifier;
@@ -51,6 +53,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	private static final int MSG_CREATE_TOASTNOTIFIER = 303;
 	private static final int MSG_CREATE_BUTTON = 304;
 	private static final int MSG_CREATE_SWITCH = 305;
+	private static final int MSG_CREATE_SLIDER = 306;
 
 	private static final int MSG_END_CREATE_SECTION = 330;
 
@@ -123,6 +126,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 					break;
 				case MSG_CREATE_SWITCH :
 					h.o = new TitaniumSwitch(getModuleManager());
+					break;
+				case MSG_CREATE_SLIDER :
+					h.o = new TitaniumSlider(getModuleManager());
 					break;
 				default :
 					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
@@ -207,6 +213,12 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 		TitaniumSwitch btn =  (TitaniumSwitch) create(MSG_CREATE_SWITCH);
 		btn.setOptions(json);
 		return btn;
+	}
+
+	public ITitaniumSlider createSlider(String json) {
+		TitaniumSlider slider = (TitaniumSlider) create(MSG_CREATE_SLIDER);
+		slider.setOptions(json);
+		return slider;
 	}
 
 	// Expects the message handler to put the object in h.o and release the holder

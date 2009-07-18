@@ -30,5 +30,6 @@ public interface ITitaniumUI
 	// In 0.5.1
 	public ITitaniumButton createButton(String json);
 	public ITitaniumSwitch createSwitch(String json);
+	public ITitaniumSlider createSlider(String json);
 
 }
