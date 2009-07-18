@@ -16,12 +16,14 @@
 }
 - (NSData*) resolveAppAsset:(NSURL*)url;
 - (NSData*) pageNamedAccelerometer;
+- (NSData*) pageNamedActivity_indicators;
 - (NSData*) pageNamedAnimated_false;
 - (NSData*) pageNamedApplication_data;
 - (NSData*) pageNamedButtonbar;
 - (NSData*) pageNamedButtons;
 - (NSData*) pageNamedComposite;
 - (NSData*) pageNamedDatabase;
+- (NSData*) pageNamedEmail;
 - (NSData*) pageNamedFilesystem;
 - (NSData*) pageNamedFullscreen;
 - (NSData*) pageNamedGeo;
@@ -37,6 +39,7 @@
 - (NSData*) pageNamedPhone;
 - (NSData*) pageNamedPlatform;
 - (NSData*) pageNamedPlatform_data;
+- (NSData*) pageNamedProgress_bars;
 - (NSData*) pageNamedProperties;
 - (NSData*) pageNamedShake;
 - (NSData*) pageNamedSlider;
