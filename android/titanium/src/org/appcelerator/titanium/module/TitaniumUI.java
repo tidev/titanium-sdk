@@ -22,6 +22,7 @@ import org.appcelerator.titanium.api.ITitaniumProgressDialog;
 import org.appcelerator.titanium.api.ITitaniumSlider;
 import org.appcelerator.titanium.api.ITitaniumSwitch;
 import org.appcelerator.titanium.api.ITitaniumTableView;
+import org.appcelerator.titanium.api.ITitaniumText;
 import org.appcelerator.titanium.api.ITitaniumUI;
 import org.appcelerator.titanium.api.ITitaniumUserWindow;
 import org.appcelerator.titanium.config.TitaniumConfig;
@@ -32,12 +33,13 @@ import org.appcelerator.titanium.module.ui.TitaniumProgressDialog;
 import org.appcelerator.titanium.module.ui.TitaniumSlider;
 import org.appcelerator.titanium.module.ui.TitaniumSwitch;
 import org.appcelerator.titanium.module.ui.TitaniumTableView;
+import org.appcelerator.titanium.module.ui.TitaniumText;
 import org.appcelerator.titanium.module.ui.TitaniumToastNotifier;
 import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
+import org.appcelerator.titanium.util.Log;
 
 import android.os.Handler;
 import android.os.Message;
-import org.appcelerator.titanium.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handler.Callback
@@ -54,6 +56,8 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	private static final int MSG_CREATE_BUTTON = 304;
 	private static final int MSG_CREATE_SWITCH = 305;
 	private static final int MSG_CREATE_SLIDER = 306;
+	private static final int MSG_CREATE_TEXTAREA = 307;
+	private static final int MSG_CREATE_TEXTFIELD = 308;
 
 	private static final int MSG_END_CREATE_SECTION = 330;
 
@@ -129,6 +133,12 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 					break;
 				case MSG_CREATE_SLIDER :
 					h.o = new TitaniumSlider(getModuleManager());
+					break;
+				case MSG_CREATE_TEXTAREA :
+					h.o = new TitaniumText(getModuleManager());
+					break;
+				case MSG_CREATE_TEXTFIELD :
+					h.o = new TitaniumText(getModuleManager());
 					break;
 				default :
 					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
@@ -219,6 +229,18 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 		TitaniumSlider slider = (TitaniumSlider) create(MSG_CREATE_SLIDER);
 		slider.setOptions(json);
 		return slider;
+	}
+
+	public ITitaniumText createTextArea(String json) {
+		TitaniumText text = (TitaniumText) create(MSG_CREATE_TEXTAREA);
+		text.setOptions(json);
+		return text;
+	}
+
+	public ITitaniumText createTextField(String json) {
+		TitaniumText text = (TitaniumText) create(MSG_CREATE_TEXTAREA);
+		text.setOptions(json);
+		return text;
 	}
 
 	// Expects the message handler to put the object in h.o and release the holder

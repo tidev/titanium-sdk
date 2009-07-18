@@ -1,0 +1,31 @@
+<html>
+<head>
+	<title>Text</title>
+  	<script><!--
+
+	// private String id; // HTML element id
+	// private String title; // Button text
+	// private String imagePath;
+	// private Integer width;
+	// private Integer height;
+	// private String backgroundImage;
+	// private String color;
+	// private String backgroundColor;
+
+  	var t1 = Titanium.UI.createTextArea({
+  	  		id : 't1', value : 'Text',
+  	  		color : 'white', backgroundColor : '#006633'
+  	  	});
+  	t1.addEventListener('change', function(e) {
+  	  	document.getElementById('counter').innerHTML = e.value.length;
+  	});
+  	t1.open();
+
+
+  --></script>
+</head>
+<body style="background-color: white;">
+<div>Characters: <span id='counter'>0</span></div>
+<div id='t1' style='height: 200px;'>&nbsp;</div>
+</body>
+</html>

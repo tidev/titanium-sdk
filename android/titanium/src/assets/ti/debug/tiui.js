@@ -525,7 +525,7 @@ var Switch = function(proxy) {
 	};
 };
 
-var Slider = function(proxy) {
+var TextField = function(proxy) {
 	this.proxy = proxy;
 
 	this.addEventListener = function(eventName, listener) {
@@ -539,6 +539,33 @@ var Slider = function(proxy) {
 	};
 };
 
+var TextArea = function(proxy) {
+	this.proxy = proxy;
+
+	this.addEventListener = function(eventName, listener) {
+		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
+	};
+	this.removeEventListener = function(eventname, listenerId) {
+		this.proxy.removeEventListener(eventName, listenerId);
+	};
+	this.open = function(options) {
+		this.proxy.open(options);
+	};
+};
+
+var TextField = function(proxy) {
+	this.proxy = proxy;
+
+	this.addEventListener = function(eventName, listener) {
+		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
+	};
+	this.removeEventListener = function(eventname, listenerId) {
+		this.proxy.removeEventListener(eventName, listenerId);
+	};
+	this.open = function(options) {
+		this.proxy.open(options);
+	};
+};
 
 Titanium.UI = {
 	/**
@@ -749,12 +776,30 @@ Titanium.UI = {
 	},
 
 	/**
-	 * @tiapi(method=true,name=UI.createSlider,since=0.5.1) Create a native slider
-	 * @tiarg[object, options] a set of configuration options for the slider.
-	 * @tiresult[Slider] the Slider.
+	 * @tiapi(method=true,name=UI.createTextField,since=0.5.1) Create a native TextField
+	 * @tiarg[object, options] a set of configuration options for the TextField.
+	 * @tiresult[TextField] the TextField.
 	 */
-	createSlider : function(options) {
-		return new Slider(Titanium.uiProxy.createSlider(Titanium.JSON.stringify(options)));
+	createTextField : function(options) {
+		return new TextField(Titanium.uiProxy.createTextField(Titanium.JSON.stringify(options)));
+	},
+
+	/**
+	 * @tiapi(method=true,name=UI.createTextArea,since=0.5.1) Create a native text editor
+	 * @tiarg[object, options] a set of configuration options for the text.
+	 * @tiresult[TextArea] the TextArea.
+	 */
+	createTextArea : function(options) {
+		return new TextArea(Titanium.uiProxy.createTextArea(Titanium.JSON.stringify(options)));
+	},
+
+	/**
+	 * @tiapi(method=true,name=UI.createTextField,since=0.5.1) Create a native text field
+	 * @tiarg[object, options] a set of configuration options for the text.
+	 * @tiresult[TextField] the TextField.
+	 */
+	createTextArea : function(options) {
+		return new TextField(Titanium.uiProxy.createTextField(Titanium.JSON.stringify(options)));
 	},
 
 	// createNotification is below. It needs the property currentWindow
