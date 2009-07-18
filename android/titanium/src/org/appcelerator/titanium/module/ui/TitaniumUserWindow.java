@@ -21,7 +21,7 @@ import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 
 import org.appcelerator.titanium.config.TitaniumConfig;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 
 public class TitaniumUserWindow implements ITitaniumUserWindow, ITitaniumLifecycle
 {

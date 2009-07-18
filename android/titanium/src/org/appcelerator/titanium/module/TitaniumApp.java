@@ -15,7 +15,7 @@ import org.appcelerator.titanium.module.app.TitaniumProperties;
 import org.appcelerator.titanium.util.TitaniumUrlHelper;
 
 import org.appcelerator.titanium.config.TitaniumConfig;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumApp extends TitaniumBaseModule implements ITitaniumApp

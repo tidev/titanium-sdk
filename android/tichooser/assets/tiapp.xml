@@ -11,7 +11,7 @@
         <window>
             <id>initial</id>
             <title>Button Test</title>
-            <url>button.html</url>
+            <url>text.html</url>
             <type>single</type>
             <fullscreen>false</fullscreen>
             <backgroundColor>argb(0,255,255,255)</backgroundColor>

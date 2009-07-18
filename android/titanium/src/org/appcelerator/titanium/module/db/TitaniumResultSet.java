@@ -13,7 +13,7 @@ import org.appcelerator.titanium.api.ITitaniumResultSet;
 
 import android.database.Cursor;
 import org.appcelerator.titanium.config.TitaniumConfig;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 
 public class TitaniumResultSet implements ITitaniumResultSet
 {

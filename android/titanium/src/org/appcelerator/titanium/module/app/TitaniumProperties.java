@@ -12,7 +12,7 @@ import org.appcelerator.titanium.api.ITitaniumProperties;
 import android.content.Context;
 import android.content.SharedPreferences;
 import org.appcelerator.titanium.config.TitaniumConfig;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 
 public class TitaniumProperties implements ITitaniumProperties
 {

@@ -11,7 +11,7 @@ import org.json.JSONObject;
 
 import android.graphics.drawable.Drawable;
 import android.os.Message;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;

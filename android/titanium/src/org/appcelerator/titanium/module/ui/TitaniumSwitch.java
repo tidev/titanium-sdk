@@ -8,7 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.Message;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ToggleButton;

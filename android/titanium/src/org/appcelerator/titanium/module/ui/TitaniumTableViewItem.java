@@ -10,7 +10,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;

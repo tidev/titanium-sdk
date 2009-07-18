@@ -46,7 +46,7 @@ import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import org.appcelerator.titanium.config.TitaniumConfig;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia

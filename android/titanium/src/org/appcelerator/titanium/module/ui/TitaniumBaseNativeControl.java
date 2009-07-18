@@ -12,7 +12,7 @@ import org.json.JSONObject;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 import android.view.View;
 import android.widget.AbsoluteLayout;
 

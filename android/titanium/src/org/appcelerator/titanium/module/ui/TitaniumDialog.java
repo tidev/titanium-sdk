@@ -15,7 +15,7 @@ import org.appcelerator.titanium.util.TitaniumJSEventManager;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 
 public class TitaniumDialog implements ITitaniumDialog
 {

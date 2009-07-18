@@ -12,7 +12,7 @@ import java.util.List;
 
 import org.appcelerator.titanium.api.ITitaniumFile;
 
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 
 public abstract class TitaniumBaseFile implements ITitaniumFile
 {

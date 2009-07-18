@@ -17,7 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.location.Location;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 
 public class TitaniumAnalyticsEventFactory
 {

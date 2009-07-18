@@ -19,7 +19,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
-import android.util.Log;
+import org.appcelerator.titanium.util.Log;
 
 public class TitaniumLogWatcher
 {

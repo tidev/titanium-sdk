@@ -81,13 +81,16 @@ var Titanium = new function() {
 };
 
 function TitaniumCallback(obj, method, oneShot) {
-	this.name = 'cb' + Titanium.nextCallbackId();
+	this.name = Titanium.nextCallbackId();
 	this.obj = obj;
 	this.method = method;
 	this.oneShot = oneShot;
-	this.invoke = function (data)
+	this.invoke = function (data, syncId)
 	{
 		this.method.call(this.obj,data);
+		if (!isUndefined(syncId)) {
+			Titanium.apiProxy.signal(syncId);
+		}
 		if (oneShot) {
 			Titanium.removeCallback(this.name);
 		}
