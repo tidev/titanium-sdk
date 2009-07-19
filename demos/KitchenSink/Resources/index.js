@@ -18,7 +18,7 @@ window.onload = function()
 	];
 	
 	// tableview object
-	var tableView = Titanium.UI.createTableView({data:data,title:'Page 1',isPrimary:true}, function(eventObject) 
+	var tableView = Titanium.UI.createTableView({data:data,title:'Page 1',isPrimary:true,backgroundColor:'#336699'}, function(eventObject) 
 	{
 		// handle tableview click events
 		var idx = eventObject.index;

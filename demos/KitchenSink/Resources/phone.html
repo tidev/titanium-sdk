@@ -2,9 +2,6 @@
 <head>
 	<title>Phone API</title>
 	
-	<!-- ISSES -->
-	<!-- accelerometer is crashing app on the device -->
-	
 	<script>
 	// data for tableview
 	var data = [
@@ -17,11 +14,17 @@
 		{title:'Accelerometer', hasChild:true},
 		{title:'Sound',hasChild:true},
 		{title:'Shake',hasChild:true},
+		{title:'Email Client (iPhone)',hasChild:true},
 		
 	];
 	
 	// tableview object
-	var tableView = Titanium.UI.createTableView({data:data,title:'Phone API',isPrimary:true}, function(eventObject) 
+	var tableView = Titanium.UI.createTableView({
+		data:data,
+		title:'Phone API',
+		isPrimary:true,
+		backgroundColor:'transparent'
+	}, function(eventObject) 
 	{
 		// handle tableview click events
 		var idx = eventObject.index;
@@ -75,6 +78,12 @@
 			case 8:
 			{
 				var win = Titanium.UI.createWindow({url:'shake.html',title:'Shake', barColor:'#336699'});
+				win.open({animated:true});
+				break;
+			}
+			case 9:
+			{
+				var win = Titanium.UI.createWindow({url:'email.html',title:'Email', barColor:'#336699'});
 				win.open({animated:true});
 				break;
 			}

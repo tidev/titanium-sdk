@@ -1,0 +1,29 @@
+<html>
+<head>
+<style>
+.button
+{
+	font-size:18px;width:280px;text-align:center
+}
+</style>
+</head>
+<body style="background-color:#fff;font-size:20px;font-family:'Helvetica Neue';font-weight:bold">
+
+	<div><input type="button" id="1" value="Launch Email" class="button"/></div>
+
+	<script>
+	document.getElementById('1').onclick = function()
+	{
+		var emailDialog = Titanium.UI.createEmailDialog();
+		emailDialog.setSubject('check this out');
+		emailDialog.setToRecipients(['nolan11169@yahoo.com', 'nwright@appcelerator.com']);
+		emailDialog.setCcRecipients(['nolan11169@yahoo.com']);
+		emailDialog.setBccRecipients(['nwright@appcelerator.com']);
+		emailDialog.setMessage('this is a message fool.');
+		emailDialog.addAttachment({mimeType:'image/png', file:'profile.png'});
+		emailDialog.open();
+
+	};
+	</script>
+</body>
+</html>

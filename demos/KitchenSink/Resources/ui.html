@@ -1,17 +1,6 @@
 <html>
 <head>
 	<title>UI API</title>
-	<!-- ANDROID -->
-	<!-- headers not right - see "Settings->Security & location" for example -->
-	<!-- options dialog doesn't work -->
-	<!-- unfocused test causes crash -->
-	<!-- no space between images and title on tableview -->
-	<!-- alert test (second alert is missing buttons ) -->
-	<!-- tableview headers still jacked -->
-	<!-- hasChild not working -->
-	<!-- menu not working -->
-	<!-- when exiting camera test, screen flips to landscape -->
-	<!-- URL null on application data (platform tab - application data ) -->
 	
 
 	<script>
@@ -47,8 +36,9 @@
 		{title:'Switch (iPhone)',hasChild:true},
 		{title:'Open (animated false) (iPhone)',hasChild:true},
 		{title:'Notifications (Android)'},
-		{title:'Activity Indicator (Android)'},
-		{title:'Menu (Android)'}
+		{title:'Activity Indicator'},
+		{title:'Menu (Android)'},
+		{title:'Progress Bar'}
 		
 	];
 	
@@ -306,21 +296,8 @@
 			}
 			case 30:
 			{
-				if (Titanium.Platform.name == 'android')
-				{
-					// create indicator
-	              	var ind = Titanium.UI.createActivityIndicator();
-	              	ind.setMessage('Loading...');
-			        ind.setLocation(Titanium.UI.ActivityIndicator.DIALOG)
-			        ind.setType(Titanium.UI.ActivityIndicator.INDETERMINANT)
-	              	ind.show();
-
-	              	setTimeout(function()
-	              	{
-	                      ind.hide();
-	              	},2000);
-				}
-				
+				var win = Titanium.UI.createWindow({url:'activity_indicators.html',title:'Indicators'});
+				win.open({animated:true});		
 				break;
 			}
 			
@@ -342,6 +319,12 @@
 				}
 				break;
 				
+			}
+			case 32:
+			{
+				var win = Titanium.UI.createWindow({url:'progress_bars.html',title:'Progress Bar'});
+				win.open({animated:true});		
+				break;
 			}
 			
 
