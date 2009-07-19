@@ -20,7 +20,7 @@
         <window>
             <id>appendage</id>
             <title>Testbed2</title>
-            <url>tableview.html</url>
+            <url>progress.html</url>
             <type>single</type>
             <fullscreen>false</fullscreen>
             <backgroundColor>argb(0,255,255,255)</backgroundColor>

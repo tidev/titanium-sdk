@@ -699,6 +699,44 @@ Titanium.UI = {
 	 */
 	createActivityIndicator : function(options) {
 		var ind = new ActivityIndicator(Titanium.uiProxy.createProgressDialog());
+		ind.setLocation(1); // Dialog
+		if (!isUndefined(options)) {
+			var message = options['message'];
+			var loc = options['location'];
+			var type = options['type'];
+			var minVal = options['min'];
+			var maxVal = options['max'];
+			var position = options['pos'];
+
+			if (!isUndefined(message)) {
+				ind.setMessage(message);
+			}
+			if (!isUndefined(loc)) {
+				ind.setLocation(loc);
+			}
+			if (!isUndefined(type)) {
+				ind.setType(type);
+			}
+			if (!isUndefined(minVal)) {
+				ind.setMin(minVal);
+			}
+			if (!isUndefined(maxVal)) {
+				ind.setMax(maxVal);
+			}
+			if (!isUndefined(position)) {
+				ind.setPos(position);
+			}
+		}
+		return ind;
+	},
+	/**
+	 * @tiapi(method=true,name=UI.createActivityIndicator,since=0.4) Create an activity indicator
+	 * @tiarg[hash,options,optional=true] options for configuring the activiy indicator
+	 * @tiresult[ActivityIndicator] the dialog.
+	 */
+	createProgressBar : function(options) {
+		var ind = new ActivityIndicator(Titanium.uiProxy.createProgressDialog());
+		ind.setLocation(0); // StatusBar
 
 		if (!isUndefined(options)) {
 			var message = options['message'];

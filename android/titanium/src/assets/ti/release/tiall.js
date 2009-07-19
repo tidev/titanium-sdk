@@ -86,7 +86,13 @@ if(!isUndefined(message)){dlg.setMessage(message);}
 if(!isUndefined(buttonNames)){dlg.setButtonNames(buttonNames);}}
 return dlg;},createOptionDialog:function(options){var dlg=new OptionDialog(Titanium.uiProxy.createOptionDialog());if(!isUndefined(options)){title=options['title'];optionValues=options['options'];if(!isUndefined(title)){dlg.setTitle(title);}
 if(!isUndefined(buttonNames)){dlg.setOptions(optionValues);}}
-return dlg;},createActivityIndicator:function(options){var ind=new ActivityIndicator(Titanium.uiProxy.createProgressDialog());if(!isUndefined(options)){var message=options['message'];var loc=options['location'];var type=options['type'];var minVal=options['min'];var maxVal=options['max'];var position=options['pos'];if(!isUndefined(message)){ind.setMessage(message);}
+return dlg;},createActivityIndicator:function(options){var ind=new ActivityIndicator(Titanium.uiProxy.createProgressDialog());ind.setLocation(1);if(!isUndefined(options)){var message=options['message'];var loc=options['location'];var type=options['type'];var minVal=options['min'];var maxVal=options['max'];var position=options['pos'];if(!isUndefined(message)){ind.setMessage(message);}
+if(!isUndefined(loc)){ind.setLocation(loc);}
+if(!isUndefined(type)){ind.setType(type);}
+if(!isUndefined(minVal)){ind.setMin(minVal);}
+if(!isUndefined(maxVal)){ind.setMax(maxVal);}
+if(!isUndefined(position)){ind.setPos(position);}}
+return ind;},createProgressBar:function(options){var ind=new ActivityIndicator(Titanium.uiProxy.createProgressDialog());ind.setLocation(0);if(!isUndefined(options)){var message=options['message'];var loc=options['location'];var type=options['type'];var minVal=options['min'];var maxVal=options['max'];var position=options['pos'];if(!isUndefined(message)){ind.setMessage(message);}
 if(!isUndefined(loc)){ind.setLocation(loc);}
 if(!isUndefined(type)){ind.setType(type);}
 if(!isUndefined(minVal)){ind.setMin(minVal);}

@@ -58,6 +58,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	private static final int MSG_CREATE_SLIDER = 306;
 	private static final int MSG_CREATE_TEXTAREA = 307;
 	private static final int MSG_CREATE_TEXTFIELD = 308;
+	private static final int MSG_CREATE_PROGRESSDIALOG = 309;
 
 	private static final int MSG_END_CREATE_SECTION = 330;
 
@@ -140,6 +141,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 				case MSG_CREATE_TEXTFIELD :
 					h.o = new TitaniumText(getModuleManager());
 					break;
+				case MSG_CREATE_PROGRESSDIALOG :
+					h.o = new TitaniumProgressDialog(getActivity());
+					break;
 				default :
 					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
 			}
@@ -202,7 +206,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	}
 
 	public ITitaniumProgressDialog createProgressDialog() {
-		return new TitaniumProgressDialog(getActivity());
+		return (ITitaniumProgressDialog) create(MSG_CREATE_PROGRESSDIALOG);
 	}
 
 	public ITitaniumNotifier createNotification() {
