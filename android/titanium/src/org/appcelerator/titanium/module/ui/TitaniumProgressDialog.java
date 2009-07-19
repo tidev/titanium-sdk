@@ -10,7 +10,6 @@ package org.appcelerator.titanium.module.ui;
 import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.api.ITitaniumProgressDialog;
 import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumActivityHelper;
 
 import android.app.Activity;
@@ -63,9 +62,6 @@ public class TitaniumProgressDialog
 
 	public boolean handleMessage(Message msg)
 	{
-		if (DBG) {
-			Log.d(LCAT, "Incoming msg");
-		}
 		switch(msg.what) {
 			case MSG_SET_MESSAGE :
 				progressDialog.setMessage((String) msg.obj);

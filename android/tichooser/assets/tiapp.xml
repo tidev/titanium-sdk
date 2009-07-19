@@ -10,7 +10,7 @@
     <windows>
         <window>
             <id>initial</id>
-            <title>Button Test</title>
+            <title>Text</title>
             <url>text.html</url>
             <type>single</type>
             <fullscreen>false</fullscreen>
@@ -19,8 +19,17 @@
         </window>
         <window>
             <id>appendage</id>
-            <title>Testbed2</title>
+            <title>Progress</title>
             <url>progress.html</url>
+            <type>single</type>
+            <fullscreen>false</fullscreen>
+            <backgroundColor>argb(0,255,255,255)</backgroundColor>
+            <barColor>#000</barColor>
+        </window>
+        <window>
+            <id>buttons</id>
+            <title>Buttons</title>
+            <url>button.html</url>
             <type>single</type>
             <fullscreen>false</fullscreen>
             <backgroundColor>argb(0,255,255,255)</backgroundColor>

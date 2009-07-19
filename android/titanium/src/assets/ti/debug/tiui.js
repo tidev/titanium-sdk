@@ -525,7 +525,7 @@ var Switch = function(proxy) {
 	};
 };
 
-var TextField = function(proxy) {
+var Slider = function(proxy) {
 	this.proxy = proxy;
 
 	this.addEventListener = function(eventName, listener) {
@@ -814,12 +814,12 @@ Titanium.UI = {
 	},
 
 	/**
-	 * @tiapi(method=true,name=UI.createTextField,since=0.5.1) Create a native TextField
-	 * @tiarg[object, options] a set of configuration options for the TextField.
-	 * @tiresult[TextField] the TextField.
+	 * @tiapi(method=true,name=UI.createTextField,since=0.5.1) Create a native Slider
+	 * @tiarg[object, options] a set of configuration options for the Slider.
+	 * @tiresult[Slider] the Slider.
 	 */
-	createTextField : function(options) {
-		return new TextField(Titanium.uiProxy.createTextField(Titanium.JSON.stringify(options)));
+	createSlider : function(options) {
+		return new Slider(Titanium.uiProxy.createSlider(Titanium.JSON.stringify(options)));
 	},
 
 	/**
@@ -836,7 +836,7 @@ Titanium.UI = {
 	 * @tiarg[object, options] a set of configuration options for the text.
 	 * @tiresult[TextField] the TextField.
 	 */
-	createTextArea : function(options) {
+	createTextField : function(options) {
 		return new TextField(Titanium.uiProxy.createTextField(Titanium.JSON.stringify(options)));
 	},
 
