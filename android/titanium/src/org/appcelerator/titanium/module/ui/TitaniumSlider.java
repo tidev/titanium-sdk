@@ -55,10 +55,10 @@ public class TitaniumSlider extends TitaniumBaseNativeControl
 		TitaniumModuleManager ttm = softModuleMgr.get();
 		if (ttm != null && control == null) {
 			SeekBar b = new SeekBar(ttm.getActivity());
-			b.setProgress(pos);
-			b.setMax(max);
-
 			b.setOnSeekBarChangeListener(this);
+			b.setMax(Math.abs(max) + Math.abs(min));
+			b.setProgress(pos + Math.abs(min));
+
 			control = b;
 
 			control.isFocusable();
@@ -80,8 +80,12 @@ public class TitaniumSlider extends TitaniumBaseNativeControl
 	{
 		if (msg.what == MSG_CHANGE) {
 			SeekBar b = (SeekBar) control;
-			pos = b.getProgress();
-			eventManager.invokeSuccessListeners("change", "{ value : " + pos + "}");
+			if (b != null) {
+				pos = b.getProgress();
+				//scale the position to the range
+				int thePos = pos + min;
+				eventManager.invokeSuccessListeners("change", "{ value : " + thePos + "}");
+			}
 		}
 
 		return super.handleMessage(msg);
