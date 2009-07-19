@@ -3,8 +3,10 @@ package org.appcelerator.titanium.module.ui;
 import java.lang.ref.SoftReference;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
+import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.api.ITitaniumNativeControl;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,7 +14,6 @@ import org.json.JSONObject;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import org.appcelerator.titanium.util.Log;
 import android.view.View;
 import android.widget.AbsoluteLayout;
 
@@ -121,5 +122,33 @@ public abstract class TitaniumBaseNativeControl
 		}
 	}
 
-	public abstract void open(String json);
+	public void open(String json)
+	{
+		TitaniumModuleManager tmm = softModuleMgr.get();
+		if (tmm != null && control == null) {
+
+			JSONObject openArgs = null;
+			try {
+				if (json != null && json.trim().length() != 0) {
+					openArgs = new JSONObject(json);
+				}
+
+				createControl(tmm, openArgs);
+
+				if (id != null) {
+					TitaniumWebView wv = tmm.getActivity().getWebView();
+					if (wv != null) {
+						wv.addListener(this);
+						wv.addControl(control);
+					} else {
+						Log.e(LCAT, "No webview, control not added");
+					}
+				}
+			} catch (JSONException e) {
+				Log.e(LCAT, "Error parsing json: " + json, e);
+			}
+		}
+	}
+
+	public abstract void createControl(TitaniumModuleManager tmm, JSONObject openArgs) throws JSONException;
 }

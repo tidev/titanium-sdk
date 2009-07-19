@@ -507,7 +507,7 @@ var Button = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	this.open = function(options) {
-		this.proxy.open(options);
+		this.proxy.open(isUndefined(options) ? null : options);
 	};
 };
 
@@ -521,7 +521,7 @@ var Switch = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	this.open = function(options) {
-		this.proxy.open(options);
+		this.proxy.open(isUndefined(options) ? null : options);
 	};
 };
 
@@ -535,7 +535,7 @@ var Slider = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	this.open = function(options) {
-		this.proxy.open(options);
+		this.proxy.open(isUndefined(options) ? null : options);
 	};
 };
 
@@ -549,7 +549,7 @@ var TextArea = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	this.open = function(options) {
-		this.proxy.open(options);
+		this.proxy.open(isUndefined(options) ? null : options);
 	};
 };
 
@@ -563,7 +563,7 @@ var TextField = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	this.open = function(options) {
-		this.proxy.open(options);
+		this.proxy.open(isUndefined(options) ? null : options);
 	};
 };
 

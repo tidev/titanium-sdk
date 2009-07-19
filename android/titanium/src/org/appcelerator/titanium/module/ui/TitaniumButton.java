@@ -1,9 +1,9 @@
 package org.appcelerator.titanium.module.ui;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
-import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.api.ITitaniumButton;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumColorHelper;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.json.JSONException;
@@ -11,7 +11,6 @@ import org.json.JSONObject;
 
 import android.graphics.drawable.Drawable;
 import android.os.Message;
-import org.appcelerator.titanium.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -66,52 +65,40 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 		return (imagePath != null || backgroundImage != null);
 	}
 
-	public void open(String json) {
-		TitaniumModuleManager ttm = softModuleMgr.get();
-		if (ttm != null && control == null) {
-			if(!isImageButton()) {
-				Button b = new Button(ttm.getActivity());
-				if (title != null && !isImageButton()) {
-					b.setText(title);
-				}
-
-				if (color != null) {
-					b.setTextColor(TitaniumColorHelper.parseColor(color));
-				}
-
-				if (backgroundColor != null) {
-					b.setBackgroundColor(TitaniumColorHelper.parseColor(backgroundColor));
-				}
-				control = b;
-			} else {
-				ImageButton b = new ImageButton(ttm.getActivity());
-
-				TitaniumFileHelper tfh = new TitaniumFileHelper(ttm.getActivity());
-				if (imagePath != null) {
-					Drawable d = tfh.loadDrawable(imagePath, false);
-					if (d != null) {
-						b.setImageDrawable(d);
-					} else {
-						Log.w(LCAT, "Error loading image: " + imagePath);
-					}
-				}
-
-				control = b;
+	public void createControl(TitaniumModuleManager tmm, JSONObject openArgs)
+	{
+		if(!isImageButton()) {
+			Button b = new Button(tmm.getActivity());
+			if (title != null && !isImageButton()) {
+				b.setText(title);
 			}
-			control.setOnClickListener(this);
-			control.isFocusable();
-			control.setId(100);
 
-			if (id != null) {
-				TitaniumWebView wv = ttm.getActivity().getWebView();
-				if (wv != null) {
-					wv.addListener(this); //TODO consider needing an immediate layout.
-					wv.addControl(control);
+			if (color != null) {
+				b.setTextColor(TitaniumColorHelper.parseColor(color));
+			}
+
+			if (backgroundColor != null) {
+				b.setBackgroundColor(TitaniumColorHelper.parseColor(backgroundColor));
+			}
+			control = b;
+		} else {
+			ImageButton b = new ImageButton(tmm.getActivity());
+
+			TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getActivity());
+			if (imagePath != null) {
+				Drawable d = tfh.loadDrawable(imagePath, false);
+				if (d != null) {
+					b.setImageDrawable(d);
 				} else {
-					Log.e(LCAT, "No webview, control not added");
+					Log.w(LCAT, "Error loading image: " + imagePath);
 				}
 			}
+
+			control = b;
 		}
+		control.setOnClickListener(this);
+		control.isFocusable();
+		control.setId(100);
 	}
 
 	public boolean handleMessage(Message msg)
