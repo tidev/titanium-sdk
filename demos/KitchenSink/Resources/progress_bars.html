@@ -15,7 +15,7 @@
 	<div><input type="button" id="4" value="NavBar w/message (iPhone)" class="button"/></div>
 	<div><input type="button" id="5" value="Content w/message (iPhone)" class="button"/></div>
 	<div><input type="button" id="6" value="Android" class="button"/></div>
-	<div id="content_indicator" style="width:150px;margin:auto;font-size:18px"></div>
+	<div id="content_indicator" style="width:150px;margin:auto;font-size:18px;height:50px"></div>
 	
 	<script>
 	// what are the available progress bar styles
@@ -32,7 +32,6 @@
 		});
 		
 		var value = 0;
-		
 		var ind=Titanium.UI.createProgressBar({
 			width:150,
 			min:0,
@@ -143,7 +142,9 @@
 			max:10,
 			value:0,
 			title:'Downloading 0 of 10',
-			color:'#000000'
+			color:'#000000',
+			style:Titanium.UI.iPhone.SystemButtonStyle.PLAIN
+			
 		});
 		ind.show();
       	var interval = setInterval(function()
