@@ -9,20 +9,29 @@ package org.appcelerator.titanium.module.ui;
 
 import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.api.ITitaniumProgressDialog;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.TitaniumActivityHelper;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import org.appcelerator.titanium.config.TitaniumConfig;
+import android.os.Handler;
+import android.os.Message;
 
-public class TitaniumProgressDialog implements ITitaniumProgressDialog
+public class TitaniumProgressDialog
+	implements ITitaniumProgressDialog, Handler.Callback
 {
 	@SuppressWarnings("unused")
 	private static final String LCAT = "TiProgressDlg";
 	@SuppressWarnings("unused")
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
+	private static final int MSG_SET_MESSAGE = 300;
+	private static final int MSG_SET_POSITION = 301;
+	private static final int MSG_SHOW = 302;
+	private static final int MSG_HIDE = 303;
+
 	protected TitaniumActivity activity;
+	protected Handler handler;
 	protected String message;
 	protected Type type;
 	protected Location location;
@@ -39,6 +48,7 @@ public class TitaniumProgressDialog implements ITitaniumProgressDialog
 	public TitaniumProgressDialog(TitaniumActivity activity)
 	{
 		this.activity = activity;
+		this.handler = new Handler(this);
 		this.message = "Message not set...";
 		this.type = Type.INDETERMINANT;
 		this.location = Location.DIALOG;
@@ -50,15 +60,83 @@ public class TitaniumProgressDialog implements ITitaniumProgressDialog
 
 	}
 
+	public boolean handleMessage(Message msg)
+	{
+		switch(msg.what) {
+			case MSG_SET_MESSAGE :
+				progressDialog.setMessage((String) msg.obj);
+				return true;
+			case MSG_SET_POSITION :
+				if (msg.arg1 == Location.STATUS_BAR.ordinal()) {
+					parent.setProgress(msg.arg2);
+				} else {
+					if (progressDialog != null) {
+						progressDialog.setProgress(msg.arg2);
+					}
+				}
+				return true;
+			case MSG_SHOW :
+				if (location == Location.STATUS_BAR) {
+					incrementFactor = 10000 / (max - min); // TODO range check, and setters
+
+					if (type == Type.INDETERMINANT) {
+						parent.setProgressBarIndeterminate(true);
+						parent.setProgressBarIndeterminateVisibility(true);
+						statusBarTitle = parent.getTitle().toString();
+						parent.setTitle(message);
+					} else {
+						parent.setProgressBarIndeterminate(false);
+						parent.setProgressBarIndeterminateVisibility(false);
+						parent.setProgressBarVisibility(true);
+						statusBarTitle = parent.getTitle().toString();
+						parent.setTitle(message);
+					}
+				} else {
+					incrementFactor = 1;
+					if (progressDialog == null) {
+						progressDialog = new ProgressDialog(parent);
+					}
+
+					progressDialog.setMessage(message);
+					progressDialog.setCancelable(false);
+
+					if (type == Type.INDETERMINANT) {
+						progressDialog.setIndeterminate(true);
+					} else {
+						progressDialog.setIndeterminate(false);
+						progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+						if (min != 0) {
+							progressDialog.setMax(max-min); // no min setting so shift
+						} else {
+							progressDialog.setMax(max);
+						}
+						progressDialog.setProgress(0);
+					}
+					progressDialog.show();
+				}
+				return true;
+			case MSG_HIDE :
+				if (location == Location.STATUS_BAR) {
+					if (parent != null) {
+						parent.setProgressBarIndeterminate(false);
+						parent.setProgressBarIndeterminateVisibility(false);
+						parent.setProgressBarVisibility(false);
+						parent.setTitle(statusBarTitle);
+						statusBarTitle = null;
+					}
+				} else {
+					progressDialog.dismiss();
+				}
+				return true;
+		}
+		return false;
+	}
+
 	public void setMessage(final String message)
 	{
 		this.message = message;
 		if (visible && location == Location.DIALOG) {
-			activity.runOnUiThread(new Runnable(){
-				public void run() {
-					progressDialog.setMessage(message);
-				}
-			});
+			handler.obtainMessage(MSG_SET_MESSAGE, message).sendToTarget();
 		}
 	}
 
@@ -90,94 +168,19 @@ public class TitaniumProgressDialog implements ITitaniumProgressDialog
 
 	public void setPosition(final int pos) {
 		if (visible) {
-			if (location == Location.STATUS_BAR) {
-				if (parent != null) {
-					if (type == Type.DETERMINANT) {
-						parent.runOnUiThread(new Runnable(){
-							public void run() {
-								parent.setProgress((pos - min) * incrementFactor);
-							}
-						});
-					}
-				}
-			} else {
-				if (parent != null && progressDialog != null) {
-					parent.runOnUiThread(new Runnable(){
-						public void run() {
-							progressDialog.setProgress((pos - min) * incrementFactor);
-						}
-					});
-
-				}
-			}
+			int thePos = (pos - min) * incrementFactor;
+			handler.obtainMessage(MSG_SET_POSITION, location.ordinal(), thePos).sendToTarget();
 		}
 	}
 
 	public void show() {
 		visible = true;
-
-		if (location == Location.STATUS_BAR) {
-			incrementFactor = 10000 / (max - min); // TODO range check, and setters
-
-			if (type == Type.INDETERMINANT) {
-				parent.runOnUiThread(new Runnable(){
-					public void run() {
-						parent.setProgressBarIndeterminate(true);
-						parent.setProgressBarIndeterminateVisibility(true);
-						statusBarTitle = parent.getTitle().toString();
-						parent.setTitle(message);
-					}
-				});
-			} else {
-				parent.runOnUiThread(new Runnable(){
-					public void run() {
-						parent.setProgressBarIndeterminate(false);
-						parent.setProgressBarIndeterminateVisibility(false);
-						parent.setProgressBarVisibility(true);
-						statusBarTitle = parent.getTitle().toString();
-						parent.setTitle(message);
-					}
-				});
-			}
-		} else {
-			incrementFactor = 1;
-			if (progressDialog == null) {
-				progressDialog = new ProgressDialog(parent);
-			}
-
-			progressDialog.setMessage(message);
-			progressDialog.setCancelable(false);
-
-			if (type == Type.INDETERMINANT) {
-				progressDialog.setIndeterminate(true);
-			} else {
-				progressDialog.setIndeterminate(false);
-				progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-				if (min != 0) {
-					progressDialog.setMax(max-min); // no min setting so shift
-				}
-				progressDialog.setProgress(0);
-			}
-			progressDialog.show();
-		}
+		handler.obtainMessage(MSG_SHOW).sendToTarget();
 	}
 
 	public void hide() {
 		visible = false;
-		if (location == Location.STATUS_BAR) {
-			if (parent != null) {
-				parent.runOnUiThread(new Runnable(){
-					public void run() {
-						parent.setProgressBarIndeterminate(false);
-						parent.setProgressBarIndeterminateVisibility(false);
-						parent.setProgressBarVisibility(false);
-						parent.setTitle(statusBarTitle);
-						statusBarTitle = null;
-					}
-				});
-			}
-		} else {
-			progressDialog.dismiss();
-		}
+		handler.obtainMessage(MSG_HIDE).sendToTarget();
 	}
+
 }

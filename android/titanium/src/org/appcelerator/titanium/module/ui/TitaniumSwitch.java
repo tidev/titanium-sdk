@@ -1,14 +1,12 @@
 package org.appcelerator.titanium.module.ui;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
-import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.api.ITitaniumSwitch;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.Message;
-import org.appcelerator.titanium.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ToggleButton;
@@ -16,6 +14,7 @@ import android.widget.ToggleButton;
 public class TitaniumSwitch extends TitaniumBaseNativeControl
 	implements ITitaniumSwitch, OnClickListener
 {
+	@SuppressWarnings("unused")
 	private static final String LCAT = "TiSwitch";
 	@SuppressWarnings("unused")
 	private static final boolean DBG = TitaniumConfig.LOGD;
@@ -43,27 +42,14 @@ public class TitaniumSwitch extends TitaniumBaseNativeControl
 	}
 
 	@Override
-	public void open(String json) {
-		TitaniumModuleManager ttm = softModuleMgr.get();
-		if (ttm != null && control == null) {
-			ToggleButton b = new ToggleButton(ttm.getActivity());
-			b.setChecked(value);
-			control = b;
+	public void createControl(TitaniumModuleManager tmm, JSONObject openArgs) {
+		ToggleButton b = new ToggleButton(tmm.getActivity());
+		b.setChecked(value);
+		control = b;
 
-			control.setOnClickListener(this);
-			control.isFocusable();
-			control.setId(100);
-
-			if (id != null) {
-				TitaniumWebView wv = ttm.getActivity().getWebView();
-				if (wv != null) {
-					wv.addListener(this);
-					wv.addControl(control);
-				} else {
-					Log.e(LCAT, "No webview, control not added");
-				}
-			}
-		}
+		control.setOnClickListener(this);
+		control.isFocusable();
+		control.setId(100);
 	}
 
 	public boolean handleMessage(Message msg)

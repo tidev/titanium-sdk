@@ -34,6 +34,7 @@ import org.appcelerator.titanium.module.ui.TitaniumSlider;
 import org.appcelerator.titanium.module.ui.TitaniumSwitch;
 import org.appcelerator.titanium.module.ui.TitaniumTableView;
 import org.appcelerator.titanium.module.ui.TitaniumText;
+import org.appcelerator.titanium.module.ui.TitaniumTextField;
 import org.appcelerator.titanium.module.ui.TitaniumToastNotifier;
 import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
 import org.appcelerator.titanium.util.Log;
@@ -58,6 +59,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	private static final int MSG_CREATE_SLIDER = 306;
 	private static final int MSG_CREATE_TEXTAREA = 307;
 	private static final int MSG_CREATE_TEXTFIELD = 308;
+	private static final int MSG_CREATE_PROGRESSDIALOG = 309;
 
 	private static final int MSG_END_CREATE_SECTION = 330;
 
@@ -138,7 +140,10 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 					h.o = new TitaniumText(getModuleManager());
 					break;
 				case MSG_CREATE_TEXTFIELD :
-					h.o = new TitaniumText(getModuleManager());
+					h.o = new TitaniumTextField(getModuleManager());
+					break;
+				case MSG_CREATE_PROGRESSDIALOG :
+					h.o = new TitaniumProgressDialog(getActivity());
 					break;
 				default :
 					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
@@ -202,7 +207,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	}
 
 	public ITitaniumProgressDialog createProgressDialog() {
-		return new TitaniumProgressDialog(getActivity());
+		return (ITitaniumProgressDialog) create(MSG_CREATE_PROGRESSDIALOG);
 	}
 
 	public ITitaniumNotifier createNotification() {
@@ -238,7 +243,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	}
 
 	public ITitaniumText createTextField(String json) {
-		TitaniumText text = (TitaniumText) create(MSG_CREATE_TEXTAREA);
+		TitaniumTextField text = (TitaniumTextField) create(MSG_CREATE_TEXTFIELD);
 		text.setOptions(json);
 		return text;
 	}

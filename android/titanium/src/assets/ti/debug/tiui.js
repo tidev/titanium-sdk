@@ -507,7 +507,7 @@ var Button = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	this.open = function(options) {
-		this.proxy.open(options);
+		this.proxy.open(isUndefined(options) ? null : options);
 	};
 };
 
@@ -521,11 +521,11 @@ var Switch = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	this.open = function(options) {
-		this.proxy.open(options);
+		this.proxy.open(isUndefined(options) ? null : options);
 	};
 };
 
-var TextField = function(proxy) {
+var Slider = function(proxy) {
 	this.proxy = proxy;
 
 	this.addEventListener = function(eventName, listener) {
@@ -535,7 +535,7 @@ var TextField = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	this.open = function(options) {
-		this.proxy.open(options);
+		this.proxy.open(isUndefined(options) ? null : options);
 	};
 };
 
@@ -549,7 +549,7 @@ var TextArea = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	this.open = function(options) {
-		this.proxy.open(options);
+		this.proxy.open(isUndefined(options) ? null : options);
 	};
 };
 
@@ -563,7 +563,7 @@ var TextField = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	this.open = function(options) {
-		this.proxy.open(options);
+		this.proxy.open(isUndefined(options) ? null : options);
 	};
 };
 
@@ -699,6 +699,44 @@ Titanium.UI = {
 	 */
 	createActivityIndicator : function(options) {
 		var ind = new ActivityIndicator(Titanium.uiProxy.createProgressDialog());
+		ind.setLocation(1); // Dialog
+		if (!isUndefined(options)) {
+			var message = options['message'];
+			var loc = options['location'];
+			var type = options['type'];
+			var minVal = options['min'];
+			var maxVal = options['max'];
+			var position = options['pos'];
+
+			if (!isUndefined(message)) {
+				ind.setMessage(message);
+			}
+			if (!isUndefined(loc)) {
+				ind.setLocation(loc);
+			}
+			if (!isUndefined(type)) {
+				ind.setType(type);
+			}
+			if (!isUndefined(minVal)) {
+				ind.setMin(minVal);
+			}
+			if (!isUndefined(maxVal)) {
+				ind.setMax(maxVal);
+			}
+			if (!isUndefined(position)) {
+				ind.setPos(position);
+			}
+		}
+		return ind;
+	},
+	/**
+	 * @tiapi(method=true,name=UI.createActivityIndicator,since=0.4) Create an activity indicator
+	 * @tiarg[hash,options,optional=true] options for configuring the activiy indicator
+	 * @tiresult[ActivityIndicator] the dialog.
+	 */
+	createProgressBar : function(options) {
+		var ind = new ActivityIndicator(Titanium.uiProxy.createProgressDialog());
+		ind.setLocation(0); // StatusBar
 
 		if (!isUndefined(options)) {
 			var message = options['message'];
@@ -776,12 +814,12 @@ Titanium.UI = {
 	},
 
 	/**
-	 * @tiapi(method=true,name=UI.createTextField,since=0.5.1) Create a native TextField
-	 * @tiarg[object, options] a set of configuration options for the TextField.
-	 * @tiresult[TextField] the TextField.
+	 * @tiapi(method=true,name=UI.createTextField,since=0.5.1) Create a native Slider
+	 * @tiarg[object, options] a set of configuration options for the Slider.
+	 * @tiresult[Slider] the Slider.
 	 */
-	createTextField : function(options) {
-		return new TextField(Titanium.uiProxy.createTextField(Titanium.JSON.stringify(options)));
+	createSlider : function(options) {
+		return new Slider(Titanium.uiProxy.createSlider(Titanium.JSON.stringify(options)));
 	},
 
 	/**
@@ -793,12 +831,29 @@ Titanium.UI = {
 		return new TextArea(Titanium.uiProxy.createTextArea(Titanium.JSON.stringify(options)));
 	},
 
+	RETURNKEY_GO : 0,
+	RETURNKEY_GOOGLE : 1,
+	RETURNKEY_JOIN : 2,
+	RETURNKEY_NEXT : 3,
+	RETURNKEY_ROUTE : 4,
+	RETURNKEY_SEARCH : 5,
+	RETURNKEY_YAHOO : 6,
+	RETURNKEY_DONE : 7,
+	RETURNKEY_EMERGENCY_CALL : 8,
+
+	KEYBOARD_ASCII : 0,
+	KEYBOARD_NUMBERS_PUNCTUATION : 1,
+	KEYBOARD_URL : 2,
+	KEYBOARD_NUMBER_PAD : 3,
+	KEYBOARD_PHONE_PAD : 4,
+	KEYBOARD_EMAIL_ADDRESS : 5,
+
 	/**
 	 * @tiapi(method=true,name=UI.createTextField,since=0.5.1) Create a native text field
 	 * @tiarg[object, options] a set of configuration options for the text.
 	 * @tiresult[TextField] the TextField.
 	 */
-	createTextArea : function(options) {
+	createTextField : function(options) {
 		return new TextField(Titanium.uiProxy.createTextField(Titanium.JSON.stringify(options)));
 	},
 

@@ -1,10 +1,8 @@
 package org.appcelerator.titanium.module.ui;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
-import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.api.ITitaniumSlider;
 import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,6 +12,7 @@ import android.widget.SeekBar;
 public class TitaniumSlider extends TitaniumBaseNativeControl
 	implements ITitaniumSlider, SeekBar.OnSeekBarChangeListener
 {
+	@SuppressWarnings("unused")
 	private static final String LCAT = "TiSwitch";
 	@SuppressWarnings("unused")
 	private static final boolean DBG = TitaniumConfig.LOGD;
@@ -51,37 +50,28 @@ public class TitaniumSlider extends TitaniumBaseNativeControl
 	}
 
 	@Override
-	public void open(String json) {
-		TitaniumModuleManager ttm = softModuleMgr.get();
-		if (ttm != null && control == null) {
-			SeekBar b = new SeekBar(ttm.getActivity());
-			b.setProgress(pos);
-			b.setMax(max);
+	public void createControl(TitaniumModuleManager tmm, JSONObject openArgs) {
+		SeekBar b = new SeekBar(tmm.getActivity());
+		b.setOnSeekBarChangeListener(this);
+		b.setMax(Math.abs(max) + Math.abs(min));
+		b.setProgress(pos + Math.abs(min));
 
-			b.setOnSeekBarChangeListener(this);
-			control = b;
+		control = b;
 
-			control.isFocusable();
-			control.setId(100);
-
-			if (id != null) {
-				TitaniumWebView wv = ttm.getActivity().getWebView();
-				if (wv != null) {
-					wv.addListener(this);
-					wv.addControl(control);
-				} else {
-					Log.e(LCAT, "No webview, control not added");
-				}
-			}
-		}
+		control.isFocusable();
+		control.setId(100);
 	}
 
 	public boolean handleMessage(Message msg)
 	{
 		if (msg.what == MSG_CHANGE) {
 			SeekBar b = (SeekBar) control;
-			pos = b.getProgress();
-			eventManager.invokeSuccessListeners("change", "{ value : " + pos + "}");
+			if (b != null) {
+				pos = b.getProgress();
+				//scale the position to the range
+				int thePos = pos + min;
+				eventManager.invokeSuccessListeners("change", "{ value : " + thePos + "}");
+			}
 		}
 
 		return super.handleMessage(msg);

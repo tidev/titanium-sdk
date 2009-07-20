@@ -1,7 +1,6 @@
 package org.appcelerator.titanium.module.ui;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
-import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.api.ITitaniumText;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
@@ -54,36 +53,23 @@ public class TitaniumText extends TitaniumBaseNativeControl
 	}
 
 	@Override
-	public void open(String json) {
-		TitaniumModuleManager ttm = softModuleMgr.get();
-		if (ttm != null && control == null) {
-			EditText tv = new EditText(ttm.getActivity());
-			tv.addTextChangedListener(this);
-			tv.setText(value);
-			tv.setGravity(Gravity.TOP | Gravity.LEFT);
+	public void createControl(TitaniumModuleManager tmm, JSONObject openArgs) {
+		EditText tv = new EditText(tmm.getActivity());
+		control = tv;
 
-			if (color != null) {
-				tv.setTextColor(TitaniumColorHelper.parseColor(color));
-			}
-			if (backgroundColor != null) {
-				tv.setBackgroundColor(TitaniumColorHelper.parseColor(backgroundColor));
-			}
+		tv.addTextChangedListener(this);
+		tv.setText(value);
+		tv.setGravity(Gravity.TOP | Gravity.LEFT);
 
-			control = tv;
-
-			control.isFocusable();
-			control.setId(100);
-
-			if (id != null) {
-				TitaniumWebView wv = ttm.getActivity().getWebView();
-				if (wv != null) {
-					wv.addListener(this);
-					wv.addControl(control);
-				} else {
-					Log.e(LCAT, "No webview, control not added");
-				}
-			}
+		if (color != null) {
+			tv.setTextColor(TitaniumColorHelper.parseColor(color));
 		}
+		if (backgroundColor != null) {
+			tv.setBackgroundColor(TitaniumColorHelper.parseColor(backgroundColor));
+		}
+
+		control.isFocusable();
+		control.setId(100);
 	}
 
 	public boolean handleMessage(Message msg)
