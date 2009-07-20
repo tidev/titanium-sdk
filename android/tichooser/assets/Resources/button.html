@@ -52,7 +52,7 @@
 
 	var s1 = Titanium.UI.createSwitch({ id : 's1', 'value' : true });
 	s1.open();
-	var s2 = Titanium.UI.createSwitch({ id : 's2', 'value' : false});
+	var s2 = Titanium.UI.createSwitch({ id : 's2', 'value' : false, color : 'red', backgroundColor: 'blue'});
 	s2.addEventListener('click', function(e) {
 		Titanium.UI.createAlertDialog({
 			title : 'Switch Clicked',
