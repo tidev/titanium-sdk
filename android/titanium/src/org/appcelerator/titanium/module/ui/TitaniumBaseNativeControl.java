@@ -112,6 +112,8 @@ public abstract class TitaniumBaseNativeControl
 
 	public void setOptions(String json)
 	{
+		Log.e(LCAT, json);
+
 		try {
 			JSONObject o = new JSONObject(json);
 

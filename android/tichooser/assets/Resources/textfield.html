@@ -1,0 +1,93 @@
+<html>
+<head>
+	<title>Text Field</title>
+  	<script><!--
+
+  	var t1 = Titanium.UI.createTextField({
+  	  		id : 't1', value : '',
+  	  		color : 'white', backgroundColor : '#006633',
+  	  		hintText : 'Left, google key',
+  	  		returnKeyType : Titanium.UI.RETURNKEY_GOOGLE
+  	  	});
+  	t1.addEventListener('change', function(e) {
+  	  	document.getElementById('counter').innerHTML = e.value.length;
+  	});
+  	t1.addEventListener('return', function(e) {
+
+  	});
+  	t1.open();
+
+  	var t2 = Titanium.UI.createTextField({
+	  		id : 't2', value : '',
+	  		hintText : 'Center with Search Key',
+	  		'textAlign' : 'center',
+	  		returnKeyType : Titanium.UI.RETURNKEY_SEARCH
+	  	});
+	t2.open();
+
+  	var t3 = Titanium.UI.createTextField({
+  		id : 't3', value : '',
+  		'textAlign' : 'right',
+  		hintText : 'right'
+  	});
+	t3.open();
+
+  	var t4 = Titanium.UI.createTextField({
+  		id : 't4', value : '',
+  		"keyboardType" : Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
+  		'textAlign' : 'right',
+		hintText : 'Numbers and Punctuation'
+  	});
+	t4.open();
+
+  	var t5 = Titanium.UI.createTextField({
+  		id : 't5', value : '',
+  		'textAlign' : 'left',
+  		"keyboardType" : Titanium.UI.KEYBOARD_URL,
+	  	returnKeyType : Titanium.UI.RETURNKEY_GO,
+	  	hintText : 'URL w/ GO button'
+  	});
+	t5.open();
+
+  	var t6 = Titanium.UI.createTextField({
+  		id : 't6', value : '8175551212',
+  		'textAlign' : 'right',
+  		'color' : "white", "backgroundColor" : "black",
+  		"keyboardType" : Titanium.UI.KEYBOARD_NUMBER_PAD,
+  		returnKeyType : Titanium.UI.RETURNKEY_NEXT,
+  		hintText : 'Number', clearOnEdit : true
+  	});
+	t6.open();
+
+	var t7 = Titanium.UI.createTextField({
+  		id : 't7', value : '',
+  		'textAlign' : 'right',
+  		"keyboardType" : Titanium.UI.KEYBOARD_PHONE_PAD,
+ 		returnKeyType : Titanium.UI.RETURNKEY_NEXT,
+  		hintText : 'Phone'
+  	});
+	t7.open();
+
+  	var t8 = Titanium.UI.createTextField({
+  		id : 't8', value : '',
+   		"keyboardType" : Titanium.UI.KEYBOARD_EMAIL_ADDRESS,
+ 		returnKeyType : Titanium.UI.RETURNKEY_DONE,
+   		hintText : 'Email Addr'
+  	});
+	t8.open();
+
+  --></script>
+</head>
+<body style="background-color: white;">
+<div>Characters: <span id='counter'>0</span></div>
+<div id='t1' style='height: 40px;'>&nbsp;</div>
+<div id='t2' style='height: 40px; margin-top: 5px;'>&nbsp;</div>
+<div id='t3' style='height: 40px; margin-top: 5px;'>&nbsp;</div>
+<div id='t4' style='height: 40px; margin-top: 5px;'>&nbsp;</div>
+<div id='t5' style='height: 40px; margin-top: 5px;'>&nbsp;</div>
+<div id='t6' style='height: 40px; margin-top: 5px;'>&nbsp;</div>
+<div id='t7' style='height: 40px; margin-top: 5px;'>&nbsp;</div>
+<div id='t8' style='height: 40px; margin-top: 5px;'>&nbsp;</div>
+
+</body>
+</html>

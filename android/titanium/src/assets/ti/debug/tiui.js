@@ -831,6 +831,23 @@ Titanium.UI = {
 		return new TextArea(Titanium.uiProxy.createTextArea(Titanium.JSON.stringify(options)));
 	},
 
+	RETURNKEY_GO : 0,
+	RETURNKEY_GOOGLE : 1,
+	RETURNKEY_JOIN : 2,
+	RETURNKEY_NEXT : 3,
+	RETURNKEY_ROUTE : 4,
+	RETURNKEY_SEARCH : 5,
+	RETURNKEY_YAHOO : 6,
+	RETURNKEY_DONE : 7,
+	RETURNKEY_EMERGENCY_CALL : 8,
+
+	KEYBOARD_ASCII : 0,
+	KEYBOARD_NUMBERS_PUNCTUATION : 1,
+	KEYBOARD_URL : 2,
+	KEYBOARD_NUMBER_PAD : 3,
+	KEYBOARD_PHONE_PAD : 4,
+	KEYBOARD_EMAIL_ADDRESS : 5,
+
 	/**
 	 * @tiapi(method=true,name=UI.createTextField,since=0.5.1) Create a native text field
 	 * @tiarg[object, options] a set of configuration options for the text.

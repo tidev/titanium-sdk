@@ -55,6 +55,8 @@ public class TitaniumText extends TitaniumBaseNativeControl
 	@Override
 	public void createControl(TitaniumModuleManager tmm, JSONObject openArgs) {
 		EditText tv = new EditText(tmm.getActivity());
+		control = tv;
+
 		tv.addTextChangedListener(this);
 		tv.setText(value);
 		tv.setGravity(Gravity.TOP | Gravity.LEFT);
@@ -65,8 +67,6 @@ public class TitaniumText extends TitaniumBaseNativeControl
 		if (backgroundColor != null) {
 			tv.setBackgroundColor(TitaniumColorHelper.parseColor(backgroundColor));
 		}
-
-		control = tv;
 
 		control.isFocusable();
 		control.setId(100);

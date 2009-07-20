@@ -34,6 +34,7 @@ import org.appcelerator.titanium.module.ui.TitaniumSlider;
 import org.appcelerator.titanium.module.ui.TitaniumSwitch;
 import org.appcelerator.titanium.module.ui.TitaniumTableView;
 import org.appcelerator.titanium.module.ui.TitaniumText;
+import org.appcelerator.titanium.module.ui.TitaniumTextField;
 import org.appcelerator.titanium.module.ui.TitaniumToastNotifier;
 import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
 import org.appcelerator.titanium.util.Log;
@@ -139,7 +140,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 					h.o = new TitaniumText(getModuleManager());
 					break;
 				case MSG_CREATE_TEXTFIELD :
-					h.o = new TitaniumText(getModuleManager());
+					h.o = new TitaniumTextField(getModuleManager());
 					break;
 				case MSG_CREATE_PROGRESSDIALOG :
 					h.o = new TitaniumProgressDialog(getActivity());
@@ -242,7 +243,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	}
 
 	public ITitaniumText createTextField(String json) {
-		TitaniumText text = (TitaniumText) create(MSG_CREATE_TEXTAREA);
+		TitaniumTextField text = (TitaniumTextField) create(MSG_CREATE_TEXTFIELD);
 		text.setOptions(json);
 		return text;
 	}
