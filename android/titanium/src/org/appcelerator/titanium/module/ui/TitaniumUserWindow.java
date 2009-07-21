@@ -159,6 +159,19 @@ public class TitaniumUserWindow implements ITitaniumUserWindow, ITitaniumLifecyc
 		}
 	}
 
+	public void onWindowFocusChanged(boolean hasFocus)
+	{
+		if (hasFocus) {
+			if (eventListeners.hasListeners(EVENT_UNFOCUSED)) {
+				eventListeners.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
+			}
+		} else {
+			if (eventListeners.hasListeners(EVENT_UNFOCUSED)) {
+				eventListeners.invokeSuccessListeners(EVENT_UNFOCUSED, EVENT_UNFOCUSED_JSON);
+			}
+		}
+	}
+
 	/**
 	 * This method will return null if the activity has been GC'd.
 	 */
@@ -181,14 +194,8 @@ public class TitaniumUserWindow implements ITitaniumUserWindow, ITitaniumLifecyc
 	}
 
 	public void onPause() {
-		if (eventListeners.hasListeners(EVENT_UNFOCUSED)) {
-			eventListeners.invokeSuccessListeners(EVENT_UNFOCUSED, EVENT_UNFOCUSED_JSON);
-		}
 	}
 
 	public void onResume() {
-		if (eventListeners.hasListeners(EVENT_UNFOCUSED)) {
-			eventListeners.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
-		}
 	}
 }

@@ -727,6 +727,15 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 	}
 
 	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+
+		if (tiUI != null) {
+			tiUI.onWindowFocusChanged(hasFocus);
+		}
+	}
+
+	@Override
 	protected void onResume()
 	{
 		allowVisible = true;
