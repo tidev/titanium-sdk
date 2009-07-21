@@ -544,6 +544,8 @@ public class TitaniumActivity extends Activity implements Handler.Callback
         		Log.e(LCAT, "Activity back key and has webView back");
                 return true;
         	} else {
+        		Log.i(LCAT, "Injecting onWindowFocusChanged(false)");
+        		tiUI.onWindowFocusChanged(false); // Notify we're about to lose focus
         		finish();
         	}
         }

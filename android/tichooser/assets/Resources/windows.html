@@ -13,15 +13,15 @@
 		w.addEventListener("focused", function(e) {
 			alert("FOCUSED: " + e.type);
 			Titanium.Media.vibrate();
-			document.getElementById('event').innerHTML = 'FOCUSED: ' + e.type;
+			document.getElementById('event').innerHTML = 'windows.html FOCUSED: ' + e.type;
 			 });
-		w.addEventListener("unfocused", function(e) { alert("UNFOCUSED" + e.type);});
+		w.addEventListener("unfocused", function(e) { alert("windows.html UNFOCUSED: " + e.type);});
   }
 
   function doProgress() {
 	  var w = Titanium.UI.createWindow();
-	  w.setTitle("Progress");
-	  w.setURL("progress.html");
+	  w.setTitle("Platform");
+	  w.setURL("platform.html");
 	  w.setType("single");
 	  w.setTitleImage('images/refresh.png');
 	  w.setFullscreen(false);
@@ -32,7 +32,7 @@
 </head>
 <body style="background-color: white;">
 Content Chooser<br/>
-<a href="#" onclick='doProgress(); return false;'>Progress</a><br/>
+<a href="#" onclick='doProgress(); return false;'>Open Platform Window</a><br/>
 <div id="event" />
 </body>
 </html>
