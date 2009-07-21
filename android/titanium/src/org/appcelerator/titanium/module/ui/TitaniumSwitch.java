@@ -3,6 +3,7 @@ package org.appcelerator.titanium.module.ui;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumSwitch;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.TitaniumColorHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,6 +25,8 @@ public class TitaniumSwitch extends TitaniumBaseNativeControl
 	public static final String CLICK_EVENT = "click";
 
 	private boolean value;
+	private String color;
+	private String backgroundColor;
 
 	public TitaniumSwitch(TitaniumModuleManager tmm) {
 		super(tmm);
@@ -39,12 +42,27 @@ public class TitaniumSwitch extends TitaniumBaseNativeControl
 		if (o.has("value")) {
 			this.value = o.getBoolean("value");
 		}
+		if (o.has("color")) {
+			this.color = o.getString("color");
+		}
+		if (o.has("backgroundColor")) {
+			this.backgroundColor = o.getString("backgroundColor");
+		}
 	}
 
 	@Override
 	public void createControl(TitaniumModuleManager tmm, JSONObject openArgs) {
 		ToggleButton b = new ToggleButton(tmm.getActivity());
 		b.setChecked(value);
+
+		if (color != null) {
+			b.setTextColor(TitaniumColorHelper.parseColor(color));
+		}
+
+		if (backgroundColor != null) {
+			b.setBackgroundColor(TitaniumColorHelper.parseColor(backgroundColor));
+		}
+
 		control = b;
 
 		control.setOnClickListener(this);

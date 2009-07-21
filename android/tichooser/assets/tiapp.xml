@@ -8,6 +8,7 @@
 	<prerendered-icon>false</prerendered-icon>
 	<statusbar-style>opaque</statusbar-style>
     <windows>
+    <!--
         <window>
             <id>initial</id>
             <title>TextF</title>
@@ -39,6 +40,16 @@
             <id>buttons</id>
             <title>Buttons</title>
             <url>button.html</url>
+            <type>single</type>
+            <fullscreen>false</fullscreen>
+            <backgroundColor>argb(0,255,255,255)</backgroundColor>
+            <barColor>#000</barColor>
+        </window>
+-->
+		<window>
+            <id>Window</id>
+            <title>Window</title>
+            <url>windows.html</url>
             <type>single</type>
             <fullscreen>false</fullscreen>
             <backgroundColor>argb(0,255,255,255)</backgroundColor>

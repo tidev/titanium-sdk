@@ -63,6 +63,8 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 
 	private static final int MSG_END_CREATE_SECTION = 330;
 
+	private static final int MSG_WINDOW_FOCUS_CHANGED = 340;
+
 	protected TitaniumMenuItem menu;
 	protected TitaniumUserWindow userWindow;
 
@@ -151,7 +153,13 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 
 			h.release();
 			return true;
+		} else if (msg.what == MSG_WINDOW_FOCUS_CHANGED) {
+			if (userWindow != null) {
+				userWindow.onWindowFocusChanged((Boolean)msg.obj);
+			}
+			return true;
 		}
+
 		return false;
 	}
 
@@ -261,6 +269,10 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 			}
 		}
 		return h.o;
+	}
+
+	public void onWindowFocusChanged(boolean hasFocus) {
+		handler.obtainMessage(MSG_WINDOW_FOCUS_CHANGED, new Boolean(hasFocus)).sendToTarget();
 	}
 
 	@Override
