@@ -400,24 +400,25 @@ int nextWindowToken = 0;
 		result = (interfaceOrientation == UIInterfaceOrientationPortrait);
 	}
 
-	if (result && (self != [[TitaniumHost sharedHost] currentTitaniumViewController])){
+	if (result){
 		currentOrientation = newOrientation;
-		TitaniumContentViewController * ourVC = [self viewControllerForIndex:currentContentViewControllerIndex];
-		if ([ourVC respondsToSelector:@selector(setInterfaceOrientation:duration:)]){
-			[(TitaniumContentViewController<TitaniumRotationDelegate> *)ourVC setInterfaceOrientation:newOrientation duration:0];
-		}
 	}
-	
+		
 	return result;
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
 {
-	currentOrientation = (1 << toInterfaceOrientation);
 	TitaniumContentViewController * ourVC = [self viewControllerForIndex:currentContentViewControllerIndex];
 	if ([ourVC respondsToSelector:@selector(setInterfaceOrientation:duration:)]){
 		[(TitaniumContentViewController<TitaniumRotationDelegate> *)ourVC setInterfaceOrientation:currentOrientation duration:duration];
 	}
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
+{
+	TitaniumContentViewController * ourVC = [self viewControllerForIndex:currentContentViewControllerIndex];
+	[ourVC updateLayout:YES];
 }
 
 #pragma mark Refreshments

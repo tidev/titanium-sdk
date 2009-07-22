@@ -407,7 +407,7 @@ TitaniumWebViewController * mostRecentController = nil;
 
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
 {
-	if ([[TitaniumHost sharedHost] currentTitaniumViewController] != self) return;
+	if ([[TitaniumHost sharedHost] currentTitaniumContentViewController] != self) return;
 	if (motion == UIEventSubtypeMotionShake){
 		NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent({type:'shake'})"];
 		[webView stringByEvaluatingJavaScriptFromString:eventString];
@@ -484,12 +484,12 @@ TitaniumWebViewController * mostRecentController = nil;
 
 - (void) addNativeViewProxy: (UIButtonProxy *) proxyObject;
 {
-	[[self view] addSubview:[proxyObject nativeView]];
+	[scrollView addSubview:[proxyObject nativeView]];
 }
 
 - (void) addNativeView: (UIView *) newView;
 {
-	[[self view] addSubview:newView];
+	[scrollView addSubview:newView];
 }
 
 @end

@@ -247,7 +247,7 @@ try{
 	a.addEventListener('click', function(resulty) {
 		var E="success";
 		try{
-		Titanium.API.debug(resulty);
+		Titanium.API.debug({type:resulty.type,index:resulty.index,cancel:resulty.cancel});
 		}catch(newE){E=newE;}
 		Titanium.UI.createAlertDialog({title:"Log!",message:('Msg:'+E)}).show();
 	});
