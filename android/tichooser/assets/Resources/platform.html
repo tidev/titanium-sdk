@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>Window</title>
+  <title>Platform</title>
   <script>
 
   window.onload = function() {
@@ -23,6 +23,9 @@
 	  html += "phoneNumber: " + p.phoneNumber + "<br />\n";
 
 	  document.getElementById("platform").innerHTML = html;
+
+	  var w = Titanium.UI.currentWindow;
+		w.addEventListener("unfocused", function(e) { alert("platform.html - UNFOCUSED: " + e.type);});
   }
 
   </script>
