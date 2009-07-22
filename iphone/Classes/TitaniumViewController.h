@@ -53,7 +53,7 @@ typedef enum {
 //	IBOutlet UILabel * modalProgressViewMessage;
 	
 	TitaniumViewControllerOrientationsAllowed allowedOrientations;
-	TitaniumViewControllerOrientationsAllowed lastOrientation;
+	TitaniumViewControllerOrientationsAllowed currentOrientation;
 	
 	BOOL		cancelOpening;
 
@@ -115,4 +115,10 @@ typedef enum {
 - (void)refreshBackground;
 
 
+@end
+
+@protocol TitaniumRotationDelegate
+
+@optional
+- (void)setInterfaceOrientation:(TitaniumViewControllerOrientationsAllowed)interfaceOrientation duration:(NSTimeInterval)duration;
 @end

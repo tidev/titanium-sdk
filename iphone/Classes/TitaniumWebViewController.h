@@ -7,6 +7,7 @@
 
 #import <UIKit/UIKit.h>
 #import "TitaniumContentViewController.h"
+#import "TitaniumViewController.h"
 
 @interface TitaniumWebViewController : TitaniumContentViewController<UIWebViewDelegate> {
 	IBOutlet UIScrollView * scrollView; //The root view of us, effectively.
@@ -14,6 +15,8 @@
 	NSURL * currentContentURL;	//Used as a base url.
 	NSMutableDictionary * magicTokenDict;
 	
+	TitaniumViewControllerOrientationsAllowed lastOrientation;
+
 }
 
 //For WebView

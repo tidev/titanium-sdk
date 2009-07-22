@@ -7,9 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "TitaniumViewController.h"
 
 @class TitaniumViewController;
-@interface TitaniumContentViewController : UIViewController {
+@interface TitaniumContentViewController : UIViewController<TitaniumRotationDelegate> {
 	NSString * primaryToken;
 	
 	TitaniumViewController * titaniumWindowController;
@@ -22,5 +23,6 @@
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 
 - (BOOL) hasToken: (NSString *) tokenString;
+- (void)updateLayout: (BOOL)animated;
 
 @end

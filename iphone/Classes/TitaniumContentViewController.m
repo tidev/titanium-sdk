@@ -60,6 +60,10 @@ int nextContentViewToken = 0;
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 */
+- (void)updateLayout: (BOOL)animated;
+{
+	
+}
 
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.

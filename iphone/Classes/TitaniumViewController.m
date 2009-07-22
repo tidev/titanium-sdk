@@ -363,6 +363,14 @@ int nextWindowToken = 0;
 	[self updateLayout:dirtyFlags];
 }
 
+- (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
+{
+	TitaniumContentViewController * ourVC = [self viewControllerForIndex:currentContentViewControllerIndex];
+	if([ourVC respondsToSelector:@selector(motionEnded:withEvent:)]){
+		[(id)ourVC motionEnded:motion withEvent:event];
+	}
+}
+
 - (BOOL)needsUpdate: (TitaniumViewControllerDirtyFlags) newFlags;
 {
 	if ((dirtyFlags == TitaniumViewControllerIsClean) && ([[TitaniumHost sharedHost] currentTitaniumViewController] == self)){
@@ -380,6 +388,36 @@ int nextWindowToken = 0;
 		[self updateLayout:dirtyFlags & TitaniumViewControllerRefreshIsAnimated];
 	}
 	[pool release];
+}
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+	
+	TitaniumViewControllerOrientationsAllowed newOrientation = (1 << interfaceOrientation);
+	
+	BOOL result = (allowedOrientations & newOrientation);
+	
+	if (allowedOrientations == TitaniumViewControllerDefaultOrientation){
+		result = (interfaceOrientation == UIInterfaceOrientationPortrait);
+	}
+
+	if (result && (self != [[TitaniumHost sharedHost] currentTitaniumViewController])){
+		currentOrientation = newOrientation;
+		TitaniumContentViewController * ourVC = [self viewControllerForIndex:currentContentViewControllerIndex];
+		if ([ourVC respondsToSelector:@selector(setInterfaceOrientation:duration:)]){
+			[(TitaniumContentViewController<TitaniumRotationDelegate> *)ourVC setInterfaceOrientation:newOrientation duration:0];
+		}
+	}
+	
+	return result;
+}
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
+{
+	currentOrientation = (1 << toInterfaceOrientation);
+	TitaniumContentViewController * ourVC = [self viewControllerForIndex:currentContentViewControllerIndex];
+	if ([ourVC respondsToSelector:@selector(setInterfaceOrientation:duration:)]){
+		[(TitaniumContentViewController<TitaniumRotationDelegate> *)ourVC setInterfaceOrientation:currentOrientation duration:duration];
+	}
 }
 
 #pragma mark Refreshments
@@ -506,7 +544,10 @@ int nextWindowToken = 0;
 		} else {
 			[contentView setFrame:contentViewBounds];
 		}
-		
+		if ([newContentViewController respondsToSelector:@selector(setInterfaceOrientation:duration:)]){
+			[(TitaniumContentViewController<TitaniumRotationDelegate> *)newContentViewController setInterfaceOrientation:currentOrientation duration:0];
+		}
+		[newContentViewController updateLayout:animated];
 	}
 	
 	if (animated) {

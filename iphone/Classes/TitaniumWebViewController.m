@@ -444,19 +444,16 @@ TitaniumWebViewController * mostRecentController = nil;
 //	return result;
 //}
 
-- (void)willRotateFromOrientation: (TitaniumViewControllerOrientationsAllowed)oldOrientation ToInterfaceOrientation:(TitaniumViewControllerOrientationsAllowed)toInterfaceOrientation duration:(NSTimeInterval)duration;
+- (void)setInterfaceOrientation:(TitaniumViewControllerOrientationsAllowed)interfaceOrientation duration:(NSTimeInterval)duration;
 {
-	TitaniumViewControllerOrientationsAllowed newOrientation = (1 << toInterfaceOrientation);
+	if (lastOrientation == interfaceOrientation) return;
 	NSString * animatedString = (duration>0)?@"true":@"false";
-	
 	
 	NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent({type:'orientationchange',"
 							  "to:%d,from:%d,animated:%@,duration:%d})",
-							  newOrientation,oldOrientation,animatedString,(int)(duration * 1000)];
+							  interfaceOrientation,lastOrientation,animatedString,(int)(duration * 1000)];
 	[webView stringByEvaluatingJavaScriptFromString:eventString];
-//	lastOrientation = newOrientation;
-	
-	[super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+	lastOrientation = interfaceOrientation;
 }
 
 //- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
