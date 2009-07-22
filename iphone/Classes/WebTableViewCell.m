@@ -30,6 +30,7 @@
 
 - (void)prepareForReuse;
 {
+	[htmlLabel stopLoading];
 	[htmlLabel setAlpha:0.0];
 	[super prepareForReuse];
 }

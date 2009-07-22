@@ -9,9 +9,10 @@
 #import "TitaniumHost.h"
 #import "UiModule.h"
 
-TitaniumViewController * mostRecentController = nil;
+TitaniumWebViewController * mostRecentController = nil;
 
 @implementation TitaniumWebViewController
+@synthesize webView, currentContentURL, scrollView;
 
 #pragma mark Class Methods
 + (TitaniumViewController *) mostRecentController;
@@ -31,9 +32,7 @@ TitaniumViewController * mostRecentController = nil;
  */
 
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
-{
-	[super readState:inputState relativeToUrl:baseUrl];
-	
+{	
 	Class NSStringClass = [NSString class]; //Because this might be from the web where you could have nsnulls and nsnumbers,
 	//We can't assume that the inputState is 
 	
@@ -71,6 +70,13 @@ TitaniumViewController * mostRecentController = nil;
 
 - (void)dealloc {
 	[webView setDelegate:nil];
+//	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'close'})"];
+	[webView release];
+	webView = nil;
+
+	[currentContentURL release];	//Used as a base url.
+	[magicTokenDict release];
+
     [super dealloc];
 }
 
@@ -108,8 +114,15 @@ TitaniumViewController * mostRecentController = nil;
 {
 	[super setView:newView];
 	if (newView == nil) {
-		[self setContentView:nil];
+		if([[scrollView subviews] count]<1)[self setScrollView:nil];
 	}
+}
+
+- (void) setScrollView: (UIView *) newView;
+{
+	if(newView == scrollView)return;
+	[newView retain];[scrollView release];scrollView=newView;
+	if(scrollView == nil) [self setWebView:nil];
 }
 
 //- (void) setContentView: (UIView *) newContentView;
@@ -134,7 +147,25 @@ TitaniumViewController * mostRecentController = nil;
 //	[contentView setFrame:[newContentView frame]];
 //	[newContentView removeFromSuperview];
 //}
+- (UIScrollView *) scrollView;
+{
+	if (scrollView == nil){
+		scrollView = [[UIScrollView alloc] init];
+	}
+	return scrollView;
+}
 
+- (UIWebView *) webView;
+{
+	if(webView == nil){
+		webView = [[UIWebView alloc] init];
+		[webView setDelegate:self];
+		[webView setBackgroundColor:[UIColor clearColor]];
+		[scrollView setAlpha:0.0];
+		[self reloadWebView];
+	}
+	return webView;
+}
 
 - (void) setWebView: (UIWebView *) newWebView;
 {
@@ -156,7 +187,7 @@ TitaniumViewController * mostRecentController = nil;
 	
 	//Now if we have an old view and new view, the old view has to kill the new one. There can be only one!
 	//But we're not fully set yet? Let's find out.
-	NSLog(@"Two web views go in! NewWebView %@ has %@ as a superview",newWebView,[newWebView superview]);
+	NSLog(@"Should no longer happen. Two web views go in! NewWebView %@ has %@ as a superview",newWebView,[newWebView superview]);
 	
 	[[newWebView superview] insertSubview:webView belowSubview:newWebView];
 	[webView setFrame:[newWebView frame]];
@@ -170,12 +201,25 @@ TitaniumViewController * mostRecentController = nil;
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)loadView{
-	BOOL needsLoad = (webView == nil);
-    [super loadView];
-	mostRecentController = self;
-	if (needsLoad){
-		[self reloadWebView];
+	CGRect quikframe = CGRectMake(0, 0, 100, 100);
+	UIViewAutoresizing stretchy = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+	UIView * ourRootView = [[UIView alloc] initWithFrame:quikframe];
+	[ourRootView setAutoresizingMask:stretchy];
+
+	[[self scrollView] setFrame:quikframe];
+	[scrollView setAutoresizingMask:stretchy];
+	[ourRootView addSubview:scrollView];
+	
+	if([[self webView] superview] != scrollView){
+		[webView setAutoresizingMask:stretchy];
+		[webView setFrame:quikframe];
+		[scrollView insertSubview:webView atIndex:0];
 	}
+	
+	[self setView:ourRootView];
+	[ourRootView release];
+
+	mostRecentController = self;
 }
 
 
@@ -263,7 +307,7 @@ TitaniumViewController * mostRecentController = nil;
 		NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
 		[self setTitle:newTitle];
 	}
-	[contentView setAlpha:1.0];
+	[scrollView setAlpha:1.0];
 	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
 	[UIView commitAnimations];
 	[self probeWebViewForTokenInContext:@"window"];
@@ -280,10 +324,10 @@ TitaniumViewController * mostRecentController = nil;
 
 - (void)updateScrollBounds: (BOOL) animated;
 {
-	if ([self view]==nil) return;
+	if ([scrollView superview]==nil) return;
 	CGRect webFrame;
 	webFrame.origin = CGPointZero;
-	webFrame.size = [contentView frame].size;
+	webFrame.size = [[self view] frame].size;
 	[webView setFrame:webFrame];
 
 	UIView * firstResponder=nil;
@@ -291,7 +335,7 @@ TitaniumViewController * mostRecentController = nil;
 	NSString * docHeightString = [webView stringByEvaluatingJavaScriptFromString:@"document.height"];
 	CGFloat docHeight = [docHeightString floatValue];
 	
-	for(UIView * thisView in [[self contentView] subviews]){
+	for(UIView * thisView in [scrollView subviews]){
 		if (thisView == webView) continue;
 		CGRect thisFrame = [thisView frame];
 		CGFloat bottom = thisFrame.size.height + thisFrame.origin.y;
@@ -312,21 +356,20 @@ TitaniumViewController * mostRecentController = nil;
 	if(allowsScrolling){
 		webFrame.size.height = docHeight;
 	}
-	[(UIScrollView *)contentView setContentSize:webFrame.size];
+	[scrollView setContentSize:webFrame.size];
 	[webView setFrame:webFrame];
-	[(UIScrollView *)contentView setScrollEnabled:YES];
-	[(UIScrollView *)contentView setBounces:allowsScrolling];
-	[(UIScrollView *)contentView setShowsVerticalScrollIndicator:allowsScrolling];
-	[(UIScrollView *)contentView setShowsHorizontalScrollIndicator:allowsScrolling];
+	[scrollView setScrollEnabled:YES];
+	[scrollView setBounces:allowsScrolling];
+	[scrollView setShowsVerticalScrollIndicator:allowsScrolling];
+	[scrollView setShowsHorizontalScrollIndicator:allowsScrolling];
 
 	if(firstResponder != nil){
-		[(UIScrollView *)contentView scrollRectToVisible:[firstResponder frame] animated:animated];
+		[scrollView scrollRectToVisible:[firstResponder frame] animated:animated];
 	}
 }
 
 - (void)updateLayout: (BOOL)animated;
 {
-	[super updateLayout:animated];
 	[self updateScrollBounds:animated];
 }
 
@@ -380,44 +423,46 @@ TitaniumViewController * mostRecentController = nil;
 #endif
 
 // Override to allow orientations other than the default portrait orientation.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-	
-	TitaniumViewControllerOrientationsAllowed newOrientation = (1 << interfaceOrientation);
-	
-	BOOL result = (allowedOrientations & newOrientation);
-	
-	if (allowedOrientations == TitaniumViewControllerDefaultOrientation){
-		result = (interfaceOrientation == UIInterfaceOrientationPortrait);
-	}
-	
-	if (result && (self != [[TitaniumHost sharedHost] currentTitaniumViewController])){
-		NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent({type:'orientationchange',"
-								  "to:%d,from:%d,animated:false,duration:0})",
-								  newOrientation,lastOrientation];
-		[webView stringByEvaluatingJavaScriptFromString:eventString];
-		lastOrientation = newOrientation;
-	}
-	
-	return result;
-}
+//- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+//	
+//	TitaniumViewControllerOrientationsAllowed newOrientation = (1 << interfaceOrientation);
+//	
+//	BOOL result = (allowedOrientations & newOrientation);
+//	
+//	if (allowedOrientations == TitaniumViewControllerDefaultOrientation){
+//		result = (interfaceOrientation == UIInterfaceOrientationPortrait);
+//	}
+//	
+//	if (result && (self != [[TitaniumHost sharedHost] currentTitaniumViewController])){
+//		NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent({type:'orientationchange',"
+//								  "to:%d,from:%d,animated:false,duration:0})",
+//								  newOrientation,lastOrientation];
+//		[webView stringByEvaluatingJavaScriptFromString:eventString];
+//		lastOrientation = newOrientation;
+//	}
+//	
+//	return result;
+//}
 
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
+- (void)willRotateFromOrientation: (TitaniumViewControllerOrientationsAllowed)oldOrientation ToInterfaceOrientation:(TitaniumViewControllerOrientationsAllowed)toInterfaceOrientation duration:(NSTimeInterval)duration;
 {
 	TitaniumViewControllerOrientationsAllowed newOrientation = (1 << toInterfaceOrientation);
+	NSString * animatedString = (duration>0)?@"true":@"false";
+	
 	
 	NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent({type:'orientationchange',"
-							  "to:%d,from:%d,animated:true,duration:%d})",
-							  newOrientation,lastOrientation,(int)(duration * 1000)];
+							  "to:%d,from:%d,animated:%@,duration:%d})",
+							  newOrientation,oldOrientation,animatedString,(int)(duration * 1000)];
 	[webView stringByEvaluatingJavaScriptFromString:eventString];
-	lastOrientation = newOrientation;
+//	lastOrientation = newOrientation;
 	
 	[super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
 
-- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
-{
-	[self updateScrollBounds:YES];
-}
+//- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
+//{
+//	[self updateScrollBounds:YES];
+//}
 
 #endif		//END OF TI_MODULE_GESTURE
 
@@ -442,12 +487,12 @@ TitaniumViewController * mostRecentController = nil;
 
 - (void) addNativeViewProxy: (UIButtonProxy *) proxyObject;
 {
-	[contentView addSubview:[proxyObject nativeView]];
+	[[self view] addSubview:[proxyObject nativeView]];
 }
 
 - (void) addNativeView: (UIView *) newView;
 {
-	[contentView addSubview:newView];
+	[[self view] addSubview:newView];
 }
 
 @end

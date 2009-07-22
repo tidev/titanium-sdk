@@ -30,13 +30,8 @@ typedef enum {
 } TitaniumViewControllerOrientationsAllowed;
 
 @class UIButtonProxy;
+@class TitaniumContentViewController;
 @interface TitaniumViewController : UIViewController<UIWebViewDelegate> {
-
-//For TitaniumWebViewController:
-	IBOutlet UIWebView * webView;
-	NSURL * currentContentURL;	//Used as a base url.
-	NSMutableDictionary * magicTokenDict;
-	//TODO: What about views that never have magic tokens?
 
 //Commont to all viewControllers:
 	NSString * primaryToken;
@@ -45,14 +40,17 @@ typedef enum {
 	IBOutlet UIToolbar * toolBar;
 //	NSMutableSet * nativeElementsSet;
 
+	NSMutableArray * contentViewControllers;
+	int currentContentViewControllerIndex;
+
+//	NSMutableArray * pagedViewControllers;
+	
 
 //For the modal progress view
 //	IBOutlet UIView * modalProgressView;
 //	IBOutlet UIActivityIndicatorView * modalProgressViewSpinny;
 //	IBOutlet UIProgressView * modalProgressViewBar;
 //	IBOutlet UILabel * modalProgressViewMessage;
-
-	NSMutableDictionary * viewProperties;
 	
 	TitaniumViewControllerOrientationsAllowed allowedOrientations;
 	TitaniumViewControllerOrientationsAllowed lastOrientation;
@@ -76,15 +74,13 @@ typedef enum {
 	TitaniumViewControllerDirtyFlags	dirtyFlags;
 }
 
-+ (TitaniumViewController *) viewController;
++ (TitaniumViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 
-//For WebView
-@property (nonatomic,retain)	IBOutlet UIWebView * webView;
-@property (nonatomic,retain)	NSURL * currentContentURL;	//Used as a base url.
+@property (nonatomic,assign)	int currentContentViewControllerIndex;
+@property (nonatomic,retain)	NSMutableArray * contentViewControllers;
 
 //Common
 @property (nonatomic,retain)	IBOutlet UIView * contentView;
-@property (nonatomic,retain)	NSMutableDictionary * viewProperties;
 
 @property (nonatomic,retain)	UIColor *	navBarTint;
 @property (nonatomic,retain)	NSString * primaryToken;
@@ -99,17 +95,24 @@ typedef enum {
 @property (nonatomic,copy)		NSArray *	toolbarItems;
 - (void)setNavBarTint: (UIColor *) newColor;
 
+- (void)setTitleViewProxy: (UIButtonProxy *) newProxy;
+
 + (TitaniumViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 - (void) setStatusBarStyleObject: (id) object;
 
 #pragma mark Functionality exposed to Titanium
 
+- (TitaniumContentViewController *) viewControllerForIndex: (int)index;
+
 - (BOOL) hasToken: (NSString *) tokenString;
 - (void)updateLayout: (BOOL)animated;
 - (BOOL)needsUpdate: (TitaniumViewControllerDirtyFlags) newFlags;
-- (void)doUpdateLayout;
 - (void) setToolbarProxies: (NSArray *) newProxies;
+
+- (void)refreshTitleView;
+- (void)doUpdateLayout;
+- (void)refreshBackground;
 
 
 @end

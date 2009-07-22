@@ -133,6 +133,9 @@
 		B4A49BBA0FCE08DA0049ED60 /* TitaniumBlobWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */; };
 		B4A49BBB0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */; };
 		B4A49BBC0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */; };
+		B4B571FE10110324003546C7 /* TitaniumContentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B571FD10110324003546C7 /* TitaniumContentViewController.m */; };
+		B4B571FF10110324003546C7 /* TitaniumContentViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4B571FC10110324003546C7 /* TitaniumContentViewController.h */; };
+		B4B5720010110324003546C7 /* TitaniumContentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B571FD10110324003546C7 /* TitaniumContentViewController.m */; };
 		B4B587010FB00B670047B651 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4B587000FB00B670047B651 /* AudioToolbox.framework */; };
 		B4B9E4621003D3DE004B8831 /* logo-m.png in Resources */ = {isa = PBXBuildFile; fileRef = B4B9E4611003D3DE004B8831 /* logo-m.png */; };
 		B4B9E4641003D3E6004B8831 /* ext-core.js in Sources */ = {isa = PBXBuildFile; fileRef = B4B9E4631003D3E6004B8831 /* ext-core.js */; };
@@ -250,6 +253,8 @@
 		B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumBlobWrapper.h; sourceTree = "<group>"; };
 		B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumBlobWrapper.m; sourceTree = "<group>"; };
+		B4B571FC10110324003546C7 /* TitaniumContentViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumContentViewController.h; sourceTree = "<group>"; };
+		B4B571FD10110324003546C7 /* TitaniumContentViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumContentViewController.m; sourceTree = "<group>"; };
 		B4B587000FB00B670047B651 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		B4B9E4611003D3DE004B8831 /* logo-m.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo-m.png"; sourceTree = "<group>"; };
 		B4B9E4631003D3E6004B8831 /* ext-core.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-core.js"; sourceTree = "<group>"; };
@@ -576,6 +581,8 @@
 				B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */,
 				28D7ACF60DDB3853001CB0EB /* TitaniumViewController.h */,
 				28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */,
+				B4B571FC10110324003546C7 /* TitaniumContentViewController.h */,
+				B4B571FD10110324003546C7 /* TitaniumContentViewController.m */,
 			);
 			name = TitaniumViewControllers;
 			sourceTree = "<group>";
@@ -650,6 +657,7 @@
 				B45C71800FEDAF93002A8675 /* WebTableViewCell.h in Headers */,
 				B47B52D70FF1B2F400BD7229 /* ValueTableViewCell.h in Headers */,
 				B4290A75100D31FD00C4FF98 /* TweakedNavController.h in Headers */,
+				B4B571FF10110324003546C7 /* TitaniumContentViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -802,6 +810,7 @@
 				B4B9E4641003D3E6004B8831 /* ext-core.js in Sources */,
 				B4B9E4721003D52F004B8831 /* jquery.js in Sources */,
 				B4290A77100D31FD00C4FF98 /* TweakedNavController.m in Sources */,
+				B4B571FE10110324003546C7 /* TitaniumContentViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -847,6 +856,7 @@
 				B45C71810FEDAF93002A8675 /* WebTableViewCell.m in Sources */,
 				B47B52D80FF1B2F400BD7229 /* ValueTableViewCell.m in Sources */,
 				B4290A76100D31FD00C4FF98 /* TweakedNavController.m in Sources */,
+				B4B5720010110324003546C7 /* TitaniumContentViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

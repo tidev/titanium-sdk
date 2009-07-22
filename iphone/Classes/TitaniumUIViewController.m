@@ -6,6 +6,7 @@
  */
 #import "TitaniumUIViewController.h"
 #import "TitaniumViewController.h"
+#import "TitaniumContentViewController.h"
 
 TitaniumViewController * TitaniumViewControllerForToken(UIViewController * baseController, NSString * token)
 {
@@ -21,6 +22,30 @@ TitaniumViewController * TitaniumViewControllerForToken(UIViewController * baseC
 	}
 	return nil;
 }
+
+TitaniumContentViewController * TitaniumContentViewControllerForToken(UIViewController * baseController, NSString * token)
+{
+	if ([baseController isKindOfClass:[TitaniumViewController class]]){
+		for(UIViewController * thisVC in [(TitaniumViewController *)baseController contentViewControllers]){
+			TitaniumContentViewController * result = TitaniumContentViewControllerForToken(thisVC,token);
+			if (result != nil) return result;
+		}
+	}
+	if ([baseController isKindOfClass:[TitaniumContentViewController class]]){
+		if ([(TitaniumContentViewController *)baseController hasToken:token]) return (TitaniumContentViewController *)baseController;
+		return nil;
+	}
+	if ([baseController isKindOfClass:[UITabBarController class]] || [baseController isKindOfClass:[UINavigationController class]]){
+		for(UIViewController * thisVC in [(UITabBarController *)baseController viewControllers]){
+			TitaniumContentViewController * result = TitaniumContentViewControllerForToken(thisVC,token);
+			if (result != nil) return result;
+		}
+	}
+	return nil;
+}
+
+
+
 
 TitaniumViewController * CurrentTitaniumViewController(UIViewController * baseController)
 {

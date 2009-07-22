@@ -6,7 +6,8 @@
  */
 #import <UIKit/UIKit.h>
 
-@class TitaniumViewController;
+@class TitaniumViewController, TitaniumContentViewController;
 TitaniumViewController * TitaniumViewControllerForToken(UIViewController * baseController, NSString * token);
+TitaniumContentViewController * TitaniumContentViewControllerForToken(UIViewController * baseController, NSString * token);
 TitaniumViewController * CurrentTitaniumViewController(UIViewController * baseController);
 

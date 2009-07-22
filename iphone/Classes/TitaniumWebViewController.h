@@ -6,18 +6,27 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "TitaniumViewController.h"
+#import "TitaniumContentViewController.h"
 
-@interface TitaniumWebViewController : TitaniumViewController<UIWebViewDelegate> {
-
+@interface TitaniumWebViewController : TitaniumContentViewController<UIWebViewDelegate> {
+	IBOutlet UIScrollView * scrollView; //The root view of us, effectively.
+	IBOutlet UIWebView * webView;
+	NSURL * currentContentURL;	//Used as a base url.
+	NSMutableDictionary * magicTokenDict;
+	
 }
 
-+ (TitaniumViewController *) mostRecentController;
+//For WebView
+@property (nonatomic,retain)	IBOutlet UIScrollView * scrollView;
+@property (nonatomic,retain)	IBOutlet UIWebView * webView;
+@property (nonatomic,retain)	NSURL * currentContentURL;	//Used as a base url.
+
++ (TitaniumWebViewController *) mostRecentController;
 
 - (NSString *) performJavascript: (NSString *) inputString onPageWithToken: (NSString *) token;
 - (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
 
 - (void)reloadWebView;
-- (void)updateScrollBounds;
+- (void)updateScrollBounds: (BOOL) animated;
 
 @end

@@ -6,9 +6,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "TitaniumViewController.h"
+#import "TitaniumContentViewController.h"
 
-@interface TitaniumTableViewController : TitaniumViewController<UITableViewDelegate,UITableViewDataSource,UIWebViewDelegate> {
+@interface TitaniumTableViewController : TitaniumContentViewController<UITableViewDelegate,UITableViewDataSource,UIWebViewDelegate> {
 	UITableViewStyle tableStyle;
 	CGFloat tableRowHeight;
 	
