@@ -109,6 +109,13 @@
 
 		});
 
+		activeMovie.addEventListener('complete',function()
+		{
+			var a = Titanium.UI.createAlertDialog();
+			a.setMessage('foo');
+			a.show();
+		});
+		
 		// play movie
 		activeMovie.play();	
 		

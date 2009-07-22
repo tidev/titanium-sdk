@@ -19,10 +19,11 @@
 	
 	<script>
 	// what are the available progress bar styles
-	// how can we change the progress bar color
+		// Titanium.UI.iPhone.ProgressBarStyle.PLAIN | BAR
+
+	// THESE SHOULD BE FIXED IN NEXT PUSH
 	// we use title in the constructor but message as a "set" - need to use message
 	// we use value in the contructor but "pos" as a "set" - need to use value or pos for both
-	// font size when in content view is unreadable
 	// text is not hidden when progresbar is hidden
 	
 	document.getElementById('1').onclick = function()
@@ -36,7 +37,9 @@
 			width:150,
 			min:0,
 			max:10,
-			value:0
+			value:0,
+			style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN
+			
 		});
 		Titanium.UI.currentWindow.setToolbar([flexSpace,ind,flexSpace]);
 		ind.show();
@@ -143,7 +146,7 @@
 			value:0,
 			title:'Downloading 0 of 10',
 			color:'#000000',
-			style:Titanium.UI.iPhone.SystemButtonStyle.PLAIN
+			style:Titanium.UI.iPhone.ProgerssBarStyle.PLAIN
 			
 		});
 		ind.show();
