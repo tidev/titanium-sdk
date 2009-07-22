@@ -162,7 +162,7 @@ public class TitaniumUserWindow implements ITitaniumUserWindow, ITitaniumLifecyc
 	public void onWindowFocusChanged(boolean hasFocus)
 	{
 		if (hasFocus) {
-			if (eventListeners.hasListeners(EVENT_UNFOCUSED)) {
+			if (eventListeners.hasListeners(EVENT_FOCUSED)) {
 				eventListeners.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
 			}
 		} else {

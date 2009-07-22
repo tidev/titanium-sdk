@@ -733,6 +733,11 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 		super.onWindowFocusChanged(hasFocus);
 
 		if (tiUI != null) {
+			if (DBG) {
+				if (windowInfo != null) {
+					Log.d(LCAT, "onWindowFocus(" + hasFocus + ") in " + windowInfo.getWindowId());
+				}
+			}
 			tiUI.onWindowFocusChanged(hasFocus);
 		}
 	}
