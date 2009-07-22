@@ -281,7 +281,6 @@ UIColor * checkmarkColor = nil;
 	}
 	[rootView addSubview:tableView];
 
-	[self setContentView:tableView];
 	[self setView:rootView];
 	[tableView release];
 	[rootView release];
@@ -293,8 +292,6 @@ UIColor * checkmarkColor = nil;
 	if (checkmarkColor == nil){
 		checkmarkColor = [[UIColor alloc] initWithRed:(55.0/255.0) green:(79.0/255.0) blue:(130.0/255.0) alpha:1.0];
 	}
-
-	[super readState:inputState relativeToUrl:baseUrl];
 
 	Class dictClass = [NSDictionary class];
 	if (![inputState isKindOfClass:dictClass]){
@@ -441,7 +438,7 @@ UIColor * checkmarkColor = nil;
 - (void)updateLayout: (BOOL)animated;
 {
 	UITableViewCell * targetCell = nil;
-	for (UITableViewCell * thisCell in [(UITableView *)contentView visibleCells]){
+	for (UITableViewCell * thisCell in [(UITableView *)[self view] visibleCells]){
 		UIView * thisAccessoryView = [thisCell accessoryView];
 		if ([thisAccessoryView isFirstResponder]){
 			targetCell = thisCell;
@@ -454,11 +451,9 @@ UIColor * checkmarkColor = nil;
 			}			
 		}
 	}
-	[super updateLayout:animated];
-
 	if(targetCell != nil){
-		NSIndexPath * ourPath = [(UITableView *)contentView indexPathForCell:targetCell];
-		[(UITableView *)contentView scrollToRowAtIndexPath:ourPath atScrollPosition:UITableViewScrollPositionMiddle animated:animated];
+		NSIndexPath * ourPath = [(UITableView *)[self view] indexPathForCell:targetCell];
+		[(UITableView *)[self view] scrollToRowAtIndexPath:ourPath atScrollPosition:UITableViewScrollPositionMiddle animated:animated];
 	}
 }
 

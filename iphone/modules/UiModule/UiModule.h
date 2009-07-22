@@ -16,6 +16,7 @@
 	BOOL placedInBar;
 	
 	NSString * titleString;
+	NSString * messageString;
 	NSString * iconPath;
 	CGRect	frame;
 	int templateValue;
@@ -79,6 +80,7 @@
 }
 
 @property(nonatomic,readwrite,copy)		NSString * titleString;
+@property(nonatomic,readwrite,copy)		NSString * messageString;
 @property(nonatomic,readwrite,copy)		NSString * iconPath;
 @property(nonatomic,readwrite,assign)	int templateValue;
 @property(nonatomic,readwrite,assign)	int buttonStyle;

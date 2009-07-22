@@ -45,7 +45,7 @@ typedef enum {
 	TitaniumAppResourceFunctionType = TitaniumAppResourceCommandType | TitaniumAppResourceContinueType,
 } TitaniumAppResourceType;
 
-@class TitaniumAppProtocol, TitaniumCmdThread, TitaniumViewController, TitaniumBlobWrapper, TitaniumModule;
+@class TitaniumAppProtocol, TitaniumCmdThread, TitaniumViewController, TitaniumBlobWrapper, TitaniumModule, TitaniumContentViewController;
 
 #define MAXTHREADDEPTH	5
 
@@ -65,6 +65,7 @@ typedef enum {
 	int threadStackCount;
 	
 	CFMutableDictionaryRef viewControllerRegistry; //Say what? Yeah. Because we don't want to retain views unnecessairly, this will be core foundation!
+	CFMutableDictionaryRef contentViewControllerRegistry; //Say what? Yeah. Because we don't want to retain views unnecessairly, this will be core foundation!
 	
 	NSMutableDictionary * nativeModules;
 
@@ -110,7 +111,10 @@ typedef enum {
 - (void) applyDefaultViewSettings: (UIViewController *) viewController;
 
 - (void) registerViewController: (UIViewController *) viewController forKey: (NSString *) key;
-- (void) unregisterViewController: (UIViewController *) viewController;
+- (void) unregisterViewControllerForKey: (NSString *) key;
+
+- (void) registerContentViewController: (UIViewController *) viewController forKey: (NSString *) key;
+- (void) unregisterContentViewControllerForKey: (NSString *) key;
 
 #pragma mark Blob Management
 
@@ -153,5 +157,9 @@ typedef enum {
 - (TitaniumViewController *) visibleTitaniumViewController;
 - (TitaniumViewController *) currentTitaniumViewController;
 - (TitaniumViewController *) titaniumViewControllerForToken: (NSString *) token;
+
+- (TitaniumContentViewController *) visibleTitaniumContentViewController;
+- (TitaniumContentViewController *) currentTitaniumContentViewController;
+- (TitaniumContentViewController *) titaniumContentViewControllerForToken: (NSString *) token;
 
 @end

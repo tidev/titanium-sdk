@@ -37,6 +37,19 @@
 
 #pragma mark Accessors
 
+- (NSString *) description;
+{
+	return [NSString stringWithFormat:@"<%@: 0x%x "
+				"magicToken:%@ objectName:%@ functionName:%@ argList:%@ "
+				"javaScriptResult:%@ moduleThread:%@ timeout:%f "
+				"success:%d moduleResult:%@ statusLock:%@>",
+				NSStringFromClass([self class]),self,
+				magicToken, objectName, functionName, argList,
+				javaScriptResult,moduleThread, timeout, success,
+				moduleResult, statusLock];
+}
+
+
 - (void) setArgList: (NSArray *) newArgList;
 {
 	if (newArgList == argList) return;

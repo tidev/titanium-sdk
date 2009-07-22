@@ -56,14 +56,6 @@ UIStatusBarStyle statusBarStyleFromObject(id inputObject){
 
 TitaniumViewControllerOrientationsAllowed orientationsFromObject(id inputObject){
 
-//	NSLog(@"Portrait: %x, upsidedown: %x, llLeft: %x, llRight: %x, LL: %x, LPort: %x,",
-//	TitaniumViewControllerPortrait,TitaniumViewControllerPortraitUpsideDown,TitaniumViewControllerLandscapeLeft,
-//	TitaniumViewControllerLandscapeRight,TitaniumViewControllerLandscape,TitaniumViewControllerLandscapeOrPortrait
-//	
-//	);
-	
-
-
 	if ([inputObject isKindOfClass:[NSString class]]){
 		inputObject = [inputObject lowercaseString];
 		if ([inputObject isEqualToString:@"portrait"]) return TitaniumViewControllerPortrait;
@@ -77,61 +69,26 @@ TitaniumViewControllerOrientationsAllowed orientationsFromObject(id inputObject)
 
 int nextWindowToken = 0;
 
-NSString * const ControllerString = @"Controller";
-
-
 @implementation TitaniumViewController
-@synthesize currentContentURL, viewProperties, primaryToken;
-@synthesize webView, contentView;
+@synthesize primaryToken, contentView;
 @synthesize navBarTint, titleViewImagePath, cancelOpening;
 @synthesize backgroundColor, backgroundImage;
 @synthesize hidesNavBar, fullscreen, statusBarStyle, toolbarItems;
+@synthesize currentContentViewControllerIndex, contentViewControllers;
 
 #pragma mark Class Methods
 
-+ (TitaniumViewController *) viewController
-{
-	NSString * ourClassNibName = NSStringFromClass([self class]);
-	if ([ourClassNibName hasSuffix:ControllerString]){
-		ourClassNibName = [ourClassNibName substringToIndex:[ourClassNibName length]-[ControllerString length]];
-	}
-	NSString * nibPath = [[NSBundle mainBundle] pathForResource:ourClassNibName ofType:@"nib"];
-
-	//We don't actually use the path, we just want to make sure it exists.
-	TitaniumViewController * result= nil;
-	if (nibPath != nil) {
-		result = [[self alloc] initWithNibName:ourClassNibName bundle:nil];
-	} else {
-		result = [[self alloc] initWithNibName:@"TitaniumView" bundle:nil];
-	}
-		
-	return [result autorelease];
-}
-
 + (TitaniumViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
-	//NOTE: ViewControllerFactory here.
-	Class dictionaryClass = [NSDictionary class];
-	TitaniumViewController * result=nil;
-
-	if ([inputState isKindOfClass:dictionaryClass]){
-		NSString * typeString = [(NSDictionary *)inputState objectForKey:@"_TYPE"];
-		if ([typeString isKindOfClass:[NSString class]]) {
-			if ([typeString isEqualToString:@"table"]){
-				result = [TitaniumTableViewController viewController];
-			}
-		}
-	}
-	if (result == nil){
-		result = [TitaniumWebViewController viewController];
-	}
-
+	TitaniumViewController * result=[[self alloc] init];
+		//[[self alloc] initWithNibName:@"TitaniumView" bundle:nil];
 	NSString * token = [[NSString alloc] initWithFormat:@"WIN%d",nextWindowToken++];
 	[result setPrimaryToken:token];
 	[[TitaniumHost sharedHost] registerViewController:result forKey:token];
-	[token release];
 	[result readState:inputState relativeToUrl:baseUrl];
-	return result;	
+	[token release];
+
+	return [result autorelease];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -142,15 +99,11 @@ NSString * const ControllerString = @"Controller";
 #pragma mark Init and Dealloc
 
 - (void)dealloc {
-//	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'close'})"];
-	[webView release];
-	webView = nil;
 	[[TitaniumHost sharedHost] unregisterViewControllerForKey:primaryToken];
-	[currentContentURL release];	//Used as a base url.
-	[viewProperties release];
-	[magicTokenDict release];
     [super dealloc];
 }
+
+#pragma mark Reading state
 
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
@@ -254,23 +207,27 @@ NSString * const ControllerString = @"Controller";
 		[self setTabBarItem:newTabBarItem];
 		[newTabBarItem release];
 	}
-}
-
-#pragma mark Accessors
-
-- (void)refreshTitleView;
-{
-	UIImageView * newTitleView = nil;
-
-	if (titleViewProxy != nil) newTitleView = [[titleViewProxy nativeBarView] retain];
-	else {
-		UIImage * newTitleViewImage = [[TitaniumHost sharedHost] imageForResource:titleViewImagePath];
-		if (newTitleViewImage != nil) newTitleView = [[UIImageView alloc] initWithImage:newTitleViewImage];
+	
+	if(contentViewControllers == nil){
+		NSArray * viewsArrayObject = [inputState objectForKey:@"views"];
+		if([viewsArrayObject isKindOfClass:[NSArray class]]){
+			contentViewControllers = [[NSMutableArray alloc] initWithCapacity:[viewsArrayObject count]];
+			for(id viewObject in viewsArrayObject){
+				TitaniumContentViewController * ourNewVC = [TitaniumContentViewController viewControllerForState:viewObject relativeToUrl:baseUrl];
+				[ourNewVC setTitaniumWindowController:self];
+				if(ourNewVC != nil) [contentViewControllers addObject:ourNewVC];
+			}
+		} else {
+			TitaniumContentViewController * ourNewVC = [TitaniumContentViewController viewControllerForState:inputState relativeToUrl:baseUrl];
+			[ourNewVC setTitaniumWindowController:self];
+			if(ourNewVC != nil) contentViewControllers = [[NSMutableArray alloc] initWithObjects:ourNewVC,nil];
+		}
 	}
 	
-	[[self navigationItem] setTitleView:newTitleView];
-	[newTitleView release];
+	
 }
+
+#pragma mark Set Accessors
 
 - (void)setTitleViewProxy: (UIButtonProxy *) newProxy;
 {
@@ -319,11 +276,7 @@ NSString * const ControllerString = @"Controller";
 {
 	if(newColor == backgroundColor) return;
 	[backgroundColor release]; backgroundColor = newColor; [newColor retain];
-	if (newColor != nil) {
-		[backgroundView setBackgroundColor:backgroundColor];
-	} else {
-		[backgroundView setBackgroundColor:[UIColor grayColor]];
-	}
+	[self refreshBackground];
 }
 
 - (void)setBackgroundImage: (UIImage *) newImage;
@@ -331,7 +284,7 @@ NSString * const ControllerString = @"Controller";
 	if(newImage == backgroundImage)
 	[newImage retain];[backgroundImage release];backgroundImage=newImage;
 	
-	[backgroundView setImage:backgroundImage];
+	[self refreshBackground];
 }
 
 - (void) setStatusBarStyle: (UIStatusBarStyle) newStyle;
@@ -344,17 +297,11 @@ NSString * const ControllerString = @"Controller";
 //	}
 }
 
-- (BOOL) hidesBottomBarWhenPushed;
-{
-	if (fullscreen) return YES;
-	return [super hidesBottomBarWhenPushed];
-}
-
 - (void) setFullscreen: (BOOL) newSetting;
 {
 	if (newSetting == fullscreen) return;
 	fullscreen = newSetting;
-//	if (fullscreen) [self setHidesBottomBarWhenPushed:YES];
+	//	if (fullscreen) [self setHidesBottomBarWhenPushed:YES];
 	[self needsUpdate:TitaniumViewControllerRefreshIsAnimated];
 }
 
@@ -372,14 +319,48 @@ NSString * const ControllerString = @"Controller";
 	[self needsUpdate:TitaniumViewControllerRefreshIsAnimated];
 }
 
+#pragma mark Get Accessors
+
+- (BOOL) hidesBottomBarWhenPushed;
+{
+	if (fullscreen) return YES;
+	return [super hidesBottomBarWhenPushed];
+}
+
+- (TitaniumContentViewController *) viewControllerForIndex: (int)index;
+{
+	if((index < 0) || (index >= [contentViewControllers count]))return nil;
+	return [contentViewControllers objectAtIndex:index];
+}
+
+
+#pragma mark Token shuffles
+- (BOOL) hasToken: (NSString *) tokenString;
+{
+	return ([primaryToken isEqualToString:tokenString]);
+}
+
+
 #pragma mark UIViewController methods
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
-- (void)viewDidLoad {
-    [super viewDidLoad];
+- (void) loadView;
+{
+	UIView * ourRootView = [[UIView alloc] init];
+	[ourRootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+		
+	[self setView:ourRootView];
+	[ourRootView release];
+}
+
+
+- (void)viewWillAppear: (BOOL) animated;
+{
+    [super viewWillAppear:animated];
 	[self refreshTitleView];
-	[backgroundView setBackgroundColor:backgroundColor];
-	[backgroundView setImage:backgroundImage];
+	[self refreshBackground];
+	if (animated) dirtyFlags |= TitaniumViewControllerRefreshIsAnimated;
+	[self updateLayout:dirtyFlags];
 }
 
 - (BOOL)needsUpdate: (TitaniumViewControllerDirtyFlags) newFlags;
@@ -401,8 +382,55 @@ NSString * const ControllerString = @"Controller";
 	[pool release];
 }
 
+#pragma mark Refreshments
+
+- (void)refreshTitleView;
+{
+	UIImageView * newTitleView = nil;
+	
+	if (titleViewProxy != nil) newTitleView = [[titleViewProxy nativeBarView] retain];
+	else {
+		UIImage * newTitleViewImage = [[TitaniumHost sharedHost] imageForResource:titleViewImagePath];
+		if (newTitleViewImage != nil) newTitleView = [[UIImageView alloc] initWithImage:newTitleViewImage];
+	}
+	
+	[[self navigationItem] setTitleView:newTitleView];
+	[newTitleView release];
+}
+
+- (void)refreshBackground;
+{
+	if([[TitaniumHost sharedHost] currentTitaniumViewController] != self)return;
+	UIView * ourRootView = [self view];
+	
+	[ourRootView setBackgroundColor:(backgroundColor != nil)?backgroundColor:[UIColor whiteColor]];
+	
+	if(backgroundImage != nil){
+		if(backgroundView==nil){
+			backgroundView = [[UIImageView alloc] initWithImage:backgroundImage];
+			[backgroundView setFrame:[ourRootView bounds]];
+			[backgroundView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+			[backgroundView setContentMode:UIViewContentModeCenter];
+			[ourRootView insertSubview:backgroundView atIndex:0];
+		} else {
+			[backgroundView setImage:backgroundImage];
+			
+			if([backgroundView superview]==nil){
+				[backgroundView setFrame:[ourRootView bounds]];
+				[ourRootView insertSubview:backgroundView atIndex:0];
+			}
+		}
+	} else {
+		[backgroundView removeFromSuperview];
+		[backgroundView setImage:nil];
+	}
+	
+}
+
 - (void)updateLayout: (BOOL)animated;
 {
+	if([[TitaniumHost sharedHost] currentTitaniumViewController] != self)return;
+
 	UIApplication * theApp = [UIApplication sharedApplication];
 	UINavigationController * theNC = [self navigationController];
 
@@ -445,7 +473,6 @@ NSString * const ControllerString = @"Controller";
 		}
 
 		if(navBarStyle != UIBarStyleBlackTranslucent){
-			contentViewBounds = [contentView frame];
 			contentViewBounds.size.height = toolBarFrame.origin.y - contentViewBounds.origin.y;
 		}
 		
@@ -460,7 +487,7 @@ NSString * const ControllerString = @"Controller";
 
 	CGFloat floatingUITop = [[TitaniumHost sharedHost] keyboardTop];
 	if(floatingUITop > 1.0){ //Toolbar style or not, the keyboard trumps all!
-		CGPoint bottomPoint = [[self view] convertPoint:CGPointMake(0,floatingUITop) fromView:nil];
+		CGPoint bottomPoint = [ourView convertPoint:CGPointMake(0,floatingUITop) fromView:nil];
 		contentViewBounds.size.height = MIN(contentViewBounds.size.height,(bottomPoint.y - contentViewBounds.origin.y));
 	}
 	
@@ -468,7 +495,19 @@ NSString * const ControllerString = @"Controller";
 		[UIView beginAnimations:@"Toolbar" context:nil];
 	}
 	
-	[contentView setFrame:contentViewBounds];
+	TitaniumContentViewController * newContentViewController = [self viewControllerForIndex:currentContentViewControllerIndex];
+	if(newContentViewController != nil) {
+		UIView * newContentView = [newContentViewController view];
+		if (newContentView != contentView){
+			[contentView removeFromSuperview];
+			[self setContentView:newContentView];
+			[contentView setFrame:contentViewBounds];
+			[ourView insertSubview:contentView atIndex:(backgroundImage!=nil)?1:0];
+		} else {
+			[contentView setFrame:contentViewBounds];
+		}
+		
+	}
 	
 	if (animated) {
 		[UIView commitAnimations];
@@ -583,12 +622,6 @@ NSString * const ControllerString = @"Controller";
 	}
 
 	//TODO: if thisIndex is 0, and we've got tabs, remove the tab? That doesn't sound like a good idea.
-}
-
-#pragma mark Token shuffles
-- (BOOL) hasToken: (NSString *) tokenString;
-{
-	return ([primaryToken isEqualToString:tokenString]);
 }
 
 @end

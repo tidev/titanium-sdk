@@ -68,6 +68,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 		noRetainCallbacks.retain = NULL;	noRetainCallbacks.release = NULL;
 		
 		viewControllerRegistry = CFDictionaryCreateMutable(NULL, 5, &kCFTypeDictionaryKeyCallBacks, &noRetainCallbacks);
+		contentViewControllerRegistry = CFDictionaryCreateMutable(NULL, 5, &kCFTypeDictionaryKeyCallBacks, &noRetainCallbacks);
 //		threadForNSThreadDict = [[NSMutableDictionary alloc] init];
 		NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
 		[theNC addObserver:self selector:@selector(handleKeyboardHiding:) name:UIKeyboardWillHideNotification object:nil];
@@ -88,6 +89,8 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	//Dynamic objects:
 	[threadRegistry release];
 	CFRelease(viewControllerRegistry);
+	CFRelease(contentViewControllerRegistry);
+
 	[nativeModules release];
 	
 	[titaniumObject release];
@@ -444,6 +447,16 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	CFDictionaryRemoveValue(viewControllerRegistry, key);
 }
 
+- (void) registerContentViewController: (UIViewController *) viewController forKey: (NSString *) key;
+{
+	CFDictionarySetValue(contentViewControllerRegistry, key, viewController);
+}
+
+- (void) unregisterContentViewControllerForKey: (NSString *) key;
+{
+	CFDictionaryRemoveValue(contentViewControllerRegistry, key);
+}
+
 
 #pragma mark Blob Management
 
@@ -513,10 +526,10 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 - (NSURL *) resolveUrlFromString:(NSString *) urlString useFilePath:(BOOL) useFilePath;
 {
 	TitaniumCmdThread * ourThread = [self currentThread];
-	NSURL * result;
+	NSURL * result=nil;
 	if (ourThread != nil) {
-		TitaniumViewController * currentVC = [self titaniumViewControllerForToken:[ourThread magicToken]];
-		result = [NSURL URLWithString:urlString relativeToURL:[currentVC currentContentURL]];
+		TitaniumContentViewController * currentVC = [self titaniumContentViewControllerForToken:[ourThread magicToken]];
+		result = [NSURL URLWithString:urlString relativeToURL:[(TitaniumWebViewController *)currentVC currentContentURL]];
 	} else {
 		result = [NSURL URLWithString:urlString relativeToURL:appBaseUrl];
 	}
@@ -829,10 +842,12 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 {
 	TitaniumCmdThread * ourThread = [self currentThread];
 	if (ourThread == nil) {
-		UIViewController * rootVC = [[TitaniumAppDelegate sharedDelegate] viewController];
 		//Find the current view, and send it the message.
-		TitaniumViewController * currentVC = CurrentTitaniumViewController(rootVC);
-		return [[currentVC webView] stringByEvaluatingJavaScriptFromString:inputString];
+		TitaniumContentViewController * currentVC = [self currentTitaniumContentViewController];
+		if ([currentVC isKindOfClass:[TitaniumWebViewController class]]){
+			return [[(TitaniumWebViewController *)currentVC webView] stringByEvaluatingJavaScriptFromString:inputString];
+		}
+		
 	}
 	
 	return [ourThread pauseForJavascriptFetch:inputString];	
@@ -844,23 +859,56 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	return CurrentTitaniumViewController(rootVC);
 }
 
+- (TitaniumContentViewController *) visibleTitaniumContentViewController
+{
+	TitaniumViewController * parentVC = [self visibleTitaniumViewController];
+	TitaniumContentViewController * childVC = [parentVC viewControllerForIndex:[parentVC currentContentViewControllerIndex]]; //If this is nil, all of this becomes nil anyways.
+	return childVC;
+}
+
 - (TitaniumViewController *) currentTitaniumViewController
 {
 	TitaniumCmdThread * ourThread = [self currentThread];
 	if (ourThread != nil) {
-		return [self titaniumViewControllerForToken:[ourThread magicToken]];
+		TitaniumContentViewController * childVC = [self titaniumContentViewControllerForToken:[ourThread magicToken]];
+		return [childVC titaniumWindowController];
 	}
 	return [self visibleTitaniumViewController];
+}
+
+- (TitaniumContentViewController *) currentTitaniumContentViewController
+{
+	TitaniumCmdThread * ourThread = [self currentThread];
+	if (ourThread != nil) {
+		return [self titaniumContentViewControllerForToken:[ourThread magicToken]];
+	}
+	return [self visibleTitaniumContentViewController];
 }
 
 - (TitaniumViewController *) titaniumViewControllerForToken: (NSString *) token
 {
 	TitaniumViewController * result = nil;	
 	if ([token length] > 1) {
-		result = CFDictionaryGetValue(viewControllerRegistry, token);
+		result = (id)CFDictionaryGetValue(viewControllerRegistry, token);
 		if (result == nil) {
 			UIViewController * rootVC = [[TitaniumAppDelegate sharedDelegate] viewController];
 			result = TitaniumViewControllerForToken(rootVC, token);
+		}
+		if (result == nil){
+			result = [[self titaniumContentViewControllerForToken:token] titaniumWindowController];
+		}
+	}
+	return result;
+}
+
+- (TitaniumContentViewController *) titaniumContentViewControllerForToken: (NSString *) token
+{
+	TitaniumContentViewController * result = nil;	
+	if ([token length] > 1) {
+		result = (id)CFDictionaryGetValue(contentViewControllerRegistry, token);
+		if (result == nil) {
+			UIViewController * rootVC = [[TitaniumAppDelegate sharedDelegate] viewController];
+			result = TitaniumContentViewControllerForToken(rootVC, token);
 		}
 	}
 	return result;
@@ -868,13 +916,13 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 
 - (BOOL) sendJavascript: (NSString *) inputString;
 {
-	TitaniumViewController * currentVC = [self currentTitaniumViewController];
-	if (currentVC == nil){ return NO; }
+	TitaniumContentViewController * currentVC = [self currentTitaniumContentViewController];
+	if ([currentVC isKindOfClass:[TitaniumWebViewController class]]){ return NO; }
 	
 	if ([NSThread isMainThread]){
-		[[currentVC webView] performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:inputString afterDelay:0.0];
+		[[(TitaniumWebViewController *)currentVC webView] performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:inputString afterDelay:0.0];
 	} else {
-		[[currentVC webView] performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:inputString waitUntilDone:NO];
+		[[(TitaniumWebViewController *)currentVC webView] performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:inputString waitUntilDone:NO];
 	}
 	
 	return YES;
@@ -885,13 +933,13 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 //Returns YES if an event was scheduled, NO if no such page was found and scheduled.
 - (BOOL) sendJavascript: (NSString *) inputString toPageWithToken: (NSString *) token
 {
-	TitaniumViewController * currentVC = [self titaniumViewControllerForToken:token];
-	if (currentVC == nil){ return NO; }
+	TitaniumContentViewController * currentVC = [self titaniumContentViewControllerForToken:token];
+	if (![currentVC isKindOfClass:[TitaniumWebViewController class]]){ return NO; }
 	
 	if ([NSThread isMainThread]){
-		[[currentVC webView] performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:inputString afterDelay:0.0];
+		[[(TitaniumWebViewController *)currentVC webView] performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:inputString afterDelay:0.0];
 	} else {
-		[[currentVC webView] performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:inputString waitUntilDone:NO];
+		[[(TitaniumWebViewController *)currentVC webView] performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:inputString waitUntilDone:NO];
 	}
 	
 	return YES;

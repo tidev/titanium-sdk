@@ -11,6 +11,8 @@
 #import "TitaniumHost.h"
 #import "TitaniumBlobWrapper.h"
 
+#import "TitaniumWebViewController.h"
+
 #import <MessageUI/MessageUI.h>
 #import <MessageUI/MFMailComposeViewController.h>
 
@@ -93,7 +95,7 @@ int barButtonSystemItemForString(NSString * inputString){
 @synthesize nativeBarButton, segmentLabelArray, segmentImageArray, segmentSelectedIndex;
 @synthesize titleString, iconPath, templateValue, buttonStyle, nativeView, labelView, wrapperView;
 @synthesize minValue,maxValue,floatValue,stringValue, placeholderText, isHidden;
-@synthesize elementColor, elementBorderColor, elementBackgroundColor;
+@synthesize elementColor, elementBorderColor, elementBackgroundColor, messageString;
 @synthesize leftViewProxy, rightViewProxy, leftViewMode, rightViewMode, surpressReturnCharacter;
 @synthesize backgroundImagePath, backgroundDisabledImagePath, backgroundSelectedImagePath;
 
@@ -126,6 +128,7 @@ int barButtonSystemItemForString(NSString * inputString){
 {	
 //General purpose
 	GRAB_IF_STRING(@"title",titleString);
+	GRAB_IF_STRING(@"message",messageString);
 	GRAB_IF_STRING(@"image",iconPath);
 	GRAB_IF_STRING(@"backgroundImage",backgroundImagePath);
 	GRAB_IF_STRING(@"backgroundDisabledImage",backgroundDisabledImagePath);
@@ -246,7 +249,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		[labelView setFrame:newFrame];
 	}
 	
-	[labelView setText:titleString];
+	[labelView setText:messageString];
 	[labelView setFont:[UIFont systemFontOfSize:newFrame.size.height-4]];
 	[labelView setBackgroundColor:((bgColor != nil)?bgColor:[UIColor clearColor])];
 	[labelView setTextColor:((elementColor != nil)?elementColor:[UIColor whiteColor])];
@@ -470,7 +473,7 @@ int barButtonSystemItemForString(NSString * inputString){
 //		[(UISwitch *)resultView setOn:(floatValue > ((minValue + maxValue)/2))];
 //		[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
 	} else if (templateValue == UITitaniumNativeItemProgressBar) {
-		UIProgressViewStyle progressStyle = (placedInBar || (buttonStyle = UITitaniumNativeStyleBar))?UIProgressViewStyleBar:UIProgressViewStyleDefault;
+		UIProgressViewStyle progressStyle = (placedInBar || (buttonStyle == UITitaniumNativeStyleBar))?UIProgressViewStyleBar:UIProgressViewStyleDefault;
 		if([nativeView isKindOfClass:[UIProgressView class]]){
 			resultView = [nativeView retain];
 			[(UIProgressView *)resultView setProgressViewStyle:progressStyle];
@@ -555,6 +558,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		[resultView setFrame:viewFrame];
 	}
 	[resultView setHidden:isHidden];
+	[labelView setHidden:isHidden];
 	BOOL isNewView = (nativeView != resultView);
 	if(isNewView){
 		[wrapperView addSubview:resultView];
@@ -1141,7 +1145,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSString * token = [windowObject objectForKey:@"_TOKEN"];
 	if ([token isKindOfClass:[NSString class]]) return token; //So that it doesn't drop its token.
 		
-	TitaniumViewController * thisVC = [[TitaniumHost sharedHost] currentTitaniumViewController];
+	TitaniumContentViewController * thisVC = [[TitaniumHost sharedHost] currentTitaniumContentViewController];
 	TitaniumViewController * resultVC = [TitaniumViewController viewControllerForState:windowObject relativeToUrl:[thisVC currentContentURL]];
 	token = [resultVC primaryToken];
 	
@@ -1168,7 +1172,7 @@ int barButtonSystemItemForString(NSString * inputString){
 
 	SEL action = animated ? @selector(pushViewControllerAnimated:) : @selector(pushViewControllerNonAnimated:);
 
-	[thisVC performSelectorOnMainThread:action withObject:resultVC waitUntilDone:NO];
+	[[thisVC titaniumWindowController] performSelectorOnMainThread:action withObject:resultVC waitUntilDone:NO];
 	return token;
 }
 
@@ -1184,7 +1188,8 @@ int barButtonSystemItemForString(NSString * inputString){
 - (void) setWindow:(NSString *)tokenString URL:(NSString *)newURLString baseURL:(NSString *)baseURLString;
 {
 	if (![newURLString isKindOfClass:[NSString class]]) return;
-	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
+	TitaniumWebViewController * ourVC = (id)[[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
+	if(![ourVC isKindOfClass:[TitaniumWebViewController class]])return;
 
 	NSURL * baseURL = nil;
 	if ([newURLString isKindOfClass:[NSString class]] && ([newURLString length]>0)){
@@ -1315,8 +1320,8 @@ int barButtonSystemItemForString(NSString * inputString){
 - (void) addWindow: (NSString *) tokenString nativeView: (id) viewObject options: (id) optionsObject;
 {
 	Class dictClass = [NSDictionary class];
-	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
-	if ((ourVC == nil) || ![viewObject isKindOfClass:dictClass]) return;
+	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
+	if (![ourVC isKindOfClass:[TitaniumWebViewController class]] || ![viewObject isKindOfClass:dictClass]) return;
 	
 	UIButtonProxy * ourNativeViewProxy = [self proxyForObject:viewObject scan:YES recurse:YES];
 	if (ourNativeViewProxy == nil) return;
@@ -1601,7 +1606,7 @@ int barButtonSystemItemForString(NSString * inputString){
 
 	NSString * createActivityIndicatorString = @"function(args,btnType){if(!btnType)btnType='activity';var res=Ti.UI.createButton(args,btnType);"
 			"res.setMin=function(val){this.min=val;};res.setMax=function(val){this.max=val;};res.setPos=function(val,args){this.value=val;this.pos=val;this.update(args)};"
-			"res.setType=function(val){if(val)this.systemButton='progressbar';else this.systemButton='activity';};res.setMessage=function(val,args){this.title=val;this.update(args);};"
+			"res.setType=function(val){if(val)this.systemButton='progressbar';else this.systemButton='activity';};res.setMessage=function(val,args){this.message=val;this.update(args);};"
 			"res.DETERMINATE=true;res.INDETERMINATE=false;"
 			"return res;}";
 
@@ -1693,7 +1698,7 @@ int barButtonSystemItemForString(NSString * inputString){
 					[TitaniumJSCode codeWithString:createGroupedSectionString],@"createGroupedSection",
 					statusBarStyleInvoc,@"setStatusBarStyle",
 					[TitaniumJSCode codeWithString:systemButtonStyleString],@"SystemButtonStyle",
-					[TitaniumJSCode codeWithString:systemButtonStyleString],@"ProgessBarStyle",
+					[TitaniumJSCode codeWithString:systemButtonStyleString],@"ProgressBarStyle",
 					[TitaniumJSCode codeWithString:systemButtonStyleString],@"ActivityIndicatorStyle",
 					[TitaniumJSCode codeWithString:systemButtonString],@"SystemButton",
 					[TitaniumJSCode codeWithString:systemIconString],@"SystemIcon",

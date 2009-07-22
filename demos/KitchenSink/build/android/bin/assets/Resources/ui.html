@@ -63,6 +63,15 @@
 			{
 				var win = Titanium.UI.createWindow({url:'window_unfocus.html',title:'Unfocus Event', barColor:'#336699'});
 				win.open({animated:true});
+				var w = Titanium.UI.currentWindow;
+				w.addEventListener('focused',function()
+				{
+					var a = Titanium.UI.createAlertDialog({buttonNames:['OK']});
+					a.setTitle('Unfocus Test')
+					a.setMessage('focused event received');
+					a.show();
+				});
+				
 				break;
 			}
 			case 3:

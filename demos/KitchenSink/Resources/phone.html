@@ -3,6 +3,7 @@
 	<title>Phone API</title>
 	
 	<script>
+
 	// data for tableview
 	var data = [
 		{title:'Play Movie'},
@@ -91,7 +92,6 @@
 		}
 
 	});
-	
 	tableView.open({animated:false});
 	
 	// FUNCTIONS
@@ -106,10 +106,19 @@
 				backgroundColor:'#111',
 				movieControlMode:Titanium.Media.VIDEO_CONTROL_DEFAULT,
 				scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
+
 		});
 
+		activeMovie.addEventListener('complete',function()
+		{
+			var a = Titanium.UI.createAlertDialog();
+			a.setMessage('foo');
+			a.show();
+		});
+		
 		// play movie
-		activeMovie.play();		
+		activeMovie.play();	
+		
 	};
 
 	//

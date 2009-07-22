@@ -6,6 +6,21 @@
 			25D02B9E0FFD233F001F631B /* KitchenSink */,
 		);
 	};
+	252FFF9910164F5000DF1D9B /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 259A152C0FDB01B5000372D8 /* Resources/Entitlements.plist */;
+	};
+	252FFF9A10164F5000DF1D9B /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 259A152C0FDB01B5000372D8 /* Resources/Entitlements.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink/build/iphone/Resources/Entitlements.plist;
+		rLen = 0;
+		rLoc = 2147483647;
+	};
 	25D02B9E0FFD233F001F631B /* KitchenSink */ = {
 		isa = PBXExecutable;
 		activeArgIndices = (
@@ -41,9 +56,8 @@
 		indexTemplatePath = "";
 	};
 	29B97313FDCFA39411CA2CEA /* Project object */ = {
-		activeBuildConfigurationName = Debug;
+		activeBuildConfigurationName = Release;
 		activeExecutable = 25D02B9E0FFD233F001F631B /* KitchenSink */;
-		activeSDKPreference = iphoneos3.0;
 		activeTarget = 1D6058900D05DD3D006BFB54 /* KitchenSink */;
 		codeSenseManager = 25D02C800FFD2363001F631B /* Code sense */;
 		executables = (
@@ -57,7 +71,7 @@
 					20,
 					341,
 					20,
-					48.16259765625,
+					48,
 					43,
 					43,
 					20,
@@ -72,8 +86,12 @@
 					PBXFileDataSource_Target_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 268247871;
-			PBXWorkspaceStateSaveDate = 268247871;
+			PBXPerProjectTemplateStateSaveDate = 269897469;
+			PBXWorkspaceStateSaveDate = 269897469;
+		};
+		perUserProjectItems = {
+			252FFF9910164F5000DF1D9B /* PBXBookmark */ = 252FFF9910164F5000DF1D9B /* PBXBookmark */;
+			252FFF9A10164F5000DF1D9B /* PlistBookmark */ = 252FFF9A10164F5000DF1D9B /* PlistBookmark */;
 		};
 		sourceControlManager = 25D02C7F0FFD2363001F631B /* Source Control */;
 		userBuildSettings = {

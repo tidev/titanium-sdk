@@ -271,6 +271,7 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
+									<integer>7</integer>
 									<integer>0</integer>
 								</array>
 							</array>
@@ -310,7 +311,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>1CE0B20306471E060097A5F4</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>MyNewFile14.java</string>
+								<string>Entitlements.plist</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -318,7 +319,15 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>1CE0B20406471E060097A5F4</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>MyNewFile14.java</string>
+										<string>Entitlements.plist</string>
+										<key>_historyCapacity</key>
+										<integer>0</integer>
+										<key>bookmark</key>
+										<string>252FFF9A10164F5000DF1D9B</string>
+										<key>history</key>
+										<array>
+											<string>252FFF9910164F5000DF1D9B</string>
+										</array>
 									</dict>
 									<key>SplitCount</key>
 									<string>1</string>
@@ -375,9 +384,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>25D02C870FFD23D7001F631B</string>
+				<string>252FFF9B10164F5000DF1D9B</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>25D02C880FFD23D7001F631B</string>
+				<string>252FFF9C10164F5000DF1D9B</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -511,12 +520,9 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>25D02C930FFD23D7001F631B</string>
-		<string>25D02C940FFD23D7001F631B</string>
-		<string>1C78EAAD065D492600B07095</string>
-		<string>1CD10A99069EF8BA00B06720</string>
 		<string>25D02C8A0FFD23D7001F631B</string>
-		<string>/Users/nwright/Appcelerator/KitchenSink/build/iphone/KitchenSink.xcodeproj</string>
+		<string>1CD10A99069EF8BA00B06720</string>
+		<string>/Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink/build/iphone/KitchenSink.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
 	<string>326 309 788 504 0 0 1440 878 </string>
@@ -557,6 +563,8 @@
 							<string>218pt</string>
 						</dict>
 						<dict>
+							<key>BecomeActive</key>
+							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
@@ -596,7 +604,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>25D02C8A0FFD23D7001F631B</string>
-				<string>25D02C8B0FFD23D7001F631B</string>
+				<string>252FFF8C10164F2E00DF1D9B</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
@@ -638,8 +646,8 @@
 										<string>yes</string>
 										<key>sizes</key>
 										<array>
-											<string>{{0, 0}, {316, 185}}</string>
-											<string>{{316, 0}, {378, 185}}</string>
+											<string>{{0, 0}, {316, 194}}</string>
+											<string>{{316, 0}, {378, 194}}</string>
 										</array>
 									</dict>
 									<key>VerticalSplitView</key>
@@ -654,8 +662,8 @@
 										<string>yes</string>
 										<key>sizes</key>
 										<array>
-											<string>{{0, 0}, {694, 185}}</string>
-											<string>{{0, 185}, {694, 196}}</string>
+											<string>{{0, 0}, {694, 194}}</string>
+											<string>{{0, 194}, {694, 187}}</string>
 										</array>
 									</dict>
 								</dict>
@@ -688,7 +696,7 @@
 										<real>148</real>
 									</array>
 									<key>Frame</key>
-									<string>{{316, 0}, {378, 185}}</string>
+									<string>{{316, 0}, {378, 194}}</string>
 									<key>RubberWindowFrame</key>
 									<string>347 368 694 422 0 0 1440 878 </string>
 								</dict>
@@ -716,13 +724,13 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1CD10A99069EF8BA00B06720</string>
-				<string>25D02C8C0FFD23D7001F631B</string>
+				<string>252FFF8D10164F2E00DF1D9B</string>
 				<string>1C162984064C10D400B95A72</string>
-				<string>25D02C8D0FFD23D7001F631B</string>
-				<string>25D02C8E0FFD23D7001F631B</string>
-				<string>25D02C8F0FFD23D7001F631B</string>
-				<string>25D02C900FFD23D7001F631B</string>
-				<string>25D02C910FFD23D7001F631B</string>
+				<string>252FFF8E10164F2E00DF1D9B</string>
+				<string>252FFF8F10164F2E00DF1D9B</string>
+				<string>252FFF9010164F2E00DF1D9B</string>
+				<string>252FFF9110164F2E00DF1D9B</string>
+				<string>252FFF9210164F2E00DF1D9B</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.debugV3</string>
