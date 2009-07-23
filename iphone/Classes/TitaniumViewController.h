@@ -41,7 +41,8 @@ typedef enum {
 //	NSMutableSet * nativeElementsSet;
 
 	NSMutableArray * contentViewControllers;
-	int currentContentViewControllerIndex;
+	int selectedContentIndex;
+	TitaniumContentViewController * focusedContentController;
 
 //	NSMutableArray * pagedViewControllers;
 	
@@ -76,7 +77,7 @@ typedef enum {
 
 + (TitaniumViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 
-@property (nonatomic,assign)	int currentContentViewControllerIndex;
+@property (nonatomic,assign)	int selectedContentIndex;
 @property (nonatomic,retain)	NSMutableArray * contentViewControllers;
 
 //Common

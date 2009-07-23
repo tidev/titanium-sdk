@@ -862,7 +862,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 - (TitaniumContentViewController *) visibleTitaniumContentViewController
 {
 	TitaniumViewController * parentVC = [self visibleTitaniumViewController];
-	TitaniumContentViewController * childVC = [parentVC viewControllerForIndex:[parentVC currentContentViewControllerIndex]]; //If this is nil, all of this becomes nil anyways.
+	TitaniumContentViewController * childVC = [parentVC viewControllerForIndex:[parentVC selectedContentIndex]]; //If this is nil, all of this becomes nil anyways.
 	return childVC;
 }
 

@@ -74,7 +74,7 @@ int nextWindowToken = 0;
 @synthesize navBarTint, titleViewImagePath, cancelOpening;
 @synthesize backgroundColor, backgroundImage;
 @synthesize hidesNavBar, fullscreen, statusBarStyle, toolbarItems;
-@synthesize currentContentViewControllerIndex, contentViewControllers;
+@synthesize selectedContentIndex, contentViewControllers;
 
 #pragma mark Class Methods
 
@@ -360,27 +360,22 @@ int nextWindowToken = 0;
 	[self refreshTitleView];
 	[self refreshBackground];
 	if (animated) dirtyFlags |= TitaniumViewControllerRefreshIsAnimated;
-	
-	TitaniumContentViewController * ourVC = [self viewControllerForIndex:currentContentViewControllerIndex];
-	if([ourVC respondsToSelector:@selector(setFocused:)]){
-		[ourVC setFocused:YES];
-	}
-	
-	[self updateLayout:dirtyFlags];
+
+	[self updateLayout:dirtyFlags]; //This is what will notify the focused contentController.
 }
 
 - (void)viewWillDisappear: (BOOL) animated;
 {
-	TitaniumContentViewController * ourVC = [self viewControllerForIndex:currentContentViewControllerIndex];
-	if([ourVC respondsToSelector:@selector(setFocused:)]){
-		[ourVC setFocused:NO];
+	if([focusedContentController respondsToSelector:@selector(setFocused:)]){
+		[focusedContentController setFocused:NO];
 	}
+	focusedContentController = nil;
 }
 
 
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
 {
-	TitaniumContentViewController * ourVC = [self viewControllerForIndex:currentContentViewControllerIndex];
+	TitaniumContentViewController * ourVC = [self viewControllerForIndex:selectedContentIndex];
 	if([ourVC respondsToSelector:@selector(motionEnded:withEvent:)]){
 		[(id)ourVC motionEnded:motion withEvent:event];
 	}
@@ -424,7 +419,7 @@ int nextWindowToken = 0;
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
 {
-	TitaniumContentViewController * ourVC = [self viewControllerForIndex:currentContentViewControllerIndex];
+	TitaniumContentViewController * ourVC = [self viewControllerForIndex:selectedContentIndex];
 	if ([ourVC respondsToSelector:@selector(setInterfaceOrientation:duration:)]){
 		[(TitaniumContentViewController<TitaniumWindowDelegate> *)ourVC setInterfaceOrientation:currentOrientation duration:duration];
 	}
@@ -432,7 +427,7 @@ int nextWindowToken = 0;
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
 {
-	TitaniumContentViewController * ourVC = [self viewControllerForIndex:currentContentViewControllerIndex];
+	TitaniumContentViewController * ourVC = [self viewControllerForIndex:selectedContentIndex];
 	[ourVC updateLayout:YES];
 }
 
@@ -549,7 +544,18 @@ int nextWindowToken = 0;
 		[UIView beginAnimations:@"Toolbar" context:nil];
 	}
 	
-	TitaniumContentViewController * newContentViewController = [self viewControllerForIndex:currentContentViewControllerIndex];
+	TitaniumContentViewController * newContentViewController = [self viewControllerForIndex:selectedContentIndex];
+
+	if(newContentViewController!=focusedContentController){
+		if([focusedContentController respondsToSelector:@selector(setFocused:)]){
+			[focusedContentController setFocused:NO];
+		}
+		focusedContentController=newContentViewController;
+		if([focusedContentController respondsToSelector:@selector(setFocused:)]){
+			[focusedContentController setFocused:YES];
+		}
+	}
+	
 	if(newContentViewController != nil) {
 		UIView * newContentView = [newContentViewController view];
 		if (newContentView != contentView){
@@ -558,10 +564,6 @@ int nextWindowToken = 0;
 			[contentView setFrame:contentViewBounds];
 			[ourView insertSubview:contentView atIndex:(backgroundImage!=nil)?1:0];
 
-			if([newContentViewController respondsToSelector:@selector(setFocused:)]){
-				[newContentViewController setFocused:YES]; //TODO: Handle old focus coming out.
-			}
-			
 		} else {
 			[contentView setFrame:contentViewBounds];
 		}
