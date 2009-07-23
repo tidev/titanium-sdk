@@ -8,7 +8,17 @@
 	<prerendered-icon>false</prerendered-icon>
 	<statusbar-style>opaque</statusbar-style>
     <windows>
-    
+
+        <window>
+            <id>urls</id>
+            <title>URLs</title>
+            <url>urls.html</url>
+            <type>single</type>
+            <fullscreen>false</fullscreen>
+            <backgroundColor>argb(0,255,255,255)</backgroundColor>
+            <barColor>#000</barColor>
+        </window>
+<!--
         <window>
             <id>initial</id>
             <title>TextF</title>
@@ -45,7 +55,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-<!--
+
 		<window>
             <id>Window</id>
             <title>Window</title>

@@ -66,6 +66,26 @@ public class TiWebViewClient extends WebViewClient
             i.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK);
             view.getContext().startActivity(i);
             return true;
+		} else if(url.startsWith(WebView.SCHEME_TEL)) {
+			Log.i(LCAT, "Launching dialer for " + url);
+			Intent dialer = Intent.createChooser(new Intent(Intent.ACTION_DIAL, Uri.parse(url)), "Choose Dialer");
+	        activity.startActivity(dialer);
+	        return true;
+		} else if (url.startsWith(WebView.SCHEME_MAILTO)) {
+			Log.i(LCAT, "Launching mailer for " + url);
+			Intent mailer = Intent.createChooser(new Intent(Intent.ACTION_SENDTO, Uri.parse(url)), "Send Message");
+	        activity.startActivity(mailer);
+	        return true;
+		} else if (url.startsWith(WebView.SCHEME_GEO)) {
+			Log.i(LCAT, "Launching app for " + url);
+			/*geo:latitude,longitude
+			geo:latitude,longitude?z=zoom
+			geo:0,0?q=my+street+address
+			geo:0,0?q=business+near+city
+			*/
+			Intent geoviewer = Intent.createChooser(new Intent(Intent.ACTION_VIEW, Uri.parse(url)), "Choose Viewer");
+			activity.startActivity(geoviewer);
+			return true;
 		} else {
 			if (DBG) {
 				Log.e(LCAT, "NEED to Handle " + url);
