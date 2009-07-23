@@ -222,13 +222,17 @@ TitaniumWebViewController * mostRecentController = nil;
 	mostRecentController = self;
 }
 
-
-- (void)viewWillAppear:(BOOL)animated;
+#if MODULE_TI_GESTURE
+- (void)setFocused:(BOOL)isFocused;
 {
-	[super viewWillAppear:animated];
-	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'focused'})"];
-	[self updateLayout:animated];
+	if(isFocused){
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'focused'})"];
+	} else {
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'unfocused'})"];
+	}
 }
+#endif
+
 
 -(void) _clearBecomeFirstResponderWhenCapable;
 {
@@ -247,7 +251,6 @@ TitaniumWebViewController * mostRecentController = nil;
 	[self resignFirstResponder];
 #endif
 #endif
-	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'unfocused'})"];
 }
 
 #ifdef __IPHONE_3_0

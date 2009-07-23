@@ -139,7 +139,6 @@ int barButtonSystemItemForString(NSString * inputString){
 	GRAB_IF_SELECTOR(@"max",floatValue,maxValue);
 
 	id valueObject = [newDict objectForKey:@"value"];
-	if (valueObject == nil) valueObject = [newDict objectForKey:@"pos"];
 
 	if ([valueObject respondsToSelector:@selector(floatValue)]){
 		floatValue = [valueObject floatValue];
@@ -296,7 +295,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			resultView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:spinnerStyle];
 			[(UIActivityIndicatorView *)resultView startAnimating];
 		}
-		if(titleString != nil){
+		if(messageString != nil){
 			CGRect newResultFrame = [resultView frame];
 			viewFrame.size.height = newResultFrame.size.height;
 			newResultFrame.origin = CGPointZero;
@@ -482,7 +481,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		}
 		[(UIProgressView *)resultView setProgress:(floatValue - minValue)/(maxValue - minValue)];
 		
-		if(titleString != nil){
+		if(messageString != nil){
 			CGRect newResultFrame = [resultView frame];
 			
 			newResultFrame.size.width = viewFrame.size.width;
@@ -657,7 +656,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			if(nativeView != nil){
 				id animatedStyleObject = [optionObject objectForKey:@"animationStyle"];
 				if ([animatedStyleObject respondsToSelector:@selector(intValue)]){
-					[UIView setAnimationTransition:[animatedStyleObject intValue] forView:nativeView cache:YES];
+					[UIView setAnimationTransition:[animatedStyleObject intValue] forView:wrapperView cache:YES];
 				}
 			}
 
@@ -1605,7 +1604,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	[createAlertCode setEpilogueCode:@"window.alert=function(args){Ti.API.log('alert',args);};"];
 
 	NSString * createActivityIndicatorString = @"function(args,btnType){if(!btnType)btnType='activity';var res=Ti.UI.createButton(args,btnType);"
-			"res.setMin=function(val){this.min=val;};res.setMax=function(val){this.max=val;};res.setPos=function(val,args){this.value=val;this.pos=val;this.update(args)};"
+			"res.setMin=function(val){this.min=val;};res.setMax=function(val){this.max=val;};res.setValue=function(val,args){this.value=val;this.update(args)};"
 			"res.setType=function(val){if(val)this.systemButton='progressbar';else this.systemButton='activity';};res.setMessage=function(val,args){this.message=val;this.update(args);};"
 			"res.DETERMINATE=true;res.INDETERMINATE=false;"
 			"return res;}";

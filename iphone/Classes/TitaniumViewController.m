@@ -360,8 +360,23 @@ int nextWindowToken = 0;
 	[self refreshTitleView];
 	[self refreshBackground];
 	if (animated) dirtyFlags |= TitaniumViewControllerRefreshIsAnimated;
+	
+	TitaniumContentViewController * ourVC = [self viewControllerForIndex:currentContentViewControllerIndex];
+	if([ourVC respondsToSelector:@selector(setFocused:)]){
+		[ourVC setFocused:YES];
+	}
+	
 	[self updateLayout:dirtyFlags];
 }
+
+- (void)viewWillDisappear: (BOOL) animated;
+{
+	TitaniumContentViewController * ourVC = [self viewControllerForIndex:currentContentViewControllerIndex];
+	if([ourVC respondsToSelector:@selector(setFocused:)]){
+		[ourVC setFocused:NO];
+	}
+}
+
 
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
 {
@@ -411,7 +426,7 @@ int nextWindowToken = 0;
 {
 	TitaniumContentViewController * ourVC = [self viewControllerForIndex:currentContentViewControllerIndex];
 	if ([ourVC respondsToSelector:@selector(setInterfaceOrientation:duration:)]){
-		[(TitaniumContentViewController<TitaniumRotationDelegate> *)ourVC setInterfaceOrientation:currentOrientation duration:duration];
+		[(TitaniumContentViewController<TitaniumWindowDelegate> *)ourVC setInterfaceOrientation:currentOrientation duration:duration];
 	}
 }
 
@@ -542,11 +557,16 @@ int nextWindowToken = 0;
 			[self setContentView:newContentView];
 			[contentView setFrame:contentViewBounds];
 			[ourView insertSubview:contentView atIndex:(backgroundImage!=nil)?1:0];
+
+			if([newContentViewController respondsToSelector:@selector(setFocused:)]){
+				[newContentViewController setFocused:YES]; //TODO: Handle old focus coming out.
+			}
+			
 		} else {
 			[contentView setFrame:contentViewBounds];
 		}
 		if ([newContentViewController respondsToSelector:@selector(setInterfaceOrientation:duration:)]){
-			[(TitaniumContentViewController<TitaniumRotationDelegate> *)newContentViewController setInterfaceOrientation:currentOrientation duration:0];
+			[(TitaniumContentViewController<TitaniumWindowDelegate> *)newContentViewController setInterfaceOrientation:currentOrientation duration:0];
 		}
 		[newContentViewController updateLayout:animated];
 	}

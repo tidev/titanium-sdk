@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Titanium Sound Unit Tests</title>
+<title>Titanium Media Unit Tests</title>
 <style>body{background-color:#fff;margin-top:20px;font-size:11px} .passed{color:#090} .failed{color:#900} #summary{margin:0;margin-bottom:10px;padding:10px;border-bottom:1px solid #bbb;font-size:18px;} h1 {margin-bottom:0}</style>
 <meta name="viewport" content="width=device-width" />
 <script>
@@ -70,6 +70,9 @@
 		var activeMovie = Titanium.Media.createVideoPlayer({contentURL:'movie.m4v',
 				backgroundColor:'black', //movieControlMode:Titanium.Media.VIDEO_CONTROL_HIDDEN,
 				scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL,initialPlaybackTime:0});
+				
+		activeMovie.addEventListener('complete',function(){Ti.API.debug("I got a complete! OMG!");});
+		
 		$('stopMovie').onclick = function()
 		{
 			if (activeMovie)

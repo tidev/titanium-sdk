@@ -218,6 +218,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 
 	[result setInitialPlaybackTime:initialPlaybackTime];
 #endif
+
 	return result;
 }
 
@@ -578,7 +579,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 				"play:function(){return Ti.Media._PLAYMOV(this._TOKEN);},"
 				"stop:function(){return Ti.Media._STOPMOV(this._TOKEN);},"
 				"release:function(){return Ti.Media._REL(this._TOKEN);},"
-			"};return res;}";
+			"};Ti.Media._MEDIA[tok]=res;return res;}";
 
 
 	NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];

@@ -117,8 +117,10 @@ typedef enum {
 
 @end
 
-@protocol TitaniumRotationDelegate
+@protocol TitaniumWindowDelegate
 
 @optional
 - (void)setInterfaceOrientation:(TitaniumViewControllerOrientationsAllowed)interfaceOrientation duration:(NSTimeInterval)duration;
+- (void)setFocused:(BOOL)isFocused;
+
 @end
