@@ -908,37 +908,130 @@ Titanium.UI.Android = {
 };
 
 Titanium.UI.Android.SystemIcon = {
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.ACTION,since=0.4) icon
+	 */
 	ACTION : 'ti:Ti:default_icon',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.CAMERA,since=0.4) icon
+	 */
 	CAMERA : 'ti:Sys:ic_menu_camera',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.COMPOSE,since=0.4) icon
+	 */
 	COMPOSE: 'ti:Sys:ic_menu_compose',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.BOOKMARKS,since=0.4) icon
+	 */
 	BOOKMARKS : 'ti:Ti:default_icon',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.SEARCH,since=0.4) icon
+	 */
 	SEARCH : 'ti:Sys:ic_menu_search',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.ADD,since=0.4) icon
+	 */
 	ADD : 'ti:Sys:ic_menu_add',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.TRASH,since=0.4) icon
+	 */
 	TRASH : 'ti:Sys:ic_menu_delete',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.ORGANIZE,since=0.4) icon
+	 */
 	ORGANIZE : 'ti:Sys:ic_menu_archive',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.REPLY,since=0.4) icon
+	 */
 	REPLY : 'ti:Ti:default_icon',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.STOP,since=0.4) icon
+	 */
 	STOP : 'ti:Sys:ic_menu_stop',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.REFRESH,since=0.4) icon
+	 */
 	REFRESH : 'ti:Sys:ic_menu_refresh',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.PLAY,since=0.4) icon
+	 */
 	PLAY : 'ti:Sys:ic_media_play',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.FAST_FORWARD,since=0.4) icon
+	 */
 	FAST_FORWARD : 'ti:Sys:ic_media_ff',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.PAUSE,since=0.4) icon
+	 */
 	PAUSE : 'ti:Sys:ic_media_pause',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.REWIND,since=0.4) icon
+	 */
 	REWIND : 'ti:Sys:ic_media_rew',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.EDIT,since=0.4) icon
+	 */
 	EDIT : 'ti:Sys:ic_menu_edit',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.CANCEL,since=0.4) icon
+	 */
 	CANCEL : 'ti:Sys:ic_menu_close_clear_cancel',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.SAVE,since=0.4) icon
+	 */
 	SAVE : 'ti:Sys:ic_menu_save',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.DONE,since=0.4) icon
+	 */
 	DONE : 'ti:Sys:ic_menu_mark',
 	// Android Only?
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.BACK,since=0.4) icon
+	 */
 	BACK : 'ti:Sys:ic_menu_back',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.FORWARD,since=0.4) icon
+	 */
 	FORWARD : 'ti:Sys:ic_menu_forward',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.HELP,since=0.4) icon
+	 */
 	HELP : 'ti:Sys:ic_menu_help',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.HOME,since=0.4) icon
+	 */
 	HOME : 'ti:Sys:ic_menu_home',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.NEXT,since=0.4) icon
+	 */
 	NEXT : 'ti:Sys:ic_media_next',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.PREFERENCES,since=0.4) icon
+	 */
 	PREFERENCES : 'ti:Sys:ic_menu_preferences',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.PREVIOUS,since=0.4) icon
+	 */
 	PREVIOUS : 'ti:Sys:ic_media_previous',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.REVERT,since=0.4) icon
+	 */
 	REVERT : 'ti:Sys:ic_menu_revert',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.SEND,since=0.4) icon
+	 */
 	SEND : 'ti:Sys:ic_menu_send',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.SHARE,since=0.4) icon
+	 */
 	SHARE : 'ti:Sys:ic_menu_share',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.VIEW,since=0.4) icon
+	 */
 	VIEW : 'ti:Sys:ic_menu_view',
+	/**
+	 * @tiapi(property=true,name=UI.Android.SystemIcon.ZOOM,since=0.4) icon
+	 */
 	ZOOM : 'ti:Sys:ic_menu_zoom'
 };
 
