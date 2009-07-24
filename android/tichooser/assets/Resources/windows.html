@@ -18,7 +18,7 @@
 		w.addEventListener("unfocused", function(e) { alert("windows.html UNFOCUSED: " + e.type);});
   }
 
-  function doProgress() {
+  function doPlatform() {
 	  var w = Titanium.UI.createWindow();
 	  w.setTitle("Platform");
 	  w.setURL("platform.html");
@@ -28,11 +28,24 @@
 
 	  w.open();
   }
+
+  function doGoogle() {
+	  var w = Titanium.UI.createWindow();
+	  w.setTitle("Google");
+	  w.setURL("http://google.com");
+	  w.setType("single");
+	  w.setTitleImage('images/refresh.png');
+	  w.setFullscreen(false);
+
+	  w.open();
+  }
   </script>
 </head>
 <body style="background-color: white;">
-Content Chooser<br/>
-<a href="#" onclick='doProgress(); return false;'>Open Platform Window</a><br/>
-<div id="event" />
+Windows<br/>
+<a href="#" onclick='doPlatform(); return false;'>Open Platform Window</a><br/>
+<div id="event">&nbsp;</div>
+<br/>
+<input type="button" value="Create Window (Google)" onclick="doGoogle(); return false;" />
 </body>
 </html>

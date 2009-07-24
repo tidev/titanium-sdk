@@ -23,6 +23,11 @@ import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
+import android.webkit.URLUtil;
+
 public class TitaniumUserWindow implements ITitaniumUserWindow, ITitaniumLifecycle
 {
 	private static final String LCAT = "TiUserWindow";
@@ -87,31 +92,43 @@ public class TitaniumUserWindow implements ITitaniumUserWindow, ITitaniumLifecyc
 
 		TitaniumActivity activity = getActivity();
 		if (activity != null) {
-			TitaniumIntentWrapper intent = TitaniumIntentWrapper.createUsing(activity.getIntent());
-			if (title != null) {
-				intent.setTitle(title);
-			}
-			if (titleImageUrl != null) {
-				intent.setIconUrl(titleImageUrl);
-			}
-			if (url != null) {
-				intent.setData(url);
-			}
-			if (type != null) {
-				intent.setActivityType(type);
-			}
-			intent.setFullscreen(fullscreen);
-			if (windowId == null) {
-				intent.setWindowId(TitaniumIntentWrapper.createActivityName("UW-" + activityCounter.incrementAndGet()));
+
+			if (url != null && URLUtil.isNetworkUrl(url)) {
+				Uri uri = Uri.parse(url);
+				Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+				try {
+					activity.startActivity(intent);
+				} catch (ActivityNotFoundException e) {
+					Log.e(LCAT,"Activity not found: " + url, e);
+				}
 			} else {
-				TitaniumAppInfo appInfo = ((TitaniumApplication)activity.getApplication()).getAppInfo();
-				TitaniumWindowInfo windowInfo = appInfo.findWindowInfo(windowId);
-				intent.updateUsing(windowInfo);
+
+				TitaniumIntentWrapper intent = TitaniumIntentWrapper.createUsing(activity.getIntent());
+				if (title != null) {
+					intent.setTitle(title);
+				}
+				if (titleImageUrl != null) {
+					intent.setIconUrl(titleImageUrl);
+				}
+				if (url != null) {
+					intent.setData(url);
+				}
+				if (type != null) {
+					intent.setActivityType(type);
+				}
+				intent.setFullscreen(fullscreen);
+				if (windowId == null) {
+					intent.setWindowId(TitaniumIntentWrapper.createActivityName("UW-" + activityCounter.incrementAndGet()));
+				} else {
+					TitaniumAppInfo appInfo = ((TitaniumApplication)activity.getApplication()).getAppInfo();
+					TitaniumWindowInfo windowInfo = appInfo.findWindowInfo(windowId);
+					intent.updateUsing(windowInfo);
+				}
+
+				activity.launchTitaniumActivity(intent);
+
+				softUIModule = null;
 			}
-
-			activity.launchTitaniumActivity(intent);
-
-			softUIModule = null;
 		} else {
 			if (DBG) {
 				Log.d(LCAT, "Activity Reference has been garbage collected");
