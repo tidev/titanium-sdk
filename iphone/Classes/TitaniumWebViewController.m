@@ -202,7 +202,7 @@ TitaniumWebViewController * mostRecentController = nil;
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)loadView{
-	CGRect quikframe = CGRectMake(0, 0, 100, 100);
+	CGRect quikframe = CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height);
 	UIViewAutoresizing stretchy = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
 	UIView * ourRootView = [[UIView alloc] initWithFrame:quikframe];
 	[ourRootView setAutoresizingMask:stretchy];

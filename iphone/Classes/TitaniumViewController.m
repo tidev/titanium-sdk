@@ -75,6 +75,7 @@ int nextWindowToken = 0;
 @synthesize backgroundColor, backgroundImage;
 @synthesize hidesNavBar, fullscreen, statusBarStyle, toolbarItems;
 @synthesize selectedContentIndex, contentViewControllers;
+@synthesize animationOptionsDict;
 
 #pragma mark Class Methods
 
@@ -540,7 +541,17 @@ int nextWindowToken = 0;
 		contentViewBounds.size.height = MIN(contentViewBounds.size.height,(bottomPoint.y - contentViewBounds.origin.y));
 	}
 	
-	if (animated){
+	
+	if(contentView == nil){
+		contentView = [[UIView alloc] initWithFrame:contentViewBounds];
+		[ourView insertSubview:contentView atIndex:(backgroundImage!=nil)?1:0];
+	} else {
+		[contentView setFrame:contentViewBounds];
+	}
+	
+	if (TitaniumPrepareAnimationsForView(animationOptionsDict,contentView)){
+		animated = YES;
+	} else if(animated){
 		[UIView beginAnimations:@"Toolbar" context:nil];
 	}
 	
@@ -557,15 +568,16 @@ int nextWindowToken = 0;
 	}
 	
 	if(newContentViewController != nil) {
+		[newContentViewController setPreferredViewSize:contentViewBounds.size];
 		UIView * newContentView = [newContentViewController view];
-		if (newContentView != contentView){
-			[contentView removeFromSuperview];
-			[self setContentView:newContentView];
-			[contentView setFrame:contentViewBounds];
-			[ourView insertSubview:contentView atIndex:(backgroundImage!=nil)?1:0];
-
+		if ([newContentView superview] != contentView){
+			for(UIView * thisView in [contentView subviews]){
+				[thisView removeFromSuperview];
+			}
+			[newContentView setFrame:[contentView bounds]];
+			[contentView addSubview:newContentView];
 		} else {
-			[contentView setFrame:contentViewBounds];
+			[newContentView setFrame:[contentView bounds]];
 		}
 		if ([newContentViewController respondsToSelector:@selector(setInterfaceOrientation:duration:)]){
 			[(TitaniumContentViewController<TitaniumWindowDelegate> *)newContentViewController setInterfaceOrientation:currentOrientation duration:0];
@@ -576,7 +588,8 @@ int nextWindowToken = 0;
 	if (animated) {
 		[UIView commitAnimations];
 	}
-	dirtyFlags = TitaniumViewControllerIsClean;	
+	dirtyFlags = TitaniumViewControllerIsClean;
+	[self setAnimationOptionsDict:nil];
 }
 
 #pragma mark Methods called by the UIModule
@@ -690,7 +703,6 @@ int nextWindowToken = 0;
 
 - (void) needsUpdateWithAnimDict: (NSDictionary *) animationDict;
 {
-	[self needsUpdate:0];
 }
 
 
@@ -714,15 +726,16 @@ int nextWindowToken = 0;
 		if(thisVC != nil) [contentViewControllers addObject:thisVC];
 	}
 	
-	
-	[self needsUpdateWithAnimDict:[messagePacket objectAtIndex:3]];
+	[self setAnimationOptionsDict:[messagePacket objectAtIndex:3]];
+	[self needsUpdate:0];
 }
 
 - (void) updateSelectedContentView: (NSArray *) messagePacket;
 {
 	NSNumber * newSelectedIndex = [messagePacket objectAtIndex:0];
 	selectedContentIndex = [newSelectedIndex intValue];
-	[self needsUpdateWithAnimDict:[messagePacket objectAtIndex:1]];
+	[self setAnimationOptionsDict:[messagePacket objectAtIndex:1]];
+	[self needsUpdate:0];
 }
 
 @end

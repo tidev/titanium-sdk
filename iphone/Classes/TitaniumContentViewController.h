@@ -12,12 +12,14 @@
 @class TitaniumViewController;
 @interface TitaniumContentViewController : UIViewController<TitaniumWindowDelegate> {
 	NSString * primaryToken;
+	CGSize preferredViewSize;
 	
 	TitaniumViewController * titaniumWindowController;
 }
 
 @property(nonatomic,readwrite,assign)	TitaniumViewController * titaniumWindowController;	//Does not retain the parent.
 @property (nonatomic,retain)	NSString * primaryToken;
+@property(nonatomic,readwrite,assign)	CGSize preferredViewSize;
 
 + (TitaniumContentViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;

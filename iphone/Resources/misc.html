@@ -85,6 +85,8 @@
 
 	<button onclick="testFun('doEmailTest()')">Email</button>
 
+	<button onclick="Titanium.UI.currentWindow.setActiveViewIndex(1,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000})">Switch</button>
+
 	<hr>
 	Landscape: <script>document.write(Ti.Gesture.LANDSCAPE);</script><br>
 	isLandscape: <script>document.write(Ti.Gesture.isLandscape(Ti.Gesture.LANDSCAPE_LEFT));</script><br>

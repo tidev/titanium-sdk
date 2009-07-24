@@ -271,9 +271,10 @@ UIColor * checkmarkColor = nil;
 - (void) loadView;
 {
 	UIView * rootView = [[UIView alloc] init];
+	CGRect startSize = CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height);
 	[rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 
-	UITableView * tableView = [[UITableView alloc] initWithFrame:CGRectZero style:tableStyle];
+	UITableView * tableView = [[UITableView alloc] initWithFrame:startSize style:tableStyle];
 	[tableView setDelegate:self];	[tableView setDataSource:self];
 	[tableView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 	if (tableRowHeight > 5){

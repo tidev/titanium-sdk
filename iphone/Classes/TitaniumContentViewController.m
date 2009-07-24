@@ -16,6 +16,7 @@ int nextContentViewToken = 0;
 
 @implementation TitaniumContentViewController
 @synthesize titaniumWindowController, primaryToken;
+@synthesize preferredViewSize;
 
 + (TitaniumContentViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {

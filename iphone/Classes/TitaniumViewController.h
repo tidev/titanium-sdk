@@ -15,6 +15,9 @@ typedef enum {
 	TitaniumViewControllerToolbarChanged		= 0x04,
 	TitaniumViewControllerVisibleAreaChanged	= 0x08,
 
+	TitaniumViewControllerAnimationIphoneStyle	= 0x10,
+	TitaniumViewControllerAnimationCoreStyle	= 0x20,
+
 } TitaniumViewControllerDirtyFlags;
 
 typedef enum {
@@ -73,6 +76,9 @@ typedef enum {
 
 	//TODO: organize and add in a set of dirty flags to speed things up.
 	TitaniumViewControllerDirtyFlags	dirtyFlags;
+	NSDictionary * animationOptionsDict;
+
+	
 }
 
 + (TitaniumViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
@@ -94,6 +100,9 @@ typedef enum {
 @property (nonatomic,assign)	BOOL		fullscreen;
 @property (nonatomic,assign)	UIStatusBarStyle statusBarStyle;
 @property (nonatomic,copy)		NSArray *	toolbarItems;
+
+@property (nonatomic,copy)		NSDictionary * animationOptionsDict;
+
 - (void)setNavBarTint: (UIColor *) newColor;
 
 - (void)setTitleViewProxy: (UIButtonProxy *) newProxy;

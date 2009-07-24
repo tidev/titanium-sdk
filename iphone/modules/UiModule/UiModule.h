@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "TitaniumModule.h"
 
+BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view);
+
 @interface UIButtonProxy : TitaniumProxyObject<UITextViewDelegate,UITextFieldDelegate>
 {
 	//Properties that are stored until the time is right

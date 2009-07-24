@@ -17,6 +17,28 @@
 #import <MessageUI/MFMailComposeViewController.h>
 
 
+BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view)
+{
+	if(![optionObject isKindOfClass:[NSDictionary class]])return NO;
+	id animatedObject = [optionObject objectForKey:@"animated"];
+	if((![animatedObject respondsToSelector:@selector(boolValue)]) || (![animatedObject boolValue]))return NO;
+	
+	[UIView beginAnimations:nil context:nil];
+	
+	if(view != nil){
+		id animatedStyleObject = [optionObject objectForKey:@"animationStyle"];
+		if ([animatedStyleObject respondsToSelector:@selector(intValue)]){
+			[UIView setAnimationTransition:[animatedStyleObject intValue] forView:view cache:YES];
+		}
+	}
+	
+	id animatedDurationObject = [optionObject objectForKey:@"animationDuration"];
+	if([animatedDurationObject respondsToSelector:@selector(floatValue)]){
+		[UIView setAnimationDuration:[animatedDurationObject floatValue]/1000.0];
+	}
+	return YES;
+}
+
 NSDictionary * barButtonSystemItemForStringDict = nil;
 
 enum {
@@ -643,32 +665,12 @@ int barButtonSystemItemForString(NSString * inputString){
 	return (nativeBarButton != nil);
 }
 
+
 - (void) updateWithOptions: (NSDictionary *) optionObject;
 {
-	BOOL animated = NO;
-	
-	if([optionObject isKindOfClass:[NSDictionary class]]){
-		id animatedObject = [optionObject objectForKey:@"animated"];
-		if ([animatedObject respondsToSelector:@selector(boolValue)])animated=[animatedObject boolValue];
-		
-		if (animated) {
-			[UIView beginAnimations:nil context:nil];
-			if(nativeView != nil){
-				id animatedStyleObject = [optionObject objectForKey:@"animationStyle"];
-				if ([animatedStyleObject respondsToSelector:@selector(intValue)]){
-					[UIView setAnimationTransition:[animatedStyleObject intValue] forView:wrapperView cache:YES];
-				}
-			}
+	BOOL animated = TitaniumPrepareAnimationsForView(optionObject,wrapperView);
 
-			id animatedDurationObject = [optionObject objectForKey:@"animationDuration"];
-			if([animatedDurationObject respondsToSelector:@selector(floatValue)]){
-				[UIView setAnimationDuration:[animatedDurationObject floatValue]/1000.0];
-			}
-		}
-	}
-	
 	[self updateNativeView];
-
 
 	if (animated){
 		[UIView commitAnimations];
@@ -1333,7 +1335,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
 	if (![ourVC isKindOfClass:[TitaniumWebViewController class]] || ![viewsObject isKindOfClass:[NSArray class]] || ![overwriteObject respondsToSelector:@selector(boolValue)]) return;
 
-	if([optionsObject isKindOfClass:[NSDictionary class]])optionsObject = [NSDictionary dictionary];
+	if(![optionsObject isKindOfClass:[NSDictionary class]])optionsObject = [NSDictionary dictionary];
 
 	TitaniumContentViewController * thisVC = [[TitaniumHost sharedHost] currentTitaniumContentViewController];
 	NSURL * currentUrl = [(TitaniumContentViewController *)thisVC currentContentURL];
@@ -1345,10 +1347,10 @@ int barButtonSystemItemForString(NSString * inputString){
 
 - (void) setWindow:(NSString *)tokenString setActiveViewIndex:(NSNumber *)newIndexObject options:(id)optionsObject;
 {
-	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
-	if (![ourVC isKindOfClass:[TitaniumWebViewController class]] || ![newIndexObject respondsToSelector:@selector(intValue)]) return;
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
+	if (![ourVC isKindOfClass:[TitaniumViewController class]] || ![newIndexObject respondsToSelector:@selector(intValue)]) return;
 	
-	if([optionsObject isKindOfClass:[NSDictionary class]])optionsObject = [NSDictionary dictionary];
+	if(![optionsObject isKindOfClass:[NSDictionary class]])optionsObject = [NSDictionary dictionary];
 	
 	NSArray * messagePacket = [[NSArray alloc] initWithObjects:newIndexObject,optionsObject,nil];
 	
@@ -1539,9 +1541,9 @@ int barButtonSystemItemForString(NSString * inputString){
 			"setRightNavButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WNAVBTN(Ti._TOKEN,false,btn,args);},"
 //TODO: Handling views with CurrentWindow
 
-//			"addView:function(newView,args){this.views.push(newView);if(this._TOKEN){Ti.UI._WSVIEWS(Ti._TOKEN,false,[newView],args)}},"
+			"addView:function(newView,args){Ti.UI._WSVIEWS(Ti._TOKEN,false,[newView],args);},"
 //			"setViews:function(newViews,args){this.views=newViews;if(this._TOKEN){Ti.UI._WSVIEWS(this._TOKEN,true,newViews,args)}},"
-//			"setActiveViewIndex:function(newIndex,args){this.activeViewIndex=newIndex;if(this._TOKEN){Ti.UI._WSAVIEW(Ti._TOKEN,newIndex,args)}},"
+			"setActiveViewIndex:function(newIndex,args){Ti.UI._WSAVIEW(Ti._TOKEN,newIndex,args);},"
 //			"showView:function(blessedView,args){if(!this.views)return;var newIndex=0;var viewCount=this.views.length;while(newIndex<viewCount){if(this.views[newIndex]==blessedView){self.setActiveViewIndex(newIndex,args);return;}}},"
 
 			"setToolbar:function(bar,args){if(bar){var i=bar.length;while(i>0){i--;bar[i].ensureToken();};};"
@@ -1554,18 +1556,18 @@ int barButtonSystemItemForString(NSString * inputString){
 //			"delete res._TOKEN;"
 			"res.setURL=function(newUrl){this.url=newUrl;if(this._TOKEN){Ti.UI._WURL(this._TOKEN,newUrl,document.location);};};"
 			"res.setFullscreen=function(newBool){this.fullscreen=newBool;if(this._TOKEN){Ti.UI._WFSCN(this._TOKEN,newBool);};};"
-			"res.setTitle=function(args){this.title=args;if(this._TOKEN){Ti.UI._WTITLE(this._TOKEN,args);};};"
-			"res.showNavBar=function(args){this._hideNavBar=false;if(this._TOKEN){Ti.UI._WSHNAV(this._TOKEN,args);};};"
-			"res.hideNavBar=function(args){this._hideNavBar=true;if(this._TOKEN){Ti.UI._WHDNAV(this._TOKEN,args);};};"
+			"res.setTitle=function(args){this.title=args;if(this._TOKEN){Ti.UI._WTITLE(this._TOKEN,args);}};"
+			"res.showNavBar=function(args){this._hideNavBar=false;if(this._TOKEN){Ti.UI._WSHNAV(this._TOKEN,args);}};"
+			"res.hideNavBar=function(args){this._hideNavBar=true;if(this._TOKEN){Ti.UI._WHDNAV(this._TOKEN,args);}};"
 			"res.setTitleControl=function(args){if(args)args.ensureToken();this.titleControl=args;if(this._TOKEN){Ti.UI._WTITLEPXY(this._TOKEN,args);}};"
-			"res.setTitleImage=function(args){this.titleImage=args;if(this._TOKEN){Ti.UI._WTITLEIMG(this._TOKEN,args);};};"
-			"res.setBarColor=function(args){this.barColor=args;if(this._TOKEN){Ti.UI._WNAVTNT(this._TOKEN,args);};};"
-			"res.setLeftNavButton=function(btn,args){if(btn)btn.ensureToken();this.lNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,true,btn,args);};};"
-			"res.setRightNavButton=function(btn,args){if(btn)btn.ensureToken();this.rNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,false,btn,args);};};"
+			"res.setTitleImage=function(args){this.titleImage=args;if(this._TOKEN){Ti.UI._WTITLEIMG(this._TOKEN,args);}};"
+			"res.setBarColor=function(args){this.barColor=args;if(this._TOKEN){Ti.UI._WNAVTNT(this._TOKEN,args);}};"
+			"res.setLeftNavButton=function(btn,args){if(btn)btn.ensureToken();this.lNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,true,btn,args);}};"
+			"res.setRightNavButton=function(btn,args){if(btn)btn.ensureToken();this.rNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,false,btn,args);}};"
 			"res.close=function(args){Ti.UI._CLS(this._TOKEN,args);};"
-			"res.addView=function(newView,args){this.views.push(newView);if(this._TOKEN){Ti.UI._WSVIEWS(this._TOKEN,[newView],false,args)}};"
-			"res.setViews=function(newViews,args){this.views=newViews;if(this._TOKEN){Ti.UI._WSVIEWS(this._TOKEN,newViews,true,args)}};"
-			"res.setActiveViewIndex=function(newIndex,args){this.activeViewIndex=newIndex;if(this._TOKEN){Ti.UI._WSAVIEW(this._TOKEN,newIndex,args)}};"
+			"res.addView=function(newView,args){this.views.push(newView);if(this._TOKEN){Ti.UI._WSVIEWS(this._TOKEN,[newView],false,args);}};"
+			"res.setViews=function(newViews,args){this.views=newViews;if(this._TOKEN){Ti.UI._WSVIEWS(this._TOKEN,newViews,true,args);}};"
+			"res.setActiveViewIndex=function(newIndex,args){this.activeViewIndex=newIndex;if(this._TOKEN){Ti.UI._WSAVIEW(this._TOKEN,newIndex,args);}};"
 			"res.showView=function(blessedView,args){if(!this.views)return;var newIndex=0;var viewCount=this.views.length;while(newIndex<viewCount){if(this.views[newIndex]==blessedView){self.setActiveViewIndex(newIndex,args);return;}}};"
 			"res.open=function(args){"
 				"if(this.data){var data=this.data;var i=data.length;while(i>0){i--;var inp=data[i].input;if(inp)inp.ensureToken();}};"
