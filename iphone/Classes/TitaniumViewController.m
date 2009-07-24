@@ -688,4 +688,41 @@ int nextWindowToken = 0;
 	//TODO: if thisIndex is 0, and we've got tabs, remove the tab? That doesn't sound like a good idea.
 }
 
+- (void) needsUpdateWithAnimDict: (NSDictionary *) animationDict;
+{
+	[self needsUpdate:0];
+}
+
+
+- (void) updateContentViewArray: (NSArray *) messagePacket;
+{
+	NSArray * viewsProxyArray = [messagePacket objectAtIndex:0];
+	BOOL replaceViews = [[messagePacket objectAtIndex:1] boolValue];
+	if(replaceViews){
+		[contentViewControllers autorelease];
+		contentViewControllers = [[NSMutableArray alloc] initWithCapacity:[viewsProxyArray count]];
+	}
+	
+	Class dictClass = [NSDictionary class];
+	
+	NSURL * baseUrl = [messagePacket objectAtIndex:2];
+	
+	for(NSDictionary * thisProxyObject in viewsProxyArray){
+		if (![thisProxyObject isKindOfClass:dictClass]) continue;
+		
+		TitaniumContentViewController * thisVC = [TitaniumContentViewController viewControllerForState:thisProxyObject relativeToUrl:baseUrl];
+		if(thisVC != nil) [contentViewControllers addObject:thisVC];
+	}
+	
+	
+	[self needsUpdateWithAnimDict:[messagePacket objectAtIndex:3]];
+}
+
+- (void) updateSelectedContentView: (NSArray *) messagePacket;
+{
+	NSNumber * newSelectedIndex = [messagePacket objectAtIndex:0];
+	selectedContentIndex = [newSelectedIndex intValue];
+	[self needsUpdateWithAnimDict:[messagePacket objectAtIndex:1]];
+}
+
 @end

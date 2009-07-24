@@ -10,6 +10,7 @@
 #import "TitaniumWebViewController.h"
 #import "TitaniumTableViewController.h"
 #import "TitaniumViewController.h"
+#import "TitaniumHost.h"
 
 int nextContentViewToken = 0;
 
@@ -23,6 +24,12 @@ int nextContentViewToken = 0;
 	Class dictionaryClass = [NSDictionary class];
 
 	if ([inputState isKindOfClass:dictionaryClass]){
+		NSString * tokenString = [(NSDictionary *)inputState objectForKey:@"_TOKEN"];
+		if([tokenString isKindOfClass:[NSString class]]){
+			result = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
+			if (result != nil) return result;
+		}
+
 		NSString * typeString = [(NSDictionary *)inputState objectForKey:@"_TYPE"];
 		if ([typeString isKindOfClass:[NSString class]]) {
 			if ([typeString isEqualToString:@"table"]){

@@ -1145,7 +1145,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	if ([token isKindOfClass:[NSString class]]) return token; //So that it doesn't drop its token.
 		
 	TitaniumContentViewController * thisVC = [[TitaniumHost sharedHost] currentTitaniumContentViewController];
-	TitaniumViewController * resultVC = [TitaniumViewController viewControllerForState:windowObject relativeToUrl:[thisVC currentContentURL]];
+	TitaniumViewController * resultVC = [TitaniumViewController viewControllerForState:windowObject relativeToUrl:[(TitaniumWebViewController *)thisVC currentContentURL]];
 	token = [resultVC primaryToken];
 	
 //	[virtualWindowsDict setObject:resultVC forKey:token];
@@ -1202,7 +1202,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		newURL = [NSURL URLWithString:newURLString];
 	}
 
-	[ourVC performSelectorOnMainThread:@selector(currentContentURL:) withObject:newURL waitUntilDone:NO];
+	[ourVC performSelectorOnMainThread:@selector(setCurrentContentURL:) withObject:newURL waitUntilDone:NO];
 }
 
 - (void) setWindow:(NSString *)tokenString fullscreen:(id) fullscreenObject;
@@ -1328,6 +1328,33 @@ int barButtonSystemItemForString(NSString * inputString){
 	[ourVC performSelectorOnMainThread:@selector(addNativeViewProxy:) withObject:ourNativeViewProxy waitUntilDone:NO];
 }
 
+- (void) setWindow:(NSString *)tokenString setViews:(NSArray *)viewsObject overwrite:(NSNumber *)overwriteObject options:(id)optionsObject;
+{
+	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
+	if (![ourVC isKindOfClass:[TitaniumWebViewController class]] || ![viewsObject isKindOfClass:[NSArray class]] || ![overwriteObject respondsToSelector:@selector(boolValue)]) return;
+
+	if([optionsObject isKindOfClass:[NSDictionary class]])optionsObject = [NSDictionary dictionary];
+
+	TitaniumContentViewController * thisVC = [[TitaniumHost sharedHost] currentTitaniumContentViewController];
+	NSURL * currentUrl = [(TitaniumContentViewController *)thisVC currentContentURL];
+
+	NSArray * messagePacket = [[NSArray alloc] initWithObjects:viewsObject,overwriteObject,currentUrl,optionsObject,nil];
+	
+	[ourVC performSelectorOnMainThread:@selector(updateContentViewArray:) withObject:messagePacket waitUntilDone:NO];
+}
+
+- (void) setWindow:(NSString *)tokenString setActiveViewIndex:(NSNumber *)newIndexObject options:(id)optionsObject;
+{
+	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
+	if (![ourVC isKindOfClass:[TitaniumWebViewController class]] || ![newIndexObject respondsToSelector:@selector(intValue)]) return;
+	
+	if([optionsObject isKindOfClass:[NSDictionary class]])optionsObject = [NSDictionary dictionary];
+	
+	NSArray * messagePacket = [[NSArray alloc] initWithObjects:newIndexObject,optionsObject,nil];
+	
+	[ourVC performSelectorOnMainThread:@selector(updateSelectedContentView:) withObject:messagePacket waitUntilDone:NO];
+}
+
 
 #pragma mark Current Window actions
 
@@ -1441,6 +1468,13 @@ int barButtonSystemItemForString(NSString * inputString){
 	[(UiModule *)invocGen setWindow:nil navSide:nil button:nil options:nil];
 	NSInvocation * setNavButtonInvoc = [invocGen invocation];
 
+	[(UiModule *)invocGen setWindow:nil setViews:nil overwrite: nil options:nil];
+	NSInvocation * setWindowViewsInvoc = [invocGen invocation];
+	
+	[(UiModule *)invocGen setWindow:nil setActiveViewIndex:nil options:nil];
+	NSInvocation * setWindowActiveViewInvoc = [invocGen invocation];
+	
+
 	[(UiModule *)invocGen makeButtonToken];
 	NSInvocation * buttonTokenGen = [invocGen invocation];
 
@@ -1470,6 +1504,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	
 	[(UiModule *)invocGen updateButton:nil options:nil];
 	NSInvocation * updateButtonInvoc = [invocGen invocation];
+	
 	
 	buttonContexts = [[NSMutableDictionary alloc] init];
 	
@@ -1502,6 +1537,13 @@ int barButtonSystemItemForString(NSString * inputString){
 			"setTitleControl:function(args){if(args)args.ensureToken();Ti.UI._WTITLEPXY(Ti._TOKEN,args);},"
 			"setLeftNavButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WNAVBTN(Ti._TOKEN,true,btn,args);},"
 			"setRightNavButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WNAVBTN(Ti._TOKEN,false,btn,args);},"
+//TODO: Handling views with CurrentWindow
+
+//			"addView:function(newView,args){this.views.push(newView);if(this._TOKEN){Ti.UI._WSVIEWS(Ti._TOKEN,false,[newView],args)}},"
+//			"setViews:function(newViews,args){this.views=newViews;if(this._TOKEN){Ti.UI._WSVIEWS(this._TOKEN,true,newViews,args)}},"
+//			"setActiveViewIndex:function(newIndex,args){this.activeViewIndex=newIndex;if(this._TOKEN){Ti.UI._WSAVIEW(Ti._TOKEN,newIndex,args)}},"
+//			"showView:function(blessedView,args){if(!this.views)return;var newIndex=0;var viewCount=this.views.length;while(newIndex<viewCount){if(this.views[newIndex]==blessedView){self.setActiveViewIndex(newIndex,args);return;}}},"
+
 			"setToolbar:function(bar,args){if(bar){var i=bar.length;while(i>0){i--;bar[i].ensureToken();};};"
 				"Ti.UI._WTOOL(Ti._TOKEN,bar,args);},"
 			"insertButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(Ti._TOKEN,btn,args);}"
@@ -1521,6 +1563,10 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res.setLeftNavButton=function(btn,args){if(btn)btn.ensureToken();this.lNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,true,btn,args);};};"
 			"res.setRightNavButton=function(btn,args){if(btn)btn.ensureToken();this.rNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,false,btn,args);};};"
 			"res.close=function(args){Ti.UI._CLS(this._TOKEN,args);};"
+			"res.addView=function(newView,args){this.views.push(newView);if(this._TOKEN){Ti.UI._WSVIEWS(this._TOKEN,[newView],false,args)}};"
+			"res.setViews=function(newViews,args){this.views=newViews;if(this._TOKEN){Ti.UI._WSVIEWS(this._TOKEN,newViews,true,args)}};"
+			"res.setActiveViewIndex=function(newIndex,args){this.activeViewIndex=newIndex;if(this._TOKEN){Ti.UI._WSAVIEW(this._TOKEN,newIndex,args)}};"
+			"res.showView=function(blessedView,args){if(!this.views)return;var newIndex=0;var viewCount=this.views.length;while(newIndex<viewCount){if(this.views[newIndex]==blessedView){self.setActiveViewIndex(newIndex,args);return;}}};"
 			"res.open=function(args){"
 				"if(this.data){var data=this.data;var i=data.length;while(i>0){i--;var inp=data[i].input;if(inp)inp.ensureToken();}};"
 				"if(this._GRP){var grp=this._GRP;var j=grp.length;while(j>0){j--;var data=grp[j].data;var i=data.length;"
@@ -1533,6 +1579,8 @@ int barButtonSystemItemForString(NSString * inputString){
 					"Ti.UI._WTOOL(this._TOKEN,bar,args);}};"
 			"res.insertButton=function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
 			"return res;}";
+
+	NSString * createWebViewString = createWindowString; //TODO: Maybe this is different?
 
 	NSString * createTableWindowString = @"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
 			"var tkn='TBL'+(Ti.UI._NEXTTKN++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}";	
@@ -1626,6 +1674,9 @@ int barButtonSystemItemForString(NSString * inputString){
 			updateToolbarInvoc,@"_WTOOL",
 			insertNativeViewInvoc,@"_WINSBTN",
 			
+			setWindowViewsInvoc,@"_WSVIEWS",
+			setWindowActiveViewInvoc,@"_WSAVIEW",
+			
 			buttonContexts, @"_BTN",
 			buttonTokenGen,@"_BTNTKN",
 			setButtonFocusInvoc,@"_BTNFOC",
@@ -1657,6 +1708,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			[TitaniumJSCode codeWithString:createEmailString],@"createEmailDialog",
 			[TitaniumJSCode codeWithString:currentWindowString],@"currentWindow",
 			[TitaniumJSCode codeWithString:createWindowString],@"createWindow",
+			[TitaniumJSCode codeWithString:createWebViewString],@"createWebView",
 			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",
 			
 			[NSNumber numberWithInt:TitaniumViewControllerPortrait],@"PORTRAIT",

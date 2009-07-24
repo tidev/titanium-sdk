@@ -161,6 +161,7 @@ TitaniumWebViewController * mostRecentController = nil;
 		webView = [[UIWebView alloc] init];
 		[webView setDelegate:self];
 		[webView setBackgroundColor:[UIColor clearColor]];
+		[webView setOpaque:NO];
 		[scrollView setAlpha:0.0];
 		[self reloadWebView];
 	}
@@ -172,7 +173,7 @@ TitaniumWebViewController * mostRecentController = nil;
 	if (newWebView == webView) return;
 	if (webView == nil){ //Setting up for the first time.
 		webView = [newWebView retain];
-		[webView setBackgroundColor:[UIColor clearColor]];  //TODO: What color should this be?
+		[webView setBackgroundColor:[UIColor redColor]];  //TODO: What color should this be?
 		return;
 	}
 	

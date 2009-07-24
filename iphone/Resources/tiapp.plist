@@ -60,6 +60,18 @@
 			<key>title</key>
 			<string>Other</string>
 		</dict>
+		<dict>
+			<key>background</key>
+			<string>white</string>
+			<key>backgroundImage</key>
+			<string>default.png</string>
+			<key>orientation</key>
+			<string>either</string>
+			<key>url</key>
+			<string>misc.html</string>
+			<key>title</key>
+			<string>Other</string>
+		</dict>
 	</array>
 	<key>modules</key>
 	<dict>
