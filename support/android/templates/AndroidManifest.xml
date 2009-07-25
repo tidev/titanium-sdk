@@ -4,6 +4,7 @@
       android:versionCode="${config['appversion']}"
       android:versionName="${config['appversion']}"
 >
+	<uses-sdk minSdkVersion="3" />
 	<application
     	android:icon="@drawable/appicon"
       	android:label="${config['appname']}"
