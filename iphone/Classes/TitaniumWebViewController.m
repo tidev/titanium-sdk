@@ -48,7 +48,11 @@ TitaniumWebViewController * mostRecentController = nil;
 		NSString * newUrlElement = [inputState objectForKey:@"url"];
 		if (newUrlElement != nil) {
 			newUrlString = newUrlElement;
-		}	
+		}
+		
+		NSNumber * doPreload = [inputState objectForKey:@"preload"];
+		if([doPreload respondsToSelector:@selector(boolValue)] && [doPreload boolValue])[self webView]; //That's enough to get the ball rolling.
+		
 	}
 	
 	if([newUrlString isKindOfClass:NSStringClass]){
@@ -379,8 +383,7 @@ TitaniumWebViewController * mostRecentController = nil;
 
 - (void)reloadWebView;
 {
-	if (webView == nil) return;
-	if (currentContentURL == nil) return;
+	if ((webView == nil) || (currentContentURL == nil)) return;
 	
 	NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:currentContentURL];
 	if(VERBOSE_DEBUG)NSLog(@"Url request: %@",[urlRequest allHTTPHeaderFields]);

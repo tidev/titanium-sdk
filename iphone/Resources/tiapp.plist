@@ -56,6 +56,8 @@
 					<string>misc.html</string>
 				</dict>
 				<dict>
+					<key>preload</key>
+					<false/>
 					<key>url</key>
 					<string>buggy.html</string>
 				</dict>
