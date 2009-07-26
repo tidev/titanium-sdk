@@ -3,6 +3,7 @@
       package="org.appcelerator.tichooser"
       android:versionCode="1"
       android:versionName="1.0.0">
+    <uses-sdk minSdkVersion="3" />
     <application
     	android:icon="@drawable/icon"
     	android:label="@string/app_name"
