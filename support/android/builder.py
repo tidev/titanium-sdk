@@ -125,6 +125,9 @@ class Builder(object):
 			
 			if os.path.exists('bin'):
 				shutil.rmtree('bin')
+				
+			if os.path.exists('lib'):
+				shutil.copy(tijar,'lib')
 
 			resources_dir = os.path.join(self.top_dir,'Resources')
 			assets_dir = os.path.join('bin','assets')
