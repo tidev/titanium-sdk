@@ -18,7 +18,9 @@ def dequote(s):
     return s
 
 def run(args):
-	return subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
+	output = subprocess.Popen(args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()[0]
+	#print output
+	return output
 
 class Builder(object):
 
@@ -163,6 +165,9 @@ class Builder(object):
 			iconname = tiapp.properties['icon']
 			iconpath = os.path.join(asset_resource_dir,iconname)
 			iconext = os.path.splitext(iconpath)[1]
+			if not os.path.exists(os.path.join('res','drawable')):
+				os.makedirs(os.path.join('res','drawable'))
+				
 			existingicon = os.path.join('res','drawable','appicon%s' % iconext)	
 			if os.path.exists(existingicon):	
 				os.remove(existingicon)
@@ -173,14 +178,18 @@ class Builder(object):
 			src_dir = os.path.join(self.project_dir, 'src')
 			android_manifest = os.path.join(self.project_dir, 'AndroidManifest.xml')
 			res_dir = os.path.join(self.project_dir, 'res')
-			run([aapt, 'package', '-m', '-J', src_dir, '-M', android_manifest, '-S', res_dir, '-I', jar])
+			output = run([aapt, 'package', '-m', '-J', src_dir, '-M', android_manifest, '-S', res_dir, '-I', jar])
+			success = re.findall(r'ERROR (.*)',output)
+			if len(success) > 0:
+				print success[0]
+				sys.exit(1)
+			
 			#cmd = "\"%s\" package -m -J src -M AndroidManifest.xml -S res -I \"%s\"" %(aapt,jar)
 			#print cmd
 			#os.system(cmd)
 			
 			srclist = []
-			
-			
+						
 			for root, dirs, files in os.walk(os.path.join(self.project_dir,'src')):
 				if len(files) > 0:
 					#prefix = root[len(self.project_dir)+1:]

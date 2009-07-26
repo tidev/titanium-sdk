@@ -11,7 +11,7 @@ import string,subprocess,re
 from mako.template import Template
 
 def run(args):
-	return subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
+	return subprocess.Popen(args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()[0]
 
 def pipe(args1,args2):
 	p1 = subprocess.Popen(args1, stdout=subprocess.PIPE)
