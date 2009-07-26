@@ -99,9 +99,6 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 		this.handler = new Handler(this);
 		this.rowHeight = 65;
 		this.root = false;
-
-		Log.e(LCAT, "ThreadName: " + Thread.currentThread().getName());
-		Log.e(LCAT, "HandlerThread: " + handler.getLooper().getThread().getName());
 	}
 
 	public void setData(String data) {
@@ -142,10 +139,6 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 
 	private void doOpen(final String json, final String callback)
 	{
-		Log.e(LCAT, "WVThreadNameOpen: " + Thread.currentThread().getName());
-
-		Log.e(LCAT, "OPEN");
-
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		setLayoutParams(params);
 		setPadding(5,5,5,5);

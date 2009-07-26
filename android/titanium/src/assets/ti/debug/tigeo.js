@@ -24,8 +24,8 @@ Titanium.Geolocation = {
 		var json = Titanium.JSON.stringify(o);
 
 		Titanium.geoProxy.getCurrentPosition(
-				registerCallback(this, success),
-				registerCallback(this, failure),
+				registerOneShot(this, success),
+				registerOneShot(this, failure),
 				json);
 	},
 	/**

@@ -87,12 +87,16 @@ function TitaniumCallback(obj, method, oneShot) {
 	this.oneShot = oneShot;
 	this.invoke = function (data, syncId)
 	{
-		this.method.call(this.obj,data);
-		if (!isUndefined(syncId)) {
-			Titanium.apiProxy.signal(syncId);
-		}
-		if (oneShot) {
-			Titanium.removeCallback(this.name);
+		if(!isUndefined(this.method)) {
+			this.method.call(this.obj,data);
+			if (!isUndefined(syncId)) {
+				Titanium.apiProxy.signal(syncId);
+			}
+			if (oneShot) {
+				Titanium.removeCallback(this.name);
+			}
+		} else {
+			Titanium.API.warn("Expected a valid callback, callback not set");
 		}
 	};
 	this.register = function() {
