@@ -83,6 +83,10 @@ class Compiler(object):
 			f = re.findall(r'Titanium\.(\w+)',line)
 			if len(f) > 0:
 				for sym in f:
+					# skip Titanium.version, Titanium.userAgent and Titanium.name since these
+					# properties are not modules
+					if sym == 'version' or sym == 'userAgent' or sym == 'name':
+						continue
 					try:
 						self.modules.index(sym)
 					except:	

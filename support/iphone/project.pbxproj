@@ -224,7 +224,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp -r $WEB_SRC_ROOT/ $TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/\nrm -rf $TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/*.html\nrm -rf $TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/*.css\nrm -rf $TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/*.js\n"; };
+			shellScript = "cp -R \"$WEB_SRC_ROOT/\" $TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/\nfor f in `find $TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH -name '*.html' -o -name '*.js' -o -name '*.css' `; do rm -rf $f; done\n"; };
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
