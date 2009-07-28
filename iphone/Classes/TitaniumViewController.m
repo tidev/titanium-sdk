@@ -338,6 +338,9 @@ int nextWindowToken = 0;
 #pragma mark Token shuffles
 - (BOOL) hasToken: (NSString *) tokenString;
 {
+	for (TitaniumContentViewController * thisVC in contentViewControllers){
+		if ([thisVC hasToken:tokenString]) return YES;
+	}
 	return ([primaryToken isEqualToString:tokenString]);
 }
 
@@ -718,6 +721,7 @@ int nextWindowToken = 0;
 		if (![thisProxyObject isKindOfClass:dictClass]) continue;
 		
 		TitaniumContentViewController * thisVC = [TitaniumContentViewController viewControllerForState:thisProxyObject relativeToUrl:baseUrl];
+		[thisVC setTitaniumWindowController:self];
 		if(thisVC != nil) [contentViewControllers addObject:thisVC];
 	}
 	

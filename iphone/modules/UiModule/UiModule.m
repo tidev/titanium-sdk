@@ -1572,7 +1572,8 @@ int barButtonSystemItemForString(NSString * inputString){
 				"Ti.UI._WSVIEWS(Ti._TOKEN,newViews,true,args)},"
 			"setActiveViewIndex:function(newIndex,args){Ti.UI._WSAVIEW(Ti._TOKEN,newIndex,args);},"
 			"showView:function(blessedView,args){var ourViews = Ti.UI.viewsForWindowToken(Ti._TOKEN);var viewCount=ourViews.length;"
-				"for(var i=0;i<viewCount;i++){if(ourViews[i]._TOKEN==blessedView._TOKEN){Ti.UI._WSAVIEW(Ti._TOKEN,i,args);return;}}},"
+				"for(var i=0;i<viewCount;i++){if(ourViews[i]._TOKEN==blessedView._TOKEN){Ti.UI._WSAVIEW(Ti._TOKEN,i,args);return;}}"
+			"},"
 
 			"setToolbar:function(bar,args){if(bar){var i=bar.length;while(i>0){i--;bar[i].ensureToken();}}Ti.UI._WTOOL(Ti._TOKEN,bar,args);},"
 			"insertButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(Ti._TOKEN,btn,args);},"
@@ -1587,7 +1588,7 @@ int barButtonSystemItemForString(NSString * inputString){
 					"else view=Ti.UI.createTableView(props);"
 				"}else view=Ti.UI.createWebView(props);"
 				"Ti.UI._VIEW[viewTkn]=view;"
-			"}res.push(view);}return res;}";
+			"}res.push(view);i++;}return res;}";
 
 
 	NSString * createWindowString = @"function(args){var res={};"

@@ -15,7 +15,7 @@ TitaniumWebViewController * mostRecentController = nil;
 @synthesize webView, currentContentURL, scrollView;
 
 #pragma mark Class Methods
-+ (TitaniumViewController *) mostRecentController;
++ (TitaniumContentViewController *) mostRecentController;
 {
 	return mostRecentController;
 }
@@ -79,6 +79,11 @@ TitaniumWebViewController * mostRecentController = nil;
 	webView = nil;
 
 	[currentContentURL release];	//Used as a base url.
+
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	for(NSString * thisToken in magicTokenDict){
+		[theHost unregisterContentViewControllerForKey:thisToken];
+	}
 	[magicTokenDict release];
 
     [super dealloc];
@@ -296,6 +301,7 @@ TitaniumWebViewController * mostRecentController = nil;
 	}
 	
 	[magicTokenDict setObject:contextString forKey:tokenString];
+	[[TitaniumHost sharedHost] registerContentViewController:self forKey:tokenString];
 }
 
 - (void)probeWebViewForTokenInContext: (NSString *) contextString;

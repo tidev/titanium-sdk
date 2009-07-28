@@ -48,10 +48,13 @@ int nextContentViewToken = 0;
 	if (result == nil){
 		result = [[TitaniumWebViewController alloc] init];
 	}
-	if(resultToken != nil)[result setPrimaryToken:resultToken];
-	else [result setPrimaryToken:[self requestToken]];
+	if(resultToken == nil)resultToken = [self requestToken];
+
+	[result setPrimaryToken:resultToken];
 	
 	[result readState:inputState relativeToUrl:baseUrl];
+
+	[[TitaniumHost sharedHost] registerContentViewController:result forKey:resultToken];
 
 	return [result autorelease];
 	
@@ -105,6 +108,8 @@ int nextContentViewToken = 0;
 }
 
 - (void)dealloc {
+	[[TitaniumHost sharedHost] unregisterContentViewControllerForKey:primaryToken];
+	[primaryToken release];
     [super dealloc];
 }
 
