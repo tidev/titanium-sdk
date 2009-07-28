@@ -18,9 +18,15 @@ int nextContentViewToken = 0;
 @synthesize titaniumWindowController, primaryToken;
 @synthesize preferredViewSize;
 
++ (NSString *) requestToken;
+{
+	return [NSString stringWithFormat:@"VIEW%d",nextContentViewToken++];
+}
+
 + (TitaniumContentViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
 	TitaniumContentViewController * result=nil;
+	NSString * resultToken = nil;
 	//NOTE: ViewControllerFactory here.
 	Class dictionaryClass = [NSDictionary class];
 
@@ -29,6 +35,7 @@ int nextContentViewToken = 0;
 		if([tokenString isKindOfClass:[NSString class]]){
 			result = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
 			if (result != nil) return result;
+			resultToken = tokenString;
 		}
 
 		NSString * typeString = [(NSDictionary *)inputState objectForKey:@"_TYPE"];
@@ -41,7 +48,9 @@ int nextContentViewToken = 0;
 	if (result == nil){
 		result = [[TitaniumWebViewController alloc] init];
 	}
-
+	if(resultToken != nil)[result setPrimaryToken:resultToken];
+	else [result setPrimaryToken:[self requestToken]];
+	
 	[result readState:inputState relativeToUrl:baseUrl];
 
 	return [result autorelease];
@@ -88,6 +97,11 @@ int nextContentViewToken = 0;
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
 	NSLog(@"Shouldn't happen: readstate on the abstract contentViewController");
+}
+
+- (NSDictionary *) stateValue;
+{
+	return [NSDictionary dictionaryWithObject:primaryToken forKey:@"_TOKEN"];
 }
 
 - (void)dealloc {

@@ -1332,18 +1332,37 @@ int barButtonSystemItemForString(NSString * inputString){
 
 - (void) setWindow:(NSString *)tokenString setViews:(NSArray *)viewsObject overwrite:(NSNumber *)overwriteObject options:(id)optionsObject;
 {
-	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
-	if (![ourVC isKindOfClass:[TitaniumWebViewController class]] || ![viewsObject isKindOfClass:[NSArray class]] || ![overwriteObject respondsToSelector:@selector(boolValue)]) return;
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
+	if (![ourVC isKindOfClass:[TitaniumViewController class]] || ![viewsObject isKindOfClass:[NSArray class]] || ![overwriteObject respondsToSelector:@selector(boolValue)]) return;
 
 	if(![optionsObject isKindOfClass:[NSDictionary class]])optionsObject = [NSDictionary dictionary];
 
 	TitaniumContentViewController * thisVC = [[TitaniumHost sharedHost] currentTitaniumContentViewController];
-	NSURL * currentUrl = [(TitaniumContentViewController *)thisVC currentContentURL];
+	NSURL * currentUrl = [(TitaniumWebViewController *)thisVC currentContentURL];
 
 	NSArray * messagePacket = [[NSArray alloc] initWithObjects:viewsObject,overwriteObject,currentUrl,optionsObject,nil];
 	
 	[ourVC performSelectorOnMainThread:@selector(updateContentViewArray:) withObject:messagePacket waitUntilDone:NO];
 }
+
+- (NSString *) reserveViewToken;
+{
+	return [TitaniumContentViewController requestToken];
+}
+
+- (NSArray *) getWindowViewsForToken: (NSString *) tokenString;
+{
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
+	if(ourVC == nil) return nil;
+	
+	NSMutableArray * result = [NSMutableArray array];
+	for(TitaniumContentViewController * thisContent in [ourVC contentViewControllers]){
+		[result addObject:[thisContent stateValue]];
+	}
+	
+	return result;
+}
+
 
 - (void) setWindow:(NSString *)tokenString setActiveViewIndex:(NSNumber *)newIndexObject options:(id)optionsObject;
 {
@@ -1472,6 +1491,9 @@ int barButtonSystemItemForString(NSString * inputString){
 
 	[(UiModule *)invocGen setWindow:nil setViews:nil overwrite: nil options:nil];
 	NSInvocation * setWindowViewsInvoc = [invocGen invocation];
+
+	[(UiModule *)invocGen getWindowViewsForToken:nil];
+	NSInvocation * getWindowViewsInvoc = [invocGen invocation];
 	
 	[(UiModule *)invocGen setWindow:nil setActiveViewIndex:nil options:nil];
 	NSInvocation * setWindowActiveViewInvoc = [invocGen invocation];
@@ -1507,6 +1529,9 @@ int barButtonSystemItemForString(NSString * inputString){
 	[(UiModule *)invocGen updateButton:nil options:nil];
 	NSInvocation * updateButtonInvoc = [invocGen invocation];
 	
+	[(UiModule *)invocGen reserveViewToken];
+	NSInvocation * reserveTokenInvoc = [invocGen invocation];
+	
 	
 	buttonContexts = [[NSMutableDictionary alloc] init];
 	
@@ -1523,8 +1548,8 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res.addAttachment=function(arg){this.attachments.push(arg);};"
 			"res.open=function(arg){if(!this._TOKEN){var tkn='eml'+Ti.UI._NEXTTKN++;this._TOKEN=tkn;Ti.UI._EMAIL[tkn]=this;}Ti.UI._OPNEMAIL(this,arg);};"
 			"return res;}";
-	
-	NSString * currentWindowString = @"{"
+
+	TitaniumJSCode * currentWindowScript = [TitaniumJSCode codeWithString:@"{"
 			"toolbar:{},_EVT:{close:[],unfocused:[],focused:[]},doEvent:Ti._ONEVT,"
 			"addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
 			"close:function(args){Ti.UI._CLS(Ti._TOKEN,args);},"
@@ -1540,16 +1565,30 @@ int barButtonSystemItemForString(NSString * inputString){
 			"setLeftNavButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WNAVBTN(Ti._TOKEN,true,btn,args);},"
 			"setRightNavButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WNAVBTN(Ti._TOKEN,false,btn,args);},"
 //TODO: Handling views with CurrentWindow
-
-			"addView:function(newView,args){Ti.UI._WSVIEWS(Ti._TOKEN,false,[newView],args);},"
-//			"setViews:function(newViews,args){this.views=newViews;if(this._TOKEN){Ti.UI._WSVIEWS(this._TOKEN,true,newViews,args)}},"
+			"addView:function(newView,args){newView.ensureToken();Ti.UI._WSVIEWS(Ti._TOKEN,[newView],false,args);},"
+			"getViews:function(){return Ti.UI.viewsForWindowToken(Ti._TOKEN);},"
+			"setViews:function(newViews,args){"
+				"for(var i=0;i<newViews.length;i++){newViews.ensureToken();}"
+				"Ti.UI._WSVIEWS(Ti._TOKEN,newViews,true,args)},"
 			"setActiveViewIndex:function(newIndex,args){Ti.UI._WSAVIEW(Ti._TOKEN,newIndex,args);},"
-//			"showView:function(blessedView,args){if(!this.views)return;var newIndex=0;var viewCount=this.views.length;while(newIndex<viewCount){if(this.views[newIndex]==blessedView){self.setActiveViewIndex(newIndex,args);return;}}},"
+			"showView:function(blessedView,args){var ourViews = Ti.UI.viewsForWindowToken(Ti._TOKEN);var viewCount=ourViews.length;"
+				"for(var i=0;i<viewCount;i++){if(ourViews[i]._TOKEN==blessedView._TOKEN){Ti.UI._WSAVIEW(Ti._TOKEN,i,args);return;}}},"
 
-			"setToolbar:function(bar,args){if(bar){var i=bar.length;while(i>0){i--;bar[i].ensureToken();};};"
-				"Ti.UI._WTOOL(Ti._TOKEN,bar,args);},"
-			"insertButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(Ti._TOKEN,btn,args);}"
-			"}";
+			"setToolbar:function(bar,args){if(bar){var i=bar.length;while(i>0){i--;bar[i].ensureToken();}}Ti.UI._WTOOL(Ti._TOKEN,bar,args);},"
+			"insertButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(Ti._TOKEN,btn,args);},"
+			"}"];
+//	[currentWindowScript setEpilogueCode:@"Ti.UI.currentWindow.__defineGetter__('views',Ti.UI.currentWindow.getViews);Ti.UI.currentWindow.__defineSetter__('views',Ti.UI.currentWindow.setViews);"];	
+
+	NSString * viewsForWindowString = @"function(winTkn){var fetched=Ti.UI._WGVIEWS(winTkn);if(!fetched)return {};var res=[];var i=0;var viewCount=fetched.length;while(i<viewCount){"
+			"var props=fetched[i];var viewTkn=props._TOKEN;var view=Ti.UI._VIEW[viewTkn];"
+			"if(view){for(thisprop in props){view[thisprop]=props[thisprop];}}else{"
+				"if(props._TYPE=='table'){"
+					"if(props.grouped)view=Ti.UI.createGroupedView(props);"
+					"else view=Ti.UI.createTableView(props);"
+				"}else view=Ti.UI.createWebView(props);"
+				"Ti.UI._VIEW[viewTkn]=view;"
+			"}res.push(view);}return res;}";
+
 
 	NSString * createWindowString = @"function(args){var res={};"
 			"for(property in args){res[property]=args[property];res['_'+property]=args[property];};"
@@ -1565,11 +1604,16 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res.setLeftNavButton=function(btn,args){if(btn)btn.ensureToken();this.lNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,true,btn,args);}};"
 			"res.setRightNavButton=function(btn,args){if(btn)btn.ensureToken();this.rNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,false,btn,args);}};"
 			"res.close=function(args){Ti.UI._CLS(this._TOKEN,args);};"
-			"res.addView=function(newView,args){this.views.push(newView);if(this._TOKEN){Ti.UI._WSVIEWS(this._TOKEN,[newView],false,args);}};"
-			"res.setViews=function(newViews,args){this.views=newViews;if(this._TOKEN){Ti.UI._WSVIEWS(this._TOKEN,newViews,true,args);}};"
+			"res.addView=function(newView,args){this.views.push(newView);if(this._TOKEN){newView.ensureToken();Ti.UI._WSVIEWS(this._TOKEN,[newView],false,args);}};"
+			"res.getViews=function(){return Ti.UI.viewsForWindowToken(This._TOKEN);};"
+			"res.setViews=function(newViews,args){this.views=newViews;if(this._TOKEN){"
+				"for(var i=0;i<newViews.length;i++){newViews.ensureToken();}"
+				"Ti.UI._WSVIEWS(this._TOKEN,newViews,true,args);}};"
 			"res.setActiveViewIndex=function(newIndex,args){this.activeViewIndex=newIndex;if(this._TOKEN){Ti.UI._WSAVIEW(this._TOKEN,newIndex,args);}};"
-			"res.showView=function(blessedView,args){if(!this.views)return;var newIndex=0;var viewCount=this.views.length;while(newIndex<viewCount){if(this.views[newIndex]==blessedView){self.setActiveViewIndex(newIndex,args);return;}}};"
+			"res.showView=function(blessedView,args){if(!this.views)return;var newIndex=0;var viewCount=this.views.length;"
+				"for(var i=0;i<viewCount;i++){if(this.views[i]._TOKEN==blessedView._TOKEN){self.setActiveViewIndex(i,args);return;}}};"
 			"res.open=function(args){"
+				"if(this.views){for(var i=0;i<this.views.length;i++){this.views[i].ensureToken();}}"
 				"if(this.data){var data=this.data;var i=data.length;while(i>0){i--;var inp=data[i].input;if(inp)inp.ensureToken();}};"
 				"if(this._GRP){var grp=this._GRP;var j=grp.length;while(j>0){j--;var data=grp[j].data;var i=data.length;"
 					"while(i>0){i--;var inp=data[i].input;if(inp)inp.ensureToken();}"
@@ -1580,10 +1624,11 @@ int barButtonSystemItemForString(NSString * inputString){
 				"if(this._TOKEN){"
 					"Ti.UI._WTOOL(this._TOKEN,bar,args);}};"
 			"res.insertButton=function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
+			"res.ensureToken=function(){if(this._TOKEN)return;this._TOKEN=Ti.UI._VTOKEN();};"
 			"return res;}";
 
-	NSString * createWebViewString = createWindowString; //TODO: Maybe this is different?
-
+	NSString * createWebViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='web';return res;}";
+	
 	NSString * createTableWindowString = @"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
 			"var tkn='TBL'+(Ti.UI._NEXTTKN++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}";	
 
@@ -1676,7 +1721,10 @@ int barButtonSystemItemForString(NSString * inputString){
 			updateToolbarInvoc,@"_WTOOL",
 			insertNativeViewInvoc,@"_WINSBTN",
 			
+			reserveTokenInvoc,@"_VTOKEN",
+			
 			setWindowViewsInvoc,@"_WSVIEWS",
+			getWindowViewsInvoc,@"_WGVIEWS",
 			setWindowActiveViewInvoc,@"_WSAVIEW",
 			
 			buttonContexts, @"_BTN",
@@ -1699,16 +1747,19 @@ int barButtonSystemItemForString(NSString * inputString){
 			[TitaniumJSCode codeWithString:createOptionDialogString],@"createOptionDialog",
 			createAlertCode,@"createAlertDialog",
 
+			[TitaniumJSCode codeWithString:viewsForWindowString],@"viewsForWindowToken",
+
 			
 			appBadgeInvoc,@"setAppBadge",
 			tabBadgeInvoc,@"setTabBadge",
 
 			[TitaniumJSCode codeWithString:@"{}"],@"_MODAL",
 			[TitaniumJSCode codeWithString:@"{}"],@"_TBL",
+			[TitaniumJSCode codeWithString:@"{}"],@"_VIEW",
 			[TitaniumJSCode codeWithString:@"{}"],@"_EMAIL",
 			emailComposeInvoc,@"_OPNEMAIL",
 			[TitaniumJSCode codeWithString:createEmailString],@"createEmailDialog",
-			[TitaniumJSCode codeWithString:currentWindowString],@"currentWindow",
+			currentWindowScript,@"currentWindow",
 			[TitaniumJSCode codeWithString:createWindowString],@"createWindow",
 			[TitaniumJSCode codeWithString:createWebViewString],@"createWebView",
 			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",

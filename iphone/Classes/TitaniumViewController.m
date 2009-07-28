@@ -701,11 +701,6 @@ int nextWindowToken = 0;
 	//TODO: if thisIndex is 0, and we've got tabs, remove the tab? That doesn't sound like a good idea.
 }
 
-- (void) needsUpdateWithAnimDict: (NSDictionary *) animationDict;
-{
-}
-
-
 - (void) updateContentViewArray: (NSArray *) messagePacket;
 {
 	NSArray * viewsProxyArray = [messagePacket objectAtIndex:0];

@@ -12,6 +12,9 @@
 	}
 	window.onload = function()
 	{
+		buggyView = Ti.UI.createWebView({url:'buggy.html'});
+		Ti.UI.currentWindow.addView(buggyView);
+		
 		testFun = function(act){
 			var msg = "Success!";
 			try{eval(act)}catch(E){msg="Fail! " + E;}
@@ -85,6 +88,7 @@
 
 	<button onclick="testFun('doEmailTest()')">Email</button>
 
+	<!--button onclick="Titanium.UI.currentWindow.showView(buggyView,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000})">Switch</button-->
 	<button onclick="Titanium.UI.currentWindow.setActiveViewIndex(1,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000})">Switch</button>
 
 	<hr>

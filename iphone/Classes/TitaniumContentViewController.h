@@ -21,11 +21,12 @@
 @property (nonatomic,retain)	NSString * primaryToken;
 @property(nonatomic,readwrite,assign)	CGSize preferredViewSize;
 
++ (NSString *) requestToken;
 + (TitaniumContentViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 
 - (BOOL) hasToken: (NSString *) tokenString;
 - (void)updateLayout: (BOOL)animated;
-
+- (NSDictionary *) stateValue;
 
 @end
