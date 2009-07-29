@@ -373,6 +373,7 @@ int nextWindowToken = 0;
 	if([focusedContentController respondsToSelector:@selector(setFocused:)]){
 		[focusedContentController setFocused:NO];
 	}
+	[focusedContentController autorelease];
 	focusedContentController = nil;
 }
 
@@ -566,7 +567,8 @@ int nextWindowToken = 0;
 		if([focusedContentController respondsToSelector:@selector(setFocused:)]){
 			[focusedContentController setFocused:NO];
 		}
-		focusedContentController=newContentViewController;
+		[focusedContentController autorelease];
+		focusedContentController=[newContentViewController retain];
 		if([focusedContentController respondsToSelector:@selector(setFocused:)]){
 			[focusedContentController setFocused:YES];
 		}
