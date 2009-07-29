@@ -544,7 +544,9 @@ int nextWindowToken = 0;
 		contentViewBounds.size.height = MIN(contentViewBounds.size.height,(bottomPoint.y - contentViewBounds.origin.y));
 	}
 	
-	
+	TitaniumContentViewController * newContentViewController = [self viewControllerForIndex:selectedContentIndex];
+	if([newContentViewController respondsToSelector:@selector(willUpdateLayout:)])[newContentViewController willUpdateLayout:animated];
+
 	if(contentView == nil){
 		contentView = [[UIView alloc] initWithFrame:contentViewBounds];
 		[ourView insertSubview:contentView atIndex:(backgroundImage!=nil)?1:0];
@@ -558,8 +560,6 @@ int nextWindowToken = 0;
 		[UIView beginAnimations:@"Toolbar" context:nil];
 	}
 	
-	TitaniumContentViewController * newContentViewController = [self viewControllerForIndex:selectedContentIndex];
-
 	if(newContentViewController!=focusedContentController){
 		if([focusedContentController respondsToSelector:@selector(setFocused:)]){
 			[focusedContentController setFocused:NO];

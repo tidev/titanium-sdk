@@ -12,9 +12,13 @@
 	UITableViewStyle tableStyle;
 	CGFloat tableRowHeight;
 	
+	NSLock * sectionLock;
 	NSMutableArray * sectionArray;
 	NSString * callbackWindowToken;
 	NSString * callbackProxyPath;
+
+	NSIndexPath * blessedPath;
+	UITableView * tableView;
 }
 
 @end

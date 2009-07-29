@@ -268,13 +268,32 @@ UIColor * checkmarkColor = nil;
 	return [[[self alloc] init] autorelease];
 }
 
+- (id) init
+{
+	self = [super init];
+	if (self != nil) {
+		sectionLock = [[NSLock alloc] init];
+	}
+	return self;
+}
+
+- (void) setView:(UIView *)newView;
+{
+	[super setView:newView];
+	if(newView == nil){
+		[tableView release];
+		tableView = nil;
+	}
+}
+
 - (void) loadView;
 {
-	UIView * rootView = [[UIView alloc] init];
 	CGRect startSize = CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height);
+	UIView * rootView = [[UIView alloc] initWithFrame:startSize];
 	[rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 
-	UITableView * tableView = [[UITableView alloc] initWithFrame:startSize style:tableStyle];
+	[tableView release];
+	tableView = [[UITableView alloc] initWithFrame:startSize style:tableStyle];
 	[tableView setDelegate:self];	[tableView setDataSource:self];
 	[tableView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 	if (tableRowHeight > 5){
@@ -283,7 +302,6 @@ UIColor * checkmarkColor = nil;
 	[rootView addSubview:tableView];
 
 	[self setView:rootView];
-	[tableView release];
 	[rootView release];
 }
 
@@ -424,16 +442,20 @@ UIColor * checkmarkColor = nil;
 
 
 - (void)dealloc {
+	[blessedPath release];
 	[sectionArray release];
 	[callbackProxyPath release];
 	[callbackWindowToken release];
+	[sectionLock release];
+	[tableView release];
     [super dealloc];
 }
 
-- (void)updateLayout: (BOOL)animated;
+- (void)willUpdateLayout: (BOOL)animated;
 {
+	[sectionLock lock];
 	UITableViewCell * targetCell = nil;
-	for (UITableViewCell * thisCell in [(UITableView *)[self view] visibleCells]){
+	for (UITableViewCell * thisCell in [tableView visibleCells]){
 		UIView * thisAccessoryView = [thisCell accessoryView];
 		if ([thisAccessoryView isFirstResponder]){
 			targetCell = thisCell;
@@ -447,8 +469,19 @@ UIColor * checkmarkColor = nil;
 		}
 	}
 	if(targetCell != nil){
-		NSIndexPath * ourPath = [(UITableView *)[self view] indexPathForCell:targetCell];
-		[(UITableView *)[self view] scrollToRowAtIndexPath:ourPath atScrollPosition:UITableViewScrollPositionMiddle animated:animated];
+		[blessedPath release];
+		blessedPath = [[tableView indexPathForCell:targetCell] retain];
+	}
+	[sectionLock unlock];
+	
+}
+
+- (void)updateLayout: (BOOL)animated;
+{
+	if(blessedPath != nil){
+		[tableView scrollToRowAtIndexPath:blessedPath atScrollPosition:UITableViewScrollPositionMiddle animated:animated];
+		[blessedPath release];
+		blessedPath = nil;
 	}
 }
 
@@ -475,16 +508,63 @@ UIColor * checkmarkColor = nil;
 	return [sectionArray objectAtIndex:section];
 }
 
+- (NSIndexPath *) indexFromDict: (NSDictionary *) inputDict;
+{
+	int section = 0;
+	BOOL validSection = NO;
+	int row = 0;
+	BOOL validRow = NO;
+	
+	NSNumber * sectionNumber = [inputDict objectForKey:@"section"];
+	if([sectionNumber respondsToSelector:@selector(intValue)]){
+		section = [sectionNumber intValue];
+		validSection = YES;
+	}
+	
+	NSNumber * rowNumber = [inputDict objectForKey:@"row"];
+	if([rowNumber respondsToSelector:@selector(intValue)]){
+		row = [rowNumber intValue];
+		validRow = YES;
+	}
+	
+	if(validRow && validSection){
+		return [NSIndexPath indexPathForRow:row inSection:section];
+	}
+	
+	NSNumber * indexNumber = [inputDict objectForKey:@"index"];
+	if([indexNumber respondsToSelector:@selector(intValue)]){
+		int index = [indexNumber intValue];
+		int indexedSection = 0;
+		int rowCount = 0;
+		for(TableSectionWrapper * thisSection in sectionArray){
+			rowCount = [thisSection rowCount];
+			if (rowCount > index){
+				return [NSIndexPath indexPathForRow:index inSection:indexedSection];
+			}
+			indexedSection++;
+			index -= rowCount;
+		}
+		if (indexedSection == 0) indexedSection=1;
+		return [NSIndexPath indexPathForRow:rowCount-1 inSection:indexedSection-1];
+	}
+	return [NSIndexPath indexPathForRow:row inSection:section];
+}
+
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView;              // Default is 1 if not implemented
 {
+	[sectionLock lock];
 	NSInteger count = [sectionArray count];
+	[sectionLock unlock];
 	return MAX(count,1);
 }
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section;
 {
-	return [[self sectionForIndex:section] rowCount];
+	[sectionLock lock];
+	NSInteger rowCount = [[self sectionForIndex:section] rowCount];
+	[sectionLock unlock];
+	return rowCount;
 }
 
 // Row display. Implementers should *always* try to reuse cells by setting each cell's reuseIdentifier and querying for available reusable cells with dequeueReusableCellWithIdentifier:
@@ -494,6 +574,7 @@ UIColor * checkmarkColor = nil;
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 {
+	[sectionLock lock];
 	TableSectionWrapper * sectionWrapper = [self sectionForIndex:[indexPath section]];
 	TableRowWrapper * rowWrapper = [sectionWrapper rowForIndex:[indexPath row]];
 	NSString * htmlString = [rowWrapper html];
@@ -542,18 +623,26 @@ UIColor * checkmarkColor = nil;
 	[result setAccessoryType:ourType];
 	[result setAccessoryView:[[rowWrapper inputProxy] nativeView]];
 
+	[sectionLock unlock];
 	return result;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section;    // fixed font style. use custom view (UILabel) if you want something different
 {
-	return [[self sectionForIndex:section] header];
+	[sectionLock lock];
+	NSString * result = [[[[self sectionForIndex:section] header] copy] autorelease];
+	[sectionLock unlock];
+	return result;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section;
 {
-	return [[self sectionForIndex:section] footer];	
+	[sectionLock lock];
+	NSString * result = [[[[self sectionForIndex:section] footer] copy] autorelease];
+	[sectionLock unlock];
+	return result;
 }
+
 
 #pragma mark Delegate methods
 - (void)triggerActionForIndexPath: (NSIndexPath *)indexPath wasAccessory: (BOOL) accessoryTapped;
@@ -590,11 +679,14 @@ UIColor * checkmarkColor = nil;
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath;
 {
+	[sectionLock lock];
 	[self triggerActionForIndexPath:indexPath wasAccessory:YES];
+	[sectionLock unlock];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 {
+	[sectionLock lock];
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
 
 	int section = [indexPath section];
@@ -634,7 +726,19 @@ UIColor * checkmarkColor = nil;
 	}
 
 	[self triggerActionForIndexPath:indexPath wasAccessory:NO];
+	[sectionLock unlock];
 }
 
+#pragma mark UIModule methods
+
+- (void)updateRows: (NSArray *) rows;
+{
+	[sectionLock lock];
+	
+	
+	
+	
+	[sectionLock unlock];
+}
 
 @end
