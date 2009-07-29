@@ -14,7 +14,8 @@
 	{
 		buggyView = Ti.UI.createWebView({url:'buggy.html'});
 		Ti.UI.currentWindow.addView(buggyView);
-		
+		Ti.UI.currentWindow.showView(buggyView,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000});
+
 		testFun = function(act){
 			var msg = "Success!";
 			try{eval(act)}catch(E){msg="Fail! " + E;}

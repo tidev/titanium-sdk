@@ -1342,7 +1342,7 @@ int barButtonSystemItemForString(NSString * inputString){
 
 	NSArray * messagePacket = [[NSArray alloc] initWithObjects:viewsObject,overwriteObject,currentUrl,optionsObject,nil];
 	
-	[ourVC performSelectorOnMainThread:@selector(updateContentViewArray:) withObject:messagePacket waitUntilDone:NO];
+	[ourVC performSelectorOnMainThread:@selector(updateContentViewArray:) withObject:messagePacket waitUntilDone:YES];
 }
 
 - (NSString *) reserveViewToken;

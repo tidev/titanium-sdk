@@ -546,6 +546,8 @@ int nextWindowToken = 0;
 	
 	TitaniumContentViewController * newContentViewController = [self viewControllerForIndex:selectedContentIndex];
 	if([newContentViewController respondsToSelector:@selector(willUpdateLayout:)])[newContentViewController willUpdateLayout:animated];
+	[newContentViewController setPreferredViewSize:contentViewBounds.size];
+	UIView * newContentView = [newContentViewController view];
 
 	if(contentView == nil){
 		contentView = [[UIView alloc] initWithFrame:contentViewBounds];
@@ -571,8 +573,6 @@ int nextWindowToken = 0;
 	}
 	
 	if(newContentViewController != nil) {
-		[newContentViewController setPreferredViewSize:contentViewBounds.size];
-		UIView * newContentView = [newContentViewController view];
 		if ([newContentView superview] != contentView){
 			for(UIView * thisView in [contentView subviews]){
 				[thisView removeFromSuperview];
