@@ -1,16 +1,36 @@
 <html>
 <head>
-<script type="text/javascript" src="jquery-1.3.2.js"></script>
+<script type="text/javascript" src="jquery.js"></script>
 
 
 	<title>Hello Mobile</title>
 	<style type="text/css">
 		body {
 			background-color: #ffffff;
-			height: 800px;
+		/*	height: 800px; */
 			}
 	</style>
-	<script type="text/javascript" src="index-1.js"></script>
+	<script type="text/javascript" src="buggy.js"></script>
+<script>
+window.onload = function()
+{
+	window.addEventListener('resize',function(){Titanium.UI.createAlertDialog({title:"Start!",message:"me?"}).show();},true);
+		var toolBarBtn = Titanium.UI.createButton({systemButton:Titanium.UI.iPhone.SystemButton.REWIND});
+		Titanium.UI.currentWindow.setToolbar([toolBarBtn]);
+		var cpt=0;
+
+		toolBarBtn.addEventListener('click',function()
+		{
+			Titanium.API.debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CLICK EVENT with COUNT ' + cpt);
+			document.getElementById('test1').innerHTML=(cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />");
+			document.getElementById('test2').innerHTML=(cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />");
+			document.getElementById('test3').innerHTML=(cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />");
+			document.getElementById('test4').innerHTML=(cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />");
+			cpt++;
+		});
+
+};
+</script>
 </head>
 <body>
 	<h2>Welcome to Titanium Mobile</h2>

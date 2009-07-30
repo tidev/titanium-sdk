@@ -12,6 +12,7 @@
 #import "TitaniumBlobWrapper.h"
 
 #import "TitaniumWebViewController.h"
+#import "TitaniumTableViewController.h"
 
 #import <MessageUI/MessageUI.h>
 #import <MessageUI/MFMailComposeViewController.h>
@@ -1376,6 +1377,31 @@ int barButtonSystemItemForString(NSString * inputString){
 	[ourVC performSelectorOnMainThread:@selector(updateSelectedContentView:) withObject:messagePacket waitUntilDone:NO];
 }
 
+#pragma mark View actions
+
+- (void) setTableView:(NSString *)tokenString deleteRow:(NSNumber *)rowIndex options:(NSDictionary *)optionsObject;
+{
+	if(![rowIndex respondsToSelector:@selector(intValue)])return;
+	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
+	if(![ourVC isKindOfClass:[TitaniumTableViewController class]]) return;
+	
+	if(![optionsObject isKindOfClass:[NSDictionary class]]) optionsObject = nil;
+	
+	NSArray * bundle = [[NSArray alloc] initWithObjects:rowIndex,optionsObject,nil];
+	[ourVC performSelectorOnMainThread:@selector(deleteRowsBundle:) withObject:bundle waitUntilDone:NO];
+	[bundle release];
+}
+
+- (void) setTableView:(NSString *)tokenString insertRow:(NSArray *)rowsArray options:(NSDictionary *)optionsObject;
+{
+	
+}
+
+- (void) setTableView:(NSString *)tokenString updateRows:(NSArray *)rowsArray options:(NSDictionary *)optionsObject;
+{
+	
+}
+
 
 #pragma mark Current Window actions
 
@@ -1532,6 +1558,15 @@ int barButtonSystemItemForString(NSString * inputString){
 	[(UiModule *)invocGen reserveViewToken];
 	NSInvocation * reserveTokenInvoc = [invocGen invocation];
 	
+	[(UiModule *)invocGen setTableView:nil insertRow:nil options:nil];
+	NSInvocation * insertRowInvoc = [invocGen invocation];
+
+	[(UiModule *)invocGen setTableView:nil deleteRow:nil options:nil];
+	NSInvocation * deleteRowInvoc = [invocGen invocation];
+
+	[(UiModule *)invocGen setTableView:nil updateRows:nil options:nil];
+	NSInvocation * updateRowInvoc = [invocGen invocation];
+
 	
 	buttonContexts = [[NSMutableDictionary alloc] init];
 	
@@ -1626,11 +1661,18 @@ int barButtonSystemItemForString(NSString * inputString){
 					"Ti.UI._WTOOL(this._TOKEN,bar,args);}};"
 			"res.insertButton=function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
 			"res.ensureToken=function(){if(this._TOKEN)return;this._TOKEN=Ti.UI._VTOKEN();};"
+			"res.update=function(args){if(!this._TOKEN)return;Ti.UI._WUPDATE(this,args);};"
 			"return res;}";
 
 	NSString * createWebViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='web';return res;}";
 	
 	NSString * createTableWindowString = @"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
+			"if(!res.data)res.data=[];"
+			"res.insertRow=function(row,args){this.data.splice(row.index,0,row.rowData);if(this._TOKEN){Ti.UI._WROWINS(this._TOKEN,row,args);}};"
+			"res.deleteRow=function(rowIndex,args){this.data.splice(rowIndex,1);if(this._TOKEN){Ti.UI._WROWDEL(this._TOKEN,rowIndex,args);}};"
+			"res.updateRows=function(rows,args){if(!rows)return;"
+				"for(var i=rows.length-1;i>=0;i--){var row=rows[i];this.data.splice(row.index,1,row.rowData);}"
+				"if(this._TOKEN){Ti.UI._WROWUPD(this._TOKEN,rows,args);}};"
 			"var tkn='TBL'+(Ti.UI._NEXTTKN++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}";	
 
 	NSString * createGroupedViewString = @"function(args,callback){var res=Ti.UI.createTableView(args,callback);res.grouped=true;"
@@ -1655,9 +1697,17 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSString * animationStyleString = [NSString stringWithFormat:@"{CURL_UP:%d,CURL_DOWN:%d,FLIP_FROM_LEFT:%d,FLIP_FROM_RIGHT:%d}",
 				UIViewAnimationTransitionCurlUp,UIViewAnimationTransitionCurlDown,UIViewAnimationTransitionFlipFromLeft,UIViewAnimationTransitionFlipFromRight];
 	
+	NSString * rowAnimationStyleString = [NSString stringWithFormat:@"{FADE:%d,RIGHT:%d,LEFT:%d,TOP:%d,BOTTOM:%d,NONE:%d}",
+				UITableViewRowAnimationFade,UITableViewRowAnimationRight,UITableViewRowAnimationLeft,
+				UITableViewRowAnimationTop,UITableViewRowAnimationBottom,
+#ifdef __IPHONE_3_0
+				UITableViewRowAnimationNone];        // available in iPhone 3.0
+#else
+				0];
+#endif
+	
 	NSString * createButtonString = @"function(args,btnType){var res={"
 			"onClick:Ti._ONEVT,_EVT:{click:[],change:[],focus:[],blur:[],'return':[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
-//			"onClick:Ti._ONEVT,_EVT:{click:[],change:[],focus:[],blur:[],return:[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
 			"focus:function(){Ti.UI._BTNFOC(this,true);},blur:function(){Ti.UI._BTNFOC(this,false);},"
 			"update:function(arg){if(!this._TOKEN)return;"
 				"if(this.rightButton)this.rightButton.ensureToken();if(this.leftButton)this.leftButton.ensureToken();"
@@ -1721,6 +1771,10 @@ int barButtonSystemItemForString(NSString * inputString){
 			setNavButtonInvoc,@"_WNAVBTN",
 			updateToolbarInvoc,@"_WTOOL",
 			insertNativeViewInvoc,@"_WINSBTN",
+			
+			insertRowInvoc,@"_WROWINS",
+			deleteRowInvoc,@"_WROWDEL",
+			updateRowInvoc,@"_WROWUPD",
 			
 			reserveTokenInvoc,@"_VTOKEN",
 			
@@ -1809,6 +1863,7 @@ int barButtonSystemItemForString(NSString * inputString){
 					[TitaniumJSCode codeWithString:systemIconString],@"SystemIcon",
 					[TitaniumJSCode codeWithString:statusBarString],@"StatusBar",
 					[TitaniumJSCode codeWithString:animationStyleString],@"AnimationStyle",
+					[TitaniumJSCode codeWithString:rowAnimationStyleString],@"RowAnimationStyle",
 					nil],@"iPhone",
 			nil];
 	[[[TitaniumHost sharedHost] titaniumObject] setObject:uiDict forKey:@"UI"];

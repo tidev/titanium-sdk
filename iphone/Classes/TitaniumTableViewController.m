@@ -12,6 +12,12 @@
 #import "ValueTableViewCell.h"
 #import "Webcolor.h"
 
+@implementation TitaniumTableActionWrapper
+@synthesize kind,index,animation;
+@synthesize insertedRow, updatedRows;
+@end
+
+
 UIColor * checkmarkColor = nil;
 
 @interface TableRowWrapper : NSObject
@@ -225,6 +231,12 @@ UIColor * checkmarkColor = nil;
 	}
 }
 
+- (void) removeRowAtIndex: (int) rowIndex;
+{
+	if((rowIndex < 0) || (rowIndex >= [rowArray count]))return;
+	[rowArray removeObjectAtIndex:rowIndex];
+}
+
 - (TableRowWrapper *) rowForIndex: (NSUInteger) rowIndex;
 {
 	if (rowIndex >= [rowArray count]) return nil;
@@ -272,7 +284,8 @@ UIColor * checkmarkColor = nil;
 {
 	self = [super init];
 	if (self != nil) {
-		sectionLock = [[NSLock alloc] init];
+		sectionLock = [[NSRecursiveLock alloc] init];
+		actionLock = [[NSLock alloc] init];
 	}
 	return self;
 }
@@ -369,7 +382,7 @@ UIColor * checkmarkColor = nil;
 		}
 	}
 	
-	[sectionArray release];
+	[sectionArray autorelease];
 	sectionArray = [[NSMutableArray alloc] init];
 	TableSectionWrapper * thisSectionWrapper = nil;
 	
@@ -448,6 +461,10 @@ UIColor * checkmarkColor = nil;
 	[callbackWindowToken release];
 	[sectionLock release];
 	[tableView release];
+	
+	[actionQueue release];
+	[actionLock release];
+	
     [super dealloc];
 }
 
@@ -508,7 +525,22 @@ UIColor * checkmarkColor = nil;
 	return [sectionArray objectAtIndex:section];
 }
 
-- (NSIndexPath *) indexFromDict: (NSDictionary *) inputDict;
+- (NSIndexPath *) indexPathFromInt: (int) index;
+{
+	int section = 0;
+	int rowCount = 0;
+	for(TableSectionWrapper * thisSection in sectionArray){
+		rowCount = [thisSection rowCount];
+		if (rowCount > index){
+			return [NSIndexPath indexPathForRow:index inSection:section];
+		}
+		section++;
+		index -= rowCount;
+	}
+	return nil;
+}
+
+- (NSIndexPath *) indexPathFromDict: (NSDictionary *) inputDict;
 {
 	int section = 0;
 	BOOL validSection = NO;
@@ -534,18 +566,7 @@ UIColor * checkmarkColor = nil;
 	NSNumber * indexNumber = [inputDict objectForKey:@"index"];
 	if([indexNumber respondsToSelector:@selector(intValue)]){
 		int index = [indexNumber intValue];
-		int indexedSection = 0;
-		int rowCount = 0;
-		for(TableSectionWrapper * thisSection in sectionArray){
-			rowCount = [thisSection rowCount];
-			if (rowCount > index){
-				return [NSIndexPath indexPathForRow:index inSection:indexedSection];
-			}
-			indexedSection++;
-			index -= rowCount;
-		}
-		if (indexedSection == 0) indexedSection=1;
-		return [NSIndexPath indexPathForRow:rowCount-1 inSection:indexedSection-1];
+		return [self indexPathFromInt:index];
 	}
 	return [NSIndexPath indexPathForRow:row inSection:section];
 }
@@ -731,14 +752,103 @@ UIColor * checkmarkColor = nil;
 
 #pragma mark UIModule methods
 
-- (void)updateRows: (NSArray *) rows;
+- (void)enqueueAction: (TitaniumTableActionWrapper *) newAction;
 {
+	[actionLock lock];
+	if(actionQueue == nil){
+		actionQueue = [[NSMutableArray alloc] initWithObjects:newAction,nil];
+		[self performSelectorOnMainThread:@selector(performActions) withObject:nil waitUntilDone:NO];
+	}else{
+		[actionQueue addObject:newAction];
+	}
+	[actionLock unlock];
+}
+
+- (void)performActions;
+{
+	[actionLock lock];
+	for(TitaniumTableActionWrapper * thisAction in actionQueue){
+		TitaniumTableAction kind = [thisAction kind];
+		NSIndexPath * ourPath;
+
+		switch (kind) {
+			case TitaniumTableActionInsertRow:
+			case TitaniumTableActionDeleteRow:
+				ourPath = [self indexPathFromInt:[thisAction index]];
+				if(ourPath != nil){
+					TableSectionWrapper * ourWrapper = [self sectionForIndex:[ourPath section]];
+					NSArray * ourArray = [[NSArray alloc] initWithObjects:ourPath,nil];
+					if(kind == TitaniumTableActionDeleteRow){
+						//TODO: Handle the restructuring of the sections based on headers.
+						[ourWrapper removeRowAtIndex:[ourPath row]];
+						[tableView deleteRowsAtIndexPaths:ourArray withRowAnimation:[thisAction animation]];
+					} else {
+						
+					}
+					[ourArray release];
+				}
+				
+				break;
+			case TitaniumTableActionUpdateRows:
+				
+				
+				break;
+			default:
+				break;
+		}
+	}
+	[actionQueue release];
+	actionQueue = nil;
+	[actionLock unlock];
+}
+
+- (void)deleteRowsBundle: (NSArray *) rowContainers;
+{
+	NSNumber * index = [rowContainers objectAtIndex:0];
+	UITableViewRowAnimation animation = UITableViewRowAnimationFade;
+	
+	if([rowContainers count]>1){
+		NSNumber * animationStyleObject = [[rowContainers objectAtIndex:1] objectForKey:@"animationStyle"];
+		animation = [animationStyleObject intValue];
+	}
+	
 	[sectionLock lock];
 	
+	NSIndexPath * doomedPath = [self indexPathFromInt:[index intValue]];
+	if (doomedPath != nil){
 	
+		TableSectionWrapper * doomedSection = [self sectionForIndex:[doomedPath section]];
+		[doomedSection removeRowAtIndex:[doomedPath row]];
+
+		NSArray * doomedArray = [[NSArray alloc] initWithObjects:doomedPath,nil];
+		[tableView deleteRowsAtIndexPaths:doomedArray withRowAnimation:animation];
+		[doomedArray release];
+	}
 	
+	[sectionLock unlock];	
+}
+
+- (void)updateRowsBundle: (NSArray *) rowContainers;
+{
+	NSNumber * index = [rowContainers objectAtIndex:0];
+	UITableViewRowAnimation animation = UITableViewRowAnimationNone;
 	
-	[sectionLock unlock];
+	if([rowContainers count]>1){
+		NSNumber * animationStyleObject = [[rowContainers objectAtIndex:1] objectForKey:@"animationStyle"];
+		animation = [animationStyleObject intValue];
+	}
+	
+	[sectionLock lock];
+	
+	NSIndexPath * doomedPath = [self indexPathFromInt:[index intValue]];
+	if (doomedPath != nil){		
+		NSArray * doomedArray = [[NSArray alloc] initWithObjects:doomedPath,nil];
+		[tableView deleteRowsAtIndexPaths:doomedArray withRowAnimation:animation];
+
+		[doomedArray release];
+	}
+	
+	[sectionLock unlock];	
 }
 
 @end

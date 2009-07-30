@@ -84,7 +84,7 @@ try{
 
 
 	];
-	var tableView = Titanium.UI.createTableView({data:data,rowHeight:80}, function(eventObject) {
+	tableView = Titanium.UI.createTableView({data:data,rowHeight:80}, function(eventObject) {
 		var rowData = eventObject.rowData;
 
 		var section = eventObject.section;
@@ -103,9 +103,12 @@ try{
 			var nextWin = Ti.UI.createWindow({url:"misc.html"});
 			nextWin.open();
 		}
+		try{
+		tableView.deleteRow(index);
+		}catch(E){Titanium.UI.createAlertDialog({title:"Error!",message:('Msg:'+E)}).show();};
 	});
-
-	tableView.open({animated:true});
+	var tableWindow = Ti.UI.createWindow({views:[tableView]});
+	tableWindow.open({animated:true});
 } catch(E){Titanium.UI.createAlertDialog({title:"Error!",message:('Msg:'+E)}).show();};
 };
 		btn7.addEventListener('click',test1);

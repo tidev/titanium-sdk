@@ -8,6 +8,31 @@
 #import <UIKit/UIKit.h>
 #import "TitaniumContentViewController.h"
 
+typedef enum {
+	TitaniumTableActionInsertRow,
+	TitaniumTableActionDeleteRow,
+	TitaniumTableActionUpdateRows,
+} TitaniumTableAction;
+
+@interface TitaniumTableActionWrapper : NSObject
+{
+	TitaniumTableAction kind;
+	int index;
+	NSDictionary * insertedRow;
+	NSArray * updatedRows;
+	UITableViewRowAnimation animation;
+}
+
+@property(nonatomic,assign)	TitaniumTableAction kind;
+@property(nonatomic,assign)	int index;
+@property(nonatomic,copy)	NSDictionary * insertedRow;
+@property(nonatomic,copy)	NSArray * updatedRows;
+@property(nonatomic,assign)	UITableViewRowAnimation animation;
+
+@end
+
+
+
 @interface TitaniumTableViewController : TitaniumContentViewController<UITableViewDelegate,UITableViewDataSource,UIWebViewDelegate> {
 	UITableViewStyle tableStyle;
 	CGFloat tableRowHeight;
@@ -19,6 +44,9 @@
 
 	NSIndexPath * blessedPath;
 	UITableView * tableView;
+	
+	NSLock * actionLock;
+	NSMutableArray * actionQueue;
 }
 
 @end
