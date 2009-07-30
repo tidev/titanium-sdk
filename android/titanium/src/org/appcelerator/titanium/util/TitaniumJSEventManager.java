@@ -31,7 +31,7 @@ public class TitaniumJSEventManager
 	protected TreeSet<String> supportedEventNames;
 
 	public TitaniumJSEventManager(TitaniumModuleManager manager) {
-		this(manager.getActivity().getWebView());
+		this(manager.getWebView());
 	}
 	public TitaniumJSEventManager(TitaniumBaseModule module) {
 		this(module.getWebView());

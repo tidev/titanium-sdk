@@ -7,14 +7,11 @@
 
 package org.appcelerator.titanium.module;
 
-import java.util.concurrent.Semaphore;
-
 import org.appcelerator.titanium.TitaniumModuleManager;
-import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.api.ITitaniumAPI;
 import org.appcelerator.titanium.config.TitaniumConfig;
-
 import org.appcelerator.titanium.util.Log;
+
 import android.webkit.WebView;
 
 public class TitaniumAPI extends TitaniumBaseModule implements ITitaniumAPI
@@ -69,10 +66,10 @@ public class TitaniumAPI extends TitaniumBaseModule implements ITitaniumAPI
 	}
 
 	public void updateNativeControls(String json) {
-		getModuleManager().getActivity().getWebView().updateNativeControls(json);
+		getModuleManager().getWebView().updateNativeControls(json);
 	}
 
 	public void signal(String syncId) {
-		getModuleManager().getActivity().getWebView().signal(syncId);
+		getModuleManager().getWebView().signal(syncId);
 	}
 }

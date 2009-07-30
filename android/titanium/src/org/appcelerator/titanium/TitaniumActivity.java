@@ -33,6 +33,7 @@ import org.appcelerator.titanium.module.TitaniumPlatform;
 import org.appcelerator.titanium.module.TitaniumUI;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
 import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumActivityHelper;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
@@ -52,7 +53,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
-import org.appcelerator.titanium.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -351,7 +351,7 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 
     protected void initializeModules() {
         // Add Modules
-        moduleMgr = new TitaniumModuleManager(this);
+        moduleMgr = new TitaniumModuleManager(this, webView);
         this.tiUI = new TitaniumUI(moduleMgr, "TitaniumUI");
 
         new TitaniumMedia(moduleMgr, "TitaniumMedia");
@@ -464,9 +464,9 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 		return this.handler;
 	}
 
-    public TitaniumWebView getWebView() {
-    	return this.webView;
-    }
+//    public TitaniumWebView getWebView() {
+//    	return this.webView;
+//    }
 
     public TitaniumAppInfo getAppInfo() {
     	return appInfo;

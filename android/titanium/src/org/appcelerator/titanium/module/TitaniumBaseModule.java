@@ -7,8 +7,6 @@
 
 package org.appcelerator.titanium.module;
 
-import java.lang.ref.SoftReference;
-
 import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.TitaniumWebView;
@@ -24,50 +22,38 @@ public abstract class TitaniumBaseModule implements ITitaniumModule
 	//private static final String LCAT = "TiBaseModule";
 	//private static final boolean DBG = TitaniumConfig.LOGD;
 
-	private TitaniumModuleManager manager;
-	private String moduleName;
+	protected TitaniumModuleManager tmm;
+	protected String moduleName;
 
-	private SoftReference<TitaniumActivity> softActivity;
-	private SoftReference<TitaniumWebView> softWebView;
 	protected Handler handler;
 
 	protected TitaniumBaseModule(TitaniumModuleManager manager, String moduleName)
 	{
 		manager.checkThread();
 
-		this.manager = manager;
+		this.tmm = manager;
 		this.moduleName = moduleName;
 		this.handler = new Handler();
-
-		// Cache references to other objects.
-		TitaniumActivity activity = manager.getActivity();
-
-		if (activity != null) {
-			this.softActivity = new SoftReference<TitaniumActivity>(activity);
-			this.softWebView = new SoftReference<TitaniumWebView>(activity.getWebView());
-		} else {
-			throw new IllegalStateException("Unable to get references to required objects.");
-		}
 
 		manager.addModule(this);
 	}
 
 	public TitaniumModuleManager getModuleManager() {
-		return manager;
+		return tmm;
 	}
 
 	public TitaniumActivity getActivity() {
-		return softActivity.get();
+		return tmm.getActivity();
 	}
 
 	public TitaniumWebView getWebView() {
-		return softWebView.get();
+		return tmm.getWebView();
 	}
 
 	public Context getContext()
 	{
 		Context context = null;
-		TitaniumActivity activity = softActivity.get();
+		TitaniumActivity activity = tmm.getActivity();
 		if (activity != null) {
 			context = activity;
 		}
@@ -81,7 +67,7 @@ public abstract class TitaniumBaseModule implements ITitaniumModule
 	 */
 	protected void evalJS(String js, final JSONObject data)
 	{
-		TitaniumWebView webView = softWebView.get();
+		TitaniumWebView webView = tmm.getWebView();
 		if (webView != null) {
 			webView.evalJS(js, data);
 		}
@@ -116,7 +102,7 @@ public abstract class TitaniumBaseModule implements ITitaniumModule
 	}
 
 	protected void invokeUserCallback(String method, String data) {
-		TitaniumWebView webView = softWebView.get();
+		TitaniumWebView webView = tmm.getWebView();
 		webView.evalJS(method, data);
 	}
 

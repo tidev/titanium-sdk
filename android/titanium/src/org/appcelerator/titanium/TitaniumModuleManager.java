@@ -12,9 +12,7 @@ import java.util.ArrayList;
 
 import org.appcelerator.titanium.api.ITitaniumModule;
 import org.appcelerator.titanium.config.TitaniumConfig;
-
 import org.appcelerator.titanium.util.Log;
-import android.webkit.WebView;
 
 public class TitaniumModuleManager
 {
@@ -24,13 +22,15 @@ public class TitaniumModuleManager
 
 	private ArrayList<ITitaniumModule> modules;
 	private SoftReference<TitaniumActivity> softActivity;
+	private SoftReference<TitaniumWebView> softWebView;
 
 	private long creationThreadId;
 	private String creationThreadName;
 
-	public TitaniumModuleManager(TitaniumActivity activity)
+	public TitaniumModuleManager(TitaniumActivity activity, TitaniumWebView webView)
 	{
 		this.softActivity = new SoftReference<TitaniumActivity>(activity);
+		this.softWebView = new SoftReference<TitaniumWebView>(webView);
 		this.modules = new ArrayList<ITitaniumModule>();
 
 		Thread t = Thread.currentThread();
@@ -57,6 +57,10 @@ public class TitaniumModuleManager
 		return softActivity.get();
 	}
 
+	public TitaniumWebView getWebView() {
+		return softWebView.get();
+	}
+
 	public void addModule(ITitaniumModule m) {
 		if (! modules.contains(m)) {
 			modules.add(m);
@@ -66,7 +70,7 @@ public class TitaniumModuleManager
 	}
 
 	public void registerModules() {
-		WebView webView = getActivity().getWebView();
+		TitaniumWebView webView = softWebView.get();
 		for (ITitaniumModule m : modules) {
 			m.register(webView);
 		}
