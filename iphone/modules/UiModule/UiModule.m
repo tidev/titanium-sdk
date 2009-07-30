@@ -647,6 +647,16 @@ int barButtonSystemItemForString(NSString * inputString){
 	return wrapperView;
 }
 
+- (BOOL)becomeFirstResponder;
+{
+	return [nativeView becomeFirstResponder];
+}
+
+- (BOOL)resignFirstResponder;
+{
+	return [nativeView resignFirstResponder];
+}
+
 - (UIView *) nativeView;
 {
 	if ((nativeView == nil) || needsRefreshing){
@@ -1131,9 +1141,9 @@ int barButtonSystemItemForString(NSString * inputString){
 	if (![target hasNativeView]) return;
 	
 	if ([isFocusObject boolValue]){
-		[[target nativeView] performSelectorOnMainThread:@selector(becomeFirstResponder) withObject:nil waitUntilDone:NO];
+		[target performSelectorOnMainThread:@selector(becomeFirstResponder) withObject:nil waitUntilDone:NO];
 	} else {
-		[[target nativeView] performSelectorOnMainThread:@selector(resignFirstResponder) withObject:nil waitUntilDone:NO];
+		[target performSelectorOnMainThread:@selector(resignFirstResponder) withObject:nil waitUntilDone:NO];
 	}
 }
 
@@ -1385,21 +1395,60 @@ int barButtonSystemItemForString(NSString * inputString){
 	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
 	if(![ourVC isKindOfClass:[TitaniumTableViewController class]]) return;
 	
-	if(![optionsObject isKindOfClass:[NSDictionary class]]) optionsObject = nil;
+	TitaniumTableActionWrapper * newAction = [[TitaniumTableActionWrapper alloc] init];
+	[newAction setKind:TitaniumTableActionDeleteRow];
+	[newAction setIndex:[rowIndex intValue]];
+	if([optionsObject isKindOfClass:[NSDictionary class]]){
+		NSNumber * animationStyleObject = [optionsObject objectForKey:@"animationStyle"];
+		if([animationStyleObject respondsToSelector:@selector(intValue)])[newAction setAnimation:[animationStyleObject intValue]];
+	}
 	
-	NSArray * bundle = [[NSArray alloc] initWithObjects:rowIndex,optionsObject,nil];
-	[ourVC performSelectorOnMainThread:@selector(deleteRowsBundle:) withObject:bundle waitUntilDone:NO];
-	[bundle release];
+	[(TitaniumTableViewController *)ourVC enqueueAction:newAction];
+	[newAction release];
 }
 
-- (void) setTableView:(NSString *)tokenString insertRow:(NSArray *)rowsArray options:(NSDictionary *)optionsObject;
+- (void) setTableView:(NSString *)tokenString insertRow:(NSDictionary *)rowInserted options:(NSDictionary *)optionsObject;
 {
+	if(![rowInserted isKindOfClass:[NSDictionary class]])return;
 	
+	NSNumber * rowIndex = [rowInserted objectForKey:@"index"];
+	if(![rowIndex respondsToSelector:@selector(intValue)])return;
+	
+	NSDictionary * insertedObject = [rowInserted objectForKey:@"rowData"];
+	if(![insertedObject isKindOfClass:[NSDictionary class]])return;
+	
+	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
+	if(![ourVC isKindOfClass:[TitaniumTableViewController class]]) return;
+	
+	TitaniumTableActionWrapper * newAction = [[TitaniumTableActionWrapper alloc] init];
+	[newAction setKind:TitaniumTableActionInsertRow];
+	[newAction setIndex:[rowIndex intValue]];
+	[newAction setInsertedRow:insertedObject];
+	if([optionsObject isKindOfClass:[NSDictionary class]]){
+		NSNumber * animationStyleObject = [optionsObject objectForKey:@"animationStyle"];
+		if([animationStyleObject respondsToSelector:@selector(intValue)])[newAction setAnimation:[animationStyleObject intValue]];
+	}
+	
+	[(TitaniumTableViewController *)ourVC enqueueAction:newAction];
+	[newAction release];
 }
 
 - (void) setTableView:(NSString *)tokenString updateRows:(NSArray *)rowsArray options:(NSDictionary *)optionsObject;
 {
-	
+//	if(![rowIndex respondsToSelector:@selector(intValue)])return;
+//	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
+//	if(![ourVC isKindOfClass:[TitaniumTableViewController class]]) return;
+//	
+//	TitaniumTableActionWrapper * newAction = [[TitaniumTableActionWrapper alloc] init];
+//	[newAction setKind:TitaniumTableActionUpdateRows];
+//	[newAction setIndex:[rowIndex intValue]];
+//	if([optionsObject isKindOfClass:[NSDictionary class]]){
+//		NSNumber * animationStyleObject = [optionsObject objectForKey:@"animationStyle"];
+//		if([animationStyleObject respondsToSelector:@selector(intValue)])[newAction setAnimation:[animationStyleObject intValue]];
+//	}
+//	
+//	[(TitaniumTableViewController *)ourVC enqueueAction:newAction];
+//	[newAction release];
 }
 
 

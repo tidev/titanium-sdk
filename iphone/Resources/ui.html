@@ -104,7 +104,13 @@ try{
 			nextWin.open();
 		}
 		try{
-		tableView.deleteRow(index);
+		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
+//		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
+//		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
+//		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
+//		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.LEFT});
+//		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.TOP});
+//		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.BOTTOM});
 		}catch(E){Titanium.UI.createAlertDialog({title:"Error!",message:('Msg:'+E)}).show();};
 	});
 	var tableWindow = Ti.UI.createWindow({views:[tableView]});

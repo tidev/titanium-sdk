@@ -49,4 +49,6 @@ typedef enum {
 	NSMutableArray * actionQueue;
 }
 
+- (void)enqueueAction: (TitaniumTableActionWrapper *) newAction;
+
 @end

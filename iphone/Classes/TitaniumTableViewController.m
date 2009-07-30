@@ -15,6 +15,15 @@
 @implementation TitaniumTableActionWrapper
 @synthesize kind,index,animation;
 @synthesize insertedRow, updatedRows;
+
+- (void) dealloc
+{
+	[insertedRow release];
+	[updatedRows release];
+	[super dealloc];
+}
+
+
 @end
 
 
@@ -31,6 +40,7 @@ UIColor * checkmarkColor = nil;
 	UIButtonProxy * inputProxy;
 
 	BOOL isButton;
+
 }
 @property(nonatomic,readwrite,copy)	NSString * title;
 @property(nonatomic,readwrite,copy)	NSString * html;
@@ -41,6 +51,7 @@ UIColor * checkmarkColor = nil;
 @property(nonatomic,readwrite,assign)	UITableViewCellAccessoryType accessoryType;
 @property(nonatomic,readwrite,retain)	UIButtonProxy * inputProxy;
 @property(nonatomic,readwrite,assign)	BOOL isButton;
+
 
 - (void) useProperties: (NSDictionary *) propDict withUrl: (NSURL *) baseUrl;
 - (NSString *) stringValue;
@@ -187,6 +198,7 @@ UIColor * checkmarkColor = nil;
 	NSString * footer;
 	NSMutableArray * rowArray;
 	BOOL isOptionList;
+	BOOL nullHeader;
 }
 - (id) initWithHeader: (NSString *) headerString footer: (NSString *) footerString;
 - (void) addRow: (TableRowWrapper *) newRow;
@@ -199,11 +211,12 @@ UIColor * checkmarkColor = nil;
 @property(nonatomic,readwrite,assign)	NSInteger groupNum;
 @property(nonatomic,readwrite,copy)		NSString * groupType;
 @property(nonatomic,readwrite,assign)	BOOL isOptionList;
+@property(nonatomic,readwrite,assign)	BOOL nullHeader;
 
 @end
 
 @implementation TableSectionWrapper
-@synthesize header,footer,groupNum,groupType,isOptionList;
+@synthesize header,footer,groupNum,groupType,isOptionList,nullHeader;
 
 - (id) initWithHeader: (NSString *) headerString footer: (NSString *) footerString;
 {
@@ -259,6 +272,8 @@ UIColor * checkmarkColor = nil;
 	if (result) {
 		if ([newHeader isKindOfClass:stringClass]){
 			[self setHeader:newHeader];
+		} else if (newHeader == [NSNull null]){
+			nullHeader = YES;
 		}
 		if ([newFooter isKindOfClass:stringClass]){
 			[self setFooter:newFooter];
@@ -764,6 +779,29 @@ UIColor * checkmarkColor = nil;
 	[actionLock unlock];
 }
 
+/*	Blain's sit-down-and-think-about-this: Changing rows.
+ *	
+ *	At first, I thought it'd be a case of simply mapping things on. But the issue is that the GroupedView is explicit in the groupings. TableView is implicit in the groupings.
+ *	So while GroupedView calls should only insert, delete, or modify the row or section mentioned, TableView needs to handle some odd situations:
+ *	
+ *	Delete:
+ *	If the section has more than 1 row, delete simply deletes the row.
+ *	If the section has only 1 row (which is being deleted), delete the section as well.
+ *		If the previous section and the next section have the same header and are not nullHeaders, merge the two sections (IE, create all the rows as the bottom of the first section,
+ *		and remove all of the second section.
+ *	
+ *	Insert:
+ *	If the row is to be inserted at the beginning of the section, or if the IndexPath is nil (after the end of the table), look at the section before it.
+ *		If the previousSection exists (Will be nil in the case of inserting at the first section), see if the previousSection will accept the row. If yes, insert there and return.
+ *		If the currentSection exists (Will be nil if at the end of the table), see if the currentSection will accept the row. If yes, 
+ *	
+ *	
+ *	
+ *	
+ *	
+ *	
+ */
+
 - (void)performActions;
 {
 	[actionLock lock];
@@ -779,7 +817,7 @@ UIColor * checkmarkColor = nil;
 					TableSectionWrapper * ourWrapper = [self sectionForIndex:[ourPath section]];
 					NSArray * ourArray = [[NSArray alloc] initWithObjects:ourPath,nil];
 					if(kind == TitaniumTableActionDeleteRow){
-						//TODO: Handle the restructuring of the sections based on headers.
+						//TODO: Handle the restructuring of the sections based on headers.						
 						[ourWrapper removeRowAtIndex:[ourPath row]];
 						[tableView deleteRowsAtIndexPaths:ourArray withRowAnimation:[thisAction animation]];
 					} else {
