@@ -1,6 +1,7 @@
 package org.appcelerator.titanium.module.ui;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
+import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumTableView;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.util.Log;
@@ -192,10 +193,7 @@ public class TitaniumTableView extends FrameLayout
 			}});
 
 		addView(view, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-		tmm.getActivity().pushView(this);
-		//setContentView(layout);
-		//show();
-		//layout.requestFocus();
+		tmm.getActivity().addView(this);
 	}
 
 	public void close()
@@ -204,7 +202,7 @@ public class TitaniumTableView extends FrameLayout
 	}
 
 	private void doClose() {
-		tmm.getActivity().popView(this);
+		//tmm.getActivity().popView(this);
 		destroyDrawingCache();
 		removeAllViews();
 	}
@@ -239,5 +237,18 @@ public class TitaniumTableView extends FrameLayout
 		}
 
 		return jdata;
+	}
+
+	public ITitaniumLifecycle getLifecycle() {
+		return null;
+	}
+
+	public View getNativeView() {
+		return this;
+	}
+
+	public void dispatchWindowFocusChanged(boolean hasFocus) {
+		// TODO Auto-generated method stub
+
 	}
 }

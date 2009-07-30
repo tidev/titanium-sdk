@@ -53,6 +53,10 @@ public class TitaniumModuleManager
 		}
 	}
 
+	public TitaniumApplication getApplication() {
+		return (TitaniumApplication) getActivity().getApplication();
+	}
+
 	public TitaniumActivity getActivity() {
 		return softActivity.get();
 	}

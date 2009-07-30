@@ -1,12 +1,34 @@
 package org.appcelerator.titanium;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.titanium.api.ITitaniumApp;
+import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumNativeControl;
+import org.appcelerator.titanium.api.ITitaniumNetwork;
+import org.appcelerator.titanium.api.ITitaniumPlatform;
+import org.appcelerator.titanium.api.ITitaniumView;
+import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.config.TitaniumWindowInfo;
+import org.appcelerator.titanium.module.TitaniumAPI;
+import org.appcelerator.titanium.module.TitaniumAccelerometer;
+import org.appcelerator.titanium.module.TitaniumAnalytics;
+import org.appcelerator.titanium.module.TitaniumApp;
+import org.appcelerator.titanium.module.TitaniumDatabase;
+import org.appcelerator.titanium.module.TitaniumFilesystem;
+import org.appcelerator.titanium.module.TitaniumGeolocation;
+import org.appcelerator.titanium.module.TitaniumGesture;
+import org.appcelerator.titanium.module.TitaniumMedia;
+import org.appcelerator.titanium.module.TitaniumNetwork;
+import org.appcelerator.titanium.module.TitaniumPlatform;
+import org.appcelerator.titanium.module.TitaniumUI;
+import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TitaniumUrlHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,7 +45,8 @@ import android.webkit.WebView;
 import android.widget.AbsoluteLayout;
 
 @SuppressWarnings("deprecation")
-public class TitaniumWebView extends WebView implements Handler.Callback
+public class TitaniumWebView extends WebView
+	implements Handler.Callback, ITitaniumView, ITitaniumLifecycle
 {
 	private static final String LCAT = "TiWebView";
 	private static final boolean DBG = TitaniumConfig.LOGD;
@@ -41,6 +64,9 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 	private Handler handler;
 	private Handler evalHandler;
 
+	private TitaniumModuleManager tmm;
+	private TitaniumUI tiUI;
+
 	private MimeTypeMap mtm;
 
 	private HashMap<String, ITitaniumNativeControl> nativeControls;
@@ -49,13 +75,25 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 	private HashMap<String, Semaphore> locks;
 	private AtomicInteger uniqueLockId;
 
-	public TitaniumWebView(TitaniumActivity activity)
+	private String url;
+	private String source;
+	private Semaphore sourceReady;
+	private boolean loaded;
+
+
+	public TitaniumWebView(TitaniumActivity activity, String url)
 	{
 		super(activity);
+
 		this.handler = new Handler(this);
 		this.mtm = MimeTypeMap.getSingleton();
 		this.locks = new HashMap<String,Semaphore>();
 		this.uniqueLockId = new AtomicInteger();
+        this.tmm = new TitaniumModuleManager(activity, this);
+        this.url = url;
+
+        setWebViewClient(new TiWebViewClient(activity));
+        setWebChromeClient(new TiWebChromeClient(activity));
 
 		WebSettings settings = getSettings();
 
@@ -109,7 +147,92 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 
         	}
         }
+
+        sourceReady = new Semaphore(0);
+        final String furl = url;
+		Thread sourceLoadThread = new Thread(new Runnable(){
+
+			public void run() {
+				try {
+					TitaniumApplication app = tmm.getApplication();
+					source = TitaniumUrlHelper.getSource(app, app.getApplicationContext(), furl, null);
+				} catch (IOException e) {
+					Log.e(LCAT, "Unable to load source for " + furl);
+				} finally {
+					synchronized(sourceReady) {
+						sourceReady.release();
+					}
+				}
+			}});
+        sourceLoadThread.start();
+
+
+        initializeModules();
+		buildWebView();
 	}
+
+    protected void initializeModules() {
+        // Add Modules
+        this.tiUI = new TitaniumUI(tmm, "TitaniumUI");
+        TitaniumAppInfo appInfo = tmm.getActivity().getAppInfo();
+
+        new TitaniumMedia(tmm, "TitaniumMedia");
+        String userAgent = appInfo.getSystemProperties().getString(TitaniumAppInfo.PROP_NETWORK_USER_AGENT, null); //if we get null, we have a startup error.
+        ITitaniumNetwork tiNetwork = new TitaniumNetwork(tmm, "TitaniumNetwork", userAgent);
+        ITitaniumPlatform tiPlatform = new TitaniumPlatform(tmm, "TitaniumPlatform");
+
+		ITitaniumApp tiApp = new TitaniumApp(tmm, "TitaniumApp",appInfo);
+ 		new TitaniumAnalytics(tmm, "TitaniumAnalytics");
+		new TitaniumAPI(tmm, "TitaniumAPI");
+		new TitaniumFilesystem(tmm, "TitaniumFilesystem");
+		new TitaniumDatabase(tmm, "TitaniumDatabase");
+		new TitaniumAccelerometer(tmm, "TitaniumAccelerometer");
+		new TitaniumGesture(tmm, "TitaniumGesture");
+		new TitaniumGeolocation(tmm, "TitaniumGeolocation");
+
+		// Add Modules from Applications
+		TitaniumApplication app = tmm.getApplication();
+		app.addModule(tmm);
+
+		tmm.registerModules();
+
+		if (app.needsEnrollEvent()) {
+			app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createAppEnrollEvent(tiPlatform, tiApp));
+		}
+
+		if (app.needsStartEvent()) {
+			String deployType = appInfo.getSystemProperties().getString("ti.deploytype", "unknown");
+
+			app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createAppStartEvent(tiNetwork, tiPlatform, tiApp, deployType));
+		}
+    }
+
+    protected void buildWebView()
+    {
+    	TitaniumWindowInfo windowInfo = tmm.getActivity().getWindowInfo();
+
+		if (windowInfo != null && windowInfo.hasBackgroundColor()) {
+			setBackgroundColor(windowInfo.getBackgroundColor());
+		}
+
+        if (url != null)
+		{
+        	try {
+          		synchronized(sourceReady) {
+          			sourceReady.acquire();
+          		}
+          		loadFromSource(url, source);
+        	} catch (InterruptedException e) {
+        		Log.w(LCAT, "Interrupted: " + e.getMessage());
+        	}
+	    }
+		else
+		{
+			if (DBG) {
+				Log.d(LCAT, "url was empty");
+			}
+		}
+    }
 
 	public String registerLock() {
 		String syncId = "S:" + uniqueLockId.incrementAndGet();
@@ -388,6 +511,46 @@ public class TitaniumWebView extends WebView implements Handler.Callback
 						requestNativeLayout();
 					}
 		        });
+	}
+
+	// View methods
+
+	public boolean isPrimary() {
+		return false;
+	}
+
+
+	public void dispatchWindowFocusChanged(boolean hasFocus) {
+		tiUI.onWindowFocusChanged(hasFocus);
+	}
+
+	public ITitaniumLifecycle getLifecycle() {
+		return this;
+	}
+
+	public View getNativeView() {
+		return this;
+	}
+
+	// Lifecycle Methods
+
+	public void onDestroy()
+	{
+		Log.e(LCAT, "ON DESTROY: " + getId());
+		//Log.e(LCAT, "Loaded? " + loaded);
+
+		tmm.onDestroy();
+		if (/*loaded*/ true) {
+			destroy();
+		}
+	}
+
+	public void onPause() {
+		tmm.onPause();
+	}
+
+	public void onResume() {
+		tmm.onResume();
 	}
 
 }
