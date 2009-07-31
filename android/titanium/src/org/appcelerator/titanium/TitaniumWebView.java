@@ -2,6 +2,7 @@ package org.appcelerator.titanium;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,17 +28,24 @@ import org.appcelerator.titanium.module.TitaniumNetwork;
 import org.appcelerator.titanium.module.TitaniumPlatform;
 import org.appcelerator.titanium.module.TitaniumUI;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
+import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumUrlHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.webkit.WebSettings;
@@ -80,6 +88,14 @@ public class TitaniumWebView extends WebView
 	private Semaphore sourceReady;
 	private boolean loaded;
 
+	private HashSet<OnConfigChange> configurationChangeListeners;
+
+	public interface OnConfigChange {
+		public void configurationChanged(Configuration config);
+	}
+
+	private HashMap<Integer, String> optionMenuCallbacks;
+
 
 	public TitaniumWebView(TitaniumActivity activity, String url)
 	{
@@ -91,6 +107,8 @@ public class TitaniumWebView extends WebView
 		this.uniqueLockId = new AtomicInteger();
         this.tmm = new TitaniumModuleManager(activity, this);
         this.url = url;
+		this.configurationChangeListeners = new HashSet<OnConfigChange>();
+
 
         setWebViewClient(new TiWebViewClient(activity));
         setWebChromeClient(new TiWebChromeClient(activity));
@@ -513,15 +531,113 @@ public class TitaniumWebView extends WebView
 		        });
 	}
 
+	public void addConfigChangeListener(OnConfigChange listener) {
+		synchronized(configurationChangeListeners) {
+			configurationChangeListeners.add(listener);
+		}
+	}
+
+	public void removeConfigChangeListener(OnConfigChange listener) {
+		synchronized(configurationChangeListeners) {
+			configurationChangeListeners.remove(listener);
+		}
+	}
+
 	// View methods
 
 	public boolean isPrimary() {
 		return false;
 	}
 
-
 	public void dispatchWindowFocusChanged(boolean hasFocus) {
 		tiUI.onWindowFocusChanged(hasFocus);
+	}
+
+	public void dispatchConfigurationChange(Configuration newConfig) {
+		synchronized(configurationChangeListeners) {
+			for(OnConfigChange listener : configurationChangeListeners) {
+				try {
+					listener.configurationChanged(newConfig);
+				} catch (Throwable t) {
+					Log.e(LCAT, "Error invoking configuration changed on a listener");
+				}
+			}
+		}
+	}
+
+	public boolean dispatchPrepareOptionsMenu(Menu menu)
+	{
+		TitaniumMenuItem md = tiUI.getInternalMenu();
+		if (md != null) {
+			if (!md.isRoot()) {
+				throw new IllegalStateException("Expected root menuitem");
+			}
+
+			if (optionMenuCallbacks != null) {
+				optionMenuCallbacks.clear();
+			}
+
+			optionMenuCallbacks = new HashMap<Integer, String>();
+			menu.clear(); // Inefficient, but safest at the moment
+			buildMenuTree(menu, md, optionMenuCallbacks);
+
+		} else {
+			if (DBG) {
+				Log.d(LCAT, "No option menu set.");
+			}
+			return false;
+		}
+		return true;
+	}
+
+    protected void buildMenuTree(Menu menu, TitaniumMenuItem md, HashMap<Integer, String> map)
+    {
+    	if (md.isRoot()) {
+    		for(TitaniumMenuItem mi : md.getMenuItems()) {
+    			buildMenuTree(menu, mi, map);
+    		}
+    	} else if (md.isSubMenu()) {
+    		SubMenu sm = menu.addSubMenu(0, md.getItemId(), 0, md.getLabel());
+    		for(TitaniumMenuItem mi : md.getMenuItems()) {
+    			buildMenuTree(sm, mi, map);
+    		}
+    	} else if (md.isSeparator()) {
+    		// Skip, no equivalent in Android
+    	} else if (md.isItem()) {
+    		MenuItem mi = menu.add(0, md.getItemId(), 0, md.getLabel());
+    		String s = md.getIcon();
+    		if (s != null) {
+     			Drawable d = null;
+				TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getActivity());
+				d = tfh.loadDrawable(s, true);
+				if (d != null) {
+					mi.setIcon(d);
+				}
+    		}
+
+    		s = md.getCallback();
+    		if (s != null) {
+    			map.put(md.getItemId(), s);
+    		}
+    	} else {
+    		throw new IllegalStateException("Unknown menu type expected: root, submenu, separator, or item");
+    	}
+    }
+
+
+	public boolean dispatchOptionsItemSelected(MenuItem item) {
+		boolean result = false;
+
+		if (optionMenuCallbacks != null) {
+			int id = item.getItemId();
+			final String callback = optionMenuCallbacks.get(id);
+			if (callback != null) {
+				evalJS(callback);
+				result = true;
+			}
+		}
+
+		return result;
 	}
 
 	public ITitaniumLifecycle getLifecycle() {

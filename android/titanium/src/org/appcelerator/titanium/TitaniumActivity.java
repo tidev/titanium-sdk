@@ -9,7 +9,6 @@ package org.appcelerator.titanium;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
@@ -17,7 +16,6 @@ import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.config.TitaniumWindowInfo;
-import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumActivityHelper;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
@@ -41,7 +39,6 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -85,7 +82,6 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 
 	protected Handler handler;
 
-	private HashMap<Integer, String> optionMenuCallbacks;
 	private boolean allowVisible;
 	private boolean destroyed;
 
@@ -93,7 +89,6 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 	private AtomicInteger uniqueResultCodeAllocator;
 	private static AtomicInteger idGenerator;
 	private int initialOrientation;
-	private HashSet<OnConfigChange> configurationChangeListeners;
 	private TitaniumLogWatcher logWatcher;
 
 	private ViewAnimator layout;
@@ -102,10 +97,6 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 	private boolean showingJSError;
 
 	private boolean fullscreen;
-
-	public interface OnConfigChange {
-		public void configurationChanged(Configuration config);
-	}
 
 	public interface CheckedRunnable {
 		public void run(boolean isUISafe);
@@ -182,8 +173,6 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 		AlphaAnimation inAnim = new AlphaAnimation(0.0f, 1.0f);
 		inAnim.setDuration(200);
 		layout.setInAnimation(inAnim);
-
-		configurationChangeListeners = new HashSet<OnConfigChange>();
 
 		resultHandlers = new HashMap<Integer, TitaniumResultHandler>();
 		uniqueResultCodeAllocator = new AtomicInteger();
@@ -296,7 +285,6 @@ public class TitaniumActivity extends Activity implements Handler.Callback
     	return parent != null ? parent.isFullscreen() : fullscreen;
     }
 
-
 	public boolean handleMessage(Message msg)
 	{
 		//Bundle b = msg.getData();
@@ -307,21 +295,21 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 				return true;
 			case MSG_ACTIVATE_VIEW : {
 				int index = msg.arg1;
-				ITitaniumView tiView = views.get(index);
-				View newView = tiView.getNativeView();
-				View current = layout.getCurrentView();
-				if (current != newView) {
-					layout.addView(newView);
-					layout.showNext();
-					layout.removeView(current);
+				synchronized(views) {
+					activeViewIndex = index;
+					ITitaniumView tiView = getActiveView();
+					View newView = tiView.getNativeView();
+					View current = layout.getCurrentView();
+					if (current != newView) {
+						layout.addView(newView);
+						layout.showNext();
+						layout.removeView(current);
 
-					if (!current.hasFocus()) {
-						current.requestFocus();
+						if (!current.hasFocus()) {
+							current.requestFocus();
+						}
 					}
-
-			 	    //TODO tiView.requestLayout();
 				}
-//				loaded = true;
 				return true;
 			}
 			case MSG_PUSH_VIEW: {
@@ -409,14 +397,9 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		synchronized(configurationChangeListeners) {
-			for(OnConfigChange listener : configurationChangeListeners) {
-				try {
-					listener.configurationChanged(newConfig);
-				} catch (Throwable t) {
-					Log.e(LCAT, "Error invoking configuration changed on a listener");
-				}
-			}
+
+		for(ITitaniumView view : views) {
+			view.dispatchConfigurationChange(newConfig);
 		}
 	}
 
@@ -454,28 +437,16 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 		}
 		super.onPrepareOptionsMenu(menu);
 
-		//TODO TitaniumMenuItem md = tiUI.getInternalMenu();
-		TitaniumMenuItem md = null; //hack during refactoring
-		if (md != null) {
-			if (!md.isRoot()) {
-				throw new IllegalStateException("Expected root menuitem");
-			}
+		boolean handled = false;
 
-			if (optionMenuCallbacks != null) {
-				optionMenuCallbacks.clear();
+		if (activeViewIndex > -1) {
+			ITitaniumView tiView = getActiveView();
+			if (tiView != null) {
+				handled = tiView.dispatchPrepareOptionsMenu(menu);
 			}
-
-			optionMenuCallbacks = new HashMap<Integer, String>();
-			menu.clear(); // Inefficient, but safest at the moment
-			buildMenuTree(menu, md, optionMenuCallbacks);
-
-		} else {
-			if (DBG) {
-				Log.d(LCAT, "No option menu set.");
-			}
-			return false;
 		}
-		return true;
+
+		return handled;
 	}
 
 	@Override
@@ -486,50 +457,13 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 		}
 		boolean result = super.onOptionsItemSelected(item);
 
-		if (optionMenuCallbacks != null) {
-			int id = item.getItemId();
-			final String callback = optionMenuCallbacks.get(id);
-			if (callback != null) {
-// TODO				webView.evalJS(callback);
-				result = true;
-			}
+		ITitaniumView tiView = getActiveView();
+		if (tiView != null) {
+			result = tiView.dispatchOptionsItemSelected(item);
 		}
+
 		return result;
 	}
-
-    protected void buildMenuTree(Menu menu, TitaniumMenuItem md, HashMap<Integer, String> map)
-    {
-    	if (md.isRoot()) {
-    		for(TitaniumMenuItem mi : md.getMenuItems()) {
-    			buildMenuTree(menu, mi, map);
-    		}
-    	} else if (md.isSubMenu()) {
-    		SubMenu sm = menu.addSubMenu(0, md.getItemId(), 0, md.getLabel());
-    		for(TitaniumMenuItem mi : md.getMenuItems()) {
-    			buildMenuTree(sm, mi, map);
-    		}
-    	} else if (md.isSeparator()) {
-    		// Skip, no equivalent in Android
-    	} else if (md.isItem()) {
-    		MenuItem mi = menu.add(0, md.getItemId(), 0, md.getLabel());
-    		String s = md.getIcon();
-    		if (s != null) {
-     			Drawable d = null;
-				TitaniumFileHelper tfh = new TitaniumFileHelper(this.getParent());
-				d = tfh.loadDrawable(s, true);
-				if (d != null) {
-					mi.setIcon(d);
-				}
-    		}
-
-    		s = md.getCallback();
-    		if (s != null) {
-    			map.put(md.getItemId(), s);
-    		}
-    	} else {
-    		throw new IllegalStateException("Unknown menu type expected: root, submenu, separator, or item");
-    	}
-    }
 
 /*    public void triggerLoad ()
 	{
@@ -555,6 +489,17 @@ public class TitaniumActivity extends Activity implements Handler.Callback
     	}
     }
 
+    public ITitaniumView getActiveView()
+    {
+    	ITitaniumView tiView = null;
+    	synchronized(views) {
+    		if (activeViewIndex > -1) {
+    			tiView = views.get(activeViewIndex);
+    		}
+    	}
+    	return tiView;
+    }
+
     public void setActiveView(int index) {
     	handler.obtainMessage(MSG_ACTIVATE_VIEW, index, -1).sendToTarget();
     }
@@ -566,6 +511,12 @@ public class TitaniumActivity extends Activity implements Handler.Callback
     		index = views.indexOf(tiView);
     	}
     	setActiveView(index);
+    }
+
+    public int getViewCount() {
+    	synchronized (views) {
+			return views.size();
+		}
     }
 
 	public void setLoadOnPageEnd(boolean load) {
@@ -588,18 +539,6 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 
 	protected void removeResultHandler(int code) {
 		resultHandlers.remove(code);
-	}
-
-	public void addConfigChangeListener(OnConfigChange listener) {
-		synchronized(configurationChangeListeners) {
-			configurationChangeListeners.add(listener);
-		}
-	}
-
-	public void removeConfigChangeListener(OnConfigChange listener) {
-		synchronized(configurationChangeListeners) {
-			configurationChangeListeners.remove(listener);
-		}
 	}
 
 	public void runOnUiThreadWithCheck(final CheckedRunnable r)

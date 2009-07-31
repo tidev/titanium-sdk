@@ -9,10 +9,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -194,6 +197,7 @@ public class TitaniumTableView extends FrameLayout
 
 		addView(view, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		tmm.getActivity().addView(this);
+		tmm.getActivity().setActiveView(this);
 	}
 
 	public void close()
@@ -248,7 +252,19 @@ public class TitaniumTableView extends FrameLayout
 	}
 
 	public void dispatchWindowFocusChanged(boolean hasFocus) {
-		// TODO Auto-generated method stub
+	}
 
+	public void dispatchConfigurationChange(Configuration newConfig) {
+		//tmm.getWebView().dispatchConfigurationChange(newConfig);
+	}
+
+	// Called on the current view, so forward to our controller
+	public boolean dispatchOptionsItemSelected(MenuItem item) {
+		return tmm.getWebView().dispatchOptionsItemSelected(item);
+	}
+
+	// Called on the current view, so forward to our controller
+	public boolean dispatchPrepareOptionsMenu(Menu menu) {
+		return tmm.getWebView().dispatchPrepareOptionsMenu(menu);
 	}
 }
