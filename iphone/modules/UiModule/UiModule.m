@@ -1424,6 +1424,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	[newAction setKind:TitaniumTableActionInsertRow];
 	[newAction setIndex:[rowIndex intValue]];
 	[newAction setInsertedRow:insertedObject];
+	[newAction setBaseUrl:[(TitaniumWebViewController *)[[TitaniumHost sharedHost] currentTitaniumContentViewController] currentContentURL];
 	if([optionsObject isKindOfClass:[NSDictionary class]]){
 		NSNumber * animationStyleObject = [optionsObject objectForKey:@"animationStyle"];
 		if([animationStyleObject respondsToSelector:@selector(intValue)])[newAction setAnimation:[animationStyleObject intValue]];
