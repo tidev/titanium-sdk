@@ -7,8 +7,6 @@
 
 package org.appcelerator.titanium.api;
 
-import org.appcelerator.titanium.TitaniumActivity;
-
 public interface ITitaniumUserWindow
 {
 	public void setWindowId(String windowId);
@@ -21,7 +19,4 @@ public interface ITitaniumUserWindow
 	public void close();
 	public int addEventListener(String eventName, String listener);
 	public void removeEventListener(String eventName, int listenerId);
-
-	// Internal
-	public TitaniumActivity getActivity();
 }

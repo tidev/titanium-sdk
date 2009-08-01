@@ -26,9 +26,12 @@ import org.appcelerator.titanium.util.Log;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.webkit.URLUtil;
 
-public class TitaniumUserWindow implements ITitaniumUserWindow, ITitaniumLifecycle
+public class TitaniumUserWindow
+	implements ITitaniumUserWindow, ITitaniumLifecycle, Handler.Callback
 {
 	private static final String LCAT = "TiUserWindow";
 	private static final boolean DBG = TitaniumConfig.LOGD;
@@ -38,8 +41,14 @@ public class TitaniumUserWindow implements ITitaniumUserWindow, ITitaniumLifecyc
 	public static final String EVENT_UNFOCUSED = "unfocused";
 	public static final String EVENT_UNFOCUSED_JSON = "{type:'" + EVENT_UNFOCUSED + "'}";
 
+
+	protected static final int MSG_CLOSE = 300;
+	protected static final int MSG_OPEN = 301;
+	protected static final int MSG_SET_TITLE = 302;
+
 	protected static AtomicInteger activityCounter;
 	protected SoftReference<TitaniumUI> softUIModule;
+	protected Handler handler;
 
 	protected String windowId;
 	protected String title;
@@ -55,13 +64,16 @@ public class TitaniumUserWindow implements ITitaniumUserWindow, ITitaniumLifecyc
 
 	public TitaniumUserWindow(TitaniumUI uiModule, boolean child)
 	{
+		this.handler = new Handler(this);
 		this.softUIModule = new SoftReference<TitaniumUI>(uiModule);
 		isOpen = false;
+
 		if (activityCounter == null) {
 			activityCounter = new AtomicInteger();
 		}
 
 		if (!child) {
+			isOpen = true;
 			this.eventListeners = new TitaniumJSEventManager(uiModule);
 			this.eventListeners.supportEvent(EVENT_FOCUSED);
 			this.eventListeners.supportEvent(EVENT_UNFOCUSED);
@@ -70,82 +82,112 @@ public class TitaniumUserWindow implements ITitaniumUserWindow, ITitaniumLifecyc
 		}
 	}
 
-	public void close() {
-		final TitaniumActivity activity = getActivity();
-		if (activity != null) {
-			activity.runOnUiThread(new Runnable() {
+	public boolean handleMessage(Message msg)
+	{
+		TitaniumActivity activity = getActivity();
+		switch(msg.what) {
+			case MSG_CLOSE : {
+				if (activity != null) {
+					isOpen = false;
+					activity.finish();
+				}
+				return true;
+			} // MSG_CLOSE
+			case MSG_OPEN : {
+				if (activity != null) {
 
-				public void run() {
-					activity.finish();				}
+					if (url != null && URLUtil.isNetworkUrl(url)) {
+						Uri uri = Uri.parse(url);
+						Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+						try {
+							activity.startActivity(intent);
+						} catch (ActivityNotFoundException e) {
+							Log.e(LCAT,"Activity not found: " + url, e);
+						}
+					} else {
 
-				});
+						TitaniumIntentWrapper intent = TitaniumIntentWrapper.createUsing(activity.getIntent());
+						if (title != null) {
+							intent.setTitle(title);
+						}
+						if (titleImageUrl != null) {
+							intent.setIconUrl(titleImageUrl);
+						}
+						if (url != null) {
+							intent.setData(url);
+						}
+						if (type != null) {
+							intent.setActivityType(type);
+						}
+						intent.setFullscreen(fullscreen);
+						if (windowId == null) {
+							intent.setWindowId(TitaniumIntentWrapper.createActivityName("UW-" + activityCounter.incrementAndGet()));
+						} else {
+							TitaniumAppInfo appInfo = ((TitaniumApplication)activity.getApplication()).getAppInfo();
+							TitaniumWindowInfo windowInfo = appInfo.findWindowInfo(windowId);
+							intent.updateUsing(windowInfo);
+						}
 
-			isOpen = false;
+						activity.launchTitaniumActivity(intent);
+
+						softUIModule = null;
+					}
+				} else {
+					if (DBG) {
+						Log.d(LCAT, "Activity Reference has been garbage collected");
+					}
+				}
+			} // MSG_OPEN
+			case MSG_SET_TITLE : {
+				if (activity != null) {
+					activity.setTitle((String) msg.obj);
+				}
+				return true;
+			} // MSG_SET_TITLE
 		}
+		return false;
+	}
+
+	public void close() {
+		if (!isOpen) {
+			String msg = "UserWindow.close: Window is already open.";
+			Log.e(LCAT, msg);
+			throw new IllegalStateException(msg);
+		}
+		handler.obtainMessage(MSG_CLOSE).sendToTarget();
 	}
 
 	public void open()
 	{
 		if (isOpen) {
-			throw new IllegalStateException("Window is already open.");
+			String msg = "UserWindow.open: Window is already open.";
+			Log.e(LCAT, msg);
+			throw new IllegalStateException(msg);
 		}
-
-		TitaniumActivity activity = getActivity();
-		if (activity != null) {
-
-			if (url != null && URLUtil.isNetworkUrl(url)) {
-				Uri uri = Uri.parse(url);
-				Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-				try {
-					activity.startActivity(intent);
-				} catch (ActivityNotFoundException e) {
-					Log.e(LCAT,"Activity not found: " + url, e);
-				}
-			} else {
-
-				TitaniumIntentWrapper intent = TitaniumIntentWrapper.createUsing(activity.getIntent());
-				if (title != null) {
-					intent.setTitle(title);
-				}
-				if (titleImageUrl != null) {
-					intent.setIconUrl(titleImageUrl);
-				}
-				if (url != null) {
-					intent.setData(url);
-				}
-				if (type != null) {
-					intent.setActivityType(type);
-				}
-				intent.setFullscreen(fullscreen);
-				if (windowId == null) {
-					intent.setWindowId(TitaniumIntentWrapper.createActivityName("UW-" + activityCounter.incrementAndGet()));
-				} else {
-					TitaniumAppInfo appInfo = ((TitaniumApplication)activity.getApplication()).getAppInfo();
-					TitaniumWindowInfo windowInfo = appInfo.findWindowInfo(windowId);
-					intent.updateUsing(windowInfo);
-				}
-
-				activity.launchTitaniumActivity(intent);
-
-				softUIModule = null;
-			}
-		} else {
-			if (DBG) {
-				Log.d(LCAT, "Activity Reference has been garbage collected");
-			}
-		}
+		handler.obtainMessage(MSG_OPEN).sendToTarget();
 	}
 
 	public void setWindowId(String windowId) {
-		this.windowId = windowId;
+		if(!isOpen) {
+			this.windowId = windowId;
+		} else {
+			Log.w(LCAT, "windowId cannot be changed after a UserWindow has been opened.");
+		}
 	}
 
 	public void setFullscreen(boolean fullscreen) {
-		this.fullscreen = fullscreen;
+		if (!isOpen) {
+			this.fullscreen = fullscreen;
+		} else {
+			Log.w(LCAT, "fullscreen cannot be changed after a UserWindow has been opened");
+		}
 	}
 
 	public void setTitle(String title) {
 		this.title = title;
+		if (isOpen) {
+			handler.obtainMessage(MSG_SET_TITLE, title);
+		}
 	}
 
 	public void setTitleImage(String titleImageUrl) {
@@ -153,14 +195,27 @@ public class TitaniumUserWindow implements ITitaniumUserWindow, ITitaniumLifecyc
 	}
 
 	public void setUrl(String url) {
-		this.url = url;
+		if (!isOpen) {
+			this.url = url;
+		} else {
+			Log.w(LCAT, "Window url cannot be changed after a UserWindow has been opened");
+		}
 	}
 
 	public void setType(String type) {
-		this.type = type;
+		if (!isOpen) {
+			this.type = type;
+		} else {
+			Log.w(LCAT, "Window type cannot be changed after a UserWindow has been opened");
+		}
 	}
 
 	public int addEventListener(String eventName, String listener) {
+		if (!isOpen) {
+			String msg = "UserWindow.addEventListener: addEventListener is not supported on a closed window.";
+			Log.e(LCAT, msg);
+			throw new IllegalStateException(msg);
+		}
 		int listenerId = -1;
 		if (!child) {
 			listenerId = eventListeners.addListener(eventName, listener);
@@ -172,6 +227,12 @@ public class TitaniumUserWindow implements ITitaniumUserWindow, ITitaniumLifecyc
 
 	public void removeEventListener(String eventName, int listenerId) {
 		if (!child) {
+			if (!isOpen) {
+				String msg = "UserWindow.removeEventListener: removeEventListener is not supported on a closed window.";
+				Log.e(LCAT, msg);
+				throw new IllegalStateException(msg);
+			}
+
 			eventListeners.removeListener(eventName, listenerId);
 		}
 	}

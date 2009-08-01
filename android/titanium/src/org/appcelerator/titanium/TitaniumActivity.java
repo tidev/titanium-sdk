@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
+import org.appcelerator.titanium.api.ITitaniumUserWindow;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.config.TitaniumConfig;
@@ -53,7 +54,8 @@ import android.widget.ViewAnimator;
  * Class that controls a mobile Titanium application.
  */
 
-public class TitaniumActivity extends Activity implements Handler.Callback
+public class TitaniumActivity extends Activity
+	implements Handler.Callback
 {
 	private static final String LCAT = "TiActivity";
 	private static final boolean DBG = TitaniumConfig.LOGD;
@@ -62,9 +64,10 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 
 	protected static final int MSG_START_ACTIVITY = 300;
 	protected static final int MSG_ACTIVATE_VIEW = 301;
-	protected static final int MSG_PUSH_VIEW = 302;
-	protected static final int MSG_POP_VIEW = 303;
+	//protected static final int MSG_PUSH_VIEW = 302;
+	//protected static final int MSG_POP_VIEW = 303;
 	protected static final int MSG_SET_LOAD_ON_PAGE_END = 304;
+	protected static final int MSG_CLOSE = 305;
 
 	protected TitaniumApplication app;
 	protected TitaniumIntentWrapper intent;
@@ -312,6 +315,7 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 				}
 				return true;
 			}
+			/*
 			case MSG_PUSH_VIEW: {
 				View v = (View)msg.obj;
 				layout.addView(v, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));
@@ -326,6 +330,11 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 				View v = (View) msg.obj;
 				layout.showPrevious();
 				layout.removeView(v);
+				return true;
+			}
+			*/
+			case MSG_CLOSE : {
+				finish();
 				return true;
 			}
 		}
