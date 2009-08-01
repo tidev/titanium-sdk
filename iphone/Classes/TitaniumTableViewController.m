@@ -214,7 +214,9 @@ UIColor * checkmarkColor = nil;
 @property(nonatomic,readwrite,copy)		NSString * groupType;
 @property(nonatomic,readwrite,assign)	BOOL isOptionList;
 @property(nonatomic,readwrite,assign)	BOOL nullHeader;
-@property(nonatomic,readwrite,copy)		NSArray * rowArray;
+
+
+@property(nonatomic,readwrite,readwrite)		NSMutableArray * rowArray;
 
 @end
 
@@ -229,6 +231,7 @@ UIColor * checkmarkColor = nil;
 		Class stringClass = [NSString class];
 		if ([headerString isKindOfClass:stringClass])[self setHeader:headerString];
 		if ([footerString isKindOfClass:stringClass])[self setFooter:footerString];
+		nullHeader = (id)headerString == [NSNull null];
 	}
 	return self;
 }
@@ -247,13 +250,47 @@ UIColor * checkmarkColor = nil;
 	}
 }
 
-- (void) addRowsFromSection: (TableSectionWrapper *) otherSection;
+- (void) insertRow: (TableRowWrapper *) newRow atIndex: (int) index;
 {
 	if (rowArray == nil){
-		rowArray = [[otherSection rowArray] copy];
+		rowArray = [[NSMutableArray alloc] initWithObjects:newRow,nil];
 	} else {
-		[rowArray addObjectsFromArray:[otherSection rowArray]];
+		[rowArray insertObject:newRow atIndex:index];
 	}
+}
+
+- (void) addRowsFromArray: (NSArray *) otherArray;
+{
+	if(otherArray == nil)return;
+	if (rowArray == nil){
+		rowArray = [otherArray mutableCopy];
+	} else {
+		[rowArray addObjectsFromArray:otherArray];
+	}
+}
+
+- (void) addRowsFromSection: (TableSectionWrapper *) otherSection;
+{
+	[self addRowsFromArray:[otherSection rowArray]];
+}
+
+- (void) trimToIndex: (int) rowIndex;
+{
+	int rowCount = [rowArray count];
+	if(rowIndex < rowCount) {
+		[rowArray removeObjectsInRange:NSMakeRange(rowIndex, rowCount-rowIndex)];
+	}
+}
+
+- (TableSectionWrapper *) subSectionFromIndex: (int) rowIndex;
+{
+	TableSectionWrapper * result = [[TableSectionWrapper alloc] initWithHeader:header footer:footer];
+	[result setNullHeader:nullHeader];
+	int rowCount = [rowArray count];
+	if(rowIndex < rowCount) {
+		[result addRowsFromArray:[rowArray subarrayWithRange:NSMakeRange(rowIndex,rowCount-rowIndex)]];
+	}
+	return result;
 }
 
 - (void) removeRowAtIndex: (int) rowIndex;
@@ -834,7 +871,14 @@ UIColor * checkmarkColor = nil;
  */
 
 - (void)deleteRowAtIndex: (int)index animation: (UITableViewRowAnimation) animation;
-{
+{	
+	if(index < 0){
+		if(VERBOSE_DEBUG){
+			NSLog(@"-[%@ deleteRowAtIndex:%d animation:%d]: Index is less than 0.",self,index,animation);
+		}
+		return;
+	}
+	
 	int thisSectionIndex = 0;
 	int oldIndex = index;
 	
@@ -904,7 +948,6 @@ UIColor * checkmarkColor = nil;
 - (void)insertRow: (NSDictionary *)rowData atIndex: (int)index relativeUrl: (NSURL *) baseUrl animation: (UITableViewRowAnimation) animation;
 {
 	int thisSectionIndex = 0;
-	int oldIndex = index;
 	
 	NSString * header = [rowData objectForKey:@"header"];
 	NSString * footer = [rowData objectForKey:@"footer"];
@@ -922,23 +965,70 @@ UIColor * checkmarkColor = nil;
 						withRowAnimation:animation];
 				return;
 			}
-			
-			
-			
-			
+			//Okay, at this point, we know it's not a match. But if it's at the tail end of the section, ignore it for now.
+			if(index <= 0){
+				//Treat it like a scraggler.
+				break;
+			}
+			if(index < rowCount){//Now we have to split up the section into three.
+				TableSectionWrapper * newSection = [[TableSectionWrapper alloc] initWithHeader:header footer:footer];
+				[newSection addRow:insertedRow];
+				TableSectionWrapper * lowerSection = [thisSection subSectionFromIndex:index];
+				
+				int newSectionIndex = thisSectionIndex + 1;
+				int lowerSectionIndex = thisSectionIndex + 2;
+				
+				NSMutableArray * ourDeletedRowArray = [[NSMutableArray alloc] init];
+				
+				for(int i=rowCount-1;i>=index;i--){
+					[ourDeletedRowArray addObject:[NSIndexPath indexPathForRow:i inSection:thisSectionIndex]];
+				}
+				
+				[tableView beginUpdates];
+				
+				[thisSection trimToIndex:index];
+				[tableView deleteRowsAtIndexPaths:ourDeletedRowArray withRowAnimation:animation];
+
+				[sectionArray insertObject:newSection atIndex:newSectionIndex];
+				[sectionArray insertObject:lowerSection atIndex:lowerSectionIndex];				
+				[tableView insertSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(newSectionIndex, 2)] withRowAnimation:animation];
+				
+				[tableView endUpdates];
+				return;
+			}
 		}
 
 		thisSectionIndex++;
 		index -= rowCount;
 	}		
 
-	if(VERBOSE_DEBUG){
-		NSLog(@"-[%@ insertRow:%@ atIndex:%d animation:%d]: Index is %d rows past the end. %d sections exist.",self,rowData,oldIndex,animation,index,thisSectionIndex);
-	}	
+	//We have a scraggler!
+	TableSectionWrapper * newSection = [[TableSectionWrapper alloc] initWithHeader:header footer:footer];
+	[newSection addRow:insertedRow];
+
+	[tableView beginUpdates];
+	[sectionArray insertObject:newSection atIndex:thisSectionIndex];
+	[tableView insertSections:[NSIndexSet indexSetWithIndex:thisSectionIndex] withRowAnimation:animation];
+	[tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:0 inSection:thisSectionIndex]] withRowAnimation:animation];
+	[tableView endUpdates];
+
+	[newSection release];
 }
 
-- (void)updateRow: (NSDictionary *)rowData atIndex: (int)index animation: (UITableViewRowAnimation) animation;
+- (void)updateRow: (NSDictionary *)rowData atIndex: (int)index relativeUrl: (NSURL *) baseUrl animation: (UITableViewRowAnimation) animation;
 {
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 }
 
@@ -948,18 +1038,27 @@ UIColor * checkmarkColor = nil;
 	[actionLock lock];
 	for(TitaniumTableActionWrapper * thisAction in actionQueue){
 		TitaniumTableAction kind = [thisAction kind];
-		NSIndexPath * ourPath;
+		NSURL * baseUrl;
+		UITableViewRowAnimation animation = [thisAction animation];
 
 		switch (kind) {
 			case TitaniumTableActionInsertRow:
-				
+				[self insertRow:[thisAction insertedRow] atIndex:[thisAction index] relativeUrl:[thisAction baseUrl] animation:animation];
 				break;
 			case TitaniumTableActionDeleteRow:
-				[self deleteRowAtIndex:[thisAction index] animation:[thisAction animation]];
+				[self deleteRowAtIndex:[thisAction index] animation:animation];
 				break;
 			case TitaniumTableActionUpdateRows:
-				
-				
+				baseUrl = [thisAction baseUrl];
+				Class dictClass = [NSDictionary class];
+				for(NSDictionary * thisUpdate in [thisAction updatedRows]){
+					if(![thisUpdate isKindOfClass:dictClass])continue;
+					NSNumber * indexObject = [thisUpdate objectForKey:@"index"];
+					NSDictionary * rowData = [thisUpdate objectForKey:@"rowData"];
+					
+					if(![indexObject respondsToSelector:@selector(intValue)] || ![rowData isKindOfClass:dictClass])continue;
+					[self updateRow:rowData atIndex:[indexObject intValue] relativeUrl:baseUrl animation:animation];
+				}
 				break;
 			default:
 				break;
