@@ -1431,20 +1431,23 @@ int barButtonSystemItemForString(NSString * inputString){
 
 - (void) setTableView:(NSString *)tokenString updateRows:(NSArray *)rowsArray options:(NSDictionary *)optionsObject;
 {
-//	if(![rowIndex respondsToSelector:@selector(intValue)])return;
-//	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
-//	if(![ourVC isKindOfClass:[TitaniumTableViewController class]]) return;
-//	
-//	TitaniumTableActionWrapper * newAction = [[TitaniumTableActionWrapper alloc] init];
-//	[newAction setKind:TitaniumTableActionUpdateRows];
-//	[newAction setIndex:[rowIndex intValue]];
-//	if([optionsObject isKindOfClass:[NSDictionary class]]){
-//		NSNumber * animationStyleObject = [optionsObject objectForKey:@"animationStyle"];
-//		if([animationStyleObject respondsToSelector:@selector(intValue)])[newAction setAnimation:[animationStyleObject intValue]];
-//	}
-//	
-//	[(TitaniumTableViewController *)ourVC enqueueAction:newAction];
-//	[newAction release];
+	if(![rowsArray isKindOfClass:[NSArray class]])return;
+
+	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
+	if(![ourVC isKindOfClass:[TitaniumTableViewController class]]) return;
+	
+	TitaniumTableActionWrapper * newAction = [[TitaniumTableActionWrapper alloc] init];
+	[newAction setKind:TitaniumTableActionUpdateRows];
+	[newAction setUpdatedRows:rowsArray];
+	[newAction setBaseUrl:[(TitaniumWebViewController *)[[TitaniumHost sharedHost] currentTitaniumContentViewController] currentContentURL]];
+
+	if([optionsObject isKindOfClass:[NSDictionary class]]){
+		NSNumber * animationStyleObject = [optionsObject objectForKey:@"animationStyle"];
+		if([animationStyleObject respondsToSelector:@selector(intValue)])[newAction setAnimation:[animationStyleObject intValue]];
+	}
+	
+	[(TitaniumTableViewController *)ourVC enqueueAction:newAction];
+	[newAction release];
 }
 
 

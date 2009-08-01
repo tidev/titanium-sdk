@@ -1017,18 +1017,35 @@ UIColor * checkmarkColor = nil;
 
 - (void)updateRow: (NSDictionary *)rowData atIndex: (int)index relativeUrl: (NSURL *) baseUrl animation: (UITableViewRowAnimation) animation;
 {
+	int thisSectionIndex = 0;
+	
+	NSString * header = [rowData objectForKey:@"header"];
+	NSString * footer = [rowData objectForKey:@"footer"];
+	
+	for(TableSectionWrapper * thisSection in sectionArray){
+		int rowCount = [thisSection rowCount];
+		if (rowCount > index){
+			NSIndexPath * thisPath = [NSIndexPath indexPathForRow:index inSection:thisSectionIndex];
+			TableRowWrapper * thisRow = [thisSection rowForIndex:index];
+			[thisRow useProperties:rowData withUrl:baseUrl];
+
+//			if([thisSection accceptsHeader:header footer:footer]){
+				[tableView reloadRowsAtIndexPaths:
+						[NSArray arrayWithObject:[NSIndexPath indexPathForRow:index inSection:thisSectionIndex]]
+						withRowAnimation:animation];
+				return;
+//			}
+			
 	
 	
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
+		}
+
+		thisSectionIndex++;
+		index -= rowCount;
+	}
 	
 }
 
