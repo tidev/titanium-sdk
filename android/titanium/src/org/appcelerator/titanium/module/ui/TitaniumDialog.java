@@ -9,6 +9,7 @@ package org.appcelerator.titanium.module.ui;
 
 
 import org.appcelerator.titanium.TitaniumActivity;
+import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumDialog;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
@@ -24,7 +25,7 @@ public class TitaniumDialog implements ITitaniumDialog
 
 	public static final String CLICK_EVENT = "click";
 
-	protected TitaniumActivity activity;
+	protected TitaniumModuleManager tmm;
 	protected AlertDialog.Builder builder;
 	protected TitaniumJSEventManager eventListeners;
 
@@ -40,12 +41,12 @@ public class TitaniumDialog implements ITitaniumDialog
 			dialog.dismiss();
 		}
 	}
-	public TitaniumDialog(TitaniumActivity activity)
+	public TitaniumDialog(TitaniumModuleManager tmm)
 	{
-		this.activity = activity;
-		this.eventListeners = new TitaniumJSEventManager(activity.getWebView());
+		this.tmm = tmm;
+		this.eventListeners = new TitaniumJSEventManager(tmm);
 		this.eventListeners.supportEvent(CLICK_EVENT);
-		this.builder = new AlertDialog.Builder(activity);
+		this.builder = new AlertDialog.Builder(tmm.getActivity());
 		this.builder.setCancelable(true);
 	}
 
@@ -118,7 +119,7 @@ public class TitaniumDialog implements ITitaniumDialog
 	}
 
 	public void show() {
-		activity.runOnUiThreadWithCheck(new TitaniumActivity.CheckedRunnable(){
+		tmm.getActivity().runOnUiThreadWithCheck(new TitaniumActivity.CheckedRunnable(){
 
 			public void run(boolean isUISafe) {
 				if (isUISafe) {

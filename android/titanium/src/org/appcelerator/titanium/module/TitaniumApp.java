@@ -97,7 +97,7 @@ public class TitaniumApp extends TitaniumBaseModule implements ITitaniumApp
 		if (DBG) {
 			Log.d(LCAT,"++++++++++++ TRIGGER LOAD IN APP");
 		}
-		getActivity().triggerLoad(); // Activity takes care of thread.
+		//getActivity().triggerLoad(); // Activity takes care of thread.
 	}
 	public void setLoadOnPageEnd(final boolean load)
 	{

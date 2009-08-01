@@ -7,38 +7,22 @@
 
 package org.appcelerator.titanium;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.appcelerator.titanium.api.ITitaniumApp;
-import org.appcelerator.titanium.api.ITitaniumNetwork;
-import org.appcelerator.titanium.api.ITitaniumPlatform;
+import org.appcelerator.titanium.api.ITitaniumLifecycle;
+import org.appcelerator.titanium.api.ITitaniumUserWindow;
+import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.config.TitaniumWindowInfo;
-import org.appcelerator.titanium.module.TitaniumAPI;
-import org.appcelerator.titanium.module.TitaniumAccelerometer;
-import org.appcelerator.titanium.module.TitaniumAnalytics;
-import org.appcelerator.titanium.module.TitaniumApp;
-import org.appcelerator.titanium.module.TitaniumDatabase;
-import org.appcelerator.titanium.module.TitaniumFilesystem;
-import org.appcelerator.titanium.module.TitaniumGeolocation;
-import org.appcelerator.titanium.module.TitaniumGesture;
-import org.appcelerator.titanium.module.TitaniumMedia;
-import org.appcelerator.titanium.module.TitaniumNetwork;
-import org.appcelerator.titanium.module.TitaniumPlatform;
-import org.appcelerator.titanium.module.TitaniumUI;
-import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
-import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumActivityHelper;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.appcelerator.titanium.util.TitaniumLogWatcher;
 import org.appcelerator.titanium.util.TitaniumUIHelper;
-import org.appcelerator.titanium.util.TitaniumUrlHelper;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -52,12 +36,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
-import org.appcelerator.titanium.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -72,7 +54,8 @@ import android.widget.ViewAnimator;
  * Class that controls a mobile Titanium application.
  */
 
-public class TitaniumActivity extends Activity implements Handler.Callback
+public class TitaniumActivity extends Activity
+	implements Handler.Callback
 {
 	private static final String LCAT = "TiActivity";
 	private static final boolean DBG = TitaniumConfig.LOGD;
@@ -80,10 +63,11 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 	protected static final int ACCELEROMETER_DELAY = 100; // send event no more frequently than
 
 	protected static final int MSG_START_ACTIVITY = 300;
-	protected static final int MSG_ACTIVATE_WEBVIEW = 301;
-	protected static final int MSG_PUSH_VIEW = 302;
-	protected static final int MSG_POP_VIEW = 303;
+	protected static final int MSG_ACTIVATE_VIEW = 301;
+	//protected static final int MSG_PUSH_VIEW = 302;
+	//protected static final int MSG_POP_VIEW = 303;
 	protected static final int MSG_SET_LOAD_ON_PAGE_END = 304;
+	protected static final int MSG_CLOSE = 305;
 
 	protected TitaniumApplication app;
 	protected TitaniumIntentWrapper intent;
@@ -91,19 +75,16 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 
 	protected TitaniumAppInfo appInfo;
 	protected TitaniumWindowInfo windowInfo;
-	protected TitaniumModuleManager moduleMgr;
 
-	protected TitaniumUI tiUI;
+	protected ArrayList<ITitaniumView> views;
+	protected int activeViewIndex;
 
 	protected boolean loadOnPageEnd;
 
 	protected ImageView splashView;
 
-	protected TitaniumWebView webView;
 	protected Handler handler;
 
-	private HashMap<Integer, String> optionMenuCallbacks;
-	private boolean loaded;
 	private boolean allowVisible;
 	private boolean destroyed;
 
@@ -111,23 +92,14 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 	private AtomicInteger uniqueResultCodeAllocator;
 	private static AtomicInteger idGenerator;
 	private int initialOrientation;
-	private HashSet<OnConfigChange> configurationChangeListeners;
 	private TitaniumLogWatcher logWatcher;
 
 	private ViewAnimator layout;
 	private Drawable backgroundDrawable;
 
-	private String url;
-	private String source;
-	private Semaphore sourceReady;
-
 	private boolean showingJSError;
 
 	private boolean fullscreen;
-
-	public interface OnConfigChange {
-		public void configurationChanged(Configuration config);
-	}
 
 	public interface CheckedRunnable {
 		public void run(boolean isUISafe);
@@ -152,6 +124,9 @@ public class TitaniumActivity extends Activity implements Handler.Callback
     		Log.d(LCAT, "onCreate");
     	}
         super.onCreate(savedInstanceState);
+
+        views = new ArrayList<ITitaniumView>(5);
+        activeViewIndex = -1;
 
         logWatcher = new TitaniumLogWatcher(this);
 		if (idGenerator == null) {
@@ -179,10 +154,8 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 
     	Activity root = TitaniumActivityHelper.getRootActivity(this);
 		handler = new Handler(me);
-        webView = new TitaniumWebView(me);
-        webView.setId(idGenerator.incrementAndGet());
-        webView.setWebViewClient(new TiWebViewClient(this));
-        webView.setWebChromeClient(new TiWebChromeClient(this));
+
+		String url = null;
 
         if (intent != null) {
         	appInfo = intent.getAppInfo(me);
@@ -194,30 +167,15 @@ public class TitaniumActivity extends Activity implements Handler.Callback
         	 }
          }
 
-        sourceReady = new Semaphore(0);
-
-		Thread sourceLoadThread = new Thread(new Runnable(){
-
-			public void run() {
-				try {
-					source = TitaniumUrlHelper.getSource(app, app.getApplicationContext(), url, null);
-				} catch (IOException e) {
-					Log.e(LCAT, "Unable to load source for " + url);
-				} finally {
-					synchronized(sourceReady) {
-						sourceReady.release();
-					}
-				}
-			}});
-        sourceLoadThread.start();
+        TitaniumWebView webView = new TitaniumWebView(me, url);
+        webView.setId(idGenerator.incrementAndGet());
+        addView(webView);
 
 		layout = new ViewAnimator(this);
 		layout.setAnimateFirstView(true);
 		AlphaAnimation inAnim = new AlphaAnimation(0.0f, 1.0f);
 		inAnim.setDuration(200);
 		layout.setInAnimation(inAnim);
-
-		configurationChangeListeners = new HashSet<OnConfigChange>();
 
 		resultHandlers = new HashMap<Integer, TitaniumResultHandler>();
 		uniqueResultCodeAllocator = new AtomicInteger();
@@ -238,16 +196,6 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 				backgroundDrawable = tfh.loadDrawable(fBackgroundImage, false); // Ok to not have background
 			}});
         backgroundDrawableThread.start();
-
-        initializeModules();
-
-        Thread webViewThread = new Thread(new Runnable(){
-
-			public void run() {
-				buildWebView();
-			}});
-        webViewThread.setPriority(Thread.MAX_PRIORITY);
-        webViewThread.start();
 
         initialOrientation = this.getRequestedOrientation();
         Intent activityIntent = getIntent();
@@ -272,7 +220,6 @@ public class TitaniumActivity extends Activity implements Handler.Callback
         		layout.addView(ok, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT,0.25f));
         		this.setContentView(layout);
 
-        		webViewThread.interrupt();
         		return;
         	}
         }
@@ -333,84 +280,12 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 
 		ts("After splash");
 
-		ts ("Starting WebView config");
-
-//        if (d != null) {
-//          // If you want the background to show, you have to have a ZERO alpha channel
-//        	webView.setBackgroundColor(Color.argb(0,255,0,0));
-//        	webView.setBackgroundDrawable(d);
-//        }
-
         ts("end of onCreate");
 	}
 
     public boolean isFullscreen() {
     	TitaniumActivityGroup parent = (TitaniumActivityGroup) getParent();
     	return parent != null ? parent.isFullscreen() : fullscreen;
-    }
-
-    protected void initializeModules() {
-        // Add Modules
-        moduleMgr = new TitaniumModuleManager(this);
-        this.tiUI = new TitaniumUI(moduleMgr, "TitaniumUI");
-
-        new TitaniumMedia(moduleMgr, "TitaniumMedia");
-        String userAgent = appInfo.getSystemProperties().getString(TitaniumAppInfo.PROP_NETWORK_USER_AGENT, null); //if we get null, we have a startup error.
-        ITitaniumNetwork tiNetwork = new TitaniumNetwork(moduleMgr, "TitaniumNetwork", userAgent);
-        ITitaniumPlatform tiPlatform = new TitaniumPlatform(moduleMgr, "TitaniumPlatform");
-
-		ITitaniumApp tiApp = new TitaniumApp(moduleMgr, "TitaniumApp",appInfo);
- 		new TitaniumAnalytics(moduleMgr, "TitaniumAnalytics");
-		new TitaniumAPI(moduleMgr, "TitaniumAPI");
-		new TitaniumFilesystem(moduleMgr, "TitaniumFilesystem");
-		new TitaniumDatabase(moduleMgr, "TitaniumDatabase");
-		new TitaniumAccelerometer(moduleMgr, "TitaniumAccelerometer");
-		new TitaniumGesture(moduleMgr, "TitaniumGesture");
-		new TitaniumGeolocation(moduleMgr, "TitaniumGeolocation");
-
-		// Add Modules from Applications
-		app.addModule(moduleMgr);
-
-		moduleMgr.registerModules();
-
-		ts ("After modules");
-
-		if (app.needsEnrollEvent()) {
-			app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createAppEnrollEvent(tiPlatform, tiApp));
-		}
-
-		if (app.needsStartEvent()) {
-			String deployType = appInfo.getSystemProperties().getString("ti.deploytype", "unknown");
-
-			app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createAppStartEvent(tiNetwork, tiPlatform, tiApp, deployType));
-		}
-    }
-
-    protected void buildWebView()
-    {
-		if (windowInfo != null && windowInfo.hasBackgroundColor()) {
-			webView.setBackgroundColor(windowInfo.getBackgroundColor());
-		}
-
-	       ts("After webview configured");
-
-        if (intent != null)
-		{
-        	try {
-          		synchronized(sourceReady) {
-          			sourceReady.acquire();
-          		}
-          		webView.loadFromSource(url, source);
-        	} catch (InterruptedException e) {
-        		Log.w(LCAT, "Interrupted: " + e.getMessage());
-        	}
-	    }
-		else
-		{
-			if (DBG) {
-				Log.d(LCAT, "Intent was empty");
-			}
-		}
     }
 
 	public boolean handleMessage(Message msg)
@@ -421,24 +296,26 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 			case MSG_START_ACTIVITY :
 				startActivity((Intent) msg.obj);
 				return true;
-			case MSG_ACTIVATE_WEBVIEW : {
-				View current = layout.getCurrentView();
-				if (current == splashView) {
-					layout.addView(webView);
-					layout.showNext();
-					layout.removeView(splashView);
+			case MSG_ACTIVATE_VIEW : {
+				int index = msg.arg1;
+				synchronized(views) {
+					activeViewIndex = index;
+					ITitaniumView tiView = getActiveView();
+					View newView = tiView.getNativeView();
+					View current = layout.getCurrentView();
+					if (current != newView) {
+						layout.addView(newView);
+						layout.showNext();
+						layout.removeView(current);
 
-					ts("webview is content");
-
-			 	    if (!webView.hasFocus()) {
-			 	    	webView.requestFocus();
-			 	    }
-
-			 	    webView.requestLayout();
+						if (!current.hasFocus()) {
+							current.requestFocus();
+						}
+					}
 				}
-				loaded = true;
 				return true;
 			}
+			/*
 			case MSG_PUSH_VIEW: {
 				View v = (View)msg.obj;
 				layout.addView(v, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));
@@ -455,6 +332,11 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 				layout.removeView(v);
 				return true;
 			}
+			*/
+			case MSG_CLOSE : {
+				finish();
+				return true;
+			}
 		}
 
 		return false;
@@ -464,12 +346,12 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 		return this.handler;
 	}
 
-    public TitaniumWebView getWebView() {
-    	return this.webView;
-    }
-
     public TitaniumAppInfo getAppInfo() {
     	return appInfo;
+    }
+
+    public TitaniumWindowInfo getWindowInfo() {
+    	return windowInfo;
     }
 
     public void launchTitaniumActivity(final String name) {
@@ -524,14 +406,9 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		synchronized(configurationChangeListeners) {
-			for(OnConfigChange listener : configurationChangeListeners) {
-				try {
-					listener.configurationChanged(newConfig);
-				} catch (Throwable t) {
-					Log.e(LCAT, "Error invoking configuration changed on a listener");
-				}
-			}
+
+		for(ITitaniumView view : views) {
+			view.dispatchConfigurationChange(newConfig);
 		}
 	}
 
@@ -539,15 +416,15 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0)) {
         	Log.e(LCAT, "BACK in Activity");
-        	if (webView.canGoBack()) {
-        		webView.goBack();
-        		Log.e(LCAT, "Activity back key and has webView back");
-                return true;
-        	} else {
+//       	if (webView.canGoBack()) {
+//        		webView.goBack();
+//        		Log.e(LCAT, "Activity back key and has webView back");
+//                return true;
+//        	} else {
         		Log.i(LCAT, "Injecting onWindowFocusChanged(false)");
-        		tiUI.onWindowFocusChanged(false); // Notify we're about to lose focus
+        		onWindowFocusChanged(false);
         		finish();
-        	}
+//        	}
         }
         return false;
     }
@@ -569,27 +446,16 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 		}
 		super.onPrepareOptionsMenu(menu);
 
-		TitaniumMenuItem md = tiUI.getInternalMenu();
-		if (md != null) {
-			if (!md.isRoot()) {
-				throw new IllegalStateException("Expected root menuitem");
-			}
+		boolean handled = false;
 
-			if (optionMenuCallbacks != null) {
-				optionMenuCallbacks.clear();
+		if (activeViewIndex > -1) {
+			ITitaniumView tiView = getActiveView();
+			if (tiView != null) {
+				handled = tiView.dispatchPrepareOptionsMenu(menu);
 			}
-
-			optionMenuCallbacks = new HashMap<Integer, String>();
-			menu.clear(); // Inefficient, but safest at the moment
-			buildMenuTree(menu, md, optionMenuCallbacks);
-
-		} else {
-			if (DBG) {
-				Log.d(LCAT, "No option menu set.");
-			}
-			return false;
 		}
-		return true;
+
+		return handled;
 	}
 
 	@Override
@@ -600,51 +466,15 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 		}
 		boolean result = super.onOptionsItemSelected(item);
 
-		if (optionMenuCallbacks != null) {
-			int id = item.getItemId();
-			final String callback = optionMenuCallbacks.get(id);
-			if (callback != null) {
-				webView.evalJS(callback);
-				result = true;
-			}
+		ITitaniumView tiView = getActiveView();
+		if (tiView != null) {
+			result = tiView.dispatchOptionsItemSelected(item);
 		}
+
 		return result;
 	}
 
-    protected void buildMenuTree(Menu menu, TitaniumMenuItem md, HashMap<Integer, String> map)
-    {
-    	if (md.isRoot()) {
-    		for(TitaniumMenuItem mi : md.getMenuItems()) {
-    			buildMenuTree(menu, mi, map);
-    		}
-    	} else if (md.isSubMenu()) {
-    		SubMenu sm = menu.addSubMenu(0, md.getItemId(), 0, md.getLabel());
-    		for(TitaniumMenuItem mi : md.getMenuItems()) {
-    			buildMenuTree(sm, mi, map);
-    		}
-    	} else if (md.isSeparator()) {
-    		// Skip, no equivalent in Android
-    	} else if (md.isItem()) {
-    		MenuItem mi = menu.add(0, md.getItemId(), 0, md.getLabel());
-    		String s = md.getIcon();
-    		if (s != null) {
-     			Drawable d = null;
-				TitaniumFileHelper tfh = new TitaniumFileHelper(this.getParent());
-				d = tfh.loadDrawable(s, true);
-				if (d != null) {
-					mi.setIcon(d);
-				}
-    		}
-
-    		s = md.getCallback();
-    		if (s != null) {
-    			map.put(md.getItemId(), s);
-    		}
-    	} else {
-    		throw new IllegalStateException("Unknown menu type expected: root, submenu, separator, or item");
-    	}
-    }
-	public void triggerLoad ()
+/*    public void triggerLoad ()
 	{
 		if (DBG) {
 			Log.d(LCAT, "triggerLoad = " + !loaded);
@@ -652,20 +482,51 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 		if (false == loaded)
 		{
 			if (!destroyed) {
-				handler.obtainMessage(MSG_ACTIVATE_WEBVIEW).sendToTarget();
+				handler.obtainMessage(MSG_ACTIVATE_VIEW).sendToTarget();
 			} else {
-				webView.destroy();
+				//webView.destroy();
 			}
 		}
 	}
+*/
+    // TODO, may return index
+    public void addView(ITitaniumView view) {
+    	synchronized(views) {
+    		// TODO check for multiple adds
+    		views.add(view);
+    		Log.e(LCAT, "ADDING VIEW: " + view);
+    	}
+    }
 
-	public void pushView(final View v) {
-		handler.obtainMessage(MSG_PUSH_VIEW, v).sendToTarget();
-	}
+    public ITitaniumView getActiveView()
+    {
+    	ITitaniumView tiView = null;
+    	synchronized(views) {
+    		if (activeViewIndex > -1) {
+    			tiView = views.get(activeViewIndex);
+    		}
+    	}
+    	return tiView;
+    }
 
-	public void popView(final View v) {
-		handler.obtainMessage(MSG_POP_VIEW, v).sendToTarget();
-	}
+    public void setActiveView(int index) {
+    	handler.obtainMessage(MSG_ACTIVATE_VIEW, index, -1).sendToTarget();
+    }
+
+    public void setActiveView(ITitaniumView tiView) {
+    	int index = 0;
+    	synchronized(views) {
+    		Log.e(LCAT, "LOOKING FOR VIEW: " + tiView);
+    		index = views.indexOf(tiView);
+    	}
+    	setActiveView(index);
+    }
+
+    public int getViewCount() {
+    	synchronized (views) {
+			return views.size();
+		}
+    }
 
 	public void setLoadOnPageEnd(boolean load) {
 		loadOnPageEnd = load;
@@ -687,18 +548,6 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 
 	protected void removeResultHandler(int code) {
 		resultHandlers.remove(code);
-	}
-
-	public void addConfigChangeListener(OnConfigChange listener) {
-		synchronized(configurationChangeListeners) {
-			configurationChangeListeners.add(listener);
-		}
-	}
-
-	public void removeConfigChangeListener(OnConfigChange listener) {
-		synchronized(configurationChangeListeners) {
-			configurationChangeListeners.remove(listener);
-		}
 	}
 
 	public void runOnUiThreadWithCheck(final CheckedRunnable r)
@@ -732,13 +581,9 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 
-		if (tiUI != null) {
-			if (DBG) {
-				if (windowInfo != null) {
-					Log.d(LCAT, "onWindowFocus(" + hasFocus + ") in " + windowInfo.getWindowId());
-				}
-			}
-			tiUI.onWindowFocusChanged(hasFocus);
+		if (activeViewIndex > -1) {
+			ITitaniumView tiView = views.get(activeViewIndex);
+			tiView.dispatchWindowFocusChanged(hasFocus);
 		}
 	}
 
@@ -751,7 +596,13 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 			if (appInfo != null && appInfo.getSystemProperties().getBool(TitaniumAppInfo.PROP_ANDROID_WATCHLOG, false)) {
 				logWatcher.attach();
 			}
-			moduleMgr.onResume();
+
+			for(ITitaniumView view : views) {
+				ITitaniumLifecycle lifecycle = view.getLifecycle();
+				if (lifecycle != null) {
+					lifecycle.onResume();
+				}
+			}
 		}
 	}
 
@@ -760,7 +611,13 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 		allowVisible = false;
 		super.onPause();
 		if (!showingJSError) {
-			moduleMgr.onPause();
+			for(ITitaniumView view : views) {
+				ITitaniumLifecycle lifecycle = view.getLifecycle();
+				if (lifecycle != null) {
+					lifecycle.onPause();
+				}
+			}
+
 			if (appInfo != null && appInfo.getSystemProperties().getBool(TitaniumAppInfo.PROP_ANDROID_WATCHLOG, false)) {
 				logWatcher.detach();
 			}
@@ -770,15 +627,16 @@ public class TitaniumActivity extends Activity implements Handler.Callback
 	@Override
 	protected void onDestroy() {
 		allowVisible = false;
-		Log.e(LCAT, "ON DESTROY: " + webView.getId());
-		Log.e(LCAT, "Loaded? " + loaded);
 		super.onDestroy();
 		if (!showingJSError) {
-			moduleMgr.onDestroy();
+			for(ITitaniumView view : views) {
+				ITitaniumLifecycle lifecycle = view.getLifecycle();
+				if (lifecycle != null) {
+					lifecycle.onDestroy();
+				}
+			}
 		}
-		if (loaded) {
-			webView.destroy();
-		}
+		views.clear();
 		destroyed = true;
 	}
 }

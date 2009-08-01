@@ -60,6 +60,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	private static final int MSG_CREATE_TEXTAREA = 307;
 	private static final int MSG_CREATE_TEXTFIELD = 308;
 	private static final int MSG_CREATE_PROGRESSDIALOG = 309;
+	private static final int MSG_CREATE_WINDOW = 310;
 
 	private static final int MSG_END_CREATE_SECTION = 330;
 
@@ -80,8 +81,8 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 		public Object o;
 	}
 
-	public TitaniumUI(TitaniumModuleManager moduleMgr, String name) {
-		super(moduleMgr, name);
+	public TitaniumUI(TitaniumModuleManager tmm, String name) {
+		super(tmm, name);
 
 		handler = new Handler(this);
 
@@ -111,23 +112,23 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 
 			switch (msg.what) {
 				case MSG_CREATE_TABLEVIEW:
-					activity = getActivity();
+					activity = tmm.getActivity();
 					int themeId = android.R.style.Theme;
 
 					if (activity.isFullscreen()) {
 						themeId = android.R.style.Theme_NoTitleBar;
 					}
 
-					h.o = new TitaniumTableView(activity, themeId);
+					h.o = new TitaniumTableView(tmm, themeId);
 					break;
 				case MSG_CREATE_ALERTDIALOG:
-					h.o = new TitaniumDialog(getActivity());
+					h.o = new TitaniumDialog(tmm);
 					break;
 				case MSG_CREATE_OPTIONDIALOG:
-					h.o = new TitaniumDialog(getActivity());
+					h.o = new TitaniumDialog(tmm);
 					break;
 				case MSG_CREATE_TOASTNOTIFIER :
-					h.o = new TitaniumToastNotifier(getActivity());
+					h.o = new TitaniumToastNotifier(tmm);
 					break;
 				case MSG_CREATE_BUTTON :
 					h.o = new TitaniumButton(getModuleManager());
@@ -146,6 +147,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 					break;
 				case MSG_CREATE_PROGRESSDIALOG :
 					h.o = new TitaniumProgressDialog(getActivity());
+					break;
+				case MSG_CREATE_WINDOW :
+					h.o = new TitaniumUserWindow(this, true);
 					break;
 				default :
 					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
@@ -174,8 +178,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	}
 
 	public ITitaniumUserWindow createWindow() {
-		return new TitaniumUserWindow(this, true);
-	}
+		return (ITitaniumUserWindow) create(MSG_CREATE_WINDOW);
+ 	}
+
 	public TitaniumMenuItem getInternalMenu() {
 		return menu;
 	}

@@ -1,16 +1,21 @@
 package org.appcelerator.titanium.module.ui;
 
-import org.appcelerator.titanium.TitaniumActivity;
+import org.appcelerator.titanium.TitaniumModuleManager;
+import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumTableView;
+import org.appcelerator.titanium.api.ITitaniumView;
+import org.appcelerator.titanium.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import org.appcelerator.titanium.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -19,7 +24,8 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class TitaniumTableView extends FrameLayout implements ITitaniumTableView, Handler.Callback
+public class TitaniumTableView extends FrameLayout
+	implements ITitaniumTableView, Handler.Callback, ITitaniumView
 {
 	private static final String LCAT = "TitaniumTableView";
 
@@ -29,7 +35,7 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 	private static final String MSG_EXTRA_CALLBACK = "cb";
 	private static final String MSG_EXTRA_JSON = "json";
 
-	private TitaniumActivity activity;
+	private TitaniumModuleManager tmm;
 	private String data;
 	private int rowHeight;
 	private Handler handler;
@@ -67,7 +73,7 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 			if (convertView != null) {
 				v = (TitaniumTableViewItem) convertView;
 			} else {
-				v = new TitaniumTableViewItem(activity);
+				v = new TitaniumTableViewItem(tmm.getActivity());
 			}
 
 			v.setRowData((JSONObject) getItem(position), rowHeight);
@@ -91,11 +97,11 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 		}
 	}
 
-	public TitaniumTableView(TitaniumActivity activity, int themeId)
+	public TitaniumTableView(TitaniumModuleManager tmm, int themeId)
 	{
-		super(activity, null, themeId);
+		super(tmm.getActivity(), null, themeId);
 
-		this.activity = activity;
+		this.tmm = tmm;
 		this.handler = new Handler(this);
 		this.rowHeight = 65;
 		this.root = false;
@@ -113,6 +119,9 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 		this.root = root;
 	}
 
+	public boolean isPrimary() {
+		return root;
+	}
 
 	public boolean handleMessage(Message msg)
 	{
@@ -143,7 +152,7 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 		setLayoutParams(params);
 		setPadding(5,5,5,5);
 
-		ListView view = new ListView(activity);
+		ListView view = new ListView(tmm.getActivity());
 		view.setFocusable(true);
 		view.setFocusableInTouchMode(true);
 
@@ -179,7 +188,7 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 					event.put("index", position);
 					event.put("detail", false);
 
-					activity.getWebView().evalJS(callback, event);
+					tmm.getWebView().evalJS(callback, event);
 
 				} catch (JSONException e) {
 					Log.e(LCAT, "Error handling event at position: " + position);
@@ -187,10 +196,8 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 			}});
 
 		addView(view, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-		activity.pushView(this);
-		//setContentView(layout);
-		//show();
-		//layout.requestFocus();
+		tmm.getActivity().addView(this);
+		tmm.getActivity().setActiveView(this);
 	}
 
 	public void close()
@@ -199,7 +206,7 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 	}
 
 	private void doClose() {
-		activity.popView(this);
+		//tmm.getActivity().popView(this);
 		destroyDrawingCache();
 		removeAllViews();
 	}
@@ -234,5 +241,30 @@ public class TitaniumTableView extends FrameLayout implements ITitaniumTableView
 		}
 
 		return jdata;
+	}
+
+	public ITitaniumLifecycle getLifecycle() {
+		return null;
+	}
+
+	public View getNativeView() {
+		return this;
+	}
+
+	public void dispatchWindowFocusChanged(boolean hasFocus) {
+	}
+
+	public void dispatchConfigurationChange(Configuration newConfig) {
+		//tmm.getWebView().dispatchConfigurationChange(newConfig);
+	}
+
+	// Called on the current view, so forward to our controller
+	public boolean dispatchOptionsItemSelected(MenuItem item) {
+		return tmm.getWebView().dispatchOptionsItemSelected(item);
+	}
+
+	// Called on the current view, so forward to our controller
+	public boolean dispatchPrepareOptionsMenu(Menu menu) {
+		return tmm.getWebView().dispatchPrepareOptionsMenu(menu);
 	}
 }

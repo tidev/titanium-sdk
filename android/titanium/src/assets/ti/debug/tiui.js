@@ -472,6 +472,53 @@ var UserWindow = function(proxy) {
 	this.removeEventListener = function(eventName, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
+
+	// View methods in 0.5.1
+
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.addView,since=0.5.1) add a view at the end of the view list
+	 * @tiarg[View,view] The view object
+	 * @tiarg[object, options] options
+	 */
+	this.addView = function(view, options) {
+
+	};
+
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.getViews,since=0.5.1) an array of views
+	 * @tiresult[array] the views
+	 */
+	this.getViews = function() {
+
+	};
+
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.setViews,since=0.5.1) set a array of views
+	 * @tiarg[array,views] an array of views
+	 * @tiarg[object, options] options
+	 */
+	this.setViews = function(views, options) {
+
+	};
+
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.setActiveViewIndex,since=0.5.1) The index of the view to display in the window
+	 * @tiarg[int,index] The index of the view in the array returned by getViews()
+	 * @tiarg[object, options] options
+	 */
+	this.setActiveViewIndex = function(index, options) {
+
+	};
+
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.showView,since=0.5.1) locate a view in the views array and display in the window
+	 * @tiarg[View,view] The view object
+	 * @tiarg[object, options] options
+	 */
+	this.showView = function(view, options) {
+
+	};
+
 	// IPhone only methods
 	this.setNavBarColor = function (color) {
 

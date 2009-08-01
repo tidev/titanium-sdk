@@ -7,10 +7,11 @@
 
 package org.appcelerator.titanium.module;
 
-import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.TitaniumModuleManager;
+import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.api.ITitaniumGesture;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.appcelerator.titanium.util.TitaniumSensorHelper;
 import org.json.JSONException;
@@ -21,7 +22,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import org.appcelerator.titanium.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumGesture extends TitaniumBaseModule implements ITitaniumGesture
@@ -39,7 +39,7 @@ public class TitaniumGesture extends TitaniumBaseModule implements ITitaniumGest
 	TitaniumSensorHelper sensorHelper;
 
 	protected SensorEventListener shakeListener;
-	protected TitaniumActivity.OnConfigChange orientationListener;
+	protected TitaniumWebView.OnConfigChange orientationListener;
 
 	protected boolean sensorAttached;
 	protected boolean listeningForShake;
@@ -174,8 +174,8 @@ public class TitaniumGesture extends TitaniumBaseModule implements ITitaniumGest
 		};
 	}
 
-	protected TitaniumActivity.OnConfigChange createOrientationListener() {
-		return new TitaniumActivity.OnConfigChange() {
+	protected TitaniumWebView.OnConfigChange createOrientationListener() {
+		return new TitaniumWebView.OnConfigChange() {
 
 			public void configurationChanged(Configuration config) {
 				if (config.orientation != lastConfigOrientation) {
@@ -252,13 +252,14 @@ public class TitaniumGesture extends TitaniumBaseModule implements ITitaniumGest
 
 	protected void manageOrientationListener(boolean register) {
 		if (register) {
-			getActivity().addConfigChangeListener(orientationListener);
+			tmm.getWebView().addConfigChangeListener(orientationListener);
 			listeningForOrientation = true;
 		} else {
-			getActivity().removeConfigChangeListener(orientationListener);
+			tmm.getWebView().removeConfigChangeListener(orientationListener);
 			listeningForOrientation = false;
 		}
 	}
+
 	@Override
 	public void onResume() {
 		super.onResume();

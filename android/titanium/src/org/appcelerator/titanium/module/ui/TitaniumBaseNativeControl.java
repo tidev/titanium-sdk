@@ -138,7 +138,7 @@ public abstract class TitaniumBaseNativeControl
 				createControl(tmm, openArgs);
 
 				if (id != null) {
-					TitaniumWebView wv = tmm.getActivity().getWebView();
+					TitaniumWebView wv = tmm.getWebView();
 					if (wv != null) {
 						wv.addListener(this);
 						wv.addControl(control);

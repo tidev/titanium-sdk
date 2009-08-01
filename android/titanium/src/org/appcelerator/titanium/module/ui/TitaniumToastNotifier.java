@@ -10,6 +10,7 @@ package org.appcelerator.titanium.module.ui;
 
 
 import org.appcelerator.titanium.TitaniumActivity;
+import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.config.TitaniumConfig;
 
 import android.widget.Toast;
@@ -23,8 +24,8 @@ public class TitaniumToastNotifier extends TitaniumNotifier
 
 	protected Toast toast;
 
-	public TitaniumToastNotifier(TitaniumActivity activity) {
-		super(activity);
+	public TitaniumToastNotifier(TitaniumModuleManager tmm) {
+		super(tmm);
 	}
 
 	private int getToastDelay() {
@@ -33,7 +34,7 @@ public class TitaniumToastNotifier extends TitaniumNotifier
 	@Override
 	public void show(boolean animate, boolean autohide)
 	{
-		final TitaniumActivity activity = getActivity().get();
+		final TitaniumActivity activity = tmm.getActivity();
 		if (activity != null) {
 			if (toast == null) {
 				toast = Toast.makeText(activity, getMessage(), getToastDelay());
@@ -56,7 +57,7 @@ public class TitaniumToastNotifier extends TitaniumNotifier
 
 	public void hide(boolean animate) {
 		if (toast != null && showing) {
-			TitaniumActivity activity = getActivity().get();
+			TitaniumActivity activity = tmm.getActivity();
 			if (activity != null) {
 				activity.runOnUiThread(new Runnable(){
 
