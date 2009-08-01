@@ -168,7 +168,7 @@ public class TitaniumTableView extends FrameLayout
 						keyEvent.getAction() == KeyEvent.ACTION_DOWN
 						)
 				{
-					close();
+					//close();
 					return root ? false : true;
 				}
 				return false;
@@ -196,8 +196,8 @@ public class TitaniumTableView extends FrameLayout
 			}});
 
 		addView(view, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-		tmm.getActivity().addView(this);
-		tmm.getActivity().setActiveView(this);
+		//tmm.getActivity().addView(this);
+		//tmm.getActivity().setActiveView(this);
 	}
 
 	public void close()

@@ -14,6 +14,7 @@ import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.TitaniumApplication;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumUserWindow;
+import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.module.TitaniumUI;
@@ -235,6 +236,37 @@ public class TitaniumUserWindow
 
 			eventListeners.removeListener(eventName, listenerId);
 		}
+	}
+
+	public void addView(ITitaniumView view, String options)
+	{
+		TitaniumActivity activity = getActivity();
+		if (activity != null) {
+			activity.addView(view);
+		}
+	}
+
+	public ITitaniumView[] getViews()
+	{
+		return null;
+	}
+
+	public void setActiveViewIndex(int index, String options)
+	{
+		TitaniumActivity activity = getActivity();
+		if (activity != null) {
+			activity.setActiveView(index);
+		}
+	}
+
+	public void setViews(ITitaniumView[] views, String options) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void showView(ITitaniumView view, String options) {
+		// TODO Auto-generated method stub
+
 	}
 
 	public void onWindowFocusChanged(boolean hasFocus)

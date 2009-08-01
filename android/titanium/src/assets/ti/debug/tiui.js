@@ -481,7 +481,7 @@ var UserWindow = function(proxy) {
 	 * @tiarg[object, options] options
 	 */
 	this.addView = function(view, options) {
-
+		this.proxy.addView(view.proxy, "");
 	};
 
 	/**
@@ -507,7 +507,7 @@ var UserWindow = function(proxy) {
 	 * @tiarg[object, options] options
 	 */
 	this.setActiveViewIndex = function(index, options) {
-
+		this.proxy.setActiveViewIndex(index, "");
 	};
 
 	/**
@@ -839,6 +839,8 @@ Titanium.UI = {
 				 tv.setIsPrimary(isPrimary);
 			 }
 		 }
+
+		 tv.open(null, registerCallback(this, this._callback));
 
 		 return tv;
 	},

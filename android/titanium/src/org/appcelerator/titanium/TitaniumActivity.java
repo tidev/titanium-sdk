@@ -300,7 +300,7 @@ public class TitaniumActivity extends Activity
 				int index = msg.arg1;
 				synchronized(views) {
 					activeViewIndex = index;
-					ITitaniumView tiView = getActiveView();
+					ITitaniumView tiView = views.get(index);
 					View newView = tiView.getNativeView();
 					View current = layout.getCurrentView();
 					if (current != newView) {

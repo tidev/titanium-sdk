@@ -68,7 +68,7 @@
         }
 	];
 
-	var tableView = Titanium.UI.createTableView({
+	var tv1 = Titanium.UI.createTableView({
 			'data' : page1,
 			'rowHeight' : '65',
 			'isPrimary' : true
@@ -97,25 +97,10 @@
 
 				var lid = dlg.addEventListener("click", function() {
 					if (ext) {
-						tableView.close();
+						Titanium.UI.currentWindow.setActiveViewIndex(1);
 						dlg.removeEventListener("click", lid);
 					} else if (e.index == 5) {
-						var tv2 = Titanium.UI.createTableView({
-							'data' : page2, 'rowHeight' : '75',
-						},
-						function(e1) {
-							if (e1.index == 2) {
-								tv2.close();
-							} else if (e1.index == 1) {
-								var odlg = Titanium.UI.createOptionDialog({
-									title : 'Greeting',
-									options : [ 'Hello', 'Hola']
-								});
-								odlg.show();
-							}
-						}
-						);
-						tv2.open({});
+						Titanium.UI.currentWindow.setActiveViewIndex(2);
 					}
 				});
 				alert('LID: ' + lid);
@@ -123,8 +108,29 @@
   			}
  		);
 
+	var tv2 = Titanium.UI.createTableView({
+		'data' : page2, 'rowHeight' : '75',
+	},
+	function(e1) {
+		if (e1.index == 2) {
+			Titanium.UI.currentWindow.setActiveViewIndex(1);
+		} else if (e1.index == 1) {
+			var odlg = Titanium.UI.createOptionDialog({
+				title : 'Greeting',
+				options : [ 'Hello', 'Hola']
+			});
+			odlg.show();
+		}
+	}
+	);
+
   	window.onload = function()
   	{
+  	  	var w = Titanium.UI.currentWindow;
+  	  	w.addView(tv1,"");
+  	  	w.addView(tv2,"");
+  	  	w.setActiveViewIndex(1);
+
   	  	var btn_launch = document.getElementById('launch');
   	  	if (btn_launch !== null) {
 
