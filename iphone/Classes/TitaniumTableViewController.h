@@ -12,6 +12,13 @@ typedef enum {
 	TitaniumTableActionInsertRow,
 	TitaniumTableActionDeleteRow,
 	TitaniumTableActionUpdateRows,
+
+	TitaniumGroupActionInsertRow,
+	TitaniumGroupActionDeleteRow,
+	TitaniumGroupActionUpdateRow,
+
+	TitaniumGroupActionInsertGroup,
+	TitaniumGroupActionDeleteGroup,
 } TitaniumTableAction;
 
 @interface TitaniumTableActionWrapper : NSObject
@@ -21,12 +28,14 @@ typedef enum {
 	NSDictionary * insertedRow;
 	NSArray * updatedRows;
 	UITableViewRowAnimation animation;
+	NSURL * baseUrl;
 }
 
 @property(nonatomic,assign)	TitaniumTableAction kind;
 @property(nonatomic,assign)	int index;
 @property(nonatomic,copy)	NSDictionary * insertedRow;
 @property(nonatomic,copy)	NSArray * updatedRows;
+@property(nonatomic,copy)	NSURL * baseUrl;
 @property(nonatomic,assign)	UITableViewRowAnimation animation;
 
 @end

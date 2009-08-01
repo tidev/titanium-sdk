@@ -105,15 +105,22 @@ try{
 		}
 		try{
 		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
-//		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
-//		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
-//		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
+		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
+		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
+		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
 //		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.LEFT});
 //		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.TOP});
 //		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.BOTTOM});
 		}catch(E){Titanium.UI.createAlertDialog({title:"Error!",message:('Msg:'+E)}).show();};
 	});
-	var tableWindow = Ti.UI.createWindow({views:[tableView]});
+	
+	var insertButton = Ti.UI.createButton({systemButton:Ti.UI.iPhone.SystemButton.ADD});
+	insertButton.addEventListener('click',function(e){
+		tableView.insertRow(3,{title:'row 1', header:'Header 1', hasChild:true, },
+		{animationStyle:Ti.UI.iPhone.RowAnimationStyle.DOWN}
+		)});
+	
+	var tableWindow = Ti.UI.createWindow({views:[tableView],rightNavButton:insertButton});
 	tableWindow.open({animated:true});
 } catch(E){Titanium.UI.createAlertDialog({title:"Error!",message:('Msg:'+E)}).show();};
 };
