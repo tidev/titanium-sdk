@@ -15,6 +15,7 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
 import android.text.method.DigitsKeyListener;
+import android.text.method.PasswordTransformationMethod;
 import android.text.method.TextKeyListener;
 import android.text.method.TextKeyListener.Capitalize;
 import android.view.Gravity;
@@ -65,6 +66,7 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 	private String color;
 	private String backgroundColor;
 	private boolean enableReturnKey;
+	private boolean hasPasswordMask;
 	private int returnKeyType;
 	private int keyboardType;
 	private boolean autocorrect;
@@ -86,6 +88,7 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 		textAlign = TEXT_ALIGN_LEFT;
 		clearOnEdit = false;
 		hintText = "";
+		hasPasswordMask = false;
 	}
 
 	protected void setLocalOptions(JSONObject o) throws JSONException
@@ -112,6 +115,9 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 		}
 		if (o.has("autocorrect")) {
 			this.autocorrect = o.getBoolean("autocorrect");
+		}
+		if (o.has("passwordMask")) {
+			this.hasPasswordMask = o.getBoolean("passwordMask");
 		}
 		if (o.has("hintText")) {
 			this.hintText = o.getString("hintText");
@@ -211,6 +217,10 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 		}
 		if (backgroundColor != null) {
 			tv.setBackgroundColor(TitaniumColorHelper.parseColor(backgroundColor));
+		}
+
+		if (hasPasswordMask) {
+			tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
 		}
 
 		control.isFocusable();
