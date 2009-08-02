@@ -238,7 +238,7 @@ public class TitaniumUserWindow
 		}
 	}
 
-	public void addView(ITitaniumView view, String options)
+	public void addView(ITitaniumView view)
 	{
 		TitaniumActivity activity = getActivity();
 		if (activity != null) {
@@ -255,18 +255,15 @@ public class TitaniumUserWindow
 	{
 		TitaniumActivity activity = getActivity();
 		if (activity != null) {
-			activity.setActiveView(index);
+			activity.setActiveView(index, options);
 		}
 	}
 
-	public void setViews(ITitaniumView[] views, String options) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void showView(ITitaniumView view, String options) {
-		// TODO Auto-generated method stub
-
+	public void showView(ITitaniumView tiView, String options) {
+		TitaniumActivity activity = getActivity();
+		if (activity != null) {
+			activity.setActiveView(tiView, options);
+		}
 	}
 
 	public void onWindowFocusChanged(boolean hasFocus)

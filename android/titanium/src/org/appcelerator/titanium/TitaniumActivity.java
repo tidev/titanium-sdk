@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
-import org.appcelerator.titanium.api.ITitaniumUserWindow;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.config.TitaniumConfig;
@@ -41,7 +40,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
@@ -298,6 +296,8 @@ public class TitaniumActivity extends Activity
 				return true;
 			case MSG_ACTIVATE_VIEW : {
 				int index = msg.arg1;
+				String options = (String) msg.obj;
+
 				synchronized(views) {
 					activeViewIndex = index;
 					ITitaniumView tiView = views.get(index);
@@ -509,17 +509,17 @@ public class TitaniumActivity extends Activity
     	return tiView;
     }
 
-    public void setActiveView(int index) {
-    	handler.obtainMessage(MSG_ACTIVATE_VIEW, index, -1).sendToTarget();
+    public void setActiveView(int index, String options) {
+    	handler.obtainMessage(MSG_ACTIVATE_VIEW, index, -1, options).sendToTarget();
     }
 
-    public void setActiveView(ITitaniumView tiView) {
+    public void setActiveView(ITitaniumView tiView, String options) {
     	int index = 0;
     	synchronized(views) {
     		Log.e(LCAT, "LOOKING FOR VIEW: " + tiView);
     		index = views.indexOf(tiView);
     	}
-    	setActiveView(index);
+    	setActiveView(index, options);
     }
 
     public int getViewCount() {

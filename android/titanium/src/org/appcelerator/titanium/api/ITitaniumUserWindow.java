@@ -22,9 +22,8 @@ public interface ITitaniumUserWindow
 
 	// new in 0.5.1
 
-	public void addView(ITitaniumView view, String options);
+	public void addView(ITitaniumView view);
 	public ITitaniumView[] getViews();
-	public void setViews(ITitaniumView[] views, String options);
 	public void setActiveViewIndex(int index, String options);
 	public void showView(ITitaniumView view, String options);
 }

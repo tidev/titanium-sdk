@@ -480,8 +480,8 @@ var UserWindow = function(proxy) {
 	 * @tiarg[View,view] The view object
 	 * @tiarg[object, options] options
 	 */
-	this.addView = function(view, options) {
-		this.proxy.addView(view.proxy, "");
+	this.addView = function(view) {
+		this.proxy.addView(view.proxy);
 	};
 
 	/**
@@ -493,21 +493,15 @@ var UserWindow = function(proxy) {
 	};
 
 	/**
-	 * @tiapi(method=true,name=UI.UserWindow.setViews,since=0.5.1) set a array of views
-	 * @tiarg[array,views] an array of views
-	 * @tiarg[object, options] options
-	 */
-	this.setViews = function(views, options) {
-
-	};
-
-	/**
 	 * @tiapi(method=true,name=UI.UserWindow.setActiveViewIndex,since=0.5.1) The index of the view to display in the window
 	 * @tiarg[int,index] The index of the view in the array returned by getViews()
 	 * @tiarg[object, options] options
 	 */
 	this.setActiveViewIndex = function(index, options) {
-		this.proxy.setActiveViewIndex(index, "");
+		if (isUndefined(options)) {
+			options = null;
+		}
+		this.proxy.setActiveViewIndex(index, options);
 	};
 
 	/**
@@ -516,7 +510,10 @@ var UserWindow = function(proxy) {
 	 * @tiarg[object, options] options
 	 */
 	this.showView = function(view, options) {
-
+		if (isUndefined(options)) {
+			options = null;
+		}
+		this.proxy.showView(view.proxy, options);
 	};
 
 	// IPhone only methods

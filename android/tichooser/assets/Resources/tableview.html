@@ -113,7 +113,7 @@
 	},
 	function(e1) {
 		if (e1.index == 2) {
-			Titanium.UI.currentWindow.setActiveViewIndex(1);
+			Titanium.UI.currentWindow.showView(tv1);
 		} else if (e1.index == 1) {
 			var odlg = Titanium.UI.createOptionDialog({
 				title : 'Greeting',
@@ -127,8 +127,8 @@
   	window.onload = function()
   	{
   	  	var w = Titanium.UI.currentWindow;
-  	  	w.addView(tv1,"");
-  	  	w.addView(tv2,"");
+  	  	w.addView(tv1);
+  	  	w.addView(tv2);
   	  	w.setActiveViewIndex(1);
 
   	  	var btn_launch = document.getElementById('launch');
