@@ -33,5 +33,6 @@ public interface ITitaniumUI
 	public ITitaniumSlider createSlider(String json);
 	public ITitaniumText createTextArea(String json);
 	public ITitaniumText createTextField(String json);
+	public ITitaniumEmailDialog createEmailDialog();
 
 }

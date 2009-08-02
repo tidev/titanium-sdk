@@ -1,0 +1,67 @@
+<html>
+<head>
+	<title>Email</title>
+
+<script>
+	function doEmail1() {
+		var e = Titanium.UI.createEmailDialog({
+			subject : 'Email Test #1',
+			toRecipients : 'dthorp@appcelerator.com',
+			ccRecipients : '<dthorp@appcelerator.com>',
+			messageBody : 'This is test message #1 from chooser test'
+		});
+		e.open();
+	}
+
+	function doEmail2() {
+		var e = Titanium.UI.createEmailDialog({
+			subject : 'Email Test #2',
+			toRecipients : ['dthorp@appcelerator.com', 'dthorp@gmail.com'],
+			messageBody : 'This is test message #2 from chooser test'
+		});
+		e.open();
+	}
+
+	function viewPhoto() {
+		var galleryHandler = {
+			success : function(img) {
+				alert("Width: " + img.width);
+				alert("Height: " + img.height);
+				alert("Url: " + img.url);
+				alert("obj: " + img.obj);
+
+				var e = Titanium.UI.createEmailDialog({
+					subject : 'Email Test #3',
+					toRecipients : ['dthorp@appcelerator.com'],
+					bccRecipients : ['don@donthorp.net'],
+					messageBody : 'This is test message #3 from chooser test',
+					attachment : { mimeType : 'image/jpg', file : String(img.url) }
+				});
+				e.open();
+			},
+			cancel : function() {
+			},
+			error : function(err) {
+				Titanium.UI.createAlertDialog({
+					title : "Gallery Error",
+					message : transformObjectValue(err.message, "Unknown error."),
+					buttonNames : "OK"
+				}).show();
+			}
+		};
+
+		Titanium.Media.openPhotoGallery(galleryHandler);
+	}
+
+	function doEmail3() {
+		viewPhoto();
+	}
+
+</script>
+</head>
+<body>
+	<p><input type="button" value="Email 1" onclick="doEmail1(); return false;" /></p>
+	<p><input type="button" value="Email 2" onclick="doEmail2(); return false;" /></p>
+	<p><input type="button" value="Email 3" onclick="doEmail3(); return false;" /></p>
+</body>
+</html>

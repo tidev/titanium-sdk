@@ -295,6 +295,64 @@ var ActivityIndicator = function(proxy) {
 	// See below for setLocation
 };
 
+var EmailDialog = function(proxy) {
+	this.proxy = proxy;
+
+	this.setSubject = function(subject) {
+		if (isUndefined(subject)) {
+			subject = null;
+		}
+		proxy.setSubject(subject);
+	};
+	this.toStringArray = function(addrs) {
+		var sa = [];
+		if (!isUndefined(addrs)) {
+			if (typeOf(addrs) === 'string') {
+				Titanium.API.debug("addrs is string");
+				sa.push(addrs);
+			} else if (typeOf(addrs) === 'array') {
+				Titanium.API.debug("addrs is array");
+				for (addr in addrs) {
+					if (typeOf(addrs[addr]) === 'string') {
+						sa.push(addrs[addr]);
+					}
+				}
+			}
+		}
+		Titanium.API.debug("*** sa=" + String(sa));
+		return sa;
+	};
+	this.setToRecipients = function(addrs) {
+		addrs = this.toStringArray(addrs);
+		for (addr in addrs) {
+			this.proxy.addTo(addrs[addr]);
+		}
+	};
+	this.setCcRecipients = function(addrs) {
+		addrs = this.toStringArray(addrs);
+		for (addr in addrs) {
+			this.proxy.addCc(addrs[addr]);
+		}
+	};
+	this.setBccRecipients = function(addrs) {
+		addrs = this.toStringArray(addrs);
+		for (addr in addrs) {
+			this.proxy.addBcc(addrs[addr]);
+		}
+	};
+	this.setMessageBody = function(msg) {
+		this.proxy.setMessage(msg);
+	};
+	this.addAttachment = function(attachment) {
+		if (!isUndefined(attachment)) {
+			this.proxy.addAttachment(Titanium.JSON.stringify(attachment));
+		}
+	};
+	this.open = function() {
+		this.proxy.open();
+	};
+};
+
 var TitaniumNotifier = function(proxy) {
 	this.proxy = proxy; // reference to Java object
 	this._callback; //
@@ -825,6 +883,39 @@ Titanium.UI = {
 		 tv.open(null, registerCallback(this, this._callback));
 
 		 return tv;
+	},
+	createEmailDialog : function(options) {
+		var dlg = new EmailDialog(Titanium.uiProxy.createEmailDialog());
+		if (!isUndefined(options)) {
+			var subject = options["subject"];
+			var to = options["toRecipients"];
+			var cc = options["ccRecipients"];
+			var bcc = options["bccRecipients"];
+			var msg = options["messageBody"];
+			var attachment = options["attachment"];
+
+			if (!isUndefined(subject)) {
+				dlg.setSubject(subject);
+			}
+			if (!isUndefined(to)) {
+				dlg.setToRecipients(to);
+			}
+			if (!isUndefined(cc)) {
+				dlg.setCcRecipients(cc);
+			}
+			if (!isUndefined(bcc)) {
+				dlg.setBccRecipients(bcc);
+			}
+			if (!isUndefined(msg)) {
+				dlg.setMessageBody(msg);
+			}
+			if (!isUndefined(attachment)) {
+				Titanium.API.debug("Attachment: " + Titanium.JSON.stringify(attachment));
+				dlg.addAttachment(attachment);
+			}
+		}
+
+		return dlg;
 	},
 	/**
 	 * @tiapi(method=true,name=UI.createButton,since=0.5.1) Create a native button

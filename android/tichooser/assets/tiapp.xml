@@ -29,7 +29,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
         <window>
             <id>initial</id>
             <title>TextF</title>
@@ -67,7 +67,6 @@
             <barColor>#000</barColor>
         </window>
 
-<!--
 		<window>
             <id>TableView</id>
             <title>Table View</title>
@@ -78,6 +77,16 @@
             <barColor>#000</barColor>
         </window>
 -->
+		<window>
+            <id>Email</id>
+            <title>Email</title>
+            <url>email.html</url>
+            <type>single</type>
+            <fullscreen>false</fullscreen>
+            <backgroundColor>argb(0,255,255,255)</backgroundColor>
+            <barColor>#000</barColor>
+        </window>
+
     </windows>
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.android.watchlog" type="bool">false</property>

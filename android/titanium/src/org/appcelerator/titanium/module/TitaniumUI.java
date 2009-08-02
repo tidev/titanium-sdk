@@ -15,6 +15,7 @@ import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumButton;
 import org.appcelerator.titanium.api.ITitaniumDialog;
+import org.appcelerator.titanium.api.ITitaniumEmailDialog;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumMenuItem;
 import org.appcelerator.titanium.api.ITitaniumNotifier;
@@ -28,6 +29,7 @@ import org.appcelerator.titanium.api.ITitaniumUserWindow;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.ui.TitaniumButton;
 import org.appcelerator.titanium.module.ui.TitaniumDialog;
+import org.appcelerator.titanium.module.ui.TitaniumEmailDialog;
 import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
 import org.appcelerator.titanium.module.ui.TitaniumProgressDialog;
 import org.appcelerator.titanium.module.ui.TitaniumSlider;
@@ -61,6 +63,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	private static final int MSG_CREATE_TEXTFIELD = 308;
 	private static final int MSG_CREATE_PROGRESSDIALOG = 309;
 	private static final int MSG_CREATE_WINDOW = 310;
+	private static final int MSG_CREATE_EMAILDIALOG = 311;
 
 	private static final int MSG_END_CREATE_SECTION = 330;
 
@@ -150,6 +153,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 					break;
 				case MSG_CREATE_WINDOW :
 					h.o = new TitaniumUserWindow(this, true);
+					break;
+				case MSG_CREATE_EMAILDIALOG :
+					h.o = new TitaniumEmailDialog(getModuleManager());
 					break;
 				default :
 					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
@@ -259,6 +265,11 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 		TitaniumTextField text = (TitaniumTextField) create(MSG_CREATE_TEXTFIELD);
 		text.setOptions(json);
 		return text;
+	}
+
+
+	public ITitaniumEmailDialog createEmailDialog() {
+		return (ITitaniumEmailDialog) create(MSG_CREATE_EMAILDIALOG);
 	}
 
 	// Expects the message handler to put the object in h.o and release the holder
