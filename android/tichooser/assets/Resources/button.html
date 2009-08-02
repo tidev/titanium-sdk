@@ -12,7 +12,7 @@
 	// private String color;
 	// private String backgroundColor;
 
-  	Titanium.UI.createButton({id : 'n1', title : 'Button1'}).open();
+  	Titanium.UI.createButton({id : 'n1', title : 'Button1'});
 
   	var n2 = Titanium.UI.createButton({
   	  		id : 'n2', 'title' : 'Button 2',
@@ -29,19 +29,15 @@
 			n2.removeEventListener('click',n2id);
 		});
 
-	n2.open();
-
 	var n3 = Titanium.UI.createButton({
 			id : 'n3', title : 'invisible',
 			image : 'images/icon-32x32.png'
 		});
-	n3.open();
 
 	var n4 = Titanium.UI.createButton({
 		id : 'n4', title : 'invisible',
 		image : 'images/icon-32x32.png'
 	});
-	n4.open();
 
 	// switch
 	//
@@ -51,7 +47,6 @@
 	// backgroundColor (optional)
 
 	var s1 = Titanium.UI.createSwitch({ id : 's1', 'value' : true });
-	s1.open();
 	var s2 = Titanium.UI.createSwitch({ id : 's2', 'value' : false, color : 'red', backgroundColor: 'blue'});
 	s2.addEventListener('click', function(e) {
 		Titanium.UI.createAlertDialog({
@@ -60,19 +55,16 @@
 			buttonNames : 'OK'
 		}).show();
 	});
-	s2.open();
 
 	var sl1 = Titanium.UI.createSlider({ id : 'sl1', min : 0, max : 5, pos : 3});
 	sl1.addEventListener('change', function(e) {
 		document.getElementById('pos1').innerHTML = e.value;
 	});
-	sl1.open();
 
 	var sl2 = Titanium.UI.createSlider({ id : 'sl2', min : -5, max : 5, pos : 0});
 	sl2.addEventListener('change', function(e) {
 		document.getElementById('pos2').innerHTML = e.value;
 	});
-	sl2.open();
 
   --></script>
 </head>

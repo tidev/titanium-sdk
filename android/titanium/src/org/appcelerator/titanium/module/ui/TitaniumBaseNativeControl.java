@@ -124,33 +124,24 @@ public abstract class TitaniumBaseNativeControl
 		}
 	}
 
-	public void open(String json)
+	public void open()
 	{
 		TitaniumModuleManager tmm = softModuleMgr.get();
 		if (tmm != null && control == null) {
 
-			JSONObject openArgs = null;
-			try {
-				if (json != null && json.trim().length() != 0) {
-					openArgs = new JSONObject(json);
-				}
+			createControl(tmm);
 
-				createControl(tmm, openArgs);
-
-				if (id != null) {
-					TitaniumWebView wv = tmm.getWebView();
-					if (wv != null) {
-						wv.addListener(this);
-						wv.addControl(control);
-					} else {
-						Log.e(LCAT, "No webview, control not added");
-					}
+			if (id != null) {
+				TitaniumWebView wv = tmm.getWebView();
+				if (wv != null) {
+					wv.addListener(this);
+					wv.addControl(control);
+				} else {
+					Log.e(LCAT, "No webview, control not added");
 				}
-			} catch (JSONException e) {
-				Log.e(LCAT, "Error parsing json: " + json, e);
 			}
 		}
 	}
 
-	public abstract void createControl(TitaniumModuleManager tmm, JSONObject openArgs) throws JSONException;
+	public abstract void createControl(TitaniumModuleManager tmm);
 }

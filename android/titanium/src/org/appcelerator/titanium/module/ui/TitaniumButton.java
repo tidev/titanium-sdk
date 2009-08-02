@@ -36,7 +36,6 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 	public TitaniumButton(TitaniumModuleManager tmm)
 	{
 		super(tmm);
-
 		eventManager.supportEvent(CLICK_EVENT);
 	}
 
@@ -65,7 +64,7 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 		return (imagePath != null || backgroundImage != null);
 	}
 
-	public void createControl(TitaniumModuleManager tmm, JSONObject openArgs)
+	public void createControl(TitaniumModuleManager tmm)
 	{
 		if(!isImageButton()) {
 			Button b = new Button(tmm.getActivity());

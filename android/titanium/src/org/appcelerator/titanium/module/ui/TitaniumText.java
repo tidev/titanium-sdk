@@ -53,7 +53,7 @@ public class TitaniumText extends TitaniumBaseNativeControl
 	}
 
 	@Override
-	public void createControl(TitaniumModuleManager tmm, JSONObject openArgs) {
+	public void createControl(TitaniumModuleManager tmm) {
 		EditText tv = new EditText(tmm.getActivity());
 		control = tv;
 

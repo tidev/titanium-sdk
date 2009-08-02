@@ -50,7 +50,7 @@ public class TitaniumSlider extends TitaniumBaseNativeControl
 	}
 
 	@Override
-	public void createControl(TitaniumModuleManager tmm, JSONObject openArgs) {
+	public void createControl(TitaniumModuleManager tmm) {
 		SeekBar b = new SeekBar(tmm.getActivity());
 		b.setOnSeekBarChangeListener(this);
 		b.setMax(Math.abs(max) + Math.abs(min));

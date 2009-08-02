@@ -550,9 +550,6 @@ var Button = function(proxy) {
 	this.removeEventListener = function(eventname, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
-	this.open = function(options) {
-		this.proxy.open(isUndefined(options) ? null : options);
-	};
 };
 
 var Switch = function(proxy) {
@@ -563,9 +560,6 @@ var Switch = function(proxy) {
 	};
 	this.removeEventListener = function(eventname, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
-	};
-	this.open = function(options) {
-		this.proxy.open(isUndefined(options) ? null : options);
 	};
 };
 
@@ -578,9 +572,6 @@ var Slider = function(proxy) {
 	this.removeEventListener = function(eventname, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
-	this.open = function(options) {
-		this.proxy.open(isUndefined(options) ? null : options);
-	};
 };
 
 var TextArea = function(proxy) {
@@ -592,9 +583,6 @@ var TextArea = function(proxy) {
 	this.removeEventListener = function(eventname, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
-	this.open = function(options) {
-		this.proxy.open(isUndefined(options) ? null : options);
-	};
 };
 
 var TextField = function(proxy) {
@@ -605,9 +593,6 @@ var TextField = function(proxy) {
 	};
 	this.removeEventListener = function(eventname, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
-	};
-	this.open = function(options) {
-		this.proxy.open(isUndefined(options) ? null : options);
 	};
 };
 
@@ -847,7 +832,9 @@ Titanium.UI = {
 	 * @tiresult[Button] the button.
 	 */
 	createButton : function(options) {
-		return new Button(Titanium.uiProxy.createButton(Titanium.JSON.stringify(options)));
+		var c = new Button(Titanium.uiProxy.createButton(Titanium.JSON.stringify(options)));
+		c.proxy.open();
+		return c;
 	},
 
 	/**
@@ -856,7 +843,9 @@ Titanium.UI = {
 	 * @tiresult[Switch] the Switch.
 	 */
 	createSwitch : function(options) {
-		return new Switch(Titanium.uiProxy.createSwitch(Titanium.JSON.stringify(options)));
+		var c = new Switch(Titanium.uiProxy.createSwitch(Titanium.JSON.stringify(options)));
+		c.proxy.open();
+		return c;
 	},
 
 	/**
@@ -865,7 +854,9 @@ Titanium.UI = {
 	 * @tiresult[Slider] the Slider.
 	 */
 	createSlider : function(options) {
-		return new Slider(Titanium.uiProxy.createSlider(Titanium.JSON.stringify(options)));
+		var c = new Slider(Titanium.uiProxy.createSlider(Titanium.JSON.stringify(options)));
+		c.proxy.open();
+		return c;
 	},
 
 	/**
@@ -874,7 +865,9 @@ Titanium.UI = {
 	 * @tiresult[TextArea] the TextArea.
 	 */
 	createTextArea : function(options) {
-		return new TextArea(Titanium.uiProxy.createTextArea(Titanium.JSON.stringify(options)));
+		var c = new TextArea(Titanium.uiProxy.createTextArea(Titanium.JSON.stringify(options)));
+		c.proxy.open();
+		return c;
 	},
 
 	RETURNKEY_GO : 0,
@@ -900,7 +893,9 @@ Titanium.UI = {
 	 * @tiresult[TextField] the TextField.
 	 */
 	createTextField : function(options) {
-		return new TextField(Titanium.uiProxy.createTextField(Titanium.JSON.stringify(options)));
+		var c = new TextField(Titanium.uiProxy.createTextField(Titanium.JSON.stringify(options)));
+		c.proxy.open();
+		return c;
 	},
 
 	// createNotification is below. It needs the property currentWindow
