@@ -22,9 +22,7 @@
 	// tableview object
 	var tableView = Titanium.UI.createTableView({
 		data:data,
-		title:'Phone API',
-		isPrimary:true,
-		backgroundColor:'transparent'
+		title:'Phone API'
 	}, function(eventObject) 
 	{
 		// handle tableview click events
@@ -92,8 +90,9 @@
 		}
 
 	});
-	tableView.open({animated:false});
-	
+	Titanium.UI.currentWindow.addView(tableView);
+	Titanium.UI.currentWindow.showView(tableView);
+
 	// FUNCTIONS
 	
 	//
@@ -112,7 +111,7 @@
 		activeMovie.addEventListener('complete',function()
 		{
 			var a = Titanium.UI.createAlertDialog();
-			a.setMessage('foo');
+			a.setMessage('Video Completed');
 			a.show();
 		});
 		

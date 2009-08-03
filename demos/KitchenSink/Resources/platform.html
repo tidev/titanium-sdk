@@ -14,7 +14,10 @@
 		{title:'Properties',hasChild:true},
 		{title:'Database', hasChild:true},
 		{title:'Platform Data', hasChild:true},
-		{title:'Filesystem', hasChild:true}
+		{title:'Filesystem', hasChild:true},
+		{title:'Open URL (http)'},
+		{title:'Open URL (tel)'},
+		{title:'Open URL (sms)'}
 		
 	];
 	
@@ -74,11 +77,27 @@
 				win.open({animated:true});
 				break;
 			}
+			case 7:
+			{
+				Titanium.Platform.openURL('http://google.com');
+				break;
+			}
+			case 8:
+			{
+				Titanium.Platform.openURL('tel:4043332222');
+				break;
+			}
+			case 9:
+			{
+				Titanium.Platform.openURL('sms:4043334444');
+				break;
+			}
 		
 		}
 	
 	});
-	tableView.open({animated:false});
+	Titanium.UI.currentWindow.addView(tableView);
+	Titanium.UI.currentWindow.showView(tableView);
 	</script>
 </head>
 <body>

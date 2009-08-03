@@ -1,0 +1,78 @@
+<html>
+<head>
+
+
+</head>
+<body  style="font-family:'Helvetica Neue';background-color:#ff9900">
+	View 1</br>
+	<button id="two" style="font-size:14px">show view 2 (FLIP LEFT)</button></br>
+	<button id="three" style="font-size:14px">show view 3 (FLIP RIGHT)</button></br>
+	<button id="four" style="font-size:14px">show view 4 (CURL UP)</button></br>
+	<button id="five" style="font-size:14px">show view 5 (CURL DOWN)</button></br>
+	<button id="six" style="font-size:14px">show view 6 (FLIP LEFT)</button></br>
+	<button id="seven" style="font-size:14px">show view 7 (FLIP RIGHT)</button></br>
+
+	<div id="switch"></div>
+	<div id="slider"></div>
+	<div id="textField"></div>
+	
+	<script>
+
+
+	var views = Titanium.UI.currentWindow.getViews();
+	document.getElementById('two').onclick = function()
+	{
+		Titanium.UI.currentWindow.showView(views[2],{
+			animated:true,
+			animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+			animationDuration:1000
+		});		
+	};
+	document.getElementById('three').onclick = function()
+	{
+		Titanium.UI.currentWindow.showView(views[3],{
+			animated:true,
+			animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,
+			animationDuration:1000
+		});		
+	};
+
+	document.getElementById('four').onclick = function()
+	{
+		Titanium.UI.currentWindow.showView(views[4],{
+			animated:true,
+			animationStyle:Titanium.UI.iPhone.AnimationStyle.CURL_UP,
+			animationDuration:1000
+		});		
+	};
+
+	document.getElementById('five').onclick = function()
+	{
+		Titanium.UI.currentWindow.showView(views[5],{
+			animated:true,
+			animationStyle:Titanium.UI.iPhone.AnimationStyle.CURL_DOWN,
+			animationDuration:1000
+		});		
+	};
+
+	document.getElementById('six').onclick = function()
+	{
+		Titanium.UI.currentWindow.showView(views[6],{
+			animated:true,
+			animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+			animationDuration:1000
+		});		
+	};
+
+	document.getElementById('seven').onclick = function()
+	{
+		Titanium.UI.currentWindow.showView(views[7],{
+			animated:true,
+			animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,
+			animationDuration:1000
+		});		
+	};
+
+	</script>
+</body>
+</html>

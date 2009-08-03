@@ -26,6 +26,14 @@
         </window>
         <window>
             <id>three</id>
+            <url>views.html</url>
+ 			<title>Views API</title>
+ 			<icon>profile.png</icon>
+			<orientation>either</orientation>
+        </window>
+
+        <window>
+            <id>three</id>
             <url>platform.html</url>
  			<title>Platform API</title>
  			<icon>profile.png</icon>

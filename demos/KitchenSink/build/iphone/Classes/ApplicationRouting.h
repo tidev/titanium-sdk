@@ -48,13 +48,19 @@
 - (NSData*) pageNamedSwitch;
 - (NSData*) pageNamedTabbar;
 - (NSData*) pageNamedTabbar_hide;
+- (NSData*) pageNamedTextfield_events;
 - (NSData*) pageNamedTextfields;
 - (NSData*) pageNamedToolbar_fixedspace;
+- (NSData*) pageNamedToolbar_hideshow;
 - (NSData*) pageNamedToolbar_left;
 - (NSData*) pageNamedToolbar_lots;
 - (NSData*) pageNamedToolbar_middle;
 - (NSData*) pageNamedToolbar_right;
 - (NSData*) pageNamedUi;
+- (NSData*) pageNamedViews;
+- (NSData*) pageNamedViews1;
+- (NSData*) pageNamedViews2;
+- (NSData*) pageNamedViews3;
 - (NSData*) pageNamedWindow_unfocus;
 - (NSData*) pageNamedXhr;
 

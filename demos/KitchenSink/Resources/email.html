@@ -14,16 +14,16 @@
 	<script>
 	document.getElementById('1').onclick = function()
 	{
-		var emailDialog = Titanium.UI.createEmailDialog();
-		emailDialog.setSubject('check this out');
-		emailDialog.setToRecipients(['nolan11169@yahoo.com', 'nwright@appcelerator.com']);
-		emailDialog.setCcRecipients(['nolan11169@yahoo.com']);
-		emailDialog.setBccRecipients(['nwright@appcelerator.com']);
-		emailDialog.setMessage('this is a message fool.');
-		emailDialog.addAttachment({mimeType:'image/png', file:'profile.png'});
+		var emailDialog = Titanium.UI.createEmailDialog()
+		emailDialog.setSubject('foo');
+		emailDialog.setToRecipients(['fred@gmail.com', 'joe@hotmail.com']);
+		emailDialog.setCcRecipients(['joe@gmail.com']);
+		emailDialog.setBccRecipients(['obama@whitehouse.gov']);
+		emailDialog.setMessageBody('my body string');
+		emailDialog.addAttachment({mimeType:'image/jpeg', file:'path/to/image'});
 		emailDialog.open();
-
 	};
+
 	</script>
 </body>
 </html>

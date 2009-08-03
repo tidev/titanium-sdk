@@ -71,6 +71,8 @@
 		leftButton:refresh,
 		leftButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS
 	});
+	tf1.value='foo';
+
 	tf1.addEventListener('return',function(e)
 	{
 		document.getElementById('textfield1_value').innerHTML = ' You hit the return key, current value is ' + e.value;
@@ -151,6 +153,7 @@
 	});
 	tf5.addEventListener('return',function(e)
 	{
+		
 		document.getElementById('textfield5_value').innerHTML = ' You hit the return key, current value is ' + e.value;
 	});
 

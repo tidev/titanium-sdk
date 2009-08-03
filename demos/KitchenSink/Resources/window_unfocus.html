@@ -6,17 +6,21 @@
 <body  style="font-family:'Helvetica Neue'">
 
 	When you leave this page, you should get an alert.
+	<div id="foo" style="margin-top:20px">Focused event not received</div>
 	
 	<script>
 	Titanium.UI.currentWindow.addEventListener('unfocused',function()
 	{
-		var a = Titanium.UI.createAlertDialog({buttonNames:['OK']});
-		a.setTitle('Unfocus Test')
-		a.setMessage('unfocused event received');
+		var a = Titanium.UI.createAlertDialog({title:'Unfocused',message:'It Worked'});
 		a.show();
+	});
+	Titanium.UI.currentWindow.addEventListener('focus',function()
+	{
+		document.getElementById('foo').innerHTML = 'Focus event received';
 	});
 
 
 	</script>
+
 </body>
 </html>

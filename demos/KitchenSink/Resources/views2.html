@@ -1,0 +1,24 @@
+<html>
+<head>
+
+
+</head>
+<body  style="font-family:'Helvetica Neue';background-color:#999">
+	View 2</br>
+	<button id="one" style="font-size:14px">show view 1 (CURL UP)</button></br>
+
+	<script>
+	
+	var views = Titanium.UI.currentWindow.getViews();
+	document.getElementById('one').onclick = function()
+	{
+		Titanium.UI.currentWindow.showView(views[1],{
+			animated:true,
+			animationStyle:Titanium.UI.iPhone.AnimationStyle.CURL_UP,
+			animationDuration:1000
+		});		
+	};
+
+	</script>
+</body>
+</html>

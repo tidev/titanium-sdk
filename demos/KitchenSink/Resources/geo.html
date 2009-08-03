@@ -5,6 +5,7 @@
 </head>
 <body  style="font-family:'Helvetica Neue'">
 	<div style="margin-bottom:10px">Watch Position</div>
+	<div style="height:20px" id="callcount"></div>
 	<div style="height:20px" id="timestamp"></div>
 	<div style="height:20px" id="latitude"></div>
 	<div style="height:20px" id="longitude"></div>
@@ -15,6 +16,7 @@
 	<div style="height:20px" id="speed"></div>
 	
 	<div style="margin-top:10px">Current Position</div>
+	<div style="height:20px" id="callcount2"></div>
 	<div style="height:20px" id="timestamp2"></div>
 	<div style="height:20px" id="latitude2"></div>
 	<div style="height:20px" id="longitude2"></div>
@@ -25,9 +27,13 @@
 	<div style="height:20px" id="speed2"></div>
 	
 	<script>
+	var count =0;
+	var count2 = 0;
 	Titanium.Geolocation.getCurrentPosition(
 		function(pos)
 		{
+			count2++;
+			document.getElementById('callcount2').innerHTML = 'Call count = ' + count2;
 			var timestamp = document.getElementById('timestamp2');
 			var latitude = document.getElementById('latitude2');
 			var longitude = document.getElementById('longitude2');
@@ -57,6 +63,9 @@
 	Titanium.Geolocation.watchPosition(
 		function(pos)
 		{
+			count++;
+			document.getElementById('callcount').innerHTML = 'Call count = ' + count;
+
 			var timestamp = document.getElementById('timestamp');
 			var latitude = document.getElementById('latitude');
 			var longitude = document.getElementById('longitude');
