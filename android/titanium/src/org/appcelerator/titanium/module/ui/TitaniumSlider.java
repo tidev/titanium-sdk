@@ -24,13 +24,14 @@ public class TitaniumSlider extends TitaniumBaseNativeControl
 	private int min;
 	private int max;
 	private int pos;
+	private int offset;
 
 	public TitaniumSlider(TitaniumModuleManager tmm) {
 		super(tmm);
 
 		eventManager.supportEvent(CHANGE_EVENT);
 		this.min = 0;
-		this.max = 10;
+		this.max = 0;
 		this.pos = 0;
 	}
 
@@ -44,8 +45,8 @@ public class TitaniumSlider extends TitaniumBaseNativeControl
 		if (o.has("max")) {
 			this.max = o.getInt("max");
 		}
-		if (o.has("pos")) {
-			this.pos = o.getInt("pos");
+		if (o.has("value")) {
+			this.pos = o.getInt("value");
 		}
 	}
 
@@ -53,8 +54,11 @@ public class TitaniumSlider extends TitaniumBaseNativeControl
 	public void createControl(TitaniumModuleManager tmm) {
 		SeekBar b = new SeekBar(tmm.getActivity());
 		b.setOnSeekBarChangeListener(this);
-		b.setMax(Math.abs(max) + Math.abs(min));
-		b.setProgress(pos + Math.abs(min));
+
+		offset = -min;
+		int length = (int) Math.floor(Math.sqrt(Math.pow(max - min, 2)));
+		b.setMax(length);
+		b.setProgress(pos + offset);
 
 		control = b;
 

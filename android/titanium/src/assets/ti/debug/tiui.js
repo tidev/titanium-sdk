@@ -593,6 +593,9 @@ var UserWindow = function(proxy) {
 	this.setBarColor = function(options) {
 
 	}
+	this.setTitleControl = function(button) {
+
+	}
 };
 
 UserWindow.prototype.__defineGetter__("window", function() {
