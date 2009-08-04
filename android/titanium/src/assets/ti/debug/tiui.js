@@ -274,10 +274,10 @@ var ActivityIndicator = function(proxy) {
 		this.proxy.setMax(n);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.ActivityIndicator.setPos,since=0.4) Set the current indicator position between min and max
+	 * @tiapi(method=true,name=UI.ActivityIndicator.setValue,since=0.5.1) Set the current indicator position between min and max
 	 * @tiarg[int,n] the position
 	 */
-	this.setPos = function(n) {
+	this.setValue = function(n) {
 		this.proxy.setPosition(n);
 	};
 	/**
@@ -796,7 +796,7 @@ Titanium.UI = {
 			var type = options['type'];
 			var minVal = options['min'];
 			var maxVal = options['max'];
-			var position = options['pos'];
+			var value = options['value'];
 
 			if (!isUndefined(message)) {
 				ind.setMessage(message);
@@ -813,8 +813,8 @@ Titanium.UI = {
 			if (!isUndefined(maxVal)) {
 				ind.setMax(maxVal);
 			}
-			if (!isUndefined(position)) {
-				ind.setPos(position);
+			if (!isUndefined(value)) {
+				ind.setValue(value);
 			}
 		}
 		return ind;
@@ -834,7 +834,7 @@ Titanium.UI = {
 			var type = options['type'];
 			var minVal = options['min'];
 			var maxVal = options['max'];
-			var position = options['pos'];
+			var value = options['value'];
 
 			if (!isUndefined(message)) {
 				ind.setMessage(message);
@@ -851,8 +851,8 @@ Titanium.UI = {
 			if (!isUndefined(maxVal)) {
 				ind.setMax(maxVal);
 			}
-			if (!isUndefined(position)) {
-				ind.setPos(position);
+			if (!isUndefined(value)) {
+				ind.setValue(value);
 			}
 		}
 		return ind;
