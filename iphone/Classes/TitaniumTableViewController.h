@@ -9,9 +9,11 @@
 #import "TitaniumContentViewController.h"
 
 typedef enum {
-	TitaniumTableActionInsertRow,
 	TitaniumTableActionDeleteRow,
-	TitaniumTableActionUpdateRows,
+	TitaniumTableActionInsertBeforeRow,
+	TitaniumTableActionInsertAfterRow,
+	TitaniumTableActionUpdateRow,
+	TitaniumTableActionReloadData,
 
 	TitaniumGroupActionInsertRow,
 	TitaniumGroupActionDeleteRow,
@@ -25,18 +27,23 @@ typedef enum {
 {
 	TitaniumTableAction kind;
 	int index;
-	NSDictionary * insertedRow;
+	NSDictionary * rowData;
 	NSArray * updatedRows;
+	NSArray * replacedData;
 	UITableViewRowAnimation animation;
 	NSURL * baseUrl;
 }
 
 @property(nonatomic,assign)	TitaniumTableAction kind;
 @property(nonatomic,assign)	int index;
-@property(nonatomic,copy)	NSDictionary * insertedRow;
+@property(nonatomic,copy)	NSDictionary * rowData;
 @property(nonatomic,copy)	NSArray * updatedRows;
+@property(nonatomic,copy)	NSArray * replacedData;
 @property(nonatomic,copy)	NSURL * baseUrl;
 @property(nonatomic,assign)	UITableViewRowAnimation animation;
+
+- (void) getBaseUrl;
+- (void) setAnimationDict: (NSDictionary *) animationDict;
 
 @end
 
