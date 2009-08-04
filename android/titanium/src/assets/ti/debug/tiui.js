@@ -981,6 +981,15 @@ Titanium.UI = {
 	KEYBOARD_PHONE_PAD : 4,
 	KEYBOARD_EMAIL_ADDRESS : 5,
 
+	INPUT_BORDERSTYLE_NONE : 0,
+	INPUT_BORDERSTYLE_ROUNDED : 1,
+	INPUT_BORDERSTYLE_BEZEL : 2,
+	INPUT_BORDERSTYLE_LINE : 3,
+
+	INPUT_BUTTONMODE_ONFOCUS : 0,
+	INPUT_BUTTONMODE_ALWAYS : 1,
+	INPUT_BUTTONMODE_NEVER : 2,
+
 	/**
 	 * @tiapi(method=true,name=UI.createTextField,since=0.5.1) Create a native text field
 	 * @tiarg[object, options] a set of configuration options for the text.
@@ -1247,6 +1256,9 @@ Titanium.UI.iPhone = {
 		PLAY : -1,
 		FIXED_SPACE : -1,
 		FLEXIBLE_SPACE : -1,
+	},
+	SystemButtonStyle : {
+		PLAIN : -1
 	}
 };
 
