@@ -1398,53 +1398,44 @@ int barButtonSystemItemForString(NSString * inputString){
 	TitaniumTableActionWrapper * newAction = [[TitaniumTableActionWrapper alloc] init];
 	[newAction setKind:TitaniumTableActionDeleteRow];
 	[newAction setIndex:[rowIndex intValue]];
-	if([optionsObject isKindOfClass:[NSDictionary class]]){
-		NSNumber * animationStyleObject = [optionsObject objectForKey:@"animationStyle"];
-		if([animationStyleObject respondsToSelector:@selector(intValue)])[newAction setAnimation:[animationStyleObject intValue]];
-	}
+	[newAction setAnimationDict:optionsObject];
 	
 	[(TitaniumTableViewController *)ourVC enqueueAction:newAction];
 	[newAction release];
 }
 
-- (void) setTableView:(NSString *)tokenString insertAtIndex: (NSNumber *) rowIndex data:(NSDictionary *)insertedObject options:(NSDictionary *)optionsObject;
+- (void) setTableView:(NSString *)tokenString setRow: (NSNumber *) rowIndex data:(NSDictionary *)dataObject action:(NSNumber *)actionObject options:(NSDictionary *)optionsObject;
 {
 	if(![rowIndex respondsToSelector:@selector(intValue)])return;
-	if(![insertedObject isKindOfClass:[NSDictionary class]])return;
+	if(![actionObject respondsToSelector:@selector(intValue)])return;
+	if(![dataObject isKindOfClass:[NSDictionary class]])return;
 	
 	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
 	if(![ourVC isKindOfClass:[TitaniumTableViewController class]]) return;
 	
 	TitaniumTableActionWrapper * newAction = [[TitaniumTableActionWrapper alloc] init];
-	[newAction setKind:TitaniumTableActionInsertRow];
+	[newAction setKind:[actionObject intValue]];
 	[newAction setIndex:[rowIndex intValue]];
-	[newAction setInsertedRow:insertedObject];
-	[newAction setBaseUrl:[(TitaniumWebViewController *)[[TitaniumHost sharedHost] currentTitaniumContentViewController] currentContentURL]];
-	if([optionsObject isKindOfClass:[NSDictionary class]]){
-		NSNumber * animationStyleObject = [optionsObject objectForKey:@"animationStyle"];
-		if([animationStyleObject respondsToSelector:@selector(intValue)])[newAction setAnimation:[animationStyleObject intValue]];
-	}
+	[newAction setRowData:dataObject];
+	[newAction getBaseUrl];
+	[newAction setAnimationDict:optionsObject];
 	
 	[(TitaniumTableViewController *)ourVC enqueueAction:newAction];
 	[newAction release];
 }
 
-- (void) setTableView:(NSString *)tokenString updateRows:(NSArray *)rowsArray options:(NSDictionary *)optionsObject;
+- (void) setTableView:(NSString *)tokenString loadData:(NSArray *)newData options:(NSDictionary *)optionsObject;
 {
-	if(![rowsArray isKindOfClass:[NSArray class]])return;
-
+	if(![newData isKindOfClass:[NSArray class]])return;
+	
 	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
 	if(![ourVC isKindOfClass:[TitaniumTableViewController class]]) return;
 	
 	TitaniumTableActionWrapper * newAction = [[TitaniumTableActionWrapper alloc] init];
-	[newAction setKind:TitaniumTableActionUpdateRows];
-	[newAction setUpdatedRows:rowsArray];
-	[newAction setBaseUrl:[(TitaniumWebViewController *)[[TitaniumHost sharedHost] currentTitaniumContentViewController] currentContentURL]];
-
-	if([optionsObject isKindOfClass:[NSDictionary class]]){
-		NSNumber * animationStyleObject = [optionsObject objectForKey:@"animationStyle"];
-		if([animationStyleObject respondsToSelector:@selector(intValue)])[newAction setAnimation:[animationStyleObject intValue]];
-	}
+	[newAction setKind:TitaniumTableActionReloadData];
+	[newAction setReplacedData:newData];
+	[newAction getBaseUrl];
+	[newAction setAnimationDict:optionsObject];
 	
 	[(TitaniumTableViewController *)ourVC enqueueAction:newAction];
 	[newAction release];
@@ -1606,14 +1597,15 @@ int barButtonSystemItemForString(NSString * inputString){
 	[(UiModule *)invocGen reserveViewToken];
 	NSInvocation * reserveTokenInvoc = [invocGen invocation];
 	
-	[(UiModule *)invocGen setTableView:nil insertAtIndex:nil data:nil options:nil];
+	[(UiModule *)invocGen setTableView:nil setRow:nil data:nil action:nil options:nil];
 	NSInvocation * insertRowInvoc = [invocGen invocation];
 
 	[(UiModule *)invocGen setTableView:nil deleteRow:nil options:nil];
 	NSInvocation * deleteRowInvoc = [invocGen invocation];
 
-	[(UiModule *)invocGen setTableView:nil updateRows:nil options:nil];
-	NSInvocation * updateRowInvoc = [invocGen invocation];
+	[(UiModule *)invocGen setTableView:nil loadData:nil options:nil];
+	NSInvocation * updateDataInvoc = [invocGen invocation];
+
 
 	
 	buttonContexts = [[NSMutableDictionary alloc] init];
@@ -1716,14 +1708,18 @@ int barButtonSystemItemForString(NSString * inputString){
 
 	NSString * createWebViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='web';return res;}";
 	
-	NSString * createTableWindowString = @"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
+	NSString * createTableWindowString = [NSString stringWithFormat:@"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
 			"if(!res.data)res.data=[];"
-			"res.insertRow=function(rowIndex,row,args){this.data.splice(rowIndex,0,row);if(this._TOKEN){Ti.UI._WROWINS(this._TOKEN,rowIndex,row,args);}};"
-			"res.deleteRow=function(rowIndex,args){this.data.splice(rowIndex,1);if(this._TOKEN){Ti.UI._WROWDEL(this._TOKEN,rowIndex,args);}};"
-			"res.updateRows=function(rows,args){if(!rows)return;"
-				"for(var i=rows.length-1;i>=0;i--){var row=rows[i];this.data.splice(row.index,1,row.rowData);}"
-				"if(this._TOKEN){Ti.UI._WROWUPD(this._TOKEN,rows,args);}};"
-			"var tkn='TBL'+(Ti.UI._NEXTTKN++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}";	
+			"res.insertRowAfter=function(rowIndex,row,args){this.data.splice(rowIndex+1,0,row);if(this._TOKEN){Ti.UI._WROWCHG(this._TOKEN,rowIndex,row,%d,args);}};"
+			"res.insertRowBefore=function(rowIndex,row,args){"
+				"if((rowIndex<this.data.length)&&(row.header==undefined)){var oldRow=this.data[rowIndex];row.header=oldRow.header;oldRow.header=undefined;}"
+				"this.data.splice(rowIndex,0,row);if(this._TOKEN){Ti.UI._WROWCHG(this._TOKEN,rowIndex,row,%d,args);}};"
+			"res.deleteRow=function(rowIndex,args){"
+				"if(rowIndex<(this.data.length-1)){var nextRow=this.data[rowIndex+1];if(nextRow.header==undefined)nextRow.header=this.data[rowIndex].header;}"
+				"this.data.splice(rowIndex,1);if(this._TOKEN){Ti.UI._WROWDEL(this._TOKEN,rowIndex,args);}};"
+			"res.updateRow=function(rowIndex,row,args){this.data.splice(rowIndex,1,row);if(this._TOKEN){Ti.UI._WROWCHG(this._TOKEN,rowIndex,row,%d,args);}};"
+			"res.setData=function(newData,args){this.data=newData;if(this._TOKEN){Ti.UI._WDTAUPD(this._TOKEN,newData,args);}};"
+			"var tkn='TBL'+(Ti.UI._NEXTTKN++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}",TitaniumTableActionInsertAfterRow,TitaniumTableActionInsertBeforeRow,TitaniumTableActionUpdateRow];
 
 	NSString * createGroupedViewString = @"function(args,callback){var res=Ti.UI.createTableView(args,callback);res.grouped=true;"
 			"res._GRP=[];res.addSection=function(section){this._GRP.push(section);};return res;}";
@@ -1822,9 +1818,9 @@ int barButtonSystemItemForString(NSString * inputString){
 			updateToolbarInvoc,@"_WTOOL",
 			insertNativeViewInvoc,@"_WINSBTN",
 			
-			insertRowInvoc,@"_WROWINS",
+			insertRowInvoc,@"_WROWCHG",
 			deleteRowInvoc,@"_WROWDEL",
-			updateRowInvoc,@"_WROWUPD",
+			updateDataInvoc,@"_WDTAUPD",
 			
 			reserveTokenInvoc,@"_VTOKEN",
 			
