@@ -13,15 +13,10 @@
 		{title:'Text Fields',hasChild:true},
 		{title:'Text Field Events',hasChild:true},
 		{title:'Content Buttons',hasChild:true},
-		{title:'Switch',hasChild:true},
+		{title:'Switch (iPhone)',hasChild:true},
 		{title:'Progress Bar',hasChild:true},
 		{title:'Activity Indicator',hasChild:true},
 		{title:'Composite View ',hasChild:true},
-		{title:'TableView - Delete',hasChild:true},
-		{title:'TableView - Add',hasChild:true},
-		{title:'TableView - Update',hasChild:true},
-		{title:'TableView - Set',hasChild:true},
-		{title:'TableView - Mix',hasChild:true},
 		{title:'Fullscreen (iPhone)',hasChild:true},
 		{title:'Status Bar (iPhone)',hasChild:true},
 		{title:'Set Badge Icon (iPhone)'},
@@ -131,50 +126,25 @@
 				win.open({animated:true});		
 				break;
 			}
-
-			case 11:
-			{
-				var win = Titanium.UI.createWindow({url:'tableview_delete.html',title:'TableView Delete'});
-				win.open({animated:true});		
-				break;
-			}
-			case 12:
-			{
-				var win = Titanium.UI.createWindow({url:'tableview_add.html',title:'TableView Add'});
-				win.open({animated:true});		
-				break;
-			}
-			case 13:
-			{
-				var win = Titanium.UI.createWindow({url:'tableview_update.html',title:'TableView Update'});
-				win.open({animated:true});		
-				break;
-			}
-			case 14:
-			{
-				var win = Titanium.UI.createWindow({url:'tableview_set.html',title:'TableView Set'});
-				win.open({animated:true});		
-				break;
-			}
 			
-			case 15:
+			case 11:
 			{
 				var win = Titanium.UI.createWindow({url:'fullscreen.html',fullscreen:true,title:'Fullscreen'});
 				win.open({animated:true});
 				break;
 			}
-			case 16:
+			case 12:
 			{
 				var win = Titanium.UI.createWindow({url:'statusbar.html',title:'Status Bar'});
 				win.open({animated:true});		
 				break;
 			}
-			case 17:
+			case 13:
 			{
 				Titanium.UI.setTabBadge(10);
 				break;
 			}
-			case 18:
+			case 14:
 			{
 				var buttonBar = Titanium.UI.createButtonBar({labels:['Button1', 'Button2'],color:'#336699'});
 				buttonBar.addEventListener('click',function(e)
@@ -203,7 +173,7 @@
 
 				break;
 			}
-			case 19:
+			case 15:
 			{
 				var tabbar = Titanium.UI.createTabbedBar({labels:['Tab1', 'Tab2'],index:1});
 				var flexSpace = Titanium.UI.createButton({
@@ -222,13 +192,13 @@
 				break;
 			}
 
-			case 20:
+			case 16:
 			{
 				var win = Titanium.UI.createWindow({url:'navbar_title.html',title:'Navbar Title'});
 				win.open({animated:true});		
 				break;
 			}
-			case 21:
+			case 17:
 			{
 				var win = Titanium.UI.createWindow({url:'navbar_right.html',title:'Navbar Right'});
 				var b = Titanium.UI.createButton({
@@ -246,7 +216,7 @@
 
 				break;
 			}
-			case 22:
+			case 18:
 			{
 				var win = Titanium.UI.createWindow({url:'navbar_left.html',title:'Navbar Left'});
 				var b = Titanium.UI.createButton({
@@ -263,52 +233,52 @@
 				win.open({animated:true});		
 				break;
 			}
-			case 23:
+			case 19:
 			{
 				var win = Titanium.UI.createWindow({url:'navbar_hide.html',title:'Navbar Hide',hideNavBar:true});
 				win.open({animated:true});		
 				break;
 			}
-			case 24:
+			case 20:
 			{
 				var win = Titanium.UI.createWindow({url:'navbar_color.html',title:'Bar Color'});
 				win.setBarColor('#111111')
 				win.open({animated:true});		
 				break;
 			}
-			case 25:
+			case 21:
 			{
 				var win = Titanium.UI.createWindow({url:'toolbar_left.html',title:'Toolbar Left'});
 				win.open({animated:true});		
 				break;
 			}
-			case 26:
+			case 22:
 			{
 				var win = Titanium.UI.createWindow({url:'toolbar_middle.html',title:'Toolbar Middle'});
 				win.open({animated:true});		
 				break;
 			}
-			case 27:
+			case 23:
 			{
 				var win = Titanium.UI.createWindow({url:'toolbar_right.html',title:'Toolbar Right'});
 				win.open({animated:true});		
 				break;
 			}
-			case 28:
+			case 24:
 			{
 				var win = Titanium.UI.createWindow({url:'toolbar_lots.html',
 					title:'Toolbar Many Buttons',hideTabBar:true});
 				win.open({animated:true});		
 				break;
 			}
-			case 29:
+			case 25:
 			{
 				var win = Titanium.UI.createWindow({url:'toolbar_fixedspace.html',
 					title:'Toolbar Fixed Space',hideTabBar:true});
 				win.open({animated:true});		
 				break;
 			}
-			case 30:
+			case 26:
 			{
 				var win = Titanium.UI.createWindow({url:'toolbar_hideshow.html',
 					title:'Toolbar Hide/Show'});
@@ -316,20 +286,20 @@
 				break;
 			}
 
-			case 31:
+			case 27:
 			{
 				var win = Titanium.UI.createWindow({url:'tabbar_hide.html',title:'Tabbar Hide',hideTabBar:true});
 				win.open({animated:true});		
 				break;
 			}
-			case 32:
+			case 28:
 			{
 				var win = Titanium.UI.createWindow({url:'animated_false.html',title:'Animated False'});
 				win.open({animated:false});		
 				break;
 			}
 
-			case 33:
+			case 29:
 			{
 				if (Titanium.Platform.name == 'android')
 				{
@@ -340,7 +310,7 @@
 				break;
 			}
 			
-			case 34:
+			case 30:
 			{
 				if (Titanium.Platform.name == 'android')
 				{

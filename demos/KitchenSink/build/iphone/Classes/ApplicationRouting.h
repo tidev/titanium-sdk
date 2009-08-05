@@ -48,6 +48,10 @@
 - (NSData*) pageNamedSwitch;
 - (NSData*) pageNamedTabbar;
 - (NSData*) pageNamedTabbar_hide;
+- (NSData*) pageNamedTableview_add;
+- (NSData*) pageNamedTableview_delete;
+- (NSData*) pageNamedTableview_set;
+- (NSData*) pageNamedTableview_update;
 - (NSData*) pageNamedTextfield_events;
 - (NSData*) pageNamedTextfields;
 - (NSData*) pageNamedToolbar_fixedspace;
