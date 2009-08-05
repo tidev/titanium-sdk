@@ -33,7 +33,7 @@
         </window>
 
         <window>
-            <id>three</id>
+            <id>four</id>
             <url>platform.html</url>
  			<title>Platform API</title>
  			<icon>profile.png</icon>

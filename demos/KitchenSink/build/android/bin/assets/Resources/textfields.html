@@ -71,6 +71,8 @@
 		leftButton:refresh,
 		leftButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS
 	});
+	tf1.value='foo';
+
 	tf1.addEventListener('return',function(e)
 	{
 		document.getElementById('textfield1_value').innerHTML = ' You hit the return key, current value is ' + e.value;
@@ -151,6 +153,7 @@
 	});
 	tf5.addEventListener('return',function(e)
 	{
+		
 		document.getElementById('textfield5_value').innerHTML = ' You hit the return key, current value is ' + e.value;
 	});
 
@@ -160,7 +163,7 @@
 		color:'#336699',
 		backgroundColor:'#eeeeee',
 		enableReturnKey:false,
-		keyboardType:Titanium.UI.KEYBOARD_EMAIL_ADDRES,
+		keyboardType:Titanium.UI.KEYBOARD_EMAIL_ADDRESS,
 		returnKeyType:Titanium.UI.RETURNKEY_EMERGENCY_CALL,
 		autocorrect:false,
 		hintText:'fieldone hint text',

@@ -59,31 +59,19 @@
 			}
 			case 2:
 			{
-				var win = Titanium.UI.createWindow({url:'window_unfocus.html',title:'Unfocus Event', barColor:'#336699'});				
-				Titanium.UI.currentWindow.addEventListener('focused',function()
-				{
-					if (Titanium.Platform.name == 'android')
-					{
-						var notification = Titanium.UI.createNotification()
-						notification.setMessage('Focused received');
-						notification.show();
-					}
-					else
-					{
-						var a = Titanium.UI.createAlertDialog({title:'Focused',message:'It Worked'});
-						a.show();
-						
-					}
-				});
-				
+				var win = Titanium.UI.createWindow({url:'window_unfocus.html',title:'Focus Events', barColor:'#336699'});				
 				win.open({animated:true});
 				break;
 			}
 			case 3:
 			{
-				var slider = Titanium.UI.createSlider({width:100,min:0,max:10,value:0});
 				var win = Titanium.UI.createWindow({url:'slider.html',title:'Slider'});
-				win.setTitleControl(slider);
+				
+				if (Titanium.Platform.name != 'android')
+				{
+					var slider = Titanium.UI.createSlider({width:100,min:0,max:10,value:0});
+					win.setTitleControl(slider);
+				}
 				win.open({animated:true});		
 				break;
 			}
@@ -109,8 +97,11 @@
 			case 7:
 			{
 				var win = Titanium.UI.createWindow({url:'switch.html',title:'Switch'});
-				var inst = Titanium.UI.createSwitch({value:true,width:95});
-				win.setTitleControl(inst)
+				if (Titanium.Platform.name != 'android')
+				{
+					var inst = Titanium.UI.createSwitch({value:true,width:95});
+					win.setTitleControl(inst)
+				}
 				win.open({animated:true});		
 				break;
 			}
@@ -290,7 +281,7 @@
 			case 26:
 			{
 				var win = Titanium.UI.createWindow({url:'toolbar_hideshow.html',
-					title:'Toolbar Hide/Show',hideTabBar:true});
+					title:'Toolbar Hide/Show'});
 				win.open({animated:true});		
 				break;
 			}

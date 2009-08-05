@@ -137,7 +137,7 @@
 			})
 		
 			var inputData = [
-				{title:'Input 1', input:switchInstance, image:'iTunes.png'},
+				{title:'Input 1', input:switchInstance, image:'iTunes.png', foo:'bar'},
 				{title:'Sound', input:sliderInstance, image:'Mail.png'},
 				{title:'Name', input:textInstance},
 				{title:'Input 2', value:'foo', hasChild:true},
@@ -152,7 +152,7 @@
 			inputSection.addEventListener('click',function(e)
 			{
 				a.setMessage('You clicked index ' + e.index + ' section row ' + e.row + ' section ' + e.section 
-					+ ' rowData ' + e.rowData);
+					+ ' rowData ' + e.rowData.foo);
 				a.show();
 			});
 		

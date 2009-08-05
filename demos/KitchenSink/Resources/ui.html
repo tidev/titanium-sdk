@@ -65,9 +65,13 @@
 			}
 			case 3:
 			{
-				var slider = Titanium.UI.createSlider({width:100,min:0,max:10,value:0});
 				var win = Titanium.UI.createWindow({url:'slider.html',title:'Slider'});
-				win.setTitleControl(slider);
+				
+				if (Titanium.Platform.name != 'android')
+				{
+					var slider = Titanium.UI.createSlider({width:100,min:0,max:10,value:0});
+					win.setTitleControl(slider);
+				}
 				win.open({animated:true});		
 				break;
 			}
@@ -93,8 +97,11 @@
 			case 7:
 			{
 				var win = Titanium.UI.createWindow({url:'switch.html',title:'Switch'});
-				var inst = Titanium.UI.createSwitch({value:true,width:95});
-				win.setTitleControl(inst)
+				if (Titanium.Platform.name != 'android')
+				{
+					var inst = Titanium.UI.createSwitch({value:true,width:95});
+					win.setTitleControl(inst)
+				}
 				win.open({animated:true});		
 				break;
 			}
