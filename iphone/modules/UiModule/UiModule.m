@@ -329,32 +329,35 @@ int barButtonSystemItemForString(NSString * inputString){
 			[labelView setTextAlignment:UITextAlignmentLeft];
 			customPlacement = YES;
 		} else {
-			viewFrame.size = [(UIView *)resultView frame].size;
+			viewFrame.size = [resultView frame].size;
 		}
 		[resultView setBackgroundColor:elementBorderColor];
 
 	} else if (templateValue == UITitaniumNativeItemSlider){
+		CGRect sliderFrame;
+		sliderFrame.origin = CGPointZero; sliderFrame.size=viewFrame.size;
 		if ([nativeView isKindOfClass:[UISlider class]]){
 			resultView = [nativeView retain];
 		} else {
-			resultView = [[UISlider alloc] initWithFrame:viewFrame];
+			resultView = [[UISlider alloc] initWithFrame:sliderFrame];
 			[(UISlider *)resultView addTarget:self action:@selector(onValueChange:) forControlEvents:UIControlEventValueChanged];
 		}
 		[(UISlider *)resultView setMinimumValue:minValue];
 		[(UISlider *)resultView setMaximumValue:maxValue];
 		[(UISlider *)resultView setValue:floatValue];
 		[resultView setBackgroundColor:elementBorderColor];
-		
+		viewFrame.size.height = [resultView frame].size.height;
 
 	} else if (templateValue == UITitaniumNativeItemSwitch){
 		if ([nativeView isKindOfClass:[UISwitch class]]){
 			resultView = [nativeView retain];
 		} else {
-			resultView = [[UISwitch alloc] initWithFrame:viewFrame];
+			resultView = [[UISwitch alloc] initWithFrame:CGRectZero];
 			[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
 		}
 		[(UISwitch *)resultView setOn:(floatValue > ((minValue + maxValue)/2))];
 		[resultView setBackgroundColor:elementBorderColor];
+		viewFrame.size = [resultView frame].size;
 
 	} else if ((templateValue == UITitaniumNativeItemTextField) || (templateValue == UITitaniumNativeItemTextView)){
 		if (viewFrame.size.height < 20) viewFrame.size.height = 20;
@@ -495,7 +498,12 @@ int barButtonSystemItemForString(NSString * inputString){
 //		[(UISwitch *)resultView setOn:(floatValue > ((minValue + maxValue)/2))];
 //		[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
 	} else if (templateValue == UITitaniumNativeItemProgressBar) {
-		UIProgressViewStyle progressStyle = (placedInBar || (buttonStyle == UITitaniumNativeStyleBar))?UIProgressViewStyleBar:UIProgressViewStyleDefault;
+		UIProgressViewStyle progressStyle;
+		if(placedInBar){
+			progressStyle = (buttonStyle != UIBarButtonItemStylePlain)?UIProgressViewStyleBar:UIProgressViewStyleDefault;
+		}else{
+			progressStyle = (buttonStyle == UITitaniumNativeStyleBar)?UIProgressViewStyleBar:UIProgressViewStyleDefault;			
+		}
 		if([nativeView isKindOfClass:[UIProgressView class]]){
 			resultView = [nativeView retain];
 			[(UIProgressView *)resultView setProgressViewStyle:progressStyle];
@@ -519,7 +527,12 @@ int barButtonSystemItemForString(NSString * inputString){
 			[labelView setTextAlignment:UITextAlignmentCenter];
 			customPlacement = YES;
 		} else {
-			viewFrame.size.height = [resultView frame].size.height;
+			CGRect resultFrame;
+			resultFrame.origin = CGPointZero;
+			resultFrame.size.width = viewFrame.size.width;
+			resultFrame.size.height = [resultView frame].size.height;
+			[resultView setFrame:resultFrame];
+			viewFrame.size.height = resultFrame.size.height;
 		}
 		
 		
@@ -1540,6 +1553,14 @@ int barButtonSystemItemForString(NSString * inputString){
 	[currentViewController performSelectorOnMainThread:@selector(setNavBarStyleObject:) withObject:newValue waitUntilDone:NO];
 }
 
+- (void) resizeCurrentWindow;
+{
+	TitaniumViewController * currentViewController = [[TitaniumHost sharedHost] currentTitaniumViewController];
+	[currentViewController performSelectorOnMainThread:@selector(needsUpdateAnimated) withObject:nil waitUntilDone:NO];
+}
+
+
+
 #pragma mark App-wide actions
 
 - (void) setAppBadge: (id) newBadge;
@@ -1690,6 +1711,9 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSInvocation * deleteSectionInvoc = [invocGen invocation];
 
 	
+	[(UiModule *)invocGen resizeCurrentWindow];
+	NSInvocation * resizeWindowInvoc = [invocGen invocation];
+	
 	buttonContexts = [[NSMutableDictionary alloc] init];
 	
 	//NOTE: createWindow doesn't actually create a native-side window. Instead, it simply sets up the dict.
@@ -1724,9 +1748,9 @@ int barButtonSystemItemForString(NSString * inputString){
 //TODO: Handling views with CurrentWindow
 			"addView:function(newView,args){newView.ensureToken();Ti.UI._WSVIEWS(Ti._TOKEN,[newView],false,args);},"
 			"getViews:function(){return Ti.UI.viewsForWindowToken(Ti._TOKEN);},"
-			"setViews:function(newViews,args){"
-				"for(var i=0;i<newViews.length;i++){newViews.ensureToken();}"
-				"Ti.UI._WSVIEWS(Ti._TOKEN,newViews,true,args)},"
+//			"setViews:function(newViews,args){"
+//				"for(var i=0;i<newViews.length;i++){newViews.ensureToken();}"
+//				"Ti.UI._WSVIEWS(Ti._TOKEN,newViews,true,args)},"
 			"setActiveViewIndex:function(newIndex,args){Ti.UI._WSAVIEW(Ti._TOKEN,newIndex,args);},"
 			"showView:function(blessedView,args){var ourViews = Ti.UI.viewsForWindowToken(Ti._TOKEN);var viewCount=ourViews.length;"
 				"for(var i=0;i<viewCount;i++){if(ourViews[i]._TOKEN==blessedView._TOKEN){Ti.UI._WSAVIEW(Ti._TOKEN,i,args);return;}}"
@@ -1735,7 +1759,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			"setToolbar:function(bar,args){if(bar){var i=bar.length;while(i>0){i--;bar[i].ensureToken();}}Ti.UI._WTOOL(Ti._TOKEN,bar,args);},"
 			"insertButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(Ti._TOKEN,btn,args);},"
 			"}"];
-//	[currentWindowScript setEpilogueCode:@"Ti.UI.currentWindow.__defineGetter__('views',Ti.UI.currentWindow.getViews);Ti.UI.currentWindow.__defineSetter__('views',Ti.UI.currentWindow.setViews);"];	
+	[currentWindowScript setEpilogueCode:@"window.addEventListener('resize',function(){if(!Ti.UI._ISRESIZING)Ti.UI._DORESIZE();},true);"];	
 
 	NSString * viewsForWindowString = @"function(winTkn){var fetched=Ti.UI._WGVIEWS(winTkn);if(!fetched)return {};var res=[];var i=0;var viewCount=fetched.length;while(i<viewCount){"
 			"var props=fetched[i];var viewTkn=props._TOKEN;var view=Ti.UI._VIEW[viewTkn];"
@@ -1764,9 +1788,9 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res.close=function(args){Ti.UI._CLS(this._TOKEN,args);};"
 			"res.addView=function(newView,args){this.views.push(newView);if(this._TOKEN){newView.ensureToken();Ti.UI._WSVIEWS(this._TOKEN,[newView],false,args);}};"
 			"res.getViews=function(){return Ti.UI.viewsForWindowToken(This._TOKEN);};"
-			"res.setViews=function(newViews,args){this.views=newViews;if(this._TOKEN){"
-				"for(var i=0;i<newViews.length;i++){newViews.ensureToken();}"
-				"Ti.UI._WSVIEWS(this._TOKEN,newViews,true,args);}};"
+//			"res.setViews=function(newViews,args){this.views=newViews;if(this._TOKEN){"
+//				"for(var i=0;i<newViews.length;i++){newViews.ensureToken();}"
+//				"Ti.UI._WSVIEWS(this._TOKEN,newViews,true,args);}};"
 			"res.setActiveViewIndex=function(newIndex,args){this.activeViewIndex=newIndex;if(this._TOKEN){Ti.UI._WSAVIEW(this._TOKEN,newIndex,args);}};"
 			"res.showView=function(blessedView,args){if(!this.views)return;var newIndex=0;var viewCount=this.views.length;"
 				"for(var i=0;i<viewCount;i++){if(this.views[i]._TOKEN==blessedView._TOKEN){self.setActiveViewIndex(i,args);return;}}};"
@@ -1909,6 +1933,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSDictionary * uiDict = [NSDictionary dictionaryWithObjectsAndKeys:
 			closeWinInvoc,@"_CLS",
 			openWinInvoc,@"_OPN",
+			resizeWindowInvoc,@"_DORESIZE",
 			changeWinUrlInvoc,@"_WURL",
 			changeWinFullScreenInvoc,@"_WFSCN",
 			showNavBarInvoc,@"_WSHNAV",

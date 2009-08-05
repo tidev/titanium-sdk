@@ -739,4 +739,9 @@ int nextWindowToken = 0;
 	[self needsUpdate:0];
 }
 
+- (void) needsUpdateAnimated;
+{
+	[self needsUpdate:TitaniumViewControllerRefreshIsAnimated];
+}
+
 @end

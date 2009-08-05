@@ -234,7 +234,7 @@ UIColor * checkmarkColor = nil;
 @property(nonatomic,readwrite,assign)	BOOL nullHeader;
 
 
-@property(nonatomic,readwrite,readwrite)		NSMutableArray * rowArray;
+@property(nonatomic,readwrite,retain)		NSMutableArray * rowArray;
 
 @end
 
@@ -260,6 +260,11 @@ UIColor * checkmarkColor = nil;
 	}
 
 	nullHeader = (id)headerString == [NSNull null];	
+}
+
++ (TableRowWrapper *) tableRowWithData: (NSDictionary *) newData withUrl: (NSURL *)baseURL;
+{
+	return nil;
 }
 
 - (id) initWithHeader: (NSString *) headerString footer: (NSString *) footerString;

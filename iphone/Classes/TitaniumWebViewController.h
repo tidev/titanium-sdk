@@ -30,6 +30,5 @@
 - (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
 
 - (void)reloadWebView;
-- (void)updateScrollBounds: (BOOL) animated;
 
 @end

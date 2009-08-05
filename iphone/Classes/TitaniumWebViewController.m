@@ -315,7 +315,7 @@ TitaniumWebViewController * mostRecentController = nil;
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
 {
 	[UIView beginAnimations:@"webView" context:nil];
-	[self updateScrollBounds:NO];
+	[self updateLayout:NO];
 	
 	if ([[self title] length] == 0){
 		NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
@@ -336,12 +336,13 @@ TitaniumWebViewController * mostRecentController = nil;
 
 #pragma mark Updating things
 
-- (void)updateScrollBounds: (BOOL) animated;
+- (void)updateLayout: (BOOL)animated;
 {
 	if ([scrollView superview]==nil) return;
 	CGRect webFrame;
 	webFrame.origin = CGPointZero;
 	webFrame.size = [[self view] frame].size;
+	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI._ISRESIZING=true;"];
 	[webView setFrame:webFrame];
 
 	UIView * firstResponder=nil;
@@ -380,11 +381,7 @@ TitaniumWebViewController * mostRecentController = nil;
 	if(firstResponder != nil){
 		[scrollView scrollRectToVisible:[firstResponder frame] animated:animated];
 	}
-}
-
-- (void)updateLayout: (BOOL)animated;
-{
-	[self updateScrollBounds:animated];
+	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI._ISRESIZING=false;"];
 }
 
 - (void)reloadWebView;
@@ -471,7 +468,7 @@ TitaniumWebViewController * mostRecentController = nil;
 
 //- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
 //{
-//	[self updateScrollBounds:YES];
+//	[self updateLayout:YES];
 //}
 
 #endif		//END OF TI_MODULE_GESTURE
