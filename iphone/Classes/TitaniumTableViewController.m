@@ -424,6 +424,39 @@ UIColor * checkmarkColor = nil;
 	[rootView release];
 }
 
+- (void) readData: (NSArray *)dataArray relativeToUrl: (NSURL *)baseUrl;
+{
+	SEL stringSel = @selector(stringValue);
+	Class dictClass = [NSDictionary class];
+	
+	[sectionArray autorelease];
+	sectionArray = [[NSMutableArray alloc] init];
+
+	TableSectionWrapper * thisSectionWrapper = nil;
+	for(NSDictionary * thisEntry in dataArray){
+		if (![thisEntry isKindOfClass:dictClass]) continue;
+		
+		TableRowWrapper * thisRow = [[[TableRowWrapper alloc] init] autorelease];		
+		[thisRow useProperties:thisEntry withUrl:baseUrl];
+		
+		id headerString = [thisEntry objectForKey:@"header"];
+		if ([headerString respondsToSelector:stringSel]) headerString = [headerString stringValue];
+		
+		id footerString = [thisEntry objectForKey:@"footer"];
+		if ([footerString respondsToSelector:stringSel]) footerString = [footerString stringValue];
+		
+		if ([thisSectionWrapper accceptsHeader:headerString footer:footerString]){
+			[thisSectionWrapper addRow:thisRow];
+		} else {
+			thisSectionWrapper = [[TableSectionWrapper alloc] initWithHeader:headerString footer:footerString];
+			
+			[thisSectionWrapper addRow:thisRow];
+			
+			[sectionArray addObject:thisSectionWrapper];
+			[thisSectionWrapper release];
+		}
+	}	
+}
 
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
@@ -475,17 +508,8 @@ UIColor * checkmarkColor = nil;
 	BOOL isValidDataEntries = [dataEntries isKindOfClass:arrayClass];
 
 	if (![groupEntries isKindOfClass:arrayClass]){
-		if (isValidDataEntries){
-			groupEntries = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:dataEntries forKey:@"data"]];
-			//While it's tempting to just use inputState as a shortcut, that could lead to undocumented pain.
-		} else {
-			groupEntries = nil; //Just so we don't interate on the wrong things.
-		}
-	} else {
-		if (isValidDataEntries){
-			groupEntries = [groupEntries arrayByAddingObject:[NSDictionary dictionaryWithObject:dataEntries forKey:@"data"]];
-			//While it's tempting to just use inputState as a shortcut, that could lead to undocumented pain.
-		}
+		if (isValidDataEntries)[self readData:dataEntries relativeToUrl:baseUrl];
+		return;
 	}
 	
 	[sectionArray autorelease];
@@ -1237,6 +1261,23 @@ UIColor * checkmarkColor = nil;
 	
 }
 
+- (void)reloadData:(NSArray *)newData relativeUrl:(NSURL *)baseUrl animation:(UITableViewRowAnimation) animation;
+{
+//	NSArray * oldArray = [sectionArray retain];
+	int oldCount=[sectionArray count];
+	NSIndexSet * oldRange = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, oldCount)];
+	[self readData:newData relativeToUrl:baseUrl];
+	int newCount=[sectionArray count];
+	NSIndexSet * newRange = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newCount)];
+
+	[tableView beginUpdates];
+	if(oldRange > 0)[tableView deleteSections:oldRange withRowAnimation:animation];
+	if(newRange > 0)[tableView insertSections:newRange withRowAnimation:animation];
+	[tableView endUpdates];
+
+//	[oldArray release];
+}
+
 
 - (void)performActions;
 {
@@ -1255,18 +1296,9 @@ UIColor * checkmarkColor = nil;
 			case TitaniumTableActionDeleteRow:
 				[self deleteRowAtIndex:[thisAction index] animation:animation];
 				break;
-//			case TitaniumTableActionUpdateRow:
-//				baseUrl = [thisAction baseUrl];
-//				Class dictClass = [NSDictionary class];
-//				for(NSDictionary * thisUpdate in [thisAction updatedRows]){
-//					if(![thisUpdate isKindOfClass:dictClass])continue;
-//					NSNumber * indexObject = [thisUpdate objectForKey:@"index"];
-//					NSDictionary * rowData = [thisUpdate objectForKey:@"rowData"];
-//					
-//					if(![indexObject respondsToSelector:@selector(intValue)] || ![rowData isKindOfClass:dictClass])continue;
-//					[self updateRow:rowData atIndex:[indexObject intValue] relativeUrl:baseUrl animation:animation];
-//				}
-//				break;
+			case TitaniumTableActionReloadData:
+				[self reloadData:[thisAction replacedData] relativeUrl:[thisAction baseUrl] animation:animation];
+				break;
 			default:
 				break;
 		}
