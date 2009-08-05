@@ -25,10 +25,8 @@
 	//
 
   	var page1 = [
-  	    {
-  	  	    header : 'Section 1'
-  	    },
 		{
+  			header : 'Section 1',
 			title : 'Row 1',
 			image : 'images/icon.png'
 		},
@@ -41,9 +39,7 @@
 			title : 'Row 3'
 		},
 		{
-			header : 'Section 2'
-		},
-		{
+			header : 'Section 2',
 			title : 'Row 4',
 			image : 'images/icon.png',
 			hasChild : true
@@ -58,10 +54,8 @@
 
 	var page2 = [
         {
+         title : 'click for option dlg',
          header : 'Some config stuff'
-        },
-        {
-         title : 'click for option dlg'
         },
         {
          html : '<font size="+2"><b>EXIT</b></font>'
@@ -97,9 +91,9 @@
 
 				var lid = dlg.addEventListener("click", function() {
 					if (ext) {
-						Titanium.UI.currentWindow.setActiveViewIndex(1);
+						Titanium.UI.currentWindow.setActiveViewIndex(0);
 						dlg.removeEventListener("click", lid);
-					} else if (e.index == 5) {
+					} else if (e.index == 3) {
 						Titanium.UI.currentWindow.setActiveViewIndex(2);
 					}
 				});
@@ -112,9 +106,9 @@
 		'data' : page2, 'rowHeight' : '75',
 	},
 	function(e1) {
-		if (e1.index == 2) {
+		if (e1.index == 1) {
 			Titanium.UI.currentWindow.showView(tv1);
-		} else if (e1.index == 1) {
+		} else if (e1.index == 0) {
 			var odlg = Titanium.UI.createOptionDialog({
 				title : 'Greeting',
 				options : [ 'Hello', 'Hola']
@@ -147,8 +141,7 @@
   	  	}
 
   	  	var btn = Titanium.UI.createButton({id : 'n1', title : 'Click Me'});
-  	  	btn.open();
-  	}
+   	}
   --></script>
 </head>
 <body style="background-color: white;">

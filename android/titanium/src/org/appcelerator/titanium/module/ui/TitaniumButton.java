@@ -61,7 +61,7 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 	}
 
 	private boolean isImageButton() {
-		return (imagePath != null || backgroundImage != null);
+		return (imagePath != null );
 	}
 
 	public void createControl(TitaniumModuleManager tmm)

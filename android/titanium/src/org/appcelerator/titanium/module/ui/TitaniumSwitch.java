@@ -22,7 +22,7 @@ public class TitaniumSwitch extends TitaniumBaseNativeControl
 
 	private static final int MSG_CLICK = 300;
 
-	public static final String CLICK_EVENT = "click";
+	public static final String CHANGE_EVENT = "change";
 
 	private boolean value;
 	private String color;
@@ -31,7 +31,7 @@ public class TitaniumSwitch extends TitaniumBaseNativeControl
 	public TitaniumSwitch(TitaniumModuleManager tmm) {
 		super(tmm);
 
-		eventManager.supportEvent(CLICK_EVENT);
+		eventManager.supportEvent(CHANGE_EVENT);
 		value = true; // default
 	}
 
@@ -75,7 +75,7 @@ public class TitaniumSwitch extends TitaniumBaseNativeControl
 		if (msg.what == MSG_CLICK) {
 			ToggleButton b = (ToggleButton) control;
 			value = b.isChecked();
-			eventManager.invokeSuccessListeners("click", "{ value : " + value + "}");
+			eventManager.invokeSuccessListeners(CHANGE_EVENT, "{ value : " + value + "}");
 		}
 
 		return super.handleMessage(msg);

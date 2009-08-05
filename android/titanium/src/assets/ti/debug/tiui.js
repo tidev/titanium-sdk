@@ -274,10 +274,10 @@ var ActivityIndicator = function(proxy) {
 		this.proxy.setMax(n);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.ActivityIndicator.setPos,since=0.4) Set the current indicator position between min and max
+	 * @tiapi(method=true,name=UI.ActivityIndicator.setValue,since=0.5.1) Set the current indicator position between min and max
 	 * @tiarg[int,n] the position
 	 */
-	this.setPos = function(n) {
+	this.setValue = function(n) {
 		this.proxy.setPosition(n);
 	};
 	/**
@@ -593,6 +593,9 @@ var UserWindow = function(proxy) {
 	this.setBarColor = function(options) {
 
 	}
+	this.setTitleControl = function(button) {
+
+	}
 };
 
 UserWindow.prototype.__defineGetter__("window", function() {
@@ -793,7 +796,7 @@ Titanium.UI = {
 			var type = options['type'];
 			var minVal = options['min'];
 			var maxVal = options['max'];
-			var position = options['pos'];
+			var value = options['value'];
 
 			if (!isUndefined(message)) {
 				ind.setMessage(message);
@@ -810,8 +813,8 @@ Titanium.UI = {
 			if (!isUndefined(maxVal)) {
 				ind.setMax(maxVal);
 			}
-			if (!isUndefined(position)) {
-				ind.setPos(position);
+			if (!isUndefined(value)) {
+				ind.setValue(value);
 			}
 		}
 		return ind;
@@ -831,7 +834,7 @@ Titanium.UI = {
 			var type = options['type'];
 			var minVal = options['min'];
 			var maxVal = options['max'];
-			var position = options['pos'];
+			var value = options['value'];
 
 			if (!isUndefined(message)) {
 				ind.setMessage(message);
@@ -848,8 +851,8 @@ Titanium.UI = {
 			if (!isUndefined(maxVal)) {
 				ind.setMax(maxVal);
 			}
-			if (!isUndefined(position)) {
-				ind.setPos(position);
+			if (!isUndefined(value)) {
+				ind.setValue(value);
 			}
 		}
 		return ind;
@@ -977,6 +980,15 @@ Titanium.UI = {
 	KEYBOARD_NUMBER_PAD : 3,
 	KEYBOARD_PHONE_PAD : 4,
 	KEYBOARD_EMAIL_ADDRESS : 5,
+
+	INPUT_BORDERSTYLE_NONE : 0,
+	INPUT_BORDERSTYLE_ROUNDED : 1,
+	INPUT_BORDERSTYLE_BEZEL : 2,
+	INPUT_BORDERSTYLE_LINE : 3,
+
+	INPUT_BUTTONMODE_ONFOCUS : 0,
+	INPUT_BUTTONMODE_ALWAYS : 1,
+	INPUT_BUTTONMODE_NEVER : 2,
 
 	/**
 	 * @tiapi(method=true,name=UI.createTextField,since=0.5.1) Create a native text field
@@ -1244,6 +1256,9 @@ Titanium.UI.iPhone = {
 		PLAY : -1,
 		FIXED_SPACE : -1,
 		FLEXIBLE_SPACE : -1,
+	},
+	SystemButtonStyle : {
+		PLAIN : -1
 	}
 };
 
