@@ -25,6 +25,7 @@ import org.appcelerator.titanium.api.ITitaniumSwitch;
 import org.appcelerator.titanium.api.ITitaniumTableView;
 import org.appcelerator.titanium.api.ITitaniumText;
 import org.appcelerator.titanium.api.ITitaniumUI;
+import org.appcelerator.titanium.api.ITitaniumUIWebView;
 import org.appcelerator.titanium.api.ITitaniumUserWindow;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.ui.TitaniumButton;
@@ -38,6 +39,7 @@ import org.appcelerator.titanium.module.ui.TitaniumTableView;
 import org.appcelerator.titanium.module.ui.TitaniumText;
 import org.appcelerator.titanium.module.ui.TitaniumTextField;
 import org.appcelerator.titanium.module.ui.TitaniumToastNotifier;
+import org.appcelerator.titanium.module.ui.TitaniumUIWebView;
 import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
 import org.appcelerator.titanium.util.Log;
 
@@ -64,6 +66,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	private static final int MSG_CREATE_PROGRESSDIALOG = 309;
 	private static final int MSG_CREATE_WINDOW = 310;
 	private static final int MSG_CREATE_EMAILDIALOG = 311;
+	private static final int MSG_CREATE_WEBVIEW = 312;
 
 	private static final int MSG_END_CREATE_SECTION = 330;
 
@@ -156,6 +159,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 					break;
 				case MSG_CREATE_EMAILDIALOG :
 					h.o = new TitaniumEmailDialog(getModuleManager());
+					break;
+				case MSG_CREATE_WEBVIEW :
+					h.o = new TitaniumUIWebView(getModuleManager());
 					break;
 				default :
 					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
@@ -267,9 +273,12 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 		return text;
 	}
 
-
 	public ITitaniumEmailDialog createEmailDialog() {
 		return (ITitaniumEmailDialog) create(MSG_CREATE_EMAILDIALOG);
+	}
+
+	public ITitaniumUIWebView createWebView() {
+		return (ITitaniumUIWebView) create(MSG_CREATE_WEBVIEW);
 	}
 
 	// Expects the message handler to put the object in h.o and release the holder

@@ -1,13 +1,13 @@
 <html>
 <head>
 	<script>
-		
+
 		// create web view views
 		var webView1 = Titanium.UI.createWebView({url:'views1.html'});
 		var webView2 = Titanium.UI.createWebView({url:'views2.html'});
 		var webView3 = Titanium.UI.createWebView({url:'views3.html'});
-		
-		// 
+
+		//
 		// grouped view
 		//
 		var groupedView = null;
@@ -15,7 +15,7 @@
 		{
 			// create grouped view
 			var a = Titanium.UI.createAlertDialog({title:'Grouped View Test', buttonNames:['OK']});
-		
+
 			var buttonData = [
 				{title:'Show View 1'},
 				{title:'Show View 2'},
@@ -23,12 +23,12 @@
 				{title:'Show View 4'},
 				{title:'Show View 5'},
 				{title:'Show View 6'},
-				
+
 			];
-		
+
 			var buttonSection = Titanium.UI.iPhone.createGroupedSection({
-				footer:'Button Group Footer', 
-				header:'Button Group', 
+				footer:'Button Group Footer',
+				header:'Button Group',
 				type:'button',
 				data:buttonData
 			});
@@ -42,7 +42,7 @@
 							animated:true,
 							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 							animationDuration:1000
-						});		
+						});
 						break;
 					}
 					case 1:
@@ -51,9 +51,9 @@
 							animated:true,
 							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 							animationDuration:1000
-						});		
+						});
 						break;
-						
+
 					}
 					case 2:
 					{
@@ -61,9 +61,9 @@
 							animated:true,
 							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 							animationDuration:1000
-						});		
+						});
 						break;
-						
+
 					}
 					case 3:
 					{
@@ -71,9 +71,9 @@
 							animated:true,
 							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 							animationDuration:1000
-						});		
+						});
 						break;
-						
+
 					}
 					case 4:
 					{
@@ -81,9 +81,9 @@
 							animated:true,
 							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 							animationDuration:1000
-						});		
+						});
 						break;
-						
+
 					}
 					case 5:
 					{
@@ -91,23 +91,23 @@
 							animated:true,
 							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 							animationDuration:1000
-						});		
+						});
 						break;
-						
+
 					}
 
 				}
 			});
-		
+
 			var optionData = [
 				{title:'Option 1'},
 				{title:'Option 2' , selected:true},
-				{title:'Option 3'}	
+				{title:'Option 3'}
 			];
-		
+
 			var optionSection = Titanium.UI.iPhone.createGroupedSection({
-				header:'Option Group', 
-				type:'option', 
+				header:'Option Group',
+				type:'option',
 				data:optionData
 			});
 			optionSection.addEventListener('click',function(e)
@@ -115,14 +115,14 @@
 				a.setMessage('You clicked index ' + e.index + ' section row ' + e.row + ' section ' + e.section);
 				a.show();
 			});
-		
+
 			var switchInstance = Titanium.UI.createSwitch({value:true,width:95});
 			switchInstance.addEventListener('change',function(e)
 			{
 				a.setMessage(e.value)
 				a.show();
 			})
-		
+
 			var sliderInstance = Titanium.UI.createSlider({min:0,max:10,value:5, width:150});
 			sliderInstance.addEventListener('change',function(e)
 			{
@@ -135,79 +135,79 @@
 				a.setMessage(e.value)
 				a.show();
 			})
-		
+
 			var inputData = [
 				{title:'Input 1', input:switchInstance, image:'iTunes.png'},
 				{title:'Sound', input:sliderInstance, image:'Mail.png'},
 				{title:'Name', input:textInstance},
 				{title:'Input 2', value:'foo', hasChild:true},
-				{title:'Input 3'}	
+				{title:'Input 3'}
 			];
-		
+
 			var inputSection = Titanium.UI.iPhone.createGroupedSection({
-				header:'Input Group', 
-				type:'input', 
+				header:'Input Group',
+				type:'input',
 				data:inputData
 			});
 			inputSection.addEventListener('click',function(e)
 			{
-				a.setMessage('You clicked index ' + e.index + ' section row ' + e.row + ' section ' + e.section 
+				a.setMessage('You clicked index ' + e.index + ' section row ' + e.row + ' section ' + e.section
 					+ ' rowData ' + e.rowData);
 				a.show();
 			});
-		
-			// create grouped view  
+
+			// create grouped view
 			groupedView = Titanium.UI.iPhone.createGroupedView();
 			groupedView.addSection(optionSection);
 			groupedView.addSection(buttonSection);
 			groupedView.addSection(inputSection);
-		
+
 		}
-		
+
 		//
 		// Table View 1
 		//
-		
+
 		// data for tableview
 		var data = [
 			{html:'<div style="font-family:Helvetica Neue">Show View 1</div> ', hasDetail:true, header:'Section 0'},
-			
+
 			{html:'<div style="font-family:Helvetica Neue">Show View 2</div> ', hasChild:true},
-			
+
 			{html:'<div style="font-family:Helvetica Neue">Show View 3</div> '},
-			
+
 			{html:'<div style="font-family:Helvetica Neue">Show View 5</div> '},
-			
+
 			{html:'<div style="font-family:Helvetica Neue">Show View 6</div> '},
-			
+
 			{html:'<div style="font-family:Helvetica Neue">Show View 7</div> ', hasDetail:true, header:'Section 1'},
-			
+
 			{html:'<div style="font-family:Helvetica Neue"><div style="font-size:18px;font-weight:bold;">Row 7</div><div style="font-size:12px;color:#999">I am row 7 detail</div></div> ', hasChild:true},
-			
+
 			{html:'<div style="font-family:Helvetica Neue"><div style="font-size:18px;font-weight:bold;">Row 8</div><div style="font-size:12px;color:#999">I am row 8 detail</div></div> '},
-			
+
 			{html:'<div style="font-family:Helvetica Neue"><div style="font-size:18px;font-weight:bold;">Row 9</div><div style="font-size:12px;color:#999">I am row 9 detail</div></div> '},
-			
+
 			{html:'<div style="font-family:Helvetica Neue"><div style="font-size:18px;font-weight:bold;">Row 10</div><div style="font-size:12px;color:#999">I am row 10 detail</div></div> '},
-			
+
 			{html:'<div style="font-family:Helvetica Neue"><div style="font-size:18px;font-weight:bold;">Row 11</div><div style="font-size:12px;color:#999">I am row 11 detail</div></div> ', hasDetail:true, header:'Section 2'},
-			
+
 			{html:'<div style="font-family:Helvetica Neue"><div style="font-size:18px;font-weight:bold;">Row 12</div><div style="font-size:12px;color:#999">I am row 12 detail</div></div> ', hasChild:true},
-			
+
 			{html:'<div style="font-family:Helvetica Neue"><div style="font-size:18px;font-weight:bold;">Row 13</div><div style="font-size:12px;color:#999">I am row 13 detail</div></div> '},
-			
+
 			{html:'<div style="font-family:Helvetica Neue"><div style="font-size:18px;font-weight:bold;">Row 14</div><div style="font-size:12px;color:#999">I am row 14 detail</div></div> '},
-			
+
 			{html:'<div style="font-family:Helvetica Neue"><div style="font-size:18px;font-weight:bold;">Row 15</div><div style="font-size:12px;color:#999">I am row 15 detail</div></div> '}
-			
+
 		];
-			
+
 		// tableview object
 		var tableView = Titanium.UI.createTableView({
 			data:data,
 			title:'Height/Header/HTML Test',
 			rowHeight:80
-		},function(eventObject) 
+		},function(eventObject)
 		{
 			switch (eventObject.row)
 			{
@@ -217,7 +217,7 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
 				}
 				case 1:
@@ -226,9 +226,9 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
-					
+
 				}
 				case 2:
 				{
@@ -236,9 +236,9 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
-					
+
 				}
 				case 3:
 				{
@@ -246,9 +246,9 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
-					
+
 				}
 				case 4:
 				{
@@ -256,9 +256,9 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
-					
+
 				}
 				case 5:
 				{
@@ -266,20 +266,20 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
-					
+
 				}
 
 			}
 
 
 		});
-			
+
 		//
 		// Table View 2
 		//
-		
+
 		// data for tableview
 		var data2 = [
 			{title:'Show View 1',header:'Section 0'},
@@ -314,11 +314,11 @@
 			{title:'Row 30'},
 			{title:'Row 31'},
 			{title:'Row 32'}
-			
+
 		];
-			
+
 		// tableview object
-		var tableView2 = Titanium.UI.createTableView({data:data2,title:'Header Only Test'}, function(eventObject) 
+		var tableView2 = Titanium.UI.createTableView({data:data2,title:'Header Only Test'}, function(eventObject)
 		{
 			switch (eventObject.row)
 			{
@@ -328,7 +328,7 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
 				}
 				case 1:
@@ -337,9 +337,9 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
-					
+
 				}
 				case 2:
 				{
@@ -347,9 +347,9 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
-					
+
 				}
 				case 3:
 				{
@@ -357,9 +357,9 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
-					
+
 				}
 				case 4:
 				{
@@ -367,9 +367,9 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
-					
+
 				}
 				case 5:
 				{
@@ -377,19 +377,19 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
-					
+
 				}
 
 			}
-			
+
 		});
-		
+
 		//
 		// Table View 3
 		//
-		
+
 		// data for tableview
 		var data3 = [
 			{title:'Show View 1',hasDetail:true, image:'Phone.png'},
@@ -400,9 +400,9 @@
 			{title:'Show View 7', image:'Mail.png'}
 
 		];
-			
+
 		// tableview object
-		var tableView3 = Titanium.UI.createTableView({data:data3,title:'Image Test'}, function(eventObject) 
+		var tableView3 = Titanium.UI.createTableView({data:data3,title:'Image Test'}, function(eventObject)
 		{
 			switch (eventObject.row)
 			{
@@ -412,7 +412,7 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
 				}
 				case 1:
@@ -421,9 +421,9 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
-					
+
 				}
 				case 2:
 				{
@@ -431,9 +431,9 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
-					
+
 				}
 				case 3:
 				{
@@ -441,9 +441,9 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
-					
+
 				}
 				case 4:
 				{
@@ -451,9 +451,9 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
-					
+
 				}
 				case 5:
 				{
@@ -461,15 +461,15 @@
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
-					});		
+					});
 					break;
-					
+
 				}
 
 			}
-			
+
 		});
-		
+
 		Titanium.UI.currentWindow.addView(webView1);
 		Titanium.UI.currentWindow.addView(webView2);
 		Titanium.UI.currentWindow.addView(webView3);
@@ -481,10 +481,10 @@
 		{
 			Titanium.UI.currentWindow.addView(groupedView);
 		}
-		
+
 		Titanium.UI.currentWindow.showView(webView1);
-		
-		
+
+
 	</script>
 
 </head>

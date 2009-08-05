@@ -491,8 +491,8 @@ public class TitaniumActivity extends Activity
 */
     // TODO, may return index
     public void addView(ITitaniumView view) {
-    	synchronized(views) {
-    		// TODO check for multiple adds
+     	synchronized(views) {
+    	      		// TODO check for multiple adds
     		views.add(view);
     		Log.e(LCAT, "ADDING VIEW: " + view);
     	}
@@ -501,8 +501,8 @@ public class TitaniumActivity extends Activity
     public ITitaniumView getActiveView()
     {
     	ITitaniumView tiView = null;
-    	synchronized(views) {
-    		if (activeViewIndex > -1) {
+     	synchronized(views) {
+     		if (activeViewIndex > -1) {
     			tiView = views.get(activeViewIndex);
     		}
     	}
@@ -526,6 +526,12 @@ public class TitaniumActivity extends Activity
     	synchronized (views) {
 			return views.size();
 		}
+    }
+
+    public ITitaniumView getViewAt(int index) {
+    	synchronized(views) {
+    		return views.get(index);
+    	}
     }
 
 	public void setLoadOnPageEnd(boolean load) {

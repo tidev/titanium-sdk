@@ -34,5 +34,6 @@ public interface ITitaniumUI
 	public ITitaniumText createTextArea(String json);
 	public ITitaniumText createTextField(String json);
 	public ITitaniumEmailDialog createEmailDialog();
+	public ITitaniumUIWebView createWebView();
 
 }

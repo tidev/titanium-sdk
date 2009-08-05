@@ -246,9 +246,23 @@ public class TitaniumUserWindow
 		}
 	}
 
-	public ITitaniumView[] getViews()
-	{
-		return null;
+	public ITitaniumView getView(int i) {
+		ITitaniumView view = null;
+		TitaniumActivity activity = getActivity();
+		if (activity != null) {
+			view =  activity.getViewAt(i);
+		}
+		return view;
+	}
+
+	public int getViewCount() {
+		int count = 0;
+
+		TitaniumActivity activity = getActivity();
+		if (activity != null) {
+			count =  activity.getViewCount();
+		}
+		return count;
 	}
 
 	public void setActiveViewIndex(int index, String options)

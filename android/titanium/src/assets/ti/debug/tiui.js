@@ -432,10 +432,6 @@ var TableView = function(proxy) {
 	this.setIsPrimary = function(primary) {
 		this.proxy.setIsRoot(primary);
 	};
-	/**
-	 * @tiapi(method=true,name=UI.TableView.open,since=0.5) open the table view
-	 * @tiarg[string, options] open options
-	 */
 	this.open = function(options) {
 		var opt = null;
 		if (!isUndefined(options)) {
@@ -443,12 +439,20 @@ var TableView = function(proxy) {
 		}
 		this.proxy.open(opt, registerCallback(this, this._callback));
 	};
-	/**
-	 * @tiapi(method=true,name=UI.TableView.close,since=0.5) close an open table view
-	 */
 	this.close = function() {
 		this.proxy.close();
 	}
+};
+
+var WebView = function(proxy) {
+	this.proxy = proxy; // reference to Java object
+	this.open = function(options) {
+		var opt = null;
+		if (!isUndefined(options)) {
+			opt = Titanium.JSON.stringify(options);
+		}
+		this.proxy.open(opt, registerCallback(this, this._callback));
+	};
 };
 
 var UserWindow = function(proxy) {
@@ -547,7 +551,15 @@ var UserWindow = function(proxy) {
 	 * @tiresult[array] the views
 	 */
 	this.getViews = function() {
-
+		var views = [];
+		var count = this.proxy.getViewCount();
+		for(i = 0; i < count; i++) {
+			v = {};
+			v.proxy = this.proxy.getView(i);
+			v.index = i;
+			views[i] = v;
+		}
+		return views;
 	};
 
 	/**
@@ -886,6 +898,27 @@ Titanium.UI = {
 		 tv.open(null, registerCallback(this, this._callback));
 
 		 return tv;
+	},
+	/**
+	 * @tiapi(method=true,name=UI.createTableView,since=0.5) Create a table view
+	 * @tiarg[object, options] a dictionary/hash of options
+	 * @tiresult[TableView] the table view.
+	 */
+	createWebView : function(options) {
+		 var wv = new WebView(Titanium.uiProxy.createWebView());
+
+		 if(!isUndefined(options)) {
+			 var url = options['url'];
+
+			 if (!isUndefined(url)) {
+				 //wv.setUrl(url);
+				 wv.proxy.setUrl(url);
+			 }
+		 }
+
+		 wv.proxy.open();
+
+		 return wv;
 	},
 	createEmailDialog : function(options) {
 		var dlg = new EmailDialog(Titanium.uiProxy.createEmailDialog());
@@ -1259,6 +1292,12 @@ Titanium.UI.iPhone = {
 	},
 	SystemButtonStyle : {
 		PLAIN : -1
+	},
+	AnimationStyle : {
+		FLIP_FROM_LEFT : -1,
+		FLIP_FROM_RIGHT : -1,
+		CURL_UP : -1,
+		CURL_DOWN : -1
 	}
 };
 

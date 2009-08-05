@@ -23,28 +23,37 @@ public class TiWebChromeClient extends WebChromeClient {
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private Activity activity;
+	private boolean useAsView;
+
 	public TiWebChromeClient(TitaniumActivity activity) {
+		this(activity, false);
+	}
+
+	public TiWebChromeClient(TitaniumActivity activity, boolean useAsView) {
 		super();
 		this.activity = TitaniumActivityHelper.getRootActivity(activity);
+		this.useAsView = useAsView;
 	}
 
     @Override
 	public void onProgressChanged(WebView view, final int newProgress)
     {
-		//super.onProgressChanged(view, newProgress);
-		if (newProgress < 100) {
-			activity.runOnUiThread(new Runnable(){
-				public void run() {
-					activity.setProgressBarVisibility(true);
-					activity.setProgressBarIndeterminateVisibility(true);
-					activity.setProgress(newProgress * 100);
-				}});
-		} else {
-			activity.runOnUiThread(new Runnable(){
-				public void run() {
-					activity.setProgress(newProgress * 100);
-				}});
-		}
+    	if (!useAsView) {
+			//super.onProgressChanged(view, newProgress);
+			if (newProgress < 100) {
+				activity.runOnUiThread(new Runnable(){
+					public void run() {
+						activity.setProgressBarVisibility(true);
+						activity.setProgressBarIndeterminateVisibility(true);
+						activity.setProgress(newProgress * 100);
+					}});
+			} else {
+				activity.runOnUiThread(new Runnable(){
+					public void run() {
+						activity.setProgress(newProgress * 100);
+					}});
+			}
+    	}
 	}
 
 	public boolean onJsAlert(WebView view, String url, String message, final android.webkit.JsResult result)

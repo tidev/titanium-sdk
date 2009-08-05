@@ -86,7 +86,7 @@ public class TitaniumWebView extends WebView
 	private String url;
 	private String source;
 	private Semaphore sourceReady;
-	private boolean loaded;
+	private boolean useAsView;
 
 	private HashSet<OnConfigChange> configurationChangeListeners;
 
@@ -96,10 +96,15 @@ public class TitaniumWebView extends WebView
 
 	private HashMap<Integer, String> optionMenuCallbacks;
 
+	public TitaniumWebView(TitaniumActivity activity, String url) {
+		this(activity, url, false);
+	}
 
-	public TitaniumWebView(TitaniumActivity activity, String url)
+	public TitaniumWebView(TitaniumActivity activity, String url, boolean useAsView)
 	{
 		super(activity);
+
+		this.useAsView = useAsView;
 
 		this.handler = new Handler(this);
 		this.mtm = MimeTypeMap.getSingleton();
@@ -111,7 +116,7 @@ public class TitaniumWebView extends WebView
 
 
         setWebViewClient(new TiWebViewClient(activity));
-        setWebChromeClient(new TiWebChromeClient(activity));
+        setWebChromeClient(new TiWebChromeClient(activity, useAsView));
 
 		WebSettings settings = getSettings();
 
@@ -174,12 +179,11 @@ public class TitaniumWebView extends WebView
 				try {
 					TitaniumApplication app = tmm.getApplication();
 					source = TitaniumUrlHelper.getSource(app, app.getApplicationContext(), furl, null);
+					Log.i(LCAT, "Source loaded for " + furl);
 				} catch (IOException e) {
 					Log.e(LCAT, "Unable to load source for " + furl);
 				} finally {
-					synchronized(sourceReady) {
-						sourceReady.release();
-					}
+					sourceReady.release();
 				}
 			}});
         sourceLoadThread.start();
@@ -214,31 +218,37 @@ public class TitaniumWebView extends WebView
 
 		tmm.registerModules();
 
-		if (app.needsEnrollEvent()) {
-			app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createAppEnrollEvent(tiPlatform, tiApp));
-		}
+		if (!useAsView) {
+			if (app.needsEnrollEvent()) {
+				app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createAppEnrollEvent(tiPlatform, tiApp));
+			}
 
-		if (app.needsStartEvent()) {
-			String deployType = appInfo.getSystemProperties().getString("ti.deploytype", "unknown");
+			if (app.needsStartEvent()) {
+				String deployType = appInfo.getSystemProperties().getString("ti.deploytype", "unknown");
 
-			app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createAppStartEvent(tiNetwork, tiPlatform, tiApp, deployType));
+				app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createAppStartEvent(tiNetwork, tiPlatform, tiApp, deployType));
+			}
 		}
     }
 
     protected void buildWebView()
     {
-    	TitaniumWindowInfo windowInfo = tmm.getActivity().getWindowInfo();
+    	if (DBG) {
+    		Log.d(LCAT, "buildWebView");
+    	}
+    	if (!useAsView) {
+	    	TitaniumWindowInfo windowInfo = tmm.getActivity().getWindowInfo();
 
-		if (windowInfo != null && windowInfo.hasBackgroundColor()) {
-			setBackgroundColor(windowInfo.getBackgroundColor());
-		}
-
+			if (windowInfo != null && windowInfo.hasBackgroundColor()) {
+				setBackgroundColor(windowInfo.getBackgroundColor());
+			}
+    	}
         if (url != null)
 		{
         	try {
-          		synchronized(sourceReady) {
-          			sourceReady.acquire();
-          		}
+        		Log.i(LCAT, "Waiting for source " + url);
+      			sourceReady.acquire();
+          		Log.i(LCAT, "Loading source");
           		loadFromSource(url, source);
         	} catch (InterruptedException e) {
         		Log.w(LCAT, "Interrupted: " + e.getMessage());
@@ -381,6 +391,8 @@ public class TitaniumWebView extends WebView
 		case MSG_LOAD_FROM_SOURCE:
       		String url = b.getString(MSG_EXTRA_URL);
       		String source = b.getString(MSG_EXTRA_SOURCE);
+
+      		Log.w(LCAT, "Handling load source message: " + url);
 
 			String extension = MimeTypeMap.getFileExtensionFromUrl(url);
 			String mimetype = "application/octet-stream";

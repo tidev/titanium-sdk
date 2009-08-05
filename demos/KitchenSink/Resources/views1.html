@@ -15,62 +15,67 @@
 	<div id="switch"></div>
 	<div id="slider"></div>
 	<div id="textField"></div>
-	
+
 	<script>
 
 
-	var views = Titanium.UI.currentWindow.getViews();
 	document.getElementById('two').onclick = function()
 	{
+		var views = Titanium.UI.currentWindow.getViews();
 		Titanium.UI.currentWindow.showView(views[2],{
 			animated:true,
 			animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 			animationDuration:1000
-		});		
+		});
 	};
 	document.getElementById('three').onclick = function()
 	{
+		var views = Titanium.UI.currentWindow.getViews();
 		Titanium.UI.currentWindow.showView(views[3],{
 			animated:true,
 			animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,
 			animationDuration:1000
-		});		
+		});
 	};
 
 	document.getElementById('four').onclick = function()
 	{
+		var views = Titanium.UI.currentWindow.getViews();
 		Titanium.UI.currentWindow.showView(views[4],{
 			animated:true,
 			animationStyle:Titanium.UI.iPhone.AnimationStyle.CURL_UP,
 			animationDuration:1000
-		});		
+		});
 	};
 
 	document.getElementById('five').onclick = function()
 	{
+		var views = Titanium.UI.currentWindow.getViews();
 		Titanium.UI.currentWindow.showView(views[5],{
 			animated:true,
 			animationStyle:Titanium.UI.iPhone.AnimationStyle.CURL_DOWN,
 			animationDuration:1000
-		});		
+		});
 	};
 
 	document.getElementById('six').onclick = function()
 	{
+		var views = Titanium.UI.currentWindow.getViews();
 		Titanium.UI.currentWindow.showView(views[6],{
 			animated:true,
 			animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 			animationDuration:1000
-		});		
+		});
 	};
 
 	document.getElementById('seven').onclick = function()
 	{
+		var views = Titanium.UI.currentWindow.getViews();
 		Titanium.UI.currentWindow.showView(views[7],{
 			animated:true,
 			animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,
 			animationDuration:1000
-		});		
+		});
 	};
 
 	</script>

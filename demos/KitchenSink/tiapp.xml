@@ -39,6 +39,6 @@
  			<icon>profile.png</icon>
 			<orientation>either</orientation>
         </window>
-
     </windows>
+    <property name="ti.android.debug" type="bool">true</property>
 </ti:app>
