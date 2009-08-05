@@ -308,8 +308,8 @@ public class TitaniumActivity extends Activity
 						layout.showNext();
 						layout.removeView(current);
 
-						if (!current.hasFocus()) {
-							current.requestFocus();
+						if (!newView.hasFocus()) {
+							newView.requestFocus();
 						}
 					}
 				}

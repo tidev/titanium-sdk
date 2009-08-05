@@ -1,5 +1,6 @@
 package org.appcelerator.titanium.module.ui;
 
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,7 +11,6 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
-import org.appcelerator.titanium.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -94,7 +94,15 @@ public class TitaniumTableViewItem extends RelativeLayout
 		setVerticalFadingEdgeEnabled(true);
 		setPadding(10, 2, 10, 2);
 
-		if (data.has("image")) {
+		boolean isDisplayHeader = false;
+		try {
+			isDisplayHeader = data.getBoolean("isDisplayHeader");
+		} catch (JSONException e) {
+			Log.e(LCAT, "Unable to get header flag", e);
+		}
+
+
+		if (!isDisplayHeader && data.has("image")) {
 			try {
 				String path = data.getString("image");
 				Drawable d = tfh.loadDrawable(path, false);
@@ -112,7 +120,7 @@ public class TitaniumTableViewItem extends RelativeLayout
 			}
 		}
 
-		if (data.has("header")) {
+		if (isDisplayHeader && data.has("header")) {
 			textView.setVisibility(View.VISIBLE);
 			header = true;
 			try {
@@ -148,7 +156,7 @@ public class TitaniumTableViewItem extends RelativeLayout
 			}
 		}
 
-		if (data.has("hasChild")) {
+		if (!isDisplayHeader && data.has("hasChild")) {
 			try {
 				if (data.getBoolean("hasChild")) {
 					BitmapDrawable d = new BitmapDrawable(getClass().getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));

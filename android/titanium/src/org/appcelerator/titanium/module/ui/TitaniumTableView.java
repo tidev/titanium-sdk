@@ -4,8 +4,8 @@ import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumTableView;
 import org.appcelerator.titanium.api.ITitaniumView;
+import org.appcelerator.titanium.module.ui.tableview.TableViewModel;
 import org.appcelerator.titanium.util.Log;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,30 +33,29 @@ public class TitaniumTableView extends FrameLayout
 	private static final int MSG_CLOSE = 301;
 
 	private static final String MSG_EXTRA_CALLBACK = "cb";
-	private static final String MSG_EXTRA_JSON = "json";
 
 	private TitaniumModuleManager tmm;
-	private String data;
 	private int rowHeight;
 	private Handler handler;
 	private boolean root;
+	private TableViewModel viewModel;
 
 	class TTVListAdapter extends BaseAdapter
 	{
-		JSONArray items;
+		TableViewModel viewModel;
 
-		TTVListAdapter(JSONArray items) {
-			this.items = items;
+		TTVListAdapter(TableViewModel viewModel) {
+			this.viewModel = viewModel;
 		}
 
 		public int getCount() {
-			return items.length();
+			return viewModel.getViewModel().length();
 		}
 
 		public Object getItem(int position) {
 			JSONObject o = null;
 			try {
-				o = items.getJSONObject(position);
+				o = viewModel.getViewModel().getJSONObject(position);
 			} catch (JSONException e) {
 				Log.w(LCAT, "Error while getting JSON object at " + position, e);
 			}
@@ -68,7 +67,8 @@ public class TitaniumTableView extends FrameLayout
 			return 0;
 		}
 
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(int position, View convertView, ViewGroup parent)
+		{
 			TitaniumTableViewItem v = null;
 			if (convertView != null) {
 				v = (TitaniumTableViewItem) convertView;
@@ -90,8 +90,10 @@ public class TitaniumTableView extends FrameLayout
 		public boolean isEnabled(int position) {
 			boolean enabled = true;
 			JSONObject o = (JSONObject) getItem(position);
-			if (o.has("header")) {
-				enabled = false;
+			try {
+				enabled = !o.getBoolean("isDisplayHeader");
+			} catch (JSONException e) {
+				Log.w(LCAT, "Missing isDisplayHeader attribute at position " + position);
 			}
 			return enabled;
 		}
@@ -105,10 +107,39 @@ public class TitaniumTableView extends FrameLayout
 		this.handler = new Handler(this);
 		this.rowHeight = 65;
 		this.root = false;
+		this.viewModel = new TableViewModel();
 	}
 
 	public void setData(String data) {
-		this.data = data;
+		viewModel.setData(data);
+	}
+
+	public void deleteRow(int index) {
+		viewModel.deleteItem(index);
+	}
+
+	public void insertRowAfter(int index, String json) {
+		try {
+			viewModel.insertItemAfter(index, new JSONObject(json));
+		} catch (JSONException e) {
+			Log.e(LCAT, "Error trying to insert row: ", e);
+		}
+	}
+
+	public void insertRowBefore(int index, String json) {
+		try {
+			viewModel.insertItemBefore(index, new JSONObject(json));
+		} catch (JSONException e) {
+			Log.e(LCAT, "Error trying to insert row: ", e);
+		}
+	}
+
+	public void updateRow(int index, String json) {
+		try {
+			viewModel.updateItem(index, new JSONObject(json));
+		} catch (JSONException e) {
+			Log.e(LCAT, "Error trying to update row: ", e);
+		}
 	}
 
 	public void setRowHeight(String height) {
@@ -129,7 +160,7 @@ public class TitaniumTableView extends FrameLayout
 
 		switch(msg.what) {
 		case MSG_OPEN:
-			doOpen(b.getString(MSG_EXTRA_JSON), b.getString(MSG_EXTRA_CALLBACK));
+			doOpen(b.getString(MSG_EXTRA_CALLBACK));
 			return true;
 		case MSG_CLOSE:
 			doClose();
@@ -141,12 +172,11 @@ public class TitaniumTableView extends FrameLayout
 	public void open(String json, final String callback)
 	{
 		Message m = handler.obtainMessage(MSG_OPEN);
-		m.getData().putString(MSG_EXTRA_JSON, json);
 		m.getData().putString(MSG_EXTRA_CALLBACK, callback);
 		m.sendToTarget();
 	}
 
-	private void doOpen(final String json, final String callback)
+	private void doOpen(final String callback)
 	{
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		setLayoutParams(params);
@@ -156,9 +186,7 @@ public class TitaniumTableView extends FrameLayout
 		view.setFocusable(true);
 		view.setFocusableInTouchMode(true);
 
-		final JSONArray jdata = processData(data);
-
-		view.setAdapter(new TTVListAdapter(jdata));
+		view.setAdapter(new TTVListAdapter(viewModel));
 		view.setOnKeyListener(new View.OnKeyListener() {
 
 			public boolean onKey(View view, int keyCode, KeyEvent keyEvent)
@@ -179,13 +207,13 @@ public class TitaniumTableView extends FrameLayout
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 			{
 				try {
-					JSONObject item = jdata.getJSONObject(position);
+					JSONObject item = viewModel.getViewModel().getJSONObject(position);
 					JSONObject event = new JSONObject();
 
 					event.put("rowData", item);
 					event.put("section", item.getInt("section"));
 					event.put("row", item.getInt("sectionIndex"));
-					event.put("index", position);
+					event.put("index", item.getInt("index"));
 					event.put("detail", false);
 
 					tmm.getWebView().evalJS(callback, event);
@@ -196,8 +224,6 @@ public class TitaniumTableView extends FrameLayout
 			}});
 
 		addView(view, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-		//tmm.getActivity().addView(this);
-		//tmm.getActivity().setActiveView(this);
 	}
 
 	public void close()
@@ -209,38 +235,6 @@ public class TitaniumTableView extends FrameLayout
 		//tmm.getActivity().popView(this);
 		destroyDrawingCache();
 		removeAllViews();
-	}
-
-	private JSONArray processData(String data) {
-		JSONArray jdata = new JSONArray();
-		try {
-			jdata = new JSONArray(data);
-		} catch (JSONException e) {
-			Log.e(LCAT, "Error parsing JSON, using empty array", e);
-		}
-
-		int len = jdata.length();
-		int section = 0;
-		int sectionIndex = 0;
-
-		for(int i = 0; i < len; i++) {
-			try {
-				JSONObject o = jdata.getJSONObject(i);
-				if (o.has("header")) {
-					if (section != 0 || i != 0) {
-						section++;
-					}
-					sectionIndex = 0;
-				}
-				o.put("section", section);
-				o.put("sectionIndex", sectionIndex);
-				sectionIndex++;
-			} catch (JSONException e) {
-				Log.e(LCAT, "Error using object at position: " + i);
-			}
-		}
-
-		return jdata;
 	}
 
 	public ITitaniumLifecycle getLifecycle() {
