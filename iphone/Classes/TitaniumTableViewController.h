@@ -9,26 +9,37 @@
 #import "TitaniumContentViewController.h"
 
 typedef enum {
-	TitaniumTableActionDeleteRow,
-	TitaniumTableActionInsertBeforeRow,
-	TitaniumTableActionInsertAfterRow,
-	TitaniumTableActionUpdateRow,
-	TitaniumTableActionReloadData,
+	TitaniumTableActionIndexed			=0x100,
 
-	TitaniumGroupActionInsertRow,
-	TitaniumGroupActionDeleteRow,
-	TitaniumGroupActionUpdateRow,
+	TitaniumTableActionDeleteRow		=0x101,
+	TitaniumTableActionInsertBeforeRow	=0x102,
+	TitaniumTableActionInsertAfterRow	=0x103,
+	TitaniumTableActionUpdateRow		=0x104,
 
-	TitaniumGroupActionInsertGroup,
-	TitaniumGroupActionDeleteGroup,
+	TitaniumTableActionReload			=0x200,
+	TitaniumTableActionReloadData		=0x201,
+	TitaniumGroupActionReloadSections	=0x202,
+
+	TitaniumTableActionSectionRow		=0x400,
+	TitaniumGroupActionInsertBeforeRow	=0x401,
+	TitaniumGroupActionDeleteRow		=0x402,
+	TitaniumGroupActionUpdateRow		=0x403,
+
+	TitaniumTableActionSection			=0x800,
+	TitaniumGroupActionInsertBeforeGroup=0x801,
+	TitaniumGroupActionDeleteGroup		=0x802,
+	TitaniumGroupActionUpdateGroup		=0x803,
+	
 } TitaniumTableAction;
 
 @interface TitaniumTableActionWrapper : NSObject
 {
 	TitaniumTableAction kind;
 	int index;
+	int section;
+	int row;
+	NSDictionary * sectionData;
 	NSDictionary * rowData;
-	NSArray * updatedRows;
 	NSArray * replacedData;
 	UITableViewRowAnimation animation;
 	NSURL * baseUrl;
@@ -36,8 +47,10 @@ typedef enum {
 
 @property(nonatomic,assign)	TitaniumTableAction kind;
 @property(nonatomic,assign)	int index;
+@property(nonatomic,assign)	int section;
+@property(nonatomic,assign)	int row;
+@property(nonatomic,copy)	NSDictionary * sectionData;
 @property(nonatomic,copy)	NSDictionary * rowData;
-@property(nonatomic,copy)	NSArray * updatedRows;
 @property(nonatomic,copy)	NSArray * replacedData;
 @property(nonatomic,copy)	NSURL * baseUrl;
 @property(nonatomic,assign)	UITableViewRowAnimation animation;

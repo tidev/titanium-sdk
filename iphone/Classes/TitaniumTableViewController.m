@@ -15,16 +15,16 @@
 #import "TitaniumWebViewController.h"
 
 @implementation TitaniumTableActionWrapper
-@synthesize kind,index,animation;
-@synthesize rowData, updatedRows, replacedData;
+@synthesize kind,row,section,index,animation;
+@synthesize rowData, sectionData, replacedData;
 @synthesize baseUrl;
 
 - (void) dealloc
 {
 	[baseUrl release];
 	[replacedData release];
+	[sectionData release];
 	[rowData release];
-	[updatedRows release];
 	[super dealloc];
 }
 
@@ -503,7 +503,7 @@ UIColor * checkmarkColor = nil;
 		callbackProxyPath = [pathObject copy];
 	}
 		
-	NSArray * groupEntries = [inputState objectForKey:@"_GRP"];
+	NSArray * groupEntries = [inputState objectForKey:@"sections"];
 	NSArray * dataEntries = [inputState objectForKey:@"data"];
 	BOOL isValidDataEntries = [dataEntries isKindOfClass:arrayClass];
 
@@ -819,7 +819,7 @@ UIColor * checkmarkColor = nil;
 	int groupNum = [sectionWrapper groupNum];
 	
 	if (groupNum >= 0) {
-		NSString * groupCode = [[NSString alloc] initWithFormat:@"%@._GRP[%d]%@",callbackProxyPath,groupNum,triggeredCode];
+		NSString * groupCode = [[NSString alloc] initWithFormat:@"%@.sections[%d]%@",callbackProxyPath,groupNum,triggeredCode];
 		[theHost sendJavascript:groupCode toPageWithToken:callbackWindowToken];
 		[groupCode release];
 	}
@@ -891,7 +891,7 @@ UIColor * checkmarkColor = nil;
 	if(actionQueue == nil){
 		actionQueue = [[NSMutableArray alloc] initWithObjects:newAction,nil];
 		[self performSelectorOnMainThread:@selector(performActions) withObject:nil waitUntilDone:NO];
-	}else if([newAction kind]==TitaniumTableActionReloadData){ //Dump old actions. They're unnecessary.
+	}else if(([newAction kind]==TitaniumTableActionReloadData) || ([newAction kind]==TitaniumGroupActionReloadSections)){ //Dump old actions. They're unnecessary.
 		[actionQueue release];
 		actionQueue = [[NSMutableArray alloc] initWithObjects:newAction,nil];
 	}else{
@@ -899,43 +899,6 @@ UIColor * checkmarkColor = nil;
 	}
 	[actionLock unlock];
 }
-
-/*	Blain's sit-down-and-think-about-this: Changing rows.
- *	
- *	At first, I thought it'd be a case of simply mapping things on. But the issue is that the GroupedView is explicit in the groupings. TableView is implicit in the groupings.
- *	So while GroupedView calls should only insert, delete, or modify the row or section mentioned, TableView needs to handle some odd situations:
- *	
- *	Delete:
- *	If the section has more than 1 row, delete simply deletes the row.
- *	If the section has only 1 row (which is being deleted), delete the section as well.
- *	
- *	Insert:
- *	If the row is to be inserted at the beginning of the section, or if the IndexPath is nil (after the end of the table), look at the section before it.
- *		If the previousSection exists (Will be nil in the case of inserting at the first section), see if the previousSection will accept the row. If yes, insert at the end and return.
- *		If the currentSection exists (Will be nil if at the end of the table), see if the currentSection will accept the row. If yes, insert at the beginning and return.
- *		If all else has failed, create a new section and insert it.
- *	
- *	If the row is in the middle of the section.
- *		See if the currentSection will accept the row. If yes, insert it and return.
- *		If not, split currentSection at that row, and inject the new section for the row at that location.
- *	
- *	Update:
- *	See if the currentSection will accept the new row. If yes, update and return.
- *	
- *	If not, it's effectively a delete and insert:
- *	If at the top of a section:
- *		See if the previous section will accept the new row. If yes, delete the old row, and insert it in the previousSection.
- *		If not, remove the row from the current section, create a new section, and insert appropriately.
- *	
- *	If at the bottom of the section:
- *		See if the next section will accept the new row. If yes, delete the old row, and insert it in the nextSection.
- *		If not, remove the row from the currentSection, create a new section, and insert appropriately.
- *	
- *	If at the middle of the section:
- *		Remove the row from the currentSection, split the section at that point, and insert appropriately.
- *	
- *	
- */
 
 - (void)deleteRowAtIndex: (int)index animation: (UITableViewRowAnimation) animation;
 {	
@@ -1147,120 +1110,6 @@ UIColor * checkmarkColor = nil;
 	
 }
 
-- (void)updateRow: (NSDictionary *)rowData atIndex: (int)index relativeUrl: (NSURL *) baseUrl animation: (UITableViewRowAnimation) animation;
-{
-	int oldIndex = index;
-	int thisSectionIndex = 0;
-	
-	NSString * header = [rowData objectForKey:@"header"];
-	NSString * footer = [rowData objectForKey:@"footer"];
-	
-	for(TableSectionWrapper * thisSection in sectionArray){
-		int rowCount = [thisSection rowCount];
-		if (rowCount > index){
-			NSIndexPath * thisPath = [NSIndexPath indexPathForRow:index inSection:thisSectionIndex];
-			TableRowWrapper * thisRow = [thisSection rowForIndex:index];
-			[thisRow useProperties:rowData withUrl:baseUrl];
-
-			if([thisSection accceptsHeader:header footer:footer]){
-				[tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:thisPath] withRowAnimation:animation];
-				return;
-			}
-			
-/*
- *	By now, all we have left are edge cases. The changed row no longer belongs to its old section.
- *	So there are left are a few factors: (Y=yes, N=no, -=no due to prerequisites)
- *	+ Is at top (index == 0)
- *	|	+ Merge with previous section (REQUIRES to be at top)
- *	|	|	+ Is at bottom (index == rowCount - 1)
- *	|	|	|	+ Merge with next section (REQUIRES to be at bottom)
- *	|	|	|	|	+ Current section only contains row == isAtTop && isAtBottom;
- *	|---|---|---|---|	
- *	N	-	N	-	-	In the middle. Three sections as a result: Old section up to index, new section containing index, old section after index
- *	Y	N	N	-	-	Insert new section before current section.
- *	Y	Y	N	-	-	Add row to end of previous section, remove row from current section
- *	N	-	Y	N	-	Insert new section after current section.
- *	N	-	Y	Y	-	Add row to top of next section, remove row from current section
- *	Y	N	Y	N	Y	Force a header change, do refresh, but don't need to move rows
- *	Y	Y	Y	N	Y	Add row to end of previous section, remove current section
- *	Y	N	Y	Y	Y	Add row to top of next section, remove current section
- *	Y	Y	Y	Y	Y	Add row and (all of next section) to prev section, remove current and next sections.
- */
-			NSMutableArray * ourDeletedRowArray;
-			NSIndexSet * ourInsertedSections;
-			BOOL isAtTop = (index == 0);
-			BOOL isAtBottom = (index == rowCount-1);
-
-			//First possibility: In middle of section. Must split the section up, no chance of renames or complex reoorgs.
-			if (!isAtTop && !isAtBottom){
-				ourDeletedRowArray = [NSMutableArray arrayWithObject:thisPath];
-				for(int i=index+1;i<rowCount;i++){
-					[ourDeletedRowArray addObject:[NSIndexPath indexPathForRow:i inSection:thisSectionIndex]];
-				}
-				[tableView beginUpdates];
-				TableSectionWrapper * changedSection = [[TableSectionWrapper alloc] initWithHeader:header footer:footer];
-				[changedSection addRow:thisRow];
-
-				[sectionArray insertObject:changedSection atIndex:thisSectionIndex+1];
-				[changedSection release];
-				[sectionArray insertObject:[thisSection subSectionFromIndex:index+1] atIndex:thisSectionIndex+2];
-				[thisSection trimToIndex:index];
-				
-				ourInsertedSections = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(thisSectionIndex+1, 2)];
-				[tableView insertSections:ourInsertedSections withRowAnimation:animation];
-				[tableView deleteRowsAtIndexPaths:ourDeletedRowArray withRowAnimation:animation];
-				[tableView endUpdates];
-				return;
-			}
-			
-			int prevSectionIndex = thisSectionIndex - 1;			
-			TableSectionWrapper * prevSection;
-			BOOL mergePrevSection;
-			if (isAtTop && (thisSectionIndex > 0)){
-				prevSection = [sectionArray objectAtIndex:prevSectionIndex];
-				mergePrevSection = [prevSection accceptsHeader:header footer:footer];
-			} else {
-				prevSection = nil;
-				mergePrevSection = NO;
-			}
-
-			int insertedSectionIndex = thisSectionIndex + 1;
-			TableSectionWrapper * nextSection;
-			BOOL mergeNextSection;
-			if (isAtBottom && (insertedSectionIndex < [sectionArray count])){
-				nextSection = [sectionArray objectAtIndex:insertedSectionIndex];
-				mergeNextSection = [nextSection accceptsHeader:header footer:footer];
-			} else {
-				nextSection = nil;
-				mergeNextSection = NO;
-			}
-
-			BOOL modifyThisSection = (rowCount == 1);
-
-			ourDeletedRowArray = nil;
-			ourInsertedSections = nil;
-			NSMutableArray * ourInsertedRowArray = nil;
-			NSIndexSet * ourDeletedSections = nil;
-			
-			if((!mergeNextSection) && (!mergePrevSection) && modifyThisSection){
-				[thisSection forceHeader:header footer:footer];
-				[tableView reloadSections:[NSIndexSet indexSetWithIndex:thisSectionIndex] withRowAnimation:animation];
-				return;
-			}
-			
-			//This gets tough. Let's punt.
-			[self deleteRowAtIndex:oldIndex animation:animation];
-			[self insertRow:rowData atIndex:oldIndex relativeUrl:baseUrl animation:animation];
-			return;
-	
-		}
-
-		thisSectionIndex++;
-		index -= rowCount;
-	}
-	
-}
-
 - (void)reloadData:(NSArray *)newData relativeUrl:(NSURL *)baseUrl animation:(UITableViewRowAnimation) animation;
 {
 //	NSArray * oldArray = [sectionArray retain];
@@ -1284,8 +1133,21 @@ UIColor * checkmarkColor = nil;
 	[actionLock lock];
 	for(TitaniumTableActionWrapper * thisAction in actionQueue){
 		TitaniumTableAction kind = [thisAction kind];
-//		NSURL * baseUrl;
+		
 		UITableViewRowAnimation animation = [thisAction animation];
+		TableSectionWrapper * thisSectionWrapper;
+		int row;
+		int section;
+		NSArray * ourIndexPathArray;
+		TableRowWrapper * thisRow;
+		if(kind & TitaniumTableActionSectionRow){
+			section = [thisAction section];
+			thisSectionWrapper = [self sectionForIndex:section];
+			row	 = [thisAction row];
+			ourIndexPathArray = [NSArray arrayWithObject:[NSIndexPath indexPathForRow:row inSection:section]];
+		} else if (kind & TitaniumTableActionSection){
+			section = [thisAction section];
+		}
 
 		switch (kind) {
 			case TitaniumTableActionInsertAfterRow:
@@ -1299,7 +1161,24 @@ UIColor * checkmarkColor = nil;
 			case TitaniumTableActionReloadData:
 				[self reloadData:[thisAction replacedData] relativeUrl:[thisAction baseUrl] animation:animation];
 				break;
-			default:
+			case TitaniumGroupActionInsertBeforeRow:
+				if((row < 0) || (row > [thisSectionWrapper rowCount])) break;
+				thisRow = [[TableRowWrapper alloc] init];
+				[thisRow useProperties:[thisAction rowData] withUrl:[thisAction baseUrl]];
+				[thisSectionWrapper insertRow:thisRow atIndex:row];
+				[tableView insertRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+				[thisRow release];
+				break;
+			case TitaniumGroupActionDeleteRow:
+				if((row < 0) || (row >= [thisSectionWrapper rowCount])) break;
+				[thisSectionWrapper removeRowAtIndex:row];
+				[tableView deleteRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+				break;
+			case TitaniumGroupActionUpdateRow:
+				if((row < 0) || (row >= [thisSectionWrapper rowCount])) break;
+				thisRow = [thisSectionWrapper rowForIndex:row];
+				[thisRow useProperties:[thisAction rowData] withUrl:[thisAction baseUrl]];
+				[tableView reloadRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
 				break;
 		}
 	}

@@ -1424,15 +1424,15 @@ int barButtonSystemItemForString(NSString * inputString){
 	[newAction release];
 }
 
-- (void) setTableView:(NSString *)tokenString loadData:(NSArray *)newData options:(NSDictionary *)optionsObject;
+- (void) setTableView:(NSString *)tokenString loadData:(NSArray *)newData isSections: (NSNumber *)isSections options:(NSDictionary *)optionsObject;
 {
-	if(![newData isKindOfClass:[NSArray class]])return;
+	if(![newData isKindOfClass:[NSArray class]] || ![isSections respondsToSelector:@selector(boolValue)])return;
 	
 	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
 	if(![ourVC isKindOfClass:[TitaniumTableViewController class]]) return;
 	
 	TitaniumTableActionWrapper * newAction = [[TitaniumTableActionWrapper alloc] init];
-	[newAction setKind:TitaniumTableActionReloadData];
+	[newAction setKind:[isSections boolValue]?TitaniumGroupActionReloadSections:TitaniumTableActionReloadData];
 	[newAction setReplacedData:newData];
 	[newAction getBaseUrl];
 	[newAction setAnimationDict:optionsObject];
@@ -1441,6 +1441,77 @@ int barButtonSystemItemForString(NSString * inputString){
 	[newAction release];
 }
 
+- (void) setGroupedView:(NSString *)tokenString section: (NSNumber *) sectionObject row: (NSNumber *) rowObject data:(NSDictionary *)dataObject replace:(NSNumber *)isReplace options:(NSDictionary *)optionsObject;
+{
+	if(![sectionObject respondsToSelector:@selector(intValue)] || ![rowObject respondsToSelector:@selector(intValue)] ||
+			![dataObject isKindOfClass:[NSDictionary class]] || ![isReplace respondsToSelector:@selector(boolValue)])return;
+	
+	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
+	if(![ourVC isKindOfClass:[TitaniumTableViewController class]]) return;
+	
+	TitaniumTableActionWrapper * newAction = [[TitaniumTableActionWrapper alloc] init];
+	[newAction setKind:[isReplace boolValue]?TitaniumGroupActionUpdateRow:TitaniumGroupActionInsertBeforeRow];
+	[newAction setSection:[sectionObject intValue]];
+	[newAction setRow:[rowObject intValue]];
+	[newAction setRowData:dataObject];
+	[newAction getBaseUrl];
+	[newAction setAnimationDict:optionsObject];
+	
+	[(TitaniumTableViewController *)ourVC enqueueAction:newAction];
+	[newAction release];
+}
+
+- (void) setGroupedView:(NSString *)tokenString section: (NSNumber *) sectionObject deleteRow: (NSNumber *) rowObject options:(NSDictionary *)optionsObject;
+{
+	if(![sectionObject respondsToSelector:@selector(intValue)] || ![rowObject respondsToSelector:@selector(intValue)])return;
+	
+	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
+	if(![ourVC isKindOfClass:[TitaniumTableViewController class]]) return;
+	
+	TitaniumTableActionWrapper * newAction = [[TitaniumTableActionWrapper alloc] init];
+	[newAction setKind:TitaniumGroupActionDeleteRow];
+	[newAction setSection:[sectionObject intValue]];
+	[newAction setRow:[rowObject intValue]];
+	[newAction setAnimationDict:optionsObject];
+	
+	[(TitaniumTableViewController *)ourVC enqueueAction:newAction];
+	[newAction release];	
+}
+
+- (void) setGroupedView:(NSString *)tokenString section: (NSNumber *) sectionObject data:(NSDictionary *)dataObject replace:(NSNumber *)isReplace options:(NSDictionary *)optionsObject;
+{
+	if(![sectionObject respondsToSelector:@selector(intValue)] || ![dataObject isKindOfClass:[NSDictionary class]] ||
+			![isReplace respondsToSelector:@selector(boolValue)])return;
+	
+	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
+	if(![ourVC isKindOfClass:[TitaniumTableViewController class]]) return;
+	
+	TitaniumTableActionWrapper * newAction = [[TitaniumTableActionWrapper alloc] init];
+	[newAction setKind:[isReplace boolValue]?TitaniumGroupActionUpdateGroup:TitaniumGroupActionInsertBeforeGroup];
+	[newAction setSection:[sectionObject intValue]];
+	[newAction setSectionData:dataObject];
+	[newAction getBaseUrl];
+	[newAction setAnimationDict:optionsObject];
+	
+	[(TitaniumTableViewController *)ourVC enqueueAction:newAction];
+	[newAction release];	
+}
+
+- (void) setGroupedView:(NSString *)tokenString deleteSection: (NSNumber *) sectionObject options:(NSDictionary *)optionsObject;
+{
+	if(![sectionObject respondsToSelector:@selector(intValue)])return;
+	
+	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
+	if(![ourVC isKindOfClass:[TitaniumTableViewController class]]) return;
+	
+	TitaniumTableActionWrapper * newAction = [[TitaniumTableActionWrapper alloc] init];
+	[newAction setKind:TitaniumGroupActionDeleteGroup];
+	[newAction setSection:[sectionObject intValue]];
+	[newAction setAnimationDict:optionsObject];
+	
+	[(TitaniumTableViewController *)ourVC enqueueAction:newAction];
+	[newAction release];	
+}
 
 #pragma mark Current Window actions
 
@@ -1603,9 +1674,20 @@ int barButtonSystemItemForString(NSString * inputString){
 	[(UiModule *)invocGen setTableView:nil deleteRow:nil options:nil];
 	NSInvocation * deleteRowInvoc = [invocGen invocation];
 
-	[(UiModule *)invocGen setTableView:nil loadData:nil options:nil];
+	[(UiModule *)invocGen setTableView:nil loadData:nil isSections:nil options:nil];
 	NSInvocation * updateDataInvoc = [invocGen invocation];
 
+	[(UiModule *)invocGen setGroupedView:nil section:nil row:nil data:nil replace:nil options:nil];
+	NSInvocation * setSectionRowInvoc = [invocGen invocation];
+
+	[(UiModule *)invocGen setGroupedView:nil section:nil deleteRow:nil options:nil];
+	NSInvocation * deleteSectionRowInvoc = [invocGen invocation];
+
+	[(UiModule *)invocGen setGroupedView:nil section:nil data:nil replace:nil options:nil];
+	NSInvocation * setSectionInvoc = [invocGen invocation];
+
+	[(UiModule *)invocGen setGroupedView:nil deleteSection:nil options:nil];
+	NSInvocation * deleteSectionInvoc = [invocGen invocation];
 
 	
 	buttonContexts = [[NSMutableDictionary alloc] init];
@@ -1691,7 +1773,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res.open=function(args){"
 				"if(this.views){for(var i=0;i<this.views.length;i++){this.views[i].ensureToken();}}"
 				"if(this.data){var data=this.data;var i=data.length;while(i>0){i--;var inp=data[i].input;if(inp)inp.ensureToken();}};"
-				"if(this._GRP){var grp=this._GRP;var j=grp.length;while(j>0){j--;var data=grp[j].data;var i=data.length;"
+				"if(this.sections){var grp=this.sections;var j=grp.length;while(j>0){j--;var data=grp[j].data;var i=data.length;"
 					"while(i>0){i--;var inp=data[i].input;if(inp)inp.ensureToken();}"
 				"}};"
 				"var res=Ti.UI._OPN(this,args);this._TOKEN=res;};"
@@ -1700,7 +1782,7 @@ int barButtonSystemItemForString(NSString * inputString){
 				"if(this._TOKEN){"
 					"Ti.UI._WTOOL(this._TOKEN,bar,args);}};"
 			"res.insertButton=function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
-			"res.ensureToken=function(){if(this._TOKEN)return;this._TOKEN=Ti.UI._VTOKEN();};"
+			"res.ensureToken=function(){if(this._TOKEN)return;var tkn=Ti.UI._VTOKEN();this._TOKEN=tkn;Ti.UI._VIEW[tkn]=this;};"
 			"res.update=function(args){if(!this._TOKEN)return;Ti.UI._WUPDATE(this,args);};"
 			"if(res.rightNavButton)res.setRightNavButton(res.rightNavButton);"
 			"if(res.leftNavButton)res.setLeftNavButton(res.leftNavButton);"
@@ -1710,22 +1792,43 @@ int barButtonSystemItemForString(NSString * inputString){
 	
 	NSString * createTableWindowString = [NSString stringWithFormat:@"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
 			"if(!res.data)res.data=[];"
-			"res.insertRowAfter=function(rowIndex,row,args){this.data.splice(rowIndex+1,0,row);if(this._TOKEN){Ti.UI._WROWCHG(this._TOKEN,rowIndex,row,%d,args);}};"
+			"res.insertRowAfter=function(rowIndex,row,args){this.data.splice(rowIndex+1,0,row);if(this._TOKEN){if(row.input)row.input.ensureToken();Ti.UI._WROWCHG(this._TOKEN,rowIndex,row,%d,args);}};"
 			"res.insertRowBefore=function(rowIndex,row,args){"
 				"if((rowIndex<this.data.length)&&(row.header==undefined)){var oldRow=this.data[rowIndex];row.header=oldRow.header;oldRow.header=undefined;}"
-				"this.data.splice(rowIndex,0,row);if(this._TOKEN){Ti.UI._WROWCHG(this._TOKEN,rowIndex,row,%d,args);}};"
+				"this.data.splice(rowIndex,0,row);if(this._TOKEN){if(row.input)row.input.ensureToken();Ti.UI._WROWCHG(this._TOKEN,rowIndex,row,%d,args);}};"
 			"res.deleteRow=function(rowIndex,args){"
 				"if(rowIndex<(this.data.length-1)){var nextRow=this.data[rowIndex+1];if(nextRow.header==undefined)nextRow.header=this.data[rowIndex].header;}"
 				"this.data.splice(rowIndex,1);if(this._TOKEN){Ti.UI._WROWDEL(this._TOKEN,rowIndex,args);}};"
-			"res.updateRow=function(rowIndex,row,args){this.data.splice(rowIndex,1,row);if(this._TOKEN){Ti.UI._WROWCHG(this._TOKEN,rowIndex,row,%d,args);}};"
-			"res.setData=function(newData,args){this.data=newData;if(this._TOKEN){Ti.UI._WDTAUPD(this._TOKEN,newData,args);}};"
+			"res.updateRow=function(rowIndex,row,args){this.data.splice(rowIndex,1,row);if(this._TOKEN){if(row.input)row.input.ensureToken();Ti.UI._WROWCHG(this._TOKEN,rowIndex,row,%d,args);}};"
+			"res.setData=function(newData,args){this.data=newData;if(this._TOKEN){"
+					"for(var i=0;i<newData.length;i++){if(newData[i].input)newData[i].input.ensureToken();}Ti.UI._WDTAUPD(this._TOKEN,newData,false,args);}};"
 			"var tkn='TBL'+(Ti.UI._NEXTTKN++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}",TitaniumTableActionInsertAfterRow,TitaniumTableActionInsertBeforeRow,TitaniumTableActionUpdateRow];
 
-	NSString * createGroupedViewString = @"function(args,callback){var res=Ti.UI.createTableView(args,callback);res.grouped=true;"
-			"res._GRP=[];res.addSection=function(section){this._GRP.push(section);};return res;}";
+	NSString * createGroupedViewString = @"function(args,callback){var res=Ti.UI.createTableView(args,callback);res.grouped=true;res.sections=[];"
+			"res.setSections=function(newSections,args){"
+					"var cnt=this.sections.length;for(var i=0;i<cnt;i++){this.sections[i]._PATH=undefined;}"
+					"this.sections=newSections;cnt=newSections.length;for(var i=0;i<cnt;i++){newSections[i]._PATH=this._PATH;}"
+					"if(this._TOKEN){Ti.UI._WDTAUPD(this._TOKEN,newSections,true,args);}};"
+			"res.insertSectionBefore=function(secIndex,section,args){section._PATH=this._PATH;this.sections.splice(secIndex,0,section);if(this._TOKEN){Ti.UI._WSECCHG(this._TOKEN,secIndex,section,false,args)}};"
+			"res.insertSectionAfter=function(secIndex,section,args){this.insertSectionBefore(secIndex+1,section,args)};"
+			"res.deleteSection=function(secIndex,section,args){this.sections[secIndex]._PATH=undefined;this.sections.splice(secIndex,1);if(this._TOKEN){Ti.UI._WSECDEL(this._TOKEN,secIndex,args)}};"
+			"res.updateSection=function(secIndex,section,args){this.sections[secIndex]._PATH=undefined;this.sections.splice(secIndex,1,section);section._PATH=this._PATH;if(this._TOKEN){Ti.UI._WSECCHG(this._TOKEN,secIndex,section,true,args)}};"
+			"res.addSection=function(section,args){this.sections.push(section);section._PATH=this._PATH;if(this._TOKEN){Ti.UI._WSECCHG(this._TOKEN,this.sections.count,section,false,args)}};"
+			"res.setSections(res.sections);"
+			"return res;}";
 	
-	NSString * createGroupedSectionString = @"function(args){var res={header:null};for(prop in args){res[prop]=args[prop]};"
-			"res._EVT={click:[]};res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res.onClick=Ti._ONEVT;return res;}";
+	NSString * createGroupedSectionString = @"function(args){var res={header:null,'data':[]};for(prop in args){res[prop]=args[prop]};"
+			"res._EVT={click:[]};res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res.onClick=Ti._ONEVT;"
+			"res._GRPNUM=function(){var secs=eval(this._PATH).sections;for(var i=0;i<secs.length;i++){if(secs[i]==this)return i;}return -1;};"
+			"res.insertRowAfter=function(rowIndex,row,args){this.data.splice(rowIndex+1,0,row);if(!this._PATH)return;var tkn=eval(this._PATH)._TOKEN;"
+				"if(tkn){if(row.input)row.input.ensureToken();Ti.UI._WSECROWCHG(tkn,this._GRPNUM(),rowIndex+1,row,false,args);}};"
+			"res.insertRowBefore=function(rowIndex,row,args){this.data.splice(rowIndex,0,row);if(!this._PATH)return;var tkn=eval(this._PATH)._TOKEN;"
+				"if(tkn){if(row.input)row.input.ensureToken();Ti.UI._WSECROWCHG(tkn,this._GRPNUM(),rowIndex,row,false,args);}};"
+			"res.deleteRow=function(rowIndex,args){this.data.splice(rowIndex,1);if(!this._PATH)return;var tkn=eval(this._PATH)._TOKEN;"
+				"if(tkn){Ti.UI._WSECROWDEL(tkn,this._GRPNUM(),rowIndex,args);}};"
+			"res.updateRow=function(rowIndex,row,args){this.data.splice(rowIndex,1,row);if(!this._PATH)return;var tkn=eval(this._PATH)._TOKEN;"
+				"if(tkn){if(row.input)row.input.ensureToken();Ti.UI._WSECROWCHG(tkn,this._GRPNUM(),rowIndex,row,true,args);}};"
+			"return res;}";
 
 	NSString * systemButtonStyleString = [NSString stringWithFormat:@"{PLAIN:%d,BORDERED:%d,DONE:%d,BAR:%d,BIG:%d,DARK:%d}",
 										  UIBarButtonItemStylePlain,UIBarButtonItemStyleBordered,UIBarButtonItemStyleDone,UITitaniumNativeStyleBar,UITitaniumNativeStyleBig,UITitaniumNativeStyleDark];
@@ -1821,6 +1924,10 @@ int barButtonSystemItemForString(NSString * inputString){
 			insertRowInvoc,@"_WROWCHG",
 			deleteRowInvoc,@"_WROWDEL",
 			updateDataInvoc,@"_WDTAUPD",
+			setSectionRowInvoc,@"_WSECROWCHG",
+			setSectionInvoc,@"_WSECCHG",
+			deleteSectionInvoc,@"_WSECDEL",
+			deleteSectionRowInvoc,@"_WSECROWDEL",
 			
 			reserveTokenInvoc,@"_VTOKEN",
 			
