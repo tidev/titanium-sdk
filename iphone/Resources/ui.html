@@ -116,7 +116,9 @@ try{
 	
 	var insertButton = Ti.UI.createButton({systemButton:Ti.UI.iPhone.SystemButton.ADD});
 	insertButton.addEventListener('click',function(e){
-		tableView.updateRow(3,{title:'row 1', header:'Header 1', hasChild:true, },
+//		tableView.updateRow(3,{title:'row 1', header:'Header 1', hasChild:true, },
+//		tableView.insertRowBefore(3,{title:'row 1', header:'Header 1', hasChild:true, },
+		tableView.setData([{title:'row 1', header:'Header 1', hasChild:true, }],
 		{animationStyle:Ti.UI.iPhone.RowAnimationStyle.DOWN}
 		)});
 	
