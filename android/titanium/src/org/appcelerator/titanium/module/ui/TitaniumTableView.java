@@ -151,7 +151,8 @@ public class TitaniumTableView extends FrameLayout
 	}
 
 	public boolean isPrimary() {
-		return root;
+		//return root;
+		return true;
 	}
 
 	public boolean handleMessage(Message msg)
