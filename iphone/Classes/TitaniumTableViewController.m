@@ -981,7 +981,7 @@ UIColor * checkmarkColor = nil;
 		int rowCount = [thisSection rowCount];
 		if((thisSectionIndex==lastSectionIndex) && (action==TitaniumTableActionInsertBeforeRow))isLastSection==YES;
 		
-		if(index < rowCount || (isLastSection && (index==rowCount))){ //We have a contestant!
+		if((index < rowCount) || (isLastSection && (index==rowCount))){ //We have a contestant!
 			NSString * oldHeader = [thisSection header];
 			BOOL headerChange = (header != oldHeader) && (![header isEqual:oldHeader]);
 			
@@ -1022,7 +1022,7 @@ UIColor * checkmarkColor = nil;
 						return;
 					}
 					//Flows out to the meek little update.
-				} else if(headerChange){
+				} else if(headerChange && (header != nil)){
 					int insertedSectionIndex = thisSectionIndex+1;
 					
 					NSMutableArray * ourDeletedRowArray = [[NSMutableArray alloc] initWithCapacity:rowCount-index];
@@ -1051,7 +1051,7 @@ UIColor * checkmarkColor = nil;
 				index++;
 			}
 			
-			if(!headerChange){//Insert row, all is well.
+			if(!headerChange || (header == nil)){//Insert row, all is well.
 				[thisSection insertRow:insertedRow atIndex:index];
 				NSIndexPath * thisPath = [NSIndexPath indexPathForRow:index inSection:thisSectionIndex];
 				[tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:thisPath] withRowAnimation:animation];
@@ -1139,14 +1139,19 @@ UIColor * checkmarkColor = nil;
 		int row;
 		int section;
 		NSArray * ourIndexPathArray;
+		NSIndexSet * ourSectionSet;
 		TableRowWrapper * thisRow;
 		if(kind & TitaniumTableActionSectionRow){
 			section = [thisAction section];
-			thisSectionWrapper = [self sectionForIndex:section];
 			row	 = [thisAction row];
+			if(row<0)continue;
+			thisSectionWrapper = [self sectionForIndex:section];
+			if(thisSectionWrapper == nil)continue;
 			ourIndexPathArray = [NSArray arrayWithObject:[NSIndexPath indexPathForRow:row inSection:section]];
 		} else if (kind & TitaniumTableActionSection){
 			section = [thisAction section];
+			if(section<0)continue;
+			ourSectionSet = [NSIndexSet indexSetWithIndex:section];
 		}
 
 		switch (kind) {
@@ -1162,7 +1167,7 @@ UIColor * checkmarkColor = nil;
 				[self reloadData:[thisAction replacedData] relativeUrl:[thisAction baseUrl] animation:animation];
 				break;
 			case TitaniumGroupActionInsertBeforeRow:
-				if((row < 0) || (row > [thisSectionWrapper rowCount])) break;
+				if(row > [thisSectionWrapper rowCount]) break;
 				thisRow = [[TableRowWrapper alloc] init];
 				[thisRow useProperties:[thisAction rowData] withUrl:[thisAction baseUrl]];
 				[thisSectionWrapper insertRow:thisRow atIndex:row];
@@ -1170,15 +1175,31 @@ UIColor * checkmarkColor = nil;
 				[thisRow release];
 				break;
 			case TitaniumGroupActionDeleteRow:
-				if((row < 0) || (row >= [thisSectionWrapper rowCount])) break;
+				if(row >= [thisSectionWrapper rowCount]) break;
 				[thisSectionWrapper removeRowAtIndex:row];
 				[tableView deleteRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
 				break;
 			case TitaniumGroupActionUpdateRow:
-				if((row < 0) || (row >= [thisSectionWrapper rowCount])) break;
+				if(row >= [thisSectionWrapper rowCount]) break;
 				thisRow = [thisSectionWrapper rowForIndex:row];
 				[thisRow useProperties:[thisAction rowData] withUrl:[thisAction baseUrl]];
 				[tableView reloadRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+				break;
+			case TitaniumGroupActionInsertBeforeGroup:
+				if(section > [sectionArray count])break;
+				//TODO: Actually insert
+				break;
+			case TitaniumGroupActionUpdateGroup:
+				if(section >= [sectionArray count])break;
+				//TODO: Actually update.
+				[tableView reloadSections:ourSectionSet withRowAnimation:animation];
+				break;
+			case TitaniumGroupActionDeleteGroup:
+				if(section >= [sectionArray count])break;
+				[sectionArray removeObjectAtIndex:section];
+				[tableView deleteSections:ourSectionSet withRowAnimation:animation];
+				break;
+			case TitaniumGroupActionReloadSections:
 				break;
 		}
 	}

@@ -11,34 +11,90 @@
 			}
 	</style>
 	<script type="text/javascript" src="buggy.js"></script>
-<script>
-window.onload = function()
-{
-	window.addEventListener('resize',function(){Titanium.UI.createAlertDialog({title:"Start!",message:"me?"}).show();},true);
-		var toolBarBtn = Titanium.UI.createButton({systemButton:Titanium.UI.iPhone.SystemButton.REWIND});
-		Titanium.UI.currentWindow.setToolbar([toolBarBtn]);
-		var cpt=0;
-
-		toolBarBtn.addEventListener('click',function()
-		{
-			Titanium.API.debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CLICK EVENT with COUNT ' + cpt);
-			document.getElementById('test1').innerHTML=(cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />");
-			document.getElementById('test2').innerHTML=(cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />");
-			document.getElementById('test3').innerHTML=(cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />");
-			document.getElementById('test4').innerHTML=(cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />"+cpt+"<br />");
-			cpt++;
-		});
-
-};
-</script>
 </head>
-<body>
-	<h2>Welcome to Titanium Mobile</h2>
-	<button onclick="Titanium.UI.currentWindow.setActiveViewIndex(0,{animated:true,animationDuration:2000,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT})">Switch</button>
-	<div id="test1"></div>
-	<div id="test2"></div>
-	<input type="text" />
-	<div id="test3"></div>
-	<div id="test4"></div>
+<body  style="font-family:'Helvetica Neue';font-size:12px">
+	
+	
+	<script>
+	// create table view data
+	var data = [
+		{title:'Row1', header:'Section 0'},
+		{title:'Row2'},
+		{title:'Row3'},
+		{title:'Row4'},
+		{title:'Row5'},
+		{title:'Row6'},
+		{title:'Row7'},
+		{title:'Row8',header:'Section 1'},
+		{title:'Row9'},
+		{title:'Row10'},
+		{title:'Row11'},
+		{title:'Row12'},
+		{title:'Row13'},
+		{title:'Row14'},
+		{title:'Row15'},
+		
+	];
+	
+	//
+	// Create table view
+	//
+	var tableView = Titanium.UI.createTableView({data:data});
+	Titanium.UI.currentWindow.addView(tableView);
+	Titanium.UI.currentWindow.showView(tableView);
+	
+	//
+	//  Create button bar
+	//
+	var buttonBar = Titanium.UI.createButtonBar({
+		id:'buttonbar', 
+		labels:['one', 'two','three', 'four']
+	});
+	buttonBar.addEventListener('click',function(e)
+	{
+		switch(e.index)
+		{
+			case 0:
+			{
+				var data = {title:'New Row 1 Title', header:'New Section Header'};
+				tableView.updateRow(0,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});				
+				break;
+			}
+			case 1:
+			{
+				data = {title:'New Row2'};
+				tableView.updateRow(1,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
+
+				break;
+			}
+			case 2:
+			{
+				data = {title:'New Row3'};
+				tableView.updateRow(2,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});
+
+				break;
+			}
+			case 3:
+			{
+				data = {title:'New Row4'};
+				tableView.updateRow(3,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+
+				break;
+			}
+			
+		}
+	});
+	
+	// 
+	// create flex space for formatting toolbar 
+	//
+	var flexSpace = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+	});
+
+	// set toolbar
+	Titanium.UI.currentWindow.setToolbar([flexSpace,buttonBar,flexSpace]);
+	
+	</script>
 </body>
 </html>
