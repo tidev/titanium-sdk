@@ -1,32 +1,27 @@
 <html>
 <head>
-<script type="text/javascript" src="jquery.js"></script>
-
-
-	<title>Geography joy</title>
-	<style type="text/css">
-		body {
-			background-color: #ffffff;
-		/*	height: 800px; */
-			}
-	</style>
-	<script type="text/javascript" src="buggy.js"></script>
 </head>
 <body  style="font-family:'Helvetica Neue';font-size:12px">
-	
+Hello, world?
 <script>
-var location = Titanium.Geolocation.getCurrentPosition(
+Ti.API.debug("Starting...");
+
+var myLocation = Titanium.Geolocation.getCurrentPosition(
 		function(pos)
 		{
+			Ti.API.debug("Found");
 			var coords = pos.coords;
 		//	Titanium.Geolocation.clearWatch(location);
 			Ti.API.debug('We got a location of ' + coords.latitude + ', ' + coords.longitude);
 		},
 		  function()
 		  {
+			Ti.API.debug("Error");
 			Ti.API.debug("Location not found.");
 		  }
 		);
+
+Ti.API.debug("Starting 1...");
 
 </script>
 </body>

@@ -58,7 +58,7 @@
 			</array>
 			<key>background</key>
 			<string>white</string>
-			<key>backgroundImage</key>
+			<key>backgroundnImage</key>
 			<string>default.png</string>
 			<key>orientation</key>
 			<string>either</string>

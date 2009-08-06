@@ -22,6 +22,7 @@ NSUInteger lastWatchID = 0;
 	NSDate * minimumCacheTime;
 	NSTimer * timeoutTimer;
 	BOOL	singleShot;
+	BOOL	enabled;
 //	NSTimer
 }
 
@@ -31,13 +32,14 @@ NSUInteger lastWatchID = 0;
 
 @property(nonatomic,readwrite,assign)	BOOL	highAccuracy;
 @property(nonatomic,readwrite,assign)	BOOL	singleShot;
+@property(nonatomic,readwrite,assign)	BOOL	enabled;
 @property(nonatomic,readwrite,retain)	NSDate * minimumCacheTime;
 
 
 @end
 
 @implementation GeolocationProxy
-@synthesize highAccuracy, singleShot, minimumCacheTime;
+@synthesize highAccuracy, singleShot, minimumCacheTime,enabled;
 
 - (void) takeDetails: (NSDictionary *) detailsDict;
 {
@@ -176,7 +178,7 @@ NSUInteger lastWatchID = 0;
 {
 	[proxyLock lock];
 	for (GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator]){
-		if (1) { //TODO: Do we want to expose a way to disable polling yet keep the listener?
+		if ([thisProxy enabled]) { //TODO: Do we want to expose a way to disable polling yet keep the listener?
 			[locationManager startUpdatingLocation];
 			[proxyLock unlock];
 			return;
@@ -193,6 +195,7 @@ NSUInteger lastWatchID = 0;
 	
 	[proxyLock lock];
 	for (GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator]){
+		if(![thisProxy enabled])continue;
 		if ([thisProxy handlesLocation:newLocation]) {
 			if (locationString == nil){ locationString = [GeolocationProxy stringFromLocation:newLocation]; }
 			[thisProxy runCallback:locationString];
@@ -218,6 +221,7 @@ NSUInteger lastWatchID = 0;
 
 	[proxyLock lock];
 	for (GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator]){
+		if(![thisProxy enabled])continue;
 		if ([thisProxy handlesError:error]) {
 			if (errorString == nil){ errorString = [GeolocationProxy stringFromError:error timedout:NO]; }
 			[thisProxy runCallback:errorString];
@@ -231,7 +235,7 @@ NSUInteger lastWatchID = 0;
 	[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 }
 
-- (NSString *) tokenForWatchProperties: (id) propertiesDict isOneShot: (id) isOneShotObj;
+- (NSString *) tokenIsOneShot: (id)isOneShotObj options: (id)propertiesDict;
 {
 	NSString * newToken = [NSString stringWithFormat:@"GEO%d",lastWatchID++];
 	GeolocationProxy * newProxy = [[GeolocationProxy alloc] init];
@@ -259,7 +263,14 @@ NSUInteger lastWatchID = 0;
 	[proxyLock lock];
 	[proxyDictionary removeObjectForKey:token];
 	
-	if ([proxyDictionary count] == 0){
+	int count=0;
+	for(GeolocationProxy * thisProxy in proxyDictionary){
+		if([thisProxy enabled]){
+			count++; break;
+		}
+	}
+	
+	if (count == 0){
 		[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 	}
 	[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];
@@ -268,7 +279,19 @@ NSUInteger lastWatchID = 0;
 	return [TitaniumJSCode codeWithString:[NSString stringWithFormat:@"delete Ti.Geolocation._WATCH.%@;",token]];
 }
 
+- (void) setWatch: (NSString *) token enabled: (NSNumber *) isEnabled;
+{
+	if(![isEnabled respondsToSelector:@selector(boolValue)])return;
+	[proxyLock lock];
+	GeolocationProxy * ourProxy = [proxyDictionary objectForKey:token];
 
+	if(ourProxy != nil){
+		[ourProxy setEnabled:[isEnabled boolValue]];
+		[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
+		[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];		
+	}
+	[proxyLock unlock];	
+}
 
 - (BOOL) startModule;
 {
@@ -283,20 +306,26 @@ NSUInteger lastWatchID = 0;
 	proxyDictionary = [[NSMutableDictionary alloc] init];
 	
 	TitaniumInvocationGenerator * invocGen = [TitaniumInvocationGenerator generatorWithTarget:self];
-	[(GeolocationModule *)invocGen tokenForWatchProperties:nil isOneShot:nil];
+	[(GeolocationModule *)invocGen tokenIsOneShot:nil options:nil];
 	NSInvocation * tokenInvoc = [invocGen invocation];
 	
 	[(GeolocationModule *)invocGen clearWatch:nil];
 	NSInvocation * removeInvoc = [invocGen invocation];
+
+	[(GeolocationModule *)invocGen setWatch:nil enabled:nil];
+	NSInvocation * enableInvoc = [invocGen invocation];
 	
-	TitaniumJSCode * getCurrentPosition = [TitaniumJSCode codeWithString:@"function(succCB,errCB,details){var token=Ti.Geolocation._NEWTOK(details,true);Ti.Geolocation._WATCH[token]={success:succCB,fail:errCB};return token;}"];
-	TitaniumJSCode * watchPosition = [TitaniumJSCode codeWithString:@"function(succCB,errCB,details){var token=Ti.Geolocation._NEWTOK(details,false);Ti.Geolocation._WATCH[token]={success:succCB,fail:errCB};return token;}"];
+	TitaniumJSCode * getCurrentPosition = [TitaniumJSCode codeWithString:@"function(succCB,errCB,details){var token=Ti.Geolocation._NEWTOK(true,details);"
+			"Ti.Geolocation._WATCH[token]={success:succCB,fail:errCB};Ti.Geolocation.setWatchEnabled(token,true);return token;}"];
+	TitaniumJSCode * watchPosition = [TitaniumJSCode codeWithString:@"function(succCB,errCB,details){var token=Ti.Geolocation._NEWTOK(false,details);"
+			"Ti.Geolocation._WATCH[token]={success:succCB,fail:errCB};Ti.Geolocation.setWatchEnabled(token,true);return token;}"];
 	
 	NSDictionary * geoDict = [NSDictionary dictionaryWithObjectsAndKeys:
 			getCurrentPosition, @"getCurrentPosition",
 			watchPosition, @"watchPosition",
 			removeInvoc,@"clearWatch",
 			tokenInvoc,@"_NEWTOK",
+			enableInvoc,@"setWatchEnabled",
 			[NSDictionary dictionary],@"_WATCH",
 			nil];
 	[[[TitaniumHost sharedHost] titaniumObject] setObject: geoDict forKey:@"Geolocation"];
