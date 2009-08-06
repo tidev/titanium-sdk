@@ -15,7 +15,7 @@
 int nextContentViewToken = 0;
 
 @implementation TitaniumContentViewController
-@synthesize titaniumWindowController, primaryToken;
+@synthesize titaniumWindowController, primaryToken, nameString;
 @synthesize preferredViewSize;
 
 + (NSString *) requestToken;
@@ -44,6 +44,7 @@ int nextContentViewToken = 0;
 				result = [[TitaniumTableViewController alloc] init];
 			}
 		}
+		[result setNameString:[(NSDictionary *)inputState objectForKey:@"name"]];
 	}
 	if (result == nil){
 		result = [[TitaniumWebViewController alloc] init];
@@ -104,7 +105,7 @@ int nextContentViewToken = 0;
 
 - (NSDictionary *) stateValue;
 {
-	return [NSDictionary dictionaryWithObject:primaryToken forKey:@"_TOKEN"];
+	return [NSDictionary dictionaryWithObjectsAndKeys:primaryToken,@"_TOKEN",nameString,@"name",nil];
 }
 
 - (void)dealloc {

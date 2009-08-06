@@ -124,6 +124,8 @@ typedef enum {
 - (void)doUpdateLayout;
 - (void)refreshBackground;
 
+- (void)motionEnded:(int)motion withEvent:(UIEvent *)event;
+
 
 @end
 

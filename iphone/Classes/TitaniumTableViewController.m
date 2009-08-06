@@ -53,6 +53,7 @@ UIColor * checkmarkColor = nil;
 {
 	NSString * title;
 	NSString * html;
+	NSString * name;
 	NSString * value;
 	NSURL * imageURL;
 	TitaniumBlobWrapper * imageWrapper;
@@ -64,6 +65,7 @@ UIColor * checkmarkColor = nil;
 }
 @property(nonatomic,readwrite,copy)	NSString * title;
 @property(nonatomic,readwrite,copy)	NSString * html;
+@property(nonatomic,readwrite,copy)	NSString * name;
 @property(nonatomic,readwrite,copy)	NSString * value;
 @property(nonatomic,readwrite,copy)	NSURL * imageURL;
 @property(nonatomic,readonly,copy)	UIImage * image;
@@ -140,9 +142,14 @@ UIColor * checkmarkColor = nil;
 	if (inputProxy != nil){
 		inputProxyString = [@"Ti.UI._BTN." stringByAppendingString:[inputProxy token]];
 	} else { inputProxyString = @"null"; }
+
+	NSString * nameString;
+	if (name != nil){
+		nameString = [packer stringWithFragment:name error:nil];
+	} else { nameString = @"null"; }
 	
-	NSString * result = [NSString stringWithFormat:@"{%@,title:%@,html:%@,image:%@,input:%@,value:%@}",
-			accessoryString,titleString,htmlString,imageURLString,inputProxyString,valueString];
+	NSString * result = [NSString stringWithFormat:@"{%@,title:%@,html:%@,image:%@,input:%@,value:%@,name:%@}",
+			accessoryString,titleString,htmlString,imageURLString,inputProxyString,valueString,nameString];
 	[packer release];
 	return result;
 }
@@ -182,6 +189,12 @@ UIColor * checkmarkColor = nil;
 		[self setTitle:titleString];
 	}
 
+	id nameString = [propDict objectForKey:@"name"];
+	if ([nameString respondsToSelector:stringSel]) nameString = [nameString stringValue];
+	if ([nameString isKindOfClass:stringClass] && ([nameString length] != 0)){
+		[self setName:nameString];
+	}
+	
 	id htmlString = [propDict objectForKey:@"html"];
 	if ([htmlString respondsToSelector:stringSel]) htmlString = [htmlString stringValue];
 	if ([htmlString isKindOfClass:stringClass] && ([htmlString length] != 0)){
@@ -213,6 +226,7 @@ UIColor * checkmarkColor = nil;
 @interface TableSectionWrapper : NSObject
 {
 	NSInteger groupNum;
+	NSString * name;
 	NSString * groupType;
 	NSString * header;
 	NSString * footer;
@@ -227,6 +241,7 @@ UIColor * checkmarkColor = nil;
 
 @property(nonatomic,readwrite,copy)		NSString * header;
 @property(nonatomic,readwrite,copy)		NSString * footer;
+@property(nonatomic,readwrite,copy)		NSString * name;
 @property(nonatomic,readonly,assign)	NSUInteger rowCount;
 @property(nonatomic,readwrite,assign)	NSInteger groupNum;
 @property(nonatomic,readwrite,copy)		NSString * groupType;
@@ -239,7 +254,7 @@ UIColor * checkmarkColor = nil;
 @end
 
 @implementation TableSectionWrapper
-@synthesize header,footer,groupNum,groupType,isOptionList,nullHeader,rowArray;
+@synthesize header,footer,groupNum,groupType,isOptionList,nullHeader,rowArray,name;
 
 - (void) forceHeader: (NSString *) headerString footer: (NSString *)footerString;
 {
@@ -529,11 +544,16 @@ UIColor * checkmarkColor = nil;
 		id footerString = [thisSectionEntry objectForKey:@"footer"];
 		if ([footerString respondsToSelector:stringSel]) footerString = [footerString stringValue];
 		
+		id nameString = [thisSectionEntry objectForKey:@"name"];
+		if ([nameString respondsToSelector:stringSel]) nameString = [nameString stringValue];
+		
 		if (![thisSectionWrapper accceptsHeader:headerString footer:footerString]){
 			thisSectionWrapper = [[TableSectionWrapper alloc] initWithHeader:headerString footer:footerString];
 			[sectionArray addObject:thisSectionWrapper];
 			[thisSectionWrapper release];
 		}
+		
+		[thisSectionWrapper setName:nameString];
 
 		BOOL isButtonGroup = NO;
 		NSString * rowType = [thisSectionEntry objectForKey:@"type"];

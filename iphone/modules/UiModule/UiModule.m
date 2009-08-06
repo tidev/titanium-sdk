@@ -14,9 +14,12 @@
 #import "TitaniumWebViewController.h"
 #import "TitaniumTableViewController.h"
 
+#ifdef __IPHONE_3_0
 #import <MessageUI/MessageUI.h>
 #import <MessageUI/MFMailComposeViewController.h>
-
+#else
+@class MFMailComposeViewController;
+#endif
 
 BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view)
 {
@@ -950,6 +953,11 @@ int barButtonSystemItemForString(NSString * inputString){
 
 @end
 
+#ifndef __IPHONE_3_0
+@protocol MFMailComposeViewControllerDelegate <NSObject>
+@end
+#endif
+
 @interface EmailComposerProxy : TitaniumProxyObject<MFMailComposeViewControllerDelegate>
 {
 	BOOL animated;
@@ -1034,7 +1042,19 @@ int barButtonSystemItemForString(NSString * inputString){
 	}
 
 	[urlVersion release];
-	NSMutableString * resultString = [[NSMutableString alloc] initWithString:@"mailto:"];
+
+	SBJSON * encoder = [[SBJSON alloc] init];
+	NSMutableString * resultString = [[NSMutableString alloc] initWithFormat:@"mailto:%@?",[encoder stringWithFragment:[toArray componentsJoinedByString:@","] error:nil]];
+
+	if(ccArray)[resultString appendFormat:@"cc=%@&",[encoder stringWithFragment:[ccArray componentsJoinedByString:@","] error:nil]];
+
+	if(bccArray)[resultString appendFormat:@"bcc=%@&",[encoder stringWithFragment:[bccArray componentsJoinedByString:@","] error:nil]];
+
+	if(subject)[resultString appendFormat:@"subject=%@&",[encoder stringWithFragment:subject error:nil]];
+
+	if(message)[resultString appendFormat:@"body=%@",[encoder stringWithFragment:message error:nil]];
+	
+	[encoder release];
 	urlVersion = [[NSURL alloc] initWithString:resultString];
 	[resultString release];
 }
@@ -1049,6 +1069,16 @@ int barButtonSystemItemForString(NSString * inputString){
 	UIViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[self parentPageToken]];
 	[[ourVC navigationController] presentModalViewController:emailComposer animated:animated];
 }
+
+#ifndef __IPHONE_3_0
+enum MFMailComposeResult {
+    MFMailComposeResultCancelled,
+    MFMailComposeResultSaved,
+    MFMailComposeResultSent,
+    MFMailComposeResultFailed
+};
+typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3.0
+#endif
 
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error;
 {
@@ -1168,8 +1198,11 @@ int barButtonSystemItemForString(NSString * inputString){
 		return nil;
 	}
 	NSString * token = [windowObject objectForKey:@"_TOKEN"];
-	if ([token isKindOfClass:[NSString class]]) return token; //So that it doesn't drop its token.
-		
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	if ([theHost titaniumContentViewControllerForToken:token] != nil){
+		return token; //So that it doesn't drop its token.
+	}//It is possible that a token was created and later stopped being used. In that case, we create the window again.
+			
 	TitaniumContentViewController * thisVC = [[TitaniumHost sharedHost] currentTitaniumContentViewController];
 	TitaniumViewController * resultVC = [TitaniumViewController viewControllerForState:windowObject relativeToUrl:[(TitaniumWebViewController *)thisVC currentContentURL]];
 	token = [resultVC primaryToken];
@@ -1730,13 +1763,16 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res.open=function(arg){if(!this._TOKEN){var tkn='eml'+Ti.UI._NEXTTKN++;this._TOKEN=tkn;Ti.UI._EMAIL[tkn]=this;}Ti.UI._OPNEMAIL(this,arg);};"
 			"return res;}";
 
+	NSString * currentViewString = @"{_EVT:{load:[],focused:[],unfocused:[]},_TOKEN:Ti._TOKEN,_TYPE:'web',"
+			"setURL:function(newUrl){Ti.UI._WURL(Ti._TOKEN,newUrl,document.location);},"
+			"doEvent:Ti:_ONEVT,addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,}";
+
 	TitaniumJSCode * currentWindowScript = [TitaniumJSCode codeWithString:@"{"
 			"toolbar:{},_EVT:{close:[],unfocused:[],focused:[]},doEvent:Ti._ONEVT,"
 			"addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
 			"close:function(args){Ti.UI._CLS(Ti._TOKEN,args);},"
 			"setTitle:function(args){Ti.UI._WTITLE(Ti._TOKEN,args);},"
 			"setBarColor:function(args){Ti.UI._WNAVTNT(Ti._TOKEN,args);},"
-			"setURL:function(newUrl){Ti.UI._WURL(Ti._TOKEN,newUrl,document.location);},"
 			"setFullscreen:function(newBool){Ti.UI._WFSCN(Ti._TOKEN,newBool);},"
 			"setTitle:function(args){Ti.UI._WTITLE(Ti._TOKEN,args);},"
 			"showNavBar:function(args){Ti.UI._WSHNAV(Ti._TOKEN,args);},"
@@ -1762,7 +1798,9 @@ int barButtonSystemItemForString(NSString * inputString){
 	[currentWindowScript setEpilogueCode:@"window.addEventListener('resize',function(){if(!Ti.UI._ISRESIZING)Ti.UI._DORESIZE();},true);"];	
 
 	NSString * viewsForWindowString = @"function(winTkn){var fetched=Ti.UI._WGVIEWS(winTkn);if(!fetched)return {};var res=[];var i=0;var viewCount=fetched.length;while(i<viewCount){"
-			"var props=fetched[i];var viewTkn=props._TOKEN;var view=Ti.UI._VIEW[viewTkn];"
+			"var props=fetched[i];var viewTkn=props._TOKEN;var view;"
+			"if(viewTkn==Ti._TOKEN)view=Ti.UI.currentView;"
+			"else view=Ti.UI._VIEW[viewTkn];"
 			"if(view){for(thisprop in props){view[thisprop]=props[thisprop];}}else{"
 				"if(props._TYPE=='table'){"
 					"if(props.grouped)view=Ti.UI.createGroupedView(props);"
@@ -1775,7 +1813,6 @@ int barButtonSystemItemForString(NSString * inputString){
 	NSString * createWindowString = @"function(args){var res={};"
 			"for(property in args){res[property]=args[property];res['_'+property]=args[property];};"
 //			"delete res._TOKEN;"
-			"res.setURL=function(newUrl){this.url=newUrl;if(this._TOKEN){Ti.UI._WURL(this._TOKEN,newUrl,document.location);};};"
 			"res.setFullscreen=function(newBool){this.fullscreen=newBool;if(this._TOKEN){Ti.UI._WFSCN(this._TOKEN,newBool);};};"
 			"res.setTitle=function(args){this.title=args;if(this._TOKEN){Ti.UI._WTITLE(this._TOKEN,args);}};"
 			"res.showNavBar=function(args){this._hideNavBar=false;if(this._TOKEN){Ti.UI._WSHNAV(this._TOKEN,args);}};"
@@ -1788,6 +1825,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			"res.close=function(args){Ti.UI._CLS(this._TOKEN,args);};"
 			"res.addView=function(newView,args){this.views.push(newView);if(this._TOKEN){newView.ensureToken();Ti.UI._WSVIEWS(this._TOKEN,[newView],false,args);}};"
 			"res.getViews=function(){return Ti.UI.viewsForWindowToken(This._TOKEN);};"
+			"res.getViewByName=function(name){var views=this.getViews();for(var i=0;i<views.length;i++){if(views[i].name==name)return views[i];}return null;};"
 //			"res.setViews=function(newViews,args){this.views=newViews;if(this._TOKEN){"
 //				"for(var i=0;i<newViews.length;i++){newViews.ensureToken();}"
 //				"Ti.UI._WSVIEWS(this._TOKEN,newViews,true,args);}};"
@@ -1805,17 +1843,20 @@ int barButtonSystemItemForString(NSString * inputString){
 				"this.toolbar=bar;"
 				"if(this._TOKEN){"
 					"Ti.UI._WTOOL(this._TOKEN,bar,args);}};"
-			"res.insertButton=function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
 			"res.ensureToken=function(){if(this._TOKEN)return;var tkn=Ti.UI._VTOKEN();this._TOKEN=tkn;Ti.UI._VIEW[tkn]=this;};"
 			"res.update=function(args){if(!this._TOKEN)return;Ti.UI._WUPDATE(this,args);};"
 			"if(res.rightNavButton)res.setRightNavButton(res.rightNavButton);"
 			"if(res.leftNavButton)res.setLeftNavButton(res.leftNavButton);"
 			"return res;}";
 
-	NSString * createWebViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='web';return res;}";
+	NSString * createWebViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='web';"
+			"res.insertButton=function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
+			"res.setURL=function(newUrl){this.url=newUrl;if(this._TOKEN){Ti.UI._WURL(this._TOKEN,newUrl,document.location);};};"
+			"return res;}";
 	
 	NSString * createTableWindowString = [NSString stringWithFormat:@"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
 			"if(!res.data)res.data=[];"
+			"res.getIndexByName=function(name){var rowCount=this.data.length;for(var i=0;i<rowCount;i++){if(this.data[i].name==name)return i}return -1;}"
 			"res.insertRowAfter=function(rowIndex,row,args){this.data.splice(rowIndex+1,0,row);if(this._TOKEN){if(row.input)row.input.ensureToken();Ti.UI._WROWCHG(this._TOKEN,rowIndex,row,%d,args);}};"
 			"res.insertRowBefore=function(rowIndex,row,args){"
 				"if((rowIndex<this.data.length)&&(row.header==undefined)){var oldRow=this.data[rowIndex];row.header=oldRow.header;oldRow.header=undefined;}"

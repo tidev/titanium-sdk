@@ -98,6 +98,14 @@ TitaniumWebViewController * mostRecentController = nil;
 
 #pragma mark Accessors
 
+- (NSDictionary *) stateValue;
+{
+	NSMutableDictionary * result = [[super stateValue] mutableCopy];
+	[result setObject:[currentContentURL absoluteString] forKey:@"url"];
+	
+	return [result autorelease];
+}
+
 - (void)setCurrentContentURL: (NSURL*) newContentUrl;
 {
 	if (newContentUrl != currentContentURL){
@@ -317,10 +325,9 @@ TitaniumWebViewController * mostRecentController = nil;
 	[UIView beginAnimations:@"webView" context:nil];
 	[self updateLayout:NO];
 	
-	if ([[self title] length] == 0){
-		NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
-		[self setTitle:newTitle];
-	}
+	NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
+	if([newTitle length]>0)[titaniumWindowController setTitle:newTitle];
+
 	[scrollView setAlpha:1.0];
 	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
 	[UIView commitAnimations];

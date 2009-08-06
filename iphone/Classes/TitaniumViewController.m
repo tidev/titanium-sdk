@@ -377,8 +377,7 @@ int nextWindowToken = 0;
 	focusedContentController = nil;
 }
 
-
-- (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
+- (void)motionEnded:(int)motion withEvent:(UIEvent *)event
 {
 	TitaniumContentViewController * ourVC = [self viewControllerForIndex:selectedContentIndex];
 	if([ourVC respondsToSelector:@selector(motionEnded:withEvent:)]){
