@@ -361,10 +361,15 @@ int nextWindowToken = 0;
 - (void)viewWillAppear: (BOOL) animated;
 {
     [super viewWillAppear:animated];
+	for(TitaniumContentViewController * thisVC in contentViewControllers){
+		if([focusedContentController respondsToSelector:@selector(setWindowFocused:)]){
+			[focusedContentController setWindowFocused:YES];
+		}
+	}
+	
 	[self refreshTitleView];
 	[self refreshBackground];
 	if (animated) dirtyFlags |= TitaniumViewControllerRefreshIsAnimated;
-
 	[self updateLayout:dirtyFlags]; //This is what will notify the focused contentController.
 }
 
@@ -375,6 +380,12 @@ int nextWindowToken = 0;
 	}
 	[focusedContentController autorelease];
 	focusedContentController = nil;
+
+	for(TitaniumContentViewController * thisVC in contentViewControllers){
+		if([focusedContentController respondsToSelector:@selector(setWindowFocused:)]){
+			[focusedContentController setWindowFocused:NO];
+		}
+	}
 }
 
 - (void)motionEnded:(int)motion withEvent:(UIEvent *)event

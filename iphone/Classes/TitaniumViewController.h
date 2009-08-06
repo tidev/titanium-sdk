@@ -134,6 +134,7 @@ typedef enum {
 @optional
 - (void)setInterfaceOrientation:(TitaniumViewControllerOrientationsAllowed)interfaceOrientation duration:(NSTimeInterval)duration;
 - (void)setFocused:(BOOL)isFocused;
+- (void)setWindowFocused:(BOOL)isFocused;
 - (void)willUpdateLayout: (BOOL)animated;
 
 @end

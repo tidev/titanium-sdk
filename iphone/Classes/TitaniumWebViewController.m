@@ -244,12 +244,21 @@ TitaniumWebViewController * mostRecentController = nil;
 - (void)setFocused:(BOOL)isFocused;
 {
 	if(isFocused){
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'focused'})"];
+	} else {
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'unfocused'})"];
+	}
+}
+#endif
+
+- (void)setWindowFocused:(BOOL)isFocused;
+{
+	if(isFocused){
 		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'focused'})"];
 	} else {
 		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'unfocused'})"];
 	}
 }
-#endif
 
 
 -(void) _clearBecomeFirstResponderWhenCapable;
@@ -332,6 +341,16 @@ TitaniumWebViewController * mostRecentController = nil;
 	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
 	[UIView commitAnimations];
 	[self probeWebViewForTokenInContext:@"window"];
+	
+	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'load'});"];
+	if ([[TitaniumHost sharedHost] currentTitaniumViewController]==titaniumWindowController){
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'focused'});"];
+		if([[titaniumWindowController contentViewControllers] objectAtIndex:[titaniumWindowController selectedContentIndex]]){
+			[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'focused'});"];
+		}
+	}
+	
+	
 }
 
 - (void)webView:(UIWebView *)inputWebView didFailLoadWithError:(NSError *)error;
