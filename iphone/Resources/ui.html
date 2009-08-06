@@ -120,9 +120,10 @@ try{
 		tableView.setData([{title:'row 1', header:'Header 1', hasChild:true, }],
 		{animationStyle:Ti.UI.iPhone.RowAnimationStyle.DOWN}
 		)});
-	
-	var tableWindow = Ti.UI.createWindow({views:[tableView],rightNavButton:insertButton});
-	tableWindow.open({animated:true});
+	Titanium.UI.currentWindow.addView(tableView);
+	Titanium.UI.currentWindow.showView(tableView);
+//	var tableWindow = Ti.UI.createWindow({views:[tableView],rightNavButton:insertButton});
+//	tableWindow.open({animated:true});
 } catch(E){Titanium.UI.createAlertDialog({title:"Error!",message:('Msg:'+E)}).show();};
 };
 		btn7.addEventListener('click',test1);

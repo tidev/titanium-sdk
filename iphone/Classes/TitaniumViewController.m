@@ -99,7 +99,21 @@ int nextWindowToken = 0;
 
 #pragma mark Init and Dealloc
 
+- (id) init
+{
+	self = [super init];
+	if (self != nil) {
+		contentViewLock = [[NSRecursiveLock alloc] init];
+	}
+	return self;
+}
+
+
 - (void)dealloc {
+	[contentViewLock release];
+	[contentViewControllers release];
+	[navBarTint release];
+	
 	[[TitaniumHost sharedHost] unregisterViewControllerForKey:primaryToken];
     [super dealloc];
 }
@@ -330,8 +344,13 @@ int nextWindowToken = 0;
 
 - (TitaniumContentViewController *) viewControllerForIndex: (int)index;
 {
-	if((index < 0) || (index >= [contentViewControllers count]))return nil;
-	return [contentViewControllers objectAtIndex:index];
+	TitaniumContentViewController * result;
+	[contentViewLock lock];
+	if((index < 0) || (index >= [contentViewControllers count]))result = nil;
+	else result = [contentViewControllers objectAtIndex:index];
+	
+	[contentViewLock unlock];
+	return result;
 }
 
 
@@ -718,6 +737,7 @@ int nextWindowToken = 0;
 
 - (void) updateContentViewArray: (NSArray *) messagePacket;
 {
+	[contentViewLock lock];
 	NSArray * viewsProxyArray = [messagePacket objectAtIndex:0];
 	BOOL replaceViews = [[messagePacket objectAtIndex:1] boolValue];
 	if(replaceViews){
@@ -738,15 +758,18 @@ int nextWindowToken = 0;
 	}
 	
 	[self setAnimationOptionsDict:[messagePacket objectAtIndex:3]];
-	[self needsUpdate:0];
+	[self performSelectorOnMainThread:@selector(needsUpdate:) withObject:nil waitUntilDone:NO];
+	[contentViewLock unlock];
 }
 
 - (void) updateSelectedContentView: (NSArray *) messagePacket;
 {
+	[contentViewLock lock];
 	NSNumber * newSelectedIndex = [messagePacket objectAtIndex:0];
 	selectedContentIndex = [newSelectedIndex intValue];
 	[self setAnimationOptionsDict:[messagePacket objectAtIndex:1]];
-	[self needsUpdate:0];
+	[self performSelectorOnMainThread:@selector(needsUpdate:) withObject:nil waitUntilDone:NO];
+	[contentViewLock unlock];
 }
 
 - (void) needsUpdateAnimated;

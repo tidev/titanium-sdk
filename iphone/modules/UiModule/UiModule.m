@@ -1398,8 +1398,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	NSURL * currentUrl = [(TitaniumWebViewController *)thisVC currentContentURL];
 
 	NSArray * messagePacket = [[NSArray alloc] initWithObjects:viewsObject,overwriteObject,currentUrl,optionsObject,nil];
-	
-	[ourVC performSelectorOnMainThread:@selector(updateContentViewArray:) withObject:messagePacket waitUntilDone:YES];
+	[ourVC updateContentViewArray:messagePacket];
 }
 
 - (NSString *) reserveViewToken;

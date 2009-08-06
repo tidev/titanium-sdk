@@ -43,6 +43,7 @@ typedef enum {
 	IBOutlet UIToolbar * toolBar;
 //	NSMutableSet * nativeElementsSet;
 
+	NSLock	* contentViewLock;
 	NSMutableArray * contentViewControllers;
 	int selectedContentIndex;
 	TitaniumContentViewController * focusedContentController;
