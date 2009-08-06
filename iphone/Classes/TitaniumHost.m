@@ -781,7 +781,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 			[result appendFormat:@"delete _FAIL[%d];</script><script>",extremeDebugLineNumber];
 		}
 		extremeDebugLineNumber ++;
-		[result appendFormat:@"_LINE=%d;_FAIL[%d]='Including preludes and epilogues';</script><script>",extremeDebugLineNumber,extremeDebugLineNumber,keyPath,thisKey];
+		[result appendFormat:@"_LINE=%d;_FAIL[%d]='Including preludes and epilogues';</script><script>",extremeDebugLineNumber,extremeDebugLineNumber];
 	}
 	
 	if (resultPrelude != nil){
@@ -796,8 +796,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	}
 	
 	if(extremeDebug && (extremeDebugLineNumber!=0)){
-			[result appendFormat:@"delete _FAIL[%d];</script><script>",extremeDebugLineNumber];
-		}
+		[result appendFormat:@"delete _FAIL[%d];</script><script>",extremeDebugLineNumber];
 	}
 	
 	return result;
