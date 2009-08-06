@@ -337,6 +337,8 @@ TitaniumWebViewController * mostRecentController = nil;
 	NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
 	if([newTitle length]>0)[titaniumWindowController setTitle:newTitle];
 
+	if([[webView stringByEvaluatingJavaScriptFromString:@"typeof(Titanium)"] isEqualToString:@"undefined"])[self investigateTitaniumCrashSite];
+
 	[scrollView setAlpha:1.0];
 	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
 	[UIView commitAnimations];
@@ -527,5 +529,21 @@ TitaniumWebViewController * mostRecentController = nil;
 {
 	[scrollView addSubview:newView];
 }
+
+#pragma mark Extreme Debugging. EXTREEEEEEEEEEEEEME!
+
+- (void) investigateTitaniumCrashSite;
+{
+	NSString * extremeDebugString = [[TitaniumHost sharedHost] javaScriptForResource:currentContentURL hash:[self primaryToken] extremeDebug:YES];
+	NSLog(@"****** BEGIN TITANIUM FAILURE RECREATION FOR VIEW %@ ******\r\r%@\r\r****** END TITANIUM FAILURE RECREATION ******",self,extremeDebugString);
+	
+}
+
+
+
+
+
+
+
 
 @end

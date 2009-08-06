@@ -1856,7 +1856,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	
 	NSString * createTableWindowString = [NSString stringWithFormat:@"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
 			"if(!res.data)res.data=[];"
-			"res.getIndexByName=function(name){var rowCount=this.data.length;for(var i=0;i<rowCount;i++){if(this.data[i].name==name)return i}return -1;}"
+			"res.getIndexByName=function(name){var rowCount=this.data.length;for(var i=0;i<rowCount;i++){if(this.data[i].name==name)return i}return -1;};"
 			"res.insertRowAfter=function(rowIndex,row,args){this.data.splice(rowIndex+1,0,row);if(this._TOKEN){if(row.input)row.input.ensureToken();Ti.UI._WROWCHG(this._TOKEN,rowIndex,row,%d,args);}};"
 			"res.insertRowBefore=function(rowIndex,row,args){"
 				"if((rowIndex<this.data.length)&&(row.header==undefined)){var oldRow=this.data[rowIndex];row.header=oldRow.header;oldRow.header=undefined;}"

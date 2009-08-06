@@ -137,10 +137,11 @@ typedef enum {
 #pragma mark JavaScript Generation
 
 - (TitaniumAppResourceType) appResourceTypeForUrl:(NSURL *) url;
+- (NSString *) javaScriptForResource: (NSURL *)resourceUrl hash: (NSString *)thisThreadHashString extremeDebug: (BOOL)extremeDebug;
 - (NSString *) javaScriptForResource: (NSURL *) resourceUrl;
 - (NSString *) performFunction: (NSURL *) functionUrl;
 
-- (NSMutableString *) generateJavaScriptWrappingKeyPath: (NSString *) keyPath makeObject: (BOOL) makeObject;
+- (NSMutableString *) generateJavaScriptWrappingKeyPath: (NSString *) keyPath makeObject: (BOOL) makeObject extremeDebug:(BOOL) extremeDebug;
 
 //Executes and returns the string inline with the background thread, or if not in a thread,
 //with the main page of the currently visible most foreground page.

@@ -31,4 +31,6 @@
 
 - (void)reloadWebView;
 
+- (void) investigateTitaniumCrashSite;
+
 @end

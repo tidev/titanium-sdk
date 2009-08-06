@@ -21,6 +21,7 @@
 #import "TweakedNavController.h"
 
 BOOL VERBOSE_DEBUG = NO;
+int extremeDebugLineNumber;
 
 @implementation TitaniumProxyObject : NSObject
 @synthesize token, javaScriptPath, parentPageToken;
@@ -676,7 +677,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 
 #pragma mark JavaScript Generation
 
-- (NSMutableString *) generateJavaScriptWrappingKeyPath: (NSString *) keyPath makeObject: (BOOL) makeObject
+- (NSMutableString *) generateJavaScriptWrappingKeyPath: (NSString *) keyPath makeObject: (BOOL) makeObject extremeDebug:(BOOL) extremeDebug;
 {
 //	keyPath is a path, but unlike the javascript object, the root of the keypath is either 
 //	"nativeModules" or "cppModules". If it uses 'nativeModules', it pulls from the dict. If it
@@ -706,6 +707,15 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	
 	for (NSString * thisKey in [ourObject allKeys]){
 		id thisObject = [ourObject valueForKeyPath:thisKey];
+		if(extremeDebug){
+			if(extremeDebugLineNumber==0){
+				[result appendString:@"</script><script>_FAIL=[];"];
+			} else {
+				[result appendFormat:@"delete _FAIL[%d];</script><script>",extremeDebugLineNumber];
+			}
+			extremeDebugLineNumber ++;
+			[result appendFormat:@"_LINE=%d;_FAIL[%d]='Setting %@.%@;';</script><script>",extremeDebugLineNumber,extremeDebugLineNumber,keyPath,thisKey];
+		}
 		NSString * keyValue = @"null";
 		
 		if ([thisObject isKindOfClass:[NSString class]]){
@@ -739,7 +749,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 		} else if ([thisObject isKindOfClass:[NSDictionary class]]) {
 			NSString * newKeyPath = [keyPath stringByAppendingFormat:@".%@",thisKey];
 			[result appendFormat:@"Titanium%@.%@={};",relativeKeyPath,thisKey];
-			[result appendString:[self generateJavaScriptWrappingKeyPath:newKeyPath makeObject:NO]];
+			[result appendString:[self generateJavaScriptWrappingKeyPath:newKeyPath makeObject:NO extremeDebug:extremeDebug]];
 			continue;
 		} else if ([thisObject isKindOfClass:[TitaniumAccessorTuple class]]){
 			if ([thisObject getterSelector] != nil){
@@ -764,6 +774,16 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	
 	}
 
+	if(extremeDebug){
+		if(extremeDebugLineNumber==0){
+			[result appendString:@"</script><script>_FAIL=[];"];
+		} else {
+			[result appendFormat:@"delete _FAIL[%d];</script><script>",extremeDebugLineNumber];
+		}
+		extremeDebugLineNumber ++;
+		[result appendFormat:@"_LINE=%d;_FAIL[%d]='Including preludes and epilogues';</script><script>",extremeDebugLineNumber,extremeDebugLineNumber,keyPath,thisKey];
+	}
+	
 	if (resultPrelude != nil){
 		[result insertString:resultPrelude atIndex:0];
 	}
@@ -774,7 +794,12 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	if (resultEpilogue != nil){
 		[result appendString:resultEpilogue];
 	}
-
+	
+	if(extremeDebug && (extremeDebugLineNumber!=0)){
+			[result appendFormat:@"delete _FAIL[%d];</script><script>",extremeDebugLineNumber];
+		}
+	}
+	
 	return result;
 }
 
@@ -789,12 +814,21 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	return result;
 }
 
+- (NSString *) javaScriptForResource: (NSURL *)resourceUrl hash: (NSString *)thisThreadHashString extremeDebug: (BOOL)extremeDebug;
+{
+	if(extremeDebug)extremeDebugLineNumber = 0;
+	NSString * result = [NSString stringWithFormat:(NSString*)titaniumJavascriptInjection,thisThreadHashString,thisThreadHashString,
+			STRING(TI_VERSION),[self generateJavaScriptWrappingKeyPath:(NSString*)titaniumObjectKey makeObject:NO extremeDebug:extremeDebug]];
+	return result;
+}
+
 - (NSString *) javaScriptForResource: (NSURL *) resourceUrl
 {
 	NSString * thisThreadHashString = [NSString stringWithFormat:@"x%Xx",lastThreadHash];
 	TitaniumWebViewController *wvc = (TitaniumWebViewController*)[TitaniumWebViewController mostRecentController];
 	[wvc acceptToken:thisThreadHashString forContext:@"window"];
-	NSString * result = [NSString stringWithFormat:(NSString*)titaniumJavascriptInjection,thisThreadHashString,thisThreadHashString,STRING(TI_VERSION),[self generateJavaScriptWrappingKeyPath:(NSString*)titaniumObjectKey makeObject:NO]];
+	NSString * result = [self javaScriptForResource:resourceUrl hash:thisThreadHashString extremeDebug:NO];
+
 	if(VERBOSE_DEBUG){
 		NSLog(@"Javascript for resource (%@) \n%@",resourceUrl,result);
 	}
@@ -815,9 +849,9 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 					[[pathParts objectAtIndex:4] isEqualToString:@"_SCAN"]){
 				id functionUrlObject = [SBJSON decodeUrlQuery:functionUrl];
 				if ([functionUrlObject isKindOfClass:[NSArray class]]){
-					return [self generateJavaScriptWrappingKeyPath:[(NSArray *)functionUrlObject objectAtIndex:0] makeObject:YES];
+					return [self generateJavaScriptWrappingKeyPath:[(NSArray *)functionUrlObject objectAtIndex:0] makeObject:YES extremeDebug:NO];
 				} else {
-					return [self generateJavaScriptWrappingKeyPath:functionUrlObject makeObject:YES];
+					return [self generateJavaScriptWrappingKeyPath:functionUrlObject makeObject:YES extremeDebug:NO];
 				}
 				//No need to spawn a heavyweight locking thread for a simple scan.
 			}
