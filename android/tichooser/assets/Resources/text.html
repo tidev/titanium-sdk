@@ -19,11 +19,25 @@
   	t1.addEventListener('change', function(e) {
   	  	document.getElementById('counter').innerHTML = e.value.length;
   	});
+  	t1.addEventListener('focused', function(e) {
+  	  	document.getElementById('state').innerHTML = 'Gained Focus';
+  	});
+  	t1.addEventListener('unfocused', function(e) {
+  	  	document.getElementById('state').innerHTML = 'Lost Focus';
+  	});
+
+  	var t2 = Titanium.UI.createTextArea({
+	  		id : 't2', value : '',
+	  		color : 'white', backgroundColor : '#000000'
+	  	});
 
   --></script>
 </head>
 <body style="background-color: white;">
 <div>Characters: <span id='counter'>0</span></div>
 <div id='t1' style='height: 200px;'>&nbsp;</div>
+<div id='state' style="margin-top: 20px;">&nbsp;</div>
+<div id='t2' style='height: 50px;'>&nbsp;</div>
+
 </body>
 </html>

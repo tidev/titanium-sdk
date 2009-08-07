@@ -28,6 +28,12 @@
 
 			n2.removeEventListener('click',n2id);
 		});
+	n2.addEventListener('focused', function() {
+		Titanium.API.debug("n2 got focus");
+	});
+	n2.addEventListener('unfocused', function() {
+		Titanium.API.debug("n2 lost focus");
+	});
 
 	var n3 = Titanium.UI.createButton({
 			id : 'n3', title : 'invisible',
@@ -48,7 +54,7 @@
 
 	var s1 = Titanium.UI.createSwitch({ id : 's1', 'value' : true });
 	var s2 = Titanium.UI.createSwitch({ id : 's2', 'value' : false, color : 'red', backgroundColor: 'blue'});
-	s2.addEventListener('click', function(e) {
+	s2.addEventListener('change', function(e) {
 		Titanium.UI.createAlertDialog({
 			title : 'Switch Clicked',
 			message : 'Value is now ' + e.value,

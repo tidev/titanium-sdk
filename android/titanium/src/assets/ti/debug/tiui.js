@@ -656,7 +656,7 @@ var Button = function(proxy) {
 	this.addEventListener = function(eventName, listener) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
-	this.removeEventListener = function(eventname, listenerId) {
+	this.removeEventListener = function(eventName, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 };

@@ -15,15 +15,21 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.widget.AbsoluteLayout;
 
 public abstract class TitaniumBaseNativeControl
-	implements ITitaniumNativeControl, Handler.Callback
+	implements ITitaniumNativeControl, Handler.Callback, OnFocusChangeListener
 {
 	private static final String LCAT = "TiSwitch";
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
+	protected static final String FOCUSED_EVENT = "focused";
+	protected static final String UNFOCUSED_EVENT = "unfocused";
+
+	// Keep event ids below 300
 	protected static final int MSG_LAYOUT = 200;
+	protected static final int MSG_FOCUSCHANGE = 201;
 
 	protected SoftReference<TitaniumModuleManager> softModuleMgr;
 	protected Handler handler;
@@ -40,6 +46,8 @@ public abstract class TitaniumBaseNativeControl
 		this.softModuleMgr = new SoftReference<TitaniumModuleManager>(tmm);
 		this.handler = new Handler(this);
 		this.eventManager = new TitaniumJSEventManager(tmm);
+		eventManager.supportEvent(FOCUSED_EVENT);
+		eventManager.supportEvent(UNFOCUSED_EVENT);
 	}
 
 	public int addEventListener(String eventName, String listener) {
@@ -92,6 +100,13 @@ public abstract class TitaniumBaseNativeControl
 			control.setLayoutParams(params);
 
 			return true;
+		} else if (msg.what == MSG_FOCUSCHANGE) {
+			boolean hasFocus = (Boolean) msg.obj;
+			if (hasFocus) {
+				eventManager.invokeSuccessListeners(FOCUSED_EVENT, null);
+			} else {
+				eventManager.invokeSuccessListeners(UNFOCUSED_EVENT, null);
+			}
 		}
 
 		return false;
@@ -135,12 +150,17 @@ public abstract class TitaniumBaseNativeControl
 				TitaniumWebView wv = tmm.getWebView();
 				if (wv != null) {
 					wv.addListener(this);
+					control.setOnFocusChangeListener(this);
 					wv.addControl(control);
 				} else {
 					Log.e(LCAT, "No webview, control not added");
 				}
 			}
 		}
+	}
+
+	public void onFocusChange(View view, boolean hasFocus) {
+		handler.obtainMessage(MSG_FOCUSCHANGE, new Boolean(hasFocus)).sendToTarget();
 	}
 
 	public abstract void createControl(TitaniumModuleManager tmm);
