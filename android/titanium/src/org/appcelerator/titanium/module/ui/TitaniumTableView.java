@@ -142,6 +142,10 @@ public class TitaniumTableView extends FrameLayout
 		}
 	}
 
+	public int getIndexByName(String name) {
+		return viewModel.getIndexByName(name);
+	}
+
 	public void setRowHeight(String height) {
 		this.rowHeight = Integer.parseInt(height);
 	}

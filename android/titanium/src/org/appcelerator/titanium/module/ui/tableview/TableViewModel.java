@@ -25,6 +25,7 @@ public class TableViewModel
 		public int sectionIndex;
 		public int indexInSection;
 		public String headerText;
+		public String name;
 		public JSONObject data;
 	}
 
@@ -41,6 +42,23 @@ public class TableViewModel
 		dirty = true;
 	}
 
+	public int getIndexByName(String name) {
+		int index = -1;
+
+		if (name != null) {
+			for(Item item : model) {
+				if (item.name != null) {
+					if (name.equals(item.name)) {
+						index = item.index;
+						break;
+					}
+				}
+			}
+		}
+
+		return index;
+	}
+
 	public void insertItemBefore(int index, JSONObject data)
 	{
 		try {
@@ -49,6 +67,9 @@ public class TableViewModel
 			Item newItem = new Item(index);
 			if (data.has("header")) {
 				newItem.headerText = data.getString("header");
+			}
+			if (data.has("name")) {
+				newItem.name = data.getString("name");
 			}
 			newItem.data = data;
 			model.add(newItem.index, newItem);
@@ -85,6 +106,9 @@ public class TableViewModel
 			Item newItem = new Item(index+1);
 			if (data.has("header")) {
 				newItem.headerText = data.getString("header");
+			}
+			if (data.has("name")) {
+				newItem.name = data.getString("name");
 			}
 			newItem.data = data;
 			model.add(newItem.index, newItem);
@@ -155,6 +179,7 @@ public class TableViewModel
 			Log.e(LCAT, "Unable to parse dataset.", e);
 		}
 	}
+
 	public void setData(JSONArray rows) {
 		if (model != null) {
 			model.clear();
@@ -167,6 +192,9 @@ public class TableViewModel
 			try {
 				Item item = new Item(i);
 				JSONObject row = rows.getJSONObject(i);
+				if (row.has("name")) {
+					item.name = row.getString("name");
+				}
 				item.data = row;
 
 				if (row.has("header")) {

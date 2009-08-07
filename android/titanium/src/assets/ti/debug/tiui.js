@@ -429,6 +429,14 @@ var TableView = function(proxy) {
 	this.setRowHeight = function(height) {
 		this.proxy.setRowHeight(height);
 	};
+	/**
+	 * @tiapi(method=true,name=UI.TableView.getIndexByName,since=0.5.1) the current index of the first
+	 * @tiapi row with the given name, searching from 0.
+	 * @tiarg[int,index] index of the first row with name or -1 if not found.
+	 */
+	this.getIndexByName = function(name) {
+		return this.proxy.getIndexByName(name);
+	};
 	this.setIsPrimary = function(primary) {
 		this.proxy.setIsRoot(primary);
 	};

@@ -13,4 +13,5 @@ public interface ITitaniumTableView
 	public void insertRowBefore(int index, String json);
 	public void deleteRow(int index);
 	public void updateRow(int index, String json);
+	public int getIndexByName(String name);
 }
