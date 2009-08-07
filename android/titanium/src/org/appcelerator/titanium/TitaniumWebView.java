@@ -87,6 +87,7 @@ public class TitaniumWebView extends WebView
 	private String source;
 	private Semaphore sourceReady;
 	private boolean useAsView;
+	private boolean hasBeenOpened;
 
 	private HashSet<OnConfigChange> configurationChangeListeners;
 
@@ -105,6 +106,7 @@ public class TitaniumWebView extends WebView
 		super(activity);
 
 		this.useAsView = useAsView;
+		this.hasBeenOpened = false;
 
 		this.handler = new Handler(this);
 		this.mtm = MimeTypeMap.getSingleton();
@@ -113,7 +115,6 @@ public class TitaniumWebView extends WebView
         this.tmm = new TitaniumModuleManager(activity, this);
         this.url = url;
 		this.configurationChangeListeners = new HashSet<OnConfigChange>();
-
 
         setWebViewClient(new TiWebViewClient(activity));
         setWebChromeClient(new TiWebChromeClient(activity, useAsView));
@@ -190,7 +191,9 @@ public class TitaniumWebView extends WebView
 
 
         initializeModules();
-		buildWebView();
+        if (!useAsView) {
+        	buildWebView();
+        }
 	}
 
     protected void initializeModules() {
@@ -253,6 +256,7 @@ public class TitaniumWebView extends WebView
         	} catch (InterruptedException e) {
         		Log.w(LCAT, "Interrupted: " + e.getMessage());
         	}
+        	hasBeenOpened = true;
 	    }
 		else
 		{
@@ -558,7 +562,7 @@ public class TitaniumWebView extends WebView
 	// View methods
 
 	public boolean isPrimary() {
-		return false;
+		return true;
 	}
 
 	public String getName() {
@@ -566,6 +570,16 @@ public class TitaniumWebView extends WebView
 	}
 
 	public void setName(String name) {
+		// This is handled in the TitaniumUIWebView
+	}
+
+	public void showing() {
+		if (!hasBeenOpened) {
+			buildWebView();
+		}
+	}
+
+	public void hiding() {
 		// This is handled in the TitaniumUIWebView
 	}
 

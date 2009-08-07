@@ -39,7 +39,10 @@ public class TitaniumTableView extends FrameLayout
 	private Handler handler;
 	private boolean root;
 	private String name;
+	private String openJSON;
+	private String callback;
 	private TableViewModel viewModel;
+	boolean hasBeenOpened;
 
 	class TTVListAdapter extends BaseAdapter
 	{
@@ -109,6 +112,7 @@ public class TitaniumTableView extends FrameLayout
 		this.rowHeight = 65;
 		this.root = false;
 		this.viewModel = new TableViewModel();
+		this.hasBeenOpened = false;
 	}
 
 	public void setData(String data) {
@@ -183,11 +187,23 @@ public class TitaniumTableView extends FrameLayout
 		return false;
 	}
 
-	public void open(String json, final String callback)
+	public void configure(String json, final String callback)
 	{
-		Message m = handler.obtainMessage(MSG_OPEN);
-		m.getData().putString(MSG_EXTRA_CALLBACK, callback);
-		m.sendToTarget();
+		this.openJSON = json;
+		this.callback = callback;
+		this.root = true;
+	}
+
+	public void showing() {
+		if (!hasBeenOpened) {
+			Message m = handler.obtainMessage(MSG_OPEN);
+			m.getData().putString(MSG_EXTRA_CALLBACK, callback);
+			m.sendToTarget();
+		}
+	}
+
+	public void hiding() {
+
 	}
 
 	private void doOpen(final String callback)
@@ -210,7 +226,7 @@ public class TitaniumTableView extends FrameLayout
 						keyEvent.getAction() == KeyEvent.ACTION_DOWN
 						)
 				{
-					//close();
+//						close();
 					return root ? false : true;
 				}
 				return false;
@@ -229,7 +245,9 @@ public class TitaniumTableView extends FrameLayout
 					event.put("row", item.getInt("sectionIndex"));
 					event.put("index", item.getInt("index"));
 					event.put("detail", false);
-					event.put("name", item.getString("name"));
+					if (item.has("name")) {
+						event.put("name", item.getString("name"));
+					}
 
 					tmm.getWebView().evalJS(callback, event);
 
@@ -239,6 +257,7 @@ public class TitaniumTableView extends FrameLayout
 			}});
 
 		addView(view, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		hasBeenOpened = true;
 	}
 
 	public void close()

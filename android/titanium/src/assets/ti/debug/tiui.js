@@ -448,12 +448,12 @@ var TableView = function(proxy) {
 	this.setIsPrimary = function(primary) {
 		this.proxy.setIsRoot(primary);
 	};
-	this.open = function(options) {
+	this.configure = function(options) {
 		var opt = null;
 		if (!isUndefined(options)) {
 			opt = Titanium.JSON.stringify(options);
 		}
-		this.proxy.open(opt, registerCallback(this, this._callback));
+		this.proxy.configure(opt, registerCallback(this, this._callback));
 	};
 	this.close = function() {
 		this.proxy.close();
@@ -462,13 +462,9 @@ var TableView = function(proxy) {
 
 var WebView = function(proxy) {
 	this.proxy = proxy; // reference to Java object
-	this.open = function(options) {
-		var opt = null;
-		if (!isUndefined(options)) {
-			opt = Titanium.JSON.stringify(options);
-		}
-		this.proxy.open(opt, registerCallback(this, this._callback));
-	};
+	this.getName = function() {
+		return this.proxy.getName();
+	}
 };
 
 var UserWindow = function(proxy) {
@@ -939,7 +935,7 @@ Titanium.UI = {
 			 }
 		 }
 
-		 tv.open(null, registerCallback(this, this._callback));
+		 tv.configure(null, registerCallback(this, this._callback));
 
 		 return tv;
 	},
@@ -964,7 +960,7 @@ Titanium.UI = {
 			 }
 		 }
 
-		 wv.proxy.open();
+		 wv.proxy.configure(null);
 
 		 return wv;
 	},

@@ -311,14 +311,24 @@ public class TitaniumActivity extends Activity
 					View newView = tiView.getNativeView();
 					View current = layout.getCurrentView();
 					if (current != newView) {
-						layout.addView(newView);
-						layout.showNext();
-						if (current != null) {
-							layout.removeView(current);
-						}
+						if (newView != null) {
+							if (current != null) {
+								if (current instanceof ITitaniumView) {
+									((ITitaniumView) current).hiding();
+								}
+							}
+							tiView.showing();
+							layout.addView(newView);
+							layout.showNext();
+							if (current != null) {
+								layout.removeView(current);
+							}
 
-						if (!newView.hasFocus()) {
-							newView.requestFocus();
+							if (!newView.hasFocus()) {
+								newView.requestFocus();
+							}
+						} else {
+							Log.w(LCAT, "Atempt to show null view ignored.");
 						}
 					}
 				}

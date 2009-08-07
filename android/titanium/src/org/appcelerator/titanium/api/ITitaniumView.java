@@ -11,6 +11,8 @@ public interface ITitaniumView
 	void requestLayout();
 	String getName();
 	void setName(String name);
+	void showing();
+	void hiding();
 
 	void dispatchWindowFocusChanged(boolean hasFocus);
 	void dispatchConfigurationChange(Configuration newConfig);

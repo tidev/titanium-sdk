@@ -21,21 +21,25 @@ public class TitaniumUIWebView
 {
 	private static final String LCAT = "TitaniumUIWebView";
 
-	private static final int MSG_OPEN = 300;
+	private static final int MSG_SHOWING = 300;
+	private static final int MSG_CONFIG = 301;
 
 	private TitaniumModuleManager tmm;
 	private WebView view;
 	private String url;
 	private Handler handler;
 	private String name;
+	private String openJSON;
+	private boolean hasBeenOpened;
 
 	public TitaniumUIWebView(TitaniumModuleManager tmm) {
 		this.tmm = tmm;
 		handler = new Handler(this);
+		this.hasBeenOpened = false;
 	}
 
 	public boolean handleMessage(Message msg) {
-		if (msg.what == MSG_OPEN) {
+		if (msg.what == MSG_CONFIG) {
 			String u = url;
 			if (!URLUtil.isNetworkUrl(url)) {
 				TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getActivity());
@@ -43,9 +47,17 @@ public class TitaniumUIWebView
 				view = new TitaniumWebView(tmm.getActivity(), u, true);
 			} else {
 				view = new WebView(tmm.getActivity());
-				view.loadUrl(u);
 			}
 			return true;
+		} else if (msg.what == MSG_SHOWING) {
+			if (view != null) {
+				if (view instanceof TitaniumWebView) {
+					((TitaniumWebView) view).showing();
+				} else {
+					view.loadUrl(url);
+				}
+				hasBeenOpened = true;
+			}
 		}
 		return false;
 	}
@@ -53,8 +65,19 @@ public class TitaniumUIWebView
 		this.url = url;
 	}
 
-	public void open() {
-		handler.obtainMessage(MSG_OPEN).sendToTarget();
+	public void configure(String json) {
+		this.openJSON = json;
+		handler.obtainMessage(MSG_CONFIG).sendToTarget();
+	}
+	public void showing() {
+		if (!hasBeenOpened) {
+			handler.obtainMessage(MSG_SHOWING).sendToTarget();
+		}
+	}
+
+	public void hiding() {
+		// TODO Auto-generated method stub
+
 	}
 
 	public void dispatchConfigurationChange(Configuration newConfig) {
