@@ -21,6 +21,15 @@
 @class MFMailComposeViewController;
 #endif
 
+NSString * UrlEncodeString(NSString * string)
+{
+	NSString *out = [string stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+	out = [out stringByReplacingOccurrencesOfString:@"'" withString:@"%27"];
+	//out = [out stringByReplacingOccurrencesOfString:@" " withString:@"+"];
+	return out;
+}
+
+
 BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view)
 {
 	if(![optionObject isKindOfClass:[NSDictionary class]])return NO;
@@ -1043,31 +1052,38 @@ int barButtonSystemItemForString(NSString * inputString){
 
 	[urlVersion release];
 
-	SBJSON * encoder = [[SBJSON alloc] init];
-	NSMutableString * resultString = [[NSMutableString alloc] initWithFormat:@"mailto:%@?",[encoder stringWithFragment:[toArray componentsJoinedByString:@","] error:nil]];
+	NSMutableString * resultString = [[NSMutableString alloc] initWithFormat:@"mailto:%@?",UrlEncodeString([toArray componentsJoinedByString:@","])];
 
-	if(ccArray)[resultString appendFormat:@"cc=%@&",[encoder stringWithFragment:[ccArray componentsJoinedByString:@","] error:nil]];
+	if(ccArray)[resultString appendFormat:@"cc=%@&",UrlEncodeString([ccArray componentsJoinedByString:@","])];
 
-	if(bccArray)[resultString appendFormat:@"bcc=%@&",[encoder stringWithFragment:[bccArray componentsJoinedByString:@","] error:nil]];
+	if(bccArray)[resultString appendFormat:@"bcc=%@&",UrlEncodeString([bccArray componentsJoinedByString:@","])];
 
-	if(subject)[resultString appendFormat:@"subject=%@&",[encoder stringWithFragment:subject error:nil]];
+	if(subject)[resultString appendFormat:@"subject=%@&",UrlEncodeString(subject)];
 
-	if(message)[resultString appendFormat:@"body=%@",[encoder stringWithFragment:message error:nil]];
-	
-	[encoder release];
+	if(message)[resultString appendFormat:@"body=%@",UrlEncodeString(message)];
+
 	urlVersion = [[NSURL alloc] initWithString:resultString];
+	
+	if(urlVersion==nil){
+		NSLog(@"UiModule: Trying to generate an email url failed. Url \"%@\" came from dict %@",resultString,newDict);
+	}
+
 	[resultString release];
 }
 
 - (void) performComposition;
 {
 	if (urlVersion != nil){
+		NSLog(@"Since we don't have access to MFMailComposeViewController, we're launching %@ instead.",urlVersion);
 		[[UIApplication sharedApplication] openURL:urlVersion];
 		[self autorelease];
 		return;
 	}
-	UIViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[self parentPageToken]];
-	[[ourVC navigationController] presentModalViewController:emailComposer animated:animated];
+	if (emailComposer != nil){
+		UIViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[self parentPageToken]];
+		[[ourVC navigationController] presentModalViewController:emailComposer animated:animated];
+		return;
+	}
 }
 
 #ifndef __IPHONE_3_0
@@ -1764,7 +1780,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 
 	NSString * currentViewString = @"{_EVT:{load:[],focused:[],unfocused:[]},_TOKEN:Ti._TOKEN,_TYPE:'web',"
 			"setURL:function(newUrl){Ti.UI._WURL(Ti._TOKEN,newUrl,document.location);},"
-			"doEvent:Ti:_ONEVT,addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,}";
+			"doEvent:Ti._ONEVT,addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT}";
 
 	TitaniumJSCode * currentWindowScript = [TitaniumJSCode codeWithString:@"{"
 			"toolbar:{},_EVT:{close:[],unfocused:[],focused:[]},doEvent:Ti._ONEVT,"
@@ -2033,6 +2049,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 			emailComposeInvoc,@"_OPNEMAIL",
 			[TitaniumJSCode codeWithString:createEmailString],@"createEmailDialog",
 			currentWindowScript,@"currentWindow",
+			[TitaniumJSCode codeWithString:currentViewString],@"currentView",
 			[TitaniumJSCode codeWithString:createWindowString],@"createWindow",
 			[TitaniumJSCode codeWithString:createWebViewString],@"createWebView",
 			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",
