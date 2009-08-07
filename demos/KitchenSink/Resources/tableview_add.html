@@ -9,13 +9,13 @@
 	<script>
 	// create table view data
 	var data = [
-		{title:'Row1', header:'Section 0'},
+		{title:'Insert Row Above', header:'Section 0'},
 		{title:'Row2'},
-		{title:'Row3'},
+		{title:'Insert Row Below', name:'3'},
 		{title:'Row4'},
 		{title:'Row5'},
 		{title:'Row6'},
-		{title:'Row7'},
+		{title:'Row7', name:'7'},
 		{title:'Row8',header:'Section 1'},
 		{title:'Row9'},
 		{title:'Row10'},
@@ -30,18 +30,7 @@
 	//
 	// Create table view
 	//
-	var tableView = Titanium.UI.createTableView({data:data});
-	Titanium.UI.currentWindow.addView(tableView);
-	Titanium.UI.currentWindow.showView(tableView);
-	
-	//
-	//  Create button bar
-	//
-	var buttonBar = Titanium.UI.createButtonBar({
-		id:'buttonbar', 
-		labels:['one', 'two','three']
-	});
-	buttonBar.addEventListener('click',function(e)
+	var tableView = Titanium.UI.createTableView({data:data},function(e)
 	{
 		switch(e.index)
 		{
@@ -53,31 +42,27 @@
 			}
 			case 1:
 			{
+				var row = tableView.getIndexByName('3');
 				data = {title:'New Row After Row3', header:'New Header'};
-				tableView.insertRowAfter(3,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+				tableView.insertRowAfter(row,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
 
 				break;
 			}
 			case 2:
 			{
+				var row = tableView.getIndexByName('7');
 				data = {title:'New Row After Row7'};
-				tableView.insertRowAfter(8,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+				tableView.insertRowAfter(row,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
 
 				break;
 			}
 			
 		}
+		
 	});
+	Titanium.UI.currentWindow.addView(tableView);
+	Titanium.UI.currentWindow.showView(tableView);
 	
-	// 
-	// create flex space for formatting toolbar 
-	//
-	var flexSpace = Titanium.UI.createButton({
-		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
-	});
-
-	// set toolbar
-	Titanium.UI.currentWindow.setToolbar([flexSpace,buttonBar,flexSpace]);
 	
 	</script>
 </body>

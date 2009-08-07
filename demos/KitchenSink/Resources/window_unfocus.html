@@ -14,9 +14,9 @@
 		var a = Titanium.UI.createAlertDialog({title:'Unfocused',message:'It Worked'});
 		a.show();
 	});
-	Titanium.UI.currentWindow.addEventListener('focus',function()
+	Titanium.UI.currentWindow.addEventListener('focused',function()
 	{
-		document.getElementById('foo').innerHTML = 'Focus event received';
+		document.getElementById('foo').innerHTML = 'Focus event received at ' + new Date();
 	});
 
 

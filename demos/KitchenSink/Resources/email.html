@@ -16,11 +16,11 @@
 	{
 		var emailDialog = Titanium.UI.createEmailDialog()
 		emailDialog.setSubject('foo');
-		emailDialog.setToRecipients(['fred@gmail.com', 'joe@hotmail.com']);
-		emailDialog.setCcRecipients(['joe@gmail.com']);
+		emailDialog.setToRecipients(['nolan11169@yahoo.com']);
+		emailDialog.setCcRecipients(['nwright@appcelerator.com']);
 		emailDialog.setBccRecipients(['obama@whitehouse.gov']);
-		emailDialog.setMessageBody('my body string');
-		emailDialog.addAttachment({mimeType:'image/jpeg', file:'path/to/image'});
+		emailDialog.setMessageBody('this is a test message');
+		emailDialog.addAttachment({mimeType:'image/png', file:'chat.png'});
 		emailDialog.open();
 	};
 

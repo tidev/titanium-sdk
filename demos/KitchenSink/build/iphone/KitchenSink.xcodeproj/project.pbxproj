@@ -13,6 +13,7 @@
 		2418F31F0FCB095700BFE545 /* ApplicationRouting.m in Sources */ = {isa = PBXBuildFile; fileRef = 2418F31E0FCB095700BFE545 /* ApplicationRouting.m */; };
 		2418F5920FCB9EB100BFE545 /* tiapp.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2418F5910FCB9EB100BFE545 /* tiapp.plist */; };
 		24B7119F0FC7758C004726E8 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2432E3980FC77343004A7260 /* libsqlite3.dylib */; };
+		254449B4102CB9AE0089FBDD /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 254449B3102CB9AE0089FBDD /* MessageUI.framework */; };
 		259A152D0FDB01B5000372D8 /* Resources/Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = 259A152C0FDB01B5000372D8 /* Resources/Entitlements.plist */; };
 		25C89E2E0FD0671D000A63BB /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25C89E2D0FD0671D000A63BB /* MediaPlayer.framework */; };
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
@@ -35,6 +36,7 @@
 		2418F31E0FCB095700BFE545 /* ApplicationRouting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ApplicationRouting.m; sourceTree = "<group>"; };
 		2418F5910FCB9EB100BFE545 /* tiapp.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = tiapp.plist; path = Resources/tiapp.plist; sourceTree = "<group>"; };
 		2432E3980FC77343004A7260 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
+		254449B3102CB9AE0089FBDD /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		259A152C0FDB01B5000372D8 /* Resources/Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Resources/Entitlements.plist; sourceTree = "<group>"; };
 		25C89E2D0FD0671D000A63BB /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		288765FC0DF74451002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -69,6 +71,7 @@
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
 				B4EA71F00FBC94DB005AA7FB /* libTitanium.a in Frameworks */,
 				24B7119F0FC7758C004726E8 /* libsqlite3.dylib in Frameworks */,
+				254449B4102CB9AE0089FBDD /* MessageUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -134,6 +137,7 @@
 				2432E3980FC77343004A7260 /* libsqlite3.dylib */,
 				B4EA72ED0FBC9868005AA7FB /* AudioToolbox.framework */,
 				B4EA72EE0FBC9868005AA7FB /* libz.dylib */,
+				254449B3102CB9AE0089FBDD /* MessageUI.framework */,
 				B4EA72EF0FBC9868005AA7FB /* CoreLocation.framework */,
 				B4EA72F00FBC9868005AA7FB /* AVFoundation.framework */,
 				25C89E2D0FD0671D000A63BB /* MediaPlayer.framework */,
@@ -232,6 +236,10 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SDKROOT)$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks\"",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -251,6 +259,10 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SDKROOT)$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks\"",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = KitchenSink_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
@@ -290,7 +302,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.plist;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphonesimulator*]" = "Don't Code Sign";
 				GCC_C_LANGUAGE_STANDARD = c99;
