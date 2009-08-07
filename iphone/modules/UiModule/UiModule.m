@@ -1780,7 +1780,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 
 	NSString * currentViewString = @"{_EVT:{load:[],focused:[],unfocused:[]},_TOKEN:Ti._TOKEN,_TYPE:'web',"
 			"setURL:function(newUrl){Ti.UI._WURL(Ti._TOKEN,newUrl,document.location);},"
-			"doEvent:Ti:_ONEVT,addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,}";
+			"doEvent:Ti._ONEVT,addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT}";
 
 	TitaniumJSCode * currentWindowScript = [TitaniumJSCode codeWithString:@"{"
 			"toolbar:{},_EVT:{close:[],unfocused:[],focused:[]},doEvent:Ti._ONEVT,"
