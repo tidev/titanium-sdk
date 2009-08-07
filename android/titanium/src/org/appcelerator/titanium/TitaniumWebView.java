@@ -561,6 +561,14 @@ public class TitaniumWebView extends WebView
 		return false;
 	}
 
+	public String getName() {
+		return null; // This is handled in the TitaniumUIWebView
+	}
+
+	public void setName(String name) {
+		// This is handled in the TitaniumUIWebView
+	}
+
 	public void dispatchWindowFocusChanged(boolean hasFocus) {
 		tiUI.onWindowFocusChanged(hasFocus);
 	}

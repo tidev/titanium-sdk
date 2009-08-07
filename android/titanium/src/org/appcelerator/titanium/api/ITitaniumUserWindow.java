@@ -27,4 +27,5 @@ public interface ITitaniumUserWindow
 	public void showView(ITitaniumView view, String options);
 	public int getViewCount();
 	public ITitaniumView getView(int i);
+	public ITitaniumView getViewByName(String name);
 }

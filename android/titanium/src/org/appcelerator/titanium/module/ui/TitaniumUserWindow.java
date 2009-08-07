@@ -255,6 +255,15 @@ public class TitaniumUserWindow
 		return view;
 	}
 
+	public ITitaniumView getViewByName(String name) {
+		ITitaniumView view = null;
+		TitaniumActivity activity = getActivity();
+		if (activity != null) {
+			view =  activity.getViewByName(name);
+		}
+		return view;
+	}
+
 	public int getViewCount() {
 		int count = 0;
 

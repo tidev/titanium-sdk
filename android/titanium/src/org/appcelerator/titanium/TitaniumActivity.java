@@ -534,6 +534,21 @@ public class TitaniumActivity extends Activity
     	}
     }
 
+    public ITitaniumView getViewByName(String name) {
+    	ITitaniumView view = null;
+    	synchronized(views) {
+    		for(ITitaniumView v : views) {
+    			if (name != null && v.getName() != null) {
+    				if (name.equals(v.getName())) {
+    					view = v;
+    					break;
+    				}
+    			}
+    		}
+    	}
+    	return view;
+    }
+
 	public void setLoadOnPageEnd(boolean load) {
 		loadOnPageEnd = load;
 	}

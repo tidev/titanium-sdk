@@ -9,6 +9,8 @@ public interface ITitaniumView
 {
 	boolean isPrimary();
 	void requestLayout();
+	String getName();
+	void setName(String name);
 
 	void dispatchWindowFocusChanged(boolean hasFocus);
 	void dispatchConfigurationChange(Configuration newConfig);

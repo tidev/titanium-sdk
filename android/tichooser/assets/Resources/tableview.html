@@ -71,6 +71,7 @@
 
 	var tv1 = Titanium.UI.createTableView({
 			'data' : page1,
+			'name' : "p1",
 			'rowHeight' : '65',
 			'isPrimary' : true
  		},
@@ -103,7 +104,7 @@
 						Titanium.UI.currentWindow.setActiveViewIndex(0);
 						dlg.removeEventListener("click", lid);
 					} else if (e.index == 3) {
-						Titanium.UI.currentWindow.setActiveViewIndex(2);
+						Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('p2'));
 					}
 				});
 				alert('LID: ' + lid);
@@ -112,7 +113,7 @@
  		);
 
 	var tv2 = Titanium.UI.createTableView({
-		'data' : page2, 'rowHeight' : '75',
+		'data' : page2, 'rowHeight' : '75', name : 'p2'
 	},
 	function(e1) {
 		if (e1.name === 'exit') {

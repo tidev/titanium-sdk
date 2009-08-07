@@ -437,6 +437,14 @@ var TableView = function(proxy) {
 	this.getIndexByName = function(name) {
 		return this.proxy.getIndexByName(name);
 	};
+	this.getName = function() {
+		return this.proxy.getName();
+	};
+	this.setName = function(name) {
+		if(!isUndefined(name)) {
+			this.proxy.setName(name);
+		}
+	};
 	this.setIsPrimary = function(primary) {
 		this.proxy.setIsRoot(primary);
 	};
@@ -565,6 +573,7 @@ var UserWindow = function(proxy) {
 			v = {};
 			v.proxy = this.proxy.getView(i);
 			v.index = i;
+			v.name = v.proxy.getName();
 			views[i] = v;
 		}
 		return views;
@@ -592,6 +601,29 @@ var UserWindow = function(proxy) {
 			options = null;
 		}
 		this.proxy.showView(view.proxy, options);
+	};
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.getViewByName,since=0.5.1) locate a view in the views array by name
+	 * @tiarg[String,name] The view name
+	 * @tiarg[object, view] the view
+	 */
+	this.getViewByName = function(name) {
+		var v = null;
+		if (!isUndefined(name)) {
+			var views = this.getViews();
+
+			for(i = 0; i < views.length; i++) {
+				var view = views[i];
+				Titanium.API.debug("*** Name: " + name + " vName: " + view.name);
+				if (!isUndefined(view.name)) {
+					if (name == view.name) {
+						v = view;
+						break;
+					}
+				}
+			}
+		}
+		return v;
 	};
 
 	// IPhone only methods
@@ -891,6 +923,7 @@ Titanium.UI = {
 			 var data = options['data'];
 			 var rowHeight = options['rowHeight'];
 			 var isPrimary = options['isPrimary'];
+			 var name = options['name'];
 
 			 if (!isUndefined(data)) {
 				 tv.setData(Titanium.JSON.stringify(data));
@@ -900,6 +933,9 @@ Titanium.UI = {
 			 }
 			 if (!isUndefined(isPrimary)) {
 				 tv.setIsPrimary(isPrimary);
+			 }
+			 if (!isUndefined(name)) {
+				 tv.setName(name);
 			 }
 		 }
 
@@ -917,10 +953,14 @@ Titanium.UI = {
 
 		 if(!isUndefined(options)) {
 			 var url = options['url'];
+			 var name = options['name'];
 
 			 if (!isUndefined(url)) {
 				 //wv.setUrl(url);
 				 wv.proxy.setUrl(url);
+			 }
+			 if (!isUndefined(name)) {
+				 wv.proxy.setName(name);
 			 }
 		 }
 

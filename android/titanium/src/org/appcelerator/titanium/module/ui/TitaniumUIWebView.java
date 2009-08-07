@@ -27,6 +27,7 @@ public class TitaniumUIWebView
 	private WebView view;
 	private String url;
 	private Handler handler;
+	private String name;
 
 	public TitaniumUIWebView(TitaniumModuleManager tmm) {
 		this.tmm = tmm;
@@ -91,4 +92,11 @@ public class TitaniumUIWebView
 	public void requestLayout() {
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 }

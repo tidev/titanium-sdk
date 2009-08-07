@@ -38,6 +38,7 @@ public class TitaniumTableView extends FrameLayout
 	private int rowHeight;
 	private Handler handler;
 	private boolean root;
+	private String name;
 	private TableViewModel viewModel;
 
 	class TTVListAdapter extends BaseAdapter
@@ -152,6 +153,14 @@ public class TitaniumTableView extends FrameLayout
 
 	public void setIsRoot(boolean root) {
 		this.root = root;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public boolean isPrimary() {
