@@ -9,13 +9,13 @@
 	<script>
 	// create table view data
 	var data = [
-		{title:'Insert Row Above', header:'Section 0'},
+		{title:'Insert Row Above - 1', header:'Section 0'},
 		{title:'Row2'},
-		{title:'Insert Row Below', name:'3'},
+		{title:'Insert Row Below - 1', name:'3'},
 		{title:'Row4'},
 		{title:'Row5'},
 		{title:'Row6'},
-		{title:'Row7', name:'7'},
+		{title:'Insert Row Below - 2', name:'7'},
 		{title:'Row8',header:'Section 1'},
 		{title:'Row9'},
 		{title:'Row10'},
@@ -32,15 +32,15 @@
 	//
 	var tableView = Titanium.UI.createTableView({data:data},function(e)
 	{
-		switch(e.index)
+		switch(e.rowData.title)
 		{
-			case 0:
+			case 'Insert Row Above - 1':
 			{
 				var data = {title:'New First Row'};
 				tableView.insertRowBefore(0,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
 				break;
 			}
-			case 1:
+			case 'Insert Row Below - 1':
 			{
 				var row = tableView.getIndexByName('3');
 				data = {title:'New Row After Row3', header:'New Header'};
@@ -48,7 +48,7 @@
 
 				break;
 			}
-			case 2:
+			case 'Insert Row Below - 2':
 			{
 				var row = tableView.getIndexByName('7');
 				data = {title:'New Row After Row7'};

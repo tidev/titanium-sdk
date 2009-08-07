@@ -13,11 +13,11 @@
 		{title:'Delete three rows', name:'2'},
 		{title:'Row3',name:'3'},
 		{title:'Row4', name:'4'},
-		{title:'Delete three rows', name:'5'},
+		{title:'Delete the rest', name:'5'},
 		{title:'Row6', name:'6'},
 		{title:'Row7', name:'7'},
 		{title:'Row8',header:'Section 1'},
-		{title:'Row9'},
+		{title:'Clear the table'},
 		{title:'Row10'},
 		{title:'Row11'},
 		{title:'Row12'},
@@ -32,48 +32,48 @@
 	//
 	var tableView = Titanium.UI.createTableView({data:data},function(e)
 	{
-		switch(e.index)
+		switch(e.rowData.title)
 		{
-			case 0:
+			case 'Delete Me':
 			{
 				// delete initial row
 				tableView.deleteRow(0,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});
 				
 				break;
 			}
-			case 1:
+			case 'Delete three rows':
 			{
 				// get index, then delete
 				var row2 = tableView.getIndexByName('2');
-				tableView.deleteRow(row2,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+				tableView.deleteRow(row2,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
 
 				// get index, then delete
 				var row3 = tableView.getIndexByName('3');
-				tableView.deleteRow(row3,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+				tableView.deleteRow(row3,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
 
 				// get index, then delete
 				var row4 = tableView.getIndexByName('4');
-				tableView.deleteRow(row4,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+				tableView.deleteRow(row4,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
 
 				break;
 			}
-			case 2:
+			case 'Delete the rest':
 			{
 				// get index, then delete
 				var row5 = tableView.getIndexByName('5');
-				tableView.deleteRow(row5,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
+				tableView.deleteRow(row5,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});
 
 				// get index, then delete
 				var row6 = tableView.getIndexByName('6');
-				tableView.deleteRow(row6,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
+				tableView.deleteRow(row6,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});
 
 				// get index, then delete
 				var row7 = tableView.getIndexByName('7');
-				tableView.deleteRow(row7,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
+				tableView.deleteRow(row7,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});
 
 				break;
 			}
-			case 3:
+			case 'Clear the table':
 			{
 				// clear the whole table
 				emptyData = [];
