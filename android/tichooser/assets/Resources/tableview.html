@@ -131,6 +131,12 @@
   	window.onload = function()
   	{
   	  	var w = Titanium.UI.currentWindow;
+  	  	w.addEventListener("focused", function(e) {
+			alert("TV FOCUSED: " /*+ e.type*/);
+			Titanium.Media.vibrate();
+			 });
+		w.addEventListener("unfocused", function(e) { alert("tableview.html UNFOCUSED: "/* + e.type*/);});
+
   	  	w.addView(tv1);
   	  	w.addView(tv2);
   	  	w.setActiveViewIndex(1);
@@ -151,6 +157,7 @@
   	  	}
 
   	  	var btn = Titanium.UI.createButton({id : 'n1', title : 'Click Me'});
+
    	}
   --></script>
 </head>

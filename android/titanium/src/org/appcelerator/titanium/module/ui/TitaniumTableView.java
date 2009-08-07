@@ -280,6 +280,7 @@ public class TitaniumTableView extends FrameLayout
 	}
 
 	public void dispatchWindowFocusChanged(boolean hasFocus) {
+		tmm.getWebView().dispatchWindowFocusChanged(hasFocus);
 	}
 
 	public void dispatchConfigurationChange(Configuration newConfig) {
