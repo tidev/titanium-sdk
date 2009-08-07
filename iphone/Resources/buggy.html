@@ -2,26 +2,22 @@
 <head>
 </head>
 <body  style="font-family:'Helvetica Neue';font-size:12px">
-Hello, world?
-<script>
-Ti.API.debug("Starting...");
+	<div><input type="button" id="1" value="Launch Email" class="button"/></div>
 
-var myLocation = Titanium.Geolocation.getCurrentPosition(
-		function(pos)
-		{
-			Ti.API.debug("Found");
-			var coords = pos.coords;
-		//	Titanium.Geolocation.clearWatch(location);
-			Ti.API.debug('We got a location of ' + coords.latitude + ', ' + coords.longitude);
-		},
-		  function()
-		  {
-			Ti.API.debug("Error");
-			Ti.API.debug("Location not found.");
-		  }
-		);
+	<script>
+	document.getElementById('1').onclick = function()
+	{
+		var emailDialog = Titanium.UI.createEmailDialog()
+		emailDialog.setSubject('foo');
+		emailDialog.setToRecipients(['fred@gmail.com', 'joe@hotmail.com']);
+		emailDialog.setCcRecipients(['joe@gmail.com']);
+		emailDialog.setBccRecipients(['obama@whitehouse.gov']);
+		emailDialog.setMessageBody('my body string');
+		emailDialog.addAttachment({mimeType:'image/jpeg', file:'path/to/image'});
+		emailDialog.open();
+	};
 
-Ti.API.debug("Starting 1...");
+	</script>
 
 </script>
 </body>

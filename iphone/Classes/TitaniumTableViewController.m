@@ -81,7 +81,7 @@ UIColor * checkmarkColor = nil;
 @end
 
 @implementation TableRowWrapper
-@synthesize title,html,imageURL,imageWrapper,accessoryType,inputProxy,isButton, value;
+@synthesize title,html,imageURL,imageWrapper,accessoryType,inputProxy,isButton, value, name;
 
 - (UIImage *) image;
 {
@@ -225,7 +225,6 @@ UIColor * checkmarkColor = nil;
 
 @interface TableSectionWrapper : NSObject
 {
-	NSInteger groupNum;
 	NSString * name;
 	NSString * groupType;
 	NSString * header;
@@ -243,7 +242,6 @@ UIColor * checkmarkColor = nil;
 @property(nonatomic,readwrite,copy)		NSString * footer;
 @property(nonatomic,readwrite,copy)		NSString * name;
 @property(nonatomic,readonly,assign)	NSUInteger rowCount;
-@property(nonatomic,readwrite,assign)	NSInteger groupNum;
 @property(nonatomic,readwrite,copy)		NSString * groupType;
 @property(nonatomic,readwrite,assign)	BOOL isOptionList;
 @property(nonatomic,readwrite,assign)	BOOL nullHeader;
@@ -254,7 +252,7 @@ UIColor * checkmarkColor = nil;
 @end
 
 @implementation TableSectionWrapper
-@synthesize header,footer,groupNum,groupType,isOptionList,nullHeader,rowArray,name;
+@synthesize header,footer,groupType,isOptionList,nullHeader,rowArray,name;
 
 - (void) forceHeader: (NSString *) headerString footer: (NSString *)footerString;
 {
@@ -277,16 +275,49 @@ UIColor * checkmarkColor = nil;
 	nullHeader = (id)headerString == [NSNull null];	
 }
 
-+ (TableRowWrapper *) tableRowWithData: (NSDictionary *) newData withUrl: (NSURL *)baseURL;
++ (TableSectionWrapper *) tableSectionWithData: (NSDictionary *) newData withUrl: (NSURL *)baseURL;
 {
-	return nil;
+	TableSectionWrapper * result = [[self alloc] initWithHeader:[newData objectForKey:@"header"] footer:[newData objectForKey:@"footer"]];
+
+	id nameString = [newData objectForKey:@"name"];
+	if ([nameString respondsToSelector:@selector(stringValue)]) nameString = [nameString stringValue];
+	
+	if([nameString isKindOfClass:[NSString class]])[result setName:nameString];
+
+	BOOL isButtonGroup = NO;
+	NSString * rowType = [newData objectForKey:@"type"];
+	if ([rowType isKindOfClass:[NSString class]]){
+		[result setGroupType:rowType];
+		if([rowType isEqualToString:@"button"]){
+			isButtonGroup = YES;
+		} else if ([rowType isEqualToString:@"option"]){
+			[result setIsOptionList:YES];
+		}
+	}
+
+	Class dictClass = [NSDictionary class];
+
+	NSArray * thisDataArray = [newData objectForKey:@"data"];
+	if ([thisDataArray isKindOfClass:[NSArray class]]){
+		for(NSDictionary * thisEntry in thisDataArray){
+			if (![thisEntry isKindOfClass:dictClass]) continue;
+			
+			TableRowWrapper * thisRow = [[TableRowWrapper alloc] init];
+			if (isButtonGroup) [thisRow setIsButton:YES];
+			
+			[thisRow useProperties:thisEntry withUrl:baseURL];
+			[result addRow:thisRow];
+			[thisRow release];
+		}
+	}
+		
+	return [result autorelease];
 }
 
 - (id) initWithHeader: (NSString *) headerString footer: (NSString *) footerString;
 {
 	self = [super init];
 	if (self != nil) {
-		groupNum = -1;
 		[self forceHeader:headerString footer:footerString];
 	}
 	return self;
@@ -444,7 +475,7 @@ UIColor * checkmarkColor = nil;
 	[rootView release];
 }
 
-- (void) readData: (NSArray *)dataArray relativeToUrl: (NSURL *)baseUrl;
+- (void) readRowData: (NSArray *)dataArray relativeToUrl: (NSURL *)baseUrl;
 {
 	SEL stringSel = @selector(stringValue);
 	Class dictClass = [NSDictionary class];
@@ -477,6 +508,20 @@ UIColor * checkmarkColor = nil;
 		}
 	}	
 }
+
+- (void)readSections:(NSArray *)newSections relativeToUrl:(NSURL *)baseUrl;
+{
+	[sectionArray autorelease];
+	sectionArray = [[NSMutableArray alloc] initWithCapacity:[newSections count]];
+
+	Class dictClass = [NSDictionary class];
+	for(NSDictionary * thisSectionEntry in newSections){
+		if (![thisSectionEntry isKindOfClass:dictClass])continue;
+		[sectionArray addObject:[TableSectionWrapper tableSectionWithData:thisSectionEntry withUrl:baseUrl]];
+	}
+
+}
+
 
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
@@ -525,80 +570,12 @@ UIColor * checkmarkColor = nil;
 		
 	NSArray * groupEntries = [inputState objectForKey:@"sections"];
 	NSArray * dataEntries = [inputState objectForKey:@"data"];
-	BOOL isValidDataEntries = [dataEntries isKindOfClass:arrayClass];
 
-	if (![groupEntries isKindOfClass:arrayClass]){
-		if (isValidDataEntries)[self readData:dataEntries relativeToUrl:baseUrl];
-		return;
-	}
-	
-	[sectionArray autorelease];
-	sectionArray = [[NSMutableArray alloc] init];
-	TableSectionWrapper * thisSectionWrapper = nil;
-	
-	int groupNum = 0;
-	for(NSDictionary * thisSectionEntry in groupEntries){
-		id headerString = [thisSectionEntry objectForKey:@"header"];
-		if ([headerString respondsToSelector:stringSel]) headerString = [headerString stringValue];
-		
-		id footerString = [thisSectionEntry objectForKey:@"footer"];
-		if ([footerString respondsToSelector:stringSel]) footerString = [footerString stringValue];
-		
-		id nameString = [thisSectionEntry objectForKey:@"name"];
-		if ([nameString respondsToSelector:stringSel]) nameString = [nameString stringValue];
-		
-		if (![thisSectionWrapper accceptsHeader:headerString footer:footerString]){
-			thisSectionWrapper = [[TableSectionWrapper alloc] initWithHeader:headerString footer:footerString];
-			[sectionArray addObject:thisSectionWrapper];
-			[thisSectionWrapper release];
-		}
-		
-		[thisSectionWrapper setName:nameString];
-
-		BOOL isButtonGroup = NO;
-		NSString * rowType = [thisSectionEntry objectForKey:@"type"];
-		if ([rowType isKindOfClass:stringClass]){
-			[thisSectionWrapper setGroupType:rowType];
-			if([rowType isEqualToString:@"button"]){
-				isButtonGroup = YES;
-			} else if ([rowType isEqualToString:@"option"]){
-				[thisSectionWrapper setIsOptionList:YES];
-			}
-			[thisSectionWrapper setGroupNum:groupNum];
-		}
-		groupNum++;
-		
-		NSArray * thisDataArray = [thisSectionEntry objectForKey:@"data"];
-		if ([thisDataArray isKindOfClass:arrayClass]){
-			for(NSDictionary * thisEntry in thisDataArray){
-				if (![thisEntry isKindOfClass:dictClass]) continue;
-				
-				TableRowWrapper * thisRow = [[[TableRowWrapper alloc] init] autorelease];
-				if (isButtonGroup) [thisRow setIsButton:YES];
-				
-				[thisRow useProperties:thisEntry withUrl:baseUrl];
-				
-				id headerString = [thisEntry objectForKey:@"header"];
-				if ([headerString respondsToSelector:stringSel]) headerString = [headerString stringValue];
-				
-				id footerString = [thisEntry objectForKey:@"footer"];
-				if ([footerString respondsToSelector:stringSel]) footerString = [footerString stringValue];
-				
-				if ([thisSectionWrapper accceptsHeader:headerString footer:footerString]){
-					[thisSectionWrapper addRow:thisRow];
-				} else {
-					thisSectionWrapper = [[TableSectionWrapper alloc] initWithHeader:headerString footer:footerString];
-					
-					[thisSectionWrapper addRow:thisRow];
-
-					[sectionArray addObject:thisSectionWrapper];
-					[thisSectionWrapper release];
-				}
-			}
-		}
-		
-		
-	}
+	if ([groupEntries isKindOfClass:arrayClass]){
+		[self readSections:groupEntries relativeToUrl:baseUrl];
+	} else if([dataEntries isKindOfClass:arrayClass]){
+		[self readRowData:dataEntries relativeToUrl:baseUrl];
+	}	
 }
 
 - (void)didReceiveMemoryWarning {
@@ -841,13 +818,11 @@ UIColor * checkmarkColor = nil;
 	
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	[theHost sendJavascript:[callbackProxyPath stringByAppendingString:triggeredCode] toPageWithToken:callbackWindowToken];
-	int groupNum = [sectionWrapper groupNum];
 	
-	if (groupNum >= 0) {
-		NSString * groupCode = [[NSString alloc] initWithFormat:@"%@.sections[%d]%@",callbackProxyPath,groupNum,triggeredCode];
-		[theHost sendJavascript:groupCode toPageWithToken:callbackWindowToken];
-		[groupCode release];
-	}
+	NSString * groupCode = [[NSString alloc] initWithFormat:@"%@.sections[%d]%@",callbackProxyPath,section,triggeredCode];
+	[theHost sendJavascript:groupCode toPageWithToken:callbackWindowToken];
+	[groupCode release];
+	
 	[triggeredCode release];
 }
 
@@ -1140,7 +1115,7 @@ UIColor * checkmarkColor = nil;
 //	NSArray * oldArray = [sectionArray retain];
 	int oldCount=[sectionArray count];
 	NSIndexSet * oldRange = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, oldCount)];
-	[self readData:newData relativeToUrl:baseUrl];
+	[self readRowData:newData relativeToUrl:baseUrl];
 	int newCount=[sectionArray count];
 	NSIndexSet * newRange = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newCount)];
 
@@ -1151,6 +1126,24 @@ UIColor * checkmarkColor = nil;
 
 //	[oldArray release];
 }
+
+- (void)reloadSections:(NSArray *)newSections relativeUrl:(NSURL *)baseUrl animation:(UITableViewRowAnimation) animation;
+{
+	//	NSArray * oldArray = [sectionArray retain];
+	int oldCount=[sectionArray count];
+	NSIndexSet * oldRange = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, oldCount)];
+	[self readSections:newSections relativeToUrl:baseUrl];
+	int newCount=[sectionArray count];
+	NSIndexSet * newRange = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newCount)];
+	
+	[tableView beginUpdates];
+	if(oldRange > 0)[tableView deleteSections:oldRange withRowAnimation:animation];
+	if(newRange > 0)[tableView insertSections:newRange withRowAnimation:animation];
+	[tableView endUpdates];
+	
+	//	[oldArray release];
+}
+
 
 
 - (void)performActions;
@@ -1212,11 +1205,13 @@ UIColor * checkmarkColor = nil;
 				break;
 			case TitaniumGroupActionInsertBeforeGroup:
 				if(section > [sectionArray count])break;
-				//TODO: Actually insert
+				[sectionArray insertObject:[TableSectionWrapper tableSectionWithData:[thisAction sectionData] withUrl:[thisAction baseUrl]] atIndex:section];
+				[tableView insertSections:ourSectionSet withRowAnimation:animation];
 				break;
 			case TitaniumGroupActionUpdateGroup:
 				if(section >= [sectionArray count])break;
-				//TODO: Actually update.
+				//Todo: Possibly not replace, but just update?
+				[sectionArray replaceObjectAtIndex:section withObject:[TableSectionWrapper tableSectionWithData:[thisAction sectionData] withUrl:[thisAction baseUrl]]];
 				[tableView reloadSections:ourSectionSet withRowAnimation:animation];
 				break;
 			case TitaniumGroupActionDeleteGroup:
@@ -1225,6 +1220,7 @@ UIColor * checkmarkColor = nil;
 				[tableView deleteSections:ourSectionSet withRowAnimation:animation];
 				break;
 			case TitaniumGroupActionReloadSections:
+				[self reloadSections:[thisAction replacedData] relativeUrl:[thisAction baseUrl] animation:animation];
 				break;
 		}
 	}
