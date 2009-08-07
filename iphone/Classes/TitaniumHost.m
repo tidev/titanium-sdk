@@ -711,7 +711,9 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 			if(extremeDebugLineNumber==0){
 				[result appendString:@"</script><script>_FAIL=[];"];
 			} else {
-				[result appendFormat:@"delete _FAIL[%d];</script><script>",extremeDebugLineNumber];
+				[result appendFormat:@"delete _FAIL[%d];</script>",extremeDebugLineNumber];
+				if((extremeDebugLineNumber % 10) == 0)[result appendString:@"\n<script>"];
+				else [result appendString:@"<script>"];
 			}
 			extremeDebugLineNumber ++;
 			[result appendFormat:@"_LINE=%d;_FAIL[%d]='Setting %@.%@;';</script><script>",extremeDebugLineNumber,extremeDebugLineNumber,keyPath,thisKey];

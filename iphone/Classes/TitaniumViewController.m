@@ -366,6 +366,19 @@ int nextWindowToken = 0;
 
 #pragma mark UIViewController methods
 
+-(void) _clearBecomeFirstResponderWhenCapable;
+{
+	if ([super respondsToSelector:@selector(_clearBecomeFirstResponderWhenCapable)]){
+		[(id)super _clearBecomeFirstResponderWhenCapable];
+	} else {
+		NSLog(@"This is because 2.2.1 fails if we give a viewController -[becomeFirstResponder]");
+	}
+}
+
+- (BOOL)canBecomeFirstResponder {
+	return YES;
+}
+
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void) loadView;
 {
@@ -392,8 +405,16 @@ int nextWindowToken = 0;
 	[self updateLayout:dirtyFlags]; //This is what will notify the focused contentController.
 }
 
+- (void)viewDidAppear:(BOOL)animated;
+{
+	[super viewDidAppear:animated];
+	if(![[[UIDevice currentDevice] systemVersion] hasPrefix:@"2.0"]) [self becomeFirstResponder];
+}
+
 - (void)viewWillDisappear: (BOOL) animated;
 {
+	if(![[[UIDevice currentDevice] systemVersion] hasPrefix:@"2.0"]) [self resignFirstResponder];
+
 	if([focusedContentController respondsToSelector:@selector(setFocused:)]){
 		[focusedContentController setFocused:NO];
 	}
