@@ -48,7 +48,7 @@
 	NSString * message = [NSString stringWithFormat:@"Ti.Accelerometer.onUpdate({type:'update',x:%f,y:%f,z:%f,timestamp:%qu})",
 			[acceleration x],[acceleration y],[acceleration z],(long long)([acceleration timestamp] * 1000)];
 
-	TitaniumWebViewController * currentView = (TitaniumWebViewController*)[theHost visibleTitaniumViewController];
+	TitaniumWebViewController * currentView = (TitaniumWebViewController*)[theHost visibleTitaniumContentViewController];
 
 	for (NSString * currentPageToken in watchingPages){
 		if([currentView hasToken:currentPageToken]) [currentView performJavascript:message onPageWithToken:currentPageToken];
