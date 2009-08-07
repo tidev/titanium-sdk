@@ -28,27 +28,33 @@
 		{
   			header : 'Section 1',
 			title : 'Row 1',
-			image : 'images/icon.png'
+			image : 'images/icon.png',
+			name : 'n1'
 		},
 		{
 			title : 'Row 2',
 			html : '<b>Row 2</b><br/><span>Hello</span>',
-			image : 'images/icon.png'
+			image : 'images/icon.png',
+			name : 'n2'
 		},
 		{
-			title : 'Row 3'
+			title : 'Row 3',
+			name : 'n3'
 		},
 		{
 			header : 'Section 2',
 			title : 'Row 4',
 			image : 'images/icon.png',
+			name : 'n4',
 			hasChild : true
 		},
 		{
-			title : 'Row 5'
+			title : 'Row 5',
+			name : 'n5'
 		},
 		{
-			title : 'Exit'
+			title : 'Exit',
+			name : 'exit'
 		}
   	];
 
@@ -58,7 +64,8 @@
          header : 'Some config stuff'
         },
         {
-         html : '<font size="+2"><b>EXIT</b></font>'
+         html : '<font size="+2"><b>EXIT</b></font>',
+         name : 'exit'
         }
 	];
 
@@ -72,13 +79,14 @@
  				var ext = false;
 
  				var s = "index: " + e.index +
+ 					" name: " + e.name +
  					" section: " + e.section +
  					" row: " + e.row +
  					" detail: " + e.detail + "\n" +
  					" rowData: " + Titanium.JSON.stringify(e.rowData)
  					;
 
- 				if (e.rowData.title === 'Exit') {
+ 				if (e.rowData.name === 'exit') {
  	 				ext = true;
  				}
 
@@ -106,7 +114,7 @@
 		'data' : page2, 'rowHeight' : '75',
 	},
 	function(e1) {
-		if (e1.index == 1) {
+		if (e1.name === 'exit') {
 			Titanium.UI.currentWindow.showView(tv1);
 		} else if (e1.index == 0) {
 			var odlg = Titanium.UI.createOptionDialog({

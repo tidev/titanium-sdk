@@ -216,6 +216,7 @@ public class TitaniumTableView extends FrameLayout
 					event.put("row", item.getInt("sectionIndex"));
 					event.put("index", item.getInt("index"));
 					event.put("detail", false);
+					event.put("name", item.getString("name"));
 
 					tmm.getWebView().evalJS(callback, event);
 
