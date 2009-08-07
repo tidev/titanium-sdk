@@ -394,8 +394,8 @@ int nextWindowToken = 0;
 {
     [super viewWillAppear:animated];
 	for(TitaniumContentViewController * thisVC in contentViewControllers){
-		if([focusedContentController respondsToSelector:@selector(setWindowFocused:)]){
-			[focusedContentController setWindowFocused:YES];
+		if([thisVC respondsToSelector:@selector(setWindowFocused:)]){
+			[thisVC setWindowFocused:YES];
 		}
 	}
 	
@@ -422,8 +422,8 @@ int nextWindowToken = 0;
 	focusedContentController = nil;
 
 	for(TitaniumContentViewController * thisVC in contentViewControllers){
-		if([focusedContentController respondsToSelector:@selector(setWindowFocused:)]){
-			[focusedContentController setWindowFocused:NO];
+		if([thisVC respondsToSelector:@selector(setWindowFocused:)]){
+			[thisVC setWindowFocused:NO];
 		}
 	}
 }
