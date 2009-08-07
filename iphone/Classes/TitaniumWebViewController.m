@@ -240,7 +240,6 @@ TitaniumWebViewController * mostRecentController = nil;
 	mostRecentController = self;
 }
 
-#if MODULE_TI_GESTURE
 - (void)setFocused:(BOOL)isFocused;
 {
 	if(isFocused){
@@ -249,7 +248,7 @@ TitaniumWebViewController * mostRecentController = nil;
 		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'unfocused'})"];
 	}
 }
-#endif
+
 
 - (void)setWindowFocused:(BOOL)isFocused;
 {
@@ -273,14 +272,9 @@ TitaniumWebViewController * mostRecentController = nil;
 - (void)viewWillDisappear:(BOOL)animated;
 {
 	[super viewWillDisappear:animated];
-#if MODULE_TI_GESTURE
-#ifdef __IPHONE_3_0
 	[self resignFirstResponder];
-#endif
-#endif
 }
 
-#ifdef __IPHONE_3_0
 - (void)viewDidAppear:(BOOL)animated;
 {
 	[super viewDidAppear:animated];
@@ -290,7 +284,6 @@ TitaniumWebViewController * mostRecentController = nil;
 - (BOOL)canBecomeFirstResponder {
 	return YES;
 }
-#endif
 
 #pragma mark WebViewDelegate methods
 #pragma mark UIWebViewDelegate methods
@@ -535,8 +528,9 @@ TitaniumWebViewController * mostRecentController = nil;
 - (void) investigateTitaniumCrashSite;
 {
 	NSString * extremeDebugString = [[TitaniumHost sharedHost] javaScriptForResource:currentContentURL hash:[self primaryToken] extremeDebug:YES];
-	NSLog(@"****** BEGIN TITANIUM FAILURE RECREATION FOR VIEW %@ ******\r\r%@\r\r****** END TITANIUM FAILURE RECREATION ******",self,extremeDebugString);
-	
+	NSLog(@"****** BEGIN TITANIUM FAILURE RECREATION FOR VIEW %@ ******",self);
+	NSLog(@"%@",extremeDebugString);
+	NSLog(@"****** END TITANIUM FAILURE RECREATION ******");	
 }
 
 

@@ -970,10 +970,11 @@ int barButtonSystemItemForString(NSString * inputString){
 @interface EmailComposerProxy : TitaniumProxyObject<MFMailComposeViewControllerDelegate>
 {
 	BOOL animated;
+	NSDictionary * propertyDict;
 	MFMailComposeViewController * emailComposer;
 	NSURL * urlVersion;
 }
-
+@property(nonatomic,readwrite,retain)	NSDictionary * propertyDict;
 @property(nonatomic,readwrite,assign)	BOOL animated;
 
 - (void) setPropertyDict: (NSDictionary *) newDict;
@@ -982,16 +983,26 @@ int barButtonSystemItemForString(NSString * inputString){
 @end
 
 @implementation EmailComposerProxy
-@synthesize animated;
+@synthesize animated,propertyDict;
 
 - (id) init
 {
+	NSLog(@"Initing emailcomposerproxy");
 	self = [super init];
 	if (self != nil) {
 		animated = YES;
 	}
 	return self;
 }
+
+- (void) dealloc
+{
+	NSLog(@"Deallocing emailcomposer");
+	[emailComposer release];
+	[urlVersion release];
+	[super dealloc];
+}
+
 
 - (NSString *) sanitizeString:(id) inputObject;
 {
@@ -1017,19 +1028,20 @@ int barButtonSystemItemForString(NSString * inputString){
 	return nil;
 }
 
-- (void) setPropertyDict: (NSDictionary *) newDict;
+- (void) performComposition;
 {
-	[self setToken:[self sanitizeString:[newDict objectForKey:@"_TOKEN"]]];
+	[self setToken:[self sanitizeString:[propertyDict objectForKey:@"_TOKEN"]]];
 	Class mailClass = NSClassFromString(@"MFMailComposeViewController");
-	NSString * subject = [self sanitizeString:[newDict objectForKey:@"subject"]];
-	NSArray * toArray = [self sanitizeArray:[newDict objectForKey:@"toRecipients"]];
-	NSArray * bccArray = [self sanitizeArray:[newDict objectForKey:@"bccRecipients"]];
-	NSArray * ccArray = [self sanitizeArray:[newDict objectForKey:@"ccRecipients"]];
-	NSString * message = [self sanitizeString:[newDict objectForKey:@"messageBody"]];
-	NSArray * attachmentArray = [newDict objectForKey:@"attachments"];
+	NSString * subject = [self sanitizeString:[propertyDict objectForKey:@"subject"]];
+	NSArray * toArray = [self sanitizeArray:[propertyDict objectForKey:@"toRecipients"]];
+	NSArray * bccArray = [self sanitizeArray:[propertyDict objectForKey:@"bccRecipients"]];
+	NSArray * ccArray = [self sanitizeArray:[propertyDict objectForKey:@"ccRecipients"]];
+	NSString * message = [self sanitizeString:[propertyDict objectForKey:@"messageBody"]];
+	NSArray * attachmentArray = [propertyDict objectForKey:@"attachments"];
 	
 	if ((mailClass != nil) && [mailClass canSendMail]){
 		if(emailComposer==nil){
+			NSLog(@"Creating emailcomposer");
 			emailComposer = [[mailClass alloc] init];
 			[emailComposer setMailComposeDelegate:self];
 		}
@@ -1042,48 +1054,40 @@ int barButtonSystemItemForString(NSString * inputString){
 			for (id thisAttachment in attachmentArray){
 				if ([thisAttachment isKindOfClass:[TitaniumBlobWrapper class]]){
 					[emailComposer addAttachmentData:[(TitaniumBlobWrapper *)thisAttachment dataBlob]
-							mimeType:[(TitaniumBlobWrapper *)thisAttachment mimeType]
-							fileName:[(TitaniumBlobWrapper *)thisAttachment virtualFileName]];
+											mimeType:[(TitaniumBlobWrapper *)thisAttachment mimeType]
+											fileName:[(TitaniumBlobWrapper *)thisAttachment virtualFileName]];
 				}
 			}
 		}
+		UIViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[self parentPageToken]];
+		[[ourVC navigationController] presentModalViewController:emailComposer animated:animated];
+		[self retain];
+		
 		return;
 	}
-
+	
 	[urlVersion release];
-
+	
 	NSMutableString * resultString = [[NSMutableString alloc] initWithFormat:@"mailto:%@?",UrlEncodeString([toArray componentsJoinedByString:@","])];
-
+	
 	if(ccArray)[resultString appendFormat:@"cc=%@&",UrlEncodeString([ccArray componentsJoinedByString:@","])];
-
+	
 	if(bccArray)[resultString appendFormat:@"bcc=%@&",UrlEncodeString([bccArray componentsJoinedByString:@","])];
-
+	
 	if(subject)[resultString appendFormat:@"subject=%@&",UrlEncodeString(subject)];
-
+	
 	if(message)[resultString appendFormat:@"body=%@",UrlEncodeString(message)];
-
+	
 	urlVersion = [[NSURL alloc] initWithString:resultString];
 	
 	if(urlVersion==nil){
-		NSLog(@"UiModule: Trying to generate an email url failed. Url \"%@\" came from dict %@",resultString,newDict);
+		NSLog(@"UiModule: Trying to generate an email url failed. Url \"%@\" came from dict %@",resultString,propertyDict);
 	}
-
+	
 	[resultString release];
-}
-
-- (void) performComposition;
-{
-	if (urlVersion != nil){
-		NSLog(@"Since we don't have access to MFMailComposeViewController, we're launching %@ instead.",urlVersion);
-		[[UIApplication sharedApplication] openURL:urlVersion];
-		[self autorelease];
-		return;
-	}
-	if (emailComposer != nil){
-		UIViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[self parentPageToken]];
-		[[ourVC navigationController] presentModalViewController:emailComposer animated:animated];
-		return;
-	}
+	
+	NSLog(@"Since we don't have access to MFMailComposeViewController, we're launching %@ instead.",urlVersion);
+	[[UIApplication sharedApplication] openURL:urlVersion];
 }
 
 #ifndef __IPHONE_3_0
@@ -1118,6 +1122,8 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	
 	UIViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[self parentPageToken]];
 	[[ourVC navigationController] dismissModalViewControllerAnimated:animated];
+	[emailComposer release];
+	emailComposer = nil;
 	[self autorelease];
 }
 
@@ -1652,6 +1658,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	}
 	
 	[ourProxy performSelectorOnMainThread:@selector(performComposition) withObject:nil waitUntilDone:NO];
+	[ourProxy release];
 }
 
 
