@@ -249,8 +249,8 @@ NSUInteger lastWatchID = 0;
 
 	if ([isOneShotObj respondsToSelector:@selector(boolValue)]){
 		[newProxy setSingleShot:[isOneShotObj boolValue]];
-		[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];
 	}
+	[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];
 	[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 	[newProxy release];
 	
