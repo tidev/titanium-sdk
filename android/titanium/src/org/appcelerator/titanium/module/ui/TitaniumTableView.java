@@ -31,6 +31,11 @@ public class TitaniumTableView extends FrameLayout
 
 	private static final int MSG_OPEN = 300;
 	private static final int MSG_CLOSE = 301;
+	private static final int MSG_SETDATA = 302;
+	private static final int MSG_DELETEROW = 303;
+	private static final int MSG_UPDATEROW = 304;
+	private static final int MSG_INSERTBEFORE = 305;
+	private static final int MSG_INSERTAFTER = 306;
 
 	private static final String MSG_EXTRA_CALLBACK = "cb";
 
@@ -43,6 +48,18 @@ public class TitaniumTableView extends FrameLayout
 	private String callback;
 	private TableViewModel viewModel;
 	boolean hasBeenOpened;
+	private TTVListAdapter adapter;
+	private ListView view;
+
+	private Runnable dataSetChanged = new Runnable() {
+
+		public void run() {
+			if (adapter != null) {
+				adapter.notifyDataSetChanged();
+			}
+		}
+
+	};
 
 	class TTVListAdapter extends BaseAdapter
 	{
@@ -116,35 +133,64 @@ public class TitaniumTableView extends FrameLayout
 	}
 
 	public void setData(String data) {
+		handler.obtainMessage(MSG_SETDATA, data).sendToTarget();
+	}
+
+	public void doSetData(String data) {
 		viewModel.setData(data);
+		handler.post(dataSetChanged);
 	}
 
 	public void deleteRow(int index) {
+		handler.obtainMessage(MSG_DELETEROW, index, -1).sendToTarget();
+	}
+
+	public void doDeleteRow(int index) {
 		viewModel.deleteItem(index);
+		handler.post(dataSetChanged);
 	}
 
 	public void insertRowAfter(int index, String json) {
+		handler.obtainMessage(MSG_INSERTAFTER, index, -1, json).sendToTarget();
+	}
+
+	public void doInsertRowAfter(int index, String json) {
 		try {
 			viewModel.insertItemAfter(index, new JSONObject(json));
+			handler.post(dataSetChanged);
 		} catch (JSONException e) {
 			Log.e(LCAT, "Error trying to insert row: ", e);
 		}
 	}
 
 	public void insertRowBefore(int index, String json) {
+		handler.obtainMessage(MSG_INSERTBEFORE, index, -1, json).sendToTarget();
+	}
+
+	public void doInsertRowBefore(int index, String json) {
 		try {
 			viewModel.insertItemBefore(index, new JSONObject(json));
+			handler.post(dataSetChanged);
 		} catch (JSONException e) {
 			Log.e(LCAT, "Error trying to insert row: ", e);
 		}
 	}
 
 	public void updateRow(int index, String json) {
+		handler.obtainMessage(MSG_UPDATEROW, index, -1, json).sendToTarget();
+	}
+
+	public void doUpdateRow(int index, String json) {
 		try {
 			viewModel.updateItem(index, new JSONObject(json));
+			handler.post(dataSetChanged);
 		} catch (JSONException e) {
 			Log.e(LCAT, "Error trying to update row: ", e);
 		}
+	}
+
+	public int getRowCount() {
+		return viewModel.getRowCount();
 	}
 
 	public int getIndexByName(String name) {
@@ -183,6 +229,21 @@ public class TitaniumTableView extends FrameLayout
 		case MSG_CLOSE:
 			doClose();
 			return true;
+		case MSG_SETDATA:
+			doSetData((String) msg.obj);
+			return true;
+		case MSG_DELETEROW:
+			doDeleteRow(msg.arg1);
+			return true;
+		case MSG_INSERTAFTER:
+			doInsertRowAfter(msg.arg1, (String) msg.obj);
+			return true;
+		case MSG_INSERTBEFORE:
+			doInsertRowBefore(msg.arg1, (String) msg.obj);
+			return true;
+		case MSG_UPDATEROW:
+			doUpdateRow(msg.arg1, (String) msg.obj);
+			return true;
 		}
 		return false;
 	}
@@ -212,11 +273,11 @@ public class TitaniumTableView extends FrameLayout
 		setLayoutParams(params);
 		setPadding(5,5,5,5);
 
-		ListView view = new ListView(tmm.getActivity());
+		view = new ListView(tmm.getActivity());
 		view.setFocusable(true);
 		view.setFocusableInTouchMode(true);
-
-		view.setAdapter(new TTVListAdapter(viewModel));
+		adapter = new TTVListAdapter(viewModel);
+		view.setAdapter(adapter);
 		view.setOnKeyListener(new View.OnKeyListener() {
 
 			public boolean onKey(View view, int keyCode, KeyEvent keyEvent)

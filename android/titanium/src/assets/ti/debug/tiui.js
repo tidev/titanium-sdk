@@ -437,6 +437,36 @@ var TableView = function(proxy) {
 	this.getIndexByName = function(name) {
 		return this.proxy.getIndexByName(name);
 	};
+	this.insertRowAfter = function(index, options) {
+		if (isUndefined(options)) {
+			options = {};
+		}
+		this.proxy.insertRowAfter(index, Titanium.JSON.stringify(options));
+	};
+	this.insertRowBefore = function(index, options) {
+		if (isUndefined(options)) {
+			options = {};
+		}
+		this.proxy.insertRowBefore(index, Titanium.JSON.stringify(options));
+	};
+	this.deleteRow = function(index) {
+		this.proxy.deleteRow(index);
+	};
+	this.updateRow = function(index, options) {
+		if (isUndefined(options)) {
+			options = {};
+		}
+		this.proxy.updateRow(index, Titanium.JSON.stringify(options));
+	};
+	this.getRowCount = function() {
+		return this.proxy.getRowCount();
+	};
+	this.getIndexByName = function(name) {
+		if(isUndefined(name)) {
+			name = null;
+		}
+		return this.proxy.getIndexByName(name);
+	};
 	this.getName = function() {
 		return this.proxy.getName();
 	};

@@ -68,15 +68,25 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
 
-		<window>
+        <window>
             <id>TableView</id>
             <title>Table View</title>
             <url>tableview.html</url>
             <type>single</type>
             <fullscreen>false</fullscreen>
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
+            <barColor>#000</barColor>
+        </window>
+-->
+
+		<window>
+            <id>TableViewUpdates</id>
+            <title>Table View Updates</title>
+            <url>tableviewupdates.html</url>
+            <type>single</type>
+            <fullscreen>false</fullscreen>
+            <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
 <!--

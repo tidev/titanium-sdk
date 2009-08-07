@@ -42,6 +42,10 @@ public class TableViewModel
 		dirty = true;
 	}
 
+	public int getRowCount() {
+		return model.size();
+	}
+
 	public int getIndexByName(String name) {
 		int index = -1;
 
@@ -62,36 +66,45 @@ public class TableViewModel
 	public void insertItemBefore(int index, JSONObject data)
 	{
 		try {
-			Item item = model.get(index);
+			if (model.size() > 0) {
+				if (index < 0) {
+					index = 0;
+				}
 
-			Item newItem = new Item(index);
-			if (data.has("header")) {
-				newItem.headerText = data.getString("header");
-			}
-			if (data.has("name")) {
-				newItem.name = data.getString("name");
-			}
-			newItem.data = data;
-			model.add(newItem.index, newItem);
+				Item item = model.get(index);
 
-			updateIndexes(index+1);
+				Item newItem = new Item(index);
+				if (data.has("header")) {
+					newItem.headerText = data.getString("header");
+				}
+				if (data.has("name")) {
+					newItem.name = data.getString("name");
+				}
+				newItem.data = data;
+				model.add(newItem.index, newItem);
 
-			if (newItem.hasHeader()) {
-				newItem.sectionIndex = item.sectionIndex;
-				newItem.indexInSection = 0;
-				updateSectionData(index + 1, newItem.sectionIndex);
-			} else {
-				if (item.hasHeader()) {
-					newItem.headerText = item.headerText;
-					item.headerText = null;
+				updateIndexes(index+1);
+
+				if (newItem.hasHeader()) {
 					newItem.sectionIndex = item.sectionIndex;
 					newItem.indexInSection = 0;
 					updateSectionData(index + 1, newItem.sectionIndex);
 				} else {
-					newItem.sectionIndex = item.sectionIndex;
-					updateIndexInSection(index, item.indexInSection);
+					if (item.hasHeader()) {
+						newItem.headerText = item.headerText;
+						item.headerText = null;
+						newItem.sectionIndex = item.sectionIndex;
+						newItem.indexInSection = 0;
+						updateSectionData(index + 1, newItem.sectionIndex);
+					} else {
+						newItem.sectionIndex = item.sectionIndex;
+						updateIndexInSection(index, item.indexInSection);
+					}
 				}
+			} else {
+				insertFirstRow(data);
 			}
+
 			dirty = true;
 		} catch (JSONException e) {
 			Log.e(LCAT, "Unable to insertItemBefore " + index,e);
@@ -101,27 +114,36 @@ public class TableViewModel
 	public void insertItemAfter(int index, JSONObject data)
 	{
 		try {
-			Item item = model.get(index);
 
-			Item newItem = new Item(index+1);
-			if (data.has("header")) {
-				newItem.headerText = data.getString("header");
-			}
-			if (data.has("name")) {
-				newItem.name = data.getString("name");
-			}
-			newItem.data = data;
-			model.add(newItem.index, newItem);
+			if (model.size() > 0) {
+				if (index > model.size()) {
+					index = model.size() - 1;
+				}
 
-			updateIndexes(newItem.index);
+				Item item = model.get(index);
 
-			if (newItem.hasHeader()) {
-				newItem.sectionIndex = item.sectionIndex + 1;
-				newItem.indexInSection = 0;
-				updateSectionData(newItem.index, newItem.sectionIndex);
+				Item newItem = new Item(index+1);
+				if (data.has("header")) {
+					newItem.headerText = data.getString("header");
+				}
+				if (data.has("name")) {
+					newItem.name = data.getString("name");
+				}
+				newItem.data = data;
+				model.add(newItem.index, newItem);
+
+				updateIndexes(newItem.index);
+
+				if (newItem.hasHeader()) {
+					newItem.sectionIndex = item.sectionIndex + 1;
+					newItem.indexInSection = 0;
+					updateSectionData(newItem.index, newItem.sectionIndex);
+				} else {
+					newItem.sectionIndex = item.sectionIndex;
+					updateIndexInSection(newItem.index, item.indexInSection + 1);
+				}
 			} else {
-				newItem.sectionIndex = item.sectionIndex;
-				updateIndexInSection(newItem.index, item.indexInSection + 1);
+				insertFirstRow(data);
 			}
 			dirty = true;
 		} catch (JSONException e) {
@@ -159,6 +181,7 @@ public class TableViewModel
 					item.headerText = data.getString("header");
 				} else {
 					// We need to insert a new section.
+					item.headerText = data.getString("header");
 					item.sectionIndex++;
 					item.indexInSection = 0;
 
@@ -174,7 +197,11 @@ public class TableViewModel
 	// This method just brute forces the data into the table.
 	public void setData(String json) {
 		try {
-			setData(new JSONArray(json));
+			if (json != null && json.length() > 0) {
+				setData(new JSONArray(json));
+			} else {
+				setData((JSONArray) null);
+			}
 		} catch (JSONException e) {
 			Log.e(LCAT, "Unable to parse dataset.", e);
 		}
@@ -188,30 +215,32 @@ public class TableViewModel
 		int sectionCounter = 0;
 		int sectionRowCounter = 0;
 
-		for(int i = 0; i < rows.length(); i++) {
-			try {
-				Item item = new Item(i);
-				JSONObject row = rows.getJSONObject(i);
-				if (row.has("name")) {
-					item.name = row.getString("name");
-				}
-				item.data = row;
-
-				if (row.has("header")) {
-					if (i > 0) {
-						sectionCounter++;
-						sectionRowCounter = 0;
+		if (rows != null) {
+			for(int i = 0; i < rows.length(); i++) {
+				try {
+					Item item = new Item(i);
+					JSONObject row = rows.getJSONObject(i);
+					if (row.has("name")) {
+						item.name = row.getString("name");
 					}
-					item.headerText = row.getString("header");
+					item.data = row;
+
+					if (row.has("header")) {
+						if (i > 0) {
+							sectionCounter++;
+							sectionRowCounter = 0;
+						}
+						item.headerText = row.getString("header");
+					}
+
+					item.sectionIndex = sectionCounter;
+					item.indexInSection = sectionRowCounter;
+
+					model.add(item);
+					sectionRowCounter++;
+				} catch (JSONException e) {
+					Log.e(LCAT, "Error adding item at index " + i);
 				}
-
-				item.sectionIndex = sectionCounter;
-				item.indexInSection = sectionRowCounter;
-
-				model.add(item);
-				sectionRowCounter++;
-			} catch (JSONException e) {
-				Log.e(LCAT, "Error adding item at index " + i);
 			}
 		}
 	}
@@ -224,6 +253,7 @@ public class TableViewModel
 				for (Item item : model) {
 					if (item.hasHeader()) {
 						o = new JSONObject(item.data.toString());
+						o.put("header", item.headerText);
 						o.put("isDisplayHeader", true);
 						viewModel.put(o);
 					}
@@ -241,6 +271,22 @@ public class TableViewModel
 		}
 
 		return viewModel;
+	}
+
+	private void insertFirstRow(JSONObject data) throws JSONException
+	{
+		Item newItem = new Item(0);
+		if (data.has("header")) {
+			newItem.headerText = data.getString("header");
+		}
+		if (data.has("name")) {
+			newItem.name = data.getString("name");
+		}
+		newItem.sectionIndex = 0;
+		newItem.indexInSection = 0;
+		newItem.index = 0;
+		newItem.data = data;
+		model.add(newItem.index, newItem);
 	}
 
 	private void updateIndexes(int start) {

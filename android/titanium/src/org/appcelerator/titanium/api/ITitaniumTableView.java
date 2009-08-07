@@ -14,4 +14,5 @@ public interface ITitaniumTableView
 	public void deleteRow(int index);
 	public void updateRow(int index, String json);
 	public int getIndexByName(String name);
+	public int getRowCount();
 }
