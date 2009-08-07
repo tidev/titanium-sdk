@@ -182,18 +182,22 @@ public class TitaniumActivity extends Activity
 
         ts("After getApplication()");
 
-        String backgroundImage = "default.png";
-        final String fBackgroundImage = backgroundImage;
-    	if(windowInfo != null && windowInfo.hasWindowBackgroundImage()) {
-    		backgroundImage = windowInfo.getWindowBackgroundImage();
-    	}
+        Thread backgroundDrawableThread = null;
 
-        Thread backgroundDrawableThread = new Thread(new Runnable(){
+        if (app.needsSplashScreen()) {
+	        String backgroundImage = "default.png";
+	        final String fBackgroundImage = backgroundImage;
+	    	if(windowInfo != null && windowInfo.hasWindowBackgroundImage()) {
+	    		backgroundImage = windowInfo.getWindowBackgroundImage();
+	    	}
 
-			public void run() {
-				backgroundDrawable = tfh.loadDrawable(fBackgroundImage, false); // Ok to not have background
-			}});
-        backgroundDrawableThread.start();
+	        backgroundDrawableThread = new Thread(new Runnable(){
+
+				public void run() {
+					backgroundDrawable = tfh.loadDrawable(fBackgroundImage, false); // Ok to not have background
+				}});
+	        backgroundDrawableThread.start();
+        }
 
         initialOrientation = this.getRequestedOrientation();
         Intent activityIntent = getIntent();
@@ -263,17 +267,20 @@ public class TitaniumActivity extends Activity
 		splashView=new ImageView(this);
 		splashView.setScaleType(ImageView.ScaleType.FIT_XY);
 
-		try {
-			backgroundDrawableThread.join();
-		} catch (InterruptedException e) {
-			Log.w(LCAT, "Interrupted");
-		}
+		if (backgroundDrawableThread != null) {
+			try {
+				backgroundDrawableThread.join();
+			} catch (InterruptedException e) {
+				Log.w(LCAT, "Interrupted");
+			}
 
-		if (backgroundDrawable != null) {
-			((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
-			splashView.setImageDrawable(backgroundDrawable);
+			if (backgroundDrawable != null) {
+				((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
+				splashView.setImageDrawable(backgroundDrawable);
+			}
+			layout.addView(splashView);
+			app.setNeedsSplashScreen(false);
 		}
-		layout.addView(splashView);
 		setContentView(layout);
 
 		ts("After splash");
@@ -306,7 +313,9 @@ public class TitaniumActivity extends Activity
 					if (current != newView) {
 						layout.addView(newView);
 						layout.showNext();
-						layout.removeView(current);
+						if (current != null) {
+							layout.removeView(current);
+						}
 
 						if (!newView.hasFocus()) {
 							newView.requestFocus();

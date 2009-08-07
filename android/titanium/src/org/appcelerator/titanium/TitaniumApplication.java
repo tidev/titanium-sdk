@@ -38,6 +38,7 @@ public class TitaniumApplication
 
 	private boolean needsStartEvent;
 	private boolean needsEnrollEvent;
+	private boolean needsSplashScreen;
 
 	protected TitaniumAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
@@ -49,6 +50,7 @@ public class TitaniumApplication
 	public TitaniumApplication() {
 		needsEnrollEvent = false; // test is after DB is available
 		needsStartEvent = true;
+		needsSplashScreen = true;
 		sourceCache = new HashMap<String,String>(8);
 	}
 
@@ -186,6 +188,14 @@ public class TitaniumApplication
 
 	public synchronized boolean needsEnrollEvent() {
 		return needsEnrollEvent;
+	}
+
+	public synchronized boolean needsSplashScreen() {
+		return needsSplashScreen;
+	}
+
+	public synchronized void setNeedsSplashScreen(boolean needsSplashScreen) {
+		this.needsSplashScreen = needsSplashScreen;
 	}
 
 	public synchronized void postAnalyticsEvent(TitaniumAnalyticsEvent event)
