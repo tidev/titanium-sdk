@@ -58,7 +58,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+-->
         <window>
             <id>buttons</id>
             <title>Buttons</title>
@@ -78,8 +78,8 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
 
+<!--
 		<window>
             <id>TableViewUpdates</id>
             <title>Table View Updates</title>
@@ -89,7 +89,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-<!--
+
 		<window>
             <id>Email</id>
             <title>Email</title>
