@@ -140,6 +140,7 @@ NSUInteger lastWatchID = 0;
 		}
 	}
 	[proxyLock unlock];
+
 	[locationManager setDesiredAccuracy:kCLLocationAccuracyKilometer];
 }
 
@@ -249,8 +250,8 @@ NSUInteger lastWatchID = 0;
 
 	if ([isOneShotObj respondsToSelector:@selector(boolValue)]){
 		[newProxy setSingleShot:[isOneShotObj boolValue]];
-		[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];
 	}
+	[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];
 	[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 	[newProxy release];
 	
@@ -264,7 +265,7 @@ NSUInteger lastWatchID = 0;
 	[proxyDictionary removeObjectForKey:token];
 	
 	int count=0;
-	for(GeolocationProxy * thisProxy in proxyDictionary){
+	for(GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator]){
 		if([thisProxy enabled]){
 			count++; break;
 		}
@@ -290,7 +291,7 @@ NSUInteger lastWatchID = 0;
 		[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 		[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];		
 	}
-	[proxyLock unlock];	
+	[proxyLock unlock];
 }
 
 - (BOOL) startModule;

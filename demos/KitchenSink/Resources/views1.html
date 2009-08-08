@@ -12,12 +12,20 @@
 	<button id="six" style="font-size:14px">show view 6 (FLIP LEFT)</button></br>
 	<button id="seven" style="font-size:14px">show view 7 (FLIP RIGHT)</button></br>
 
-	<div id="switch"></div>
-	<div id="slider"></div>
-	<div id="textField"></div>
+	<div id="focused"></div>
 
 	<script>
 
+	Titanium.UI.currentView.addEventListener('unfocused',function(e)
+	{
+		var a = Titanium.UI.createAlertDialog({title:'Unfocused',message:'It Worked'});
+		a.show();
+	});
+
+	Titanium.UI.currentView.addEventListener('focused',function(e)
+	{
+		document.getElementById('focused').innerHTML = 'Focused event received at ' + new Date();
+	});
 
 	document.getElementById('two').onclick = function()
 	{

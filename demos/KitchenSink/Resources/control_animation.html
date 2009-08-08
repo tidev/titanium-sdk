@@ -1,0 +1,36 @@
+<html>
+<head>
+
+
+</head>
+<body  style="font-family:'Helvetica Neue'">
+	<button id="1" style="font-size:14px">Change Button - 1</button>
+	<button id="2" style="font-size:14px">Change Button - 2</button>
+	
+	<script>
+	var b = Titanium.UI.createButton({
+		title:'Button',
+		style:Titanium.UI.iPhone.SystemButtonStyle.DONE
+	});
+	b.addEventListener('click',function()
+	{
+		a.setMessage('you click the SAVE button');
+		a.show();
+		
+	})
+	Titanium.UI.currentWindow.setRightNavButton(b);
+	
+	document.getElementById('1').onclick = function()
+	{
+		b.title = 'Foo';
+		b.update({animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,animationDuration:1000})
+	};
+	document.getElementById('1').onclick = function()
+	{
+		b.title = 'Bar';
+		b.update({animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:1000})
+	};
+
+	</script>
+</body>
+</html>

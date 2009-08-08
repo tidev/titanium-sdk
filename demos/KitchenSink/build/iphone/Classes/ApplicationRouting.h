@@ -22,7 +22,9 @@
 - (NSData*) pageNamedButtonbar;
 - (NSData*) pageNamedButtons;
 - (NSData*) pageNamedComposite;
+- (NSData*) pageNamedControl_animation;
 - (NSData*) pageNamedDatabase;
+- (NSData*) pageNamedDynamic_content;
 - (NSData*) pageNamedEmail;
 - (NSData*) pageNamedFilesystem;
 - (NSData*) pageNamedFullscreen;

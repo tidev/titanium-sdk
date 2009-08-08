@@ -9,13 +9,13 @@
 	<script>
 	// create table view data
 	var data = [
-		{title:'Row1', header:'Section 0'},
-		{title:'Row2'},
-		{title:'Row3'},
-		{title:'Row4'},
-		{title:'Row5'},
-		{title:'Row6'},
-		{title:'Row7'},
+		{title:'Delete Me', header:'Section 0'},
+		{title:'Delete three rows', name:'2'},
+		{title:'Row3',name:'3'},
+		{title:'Row4', name:'4'},
+		{title:'Delete three rows', name:'5'},
+		{title:'Row6', name:'6'},
+		{title:'Row7', name:'7'},
 		{title:'Row8',header:'Section 1'},
 		{title:'Row9'},
 		{title:'Row10'},
@@ -30,18 +30,7 @@
 	//
 	// Create table view
 	//
-	var tableView = Titanium.UI.createTableView({data:data});
-	Titanium.UI.currentWindow.addView(tableView);
-	Titanium.UI.currentWindow.showView(tableView);
-	
-	//
-	//  Create button bar
-	//
-	var buttonBar = Titanium.UI.createButtonBar({
-		id:'buttonbar', 
-		labels:['1', '2 3 4','5 6 7','All']
-	});
-	buttonBar.addEventListener('click',function(e)
+	var tableView = Titanium.UI.createTableView({data:data},function(e)
 	{
 		switch(e.index)
 		{
@@ -54,19 +43,33 @@
 			}
 			case 1:
 			{
-				// delete next 3 rows
-				tableView.deleteRow(0,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
-				tableView.deleteRow(1,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
-				tableView.deleteRow(2,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+				// get index, then delete
+				var row2 = tableView.getIndexByName('2');
+				tableView.deleteRow(row2,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+
+				// get index, then delete
+				var row3 = tableView.getIndexByName('3');
+				tableView.deleteRow(row3,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+
+				// get index, then delete
+				var row4 = tableView.getIndexByName('4');
+				tableView.deleteRow(row4,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
 
 				break;
 			}
 			case 2:
 			{
-				// delete rest of section
-				tableView.deleteRow(0,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
-				tableView.deleteRow(1,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
-				tableView.deleteRow(2,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
+				// get index, then delete
+				var row5 = tableView.getIndexByName('5');
+				tableView.deleteRow(row5,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
+
+				// get index, then delete
+				var row6 = tableView.getIndexByName('6');
+				tableView.deleteRow(row6,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
+
+				// get index, then delete
+				var row7 = tableView.getIndexByName('7');
+				tableView.deleteRow(row7,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
 
 				break;
 			}
@@ -79,17 +82,12 @@
 			}
 			
 		}
+		
 	});
+	Titanium.UI.currentWindow.addView(tableView);
+	Titanium.UI.currentWindow.showView(tableView);
 	
-	// 
-	// create flex space for formatting toolbar 
-	//
-	var flexSpace = Titanium.UI.createButton({
-		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
-	});
-
-	// set toolbar
-	Titanium.UI.currentWindow.setToolbar([flexSpace,buttonBar,flexSpace]);
+	
 	
 	</script>
 </body>

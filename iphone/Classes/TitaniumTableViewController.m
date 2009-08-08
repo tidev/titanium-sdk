@@ -920,9 +920,10 @@ UIColor * checkmarkColor = nil;
 				if(VERBOSE_DEBUG){
 					NSLog(@"-[%@ deleteRowAtIndex:%d animation:%d]: Going for Section %d, row %d. (%@)",self,oldIndex,animation,thisSectionIndex,index,thisPath);
 				}
-			
+				[tableView beginUpdates];
 				[thisSection removeRowAtIndex:index];
 				[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:thisPath] withRowAnimation:animation];
+				[tableView endUpdates];
 				return;
 			}
 						

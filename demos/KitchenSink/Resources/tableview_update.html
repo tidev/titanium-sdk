@@ -9,10 +9,10 @@
 	<script>
 	// create table view data
 	var data = [
-		{title:'Row1', header:'Section 0'},
-		{title:'Row2'},
-		{title:'Row3'},
-		{title:'Row4'},
+		{title:'Change Me', header:'Section 0'},
+		{title:'Change Me', name:'row2'},
+		{title:'Change Me'},
+		{title:'Change Me'},
 		{title:'Row5'},
 		{title:'Row6'},
 		{title:'Row7'},
@@ -30,18 +30,7 @@
 	//
 	// Create table view
 	//
-	var tableView = Titanium.UI.createTableView({data:data});
-	Titanium.UI.currentWindow.addView(tableView);
-	Titanium.UI.currentWindow.showView(tableView);
-	
-	//
-	//  Create button bar
-	//
-	var buttonBar = Titanium.UI.createButtonBar({
-		id:'buttonbar', 
-		labels:['one', 'two','three', 'four']
-	});
-	buttonBar.addEventListener('click',function(e)
+	var tableView = Titanium.UI.createTableView({data:data},function(e)
 	{
 		switch(e.index)
 		{
@@ -53,8 +42,9 @@
 			}
 			case 1:
 			{
+				var row = tableView.getIndexByName('row2');
 				data = {title:'New Row2'};
-				tableView.updateRow(1,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
+				tableView.updateRow(row,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
 
 				break;
 			}
@@ -74,17 +64,11 @@
 			}
 			
 		}
+		
 	});
+	Titanium.UI.currentWindow.addView(tableView);
+	Titanium.UI.currentWindow.showView(tableView);
 	
-	// 
-	// create flex space for formatting toolbar 
-	//
-	var flexSpace = Titanium.UI.createButton({
-		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
-	});
-
-	// set toolbar
-	Titanium.UI.currentWindow.setToolbar([flexSpace,buttonBar,flexSpace]);
 	
 	</script>
 </body>

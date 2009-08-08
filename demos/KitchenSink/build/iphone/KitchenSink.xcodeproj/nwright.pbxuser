@@ -6,11 +6,18 @@
 			25D02B9E0FFD233F001F631B /* KitchenSink */,
 		);
 	};
-	252FFF9910164F5000DF1D9B /* PBXBookmark */ = {
-		isa = PBXBookmark;
-		fRef = 259A152C0FDB01B5000372D8 /* Resources/Entitlements.plist */;
-	};
 	252FFF9A10164F5000DF1D9B /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 259A152C0FDB01B5000372D8 /* Resources/Entitlements.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = /Users/nwright/Appcelerator/TIDEV/titanium_mobile/demos/KitchenSink/build/iphone/Resources/Entitlements.plist;
+		rLen = 0;
+		rLoc = 2147483647;
+	};
+	25B4E61D102A3CD600E3BCBB /* PlistBookmark */ = {
 		isa = PlistBookmark;
 		fRef = 259A152C0FDB01B5000372D8 /* Resources/Entitlements.plist */;
 		fallbackIsa = PBXBookmark;
@@ -34,6 +41,7 @@
 		customDataFormattersEnabled = 1;
 		debuggerPlugin = GDBDebugging;
 		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
 		enableDebugStr = 1;
 		environmentEntries = (
 		);
@@ -41,8 +49,12 @@
 		executableUserSymbolLevel = 0;
 		libgmallocEnabled = 0;
 		name = KitchenSink;
+		savedGlobals = {
+		};
 		sourceDirectories = (
 		);
+		variableFormatDictionary = {
+		};
 	};
 	25D02C7F0FFD2363001F631B /* Source Control */ = {
 		isa = PBXSourceControlManager;
@@ -58,6 +70,7 @@
 	29B97313FDCFA39411CA2CEA /* Project object */ = {
 		activeBuildConfigurationName = Release;
 		activeExecutable = 25D02B9E0FFD233F001F631B /* KitchenSink */;
+		activeSDKPreference = iphonesimulator3.0;
 		activeTarget = 1D6058900D05DD3D006BFB54 /* KitchenSink */;
 		codeSenseManager = 25D02C800FFD2363001F631B /* Code sense */;
 		executables = (
@@ -86,12 +99,12 @@
 					PBXFileDataSource_Target_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 269897469;
-			PBXWorkspaceStateSaveDate = 269897469;
+			PBXPerProjectTemplateStateSaveDate = 271203401;
+			PBXWorkspaceStateSaveDate = 271203401;
 		};
 		perUserProjectItems = {
-			252FFF9910164F5000DF1D9B /* PBXBookmark */ = 252FFF9910164F5000DF1D9B /* PBXBookmark */;
 			252FFF9A10164F5000DF1D9B /* PlistBookmark */ = 252FFF9A10164F5000DF1D9B /* PlistBookmark */;
+			25B4E61D102A3CD600E3BCBB /* PlistBookmark */ = 25B4E61D102A3CD600E3BCBB /* PlistBookmark */;
 		};
 		sourceControlManager = 25D02C7F0FFD2363001F631B /* Source Control */;
 		userBuildSettings = {

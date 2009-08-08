@@ -15,7 +15,8 @@
 		{title:'Accelerometer', hasChild:true},
 		{title:'Sound',hasChild:true},
 		{title:'Shake',hasChild:true},
-		{title:'Email Client (iPhone)',hasChild:true},
+		{title:'Email Client',hasChild:true},
+		{title:'Save to Gallery'},
 		
 	];
 	
@@ -84,6 +85,11 @@
 			{
 				var win = Titanium.UI.createWindow({url:'email.html',title:'Email', barColor:'#336699'});
 				win.open({animated:true});
+				break;
+			}
+			case 10:
+			{
+				savePhoto();
 				break;
 			}
 
@@ -213,6 +219,50 @@
 			allowImageEditing:true
 		});
 		
+	};
+
+
+	//
+	// show camera
+	// 
+	function savePhoto()
+	{
+		Titanium.Media.showCamera({
+
+			success:function(image,details)
+			{
+				Titanium.Media.saveToPhotoGallery(image);
+			},
+			cancel:function()
+			{
+
+			},
+			error:function(error)
+			{
+				// create alert
+				var a = Titanium.UI.createAlertDialog();
+
+				// set title
+				a.setTitle('Camera Error');
+
+				// set message
+				if (error.code = Titanium.Media.NO_CAMERA)
+				{
+					a.setMessage('Device does not have camera');
+				}
+				else
+				{
+					a.setMessage('Unexpected error: ' + error.code);
+				}
+
+				// set button names
+				a.setButtonNames(['OK']);
+
+				// show alert
+				a.show();
+			},
+			allowImageEditing:true
+		});
 	};
 	
 	</script>

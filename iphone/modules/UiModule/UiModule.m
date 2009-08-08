@@ -21,6 +21,15 @@
 @class MFMailComposeViewController;
 #endif
 
+NSString * UrlEncodeString(NSString * string)
+{
+	NSString *out = [string stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+	out = [out stringByReplacingOccurrencesOfString:@"'" withString:@"%27"];
+	//out = [out stringByReplacingOccurrencesOfString:@" " withString:@"+"];
+	return out;
+}
+
+
 BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view)
 {
 	if(![optionObject isKindOfClass:[NSDictionary class]])return NO;
@@ -961,10 +970,11 @@ int barButtonSystemItemForString(NSString * inputString){
 @interface EmailComposerProxy : TitaniumProxyObject<MFMailComposeViewControllerDelegate>
 {
 	BOOL animated;
+	NSDictionary * propertyDict;
 	MFMailComposeViewController * emailComposer;
 	NSURL * urlVersion;
 }
-
+@property(nonatomic,readwrite,retain)	NSDictionary * propertyDict;
 @property(nonatomic,readwrite,assign)	BOOL animated;
 
 - (void) setPropertyDict: (NSDictionary *) newDict;
@@ -973,16 +983,26 @@ int barButtonSystemItemForString(NSString * inputString){
 @end
 
 @implementation EmailComposerProxy
-@synthesize animated;
+@synthesize animated,propertyDict;
 
 - (id) init
 {
+	NSLog(@"Initing emailcomposerproxy");
 	self = [super init];
 	if (self != nil) {
 		animated = YES;
 	}
 	return self;
 }
+
+- (void) dealloc
+{
+	NSLog(@"Deallocing emailcomposer");
+	[emailComposer release];
+	[urlVersion release];
+	[super dealloc];
+}
+
 
 - (NSString *) sanitizeString:(id) inputObject;
 {
@@ -1008,19 +1028,20 @@ int barButtonSystemItemForString(NSString * inputString){
 	return nil;
 }
 
-- (void) setPropertyDict: (NSDictionary *) newDict;
+- (void) performComposition;
 {
-	[self setToken:[self sanitizeString:[newDict objectForKey:@"_TOKEN"]]];
+	[self setToken:[self sanitizeString:[propertyDict objectForKey:@"_TOKEN"]]];
 	Class mailClass = NSClassFromString(@"MFMailComposeViewController");
-	NSString * subject = [self sanitizeString:[newDict objectForKey:@"subject"]];
-	NSArray * toArray = [self sanitizeArray:[newDict objectForKey:@"toRecipients"]];
-	NSArray * bccArray = [self sanitizeArray:[newDict objectForKey:@"bccRecipients"]];
-	NSArray * ccArray = [self sanitizeArray:[newDict objectForKey:@"ccRecipients"]];
-	NSString * message = [self sanitizeString:[newDict objectForKey:@"messageBody"]];
-	NSArray * attachmentArray = [newDict objectForKey:@"attachments"];
+	NSString * subject = [self sanitizeString:[propertyDict objectForKey:@"subject"]];
+	NSArray * toArray = [self sanitizeArray:[propertyDict objectForKey:@"toRecipients"]];
+	NSArray * bccArray = [self sanitizeArray:[propertyDict objectForKey:@"bccRecipients"]];
+	NSArray * ccArray = [self sanitizeArray:[propertyDict objectForKey:@"ccRecipients"]];
+	NSString * message = [self sanitizeString:[propertyDict objectForKey:@"messageBody"]];
+	NSArray * attachmentArray = [propertyDict objectForKey:@"attachments"];
 	
 	if ((mailClass != nil) && [mailClass canSendMail]){
 		if(emailComposer==nil){
+			NSLog(@"Creating emailcomposer");
 			emailComposer = [[mailClass alloc] init];
 			[emailComposer setMailComposeDelegate:self];
 		}
@@ -1033,41 +1054,40 @@ int barButtonSystemItemForString(NSString * inputString){
 			for (id thisAttachment in attachmentArray){
 				if ([thisAttachment isKindOfClass:[TitaniumBlobWrapper class]]){
 					[emailComposer addAttachmentData:[(TitaniumBlobWrapper *)thisAttachment dataBlob]
-							mimeType:[(TitaniumBlobWrapper *)thisAttachment mimeType]
-							fileName:[(TitaniumBlobWrapper *)thisAttachment virtualFileName]];
+											mimeType:[(TitaniumBlobWrapper *)thisAttachment mimeType]
+											fileName:[(TitaniumBlobWrapper *)thisAttachment virtualFileName]];
 				}
 			}
 		}
+		UIViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[self parentPageToken]];
+		[[ourVC navigationController] presentModalViewController:emailComposer animated:animated];
+		[self retain];
+		
 		return;
 	}
-
-	[urlVersion release];
-
-	SBJSON * encoder = [[SBJSON alloc] init];
-	NSMutableString * resultString = [[NSMutableString alloc] initWithFormat:@"mailto:%@?",[encoder stringWithFragment:[toArray componentsJoinedByString:@","] error:nil]];
-
-	if(ccArray)[resultString appendFormat:@"cc=%@&",[encoder stringWithFragment:[ccArray componentsJoinedByString:@","] error:nil]];
-
-	if(bccArray)[resultString appendFormat:@"bcc=%@&",[encoder stringWithFragment:[bccArray componentsJoinedByString:@","] error:nil]];
-
-	if(subject)[resultString appendFormat:@"subject=%@&",[encoder stringWithFragment:subject error:nil]];
-
-	if(message)[resultString appendFormat:@"body=%@",[encoder stringWithFragment:message error:nil]];
 	
-	[encoder release];
+	[urlVersion release];
+	
+	NSMutableString * resultString = [[NSMutableString alloc] initWithFormat:@"mailto:%@?",UrlEncodeString([toArray componentsJoinedByString:@","])];
+	
+	if(ccArray)[resultString appendFormat:@"cc=%@&",UrlEncodeString([ccArray componentsJoinedByString:@","])];
+	
+	if(bccArray)[resultString appendFormat:@"bcc=%@&",UrlEncodeString([bccArray componentsJoinedByString:@","])];
+	
+	if(subject)[resultString appendFormat:@"subject=%@&",UrlEncodeString(subject)];
+	
+	if(message)[resultString appendFormat:@"body=%@",UrlEncodeString(message)];
+	
 	urlVersion = [[NSURL alloc] initWithString:resultString];
-	[resultString release];
-}
-
-- (void) performComposition;
-{
-	if (urlVersion != nil){
-		[[UIApplication sharedApplication] openURL:urlVersion];
-		[self autorelease];
-		return;
+	
+	if(urlVersion==nil){
+		NSLog(@"UiModule: Trying to generate an email url failed. Url \"%@\" came from dict %@",resultString,propertyDict);
 	}
-	UIViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[self parentPageToken]];
-	[[ourVC navigationController] presentModalViewController:emailComposer animated:animated];
+	
+	[resultString release];
+	
+	NSLog(@"Since we don't have access to MFMailComposeViewController, we're launching %@ instead.",urlVersion);
+	[[UIApplication sharedApplication] openURL:urlVersion];
 }
 
 #ifndef __IPHONE_3_0
@@ -1102,6 +1122,8 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	
 	UIViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[self parentPageToken]];
 	[[ourVC navigationController] dismissModalViewControllerAnimated:animated];
+	[emailComposer release];
+	emailComposer = nil;
 	[self autorelease];
 }
 
@@ -1636,6 +1658,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	}
 	
 	[ourProxy performSelectorOnMainThread:@selector(performComposition) withObject:nil waitUntilDone:NO];
+	[ourProxy release];
 }
 
 
@@ -1764,7 +1787,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 
 	NSString * currentViewString = @"{_EVT:{load:[],focused:[],unfocused:[]},_TOKEN:Ti._TOKEN,_TYPE:'web',"
 			"setURL:function(newUrl){Ti.UI._WURL(Ti._TOKEN,newUrl,document.location);},"
-			"doEvent:Ti:_ONEVT,addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,}";
+			"doEvent:Ti._ONEVT,addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT}";
 
 	TitaniumJSCode * currentWindowScript = [TitaniumJSCode codeWithString:@"{"
 			"toolbar:{},_EVT:{close:[],unfocused:[],focused:[]},doEvent:Ti._ONEVT,"
@@ -1782,6 +1805,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 			"setRightNavButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WNAVBTN(Ti._TOKEN,false,btn,args);},"
 //TODO: Handling views with CurrentWindow
 			"addView:function(newView,args){newView.ensureToken();Ti.UI._WSVIEWS(Ti._TOKEN,[newView],false,args);},"
+			"getViewByName:function(name){var views=this.getViews();for(var i=0;i<views.length;i++){if(views[i].name==name)return views[i];}return null;},"
 			"getViews:function(){return Ti.UI.viewsForWindowToken(Ti._TOKEN);},"
 //			"setViews:function(newViews,args){"
 //				"for(var i=0;i<newViews.length;i++){newViews.ensureToken();}"
@@ -1832,17 +1856,19 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 			"res.showView=function(blessedView,args){if(!this.views)return;var newIndex=0;var viewCount=this.views.length;"
 				"for(var i=0;i<viewCount;i++){if(this.views[i]._TOKEN==blessedView._TOKEN){self.setActiveViewIndex(i,args);return;}}};"
 			"res.open=function(args){"
+				"this.ensureToken();"
 				"if(this.views){for(var i=0;i<this.views.length;i++){this.views[i].ensureToken();}}"
-				"if(this.data){var data=this.data;var i=data.length;while(i>0){i--;var inp=data[i].input;if(inp)inp.ensureToken();}};"
-				"if(this.sections){var grp=this.sections;var j=grp.length;while(j>0){j--;var data=grp[j].data;var i=data.length;"
-					"while(i>0){i--;var inp=data[i].input;if(inp)inp.ensureToken();}"
-				"}};"
 				"var res=Ti.UI._OPN(this,args);this._TOKEN=res;};"
 			"res.setToolbar=function(bar,args){if(bar){var i=bar.length;while(i>0){i--;bar[i].ensureToken();};};"
 				"this.toolbar=bar;"
 				"if(this._TOKEN){"
 					"Ti.UI._WTOOL(this._TOKEN,bar,args);}};"
-			"res.ensureToken=function(){if(this._TOKEN)return;var tkn=Ti.UI._VTOKEN();this._TOKEN=tkn;Ti.UI._VIEW[tkn]=this;};"
+			"res.ensureToken=function(){"
+				"if(this.data){var data=this.data;var i=data.length;while(i>0){i--;var inp=data[i].input;if(inp)inp.ensureToken();}};"
+				"if(this.sections){var grp=this.sections;var j=grp.length;while(j>0){j--;var data=grp[j].data;var i=data.length;"
+				"while(i>0){i--;var inp=data[i].input;if(inp)inp.ensureToken();}"
+				"}};"
+				"if(this._TOKEN)return;var tkn=Ti.UI._VTOKEN();this._TOKEN=tkn;Ti.UI._VIEW[tkn]=this;};"
 			"res.update=function(args){if(!this._TOKEN)return;Ti.UI._WUPDATE(this,args);};"
 			"if(res.rightNavButton)res.setRightNavButton(res.rightNavButton);"
 			"if(res.leftNavButton)res.setLeftNavButton(res.leftNavButton);"
@@ -2033,6 +2059,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 			emailComposeInvoc,@"_OPNEMAIL",
 			[TitaniumJSCode codeWithString:createEmailString],@"createEmailDialog",
 			currentWindowScript,@"currentWindow",
+			[TitaniumJSCode codeWithString:currentViewString],@"currentView",
 			[TitaniumJSCode codeWithString:createWindowString],@"createWindow",
 			[TitaniumJSCode codeWithString:createWebViewString],@"createWebView",
 			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",

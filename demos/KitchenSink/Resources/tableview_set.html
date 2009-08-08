@@ -9,9 +9,9 @@
 	<script>
 	// create table view data
 	var data = [
-		{title:'Row1', header:'Section 0'},
-		{title:'Row2'},
-		{title:'Row3'},
+		{title:'Set TableView 1', header:'Section 0'},
+		{title:'Set TableView 2'},
+		{title:'Set TableView 3'},
 		{title:'Row4'},
 		{title:'Row5'},
 		{title:'Row6'},
@@ -30,29 +30,18 @@
 	//
 	// Create table view
 	//
-	var tableView = Titanium.UI.createTableView({data:data});
-	Titanium.UI.currentWindow.addView(tableView);
-	Titanium.UI.currentWindow.showView(tableView);
-	
-	//
-	//  Create button bar
-	//
-	var buttonBar = Titanium.UI.createButtonBar({
-		id:'buttonbar', 
-		labels:['one', 'two','three']
-	});
-	buttonBar.addEventListener('click',function(e)
+	var tableView = Titanium.UI.createTableView({data:data},function(e)
 	{
 		switch(e.index)
 		{
 			case 0:
 			{
 				var data = [
-					{html:'<div style="font-family:Helvetica Neue">Row 1</div> ', hasDetail:true, header:'Section 0'},
+					{html:'<div style="font-family:Helvetica Neue">Set TableView 1</div>', hasDetail:true, header:'Section 0'},
 
-					{html:'<div style="font-family:Helvetica Neue">Row 2</div> ', hasChild:true},
+					{html:'<div style="font-family:Helvetica Neue">Set TableView 2</div> ', hasChild:true},
 
-					{html:'<div style="font-family:Helvetica Neue">Row 3</div> '},
+					{html:'<div style="font-family:Helvetica Neue">Set TableView 3</div> '},
 
 					{html:'<div style="font-family:Helvetica Neue">Row 4</div> '},
 
@@ -77,9 +66,9 @@
 			case 1:
 			{
 				var data = [
-					{title:'Row 1',hasDetail:true, image:'Phone.png'},
-					{title:'Row 2', hasChild:true, image:'Safari.png'},
-					{title:'Row 3', image:'iTunes.png'},
+					{title:'Set TableView 1',hasDetail:true, image:'Phone.png'},
+					{title:'Set TableView 2', hasChild:true, image:'Safari.png'},
+					{title:'Set TableView 3', image:'iTunes.png'},
 					{title:'Row 4', image:'Mail.png'},
 					{title:'Row 5', image:'Mail.png'},
 					{title:'Row 7', image:'Mail.png'}
@@ -92,9 +81,9 @@
 			case 2:
 			{
 				var data = [
-					{title:'Row 1'},
-					{title:'Row 2'},
-					{title:'Row 3'},
+					{title:'Set TableView 1'},
+					{title:'Set TableView 2'},
+					{title:'Set TableView 3'},
 					{title:'Row 4'},
 					{title:'Row 5'},
 					{title:'Row 6'},
@@ -109,17 +98,11 @@
 			}
 			
 		}
+			
 	});
+	Titanium.UI.currentWindow.addView(tableView);
+	Titanium.UI.currentWindow.showView(tableView);
 	
-	// 
-	// create flex space for formatting toolbar 
-	//
-	var flexSpace = Titanium.UI.createButton({
-		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
-	});
-
-	// set toolbar
-	Titanium.UI.currentWindow.setToolbar([flexSpace,buttonBar,flexSpace]);
 	
 	</script>
 </body>

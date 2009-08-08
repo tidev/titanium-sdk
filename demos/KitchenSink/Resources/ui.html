@@ -21,7 +21,6 @@
 		{title:'TableView - Add',hasChild:true},
 		{title:'TableView - Update',hasChild:true},
 		{title:'TableView - Set',hasChild:true},
-		{title:'TableView - Mix',hasChild:true},
 		{title:'Fullscreen (iPhone)',hasChild:true},
 		{title:'Status Bar (iPhone)',hasChild:true},
 		{title:'Set Badge Icon (iPhone)'},
@@ -41,7 +40,9 @@
 		{title:'Tabbar - Hide (iPhone)',hasChild:true},
 		{title:'Open (animated false) (iPhone)',hasChild:true},
 		{title:'Notifications (Android)'},
-		{title:'Menu (Android)'}
+		{title:'Menu (Android)'},
+		{title:'Dynamic Content', hasChild:true},
+		{title:'Control Animation (iPhone)', hasChild:true}
 		
 	];
 	
@@ -360,6 +361,19 @@
 				
 			}
 			
+			case 35:
+			{
+				var win = Titanium.UI.createWindow({url:'dynamic_content.html',title:'Dynamic Content'});
+				win.open({animated:true});		
+				break;
+			}
+
+			case 36:
+			{
+				var win = Titanium.UI.createWindow({url:'control_animation.html',title:'Control Animation'});
+				win.open({animated:true});		
+				break;
+			}
 
 		}
 	});

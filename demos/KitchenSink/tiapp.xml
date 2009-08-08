@@ -40,5 +40,5 @@
 			<orientation>either</orientation>
         </window>
     </windows>
-    <property name="ti.android.debug" type="bool">true</property>
+<name>KitchenSink</name>
 </ti:app>

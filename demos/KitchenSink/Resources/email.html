@@ -14,14 +14,29 @@
 	<script>
 	document.getElementById('1').onclick = function()
 	{
-		var emailDialog = Titanium.UI.createEmailDialog()
-		emailDialog.setSubject('foo');
-		emailDialog.setToRecipients(['fred@gmail.com', 'joe@hotmail.com']);
-		emailDialog.setCcRecipients(['joe@gmail.com']);
-		emailDialog.setBccRecipients(['obama@whitehouse.gov']);
-		emailDialog.setMessageBody('my body string');
-		emailDialog.addAttachment({mimeType:'image/jpeg', file:'path/to/image'});
-		emailDialog.open();
+		Titanium.Media.openPhotoGallery({
+			success: function(image,details)
+			{
+				var emailDialog = Titanium.UI.createEmailDialog()
+				emailDialog.setSubject('foo');
+				emailDialog.setToRecipients(['nolan11169@yahoo.com']);
+				emailDialog.setCcRecipients(['nwright@appcelerator.com']);
+				emailDialog.setBccRecipients(['obama@whitehouse.gov']);
+				emailDialog.setMessageBody('this is a test message');
+				emailDialog.addAttachment({mimeType:'image/png', file:image});
+				emailDialog.open();
+
+			},
+			error: function(error)
+			{
+			},
+			cancel: function()
+			{
+
+			},
+			allowImageEditing:true
+		});
+		
 	};
 
 	</script>
