@@ -41,8 +41,7 @@
 		{title:'Open (animated false) (iPhone)',hasChild:true},
 		{title:'Notifications (Android)'},
 		{title:'Menu (Android)'},
-		{title:'Dynamic Content', hasChild:true},
-		{title:'Control Animation (iPhone)', hasChild:true}
+		{title:'Dynamic Content', hasChild:true}
 		
 	];
 	
@@ -364,13 +363,6 @@
 			case 35:
 			{
 				var win = Titanium.UI.createWindow({url:'dynamic_content.html',title:'Dynamic Content'});
-				win.open({animated:true});		
-				break;
-			}
-
-			case 36:
-			{
-				var win = Titanium.UI.createWindow({url:'control_animation.html',title:'Control Animation'});
 				win.open({animated:true});		
 				break;
 			}
