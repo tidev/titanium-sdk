@@ -311,15 +311,20 @@ public class TitaniumActivity extends Activity
 				String options = (String) msg.obj;
 
 				synchronized(views) {
+					int currentIndex = activeViewIndex;
 					activeViewIndex = index;
+					ITitaniumView tiCurrent = null;
+					if (currentIndex >= 0 && currentIndex < views.size()) {
+						tiCurrent = views.get(currentIndex);
+					}
 					ITitaniumView tiView = views.get(index);
 					View newView = tiView.getNativeView();
 					View current = layout.getCurrentView();
 					if (current != newView) {
 						if (newView != null) {
-							if (current != null) {
-								if (current instanceof ITitaniumView) {
-									((ITitaniumView) current).hiding();
+							if (tiCurrent != null) {
+								if (tiCurrent instanceof ITitaniumView) {
+									tiCurrent.hiding();
 								}
 							}
 							tiView.showing();
@@ -539,6 +544,12 @@ public class TitaniumActivity extends Activity
     		}
     	}
     	return tiView;
+    }
+
+    public int getActiveViewIndex() {
+    	synchronized(views) {
+    		return activeViewIndex;
+    	}
     }
 
     public void setActiveView(int index, String options) {

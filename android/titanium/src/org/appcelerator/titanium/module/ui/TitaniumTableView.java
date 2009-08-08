@@ -8,6 +8,7 @@ import org.appcelerator.titanium.api.ITitaniumTableView;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.module.ui.tableview.TableViewModel;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -42,6 +43,11 @@ public class TitaniumTableView extends FrameLayout
 
 	private static final String MSG_EXTRA_CALLBACK = "cb";
 
+	public static final String EVENT_FOCUSED = "focused";
+	public static final String EVENT_FOCUSED_JSON = "{type:'" + EVENT_FOCUSED + "'}";
+	public static final String EVENT_UNFOCUSED = "unfocused";
+	public static final String EVENT_UNFOCUSED_JSON = "{type:'" + EVENT_UNFOCUSED + "'}";
+
 	private TitaniumModuleManager tmm;
 	private int rowHeight;
 	private Handler handler;
@@ -53,6 +59,7 @@ public class TitaniumTableView extends FrameLayout
 	boolean hasBeenOpened;
 	private TTVListAdapter adapter;
 	private ListView view;
+	private TitaniumJSEventManager eventListeners;
 
 	private Runnable dataSetChanged = new Runnable() {
 
@@ -141,6 +148,10 @@ public class TitaniumTableView extends FrameLayout
 		this.root = false;
 		this.viewModel = new TableViewModel();
 		this.hasBeenOpened = false;
+
+		this.eventListeners = new TitaniumJSEventManager(tmm);
+		this.eventListeners.supportEvent(EVENT_FOCUSED);
+		this.eventListeners.supportEvent(EVENT_UNFOCUSED);
 	}
 
 	public void setData(String data) {
@@ -251,6 +262,7 @@ public class TitaniumTableView extends FrameLayout
 		switch(msg.what) {
 		case MSG_OPEN:
 			doOpen(b.getString(MSG_EXTRA_CALLBACK));
+			eventListeners.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
 			return true;
 		case MSG_CLOSE:
 			doClose();
@@ -292,11 +304,21 @@ public class TitaniumTableView extends FrameLayout
 			Message m = handler.obtainMessage(MSG_OPEN);
 			m.getData().putString(MSG_EXTRA_CALLBACK, callback);
 			m.sendToTarget();
+		} else {
+			eventListeners.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
 		}
 	}
 
 	public void hiding() {
+		eventListeners.invokeSuccessListeners(EVENT_UNFOCUSED, EVENT_UNFOCUSED_JSON);
+	}
 
+	public int addEventListener(String eventName, String listener) {
+		return eventListeners.addListener(eventName, listener);
+	}
+
+	public void removeEventListener(String eventName, int listenerId) {
+		eventListeners.removeListener(eventName, listenerId);
 	}
 
 	private void doOpen(final String callback)

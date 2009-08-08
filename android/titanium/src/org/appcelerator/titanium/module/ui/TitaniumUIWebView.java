@@ -6,6 +6,7 @@ import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumUIWebView;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
+import org.appcelerator.titanium.util.TitaniumJSEventManager;
 
 import android.content.res.Configuration;
 import android.os.Handler;
@@ -21,6 +22,11 @@ public class TitaniumUIWebView
 {
 	private static final String LCAT = "TitaniumUIWebView";
 
+	public static final String EVENT_FOCUSED = "focused";
+	public static final String EVENT_FOCUSED_JSON = "{type:'" + EVENT_FOCUSED + "'}";
+	public static final String EVENT_UNFOCUSED = "unfocused";
+	public static final String EVENT_UNFOCUSED_JSON = "{type:'" + EVENT_UNFOCUSED + "'}";
+
 	private static final int MSG_SHOWING = 300;
 	private static final int MSG_CONFIG = 301;
 
@@ -31,11 +37,16 @@ public class TitaniumUIWebView
 	private String name;
 	private String openJSON;
 	private boolean hasBeenOpened;
+	private TitaniumJSEventManager eventListeners;
 
 	public TitaniumUIWebView(TitaniumModuleManager tmm) {
 		this.tmm = tmm;
 		handler = new Handler(this);
 		this.hasBeenOpened = false;
+
+		this.eventListeners = new TitaniumJSEventManager(tmm);
+		this.eventListeners.supportEvent(EVENT_FOCUSED);
+		this.eventListeners.supportEvent(EVENT_UNFOCUSED);
 	}
 
 	public boolean handleMessage(Message msg) {
@@ -44,7 +55,7 @@ public class TitaniumUIWebView
 			if (!URLUtil.isNetworkUrl(url)) {
 				TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getActivity());
 				u = tfh.getResourceUrl(url);
-				view = new TitaniumWebView(tmm.getActivity(), u, true);
+				view = new TitaniumWebView(tmm.getActivity(), u, this);
 			} else {
 				view = new WebView(tmm.getActivity());
 			}
@@ -72,12 +83,21 @@ public class TitaniumUIWebView
 	public void showing() {
 		if (!hasBeenOpened) {
 			handler.obtainMessage(MSG_SHOWING).sendToTarget();
+		} else {
+			eventListeners.invokeSuccessListeners((TitaniumWebView) view, EVENT_FOCUSED, EVENT_FOCUSED_JSON);
 		}
 	}
 
 	public void hiding() {
-		// TODO Auto-generated method stub
+		eventListeners.invokeSuccessListeners((TitaniumWebView) view, EVENT_UNFOCUSED, EVENT_UNFOCUSED_JSON);
+	}
 
+	public int addEventListener(String eventName, String listener) {
+		return eventListeners.addListener(eventName, listener);
+	}
+
+	public void removeEventListener(String eventName, int listenerId) {
+		eventListeners.removeListener(eventName, listenerId);
 	}
 
 	public void dispatchConfigurationChange(Configuration newConfig) {

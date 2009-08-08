@@ -10,7 +10,7 @@ import org.json.JSONObject;
 public class TableViewModel
 {
 	private static final String LCAT = "TableViewModel";
-	private static final boolean DUMP = true;
+	private static final boolean DUMP = false;
 
 	// Flat view
 

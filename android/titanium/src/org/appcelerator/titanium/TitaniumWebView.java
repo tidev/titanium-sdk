@@ -1,6 +1,7 @@
 package org.appcelerator.titanium;
 
 import java.io.IOException;
+import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.Semaphore;
@@ -29,8 +30,10 @@ import org.appcelerator.titanium.module.TitaniumPlatform;
 import org.appcelerator.titanium.module.TitaniumUI;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
 import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
+import org.appcelerator.titanium.module.ui.TitaniumUIWebView;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
+import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.appcelerator.titanium.util.TitaniumUrlHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -62,6 +65,11 @@ public class TitaniumWebView extends WebView
 	private static final String JAVASCRIPT = "javascript:";
 	private static final String TITANIUM_CALLBACK = "Titanium.callbacks"; //Sent from ti.js
 
+	public static final String EVENT_FOCUSED = "focused";
+	public static final String EVENT_FOCUSED_JSON = "{type:'" + EVENT_FOCUSED + "'}";
+	public static final String EVENT_UNFOCUSED = "unfocused";
+	public static final String EVENT_UNFOCUSED_JSON = "{type:'" + EVENT_UNFOCUSED + "'}";
+
 	public static final int MSG_RUN_JAVASCRIPT = 300;
 	public static final int MSG_LOAD_FROM_SOURCE = 301;
 	public static final int MSG_ADD_CONTROL = 302;
@@ -88,6 +96,8 @@ public class TitaniumWebView extends WebView
 	private Semaphore sourceReady;
 	private boolean useAsView;
 	private boolean hasBeenOpened;
+	private TitaniumJSEventManager eventListeners;
+	private SoftReference<TitaniumUIWebView> softUIWebView;
 
 	private HashSet<OnConfigChange> configurationChangeListeners;
 
@@ -98,14 +108,17 @@ public class TitaniumWebView extends WebView
 	private HashMap<Integer, String> optionMenuCallbacks;
 
 	public TitaniumWebView(TitaniumActivity activity, String url) {
-		this(activity, url, false);
+		this(activity, url, null);
 	}
 
-	public TitaniumWebView(TitaniumActivity activity, String url, boolean useAsView)
+	public TitaniumWebView(TitaniumActivity activity, String url, TitaniumUIWebView uiWebView)
 	{
 		super(activity);
 
-		this.useAsView = useAsView;
+		this.useAsView = uiWebView != null;
+		if (this.useAsView) {
+			softUIWebView = new SoftReference<TitaniumUIWebView>(uiWebView);
+		}
 		this.hasBeenOpened = false;
 
 		this.handler = new Handler(this);
@@ -115,6 +128,10 @@ public class TitaniumWebView extends WebView
         this.tmm = new TitaniumModuleManager(activity, this);
         this.url = url;
 		this.configurationChangeListeners = new HashSet<OnConfigChange>();
+
+		this.eventListeners = new TitaniumJSEventManager(tmm);
+		this.eventListeners.supportEvent(EVENT_FOCUSED);
+		this.eventListeners.supportEvent(EVENT_UNFOCUSED);
 
         setWebViewClient(new TiWebViewClient(activity));
         setWebChromeClient(new TiWebChromeClient(activity, useAsView));
@@ -576,11 +593,28 @@ public class TitaniumWebView extends WebView
 	public void showing() {
 		if (!hasBeenOpened) {
 			buildWebView();
+		} else {
+			if (useAsView) {
+				TitaniumUIWebView wv = softUIWebView.get();
+				if (wv != null) {
+					wv.showing();
+				}
+			} else {
+				eventListeners.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
+			}
 		}
 	}
 
 	public void hiding() {
-		// This is handled in the TitaniumUIWebView
+		eventListeners.invokeSuccessListeners(EVENT_UNFOCUSED, EVENT_UNFOCUSED_JSON);
+	}
+
+	public int addEventListener(String eventName, String listener) {
+		return eventListeners.addListener(eventName, listener);
+	}
+
+	public void removeEventListener(String eventName, int listenerId) {
+		eventListeners.removeListener(eventName, listenerId);
 	}
 
 	public void dispatchWindowFocusChanged(boolean hasFocus) {
@@ -702,5 +736,4 @@ public class TitaniumWebView extends WebView
 	public void onResume() {
 		tmm.onResume();
 	}
-
 }

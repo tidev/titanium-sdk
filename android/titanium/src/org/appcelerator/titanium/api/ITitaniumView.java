@@ -14,6 +14,10 @@ public interface ITitaniumView
 	void showing();
 	void hiding();
 
+	int addEventListener(String eventName, String listener);
+	void removeEventListener(String eventName, int listenerId);
+
+
 	void dispatchWindowFocusChanged(boolean hasFocus);
 	void dispatchConfigurationChange(Configuration newConfig);
 
