@@ -1,11 +1,14 @@
 package org.appcelerator.titanium.module.ui;
 
+import java.util.concurrent.Semaphore;
+
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumTableView;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.module.ui.tableview.TableViewModel;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,8 +34,19 @@ public class TitaniumTableView extends FrameLayout
 
 	private static final int MSG_OPEN = 300;
 	private static final int MSG_CLOSE = 301;
+	private static final int MSG_SETDATA = 302;
+	private static final int MSG_DELETEROW = 303;
+	private static final int MSG_UPDATEROW = 304;
+	private static final int MSG_INSERTBEFORE = 305;
+	private static final int MSG_INSERTAFTER = 306;
+	private static final int MSG_INDEXBYNAME = 307;
 
 	private static final String MSG_EXTRA_CALLBACK = "cb";
+
+	public static final String EVENT_FOCUSED = "focused";
+	public static final String EVENT_FOCUSED_JSON = "{type:'" + EVENT_FOCUSED + "'}";
+	public static final String EVENT_UNFOCUSED = "unfocused";
+	public static final String EVENT_UNFOCUSED_JSON = "{type:'" + EVENT_UNFOCUSED + "'}";
 
 	private TitaniumModuleManager tmm;
 	private int rowHeight;
@@ -43,6 +57,19 @@ public class TitaniumTableView extends FrameLayout
 	private String callback;
 	private TableViewModel viewModel;
 	boolean hasBeenOpened;
+	private TTVListAdapter adapter;
+	private ListView view;
+	private TitaniumJSEventManager eventListeners;
+
+	private Runnable dataSetChanged = new Runnable() {
+
+		public void run() {
+			if (adapter != null) {
+				adapter.notifyDataSetChanged();
+			}
+		}
+
+	};
 
 	class TTVListAdapter extends BaseAdapter
 	{
@@ -103,6 +130,14 @@ public class TitaniumTableView extends FrameLayout
 		}
 	}
 
+	class IndexHolder extends Semaphore {
+		private static final long serialVersionUID = 1L;
+		public IndexHolder() {
+			super(0);
+		}
+		public int index;
+	}
+
 	public TitaniumTableView(TitaniumModuleManager tmm, int themeId)
 	{
 		super(tmm.getActivity(), null, themeId);
@@ -113,41 +148,89 @@ public class TitaniumTableView extends FrameLayout
 		this.root = false;
 		this.viewModel = new TableViewModel();
 		this.hasBeenOpened = false;
+
+		this.eventListeners = new TitaniumJSEventManager(tmm);
+		this.eventListeners.supportEvent(EVENT_FOCUSED);
+		this.eventListeners.supportEvent(EVENT_UNFOCUSED);
 	}
 
 	public void setData(String data) {
+		handler.obtainMessage(MSG_SETDATA, data).sendToTarget();
+	}
+
+	public void doSetData(String data) {
 		viewModel.setData(data);
+		handler.post(dataSetChanged);
 	}
 
 	public void deleteRow(int index) {
+		handler.obtainMessage(MSG_DELETEROW, index, -1).sendToTarget();
+	}
+
+	public void doDeleteRow(int index) {
 		viewModel.deleteItem(index);
+		handler.post(dataSetChanged);
 	}
 
 	public void insertRowAfter(int index, String json) {
+		handler.obtainMessage(MSG_INSERTAFTER, index, -1, json).sendToTarget();
+	}
+
+	public void doInsertRowAfter(int index, String json) {
 		try {
 			viewModel.insertItemAfter(index, new JSONObject(json));
+			handler.post(dataSetChanged);
 		} catch (JSONException e) {
 			Log.e(LCAT, "Error trying to insert row: ", e);
 		}
 	}
 
 	public void insertRowBefore(int index, String json) {
+		handler.obtainMessage(MSG_INSERTBEFORE, index, -1, json).sendToTarget();
+	}
+
+	public void doInsertRowBefore(int index, String json) {
 		try {
 			viewModel.insertItemBefore(index, new JSONObject(json));
+			handler.post(dataSetChanged);
 		} catch (JSONException e) {
 			Log.e(LCAT, "Error trying to insert row: ", e);
 		}
 	}
 
 	public void updateRow(int index, String json) {
+		handler.obtainMessage(MSG_UPDATEROW, index, -1, json).sendToTarget();
+	}
+
+	public void doUpdateRow(int index, String json) {
 		try {
 			viewModel.updateItem(index, new JSONObject(json));
+			handler.post(dataSetChanged);
 		} catch (JSONException e) {
 			Log.e(LCAT, "Error trying to update row: ", e);
 		}
 	}
 
+	public int getRowCount() {
+		return viewModel.getRowCount();
+	}
+
 	public int getIndexByName(String name) {
+		IndexHolder h = new IndexHolder();
+		h.index = -1;
+
+		Message m = handler.obtainMessage(MSG_INDEXBYNAME, h);
+		m.getData().putString("name", name);
+		m.sendToTarget();
+
+		try {
+			h.acquire();
+		} catch (InterruptedException e) {
+			Log.w(LCAT, "Interrupted while waiting for index.");
+		}
+		return h.index;
+	}
+	public int doGetIndexByName(String name) {
 		return viewModel.getIndexByName(name);
 	}
 
@@ -179,9 +262,31 @@ public class TitaniumTableView extends FrameLayout
 		switch(msg.what) {
 		case MSG_OPEN:
 			doOpen(b.getString(MSG_EXTRA_CALLBACK));
+			eventListeners.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
 			return true;
 		case MSG_CLOSE:
 			doClose();
+			return true;
+		case MSG_SETDATA:
+			doSetData((String) msg.obj);
+			return true;
+		case MSG_DELETEROW:
+			doDeleteRow(msg.arg1);
+			return true;
+		case MSG_INSERTAFTER:
+			doInsertRowAfter(msg.arg1, (String) msg.obj);
+			return true;
+		case MSG_INSERTBEFORE:
+			doInsertRowBefore(msg.arg1, (String) msg.obj);
+			return true;
+		case MSG_UPDATEROW:
+			doUpdateRow(msg.arg1, (String) msg.obj);
+			return true;
+		case MSG_INDEXBYNAME :
+			IndexHolder h = (IndexHolder) msg.obj;
+			String name = msg.getData().getString("name");
+			h.index = doGetIndexByName(name);
+			h.release();
 			return true;
 		}
 		return false;
@@ -199,11 +304,21 @@ public class TitaniumTableView extends FrameLayout
 			Message m = handler.obtainMessage(MSG_OPEN);
 			m.getData().putString(MSG_EXTRA_CALLBACK, callback);
 			m.sendToTarget();
+		} else {
+			eventListeners.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
 		}
 	}
 
 	public void hiding() {
+		eventListeners.invokeSuccessListeners(EVENT_UNFOCUSED, EVENT_UNFOCUSED_JSON);
+	}
 
+	public int addEventListener(String eventName, String listener) {
+		return eventListeners.addListener(eventName, listener);
+	}
+
+	public void removeEventListener(String eventName, int listenerId) {
+		eventListeners.removeListener(eventName, listenerId);
 	}
 
 	private void doOpen(final String callback)
@@ -212,11 +327,11 @@ public class TitaniumTableView extends FrameLayout
 		setLayoutParams(params);
 		setPadding(5,5,5,5);
 
-		ListView view = new ListView(tmm.getActivity());
+		view = new ListView(tmm.getActivity());
 		view.setFocusable(true);
 		view.setFocusableInTouchMode(true);
-
-		view.setAdapter(new TTVListAdapter(viewModel));
+		adapter = new TTVListAdapter(viewModel);
+		view.setAdapter(adapter);
 		view.setOnKeyListener(new View.OnKeyListener() {
 
 			public boolean onKey(View view, int keyCode, KeyEvent keyEvent)
@@ -280,6 +395,7 @@ public class TitaniumTableView extends FrameLayout
 	}
 
 	public void dispatchWindowFocusChanged(boolean hasFocus) {
+		tmm.getWebView().dispatchWindowFocusChanged(hasFocus);
 	}
 
 	public void dispatchConfigurationChange(Configuration newConfig) {

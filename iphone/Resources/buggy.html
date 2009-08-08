@@ -1,97 +1,90 @@
 <html>
 <head>
-
-
+<style>
+.button
+{
+	font-size:18px;width:280px;text-align:center
+}
+</style>
 </head>
-<body  style="font-family:'Helvetica Neue'">
-	<div style="margin-bottom:10px">Watch Position</div>
-	<div style="height:20px" id="callcount"></div>
-	<div style="height:20px" id="timestamp"></div>
-	<div style="height:20px" id="latitude"></div>
-	<div style="height:20px" id="longitude"></div>
-	<div style="height:20px" id="altitude"></div>
-	<div style="height:20px" id="accuracy"></div>
-	<div style="height:20px" id="altitudeAccuracy"></div>
-	<div style="height:20px" id="heading"></div>
-	<div style="height:20px" id="speed"></div>
-	
-	<div style="margin-top:10px">Current Position</div>
-	<div style="height:20px" id="callcount2"></div>
-	<div style="height:20px" id="timestamp2"></div>
-	<div style="height:20px" id="latitude2"></div>
-	<div style="height:20px" id="longitude2"></div>
-	<div style="height:20px" id="altitude2"></div>
-	<div style="height:20px" id="accuracy2"></div>
-	<div style="height:20px" id="altitudeAccuracy2"></div>
-	<div style="height:20px" id="heading2"></div>
-	<div style="height:20px" id="speed2"></div>
+<body style="background-color:#fff;font-size:20px;font-family:'Helvetica Neue';font-weight:bold">
 	
 	<script>
-	var count =0;
-	var count2 = 0;
-	Titanium.Geolocation.getCurrentPosition(
-		function(pos)
+
+		var a = Titanium.UI.createAlertDialog({title:'Grouped View Test', buttonNames:['OK']});
+		
+		var buttonData = [
+			{title:'Button 1'},
+			{title:'Button 2'}
+		];
+
+		var bar = Titanium.UI.createButtonBar({labels:['Button 1', 'Button 2'], color:'#336699'});
+		Titanium.UI.currentWindow.setRightNavButton(bar);
+		
+		var buttonSection = Titanium.UI.iPhone.createGroupedSection({footer:'Button Group Footer', header:'Button Group', type:'button',data:buttonData});
+		buttonSection.addEventListener('click',function(e)
 		{
-			count2++;
-			document.getElementById('callcount2').innerHTML = 'Call count = ' + count2;
-			var timestamp = document.getElementById('timestamp2');
-			var latitude = document.getElementById('latitude2');
-			var longitude = document.getElementById('longitude2');
-			var altitude = document.getElementById('altitude2');
-			var accuracy = document.getElementById('accuracy2');
-			var altitudeAccuracy = document.getElementById('altitudeAccuracy2');
-			var heading = document.getElementById('heading2');
-			var speed = document.getElementById('speed2');
-			
-			var coords = pos.coords;
-			timestamp.innerHTML = 'Timestamp: ' + pos.timestamp;
-			latitude.innerHTML = 'Latitude: ' + coords.latitude;
-			longitude.innerHTML = 'Longitude: ' + coords.longitude;
-		    altitude.innerHTML= 'Altitude: ' + coords.altitude;
-			accuracy.innerHTML = 'Accuracy: ' + coords.accuracy;
-			altitudeAccuracy.innerHTML = 'Altitude Accuracy: ' + coords.altitudeAccuracy;
-			heading.innerHTML = 'Heading: ' + coords.heading;
-			speed.innerHTML = 'Speed: ' + coords.speed;
-			
-		}, 
-		function()
+			a.setMessage('You clicked index ' + e.index + ' section row ' + e.row + ' section ' + e.section);
+			a.show();
+		});
+
+		var optionData = [
+			{title:'Option 1'},
+			{title:'Option 2' , selected:true},
+			{title:'Option 3'}	
+		];
+
+		var optionSection = Titanium.UI.iPhone.createGroupedSection({header:'Option Group', type:'option', data:optionData});
+		optionSection.addEventListener('click',function(e)
 		{
-			
-		}
-	);
+			a.setMessage('You clicked index ' + e.index + ' section row ' + e.row + ' section ' + e.section);
+			a.show();
+		});
 
-	Titanium.Geolocation.watchPosition(
-		function(pos)
+		var switchInstance = Titanium.UI.createSwitch({value:true});
+		switchInstance.addEventListener('change',function(e)
 		{
-			count++;
-			document.getElementById('callcount').innerHTML = 'Call count = ' + count;
-
-			var timestamp = document.getElementById('timestamp');
-			var latitude = document.getElementById('latitude');
-			var longitude = document.getElementById('longitude');
-			var altitude = document.getElementById('altitude');
-			var accuracy = document.getElementById('accuracy');
-			var altitudeAccuracy = document.getElementById('altitudeAccuracy');
-			var heading = document.getElementById('heading');
-			var speed = document.getElementById('speed');
-
-			var coords = pos.coords;
-			timestamp.innerHTML = 'Timestamp: ' + pos.timestamp;
-			latitude.innerHTML = 'Latitude: ' + coords.latitude;
-			longitude.innerHTML = 'Longitude: ' + coords.longitude;
-		    altitude.innerHTML= 'Altitude: ' + coords.altitude;
-			accuracy.innerHTML = 'Accuracy: ' + coords.accuracy;
-			altitudeAccuracy.innerHTML = 'Altitude Accuracy: ' + coords.altitudeAccuracy;
-			heading.innerHTML = 'Heading: ' + coords.heading;
-			speed.innerHTML = 'Speed: ' + coords.speed;
-
-		}, 
-		function()
+			a.setMessage(e.value)
+			a.show();
+		})
+		
+		var sliderInstance = Titanium.UI.createSlider({min:0,max:10,value:5, width:150});
+		sliderInstance.addEventListener('change',function(e)
 		{
+			a.setMessage(e.value)
+			a.show();
+		})
+		var textInstance = Titanium.UI.createTextField({value:'Nolan',width:50});
+		textInstance.addEventListener('change',function(e)
+		{
+			a.setMessage(e.value)
+			a.show();
+		})
 
-		}
-	);
+		var inputData = [
+			{title:'Input 1', input:switchInstance},
+			{title:'Sound', input:sliderInstance},
+			{title:'Name', input:textInstance},
+			{title:'Input 2', value:'foo', hasChild:true},
+			{title:'Input 3'}	
+		];
 
+		var inputSection = Titanium.UI.iPhone.createGroupedSection({header:'Input Group', type:'input', data:inputData});
+		inputSection.addEventListener('click',function(e)
+		{
+			a.setMessage('You clicked index ' + e.index + ' section row ' + e.row + ' section ' + e.section);
+			a.show();
+		});
+		
+		// create grouped view  
+		var groupedView = Titanium.UI.iPhone.createGroupedView();
+		groupedView.addSection(optionSection);
+		groupedView.addSection(buttonSection);
+		groupedView.addSection(inputSection);
+		Titanium.UI.currentWindow.addView(groupedView);
+		Titanium.UI.currentWindow.showView(groupedView);
+//		groupedView.open({animated:true});
+	
 	</script>
 </body>
 </html>

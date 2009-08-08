@@ -24,8 +24,8 @@ public abstract class TitaniumBaseNativeControl
 	private static final String LCAT = "TiSwitch";
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
-	protected static final String FOCUSED_EVENT = "focused";
-	protected static final String UNFOCUSED_EVENT = "unfocused";
+	protected static final String FOCUS_EVENT = "focus";
+	protected static final String BLUR_EVENT = "blur";
 
 	// Keep event ids below 300
 	protected static final int MSG_LAYOUT = 200;
@@ -46,8 +46,8 @@ public abstract class TitaniumBaseNativeControl
 		this.softModuleMgr = new SoftReference<TitaniumModuleManager>(tmm);
 		this.handler = new Handler(this);
 		this.eventManager = new TitaniumJSEventManager(tmm);
-		eventManager.supportEvent(FOCUSED_EVENT);
-		eventManager.supportEvent(UNFOCUSED_EVENT);
+		eventManager.supportEvent(FOCUS_EVENT);
+		eventManager.supportEvent(BLUR_EVENT);
 	}
 
 	public int addEventListener(String eventName, String listener) {
@@ -103,9 +103,9 @@ public abstract class TitaniumBaseNativeControl
 		} else if (msg.what == MSG_FOCUSCHANGE) {
 			boolean hasFocus = (Boolean) msg.obj;
 			if (hasFocus) {
-				eventManager.invokeSuccessListeners(FOCUSED_EVENT, null);
+				eventManager.invokeSuccessListeners(FOCUS_EVENT, null);
 			} else {
-				eventManager.invokeSuccessListeners(UNFOCUSED_EVENT, null);
+				eventManager.invokeSuccessListeners(BLUR_EVENT, null);
 			}
 		}
 

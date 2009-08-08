@@ -493,10 +493,10 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	}
 	[resultString appendString:@")"];
 
-	[[TitaniumHost sharedHost] sendJavascript:resultString toPageWithToken:imagePickerCallbackParentPageString];
 	[[picker parentViewController] dismissModalViewControllerAnimated:isImagePickerAnimated];
 	[currentImagePicker release];
 	currentImagePicker = nil;
+	[[TitaniumHost sharedHost] sendJavascript:resultString toPageWithToken:imagePickerCallbackParentPageString];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker;

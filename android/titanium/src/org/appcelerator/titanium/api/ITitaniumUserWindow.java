@@ -28,4 +28,5 @@ public interface ITitaniumUserWindow
 	public int getViewCount();
 	public ITitaniumView getView(int i);
 	public ITitaniumView getViewByName(String name);
+	public int getActiveViewIndex();
 }

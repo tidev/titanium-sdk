@@ -79,7 +79,7 @@ typedef enum {
 	TitaniumViewControllerDirtyFlags	dirtyFlags;
 	NSDictionary * animationOptionsDict;
 
-	
+//	NSMutableArray * 
 }
 
 + (TitaniumViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;

@@ -420,7 +420,7 @@ var TableView = function(proxy) {
 	 * @tiarg[string,data] options data
 	 */
 	this.setData = function(data) {
-		this.proxy.setData(data);
+		this.proxy.setData(Titanium.JSON.stringify(data));
 	};
 	/**
 	 * @tiapi(method=true,name=UI.TableView.setRowHeight,since=0.5) set the height of each row
@@ -435,6 +435,53 @@ var TableView = function(proxy) {
 	 * @tiarg[int,index] index of the first row with name or -1 if not found.
 	 */
 	this.getIndexByName = function(name) {
+		return this.proxy.getIndexByName(name);
+	};
+	/**
+	 * @tiapi(method=true,name=UI.TableView.addEventListener,since=0.5.1) Add a listener for to this view. Support 'focused' and 'unfocused'
+	 * @tiarg[string,eventName] The event name
+	 * @tiarg[function,listener] The event listener
+	 * @tiresult[int] id used when removing the listener
+	 */
+	this.addEventListener = function(eventName, listener) {
+		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
+	};
+	/**
+	 * @tiapi(method=true,name=UI.TableView.removeEventListener,since=0.5.1) Remove a previously added listener
+	 * @tiarg[string,eventName] The event name
+	 * @tiarg[int,listenerId] id returned from addEventListener
+	 */
+	this.removeEventListener = function(eventName, listenerId) {
+		this.proxy.removeEventListener(eventName, listenerId);
+	};
+	this.insertRowAfter = function(index, options) {
+		if (isUndefined(options)) {
+			options = {};
+		}
+		this.proxy.insertRowAfter(index, Titanium.JSON.stringify(options));
+	};
+	this.insertRowBefore = function(index, options) {
+		if (isUndefined(options)) {
+			options = {};
+		}
+		this.proxy.insertRowBefore(index, Titanium.JSON.stringify(options));
+	};
+	this.deleteRow = function(index) {
+		this.proxy.deleteRow(index);
+	};
+	this.updateRow = function(index, options) {
+		if (isUndefined(options)) {
+			options = {};
+		}
+		this.proxy.updateRow(index, Titanium.JSON.stringify(options));
+	};
+	this.getRowCount = function() {
+		return this.proxy.getRowCount();
+	};
+	this.getIndexByName = function(name) {
+		if(isUndefined(name)) {
+			name = null;
+		}
 		return this.proxy.getIndexByName(name);
 	};
 	this.getName = function() {
@@ -464,7 +511,24 @@ var WebView = function(proxy) {
 	this.proxy = proxy; // reference to Java object
 	this.getName = function() {
 		return this.proxy.getName();
-	}
+	};
+	/**
+	 * @tiapi(method=true,name=UI.WebView.addEventListener,since=0.5.1) Add a listener for to this view. Support 'focused' and 'unfocused'
+	 * @tiarg[string,eventName] The event name
+	 * @tiarg[function,listener] The event listener
+	 * @tiresult[int] id used when removing the listener
+	 */
+	this.addEventListener = function(eventName, listener) {
+		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
+	};
+	/**
+	 * @tiapi(method=true,name=UI.WebView.removeEventListener,since=0.5.1) Remove a previously added listener
+	 * @tiarg[string,eventName] The event name
+	 * @tiarg[int,listenerId] id returned from addEventListener
+	 */
+	this.removeEventListener = function(eventName, listenerId) {
+		this.proxy.removeEventListener(eventName, listenerId);
+	};
 };
 
 var UserWindow = function(proxy) {
@@ -570,6 +634,13 @@ var UserWindow = function(proxy) {
 			v.proxy = this.proxy.getView(i);
 			v.index = i;
 			v.name = v.proxy.getName();
+			v.addEventListener = function(eventName, listener) {
+				return this.proxy.addEventListener(eventName, registerCallback(this, listener));
+			};
+			v.removeEventListener = function(eventName, listenerId) {
+				this.proxy.removeEventListener(eventName, listenerId);
+			};
+
 			views[i] = v;
 		}
 		return views;
@@ -620,6 +691,10 @@ var UserWindow = function(proxy) {
 			}
 		}
 		return v;
+	};
+
+	this.getActiveViewIndex = function() {
+		return this.proxy.getActiveViewIndex();
 	};
 
 	// IPhone only methods
@@ -922,7 +997,7 @@ Titanium.UI = {
 			 var name = options['name'];
 
 			 if (!isUndefined(data)) {
-				 tv.setData(Titanium.JSON.stringify(data));
+				 tv.setData(data);
 			 }
 			 if (!isUndefined(rowHeight)) {
 				 tv.setRowHeight(rowHeight);
@@ -1103,6 +1178,14 @@ Titanium.UI.__defineGetter__("currentWindow", function(){
 		Titanium.UI._currentWindow = new UserWindow(Titanium.uiProxy.getCurrentWindow());
 	}
 	return Titanium.UI._currentWindow;
+});
+Titanium.UI.__defineGetter__("currentView", function() {
+	var view = null;
+	var index = Titanium.UI.currentWindow.getActiveViewIndex();
+	if (index > -1) {
+		view = Titanium.UI.currentWindow.getViews()[index];
+	}
+	return view;
 });
 
 Titanium.UI.ActivityIndicator = {
@@ -1342,6 +1425,12 @@ Titanium.UI.iPhone = {
 		FLIP_FROM_RIGHT : -1,
 		CURL_UP : -1,
 		CURL_DOWN : -1
+	},
+	RowAnimationStyle : {
+		LEFT : -1,
+		RIGHT : -1,
+		UP : -1,
+		DOWN : -1
 	}
 };
 

@@ -42,6 +42,10 @@ public class TiWebViewClient extends WebViewClient
 			ITitaniumView tiView = (ITitaniumView) view;
 			if (activity.getViewCount() == 1) {
 				activity.setActiveView(tiView, null);
+			} else {
+				if (tiView != null) {
+					tiView.showing();
+				}
 			}
 		}
 	}

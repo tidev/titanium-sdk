@@ -28,10 +28,10 @@
 
 			n2.removeEventListener('click',n2id);
 		});
-	n2.addEventListener('focused', function() {
+	n2.addEventListener('focus', function() {
 		Titanium.API.debug("n2 got focus");
 	});
-	n2.addEventListener('unfocused', function() {
+	n2.addEventListener('blur', function() {
 		Titanium.API.debug("n2 lost focus");
 	});
 

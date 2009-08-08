@@ -160,6 +160,10 @@ public class TitaniumJSEventManager
 	//     to the helper as a performance boost.
 
 	public void invokeSuccessListeners(String eventName, String data) {
+		final TitaniumWebView webView = softWebView.get();
+		invokeSuccessListeners(webView, eventName, data);
+	}
+	public void invokeSuccessListeners(TitaniumWebView webView, String eventName, String data) {
 		if (eventListeners != null) {
 			checkSupportsEvent(eventName); // Throws exception on failure
 
@@ -167,7 +171,6 @@ public class TitaniumJSEventManager
 
 			if (listeners != null) {
 				synchronized(listeners) {
-					final TitaniumWebView webView = softWebView.get();
 					if (webView == null) {
 						throw new IllegalStateException("webView is null");
 					}

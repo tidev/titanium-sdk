@@ -264,6 +264,15 @@ public class TitaniumUserWindow
 		return view;
 	}
 
+	public int getActiveViewIndex() {
+		int index = -1;
+		TitaniumActivity activity = getActivity();
+		if (activity != null) {
+			index =  activity.getActiveViewIndex();
+		}
+		return index;
+	}
+
 	public int getViewCount() {
 		int count = 0;
 

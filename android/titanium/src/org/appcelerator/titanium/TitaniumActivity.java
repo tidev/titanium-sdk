@@ -78,6 +78,7 @@ public class TitaniumActivity extends Activity
 	protected int activeViewIndex;
 
 	protected boolean loadOnPageEnd;
+	protected boolean needsDelayedFocusedEvent;
 
 	protected ImageView splashView;
 
@@ -122,6 +123,9 @@ public class TitaniumActivity extends Activity
     		Log.d(LCAT, "onCreate");
     	}
         super.onCreate(savedInstanceState);
+
+        // Make sure the first ActiveView for this activity gets a window focused event
+        needsDelayedFocusedEvent = true;
 
         views = new ArrayList<ITitaniumView>(5);
         activeViewIndex = -1;
@@ -281,9 +285,10 @@ public class TitaniumActivity extends Activity
 			layout.addView(splashView);
 			app.setNeedsSplashScreen(false);
 		}
-		setContentView(layout);
 
 		ts("After splash");
+
+		setContentView(layout);
 
         ts("end of onCreate");
 	}
@@ -306,19 +311,32 @@ public class TitaniumActivity extends Activity
 				String options = (String) msg.obj;
 
 				synchronized(views) {
+					int currentIndex = activeViewIndex;
 					activeViewIndex = index;
+					ITitaniumView tiCurrent = null;
+					if (currentIndex >= 0 && currentIndex < views.size()) {
+						tiCurrent = views.get(currentIndex);
+					}
 					ITitaniumView tiView = views.get(index);
 					View newView = tiView.getNativeView();
 					View current = layout.getCurrentView();
 					if (current != newView) {
 						if (newView != null) {
-							if (current != null) {
-								if (current instanceof ITitaniumView) {
-									((ITitaniumView) current).hiding();
+							if (tiCurrent != null) {
+								if (tiCurrent instanceof ITitaniumView) {
+									tiCurrent.hiding();
 								}
 							}
 							tiView.showing();
 							layout.addView(newView);
+							if (needsDelayedFocusedEvent) {
+								try {
+									tiView.dispatchWindowFocusChanged(true);
+								} catch (Throwable t) {
+									Log.e(LCAT, "Error while dispatching fake focus: ", t);
+								}
+								needsDelayedFocusedEvent = false;
+							}
 							layout.showNext();
 							if (current != null) {
 								layout.removeView(current);
@@ -528,6 +546,12 @@ public class TitaniumActivity extends Activity
     	return tiView;
     }
 
+    public int getActiveViewIndex() {
+    	synchronized(views) {
+    		return activeViewIndex;
+    	}
+    }
+
     public void setActiveView(int index, String options) {
     	handler.obtainMessage(MSG_ACTIVATE_VIEW, index, -1, options).sendToTarget();
     }
@@ -623,7 +647,7 @@ public class TitaniumActivity extends Activity
 
 		if (activeViewIndex > -1) {
 			ITitaniumView tiView = views.get(activeViewIndex);
-			tiView.dispatchWindowFocusChanged(hasFocus);
+			//tiView.dispatchWindowFocusChanged(hasFocus);
 		}
 	}
 
