@@ -420,7 +420,7 @@ var TableView = function(proxy) {
 	 * @tiarg[string,data] options data
 	 */
 	this.setData = function(data) {
-		this.proxy.setData(data);
+		this.proxy.setData(Titanium.JSON.stringify(data));
 	};
 	/**
 	 * @tiapi(method=true,name=UI.TableView.setRowHeight,since=0.5) set the height of each row
@@ -952,7 +952,7 @@ Titanium.UI = {
 			 var name = options['name'];
 
 			 if (!isUndefined(data)) {
-				 tv.setData(Titanium.JSON.stringify(data));
+				 tv.setData(data);
 			 }
 			 if (!isUndefined(rowHeight)) {
 				 tv.setRowHeight(rowHeight);
@@ -1372,6 +1372,12 @@ Titanium.UI.iPhone = {
 		FLIP_FROM_RIGHT : -1,
 		CURL_UP : -1,
 		CURL_DOWN : -1
+	},
+	RowAnimationStyle : {
+		LEFT : -1,
+		RIGHT : -1,
+		UP : -1,
+		DOWN : -1
 	}
 };
 

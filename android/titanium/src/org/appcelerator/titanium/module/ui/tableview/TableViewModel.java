@@ -10,6 +10,7 @@ import org.json.JSONObject;
 public class TableViewModel
 {
 	private static final String LCAT = "TableViewModel";
+	private static final boolean DUMP = true;
 
 	// Flat view
 
@@ -60,6 +61,9 @@ public class TableViewModel
 			}
 		}
 
+		if (DUMP) {
+			Log.e(LCAT, "Index of Name: " + name + " is " + index);
+		}
 		return index;
 	}
 
@@ -109,6 +113,11 @@ public class TableViewModel
 		} catch (JSONException e) {
 			Log.e(LCAT, "Unable to insertItemBefore " + index,e);
 		}
+
+		if (DUMP) {
+			Log.w(LCAT, "==== After insertItemBefore");
+			dumpModel();
+		}
 	}
 
 	public void insertItemAfter(int index, JSONObject data)
@@ -149,26 +158,38 @@ public class TableViewModel
 		} catch (JSONException e) {
 			Log.e(LCAT, "Unable to insertItemAfter " + index,e);
 		}
+		if (DUMP) {
+			Log.w(LCAT, "==== After insertItemAfter");
+			dumpModel();
+		}
 	}
 
 	public void deleteItem(int index)
 	{
-		Item oldItem = model.get(index);
-		model.remove(index);
-		updateIndexes(index);
-		if (oldItem.hasHeader()) {
-			Item item = model.get(index);
-			if (item.hasHeader()) {
-				updateSectionData(index, oldItem.sectionIndex-1); // gets incremented on detection.
+		if (index >= 0 && index < model.size()) {
+			Item oldItem = model.get(index);
+			model.remove(index);
+			updateIndexes(index);
+			if (oldItem.hasHeader()) {
+				Item item = model.get(index);
+				if (item.hasHeader()) {
+					updateSectionData(index, oldItem.sectionIndex-1); // gets incremented on detection.
+				} else {
+					item.headerText = oldItem.headerText;
+					item.indexInSection = oldItem.indexInSection;
+					updateIndexInSection(index + 1, item.indexInSection + 1);
+				}
 			} else {
-				item.headerText = oldItem.headerText;
-				item.indexInSection = oldItem.indexInSection;
-				updateIndexInSection(index + 1, item.indexInSection + 1);
+				updateIndexInSection(index, oldItem.indexInSection);
 			}
+			dirty = true;
 		} else {
-			updateIndexInSection(index, oldItem.indexInSection);
+			Log.w(LCAT, "Attempt to delete non-existant row with index " + index);
 		}
-		dirty = true;
+		if (DUMP) {
+			Log.w(LCAT, "==== After deleteItem");
+			dumpModel();
+		}
 	}
 
 	public void updateItem(int index, JSONObject data)
@@ -192,6 +213,10 @@ public class TableViewModel
 			Log.e(LCAT, "Error accessing json data", e);
 		}
 		dirty = true;
+		if (DUMP) {
+			Log.w(LCAT, "==== After updateItem");
+			dumpModel();
+		}
 	}
 
 	// This method just brute forces the data into the table.
@@ -239,9 +264,13 @@ public class TableViewModel
 					model.add(item);
 					sectionRowCounter++;
 				} catch (JSONException e) {
-					Log.e(LCAT, "Error adding item at index " + i);
+					Log.e(LCAT, "Error adding item at index " + i, e);
 				}
 			}
+		}
+		if (DUMP) {
+			Log.w(LCAT, "==== After setData");
+			dumpModel();
 		}
 	}
 
@@ -320,6 +349,16 @@ public class TableViewModel
 			item.sectionIndex = section;
 			item.indexInSection = sectionRowCounter;
 			sectionRowCounter++;
+		}
+	}
+
+	public void dumpModel() {
+		Log.i(LCAT, "");
+		for (int i = 0; i < model.size(); i++) {
+			Item item = model.get(i);
+			Log.i(LCAT, i + ": index: " +  item.index + " s:" + item.sectionIndex + " iis: " +
+					item.indexInSection +
+					" n: " + item.name + " h: " + item.headerText);
 		}
 	}
 }

@@ -1,5 +1,7 @@
 package org.appcelerator.titanium.module.ui;
 
+import java.util.concurrent.Semaphore;
+
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumTableView;
@@ -36,6 +38,7 @@ public class TitaniumTableView extends FrameLayout
 	private static final int MSG_UPDATEROW = 304;
 	private static final int MSG_INSERTBEFORE = 305;
 	private static final int MSG_INSERTAFTER = 306;
+	private static final int MSG_INDEXBYNAME = 307;
 
 	private static final String MSG_EXTRA_CALLBACK = "cb";
 
@@ -120,6 +123,14 @@ public class TitaniumTableView extends FrameLayout
 		}
 	}
 
+	class IndexHolder extends Semaphore {
+		private static final long serialVersionUID = 1L;
+		public IndexHolder() {
+			super(0);
+		}
+		public int index;
+	}
+
 	public TitaniumTableView(TitaniumModuleManager tmm, int themeId)
 	{
 		super(tmm.getActivity(), null, themeId);
@@ -194,6 +205,21 @@ public class TitaniumTableView extends FrameLayout
 	}
 
 	public int getIndexByName(String name) {
+		IndexHolder h = new IndexHolder();
+		h.index = -1;
+
+		Message m = handler.obtainMessage(MSG_INDEXBYNAME, h);
+		m.getData().putString("name", name);
+		m.sendToTarget();
+
+		try {
+			h.acquire();
+		} catch (InterruptedException e) {
+			Log.w(LCAT, "Interrupted while waiting for index.");
+		}
+		return h.index;
+	}
+	public int doGetIndexByName(String name) {
 		return viewModel.getIndexByName(name);
 	}
 
@@ -243,6 +269,12 @@ public class TitaniumTableView extends FrameLayout
 			return true;
 		case MSG_UPDATEROW:
 			doUpdateRow(msg.arg1, (String) msg.obj);
+			return true;
+		case MSG_INDEXBYNAME :
+			IndexHolder h = (IndexHolder) msg.obj;
+			String name = msg.getData().getString("name");
+			h.index = doGetIndexByName(name);
+			h.release();
 			return true;
 		}
 		return false;
