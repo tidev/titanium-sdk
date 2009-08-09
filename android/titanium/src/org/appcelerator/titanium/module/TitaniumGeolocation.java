@@ -122,8 +122,7 @@ public class TitaniumGeolocation extends TitaniumBaseModule implements ITitanium
 	public void getCurrentPosition(String successListener, String failureListener, String options)
 	{
 		if (locationManager != null) {
-
-			String provider = locationManager.getBestProvider(createCriteria(options), false);
+			String provider = locationManager.getBestProvider(createCriteria(options, Criteria.ACCURACY_FINE), false);
 			Location loc = locationManager.getLastKnownLocation(provider);
 
 			if (loc != null) {
@@ -209,9 +208,15 @@ public class TitaniumGeolocation extends TitaniumBaseModule implements ITitanium
 		locationManager = null;
 	}
 
-	protected Criteria createCriteria(String json)
+	protected Criteria createCriteria(String json) {
+		return createCriteria(json, Criteria.ACCURACY_COARSE);
+	}
+
+	protected Criteria createCriteria(String json, int defaultAccuracy)
 	{
 		Criteria criteria = new Criteria();
+		criteria.setAccuracy(defaultAccuracy);
+
 		if (json != null) {
 			try {
 				JSONObject o = new JSONObject(json);
