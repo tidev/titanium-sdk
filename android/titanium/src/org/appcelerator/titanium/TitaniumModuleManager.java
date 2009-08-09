@@ -14,6 +14,8 @@ import org.appcelerator.titanium.api.ITitaniumModule;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 
+import android.content.Context;
+
 public class TitaniumModuleManager
 {
 	private static final String LCAT = "TiModuleMgr";
@@ -23,6 +25,7 @@ public class TitaniumModuleManager
 	private ArrayList<ITitaniumModule> modules;
 	private SoftReference<TitaniumActivity> softActivity;
 	private SoftReference<TitaniumWebView> softWebView;
+	private Context appContext;
 
 	private long creationThreadId;
 	private String creationThreadName;
@@ -32,6 +35,8 @@ public class TitaniumModuleManager
 		this.softActivity = new SoftReference<TitaniumActivity>(activity);
 		this.softWebView = new SoftReference<TitaniumWebView>(webView);
 		this.modules = new ArrayList<ITitaniumModule>();
+		this.appContext = activity.getApplicationContext();
+
 
 		Thread t = Thread.currentThread();
 		creationThreadId = t.getId();
@@ -61,6 +66,9 @@ public class TitaniumModuleManager
 		return softActivity.get();
 	}
 
+	public Context getAppContext() {
+		return appContext;
+	}
 	public TitaniumWebView getWebView() {
 		return softWebView.get();
 	}

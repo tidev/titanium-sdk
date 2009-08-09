@@ -7,6 +7,8 @@
 
 package org.appcelerator.titanium.module.ui;
 
+import java.lang.ref.WeakReference;
+
 import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.api.ITitaniumProgressDialog;
 import org.appcelerator.titanium.config.TitaniumConfig;
@@ -30,7 +32,6 @@ public class TitaniumProgressDialog
 	private static final int MSG_SHOW = 302;
 	private static final int MSG_HIDE = 303;
 
-	protected TitaniumActivity activity;
 	protected Handler handler;
 	protected String message;
 	protected Type type;
@@ -41,13 +42,12 @@ public class TitaniumProgressDialog
 	protected boolean visible;
 	protected ProgressDialog progressDialog;
 	protected int incrementFactor;
-	protected Activity parent;
+	protected WeakReference<Activity> weakParent;
 
 	protected String statusBarTitle;
 
 	public TitaniumProgressDialog(TitaniumActivity activity)
 	{
-		this.activity = activity;
 		this.handler = new Handler(this);
 		this.message = "Message not set...";
 		this.type = Type.INDETERMINANT;
@@ -56,12 +56,16 @@ public class TitaniumProgressDialog
 		this.min = 0;
 		this.max = 100;
 		this.incrementFactor = 10000 / (this.max - this.min);
-		this.parent = TitaniumActivityHelper.getRootActivity(activity);
+		this.weakParent = new WeakReference<Activity>(TitaniumActivityHelper.getRootActivity(activity));
 
 	}
 
 	public boolean handleMessage(Message msg)
 	{
+		Activity parent = weakParent.get();
+		if (parent == null) {
+			return false;
+		}
 		switch(msg.what) {
 			case MSG_SET_MESSAGE :
 				progressDialog.setMessage((String) msg.obj);

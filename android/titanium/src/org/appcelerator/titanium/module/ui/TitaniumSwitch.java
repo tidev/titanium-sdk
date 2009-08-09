@@ -52,7 +52,7 @@ public class TitaniumSwitch extends TitaniumBaseNativeControl
 
 	@Override
 	public void createControl(TitaniumModuleManager tmm) {
-		ToggleButton b = new ToggleButton(tmm.getActivity());
+		ToggleButton b = new ToggleButton(tmm.getAppContext());
 		b.setChecked(value);
 
 		if (color != null) {

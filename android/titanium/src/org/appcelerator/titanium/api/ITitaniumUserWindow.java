@@ -24,9 +24,14 @@ public interface ITitaniumUserWindow
 
 	public void addView(ITitaniumView view);
 	public void setActiveViewIndex(int index, String options);
+	public void showViewByKey(String key, String options);
 	public void showView(ITitaniumView view, String options);
 	public int getViewCount();
-	public ITitaniumView getView(int i);
+	public String getViewKey(int i);
 	public ITitaniumView getViewByName(String name);
 	public int getActiveViewIndex();
+
+	public String getViewName(String key);
+	public int addViewEventListener(String key, String eventName, String listener);
+	public void removeEventListener(String key, String eventName, int listenerId);
 }

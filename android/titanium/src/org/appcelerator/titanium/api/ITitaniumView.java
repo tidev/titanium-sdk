@@ -26,4 +26,7 @@ public interface ITitaniumView
 
 	ITitaniumLifecycle getLifecycle();
 	View getNativeView();
+
+	String getKey();
+	void setKey(String key);
 }

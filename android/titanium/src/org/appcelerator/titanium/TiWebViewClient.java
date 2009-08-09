@@ -7,6 +7,8 @@
 
 package org.appcelerator.titanium;
 
+import java.lang.ref.WeakReference;
+
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
@@ -23,12 +25,12 @@ public class TiWebViewClient extends WebViewClient
 	private static final String LCAT = "TiWVC";
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
-	private final TitaniumActivity activity;
+	private WeakReference<TitaniumActivity> weakActivity;
 
 	public TiWebViewClient(TitaniumActivity activity)
 	{
 		super();
-		this.activity = activity;
+		this.weakActivity = new WeakReference<TitaniumActivity>(activity);
 	}
 
 	@Override
@@ -38,13 +40,16 @@ public class TiWebViewClient extends WebViewClient
 		if (DBG) {
 			Log.d(LCAT, "Page Finished");
 		}
-		if (activity.getLoadOnPageEnd()) {
-			ITitaniumView tiView = (ITitaniumView) view;
-			if (activity.getViewCount() == 1) {
-				activity.setActiveView(tiView, null);
-			} else {
-				if (tiView != null) {
-					tiView.showing();
+		TitaniumActivity activity = weakActivity.get();
+		if (activity != null) {
+			if (activity.getLoadOnPageEnd()) {
+				ITitaniumView tiView = (ITitaniumView) view;
+				if (activity.getViewCount() == 1) {
+					activity.setActiveView(tiView, null);
+				} else {
+					if (tiView != null) {
+						tiView.showing();
+					}
 				}
 			}
 		}
@@ -77,12 +82,18 @@ public class TiWebViewClient extends WebViewClient
 		} else if(url.startsWith(WebView.SCHEME_TEL)) {
 			Log.i(LCAT, "Launching dialer for " + url);
 			Intent dialer = Intent.createChooser(new Intent(Intent.ACTION_DIAL, Uri.parse(url)), "Choose Dialer");
-	        activity.startActivity(dialer);
+			TitaniumActivity activity = weakActivity.get();
+			if (activity != null) {
+				activity.startActivity(dialer);
+			}
 	        return true;
 		} else if (url.startsWith(WebView.SCHEME_MAILTO)) {
 			Log.i(LCAT, "Launching mailer for " + url);
 			Intent mailer = Intent.createChooser(new Intent(Intent.ACTION_SENDTO, Uri.parse(url)), "Send Message");
-	        activity.startActivity(mailer);
+			TitaniumActivity activity = weakActivity.get();
+			if (activity != null) {
+				activity.startActivity(mailer);
+			}
 	        return true;
 		} else if (url.startsWith(WebView.SCHEME_GEO)) {
 			Log.i(LCAT, "Launching app for " + url);
@@ -92,7 +103,10 @@ public class TiWebViewClient extends WebViewClient
 			geo:0,0?q=business+near+city
 			*/
 			Intent geoviewer = Intent.createChooser(new Intent(Intent.ACTION_VIEW, Uri.parse(url)), "Choose Viewer");
-			activity.startActivity(geoviewer);
+			TitaniumActivity activity = weakActivity.get();
+			if (activity != null) {
+				activity.startActivity(geoviewer);
+			}
 			return true;
 		} else {
 			if (DBG) {

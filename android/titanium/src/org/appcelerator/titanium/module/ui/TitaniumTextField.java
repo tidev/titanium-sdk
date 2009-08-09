@@ -141,7 +141,7 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 
 	@Override
 	public void createControl(TitaniumModuleManager tmm) {
-		EditText tv = new EditText(tmm.getActivity());
+		EditText tv = new EditText(tmm.getAppContext());
 		control = tv;
 
 		tv.setSingleLine();
@@ -151,11 +151,13 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 		tv.setOnFocusChangeListener(this);
 		tv.setText(value);
 		tv.setHint(hintText);
+		tv.setPadding(10, 5, 10, 7);
+		tv.setTextSize(15.0f);
 
 		switch(textAlign) {
-			case TEXT_ALIGN_LEFT : tv.setGravity(Gravity.LEFT); break;
-			case TEXT_ALIGN_CENTER : tv.setGravity(Gravity.CENTER_HORIZONTAL); break;
-			case TEXT_ALIGN_RIGHT : tv.setGravity(Gravity.RIGHT); break;
+			case TEXT_ALIGN_LEFT : tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT); break;
+			case TEXT_ALIGN_CENTER : tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL); break;
+			case TEXT_ALIGN_RIGHT : tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT); break;
 		}
 
 		switch(returnKeyType) {
@@ -240,7 +242,15 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 				Log.e(LCAT, "Error setting value: ", e);
 			}
 		} else if (msg.what == MSG_RETURN) {
-			eventManager.invokeSuccessListeners(RETURN_EVENT, null);
+			EditText tv = (EditText) control;
+			value = tv.getText();
+			JSONObject o = new JSONObject();
+			try {
+				o.put("value", value);
+				eventManager.invokeSuccessListeners(RETURN_EVENT, o.toString());
+			} catch (JSONException e) {
+				Log.e(LCAT, "Error setting value: ", e);
+			}
 		}
 
 		return super.handleMessage(msg);
@@ -259,10 +269,10 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
 	{
-		if (enableReturnKey) {
-			handler.obtainMessage(MSG_RETURN, actionId, 0, keyEvent).sendToTarget();
+		handler.obtainMessage(MSG_RETURN, actionId, 0, keyEvent).sendToTarget();
+		if ((enableReturnKey && v.getText().length() == 0)) {
+			return true;
 		}
-
 		return false;
 	}
 
@@ -275,5 +285,6 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 			control.getFocusedRect(r);
 			control.requestRectangleOnScreen(r);
 		}
+		super.onFocusChange(view, hasFocus);
 	}
 }

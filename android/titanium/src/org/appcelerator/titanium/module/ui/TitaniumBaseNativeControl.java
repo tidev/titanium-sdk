@@ -11,11 +11,13 @@ import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsoluteLayout;
 
 public abstract class TitaniumBaseNativeControl
@@ -30,6 +32,8 @@ public abstract class TitaniumBaseNativeControl
 	// Keep event ids below 300
 	protected static final int MSG_LAYOUT = 200;
 	protected static final int MSG_FOCUSCHANGE = 201;
+	protected static final int MSG_FOCUS = 202;
+	protected static final int MSG_BLUR = 203;
 
 	protected SoftReference<TitaniumModuleManager> softModuleMgr;
 	protected Handler handler;
@@ -67,49 +71,86 @@ public abstract class TitaniumBaseNativeControl
 	}
 
 	public boolean handleMessage(Message msg) {
-		if (msg.what == MSG_LAYOUT) {
-			Bundle position = (Bundle) msg.obj;
-			int left = position.getInt("left");
-			int top = position.getInt("top");
+		switch (msg.what) {
+			case MSG_LAYOUT : {
+				Bundle position = (Bundle) msg.obj;
+				int left = position.getInt("left");
+				int top = position.getInt("top");
 
-			int w = -1;
-			int h = -1;
-			if (width == null) {
-				w = position.getInt("width");
-			} else {
-				w = width;
-			}
-			if (height == null) {
-				h = position.getInt("height");
-			} else {
-				h = height;
-			}
+				int w = -1;
+				int h = -1;
+				if (width == null) {
+					w = position.getInt("width");
+				} else {
+					w = width;
+				}
+				if (height == null) {
+					h = position.getInt("height");
+				} else {
+					h = height;
+				}
 
-			if (DBG) {
-				StringBuilder sb = new StringBuilder();
-				sb.append("Updating control position")
-				 .append(" id : ").append(id)
-				 .append(" left: ").append(left)
-				 .append(" top: ").append(top)
-				 .append(" width: ").append(w)
-				 .append(" height: ").append(h)
-				 ;
-				Log.d(LCAT, sb.toString());
-			}
-			AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(w, h, left, top);
-			control.setLayoutParams(params);
+				if (DBG) {
+					StringBuilder sb = new StringBuilder();
+					sb.append("Updating control position")
+					 .append(" id : ").append(id)
+					 .append(" left: ").append(left)
+					 .append(" top: ").append(top)
+					 .append(" width: ").append(w)
+					 .append(" height: ").append(h)
+					 ;
+					Log.d(LCAT, sb.toString());
+				}
+				AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(w, h, left, top);
+				control.setLayoutParams(params);
 
-			return true;
-		} else if (msg.what == MSG_FOCUSCHANGE) {
-			boolean hasFocus = (Boolean) msg.obj;
-			if (hasFocus) {
-				eventManager.invokeSuccessListeners(FOCUS_EVENT, null);
-			} else {
-				eventManager.invokeSuccessListeners(BLUR_EVENT, null);
+				return true;
+			}
+			case MSG_FOCUSCHANGE : {
+				boolean hasFocus = (Boolean) msg.obj;
+				if (hasFocus) {
+					eventManager.invokeSuccessListeners(FOCUS_EVENT, null);
+				} else {
+					eventManager.invokeSuccessListeners(BLUR_EVENT, null);
+				}
+				return false;
+			}
+			case MSG_FOCUS : {
+				if (control != null) {
+					control.requestFocus();
+				}
+				return false;
+			}
+			case MSG_BLUR : {
+				if (control != null) {
+			        InputMethodManager imm = getIMM();
+			        if (imm != null) {
+			        	imm.hideSoftInputFromWindow(control.getWindowToken(), 0);
+			        }
+					control.clearFocus();
+				}
+				return false;
 			}
 		}
 
 		return false;
+	}
+
+	public void focus() {
+		handler.obtainMessage(MSG_FOCUS).sendToTarget();
+	}
+
+	public void blur() {
+		handler.obtainMessage(MSG_BLUR).sendToTarget();
+	}
+
+	private InputMethodManager getIMM() {
+		InputMethodManager imm = null;
+		TitaniumModuleManager tmm = softModuleMgr.get();
+		if (tmm != null) {
+			imm = (InputMethodManager) tmm.getAppContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		}
+		return imm;
 	}
 
 	protected void setLocalOptions(JSONObject o) throws JSONException
@@ -149,6 +190,7 @@ public abstract class TitaniumBaseNativeControl
 			if (id != null) {
 				TitaniumWebView wv = tmm.getWebView();
 				if (wv != null) {
+					//TODO: POSSIBLE LEAK
 					wv.addListener(this);
 					control.setOnFocusChangeListener(this);
 					wv.addControl(control);

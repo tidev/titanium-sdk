@@ -9,6 +9,7 @@ import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Message;
 import android.view.View;
@@ -66,8 +67,9 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 
 	public void createControl(TitaniumModuleManager tmm)
 	{
+		Context context = tmm.getAppContext();
 		if(!isImageButton()) {
-			Button b = new Button(tmm.getActivity());
+			Button b = new Button(context);
 			if (title != null && !isImageButton()) {
 				b.setText(title);
 			}
@@ -81,9 +83,9 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 			}
 			control = b;
 		} else {
-			ImageButton b = new ImageButton(tmm.getActivity());
+			ImageButton b = new ImageButton(context);
 
-			TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getActivity());
+			TitaniumFileHelper tfh = new TitaniumFileHelper(context);
 			if (imagePath != null) {
 				Drawable d = tfh.loadDrawable(imagePath, false);
 				if (d != null) {

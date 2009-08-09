@@ -38,6 +38,7 @@ public class TitaniumUIWebView
 	private String openJSON;
 	private boolean hasBeenOpened;
 	private TitaniumJSEventManager eventListeners;
+	private String key;
 
 	public TitaniumUIWebView(TitaniumModuleManager tmm) {
 		this.tmm = tmm;
@@ -57,7 +58,7 @@ public class TitaniumUIWebView
 				u = tfh.getResourceUrl(url);
 				view = new TitaniumWebView(tmm.getActivity(), u, this);
 			} else {
-				view = new WebView(tmm.getActivity());
+				view = new WebView(tmm.getAppContext());
 			}
 			return true;
 		} else if (msg.what == MSG_SHOWING) {
@@ -141,5 +142,13 @@ public class TitaniumUIWebView
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
 	}
 }

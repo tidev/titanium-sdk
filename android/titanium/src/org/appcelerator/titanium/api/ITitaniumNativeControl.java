@@ -8,6 +8,9 @@ public interface ITitaniumNativeControl
 	public int addEventListener(String eventName, String listener);
 	public void removeEventListener(String eventName, int listenerId);
 
+	public void focus();
+	public void blur();
+
 	// Used internally
 	public void open();
 	public String getHtmlId();

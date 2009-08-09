@@ -12,11 +12,11 @@ import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumDialog;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import org.appcelerator.titanium.util.Log;
 
 public class TitaniumDialog implements ITitaniumDialog
 {

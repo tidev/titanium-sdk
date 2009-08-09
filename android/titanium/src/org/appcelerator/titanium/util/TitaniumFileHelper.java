@@ -118,8 +118,8 @@ public class TitaniumFileHelper
 					Log.e(LCAT, "Unknown section identifier: " + section);
 				}
 			} else {
-					path = joinPaths("Resources", path);
-					is = context.getAssets().open(path);
+				path = joinPaths("Resources", path);
+				is = context.getAssets().open(path);
 			}
 		}
 
@@ -130,24 +130,24 @@ public class TitaniumFileHelper
 	{
 		Drawable d = null;
 		InputStream is = null;
-		Context context = softContext.get();
-		if (context != null) {
-			try
-			{
-				is = openInputStream(path, report);
-				d = new BitmapDrawable(is);
-			} catch (IOException e) {
-				Log.i(LCAT, path + " not found.");
-				if (report) {
+		try
+		{
+			is = openInputStream(path, report);
+			d = new BitmapDrawable(is);
+		} catch (IOException e) {
+			Log.i(LCAT, path + " not found.");
+			if (report) {
+				Context context = softContext.get().getApplicationContext();
+				if (context != null) {
 					TitaniumUIHelper.doOkDialog(context, "Image Not Found", path, null);
 				}
-			} finally {
-				if (is != null) {
-					try {
-						is.close();
-					} catch (IOException e) {
-						//Ignore
-					}
+			}
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					//Ignore
 				}
 			}
 		}

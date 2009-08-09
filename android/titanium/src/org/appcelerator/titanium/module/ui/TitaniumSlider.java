@@ -52,7 +52,7 @@ public class TitaniumSlider extends TitaniumBaseNativeControl
 
 	@Override
 	public void createControl(TitaniumModuleManager tmm) {
-		SeekBar b = new SeekBar(tmm.getActivity());
+		SeekBar b = new SeekBar(tmm.getAppContext());
 		b.setOnSeekBarChangeListener(this);
 
 		offset = -min;

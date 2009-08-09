@@ -345,6 +345,13 @@ var EmailDialog = function(proxy) {
 	};
 	this.addAttachment = function(attachment) {
 		if (!isUndefined(attachment)) {
+			Titanium.API.debug("Attachment type: " + typeOf(attachment.file));
+			if (typeOf(attachment.file) != 'string') {
+				if(!isUndefined(attachment.file.url)) {
+					attachment.file = String(attachment.file.url);
+				}
+			}
+			Titanium.API.debug("Attachment: " + Titanium.JSON.stringify(attachment));
 			this.proxy.addAttachment(Titanium.JSON.stringify(attachment));
 		}
 	};
@@ -631,14 +638,15 @@ var UserWindow = function(proxy) {
 		var count = this.proxy.getViewCount();
 		for(i = 0; i < count; i++) {
 			v = {};
-			v.proxy = this.proxy.getView(i);
+			v.window = this.proxy;
+			v.key = this.proxy.getViewKey(i);
 			v.index = i;
-			v.name = v.proxy.getName();
+			v.name = this.proxy.getViewName(v.key);
 			v.addEventListener = function(eventName, listener) {
-				return this.proxy.addEventListener(eventName, registerCallback(this, listener));
+				return this.window.addViewEventListener(this.key, eventName, registerCallback(this, listener));
 			};
 			v.removeEventListener = function(eventName, listenerId) {
-				this.proxy.removeEventListener(eventName, listenerId);
+				this.window.removeViewEventListener(this.key, eventName, listenerId);
 			};
 
 			views[i] = v;
@@ -667,7 +675,11 @@ var UserWindow = function(proxy) {
 		if (isUndefined(options)) {
 			options = null;
 		}
-		this.proxy.showView(view.proxy, options);
+		if(!isUndefined(view.key)) {
+			this.proxy.showViewByKey(view.key, options);
+		} else {
+			this.proxy.showView(view.proxy, options);
+		}
 	};
 	/**
 	 * @tiapi(method=true,name=UI.UserWindow.getViewByName,since=0.5.1) locate a view in the views array by name
@@ -761,6 +773,13 @@ var Slider = function(proxy) {
 var TextArea = function(proxy) {
 	this.proxy = proxy;
 
+	this.focus = function() {
+		this.proxy.focus();
+	}
+	this.blur = function() {
+		this.proxy.blur();
+	}
+
 	this.addEventListener = function(eventName, listener) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
@@ -772,6 +791,12 @@ var TextArea = function(proxy) {
 var TextField = function(proxy) {
 	this.proxy = proxy;
 
+	this.focus = function() {
+		this.proxy.focus();
+	}
+	this.blur = function() {
+		this.proxy.blur();
+	}
 	this.addEventListener = function(eventName, listener) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
@@ -1065,7 +1090,6 @@ Titanium.UI = {
 				dlg.setMessageBody(msg);
 			}
 			if (!isUndefined(attachment)) {
-				Titanium.API.debug("Attachment: " + Titanium.JSON.stringify(attachment));
 				dlg.addAttachment(attachment);
 			}
 		}
