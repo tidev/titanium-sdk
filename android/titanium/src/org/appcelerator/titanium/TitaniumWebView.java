@@ -542,7 +542,9 @@ public class TitaniumWebView extends WebView
 					ITitaniumNativeControl c = nativeControls.get(id).get();
 					c.handleLayoutRequest(b);
 				} else {
-					Log.w(LCAT, "Position data not found for id " + id);
+					if (DBG) {
+						Log.w(LCAT, "Position data not found for id " + id);
+					}
 				}
 			}
 		} catch (JSONException e) {

@@ -93,12 +93,20 @@ public class TitaniumText extends TitaniumBaseNativeControl
 			JSONObject o = new JSONObject();
 			try {
 				o.put("value", value);
-				eventManager.invokeSuccessListeners("change", o.toString());
+				eventManager.invokeSuccessListeners(CHANGE_EVENT, o.toString());
 			} catch (JSONException e) {
 				Log.e(LCAT, "Error setting value: ", e);
 			}
 		} else if (msg.what == MSG_RETURN) {
-			eventManager.invokeSuccessListeners(RETURN_EVENT, null);
+			EditText tv = (EditText) control;
+			value = tv.getText();
+			JSONObject o = new JSONObject();
+			try {
+				o.put("value", value);
+				eventManager.invokeSuccessListeners(RETURN_EVENT, o.toString());
+			} catch (JSONException e) {
+				Log.e(LCAT, "Error setting value: ", e);
+			}
 		}
 
 		return super.handleMessage(msg);
@@ -117,10 +125,10 @@ public class TitaniumText extends TitaniumBaseNativeControl
 
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
 	{
-		if (enableReturnKey) {
-			handler.obtainMessage(MSG_RETURN, actionId, 0, keyEvent).sendToTarget();
+		handler.obtainMessage(MSG_RETURN, actionId, 0, keyEvent).sendToTarget();
+		if ((enableReturnKey && v.getText().length() == 0)) {
+			return true;
 		}
-
 		return false;
 	}
 }

@@ -151,10 +151,6 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 		tv.setOnFocusChangeListener(this);
 		tv.setText(value);
 		tv.setHint(hintText);
-		Log.e(LCAT, "TEXT SIZE: " + tv.getTextSize() + " PL: " + tv.getPaddingLeft() +
-				" PR: " + tv.getPaddingRight() +
-				" PT: " + tv.getPaddingTop() +
-				" PB: " + tv.getPaddingBottom());
 		tv.setPadding(10, 5, 10, 7);
 		tv.setTextSize(15.0f);
 
@@ -246,7 +242,15 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 				Log.e(LCAT, "Error setting value: ", e);
 			}
 		} else if (msg.what == MSG_RETURN) {
-			eventManager.invokeSuccessListeners(RETURN_EVENT, null);
+			EditText tv = (EditText) control;
+			value = tv.getText();
+			JSONObject o = new JSONObject();
+			try {
+				o.put("value", value);
+				eventManager.invokeSuccessListeners(RETURN_EVENT, o.toString());
+			} catch (JSONException e) {
+				Log.e(LCAT, "Error setting value: ", e);
+			}
 		}
 
 		return super.handleMessage(msg);
@@ -265,10 +269,10 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
 	{
-		if (enableReturnKey) {
-			handler.obtainMessage(MSG_RETURN, actionId, 0, keyEvent).sendToTarget();
+		handler.obtainMessage(MSG_RETURN, actionId, 0, keyEvent).sendToTarget();
+		if ((enableReturnKey && v.getText().length() == 0)) {
+			return true;
 		}
-
 		return false;
 	}
 
