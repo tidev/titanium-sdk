@@ -285,5 +285,6 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 			control.getFocusedRect(r);
 			control.requestRectangleOnScreen(r);
 		}
+		super.onFocusChange(view, hasFocus);
 	}
 }

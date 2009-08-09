@@ -773,6 +773,13 @@ var Slider = function(proxy) {
 var TextArea = function(proxy) {
 	this.proxy = proxy;
 
+	this.focus = function() {
+		this.proxy.focus();
+	}
+	this.blur = function() {
+		this.proxy.blur();
+	}
+
 	this.addEventListener = function(eventName, listener) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
@@ -784,6 +791,12 @@ var TextArea = function(proxy) {
 var TextField = function(proxy) {
 	this.proxy = proxy;
 
+	this.focus = function() {
+		this.proxy.focus();
+	}
+	this.blur = function() {
+		this.proxy.blur();
+	}
 	this.addEventListener = function(eventName, listener) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
