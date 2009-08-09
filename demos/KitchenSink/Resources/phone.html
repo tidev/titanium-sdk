@@ -17,7 +17,6 @@
 		{title:'Shake',hasChild:true},
 		{title:'Email Client',hasChild:true},
 		{title:'Save to Gallery'},
-		{html:'<img src="Phone.png" height="32" width="33"/> Foo'}
 		
 	];
 	
@@ -136,8 +135,7 @@
 
 			success:function(image,details)
 			{
-				var win = Titanium.UI.createWindow();
-				win.setURL('image.html');
+				var win = Titanium.UI.createWindow({url:'image.html'});
 				Titanium.App.Properties.setString('photo',image.url);
 				if (details){
 					Titanium.App.Properties.setString('x',details.cropRect.x);
@@ -189,8 +187,7 @@
 		Titanium.Media.openPhotoGallery({
 			success: function(image,details)
 			{
-				var win = Titanium.UI.createWindow();
-				win.setURL('image.html');
+				var win = Titanium.UI.createWindow({url:'image.html'});
 				Titanium.App.Properties.setString('photo',image.url);
 				if (details) {
 					Titanium.App.Properties.setString('x',details.cropRect.x);
