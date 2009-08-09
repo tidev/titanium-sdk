@@ -18,6 +18,7 @@
 	
 	
 	<script>
+	var height = (Titanium.Platform.name.indexOf('iPhone') != -1) ? 30: 40;
 	
 	// text field
 	var tf1 = Titanium.UI.createTextField({
@@ -32,6 +33,7 @@
 		hintText:'fieldone hint text',
 		textAlign:'center',
 		clearOnEdit:true,
+		height:height,
 		borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 		clearButtonMode:Titanium.UI.INPUT_BUTTONMODE_ONFOCUS,
 	});

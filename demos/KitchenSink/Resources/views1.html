@@ -13,18 +13,20 @@
 	<button id="seven" style="font-size:14px">show view 7 (FLIP RIGHT)</button></br>
 
 	<div id="focused"></div>
+	<div id="unfocused"></div>
 
 	<script>
 
 	Titanium.UI.currentView.addEventListener('unfocused',function(e)
 	{
-		var a = Titanium.UI.createAlertDialog({title:'Unfocused',message:'It Worked'});
-		a.show();
+		Titanium.App.Properties.setString('unfocused','Unfocused event received at ' + new Date());		
+		document.getElementById('unfocused').innerHTML = Titanium.App.Properties.getString('unfocused')
 	});
 
 	Titanium.UI.currentView.addEventListener('focused',function(e)
 	{
-		document.getElementById('focused').innerHTML = 'Focused event received at ' + new Date();
+		Titanium.App.Properties.setString('focused','Focused event received at ' + new Date());
+		document.getElementById('focused').innerHTML = Titanium.App.Properties.getString('focused');
 	});
 
 	document.getElementById('two').onclick = function()

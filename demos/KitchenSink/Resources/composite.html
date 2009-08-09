@@ -24,22 +24,22 @@
 			<div style="height:50px;float:left;margin-right:10px">
 				Username:
 			</div>
-			<div style="height:50px;float:left">
-				<div id="textfield1"></div>
+			<div style="float:left">
+				<div id="textfield1" style="height:50px;width:170px"></div>
 			</div>
 			<div style="clear:both;margin;top:10px"></div>
 			<div style="height:50px;float:left;margin-right:10px">
 				Likes Beer:
 			</div>
-			<div style="height:50px;float:left">
-				<div id="switch1"></div>
+			<div style="float:left">
+				<div id="switch1" style="height:50px;width:80px"></div>
 			</div>
 			<div style="clear:both;margin;top:10px"></div>
 			<div style="height:50px;float:left;margin-right:10px">
 				Happy Scale:
 			</div>
-			<div style="height:50px;float:left">
-				<div id="slider1"></div>
+			<div style="float:left">
+				<div id="slider1" style="height:30px;width:100px"></div>
 			</div>
 			<div style="clear:both;margin;top:10px"></div>
 		</div>
@@ -48,13 +48,14 @@
 		</div>
 
 		<script>
+		var height = (Titanium.Platform.name.indexOf('iPhone') != -1) ? 30: 40;
 		var tf1 = Titanium.UI.createTextField({
 			id:'textfield1',
 			value:'Fred Sanford',
 			keyboardType:Titanium.UI.KEYBOARD_ASCII,
 			hintText:'enter username',
 			width:170,
-			height:30,
+			height:height,
 			clearOnEdit:true,
 			
 			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,

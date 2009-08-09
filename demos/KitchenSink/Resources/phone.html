@@ -137,7 +137,8 @@
 			{
 				var win = Titanium.UI.createWindow({url:'image.html'});
 				Titanium.App.Properties.setString('photo',image.url);
-				if (details){
+				if (details)
+				{
 					Titanium.App.Properties.setString('x',details.cropRect.x);
 					Titanium.App.Properties.setString('y',details.cropRect.y);
 					Titanium.App.Properties.setString('height',details.cropRect.height);
@@ -187,14 +188,17 @@
 		Titanium.Media.openPhotoGallery({
 			success: function(image,details)
 			{
-				var win = Titanium.UI.createWindow({url:'image.html'});
+				var win = Titanium.UI.createWindow({url:'image.html',title:'Image'});
 				Titanium.App.Properties.setString('photo',image.url);
-				if (details) {
+				if (details) 
+				{
 					Titanium.App.Properties.setString('x',details.cropRect.x);
 					Titanium.App.Properties.setString('y',details.cropRect.y);
 					Titanium.App.Properties.setString('height',details.cropRect.height);
 					Titanium.App.Properties.setString('width',details.cropRect.width);
-				} else {
+				} 
+				else 
+				{
 					Titanium.App.Properties.setString('x',0);
 					Titanium.App.Properties.setString('y',0);
 					Titanium.App.Properties.setString('height',image.height);
