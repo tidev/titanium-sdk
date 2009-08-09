@@ -12,28 +12,36 @@ import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 public class TitaniumText extends TitaniumBaseNativeControl
-	implements ITitaniumText, TextWatcher
+	implements ITitaniumText, TextWatcher, OnEditorActionListener
 {
 	private static final String LCAT = "TiSwitch";
 	@SuppressWarnings("unused")
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private static final int MSG_CHANGE = 300;
+	private static final int MSG_RETURN = 301;
 
 	public static final String CHANGE_EVENT = "change";
+	public static final String RETURN_EVENT = "return";
 
 	private CharSequence value;
 	private String color;
 	private String backgroundColor;
+	private boolean enableReturnKey;
 
 	public TitaniumText(TitaniumModuleManager tmm) {
 		super(tmm);
 
 		eventManager.supportEvent(CHANGE_EVENT);
+		eventManager.supportEvent(RETURN_EVENT);
 		value = "";
+		enableReturnKey = false;
 	}
 
 	protected void setLocalOptions(JSONObject o) throws JSONException
@@ -49,7 +57,9 @@ public class TitaniumText extends TitaniumBaseNativeControl
 		if (o.has("backgroundColor")) {
 			this.backgroundColor = o.getString("backgroundColor");
 		}
-
+		if (o.has("enableReturnKey")) {
+			this.enableReturnKey = o.getBoolean("enableReturnKey");
+		}
 	}
 
 	@Override
@@ -58,8 +68,11 @@ public class TitaniumText extends TitaniumBaseNativeControl
 		control = tv;
 
 		tv.addTextChangedListener(this);
+		tv.setOnEditorActionListener(this);
 		tv.setText(value);
 		tv.setGravity(Gravity.TOP | Gravity.LEFT);
+		tv.setPadding(10, 5, 10, 7);
+		tv.setTextSize(15.0f);
 
 		if (color != null) {
 			tv.setTextColor(TitaniumColorHelper.parseColor(color));
@@ -84,6 +97,8 @@ public class TitaniumText extends TitaniumBaseNativeControl
 			} catch (JSONException e) {
 				Log.e(LCAT, "Error setting value: ", e);
 			}
+		} else if (msg.what == MSG_RETURN) {
+			eventManager.invokeSuccessListeners(RETURN_EVENT, null);
 		}
 
 		return super.handleMessage(msg);
@@ -98,5 +113,14 @@ public class TitaniumText extends TitaniumBaseNativeControl
 
 	public void onTextChanged(CharSequence s, int start, int before, int count) {
 		handler.obtainMessage(MSG_CHANGE).sendToTarget();
+	}
+
+	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
+	{
+		if (enableReturnKey) {
+			handler.obtainMessage(MSG_RETURN, actionId, 0, keyEvent).sendToTarget();
+		}
+
+		return false;
 	}
 }

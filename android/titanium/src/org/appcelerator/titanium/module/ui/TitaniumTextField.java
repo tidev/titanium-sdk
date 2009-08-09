@@ -151,11 +151,17 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 		tv.setOnFocusChangeListener(this);
 		tv.setText(value);
 		tv.setHint(hintText);
+		Log.e(LCAT, "TEXT SIZE: " + tv.getTextSize() + " PL: " + tv.getPaddingLeft() +
+				" PR: " + tv.getPaddingRight() +
+				" PT: " + tv.getPaddingTop() +
+				" PB: " + tv.getPaddingBottom());
+		tv.setPadding(10, 5, 10, 7);
+		tv.setTextSize(15.0f);
 
 		switch(textAlign) {
-			case TEXT_ALIGN_LEFT : tv.setGravity(Gravity.LEFT); break;
-			case TEXT_ALIGN_CENTER : tv.setGravity(Gravity.CENTER_HORIZONTAL); break;
-			case TEXT_ALIGN_RIGHT : tv.setGravity(Gravity.RIGHT); break;
+			case TEXT_ALIGN_LEFT : tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT); break;
+			case TEXT_ALIGN_CENTER : tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL); break;
+			case TEXT_ALIGN_RIGHT : tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT); break;
 		}
 
 		switch(returnKeyType) {
