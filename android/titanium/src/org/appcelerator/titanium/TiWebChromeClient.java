@@ -7,13 +7,15 @@
 
 package org.appcelerator.titanium;
 
+import java.lang.ref.SoftReference;
+
+import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumActivityHelper;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.Log;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
@@ -22,7 +24,7 @@ public class TiWebChromeClient extends WebChromeClient {
 	private static final String LCAT = "TiWebChromeClient";
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
-	private Activity activity;
+	private SoftReference<Activity> softActivity;
 	private boolean useAsView;
 
 	public TiWebChromeClient(TitaniumActivity activity) {
@@ -31,7 +33,7 @@ public class TiWebChromeClient extends WebChromeClient {
 
 	public TiWebChromeClient(TitaniumActivity activity, boolean useAsView) {
 		super();
-		this.activity = TitaniumActivityHelper.getRootActivity(activity);
+		this.softActivity = new SoftReference<Activity>(TitaniumActivityHelper.getRootActivity(activity));
 		this.useAsView = useAsView;
 	}
 
@@ -40,47 +42,29 @@ public class TiWebChromeClient extends WebChromeClient {
     {
     	if (!useAsView) {
 			//super.onProgressChanged(view, newProgress);
-			if (newProgress < 100) {
-				activity.runOnUiThread(new Runnable(){
-					public void run() {
-						activity.setProgressBarVisibility(true);
-						activity.setProgressBarIndeterminateVisibility(true);
-						activity.setProgress(newProgress * 100);
-					}});
-			} else {
-				activity.runOnUiThread(new Runnable(){
-					public void run() {
-						activity.setProgress(newProgress * 100);
-					}});
-			}
+    		final Activity activity = softActivity.get();
+    		if (activity != null) {
+				if (newProgress < 100) {
+					activity.runOnUiThread(new Runnable(){
+						public void run() {
+							activity.setProgressBarVisibility(true);
+							activity.setProgressBarIndeterminateVisibility(true);
+							activity.setProgress(newProgress * 100);
+						}});
+				} else {
+					activity.runOnUiThread(new Runnable(){
+						public void run() {
+							activity.setProgress(newProgress * 100);
+						}});
+				}
+    		}
     	}
 	}
 
 	public boolean onJsAlert(WebView view, String url, String message, final android.webkit.JsResult result)
     {
-		if (DBG) {
-			Log.d(LCAT, message);
-		}
-    	if (false) {
-        new AlertDialog.Builder(activity)
-            .setTitle("javaScript dialog")
-            .setMessage(message)
-            .setPositiveButton(android.R.string.ok,
-                    new AlertDialog.OnClickListener()
-                    {
-                        public void onClick(DialogInterface dialog, int which)
-                        {
-                            result.confirm();
-                        }
-                    })
-            .setCancelable(false)
-            .create()
-            .show();
-    	} else {
-    		result.confirm();
-    	}
+		Log.i(LCAT, message);
+   		result.confirm();
         return true;
     };
-
-
 }

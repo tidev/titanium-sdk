@@ -631,14 +631,15 @@ var UserWindow = function(proxy) {
 		var count = this.proxy.getViewCount();
 		for(i = 0; i < count; i++) {
 			v = {};
-			v.proxy = this.proxy.getView(i);
+			v.window = this.proxy;
+			v.key = this.proxy.getViewKey(i);
 			v.index = i;
-			v.name = v.proxy.getName();
+			v.name = this.proxy.getViewName(v.key);
 			v.addEventListener = function(eventName, listener) {
-				return this.proxy.addEventListener(eventName, registerCallback(this, listener));
+				return this.window.addViewEventListener(this.key, eventName, registerCallback(this, listener));
 			};
 			v.removeEventListener = function(eventName, listenerId) {
-				this.proxy.removeEventListener(eventName, listenerId);
+				this.window.removeViewEventListener(this.key, eventName, listenerId);
 			};
 
 			views[i] = v;
@@ -667,7 +668,11 @@ var UserWindow = function(proxy) {
 		if (isUndefined(options)) {
 			options = null;
 		}
-		this.proxy.showView(view.proxy, options);
+		if(!isUndefined(view.key)) {
+			this.proxy.showViewByKey(view.key, options);
+		} else {
+			this.proxy.showView(view.proxy, options);
+		}
 	};
 	/**
 	 * @tiapi(method=true,name=UI.UserWindow.getViewByName,since=0.5.1) locate a view in the views array by name

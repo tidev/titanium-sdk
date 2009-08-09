@@ -7,6 +7,7 @@
 
 package org.appcelerator.titanium;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -75,6 +76,7 @@ public class TitaniumActivity extends Activity
 	protected TitaniumWindowInfo windowInfo;
 
 	protected ArrayList<ITitaniumView> views;
+	protected HashMap<String, WeakReference<ITitaniumView>> viewKeyIndex;
 	protected int activeViewIndex;
 
 	protected boolean loadOnPageEnd;
@@ -128,6 +130,7 @@ public class TitaniumActivity extends Activity
         needsDelayedFocusedEvent = true;
 
         views = new ArrayList<ITitaniumView>(5);
+        viewKeyIndex = new HashMap<String,WeakReference<ITitaniumView>>(5);
         activeViewIndex = -1;
 
         logWatcher = new TitaniumLogWatcher(this);
@@ -340,6 +343,7 @@ public class TitaniumActivity extends Activity
 							layout.showNext();
 							if (current != null) {
 								layout.removeView(current);
+								current.destroyDrawingCache();
 							}
 
 							if (!newView.hasFocus()) {
@@ -529,10 +533,26 @@ public class TitaniumActivity extends Activity
     // TODO, may return index
     public void addView(ITitaniumView view) {
      	synchronized(views) {
-    	      		// TODO check for multiple adds
+     		if (view.getKey() == null) {
+     			view.setKey("NPRX" + idGenerator.getAndIncrement());
+     		}
     		views.add(view);
-    		Log.e(LCAT, "ADDING VIEW: " + view);
+    		viewKeyIndex.put(view.getKey(), new WeakReference<ITitaniumView>(view));
+    		Log.e(LCAT, "ADDING VIEW: " + view + " with Key: " + view.getKey());
     	}
+    }
+
+    public ITitaniumView getViewFromKey(String key) {
+    	ITitaniumView tiView = null;
+    	synchronized(views) {
+    		if (viewKeyIndex.containsKey(key)) {
+    			tiView = viewKeyIndex.get(key).get();
+    		} else {
+    			Log.w(LCAT, "No view with key : " + key + " is registered with this activity.");
+    		}
+    	}
+
+    	return tiView;
     }
 
     public ITitaniumView getActiveView()
@@ -559,7 +579,6 @@ public class TitaniumActivity extends Activity
     public void setActiveView(ITitaniumView tiView, String options) {
     	int index = 0;
     	synchronized(views) {
-    		Log.e(LCAT, "LOOKING FOR VIEW: " + tiView);
     		index = views.indexOf(tiView);
     	}
     	setActiveView(index, options);
@@ -573,7 +592,11 @@ public class TitaniumActivity extends Activity
 
     public ITitaniumView getViewAt(int index) {
     	synchronized(views) {
-    		return views.get(index);
+    		ITitaniumView v = views.get(index);
+    		if (v == null) {
+    			Log.e(LCAT, "No view at index: " + index);
+    		}
+    		return v;
     	}
     }
 

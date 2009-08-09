@@ -60,6 +60,7 @@ public class TitaniumTableView extends FrameLayout
 	private TTVListAdapter adapter;
 	private ListView view;
 	private TitaniumJSEventManager eventListeners;
+	private String key;
 
 	private Runnable dataSetChanged = new Runnable() {
 
@@ -104,7 +105,7 @@ public class TitaniumTableView extends FrameLayout
 			if (convertView != null) {
 				v = (TitaniumTableViewItem) convertView;
 			} else {
-				v = new TitaniumTableViewItem(tmm.getActivity());
+				v = new TitaniumTableViewItem(tmm.getAppContext());
 			}
 
 			v.setRowData((JSONObject) getItem(position), rowHeight);
@@ -140,7 +141,7 @@ public class TitaniumTableView extends FrameLayout
 
 	public TitaniumTableView(TitaniumModuleManager tmm, int themeId)
 	{
-		super(tmm.getActivity(), null, themeId);
+		super(tmm.getAppContext(), null, themeId);
 
 		this.tmm = tmm;
 		this.handler = new Handler(this);
@@ -327,7 +328,7 @@ public class TitaniumTableView extends FrameLayout
 		setLayoutParams(params);
 		setPadding(5,5,5,5);
 
-		view = new ListView(tmm.getActivity());
+		view = new ListView(tmm.getAppContext());
 		view.setFocusable(true);
 		view.setFocusableInTouchMode(true);
 		adapter = new TTVListAdapter(viewModel);
@@ -410,5 +411,13 @@ public class TitaniumTableView extends FrameLayout
 	// Called on the current view, so forward to our controller
 	public boolean dispatchPrepareOptionsMenu(Menu menu) {
 		return tmm.getWebView().dispatchPrepareOptionsMenu(menu);
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
 	}
 }

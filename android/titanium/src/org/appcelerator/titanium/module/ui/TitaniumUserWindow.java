@@ -246,13 +246,16 @@ public class TitaniumUserWindow
 		}
 	}
 
-	public ITitaniumView getView(int i) {
-		ITitaniumView view = null;
+	public String getViewKey(int i) {
+		String key = null;
 		TitaniumActivity activity = getActivity();
 		if (activity != null) {
-			view =  activity.getViewAt(i);
+			ITitaniumView tv = activity.getViewAt(i);
+			if (tv != null) {
+				key = tv.getKey();
+			}
 		}
-		return view;
+		return key;
 	}
 
 	public ITitaniumView getViewByName(String name) {
@@ -291,10 +294,59 @@ public class TitaniumUserWindow
 		}
 	}
 
+	public void showViewByKey(String key, String options) {
+		TitaniumActivity activity = getActivity();
+		if (activity != null) {
+			ITitaniumView tv = activity.getViewFromKey(key);
+			if (tv != null) {
+				showView(tv, options);
+			}
+		}
+	}
+
 	public void showView(ITitaniumView tiView, String options) {
 		TitaniumActivity activity = getActivity();
 		if (activity != null) {
 			activity.setActiveView(tiView, options);
+		}
+	}
+
+	public String getViewName(String key) {
+		String name = null;
+
+		TitaniumActivity activity = getActivity();
+		if (activity != null) {
+			ITitaniumView tv = activity.getViewFromKey(key);
+			if (tv != null) {
+				name = tv.getName();
+			}
+		}
+
+		return name;
+	}
+
+	public int addViewEventListener(String key, String eventName, String listener) {
+		int listenerId = -1;
+
+		TitaniumActivity activity = getActivity();
+		if (activity != null) {
+			ITitaniumView tv = activity.getViewFromKey(key);
+			if (tv != null) {
+				listenerId = tv.addEventListener(eventName, listener);
+			}
+		}
+
+		return listenerId;
+	}
+
+	public void removeEventListener(String key, String eventName, int listenerId)
+	{
+		TitaniumActivity activity = getActivity();
+		if (activity != null) {
+			ITitaniumView tv = activity.getViewFromKey(key);
+			if (tv != null) {
+				tv.removeEventListener(eventName, listenerId);
+			}
 		}
 	}
 

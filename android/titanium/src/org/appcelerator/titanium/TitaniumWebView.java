@@ -2,6 +2,7 @@ package org.appcelerator.titanium;
 
 import java.io.IOException;
 import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.Semaphore;
@@ -85,7 +86,7 @@ public class TitaniumWebView extends WebView
 
 	private MimeTypeMap mtm;
 
-	private HashMap<String, ITitaniumNativeControl> nativeControls;
+	private HashMap<String, WeakReference<ITitaniumNativeControl>> nativeControls;
 	private AbsoluteLayout.LayoutParams offScreen;
 
 	private HashMap<String, Semaphore> locks;
@@ -100,6 +101,7 @@ public class TitaniumWebView extends WebView
 	private SoftReference<TitaniumUIWebView> softUIWebView;
 
 	private HashSet<OnConfigChange> configurationChangeListeners;
+	private String key;
 
 	public interface OnConfigChange {
 		public void configurationChanged(Configuration config);
@@ -466,13 +468,13 @@ public class TitaniumWebView extends WebView
 			throw new IllegalArgumentException("Control must have a non-null id");
 		}
 		if (nativeControls == null) {
-			nativeControls = new HashMap<String, ITitaniumNativeControl>();
+			nativeControls = new HashMap<String, WeakReference<ITitaniumNativeControl>>();
 		} else if(nativeControls.containsKey(id)) {
 			throw new IllegalArgumentException("Control has already been registered id=" + id);
 		}
 
-		nativeControls.put(id, control);
-		//requestNativeLayout(id);
+		nativeControls.put(id, new WeakReference<ITitaniumNativeControl>(control));
+		requestNativeLayout(id);
 
 		if (DBG) {
 			Log.d(LCAT, "Native control linked to html id " + id);
@@ -537,7 +539,8 @@ public class TitaniumWebView extends WebView
 					b.putInt("width", pos.getInt("width"));
 					b.putInt("height", pos.getInt("height"));
 
-					nativeControls.get(id).handleLayoutRequest(b);
+					ITitaniumNativeControl c = nativeControls.get(id).get();
+					c.handleLayoutRequest(b);
 				} else {
 					Log.w(LCAT, "Position data not found for id " + id);
 				}
@@ -599,13 +602,16 @@ public class TitaniumWebView extends WebView
 				if (wv != null) {
 					wv.showing();
 				}
+				requestNativeLayout();
 			} else {
 				eventListeners.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
 			}
 		}
+		resumeTimers();
 	}
 
 	public void hiding() {
+		pauseTimers();
 		eventListeners.invokeSuccessListeners(EVENT_UNFOCUSED, EVENT_UNFOCUSED_JSON);
 	}
 
@@ -656,6 +662,14 @@ public class TitaniumWebView extends WebView
 			return false;
 		}
 		return true;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
 	}
 
     protected void buildMenuTree(Menu menu, TitaniumMenuItem md, HashMap<Integer, String> map)
@@ -730,10 +744,12 @@ public class TitaniumWebView extends WebView
 	}
 
 	public void onPause() {
+		pauseTimers();
 		tmm.onPause();
 	}
 
 	public void onResume() {
+		resumeTimers();
 		tmm.onResume();
 	}
 }

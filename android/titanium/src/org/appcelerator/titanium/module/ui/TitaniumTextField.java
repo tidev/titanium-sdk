@@ -141,7 +141,7 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 
 	@Override
 	public void createControl(TitaniumModuleManager tmm) {
-		EditText tv = new EditText(tmm.getActivity());
+		EditText tv = new EditText(tmm.getAppContext());
 		control = tv;
 
 		tv.setSingleLine();

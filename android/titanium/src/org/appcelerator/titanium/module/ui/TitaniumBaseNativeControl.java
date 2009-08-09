@@ -149,6 +149,7 @@ public abstract class TitaniumBaseNativeControl
 			if (id != null) {
 				TitaniumWebView wv = tmm.getWebView();
 				if (wv != null) {
+					//TODO: POSSIBLE LEAK
 					wv.addListener(this);
 					control.setOnFocusChangeListener(this);
 					wv.addControl(control);

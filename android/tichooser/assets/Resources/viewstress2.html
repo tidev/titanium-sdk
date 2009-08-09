@@ -1,0 +1,34 @@
+<html>
+<head>
+<script>
+	var wv1 = Titanium.UI.createWebView({url: 'vs-simple-blue.html', name : 'blue'});
+	var wv2 = Titanium.UI.createWebView({url: 'vs-simple-red.html', name : 'red'});
+
+  	window.onload = function()
+  	{
+  	  	var w = Titanium.UI.currentWindow;
+
+  	  	var index = 1;
+
+  	  	w.addView(wv1);
+  	  	w.addView(wv2);
+  	  	w.setActiveViewIndex(1);
+
+  		function switchView() {
+  			if (index == 1) {
+  	  			index = 2;
+  			} else {
+  	  			index = 1;
+  			}
+  			w.setActiveViewIndex(index);
+  			setTimeout(switchView, 1000);
+  		};
+
+  		setTimeout(switchView, 1000);
+   	}
+  --></script>
+</head>
+<body style="background-color: white;">
+
+</body>
+</html>

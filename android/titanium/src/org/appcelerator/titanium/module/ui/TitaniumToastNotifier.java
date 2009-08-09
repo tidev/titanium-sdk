@@ -37,7 +37,7 @@ public class TitaniumToastNotifier extends TitaniumNotifier
 		final TitaniumActivity activity = tmm.getActivity();
 		if (activity != null) {
 			if (toast == null) {
-				toast = Toast.makeText(activity, getMessage(), getToastDelay());
+				toast = Toast.makeText(activity.getApplicationContext(), getMessage(), getToastDelay());
 			} else {
 				toast.setText(getMessage());
 				toast.setDuration(getToastDelay());
