@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
@@ -31,8 +32,31 @@ public class TitaniumTableViewItem extends RelativeLayout
 	private int defaultTextColor;
 	private float defaultTextSize;
 
+	private static Object initLock = new Object();
+
+	class ImgGetter implements Html.ImageGetter {
+
+		private TitaniumFileHelper tfh;
+
+		public ImgGetter(Context context) {
+			tfh = new TitaniumFileHelper(context);
+		}
+		public Drawable getDrawable(String src) {
+			Drawable d = tfh.loadDrawable(src, false);
+			d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+			return d;
+		}
+	}
+	private static ImgGetter imageGetter;
+
 	public TitaniumTableViewItem(Context context) {
 		super(context);
+
+		synchronized (initLock) {
+			if (imageGetter == null) {
+				imageGetter = new ImgGetter(context.getApplicationContext());
+			}
+		}
 
 		setGravity(Gravity.CENTER_VERTICAL);
 		//setFocusable(true);
@@ -79,9 +103,11 @@ public class TitaniumTableViewItem extends RelativeLayout
 	{
 		TitaniumFileHelper tfh = new TitaniumFileHelper(getContext());
 
+		destroyDrawingCache();
 		iconView.setVisibility(View.GONE);
 		iconView.destroyDrawingCache();
 		textView.setVisibility(View.GONE);
+		textView.destroyDrawingCache();
 		hasChildView.setVisibility(View.GONE);
 		setMinimumHeight(rowHeight);
 		header = false;
@@ -141,7 +167,7 @@ public class TitaniumTableViewItem extends RelativeLayout
 			try {
 				String html = data.getString("html");
 				if (html != null) {
-					textView.setText(Html.fromHtml(html), TextView.BufferType.SPANNABLE);
+					textView.setText(Html.fromHtml(html, imageGetter, null), TextView.BufferType.SPANNABLE);
 				}
 			} catch (JSONException e) {
 				Log.e(LCAT, "Error retrieving html", e);
