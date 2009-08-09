@@ -345,6 +345,13 @@ var EmailDialog = function(proxy) {
 	};
 	this.addAttachment = function(attachment) {
 		if (!isUndefined(attachment)) {
+			Titanium.API.debug("Attachment type: " + typeOf(attachment.file));
+			if (typeOf(attachment.file) != 'string') {
+				if(!isUndefined(attachment.file.url)) {
+					attachment.file = String(attachment.file.url);
+				}
+			}
+			Titanium.API.debug("Attachment: " + Titanium.JSON.stringify(attachment));
 			this.proxy.addAttachment(Titanium.JSON.stringify(attachment));
 		}
 	};
@@ -1070,7 +1077,6 @@ Titanium.UI = {
 				dlg.setMessageBody(msg);
 			}
 			if (!isUndefined(attachment)) {
-				Titanium.API.debug("Attachment: " + Titanium.JSON.stringify(attachment));
 				dlg.addAttachment(attachment);
 			}
 		}
