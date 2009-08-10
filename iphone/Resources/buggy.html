@@ -8,83 +8,50 @@
 </style>
 </head>
 <body style="background-color:#fff;font-size:20px;font-family:'Helvetica Neue';font-weight:bold">
+
+<button onclick="Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('number1'),{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.CURL_UP,animationDuration:2000})">Switch by name "number1"</button>
+	
 	
 	<script>
+			Titanium.Media.openPhotoGallery({
+			success: function(image,details)
+			{
+				Ti.API.debug('Checkpoint 1');
+				var win = Titanium.UI.createWindow();
+				Ti.API.debug('Checkpoint 2');
+				win.setURL('misc.html');
+				Ti.API.debug('Checkpoint 3');
+				Titanium.App.Properties.setString('photo',image.url);
+				Ti.API.debug('Checkpoint 4');
+				if (details) {
+					Titanium.App.Properties.setString('x',details.cropRect.x);
+					Titanium.App.Properties.setString('y',details.cropRect.y);
+					Titanium.App.Properties.setString('height',details.cropRect.height);
+					Titanium.App.Properties.setString('width',details.cropRect.width);
+				} else {
+					Titanium.App.Properties.setString('x',0);
+					Titanium.App.Properties.setString('y',0);
+					Titanium.App.Properties.setString('height',image.height);
+					Titanium.App.Properties.setString('width',image.width);
+				}
+				Ti.API.debug('Checkpoint 5');
+				win.open({animated:true});
+				Ti.API.debug('Checkpoint 6');
+			},
+			error: function(error)
+			{
+				Titanium.UI.createAlertDialog( {
+					title: "Error from Gallery",
+					message: error.message,
+					buttonNames: OK
+				} ).show();
+			},
+			cancel: function()
+			{
 
-		var a = Titanium.UI.createAlertDialog({title:'Grouped View Test', buttonNames:['OK']});
-		
-		var buttonData = [
-			{title:'Button 1'},
-			{title:'Button 2'}
-		];
-
-		var bar = Titanium.UI.createButtonBar({labels:['Button 1', 'Button 2'], color:'#336699'});
-		Titanium.UI.currentWindow.setRightNavButton(bar);
-		
-		var buttonSection = Titanium.UI.iPhone.createGroupedSection({footer:'Button Group Footer', header:'Button Group', type:'button',data:buttonData});
-		buttonSection.addEventListener('click',function(e)
-		{
-			a.setMessage('You clicked index ' + e.index + ' section row ' + e.row + ' section ' + e.section);
-			a.show();
+			},
+			allowImageEditing:true
 		});
-
-		var optionData = [
-			{title:'Option 1'},
-			{title:'Option 2' , selected:true},
-			{title:'Option 3'}	
-		];
-
-		var optionSection = Titanium.UI.iPhone.createGroupedSection({header:'Option Group', type:'option', data:optionData});
-		optionSection.addEventListener('click',function(e)
-		{
-			a.setMessage('You clicked index ' + e.index + ' section row ' + e.row + ' section ' + e.section);
-			a.show();
-		});
-
-		var switchInstance = Titanium.UI.createSwitch({value:true});
-		switchInstance.addEventListener('change',function(e)
-		{
-			a.setMessage(e.value)
-			a.show();
-		})
-		
-		var sliderInstance = Titanium.UI.createSlider({min:0,max:10,value:5, width:150});
-		sliderInstance.addEventListener('change',function(e)
-		{
-			a.setMessage(e.value)
-			a.show();
-		})
-		var textInstance = Titanium.UI.createTextField({value:'Nolan',width:50});
-		textInstance.addEventListener('change',function(e)
-		{
-			a.setMessage(e.value)
-			a.show();
-		})
-
-		var inputData = [
-			{title:'Input 1', input:switchInstance},
-			{title:'Sound', input:sliderInstance},
-			{title:'Name', input:textInstance},
-			{title:'Input 2', value:'foo', hasChild:true},
-			{title:'Input 3'}	
-		];
-
-		var inputSection = Titanium.UI.iPhone.createGroupedSection({header:'Input Group', type:'input', data:inputData});
-		inputSection.addEventListener('click',function(e)
-		{
-			a.setMessage('You clicked index ' + e.index + ' section row ' + e.row + ' section ' + e.section);
-			a.show();
-		});
-		
-		// create grouped view  
-		var groupedView = Titanium.UI.iPhone.createGroupedView();
-		groupedView.addSection(optionSection);
-		groupedView.addSection(buttonSection);
-		groupedView.addSection(inputSection);
-		Titanium.UI.currentWindow.addView(groupedView);
-		Titanium.UI.currentWindow.showView(groupedView);
-//		groupedView.open({animated:true});
-	
-	</script>
+		</script>
 </body>
 </html>
