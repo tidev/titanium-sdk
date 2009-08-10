@@ -274,7 +274,7 @@ var ActivityIndicator = function(proxy) {
 		this.proxy.setMax(n);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.ActivityIndicator.setValue,since=0.5.1) Set the current indicator position between min and max
+	 * @tiapi(method=true,name=UI.ActivityIndicator.setValue,since=0.6.0) Set the current indicator position between min and max
 	 * @tiarg[int,n] the position
 	 */
 	this.setValue = function(n) {
@@ -437,7 +437,7 @@ var TableView = function(proxy) {
 		this.proxy.setRowHeight(height);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.TableView.getIndexByName,since=0.5.1) the current index of the first
+	 * @tiapi(method=true,name=UI.TableView.getIndexByName,since=0.6.0) the current index of the first
 	 * @tiapi row with the given name, searching from 0.
 	 * @tiarg[int,index] index of the first row with name or -1 if not found.
 	 */
@@ -445,7 +445,7 @@ var TableView = function(proxy) {
 		return this.proxy.getIndexByName(name);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.TableView.addEventListener,since=0.5.1) Add a listener for to this view. Support 'focused' and 'unfocused'
+	 * @tiapi(method=true,name=UI.TableView.addEventListener,since=0.6.0) Add a listener for to this view. Support 'focused' and 'unfocused'
 	 * @tiarg[string,eventName] The event name
 	 * @tiarg[function,listener] The event listener
 	 * @tiresult[int] id used when removing the listener
@@ -454,7 +454,7 @@ var TableView = function(proxy) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
 	/**
-	 * @tiapi(method=true,name=UI.TableView.removeEventListener,since=0.5.1) Remove a previously added listener
+	 * @tiapi(method=true,name=UI.TableView.removeEventListener,since=0.6.0) Remove a previously added listener
 	 * @tiarg[string,eventName] The event name
 	 * @tiarg[int,listenerId] id returned from addEventListener
 	 */
@@ -520,7 +520,7 @@ var WebView = function(proxy) {
 		return this.proxy.getName();
 	};
 	/**
-	 * @tiapi(method=true,name=UI.WebView.addEventListener,since=0.5.1) Add a listener for to this view. Support 'focused' and 'unfocused'
+	 * @tiapi(method=true,name=UI.WebView.addEventListener,since=0.6.0) Add a listener for to this view. Support 'focused' and 'unfocused'
 	 * @tiarg[string,eventName] The event name
 	 * @tiarg[function,listener] The event listener
 	 * @tiresult[int] id used when removing the listener
@@ -529,7 +529,7 @@ var WebView = function(proxy) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
 	/**
-	 * @tiapi(method=true,name=UI.WebView.removeEventListener,since=0.5.1) Remove a previously added listener
+	 * @tiapi(method=true,name=UI.WebView.removeEventListener,since=0.6.0) Remove a previously added listener
 	 * @tiarg[string,eventName] The event name
 	 * @tiarg[int,listenerId] id returned from addEventListener
 	 */
@@ -618,10 +618,10 @@ var UserWindow = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 
-	// View methods in 0.5.1
+	// View methods in 0.6.0
 
 	/**
-	 * @tiapi(method=true,name=UI.UserWindow.addView,since=0.5.1) add a view at the end of the view list
+	 * @tiapi(method=true,name=UI.UserWindow.addView,since=0.6.0) add a view at the end of the view list
 	 * @tiarg[View,view] The view object
 	 * @tiarg[object, options] options
 	 */
@@ -630,7 +630,7 @@ var UserWindow = function(proxy) {
 	};
 
 	/**
-	 * @tiapi(method=true,name=UI.UserWindow.getViews,since=0.5.1) an array of views
+	 * @tiapi(method=true,name=UI.UserWindow.getViews,since=0.6.0) an array of views
 	 * @tiresult[array] the views
 	 */
 	this.getViews = function() {
@@ -655,7 +655,7 @@ var UserWindow = function(proxy) {
 	};
 
 	/**
-	 * @tiapi(method=true,name=UI.UserWindow.setActiveViewIndex,since=0.5.1) The index of the view to display in the window
+	 * @tiapi(method=true,name=UI.UserWindow.setActiveViewIndex,since=0.6.0) The index of the view to display in the window
 	 * @tiarg[int,index] The index of the view in the array returned by getViews()
 	 * @tiarg[object, options] options
 	 */
@@ -667,7 +667,7 @@ var UserWindow = function(proxy) {
 	};
 
 	/**
-	 * @tiapi(method=true,name=UI.UserWindow.showView,since=0.5.1) locate a view in the views array and display in the window
+	 * @tiapi(method=true,name=UI.UserWindow.showView,since=0.6.0) locate a view in the views array and display in the window
 	 * @tiarg[View,view] The view object
 	 * @tiarg[object, options] options
 	 */
@@ -682,7 +682,7 @@ var UserWindow = function(proxy) {
 		}
 	};
 	/**
-	 * @tiapi(method=true,name=UI.UserWindow.getViewByName,since=0.5.1) locate a view in the views array by name
+	 * @tiapi(method=true,name=UI.UserWindow.getViewByName,since=0.6.0) locate a view in the views array by name
 	 * @tiarg[String,name] The view name
 	 * @tiarg[object, view] the view
 	 */
@@ -1097,7 +1097,7 @@ Titanium.UI = {
 		return dlg;
 	},
 	/**
-	 * @tiapi(method=true,name=UI.createButton,since=0.5.1) Create a native button
+	 * @tiapi(method=true,name=UI.createButton,since=0.6.0) Create a native button
 	 * @tiarg[object, options] a set of configuration options for the button
 	 * @tiresult[Button] the button.
 	 */
@@ -1108,7 +1108,7 @@ Titanium.UI = {
 	},
 
 	/**
-	 * @tiapi(method=true,name=UI.createSwitch,since=0.5.1) Create a native toggle
+	 * @tiapi(method=true,name=UI.createSwitch,since=0.6.0) Create a native toggle
 	 * @tiarg[object, options] a set of configuration options for the switch/toggle.
 	 * @tiresult[Switch] the Switch.
 	 */
@@ -1119,7 +1119,7 @@ Titanium.UI = {
 	},
 
 	/**
-	 * @tiapi(method=true,name=UI.createTextField,since=0.5.1) Create a native Slider
+	 * @tiapi(method=true,name=UI.createTextField,since=0.6.0) Create a native Slider
 	 * @tiarg[object, options] a set of configuration options for the Slider.
 	 * @tiresult[Slider] the Slider.
 	 */
@@ -1130,7 +1130,7 @@ Titanium.UI = {
 	},
 
 	/**
-	 * @tiapi(method=true,name=UI.createTextArea,since=0.5.1) Create a native text editor
+	 * @tiapi(method=true,name=UI.createTextArea,since=0.6.0) Create a native text editor
 	 * @tiarg[object, options] a set of configuration options for the text.
 	 * @tiresult[TextArea] the TextArea.
 	 */
@@ -1167,7 +1167,7 @@ Titanium.UI = {
 	INPUT_BUTTONMODE_NEVER : 2,
 
 	/**
-	 * @tiapi(method=true,name=UI.createTextField,since=0.5.1) Create a native text field
+	 * @tiapi(method=true,name=UI.createTextField,since=0.6.0) Create a native text field
 	 * @tiarg[object, options] a set of configuration options for the text.
 	 * @tiresult[TextField] the TextField.
 	 */

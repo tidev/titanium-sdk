@@ -8,7 +8,7 @@ public interface ITitaniumTableView
 	public void configure(String json, String callback);
 	public void close();
 
-	// New in 0.5.1
+	// New in 0.6.0
 	public void insertRowAfter(int index, String json);
 	public void insertRowBefore(int index, String json);
 	public void deleteRow(int index);

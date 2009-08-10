@@ -20,7 +20,7 @@ public interface ITitaniumUserWindow
 	public int addEventListener(String eventName, String listener);
 	public void removeEventListener(String eventName, int listenerId);
 
-	// new in 0.5.1
+	// new in 0.6.0
 
 	public void addView(ITitaniumView view);
 	public void setActiveViewIndex(int index, String options);
