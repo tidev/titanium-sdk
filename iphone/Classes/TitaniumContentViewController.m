@@ -27,6 +27,7 @@ int nextContentViewToken = 0;
 {
 	TitaniumContentViewController * result=nil;
 	NSString * resultToken = nil;
+	NSString * resultName = nil;
 	//NOTE: ViewControllerFactory here.
 	Class dictionaryClass = [NSDictionary class];
 
@@ -44,7 +45,7 @@ int nextContentViewToken = 0;
 				result = [[TitaniumTableViewController alloc] init];
 			}
 		}
-		[result setNameString:[(NSDictionary *)inputState objectForKey:@"name"]];
+		resultName = [(NSDictionary *)inputState objectForKey:@"name"];
 	}
 	if (result == nil){
 		result = [[TitaniumWebViewController alloc] init];
@@ -53,6 +54,7 @@ int nextContentViewToken = 0;
 
 	[result setPrimaryToken:resultToken];
 	
+	[result setNameString:resultName];
 	[result readState:inputState relativeToUrl:baseUrl];
 
 	[[TitaniumHost sharedHost] registerContentViewController:result forKey:resultToken];
