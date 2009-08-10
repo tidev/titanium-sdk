@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,6 +32,7 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 	private String title; // Button text
 	private String imagePath;
 	private String backgroundImage;
+	private String backgroundSelectedImage;
 	private String color;
 	private String backgroundColor;
 
@@ -52,6 +54,9 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 		}
 		if (o.has("backgroundImage")) {
 			this.backgroundImage = o.getString("backgroundImage");
+		}
+		if (o.has("backgroundSelectedImage")) {
+			this.backgroundSelectedImage = o.getString("backgroundSelectedImage");
 		}
 		if (o.has("color")) {
 			this.color = o.getString("color");
@@ -80,6 +85,28 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 
 			if (backgroundColor != null) {
 				b.setBackgroundColor(TitaniumColorHelper.parseColor(backgroundColor));
+			}
+
+			if (backgroundImage != null || backgroundSelectedImage != null) {
+				TitaniumFileHelper tfh = new TitaniumFileHelper(context);
+				StateListDrawable bd = new StateListDrawable();
+				if (backgroundSelectedImage != null) {
+					Drawable d = tfh.loadDrawable(backgroundSelectedImage, false);
+					if (d != null) {
+						int[] ss = { android.R.attr.state_pressed };
+						bd.addState(ss, d);
+						int[] ss1 = {android.R.attr.state_focused, android.R.attr.state_pressed };
+						bd.addState(ss1, d);
+					}
+				}
+				if (backgroundImage != null) {
+					Drawable d = tfh.loadDrawable(backgroundImage, false);
+					if (d != null) {
+						int[] stateSet = { android.R.attr.state_enabled };
+						bd.addState(stateSet, d);
+					}
+				}
+				b.setBackgroundDrawable(bd);
 			}
 			control = b;
 		} else {
