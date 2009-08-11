@@ -1878,6 +1878,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	NSString * createWebViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='web';"
 			"res.insertButton=function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
 			"res.setURL=function(newUrl){this.url=newUrl;if(this._TOKEN){Ti.UI._WURL(this._TOKEN,newUrl,document.location);};};"
+			"res.open=function(){Ti.API.fatal('Open is no longer supported in webViews, as they are no longer their own windows.');};"
 			"return res;}";
 	
 	NSString * createTableWindowString = [NSString stringWithFormat:@"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
@@ -1891,6 +1892,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 				"if(rowIndex<(this.data.length-1)){var nextRow=this.data[rowIndex+1];if(nextRow.header==undefined)nextRow.header=this.data[rowIndex].header;}"
 				"this.data.splice(rowIndex,1);if(this._TOKEN){Ti.UI._WROWDEL(this._TOKEN,rowIndex,args);}};"
 			"res.updateRow=function(rowIndex,row,args){this.data.splice(rowIndex,1,row);if(this._TOKEN){if(row.input)row.input.ensureToken();Ti.UI._WROWCHG(this._TOKEN,rowIndex,row,%d,args);}};"
+			"res.open=function(){Ti.API.fatal('Open is no longer supported in webViews, as they are no longer their own windows.');};"
 			"res.setData=function(newData,args){this.data=newData;if(this._TOKEN){"
 					"for(var i=0;i<newData.length;i++){if(newData[i].input)newData[i].input.ensureToken();}Ti.UI._WDTAUPD(this._TOKEN,newData,false,args);}};"
 			"var tkn='TBL'+(Ti.UI._NEXTTKN++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}",TitaniumTableActionInsertAfterRow,TitaniumTableActionInsertBeforeRow,TitaniumTableActionUpdateRow];
