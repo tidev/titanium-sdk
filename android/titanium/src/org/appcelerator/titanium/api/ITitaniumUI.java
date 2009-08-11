@@ -27,7 +27,7 @@ public interface ITitaniumUI
 	// In 0.5.0
 	public ITitaniumTableView createTableView();
 
-	// In 0.5.1
+	// In 0.6.0
 	public ITitaniumButton createButton(String json);
 	public ITitaniumSwitch createSwitch(String json);
 	public ITitaniumSlider createSlider(String json);

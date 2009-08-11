@@ -78,6 +78,7 @@ typedef enum {
 	//TODO: organize and add in a set of dirty flags to speed things up.
 	TitaniumViewControllerDirtyFlags	dirtyFlags;
 	NSDictionary * animationOptionsDict;
+	BOOL		isVisible;
 
 //	NSMutableArray * 
 }
