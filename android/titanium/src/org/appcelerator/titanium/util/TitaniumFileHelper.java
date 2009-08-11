@@ -29,9 +29,11 @@ import org.appcelerator.titanium.config.TitaniumConfig;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.NinePatch;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import org.appcelerator.titanium.util.Log;
+import android.graphics.drawable.NinePatchDrawable;
 
 public class TitaniumFileHelper
 {
@@ -133,7 +135,7 @@ public class TitaniumFileHelper
 		try
 		{
 			is = openInputStream(path, report);
-			d = new BitmapDrawable(is);
+			d = Drawable.createFromStream(is, path);
 		} catch (IOException e) {
 			Log.i(LCAT, path + " not found.");
 			if (report) {
