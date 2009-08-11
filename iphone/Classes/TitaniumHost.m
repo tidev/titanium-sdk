@@ -828,7 +828,8 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 		NSString * keyValue = @"null";
 		
 		if ([thisObject isKindOfClass:[NSString class]]){
-			keyValue = [NSString stringWithFormat:@"'%@'",thisObject];
+			keyValue = [SBJSON stringify:thisObject];
+//			[NSString stringWithFormat:@"'%@'",thisObject];
 		} else if ([thisObject isKindOfClass:[NSNumber class]]){
 			keyValue = [thisObject stringValue];
 		} else if ([thisObject isKindOfClass:[NSInvocation class]]){
