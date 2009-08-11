@@ -1,57 +1,57 @@
 <html>
 <head>
-<style>
-.button
-{
-	font-size:18px;width:280px;text-align:center
-}
-</style>
+
+
 </head>
-<body style="background-color:#fff;font-size:20px;font-family:'Helvetica Neue';font-weight:bold">
+<body  style="font-family:'Helvetica Neue'">
+	<div id="content">
+		<div id="move" style="margin-top:5px">TouchMove Count: 0</div>
+		<div id="start" style="margin-top:5px">TouchStart Count: 0</div>
+		<div id="end" style="margin-top:5px">TouchEnd Count: 0</div>
 
-<button onclick="Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('number1'),{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.CURL_UP,animationDuration:2000})">Switch by name "number1"</button>
-	
-	
+		<button id="button" style="font-size:18px">Add Content</button>
+	</div>
 	<script>
-			Titanium.Media.openPhotoGallery({
-			success: function(image,details)
-			{
-				Ti.API.debug('Checkpoint 1');
-				var win = Titanium.UI.createWindow();
-				Ti.API.debug('Checkpoint 2');
-				win.setURL('misc.html');
-				Ti.API.debug('Checkpoint 3');
-				Titanium.App.Properties.setString('photo',image.url);
-				Ti.API.debug('Checkpoint 4');
-				if (details) {
-					Titanium.App.Properties.setString('x',details.cropRect.x);
-					Titanium.App.Properties.setString('y',details.cropRect.y);
-					Titanium.App.Properties.setString('height',details.cropRect.height);
-					Titanium.App.Properties.setString('width',details.cropRect.width);
-				} else {
-					Titanium.App.Properties.setString('x',0);
-					Titanium.App.Properties.setString('y',0);
-					Titanium.App.Properties.setString('height',image.height);
-					Titanium.App.Properties.setString('width',image.width);
-				}
-				Ti.API.debug('Checkpoint 5');
-				win.open({animated:true});
-				Ti.API.debug('Checkpoint 6');
-			},
-			error: function(error)
-			{
-				Titanium.UI.createAlertDialog( {
-					title: "Error from Gallery",
-					message: error.message,
-					buttonNames: OK
-				} ).show();
-			},
-			cancel: function()
-			{
+	var moveCount = 0;
+	var startCount = 0;
+	var endCount = 0;
+	
+	document.getElementById('content').ontouchmove = function()
+	{
+		moveCount++
+		document.getElementById('move').innerHTML = 'TouchMove Count: ' + moveCount;
+	};
+	document.getElementById('content').ontouchstart = function()
+	{
+		startCount++
+		document.getElementById('start').innerHTML = 'TouchStart Count: ' + startCount;
+	};
+	document.getElementById('content').ontouchend = function()
+	{
+		endCount++
+		document.getElementById('end').innerHTML = 'TouchEnd Count: ' + endCount;
+	};
 
-			},
-			allowImageEditing:true
-		});
-		</script>
+	document.getElementById('button').onclick = function()
+	{
+	 	var html = '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		document.getElementById('content').innerHTML += html;
+		
+	}
+
+	</script>
 </body>
 </html>

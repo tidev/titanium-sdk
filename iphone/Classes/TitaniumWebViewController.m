@@ -330,6 +330,8 @@ TitaniumWebViewController * mostRecentController = nil;
 	NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
 	if([newTitle length]>0)[titaniumWindowController setTitle:newTitle];
 
+	
+	
 	if([[webView stringByEvaluatingJavaScriptFromString:@"typeof(Titanium)"] isEqualToString:@"undefined"])[self investigateTitaniumCrashSite];
 
 	[scrollView setAlpha:1.0];
@@ -344,7 +346,7 @@ TitaniumWebViewController * mostRecentController = nil;
 			[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'focused'});"];
 		}
 	}
-	
+
 	
 }
 
@@ -395,7 +397,7 @@ TitaniumWebViewController * mostRecentController = nil;
 	[scrollView setContentSize:webFrame.size];
 	[webView setFrame:webFrame];
 	[scrollView setScrollEnabled:YES];
-	[scrollView setBounces:allowsScrolling];
+	[scrollView setBounces:YES];
 	[scrollView setShowsVerticalScrollIndicator:allowsScrolling];
 	[scrollView setShowsHorizontalScrollIndicator:allowsScrolling];
 
