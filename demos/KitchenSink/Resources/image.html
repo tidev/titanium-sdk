@@ -2,12 +2,10 @@
 	<head>
 
 	</head>
-	<body style="margin:0;background-color:#ffffff;text-align:center">
+	<body style="margin:0;background-color:#111;text-align:center">
 		<img id="image" border="0" height="360" width="320" />
 		<input id="btn" style="visibility:hidden" type="button" value="OK" />
 		<script>
-		var a= Titanium.UI.createAlertDialog({title:'Foo'});
-		a.show();
 			var listener = function(e)
 			{
 				var x=Titanium.App.Properties.getString('x');
@@ -24,9 +22,7 @@
 			};
 			
 			// load image from properties
-			alert('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> HERE1')
 			document.getElementById('image').src = Titanium.App.Properties.getString('photo');
-			alert('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> HERE2')
 			
 			if (Titanium.Platform.name.indexOf('iPhone')  != -1) {
 				// create buttton

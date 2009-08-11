@@ -23,7 +23,7 @@
 				emailDialog.setCcRecipients(['nwright@appcelerator.com']);
 				emailDialog.setBccRecipients(['obama@whitehouse.gov']);
 				emailDialog.setMessageBody('this is a test message');
-				emailDialog.addAttachment({mimeType:'image/png', file:image});
+				emailDialog.addAttachment(image);
 				emailDialog.open();
 
 			},

@@ -135,6 +135,10 @@
 				a.setMessage(e.value)
 				a.show();
 			})
+			textInstance.addEventListener('return',function(e)
+			{
+				textInstance.blur();
+			})
 
 			var inputData = [
 				{title:'Input 1', input:switchInstance, image:'iTunes.png', foo:'bar'},
@@ -152,7 +156,7 @@
 			inputSection.addEventListener('click',function(e)
 			{
 				a.setMessage('You clicked index ' + e.index + ' section row ' + e.row + ' section ' + e.section 
-					+ ' rowData ' + e.rowData.foo);
+					+ ' rowData ' + e.rowData);
 				a.show();
 			});
 

@@ -5,7 +5,6 @@
 </head>
 <body  style="font-family:'Helvetica Neue'">
 
-	When you leave this page, you should get an alert.
 	<div id="focused" style="margin-top:20px">Focused event not received</div>
 	<div id="unfocused" style="margin-top:20px">Unfocused event not received</div>
 	
@@ -13,22 +12,19 @@
 	Titanium.UI.currentWindow.addEventListener('unfocused',function()
 	{
 		Titanium.App.Properties.setString('unfocused','Unfocused event received at ' + new Date());
+		document.getElementById('unfocused').innerHTML = Titanium.App.Properties.getString('unfocused')
 
 	});
 	Titanium.UI.currentWindow.addEventListener('focused',function()
 	{
 		Titanium.App.Properties.setString('focused','Focused event received at ' + new Date());
+		document.getElementById('focused').innerHTML = Titanium.App.Properties.getString('focused')
+
 	});
 
-	var u = Titanium.App.Properties.getString('unfocused');
-	if (u)
+	if (Titanium.App.Properties.getString('unfocused'))
 	{
 		document.getElementById('unfocused').innerHTML = Titanium.App.Properties.getString('unfocused')
-	}
-	var f = Titanium.App.Properties.getString('focused');
-	if (f)
-	{
-		document.getElementById('focused').innerHTML = Titanium.App.Properties.getString('focused')
 	}
 	</script>
 
