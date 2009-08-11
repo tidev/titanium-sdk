@@ -413,6 +413,10 @@ int nextWindowToken = 0;
 {
 	[super viewDidAppear:animated];
 	if(![[[UIDevice currentDevice] systemVersion] hasPrefix:@"2.0"]) [self becomeFirstResponder];
+
+	UINavigationController * theNC = [self navigationController];
+	[[TitaniumHost sharedHost] navigationController:theNC didShowViewController:self animated:animated];
+
 }
 
 - (void)viewWillDisappear: (BOOL) animated;

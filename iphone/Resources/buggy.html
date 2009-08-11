@@ -1,56 +1,44 @@
 <html>
 <head>
-
-
+<style>
+.button
+{
+	font-size:18px;width:280px;text-align:center
+}
+</style>
 </head>
-<body  style="font-family:'Helvetica Neue'">
-	<div id="content">
-		<div id="move" style="margin-top:5px">TouchMove Count: 0</div>
-		<div id="start" style="margin-top:5px">TouchStart Count: 0</div>
-		<div id="end" style="margin-top:5px">TouchEnd Count: 0</div>
+<body style="background-color:#fff;font-size:20px;font-family:'Helvetica Neue';font-weight:bold">
 
-		<button id="button" style="font-size:18px">Add Content</button>
-	</div>
+	<div><input type="button" id="1" value="Launch Email" class="button"/></div>
+
 	<script>
-	var moveCount = 0;
-	var startCount = 0;
-	var endCount = 0;
-	
-	document.getElementById('content').ontouchmove = function()
+	document.getElementById('1').onclick = function()
 	{
-		moveCount++
-		document.getElementById('move').innerHTML = 'TouchMove Count: ' + moveCount;
-	};
-	document.getElementById('content').ontouchstart = function()
-	{
-		startCount++
-		document.getElementById('start').innerHTML = 'TouchStart Count: ' + startCount;
-	};
-	document.getElementById('content').ontouchend = function()
-	{
-		endCount++
-		document.getElementById('end').innerHTML = 'TouchEnd Count: ' + endCount;
-	};
+		Titanium.Media.openPhotoGallery({
+			success: function(image,details)
+			{
+				var emailDialog = Titanium.UI.createEmailDialog()
+				emailDialog.setSubject('foo');
+				emailDialog.setToRecipients(['nolan11169@yahoo.com']);
+				emailDialog.setCcRecipients(['nwright@appcelerator.com']);
+				emailDialog.setBccRecipients(['obama@whitehouse.gov']);
+				emailDialog.setMessageBody('this is a test message');
+				emailDialog.addAttachment({mimeType:'image/png', file:image});
+				emailDialog.open({animated:true});
 
-	document.getElementById('button').onclick = function()
-	{
-	 	var html = '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		document.getElementById('content').innerHTML += html;
+			},
+			error: function(error)
+			{
+			},
+			cancel: function()
+			{
+
+			},
+			animated:true,
+			allowImageEditing:true,
+		});
 		
-	}
+	};
 
 	</script>
 </body>

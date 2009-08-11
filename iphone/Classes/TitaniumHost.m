@@ -46,7 +46,28 @@ int extremeDebugLineNumber;
 }
 
 @end
-	
+
+
+@interface modalActionWrapper : NSObject
+{
+	BOOL animated;
+	UIViewController * modalView;
+}
+@property(nonatomic,readwrite,assign)	BOOL animated;
+@property(nonatomic,readwrite,retain)	UIViewController * modalView;
+@end
+
+@implementation modalActionWrapper
+@synthesize animated,modalView;
+- (void) dealloc
+{
+	[modalView release];
+	[super dealloc];
+}
+@end
+
+
+
 NSString const * titaniumObjectKey = @"titaniumObject";
 
 @implementation TitaniumHost
@@ -74,6 +95,8 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 		NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
 		[theNC addObserver:self selector:@selector(handleKeyboardHiding:) name:UIKeyboardWillHideNotification object:nil];
 		[theNC addObserver:self selector:@selector(handleKeyboardShowing:) name:UIKeyboardDidShowNotification object:nil];
+		modalActionLock = [[NSLock alloc] init];
+		[modalActionLock setName:@"[TitaniumHost modalActionLock]"];
 
 		//TODO: flush imagecache when things get close.
 	}
@@ -93,6 +116,9 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	CFRelease(contentViewControllerRegistry);
 
 	[nativeModules release];
+	
+	[modalActionLock release];
+	[modalActionDict release];
 	
 	[titaniumObject release];
 	[imageCache release];
@@ -520,6 +546,89 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	[result setDataBlob:blobData];
 	return [result autorelease];
 }
+
+#pragma mark Modal view handling
+
+- (void) navigationController: (UINavigationController *) navController presentModalView: (UIViewController *)newModalView animated:(BOOL) animated;
+{
+	[modalActionLock lock];
+	BOOL isMainThread = [NSThread isMainThread];
+	BOOL isFree = ([navController modalViewController] == nil);
+		
+	NSNumber * navControllerProxy = [NSNumber numberWithInteger:(int)navController];
+	NSMutableArray * ourModalQueue = [modalActionDict objectForKey:navControllerProxy];
+
+	if(isMainThread && isFree && (ourModalQueue==nil)){
+		[navController presentModalViewController:newModalView animated:animated];
+		[modalActionLock unlock];
+		return;
+	}
+	
+	modalActionWrapper * ourWrapper = [[modalActionWrapper alloc] init];
+	[ourWrapper setModalView:newModalView];
+	[ourWrapper setAnimated:animated];
+	if(ourModalQueue == nil){
+		ourModalQueue = [NSMutableArray arrayWithObject:ourWrapper];
+		
+		if(modalActionDict == nil){
+			modalActionDict = [[NSMutableDictionary alloc] initWithObjectsAndKeys:ourModalQueue,navControllerProxy,nil];
+		} else {
+			[modalActionDict setObject:ourModalQueue forKey:navControllerProxy];
+		}
+		
+	} else {
+		[ourModalQueue addObject:ourWrapper];
+	}
+	
+	if(!isFree){
+	} else if(!isMainThread){
+		[self performSelectorOnMainThread:@selector(handleModalForNavigationController:) withObject:navController waitUntilDone:NO];
+	} else {
+		[self performSelector:@selector(handleModalForNavigationController:) withObject:navController afterDelay:0];
+	}
+	
+	[modalActionLock unlock];
+}
+
+- (void) handleModalForNavigationController: (UINavigationController *) navController;
+{
+	[modalActionLock lock];
+	BOOL isFree = ([navController modalViewController] == nil); //Just checking.
+	if(!isFree){
+		[modalActionLock unlock];
+		return;
+	}
+	
+	NSNumber * navControllerProxy = [NSNumber numberWithInteger:(int)navController];
+	NSMutableArray * ourModalQueue = [modalActionDict objectForKey:navControllerProxy];
+	int ourModalQueueCount = [ourModalQueue count];
+	
+	if(ourModalQueueCount > 0){
+		modalActionWrapper * ourWrapper = [ourModalQueue objectAtIndex:0];
+		[navController presentModalViewController:[ourWrapper modalView] animated:[ourWrapper animated]];
+	}
+	
+	if(ourModalQueueCount > 1){
+		[ourModalQueue removeObjectAtIndex:0];
+	} else {
+		[modalActionDict removeObjectForKey:navControllerProxy];
+	}
+	
+	[modalActionLock unlock];
+	
+}
+
+- (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
+{
+	if([navigationController modalViewController]==nil){
+		if(animated){
+			[self performSelector:@selector(handleModalForNavigationController:) withObject:navigationController afterDelay:0.01];
+		} else {
+			[self handleModalForNavigationController:navigationController];
+		}
+	}
+}
+
 
 
 #pragma mark Useful Toys

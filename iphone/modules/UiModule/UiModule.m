@@ -1060,7 +1060,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			}
 		}
 		UIViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[self parentPageToken]];
-		[[ourVC navigationController] presentModalViewController:emailComposer animated:animated];
+		[[TitaniumHost sharedHost] navigationController:[ourVC navigationController] presentModalView:emailComposer animated:animated];
 		[self retain];
 		
 		return;
