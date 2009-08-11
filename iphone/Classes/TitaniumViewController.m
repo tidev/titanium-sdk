@@ -233,9 +233,12 @@ int nextWindowToken = 0;
 				if(ourNewVC != nil) [contentViewControllers addObject:ourNewVC];
 			}
 		} else {
-			TitaniumContentViewController * ourNewVC = [TitaniumContentViewController viewControllerForState:inputState relativeToUrl:baseUrl];
+			NSMutableDictionary * reducedInputState = [inputState mutableCopy];
+			[reducedInputState removeObjectForKey:@"_TOKEN"];
+			TitaniumContentViewController * ourNewVC = [TitaniumContentViewController viewControllerForState:reducedInputState relativeToUrl:baseUrl];
 			[ourNewVC setTitaniumWindowController:self];
 			if(ourNewVC != nil) contentViewControllers = [[NSMutableArray alloc] initWithObjects:ourNewVC,nil];
+			[reducedInputState release];
 		}
 	}
 	
@@ -393,6 +396,7 @@ int nextWindowToken = 0;
 - (void)viewWillAppear: (BOOL) animated;
 {
     [super viewWillAppear:animated];
+	isVisible = YES;
 	for(TitaniumContentViewController * thisVC in contentViewControllers){
 		if([thisVC respondsToSelector:@selector(setWindowFocused:)]){
 			[thisVC setWindowFocused:YES];
@@ -409,10 +413,15 @@ int nextWindowToken = 0;
 {
 	[super viewDidAppear:animated];
 	if(![[[UIDevice currentDevice] systemVersion] hasPrefix:@"2.0"]) [self becomeFirstResponder];
+
+	UINavigationController * theNC = [self navigationController];
+	[[TitaniumHost sharedHost] navigationController:theNC didShowViewController:self animated:animated];
+
 }
 
 - (void)viewWillDisappear: (BOOL) animated;
 {
+	[super viewWillDisappear:animated];
 	if(![[[UIDevice currentDevice] systemVersion] hasPrefix:@"2.0"]) [self resignFirstResponder];
 
 	if([focusedContentController respondsToSelector:@selector(setFocused:)]){
@@ -428,6 +437,12 @@ int nextWindowToken = 0;
 	}
 }
 
+- (void)viewDidDisappear: (BOOL) animated;
+{
+	[super viewDidDisappear:animated];
+	isVisible = NO;
+}
+
 - (void)motionEnded:(int)motion withEvent:(UIEvent *)event
 {
 	TitaniumContentViewController * ourVC = [self viewControllerForIndex:selectedContentIndex];
@@ -438,7 +453,7 @@ int nextWindowToken = 0;
 
 - (BOOL)needsUpdate: (TitaniumViewControllerDirtyFlags) newFlags;
 {
-	if ((dirtyFlags == TitaniumViewControllerIsClean) && ([[TitaniumHost sharedHost] currentTitaniumViewController] == self)){
+	if ((dirtyFlags == TitaniumViewControllerIsClean) && isVisible){
 		[self performSelector:@selector(doUpdateLayout) withObject:nil afterDelay:0];
 	}
 	dirtyFlags |= TitaniumViewControllerNeedsRefresh | newFlags;
@@ -449,7 +464,7 @@ int nextWindowToken = 0;
 - (void)doUpdateLayout;
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	if (dirtyFlags && ([[TitaniumHost sharedHost] currentTitaniumViewController] == self)){
+	if (dirtyFlags && isVisible){
 		[self updateLayout:dirtyFlags & TitaniumViewControllerRefreshIsAnimated];
 	}
 	[pool release];
@@ -504,7 +519,7 @@ int nextWindowToken = 0;
 
 - (void)refreshBackground;
 {
-	if([[TitaniumHost sharedHost] currentTitaniumViewController] != self)return;
+	if(!isVisible)return;
 	UIView * ourRootView = [self view];
 	
 	[ourRootView setBackgroundColor:(backgroundColor != nil)?backgroundColor:[UIColor whiteColor]];
@@ -533,7 +548,7 @@ int nextWindowToken = 0;
 
 - (void)updateLayout: (BOOL)animated;
 {
-	if([[TitaniumHost sharedHost] currentTitaniumViewController] != self)return;
+	if(!isVisible)return;
 
 	UIApplication * theApp = [UIApplication sharedApplication];
 	UINavigationController * theNC = [self navigationController];

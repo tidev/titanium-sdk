@@ -10,7 +10,6 @@
 
 
 @interface TweakedNavController : UINavigationController {
-
 }
 
 @end

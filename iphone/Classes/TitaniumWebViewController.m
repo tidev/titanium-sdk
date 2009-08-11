@@ -330,12 +330,13 @@ TitaniumWebViewController * mostRecentController = nil;
 	NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
 	if([newTitle length]>0)[titaniumWindowController setTitle:newTitle];
 
-	if([[webView stringByEvaluatingJavaScriptFromString:@"typeof(Titanium)"] isEqualToString:@"undefined"])[self investigateTitaniumCrashSite];
-
 	[scrollView setAlpha:1.0];
 	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
 	[UIView commitAnimations];
 	[self probeWebViewForTokenInContext:@"window"];
+	
+	if(![[currentContentURL scheme] isEqualToString:@"app"])return;
+	if([[webView stringByEvaluatingJavaScriptFromString:@"typeof(Titanium)"] isEqualToString:@"undefined"])[self investigateTitaniumCrashSite];
 	
 	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'load'});"];
 	if ([[TitaniumHost sharedHost] currentTitaniumViewController]==titaniumWindowController){
@@ -344,7 +345,7 @@ TitaniumWebViewController * mostRecentController = nil;
 			[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'focused'});"];
 		}
 	}
-	
+
 	
 }
 
@@ -395,7 +396,7 @@ TitaniumWebViewController * mostRecentController = nil;
 	[scrollView setContentSize:webFrame.size];
 	[webView setFrame:webFrame];
 	[scrollView setScrollEnabled:YES];
-	[scrollView setBounces:allowsScrolling];
+	[scrollView setBounces:YES];
 	[scrollView setShowsVerticalScrollIndicator:allowsScrolling];
 	[scrollView setShowsHorizontalScrollIndicator:allowsScrolling];
 
@@ -530,7 +531,27 @@ TitaniumWebViewController * mostRecentController = nil;
 	NSString * extremeDebugString = [[TitaniumHost sharedHost] javaScriptForResource:currentContentURL hash:[self primaryToken] extremeDebug:YES];
 	NSLog(@"****** BEGIN TITANIUM FAILURE RECREATION FOR VIEW %@ ******",self);
 	NSLog(@"%@",extremeDebugString);
-	NSLog(@"****** END TITANIUM FAILURE RECREATION ******");	
+	NSLog(@"****** END TITANIUM FAILURE RECREATION ******");
+	
+	NSLog(@"****** BEGIN TITANIUM FAILURE SCAN ******");
+
+	NSArray * commandLineArray=[extremeDebugString componentsSeparatedByString:@"</script>"];
+	for(NSString * thisCommand in commandLineArray){
+		if([thisCommand hasPrefix:@"\n"])thisCommand = [thisCommand substringFromIndex:1];
+		if([thisCommand hasPrefix:@"<script>"])thisCommand = [thisCommand substringFromIndex:8];
+		NSString * escapedCommand=[NSString stringWithFormat:@"(function(){try{%@}catch(E){return 'FAIL'+E;}return 'SUCC';})();",thisCommand];
+		NSString * result = [webView stringByEvaluatingJavaScriptFromString:escapedCommand];
+		if([result isEqualToString:@"SUCC"])continue;
+
+		NSString * errorTypeString;
+		if([result hasPrefix:@"FAIL"])errorTypeString = [result substringFromIndex:4];
+		else errorTypeString = @"Webview could not parse javascript";
+		
+		NSLog(@"****** FAILURE, %@ for (%@)",errorTypeString,thisCommand);
+	}
+
+	NSLog(@"****** END TITANIUM FAILURE SCAN ******");
+	
 }
 
 

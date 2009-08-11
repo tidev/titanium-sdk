@@ -1060,7 +1060,7 @@ int barButtonSystemItemForString(NSString * inputString){
 			}
 		}
 		UIViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[self parentPageToken]];
-		[[ourVC navigationController] presentModalViewController:emailComposer animated:animated];
+		[[TitaniumHost sharedHost] navigationController:[ourVC navigationController] presentModalView:emailComposer animated:animated];
 		[self retain];
 		
 		return;
@@ -1818,7 +1818,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 			"setToolbar:function(bar,args){if(bar){var i=bar.length;while(i>0){i--;bar[i].ensureToken();}}Ti.UI._WTOOL(Ti._TOKEN,bar,args);},"
 			"insertButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(Ti._TOKEN,btn,args);},"
 			"}"];
-	[currentWindowScript setEpilogueCode:@"window.addEventListener('resize',function(){if(!Ti.UI._ISRESIZING)Ti.UI._DORESIZE();},true);"];	
+	[currentWindowScript setEpilogueCode:@"window.addEventListener('DOMNodeInserted',function(){if(!Ti.UI._ISRESIZING)Ti.UI._DORESIZE();},false);"];	
 
 	NSString * viewsForWindowString = @"function(winTkn){var fetched=Ti.UI._WGVIEWS(winTkn);if(!fetched)return {};var res=[];var i=0;var viewCount=fetched.length;while(i<viewCount){"
 			"var props=fetched[i];var viewTkn=props._TOKEN;var view;"

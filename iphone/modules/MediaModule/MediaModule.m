@@ -458,8 +458,9 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 		}
 		
 	}
-
-	[self performSelectorOnMainThread:@selector(startPickerInMainThread) withObject:nil waitUntilDone:NO];
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	UINavigationController * theNavController = [[theHost currentTitaniumViewController] navigationController];
+	[theHost navigationController:theNavController presentModalView:currentImagePicker animated:isImagePickerAnimated];
 	return nil;
 }
 
