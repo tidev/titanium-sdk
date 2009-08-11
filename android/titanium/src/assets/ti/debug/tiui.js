@@ -297,13 +297,17 @@ var ActivityIndicator = function(proxy) {
 
 var EmailDialog = function(proxy) {
 	this.proxy = proxy;
-
+	/**
+	 * @tiapi(method=true,name=UI.EmailDialog.setSubject,since0.6.0) Set the subject line in the intent
+	 * @tiarg[string,subject] the subject text
+	 */
 	this.setSubject = function(subject) {
 		if (isUndefined(subject)) {
 			subject = null;
 		}
 		proxy.setSubject(subject);
 	};
+	// Internal use method
 	this.toStringArray = function(addrs) {
 		var sa = [];
 		if (!isUndefined(addrs)) {
@@ -319,30 +323,49 @@ var EmailDialog = function(proxy) {
 				}
 			}
 		}
-		Titanium.API.debug("*** sa=" + String(sa));
 		return sa;
 	};
+	/**
+	 * @tiapi(method=true,name=UI.EmailDialog.setToRecipients,since0.6.0) Set a list of email addresses on the To: line.
+	 * @tiarg[array,addrs] The list of addresses as strings. Also allows for a single string address
+	 */
 	this.setToRecipients = function(addrs) {
 		addrs = this.toStringArray(addrs);
 		for (addr in addrs) {
 			this.proxy.addTo(addrs[addr]);
 		}
 	};
+	/**
+	 * @tiapi(method=true,name=UI.EmailDialog.setCcRecipients,since0.6.0) Set a list of email addresses on the Cc: line.
+	 * @tiarg[array,addrs] The list of addresses as strings. Also allows for a single string address
+	 */
 	this.setCcRecipients = function(addrs) {
 		addrs = this.toStringArray(addrs);
 		for (addr in addrs) {
 			this.proxy.addCc(addrs[addr]);
 		}
 	};
+	/**
+	 * @tiapi(method=true,name=UI.EmailDialog.setBccRecipients,since0.6.0)
+	 * @tiarg[array,addrs] The list of addresses as strings. Also allows for a single string address
+	 */
 	this.setBccRecipients = function(addrs) {
 		addrs = this.toStringArray(addrs);
 		for (addr in addrs) {
 			this.proxy.addBcc(addrs[addr]);
 		}
 	};
+	/**
+	 * @tiapi(method=true,name=UI.EmailDialog.setMessageBody,since0.6.0) Set the message body text.
+	 * @tiarg[string,msg] the message text.
+	 */
 	this.setMessageBody = function(msg) {
 		this.proxy.setMessage(msg);
 	};
+	/**
+	 * @tiapi(method=true,name=UI.EmailDialog.addAttachment,since0.6.0) Allows adding a single attachment to the message
+	 * @tiarg[object,attachment] Supports a path or an Image blob.
+	 */
 	this.addAttachment = function(attachment) {
 		if (!isUndefined(attachment)) {
 			Titanium.API.debug("Attachment type: " + typeOf(attachment.file));
@@ -355,6 +378,9 @@ var EmailDialog = function(proxy) {
 			this.proxy.addAttachment(Titanium.JSON.stringify(attachment));
 		}
 	};
+	/**
+	 * @tiapi(method=true,name=UI.EmailDialog.open,since0.6.0) Open the dialog, no configuration allowed after opening.
+	 */
 	this.open = function() {
 		this.proxy.open();
 	};
@@ -623,14 +649,13 @@ var UserWindow = function(proxy) {
 	/**
 	 * @tiapi(method=true,name=UI.UserWindow.addView,since=0.6.0) add a view at the end of the view list
 	 * @tiarg[View,view] The view object
-	 * @tiarg[object, options] options
 	 */
 	this.addView = function(view) {
 		this.proxy.addView(view.proxy);
 	};
 
 	/**
-	 * @tiapi(method=true,name=UI.UserWindow.getViews,since=0.6.0) an array of views
+	 * @tiapi(method=true,name=UI.UserWindow.getViews,since=0.6.0) an array of view proxies
 	 * @tiresult[array] the views
 	 */
 	this.getViews = function() {
@@ -684,7 +709,7 @@ var UserWindow = function(proxy) {
 	/**
 	 * @tiapi(method=true,name=UI.UserWindow.getViewByName,since=0.6.0) locate a view in the views array by name
 	 * @tiarg[String,name] The view name
-	 * @tiarg[object, view] the view
+	 * @tiresult[object, view] the view
 	 */
 	this.getViewByName = function(name) {
 		var v = null;
@@ -705,6 +730,10 @@ var UserWindow = function(proxy) {
 		return v;
 	};
 
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.getActiveViewIndex,since=0.6.0) return the position of the current view in the views array.
+	 * @tiresult[int] the view index.
+	 */
 	this.getActiveViewIndex = function() {
 		return this.proxy.getActiveViewIndex();
 	};
@@ -736,13 +765,23 @@ var UserWindow = function(proxy) {
 UserWindow.prototype.__defineGetter__("window", function() {
 	return this._window;
 });
-//TODO doc
+
 var Button = function(proxy) {
 	this.proxy = proxy;
-
+	/**
+	 * @tiapi(method=true,name=UI.Button.addEventListener,since=0.6.0) Add a listener.
+	 * @tiarg[string,eventName] The name of the event. Supports:
+	 * @tiarg[function,listener] The event listener
+	 * @tiresult[int] listenerId used to unregister the event.
+	 */
 	this.addEventListener = function(eventName, listener) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
+	/**
+	 * @tiapi(method=true,name=UI.Button.removeEventListener,since=0.6.0) Add a listener.
+	 * @tiarg[string,eventName] The name of the event. Supports:
+	 * @tiarg[function,listenerId] The event listener id returned by addEventListener
+	 */
 	this.removeEventListener = function(eventName, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
@@ -751,9 +790,20 @@ var Button = function(proxy) {
 var Switch = function(proxy) {
 	this.proxy = proxy;
 
+	/**
+	 * @tiapi(method=true,name=UI.Switch.addEventListener,since=0.6.0) Add a listener.
+	 * @tiarg[string,eventName] The name of the event. Supports:
+	 * @tiarg[function,listener] The event listener
+	 * @tiresult[int] listenerId used to unregister the event.
+	 */
 	this.addEventListener = function(eventName, listener) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
+	/**
+	 * @tiapi(method=true,name=UI.Switch.removeEventListener,since=0.6.0) Add a listener.
+	 * @tiarg[string,eventName] The name of the event. Supports:
+	 * @tiarg[function,listenerId] The event listener id returned by addEventListener
+	 */
 	this.removeEventListener = function(eventname, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
@@ -761,10 +811,20 @@ var Switch = function(proxy) {
 
 var Slider = function(proxy) {
 	this.proxy = proxy;
-
+	/**
+	 * @tiapi(method=true,name=UI.Slider.addEventListener,since=0.6.0) Add a listener.
+	 * @tiarg[string,eventName] The name of the event. Supports:
+	 * @tiarg[function,listener] The event listener
+	 * @tiresult[int] listenerId used to unregister the event.
+	 */
 	this.addEventListener = function(eventName, listener) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
+	/**
+	 * @tiapi(method=true,name=UI.Slider.removeEventListener,since=0.6.0) Add a listener.
+	 * @tiarg[string,eventName] The name of the event. Supports:
+	 * @tiarg[function,listenerId] The event listener id returned by addEventListener
+	 */
 	this.removeEventListener = function(eventname, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
@@ -772,17 +832,32 @@ var Slider = function(proxy) {
 
 var TextArea = function(proxy) {
 	this.proxy = proxy;
-
+	/**
+	 * @tiapi(method=true,name=UI.TextArea.focus,since=0.6.0) Bring focus to a control. Does not auto display soft-keyboard
+	 */
 	this.focus = function() {
 		this.proxy.focus();
 	}
+	/**
+	 * @tiapi(method=true,name=UI.TextArea.blur,since=0.6.0) Closed soft keyboard if it's display. Android doesn't seem to actual clearing of focus for Text controls.
+	 */
 	this.blur = function() {
 		this.proxy.blur();
 	}
-
+	/**
+	 * @tiapi(method=true,name=UI.TextArea.addEventListener,since=0.6.0) Add a listener.
+	 * @tiarg[string,eventName] The name of the event. Supports:
+	 * @tiarg[function,listener] The event listener
+	 * @tiresult[int] listenerId used to unregister the event.
+	 */
 	this.addEventListener = function(eventName, listener) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
+	/**
+	 * @tiapi(method=true,name=UI.TextArea.removeEventListener,since=0.6.0) Add a listener.
+	 * @tiarg[string,eventName] The name of the event. Supports:
+	 * @tiarg[function,listenerId] The event listener id returned by addEventListener
+	 */
 	this.removeEventListener = function(eventname, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
@@ -790,16 +865,32 @@ var TextArea = function(proxy) {
 
 var TextField = function(proxy) {
 	this.proxy = proxy;
-
+	/**
+	 * @tiapi(method=true,name=UI.TextField.focus,since=0.6.0) Bring focus to a control. Does not auto display soft-keyboard
+	 */
 	this.focus = function() {
 		this.proxy.focus();
 	}
+	/**
+	 * @tiapi(method=true,name=UI.TextField.blur,since=0.6.0) Closed soft keyboard if it's display. Android doesn't seem to actual clearing of focus for Text controls.
+	 */
 	this.blur = function() {
 		this.proxy.blur();
 	}
+	/**
+	 * @tiapi(method=true,name=UI.TextField.addEventListener,since=0.6.0) Add a listener.
+	 * @tiarg[string,eventName] The name of the event. Supports:
+	 * @tiarg[function,listener] The event listener
+	 * @tiresult[int] listenerId used to unregister the event.
+	 */
 	this.addEventListener = function(eventName, listener) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
+	/**
+	 * @tiapi(method=true,name=UI.TextField.removeEventListener,since=0.6.0) Add a listener.
+	 * @tiarg[string,eventName] The name of the event. Supports:
+	 * @tiarg[function,listenerId] The event listener id returned by addEventListener
+	 */
 	this.removeEventListener = function(eventname, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
@@ -1040,9 +1131,9 @@ Titanium.UI = {
 		 return tv;
 	},
 	/**
-	 * @tiapi(method=true,name=UI.createTableView,since=0.5) Create a table view
+	 * @tiapi(method=true,name=UI.createWebView,since=0.6.0) Create a web view
 	 * @tiarg[object, options] a dictionary/hash of options
-	 * @tiresult[TableView] the table view.
+	 * @tiresult[WebView] the web view.
 	 */
 	createWebView : function(options) {
 		 var wv = new WebView(Titanium.uiProxy.createWebView());
@@ -1064,6 +1155,11 @@ Titanium.UI = {
 
 		 return wv;
 	},
+	/**
+	 * @tiapi(method=true,name=UI.createEmailDialog,since=0.6.0) Create an email dialog. Uses ACTION_SEND.
+	 * @tiarg[object, options] a dictionary/hash of options
+	 * @tiresult[EmailDialog] the dialog.
+	 */
 	createEmailDialog : function(options) {
 		var dlg = new EmailDialog(Titanium.uiProxy.createEmailDialog());
 		if (!isUndefined(options)) {
@@ -1140,21 +1236,66 @@ Titanium.UI = {
 		return c;
 	},
 
+	/**
+	 * @tiapi(property=true,name=UI.RETURNKEY_GO,since=0.6.0) Displays the Go button.
+	 */
 	RETURNKEY_GO : 0,
+	/**
+	 * @tiapi(property=true,name=UI.RETURNKEY_GOOGLE,since=0.6.0) Displays the Go button. (Soft keyboard doesn't allow for text change yet)
+	 */
 	RETURNKEY_GOOGLE : 1,
+	/**
+	 * @tiapi(property=true,name=UI.RETURNKEY_JOIN,since=0.6.0)  Displays the Go button. (Soft keyboard doesn't allow for text change yet)
+	 */
 	RETURNKEY_JOIN : 2,
+	/**
+	 * @tiapi(property=true,name=UI.RETURNKEY_NEXT,since=0.6.0) Displays the Next button.
+	 */
 	RETURNKEY_NEXT : 3,
+	/**
+	 * @tiapi(property=true,name=UI.RETURNKEY_ROUTE,since=0.6.0) Displays the Go button. (Soft keyboard doesn't allow for text change yet)
+	 */
 	RETURNKEY_ROUTE : 4,
+	/**
+	 * @tiapi(property=true,name=UI.RETURNKEY_SEARCH,since=0.6.0) Displays the Search button.
+	 */
 	RETURNKEY_SEARCH : 5,
+	/**
+	 * @tiapi(property=true,name=UI.RETURNKEY_YAHOO,since=0.6.0)  Displays the Go button. (Soft keyboard doesn't allow for text change yet)
+	 */
 	RETURNKEY_YAHOO : 6,
+	/**
+	 * @tiapi(property=true,name=UI.RETURNKEY_DONE,since=0.6.0) Displays the Done button.
+	 */
 	RETURNKEY_DONE : 7,
+	/**
+	 * @tiapi(property=true,name=UI.RETURNKEY_EMERGENCY_CALL,since=0.6.0)  Displays the Go button. (Soft keyboard doesn't allow for text change yet)
+	 */
 	RETURNKEY_EMERGENCY_CALL : 8,
 
+	/**
+	 * @tiapi(property=true,name=UI.KEYBOARD_ASCII,since=0.6.0) Full ASCII keyboard
+	 */
 	KEYBOARD_ASCII : 0,
+	/**
+	 * @tiapi(property=true,name=UI.KEYBOARD_NUMBERS_PUNCTUATION,since=0.6.0) Full ASCII keyboard with Numbers and Punctuation visible.
+	 */
 	KEYBOARD_NUMBERS_PUNCTUATION : 1,
+	/**
+	 * @tiapi(property=true,name=UI.KEYBOARD_URL,since=0.6.0) ASCII keyboard with URL keys like '.com'
+	 */
 	KEYBOARD_URL : 2,
+	/**
+	 * @tiapi(property=true,name=UI.KEYBOARD_NUMBER_PAD,since=0.6.0) Current same as KEYBOARD_NUMBERS_PUNCTUATION
+	 */
 	KEYBOARD_NUMBER_PAD : 3,
+	/**
+	 * @tiapi(property=true,name=UI.KEYBOARD_PHONE_PAD,since=0.6.0) Phone dialpad keys
+	 */
 	KEYBOARD_PHONE_PAD : 4,
+	/**
+	 * @tiapi(property=true,name=UI.KEYBOARD_EMAIL_ADDRESS,since=0.6.0) ASCII keyboard with email keys like '@'.
+	 */
 	KEYBOARD_EMAIL_ADDRESS : 5,
 
 	INPUT_BORDERSTYLE_NONE : 0,
@@ -1203,6 +1344,10 @@ Titanium.UI.__defineGetter__("currentWindow", function(){
 	}
 	return Titanium.UI._currentWindow;
 });
+/**
+ * @tiapi(method=true,name=UI.currentView,since=0.6.0) the current View in the current window.
+ * @tiresult[View] the view.
+ */
 Titanium.UI.__defineGetter__("currentView", function() {
 	var view = null;
 	var index = Titanium.UI.currentWindow.getActiveViewIndex();
