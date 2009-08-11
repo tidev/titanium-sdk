@@ -26,7 +26,13 @@ documentObject = function(object,pathPrefix){
 		docObject.dataType = 'string';
 	} else if (type=='number'){
 		docObject.generalType = 'property';
-		docObject.dataType = 'number';
+		if(!docObject.dataType){
+			if(docObject.toString().indexOf('.')==-1){
+				docObject.dataType = 'int';
+			} else {
+				docObject.dataType = 'float';
+			}
+		}
 	} else if (type=='function'){
 		docObject.generalType = 'method';
 	} else if (type=='object'){
@@ -50,11 +56,12 @@ documentFunction = function(object,pathPrefix,functName,argstring){
 };
 
 jsonifyObjectDocumentation = function(objectName){
-	var result= 'documentation[\'' + objectName + '\']={};\r';
-	var object=documentation[objectName];
-	for(prop in object){
-		result += 'documentation[\'' + objectName + '\'].' + prop + '='	 + Ti._JSON(object[prop]) + ';\r';
-	}
+//	var result= 'documentation[\'' + objectName + '\']={};\r';
+//	var object=documentation[objectName];
+//	for(prop in object){
+//		result += 'documentation[\'' + objectName + '\'].' + prop + '='	 + Ti._JSON(object[prop]) + ';\r';
+//	}
+	var result= 'documentation[\'' + objectName + '\']=' + Ti._JSON(documentation[objectName])+ ';\n';
 	return result;
 };
 
@@ -62,7 +69,7 @@ tiapifyObjectDocumentation = function(objectName){
 
 
 
-
+	return '';
 };
 
 printAllDocumentation = function(){
@@ -73,18 +80,20 @@ printAllDocumentation = function(){
 	sortedProps.sort();
 	var outputDiv = document.getElementById('output');
 
-	outputDiv.innerHTML = '<H1>Json version:</H1>';
+	var outputMsg = '<H1>Json version:</H1>\n\n';
 	
 	var propCount = sortedProps.length;
 	for(var i=0;i<propCount;i++){
-		outputDiv.innerHTML += jsonifyObjectDocumentation(sortedProps[i]).replace(/\r/,'<br>');
+		outputMsg += jsonifyObjectDocumentation(sortedProps[i]);
 	}
 
-	outputDiv.innerHTML += '<H1>@tiapi version:</H1>';
+	outputMsg += '<H1>@tiapi version:</H1>\n\n';
 
 	for(var i=0;i<propCount;i++){
-		outputDiv.innerHTML += tiapifyObjectDocumentation(sortedProps[i]).replace(/\r/,'<br>');
+		outputMsg += tiapifyObjectDocumentation(sortedProps[i]);
 	}
+	Ti.API.debug(outputMsg);
+	outputDiv.innerHTML = outputMsg.replace(/\n/,'<br>');
 };
 </script>
 
