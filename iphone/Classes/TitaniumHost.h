@@ -49,7 +49,7 @@ typedef enum {
 
 #define MAXTHREADDEPTH	5
 
-@interface TitaniumHost : NSObject {
+@interface TitaniumHost : NSObject<UINavigationControllerDelegate> {
 	NSString * appID;
 	NSString * appResourcesPath;
 	NSURL * appBaseUrl;
@@ -79,6 +79,9 @@ typedef enum {
 	NSDictionary * appProperties;
 	NSMutableDictionary * imageCache;
 	NSMutableDictionary * stretchableImageCache;
+	
+	NSLock	* modalActionLock;
+	NSMutableDictionary * modalActionDict;
 }
 
 @property(readwrite,copy)	NSString * appID;
