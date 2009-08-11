@@ -23,7 +23,7 @@
 	// tableview object
 	var tableView = Titanium.UI.createTableView({
 		data:data,
-		title:'Phone API'
+		title:'Phone API',
 	}, function(eventObject) 
 	{
 		// handle tableview click events
@@ -47,7 +47,7 @@
 			}
 			case 3:
 			{
-				var win = Titanium.UI.createWindow({url:'orientation.html',title:'Orientation Change'});
+				var win = Titanium.UI.createWindow({url:'orientation.html',title:'Orientation Change',barColor:'#000'});
 				win.orientation ='either';
 				win.open({animated:true});
 				break;
@@ -98,7 +98,7 @@
 	});
 	Titanium.UI.currentWindow.addView(tableView);
 	Titanium.UI.currentWindow.showView(tableView);
-
+	playMovie();
 	// FUNCTIONS
 	
 	//

@@ -45,6 +45,9 @@
 				Titanium.API.notice('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>NOTICE MESSAGE');
 				Titanium.API.critical('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>CRITICAL MESSAGE');
 				Titanium.API.fatal('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FATAL MESSAGE');
+				alert('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>ALERT LOG');
+
+				functionLogging();
 				break;
 			}
 			case 2:
@@ -98,6 +101,20 @@
 	});
 	Titanium.UI.currentWindow.addView(tableView);
 	Titanium.UI.currentWindow.showView(tableView);
+	
+	function functionLogging()
+	{
+		Titanium.API.log('ERROR','>>>>>>>>>>>>>>>>>>>>>>>>>>> ERROR MESSAGE FROM FUNCTION');
+		Titanium.API.debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>DEBUG MESSAGE FROM FUNCTION');
+		Titanium.API.error('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>ERROR MESSAGE FROM FUNCTION');
+		Titanium.API.warn('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WARN MESSAGE FROM FUNCTION');
+		Titanium.API.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>INFO MESSAGE FROM FUNCTION');
+		Titanium.API.trace('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>TRACE MESSAGE FROM FUNCTION');
+	//	Titanium.API.notice('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>NOTICE MESSAGE FROM FUNCTION');
+		Titanium.API.critical('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>CRITICAL MESSAGE FROM FUNCTION');
+		Titanium.API.fatal('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FATAL MESSAGE FROM FUNCTION');
+		alert('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>ALERT LOG FROM FUNCTION');
+	}
 	</script>
 </head>
 <body>
