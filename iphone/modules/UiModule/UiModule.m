@@ -1251,8 +1251,9 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	if ([animatedObject respondsToSelector:@selector(boolValue)]) animated = [animatedObject boolValue];
 
 	SEL action = animated ? @selector(pushViewControllerAnimated:) : @selector(pushViewControllerNonAnimated:);
-
-	[[thisVC titaniumWindowController] performSelectorOnMainThread:action withObject:resultVC waitUntilDone:NO];
+	
+	TitaniumViewController * thisWindow = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[thisVC titaniumWindowToken]];
+	[thisWindow performSelectorOnMainThread:action withObject:resultVC waitUntilDone:NO];
 	return token;
 }
 

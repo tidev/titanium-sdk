@@ -1,0 +1,99 @@
+<html>
+<head>
+<style>body{background-color:#fff;margin-top:20px;font-size:11px} .passed{color:#090} .failed{color:#900} #summary{margin:0;margin-bottom:10px;padding:10px;border-bottom:1px solid #bbb;font-size:18px;} h1 {margin-bottom:0}</style>
+<meta name="viewport" content="width=device-width" />
+</head>
+<body>
+<script>
+documentation = {};
+documentObject = function(object,pathPrefix){
+	var type = typeof(object);
+	var docObject;
+	
+	if(pathPrefix){
+		docObject = documentation[pathPrefix]
+		if(!docObject){
+			docObject = {};
+			documentation[pathPrefix]=docObject;
+		}
+	}else docObject={};
+
+	if(!docObject.since)docObject.since = '0.6';
+	if(!docObject.desc)docObject.desc = '*NEEDS*DESCRIPTION*';
+
+	if(type=='string'){
+		docObject.generalType = 'property';
+		docObject.dataType = 'string';
+	} else if (type=='number'){
+		docObject.generalType = 'property';
+		docObject.dataType = 'number';
+	} else if (type=='function'){
+		docObject.generalType = 'method';
+	} else if (type=='object'){
+		docObject.generalType = 'property';
+		docObject.dataType = 'object';
+		var nextPathPrefix = pathPrefix;
+		if(nextPathPrefix)nextPathPrefix += '.';
+		for(prop in object){
+			if(prop.charAt(0)!='_'){
+				documentObject(object[prop],nextPathPrefix+prop);
+//				Ti.API.debug('Don\'t forget '+prop);
+			}
+		}
+	
+	}
+//		pathPrefix += '.'
+
+};
+
+documentFunction = function(object,pathPrefix,functName,argstring){
+};
+
+jsonifyObjectDocumentation = function(objectName){
+	var result= 'documentation[\'' + objectName + '\']={};\r';
+	var object=documentation[objectName];
+	for(prop in object){
+		result += 'documentation[\'' + objectName + '\'].' + prop + '='	 + Ti._JSON(object[prop]) + ';\r';
+	}
+	return result;
+};
+
+tiapifyObjectDocumentation = function(objectName){
+
+
+
+
+};
+
+printAllDocumentation = function(){
+	var sortedProps = [];
+	for(prop in documentation){
+		sortedProps.push(prop);
+	}
+	sortedProps.sort();
+	var outputDiv = document.getElementById('output');
+
+	outputDiv.innerHTML = '<H1>Json version:</H1>';
+	
+	var propCount = sortedProps.length;
+	for(var i=0;i<propCount;i++){
+		outputDiv.innerHTML += jsonifyObjectDocumentation(sortedProps[i]).replace(/\r/,'<br>');
+	}
+
+	outputDiv.innerHTML += '<H1>@tiapi version:</H1>';
+
+	for(var i=0;i<propCount;i++){
+		outputDiv.innerHTML += tiapifyObjectDocumentation(sortedProps[i]).replace(/\r/,'<br>');
+	}
+};
+</script>
+
+<div id='output'></div>
+
+<script>
+documentObject(Titanium,'');
+documentObject(Titanium.API,'API');
+printAllDocumentation();
+</script>
+</body>
+</html>

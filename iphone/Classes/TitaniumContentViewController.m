@@ -15,7 +15,7 @@
 int nextContentViewToken = 0;
 
 @implementation TitaniumContentViewController
-@synthesize titaniumWindowController, primaryToken, nameString;
+@synthesize titaniumWindowToken, primaryToken, nameString;
 @synthesize preferredViewSize;
 
 + (NSString *) requestToken;
@@ -110,8 +110,18 @@ int nextContentViewToken = 0;
 	return [NSDictionary dictionaryWithObjectsAndKeys:primaryToken,@"_TOKEN",nameString,@"name",nil];
 }
 
+- (void)release;
+{
+	[TitaniumHostContentViewLock lock];
+	if([self retainCount]<2){
+		[[TitaniumHost sharedHost] unregisterContentViewControllerForKey:primaryToken];
+	}
+	[super release];
+	[TitaniumHostContentViewLock unlock];
+}
+
 - (void)dealloc {
-	[[TitaniumHost sharedHost] unregisterContentViewControllerForKey:primaryToken];
+	[titaniumWindowToken release];
 	[primaryToken release];
     [super dealloc];
 }

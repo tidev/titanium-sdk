@@ -135,7 +135,7 @@ TitaniumWebViewController * mostRecentController = nil;
 	}
 }
 
-- (void) setScrollView: (UIView *) newView;
+- (void) setScrollView: (UIScrollView *) newView;
 {
 	if(newView == scrollView)return;
 	[newView retain];[scrollView release];scrollView=newView;
@@ -328,7 +328,8 @@ TitaniumWebViewController * mostRecentController = nil;
 	[self updateLayout:NO];
 	
 	NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
-	if([newTitle length]>0)[titaniumWindowController setTitle:newTitle];
+	TitaniumViewController * parentVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:titaniumWindowToken];
+	if([newTitle length]>0)[parentVC setTitle:newTitle];
 
 	[scrollView setAlpha:1.0];
 	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
@@ -339,9 +340,9 @@ TitaniumWebViewController * mostRecentController = nil;
 	if([[webView stringByEvaluatingJavaScriptFromString:@"typeof(Titanium)"] isEqualToString:@"undefined"])[self investigateTitaniumCrashSite];
 	
 	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'load'});"];
-	if ([[TitaniumHost sharedHost] currentTitaniumViewController]==titaniumWindowController){
+	if ([[TitaniumHost sharedHost] currentTitaniumViewController] == parentVC){
 		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'focused'});"];
-		if([[titaniumWindowController contentViewControllers] objectAtIndex:[titaniumWindowController selectedContentIndex]]){
+		if([[parentVC contentViewControllers] objectAtIndex:[parentVC selectedContentIndex]]){
 			[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'focused'});"];
 		}
 	}

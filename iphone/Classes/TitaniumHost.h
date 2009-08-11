@@ -35,6 +35,8 @@ extern BOOL VERBOSE_DEBUG;
 @property(nonatomic,readwrite,retain)	NSString * parentPageToken;
 @end
 
+extern NSLock * TitaniumHostContentViewLock;
+extern NSLock * TitaniumHostWindowLock;
 
 typedef enum {
 	TitaniumAppResourceNoType = 0,

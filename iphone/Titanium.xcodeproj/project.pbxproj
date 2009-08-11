@@ -78,6 +78,7 @@
 		B401107D102CA204009ADA57 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; };
 		B408AD480F97FA010051FD67 /* TitaniumActionSheetHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B408AD470F97FA010051FD67 /* TitaniumActionSheetHelper.m */; };
 		B40A40A70FCF60BF00C5DD7C /* movie.m4v in Resources */ = {isa = PBXBuildFile; fileRef = B40A40A60FCF60BF00C5DD7C /* movie.m4v */; };
+		B40C00241031ECC4009DEFF9 /* docs.html in Resources */ = {isa = PBXBuildFile; fileRef = B40C00231031ECC4009DEFF9 /* docs.html */; };
 		B40F54530F746D11008E0A55 /* TitaniumView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B40F54520F746D11008E0A55 /* TitaniumView.xib */; };
 		B41068A80FBB745600310448 /* TitaniumAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* TitaniumAppDelegate.m */; };
 		B41068AA0FBB745600310448 /* TitaniumViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */; };
@@ -224,6 +225,7 @@
 		B408AD460F97FA010051FD67 /* TitaniumActionSheetHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumActionSheetHelper.h; sourceTree = "<group>"; };
 		B408AD470F97FA010051FD67 /* TitaniumActionSheetHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumActionSheetHelper.m; sourceTree = "<group>"; };
 		B40A40A60FCF60BF00C5DD7C /* movie.m4v */ = {isa = PBXFileReference; lastKnownFileType = file; path = movie.m4v; sourceTree = "<group>"; };
+		B40C00231031ECC4009DEFF9 /* docs.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = docs.html; sourceTree = "<group>"; };
 		B40F54520F746D11008E0A55 /* TitaniumView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TitaniumView.xib; sourceTree = "<group>"; };
 		B41068A20FBB730F00310448 /* libTitanium.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libTitanium.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4110C9B0FD4653A00BE17F8 /* AccelerometerModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccelerometerModule.h; sourceTree = "<group>"; };
@@ -548,6 +550,7 @@
 				2444F98A0FCA417C00063972 /* tiapp.plist */,
 				2418F4210FCB629A00BFE545 /* sound.html */,
 				B4468EFC10027417002BAC64 /* misc.html */,
+				B40C00231031ECC4009DEFF9 /* docs.html */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -750,6 +753,7 @@
 				B4468EFD10027417002BAC64 /* misc.html in Resources */,
 				B4B9E4621003D3DE004B8831 /* logo-m.png in Resources */,
 				B4ABEDC4101903CA00639ED5 /* buggy.html in Resources */,
+				B40C00241031ECC4009DEFF9 /* docs.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

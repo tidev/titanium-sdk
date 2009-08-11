@@ -108,13 +108,22 @@ int nextWindowToken = 0;
 	return self;
 }
 
+- (void)release;
+{
+	[TitaniumHostWindowLock lock];
+	if([self retainCount]<2){
+		[[TitaniumHost sharedHost] unregisterViewControllerForKey:primaryToken];
+	}
+	[super release];
+	[TitaniumHostWindowLock unlock];
+}
+
 
 - (void)dealloc {
 	[contentViewLock release];
 	[contentViewControllers release];
 	[navBarTint release];
 	
-	[[TitaniumHost sharedHost] unregisterViewControllerForKey:primaryToken];
     [super dealloc];
 }
 
@@ -229,14 +238,14 @@ int nextWindowToken = 0;
 			contentViewControllers = [[NSMutableArray alloc] initWithCapacity:[viewsArrayObject count]];
 			for(id viewObject in viewsArrayObject){
 				TitaniumContentViewController * ourNewVC = [TitaniumContentViewController viewControllerForState:viewObject relativeToUrl:baseUrl];
-				[ourNewVC setTitaniumWindowController:self];
+				[ourNewVC setTitaniumWindowToken:primaryToken];
 				if(ourNewVC != nil) [contentViewControllers addObject:ourNewVC];
 			}
 		} else {
 			NSMutableDictionary * reducedInputState = [inputState mutableCopy];
 			[reducedInputState removeObjectForKey:@"_TOKEN"];
 			TitaniumContentViewController * ourNewVC = [TitaniumContentViewController viewControllerForState:reducedInputState relativeToUrl:baseUrl];
-			[ourNewVC setTitaniumWindowController:self];
+			[ourNewVC setTitaniumWindowToken:primaryToken];
 			if(ourNewVC != nil) contentViewControllers = [[NSMutableArray alloc] initWithObjects:ourNewVC,nil];
 			[reducedInputState release];
 		}
@@ -789,7 +798,7 @@ int nextWindowToken = 0;
 		if (![thisProxyObject isKindOfClass:dictClass]) continue;
 		
 		TitaniumContentViewController * thisVC = [TitaniumContentViewController viewControllerForState:thisProxyObject relativeToUrl:baseUrl];
-		[thisVC setTitaniumWindowController:self];
+		[thisVC setTitaniumWindowToken:primaryToken];
 		if(thisVC != nil) [contentViewControllers addObject:thisVC];
 	}
 	

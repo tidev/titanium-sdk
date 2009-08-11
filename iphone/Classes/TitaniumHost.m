@@ -66,6 +66,8 @@ int extremeDebugLineNumber;
 }
 @end
 
+NSLock * TitaniumHostContentViewLock=nil;
+NSLock * TitaniumHostWindowLock=nil;
 
 
 NSString const * titaniumObjectKey = @"titaniumObject";
@@ -81,6 +83,12 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 - (id) init
 {
 	if (self=[super init]) {
+		if(TitaniumHostContentViewLock==nil){
+			TitaniumHostContentViewLock = [[NSLock alloc] init];
+		}
+		if(TitaniumHostWindowLock==nil){
+			TitaniumHostWindowLock = [[NSLock alloc] init];
+		}
 		titaniumObject = [[NSMutableDictionary alloc] init];
 		threadRegistry = [[NSMutableDictionary alloc] init];
 		CFDictionaryValueCallBacks noRetainCallbacks;
@@ -1013,8 +1021,8 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 {
 	TitaniumCmdThread * ourThread = [self currentThread];
 	if (ourThread != nil) {
-		TitaniumContentViewController * childVC = [self titaniumContentViewControllerForToken:[ourThread magicToken]];
-		return [childVC titaniumWindowController];
+		TitaniumViewController * ourVC = [self titaniumViewControllerForToken:[ourThread magicToken]];
+		return ourVC;
 	}
 	return [self visibleTitaniumViewController];
 }
@@ -1032,13 +1040,17 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 {
 	TitaniumViewController * result = nil;	
 	if ([token length] > 1) {
+		[TitaniumHostWindowLock lock];
 		result = (id)CFDictionaryGetValue(viewControllerRegistry, token);
+		[[result retain] autorelease];
+		[TitaniumHostWindowLock unlock];
 		if (result == nil) {
 			UIViewController * rootVC = [[TitaniumAppDelegate sharedDelegate] viewController];
 			result = TitaniumViewControllerForToken(rootVC, token);
 		}
 		if (result == nil){
-			result = [[self titaniumContentViewControllerForToken:token] titaniumWindowController];
+			TitaniumContentViewController * childVC = [self titaniumContentViewControllerForToken:token];
+			if(childVC != nil)return [self titaniumViewControllerForToken:[childVC titaniumWindowToken]];
 		}
 	}
 	return result;
@@ -1048,7 +1060,10 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 {
 	TitaniumContentViewController * result = nil;	
 	if ([token length] > 1) {
+		[TitaniumHostContentViewLock lock];
 		result = (id)CFDictionaryGetValue(contentViewControllerRegistry, token);
+		[[result retain] autorelease];
+		[TitaniumHostContentViewLock unlock];
 		if (result == nil) {
 			UIViewController * rootVC = [[TitaniumAppDelegate sharedDelegate] viewController];
 			result = TitaniumContentViewControllerForToken(rootVC, token);

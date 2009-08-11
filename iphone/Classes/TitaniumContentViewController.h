@@ -15,10 +15,10 @@
 	NSString * nameString;
 	CGSize preferredViewSize;
 	
-	TitaniumViewController * titaniumWindowController;
+	NSString * titaniumWindowToken;
 }
 
-@property(nonatomic,readwrite,assign)	TitaniumViewController * titaniumWindowController;	//Does not retain the parent.
+@property(nonatomic,readwrite,copy)	NSString * titaniumWindowToken;	//Does not retain the parent, just the token.
 @property (nonatomic,copy)	NSString * primaryToken;
 @property (nonatomic,copy)	NSString * nameString;
 @property(nonatomic,readwrite,assign)	CGSize preferredViewSize;
