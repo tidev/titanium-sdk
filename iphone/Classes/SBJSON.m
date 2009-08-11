@@ -90,14 +90,16 @@ static NSError *errWithUnderlier(int code, NSError **u, NSString *str) {
 
 @implementation SBJSON
 
-static char ctrl[0x22];
+static char ctrl[0x24];
 
 + (void)initialize
 {
     ctrl[0] = '\"';
     ctrl[1] = '\\';
+//	ctrl[2] = '\'';
     for (int i = 1; i < 0x20; i++)
-        ctrl[i+1] = i;
+		ctrl[i+1] = i;
+//        ctrl[i+2] = i;
     ctrl[0x21] = 0;    
 }
 
@@ -321,6 +323,7 @@ static char ctrl[0x22];
             unichar uc = [fragment characterAtIndex:i];
             switch (uc) {
                 case '"':   [json appendString:@"\\\""];       break;
+ //               case '\'':   [json appendString:@"\\\'"];       break;
                 case '\\':  [json appendString:@"\\\\"];       break;
                 case '\t':  [json appendString:@"\\t"];        break;
                 case '\n':  [json appendString:@"\\n"];        break;
