@@ -53,10 +53,10 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 			this.imagePath = o.getString("image");
 		}
 		if (o.has("backgroundImage")) {
-			this.backgroundImage = o.getString("backgroundImage");
+			//this.backgroundImage = o.getString("backgroundImage");
 		}
 		if (o.has("backgroundSelectedImage")) {
-			this.backgroundSelectedImage = o.getString("backgroundSelectedImage");
+			//this.backgroundSelectedImage = o.getString("backgroundSelectedImage");
 		}
 		if (o.has("color")) {
 			this.color = o.getString("color");
