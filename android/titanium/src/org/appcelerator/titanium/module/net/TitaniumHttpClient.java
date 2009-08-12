@@ -67,6 +67,8 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 
 	private ArrayList<NameValuePair> nvPairs;
 	private HashMap<String, ContentBody> parts;
+	private String data;
+
 	private final TitaniumHttpClient me;
 	String syncId;
 
@@ -278,6 +280,10 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 		setRequestHeader("X-Requested-With","XMLHttpRequest");
 	}
 
+	public void addStringData(String data) {
+		this.data = data;
+	}
+
 	public void addPostData(String name, String value) {
 		if (value == null) {
 			value = "";
@@ -310,7 +316,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#send(java.lang.String)
 	 */
-	public void send(final String data)
+	public void send()
 	{
 
 		// TODO consider using task manager
@@ -368,25 +374,28 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 							HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest) request;
 							e.setEntity(mpe);
 						} else {
-							HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest) request;
-							e.setEntity(form);
-						}
-
-						if (data!=null)
-						{
-							try
+							if (data!=null)
 							{
-								StringEntity requestEntity = new StringEntity(data, "UTF-8");
-								//TODO: you'll only want to do this if you don't have a header
-								requestEntity.setContentType("application/x-www-form-urlencoded");
-								HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest)request;
-								e.setEntity(requestEntity);
-
-							}
-							catch(Exception ex)
-							{
-								//FIXME
-								Log.e(LCAT, "Exception, implement recovery: ", ex);
+								try
+								{
+									StringEntity requestEntity = new StringEntity(data, "UTF-8");
+									Header header = request.getFirstHeader("contentType");
+									if(header == null) {
+										requestEntity.setContentType("application/x-www-form-urlencoded");
+									} else {
+										requestEntity.setContentType(header.getValue());
+									}
+									HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest)request;
+									e.setEntity(requestEntity);
+								}
+								catch(Exception ex)
+								{
+									//FIXME
+									Log.e(LCAT, "Exception, implement recovery: ", ex);
+								}
+							} else {
+								HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest) request;
+								e.setEntity(form);
 							}
 						}
 					}

@@ -83,20 +83,24 @@ var HTTPClient = function() {
 	this.send = function() {
 		for(i=0; i < arguments.length; i++) {
 			d = arguments[i];
-			for(key in d) {
-				value = d[key];
-				type = typeof value;
-				if (type != 'object') {
-					this.obj.addPostData(key, String(value));
-				} else if (type.indexOf('TitaniumBlob') != -1) {
-					Titanium.API.error("send: typeof=" + typeof value);
-					this.obj.addTitaniumFileAsPostData(key, value.obj.proxy);
-				} else {
-					this.obj.addTitaniumFileAsPostData(key, value.proxy);
+			if (typeof d == 'object') {
+				for(key in d) {
+					value = d[key];
+					type = typeof value;
+					if (type != 'object') {
+						this.obj.addPostData(key, String(value));
+					} else if (type.indexOf('TitaniumBlob') != -1) {
+						Titanium.API.error("send: typeof=" + typeof value);
+						this.obj.addTitaniumFileAsPostData(key, value.obj.proxy);
+					} else {
+						this.obj.addTitaniumFileAsPostData(key, value.proxy);
+					}
 				}
+			} else {
+				this.obj.addStringData(String(d));
 			}
 		}
-		this.obj.send(null);
+		this.obj.send();
 	};
 	/**
 	 * @tiapi(method=true,name=Network.HTTPClient.setRequestHeader,since=0.4) Set a request header for the connection

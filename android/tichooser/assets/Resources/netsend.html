@@ -14,14 +14,17 @@
 		$('listen').onclick = function()
 		{
 			if (netListener === null){
-				netListener = Titanium.Network.addConnectivityListener(function(newVal){
-							$('status').innerHTML = 'Network Status: ' + newVal;
+				netListener = Titanium.Network.addEventListener("connectivity", function(e){
+							$('status').innerHTML = 'Network Status: ' +
+								"online: " + e.online + " type: " + e.type +
+								" typeName " + e.typeName + " reason: " + e.reason;
 						});
 			}
 		};
 		$('noListen').onclick = function()
 		{
-			Titanium.Network.removeConnectivityListener(netListener);
+			Titanium.Network.removeEventListener('connectivity', netListener);
+			$('status').innerHTML = 'Stopped listening.';
 			netListener = null;
 		};
 

@@ -49,10 +49,11 @@ public interface ITitaniumHttpClient {
 	public void open(String method, String url)
 			throws MethodNotSupportedException;
 
-	public void send(String data);
+	public void send();
 
 	// Internal method
 
 	public void addPostData(String name, String value);
 	public void addTitaniumFileAsPostData(String name, ITitaniumFile value);
+	public void addStringData(String data);
 }

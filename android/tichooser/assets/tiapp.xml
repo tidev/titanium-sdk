@@ -129,11 +129,31 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
 		<window>
             <id>VS4</id>
             <title>View Stress 4</title>
             <url>viewstress4.html</url>
+            <type>single</type>
+            <fullscreen>false</fullscreen>
+            <backgroundColor>argb(0,128,128,128)</backgroundColor>
+            <barColor>#000</barColor>
+        </window>
+-->
+		<window>
+            <id>NetSend</id>
+            <title>Net Send</title>
+            <url>netsend.html</url>
+            <type>single</type>
+            <fullscreen>false</fullscreen>
+            <backgroundColor>argb(0,128,128,128)</backgroundColor>
+            <barColor>#000</barColor>
+        </window>
+
+		<window>
+            <id>IslandTest</id>
+            <title>Island</title>
+            <url>island.html</url>
             <type>single</type>
             <fullscreen>false</fullscreen>
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
