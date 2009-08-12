@@ -8,7 +8,7 @@ import SCons.Variables
 import SCons.Environment
 from SCons.Script import *
 
-version = '0.5.1'
+version = '0.6.0'
 
 # allow it to be overriden on command line or in env
 if os.environ.has_key('PRODUCT_VERSION'):
