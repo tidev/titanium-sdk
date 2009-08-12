@@ -6,8 +6,21 @@
 <body>
 <script>
 documentation = {};
+
+dataTypeOf = function(object){
+	var result=typeof(object);
+	if(result=='number'){
+		if(object.toString().indexOf('.')==-1){
+			return 'int';
+		} else {
+			return 'float';
+		}
+	}
+	return result;
+}
+</script><script>
 documentObject = function(object,pathPrefix){
-	var type = typeof(object);
+	var type = dataTypeOf(object);
 	var docObject;
 	
 	if(pathPrefix){
@@ -18,58 +31,92 @@ documentObject = function(object,pathPrefix){
 		}
 	}else docObject={};
 
-	if(!docObject.since)docObject.since = '0.6';
+	if(!docObject.since)docObject.since = 'PRIVATE';
 	if(!docObject.desc)docObject.desc = '*NEEDS*DESCRIPTION*';
 
-	if(type=='string'){
-		docObject.generalType = 'property';
-		docObject.dataType = 'string';
-	} else if (type=='number'){
-		docObject.generalType = 'property';
-		if(!docObject.dataType){
-			if(docObject.toString().indexOf('.')==-1){
-				docObject.dataType = 'int';
-			} else {
-				docObject.dataType = 'float';
-			}
-		}
-	} else if (type=='function'){
+	if(type=='function'){
 		docObject.generalType = 'method';
-	} else if (type=='object'){
-		docObject.generalType = 'property';
-		docObject.dataType = 'object';
-		var nextPathPrefix = pathPrefix;
-		if(nextPathPrefix)nextPathPrefix += '.';
-		for(prop in object){
-			if(prop.charAt(0)!='_'){
-				documentObject(object[prop],nextPathPrefix+prop);
-//				Ti.API.debug('Don\'t forget '+prop);
-			}
-		}
-	
+		return;
 	}
-//		pathPrefix += '.'
 
+	docObject.generalType = 'property';
+	docObject.dataType = type;
+	if (type!='object')return;
+	var nextPathPrefix = pathPrefix;
+	if(nextPathPrefix)nextPathPrefix += '.';
+	for(prop in object){
+		if(prop.charAt(0)=='_')continue;
+		var childObject = object[prop];
+		documentObject(childObject,nextPathPrefix+prop);
+		if(typeof(childObject)!='function')continue;
+		var functStr = childObject.toString();
+		var functArgStr = functStr.substring(functStr.indexOf('(')+1,functStr.indexOf(')'));
+		if(functArgStr.length > 0){
+			var functArgs=functArgStr.split(', ');
+			//TODO: create the args entry if needed.
+		}
+		
+		if(!childObject.samples)continue;
+
+		var sampleCount = childObject.samples.length;
+		for(i=0;i<sampleCount;i++){
+			documentFunction(object,pathPrefix,prop,childObject.samples[i]);
+		}
+	}
 };
 
 documentFunction = function(object,pathPrefix,functName,argstring){
+
+	//TODO: DocumentFunction
+	var result = eval('object.' + functName + '(' + argstring + ')');
+
+
 };
 
 jsonifyObjectDocumentation = function(objectName){
-//	var result= 'documentation[\'' + objectName + '\']={};\r';
-//	var object=documentation[objectName];
-//	for(prop in object){
-//		result += 'documentation[\'' + objectName + '\'].' + prop + '='	 + Ti._JSON(object[prop]) + ';\r';
-//	}
-	var result= 'documentation[\'' + objectName + '\']=' + Ti._JSON(documentation[objectName])+ ';\n';
+	var value = Ti._JSON(documentation[objectName]);
+	var result= 'documentation[\'' + objectName + '\']=' + value + ';\n';
 	return result;
 };
 
 tiapifyObjectDocumentation = function(objectName){
+	var docObject=documentation[objectName];
+	if(docObject.since == 'PRIVATE')return '';
+	
+	var result = '@tiapi(' + docObject.generalType + '=true,name=' + objectName;
+	if(docObject.since)result +=',since=' + docObject.since;
+	if(docObject.dataType)result +=',type='+docObject.dataType;
+	result += ') ';
+	if(docObject.desc)result += docObject.desc.replace(/\n/,"\n@tiapi ");
+	result += '\n';
+	if(docObject.args){
+		var argCount = docObject.args.length;
+		var requiredArgCount;
+		if(docObject.minArgCount)requiredArgCount = docObject.minArgCount;
+		else requiredArgCount = argCount;
+	
+		for(var i=0;i<argCount;i++){
+			result += '@tiarg(for=' + objectName;
+			var thisArg = docObject.args[i];
+			if(thisArg.name)result+=',name='+thisArg.name;
+			if(thisArg.dataType)result+=',type='+thisArg.dataType;
+			if(i>=requiredArgCount)result+=',optional=true';
+			result += ')';
+			if(thisArg.desc)result+=' '+thisArg.desc;
+			result += '\n';
+		}
+	}
 
+	if(docObject.result){
+		result += '@tiresult(for='+objectName;
+		if(docObject.result.dataType)result+=',type='+docObject.result.dataType;
+		result += ')';
+		if(docObject.result.desc)result+=' '+docObject.result.desc;
+		result += '\n';
+	}
+	result += '\n';
 
-
-	return '';
+	return result;
 };
 
 printAllDocumentation = function(){
@@ -92,17 +139,196 @@ printAllDocumentation = function(){
 	for(var i=0;i<propCount;i++){
 		outputMsg += tiapifyObjectDocumentation(sortedProps[i]);
 	}
-	Ti.API.debug(outputMsg);
-	outputDiv.innerHTML = outputMsg.replace(/\n/,'<br>');
+	Ti.API.debug(outputMsg.replace(/%5C%22/g,'\\\\"'));
+	outputDiv.innerHTML = outputMsg.replace(/%5C%22/g,'\\"').replace(/\n/,'<br>');
 };
 </script>
 
 <div id='output'></div>
 
 <script>
-documentObject(Titanium,'');
+Ti.API.debug('Starting...');
+documentation['API']={since:0.4,desc:'API module'};
+documentation['API.log']={since:0.4,desc:'writes information to the console log/STDERR',
+	args:[{name:'severity',dataType:'string',desc:'the severity of the message'},{name:'note',dataType:'string',desc:'the value to log'}]};
+documentation['API.critical']={since:0.4,desc:'logs an object with severity "critical"',
+	args:[{name:'note',dataType:'string',desc:'the value to log'}]};
+documentation['API.debug']={since:0.4,desc:'logs an object with severity "debug"',
+	args:[{name:'note',dataType:'string',desc:'the value to log'}]};
+documentation['API.error']={since:0.4,desc:'logs an object with severity "error"',
+	args:[{name:'note',dataType:'string',desc:'the value to log'}]};
+documentation['API.fatal']={since:0.4,desc:'logs an object with severity "fatal"',
+	args:[{name:'note',dataType:'string',desc:'the value to log'}]};
+documentation['API.info']={since:0.4,desc:'logs an object with severity "info"',
+	args:[{name:'note',dataType:'string',desc:'the value to log'}]};
+documentation['API.notice']={since:0.4,desc:'logs an object with severity "notice"',
+	args:[{name:'note',dataType:'string',desc:'the value to log'}]};
+documentation['API.trace']={since:0.4,desc:'logs an object with severity "trace"',
+	args:[{name:'note',dataType:'string',desc:'the value to log'}]};
+documentation['API.warn']={since:0.4,desc:'logs an object with severity "warn"',
+	args:[{name:'note',dataType:'string',desc:'the value to log'}]};
+
+documentation['UI']={"since": "0.4", "desc": "UI module"};
+//documentation['UI.INPUT_BORDERSTYLE_BEZEL']={"since": "0.5", "desc": "A possible value for UI.TextField.borderStyle; indicates a shaded rectangular bezel will be used."};
+//documentation['UI.INPUT_BORDERSTYLE_LINE']={"since": "0.5", "desc": "A possible value for UI.TextField.borderStyle; indicates a simple line will be used."};
+//documentation['UI.INPUT_BORDERSTYLE_NONE']={"since": "0.5", "desc": "A possible value for UI.TextField.borderStyle; indicates no outline will be used."};
+//documentation['UI.INPUT_BORDERSTYLE_ROUNDED']={"since": "0.5", "desc": "A possible value for UI.TextField.borderStyle; indicates a round-rectangle-shaped bezel will be used."};
+//documentation['UI.INPUT_BUTTONMODE_ALWAYS']={"since": "0.5", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.INPUT_BUTTONMODE_NEVER']={"since": "0.5", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.INPUT_BUTTONMODE_ONBLUR']={"since": "0.5", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.INPUT_BUTTONMODE_ONFOCUS']={"since": "0.5", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.KEYBOARD_ASCII']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.KEYBOARD_DEFAULT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.KEYBOARD_EMAIL_ADDRESS']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.KEYBOARD_NUMBERS_PUNCTUATION']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.KEYBOARD_NUMBER_PAD']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.KEYBOARD_PHONE_PAD']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.KEYBOARD_URL']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.LANDSCAPE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.PORTRAIT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.PORTRAIT_AND_LANDSCAPE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.RETURNKEY_DEFAULT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.RETURNKEY_DONE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.RETURNKEY_EMERGENCY_CALL']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.RETURNKEY_GO']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.RETURNKEY_GOOGLE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.RETURNKEY_JOIN']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.RETURNKEY_NEXT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.RETURNKEY_ROUTE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.RETURNKEY_SEARCH']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.RETURNKEY_SEND']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.RETURNKEY_YAHOO']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.createActivityIndicator']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.createAlertDialog']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.createButton']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.createButtonBar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.createEmailDialog']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.createOptionDialog']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.createProgressBar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.createSlider']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.createSwitch']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.createTabbedBar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.createTableView']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.createTextArea']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.createTextField']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.createWebView']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.createWindow']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentView']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentView.addEventListener']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentView.doEvent']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentView.removeEventListener']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentView.setURL']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.currentWindow']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentWindow.addEventListener']={"since": "0.4", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentWindow.addView']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.currentWindow.close']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.currentWindow.doEvent']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentWindow.getViewByName']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentWindow.getViews']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.currentWindow.hideNavBar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.currentWindow.insertButton']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentWindow.removeEventListener']={"since": "0.4", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentWindow.setActiveViewIndex']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.currentWindow.setBarColor']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.currentWindow.setFullscreen']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.currentWindow.setLeftNavButton']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.currentWindow.setRightNavButton']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.currentWindow.setTitle']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentWindow.setTitleControl']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.currentWindow.setTitleImage']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.currentWindow.setToolbar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.currentWindow.showNavBar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentWindow.showView']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.currentWindow.toolbar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ActivityIndicatorStyle']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ActivityIndicatorStyle.BAR']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ActivityIndicatorStyle.BIG']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ActivityIndicatorStyle.BORDERED']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ActivityIndicatorStyle.DARK']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ActivityIndicatorStyle.DONE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ActivityIndicatorStyle.PLAIN']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.AnimationStyle']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.AnimationStyle.CURL_DOWN']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.AnimationStyle.CURL_UP']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.AnimationStyle.FLIP_FROM_LEFT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ProgressBarStyle']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ProgressBarStyle.BAR']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ProgressBarStyle.BIG']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ProgressBarStyle.BORDERED']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ProgressBarStyle.DARK']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ProgressBarStyle.DONE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ProgressBarStyle.PLAIN']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.RowAnimationStyle']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.RowAnimationStyle.BOTTOM']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.RowAnimationStyle.FADE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.RowAnimationStyle.LEFT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.RowAnimationStyle.NONE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.RowAnimationStyle.RIGHT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.RowAnimationStyle.TOP']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.StatusBar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.StatusBar.DEFAULT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.StatusBar.GRAY']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.StatusBar.GREY']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.StatusBar.OPAQUE_BLACK']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.StatusBar.TRANSLUCENT_BLACK']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.ACTION']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.ACTIVITY']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.ADD']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.BOOKMARKS']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.CAMERA']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.CANCEL']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.COMPOSE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.DONE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.EDIT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.FAST_FORWARD']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.FIXED_SPACE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.FLEXIBLE_SPACE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.INFO_DARK']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.INFO_LIGHT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.ORGANIZE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.PAUSE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.PLAY']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.REFRESH']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.REPLY']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.REWIND']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.SAVE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.SEARCH']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.STOP']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButton.TRASH']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButtonStyle']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.SystemButtonStyle.BAR']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.SystemButtonStyle.BIG']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButtonStyle.BORDERED']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.SystemButtonStyle.DARK']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemButtonStyle.DONE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.SystemButtonStyle.PLAIN']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemIcon']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemIcon.BOOKMARKS']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemIcon.CONTACTS']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemIcon.DOWNLOADS']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemIcon.FAVORITES']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemIcon.FEATURED']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemIcon.MORE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemIcon.MOST_RECENT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemIcon.MOST_VIEWED']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemIcon.RECENTS']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemIcon.SEARCH']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.SystemIcon.TOP_RATED']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.createGroupedSection']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.createGroupedView']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.iPhone.setStatusBarStyle']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.setAppBadge']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.setTabBadge']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.viewsForWindowToken']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+
+//documentObject(Titanium,'');
 documentObject(Titanium.API,'API');
+documentObject(Titanium.UI,'UI');
 printAllDocumentation();
+
 </script>
 </body>
 </html>

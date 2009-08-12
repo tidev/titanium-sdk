@@ -258,33 +258,34 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
  * @tiapi(property=True,name=UI.iPhone.SystemButton,version=0.4,type=object) object containing iPhone system-provided button constants. Refer to http://developer.apple.com/iphone/library/documentation/UserExperience/Conceptual/MobileHIG/SystemProvided/SystemProvided.html
  * @tiapi(property=True,name=UI.iPhone.SystemButton.ACTION,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Action" button when in the toolbar or nav bar
  * @tiapi(property=True,name=UI.iPhone.SystemButton.ACTIVITY,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to have an activity spinner in the button's place
- * @tiapi(property=True,name=UI.iPhone.SystemButton.CAMERA,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Camera" button when in the toolbar or nav bar
- * @tiapi(property=True,name=UI.iPhone.SystemButton.COMPOSE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Compose" button when in the toolbar or nav bar
- * @tiapi(property=True,name=UI.iPhone.SystemButton.BOOKMARKS,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Bookmarks" button when in the toolbar or nav bar
- * @tiapi(property=True,name=UI.iPhone.SystemButton.SEARCH,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Search" button when in the toolbar or nav bar
  * @tiapi(property=True,name=UI.iPhone.SystemButton.ADD,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Add" button when in the toolbar or nav bar
- * @tiapi(property=True,name=UI.iPhone.SystemButton.TRASH,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Trash" button when in the toolbar or nav bar
- * @tiapi(property=True,name=UI.iPhone.SystemButton.ORGANIZE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Organize" button when in the toolbar or nav bar
- * @tiapi(property=True,name=UI.iPhone.SystemButton.REPLY,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Reply" button when in the toolbar or nav bar
- * @tiapi(property=True,name=UI.iPhone.SystemButton.STOP,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Stop" button when in the toolbar or nav bar
- * @tiapi(property=True,name=UI.iPhone.SystemButton.REFRESH,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Refresh" button when in the toolbar or nav bar
- * @tiapi(property=True,name=UI.iPhone.SystemButton.PLAY,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Play" button when in the toolbar or nav bar
- * @tiapi(property=True,name=UI.iPhone.SystemButton.FAST_FORWARD,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "FastForward" button when in the toolbar or nav bar
- * @tiapi(property=True,name=UI.iPhone.SystemButton.PAUSE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Pause" button when in the toolbar or nav bar
- * @tiapi(property=True,name=UI.iPhone.SystemButton.REWIND,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Rewind" button when in the toolbar or nav bar
- * @tiapi(property=True,name=UI.iPhone.SystemButton.EDIT,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Edit" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.BOOKMARKS,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Bookmarks" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.CAMERA,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Camera" button when in the toolbar or nav bar
  * @tiapi(property=True,name=UI.iPhone.SystemButton.CANCEL,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Cancel" button when in the toolbar or nav bar
- * @tiapi(property=True,name=UI.iPhone.SystemButton.SAVE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Save" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.COMPOSE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Compose" button when in the toolbar or nav bar
  * @tiapi(property=True,name=UI.iPhone.SystemButton.DONE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Done" button when in the toolbar or nav bar
- * @tiapi(property=True,name=UI.iPhone.SystemButton.FLEXIBLE_SPACE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to have a spacer to place between tool bar buttons to seperate them as much as possible
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.EDIT,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Edit" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.FAST_FORWARD,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "FastForward" button when in the toolbar or nav bar
  * @tiapi(property=True,name=UI.iPhone.SystemButton.FIXED_SPACE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to have a space of a fixed size to place between tool bar buttons
-
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.FLEXIBLE_SPACE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to have a spacer to place between tool bar buttons to seperate them as much as possible
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.ORGANIZE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Organize" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.PAUSE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Pause" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.PLAY,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Play" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.REFRESH,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Refresh" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.REPLY,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Reply" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.REWIND,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Rewind" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.SAVE,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Save" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.SEARCH,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Search" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.STOP,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Stop" button when in the toolbar or nav bar
+ * @tiapi(property=True,name=UI.iPhone.SystemButton.TRASH,version=0.4,type=string) Set a UI.Button's "systemButton" property to this in order to get the system-provided "Trash" button when in the toolbar or nav bar
+ 
  * @tiapi(property=True,name=UI.iPhone.SystemButton.INFO_LIGHT,version=0.5,type=string) Set a UI.Button's "systemButton" property to this in order to get a white system-provided "info" button
  * @tiapi(property=True,name=UI.iPhone.SystemButton.INFO_DARK,version=0.5,type=string) Set a UI.Button's "systemButton" property to this in order to get a dark system-provided "info" button
 
  * @tiapi(property=True,name=UI.iPhone.StatusBar,version=0.4,type=object) object containing iPhone status bar style constants
  * @tiapi(property=True,name=UI.iPhone.StatusBar.DEFAULT,version=0.4,type=int) constant representing the default status bar style. The status bar appears opaque and gray. This is the same as gray
- * @tiapi(property=True,name=UI.iPhone.StatusBar.gray,version=0.4,type=int) constant representing the default status bar style. The status bar appears opaque and gray. This is the same as default
+ * @tiapi(property=True,name=UI.iPhone.StatusBar.GRAY,version=0.4,type=int) constant representing the default status bar style. The status bar appears opaque and gray. This is the same as default
+ * @tiapi(property=True,name=UI.iPhone.StatusBar.GREY,version=0.6,type=int) constant representing the default status bar style. The status bar appears opaque and gray. This is the same as default
  * @tiapi(property=True,name=UI.iPhone.StatusBar.OPAQUE_BLACK,version=0.4,type=int) constant representing the opaque black status bar style. The status bar appears opaque and black.
  * @tiapi(property=True,name=UI.iPhone.StatusBar.TRANSLUCENT_BLACK,version=0.4,type=int) constant representing the translucent black status bar style. The status bar appears translucent and black.
  
