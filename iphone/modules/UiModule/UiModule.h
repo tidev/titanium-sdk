@@ -795,7 +795,8 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
  
  @tiapi(method=true,name=UI.EmailDialog.setToRecipients,since=0.6) sets the toRecipients property
  @tiarg(for=UI.EmailDialog.setToRecipients,name=newToRecipients,type=object) array of strings, each an email address that will appear in the To field
-
+ 
+   
  @tiapi(method=true,name=UI.TableView.deleteRow,since=0.6) deletes a row from the table view
  @tiapi Keep in mind that after this is called, all rows afterward are renumbered appropriately.
  @tiarg(for=UI.TableView.deleteRow,name=rowIndex,type=int) The index of the row to delete. Valid values are 0 to (number of rows - 1)
@@ -844,7 +845,44 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
  @tiresult(for=UI.createWebView,type=object) the created UI.WebView object
  
  @tiapi(property=true,name=UI.currentView,since=0.6,type=object) Object that represents the current webView. Can be used like a UI.WebView
-
+ 
+ @tiapi(method=true,name=UI.currentView.addEventListener,since=0.6) adds an event listener to be called for a load, focused, or unfocused event
+ @tiarg(for=UI.currentView.addEventListener,name=type,type=string) the type of event to listen for.  Must be load, focused, or unfocused
+ @tiarg(for=UI.currentView.addEventListener,name=callback,type=function) the function that will be called when the event occurs. A single object event is passed as an argument
+ @tiresult(for=UI.currentView.addEventListener,type=method) the callback function, for use in removeEventListener
+ 
+ @tiapi(method=true,name=UI.currentView.removeEventListener,since=0.6) removes an event listener from undefined, undefined, or undefined events
+ @tiarg(for=UI.currentView.removeEventListener,name=type,type=string) the type of event to remove the listener from.  Must be undefined, undefined, or undefined
+ @tiarg(for=UI.currentView.removeEventListener,name=callback,type=function) the function to be removed
+ @tiresult(for=UI.currentView.removeEventListener,type=boolean) returns true if successfully removed
+ 
+ @tiapi(method=true,name=UI.currentView.setURL,since=0.6) Replaces the contents of this view with a new page
+ @tiarg(for=UI.currentView.setURL,name=newURL,type=string) a relative url
+ 
+ @tiapi(method=true,name=UI.currentWindow.addView,since=0.6) Adds a view to the current window, but does not change the visible view
+ @tiarg(for=UI.currentWindow.addView,name=newView,type=object) a UI.WebView, UI.TableView, or UI.GroupedView object to be added.
+ 
+ @tiapi(method=true,name=UI.currentWindow.getViewByName,since=0.6) finds the first view that has its name property set to the specified value
+ @tiarg(for=UI.currentWindow.getViewByName,name=searchedName,type=string) the name value to search for amongst the window's views
+ @tiresult(for=UI.currentWindow.getViewByName,type=object) the UI.WebView, UI.TableView, or UI.GroupedView that matches, or null if none was found
+ 
+ @tiapi(method=true,name=UI.currentWindow.getViews,since=0.6) lists the window's views at that current moment
+ @tiresult(for=UI.currentWindow.getViews,type=object) an array of UI.WebView, UI.TableView, and/or UI.GroupedViews that are owned by the window
+ 
+ @tiapi(method=true,name=UI.currentWindow.setTitleControl,since=0.6) sets the titleControl property
+ @tiapi Replaces the window's title and title image while not set to null
+ @tiarg(for=UI.currentWindow.setTitleControl,name=newTitleControl) the replacement titleControl value
+ 
+ @tiapi(method=true,name=UI.currentWindow.showView,since=0.6) Changes the view that the current window is showing
+ 
+ @tiapi(property=true,name=UI.iPhone.ActivityIndicatorStyle,since=0.6,type=object) Possible styles for UI.ActivityIndicator
+ 
+ @tiapi(property=true,name=UI.iPhone.ActivityIndicatorStyle.BIG,since=0.6,type=int) constant representing a large (37 pixels wide) white activity indicator
+ 
+ @tiapi(property=true,name=UI.iPhone.ActivityIndicatorStyle.DARK,since=0.6,type=int) constant representing a small (20 pixels wide) gray activity indicator
+ 
+ @tiapi(property=true,name=UI.iPhone.ActivityIndicatorStyle.PLAIN,since=0.6,type=int) constant representing a small (20 pixels wide) white activity indicator
+ 
  @tiapi(property=true,name=UI.iPhone.AnimationStyle,since=0.6,type=object) Animation styles possible when changing views
  
  @tiapi(property=true,name=UI.iPhone.AnimationStyle.CURL_DOWN,since=0.6,type=int) constant used to describe an animation where the new view curls down, covering the current view
@@ -860,11 +898,26 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
  @tiapi UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT is used by UI.currentWindow.showView and UI.UserWindow.showView
  
  @tiapi(property=true,name=UI.iPhone.ProgressBarStyle,since=0.6,type=object) Possible styles for UI.ProgressBar
- @tiapi(property=true,name=UI.iPhone.ProgressBarStyle.BAR,since=0.6,type=int) The silver and black style often seen when a progress bar is in a toolbar
  
- @tiapi(property=true,name=UI.iPhone.ProgressBarStyle.PLAIN,since=0.6,type=int) The blue and white style often seen when a progress bar is not in the toolbar
+ @tiapi(property=true,name=UI.iPhone.ProgressBarStyle.BAR,since=0.6,type=int) constant representing the silver and black style often seen when a progress bar is in a toolbar
+ 
+ @tiapi(property=true,name=UI.iPhone.ProgressBarStyle.PLAIN,since=0.6,type=int) constant representing the blue and white style often seen when a progress bar is not in the toolbar
  
  @tiapi(property=true,name=UI.iPhone.RowAnimationStyle,since=0.6,type=object) Possible transition styles for rows and sections
+ 
+ @tiapi(property=true,name=UI.iPhone.RowAnimationStyle.BOTTOM,since=0.6,type=int) constant used to describe a row animation where the inserted row or rows slides in from the bottom; the deleted row or rows slides out toward the bottom.
+ 
+ @tiapi(property=true,name=UI.iPhone.RowAnimationStyle.FADE,since=0.6,type=int) constant used to describe a row animation where the inserted or deleted row or rows fades into or out of the table view.
+ 
+ @tiapi(property=true,name=UI.iPhone.RowAnimationStyle.LEFT,since=0.6,type=int) constant used to describe a row animation where the nserted row or rows slides in from the left; the deleted row or rows slides out to the left.
+ 
+ @tiapi(property=true,name=UI.iPhone.RowAnimationStyle.NONE,since=0.6,type=int) constant used to describe a row replacement where the new cell value appears as if the cell had just been reloaded.. In iPhone OS 2.2.1, this is a fade instead.
+ 
+ @tiapi(property=true,name=UI.iPhone.RowAnimationStyle.RIGHT,since=0.6,type=int) constant used to describe a row animation where the inserted row or rows slides in from the right; the deleted row or rows slides out to the right.
+ 
+ @tiapi(property=true,name=UI.iPhone.RowAnimationStyle.TOP,since=0.6,type=int) constant used to describe a row animation where the inserted row or rows slides in from the top; the deleted row or rows slides out toward the top.
+ 
+ @tiapi(property=true,name=UI.iPhone.SystemButtonStyle.BAR,since=0.6,type=int) constant representing the toolbar style for both UI.ButtonBar and UI.TabbedBar. The native element will be shorter in hieght and will honor the tinting color, even when not in the toolbar
  
  
  

@@ -52,6 +52,42 @@ documentObject = function(object,pathPrefix){
 			docObject.minArgCount=0;
 			docObject.result= {dataType:'object',desc:'the created ' + docObject.creates + ' object'};
 		}
+		if(docObject.createsEvents){
+			docObject.desc = "adds an event listener to be called for a";
+			if("aeiouAEIOU".indexOf(docObject.createsEvents[0].name.charAt(0)) != -1)docObject.desc += 'n';
+			var eventCount = docObject.createsEvents.length;
+			var groupPhrase = "";
+			for(var i=0;i<eventCount;i++){
+				if(i==(eventCount -1))groupPhrase+=' or';
+				groupPhrase += ' ' + docObject.createsEvents[i].name;
+				if(i==(eventCount-1))continue;
+				if(eventCount > 2)groupPhrase+=',';
+			}
+			docObject.desc += groupPhrase + " event";
+			
+			docObject.args[0] = {name:'type',dataType:'string',desc:'the type of event to listen for.  Must be' + groupPhrase};
+			docObject.args[1] = {name:'callback',dataType:'function',desc:'the function that will be called when the event occurs. A single object event is passed as an argument'};
+			docObject.minArgCount=2;
+			docObject.result= {dataType:'method',desc:'the callback function, for use in removeEventListener'};
+		}
+		if(docObject.removesEvents){
+			docObject.desc = "removes an event listener from";
+			var eventCount = docObject.removesEvents.length;
+			var groupPhrase = "";
+			for(var i=0;i<eventCount;i++){
+				if(i==(eventCount -1))groupPhrase+=' or';
+				groupPhrase += ' ' + docObject.removesEvents[i].name;
+				if(i==(eventCount-1))continue;
+				if(eventCount > 2)groupPhrase+=',';
+			}
+			docObject.desc += groupPhrase + " events";
+			
+			docObject.args[0] = {name:'type',dataType:'string',desc:'the type of event to remove the listener from.  Must be' + groupPhrase};
+			docObject.args[1] = {name:'callback',dataType:'function',desc:'the function to be removed'};
+			docObject.minArgCount=2;
+			docObject.result= {dataType:'boolean',desc:'returns true if successfully removed'};
+		}
+
 		if(!docObject.desc)docObject.desc = '*NEEDS*DESCRIPTION*';
 		return;
 	}
@@ -308,27 +344,34 @@ documentation['UI.createProgressBar']={"since": "0.6", creates:"UI.ProgressBar"}
 documentation['UI.createWebView']={"since": "0.6", creates:"UI.WebView"};
 //documentation['UI.createWindow']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.currentView']={"since": "0.6", "desc": "Object that represents the current webView. Can be used like a UI.WebView"};
-documentation['UI.currentView.addEventListener']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentView.addEventListener']={"since": "0.6", "createsEvents":[{name:'load'},{name:'focused'},{name:'unfocused'}]};
 //documentation['UI.currentView.doEvent']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.currentView.removeEventListener']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.currentView.setURL']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+
+documentation['UI.currentView.removeEventListener']={"since": "0.6", "removesEvents":['load','focused','unfocused']};
+documentation['UI.currentView.setURL']={"since": "0.6", "desc": "Replaces the contents of this view with a new page",
+	args:[{name:"newURL",dataType:"string",desc:'a relative url'}]};
 //documentation['UI.currentWindow']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.currentWindow.addEventListener']={"since": "0.4", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.currentWindow.addView']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.currentWindow.addEventListener']={"since": "0.4", "createsEvents":[{name:'focused'},{name:'unfocused'}]};
+documentation['UI.currentWindow.addView']={"since": "0.6", "desc": "Adds a view to the current window, but does not change the visible view",
+	args:[{dataType:'object',name:'newView',desc:'a UI.WebView, UI.TableView, or UI.GroupedView object to be added.'}]};
 //documentation['UI.currentWindow.close']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.currentWindow.doEvent']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.currentWindow.getViewByName']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.currentWindow.getViews']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentWindow.getViewByName']={"since": "0.6", "desc": "finds the first view that has its name property set to the specified value",
+	args:[{name:'searchedName',dataType:'string',desc:'the name value to search for amongst the window\'s views'}],
+	result:{dataType:'object',desc:'the UI.WebView, UI.TableView, or UI.GroupedView that matches, or null if none was found'}};
+
+documentation['UI.currentWindow.getViews']={"since": "0.6", "desc": "lists the window's views at that current moment",
+	result:{dataType:'object',desc:'an array of UI.WebView, UI.TableView, and/or UI.GroupedViews that are owned by the window'}};
 //documentation['UI.currentWindow.hideNavBar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.currentWindow.insertButton']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.currentWindow.removeEventListener']={"since": "0.4", "desc": "*NEEDS*DESCRIPTION*"};
+//documentation['UI.currentWindow.removeEventListener']={"since": "0.4", "removesEvents":['focused','unfocused']};
 //documentation['UI.currentWindow.setActiveViewIndex']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.currentWindow.setBarColor']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.currentWindow.setFullscreen']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.currentWindow.setLeftNavButton']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.currentWindow.setRightNavButton']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.currentWindow.setTitle']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.currentWindow.setTitleControl']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentWindow.setTitleControl']={"since": "0.6", isSetter:true, "desc2": "Replaces the window's title and title image while not set to null"};
 //documentation['UI.currentWindow.setTitleImage']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.currentWindow.setToolbar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.currentWindow.showNavBar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
@@ -337,30 +380,30 @@ documentation['UI.currentWindow.showView']={"since": "0.6", "desc": "Changes the
 //documentation['UI.iPhone']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.iPhone.ActivityIndicatorStyle']={"since": "0.6", "desc": "Possible styles for UI.ActivityIndicator"};
 //documentation['UI.iPhone.ActivityIndicatorStyle.BAR']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.iPhone.ActivityIndicatorStyle.BIG']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ActivityIndicatorStyle.BIG']={"since": "0.6", "desc": "constant representing a large (37 pixels wide) white activity indicator"};
 //documentation['UI.iPhone.ActivityIndicatorStyle.BORDERED']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.iPhone.ActivityIndicatorStyle.DARK']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ActivityIndicatorStyle.DARK']={"since": "0.6", "desc": "constant representing a small (20 pixels wide) gray activity indicator"};
 //documentation['UI.iPhone.ActivityIndicatorStyle.DONE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.iPhone.ActivityIndicatorStyle.PLAIN']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.ActivityIndicatorStyle.PLAIN']={"since": "0.6", "desc": "constant representing a small (20 pixels wide) white activity indicator"};
 documentation['UI.iPhone.AnimationStyle']={"since": "0.6", "desc": "Animation styles possible when changing views"};
 documentation['UI.iPhone.AnimationStyle.CURL_DOWN']={"since": "0.6", "desc": "constant used to describe an animation where the new view curls down, covering the current view", "usage":["UI.currentWindow.showView","UI.UserWindow.showView"]};
 documentation['UI.iPhone.AnimationStyle.CURL_UP']={"since": "0.6", "desc": "constant used to describe an animation where the current view curls up, revealing the new view", "usage":["UI.currentWindow.showView","UI.UserWindow.showView"]};
 documentation['UI.iPhone.AnimationStyle.FLIP_FROM_LEFT']={"since": "0.6", "desc": "constant used to describe an animation where the current view flips over with the new view on the opposite side. The leftmost edge is foreground","usage":["UI.currentWindow.showView","UI.UserWindow.showView"]};
 documentation['UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT']={"since": "0.6", "desc": "constant used to describe an animation where the current view flips over with the new view on the opposite side. The leftmost edge is foreground","usage":["UI.currentWindow.showView","UI.UserWindow.showView"]};
 documentation['UI.iPhone.ProgressBarStyle']={"since": "0.6", "desc": "Possible styles for UI.ProgressBar"};
-documentation['UI.iPhone.ProgressBarStyle.BAR']={"since": "0.6", "desc": "The silver and black style often seen when a progress bar is in a toolbar"};
+documentation['UI.iPhone.ProgressBarStyle.BAR']={"since": "0.6", "desc": "constant representing the silver and black style often seen when a progress bar is in a toolbar"};
 //documentation['UI.iPhone.ProgressBarStyle.BIG']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.iPhone.ProgressBarStyle.BORDERED']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.iPhone.ProgressBarStyle.DARK']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.iPhone.ProgressBarStyle.DONE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.iPhone.ProgressBarStyle.PLAIN']={"since": "0.6", "desc": "The blue and white style often seen when a progress bar is not in the toolbar"};
+documentation['UI.iPhone.ProgressBarStyle.PLAIN']={"since": "0.6", "desc": "constant representing the blue and white style often seen when a progress bar is not in the toolbar"};
 documentation['UI.iPhone.RowAnimationStyle']={"since": "0.6", "desc": "Possible transition styles for rows and sections"};
-documentation['UI.iPhone.RowAnimationStyle.BOTTOM']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.iPhone.RowAnimationStyle.FADE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.iPhone.RowAnimationStyle.LEFT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.iPhone.RowAnimationStyle.NONE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.iPhone.RowAnimationStyle.RIGHT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.iPhone.RowAnimationStyle.TOP']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.iPhone.RowAnimationStyle.BOTTOM']={"since": "0.6", "desc": "constant used to describe a row animation where the inserted row or rows slides in from the bottom; the deleted row or rows slides out toward the bottom."};
+documentation['UI.iPhone.RowAnimationStyle.FADE']={"since": "0.6", "desc": "constant used to describe a row animation where the inserted or deleted row or rows fades into or out of the table view."};
+documentation['UI.iPhone.RowAnimationStyle.LEFT']={"since": "0.6", "desc": "constant used to describe a row animation where the nserted row or rows slides in from the left; the deleted row or rows slides out to the left."};
+documentation['UI.iPhone.RowAnimationStyle.NONE']={"since": "0.6", "desc": "constant used to describe a row replacement where the new cell value appears as if the cell had just been reloaded.. In iPhone OS 2.2.1, this is a fade instead."};
+documentation['UI.iPhone.RowAnimationStyle.RIGHT']={"since": "0.6", "desc": "constant used to describe a row animation where the inserted row or rows slides in from the right; the deleted row or rows slides out to the right."};
+documentation['UI.iPhone.RowAnimationStyle.TOP']={"since": "0.6", "desc": "constant used to describe a row animation where the inserted row or rows slides in from the top; the deleted row or rows slides out toward the top."};
 //documentation['UI.iPhone.StatusBar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.iPhone.StatusBar.DEFAULT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.iPhone.StatusBar.GRAY']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
@@ -393,7 +436,7 @@ documentation['UI.iPhone.RowAnimationStyle.TOP']={"since": "0.6", "desc": "*NEED
 //documentation['UI.iPhone.SystemButton.STOP']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.iPhone.SystemButton.TRASH']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.iPhone.SystemButtonStyle']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.iPhone.SystemButtonStyle.BAR']={"since": "0.6", "desc": "style constant used for "};
+documentation['UI.iPhone.SystemButtonStyle.BAR']={"since": "0.6", "desc": "constant representing the toolbar style for both UI.ButtonBar and UI.TabbedBar. The native element will be shorter in hieght and will honor the tinting color, even when not in the toolbar"};
 //documentation['UI.iPhone.SystemButtonStyle.BIG']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.iPhone.SystemButtonStyle.BORDERED']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 //documentation['UI.iPhone.SystemButtonStyle.DARK']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
