@@ -136,15 +136,7 @@ int nextWindowToken = 0;
 	TitaniumHost * theTiHost = [TitaniumHost sharedHost];
 	Class NSStringClass = [NSString class]; //Because this might be from the web where you could have nsnulls and nsnumbers,
 	//We can't assume that the inputState is 
-	
-	BOOL animatedOrYes = YES;
-	BOOL animatedOrNo = NO;
-	id animatedObject = [inputState objectForKey:@"animated"];
-	if ([animatedObject respondsToSelector:@selector(boolValue)]){
-		animatedOrYes = [animatedObject boolValue];
-		animatedOrNo = animatedOrYes;
-	}
-	
+
 	NSString * newTitle = [inputState objectForKey:@"title"];
 	if (newTitle != nil) {
 		[self setTitle:newTitle];

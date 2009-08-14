@@ -376,7 +376,7 @@ UIColor * checkmarkColor = nil;
 	if(rowIndex < rowCount) {
 		[result addRowsFromArray:[rowArray subarrayWithRange:NSMakeRange(rowIndex,rowCount-rowIndex)]];
 	}
-	return result;
+	return [result autorelease];
 }
 
 - (TableSectionWrapper *) subSectionFromIndex: (int) rowIndex;
@@ -552,9 +552,7 @@ UIColor * checkmarkColor = nil;
 		tableRowHeight = [tableRowHeightObject intValue];
 	}
 	
-	SEL stringSel = @selector(stringValue);
 	Class stringClass = [NSString class];
-//	Class blobClass = [TitaniumBlobWrapper class];
 
 	id windowObject = [inputState objectForKey:@"_WINTKN"];
 	if ([windowObject isKindOfClass:stringClass] && ([windowObject length] != 0)){
@@ -575,7 +573,7 @@ UIColor * checkmarkColor = nil;
 		[self readSections:groupEntries relativeToUrl:baseUrl];
 	} else if([dataEntries isKindOfClass:arrayClass]){
 		[self readRowData:dataEntries relativeToUrl:baseUrl];
-	}	
+	}
 }
 
 - (void)didReceiveMemoryWarning {
@@ -960,6 +958,8 @@ UIColor * checkmarkColor = nil;
 				case TitaniumTableActionUpdateRow:
 					actionString = @"update";
 					break;
+				default:
+					actionString = [NSString stringWithFormat:@"[SHOULDN'T HAPPEN: UNKNOWN ACTION %d]",action];
 			}
 			NSLog(@"%@ was told to %@ row %d from %@",self,actionString,index,baseUrl);
 		}
@@ -1086,6 +1086,7 @@ UIColor * checkmarkColor = nil;
 
 			[sectionArray insertObject:insertedSection atIndex:insertedSectionIndex];
 			[tableView insertSections:[NSIndexSet indexSetWithIndex:insertedSectionIndex] withRowAnimation:animation];
+			[insertedSection release];
 			return;
 		}
 		
@@ -1105,6 +1106,8 @@ UIColor * checkmarkColor = nil;
 			case TitaniumTableActionUpdateRow:
 				actionString = @"update";
 				break;
+			default:
+				actionString = [NSString stringWithFormat:@"[SHOULDN'T HAPPEN: UNKNOWN ACTION %d]",action];
 		}
 		NSLog(@"%@ was told to %@ the row %d beyond the end (from %@)",self,actionString,index,baseUrl);
 	}
@@ -1154,12 +1157,12 @@ UIColor * checkmarkColor = nil;
 		TitaniumTableAction kind = [thisAction kind];
 		
 		UITableViewRowAnimation animation = [thisAction animation];
-		TableSectionWrapper * thisSectionWrapper;
-		int row;
-		int section;
-		NSArray * ourIndexPathArray;
-		NSIndexSet * ourSectionSet;
-		TableRowWrapper * thisRow;
+		TableSectionWrapper * thisSectionWrapper=nil;
+		int row = -1;
+		int section = -1;
+		NSArray * ourIndexPathArray = nil;
+		NSIndexSet * ourSectionSet = nil;
+		TableRowWrapper * thisRow=nil;
 		if(kind & TitaniumTableActionSectionRow){
 			section = [thisAction section];
 			row	 = [thisAction row];

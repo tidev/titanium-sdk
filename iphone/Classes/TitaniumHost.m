@@ -1124,6 +1124,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	}
 	if(doomedKeys != nil){
 		[imageCache removeObjectsForKeys:doomedKeys];
+		[doomedKeys release];
 	}
 }
 

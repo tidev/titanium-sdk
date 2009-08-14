@@ -1422,6 +1422,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 
 	NSArray * messagePacket = [[NSArray alloc] initWithObjects:viewsObject,overwriteObject,currentUrl,optionsObject,nil];
 	[ourVC updateContentViewArray:messagePacket];
+	[messagePacket release];
 }
 
 - (NSString *) reserveViewToken;
@@ -1453,6 +1454,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	NSArray * messagePacket = [[NSArray alloc] initWithObjects:newIndexObject,optionsObject,nil];
 	
 	[ourVC performSelectorOnMainThread:@selector(updateSelectedContentView:) withObject:messagePacket waitUntilDone:NO];
+	[messagePacket release];
 }
 
 #pragma mark View actions
