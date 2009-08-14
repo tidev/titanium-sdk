@@ -75,7 +75,7 @@ var ResultSet = function(rs) {
 		return this.proxy.isValidRow();
 	};
 	/**
-	 * @tiapi(methid=True,name=Database.ResultSet.next,since=0.4) Move to the next row in the ResultSet
+	 * @tiapi(method=True,name=Database.ResultSet.next,since=0.4) Move to the next row in the ResultSet
 	 * @tiresult[boolean] True, if the move was successful.
 	 */
 	this.next = function() {

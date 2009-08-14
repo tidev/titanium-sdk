@@ -43,7 +43,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	if (callsMade == 0)
 	{
 		NSString * supportFolderPath = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-		NSString * folderPath = [[supportFolderPath stringByAppendingPathComponent:@"analytics"] retain];
+		NSString * folderPath = [supportFolderPath stringByAppendingPathComponent:@"analytics"];
 		NSFileManager * theFM = [[NSFileManager alloc] init];
 		BOOL isDirectory;
 		BOOL exists = [theFM fileExistsAtPath:folderPath isDirectory:&isDirectory];
@@ -125,12 +125,13 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	[request setValue:@"text/json" forHTTPHeaderField:@"Content-Type"];
 	[request setTimeoutInterval:timeout];
 	[NSURLConnection sendSynchronousRequest: request returningResponse: nil error: nil ];
+	[request release];
 	[pool release];
 }
 
 -(NSString *)getUTCDate
 {
-	NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+	NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
 	NSTimeZone *timeZone = [NSTimeZone timeZoneWithName:@"UTC"];
 	[dateFormatter setTimeZone:timeZone];
 	//Example UTC full format: 2009-06-15T21:46:28.685+0000
@@ -211,7 +212,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	[data appendData:[@"]" dataUsingEncoding:NSUTF8StringEncoding]];
 	[events removeAllObjects];
 	[mutex unlock];
-	return data;
+	return [data autorelease];
 }
 
 - (void) timerFired:(NSTimer*)theTimer;

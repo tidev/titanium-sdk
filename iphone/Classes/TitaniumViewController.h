@@ -128,6 +128,7 @@ typedef enum {
 
 - (void)motionEnded:(int)motion withEvent:(UIEvent *)event;
 
+- (void) updateContentViewArray: (NSArray *) messagePacket;
 
 @end
 

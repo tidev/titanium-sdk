@@ -773,6 +773,155 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
  * @tiapi(property=True,name=UI.TabbedBar.x,version=0.5,type=float) the horizontal position of the tabbed bar to make, if it is in the content area.
  * @tiapi(property=True,name=UI.TabbedBar.y,version=0.5,type=float) the vertical position of the tabbed bar to make, if it is in the content area.
  
+ 
+ @tiapi(method=true,name=UI.EmailDialog.addAttachment,since=0.6) Adds 'attachment' to the attachments property for the resulting email
+ @tiarg(for=UI.EmailDialog.addAttachment,name=attachment,type=object) A Media.Image object (which are handed to success callbacks by Media.showCamera and Media.openPhotoGallery)
+ 
+ @tiapi(method=true,name=UI.EmailDialog.open,since=0.6) Displays the email dialog, prompting the user to edit the email before sending or canceling
+ @tiapi Note that in the event that the email dialog can't be used, a mailto: url will be created and launched, terminating your app
+ @tiarg(for=UI.EmailDialog.open,name=options,type=object) object with an animated property set to false to surpress the animation of opening
+ 
+ @tiapi(method=true,name=UI.EmailDialog.setBccRecipients,since=0.6) sets the bccRecipients property
+ @tiarg(for=UI.EmailDialog.setBccRecipients,name=newBccRecipients,type=object) array of strings, each an email address that will appear in the BCC field
+ 
+ @tiapi(method=true,name=UI.EmailDialog.setCcRecipients,since=0.6) sets the ccRecipients property
+ @tiarg(for=UI.EmailDialog.setCcRecipients,name=newCcRecipients,type=object) array of strings, each an email address that will appear in the CC field
+ 
+ @tiapi(method=true,name=UI.EmailDialog.setMessageBody,since=0.6) sets the messageBody property
+ @tiarg(for=UI.EmailDialog.setMessageBody,name=newMessageBody,type=string) the replacement messageBody value
+ 
+ @tiapi(method=true,name=UI.EmailDialog.setSubject,since=0.6) sets the subject property
+ @tiarg(for=UI.EmailDialog.setSubject,name=newSubject,type=string) the replacement subject value
+ 
+ @tiapi(method=true,name=UI.EmailDialog.setToRecipients,since=0.6) sets the toRecipients property
+ @tiarg(for=UI.EmailDialog.setToRecipients,name=newToRecipients,type=object) array of strings, each an email address that will appear in the To field
+ 
+   
+ @tiapi(method=true,name=UI.TableView.deleteRow,since=0.6) deletes a row from the table view
+ @tiapi Keep in mind that after this is called, all rows afterward are renumbered appropriately.
+ @tiarg(for=UI.TableView.deleteRow,name=rowIndex,type=int) The index of the row to delete. Valid values are 0 to (number of rows - 1)
+ @tiarg(for=UI.TableView.deleteRow,name=options,type=object,optional=true) If the table view is visible, the animationStyle property may be one of UI.iPhone.RowAnimationStyle to specify how the transition is animated
+ 
+ @tiapi(method=true,name=UI.TableView.getIndexByName,since=0.6) returns the index of the first row whose name property is the value provided
+ @tiarg(for=UI.TableView.getIndexByName,name=name,type=string) The name to search for
+ @tiresult(for=UI.TableView.getIndexByName,type=int) the index of the row found. -1 if no row was found
+ 
+ @tiapi(method=true,name=UI.TableView.insertRowAfter,since=0.6) inserts a row from the table view
+ @tiapi Keep in mind that after this is called, all rows afterward are renumbered appropriately.
+ @tiarg(for=UI.TableView.insertRowAfter,name=rowIndex,type=int) The index of the row to insert after. Valid values are 0 to (number of rows - 1)
+ @tiarg(for=UI.TableView.insertRowAfter,name=row,type=object) The data representing the row to be inserted
+ @tiarg(for=UI.TableView.insertRowAfter,name=options,type=object,optional=true) If the table view is visible, the animationStyle property may be one of UI.iPhone.RowAnimationStyle to specify how the transition is animated
+ 
+ @tiapi(method=true,name=UI.TableView.insertRowBefore,since=0.6) inserts a row from the table view
+ @tiapi Keep in mind that after this is called, all rows afterward are renumbered appropriately.
+ @tiarg(for=UI.TableView.insertRowBefore,name=rowIndex,type=int) The index of the row to insert before. Valid values are 0 to (number of rows)
+ @tiarg(for=UI.TableView.insertRowBefore,name=row,type=object) The data representing the row to be inserted
+ @tiarg(for=UI.TableView.insertRowBefore,name=options,type=object,optional=true) If the table view is visible, the animationStyle property may be one of UI.iPhone.RowAnimationStyle to specify how the transition is animated
+ 
+ @tiapi(method=true,name=UI.TableView.setData,since=0.6) removes replaces all previous rows and replaces them with the supplied data
+ @tiarg(for=UI.TableView.setData,name=newData,type=array) An array of data objects representing the new rows
+ @tiarg(for=UI.TableView.setData,name=options,type=object,optional=true) If the table view is visible, the animationStyle property may be one of UI.iPhone.RowAnimationStyle to specify how the transition is animated
+ 
+ @tiapi(method=true,name=UI.TableView.updateRow,since=0.6) replaces a row from the table view
+ @tiarg(for=UI.TableView.updateRow,name=row,type=object) the data representing the new data for the row
+ @tiarg(for=UI.TableView.updateRow,name=options,type=object,optional=true) If the table view is visible, the animationStyle property may be one of UI.iPhone.RowAnimationStyle to specify how the transition is animated
+ 
+ @tiapi(method=true,name=UI.createActivityIndicator,since=0.6) Creates an UI.ActivityIndicator object
+ @tiapi Also known as a 'spinner'.
+ @tiarg(for=UI.createActivityIndicator,name=properties,type=object) the properties to copy to the new UI.ActivityIndicator object during creation
+ @tiresult(for=UI.createActivityIndicator,type=object) the created UI.ActivityIndicator object
+ 
+ @tiapi(method=true,name=UI.createEmailDialog,since=0.6) Creates an UI.EmailDialog object
+ @tiapi Allows the user to send off a pre-made email
+ @tiarg(for=UI.createEmailDialog,name=properties,type=object) the properties to copy to the new UI.EmailDialog object during creation
+ @tiresult(for=UI.createEmailDialog,type=object) the created UI.EmailDialog object
+ 
+ @tiapi(method=true,name=UI.createProgressBar,since=0.6) Creates an UI.ProgressBar object
+ @tiarg(for=UI.createProgressBar,name=properties,type=object) the properties to copy to the new UI.ProgressBar object during creation
+ @tiresult(for=UI.createProgressBar,type=object) the created UI.ProgressBar object
+ 
+ @tiapi(method=true,name=UI.createWebView,since=0.6) Creates an UI.WebView object
+ @tiarg(for=UI.createWebView,name=properties,type=object) the properties to copy to the new UI.WebView object during creation
+ @tiresult(for=UI.createWebView,type=object) the created UI.WebView object
+ 
+ @tiapi(property=true,name=UI.currentView,since=0.6,type=object) Object that represents the current webView. Can be used like a UI.WebView
+ 
+ @tiapi(method=true,name=UI.currentView.addEventListener,since=0.6) adds an event listener to be called for a load, focused, or unfocused event
+ @tiarg(for=UI.currentView.addEventListener,name=type,type=string) the type of event to listen for.  Must be load, focused, or unfocused
+ @tiarg(for=UI.currentView.addEventListener,name=callback,type=function) the function that will be called when the event occurs. A single object event is passed as an argument
+ @tiresult(for=UI.currentView.addEventListener,type=method) the callback function, for use in removeEventListener
+ 
+ @tiapi(method=true,name=UI.currentView.removeEventListener,since=0.6) removes an event listener from undefined, undefined, or undefined events
+ @tiarg(for=UI.currentView.removeEventListener,name=type,type=string) the type of event to remove the listener from.  Must be undefined, undefined, or undefined
+ @tiarg(for=UI.currentView.removeEventListener,name=callback,type=function) the function to be removed
+ @tiresult(for=UI.currentView.removeEventListener,type=boolean) returns true if successfully removed
+ 
+ @tiapi(method=true,name=UI.currentView.setURL,since=0.6) Replaces the contents of this view with a new page
+ @tiarg(for=UI.currentView.setURL,name=newURL,type=string) a relative url
+ 
+ @tiapi(method=true,name=UI.currentWindow.addView,since=0.6) Adds a view to the current window, but does not change the visible view
+ @tiarg(for=UI.currentWindow.addView,name=newView,type=object) a UI.WebView, UI.TableView, or UI.GroupedView object to be added.
+ 
+ @tiapi(method=true,name=UI.currentWindow.getViewByName,since=0.6) finds the first view that has its name property set to the specified value
+ @tiarg(for=UI.currentWindow.getViewByName,name=searchedName,type=string) the name value to search for amongst the window's views
+ @tiresult(for=UI.currentWindow.getViewByName,type=object) the UI.WebView, UI.TableView, or UI.GroupedView that matches, or null if none was found
+ 
+ @tiapi(method=true,name=UI.currentWindow.getViews,since=0.6) lists the window's views at that current moment
+ @tiresult(for=UI.currentWindow.getViews,type=object) an array of UI.WebView, UI.TableView, and/or UI.GroupedViews that are owned by the window
+ 
+ @tiapi(method=true,name=UI.currentWindow.setTitleControl,since=0.6) sets the titleControl property
+ @tiapi Replaces the window's title and title image while not set to null
+ @tiarg(for=UI.currentWindow.setTitleControl,name=newTitleControl) the replacement titleControl value
+ 
+ @tiapi(method=true,name=UI.currentWindow.showView,since=0.6) Changes the view that the current window is showing
+ 
+ @tiapi(property=true,name=UI.iPhone.ActivityIndicatorStyle,since=0.6,type=object) Possible styles for UI.ActivityIndicator
+ 
+ @tiapi(property=true,name=UI.iPhone.ActivityIndicatorStyle.BIG,since=0.6,type=int) constant representing a large (37 pixels wide) white activity indicator
+ 
+ @tiapi(property=true,name=UI.iPhone.ActivityIndicatorStyle.DARK,since=0.6,type=int) constant representing a small (20 pixels wide) gray activity indicator
+ 
+ @tiapi(property=true,name=UI.iPhone.ActivityIndicatorStyle.PLAIN,since=0.6,type=int) constant representing a small (20 pixels wide) white activity indicator
+ 
+ @tiapi(property=true,name=UI.iPhone.AnimationStyle,since=0.6,type=object) Animation styles possible when changing views
+ 
+ @tiapi(property=true,name=UI.iPhone.AnimationStyle.CURL_DOWN,since=0.6,type=int) constant used to describe an animation where the new view curls down, covering the current view
+ @tiapi UI.iPhone.AnimationStyle.CURL_DOWN is used by UI.currentWindow.showView and UI.UserWindow.showView
+ 
+ @tiapi(property=true,name=UI.iPhone.AnimationStyle.CURL_UP,since=0.6,type=int) constant used to describe an animation where the current view curls up, revealing the new view
+ @tiapi UI.iPhone.AnimationStyle.CURL_UP is used by UI.currentWindow.showView and UI.UserWindow.showView
+ 
+ @tiapi(property=true,name=UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,since=0.6,type=int) constant used to describe an animation where the current view flips over with the new view on the opposite side. The leftmost edge is foreground
+ @tiapi UI.iPhone.AnimationStyle.FLIP_FROM_LEFT is used by UI.currentWindow.showView and UI.UserWindow.showView
+ 
+ @tiapi(property=true,name=UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,since=0.6,type=int) constant used to describe an animation where the current view flips over with the new view on the opposite side. The leftmost edge is foreground
+ @tiapi UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT is used by UI.currentWindow.showView and UI.UserWindow.showView
+ 
+ @tiapi(property=true,name=UI.iPhone.ProgressBarStyle,since=0.6,type=object) Possible styles for UI.ProgressBar
+ 
+ @tiapi(property=true,name=UI.iPhone.ProgressBarStyle.BAR,since=0.6,type=int) constant representing the silver and black style often seen when a progress bar is in a toolbar
+ 
+ @tiapi(property=true,name=UI.iPhone.ProgressBarStyle.PLAIN,since=0.6,type=int) constant representing the blue and white style often seen when a progress bar is not in the toolbar
+ 
+ @tiapi(property=true,name=UI.iPhone.RowAnimationStyle,since=0.6,type=object) Possible transition styles for rows and sections
+ 
+ @tiapi(property=true,name=UI.iPhone.RowAnimationStyle.BOTTOM,since=0.6,type=int) constant used to describe a row animation where the inserted row or rows slides in from the bottom; the deleted row or rows slides out toward the bottom.
+ 
+ @tiapi(property=true,name=UI.iPhone.RowAnimationStyle.FADE,since=0.6,type=int) constant used to describe a row animation where the inserted or deleted row or rows fades into or out of the table view.
+ 
+ @tiapi(property=true,name=UI.iPhone.RowAnimationStyle.LEFT,since=0.6,type=int) constant used to describe a row animation where the nserted row or rows slides in from the left; the deleted row or rows slides out to the left.
+ 
+ @tiapi(property=true,name=UI.iPhone.RowAnimationStyle.NONE,since=0.6,type=int) constant used to describe a row replacement where the new cell value appears as if the cell had just been reloaded.. In iPhone OS 2.2.1, this is a fade instead.
+ 
+ @tiapi(property=true,name=UI.iPhone.RowAnimationStyle.RIGHT,since=0.6,type=int) constant used to describe a row animation where the inserted row or rows slides in from the right; the deleted row or rows slides out to the right.
+ 
+ @tiapi(property=true,name=UI.iPhone.RowAnimationStyle.TOP,since=0.6,type=int) constant used to describe a row animation where the inserted row or rows slides in from the top; the deleted row or rows slides out toward the top.
+ 
+ @tiapi(property=true,name=UI.iPhone.SystemButtonStyle.BAR,since=0.6,type=int) constant representing the toolbar style for both UI.ButtonBar and UI.TabbedBar. The native element will be shorter in hieght and will honor the tinting color, even when not in the toolbar
+ 
+ 
+ 
+ 
  */
 
 #endif

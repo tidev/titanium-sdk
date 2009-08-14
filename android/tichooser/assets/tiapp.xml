@@ -79,6 +79,15 @@
             <barColor>#000</barColor>
         </window>
 -->
+        <window>
+            <id>TableView HTML</id>
+            <title>Table View HTML</title>
+            <url>tableview-html.html</url>
+            <type>single</type>
+            <fullscreen>false</fullscreen>
+            <backgroundColor>argb(0,255,255,255)</backgroundColor>
+            <barColor>#000</barColor>
+        </window>
 <!--
 		<window>
             <id>TableViewUpdates</id>
@@ -139,7 +148,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
 		<window>
             <id>NetSend</id>
             <title>Net Send</title>
@@ -159,7 +168,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+-->
     </windows>
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.android.watchlog" type="bool">false</property>

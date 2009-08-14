@@ -1,0 +1,38 @@
+<html>
+<head>
+	<title>Table View</title>
+  	<script><!--
+
+ // data for tableview
+  	var data = [
+  	    {html:'<div style="font-family:Helvetica Neue"><div style="font-size:18px;font-weight:bold;">Row 1</div><div style="font-size:12px;color:#999">I am row 1 detail</div></div> ', hasDetail:true, header:'Section 0'},
+  	    {html:'<div style="font-family:Helvetica Neue"><div style="font-size:18px;font-weight:bold;">Row 2</div><div style="font-size:12px;color:#999">I am row 2 detail</div></div> ', hasChild:true},
+  	    {html:'<div style="font-family:Helvetica Neue"><div style="font-size:18px;font-weight:bold;">Row 3</div><div style="font-size:12px;color:#999">I am row 3 detail</div></div> '},
+  	    {html:'<div style="font-family:Helvetica Neue"><div style="font-size:18px;font-weight:bold;">Row 4</div><div style="font-size:12px;color:#999">I am row 4 detail</div></div> '},
+  	    {html:'<div style="font-family:Helvetica Neue"><div style="font-size:18px;font-weight:bold;">Row 5</div><div style="font-size:12px;color:#999">I am row 5 detail</div></div> '}
+  	];
+
+  	// tableview object
+  	var tableView = Titanium.UI.createTableView({
+  	    data:data,
+  	    title:'Height/Header/HTML Test',
+  	    rowHeight:80
+  	},function(eventObject)
+  	{
+  	    var a = Titanium.UI.createAlertDialog();
+  	    a.setTitle('Table View')
+  	    a.setMessage('row ' + eventObject.row + ' index ' + eventObject.index + ' section ' + eventObject.section);
+  	    a.show();
+  	});
+
+  	// add view to the window
+  	Titanium.UI.currentWindow.addView(tableView);
+
+  	// show view
+  	Titanium.UI.currentWindow.showView(tableView);
+
+   --></script>
+</head>
+<body>
+</body>
+</html>

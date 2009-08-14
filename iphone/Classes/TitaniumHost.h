@@ -14,7 +14,6 @@
 extern BOOL VERBOSE_DEBUG;
 
 #ifndef TI_VERSION
-#warning TI_VERSION was undefined!
 #define TI_VERSION 0.0.0
 #endif
 
@@ -127,6 +126,10 @@ typedef enum {
 - (TitaniumBlobWrapper *) blobForImage: (UIImage *) inputImage;
 - (TitaniumBlobWrapper *) blobForFile:	(NSString *) filePath;
 - (TitaniumBlobWrapper *) blobForData:	(NSData *) blobData;
+
+#pragma mark Modal view handling
+
+- (void) navigationController: (UINavigationController *) navController presentModalView: (UIViewController *)newModalView animated:(BOOL) animated;
 
 #pragma mark Useful Toys
 

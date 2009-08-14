@@ -376,7 +376,7 @@ UIColor * checkmarkColor = nil;
 	if(rowIndex < rowCount) {
 		[result addRowsFromArray:[rowArray subarrayWithRange:NSMakeRange(rowIndex,rowCount-rowIndex)]];
 	}
-	return result;
+	return [result autorelease];
 }
 
 - (TableSectionWrapper *) subSectionFromIndex: (int) rowIndex;
@@ -552,9 +552,7 @@ UIColor * checkmarkColor = nil;
 		tableRowHeight = [tableRowHeightObject intValue];
 	}
 	
-	SEL stringSel = @selector(stringValue);
 	Class stringClass = [NSString class];
-//	Class blobClass = [TitaniumBlobWrapper class];
 
 	id windowObject = [inputState objectForKey:@"_WINTKN"];
 	if ([windowObject isKindOfClass:stringClass] && ([windowObject length] != 0)){
@@ -575,7 +573,7 @@ UIColor * checkmarkColor = nil;
 		[self readSections:groupEntries relativeToUrl:baseUrl];
 	} else if([dataEntries isKindOfClass:arrayClass]){
 		[self readRowData:dataEntries relativeToUrl:baseUrl];
-	}	
+	}
 }
 
 - (void)didReceiveMemoryWarning {
@@ -728,7 +726,7 @@ UIColor * checkmarkColor = nil;
 
 
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (UITableViewCell *)tableView:(UITableView *)ourTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 {
 	[sectionLock lock];
 	TableSectionWrapper * sectionWrapper = [self sectionForIndex:[indexPath section]];
@@ -738,28 +736,28 @@ UIColor * checkmarkColor = nil;
 	UITableViewCell * result = nil;
 
 	if (htmlString != nil){ //HTML cell
-		result = [tableView dequeueReusableCellWithIdentifier:@"html"];
+		result = [ourTableView dequeueReusableCellWithIdentifier:@"html"];
 		if (result == nil) {
 			result = [[[WebTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"html"] autorelease];
 		}
 		[[(WebTableViewCell *)result htmlLabel] loadHTMLString:htmlString baseURL:[[TitaniumHost sharedHost] appBaseUrl]];
 		
 	} else if ([rowWrapper isButton]) {
-		result = [tableView dequeueReusableCellWithIdentifier:@"button"];
+		result = [ourTableView dequeueReusableCellWithIdentifier:@"button"];
 		if (result == nil){
 			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"button"] autorelease];
-			[result setTextAlignment:UITextAlignmentCenter];
+			[(id)result setTextAlignment:UITextAlignmentCenter];
 		}
-		[result setText:[rowWrapper title]];
+		[(id)result setText:[rowWrapper title]];
 		
 	} else { //plain cell
 		NSString * valueString = [rowWrapper value];
 		if (valueString == nil){
-			result = [tableView dequeueReusableCellWithIdentifier:@"text"];
+			result = [ourTableView dequeueReusableCellWithIdentifier:@"text"];
 			if (result == nil) result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"text"] autorelease];
 		} else {
 			UILabel * valueLabel;
-			result = [tableView dequeueReusableCellWithIdentifier:@"value"];
+			result = [ourTableView dequeueReusableCellWithIdentifier:@"value"];
 			if (result == nil){
 				result = [[[ValueTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"value"] autorelease];
 				valueLabel = [(ValueTableViewCell *)result valueLabel];
@@ -769,13 +767,13 @@ UIColor * checkmarkColor = nil;
 			}
 			[valueLabel setText:valueString];
 		}
-		[result setText:[rowWrapper title]];
+		[(id)result setText:[rowWrapper title]];
 		UIColor * textColor = [UIColor blackColor];
 		if (ourType == UITableViewCellAccessoryCheckmark) textColor = checkmarkColor;
-		[result setTextColor:textColor];
+		[(id)result setTextColor:textColor];
 	}
 
-	[result setImage:[rowWrapper image]];
+	[(id)result setImage:[rowWrapper image]];
 	[result setAccessoryType:ourType];
 	[result setAccessoryView:[[rowWrapper inputProxy] nativeView]];
 
@@ -838,10 +836,10 @@ UIColor * checkmarkColor = nil;
 	[sectionLock unlock];
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
+- (void)tableView:(UITableView *)ourTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 {
 	[sectionLock lock];
-	[tableView deselectRowAtIndexPath:indexPath animated:YES];
+	[ourTableView deselectRowAtIndexPath:indexPath animated:YES];
 
 	int section = [indexPath section];
 	int blessedRow = [indexPath row];
@@ -854,20 +852,20 @@ UIColor * checkmarkColor = nil;
 			BOOL isBlessed = (row == blessedRow);
 			BOOL isUpdated = NO;
 			
-			UITableViewCell * thisCell = [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:section]];
+			UITableViewCell * thisCell = [ourTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:section]];
 			
 			if (!isBlessed && (rowType == UITableViewCellAccessoryCheckmark)) {
 				[rowWrapper setAccessoryType:UITableViewCellAccessoryNone];
 				if (thisCell != nil){
 					[thisCell setAccessoryType:UITableViewCellAccessoryNone];
-					[thisCell setTextColor:[UIColor blackColor]];
+					[(id)thisCell setTextColor:[UIColor blackColor]];
 					isUpdated = YES;
 				}
 			} else if (isBlessed && (rowType == UITableViewCellAccessoryNone)){
 				[rowWrapper setAccessoryType:UITableViewCellAccessoryCheckmark];
 				if (thisCell != nil){
 					[thisCell setAccessoryType:UITableViewCellAccessoryCheckmark];
-					[thisCell setTextColor:checkmarkColor];
+					[(id)thisCell setTextColor:checkmarkColor];
 					isUpdated = YES;
 				}
 			}
@@ -960,6 +958,8 @@ UIColor * checkmarkColor = nil;
 				case TitaniumTableActionUpdateRow:
 					actionString = @"update";
 					break;
+				default:
+					actionString = [NSString stringWithFormat:@"[SHOULDN'T HAPPEN: UNKNOWN ACTION %d]",action];
 			}
 			NSLog(@"%@ was told to %@ row %d from %@",self,actionString,index,baseUrl);
 		}
@@ -1086,6 +1086,7 @@ UIColor * checkmarkColor = nil;
 
 			[sectionArray insertObject:insertedSection atIndex:insertedSectionIndex];
 			[tableView insertSections:[NSIndexSet indexSetWithIndex:insertedSectionIndex] withRowAnimation:animation];
+			[insertedSection release];
 			return;
 		}
 		
@@ -1105,6 +1106,8 @@ UIColor * checkmarkColor = nil;
 			case TitaniumTableActionUpdateRow:
 				actionString = @"update";
 				break;
+			default:
+				actionString = [NSString stringWithFormat:@"[SHOULDN'T HAPPEN: UNKNOWN ACTION %d]",action];
 		}
 		NSLog(@"%@ was told to %@ the row %d beyond the end (from %@)",self,actionString,index,baseUrl);
 	}
@@ -1154,12 +1157,12 @@ UIColor * checkmarkColor = nil;
 		TitaniumTableAction kind = [thisAction kind];
 		
 		UITableViewRowAnimation animation = [thisAction animation];
-		TableSectionWrapper * thisSectionWrapper;
-		int row;
-		int section;
-		NSArray * ourIndexPathArray;
-		NSIndexSet * ourSectionSet;
-		TableRowWrapper * thisRow;
+		TableSectionWrapper * thisSectionWrapper=nil;
+		int row = -1;
+		int section = -1;
+		NSArray * ourIndexPathArray = nil;
+		NSIndexSet * ourSectionSet = nil;
+		TableRowWrapper * thisRow=nil;
 		if(kind & TitaniumTableActionSectionRow){
 			section = [thisAction section];
 			row	 = [thisAction row];

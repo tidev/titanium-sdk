@@ -94,8 +94,17 @@ def main(args):
 	
 	cwd = os.getcwd()
 	
+	tiapp_xml = os.path.join(project_dir,'tiapp.xml')
+	if not os.path.exists(tiapp_xml):
+		print "Missing tiapp.xml at %s" % tiapp_xml
+		sys.exit(3)
+	ti = TiAppXML(tiapp_xml)
+	encrypt = False
+	if ti.properties.has_key('encrypt'): 
+		encrypt = (ti.properties['encrypt']=='true')
+	
 	# compile resources
-	compiler = Compiler(appid,project_dir)
+	compiler = Compiler(appid,project_dir,encrypt)
 	compiler.compile()
 	
 	# copy in the default PNG
@@ -127,13 +136,16 @@ def main(args):
 					basedir = root.replace(dir+'/','')
 					os.remove(os.path.join(dir,basedir,f))
 	
+	def is_adhoc(uuid):
+		path = "~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % uuid
+		f = os.path.expanduser(path)
+		if os.path.exists(f):
+			c = open(f).read()
+			return c.find("ProvisionedDevices")!=-1
+		return False	
+		
 	def add_plist(dir):
 		
-		tiapp_xml = os.path.join(project_dir,'tiapp.xml')
-		if not os.path.exists(tiapp_xml):
-			print "Missing tiapp.xml at %s" % tiapp_xml
-			sys.exit(3)
-			
 		if not os.path.exists(dir):		
 			os.makedirs(dir)
 	
@@ -145,7 +157,6 @@ def main(args):
 		for m in compiler.modules:
 			module_str += '   <key>%s</key>\n   <real>0.0</real>\n' % (m.lower())
 	
-		ti = TiAppXML(tiapp_xml)
 		tip = TiPlist(ti)
 		plist_template = tip.generate(module_str,appid,deploytype)
 	
@@ -172,7 +183,7 @@ def main(args):
 		
 		# write out plist
 		add_plist(os.path.join(iphone_dir,'Resources'))
-	
+		
 		if command == 'simulator':
 	
 			# first build it
@@ -252,6 +263,7 @@ def main(args):
 				"Debug",
 				"-sdk",
 				"iphoneos%s" % iphone_version,
+				"CODE_SIGN_ENTITLEMENTS=",
 				"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=test'",
 				"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name
@@ -278,13 +290,21 @@ def main(args):
 			# make sure it's clean
 			if os.path.exists(app_bundle):
 				shutil.rmtree(app_bundle)
-	
+				
+			# in this case, we have to do different things based on if it's
+			# an ad-hoc distribution cert or not - in the case of non-adhoc
+			# we don't use the entitlements file but in ad hoc we need to
+			adhoc_line = "CODE_SIGN_ENTITLEMENTS="
+			if not is_adhoc(appuuid):
+				adhoc_line=""
+			
 			# build the final release distribution
 			output = run.run(["xcodebuild",
 				"-configuration",
 				"Release",
 				"-sdk",
 				"iphoneos%s" % iphone_version,
+				"%s" % adhoc_line,
 				"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=production'",
 				"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name

@@ -1,491 +1,218 @@
-##  ParseMaster, version 1.0 (pre-release) (2005/05/12) x6
-##  Copyright 2005, Dean Edwards
-##  Web: http://dean.edwards.name/
-##
-##  This software is licensed under the CC-GNU LGPL
-##  Web: http://creativecommons.org/licenses/LGPL/2.1/
-##
-##  Ported to Python by Florian Schulze
+#!/usr/bin/python
 
-import os, re, base64
+# This code is original from jsmin by Douglas Crockford, it was translated to
+# Python by Baruch Even. The original code had the following copyright and
+# license.
+#
+# /* jsmin.c
+#    2007-05-22
+#
+# Copyright (c) 2002 Douglas Crockford  (www.crockford.com)
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+# of the Software, and to permit persons to whom the Software is furnished to do
+# so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# The Software shall be used for Good, not Evil.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+# */
 
-# a multi-pattern parser
+from StringIO import StringIO
 
-class Pattern:
-    def __init__(self, expression, replacement, length):
-        self.expression = expression
-        self.replacement = replacement
-        self.length = length
+def jsmin(js):
+    ins = StringIO(js)
+    outs = StringIO()
+    JavascriptMinify().minify(ins, outs)
+    str = outs.getvalue()
+    if len(str) > 0 and str[0] == '\n':
+        str = str[1:]
+    return str
 
-    def __str__(self):
-        return "(" + self.expression + ")"
+def isAlphanum(c):
+    """return true if the character is a letter, digit, underscore,
+           dollar sign, or non-ASCII character.
+    """
+    return ((c >= 'a' and c <= 'z') or (c >= '0' and c <= '9') or
+            (c >= 'A' and c <= 'Z') or c == '_' or c == '$' or c == '\\' or (c is not None and ord(c) > 126));
 
-class Patterns(list):
-    def __str__(self):
-        return '|'.join([str(e) for e in self])
+class UnterminatedComment(Exception):
+    pass
 
-class ParseMaster:
-    # constants
-    EXPRESSION = 0
-    REPLACEMENT = 1
-    LENGTH = 2
-    GROUPS = re.compile(r"""\(""", re.M)#g
-    SUB_REPLACE = re.compile(r"""\$\d""", re.M)
-    INDEXED = re.compile(r"""^\$\d+$""", re.M)
-    TRIM = re.compile(r"""(['"])\1\+(.*)\+\1\1$""", re.M)
-    ESCAPE = re.compile(r"""\\.""", re.M)#g
-    #QUOTE = re.compile(r"""'""", re.M)
-    DELETED = re.compile("""\x01[^\x01]*\x01""", re.M)#g
+class UnterminatedStringLiteral(Exception):
+    pass
 
-    def __init__(self):
-        # private
-        self._patterns = Patterns()   # patterns stored by index
-        self._escaped = []
-        self.ignoreCase = False
-        self.escapeChar = None
+class UnterminatedRegularExpression(Exception):
+    pass
 
-    def DELETE(self, match, offset):
-        return "\x01" + match.group(offset) + "\x01"
+class JavascriptMinify(object):
 
-    def _repl(self, a, o, r, i):
-        while (i):
-            m = a.group(o+i-1)
-            if m is None:
-                s = ""
-            else:
-                s = m
-            r = r.replace("$" + str(i), s)
-            i = i - 1
-        r = ParseMaster.TRIM.sub("$1", r)
-        return r
+    def _outA(self):
+        self.outstream.write(self.theA)
+    def _outB(self):
+        self.outstream.write(self.theB)
 
-    # public
-    def add(self, expression="^$", replacement=None):
-        if replacement is None:
-            replacement = self.DELETE
-        # count the number of sub-expressions
-        #  - add one because each pattern is itself a sub-expression
-        length = len(ParseMaster.GROUPS.findall(self._internalEscape(str(expression)))) + 1
-        # does the pattern deal with sub-expressions?
-        if (isinstance(replacement, str) and ParseMaster.SUB_REPLACE.match(replacement)):
-            # a simple lookup? (e.g. "$2")
-            if (ParseMaster.INDEXED.match(replacement)):
-                # store the index (used for fast retrieval of matched strings)
-                replacement = int(replacement[1:]) - 1
-            else: # a complicated lookup (e.g. "Hello $2 $1")
-                # build a function to do the lookup
-                i = length
-                r = replacement
-                replacement = lambda a,o: self._repl(a,o,r,i)
-        # pass the modified arguments
-        self._patterns.append(Pattern(expression, replacement, length))
+    def _get(self):
+        """return the next character from stdin. Watch out for lookahead. If
+           the character is a control character, translate it to a space or
+           linefeed.
+        """
+        c = self.theLookahead
+        self.theLookahead = None
+        if c == None:
+            c = self.instream.read(1)
+        if c >= ' ' or c == '\n':
+            return c
+        if c == '': # EOF
+            return '\000'
+        if c == '\r':
+            return '\n'
+        return ' '
 
-    # execute the global replacement
-    def execute(self, string):
-        if self.ignoreCase:
-            r = re.compile(str(self._patterns), re.I | re.M)
-        else:
-            r = re.compile(str(self._patterns), re.M)
-        string = self._escape(string, self.escapeChar)
-        string = r.sub(self._replacement, string)
-        string = self._unescape(string, self.escapeChar)
-        string = ParseMaster.DELETED.sub("", string)
-        return string
+    def _peek(self):
+        self.theLookahead = self._get()
+        return self.theLookahead
 
-    # clear the patterns collections so that this object may be re-used
-    def reset(self):
-        self._patterns = Patterns()
+    def _next(self):
+        """get the next character, excluding comments. peek() is used to see
+           if an unescaped '/' is followed by a '/' or '*'.
+        """
+        c = self._get()
+        if c == '/' and self.theA != '\\':
+            p = self._peek()
+            if p == '/':
+                c = self._get()
+                while c > '\n':
+                    c = self._get()
+                return c
+            if p == '*':
+                c = self._get()
+                while 1:
+                    c = self._get()
+                    if c == '*':
+                        if self._peek() == '/':
+                            self._get()
+                            return ' '
+                    if c == '\000':
+                        raise UnterminatedComment()
 
-    # this is the global replace function (it's quite complicated)
-    def _replacement(self, match):
-        i = 1
-        # loop through the patterns
-        for pattern in self._patterns:
-            if match.group(i) is not None:
-                replacement = pattern.replacement
-                if callable(replacement):
-                    return replacement(match, i)
-                elif isinstance(replacement, (int, long)):
-                    return match.group(replacement+i)
+        return c
+
+    def _action(self, action):
+        """do something! What you do is determined by the argument:
+           1   Output A. Copy B to A. Get the next B.
+           2   Copy B to A. Get the next B. (Delete A).
+           3   Get the next B. (Delete B).
+           action treats a string as a single character. Wow!
+           action recognizes a regular expression if it is preceded by ( or , or =.
+        """
+        if action <= 1:
+            self._outA()
+
+        if action <= 2:
+            self.theA = self.theB
+            if self.theA == "'" or self.theA == '"':
+                while 1:
+                    self._outA()
+                    self.theA = self._get()
+                    if self.theA == self.theB:
+                        break
+                    if self.theA <= '\n':
+                        raise UnterminatedStringLiteral()
+                    if self.theA == '\\':
+                        self._outA()
+                        self.theA = self._get()
+
+
+        if action <= 3:
+            self.theB = self._next()
+            if self.theB == '/' and (self.theA == '(' or self.theA == ',' or
+                                     self.theA == '=' or self.theA == ':' or
+                                     self.theA == '[' or self.theA == '?' or
+                                     self.theA == '!' or self.theA == '&' or
+                                     self.theA == '|' or self.theA == ';' or
+                                     self.theA == '{' or self.theA == '}' or
+                                     self.theA == '\n'):
+                self._outA()
+                self._outB()
+                while 1:
+                    self.theA = self._get()
+                    if self.theA == '/':
+                        break
+                    elif self.theA == '\\':
+                        self._outA()
+                        self.theA = self._get()
+                    elif self.theA <= '\n':
+                        raise UnterminatedRegularExpression()
+                    self._outA()
+                self.theB = self._next()
+
+
+    def _jsmin(self):
+        """Copy the input to the output, deleting the characters which are
+           insignificant to JavaScript. Comments will be removed. Tabs will be
+           replaced with spaces. Carriage returns will be replaced with linefeeds.
+           Most spaces and linefeeds will be removed.
+        """
+        self.theA = '\n'
+        self._action(3)
+
+        while self.theA != '\000':
+            if self.theA == ' ':
+                if isAlphanum(self.theB):
+                    self._action(1)
                 else:
-                    return replacement
+                    self._action(2)
+            elif self.theA == '\n':
+                if self.theB in ['{', '[', '(', '+', '-']:
+                    self._action(1)
+                elif self.theB == ' ':
+                    self._action(3)
+                else:
+                    if isAlphanum(self.theB):
+                        self._action(1)
+                    else:
+                        self._action(2)
             else:
-                i = i+pattern.length
+                if self.theB == ' ':
+                    if isAlphanum(self.theA):
+                        self._action(1)
+                    else:
+                        self._action(3)
+                elif self.theB == '\n':
+                    if self.theA in ['}', ']', ')', '+', '-', '"', '\'']:
+                        self._action(1)
+                    else:
+                        if isAlphanum(self.theA):
+                            self._action(1)
+                        else:
+                            self._action(3)
+                else:
+                    self._action(1)
 
-    # encode escaped characters
-    def _escape(self, string, escapeChar=None):
-        def repl(match):
-            char = match.group(1)
-            self._escaped.append(char)
-            return escapeChar
-        if escapeChar is None:
-            return string
-        r = re.compile("\\"+escapeChar+"(.)", re.M)
-        result = r.sub(repl, string)
-        return result
+    def minify(self, instream, outstream):
+        self.instream = instream
+        self.outstream = outstream
+        self.theA = '\n'
+        self.theB = None
+        self.theLookahead = None
 
-    # decode escaped characters
-    def _unescape(self, string, escapeChar=None):
-        def repl(match):
-            try:
-                #result = eval("'"+escapeChar + self._escaped.pop(0)+"'")
-                result = escapeChar + self._escaped.pop(0)
-                return result
-            except IndexError:
-                return escapeChar
-        if escapeChar is None:
-            return string
-        r = re.compile("\\"+escapeChar, re.M)
-        result = r.sub(repl, string)
-        return result
+        self._jsmin()
+        self.instream.close()
 
-    def _internalEscape(self, string):
-        return ParseMaster.ESCAPE.sub("", string)
-
-
-##   packer, version 2.0 (2005/04/20)
-##   Copyright 2004-2005, Dean Edwards
-##   License: http://creativecommons.org/licenses/LGPL/2.1/
-
-##  Ported to Python by Florian Schulze
-
-## http://dean.edwards.name/packer/
-
-class JavaScriptPacker:
-    def __init__(self):
-        self._basicCompressionParseMaster = self.getCompressionParseMaster(False)
-        self._specialCompressionParseMaster = self.getCompressionParseMaster(True)
-
-    def basicCompression(self, script):
-        return self._basicCompressionParseMaster.execute(script)
-
-    def specialCompression(self, script):
-        return self._specialCompressionParseMaster.execute(script)
-
-    def getCompressionParseMaster(self, specialChars):
-        IGNORE = "$1"
-        parser = ParseMaster()
-        parser.escapeChar = '\\'
-        # protect strings
-        parser.add(r"""'[^']*?'""", IGNORE)
-        parser.add(r'"[^"]*?"', IGNORE)
-        # remove comments
-        parser.add(r"""//[^\n\r]*?[\n\r]""")
-        parser.add(r"""/\*[^*]*?\*+([^/][^*]*?\*+)*?/""")
-        # protect regular expressions
-        parser.add(r"""\s+(\/[^\/\n\r\*][^\/\n\r]*\/g?i?)""", "$2")
-        parser.add(r"""[^\w\$\/'"*)\?:]\/[^\/\n\r\*][^\/\n\r]*\/g?i?""", IGNORE)
-        # remove: ;;; doSomething();
-        if specialChars:
-            parser.add(""";;;[^\n\r]+[\n\r]""")
-        # remove redundant semi-colons
-        parser.add(r""";+\s*([};])""", "$2")
-        # remove white-space
-        parser.add(r"""(\b|\$)\s+(\b|\$)""", "$2 $3")
-        parser.add(r"""([+\-])\s+([+\-])""", "$2 $3")
-        parser.add(r"""\s+""", "")
-        return parser
-
-    def getEncoder(self, ascii):
-        mapping = {}
-        base = ord('0')
-        mapping.update(dict([(i, chr(i+base)) for i in range(10)]))
-        base = ord('a')
-        mapping.update(dict([(i+10, chr(i+base)) for i in range(26)]))
-        base = ord('A')
-        mapping.update(dict([(i+36, chr(i+base)) for i in range(26)]))
-        base = 161
-        mapping.update(dict([(i+62, chr(i+base)) for i in range(95)]))
-
-        # zero encoding
-        # characters: 0123456789
-        def encode10(charCode):
-            return str(charCode)
-
-        # inherent base36 support
-        # characters: 0123456789abcdefghijklmnopqrstuvwxyz
-        def encode36(charCode):
-            l = []
-            remainder = charCode
-            while 1:
-                result, remainder = divmod(remainder, 36)
-                l.append(mapping[remainder])
-                if not result:
-                    break
-                remainder = result
-            l.reverse()
-            return "".join(l)
-
-        # hitch a ride on base36 and add the upper case alpha characters
-        # characters: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
-        def encode62(charCode):
-            l = []
-            remainder = charCode
-            while 1:
-                result, remainder = divmod(remainder, 62)
-                l.append(mapping[remainder])
-                if not result:
-                    break
-                remainder = result
-            l.reverse()
-            return "".join(l)
-
-        # use high-ascii values
-        def encode95(charCode):
-            l = []
-            remainder = charCode
-            while 1:
-                result, remainder = divmod(remainder, 95)
-                l.append(mapping[remainder+62])
-                if not result:
-                    break
-                remainder = result
-            l.reverse()
-            return "".join(l)
-
-        if ascii <= 10:
-            return encode10
-        elif ascii <= 36:
-            return encode36
-        elif ascii <= 62:
-            return encode62
-        return encode95
-
-    def escape(self, script):
-        script = script.replace("\\","\\\\")
-        script = script.replace("'","\\'")
-        script = script.replace('\n','\\n')
-        #return re.sub(r"""([\\'](?!\n))""", "\\$1", script)
-        return script
-
-    def escape95(self, script):
-        result = []
-        for x in script:
-            if x>'\xa1':
-                x = "\\x%0x" % ord(x)
-            result.append(x)
-        return "".join(result)
-
-    def encodeKeywords(self, script, encoding, fastDecode):
-        # escape high-ascii values already in the script (i.e. in strings)
-        if (encoding > 62):
-            script = self.escape95(script)
-        # create the parser
-        parser = ParseMaster()
-        encode = self.getEncoder(encoding)
-        # for high-ascii, don't encode single character low-ascii
-        if encoding > 62:
-            regexp = r"""\w\w+"""
-        else:
-            regexp = r"""\w+"""
-        # build the word list
-        keywords = self.analyze(script, regexp, encode)
-        encoded = keywords['encoded']
-        # encode
-        def repl(match, offset):
-            return encoded.get(match.group(offset), "")
-        parser.add(regexp, repl)
-        # if encoded, wrap the script in a decoding function
-        script = parser.execute(script)
-        script = self.bootStrap(script, keywords, encoding, fastDecode)
-        return script
-
-    def analyze(self, script, regexp, encode):
-        # analyse
-        # retreive all words in the script
-        regexp = re.compile(regexp, re.M)
-        all = regexp.findall(script)
-        sorted = [] # list of words sorted by frequency
-        encoded = {} # dictionary of word->encoding
-        protected = {} # instances of "protected" words
-        if all:
-            unsorted = []
-            _protected = {}
-            values = {}
-            count = {}
-            all.reverse()
-            for word in all:
-                word = "$"+word
-                if word not in count:
-                    count[word] = 0
-                    j = len(unsorted)
-                    unsorted.append(word)
-                    # make a dictionary of all of the protected words in this script
-                    #  these are words that might be mistaken for encoding
-                    values[j] = encode(j)
-                    _protected["$"+values[j]] = j
-                count[word] = count[word] + 1
-            # prepare to sort the word list, first we must protect
-            #  words that are also used as codes. we assign them a code
-            #  equivalent to the word itself.
-            # e.g. if "do" falls within our encoding range
-            #      then we store keywords["do"] = "do";
-            # this avoids problems when decoding
-            sorted = [None] * len(unsorted)
-            for word in unsorted:
-                if word in _protected and isinstance(_protected[word], int):
-                    sorted[_protected[word]] = word[1:]
-                    protected[_protected[word]] = True
-                    count[word] = 0
-            unsorted.sort(lambda a,b: count[b]-count[a])
-            j = 0
-            for i in range(len(sorted)):
-                if sorted[i] is None:
-                    sorted[i]  = unsorted[j][1:]
-                    j = j + 1
-                encoded[sorted[i]] = values[i]
-
-        return {'sorted': sorted, 'encoded': encoded, 'protected': protected}
-
-    def encodePrivate(self, charCode):
-        return "_"+str(charCode)
-
-    def encodeSpecialChars(self, script):
-        parser = ParseMaster()
-        # replace: $name -> n, $$name -> $$na
-        def repl(match, offset):
-            #print offset, match.groups()
-            length = len(match.group(offset + 2))
-            start = length - max(length - len(match.group(offset + 3)), 0)
-            return match.group(offset + 1)[start:start+length] + match.group(offset + 4)
-        parser.add(r"""((\$+)([a-zA-Z\$_]+))(\d*)""", repl)
-        # replace: _name -> _0, double-underscore (__name) is ignored
-        regexp = r"""\b_[A-Za-z\d]\w*"""
-        # build the word list
-        keywords = self.analyze(script, regexp, self.encodePrivate)
-        # quick ref
-        encoded = keywords['encoded']
-        def repl(match, offset):
-            return encoded.get(match.group(offset), "")
-        parser.add(regexp, repl)
-        return parser.execute(script)
-
-    # build the boot function used for loading and decoding
-    def bootStrap(self, packed, keywords, encoding, fastDecode):
-        ENCODE = re.compile(r"""\$encode\(\$count\)""")
-        # $packed: the packed script
-        #packed = self.escape(packed)
-        #packed = [packed[x*10000:(x+1)*10000] for x in range((len(packed)/10000)+1)]
-        #packed = "'" + "'+\n'".join(packed) + "'\n"
-        packed = "'" + self.escape(packed) + "'"
-
-        # $count: number of words contained in the script
-        count = len(keywords['sorted'])
-
-        # $ascii: base for encoding
-        ascii = min(count, encoding) or 1
-
-        # $keywords: list of words contained in the script
-        for i in keywords['protected']:
-            keywords['sorted'][i] = ""
-        # convert from a string to an array
-        keywords = "'" + "|".join(keywords['sorted']) + "'.split('|')"
-
-        encoding_functions = {
-            10: """ function($charCode) {
-                        return $charCode;
-                    }""",
-            36: """ function($charCode) {
-                        return $charCode.toString(36);
-                    }""",
-            62: """ function($charCode) {
-                        return ($charCode < _encoding ? "" : arguments.callee(parseInt($charCode / _encoding))) +
-                            (($charCode = $charCode % _encoding) > 35 ? String.fromCharCode($charCode + 29) : $charCode.toString(36));
-                    }""",
-            95: """ function($charCode) {
-                        return ($charCode < _encoding ? "" : arguments.callee($charCode / _encoding)) +
-                            String.fromCharCode($charCode % _encoding + 161);
-                    }"""
-        }
-
-        # $encode: encoding function (used for decoding the script)
-        encode = encoding_functions[encoding]
-        encode = encode.replace('_encoding',"$ascii")
-        encode = encode.replace('arguments.callee', "$encode")
-        if ascii > 10:
-            inline = "$count.toString($ascii)"
-        else:
-            inline = "$count"
-        # $decode: code snippet to speed up decoding
-        if fastDecode:
-            # create the decoder
-            decode = r"""// does the browser support String.replace where the
-                        //  replacement value is a function?
-                        if (!''.replace(/^/, String)) {
-                            // decode all the values we need
-                            while ($count--) $decode[$encode($count)] = $keywords[$count] || $encode($count);
-                            // global replacement function
-                            $keywords = [function($encoded){return $decode[$encoded]}];
-                            // generic match
-                            $encode = function(){return'\\w+'};
-                            // reset the loop counter -  we are now doing a global replace
-                            $count = 1;
-                        }"""
-            if encoding > 62:
-                decode = decode.replace('\\\\w', "[\\xa1-\\xff]")
-            else:
-                # perform the encoding inline for lower ascii values
-                if ascii < 36:
-                    decode = ENCODE.sub(inline, decode)
-            # special case: when $count==0 there ar no keywords. i want to keep
-            #  the basic shape of the unpacking funcion so i'll frig the code...
-            if not count:
-                raise NotImplemented
-                #) $decode = $decode.replace(/(\$count)\s*=\s*1/, "$1=0");
-
-
-        # boot function
-        unpack = r"""function($packed, $ascii, $count, $keywords, $encode, $decode) {
-                        while ($count--)
-                            if ($keywords[$count])
-                                $packed = $packed.replace(new RegExp("\\b" + $encode($count) + "\\b", "g"), $keywords[$count]);
-                        return $packed;
-                    }"""
-        if fastDecode:
-            # insert the decoder
-            #unpack = re.sub(r"""\{""", "{" + decode + ";", unpack)
-            unpack = unpack.replace('{', "{" + decode + ";", 1)
-
-        if encoding > 62: # high-ascii
-            # get rid of the word-boundaries for regexp matches
-            unpack = re.sub(r"""'\\\\b'\s*\+|\+\s*'\\\\b'""", "", unpack)
-        if ascii > 36 or encoding > 62 or fastDecode:
-            # insert the encode function
-            #unpack = re.sub(r"""\{""", "{$encode=" + encode + ";", unpack)
-            unpack = unpack.replace('{', "{$encode=" + encode + ";", 1)
-        else:
-            # perform the encoding inline
-            unpack = ENCODE.sub(inline, unpack)
-        # pack the boot function too
-        unpack = self.pack(unpack, 0, False, True)
-
-        # arguments
-        params = [packed, str(ascii), str(count), keywords]
-        if fastDecode:
-            # insert placeholders for the decoder
-            params.extend(['0', "{}"])
-
-        # the whole thing
-        return "eval(" + unpack + "(" + ",".join(params) + "))\n";
-
-    def pack(self, script, encoding=0, fastDecode=False, specialChars=False, compaction=True):
-        script = script+"\n"
-        self._encoding = encoding
-        self._fastDecode = fastDecode
-        if specialChars:
-            script = self.specialCompression(script)
-            script = self.encodeSpecialChars(script)
-        else:
-            if compaction:
-                script = self.basicCompression(script)
-        if encoding:
-            script = self.encodeKeywords(script, encoding, fastDecode)
-        return script
-
-class JSPacker(object):
-	def __init__(self,script):
-	    self.script = script
-	
-	def pack(self):
-		p = JavaScriptPacker()
-		return p.pack(self.script, compaction=True, encoding=0, fastDecode=True)
+if __name__ == '__main__':
+    import sys
+    jsm = JavascriptMinify()
+    jsm.minify(sys.stdin, sys.stdout)

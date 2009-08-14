@@ -5,6 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifndef TI_VERSION	//This is so we don't get the error more than once
+#warning TI_VERSION was undefined!
+#endif
+
 #import "TitaniumHost.h"
 #import "TitaniumCmdThread.h"
 #import "TitaniumAppProtocol.h"
@@ -1111,13 +1115,21 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	for(TitaniumBlobWrapper * thisBlob in [blobRegistry objectEnumerator]){
 		[thisBlob compress];
 	}
+	NSMutableArray * doomedKeys = nil;
 	for(NSString * thisFilePath in imageCache){
 		UIImage * cachedImage = [imageCache objectForKey:thisFilePath];
 		if ([cachedImage retainCount] == 1) {
-			[imageCache removeObjectForKey:thisFilePath];
+			if(doomedKeys==nil){
+				doomedKeys=	[[NSMutableArray alloc] initWithObjects:thisFilePath,nil];
+			} else {
+				[doomedKeys addObject:thisFilePath];
+			}
 		}
 	}
-	
+	if(doomedKeys != nil){
+		[imageCache removeObjectsForKeys:doomedKeys];
+		[doomedKeys release];
+	}
 }
 
 @end

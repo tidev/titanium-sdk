@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import android.content.Intent;
 import android.net.Uri;
 import android.webkit.MimeTypeMap;
+import android.webkit.URLUtil;
 
 public class TitaniumEmailDialog implements ITitaniumEmailDialog
 {
@@ -88,11 +89,15 @@ public class TitaniumEmailDialog implements ITitaniumEmailDialog
 					if (attachment.has("mimeType")) {
 						mimeType = attachment.getString("mimeType");
 					} else {
-						String extension = MimeTypeMap.getFileExtensionFromUrl(path);
-						if (extension != null) {
-							String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-							if (type != null) {
-								mimeType = type;
+						if (URLUtil.isContentUrl(path)) {
+							mimeType = tmm.getAppContext().getContentResolver().getType(uri);
+						} else {
+							String extension = MimeTypeMap.getFileExtensionFromUrl(uri.getPath());
+							if (extension != null && extension.length() > 0) {
+								String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+								if (type != null) {
+									mimeType = type;
+								}
 							}
 						}
 					}

@@ -102,28 +102,20 @@ try{
 			var nextWin = Ti.UI.createWindow({url:"misc.html"});
 			nextWin.open();
 		}
-		try{
-		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
-		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
-		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
-		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
-//		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.LEFT});
-//		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.TOP});
-//		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.BOTTOM});
-		}catch(E){Titanium.UI.createAlertDialog({title:"Error!",message:('Msg:'+E)}).show();};
+		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.LEFT});
 	});
 	
 	var insertButton = Ti.UI.createButton({systemButton:Ti.UI.iPhone.SystemButton.ADD});
 	insertButton.addEventListener('click',function(e){
-//		tableView.updateRow(3,{title:'row 1', header:'Header 1', hasChild:true, },
-//		tableView.insertRowBefore(3,{title:'row 1', header:'Header 1', hasChild:true, },
-		tableView.setData([{title:'row 1', header:'Header 1', hasChild:true, }],
-		{animationStyle:Ti.UI.iPhone.RowAnimationStyle.DOWN}
+		tableView.updateRow(0,{title:'row 1', header:'Header 1', hasChild:true, },
+//		tableView.insertRowBefore(1,{title:'row 1', header:'Header 1', hasChild:true, },
+//		tableView.setData([{title:'row 1', header:'Header 1', hasChild:true, }],
+		{animationStyle:Ti.UI.iPhone.RowAnimationStyle.LEFT}
 		)});
-	Titanium.UI.currentWindow.addView(tableView);
-	Titanium.UI.currentWindow.showView(tableView);
-//	var tableWindow = Ti.UI.createWindow({views:[tableView],rightNavButton:insertButton});
-//	tableWindow.open({animated:true});
+//	Titanium.UI.currentWindow.addView(tableView);
+//	Titanium.UI.currentWindow.showView(tableView);
+	var tableWindow = Ti.UI.createWindow({views:[tableView],rightNavButton:insertButton});
+	tableWindow.open({animated:true});
 } catch(E){Titanium.UI.createAlertDialog({title:"Error!",message:('Msg:'+E)}).show();};
 };
 		btn7.addEventListener('click',test1);
@@ -247,8 +239,8 @@ try{
 //			alerty.show();
 //		},false);
 
-		Ti.UI.currentWindow.addEventListener('focused',function(evt){Ti.API.info('Focused!')});
-		Ti.UI.currentWindow.addEventListener('unfocused',function(evt){Ti.API.info('Unfocused!')});
+	Ti.UI.currentWindow.addEventListener('focused',function(evt){Ti.API.info('Focused!')});
+	Ti.UI.currentWindow.addEventListener('unfocused',function(evt){Ti.API.info('Unfocused!')});
 
 
 
@@ -290,10 +282,6 @@ try{
 		document.getElementById('from').innerHTML = textFor(e.from);
 		document.getElementById('to').innerHTML = textFor(e.to);
 	});
-
-
-
-
 
 		}catch(E){var alerty=Titanium.UI.createAlertDialog();alerty.setMessage('Error:'+E);alerty.show();}
 
