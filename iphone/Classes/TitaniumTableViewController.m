@@ -726,7 +726,7 @@ UIColor * checkmarkColor = nil;
 
 
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (UITableViewCell *)tableView:(UITableView *)ourTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 {
 	[sectionLock lock];
 	TableSectionWrapper * sectionWrapper = [self sectionForIndex:[indexPath section]];
@@ -736,28 +736,28 @@ UIColor * checkmarkColor = nil;
 	UITableViewCell * result = nil;
 
 	if (htmlString != nil){ //HTML cell
-		result = [tableView dequeueReusableCellWithIdentifier:@"html"];
+		result = [ourTableView dequeueReusableCellWithIdentifier:@"html"];
 		if (result == nil) {
 			result = [[[WebTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"html"] autorelease];
 		}
 		[[(WebTableViewCell *)result htmlLabel] loadHTMLString:htmlString baseURL:[[TitaniumHost sharedHost] appBaseUrl]];
 		
 	} else if ([rowWrapper isButton]) {
-		result = [tableView dequeueReusableCellWithIdentifier:@"button"];
+		result = [ourTableView dequeueReusableCellWithIdentifier:@"button"];
 		if (result == nil){
 			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"button"] autorelease];
-			[result setTextAlignment:UITextAlignmentCenter];
+			[(id)result setTextAlignment:UITextAlignmentCenter];
 		}
-		[result setText:[rowWrapper title]];
+		[(id)result setText:[rowWrapper title]];
 		
 	} else { //plain cell
 		NSString * valueString = [rowWrapper value];
 		if (valueString == nil){
-			result = [tableView dequeueReusableCellWithIdentifier:@"text"];
+			result = [ourTableView dequeueReusableCellWithIdentifier:@"text"];
 			if (result == nil) result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"text"] autorelease];
 		} else {
 			UILabel * valueLabel;
-			result = [tableView dequeueReusableCellWithIdentifier:@"value"];
+			result = [ourTableView dequeueReusableCellWithIdentifier:@"value"];
 			if (result == nil){
 				result = [[[ValueTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"value"] autorelease];
 				valueLabel = [(ValueTableViewCell *)result valueLabel];
@@ -767,13 +767,13 @@ UIColor * checkmarkColor = nil;
 			}
 			[valueLabel setText:valueString];
 		}
-		[result setText:[rowWrapper title]];
+		[(id)result setText:[rowWrapper title]];
 		UIColor * textColor = [UIColor blackColor];
 		if (ourType == UITableViewCellAccessoryCheckmark) textColor = checkmarkColor;
-		[result setTextColor:textColor];
+		[(id)result setTextColor:textColor];
 	}
 
-	[result setImage:[rowWrapper image]];
+	[(id)result setImage:[rowWrapper image]];
 	[result setAccessoryType:ourType];
 	[result setAccessoryView:[[rowWrapper inputProxy] nativeView]];
 
@@ -836,10 +836,10 @@ UIColor * checkmarkColor = nil;
 	[sectionLock unlock];
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
+- (void)tableView:(UITableView *)ourTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 {
 	[sectionLock lock];
-	[tableView deselectRowAtIndexPath:indexPath animated:YES];
+	[ourTableView deselectRowAtIndexPath:indexPath animated:YES];
 
 	int section = [indexPath section];
 	int blessedRow = [indexPath row];
@@ -852,20 +852,20 @@ UIColor * checkmarkColor = nil;
 			BOOL isBlessed = (row == blessedRow);
 			BOOL isUpdated = NO;
 			
-			UITableViewCell * thisCell = [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:section]];
+			UITableViewCell * thisCell = [ourTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:section]];
 			
 			if (!isBlessed && (rowType == UITableViewCellAccessoryCheckmark)) {
 				[rowWrapper setAccessoryType:UITableViewCellAccessoryNone];
 				if (thisCell != nil){
 					[thisCell setAccessoryType:UITableViewCellAccessoryNone];
-					[thisCell setTextColor:[UIColor blackColor]];
+					[(id)thisCell setTextColor:[UIColor blackColor]];
 					isUpdated = YES;
 				}
 			} else if (isBlessed && (rowType == UITableViewCellAccessoryNone)){
 				[rowWrapper setAccessoryType:UITableViewCellAccessoryCheckmark];
 				if (thisCell != nil){
 					[thisCell setAccessoryType:UITableViewCellAccessoryCheckmark];
-					[thisCell setTextColor:checkmarkColor];
+					[(id)thisCell setTextColor:checkmarkColor];
 					isUpdated = YES;
 				}
 			}
