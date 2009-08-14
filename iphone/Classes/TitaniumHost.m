@@ -5,6 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifndef TI_VERSION	//This is so we don't get the error more than once
+#warning TI_VERSION was undefined!
+#endif
+
 #import "TitaniumHost.h"
 #import "TitaniumCmdThread.h"
 #import "TitaniumAppProtocol.h"
