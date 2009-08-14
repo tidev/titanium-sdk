@@ -9,6 +9,8 @@
 #import "TitaniumHost.h"
 #import "UiModule.h"
 
+#import "ClockLogger.h"
+
 TitaniumWebViewController * mostRecentController = nil;
 
 @implementation TitaniumWebViewController
@@ -293,6 +295,7 @@ TitaniumWebViewController * mostRecentController = nil;
 	mostRecentController = self;
 	NSURL * requestURL = [request URL];
 	if ([[TitaniumAppDelegate sharedDelegate] shouldTakeCareOfUrl:requestURL useSystemBrowser:NO]) return NO;
+	CLOCKSTAMPSTRING("Should load request");
 	[currentContentURL release];
 	currentContentURL = [requestURL copy];
 	return YES;
@@ -300,8 +303,7 @@ TitaniumWebViewController * mostRecentController = nil;
 
 - (void)webViewDidStartLoad:(UIWebView *)inputWebView;
 {
-	
-	
+	CLOCKSTAMPSTRING("Started load request");
 }
 
 - (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
@@ -324,6 +326,7 @@ TitaniumWebViewController * mostRecentController = nil;
 
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
 {
+	CLOCKSTAMPSTRING("Finished load request");
 	[UIView beginAnimations:@"webView" context:nil];
 	[self updateLayout:NO];
 	

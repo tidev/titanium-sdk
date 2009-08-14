@@ -107,6 +107,10 @@
 		B4110C9F0FD4653A00BE17F8 /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */; };
 		B413A6800F7998C500B1C47D /* TitaniumAppProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */; };
 		B413A7530F79A58000B1C47D /* TitaniumCmdThread.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */; };
+		B4200E511035FAB1009598FC /* ClockLogger.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* ClockLogger.c */; };
+		B4200E521035FAB1009598FC /* ClockLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = B4200E4F1035FAB1009598FC /* ClockLogger.h */; };
+		B4200E531035FAB1009598FC /* ClockLogger.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* ClockLogger.c */; };
+		B4200E541035FAB1009598FC /* ClockLogger.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* ClockLogger.c */; };
 		B425068A100C0A4B00AD6A6B /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		B4290A75100D31FD00C4FF98 /* TweakedNavController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4290A73100D31FD00C4FF98 /* TweakedNavController.h */; };
 		B4290A76100D31FD00C4FF98 /* TweakedNavController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4290A74100D31FD00C4FF98 /* TweakedNavController.m */; };
@@ -120,6 +124,95 @@
 		B45CA77F0F81565D00B80900 /* TitaniumHost.m in Sources */ = {isa = PBXBuildFile; fileRef = B45CA77E0F81565D00B80900 /* TitaniumHost.m */; };
 		B4676CB50FB0E492009B81F4 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4676CB40FB0E492009B81F4 /* AVFoundation.framework */; };
 		B4676CBF0FB0E4AE009B81F4 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */; };
+		B47A26E51035F040002146CD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
+		B47A26E61035F040002146CD /* TitaniumAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* TitaniumAppDelegate.m */; };
+		B47A26E71035F040002146CD /* TitaniumViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */; };
+		B47A26E81035F040002146CD /* TitaniumAppProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */; };
+		B47A26E91035F040002146CD /* TitaniumCmdThread.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */; };
+		B47A26EA1035F040002146CD /* TitaniumUIViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4864F5B0F7C48E700A851C5 /* TitaniumUIViewController.m */; };
+		B47A26EB1035F040002146CD /* TitaniumHost.m in Sources */ = {isa = PBXBuildFile; fileRef = B45CA77E0F81565D00B80900 /* TitaniumHost.m */; };
+		B47A26EC1035F040002146CD /* TitaniumAccessorTuple.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9B9C30F82030700DD709C /* TitaniumAccessorTuple.m */; };
+		B47A26ED1035F040002146CD /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BB640F842C9400DD709C /* SBJSON.m */; };
+		B47A26EE1035F040002146CD /* TitaniumJSConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BC080F85491F00DD709C /* TitaniumJSConstants.m */; };
+		B47A26EF1035F040002146CD /* TitaniumInvocationGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FC656E0F95078000B21EA1 /* TitaniumInvocationGenerator.m */; };
+		B47A26F01035F040002146CD /* TitaniumJSCode.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FC66FB0F95590D00B21EA1 /* TitaniumJSCode.m */; };
+		B47A26F11035F040002146CD /* TitaniumActionSheetHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B408AD470F97FA010051FD67 /* TitaniumActionSheetHelper.m */; };
+		B47A26F21035F040002146CD /* Webcolor.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FECD120FAA4B3E0015B658 /* Webcolor.m */; };
+		B47A26F31035F040002146CD /* ApiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8090FC9FCA400063972 /* ApiModule.m */; };
+		B47A26F41035F040002146CD /* AppModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F80C0FC9FCA400063972 /* AppModule.m */; };
+		B47A26F51035F040002146CD /* DatabaseModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F80F0FC9FCA400063972 /* DatabaseModule.m */; };
+		B47A26F61035F040002146CD /* PlausibleDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8120FC9FCA400063972 /* PlausibleDatabase.m */; };
+		B47A26F71035F040002146CD /* PLSqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8170FC9FCA400063972 /* PLSqliteDatabase.m */; };
+		B47A26F81035F040002146CD /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8190FC9FCA400063972 /* PLSqlitePreparedStatement.m */; };
+		B47A26F91035F040002146CD /* PLSqliteResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F81B0FC9FCA400063972 /* PLSqliteResultSet.m */; };
+		B47A26FA1035F040002146CD /* FilesystemModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F81E0FC9FCA400063972 /* FilesystemModule.m */; };
+		B47A26FB1035F040002146CD /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8210FC9FCA400063972 /* GeolocationModule.m */; };
+		B47A26FC1035F040002146CD /* MediaModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8240FC9FCA400063972 /* MediaModule.m */; };
+		B47A26FD1035F040002146CD /* NetworkModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F82D0FC9FCA400063972 /* NetworkModule.m */; };
+		B47A26FE1035F040002146CD /* PlatformModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8300FC9FCA400063972 /* PlatformModule.m */; };
+		B47A26FF1035F040002146CD /* UiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8360FC9FCA400063972 /* UiModule.m */; };
+		B47A27001035F040002146CD /* IPAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FA540FCA4E2E00063972 /* IPAddress.c */; };
+		B47A27011035F040002146CD /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444FC7C0FCA6F8000063972 /* NSData+Additions.m */; };
+		B47A27021035F040002146CD /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FCD10FCA741E00063972 /* base64.c */; };
+		B47A27031035F040002146CD /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BBD83D0FCD245F00A261A4 /* GestureModule.m */; };
+		B47A27041035F040002146CD /* TitaniumBlobWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */; };
+		B47A27051035F040002146CD /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */; };
+		B47A27061035F040002146CD /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F02E450FD482D2007894DA /* AnalyticsModule.m */; };
+		B47A27071035F040002146CD /* TitaniumWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7030FE99F4E00D62384 /* TitaniumWebViewController.m */; };
+		B47A27081035F040002146CD /* TitaniumTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */; };
+		B47A27091035F040002146CD /* WebTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */; };
+		B47A270A1035F040002146CD /* ValueTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */; };
+		B47A270D1035F040002146CD /* TweakedNavController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4290A74100D31FD00C4FF98 /* TweakedNavController.m */; };
+		B47A270E1035F040002146CD /* TitaniumContentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B571FD10110324003546C7 /* TitaniumContentViewController.m */; };
+		B47A27111035F040002146CD /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
+		B47A27121035F040002146CD /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
+		B47A27131035F040002146CD /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
+		B47A27141035F040002146CD /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4B587000FB00B670047B651 /* AudioToolbox.framework */; };
+		B47A27151035F040002146CD /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4676CB40FB0E492009B81F4 /* AVFoundation.framework */; };
+		B47A27161035F040002146CD /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */; };
+		B47A27171035F040002146CD /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */; };
+		B47A27181035F040002146CD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
+		B47A27191035F040002146CD /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
+		B47A271A1035F040002146CD /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		B47A27241035F0BF002146CD /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
+		B47A27841035F11F002146CD /* accounts.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A27261035F11F002146CD /* accounts.html */; };
+		B47A27851035F11F002146CD /* accounts.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27271035F11F002146CD /* accounts.js */; };
+		B47A27881035F11F002146CD /* DM.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A272B1035F11F002146CD /* DM.html */; };
+		B47A27891035F11F002146CD /* DM.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A272C1035F11F002146CD /* DM.js */; };
+		B47A278A1035F11F002146CD /* editaccounts.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A272D1035F11F002146CD /* editaccounts.html */; };
+		B47A278B1035F11F002146CD /* editaccounts.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A272E1035F11F002146CD /* editaccounts.js */; };
+		B47A278C1035F11F002146CD /* favorites.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A272F1035F11F002146CD /* favorites.html */; };
+		B47A278D1035F11F002146CD /* favorites.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27301035F11F002146CD /* favorites.js */; };
+		B47A278E1035F11F002146CD /* humane.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27311035F11F002146CD /* humane.js */; };
+		B47A278F1035F11F002146CD /* humaneOG.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27321035F11F002146CD /* humaneOG.js */; };
+		B47A27C81035F11F002146CD /* jquery-1.3.2.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A276D1035F11F002146CD /* jquery-1.3.2.js */; };
+		B47A27C91035F11F002146CD /* json2.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A276E1035F11F002146CD /* json2.js */; };
+		B47A27CA1035F11F002146CD /* message.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A276F1035F11F002146CD /* message.html */; };
+		B47A27CB1035F11F002146CD /* message.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27701035F11F002146CD /* message.js */; };
+		B47A27CC1035F11F002146CD /* more.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A27711035F11F002146CD /* more.html */; };
+		B47A27CD1035F11F002146CD /* more.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27721035F11F002146CD /* more.js */; };
+		B47A27CE1035F11F002146CD /* newaccount.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A27731035F11F002146CD /* newaccount.html */; };
+		B47A27CF1035F11F002146CD /* newaccount.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27741035F11F002146CD /* newaccount.js */; };
+		B47A27D01035F11F002146CD /* post.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A27751035F11F002146CD /* post.html */; };
+		B47A27D11035F11F002146CD /* post.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27761035F11F002146CD /* post.js */; };
+		B47A27D21035F11F002146CD /* results.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A27771035F11F002146CD /* results.html */; };
+		B47A27D31035F11F002146CD /* results.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27781035F11F002146CD /* results.js */; };
+		B47A27D41035F11F002146CD /* search.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A27791035F11F002146CD /* search.html */; };
+		B47A27D51035F11F002146CD /* search.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A277A1035F11F002146CD /* search.js */; };
+		B47A27D61035F11F002146CD /* splash.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A277B1035F11F002146CD /* splash.html */; };
+		B47A27D71035F11F002146CD /* splash.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A277C1035F11F002146CD /* splash.js */; };
+		B47A27D81035F11F002146CD /* style.css in Resources */ = {isa = PBXBuildFile; fileRef = B47A277D1035F11F002146CD /* style.css */; };
+		B47A27D91035F11F002146CD /* timeline.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A277E1035F11F002146CD /* timeline.html */; };
+		B47A27DA1035F11F002146CD /* timeline.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A277F1035F11F002146CD /* timeline.js */; };
+		B47A27DB1035F11F002146CD /* trends.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A27801035F11F002146CD /* trends.html */; };
+		B47A27DC1035F11F002146CD /* trends.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27811035F11F002146CD /* trends.js */; };
+		B47A27DD1035F11F002146CD /* user.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A27821035F11F002146CD /* user.html */; };
+		B47A27DE1035F11F002146CD /* user.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27831035F11F002146CD /* user.js */; };
+		B47A27E31035F15C002146CD /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B47A27DF1035F15C002146CD /* Info.plist */; };
+		B47A27E41035F15C002146CD /* appicon.png in Resources */ = {isa = PBXBuildFile; fileRef = B47A27E01035F15C002146CD /* appicon.png */; };
+		B47A27E51035F15C002146CD /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = B47A27E11035F15C002146CD /* Default.png */; };
+		B47A27E61035F15C002146CD /* tiapp.plist in Resources */ = {isa = PBXBuildFile; fileRef = B47A27E21035F15C002146CD /* tiapp.plist */; };
+		B47A283D1035F2E3002146CD /* images in Resources */ = {isa = PBXBuildFile; fileRef = B47A28051035F2E3002146CD /* images */; };
 		B47B52D60FF1B2F400BD7229 /* ValueTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */; };
 		B47B52D70FF1B2F400BD7229 /* ValueTableViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = B47B52D40FF1B2F400BD7229 /* ValueTableViewCell.h */; };
 		B47B52D80FF1B2F400BD7229 /* ValueTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */; };
@@ -234,6 +327,8 @@
 		B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumAppProtocol.m; sourceTree = "<group>"; };
 		B413A7510F79A58000B1C47D /* TitaniumCmdThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumCmdThread.h; sourceTree = "<group>"; };
 		B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumCmdThread.m; sourceTree = "<group>"; };
+		B4200E4F1035FAB1009598FC /* ClockLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClockLogger.h; sourceTree = "<group>"; };
+		B4200E501035FAB1009598FC /* ClockLogger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ClockLogger.c; sourceTree = "<group>"; };
 		B4250689100C0A4B00AD6A6B /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		B4290A73100D31FD00C4FF98 /* TweakedNavController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TweakedNavController.h; sourceTree = "<group>"; };
 		B4290A74100D31FD00C4FF98 /* TweakedNavController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TweakedNavController.m; sourceTree = "<group>"; };
@@ -245,6 +340,45 @@
 		B45CA77E0F81565D00B80900 /* TitaniumHost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumHost.m; sourceTree = "<group>"; };
 		B4676CB40FB0E492009B81F4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		B47A271E1035F040002146CD /* TestSpaz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestSpaz.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B47A27261035F11F002146CD /* accounts.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = accounts.html; path = ../../spaz/Resources/accounts.html; sourceTree = SOURCE_ROOT; };
+		B47A27271035F11F002146CD /* accounts.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = accounts.js; path = ../../spaz/Resources/accounts.js; sourceTree = SOURCE_ROOT; };
+		B47A272B1035F11F002146CD /* DM.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = DM.html; path = ../../spaz/Resources/DM.html; sourceTree = SOURCE_ROOT; };
+		B47A272C1035F11F002146CD /* DM.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = DM.js; path = ../../spaz/Resources/DM.js; sourceTree = SOURCE_ROOT; };
+		B47A272D1035F11F002146CD /* editaccounts.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = editaccounts.html; path = ../../spaz/Resources/editaccounts.html; sourceTree = SOURCE_ROOT; };
+		B47A272E1035F11F002146CD /* editaccounts.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = editaccounts.js; path = ../../spaz/Resources/editaccounts.js; sourceTree = SOURCE_ROOT; };
+		B47A272F1035F11F002146CD /* favorites.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = favorites.html; path = ../../spaz/Resources/favorites.html; sourceTree = SOURCE_ROOT; };
+		B47A27301035F11F002146CD /* favorites.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = favorites.js; path = ../../spaz/Resources/favorites.js; sourceTree = SOURCE_ROOT; };
+		B47A27311035F11F002146CD /* humane.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = humane.js; path = ../../spaz/Resources/humane.js; sourceTree = SOURCE_ROOT; };
+		B47A27321035F11F002146CD /* humaneOG.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = humaneOG.js; path = ../../spaz/Resources/humaneOG.js; sourceTree = SOURCE_ROOT; };
+		B47A276D1035F11F002146CD /* jquery-1.3.2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "jquery-1.3.2.js"; path = "../../spaz/Resources/jquery-1.3.2.js"; sourceTree = SOURCE_ROOT; };
+		B47A276E1035F11F002146CD /* json2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = json2.js; path = ../../spaz/Resources/json2.js; sourceTree = SOURCE_ROOT; };
+		B47A276F1035F11F002146CD /* message.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = message.html; path = ../../spaz/Resources/message.html; sourceTree = SOURCE_ROOT; };
+		B47A27701035F11F002146CD /* message.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = message.js; path = ../../spaz/Resources/message.js; sourceTree = SOURCE_ROOT; };
+		B47A27711035F11F002146CD /* more.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = more.html; path = ../../spaz/Resources/more.html; sourceTree = SOURCE_ROOT; };
+		B47A27721035F11F002146CD /* more.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = more.js; path = ../../spaz/Resources/more.js; sourceTree = SOURCE_ROOT; };
+		B47A27731035F11F002146CD /* newaccount.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = newaccount.html; path = ../../spaz/Resources/newaccount.html; sourceTree = SOURCE_ROOT; };
+		B47A27741035F11F002146CD /* newaccount.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = newaccount.js; path = ../../spaz/Resources/newaccount.js; sourceTree = SOURCE_ROOT; };
+		B47A27751035F11F002146CD /* post.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = post.html; path = ../../spaz/Resources/post.html; sourceTree = SOURCE_ROOT; };
+		B47A27761035F11F002146CD /* post.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = post.js; path = ../../spaz/Resources/post.js; sourceTree = SOURCE_ROOT; };
+		B47A27771035F11F002146CD /* results.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = results.html; path = ../../spaz/Resources/results.html; sourceTree = SOURCE_ROOT; };
+		B47A27781035F11F002146CD /* results.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = results.js; path = ../../spaz/Resources/results.js; sourceTree = SOURCE_ROOT; };
+		B47A27791035F11F002146CD /* search.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = search.html; path = ../../spaz/Resources/search.html; sourceTree = SOURCE_ROOT; };
+		B47A277A1035F11F002146CD /* search.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = search.js; path = ../../spaz/Resources/search.js; sourceTree = SOURCE_ROOT; };
+		B47A277B1035F11F002146CD /* splash.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = splash.html; path = ../../spaz/Resources/splash.html; sourceTree = SOURCE_ROOT; };
+		B47A277C1035F11F002146CD /* splash.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = splash.js; path = ../../spaz/Resources/splash.js; sourceTree = SOURCE_ROOT; };
+		B47A277D1035F11F002146CD /* style.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; name = style.css; path = ../../spaz/Resources/style.css; sourceTree = SOURCE_ROOT; };
+		B47A277E1035F11F002146CD /* timeline.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = timeline.html; path = ../../spaz/Resources/timeline.html; sourceTree = SOURCE_ROOT; };
+		B47A277F1035F11F002146CD /* timeline.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = timeline.js; path = ../../spaz/Resources/timeline.js; sourceTree = SOURCE_ROOT; };
+		B47A27801035F11F002146CD /* trends.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = trends.html; path = ../../spaz/Resources/trends.html; sourceTree = SOURCE_ROOT; };
+		B47A27811035F11F002146CD /* trends.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = trends.js; path = ../../spaz/Resources/trends.js; sourceTree = SOURCE_ROOT; };
+		B47A27821035F11F002146CD /* user.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = user.html; path = ../../spaz/Resources/user.html; sourceTree = SOURCE_ROOT; };
+		B47A27831035F11F002146CD /* user.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = user.js; path = ../../spaz/Resources/user.js; sourceTree = SOURCE_ROOT; };
+		B47A27DF1035F15C002146CD /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../spaz/build/iphone/Info.plist; sourceTree = SOURCE_ROOT; };
+		B47A27E01035F15C002146CD /* appicon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = appicon.png; path = ../../spaz/build/iphone/Resources/appicon.png; sourceTree = SOURCE_ROOT; };
+		B47A27E11035F15C002146CD /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = ../../spaz/build/iphone/Resources/Default.png; sourceTree = SOURCE_ROOT; };
+		B47A27E21035F15C002146CD /* tiapp.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; name = tiapp.plist; path = ../../spaz/build/iphone/Resources/tiapp.plist; sourceTree = SOURCE_ROOT; };
+		B47A28051035F2E3002146CD /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; name = images; path = ../../spaz/Resources/images; sourceTree = SOURCE_ROOT; };
 		B47B52D40FF1B2F400BD7229 /* ValueTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ValueTableViewCell.h; sourceTree = "<group>"; };
 		B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ValueTableViewCell.m; sourceTree = "<group>"; };
 		B481D3360FD4C45A00F0A961 /* song.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = song.mp3; sourceTree = "<group>"; };
@@ -327,6 +461,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B47A27101035F040002146CD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B47A27111035F040002146CD /* Foundation.framework in Frameworks */,
+				B47A27121035F040002146CD /* UIKit.framework in Frameworks */,
+				B47A27131035F040002146CD /* CoreGraphics.framework in Frameworks */,
+				B47A27141035F040002146CD /* AudioToolbox.framework in Frameworks */,
+				B47A27151035F040002146CD /* AVFoundation.framework in Frameworks */,
+				B47A27161035F040002146CD /* SystemConfiguration.framework in Frameworks */,
+				B47A27171035F040002146CD /* CoreLocation.framework in Frameworks */,
+				B47A27181035F040002146CD /* libsqlite3.dylib in Frameworks */,
+				B47A27191035F040002146CD /* MediaPlayer.framework in Frameworks */,
+				B47A271A1035F040002146CD /* MessageUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -366,6 +517,7 @@
 			children = (
 				1D6058910D05DD3D006BFB54 /* Titanium.app */,
 				B41068A20FBB730F00310448 /* libTitanium.a */,
+				B47A271E1035F040002146CD /* TestSpaz.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -515,6 +667,7 @@
 				29B97316FDCFA39411CA2CEA /* main.m */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
+				B47A27251035F0F0002146CD /* Spaz Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
@@ -581,6 +734,51 @@
 			path = AccelerometerModule;
 			sourceTree = "<group>";
 		};
+		B47A27251035F0F0002146CD /* Spaz Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B47A28051035F2E3002146CD /* images */,
+				B47A27DF1035F15C002146CD /* Info.plist */,
+				B47A27E01035F15C002146CD /* appicon.png */,
+				B47A27E11035F15C002146CD /* Default.png */,
+				B47A27E21035F15C002146CD /* tiapp.plist */,
+				B47A27261035F11F002146CD /* accounts.html */,
+				B47A27271035F11F002146CD /* accounts.js */,
+				B47A272B1035F11F002146CD /* DM.html */,
+				B47A272C1035F11F002146CD /* DM.js */,
+				B47A272D1035F11F002146CD /* editaccounts.html */,
+				B47A272E1035F11F002146CD /* editaccounts.js */,
+				B47A272F1035F11F002146CD /* favorites.html */,
+				B47A27301035F11F002146CD /* favorites.js */,
+				B47A27311035F11F002146CD /* humane.js */,
+				B47A27321035F11F002146CD /* humaneOG.js */,
+				B47A276D1035F11F002146CD /* jquery-1.3.2.js */,
+				B47A276E1035F11F002146CD /* json2.js */,
+				B47A276F1035F11F002146CD /* message.html */,
+				B47A27701035F11F002146CD /* message.js */,
+				B47A27711035F11F002146CD /* more.html */,
+				B47A27721035F11F002146CD /* more.js */,
+				B47A27731035F11F002146CD /* newaccount.html */,
+				B47A27741035F11F002146CD /* newaccount.js */,
+				B47A27751035F11F002146CD /* post.html */,
+				B47A27761035F11F002146CD /* post.js */,
+				B47A27771035F11F002146CD /* results.html */,
+				B47A27781035F11F002146CD /* results.js */,
+				B47A27791035F11F002146CD /* search.html */,
+				B47A277A1035F11F002146CD /* search.js */,
+				B47A277B1035F11F002146CD /* splash.html */,
+				B47A277C1035F11F002146CD /* splash.js */,
+				B47A277D1035F11F002146CD /* style.css */,
+				B47A277E1035F11F002146CD /* timeline.html */,
+				B47A277F1035F11F002146CD /* timeline.js */,
+				B47A27801035F11F002146CD /* trends.html */,
+				B47A27811035F11F002146CD /* trends.js */,
+				B47A27821035F11F002146CD /* user.html */,
+				B47A27831035F11F002146CD /* user.js */,
+			);
+			name = "Spaz Resources";
+			sourceTree = "<group>";
+		};
 		B4C6D7560FE9B34D00D62384 /* TitaniumViewControllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -609,6 +807,8 @@
 				2444FCD10FCA741E00063972 /* base64.c */,
 				B4FECD110FAA4B3E0015B658 /* Webcolor.h */,
 				B4FECD120FAA4B3E0015B658 /* Webcolor.m */,
+				B4200E4F1035FAB1009598FC /* ClockLogger.h */,
+				B4200E501035FAB1009598FC /* ClockLogger.c */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -667,6 +867,7 @@
 				B47B52D70FF1B2F400BD7229 /* ValueTableViewCell.h in Headers */,
 				B4290A75100D31FD00C4FF98 /* TweakedNavController.h in Headers */,
 				B4B571FF10110324003546C7 /* TitaniumContentViewController.h in Headers */,
+				B4200E521035FAB1009598FC /* ClockLogger.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -708,6 +909,23 @@
 			productReference = B41068A20FBB730F00310448 /* libTitanium.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		B47A26CB1035F040002146CD /* Titanium-Spaz */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B47A271B1035F040002146CD /* Build configuration list for PBXNativeTarget "Titanium-Spaz" */;
+			buildPhases = (
+				B47A26CC1035F040002146CD /* Resources */,
+				B47A26E41035F040002146CD /* Sources */,
+				B47A27101035F040002146CD /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Titanium-Spaz";
+			productName = Titanium;
+			productReference = B47A271E1035F040002146CD /* TestSpaz.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -722,6 +940,7 @@
 			targets = (
 				1D6058900D05DD3D006BFB54 /* Titanium */,
 				B41068A10FBB730F00310448 /* libTitanium */,
+				B47A26CB1035F040002146CD /* Titanium-Spaz */,
 			);
 		};
 /* End PBXProject section */
@@ -754,6 +973,52 @@
 				B4B9E4621003D3DE004B8831 /* logo-m.png in Resources */,
 				B4ABEDC4101903CA00639ED5 /* buggy.html in Resources */,
 				B40C00241031ECC4009DEFF9 /* docs.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B47A26CC1035F040002146CD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B47A27CD1035F11F002146CD /* more.js in Resources */,
+				B47A27891035F11F002146CD /* DM.js in Resources */,
+				B47A27D31035F11F002146CD /* results.js in Resources */,
+				B47A27C81035F11F002146CD /* jquery-1.3.2.js in Resources */,
+				B47A27DE1035F11F002146CD /* user.js in Resources */,
+				B47A27CF1035F11F002146CD /* newaccount.js in Resources */,
+				B47A278F1035F11F002146CD /* humaneOG.js in Resources */,
+				B47A27DA1035F11F002146CD /* timeline.js in Resources */,
+				B47A27DC1035F11F002146CD /* trends.js in Resources */,
+				B47A27D51035F11F002146CD /* search.js in Resources */,
+				B47A27CB1035F11F002146CD /* message.js in Resources */,
+				B47A278B1035F11F002146CD /* editaccounts.js in Resources */,
+				B47A27D71035F11F002146CD /* splash.js in Resources */,
+				B47A27C91035F11F002146CD /* json2.js in Resources */,
+				B47A27D11035F11F002146CD /* post.js in Resources */,
+				B47A278E1035F11F002146CD /* humane.js in Resources */,
+				B47A278D1035F11F002146CD /* favorites.js in Resources */,
+				B47A27851035F11F002146CD /* accounts.js in Resources */,
+				B47A27241035F0BF002146CD /* MainWindow.xib in Resources */,
+				B47A27841035F11F002146CD /* accounts.html in Resources */,
+				B47A27881035F11F002146CD /* DM.html in Resources */,
+				B47A278A1035F11F002146CD /* editaccounts.html in Resources */,
+				B47A278C1035F11F002146CD /* favorites.html in Resources */,
+				B47A27CA1035F11F002146CD /* message.html in Resources */,
+				B47A27CC1035F11F002146CD /* more.html in Resources */,
+				B47A27CE1035F11F002146CD /* newaccount.html in Resources */,
+				B47A27D01035F11F002146CD /* post.html in Resources */,
+				B47A27D21035F11F002146CD /* results.html in Resources */,
+				B47A27D41035F11F002146CD /* search.html in Resources */,
+				B47A27D61035F11F002146CD /* splash.html in Resources */,
+				B47A27D81035F11F002146CD /* style.css in Resources */,
+				B47A27D91035F11F002146CD /* timeline.html in Resources */,
+				B47A27DB1035F11F002146CD /* trends.html in Resources */,
+				B47A27DD1035F11F002146CD /* user.html in Resources */,
+				B47A27E31035F15C002146CD /* Info.plist in Resources */,
+				B47A27E41035F15C002146CD /* appicon.png in Resources */,
+				B47A27E51035F15C002146CD /* Default.png in Resources */,
+				B47A27E61035F15C002146CD /* tiapp.plist in Resources */,
+				B47A283D1035F2E3002146CD /* images in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -823,6 +1088,7 @@
 				B4290A77100D31FD00C4FF98 /* TweakedNavController.m in Sources */,
 				B4B571FE10110324003546C7 /* TitaniumContentViewController.m in Sources */,
 				B4ABEDC7101903F300639ED5 /* buggy.js in Sources */,
+				B4200E541035FAB1009598FC /* ClockLogger.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -869,6 +1135,55 @@
 				B47B52D80FF1B2F400BD7229 /* ValueTableViewCell.m in Sources */,
 				B4290A76100D31FD00C4FF98 /* TweakedNavController.m in Sources */,
 				B4B5720010110324003546C7 /* TitaniumContentViewController.m in Sources */,
+				B4200E531035FAB1009598FC /* ClockLogger.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B47A26E41035F040002146CD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B47A26E51035F040002146CD /* main.m in Sources */,
+				B47A26E61035F040002146CD /* TitaniumAppDelegate.m in Sources */,
+				B47A26E71035F040002146CD /* TitaniumViewController.m in Sources */,
+				B47A26E81035F040002146CD /* TitaniumAppProtocol.m in Sources */,
+				B47A26E91035F040002146CD /* TitaniumCmdThread.m in Sources */,
+				B47A26EA1035F040002146CD /* TitaniumUIViewController.m in Sources */,
+				B47A26EB1035F040002146CD /* TitaniumHost.m in Sources */,
+				B47A26EC1035F040002146CD /* TitaniumAccessorTuple.m in Sources */,
+				B47A26ED1035F040002146CD /* SBJSON.m in Sources */,
+				B47A26EE1035F040002146CD /* TitaniumJSConstants.m in Sources */,
+				B47A26EF1035F040002146CD /* TitaniumInvocationGenerator.m in Sources */,
+				B47A26F01035F040002146CD /* TitaniumJSCode.m in Sources */,
+				B47A26F11035F040002146CD /* TitaniumActionSheetHelper.m in Sources */,
+				B47A26F21035F040002146CD /* Webcolor.m in Sources */,
+				B47A26F31035F040002146CD /* ApiModule.m in Sources */,
+				B47A26F41035F040002146CD /* AppModule.m in Sources */,
+				B47A26F51035F040002146CD /* DatabaseModule.m in Sources */,
+				B47A26F61035F040002146CD /* PlausibleDatabase.m in Sources */,
+				B47A26F71035F040002146CD /* PLSqliteDatabase.m in Sources */,
+				B47A26F81035F040002146CD /* PLSqlitePreparedStatement.m in Sources */,
+				B47A26F91035F040002146CD /* PLSqliteResultSet.m in Sources */,
+				B47A26FA1035F040002146CD /* FilesystemModule.m in Sources */,
+				B47A26FB1035F040002146CD /* GeolocationModule.m in Sources */,
+				B47A26FC1035F040002146CD /* MediaModule.m in Sources */,
+				B47A26FD1035F040002146CD /* NetworkModule.m in Sources */,
+				B47A26FE1035F040002146CD /* PlatformModule.m in Sources */,
+				B47A26FF1035F040002146CD /* UiModule.m in Sources */,
+				B47A27001035F040002146CD /* IPAddress.c in Sources */,
+				B47A27011035F040002146CD /* NSData+Additions.m in Sources */,
+				B47A27021035F040002146CD /* base64.c in Sources */,
+				B47A27031035F040002146CD /* GestureModule.m in Sources */,
+				B47A27041035F040002146CD /* TitaniumBlobWrapper.m in Sources */,
+				B47A27051035F040002146CD /* AccelerometerModule.m in Sources */,
+				B47A27061035F040002146CD /* AnalyticsModule.m in Sources */,
+				B47A27071035F040002146CD /* TitaniumWebViewController.m in Sources */,
+				B47A27081035F040002146CD /* TitaniumTableViewController.m in Sources */,
+				B47A27091035F040002146CD /* WebTableViewCell.m in Sources */,
+				B47A270A1035F040002146CD /* ValueTableViewCell.m in Sources */,
+				B47A270D1035F040002146CD /* TweakedNavController.m in Sources */,
+				B47A270E1035F040002146CD /* TitaniumContentViewController.m in Sources */,
+				B4200E511035FAB1009598FC /* ClockLogger.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -928,6 +1243,35 @@
 				PREBINDING = NO;
 				PRODUCT_NAME = Titanium;
 				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		B47A271C1035F040002146CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Blain Hamon";
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_VERSION = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
+				INFOPLIST_FILE = /CodeValhalla/Appcelerate/spaz/build/iphone/Info.plist;
+				PRODUCT_NAME = TestSpaz;
+			};
+			name = Debug;
+		};
+		B47A271D1035F040002146CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				FRAMEWORK_VERSION = "";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
+				INFOPLIST_FILE = "/CodeValhalla/Appcelerate/mobile/iphone/Info copy.plist";
+				PRODUCT_NAME = Titanium;
 			};
 			name = Release;
 		};
@@ -1022,6 +1366,15 @@
 			buildConfigurations = (
 				B41068A30FBB730F00310448 /* Debug */,
 				B41068A40FBB730F00310448 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B47A271B1035F040002146CD /* Build configuration list for PBXNativeTarget "Titanium-Spaz" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B47A271C1035F040002146CD /* Debug */,
+				B47A271D1035F040002146CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

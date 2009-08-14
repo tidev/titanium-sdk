@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>verboseDebugging</key>
-	<false/>
+	<true/>
 	<key>id</key>
 	<string>com.titaniumapp.test</string>
 	<key>name</key>
