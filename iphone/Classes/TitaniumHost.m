@@ -1111,13 +1111,20 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	for(TitaniumBlobWrapper * thisBlob in [blobRegistry objectEnumerator]){
 		[thisBlob compress];
 	}
+	NSMutableArray * doomedKeys = nil;
 	for(NSString * thisFilePath in imageCache){
 		UIImage * cachedImage = [imageCache objectForKey:thisFilePath];
 		if ([cachedImage retainCount] == 1) {
-			[imageCache removeObjectForKey:thisFilePath];
+			if(doomedKeys==nil){
+				doomedKeys=	[[NSMutableArray alloc] initWithObjects:thisFilePath,nil];
+			} else {
+				[doomedKeys addObject:thisFilePath];
+			}
 		}
 	}
-	
+	if(doomedKeys != nil){
+		[imageCache removeObjectsForKeys:doomedKeys];
+	}
 }
 
 @end
