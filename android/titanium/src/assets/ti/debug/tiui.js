@@ -367,15 +367,17 @@ var EmailDialog = function(proxy) {
 	 * @tiarg[object,attachment] Supports a path or an Image blob.
 	 */
 	this.addAttachment = function(attachment) {
+		var a = {};
 		if (!isUndefined(attachment)) {
-			Titanium.API.debug("Attachment type: " + typeOf(attachment.file));
-			if (typeOf(attachment.file) != 'string') {
-				if(!isUndefined(attachment.file.url)) {
-					attachment.file = String(attachment.file.url);
+			Titanium.API.debug("Attachment type: " + typeOf(attachment));
+			if (typeOf(attachment) != 'string') {
+				if(!isUndefined(attachment.url)) {
+					a.file = String(attachment.url);
 				}
+			} else {
+				a.file = attachment;
 			}
-			Titanium.API.debug("Attachment: " + Titanium.JSON.stringify(attachment));
-			this.proxy.addAttachment(Titanium.JSON.stringify(attachment));
+			this.proxy.addAttachment(Titanium.JSON.stringify(a));
 		}
 	};
 	/**
