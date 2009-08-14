@@ -94,8 +94,17 @@ def main(args):
 	
 	cwd = os.getcwd()
 	
+	tiapp_xml = os.path.join(project_dir,'tiapp.xml')
+	if not os.path.exists(tiapp_xml):
+		print "Missing tiapp.xml at %s" % tiapp_xml
+		sys.exit(3)
+	ti = TiAppXML(tiapp_xml)
+	encrypt = False
+	if ti.properties.has_key('encrypt'): 
+		encrypt = (ti.properties['encrypt']=='true')
+	
 	# compile resources
-	compiler = Compiler(appid,project_dir)
+	compiler = Compiler(appid,project_dir,encrypt)
 	compiler.compile()
 	
 	# copy in the default PNG
@@ -129,11 +138,6 @@ def main(args):
 	
 	def add_plist(dir):
 		
-		tiapp_xml = os.path.join(project_dir,'tiapp.xml')
-		if not os.path.exists(tiapp_xml):
-			print "Missing tiapp.xml at %s" % tiapp_xml
-			sys.exit(3)
-			
 		if not os.path.exists(dir):		
 			os.makedirs(dir)
 	
@@ -145,7 +149,6 @@ def main(args):
 		for m in compiler.modules:
 			module_str += '   <key>%s</key>\n   <real>0.0</real>\n' % (m.lower())
 	
-		ti = TiAppXML(tiapp_xml)
 		tip = TiPlist(ti)
 		plist_template = tip.generate(module_str,appid,deploytype)
 	

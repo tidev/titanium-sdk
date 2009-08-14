@@ -11,7 +11,7 @@
 # Handles JS, CSS and HTML files only
 #
 import os, sys, base64, subprocess, random, time, re, shutil
-from jspacker import JSPacker
+import jspacker 
 from csspacker import CSSPacker
 
 HEADER = """/**
@@ -63,7 +63,8 @@ random.seed(time.time())
 
 class Compiler(object):
 	
-	def __init__(self,appid,project_dir):
+	def __init__(self,appid,project_dir,encrypt):
+		self.encrypt = encrypt
 		self.template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 		self.encryptor = os.path.abspath(os.path.join(self.template_dir,"../","encryptor"))
 		if not os.path.exists(self.encryptor):
@@ -101,9 +102,11 @@ class Compiler(object):
 		url = 'app://%s/%s' % (self.appid,path)
 
 		filetype = ''
+		contents = ''
 	
 		if ext=='html':
 			filetype = 'page'
+			contents = '<html><body>hello world</body></html>'
 		elif ext=='css':
 			filetype = 'style'
 		elif ext=='js':
@@ -116,11 +119,10 @@ class Compiler(object):
 		key = "%s%d%s" % (self.appid,seed,methodname)
 	
 		file_contents = open(os.path.expanduser(file)).read()
-		
+
 		# minimize javascript, css files
 		if ext == 'js':
-			packer = JSPacker(file_contents)
-			file_contents = packer.pack()
+			file_contents = jspacker.jsmin(file_contents)
 		elif ext == 'css':
 			packer = CSSPacker(file_contents)
 			file_contents = packer.pack()
@@ -128,23 +130,35 @@ class Compiler(object):
 		# determine which modules this file is using
 		self.extract_modules(file_contents)
 
-		out = subprocess.Popen([self.encryptor,file,key], stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
-		data = str(out).strip()
-
-		method = """
-#pragma mark %s
-// %s
-%s
-{
-   NSString *k1 = @"%s";
-   int seed = %d;
-   NSString *k2 = @"%s";
-   NSData *d = AES128DecryptWithKey(dataWithHexString(@"%s"), [NSString stringWithFormat:@"%%@%%d%%@",k1,seed,k2]);
-   if ([d length] == 0) return nil;
-   return decode64(d);
-}
-		""" % (url,file,method_define,self.appid,seed,methodname,data)
-	
+		if self.encrypt:		
+			out = subprocess.Popen([self.encryptor,file,key], stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
+			data = str(out).strip()
+			method = """
+	#pragma mark %s
+	// %s
+	%s
+	{
+	   NSString *k1 = @"%s";
+	   int seed = %d;
+	   NSString *k2 = @"%s";
+	   NSData *d = AES128DecryptWithKey(dataWithHexString(@"%s"), [NSString stringWithFormat:@"%%@%%d%%@",k1,seed,k2]);
+	   if ([d length] == 0) return nil;
+	   return decode64(d);
+	}
+			""" % (url,file,method_define,self.appid,seed,methodname,data)
+		else:
+			data = str(file_contents).encode("hex");
+			method = """
+	#pragma mark %s
+	// %s
+	%s
+	{
+		NSData *d = dataWithHexString(@"%s");
+	   	if ([d length] == 0) return nil;
+		return d;
+	}
+			""" % (url,file,method_define,data)
+			
 		return {'name':methodname,'method':method,'define':method_define,'url':url, 'path':path}
 
 	def compile(self):
