@@ -9,6 +9,11 @@
 	<div id="unfocused" style="margin-top:20px">Unfocused event not received</div>
 	
 	<script>
+	window.onload  = function()
+	{
+		var a = Titanium.UI.createAlertDialog({title:'foo'});
+		a.show();
+	}
 	Titanium.UI.currentWindow.addEventListener('unfocused',function()
 	{
 		Titanium.App.Properties.setString('unfocused','Unfocused event received at ' + new Date());

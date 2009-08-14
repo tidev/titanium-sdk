@@ -1,11 +1,16 @@
 <html>
  <head>
+ </head>
+<body style="background-color:white">
+	<div id="html"></div>
+
 	<script>
 	var c = Titanium.Network.createHTTPClient();
 	
 	// set on ready state change function
 	c.onreadystatechange = function()
 	{
+		Titanium.API.debug('>>>>>>>>>>>>>>>>>>>>>>>> readyState = ' + this.readyState)
 		if (this.readyState == 4)
 		{
 			document.getElementById('html').innerHTML = this.responseText;
@@ -18,8 +23,6 @@
 	c.send();
 	
 	</script>
- </head>
-<body style="background-color:white">
-	<div id="html"></div>
+
 </body>
 </html>
