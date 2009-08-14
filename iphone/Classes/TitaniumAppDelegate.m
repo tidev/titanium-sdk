@@ -123,12 +123,12 @@
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application;
 {
-	CLOCKSTAMPSTRING("Did Finish Launching");
+	CLOCKSTAMP("Did Finish Launching");
 	[TitaniumAppProtocol registerSpecialProtocol];
 	//Note to self. Have to generate a new host for a new app, but more importantly, to retain the old host.
 	//Find and parse XML of project
 	[self launchTitaniumApp:nil];
-	CLOCKSTAMPSTRING("Launched app");
+	CLOCKSTAMP("Launched app");
 
 #if !defined(__IPHONE_3_0) && defined(MODULE_TI_GESTURE)
 	[UIAccelerometer sharedAccelerometer].delegate = self;

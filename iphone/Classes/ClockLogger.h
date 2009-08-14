@@ -12,9 +12,10 @@
 
 extern char CLOCKLOG_ENABLED;
 extern double firstTimestamp;
-#define CLOCKSTAMPSTRING(foo)	\
+
+#define CLOCKSTAMP(foo, ...)	\
 	if(CLOCKLOG_ENABLED){	\
 		double thisTimeStamp = CFAbsoluteTimeGetCurrent();	\
 		if(firstTimestamp==0.0)firstTimestamp=thisTimeStamp;	\
-		printf("CLOCKLOG: %f seconds: %s\n",thisTimeStamp-firstTimestamp,foo);	\
+		NSLog(@"CLOCKLOG: %f seconds: " foo, thisTimeStamp-firstTimestamp , ##__VA_ARGS__);	\
 	}

@@ -295,7 +295,7 @@ TitaniumWebViewController * mostRecentController = nil;
 	mostRecentController = self;
 	NSURL * requestURL = [request URL];
 	if ([[TitaniumAppDelegate sharedDelegate] shouldTakeCareOfUrl:requestURL useSystemBrowser:NO]) return NO;
-	CLOCKSTAMPSTRING("Should load request");
+	CLOCKSTAMP("Should load request %@ for %@",requestURL,self);
 	[currentContentURL release];
 	currentContentURL = [requestURL copy];
 	return YES;
@@ -303,7 +303,7 @@ TitaniumWebViewController * mostRecentController = nil;
 
 - (void)webViewDidStartLoad:(UIWebView *)inputWebView;
 {
-	CLOCKSTAMPSTRING("Started load request");
+	CLOCKSTAMP("Started load request for %@",self);
 }
 
 - (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
@@ -326,7 +326,7 @@ TitaniumWebViewController * mostRecentController = nil;
 
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
 {
-	CLOCKSTAMPSTRING("Finished load request");
+	CLOCKSTAMP("Finished load request for %@",self);
 	[UIView beginAnimations:@"webView" context:nil];
 	[self updateLayout:NO];
 	
