@@ -604,8 +604,7 @@ int barButtonSystemItemForString(NSString * inputString){
 		viewFrame.origin = CGPointZero;
 		[resultView setFrame:viewFrame];
 	}
-	[resultView setHidden:isHidden];
-	[labelView setHidden:isHidden];
+	[wrapperView setHidden:isHidden];
 	BOOL isNewView = (nativeView != resultView);
 	if(isNewView){
 		[wrapperView addSubview:resultView];
