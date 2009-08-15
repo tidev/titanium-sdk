@@ -420,8 +420,6 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	id verboseObject = [appProperties objectForKey:@"verboseDebugging"];
 	if ([verboseObject respondsToSelector:@selector(boolValue)])VERBOSE_DEBUG=[verboseObject boolValue];
 
-	if(VERBOSE_DEBUG)CLOCKLOG_ENABLED=YES;
-
 	id clockingObject = [appProperties objectForKey:@"performanceDebugging"];
 	if ([clockingObject respondsToSelector:@selector(boolValue)])CLOCKLOG_ENABLED=[clockingObject boolValue];
 	
