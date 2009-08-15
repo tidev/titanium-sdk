@@ -178,6 +178,8 @@ TitaniumWebViewController * mostRecentController = nil;
 {
 	if(webView == nil){
 		webView = [[UIWebView alloc] init];
+		if([webView respondsToSelector:@selector(setDetectsPhoneNumbers:)])[(id)webView setDetectsPhoneNumbers:NO];
+		if([webView respondsToSelector:@selector(setDataDetectorTypes:)])[(id)webView setDataDetectorTypes:0];
 		[webView setDelegate:self];
 		[webView setBackgroundColor:[UIColor clearColor]];
 		[webView setOpaque:NO];

@@ -79,7 +79,6 @@
 		B408AD480F97FA010051FD67 /* TitaniumActionSheetHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B408AD470F97FA010051FD67 /* TitaniumActionSheetHelper.m */; };
 		B40A40A70FCF60BF00C5DD7C /* movie.m4v in Resources */ = {isa = PBXBuildFile; fileRef = B40A40A60FCF60BF00C5DD7C /* movie.m4v */; };
 		B40C00241031ECC4009DEFF9 /* docs.html in Resources */ = {isa = PBXBuildFile; fileRef = B40C00231031ECC4009DEFF9 /* docs.html */; };
-		B40F54530F746D11008E0A55 /* TitaniumView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B40F54520F746D11008E0A55 /* TitaniumView.xib */; };
 		B41068A80FBB745600310448 /* TitaniumAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* TitaniumAppDelegate.m */; };
 		B41068AA0FBB745600310448 /* TitaniumViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */; };
 		B41068AB0FBB745600310448 /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BB640F842C9400DD709C /* SBJSON.m */; };
@@ -951,7 +950,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
-				B40F54530F746D11008E0A55 /* TitaniumView.xib in Resources */,
 				B4A10F3E0F86BC490040D850 /* AppDownloadView.xib in Resources */,
 				B48E4AE40FC1DBEE00204C8E /* iPhone_BG.png in Resources */,
 				B48E4AE50FC1DBF200204C8E /* Default.png in Resources */,
