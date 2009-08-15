@@ -296,7 +296,7 @@ def main(args):
 			# we don't use the entitlements file but in ad hoc we need to
 			adhoc_line = "CODE_SIGN_ENTITLEMENTS="
 			if not is_adhoc(appuuid):
-				adhoc_line="CODE_SIGN_ENTITLEMENTS = 'Resources/Entitlements.plist'"
+				adhoc_line="CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.plist"
 			
 			# build the final release distribution
 			output = run.run(["xcodebuild",
