@@ -295,8 +295,10 @@ def main(args):
 			# an ad-hoc distribution cert or not - in the case of non-adhoc
 			# we don't use the entitlements file but in ad hoc we need to
 			adhoc_line = "CODE_SIGN_ENTITLEMENTS="
+			deploytype = "production"
 			if not is_adhoc(appuuid):
 				adhoc_line="CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.plist"
+				deploytype = "production_adhoc"
 			
 			# build the final release distribution
 			output = run.run(["xcodebuild",
@@ -305,7 +307,7 @@ def main(args):
 				"-sdk",
 				"iphoneos%s" % iphone_version,
 				"%s" % adhoc_line,
-				"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=production'",
+				"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=%s'" % deploytype,
 				"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name
 			])
