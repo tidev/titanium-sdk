@@ -24,7 +24,13 @@
 
 #import "TweakedNavController.h"
 
+#import "ClockLogger.h"
+
+#ifdef USE_VERBOSE_DEBUG
+BOOL VERBOSE_DEBUG = YES;
+#else
 BOOL VERBOSE_DEBUG = NO;
+#endif
 int extremeDebugLineNumber;
 
 @implementation TitaniumProxyObject : NSObject
@@ -414,6 +420,11 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	id verboseObject = [appProperties objectForKey:@"verboseDebugging"];
 	if ([verboseObject respondsToSelector:@selector(boolValue)])VERBOSE_DEBUG=[verboseObject boolValue];
 
+	if(VERBOSE_DEBUG)CLOCKLOG_ENABLED=YES;
+
+	id clockingObject = [appProperties objectForKey:@"performanceDebugging"];
+	if ([clockingObject respondsToSelector:@selector(boolValue)])CLOCKLOG_ENABLED=[clockingObject boolValue];
+	
 
 	if (appProperties!=nil)
 	{
@@ -945,6 +956,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 
 - (NSString *) javaScriptForResource: (NSURL *) resourceUrl
 {
+	CLOCKSTAMP("Starting Javascript for Resource %@",resourceUrl);
 	NSString * thisThreadHashString = [NSString stringWithFormat:@"x%Xx",lastThreadHash];
 	TitaniumWebViewController *wvc = (TitaniumWebViewController*)[TitaniumWebViewController mostRecentController];
 	[wvc acceptToken:thisThreadHashString forContext:@"window"];
@@ -954,6 +966,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 		NSLog(@"Javascript for resource (%@) \n%@",resourceUrl,result);
 	}
 	lastThreadHash+=1;
+	CLOCKSTAMP("Finished Javascript for Resource %@",resourceUrl);
 	return result;
 }
 

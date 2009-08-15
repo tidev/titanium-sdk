@@ -11,6 +11,8 @@
 #import "NSData+Additions.h"
 #import "TitaniumBlobWrapper.h"
 
+#import "ClockLogger.h"
+
 const NSString * htmlMimeType = @"text/html";
 const NSString * textMimeType = @"text/plain";
 const NSString * jpegMimeType = @"image/jpeg";
@@ -115,6 +117,7 @@ id<TitaniumAppAssetResolver> resolver = nil;
 
 - (void)startLoading
 {
+	CLOCKSTAMP("Start loading (%@)",[self request]);
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 
     id<NSURLProtocolClient> client = [self client];
@@ -209,21 +212,24 @@ id<TitaniumAppAssetResolver> resolver = nil;
 		if (ourType == TitaniumAppResourceFileType)
 		{
 			data = [[NSString stringWithFormat:@"<html><body bgcolor='white'><div style='margin-top:25px;'><h1>Page not found</h1>Error loading url: %@</div></body></html>",url] dataUsingEncoding:NSUTF8StringEncoding];
-			mime = textMimeType;
+			mime = htmlMimeType;
 		}
 		else 
 		{
 			[client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorResourceUnavailable userInfo:nil]];
 			[client URLProtocolDidFinishLoading:self];
+			CLOCKSTAMP("Error loading %@",url);
 			return;
 		}
 	}
 	
+	CLOCKSTAMP("Returning response for %@",url);
 	NSURLResponse *response = [[NSURLResponse alloc] initWithURL:url MIMEType:(NSString*)mime expectedContentLength:[data length] textEncodingName:nil];
 	[client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:caching];
 	[client URLProtocol:self didLoadData:data];
 	[client URLProtocolDidFinishLoading:self];
 	[response release];
+	CLOCKSTAMP("Returned response for %@",url);
 }
 
 - (void)stopLoading 
