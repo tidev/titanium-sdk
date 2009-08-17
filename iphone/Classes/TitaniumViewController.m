@@ -248,6 +248,15 @@ int nextWindowToken = 0;
 
 #pragma mark Set Accessors
 
+- (void)setView: (UIView *) newView;
+{
+	[super setView:newView];
+	if(newView == nil){
+		
+	}
+}
+
+
 - (void)setTitleViewProxy: (UIButtonProxy *) newProxy;
 {
 	[newProxy retain];
@@ -621,6 +630,9 @@ int nextWindowToken = 0;
 		[ourView insertSubview:contentView atIndex:(backgroundImage!=nil)?1:0];
 	} else {
 		[contentView setFrame:contentViewBounds];
+		if([contentView superview] != ourView){
+			[ourView insertSubview:contentView atIndex:(backgroundImage!=nil)?1:0];
+		}
 	}
 	
 	if (TitaniumPrepareAnimationsForView(animationOptionsDict,contentView)){
