@@ -80,8 +80,6 @@ NSLock * TitaniumHostContentViewLock=nil;
 NSLock * TitaniumHostWindowLock=nil;
 
 
-NSString const * titaniumObjectKey = @"titaniumObject";
-
 @implementation TitaniumHost
 @synthesize appID, threadRegistry, appResourcesPath, titaniumObject, appBaseUrl, appProperties,keyboardTop;
 
@@ -461,6 +459,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 			[viewControllerArray addObject:[self viewControllerForDict:thisViewControllerDescriptor]];
 		}
 		[(UITabBarController *) rootViewController setViewControllers:viewControllerArray];
+		[(UITabBarController *) rootViewController setDelegate:self];
 		[viewControllerArray release];
 	} else {
 		rootViewController = [self viewControllerForDict:rootViewControllerDescriptor];
@@ -650,8 +649,6 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	}
 }
 
-
-
 #pragma mark Useful Toys
 
 - (NSURL *) resolveUrlFromString:(NSString *) urlString useFilePath:(BOOL) useFilePath;
@@ -813,12 +810,16 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 //	"nativeModules" or "cppModules". If it uses 'nativeModules', it pulls from the dict. If it
 //	uses 'cppModules', it sends it to the c++ object embedded.
 
-	NSString * relativeKeyPath = @"";
-	id ourObject = nil;
+	NSString * relativeKeyPath;
+	id ourObject;
 
-	if ([keyPath hasPrefix:(NSString*)titaniumObjectKey]){
-		relativeKeyPath = [keyPath substringFromIndex:[titaniumObjectKey length]]; //This preserves the .
-		ourObject = [self valueForKeyPath:keyPath];
+	if (keyPath != nil){
+		relativeKeyPath = [@"." stringByAppendingString:keyPath];
+		ourObject = [titaniumObject valueForKeyPath:keyPath];
+	} else {
+		keyPath = @"";
+		relativeKeyPath = keyPath;
+		ourObject = titaniumObject;
 	}
 	
 	if (![ourObject respondsToSelector:@selector(allKeys)]){
@@ -830,7 +831,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 	NSMutableString * resultPrelude = nil;
 	NSMutableString * resultEpilogue = nil;
 	if (makeObject){
-		result = [NSMutableString stringWithFormat:@"delete Titanium%@;Titanium%@=new Object();",relativeKeyPath,relativeKeyPath];
+		result = [NSMutableString stringWithFormat:@"delete Ti%@;Ti%@=new Object();",relativeKeyPath,relativeKeyPath];
 	} else {
 		result = [NSMutableString string];
 	}
@@ -855,7 +856,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 			keyValue = [thisObject stringValue];
 		} else if ([thisObject isKindOfClass:[NSInvocation class]]){
 			keyValue = [NSString stringWithFormat:
-						@"function(){return Titanium._TICMD('%@.%@','_RUN',arguments);}",keyPath,thisKey];
+						@"function(){return Ti._INVOC('%@.%@',arguments);}",keyPath,thisKey];
 		} else if ([thisObject isKindOfClass:[TitaniumJSCode class]]){
 			NSString * prelude = [thisObject preludeCode];
 			if([prelude length]>0){
@@ -878,30 +879,32 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 			keyValue = [thisObject valueCode];
 			
 		} else if ([thisObject isKindOfClass:[NSDictionary class]]) {
-			NSString * newKeyPath = [keyPath stringByAppendingFormat:@".%@",thisKey];
-			[result appendFormat:@"Titanium%@.%@={};",relativeKeyPath,thisKey];
+			NSString * newKeyPath;
+			if([keyPath length]>0)newKeyPath = [keyPath stringByAppendingFormat:@".%@",thisKey];
+			else newKeyPath=thisKey;
+			[result appendFormat:@"Ti%@.%@={};",relativeKeyPath,thisKey];
 			[result appendString:[self generateJavaScriptWrappingKeyPath:newKeyPath makeObject:NO extremeDebug:extremeDebug]];
 			continue;
 		} else if ([thisObject isKindOfClass:[TitaniumAccessorTuple class]]){
 			if ([thisObject getterSelector] != nil){
-				[result appendFormat:@"Titanium%@.__defineGetter__('%@',"
-						"function(){return Titanium._TICMD('%@.%@','_GET',[])});",
+				[result appendFormat:@"Ti%@.__defineGetter__('%@',"
+						"function(){return Ti._TICMD('%@.%@','_GET',[])});",
 						relativeKeyPath,thisKey,keyPath,thisKey];
 			}
 			if ([thisObject setterSelector] != nil){
-				[result appendFormat:@"Titanium%@.__defineSetter__('%@',"
-						"function(){Titanium._TICMD('%@.%@','_SET',arguments);return arguments[0]});",
+				[result appendFormat:@"Ti%@.__defineSetter__('%@',"
+						"function(){Ti._TICMD('%@.%@','_SET',arguments);return arguments[0]});",
 //						"function(){return Titanium._TICMD('%@.%@','_SET',arguments)});",
 						relativeKeyPath,thisKey,keyPath,thisKey];
 			}
 			continue;
 		} else {  //All other objects are lazy-loading.
-			[result appendFormat:@"Titanium%@.__defineGetter__('%@',"
-					"function(){return Titanium._TICMD('_','_SCAN',['%@.%@'])});",
+			[result appendFormat:@"Ti%@.__defineGetter__('%@',"
+					"function(){return Ti._TICMD('_','_SCAN',['%@.%@'])});",
 					relativeKeyPath,thisKey,keyPath,thisKey];
 			continue;
 		}
-		[result appendFormat:@"Titanium%@.%@=%@;",relativeKeyPath,thisKey,keyValue];
+		[result appendFormat:@"Ti%@.%@=%@;",relativeKeyPath,thisKey,keyValue];
 	
 	}
 
@@ -919,7 +922,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 		[result insertString:resultPrelude atIndex:0];
 	}
 	if (makeObject){
-		[result appendFormat:@"result=Titanium%@;",relativeKeyPath];
+		[result appendFormat:@"result=Ti%@;",relativeKeyPath];
 	}
 
 	if (resultEpilogue != nil){
@@ -948,7 +951,7 @@ NSString const * titaniumObjectKey = @"titaniumObject";
 {
 	if(extremeDebug)extremeDebugLineNumber = 0;
 	NSString * result = [NSString stringWithFormat:(NSString*)titaniumJavascriptInjection,thisThreadHashString,thisThreadHashString,
-			STRING(TI_VERSION),[self generateJavaScriptWrappingKeyPath:(NSString*)titaniumObjectKey makeObject:NO extremeDebug:extremeDebug]];
+			STRING(TI_VERSION),[self generateJavaScriptWrappingKeyPath:nil makeObject:NO extremeDebug:extremeDebug]];
 	return result;
 }
 

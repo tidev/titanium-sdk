@@ -24,6 +24,49 @@
 	// Note: the callback responsibility falls onto the input control not the table view.
 	//
 
+	var fadeIn = {
+			animated : true,
+			animationStyle : Titanium.UI.Android.AnimationStyle.FADE,
+			animationDuration : 1000
+	};
+
+	var slideFromTop = {
+			animated : true,
+			animationStyle : Titanium.UI.Android.AnimationStyle.SLIDE_FROM_TOP,
+			animationDuration : 1000
+	};
+	var slideFromLeft = {
+			animated : true,
+			animationStyle : Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT,
+			animationDuration : 1000
+	};
+	var slideFromRight = {
+			animated : true,
+			animationStyle : Titanium.UI.Android.AnimationStyle.SLIDE_FROM_RIGHT,
+			animationDuration : 1000
+	};
+	var slideFromBottom = {
+			animated : true,
+			animationStyle : Titanium.UI.Android.AnimationStyle.SLIDE_FROM_BOTTOM,
+			animationDuration : 1000
+	};
+	var scaleIn = {
+			animated : true,
+			animationStyle : Titanium.UI.Android.AnimationStyle.SCALE,
+			animationDuration : 1000
+	};
+	var winkIn = {
+			animated : true,
+			animationStyle : Titanium.UI.Android.AnimationStyle.WINK,
+			animationDuration : 1000
+	};
+	var headlines = {
+			animated : true,
+			animationStyle : Titanium.UI.Android.AnimationStyle.HEADLINES,
+			animationDuration : 2000
+	};
+
+
   	var page1 = [
 		{
   			header : 'Section 1',
@@ -51,6 +94,47 @@
 		{
 			title : 'Row 5',
 			name : 'n5'
+		},
+		{
+			header : "Animations",
+			title : 'Fade In',
+			name : 'fade-in',
+			hasChild : true
+		},
+		{
+			title : 'Slide From Top',
+			name : 'slide-from-top',
+			hasChild : true
+		},
+		{
+			title : 'Slide From Left',
+			name : 'slide-from-left',
+			hasChild : true
+		},
+		{
+			title : 'Slide From Right',
+			name : 'slide-from-right',
+			hasChild : true
+		},
+		{
+			title : 'Slide From Bottom',
+			name : 'slide-from-bottom',
+			hasChild : true
+		},
+		{
+			title : 'Scale In',
+			name : 'scale-in',
+			hasChild : true
+		},
+		{
+			title : 'Wink In',
+			name : 'wink-in',
+			hasChild : true
+		},
+		{
+			title : 'Headlines',
+			name : 'headlines',
+			hasChild : true
 		},
 		{
 			title : 'Exit',
@@ -92,23 +176,46 @@
  	 				ext = true;
  				}
 
-				var dlg = Titanium.UI.createAlertDialog({
-					title : 'Click',
-					message : s,
-					buttonNames : "OK",
+ 				if (e.index < 5) {
+					var dlg = Titanium.UI.createAlertDialog({
+						title : 'Click',
+						message : s,
+						buttonNames : "OK",
 
-				});
+					});
 
-				var lid = dlg.addEventListener("click", function() {
-					if (ext) {
-						Titanium.UI.currentWindow.setActiveViewIndex(0);
-						dlg.removeEventListener("click", lid);
-					} else if (e.index == 3) {
-						Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('p2'));
+					var lid = dlg.addEventListener("click", function() {
+						if (ext) {
+							Titanium.UI.currentWindow.setActiveViewIndex(0, fadeIn);
+							dlg.removeEventListener("click", lid);
+						} else if (e.index == 3) {
+							Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('p2'),fadeIn);
+						}
+					});
+					alert('LID: ' + lid);
+					dlg.show();
+ 				} else  {
+					var v = Titanium.UI.currentWindow.getViewByName('p2');
+					var anim = null;
+					if (e.name == Titanium.UI.Android.AnimationStyle.FADE) {
+						anim = fadeIn;
+					} else if (e.name == Titanium.UI.Android.AnimationStyle.SLIDE_FROM_TOP) {
+						anim = slideFromTop;
+					} else if (e.name == Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT) {
+						anim = slideFromLeft;
+					} else if (e.name == Titanium.UI.Android.AnimationStyle.SLIDE_FROM_RIGHT) {
+						anim = slideFromRight;
+					} else if (e.name == Titanium.UI.Android.AnimationStyle.SLIDE_FROM_BOTTOM) {
+						anim = slideFromBottom;
+					} else if (e.name == Titanium.UI.Android.AnimationStyle.SCALE) {
+						anim = scaleIn;
+					} else if (e.name == Titanium.UI.Android.AnimationStyle.WINK) {
+						anim = winkIn;
+					} else if (e.name == Titanium.UI.Android.AnimationStyle.HEADLINES) {
+						anim = headlines;
 					}
-				});
-				alert('LID: ' + lid);
-				dlg.show();
+					Titanium.UI.currentWindow.showView(v, anim);
+				}
   			}
  		);
 
@@ -117,7 +224,7 @@
 	},
 	function(e1) {
 		if (e1.name === 'exit') {
-			Titanium.UI.currentWindow.showView(tv1);
+			Titanium.UI.currentWindow.showView(tv1, fadeIn);
 		} else if (e1.index == 0) {
 			var odlg = Titanium.UI.createOptionDialog({
 				title : 'Greeting',
@@ -139,7 +246,7 @@
 
   	  	w.addView(tv1);
   	  	w.addView(tv2);
-  	  	w.setActiveViewIndex(1);
+  	  	w.setActiveViewIndex(1, fadeIn);
 
   	  	var btn_launch = document.getElementById('launch');
   	  	if (btn_launch !== null) {

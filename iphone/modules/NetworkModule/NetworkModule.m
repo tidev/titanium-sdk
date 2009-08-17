@@ -27,12 +27,12 @@ typedef enum {
 } NetHTTPClientState;
 
 NSString * const netHTTPClientGeneratorFormat = @"Ti.%@ = {"
-"abort:function(){return Ti._TICMD('titaniumObject.%@','abort',arguments);},"
-"open:function(){return Ti._TICMD('titaniumObject.%@','open',arguments);},"
-"setRequestHeader:function(){return Ti._TICMD('titaniumObject.%@','setRequestHeader',arguments);},"
-"send:function(){return Ti._TICMD('titaniumObject.%@','send',arguments);},"
-"getResponseHeader:function(){return Ti._TICMD('titaniumObject.%@','responseHeader',arguments);},"
-"getAllResponseHeaders:function(){return Ti._TICMD('titaniumObject.%@','responseHeaders',arguments);},"
+"abort:function(){return Ti._TICMD('%@','abort',arguments);},"
+"open:function(){return Ti._TICMD('%@','open',arguments);},"
+"setRequestHeader:function(){return Ti._TICMD('%@','setRequestHeader',arguments);},"
+"send:function(){return Ti._TICMD('%@','send',arguments);},"
+"getResponseHeader:function(){return Ti._TICMD('%@','responseHeader',arguments);},"
+"getAllResponseHeaders:function(){return Ti._TICMD('%@','responseHeaders',arguments);},"
 "UNSENT:0,OPENED:1,HEADERS_RECEIVED:2,LOADING:3,DONE:4,"
 "setOnReadyStateChange:function(newFun){this.onreadystatechange=newFun;},"
 "onreadystatechange:null,ondatastream:null,onsendstream:null,onload:null,readyState:-1,"
@@ -45,10 +45,10 @@ NSString * const netHTTPClientGeneratorFormat = @"Ti.%@ = {"
 " }"
 "}"
 "};"
-"Ti.%@.__defineGetter__('responseText',function(){return Ti._TICMD('titaniumObject.%@','responseText',[])});"
-"Ti.%@.__defineGetter__('responseXML',function(){var xml = Ti._TICMD('titaniumObject.%@','responseText',[]); return new DOMParser().parseFromString(xml,'text/xml'); });"
-"Ti.%@.__defineGetter__('status',function(){return Ti._TICMD('titaniumObject.%@','status',[])});"
-"Ti.%@.__defineGetter__('connected',function(){return Ti._TICMD('titaniumObject.%@','connected',[])});";
+"Ti.%@.__defineGetter__('responseText',function(){return Ti._TICMD('%@','responseText',[])});"
+"Ti.%@.__defineGetter__('responseXML',function(){var xml = Ti._TICMD('%@','responseText',[]); return new DOMParser().parseFromString(xml,'text/xml'); });"
+"Ti.%@.__defineGetter__('status',function(){return Ti._TICMD('%@','status',[])});"
+"Ti.%@.__defineGetter__('connected',function(){return Ti._TICMD('%@','connected',[])});";
 
 NSString * const MultiPartBoundaryString = @"XxX~Titanium~HTTPClient~Boundary~XxX";
 const char MultiPartEntryPrelude[] = "--XxX~Titanium~HTTPClient~Boundary~XxX\r\nContent-Disposition: form-data; name=\"";
@@ -141,9 +141,40 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 	[super dealloc];
 }
 
++ (NSString *) stringForState: (NetHTTPClientState) ourState;
+{
+	switch (ourState) {
+		case clientStateUnsent:
+			return @"Unsent";
+		case clientStateOpened:
+			return @"Opened";
+		case clientStateHeadersReceived:
+			return @"Headers Received";
+		case clientStateLoading:
+			return @"Loading";
+		case clientStateDone:
+			return @"Done";
+		default:
+			return @"Unknown State";
+	}
+}
+
+- (NSString *) description;
+{
+	return [NSString stringWithFormat:
+			@"<NetHTTPClient: 0x%x Request:%@ Response:%@ Data:0x%x(%d bytes) ReadyState:%@>",
+			self,urlRequest,urlResponse,loadedData,[loadedData length],[NetHTTPClient stringForState:readyState]
+			];
+	
+}
+
 - (void) setReadyState: (NetHTTPClientState) newState;
 {
 	[stateLock lock];
+	if(VERBOSE_DEBUG){
+		NSLog(@"%@ changing state to %@. Message will be sent to %@ to page with token %@",self,[NetHTTPClient stringForState:newState],javaScriptPath,parentPageToken);
+	}
+	
 	if (newState == readyState)
 	{
 		[stateLock unlock];
@@ -170,7 +201,9 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 
 - (id) runFunctionNamed: (NSString *) functionName withObject: (id) objectValue error: (NSError **) error;
 {
-///	NSLog(@"%@ Got function named: %@ with object %@",self,functionName,objectValue);
+	if(VERBOSE_DEBUG){
+		NSLog(@"%@ Got function named: %@ with object %@",self,functionName,objectValue);
+	}
 
 	if ([functionName isEqualToString:@"open"]){
 		NSUInteger arrayCount = [objectValue count];
@@ -262,6 +295,9 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 
 	} else if ([functionName isEqualToString:@"responseText"]) {
 		NSString * result = [[NSString alloc] initWithData:loadedData encoding:NSUTF8StringEncoding];
+		if(VERBOSE_DEBUG){
+			NSLog(@"Returning %d bytes: %@",[loadedData length],result);
+		}
 		return [result autorelease];
 
 	} else if ([functionName isEqualToString:@"status"]) {

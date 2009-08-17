@@ -71,6 +71,7 @@ TitaniumWebViewController * mostRecentController = nil;
 		[self setCurrentContentURL:newUrl];
 	} else {
 		//Now what, doctor?
+		NSLog(@"WARNING: WebView %@ was not given an URL relative to %@ for %@",self,baseUrl,inputState);
 	}
 }
 

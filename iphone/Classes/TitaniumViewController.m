@@ -95,6 +95,19 @@ int nextWindowToken = 0;
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning]; // Releases the view if it doesn't have a superview
     // Release anything that's not essential, such as cached data
+	if(focusedContentController == nil){
+		[contentView release];
+		contentView = nil;
+	}
+	
+	[contentViewLock lock];	
+	for(TitaniumContentViewController * thisVC in contentViewControllers){
+		if(thisVC != focusedContentController){
+			[thisVC didReceiveMemoryWarning];
+		}
+	}
+	
+	[contentViewLock unlock];
 }
 
 #pragma mark Init and Dealloc
@@ -247,6 +260,15 @@ int nextWindowToken = 0;
 }
 
 #pragma mark Set Accessors
+
+//- (void)setView: (UIView *) newView;
+//{
+//	[super setView:newView];
+//	if(newView == nil){
+//		
+//	}
+//}
+
 
 - (void)setTitleViewProxy: (UIButtonProxy *) newProxy;
 {
@@ -424,23 +446,22 @@ int nextWindowToken = 0;
 {
 	[super viewWillDisappear:animated];
 	if(![[[UIDevice currentDevice] systemVersion] hasPrefix:@"2.0"]) [self resignFirstResponder];
-
-	if([focusedContentController respondsToSelector:@selector(setFocused:)]){
-		[focusedContentController setFocused:NO];
-	}
-	[focusedContentController autorelease];
-	focusedContentController = nil;
-
-	for(TitaniumContentViewController * thisVC in contentViewControllers){
-		if([thisVC respondsToSelector:@selector(setWindowFocused:)]){
-			[thisVC setWindowFocused:NO];
-		}
-	}
 }
 
 - (void)viewDidDisappear: (BOOL) animated;
 {
 	[super viewDidDisappear:animated];
+	if([focusedContentController respondsToSelector:@selector(setFocused:)]){
+		[focusedContentController setFocused:NO];
+	}
+	[focusedContentController autorelease];
+	focusedContentController = nil;
+	
+	for(TitaniumContentViewController * thisVC in contentViewControllers){
+		if([thisVC respondsToSelector:@selector(setWindowFocused:)]){
+			[thisVC setWindowFocused:NO];
+		}
+	}
 	isVisible = NO;
 }
 
@@ -621,6 +642,9 @@ int nextWindowToken = 0;
 		[ourView insertSubview:contentView atIndex:(backgroundImage!=nil)?1:0];
 	} else {
 		[contentView setFrame:contentViewBounds];
+		if([contentView superview] != ourView){
+			[ourView insertSubview:contentView atIndex:(backgroundImage!=nil)?1:0];
+		}
 	}
 	
 	if (TitaniumPrepareAnimationsForView(animationOptionsDict,contentView)){

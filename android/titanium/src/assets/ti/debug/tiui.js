@@ -689,6 +689,8 @@ var UserWindow = function(proxy) {
 	this.setActiveViewIndex = function(index, options) {
 		if (isUndefined(options)) {
 			options = null;
+		} else {
+			options = Titanium.JSON.stringify(options);
 		}
 		this.proxy.setActiveViewIndex(index, options);
 	};
@@ -701,6 +703,8 @@ var UserWindow = function(proxy) {
 	this.showView = function(view, options) {
 		if (isUndefined(options)) {
 			options = null;
+		} else {
+			options = Titanium.JSON.stringify(options);
 		}
 		if(!isUndefined(view.key)) {
 			this.proxy.showViewByKey(view.key, options);
@@ -1379,7 +1383,40 @@ Titanium.UI.ActivityIndicator = {
 };
 
 Titanium.UI.Android = {
-
+	AnimationStyle : {
+		/**
+		 * @tiapi(property=true,name=UI.Android.AnimationStyle.FADE,since=0.6.2) Fade the current view out while fading the new view in.
+		 */
+		FADE : 'fade-in',
+		/**
+		 * @tiapi(property=true,name=UI.Android.AnimationStyle.SLIDE_FROM_TOP,since=0.6.2) Slide new view from top pushing current view off bottom.
+		 */
+		SLIDE_FROM_TOP : 'slide-from-top',
+		/**
+		 * @tiapi(property=true,name=UI.Android.AnimationStyle.SLIDE_FROM_LEFT,since=0.6.2) Slide the new view from left pushing the current view off right.
+		 */
+		SLIDE_FROM_LEFT : 'slide-from-left',
+		/**
+		 * @tiapi(property=true,name=UI.Android.AnimationStyle.SLIDE_FROM_RIGHT,since=0.6.2) Slide the new view from right pushing the current view off left.
+		 */
+		SLIDE_FROM_RIGHT : 'slide-from-right',
+		/**
+		 * @tiapi(property=true,name=UI.Android.AnimationStyle.SLIDE_FROM_BOTTOM,since=0.6.2) Slide the new view from bottom pushing the current view off top.
+		 */
+		SLIDE_FROM_BOTTOM : 'slide-from-bottom',
+		/**
+		 * @tiapi(property=true,name=UI.Android.AnimationStyle.SCALE,since=0.6.2) Scale the new view in while scaling the current view out.
+		 */
+		SCALE : 'scale-in',
+		/**
+		 * @tiapi(property=true,name=UI.Android.AnimationStyle.WINK,since=0.6.2) Scale the current view out then scale the new view in.
+		 */
+		WINK : 'wink-in',
+		/**
+		 * @tiapi(property=true,name=UI.Android.AnimationStyle.HEADLINES,since=0.6.2) Scale, fade, rotate the current view out then scale, fade, rotate the new view in.
+		 */
+		HEADLINES : 'headlines'
+	}
 };
 
 Titanium.UI.Android.SystemIcon = {
