@@ -10,8 +10,8 @@
 #include "ClockLogger.h"
 
 #ifdef USE_CLOCKLOG
-char CLOCKLOG_ENABLED = 0;
-#else
 char CLOCKLOG_ENABLED = 1;
+#else
+char CLOCKLOG_ENABLED = 0;
 #endif
 double firstTimestamp = 0.0;

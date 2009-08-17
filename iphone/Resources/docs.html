@@ -108,6 +108,14 @@ documentObject = function(object,pathPrefix){
 		if(functArgStr.length > 0){
 			var functArgs=functArgStr.split(', ');
 			//TODO: create the args entry if needed.
+			var functArgsLen = functArgs.length;
+			for(var i=0;i<functArgsLen;i++){
+				
+				
+			}
+			if(docObject.minArgCount==undefined)docObject.minArgCount=functArgsLen;
+			
+			
 		}
 		
 		if(!childObject.samples)continue;
