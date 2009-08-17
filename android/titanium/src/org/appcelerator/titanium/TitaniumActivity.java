@@ -19,10 +19,14 @@ import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumActivityHelper;
+import org.appcelerator.titanium.util.TitaniumAnimationFactory;
+import org.appcelerator.titanium.util.TitaniumAnimationPair;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.appcelerator.titanium.util.TitaniumLogWatcher;
 import org.appcelerator.titanium.util.TitaniumUIHelper;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -340,6 +344,30 @@ public class TitaniumActivity extends Activity
 								}
 								needsDelayedFocusedEvent = false;
 							}
+							try {
+								if (options != null) {
+									JSONObject o = new JSONObject(options);
+									if (o != null && o.has("animated")) {
+										if (o.getBoolean("animated")) {
+											if (o.has("animationStyle")) {
+												String style = o.getString("animationStyle");
+												int duration = 1000;
+												if (o.has("animationDuration")) {
+													duration = o.getInt("animationDuration");
+												}
+
+												TitaniumAnimationPair ap = TitaniumAnimationFactory.getAnimationFor(style, duration);
+												ap.apply(layout);
+											}
+										}
+									}
+								}
+							} catch (JSONException e) {
+								Log.w(LCAT, "Unable to process animation options: " + options, e);
+							} finally {
+								layout.setAnimation(null);
+							}
+
 							layout.showNext();
 							if (current != null) {
 								layout.removeView(current);
