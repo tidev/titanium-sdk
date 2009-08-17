@@ -14,7 +14,7 @@
 
 NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	"var result={"
-		"_TOKEN:token, _PATH:'titaniumObject.Media._MEDIA.'+token,"
+		"_TOKEN:token, _PATH:'Media._MEDIA.'+token,"
 		"_EVT:{complete:[],error:[]},addEventListener:Titanium._ADDEVT,removeEventListener:Ti._REMEVT,"
 		"onComplete:Ti._ONEVT,"
 		"play:function(){return Ti._TICMD(this._PATH,'play',arguments);},"

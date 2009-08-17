@@ -119,7 +119,7 @@
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	[theHost registerThread:self];
 	
-	id ourObject = [theHost valueForKeyPath:objectName];
+	id ourObject = [[theHost titaniumObject] valueForKeyPath:objectName];
 	id objectResult = nil;
 	NSError * error = nil;
 	
