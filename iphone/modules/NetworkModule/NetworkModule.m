@@ -296,9 +296,9 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 
 	} else if ([functionName isEqualToString:@"responseText"]) {
 		NSString * result = [[NSString alloc] initWithData:loadedData encoding:NSUTF8StringEncoding];
-		if(VERBOSE_DEBUG){
-			NSLog(@"Returning %d bytes: %@",[loadedData length],result);
-		}
+#ifdef USE_VERBOSE_DEBUG
+		NSLog(@"Returning %d bytes: %@",[loadedData length],result);
+#endif
 		return [result autorelease];
 
 	} else if ([functionName isEqualToString:@"status"]) {
