@@ -36,6 +36,10 @@ for api in modules:
 
 config = 'Release'
 
+flags = ''
+
+if ARGUMENTS.get('COMPILER_FLAGS', 0):
+	flags = ARGUMENTS.get('COMPILER_FLAGS')
 
 
 iphone_dir = os.path.abspath(os.path.join(os.path.dirname(sys._getframe(0).f_code.co_filename),'../','support','iphone'))
@@ -47,10 +51,10 @@ for apiversion in prereq.get_sdks():
     # execute the phone and simulator release builds
 
     if os.path.exists('/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%s.sdk' % apiversion):
-    	os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target libTitanium -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s' clean build" % (apiversion,config,defines))
+    	os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target libTitanium -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s %s' clean build" % (apiversion,config,defines,flags))
 
     if os.path.exists('/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator%s.sdk' % apiversion):
-    	os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target libTitanium -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s' clean build" % (apiversion,config,defines))
+    	os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target libTitanium -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s %s' clean build" % (apiversion,config,defines,flags))
 	
 
     # build the merged library using lipo

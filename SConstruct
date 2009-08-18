@@ -37,11 +37,16 @@ build_dirs = ['android/titanium']
 if platform.system() == "Darwin":
 	build_dirs.append('iphone')
 
+flags = ''
+
+if ARGUMENTS.get('COMPILER_FLAGS', 0):
+	flags = ARGUMENTS.get('COMPILER_FLAGS')
+
 for dir in build_dirs:
 	d = os.getcwd()
 	os.chdir(dir)
 	try:
-		os.system("scons PRODUCT_VERSION=%s" % version)	
+		os.system("scons PRODUCT_VERSION=%s COMPILER_FLAGS='%s'" % (version,flags))	
 	finally:
 		os.chdir(d)
 
