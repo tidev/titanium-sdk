@@ -9,6 +9,7 @@
 #import "UiModule.h"
 #import "Webcolor.h"
 #import "TitaniumHost.h"
+#import "TitaniumAppDelegate.h"
 #import "TitaniumBlobWrapper.h"
 
 #import "TitaniumWebViewController.h"
@@ -1625,6 +1626,32 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	if([newBadge respondsToSelector:@selector(intValue)]) newNumber=[newBadge intValue];
 
 	[[UIApplication sharedApplication] setApplicationIconBadgeNumber:newNumber];
+}
+
+- (void) setActiveTab: (NSString *) windowToken;
+{
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	
+	
+	UITabBarController * theTabCon = (UITabBarController *)[[TitaniumAppDelegate sharedDelegate] viewController];
+	if(![theTabCon isKindOfClass:[UITabBarController class]])return;
+	
+}
+
+
+#pragma mark Tab Bar Delegation
+
+//- (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+- (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController;
+{
+	
+}
+
+//- (void)tabBarController:(UITabBarController *)tabBarController willBeginCustomizingViewControllers:(NSArray *)viewControllers __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+//- (void)tabBarController:(UITabBarController *)tabBarController willEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+- (void)tabBarController:(UITabBarController *)tabBarController didEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed;
+{
+	
 }
 
 #pragma mark Modal things (alert and options)

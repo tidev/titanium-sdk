@@ -446,6 +446,7 @@ NSLock * TitaniumHostWindowLock=nil;
 			[viewControllerArray addObject:[self viewControllerForDict:thisViewControllerDescriptor]];
 		}
 		[(UITabBarController *) rootViewController setViewControllers:viewControllerArray];
+		[(UITabBarController *) rootViewController setDelegate:self];
 		[viewControllerArray release];
 	} else {
 		rootViewController = [self viewControllerForDict:rootViewControllerDescriptor];
@@ -637,8 +638,6 @@ NSLock * TitaniumHostWindowLock=nil;
 		}
 	}
 }
-
-
 
 #pragma mark Useful Toys
 

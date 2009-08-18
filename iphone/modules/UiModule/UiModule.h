@@ -11,7 +11,7 @@
 
 BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view);
 
-@interface UIButtonProxy : TitaniumProxyObject<UITextViewDelegate,UITextFieldDelegate>
+@interface UIButtonProxy : TitaniumProxyObject<UITextViewDelegate,UITextFieldDelegate,UITabBarControllerDelegate>
 {
 	//Properties that are stored until the time is right
 	BOOL needsRefreshing;

@@ -141,9 +141,40 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 	[super dealloc];
 }
 
++ (NSString *) stringForState: (NetHTTPClientState) ourState;
+{
+	switch (ourState) {
+		case clientStateUnsent:
+			return @"Unsent";
+		case clientStateOpened:
+			return @"Opened";
+		case clientStateHeadersReceived:
+			return @"Headers Received";
+		case clientStateLoading:
+			return @"Loading";
+		case clientStateDone:
+			return @"Done";
+		default:
+			return @"Unknown State";
+	}
+}
+
+- (NSString *) description;
+{
+	return [NSString stringWithFormat:
+			@"<NetHTTPClient: 0x%x Request:%@ Response:%@ Data:0x%x(%d bytes) ReadyState:%@>",
+			self,urlRequest,urlResponse,loadedData,[loadedData length],[NetHTTPClient stringForState:readyState]
+			];
+	
+}
+
 - (void) setReadyState: (NetHTTPClientState) newState;
 {
 	[stateLock lock];
+	if(VERBOSE_DEBUG){
+		NSLog(@"%@ changing state to %@. Message will be sent to %@ to page with token %@",self,[NetHTTPClient stringForState:newState],javaScriptPath,parentPageToken);
+	}
+	
 	if (newState == readyState)
 	{
 		[stateLock unlock];
@@ -170,7 +201,9 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 
 - (id) runFunctionNamed: (NSString *) functionName withObject: (id) objectValue error: (NSError **) error;
 {
-///	NSLog(@"%@ Got function named: %@ with object %@",self,functionName,objectValue);
+	if(VERBOSE_DEBUG){
+		NSLog(@"%@ Got function named: %@ with object %@",self,functionName,objectValue);
+	}
 
 	if ([functionName isEqualToString:@"open"]){
 		NSUInteger arrayCount = [objectValue count];
@@ -262,6 +295,9 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 
 	} else if ([functionName isEqualToString:@"responseText"]) {
 		NSString * result = [[NSString alloc] initWithData:loadedData encoding:NSUTF8StringEncoding];
+		if(VERBOSE_DEBUG){
+			NSLog(@"Returning %d bytes: %@",[loadedData length],result);
+		}
 		return [result autorelease];
 
 	} else if ([functionName isEqualToString:@"status"]) {
