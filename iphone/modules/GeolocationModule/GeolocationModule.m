@@ -172,7 +172,7 @@ NSUInteger lastWatchID = 0;
 {
 	AnalyticsModule *module = (AnalyticsModule*)[[TitaniumHost sharedHost] moduleNamed:@"AnalyticsModule"];
 	NSDictionary * data = [NSDictionary dictionaryWithObjectsAndKeys:[self getGeoData:location],@"to",[self getGeoData:fromLocation],@"from",nil];
-	[module sendPlatformEvent:@"ti.geo" data:data];
+	[module enqueuePlatformEvent:@"ti.geo" data:data];
 }
 
 - (void) updatePolling;

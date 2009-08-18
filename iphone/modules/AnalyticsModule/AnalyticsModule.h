@@ -6,8 +6,13 @@
  */
 #import <Foundation/Foundation.h>
 #import "TitaniumModule.h"
+#import "NetworkModule.h"
 
 @interface AnalyticsModule : NSObject<TitaniumModule> {
+	NetworkModuleConnectionState connectionState;
+	NSDate * packetDueDate;
+	BOOL hasSentStart;
+
 	int callsMade;
 	NSString * sessionID;
 	int sequence;
@@ -20,7 +25,7 @@
 
 - (void) sendAsyncData: (NSData*)data  timeout:(NSTimeInterval)timeout;
 - (NSData*) generateEventObject: (NSString*)name data:(id)data;
-- (void)sendPlatformEvent:(NSString*)name data:(NSDictionary*)data;
+- (void)enqueuePlatformEvent:(NSString*)name data:(NSDictionary*)data;
 
 /**
  * @tiapi(method=True,name=Analytics.addEvent,since=0.4) send an analytics event associated with the application
@@ -29,7 +34,9 @@
  * @tidepends(for=Analytics.addEvent,uses=Network.createHTTPClient)
  */
 - (void) addEvent: (NSString *) name value: (id) value;
-
+- (void) keepEvents: (NSMutableArray *)newEvents;
+- (void) setConnectionState: (NetworkModuleConnectionState) newState;
+- (void)sendEvents;
 
 
 @end

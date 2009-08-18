@@ -17,6 +17,7 @@
 
 #import "TitaniumJSCode.h"
 #import "TitaniumBlobWrapper.h"
+#import "AnalyticsModule.h"
 
 typedef enum {
 	clientStateUnsent = 0,
@@ -171,11 +172,10 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 - (void) setReadyState: (NetHTTPClientState) newState;
 {
 	[stateLock lock];
-
-#ifdef USE_VERBOSE_DEBUG	
+	if(VERBOSE_DEBUG){
 		NSLog(@"%@ changing state to %@. Message will be sent to %@ to page with token %@",self,[NetHTTPClient stringForState:newState],javaScriptPath,parentPageToken);
-#endif
-
+	}
+	
 	if (newState == readyState)
 	{
 		[stateLock unlock];
@@ -202,9 +202,9 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 
 - (id) runFunctionNamed: (NSString *) functionName withObject: (id) objectValue error: (NSError **) error;
 {
-#ifdef USE_VERBOSE_DEBUG
+	if(VERBOSE_DEBUG){
 		NSLog(@"%@ Got function named: %@ with object %@",self,functionName,objectValue);
-#endif
+	}
 
 	if ([functionName isEqualToString:@"open"]){
 		NSUInteger arrayCount = [objectValue count];
@@ -296,9 +296,9 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 
 	} else if ([functionName isEqualToString:@"responseText"]) {
 		NSString * result = [[NSString alloc] initWithData:loadedData encoding:NSUTF8StringEncoding];
-#ifdef USE_VERBOSE_DEBUG
-		NSLog(@"Returning %d bytes: %@",[loadedData length],result);
-#endif
+		if(VERBOSE_DEBUG){
+			NSLog(@"Returning %d bytes: %@",[loadedData length],result);
+		}
 		return [result autorelease];
 
 	} else if ([functionName isEqualToString:@"status"]) {
@@ -413,24 +413,33 @@ NetworkModuleConnectionState stateForReachabilityFlags(SCNetworkReachabilityFlag
 	return defaultRouteReachability;
 }
 
-- (NSNumber *) online;
+- (NetworkModuleConnectionState) currentNetworkConnectionState;
 {
 	SCNetworkReachabilityFlags flags;
 	BOOL gotFlags = SCNetworkReachabilityGetFlags([self defaultRouteReachability], &flags);
-	BOOL result;
-
+	
 	if (!gotFlags) {	//Didn't even check?
-		result = NO;
+		return NetworkModuleConnectionStateNone;
 	} else {
-		result = stateForReachabilityFlags(flags) != NetworkModuleConnectionStateNone;
+		return stateForReachabilityFlags(flags);
 	}
-	return [NSNumber numberWithBool:result];
+}
+
+
+- (NSNumber *) online;
+{
+	return [NSNumber numberWithBool:[self currentNetworkConnectionState]!=NetworkModuleConnectionStateNone];
 }
 
 - (void) handleNetworkChange:(SCNetworkReachabilityRef) target flags: (SCNetworkReachabilityFlags) flags;
 {
 	TitaniumHost * theTH = [TitaniumHost sharedHost];
 	NetworkModuleConnectionState connectionState = stateForReachabilityFlags(flags);
+	
+	AnalyticsModule * ourAnalytics = (AnalyticsModule *)[theTH moduleNamed:@"Analytics"];
+	if(ourAnalytics != nil){
+		[ourAnalytics setConnectionState:connectionState];
+	}
 	
 	for(NSString * tokenString in connectivityListeners){
 		NSString * parentPageToken = [connectivityListeners objectForKey:tokenString];
@@ -467,21 +476,12 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 
 - (NSNumber *) networkType;
 {
-	SCNetworkReachabilityFlags flags;
-	BOOL gotFlags = SCNetworkReachabilityGetFlags([self defaultRouteReachability], &flags);
-	NetworkModuleConnectionState result;
-	
-	if (!gotFlags) {	//Didn't even check?
-		result = NetworkModuleConnectionStateNone;
-	} else {
-		result = stateForReachabilityFlags(flags);
-	}
-	return [NSNumber numberWithInt:result];
+	return [NSNumber numberWithInt:[self currentNetworkConnectionState]];
 }
 
 - (NSString *) networkTypeName;
 {
-	switch ([[self networkType] intValue]) {
+	switch ([self currentNetworkConnectionState]) {
 		case NetworkModuleConnectionStateNone:
 			return @"NONE";
 		case NetworkModuleConnectionStateWifi:

@@ -110,7 +110,6 @@
 		B4200E521035FAB1009598FC /* ClockLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = B4200E4F1035FAB1009598FC /* ClockLogger.h */; };
 		B4200E531035FAB1009598FC /* ClockLogger.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* ClockLogger.c */; };
 		B4200E541035FAB1009598FC /* ClockLogger.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* ClockLogger.c */; };
-		B425068A100C0A4B00AD6A6B /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		B4290A75100D31FD00C4FF98 /* TweakedNavController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4290A73100D31FD00C4FF98 /* TweakedNavController.h */; };
 		B4290A76100D31FD00C4FF98 /* TweakedNavController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4290A74100D31FD00C4FF98 /* TweakedNavController.m */; };
 		B4290A77100D31FD00C4FF98 /* TweakedNavController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4290A74100D31FD00C4FF98 /* TweakedNavController.m */; };
@@ -220,6 +219,7 @@
 		B48E4AE40FC1DBEE00204C8E /* iPhone_BG.png in Resources */ = {isa = PBXBuildFile; fileRef = B4880BA20F96B4E3007589FC /* iPhone_BG.png */; };
 		B48E4AE50FC1DBF200204C8E /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = B4F51CB00F981F23004D9D2D /* Default.png */; };
 		B492D43E0FCC6DB20030772B /* network.html in Resources */ = {isa = PBXBuildFile; fileRef = B492D43D0FCC6DB20030772B /* network.html */; };
+		B49C8D8E103A1B0500AF190C /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; };
 		B4A10F3E0F86BC490040D850 /* AppDownloadView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B4A10F3D0F86BC490040D850 /* AppDownloadView.xib */; };
 		B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
 		B4A49BA30FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
@@ -439,7 +439,7 @@
 				B4C3F8B60FB3B11C0037F210 /* CoreLocation.framework in Frameworks */,
 				B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */,
 				B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */,
-				B425068A100C0A4B00AD6A6B /* MessageUI.framework in Frameworks */,
+				B49C8D8E103A1B0500AF190C /* MessageUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
