@@ -172,9 +172,9 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 - (void) setReadyState: (NetHTTPClientState) newState;
 {
 	[stateLock lock];
-	if(VERBOSE_DEBUG){
+#ifdef USE_VERBOSE_DEBUG	
 		NSLog(@"%@ changing state to %@. Message will be sent to %@ to page with token %@",self,[NetHTTPClient stringForState:newState],javaScriptPath,parentPageToken);
-	}
+#endif
 	
 	if (newState == readyState)
 	{
@@ -202,9 +202,9 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 
 - (id) runFunctionNamed: (NSString *) functionName withObject: (id) objectValue error: (NSError **) error;
 {
-	if(VERBOSE_DEBUG){
+#ifdef USE_VERBOSE_DEBUG	
 		NSLog(@"%@ Got function named: %@ with object %@",self,functionName,objectValue);
-	}
+#endif
 
 	if ([functionName isEqualToString:@"open"]){
 		NSUInteger arrayCount = [objectValue count];
@@ -220,9 +220,20 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 		[urlRequest setHTTPMethod:[objectValue objectAtIndex:0]];
 		
 		// set the titanium user agent
-		NSString *userAgent = [NSString stringWithFormat:@"%@ Titanium/%s",
-			[urlRequest valueForHTTPHeaderField:@"User-Agent"],STRING(TI_VERSION)];
+		NSString *webkit = [urlRequest valueForHTTPHeaderField:@"User-Agent"];
+		if (webkit==nil)
+		{
+			// sometimes the above returns nil, in which case we need to fake it
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_3_0
+			webkit = @"Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_2_1 like Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Version/3.1.1 Mobile/5H11 Safari/525.20";
+#elseif __IPHONE_OS_VERSION_MIN_REQUIRED = __IPHONE_3_0
+			webkit = @"Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16";
+#elseif __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_1
+			webkit = @"Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_1 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7C106c Safari/528.16";
+#endif
+		}
 		
+		NSString *userAgent = [NSString stringWithFormat:@"%@ Titanium/%s",webkit,STRING(TI_VERSION)];
 		[urlRequest setValue:userAgent forHTTPHeaderField:@"User-Agent"];
 		
 		//TODO: Password, username, synchronous.
@@ -296,9 +307,9 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 
 	} else if ([functionName isEqualToString:@"responseText"]) {
 		NSString * result = [[NSString alloc] initWithData:loadedData encoding:NSUTF8StringEncoding];
-		if(VERBOSE_DEBUG){
+#ifdef USE_VERBOSE_DEBUG	
 			NSLog(@"Returning %d bytes: %@",[loadedData length],result);
-		}
+#endif			
 		return [result autorelease];
 
 	} else if ([functionName isEqualToString:@"status"]) {

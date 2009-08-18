@@ -23,7 +23,6 @@
 
 @property(readwrite,retain,nonatomic)	NSString * sessionID;
 
-- (void) sendAsyncData: (NSData*)data  timeout:(NSTimeInterval)timeout;
 - (NSData*) generateEventObject: (NSString*)name data:(id)data;
 - (void)enqueuePlatformEvent:(NSString*)name data:(NSDictionary*)data;
 

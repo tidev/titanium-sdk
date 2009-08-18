@@ -60,18 +60,18 @@ NSURL * AnalyticsModuleURL = nil;
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)URLConnection;
 {
-	if(VERBOSE_DEBUG){
-		NSLog(@"Analytics successfully sent %@",eventArray);
-	}
+#ifdef USE_VERBOSE_DEBUG	
+	NSLog(@"Analytics successfully sent %@",eventArray);
+#endif
 	[eventArray release];
 	[self autorelease];
 }
 
 - (void)connection:(NSURLConnection *)URLConnection didFailWithError:(NSError *)error;
 {
-	if(VERBOSE_DEBUG){
-		NSLog(@"Analytics successfully sent %@",eventArray);
-	}
+#ifdef USE_VERBOSE_DEBUG	
+		NSLog(@"Analytics failed with %@. Tried to send: %@",error,eventArray);
+#endif
 	[module keepEvents:eventArray];
 	[self autorelease];
 }
