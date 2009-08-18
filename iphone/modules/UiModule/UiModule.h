@@ -844,7 +844,7 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
  @tiarg(for=UI.createWebView,name=properties,type=object) the properties to copy to the new UI.WebView object during creation
  @tiresult(for=UI.createWebView,type=object) the created UI.WebView object
  
- @tiapi(property=true,name=UI.currentView,since=0.6,type=object) Object that represents the current webView. Can be used like a UI.WebView
+ @tiapi(property=true,name=UI.currentView,since=0.6,type=UI.WebView) Object that represents the current webView. Can be used like a UI.WebView
  
  @tiapi(method=true,name=UI.currentView.addEventListener,since=0.6) adds an event listener to be called for a load, focused, or unfocused event
  @tiarg(for=UI.currentView.addEventListener,name=type,type=string) the type of event to listen for.  Must be load, focused, or unfocused

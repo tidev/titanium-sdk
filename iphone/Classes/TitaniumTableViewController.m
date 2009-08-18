@@ -901,23 +901,25 @@ UIColor * checkmarkColor = nil;
 - (void)deleteRowAtIndex: (int)index animation: (UITableViewRowAnimation) animation;
 {	
 	if(index < 0){
-		if(VERBOSE_DEBUG){
+#ifdef USE_VERBOSE_DEBUG	
 			NSLog(@"-[%@ deleteRowAtIndex:%d animation:%d]: Index is less than 0.",self,index,animation);
-		}
+#endif
 		return;
 	}
 	
 	int thisSectionIndex = 0;
+#ifdef USE_VERBOSE_DEBUG	
 	int oldIndex = index;
+#endif
 	
 	for(TableSectionWrapper * thisSection in sectionArray){
 		int rowCount = [thisSection rowCount];
 		if (rowCount > index){
 			NSIndexPath * thisPath = [NSIndexPath indexPathForRow:index inSection:thisSectionIndex];
 			if(rowCount > 1){ //We're done here.
-				if(VERBOSE_DEBUG){
+#ifdef USE_VERBOSE_DEBUG	
 					NSLog(@"-[%@ deleteRowAtIndex:%d animation:%d]: Going for Section %d, row %d. (%@)",self,oldIndex,animation,thisSectionIndex,index,thisPath);
-				}
+#endif
 				[tableView beginUpdates];
 				[thisSection removeRowAtIndex:index];
 				[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:thisPath] withRowAnimation:animation];
@@ -937,16 +939,16 @@ UIColor * checkmarkColor = nil;
 	}
 	//At this point, We failed to delete a nonexistant index. Drop on the ground?
 	
-	if(VERBOSE_DEBUG){
+#ifdef USE_VERBOSE_DEBUG	
 		NSLog(@"-[%@ deleteRowAtIndex:%d animation:%d]: Index is %d rows past the end. %d sections exist.",self,oldIndex,animation,index,thisSectionIndex);
-	}
+#endif
 	
 }
 
 - (void)modifyRow: (NSDictionary *)rowData atIndex: (int)index action:(TitaniumTableAction)action relativeUrl: (NSURL *) baseUrl animation: (UITableViewRowAnimation) animation;
 {
 	if(index < 0){
-		if(VERBOSE_DEBUG){
+#ifdef USE_VERBOSE_DEBUG	
 			NSString * actionString;
 			switch (action) {
 				case TitaniumTableActionInsertAfterRow:
@@ -962,7 +964,7 @@ UIColor * checkmarkColor = nil;
 					actionString = [NSString stringWithFormat:@"[SHOULDN'T HAPPEN: UNKNOWN ACTION %d]",action];
 			}
 			NSLog(@"%@ was told to %@ row %d from %@",self,actionString,index,baseUrl);
-		}
+#endif
 		return;
 	}
 
@@ -1094,7 +1096,7 @@ UIColor * checkmarkColor = nil;
 		index -= rowCount;
 	}		
 
-	if(VERBOSE_DEBUG){
+#ifdef USE_VERBOSE_DEBUG	
 		NSString * actionString;
 		switch (action) {
 			case TitaniumTableActionInsertAfterRow:
@@ -1110,7 +1112,7 @@ UIColor * checkmarkColor = nil;
 				actionString = [NSString stringWithFormat:@"[SHOULDN'T HAPPEN: UNKNOWN ACTION %d]",action];
 		}
 		NSLog(@"%@ was told to %@ the row %d beyond the end (from %@)",self,actionString,index,baseUrl);
-	}
+#endif
 	
 }
 

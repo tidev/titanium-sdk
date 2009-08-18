@@ -14,7 +14,7 @@
 #import "TitaniumWebViewController.h"
 #import "TitaniumTableViewController.h"
 
-#ifdef __IPHONE_3_0
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_0
 #import <MessageUI/MessageUI.h>
 #import <MessageUI/MFMailComposeViewController.h>
 #else
@@ -961,7 +961,7 @@ int barButtonSystemItemForString(NSString * inputString){
 
 @end
 
-#ifndef __IPHONE_3_0
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_3_0
 @protocol MFMailComposeViewControllerDelegate <NSObject>
 @end
 #endif
@@ -1089,7 +1089,7 @@ int barButtonSystemItemForString(NSString * inputString){
 	[[UIApplication sharedApplication] openURL:urlVersion];
 }
 
-#ifndef __IPHONE_3_0
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_3_0	 	
 enum MFMailComposeResult {
     MFMailComposeResultCancelled,
     MFMailComposeResultSaved,
@@ -1944,7 +1944,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	NSString * rowAnimationStyleString = [NSString stringWithFormat:@"{FADE:%d,RIGHT:%d,LEFT:%d,TOP:%d,BOTTOM:%d,NONE:%d}",
 				UITableViewRowAnimationFade,UITableViewRowAnimationRight,UITableViewRowAnimationLeft,
 				UITableViewRowAnimationTop,UITableViewRowAnimationBottom,
-#ifdef __IPHONE_3_0
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_0	 	
 				UITableViewRowAnimationNone];        // available in iPhone 3.0
 #else
 				0];

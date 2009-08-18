@@ -10,7 +10,7 @@
 @class TitaniumViewController, TitaniumHost;
 
 
-#if !defined(__IPHONE_3_0) && defined(MODULE_TI_GESTURE)
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_0 && defined(MODULE_TI_GESTURE)	 	
 // thanks to http://stackoverflow.com/questions/150446/how-do-i-detect-when-someone-shakes-an-iphone
 static BOOL L0AccelerationIsShaking(UIAcceleration* last, UIAcceleration* current, double threshold) {
 	double deltaX = fabs(last.x - current.x), deltaY = fabs(last.y - current.y), deltaZ = fabs(last.z - current.z);
@@ -23,7 +23,7 @@ static BOOL L0AccelerationIsShaking(UIAcceleration* last, UIAcceleration* curren
 
 @interface TitaniumAppDelegate : NSObject <
 	UIApplicationDelegate
-#if !defined(__IPHONE_3_0) && defined(MODULE_TI_GESTURE)
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_3_0 && defined(MODULE_TI_GESTURE)	 	
 	,UIAccelerometerDelegate
 #endif
 > {
@@ -32,8 +32,8 @@ static BOOL L0AccelerationIsShaking(UIAcceleration* last, UIAcceleration* curren
 	IBOutlet UIView *loadingView;
 	UIView *notificationView;
 	NSMutableArray *notifications;
-		
-#if !defined(__IPHONE_3_0) && defined(MODULE_TI_GESTURE)
+
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_0 && defined(MODULE_TI_GESTURE)	 	
 	BOOL histeresisExcited;
 	UIAcceleration * lastAcceleration;
 #endif
@@ -52,7 +52,7 @@ static BOOL L0AccelerationIsShaking(UIAcceleration* last, UIAcceleration* curren
 - (void)showLoadingView;
 - (void)hideLoadingView;
 
-#if !defined(__IPHONE_3_0) && defined(MODULE_TI_GESTURE)
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_0 && defined(MODULE_TI_GESTURE)	 	
 - (void) accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration;
 #endif
 
@@ -60,7 +60,7 @@ static BOOL L0AccelerationIsShaking(UIAcceleration* last, UIAcceleration* curren
 @property (nonatomic, retain) IBOutlet UIViewController *viewController;
 @property (nonatomic, retain) IBOutlet UIView *loadingView;
 
-#if !defined(__IPHONE_3_0) && defined(MODULE_TI_GESTURE)
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_0 && defined(MODULE_TI_GESTURE)	 	
 @property (nonatomic, retain)UIAcceleration * lastAcceleration;
 #endif
 

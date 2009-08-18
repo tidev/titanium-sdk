@@ -21,7 +21,7 @@
 /**
  * @tiapi(method=True,name=App.Properties.getBool,since=0.4) get value as boolean
  * @tiarg(for=App.Properties.getBool,name=name,type=string) the property name
- * @tiarg(for=App.Properties.getDouble,name=name,type=boolean) a default value to return if the property doesn't exist
+ * @tiarg(for=App.Properties.getBool,name=name,type=boolean) a default value to return if the property doesn't exist
  * @tiresult(for=App.Properties.getBool,type=boolean) returns the value as a boolean
  *
  * @tiapi(method=True,name=App.Properties.getDouble,since=0.4) get value as double
@@ -31,17 +31,17 @@
  *
  * @tiapi(method=True,name=App.Properties.getInt,since=0.4) get value as integer
  * @tiarg(for=App.Properties.getInt,name=name,type=string) the property name
- * @tiarg(for=App.Properties.getDouble,name=name,type=int) a default value to return if the property doesn't exist
+ * @tiarg(for=App.Properties.getInt,name=name,type=int) a default value to return if the property doesn't exist
  * @tiresult(for=App.Properties.getInt,type=integer) returns the value as an integer
  *
  * @tiapi(method=True,name=App.Properties.getString,since=0.4) get value as string
  * @tiarg(for=App.Properties.getString,name=name,type=string) the property name
- * @tiarg(for=App.Properties.getDouble,name=name,type=string) a default value to return if the property doesn't exist
+ * @tiarg(for=App.Properties.getString,name=name,type=string) a default value to return if the property doesn't exist
  * @tiresult(for=App.Properties.getString,type=string) returns the value as a string
  *
  * @tiapi(method=True,name=App.Properties.getList,since=0.4) get value as a list
  * @tiarg(for=App.Properties.getList,name=name,type=string) the property name
- * @tiarg(for=App.Properties.getDouble,name=name,type=list) a default value to return if the property doesn't exist
+ * @tiarg(for=App.Properties.getList,name=name,type=list) a default value to return if the property doesn't exist
  * @tiresult(for=App.Properties.getList,type=list) returns the value as a list
  *
  * @tiapi(method=True,name=App.Properties.setBool,since=0.4) set value

@@ -1,17 +1,12 @@
-/*
- *  ClockLogger.c
- *  Titanium
- *
- *  Created by Blain Hamon on 8/14/09.
- *  Copyright 2009 __MyCompanyName__. All rights reserved.
- *
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
  */
 
 #include "ClockLogger.h"
 
 #ifdef USE_CLOCKLOG
-char CLOCKLOG_ENABLED = 0;
-#else
-char CLOCKLOG_ENABLED = 1;
-#endif
 double firstTimestamp = 0.0;
+#endif

@@ -2,13 +2,18 @@
 #
 # Top level scons script
 #
-import os, shutil, platform
+import os, shutil, platform, os.path as path
 import package
 import SCons.Variables
 import SCons.Environment
 from SCons.Script import *
 
-version = '0.6.1'
+# read version from the build folder
+# this is used by other python scripts too
+cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+sys.path.append(path.join(cwd,"build"))
+import titanium_version
+version = titanium_version.version
 
 # allow it to be overriden on command line or in env
 if os.environ.has_key('PRODUCT_VERSION'):

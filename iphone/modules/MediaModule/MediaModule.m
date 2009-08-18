@@ -214,8 +214,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	[result setScalingMode:scalingMode];
 	[result setMovieControlMode:movieControlMode];
 	[result setBackgroundColor:backgroundColor];
-#if defined(__IPHONE_3_0)
-
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_0
 	[result setInitialPlaybackTime:initialPlaybackTime];
 #endif
 

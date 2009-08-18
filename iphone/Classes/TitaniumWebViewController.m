@@ -8,7 +8,6 @@
 #import "TitaniumWebViewController.h"
 #import "TitaniumHost.h"
 #import "UiModule.h"
-
 #import "ClockLogger.h"
 
 TitaniumWebViewController * mostRecentController = nil;
@@ -324,7 +323,9 @@ TitaniumWebViewController * mostRecentController = nil;
 	if (contextString == nil) return;
 	NSString * tokenQuery = [contextString stringByAppendingString:@".Titanium._TOKEN"];
 	[self acceptToken:[webView stringByEvaluatingJavaScriptFromString:tokenQuery] forContext:contextString];
-	if(VERBOSE_DEBUG)NSLog(@"Dict is now: %@",magicTokenDict);
+#ifdef USE_VERBOSE_DEBUG	
+	NSLog(@"Dict is now: %@",magicTokenDict);
+#endif
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
@@ -418,7 +419,10 @@ TitaniumWebViewController * mostRecentController = nil;
 	if ((webView == nil) || (currentContentURL == nil)) return;
 	
 	NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:currentContentURL];
-	if(VERBOSE_DEBUG)NSLog(@"Url request: %@",[urlRequest allHTTPHeaderFields]);
+	
+#ifdef USE_VERBOSE_DEBUG	
+	NSLog(@"Url request: %@",[urlRequest allHTTPHeaderFields]);
+#endif
 
 	[webView loadRequest:urlRequest];
 }
@@ -438,11 +442,7 @@ TitaniumWebViewController * mostRecentController = nil;
 
 #pragma mark Gestures
 
-#ifdef __IPHONE_3_0
-//- (void)motionBegan:(UIEventSubtype)motion withEvent:(UIEvent *)event
-//{
-//	NSLog(@"Began!");
-//}
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_0
 
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
 {
@@ -455,33 +455,8 @@ TitaniumWebViewController * mostRecentController = nil;
 	NSLog(@"Ended!");
 }
 
-//- (void)motionCancelled:(UIEventSubtype)motion withEvent:(UIEvent *)event
-//{
-//	NSLog(@"Cancelled!");
-//}
 #endif
 
-// Override to allow orientations other than the default portrait orientation.
-//- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-//	
-//	TitaniumViewControllerOrientationsAllowed newOrientation = (1 << interfaceOrientation);
-//	
-//	BOOL result = (allowedOrientations & newOrientation);
-//	
-//	if (allowedOrientations == TitaniumViewControllerDefaultOrientation){
-//		result = (interfaceOrientation == UIInterfaceOrientationPortrait);
-//	}
-//	
-//	if (result && (self != [[TitaniumHost sharedHost] currentTitaniumViewController])){
-//		NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent({type:'orientationchange',"
-//								  "to:%d,from:%d,animated:false,duration:0})",
-//								  newOrientation,lastOrientation];
-//		[webView stringByEvaluatingJavaScriptFromString:eventString];
-//		lastOrientation = newOrientation;
-//	}
-//	
-//	return result;
-//}
 
 - (void)setInterfaceOrientation:(TitaniumViewControllerOrientationsAllowed)interfaceOrientation duration:(NSTimeInterval)duration;
 {
@@ -495,10 +470,6 @@ TitaniumWebViewController * mostRecentController = nil;
 	lastOrientation = interfaceOrientation;
 }
 
-//- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
-//{
-//	[self updateLayout:YES];
-//}
 
 #endif		//END OF TI_MODULE_GESTURE
 
@@ -560,12 +531,6 @@ TitaniumWebViewController * mostRecentController = nil;
 	NSLog(@"****** END TITANIUM FAILURE SCAN ******");
 	
 }
-
-
-
-
-
-
 
 
 @end

@@ -47,11 +47,11 @@ typedef enum {
  *
  * @tiapi(method=True,name=Media.createSound,since=0.4) Creates a sound object
  * @tiarg(for=Media.createSound,name=path,type=string) relative or absolute url to the sound file
- * @tiresult(for=Media.createSound,type=object) a Media.Sound object
+ * @tiresult(for=Media.createSound,type=Media.Sound) a Media.Sound object
  *
  * @tiapi(method=True,name=Media.createVideoPlayer,since=0.4) Creates a video-playing object
  * @tiarg(for=Media.createVideoPlayer,name=settings,type=object) Object specifying videoplayer properties. These include the contentURL (required), scalingMode (optional), backgroundColor (optional), and movieControlMode (optional).
- * @tiresult(for=Media.createVideoPlayer,type=object) a Media.VideoPlayer object
+ * @tiresult(for=Media.createVideoPlayer,type=Media.VideoPlayer) a Media.VideoPlayer object
  * 
  * @tiapi(method=True,name=Media.showCamera,since=0.4) Presents the camera interface to the user to let them take a photo
  * @tiarg(for=Media.showCamera,name=settings,type=object) Object specifying camera properties and callbacks. These include the cancel, error, and success callbacks; and animated, allowImageEditing, and saveToPhotoGallery booleans

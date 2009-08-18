@@ -21,16 +21,9 @@
 #import "TitaniumBlobWrapper.h"
 #import "TitaniumJSCode.h"
 #import "SBJSON.h"
-
 #import "TweakedNavController.h"
-
 #import "ClockLogger.h"
 
-#ifdef USE_VERBOSE_DEBUG
-BOOL VERBOSE_DEBUG = YES;
-#else
-BOOL VERBOSE_DEBUG = NO;
-#endif
 int extremeDebugLineNumber;
 
 @implementation TitaniumProxyObject : NSObject
@@ -388,7 +381,9 @@ NSLock * TitaniumHostWindowLock=nil;
 		NSString * thisModuleClassName = [NSString stringWithFormat:@"%@%@Module",
 										  [[thisModuleName substringToIndex:1] uppercaseString],[thisModuleName substringFromIndex:1]];
 
-		if(VERBOSE_DEBUG)NSLog(@"loading module %@, class name = %@",thisModuleName,thisModuleClassName);
+#ifdef USE_VERBOSE_DEBUG	
+		NSLog(@"loading module %@, class name = %@",thisModuleName,thisModuleClassName);
+#endif
 		
 		@try
 		{
@@ -413,14 +408,6 @@ NSLock * TitaniumHostWindowLock=nil;
 			[jsonString release];
 		}
 	}
-	
-//	NSLog(@"Application Properties = %@", appProperties);
-	id verboseObject = [appProperties objectForKey:@"verboseDebugging"];
-	if ([verboseObject respondsToSelector:@selector(boolValue)])VERBOSE_DEBUG=[verboseObject boolValue];
-
-	id clockingObject = [appProperties objectForKey:@"performanceDebugging"];
-	if ([clockingObject respondsToSelector:@selector(boolValue)])CLOCKLOG_ENABLED=[clockingObject boolValue];
-	
 
 	if (appProperties!=nil)
 	{
@@ -466,7 +453,10 @@ NSLock * TitaniumHostWindowLock=nil;
 
 	//If needed, set up the tab bar.
 	//Then set up the heirarchy.
-	if(VERBOSE_DEBUG)NSLog(@"Modules loaded. TitaniumObject is now:%@",titaniumObject);
+#ifdef USE_VERBOSE_DEBUG	
+	NSLog(@"Modules loaded. TitaniumObject is now:%@",titaniumObject);
+#endif
+
 	[[TitaniumAppDelegate sharedDelegate] setViewController:rootViewController];
 	
 }
@@ -714,7 +704,9 @@ NSLock * TitaniumHostWindowLock=nil;
 	// comes in as ti://<name> or ti:<name> or path or app://path
 	if (pathOrUrl == nil) return nil;
 	
-	if(VERBOSE_DEBUG)NSLog(@"imageForResource = %@",pathOrUrl);
+#ifdef USE_VERBOSE_DEBUG	
+	NSLog(@"imageForResource = %@",pathOrUrl);
+#endif
 
 	// first check the image cache
 	
@@ -964,9 +956,10 @@ NSLock * TitaniumHostWindowLock=nil;
 	[wvc acceptToken:thisThreadHashString forContext:@"window"];
 	NSString * result = [self javaScriptForResource:resourceUrl hash:thisThreadHashString extremeDebug:NO];
 
-	if(VERBOSE_DEBUG){
+#ifdef USE_VERBOSE_DEBUG	
 		NSLog(@"Javascript for resource (%@) \n%@",resourceUrl,result);
-	}
+#endif
+
 	lastThreadHash+=1;
 	CLOCKSTAMP("Finished Javascript for Resource %@",resourceUrl);
 	return result;

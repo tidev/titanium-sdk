@@ -37,7 +37,7 @@ Titanium.Gesture = {
 		return (orientation & 0x06) != 0; // orientation & (PORTRAIT | UPSIDE_PORTRAIT)
 	},
 	/**
-	 * @tiapi(method=True,name=Gesture.isPortrait,since=0.4) Helper method to determine if device is in any landscape position.
+	 * @tiapi(method=True,name=Gesture.isLandscape,since=0.4) Helper method to determine if device is in any landscape position.
 	 * @tiarg[int,orientation] Obtained via the 'orientationchange' event's 'to' or 'from' property.
 	 */
 	isLandscape : function(orientation) {
