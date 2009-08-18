@@ -171,10 +171,11 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 - (void) setReadyState: (NetHTTPClientState) newState;
 {
 	[stateLock lock];
-	if(VERBOSE_DEBUG){
+
+#ifdef USE_VERBOSE_DEBUG	
 		NSLog(@"%@ changing state to %@. Message will be sent to %@ to page with token %@",self,[NetHTTPClient stringForState:newState],javaScriptPath,parentPageToken);
-	}
-	
+#endif
+
 	if (newState == readyState)
 	{
 		[stateLock unlock];
@@ -201,9 +202,9 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 
 - (id) runFunctionNamed: (NSString *) functionName withObject: (id) objectValue error: (NSError **) error;
 {
-	if(VERBOSE_DEBUG){
+#ifdef USE_VERBOSE_DEBUG
 		NSLog(@"%@ Got function named: %@ with object %@",self,functionName,objectValue);
-	}
+#endif
 
 	if ([functionName isEqualToString:@"open"]){
 		NSUInteger arrayCount = [objectValue count];
