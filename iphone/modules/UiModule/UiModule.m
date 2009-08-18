@@ -1630,12 +1630,8 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 
 - (void) setActiveTab: (NSString *) windowToken;
 {
-	TitaniumHost * theHost = [TitaniumHost sharedHost];
-	
-	
 	UITabBarController * theTabCon = (UITabBarController *)[[TitaniumAppDelegate sharedDelegate] viewController];
 	if(![theTabCon isKindOfClass:[UITabBarController class]])return;
-	
 }
 
 

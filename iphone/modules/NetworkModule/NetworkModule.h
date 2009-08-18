@@ -30,6 +30,7 @@ typedef enum {
 }
 
 - (NSString *) networkTypeName;
+- (NetworkModuleConnectionState) currentNetworkConnectionState;
 
 @end
 

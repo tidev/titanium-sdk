@@ -98,6 +98,21 @@
 	{
 		model = [NSString stringWithFormat:@"%@ 3G",model];
 	}
+	// detect iPhone 3Gs model
+	else if (!strcmp(u.machine, "iPhone2,1")) 
+	{
+		model = [NSString stringWithFormat:@"%@ 3GS",model];
+	}
+	// detect iPod Touch 2G model
+	else if (!strcmp(u.machine, "iPod2,1")) 
+	{
+		model = [NSString stringWithFormat:@"%@ 2G",model];
+	}
+	// detect simulator
+	else if (!strcmp(u.machine, "i386")) 
+	{
+		model = @"Simulator";
+	}
 
 	NSString * phoneNumber = [[NSUserDefaults standardUserDefaults] stringForKey:@"SBFormattedPhoneNumber"];
 	if (strstr([model UTF8String],"Simulator"))
