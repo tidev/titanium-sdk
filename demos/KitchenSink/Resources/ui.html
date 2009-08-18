@@ -318,7 +318,12 @@
 
 			case 31:
 			{
-				var win = Titanium.UI.createWindow({url:'tabbar_hide.html',title:'Tabbar Hide',hideTabBar:true});
+				var win = Titanium.UI.createWindow({
+					url:'tabbar_hide.html',
+					title:'Tabbar Hide',
+					hideTabBar:true,
+					hideNavBar:true
+				});
 				win.open({animated:true});		
 				break;
 			}

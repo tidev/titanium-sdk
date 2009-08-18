@@ -4,14 +4,41 @@
 
 </head>
 <body  style="font-family:'Helvetica Neue'">
-	<div id="content">
+	<div >
 		<div id="move" style="margin-top:5px">TouchMove Count: 0</div>
 		<div id="start" style="margin-top:5px">TouchStart Count: 0</div>
 		<div id="end" style="margin-top:5px">TouchEnd Count: 0</div>
-
-		<button id="button" style="font-size:18px">Add Content</button>
+		<div id="content"></div>
+		<div id="button" style="height:47px"></div>
 	</div>
 	<script>
+	var button2 = Titanium.UI.createButton({
+		id:'button',
+		backgroundImage:'blue.png',
+		backgroundSelectedImage:'blue_pressed.png',
+		title:'Add Content',
+		color:'#ffffff',
+		height:47,
+	});
+	button2.addEventListener('click',function(e)
+	{
+	 	var html = '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
+		document.getElementById('content').innerHTML += html;
+	})
+	
 	var moveCount = 0;
 	var startCount = 0;
 	var endCount = 0;
@@ -31,26 +58,6 @@
 		endCount++
 		document.getElementById('end').innerHTML = 'TouchEnd Count: ' + endCount;
 	};
-
-	document.getElementById('button').onclick = function()
-	{
-	 	var html = '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		html += '<div style="height:20px;background-color:#ccc;margin-bottom:10px;padding:5px">row</div>';
-		document.getElementById('content').innerHTML += html;
-		
-	}
 
 	</script>
 </body>
