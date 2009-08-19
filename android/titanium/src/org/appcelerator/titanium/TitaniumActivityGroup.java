@@ -135,6 +135,15 @@ public class TitaniumActivityGroup extends ActivityGroup
 		appStrategy.onCreate(this, savedInstanceState);
 	}
 
+	public void setActiveTab(int index) {
+		if (appStrategy instanceof TitaniumTabbedAppStrategy) {
+			TitaniumTabbedAppStrategy strategy = (TitaniumTabbedAppStrategy) appStrategy;
+			strategy.setActiveTab(index);
+		} else {
+			Log.w(LCAT, "Attempt to switch tabs on non tabbed application ignored");
+		}
+	}
+
 	public boolean isFullscreen() {
 		return fullscreen;
 	}

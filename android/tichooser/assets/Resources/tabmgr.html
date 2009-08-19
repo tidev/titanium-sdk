@@ -1,0 +1,45 @@
+<html>
+<head>
+	<title>Tab Mgr</title>
+  	<script><!--
+
+
+  	var data = [];
+
+  	var tabs = Titanium.UI.getTabs();
+  	for (i = 0; i < tabs.length; i++) {
+  	  	var tab = tabs[i];
+  	  	var item = {
+  	   		title: tab.name,
+  	   		name: tab.name
+  	  	};
+  	  	data.push(item);
+  	}
+
+	var tv1 = Titanium.UI.createTableView(
+		{
+			'data' : data,
+			'name' : "tv",
+			'rowHeight' : '65',
+			'isPrimary' : true
+ 		},
+		function(e) {
+			// rowData, section, row, index, detail
+			var ext = false;
+
+			var tab = Titanium.UI.getTabByName(e.name);
+			Titanium.UI.setActiveTab(tab);
+		});
+
+  	window.onload = function()
+  	{
+  	  	var w = Titanium.UI.currentWindow;
+  	  	w.addView(tv1);
+  	  	w.setActiveViewIndex(1, null);
+
+   	}
+  --></script>
+</head>
+<body style="background-color: white;">
+</body>
+</html>
