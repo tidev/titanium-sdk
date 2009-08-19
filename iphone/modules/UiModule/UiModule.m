@@ -714,6 +714,17 @@ int barButtonSystemItemForString(NSString * inputString){
 
 }
 
+- (void) refreshPositionWithWebView: (UIWebView *) webView;
+{
+	float newX, newY, newHeight, newWidth;
+//	NSString * 
+//	NSString * newValues = [webView stringByEvaluatingJavaScriptFromString:<#(NSString *)script#>
+	
+	
+	
+	
+}
+
 - (void) reportEvent: (NSString *) eventType value: (NSString *) newValue index: (int) index;
 {
 	if (newValue == nil) newValue = @"null";

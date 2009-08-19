@@ -17,6 +17,7 @@
 	
 	TitaniumViewControllerOrientationsAllowed lastOrientation;
 
+	NSMutableSet * nativeOnscreenProxies;
 }
 
 //For WebView

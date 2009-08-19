@@ -494,12 +494,12 @@ TitaniumWebViewController * mostRecentController = nil;
 
 - (void) addNativeViewProxy: (UIButtonProxy *) proxyObject;
 {
+	if(nativeOnscreenProxies == nil){
+		nativeOnscreenProxies = [[NSMutableSet alloc] initWithObjects:proxyObject,nil];
+	} else {
+		[nativeOnscreenProxies addObject:proxyObject];
+	}
 	[scrollView addSubview:[proxyObject nativeView]];
-}
-
-- (void) addNativeView: (UIView *) newView;
-{
-	[scrollView addSubview:newView];
 }
 
 #pragma mark Extreme Debugging. EXTREEEEEEEEEEEEEME!

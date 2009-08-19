@@ -125,6 +125,8 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 - (IBAction) onClick: (id) sender;
 - (void) setPropertyDict: (NSDictionary *) newDict;
 
+- (void) refreshPositionWithWebView: (UIWebView *) webView;
+
 @end
 
 

@@ -423,7 +423,6 @@ int nextWindowToken = 0;
 {
 	UIView * ourRootView = [[UIView alloc] init];
 	[ourRootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-		
 	[self setView:ourRootView];
 	[ourRootView release];
 }
@@ -653,6 +652,7 @@ int nextWindowToken = 0;
 
 	if(contentView == nil){
 		contentView = [[UIView alloc] initWithFrame:contentViewBounds];
+		[contentView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		[ourView insertSubview:contentView atIndex:(backgroundImage!=nil)?1:0];
 	} else {
 		[contentView setFrame:contentViewBounds];
