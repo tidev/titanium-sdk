@@ -7,6 +7,8 @@
 #import "TitaniumTableViewController.h"
 #import "TitaniumBlobWrapper.h"
 #import "UiModule.h"
+#import "NativeControlProxy.h"
+
 #import "SBJSON.h"
 #import "WebTableViewCell.h"
 #import "ValueTableViewCell.h"
@@ -59,7 +61,7 @@ UIColor * checkmarkColor = nil;
 	NSURL * imageURL;
 	TitaniumBlobWrapper * imageWrapper;
 	UITableViewCellAccessoryType accessoryType;
-	UIButtonProxy * inputProxy;
+	NativeControlProxy * inputProxy;
 
 	BOOL isButton;
 
@@ -72,7 +74,7 @@ UIColor * checkmarkColor = nil;
 @property(nonatomic,readonly,copy)	UIImage * image;
 @property(nonatomic,readwrite,retain)	TitaniumBlobWrapper * imageWrapper;
 @property(nonatomic,readwrite,assign)	UITableViewCellAccessoryType accessoryType;
-@property(nonatomic,readwrite,retain)	UIButtonProxy * inputProxy;
+@property(nonatomic,readwrite,retain)	NativeControlProxy * inputProxy;
 @property(nonatomic,readwrite,assign)	BOOL isButton;
 
 
@@ -216,7 +218,7 @@ UIColor * checkmarkColor = nil;
 	NSDictionary * inputProxyDict = [propDict objectForKey:@"input"];
 	if ([inputProxyDict isKindOfClass:[NSDictionary class]]){
 		UiModule * theUiModule = (UiModule *)[[TitaniumHost sharedHost] moduleNamed:@"UiModule"];
-		UIButtonProxy * thisInputProxy = [theUiModule proxyForObject:inputProxyDict scan:YES recurse:YES];
+		NativeControlProxy * thisInputProxy = [theUiModule proxyForObject:inputProxyDict scan:YES recurse:YES];
 		if (thisInputProxy != nil) [self setInputProxy:thisInputProxy];
 	}
 }

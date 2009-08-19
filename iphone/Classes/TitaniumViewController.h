@@ -32,7 +32,7 @@ typedef enum {
 	TitaniumViewControllerAnyOrientation = 0xFFFF,
 } TitaniumViewControllerOrientationsAllowed;
 
-@class UIButtonProxy;
+@class NativeControlProxy;
 @class TitaniumContentViewController;
 @interface TitaniumViewController : UIViewController<UIWebViewDelegate> {
 
@@ -67,7 +67,7 @@ typedef enum {
 	UIBarStyle	navBarStyle;
 	BOOL		hidesNavBar;
 	NSString *	titleViewImagePath;
-	UIButtonProxy * titleViewProxy;
+	NativeControlProxy * titleViewProxy;
 
 	UIColor *	backgroundColor;
 	UIImage *	backgroundImage;
@@ -109,7 +109,7 @@ typedef enum {
 
 - (void)setNavBarTint: (UIColor *) newColor;
 
-- (void)setTitleViewProxy: (UIButtonProxy *) newProxy;
+- (void)setTitleViewProxy: (NativeControlProxy *) newProxy;
 
 + (TitaniumViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
