@@ -8,6 +8,7 @@
 #import "TitaniumWebViewController.h"
 #import "TitaniumHost.h"
 #import "UiModule.h"
+#import "NativeControlProxy.h"
 #import "Logging.h"
 
 TitaniumWebViewController * mostRecentController = nil;
@@ -380,7 +381,7 @@ TitaniumWebViewController * mostRecentController = nil;
 	NSString * docHeightString = [webView stringByEvaluatingJavaScriptFromString:@"document.height"];
 	CGFloat docHeight = [docHeightString floatValue];
 
-	for(UIButtonProxy * thisProxy in nativeOnscreenProxies){
+	for(NativeControlProxy * thisProxy in nativeOnscreenProxies){
 		[thisProxy refreshPositionWithWebView:webView];
 	}
 
@@ -499,7 +500,7 @@ TitaniumWebViewController * mostRecentController = nil;
 	return [webView stringByEvaluatingJavaScriptFromString:javascriptString];
 }
 
-- (void) addNativeViewProxy: (UIButtonProxy *) proxyObject;
+- (void) addNativeViewProxy: (NativeControlProxy *) proxyObject;
 {
 	if(nativeOnscreenProxies == nil){
 		nativeOnscreenProxies = [[NSMutableSet alloc] initWithObjects:proxyObject,nil];

@@ -226,6 +226,10 @@
 		B4A49BBA0FCE08DA0049ED60 /* TitaniumBlobWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */; };
 		B4A49BBB0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */; };
 		B4A49BBC0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */; };
+		B4A6D3B1103C9EFD00131CD4 /* NativeControlProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A6D3AF103C9EFD00131CD4 /* NativeControlProxy.h */; };
+		B4A6D3B2103C9EFD00131CD4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
+		B4A6D3B3103C9EFD00131CD4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
+		B4A6D3B4103C9EFD00131CD4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
 		B4ABEDC4101903CA00639ED5 /* buggy.html in Resources */ = {isa = PBXBuildFile; fileRef = B4ABEDC3101903CA00639ED5 /* buggy.html */; };
 		B4ABEDC7101903F300639ED5 /* buggy.js in Sources */ = {isa = PBXBuildFile; fileRef = B4ABEDC6101903F300639ED5 /* buggy.js */; };
 		B4B571FE10110324003546C7 /* TitaniumContentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B571FD10110324003546C7 /* TitaniumContentViewController.m */; };
@@ -390,6 +394,8 @@
 		B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumBlobWrapper.h; sourceTree = "<group>"; };
 		B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumBlobWrapper.m; sourceTree = "<group>"; };
+		B4A6D3AF103C9EFD00131CD4 /* NativeControlProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeControlProxy.h; sourceTree = "<group>"; };
+		B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NativeControlProxy.m; sourceTree = "<group>"; };
 		B4ABEDC3101903CA00639ED5 /* buggy.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = buggy.html; sourceTree = "<group>"; };
 		B4ABEDC6101903F300639ED5 /* buggy.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = buggy.js; sourceTree = "<group>"; };
 		B4B571FC10110324003546C7 /* TitaniumContentViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumContentViewController.h; sourceTree = "<group>"; };
@@ -636,6 +642,8 @@
 			children = (
 				2444F8350FC9FCA400063972 /* UiModule.h */,
 				2444F8360FC9FCA400063972 /* UiModule.m */,
+				B4A6D3AF103C9EFD00131CD4 /* NativeControlProxy.h */,
+				B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */,
 			);
 			path = UiModule;
 			sourceTree = "<group>";
@@ -867,6 +875,7 @@
 				B4290A75100D31FD00C4FF98 /* TweakedNavController.h in Headers */,
 				B4B571FF10110324003546C7 /* TitaniumContentViewController.h in Headers */,
 				B4200E521035FAB1009598FC /* Logging.h in Headers */,
+				B4A6D3B1103C9EFD00131CD4 /* NativeControlProxy.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1087,6 +1096,7 @@
 				B4B571FE10110324003546C7 /* TitaniumContentViewController.m in Sources */,
 				B4ABEDC7101903F300639ED5 /* buggy.js in Sources */,
 				B4200E541035FAB1009598FC /* Logging.c in Sources */,
+				B4A6D3B4103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1134,6 +1144,7 @@
 				B4290A76100D31FD00C4FF98 /* TweakedNavController.m in Sources */,
 				B4B5720010110324003546C7 /* TitaniumContentViewController.m in Sources */,
 				B4200E531035FAB1009598FC /* Logging.c in Sources */,
+				B4A6D3B2103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1182,6 +1193,7 @@
 				B47A270D1035F040002146CD /* TweakedNavController.m in Sources */,
 				B47A270E1035F040002146CD /* TitaniumContentViewController.m in Sources */,
 				B4200E511035FAB1009598FC /* Logging.c in Sources */,
+				B4A6D3B3103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

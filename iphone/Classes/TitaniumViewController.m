@@ -13,6 +13,7 @@
 #import "TitaniumTableViewController.h"
 #import "TitaniumWebViewController.h"
 #import "UiModule.h"
+#import "NativeControlProxy.h"
 
 NSDictionary * tabBarItemFromObjectDict = nil;
 
@@ -146,8 +147,8 @@ int nextWindowToken = 0;
 
 #define HANDLESTRING(key,command,nullCommand)	\
 	object=[inputState objectForKey:key];	\
-	if(object == nullObject)nullCommand;		\
-	else if([object isKindOfClass:stringClass])command;
+	if(object == nullObject){nullCommand;}		\
+	else if([object isKindOfClass:stringClass]){command;}
 
 
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
@@ -160,23 +161,15 @@ int nextWindowToken = 0;
 	id object;
 	//We can't assume that the inputState is 
 
-//	HANDLESTRING(@"title",[self setTitle:object])
-
-
-	NSString * newTitle = [inputState objectForKey:@"title"];
-	if (newTitle != nil) {
-		[self setTitle:newTitle];
-	}
-	
-	NSString * newTitleImagePath = [inputState objectForKey:@"titleImage"];
-	if (newTitleImagePath != nil) {
-		[self setTitleViewImagePath:newTitleImagePath];
-	}
+	HANDLESTRING(@"title",[self setTitle:object],[self setTitle:nil]);
+	HANDLESTRING(@"titleImage",[self setTitleViewImagePath:object],[self setTitleViewImagePath:nil]);
+	HANDLESTRING(@"id",[self setNameString:object],[self setNameString:nil]);
+	HANDLESTRING(@"name",[self setNameString:object],[self setNameString:nil]);
 
 	id newTitleProxy = [inputState objectForKey:@"titleControl"];
 	if (newTitleProxy != nil) {
 		UiModule * theUiModule = (UiModule *)[[TitaniumHost sharedHost] moduleNamed:@"UiModule"];
-		UIButtonProxy * thisInputProxy = [theUiModule proxyForObject:newTitleProxy scan:YES recurse:YES];
+		NativeControlProxy * thisInputProxy = [theUiModule proxyForObject:newTitleProxy scan:YES recurse:YES];
 		[self setTitleViewProxy:thisInputProxy];
 	}
 	
@@ -283,7 +276,7 @@ int nextWindowToken = 0;
 //}
 
 
-- (void)setTitleViewProxy: (UIButtonProxy *) newProxy;
+- (void)setTitleViewProxy: (NativeControlProxy *) newProxy;
 {
 	[newProxy retain];
 	[titleViewProxy release];
