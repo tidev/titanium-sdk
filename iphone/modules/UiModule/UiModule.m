@@ -716,13 +716,37 @@ int barButtonSystemItemForString(NSString * inputString){
 
 - (void) refreshPositionWithWebView: (UIWebView *) webView;
 {
-	float newX, newY, newHeight, newWidth;
-//	NSString * 
-//	NSString * newValues = [webView stringByEvaluatingJavaScriptFromString:<#(NSString *)script#>
+	NSString * commandString = [NSString stringWithFormat:@"Titanium.UI._BTN.%@.findDivPos()",token];
+	NSArray * valueArray = [[webView stringByEvaluatingJavaScriptFromString:commandString] componentsSeparatedByString:@","];
+	if([valueArray count]!=4)return;
+	BOOL changed=NO;
+	float value;
 	
-	
-	
-	
+	value = [[valueArray objectAtIndex:0] floatValue];
+	if(value != frame.origin.x){
+		frame.origin.x = value;
+		changed = YES;
+	}
+
+	value = [[valueArray objectAtIndex:1] floatValue];
+	if(value != frame.origin.y){
+		frame.origin.y = value;
+		changed = YES;
+	}
+
+	value = [[valueArray objectAtIndex:2] floatValue];
+	if(value != frame.size.width){
+		frame.size.width = value;
+		changed = YES;
+	}
+
+	value = [[valueArray objectAtIndex:3] floatValue];
+	if(value != frame.size.height){
+		frame.size.height = value;
+		changed = YES;
+	}
+
+	if(changed)[self updateNativeView];
 }
 
 - (void) reportEvent: (NSString *) eventType value: (NSString *) newValue index: (int) index;
@@ -2021,11 +2045,11 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 			"ensureToken:function(){"
 				"if(!this._TOKEN){var tkn=Ti.UI._BTNTKN();this._TOKEN=tkn;Ti.UI._BTN[tkn]=this;}"
 				"if(this.rightButton)this.rightButton.ensureToken();if(this.leftButton)this.leftButton.ensureToken();},"
-			"setId:function(div){this.id=div;divObj=document.getElementById(div);this.divObj=divObj;divAttr={};this.divAttr=divAttr;if(!divObj)return;"
-//				"var attr=divObj.attributes;if(attr){var i=attr.length;while(i>0){i--;divAttr[attr[i].name]=attr[i].value;}};"
-				"divAttr.y=0;divAttr.x=0;divAttr.width=divObj.offsetWidth;divAttr.height=divObj.offsetHeight;"
-				"while(divObj){divAttr.x+=divObj.offsetLeft;divAttr.y+=divObj.offsetTop;divObj=divObj.offsetParent;}"
-				"Ti.UI.currentWindow.insertButton(this);},"
+			"setId:function(div){this.id=div;this.divObj=document.getElementById(div);if(!this.findDivPos())return;Ti.UI.currentWindow.insertButton(this);},"
+			"findDivPos:function(){var divObj=this.divObj;if(!divObj)return '';if(!this.divAttr)this.divAttr={};var A=this.divAttr;"
+				"A.y=0;A.x=0;A.width=divObj.offsetWidth;A.height=divObj.offsetHeight;"
+				"while(divObj){A.x+=divObj.offsetLeft;A.y+=divObj.offsetTop;divObj=divObj.offsetParent;}"
+				"return A.x + ',' + A.y + ',' + A.width + ',' + A.height;},"
 			"hide:function(args){this.hidden=true;this.update(args);},"
 			"show:function(arts){this.hidden=false;this.update(args);},"
 			"};"

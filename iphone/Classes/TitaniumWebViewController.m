@@ -379,7 +379,11 @@ TitaniumWebViewController * mostRecentController = nil;
 	
 	NSString * docHeightString = [webView stringByEvaluatingJavaScriptFromString:@"document.height"];
 	CGFloat docHeight = [docHeightString floatValue];
-	
+
+	for(UIButtonProxy * thisProxy in nativeOnscreenProxies){
+		[thisProxy refreshPositionWithWebView:webView];
+	}
+
 	for(UIView * thisView in [scrollView subviews]){
 		if (thisView == webView) continue;
 		CGRect thisFrame = [thisView frame];
@@ -412,6 +416,9 @@ TitaniumWebViewController * mostRecentController = nil;
 		[scrollView scrollRectToVisible:[firstResponder frame] animated:animated];
 	}
 	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI._ISRESIZING=false;"];
+	
+	
+	
 }
 
 - (void)reloadWebView;
