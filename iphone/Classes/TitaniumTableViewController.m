@@ -13,6 +13,7 @@
 #import "Webcolor.h"
 
 #import "TitaniumWebViewController.h"
+#import "Logging.h"
 
 @implementation TitaniumTableActionWrapper
 @synthesize kind,row,section,index,animation;
@@ -901,9 +902,7 @@ UIColor * checkmarkColor = nil;
 - (void)deleteRowAtIndex: (int)index animation: (UITableViewRowAnimation) animation;
 {	
 	if(index < 0){
-#ifdef USE_VERBOSE_DEBUG	
-			NSLog(@"-[%@ deleteRowAtIndex:%d animation:%d]: Index is less than 0.",self,index,animation);
-#endif
+		VERBOSE_LOG(@"-[%@ deleteRowAtIndex:%d animation:%d]: Index is less than 0.",self,index,animation);
 		return;
 	}
 	

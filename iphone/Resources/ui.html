@@ -99,8 +99,13 @@ try{
 				', DETAIL = ' + detail
 			)}).show();
 		} else {
-			var nextWin = Ti.UI.createWindow({url:"misc.html"});
-			nextWin.open();
+			var win = Titanium.UI.createWindow({
+				url:'buggy.html',
+				title:'Tabbar Hide',
+				hideTabBar:true,
+				hideNavBar:true
+			});
+			win.open({animated:true});		
 		}
 		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.LEFT});
 	});

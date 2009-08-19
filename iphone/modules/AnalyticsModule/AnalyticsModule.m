@@ -10,6 +10,8 @@
 #import "NetworkModule.h"
 #import <sys/utsname.h>
 
+#import "Logging.h"
+
 #define TI_ANALYTICS_TIMER_DELAY_IN_SEC 10
 #define TI_ANALYTICS_NETWORK_TIMEOUT_IN_SEC 30
 #define TI_ANALYTICS_NETWORK_TIMEOUT_ON_SHUTDOWN_IN_SEC 10
@@ -60,18 +62,14 @@ NSURL * AnalyticsModuleURL = nil;
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)URLConnection;
 {
-#ifdef USE_VERBOSE_DEBUG	
-	NSLog(@"Analytics successfully sent %@",eventArray);
-#endif
+	VERBOSE_LOG(@"Analytics successfully sent %@",eventArray);
 	[eventArray release];
 	[self autorelease];
 }
 
 - (void)connection:(NSURLConnection *)URLConnection didFailWithError:(NSError *)error;
 {
-#ifdef USE_VERBOSE_DEBUG	
-		NSLog(@"Analytics failed with %@. Tried to send: %@",error,eventArray);
-#endif
+	VERBOSE_LOG(@"Analytics failed with %@. Tried to send: %@",error,eventArray);
 	[module keepEvents:eventArray];
 	[self autorelease];
 }

@@ -22,7 +22,7 @@
 #import "TitaniumJSCode.h"
 #import "SBJSON.h"
 #import "TweakedNavController.h"
-#import "ClockLogger.h"
+#import "Logging.h"
 
 int extremeDebugLineNumber;
 
@@ -72,13 +72,17 @@ int extremeDebugLineNumber;
 NSLock * TitaniumHostContentViewLock=nil;
 NSLock * TitaniumHostWindowLock=nil;
 
+TitaniumHost * lastSharedHost = nil;
 
 @implementation TitaniumHost
 @synthesize appID, threadRegistry, appResourcesPath, titaniumObject, appBaseUrl, appProperties,keyboardTop;
 
 + (TitaniumHost *) sharedHost
 {
-	return [[TitaniumAppDelegate sharedDelegate] currentHost];
+	if(lastSharedHost==nil){
+		lastSharedHost = [[TitaniumAppDelegate sharedDelegate] currentHost];
+	}
+	return lastSharedHost;
 }
 
 - (id) init
@@ -798,10 +802,6 @@ NSLock * TitaniumHostWindowLock=nil;
 
 - (NSMutableString *) generateJavaScriptWrappingKeyPath: (NSString *) keyPath makeObject: (BOOL) makeObject extremeDebug:(BOOL) extremeDebug;
 {
-//	keyPath is a path, but unlike the javascript object, the root of the keypath is either 
-//	"nativeModules" or "cppModules". If it uses 'nativeModules', it pulls from the dict. If it
-//	uses 'cppModules', it sends it to the c++ object embedded.
-
 	NSString * relativeKeyPath;
 	id ourObject;
 
@@ -941,9 +941,18 @@ NSLock * TitaniumHostWindowLock=nil;
 
 - (NSString *) javaScriptForResource: (NSURL *)resourceUrl hash: (NSString *)thisThreadHashString extremeDebug: (BOOL)extremeDebug;
 {
-	if(extremeDebug)extremeDebugLineNumber = 0;
+	NSString * wrapperString;
+	if(extremeDebug){
+		extremeDebugLineNumber = 0;
+		wrapperString = [self generateJavaScriptWrappingKeyPath:nil makeObject:NO extremeDebug:YES];
+	} else {
+		if(cachedRootJavaScript == nil){
+			cachedRootJavaScript = [[self generateJavaScriptWrappingKeyPath:nil makeObject:NO extremeDebug:NO] retain];
+		}
+		wrapperString = cachedRootJavaScript;
+	}
 	NSString * result = [NSString stringWithFormat:(NSString*)titaniumJavascriptInjection,thisThreadHashString,thisThreadHashString,
-			STRING(TI_VERSION),[self generateJavaScriptWrappingKeyPath:nil makeObject:NO extremeDebug:extremeDebug]];
+			STRING(TI_VERSION),wrapperString];
 	return result;
 }
 
@@ -1067,6 +1076,21 @@ NSLock * TitaniumHostWindowLock=nil;
 	return result;
 }
 
+- (TitaniumViewController *) titaniumViewControllerForName: (NSString *) name;
+{
+	TitaniumViewController * result = nil;
+	[TitaniumHostWindowLock lock];
+	NSEnumerator * viewControllerEnum = [(NSDictionary *)viewControllerRegistry objectEnumerator];
+	for(TitaniumViewController * thisVC in viewControllerEnum){
+		if([[thisVC nameString] isEqualToString:name]){
+			result = thisVC;
+			break;
+		}
+	}
+	[TitaniumHostWindowLock unlock];
+	return result;
+}
+
 - (TitaniumContentViewController *) titaniumContentViewControllerForToken: (NSString *) token
 {
 	TitaniumContentViewController * result = nil;	
@@ -1116,6 +1140,8 @@ NSLock * TitaniumHostWindowLock=nil;
 
 - (void) flushCache;
 {
+	[cachedRootJavaScript release];
+	cachedRootJavaScript = nil;
 	for(NSObject<TitaniumModule> * thisModule in [nativeModules objectEnumerator]){
 		if ([thisModule respondsToSelector:@selector(flushCache)]) [thisModule flushCache];
 	}

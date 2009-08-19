@@ -6,7 +6,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "ClockLogger.h"
+#import "Logging.h"
 
 NSString *APPLICATION_DEPLOYTYPE = @"development";
 

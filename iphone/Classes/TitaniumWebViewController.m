@@ -8,7 +8,7 @@
 #import "TitaniumWebViewController.h"
 #import "TitaniumHost.h"
 #import "UiModule.h"
-#import "ClockLogger.h"
+#import "Logging.h"
 
 TitaniumWebViewController * mostRecentController = nil;
 
@@ -379,7 +379,11 @@ TitaniumWebViewController * mostRecentController = nil;
 	
 	NSString * docHeightString = [webView stringByEvaluatingJavaScriptFromString:@"document.height"];
 	CGFloat docHeight = [docHeightString floatValue];
-	
+
+	for(UIButtonProxy * thisProxy in nativeOnscreenProxies){
+		[thisProxy refreshPositionWithWebView:webView];
+	}
+
 	for(UIView * thisView in [scrollView subviews]){
 		if (thisView == webView) continue;
 		CGRect thisFrame = [thisView frame];
@@ -412,6 +416,9 @@ TitaniumWebViewController * mostRecentController = nil;
 		[scrollView scrollRectToVisible:[firstResponder frame] animated:animated];
 	}
 	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI._ISRESIZING=false;"];
+	
+	
+	
 }
 
 - (void)reloadWebView;
@@ -494,12 +501,12 @@ TitaniumWebViewController * mostRecentController = nil;
 
 - (void) addNativeViewProxy: (UIButtonProxy *) proxyObject;
 {
+	if(nativeOnscreenProxies == nil){
+		nativeOnscreenProxies = [[NSMutableSet alloc] initWithObjects:proxyObject,nil];
+	} else {
+		[nativeOnscreenProxies addObject:proxyObject];
+	}
 	[scrollView addSubview:[proxyObject nativeView]];
-}
-
-- (void) addNativeView: (UIView *) newView;
-{
-	[scrollView addSubview:newView];
 }
 
 #pragma mark Extreme Debugging. EXTREEEEEEEEEEEEEME!

@@ -7,7 +7,7 @@
 }
 </style>
 </head>
-<body style="background-color:#fff;font-size:20px;font-family:'Helvetica Neue';font-weight:bold">
+<body style="background-color:#f00;font-size:20px;font-family:'Helvetica Neue';font-weight:bold">
 	<button onclick="Titanium.UI.currentWindow.setActiveViewIndex(0,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,animationDuration:2000})">Switch by index</button>
 
 	<div><input type="button" id="1" value="Launch Email" class="button"/></div>
@@ -42,5 +42,24 @@
 	};
 
 	</script>
+	
+	
+		<div style="height:47px;margin-top:20px" id="button2"></div>
+	<script>
+	var button2 = Titanium.UI.createButton({
+		id:'button2',
+		backgroundImage:'blue.png',
+		backgroundSelectedImage:'blue_pressed.png',
+		title:'Close Window',
+		color:'#ffffff',
+		height:47,
+	});
+	button2.addEventListener('click',function(e)
+	{
+		Titanium.UI.currentWindow.close();
+	})
+	
+	</script>
+
 </body>
 </html>

@@ -11,7 +11,7 @@
 #import "NSData+Additions.h"
 #import "TitaniumBlobWrapper.h"
 
-#import "ClockLogger.h"
+#import "Logging.h"
 
 const NSString * htmlMimeType = @"text/html";
 const NSString * textMimeType = @"text/plain";

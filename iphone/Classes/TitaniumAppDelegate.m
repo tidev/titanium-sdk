@@ -16,7 +16,7 @@
 
 #import "Webcolor.h"
 
-#import "ClockLogger.h"
+#import "Logging.h"
 
 
 @implementation TitaniumAppDelegate
