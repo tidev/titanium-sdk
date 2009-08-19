@@ -1332,6 +1332,10 @@ Titanium.UI = {
 			tabs = eval('(' + json + ')');
 		}
 
+		for(i = 0; i < tabs.length; i++) {
+			tabs.setBadge = function(value){}; // Add method for iPhone compatibility.
+		}
+
 		return tabs;
 	},
 
@@ -1342,7 +1346,7 @@ Titanium.UI = {
 			var json = Titanium.uiProxy.getTabByName(name);
 			tab = eval('(' + json + ')');
 		}
-
+		tab.setBadge = function(value){}; // Add method for iPhone compatibility.
 		return tab;
 	},
 
