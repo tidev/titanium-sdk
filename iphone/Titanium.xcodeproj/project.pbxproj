@@ -106,10 +106,10 @@
 		B4110C9F0FD4653A00BE17F8 /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */; };
 		B413A6800F7998C500B1C47D /* TitaniumAppProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */; };
 		B413A7530F79A58000B1C47D /* TitaniumCmdThread.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */; };
-		B4200E511035FAB1009598FC /* ClockLogger.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* ClockLogger.c */; };
-		B4200E521035FAB1009598FC /* ClockLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = B4200E4F1035FAB1009598FC /* ClockLogger.h */; };
-		B4200E531035FAB1009598FC /* ClockLogger.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* ClockLogger.c */; };
-		B4200E541035FAB1009598FC /* ClockLogger.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* ClockLogger.c */; };
+		B4200E511035FAB1009598FC /* Logging.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* Logging.c */; };
+		B4200E521035FAB1009598FC /* Logging.h in Headers */ = {isa = PBXBuildFile; fileRef = B4200E4F1035FAB1009598FC /* Logging.h */; };
+		B4200E531035FAB1009598FC /* Logging.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* Logging.c */; };
+		B4200E541035FAB1009598FC /* Logging.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* Logging.c */; };
 		B4290A75100D31FD00C4FF98 /* TweakedNavController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4290A73100D31FD00C4FF98 /* TweakedNavController.h */; };
 		B4290A76100D31FD00C4FF98 /* TweakedNavController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4290A74100D31FD00C4FF98 /* TweakedNavController.m */; };
 		B4290A77100D31FD00C4FF98 /* TweakedNavController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4290A74100D31FD00C4FF98 /* TweakedNavController.m */; };
@@ -326,8 +326,8 @@
 		B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumAppProtocol.m; sourceTree = "<group>"; };
 		B413A7510F79A58000B1C47D /* TitaniumCmdThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumCmdThread.h; sourceTree = "<group>"; };
 		B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumCmdThread.m; sourceTree = "<group>"; };
-		B4200E4F1035FAB1009598FC /* ClockLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClockLogger.h; sourceTree = "<group>"; };
-		B4200E501035FAB1009598FC /* ClockLogger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ClockLogger.c; sourceTree = "<group>"; };
+		B4200E4F1035FAB1009598FC /* Logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logging.h; sourceTree = "<group>"; };
+		B4200E501035FAB1009598FC /* Logging.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Logging.c; sourceTree = "<group>"; };
 		B4250689100C0A4B00AD6A6B /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		B4290A73100D31FD00C4FF98 /* TweakedNavController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TweakedNavController.h; sourceTree = "<group>"; };
 		B4290A74100D31FD00C4FF98 /* TweakedNavController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TweakedNavController.m; sourceTree = "<group>"; };
@@ -806,8 +806,8 @@
 				2444FCD10FCA741E00063972 /* base64.c */,
 				B4FECD110FAA4B3E0015B658 /* Webcolor.h */,
 				B4FECD120FAA4B3E0015B658 /* Webcolor.m */,
-				B4200E4F1035FAB1009598FC /* ClockLogger.h */,
-				B4200E501035FAB1009598FC /* ClockLogger.c */,
+				B4200E4F1035FAB1009598FC /* Logging.h */,
+				B4200E501035FAB1009598FC /* Logging.c */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -866,7 +866,7 @@
 				B47B52D70FF1B2F400BD7229 /* ValueTableViewCell.h in Headers */,
 				B4290A75100D31FD00C4FF98 /* TweakedNavController.h in Headers */,
 				B4B571FF10110324003546C7 /* TitaniumContentViewController.h in Headers */,
-				B4200E521035FAB1009598FC /* ClockLogger.h in Headers */,
+				B4200E521035FAB1009598FC /* Logging.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1086,7 +1086,7 @@
 				B4290A77100D31FD00C4FF98 /* TweakedNavController.m in Sources */,
 				B4B571FE10110324003546C7 /* TitaniumContentViewController.m in Sources */,
 				B4ABEDC7101903F300639ED5 /* buggy.js in Sources */,
-				B4200E541035FAB1009598FC /* ClockLogger.c in Sources */,
+				B4200E541035FAB1009598FC /* Logging.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1133,7 +1133,7 @@
 				B47B52D80FF1B2F400BD7229 /* ValueTableViewCell.m in Sources */,
 				B4290A76100D31FD00C4FF98 /* TweakedNavController.m in Sources */,
 				B4B5720010110324003546C7 /* TitaniumContentViewController.m in Sources */,
-				B4200E531035FAB1009598FC /* ClockLogger.c in Sources */,
+				B4200E531035FAB1009598FC /* Logging.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1181,7 +1181,7 @@
 				B47A270A1035F040002146CD /* ValueTableViewCell.m in Sources */,
 				B47A270D1035F040002146CD /* TweakedNavController.m in Sources */,
 				B47A270E1035F040002146CD /* TitaniumContentViewController.m in Sources */,
-				B4200E511035FAB1009598FC /* ClockLogger.c in Sources */,
+				B4200E511035FAB1009598FC /* Logging.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

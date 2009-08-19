@@ -19,6 +19,8 @@
 #import "TitaniumBlobWrapper.h"
 #import "AnalyticsModule.h"
 
+#import "Logging.h"
+
 typedef enum {
 	clientStateUnsent = 0,
 	clientStateOpened = 1,
@@ -172,9 +174,7 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 - (void) setReadyState: (NetHTTPClientState) newState;
 {
 	[stateLock lock];
-#ifdef USE_VERBOSE_DEBUG	
-		NSLog(@"%@ changing state to %@. Message will be sent to %@ to page with token %@",self,[NetHTTPClient stringForState:newState],javaScriptPath,parentPageToken);
-#endif
+	VERBOSE_LOG(@"%@ changing state to %@. Message will be sent to %@ to page with token %@",self,[NetHTTPClient stringForState:newState],javaScriptPath,parentPageToken);
 	
 	if (newState == readyState)
 	{
@@ -202,9 +202,7 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 
 - (id) runFunctionNamed: (NSString *) functionName withObject: (id) objectValue error: (NSError **) error;
 {
-#ifdef USE_VERBOSE_DEBUG	
-		NSLog(@"%@ Got function named: %@ with object %@",self,functionName,objectValue);
-#endif
+	VERBOSE_LOG(@"%@ Got function named: %@ with object %@",self,functionName,objectValue);
 
 	if ([functionName isEqualToString:@"open"]){
 		NSUInteger arrayCount = [objectValue count];
@@ -307,9 +305,8 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 
 	} else if ([functionName isEqualToString:@"responseText"]) {
 		NSString * result = [[NSString alloc] initWithData:loadedData encoding:NSUTF8StringEncoding];
-#ifdef USE_VERBOSE_DEBUG	
-			NSLog(@"Returning %d bytes: %@",[loadedData length],result);
-#endif			
+		VERBOSE_LOG(@"Returning %d bytes: %@",[loadedData length],result);
+
 		return [result autorelease];
 
 	} else if ([functionName isEqualToString:@"status"]) {

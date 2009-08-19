@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#include "ClockLogger.h"
+#include "Logging.h"
 
 #ifdef USE_CLOCKLOG
 double firstTimestamp = 0.0;

@@ -70,7 +70,7 @@ TitaniumViewControllerOrientationsAllowed orientationsFromObject(id inputObject)
 int nextWindowToken = 0;
 
 @implementation TitaniumViewController
-@synthesize primaryToken, contentView;
+@synthesize primaryToken, contentView, nameString;
 @synthesize navBarTint, titleViewImagePath, cancelOpening;
 @synthesize backgroundColor, backgroundImage;
 @synthesize hidesNavBar, fullscreen, statusBarStyle, toolbarItems;
@@ -133,6 +133,8 @@ int nextWindowToken = 0;
 
 
 - (void)dealloc {
+	[primaryToken release];
+	[nameString release];
 	[contentViewLock release];
 	[contentViewControllers release];
 	[navBarTint release];
@@ -142,13 +144,24 @@ int nextWindowToken = 0;
 
 #pragma mark Reading state
 
+#define HANDLESTRING(key,command,nullCommand)	\
+	object=[inputState objectForKey:key];	\
+	if(object == nullObject)nullCommand;		\
+	else if([object isKindOfClass:stringClass])command;
+
+
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
 	if (![inputState isKindOfClass:[NSDictionary class]])return;
 	
 	TitaniumHost * theTiHost = [TitaniumHost sharedHost];
-	Class NSStringClass = [NSString class]; //Because this might be from the web where you could have nsnulls and nsnumbers,
+	Class stringClass = [NSString class]; //Because this might be from the web where you could have nsnulls and nsnumbers,
+	NSNull * nullObject = [NSNull null];
+	id object;
 	//We can't assume that the inputState is 
+
+//	HANDLESTRING(@"title",[self setTitle:object])
+
 
 	NSString * newTitle = [inputState objectForKey:@"title"];
 	if (newTitle != nil) {
@@ -192,12 +205,12 @@ int nextWindowToken = 0;
 	[self setNavBarTint:UIColorWebColorNamed(navTintName)];
 	
 	NSString * backgroundColorName = [inputState objectForKey:@"backgroundColor"];
-	if ([backgroundColorName isKindOfClass:NSStringClass]){
+	if ([backgroundColorName isKindOfClass:stringClass]){
 		[self setBackgroundColor:UIColorWebColorNamed(backgroundColorName)];
 	}
 	
 	NSString * backgroundImageName = [inputState objectForKey:@"backgroundImage"];
-	if ([backgroundImageName isKindOfClass:NSStringClass]){
+	if ([backgroundImageName isKindOfClass:stringClass]){
 		[self setBackgroundImage:[theTiHost imageForResource:backgroundImageName]];
 	}
 
@@ -435,6 +448,7 @@ int nextWindowToken = 0;
 - (void)viewDidAppear:(BOOL)animated;
 {
 	[super viewDidAppear:animated];
+	[self updateLayout:dirtyFlags]; //This is what will notify the focused contentController.
 	if(![[[UIDevice currentDevice] systemVersion] hasPrefix:@"2.0"]) [self becomeFirstResponder];
 
 	UINavigationController * theNC = [self navigationController];
@@ -836,6 +850,12 @@ int nextWindowToken = 0;
 - (void) needsUpdateAnimated;
 {
 	[self needsUpdate:TitaniumViewControllerRefreshIsAnimated];
+}
+
+- (NSDictionary *) propertiesDict;
+{
+	NSDictionary * result = [NSDictionary dictionaryWithObjectsAndKeys:primaryToken,@"_TOKEN",nil]; //TODO: Add more properties
+	return result;
 }
 
 @end

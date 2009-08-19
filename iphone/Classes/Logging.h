@@ -11,9 +11,18 @@
 #ifdef USE_CLOCKLOG
 extern double firstTimestamp;
 #define CLOCKSTAMP(foo, ...)	\
-		double thisTimeStamp = CFAbsoluteTimeGetCurrent();	\
-		if(firstTimestamp==0.0)firstTimestamp=thisTimeStamp;	\
-		NSLog(@"CLOCKLOG: %f seconds: " foo, thisTimeStamp-firstTimestamp , ##__VA_ARGS__);	
+	{double thisTimeStamp = CFAbsoluteTimeGetCurrent();	\
+	if(firstTimestamp==0.0)firstTimestamp=thisTimeStamp;	\
+	NSLog(@"CLOCKLOG: %f seconds: " foo, thisTimeStamp-firstTimestamp , ##__VA_ARGS__);	}
 #else
 #define CLOCKSTAMP(foo, ...)
+#endif
+
+#ifdef USE_VERBOSE_DEBUG
+#define VERBOSE_LOG(...)	NSLog(__VA_ARGS__)
+
+//#else ifdef DEBUG
+//
+#else
+#define VERBOSE_LOG(...)
 #endif

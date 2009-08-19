@@ -84,6 +84,7 @@ typedef enum {
 
 	NSMutableDictionary * titaniumObject;
 //Caching objects:
+	NSString * cachedRootJavaScript;
 	NSDictionary * appProperties;
 	NSMutableDictionary * imageCache;
 	NSMutableDictionary * stretchableImageCache;
@@ -173,6 +174,7 @@ typedef enum {
 - (TitaniumViewController *) visibleTitaniumViewController;
 - (TitaniumViewController *) currentTitaniumViewController;
 - (TitaniumViewController *) titaniumViewControllerForToken: (NSString *) token;
+- (TitaniumViewController *) titaniumViewControllerForName: (NSString *) name;
 
 - (TitaniumContentViewController *) visibleTitaniumContentViewController;
 - (TitaniumContentViewController *) currentTitaniumContentViewController;

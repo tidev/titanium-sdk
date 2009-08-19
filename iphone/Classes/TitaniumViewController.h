@@ -38,6 +38,7 @@ typedef enum {
 
 //Commont to all viewControllers:
 	NSString * primaryToken;
+	NSString * nameString;
 	IBOutlet UIImageView * backgroundView;
 	IBOutlet UIView * contentView;
 	IBOutlet UIToolbar * toolBar;
@@ -92,9 +93,10 @@ typedef enum {
 @property (nonatomic,retain)	IBOutlet UIView * contentView;
 
 @property (nonatomic,retain)	UIColor *	navBarTint;
-@property (nonatomic,retain)	NSString * primaryToken;
+@property (nonatomic,copy)		NSString * primaryToken;
+@property (nonatomic,copy)		NSString * nameString;
 
-@property (nonatomic,retain)	NSString *	titleViewImagePath;
+@property (nonatomic,copy)		NSString *	titleViewImagePath;
 @property (nonatomic,retain)	UIColor *	backgroundColor;
 @property (nonatomic,retain)	UIImage *	backgroundImage;
 @property (nonatomic,assign)	BOOL		hidesNavBar;
@@ -129,6 +131,8 @@ typedef enum {
 - (void)motionEnded:(int)motion withEvent:(UIEvent *)event;
 
 - (void) updateContentViewArray: (NSArray *) messagePacket;
+
+- (NSDictionary *) propertiesDict;
 
 @end
 

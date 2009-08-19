@@ -1443,6 +1443,13 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	return result;
 }
 
+- (NSDictionary *) getWindowPropsByName: (NSString *) nameString;
+{
+	if(![nameString isKindOfClass:[NSString class]])return nil;
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForName:nameString];
+	return [ourVC propertiesDict];
+}
+
 
 - (void) setWindow:(NSString *)tokenString setActiveViewIndex:(NSNumber *)newIndexObject options:(id)optionsObject;
 {
@@ -1632,6 +1639,16 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 {
 	UITabBarController * theTabCon = (UITabBarController *)[[TitaniumAppDelegate sharedDelegate] viewController];
 	if(![theTabCon isKindOfClass:[UITabBarController class]])return;
+	
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:windowToken];
+	UINavigationController * ourNav = [ourVC navigationController];
+
+	if(ourNav == nil) return;
+	
+	NSArray * theNavArray = [theTabCon viewControllers];
+	if([theNavArray containsObject:ourNav]){
+		[theTabCon performSelectorOnMainThread:@selector(setSelectedViewController:) withObject:ourNav waitUntilDone:NO];
+	}
 }
 
 
@@ -1732,10 +1749,16 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	[(UiModule *)invocGen getWindowViewsForToken:nil];
 	NSInvocation * getWindowViewsInvoc = [invocGen invocation];
 	
+	[(UiModule *)invocGen getWindowPropsByName:nil];
+	NSInvocation * getWindowInvoc = [invocGen invocation];
+	
+	
 	[(UiModule *)invocGen setWindow:nil setActiveViewIndex:nil options:nil];
 	NSInvocation * setWindowActiveViewInvoc = [invocGen invocation];
-	
 
+	[(UiModule *)invocGen setActiveTab:nil];
+	NSInvocation * activateTabInvoc = [invocGen invocation];
+	
 	[(UiModule *)invocGen makeButtonToken];
 	NSInvocation * buttonTokenGen = [invocGen invocation];
 
@@ -1899,6 +1922,11 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 			"if(res.rightNavButton)res.setRightNavButton(res.rightNavButton);"
 			"if(res.leftNavButton)res.setLeftNavButton(res.leftNavButton);"
 			"return res;}";
+			
+	NSString * getWindowByNameString = @"function(name){var winProps=Ti._WINGET(name);if(!winProps)return null;var tkn=winProps._TOKEN;var win=Ti.UI._VIEW[tkn];"
+			"if(!win){win=Ti.createWindow(winProps);win._TOKEN=tkn;Ti.UI._VIEW[tkn]=win;}else{}return win;}"; //TODO: Update properties?
+
+	NSString * setActiveTabString = @"function(win){var tok;if(win==Ti.currentWindow){tok=Ti._TOKEN;}else{tok=win._TOKEN;if(!tok)return;}Ti._TABACT(tok);}";
 
 	NSString * createWebViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='web';"
 			"res.insertButton=function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
@@ -2033,12 +2061,17 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 			showNavBarInvoc,@"_WSHNAV",
 			hideNavBarInvoc,@"_WHDNAV",
 			setTitleInvoc,@"_WTITLE",
+			
+			getWindowInvoc,@"_WINGET",
+			
 			setTitleImageInvoc,@"_WTITLEIMG",
 			setTitleImageProxyInvoc,@"_WTITLEPXY",
 			changeWinNavColorInvoc,@"_WNAVTNT",
 			setNavButtonInvoc,@"_WNAVBTN",
 			updateToolbarInvoc,@"_WTOOL",
 			insertNativeViewInvoc,@"_WINSBTN",
+			
+			activateTabInvoc,@"_TABACT",
 			
 			insertRowInvoc,@"_WROWCHG",
 			deleteRowInvoc,@"_WROWDEL",
@@ -2089,8 +2122,10 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 			currentWindowScript,@"currentWindow",
 			[TitaniumJSCode codeWithString:currentViewString],@"currentView",
 			[TitaniumJSCode codeWithString:createWindowString],@"createWindow",
+			[TitaniumJSCode codeWithString:getWindowByNameString],@"getWindowByName",
 			[TitaniumJSCode codeWithString:createWebViewString],@"createWebView",
 			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",
+			[TitaniumJSCode codeWithString:setActiveTabString],@"setActiveTab",
 			
 			[NSNumber numberWithInt:TitaniumViewControllerPortrait],@"PORTRAIT",
 			[NSNumber numberWithInt:TitaniumViewControllerLandscape],@"LANDSCAPE",

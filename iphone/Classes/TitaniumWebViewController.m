@@ -8,7 +8,7 @@
 #import "TitaniumWebViewController.h"
 #import "TitaniumHost.h"
 #import "UiModule.h"
-#import "ClockLogger.h"
+#import "Logging.h"
 
 TitaniumWebViewController * mostRecentController = nil;
 
