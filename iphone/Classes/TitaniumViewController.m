@@ -447,7 +447,6 @@ int nextWindowToken = 0;
 - (void)viewDidAppear:(BOOL)animated;
 {
 	[super viewDidAppear:animated];
-	[self updateLayout:dirtyFlags]; //This is what will notify the focused contentController.
 	if(![[[UIDevice currentDevice] systemVersion] hasPrefix:@"2.0"]) [self becomeFirstResponder];
 
 	UINavigationController * theNC = [self navigationController];
