@@ -313,8 +313,6 @@ public class TitaniumActivity extends Activity
 
 	public boolean handleMessage(Message msg)
 	{
-		//Bundle b = msg.getData();
-
 		switch(msg.what) {
 			case MSG_START_ACTIVITY :
 				Messenger messenger = new Messenger(handler);
