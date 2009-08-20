@@ -673,6 +673,15 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	return result;
 }
 
+- (NSDictionary *) getTabPropsByName: (NSString *) nameString;
+{
+	if(![nameString isKindOfClass:[NSString class]])return nil;
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForName:nameString];
+	TitaniumViewController * rootVC = [[[ourVC navigationController] viewControllers] objectAtIndex:0];
+	return [rootVC tabPropertiesDict];
+}
+
+
 - (NSDictionary *) getWindowPropsByName: (NSString *) nameString;
 {
 	if(![nameString isKindOfClass:[NSString class]])return nil;
@@ -865,6 +874,22 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	[[UIApplication sharedApplication] setApplicationIconBadgeNumber:newNumber];
 }
 
+- (NSArray *) getAllTabs;
+{
+	UITabBarController * theTabCon = (UITabBarController *)[[TitaniumAppDelegate sharedDelegate] viewController];
+	if(![theTabCon isKindOfClass:[UITabBarController class]])return nil;
+	
+	NSArray * theNavArray = [theTabCon viewControllers];
+	
+	NSMutableArray * result = [NSMutableArray arrayWithCapacity:[theNavArray count]];
+	for(UINavigationController * thisNav in theNavArray){
+		TitaniumViewController * rootVC = [[thisNav viewControllers] objectAtIndex:0];
+		[result addObject:[rootVC tabPropertiesDict]];
+	}
+	
+	return result;
+}
+
 - (void) setActiveTab: (NSString *) windowToken;
 {
 	UITabBarController * theTabCon = (UITabBarController *)[[TitaniumAppDelegate sharedDelegate] viewController];
@@ -981,7 +1006,12 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	
 	[(UiModule *)invocGen getWindowPropsByName:nil];
 	NSInvocation * getWindowInvoc = [invocGen invocation];
+
+	[(UiModule *)invocGen getTabPropsByName:nil];
+	NSInvocation * getTabByNameInvoc = [invocGen invocation];
 	
+	[(UiModule *)invocGen getAllTabs];
+	NSInvocation * getAllTabsInvoc = [invocGen invocation];
 	
 	[(UiModule *)invocGen setWindow:nil setActiveViewIndex:nil options:nil];
 	NSInvocation * setWindowActiveViewInvoc = [invocGen invocation];
@@ -1156,7 +1186,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	NSString * getWindowByNameString = @"function(name){var winProps=Ti._WINGET(name);if(!winProps)return null;var tkn=winProps._TOKEN;var win=Ti.UI._VIEW[tkn];"
 			"if(!win){win=Ti.createWindow(winProps);win._TOKEN=tkn;Ti.UI._VIEW[tkn]=win;}else{}return win;}"; //TODO: Update properties?
 
-	NSString * setActiveTabString = @"function(win){var tok;if(win==Ti.currentWindow){tok=Ti._TOKEN;}else{tok=win._TOKEN;if(!tok)return;}Ti._TABACT(tok);}";
+	NSString * setActiveTabString = @"function(win){var tok;if(win==Ti.currentWindow){tok=Ti._TOKEN;}else{tok=win._TOKEN;if(!tok)return;}Ti.UI._TABACT(tok);}";
 
 	NSString * createWebViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='web';"
 			"res.insertButton=function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
@@ -1255,6 +1285,13 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 			"if(res.id){res.setId(res.id);}"
 			"return res;}";
 
+	NSString * createTabString = @"function(args){var res={"
+			"};"
+			"if(args){for(prop in args){res[prop]=args[prop];}}"
+			"return res;}";
+	NSString * getTabByNameString = @"function(name){if(!name)return null;var props=Ti.UI._TABGET(name);if(!props)return null;return Ti.UI.createTab(props);}";
+	NSString * getAllTabsString = @"function(){var propsAr=Ti.UI._TABALL();if(!propsAr)return null;var res=[];for(var i=0;i<propsAr.length;i++){res[i]=Ti.UI.createTab(propsAr[i]);}return res;}";
+
 	NSString * createOptionDialogString = @"function(args){var res={};for(prop in args){res[prop]=args[prop];};"
 			"res._TOKEN='MDL'+(Ti.UI._NEXTTKN++);Ti.UI._MODAL[res._TOKEN]=res;res.onClick=Ti._ONEVT;"
 			"res._EVT={click:[]};res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;"
@@ -1304,6 +1341,8 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 			insertNativeViewInvoc,@"_WINSBTN",
 			
 			activateTabInvoc,@"_TABACT",
+			getTabByNameInvoc,@"_TABGET",
+			getAllTabsInvoc,@"_TABALL",
 			
 			insertRowInvoc,@"_WROWCHG",
 			deleteRowInvoc,@"_WROWDEL",
@@ -1353,11 +1392,15 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 			[TitaniumJSCode codeWithString:createEmailString],@"createEmailDialog",
 			currentWindowScript,@"currentWindow",
 			[TitaniumJSCode codeWithString:currentViewString],@"currentView",
+			[TitaniumJSCode codeWithString:@"{_TOKEN:Ti._TOKEN}"],@"currentTab",
 			[TitaniumJSCode codeWithString:createWindowString],@"createWindow",
 			[TitaniumJSCode codeWithString:getWindowByNameString],@"getWindowByName",
 			[TitaniumJSCode codeWithString:createWebViewString],@"createWebView",
 			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",
 			[TitaniumJSCode codeWithString:setActiveTabString],@"setActiveTab",
+			[TitaniumJSCode codeWithString:createTabString],@"createTab",
+			[TitaniumJSCode codeWithString:getTabByNameString],@"getTabByName",
+			[TitaniumJSCode codeWithString:getAllTabsString],@"getAllTabs",
 			
 			[NSNumber numberWithInt:TitaniumViewControllerPortrait],@"PORTRAIT",
 			[NSNumber numberWithInt:TitaniumViewControllerLandscape],@"LANDSCAPE",

@@ -133,6 +133,7 @@ typedef enum {
 - (void) updateContentViewArray: (NSArray *) messagePacket;
 
 - (NSDictionary *) propertiesDict;
+- (NSDictionary *) tabPropertiesDict;
 
 @end
 
