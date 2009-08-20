@@ -5,15 +5,21 @@
 </head>
 <body  style="font-family:'Helvetica Neue';background-color:green">
 	View 3</br>
-	<button id="one" style="font-size:14px">show view 1 (CURL DOWN)</button><br/>
+	<button id="one" style="font-size:14px">show view 1 </button><br/>
 
 	<script>
 	document.getElementById('one').onclick = function()
 	{
 		var views = Titanium.UI.currentWindow.getViews();
+
+		var style = (Titanium.Platform.name == 'android')
+				? Titanium.UI.Android.AnimationStyle.HEADLINES
+				:Titanium.UI.iPhone.AnimationStyle.CURL_DOWN;
+
+
 		Titanium.UI.currentWindow.showView(views[1],{
 			animated:true,
-			animationStyle:Titanium.UI.iPhone.AnimationStyle.CURL_DOWN,
+			animationStyle:style,
 			animationDuration:1000
 		});
 	};

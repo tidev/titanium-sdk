@@ -5,12 +5,12 @@
 </head>
 <body  style="font-family:'Helvetica Neue';background-color:#ff9900">
 	View 1</br>
-	<button id="two" style="font-size:14px">show view 2 (FLIP LEFT)</button></br>
-	<button id="three" style="font-size:14px">show view 3 (FLIP RIGHT)</button></br>
-	<button id="four" style="font-size:14px">show view 4 (CURL UP)</button></br>
-	<button id="five" style="font-size:14px">show view 5 (CURL DOWN)</button></br>
-	<button id="six" style="font-size:14px">show view 6 (FLIP LEFT)</button></br>
-	<button id="seven" style="font-size:14px">show view 7 (FLIP RIGHT)</button></br>
+	<button id="two" style="font-size:14px">show view 2 </button></br>
+	<button id="three" style="font-size:14px">show view 3 </button></br>
+	<button id="four" style="font-size:14px">show view 4 </button></br>
+	<button id="five" style="font-size:14px">show view 5</button></br>
+	<button id="six" style="font-size:14px">show view 6</button></br>
+	<button id="seven" style="font-size:14px">show view 7 </button></br>
 
 	<div id="focused"></div>
 	<div id="unfocused"></div>
@@ -32,18 +32,28 @@
 	document.getElementById('two').onclick = function()
 	{
 		var views = Titanium.UI.currentWindow.getViews();
+
+		var style = (Titanium.Platform.name == 'android')
+				? Titanium.UI.Android.AnimationStyle.FADE
+				:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT;
+
 		Titanium.UI.currentWindow.showView(views[2],{
 			animated:true,
-			animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+			animationStyle:style,
 			animationDuration:1000
 		});
 	};
 	document.getElementById('three').onclick = function()
 	{
 		var views = Titanium.UI.currentWindow.getViews();
+
+		var style = (Titanium.Platform.name == 'android')
+				? Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT
+				:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT;
+
 		Titanium.UI.currentWindow.showView(views[3],{
 			animated:true,
-			animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,
+			animationStyle:style,
 			animationDuration:1000
 		});
 	};
@@ -51,9 +61,14 @@
 	document.getElementById('four').onclick = function()
 	{
 		var views = Titanium.UI.currentWindow.getViews();
+
+		var style = (Titanium.Platform.name == 'android')
+				? Titanium.UI.Android.AnimationStyle.SLIDE_FROM_TOP
+				:Titanium.UI.iPhone.AnimationStyle.CURL_UP;
+
 		Titanium.UI.currentWindow.showView(views[4],{
 			animated:true,
-			animationStyle:Titanium.UI.iPhone.AnimationStyle.CURL_UP,
+			animationStyle:style,
 			animationDuration:1000
 		});
 	};
@@ -61,9 +76,14 @@
 	document.getElementById('five').onclick = function()
 	{
 		var views = Titanium.UI.currentWindow.getViews();
+
+		var style = (Titanium.Platform.name == 'android')
+				? Titanium.UI.Android.AnimationStyle.SLIDE_FROM_BOTTOM
+				:Titanium.UI.iPhone.AnimationStyle.CURL_DOWN;
+
 		Titanium.UI.currentWindow.showView(views[5],{
 			animated:true,
-			animationStyle:Titanium.UI.iPhone.AnimationStyle.CURL_DOWN,
+			animationStyle:style,
 			animationDuration:1000
 		});
 	};
@@ -71,9 +91,14 @@
 	document.getElementById('six').onclick = function()
 	{
 		var views = Titanium.UI.currentWindow.getViews();
+		
+		var style = (Titanium.Platform.name == 'android')
+				? Titanium.UI.Android.AnimationStyle.SLIDE_FROM_RIGHT
+				:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT;
+		
 		Titanium.UI.currentWindow.showView(views[6],{
 			animated:true,
-			animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+			animationStyle:style,
 			animationDuration:1000
 		});
 	};
@@ -81,9 +106,14 @@
 	document.getElementById('seven').onclick = function()
 	{
 		var views = Titanium.UI.currentWindow.getViews();
+
+		var style = (Titanium.Platform.name == 'android')
+				? Titanium.UI.Android.AnimationStyle.SCALE
+				:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT;
+
 		Titanium.UI.currentWindow.showView(views[7],{
 			animated:true,
-			animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,
+			animationStyle:style,
 			animationDuration:1000
 		});
 	};

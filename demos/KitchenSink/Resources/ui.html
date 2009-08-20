@@ -4,6 +4,13 @@
 	
 
 	<script>
+	Titanium.UI.addEventListener('tabchange',function(e)
+	{
+		var a = Titanium.UI.createAlertDialog({title:'Tabchange'});
+		a.setMessage('index ' e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + prevName);
+		a.show();
+	});
+	
 	// data for tableview
 	var data = [
 		{title:'Alert'},
@@ -41,7 +48,8 @@
 		{title:'Open (animated false) (iPhone)',hasChild:true},
 		{title:'Notifications (Android)'},
 		{title:'Menu (Android)'},
-		{title:'Dynamic Content', hasChild:true}
+		{title:'Dynamic Content', hasChild:true},
+		{title:'Tab Change', hasChild:true}
 		
 	];
 	
@@ -368,6 +376,13 @@
 			case 35:
 			{
 				var win = Titanium.UI.createWindow({url:'dynamic_content.html',title:'Dynamic Content'});
+				win.open({animated:true});		
+				break;
+			}
+
+			case 16:
+			{
+				var win = Titanium.UI.createWindow({url:'tabchange.html',title:'Tab Change'});
 				win.open({animated:true});		
 				break;
 			}
