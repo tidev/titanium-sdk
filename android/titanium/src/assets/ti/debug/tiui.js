@@ -1323,6 +1323,46 @@ Titanium.UI = {
 		c.proxy.open();
 		return c;
 	},
+// TODO DOCUMENT
+	getTabs : function() {
+		var tabs = [];
+		var json = Titanium.uiProxy.getTabs();
+
+		if (!isUndefined(json)) {
+			tabs = eval('(' + json + ')');
+		}
+
+		for(i = 0; i < tabs.length; i++) {
+			tabs.setBadge = function(value){}; // Add method for iPhone compatibility.
+		}
+
+		return tabs;
+	},
+
+	getTabByName : function(name) {
+		var tab = {};
+
+		if (!isUndefined(name)) {
+			var json = Titanium.uiProxy.getTabByName(name);
+			tab = eval('(' + json + ')');
+		}
+		tab.setBadge = function(value){}; // Add method for iPhone compatibility.
+		return tab;
+	},
+
+	setActiveTab : function(tabInfo) {
+		if (!isUndefined(tabInfo)) {
+			Titanium.uiProxy.setActiveTab(Titanium.JSON.stringify(tabInfo));
+		}
+	},
+
+	addEventListener : function(eventName, event) {
+
+	},
+
+	removeEventListener : function(eventName, listenerId) {
+
+	},
 
 	// createNotification is below. It needs the property currentWindow
 	// iPhone only methods

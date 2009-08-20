@@ -36,4 +36,10 @@ public interface ITitaniumUI
 	public ITitaniumEmailDialog createEmailDialog();
 	public ITitaniumUIWebView createWebView();
 
+	// In 0.6.2
+	public String getTabs();
+	public String getTabByName(String tabName);
+	public void setActiveTab(String tabInfo);
+	public int addEventListener(String eventName, String eventListener);
+	public void removeEventListener(String eventName, int listenerId);
 }

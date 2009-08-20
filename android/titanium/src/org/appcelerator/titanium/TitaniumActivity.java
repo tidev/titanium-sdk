@@ -71,6 +71,7 @@ public class TitaniumActivity extends Activity
 	//protected static final int MSG_POP_VIEW = 303;
 	protected static final int MSG_SET_LOAD_ON_PAGE_END = 304;
 	protected static final int MSG_CLOSE = 305;
+	protected static final int MSG_SETACTIVETAB = 306;
 
 	protected TitaniumApplication app;
 	protected TitaniumIntentWrapper intent;
@@ -406,6 +407,13 @@ public class TitaniumActivity extends Activity
 				finish();
 				return true;
 			}
+			case MSG_SETACTIVETAB : {
+		    	TitaniumActivityGroup tag = (TitaniumActivityGroup) TitaniumActivityHelper.getRootActivity(this);
+		    	if (tag != null) {
+		    		tag.setActiveTab(msg.arg1);
+		    	}
+		    	return true;
+			}
 		}
 
 		return false;
@@ -641,6 +649,10 @@ public class TitaniumActivity extends Activity
     		}
     	}
     	return view;
+    }
+
+    public void setActiveTab(int index) {
+    	handler.obtainMessage(MSG_SETACTIVETAB, index, -1).sendToTarget();
     }
 
 	public void setLoadOnPageEnd(boolean load) {
