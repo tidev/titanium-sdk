@@ -850,4 +850,12 @@ int nextWindowToken = 0;
 	return result;
 }
 
+- (NSDictionary *) tabPropertiesDict;
+{
+	NSDictionary * result = [NSDictionary dictionaryWithObjectsAndKeys:primaryToken,@"_TOKEN",nil]; //TODO: Add more properties
+	return result;
+}
+
+
+
 @end

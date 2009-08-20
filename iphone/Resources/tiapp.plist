@@ -31,6 +31,8 @@
 			<string>Media</string>
 		</dict>
 		<dict>
+			<key>name</key>
+			<string>UI</string>
 			<key>blarColor</key>
 			<string>red</string>
 			<key>orientation</key>

@@ -75,6 +75,16 @@
 
 	};
 
+	gotoUI = function(){
+		var uiTab = Ti.UI.getTabByName("UI");
+		Ti.UI.setActiveTab(uiTab);
+	};
+
+	gotoTab2 = function(){
+		var uiTab = Ti.UI.getAllTabs();
+		Ti.UI.setActiveTab(uiTab[1]);
+	};
+
 </script>
 </head>
 <body>
@@ -94,8 +104,10 @@
 	<button onclick="Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('bugger'),{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000})">Switch by name</button>
 	<button onclick="Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('number1'),{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000})">Switch by name "number1"</button>
 	<button onclick="Titanium.UI.currentWindow.setActiveViewIndex(1,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000})">Switch by index</button>
-
 	<hr>
+	<button onclick="testFun('gotoUI()')">Go to UI</button>
+	<button onclick="testFun('gotoTab2()')">Go to Tab 2</button>
+
 	Landscape: <script>document.write(Ti.Gesture.LANDSCAPE);</script><br>
 	isLandscape: <script>document.write(Ti.Gesture.isLandscape(Ti.Gesture.LANDSCAPE_LEFT));</script><br>
 	1&1: <script>document.write(1 & 1);</script><br>
