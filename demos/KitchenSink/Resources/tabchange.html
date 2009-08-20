@@ -20,8 +20,8 @@
 	});
 	button1.addEventListener('click',function(e)
 	{
-		var tabs = Titanium.UI.getTabs()
-		Titanium.UI.setActiveTab(tab[0]);
+		var tabs = Titanium.UI.getTabs();
+		Titanium.UI.setActiveTab(tabs[0]);
 		
 	})
 
@@ -33,7 +33,7 @@
 		color:'#ffffff',
 		height:47,
 	});
-	button1.addEventListener('click',function(e)
+	button2.addEventListener('click',function(e)
 	{
 		var tab = Titanium.UI.getTabByName('Views');
 		Titanium.UI.setActiveTab(tab);
