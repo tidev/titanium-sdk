@@ -39,7 +39,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Messenger;
 import android.os.Process;
+import android.os.RemoteException;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -90,6 +92,7 @@ public class TitaniumActivity extends Activity
 	protected ImageView splashView;
 
 	protected Handler handler;
+	protected Messenger parentMessenger;
 
 	private boolean allowVisible;
 	private boolean destroyed;
@@ -146,6 +149,8 @@ public class TitaniumActivity extends Activity
         final TitaniumActivity me = this;
         tfh = new TitaniumFileHelper(this);
         intent = new TitaniumIntentWrapper(getIntent());
+
+        parentMessenger = (Messenger) getIntent().getExtras().getParcelable("ParentMessenger");
 
         try {
         	app = (TitaniumApplication) getApplication();
@@ -312,7 +317,10 @@ public class TitaniumActivity extends Activity
 
 		switch(msg.what) {
 			case MSG_START_ACTIVITY :
-				startActivity((Intent) msg.obj);
+				Messenger messenger = new Messenger(handler);
+				Intent intent = (Intent) msg.obj;
+				intent.putExtra("ParentMessenger", messenger);
+				startActivity(intent);
 				return true;
 			case MSG_ACTIVATE_VIEW : {
 				int index = msg.arg1;
@@ -408,10 +416,21 @@ public class TitaniumActivity extends Activity
 				return true;
 			}
 			case MSG_SETACTIVETAB : {
-		    	TitaniumActivityGroup tag = (TitaniumActivityGroup) TitaniumActivityHelper.getRootActivity(this);
-		    	if (tag != null) {
-		    		tag.setActiveTab(msg.arg1);
-		    	}
+				Activity activity  = TitaniumActivityHelper.getRootActivity(this);
+				if (activity instanceof TitaniumActivityGroup) {
+			    	TitaniumActivityGroup tag = (TitaniumActivityGroup) activity;
+			    	if (tag != null) {
+			    		tag.setActiveTab(msg.arg1);
+			    	}
+				} else if (parentMessenger != null) {
+					try {
+						parentMessenger.send(Message.obtain(msg));
+					} catch (RemoteException e) {
+						Log.e(LCAT, "Error sending message to parent handler: ", e);
+					} finally {
+						finish();
+					}
+				}
 		    	return true;
 			}
 		}
