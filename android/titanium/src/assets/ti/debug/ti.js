@@ -37,6 +37,10 @@ var Titanium = new function() {
 
 			//alert('AFTER: ' + imgs[i].src);
 		}
+
+		document.addEventListener('DOMSubtreeModified', function(e) {
+			Titanium.apiProxy.invalidateLayout();
+		});
 	};
 
 	this.getPosition = function(obj) {

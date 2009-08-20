@@ -12,4 +12,7 @@ public interface ITitaniumAPI
 	public void log(int severity, String msg);
 	public void updateNativeControls(String json);
 	public void signal(String syncId);
+
+	// Added in 0.6.2
+	public void invalidateLayout();
 }

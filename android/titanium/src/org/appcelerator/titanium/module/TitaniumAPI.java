@@ -72,4 +72,8 @@ public class TitaniumAPI extends TitaniumBaseModule implements ITitaniumAPI
 	public void signal(String syncId) {
 		getModuleManager().getWebView().signal(syncId);
 	}
+
+	public void invalidateLayout() {
+		getModuleManager().getWebView().invalidateLayout();
+	}
 }

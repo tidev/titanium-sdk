@@ -552,6 +552,9 @@ public class TitaniumWebView extends WebView
 		}
 	}
 
+	public void invalidateLayout() {
+		requestNativeLayout();
+	}
 
 	public void addControl(View control) {
 		handler.obtainMessage(MSG_ADD_CONTROL, control).sendToTarget();
