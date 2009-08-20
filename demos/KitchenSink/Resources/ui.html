@@ -7,7 +7,7 @@
 	Titanium.UI.addEventListener('tabchange',function(e)
 	{
 		var a = Titanium.UI.createAlertDialog({title:'Tabchange'});
-		a.setMessage('index ' e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + prevName);
+		a.setMessage('index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
 		a.show();
 	});
 	
@@ -380,7 +380,7 @@
 				break;
 			}
 
-			case 16:
+			case 36:
 			{
 				var win = Titanium.UI.createWindow({url:'tabchange.html',title:'Tab Change'});
 				win.open({animated:true});		
