@@ -171,9 +171,10 @@ public class TitaniumSound
 
 	public void reset() {
 		if (mp != null) {
+			mp.seekTo(0);
 			looping = false;
 			paused = false;
-			mp.reset();
+			//mp.reset();
 		}
 	}
 

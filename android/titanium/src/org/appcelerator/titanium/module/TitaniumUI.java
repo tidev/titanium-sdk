@@ -286,7 +286,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 		return (ITitaniumUIWebView) create(MSG_CREATE_WEBVIEW);
 	}
 
-	// Added in 0.6.1
+	// Added in 0.6.2
 
 	public void setActiveTab(String tabInfo)
 	{

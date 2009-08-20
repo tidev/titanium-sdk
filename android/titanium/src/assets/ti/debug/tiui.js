@@ -1356,7 +1356,7 @@ Titanium.UI = {
 		}
 	},
 
-	addEventListener : function(eventName, event) {
+	addEventListener : function(eventName, eventHandler) {
 
 	},
 
