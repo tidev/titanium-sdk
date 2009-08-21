@@ -5,9 +5,7 @@
 	<script>
 	Titanium.UI.addEventListener('tabchange',function(e)
 	{
-		var a = Titanium.UI.createAlertDialog({title:'Tabchange'});
-		a.setMessage('index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
-		a.show();
+		Titanium.API.info('>>>>>>>>>>>>>>>>>>>>>>>>>> TABCHANGE index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
 	});
 	
 	// data for tableview
@@ -72,14 +70,6 @@
 			case 6:
 			{
 				var win = Titanium.UI.createWindow({url:'accelerometer.html',title:'Accelerometer', barColor:'#336699'});
-				var b= Titanium.UI.createButton({
-					title:'foo'
-				});
-				win.setLeftNavButton(b);
-				b.addEventListener('click',function(e)
-				{
-					win.close();
-				})
 				win.open({animated:true});
 				break;
 			}

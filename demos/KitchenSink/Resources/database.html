@@ -5,13 +5,30 @@
 </head>
 <body style="font-family:'Helvetica Neue'">
 	<div id="message"></div>
+	<div id="button1" style="height:50px;margin-top:20px"></div>
 	
 	<script>
+	var button1 = Titanium.UI.createButton({
+		id:'button1',
+		backgroundImage:'blue.png',
+		backgroundSelectedImage:'blue_pressed.png',
+		title:'Open Page with DB calls',
+		color:'#ffffff',
+		height:47,
+	});
+	button1.addEventListener('click',function(e)
+	{
+		var win = Titanium.UI.createWindow({url:'database2.html',title:'DB Test 2'});
+		win.open({animated:true});
+	})
+	
 	var html = '';
 
 	var db = Titanium.Database.open('mydb');
 
 	db.execute('CREATE TABLE IF NOT EXISTS DATABASETEST  (ID INTEGER, NAME TEXT)');
+	db.execute('DELETE FROM DATABASETEST');
+
 	db.execute('INSERT INTO DATABASETEST (ID, NAME ) VALUES(?,?)',1,'Name 1');
 	db.execute('INSERT INTO DATABASETEST (ID, NAME ) VALUES(?,?)',2,'Name 2');
 	db.execute('INSERT INTO DATABASETEST (ID, NAME ) VALUES(?,?)',3,'Name 3');
@@ -30,10 +47,6 @@
 	// close database
 	rows.close();
 	
-	db.execute('DELETE FROM DATABASETEST');
-	db.execute('DROP TABLE DATABASETEST');
-	
-	db.close();
 	
 	document.getElementById('message').innerHTML = html;
 
