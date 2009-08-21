@@ -29,6 +29,10 @@
 
 #define TI_VERSION_STR STRING(TI_VERSION)
 
+extern NSString * const TitaniumTabChangeNotification;
+extern NSString * const TitaniumJsonKey;
+
+
 @interface TitaniumProxyObject : NSObject
 {
 	//Stringy ties to the outside world
@@ -57,7 +61,7 @@ typedef enum {
 
 #define MAXTHREADDEPTH	5
 
-@interface TitaniumHost : NSObject<UINavigationControllerDelegate> {
+@interface TitaniumHost : NSObject<UINavigationControllerDelegate,UITabBarControllerDelegate> {
 	NSString * appID;
 	NSString * appResourcesPath;
 	NSURL * appBaseUrl;
@@ -88,6 +92,8 @@ typedef enum {
 	NSDictionary * appProperties;
 	NSMutableDictionary * imageCache;
 	NSMutableDictionary * stretchableImageCache;
+	
+	TitaniumViewController * previousTabRoot;
 	
 	NSLock	* modalActionLock;
 	NSMutableDictionary * modalActionDict;
