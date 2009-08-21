@@ -3,13 +3,15 @@
 	<title>Platform API</title>
 	
 	<script>
-	Titanium.UI.addEventListener('tabchange',function(e)
-	{
-		var a = Titanium.UI.createAlertDialog({title:'Tabchange'});
-		a.setMessage('index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
-		a.show();
-	});
+	// Titanium.UI.addEventListener('tabchange',function(e)
+	// {
+	// 	var a = Titanium.UI.createAlertDialog({title:'Tabchange'});
+	// 	a.setMessage('index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
+	// 	a.show();
+	// });
 	
+	var a = Titanium.UI.createAlertDialog({title:'foo',message:Titanium.Platform.name + ' ' + Titanium.platform});
+	a.show();
 	// data for tableview
 	var data = [
 		{title:'XHR Request', hasChild:true},
@@ -86,7 +88,7 @@
 			}
 			case 7:
 			{
-				Titanium.Platform.openURL('http://google.com');
+				Titanium.Platform.openURL('http://maps.google.com/maps?q=cupertino');
 				break;
 			}
 			case 8:
