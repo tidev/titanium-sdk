@@ -7,6 +7,7 @@
 
 package org.appcelerator.titanium.module;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,6 +29,7 @@ import org.appcelerator.titanium.api.ITitaniumUI;
 import org.appcelerator.titanium.api.ITitaniumUIWebView;
 import org.appcelerator.titanium.api.ITitaniumUserWindow;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.module.ui.TitaniumButton;
 import org.appcelerator.titanium.module.ui.TitaniumDialog;
 import org.appcelerator.titanium.module.ui.TitaniumEmailDialog;
@@ -42,6 +44,9 @@ import org.appcelerator.titanium.module.ui.TitaniumToastNotifier;
 import org.appcelerator.titanium.module.ui.TitaniumUIWebView;
 import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
 import org.appcelerator.titanium.util.Log;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.os.Handler;
 import android.os.Message;
@@ -279,6 +284,87 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 
 	public ITitaniumUIWebView createWebView() {
 		return (ITitaniumUIWebView) create(MSG_CREATE_WEBVIEW);
+	}
+
+	// Added in 0.6.2
+
+	public void setActiveTab(String tabInfo)
+	{
+		try {
+			JSONObject t = new JSONObject(tabInfo);
+			if (t.has("index")) {
+				TitaniumActivity activity = getActivity();
+				if (activity != null) {
+					activity.setActiveTab(t.getInt("index"));
+				}
+			} else {
+				Log.e(LCAT, "Malformed tab object, missing attribute 'index'");
+			}
+		} catch (JSONException e) {
+			Log.e(LCAT, "Invalid tab info: " + tabInfo, e);
+		}
+	}
+
+	public String getTabByName(String tabName)
+	{
+		JSONObject json = null;
+		if (tabName != null) {
+			TitaniumActivity activity = getActivity();
+			if (activity != null) {
+				ArrayList<TitaniumWindowInfo> windows = activity.getAppInfo().getWindows();
+				for(int i = 0; i < windows.size(); i++) {
+					TitaniumWindowInfo wi = windows.get(i);
+					if (wi.getWindowId().equals(tabName)) {
+						json = makeTabJSON(wi, i);
+						break;
+					}
+				}
+			}
+		}
+
+		return json.toString();
+	}
+
+	private JSONObject makeTabJSON(TitaniumWindowInfo wi, int index) {
+		/*
+		StringBuilder sb = new StringBuilder();
+		sb.append("{ name : \"").append(wi.getWindowId()).append("\", index : ").append(index).append("}");
+		return sb.toString();
+		*/
+		JSONObject json = new JSONObject();
+		try {
+			json.put("name", wi.getWindowId());
+			json.put("index", index);
+		} catch (JSONException e) {
+			Log.w(LCAT, "Error building TabJSON", e);
+		}
+
+		return json;
+	}
+
+	public String getTabs() {
+		JSONArray json = new JSONArray();
+
+		TitaniumActivity activity = getActivity();
+		if (activity != null) {
+			ArrayList<TitaniumWindowInfo> windows = activity.getAppInfo().getWindows();
+			for(int i = 0; i < windows.size(); i++) {
+				TitaniumWindowInfo wi = windows.get(i);
+				json.put(makeTabJSON(wi,i));
+			}
+		}
+
+		return json.toString();
+	}
+
+	public int addEventListener(String eventName, String eventListener) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public void removeEventListener(String eventName, int listenerId) {
+		// TODO Auto-generated method stub
+
 	}
 
 	// Expects the message handler to put the object in h.o and release the holder

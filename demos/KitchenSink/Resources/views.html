@@ -1,6 +1,12 @@
 <html>
 <head>
 	<script>
+	Titanium.UI.addEventListener('tabchange',function(e)
+	{
+		var a = Titanium.UI.createAlertDialog({title:'Tabchange'});
+		a.setMessage('index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
+		a.show();
+	});
 		
 		// create web view views
 		var webView1 = Titanium.UI.createWebView({url:'views1.html', name:'number1'});
@@ -40,7 +46,7 @@
 					{
 						Titanium.UI.currentWindow.showView(webView1,{
 							animated:true,
-							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+							animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 							animationDuration:1000
 						});
 						break;
@@ -49,7 +55,7 @@
 					{
 						Titanium.UI.currentWindow.showView(webView2,{
 							animated:true,
-							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+							animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 							animationDuration:1000
 						});
 						break;
@@ -59,7 +65,7 @@
 					{
 						Titanium.UI.currentWindow.showView(webView3,{
 							animated:true,
-							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+							animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 							animationDuration:1000
 						});
 						break;
@@ -69,7 +75,7 @@
 					{
 						Titanium.UI.currentWindow.showView(tableView,{
 							animated:true,
-							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+							animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 							animationDuration:1000
 						});
 						break;
@@ -79,7 +85,7 @@
 					{
 						Titanium.UI.currentWindow.showView(tableView2,{
 							animated:true,
-							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+							animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 							animationDuration:1000
 						});
 						break;
@@ -89,7 +95,7 @@
 					{
 						Titanium.UI.currentWindow.showView(tableView3,{
 							animated:true,
-							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+							animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 							animationDuration:1000
 						});
 						break;
@@ -219,7 +225,7 @@
 				{
 					Titanium.UI.currentWindow.showView(webView1,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -228,7 +234,7 @@
 				{
 					Titanium.UI.currentWindow.showView(webView2,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -238,7 +244,7 @@
 				{
 					Titanium.UI.currentWindow.showView(webView3,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -248,7 +254,7 @@
 				{
 					Titanium.UI.currentWindow.showView(tableView2,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -258,7 +264,7 @@
 				{
 					Titanium.UI.currentWindow.showView(tableView3,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -268,7 +274,7 @@
 				{
 					Titanium.UI.currentWindow.showView(groupedView,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -330,7 +336,7 @@
 				{
 					Titanium.UI.currentWindow.showView(webView1,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -339,7 +345,7 @@
 				{
 					Titanium.UI.currentWindow.showView(webView2,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -349,7 +355,7 @@
 				{
 					Titanium.UI.currentWindow.showView(webView3,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -359,7 +365,7 @@
 				{
 					Titanium.UI.currentWindow.showView(tableView,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -369,7 +375,7 @@
 				{
 					Titanium.UI.currentWindow.showView(tableView3,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -379,7 +385,7 @@
 				{
 					Titanium.UI.currentWindow.showView(groupedView,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -414,7 +420,7 @@
 				{
 					Titanium.UI.currentWindow.showView(webView1,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -423,7 +429,7 @@
 				{
 					Titanium.UI.currentWindow.showView(webView2,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -433,7 +439,7 @@
 				{
 					Titanium.UI.currentWindow.showView(webView3,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -443,7 +449,7 @@
 				{
 					Titanium.UI.currentWindow.showView(tableView,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -453,7 +459,7 @@
 				{
 					Titanium.UI.currentWindow.showView(tableView2,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;
@@ -463,7 +469,7 @@
 				{
 					Titanium.UI.currentWindow.showView(groupedView,{
 						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
 					break;

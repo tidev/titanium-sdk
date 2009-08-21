@@ -2,9 +2,13 @@
 <head>
 	<title>Platform API</title>
 	
-	<!-- ISSES -->
-	<!-- database lastInsertId is null -->
 	<script>
+	Titanium.UI.addEventListener('tabchange',function(e)
+	{
+		var a = Titanium.UI.createAlertDialog({title:'Tabchange'});
+		a.setMessage('index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
+		a.show();
+	});
 	
 	// data for tableview
 	var data = [

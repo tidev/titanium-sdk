@@ -26,6 +26,8 @@ public class TitaniumTabbedAppStrategy implements ITitaniumAppStrategy
 	@SuppressWarnings("unused")
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
+	private TabHost tabHost;
+
 	public TitaniumTabbedAppStrategy() {
 	}
 
@@ -33,7 +35,7 @@ public class TitaniumTabbedAppStrategy implements ITitaniumAppStrategy
 	{
 		TitaniumApplication app = (TitaniumApplication) tag.getApplication();
 
-        TabHost tabHost = new TabHost(tag);
+        tabHost = new TabHost(tag);
         LinearLayout.LayoutParams linearParams = new LinearLayout.LayoutParams(
                 LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
 
@@ -105,7 +107,11 @@ public class TitaniumTabbedAppStrategy implements ITitaniumAppStrategy
 		 		addedToContentView = true;
 			}
         }
-
 	}
 
+	public void setActiveTab(int index) {
+		if (tabHost != null) {
+			tabHost.setCurrentTab(index);
+		}
+	}
 }

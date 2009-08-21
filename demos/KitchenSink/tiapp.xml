@@ -11,21 +11,21 @@
 <icon>appicon.png</icon>
     <windows>
         <window>
-            <id>initial</id>
-            <url>phone.html</url>
+            <id>Phone</id>
+           <url>phone.html</url>
  			<title>Phone API</title>
  			<icon>profile.png</icon>
 			<orientation>either</orientation>
         </window>
         <window>
-            <id>two</id>
+            <id>UI</id>
             <url>ui.html</url>
  			<title>UI API</title>
  			<icon>profile.png</icon>
 			<orientation>either</orientation>
         </window>
         <window>
-            <id>three</id>
+            <id>Views</id>
             <url>views.html</url>
  			<title>Views API</title>
  			<icon>profile.png</icon>
@@ -33,12 +33,11 @@
         </window>
 
         <window>
-            <id>four</id>
+            <id>Platform</id>
             <url>platform.html</url>
  			<title>Platform API</title>
  			<icon>profile.png</icon>
 			<orientation>either</orientation>
         </window>
     </windows>
-<name>KitchenSink</name>
 </ti:app>

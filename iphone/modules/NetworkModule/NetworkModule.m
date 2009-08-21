@@ -224,9 +224,9 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 			// sometimes the above returns nil, in which case we need to fake it
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_3_0
 			webkit = @"Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_2_1 like Mac OS X; en-us) AppleWebKit/525.18.1 (KHTML, like Gecko) Version/3.1.1 Mobile/5H11 Safari/525.20";
-#elseif __IPHONE_OS_VERSION_MIN_REQUIRED = __IPHONE_3_0
+#elif __IPHONE_OS_VERSION_MIN_REQUIRED == __IPHONE_3_0
 			webkit = @"Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16";
-#elseif __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_1
+#elif __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_1
 			webkit = @"Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_1 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7C106c Safari/528.16";
 #endif
 		}
