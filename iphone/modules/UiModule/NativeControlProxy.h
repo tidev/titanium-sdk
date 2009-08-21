@@ -38,7 +38,7 @@ enum { //MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemIte
 
 BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view);
 
-@interface NativeControlProxy : TitaniumProxyObject<UITextViewDelegate,UITextFieldDelegate,UITabBarControllerDelegate>
+@interface NativeControlProxy : TitaniumProxyObject<UITextViewDelegate,UITextFieldDelegate>
 {
 	//Properties that are stored until the time is right
 	BOOL needsRefreshing;

@@ -24,6 +24,9 @@
 #import "TweakedNavController.h"
 #import "Logging.h"
 
+NSString * const TitaniumTabChangeNotification = @"tabChange";
+NSString * const TitaniumJsonKey = @"json";
+
 int extremeDebugLineNumber;
 
 @implementation TitaniumProxyObject : NSObject
@@ -642,6 +645,38 @@ TitaniumHost * lastSharedHost = nil;
 		}
 	}
 }
+
+#pragma mark Tab Bar Delegation
+
+//- (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+- (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController;
+{
+	NSArray * controllerArray = [tabBarController viewControllers];
+	int currentIndex = [controllerArray indexOfObject:viewController];
+	TitaniumViewController * currentTabRoot = [[(UINavigationController *)viewController viewControllers] objectAtIndex:0];
+	NSString * currentName = [currentTabRoot nameString];
+	NSMutableString * eventString = [NSMutableString stringWithFormat:@"index:%d",currentIndex];
+	if(currentName != nil)[eventString appendFormat:@",name:%@",[SBJSON stringify:currentName]];
+	if(previousTabRoot != nil){
+		int previousIndex = [controllerArray indexOfObject:[previousTabRoot navigationController]];
+		NSString * previousName = [previousTabRoot nameString];
+
+		if(previousName != nil)[eventString appendFormat:@",prevName:%@",[SBJSON stringify:previousName]];
+		if(previousIndex != NSNotFound)[eventString appendFormat:@",prevIndex:%d",previousIndex];
+	}
+
+	NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
+	[theNC postNotificationName:TitaniumTabChangeNotification object:tabBarController userInfo:[NSDictionary dictionaryWithObject:eventString forKey:TitaniumJsonKey]];
+	[previousTabRoot release];
+	previousTabRoot = [currentTabRoot retain];
+}
+
+//- (void)tabBarController:(UITabBarController *)tabBarController willBeginCustomizingViewControllers:(NSArray *)viewControllers __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+//- (void)tabBarController:(UITabBarController *)tabBarController willEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+//- (void)tabBarController:(UITabBarController *)tabBarController didEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed;
+//{
+//	
+//}
 
 #pragma mark Useful Toys
 

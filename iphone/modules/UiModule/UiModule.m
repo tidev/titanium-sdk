@@ -703,6 +703,20 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	[messagePacket release];
 }
 
+- (void) setTab: (NSString *)tokenString badge: (id) newBadge;
+{
+	TitaniumViewController * currentViewController = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
+	if(currentViewController == nil)return;
+
+	NSString * result = nil;
+
+	if ([newBadge isKindOfClass:[NSString class]])result=newBadge;
+	if ([newBadge respondsToSelector:@selector(stringValue)])result=[newBadge stringValue];
+	
+	[[currentViewController tabBarItem] performSelectorOnMainThread:@selector(setBadgeValue:) withObject:result waitUntilDone:NO];
+}
+
+
 #pragma mark View actions
 
 - (void) setTableView:(NSString *)tokenString deleteRow:(NSNumber *)rowIndex options:(NSDictionary *)optionsObject;
@@ -831,19 +845,6 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 
 #pragma mark Current Window actions
 
-- (void) setTabBadge: (id) newBadge;
-{
-	NSString * result = nil;
-	
-	if ([newBadge isKindOfClass:[NSDictionary class]])newBadge=[newBadge objectForKey:@"badge"];
-	
-	if ([newBadge isKindOfClass:[NSString class]])result=newBadge;
-	if ([newBadge respondsToSelector:@selector(stringValue)])result=[newBadge stringValue];
-	
-	TitaniumViewController * currentViewController = [[TitaniumHost sharedHost] currentTitaniumViewController];
-	[[currentViewController tabBarItem] performSelectorOnMainThread:@selector(setBadgeValue:) withObject:result waitUntilDone:NO];
-}
-
 - (void) setStatusBarStyle: (id) newValue;
 {
 	TitaniumViewController * currentViewController = [[TitaniumHost sharedHost] currentTitaniumViewController];
@@ -904,22 +905,6 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	if([theNavArray containsObject:ourNav]){
 		[theTabCon performSelectorOnMainThread:@selector(setSelectedViewController:) withObject:ourNav waitUntilDone:NO];
 	}
-}
-
-
-#pragma mark Tab Bar Delegation
-
-//- (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-- (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController;
-{
-	
-}
-
-//- (void)tabBarController:(UITabBarController *)tabBarController willBeginCustomizingViewControllers:(NSArray *)viewControllers __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-//- (void)tabBarController:(UITabBarController *)tabBarController willEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
-- (void)tabBarController:(UITabBarController *)tabBarController didEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed;
-{
-	
 }
 
 #pragma mark Modal things (alert and options)
@@ -1028,7 +1013,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	[(UiModule *)invocGen setAppBadge:nil];
 	NSInvocation * appBadgeInvoc = [invocGen invocation];
 
-	[(UiModule *)invocGen setTabBadge:nil];
+	[(UiModule *)invocGen setTab: nil badge:nil];
 	NSInvocation * tabBadgeInvoc = [invocGen invocation];
 
 	[(UiModule *)invocGen setStatusBarStyle:nil];
@@ -1286,6 +1271,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 			"return res;}";
 
 	NSString * createTabString = @"function(args){var res={"
+			"setBadge:function(val){this.badge=val;if(this._TOKEN)Ti.UI._TBADGE(this._TOKEN,val);},"
 			"};"
 			"if(args){for(prop in args){res[prop]=args[prop];}}"
 			"return res;}";
@@ -1322,6 +1308,11 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	NSString * createProgressBarString = @"function(args){var res=Ti.UI.createActivityIndicator(args,'progressbar');return res;}";
 
 	NSDictionary * uiDict = [NSDictionary dictionaryWithObjectsAndKeys:
+			[TitaniumJSCode codeWithString:@"Ti._ADDEVT"],@"addEventListener",
+			[TitaniumJSCode codeWithString:@"{tabChange:[]}"],@"_EVT",
+			[TitaniumJSCode codeWithString:@"Ti._REMEVT"],@"removeEventListener",
+			[TitaniumJSCode codeWithString:@"Ti._ONEVT"],@"_ONEVT",
+
 			closeWinInvoc,@"_CLS",
 			openWinInvoc,@"_OPN",
 			resizeWindowInvoc,@"_DORESIZE",
@@ -1382,7 +1373,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 
 			
 			appBadgeInvoc,@"setAppBadge",
-			tabBadgeInvoc,@"setTabBadge",
+			tabBadgeInvoc,@"_TBADGE",
 
 			[TitaniumJSCode codeWithString:@"{}"],@"_MODAL",
 			[TitaniumJSCode codeWithString:@"{}"],@"_TBL",
@@ -1400,7 +1391,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 			[TitaniumJSCode codeWithString:setActiveTabString],@"setActiveTab",
 			[TitaniumJSCode codeWithString:createTabString],@"createTab",
 			[TitaniumJSCode codeWithString:getTabByNameString],@"getTabByName",
-			[TitaniumJSCode codeWithString:getAllTabsString],@"getAllTabs",
+			[TitaniumJSCode codeWithString:getAllTabsString],@"getTabs",
 			
 			[NSNumber numberWithInt:TitaniumViewControllerPortrait],@"PORTRAIT",
 			[NSNumber numberWithInt:TitaniumViewControllerLandscape],@"LANDSCAPE",

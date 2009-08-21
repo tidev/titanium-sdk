@@ -33,6 +33,7 @@ TitaniumWebViewController * mostRecentController = nil;
  }
  */
 
+
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {	
 	Class NSStringClass = [NSString class]; //Because this might be from the web where you could have nsnulls and nsnumbers,
@@ -80,6 +81,7 @@ TitaniumWebViewController * mostRecentController = nil;
 //	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'close'})"];
 	[webView release];
 	webView = nil;
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 
 	[currentContentURL release];	//Used as a base url.
 
@@ -186,6 +188,7 @@ TitaniumWebViewController * mostRecentController = nil;
 		[webView setOpaque:NO];
 		[scrollView setAlpha:0.0];
 		[self reloadWebView];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tabChange:) name:TitaniumTabChangeNotification object:nil];
 	}
 	return webView;
 }
@@ -204,6 +207,7 @@ TitaniumWebViewController * mostRecentController = nil;
 			[webView removeFromSuperview];
 			[webView release];
 			webView = nil;
+			[[NSNotificationCenter defaultCenter] removeObserver:self name:TitaniumTabChangeNotification object:nil];
 		}
 		return;
 	}
@@ -288,6 +292,13 @@ TitaniumWebViewController * mostRecentController = nil;
 
 - (BOOL)canBecomeFirstResponder {
 	return YES;
+}
+
+- (void)tabChange: (NSNotification *) notification;
+{
+	NSString * jsonString = [[notification userInfo] objectForKey:TitaniumJsonKey];
+	NSString * commandString = [NSString stringWithFormat:@"Ti.UI._ONEVT({%@});",jsonString];
+	[webView stringByEvaluatingJavaScriptFromString:commandString];
 }
 
 #pragma mark WebViewDelegate methods
