@@ -200,6 +200,7 @@
 
 - (BOOL) startModule;
 {
+	sqlite3_enable_shared_cache(TRUE);
 	TitaniumInvocationGenerator * invocGen = [TitaniumInvocationGenerator generatorWithTarget:self];
 	
 	[(DatabaseModule *)invocGen openDatabase: nil];
