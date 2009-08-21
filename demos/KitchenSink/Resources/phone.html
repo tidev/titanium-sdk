@@ -72,6 +72,14 @@
 			case 6:
 			{
 				var win = Titanium.UI.createWindow({url:'accelerometer.html',title:'Accelerometer', barColor:'#336699'});
+				var b= Titanium.UI.createButton({
+					title:'foo'
+				});
+				win.setLeftNavButton(b);
+				b.addEventListener('click',function(e)
+				{
+					win.close();
+				})
 				win.open({animated:true});
 				break;
 			}
