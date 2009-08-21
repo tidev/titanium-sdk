@@ -742,6 +742,11 @@ needsRefreshing = YES;	\
 	return YES;
 }
 
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text;
+{
+	return YES; //TODO: Handle return?
+}
+
 - (void)textViewDidChange:(UITextView *)textView;
 {
 	[self reportEvent:@"change" value:[SBJSON stringify:[textView text]] index:0];

@@ -1309,7 +1309,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 
 	NSDictionary * uiDict = [NSDictionary dictionaryWithObjectsAndKeys:
 			[TitaniumJSCode codeWithString:@"Ti._ADDEVT"],@"addEventListener",
-			[TitaniumJSCode codeWithString:@"{tabChange:[]}"],@"_EVT",
+			[TitaniumJSCode codeWithString:@"{tabchange:[]}"],@"_EVT",
 			[TitaniumJSCode codeWithString:@"Ti._REMEVT"],@"removeEventListener",
 			[TitaniumJSCode codeWithString:@"Ti._ONEVT"],@"_ONEVT",
 
