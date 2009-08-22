@@ -33,6 +33,7 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 	private String imagePath;
 	private String backgroundImage;
 	private String backgroundSelectedImage;
+	private String backgroundFocusedImage;
 	private String color;
 	private String backgroundColor;
 
@@ -53,10 +54,13 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 			this.imagePath = o.getString("image");
 		}
 		if (o.has("backgroundImage")) {
-			//this.backgroundImage = o.getString("backgroundImage");
+			this.backgroundImage = o.getString("backgroundImage");
 		}
 		if (o.has("backgroundSelectedImage")) {
-			//this.backgroundSelectedImage = o.getString("backgroundSelectedImage");
+			this.backgroundSelectedImage = o.getString("backgroundSelectedImage");
+		}
+		if (o.has("backgroundFocusedImage")) {
+			this.backgroundFocusedImage = o.getString("backgroundFocusedImage");
 		}
 		if (o.has("color")) {
 			this.color = o.getString("color");
@@ -87,11 +91,19 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 				b.setBackgroundColor(TitaniumColorHelper.parseColor(backgroundColor));
 			}
 
-			if (backgroundImage != null || backgroundSelectedImage != null) {
+			if (backgroundImage != null || backgroundSelectedImage != null || backgroundFocusedImage != null) {
 				TitaniumFileHelper tfh = new TitaniumFileHelper(context);
 				StateListDrawable bd = new StateListDrawable();
+				if (backgroundFocusedImage != null) {
+					Drawable d = tfh.loadDrawable(backgroundFocusedImage, false, true);
+					if (d != null) {
+						int[] ss = { android.R.attr.state_focused };
+						bd.addState(ss, d);
+					}
+				}
+
 				if (backgroundSelectedImage != null) {
-					Drawable d = tfh.loadDrawable(backgroundSelectedImage, false);
+					Drawable d = tfh.loadDrawable(backgroundSelectedImage, false, true);
 					if (d != null) {
 						int[] ss = { android.R.attr.state_pressed };
 						bd.addState(ss, d);
@@ -100,7 +112,7 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 					}
 				}
 				if (backgroundImage != null) {
-					Drawable d = tfh.loadDrawable(backgroundImage, false);
+					Drawable d = tfh.loadDrawable(backgroundImage, false, true);
 					if (d != null) {
 						int[] stateSet = { android.R.attr.state_enabled };
 						bd.addState(stateSet, d);
