@@ -1323,7 +1323,11 @@ Titanium.UI = {
 		c.proxy.open();
 		return c;
 	},
-// TODO DOCUMENT
+
+	/**
+	 * @tiapi(method=true,name=UI.getTabs,since=0.6.2) get a list of the tabs
+	 * @tiresult[object] array of tab objects
+	 */
 	getTabs : function() {
 		var tabs = [];
 		var json = Titanium.uiProxy.getTabs();
@@ -1338,7 +1342,11 @@ Titanium.UI = {
 
 		return tabs;
 	},
-
+	/**
+	 * @tiapi(method=true,name=UI.getTagByName,since=0.6.2) get the tab that corresponds to the window id/name listed in tiapp.xml
+	 * @tiarg[string, name] the tab name.
+	 * @tiresult[Tab] the tab or null.
+	 */
 	getTabByName : function(name) {
 		var tab = {};
 
@@ -1349,19 +1357,32 @@ Titanium.UI = {
 		tab.setBadge = function(value){}; // Add method for iPhone compatibility.
 		return tab;
 	},
-
+	/**
+	 * @tiapi(method=true,name=UI.setActiveTab,since=0.6.2) switch to new tab
+	 * @tiarg[object, Tab] The tab to switch to
+	 */
 	setActiveTab : function(tabInfo) {
 		if (!isUndefined(tabInfo)) {
 			Titanium.uiProxy.setActiveTab(Titanium.JSON.stringify(tabInfo));
 		}
 	},
-
+	/**
+	 * @tiapi(method=true,name=UI.addEventListener,since=0.6.2) add application level listener
+	 * @tiarg[string, eventName] the name of the event.
+	 * @tiarg[function, eventHander] the handler for the event
+	 * @tiresult[int] the listener id used to remove the event..
+	 */
 	addEventListener : function(eventName, eventHandler) {
+		return Titanium.uiProxy.addEventListener(eventName, registerCallback(this, eventHandler));
 
 	},
-
+	/**
+	 * @tiapi(method=true,name=UI.removeEventListener,since=0.6.2) remove application level listener
+	 * @tiarg[string, eventName] the name of the event.
+	 * @tiarg[int, listenerId] id of listener to remove as returned from addEventListener.
+	 */
 	removeEventListener : function(eventName, listenerId) {
-
+		Titanium.uiProxy.removeEventListener(eventName, listenerId);
 	},
 
 	// createNotification is below. It needs the property currentWindow

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.titanium.api.ITabChangeListener;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
@@ -60,7 +61,7 @@ import android.widget.ViewAnimator;
  */
 
 public class TitaniumActivity extends Activity
-	implements Handler.Callback
+	implements Handler.Callback, ITabChangeListener
 {
 	private static final String LCAT = "TiActivity";
 	private static final boolean DBG = TitaniumConfig.LOGD;
@@ -74,6 +75,7 @@ public class TitaniumActivity extends Activity
 	protected static final int MSG_SET_LOAD_ON_PAGE_END = 304;
 	protected static final int MSG_CLOSE = 305;
 	protected static final int MSG_SETACTIVETAB = 306;
+	protected static final int MSG_TABCHANGE = 307;
 
 	protected TitaniumApplication app;
 	protected TitaniumIntentWrapper intent;
@@ -279,7 +281,6 @@ public class TitaniumActivity extends Activity
         		root.setTitle(intent.getTitle());
         	}
         }
-    	root = null;
 
 		splashView=new ImageView(this);
 		splashView.setScaleType(ImageView.ScaleType.FIT_XY);
@@ -300,6 +301,13 @@ public class TitaniumActivity extends Activity
 		}
 
 		ts("After splash");
+
+		if (root instanceof TitaniumActivityGroup) {
+	    	TitaniumActivityGroup tag = (TitaniumActivityGroup) root;
+	    	if (tag != null && tag.isTabbed()) {
+	    		tag.addTabChangeListener(this);
+	    	}
+		}
 
 		setContentView(layout);
 
@@ -430,6 +438,13 @@ public class TitaniumActivity extends Activity
 					}
 				}
 		    	return true;
+			}
+			case MSG_TABCHANGE : {
+				String data = (String) msg.obj;
+				for (ITitaniumView tiView : views) {
+					tiView.dispatchApplicationEvent("ui.tabchange", data);
+				}
+				return true;
 			}
 		}
 
@@ -731,6 +746,10 @@ public class TitaniumActivity extends Activity
 		}
 	}
 
+	public void onTabChange(String data) {
+		handler.obtainMessage(MSG_TABCHANGE, data).sendToTarget();
+	}
+
 	@Override
 	protected void onResume()
 	{
@@ -771,6 +790,14 @@ public class TitaniumActivity extends Activity
 	@Override
 	protected void onDestroy() {
 		allowVisible = false;
+		Activity activity = TitaniumActivityHelper.getRootActivity(this);
+		if (activity instanceof TitaniumActivityGroup) {
+	    	TitaniumActivityGroup tag = (TitaniumActivityGroup) activity;
+	    	if (tag != null && tag.isTabbed()) {
+	    		tag.removeTabChangeListener(this);
+	    	}
+	    }
+
 		super.onDestroy();
 		if (!showingJSError) {
 			for(ITitaniumView view : views) {

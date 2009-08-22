@@ -71,6 +71,8 @@ public class TitaniumWebView extends WebView
 	public static final String EVENT_UNFOCUSED = "unfocused";
 	public static final String EVENT_UNFOCUSED_JSON = "{type:'" + EVENT_UNFOCUSED + "'}";
 
+	public static final String EVENT_UI_TABCHANGED = "ui.tabchange";
+
 	public static final int MSG_RUN_JAVASCRIPT = 300;
 	public static final int MSG_LOAD_FROM_SOURCE = 301;
 	public static final int MSG_ADD_CONTROL = 302;
@@ -134,6 +136,8 @@ public class TitaniumWebView extends WebView
 		this.eventListeners = new TitaniumJSEventManager(tmm);
 		this.eventListeners.supportEvent(EVENT_FOCUSED);
 		this.eventListeners.supportEvent(EVENT_UNFOCUSED);
+		// UI/App level events
+		this.eventListeners.supportEvent(EVENT_UI_TABCHANGED);
 
         setWebViewClient(new TiWebViewClient(activity));
         setWebChromeClient(new TiWebChromeClient(activity, useAsView));
@@ -630,6 +634,10 @@ public class TitaniumWebView extends WebView
 
 	public void dispatchWindowFocusChanged(boolean hasFocus) {
 		tiUI.onWindowFocusChanged(hasFocus);
+	}
+
+	public void dispatchApplicationEvent(String eventName, String data) {
+		eventListeners.invokeSuccessListeners(eventName, data);
 	}
 
 	public void dispatchConfigurationChange(Configuration newConfig) {
