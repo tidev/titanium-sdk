@@ -26,6 +26,8 @@ public class TitaniumUIWebView
 	public static final String EVENT_FOCUSED_JSON = "{type:'" + EVENT_FOCUSED + "'}";
 	public static final String EVENT_UNFOCUSED = "unfocused";
 	public static final String EVENT_UNFOCUSED_JSON = "{type:'" + EVENT_UNFOCUSED + "'}";
+	// App/UI level events
+	public static final String EVENT_UI_TABCHANGED = "ui.tabchange";
 
 	private static final int MSG_SHOWING = 300;
 	private static final int MSG_CONFIG = 301;
@@ -48,6 +50,7 @@ public class TitaniumUIWebView
 		this.eventListeners = new TitaniumJSEventManager(tmm);
 		this.eventListeners.supportEvent(EVENT_FOCUSED);
 		this.eventListeners.supportEvent(EVENT_UNFOCUSED);
+		this.eventListeners.supportEvent(EVENT_UI_TABCHANGED);
 	}
 
 	public boolean handleMessage(Message msg) {
@@ -119,6 +122,10 @@ public class TitaniumUIWebView
 	public void dispatchWindowFocusChanged(boolean hasFocus) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public void dispatchApplicationEvent(String eventName, String data) {
+		eventListeners.invokeSuccessListeners(eventName, data);
 	}
 
 	public ITitaniumLifecycle getLifecycle() {

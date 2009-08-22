@@ -2,37 +2,47 @@ package org.appcelerator.titanium;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.config.TitaniumWindowInfo;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import org.appcelerator.titanium.util.Log;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
+import android.widget.TabHost.OnTabChangeListener;
 
-public class TitaniumTabbedAppStrategy implements ITitaniumAppStrategy
+public class TitaniumTabbedAppStrategy implements ITitaniumAppStrategy, OnTabChangeListener
 {
 	private static final String LCAT = "TiTabbedStrategy";
 	@SuppressWarnings("unused")
-	private static final boolean DBG = TitaniumConfig.LOGD;
+	private static final boolean DBG = TitaniumConfig.LOGD | true;
 
+	private WeakReference<TitaniumActivityGroup> weakActivityGroup;
 	private TabHost tabHost;
+
+	private String lastTabId;
+	private int lastTabIndex;
 
 	public TitaniumTabbedAppStrategy() {
 	}
 
 	public void onCreate(TitaniumActivityGroup tag, Bundle savedInstanceState)
 	{
+		weakActivityGroup = new WeakReference<TitaniumActivityGroup>(tag);
 		TitaniumApplication app = (TitaniumApplication) tag.getApplication();
 
         tabHost = new TabHost(tag);
@@ -54,11 +64,20 @@ public class TitaniumTabbedAppStrategy implements ITitaniumAppStrategy
         tabHost.setup(tag.getLocalActivityManager());
 
         ArrayList<TitaniumWindowInfo> windows = app.getAppInfo().getWindows();
+
         boolean addedToContentView = false;
 
         int len = windows.size();
         for (int i = 0; i < len; i++) {
         	TitaniumWindowInfo info = windows.get(i);
+
+        	if (i == 0) {
+        		// Initial last tab information to first tab, may want
+        		// to change this to an invalid entry to signify first
+        		// change.
+        		lastTabId = info.getWindowId();
+        		lastTabIndex = 0;
+        	}
 
 			TabHost.TabSpec spec = null;
 			spec = tabHost.newTabSpec(info.getWindowId());
@@ -107,11 +126,62 @@ public class TitaniumTabbedAppStrategy implements ITitaniumAppStrategy
 		 		addedToContentView = true;
 			}
         }
+
+        tabHost.setOnTabChangedListener(this);
 	}
 
 	public void setActiveTab(int index) {
 		if (tabHost != null) {
 			tabHost.setCurrentTab(index);
 		}
+	}
+
+	public void onTabChanged(String tabId)
+	{
+		String data = null;
+		try {
+			JSONObject o = new JSONObject();
+			o.put("prevIndex", lastTabIndex);
+			o.put("prevName", lastTabId);
+			// remember for next change event.
+			lastTabIndex = getTabIndex(tabId);
+			lastTabId = tabId;
+			o.put("index", lastTabIndex);
+			o.put("name", lastTabId);
+			data = o.toString();
+		} catch (JSONException e) {
+			Log.e(LCAT, "Error creating data object for tabchange event: ", e);
+		}
+
+		if (data != null) {
+			TitaniumActivityGroup tag = weakActivityGroup.get();
+			if (tag != null) {
+				if (DBG) {
+					Log.d(LCAT, "Tab change: " + data);
+				}
+				tag.dispatchTabChange(data);
+			}
+		} else {
+			Log.w(LCAT, "tabchange event not fired, data object not available.");
+		}
+	}
+
+	private int getTabIndex(String tabId) {
+		int index = 0;
+		TitaniumActivityGroup tag = weakActivityGroup.get();
+		if (tag != null) {
+			TitaniumApplication app = (TitaniumApplication) tag.getApplication();
+			ArrayList<TitaniumWindowInfo> windows = app.getAppInfo().getWindows();
+			if (windows != null) {
+				for(int i = 0; i < windows.size(); i++) {
+					TitaniumWindowInfo window = windows.get(i);
+					if (window.getWindowId().equals(tabId)) {
+						index = i;
+						break;
+					}
+				}
+			}
+		}
+        return index;
 	}
 }

@@ -413,6 +413,9 @@ public class TitaniumTableView extends FrameLayout
 		return tmm.getWebView().dispatchPrepareOptionsMenu(menu);
 	}
 
+	public void dispatchApplicationEvent(String eventName, String data) {
+	}
+
 	public String getKey() {
 		return key;
 	}

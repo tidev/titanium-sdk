@@ -358,13 +358,11 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	}
 
 	public int addEventListener(String eventName, String eventListener) {
-		// TODO Auto-generated method stub
-		return 0;
+		return tmm.getWebView().addEventListener("ui." + eventName, eventListener);
 	}
 
 	public void removeEventListener(String eventName, int listenerId) {
-		// TODO Auto-generated method stub
-
+		tmm.getWebView().removeEventListener("ui." + eventName, listenerId);
 	}
 
 	// Expects the message handler to put the object in h.o and release the holder

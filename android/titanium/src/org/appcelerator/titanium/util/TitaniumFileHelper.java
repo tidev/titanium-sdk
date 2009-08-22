@@ -29,11 +29,7 @@ import org.appcelerator.titanium.config.TitaniumConfig;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.NinePatch;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.NinePatchDrawable;
 
 public class TitaniumFileHelper
 {
@@ -50,10 +46,13 @@ public class TitaniumFileHelper
 	static HashMap<String, Integer> systemIcons;
 
 	private SoftReference<Context> softContext;
+	private TitaniumNinePatchHelper nph;
 
 	public TitaniumFileHelper(Context context)
 	{
 		softContext = new SoftReference<Context>(context);
+		this.nph = new TitaniumNinePatchHelper();
+
 		synchronized(TI_DIR) {
 			if (systemIcons == null) {
 				systemIcons = new HashMap<String, Integer>();
@@ -128,14 +127,63 @@ public class TitaniumFileHelper
 		return is;
 	}
 
-	public Drawable loadDrawable(String path, boolean report)
+	public Drawable loadDrawable(String path, boolean report) {
+		return loadDrawable(path, report, false);
+	}
+
+	public Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
 	{
 		Drawable d = null;
 		InputStream is = null;
 		try
 		{
-			is = openInputStream(path, report);
-			d = Drawable.createFromStream(is, path);
+			if (checkForNinePatch) {
+				if (path.endsWith(".png")) {
+					if (!path.endsWith(".9.png")) {
+						String apath = null;
+						// First See if it's in the root dir
+						apath = path.substring(0, path.lastIndexOf(".")) + ".9.png";
+						try {
+							is = openInputStream(apath, false);
+							if (is != null) {
+								path = apath;
+							}
+						} catch (IOException e) {
+							if (DBG) {
+								Log.d(LCAT, "path not found: " + apath);
+							}
+							// Let's see if there is a 9.png in the android folder.
+							int i = path.lastIndexOf("/");
+							if (i > 0) {
+								apath = path.substring(i) +
+									"android" +
+									path.substring(i, path.lastIndexOf(".")) +
+									".9.png";
+							} else {
+								apath = "android/" + path.substring(0, path.lastIndexOf(".")) + ".9.png";
+							}
+
+							try {
+								is = openInputStream(apath, false);
+								if (is != null) {
+									path = apath;
+								}
+							} catch (IOException e1) {
+								if (DBG) {
+									Log.d(LCAT, "path not found: " + apath);
+								}
+							}
+						}
+					}
+				}
+				if (is == null) {
+					is = openInputStream(path, report);
+				}
+				d = nph.process(Drawable.createFromStream(is, path));
+			} else {
+				is = openInputStream(path, report);
+				d = Drawable.createFromStream(is, path);
+			}
 		} catch (IOException e) {
 			Log.i(LCAT, path + " not found.");
 			if (report) {
