@@ -8,12 +8,15 @@
 package org.appcelerator.titanium;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import org.appcelerator.titanium.api.ITabChangeListener;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.appcelerator.titanium.util.TitaniumUIHelper;
@@ -23,7 +26,6 @@ import android.app.Activity;
 import android.app.ActivityGroup;
 import android.content.Intent;
 import android.os.Bundle;
-import org.appcelerator.titanium.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
@@ -40,6 +42,8 @@ public class TitaniumActivityGroup extends ActivityGroup
 	protected ITitaniumAppStrategy appStrategy;
 
 	protected boolean fullscreen;
+
+	protected ArrayList<WeakReference<ITabChangeListener>> tabChangeListeners;
 
 	public TitaniumActivityGroup() {
 	}
@@ -128,6 +132,7 @@ public class TitaniumActivityGroup extends ActivityGroup
 
 		if (numWindows > 1) {
 			appStrategy = new TitaniumTabbedAppStrategy();
+			tabChangeListeners = new ArrayList<WeakReference<ITabChangeListener>>();
 		} else {
 			appStrategy = new TitaniumSingleRootStrategy();
 		}
@@ -146,6 +151,10 @@ public class TitaniumActivityGroup extends ActivityGroup
 
 	public boolean isFullscreen() {
 		return fullscreen;
+	}
+
+	public boolean isTabbed() {
+		return appStrategy instanceof TitaniumTabbedAppStrategy;
 	}
 
 	public void launch(Intent intent) {
@@ -189,6 +198,70 @@ public class TitaniumActivityGroup extends ActivityGroup
 			Log.e(LCAT, "NULL VIEW");
 		}
 		setContentView(w.getDecorView());
+	}
+
+	public void addTabChangeListener(ITabChangeListener listener)
+	{
+		if (tabChangeListeners != null) {
+			synchronized(tabChangeListeners) {
+				WeakReference<ITabChangeListener> weakListener = new WeakReference<ITabChangeListener>(listener);
+				tabChangeListeners.add(weakListener);
+			}
+		} else {
+			Log.w(LCAT, "Not a tabbed application, addTabChangeListener ignored.");
+		}
+	}
+
+	public void removeTabChangeListener(ITabChangeListener listener) {
+		// This is messier since the we have to iterate the weak references
+		// and then compare.
+		if (tabChangeListeners != null) {
+			synchronized(tabChangeListeners) {
+				for(WeakReference<ITabChangeListener> weakListener : tabChangeListeners) {
+					ITabChangeListener l = weakListener.get();
+					if (l != null && l.equals(listener)) {
+						tabChangeListeners.remove(weakListener);
+						break;
+					}
+				}
+			}
+		} else {
+			Log.w(LCAT, "Not a tabbed application, removeTabChangeListener ignored.");
+		}
+	}
+
+	public void dispatchTabChange(String data)
+	{
+		if (tabChangeListeners != null) {
+			synchronized (tabChangeListeners) {
+				ArrayList<WeakReference<ITabChangeListener>> cleanupList = null;
+
+				for(WeakReference<ITabChangeListener> weakListener : tabChangeListeners) {
+					ITabChangeListener l = weakListener.get();
+					if (l != null) {
+						try {
+							l.onTabChange(data);
+						} catch (Throwable t) {
+							Log.e(LCAT, "Error while invoking tabchange listener: ",t);
+						}
+					} else {
+						if (cleanupList == null) {
+							cleanupList = new ArrayList<WeakReference<ITabChangeListener>>();
+						}
+						cleanupList.add(weakListener);
+					}
+				}
+
+				if (cleanupList != null) {
+					for (WeakReference<ITabChangeListener> weakListener : cleanupList) {
+						tabChangeListeners.remove(weakListener);
+					}
+					Log.i(LCAT, "Removed " + cleanupList.size() + " tabchange listeners the were no longer available");
+				}
+			}
+		} else {
+			Log.w(LCAT, "Not a tabbed application, dispatchTabChange ignored.");
+		}
 	}
 
 	@Override
