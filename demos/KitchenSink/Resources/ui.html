@@ -172,7 +172,12 @@
 			}
 			case 17:
 			{
-				Titanium.UI.setTabBadge(10);
+				var tabs = Titanium.UI.getTabs();
+				tabs[0].setBadge(1);
+				tabs[1].setBadge(2);
+				tabs[2].setBadge(3);
+				tabs[3].setBadge(4);
+				
 				break;
 			}
 			case 18:
