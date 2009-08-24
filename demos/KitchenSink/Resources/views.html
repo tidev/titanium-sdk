@@ -1,6 +1,10 @@
 <html>
 <head>
 	<script>
+	Titanium.UI.addEventListener('tabchange',function(e)
+	{
+		Titanium.API.info('>>>>>>>>>>>>>>>>>>>>>>>>>> TABCHANGE index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
+	});
 		
 		// create web view views
 		var webView1 = Titanium.UI.createWebView({url:'views1.html', name:'number1'});
