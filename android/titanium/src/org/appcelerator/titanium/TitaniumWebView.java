@@ -652,6 +652,10 @@ public class TitaniumWebView extends WebView
 		}
 	}
 
+	public boolean isUseAsView() {
+		return useAsView;
+	}
+
 	public boolean dispatchPrepareOptionsMenu(Menu menu)
 	{
 		TitaniumMenuItem md = tiUI.getInternalMenu();

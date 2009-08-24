@@ -9,11 +9,14 @@ package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
 
+import org.appcelerator.titanium.api.ITabChangeListener;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TitaniumActivityHelper;
 import org.appcelerator.titanium.util.TitaniumUIHelper;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.webkit.URLUtil;
@@ -49,6 +52,29 @@ public class TiWebViewClient extends WebViewClient
 				} else {
 					if (tiView != null) {
 						tiView.showing();
+					}
+				}
+			}
+
+			// Fire a fake tab change
+			Activity root = TitaniumActivityHelper.getRootActivity(activity);
+			if (root != null && root instanceof TitaniumActivityGroup) {
+				TitaniumActivityGroup tag = (TitaniumActivityGroup) root;
+				if (view instanceof TitaniumWebView) {
+					TitaniumWebView twv = (TitaniumWebView) view;
+					if (!twv.isUseAsView()) {
+						String data = tag.getLastTabChange();
+						if (data != null) {
+							try {
+								activity.onTabChange(data);
+							} catch (Throwable t) {
+								Log.e(LCAT, "Error while firing initial tab change on open: ", t);
+							}
+						}
+					} else {
+						if (DBG) {
+							Log.d(LCAT, "Not sending fake tabchange to webview used as a view");
+						}
 					}
 				}
 			}

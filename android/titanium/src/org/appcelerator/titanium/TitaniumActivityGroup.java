@@ -43,6 +43,8 @@ public class TitaniumActivityGroup extends ActivityGroup
 
 	protected boolean fullscreen;
 
+	protected String lastTabChangeData;
+
 	protected ArrayList<WeakReference<ITabChangeListener>> tabChangeListeners;
 
 	public TitaniumActivityGroup() {
@@ -51,6 +53,7 @@ public class TitaniumActivityGroup extends ActivityGroup
 	public TitaniumActivityGroup(boolean singleActivityMode) {
 		super(singleActivityMode);
 		fullscreen = false;
+		lastTabChangeData = null;
 	}
 
 	@Override
@@ -157,6 +160,10 @@ public class TitaniumActivityGroup extends ActivityGroup
 		return appStrategy instanceof TitaniumTabbedAppStrategy;
 	}
 
+	public String getLastTabChange() {
+		return lastTabChangeData;
+	}
+
 	public void launch(Intent intent) {
 		launch(new TitaniumIntentWrapper(intent));
 	}
@@ -233,6 +240,7 @@ public class TitaniumActivityGroup extends ActivityGroup
 	public void dispatchTabChange(String data)
 	{
 		if (tabChangeListeners != null) {
+			lastTabChangeData = data;
 			synchronized (tabChangeListeners) {
 				ArrayList<WeakReference<ITabChangeListener>> cleanupList = null;
 
