@@ -66,41 +66,45 @@ public class TitaniumSound
 	protected void initialize()
 		throws IOException
 	{
-		TitaniumMedia mediaModule = softMediaModule.get();
-		if (mediaModule != null) {
-			WebView webView = mediaModule.getWebView();
-			if (webView != null) {
-				mp = new MediaPlayer();
-				if (URLUtil.isAssetUrl(url)) {
-					Context context = webView.getContext();
-					String path = url.substring(ASSET_URL.length());
-					AssetFileDescriptor afd = null;
-					try {
-						afd = context.getAssets().openFd(path);
-						// Why mp.setDataSource(afd) doesn't work is a problem for another day.
-						// http://groups.google.com/group/android-developers/browse_thread/thread/225c4c150be92416
-						mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-					} catch (IOException e) {
-						Log.e(LCAT, "Error setting file descriptor: ", e);
-					} finally {
-						if (afd != null) {
-							afd.close();
+		try {
+			TitaniumMedia mediaModule = softMediaModule.get();
+			if (mediaModule != null) {
+				WebView webView = mediaModule.getWebView();
+				if (webView != null) {
+					mp = new MediaPlayer();
+					if (URLUtil.isAssetUrl(url)) {
+						Context context = webView.getContext();
+						String path = url.substring(ASSET_URL.length());
+						AssetFileDescriptor afd = null;
+						try {
+							afd = context.getAssets().openFd(path);
+							// Why mp.setDataSource(afd) doesn't work is a problem for another day.
+							// http://groups.google.com/group/android-developers/browse_thread/thread/225c4c150be92416
+							mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+						} catch (IOException e) {
+							Log.e(LCAT, "Error setting file descriptor: ", e);
+						} finally {
+							if (afd != null) {
+								afd.close();
+							}
+						}
+					} else {
+						Uri uri = Uri.parse(url);
+						if (uri.getScheme().equals("file")) {
+							mp.setDataSource(uri.getPath());
+						} else {
+							mp.setDataSource(url);
 						}
 					}
-				} else {
-					Uri uri = Uri.parse(url);
-					if (uri.getScheme().equals("file")) {
-						mp.setDataSource(uri.getPath());
-					} else {
-						mp.setDataSource(url);
-					}
+					mp.prepare();
+					mp.setVolume(volume, volume);
+					mp.setLooping(looping);
+					mp.setOnCompletionListener(this);
+					mp.setOnErrorListener(this);
 				}
-				mp.prepare();
-				mp.setVolume(volume, volume);
-				mp.setLooping(looping);
-				mp.setOnCompletionListener(this);
-				mp.setOnErrorListener(this);
 			}
+		} catch (Throwable t) {
+			Log.w(LCAT, "Issue while initializing : " , t);
 		}
 	}
 
@@ -126,120 +130,150 @@ public class TitaniumSound
 	}
 
 	public void pause() {
-		if (mp != null) {
-			if(mp.isPlaying()) {
-				if (DBG) {
-					Log.d(LCAT,"audio is playing, pause");
+		try {
+			if (mp != null) {
+				if(mp.isPlaying()) {
+					if (DBG) {
+						Log.d(LCAT,"audio is playing, pause");
+					}
+					mp.pause();
+					paused = true;
 				}
-				mp.pause();
-				paused = true;
 			}
+		} catch (Throwable t) {
+			Log.w(LCAT, "Issue while pausing : " , t);
 		}
 	}
 
 	public void play() {
-		if (mp == null) {
-			try {
-				initialize();
-				TitaniumMedia mediaModule = softMediaModule.get();
-				if (mediaModule != null) {
-					mediaModule.addLifecycleListener(this);
-				}
-			} catch (IOException e) {
-				Log.e(LCAT, "Error during initialization.",e);
-				if (mp != null) {
-					mp.release();
-					mp = null;
+		try {
+			if (mp == null) {
+				try {
+					initialize();
+					TitaniumMedia mediaModule = softMediaModule.get();
+					if (mediaModule != null) {
+						mediaModule.addLifecycleListener(this);
+					}
+				} catch (IOException e) {
+					Log.e(LCAT, "Error during initialization.",e);
+					if (mp != null) {
+						mp.release();
+						mp = null;
+					}
 				}
 			}
-		}
 
-		if (mp != null) {
-			if(!isPlaying()) {
-				if (DBG) {
-					Log.d(LCAT,"audio is not playing, starting.");
+			if (mp != null) {
+				if(!isPlaying()) {
+					if (DBG) {
+						Log.d(LCAT,"audio is not playing, starting.");
+					}
+					mp.setVolume(volume, volume);
+					if (DBG) {
+						Log.d(LCAT, "Play: Volume set to " + volume);
+					}
+					mp.start();
+					paused = false;
 				}
-				mp.setVolume(volume, volume);
-				if (DBG) {
-					Log.d(LCAT, "Play: Volume set to " + volume);
-				}
-				mp.start();
-				paused = false;
 			}
+		} catch (Throwable t) {
+			Log.w(LCAT, "Issue while playing : " , t);
 		}
 	}
 
 	public void reset() {
-		if (mp != null) {
-			mp.seekTo(0);
-			looping = false;
-			paused = false;
-			//mp.reset();
+		try {
+			if (mp != null) {
+				mp.seekTo(0);
+				looping = false;
+				paused = false;
+			}
+		} catch (Throwable t) {
+			Log.w(LCAT, "Issue while resetting : " , t);
 		}
 	}
 
 	public void release()
 	{
-		if (mp != null) {
-			TitaniumMedia mediaModule = softMediaModule.get();
-			if (mediaModule != null) {
-				mediaModule.removeLifecyleListener(this);
-			}
+		try {
+			if (mp != null) {
 
-			mp.setOnCompletionListener(null);
-			mp.setOnErrorListener(null);
-			stop();
-			mp.release();
-			mp = null;
-			if (DBG) {
-				Log.d(LCAT, "Native resources released.");
+				TitaniumMedia mediaModule = softMediaModule.get();
+				if (mediaModule != null) {
+					mediaModule.removeLifecyleListener(this);
+				}
+
+				mp.setOnCompletionListener(null);
+				mp.setOnErrorListener(null);
+				mp.release();
+				mp = null;
+				if (DBG) {
+					Log.d(LCAT, "Native resources released.");
+				}
 			}
+		} catch (Throwable t) {
+			Log.w(LCAT, "Issue while releasing : " , t);
 		}
 	}
 
 	public void setLooping(boolean loop) {
-		if(loop != looping) {
-			if (mp != null) {
-				mp.setLooping(loop);
+		try {
+			if(loop != looping) {
+				if (mp != null) {
+					mp.setLooping(loop);
+				}
+				looping = loop;
 			}
-			looping = loop;
+		} catch (Throwable t) {
+			Log.w(LCAT, "Issue while configuring looping : " , t);
 		}
 	}
 
 	public void setVolume(float volume)
 	{
-		if (volume < 0.0f) {
-			this.volume = 0.0f;
-			Log.w(LCAT, "Attempt to set volume less than 0.0. Volume set to 0.0");
-		} else if (volume > 1.0) {
-			this.volume = 1.0f;
-			Log.w(LCAT, "Attempt to set volume greater than 1.0. Volume set to 1.0");
-		} else {
-			this.volume = volume; // Store in 0.0 to 1.0, scale when setting hw
-		}
-		if (mp != null) {
-			float scaledVolume = this.volume * VOLUME_SCALING_FACTOR;
-			mp.setVolume(scaledVolume, scaledVolume);
+		try {
+			if (volume < 0.0f) {
+				this.volume = 0.0f;
+				Log.w(LCAT, "Attempt to set volume less than 0.0. Volume set to 0.0");
+			} else if (volume > 1.0) {
+				this.volume = 1.0f;
+				Log.w(LCAT, "Attempt to set volume greater than 1.0. Volume set to 1.0");
+			} else {
+				this.volume = volume; // Store in 0.0 to 1.0, scale when setting hw
+			}
+			if (mp != null) {
+				float scaledVolume = this.volume * VOLUME_SCALING_FACTOR;
+				mp.setVolume(scaledVolume, scaledVolume);
+			}
+		} catch (Throwable t) {
+			Log.w(LCAT, "Issue while setting volume : " , t);
 		}
 	}
 
 	public void stop() {
-		if (mp != null) {
-			if (mp.isPlaying() || isPaused()) {
-				if (DBG) {
-					Log.d(LCAT, "audio is playing, stop()");
-				}
-				mp.stop();
-				try {
-					mp.prepare();
-				} catch (IOException e) {
-					Log.e(LCAT,"Error while preparing audio after stop(). Ignoring.");
-				}
-			}
+		try {
+			if (mp != null) {
 
-			if(isPaused()) {
-				paused = false;
+				if (mp.isPlaying() || isPaused()) {
+					if (DBG) {
+						Log.d(LCAT, "audio is playing, stop()");
+					}
+					mp.stop();
+					try {
+						mp.prepare();
+					} catch (IOException e) {
+						Log.e(LCAT,"Error while preparing audio after stop(). Ignoring.");
+					} catch (IllegalStateException e) {
+						Log.w(LCAT, "Error while preparing audio after stop(). Ignoring.");
+					}
+				}
+
+				if(isPaused()) {
+					paused = false;
+				}
 			}
+		} catch (Throwable t) {
+			Log.e(LCAT, "Error : " , t);
 		}
 	}
 
