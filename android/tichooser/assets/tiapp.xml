@@ -8,7 +8,7 @@
 	<prerendered-icon>false</prerendered-icon>
 	<statusbar-style>opaque</statusbar-style>
     <windows>
-
+<!--
         <window>
             <id>media</id>
             <title>Media</title>
@@ -19,7 +19,6 @@
             <barColor>#000</barColor>
         </window>
 
-<!--
         <window>
             <id>urls</id>
             <title>URLs</title>
@@ -158,7 +157,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+-->
 		<window>
             <id>NetSend</id>
             <title>Net Send</title>
@@ -168,7 +167,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+<!--
 		<window>
             <id>IslandTest</id>
             <title>Island</title>

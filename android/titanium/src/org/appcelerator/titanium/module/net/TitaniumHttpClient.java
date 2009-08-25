@@ -55,6 +55,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 
 	private String userAgent;
 	private String onReadyStateChangeCallback;
+	private String onLoadCallback;
 	private int readyState;
 	private String responseText;
 	private int status;
@@ -150,6 +151,13 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 			if (cb != null) {
 				webView.evalJS(cb, null, syncId);
 			}
+			if (readyState == ITitaniumHttpClient.READY_STATE_COMPLETE) {
+				// Fire onload callback
+				final String cbOnLoad = onLoadCallback;
+				if (cbOnLoad != null) {
+					webView.evalJS(cbOnLoad, null, syncId);
+				}
+			}
 		}
 	}
 
@@ -193,6 +201,10 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	 */
 	public  void setStatusText(String statusText) {
 		this.statusText = statusText;
+	}
+
+	public void setOnLoadCallback(String callback) {
+		this.onLoadCallback = callback;
 	}
 
 	/* (non-Javadoc)

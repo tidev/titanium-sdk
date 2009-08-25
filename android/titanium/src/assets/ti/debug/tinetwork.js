@@ -11,6 +11,8 @@ Titanium.networkProxy = window.TitaniumNetwork;
 var HTTPClient = function() {
 	this.obj; // reference to java TitaniumHttpClient
 	this._onreadystatechange;
+	this._onload
+
 	/**
 	 * @tiapi(method=true,name=Network.HTTPClient.getReadyState,since=0.4) the state of the network operation
 	 * @tiresult[int] current operation state
@@ -130,6 +132,16 @@ HTTPClient.prototype.__defineGetter__("onreadystatechange", function(){
 });
 HTTPClient.prototype.__defineSetter__("onreadystatechange", function(f) {
 	this.setOnReadyStateChange(f);
+});
+/**
+ * @tiapi(property=true,name=Network.HTTPClient.onload,since=0.6.3) Set or get the onload handler.
+ */
+HTTPClient.prototype.__defineGetter__("onload", function(){
+	return this._onload
+});
+HTTPClient.prototype.__defineSetter__("onload", function(f) {
+	this._onload = f;
+	this.obj.setOnLoadCallback(registerCallback(this, f));
 });
 /**
  * @tiapi(property=true,name=Network.HTTPClient.readyState,since=0.4) Get the current ready state

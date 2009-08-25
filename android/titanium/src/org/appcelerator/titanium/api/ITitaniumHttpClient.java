@@ -19,8 +19,7 @@ public interface ITitaniumHttpClient {
 
 	public String getOnReadyStateChangeCallback();
 
-	public void setOnReadyStateChangeCallback(
-			String onReadyStateChangeCallback);
+	public void setOnReadyStateChangeCallback(String onReadyStateChangeCallback);
 
 	public int getReadyState();
 
@@ -56,4 +55,5 @@ public interface ITitaniumHttpClient {
 	public void addPostData(String name, String value);
 	public void addTitaniumFileAsPostData(String name, ITitaniumFile value);
 	public void addStringData(String data);
+	public void setOnLoadCallback(String callback);
 }

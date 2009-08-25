@@ -90,6 +90,21 @@
 			}
 		};
 
+		$('googleOnLoad').onclick = function() {
+			try {
+				$('echo').innerHTML = 'Requesting from Google...one moment';
+				var ourClient = Titanium.Network.createHTTPClient();
+				ourClient.open('GET','http://google.com');
+				ourClient.onload=function(){
+					$('echo').innerHTML = this.responseText;
+					$('status').innerHTML = this.getStatus() + ": " + this.getStatusText();
+				};
+				ourClient.send();
+			} catch(E) {
+				alert('Exception: ' + E);
+			}
+		};
+
 		$('head').onclick = function() {
 			try {
 				$('echo').innerHTML = 'Requesting HEAD from www.yahoo.com ...one moment';
@@ -125,6 +140,7 @@
 	<button id="tryEcho">Send multipart</button>
 	<button id="photos">Choose Photo</button>
 	<button id="google">Get Google</button>
+	<button id="googleOnLoad">Get Google 2</button>
 	<button id="head">Get Yahoo</button>
 </div>
 
