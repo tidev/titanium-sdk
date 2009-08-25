@@ -51,7 +51,9 @@ NSString * const netHTTPClientGeneratorFormat = @"Ti.%@ = {"
 "Ti.%@.__defineGetter__('responseText',function(){return Ti._TICMD('%@','responseText',[])});"
 "Ti.%@.__defineGetter__('responseXML',function(){var xml = Ti._TICMD('%@','responseText',[]); return new DOMParser().parseFromString(xml,'text/xml'); });"
 "Ti.%@.__defineGetter__('status',function(){return Ti._TICMD('%@','status',[])});"
-"Ti.%@.__defineGetter__('connected',function(){return Ti._TICMD('%@','connected',[])});";
+"Ti.%@.__defineGetter__('connected',function(){return Ti._TICMD('%@','connected',[])});"
+"window.XMLHttpRequest = function(){return new Titanium.Network.createHTTPClient()};";
+
 
 NSString * const MultiPartBoundaryString = @"XxX~Titanium~HTTPClient~Boundary~XxX";
 const char MultiPartEntryPrelude[] = "--XxX~Titanium~HTTPClient~Boundary~XxX\r\nContent-Disposition: form-data; name=\"";

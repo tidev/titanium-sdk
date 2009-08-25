@@ -289,3 +289,8 @@ Titanium.Network.__defineGetter__("networkType", function() {
 // alias this to what's in Desktop
 Titanium.Net = Titanium.Network;
 
+// patch the internal XMLHttpRequest object to use our network client instead
+// this fixes apps that would like to use Ajax-libraries like jQuery, YUI, etc.
+window.XMLHttpRequest = function() {
+	return new Titanium.Network.createHTTPClient()
+};
