@@ -76,6 +76,28 @@ int barButtonSystemItemForString(NSString * inputString){
 	return UITitaniumNativeItemNone;
 }
 
+@interface NativePickerColumn : NSObject
+{
+	CGFloat	width;
+	CGFloat	rowHeight;
+	NSArray * data;
+}
+
+
+@end
+
+@implementation NativePickerColumn
+
+
+@end
+
+
+
+
+
+
+
+
 @implementation NativeControlProxy
 @synthesize nativeBarButton, segmentLabelArray, segmentImageArray, segmentSelectedIndex;
 @synthesize titleString, iconPath, templateValue, buttonStyle, nativeView, labelView, wrapperView;

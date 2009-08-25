@@ -219,7 +219,6 @@
 		B48E4AE40FC1DBEE00204C8E /* iPhone_BG.png in Resources */ = {isa = PBXBuildFile; fileRef = B4880BA20F96B4E3007589FC /* iPhone_BG.png */; };
 		B48E4AE50FC1DBF200204C8E /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = B4F51CB00F981F23004D9D2D /* Default.png */; };
 		B492D43E0FCC6DB20030772B /* network.html in Resources */ = {isa = PBXBuildFile; fileRef = B492D43D0FCC6DB20030772B /* network.html */; };
-		B49C8D8E103A1B0500AF190C /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; };
 		B4A10F3E0F86BC490040D850 /* AppDownloadView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B4A10F3D0F86BC490040D850 /* AppDownloadView.xib */; };
 		B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
 		B4A49BA30FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
@@ -247,6 +246,7 @@
 		B4C6D7340FE9AB0600D62384 /* TitaniumTableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4C6D7310FE9AB0600D62384 /* TitaniumTableViewController.h */; };
 		B4C6D7350FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */; };
 		B4CAF1530FC368B9000BB476 /* TitaniumUIViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4864F5A0F7C48E700A851C5 /* TitaniumUIViewController.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		B4D262DD10437CC8007D123E /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; };
 		B4DD427D0FD982FD00CD427F /* profile.png in Resources */ = {isa = PBXBuildFile; fileRef = B4DD427C0FD982FD00CD427F /* profile.png */; };
 		B4DDBE2B0FD0AE31004DD79E /* ui.html in Resources */ = {isa = PBXBuildFile; fileRef = B4DDBE2A0FD0AE31004DD79E /* ui.html */; };
 		B4E9B9C40F82030700DD709C /* TitaniumAccessorTuple.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9B9C30F82030700DD709C /* TitaniumAccessorTuple.m */; };
@@ -445,7 +445,7 @@
 				B4C3F8B60FB3B11C0037F210 /* CoreLocation.framework in Frameworks */,
 				B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */,
 				B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */,
-				B49C8D8E103A1B0500AF190C /* MessageUI.framework in Frameworks */,
+				B4D262DD10437CC8007D123E /* MessageUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

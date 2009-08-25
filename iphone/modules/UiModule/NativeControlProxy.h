@@ -105,7 +105,16 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 	UIView * nativeView;
 	UIBarButtonItem * nativeBarButton;
 	
-	//Note: For some elements (Textview, activityIndicator, statusIndicator)
+	//Pickers, date:
+	NSDate * dateValue;		//Countdown duration is floatValue
+	NSDate * minDate;
+	NSDate * maxDate;
+	UIDatePickerMode mode;
+	int		minuteInterval;
+	
+	//Pickers, general purpose
+	BOOL	showSelectionIndicator;
+	NSArray * pickerColumnsArray;
 }
 
 @property(nonatomic,readwrite,copy)		NSString * titleString;

@@ -214,6 +214,9 @@ static char ctrl[0x24];
         else
             [json appendString:[fragment stringValue]];
 
+    } else if ([fragment isKindOfClass:[NSDate class]]) {
+        [json appendFormat:@"new Date(%f)",[(NSDate *)fragment timeIntervalSince1970]*1000.0];
+
     } else if ([fragment isKindOfClass:[NSNull class]] || (fragment == nil)) {
         [json appendString:@"null"];
         
@@ -451,8 +454,27 @@ static char ctrl[0x24];
             return [self scanRestOfTrue:(NSNumber **)o error:error];
             break;
         case 'n':
-            return [self scanRestOfNull:(NSNull **)o error:error];
-            break;
+			if (!strncmp(c, "ull", 3)) {
+				c += 3;
+				*o = [NSNull null];
+				return YES;
+			}
+			if (!strncmp(c, "ew Date(", 8)){
+				c += 8;
+				NSNumber * dateMillis;
+				if(![self scanNumber:&dateMillis error:error]){
+					return NO;
+				}
+				if(*c++ != ')'){
+					*error = err(EPARSE, @"new Date is missing trailing parens");
+					return NO;
+				}
+				*o = [NSDate dateWithTimeIntervalSince1970:[dateMillis floatValue]/1000.0];
+				return YES;
+			}
+			*error = err(EPARSE, @"neither null nor new now");
+			return NO;
+			break;
         case '-':
         case '0'...'9':
             c--; // cannot verify number correctly without the first character

@@ -440,7 +440,7 @@ int nextWindowToken = 0;
 - (void)viewDidAppear:(BOOL)animated;
 {
 	[super viewDidAppear:animated];
-	if(![[[UIDevice currentDevice] systemVersion] hasPrefix:@"2.0"]) [self becomeFirstResponder];
+	if(![[[UIDevice currentDevice] systemVersion] hasPrefix:@"2."]) [self becomeFirstResponder];
 
 	UINavigationController * theNC = [self navigationController];
 	[[TitaniumHost sharedHost] navigationController:theNC didShowViewController:self animated:animated];
@@ -450,7 +450,7 @@ int nextWindowToken = 0;
 - (void)viewWillDisappear: (BOOL) animated;
 {
 	[super viewWillDisappear:animated];
-	if(![[[UIDevice currentDevice] systemVersion] hasPrefix:@"2.0"]) [self resignFirstResponder];
+	if(![[[UIDevice currentDevice] systemVersion] hasPrefix:@"2."]) [self resignFirstResponder];
 }
 
 - (void)viewDidDisappear: (BOOL) animated;

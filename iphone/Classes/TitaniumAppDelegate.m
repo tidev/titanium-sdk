@@ -18,7 +18,6 @@
 
 #import "Logging.h"
 
-
 @implementation TitaniumAppDelegate
 
 @synthesize window, loadingView;
@@ -26,7 +25,7 @@
 @synthesize currentHost;
 @synthesize isShowingDialog;
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_OS_VERSION_MIN_REQUIRED_3_0 && defined(MODULE_TI_GESTURE)	 	
+#ifdef MODULE_TI_GESTURE
 @synthesize lastAcceleration;
 #endif
 
@@ -130,8 +129,9 @@
 	[self launchTitaniumApp:nil];
 	CLOCKSTAMP("Launched app");
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_0 && defined(MODULE_TI_GESTURE)	 	
-	[UIAccelerometer sharedAccelerometer].delegate = self;
+	
+#ifdef MODULE_TI_GESTURE
+	if([[[UIDevice currentDevice] systemVersion] hasPrefix:@"2."])[UIAccelerometer sharedAccelerometer].delegate = self;
 #endif	
 }
 
@@ -187,12 +187,12 @@
     [super dealloc];
 }
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_0 && defined(MODULE_TI_GESTURE)	 	
+#ifdef MODULE_TI_GESTURE
 
 // using iPhone 2.2 this is how we do shake
 - (void) accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
 	
-	if (self.lastAcceleration) 
+	if (self.lastAcceleration)
 	{
 		if (!histeresisExcited && L0AccelerationIsShaking(self.lastAcceleration, acceleration, 0.7)) {
 			histeresisExcited = YES;

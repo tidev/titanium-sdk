@@ -16,11 +16,22 @@
 #import "TitaniumWebViewController.h"
 #import "TitaniumTableViewController.h"
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_0
+#ifdef __IPHONE_3_0
 #import <MessageUI/MessageUI.h>
 #import <MessageUI/MFMailComposeViewController.h>
 #else
+enum MFMailComposeResult {
+    MFMailComposeResultCancelled,
+    MFMailComposeResultSaved,
+    MFMailComposeResultSent,
+    MFMailComposeResultFailed
+};
+typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3.0
+
 @class MFMailComposeViewController;
+@protocol MFMailComposeViewControllerDelegate <NSObject>
+@end
+
 #endif
 
 NSString * UrlEncodeString(NSString * string)
@@ -192,10 +203,6 @@ NSString * UrlEncodeString(NSString * string)
 
 @end
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_3_0
-@protocol MFMailComposeViewControllerDelegate <NSObject>
-@end
-#endif
 
 @interface EmailComposerProxy : TitaniumProxyObject<MFMailComposeViewControllerDelegate>
 {
@@ -290,7 +297,7 @@ NSString * UrlEncodeString(NSString * string)
 			}
 		}
 		UIViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[self parentPageToken]];
-		[[TitaniumHost sharedHost] navigationController:[ourVC navigationController] presentModalView:emailComposer animated:animated];
+		[[TitaniumHost sharedHost] navigationController:[ourVC navigationController] presentModalView:(UIViewController *)emailComposer animated:animated];
 		[self retain];
 		
 		return;
@@ -319,16 +326,6 @@ NSString * UrlEncodeString(NSString * string)
 	NSLog(@"Since we don't have access to MFMailComposeViewController, we're launching %@ instead.",urlVersion);
 	[[UIApplication sharedApplication] openURL:urlVersion];
 }
-
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_3_0	 	
-enum MFMailComposeResult {
-    MFMailComposeResultCancelled,
-    MFMailComposeResultSaved,
-    MFMailComposeResultSent,
-    MFMailComposeResultFailed
-};
-typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3.0
-#endif
 
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error;
 {
@@ -1240,10 +1237,10 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 	NSString * rowAnimationStyleString = [NSString stringWithFormat:@"{FADE:%d,RIGHT:%d,LEFT:%d,TOP:%d,BOTTOM:%d,NONE:%d}",
 				UITableViewRowAnimationFade,UITableViewRowAnimationRight,UITableViewRowAnimationLeft,
 				UITableViewRowAnimationTop,UITableViewRowAnimationBottom,
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_0	 	
+#ifdef __IPHONE_3_0	 	
 				UITableViewRowAnimationNone];        // available in iPhone 3.0
 #else
-				0];
+				UITableViewRowAnimationBottom+1];	//We cheat!
 #endif
 	
 	NSString * createButtonString = @"function(args,btnType){var res={"

@@ -37,13 +37,17 @@
 
 - (void)updateState: (BOOL) animated;
 {
-		if ([self isHighlighted]) {
-			[htmlLabel stringByEvaluatingJavaScriptFromString:@"document.body.style['color']='white';"];
-		} else if ([self accessoryType] == UITableViewCellAccessoryCheckmark){
-			[htmlLabel stringByEvaluatingJavaScriptFromString:@"document.body.style['color']='#374F82';"];
-		} else {
-			[htmlLabel stringByEvaluatingJavaScriptFromString:@"document.body.style['color']='black';"];
-		}
+	BOOL hilighted;
+	if([self respondsToSelector:@selector(isHighlighted)]) hilighted = [self isHilighted];
+	else hilighted = [self isSelected];
+
+	if (hilighted) {
+		[htmlLabel stringByEvaluatingJavaScriptFromString:@"document.body.style['color']='white';"];
+	} else if ([self accessoryType] == UITableViewCellAccessoryCheckmark){
+		[htmlLabel stringByEvaluatingJavaScriptFromString:@"document.body.style['color']='#374F82';"];
+	} else {
+		[htmlLabel stringByEvaluatingJavaScriptFromString:@"document.body.style['color']='black';"];
+	}
 
 }
 

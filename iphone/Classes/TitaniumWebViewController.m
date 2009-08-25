@@ -17,7 +17,7 @@ TitaniumWebViewController * mostRecentController = nil;
 @synthesize webView, currentContentURL, scrollView;
 
 #pragma mark Class Methods
-+ (TitaniumContentViewController *) mostRecentController;
++ (TitaniumWebViewController *) mostRecentController;
 {
 	return mostRecentController;
 }
@@ -461,7 +461,10 @@ TitaniumWebViewController * mostRecentController = nil;
 
 #pragma mark Gestures
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_0
+#ifndef __IPHONE_3_0
+typedef int UIEventSubtype;
+const UIEventSubtype UIEventSubtypeMotionShake=1;
+#endif
 
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
 {
@@ -473,8 +476,6 @@ TitaniumWebViewController * mostRecentController = nil;
 	
 	NSLog(@"Ended!");
 }
-
-#endif
 
 
 - (void)setInterfaceOrientation:(TitaniumViewControllerOrientationsAllowed)interfaceOrientation duration:(NSTimeInterval)duration;

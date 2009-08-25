@@ -8,15 +8,6 @@
 #import "TitaniumModule.h"
 #import "TitaniumCmdThread.h"
 
-// for < 3.0 compiles we need to define
-#ifndef __IPHONE_3_0
-#define __IPHONE_3_0 30000
-#endif
-
-#ifndef __IPHONE_3_1
-#define __IPHONE_3_1 30100
-#endif
-
 // TI_VERSION will be set via an external source if not set
 // display a warning and set it to 0.0.0
 
