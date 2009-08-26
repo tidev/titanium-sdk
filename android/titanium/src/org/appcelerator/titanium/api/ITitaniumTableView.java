@@ -15,4 +15,7 @@ public interface ITitaniumTableView
 	public void updateRow(int index, String json);
 	public int getIndexByName(String name);
 	public int getRowCount();
+
+	// New in 0.6.3/1.0
+	public void appendRow(String rowData, String json);
 }

@@ -212,6 +212,10 @@ public class TitaniumTableView extends FrameLayout
 		}
 	}
 
+	public void appendRow(String rowData, String json) {
+		insertRowAfter(viewModel.getRowCount()-1, rowData);
+	}
+
 	public int getRowCount() {
 		return viewModel.getRowCount();
 	}

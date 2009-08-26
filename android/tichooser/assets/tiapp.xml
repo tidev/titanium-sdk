@@ -87,7 +87,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-<!--
+
         <window>
             <id>TableView HTML</id>
             <title>Table View HTML</title>
@@ -107,7 +107,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+<!--
 		<window>
             <id>Email</id>
             <title>Email</title>

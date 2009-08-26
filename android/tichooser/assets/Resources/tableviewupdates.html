@@ -60,6 +60,11 @@
 			hasChild : true
 		},
 		{
+			title : 'Append',
+			name : 'append',
+			hasChild : true
+		},
+		{
 			title : 'Exit',
 			name : 'exit'
 		}
@@ -136,6 +141,8 @@
 						});
 					} else if (e.name == 'update') {
 						Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('p3'));
+					} else if (e.name == 'append') {
+						Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('p4'));
 					}
 				});
 				alert('LID: ' + lid);
@@ -220,6 +227,34 @@
 		}
 	});
 
+  	var page4 = [
+  	  	   		{
+  	  	   			title : 'Row 1',
+  	  	   			name : 'n1'
+  	  	   		},
+  	  	   		{
+  	  	   			title : 'Row 2',
+  	  	   			name : 'n2'
+  	  	   		},
+  	  	   		{
+  	  	   			title : 'Exit',
+  	  	   			name : 'exit'
+  	  	   		}
+  	  	  ];
+
+	var tv4 = Titanium.UI.createTableView({
+		data : [], rowHeight : '75', name : 'p4'
+	},
+	function(e) {
+		if (e.name === 'exit') {
+			Titanium.UI.currentWindow.showView(tv1);
+		}
+	});
+
+	for(i = 0; i < page3.length; i++) {
+		tv4.appendRow(page4[i], {});
+	}
+
   	window.onload = function()
   	{
   	  	var w = Titanium.UI.currentWindow;
@@ -232,6 +267,7 @@
   	  	w.addView(tv1);
   	  	w.addView(tv2);
   	  	w.addView(tv3);
+  	  	w.addView(tv4);
   	  	w.setActiveViewIndex(1);
 
   	  	var btn_launch = document.getElementById('launch');

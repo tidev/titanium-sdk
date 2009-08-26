@@ -489,36 +489,81 @@ var TableView = function(proxy) {
 	this.removeEventListener = function(eventName, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
+	/**
+	 * @tiapi(method=true,name=UI.TableView.insertRowAfter,since=0.6) insert a row after the given index
+	 * @tiarg[int,index] row index of an existing row
+	 * @tiarg[object,options] row data
+	 */
 	this.insertRowAfter = function(index, options) {
 		if (isUndefined(options)) {
 			options = {};
 		}
 		this.proxy.insertRowAfter(index, Titanium.JSON.stringify(options));
 	};
+	/**
+	 * @tiapi(method=true,name=UI.TableView.insertRowBefore,since=0.6) insert a row before the given index
+	 * @tiarg[int,index] row index of an existing row
+	 * @tiarg[object,options] row data
+	 */
 	this.insertRowBefore = function(index, options) {
 		if (isUndefined(options)) {
 			options = {};
 		}
 		this.proxy.insertRowBefore(index, Titanium.JSON.stringify(options));
 	};
+	/**
+	 * @tiapi(method=true,name=UI.TableView.deleteRow,since=0.6) delete row at the given index
+	 * @tiarg[int,index] row index of an existing row
+	 */
 	this.deleteRow = function(index) {
 		this.proxy.deleteRow(index);
 	};
+	/**
+	 * @tiapi(method=true,name=UI.TableView.UpdateRow,since=0.6) update the row at the given index
+	 * @tiarg[int,index] row index of an existing row
+	 * @tiarg[object,options] row data
+	 */
 	this.updateRow = function(index, options) {
 		if (isUndefined(options)) {
 			options = {};
 		}
 		this.proxy.updateRow(index, Titanium.JSON.stringify(options));
 	};
+	/**
+	 * @tiapi(method=true,name=UI.TableView.appendRow,since=0.6.3) append a row at the end of the table.
+	 * @tiarg[object,rowData] JSON compatible data
+	 * @tiarg[object,options] options for append
+	 */
+	this.appendRow = function(rowData, options) {
+		if (!isUndefined(rowData)) {
+			if (isUndefined(options)) {
+				options = {};
+			}
+			this.proxy.appendRow(Titanium.JSON.stringify(rowData), Titanium.JSON.stringify(options));
+		}
+	};
+	/**
+	 * @tiapi(method=true,name=UI.TableView.getRowCount,since=0.6) the number of rows in the table.
+	 * @tiresult[int] row count
+	 */
 	this.getRowCount = function() {
 		return this.proxy.getRowCount();
 	};
+	/**
+	 * @tiapi(method=true,name=UI.TableView.getIndexByName,since=0.6) return the index of an existing row by name
+	 * @tiarg[String,name] row name
+	 * @tireslt[int,options] row index
+	 */
 	this.getIndexByName = function(name) {
 		if(isUndefined(name)) {
 			name = null;
 		}
 		return this.proxy.getIndexByName(name);
 	};
+	/**
+	 * @tiapi(method=true,name=UI.TableView.getName,since=0.6) get tableview name
+	 * @tiresult[String] table view name
+	 */
 	this.getName = function() {
 		return this.proxy.getName();
 	};
