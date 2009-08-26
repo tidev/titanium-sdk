@@ -15,6 +15,7 @@ typedef enum {
 	TitaniumTableActionInsertBeforeRow	=0x102,
 	TitaniumTableActionInsertAfterRow	=0x103,
 	TitaniumTableActionUpdateRow		=0x104,
+	TitaniumTableActionAppendRow		=0x105,
 
 	TitaniumTableActionReload			=0x200,
 	TitaniumTableActionReloadData		=0x201,

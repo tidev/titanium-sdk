@@ -183,7 +183,7 @@ UIColor * checkmarkColor = nil;
 	NSString * rowType = [propDict objectForKey:@"type"];
 	if ([rowType isKindOfClass:stringClass]){
 		isButton = [rowType isEqualToString:@"button"];
-	}
+	} else isButton = NO;
 
 
 	id titleString = [propDict objectForKey:@"title"];
@@ -202,25 +202,25 @@ UIColor * checkmarkColor = nil;
 	if ([htmlString respondsToSelector:stringSel]) htmlString = [htmlString stringValue];
 	if ([htmlString isKindOfClass:stringClass] && ([htmlString length] != 0)){
 		[self setHtml:htmlString];
-	}
+	} else [self setHtml:nil];
 
 	id valueString = [propDict objectForKey:@"value"];
 	if ([valueString respondsToSelector:stringSel]) valueString = [valueString stringValue];
 	if ([valueString isKindOfClass:stringClass] && ([valueString length] != 0)){
 		[self setValue:valueString];
-	}
+	} else [self setValue:nil];
 	
 	id imageString = [propDict objectForKey:@"image"];
 	if ([imageString isKindOfClass:stringClass]){
 		[self setImageURL:[NSURL URLWithString:imageString relativeToURL:baseUrl]];
-	}
+	} else [self setImageURL:nil];
 
 	NSDictionary * inputProxyDict = [propDict objectForKey:@"input"];
 	if ([inputProxyDict isKindOfClass:[NSDictionary class]]){
 		UiModule * theUiModule = (UiModule *)[[TitaniumHost sharedHost] moduleNamed:@"UiModule"];
 		NativeControlProxy * thisInputProxy = [theUiModule proxyForObject:inputProxyDict scan:YES recurse:YES];
 		if (thisInputProxy != nil) [self setInputProxy:thisInputProxy];
-	}
+	} else [self setInputProxy:nil];
 }
 
 
@@ -961,6 +961,9 @@ UIColor * checkmarkColor = nil;
 				case TitaniumTableActionUpdateRow:
 					actionString = @"update";
 					break;
+				case TitaniumTableActionAppendRow:
+					actionString = @"append";
+					break;
 				default:
 					actionString = [NSString stringWithFormat:@"[SHOULDN'T HAPPEN: UNKNOWN ACTION %d]",action];
 			}
@@ -983,7 +986,13 @@ UIColor * checkmarkColor = nil;
 	
 	for(TableSectionWrapper * thisSection in sectionArray){
 		int rowCount = [thisSection rowCount];
-		if((thisSectionIndex==lastSectionIndex) && (action==TitaniumTableActionInsertBeforeRow))isLastSection==YES;
+		if (action == TitaniumTableActionAppendRow){
+			index = rowCount;
+		}
+		if(thisSectionIndex==lastSectionIndex){
+			if(action==TitaniumTableActionAppendRow)action=TitaniumTableActionInsertBeforeRow;
+			isLastSection = (action==TitaniumTableActionInsertBeforeRow);
+		}
 		
 		if((index < rowCount) || (isLastSection && (index==rowCount))){ //We have a contestant!
 			NSString * oldHeader = [thisSection header];
@@ -1108,6 +1117,9 @@ UIColor * checkmarkColor = nil;
 				break;
 			case TitaniumTableActionUpdateRow:
 				actionString = @"update";
+				break;
+			case TitaniumTableActionAppendRow:
+				actionString = @"append";
 				break;
 			default:
 				actionString = [NSString stringWithFormat:@"[SHOULDN'T HAPPEN: UNKNOWN ACTION %d]",action];

@@ -722,45 +722,63 @@ needsRefreshing = YES;	\
 
 - (void) reportEvent: (NSString *) eventType value: (NSString *) newValue index: (int) index;
 {
-	if (newValue == nil) newValue = @"null";
-	NSString * handleClickCommand = [NSString stringWithFormat:@"(function(){Titanium.UI._BTN.%@.onClick({type:'%@',value:%@,index:%d});}).call(Titanium.UI._BTN.%@);",token,eventType,newValue,index,token];
+	NSString * initalizer;
+	NSString * arguments;
+	if(newValue != nil){
+		initalizer = [NSString stringWithFormat:@"Titanium.UI._BTN.%@.value=%@;",token,newValue];
+		arguments = [NSString stringWithFormat:@",value:%@",newValue];
+	} else if(index > -1){
+		initalizer = [NSString stringWithFormat:@"Titanium.UI._BTN.%@.index=%@;",token,newValue];
+		arguments = [NSString stringWithFormat:@",index:%d",index];
+	} else {
+		initalizer = @"";
+		arguments = @"";
+	}
+	NSString * handleClickCommand = [NSString stringWithFormat:
+			@"(function(){%@Titanium.UI._BTN.%@.onClick({type:'%@'%@});}).call(Titanium.UI._BTN.%@);",
+			initalizer,token,eventType,arguments,token];
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
 
 - (IBAction) onClick: (id) sender;
 {
-	[self reportEvent:@"click" value:nil index:0];
+	[self reportEvent:@"click" value:nil index:-1];
 }
 
 - (IBAction) onSwitchChange: (id) sender;
 {
-	[self reportEvent:@"change" value:([(UISwitch *)sender isOn] ? @"true":@"false") index:0];
+	floatValue = [(UISwitch *)sender isOn];
+	[self reportEvent:@"change" value:(floatValue ? @"true":@"false") index:-1];
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField;
 {
-	[self reportEvent:@"blur" value:[SBJSON stringify:[textField text]] index:0];
+	[self setStringValue:[textField text]];
+	[self reportEvent:@"blur" value:[SBJSON stringify:stringValue] index:-1];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView;
 {
-	[self reportEvent:@"blur" value:[SBJSON stringify:[textView text]] index:0];
+	[self setStringValue:[textView text]];
+	[self reportEvent:@"blur" value:[SBJSON stringify:stringValue] index:-1];
 }
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField;           // became first responder
 {
-	[self reportEvent:@"focus" value:[SBJSON stringify:[textField text]] index:0];
+	[self setStringValue:[textField text]];
+	[self reportEvent:@"focus" value:[SBJSON stringify:stringValue] index:-1];
 }
 
 - (void)textViewDidBeginEditing:(UITextView *)textView;
 {
-	[self reportEvent:@"focus" value:[SBJSON stringify:[textView text]] index:0];
+	[self setStringValue:[textView text]];
+	[self reportEvent:@"focus" value:[SBJSON stringify:stringValue] index:-1];
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;   // return NO to not change text
 {
-	NSString * newText = [[textField text] stringByReplacingCharactersInRange:range withString:string];
-	[self reportEvent:@"change" value:[SBJSON stringify:newText] index:0];
+	[self setStringValue:[[textField text] stringByReplacingCharactersInRange:range withString:string]];
+	[self reportEvent:@"change" value:[SBJSON stringify:stringValue] index:-1];
 	return YES;
 }
 
@@ -771,31 +789,36 @@ needsRefreshing = YES;	\
 
 - (void)textViewDidChange:(UITextView *)textView;
 {
-	[self reportEvent:@"change" value:[SBJSON stringify:[textView text]] index:0];
+	[self setStringValue:[textView text]];
+	[self reportEvent:@"change" value:[SBJSON stringify:stringValue] index:-1];
 }
 
 - (BOOL)textFieldShouldClear:(UITextField *)textField;               // called when clear button pressed. return NO to ignore (no notifications)
 {
-	[self reportEvent:@"change" value:@"''" index:0];
+	[self setStringValue:@""];
+	[self reportEvent:@"change" value:@"''" index:-1];
 	return YES;
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField;              // called when 'return' key pressed. return NO to ignore.
 {
-	[self reportEvent:@"return" value:[SBJSON stringify:[textField text]] index:0];
+	[self setStringValue:[textField text]];
+	[self reportEvent:@"return" value:[SBJSON stringify:stringValue] index:-1];
 	return !surpressReturnCharacter;
 }
 
 
 - (IBAction) onSegmentChange: (id) sender;
 {
-	[self reportEvent:@"click" value:nil index:[(UISegmentedControl *)sender selectedSegmentIndex]];
+	segmentSelectedIndex = [(UISegmentedControl *)sender selectedSegmentIndex];
+	[self reportEvent:@"click" value:nil index:segmentSelectedIndex];
 }
 
 - (IBAction) onValueChange: (id) sender;
 {
-	NSString * newValue = [[NSString alloc] initWithFormat:@"%f",[(UISlider *)sender value]];
-	[self reportEvent:@"change" value:newValue index:0];
+	floatValue = [(UISlider *)sender value];
+	NSString * newValue = [[NSString alloc] initWithFormat:@"%f",floatValue];
+	[self reportEvent:@"change" value:newValue index:-1];
 	[newValue release];
 }
 

@@ -243,6 +243,7 @@ NSString * UrlEncodeString(NSString * string)
 
 - (NSString *) sanitizeString:(id) inputObject;
 {
+	if ([inputObject respondsToSelector:@selector(stringValue)])return [inputObject stringValue];
 	if ([inputObject isKindOfClass:[NSString class]]) return inputObject;
 	return nil;
 }
@@ -281,6 +282,11 @@ NSString * UrlEncodeString(NSString * string)
 			NSLog(@"Creating emailcomposer");
 			emailComposer = [[mailClass alloc] init];
 			[emailComposer setMailComposeDelegate:self];
+		}
+		NSString * emailBarColorString = [self sanitizeString:[propertyDict objectForKey:@"barColor"]];
+		if(emailBarColorString != nil){
+			UIColor * emailBarColor = UIColorWebColorNamed(emailBarColorString);
+			if(emailBarColor != nil)[[emailComposer navigationBar] setTintColor:emailBarColor];
 		}
 		[emailComposer setSubject:subject];
 		[emailComposer setToRecipients:toArray];
@@ -1066,6 +1072,7 @@ NSString * UrlEncodeString(NSString * string)
 	
 	NSString * createEmailString = @"function(args){var res={};for(property in args){res[property]=args[property];};"
 			"res.attachments=[];"
+			"res.setBarColor=function(arg){this.barColor=arg;};"
 			"res.setSubject=function(arg){this.subject=arg;};"
 			"res.setToRecipients=function(arg){this.toRecipients=arg;};"
 			"res.setCcRecipients=function(arg){this.ccRecipients=arg;};"
@@ -1187,10 +1194,12 @@ NSString * UrlEncodeString(NSString * string)
 				"if(rowIndex<(this.data.length-1)){var nextRow=this.data[rowIndex+1];if(nextRow.header==undefined)nextRow.header=this.data[rowIndex].header;}"
 				"this.data.splice(rowIndex,1);if(this._TOKEN){Ti.UI._WROWDEL(this._TOKEN,rowIndex,args);}};"
 			"res.updateRow=function(rowIndex,row,args){this.data.splice(rowIndex,1,row);if(this._TOKEN){if(row.input)row.input.ensureToken();Ti.UI._WROWCHG(this._TOKEN,rowIndex,row,%d,args);}};"
+			"res.appendRow=function(row,args){this.data.push(row);if(this._TOKEN){if(row.input)row.input.ensureToken();Ti.UI._WROWCHG(this._TOKEN,0,row,%d,args);}};"
 			"res.open=function(){Ti.API.fatal('Open is no longer supported in webViews, as they are no longer their own windows.');};"
 			"res.setData=function(newData,args){this.data=newData;if(this._TOKEN){"
 					"for(var i=0;i<newData.length;i++){if(newData[i].input)newData[i].input.ensureToken();}Ti.UI._WDTAUPD(this._TOKEN,newData,false,args);}};"
-			"var tkn='TBL'+(Ti.UI._NEXTTKN++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}",TitaniumTableActionInsertAfterRow,TitaniumTableActionInsertBeforeRow,TitaniumTableActionUpdateRow];
+			"var tkn='TBL'+(Ti.UI._NEXTTKN++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}",
+			TitaniumTableActionInsertAfterRow,TitaniumTableActionInsertBeforeRow,TitaniumTableActionUpdateRow,TitaniumTableActionAppendRow];
 
 	NSString * createGroupedViewString = @"function(args,callback){var res=Ti.UI.createTableView(args,callback);res.grouped=true;res.sections=[];"
 			"res.setSections=function(newSections,args){"
@@ -1261,6 +1270,10 @@ NSString * UrlEncodeString(NSString * string)
 				"return A.x + ',' + A.y + ',' + A.width + ',' + A.height;},"
 			"hide:function(args){this.hidden=true;this.update(args);},"
 			"show:function(arts){this.hidden=false;this.update(args);},"
+			"setValue:function(newValue,args){this.value=newValue;this.update(args);},"
+			"setIndex:function(newIndex,args){this.index=newValue;this.update(args);},"
+			"setMin:function(newMin,args){this.min=newMin;this.update(args);},"
+			"setMax:function(newMax,args){this.max=newMax;this.update(args);},"
 			"};"
 			"if(args){for(prop in args){res[prop]=args[prop];}};"
 			"if(btnType)res.systemButton=btnType;"
