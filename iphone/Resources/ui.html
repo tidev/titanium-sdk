@@ -14,15 +14,15 @@
 		btn1.style = Ti.UI.iPhone.SystemButtonStyle.BORDERED;
 		btn1.width = 50;
 //		btn1.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'green'});newWindow.open();})
-		btn1.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'rgba(0,255,0,1.0)'});newWindow.open();})
+		btn1.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'rgba(0,255,0,1.0)',backButtonTitle:'green'});newWindow.open();})
 //		Ti.UI.currentWindow.setRightNavButton(btn1);
 		var btn2 = Ti.UI.createButton({systemButton:'play'});
 		var btn3 = Ti.UI.createButton({systemButton:'pause'});
 //		btn2.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'black'});newWindow.open();})
-		btn2.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'rgb(0,0,0)',hideNavBar:true});newWindow.open();})
-		btn3.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'transparent'});newWindow.open();})
+		btn2.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'rgb(0,0,0)',backButtonTitle:'black',hideNavBar:true});newWindow.open();})
+		btn3.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'transparent',backButtonTitle:'clear'});newWindow.open();})
 		var btn4 = Ti.UI.createButton({systemButton:'action'});
-		btn4.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:null});newWindow.open();})
+		btn4.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:null,backButtonTitle:'default'});newWindow.open();})
 
 		var btn5 = Ti.UI.createButton({title:'Moo'});
 		btn5.addEventListener('click',function(){Ti.UI.currentWindow.setFullscreen(true);});
@@ -213,7 +213,7 @@ try{
 		var multiBtn2 = Ti.UI.createTabbedBar({labels:['fee','fi','fo','fum'],color:'red',backgroundColor:'#CCCCCC',index:2});
 		multiBtn2.addEventListener('click',reportEvent);
 
-		Ti.UI.currentWindow.setLeftNavButton(btn8);
+		Ti.UI.currentWindow.setRightNavButton(btn8);
 		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5,btn7]);
 //		Ti.UI.currentWindow.setToolbar([btn1,btn2,multiBtn2]);
 		Ti.UI.currentWindow.setTitleControl(multiBtn);

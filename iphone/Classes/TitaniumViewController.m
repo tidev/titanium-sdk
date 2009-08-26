@@ -173,6 +173,19 @@ int nextWindowToken = 0;
 		[self setTitleViewProxy:thisInputProxy];
 	}
 	
+	UIBarButtonItem * backButton = nil;
+	UIImage * backTitleImage = [theTiHost imageForResource:[inputState objectForKey:@"backButtonTitleImage"]];
+	if (backTitleImage != nil){
+		backButton = [[[UIBarButtonItem alloc] initWithImage:backTitleImage style:UIBarButtonItemStyleBordered target:nil action:nil] autorelease];
+	} else {
+		id backTitleString = [inputState objectForKey:@"backButtonTitle"];
+		if ([backTitleString isKindOfClass:stringClass]) backButton = [[[UIBarButtonItem alloc] initWithTitle:backTitleString style:UIBarButtonItemStyleBordered target:nil action:nil] autorelease];
+		else if ([backTitleString respondsToSelector:@selector(stringValue)]) backButton = [[[UIBarButtonItem alloc] initWithTitle:[backTitleString stringValue] style:UIBarButtonItemStyleBordered target:nil action:nil] autorelease];
+	}
+	
+	
+	[[self navigationItem] setBackBarButtonItem:backButton];
+	
 	UITabBarItem * newTabBarItem = nil;
 	NSString * tabIconName = [inputState objectForKey:@"icon"];
 	if (tabIconName != nil) {

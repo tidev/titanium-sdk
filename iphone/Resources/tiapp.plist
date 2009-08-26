@@ -31,6 +31,8 @@
 			<string>Media</string>
 		</dict>
 		<dict>
+			<key>backButtonTitleImage</key>
+			<string>profile.png</string>
 			<key>name</key>
 			<string>UI</string>
 			<key>blarColor</key>
