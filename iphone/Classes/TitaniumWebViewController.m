@@ -393,7 +393,7 @@ TitaniumWebViewController * mostRecentController = nil;
 	CGFloat docHeight = [docHeightString floatValue];
 
 	for(NativeControlProxy * thisProxy in nativeOnscreenProxies){
-		[thisProxy refreshPositionWithWebView:webView];
+		[thisProxy refreshPositionWithWebView:webView animated:animated];
 	}
 
 	for(UIView * thisView in [scrollView subviews]){

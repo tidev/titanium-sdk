@@ -71,7 +71,11 @@
 		btn2.addEventListener('click',function(foo){spinny.show({animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT});barry.value+=1;
 				barry.message = 'Completed ' + barry.value + ' of ' + barry.max;
 				barry.update({animated:true,animationDuration:1000});});
-//		Ti.UI.currentWindow.setToolbar([btn1,btn2,spinny,barry]);
+		Ti.UI.currentWindow.setToolbar([btn1,btn2,spinny,barry]);
+
+var daty = Ti.UI.createDatePicker({title:'moo',id:'buttony',image:'Safari.png',backgroundImage:'Mail.png'});
+//var daty = Ti.UI.createButton({title:'-',id:'pickerPlace'});
+Ti.API.debug('Daty is ' + typeof(daty));
 
 	};
 
@@ -115,6 +119,7 @@ Titanium.UI.addEventListener('tabchange',function(e)
 	<button onclick="testFun('gotoUI()')">Go to UI</button>
 	<button onclick="testFun('gotoTab2()')">Go to Tab 2</button>
 
+	<div id='buttony' style="width:320px;height:218px;">What should be here?</div>
 	Landscape: <script>document.write(Ti.Gesture.LANDSCAPE);</script><br>
 	isLandscape: <script>document.write(Ti.Gesture.isLandscape(Ti.Gesture.LANDSCAPE_LEFT));</script><br>
 	1&1: <script>document.write(1 & 1);</script><br>
@@ -129,6 +134,7 @@ Titanium.UI.addEventListener('tabchange',function(e)
 	<div id='sliderValue'>Unchanged slider value!</div>
 
 	<div id='sliderPlace' style="width:200px;height:70px;"></div>
+	
 	
 	<center><img src="logo-m.png"></img></center>
 

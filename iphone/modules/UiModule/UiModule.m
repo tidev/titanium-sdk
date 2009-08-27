@@ -1232,10 +1232,6 @@ NSString * UrlEncodeString(NSString * string)
 	NSString * systemIconString = @"{BOOKMARKS:'ti:bookmarks',CONTACTS:'ti:contacts',DOWNLOADS:'ti:downloads',"
 			"FAVORITES:'ti:favorites',DOWNLOADS:'ti:downloads',FEATURED:'ti:featured',MORE:'ti:more',MOST_RECENT:'ti:most_recent',"
 			"MOST_VIEWED:'ti:most_viewed',RECENTS:'ti:recents',SEARCH:'ti:search',TOP_RATED:'ti:top_rated'}";
-	NSString * systemButtonString = @"{ACTION:'action',ACTIVITY:'activity',CAMERA:'camera',COMPOSE:'compose',BOOKMARKS:'bookmarks',"
-			"SEARCH:'search',ADD:'add',TRASH:'trash',ORGANIZE:'organize',REPLY:'reply',STOP:'stop',REFRESH:'refresh',"
-			"PLAY:'play',FAST_FORWARD:'fastforward',PAUSE:'pause',REWIND:'rewind',EDIT:'edit',CANCEL:'cancel',"
-			"SAVE:'save',DONE:'done',FLEXIBLE_SPACE:'flexiblespace',FIXED_SPACE:'fixedspace',INFO_LIGHT:'infolight',INFO_DARK:'infodark'}";
 
 	NSString * statusBarString = [NSString stringWithFormat:@"{GREY:%d,GRAY:%d,DEFAULT:%d,OPAQUE_BLACK:%d,TRANSLUCENT_BLACK:%d}",
 								  UIStatusBarStyleDefault,UIStatusBarStyleDefault,UIStatusBarStyleDefault,UIStatusBarStyleBlackOpaque,UIStatusBarStyleBlackTranslucent];
@@ -1252,34 +1248,6 @@ NSString * UrlEncodeString(NSString * string)
 				UITableViewRowAnimationBottom+1];	//We cheat!
 #endif
 	
-	NSString * createButtonString = @"function(args,btnType){var res={"
-			"onClick:Ti._ONEVT,_EVT:{click:[],change:[],focus:[],blur:[],'return':[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
-			"focus:function(){Ti.UI._BTNFOC(this,true);},blur:function(){Ti.UI._BTNFOC(this,false);},"
-			"update:function(arg){if(!this._TOKEN)return;"
-				"if(this.rightButton)this.rightButton.ensureToken();if(this.leftButton)this.leftButton.ensureToken();"
-				"Ti.UI._BTNUPD(this,arg);},"
-			"ensureToken:function(){"
-				"if(!this._TOKEN){var tkn=Ti.UI._BTNTKN();this._TOKEN=tkn;Ti.UI._BTN[tkn]=this;}"
-				"if(this.rightButton)this.rightButton.ensureToken();if(this.leftButton)this.leftButton.ensureToken();},"
-			"setId:function(div){this.id=div;this.divObj=document.getElementById(div);if(!this.findDivPos())return;Ti.UI.currentWindow.insertButton(this);},"
-			"findDivPos:function(){var divObj=this.divObj;if(!divObj)return '';if(!this.divAttr)this.divAttr={};var A=this.divAttr;"
-				"A.y=0;A.x=0;A.width=divObj.offsetWidth;A.height=divObj.offsetHeight;"
-				"while(divObj){A.x+=divObj.offsetLeft;A.y+=divObj.offsetTop;divObj=divObj.offsetParent;}"
-				"if(this.x!=undefined)A.x=this.x;if(this.y!=undefined)A.y=this.y;"
-				"if(this.width!=undefined)A.width=this.width;if(this.height!=undefined)A.height=this.height;"
-				"return A.x + ',' + A.y + ',' + A.width + ',' + A.height;},"
-			"hide:function(args){this.hidden=true;this.update(args);},"
-			"show:function(arts){this.hidden=false;this.update(args);},"
-			"setValue:function(newValue,args){this.value=newValue;this.update(args);},"
-			"setIndex:function(newIndex,args){this.index=newValue;this.update(args);},"
-			"setMin:function(newMin,args){this.min=newMin;this.update(args);},"
-			"setMax:function(newMax,args){this.max=newMax;this.update(args);},"
-			"};"
-			"if(args){for(prop in args){res[prop]=args[prop];}};"
-			"if(btnType)res.systemButton=btnType;"
-			"if(res.id){res.setId(res.id);}"
-			"return res;}";
-
 	NSString * createTabString = @"function(args){var res={"
 			"setBadge:function(val){this.badge=val;if(this._TOKEN)Ti.UI._TBADGE(this._TOKEN,val);},"
 			"};"
@@ -1308,12 +1276,6 @@ NSString * UrlEncodeString(NSString * string)
 			"res.show=function(){Ti.UI._MSHOW(this,true)};"
 			"return res;}"];
 	[createAlertCode setEpilogueCode:@"window.alert=function(args){Ti.API.log('alert',args);};"];
-
-	NSString * createActivityIndicatorString = @"function(args,btnType){if(!btnType)btnType='activity';var res=Ti.UI.createButton(args,btnType);"
-			"res.setMin=function(val){this.min=val;};res.setMax=function(val){this.max=val;};res.setValue=function(val,args){this.value=val;this.update(args)};"
-			"res.setType=function(val){if(val)this.systemButton='progressbar';else this.systemButton='activity';};res.setMessage=function(val,args){this.message=val;this.update(args);};"
-			"res.DETERMINATE=true;res.INDETERMINATE=false;"
-			"return res;}";
 
 	NSString * createProgressBarString = @"function(args){var res=Ti.UI.createActivityIndicator(args,'progressbar');return res;}";
 
@@ -1363,8 +1325,8 @@ NSString * UrlEncodeString(NSString * string)
 			buttonTokenGen,@"_BTNTKN",
 			setButtonFocusInvoc,@"_BTNFOC",
 			updateButtonInvoc,@"_BTNUPD",
-			[TitaniumJSCode codeWithString:createButtonString],@"createButton",
 
+			[TitaniumJSCode codeWithString:createButtonString],@"createButton",
 			[TitaniumJSCode codeWithString:createActivityIndicatorString],@"createActivityIndicator",
 			[TitaniumJSCode codeWithString:createProgressBarString],@"createProgressBar",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'switch');}"],@"createSwitch",
@@ -1373,6 +1335,8 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'textarea');}"],@"createTextArea",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'multibutton');}"],@"createButtonBar",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'segmented');}"],@"createTabbedBar",
+			[TitaniumJSCode codeWithString:createDatePickerString],@"createDatePicker",
+			[TitaniumJSCode codeWithString:createPickerString],@"createPicker",
 
 			[NSNumber numberWithInt:1],@"_NEXTTKN",
 			showModalInvoc,@"_MSHOW",

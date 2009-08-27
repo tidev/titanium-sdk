@@ -38,7 +38,7 @@ enum { //MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemIte
 
 BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view);
 
-@interface NativeControlProxy : TitaniumProxyObject<UITextViewDelegate,UITextFieldDelegate>
+@interface NativeControlProxy : TitaniumProxyObject<UITextViewDelegate,UITextFieldDelegate,UIPickerViewDelegate,UIPickerViewDataSource>
 {
 	//Properties that are stored until the time is right
 	BOOL needsRefreshing;
@@ -109,7 +109,7 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 	NSDate * dateValue;		//Countdown duration is floatValue
 	NSDate * minDate;
 	NSDate * maxDate;
-	UIDatePickerMode mode;
+	UIDatePickerMode datePickerMode;
 	int		minuteInterval;
 	
 	//Pickers, general purpose
@@ -155,12 +155,26 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 @property(nonatomic,readwrite,retain)	NativeControlProxy	*leftViewProxy;
 @property(nonatomic,readwrite,retain)	NativeControlProxy	*rightViewProxy;
 
+@property(nonatomic,readwrite,copy)		NSDate * dateValue;
+@property(nonatomic,readwrite,copy)		NSDate * minDate;
+@property(nonatomic,readwrite,copy)		NSDate * maxDate;
+@property(nonatomic,readwrite,assign)	UIDatePickerMode datePickerMode;
+@property(nonatomic,readwrite,assign)	int		minuteInterval;
+
+
 - (BOOL) hasNativeView;
 - (BOOL) hasNativeBarButton;
 
 - (IBAction) onClick: (id) sender;
 - (void) setPropertyDict: (NSDictionary *) newDict;
 
-- (void) refreshPositionWithWebView: (UIWebView *) webView;
+- (void) refreshPositionWithWebView: (UIWebView *) webView animated:(BOOL)animated;
 
 @end
+
+extern NSString * const systemButtonString;
+
+extern NSString * const createButtonString;
+extern NSString * const createActivityIndicatorString;
+extern NSString * const createDatePickerString;
+extern NSString * const createPickerString;

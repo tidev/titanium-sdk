@@ -106,6 +106,10 @@ int barButtonSystemItemForString(NSString * inputString){
 @synthesize leftViewProxy, rightViewProxy, leftViewMode, rightViewMode, surpressReturnCharacter;
 @synthesize backgroundImagePath, backgroundDisabledImagePath, backgroundSelectedImagePath;
 
+@synthesize dateValue, minDate, maxDate, datePickerMode, minuteInterval;
+
+
+#pragma mark Initilization and getting properties
 - (id) init;
 {
 	if ((self = [super init])){
@@ -117,6 +121,15 @@ int barButtonSystemItemForString(NSString * inputString){
 	return self;
 }
 
+- (void) dealloc
+{
+	[titleString release];
+	[iconPath release];
+	[nativeBarButton release];
+	[super dealloc];
+}
+
+
 #define GRAB_IF_SELECTOR(keyString,methodName,resultOutput)	\
 {id newObject=[newDict objectForKey:keyString];	\
 if ([newObject respondsToSelector:@selector(methodName)]){	\
@@ -124,15 +137,19 @@ resultOutput = [newObject methodName];	\
 needsRefreshing = YES;	\
 }}
 
-#define GRAB_IF_STRING(keyString,resultOutput)	\
+#define GRAB_IF_CLASS(keyString,classy,resultOutput)	\
 {id newObject=[newDict objectForKey:keyString];	\
-if ([newObject isKindOfClass:[NSString class]] && ![resultOutput isEqualToString:newObject]) {	\
+if ([newObject isKindOfClass:classy] && ![resultOutput isEqual:newObject]) {	\
 self.resultOutput = newObject;	\
 needsRefreshing = YES;	\
 }}
 
+#define GRAB_IF_STRING(keyString,resultOutput)	GRAB_IF_CLASS(keyString,stringClass,resultOutput)
+
 - (void) setPropertyDict: (NSDictionary *) newDict;
 {	
+	Class stringClass = [NSString class];
+	Class dateClass = [NSDate class];
 	//General purpose
 	GRAB_IF_STRING(@"title",titleString);
 	GRAB_IF_STRING(@"message",messageString);
@@ -146,6 +163,11 @@ needsRefreshing = YES;	\
 	GRAB_IF_SELECTOR(@"max",floatValue,maxValue);
 	
 	id valueObject = [newDict objectForKey:@"value"];
+	
+	if ([valueObject isKindOfClass:dateClass]){
+		[self setDateValue:valueObject];
+		needsRefreshing = YES;
+	}
 	
 	if ([valueObject respondsToSelector:@selector(floatValue)]){
 		floatValue = [valueObject floatValue];
@@ -224,7 +246,7 @@ needsRefreshing = YES;	\
 	GRAB_IF_STRING(@"hintText",placeholderText);
 	
 	id alignmentObject = [newDict objectForKey:@"textAlign"];
-	if ([alignmentObject isKindOfClass:[NSString class]]){
+	if ([alignmentObject isKindOfClass:stringClass]){
 		alignmentObject = [alignmentObject lowercaseString];
 		if ([alignmentObject isEqualToString:@"left"]) textAlignment = UITextAlignmentLeft;
 		else if ([alignmentObject isEqualToString:@"center"]) textAlignment = UITextAlignmentCenter;
@@ -242,8 +264,19 @@ needsRefreshing = YES;	\
 	GRAB_IF_SELECTOR(@"leftButtonMode",intValue,leftViewMode);
 	GRAB_IF_SELECTOR(@"rightButtonMode",intValue,rightViewMode);
 	
+	//Pickers!
+	GRAB_IF_CLASS(@"minDate",dateClass,minDate);
+	GRAB_IF_CLASS(@"maxDate",dateClass,minDate);
+	GRAB_IF_SELECTOR(@"mode",intValue,datePickerMode);
+	GRAB_IF_SELECTOR(@"minuteInterval",intValue,minuteInterval);
+
+	
+	
+	
 	//Because the proxies are best from the UIModule itself, we don't check here.
 }
+
+#pragma mark Generating views
 
 - (void) setLabelViewFrame: (CGRect) newFrame background: (UIColor *) bgColor;
 {
@@ -265,7 +298,7 @@ needsRefreshing = YES;	\
 	}
 }
 
-- (BOOL) updateNativeView;
+- (BOOL) updateNativeView: (BOOL) animated;
 {
 	UIView * resultView=nil;
 	BOOL customPlacement = NO;
@@ -396,7 +429,6 @@ needsRefreshing = YES;	\
 		
 		
 	} else if ((templateValue == UITitaniumNativeItemMultiButton) || (templateValue == UITitaniumNativeItemSegmented)){
-		//		if (placedInBar) viewFrame.size.height = 30;
 		int imageCount = [segmentImageArray count];
 		int titleCount = [segmentLabelArray count];
 		int segmentCount = MAX(imageCount,titleCount);
@@ -473,14 +505,31 @@ needsRefreshing = YES;	\
 		
 		[resultView setBackgroundColor:elementBorderColor];
 		
-		//	} else if (templateValue == UITitaniumNativeItemPicker){
-		//		if ([nativeView isKindOfClass:[UIPickerView class]]){
-		//			resultView = [nativeView retain];
-		//		} else {
-		//			resultView = [[UISwitch alloc] initWithFrame:viewFrame];
-		//		}
-		//		[(UISwitch *)resultView setOn:(floatValue > ((minValue + maxValue)/2))];
-		//		[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
+	} else if (templateValue == UITitaniumNativeItemDatePicker){
+		if ([nativeView isKindOfClass:[UIDatePicker class]]){
+			resultView = [nativeView retain];
+		} else {
+			resultView = [[UIDatePicker alloc] initWithFrame:CGRectZero];
+			[(UIDatePicker *)resultView addTarget:self action:@selector(dateChanged:) forControlEvents:UIControlEventValueChanged];
+		}
+		[(UIDatePicker *)resultView setDatePickerMode:datePickerMode];
+		[(UIDatePicker *)resultView setMinimumDate:minDate];
+		[(UIDatePicker *)resultView setMaximumDate:maxDate];
+		[(UIDatePicker *)resultView setCountDownDuration:floatValue];
+		[(UIDatePicker *)resultView setMinuteInterval:minuteInterval];
+		if(dateValue!=nil)[(UIDatePicker *)resultView setDate:dateValue animated:animated];
+		
+		viewFrame.size = [resultView frame].size;
+	} else if (templateValue == UITitaniumNativeItemPicker){
+		if ([nativeView isKindOfClass:[UIPickerView class]]){
+			resultView = [nativeView retain];
+		} else {
+			resultView = [[UIPickerView alloc] initWithFrame:CGRectZero];
+			[(UIPickerView *)resultView setDelegate:self];
+			[(UIPickerView *)resultView setDataSource:self];
+		}
+		viewFrame.size = [resultView frame].size;
+
 	} else if (templateValue == UITitaniumNativeItemProgressBar) {
 		UIProgressViewStyle progressStyle;
 		if(placedInBar){
@@ -518,8 +567,6 @@ needsRefreshing = YES;	\
 			[resultView setFrame:resultFrame];
 			viewFrame.size.height = resultFrame.size.height;
 		}
-		
-		
 	}
 	
 	
@@ -597,7 +644,7 @@ needsRefreshing = YES;	\
 	SEL onClickSel = @selector(onClick:);
 	
 	if (templateValue <= UITitaniumNativeItemSpinner){
-		[self updateNativeView];
+		[self updateNativeView:NO];
 		if ([nativeBarButton customView]==wrapperView) {
 			result = [nativeBarButton retain]; //Why waste a good bar button?
 		} else {
@@ -626,6 +673,8 @@ needsRefreshing = YES;	\
 	needsRefreshing = NO;
 }
 
+#pragma mark Accessors
+
 - (UIBarButtonItem *) nativeBarButton;
 {
 	if ((nativeBarButton == nil) || needsRefreshing) {
@@ -638,26 +687,16 @@ needsRefreshing = YES;	\
 {
 	if ((nativeView == nil) || needsRefreshing){
 		placedInBar = YES;
-		[self updateNativeView];
+		[self updateNativeView:NO];
 	}
 	return wrapperView;
-}
-
-- (BOOL)becomeFirstResponder;
-{
-	return [nativeView becomeFirstResponder];
-}
-
-- (BOOL)resignFirstResponder;
-{
-	return [nativeView resignFirstResponder];
 }
 
 - (UIView *) nativeView;
 {
 	if ((nativeView == nil) || needsRefreshing){
 		placedInBar = NO;
-		[self updateNativeView];
+		[self updateNativeView:NO];
 	}
 	return wrapperView;
 }
@@ -672,12 +711,23 @@ needsRefreshing = YES;	\
 	return (nativeBarButton != nil);
 }
 
+#pragma mark Buck passing for firstResponder
+- (BOOL)becomeFirstResponder;
+{
+	return [nativeView becomeFirstResponder];
+}
 
+- (BOOL)resignFirstResponder;
+{
+	return [nativeView resignFirstResponder];
+}
+
+#pragma mark Updating
 - (void) updateWithOptions: (NSDictionary *) optionObject;
 {
 	BOOL animated = TitaniumPrepareAnimationsForView(optionObject,wrapperView);
 	
-	[self updateNativeView];
+	[self updateNativeView:animated];
 	
 	if (animated){
 		[UIView commitAnimations];
@@ -685,7 +735,7 @@ needsRefreshing = YES;	\
 	
 }
 
-- (void) refreshPositionWithWebView: (UIWebView *) webView;
+- (void) refreshPositionWithWebView: (UIWebView *) webView animated:(BOOL)animated;
 {
 	NSString * commandString = [NSString stringWithFormat:@"Titanium.UI._BTN.%@.findDivPos()",token];
 	NSArray * valueArray = [[webView stringByEvaluatingJavaScriptFromString:commandString] componentsSeparatedByString:@","];
@@ -717,8 +767,36 @@ needsRefreshing = YES;	\
 		changed = YES;
 	}
 	
-	if(changed)[self updateNativeView];
+	if(changed)[self updateNativeView:animated];
 }
+
+#pragma mark Picker data source callbacks
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView;
+{
+	return 0;
+}
+
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component;
+{
+	return 0;
+}
+
+- (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component;
+{
+	return 0;
+}
+
+- (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component;
+{
+	return 0;
+}
+
+- (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view;
+{
+	return nil;
+}
+
+#pragma mark Events sent to Javascript
 
 - (void) reportEvent: (NSString *) eventType value: (NSString *) newValue index: (int) index;
 {
@@ -728,7 +806,7 @@ needsRefreshing = YES;	\
 		initalizer = [NSString stringWithFormat:@"Titanium.UI._BTN.%@.value=%@;",token,newValue];
 		arguments = [NSString stringWithFormat:@",value:%@",newValue];
 	} else if(index > -1){
-		initalizer = [NSString stringWithFormat:@"Titanium.UI._BTN.%@.index=%@;",token,newValue];
+		initalizer = [NSString stringWithFormat:@"Titanium.UI._BTN.%@.index=%d;",token,index];
 		arguments = [NSString stringWithFormat:@",index:%d",index];
 	} else {
 		initalizer = @"";
@@ -822,16 +900,68 @@ needsRefreshing = YES;	\
 	[newValue release];
 }
 
-
-
-- (void) dealloc
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component;
 {
-	[titleString release];
-	[iconPath release];
-	[nativeBarButton release];
-	[super dealloc];
+	
 }
 
+- (IBAction) dateChanged: (id) sender;
+{
+	NSString * newValue;
+	if(datePickerMode=UIDatePickerModeCountDownTimer){
+		[self setFloatValue:[(UIDatePicker *)sender countDownDuration]];
+		newValue = [[NSString alloc] initWithFormat:@"%f",floatValue];
+	} else {
+		[self setDateValue:[(UIDatePicker *)sender date]];
+		newValue = [[NSString alloc] initWithFormat:@"new Date(%f)",[dateValue timeIntervalSince1970]*1000.0];		
+	}
+	[self reportEvent:@"change" value:newValue index:-1];
+	[newValue release];
+}
 
 @end
+
+NSString * const systemButtonString = @"{ACTION:'action',ACTIVITY:'activity',CAMERA:'camera',COMPOSE:'compose',BOOKMARKS:'bookmarks',"
+	"SEARCH:'search',ADD:'add',TRASH:'trash',ORGANIZE:'organize',REPLY:'reply',STOP:'stop',REFRESH:'refresh',"
+	"PLAY:'play',FAST_FORWARD:'fastforward',PAUSE:'pause',REWIND:'rewind',EDIT:'edit',CANCEL:'cancel',"
+	"SAVE:'save',DONE:'done',FLEXIBLE_SPACE:'flexiblespace',FIXED_SPACE:'fixedspace',INFO_LIGHT:'infolight',INFO_DARK:'infodark'}";
+
+
+NSString * const createButtonString = @"function(args,btnType){var res={"
+	"onClick:Ti._ONEVT,_EVT:{click:[],change:[],focus:[],blur:[],'return':[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
+	"focus:function(){Ti.UI._BTNFOC(this,true);},blur:function(){Ti.UI._BTNFOC(this,false);},"
+	"update:function(arg){if(!this._TOKEN)return;"
+		"if(this.rightButton)this.rightButton.ensureToken();if(this.leftButton)this.leftButton.ensureToken();"
+		"Ti.UI._BTNUPD(this,arg);},"
+	"ensureToken:function(){"
+		"if(!this._TOKEN){var tkn=Ti.UI._BTNTKN();this._TOKEN=tkn;Ti.UI._BTN[tkn]=this;}"
+		"if(this.rightButton)this.rightButton.ensureToken();if(this.leftButton)this.leftButton.ensureToken();},"
+	"setId:function(div){this.id=div;this.divObj=document.getElementById(div);if(!this.findDivPos())return;Ti.UI.currentWindow.insertButton(this);},"
+	"findDivPos:function(){var divObj=this.divObj;if(!divObj)return '';if(!this.divAttr)this.divAttr={};var A=this.divAttr;"
+		"A.y=0;A.x=0;A.width=divObj.offsetWidth;A.height=divObj.offsetHeight;"
+		"while(divObj){A.x+=divObj.offsetLeft;A.y+=divObj.offsetTop;divObj=divObj.offsetParent;}"
+		"if(this.x!=undefined)A.x=this.x;if(this.y!=undefined)A.y=this.y;"
+		"if(this.width!=undefined)A.width=this.width;if(this.height!=undefined)A.height=this.height;"
+		"return A.x+','+A.y+','+A.width+','+A.height;},"
+	"hide:function(args){this.hidden=true;this.update(args);},"
+	"show:function(arts){this.hidden=false;this.update(args);},"
+	"setValue:function(newValue,args){this.value=newValue;this.update(args);},"
+	"setIndex:function(newIndex,args){this.index=newValue;this.update(args);},"
+	"setMin:function(newMin,args){this.min=newMin;this.update(args);},"
+	"setMax:function(newMax,args){this.max=newMax;this.update(args);},"
+	"};"
+	"if(args){for(prop in args){res[prop]=args[prop];}};"
+	"if(btnType)res.systemButton=btnType;"
+	"if(res.id){res.setId(res.id);}"
+	"return res;}";
+
+
+NSString * const createActivityIndicatorString = @"function(args,btnType){if(!btnType)btnType='activity';var res=Ti.UI.createButton(args,btnType);"
+	"res.setType=function(val){if(val)this.systemButton='progressbar';else this.systemButton='activity';};res.setMessage=function(val,args){this.message=val;this.update(args);};"
+	"res.DETERMINATE=true;res.INDETERMINATE=false;"
+	"return res;}";
+
+NSString * const createDatePickerString = @"function(args){var res=Ti.UI.createButton(args,'datepicker');return res;}";
+
+NSString * const createPickerString = @"function(args){var res=Ti.UI.createButton(args,'picker');return res;}";
 
