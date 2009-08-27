@@ -247,6 +247,10 @@
 		B4C6D7350FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */; };
 		B4CAF1530FC368B9000BB476 /* TitaniumUIViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4864F5A0F7C48E700A851C5 /* TitaniumUIViewController.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		B4D262DD10437CC8007D123E /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; };
+		B4D4AF5510472271006E42E0 /* TweakedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4AF5410472271006E42E0 /* TweakedScrollView.m */; };
+		B4D4AF5610472271006E42E0 /* TweakedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4AF5410472271006E42E0 /* TweakedScrollView.m */; };
+		B4D4AF5710472271006E42E0 /* TweakedScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = B4D4AF5310472271006E42E0 /* TweakedScrollView.h */; };
+		B4D4AF5810472271006E42E0 /* TweakedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4AF5410472271006E42E0 /* TweakedScrollView.m */; };
 		B4DD427D0FD982FD00CD427F /* profile.png in Resources */ = {isa = PBXBuildFile; fileRef = B4DD427C0FD982FD00CD427F /* profile.png */; };
 		B4DDBE2B0FD0AE31004DD79E /* ui.html in Resources */ = {isa = PBXBuildFile; fileRef = B4DDBE2A0FD0AE31004DD79E /* ui.html */; };
 		B4E9B9C40F82030700DD709C /* TitaniumAccessorTuple.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9B9C30F82030700DD709C /* TitaniumAccessorTuple.m */; };
@@ -409,6 +413,8 @@
 		B4C6D7030FE99F4E00D62384 /* TitaniumWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumWebViewController.m; sourceTree = "<group>"; };
 		B4C6D7310FE9AB0600D62384 /* TitaniumTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumTableViewController.h; sourceTree = "<group>"; };
 		B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumTableViewController.m; sourceTree = "<group>"; };
+		B4D4AF5310472271006E42E0 /* TweakedScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TweakedScrollView.h; sourceTree = "<group>"; };
+		B4D4AF5410472271006E42E0 /* TweakedScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TweakedScrollView.m; sourceTree = "<group>"; };
 		B4DD427C0FD982FD00CD427F /* profile.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = profile.png; sourceTree = "<group>"; };
 		B4DDBE2A0FD0AE31004DD79E /* ui.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ui.html; sourceTree = "<group>"; };
 		B4E9B9C20F82030700DD709C /* TitaniumAccessorTuple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumAccessorTuple.h; sourceTree = "<group>"; };
@@ -513,6 +519,8 @@
 				B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */,
 				B4290A73100D31FD00C4FF98 /* TweakedNavController.h */,
 				B4290A74100D31FD00C4FF98 /* TweakedNavController.m */,
+				B4D4AF5310472271006E42E0 /* TweakedScrollView.h */,
+				B4D4AF5410472271006E42E0 /* TweakedScrollView.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -876,6 +884,7 @@
 				B4B571FF10110324003546C7 /* TitaniumContentViewController.h in Headers */,
 				B4200E521035FAB1009598FC /* Logging.h in Headers */,
 				B4A6D3B1103C9EFD00131CD4 /* NativeControlProxy.h in Headers */,
+				B4D4AF5710472271006E42E0 /* TweakedScrollView.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1097,6 +1106,7 @@
 				B4ABEDC7101903F300639ED5 /* buggy.js in Sources */,
 				B4200E541035FAB1009598FC /* Logging.c in Sources */,
 				B4A6D3B4103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
+				B4D4AF5510472271006E42E0 /* TweakedScrollView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1145,6 +1155,7 @@
 				B4B5720010110324003546C7 /* TitaniumContentViewController.m in Sources */,
 				B4200E531035FAB1009598FC /* Logging.c in Sources */,
 				B4A6D3B2103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
+				B4D4AF5810472271006E42E0 /* TweakedScrollView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1194,6 +1205,7 @@
 				B47A270E1035F040002146CD /* TitaniumContentViewController.m in Sources */,
 				B4200E511035FAB1009598FC /* Logging.c in Sources */,
 				B4A6D3B3103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
+				B4D4AF5610472271006E42E0 /* TweakedScrollView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

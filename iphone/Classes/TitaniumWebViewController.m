@@ -10,6 +10,7 @@
 #import "UiModule.h"
 #import "NativeControlProxy.h"
 #import "Logging.h"
+#import "TweakedScrollView.h"
 
 TitaniumWebViewController * mostRecentController = nil;
 
@@ -172,7 +173,8 @@ TitaniumWebViewController * mostRecentController = nil;
 - (UIScrollView *) scrollView;
 {
 	if (scrollView == nil){
-		scrollView = [[UIScrollView alloc] init];
+		scrollView = [[TweakedScrollView alloc] init];
+		[scrollView setDelaysContentTouches:NO];
 	}
 	return scrollView;
 }
