@@ -464,6 +464,9 @@ int nextWindowToken = 0;
 {
 	[super viewWillDisappear:animated];
 	if(![[[UIDevice currentDevice] systemVersion] hasPrefix:@"2."]) [self resignFirstResponder];
+	if(hidesNavBar && ![[[self navigationController] visibleViewController] isKindOfClass:[TitaniumViewController class]]){
+		[[self navigationController] setNavigationBarHidden:NO animated:animated];
+	}
 }
 
 - (void)viewDidDisappear: (BOOL) animated;

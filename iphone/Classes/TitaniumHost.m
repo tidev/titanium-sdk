@@ -654,13 +654,27 @@ TitaniumHost * lastSharedHost = nil;
 	NSArray * controllerArray = [tabBarController viewControllers];
 	int currentIndex = [controllerArray indexOfObject:viewController];
 	TitaniumViewController * currentTabRoot = [[(UINavigationController *)viewController viewControllers] objectAtIndex:0];
-	NSString * currentName = [currentTabRoot nameString];
+
 	NSMutableString * eventString = [NSMutableString stringWithFormat:@"type:'tabchange',index:%d",currentIndex];
+
+	NSString * currentName;
+	if([currentTabRoot respondsToSelector:@selector(nameString)]){
+		currentName = [currentTabRoot nameString];
+	}else{
+		currentName = nil;
+	}
+	
 	if(currentName != nil)[eventString appendFormat:@",name:%@",[SBJSON stringify:currentName]];
 	if(previousTabRoot != nil){
 		int previousIndex = [controllerArray indexOfObject:[previousTabRoot navigationController]];
-		NSString * previousName = [previousTabRoot nameString];
-
+		NSString * previousName;
+		if([previousTabRoot respondsToSelector:@selector(nameString)]){
+			previousName = [previousTabRoot nameString];
+		}else{
+			previousName = nil;
+		}
+		
+		
 		if(previousName != nil)[eventString appendFormat:@",prevName:%@",[SBJSON stringify:previousName]];
 		if(previousIndex != NSNotFound)[eventString appendFormat:@",prevIndex:%d",previousIndex];
 	}

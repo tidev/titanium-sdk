@@ -54,6 +54,10 @@
 		};
 		
 		var activeSong = Titanium.Media.createSound('song.mp3');
+//		try{
+//		var activeSong = Titanium.Media.createSound('http://media.libsyn.com/media/democracynow/dn2009-0826-1.mp3');
+//		}catch(E){Ti.API.debug('http://media.libsyn.com/media/democracynow/dn2009-0826-1.mp3 gave '+E);}
+
 		$('song').onclick = function()
 		{	activeSong.play();	};
 

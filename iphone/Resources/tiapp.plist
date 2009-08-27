@@ -69,6 +69,25 @@
 			<key>title</key>
 			<string>Other</string>
 		</dict>
+		<dict>
+			<key>hideNavBar</key>
+			<true/>
+			<key>views</key>
+			<array>
+				<dict>
+					<key>url</key>
+					<string>misc.html</string>
+				</dict>
+			</array>
+			<key>background</key>
+			<string>white</string>
+			<key>backgroundnImage</key>
+			<string>default.png</string>
+			<key>orientation</key>
+			<string>either</string>
+			<key>title</key>
+			<string>Other</string>
+		</dict>
 	</array>
 	<key>modules</key>
 	<dict>
