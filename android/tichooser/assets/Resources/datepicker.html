@@ -1,0 +1,40 @@
+<html>
+<head>
+	<title>DatePicker</title>
+  	<script><!--
+
+ 	var mind1 = new Date(Date.UTC(2009,5,1));
+ 	var maxd1 = new Date(Date.UTC(2009,9,31));
+
+  	var dp1 = Titanium.UI.createDatePicker({
+  	  	id : 'dp1',
+ 	  	minDate : mind1,
+  	  	maxDate : maxd1
+   	 });
+ 	dp1.addEventListener('change', function(e) {
+ 	 	document.getElementById('change1').innerHTML = "Date: " + e.value.toUTCString();
+ 	});
+
+ 	var mind2 = new Date(Date.UTC(1970,0,1,8,15));
+ 	var maxd2 = new Date(Date.UTC(1970,0,1,17,30));
+
+  	var tp1 = Titanium.UI.createDatePicker({
+  	  	id : 'tp1',
+  	  	mode : Titanium.UI.DatePicker.MODE_TIME,
+  	  	minDate : mind2,
+  	  	maxDate : maxd2
+  	 });
+ 	tp1.addEventListener('change', function(e) {
+ 	 	document.getElementById('change2').innerHTML = "Time: " + e.value.toUTCString();
+ 	});
+
+  --></script>
+</head>
+<body style="background-color: white;">
+<div id='dp1' style='height: 150px; width: 300px;'>&nbsp;</div>
+<div id='change1' style="color: #666; font-style: italic;font-size: 11pt;">&nbsp;</div>
+<div id='tp1' style='height: 150px; width: 300px'>&nbsp;</div>
+<div id='change2' style="color: #666; font-style: italic; font-size: 11pt;">&nbsp;</div>
+
+</body>
+</html>

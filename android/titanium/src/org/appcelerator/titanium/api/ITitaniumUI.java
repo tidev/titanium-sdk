@@ -42,4 +42,8 @@ public interface ITitaniumUI
 	public void setActiveTab(String tabInfo);
 	public int addEventListener(String eventName, String eventListener);
 	public void removeEventListener(String eventName, int listenerId);
+
+	// In 0.6.3/1.0.0 not sure yet.
+	public ITitaniumDatePicker createDatePicker(String json);
+	public ITitaniumDatePicker createModalDatePicker(String json);
 }

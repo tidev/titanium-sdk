@@ -838,6 +838,37 @@ var Button = function(proxy) {
 	};
 };
 
+var DatePicker = function(proxy) {
+	this.proxy = proxy;
+
+	this.setValue = function(value, options) {
+		// send date using getTime()
+	};
+
+	/**
+	 * @tiapi(method=true,name=UI.DatePicker.addEventListener,since=0.6.3) Add a listener.
+	 * @tiarg[string,eventName] The name of the event. Supports:
+	 * @tiarg[function,listener] The event listener
+	 * @tiresult[int] listenerId used to unregister the event.
+	 */
+	this.addEventListener = function(eventName, listener) {
+		var l = function(e) {
+			var d = new Date(0);
+			d.setTime(e.value);
+			listener({ value : d});
+		}
+		return this.proxy.addEventListener(eventName, registerCallback(this, l));
+	};
+	/**
+	 * @tiapi(method=true,name=UI.DatePicker.removeEventListener,since=0.6.3) Add a listener.
+	 * @tiarg[string,eventName] The name of the event. Supports:
+	 * @tiarg[function,listenerId] The event listener id returned by addEventListener
+	 */
+	this.removeEventListener = function(eventName, listenerId) {
+		this.proxy.removeEventListener(eventName, listenerId);
+	};
+};
+
 var Switch = function(proxy) {
 	this.proxy = proxy;
 
@@ -1430,6 +1461,50 @@ Titanium.UI = {
 		Titanium.uiProxy.removeEventListener(eventName, listenerId);
 	},
 
+	//TODO Documentation
+	createDatePicker : function(options) {
+		if (isUndefined(options)) {
+			options = {};
+		}
+		var o = {};
+		for (k in options) {
+			var v = options[k];
+			if (k == 'value' || k == 'minDate' || k == 'maxDate') {
+				v = v.getTime(); // Get ms since epoch
+			}
+			o[k] = v;
+		}
+		var c = new DatePicker(Titanium.uiProxy.createDatePicker(Titanium.JSON.stringify(o)));
+		c.proxy.open();
+		return c
+	},
+
+	createModalDatePicker : function(options) {
+		if (isUndefined(options)) {
+			options = {};
+		}
+		var json = Titanium.JSON.stringify(options, function(k,v){
+				if (k == 'value' || k == 'minDate' || k == 'maxDate') {
+					v = v.getTime(); // Get ms since epoch
+				}
+				return v;
+			});
+
+		var dlg = new DatePicker(Titanium.uiProxy.createModalDatePicker(json));
+		dlg.prototype.show = function() { this.proxy.show(); };
+		dlg.prototype.hide = function() { this.proxy.hide(); };
+
+		return dlg;
+	},
+
+	createPicker : function() {
+
+	},
+
+	createModalPicker : function() {
+
+	},
+
 	// createNotification is below. It needs the property currentWindow
 	// iPhone only methods
 	createToolbar : function(options) {
@@ -1651,6 +1726,21 @@ Titanium.UI.Android.SystemIcon = {
 	 * @tiapi(property=true,name=UI.Android.SystemIcon.ZOOM,since=0.4) icon
 	 */
 	ZOOM : 'ti:Sys:ic_menu_zoom'
+};
+
+Titanium.UI.DatePicker = {
+	/**
+	 * @tiapi(property=true,name=UI.DatePicker.MODE_DATE,since=0.6.3) Date
+	 */
+	MODE_DATE : 0,
+	/**
+	 * @tiapi(property=true,name=UI.DatePicker.MODE_TIME,since=0.6.3) Time
+	 */
+	MODE_TIME : 1,
+	/**
+	 * @tiapi(property=true,name=UI.DatePicker.MODE_DATE,since=0.6.3) Date and Time
+	 */
+	MODE_DATE_AND_TIME : 2
 };
 
 /**
