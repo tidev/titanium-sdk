@@ -73,7 +73,7 @@
 				barry.update({animated:true,animationDuration:1000});});
 		Ti.UI.currentWindow.setToolbar([btn1,btn2,spinny,barry]);
 
-var daty = Ti.UI.createDatePicker({title:'moo',id:'buttony',image:'Safari.png',backgroundImage:'Mail.png'});
+daty = Ti.UI.createDatePicker({x:0,id:'buttony',value:new Date(),minuteInterval:5});
 //var daty = Ti.UI.createButton({title:'-',id:'pickerPlace'});
 Ti.API.debug('Daty is ' + typeof(daty));
 
@@ -118,8 +118,9 @@ Titanium.UI.addEventListener('tabchange',function(e)
 	<hr>
 	<button onclick="testFun('gotoUI()')">Go to UI</button>
 	<button onclick="testFun('gotoTab2()')">Go to Tab 2</button>
+	<button onclick="daty.setValue(new Date(), {animated:true})">Update Time</button>
 
-	<div id='buttony' style="width:320px;height:218px;">What should be here?</div>
+	<div id='buttony' style="width:300px;height:218px;">What should be here?</div>
 	Landscape: <script>document.write(Ti.Gesture.LANDSCAPE);</script><br>
 	isLandscape: <script>document.write(Ti.Gesture.isLandscape(Ti.Gesture.LANDSCAPE_LEFT));</script><br>
 	1&1: <script>document.write(1 & 1);</script><br>

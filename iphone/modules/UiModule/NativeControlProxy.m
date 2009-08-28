@@ -116,7 +116,8 @@ int barButtonSystemItemForString(NSString * inputString){
 		templateValue = UITitaniumNativeItemNone;
 		maxValue = 1.0;
 		segmentSelectedIndex = -1;
-		buttonStyle = -1; 
+		buttonStyle = -1;
+		datePickerMode = UIDatePickerModeDateAndTime;
 	}
 	return self;
 }
@@ -512,12 +513,27 @@ needsRefreshing = YES;	\
 			resultView = [[UIDatePicker alloc] initWithFrame:CGRectZero];
 			[(UIDatePicker *)resultView addTarget:self action:@selector(dateChanged:) forControlEvents:UIControlEventValueChanged];
 		}
-		[(UIDatePicker *)resultView setDatePickerMode:datePickerMode];
-		[(UIDatePicker *)resultView setMinimumDate:minDate];
-		[(UIDatePicker *)resultView setMaximumDate:maxDate];
-		[(UIDatePicker *)resultView setCountDownDuration:floatValue];
-		[(UIDatePicker *)resultView setMinuteInterval:minuteInterval];
-		if(dateValue!=nil)[(UIDatePicker *)resultView setDate:dateValue animated:animated];
+		if(datePickerMode != [(UIDatePicker *) resultView datePickerMode])[(UIDatePicker *)resultView setDatePickerMode:datePickerMode];
+		
+		NSDate * oldMinDate = [(UIDatePicker *) resultView minimumDate];
+		if((minDate != oldMinDate) && ![minDate isEqualToDate:oldMinDate])[(UIDatePicker *)resultView setMinimumDate:minDate];
+
+		NSDate * oldMaxDate = [(UIDatePicker *) resultView maximumDate];
+		if((maxDate != oldMaxDate) && ![maxDate isEqualToDate:oldMaxDate])[(UIDatePicker *)resultView setMaximumDate:maxDate];
+
+		if(floatValue != [(UIDatePicker *) resultView countDownDuration])[(UIDatePicker *)resultView setCountDownDuration:floatValue];
+		if(minuteInterval != [(UIDatePicker *) resultView minuteInterval])[(UIDatePicker *)resultView setMinuteInterval:minuteInterval];
+
+		NSDate * oldValue = [(UIDatePicker *) resultView date];
+		if((dateValue!=nil) && ![dateValue isEqualToDate:oldValue]){
+			NSLog(@"Replacing %@ %@ with %@ %@ (animated? %d)",
+				  [oldValue class],oldValue,
+				  [dateValue class],dateValue,animated);
+			[(UIDatePicker *)resultView setDate:dateValue animated:animated];			
+			NSLog(@"Replaced %@ %@ with %@ %@ (animated? %d)",
+				  [[(UIDatePicker	*)resultView date] class],[(UIDatePicker *)resultView date],
+				  [dateValue class],dateValue,animated);
+		}
 		
 		viewFrame.size = [resultView frame].size;
 	} else if (templateValue == UITitaniumNativeItemPicker){
@@ -908,7 +924,7 @@ needsRefreshing = YES;	\
 - (IBAction) dateChanged: (id) sender;
 {
 	NSString * newValue;
-	if(datePickerMode=UIDatePickerModeCountDownTimer){
+	if(datePickerMode==UIDatePickerModeCountDownTimer){
 		[self setFloatValue:[(UIDatePicker *)sender countDownDuration]];
 		newValue = [[NSString alloc] initWithFormat:@"%f",floatValue];
 	} else {

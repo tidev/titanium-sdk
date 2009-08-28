@@ -1279,6 +1279,10 @@ NSString * UrlEncodeString(NSString * string)
 
 	NSString * createProgressBarString = @"function(args){var res=Ti.UI.createActivityIndicator(args,'progressbar');return res;}";
 
+	NSString * timeModes = [NSString stringWithFormat:@"{MODE_TIME:%d,MODE_DATE:%d,MODE_TIME_AND_DATE:%d}",
+			UIDatePickerModeTime,UIDatePickerModeDate,UIDatePickerModeDateAndTime];
+
+
 	NSDictionary * uiDict = [NSDictionary dictionaryWithObjectsAndKeys:
 			[TitaniumJSCode codeWithString:@"Ti._ADDEVT"],@"addEventListener",
 			[TitaniumJSCode codeWithString:@"{tabchange:[]}"],@"_EVT",
