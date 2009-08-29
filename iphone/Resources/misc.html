@@ -72,10 +72,14 @@
 				barry.message = 'Completed ' + barry.value + ' of ' + barry.max;
 				barry.update({animated:true,animationDuration:1000});});
 		Ti.UI.currentWindow.setToolbar([btn1,btn2,spinny,barry]);
+var nowness = new Date();
+var forward = new Date(nowness.getTime());
+forward.setDate(forward.getDate()+1);
+var backward = new Date(nowness.getTime());
+backward.setDate(backward.getDate()-1);
 
-daty = Ti.UI.createDatePicker({x:0,id:'buttony',value:new Date(),minuteInterval:5});
-//var daty = Ti.UI.createButton({title:'-',id:'pickerPlace'});
-Ti.API.debug('Daty is ' + typeof(daty));
+daty = Ti.UI.createDatePicker({x:0,id:'buttony',value:nowness,minDate:backward,maxDate:forward,minuteInterval:5});
+daty.addEventListener('change',function(e){Ti.API.debug('The time is now: ' + e.value);});
 
 	};
 

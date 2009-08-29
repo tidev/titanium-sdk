@@ -251,6 +251,10 @@
 		B4D4AF5610472271006E42E0 /* TweakedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4AF5410472271006E42E0 /* TweakedScrollView.m */; };
 		B4D4AF5710472271006E42E0 /* TweakedScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = B4D4AF5310472271006E42E0 /* TweakedScrollView.h */; };
 		B4D4AF5810472271006E42E0 /* TweakedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4AF5410472271006E42E0 /* TweakedScrollView.m */; };
+		B4D4B07510489FDC006E42E0 /* WebFont.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4B07410489FDC006E42E0 /* WebFont.m */; };
+		B4D4B07610489FDC006E42E0 /* WebFont.h in Headers */ = {isa = PBXBuildFile; fileRef = B4D4B07310489FDC006E42E0 /* WebFont.h */; };
+		B4D4B07710489FDC006E42E0 /* WebFont.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4B07410489FDC006E42E0 /* WebFont.m */; };
+		B4D4B07810489FDC006E42E0 /* WebFont.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4B07410489FDC006E42E0 /* WebFont.m */; };
 		B4DD427D0FD982FD00CD427F /* profile.png in Resources */ = {isa = PBXBuildFile; fileRef = B4DD427C0FD982FD00CD427F /* profile.png */; };
 		B4DDBE2B0FD0AE31004DD79E /* ui.html in Resources */ = {isa = PBXBuildFile; fileRef = B4DDBE2A0FD0AE31004DD79E /* ui.html */; };
 		B4E9B9C40F82030700DD709C /* TitaniumAccessorTuple.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9B9C30F82030700DD709C /* TitaniumAccessorTuple.m */; };
@@ -415,6 +419,8 @@
 		B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumTableViewController.m; sourceTree = "<group>"; };
 		B4D4AF5310472271006E42E0 /* TweakedScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TweakedScrollView.h; sourceTree = "<group>"; };
 		B4D4AF5410472271006E42E0 /* TweakedScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TweakedScrollView.m; sourceTree = "<group>"; };
+		B4D4B07310489FDC006E42E0 /* WebFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebFont.h; sourceTree = "<group>"; };
+		B4D4B07410489FDC006E42E0 /* WebFont.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebFont.m; sourceTree = "<group>"; };
 		B4DD427C0FD982FD00CD427F /* profile.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = profile.png; sourceTree = "<group>"; };
 		B4DDBE2A0FD0AE31004DD79E /* ui.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ui.html; sourceTree = "<group>"; };
 		B4E9B9C20F82030700DD709C /* TitaniumAccessorTuple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumAccessorTuple.h; sourceTree = "<group>"; };
@@ -824,6 +830,8 @@
 				B4FECD120FAA4B3E0015B658 /* Webcolor.m */,
 				B4200E4F1035FAB1009598FC /* Logging.h */,
 				B4200E501035FAB1009598FC /* Logging.c */,
+				B4D4B07310489FDC006E42E0 /* WebFont.h */,
+				B4D4B07410489FDC006E42E0 /* WebFont.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -885,6 +893,7 @@
 				B4200E521035FAB1009598FC /* Logging.h in Headers */,
 				B4A6D3B1103C9EFD00131CD4 /* NativeControlProxy.h in Headers */,
 				B4D4AF5710472271006E42E0 /* TweakedScrollView.h in Headers */,
+				B4D4B07610489FDC006E42E0 /* WebFont.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1107,6 +1116,7 @@
 				B4200E541035FAB1009598FC /* Logging.c in Sources */,
 				B4A6D3B4103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
 				B4D4AF5510472271006E42E0 /* TweakedScrollView.m in Sources */,
+				B4D4B07510489FDC006E42E0 /* WebFont.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1156,6 +1166,7 @@
 				B4200E531035FAB1009598FC /* Logging.c in Sources */,
 				B4A6D3B2103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
 				B4D4AF5810472271006E42E0 /* TweakedScrollView.m in Sources */,
+				B4D4B07710489FDC006E42E0 /* WebFont.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1206,6 +1217,7 @@
 				B4200E511035FAB1009598FC /* Logging.c in Sources */,
 				B4A6D3B3103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
 				B4D4AF5610472271006E42E0 /* TweakedScrollView.m in Sources */,
+				B4D4B07810489FDC006E42E0 /* WebFont.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

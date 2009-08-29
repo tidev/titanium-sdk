@@ -49,6 +49,7 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 	NSString * iconPath;
 	CGRect	frame;
 	int templateValue;
+	UIFont * font;
 	
 	//For buttons
 	int buttonStyle;

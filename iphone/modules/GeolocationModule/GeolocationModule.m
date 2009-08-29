@@ -204,7 +204,7 @@ NSUInteger lastWatchID = 0;
 	}
 	[proxyLock unlock];
 
-	if ((lastEvent == nil) || ([[NSDate date] timeIntervalSince1970]-[lastEvent timeIntervalSince1970] >= MAX_DELAY_BEFORE_TRANSMIT_GEO_EVENT_IN_MS))
+	if ((lastEvent == nil) || ((-[lastEvent timeIntervalSinceNow]) >= MAX_DELAY_BEFORE_TRANSMIT_GEO_EVENT_IN_MS))
 	{
 		[self transmitGeoEvent:newLocation fromLocation:oldLocation];
 	}

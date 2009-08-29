@@ -267,7 +267,7 @@ needsRefreshing = YES;	\
 	
 	//Pickers!
 	GRAB_IF_CLASS(@"minDate",dateClass,minDate);
-	GRAB_IF_CLASS(@"maxDate",dateClass,minDate);
+	GRAB_IF_CLASS(@"maxDate",dateClass,maxDate);
 	GRAB_IF_SELECTOR(@"mode",intValue,datePickerMode);
 	GRAB_IF_SELECTOR(@"minuteInterval",intValue,minuteInterval);
 
@@ -516,10 +516,26 @@ needsRefreshing = YES;	\
 		if(datePickerMode != [(UIDatePicker *) resultView datePickerMode])[(UIDatePicker *)resultView setDatePickerMode:datePickerMode];
 		
 		NSDate * oldMinDate = [(UIDatePicker *) resultView minimumDate];
-		if((minDate != oldMinDate) && ![minDate isEqualToDate:oldMinDate])[(UIDatePicker *)resultView setMinimumDate:minDate];
+		if((minDate != oldMinDate) && ![minDate isEqualToDate:oldMinDate]){
+			NSLog(@"Min: Replacing %@ %@ with %@ %@",
+				  [oldMinDate class],oldMinDate,
+				  [minDate class],minDate);
+			[(UIDatePicker *)resultView setMinimumDate:minDate];
+			NSLog(@"Min: Replaced %@ %@ with %@ %@",
+				  [oldMinDate class],oldMinDate,
+				  [minDate class],minDate);
+		}
 
 		NSDate * oldMaxDate = [(UIDatePicker *) resultView maximumDate];
-		if((maxDate != oldMaxDate) && ![maxDate isEqualToDate:oldMaxDate])[(UIDatePicker *)resultView setMaximumDate:maxDate];
+		if((maxDate != oldMaxDate) && ![maxDate isEqualToDate:oldMaxDate]){
+			NSLog(@"Max: Replacing %@ %@ with %@ %@",
+				  [oldMaxDate class],oldMaxDate,
+				  [maxDate class],maxDate);
+			[(UIDatePicker *)resultView setMaximumDate:maxDate];
+			NSLog(@"Max: Replaced %@ %@ with %@ %@",
+				  [oldMaxDate class],oldMaxDate,
+				  [maxDate class],maxDate);			
+		}
 
 		if(floatValue != [(UIDatePicker *) resultView countDownDuration])[(UIDatePicker *)resultView setCountDownDuration:floatValue];
 		if(minuteInterval != [(UIDatePicker *) resultView minuteInterval])[(UIDatePicker *)resultView setMinuteInterval:minuteInterval];
