@@ -10,6 +10,7 @@ package org.appcelerator.titanium.module;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.api.ITitaniumGesture;
+import org.appcelerator.titanium.api.ITitaniumProperties;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
@@ -32,9 +33,6 @@ public class TitaniumGesture extends TitaniumBaseModule implements ITitaniumGest
 	public static final String EVENT_SHAKE = "shake";
 	public static final String EVENT_ORIENTATION = "orientationchange";
 
-	protected static final float FILTER_FACTOR = 0.1f;
-	protected static final float SHAKE_THRESHOLD = 800f;
-
 	protected TitaniumJSEventManager eventManager;
 	TitaniumSensorHelper sensorHelper;
 
@@ -45,11 +43,17 @@ public class TitaniumGesture extends TitaniumBaseModule implements ITitaniumGest
 	protected boolean listeningForShake;
 	protected boolean listeningForOrientation;
 
+	protected long firstEventInShake;
 	protected long lastEventInShake;
 	protected int lastOrientation;
 	protected int lastConfigOrientation;
 
 	protected boolean shakeInitialized = false;
+	protected boolean inShake = false;
+	protected double threshold;
+	protected double shakeFactor;
+	protected int postShakePeriod;
+	protected int inShakePeriod;
 
 	protected float last_x;
 	protected float last_y;
@@ -73,15 +77,18 @@ public class TitaniumGesture extends TitaniumBaseModule implements ITitaniumGest
 
 		lastOrientation = 0;
 		lastConfigOrientation = 0;
-	}
 
-	private float lowPass(float cur, float prev) {
-		return (cur * FILTER_FACTOR) + (prev * (1.0f - FILTER_FACTOR));
-	}
+		ITitaniumProperties props = tmm.getApplication().getAppInfo().getSystemProperties();
+		shakeFactor = props.getDouble("ti.android.shake.factor", 1.25d);
+		postShakePeriod = props.getInt("ti.android.shake.quiet.milliseconds", 1000);
+		inShakePeriod = props.getInt("ti.android.shake.active.milliseconds", 500);
+		if (DBG) {
+			Log.i(LCAT, "Shake Factor: " + shakeFactor);
+			Log.i(LCAT, "Post Shake Period (ms): " + postShakePeriod);
+			Log.i(LCAT, "In Shake Period(ms): " + inShakePeriod);
+		}
 
-	@SuppressWarnings("unused")
-	private float highPass(float cur, float prev) {
-		return cur - lowPass(cur, prev);
+		threshold = shakeFactor * shakeFactor * SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH;
 	}
 
 	private int convertToTiOrientation(int orientation) {
@@ -109,66 +116,57 @@ public class TitaniumGesture extends TitaniumBaseModule implements ITitaniumGest
 
 			}
 
-			/*
-        double netForce=Math.pow(values[SensorManager.DATA_X], 2.0);
-
-        netForce+=Math.pow(values[SensorManager.DATA_Y], 2.0);
-        netForce+=Math.pow(values[SensorManager.DATA_Z], 2.0);
-
-        if (threshold<(Math.sqrt(netForce)/SensorManager.GRAVITY_EARTH)) {
-          isShaking();
-
-			 */
 			public void onSensorChanged(SensorEvent event)
 			{
 				long currentEventInShake = System.currentTimeMillis();
 				long difftime = currentEventInShake - lastEventInShake;
 
-				if (difftime > 300) {
+				float x = event.values[SensorManager.DATA_X];
+				float y = event.values[SensorManager.DATA_Y];
+				float z = event.values[SensorManager.DATA_Z];
+
+				double force = Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2);
+				if (shakeInitialized && (threshold < force))
+				{
+					if (! inShake) {
+						firstEventInShake = currentEventInShake;
+						inShake = true;
+					}
 					lastEventInShake = currentEventInShake;
 
-					//float x = highPass(event.values[SensorManager.DATA_X], last_x);
-					//float y = highPass(event.values[SensorManager.DATA_Y], last_y);
-					//float z = highPass(event.values[SensorManager.DATA_Z], last_z);
+					Log.d(LCAT, "ACC-Shake : threshold: " + threshold + " force: " + force + " delta : " + force + " x: " + x + " y: " + y + " z: " + z);
 
-					float x = event.values[SensorManager.DATA_X];
-					float y = event.values[SensorManager.DATA_Y];
-					float z = event.values[SensorManager.DATA_Z];
+				} else {
+					if (shakeInitialized && inShake) {
+						if (difftime > postShakePeriod) {
+							inShake = false;
+							if (lastEventInShake - firstEventInShake > inShakePeriod) {
+								String data = null;
 
-					//float force = Math.abs(x * 0.70f + y * 0.20f + z * 0.10f) / difftime * 10000f;
+								JSONObject json = new JSONObject();
+								try {
+									json.put("type", EVENT_SHAKE);
+									json.put("timestamp", lastEventInShake);
+									json.put("x", x);
+									json.put("y", y);
+									json.put("z", z);
+									data = json.toString();
+								} catch(JSONException e) {
+									Log.e(LCAT, "Error adding value to return object ", e);
+								}
 
-					double force = Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2);
-
-					//if (shakeInitialized && force > SHAKE_THRESHOLD)
-					double test = Math.sqrt(force)/SensorManager.GRAVITY_EARTH;
-					if (shakeInitialized && (1.3d < test))
-					{
-						Log.d(LCAT, "ACC-Shake : test: " + test + " delta : " + force + " x: " + x + " y: " + y + " z: " + z);
-
-						String data = null;
-
-						JSONObject json = new JSONObject();
-						try {
-							json.put("type", EVENT_SHAKE);
-							json.put("timestamp", lastEventInShake);
-							json.put("x", x);
-							json.put("y", y);
-							json.put("z", z);
-							data = json.toString();
-						} catch(JSONException e) {
-							Log.e(LCAT, "Error adding value to return object ", e);
+								eventManager.invokeSuccessListeners(EVENT_SHAKE, data);
+							}
 						}
-
-						eventManager.invokeSuccessListeners(EVENT_SHAKE, data);
 					}
+				}
 
-					last_x = x;
-					last_y = y;
-					last_z = z;
+				last_x = x;
+				last_y = y;
+				last_z = z;
 
-					if (!shakeInitialized) {
-						shakeInitialized = true;
-					}
+				if (!shakeInitialized) {
+					shakeInitialized = true;
 				}
 			}
 		};
@@ -245,6 +243,7 @@ public class TitaniumGesture extends TitaniumBaseModule implements ITitaniumGest
 					sensorHelper.unregisterListener(Sensor.TYPE_ACCELEROMETER, shakeListener);
 					listeningForShake = false;
 					shakeInitialized = false;
+					inShake = false;
 				}
 			}
 		}
