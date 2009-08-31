@@ -47,8 +47,8 @@ function test1()
 {
 try{
 	var data = [
-		{title:'row 1', hasChild:true},
-		{title:'row 2', hasDetail:true},
+		{title:'row 1', hasChild:true,fontWeight:'bold',fontSize:'36px'},
+		{title:'row 2', hasDetail:true,fontWeight:'normal',fontSize:'6px'},
 		{title:'row 3'},
 		{html:'<b>row</b> 4 has <i>html?</i>',selected:true},
 
@@ -226,7 +226,7 @@ try{
 
 //		var btn8 = Ti.UI.createButton({title:'moo',id:'buttony',image:'Safari.png'});
 
-		var btn8 = Ti.UI.createButton({title:'moo',id:'buttony',image:'Safari.png',backgroundImage:'Mail.png'});
+		var btn8 = Ti.UI.createButton({title:'moo',id:'buttony',image:'Safari.png',backgroundImage:'Mail.png',fontWeight:'bold',fontSize:'36px'});
 //		btn8.width=100;
 		btn8.addEventListener('click',function(foo){document.getElementById('sliderValue').innerHTML='Clicked!';});
 

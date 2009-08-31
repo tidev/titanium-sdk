@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "TitaniumModule.h"
+#import "WebFont.h"
 
 enum {
 	UITitaniumNativeStyleBar = -32,
@@ -46,10 +47,11 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 	
 	NSString * titleString;
 	NSString * messageString;
+	TitaniumFontDescription fontDesc;
+
 	NSString * iconPath;
 	CGRect	frame;
 	int templateValue;
-	UIFont * font;
 	
 	//For buttons
 	int buttonStyle;

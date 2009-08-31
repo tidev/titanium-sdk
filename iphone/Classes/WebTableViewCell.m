@@ -38,7 +38,7 @@
 - (void)updateState: (BOOL) animated;
 {
 	BOOL hilighted;
-	if([self respondsToSelector:@selector(isHighlighted)]) hilighted = [self isHilighted];
+	if([self respondsToSelector:@selector(isHighlighted)]) hilighted = [self isHighlighted];
 	else hilighted = [self isSelected];
 
 	if (hilighted) {

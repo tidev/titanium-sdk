@@ -118,6 +118,8 @@ int barButtonSystemItemForString(NSString * inputString){
 		segmentSelectedIndex = -1;
 		buttonStyle = -1;
 		datePickerMode = UIDatePickerModeDateAndTime;
+		fontDesc.isBold = NO;
+		fontDesc.size = [UIFont systemFontSize];
 	}
 	return self;
 }
@@ -195,8 +197,10 @@ needsRefreshing = YES;	\
 	id imageArray = [newDict objectForKey:@"images"];
 	if ([imageArray isKindOfClass:[NSArray class]]){
 		[self setSegmentImageArray:imageArray];
+		needsRefreshing = YES;
 	} else if (imageArray == [NSNull null]) {
 		[self setSegmentImageArray:nil];
+		needsRefreshing = YES;
 	}
 	
 	//Colors
@@ -252,6 +256,7 @@ needsRefreshing = YES;	\
 		if ([alignmentObject isEqualToString:@"left"]) textAlignment = UITextAlignmentLeft;
 		else if ([alignmentObject isEqualToString:@"center"]) textAlignment = UITextAlignmentCenter;
 		else if ([alignmentObject isEqualToString:@"right"]) textAlignment = UITextAlignmentRight;
+		needsRefreshing = YES;
 	}
 	
 	GRAB_IF_SELECTOR(@"clearOnEdit",boolValue,clearsOnBeginEditing);
@@ -272,7 +277,9 @@ needsRefreshing = YES;	\
 	GRAB_IF_SELECTOR(@"minuteInterval",intValue,minuteInterval);
 
 	
-	
+	if(UpdateFontDescriptionFromDict(newDict, &fontDesc)){
+		needsRefreshing = YES;
+	}
 	
 	//Because the proxies are best from the UIModule itself, we don't check here.
 }
@@ -290,7 +297,8 @@ needsRefreshing = YES;	\
 	}
 	
 	[labelView setText:messageString];
-	[labelView setFont:[UIFont systemFontOfSize:newFrame.size.height-4]];
+//	[labelView setFont:[UIFont systemFontOfSize:newFrame.size.height-4]];
+	[labelView setFont:FontFromDescription(&fontDesc)];
 	[labelView setBackgroundColor:((bgColor != nil)?bgColor:[UIColor clearColor])];
 	[labelView setTextColor:((elementColor != nil)?elementColor:[UIColor whiteColor])];
 	
@@ -421,6 +429,7 @@ needsRefreshing = YES;	\
 		}
 		if (elementColor != nil) [(UITextField *)resultView setTextColor:elementColor];
 		[(UITextField *)resultView setText:stringValue];
+		[(UITextField *)resultView setFont:FontFromDescription(&fontDesc)];
 		[(UITextField *)resultView setAutocorrectionType:autocorrectionType];
 		[(UITextField *)resultView setAutocapitalizationType:autocapitalizationType];
 		[(UITextField *)resultView setTextAlignment:textAlignment];
@@ -467,7 +476,6 @@ needsRefreshing = YES;	\
 		[thingArray release];
 		
 		[(UISegmentedControl *)resultView addTarget:self action:@selector(onSegmentChange:) forControlEvents:UIControlEventValueChanged];
-		
 		//		if ([nativeView isKindOfClass:[UISegmentedControl class]]){
 		//			resultView = [nativeView retain];
 		//			[(UISegmentedControl *)resultView removeAllSegments];
@@ -646,6 +654,7 @@ needsRefreshing = YES;	\
 		if (elementSelectedColor != nil) [(UIButton *)resultView setTitleColor:elementSelectedColor forState:UIControlStateHighlighted];
 		else if(resultType == UIButtonTypeCustom)[(UIButton *)resultView setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
 		
+		[(id)resultView setFont:FontFromDescription(&fontDesc)];
 		[resultView setBackgroundColor:elementBorderColor];
 	}
 	

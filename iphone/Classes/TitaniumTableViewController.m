@@ -13,6 +13,7 @@
 #import "WebTableViewCell.h"
 #import "ValueTableViewCell.h"
 #import "Webcolor.h"
+#import "WebFont.h"
 
 #import "TitaniumWebViewController.h"
 #import "Logging.h"
@@ -55,6 +56,7 @@ UIColor * checkmarkColor = nil;
 @interface TableRowWrapper : NSObject
 {
 	NSString * title;
+	TitaniumFontDescription fontDesc;
 	NSString * html;
 	NSString * name;
 	NSString * value;
@@ -86,6 +88,17 @@ UIColor * checkmarkColor = nil;
 @implementation TableRowWrapper
 @synthesize title,html,imageURL,imageWrapper,accessoryType,inputProxy,isButton, value, name;
 
+- (id) init
+{
+	self = [super init];
+	if (self != nil) {
+		fontDesc.isBold=YES;
+		fontDesc.size=15;
+	}
+	return self;
+}
+
+
 - (UIImage *) image;
 {
 	if (imageWrapper != nil){
@@ -93,6 +106,11 @@ UIColor * checkmarkColor = nil;
 	}
 	if (imageURL == nil) return nil;
 	return [[TitaniumHost sharedHost] imageForResource:imageURL];
+}
+
+- (UIFont *) font;
+{
+	return FontFromDescription(&fontDesc);
 }
 
 - (void) dealloc
@@ -221,6 +239,8 @@ UIColor * checkmarkColor = nil;
 		NativeControlProxy * thisInputProxy = [theUiModule proxyForObject:inputProxyDict scan:YES recurse:YES];
 		if (thisInputProxy != nil) [self setInputProxy:thisInputProxy];
 	} else [self setInputProxy:nil];
+	
+	UpdateFontDescriptionFromDict(propDict, &fontDesc);
 }
 
 
@@ -752,7 +772,7 @@ UIColor * checkmarkColor = nil;
 			[(id)result setTextAlignment:UITextAlignmentCenter];
 		}
 		[(id)result setText:[rowWrapper title]];
-		
+		[(id)result setFont:[rowWrapper font]];
 	} else { //plain cell
 		NSString * valueString = [rowWrapper value];
 		if (valueString == nil){
@@ -769,8 +789,10 @@ UIColor * checkmarkColor = nil;
 				valueLabel = [(ValueTableViewCell *)result valueLabel];
 			}
 			[valueLabel setText:valueString];
+			[valueLabel setFont:[rowWrapper font]];
 		}
 		[(id)result setText:[rowWrapper title]];
+		[(id)result setFont:[rowWrapper font]];
 		UIColor * textColor = [UIColor blackColor];
 		if (ourType == UITableViewCellAccessoryCheckmark) textColor = checkmarkColor;
 		[(id)result setTextColor:textColor];
