@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumButton;
+import org.appcelerator.titanium.api.ITitaniumDatePicker;
 import org.appcelerator.titanium.api.ITitaniumDialog;
 import org.appcelerator.titanium.api.ITitaniumEmailDialog;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
@@ -31,6 +32,7 @@ import org.appcelerator.titanium.api.ITitaniumUserWindow;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.module.ui.TitaniumButton;
+import org.appcelerator.titanium.module.ui.TitaniumDatePicker;
 import org.appcelerator.titanium.module.ui.TitaniumDialog;
 import org.appcelerator.titanium.module.ui.TitaniumEmailDialog;
 import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
@@ -72,6 +74,10 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	private static final int MSG_CREATE_WINDOW = 310;
 	private static final int MSG_CREATE_EMAILDIALOG = 311;
 	private static final int MSG_CREATE_WEBVIEW = 312;
+	private static final int MSG_CREATE_DATEPICKER = 313;
+	private static final int MSG_CREATE_PICKER = 314;
+	private static final int MSG_CREATE_MODALDATEPICKER = 315;
+	private static final int MSG_CREATE_MODALPICKER = 316;
 
 	private static final int MSG_END_CREATE_SECTION = 330;
 
@@ -167,6 +173,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 					break;
 				case MSG_CREATE_WEBVIEW :
 					h.o = new TitaniumUIWebView(getModuleManager());
+					break;
+				case MSG_CREATE_DATEPICKER :
+					h.o = new TitaniumDatePicker(getModuleManager());
 					break;
 				default :
 					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
@@ -363,6 +372,19 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 
 	public void removeEventListener(String eventName, int listenerId) {
 		tmm.getWebView().removeEventListener("ui." + eventName, listenerId);
+	}
+
+	//Created in 0.6.3/1.0.0 Not sure which one is the next release
+
+	public ITitaniumDatePicker createDatePicker(String json) {
+		TitaniumDatePicker picker = (TitaniumDatePicker) create(MSG_CREATE_DATEPICKER);
+		picker.setOptions(json);
+		return picker;
+	}
+
+	public ITitaniumDatePicker createModalDatePicker(String json) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	// Expects the message handler to put the object in h.o and release the holder

@@ -23,7 +23,7 @@ import android.widget.AbsoluteLayout;
 public abstract class TitaniumBaseNativeControl
 	implements ITitaniumNativeControl, Handler.Callback, OnFocusChangeListener
 {
-	private static final String LCAT = "TiSwitch";
+	private static final String LCAT = "TiBaseNativeCtrl";
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	protected static final String FOCUS_EVENT = "focus";
@@ -34,6 +34,7 @@ public abstract class TitaniumBaseNativeControl
 	protected static final int MSG_FOCUSCHANGE = 201;
 	protected static final int MSG_FOCUS = 202;
 	protected static final int MSG_BLUR = 203;
+	protected static final int MSG_OPEN = 204;
 
 	protected SoftReference<TitaniumModuleManager> softModuleMgr;
 	protected Handler handler;
@@ -131,6 +132,26 @@ public abstract class TitaniumBaseNativeControl
 				}
 				return false;
 			}
+			case MSG_OPEN : {
+				TitaniumModuleManager tmm = softModuleMgr.get();
+				if (tmm != null && control == null) {
+
+					createControl(tmm);
+
+					if (id != null) {
+						TitaniumWebView wv = tmm.getWebView();
+						if (wv != null) {
+							//TODO: POSSIBLE LEAK
+							wv.addListener(this);
+							control.setOnFocusChangeListener(this);
+							wv.addControl(control);
+						} else {
+							Log.e(LCAT, "No webview, control not added");
+						}
+					}
+				}
+				return true;
+			}
 		}
 
 		return false;
@@ -182,23 +203,7 @@ public abstract class TitaniumBaseNativeControl
 
 	public void open()
 	{
-		TitaniumModuleManager tmm = softModuleMgr.get();
-		if (tmm != null && control == null) {
-
-			createControl(tmm);
-
-			if (id != null) {
-				TitaniumWebView wv = tmm.getWebView();
-				if (wv != null) {
-					//TODO: POSSIBLE LEAK
-					wv.addListener(this);
-					control.setOnFocusChangeListener(this);
-					wv.addControl(control);
-				} else {
-					Log.e(LCAT, "No webview, control not added");
-				}
-			}
-		}
+		handler.obtainMessage(MSG_OPEN).sendToTarget();
 	}
 
 	public void onFocusChange(View view, boolean hasFocus) {
