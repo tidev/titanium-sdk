@@ -3,8 +3,13 @@
 	<title>DatePicker</title>
   	<script><!--
 
- 	var mind1 = new Date(Date.UTC(2009,5,1));
- 	var maxd1 = new Date(Date.UTC(2009,9,31));
+ //	var mind1 = new Date(Date.UTC(2009,0,1));
+ //	var maxd1 = new Date(Date.UTC(2009,9,31));
+
+ 	var mind1 = new Date();
+ 	mind1.setFullYear(2009,0,1);
+ 	var maxd1 = new Date();
+ 	maxd1.setFullYear(2009,9,31);
 
   	var dp1 = Titanium.UI.createDatePicker({
   	  	id : 'dp1',
@@ -15,8 +20,18 @@
  	 	document.getElementById('change1').innerHTML = "Date: " + e.value.toUTCString();
  	});
 
- 	var mind2 = new Date(Date.UTC(1970,0,1,8,15));
- 	var maxd2 = new Date(Date.UTC(1970,0,1,17,30));
+ //	var mind2 = new Date(Date.UTC(1970,0,1,8,15));
+ //	var maxd2 = new Date(Date.UTC(1970,0,1,17,30));
+
+ 	var mind2 = new Date();
+ 	mind2.setHours(8,15);
+//	mind2.setHours(17,00);
+// 	mind2.setTime (mind2.getTime() - (24 * 60 * 60 * 1000));
+
+ 	var maxd2 = new Date();
+ 	maxd2.setHours(17,00);
+// 	maxd2.setTime (maxd2.getTime() + (24 * 60 * 60 * 1000));
+// 	maxd2.setHours(8,15);
 
   	var tp1 = Titanium.UI.createDatePicker({
   	  	id : 'tp1',

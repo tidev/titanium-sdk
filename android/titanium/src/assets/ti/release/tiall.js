@@ -1,6 +1,6 @@
 
 var Titanium=new function(){this.platform='android';this.version='TI_VERSION';this.window=window;this.document=document;this.apiProxy=window.TitaniumAPI;this.rethrow=function(e){throw e;};this.doPostProcessing=function(){var imgs=document.getElementsByTagName('img');for(i=0;i<imgs.length;i++){var s=imgs[i].src;if(s.indexOf('file:///')==0){if(s.indexOf('file:///sdcard/')==-1&&s.indexOf('file:///android_asset')==-1){imgs[i].src=s.substring(8);}}else if(s.indexOf('app://')==0){imgs[i].src=s.substring(6);}}
-document.addEventListener('DOMSubtreeModified',function(e){Titanium.apiProxy.invalidateLayout();});};this.getPosition=function(obj){var pos={top:0,left:0,width:0,height:0};pos.width=obj.offsetWidth;pos.height=obj.offsetHeight;while(obj){pos.left+=obj.offsetLeft;pos.top+=obj.offsetTop;obj=obj.offsetParent;}
+document.addEventListener('DOMSubtreeModified',function(e){Titanium.apiProxy.invalidateLayout();});};this.getPosition=function(obj){var pos={top:0,left:0,width:0,height:0};if(!isUndefined(obj)){pos.width=obj.offsetWidth;pos.height=obj.offsetHeight;while(obj){pos.left+=obj.offsetLeft;pos.top+=obj.offsetTop;obj=obj.offsetParent;}}
 return pos;};this.sendLayoutToNative=function(ids){var positions={};for(i=0;i<ids.length;i++){var id=ids[i];var o=document.getElementById(id);positions[id]=this.getPosition(o);}
 this.apiProxy.updateNativeControls(Titanium.JSON.stringify(positions));}
 this.callbackCounter=0;this.callbacks=new Object();this.nextCallbackId=function(){return'cb'+this.callbackCounter++;}

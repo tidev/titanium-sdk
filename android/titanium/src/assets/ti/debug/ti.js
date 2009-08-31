@@ -45,13 +45,15 @@ var Titanium = new function() {
 
 	this.getPosition = function(obj) {
         var pos = { top: 0, left: 0, width: 0, height: 0 };
-        pos.width = obj.offsetWidth;
-        pos.height = obj.offsetHeight;
-	    while(obj){
-            pos.left+= obj.offsetLeft;
-            pos.top+= obj.offsetTop;
-            obj= obj.offsetParent;
-	    }
+        if (!isUndefined(obj)) {
+	        pos.width = obj.offsetWidth;
+	        pos.height = obj.offsetHeight;
+		    while(obj){
+	            pos.left+= obj.offsetLeft;
+	            pos.top+= obj.offsetTop;
+	            obj= obj.offsetParent;
+		    }
+        }
 	    return pos;
 	};
 
