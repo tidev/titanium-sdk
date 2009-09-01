@@ -11,6 +11,7 @@
 	<button onclick="Titanium.UI.currentWindow.setActiveViewIndex(0,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,animationDuration:2000})">Switch by index</button>
 
 	<div><input type="button" id="1" value="Launch Email" class="button"/></div>
+	<div><input type="button" id="2" value="Try URL" class="button"/></div>
 
 	<script>
 	document.getElementById('1').onclick = function()
@@ -40,6 +41,21 @@
 		});
 		
 	};
+
+	document.getElementById('2').onclick = function(){
+	    var xhr = Titanium.Network.createHTTPClient();
+		xhr.onreadystatechange = function() 
+		{
+			if (this.readyState == 4)
+			{
+				Titanium.UI.createAlertDialog({message:this.responseText}).show();
+				Titanium.API.debug(this.responseText);
+			}
+		};
+		xhr.open('GET','http://www.liturgiadashoras.org/Horas/1terca_laudes.htm');
+		xhr.send(null);
+	}
+
 
 	</script>
 	

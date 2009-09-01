@@ -94,6 +94,43 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 	}
 }
 
+NSStringEncoding extractEncodingFromData(NSData * inputData){
+	int thisCharIndex;
+	int maxCharIndex = [inputData length]-8; //So that there's no chance of overrunning the buffer with 'charset='
+	if(maxCharIndex > 1000) maxCharIndex = 1000;
+	char thisChar;
+	const char * data = [inputData bytes];
+	
+	while(thisCharIndex < maxCharIndex){
+		thisChar = data[thisCharIndex++];
+		if(thisChar != 'c')continue;
+		thisChar = data[thisCharIndex++];
+		if(thisChar != 'h')continue;
+		thisChar = data[thisCharIndex++];
+		if(thisChar != 'a')continue;
+		thisChar = data[thisCharIndex++];
+		if(thisChar != 'r')continue;
+		thisChar = data[thisCharIndex++];
+		if(thisChar != 's')continue;
+		thisChar = data[thisCharIndex++];
+		if(thisChar != 'e')continue;
+		thisChar = data[thisCharIndex++];
+		if(thisChar != 't')continue;
+		thisChar = data[thisCharIndex++];
+		if(thisChar != '=')continue;
+		
+		//TODO: Proper encoding translation here.
+		
+		
+		
+		
+	}	
+	return NSISOLatin1StringEncoding;
+}
+
+
+
+
 
 @interface NetHTTPClient : TitaniumProxyObject
 {
@@ -102,7 +139,7 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 	NSURLConnection * urlConnection;
 	NSURLResponse * urlResponse;
 	NSMutableData * loadedData;
-	
+	NSStringEncoding returnedEncoding;
 	
 	NetHTTPClientState readyState;
 	NSInteger currentStatus;
@@ -216,6 +253,7 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 		
 		[self setUrlRequest:[NSMutableURLRequest requestWithURL:destUrl]];
 		[urlRequest setHTTPMethod:[objectValue objectAtIndex:0]];
+		[urlRequest setValue:@"Accept-Charset" forHTTPHeaderField:@"utf-8"];
 		
 		// set the titanium user agent
 		NSString *userAgent;
@@ -329,6 +367,18 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 {
 	[self setConnected:YES];
 	[self setUrlResponse:response];
+	id encodingObject = [[(NSHTTPURLResponse *)response allHeaderFields] objectForKey:@"Content-Type"];
+	returnedEncoding = NSUTF8StringEncoding;
+
+	if(encodingObject != nil){
+		encodingObject = [encodingObject lowercaseString];
+		if([encodingObject hasSuffix:@"utf-8"]){
+			
+		} else if([encodingObject hasSuffix:@"windows-1252"]){
+			returnedEncoding = NSWindowsCP1252StringEncoding;
+		}
+	}
+	
 	if (loadedData == nil) {
 		loadedData = [[NSMutableData alloc] init];
 	} else {
