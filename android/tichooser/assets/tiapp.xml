@@ -8,6 +8,7 @@
 	<prerendered-icon>false</prerendered-icon>
 	<statusbar-style>opaque</statusbar-style>
     <windows>
+<!--
         <window>
             <id>accelerometer</id>
             <title>Accelerometer</title>
@@ -18,7 +19,6 @@
             <barColor>#000</barColor>
         </window>
 
-<!--
         <window>
             <id>media</id>
             <title>Media</title>
@@ -215,7 +215,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+-->
 		<window>
             <id>DatePicker</id>
             <title>DatePicker</title>
@@ -225,7 +225,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
     </windows>
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.android.watchlog" type="bool">false</property>

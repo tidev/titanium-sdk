@@ -1483,16 +1483,19 @@ Titanium.UI = {
 		if (isUndefined(options)) {
 			options = {};
 		}
-		var json = Titanium.JSON.stringify(options, function(k,v){
-				if (k == 'value' || k == 'minDate' || k == 'maxDate') {
-					v = v.getTime(); // Get ms since epoch
-				}
-				return v;
-			});
+		var o = {};
+		for (k in options) {
+			var v = options[k];
+			if (k == 'value' || k == 'minDate' || k == 'maxDate') {
+				v = v.getTime(); // Get ms since epoch
+			}
+			o[k] = v;
+		}
 
-		var dlg = new DatePicker(Titanium.uiProxy.createModalDatePicker(json));
-		dlg.prototype.show = function() { this.proxy.show(); };
-		dlg.prototype.hide = function() { this.proxy.hide(); };
+		var dlg = new DatePicker(Titanium.uiProxy.createModalDatePicker(Titanium.JSON.stringify(o)));
+		dlg.show = function() { this.proxy.show(); };
+		dlg.hide = function() { this.proxy.hide(); };
+		dlg.proxy.open();
 
 		return dlg;
 	},

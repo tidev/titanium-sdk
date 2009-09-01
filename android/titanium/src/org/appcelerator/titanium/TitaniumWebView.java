@@ -477,7 +477,9 @@ public class TitaniumWebView extends WebView
 			throw new IllegalArgumentException("Control has already been registered id=" + id);
 		}
 
-		nativeControls.put(id, new WeakReference<ITitaniumNativeControl>(control));
+		synchronized(nativeControls) {
+			nativeControls.put(id, new WeakReference<ITitaniumNativeControl>(control));
+		}
 		requestNativeLayout(id);
 
 		if (DBG) {
@@ -488,27 +490,31 @@ public class TitaniumWebView extends WebView
 	public synchronized void removeListener(ITitaniumNativeControl control) {
 		if (nativeControls != null) {
 			String id = control.getHtmlId();
-			if (nativeControls.containsKey(id)) {
-				nativeControls.remove(id);
-				if (DBG) {
-					Log.d(LCAT, "Native control unlinked from html id " + id);
+			synchronized(nativeControls) {
+				if (nativeControls.containsKey(id)) {
+					nativeControls.remove(id);
+					if (DBG) {
+						Log.d(LCAT, "Native control unlinked from html id " + id);
+					}
+				} else {
+					Log.w(LCAT, "Attempt to unlink a non registered control. html id " + id);
 				}
-			} else {
-				Log.w(LCAT, "Attempt to unlink a non registered control. html id " + id);
 			}
 		}
 	}
 
 	public synchronized void requestNativeLayout() {
-		if (nativeControls != null && nativeControls.size() > 0) {
-			JSONArray a = new JSONArray();
-			for (String id : nativeControls.keySet()) {
-				a.put(id);
-			}
-			requestNativeLayout(a);
-		} else {
-			if (DBG) {
-				Log.d(LCAT, "No native controls, layout request ignored");
+		synchronized(nativeControls) {
+			if (nativeControls != null && nativeControls.size() > 0) {
+				JSONArray a = new JSONArray();
+				for (String id : nativeControls.keySet()) {
+					a.put(id);
+				}
+				requestNativeLayout(a);
+			} else {
+				if (DBG) {
+					Log.d(LCAT, "No native controls, layout request ignored");
+				}
 			}
 		}
 	}
@@ -532,27 +538,29 @@ public class TitaniumWebView extends WebView
 	}
 
 	public void updateNativeControls(String json) {
-		try {
-			JSONObject o = new JSONObject(json);
-			for (String id : nativeControls.keySet()) {
-				if (o.has(id)) {
-					JSONObject pos = o.getJSONObject(id);
-					Bundle b = new Bundle(4);
-					b.putInt("top", pos.getInt("top"));
-					b.putInt("left", pos.getInt("left"));
-					b.putInt("width", pos.getInt("width"));
-					b.putInt("height", pos.getInt("height"));
+		synchronized(nativeControls) {
+			try {
+				JSONObject o = new JSONObject(json);
+				for (String id : nativeControls.keySet()) {
+					if (o.has(id)) {
+						JSONObject pos = o.getJSONObject(id);
+						Bundle b = new Bundle(4);
+						b.putInt("top", pos.getInt("top"));
+						b.putInt("left", pos.getInt("left"));
+						b.putInt("width", pos.getInt("width"));
+						b.putInt("height", pos.getInt("height"));
 
-					ITitaniumNativeControl c = nativeControls.get(id).get();
-					c.handleLayoutRequest(b);
-				} else {
-					if (DBG) {
-						Log.w(LCAT, "Position data not found for id " + id);
+						ITitaniumNativeControl c = nativeControls.get(id).get();
+						c.handleLayoutRequest(b);
+					} else {
+						if (DBG) {
+							Log.w(LCAT, "Position data not found for id " + id);
+						}
 					}
 				}
+			} catch (JSONException e) {
+				Log.e(LCAT, "Malformed location object from Titanium.API: " + json);
 			}
-		} catch (JSONException e) {
-			Log.e(LCAT, "Malformed location object from Titanium.API: " + json);
 		}
 	}
 

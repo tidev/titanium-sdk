@@ -43,10 +43,43 @@
  	 	document.getElementById('change2').innerHTML = "Time: " + e.value.toUTCString();
  	});
 
+ 	var dlgDate = Titanium.UI.createModalDatePicker({
+	 	  	minDate : mind1,
+	  	  	maxDate : maxd1
+	 	});
+
+ 	dlgDate.addEventListener("change", function(e) {
+ 	 	Titanium.UI.createNotification({message : e.value.toString()}).show();
+ 	});
+
+ 	var btnDate = Titanium.UI.createButton({id:"btn-date", title:"Date "});
+ 	btnDate.addEventListener('click', function(e) {
+ 	 	dlgDate.show();
+ 	});
+
+	var dlgTime = Titanium.UI.createModalDatePicker({
+		mode : Titanium.UI.DatePicker.MODE_TIME,
+ 	  	minDate : mind2,
+  	  	maxDate : maxd2
+ 	});
+
+	dlgTime.addEventListener('change', function(e) {
+ 	 	Titanium.UI.createNotification({message : e.value.toString()}).show();
+	});
+ 	var btnTime = Titanium.UI.createButton({id:"btn-time", title:"Time "});
+ 	btnTime.addEventListener('click', function(e) {
+ 	 	dlgTime.show();
+ 	});
+
   --></script>
 </head>
 <body style="background-color: white;">
-<div id='dp1' style='height: 150px; width: 300px;'>&nbsp;</div>
+<div style="width:99%; height: 50px; background-color: #aaa; margin-bottom: 20px">
+	<div id="btn-date" style="width: 40%; height: 40px; float: left; margin-right: 5px; margin-left: 10%">&nbsp;</div>
+	<div id="btn-time" style="width: 40%; height: 40px; float: left;">&nbsp;</div>
+</div>
+<hr/>
+<div id='dp1' style='height: 150px; width: 300px; clear:both;'>&nbsp;</div>
 <div id='change1' style="color: #666; font-style: italic;font-size: 11pt;">&nbsp;</div>
 <div id='tp1' style='height: 150px; width: 300px'>&nbsp;</div>
 <div id='change2' style="color: #666; font-style: italic; font-size: 11pt;">&nbsp;</div>
