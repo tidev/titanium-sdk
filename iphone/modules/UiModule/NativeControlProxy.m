@@ -1006,3 +1006,9 @@ NSString * const createDatePickerString = @"function(args){var res=Ti.UI.createB
 
 NSString * const createPickerString = @"function(args){var res=Ti.UI.createButton(args,'picker');return res;}";
 
+NSString * const createModalDatePickerString = @"function(args){var res=Ti.UI.createButton(args,'datepicker');"
+	"res.show=function(args){Ti.UI._DISPMODAL(this,true,args);};res.hide=function(args){Ti.UI._DISPMODAL(this,false,args);};return res;}";
+
+NSString * const createModalPickerString = @"function(args){var res=Ti.UI.createButton(args,'picker');"
+	"res.show=function(args){Ti.UI._DISPMODAL(this,true,args);};res.hide=function(args){Ti.UI._DISPMODAL(this,false,args);};return res;}";
+

@@ -36,7 +36,7 @@ typedef enum MFMailComposeResult MFMailComposeResult;   // available in iPhone 3
 
 NSString * UrlEncodeString(NSString * string)
 {
-	NSString *out = [string stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+	NSString *out = [string stringByAddingPercentEscapesUsingEncoding:[string fastestEncoding]];
 	out = [out stringByReplacingOccurrencesOfString:@"'" withString:@"%27"];
 	//out = [out stringByReplacingOccurrencesOfString:@" " withString:@"+"];
 	return out;
@@ -443,6 +443,11 @@ NSString * UrlEncodeString(NSString * string)
 	} else {
 		[target performSelectorOnMainThread:@selector(resignFirstResponder) withObject:nil waitUntilDone:NO];
 	}
+}
+
+- (void) modalPicker: (id)proxyObject visible:(NSNumber *) isVisibleObject options: (NSDictionary *) optionsObject;
+{
+	
 }
 
 #pragma mark Window actions
@@ -1065,6 +1070,10 @@ NSString * UrlEncodeString(NSString * string)
 	[(UiModule *)invocGen resizeCurrentWindow];
 	NSInvocation * resizeWindowInvoc = [invocGen invocation];
 	
+	[(UiModule *)invocGen modalPicker: nil visible: nil options:nil];
+	NSInvocation * displayInputModallyInvoc = [invocGen invocation];
+	
+	
 	buttonContexts = [[NSMutableDictionary alloc] init];
 	
 	//NOTE: createWindow doesn't actually create a native-side window. Instead, it simply sets up the dict.
@@ -1313,6 +1322,8 @@ NSString * UrlEncodeString(NSString * string)
 			getTabByNameInvoc,@"_TABGET",
 			getAllTabsInvoc,@"_TABALL",
 			
+			displayInputModallyInvoc,@"_DISPMODAL",
+			
 			insertRowInvoc,@"_WROWCHG",
 			deleteRowInvoc,@"_WROWDEL",
 			updateDataInvoc,@"_WDTAUPD",
@@ -1343,6 +1354,8 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'segmented');}"],@"createTabbedBar",
 			[TitaniumJSCode codeWithString:createDatePickerString],@"createDatePicker",
 			[TitaniumJSCode codeWithString:createPickerString],@"createPicker",
+			[TitaniumJSCode codeWithString:createModalDatePickerString],@"createModalDatePicker",
+			[TitaniumJSCode codeWithString:createModalPickerString],@"createModalPicker",
 
 			[NSNumber numberWithInt:1],@"_NEXTTKN",
 			showModalInvoc,@"_MSHOW",

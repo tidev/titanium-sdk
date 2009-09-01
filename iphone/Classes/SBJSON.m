@@ -108,7 +108,7 @@ static char ctrl[0x24];
 	NSString * queryString = [inputUrl query];
 	if([queryString length]>0){
 		id result;
-		queryString = [NSString stringWithFormat:@"[%@]",[queryString stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+		queryString = [NSString stringWithFormat:@"[%@]",[queryString stringByReplacingPercentEscapesUsingEncoding:[queryString fastestEncoding]]];
 		SBJSON * jasonDecoder = [[SBJSON alloc] init];
 		NSError * error = nil;
 		result = [jasonDecoder fragmentWithString:queryString error:&error];
