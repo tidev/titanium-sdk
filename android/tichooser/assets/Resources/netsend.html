@@ -122,6 +122,23 @@
 			}
 		};
 
+		$('xml').onclick = function() {
+			try {
+				$('echo').innerHTML = 'Requesting XML...one moment';
+				var ourClient = Titanium.Network.createHTTPClient();
+				ourClient.open('GET','http://ipinfodb.com/ip_query.php?ip=74.125.45.100');
+				ourClient.onload=function(){
+					var string = (new XMLSerializer()).serializeToString(this.responseXML);
+					Titanium.API.debug(string);
+					$('echo').innerHTML = string
+					$('status').innerHTML = this.getStatus() + ": " + this.getStatusText();
+				};
+				ourClient.send();
+			} catch(E) {
+				alert('Exception: ' + E);
+			}
+		};
+
 	};
 </script>
 </head>
@@ -142,6 +159,7 @@
 	<button id="google">Get Google</button>
 	<button id="googleOnLoad">Get Google 2</button>
 	<button id="head">Get Yahoo</button>
+	<button id="xml">Get XML</button>
 </div>
 
 <div id='status' style="bottom-margin:10px;">

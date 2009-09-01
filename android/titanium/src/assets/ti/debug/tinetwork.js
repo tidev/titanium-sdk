@@ -158,6 +158,14 @@ HTTPClient.prototype.__defineGetter__("responseText", function(){
 	return this.getResponseText();
 });
 /**
+ * @tiapi(property=true,name=Network.HTTPClient.responseText,since=0.6.3) Get the response as XML from the operation
+ * @tiresult[object] the response
+ */
+HTTPClient.prototype.__defineGetter__('responseXML',function(){
+	return new DOMParser().parseFromString(this.getResponseText(),'text/xml');
+});
+
+/**
  * @tiapi(property=true,name=Network.HTTPClient.status,since=0.4) Get the status code of the request
  * @tiresult[int] the status code
  */

@@ -503,17 +503,19 @@ public class TitaniumWebView extends WebView
 		}
 	}
 
-	public synchronized void requestNativeLayout() {
-		synchronized(nativeControls) {
-			if (nativeControls != null && nativeControls.size() > 0) {
-				JSONArray a = new JSONArray();
-				for (String id : nativeControls.keySet()) {
-					a.put(id);
-				}
-				requestNativeLayout(a);
-			} else {
-				if (DBG) {
-					Log.d(LCAT, "No native controls, layout request ignored");
+	public void requestNativeLayout() {
+		if (nativeControls != null) {
+			synchronized(nativeControls) {
+				if (nativeControls != null && nativeControls.size() > 0) {
+					JSONArray a = new JSONArray();
+					for (String id : nativeControls.keySet()) {
+						a.put(id);
+					}
+					requestNativeLayout(a);
+				} else {
+					if (DBG) {
+						Log.d(LCAT, "No native controls, layout request ignored");
+					}
 				}
 			}
 		}
