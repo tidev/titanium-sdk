@@ -81,7 +81,7 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 			[destData appendData:[valueObject dataBlob]];
 		} else if ([valueObject isKindOfClass:[NSString class]]){
 			[destData appendBytes:MultiPartKeyValueGlue length:sizeof(MultiPartKeyValueGlue)-1];
-			[destData appendData:[valueObject dataUsingEncoding:NSUTF8StringEncoding]];
+			[destData appendData:[valueObject dataUsingEncoding:[valueObject fastestEncoding]]];
 		} else if ([valueObject respondsToSelector:@selector(stringValue)]){
 			[destData appendBytes:MultiPartKeyValueGlue length:sizeof(MultiPartKeyValueGlue)-1];
 			[destData appendData:[[valueObject stringValue] dataUsingEncoding:NSUTF8StringEncoding]];
@@ -94,38 +94,50 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 	}
 }
 
+int CaselessCompare(const char * firstString, const char * secondString, int size){
+	int index = 0;
+	while(index < size){
+		char firstChar = tolower(firstString[index]);
+		char secondChar = secondString[index]; //Second string is always lowercase.
+		index++;
+		if(firstChar!=secondChar)return index; //Yes, this is one after the failure.
+	}
+	return 0;
+}
+
+
+#define TRYENCODING( encodingName, nameSize, returnValue )	\
+	if((remainingSize > nameSize) && (0==CaselessCompare(data, encodingName, nameSize))) return returnValue;
+
 NSStringEncoding extractEncodingFromData(NSData * inputData){
-	int thisCharIndex;
-	int maxCharIndex = [inputData length]-8; //So that there's no chance of overrunning the buffer with 'charset='
-	if(maxCharIndex > 1000) maxCharIndex = 1000;
-	char thisChar;
+	int remainingSize = [inputData length];
+	int unsearchableSize;
+	if(remainingSize > 1008) unsearchableSize = remainingSize - 1000;
+	else unsearchableSize = 8; //So that there's no chance of overrunning the buffer with 'charset='
 	const char * data = [inputData bytes];
 	
-	while(thisCharIndex < maxCharIndex){
-		thisChar = data[thisCharIndex++];
-		if(thisChar != 'c')continue;
-		thisChar = data[thisCharIndex++];
-		if(thisChar != 'h')continue;
-		thisChar = data[thisCharIndex++];
-		if(thisChar != 'a')continue;
-		thisChar = data[thisCharIndex++];
-		if(thisChar != 'r')continue;
-		thisChar = data[thisCharIndex++];
-		if(thisChar != 's')continue;
-		thisChar = data[thisCharIndex++];
-		if(thisChar != 'e')continue;
-		thisChar = data[thisCharIndex++];
-		if(thisChar != 't')continue;
-		thisChar = data[thisCharIndex++];
-		if(thisChar != '=')continue;
-		
+	while(remainingSize > unsearchableSize){
+		int compareOffset = CaselessCompare(data, "charset=", 8);
+		if(compareOffset != 0){
+			data += compareOffset;
+			remainingSize -= compareOffset;
+			continue;
+		}
+		data += 8;
+		remainingSize -= 8;
+
+		TRYENCODING("windows-1252",12,NSWindowsCP1252StringEncoding);
+		TRYENCODING("shift_jis",9,NSShiftJISStringEncoding);
+		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
+//		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
+//		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
+//		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
+//		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
+//		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
+//		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
 		//TODO: Proper encoding translation here.
-		
-		
-		
-		
 	}	
-	return NSISOLatin1StringEncoding;
+	return NSUTF8StringEncoding;
 }
 
 
@@ -339,7 +351,10 @@ NSStringEncoding extractEncodingFromData(NSData * inputData){
 		}
 
 	} else if ([functionName isEqualToString:@"responseText"]) {
-		NSString * result = [[NSString alloc] initWithData:loadedData encoding:NSUTF8StringEncoding];
+		NSString * result = [[NSString alloc] initWithData:loadedData encoding:returnedEncoding];
+		if(result == nil){
+			result = [[NSString alloc] initWithData:loadedData encoding:extractEncodingFromData(loadedData)];
+		}
 		VERBOSE_LOG(@"Returning %d bytes: %@",[loadedData length],result);
 
 		return [result autorelease];

@@ -15,20 +15,20 @@
 NSData * decode64 (NSData * thedata) 
 {
 	const char *str = (const char*)[thedata bytes];
-	char* decoded = (char*)malloc(sizeof(char) * Base64decode_len(str));
+	int decodedLength = Base64decode_len(str);
+	char* decoded = (char*)malloc(sizeof(char) * decodedLength);
 	Base64decode(decoded,str);
-	NSData *result = [[NSString stringWithCString:decoded encoding:NSUTF8StringEncoding] dataUsingEncoding:NSUTF8StringEncoding];
-	free(decoded);
+	NSData *result = [NSData dataWithBytesNoCopy:decoded length:decodedLength freeWhenDone:YES];
 	return result;
 }
 
 NSData * encode64 (NSData * thedata)
 {
 	const char *str = (const char*)[thedata bytes];
-	char* encoded = (char*)malloc(sizeof(char) * Base64encode_len([thedata length]));
+	int encodedLength = Base64encode_len([thedata length]);
+	char* encoded = (char*)malloc(sizeof(char) * encodedLength);
 	Base64encode(encoded,str,[thedata length]);
-	NSData *result = [[NSString stringWithCString:encoded encoding:NSUTF8StringEncoding] dataUsingEncoding:NSUTF8StringEncoding];
-	free(encoded);
+	NSData *result = [NSData dataWithBytesNoCopy:encoded length:encodedLength freeWhenDone:YES];
 	return result;
 }
 

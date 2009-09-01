@@ -181,3 +181,6 @@ extern NSString * const createButtonString;
 extern NSString * const createActivityIndicatorString;
 extern NSString * const createDatePickerString;
 extern NSString * const createPickerString;
+
+extern NSString * const createModalDatePickerString;
+extern NSString * const createModalPickerString;
