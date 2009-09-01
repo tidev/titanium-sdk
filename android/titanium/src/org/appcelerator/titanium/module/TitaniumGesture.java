@@ -79,9 +79,9 @@ public class TitaniumGesture extends TitaniumBaseModule implements ITitaniumGest
 		lastConfigOrientation = 0;
 
 		ITitaniumProperties props = tmm.getApplication().getAppInfo().getSystemProperties();
-		shakeFactor = props.getDouble("ti.android.shake.factor", 1.25d);
-		postShakePeriod = props.getInt("ti.android.shake.quiet.milliseconds", 1000);
-		inShakePeriod = props.getInt("ti.android.shake.active.milliseconds", 500);
+		shakeFactor = props.getDouble("ti.android.shake.factor", 1.3d);
+		postShakePeriod = props.getInt("ti.android.shake.quiet.milliseconds", 500);
+		inShakePeriod = props.getInt("ti.android.shake.active.milliseconds", 1000);
 		if (DBG) {
 			Log.i(LCAT, "Shake Factor: " + shakeFactor);
 			Log.i(LCAT, "Post Shake Period (ms): " + postShakePeriod);
