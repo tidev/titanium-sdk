@@ -1152,7 +1152,9 @@ NSString * UrlEncodeString(NSString * string)
 //				"Ti.UI._WSVIEWS(this._TOKEN,newViews,true,args);}};"
 			"res.setActiveViewIndex=function(newIndex,args){this.activeViewIndex=newIndex;if(this._TOKEN){Ti.UI._WSAVIEW(this._TOKEN,newIndex,args);}};"
 			"res.showView=function(blessedView,args){if(!this.views)return;var newIndex=0;var viewCount=this.views.length;"
-				"for(var i=0;i<viewCount;i++){if(this.views[i]._TOKEN==blessedView._TOKEN){self.setActiveViewIndex(i,args);return;}}};"
+				"for(var i=0;i<viewCount;i++){if(this.views[i]._TOKEN==blessedView._TOKEN){this.setActiveViewIndex(i,args);return;}}};"
+			"res.setBackButtonTitle=function(newTitle,args){this.backButtonTitle=newTitle;this.update(args);};"
+			"res.setBackButtonTitleImage=function(newImage,args){this.backButtonImage=newTitle;this.update(args);};"
 			"res.open=function(args){"
 				"this.ensureToken();"
 				"if(this.views){for(var i=0;i<this.views.length;i++){this.views[i].ensureToken();}}"
@@ -1279,7 +1281,7 @@ NSString * UrlEncodeString(NSString * string)
 
 	NSString * createProgressBarString = @"function(args){var res=Ti.UI.createActivityIndicator(args,'progressbar');return res;}";
 
-	NSString * timeModes = [NSString stringWithFormat:@"{MODE_TIME:%d,MODE_DATE:%d,MODE_TIME_AND_DATE:%d}",
+	NSString * timeModes = [NSString stringWithFormat:@"{MODE_TIME:%d,MODE_DATE:%d,MODE_DATE_AND_TIME:%d}",
 			UIDatePickerModeTime,UIDatePickerModeDate,UIDatePickerModeDateAndTime];
 
 
@@ -1403,6 +1405,8 @@ NSString * UrlEncodeString(NSString * string)
 			[NSNumber numberWithInt:UITextBorderStyleLine],@"INPUT_BORDERSTYLE_LINE",
 			[NSNumber numberWithInt:UITextBorderStyleBezel],@"INPUT_BORDERSTYLE_BEZEL",
 			[NSNumber numberWithInt:UITextBorderStyleRoundedRect],@"INPUT_BORDERSTYLE_ROUNDED",
+
+			[TitaniumJSCode codeWithString:timeModes],@"DatePicker",
 
 			[NSDictionary dictionaryWithObjectsAndKeys:
 					[TitaniumJSCode codeWithString:createGroupedViewString],@"createGroupedView",
