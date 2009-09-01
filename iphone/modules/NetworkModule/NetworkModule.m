@@ -109,7 +109,7 @@ int CaselessCompare(const char * firstString, const char * secondString, int siz
 #define TRYENCODING( encodingName, nameSize, returnValue )	\
 	if((remainingSize > nameSize) && (0==CaselessCompare(data, encodingName, nameSize))) return returnValue;
 
-NSStringEncoding extractEncodingFromData(NSData * inputData){
+NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 	int remainingSize = [inputData length];
 	int unsearchableSize;
 	if(remainingSize > 1008) unsearchableSize = remainingSize - 1000;
@@ -353,7 +353,8 @@ NSStringEncoding extractEncodingFromData(NSData * inputData){
 	} else if ([functionName isEqualToString:@"responseText"]) {
 		NSString * result = [[NSString alloc] initWithData:loadedData encoding:returnedEncoding];
 		if(result == nil){
-			result = [[NSString alloc] initWithData:loadedData encoding:extractEncodingFromData(loadedData)];
+			returnedEncoding = ExtractEncodingFromData(loadedData);
+			result = [[NSString alloc] initWithData:loadedData encoding:returnedEncoding];
 		}
 		VERBOSE_LOG(@"Returning %d bytes: %@",[loadedData length],result);
 
