@@ -830,9 +830,13 @@ UIColor * checkmarkColor = nil;
 	int section = [indexPath section];
 	int row = [indexPath row];
 	int index = [self rowCountBeforeSection:section] + row;
-	TableSectionWrapper * sectionWrapper = [self sectionForIndex:section];
-	NSString * rowData = [[sectionWrapper rowForIndex:row] stringValue];
-	if (rowData==nil) rowData = @"{}";
+	
+	NSString * rowData;
+	if(tableStyle == UITableViewStyleGrouped){
+		rowData = [callbackProxyPath stringByAppendingFormat:@".sections[%d].data[%d]",section,row];
+	} else {
+		rowData = [callbackProxyPath stringByAppendingFormat:@".data[%d]",index];
+	}
 	NSString * detail = accessoryTapped ? @"true" : @"false";
 
 	NSString * triggeredCode = [[NSString alloc] initWithFormat:@".onClick({type:'click',"

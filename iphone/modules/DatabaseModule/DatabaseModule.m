@@ -240,7 +240,7 @@
 						"getFieldCount:function(){return this.fields.length;},"
 						"getFieldName:function(arg){return this.fields[arg];},"
 						"getRowCount:function(){return this.rowCount;},"
-						"isValidRow:function(){return this.values!=null},"
+						"isValidRow:function(){return ((this.values!=null)&&(this.values!=undefined));},"
 					"};Ti.Database._DBRES[comm.token]=res;return res;"
 				"},"
 				"rowsAffected:null,"

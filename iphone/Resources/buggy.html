@@ -48,8 +48,10 @@
 		{
 			if (this.readyState == 4)
 			{
-				Titanium.UI.createAlertDialog({message:this.responseText}).show();
-				Titanium.API.debug(this.responseText);
+				var responseText = this.responseText;
+				Titanium.UI.createAlertDialog({message:responseText}).show();
+				Titanium.API.debug(responseText);
+				document.getElementById('pagey').innerHTML=responseText;
 			}
 		};
 		xhr.open('GET','http://www.liturgiadashoras.org/Horas/1terca_laudes.htm');
@@ -76,6 +78,6 @@
 	})
 	
 	</script>
-
+	<div id='pagey'></div>
 </body>
 </html>

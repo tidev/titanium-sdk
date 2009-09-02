@@ -483,11 +483,26 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 - (void)setInterfaceOrientation:(TitaniumViewControllerOrientationsAllowed)interfaceOrientation duration:(NSTimeInterval)duration;
 {
 	if (lastOrientation == interfaceOrientation) return;
+
+	switch (interfaceOrientation) {
+		case TitaniumViewControllerPortrait:
+			[webView stringByEvaluatingJavaScriptFromString:@"window.orientation=0;window.onorientationchange();"];
+			break;
+		case TitaniumViewControllerLandscapeLeft:
+			[webView stringByEvaluatingJavaScriptFromString:@"window.orientation=90;window.onorientationchange();"];
+			break;
+		case TitaniumViewControllerLandscapeRight:
+			[webView stringByEvaluatingJavaScriptFromString:@"window.orientation=-90;window.onorientationchange();"];
+			break;
+		default:
+			break;
+	}
+	
 	NSString * animatedString = (duration>0)?@"true":@"false";
 	
 	NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent({type:'orientationchange',"
-							  "to:%d,from:%d,animated:%@,duration:%d})",
-							  interfaceOrientation,lastOrientation,animatedString,(int)(duration * 1000)];
+			"to:%d,from:%d,animated:%@,duration:%d})",
+			interfaceOrientation,lastOrientation,animatedString,(int)(duration * 1000)];
 	[webView stringByEvaluatingJavaScriptFromString:eventString];
 	lastOrientation = interfaceOrientation;
 }
