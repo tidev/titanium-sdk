@@ -649,7 +649,7 @@ int nextWindowToken = 0;
 
 	CGFloat floatingUITop = [[TitaniumHost sharedHost] keyboardTop];
 	if(floatingUITop > 1.0){ //Toolbar style or not, the keyboard trumps all!
-		CGPoint bottomPoint = [ourView convertPoint:CGPointMake(0,floatingUITop) fromView:nil];
+		CGPoint bottomPoint = [ourView convertPoint:CGPointMake(0,floatingUITop) fromView:[[[TitaniumAppDelegate sharedDelegate] viewController] view]];
 		contentViewBounds.size.height = MIN(contentViewBounds.size.height,(bottomPoint.y - contentViewBounds.origin.y));
 	}
 	
