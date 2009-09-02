@@ -88,6 +88,17 @@
             <barColor>#000</barColor>
         </window>
 
+-->
+        <window>
+            <id>dynamic-values</id>
+            <title>Dynamic Control Values</title>
+            <url>dynamic-control-value.html</url>
+            <type>single</type>
+            <fullscreen>false</fullscreen>
+            <backgroundColor>argb(0,255,255,255)</backgroundColor>
+            <barColor>#000</barColor>
+        </window>
+<!--
         <window>
             <id>TableView</id>
             <title>Table View</title>
@@ -167,7 +178,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
 		<window>
             <id>NetSend</id>
             <title>Net Send</title>
@@ -177,7 +188,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-<!--
+
 		<window>
             <id>IslandTest</id>
             <title>Island</title>

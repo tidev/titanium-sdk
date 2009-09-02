@@ -36,6 +36,7 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 
 	private static final int MSG_CHANGE = 300;
 	private static final int MSG_RETURN = 301;
+	private static final int MSG_SETVALUE = 302;
 
 	private static final int TEXT_ALIGN_LEFT = 0;
 	private static final int TEXT_ALIGN_CENTER = 1;
@@ -251,6 +252,10 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 			} catch (JSONException e) {
 				Log.e(LCAT, "Error setting value: ", e);
 			}
+		} else if (msg.what == MSG_SETVALUE) {
+			EditText tv = (EditText) control;
+			value = (String) msg.obj;
+			tv.setText(value);
 		}
 
 		return super.handleMessage(msg);
@@ -286,5 +291,13 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 			control.requestRectangleOnScreen(r);
 		}
 		super.onFocusChange(view, hasFocus);
+	}
+
+	public String getValue() {
+		return (String) value;
+	}
+
+	public void setValue(String value) {
+		handler.obtainMessage(MSG_SETVALUE, value).sendToTarget();
 	}
 }

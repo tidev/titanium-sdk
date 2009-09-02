@@ -889,7 +889,34 @@ var Switch = function(proxy) {
 	this.removeEventListener = function(eventname, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
+	/**
+	 * @tiapi(method=true,name=UI.Switch.setValue,since=0.6.3) set the value.
+	 * @tiarg[boolean,value] value to set the switch too
+	 */
+	this.setValue = function(value) {
+		if (!isUndefined(value)) {
+			this.proxy.setValue(value);
+		}
+	};
+	/**
+	 * @tiapi(method=true,name=UI.Switch.getValue,since=0.6.3) get the value.
+	 * @tiresult[boolean] value of the switch
+	 */
+	this.getValue = function() {
+		return this.proxy.getValue();
+	};
 };
+
+/**
+ * @tiapi(property=true,name=UI.Switch.value,since=0.6.3) get/set the switch value
+ */
+Switch.prototype.__defineGetter__("value", function() {
+	return this.getValue;
+});
+
+Switch.prototype.__defineSetter__("value", function(value) {
+	this.setValue(value);
+});
 
 var Slider = function(proxy) {
 	this.proxy = proxy;
@@ -910,7 +937,34 @@ var Slider = function(proxy) {
 	this.removeEventListener = function(eventname, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
+	/**
+	 * @tiapi(method=true,name=UI.Slider.setValue,since=0.6.3) set the value.
+	 * @tiarg[int,value] value to set the slider too
+	 */
+	this.setValue = function(value) {
+		if (!isUndefined(value)) {
+			this.proxy.setValue(value);
+		}
+	};
+	/**
+	 * @tiapi(method=true,name=UI.Slider.getValue,since=0.6.3) get the value.
+	 * @tiresult[int] value of the slider
+	 */
+	this.getValue = function() {
+		return this.proxy.getValue();
+	};
 };
+
+/**
+ * @tiapi(property=true,name=UI.Slider.value,since=0.6.3) get/set the slider value
+ */
+Slider.prototype.__defineGetter__("value", function() {
+	return this.getValue;
+});
+
+Slider.prototype.__defineSetter__("value", function(value) {
+	this.setValue(value);
+});
 
 var TextArea = function(proxy) {
 	this.proxy = proxy;
@@ -943,7 +997,34 @@ var TextArea = function(proxy) {
 	this.removeEventListener = function(eventname, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
+	/**
+	 * @tiapi(method=true,name=UI.TextArea.setValue,since=0.6.3) set the value.
+	 * @tiarg[string,value] value to set the slider too
+	 */
+	this.setValue = function(value) {
+		if (!isUndefined(value)) {
+			this.proxy.setValue(value);
+		}
+	};
+	/**
+	 * @tiapi(method=true,name=UI.TextArea.getValue,since=0.6.3) get the value.
+	 * @tiresult[string] value of the slider
+	 */
+	this.getValue = function() {
+		return this.proxy.getValue();
+	};
 };
+
+/**
+ * @tiapi(property=true,name=UI.TextField.value,since=0.6.3) get/set the text field value
+ */
+TextArea.prototype.__defineGetter__("value", function() {
+	return this.getValue;
+});
+
+TextArea.prototype.__defineSetter__("value", function(value) {
+	this.setValue(value);
+});
 
 var TextField = function(proxy) {
 	this.proxy = proxy;
@@ -976,7 +1057,34 @@ var TextField = function(proxy) {
 	this.removeEventListener = function(eventname, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
+	/**
+	 * @tiapi(method=true,name=UI.TextField.setValue,since=0.6.3) set the value.
+	 * @tiarg[string,value] value to set the slider too
+	 */
+	this.setValue = function(value) {
+		if (!isUndefined(value)) {
+			this.proxy.setValue(value);
+		}
+	};
+	/**
+	 * @tiapi(method=true,name=UI.TextField.getValue,since=0.6.3) get the value.
+	 * @tiresult[string] value of the slider
+	 */
+	this.getValue = function() {
+		return this.proxy.getValue();
+	};
 };
+
+/**
+ * @tiapi(property=true,name=UI.TextField.value,since=0.6.3) get/set the text field value
+ */
+TextField.prototype.__defineGetter__("value", function() {
+	return this.getValue;
+});
+
+TextField.prototype.__defineSetter__("value", function(value) {
+	this.setValue(value);
+});
 
 Titanium.UI = {
 	/**

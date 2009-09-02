@@ -21,6 +21,7 @@ public class TitaniumSwitch extends TitaniumBaseNativeControl
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private static final int MSG_CLICK = 300;
+	private static final int MSG_SETVALUE = 301;
 
 	public static final String CHANGE_EVENT = "change";
 
@@ -72,10 +73,19 @@ public class TitaniumSwitch extends TitaniumBaseNativeControl
 
 	public boolean handleMessage(Message msg)
 	{
-		if (msg.what == MSG_CLICK) {
-			ToggleButton b = (ToggleButton) control;
-			value = b.isChecked();
-			eventManager.invokeSuccessListeners(CHANGE_EVENT, "{ value : " + value + "}");
+		switch(msg.what) {
+			case MSG_CLICK : {
+				ToggleButton b = (ToggleButton) control;
+				value = b.isChecked();
+				eventManager.invokeSuccessListeners(CHANGE_EVENT, "{ value : " + value + "}");
+				break;
+			}
+			case MSG_SETVALUE : {
+				ToggleButton b = (ToggleButton) control;
+				value = msg.getData().getBoolean("VALUE");
+				b.setChecked(value);
+				break;
+			}
 		}
 
 		return super.handleMessage(msg);
@@ -85,4 +95,13 @@ public class TitaniumSwitch extends TitaniumBaseNativeControl
 		handler.obtainMessage(MSG_CLICK).sendToTarget();
 	}
 
+	public void setValue(boolean value) {
+		Message msg = handler.obtainMessage(MSG_SETVALUE);
+		msg.getData().putBoolean("VALUE", value);
+		msg.sendToTarget();
+	}
+
+	 public boolean getValue() {
+		 return value;
+	 }
 }

@@ -18,6 +18,7 @@ public class TitaniumSlider extends TitaniumBaseNativeControl
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private static final int MSG_CHANGE = 300;
+	private static final int MSG_SETVALUE = 301;
 
 	public static final String CHANGE_EVENT = "change";
 
@@ -68,13 +69,23 @@ public class TitaniumSlider extends TitaniumBaseNativeControl
 
 	public boolean handleMessage(Message msg)
 	{
-		if (msg.what == MSG_CHANGE) {
-			SeekBar b = (SeekBar) control;
-			if (b != null) {
-				pos = b.getProgress();
-				//scale the position to the range
-				int thePos = pos + min;
-				eventManager.invokeSuccessListeners("change", "{ value : " + thePos + "}");
+		switch (msg.what) {
+			case MSG_CHANGE : {
+				SeekBar b = (SeekBar) control;
+				if (b != null) {
+					pos = b.getProgress();
+					//scale the position to the range
+					eventManager.invokeSuccessListeners("change", "{ value : " + scaledValue() + "}");
+				}
+				break;
+			}
+			case MSG_SETVALUE : {
+				SeekBar b = (SeekBar) control;
+				if (b != null) {
+					pos = msg.arg1;
+					b.setProgress(pos + offset);
+				}
+				break;
 			}
 		}
 
@@ -91,4 +102,18 @@ public class TitaniumSlider extends TitaniumBaseNativeControl
 	public void onStopTrackingTouch(SeekBar seekBar) {
 
 	}
+
+	private int scaledValue() {
+		return pos + min;
+	}
+
+	public int getValue() {
+		return scaledValue();
+	}
+
+	public void setValue(int value) {
+		handler.obtainMessage(MSG_SETVALUE, value, -1).sendToTarget();
+	}
+
+
 }

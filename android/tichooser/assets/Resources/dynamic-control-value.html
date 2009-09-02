@@ -1,0 +1,54 @@
+<html>
+<head>
+	<title>Dynamic Value Set</title>
+  	<script><!--
+
+	var s1 = Titanium.UI.createSwitch({ id : 's1', 'value' : true });
+	s1.addEventListener('change', function(e) {
+		s2.value = e.value;
+	});
+
+	var s2 = Titanium.UI.createSwitch({ id : 's2', 'value' : false });
+
+	var sl1 = Titanium.UI.createSlider({id : 'sl1', 'value' : 0, min : -5, max : 5});
+	sl1.addEventListener('change', function(e) {
+		sl2.value = e.value;
+	});
+
+	var sl2 = Titanium.UI.createSlider({id : 'sl2', 'value' : -5, min : -5, max : 5});
+
+	var tf1 = Titanium.UI.createTextField({id : 'tf1', 'value' : ""});
+	tf1.addEventListener('change', function(e) {
+		tf2.value = e.value;
+	});
+	var tf2 = Titanium.UI.createTextField({id : 'tf2', 'value' : "Change Me"});
+
+	var ta1 = Titanium.UI.createTextArea({id : 'ta1', 'value' : ""});
+	ta1.addEventListener('change', function(e) {
+		ta2.value = e.value;
+	});
+	var ta2 = Titanium.UI.createTextArea({id : 'ta2', 'value' : "Change Me"});
+
+  --></script>
+</head>
+<body style="background-color: white;">
+
+<div style='clear : both'>
+<div>Control on left will change value of following control of same type</div>
+<div id='s1' style='height: 60px; width: 60px; float: left; '>&nbsp;</div>
+<div id='s2' style='height: 60px; width: 120px; float: left; '>&nbsp;</div>
+</div>
+<div style='clear : both'>
+<div id='sl1' style='height: 40px; width: 120px; float: left; margin-right: 10px;'>&nbsp;</div>
+<div id='sl2' style='height: 40px; width: 120px; float: left; '>&nbsp;</div>
+</div>
+<div style='clear : both'>
+<div id='tf1' style='height: 40px; width: 120px; float: left; margin-right: 10px;'>&nbsp;</div>
+<div id='tf2' style='height: 40px; width: 120px; float: left; '>&nbsp;</div>
+</div>
+<div style='clear : both'>
+<div id='ta1' style='height: 120px; width: 120px; float: left; margin-right: 10px;'>&nbsp;</div>
+<div id='ta2' style='height: 120px; width: 120px; float: left; '>&nbsp;</div>
+</div>
+</body>
+</html>

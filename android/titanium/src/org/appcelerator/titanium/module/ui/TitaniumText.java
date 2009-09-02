@@ -26,6 +26,7 @@ public class TitaniumText extends TitaniumBaseNativeControl
 
 	private static final int MSG_CHANGE = 300;
 	private static final int MSG_RETURN = 301;
+	private static final int MSG_SETVALUE = 302;
 
 	public static final String CHANGE_EVENT = "change";
 	public static final String RETURN_EVENT = "return";
@@ -107,6 +108,10 @@ public class TitaniumText extends TitaniumBaseNativeControl
 			} catch (JSONException e) {
 				Log.e(LCAT, "Error setting value: ", e);
 			}
+		} else if (msg.what == MSG_SETVALUE) {
+			EditText tv = (EditText) control;
+			value = (String) msg.obj;
+			tv.setText(value);
 		}
 
 		return super.handleMessage(msg);
@@ -130,5 +135,13 @@ public class TitaniumText extends TitaniumBaseNativeControl
 			return true;
 		}
 		return false;
+	}
+
+	public String getValue() {
+		return (String) value;
+	}
+
+	public void setValue(String value) {
+		handler.obtainMessage(MSG_SETVALUE, value).sendToTarget();
 	}
 }
