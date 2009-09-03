@@ -7,15 +7,26 @@
 
 package org.appcelerator.titanium.util;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.appcelerator.titanium.config.TitaniumConfig;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.graphics.Typeface;
 import android.os.Process;
+import android.util.TypedValue;
 
 public class TitaniumUIHelper
 {
+	private static final String LCAT = "TitaniumUIHelper";
+	private static final boolean DBG = TitaniumConfig.LOGD;
+
+	public static Pattern SIZED_VALUE = Pattern.compile("([0-9]*\\.?[0-9]+)\\W*(px|dp|dip|sp|sip|mm|pt|in)?");
 
 	public static OnClickListener createDoNothingListener() {
 		return new OnClickListener() {
@@ -73,5 +84,61 @@ public class TitaniumUIHelper
         .setCancelable(false)
         .create()
         .show();
+	}
+
+	public static int toTypefaceStyle(String fontWeight) {
+		int style = Typeface.NORMAL;
+		if (fontWeight != null) {
+			if(fontWeight.equals("bold")) {
+				style = Typeface.BOLD;
+			}
+		}
+		return style;
+	}
+
+	public static int getSizeUnits(String size) {
+		int units = TypedValue.COMPLEX_UNIT_SP;
+
+		if (size != null) {
+			Matcher m = SIZED_VALUE.matcher(size.trim());
+			if (m.matches()) {
+				if (m.groupCount() == 2) {
+					String unit = m.group(2);
+					if ("px".equals(unit)) {
+						units = TypedValue.COMPLEX_UNIT_PX;
+					} else if ("pt".equals(unit)) {
+						units = TypedValue.COMPLEX_UNIT_PT;
+					} else if ("dp".equals(unit) || "dip".equals(unit)) {
+						units = TypedValue.COMPLEX_UNIT_DIP;
+					} else if ("sp".equals(unit) || "sip".equals(unit)) {
+						units = TypedValue.COMPLEX_UNIT_SP;
+					} else if ("pt".equals(unit)) {
+						units = TypedValue.COMPLEX_UNIT_PT;
+					} else if ("mm".equals(unit)) {
+						units = TypedValue.COMPLEX_UNIT_MM;
+					} else if ("in".equals(unit)) {
+						units = TypedValue.COMPLEX_UNIT_IN;
+					} else {
+						if (DBG) {
+							Log.w(LCAT, "Unknown unit: " + unit);
+						}
+					}
+				}
+			}
+		}
+
+		return units;
+	}
+
+	public static float getSize(String size) {
+		float value = 15.0f;
+		if (size != null) {
+			Matcher m = SIZED_VALUE.matcher(size.trim());
+			if (m.matches()) {
+				value = Float.parseFloat(m.group(1));
+			}
+		}
+
+		return value;
 	}
 }

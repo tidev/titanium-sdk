@@ -5,10 +5,12 @@ import org.appcelerator.titanium.api.ITitaniumText;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumColorHelper;
+import org.appcelerator.titanium.util.TitaniumUIHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.os.Message;
 import android.text.Editable;
 import android.text.InputType;
@@ -74,6 +76,8 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 	private int textAlign;
 	private boolean clearOnEdit;
 	private CharSequence hintText;
+	private String fontSize;
+	private String fontWeight;
 
 	public TitaniumTextField(TitaniumModuleManager tmm) {
 		super(tmm);
@@ -138,6 +142,12 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 		if (o.has("clearOnEdit")) {
 			this.clearOnEdit = o.getBoolean("clearOnEdit");
 		}
+		if (o.has("fontSize")) {
+			this.fontSize = o.getString("fontSize");
+		}
+		if (o.has("fontWeight")) {
+			this.fontWeight = o.getString("fontWeight");
+		}
 	}
 
 	@Override
@@ -153,7 +163,10 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 		tv.setText(value);
 		tv.setHint(hintText);
 		tv.setPadding(10, 5, 10, 7);
-		tv.setTextSize(15.0f);
+		Typeface tf = tv.getTypeface();
+		tv.setTypeface(tf, TitaniumUIHelper.toTypefaceStyle(fontWeight));
+		tv.setTextSize(TitaniumUIHelper.getSizeUnits(fontSize), TitaniumUIHelper.getSize(fontSize));
+
 
 		switch(textAlign) {
 			case TEXT_ALIGN_LEFT : tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT); break;

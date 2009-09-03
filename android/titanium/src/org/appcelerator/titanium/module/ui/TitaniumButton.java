@@ -6,10 +6,12 @@ import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumColorHelper;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
+import org.appcelerator.titanium.util.TitaniumUIHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Message;
@@ -36,6 +38,8 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 	private String backgroundFocusedImage;
 	private String color;
 	private String backgroundColor;
+	private String fontSize;
+	private String fontWeight;
 
 	public TitaniumButton(TitaniumModuleManager tmm)
 	{
@@ -68,6 +72,12 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 		if (o.has("backgroundColor")) {
 			this.backgroundColor = o.getString("backgroundColor");
 		}
+		if (o.has("fontSize")) {
+			this.fontSize = o.getString("fontSize");
+		}
+		if (o.has("fontWeight")) {
+			this.fontWeight = o.getString("fontWeight");
+		}
 	}
 
 	private boolean isImageButton() {
@@ -90,6 +100,10 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 			if (backgroundColor != null) {
 				b.setBackgroundColor(TitaniumColorHelper.parseColor(backgroundColor));
 			}
+
+			Typeface tf = b.getTypeface();
+			b.setTypeface(tf, TitaniumUIHelper.toTypefaceStyle(fontWeight));
+			b.setTextSize(TitaniumUIHelper.getSizeUnits(fontSize), TitaniumUIHelper.getSize(fontSize));
 
 			if (backgroundImage != null || backgroundSelectedImage != null || backgroundFocusedImage != null) {
 				TitaniumFileHelper tfh = new TitaniumFileHelper(context);

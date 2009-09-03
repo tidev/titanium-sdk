@@ -87,7 +87,6 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
 -->
         <window>
             <id>dynamic-values</id>
@@ -226,7 +225,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+-->
 		<window>
             <id>DatePicker</id>
             <title>DatePicker</title>
@@ -236,7 +235,17 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
+		<window>
+            <id>Fonts</id>
+            <title>fonts</title>
+            <url>fonts.html</url>
+            <type>single</type>
+            <fullscreen>false</fullscreen>
+            <backgroundColor>argb(0,128,128,128)</backgroundColor>
+            <barColor>#000</barColor>
+        </window>
+
     </windows>
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.android.watchlog" type="bool">false</property>

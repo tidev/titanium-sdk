@@ -5,9 +5,11 @@ import org.appcelerator.titanium.api.ITitaniumText;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumColorHelper;
+import org.appcelerator.titanium.util.TitaniumUIHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.graphics.Typeface;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -35,6 +37,8 @@ public class TitaniumText extends TitaniumBaseNativeControl
 	private String color;
 	private String backgroundColor;
 	private boolean enableReturnKey;
+	private String fontSize;
+	private String fontWeight;
 
 	public TitaniumText(TitaniumModuleManager tmm) {
 		super(tmm);
@@ -61,6 +65,12 @@ public class TitaniumText extends TitaniumBaseNativeControl
 		if (o.has("enableReturnKey")) {
 			this.enableReturnKey = o.getBoolean("enableReturnKey");
 		}
+		if (o.has("fontSize")) {
+			this.fontSize = o.getString("fontSize");
+		}
+		if (o.has("fontWeight")) {
+			this.fontWeight = o.getString("fontWeight");
+		}
 	}
 
 	@Override
@@ -73,7 +83,9 @@ public class TitaniumText extends TitaniumBaseNativeControl
 		tv.setText(value);
 		tv.setGravity(Gravity.TOP | Gravity.LEFT);
 		tv.setPadding(10, 5, 10, 7);
-		tv.setTextSize(15.0f);
+		Typeface tf = tv.getTypeface();
+		tv.setTypeface(tf, TitaniumUIHelper.toTypefaceStyle(fontWeight));
+		tv.setTextSize(TitaniumUIHelper.getSizeUnits(fontSize), TitaniumUIHelper.getSize(fontSize));
 
 		if (color != null) {
 			tv.setTextColor(TitaniumColorHelper.parseColor(color));
