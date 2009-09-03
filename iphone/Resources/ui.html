@@ -19,10 +19,10 @@
 		var btn2 = Ti.UI.createButton({systemButton:'play'});
 		var btn3 = Ti.UI.createButton({systemButton:'pause'});
 //		btn2.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'black'});newWindow.open();})
-		btn2.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'rgb(0,0,0)',backButtonTitle:'black',hideNavBar:true});newWindow.open();})
+		btn2.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'rgb(0,0,0)',backButtonTitle:'black',hideNavBar:true});newWindow.open({modal:true});})
 		btn3.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'transparent',backButtonTitle:'clear'});newWindow.open();})
 		var btn4 = Ti.UI.createButton({systemButton:'action'});
-		btn4.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:null,backButtonTitle:'default'});newWindow.open();})
+		btn4.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:null,backButtonTitle:'default'});newWindow.open({modal:true});})
 
 		var btn5 = Ti.UI.createButton({title:'Moo'});
 		btn5.addEventListener('click',function(){Ti.UI.currentWindow.setFullscreen(true);});

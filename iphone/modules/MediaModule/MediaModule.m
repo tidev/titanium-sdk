@@ -461,11 +461,11 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	return nil;
 }
 
-- (void) startPickerInMainThread;
-{
-	UIViewController * visibleController = [[TitaniumHost sharedHost] visibleTitaniumViewController];
-	[[visibleController navigationController] presentModalViewController:currentImagePicker animated:isImagePickerAnimated];
-}
+//- (void) startPickerInMainThread;
+//{
+//	UIViewController * visibleController = [[TitaniumHost sharedHost] visibleTitaniumViewController];
+//	[[visibleController navigationController] presentModalViewController:currentImagePicker animated:isImagePickerAnimated];
+//}
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingImage:(UIImage *)image editingInfo:(NSDictionary *)editingInfo;
 {

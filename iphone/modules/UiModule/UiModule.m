@@ -452,7 +452,7 @@ NSString * UrlEncodeString(NSString * string)
 
 #pragma mark Window actions
 
-- (NSString *) openWindow: (id)windowObject animated: (id) animatedObject; //Defaults to true.
+- (NSString *) openWindow: (NSDictionary *)windowObject options: (NSDictionary *) optionsObject; //Defaults to {animated:true,modal:false}.
 {
 	if (![windowObject isKindOfClass:[NSDictionary class]]){
 		return nil;
@@ -483,12 +483,24 @@ NSString * UrlEncodeString(NSString * string)
 		[self setWindow:token toolbar:toolbarObject options:nil];
 	}
 	
-	BOOL animated = YES;
+	BOOL isAnimated = YES;
+	BOOL isModal = NO;
 
-	if ([animatedObject isKindOfClass:[NSDictionary class]]) animatedObject = [animatedObject objectForKey:@"animated"];
-	if ([animatedObject respondsToSelector:@selector(boolValue)]) animated = [animatedObject boolValue];
+	if ([optionsObject isKindOfClass:[NSDictionary class]]){
+		id isAnimatedObject = [optionsObject objectForKey:@"animated"];
+		if ([isAnimatedObject respondsToSelector:@selector(boolValue)]) isAnimated = [isAnimatedObject boolValue];
 
-	SEL action = animated ? @selector(pushViewControllerAnimated:) : @selector(pushViewControllerNonAnimated:);
+		id isModalObject = [optionsObject objectForKey:@"modal"];
+		if ([isModalObject respondsToSelector:@selector(boolValue)]) isModal = [isModalObject boolValue];		
+	}
+
+	SEL action;
+	if(isModal){
+		action = isAnimated ? @selector(presentViewControllerAnimated:) : @selector(presentViewControllerNonAnimated:);
+	} else {
+		action = isAnimated ? @selector(pushViewControllerAnimated:) : @selector(pushViewControllerNonAnimated:);
+	}
+	 
 	
 	TitaniumViewController * thisWindow = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[thisVC titaniumWindowToken]];
 	[thisWindow performSelectorOnMainThread:action withObject:resultVC waitUntilDone:NO];
@@ -967,7 +979,7 @@ NSString * UrlEncodeString(NSString * string)
 	[(UiModule *)invocGen setWindow:nil titleProxy:nil];
 	NSInvocation * setTitleImageProxyInvoc = [invocGen invocation];
 
-	[(UiModule *)invocGen openWindow:nil animated:nil];
+	[(UiModule *)invocGen openWindow:nil options:nil];
 	NSInvocation * openWinInvoc = [invocGen invocation];
 	
 	[(UiModule *)invocGen closeWindow:nil animated:nil];

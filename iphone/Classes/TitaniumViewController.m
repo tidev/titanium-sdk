@@ -9,6 +9,7 @@
 #import "TitaniumAppDelegate.h"
 #import "TitaniumHost.h"
 #import "Webcolor.h"
+#import "TweakedNavController.h"
 
 #import "TitaniumTableViewController.h"
 #import "TitaniumWebViewController.h"
@@ -769,24 +770,47 @@ int nextWindowToken = 0;
 
 #pragma mark Pushing and popping views
 
-- (void) pushViewController: (TitaniumViewController *) newVC animated: (BOOL) animated;
+- (void) pushViewController: (TitaniumViewController *) newVC modal:(BOOL)isModal animated: (BOOL) isAnimated;
 {
 	if([newVC cancelOpening]) return;
 	if ([newVC backgroundColor]==nil)[newVC setBackgroundColor:backgroundColor];
 	if ([newVC backgroundImage]==nil)[newVC setBackgroundImage:backgroundImage];
 	
-	[[self navigationController] pushViewController:newVC animated:animated];
+	UINavigationController * ourNavCon = [self navigationController];
+	UIViewController * modalController = [ourNavCon visibleViewController];
 	
+	while ([modalController isKindOfClass:[UINavigationController class]]){
+		ourNavCon = modalController;
+		modalController = [ourNavCon visibleViewController];
+	}
+	
+	if(isModal){
+		UINavigationController * newNavVC = [[TweakedNavController alloc] initWithRootViewController:newVC];	
+		[ourNavCon presentModalViewController:newNavVC animated:isAnimated];
+		[newNavVC release];
+	} else {
+		[ourNavCon pushViewController:newVC animated:isAnimated];
+	}
+}
+
+- (void) presentViewControllerAnimated: (TitaniumViewController *) newVC;
+{
+	[self pushViewController:newVC modal:YES animated:YES];
+}
+
+- (void) presentViewControllerNonAnimated: (TitaniumViewController *) newVC;
+{
+	[self pushViewController:newVC modal:YES animated:NO];
 }
 
 - (void) pushViewControllerAnimated: (TitaniumViewController *) newVC;
 {
-	[self pushViewController:newVC animated:YES];
+	[self pushViewController:newVC modal:NO animated:YES];
 }
 
 - (void) pushViewControllerNonAnimated: (TitaniumViewController *) newVC;
 {
-	[self pushViewController:newVC animated:NO];
+	[self pushViewController:newVC modal:NO animated:NO];
 }
 
 - (void) close: (id) animatedObject;
@@ -796,21 +820,25 @@ int nextWindowToken = 0;
 	if ([animatedObject respondsToSelector:@selector(boolValue)]) animated = [animatedObject boolValue];
 	
 	UINavigationController * theNC = [self navigationController];
+	NSArray * theVCArray = [theNC viewControllers];
+	NSInteger thisIndex = [theVCArray indexOfObject:self];
 
-	if(self==[theNC modalViewController]){ //TODO: what if we want to have a modal navcontroller? much later.
-		[theNC dismissModalViewControllerAnimated:animated];
-		return;
+	if(thisIndex == 0){
+		UINavigationController * parentNC = [theNC parentViewController];
+		if([parentNC isKindOfClass:[UINavigationController class]]){
+			if(theNC==[parentNC modalViewController]){ //TODO: what if we want to have a modal navcontroller? much later.
+				[parentNC dismissModalViewControllerAnimated:animated];
+				return;
+			}			
+		}
 	}
-	
+		
 	if(self==[theNC topViewController]){
 		[theNC popViewControllerAnimated:animated];
 		return;
 	}
-	
-	NSArray * theVCArray = [theNC viewControllers];
-	
-	NSInteger thisIndex = [theVCArray indexOfObject:self];
-	if (thisIndex > 0) { //TODO: if the index is 0, we're root. We can't close, can we?
+
+	if ((thisIndex > 0) && (thisIndex != NSNotFound)) { //TODO: if the index is 0, we're root. We can't close, can we?
 		UIViewController * parentVC = [theVCArray objectAtIndex:thisIndex-1];
 		[theNC popToViewController:parentVC animated:animated];
 	}
