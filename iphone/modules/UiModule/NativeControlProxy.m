@@ -658,7 +658,10 @@ needsRefreshing = YES;	\
 		[resultView setBackgroundColor:elementBorderColor];
 	}
 	
-	[wrapperView setFrame:viewFrame];
+	if((viewFrame.origin.x > 1.0) || (viewFrame.origin.y > 1.0) || ![[wrapperView superview] isKindOfClass:[UITableViewCell class]]){
+		[wrapperView setFrame:viewFrame];
+	}
+	
 	if(!customPlacement){
 		[labelView removeFromSuperview];
 		viewFrame.origin = CGPointZero;
@@ -856,6 +859,7 @@ needsRefreshing = YES;	\
 	NSString * handleClickCommand = [NSString stringWithFormat:
 			@"(function(){%@Titanium.UI._BTN.%@.onClick({type:'%@'%@});}).call(Titanium.UI._BTN.%@);",
 			initalizer,token,eventType,arguments,token];
+//	NSLog(@"Sending '%@' to the page.",handleClickCommand);
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
 
