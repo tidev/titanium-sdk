@@ -824,13 +824,11 @@ int nextWindowToken = 0;
 	NSInteger thisIndex = [theVCArray indexOfObject:self];
 
 	if(thisIndex == 0){
-		UINavigationController * parentNC = [theNC parentViewController];
-		if([parentNC isKindOfClass:[UINavigationController class]]){
-			if(theNC==[parentNC modalViewController]){ //TODO: what if we want to have a modal navcontroller? much later.
-				[parentNC dismissModalViewControllerAnimated:animated];
-				return;
-			}			
-		}
+		UIViewController * parentNC = [theNC parentViewController];
+		if(theNC==[parentNC modalViewController]){ //TODO: what if we want to have a modal navcontroller? much later.
+			[parentNC dismissModalViewControllerAnimated:animated];
+			return;
+		}			
 	}
 		
 	if(self==[theNC topViewController]){
