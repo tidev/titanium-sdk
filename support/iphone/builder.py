@@ -295,10 +295,10 @@ def main(args):
 			# an ad-hoc distribution cert or not - in the case of non-adhoc
 			# we don't use the entitlements file but in ad hoc we need to
 			adhoc_line = "CODE_SIGN_ENTITLEMENTS="
-			deploytype = "production"
+			deploytype = "production_adhoc"
 			if not is_adhoc(appuuid):
 				adhoc_line="CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.plist"
-				deploytype = "production_adhoc"
+				deploytype = "production"
 			
 			# build the final release distribution
 			output = run.run(["xcodebuild",
