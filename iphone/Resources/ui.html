@@ -28,9 +28,52 @@
 		btn5.addEventListener('click',function(){Ti.UI.currentWindow.setFullscreen(true);});
 
 		var sideBtn = Ti.UI.createButton({width:16,height:16,title:'Y',style:Ti.UI.iPhone.SystemButtonStyle.PLAIN});
-		var btn6 = Ti.UI.createTextField({borderStyle:Ti.UI.INPUT_BORDERSTYLE_ROUNDED,min:-1,max:10,leftButton:sideBtn,leftButtonMode:Ti.UI.INPUT_BUTTONMODE_ALWAYS,clearButtonMode:Ti.UI.INPUT_BUTTONMODE_ALWAYS,hintText:'Hint me!',id:'sliderPlace',keyboardType:Ti.UI.KEYBOARD_EMAIL_ADDRESS,textAlign:'center',color:'red',backgroundColor:'blue',borderColor:'green'});
+//		var btn6 = Ti.UI.createTextField({borderStyle:Ti.UI.INPUT_BORDERSTYLE_ROUNDED,min:-1,max:10,leftButton:sideBtn,leftButtonMode:Ti.UI.INPUT_BUTTONMODE_ALWAYS,clearButtonMode:Ti.UI.INPUT_BUTTONMODE_ALWAYS,hintText:'Hint me!',id:'sliderPlace',keyboardType:Ti.UI.KEYBOARD_EMAIL_ADDRESS,textAlign:'center',color:'red',backgroundColor:'blue',borderColor:'green'});
+
+		var btn6 = Titanium.UI.createTextField({
+			id:'sliderPlace',
+			color:'#006ea3',
+			enableReturnKey:false,
+			keyboardType:Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
+			autocorrect:false,
+			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
+			clearButtonMode:Titanium.UI.INPUT_BUTTONMODE_NEVER,
+			height:40,
+			width:200,
+			fontSize:30,
+			fontWeight:"bold",
+			textAlign:'right'
+			
+		});
+
+
 //		btn6.width=100;
-		btn6.addEventListener('change',function(foo){document.getElementById('sliderValue').innerHTML='Newvalue' + foo.value;});
+
+		btn6.addEventListener('change',function(e)
+		{
+			if (isNaN(e.value))
+			{
+				btn6.color = '#ff0000';
+			}
+			else
+			{
+				btn6.color = '#000000';
+			}
+			btn6.update();
+		});
+
+
+//		btn6.addEventListener('change',function(foo){
+//			if(foo.value.length > 4){
+//				btn6.color="#00FF00";
+//				btn6.value = foo.value.toUpperCase();
+//				btn6.update();
+//			} else {
+////				btn6.color = "#FF0000";
+////				btn6.update();
+//			}
+//			document.getElementById('sliderValue').innerHTML='Newvalue' + foo.value;
+//		});
 //		btn6.addEventListener('valuechange',function(foo){
 //			var msg = 'Value: ' + foo.value;
 //			$('sliderValue').
@@ -153,7 +196,11 @@ try{
 	});
 
 	var switchInstance = Titanium.UI.createTextField({value:'More text',width:170});
-	switchInstance.addEventListener('change',function(foo){document.getElementById('sliderValue').innerHTML='NewText: ' + foo.value;});
+	switchInstance.addEventListener('change',function(foo){
+		document.getElementById('sliderValue').innerHTML='NewText: ' + foo.value;
+		switchInstance.color="#00FF00";
+		switchInstance.update();
+	});
 	switchInstance.addEventListener('return',function(foo){
 		var msg = typeof(foo.target.blur) + 'value: ' + typeof(foo.target._TOKEN);
 		try{
