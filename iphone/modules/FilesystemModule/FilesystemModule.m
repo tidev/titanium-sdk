@@ -107,20 +107,45 @@
 		BOOL result = [[NSFileManager defaultManager] fileExistsAtPath:path];
 		return [NSNumber numberWithBool:result];
 	}
-
 	if([functName isEqualToString:@"EXECP"]){
 		NSDictionary * resultDict = [[NSFileManager defaultManager] fileAttributesAtPath:path traverseLink:NO];
 		return [resultDict objectForKey:NSFilePosixPermissions];
 	}
-
+	if([functName isEqualToString:@"LOCKP"]){
+		NSDictionary * resultDict = [[NSFileManager defaultManager] fileAttributesAtPath:path traverseLink:NO];
+		return [resultDict objectForKey:NSFileImmutable];
+	}
 	if([functName isEqualToString:@"LINKP"]){
 		NSDictionary * resultDict = [[NSFileManager defaultManager] fileAttributesAtPath:path traverseLink:NO];
 		BOOL result = [[resultDict objectForKey:NSFileType] isEqualToString:NSFileTypeSymbolicLink];
 		return [NSNumber numberWithBool:result];
 	}
 
+	if([functName isEqualToString:@"MADEST"]){
+		NSDictionary * resultDict = [[NSFileManager defaultManager] fileAttributesAtPath:path traverseLink:NO];
+		return [resultDict objectForKey:NSFileCreationDate];
+	}
+	if([functName isEqualToString:@"MODST"]){
+		NSDictionary * resultDict = [[NSFileManager defaultManager] fileAttributesAtPath:path traverseLink:NO];
+		return [resultDict objectForKey:NSFileModificationDate];
+	}
+	if([functName isEqualToString:@"LS"]){
+		NSError * error=nil;
+		NSArray * resultArray = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:&error];
+		if(error!=nil)return error;
+		return resultArray;
+	}
+	
+
+
+	if([functName isEqualToString:@"EXT"]){
+		return [path pathExtension];
+	}
 	if([functName isEqualToString:@"PARENT"]){
 		return [path stringByDeletingLastPathComponent];
+	}
+	if([functName isEqualToString:@"NAME"]){
+		return [path lastPathComponent];
 	}
 	
 	
@@ -164,14 +189,31 @@
 	TitaniumJSCode * fileWrapperObjectCode = [TitaniumJSCode codeWithString:@"function(newPath){this.path=newPath;}"];
 	[fileWrapperObjectCode setEpilogueCode:@"Ti.Filesystem._FILEOBJ.prototype={"
 			"path:null,nativePath:function(){return this.path},"
+//Boolean functions
 			"exists:function(){return Ti.Filesystem._FILEACT(this.path,'EXISTP');},"
 			"isExecutable:function(){return Ti.Filesystem._FILEACT(this.path,'EXECP');},"
+			"isHidden:function(){return false;}," //Really. This necessary?
+			"isReadonly:function(){return Ti.Filesystem._FILEACT(this.path,'LOCKP');},"
 			"isSymbolicLink:function(){return Ti.Filesystem._FILEACT(this.path,'LINKP');},"
-			"isWritable:function(){return Ti.Filesystem._FILEACT(this.path,'WRITEP');},"
-			"isReadonly:function(){return !this.isWritable();},"
-//			"isWritable:function(){return Ti.Filesystem._FILEACT(this.path,'WRITEP');},"
+			"isWritable:function(){return !this.isReadonly();},"
+//Value functions
+			"createTimeStamp:function(){return Ti.Filesystem._FILEACT(this.path,'MADEST');},"
+			"modificationTimeStamp:function(){return Ti.Filesystem._FILEACT(this.path,'MODST');},"
+			"getDirectoryListing:function(){return Ti.Filesystem._FILEACT(this.path,'LS');},"
+//Functions that change data
+			"copy:function(dest){return Ti.Filesystem._FILEACT(this.path,'COPY',dest);},"
+			"createDirectory:function(dest){return Ti.Filesystem._FILEACT(this.path,'MKDIR',dest);},"
+			"deleteDirectory:function(dest){return Ti.Filesystem._FILEACT(this.path,'RMRF',dest);},"
+			"deleteFile:function(dest){return Ti.Filesystem._FILEACT(this.path,'RM',dest);},"
+			"move:function(dest){var res=Ti.Filesystem._FILEACT(this.path,'MOVE',dest);this.path=res;},"
+			"rename:function(dest){var res=Ti.Filesystem._FILEACT(this.path,'MOVE',dest);this.path=res;},"
+//Functions that mean we can't share file objects?
+			//Read readline
+
 //Functions that should be done in javascript, but I'm feeling lazy?
+			"extension:function(){return Ti.Filesystem._FILEACT(this.path,'EXT');},"
 			"getParent:function(){return Ti.Filesystem._FILEACT(this.path,'PARENT');},"
+			"name:function(){return Ti.Filesystem._FILEACT(this.path,'NAME');},"
 			"};"];
 	
 	TitaniumJSCode * getFileCode = [TitaniumJSCode codeWithString:@"function(newPath){var len=arguments.length;if(len==0)return null;var path=newPath;"
