@@ -59,6 +59,13 @@
 			emailDialog.open();
 		}
 		
+		fileTest=function(){
+			var filething=Titanium.Filesystem.getFile('/blargle');
+			Ti.API.debug('filething: ' + typeof(filething));
+			Ti.API.debug('exists: ' + typeof(filething.exists));
+			Ti.API.debug('exists: ' + filething.exists());
+		}
+		
 		var btn1=Ti.UI.createButton({title:'-'});
 		var btn2=Ti.UI.createButton({title:'+'});
 		var spinny=Ti.UI.createActivityIndicator({width:80,message:'Foo'});
@@ -114,6 +121,8 @@ Titanium.UI.addEventListener('tabchange',function(e)
 	<button onclick="testFun('noFullScreen()')">Empty</button>
 
 	<button onclick="doEmailTest()">Email</button>
+
+	<button onclick="testFun('fileTest()')">File</button>
 
 	<button onclick="Titanium.UI.currentWindow.showView(buggyView,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000})">Switch by view</button>
 	<button onclick="Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('bugger'),{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000})">Switch by name</button>

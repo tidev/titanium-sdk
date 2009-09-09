@@ -714,7 +714,35 @@ int nextWindowToken = 0;
 
 - (void) setPagedViewControllerProxies: (NSArray *) newPagedViewControllerProxies;
 {
-	int controllerCount = [newPagedViewControllerProxies count];
+	Class dictClass = [NSDictionary class];
+	Class stringClass = [NSString class];
+	int controllerCount = 0;
+
+	if(pagedViewControllers != nil){
+		[pagedViewControllers removeAllObjects];
+	}
+
+	for(NSDictionary * thisProxyObject in newPagedViewControllerProxies){
+		if(![thisProxyObject isKindOfClass:dictClass])continue;
+		NSString * thisProxyToken = [thisProxyObject objectForKey:@"_TOKEN"];
+		if(![thisProxyToken isKindOfClass:stringClass])continue;
+		TitaniumContentViewController * ourVC = nil;
+		for(TitaniumContentViewController * thisVC in contentViewControllers){
+			if([thisVC hasToken:thisProxyToken]){
+				ourVC = thisVC;
+				break;
+			}
+		}
+		if(ourVC == nil)continue;
+		
+		if(pagedViewControllers==nil){
+			pagedViewControllers = [[NSMutableArray alloc] initWithObjects:ourVC,nil];
+		} else {
+			[pagedViewControllers addObject:ourVC];
+		}
+		controllerCount++;
+	}
+	
 	if(controllerCount==0){
 		[pagedView release];
 		pagedView = nil;
@@ -725,6 +753,7 @@ int nextWindowToken = 0;
 		[self needsUpdate:TitaniumViewControllerNeedsRefresh];
 		return;
 	}
+
 
 	if(pageControl == nil){
 		pageControl = [[UIPageControl alloc] initWithFrame:CGRectZero];
@@ -750,13 +779,13 @@ int nextWindowToken = 0;
 	TitaniumContentViewController * thisPageViewController = [pagedViewControllers objectAtIndex:pageNum];
 	UIView * thisPageView = [thisPageViewController view];
 	if ([thisPageView superview] != pagedView){
-		
-		
-		
-		
+		CGRect thisFrame = [thisPageView frame];
+		CGRect pagedFrame = [pagedView frame];
+		thisFrame.origin.y=0;
+		thisFrame.origin.x=pageNum * pagedFrame.size.width;
+		thisFrame.size=pagedFrame.size;
+		[pagedView addSubview:thisPageView];
 	}
-	
-	
 }
 
 
