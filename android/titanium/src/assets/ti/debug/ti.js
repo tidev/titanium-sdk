@@ -22,6 +22,22 @@ var Titanium = new function() {
 
 	this.rethrow = function(e) { throw e; };
 
+	this.checked = function(r) {
+		if (!isUndefined(r)) {
+			if (typeof(r.getException) !== 'undefined') {
+				this.apiProxy.log(6,"checking: " + r.getException());
+				if(!isUndefined(r.getException())) {
+					throw r.getException();
+				} else {
+					if (typeof(r.getResult) !== 'undefined') {
+						r = r.getResult();
+					}
+				}
+			}
+		}
+		return r;
+	};
+
 	this.doPostProcessing = function () {
 		var imgs = document.getElementsByTagName('img');
 		for(i=0; i < imgs.length;i++) {

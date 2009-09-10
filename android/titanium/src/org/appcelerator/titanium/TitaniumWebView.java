@@ -324,7 +324,7 @@ public class TitaniumWebView extends WebView
 		synchronized(locks) {
 			l = locks.get(syncId);
 		}
-			l.release();
+		l.release();
 	}
 
 	public void evalJS(final String method) {

@@ -1,0 +1,193 @@
+<html>
+<head>
+  <title>Filestream</title>
+  <style>
+  	.button {
+  		width: 40%;
+  		height: 40px;
+  		float: left;
+  		margin-left: 5%;
+  	}
+
+  	#log {
+  		clear: both;
+  		border-bottom: solid thin black;
+  		margin-top: 10px;
+  		background-color: #aaa;
+  	}
+
+  	#data {
+  		clear: both;
+  		border-bottom: solid thin black;
+  		margin-top: 10px;
+  	}
+  </style>
+  <script>
+
+  var progress = Titanium.UI.createActivityIndicator({title: 'Loading Data'});
+
+  function log(msg) {
+	  document.getElementById("log").innerHTML += msg + "<br/>";
+  }
+
+  function doRead(name) {
+	  try {
+		  progress.setMessage("Loading " + name);
+		  progress.show();
+		  var f = Titanium.Filesystem.getFile(name);
+		  Titanium.API.error("Exists: " + f.exists());
+		  var s = f.read();
+		  if (!isUndefined(s)) {
+		  	s.replace("\n","<br/>");
+			document.getElementById("data").innerHTML = s;
+		  } else {
+			  log("File not found: " + name);
+		  }
+	  } catch (e) {
+		  Titanium.API.error(e);
+	  }
+
+	  progress.hide();
+  }
+
+  window.onload = function()
+  {
+	  var clearBtn = Titanium.UI.createButton({id: 'clear', title: 'Clear'});
+	  clearBtn.addEventListener('click', function(e) {
+		  document.getElementById("data").innerHTML = "&nbsp;";
+		  document.getElementById("log").innerHTML = "&nbsp;";
+	  });
+
+	  var fileReadBtn = Titanium.UI.createButton({ id: "file-read", title: "File Read"});
+	  fileReadBtn.addEventListener('click', function(e) {
+		  doRead("app://data/test1.txt");
+	  });
+
+	  var fileWriteABtn = Titanium.UI.createButton({id: 'file-write-a', title: "File Write a"});
+	  fileWriteABtn.addEventListener('click', function(e) {
+			progress.setMessage("Writing: appdata://test2.txt");
+		  	progress.show();
+
+			try {
+			  var f = Titanium.Filesystem.getFile("appdata://test2.txt");
+			  var s = "This is test2.txt written on\n" + String(new Date());
+			  f.write(s);
+			  log("Wrote file: appdata://test2.txt");
+			} catch (e) {
+				log(e);
+				Titanium.API.error(e);
+			}
+			progress.hide();
+	  });
+
+	  var fileReadABtn = Titanium.UI.createButton({ id: "file-read-a", title: "File Read a"});
+	  fileReadABtn.addEventListener('click', function(e) {
+		  doRead("appdata://test2.txt");
+	  });
+
+	  var fsReadLineBtn = Titanium.UI.createButton({ id:"fs-readline", title: "FS Readline"});
+	  fsReadLineBtn.addEventListener('click', function(e) {
+		  var fn = "app://data/test1.txt";
+		  progress.setMessage("readLines: " + fn);
+		  progress.show();
+		  try {
+			  var fs = Titanium.Filesystem.getFileStream(fn);
+			  Titanium.API.error("OPENED: " + fs.isOpen());
+			  var data = document.getElementById("data");
+			  data.innerHTML = "";
+			  fs.open(Titanium.Filesystem.MODE_READ, false);
+			  while((l = fs.readLine()) != null) {
+				  data.innerHTML += l + "<br/>";
+			  }
+			  fs.close();
+		  } catch (e) {
+			  log("Error reading: " + e);
+			  Titanium.API.error("Error reading: " + e);
+		  }
+		  progress.hide();
+	  });
+
+	  var fsWriteLineBtn = Titanium.UI.createButton({ id: 'fs-writeline-b', title: "FS Writeln B"});
+	  fsWriteLineBtn.addEventListener('click', function(e) {
+		  var fn = "appdata-private://testb.txt";
+		  progress.setMessage("writeline: " + fn);
+		  progress.show();
+
+		  try {
+			  var fs = Titanium.Filesystem.getFileStream(fn);
+			  var data = document.getElementById("data");
+			  data.innerHTML = "&nbsp;";
+			  fs.open(Titanium.Filesystem.MODE_WRITE, false);
+			  for(i = 0; i < 10; i++) {
+				  fs.writeLine("This is line " + i);
+			  }
+			  fs.close();
+		  } catch (e) {
+			  log("Error writing: " + e);
+			  Titanium.API.error("Error writing: " + e);
+		  }
+		  progress.hide();
+	  });
+
+	  var fsWriteLineBABtn = Titanium.UI.createButton({ id: 'fs-writeline-ba', title: "FS Writeln BA"});
+	  fsWriteLineBABtn.addEventListener('click', function(e) {
+		  var fn = "appdata-private://testb.txt";
+		  progress.setMessage("writeline: " + fn);
+		  progress.show();
+
+		  try {
+			  var fs = Titanium.Filesystem.getFileStream(fn);
+			  var data = document.getElementById("data");
+			  data.innerHTML = "&nbsp;";
+			  fs.open(Titanium.Filesystem.MODE_APPEND, false);
+			  for(i = 0; i < 10; i++) {
+				  fs.writeLine("This is appended line " + i);
+			  }
+			  fs.close();
+		  } catch (e) {
+			  log("Error writing: " + e);
+			  Titanium.API.error("Error writing: " + e);
+		  }
+		  progress.hide();
+	  });
+
+	  var fsReadLineBBtn = Titanium.UI.createButton({ id: 'fs-readline-b', title: "FS Readln B"});
+	  fsReadLineBBtn.addEventListener('click', function(e) {
+		  var fn = "appdata-private://testb.txt";
+		  progress.setMessage("readline: " + fn);
+		  progress.show();
+		  try {
+			  var fs = Titanium.Filesystem.getFileStream(fn);
+			  var data = document.getElementById("data");
+			  var s = "";
+			  fs.open(Titanium.Filesystem.MODE_READ, false);
+			  while((l = fs.readLine()) != null) {
+				  s += l + "<br/>";
+			  }
+			  data.innerHTML = s;
+			  fs.close();
+		  } catch (e) {
+			  log("Error reading: " + e);
+			  Titanium.API.error("Error reading: " + e);
+		  }
+		  progress.hide();
+	  });
+  }
+  </script>
+</head>
+<body style="background-color: white;">
+<div style="border-bottom: solid thin black; margin-bottom: 10px;">
+	<div id="clear" class="button">&nbsp;</div>
+	<div id="file-read" class="button">&nbsp;</div>
+	<div id="file-write-a" class="button">&nbsp;</div>
+	<div id="file-read-a" class="button">&nbsp;</div>
+	<div id="fs-readline" class="button">&nbsp;</div>
+	<div id="fs-writeline-b" class="button">&nbsp;</div>
+	<div id="fs-writeline-ba" class="button">&nbsp;</div>
+	<div id="fs-readline-b" class="button">&nbsp;</div>
+	<div style="clear:both">&nbsp;</div>
+</div>
+<div id="log">&nbsp;</div>
+<div id="data">&nbsp;</div>
+</body>
+</html>
