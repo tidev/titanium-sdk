@@ -245,7 +245,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
 		<window>
             <id>Filestream</id>
             <title>filestream</title>
@@ -255,7 +255,16 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+-->
+		<window>
+            <id>iPhoneAPI</id>
+            <title>iPhone API</title>
+            <url>iphone-api.html</url>
+            <type>single</type>
+            <fullscreen>false</fullscreen>
+            <backgroundColor>argb(0,128,128,128)</backgroundColor>
+            <barColor>#000</barColor>
+        </window>
     </windows>
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.android.watchlog" type="bool">false</property>

@@ -804,13 +804,16 @@ var UserWindow = function(proxy) {
 	};
 	this.hideNavBar = function(options) {
 
-	}
+	};
 	this.setBarColor = function(options) {
 
-	}
+	};
 	this.setTitleControl = function(button) {
 
-	}
+	};
+	this.setToolbar = function() {
+
+	};
 };
 
 UserWindow.prototype.__defineGetter__("window", function() {
