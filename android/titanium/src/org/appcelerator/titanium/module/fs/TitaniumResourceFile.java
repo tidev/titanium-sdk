@@ -7,15 +7,20 @@
 
 package org.appcelerator.titanium.module.fs;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.ref.SoftReference;
 
 import org.appcelerator.titanium.api.ITitaniumFile;
 import org.appcelerator.titanium.api.ITitaniumFilesystem;
+import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.Log;
 
 import android.content.Context;
-import org.appcelerator.titanium.config.TitaniumConfig;
 
 public class TitaniumResourceFile extends TitaniumBaseFile
 {
@@ -49,6 +54,30 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 	}
 
 	@Override
+	public void open(int mode, boolean binary) throws IOException {
+		if (mode == MODE_READ) {
+			Context context = softContext.get();
+			if (context != null) {
+				InputStream in = context.getAssets().open("Resources/"+path);
+				if (in != null) {
+					if (binary) {
+						instream = new BufferedInputStream(in);
+					} else {
+						inreader = new BufferedReader(new InputStreamReader(in, "utf-8"));
+					}
+					opened = true;
+				} else {
+					throw new FileNotFoundException("File does not exist: " + path);
+				}
+			} else {
+				Log.w(LCAT, "Context has been reclaimed by GC");
+			}
+		} else {
+			throw new IOException("Resource file may not be written.");
+		}
+	}
+
+	@Override
 	public String read() throws IOException
 	{
 		StringBuilder builder=new StringBuilder();
@@ -78,6 +107,27 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 			}
 		}
 		return builder.toString();
+	}
+
+	@Override
+	public String readLine() throws IOException
+	{
+		String result = null;
+
+		if (!opened) {
+			throw new IOException("Must open before calling readLine");
+		}
+		if (binary) {
+			throw new IOException("File opened in binary mode, readLine not available.");
+		}
+
+		try {
+			result = inreader.readLine();
+		} catch (IOException e) {
+			Log.e(LCAT, "Error reading a line from the file: ", e);
+		}
+
+		return result;
 	}
 
 	public boolean copy(String destination)

@@ -14,7 +14,7 @@ public interface ITitaniumFilesystem
 	public ITitaniumFile createTempFile() throws IOException;
 	public ITitaniumFile createTempDirectory() throws IOException;
 	public ITitaniumFile getFile(String parts[]) throws IOException;
-	public ITitaniumFile getFileStream(Object parts[]) throws IOException;
+	public ITitaniumInvoker getFileStream(String[] parts) throws IOException;
 	public ITitaniumFile getApplicationDirectory();
 	public ITitaniumFile getApplicationDataDirectory(boolean privateStorage);
 	public ITitaniumFile getResourcesDirectory();
