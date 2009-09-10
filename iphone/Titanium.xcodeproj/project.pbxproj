@@ -235,6 +235,10 @@
 		B4B571FF10110324003546C7 /* TitaniumContentViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4B571FC10110324003546C7 /* TitaniumContentViewController.h */; };
 		B4B5720010110324003546C7 /* TitaniumContentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B571FD10110324003546C7 /* TitaniumContentViewController.m */; };
 		B4B587010FB00B670047B651 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4B587000FB00B670047B651 /* AudioToolbox.framework */; };
+		B4B8E56B10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B8E56A10586D3500D08D44 /* TitaniumCellWrapper.m */; };
+		B4B8E56C10586D3500D08D44 /* TitaniumCellWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = B4B8E56910586D3500D08D44 /* TitaniumCellWrapper.h */; };
+		B4B8E56D10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B8E56A10586D3500D08D44 /* TitaniumCellWrapper.m */; };
+		B4B8E56E10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B8E56A10586D3500D08D44 /* TitaniumCellWrapper.m */; };
 		B4B9E4621003D3DE004B8831 /* logo-m.png in Resources */ = {isa = PBXBuildFile; fileRef = B4B9E4611003D3DE004B8831 /* logo-m.png */; };
 		B4B9E4641003D3E6004B8831 /* ext-core.js in Sources */ = {isa = PBXBuildFile; fileRef = B4B9E4631003D3E6004B8831 /* ext-core.js */; };
 		B4B9E4721003D52F004B8831 /* jquery.js in Sources */ = {isa = PBXBuildFile; fileRef = B4B9E4711003D52F004B8831 /* jquery.js */; };
@@ -409,6 +413,8 @@
 		B4B571FC10110324003546C7 /* TitaniumContentViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumContentViewController.h; sourceTree = "<group>"; };
 		B4B571FD10110324003546C7 /* TitaniumContentViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumContentViewController.m; sourceTree = "<group>"; };
 		B4B587000FB00B670047B651 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		B4B8E56910586D3500D08D44 /* TitaniumCellWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumCellWrapper.h; sourceTree = "<group>"; };
+		B4B8E56A10586D3500D08D44 /* TitaniumCellWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumCellWrapper.m; sourceTree = "<group>"; };
 		B4B9E4611003D3DE004B8831 /* logo-m.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo-m.png"; sourceTree = "<group>"; };
 		B4B9E4631003D3E6004B8831 /* ext-core.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-core.js"; sourceTree = "<group>"; };
 		B4B9E4711003D52F004B8831 /* jquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.js; sourceTree = "<group>"; };
@@ -527,6 +533,8 @@
 				B4290A74100D31FD00C4FF98 /* TweakedNavController.m */,
 				B4D4AF5310472271006E42E0 /* TweakedScrollView.h */,
 				B4D4AF5410472271006E42E0 /* TweakedScrollView.m */,
+				B4B8E56910586D3500D08D44 /* TitaniumCellWrapper.h */,
+				B4B8E56A10586D3500D08D44 /* TitaniumCellWrapper.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -894,6 +902,7 @@
 				B4A6D3B1103C9EFD00131CD4 /* NativeControlProxy.h in Headers */,
 				B4D4AF5710472271006E42E0 /* TweakedScrollView.h in Headers */,
 				B4D4B07610489FDC006E42E0 /* WebFont.h in Headers */,
+				B4B8E56C10586D3500D08D44 /* TitaniumCellWrapper.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1117,6 +1126,7 @@
 				B4A6D3B4103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
 				B4D4AF5510472271006E42E0 /* TweakedScrollView.m in Sources */,
 				B4D4B07510489FDC006E42E0 /* WebFont.m in Sources */,
+				B4B8E56E10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1167,6 +1177,7 @@
 				B4A6D3B2103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
 				B4D4AF5810472271006E42E0 /* TweakedScrollView.m in Sources */,
 				B4D4B07710489FDC006E42E0 /* WebFont.m in Sources */,
+				B4B8E56D10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1218,6 +1229,7 @@
 				B4A6D3B3103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
 				B4D4AF5610472271006E42E0 /* TweakedScrollView.m in Sources */,
 				B4D4B07810489FDC006E42E0 /* WebFont.m in Sources */,
+				B4B8E56B10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -346,6 +346,7 @@ TitaniumWebViewController * mostRecentController = nil;
 {
 	CLOCKSTAMP("Finished load request for %@",self);
 	[UIView beginAnimations:@"webView" context:nil];
+	[UIView setAnimationDuration:0.1];
 	[self updateLayout:NO];
 	
 	NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];

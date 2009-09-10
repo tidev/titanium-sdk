@@ -60,10 +60,10 @@
 		}
 		
 		fileTest=function(){
-			var filething=Titanium.Filesystem.getFile('/blargle');
+			var filething=Titanium.Filesystem.getFile('/');
 			Ti.API.debug('filething: ' + typeof(filething));
-			Ti.API.debug('exists: ' + typeof(filething.exists));
-			Ti.API.debug('exists: ' + filething.exists());
+			Ti.API.debug('Listing: ' + typeof(filething.getDirectoryListing));
+			Ti.API.debug('Listing: ' + filething.getDirectoryListing());
 		}
 		
 		var btn1=Ti.UI.createButton({title:'-'});
@@ -79,14 +79,24 @@
 				barry.message = 'Completed ' + barry.value + ' of ' + barry.max;
 				barry.update({animated:true,animationDuration:1000});});
 		Ti.UI.currentWindow.setToolbar([btn1,btn2,spinny,barry]);
+
 var nowness = new Date();
 var forward = new Date(nowness.getTime());
 forward.setDate(forward.getDate()+1);
 var backward = new Date(nowness.getTime());
 backward.setDate(backward.getDate()-1);
 
-daty = Ti.UI.createDatePicker({x:0,id:'buttony',value:nowness,minDate:backward,maxDate:forward,minuteInterval:5});
-daty.addEventListener('change',function(e){Ti.API.debug('The time is now: ' + e.value);});
+var dataz=[
+{width:50,height:30,data:[{title:'foo', selected:true},{title:'bar'}]},
+{width:0,height:30,data:[{title:'foo', selected:true},{title:'bar'}]},
+{width:0,height:60,data:[{html:'<body style="background:transparent"><img src="foo.png"/> pick me</div>',selected:true},{html:'<body><img src="bar.png"/> pick me too</div>'}]}
+];
+try{
+picky = Ti.UI.createPicker({x:0,id:'buttony',data:dataz,selectionIndicator:true});
+}catch(E){
+Ti.API.debug('We got '+E);
+}
+picky.addEventListener('change',function(e){Ti.API.debug('The time is now: ' + e.value);});
 
 	};
 
@@ -134,16 +144,6 @@ Titanium.UI.addEventListener('tabchange',function(e)
 	<button onclick="daty.setValue(new Date(), {animated:true})">Update Time</button>
 
 	<div id='buttony' style="width:300px;height:218px;">What should be here?</div>
-	Landscape: <script>document.write(Ti.Gesture.LANDSCAPE);</script><br>
-	isLandscape: <script>document.write(Ti.Gesture.isLandscape(Ti.Gesture.LANDSCAPE_LEFT));</script><br>
-	1&1: <script>document.write(1 & 1);</script><br>
-	Landscape: <script>document.write(Ti.Gesture.LANDSCAPE);</script><br>
-	Landscape: <script>document.write(Ti.Gesture.LANDSCAPE);</script><br>
-	Landscape: <script>document.write(Ti.UI.LANDSCAPE);</script><br>
-
-1234567
-	<a href="tel:1234567">Call me</a><div id='buttony' style='position:absolute;top:350;right:120;width:200px;height:80px'>Button goes here!</div>
-	<a href="tel:1234567">Call me</a>
 	
 	<div id='sliderValue'>Unchanged slider value!</div>
 
