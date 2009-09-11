@@ -872,6 +872,47 @@ var DatePicker = function(proxy) {
 	};
 };
 
+var Picker = function(proxy) {
+	this.proxy = proxy;
+
+	this.setData = function(value, options) {
+	};
+
+	/**
+	 * @tiapi(method=true,name=UI.Picker.addEventListener,since=0.6.3) Add a listener.
+	 * @tiarg[string,eventName] The name of the event. Supports:
+	 * @tiarg[function,listener] The event listener
+	 * @tiresult[int] listenerId used to unregister the event.
+	 */
+	this.addEventListener = function(eventName, listener) {
+		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
+	};
+	/**
+	 * @tiapi(method=true,name=UI.Picker.removeEventListener,since=0.6.3) Add a listener.
+	 * @tiarg[string,eventName] The name of the event. Supports:
+	 * @tiarg[function,listenerId] The event listener id returned by addEventListener
+	 */
+	this.removeEventListener = function(eventName, listenerId) {
+		this.proxy.removeEventListener(eventName, listenerId);
+	};
+
+	this.setColumnData = function(col, data) {
+		this.proxy.setColumnData(col, Titanium.JSON.stringify(data));
+	};
+
+	this.getSelectedRow = function(col) {
+		return this.proxy.getSelectedRow(col);
+	};
+
+	this.setData = function(data) {
+		this.proxy.setData(Titanium.JSON.stringify(data));
+	};
+
+	this.selectRow = function(col, row) {
+		this.proxy.selectRow(col, row);
+	}
+};
+
 var Switch = function(proxy) {
 	this.proxy = proxy;
 
@@ -1611,11 +1652,17 @@ Titanium.UI = {
 		return dlg;
 	},
 
-	createPicker : function() {
+	createPicker : function(options) {
+		if(isUndefined(options)) {
+			options = {};
+		}
 
+		var c = new Picker(Titanium.uiProxy.createPicker(Titanium.JSON.stringify(options)));
+		c.proxy.open();
+		return c;
 	},
 
-	createModalPicker : function() {
+	createModalPicker : function(options) {
 
 	},
 
