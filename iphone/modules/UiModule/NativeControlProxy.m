@@ -8,6 +8,7 @@
 
 #import "NativeControlProxy.h"
 #import "TitaniumCellWrapper.h"
+#import "PickerImageTextCell.h"
 
 BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view)
 {
@@ -927,11 +928,33 @@ needsRefreshing = YES;	\
 		return view;
 	}
 	
-	if(view==nil){
-		view = [[[UIView alloc] initWithFrame:ourFrame] autorelease];
-	} else {
+	if([view isKindOfClass:[PickerImageTextCell class]]){
 		[view setFrame:ourFrame];
+	} else {
+		view = [[[PickerImageTextCell alloc] initWithFrame:ourFrame] autorelease];
 	}
+	NSString * thisTitle = [ourRow title];
+	if([thisTitle length] > 0){
+		UILabel * ourLabel = [(PickerImageTextCell *)view textLabel];
+		[ourLabel setText:thisTitle];
+		[ourLabel setFont:[ourRow font]];
+	} else {
+		[(PickerImageTextCell *)view setTextLabel:nil];
+	}
+	
+	UIImage * thisImage = [ourRow image];
+	if(thisImage != nil){
+		UIImageView * ourImageView = [(PickerImageTextCell *)view imageView];
+		[ourImageView setImage:thisImage];
+		CGRect imageFrame;
+		imageFrame.size=[thisImage size];
+		imageFrame.origin=CGPointZero;
+		[ourImageView setFrame:imageFrame];
+	} else {
+		[(PickerImageTextCell *)view setImageView:nil];
+	}
+	
+	NSLog(@"Returning ImageText");
 	return view;
 }
 

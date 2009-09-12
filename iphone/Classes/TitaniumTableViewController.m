@@ -864,7 +864,12 @@ UIColor * checkmarkColor = nil;
 						return;
 					} else if(headerChange){
 						[thisSection forceHeader:header footer:footer];
-						[tableView reloadSections:[NSIndexSet indexSetWithIndex:thisSectionIndex] withRowAnimation:animation];
+						if([tableView respondsToSelector:@selector(reloadSections:withRowAnimation:)]){
+							[tableView reloadSections:[NSIndexSet indexSetWithIndex:thisSectionIndex] withRowAnimation:animation];
+						} else {
+							[tableView deleteSections:[NSIndexSet indexSetWithIndex:thisSectionIndex] withRowAnimation:animation];
+							[tableView insertSections:[NSIndexSet indexSetWithIndex:thisSectionIndex] withRowAnimation:animation];
+						}
 						return;
 					}
 					//Flows out to the meek little update.
@@ -887,7 +892,13 @@ UIColor * checkmarkColor = nil;
 					[ourDeletedRowArray release];
 					return;
 				}
-				[tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:index inSection:thisSectionIndex]] withRowAnimation:animation];
+				NSArray * ourIndexPathArray = [NSArray arrayWithObject:[NSIndexPath indexPathForRow:index inSection:thisSectionIndex]];
+				if([tableView respondsToSelector:@selector(reloadRowsAtIndexPaths:withRowAnimation:)]){
+					[tableView reloadRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+				} else {
+					[tableView deleteRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+					[tableView insertRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+				}
 				return;
 			}
 			//Okay, now it's an insert before or after.
@@ -1053,7 +1064,12 @@ UIColor * checkmarkColor = nil;
 				if(row >= [thisSectionWrapper rowCount]) break;
 				thisRow = [thisSectionWrapper rowForIndex:row];
 				[thisRow useProperties:[thisAction rowData] withUrl:[thisAction baseUrl]];
-				[tableView reloadRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+				if([tableView respondsToSelector:@selector(reloadRowsAtIndexPaths:withRowAnimation:)]){
+					[tableView reloadRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+				} else {
+					[tableView deleteRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+					[tableView insertRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+				}
 				break;
 			case TitaniumGroupActionInsertBeforeGroup:
 				if(section > [sectionArray count])break;
@@ -1064,7 +1080,12 @@ UIColor * checkmarkColor = nil;
 				if(section >= [sectionArray count])break;
 				//Todo: Possibly not replace, but just update?
 				[sectionArray replaceObjectAtIndex:section withObject:[TableSectionWrapper tableSectionWithData:[thisAction sectionData] withUrl:[thisAction baseUrl]]];
-				[tableView reloadSections:ourSectionSet withRowAnimation:animation];
+				if([tableView respondsToSelector:@selector(reloadSections:withRowAnimation:)]){
+					[tableView reloadSections:ourSectionSet withRowAnimation:animation];
+				} else {
+					[tableView deleteSections:ourSectionSet withRowAnimation:animation];
+					[tableView insertSections:ourSectionSet withRowAnimation:animation];
+				}
 				break;
 			case TitaniumGroupActionDeleteGroup:
 				if(section >= [sectionArray count])break;
