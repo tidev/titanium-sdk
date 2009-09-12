@@ -394,9 +394,6 @@ TitaniumWebViewController * mostRecentController = nil;
 	
 	NSString * docHeightString = [webView stringByEvaluatingJavaScriptFromString:@"document.height"];
 	CGFloat docHeight = [docHeightString floatValue];
-	if(docHeight < 1.0){
-		docHeight = [[webView stringByEvaluatingJavaScriptFromString:@"window.outerHeight"] floatValue];
-	}
 
 	for(NativeControlProxy * thisProxy in nativeOnscreenProxies){
 		[thisProxy refreshPositionWithWebView:webView animated:animated];
