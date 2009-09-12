@@ -37,6 +37,15 @@
   		]
   	};
 
+  	var col3 = {
+  		  data : [
+  		      { html : "<div style='font-weight: bold; font-size: 15pt; color: red;'><img src='images/icon-32x32.png'/> Item 1</div>" },
+  		      { html : "<div style='font-weight: bold; font-size: 15pt;' color: blue>Item 2</div>"},
+  		      { html : "<div style='font-weight: bold; font-size: 15pt; color: green'>Item 3</div>"},
+  		      { html : "<div style='font-weight: bold; font-size: 15pt; color: purple'>Item 4</div>"}
+  		]
+  	};
+
   	data.push(col1);
   	data.push(col2);
 
@@ -77,12 +86,18 @@
 
 		p1.setData(data);
   	});
+
+  	var btnReplaceTwo = Titanium.UI.createButton({id: 'btn-replace', title : 'Replace Col 2'});
+  	btnReplaceTwo.addEventListener('click', function(e) {
+  	  	p1.setColumnData(1, col3);
+  	});
   --></script>
 </head>
 <body style="background-color: white;">
 <div style="width:99%; height: 50px; background-color: #aaa; margin-bottom: 20px">
-	<div id="btn-animals" style="width: 40%; height: 40px; float: left; margin-right: 5px; margin-left: 10%">&nbsp;</div>
-	<div id="btn-single-col" style="width: 40%; height: 40px; float: left;">&nbsp;</div>
+	<div id="btn-animals" style="width: 30%; height: 40px; float: left; margin-right: 5px; margin-left: 5%">&nbsp;</div>
+	<div id="btn-single-col" style="width: 30%; height: 40px; float: left;">&nbsp;</div>
+	<div id="btn-replace" style="width: 30%; height: 40px; float: left;">&nbsp;</div>
 </div>
 <hr/>
 <div id='p1' style='height: 150px; width: 300px; clear:both; background-color: #666'>&nbsp;</div>
