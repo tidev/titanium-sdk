@@ -7,6 +7,8 @@
 //
 
 #import "NativeControlProxy.h"
+#import "TitaniumCellWrapper.h"
+#import "PickerImageTextCell.h"
 
 BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view)
 {
@@ -35,59 +37,90 @@ NSDictionary * barButtonSystemItemForStringDict = nil;
 int barButtonSystemItemForString(NSString * inputString){
 	if (barButtonSystemItemForStringDict == nil) {
 		barButtonSystemItemForStringDict = [[NSDictionary alloc] initWithObjectsAndKeys:
-											[NSNumber numberWithInt:UIBarButtonSystemItemAction],@"action",
-											[NSNumber numberWithInt:UIBarButtonSystemItemBookmarks],@"bookmarks",
-											[NSNumber numberWithInt:UIBarButtonSystemItemCamera],@"camera",
-											[NSNumber numberWithInt:UIBarButtonSystemItemCompose],@"compose",
-											[NSNumber numberWithInt:UIBarButtonSystemItemDone],@"done",
-											[NSNumber numberWithInt:UIBarButtonSystemItemCancel],@"cancel",
-											[NSNumber numberWithInt:UIBarButtonSystemItemEdit],@"edit",
-											[NSNumber numberWithInt:UIBarButtonSystemItemSave],@"save",
-											[NSNumber numberWithInt:UIBarButtonSystemItemAdd],@"add",
-											[NSNumber numberWithInt:UIBarButtonSystemItemFlexibleSpace],@"flexiblespace",
-											[NSNumber numberWithInt:UIBarButtonSystemItemFixedSpace],@"fixedspace",
-											[NSNumber numberWithInt:UIBarButtonSystemItemReply],@"reply",
-											[NSNumber numberWithInt:UIBarButtonSystemItemOrganize],@"organize",
-											[NSNumber numberWithInt:UIBarButtonSystemItemSearch],@"search",
-											[NSNumber numberWithInt:UIBarButtonSystemItemRefresh],@"refresh",
-											[NSNumber numberWithInt:UIBarButtonSystemItemStop],@"stop",
-											[NSNumber numberWithInt:UIBarButtonSystemItemTrash],@"trash",
-											[NSNumber numberWithInt:UIBarButtonSystemItemPlay],@"play",
-											[NSNumber numberWithInt:UIBarButtonSystemItemPause],@"pause",
-											[NSNumber numberWithInt:UIBarButtonSystemItemRewind],@"rewind",
-											[NSNumber numberWithInt:UIBarButtonSystemItemFastForward],@"fastforward",
-											[NSNumber numberWithInt:UITitaniumNativeItemSpinner],@"activity",
-											[NSNumber numberWithInt:UITitaniumNativeItemSlider],@"slider",
-											[NSNumber numberWithInt:UITitaniumNativeItemSwitch],@"switch",
-											[NSNumber numberWithInt:UITitaniumNativeItemPicker],@"picker",
-											[NSNumber numberWithInt:UITitaniumNativeItemDatePicker],@"datepicker",
-											[NSNumber numberWithInt:UITitaniumNativeItemTextField],@"text",
-											[NSNumber numberWithInt:UITitaniumNativeItemTextView],@"textarea",
-											[NSNumber numberWithInt:UITitaniumNativeItemSearchBar],@"search",
-											[NSNumber numberWithInt:UITitaniumNativeItemMultiButton],@"multibutton",
-											[NSNumber numberWithInt:UITitaniumNativeItemSegmented],@"segmented",
-											[NSNumber numberWithInt:UITitaniumNativeItemInfoLight],@"infolight",
-											[NSNumber numberWithInt:UITitaniumNativeItemInfoDark],@"infodark",
-											[NSNumber numberWithInt:UITitaniumNativeItemProgressBar],@"progressbar",
-											nil];
+				[NSNumber numberWithInt:UIBarButtonSystemItemAction],@"action",
+				[NSNumber numberWithInt:UIBarButtonSystemItemBookmarks],@"bookmarks",
+				[NSNumber numberWithInt:UIBarButtonSystemItemCamera],@"camera",
+				[NSNumber numberWithInt:UIBarButtonSystemItemCompose],@"compose",
+				[NSNumber numberWithInt:UIBarButtonSystemItemDone],@"done",
+				[NSNumber numberWithInt:UIBarButtonSystemItemCancel],@"cancel",
+				[NSNumber numberWithInt:UIBarButtonSystemItemEdit],@"edit",
+				[NSNumber numberWithInt:UIBarButtonSystemItemSave],@"save",
+				[NSNumber numberWithInt:UIBarButtonSystemItemAdd],@"add",
+				[NSNumber numberWithInt:UIBarButtonSystemItemFlexibleSpace],@"flexiblespace",
+				[NSNumber numberWithInt:UIBarButtonSystemItemFixedSpace],@"fixedspace",
+				[NSNumber numberWithInt:UIBarButtonSystemItemReply],@"reply",
+				[NSNumber numberWithInt:UIBarButtonSystemItemOrganize],@"organize",
+				[NSNumber numberWithInt:UIBarButtonSystemItemSearch],@"search",
+				[NSNumber numberWithInt:UIBarButtonSystemItemRefresh],@"refresh",
+				[NSNumber numberWithInt:UIBarButtonSystemItemStop],@"stop",
+				[NSNumber numberWithInt:UIBarButtonSystemItemTrash],@"trash",
+				[NSNumber numberWithInt:UIBarButtonSystemItemPlay],@"play",
+				[NSNumber numberWithInt:UIBarButtonSystemItemPause],@"pause",
+				[NSNumber numberWithInt:UIBarButtonSystemItemRewind],@"rewind",
+				[NSNumber numberWithInt:UIBarButtonSystemItemFastForward],@"fastforward",
+				[NSNumber numberWithInt:UITitaniumNativeItemSpinner],@"activity",
+				[NSNumber numberWithInt:UITitaniumNativeItemSlider],@"slider",
+				[NSNumber numberWithInt:UITitaniumNativeItemSwitch],@"switch",
+				[NSNumber numberWithInt:UITitaniumNativeItemPicker],@"picker",
+				[NSNumber numberWithInt:UITitaniumNativeItemDatePicker],@"datepicker",
+				[NSNumber numberWithInt:UITitaniumNativeItemTextField],@"text",
+				[NSNumber numberWithInt:UITitaniumNativeItemTextView],@"textarea",
+				[NSNumber numberWithInt:UITitaniumNativeItemSearchBar],@"search",
+				[NSNumber numberWithInt:UITitaniumNativeItemMultiButton],@"multibutton",
+				[NSNumber numberWithInt:UITitaniumNativeItemSegmented],@"segmented",
+				[NSNumber numberWithInt:UITitaniumNativeItemInfoLight],@"infolight",
+				[NSNumber numberWithInt:UITitaniumNativeItemInfoDark],@"infodark",
+				[NSNumber numberWithInt:UITitaniumNativeItemProgressBar],@"progressbar",
+				nil];
 	}
 	NSNumber * result = [barButtonSystemItemForStringDict objectForKey:[inputString lowercaseString]];
 	if (result != nil) return [result intValue];
 	return UITitaniumNativeItemNone;
 }
 
-@interface NativePickerColumn : NSObject
+@interface PickerColumnWrapper : NSObject
 {
 	CGFloat	width;
 	CGFloat	rowHeight;
-	NSArray * data;
+	NSMutableArray * data;
 }
 
+@property(nonatomic,readwrite,assign)	CGFloat	width;
+@property(nonatomic,readwrite,assign)	CGFloat	rowHeight;
+@property(nonatomic,readwrite,retain)	NSMutableArray * data;
 
 @end
 
-@implementation NativePickerColumn
+@implementation PickerColumnWrapper
+@synthesize width,rowHeight,data;
 
+- (void) readState: (NSDictionary *) inputState relativeToUrl: (NSURL *) baseUrl;
+{
+	SEL floatVal=@selector(floatValue);
+	id widthObject = [inputState objectForKey:@"width"];
+	if([widthObject respondsToSelector:floatVal])width=[widthObject floatValue];
+	
+	id heightObject = [inputState objectForKey:@"height"];
+	if([heightObject respondsToSelector:floatVal])rowHeight=[heightObject floatValue];
+	if(rowHeight < 1.0)rowHeight=40;
+	
+	NSArray * dataObject = [inputState objectForKey:@"data"];
+	if ([dataObject isKindOfClass:[NSArray class]]){
+		if(data==nil){
+			data = [[NSMutableArray alloc] initWithCapacity:[dataObject count]];
+		} else {
+			[data removeAllObjects];
+		}
+		Class dictClass = [NSDictionary class];
+		
+		for(NSDictionary * thisCellObject in dataObject){
+			if(![thisCellObject isKindOfClass:dictClass])continue;
+			TitaniumCellWrapper * thisCell = [[TitaniumCellWrapper alloc] init];
+			[thisCell useProperties:thisCellObject withUrl:baseUrl];
+			[data addObject:thisCell];
+		}
+	}
+}
 
 @end
 
@@ -276,6 +309,51 @@ needsRefreshing = YES;	\
 	GRAB_IF_SELECTOR(@"mode",intValue,datePickerMode);
 	GRAB_IF_SELECTOR(@"minuteInterval",intValue,minuteInterval);
 
+	GRAB_IF_SELECTOR(@"selectionIndicator",boolValue,showSelectionIndicator);
+	
+	id dataObject = [newDict objectForKey:@"data"];
+	if ([dataObject isKindOfClass:[NSArray class]]){
+		if(pickerColumnsArray == nil){
+			pickerColumnsArray = [[NSMutableArray alloc] initWithCapacity:[dataObject count]];
+		} else {
+			[pickerColumnsArray removeAllObjects];
+		}
+		Class dictClass = [NSDictionary class];
+		TitaniumHost * theHost = [TitaniumHost sharedHost];
+		[baseURL release];
+		baseURL = [[(TitaniumWebViewController *)[theHost currentTitaniumContentViewController] currentContentURL] retain];
+		
+		int missingWidthColumns = 0;
+		float remainingSpace = 290.0;
+		
+		for(NSDictionary * thisColumnObject in dataObject){
+			if(![thisColumnObject isKindOfClass:dictClass])continue;
+			PickerColumnWrapper * thisColumn = [[PickerColumnWrapper alloc] init];
+			[thisColumn readState:thisColumnObject relativeToUrl:baseURL];
+			float thisColumnWidth = [thisColumn width];
+			if(thisColumnWidth<1.0){
+				missingWidthColumns++;
+			} else {
+				remainingSpace -= thisColumnWidth;
+			}
+			[pickerColumnsArray addObject:thisColumn];
+		}
+		if(missingWidthColumns > 0){
+			remainingSpace = remainingSpace/missingWidthColumns;
+			for(PickerColumnWrapper * thisColumn in pickerColumnsArray){
+				if([thisColumn width]>=1.0)continue;
+				[thisColumn setWidth:remainingSpace];
+				missingWidthColumns--;
+				if(missingWidthColumns < 1)break;
+			}
+		}
+		needsRefreshing = YES;
+	}
+
+
+//	NSArray * selections = [
+
+//	if([nativeView isKindOfClass:[UIPickerView class]])[(UIPickerView *)nativeView reloadAllComponents];
 	
 	if(UpdateFontDescriptionFromDict(newDict, &fontDesc)){
 		needsRefreshing = YES;
@@ -324,292 +402,281 @@ needsRefreshing = YES;	\
 	} else if (viewFrame.size.height < 2) viewFrame.size.height = 20;
 	if (viewFrame.size.width < 2) viewFrame.size.width = 30;
 	
-	if (templateValue == UITitaniumNativeItemSpinner){
-		UIActivityIndicatorViewStyle spinnerStyle;
-		switch (buttonStyle) {
-			case UITitaniumNativeStyleBig:
-				spinnerStyle = UIActivityIndicatorViewStyleWhiteLarge;
-				break;
-			case UITitaniumNativeStyleDark:
-				spinnerStyle = UIActivityIndicatorViewStyleGray;
-				break;
-			default:
-				spinnerStyle = UIActivityIndicatorViewStyleWhite;
-				break;
-		}
-		if ([nativeView isKindOfClass:[UIActivityIndicatorView class]]){
-			resultView = [nativeView retain];
-			[(UIActivityIndicatorView *)resultView setActivityIndicatorViewStyle:spinnerStyle];
-		} else {
-			resultView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:spinnerStyle];
-			[(UIActivityIndicatorView *)resultView startAnimating];
-		}
-		if(messageString != nil){
-			CGRect newResultFrame = [resultView frame];
-			viewFrame.size.height = newResultFrame.size.height;
-			newResultFrame.origin = CGPointZero;
-			[resultView setFrame:newResultFrame];
-			newResultFrame.origin.x = newResultFrame.size.width + 5;
-			newResultFrame.size.width = viewFrame.size.width - newResultFrame.origin.x;
-			[self setLabelViewFrame:newResultFrame background:elementBorderColor];
-			[labelView setTextAlignment:UITextAlignmentLeft];
-			customPlacement = YES;
-		} else {
-			viewFrame.size = [resultView frame].size;
-		}
-		[resultView setBackgroundColor:elementBorderColor];
-		
-	} else if (templateValue == UITitaniumNativeItemSlider){
-		CGRect sliderFrame;
-		sliderFrame.origin = CGPointZero; sliderFrame.size=viewFrame.size;
-		if ([nativeView isKindOfClass:[UISlider class]]){
-			resultView = [nativeView retain];
-		} else {
-			resultView = [[UISlider alloc] initWithFrame:sliderFrame];
-			[(UISlider *)resultView addTarget:self action:@selector(onValueChange:) forControlEvents:UIControlEventValueChanged];
-		}
-		[(UISlider *)resultView setMinimumValue:minValue];
-		[(UISlider *)resultView setMaximumValue:maxValue];
-		[(UISlider *)resultView setValue:floatValue];
-		[resultView setBackgroundColor:elementBorderColor];
-		viewFrame.size.height = [resultView frame].size.height;
-		
-	} else if (templateValue == UITitaniumNativeItemSwitch){
-		if ([nativeView isKindOfClass:[UISwitch class]]){
-			resultView = [nativeView retain];
-		} else {
-			resultView = [[UISwitch alloc] initWithFrame:CGRectZero];
-			[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
-		}
-		[(UISwitch *)resultView setOn:(floatValue > ((minValue + maxValue)/2))];
-		[resultView setBackgroundColor:elementBorderColor];
-		viewFrame.size = [resultView frame].size;
-		
-	} else if ((templateValue == UITitaniumNativeItemTextField) || (templateValue == UITitaniumNativeItemTextView)){
-		if (viewFrame.size.height < 20) viewFrame.size.height = 20;
-		
-		if (templateValue == UITitaniumNativeItemTextField){
-			if ([nativeView isKindOfClass:[UITextField class]]){
+	switch (templateValue) {
+		case UITitaniumNativeItemSpinner:{
+			UIActivityIndicatorViewStyle spinnerStyle;
+			switch (buttonStyle) {
+				case UITitaniumNativeStyleBig:
+					spinnerStyle = UIActivityIndicatorViewStyleWhiteLarge;
+					break;
+				case UITitaniumNativeStyleDark:
+					spinnerStyle = UIActivityIndicatorViewStyleGray;
+					break;
+				default:
+					spinnerStyle = UIActivityIndicatorViewStyleWhite;
+					break;
+			}
+			if ([nativeView isKindOfClass:[UIActivityIndicatorView class]]){
+				resultView = [nativeView retain];
+				[(UIActivityIndicatorView *)resultView setActivityIndicatorViewStyle:spinnerStyle];
+			} else {
+				resultView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:spinnerStyle];
+				[(UIActivityIndicatorView *)resultView startAnimating];
+			}
+			if(messageString != nil){
+				CGRect newResultFrame = [resultView frame];
+				viewFrame.size.height = newResultFrame.size.height;
+				newResultFrame.origin = CGPointZero;
+				[resultView setFrame:newResultFrame];
+				newResultFrame.origin.x = newResultFrame.size.width + 5;
+				newResultFrame.size.width = viewFrame.size.width - newResultFrame.origin.x;
+				[self setLabelViewFrame:newResultFrame background:elementBorderColor];
+				[labelView setTextAlignment:UITextAlignmentLeft];
+				customPlacement = YES;
+			} else {
+				viewFrame.size = [resultView frame].size;
+			}
+			[resultView setBackgroundColor:elementBorderColor];			
+		}break;
+
+		case UITitaniumNativeItemSlider:{
+			CGRect sliderFrame;
+			sliderFrame.origin = CGPointZero; sliderFrame.size=viewFrame.size;
+			if ([nativeView isKindOfClass:[UISlider class]]){
 				resultView = [nativeView retain];
 			} else {
-				resultView = [[UITextField alloc] initWithFrame:viewFrame];
-				[(UITextField *)resultView setDelegate:self];
+				resultView = [[UISlider alloc] initWithFrame:sliderFrame];
+				[(UISlider *)resultView addTarget:self action:@selector(onValueChange:) forControlEvents:UIControlEventValueChanged];
 			}
-			[(UITextField *)resultView setPlaceholder:placeholderText];
-			[(UITextField *)resultView setBorderStyle:borderStyle];
-			[(UITextField *)resultView setClearsOnBeginEditing:clearsOnBeginEditing];
-			[(UITextField *)resultView setClearButtonMode:clearButtonMode];
-			[(UITextField *)resultView setLeftViewMode:leftViewMode];
-			[(UITextField *)resultView setLeftView:[leftViewProxy nativeView]];
-			[(UITextField *)resultView setRightViewMode:rightViewMode];
-			[(UITextField *)resultView setRightView:[rightViewProxy nativeView]];
-			[(UITextField *)resultView setSecureTextEntry:passwordMask];
-			
-			TitaniumHost * theHost = [TitaniumHost sharedHost];
-			UIImage * bgImage = [theHost stretchableImageForResource:backgroundImagePath];
-			[(UITextField *)resultView setBackground:bgImage];
-			
-			if(bgImage != nil){
-				UIImage * bgDisImage = [theHost stretchableImageForResource:backgroundDisabledImagePath];
-				[(UITextField *)resultView setDisabledBackground:bgDisImage];
-			} else if (borderStyle == UITextBorderStyleRoundedRect){
-				[resultView setBackgroundColor:elementBorderColor];
+			[(UISlider *)resultView setMinimumValue:minValue];
+			[(UISlider *)resultView setMaximumValue:maxValue];
+			[(UISlider *)resultView setValue:floatValue];
+			[resultView setBackgroundColor:elementBorderColor];
+			viewFrame.size.height = [resultView frame].size.height;			
+		}break;
+		
+		case UITitaniumNativeItemSwitch:{
+			if ([nativeView isKindOfClass:[UISwitch class]]){
+				resultView = [nativeView retain];
 			} else {
+				resultView = [[UISwitch alloc] initWithFrame:CGRectZero];
+				[(UISwitch *)resultView addTarget:self action:@selector(onSwitchChange:) forControlEvents:UIControlEventValueChanged];
+			}
+			[(UISwitch *)resultView setOn:(floatValue > ((minValue + maxValue)/2))];
+			[resultView setBackgroundColor:elementBorderColor];
+			viewFrame.size = [resultView frame].size;			
+		}break;
+
+		case UITitaniumNativeItemTextField:	case UITitaniumNativeItemTextView:{
+			if (viewFrame.size.height < 20) viewFrame.size.height = 20;
+			
+			if (templateValue == UITitaniumNativeItemTextField){
+				if ([nativeView isKindOfClass:[UITextField class]]){
+					resultView = [nativeView retain];
+				} else {
+					resultView = [[UITextField alloc] initWithFrame:viewFrame];
+					[(UITextField *)resultView setDelegate:self];
+				}
+				[(UITextField *)resultView setPlaceholder:placeholderText];
+				[(UITextField *)resultView setBorderStyle:borderStyle];
+				[(UITextField *)resultView setClearsOnBeginEditing:clearsOnBeginEditing];
+				[(UITextField *)resultView setClearButtonMode:clearButtonMode];
+				[(UITextField *)resultView setLeftViewMode:leftViewMode];
+				[(UITextField *)resultView setLeftView:[leftViewProxy nativeView]];
+				[(UITextField *)resultView setRightViewMode:rightViewMode];
+				[(UITextField *)resultView setRightView:[rightViewProxy nativeView]];
+				[(UITextField *)resultView setSecureTextEntry:passwordMask];
+				
+				TitaniumHost * theHost = [TitaniumHost sharedHost];
+				UIImage * bgImage = [theHost stretchableImageForResource:backgroundImagePath];
+				[(UITextField *)resultView setBackground:bgImage];
+				
+				if(bgImage != nil){
+					UIImage * bgDisImage = [theHost stretchableImageForResource:backgroundDisabledImagePath];
+					[(UITextField *)resultView setDisabledBackground:bgDisImage];
+				} else if (borderStyle == UITextBorderStyleRoundedRect){
+					[resultView setBackgroundColor:elementBorderColor];
+				} else {
+					[resultView setBackgroundColor:elementBackgroundColor];
+				}
+				
+			} else {
+				if ([nativeView isKindOfClass:[UITextView class]]){
+					resultView = [nativeView retain];
+				} else {
+					resultView = [[UITextView alloc] initWithFrame:viewFrame];
+					[(UITextView *)resultView setDelegate:self];
+				}
 				[resultView setBackgroundColor:elementBackgroundColor];
 			}
+			if (elementColor != nil) [(UITextField *)resultView setTextColor:elementColor];
+			[(UITextField *)resultView setText:stringValue];
+			[(UITextField *)resultView setFont:FontFromDescription(&fontDesc)];
+			[(UITextField *)resultView setAutocorrectionType:autocorrectionType];
+			[(UITextField *)resultView setAutocapitalizationType:autocapitalizationType];
+			[(UITextField *)resultView setTextAlignment:textAlignment];
+			[(UITextField *)resultView setKeyboardType:keyboardType];
+			[(UITextField *)resultView setReturnKeyType:returnKeyType];
+			[(UITextField *)resultView setEnablesReturnKeyAutomatically:enablesReturnKeyAutomatically];			
+		}break;
+
+		case UITitaniumNativeItemMultiButton:	case UITitaniumNativeItemSegmented:{
+			int imageCount = [segmentImageArray count]; int titleCount = [segmentLabelArray count];
+			int segmentCount = MAX(imageCount,titleCount);
 			
-		} else {
-			if ([nativeView isKindOfClass:[UITextView class]]){
+			TitaniumHost * theHost = [TitaniumHost sharedHost];
+			NSMutableArray * thingArray = [[NSMutableArray alloc] initWithCapacity:segmentCount];
+			for(int segmentIndex=0; segmentIndex < segmentCount; segmentIndex ++){
+				UIImage * thisImage;
+				if(segmentIndex < imageCount){
+					thisImage = [theHost imageForResource:[segmentImageArray objectAtIndex:segmentIndex]];
+				} else {
+					thisImage = nil;
+				}
+				
+				NSString * thisTitle;
+				if(segmentIndex < titleCount){
+					thisTitle = [segmentLabelArray objectAtIndex:segmentIndex];
+				} else {
+					thisTitle = nil;
+				}
+				
+				if(thisImage != nil){
+					[thingArray addObject:thisImage];
+				} else if ([thisTitle isKindOfClass:[NSString class]]){
+					[thingArray addObject:thisTitle];
+				} else {
+					[thingArray addObject:@""];
+				}
+			}
+			
+			resultView = [[UISegmentedControl alloc] initWithItems:thingArray];
+			[thingArray release];
+			
+			[(UISegmentedControl *)resultView addTarget:self action:@selector(onSegmentChange:) forControlEvents:UIControlEventValueChanged];
+			if(templateValue==UITitaniumNativeItemMultiButton){
+				[(UISegmentedControl *)resultView setMomentary:YES];
+			} else {
+				[(UISegmentedControl *)resultView setMomentary:NO];
+				[(UISegmentedControl *)resultView setSelectedSegmentIndex:segmentSelectedIndex];
+			}
+			if (placedInBar || (buttonStyle == UITitaniumNativeStyleBar)){
+				[(UISegmentedControl *)resultView setSegmentedControlStyle:UISegmentedControlStyleBar];
+			} else {
+				[(UISegmentedControl *)resultView setSegmentedControlStyle:((buttonStyle==UIBarButtonItemStyleBordered)?UISegmentedControlStyleBar:UISegmentedControlStylePlain)];
+			}
+			
+			if (elementBackgroundColor != nil) [(UISegmentedControl *)resultView setTintColor:elementBackgroundColor];
+			
+			CGRect oldFrame = [resultView frame];
+			if (viewFrame.size.height < 15) viewFrame.size.height = oldFrame.size.height;
+			if (viewFrame.size.width < oldFrame.size.width) viewFrame.size.width = oldFrame.size.width;
+			if(elementBorderColor != nil)[resultView setBackgroundColor:elementBorderColor];
+		}break;
+		
+		case UITitaniumNativeItemInfoLight:	case UITitaniumNativeItemInfoDark:{
+			UIButtonType resultType = (templateValue == UITitaniumNativeItemInfoLight)?UIButtonTypeInfoLight:UIButtonTypeInfoDark;
+			
+			if([nativeView isKindOfClass:[UIButton class]] && ([(UIButton *)nativeView buttonType]==resultType)){
 				resultView = [nativeView retain];
 			} else {
-				resultView = [[UITextView alloc] initWithFrame:viewFrame];
-				[(UITextView *)resultView setDelegate:self];
+				resultView = [[UIButton buttonWithType:resultType] retain];
+				[(UIButton *)resultView addTarget:self action:@selector(onClick:) forControlEvents:UIControlEventTouchUpInside];
 			}
-			[resultView setBackgroundColor:elementBackgroundColor];
-		}
-		if (elementColor != nil) [(UITextField *)resultView setTextColor:elementColor];
-		[(UITextField *)resultView setText:stringValue];
-		[(UITextField *)resultView setFont:FontFromDescription(&fontDesc)];
-		[(UITextField *)resultView setAutocorrectionType:autocorrectionType];
-		[(UITextField *)resultView setAutocapitalizationType:autocapitalizationType];
-		[(UITextField *)resultView setTextAlignment:textAlignment];
-		[(UITextField *)resultView setKeyboardType:keyboardType];
-		[(UITextField *)resultView setReturnKeyType:returnKeyType];
-		[(UITextField *)resultView setEnablesReturnKeyAutomatically:enablesReturnKeyAutomatically];
+			
+			[resultView setBackgroundColor:elementBorderColor];
+			
+		}break;
 		
-		
-	} else if ((templateValue == UITitaniumNativeItemMultiButton) || (templateValue == UITitaniumNativeItemSegmented)){
-		int imageCount = [segmentImageArray count];
-		int titleCount = [segmentLabelArray count];
-		int segmentCount = MAX(imageCount,titleCount);
-		
-		TitaniumHost * theHost = [TitaniumHost sharedHost];
-		NSMutableArray * thingArray = [[NSMutableArray alloc] initWithCapacity:segmentCount];
-		for(int segmentIndex=0; segmentIndex < segmentCount; segmentIndex ++){
-			UIImage * thisImage;
-			if(segmentIndex < imageCount){
-				thisImage = [theHost imageForResource:[segmentImageArray objectAtIndex:segmentIndex]];
+		case UITitaniumNativeItemDatePicker:{
+			if ([nativeView isKindOfClass:[UIDatePicker class]]){
+				resultView = [nativeView retain];
 			} else {
-				thisImage = nil;
+				resultView = [[UIDatePicker alloc] initWithFrame:CGRectZero];
+				[(UIDatePicker *)resultView addTarget:self action:@selector(dateChanged:) forControlEvents:UIControlEventValueChanged];
 			}
+			if(datePickerMode != [(UIDatePicker *) resultView datePickerMode])[(UIDatePicker *)resultView setDatePickerMode:datePickerMode];
 			
-			NSString * thisTitle;
-			if(segmentIndex < titleCount){
-				thisTitle = [segmentLabelArray objectAtIndex:segmentIndex];
+			NSDate * oldMinDate = [(UIDatePicker *) resultView minimumDate];
+			if((minDate != oldMinDate) && ![minDate isEqualToDate:oldMinDate])[(UIDatePicker *)resultView setMinimumDate:minDate];
+			
+			NSDate * oldMaxDate = [(UIDatePicker *) resultView maximumDate];
+			if((maxDate != oldMaxDate) && ![maxDate isEqualToDate:oldMaxDate])[(UIDatePicker *)resultView setMaximumDate:maxDate];
+			
+			if(floatValue != [(UIDatePicker *) resultView countDownDuration])[(UIDatePicker *)resultView setCountDownDuration:floatValue];
+			if(minuteInterval != [(UIDatePicker *) resultView minuteInterval])[(UIDatePicker *)resultView setMinuteInterval:minuteInterval];
+			
+			NSDate * oldValue = [(UIDatePicker *) resultView date];
+			if((dateValue!=nil) && ![dateValue isEqualToDate:oldValue])[(UIDatePicker *)resultView setDate:dateValue animated:animated];
+			
+			viewFrame.size = [resultView frame].size;
+		}break;
+		
+		case UITitaniumNativeItemPicker:{
+			if ([nativeView isKindOfClass:[UIPickerView class]]){
+				resultView = [nativeView retain];
+				[(UIPickerView *)resultView reloadAllComponents];
 			} else {
-				thisTitle = nil;
+				resultView = [[UIPickerView alloc] initWithFrame:CGRectZero];
+				[(UIPickerView *)resultView setDelegate:self];
+				[(UIPickerView *)resultView setDataSource:self];
 			}
+			viewFrame.size = [resultView frame].size;
 			
-			if(thisImage != nil){
-				[thingArray addObject:thisImage];
-				//				[(UISegmentedControl *)resultView insertSegmentWithImage:thisImage atIndex:segmentIndex animated:NO];
-			} else if ([thisTitle isKindOfClass:[NSString class]]){
-				[thingArray addObject:thisTitle];
-				//				[(UISegmentedControl *)resultView insertSegmentWithTitle:thisTitle atIndex:segmentIndex animated:NO];
+			[(UIPickerView *)resultView setShowsSelectionIndicator:showSelectionIndicator];
+			int thisColumnIndex = 0;
+			for(id pickerColumn in pickerColumnsArray){
+				int neededSelection = 0; //TODO: Getting the column picker value.
+				int currentSelection = [(UIPickerView *)resultView selectedRowInComponent:thisColumnIndex];
+				if(neededSelection != currentSelection)[(UIPickerView *)resultView selectRow:neededSelection inComponent:thisColumnIndex animated:animated];
+
+				thisColumnIndex ++;
+			}			
+		}break;
+
+		case UITitaniumNativeItemProgressBar:{
+			UIProgressViewStyle progressStyle;
+			if(placedInBar){
+				progressStyle = (buttonStyle != UIBarButtonItemStylePlain)?UIProgressViewStyleBar:UIProgressViewStyleDefault;
+			}else{
+				progressStyle = (buttonStyle == UITitaniumNativeStyleBar)?UIProgressViewStyleBar:UIProgressViewStyleDefault;			
+			}
+			if([nativeView isKindOfClass:[UIProgressView class]]){
+				resultView = [nativeView retain];
+				[(UIProgressView *)resultView setProgressViewStyle:progressStyle];
 			} else {
-				[thingArray addObject:@""];
-				//				[(UISegmentedControl *)resultView insertSegmentWithTitle:@"" atIndex:segmentIndex animated:NO];
+				resultView = [[UIProgressView alloc] initWithProgressViewStyle:progressStyle];
 			}
-		}
-		
-		resultView = [[UISegmentedControl alloc] initWithItems:thingArray];
-		[thingArray release];
-		
-		[(UISegmentedControl *)resultView addTarget:self action:@selector(onSegmentChange:) forControlEvents:UIControlEventValueChanged];
-		//		if ([nativeView isKindOfClass:[UISegmentedControl class]]){
-		//			resultView = [nativeView retain];
-		//			[(UISegmentedControl *)resultView removeAllSegments];
-		//		} else {
-		//			resultView = [[UISegmentedControl alloc] initWithFrame:viewFrame];
-		//			[(UISegmentedControl *)resultView addTarget:self action:@selector(onSegmentChange:) forControlEvents:UIControlEventValueChanged];
-		//		}
-		if(templateValue==UITitaniumNativeItemMultiButton){
-			[(UISegmentedControl *)resultView setMomentary:YES];
-		} else {
-			[(UISegmentedControl *)resultView setMomentary:NO];
-			[(UISegmentedControl *)resultView setSelectedSegmentIndex:segmentSelectedIndex];
-		}
-		if (placedInBar || (buttonStyle == UITitaniumNativeStyleBar)){
-			[(UISegmentedControl *)resultView setSegmentedControlStyle:UISegmentedControlStyleBar];
-		} else {
-			[(UISegmentedControl *)resultView setSegmentedControlStyle:((buttonStyle==UIBarButtonItemStyleBordered)?UISegmentedControlStyleBar:UISegmentedControlStylePlain)];
-		}
-		
-		if (elementBackgroundColor != nil) [(UISegmentedControl *)resultView setTintColor:elementBackgroundColor];
-		
-		CGRect oldFrame = [resultView frame];
-		if (viewFrame.size.height < 15) viewFrame.size.height = oldFrame.size.height;
-		if (viewFrame.size.width < oldFrame.size.width) viewFrame.size.width = oldFrame.size.width;
-		if(elementBorderColor != nil)[resultView setBackgroundColor:elementBorderColor];
-		
-	} else if ((templateValue == UITitaniumNativeItemInfoLight) || (templateValue == UITitaniumNativeItemInfoDark)){
-		UIButtonType resultType = (templateValue == UITitaniumNativeItemInfoLight)?UIButtonTypeInfoLight:UIButtonTypeInfoDark;
-		
-		if([nativeView isKindOfClass:[UIButton class]] && ([(UIButton *)nativeView buttonType]==resultType)){
-			resultView = [nativeView retain];
-		} else {
-			resultView = [[UIButton buttonWithType:resultType] retain];
-			[(UIButton *)resultView addTarget:self action:@selector(onClick:) forControlEvents:UIControlEventTouchUpInside];
-		}
-		
-		[resultView setBackgroundColor:elementBorderColor];
-		
-	} else if (templateValue == UITitaniumNativeItemDatePicker){
-		if ([nativeView isKindOfClass:[UIDatePicker class]]){
-			resultView = [nativeView retain];
-		} else {
-			resultView = [[UIDatePicker alloc] initWithFrame:CGRectZero];
-			[(UIDatePicker *)resultView addTarget:self action:@selector(dateChanged:) forControlEvents:UIControlEventValueChanged];
-		}
-		if(datePickerMode != [(UIDatePicker *) resultView datePickerMode])[(UIDatePicker *)resultView setDatePickerMode:datePickerMode];
-		
-		NSDate * oldMinDate = [(UIDatePicker *) resultView minimumDate];
-		if((minDate != oldMinDate) && ![minDate isEqualToDate:oldMinDate]){
-			NSLog(@"Min: Replacing %@ %@ with %@ %@",
-				  [oldMinDate class],oldMinDate,
-				  [minDate class],minDate);
-			[(UIDatePicker *)resultView setMinimumDate:minDate];
-			NSLog(@"Min: Replaced %@ %@ with %@ %@",
-				  [oldMinDate class],oldMinDate,
-				  [minDate class],minDate);
-		}
-
-		NSDate * oldMaxDate = [(UIDatePicker *) resultView maximumDate];
-		if((maxDate != oldMaxDate) && ![maxDate isEqualToDate:oldMaxDate]){
-			NSLog(@"Max: Replacing %@ %@ with %@ %@",
-				  [oldMaxDate class],oldMaxDate,
-				  [maxDate class],maxDate);
-			[(UIDatePicker *)resultView setMaximumDate:maxDate];
-			NSLog(@"Max: Replaced %@ %@ with %@ %@",
-				  [oldMaxDate class],oldMaxDate,
-				  [maxDate class],maxDate);			
-		}
-
-		if(floatValue != [(UIDatePicker *) resultView countDownDuration])[(UIDatePicker *)resultView setCountDownDuration:floatValue];
-		if(minuteInterval != [(UIDatePicker *) resultView minuteInterval])[(UIDatePicker *)resultView setMinuteInterval:minuteInterval];
-
-		NSDate * oldValue = [(UIDatePicker *) resultView date];
-		if((dateValue!=nil) && ![dateValue isEqualToDate:oldValue]){
-			NSLog(@"Replacing %@ %@ with %@ %@ (animated? %d)",
-				  [oldValue class],oldValue,
-				  [dateValue class],dateValue,animated);
-			[(UIDatePicker *)resultView setDate:dateValue animated:animated];			
-			NSLog(@"Replaced %@ %@ with %@ %@ (animated? %d)",
-				  [[(UIDatePicker	*)resultView date] class],[(UIDatePicker *)resultView date],
-				  [dateValue class],dateValue,animated);
-		}
-		
-		viewFrame.size = [resultView frame].size;
-	} else if (templateValue == UITitaniumNativeItemPicker){
-		if ([nativeView isKindOfClass:[UIPickerView class]]){
-			resultView = [nativeView retain];
-		} else {
-			resultView = [[UIPickerView alloc] initWithFrame:CGRectZero];
-			[(UIPickerView *)resultView setDelegate:self];
-			[(UIPickerView *)resultView setDataSource:self];
-		}
-		viewFrame.size = [resultView frame].size;
-
-	} else if (templateValue == UITitaniumNativeItemProgressBar) {
-		UIProgressViewStyle progressStyle;
-		if(placedInBar){
-			progressStyle = (buttonStyle != UIBarButtonItemStylePlain)?UIProgressViewStyleBar:UIProgressViewStyleDefault;
-		}else{
-			progressStyle = (buttonStyle == UITitaniumNativeStyleBar)?UIProgressViewStyleBar:UIProgressViewStyleDefault;			
-		}
-		if([nativeView isKindOfClass:[UIProgressView class]]){
-			resultView = [nativeView retain];
-			[(UIProgressView *)resultView setProgressViewStyle:progressStyle];
-		} else {
-			resultView = [[UIProgressView alloc] initWithProgressViewStyle:progressStyle];
-		}
-		[(UIProgressView *)resultView setProgress:(floatValue - minValue)/(maxValue - minValue)];
-		
-		if(messageString != nil){
-			CGRect newResultFrame = [resultView frame];
+			[(UIProgressView *)resultView setProgress:(floatValue - minValue)/(maxValue - minValue)];
 			
-			newResultFrame.size.width = viewFrame.size.width;
-			newResultFrame.origin.x = 0;
-			newResultFrame.origin.y = viewFrame.size.height - newResultFrame.size.height;
-			
-			[resultView setFrame:newResultFrame];
-			
-			newResultFrame.size.height = newResultFrame.origin.y-2;
-			newResultFrame.origin.y = 0;
-			[self setLabelViewFrame:newResultFrame background:elementBorderColor];
-			[labelView setTextAlignment:UITextAlignmentCenter];
-			customPlacement = YES;
-		} else {
-			CGRect resultFrame;
-			resultFrame.origin = CGPointZero;
-			resultFrame.size.width = viewFrame.size.width;
-			resultFrame.size.height = [resultView frame].size.height;
-			[resultView setFrame:resultFrame];
-			viewFrame.size.height = resultFrame.size.height;
-		}
+			if(messageString != nil){
+				CGRect newResultFrame = [resultView frame];
+				
+				newResultFrame.size.width = viewFrame.size.width;
+				newResultFrame.origin.x = 0;
+				newResultFrame.origin.y = viewFrame.size.height - newResultFrame.size.height;
+				
+				[resultView setFrame:newResultFrame];
+				
+				newResultFrame.size.height = newResultFrame.origin.y-2;
+				newResultFrame.origin.y = 0;
+				[self setLabelViewFrame:newResultFrame background:elementBorderColor];
+				[labelView setTextAlignment:UITextAlignmentCenter];
+				customPlacement = YES;
+			} else {
+				CGRect resultFrame;
+				resultFrame.origin = CGPointZero;
+				resultFrame.size.width = viewFrame.size.width;
+				resultFrame.size.height = [resultView frame].size.height;
+				[resultView setFrame:resultFrame];
+				viewFrame.size.height = resultFrame.size.height;
+			}
+		}break;
+
+		default:
+			break;
 	}
-	
-	
+
 	if (resultView == nil) {
 		TitaniumHost * theHost = [TitaniumHost sharedHost];
 		UIImage * bgImage = [theHost stretchableImageForResource:backgroundImagePath];
@@ -817,27 +884,86 @@ needsRefreshing = YES;	\
 #pragma mark Picker data source callbacks
 - (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView;
 {
-	return 0;
+	return [pickerColumnsArray count];
 }
 
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component;
 {
-	return 0;
+	PickerColumnWrapper * ourColumn = [pickerColumnsArray objectAtIndex:component];
+	return [[ourColumn data] count];
 }
 
 - (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component;
 {
-	return 0;
+	PickerColumnWrapper * ourColumn = [pickerColumnsArray objectAtIndex:component];
+	return [ourColumn width];
 }
 
 - (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component;
 {
-	return 0;
+	PickerColumnWrapper * ourColumn = [pickerColumnsArray objectAtIndex:component];
+	return [ourColumn rowHeight];
 }
 
 - (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view;
 {
-	return nil;
+	PickerColumnWrapper * ourColumn = [pickerColumnsArray objectAtIndex:component];
+	TitaniumCellWrapper * ourRow = [[ourColumn data] objectAtIndex:row];
+	CGRect ourFrame = CGRectMake(0, 0, [ourColumn width],[ourColumn rowHeight]);
+
+	NSString * html = [ourRow html];
+	
+	if([html isKindOfClass:[NSString class]] && ([html length]>0)){
+		if([view isKindOfClass:[UIWebView class]]){
+			[(UIWebView *)view stopLoading];
+			[view setFrame:ourFrame];
+		}else{
+			view = [[[UIWebView alloc] initWithFrame:ourFrame] autorelease];
+			[(UIWebView *)view setDelegate:self];
+			[view setBackgroundColor:[UIColor clearColor]];
+			[view setOpaque:NO];
+		}
+		[view setAlpha:0.0];
+		[(UIWebView *)view loadHTMLString:html baseURL:baseURL];
+		return view;
+	}
+	
+	if([view isKindOfClass:[PickerImageTextCell class]]){
+		[view setFrame:ourFrame];
+	} else {
+		view = [[[PickerImageTextCell alloc] initWithFrame:ourFrame] autorelease];
+	}
+	NSString * thisTitle = [ourRow title];
+	if([thisTitle length] > 0){
+		UILabel * ourLabel = [(PickerImageTextCell *)view textLabel];
+		[ourLabel setText:thisTitle];
+		[ourLabel setFont:[ourRow font]];
+	} else {
+		[(PickerImageTextCell *)view setTextLabel:nil];
+	}
+	
+	UIImage * thisImage = [ourRow image];
+	if(thisImage != nil){
+		UIImageView * ourImageView = [(PickerImageTextCell *)view imageView];
+		[ourImageView setImage:thisImage];
+		CGRect imageFrame;
+		imageFrame.size=[thisImage size];
+		imageFrame.origin=CGPointZero;
+		[ourImageView setFrame:imageFrame];
+	} else {
+		[(PickerImageTextCell *)view setImageView:nil];
+	}
+	
+	NSLog(@"Returning ImageText");
+	return view;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView;
+{
+	[UIView beginAnimations:@"webView" context:nil];
+	[UIView setAnimationDuration:0.1];
+	[webView setAlpha:1.0];
+	[UIView commitAnimations];
 }
 
 #pragma mark Events sent to Javascript

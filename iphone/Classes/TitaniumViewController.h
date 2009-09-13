@@ -34,22 +34,28 @@ typedef enum {
 
 @class NativeControlProxy;
 @class TitaniumContentViewController;
-@interface TitaniumViewController : UIViewController<UIWebViewDelegate> {
+@interface TitaniumViewController : UIViewController<UIWebViewDelegate,UIScrollViewDelegate> {
 
 //Commont to all viewControllers:
 	NSString * primaryToken;
 	NSString * nameString;
 	IBOutlet UIImageView * backgroundView;
 	IBOutlet UIView * contentView;
+
+	
 	IBOutlet UIToolbar * toolBar;
 //	NSMutableSet * nativeElementsSet;
 
 	NSLock	* contentViewLock;
 	NSMutableArray * contentViewControllers;
+
+	UIScrollView * pagedView;
+	UIPageControl * pageControl;
+	NSMutableArray * pagedViewControllers;	//Should be a subset of contentViewControllers
+
 	int selectedContentIndex;
 	TitaniumContentViewController * focusedContentController;
 
-//	NSMutableArray * pagedViewControllers;
 	
 
 //For the modal progress view

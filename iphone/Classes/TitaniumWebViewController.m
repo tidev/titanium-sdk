@@ -346,6 +346,7 @@ TitaniumWebViewController * mostRecentController = nil;
 {
 	CLOCKSTAMP("Finished load request for %@",self);
 	[UIView beginAnimations:@"webView" context:nil];
+	[UIView setAnimationDuration:0.1];
 	[self updateLayout:NO];
 	
 	NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
@@ -393,6 +394,9 @@ TitaniumWebViewController * mostRecentController = nil;
 	
 	NSString * docHeightString = [webView stringByEvaluatingJavaScriptFromString:@"document.height"];
 	CGFloat docHeight = [docHeightString floatValue];
+	if(docHeight < 1.0){
+		docHeight = [[webView stringByEvaluatingJavaScriptFromString:@"window.outerHeight"] floatValue];
+	}
 
 	for(NativeControlProxy * thisProxy in nativeOnscreenProxies){
 		[thisProxy refreshPositionWithWebView:webView animated:animated];

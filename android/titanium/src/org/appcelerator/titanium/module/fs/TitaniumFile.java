@@ -7,10 +7,17 @@
 
 package org.appcelerator.titanium.module.fs;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
@@ -23,11 +30,12 @@ public class TitaniumFile extends TitaniumBaseFile
 	private final File file;
 	private final String path;
 
-	public TitaniumFile(File file, String path)
+	public TitaniumFile(File file, String path, boolean stream)
 	{
 		super(TitaniumBaseFile.TYPE_FILE);
 		this.file = file;
 		this.path = path;
+		this.stream = stream;
 	}
 	@Override
 	public boolean isFile()
@@ -57,65 +65,6 @@ public class TitaniumFile extends TitaniumBaseFile
 	public boolean isWriteable()
 	{
 		return file.canWrite();
-	}
-
-	@Override
-	public void write(String data, boolean append) throws IOException
-	{
-		if (DBG) {
-			Log.d(LCAT,"write called for file = " + file);
-		}
-		if (!file.exists())
-		{
-			file.createNewFile();
-		}
-		FileOutputStream out = null;
-		try
-		{
-			out = new FileOutputStream(file,append);
-			out.write(data.getBytes());
-			out.flush();
-		}
-		finally
-		{
-			if (out!=null)
-			{
-				out.close();
-			}
-		}
-	}
-
-	@Override
-	public String read() throws IOException
-	{
-		if (!file.exists())
-		{
-			return null;
-		}
-		StringBuilder builder=new StringBuilder();
-		FileInputStream in = null;
-		try
-		{
-			in = new FileInputStream(file);
-			byte buffer [] = new byte[4096];
-			while(true)
-			{
-				int count = in.read(buffer);
-				if (count < 0)
-				{
-					break;
-				}
-				builder.append(new String(buffer,0,count));
-			}
-		}
-		finally
-		{
-			if (in!=null)
-			{
-				in.close();
-			}
-		}
-		return builder.toString();
 	}
 
 	@Override
@@ -207,5 +156,138 @@ public class TitaniumFile extends TitaniumBaseFile
 	public File getFile()
 	{
 		return file;
+	}
+
+	@Override
+	public void open(int mode, boolean binary) throws IOException
+	{
+		this.binary = binary;
+
+		if (mode == MODE_READ) {
+			if (!file.exists()) {
+				throw new FileNotFoundException(file.getAbsolutePath());
+			}
+			if (binary) {
+				instream = new BufferedInputStream(new FileInputStream(file));
+			} else {
+				inreader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));
+			}
+		} else {
+			FileOutputStream os = new FileOutputStream(file, mode == MODE_APPEND ? true : false);
+			if (binary) {
+				outstream = new BufferedOutputStream(os);
+			} else {
+				outwriter = new BufferedWriter(new OutputStreamWriter(os));
+			}
+			os = null;
+		}
+
+		opened = true; // no exception getting here.
+	}
+
+	@Override
+	public String read() throws IOException
+	{
+		String result = null;
+
+		if (file.exists()) {
+			if (!stream) {
+				StringBuilder builder=new StringBuilder();
+				try
+				{
+					open(MODE_READ, false);
+
+					char buffer [] = new char[4096];
+					int count = 0;
+					while((count = inreader.read(buffer)) != -1)
+					{
+						builder.append(buffer, 0, count);
+					}
+				}
+				finally
+				{
+					close();
+				}
+				result = builder.toString();
+			} else {
+				if (!opened) {
+					throw new IOException("File must be opened before reading");
+				}
+
+				if (binary) {
+					byte buffer[] = new byte[4096];
+					int count = 0;
+					count = instream.read(buffer);
+					if (count != -1) {
+						result = new String(buffer, "utf-8");
+					}
+				} else {
+					result = inreader.readLine();
+				}
+			}
+		}
+
+		return result;
+	}
+
+	@Override
+	public String readLine() throws IOException
+	{
+		String result = null;
+
+		if (!opened) {
+			throw new IOException("Must open before calling readLine");
+		}
+		if (binary) {
+			throw new IOException("File opened in binary mode, readLine not available.");
+		}
+
+		try {
+			result = inreader.readLine();
+		} catch (IOException e) {
+			Log.e(LCAT, "Error reading a line from the file: ", e);
+		}
+
+		return result;
+	}
+
+	@Override
+	public void write(String data, boolean append) throws IOException
+	{
+		if (DBG) {
+			Log.d(LCAT,"write called for file = " + file);
+		}
+		if (!stream) {
+			try {
+				open(append ? MODE_APPEND : MODE_WRITE, false);
+				outwriter.write(data);
+			} finally {
+				close();
+			}
+		} else {
+			if (!opened) {
+				throw new IOException("Must open before calling write");
+			}
+
+			if (binary) {
+				outstream.write(data.getBytes());
+			} else {
+				outwriter.write(data);
+			}
+		}
+	}
+
+	@Override
+	public void writeLine(String data) throws IOException
+	{
+		if (!opened) {
+			throw new IOException("Must open before calling readLine");
+		}
+		if (binary) {
+			throw new IOException("File opened in binary mode, writeLine not available.");
+		}
+
+		outwriter.write(data);
+		outwriter.write("\n");
 	}
 }

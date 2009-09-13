@@ -10,7 +10,7 @@
 #import "TitaniumModule.h"
 
 @interface FilesystemModule : NSObject<TitaniumModule> {
-
+	NSOperationQueue * fileCopyQueue;
 }
 
 @end

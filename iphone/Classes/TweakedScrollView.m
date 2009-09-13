@@ -30,8 +30,8 @@
 	BOOL result=[super touchesShouldBegin:touches withEvent:event inContentView:view];
 //	NSLog(@"TouchesShouldBegin:%@ withEvent:%@ inContentView:%@ == %d",touches,event,view,result);
 
-	NSLog(@"TouchesShouldBegin:%d withEvent:%@ inContentView:%@ == %d",[touches count],
-		  ([event type]==UIEventTypeTouches)?@"touches":@"motion",NSStringFromClass([view class]),result);
+//	NSLog(@"TouchesShouldBegin:%d withEvent:%@ inContentView:%@ == %d",[touches count],
+//		  ([event type]==UIEventTypeTouches)?@"touches":@"motion",NSStringFromClass([view class]),result);
 
 	if([[view superview] isKindOfClass:[UIPickerView class]]){
 		NSLog(@"Was picker view!");

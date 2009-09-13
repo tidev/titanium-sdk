@@ -7,11 +7,14 @@
 
 package org.appcelerator.titanium.module.fs;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import org.appcelerator.titanium.api.ITitaniumFile;
-
 import org.appcelerator.titanium.util.Log;
 
 public abstract class TitaniumBaseFile implements ITitaniumFile
@@ -32,6 +35,13 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 	protected boolean modeRead;
 	protected boolean modeWrite;
 
+	protected boolean opened;
+	protected InputStream instream;
+	protected BufferedReader inreader;
+	protected OutputStream outstream;
+	protected BufferedWriter outwriter;
+	protected boolean stream;
+	protected boolean binary;
 
 	protected TitaniumBaseFile(int type) {
 		this.type = type;
@@ -42,6 +52,14 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 		this.modeExecutable = false;
 		this.modeRead = true;
 		this.modeWrite = false;
+
+		this.opened = false;
+		this.instream = null;
+		this.inreader = null;
+		this.outstream = null;
+		this.outwriter = null;
+		this.stream = false;
+		this.binary = false;
 	}
 
 	public boolean isFile() {
@@ -141,22 +159,22 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 	}
 
 	public String read() throws IOException {
-		logNotSupported(null);
+		logNotSupported("read");
 		return null;
 	}
 
 	public String readLine() throws IOException {
-		logNotSupported(null);
+		logNotSupported("readLine");
 		return null;
 	}
 
 	public boolean rename(String destination) {
-		logNotSupported(null);
+		logNotSupported("rename");
 		return false;
 	}
 
 	public ITitaniumFile resolve() {
-		logNotSupported(null);
+		logNotSupported("resolve");
 		return null;
 	}
 
@@ -193,10 +211,66 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 		logNotSupported(null);
 	}
 
+	public void writeLine(String data) throws IOException {
+		logNotSupported("writeLine");
+	}
+
+	public void close() {
+		if (opened) {
+			if (instream != null) {
+				try {
+					instream.close();
+				} catch (IOException e) {
+					//Ignore
+				}
+				instream = null;
+			}
+
+			if (inreader != null) {
+				try {
+					inreader.close();
+				} catch (IOException e) {
+					//Ignore
+				}
+				inreader = null;
+			}
+			if (outstream != null) {
+				try {
+					outstream.close();
+				} catch (IOException e) {
+					// Ignore
+				}
+				outstream = null;
+			}
+
+			if (outwriter != null) {
+				try {
+					outwriter.close();
+				} catch (IOException e) {
+					// Ignore
+				}
+				outwriter = null;
+			}
+
+			opened = false;
+		}
+
+		binary = false;
+	}
+
+	public boolean isOpen() {
+		return opened;
+	}
+
+	public void open(int mode, boolean binary) throws IOException
+	{
+		logNotSupported("open");
+	}
+
 	protected void logNotSupported(String method) {
 		if (method == null) {
 			method = Thread.currentThread().getStackTrace()[1].getMethodName();
 		}
-		Log.w(LCAT, "Method is not supported " + method);
+		Log.w(LCAT, "Method is not supported " + this.getClass().getName() + " : " + method);
 	}
 }

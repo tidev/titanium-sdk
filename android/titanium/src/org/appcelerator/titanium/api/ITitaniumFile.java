@@ -12,6 +12,10 @@ import java.util.List;
 
 public interface ITitaniumFile
 {
+	public static final int MODE_READ = 0;
+	public static final int MODE_WRITE = 1;
+	public static final int MODE_APPEND = 2;
+
 	public boolean isFile();
 	public boolean isDirectory();
 	public boolean isHidden();
@@ -23,6 +27,7 @@ public interface ITitaniumFile
 	public void write(String data, boolean append)  throws IOException;
 	public String read()  throws IOException;
 	public String readLine()  throws IOException;
+	public void writeLine(String data) throws IOException;
 	public boolean copy(String destination);
 	public boolean move(String destination);
 	public boolean rename(String destination);
@@ -44,4 +49,9 @@ public interface ITitaniumFile
 	public boolean setReadonly();
 	public boolean setWriteable();
 	public void unzip (String destination);
+
+	// Filestream methods
+	public void close();
+	public boolean isOpen();
+	public void open(int mode, boolean binary) throws IOException;
 }

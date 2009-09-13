@@ -22,6 +22,7 @@ import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumMenuItem;
 import org.appcelerator.titanium.api.ITitaniumModalDatePicker;
 import org.appcelerator.titanium.api.ITitaniumNotifier;
+import org.appcelerator.titanium.api.ITitaniumPicker;
 import org.appcelerator.titanium.api.ITitaniumProgressDialog;
 import org.appcelerator.titanium.api.ITitaniumSlider;
 import org.appcelerator.titanium.api.ITitaniumSwitch;
@@ -38,6 +39,7 @@ import org.appcelerator.titanium.module.ui.TitaniumDatePickerDialog;
 import org.appcelerator.titanium.module.ui.TitaniumDialog;
 import org.appcelerator.titanium.module.ui.TitaniumEmailDialog;
 import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
+import org.appcelerator.titanium.module.ui.TitaniumPicker;
 import org.appcelerator.titanium.module.ui.TitaniumProgressDialog;
 import org.appcelerator.titanium.module.ui.TitaniumSlider;
 import org.appcelerator.titanium.module.ui.TitaniumSwitch;
@@ -181,6 +183,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 					break;
 				case MSG_CREATE_MODALDATEPICKER :
 					h.o = new TitaniumDatePickerDialog(getModuleManager());
+					break;
+				case MSG_CREATE_PICKER :
+					h.o = new TitaniumPicker(getModuleManager());
 					break;
 				default :
 					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
@@ -389,6 +394,12 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 
 	public ITitaniumModalDatePicker createModalDatePicker(String json) {
 		TitaniumDatePickerDialog picker = (TitaniumDatePickerDialog) create(MSG_CREATE_MODALDATEPICKER);
+		picker.setOptions(json);
+		return picker;
+	}
+
+	public ITitaniumPicker createPicker(String json) {
+		TitaniumPicker picker = (TitaniumPicker) create(MSG_CREATE_PICKER);
 		picker.setOptions(json);
 		return picker;
 	}

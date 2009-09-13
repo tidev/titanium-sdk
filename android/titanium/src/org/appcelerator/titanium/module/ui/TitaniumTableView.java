@@ -335,6 +335,7 @@ public class TitaniumTableView extends FrameLayout
 		view = new ListView(tmm.getAppContext());
 		view.setFocusable(true);
 		view.setFocusableInTouchMode(true);
+		view.setDrawingCacheEnabled(true);
 		adapter = new TTVListAdapter(viewModel);
 		view.setAdapter(adapter);
 		view.setOnKeyListener(new View.OnKeyListener() {

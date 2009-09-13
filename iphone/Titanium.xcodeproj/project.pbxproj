@@ -116,6 +116,10 @@
 		B4468EFD10027417002BAC64 /* misc.html in Resources */ = {isa = PBXBuildFile; fileRef = B4468EFC10027417002BAC64 /* misc.html */; };
 		B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
 		B44BCFDA0FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
+		B451D42610599C1C0025A18B /* PickerImageTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B451D42510599C1C0025A18B /* PickerImageTextCell.m */; };
+		B451D42710599C1C0025A18B /* PickerImageTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B451D42510599C1C0025A18B /* PickerImageTextCell.m */; };
+		B451D42810599C1C0025A18B /* PickerImageTextCell.h in Headers */ = {isa = PBXBuildFile; fileRef = B451D42410599C1C0025A18B /* PickerImageTextCell.h */; };
+		B451D42910599C1C0025A18B /* PickerImageTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B451D42510599C1C0025A18B /* PickerImageTextCell.m */; };
 		B45C717F0FEDAF93002A8675 /* WebTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */; };
 		B45C71800FEDAF93002A8675 /* WebTableViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = B45C717D0FEDAF93002A8675 /* WebTableViewCell.h */; };
 		B45C71810FEDAF93002A8675 /* WebTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */; };
@@ -235,6 +239,10 @@
 		B4B571FF10110324003546C7 /* TitaniumContentViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4B571FC10110324003546C7 /* TitaniumContentViewController.h */; };
 		B4B5720010110324003546C7 /* TitaniumContentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B571FD10110324003546C7 /* TitaniumContentViewController.m */; };
 		B4B587010FB00B670047B651 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4B587000FB00B670047B651 /* AudioToolbox.framework */; };
+		B4B8E56B10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B8E56A10586D3500D08D44 /* TitaniumCellWrapper.m */; };
+		B4B8E56C10586D3500D08D44 /* TitaniumCellWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = B4B8E56910586D3500D08D44 /* TitaniumCellWrapper.h */; };
+		B4B8E56D10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B8E56A10586D3500D08D44 /* TitaniumCellWrapper.m */; };
+		B4B8E56E10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B8E56A10586D3500D08D44 /* TitaniumCellWrapper.m */; };
 		B4B9E4621003D3DE004B8831 /* logo-m.png in Resources */ = {isa = PBXBuildFile; fileRef = B4B9E4611003D3DE004B8831 /* logo-m.png */; };
 		B4B9E4641003D3E6004B8831 /* ext-core.js in Sources */ = {isa = PBXBuildFile; fileRef = B4B9E4631003D3E6004B8831 /* ext-core.js */; };
 		B4B9E4721003D52F004B8831 /* jquery.js in Sources */ = {isa = PBXBuildFile; fileRef = B4B9E4711003D52F004B8831 /* jquery.js */; };
@@ -246,7 +254,6 @@
 		B4C6D7340FE9AB0600D62384 /* TitaniumTableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4C6D7310FE9AB0600D62384 /* TitaniumTableViewController.h */; };
 		B4C6D7350FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */; };
 		B4CAF1530FC368B9000BB476 /* TitaniumUIViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4864F5A0F7C48E700A851C5 /* TitaniumUIViewController.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		B4D262DD10437CC8007D123E /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; };
 		B4D4AF5510472271006E42E0 /* TweakedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4AF5410472271006E42E0 /* TweakedScrollView.m */; };
 		B4D4AF5610472271006E42E0 /* TweakedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4AF5410472271006E42E0 /* TweakedScrollView.m */; };
 		B4D4AF5710472271006E42E0 /* TweakedScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = B4D4AF5310472271006E42E0 /* TweakedScrollView.h */; };
@@ -345,6 +352,8 @@
 		B4290A74100D31FD00C4FF98 /* TweakedNavController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TweakedNavController.m; sourceTree = "<group>"; };
 		B4468EFC10027417002BAC64 /* misc.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = misc.html; sourceTree = "<group>"; };
 		B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
+		B451D42410599C1C0025A18B /* PickerImageTextCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PickerImageTextCell.h; sourceTree = "<group>"; };
+		B451D42510599C1C0025A18B /* PickerImageTextCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PickerImageTextCell.m; sourceTree = "<group>"; };
 		B45C717D0FEDAF93002A8675 /* WebTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebTableViewCell.h; sourceTree = "<group>"; };
 		B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebTableViewCell.m; sourceTree = "<group>"; };
 		B45CA77D0F81565D00B80900 /* TitaniumHost.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumHost.h; sourceTree = "<group>"; };
@@ -409,6 +418,8 @@
 		B4B571FC10110324003546C7 /* TitaniumContentViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumContentViewController.h; sourceTree = "<group>"; };
 		B4B571FD10110324003546C7 /* TitaniumContentViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumContentViewController.m; sourceTree = "<group>"; };
 		B4B587000FB00B670047B651 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		B4B8E56910586D3500D08D44 /* TitaniumCellWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumCellWrapper.h; sourceTree = "<group>"; };
+		B4B8E56A10586D3500D08D44 /* TitaniumCellWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumCellWrapper.m; sourceTree = "<group>"; };
 		B4B9E4611003D3DE004B8831 /* logo-m.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logo-m.png"; sourceTree = "<group>"; };
 		B4B9E4631003D3E6004B8831 /* ext-core.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-core.js"; sourceTree = "<group>"; };
 		B4B9E4711003D52F004B8831 /* jquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.js; sourceTree = "<group>"; };
@@ -457,7 +468,6 @@
 				B4C3F8B60FB3B11C0037F210 /* CoreLocation.framework in Frameworks */,
 				B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */,
 				B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */,
-				B4D262DD10437CC8007D123E /* MessageUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -527,6 +537,10 @@
 				B4290A74100D31FD00C4FF98 /* TweakedNavController.m */,
 				B4D4AF5310472271006E42E0 /* TweakedScrollView.h */,
 				B4D4AF5410472271006E42E0 /* TweakedScrollView.m */,
+				B4B8E56910586D3500D08D44 /* TitaniumCellWrapper.h */,
+				B4B8E56A10586D3500D08D44 /* TitaniumCellWrapper.m */,
+				B451D42410599C1C0025A18B /* PickerImageTextCell.h */,
+				B451D42510599C1C0025A18B /* PickerImageTextCell.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -894,6 +908,8 @@
 				B4A6D3B1103C9EFD00131CD4 /* NativeControlProxy.h in Headers */,
 				B4D4AF5710472271006E42E0 /* TweakedScrollView.h in Headers */,
 				B4D4B07610489FDC006E42E0 /* WebFont.h in Headers */,
+				B4B8E56C10586D3500D08D44 /* TitaniumCellWrapper.h in Headers */,
+				B451D42810599C1C0025A18B /* PickerImageTextCell.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1117,6 +1133,8 @@
 				B4A6D3B4103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
 				B4D4AF5510472271006E42E0 /* TweakedScrollView.m in Sources */,
 				B4D4B07510489FDC006E42E0 /* WebFont.m in Sources */,
+				B4B8E56E10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */,
+				B451D42710599C1C0025A18B /* PickerImageTextCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1167,6 +1185,8 @@
 				B4A6D3B2103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
 				B4D4AF5810472271006E42E0 /* TweakedScrollView.m in Sources */,
 				B4D4B07710489FDC006E42E0 /* WebFont.m in Sources */,
+				B4B8E56D10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */,
+				B451D42910599C1C0025A18B /* PickerImageTextCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1218,6 +1238,8 @@
 				B4A6D3B3103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
 				B4D4AF5610472271006E42E0 /* TweakedScrollView.m in Sources */,
 				B4D4B07810489FDC006E42E0 /* WebFont.m in Sources */,
+				B4B8E56B10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */,
+				B451D42610599C1C0025A18B /* PickerImageTextCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

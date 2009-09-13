@@ -8,193 +8,316 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.text.Html;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.ViewAnimator;
 
-public class TitaniumTableViewItem extends RelativeLayout
+public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callback
 {
 	private static final String LCAT = "TitaniamTableViewItem";
 
-	private ImageView iconView;
-	private TextView textView;
-	private ImageView hasChildView;
-	private boolean header;
+	private static final int MSG_SHOW_VIEW_1 = 300;
 
-	private Drawable defaultBackground;
-	private int defaultTextColor;
-	private float defaultTextSize;
+	private Handler handler;
 
-	private static Object initLock = new Object();
+	private RowView rowView;
+	private EmptyView emptyView;
 
-	class ImgGetter implements Html.ImageGetter {
+	class EmptyView extends ImageView
+	{
+		public int rowHeight;
 
-		private TitaniumFileHelper tfh;
+		public EmptyView(Context context)
+		{
+			super(context);
 
-		public ImgGetter(Context context) {
-			tfh = new TitaniumFileHelper(context);
+			setImageDrawable(new ColorDrawable(Color.TRANSPARENT));
+			setScaleType(ImageView.ScaleType.FIT_XY);
+			setAdjustViewBounds(true);
+			setFocusable(false);
+			setFocusableInTouchMode(false);
+			setClickable(false);
 		}
-		public Drawable getDrawable(String src) {
-			Drawable d = tfh.loadDrawable(src, false);
-			d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
-			return d;
+
+		@Override
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+			setMeasuredDimension(widthMeasureSpec, rowHeight);
+		}
+
+	}
+
+	class RowView extends RelativeLayout
+	{
+		private ImageView iconView;
+		private TextView textView;
+		private ImageView hasChildView;
+		public boolean header;
+		private LocalWebView webView;
+
+		private Drawable hasMoreDrawable;
+
+		private Drawable defaultBackground;
+		private int defaultTextColor;
+		private float defaultTextSize;
+
+		public RowView(Context context) {
+			super(context);
+
+			setGravity(Gravity.CENTER_VERTICAL);
+
+			iconView = new ImageView(context);
+			iconView.setId(100);
+			iconView.setFocusable(false);
+			iconView.setFocusableInTouchMode(false);
+
+			textView = new TextView(context);
+			textView.setId(101);
+			textView.setFocusable(false);
+			textView.setFocusableInTouchMode(false);
+
+			defaultBackground = getBackground();
+			defaultTextColor = textView.getCurrentTextColor();
+			defaultTextSize = textView.getTextSize();
+
+			hasChildView = new ImageView(context);
+			hasChildView.setId(102);
+			hasChildView.setFocusable(false);
+			hasChildView.setFocusableInTouchMode(false);
+
+			webView = new LocalWebView(context, defaultTextColor);
+
+			LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
+			params.addRule(CENTER_VERTICAL);
+			params.setMargins(0, 0, 5, 0);
+			addView(iconView, params);
+
+			params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
+			params.addRule(CENTER_VERTICAL);
+			params.addRule(ALIGN_RIGHT);
+			params.alignWithParent = true;
+			addView(hasChildView, params);
+
+			params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
+			params.addRule(CENTER_VERTICAL);
+			params.addRule(RIGHT_OF, iconView.getId());
+			params.addRule(LEFT_OF, hasChildView.getId());
+			params.alignWithParent = true;
+			addView(textView, params);
+
+			params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+			params.addRule(CENTER_VERTICAL);
+			params.addRule(RIGHT_OF, iconView.getId());
+			params.addRule(LEFT_OF, hasChildView.getId());
+			params.alignWithParent = true;
+			addView(webView, params);
+		}
+
+		public void setRowData(JSONObject data, int rowHeight)
+		{
+			handler.removeMessages(MSG_SHOW_VIEW_1);
+			emptyView.rowHeight = rowHeight;
+			setDisplayedChild(0);
+
+			TitaniumFileHelper tfh = new TitaniumFileHelper(getContext());
+
+			destroyDrawingCache();
+			iconView.setVisibility(View.GONE);
+			iconView.destroyDrawingCache();
+			textView.setVisibility(View.GONE);
+			textView.destroyDrawingCache();
+			hasChildView.setVisibility(View.GONE);
+			hasChildView.destroyDrawingCache();
+			webView.setVisibility(View.GONE);
+			webView.destroyDrawingCache();
+
+			header = false;
+
+			setBackgroundDrawable(defaultBackground);
+			textView.setTextColor(defaultTextColor);
+			textView.setTextSize(defaultTextSize);
+			textView.setPadding(0, 0, 0, 0);
+
+			webView.setPadding(0, 0, 0, 0);
+			//webView.rowHeight = rowHeight;
+
+			setVerticalFadingEdgeEnabled(true);
+			setPadding(10, 2, 10, 2);
+
+			setMinimumHeight(rowHeight);
+
+			boolean isDisplayHeader = false;
+			try {
+				isDisplayHeader = data.getBoolean("isDisplayHeader");
+			} catch (JSONException e) {
+				Log.e(LCAT, "Unable to get header flag", e);
+			}
+
+
+			if (!isDisplayHeader && data.has("image")) {
+				try {
+					String path = data.getString("image");
+					Drawable d = tfh.loadDrawable(path, false);
+					if (d != null) {
+						BitmapDrawable b = (BitmapDrawable) d;
+						if (b.getBitmap().getHeight() > rowHeight) {
+							d = new BitmapDrawable(Bitmap.createScaledBitmap(b.getBitmap(), rowHeight, rowHeight, true));
+						}
+						iconView.setImageDrawable(d);
+						iconView.setVisibility(View.VISIBLE);
+					}
+
+				} catch (JSONException e) {
+					Log.e(LCAT, "Error retrieving image", e);
+				}
+			}
+
+			if (!isDisplayHeader && data.has("hasChild")) {
+				try {
+					if (data.getBoolean("hasChild")) {
+						if(hasMoreDrawable == null) {
+							hasMoreDrawable = new BitmapDrawable(getClass().getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));
+						}
+						if (hasMoreDrawable != null) {
+							hasChildView.setImageDrawable(hasMoreDrawable);
+						}
+						hasChildView.setVisibility(View.VISIBLE);
+					}
+				} catch (JSONException e) {
+					Log.e(LCAT, "Error retrieving hasChild", e);
+				}
+			}
+
+			if (isDisplayHeader && data.has("header")) {
+				textView.setVisibility(View.VISIBLE);
+				header = true;
+				try {
+					textView.setText(data.getString("header"), TextView.BufferType.NORMAL);
+					setBackgroundColor(Color.DKGRAY);
+					textView.setTextColor(Color.LTGRAY);
+					textView.setTextSize(12.0f);
+					textView.setPadding(4, 2, 4, 2);
+					emptyView.rowHeight = 17;
+					setMinimumHeight(17);
+					setVerticalFadingEdgeEnabled(false);
+					setPadding(0, 0, 0, 0);
+				} catch (JSONException e) {
+					textView.setText(e.getMessage());
+					Log.e(LCAT, "Error retrieving header", e);
+				}
+			} else if (!isDisplayHeader && data.has("html")) {
+				try {
+					String html = data.getString("html");
+					if (html != null) {
+						webView.load(html);
+					}
+				} catch (JSONException e) {
+					Log.e(LCAT, "Error retrieving html", e);
+				}
+				webView.setVisibility(View.VISIBLE);
+			} else if (!isDisplayHeader && data.has("title")) {
+				textView.setVisibility(View.VISIBLE);
+				try {
+					textView.setText(data.getString("title"), TextView.BufferType.NORMAL);
+				} catch (JSONException e) {
+					textView.setText(e.getMessage());
+					Log.e(LCAT, "Error retrieving title", e);
+				}
+			}
+
+			handler.sendEmptyMessageDelayed(MSG_SHOW_VIEW_1, 250);
 		}
 	}
-	private static ImgGetter imageGetter;
 
-	public TitaniumTableViewItem(Context context) {
+	class LocalWebView extends WebView
+	{
+		///public int rowHeight;
+
+		private String htmlPrefix;
+		private String htmlPostfix;
+
+		public LocalWebView(Context context, int defaultTextColor)
+		{
+			super(context);
+
+			this.setFocusable(false);
+			this.setFocusableInTouchMode(false);
+			this.setClickable(false);
+
+			WebSettings settings = getSettings();
+			settings.setLoadsImagesAutomatically(true);
+			settings.setSupportMultipleWindows(false);
+			settings.setSupportZoom(false);
+			settings.setJavaScriptCanOpenWindowsAutomatically(false);
+			settings.setJavaScriptEnabled(false);
+
+			setScrollContainer(false);
+			setHorizontalScrollBarEnabled(false);
+			setVerticalScrollBarEnabled(false);
+
+			setBackgroundColor(Color.TRANSPARENT);
+			setId(101);
+
+			StringBuilder sb = new StringBuilder();
+			sb.append("<html><body style='color:rgba(").append(Color.red(defaultTextColor)).append(",")
+				.append(Color.green(defaultTextColor)).append(",")
+				.append(Color.blue(defaultTextColor)).append(",")
+				.append(Color.alpha(defaultTextColor))
+				.append("); '>")
+				;
+			htmlPrefix = sb.toString();
+			htmlPostfix = "</body></html>";
+		}
+
+		public void load(String html)
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.append(htmlPrefix).append(html).append(htmlPostfix);
+			loadDataWithBaseURL("file:///android_asset/Resources/", sb.toString(), "text/html", "UTF-8", null);
+		}
+	}
+
+	public TitaniumTableViewItem(Context context)
+	{
 		super(context);
 
-		synchronized (initLock) {
-			if (imageGetter == null) {
-				imageGetter = new ImgGetter(context.getApplicationContext());
-			}
-		}
+		this.handler = new Handler(this);
+		emptyView = new EmptyView(context);
+		this.addView(emptyView, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 
-		setGravity(Gravity.CENTER_VERTICAL);
-		//setFocusable(true);
-		//requestFocus();
+		rowView = new RowView(context);
+		this.addView(rowView, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 
-		iconView = new ImageView(context);
-		iconView.setId(100);
-		iconView.setFocusable(false);
-		iconView.setFocusableInTouchMode(false);
-
-		textView = new TextView(context);
-		textView.setId(101);
-		textView.setFocusable(false);
-		textView.setFocusableInTouchMode(false);
-
-		hasChildView = new ImageView(context);
-		hasChildView.setId(102);
-		hasChildView.setFocusable(false);
-		hasChildView.setFocusableInTouchMode(false);
-
-		LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		params.addRule(CENTER_VERTICAL);
-		params.setMargins(0, 0, 5, 0);
-		addView(iconView, params);
-
-		params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
-		params.addRule(CENTER_VERTICAL);
-		params.addRule(RIGHT_OF, iconView.getId());
-		params.alignWithParent = false;
-		addView(textView, params);
-
-		params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		params.addRule(CENTER_VERTICAL);
-		params.addRule(ALIGN_PARENT_RIGHT, textView.getId());
-		addView(hasChildView, params);
-
-		defaultBackground = getBackground();
-		defaultTextColor = textView.getCurrentTextColor();
-		defaultTextSize = textView.getTextSize();
-
+		Animation a = new AlphaAnimation(0.0f, 1.0f);
+		a.setDuration(250);
+		setInAnimation(a);
 	}
 
-	public void setRowData(JSONObject data, int rowHeight)
+	public void setRowData(JSONObject data, int rowHeight) {
+		rowView.setRowData(data, rowHeight);
+	}
+
+
+	public boolean handleMessage(Message msg)
 	{
-		TitaniumFileHelper tfh = new TitaniumFileHelper(getContext());
-
-		destroyDrawingCache();
-		iconView.setVisibility(View.GONE);
-		iconView.destroyDrawingCache();
-		textView.setVisibility(View.GONE);
-		textView.destroyDrawingCache();
-		hasChildView.setVisibility(View.GONE);
-		setMinimumHeight(rowHeight);
-		header = false;
-
-		setBackgroundDrawable(defaultBackground);
-		textView.setTextColor(defaultTextColor);
-		textView.setTextSize(defaultTextSize);
-		textView.setPadding(0, 0, 0, 0);
-
-		setVerticalFadingEdgeEnabled(true);
-		setPadding(10, 2, 10, 2);
-
-		boolean isDisplayHeader = false;
-		try {
-			isDisplayHeader = data.getBoolean("isDisplayHeader");
-		} catch (JSONException e) {
-			Log.e(LCAT, "Unable to get header flag", e);
+		if (msg.what == MSG_SHOW_VIEW_1) {
+			setDisplayedChild(1);
+			return true;
 		}
 
-
-		if (!isDisplayHeader && data.has("image")) {
-			try {
-				String path = data.getString("image");
-				Drawable d = tfh.loadDrawable(path, false);
-				if (d != null) {
-					BitmapDrawable b = (BitmapDrawable) d;
-					if (b.getBitmap().getHeight() > rowHeight) {
-						d = new BitmapDrawable(Bitmap.createScaledBitmap(b.getBitmap(), rowHeight, rowHeight, true));
-					}
-					iconView.setImageDrawable(d);
-					iconView.setVisibility(View.VISIBLE);
-				}
-
-			} catch (JSONException e) {
-				Log.e(LCAT, "Error retrieving image", e);
-			}
-		}
-
-		if (isDisplayHeader && data.has("header")) {
-			textView.setVisibility(View.VISIBLE);
-			header = true;
-			try {
-				textView.setText(data.getString("header"), TextView.BufferType.NORMAL);
-				setBackgroundColor(Color.DKGRAY);
-				textView.setTextColor(Color.LTGRAY);
-				textView.setTextSize(12.0f);
-				textView.setPadding(4, 2, 4, 2);
-				setMinimumHeight(17);
-				setVerticalFadingEdgeEnabled(false);
-				setPadding(0, 0, 0, 0);
-			} catch (JSONException e) {
-				textView.setText(e.getMessage());
-				Log.e(LCAT, "Error retrieving header", e);
-			}
-		} else if (data.has("html")) {
-			textView.setVisibility(View.VISIBLE);
-			try {
-				String html = data.getString("html");
-				if (html != null) {
-					textView.setText(Html.fromHtml(html, imageGetter, null), TextView.BufferType.SPANNABLE);
-				}
-			} catch (JSONException e) {
-				Log.e(LCAT, "Error retrieving html", e);
-			}
-		} else if (data.has("title")) {
-			textView.setVisibility(View.VISIBLE);
-			try {
-				textView.setText(data.getString("title"), TextView.BufferType.NORMAL);
-			} catch (JSONException e) {
-				textView.setText(e.getMessage());
-				Log.e(LCAT, "Error retrieving title", e);
-			}
-		}
-
-		if (!isDisplayHeader && data.has("hasChild")) {
-			try {
-				if (data.getBoolean("hasChild")) {
-					BitmapDrawable d = new BitmapDrawable(getClass().getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));
-					if (d != null) {
-						hasChildView.setImageDrawable(d);
-					}
-					hasChildView.setVisibility(View.VISIBLE);
-				}
-			} catch (JSONException e) {
-				Log.e(LCAT, "Error retrieving hasChild", e);
-			}
-		}
+		return false;
 	}
 
 	@Override
@@ -210,6 +333,6 @@ public class TitaniumTableViewItem extends RelativeLayout
 	}
 
 	public boolean isHeader() {
-		return header;
+		return rowView.header;
 	}
 }
