@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TitaniumNinePatchHelper;
 import org.appcelerator.titanium.util.TitaniumUIHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -11,13 +12,15 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -32,12 +35,17 @@ public class TitaniumPickerView extends RelativeLayout
 	private static final String LCAT = "TiPickerView";
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
+	private static final String BG_ROOT = "/org/appcelerator/titanium/res/drawable/";
+	private static final String BG_NORMAL = BG_ROOT + "btn_picker_normal.9.png";
+	private static final String BG_PRESSED = BG_ROOT + "btn_picker_pressed.9.png";
+	private static final String BG_SELECTED = BG_ROOT + "btn_picker_selected.9.png";
+
 	private OnItemSelectionListener onItemSelectionListener;
 
 	private static final int BASE_ID = 500;
 
 	private JSONArray data;
-	ArrayList<Spinner> spinners;
+	private ArrayList<Spinner> spinners;
 
 	class ItemView extends RelativeLayout
 	{
@@ -90,7 +98,13 @@ public class TitaniumPickerView extends RelativeLayout
 
 		}
 	}
-
+//	<selector xmlns:android="http://schemas.android.com/apk/res/android">
+//	  18     <item  android:state_window_focused="false" android:drawable="@drawable/btn_dropdown_normal" />
+//	  19     <item android:state_pressed="true" android:drawable="@drawable/btn_dropdown_pressed" />
+//	  20     <item android:state_focused="true" android:state_pressed="false"
+//	  21         android:drawable="@drawable/btn_dropdown_selected" />
+//	  22     <item android:drawable="@drawable/btn_dropdown_normal" />
+//	  23 </selector>
 	public TitaniumPickerView(Context context)
 	{
 		super(context);
@@ -153,14 +167,27 @@ public class TitaniumPickerView extends RelativeLayout
 			Spinner s = spinners.get(col);
 			s.setOnItemSelectedListener(null);
 		}
+
 		Spinner spinner = new Spinner(getContext());
+
+		TitaniumNinePatchHelper nph = new TitaniumNinePatchHelper();
+
+		Drawable npdNormal = nph.process(new BitmapDrawable(getClass().getResourceAsStream(BG_NORMAL)));
+		Drawable npdPressed = nph.process(new BitmapDrawable(getClass().getResourceAsStream(BG_PRESSED)));
+		Drawable npdSelected = nph.process(new BitmapDrawable(getClass().getResourceAsStream(BG_SELECTED)));
+		StateListDrawable spinnerBackground = new StateListDrawable();
+		spinnerBackground.addState(new int[] {-android.R.attr.state_focused}, npdNormal);
+		spinnerBackground.addState(new int[] {android.R.attr.state_pressed}, npdPressed);
+		spinnerBackground.addState(new int[] {android.R.attr.state_focused, -android.R.attr.state_pressed}, npdSelected);
+
+		spinner.setBackgroundDrawable(spinnerBackground);
+		spinner.setPadding(spinner.getPaddingLeft(), spinner.getPaddingTop(), 10, spinner.getPaddingBottom());
         spinners.add(spinner);
 
         spinner.setId(BASE_ID + col);
 
-        ArrayAdapter<JSONObject> aa = new ArrayAdapter<JSONObject>(getContext(), android.R.layout.simple_spinner_item, items) {
-
-
+        ArrayAdapter<JSONObject> aa = new ArrayAdapter<JSONObject>(getContext(), android.R.layout.simple_spinner_item, items)
+        {
 			@Override
 			public View getDropDownView(int position, View convertView, ViewGroup parent) {
 				ItemView iv = (ItemView) getView(position, convertView, parent);
@@ -205,8 +232,7 @@ public class TitaniumPickerView extends RelativeLayout
         	params.addRule(RIGHT_OF, (col - 1) + BASE_ID);
         }
         params.alignWithParent = true;
-        addView(spinner,params);
-
+        addView(spinner, col, params);
 	}
 
 	public int getSelectedRow(int col) {
@@ -224,6 +250,9 @@ public class TitaniumPickerView extends RelativeLayout
 	public void setColumnData(int col, JSONObject d)
 	{
 		try {
+			if (col < getChildCount()) {
+				removeViewAt(col);
+			}
 			handleColumn(col, d);
 		} catch (JSONException e) {
 			Log.e(LCAT, "Unable to set column data for column " + col, e);
