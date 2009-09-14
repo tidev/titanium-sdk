@@ -56,9 +56,20 @@
   	p1.addEventListener('change', function(e) {
   	    var col = e.column;
   	    var row = e.row;
+  	    var selectedValue = e.selectedValue;
+
+  	    var v = "<br/>"
+  	    for(i=0; i < selectedValue.length; i++) {
+  	  	    var c = selectedValue[i];
+  	  	    if (!isUndefined(c.html)) {
+  	  	  	    v += "<div>" + c.html + "</div>";
+  	  	    } else {
+  	  	  	    v += "<div>" + c.title + "</div>";
+  	  	    }
+  	    }
 
   	    var c = document.getElementById('change1');
-  	    c.innerHTML = "[" + col + "," + row + "]";
+  	    c.innerHTML = "[" + col + "," + row + "] Items: " + selectedValue.length + v;
   	});
 
   	var btnAnimals = Titanium.UI.createButton({id:'btn-animals', title: 'More Animals'});
@@ -73,7 +84,7 @@
 
   	var btnSingleCol = Titanium.UI.createButton({id : 'btn-single-col', title : 'Single Column'});
   	btnSingleCol.addEventListener('click', function(e) {
-		data = [
+		var data = [
 	        {
 	        	data : [
         	        { title : 'Item 1'},
@@ -85,11 +96,15 @@
 		];
 
 		p1.setData(data);
+
+		document.getElementById('btn-animals').style.display = "none";
   	});
 
   	var btnReplaceTwo = Titanium.UI.createButton({id: 'btn-replace', title : 'Replace Col 2'});
   	btnReplaceTwo.addEventListener('click', function(e) {
+  	  	p1.setData(data);
   	  	p1.setColumnData(1, col3);
+		document.getElementById('btn-animals').style.display = "block";
   	});
   --></script>
 </head>

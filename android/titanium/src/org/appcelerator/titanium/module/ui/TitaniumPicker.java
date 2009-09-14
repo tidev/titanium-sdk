@@ -118,6 +118,17 @@ public class TitaniumPicker extends TitaniumBaseNativeControl
 					JSONObject o = new JSONObject();
 					o.put("column", col);
 					o.put("row", row);
+
+					JSONArray a = new JSONArray();
+					for(int i = 0; i < data.length(); i++) {
+						JSONObject cell= getView().getSelectedRowData(i);
+						if (DBG) {
+							Log.d(LCAT, "Column[" + i + "] = " + cell.toString());
+						}
+						a.put(cell);
+					}
+					o.put("selectedValue", a);
+
 					eventManager.invokeSuccessListeners(EVENT_CHANGE, o.toString());
 				} catch (JSONException e) {
 					Log.w(LCAT, "Unable to invoke selection change event: ", e);
