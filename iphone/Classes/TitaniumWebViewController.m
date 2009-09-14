@@ -83,6 +83,7 @@ TitaniumWebViewController * mostRecentController = nil;
 	[webView release];
 	webView = nil;
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	[nativeOnscreenProxies release];
 
 	[currentContentURL release];	//Used as a base url.
 

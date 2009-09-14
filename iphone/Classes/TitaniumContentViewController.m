@@ -123,6 +123,7 @@ int nextContentViewToken = 0;
 - (void)dealloc {
 	[titaniumWindowToken release];
 	[primaryToken release];
+	[nameString release];
     [super dealloc];
 }
 

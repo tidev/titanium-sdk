@@ -60,6 +60,7 @@ UIColor * checkmarkColor = nil;
 	NSString * header;
 	NSString * footer;
 	NSMutableArray * rowArray;
+	float rowHeight;
 	BOOL isOptionList;
 	BOOL nullHeader;
 }
@@ -75,6 +76,7 @@ UIColor * checkmarkColor = nil;
 @property(nonatomic,readwrite,copy)		NSString * groupType;
 @property(nonatomic,readwrite,assign)	BOOL isOptionList;
 @property(nonatomic,readwrite,assign)	BOOL nullHeader;
+@property(nonatomic,readwrite,assign)	float rowHeight;
 
 
 @property(nonatomic,readwrite,retain)		NSMutableArray * rowArray;
@@ -82,7 +84,7 @@ UIColor * checkmarkColor = nil;
 @end
 
 @implementation TableSectionWrapper
-@synthesize header,footer,groupType,isOptionList,nullHeader,rowArray,name;
+@synthesize header,footer,groupType,isOptionList,nullHeader,rowArray,name,rowHeight;
 
 - (void) forceHeader: (NSString *) headerString footer: (NSString *)footerString;
 {
@@ -113,6 +115,9 @@ UIColor * checkmarkColor = nil;
 	if ([nameString respondsToSelector:@selector(stringValue)]) nameString = [nameString stringValue];
 	
 	if([nameString isKindOfClass:[NSString class]])[result setName:nameString];
+
+	id rowHeightObj = [newData objectForKey:@"rowHeight"];
+	if([rowHeightObj respondsToSelector:@selector(floatValue)])rowHeight = [rowHeightObj floatValue];
 
 	BOOL isButtonGroup = NO;
 	NSString * rowType = [newData objectForKey:@"type"];
@@ -631,6 +636,14 @@ UIColor * checkmarkColor = nil;
 
 
 #pragma mark Delegate methods
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
+{
+	TableSectionWrapper * ourTableSection = [self sectionForIndex:[indexPath section]];
+	float result = [ourTableSection rowHeight];
+	if(result > 1.0) return result;
+	return tableRowHeight;
+}
+
 - (void)triggerActionForIndexPath: (NSIndexPath *)indexPath wasAccessory: (BOOL) accessoryTapped;
 {
 	if ((callbackProxyPath == nil) || (callbackWindowToken == nil)) return;
