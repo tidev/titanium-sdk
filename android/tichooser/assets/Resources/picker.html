@@ -56,9 +56,20 @@
   	p1.addEventListener('change', function(e) {
   	    var col = e.column;
   	    var row = e.row;
+  	    var selectedValue = e.selectedValue;
+
+  	    var v = "<br/>"
+  	    for(i=0; i < selectedValue.length; i++) {
+  	  	    var c = selectedValue[i];
+  	  	    if (!isUndefined(c.html)) {
+  	  	  	    v += "<div>" + c.html + "</div>";
+  	  	    } else {
+  	  	  	    v += "<div>" + c.title + "</div>";
+  	  	    }
+  	    }
 
   	    var c = document.getElementById('change1');
-  	    c.innerHTML = "[" + col + "," + row + "]";
+  	    c.innerHTML = "[" + col + "," + row + "] Items: " + selectedValue.length + v;
   	});
 
   	var btnAnimals = Titanium.UI.createButton({id:'btn-animals', title: 'More Animals'});

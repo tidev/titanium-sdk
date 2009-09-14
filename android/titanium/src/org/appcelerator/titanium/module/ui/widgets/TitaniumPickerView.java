@@ -98,13 +98,7 @@ public class TitaniumPickerView extends RelativeLayout
 
 		}
 	}
-//	<selector xmlns:android="http://schemas.android.com/apk/res/android">
-//	  18     <item  android:state_window_focused="false" android:drawable="@drawable/btn_dropdown_normal" />
-//	  19     <item android:state_pressed="true" android:drawable="@drawable/btn_dropdown_pressed" />
-//	  20     <item android:state_focused="true" android:state_pressed="false"
-//	  21         android:drawable="@drawable/btn_dropdown_selected" />
-//	  22     <item android:drawable="@drawable/btn_dropdown_normal" />
-//	  23 </selector>
+
 	public TitaniumPickerView(Context context)
 	{
 		super(context);
@@ -124,6 +118,7 @@ public class TitaniumPickerView extends RelativeLayout
 				s.destroyDrawingCache();
 				s.setOnItemSelectedListener(null);
 			}
+			spinners.clear();
 		}
 
 		try {
@@ -166,6 +161,7 @@ public class TitaniumPickerView extends RelativeLayout
 		if (col < spinners.size()) {
 			Spinner s = spinners.get(col);
 			s.setOnItemSelectedListener(null);
+			removeViewAt(col);
 		}
 
 		Spinner spinner = new Spinner(getContext());
@@ -182,7 +178,7 @@ public class TitaniumPickerView extends RelativeLayout
 
 		spinner.setBackgroundDrawable(spinnerBackground);
 		spinner.setPadding(spinner.getPaddingLeft(), spinner.getPaddingTop(), 10, spinner.getPaddingBottom());
-        spinners.add(spinner);
+        spinners.add(col, spinner);
 
         spinner.setId(BASE_ID + col);
 
@@ -239,8 +235,28 @@ public class TitaniumPickerView extends RelativeLayout
 		int index = -1;
 
 		index = spinners.get(col).getSelectedItemPosition();
+		if(DBG) {
+			Log.i(LCAT, "Selected for col " + col + " is " + index);
+		}
 
 		return index;
+	}
+
+	public JSONObject getSelectedRowData(int col) {
+		int index = getSelectedRow(col);
+
+		JSONObject o = null;
+
+		try {
+			JSONObject c = data.getJSONObject(col);
+			Log.w(LCAT, c.toString(2));
+			JSONArray r = c.getJSONArray("data");
+			o = r.getJSONObject(index);
+		} catch (JSONException e) {
+			Log.e(LCAT, "Unable to get column data", e);
+		}
+
+		return o;
 	}
 
 	public void selectRow(int col, int row) {
@@ -249,10 +265,12 @@ public class TitaniumPickerView extends RelativeLayout
 
 	public void setColumnData(int col, JSONObject d)
 	{
+		if (col >= getChildCount()) {
+			Log.w(LCAT, "Attempt to replace column data on a non-existent column");
+			return;
+		}
 		try {
-			if (col < getChildCount()) {
-				removeViewAt(col);
-			}
+			data.put(col, d);
 			handleColumn(col, d);
 		} catch (JSONException e) {
 			Log.e(LCAT, "Unable to set column data for column " + col, e);
