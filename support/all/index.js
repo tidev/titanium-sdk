@@ -5,7 +5,7 @@ window.onload = function()
 	document.getElementById('b').onclick = function() { Titanium.Media.vibrate() };
 
 	Titanium.Gesture.addEventListener('shake',function(){
-		var alerty = Titanium.UI.createAlert();
+		var alerty = Titanium.UI.createAlertDialog();
 		alerty.setTitle("Not stirred!");
 		alerty.show();
 	},false);
