@@ -2,6 +2,7 @@ package org.appcelerator.titanium.module.ui;
 
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
+import org.appcelerator.titanium.util.TitaniumUIHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -71,7 +72,6 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 
 		private Drawable defaultBackground;
 		private int defaultTextColor;
-		private float defaultTextSize;
 
 		public RowView(Context context) {
 			super(context);
@@ -90,7 +90,6 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 
 			defaultBackground = getBackground();
 			defaultTextColor = textView.getCurrentTextColor();
-			defaultTextSize = textView.getTextSize();
 
 			hasChildView = new ImageView(context);
 			hasChildView.setId(102);
@@ -125,7 +124,7 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 			addView(webView, params);
 		}
 
-		public void setRowData(JSONObject data, int rowHeight)
+		public void setRowData(JSONObject data, int rowHeight, String fontSize, String fontWeight)
 		{
 			handler.removeMessages(MSG_SHOW_VIEW_1);
 			emptyView.rowHeight = rowHeight;
@@ -146,8 +145,8 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 			header = false;
 
 			setBackgroundDrawable(defaultBackground);
-			textView.setTextColor(defaultTextColor);
-			textView.setTextSize(defaultTextSize);
+ 			textView.setTextColor(defaultTextColor);
+			TitaniumUIHelper.styleText(textView, fontSize, fontWeight);
 			textView.setPadding(0, 0, 0, 0);
 
 			webView.setPadding(0, 0, 0, 0);
@@ -231,6 +230,7 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 				textView.setVisibility(View.VISIBLE);
 				try {
 					textView.setText(data.getString("title"), TextView.BufferType.NORMAL);
+					TitaniumUIHelper.styleText(textView, data.optString("fontSize", fontSize), data.optString("fontWeight", fontWeight));
 				} catch (JSONException e) {
 					textView.setText(e.getMessage());
 					Log.e(LCAT, "Error retrieving title", e);
@@ -305,10 +305,9 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 		setInAnimation(a);
 	}
 
-	public void setRowData(JSONObject data, int rowHeight) {
-		rowView.setRowData(data, rowHeight);
+	public void setRowData(JSONObject data, int rowHeight, String fontSize, String fontWeight) {
+		rowView.setRowData(data, rowHeight, fontSize, fontWeight);
 	}
-
 
 	public boolean handleMessage(Message msg)
 	{

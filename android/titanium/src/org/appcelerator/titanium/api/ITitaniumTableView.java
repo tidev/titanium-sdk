@@ -18,4 +18,6 @@ public interface ITitaniumTableView
 
 	// New in 0.6.3/1.0
 	public void appendRow(String rowData, String json);
+	public void setFontWeight(String fontWeight);
+	public void setFontSize(String fontSize);
 }

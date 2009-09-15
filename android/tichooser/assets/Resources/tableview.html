@@ -72,7 +72,8 @@
   			header : 'Section 1',
 			title : 'Row 1',
 			image : 'images/icon.png',
-			name : 'n1'
+			name : 'n1',
+			fontWeight: 'bold'
 		},
 		{
 			title : 'Row 2',
@@ -82,7 +83,9 @@
 		},
 		{
 			title : 'Row 3',
-			name : 'n3'
+			name : 'n3',
+			fontSize : '20pt',
+			fontWeight : 'bold'
 		},
 		{
 			header : 'Section 2',
@@ -146,7 +149,9 @@
 	var page2 = [
         {
          title : 'click for option dlg',
-         header : 'Some config stuff'
+         header : 'Some config stuff',
+         fontWeight: 'bold',
+         fontSize: '8pt'
         },
         {
          html : '<font size="+2"><b>EXIT</b></font>',
@@ -158,7 +163,8 @@
 			'data' : page1,
 			'name' : "p1",
 			'rowHeight' : '65',
-			'isPrimary' : true
+			'isPrimary' : true,
+			'fontSize' :  '7pt'
  		},
  			function(e) {
  				// rowData, section, row, index, detail

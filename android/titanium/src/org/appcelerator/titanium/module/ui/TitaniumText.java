@@ -83,9 +83,7 @@ public class TitaniumText extends TitaniumBaseNativeControl
 		tv.setText(value);
 		tv.setGravity(Gravity.TOP | Gravity.LEFT);
 		tv.setPadding(10, 5, 10, 7);
-		Typeface tf = tv.getTypeface();
-		tv.setTypeface(tf, TitaniumUIHelper.toTypefaceStyle(fontWeight));
-		tv.setTextSize(TitaniumUIHelper.getSizeUnits(fontSize), TitaniumUIHelper.getSize(fontSize));
+		TitaniumUIHelper.styleText(tv, fontSize, fontWeight);
 
 		if (color != null) {
 			tv.setTextColor(TitaniumColorHelper.parseColor(color));

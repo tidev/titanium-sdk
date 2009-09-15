@@ -20,6 +20,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.graphics.Typeface;
 import android.os.Process;
 import android.util.TypedValue;
+import android.widget.TextView;
 
 public class TitaniumUIHelper
 {
@@ -140,5 +141,35 @@ public class TitaniumUIHelper
 		}
 
 		return value;
+	}
+
+	public static void styleText(TextView tv, String fontSize, String fontWeight) {
+		Typeface tf = tv.getTypeface();
+		tv.setTypeface(tf, toTypefaceStyle(fontWeight));
+		tv.setTextSize(getSizeUnits(fontSize), getSize(fontSize));
+	}
+
+	public static String getDefaultFontSize(Context context) {
+		String size = "15.0px";
+		TextView tv = new TextView(context);
+		if (tv != null) {
+			size = String.valueOf(tv.getTextSize()) + "px";
+			tv = null;
+		}
+
+		return size;
+	}
+
+	public static String getDefaultFontWeight(Context context) {
+		String style = "normal";
+		TextView tv = new TextView(context);
+		if (tv != null) {
+			Typeface tf = tv.getTypeface();
+			if (tf != null && tf.isBold()) {
+				style = "bold";
+			}
+		}
+
+		return style;
 	}
 }

@@ -101,9 +101,7 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 				b.setBackgroundColor(TitaniumColorHelper.parseColor(backgroundColor));
 			}
 
-			Typeface tf = b.getTypeface();
-			b.setTypeface(tf, TitaniumUIHelper.toTypefaceStyle(fontWeight));
-			b.setTextSize(TitaniumUIHelper.getSizeUnits(fontSize), TitaniumUIHelper.getSize(fontSize));
+			TitaniumUIHelper.styleText(b, fontSize, fontWeight);
 
 			if (backgroundImage != null || backgroundSelectedImage != null || backgroundFocusedImage != null) {
 				TitaniumFileHelper tfh = new TitaniumFileHelper(context);

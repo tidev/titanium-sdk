@@ -9,6 +9,7 @@ import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.module.ui.tableview.TableViewModel;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
+import org.appcelerator.titanium.util.TitaniumUIHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -61,6 +62,8 @@ public class TitaniumTableView extends FrameLayout
 	private ListView view;
 	private TitaniumJSEventManager eventListeners;
 	private String key;
+	private String fontWeight;
+	private String fontSize;
 
 	private Runnable dataSetChanged = new Runnable() {
 
@@ -108,7 +111,7 @@ public class TitaniumTableView extends FrameLayout
 				v = new TitaniumTableViewItem(tmm.getAppContext());
 			}
 
-			v.setRowData((JSONObject) getItem(position), rowHeight);
+			v.setRowData((JSONObject) getItem(position), rowHeight, fontSize, fontWeight);
 
 			return v;
 		}
@@ -149,6 +152,8 @@ public class TitaniumTableView extends FrameLayout
 		this.root = false;
 		this.viewModel = new TableViewModel();
 		this.hasBeenOpened = false;
+		this.fontSize = TitaniumUIHelper.getDefaultFontSize(tmm.getActivity());
+		this.fontWeight = TitaniumUIHelper.getDefaultFontWeight(tmm.getActivity());
 
 		this.eventListeners = new TitaniumJSEventManager(tmm);
 		this.eventListeners.supportEvent(EVENT_FOCUSED);
@@ -379,6 +384,15 @@ public class TitaniumTableView extends FrameLayout
 
 		addView(view, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		hasBeenOpened = true;
+	}
+
+
+	public void setFontSize(String fontSize) {
+		this.fontSize = fontSize;
+	}
+
+	public void setFontWeight(String fontWeight) {
+		this.fontWeight = fontWeight;
 	}
 
 	public void close()

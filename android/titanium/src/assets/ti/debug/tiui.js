@@ -584,7 +584,17 @@ var TableView = function(proxy) {
 	};
 	this.close = function() {
 		this.proxy.close();
-	}
+	};
+	this.setFontWeight = function(fontWeight) {
+		if (!isUndefined(fontWeight)) {
+			this.proxy.setFontWeight(fontWeight);
+		}
+	};
+	this.setFontSize = function(fontSize) {
+		if (!isUndefined(fontSize)) {
+			this.proxy.setFontSize(fontSize);
+		}
+	};
 };
 
 var WebView = function(proxy) {
@@ -1345,6 +1355,8 @@ Titanium.UI = {
 			 var rowHeight = options['rowHeight'];
 			 var isPrimary = options['isPrimary'];
 			 var name = options['name'];
+			 var fontSize = options['fontSize'];
+			 var fontWeight = options['fontWeight'];
 
 			 if (!isUndefined(data)) {
 				 tv.setData(data);
@@ -1357,6 +1369,12 @@ Titanium.UI = {
 			 }
 			 if (!isUndefined(name)) {
 				 tv.setName(name);
+			 }
+			 if (!isUndefined(fontSize)) {
+				 tv.setFontSize(fontSize);
+			 }
+			 if (!isUndefined(fontWeight)) {
+				 tv.setFontWeight(fontWeight);
 			 }
 		 }
 
