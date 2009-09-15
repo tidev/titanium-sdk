@@ -15,6 +15,10 @@
 		} else {
 			s = "Result: PASS {isValidRow returned false}";
 		}
+
+		var rc = rows.getRowCount();
+		s += "<br/> Row Count:" + rc;
+
 		document.getElementById('results').innerHTML = s;
   }
   </script>
