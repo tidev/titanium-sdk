@@ -8,11 +8,13 @@
 package org.appcelerator.titanium.module.app;
 
 import org.appcelerator.titanium.api.ITitaniumProperties;
+import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.Log;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.Log;
 
 public class TitaniumProperties implements ITitaniumProperties
 {
@@ -103,5 +105,50 @@ public class TitaniumProperties implements ITitaniumProperties
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putBoolean(key,value);
 		editor.commit();
+	}
+
+	public String getList(String key, String def)
+	{
+		if (DBG) {
+			Log.d(LCAT,"getList called with key:"+key+", def:"+def);
+		}
+		return preferences.getString(key,def);
+	}
+
+	public void setList(String key, String value)
+	{
+		if (DBG) {
+			Log.d(LCAT,"setList called with key:"+key+", value:"+value);
+		}
+
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putString(key, value); // stringified array.
+		editor.commit();
+
+	}
+
+	public boolean hasProperty(String key)
+	{
+		return preferences.contains(key);
+	}
+
+	public String listProperties()
+	{
+		JSONArray a = new JSONArray();
+
+		for (String key : preferences.getAll().keySet()) {
+			a.put(key);
+		}
+
+		return a.toString();
+	}
+
+	public void removeProperty(String key)
+	{
+		if (preferences.contains(key)) {
+			SharedPreferences.Editor editor = preferences.edit();
+			editor.remove(key);
+			editor.commit();
+		}
 	}
 }

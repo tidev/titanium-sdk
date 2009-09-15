@@ -10,4 +10,9 @@ public interface ITitaniumProperties
 	public void setDouble(String key, double value);
 	public boolean getBool(String key, boolean def);
 	public void setBool(String key, boolean value);
+	public String getList(String key, String def);
+	public void setList(String key, String value);
+	public boolean hasProperty(String key);
+	public String listProperties();
+	public void removeProperty(String key);
 }

@@ -31,10 +31,25 @@
 	  ap.setString("app.string", "a string too");
 	  ap.setBool("app.bool", false);
 
-	  html += "app.int=" + ap.getInt("app.int") + "<br\>";
-	  html += "app.double=" + ap.getDouble("app.double") + "<br\>";
-	  html += "app.string=" + ap.getString("app.string") + "<br\>";
-	  html += "app.bool=" + ap.getBool("app.bool") + "<br\>";
+	  var l1 = ["A", "b", "c", "D"];
+	  ap.setList("L1", l1);
+
+	  var l2 = ap.getList("L2", []);
+
+
+	  html += "app.int=" + ap.getInt("app.int") + "<br/>";
+	  html += "app.double=" + ap.getDouble("app.double") + "<br/>";
+	  html += "app.string=" + ap.getString("app.string") + "<br/>";
+	  html += "app.bool=" + ap.getBool("app.bool") + "<br/>";
+
+	  html += 'Has app.string: ' + ap.hasProperty('app.string') + '<br/>';
+	  html += 'L1: ' + ap.getList("L1").join(",") + '<br/>';
+	  html += 'L2: ' + l2.join(",") + '<br/>';
+
+	  ap.removeProperty('app.string');
+	  html += 'Has app.string after rm: ' + ap.hasProperty('app.string') + '<br/>';
+
+	  html += "Properties: " + ap.listProperties().join(",") + '<br/>';
 
 	  document.getElementById("app").innerHTML = html;
 
