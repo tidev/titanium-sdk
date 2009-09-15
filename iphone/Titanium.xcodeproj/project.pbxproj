@@ -181,8 +181,6 @@
 		B47A27851035F11F002146CD /* accounts.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27271035F11F002146CD /* accounts.js */; };
 		B47A27881035F11F002146CD /* DM.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A272B1035F11F002146CD /* DM.html */; };
 		B47A27891035F11F002146CD /* DM.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A272C1035F11F002146CD /* DM.js */; };
-		B47A278A1035F11F002146CD /* editaccounts.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A272D1035F11F002146CD /* editaccounts.html */; };
-		B47A278B1035F11F002146CD /* editaccounts.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A272E1035F11F002146CD /* editaccounts.js */; };
 		B47A278C1035F11F002146CD /* favorites.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A272F1035F11F002146CD /* favorites.html */; };
 		B47A278D1035F11F002146CD /* favorites.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27301035F11F002146CD /* favorites.js */; };
 		B47A278E1035F11F002146CD /* humane.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27311035F11F002146CD /* humane.js */; };
@@ -233,6 +231,18 @@
 		B4A6D3B2103C9EFD00131CD4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
 		B4A6D3B3103C9EFD00131CD4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
 		B4A6D3B4103C9EFD00131CD4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
+		B4AA86A2105ECEC700D29939 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; };
+		B4AA86FE105ED1DF00D29939 /* nointernet.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AA86F3105ED1DF00D29939 /* nointernet.html */; };
+		B4AA86FF105ED1DF00D29939 /* timeline-all.js in Sources */ = {isa = PBXBuildFile; fileRef = B4AA86F4105ED1DF00D29939 /* timeline-all.js */; };
+		B4AA8700105ED1DF00D29939 /* timeline-all.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AA86F5105ED1DF00D29939 /* timeline-all.html */; };
+		B4AA8701105ED1DF00D29939 /* timeline-replies.js in Sources */ = {isa = PBXBuildFile; fileRef = B4AA86F6105ED1DF00D29939 /* timeline-replies.js */; };
+		B4AA8702105ED1DF00D29939 /* timeline-replies.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AA86F7105ED1DF00D29939 /* timeline-replies.html */; };
+		B4AA8703105ED1DF00D29939 /* link.js in Sources */ = {isa = PBXBuildFile; fileRef = B4AA86F8105ED1DF00D29939 /* link.js */; };
+		B4AA8704105ED1DF00D29939 /* link.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AA86F9105ED1DF00D29939 /* link.html */; };
+		B4AA8705105ED1DF00D29939 /* timeline-public.js in Sources */ = {isa = PBXBuildFile; fileRef = B4AA86FA105ED1DF00D29939 /* timeline-public.js */; };
+		B4AA8706105ED1DF00D29939 /* timeline-public.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AA86FB105ED1DF00D29939 /* timeline-public.html */; };
+		B4AA8707105ED1DF00D29939 /* timeline-dms.js in Sources */ = {isa = PBXBuildFile; fileRef = B4AA86FC105ED1DF00D29939 /* timeline-dms.js */; };
+		B4AA8708105ED1DF00D29939 /* timeline-dms.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AA86FD105ED1DF00D29939 /* timeline-dms.html */; };
 		B4ABEDC4101903CA00639ED5 /* buggy.html in Resources */ = {isa = PBXBuildFile; fileRef = B4ABEDC3101903CA00639ED5 /* buggy.html */; };
 		B4ABEDC7101903F300639ED5 /* buggy.js in Sources */ = {isa = PBXBuildFile; fileRef = B4ABEDC6101903F300639ED5 /* buggy.js */; };
 		B4B571FE10110324003546C7 /* TitaniumContentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B571FD10110324003546C7 /* TitaniumContentViewController.m */; };
@@ -365,8 +375,6 @@
 		B47A27271035F11F002146CD /* accounts.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = accounts.js; path = ../../spaz/Resources/accounts.js; sourceTree = SOURCE_ROOT; };
 		B47A272B1035F11F002146CD /* DM.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = DM.html; path = ../../spaz/Resources/DM.html; sourceTree = SOURCE_ROOT; };
 		B47A272C1035F11F002146CD /* DM.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = DM.js; path = ../../spaz/Resources/DM.js; sourceTree = SOURCE_ROOT; };
-		B47A272D1035F11F002146CD /* editaccounts.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = editaccounts.html; path = ../../spaz/Resources/editaccounts.html; sourceTree = SOURCE_ROOT; };
-		B47A272E1035F11F002146CD /* editaccounts.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = editaccounts.js; path = ../../spaz/Resources/editaccounts.js; sourceTree = SOURCE_ROOT; };
 		B47A272F1035F11F002146CD /* favorites.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = favorites.html; path = ../../spaz/Resources/favorites.html; sourceTree = SOURCE_ROOT; };
 		B47A27301035F11F002146CD /* favorites.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = favorites.js; path = ../../spaz/Resources/favorites.js; sourceTree = SOURCE_ROOT; };
 		B47A27311035F11F002146CD /* humane.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = humane.js; path = ../../spaz/Resources/humane.js; sourceTree = SOURCE_ROOT; };
@@ -413,6 +421,17 @@
 		B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumBlobWrapper.m; sourceTree = "<group>"; };
 		B4A6D3AF103C9EFD00131CD4 /* NativeControlProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeControlProxy.h; sourceTree = "<group>"; };
 		B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NativeControlProxy.m; sourceTree = "<group>"; };
+		B4AA86F3105ED1DF00D29939 /* nointernet.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = nointernet.html; path = ../../spaz/Resources/nointernet.html; sourceTree = SOURCE_ROOT; };
+		B4AA86F4105ED1DF00D29939 /* timeline-all.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "timeline-all.js"; path = "../../spaz/Resources/timeline-all.js"; sourceTree = SOURCE_ROOT; };
+		B4AA86F5105ED1DF00D29939 /* timeline-all.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "timeline-all.html"; path = "../../spaz/Resources/timeline-all.html"; sourceTree = SOURCE_ROOT; };
+		B4AA86F6105ED1DF00D29939 /* timeline-replies.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "timeline-replies.js"; path = "../../spaz/Resources/timeline-replies.js"; sourceTree = SOURCE_ROOT; };
+		B4AA86F7105ED1DF00D29939 /* timeline-replies.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "timeline-replies.html"; path = "../../spaz/Resources/timeline-replies.html"; sourceTree = SOURCE_ROOT; };
+		B4AA86F8105ED1DF00D29939 /* link.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = link.js; path = ../../spaz/Resources/link.js; sourceTree = SOURCE_ROOT; };
+		B4AA86F9105ED1DF00D29939 /* link.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = link.html; path = ../../spaz/Resources/link.html; sourceTree = SOURCE_ROOT; };
+		B4AA86FA105ED1DF00D29939 /* timeline-public.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "timeline-public.js"; path = "../../spaz/Resources/timeline-public.js"; sourceTree = SOURCE_ROOT; };
+		B4AA86FB105ED1DF00D29939 /* timeline-public.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "timeline-public.html"; path = "../../spaz/Resources/timeline-public.html"; sourceTree = SOURCE_ROOT; };
+		B4AA86FC105ED1DF00D29939 /* timeline-dms.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "timeline-dms.js"; path = "../../spaz/Resources/timeline-dms.js"; sourceTree = SOURCE_ROOT; };
+		B4AA86FD105ED1DF00D29939 /* timeline-dms.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "timeline-dms.html"; path = "../../spaz/Resources/timeline-dms.html"; sourceTree = SOURCE_ROOT; };
 		B4ABEDC3101903CA00639ED5 /* buggy.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = buggy.html; sourceTree = "<group>"; };
 		B4ABEDC6101903F300639ED5 /* buggy.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = buggy.js; sourceTree = "<group>"; };
 		B4B571FC10110324003546C7 /* TitaniumContentViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumContentViewController.h; sourceTree = "<group>"; };
@@ -468,6 +487,7 @@
 				B4C3F8B60FB3B11C0037F210 /* CoreLocation.framework in Frameworks */,
 				B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */,
 				B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */,
+				B4AA86A2105ECEC700D29939 /* MessageUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -779,10 +799,19 @@
 				B47A27E21035F15C002146CD /* tiapp.plist */,
 				B47A27261035F11F002146CD /* accounts.html */,
 				B47A27271035F11F002146CD /* accounts.js */,
+				B4AA86F3105ED1DF00D29939 /* nointernet.html */,
+				B4AA86F4105ED1DF00D29939 /* timeline-all.js */,
+				B4AA86F5105ED1DF00D29939 /* timeline-all.html */,
+				B4AA86F6105ED1DF00D29939 /* timeline-replies.js */,
+				B4AA86F7105ED1DF00D29939 /* timeline-replies.html */,
+				B4AA86F8105ED1DF00D29939 /* link.js */,
+				B4AA86F9105ED1DF00D29939 /* link.html */,
+				B4AA86FA105ED1DF00D29939 /* timeline-public.js */,
+				B4AA86FB105ED1DF00D29939 /* timeline-public.html */,
+				B4AA86FC105ED1DF00D29939 /* timeline-dms.js */,
+				B4AA86FD105ED1DF00D29939 /* timeline-dms.html */,
 				B47A272B1035F11F002146CD /* DM.html */,
 				B47A272C1035F11F002146CD /* DM.js */,
-				B47A272D1035F11F002146CD /* editaccounts.html */,
-				B47A272E1035F11F002146CD /* editaccounts.js */,
 				B47A272F1035F11F002146CD /* favorites.html */,
 				B47A27301035F11F002146CD /* favorites.js */,
 				B47A27311035F11F002146CD /* humane.js */,
@@ -1032,7 +1061,6 @@
 				B47A27DC1035F11F002146CD /* trends.js in Resources */,
 				B47A27D51035F11F002146CD /* search.js in Resources */,
 				B47A27CB1035F11F002146CD /* message.js in Resources */,
-				B47A278B1035F11F002146CD /* editaccounts.js in Resources */,
 				B47A27D71035F11F002146CD /* splash.js in Resources */,
 				B47A27C91035F11F002146CD /* json2.js in Resources */,
 				B47A27D11035F11F002146CD /* post.js in Resources */,
@@ -1042,7 +1070,6 @@
 				B47A27241035F0BF002146CD /* MainWindow.xib in Resources */,
 				B47A27841035F11F002146CD /* accounts.html in Resources */,
 				B47A27881035F11F002146CD /* DM.html in Resources */,
-				B47A278A1035F11F002146CD /* editaccounts.html in Resources */,
 				B47A278C1035F11F002146CD /* favorites.html in Resources */,
 				B47A27CA1035F11F002146CD /* message.html in Resources */,
 				B47A27CC1035F11F002146CD /* more.html in Resources */,
@@ -1060,6 +1087,12 @@
 				B47A27E51035F15C002146CD /* Default.png in Resources */,
 				B47A27E61035F15C002146CD /* tiapp.plist in Resources */,
 				B47A283D1035F2E3002146CD /* images in Resources */,
+				B4AA86FE105ED1DF00D29939 /* nointernet.html in Resources */,
+				B4AA8700105ED1DF00D29939 /* timeline-all.html in Resources */,
+				B4AA8702105ED1DF00D29939 /* timeline-replies.html in Resources */,
+				B4AA8704105ED1DF00D29939 /* link.html in Resources */,
+				B4AA8706105ED1DF00D29939 /* timeline-public.html in Resources */,
+				B4AA8708105ED1DF00D29939 /* timeline-dms.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1240,6 +1273,11 @@
 				B4D4B07810489FDC006E42E0 /* WebFont.m in Sources */,
 				B4B8E56B10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */,
 				B451D42610599C1C0025A18B /* PickerImageTextCell.m in Sources */,
+				B4AA86FF105ED1DF00D29939 /* timeline-all.js in Sources */,
+				B4AA8701105ED1DF00D29939 /* timeline-replies.js in Sources */,
+				B4AA8703105ED1DF00D29939 /* link.js in Sources */,
+				B4AA8705105ED1DF00D29939 /* timeline-public.js in Sources */,
+				B4AA8707105ED1DF00D29939 /* timeline-dms.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -96,6 +96,8 @@ NSString * const titaniumJavascriptInjection =
 		"for(i=0;i<listenerCount;i++)"
 			"{listeners[i](event);}"
 	"},"
+	"_DOTOUCH:false,"
+	"_TOUCHLOAD:function(ev){Ti._DOTOUCH=false;ev._NODEF=ev.preventDefault;ev.preventDefault=function(){Ti._DOTOUCH=true;this._NODEF();};},"
 	"_INVOC:function(ivc,args){return Ti._TICMD(ivc,'_RUN',args);},"
 	"toString:function(){return '[Titanium object]';},"
 	"platform:'iphone',"
@@ -107,6 +109,10 @@ NSString * const titaniumJavascriptInjection =
 	"if (targ.nodeType == 3) targ = targ.parentNode;"
 	"if (Ti.Platform && targ.target == 'ti:systembrowser') { Ti.Platform.openURL(targ.href); return false; }"
 "},true);"
+"document.addEventListener('touchstart',Ti._TOUCHLOAD,true);"
+//"document.addEventListener('touchmove',Ti._TOUCHLOAD,true);"
+//"document.addEventListener('touchend',Ti._TOUCHLOAD,true);"
+//"document.addEventListener('touchcancel',Ti._TOUCHLOAD,true);"
 "%@"
 "</script>";
 

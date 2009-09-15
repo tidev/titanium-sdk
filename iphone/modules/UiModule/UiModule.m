@@ -447,7 +447,9 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void) modalPicker: (id)proxyObject visible:(NSNumber *) isVisibleObject options: (NSDictionary *) optionsObject;
 {
-	
+	if(![isVisibleObject respondsToSelector:@selector(boolValue)])return;
+	NativeControlProxy * target = [self proxyForObject:proxyObject scan:YES recurse:YES];
+	//TODO: Modal picker stuff
 }
 
 #pragma mark Window actions
