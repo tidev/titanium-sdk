@@ -106,16 +106,64 @@
   	  	p1.setColumnData(1, col3);
 		document.getElementById('btn-animals').style.display = "block";
   	});
+
+  	var data2 = [];
+  	var col1a = {
+ 		height: '40px',
+		width: '120px',
+		data : []
+  	};
+  	for(i = 0; i < col1.data.length; i++) {
+  	  	col1a.data.push(col1.data[i]);
+  	}
+  	data2.push(col1a);
+
+  	var col2a = {
+  		height: '40px',
+  		width: '120px',
+		data : []
+  	};
+  	for(i = 0; i < col2.data.length; i++) {
+  	  	col2a.data.push(col2.data[i]);
+  	}
+  	data2.push(col2a);
+
+  	var dlg = Titanium.UI.createModalPicker({ data : data2});
+  	dlg.addEventListener('change', function(e) {
+  	    var selectedValue = e.selectedValue;
+
+  	    var v = "<br/>"
+  	    for(i=0; i < selectedValue.length; i++) {
+  	  	    var c = selectedValue[i];
+  	  	    if (!isUndefined(c.html)) {
+  	  	  	    v += "<div>" + c.html + "</div>";
+  	  	    } else {
+  	  	  	    v += "<div>" + c.title + "</div>";
+  	  	    }
+  	    }
+
+  	    var c = document.getElementById('change1');
+  	    c.innerHTML = "Items: " + selectedValue.length + v;
+  	});
+
+  	var dlgShowBtn = Titanium.UI.createButton({id: 'btn-dlg-show', title : 'Show'});
+  	dlgShowBtn.addEventListener('click', function(e) {
+  	  	dlg.setData(data2);
+  	  	dlg.show();
+  	});
+
   --></script>
 </head>
 <body style="background-color: white;">
-<div style="width:99%; height: 50px; background-color: #aaa; margin-bottom: 20px">
+<div style="width:99%; height: 80px; background-color: #aaa; margin-bottom: 20px">
 	<div id="btn-animals" style="width: 30%; height: 40px; float: left; margin-right: 5px; margin-left: 5%">&nbsp;</div>
 	<div id="btn-single-col" style="width: 30%; height: 40px; float: left;">&nbsp;</div>
 	<div id="btn-replace" style="width: 30%; height: 40px; float: left;">&nbsp;</div>
+	<div id="btn-dlg-show" style="width: 30%; height: 40px; float: left; margin-right: 5px; margin-left: 5%">&nbsp;</div>
+
 </div>
 <hr/>
-<div id='p1' style='height: 150px; width: 300px; clear:both; background-color: #666'>&nbsp;</div>
+<div id='p1' style='height: 50px; width: 300px; clear:both; background-color: #666'>&nbsp;</div>
 <div id='change1'>&nbsp;</div>
 
 </body>

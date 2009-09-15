@@ -46,4 +46,6 @@ public interface ITitaniumUI
 	// In 0.6.3/1.0.0 not sure yet.
 	public ITitaniumDatePicker createDatePicker(String json);
 	public ITitaniumModalDatePicker createModalDatePicker(String json);
+	public ITitaniumPicker createPicker(String json);
+	public ITitaniumModalPicker createModalPicker(String json);
 }

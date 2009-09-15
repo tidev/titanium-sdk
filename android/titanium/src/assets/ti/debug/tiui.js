@@ -1663,7 +1663,16 @@ Titanium.UI = {
 	},
 
 	createModalPicker : function(options) {
+		if(isUndefined(options)) {
+			options = {};
+		}
 
+		var dlg = new Picker(Titanium.uiProxy.createModalPicker(Titanium.JSON.stringify(options)));
+		dlg.show = function() { this.proxy.show(); };
+		dlg.hide = function() { this.proxy.hide(); };
+		dlg.proxy.open();
+
+		return dlg;
 	},
 
 	// createNotification is below. It needs the property currentWindow

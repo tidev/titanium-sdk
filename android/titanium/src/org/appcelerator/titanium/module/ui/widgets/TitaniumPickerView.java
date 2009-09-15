@@ -46,6 +46,7 @@ public class TitaniumPickerView extends RelativeLayout
 
 	private JSONArray data;
 	private ArrayList<Spinner> spinners;
+	private boolean inDialog = false;
 
 	class ItemView extends RelativeLayout
 	{
@@ -101,11 +102,12 @@ public class TitaniumPickerView extends RelativeLayout
 
 	public TitaniumPickerView(Context context)
 	{
-		super(context);
+		this(context, false);
+	}
 
-		if (DBG) {
-			Log.i(LCAT, "Created.");
-		}
+	public TitaniumPickerView(Context context, boolean inDialog) {
+		super(context);
+		this.inDialog = inDialog;
 	}
 
 	public void setData(JSONArray data) {
@@ -129,7 +131,7 @@ public class TitaniumPickerView extends RelativeLayout
 		} catch (JSONException e) {
 			Log.e(LCAT, "Error processing data: ", e);
 		}
-		invalidate();
+		requestLayout();
 	}
 
 	private void handleColumn(int col, JSONObject d) throws JSONException
@@ -165,6 +167,7 @@ public class TitaniumPickerView extends RelativeLayout
 		}
 
 		Spinner spinner = new Spinner(getContext());
+
 
 		TitaniumNinePatchHelper nph = new TitaniumNinePatchHelper();
 
@@ -221,14 +224,20 @@ public class TitaniumPickerView extends RelativeLayout
         spinner.setOnItemSelectedListener(this);
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(width,height);
-        params.addRule(CENTER_VERTICAL);
+        if (!inDialog) {
+        	params.addRule(CENTER_VERTICAL);
+        }
         if (col == 0) {
-        	params.addRule(ALIGN_PARENT_LEFT);
+        	//params.addRule(ALIGN_PARENT_LEFT);
         } else {
         	params.addRule(RIGHT_OF, (col - 1) + BASE_ID);
         }
         params.alignWithParent = true;
         addView(spinner, col, params);
+	}
+
+	public int getColumnCount() {
+		return data.length();
 	}
 
 	public int getSelectedRow(int col) {
