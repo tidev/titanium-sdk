@@ -6,7 +6,6 @@ public interface ITitaniumTableView
 	public void setRowHeight(String height);
 	public void setIsRoot(boolean root);
 	public void setCallback(String callback);
-	public void close();
 
 	// New in 0.6.0
 	public void insertRowAfter(int index, String json);

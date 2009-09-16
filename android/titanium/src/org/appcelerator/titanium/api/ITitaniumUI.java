@@ -48,4 +48,5 @@ public interface ITitaniumUI
 	public ITitaniumModalDatePicker createModalDatePicker(String json);
 	public ITitaniumPicker createPicker(String json);
 	public ITitaniumModalPicker createModalPicker(String json);
+	public ITitaniumImageView createImageView();
 }

@@ -21,6 +21,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -126,6 +127,8 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 
 		public void setRowData(JSONObject data, int rowHeight, String fontSize, String fontWeight)
 		{
+			boolean switchView = true;
+
 			handler.removeMessages(MSG_SHOW_VIEW_1);
 			emptyView.rowHeight = rowHeight;
 			setDisplayedChild(0);
@@ -217,15 +220,16 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 					Log.e(LCAT, "Error retrieving header", e);
 				}
 			} else if (!isDisplayHeader && data.has("html")) {
+				webView.setVisibility(View.VISIBLE);
 				try {
 					String html = data.getString("html");
 					if (html != null) {
 						webView.load(html);
+						switchView = false;
 					}
 				} catch (JSONException e) {
 					Log.e(LCAT, "Error retrieving html", e);
 				}
-				webView.setVisibility(View.VISIBLE);
 			} else if (!isDisplayHeader && data.has("title")) {
 				textView.setVisibility(View.VISIBLE);
 				try {
@@ -237,7 +241,9 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 				}
 			}
 
-			handler.sendEmptyMessageDelayed(MSG_SHOW_VIEW_1, 250);
+			if (switchView) {
+				handler.sendEmptyMessage(MSG_SHOW_VIEW_1);
+			}
 		}
 	}
 
@@ -279,6 +285,17 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 				;
 			htmlPrefix = sb.toString();
 			htmlPostfix = "</body></html>";
+
+			setWebViewClient(new WebViewClient() {
+
+				@Override
+				public void onPageFinished(WebView view, String url) {
+					super.onPageFinished(view, url);
+
+					handler.sendEmptyMessageDelayed(MSG_SHOW_VIEW_1, 100);
+				}
+
+			});
 		}
 
 		public void load(String html)
@@ -300,9 +317,9 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 		rowView = new RowView(context);
 		this.addView(rowView, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 
-		Animation a = new AlphaAnimation(0.0f, 1.0f);
-		a.setDuration(250);
-		setInAnimation(a);
+		//Animation a = new AlphaAnimation(0.0f, 1.0f);
+		//a.setDuration(150);
+		//setInAnimation(a);
 	}
 
 	public void setRowData(JSONObject data, int rowHeight, String fontSize, String fontWeight) {
@@ -315,7 +332,6 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 			setDisplayedChild(1);
 			return true;
 		}
-
 		return false;
 	}
 

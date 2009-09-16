@@ -446,6 +446,20 @@ var TitaniumNotifier = function(proxy) {
 	}
 };
 
+var ImageView = function(proxy) {
+	this.proxy = proxy; // reference to Java object
+
+	this.setURL = function(url) {
+		if (!isUndefined(url)) {
+			this.proxy.setURL(proxy);
+		}
+	};
+
+	this.setScale = function(scale) {
+		this.setScale(scale);
+	};
+};
+
 var TableView = function(proxy) {
 	this.proxy = proxy; // reference to Java object
 	this._callback;
@@ -1336,6 +1350,19 @@ Titanium.UI = {
 			}
 		}
 		return ind;
+	},
+	/**
+	 * @tiapi(method=true,name=UI.createImageView,since=0.7.0) Create an image view
+	 * @tiarg[object, options] a dictionary/hash of options
+	 * @tiresult[ImageView] the image view.
+	 */
+	createImageView : function(options) {
+		var iv = new ImageView(Titanium.uiProxy.createImageView());
+		if (isUndefined(options)) {
+			options = {};
+		}
+		iv.proxy.processOptions(Titanium.JSON.stringify(options));
+		return iv;
 	},
 	/**
 	 * @tiapi(method=true,name=UI.createTableView,since=0.5) Create a table view

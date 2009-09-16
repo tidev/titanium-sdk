@@ -5,21 +5,15 @@ import java.util.concurrent.Semaphore;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumTableView;
-import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.module.ui.tableview.TableViewModel;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.appcelerator.titanium.util.TitaniumUIHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.res.Configuration;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -28,13 +22,11 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class TitaniumTableView extends FrameLayout
-	implements ITitaniumTableView, Handler.Callback, ITitaniumView
+public class TitaniumTableView extends TitaniumBaseView
+	implements ITitaniumTableView, Handler.Callback
 {
 	private static final String LCAT = "TitaniumTableView";
 
-	private static final int MSG_OPEN = 300;
-	private static final int MSG_CLOSE = 301;
 	private static final int MSG_SETDATA = 302;
 	private static final int MSG_DELETEROW = 303;
 	private static final int MSG_UPDATEROW = 304;
@@ -42,25 +34,12 @@ public class TitaniumTableView extends FrameLayout
 	private static final int MSG_INSERTAFTER = 306;
 	private static final int MSG_INDEXBYNAME = 307;
 
-	private static final String MSG_EXTRA_CALLBACK = "cb";
-
-	public static final String EVENT_FOCUSED = "focused";
-	public static final String EVENT_FOCUSED_JSON = "{type:'" + EVENT_FOCUSED + "'}";
-	public static final String EVENT_UNFOCUSED = "unfocused";
-	public static final String EVENT_UNFOCUSED_JSON = "{type:'" + EVENT_UNFOCUSED + "'}";
-
-	private TitaniumModuleManager tmm;
 	private int rowHeight;
-	private Handler handler;
 	private boolean root;
-	private String name;
 	private String callback;
 	private TableViewModel viewModel;
-	boolean hasBeenOpened;
 	private TTVListAdapter adapter;
 	private ListView view;
-	private TitaniumJSEventManager eventListeners;
-	private String key;
 	private String fontWeight;
 	private String fontSize;
 
@@ -143,47 +122,32 @@ public class TitaniumTableView extends FrameLayout
 
 	public TitaniumTableView(TitaniumModuleManager tmm, int themeId)
 	{
-		super(tmm.getAppContext(), null, themeId);
+		super(tmm, themeId);
 
-		this.tmm = tmm;
-		this.handler = new Handler(this);
 		this.rowHeight = 65;
 		this.root = true;
 		this.viewModel = new TableViewModel();
 		this.hasBeenOpened = false;
 		this.fontSize = TitaniumUIHelper.getDefaultFontSize(tmm.getActivity());
 		this.fontWeight = TitaniumUIHelper.getDefaultFontWeight(tmm.getActivity());
-
-		this.eventListeners = new TitaniumJSEventManager(tmm);
-		this.eventListeners.supportEvent(EVENT_FOCUSED);
-		this.eventListeners.supportEvent(EVENT_UNFOCUSED);
 	}
 
-	public void processOptions(String options)
+	public void processLocalOptions(JSONObject o) throws JSONException
 	{
-		try {
-			JSONObject o = new JSONObject(options);
-
-			if (o.has("data")) {
-				setData(o.getString("data"));
-			}
-			if (o.has("rowHeight")) {
-				setRowHeight(o.getString("rowHeight"));
-			}
-			if (o.has("isPrimary")) {
-				setIsRoot(o.getBoolean("isPrimary"));
-			}
-			if (o.has("name")) {
-				setName(o.getString("name"));
-			}
-			if (o.has("fontSize")) {
-				setFontSize(o.getString("fontSize"));
-			}
-			if (o.has("fontWeight")) {
-				setFontWeight(o.getString("fontWeight"));
-			}
-		} catch (JSONException e) {
-			Log.e(LCAT,"Error processing options: " + options, e);
+		if (o.has("data")) {
+			setData(o.getString("data"));
+		}
+		if (o.has("rowHeight")) {
+			setRowHeight(o.getString("rowHeight"));
+		}
+		if (o.has("isPrimary")) {
+			setIsRoot(o.getBoolean("isPrimary"));
+		}
+		if (o.has("fontSize")) {
+			setFontSize(o.getString("fontSize"));
+		}
+		if (o.has("fontWeight")) {
+			setFontWeight(o.getString("fontWeight"));
 		}
 	}
 
@@ -294,37 +258,32 @@ public class TitaniumTableView extends FrameLayout
 
 	public boolean handleMessage(Message msg)
 	{
-		Bundle b = msg.getData();
+		boolean handled = super.handleMessage(msg);
 
-		switch(msg.what) {
-		case MSG_OPEN:
-			doOpen(b.getString(MSG_EXTRA_CALLBACK));
-			eventListeners.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
-			return true;
-		case MSG_CLOSE:
-			doClose();
-			return true;
-		case MSG_SETDATA:
-			doSetData((String) msg.obj);
-			return true;
-		case MSG_DELETEROW:
-			doDeleteRow(msg.arg1);
-			return true;
-		case MSG_INSERTAFTER:
-			doInsertRowAfter(msg.arg1, (String) msg.obj);
-			return true;
-		case MSG_INSERTBEFORE:
-			doInsertRowBefore(msg.arg1, (String) msg.obj);
-			return true;
-		case MSG_UPDATEROW:
-			doUpdateRow(msg.arg1, (String) msg.obj);
-			return true;
-		case MSG_INDEXBYNAME :
-			IndexHolder h = (IndexHolder) msg.obj;
-			String name = msg.getData().getString("name");
-			h.index = doGetIndexByName(name);
-			h.release();
-			return true;
+		if (!handled) {
+			switch(msg.what) {
+			case MSG_SETDATA:
+				doSetData((String) msg.obj);
+				return true;
+			case MSG_DELETEROW:
+				doDeleteRow(msg.arg1);
+				return true;
+			case MSG_INSERTAFTER:
+				doInsertRowAfter(msg.arg1, (String) msg.obj);
+				return true;
+			case MSG_INSERTBEFORE:
+				doInsertRowBefore(msg.arg1, (String) msg.obj);
+				return true;
+			case MSG_UPDATEROW:
+				doUpdateRow(msg.arg1, (String) msg.obj);
+				return true;
+			case MSG_INDEXBYNAME :
+				IndexHolder h = (IndexHolder) msg.obj;
+				String name = msg.getData().getString("name");
+				h.index = doGetIndexByName(name);
+				h.release();
+				return true;
+			}
 		}
 		return false;
 	}
@@ -334,38 +293,15 @@ public class TitaniumTableView extends FrameLayout
 		this.callback = callback;
 	}
 
-	public void showing() {
-		if (!hasBeenOpened) {
-			Message m = handler.obtainMessage(MSG_OPEN);
-			m.getData().putString(MSG_EXTRA_CALLBACK, callback);
-			m.sendToTarget();
-		} else {
-			eventListeners.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
-		}
-	}
 
-	public void hiding() {
-		eventListeners.invokeSuccessListeners(EVENT_UNFOCUSED, EVENT_UNFOCUSED_JSON);
-	}
-
-	public int addEventListener(String eventName, String listener) {
-		return eventListeners.addListener(eventName, listener);
-	}
-
-	public void removeEventListener(String eventName, int listenerId) {
-		eventListeners.removeListener(eventName, listenerId);
-	}
-
-	private void doOpen(final String callback)
+	protected void doOpen()
 	{
-		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-		setLayoutParams(params);
-		setPadding(5,5,5,5);
+		final String callback = this.callback;
 
-		view = new ListView(tmm.getAppContext());
+		view = new ListView(getContext());
 		view.setFocusable(true);
 		view.setFocusableInTouchMode(true);
-		view.setDrawingCacheEnabled(true);
+		//view.setDrawingCacheEnabled(true);
 		adapter = new TTVListAdapter(viewModel);
 		view.setAdapter(adapter);
 		view.setOnKeyListener(new View.OnKeyListener() {
@@ -407,10 +343,12 @@ public class TitaniumTableView extends FrameLayout
 				}
 			}});
 
-		addView(view, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-		hasBeenOpened = true;
 	}
 
+	@Override
+	protected View getContentView() {
+		return view;
+	}
 
 	public void setFontSize(String fontSize) {
 		this.fontSize = fontSize;
@@ -425,46 +363,7 @@ public class TitaniumTableView extends FrameLayout
 		handler.sendEmptyMessage(MSG_CLOSE);
 	}
 
-	private void doClose() {
-		//tmm.getActivity().popView(this);
-		destroyDrawingCache();
-		removeAllViews();
-	}
-
 	public ITitaniumLifecycle getLifecycle() {
 		return null;
-	}
-
-	public View getNativeView() {
-		return this;
-	}
-
-	public void dispatchWindowFocusChanged(boolean hasFocus) {
-		tmm.getWebView().dispatchWindowFocusChanged(hasFocus);
-	}
-
-	public void dispatchConfigurationChange(Configuration newConfig) {
-		//tmm.getWebView().dispatchConfigurationChange(newConfig);
-	}
-
-	// Called on the current view, so forward to our controller
-	public boolean dispatchOptionsItemSelected(MenuItem item) {
-		return tmm.getWebView().dispatchOptionsItemSelected(item);
-	}
-
-	// Called on the current view, so forward to our controller
-	public boolean dispatchPrepareOptionsMenu(Menu menu) {
-		return tmm.getWebView().dispatchPrepareOptionsMenu(menu);
-	}
-
-	public void dispatchApplicationEvent(String eventName, String data) {
-	}
-
-	public String getKey() {
-		return key;
-	}
-
-	public void setKey(String key) {
-		this.key = key;
 	}
 }
