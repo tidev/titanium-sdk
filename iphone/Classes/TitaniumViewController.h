@@ -49,10 +49,6 @@ typedef enum {
 	NSLock	* contentViewLock;
 	NSMutableArray * contentViewControllers;
 
-	UIScrollView * pagedView;
-	UIPageControl * pageControl;
-	NSMutableArray * pagedViewControllers;	//Should be a subset of contentViewControllers
-
 	int selectedContentIndex;
 	TitaniumContentViewController * focusedContentController;
 

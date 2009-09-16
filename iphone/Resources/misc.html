@@ -60,7 +60,8 @@
 		}
 		
 		fileTest=function(){
-			var filething=Titanium.Filesystem.getFile('/');
+			var filething=Titanium.Filesystem.getFile('~');
+			var something=Titanium.Filesystem.getFile(filething.resolve());
 			Ti.API.debug('filething: ' + typeof(filething));
 			Ti.API.debug('Listing: ' + typeof(filething.getDirectoryListing));
 			Ti.API.debug('Listing: ' + filething.getDirectoryListing());

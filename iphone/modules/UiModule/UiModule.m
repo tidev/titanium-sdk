@@ -1207,6 +1207,12 @@ NSString * UrlEncodeString(NSString * string)
 			"res.setURL=function(newUrl){this.url=newUrl;if(this._TOKEN){Ti.UI._WURL(this._TOKEN,newUrl,document.location);};};"
 			"res.open=function(){Ti.API.fatal('Open is no longer supported in webViews, as they are no longer their own windows.');};"
 			"return res;}";
+
+	NSString * createScrollingViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='scroll';if(!res.views)res.views=[];"
+			"res.addView=function(view){if(!view)return;this.views.push(newView);if(this._TOKEN){view.ensureToken();Ti.UI._SVAVIEW(this._TOKEN,view);}};"
+			"res.scrollToView=function(view){if(typeof(view)=='number'){this.selectedViewIndex=view;}else{if(!view)return;        }};"//TODO: implement
+			"res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res._EVT={scroll:[]};doEvent:Ti._ONEVT;"
+			"return res;}";
 	
 	NSString * createTableWindowString = [NSString stringWithFormat:@"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
 			"if(!res.data)res.data=[];"

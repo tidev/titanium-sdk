@@ -79,6 +79,14 @@
 		B408AD480F97FA010051FD67 /* TitaniumActionSheetHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B408AD470F97FA010051FD67 /* TitaniumActionSheetHelper.m */; };
 		B40A40A70FCF60BF00C5DD7C /* movie.m4v in Resources */ = {isa = PBXBuildFile; fileRef = B40A40A60FCF60BF00C5DD7C /* movie.m4v */; };
 		B40C00241031ECC4009DEFF9 /* docs.html in Resources */ = {isa = PBXBuildFile; fileRef = B40C00231031ECC4009DEFF9 /* docs.html */; };
+		B40CDEE8105F21F6004CFED3 /* TitaniumScrollableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B40CDEE6105F21F6004CFED3 /* TitaniumScrollableViewController.h */; };
+		B40CDEE9105F21F6004CFED3 /* TitaniumScrollableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B40CDEE7105F21F6004CFED3 /* TitaniumScrollableViewController.m */; };
+		B40CDEEA105F21F6004CFED3 /* TitaniumScrollableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B40CDEE7105F21F6004CFED3 /* TitaniumScrollableViewController.m */; };
+		B40CDEEB105F21F6004CFED3 /* TitaniumScrollableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B40CDEE7105F21F6004CFED3 /* TitaniumScrollableViewController.m */; };
+		B40CDF17105F248F004CFED3 /* TitaniumCompositeViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B40CDF15105F248F004CFED3 /* TitaniumCompositeViewController.h */; };
+		B40CDF18105F248F004CFED3 /* TitaniumCompositeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B40CDF16105F248F004CFED3 /* TitaniumCompositeViewController.m */; };
+		B40CDF19105F248F004CFED3 /* TitaniumCompositeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B40CDF16105F248F004CFED3 /* TitaniumCompositeViewController.m */; };
+		B40CDF1A105F248F004CFED3 /* TitaniumCompositeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B40CDF16105F248F004CFED3 /* TitaniumCompositeViewController.m */; };
 		B41068A80FBB745600310448 /* TitaniumAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* TitaniumAppDelegate.m */; };
 		B41068AA0FBB745600310448 /* TitaniumViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */; };
 		B41068AB0FBB745600310448 /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BB640F842C9400DD709C /* SBJSON.m */; };
@@ -347,6 +355,10 @@
 		B408AD470F97FA010051FD67 /* TitaniumActionSheetHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumActionSheetHelper.m; sourceTree = "<group>"; };
 		B40A40A60FCF60BF00C5DD7C /* movie.m4v */ = {isa = PBXFileReference; lastKnownFileType = file; path = movie.m4v; sourceTree = "<group>"; };
 		B40C00231031ECC4009DEFF9 /* docs.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = docs.html; sourceTree = "<group>"; };
+		B40CDEE6105F21F6004CFED3 /* TitaniumScrollableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumScrollableViewController.h; sourceTree = "<group>"; };
+		B40CDEE7105F21F6004CFED3 /* TitaniumScrollableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumScrollableViewController.m; sourceTree = "<group>"; };
+		B40CDF15105F248F004CFED3 /* TitaniumCompositeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumCompositeViewController.h; sourceTree = "<group>"; };
+		B40CDF16105F248F004CFED3 /* TitaniumCompositeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumCompositeViewController.m; sourceTree = "<group>"; };
 		B40F54520F746D11008E0A55 /* TitaniumView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TitaniumView.xib; sourceTree = "<group>"; };
 		B41068A20FBB730F00310448 /* libTitanium.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libTitanium.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4110C9B0FD4653A00BE17F8 /* AccelerometerModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccelerometerModule.h; sourceTree = "<group>"; };
@@ -854,6 +866,10 @@
 				28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */,
 				B4B571FC10110324003546C7 /* TitaniumContentViewController.h */,
 				B4B571FD10110324003546C7 /* TitaniumContentViewController.m */,
+				B40CDEE6105F21F6004CFED3 /* TitaniumScrollableViewController.h */,
+				B40CDEE7105F21F6004CFED3 /* TitaniumScrollableViewController.m */,
+				B40CDF15105F248F004CFED3 /* TitaniumCompositeViewController.h */,
+				B40CDF16105F248F004CFED3 /* TitaniumCompositeViewController.m */,
 			);
 			name = TitaniumViewControllers;
 			sourceTree = "<group>";
@@ -939,6 +955,8 @@
 				B4D4B07610489FDC006E42E0 /* WebFont.h in Headers */,
 				B4B8E56C10586D3500D08D44 /* TitaniumCellWrapper.h in Headers */,
 				B451D42810599C1C0025A18B /* PickerImageTextCell.h in Headers */,
+				B40CDEE8105F21F6004CFED3 /* TitaniumScrollableViewController.h in Headers */,
+				B40CDF17105F248F004CFED3 /* TitaniumCompositeViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1168,6 +1186,8 @@
 				B4D4B07510489FDC006E42E0 /* WebFont.m in Sources */,
 				B4B8E56E10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */,
 				B451D42710599C1C0025A18B /* PickerImageTextCell.m in Sources */,
+				B40CDEEA105F21F6004CFED3 /* TitaniumScrollableViewController.m in Sources */,
+				B40CDF19105F248F004CFED3 /* TitaniumCompositeViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1220,6 +1240,8 @@
 				B4D4B07710489FDC006E42E0 /* WebFont.m in Sources */,
 				B4B8E56D10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */,
 				B451D42910599C1C0025A18B /* PickerImageTextCell.m in Sources */,
+				B40CDEE9105F21F6004CFED3 /* TitaniumScrollableViewController.m in Sources */,
+				B40CDF18105F248F004CFED3 /* TitaniumCompositeViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1278,6 +1300,8 @@
 				B4AA8703105ED1DF00D29939 /* link.js in Sources */,
 				B4AA8705105ED1DF00D29939 /* timeline-public.js in Sources */,
 				B4AA8707105ED1DF00D29939 /* timeline-dms.js in Sources */,
+				B40CDEEB105F21F6004CFED3 /* TitaniumScrollableViewController.m in Sources */,
+				B40CDF1A105F248F004CFED3 /* TitaniumCompositeViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

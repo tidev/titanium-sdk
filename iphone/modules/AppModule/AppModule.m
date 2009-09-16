@@ -7,6 +7,7 @@
 #ifdef MODULE_TI_APP
 
 #import "AppModule.h"
+#import "TitaniumJSCode.h"
 
 @implementation AppModule
 
@@ -57,7 +58,11 @@
 - (void) setObject: (NSString *) key value: (NSObject *) newValue;
 {
 	if (![key isKindOfClass:[NSString class]]) return;
-	[defaultsObject setObject:newValue forKey:key];
+	if((newValue==nil) || (newValue==[NSNull null])){
+		[defaultsObject removeObjectForKey:key];
+	} else {
+		[defaultsObject setObject:newValue forKey:key];
+	}
 }
 
 - (NSNumber *) hasProperty: (NSString *) key;
@@ -116,6 +121,7 @@
 								 setInvoc,@"setInt",
 								 setInvoc,@"setString",
 								 setInvoc,@"setList",
+								 [TitaniumJSCode codeWithString:@"function(key){Ti.App.Properties.setString(key);}"],@"removeProperty",
 								 hasInvoc,@"hasProperty",
 								 listInvoc,@"listProperties",
 								 nil];
