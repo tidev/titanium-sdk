@@ -162,9 +162,7 @@
 			NSString * dest=[args stringByStandardizingPath];
 			path = [path stringByStandardizingPath];
 			BOOL result = [[NSFileManager defaultManager] copyItemAtPath:path toPath:dest error:&error];
-			if(error!=nil){
-				VERBOSE_LOG(@"Tried to copy file '%@' to '%@', error was %@",path,dest,error);
-			}
+			VERBOSE_LOG_IF_TRUE((error!=nil),@"Tried to copy file '%@' to '%@', error was %@",path,dest,error);
 			return [NSNumber numberWithBool:result];			
 		}
 		case FILEPATH_MAKEDIRECTORY:{
@@ -180,9 +178,7 @@
 				}
 				NSError * error = nil;
 				result = [theFM createDirectoryAtPath:path withIntermediateDirectories:recurse attributes:nil error:&error];
-				if(error != nil){
-					VERBOSE_LOG(@"Tried to make a directory at '%@' with recursion '%@', error was %@",path,args,error);
-				}
+				VERBOSE_LOG_IF_TRUE((error!=nil),@"Tried to make a directory at '%@' with recursion '%@', error was %@",path,args,error);
 			} else {
 				result = NO;
 			}
@@ -190,18 +186,30 @@
 		}
 		case FILEPATH_DELETEDIRECTORY:{
 			NSFileManager * theFM = [NSFileManager defaultManager];
-			BOOL result;
+			BOOL result = NO;
 			BOOL isDirectory = NO;
 			path = [path stringByStandardizingPath];
 			BOOL exists = [theFM fileExistsAtPath:path isDirectory:&isDirectory];
 			if(exists && isDirectory){
 				NSError * error = nil;
-				result = [theFM removeItemAtPath:path error:&error];
-				if(error != nil){
-					VERBOSE_LOG(@"Tried to delete directory at '%@', error was %@",path,args,error);
+				BOOL shouldDelete = NO;
+				if([args respondsToSelector:@selector(boolValue)] && [args boolValue]){
+					shouldDelete = YES;
+				} else {
+					NSArray * remainers = [theFM contentsOfDirectoryAtPath:path error:&error];
+					if(error==nil){
+						if([remainers count]==0){
+							shouldDelete = YES;
+						} else {
+							VERBOSE_LOG(@"Denying deleting directory at '%@' because these files remain: %@",path,remainers);
+						}
+					}
 				}
-			} else {
-				result = NO;
+				
+				if(shouldDelete){
+					result = [theFM removeItemAtPath:path error:&error];
+				}
+				VERBOSE_LOG_IF_TRUE((error!=nil),@"Tried to delete directory at '%@' with recursion %@, error was %@",path,args,error);
 			}
 			return [NSNumber numberWithBool:result];
 		}
@@ -214,9 +222,7 @@
 			if(exists && !isDirectory){
 				NSError * error = nil;
 				result = [theFM removeItemAtPath:path error:&error];
-				if(error != nil){
-					VERBOSE_LOG(@"Tried to delete file at '%@', error was %@",path,args,error);
-				}
+				VERBOSE_LOG_IF_TRUE((error!=nil),@"Tried to delete file at '%@', error was %@",path,args,error);
 			} else {
 				result = NO;
 			}
@@ -232,10 +238,8 @@
 					//We don't care if this fails.
 				}
 				NSError * error = nil;
-				result = [theFM createFileAtPath:path contents:nil attributes:nil];
-				if(error != nil){
-					VERBOSE_LOG(@"Tried to make a file at '%@' with recursion '%@', error was %@",path,args,error);
-				}
+				result = [[NSData data] writeToFile:path options:0 error:&error];
+				VERBOSE_LOG_IF_TRUE((error!=nil),@"Tried to make a file at '%@' with recursion '%@', error was %@",path,args,error);
 			} else {
 				result = NO;
 			}			
@@ -247,15 +251,27 @@
 			path = [path stringByStandardizingPath];
 			NSString * dest=[args stringByStandardizingPath];
 			BOOL result = [[NSFileManager defaultManager] moveItemAtPath:path toPath:dest error:&error];
-			if(error!=nil){
-				VERBOSE_LOG(@"Tried to move file '%@' to '%@', error was %@",path,dest,error);
-			}
+			VERBOSE_LOG_IF_TRUE((error!=nil),@"Tried to move file '%@' to '%@', error was %@",path,dest,error);
 			return [NSNumber numberWithBool:result];			
 		}
 		case FILEPATH_READ:{
-			
+			path = [path stringByStandardizingPath];
+			NSError * error = nil;
+			NSStringEncoding enc = 0;
+			NSString * result = [NSString stringWithContentsOfFile:path usedEncoding:&enc error:&error];
+			VERBOSE_LOG_IF_TRUE((error!=nil),@"Tried read file '%@', error was %@",path,error);
+			return result;
 		}
 		case FILEPATH_WRITE:{
+			BOOL result = NO;
+			NSError * error = nil;
+			if([args isKindOfClass:stringClass]){
+				NSStringEncoding enc = [(NSString *)args fastestEncoding];
+				path = [path stringByStandardizingPath];
+				result = [(NSString *)args writeToFile:path atomically:NO encoding:enc error:&error];
+			}
+			VERBOSE_LOG_IF_TRUE((error!=nil),@"Tried read write to file '%@', error was %@, data to write was %@",path,error,args);
+			return [NSNumber numberWithBool:result];
 		}
 		case FILEPATH_EXTENSION:{
 			return [path pathExtension];
