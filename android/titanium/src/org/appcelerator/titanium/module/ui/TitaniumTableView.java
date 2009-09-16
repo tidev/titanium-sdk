@@ -54,7 +54,6 @@ public class TitaniumTableView extends FrameLayout
 	private Handler handler;
 	private boolean root;
 	private String name;
-	private String openJSON;
 	private String callback;
 	private TableViewModel viewModel;
 	boolean hasBeenOpened;
@@ -149,7 +148,7 @@ public class TitaniumTableView extends FrameLayout
 		this.tmm = tmm;
 		this.handler = new Handler(this);
 		this.rowHeight = 65;
-		this.root = false;
+		this.root = true;
 		this.viewModel = new TableViewModel();
 		this.hasBeenOpened = false;
 		this.fontSize = TitaniumUIHelper.getDefaultFontSize(tmm.getActivity());
@@ -158,6 +157,34 @@ public class TitaniumTableView extends FrameLayout
 		this.eventListeners = new TitaniumJSEventManager(tmm);
 		this.eventListeners.supportEvent(EVENT_FOCUSED);
 		this.eventListeners.supportEvent(EVENT_UNFOCUSED);
+	}
+
+	public void processOptions(String options)
+	{
+		try {
+			JSONObject o = new JSONObject(options);
+
+			if (o.has("data")) {
+				setData(o.getString("data"));
+			}
+			if (o.has("rowHeight")) {
+				setRowHeight(o.getString("rowHeight"));
+			}
+			if (o.has("isPrimary")) {
+				setIsRoot(o.getBoolean("isPrimary"));
+			}
+			if (o.has("name")) {
+				setName(o.getString("name"));
+			}
+			if (o.has("fontSize")) {
+				setFontSize(o.getString("fontSize"));
+			}
+			if (o.has("fontWeight")) {
+				setFontWeight(o.getString("fontWeight"));
+			}
+		} catch (JSONException e) {
+			Log.e(LCAT,"Error processing options: " + options, e);
+		}
 	}
 
 	public void setData(String data) {
@@ -302,11 +329,9 @@ public class TitaniumTableView extends FrameLayout
 		return false;
 	}
 
-	public void configure(String json, final String callback)
+	public void setCallback(final String callback)
 	{
-		this.openJSON = json;
 		this.callback = callback;
-		this.root = true;
 	}
 
 	public void showing() {

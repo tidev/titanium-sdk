@@ -575,13 +575,6 @@ var TableView = function(proxy) {
 	this.setIsPrimary = function(primary) {
 		this.proxy.setIsRoot(primary);
 	};
-	this.configure = function(options) {
-		var opt = null;
-		if (!isUndefined(options)) {
-			opt = Titanium.JSON.stringify(options);
-		}
-		this.proxy.configure(opt, registerCallback(this, this._callback));
-	};
 	this.close = function() {
 		this.proxy.close();
 	};
@@ -594,6 +587,10 @@ var TableView = function(proxy) {
 		if (!isUndefined(fontSize)) {
 			this.proxy.setFontSize(fontSize);
 		}
+	};
+	this.setCallback = function(callback) {
+		this._callback = callback;
+		this.proxy.setCallback(registerCallback(this, this._callback));
 	};
 };
 
@@ -1347,39 +1344,11 @@ Titanium.UI = {
 	 */
 	createTableView : function(options, callback) {
 		 var tv = new TableView(Titanium.uiProxy.createTableView());
-
-		 tv._callback = callback;
-
-		 if(!isUndefined(options)) {
-			 var data = options['data'];
-			 var rowHeight = options['rowHeight'];
-			 var isPrimary = options['isPrimary'];
-			 var name = options['name'];
-			 var fontSize = options['fontSize'];
-			 var fontWeight = options['fontWeight'];
-
-			 if (!isUndefined(data)) {
-				 tv.setData(data);
-			 }
-			 if (!isUndefined(rowHeight)) {
-				 tv.setRowHeight(rowHeight);
-			 }
-			 if (!isUndefined(isPrimary)) {
-				 tv.setIsPrimary(isPrimary);
-			 }
-			 if (!isUndefined(name)) {
-				 tv.setName(name);
-			 }
-			 if (!isUndefined(fontSize)) {
-				 tv.setFontSize(fontSize);
-			 }
-			 if (!isUndefined(fontWeight)) {
-				 tv.setFontWeight(fontWeight);
-			 }
+		 if (isUndefined(options)) {
+			 options = {}
 		 }
-
-		 tv.configure(null, registerCallback(this, this._callback));
-
+		 tv.proxy.processOptions(Titanium.JSON.stringify(options));
+		 tv.setCallback(callback);
 		 return tv;
 	},
 	/**
@@ -1389,22 +1358,10 @@ Titanium.UI = {
 	 */
 	createWebView : function(options) {
 		 var wv = new WebView(Titanium.uiProxy.createWebView());
-
-		 if(!isUndefined(options)) {
-			 var url = options['url'];
-			 var name = options['name'];
-
-			 if (!isUndefined(url)) {
-				 //wv.setUrl(url);
-				 wv.proxy.setUrl(url);
-			 }
-			 if (!isUndefined(name)) {
-				 wv.proxy.setName(name);
-			 }
+		 if (isUndefined(options)) {
+			 options = {};
 		 }
-
-		 wv.proxy.configure(null);
-
+		 wv.proxy.processOptions(Titanium.JSON.stringify(options));
 		 return wv;
 	},
 	/**
