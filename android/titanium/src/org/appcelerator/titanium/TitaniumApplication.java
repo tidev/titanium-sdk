@@ -17,13 +17,13 @@ import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEvent;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
 import org.appcelerator.titanium.module.app.TitaniumProperties;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumPlatformHelper;
 import org.xml.sax.SAXException;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import org.appcelerator.titanium.util.Log;
 
 public class TitaniumApplication
 	extends Application

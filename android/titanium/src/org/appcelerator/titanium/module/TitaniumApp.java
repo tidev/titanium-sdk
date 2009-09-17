@@ -11,11 +11,11 @@ import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumApp;
 import org.appcelerator.titanium.api.ITitaniumProperties;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.app.TitaniumProperties;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumUrlHelper;
 
-import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumApp extends TitaniumBaseModule implements ITitaniumApp

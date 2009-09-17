@@ -10,6 +10,7 @@ package org.appcelerator.titanium;
 import java.util.HashMap;
 
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEvent;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumPlatformHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,7 +20,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import org.appcelerator.titanium.util.Log;
 
 public class TitaniumAnalyticsModel extends SQLiteOpenHelper{
 

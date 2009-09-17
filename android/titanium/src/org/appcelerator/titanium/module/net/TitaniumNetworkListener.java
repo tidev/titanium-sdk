@@ -7,6 +7,9 @@
 
 package org.appcelerator.titanium.module.net;
 
+import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.Log;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,8 +19,6 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.Log;
 
 /**
  * A wrapper for a broadcast receiver that provides network connectivity

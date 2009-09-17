@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package org.appcelerator.titanium.module.ui;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
@@ -10,7 +16,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.os.Message;
 import android.text.Editable;
 import android.text.InputType;

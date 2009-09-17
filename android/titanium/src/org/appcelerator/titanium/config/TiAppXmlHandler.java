@@ -8,12 +8,10 @@
 package org.appcelerator.titanium.config;
 
 import org.appcelerator.titanium.api.ITitaniumProperties;
+import org.appcelerator.titanium.util.Log;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.Log;
 
 public class TiAppXmlHandler extends DefaultHandler
 {

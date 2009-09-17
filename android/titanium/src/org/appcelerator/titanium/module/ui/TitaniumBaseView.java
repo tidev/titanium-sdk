@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package org.appcelerator.titanium.module.ui;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
@@ -10,7 +16,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
@@ -185,12 +190,14 @@ public abstract class TitaniumBaseView extends FrameLayout
 		setClickable(false);
 	}
 
-	protected abstract void doOpen();
-
 	protected void doPostOpen() {
 		View contentView = getContentView();
 		if (contentView != null) {
-			addView(contentView, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+			FrameLayout.LayoutParams params = getContentLayoutParams();
+			if (params == null) {
+				params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+			}
+			addView(getContentView(), params);
 		}
 		invalidate();
 		eventManager.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
@@ -202,7 +209,11 @@ public abstract class TitaniumBaseView extends FrameLayout
 		removeAllViews();
 	}
 
-	protected abstract void processLocalOptions(JSONObject o) throws JSONException;
+	protected FrameLayout.LayoutParams getContentLayoutParams() {
+		return new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+	}
 
+	protected abstract void processLocalOptions(JSONObject o) throws JSONException;
+	protected abstract void doOpen();
 	protected abstract View getContentView();
 }

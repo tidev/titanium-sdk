@@ -544,7 +544,7 @@ var TableView = function(proxy) {
 		this.proxy.updateRow(index, Titanium.JSON.stringify(options));
 	};
 	/**
-	 * @tiapi(method=true,name=UI.TableView.appendRow,since=0.6.3) append a row at the end of the table.
+	 * @tiapi(method=true,name=UI.TableView.appendRow,since=0.7.0) append a row at the end of the table.
 	 * @tiarg[object,rowData] JSON compatible data
 	 * @tiarg[object,options] options for append
 	 */
@@ -870,7 +870,7 @@ var DatePicker = function(proxy) {
 	};
 
 	/**
-	 * @tiapi(method=true,name=UI.DatePicker.addEventListener,since=0.6.3) Add a listener.
+	 * @tiapi(method=true,name=UI.DatePicker.addEventListener,since=0.7.0) Add a listener.
 	 * @tiarg[string,eventName] The name of the event. Supports:
 	 * @tiarg[function,listener] The event listener
 	 * @tiresult[int] listenerId used to unregister the event.
@@ -884,7 +884,7 @@ var DatePicker = function(proxy) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, l));
 	};
 	/**
-	 * @tiapi(method=true,name=UI.DatePicker.removeEventListener,since=0.6.3) Add a listener.
+	 * @tiapi(method=true,name=UI.DatePicker.removeEventListener,since=0.7.0) Add a listener.
 	 * @tiarg[string,eventName] The name of the event. Supports:
 	 * @tiarg[function,listenerId] The event listener id returned by addEventListener
 	 */
@@ -900,7 +900,7 @@ var Picker = function(proxy) {
 	};
 
 	/**
-	 * @tiapi(method=true,name=UI.Picker.addEventListener,since=0.6.3) Add a listener.
+	 * @tiapi(method=true,name=UI.Picker.addEventListener,since=0.7.0) Add a listener.
 	 * @tiarg[string,eventName] The name of the event. Supports:
 	 * @tiarg[function,listener] The event listener
 	 * @tiresult[int] listenerId used to unregister the event.
@@ -909,7 +909,7 @@ var Picker = function(proxy) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
 	/**
-	 * @tiapi(method=true,name=UI.Picker.removeEventListener,since=0.6.3) Add a listener.
+	 * @tiapi(method=true,name=UI.Picker.removeEventListener,since=0.7.0) Add a listener.
 	 * @tiarg[string,eventName] The name of the event. Supports:
 	 * @tiarg[function,listenerId] The event listener id returned by addEventListener
 	 */
@@ -955,7 +955,7 @@ var Switch = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.Switch.setValue,since=0.6.3) set the value.
+	 * @tiapi(method=true,name=UI.Switch.setValue,since=0.7.0) set the value.
 	 * @tiarg[boolean,value] value to set the switch too
 	 */
 	this.setValue = function(value) {
@@ -964,7 +964,7 @@ var Switch = function(proxy) {
 		}
 	};
 	/**
-	 * @tiapi(method=true,name=UI.Switch.getValue,since=0.6.3) get the value.
+	 * @tiapi(method=true,name=UI.Switch.getValue,since=0.7.0) get the value.
 	 * @tiresult[boolean] value of the switch
 	 */
 	this.getValue = function() {
@@ -973,7 +973,7 @@ var Switch = function(proxy) {
 };
 
 /**
- * @tiapi(property=true,name=UI.Switch.value,since=0.6.3) get/set the switch value
+ * @tiapi(property=true,name=UI.Switch.value,since=0.7.0) get/set the switch value
  */
 Switch.prototype.__defineGetter__("value", function() {
 	return this.getValue;
@@ -1003,7 +1003,7 @@ var Slider = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.Slider.setValue,since=0.6.3) set the value.
+	 * @tiapi(method=true,name=UI.Slider.setValue,since=0.7.0) set the value.
 	 * @tiarg[int,value] value to set the slider too
 	 */
 	this.setValue = function(value) {
@@ -1012,7 +1012,7 @@ var Slider = function(proxy) {
 		}
 	};
 	/**
-	 * @tiapi(method=true,name=UI.Slider.getValue,since=0.6.3) get the value.
+	 * @tiapi(method=true,name=UI.Slider.getValue,since=0.7.0) get the value.
 	 * @tiresult[int] value of the slider
 	 */
 	this.getValue = function() {
@@ -1021,7 +1021,7 @@ var Slider = function(proxy) {
 };
 
 /**
- * @tiapi(property=true,name=UI.Slider.value,since=0.6.3) get/set the slider value
+ * @tiapi(property=true,name=UI.Slider.value,since=0.7.0) get/set the slider value
  */
 Slider.prototype.__defineGetter__("value", function() {
 	return this.getValue;
@@ -1063,7 +1063,7 @@ var TextArea = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.TextArea.setValue,since=0.6.3) set the value.
+	 * @tiapi(method=true,name=UI.TextArea.setValue,since=0.7.0) set the value.
 	 * @tiarg[string,value] value to set the slider too
 	 */
 	this.setValue = function(value) {
@@ -1072,7 +1072,7 @@ var TextArea = function(proxy) {
 		}
 	};
 	/**
-	 * @tiapi(method=true,name=UI.TextArea.getValue,since=0.6.3) get the value.
+	 * @tiapi(method=true,name=UI.TextArea.getValue,since=0.7.0) get the value.
 	 * @tiresult[string] value of the slider
 	 */
 	this.getValue = function() {
@@ -1081,7 +1081,7 @@ var TextArea = function(proxy) {
 };
 
 /**
- * @tiapi(property=true,name=UI.TextField.value,since=0.6.3) get/set the text field value
+ * @tiapi(property=true,name=UI.TextField.value,since=0.7.0) get/set the text field value
  */
 TextArea.prototype.__defineGetter__("value", function() {
 	return this.getValue;
@@ -1123,7 +1123,7 @@ var TextField = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.TextField.setValue,since=0.6.3) set the value.
+	 * @tiapi(method=true,name=UI.TextField.setValue,since=0.7.0) set the value.
 	 * @tiarg[string,value] value to set the slider too
 	 */
 	this.setValue = function(value) {
@@ -1132,7 +1132,7 @@ var TextField = function(proxy) {
 		}
 	};
 	/**
-	 * @tiapi(method=true,name=UI.TextField.getValue,since=0.6.3) get the value.
+	 * @tiapi(method=true,name=UI.TextField.getValue,since=0.7.0) get the value.
 	 * @tiresult[string] value of the slider
 	 */
 	this.getValue = function() {
@@ -1141,7 +1141,7 @@ var TextField = function(proxy) {
 };
 
 /**
- * @tiapi(property=true,name=UI.TextField.value,since=0.6.3) get/set the text field value
+ * @tiapi(property=true,name=UI.TextField.value,since=0.7.0) get/set the text field value
  */
 TextField.prototype.__defineGetter__("value", function() {
 	return this.getValue;
@@ -1902,15 +1902,15 @@ Titanium.UI.Android.SystemIcon = {
 
 Titanium.UI.DatePicker = {
 	/**
-	 * @tiapi(property=true,name=UI.DatePicker.MODE_DATE,since=0.6.3) Date
+	 * @tiapi(property=true,name=UI.DatePicker.MODE_DATE,since=0.7.0) Date
 	 */
 	MODE_DATE : 0,
 	/**
-	 * @tiapi(property=true,name=UI.DatePicker.MODE_TIME,since=0.6.3) Time
+	 * @tiapi(property=true,name=UI.DatePicker.MODE_TIME,since=0.7.0) Time
 	 */
 	MODE_TIME : 1,
 	/**
-	 * @tiapi(property=true,name=UI.DatePicker.MODE_DATE,since=0.6.3) Date and Time
+	 * @tiapi(property=true,name=UI.DatePicker.MODE_DATE,since=0.7.0) Date and Time
 	 */
 	MODE_DATE_AND_TIME : 2
 };

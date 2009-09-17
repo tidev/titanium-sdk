@@ -194,6 +194,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 				case MSG_CREATE_MODALPICKER :
 					h.o = new TitaniumPickerDialog(getModuleManager());
 					break;
+				case MSG_CREATE_IMAGEVIEW :
+					h.o = new TitaniumImageView(getModuleManager());
+					break;
 				default :
 					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
 			}
@@ -391,7 +394,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 		tmm.getWebView().removeEventListener("ui." + eventName, listenerId);
 	}
 
-	//Created in 0.6.3/1.0.0 Not sure which one is the next release
+	//Created in 0.7.0
 
 	public ITitaniumDatePicker createDatePicker(String json) {
 		TitaniumDatePicker picker = (TitaniumDatePicker) create(MSG_CREATE_DATEPICKER);

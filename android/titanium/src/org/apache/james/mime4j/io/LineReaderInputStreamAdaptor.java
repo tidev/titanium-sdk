@@ -19,10 +19,10 @@
 
 package org.apache.james.mime4j.io;
 
-import org.apache.james.mime4j.util.ByteArrayBuffer;
-
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.james.mime4j.util.ByteArrayBuffer;
 
 /**
  * <code>InputStream</code> used by the MIME parser to detect whether the

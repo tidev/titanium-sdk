@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.api.ITitaniumMenuItem;
-
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
+
 import android.webkit.WebView;
 
 public class TitaniumMenuItem implements ITitaniumMenuItem

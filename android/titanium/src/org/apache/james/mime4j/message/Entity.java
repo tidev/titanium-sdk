@@ -19,6 +19,9 @@
 
 package org.apache.james.mime4j.message;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import org.apache.james.mime4j.MimeException;
 import org.apache.james.mime4j.decoder.CodecUtil;
 import org.apache.james.mime4j.field.ContentTransferEncodingField;
@@ -26,9 +29,6 @@ import org.apache.james.mime4j.field.ContentTypeField;
 import org.apache.james.mime4j.field.Field;
 import org.apache.james.mime4j.util.MessageUtils;
 import org.apache.james.mime4j.util.MimeUtil;
-
-import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * MIME entity. An entity has a header and a body (see RFC 2045).

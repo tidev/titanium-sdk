@@ -14,6 +14,8 @@ import java.util.List;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumPlatform;
+import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumPlatformHelper;
 
 import android.Manifest;
@@ -29,8 +31,6 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.telephony.TelephonyManager;
-import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumPlatform extends TitaniumBaseModule implements ITitaniumPlatform

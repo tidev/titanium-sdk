@@ -18,7 +18,6 @@ import org.appcelerator.titanium.config.TitaniumConfig;
 
 import android.content.Context;
 import android.net.Uri;
-import org.appcelerator.titanium.util.Log;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 

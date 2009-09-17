@@ -134,7 +134,7 @@ HTTPClient.prototype.__defineSetter__("onreadystatechange", function(f) {
 	this.setOnReadyStateChange(f);
 });
 /**
- * @tiapi(property=true,name=Network.HTTPClient.onload,since=0.6.3) Set or get the onload handler.
+ * @tiapi(property=true,name=Network.HTTPClient.onload,since=0.7.0) Set or get the onload handler.
  */
 HTTPClient.prototype.__defineGetter__("onload", function(){
 	return this._onload
@@ -158,7 +158,7 @@ HTTPClient.prototype.__defineGetter__("responseText", function(){
 	return this.getResponseText();
 });
 /**
- * @tiapi(property=true,name=Network.HTTPClient.responseText,since=0.6.3) Get the response as XML from the operation
+ * @tiapi(property=true,name=Network.HTTPClient.responseText,since=0.7.0) Get the response as XML from the operation
  * @tiresult[object] the response
  */
 HTTPClient.prototype.__defineGetter__('responseXML',function(){

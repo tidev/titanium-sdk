@@ -7,12 +7,12 @@
 
 package org.appcelerator.titanium.util;
 
+import org.appcelerator.titanium.config.TitaniumConfig;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
-import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.Log;
 
 
 public class TitaniumDatabaseHelper extends SQLiteOpenHelper

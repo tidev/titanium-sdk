@@ -19,14 +19,14 @@
 
 package org.apache.james.mime4j.message;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import org.apache.james.mime4j.decoder.CodecUtil;
 import org.apache.james.mime4j.message.storage.TempFile;
 import org.apache.james.mime4j.message.storage.TempPath;
 import org.apache.james.mime4j.message.storage.TempStorage;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 
 /**

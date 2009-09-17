@@ -11,7 +11,6 @@ import org.appcelerator.titanium.api.ITitaniumProperties;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 import org.json.JSONArray;
-import org.json.JSONException;
 
 import android.content.Context;
 import android.content.SharedPreferences;

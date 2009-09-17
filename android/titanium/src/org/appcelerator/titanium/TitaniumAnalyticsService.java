@@ -19,6 +19,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.appcelerator.titanium.util.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -28,7 +29,6 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.IBinder;
-import org.appcelerator.titanium.util.Log;
 
 public class TitaniumAnalyticsService extends Service
 {

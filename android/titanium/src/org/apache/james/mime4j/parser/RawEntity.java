@@ -19,9 +19,9 @@
 
 package org.apache.james.mime4j.parser;
 
-import org.apache.james.mime4j.descriptor.BodyDescriptor;
-
 import java.io.InputStream;
+
+import org.apache.james.mime4j.descriptor.BodyDescriptor;
 
 /**
  * Raw MIME entity. Such entities will not be parsed into elements 

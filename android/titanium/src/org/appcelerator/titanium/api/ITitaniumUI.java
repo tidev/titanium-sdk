@@ -43,7 +43,7 @@ public interface ITitaniumUI
 	public int addEventListener(String eventName, String eventListener);
 	public void removeEventListener(String eventName, int listenerId);
 
-	// In 0.6.3/1.0.0 not sure yet.
+	// In 0.7.0
 	public ITitaniumDatePicker createDatePicker(String json);
 	public ITitaniumModalDatePicker createModalDatePicker(String json);
 	public ITitaniumPicker createPicker(String json);

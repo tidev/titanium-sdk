@@ -10,8 +10,10 @@ package org.appcelerator.titanium.module;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumHttpClient;
 import org.appcelerator.titanium.api.ITitaniumNetwork;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.net.TitaniumHttpClient;
 import org.appcelerator.titanium.module.net.TitaniumNetworkListener;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.json.JSONObject;
 
@@ -21,8 +23,6 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumNetwork extends TitaniumBaseModule implements ITitaniumNetwork
