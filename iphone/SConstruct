@@ -70,6 +70,9 @@ for apiversion in prereq.get_sdks():
 
     # build each of the modules
     for module in modules:
-	    build(module[0:1].capitalize()+module[1:])
+        module_name = module[0:1].capitalize()+module[1:]
+        if len(module)==2:
+            module_name = module.upper()
+        build(module_name)
 	
     

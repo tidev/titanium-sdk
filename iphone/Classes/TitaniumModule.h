@@ -8,10 +8,10 @@
 
 @protocol TitaniumModule
 @optional
+
 - (BOOL) startModule;
 - (BOOL) endModule;
 - (id) runFunctionNamed: (NSString *) functionName withObject: (id) objectValue error: (NSError **) error;
-
 - (void) flushCache;
 
 @end

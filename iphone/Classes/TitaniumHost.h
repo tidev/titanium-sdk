@@ -193,4 +193,6 @@ typedef enum {
 - (TitaniumContentViewController *) currentTitaniumContentViewController;
 - (TitaniumContentViewController *) titaniumContentViewControllerForToken: (NSString *) token;
 
+extern BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view);
+
 @end
