@@ -285,6 +285,14 @@
 		B4E9B9C40F82030700DD709C /* TitaniumAccessorTuple.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9B9C30F82030700DD709C /* TitaniumAccessorTuple.m */; };
 		B4E9BB660F842C9400DD709C /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BB640F842C9400DD709C /* SBJSON.m */; };
 		B4E9BC090F85491F00DD709C /* TitaniumJSConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BC080F85491F00DD709C /* TitaniumJSConstants.m */; };
+		B4F37DDD1061913E00ED12AF /* NotificationModule.h in Headers */ = {isa = PBXBuildFile; fileRef = B4F37DDB1061913E00ED12AF /* NotificationModule.h */; };
+		B4F37DDE1061913E00ED12AF /* NotificationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F37DDC1061913E00ED12AF /* NotificationModule.m */; };
+		B4F37DDF1061913E00ED12AF /* NotificationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F37DDC1061913E00ED12AF /* NotificationModule.m */; };
+		B4F37DE01061913E00ED12AF /* NotificationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F37DDC1061913E00ED12AF /* NotificationModule.m */; };
+		B4F37E161061AB5D00ED12AF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4F37E151061AB5D00ED12AF /* QuartzCore.framework */; };
+		B4F37E171061AB5D00ED12AF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4F37E151061AB5D00ED12AF /* QuartzCore.framework */; };
+		B4F37E181061AB5D00ED12AF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4F37E151061AB5D00ED12AF /* QuartzCore.framework */; };
+		B4F37E2E1061B50E00ED12AF /* closebox.png in Resources */ = {isa = PBXBuildFile; fileRef = B4F37E2D1061B50E00ED12AF /* closebox.png */; };
 		B4FC30A70FEC89E800D31C75 /* Phone.png in Resources */ = {isa = PBXBuildFile; fileRef = B4FC30A30FEC89E800D31C75 /* Phone.png */; };
 		B4FC30A80FEC89E800D31C75 /* Safari.png in Resources */ = {isa = PBXBuildFile; fileRef = B4FC30A40FEC89E800D31C75 /* Safari.png */; };
 		B4FC30A90FEC89E800D31C75 /* iTunes.png in Resources */ = {isa = PBXBuildFile; fileRef = B4FC30A50FEC89E800D31C75 /* iTunes.png */; };
@@ -471,6 +479,10 @@
 		B4E9BB650F842C9400DD709C /* SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJSON.h; sourceTree = "<group>"; };
 		B4E9BC070F85491F00DD709C /* TitaniumJSConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumJSConstants.h; sourceTree = "<group>"; };
 		B4E9BC080F85491F00DD709C /* TitaniumJSConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumJSConstants.m; sourceTree = "<group>"; };
+		B4F37DDB1061913E00ED12AF /* NotificationModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationModule.h; sourceTree = "<group>"; };
+		B4F37DDC1061913E00ED12AF /* NotificationModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NotificationModule.m; sourceTree = "<group>"; };
+		B4F37E151061AB5D00ED12AF /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		B4F37E2D1061B50E00ED12AF /* closebox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = closebox.png; sourceTree = "<group>"; };
 		B4F51CB00F981F23004D9D2D /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		B4FC30A30FEC89E800D31C75 /* Phone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Phone.png; sourceTree = "<group>"; };
 		B4FC30A40FEC89E800D31C75 /* Safari.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Safari.png; sourceTree = "<group>"; };
@@ -500,6 +512,7 @@
 				B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */,
 				B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */,
 				B4AA86A2105ECEC700D29939 /* MessageUI.framework in Frameworks */,
+				B4F37E181061AB5D00ED12AF /* QuartzCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -517,6 +530,7 @@
 				B44BCFDA0FC5E03400733BDD /* libsqlite3.dylib in Frameworks */,
 				B4A49BA30FCE01070049ED60 /* MediaPlayer.framework in Frameworks */,
 				B401107D102CA204009ADA57 /* MessageUI.framework in Frameworks */,
+				B4F37E161061AB5D00ED12AF /* QuartzCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -534,6 +548,7 @@
 				B47A27181035F040002146CD /* libsqlite3.dylib in Frameworks */,
 				B47A27191035F040002146CD /* MediaPlayer.framework in Frameworks */,
 				B47A271A1035F040002146CD /* MessageUI.framework in Frameworks */,
+				B4F37E171061AB5D00ED12AF /* QuartzCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -590,6 +605,7 @@
 		2444F8060FC9FCA400063972 /* modules */ = {
 			isa = PBXGroup;
 			children = (
+				B4F37DDA1061911100ED12AF /* NotificationModule */,
 				24F02E430FD482D2007894DA /* AnalyticsModule */,
 				24BBD83B0FCD245F00A261A4 /* GestureModule */,
 				2444F8070FC9FCA400063972 /* ApiModule */,
@@ -749,6 +765,7 @@
 				B4DDBE2A0FD0AE31004DD79E /* ui.html */,
 				B481D3360FD4C45A00F0A961 /* song.mp3 */,
 				B4FC30A30FEC89E800D31C75 /* Phone.png */,
+				B4F37E2D1061B50E00ED12AF /* closebox.png */,
 				B4ABEDC6101903F300639ED5 /* buggy.js */,
 				B4FC30A40FEC89E800D31C75 /* Safari.png */,
 				B4FC30A50FEC89E800D31C75 /* iTunes.png */,
@@ -778,6 +795,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B4F37E151061AB5D00ED12AF /* QuartzCore.framework */,
 				B4250689100C0A4B00AD6A6B /* MessageUI.framework */,
 				B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */,
 				B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */,
@@ -910,6 +928,15 @@
 			name = "Data wrappers";
 			sourceTree = "<group>";
 		};
+		B4F37DDA1061911100ED12AF /* NotificationModule */ = {
+			isa = PBXGroup;
+			children = (
+				B4F37DDB1061913E00ED12AF /* NotificationModule.h */,
+				B4F37DDC1061913E00ED12AF /* NotificationModule.m */,
+			);
+			path = NotificationModule;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -957,6 +984,7 @@
 				B451D42810599C1C0025A18B /* PickerImageTextCell.h in Headers */,
 				B40CDEE8105F21F6004CFED3 /* TitaniumScrollableViewController.h in Headers */,
 				B40CDF17105F248F004CFED3 /* TitaniumCompositeViewController.h in Headers */,
+				B4F37DDD1061913E00ED12AF /* NotificationModule.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1061,6 +1089,7 @@
 				B4B9E4621003D3DE004B8831 /* logo-m.png in Resources */,
 				B4ABEDC4101903CA00639ED5 /* buggy.html in Resources */,
 				B40C00241031ECC4009DEFF9 /* docs.html in Resources */,
+				B4F37E2E1061B50E00ED12AF /* closebox.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1188,6 +1217,7 @@
 				B451D42710599C1C0025A18B /* PickerImageTextCell.m in Sources */,
 				B40CDEEA105F21F6004CFED3 /* TitaniumScrollableViewController.m in Sources */,
 				B40CDF19105F248F004CFED3 /* TitaniumCompositeViewController.m in Sources */,
+				B4F37DE01061913E00ED12AF /* NotificationModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1242,6 +1272,7 @@
 				B451D42910599C1C0025A18B /* PickerImageTextCell.m in Sources */,
 				B40CDEE9105F21F6004CFED3 /* TitaniumScrollableViewController.m in Sources */,
 				B40CDF18105F248F004CFED3 /* TitaniumCompositeViewController.m in Sources */,
+				B4F37DDE1061913E00ED12AF /* NotificationModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1302,6 +1333,7 @@
 				B4AA8707105ED1DF00D29939 /* timeline-dms.js in Sources */,
 				B40CDEEB105F21F6004CFED3 /* TitaniumScrollableViewController.m in Sources */,
 				B40CDF1A105F248F004CFED3 /* TitaniumCompositeViewController.m in Sources */,
+				B4F37DDF1061913E00ED12AF /* NotificationModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
