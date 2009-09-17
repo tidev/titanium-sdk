@@ -15,6 +15,7 @@
 #import "TitaniumWebViewController.h"
 #import "UiModule.h"
 #import "NativeControlProxy.h"
+#import "NotificationModule.h"
 
 NSDictionary * tabBarItemFromObjectDict = nil;
 
@@ -619,6 +620,8 @@ int nextWindowToken = 0;
 	UIView * ourView = [self view];
 	CGRect contentViewBounds = [ourView bounds];
 
+	CGFloat contentViewHeight = contentViewBounds.size.height;
+
 	if (shouldShowToolBar){ //Update the list, and show it if needed.
 		CGRect toolBarFrame;
 		if (toolBar == nil){
@@ -634,9 +637,11 @@ int nextWindowToken = 0;
 		} else {
 			toolBarFrame = [toolBar frame];
 		}
-
+		
+		contentViewHeight -= toolBarFrame.size.height;
+		
 		if(navBarStyle != UIBarStyleBlackTranslucent){
-			contentViewBounds.size.height = toolBarFrame.origin.y - contentViewBounds.origin.y;
+			contentViewBounds.size.height = contentViewHeight;
 		}
 		
 		[toolBar setTintColor:[theNB tintColor]];
@@ -648,6 +653,15 @@ int nextWindowToken = 0;
 		[toolBar setHidden:YES];
 	}
 
+	
+	if([notificationsArray count]>0){
+		CGRect notificationBounds=contentViewBounds;
+		notificationBounds.size.height = contentViewHeight;
+		for(NotificationProxy * thisNotification in notificationsArray){
+			notificationBounds.size.height -= [thisNotification placeInView:ourView inRect:notificationBounds];
+		}
+	}
+	
 	CGFloat floatingUITop = [[TitaniumHost sharedHost] keyboardTop];
 	if(floatingUITop > 1.0){ //Toolbar style or not, the keyboard trumps all!
 		CGPoint bottomPoint = [ourView convertPoint:CGPointMake(0,floatingUITop) fromView:[[[TitaniumAppDelegate sharedDelegate] viewController] view]];
@@ -780,7 +794,7 @@ int nextWindowToken = 0;
 	UIViewController * modalController = [ourNavCon visibleViewController];
 	
 	while ([modalController isKindOfClass:[UINavigationController class]]){
-		ourNavCon = modalController;
+		ourNavCon = (UINavigationController *)modalController;
 		modalController = [ourNavCon visibleViewController];
 	}
 	
@@ -898,6 +912,21 @@ int nextWindowToken = 0;
 	return result;
 }
 
+- (void) addNotification:(NotificationProxy *)notification;
+{
+	if(notificationsArray==nil){
+		notificationsArray = [[NSMutableArray alloc] initWithObjects:notification,nil];
+	} else {
+		[notificationsArray insertObject:notification atIndex:0];
+	}
+	[self performSelectorOnMainThread:@selector(needsUpdate:) withObject:nil waitUntilDone:NO];
+}
+
+- (void) removeNotification:(NotificationProxy *)notification;
+{
+	[notificationsArray removeObject:notification];
+	[self performSelectorOnMainThread:@selector(needsUpdate:) withObject:nil waitUntilDone:NO];
+}	
 
 
 @end

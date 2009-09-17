@@ -19,9 +19,10 @@
 	UIButton * notificationButton;
 }
 
-- (CGRect) addToView: (UIView *) superView inRect: (CGRect) bounds;
-- (void) loadHtmlString: (NSString *) htmlString;
+- (void) removeFromSuperview;
+- (CGFloat) placeInView: (UIView *) superView inRect: (CGRect) bounds;
 
+- (void) loadHtmlString: (NSString *) htmlString;
 - (IBAction) closeButtonPressed: (id) sender;
 - (IBAction) notificationPressed: (id) sender;
 

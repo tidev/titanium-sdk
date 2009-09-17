@@ -91,6 +91,8 @@
 	</array>
 	<key>modules</key>
 	<dict>
+		<key>notification</key>
+		<real>0.4</real>
 		<key>analytics</key>
 		<real>0.4</real>
 		<key>media</key>
