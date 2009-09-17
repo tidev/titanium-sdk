@@ -11,14 +11,14 @@ import java.lang.ref.WeakReference;
 
 import org.appcelerator.titanium.api.ITitaniumDB;
 import org.appcelerator.titanium.api.ITitaniumResultSet;
+import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.Log;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.Log;
 
 public class TitaniumDB implements ITitaniumDB
 {

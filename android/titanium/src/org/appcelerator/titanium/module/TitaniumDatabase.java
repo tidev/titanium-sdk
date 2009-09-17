@@ -10,13 +10,13 @@ package org.appcelerator.titanium.module;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumDB;
 import org.appcelerator.titanium.api.ITitaniumDatabase;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.db.TitaniumDB;
+import org.appcelerator.titanium.util.Log;
 
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumDatabase extends TitaniumBaseModule implements

@@ -19,14 +19,14 @@
 
 package org.apache.james.mime4j.field;
 
+import java.io.StringReader;
+import java.util.Date;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.mime4j.field.datetime.parser.DateTimeParser;
 import org.apache.james.mime4j.field.datetime.parser.ParseException;
 import org.apache.james.mime4j.field.datetime.parser.TokenMgrError;
-
-import java.io.StringReader;
-import java.util.Date;
 
 public class DateTimeField extends Field {
     private Date date;

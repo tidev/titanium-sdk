@@ -19,6 +19,7 @@
 
 package org.apache.james.mime4j.decoder;
 
+import java.nio.BufferUnderflowException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 

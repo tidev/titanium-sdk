@@ -18,8 +18,6 @@
  * under the License.                                           *
  ****************************************************************/
 package org.apache.james.mime4j.field.language;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ContentLanguageParserTokenManager implements ContentLanguageParserConstants
 {

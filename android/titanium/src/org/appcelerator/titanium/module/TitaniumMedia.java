@@ -23,9 +23,11 @@ import org.appcelerator.titanium.api.ITitaniumMedia;
 import org.appcelerator.titanium.api.ITitaniumSound;
 import org.appcelerator.titanium.api.ITitaniumVideo;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.fs.TitaniumBlob;
 import org.appcelerator.titanium.module.media.TitaniumSound;
 import org.appcelerator.titanium.module.media.TitaniumVideo;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.appcelerator.titanium.util.TitaniumUrlHelper;
@@ -45,8 +47,6 @@ import android.net.Uri;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
-import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia

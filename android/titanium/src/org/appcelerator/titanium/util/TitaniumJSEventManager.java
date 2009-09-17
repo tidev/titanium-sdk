@@ -17,7 +17,6 @@ import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.module.TitaniumBaseModule;
 
 import android.os.Handler;
-import org.appcelerator.titanium.util.Log;
 
 
 public class TitaniumJSEventManager

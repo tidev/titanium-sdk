@@ -19,14 +19,14 @@
 
 package org.apache.james.mime4j.message;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.james.mime4j.MimeException;
 import org.apache.james.mime4j.field.Field;
 import org.apache.james.mime4j.field.UnstructuredField;
 import org.apache.james.mime4j.parser.MimeEntityConfig;
 import org.apache.james.mime4j.parser.MimeStreamParser;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 
 /**
