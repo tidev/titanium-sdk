@@ -21,7 +21,7 @@ TitaniumFile = function(f) //Note: Not implemented on iPhone yet
  */
 TitaniumFile.prototype.isFile = function()
 {
-	return this.proxy.isFile();
+	return Titanium.checked(this.proxy.isFile());
 };
 /**
  * @tiapi(method = true,name=Filesystem.File.isDirectory,since=0.4) Checks whether a file object references a directory
@@ -29,7 +29,7 @@ TitaniumFile.prototype.isFile = function()
  *
  */TitaniumFile.prototype.isDirectory = function()
 {
-	return this.proxy.isDirectory();
+	return Titanium.checked(this.proxy.isDirectory());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.isHidden,since=0.4) Checks whether a file or directory is hidden
@@ -37,7 +37,7 @@ TitaniumFile.prototype.isFile = function()
  */
 TitaniumFile.prototype.isHidden = function()
 {
-	return this.proxy.isHidden();
+	return Titanium.checked(this.proxy.isHidden());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.isSymbolicLink,since=0.4) Checks whether the File object references a symbolic link
@@ -45,7 +45,7 @@ TitaniumFile.prototype.isHidden = function()
  */
 TitaniumFile.prototype.isSymbolicLink = function()
 {
-	return this.proxy.isSymbolicLink();
+	return Titanium.checked(this.proxy.isSymbolicLink());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.isExecutable,since=0.4) Checks whether a file is an executable file
@@ -53,7 +53,7 @@ TitaniumFile.prototype.isSymbolicLink = function()
  */
 TitaniumFile.prototype.isExecutable = function()
 {
-	return this.proxy.isExecutable();
+	return Titanium.checked(this.proxy.isExecutable());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.isReadonly,since=0.4) Checks whether a file or directory is read-only
@@ -61,7 +61,7 @@ TitaniumFile.prototype.isExecutable = function()
  */
 TitaniumFile.prototype.isReadonly = function()
 {
-	return this.proxy.isReadonly();
+	return Titanium.checked(this.proxy.isReadonly());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.isWritable,since=0.4) Checks whether a file or directory is writeable
@@ -69,7 +69,7 @@ TitaniumFile.prototype.isReadonly = function()
  */
 TitaniumFile.prototype.isWriteable = function()
 {
-	return this.proxy.isWriteable();
+	return Titanium.checked(this.proxy.isWriteable());
 };
 /**
  * @tiapi(method=True,name=Filesystem.File.resolve,since=0.4) Resolves a File object to a file path
@@ -78,7 +78,7 @@ TitaniumFile.prototype.isWriteable = function()
  */
 TitaniumFile.prototype.resolve = function()
 {
-	return this.proxy.resolve();
+	return Titanium.checked(this.proxy.resolve());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.read,since=0.4) Returns one line (separated by line ending) from a file
@@ -86,7 +86,7 @@ TitaniumFile.prototype.resolve = function()
  */
 TitaniumFile.prototype.read = function()
 {
-	return this.proxy.read();
+	return Titanium.checked(this.proxy.read());
 };
 /**
  * @tiapi (method=True,name=Filesystem.File.write,since=0.4) Writes data to the file
@@ -96,7 +96,7 @@ TitaniumFile.prototype.read = function()
 TitaniumFile.prototype.write = function(data,append)
 {
 	append = typeof(append)=='undefined' ? false : append;
-	return this.proxy.write(data,append);
+	return Titanium.checked(this.proxy.write(data,append));
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.readline,since=0.4) Returns one line (separated by line ending) from a file
@@ -104,7 +104,7 @@ TitaniumFile.prototype.write = function(data,append)
  */
 TitaniumFile.prototype.readLine = function()
 {
-	return this.proxy.readLine();
+	return Titanium.checked(this.proxy.readLine());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.copy,since=0.4) Copies a file to a specified location
@@ -113,7 +113,7 @@ TitaniumFile.prototype.readLine = function()
  */
 TitaniumFile.prototype.copy = function(destination)
 {
-	return this.proxy.copy(destination);
+	return Titanium.checked(this.proxy.copy(destination));
 };
 /**
  * @tiapi(method=True,name=Filesystem.File.move,since=0.4) Moves a file to a specified location
@@ -122,7 +122,7 @@ TitaniumFile.prototype.copy = function(destination)
  */
 TitaniumFile.prototype.move = function(destination)
 {
-	return this.proxy.move(destination);
+	return Titanium.checked(this.proxy.move(destination));
 };
 /**
  * @tiapi(method=True,name=Filesystem.File.rename,since=0.4) Renames a file
@@ -131,7 +131,7 @@ TitaniumFile.prototype.move = function(destination)
  */
 TitaniumFile.prototype.rename = function(destination)
 {
-	return this.proxy.rename(destination);
+	return Titanium.checked(this.proxy.rename(destination));
 };
 /**
  * @tiapi(method=True,name=Filesystem.File.createDirectory,since=0.4) Creates a new directory
@@ -140,7 +140,7 @@ TitaniumFile.prototype.rename = function(destination)
 TitaniumFile.prototype.createDirectory = function(recursive)
 {
 	recursive = typeof(recursive)=='undefined' ? false : recursive;
-	return this.proxy.createDirectory(recursive);
+	return Titanium.checked(this.proxy.createDirectory(recursive));
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.deleteDirectory,since=0.4) Deletes a directory
@@ -149,7 +149,7 @@ TitaniumFile.prototype.createDirectory = function(recursive)
 TitaniumFile.prototype.deleteDirectory = function(recursive)
 {
 	recursive = typeof(recursive)=='undefined' ? false : recursive;
-	return this.proxy.deleteDirectory(recursive);
+	return Titanium.checked(this.proxy.deleteDirectory(recursive));
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.deleteFile,since=0.4) Deletes a file
@@ -157,7 +157,7 @@ TitaniumFile.prototype.deleteDirectory = function(recursive)
  */
 TitaniumFile.prototype.deleteFile = function()
 {
-	return this.proxy.deleteFile();
+	return Titanium.checked(this.proxy.deleteFile());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.getDirectoryListing,since=0.4) Returns a list containing the names of items in a directory.
@@ -165,7 +165,7 @@ TitaniumFile.prototype.deleteFile = function()
  */
 TitaniumFile.prototype.getDirectoryListing = function()
 {
-	return this.proxy.getDirectoryListing();
+	return Titanium.checked(this.proxy.getDirectoryListing());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.getParent,since=0.4) Returns the parent directory of a file or directory
@@ -173,7 +173,7 @@ TitaniumFile.prototype.getDirectoryListing = function()
  */
 TitaniumFile.prototype.getParent = function()
 {
-	return this.proxy.getParent();
+	return Titanium.checked(this.proxy.getParent());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.exists,since=0.4) Checks whether a file or directory exists in the users system
@@ -181,7 +181,7 @@ TitaniumFile.prototype.getParent = function()
  */
 TitaniumFile.prototype.exists = function()
 {
-	return this.proxy.exists();
+	return Titanium.checked(this.proxy.exists());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.createTimestamp,since=0.4) Returns the created timestamp of a file or directory
@@ -189,7 +189,7 @@ TitaniumFile.prototype.exists = function()
  */
 TitaniumFile.prototype.createTimestamp = function()
 {
-	return this.proxy.createTimestamp();
+	return Titanium.checked(this.proxy.createTimestamp());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.modificationTimestamp,since=0.4) Returns the last modified timestamp of a file or directory
@@ -197,7 +197,7 @@ TitaniumFile.prototype.createTimestamp = function()
  */
 TitaniumFile.prototype.modificationTimestamp = function()
 {
-	return this.proxy.modificationTimestamp();
+	return Titanium.checked(this.proxy.modificationTimestamp());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.name,since=0.4) Returns the name of a file or directory
@@ -205,7 +205,7 @@ TitaniumFile.prototype.modificationTimestamp = function()
  */
 TitaniumFile.prototype.name = function()
 {
-	return this.proxy.name();
+	return Titanium.checked(this.proxy.name());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.extension,since=0.4) Returns the extension of a file
@@ -213,7 +213,7 @@ TitaniumFile.prototype.name = function()
  */
 TitaniumFile.prototype.extension = function()
 {
-	return this.proxy.extension();
+	return Titanium.checked(this.proxy.extension());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.size,since=0.4) Returns the size of the file in bytes
@@ -221,7 +221,7 @@ TitaniumFile.prototype.extension = function()
  */
 TitaniumFile.prototype.size = function()
 {
-	return this.proxy.size();
+	return Titanium.checked(this.proxy.size());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.nativePath,since=0.4) Returns the full native path of a file or directory
@@ -229,7 +229,7 @@ TitaniumFile.prototype.size = function()
  */
 TitaniumFile.prototype.nativePath = function()
 {
-	return this.proxy.nativePath();
+	return Titanium.checked(this.proxy.nativePath());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.spaceAvailable,since=0.4) Returns the space available on the filesystem
@@ -237,7 +237,7 @@ TitaniumFile.prototype.nativePath = function()
  */
 TitaniumFile.prototype.spaceAvailable = function()
 {
-	return this.proxy.spaceAvailable();
+	return Titanium.checked(this.proxy.spaceAvailable());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.setExecutable,since=0.4) Makes the file or directory executable
@@ -245,7 +245,7 @@ TitaniumFile.prototype.spaceAvailable = function()
  */
 TitaniumFile.prototype.setExecutable = function()
 {
-	return this.proxy.setExecutable();
+	return Titanium.checked(this.proxy.setExecutable());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.setReadonly,since=0.4) Makes the file or directory readonly
@@ -253,7 +253,7 @@ TitaniumFile.prototype.setExecutable = function()
  */
 TitaniumFile.prototype.setReadonly = function()
 {
-	return this.proxy.setReadonly();
+	return Titanium.checked(this.proxy.setReadonly());
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.setWriteable,since=0.4) Makes the file or directory writeable
@@ -261,15 +261,15 @@ TitaniumFile.prototype.setReadonly = function()
  */
 TitaniumFile.prototype.setWriteable = function()
 {
-	return this.proxy.setWriteable();
+	return Titanium.checked(this.proxy.setWriteable());
 };
 /**
- * @tiapi(method=true,name=Filesystem.File.toString,since=0.4) Makes the file or directory readonly
+ * @tiapi(method=true,name=Filesystem.File.toString,since=0.4) Get the string representation
  * @tiresult[string] returns string representation of the file or directory
  */
 TitaniumFile.prototype.toString = function()
 {
-	return String(this.proxy.toString());
+	return String(Titanium.checked(this.proxy.toString()));
 };
 
 TitaniumFile.createBlob = function(native) {
@@ -283,6 +283,48 @@ TitaniumFile.createBlob = function(native) {
 	});
 
 	return b;
+};
+
+//TODO Doc
+Filestream = function(proxy) {
+	this.proxy = proxy;
+};
+
+// close, isOpen, open, read, readLine, ready, write, writeLine
+
+Filestream.prototype.close = function() {
+	Titanium.checked(this.proxy.call("close"));
+};
+
+Filestream.prototype.isOpen = function() {
+	return Titanium.checked(this.proxy.call("isOpen"));
+};
+
+Filestream.prototype.open = function(mode,binary) {
+	var p = this.proxy;
+	p.pushInteger(mode);
+	p.pushBoolean(binary);
+	Titanium.checked(p.call("open"));
+};
+
+Filestream.prototype.read = function() {
+	return Titanium.checked(this.proxy.call("read"));
+};
+
+Filestream.prototype.readLine = function() {
+	return Titanium.checked(this.proxy.call("readLine"));
+};
+
+Filestream.prototype.write = function(value) {
+	var p = this.proxy;
+	p.pushString(value);
+	Titanium.checked(p.call("write"));
+};
+
+Filestream.prototype.writeLine = function(value) {
+	var p = this.proxy;
+	p.pushString(value);
+	Titanium.checked(this.proxy.call("writeLine"));
 };
 
 Titanium.Filesystem = {
@@ -305,15 +347,11 @@ Titanium.Filesystem = {
 	 * @tiarg[string,arguments] one or more path segments to join.
 	 * @tiresult[File] a File reference the file
 	 */
-	getFile : function(a,b,c,d,e,f,g) {
+	getFile : function() {
 		var parts = [];
-		if (arguments.length>0) parts.push(String(a));
-		if (arguments.length>1) parts.push(String(b));
-		if (arguments.length>2) parts.push(String(c));
-		if (arguments.length>3) parts.push(String(d));
-		if (arguments.length>4) parts.push(String(e));
-		if (arguments.length>5) parts.push(String(f));
-		if (arguments.length>6) parts.push(String(g));
+		for(i=0; i < arguments.length; i++) {
+			parts.push(String(arguments[i]));
+		}
 		return new TitaniumFile(Titanium.fileSystemProxy.getFile(parts));
 	},
 	/**
@@ -321,16 +359,13 @@ Titanium.Filesystem = {
 	 * @tiarg[string,arguments] one or more path segments to join.
 	 * @tiresult[FileStream] a FileStream reference the file
 	 */
-	getFileStream : function(a,b,c,d,e,f,g) {
+	getFileStream : function() {
 		var parts = [];
-		if (arguments.length>0) parts.push(String(a));
-		if (arguments.length>1) parts.push(String(b));
-		if (arguments.length>2) parts.push(String(c));
-		if (arguments.length>3) parts.push(String(d));
-		if (arguments.length>4) parts.push(String(e));
-		if (arguments.length>5) parts.push(String(f));
-		if (arguments.length>6) parts.push(String(g));
-		return TitaniumFile(Titanium.fileSystemProxy.getFileStream(parts));
+
+		for(i=0; i < arguments.length; i++) {
+			parts.push(String(arguments[i]));
+		}
+		return new Filestream(Titanium.fileSystemProxy.getFileStream(parts));
 	},
 	/**
 	 * @tiapi(method=true,name=Filesystem.getApplicationDirectory,since=0.4) Returns file object pointing to the applications installation directory
@@ -395,5 +430,22 @@ Titanium.Filesystem = {
 	 */
 	isExternalStoragePresent: function() {
 		return Titanium.fileSystemProxy.isExternalStoragePresent();
-	}
+	},
+
+	/**
+	 * @tiapi(property=true,name=Filesystem.MODE_READ,since=0.6.3) Flag for opening in read mode.
+	 */
+	MODE_READ : 0,
+	/**
+	 * @tiapi(property=true,name=Filesystem.MODE_WRITE,since=0.6.3) Flag for opening in write mode.
+	 */
+	MODE_WRITE : 1,
+	/**
+	 * @tiapi(property=true,name=Filesystem.MODE_APPEND,since=0.6.3) Flag for opening in append mode.
+	 */
+	MODE_APPEND : 2
 };
+
+Filestream.prototype.MODE_READ = Titanium.Filesystem.MODE_READ;
+Filestream.prototype.MODE_WRITE = Titanium.Filesystem.MODE_WRITE;
+Filestream.prototype.MODE_APPEND = Titanium.Filesystem.MODE_APPEND;

@@ -223,20 +223,86 @@ Properties = function(proxy) {
 	},
 	this.setDouble = function(name,value){
 		return this.proxy.setDouble(name,value);
+	},
+	/**
+	 * @tiapi(method=True,name=App.Properties.getList,since=0.7.0) Retrieve a list
+	 * @tiarg[string,name] property name
+	 * @tiarg[list,def] default value if no value set for key in name
+	 * @tiresult[list] property value or default
+	 */
+	/**
+	 * @tiapi(method=True,name=App.SystemProperties.getList,since=0.7.0) Retrieve a list
+	 * @tiarg[string,name] property name
+	 * @tiarg[list,def] default value if no value set for key in name
+	 * @tiresult[list] property value or default
+	 */
+	this.getList = function(name, def)
+	{
+		 if (isUndefined(def)) {
+			 def = [];
+		 }
+		 var s = this.proxy.getList(name, Titanium.JSON.stringify(def));
+		 return eval("(" + s + ")");
+	},
+
+	/**
+	 * @tiapi(method=True,name=App.Properties.setList,since=0.7.0) Store a list of JSON'able objects
+	 * @tiarg[string,name] property name
+	 * @tiarg[list,value] value to store
+	 */
+	/**
+	 * @tiapi(method=True,name=App.SystemProperties.setList,since=0.7.0) Store a list of JSON'able objects
+	 * @tiarg[string,name] property name
+	 * @tiarg[list,def] value to store
+	 */
+	this.setList = function(name, value) {
+		if (isUndefined(value)) {
+			value = [];
+		}
+
+		if (!typeOf(value) == 'array') {
+			value = [ value ];
+		}
+
+		this.proxy.setList(name, Titanium.JSON.stringify(value));
+	},
+	/**
+	 * @tiapi(method=True,name=App.Properties.hasProperty,since=0.7.0) Detect existence of a property
+	 * @tiarg[string,name] property name
+	 * @tiresult[boolean] true if property with 'name' exists.
+	 */
+	/**
+	 * @tiapi(method=True,name=App.SystemProperties.hasProperty,since=0.7.0) Detect existence of a property
+	 * @tiarg[string,name] property name
+	 * @tiresult[boolean] true if property with 'name' exists.
+	 */
+	this.hasProperty = function(name) {
+		return this.proxy.hasProperty(name);
+	},
+	/**
+	 * @tiapi(method=True,name=App.Properties.listProperties,since=0.7.0) Retrieve a list of property names
+	 * @tiresult[list] list of property names
+	 */
+	/**
+	 * @tiapi(method=True,name=App.SystemProperties.listProperties,since=0.7.0) Retrieve a list of property names
+	 * @tiresult[list] list of property names
+	 */
+	this.listProperties = function() {
+		return eval("(" + this.proxy.listProperties() + ")");
+	},
+	/**
+	 * @tiapi(method=True,name=App.Properties.removeProperty,since=0.7.0) Remove a property
+	 * @tiarg[string,name] property name
+	 */
+	/**
+	 * @tiapi(method=True,name=App.SystemProperties.getList,since=0.7.0) Remove a property
+	 * @tiarg[string,name] property name
+	 */
+	this.removeProperty = function(name) {
+		if (!isUndefined(name)) {
+			this.proxy.removeProperty(name);
+		}
 	}
-	/**
-	 * @tiapi(method=True,name=App.Properties.getList,since=0.4) Retrieve a list property (Not Implemented, Android)
-	 * @tiarg[string,name] property name
-	 * @tiarg[list,def] default value if no value set for key in name
-	 * @tiresult[list] property value or default
-	 */
-	/**
-	 * @tiapi(method=True,name=App.SystemProperties.getList,since=0.4) Retrieve a string property (Not Implemented, Android)
-	 * @tiarg[string,name] property name
-	 * @tiarg[list,def] default value if no value set for key in name
-	 * @tiresult[list] property value or default
-	 */
-	//TODO: list
 };
 
 Titanium.App.Properties = new Properties(Titanium.appProxy.getAppProperties());

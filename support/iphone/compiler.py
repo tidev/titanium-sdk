@@ -3,10 +3,6 @@
 # Appcelerator Titanium Mobile
 # Copyright (c) 2009 Appcelerator, Inc. All Right Reserved.
 #
-# This code is proprietary to Appcelerator and should not
-# be redistributed without expression written permission of
-# Appcelerator.
-#
 # Resource to Objective-C Page Compiler
 # Handles JS, CSS and HTML files only
 #

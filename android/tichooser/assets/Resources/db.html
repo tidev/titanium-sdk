@@ -1,0 +1,29 @@
+<html>
+<head>
+  <title>Database</title>
+  <script>
+  window.onload = function()
+  {
+		var db = Titanium.Database.open('mydb');
+		db.execute('CREATE TABLE IF NOT EXISTS DATABASETEST  (ID INTEGER, NAME TEXT)');
+
+		var rows = db.execute('SELECT * from DATABASETEST');
+		var s = "";
+
+		if (rows.isValidRow()) {
+			s = "Result: FAIL {isValidRow should not have returned true}";
+		} else {
+			s = "Result: PASS {isValidRow returned false}";
+		}
+
+		var rc = rows.getRowCount();
+		s += "<br/> Row Count:" + rc;
+
+		document.getElementById('results').innerHTML = s;
+  }
+  </script>
+</head>
+<body style="background-color: white;">
+<div id="results"></div>
+</body>
+</html>

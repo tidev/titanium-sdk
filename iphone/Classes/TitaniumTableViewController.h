@@ -66,6 +66,7 @@ typedef enum {
 @interface TitaniumTableViewController : TitaniumContentViewController<UITableViewDelegate,UITableViewDataSource,UIWebViewDelegate> {
 	UITableViewStyle tableStyle;
 	CGFloat tableRowHeight;
+//	BOOL	useRowHeightCallback;
 	
 	NSLock * sectionLock;
 	NSMutableArray * sectionArray;

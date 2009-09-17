@@ -367,15 +367,6 @@ NSString * UrlEncodeString(NSString * string)
 
 @implementation UiModule
 #pragma mark Utility methods
-//- (TitaniumViewController *) titaniumViewControllerForToken: (NSString *) tokenString;
-//{
-//	if (![tokenString isKindOfClass:[NSString class]]) return nil;
-//	TitaniumViewController * ourVC = [virtualWindowsDict objectForKey:tokenString];
-//	if(ourVC == nil) {
-//		ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
-//	}
-//	return ourVC;
-//}
 
 #pragma mark button
 
@@ -447,7 +438,9 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void) modalPicker: (id)proxyObject visible:(NSNumber *) isVisibleObject options: (NSDictionary *) optionsObject;
 {
-	
+	if(![isVisibleObject respondsToSelector:@selector(boolValue)])return;
+	NativeControlProxy * target = [self proxyForObject:proxyObject scan:YES recurse:YES];
+	//TODO: Modal picker stuff
 }
 
 #pragma mark Window actions
@@ -1204,6 +1197,18 @@ NSString * UrlEncodeString(NSString * string)
 			"res.insertButton=function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
 			"res.setURL=function(newUrl){this.url=newUrl;if(this._TOKEN){Ti.UI._WURL(this._TOKEN,newUrl,document.location);};};"
 			"res.open=function(){Ti.API.fatal('Open is no longer supported in webViews, as they are no longer their own windows.');};"
+			"return res;}";
+
+	NSString * createScrollingViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='scroll';if(!res.views)res.views=[];"
+			"res.addView=function(view){if(!view)return;this.views.push(newView);if(this._TOKEN){view.ensureToken();Ti.UI._SVAVIEW(this._TOKEN,view);}};"
+			"res.scrollToView=function(view){if(typeof(view)=='number'){this.selectedViewIndex=view;}else{if(!view)return;        }};"//TODO: implement
+			"res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res._EVT={scroll:[]};doEvent:Ti._ONEVT;"
+			"return res;}";
+
+	NSString * createCompositeViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='multi';if(!res.rules)res.rules=[];"
+			"res.addView=function(view,traits){if(!view)return;var rule={};for(prop in traits){rule.prop=traits.prop;};rule.view=view;this.rules.push(rule);if(this._TOKEN){view.ensureToken();Ti.UI._SVAVIEW(this._TOKEN,view);}};"
+//			"res.scrollToView=function(view){if(typeof(view)=='number'){this.selectedViewIndex=view;}else{if(!view)return;        }};"//TODO: implement
+//			"res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res._EVT={scroll:[]};doEvent:Ti._ONEVT;"
 			"return res;}";
 	
 	NSString * createTableWindowString = [NSString stringWithFormat:@"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"

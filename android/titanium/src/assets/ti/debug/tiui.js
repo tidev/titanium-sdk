@@ -446,6 +446,20 @@ var TitaniumNotifier = function(proxy) {
 	}
 };
 
+var ImageView = function(proxy) {
+	this.proxy = proxy; // reference to Java object
+
+	this.setURL = function(url) {
+		if (!isUndefined(url)) {
+			this.proxy.setURL(proxy);
+		}
+	};
+
+	this.setScale = function(scale) {
+		this.setScale(scale);
+	};
+};
+
 var TableView = function(proxy) {
 	this.proxy = proxy; // reference to Java object
 	this._callback;
@@ -575,16 +589,23 @@ var TableView = function(proxy) {
 	this.setIsPrimary = function(primary) {
 		this.proxy.setIsRoot(primary);
 	};
-	this.configure = function(options) {
-		var opt = null;
-		if (!isUndefined(options)) {
-			opt = Titanium.JSON.stringify(options);
-		}
-		this.proxy.configure(opt, registerCallback(this, this._callback));
-	};
 	this.close = function() {
 		this.proxy.close();
-	}
+	};
+	this.setFontWeight = function(fontWeight) {
+		if (!isUndefined(fontWeight)) {
+			this.proxy.setFontWeight(fontWeight);
+		}
+	};
+	this.setFontSize = function(fontSize) {
+		if (!isUndefined(fontSize)) {
+			this.proxy.setFontSize(fontSize);
+		}
+	};
+	this.setCallback = function(callback) {
+		this._callback = callback;
+		this.proxy.setCallback(registerCallback(this, this._callback));
+	};
 };
 
 var WebView = function(proxy) {
@@ -804,13 +825,16 @@ var UserWindow = function(proxy) {
 	};
 	this.hideNavBar = function(options) {
 
-	}
+	};
 	this.setBarColor = function(options) {
 
-	}
+	};
 	this.setTitleControl = function(button) {
 
-	}
+	};
+	this.setToolbar = function() {
+
+	};
 };
 
 UserWindow.prototype.__defineGetter__("window", function() {
@@ -867,6 +891,47 @@ var DatePicker = function(proxy) {
 	this.removeEventListener = function(eventName, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
+};
+
+var Picker = function(proxy) {
+	this.proxy = proxy;
+
+	this.setData = function(value, options) {
+	};
+
+	/**
+	 * @tiapi(method=true,name=UI.Picker.addEventListener,since=0.6.3) Add a listener.
+	 * @tiarg[string,eventName] The name of the event. Supports:
+	 * @tiarg[function,listener] The event listener
+	 * @tiresult[int] listenerId used to unregister the event.
+	 */
+	this.addEventListener = function(eventName, listener) {
+		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
+	};
+	/**
+	 * @tiapi(method=true,name=UI.Picker.removeEventListener,since=0.6.3) Add a listener.
+	 * @tiarg[string,eventName] The name of the event. Supports:
+	 * @tiarg[function,listenerId] The event listener id returned by addEventListener
+	 */
+	this.removeEventListener = function(eventName, listenerId) {
+		this.proxy.removeEventListener(eventName, listenerId);
+	};
+
+	this.setColumnData = function(col, data) {
+		this.proxy.setColumnData(col, Titanium.JSON.stringify(data));
+	};
+
+	this.getSelectedRow = function(col) {
+		return this.proxy.getSelectedRow(col);
+	};
+
+	this.setData = function(data) {
+		this.proxy.setData(Titanium.JSON.stringify(data));
+	};
+
+	this.selectRow = function(col, row) {
+		this.proxy.selectRow(col, row);
+	}
 };
 
 var Switch = function(proxy) {
@@ -1287,37 +1352,30 @@ Titanium.UI = {
 		return ind;
 	},
 	/**
+	 * @tiapi(method=true,name=UI.createImageView,since=0.7.0) Create an image view
+	 * @tiarg[object, options] a dictionary/hash of options
+	 * @tiresult[ImageView] the image view.
+	 */
+	createImageView : function(options) {
+		var iv = new ImageView(Titanium.uiProxy.createImageView());
+		if (isUndefined(options)) {
+			options = {};
+		}
+		iv.proxy.processOptions(Titanium.JSON.stringify(options));
+		return iv;
+	},
+	/**
 	 * @tiapi(method=true,name=UI.createTableView,since=0.5) Create a table view
 	 * @tiarg[object, options] a dictionary/hash of options
 	 * @tiresult[TableView] the table view.
 	 */
 	createTableView : function(options, callback) {
 		 var tv = new TableView(Titanium.uiProxy.createTableView());
-
-		 tv._callback = callback;
-
-		 if(!isUndefined(options)) {
-			 var data = options['data'];
-			 var rowHeight = options['rowHeight'];
-			 var isPrimary = options['isPrimary'];
-			 var name = options['name'];
-
-			 if (!isUndefined(data)) {
-				 tv.setData(data);
-			 }
-			 if (!isUndefined(rowHeight)) {
-				 tv.setRowHeight(rowHeight);
-			 }
-			 if (!isUndefined(isPrimary)) {
-				 tv.setIsPrimary(isPrimary);
-			 }
-			 if (!isUndefined(name)) {
-				 tv.setName(name);
-			 }
+		 if (isUndefined(options)) {
+			 options = {}
 		 }
-
-		 tv.configure(null, registerCallback(this, this._callback));
-
+		 tv.proxy.processOptions(Titanium.JSON.stringify(options));
+		 tv.setCallback(callback);
 		 return tv;
 	},
 	/**
@@ -1327,22 +1385,10 @@ Titanium.UI = {
 	 */
 	createWebView : function(options) {
 		 var wv = new WebView(Titanium.uiProxy.createWebView());
-
-		 if(!isUndefined(options)) {
-			 var url = options['url'];
-			 var name = options['name'];
-
-			 if (!isUndefined(url)) {
-				 //wv.setUrl(url);
-				 wv.proxy.setUrl(url);
-			 }
-			 if (!isUndefined(name)) {
-				 wv.proxy.setName(name);
-			 }
+		 if (isUndefined(options)) {
+			 options = {};
 		 }
-
-		 wv.proxy.configure(null);
-
+		 wv.proxy.processOptions(Titanium.JSON.stringify(options));
 		 return wv;
 	},
 	/**
@@ -1608,12 +1654,27 @@ Titanium.UI = {
 		return dlg;
 	},
 
-	createPicker : function() {
+	createPicker : function(options) {
+		if(isUndefined(options)) {
+			options = {};
+		}
 
+		var c = new Picker(Titanium.uiProxy.createPicker(Titanium.JSON.stringify(options)));
+		c.proxy.open();
+		return c;
 	},
 
-	createModalPicker : function() {
+	createModalPicker : function(options) {
+		if(isUndefined(options)) {
+			options = {};
+		}
 
+		var dlg = new Picker(Titanium.uiProxy.createModalPicker(Titanium.JSON.stringify(options)));
+		dlg.show = function() { this.proxy.show(); };
+		dlg.hide = function() { this.proxy.hide(); };
+		dlg.proxy.open();
+
+		return dlg;
 	},
 
 	// createNotification is below. It needs the property currentWindow

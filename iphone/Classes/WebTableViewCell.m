@@ -74,6 +74,7 @@
 {
 	[self updateState:NO];
 	[UIView beginAnimations:@"webView" context:nil];
+	[UIView setAnimationDuration:0.1];
 	[inputWebView setAlpha:1.0];
 	[UIView commitAnimations];
 }	

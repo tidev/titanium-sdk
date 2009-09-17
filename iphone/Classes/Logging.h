@@ -20,9 +20,11 @@ extern double firstTimestamp;
 
 #ifdef USE_VERBOSE_DEBUG
 #define VERBOSE_LOG(...)	NSLog(__VA_ARGS__)
+#define VERBOSE_LOG_IF_TRUE(val,...)	{if(val) NSLog(__VA_ARGS__);}
 
 //#else ifdef DEBUG
 //
 #else
 #define VERBOSE_LOG(...)
+#define VERBOSE_LOG_IF_TRUE(val,...)
 #endif

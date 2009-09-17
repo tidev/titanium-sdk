@@ -7,6 +7,8 @@
 
 
 #import "NativeControlProxy.h"
+#import "TitaniumCellWrapper.h"
+#import "PickerImageTextCell.h"
 
 BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view)
 {
@@ -35,59 +37,90 @@ NSDictionary * barButtonSystemItemForStringDict = nil;
 int barButtonSystemItemForString(NSString * inputString){
 	if (barButtonSystemItemForStringDict == nil) {
 		barButtonSystemItemForStringDict = [[NSDictionary alloc] initWithObjectsAndKeys:
-											[NSNumber numberWithInt:UIBarButtonSystemItemAction],@"action",
-											[NSNumber numberWithInt:UIBarButtonSystemItemBookmarks],@"bookmarks",
-											[NSNumber numberWithInt:UIBarButtonSystemItemCamera],@"camera",
-											[NSNumber numberWithInt:UIBarButtonSystemItemCompose],@"compose",
-											[NSNumber numberWithInt:UIBarButtonSystemItemDone],@"done",
-											[NSNumber numberWithInt:UIBarButtonSystemItemCancel],@"cancel",
-											[NSNumber numberWithInt:UIBarButtonSystemItemEdit],@"edit",
-											[NSNumber numberWithInt:UIBarButtonSystemItemSave],@"save",
-											[NSNumber numberWithInt:UIBarButtonSystemItemAdd],@"add",
-											[NSNumber numberWithInt:UIBarButtonSystemItemFlexibleSpace],@"flexiblespace",
-											[NSNumber numberWithInt:UIBarButtonSystemItemFixedSpace],@"fixedspace",
-											[NSNumber numberWithInt:UIBarButtonSystemItemReply],@"reply",
-											[NSNumber numberWithInt:UIBarButtonSystemItemOrganize],@"organize",
-											[NSNumber numberWithInt:UIBarButtonSystemItemSearch],@"search",
-											[NSNumber numberWithInt:UIBarButtonSystemItemRefresh],@"refresh",
-											[NSNumber numberWithInt:UIBarButtonSystemItemStop],@"stop",
-											[NSNumber numberWithInt:UIBarButtonSystemItemTrash],@"trash",
-											[NSNumber numberWithInt:UIBarButtonSystemItemPlay],@"play",
-											[NSNumber numberWithInt:UIBarButtonSystemItemPause],@"pause",
-											[NSNumber numberWithInt:UIBarButtonSystemItemRewind],@"rewind",
-											[NSNumber numberWithInt:UIBarButtonSystemItemFastForward],@"fastforward",
-											[NSNumber numberWithInt:UITitaniumNativeItemSpinner],@"activity",
-											[NSNumber numberWithInt:UITitaniumNativeItemSlider],@"slider",
-											[NSNumber numberWithInt:UITitaniumNativeItemSwitch],@"switch",
-											[NSNumber numberWithInt:UITitaniumNativeItemPicker],@"picker",
-											[NSNumber numberWithInt:UITitaniumNativeItemDatePicker],@"datepicker",
-											[NSNumber numberWithInt:UITitaniumNativeItemTextField],@"text",
-											[NSNumber numberWithInt:UITitaniumNativeItemTextView],@"textarea",
-											[NSNumber numberWithInt:UITitaniumNativeItemSearchBar],@"search",
-											[NSNumber numberWithInt:UITitaniumNativeItemMultiButton],@"multibutton",
-											[NSNumber numberWithInt:UITitaniumNativeItemSegmented],@"segmented",
-											[NSNumber numberWithInt:UITitaniumNativeItemInfoLight],@"infolight",
-											[NSNumber numberWithInt:UITitaniumNativeItemInfoDark],@"infodark",
-											[NSNumber numberWithInt:UITitaniumNativeItemProgressBar],@"progressbar",
-											nil];
+				[NSNumber numberWithInt:UIBarButtonSystemItemAction],@"action",
+				[NSNumber numberWithInt:UIBarButtonSystemItemBookmarks],@"bookmarks",
+				[NSNumber numberWithInt:UIBarButtonSystemItemCamera],@"camera",
+				[NSNumber numberWithInt:UIBarButtonSystemItemCompose],@"compose",
+				[NSNumber numberWithInt:UIBarButtonSystemItemDone],@"done",
+				[NSNumber numberWithInt:UIBarButtonSystemItemCancel],@"cancel",
+				[NSNumber numberWithInt:UIBarButtonSystemItemEdit],@"edit",
+				[NSNumber numberWithInt:UIBarButtonSystemItemSave],@"save",
+				[NSNumber numberWithInt:UIBarButtonSystemItemAdd],@"add",
+				[NSNumber numberWithInt:UIBarButtonSystemItemFlexibleSpace],@"flexiblespace",
+				[NSNumber numberWithInt:UIBarButtonSystemItemFixedSpace],@"fixedspace",
+				[NSNumber numberWithInt:UIBarButtonSystemItemReply],@"reply",
+				[NSNumber numberWithInt:UIBarButtonSystemItemOrganize],@"organize",
+				[NSNumber numberWithInt:UIBarButtonSystemItemSearch],@"search",
+				[NSNumber numberWithInt:UIBarButtonSystemItemRefresh],@"refresh",
+				[NSNumber numberWithInt:UIBarButtonSystemItemStop],@"stop",
+				[NSNumber numberWithInt:UIBarButtonSystemItemTrash],@"trash",
+				[NSNumber numberWithInt:UIBarButtonSystemItemPlay],@"play",
+				[NSNumber numberWithInt:UIBarButtonSystemItemPause],@"pause",
+				[NSNumber numberWithInt:UIBarButtonSystemItemRewind],@"rewind",
+				[NSNumber numberWithInt:UIBarButtonSystemItemFastForward],@"fastforward",
+				[NSNumber numberWithInt:UITitaniumNativeItemSpinner],@"activity",
+				[NSNumber numberWithInt:UITitaniumNativeItemSlider],@"slider",
+				[NSNumber numberWithInt:UITitaniumNativeItemSwitch],@"switch",
+				[NSNumber numberWithInt:UITitaniumNativeItemPicker],@"picker",
+				[NSNumber numberWithInt:UITitaniumNativeItemDatePicker],@"datepicker",
+				[NSNumber numberWithInt:UITitaniumNativeItemTextField],@"text",
+				[NSNumber numberWithInt:UITitaniumNativeItemTextView],@"textarea",
+				[NSNumber numberWithInt:UITitaniumNativeItemSearchBar],@"search",
+				[NSNumber numberWithInt:UITitaniumNativeItemMultiButton],@"multibutton",
+				[NSNumber numberWithInt:UITitaniumNativeItemSegmented],@"segmented",
+				[NSNumber numberWithInt:UITitaniumNativeItemInfoLight],@"infolight",
+				[NSNumber numberWithInt:UITitaniumNativeItemInfoDark],@"infodark",
+				[NSNumber numberWithInt:UITitaniumNativeItemProgressBar],@"progressbar",
+				nil];
 	}
 	NSNumber * result = [barButtonSystemItemForStringDict objectForKey:[inputString lowercaseString]];
 	if (result != nil) return [result intValue];
 	return UITitaniumNativeItemNone;
 }
 
-@interface NativePickerColumn : NSObject
+@interface PickerColumnWrapper : NSObject
 {
 	CGFloat	width;
 	CGFloat	rowHeight;
-	NSArray * data;
+	NSMutableArray * data;
 }
 
+@property(nonatomic,readwrite,assign)	CGFloat	width;
+@property(nonatomic,readwrite,assign)	CGFloat	rowHeight;
+@property(nonatomic,readwrite,retain)	NSMutableArray * data;
 
 @end
 
-@implementation NativePickerColumn
+@implementation PickerColumnWrapper
+@synthesize width,rowHeight,data;
 
+- (void) readState: (NSDictionary *) inputState relativeToUrl: (NSURL *) baseUrl;
+{
+	SEL floatVal=@selector(floatValue);
+	id widthObject = [inputState objectForKey:@"width"];
+	if([widthObject respondsToSelector:floatVal])width=[widthObject floatValue];
+	
+	id heightObject = [inputState objectForKey:@"height"];
+	if([heightObject respondsToSelector:floatVal])rowHeight=[heightObject floatValue];
+	if(rowHeight < 1.0)rowHeight=40;
+	
+	NSArray * dataObject = [inputState objectForKey:@"data"];
+	if ([dataObject isKindOfClass:[NSArray class]]){
+		if(data==nil){
+			data = [[NSMutableArray alloc] initWithCapacity:[dataObject count]];
+		} else {
+			[data removeAllObjects];
+		}
+		Class dictClass = [NSDictionary class];
+		
+		for(NSDictionary * thisCellObject in dataObject){
+			if(![thisCellObject isKindOfClass:dictClass])continue;
+			TitaniumCellWrapper * thisCell = [[TitaniumCellWrapper alloc] init];
+			[thisCell useProperties:thisCellObject withUrl:baseUrl];
+			[data addObject:thisCell];
+		}
+	}
+}
 
 @end
 
@@ -277,6 +310,46 @@ needsRefreshing = YES;	\
 	GRAB_IF_SELECTOR(@"minuteInterval",intValue,minuteInterval);
 
 	GRAB_IF_SELECTOR(@"selectionIndicator",boolValue,showSelectionIndicator);
+	
+	id dataObject = [newDict objectForKey:@"data"];
+	if ([dataObject isKindOfClass:[NSArray class]]){
+		if(pickerColumnsArray == nil){
+			pickerColumnsArray = [[NSMutableArray alloc] initWithCapacity:[dataObject count]];
+		} else {
+			[pickerColumnsArray removeAllObjects];
+		}
+		Class dictClass = [NSDictionary class];
+		TitaniumHost * theHost = [TitaniumHost sharedHost];
+		[baseURL release];
+		baseURL = [[(TitaniumWebViewController *)[theHost currentTitaniumContentViewController] currentContentURL] retain];
+		
+		int missingWidthColumns = 0;
+		float remainingSpace = 290.0;
+		
+		for(NSDictionary * thisColumnObject in dataObject){
+			if(![thisColumnObject isKindOfClass:dictClass])continue;
+			PickerColumnWrapper * thisColumn = [[PickerColumnWrapper alloc] init];
+			[thisColumn readState:thisColumnObject relativeToUrl:baseURL];
+			float thisColumnWidth = [thisColumn width];
+			if(thisColumnWidth<1.0){
+				missingWidthColumns++;
+			} else {
+				remainingSpace -= thisColumnWidth;
+			}
+			[pickerColumnsArray addObject:thisColumn];
+		}
+		if(missingWidthColumns > 0){
+			remainingSpace = remainingSpace/missingWidthColumns;
+			for(PickerColumnWrapper * thisColumn in pickerColumnsArray){
+				if([thisColumn width]>=1.0)continue;
+				[thisColumn setWidth:remainingSpace];
+				missingWidthColumns--;
+				if(missingWidthColumns < 1)break;
+			}
+		}
+		needsRefreshing = YES;
+	}
+
 
 //	NSArray * selections = [
 
@@ -542,6 +615,7 @@ needsRefreshing = YES;	\
 		case UITitaniumNativeItemPicker:{
 			if ([nativeView isKindOfClass:[UIPickerView class]]){
 				resultView = [nativeView retain];
+				[(UIPickerView *)resultView reloadAllComponents];
 			} else {
 				resultView = [[UIPickerView alloc] initWithFrame:CGRectZero];
 				[(UIPickerView *)resultView setDelegate:self];
@@ -810,27 +884,86 @@ needsRefreshing = YES;	\
 #pragma mark Picker data source callbacks
 - (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView;
 {
-	return 0;
+	return [pickerColumnsArray count];
 }
 
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component;
 {
-	return 0;
+	PickerColumnWrapper * ourColumn = [pickerColumnsArray objectAtIndex:component];
+	return [[ourColumn data] count];
 }
 
 - (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component;
 {
-	return 0;
+	PickerColumnWrapper * ourColumn = [pickerColumnsArray objectAtIndex:component];
+	return [ourColumn width];
 }
 
 - (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component;
 {
-	return 0;
+	PickerColumnWrapper * ourColumn = [pickerColumnsArray objectAtIndex:component];
+	return [ourColumn rowHeight];
 }
 
 - (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view;
 {
-	return nil;
+	PickerColumnWrapper * ourColumn = [pickerColumnsArray objectAtIndex:component];
+	TitaniumCellWrapper * ourRow = [[ourColumn data] objectAtIndex:row];
+	CGRect ourFrame = CGRectMake(0, 0, [ourColumn width],[ourColumn rowHeight]);
+
+	NSString * html = [ourRow html];
+	
+	if([html isKindOfClass:[NSString class]] && ([html length]>0)){
+		if([view isKindOfClass:[UIWebView class]]){
+			[(UIWebView *)view stopLoading];
+			[view setFrame:ourFrame];
+		}else{
+			view = [[[UIWebView alloc] initWithFrame:ourFrame] autorelease];
+			[(UIWebView *)view setDelegate:self];
+			[view setBackgroundColor:[UIColor clearColor]];
+			[view setOpaque:NO];
+		}
+		[view setAlpha:0.0];
+		[(UIWebView *)view loadHTMLString:html baseURL:baseURL];
+		return view;
+	}
+	
+	if([view isKindOfClass:[PickerImageTextCell class]]){
+		[view setFrame:ourFrame];
+	} else {
+		view = [[[PickerImageTextCell alloc] initWithFrame:ourFrame] autorelease];
+	}
+	NSString * thisTitle = [ourRow title];
+	if([thisTitle length] > 0){
+		UILabel * ourLabel = [(PickerImageTextCell *)view textLabel];
+		[ourLabel setText:thisTitle];
+		[ourLabel setFont:[ourRow font]];
+	} else {
+		[(PickerImageTextCell *)view setTextLabel:nil];
+	}
+	
+	UIImage * thisImage = [ourRow image];
+	if(thisImage != nil){
+		UIImageView * ourImageView = [(PickerImageTextCell *)view imageView];
+		[ourImageView setImage:thisImage];
+		CGRect imageFrame;
+		imageFrame.size=[thisImage size];
+		imageFrame.origin=CGPointZero;
+		[ourImageView setFrame:imageFrame];
+	} else {
+		[(PickerImageTextCell *)view setImageView:nil];
+	}
+	
+	NSLog(@"Returning ImageText");
+	return view;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView;
+{
+	[UIView beginAnimations:@"webView" context:nil];
+	[UIView setAnimationDuration:0.1];
+	[webView setAlpha:1.0];
+	[UIView commitAnimations];
 }
 
 #pragma mark Events sent to Javascript

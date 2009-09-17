@@ -5,18 +5,18 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TitaniumTableViewController.h"
-#import "TitaniumBlobWrapper.h"
-#import "UiModule.h"
-#import "NativeControlProxy.h"
-
-#import "SBJSON.h"
-#import "WebTableViewCell.h"
-#import "ValueTableViewCell.h"
-#import "Webcolor.h"
-#import "WebFont.h"
+#import "TitaniumCellWrapper.h"
 
 #import "TitaniumWebViewController.h"
+#import "TitaniumHost.h"
+
+#import "WebTableViewCell.h"
+#import "ValueTableViewCell.h"
+
+#import "NativeControlProxy.h"
+
 #import "Logging.h"
+
 
 @implementation TitaniumTableActionWrapper
 @synthesize kind,row,section,index,animation;
@@ -53,199 +53,6 @@
 
 UIColor * checkmarkColor = nil;
 
-@interface TableRowWrapper : NSObject
-{
-	NSString * title;
-	TitaniumFontDescription fontDesc;
-	NSString * html;
-	NSString * name;
-	NSString * value;
-	NSURL * imageURL;
-	TitaniumBlobWrapper * imageWrapper;
-	UITableViewCellAccessoryType accessoryType;
-	NativeControlProxy * inputProxy;
-
-	BOOL isButton;
-
-}
-@property(nonatomic,readwrite,copy)	NSString * title;
-@property(nonatomic,readwrite,copy)	NSString * html;
-@property(nonatomic,readwrite,copy)	NSString * name;
-@property(nonatomic,readwrite,copy)	NSString * value;
-@property(nonatomic,readwrite,copy)	NSURL * imageURL;
-@property(nonatomic,readonly,copy)	UIImage * image;
-@property(nonatomic,readwrite,retain)	TitaniumBlobWrapper * imageWrapper;
-@property(nonatomic,readwrite,assign)	UITableViewCellAccessoryType accessoryType;
-@property(nonatomic,readwrite,retain)	NativeControlProxy * inputProxy;
-@property(nonatomic,readwrite,assign)	BOOL isButton;
-
-
-- (void) useProperties: (NSDictionary *) propDict withUrl: (NSURL *) baseUrl;
-- (NSString *) stringValue;
-
-@end
-
-@implementation TableRowWrapper
-@synthesize title,html,imageURL,imageWrapper,accessoryType,inputProxy,isButton, value, name;
-
-- (id) init
-{
-	self = [super init];
-	if (self != nil) {
-		fontDesc.isBold=YES;
-		fontDesc.size=15;
-	}
-	return self;
-}
-
-
-- (UIImage *) image;
-{
-	if (imageWrapper != nil){
-		return [imageWrapper imageBlob];
-	}
-	if (imageURL == nil) return nil;
-	return [[TitaniumHost sharedHost] imageForResource:imageURL];
-}
-
-- (UIFont *) font;
-{
-	return FontFromDescription(&fontDesc);
-}
-
-- (void) dealloc
-{
-	[title release]; [html release]; [imageURL release];
-	[imageWrapper release]; [inputProxy release];
-	[super dealloc];
-}
-
-- (NSString *) stringValue;
-{
-	NSString * accessoryString;
-	switch (accessoryType) {
-		case UITableViewCellAccessoryDetailDisclosureButton:
-			accessoryString = @"hasDetail:true,hasChild:false,selected:false";
-			break;
-		case UITableViewCellAccessoryDisclosureIndicator:
-			accessoryString = @"hasDetail:false,hasChild:true,selected:false";
-			break;
-		case UITableViewCellAccessoryCheckmark:
-			accessoryString = @"hasDetail:false,hasChild:false,selected:true";
-			break;
-		default:
-			accessoryString = @"hasDetail:false,hasChild:false,selected:false";
-			break;
-	}
-
-	SBJSON * packer = [[SBJSON alloc] init];
-	NSString * titleString;
-	if (title != nil){
-		titleString = [packer stringWithFragment:title error:nil];
-	} else { titleString = @"null"; }
-
-	NSString * valueString;
-	if (value != nil){
-		valueString = [packer stringWithFragment:value error:nil];
-	} else { valueString = @"null"; }
-	
-	NSString * htmlString;
-	if (html != nil){
-		htmlString = [packer stringWithFragment:html error:nil];
-	} else { htmlString = @"null"; }
-
-	NSString * imageURLString;
-	if (imageURL != nil){
-		imageURLString = [packer stringWithFragment:[imageURL absoluteString] error:nil];
-	} else { imageURLString = @"null"; }
-
-	NSString * inputProxyString;
-	if (inputProxy != nil){
-		inputProxyString = [@"Ti.UI._BTN." stringByAppendingString:[inputProxy token]];
-	} else { inputProxyString = @"null"; }
-
-	NSString * nameString;
-	if (name != nil){
-		nameString = [packer stringWithFragment:name error:nil];
-	} else { nameString = @"null"; }
-	
-	NSString * result = [NSString stringWithFormat:@"{%@,title:%@,html:%@,image:%@,input:%@,value:%@,name:%@}",
-			accessoryString,titleString,htmlString,imageURLString,inputProxyString,valueString,nameString];
-	[packer release];
-	return result;
-}
-
-- (void) useProperties: (NSDictionary *) propDict withUrl: (NSURL *) baseUrl;
-{
-	SEL boolSel = @selector(boolValue);
-	SEL stringSel = @selector(stringValue);
-	Class stringClass = [NSString class];
-	
-	NSNumber * hasDetail = [propDict objectForKey:@"hasDetail"];
-	if ([hasDetail respondsToSelector:boolSel] && [hasDetail boolValue]){
-		accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
-	} else {
-		NSNumber * hasChild = [propDict objectForKey:@"hasChild"];
-		if ([hasChild respondsToSelector:boolSel] && [hasChild boolValue]){
-			[self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
-		} else {
-			NSNumber * isSelected = [propDict objectForKey:@"selected"];
-			if ([isSelected respondsToSelector:boolSel] && [isSelected boolValue]){
-				[self setAccessoryType:UITableViewCellAccessoryCheckmark];
-			} else {
-				[self setAccessoryType:UITableViewCellAccessoryNone];
-			}
-		}
-	}
-
-	NSString * rowType = [propDict objectForKey:@"type"];
-	if ([rowType isKindOfClass:stringClass]){
-		isButton = [rowType isEqualToString:@"button"];
-	} else isButton = NO;
-
-
-	id titleString = [propDict objectForKey:@"title"];
-	if ([titleString respondsToSelector:stringSel]) titleString = [titleString stringValue];
-	if ([titleString isKindOfClass:stringClass] && ([titleString length] != 0)){
-		[self setTitle:titleString];
-	}
-
-	id nameString = [propDict objectForKey:@"name"];
-	if ([nameString respondsToSelector:stringSel]) nameString = [nameString stringValue];
-	if ([nameString isKindOfClass:stringClass] && ([nameString length] != 0)){
-		[self setName:nameString];
-	}
-	
-	id htmlString = [propDict objectForKey:@"html"];
-	if ([htmlString respondsToSelector:stringSel]) htmlString = [htmlString stringValue];
-	if ([htmlString isKindOfClass:stringClass] && ([htmlString length] != 0)){
-		[self setHtml:htmlString];
-	} else [self setHtml:nil];
-
-	id valueString = [propDict objectForKey:@"value"];
-	if ([valueString respondsToSelector:stringSel]) valueString = [valueString stringValue];
-	if ([valueString isKindOfClass:stringClass] && ([valueString length] != 0)){
-		[self setValue:valueString];
-	} else [self setValue:nil];
-	
-	id imageString = [propDict objectForKey:@"image"];
-	if ([imageString isKindOfClass:stringClass]){
-		[self setImageURL:[NSURL URLWithString:imageString relativeToURL:baseUrl]];
-	} else [self setImageURL:nil];
-
-	NSDictionary * inputProxyDict = [propDict objectForKey:@"input"];
-	if ([inputProxyDict isKindOfClass:[NSDictionary class]]){
-		UiModule * theUiModule = (UiModule *)[[TitaniumHost sharedHost] moduleNamed:@"UiModule"];
-		NativeControlProxy * thisInputProxy = [theUiModule proxyForObject:inputProxyDict scan:YES recurse:YES];
-		if (thisInputProxy != nil) [self setInputProxy:thisInputProxy];
-	} else [self setInputProxy:nil];
-	
-	UpdateFontDescriptionFromDict(propDict, &fontDesc);
-}
-
-
-@end
-
 @interface TableSectionWrapper : NSObject
 {
 	NSString * name;
@@ -253,12 +60,13 @@ UIColor * checkmarkColor = nil;
 	NSString * header;
 	NSString * footer;
 	NSMutableArray * rowArray;
+	float rowHeight;
 	BOOL isOptionList;
 	BOOL nullHeader;
 }
 - (id) initWithHeader: (NSString *) headerString footer: (NSString *) footerString;
-- (void) addRow: (TableRowWrapper *) newRow;
-- (TableRowWrapper *) rowForIndex: (NSUInteger) rowIndex;
+- (void) addRow: (TitaniumCellWrapper *) newRow;
+- (TitaniumCellWrapper *) rowForIndex: (NSUInteger) rowIndex;
 - (BOOL) accceptsHeader: (id) newHeader footer: (id) newFooter;
 
 @property(nonatomic,readwrite,copy)		NSString * header;
@@ -268,6 +76,7 @@ UIColor * checkmarkColor = nil;
 @property(nonatomic,readwrite,copy)		NSString * groupType;
 @property(nonatomic,readwrite,assign)	BOOL isOptionList;
 @property(nonatomic,readwrite,assign)	BOOL nullHeader;
+@property(nonatomic,readwrite,assign)	float rowHeight;
 
 
 @property(nonatomic,readwrite,retain)		NSMutableArray * rowArray;
@@ -275,7 +84,7 @@ UIColor * checkmarkColor = nil;
 @end
 
 @implementation TableSectionWrapper
-@synthesize header,footer,groupType,isOptionList,nullHeader,rowArray,name;
+@synthesize header,footer,groupType,isOptionList,nullHeader,rowArray,name,rowHeight;
 
 - (void) forceHeader: (NSString *) headerString footer: (NSString *)footerString;
 {
@@ -307,6 +116,9 @@ UIColor * checkmarkColor = nil;
 	
 	if([nameString isKindOfClass:[NSString class]])[result setName:nameString];
 
+	id rowHeightObj = [newData objectForKey:@"rowHeight"];
+	if([rowHeightObj respondsToSelector:@selector(floatValue)])rowHeight = [rowHeightObj floatValue];
+
 	BOOL isButtonGroup = NO;
 	NSString * rowType = [newData objectForKey:@"type"];
 	if ([rowType isKindOfClass:[NSString class]]){
@@ -325,7 +137,7 @@ UIColor * checkmarkColor = nil;
 		for(NSDictionary * thisEntry in thisDataArray){
 			if (![thisEntry isKindOfClass:dictClass]) continue;
 			
-			TableRowWrapper * thisRow = [[TableRowWrapper alloc] init];
+			TitaniumCellWrapper * thisRow = [[TitaniumCellWrapper alloc] init];
 			if (isButtonGroup) [thisRow setIsButton:YES];
 			
 			[thisRow useProperties:thisEntry withUrl:baseURL];
@@ -351,7 +163,7 @@ UIColor * checkmarkColor = nil;
 	return [rowArray count];
 }
 
-- (void) addRow: (TableRowWrapper *) newRow;
+- (void) addRow: (TitaniumCellWrapper *) newRow;
 {
 	if (rowArray == nil){
 		rowArray = [[NSMutableArray alloc] initWithObjects:newRow,nil];
@@ -360,7 +172,7 @@ UIColor * checkmarkColor = nil;
 	}
 }
 
-- (void) insertRow: (TableRowWrapper *) newRow atIndex: (int) index;
+- (void) insertRow: (TitaniumCellWrapper *) newRow atIndex: (int) index;
 {
 	if (rowArray == nil){
 		rowArray = [[NSMutableArray alloc] initWithObjects:newRow,nil];
@@ -415,10 +227,10 @@ UIColor * checkmarkColor = nil;
 	[rowArray removeObjectAtIndex:rowIndex];
 }
 
-- (TableRowWrapper *) rowForIndex: (NSUInteger) rowIndex;
+- (TitaniumCellWrapper *) rowForIndex: (NSUInteger) rowIndex;
 {
 	if (rowIndex >= [rowArray count]) return nil;
-	TableRowWrapper * result = [rowArray objectAtIndex:rowIndex];
+	TitaniumCellWrapper * result = [rowArray objectAtIndex:rowIndex];
 	return result;
 }
 
@@ -510,7 +322,7 @@ UIColor * checkmarkColor = nil;
 	for(NSDictionary * thisEntry in dataArray){
 		if (![thisEntry isKindOfClass:dictClass]) continue;
 		
-		TableRowWrapper * thisRow = [[[TableRowWrapper alloc] init] autorelease];		
+		TitaniumCellWrapper * thisRow = [[[TitaniumCellWrapper alloc] init] autorelease];		
 		[thisRow useProperties:thisEntry withUrl:baseUrl];
 		
 		id headerString = [thisEntry objectForKey:@"header"];
@@ -753,7 +565,7 @@ UIColor * checkmarkColor = nil;
 {
 	[sectionLock lock];
 	TableSectionWrapper * sectionWrapper = [self sectionForIndex:[indexPath section]];
-	TableRowWrapper * rowWrapper = [sectionWrapper rowForIndex:[indexPath row]];
+	TitaniumCellWrapper * rowWrapper = [sectionWrapper rowForIndex:[indexPath row]];
 	NSString * htmlString = [rowWrapper html];
 	UITableViewCellAccessoryType ourType = [rowWrapper accessoryType];
 	UITableViewCell * result = nil;
@@ -824,6 +636,14 @@ UIColor * checkmarkColor = nil;
 
 
 #pragma mark Delegate methods
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
+{
+	TableSectionWrapper * ourTableSection = [self sectionForIndex:[indexPath section]];
+	float result = [ourTableSection rowHeight];
+	if(result > 1.0) return result;
+	return tableRowHeight;
+}
+
 - (void)triggerActionForIndexPath: (NSIndexPath *)indexPath wasAccessory: (BOOL) accessoryTapped;
 {
 	if ((callbackProxyPath == nil) || (callbackWindowToken == nil)) return;
@@ -876,7 +696,7 @@ UIColor * checkmarkColor = nil;
 
 	if ([sectionWrapper isOptionList] && ![[sectionWrapper rowForIndex:blessedRow] isButton]){
 		for (int row=0;row<[sectionWrapper rowCount];row++) {
-			TableRowWrapper * rowWrapper = [sectionWrapper rowForIndex:row];
+			TitaniumCellWrapper * rowWrapper = [sectionWrapper rowForIndex:row];
 			UITableViewCellAccessoryType rowType = [rowWrapper accessoryType];
 			BOOL isBlessed = (row == blessedRow);
 			BOOL isUpdated = NO;
@@ -1057,7 +877,12 @@ UIColor * checkmarkColor = nil;
 						return;
 					} else if(headerChange){
 						[thisSection forceHeader:header footer:footer];
-						[tableView reloadSections:[NSIndexSet indexSetWithIndex:thisSectionIndex] withRowAnimation:animation];
+						if([tableView respondsToSelector:@selector(reloadSections:withRowAnimation:)]){
+							[tableView reloadSections:[NSIndexSet indexSetWithIndex:thisSectionIndex] withRowAnimation:animation];
+						} else {
+							[tableView deleteSections:[NSIndexSet indexSetWithIndex:thisSectionIndex] withRowAnimation:animation];
+							[tableView insertSections:[NSIndexSet indexSetWithIndex:thisSectionIndex] withRowAnimation:animation];
+						}
 						return;
 					}
 					//Flows out to the meek little update.
@@ -1080,11 +905,17 @@ UIColor * checkmarkColor = nil;
 					[ourDeletedRowArray release];
 					return;
 				}
-				[tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:index inSection:thisSectionIndex]] withRowAnimation:animation];
+				NSArray * ourIndexPathArray = [NSArray arrayWithObject:[NSIndexPath indexPathForRow:index inSection:thisSectionIndex]];
+				if([tableView respondsToSelector:@selector(reloadRowsAtIndexPaths:withRowAnimation:)]){
+					[tableView reloadRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+				} else {
+					[tableView deleteRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+					[tableView insertRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+				}
 				return;
 			}
 			//Okay, now it's an insert before or after.
-			TableRowWrapper * insertedRow = [[[TableRowWrapper alloc] init] autorelease];
+			TitaniumCellWrapper * insertedRow = [[[TitaniumCellWrapper alloc] init] autorelease];
 			[insertedRow useProperties:rowData withUrl:baseUrl];
 			if(isInsertAfter){
 				index++;
@@ -1203,7 +1034,7 @@ UIColor * checkmarkColor = nil;
 		int section = -1;
 		NSArray * ourIndexPathArray = nil;
 		NSIndexSet * ourSectionSet = nil;
-		TableRowWrapper * thisRow=nil;
+		TitaniumCellWrapper * thisRow=nil;
 		if(kind & TitaniumTableActionSectionRow){
 			section = [thisAction section];
 			row	 = [thisAction row];
@@ -1231,7 +1062,7 @@ UIColor * checkmarkColor = nil;
 				break;
 			case TitaniumGroupActionInsertBeforeRow:
 				if(row > [thisSectionWrapper rowCount]) break;
-				thisRow = [[TableRowWrapper alloc] init];
+				thisRow = [[TitaniumCellWrapper alloc] init];
 				[thisRow useProperties:[thisAction rowData] withUrl:[thisAction baseUrl]];
 				[thisSectionWrapper insertRow:thisRow atIndex:row];
 				[tableView insertRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
@@ -1246,7 +1077,12 @@ UIColor * checkmarkColor = nil;
 				if(row >= [thisSectionWrapper rowCount]) break;
 				thisRow = [thisSectionWrapper rowForIndex:row];
 				[thisRow useProperties:[thisAction rowData] withUrl:[thisAction baseUrl]];
-				[tableView reloadRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+				if([tableView respondsToSelector:@selector(reloadRowsAtIndexPaths:withRowAnimation:)]){
+					[tableView reloadRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+				} else {
+					[tableView deleteRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+					[tableView insertRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
+				}
 				break;
 			case TitaniumGroupActionInsertBeforeGroup:
 				if(section > [sectionArray count])break;
@@ -1257,7 +1093,12 @@ UIColor * checkmarkColor = nil;
 				if(section >= [sectionArray count])break;
 				//Todo: Possibly not replace, but just update?
 				[sectionArray replaceObjectAtIndex:section withObject:[TableSectionWrapper tableSectionWithData:[thisAction sectionData] withUrl:[thisAction baseUrl]]];
-				[tableView reloadSections:ourSectionSet withRowAnimation:animation];
+				if([tableView respondsToSelector:@selector(reloadSections:withRowAnimation:)]){
+					[tableView reloadSections:ourSectionSet withRowAnimation:animation];
+				} else {
+					[tableView deleteSections:ourSectionSet withRowAnimation:animation];
+					[tableView insertSections:ourSectionSet withRowAnimation:animation];
+				}
 				break;
 			case TitaniumGroupActionDeleteGroup:
 				if(section >= [sectionArray count])break;

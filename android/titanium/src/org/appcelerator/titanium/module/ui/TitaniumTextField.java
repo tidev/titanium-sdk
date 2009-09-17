@@ -163,10 +163,7 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 		tv.setText(value);
 		tv.setHint(hintText);
 		tv.setPadding(10, 5, 10, 7);
-		Typeface tf = tv.getTypeface();
-		tv.setTypeface(tf, TitaniumUIHelper.toTypefaceStyle(fontWeight));
-		tv.setTextSize(TitaniumUIHelper.getSizeUnits(fontSize), TitaniumUIHelper.getSize(fontSize));
-
+		TitaniumUIHelper.styleText(tv, fontSize, fontWeight);
 
 		switch(textAlign) {
 			case TEXT_ALIGN_LEFT : tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT); break;

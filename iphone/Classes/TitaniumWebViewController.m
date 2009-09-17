@@ -83,6 +83,7 @@ TitaniumWebViewController * mostRecentController = nil;
 	[webView release];
 	webView = nil;
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
+	[nativeOnscreenProxies release];
 
 	[currentContentURL release];	//Used as a base url.
 
@@ -346,6 +347,7 @@ TitaniumWebViewController * mostRecentController = nil;
 {
 	CLOCKSTAMP("Finished load request for %@",self);
 	[UIView beginAnimations:@"webView" context:nil];
+	[UIView setAnimationDuration:0.1];
 	[self updateLayout:NO];
 	
 	NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
@@ -355,9 +357,12 @@ TitaniumWebViewController * mostRecentController = nil;
 	[scrollView setAlpha:1.0];
 	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
 	[UIView commitAnimations];
+
+	isNonTitaniumPage = ![[currentContentURL scheme] isEqualToString:@"app"];
+	[webView setScalesPageToFit:isNonTitaniumPage];
+	if(isNonTitaniumPage)return;
 	[self probeWebViewForTokenInContext:@"window"];
 	
-	if(![[currentContentURL scheme] isEqualToString:@"app"])return;
 	if([[webView stringByEvaluatingJavaScriptFromString:@"typeof(Titanium)"] isEqualToString:@"undefined"])[self investigateTitaniumCrashSite];
 	
 	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'load'});"];
@@ -376,7 +381,12 @@ TitaniumWebViewController * mostRecentController = nil;
 	
 }
 
-
+- (BOOL)touchesShouldCancelInContentView:(UIView *)view;
+{
+	if(isNonTitaniumPage)return NO;
+	NSString * noCancel = [webView stringByEvaluatingJavaScriptFromString:@"Ti._DOTOUCH"];
+	return ![noCancel boolValue];
+}
 
 #pragma mark Updating things
 
@@ -384,6 +394,16 @@ TitaniumWebViewController * mostRecentController = nil;
 {
 	if ([scrollView superview]==nil) return;
 	CGRect webFrame;
+	if(isNonTitaniumPage){
+		NSLog(@"Was not titanium page!");
+		CGRect webFrame;
+		webFrame.origin = CGPointZero;
+		webFrame.size = [scrollView frame].size;
+		[scrollView setContentSize:webFrame.size];
+		[webView setFrame:webFrame];
+		return;
+	}
+	
 	webFrame.origin = CGPointZero;
 	webFrame.size = [[self view] frame].size;
 	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI._ISRESIZING=true;"];

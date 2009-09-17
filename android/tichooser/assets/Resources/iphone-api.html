@@ -1,0 +1,32 @@
+<html>
+<head>
+<title>iPhone API Test</title>
+<script>
+window.onload = function() {
+	try {
+		var w = Titanium.UI.currentWindow;
+
+		w.setNavBarColor();
+		w.setLeftNavButton();
+		w.setRightNavButton();
+		w.showNavBar();
+		w.hideNavBar();
+		w.setBarColor();
+		w.setTitleControl();
+		w.setToolbar();
+		document.getElementById("result").innerHTML = "Result: PASS";
+	} catch (e) {
+		Titanium.UI.createAlertDialog({
+			title : 'API Check Error',
+			message : e
+		}).show();
+		document.getElementById("result").innerHTML = "Result: FAIL";
+	}
+};
+</script>
+</head>
+<body>
+	<p>This test will display an error if an iPhone only method is not stubbed out</p>
+	<div id="result">&nbsp;</div>
+</body>
+</html>

@@ -219,7 +219,12 @@ public class TitaniumWebView extends WebView
         }
 	}
 
-    protected void initializeModules() {
+    public void processOptions(String options) {
+		// TODO Auto-generated method stub
+
+	}
+
+	protected void initializeModules() {
         // Add Modules
         this.tiUI = new TitaniumUI(tmm, "TitaniumUI");
         TitaniumAppInfo appInfo = tmm.getActivity().getAppInfo();
@@ -324,7 +329,7 @@ public class TitaniumWebView extends WebView
 		synchronized(locks) {
 			l = locks.get(syncId);
 		}
-			l.release();
+		l.release();
 	}
 
 	public void evalJS(final String method) {

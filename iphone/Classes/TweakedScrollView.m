@@ -27,16 +27,18 @@
 
 - (BOOL)touchesShouldBegin:(NSSet *)touches withEvent:(UIEvent *)event inContentView:(UIView *)view;
 {
-	BOOL result=[super touchesShouldBegin:touches withEvent:event inContentView:view];
-//	NSLog(@"TouchesShouldBegin:%@ withEvent:%@ inContentView:%@ == %d",touches,event,view,result);
-
-	NSLog(@"TouchesShouldBegin:%d withEvent:%@ inContentView:%@ == %d",[touches count],
-		  ([event type]==UIEventTypeTouches)?@"touches":@"motion",NSStringFromClass([view class]),result);
-
 	if([[view superview] isKindOfClass:[UIPickerView class]]){
-		NSLog(@"Was picker view!");
 		return YES;
 	}
+
+	if([view isKindOfClass:[UIWebView class]]){
+		NSLog(@"In web view!");
+	}
+	
+	BOOL result=[super touchesShouldBegin:touches withEvent:event inContentView:view];
+//	NSLog(@"TouchesShouldBegin:%d withEvent:%@ inContentView:%@ == %d",[touches count],
+//		  ([event type]==UIEventTypeTouches)?@"touches":@"motion",NSStringFromClass([view class]),result);
+	
 //	if([view isKindOfClass:[UIScrollView class]]){
 //		[view touchesBegan:touches withEvent:event];
 //		return NO;
@@ -46,13 +48,21 @@
 
 - (BOOL)touchesShouldCancelInContentView:(UIView *)view;
 {
-	BOOL result=[super touchesShouldCancelInContentView:view];
-	NSLog(@"TouchesShouldCancelInContentView:%@ == %d",NSStringFromClass([view class]),result);
-//	if([view isKindOfClass:[UIScrollView class]]) return NO;
-	if([[view superview] isKindOfClass:[UIPickerView class]]){
-		NSLog(@"Was picker view!");
+	UIView * superview = [view superview];
+	if([superview isKindOfClass:[UIPickerView class]]){
 		return NO;
 	}
+	BOOL result=[super touchesShouldCancelInContentView:view];
+//	if([view isKindOfClass:[UIScrollView class]]) return NO;
+	UIView * superduperview = [superview superview];
+
+	if([superduperview isKindOfClass:[UIWebView class]]){
+		id superduperviewdelegate = [(UIWebView *)superduperview delegate];
+		if ([superduperviewdelegate respondsToSelector:@selector(touchesShouldCancelInContentView:)]){
+			result = [superduperviewdelegate touchesShouldCancelInContentView:superduperview];
+		}
+	}
+	NSLog(@"TouchesShouldCancelInContentView:%@(%@) == %d",NSStringFromClass([view class]),NSStringFromClass([[[view superview] superview] class]),result);
 	return result;
 }
 

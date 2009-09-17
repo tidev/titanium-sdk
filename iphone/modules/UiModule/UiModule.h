@@ -11,10 +11,8 @@
 
 @interface UiModule : NSObject<TitaniumModule> {
 	NSUInteger nextButtonToken;
-	NSUInteger nextWindowToken;
 
 	NSMutableDictionary * buttonContexts;
-	NSMutableDictionary * virtualWindowsDict;
 }
 
 - (void) setWindow:(NSString *)tokenString URL:(NSString *)newURLString baseURL:(NSString *)baseURLString;

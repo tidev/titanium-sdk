@@ -11,6 +11,9 @@
 	<div style="margin-bottom:5px">
 		<input type="button" value="hide navbar" id="button_2" style="font-size:18px"/>
 	</div>
+	<div style="margin-bottom:5px">
+		<input type="button" value="close window" id="button_3" style="font-size:18px"/>
+	</div>
 	
 	
 	<script>
@@ -21,6 +24,10 @@
 	document.getElementById('button_2').onclick = function(e)
 	{
 		Titanium.UI.currentWindow.hideNavBar();
+	};
+	document.getElementById('button_3').onclick = function(e)
+	{
+		Titanium.UI.currentWindow.close();
 	};
 	
 	</script>

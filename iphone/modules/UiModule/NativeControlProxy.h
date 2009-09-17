@@ -39,7 +39,7 @@ enum { //MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemIte
 
 BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view);
 
-@interface NativeControlProxy : TitaniumProxyObject<UITextViewDelegate,UITextFieldDelegate,UIPickerViewDelegate,UIPickerViewDataSource>
+@interface NativeControlProxy : TitaniumProxyObject<UITextViewDelegate,UITextFieldDelegate,UIPickerViewDelegate,UIPickerViewDataSource,UIWebViewDelegate>
 {
 	//Properties that are stored until the time is right
 	BOOL needsRefreshing;
@@ -117,7 +117,8 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 	
 	//Pickers, general purpose
 	BOOL	showSelectionIndicator;
-	NSArray * pickerColumnsArray;
+	NSMutableArray * pickerColumnsArray;
+	NSURL * baseURL;
 }
 
 @property(nonatomic,readwrite,copy)		NSString * titleString;

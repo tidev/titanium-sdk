@@ -149,14 +149,16 @@
 				{title:'Sound', input:sliderInstance, image:'Mail.png'},
 				{title:'Name', input:textInstance},
 				{title:'Input 2', value:'foo', hasChild:true},
-				{title:'Input 3'}
+				{html:'<div><img src="Phone.png"/> Input 3</div>', hasChild:true}
 			];
 
 			var inputSection = Titanium.UI.iPhone.createGroupedSection({
 				header:'Input Group',
 				type:'input',
-				data:inputData
+				data:inputData,
+				rowHeight:120
 			});
+			
 			inputSection.addEventListener('click',function(e)
 			{
 				a.setMessage('You clicked index ' + e.index + ' section row ' + e.row + ' section ' + e.section 
@@ -178,7 +180,7 @@
 
 		// data for tableview
 		var data = [
-			{html:'<div style="font-family:Helvetica Neue">Show View 1</div> ', hasDetail:true, header:'Section 0'},
+			{html:'<div style="font-family:Helvetica Neue;background-color:#336699">Show View 1</div> ', hasDetail:true, header:'Section 0'},
 
 			{html:'<div style="font-family:Helvetica Neue">Show View 2</div> ', hasChild:true},
 

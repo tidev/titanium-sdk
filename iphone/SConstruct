@@ -16,7 +16,7 @@ modules = [	'api',
 		'filesystem',
 		'network',
 		'platform',
-            	'analytics',
+        'analytics',
 		'gesture']
 
 try:

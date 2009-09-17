@@ -5,8 +5,11 @@ import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumUIWebView;
 import org.appcelerator.titanium.api.ITitaniumView;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.res.Configuration;
 import android.os.Handler;
@@ -37,7 +40,6 @@ public class TitaniumUIWebView
 	private String url;
 	private Handler handler;
 	private String name;
-	private String openJSON;
 	private boolean hasBeenOpened;
 	private TitaniumJSEventManager eventListeners;
 	private String key;
@@ -76,14 +78,28 @@ public class TitaniumUIWebView
 		}
 		return false;
 	}
+
+	public void processOptions(String options) {
+		try {
+			JSONObject o = new JSONObject(options);
+
+			if (o.has("url")) {
+				setUrl(o.getString("url"));
+			}
+			if (o.has("name")) {
+				setName(o.getString("name"));
+			}
+
+		} catch (JSONException e) {
+			Log.e(LCAT, "Unable to process options: " + options, e);
+		}
+		handler.obtainMessage(MSG_CONFIG).sendToTarget();
+	}
+
 	public void setUrl(String url) {
 		this.url = url;
 	}
 
-	public void configure(String json) {
-		this.openJSON = json;
-		handler.obtainMessage(MSG_CONFIG).sendToTarget();
-	}
 	public void showing() {
 		if (!hasBeenOpened) {
 			handler.obtainMessage(MSG_SHOWING).sendToTarget();
