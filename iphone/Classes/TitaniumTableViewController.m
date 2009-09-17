@@ -386,6 +386,10 @@ UIColor * checkmarkColor = nil;
 	if ([tableRowHeightObject respondsToSelector:@selector(intValue)]){
 		tableRowHeight = [tableRowHeightObject intValue];
 	}
+	else {
+		tableRowHeight = 43;
+	}
+
 	
 	Class stringClass = [NSString class];
 

@@ -140,7 +140,7 @@ def main(args):
 				if not module_normalized_name in modules_detected:
 					modules_detected.append(module_normalized_name)
 					print "[DEBUG] module library dependency detected Titanium.%s" % (module_normalized_name)
-				os.system("lipo \"%s\" -thin %s -o tmp.a" % (libpath,arch))
+				os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo \"%s\" -thin %s -o tmp.a" % (libpath,arch))
 				os.system("ar -x tmp.a")
 				os.remove("tmp.a")	
 			else:
@@ -156,8 +156,8 @@ def main(args):
 
 	# extract our main libTitanium by architecture and then rebuild the final static library which includes
 	# libTitanium as well as our dependent modules only
-	os.system("lipo \"%s\" -thin i386 -output \"%s\"" % (os.path.join(template_dir,'libTitanium-%s.a'%iphone_version),os.path.join(iphone_tmp_module_dir,'i386','libTitanium-i386.a')))
-	os.system("lipo \"%s\" -thin armv6 -output \"%s\"" % (os.path.join(template_dir,'libTitanium-%s.a'%iphone_version),os.path.join(iphone_tmp_module_dir,'armv6','libTitanium-armv6.a')))
+	os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo \"%s\" -thin i386 -output \"%s\"" % (os.path.join(template_dir,'libTitanium-%s.a'%iphone_version),os.path.join(iphone_tmp_module_dir,'i386','libTitanium-i386.a')))
+	os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo \"%s\" -thin armv6 -output \"%s\"" % (os.path.join(template_dir,'libTitanium-%s.a'%iphone_version),os.path.join(iphone_tmp_module_dir,'armv6','libTitanium-armv6.a')))
 
 	for arch in ['i386','armv6']:
 		os.chdir(os.path.join(iphone_tmp_module_dir,arch))
@@ -169,14 +169,14 @@ def main(args):
 			import inliner
 			inliner.inliner(include_dir,iphone_version,arch,project_module_dir,os.path.join(iphone_tmp_module_dir,arch))
         
-		os.system("libtool -static -o \"%s\" *.o" % os.path.join(iphone_tmp_module_dir,"libTitanium-%s.a"%arch))
+		os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/libtool -static -o \"%s\" *.o" % os.path.join(iphone_tmp_module_dir,"libTitanium-%s.a"%arch))
     
 	os.chdir(iphone_tmp_module_dir)
 
 	sys.stdout.flush()
 	
 	# remake the combined architecture lib
-	os.system("lipo libTitanium-i386.a libTitanium-armv6.a -create -output \"%s\"" % os.path.join(iphone_resources_dir,'libTitanium.a'))
+	os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo libTitanium-i386.a libTitanium-armv6.a -create -output \"%s\"" % os.path.join(iphone_resources_dir,'libTitanium.a'))
 	
 	shutil.rmtree(iphone_tmp_module_dir)
 	
@@ -254,7 +254,7 @@ def main(args):
     			"Debug",
     			"-sdk",
     			"iphonesimulator%s" % iphone_version,
-    			"WEB_SRC_ROOT='%s'" % iphone_tmp_dir,
+    			"WEB_SRC_ROOT=%s" % iphone_tmp_dir,
     			"GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development" % log_id
 			])
 			

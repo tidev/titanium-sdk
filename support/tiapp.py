@@ -38,7 +38,8 @@ def get_window_properties(node):
 			
 class TiAppXML(object):
 	def __init__(self,file):
-		self.dom = parse(open(file))
+		self.file = file
+		self.dom = parse(open(self.file))
 		
 		self.properties = {
 			'id':None,
@@ -66,6 +67,25 @@ class TiAppXML(object):
 				# properties of the app
 				else:
 					self.properties[child.nodeName]=getText(child.childNodes)
+					
+	def setDeployType(self, deploy_type):
+		found = False
+		children = self.dom.getElementsByTagName("ti:app")[0].childNodes
+		for child in children:
+			if child.nodeType == 1 and child.nodeName == 'property' :
+				if child.getAttributeNode('name').nodeValue == 'ti.deploytype' :
+					child.firstChild.nodeValue = deploy_type
+					found = True
+					break
+
+		if not found :
+			root = self.dom.getElementsByTagName("ti:app")
+			n = self.dom.createElement("property")
+			n.setAttribute('name','ti.deploytype')
+			n.appendChild(self.dom.createTextNode(deploy_type))
+			root[0].appendChild(n)
+			
+		self.dom.writexml(open(self.file, "w+"), encoding="UTF-8")
 
 
 #
