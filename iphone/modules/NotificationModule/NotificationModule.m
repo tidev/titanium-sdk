@@ -142,6 +142,9 @@
 
 @implementation NotificationModule
 
+#define NOTIFICATION_SHOW			0
+
+
 - (void) notification: (NSString *) token takeAction: (NSNumber *) actionObject options: (id) args;
 {
 	
@@ -170,6 +173,9 @@
 
 
 #pragma mark Start Module
+#define STRINGIFY(foo)	# foo
+#define STRINGVAL(foo)	STRINGIFY(foo)
+
 
 - (BOOL) startModule;
 {
@@ -177,12 +183,22 @@
 	
 	[(NotificationModule *)invocGen createNotification:nil];
 	NSInvocation * createInvoc = [invocGen invocation];
+
+	[(NotificationModule *)invocGen notification:nil takeAction:nil options:nil];
+	NSInvocation * noteActionInvoc = [invocGen invocation];
+
 	
 	TitaniumJSCode * notificationObjectCode = [TitaniumJSCode codeWithString:@"function(){}"];
-	[notificationObjectCode setEpilogueCode:@""];
+	[notificationObjectCode setEpilogueCode:@"Ti.Notification.Notification.prototype={"
+			"ensureToken:function(){if(!this._TOKEN){var tkn=Ti.Notification._MKNOT(this);this._TOKEN=tkn;Ti.Notification._NOTES[tkn]=this;}},"
+			"show:function(args){this.ensureToken();Ti.Notification._ACTNOT(this._TOKEN," STRINGVAL(NOTIFICATION_SHOW) ",args);},"
+			""
+			"};"];
 		
 	NSDictionary * moduleDict = [NSDictionary dictionaryWithObjectsAndKeys:
 			createInvoc,@"_MKNOT",
+			noteActionInvoc,@"_ACTNOT",
+			[TitaniumJSCode codeWithString:@"{}"],@"_NOTES",
 			notificationObjectCode,@"Notification",
 			[TitaniumJSCode codeWithString:@"function(args){return new Ti.Notification.Notification(args);}"],@"createNotification",
 //								beepInvoc, @"beep",
