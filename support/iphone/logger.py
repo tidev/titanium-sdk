@@ -27,10 +27,12 @@ def main(args):
 	logfile = None
 
 	while logfile == None:
-		logfile = find_file(logfile_dir,logname)
-		if logfile == None:
-			time.sleep(1)
-
+		try:
+			logfile = find_file(logfile_dir,logname)
+			if logfile == None:
+					time.sleep(1)
+		except KeyboardInterrupt:
+			sys.exit(0)
 
 	log = subprocess.Popen([
 		'tail',
@@ -39,9 +41,7 @@ def main(args):
 	],bufsize=1)	
 	
 	def handler(signum, frame):
-#		print "signal caught: %d" % signum
 		if not log == None:
-#			print "calling log kill on %d" % log.pid
 			os.system("kill -9 %d >/dev/null" % log.pid)
 		sys.exit(0)
 	

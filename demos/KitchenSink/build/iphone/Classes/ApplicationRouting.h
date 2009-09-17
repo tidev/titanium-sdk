@@ -30,7 +30,6 @@
 - (NSData*) pageNamedFullscreen;
 - (NSData*) pageNamedGeo;
 - (NSData*) pageNamedImage;
-- (NSData*) scriptNamedIndex;
 - (NSData*) pageNamedIphone_ui;
 - (NSData*) pageNamedNavbar_color;
 - (NSData*) pageNamedNavbar_hide;

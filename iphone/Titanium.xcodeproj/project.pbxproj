@@ -31,6 +31,7 @@
 		2444FA550FCA4E2E00063972 /* IPAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FA540FCA4E2E00063972 /* IPAddress.c */; };
 		2444FC7F0FCA6F8000063972 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444FC7C0FCA6F8000063972 /* NSData+Additions.m */; };
 		2444FCD40FCA741E00063972 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FCD10FCA741E00063972 /* base64.c */; };
+		24B4B9A310622B9D00C859D4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
 		24BBD83E0FCD245F00A261A4 /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BBD83D0FCD245F00A261A4 /* GestureModule.m */; };
 		24C5AC5B1061FB630063594B /* NotificationModule.h in Headers */ = {isa = PBXBuildFile; fileRef = B4F37DDB1061913E00ED12AF /* NotificationModule.h */; };
 		24C5AC5C1061FB670063594B /* NotificationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F37DDC1061913E00ED12AF /* NotificationModule.m */; };
@@ -145,7 +146,6 @@
 		24C5ACF21061FDD70063594B /* UiModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8350FC9FCA400063972 /* UiModule.h */; };
 		24C5ACF31061FDD70063594B /* NativeControlProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A6D3AF103C9EFD00131CD4 /* NativeControlProxy.h */; };
 		24C5ACF41061FDDC0063594B /* UiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8360FC9FCA400063972 /* UiModule.m */; };
-		24C5ACF51061FDDC0063594B /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
 		24F02E460FD482D2007894DA /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F02E450FD482D2007894DA /* AnalyticsModule.m */; };
 		288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
@@ -1818,7 +1818,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				24C5ACF41061FDDC0063594B /* UiModule.m in Sources */,
-				24C5ACF51061FDDC0063594B /* NativeControlProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1826,6 +1825,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24B4B9A310622B9D00C859D4 /* NativeControlProxy.m in Sources */,
 				24C5AC961061FC540063594B /* TitaniumInvocationGenerator.m in Sources */,
 				24C5AC971061FC540063594B /* TitaniumAccessorTuple.m in Sources */,
 				24C5AC981061FC540063594B /* TitaniumJSCode.m in Sources */,

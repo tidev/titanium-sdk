@@ -21,7 +21,7 @@ def dequote(s):
     return s
 
 def kill_simulator():
-	run.run(['/usr/bin/killall',"iPhone Simulator"])
+	run.run(['/usr/bin/killall',"iPhone Simulator"],True)
 
 def main(args):
 	argc = len(args)
@@ -129,6 +129,8 @@ def main(args):
 		os.chdir(os.path.join(iphone_tmp_module_dir,arch))
 		for module_name in compiler.modules:
 			module_normalized_name = module_name[0:1].capitalize() + module_name[1:]
+			if len(module_normalized_name) == 2:
+			    module_normalized_name = module_normalized_name.upper()
 			libname = "lib%s-%s.a" % (module_normalized_name,iphone_version)
 			libpath = os.path.join(template_dir,libname)
 			if not os.path.exists(libpath):
@@ -138,29 +140,43 @@ def main(args):
 				if not module_normalized_name in modules_detected:
 					modules_detected.append(module_normalized_name)
 					print "[DEBUG] module library dependency detected Titanium.%s" % (module_normalized_name)
-				os.system("lipo \"%s\" -thin %s -o tmp.a" % (libpath,arch))
+				os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo \"%s\" -thin %s -o tmp.a" % (libpath,arch))
 				os.system("ar -x tmp.a")
 				os.remove("tmp.a")	
 			else:
 				print "[WARN] couldn't find module library for Titanium.%s" % module_normalized_name
 
 	os.chdir(iphone_tmp_module_dir)
+	
+	
+	for arch in ['i386','armv6']:
+		arch_dir = os.path.join(iphone_tmp_module_dir,arch)
+		if not os.path.exists(arch_dir):
+			os.mkdir(arch_dir)
+
 	# extract our main libTitanium by architecture and then rebuild the final static library which includes
 	# libTitanium as well as our dependent modules only
-	os.system("lipo \"%s\" -thin i386 -o \"%s\"" % (os.path.join(template_dir,'libTitanium-%s.a'%iphone_version),os.path.join(iphone_tmp_module_dir,'i386','libTitanium-i386.a')))
-	os.system("lipo \"%s\" -thin armv6 -o \"%s\"" % (os.path.join(template_dir,'libTitanium-%s.a'%iphone_version),os.path.join(iphone_tmp_module_dir,'armv6','libTitanium-armv6.a')))
+	os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo \"%s\" -thin i386 -output \"%s\"" % (os.path.join(template_dir,'libTitanium-%s.a'%iphone_version),os.path.join(iphone_tmp_module_dir,'i386','libTitanium-i386.a')))
+	os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo \"%s\" -thin armv6 -output \"%s\"" % (os.path.join(template_dir,'libTitanium-%s.a'%iphone_version),os.path.join(iphone_tmp_module_dir,'armv6','libTitanium-armv6.a')))
+
 	for arch in ['i386','armv6']:
 		os.chdir(os.path.join(iphone_tmp_module_dir,arch))
 		os.system("ar -x \"%s\"" % os.path.join(iphone_tmp_module_dir,arch,"libTitanium-%s.a"%arch))
-		os.remove(os.path.join(iphone_tmp_module_dir,arch,"libTitanium-%s.a"%arch))
-		os.system("libtool -static -o \"%s\" *.o" % os.path.join(iphone_tmp_module_dir,"libTitanium-%s.a"%arch))
 
+		#compile in any user source
+		include_dir = os.path.join(template_dir,"include")
+		if os.path.exists(include_dir) and os.path.exists(project_module_dir):
+			import inliner
+			inliner.inliner(include_dir,iphone_version,arch,project_module_dir,os.path.join(iphone_tmp_module_dir,arch))
+        
+		os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/libtool -static -o \"%s\" *.o" % os.path.join(iphone_tmp_module_dir,"libTitanium-%s.a"%arch))
+    
 	os.chdir(iphone_tmp_module_dir)
 
 	sys.stdout.flush()
 	
 	# remake the combined architecture lib
-	os.system("lipo libTitanium-i386.a libTitanium-armv6.a -create -output \"%s\"" % os.path.join(iphone_resources_dir,'libTitanium.a'))
+	os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo libTitanium-i386.a libTitanium-armv6.a -create -output \"%s\"" % os.path.join(iphone_resources_dir,'libTitanium.a'))
 	
 	shutil.rmtree(iphone_tmp_module_dir)
 	
@@ -232,16 +248,29 @@ def main(args):
 			if os.path.exists(app_dir):
 				shutil.rmtree(app_dir)
 	
-			os.system("xcodebuild -configuration Debug -sdk iphonesimulator%s WEB_SRC_ROOT='%s' GCC_PREPROCESSOR_DEFINITIONS='__LOG__ID__=%s DEPLOYTYPE=development'" % (iphone_version,iphone_tmp_dir,log_id))
-
+			output = run.run([
+    			"xcodebuild",
+    			"-configuration",
+    			"Debug",
+    			"-sdk",
+    			"iphonesimulator%s" % iphone_version,
+    			"WEB_SRC_ROOT=%s" % iphone_tmp_dir,
+    			"GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development" % log_id
+			])
+			
+			print output
 			print "[END_VERBOSE]"
 			sys.stdout.flush()
+
+			if output.find("** BUILD FAILED **")!=-1 or output.find("ld returned 1")!=-1:
+			    print "[ERROR] Build Failed. Please see output for more details"
+			    sys.exit(1)
 	
 			# first make sure it's not running
 			kill_simulator()
 
 			logger = os.path.realpath(os.path.join(template_dir,'logger.py'))
-	
+			
 			# start the logger
 			log = subprocess.Popen([
 			  	logger,
@@ -251,25 +280,19 @@ def main(args):
 			sim = None
 	
 			def handler(signum, frame):
-#				print "signal caught: %d" % signum
+				print "[INFO] Simulator is exiting"
 				sys.stdout.flush()
 				if not log == None:
-					#print "calling log kill on %d" % log.pid
 					try:
-						#run.run(["kill","-3",str(log.pid)])
-						os.system("kill -3 %s" % str(log.pid))
+						os.system("kill -2 %s" % str(log.pid))
 					except:
 						pass
-				if not sim == None:
-					#print "calling sim kill on %d" % sim.pid
+				if not sim == None and signum!=3:
 					try:
-						# run.run(["kill","-3",str(sim.pid)])
 						os.system("kill -3 %s" % str(sim.pid))
 					except:
 						pass
-					
-				sys.stdout.flush()
-				sys.stderr.flush()
+
 				kill_simulator()
 				sys.exit(0)
 	    
@@ -296,14 +319,21 @@ def main(args):
 			sys.stderr.flush()
 			
 			os.waitpid(sim.pid,0)
-			sim = None
-				
-			print "[INFO] Simulator has exited"
-			sys.stdout.flush()
-			sys.stderr.flush()
 
-			handler(3,None)
+			print "[INFO] Application has exited from Simulator"
+			
+			# in this case, the user has exited the simulator itself
+			# and not clicked Stop Emulator from within Developer so we kill
+			# our tail log process but let simulator keep running
+
+			if not log == None:
+				try:
+					os.system("kill -2 %s" % str(log.pid))
+				except:
+					pass
+			
 			sys.exit(0)
+			
 			
 		elif command == 'install':
 	
@@ -321,11 +351,15 @@ def main(args):
 				"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name
 			])
+			
+			if output.find("** BUILD FAILED **")!=-1:
+			    print "[ERROR] Build Failed. Please see output for more details"
+			    sys.exit(1)
 	
 			# look for a code signing error
 			error = re.findall(r'Code Sign error:(.*)',output)
 			if len(error) > 0:
-				print error[0].strip()
+				print "[ERROR] Code sign error: %s" % error[0].strip()
 				sys.exit(1)
 
 			print "[INFO] Installing application in iTunes ... one moment"
@@ -341,7 +375,7 @@ def main(args):
 			cmd = "osascript \"%s\"" % ass
 			os.system(cmd)
 
-			print "iTunes sync initiated"
+			print "[INFO] iTunes sync initiated"
 			sys.stdout.flush()
 	
 		elif command == 'distribute':
@@ -370,10 +404,15 @@ def main(args):
 				"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name
 			])
+			
+			if output.find("** BUILD FAILED **")!=-1:
+			    print "[ERROR] Build Failed. Please see output for more details"
+			    sys.exit(1)
+			
 			# look for a code signing error
 			error = re.findall(r'Code Sign error:(.*)',output)
 			if len(error) > 0:
-				print error[0].strip()
+				print "[ERROR] Code sign error: %s" % error[0].strip()
 				sys.exit(1)
 			
 			# switch to app_bundle for zip
