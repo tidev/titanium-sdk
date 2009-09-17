@@ -17,7 +17,8 @@ modules = [	'api',
 		'network',
 		'platform',
         'analytics',
-		'gesture']
+		'gesture',
+		'notification']
 
 try:
 	# pull in the version from the top-level SConstruct
