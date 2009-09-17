@@ -254,7 +254,7 @@ def main(args):
     			"Debug",
     			"-sdk",
     			"iphonesimulator%s" % iphone_version,
-    			"WEB_SRC_ROOT='%s'" % iphone_tmp_dir,
+    			"WEB_SRC_ROOT=%s" % iphone_tmp_dir,
     			"GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development" % log_id
 			])
 			
