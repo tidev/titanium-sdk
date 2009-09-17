@@ -112,6 +112,17 @@ class TiPlist(object):
 			st = plist[0:i+8]
 			fn = plist[e:]
 			plist = st + appid + fn
+
+
+		# replace the version in case it's changed
+		i = plist.index('CFBundleVersion')
+		if i:
+			i = plist.index('<string>',i+1)
+			e = plist.index('</string>',i+1)
+			st = plist[0:i+8]
+			fn = plist[e:]
+			version = self.tiapp.properties['version']
+			plist = st + version + fn
 			
 		i = plist.rindex('</dict>')	
 		if i:

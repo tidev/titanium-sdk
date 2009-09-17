@@ -3,10 +3,6 @@
 # Appcelerator Titanium Mobile
 # Copyright (c) 2009 Appcelerator, Inc. All Right Reserved.
 #
-# This code is proprietary to Appcelerator and should not
-# be redistributed without expression written permission of
-# Appcelerator.
-#
 # Resource to Objective-C Page Compiler
 # Handles JS, CSS and HTML files only
 #
@@ -63,8 +59,9 @@ random.seed(time.time())
 
 class Compiler(object):
 	
-	def __init__(self,appid,project_dir,encrypt):
+	def __init__(self,appid,project_dir,encrypt,debug):
 		self.encrypt = encrypt
+		self.debug = debug
 		self.template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 		self.encryptor = os.path.abspath(os.path.join(self.template_dir,"../","encryptor"))
 		if not os.path.exists(self.encryptor):
@@ -77,7 +74,7 @@ class Compiler(object):
 		self.classes_dir = os.path.join(self.project_dir,'build','iphone','Classes')
 		self.temp_build_dir = os.path.join(self.project_dir,'build','iphone','tmp')
 		# these modules are always required 
-		self.modules = ['App','Network','Platform','Analytics']
+		self.modules = ['App','API','Network','Platform','Analytics']
 
 	def extract_modules(self,out):
 		for line in out.split(';'):
@@ -106,7 +103,6 @@ class Compiler(object):
 	
 		if ext=='html':
 			filetype = 'page'
-			contents = '<html><body>hello world</body></html>'
 		elif ext=='css':
 			filetype = 'style'
 		elif ext=='js':
@@ -119,6 +115,7 @@ class Compiler(object):
 		key = "%s%d%s" % (self.appid,seed,methodname)
 	
 		file_contents = open(os.path.expanduser(file)).read()
+		_file_contents = file_contents
 
 		# minimize javascript, css files
 		if ext == 'js':
@@ -129,6 +126,28 @@ class Compiler(object):
 		
 		# determine which modules this file is using
 		self.extract_modules(file_contents)
+
+		if self.debug and ext == 'js':
+			file_contents = """
+try
+{
+%s
+}
+catch(__ex__)
+{
+  if (typeof __ex__ == 'string')
+  {
+     var msg = __ex__
+     __ex__ = {line:3,sourceURL:'%s',message:msg};
+  }
+  var _sur = __ex__.sourceURL;
+  if (_sur)
+  {
+    _sur = _sur.substring(%d);
+  }
+  Titanium.API.reportUnhandledException(__ex__.line-3,_sur,__ex__.message);
+}
+""" % (_file_contents,url,len('app://%s/'%self.appid))
 
 		if self.encrypt:		
 			out = subprocess.Popen([self.encryptor,file,key], stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
@@ -147,7 +166,8 @@ class Compiler(object):
 	}
 			""" % (url,file,method_define,self.appid,seed,methodname,data)
 		else:
-			data = str(file_contents).encode("hex");
+			sys.stdout.flush()
+			data = str(file_contents).encode("hex")
 			method = """
 	#pragma mark %s
 	// %s
@@ -159,7 +179,7 @@ class Compiler(object):
 	}
 			""" % (url,file,method_define,data)
 			
-		return {'name':methodname,'method':method,'define':method_define,'url':url, 'path':path}
+		return {'name':methodname,'method':method,'define':method_define,'url':url,'path':path}
 
 	def compile(self):
 		

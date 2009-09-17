@@ -427,14 +427,13 @@ TitaniumHost * lastSharedHost = nil;
 
 	appBaseUrl = [[NSURL alloc] initWithScheme:@"app" host:appID path:@"/index.html"];
 
-	NSLog(@"Application base url = %@",appBaseUrl);
+	NSLog(@"Application base url = %@, appid = %@",appBaseUrl, appID);
 	
 	// install the application
 	Class routingClass = NSClassFromString(@"ApplicationRouting");
 	if (routingClass!=nil)
 	{
 		id<TitaniumAppAssetResolver> router = [[routingClass alloc] init];
-		NSLog(@"Registering application asset router = %@",router);
 		[TitaniumAppProtocol registerAppAssetResolver:router];
 		[router release];
 	}
