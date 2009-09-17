@@ -117,7 +117,7 @@ UIColor * checkmarkColor = nil;
 	if([nameString isKindOfClass:[NSString class]])[result setName:nameString];
 
 	id rowHeightObj = [newData objectForKey:@"rowHeight"];
-	if([rowHeightObj respondsToSelector:@selector(floatValue)])rowHeight = [rowHeightObj floatValue];
+	if([rowHeightObj respondsToSelector:@selector(floatValue)])[result setRowHeight:[rowHeightObj floatValue]];
 
 	BOOL isButtonGroup = NO;
 	NSString * rowType = [newData objectForKey:@"type"];

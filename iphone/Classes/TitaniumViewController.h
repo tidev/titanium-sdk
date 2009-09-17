@@ -32,7 +32,7 @@ typedef enum {
 	TitaniumViewControllerAnyOrientation = 0xFFFF,
 } TitaniumViewControllerOrientationsAllowed;
 
-@class NativeControlProxy;
+@class NativeControlProxy,NotificationProxy;
 @class TitaniumContentViewController;
 @interface TitaniumViewController : UIViewController<UIWebViewDelegate,UIScrollViewDelegate> {
 
@@ -83,7 +83,7 @@ typedef enum {
 	NSDictionary * animationOptionsDict;
 	BOOL		isVisible;
 
-//	NSMutableArray * 
+	NSMutableArray * notificationsArray;
 }
 
 + (TitaniumViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
@@ -136,6 +136,10 @@ typedef enum {
 
 - (NSDictionary *) propertiesDict;
 - (NSDictionary *) tabPropertiesDict;
+
+- (void) addNotification:(NotificationProxy *)notification;
+- (void) removeNotification:(NotificationProxy *)notification;
+
 
 @end
 

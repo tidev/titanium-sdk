@@ -6,7 +6,7 @@
  */
 
 #import "TitaniumScrollableViewController.h"
-
+#import "TitaniumViewController.h"
 
 @implementation TitaniumScrollableViewController
 

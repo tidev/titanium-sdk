@@ -66,6 +66,12 @@
 			Ti.API.debug('Listing: ' + typeof(filething.getDirectoryListing));
 			Ti.API.debug('Listing: ' + filething.getDirectoryListing());
 		}
+
+		noteTest=function(){
+			var notty=Titanium.Notification.createNotification({html:'Hello, world!'});
+			notty.show();
+			lastnote = notty;
+		}
 		
 		var btn1=Ti.UI.createButton({title:'-'});
 		var btn2=Ti.UI.createButton({title:'+'});
@@ -134,6 +140,8 @@ Titanium.UI.addEventListener('tabchange',function(e)
 	<button onclick="doEmailTest()">Email</button>
 
 	<button onclick="testFun('fileTest()')">File</button>
+	<button onclick="testFun('noteTest()')">Notification</button>
+	<button onclick="testFun('lastnote.hide()')">hide</button>
 
 	<button onclick="Titanium.UI.currentWindow.showView(buggyView,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000})">Switch by view</button>
 	<button onclick="Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('bugger'),{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000})">Switch by name</button>
