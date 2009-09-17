@@ -13,11 +13,11 @@ import org.appcelerator.titanium.api.ITitaniumApp;
 import org.appcelerator.titanium.api.ITitaniumNetwork;
 import org.appcelerator.titanium.api.ITitaniumPlatform;
 import org.appcelerator.titanium.module.TitaniumGeolocation;
+import org.appcelerator.titanium.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.location.Location;
-import org.appcelerator.titanium.util.Log;
 
 public class TitaniumAnalyticsEventFactory
 {

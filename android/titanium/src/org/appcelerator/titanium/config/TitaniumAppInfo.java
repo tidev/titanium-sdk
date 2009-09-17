@@ -21,13 +21,12 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.appcelerator.titanium.api.ITitaniumProperties;
 import org.appcelerator.titanium.module.app.TitaniumProperties;
+import org.appcelerator.titanium.util.Log;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import android.content.Context;
-import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.Log;
 
 public class TitaniumAppInfo
 {

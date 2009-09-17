@@ -19,11 +19,11 @@
 
 package org.apache.james.mime4j.parser;
 
-import org.apache.james.mime4j.MimeException;
-import org.apache.james.mime4j.descriptor.BodyDescriptor;
-
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.james.mime4j.MimeException;
+import org.apache.james.mime4j.descriptor.BodyDescriptor;
 
 /**
  * Abstract <code>ContentHandler</code> with default implementations of all

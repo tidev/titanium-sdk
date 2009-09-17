@@ -19,10 +19,10 @@
 
 package org.apache.james.mime4j.io;
 
-import org.apache.james.mime4j.util.ByteArrayBuffer;
-
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.james.mime4j.util.ByteArrayBuffer;
 
 /**
  * Input buffer that can be used to search for patterns using Quick Search 

@@ -19,9 +19,9 @@
 
 package org.apache.james.mime4j.io;
 
-import org.apache.james.mime4j.util.ByteArrayBuffer;
-
 import java.io.IOException;
+
+import org.apache.james.mime4j.util.ByteArrayBuffer;
 
 /**
  * Stream that constrains itself to a single MIME body part.

@@ -18,8 +18,6 @@
  * under the License.                                           *
  ****************************************************************/
 package org.apache.james.mime4j.field.datetime.parser;
-import org.apache.james.mime4j.field.datetime.DateTime;
-import java.util.Calendar;
 
 public class DateTimeParserTokenManager implements DateTimeParserConstants
 {

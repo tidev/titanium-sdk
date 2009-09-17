@@ -13,6 +13,7 @@ import org.appcelerator.titanium.api.ITitaniumGeolocation;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEvent;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,7 +25,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
-import org.appcelerator.titanium.util.Log;
 import android.webkit.WebView;
 
 public class TitaniumGeolocation extends TitaniumBaseModule implements ITitaniumGeolocation

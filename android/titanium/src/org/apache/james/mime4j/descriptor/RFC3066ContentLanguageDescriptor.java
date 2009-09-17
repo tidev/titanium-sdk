@@ -18,9 +18,9 @@
  */
 package org.apache.james.mime4j.descriptor;
 
-import org.apache.james.mime4j.MimeException;
-
 import java.util.List;
+
+import org.apache.james.mime4j.MimeException;
 
 /**
  * Describes RFC3066 content-language headers.

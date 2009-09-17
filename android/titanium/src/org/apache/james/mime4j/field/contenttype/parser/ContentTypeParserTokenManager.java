@@ -18,7 +18,6 @@
  * under the License.                                           *
  ****************************************************************/
 package org.apache.james.mime4j.field.contenttype.parser;
-import java.util.ArrayList;
 
 public class ContentTypeParserTokenManager implements ContentTypeParserConstants
 {

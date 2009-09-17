@@ -21,22 +21,7 @@ def dequote(s):
     return s
 
 def kill_simulator():
-	print "kill simulator called"
-	p = subprocess.Popen(['/bin/ps','-exwo','pid,comm'],stdout=subprocess.PIPE)
-	while p.poll() == None:
-	    buf = p.communicate()[0]
-	    if buf == None or buf == '': break
-	    buf = buf.strip()
-	    for line in buf.split("\n"):
-	        line = line.strip()
-	        i = line.index(' ')
-	        pid = line[0:i]
-	        cmd = line[i+1:]
-	        if len(re.findall('iPhoneSimulator',cmd)) > 0:
-			try:
-				os.system("/bin/kill -9 %s 2>/dev/null" % pid)
-			except:
-				pass
+	run.run(['/usr/bin/killall',"iPhone Simulator"],True)
 
 def main(args):
 	argc = len(args)
@@ -51,7 +36,8 @@ def main(args):
 
 		sys.exit(1)
 
-	print "One moment, building ..."
+	print "[INFO] One moment, building ..."
+	sys.stdout.flush()
 	
 	simulator = os.path.abspath(os.path.join(template_dir,'iphonesim'))
 	
@@ -61,8 +47,8 @@ def main(args):
 	appid = dequote(args[4])
 	name = dequote(args[5])
 	target = 'Debug'
-	
 	deploytype = 'development'
+	debug = False
 	
 	if command == 'distribute':
 		appuuid = dequote(args[6])
@@ -72,6 +58,7 @@ def main(args):
 		deploytype = 'production'
 	elif command == 'simulator':
 		deploytype = 'test'
+		debug = True
 	elif command == 'install':
 		appuuid = dequote(args[6])
 		dist_name = dequote(args[7])
@@ -87,6 +74,7 @@ def main(args):
 	app_bundle = os.path.join(app_bundle_folder,app_name)
 	iphone_resources_dir = os.path.join(iphone_dir,'Resources')
 	iphone_tmp_dir = os.path.join(iphone_dir,'tmp')
+	
 	
 	if not os.path.exists(iphone_dir):
 		print "Could not find directory: %s" % iphone_dir
@@ -104,8 +92,16 @@ def main(args):
 		encrypt = (ti.properties['encrypt']=='true')
 	
 	# compile resources
-	compiler = Compiler(appid,project_dir,encrypt)
+	compiler = Compiler(appid,project_dir,encrypt,debug)
 	compiler.compile()
+	
+	# copy over main since it can change with each release
+	main_template = open(os.path.join(template_dir,'main.m'),'r').read()
+	main_template = main_template.replace('__PROJECT_NAME__',name)
+	main_template = main_template.replace('__PROJECT_ID__',appid)
+	main_dest = open(os.path.join(iphone_dir,'main.m'),'w')
+	main_dest.write(main_template)
+	main_dest.close()
 	
 	# copy in the default PNG
 	default_png = os.path.join(project_resources,'iphone','Default.png')
@@ -115,9 +111,74 @@ def main(args):
 			os.remove(target_png)
 		shutil.copy(default_png,target_png)	
 	
-	# copy in the write version of the titanium runtime based on which iphone
-	# version the project is building for
-	shutil.copy(os.path.join(template_dir,'libTitanium-%s.a'%iphone_version),os.path.join(iphone_resources_dir,'libTitanium.a'))
+	iphone_tmp_module_dir = os.path.join(iphone_dir,"_modules")
+	if os.path.exists(iphone_tmp_module_dir):
+		shutil.rmtree(iphone_tmp_module_dir)
+	
+	os.mkdir(iphone_tmp_module_dir)
+	
+	# in case the developer has their own modules we can pick them up
+	project_module_dir = os.path.join(project_dir,"modules","iphone")
+	
+	# we build a new libTitanium that is basically only the modules used by the application all injected into the 
+	# final libTitanium that is used by xcode
+	os.chdir(iphone_tmp_module_dir)
+	modules_detected=[]
+	for arch in ['i386','armv6']:
+		os.mkdir(os.path.join(iphone_tmp_module_dir,arch))
+		os.chdir(os.path.join(iphone_tmp_module_dir,arch))
+		for module_name in compiler.modules:
+			module_normalized_name = module_name[0:1].capitalize() + module_name[1:]
+			if len(module_normalized_name) == 2:
+			    module_normalized_name = module_normalized_name.upper()
+			libname = "lib%s-%s.a" % (module_normalized_name,iphone_version)
+			libpath = os.path.join(template_dir,libname)
+			if not os.path.exists(libpath):
+				# check to see if its in the user's project module dir
+				libpath = os.path.join(project_module_dir,libname)
+			if os.path.exists(libpath):
+				if not module_normalized_name in modules_detected:
+					modules_detected.append(module_normalized_name)
+					print "[DEBUG] module library dependency detected Titanium.%s" % (module_normalized_name)
+				os.system("lipo \"%s\" -thin %s -o tmp.a" % (libpath,arch))
+				os.system("ar -x tmp.a")
+				os.remove("tmp.a")	
+			else:
+				print "[WARN] couldn't find module library for Titanium.%s" % module_normalized_name
+
+	os.chdir(iphone_tmp_module_dir)
+	
+	
+	for arch in ['i386','armv6']:
+		arch_dir = os.path.join(iphone_tmp_module_dir,arch)
+		if not os.path.exists(arch_dir):
+			os.mkdir(arch_dir)
+
+	# extract our main libTitanium by architecture and then rebuild the final static library which includes
+	# libTitanium as well as our dependent modules only
+	os.system("lipo \"%s\" -thin i386 -output \"%s\"" % (os.path.join(template_dir,'libTitanium-%s.a'%iphone_version),os.path.join(iphone_tmp_module_dir,'i386','libTitanium-i386.a')))
+	os.system("lipo \"%s\" -thin armv6 -output \"%s\"" % (os.path.join(template_dir,'libTitanium-%s.a'%iphone_version),os.path.join(iphone_tmp_module_dir,'armv6','libTitanium-armv6.a')))
+
+	for arch in ['i386','armv6']:
+		os.chdir(os.path.join(iphone_tmp_module_dir,arch))
+		os.system("ar -x \"%s\"" % os.path.join(iphone_tmp_module_dir,arch,"libTitanium-%s.a"%arch))
+
+		#compile in any user source
+		include_dir = os.path.join(template_dir,"include")
+		if os.path.exists(include_dir) and os.path.exists(project_module_dir):
+			import inliner
+			inliner.inliner(include_dir,iphone_version,arch,project_module_dir,os.path.join(iphone_tmp_module_dir,arch))
+        
+		os.system("libtool -static -o \"%s\" *.o" % os.path.join(iphone_tmp_module_dir,"libTitanium-%s.a"%arch))
+    
+	os.chdir(iphone_tmp_module_dir)
+
+	sys.stdout.flush()
+	
+	# remake the combined architecture lib
+	os.system("lipo libTitanium-i386.a libTitanium-armv6.a -create -output \"%s\"" % os.path.join(iphone_resources_dir,'libTitanium.a'))
+	
+	shutil.rmtree(iphone_tmp_module_dir)
 	
 	# must copy the XIBs each time since they can change per SDK
 	os.chdir(template_dir)
@@ -125,17 +186,6 @@ def main(args):
 		shutil.copy(os.path.join(template_dir,xib),os.path.join(iphone_resources_dir,xib))
 	os.chdir(cwd)		
 		
-	# cleanup compiled resources
-	def cleanup_compiled_resources(dir):
-		for root, dirs, files in os.walk(dir):
-			if len(files) > 0:
-				for f in files:
-					fp = os.path.splitext(f)
-					if len(fp)!=2: continue
-					if not fp[1] in ['.html','.js','.css','.a']: continue
-					basedir = root.replace(dir+'/','')
-					os.remove(os.path.join(dir,basedir,f))
-	
 	def is_adhoc(uuid):
 		path = "~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % uuid
 		f = os.path.expanduser(path)
@@ -183,6 +233,11 @@ def main(args):
 		
 		# write out plist
 		add_plist(os.path.join(iphone_dir,'Resources'))
+
+		print "[INFO] Executing XCode build..."
+		print "[BEGIN_VERBOSE] Executing XCode Compiler  <span>[toggle output]</span>"
+		
+		sys.stdout.flush()
 		
 		if command == 'simulator':
 	
@@ -193,16 +248,29 @@ def main(args):
 			if os.path.exists(app_dir):
 				shutil.rmtree(app_dir)
 	
-			os.system("xcodebuild -configuration Debug -sdk iphonesimulator%s WEB_SRC_ROOT='%s' GCC_PREPROCESSOR_DEFINITIONS='__LOG__ID__=%s DEPLOYTYPE=development'" % (iphone_version,iphone_tmp_dir,log_id))
-	
-			# clean since the xcodebuild copies
-			cleanup_compiled_resources(app_dir)
+			output = run.run([
+    			"xcodebuild",
+    			"-configuration",
+    			"Debug",
+    			"-sdk",
+    			"iphonesimulator%s" % iphone_version,
+    			"WEB_SRC_ROOT='%s'" % iphone_tmp_dir,
+    			"GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development" % log_id
+			])
 			
+			print output
+			print "[END_VERBOSE]"
+			sys.stdout.flush()
+
+			if output.find("** BUILD FAILED **")!=-1 or output.find("ld returned 1")!=-1:
+			    print "[ERROR] Build Failed. Please see output for more details"
+			    sys.exit(1)
+	
 			# first make sure it's not running
 			kill_simulator()
-			
+
 			logger = os.path.realpath(os.path.join(template_dir,'logger.py'))
-	
+			
 			# start the logger
 			log = subprocess.Popen([
 			  	logger,
@@ -212,20 +280,19 @@ def main(args):
 			sim = None
 	
 			def handler(signum, frame):
-				print "signal caught: %d" % signum
+				print "[INFO] Simulator is exiting"
+				sys.stdout.flush()
 				if not log == None:
-					print "calling log kill on %d" % log.pid
 					try:
-						os.system("kill -3 %d" % log.pid)
+						os.system("kill -2 %s" % str(log.pid))
 					except:
 						pass
-				if not sim == None:
-					print "calling sim kill on %d" % sim.pid
+				if not sim == None and signum!=3:
 					try:
-						os.system("kill -3 %d" % sim.pid)
+						os.system("kill -3 %s" % str(sim.pid))
 					except:
 						pass
-					
+
 				kill_simulator()
 				sys.exit(0)
 	    
@@ -234,29 +301,45 @@ def main(args):
 			signal.signal(signal.SIGQUIT, handler)
 			signal.signal(signal.SIGABRT, handler)
 			signal.signal(signal.SIGTERM, handler)
+
+			print "[INFO] Launching application in Simulator"
+			sys.stdout.flush()
+			sys.stderr.flush()
 	
-			# launch the simulator
+			#launch the simulator
 			sim = subprocess.Popen("\"%s\" launch \"%s\" %s" % (simulator,app_dir,iphone_version),shell=True)
-			
+						
 			# activate the simulator window
 			ass = os.path.join(template_dir,'iphone_sim_activate.scpt')
 			cmd = "osascript \"%s\"" % ass
 			os.system(cmd)
 			
+			print "[INFO] Launched application in Simulator"
+			sys.stdout.flush()
+			sys.stderr.flush()
+			
 			os.waitpid(sim.pid,0)
-			sim = None
-	
-			handler(3,None)
+
+			print "[INFO] Application has exited from Simulator"
+			
+			# in this case, the user has exited the simulator itself
+			# and not clicked Stop Emulator from within Developer so we kill
+			# our tail log process but let simulator keep running
+
+			if not log == None:
+				try:
+					os.system("kill -2 %s" % str(log.pid))
+				except:
+					pass
+			
 			sys.exit(0)
+			
 			
 		elif command == 'install':
 	
 			# make sure it's clean
 			if os.path.exists(app_bundle):
 				shutil.rmtree(app_bundle)
-	
-			# clean since the xcodebuild copies
-			cleanup_compiled_resources(app_bundle)
 	
 			output = run.run(["xcodebuild",
 				"-configuration",
@@ -268,12 +351,19 @@ def main(args):
 				"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name
 			])
+			
+			if output.find("** BUILD FAILED **")!=-1:
+			    print "[ERROR] Build Failed. Please see output for more details"
+			    sys.exit(1)
 	
 			# look for a code signing error
 			error = re.findall(r'Code Sign error:(.*)',output)
 			if len(error) > 0:
-				print error[0].strip()
+				print "[ERROR] Code sign error: %s" % error[0].strip()
 				sys.exit(1)
+
+			print "[INFO] Installing application in iTunes ... one moment"
+			sys.stdout.flush()
 			
 			# for install, launch itunes with the app
 			cmd = "open -b com.apple.itunes \"%s\"" % app_bundle
@@ -284,6 +374,9 @@ def main(args):
 			ass = os.path.join(template_dir,'itunes_sync.scpt')
 			cmd = "osascript \"%s\"" % ass
 			os.system(cmd)
+
+			print "[INFO] iTunes sync initiated"
+			sys.stdout.flush()
 	
 		elif command == 'distribute':
 	
@@ -295,10 +388,10 @@ def main(args):
 			# an ad-hoc distribution cert or not - in the case of non-adhoc
 			# we don't use the entitlements file but in ad hoc we need to
 			adhoc_line = "CODE_SIGN_ENTITLEMENTS="
-			deploytype = "production"
+			deploytype = "production_adhoc"
 			if not is_adhoc(appuuid):
 				adhoc_line="CODE_SIGN_ENTITLEMENTS = Resources/Entitlements.plist"
-				deploytype = "production_adhoc"
+				deploytype = "production"
 			
 			# build the final release distribution
 			output = run.run(["xcodebuild",
@@ -311,10 +404,15 @@ def main(args):
 				"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name
 			])
+			
+			if output.find("** BUILD FAILED **")!=-1:
+			    print "[ERROR] Build Failed. Please see output for more details"
+			    sys.exit(1)
+			
 			# look for a code signing error
 			error = re.findall(r'Code Sign error:(.*)',output)
 			if len(error) > 0:
-				print error[0].strip()
+				print "[ERROR] Code sign error: %s" % error[0].strip()
 				sys.exit(1)
 			
 			# switch to app_bundle for zip

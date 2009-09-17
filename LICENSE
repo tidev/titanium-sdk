@@ -3,34 +3,6 @@ Appcelerator Titanium Mobile
 Copyright 2008-2009 Appcelerator, Inc.
 ======================================
 
-LICENSE AGREEMENT
-=================
-
-Your use of this software is contingent on your agreement of the 
-following terms and conditions.  If you do not agree to these
-terms, please remove this software and do not continue using it.
-
-
-Proprietary License
--------------------
-
-Some of the files contained in this SDK are licensed under a proprietary 
-license (namely under the support directory of the source distribution or
-under the support directory of the Titanium Mobile SDK).  These files are 
-proprietary to Appcelerator and provided as part of the distribution of 
-Appcelerator Titanium Mobile.  You can redistribute these files only in whole
-if you build the SDK and redistribute the entire SDK.  However, please don't
-copy or redistribute these individual files without express written permission.
-These files are provided as a convenience to you and are used by Titanium
-Mobile for specific project-related features.  Unless required by applicable 
-law or agreed to in writing, software distributed under the Proprietary
-License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
-OF ANY KIND, either express or implied.  
-
-
-Open Source License
--------------------
-
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -258,7 +230,7 @@ At Appcelerator, we’re committed to transparency and we respect your privacy.
 This software collects information about you and your end-users of any
 applications that you build. The information we collect is used to 
 improve the content of our Products, Websites and Applications built using
-our technology (colletively and individually, the "Software"), used to 
+our technology (collectively and individually, the "Software"), used to 
 customize the content and/or layout of our Software for each individual 
 visitor, used to notify users about updates to our Software, used by us to 
 contact users for marketing purposes, disclosed when legally required to 

@@ -10,14 +10,13 @@ package org.appcelerator.titanium.util;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TitaniumActivity;
+import org.appcelerator.titanium.config.TitaniumConfig;
 
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
-import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.Log;
 
 public class TitaniumSensorHelper
 {

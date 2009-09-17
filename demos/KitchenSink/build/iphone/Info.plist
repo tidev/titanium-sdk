@@ -11,7 +11,11 @@
 	<key>CFBundleIconFile</key>
 	<string>appicon.png</string>
 	<key>CFBundleIdentifier</key>
+<<<<<<< HEAD:demos/KitchenSink/build/iphone/Info.plist
+	<string>com.appcelerator.KitchenSink</string>
+=======
 	<string>com.nolanwright.kitchensink</string>
+>>>>>>> b14fb694cdd4e6a2a19b9937805915e5c510a4a6:demos/KitchenSink/build/iphone/Info.plist
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

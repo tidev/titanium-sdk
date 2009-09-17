@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 	NSString *documentsDirectory = [paths objectAtIndex:0];
 	NSString *logPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%s.log",STRING(__LOG__ID__)]];
 	freopen([logPath cStringUsingEncoding:NSASCIIStringEncoding],"w+",stderr);
-	NSLog(@"Application started");
+	fprintf(stderr,"[INFO] Application started\n");
 #endif
 
 #ifdef DEPLOYTYPE

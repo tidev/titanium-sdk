@@ -19,6 +19,13 @@
 
 package org.apache.james.mime4j.message;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.mime4j.decoder.CodecUtil;
@@ -26,13 +33,6 @@ import org.apache.james.mime4j.message.storage.TempFile;
 import org.apache.james.mime4j.message.storage.TempPath;
 import org.apache.james.mime4j.message.storage.TempStorage;
 import org.apache.james.mime4j.util.CharsetUtil;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 
 
 /**

@@ -12,15 +12,15 @@ import java.lang.ref.SoftReference;
 
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumSound;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.TitaniumMedia;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.util.Log;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 

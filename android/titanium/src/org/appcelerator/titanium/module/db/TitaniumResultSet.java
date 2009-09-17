@@ -10,10 +10,10 @@ package org.appcelerator.titanium.module.db;
 import java.util.HashMap;
 
 import org.appcelerator.titanium.api.ITitaniumResultSet;
-
-import android.database.Cursor;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
+
+import android.database.Cursor;
 
 public class TitaniumResultSet implements ITitaniumResultSet
 {

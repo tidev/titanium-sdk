@@ -9,7 +9,6 @@ package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
 
-import org.appcelerator.titanium.api.ITabChangeListener;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;

@@ -19,11 +19,11 @@
 
 package org.apache.james.mime4j.field.address;
 
-import org.apache.james.mime4j.field.address.parser.AddressListParser;
-import org.apache.james.mime4j.field.address.parser.ParseException;
-
 import java.io.StringReader;
 import java.util.ArrayList;
+
+import org.apache.james.mime4j.field.address.parser.AddressListParser;
+import org.apache.james.mime4j.field.address.parser.ParseException;
 
 /**
  * An immutable, random-access list of Address objects.

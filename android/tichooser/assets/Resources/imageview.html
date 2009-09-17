@@ -2,7 +2,10 @@
 <head>
 	<title>Image View</title>
   	<script>
-  		var iv1 = Titanium.UI.createImageView({url:"icon.png"});
+  		var iv1 = Titanium.UI.createImageView({
+  	  		url : "images/icon.png",
+  	  		scale : false
+  	  	});
   		Titanium.UI.currentWindow.addView(iv1);
   		Titanium.UI.currentWindow.showView(iv1);
 	</script>

@@ -7,17 +7,18 @@ import os,platform,sys
 # add your module here for it to get compiled into
 # the library
 modules = [	'api',
-			'app',
-			'ui',
-			'database',
-			'accelerometer',
-			'geolocation',
-			'media',
-			'filesystem',
-			'network',
-			'platform',
-            'analytics',
-			'gesture']
+		'app',
+		'ui',
+		'database',
+		'accelerometer',
+		'geolocation',
+		'media',
+		'filesystem',
+		'network',
+		'platform',
+        'analytics',
+		'gesture',
+		'notification']
 
 try:
 	# pull in the version from the top-level SConstruct
@@ -47,17 +48,31 @@ sys.path.append(iphone_dir)
 
 import run,prereq
 
-for apiversion in prereq.get_sdks():
+
+def build(name):
     # execute the phone and simulator release builds
 
     if os.path.exists('/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%s.sdk' % apiversion):
-    	os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target libTitanium -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s %s' clean build" % (apiversion,config,defines,flags))
+    	os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target lib%s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s %s' clean build" % (apiversion,name,config,defines,flags))
 
     if os.path.exists('/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator%s.sdk' % apiversion):
-    	os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target libTitanium -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s %s' clean build" % (apiversion,config,defines,flags))
+    	os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target lib%s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s %s' clean build" % (apiversion,name,config,defines,flags))
 	
 
     # build the merged library using lipo
-    os.system("lipo build/%s-iphonesimulator/libTitanium.a build/%s-iphoneos/libTitanium.a -create -output build/libTitanium-%s.a" %(config,config,apiversion))
+    os.system("lipo build/%s-iphonesimulator/lib%s.a build/%s-iphoneos/lib%s.a -create -output build/lib%s-%s.a" %(config,name,config,name,name,apiversion))
 
 
+for apiversion in prereq.get_sdks():
+    # execute the phone and simulator release builds
+
+    build('Titanium')
+
+    # build each of the modules
+    for module in modules:
+        module_name = module[0:1].capitalize()+module[1:]
+        if len(module)==2:
+            module_name = module.upper()
+        build(module_name)
+	
+    

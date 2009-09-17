@@ -20,8 +20,8 @@
 package org.apache.james.mime4j.io;
 
 import java.io.FilterInputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * InputStream that shields its underlying input stream from
