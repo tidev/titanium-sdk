@@ -194,6 +194,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 				case MSG_CREATE_MODALPICKER :
 					h.o = new TitaniumPickerDialog(getModuleManager());
 					break;
+				case MSG_CREATE_IMAGEVIEW :
+					h.o = new TitaniumImageView(getModuleManager());
+					break;
 				default :
 					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
 			}

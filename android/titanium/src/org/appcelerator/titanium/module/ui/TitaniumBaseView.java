@@ -10,13 +10,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
+import android.widget.ScrollView;
 
 public abstract class TitaniumBaseView extends FrameLayout
 	implements ITitaniumView, Handler.Callback
@@ -185,12 +186,14 @@ public abstract class TitaniumBaseView extends FrameLayout
 		setClickable(false);
 	}
 
-	protected abstract void doOpen();
-
 	protected void doPostOpen() {
 		View contentView = getContentView();
 		if (contentView != null) {
-			addView(contentView, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+			FrameLayout.LayoutParams params = getContentLayoutParams();
+			if (params == null) {
+				params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+			}
+			addView(getContentView(), params);
 		}
 		invalidate();
 		eventManager.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
@@ -202,7 +205,11 @@ public abstract class TitaniumBaseView extends FrameLayout
 		removeAllViews();
 	}
 
-	protected abstract void processLocalOptions(JSONObject o) throws JSONException;
+	protected FrameLayout.LayoutParams getContentLayoutParams() {
+		return new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+	}
 
+	protected abstract void processLocalOptions(JSONObject o) throws JSONException;
+	protected abstract void doOpen();
 	protected abstract View getContentView();
 }
