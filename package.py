@@ -54,8 +54,11 @@ def zip_it(dist_dir,osname,version):
 		sys.path.append(iphone_dir)
 		import run,prereq
 		for apiversion in prereq.get_sdks():
-			iphone_lib = os.path.join(cur_dir,'iphone','build','libTitanium-%s.a' % apiversion)
-			zf.write(iphone_lib,'%s/iphone/libTitanium-%s.a' % (basepath,apiversion))
+			iphone_lib = os.path.join(cur_dir,'iphone','build')
+			for f in os.listdir(iphone_lib):
+				v = "%s.a" % apiversion
+				if os.path.isfile(os.path.join(iphone_lib,f)) and f.find(v)!=-1:
+					zf.write(os.path.join(iphone_lib,f),'%s/iphone/%s' % (basepath,f))
 
 
 	zf.close()

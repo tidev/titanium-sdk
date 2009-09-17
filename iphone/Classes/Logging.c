@@ -7,6 +7,6 @@
 
 #include "Logging.h"
 
-#ifdef USE_CLOCKLOG
+// we define this in either case so that we don't have to worry about
+// a lipo error because there are no symbols in the object file - this is OK
 double firstTimestamp = 0.0;
-#endif

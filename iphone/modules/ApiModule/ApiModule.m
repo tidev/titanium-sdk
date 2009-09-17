@@ -18,8 +18,15 @@
 		loggedObject = severityString;
 		severityString = @"info";
 	}
+	
+	NSLog(@"[%@] %@",[severityString uppercaseString],loggedObject);
+	fflush(stderr);
+}
 
-	NSLog(@"JS severity:%@ note:%@",severityString,loggedObject);
+-(void) reportUnhandledException:(NSString*)lineNumber source:(NSString*)source message:(NSString*)message
+{
+	NSLog(@"[EXCEPTION] %@:%@ %@",source,lineNumber,message);
+	fflush(stderr);
 }
 
 - (BOOL) startModule;
@@ -28,9 +35,13 @@
 	
 	[(ApiModule *)invocGen logJavascript:nil description:nil];
 	NSInvocation * logInvoc = [invocGen invocation];
+
+	[(ApiModule *)invocGen reportUnhandledException:nil source:nil message:nil];
+	NSInvocation * unhandledInvoc = [invocGen invocation];	
 	
 	NSDictionary * moduleDict = [NSDictionary dictionaryWithObjectsAndKeys:
 			logInvoc,@"log",
+			unhandledInvoc,@"reportUnhandledException",
 			[TitaniumJSCode codeWithString:@"function(args){Ti.API.log('debug',args);}"],@"debug",
 			[TitaniumJSCode codeWithString:@"function(args){Ti.API.log('error',args);}"],@"error",
 			[TitaniumJSCode codeWithString:@"function(args){Ti.API.log('warn',args);}"],@"warn",
@@ -39,6 +50,7 @@
 			[TitaniumJSCode codeWithString:@"function(args){Ti.API.log('notice',args);}"],@"notice",
 			[TitaniumJSCode codeWithString:@"function(args){Ti.API.log('critical',args);}"],@"critical",
 			[TitaniumJSCode codeWithString:@"function(args){Ti.API.log('fatal',args);}"],@"fatal",
+			[TitaniumJSCode codeWithString:@"function(line,source,message){Ti.API.reportUnhandledException(String(line),source,message);}"],@"reportUnhandledException",
 			nil];
 	[[[TitaniumHost sharedHost] titaniumObject] setObject:moduleDict forKey:@"API"];
 	

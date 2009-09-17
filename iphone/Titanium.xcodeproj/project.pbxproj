@@ -27,51 +27,103 @@
 		2444F8430FC9FCA400063972 /* NetworkModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F82D0FC9FCA400063972 /* NetworkModule.m */; };
 		2444F8440FC9FCA400063972 /* PlatformModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8300FC9FCA400063972 /* PlatformModule.m */; };
 		2444F8460FC9FCA400063972 /* UiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8360FC9FCA400063972 /* UiModule.m */; };
-		2444F8470FC9FCA400063972 /* ApiModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8080FC9FCA400063972 /* ApiModule.h */; };
-		2444F8480FC9FCA400063972 /* ApiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8090FC9FCA400063972 /* ApiModule.m */; };
-		2444F8490FC9FCA400063972 /* AppModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F80B0FC9FCA400063972 /* AppModule.h */; };
-		2444F84A0FC9FCA400063972 /* AppModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F80C0FC9FCA400063972 /* AppModule.m */; };
-		2444F84B0FC9FCA400063972 /* DatabaseModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F80E0FC9FCA400063972 /* DatabaseModule.h */; };
-		2444F84C0FC9FCA400063972 /* DatabaseModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F80F0FC9FCA400063972 /* DatabaseModule.m */; };
-		2444F84D0FC9FCA400063972 /* PlausibleDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8110FC9FCA400063972 /* PlausibleDatabase.h */; };
-		2444F84E0FC9FCA400063972 /* PlausibleDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8120FC9FCA400063972 /* PlausibleDatabase.m */; };
-		2444F84F0FC9FCA400063972 /* PLDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8130FC9FCA400063972 /* PLDatabase.h */; };
-		2444F8500FC9FCA400063972 /* PLPreparedStatement.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8140FC9FCA400063972 /* PLPreparedStatement.h */; };
-		2444F8510FC9FCA400063972 /* PLResultSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8150FC9FCA400063972 /* PLResultSet.h */; };
-		2444F8520FC9FCA400063972 /* PLSqliteDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8160FC9FCA400063972 /* PLSqliteDatabase.h */; };
-		2444F8530FC9FCA400063972 /* PLSqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8170FC9FCA400063972 /* PLSqliteDatabase.m */; };
-		2444F8540FC9FCA400063972 /* PLSqlitePreparedStatement.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8180FC9FCA400063972 /* PLSqlitePreparedStatement.h */; };
-		2444F8550FC9FCA400063972 /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8190FC9FCA400063972 /* PLSqlitePreparedStatement.m */; };
-		2444F8560FC9FCA400063972 /* PLSqliteResultSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F81A0FC9FCA400063972 /* PLSqliteResultSet.h */; };
-		2444F8570FC9FCA400063972 /* PLSqliteResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F81B0FC9FCA400063972 /* PLSqliteResultSet.m */; };
-		2444F8580FC9FCA400063972 /* FilesystemModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F81D0FC9FCA400063972 /* FilesystemModule.h */; };
-		2444F8590FC9FCA400063972 /* FilesystemModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F81E0FC9FCA400063972 /* FilesystemModule.m */; };
-		2444F85A0FC9FCA400063972 /* GeolocationModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8200FC9FCA400063972 /* GeolocationModule.h */; };
-		2444F85B0FC9FCA400063972 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8210FC9FCA400063972 /* GeolocationModule.m */; };
-		2444F85C0FC9FCA400063972 /* MediaModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8230FC9FCA400063972 /* MediaModule.h */; };
-		2444F85D0FC9FCA400063972 /* MediaModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8240FC9FCA400063972 /* MediaModule.m */; };
-		2444F8620FC9FCA400063972 /* NetworkModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F82C0FC9FCA400063972 /* NetworkModule.h */; };
-		2444F8630FC9FCA400063972 /* NetworkModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F82D0FC9FCA400063972 /* NetworkModule.m */; };
-		2444F8640FC9FCA400063972 /* PlatformModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F82F0FC9FCA400063972 /* PlatformModule.h */; };
-		2444F8650FC9FCA400063972 /* PlatformModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8300FC9FCA400063972 /* PlatformModule.m */; };
-		2444F8680FC9FCA400063972 /* UiModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8350FC9FCA400063972 /* UiModule.h */; };
-		2444F8690FC9FCA400063972 /* UiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8360FC9FCA400063972 /* UiModule.m */; };
 		2444F98B0FCA417C00063972 /* tiapp.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2444F98A0FCA417C00063972 /* tiapp.plist */; };
 		2444FA550FCA4E2E00063972 /* IPAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FA540FCA4E2E00063972 /* IPAddress.c */; };
-		2444FA560FCA4E2E00063972 /* IPAddress.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444FA530FCA4E2E00063972 /* IPAddress.h */; };
-		2444FA570FCA4E2E00063972 /* IPAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FA540FCA4E2E00063972 /* IPAddress.c */; };
-		2444FC7D0FCA6F8000063972 /* NSData+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444FC7B0FCA6F8000063972 /* NSData+Additions.h */; };
-		2444FC7E0FCA6F8000063972 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444FC7C0FCA6F8000063972 /* NSData+Additions.m */; };
 		2444FC7F0FCA6F8000063972 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444FC7C0FCA6F8000063972 /* NSData+Additions.m */; };
-		2444FCD20FCA741E00063972 /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444FCD00FCA741E00063972 /* base64.h */; };
-		2444FCD30FCA741E00063972 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FCD10FCA741E00063972 /* base64.c */; };
 		2444FCD40FCA741E00063972 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FCD10FCA741E00063972 /* base64.c */; };
 		24BBD83E0FCD245F00A261A4 /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BBD83D0FCD245F00A261A4 /* GestureModule.m */; };
-		24BBD83F0FCD245F00A261A4 /* GestureModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BBD83C0FCD245F00A261A4 /* GestureModule.h */; };
-		24BBD8400FCD245F00A261A4 /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BBD83D0FCD245F00A261A4 /* GestureModule.m */; };
+		24EB7774105332AA00E21E02 /* AnalyticsModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24F02E440FD482D2007894DA /* AnalyticsModule.h */; };
+		24EB7775105332AC00E21E02 /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F02E450FD482D2007894DA /* AnalyticsModule.m */; };
+		24EB77901053334F00E21E02 /* GestureModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BBD83C0FCD245F00A261A4 /* GestureModule.h */; };
+		24EB77911053335200E21E02 /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BBD83D0FCD245F00A261A4 /* GestureModule.m */; };
+		24EB77991053337200E21E02 /* ApiModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8080FC9FCA400063972 /* ApiModule.h */; };
+		24EB779A1053337500E21E02 /* ApiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8090FC9FCA400063972 /* ApiModule.m */; };
+		24EB77A21053338800E21E02 /* AppModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F80B0FC9FCA400063972 /* AppModule.h */; };
+		24EB77A31053338B00E21E02 /* AppModule.m in Headers */ = {isa = PBXBuildFile; fileRef = 2444F80C0FC9FCA400063972 /* AppModule.m */; };
+		24EB77AB105333A200E21E02 /* DatabaseModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F80E0FC9FCA400063972 /* DatabaseModule.h */; };
+		24EB77AC105333B200E21E02 /* PlausibleDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8110FC9FCA400063972 /* PlausibleDatabase.h */; };
+		24EB77AD105333B200E21E02 /* PLDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8130FC9FCA400063972 /* PLDatabase.h */; };
+		24EB77AE105333B200E21E02 /* PLPreparedStatement.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8140FC9FCA400063972 /* PLPreparedStatement.h */; };
+		24EB77AF105333B200E21E02 /* PLResultSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8150FC9FCA400063972 /* PLResultSet.h */; };
+		24EB77B0105333B200E21E02 /* PLSqliteDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8160FC9FCA400063972 /* PLSqliteDatabase.h */; };
+		24EB77B1105333B200E21E02 /* PLSqlitePreparedStatement.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8180FC9FCA400063972 /* PLSqlitePreparedStatement.h */; };
+		24EB77B2105333B200E21E02 /* PLSqliteResultSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F81A0FC9FCA400063972 /* PLSqliteResultSet.h */; };
+		24EB77B3105333C700E21E02 /* DatabaseModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F80F0FC9FCA400063972 /* DatabaseModule.m */; };
+		24EB77B4105333C700E21E02 /* PlausibleDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8120FC9FCA400063972 /* PlausibleDatabase.m */; };
+		24EB77B5105333C700E21E02 /* PLSqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8170FC9FCA400063972 /* PLSqliteDatabase.m */; };
+		24EB77B6105333C700E21E02 /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8190FC9FCA400063972 /* PLSqlitePreparedStatement.m */; };
+		24EB77B7105333C700E21E02 /* PLSqliteResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F81B0FC9FCA400063972 /* PLSqliteResultSet.m */; };
+		24EB77BF105333E100E21E02 /* FilesystemModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F81D0FC9FCA400063972 /* FilesystemModule.h */; };
+		24EB77C0105333E400E21E02 /* FilesystemModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F81E0FC9FCA400063972 /* FilesystemModule.m */; };
+		24EB77C81053340800E21E02 /* GeolocationModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8200FC9FCA400063972 /* GeolocationModule.h */; };
+		24EB77C91053340C00E21E02 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8210FC9FCA400063972 /* GeolocationModule.m */; };
+		24EB77D11053342300E21E02 /* MediaModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8230FC9FCA400063972 /* MediaModule.h */; };
+		24EB77D21053342700E21E02 /* MediaModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8240FC9FCA400063972 /* MediaModule.m */; };
+		24EB77DA1053344A00E21E02 /* AccelerometerModule.h in Headers */ = {isa = PBXBuildFile; fileRef = B4110C9B0FD4653A00BE17F8 /* AccelerometerModule.h */; };
+		24EB77DB1053344E00E21E02 /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */; };
+		24EB77E31053346C00E21E02 /* NetworkModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F82C0FC9FCA400063972 /* NetworkModule.h */; };
+		24EB77E41053346F00E21E02 /* NetworkModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F82D0FC9FCA400063972 /* NetworkModule.m */; };
+		24EB77EC1053348C00E21E02 /* PlatformModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F82F0FC9FCA400063972 /* PlatformModule.h */; };
+		24EB77ED1053348F00E21E02 /* PlatformModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8300FC9FCA400063972 /* PlatformModule.m */; };
+		24EB77F5105334A500E21E02 /* UiModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8350FC9FCA400063972 /* UiModule.h */; };
+		24EB77F6105334A500E21E02 /* NativeControlProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A6D3AF103C9EFD00131CD4 /* NativeControlProxy.h */; };
+		24EB77F7105334AB00E21E02 /* UiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8360FC9FCA400063972 /* UiModule.m */; };
+		24EB77F8105334AB00E21E02 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
+		24EB7823105335EE00E21E02 /* TitaniumAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* TitaniumAppDelegate.m */; };
+		24EB7824105335EE00E21E02 /* TitaniumAppProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */; };
+		24EB7825105335EE00E21E02 /* TitaniumUIViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4864F5B0F7C48E700A851C5 /* TitaniumUIViewController.m */; };
+		24EB7826105335EE00E21E02 /* TitaniumHost.m in Sources */ = {isa = PBXBuildFile; fileRef = B45CA77E0F81565D00B80900 /* TitaniumHost.m */; };
+		24EB7827105335EE00E21E02 /* TitaniumCmdThread.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */; };
+		24EB7828105335EE00E21E02 /* TitaniumJSConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BC080F85491F00DD709C /* TitaniumJSConstants.m */; };
+		24EB7829105335EE00E21E02 /* TitaniumActionSheetHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B408AD470F97FA010051FD67 /* TitaniumActionSheetHelper.m */; };
+		24EB782A105335EE00E21E02 /* WebTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */; };
+		24EB782B105335EE00E21E02 /* ValueTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */; };
+		24EB782C105335EE00E21E02 /* TweakedNavController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4290A74100D31FD00C4FF98 /* TweakedNavController.m */; };
+		24EB782D105335EE00E21E02 /* TweakedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4AF5410472271006E42E0 /* TweakedScrollView.m */; };
+		24EB782E105335FD00E21E02 /* TitaniumAppDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 1D3623240D0F684500981E51 /* TitaniumAppDelegate.h */; };
+		24EB782F105335FD00E21E02 /* TitaniumAppProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = B413A67E0F7998C500B1C47D /* TitaniumAppProtocol.h */; };
+		24EB7830105335FD00E21E02 /* TitaniumCmdThread.h in Headers */ = {isa = PBXBuildFile; fileRef = B413A7510F79A58000B1C47D /* TitaniumCmdThread.h */; };
+		24EB7831105335FD00E21E02 /* TitaniumUIViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4864F5A0F7C48E700A851C5 /* TitaniumUIViewController.h */; };
+		24EB7832105335FD00E21E02 /* TitaniumHost.h in Headers */ = {isa = PBXBuildFile; fileRef = B45CA77D0F81565D00B80900 /* TitaniumHost.h */; };
+		24EB7833105335FD00E21E02 /* TitaniumJSConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = B4E9BC070F85491F00DD709C /* TitaniumJSConstants.h */; };
+		24EB7834105335FD00E21E02 /* TitaniumActionSheetHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = B408AD460F97FA010051FD67 /* TitaniumActionSheetHelper.h */; };
+		24EB7835105335FD00E21E02 /* TitaniumModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 249075290FC9D55B00D38073 /* TitaniumModule.h */; };
+		24EB7836105335FD00E21E02 /* WebTableViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = B45C717D0FEDAF93002A8675 /* WebTableViewCell.h */; };
+		24EB7837105335FD00E21E02 /* ValueTableViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = B47B52D40FF1B2F400BD7229 /* ValueTableViewCell.h */; };
+		24EB7838105335FD00E21E02 /* TweakedNavController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4290A73100D31FD00C4FF98 /* TweakedNavController.h */; };
+		24EB7839105335FD00E21E02 /* TweakedScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = B4D4AF5310472271006E42E0 /* TweakedScrollView.h */; };
+		24EB783A1053360E00E21E02 /* TitaniumInvocationGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = B4FC656D0F95078000B21EA1 /* TitaniumInvocationGenerator.h */; };
+		24EB783B1053360E00E21E02 /* TitaniumAccessorTuple.h in Headers */ = {isa = PBXBuildFile; fileRef = B4E9B9C20F82030700DD709C /* TitaniumAccessorTuple.h */; };
+		24EB783C1053360E00E21E02 /* TitaniumJSCode.h in Headers */ = {isa = PBXBuildFile; fileRef = B4FC66FA0F95590D00B21EA1 /* TitaniumJSCode.h */; };
+		24EB783D1053360E00E21E02 /* TitaniumBlobWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */; };
+		24EB783E1053362200E21E02 /* TitaniumInvocationGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FC656E0F95078000B21EA1 /* TitaniumInvocationGenerator.m */; };
+		24EB783F1053362200E21E02 /* TitaniumAccessorTuple.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9B9C30F82030700DD709C /* TitaniumAccessorTuple.m */; };
+		24EB78401053362200E21E02 /* TitaniumJSCode.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FC66FB0F95590D00B21EA1 /* TitaniumJSCode.m */; };
+		24EB78411053362200E21E02 /* TitaniumBlobWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */; };
+		24EB78421053363200E21E02 /* SBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = B4E9BB650F842C9400DD709C /* SBJSON.h */; };
+		24EB78431053363200E21E02 /* IPAddress.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444FA530FCA4E2E00063972 /* IPAddress.h */; };
+		24EB78441053363200E21E02 /* NSData+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444FC7B0FCA6F8000063972 /* NSData+Additions.h */; };
+		24EB78451053363200E21E02 /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444FCD00FCA741E00063972 /* base64.h */; };
+		24EB78461053363200E21E02 /* Webcolor.h in Headers */ = {isa = PBXBuildFile; fileRef = B4FECD110FAA4B3E0015B658 /* Webcolor.h */; };
+		24EB78471053363200E21E02 /* Logging.h in Headers */ = {isa = PBXBuildFile; fileRef = B4200E4F1035FAB1009598FC /* Logging.h */; };
+		24EB78481053363200E21E02 /* WebFont.h in Headers */ = {isa = PBXBuildFile; fileRef = B4D4B07310489FDC006E42E0 /* WebFont.h */; };
+		24EB78491053364000E21E02 /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BB640F842C9400DD709C /* SBJSON.m */; };
+		24EB784A1053364000E21E02 /* IPAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FA540FCA4E2E00063972 /* IPAddress.c */; };
+		24EB784B1053364000E21E02 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444FC7C0FCA6F8000063972 /* NSData+Additions.m */; };
+		24EB784C1053364000E21E02 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FCD10FCA741E00063972 /* base64.c */; };
+		24EB784D1053364000E21E02 /* Webcolor.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FECD120FAA4B3E0015B658 /* Webcolor.m */; };
+		24EB784E1053364000E21E02 /* Logging.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* Logging.c */; };
+		24EB784F1053364000E21E02 /* WebFont.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4B07410489FDC006E42E0 /* WebFont.m */; };
+		24EB78501053364D00E21E02 /* TitaniumWebViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4C6D7020FE99F4E00D62384 /* TitaniumWebViewController.h */; };
+		24EB78511053364D00E21E02 /* TitaniumTableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4C6D7310FE9AB0600D62384 /* TitaniumTableViewController.h */; };
+		24EB78521053364D00E21E02 /* TitaniumViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 28D7ACF60DDB3853001CB0EB /* TitaniumViewController.h */; };
+		24EB78531053364D00E21E02 /* TitaniumContentViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4B571FC10110324003546C7 /* TitaniumContentViewController.h */; };
+		24EB78541053365E00E21E02 /* TitaniumWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7030FE99F4E00D62384 /* TitaniumWebViewController.m */; };
+		24EB78551053365E00E21E02 /* TitaniumTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */; };
+		24EB78561053365E00E21E02 /* TitaniumViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */; };
+		24EB78571053365E00E21E02 /* TitaniumContentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B571FD10110324003546C7 /* TitaniumContentViewController.m */; };
+		24EB787C10533E7600E21E02 /* AppModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F80C0FC9FCA400063972 /* AppModule.m */; };
 		24F02E460FD482D2007894DA /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F02E450FD482D2007894DA /* AnalyticsModule.m */; };
-		24F02E470FD482D2007894DA /* AnalyticsModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24F02E440FD482D2007894DA /* AnalyticsModule.h */; };
-		24F02E480FD482D2007894DA /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F02E450FD482D2007894DA /* AnalyticsModule.m */; };
 		288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		28D7ACF80DDB3853001CB0EB /* TitaniumViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */; };
@@ -79,19 +131,6 @@
 		B408AD480F97FA010051FD67 /* TitaniumActionSheetHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B408AD470F97FA010051FD67 /* TitaniumActionSheetHelper.m */; };
 		B40A40A70FCF60BF00C5DD7C /* movie.m4v in Resources */ = {isa = PBXBuildFile; fileRef = B40A40A60FCF60BF00C5DD7C /* movie.m4v */; };
 		B40C00241031ECC4009DEFF9 /* docs.html in Resources */ = {isa = PBXBuildFile; fileRef = B40C00231031ECC4009DEFF9 /* docs.html */; };
-		B41068A80FBB745600310448 /* TitaniumAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* TitaniumAppDelegate.m */; };
-		B41068AA0FBB745600310448 /* TitaniumViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */; };
-		B41068AB0FBB745600310448 /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BB640F842C9400DD709C /* SBJSON.m */; };
-		B41068B00FBB745600310448 /* TitaniumAppProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */; };
-		B41068B20FBB745600310448 /* TitaniumCmdThread.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */; };
-		B41068B40FBB745600310448 /* TitaniumUIViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4864F5B0F7C48E700A851C5 /* TitaniumUIViewController.m */; };
-		B41068B60FBB745600310448 /* TitaniumHost.m in Sources */ = {isa = PBXBuildFile; fileRef = B45CA77E0F81565D00B80900 /* TitaniumHost.m */; };
-		B41068B80FBB745600310448 /* TitaniumAccessorTuple.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9B9C30F82030700DD709C /* TitaniumAccessorTuple.m */; };
-		B41068BA0FBB745600310448 /* TitaniumJSConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BC080F85491F00DD709C /* TitaniumJSConstants.m */; };
-		B41068BE0FBB745600310448 /* TitaniumInvocationGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FC656E0F95078000B21EA1 /* TitaniumInvocationGenerator.m */; };
-		B41068C00FBB745600310448 /* TitaniumJSCode.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FC66FB0F95590D00B21EA1 /* TitaniumJSCode.m */; };
-		B41068C20FBB745600310448 /* TitaniumActionSheetHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B408AD470F97FA010051FD67 /* TitaniumActionSheetHelper.m */; };
-		B41068C40FBB745600310448 /* Webcolor.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FECD120FAA4B3E0015B658 /* Webcolor.m */; };
 		B41069C80FBB756B00310448 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */; };
 		B41069C90FBB756B00310448 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4B587000FB00B670047B651 /* AudioToolbox.framework */; };
 		B41069CB0FBB756B00310448 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */; };
@@ -99,26 +138,16 @@
 		B41069CD0FBB756B00310448 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		B41069CE0FBB756B00310448 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		B41069CF0FBB756B00310448 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
-		B4106C230FBB8CFE00310448 /* TitaniumAppDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 1D3623240D0F684500981E51 /* TitaniumAppDelegate.h */; settings = {ATTRIBUTES = (); }; };
-		B4106C240FBB8D2300310448 /* TitaniumViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 28D7ACF60DDB3853001CB0EB /* TitaniumViewController.h */; };
 		B4110C9D0FD4653A00BE17F8 /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */; };
-		B4110C9E0FD4653A00BE17F8 /* AccelerometerModule.h in Headers */ = {isa = PBXBuildFile; fileRef = B4110C9B0FD4653A00BE17F8 /* AccelerometerModule.h */; };
-		B4110C9F0FD4653A00BE17F8 /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */; };
 		B413A6800F7998C500B1C47D /* TitaniumAppProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */; };
 		B413A7530F79A58000B1C47D /* TitaniumCmdThread.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */; };
 		B4200E511035FAB1009598FC /* Logging.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* Logging.c */; };
-		B4200E521035FAB1009598FC /* Logging.h in Headers */ = {isa = PBXBuildFile; fileRef = B4200E4F1035FAB1009598FC /* Logging.h */; };
-		B4200E531035FAB1009598FC /* Logging.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* Logging.c */; };
 		B4200E541035FAB1009598FC /* Logging.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* Logging.c */; };
-		B4290A75100D31FD00C4FF98 /* TweakedNavController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4290A73100D31FD00C4FF98 /* TweakedNavController.h */; };
-		B4290A76100D31FD00C4FF98 /* TweakedNavController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4290A74100D31FD00C4FF98 /* TweakedNavController.m */; };
 		B4290A77100D31FD00C4FF98 /* TweakedNavController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4290A74100D31FD00C4FF98 /* TweakedNavController.m */; };
 		B4468EFD10027417002BAC64 /* misc.html in Resources */ = {isa = PBXBuildFile; fileRef = B4468EFC10027417002BAC64 /* misc.html */; };
 		B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
 		B44BCFDA0FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
 		B45C717F0FEDAF93002A8675 /* WebTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */; };
-		B45C71800FEDAF93002A8675 /* WebTableViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = B45C717D0FEDAF93002A8675 /* WebTableViewCell.h */; };
-		B45C71810FEDAF93002A8675 /* WebTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */; };
 		B45CA77F0F81565D00B80900 /* TitaniumHost.m in Sources */ = {isa = PBXBuildFile; fileRef = B45CA77E0F81565D00B80900 /* TitaniumHost.m */; };
 		B4676CB50FB0E492009B81F4 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4676CB40FB0E492009B81F4 /* AVFoundation.framework */; };
 		B4676CBF0FB0E4AE009B81F4 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */; };
@@ -212,8 +241,6 @@
 		B47A27E61035F15C002146CD /* tiapp.plist in Resources */ = {isa = PBXBuildFile; fileRef = B47A27E21035F15C002146CD /* tiapp.plist */; };
 		B47A283D1035F2E3002146CD /* images in Resources */ = {isa = PBXBuildFile; fileRef = B47A28051035F2E3002146CD /* images */; };
 		B47B52D60FF1B2F400BD7229 /* ValueTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */; };
-		B47B52D70FF1B2F400BD7229 /* ValueTableViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = B47B52D40FF1B2F400BD7229 /* ValueTableViewCell.h */; };
-		B47B52D80FF1B2F400BD7229 /* ValueTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */; };
 		B481D3370FD4C45A00F0A961 /* song.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = B481D3360FD4C45A00F0A961 /* song.mp3 */; };
 		B4864F5C0F7C48E700A851C5 /* TitaniumUIViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4864F5B0F7C48E700A851C5 /* TitaniumUIViewController.m */; };
 		B48E4AE40FC1DBEE00204C8E /* iPhone_BG.png in Resources */ = {isa = PBXBuildFile; fileRef = B4880BA20F96B4E3007589FC /* iPhone_BG.png */; };
@@ -222,38 +249,23 @@
 		B4A10F3E0F86BC490040D850 /* AppDownloadView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B4A10F3D0F86BC490040D850 /* AppDownloadView.xib */; };
 		B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
 		B4A49BA30FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
-		B4A49BBA0FCE08DA0049ED60 /* TitaniumBlobWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */; };
-		B4A49BBB0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */; };
 		B4A49BBC0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */; };
-		B4A6D3B1103C9EFD00131CD4 /* NativeControlProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A6D3AF103C9EFD00131CD4 /* NativeControlProxy.h */; };
-		B4A6D3B2103C9EFD00131CD4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
 		B4A6D3B3103C9EFD00131CD4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
 		B4A6D3B4103C9EFD00131CD4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
 		B4ABEDC4101903CA00639ED5 /* buggy.html in Resources */ = {isa = PBXBuildFile; fileRef = B4ABEDC3101903CA00639ED5 /* buggy.html */; };
 		B4ABEDC7101903F300639ED5 /* buggy.js in Sources */ = {isa = PBXBuildFile; fileRef = B4ABEDC6101903F300639ED5 /* buggy.js */; };
 		B4B571FE10110324003546C7 /* TitaniumContentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B571FD10110324003546C7 /* TitaniumContentViewController.m */; };
-		B4B571FF10110324003546C7 /* TitaniumContentViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4B571FC10110324003546C7 /* TitaniumContentViewController.h */; };
-		B4B5720010110324003546C7 /* TitaniumContentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B571FD10110324003546C7 /* TitaniumContentViewController.m */; };
 		B4B587010FB00B670047B651 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4B587000FB00B670047B651 /* AudioToolbox.framework */; };
 		B4B9E4621003D3DE004B8831 /* logo-m.png in Resources */ = {isa = PBXBuildFile; fileRef = B4B9E4611003D3DE004B8831 /* logo-m.png */; };
 		B4B9E4641003D3E6004B8831 /* ext-core.js in Sources */ = {isa = PBXBuildFile; fileRef = B4B9E4631003D3E6004B8831 /* ext-core.js */; };
 		B4B9E4721003D52F004B8831 /* jquery.js in Sources */ = {isa = PBXBuildFile; fileRef = B4B9E4711003D52F004B8831 /* jquery.js */; };
 		B4C3F8B60FB3B11C0037F210 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */; };
 		B4C6D7040FE99F4E00D62384 /* TitaniumWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7030FE99F4E00D62384 /* TitaniumWebViewController.m */; };
-		B4C6D7050FE99F4E00D62384 /* TitaniumWebViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4C6D7020FE99F4E00D62384 /* TitaniumWebViewController.h */; };
-		B4C6D7060FE99F4E00D62384 /* TitaniumWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7030FE99F4E00D62384 /* TitaniumWebViewController.m */; };
 		B4C6D7330FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */; };
-		B4C6D7340FE9AB0600D62384 /* TitaniumTableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4C6D7310FE9AB0600D62384 /* TitaniumTableViewController.h */; };
-		B4C6D7350FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */; };
-		B4CAF1530FC368B9000BB476 /* TitaniumUIViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B4864F5A0F7C48E700A851C5 /* TitaniumUIViewController.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		B4D262DD10437CC8007D123E /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; };
 		B4D4AF5510472271006E42E0 /* TweakedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4AF5410472271006E42E0 /* TweakedScrollView.m */; };
 		B4D4AF5610472271006E42E0 /* TweakedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4AF5410472271006E42E0 /* TweakedScrollView.m */; };
-		B4D4AF5710472271006E42E0 /* TweakedScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = B4D4AF5310472271006E42E0 /* TweakedScrollView.h */; };
-		B4D4AF5810472271006E42E0 /* TweakedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4AF5410472271006E42E0 /* TweakedScrollView.m */; };
 		B4D4B07510489FDC006E42E0 /* WebFont.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4B07410489FDC006E42E0 /* WebFont.m */; };
-		B4D4B07610489FDC006E42E0 /* WebFont.h in Headers */ = {isa = PBXBuildFile; fileRef = B4D4B07310489FDC006E42E0 /* WebFont.h */; };
-		B4D4B07710489FDC006E42E0 /* WebFont.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4B07410489FDC006E42E0 /* WebFont.m */; };
 		B4D4B07810489FDC006E42E0 /* WebFont.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4B07410489FDC006E42E0 /* WebFont.m */; };
 		B4DD427D0FD982FD00CD427F /* profile.png in Resources */ = {isa = PBXBuildFile; fileRef = B4DD427C0FD982FD00CD427F /* profile.png */; };
 		B4DDBE2B0FD0AE31004DD79E /* ui.html in Resources */ = {isa = PBXBuildFile; fileRef = B4DDBE2A0FD0AE31004DD79E /* ui.html */; };
@@ -318,6 +330,18 @@
 		249075290FC9D55B00D38073 /* TitaniumModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumModule.h; sourceTree = "<group>"; };
 		24BBD83C0FCD245F00A261A4 /* GestureModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GestureModule.h; sourceTree = "<group>"; };
 		24BBD83D0FCD245F00A261A4 /* GestureModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GestureModule.m; sourceTree = "<group>"; };
+		24EB77701053326C00E21E02 /* libAnalytics.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAnalytics.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24EB778D1053333300E21E02 /* libGesture.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libGesture.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24EB77961053336300E21E02 /* libApi.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libApi.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24EB779F1053337F00E21E02 /* libApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libApp.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24EB77A81053339A00E21E02 /* libDatabase.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libDatabase.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24EB77BC105333D900E21E02 /* libFilesystem.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libFilesystem.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24EB77C5105333FD00E21E02 /* libGeolocation.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libGeolocation.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24EB77CE1053341B00E21E02 /* libMedia.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMedia.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24EB77D71053343E00E21E02 /* libAccelerometer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAccelerometer.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24EB77E01053346100E21E02 /* libNetwork.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libNetwork.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24EB77E91053348200E21E02 /* libPlatform.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPlatform.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24EB77F21053349800E21E02 /* libUi.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libUi.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		24F02E440FD482D2007894DA /* AnalyticsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnalyticsModule.h; sourceTree = "<group>"; };
 		24F02E450FD482D2007894DA /* AnalyticsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnalyticsModule.m; sourceTree = "<group>"; };
 		288765A40DF7441C002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -461,6 +485,90 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		24EB776E1053326C00E21E02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB778B1053333300E21E02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77941053336300E21E02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB779D1053337F00E21E02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77A61053339A00E21E02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77BA105333D900E21E02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77C3105333FD00E21E02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77CC1053341B00E21E02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77D51053343E00E21E02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77DE1053346100E21E02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77E71053348200E21E02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77F01053349800E21E02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B41068A00FBB730F00310448 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -537,6 +645,18 @@
 				1D6058910D05DD3D006BFB54 /* Titanium.app */,
 				B41068A20FBB730F00310448 /* libTitanium.a */,
 				B47A271E1035F040002146CD /* TestSpaz.app */,
+				24EB77701053326C00E21E02 /* libAnalytics.a */,
+				24EB778D1053333300E21E02 /* libGesture.a */,
+				24EB77961053336300E21E02 /* libApi.a */,
+				24EB779F1053337F00E21E02 /* libApp.a */,
+				24EB77A81053339A00E21E02 /* libDatabase.a */,
+				24EB77BC105333D900E21E02 /* libFilesystem.a */,
+				24EB77C5105333FD00E21E02 /* libGeolocation.a */,
+				24EB77CE1053341B00E21E02 /* libMedia.a */,
+				24EB77D71053343E00E21E02 /* libAccelerometer.a */,
+				24EB77E01053346100E21E02 /* libNetwork.a */,
+				24EB77E91053348200E21E02 /* libPlatform.a */,
+				24EB77F21053349800E21E02 /* libUi.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -841,12 +961,12 @@
 			children = (
 				B4FC656D0F95078000B21EA1 /* TitaniumInvocationGenerator.h */,
 				B4FC656E0F95078000B21EA1 /* TitaniumInvocationGenerator.m */,
-				B4E9B9C20F82030700DD709C /* TitaniumAccessorTuple.h */,
 				B4E9B9C30F82030700DD709C /* TitaniumAccessorTuple.m */,
-				B4FC66FA0F95590D00B21EA1 /* TitaniumJSCode.h */,
 				B4FC66FB0F95590D00B21EA1 /* TitaniumJSCode.m */,
-				B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */,
 				B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */,
+				B4E9B9C20F82030700DD709C /* TitaniumAccessorTuple.h */,
+				B4FC66FA0F95590D00B21EA1 /* TitaniumJSCode.h */,
+				B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */,
 			);
 			name = "Data wrappers";
 			sourceTree = "<group>";
@@ -854,46 +974,142 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		24EB776C1053326C00E21E02 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB7774105332AA00E21E02 /* AnalyticsModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77891053333300E21E02 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77901053334F00E21E02 /* GestureModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77921053336300E21E02 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77991053337200E21E02 /* ApiModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB779B1053337F00E21E02 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77A21053338800E21E02 /* AppModule.h in Headers */,
+				24EB77A31053338B00E21E02 /* AppModule.m in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77A41053339A00E21E02 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77AC105333B200E21E02 /* PlausibleDatabase.h in Headers */,
+				24EB77AD105333B200E21E02 /* PLDatabase.h in Headers */,
+				24EB77AE105333B200E21E02 /* PLPreparedStatement.h in Headers */,
+				24EB77AF105333B200E21E02 /* PLResultSet.h in Headers */,
+				24EB77B0105333B200E21E02 /* PLSqliteDatabase.h in Headers */,
+				24EB77B1105333B200E21E02 /* PLSqlitePreparedStatement.h in Headers */,
+				24EB77B2105333B200E21E02 /* PLSqliteResultSet.h in Headers */,
+				24EB77AB105333A200E21E02 /* DatabaseModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77B8105333D900E21E02 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77BF105333E100E21E02 /* FilesystemModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77C1105333FD00E21E02 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77C81053340800E21E02 /* GeolocationModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77CA1053341B00E21E02 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77D11053342300E21E02 /* MediaModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77D31053343E00E21E02 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77DA1053344A00E21E02 /* AccelerometerModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77DC1053346100E21E02 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77E31053346C00E21E02 /* NetworkModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77E51053348200E21E02 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77EC1053348C00E21E02 /* PlatformModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77EE1053349800E21E02 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77F5105334A500E21E02 /* UiModule.h in Headers */,
+				24EB77F6105334A500E21E02 /* NativeControlProxy.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B410689E0FBB730F00310448 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B4106C230FBB8CFE00310448 /* TitaniumAppDelegate.h in Headers */,
-				B4106C240FBB8D2300310448 /* TitaniumViewController.h in Headers */,
-				B4CAF1530FC368B9000BB476 /* TitaniumUIViewController.h in Headers */,
-				2444F8470FC9FCA400063972 /* ApiModule.h in Headers */,
-				2444F8490FC9FCA400063972 /* AppModule.h in Headers */,
-				2444F84B0FC9FCA400063972 /* DatabaseModule.h in Headers */,
-				2444F84D0FC9FCA400063972 /* PlausibleDatabase.h in Headers */,
-				2444F84F0FC9FCA400063972 /* PLDatabase.h in Headers */,
-				2444F8500FC9FCA400063972 /* PLPreparedStatement.h in Headers */,
-				2444F8510FC9FCA400063972 /* PLResultSet.h in Headers */,
-				2444F8520FC9FCA400063972 /* PLSqliteDatabase.h in Headers */,
-				2444F8540FC9FCA400063972 /* PLSqlitePreparedStatement.h in Headers */,
-				2444F8560FC9FCA400063972 /* PLSqliteResultSet.h in Headers */,
-				2444F8580FC9FCA400063972 /* FilesystemModule.h in Headers */,
-				2444F85A0FC9FCA400063972 /* GeolocationModule.h in Headers */,
-				2444F85C0FC9FCA400063972 /* MediaModule.h in Headers */,
-				2444F8620FC9FCA400063972 /* NetworkModule.h in Headers */,
-				2444F8640FC9FCA400063972 /* PlatformModule.h in Headers */,
-				2444F8680FC9FCA400063972 /* UiModule.h in Headers */,
-				2444FA560FCA4E2E00063972 /* IPAddress.h in Headers */,
-				2444FC7D0FCA6F8000063972 /* NSData+Additions.h in Headers */,
-				2444FCD20FCA741E00063972 /* base64.h in Headers */,
-				24BBD83F0FCD245F00A261A4 /* GestureModule.h in Headers */,
-				B4A49BBA0FCE08DA0049ED60 /* TitaniumBlobWrapper.h in Headers */,
-				B4110C9E0FD4653A00BE17F8 /* AccelerometerModule.h in Headers */,
-				24F02E470FD482D2007894DA /* AnalyticsModule.h in Headers */,
-				B4C6D7050FE99F4E00D62384 /* TitaniumWebViewController.h in Headers */,
-				B4C6D7340FE9AB0600D62384 /* TitaniumTableViewController.h in Headers */,
-				B45C71800FEDAF93002A8675 /* WebTableViewCell.h in Headers */,
-				B47B52D70FF1B2F400BD7229 /* ValueTableViewCell.h in Headers */,
-				B4290A75100D31FD00C4FF98 /* TweakedNavController.h in Headers */,
-				B4B571FF10110324003546C7 /* TitaniumContentViewController.h in Headers */,
-				B4200E521035FAB1009598FC /* Logging.h in Headers */,
-				B4A6D3B1103C9EFD00131CD4 /* NativeControlProxy.h in Headers */,
-				B4D4AF5710472271006E42E0 /* TweakedScrollView.h in Headers */,
-				B4D4B07610489FDC006E42E0 /* WebFont.h in Headers */,
+				24EB78501053364D00E21E02 /* TitaniumWebViewController.h in Headers */,
+				24EB78511053364D00E21E02 /* TitaniumTableViewController.h in Headers */,
+				24EB78521053364D00E21E02 /* TitaniumViewController.h in Headers */,
+				24EB78531053364D00E21E02 /* TitaniumContentViewController.h in Headers */,
+				24EB78421053363200E21E02 /* SBJSON.h in Headers */,
+				24EB78431053363200E21E02 /* IPAddress.h in Headers */,
+				24EB78441053363200E21E02 /* NSData+Additions.h in Headers */,
+				24EB78451053363200E21E02 /* base64.h in Headers */,
+				24EB78461053363200E21E02 /* Webcolor.h in Headers */,
+				24EB78471053363200E21E02 /* Logging.h in Headers */,
+				24EB78481053363200E21E02 /* WebFont.h in Headers */,
+				24EB783A1053360E00E21E02 /* TitaniumInvocationGenerator.h in Headers */,
+				24EB783B1053360E00E21E02 /* TitaniumAccessorTuple.h in Headers */,
+				24EB783C1053360E00E21E02 /* TitaniumJSCode.h in Headers */,
+				24EB783D1053360E00E21E02 /* TitaniumBlobWrapper.h in Headers */,
+				24EB782E105335FD00E21E02 /* TitaniumAppDelegate.h in Headers */,
+				24EB782F105335FD00E21E02 /* TitaniumAppProtocol.h in Headers */,
+				24EB7830105335FD00E21E02 /* TitaniumCmdThread.h in Headers */,
+				24EB7831105335FD00E21E02 /* TitaniumUIViewController.h in Headers */,
+				24EB7832105335FD00E21E02 /* TitaniumHost.h in Headers */,
+				24EB7833105335FD00E21E02 /* TitaniumJSConstants.h in Headers */,
+				24EB7834105335FD00E21E02 /* TitaniumActionSheetHelper.h in Headers */,
+				24EB7835105335FD00E21E02 /* TitaniumModule.h in Headers */,
+				24EB7836105335FD00E21E02 /* WebTableViewCell.h in Headers */,
+				24EB7837105335FD00E21E02 /* ValueTableViewCell.h in Headers */,
+				24EB7838105335FD00E21E02 /* TweakedNavController.h in Headers */,
+				24EB7839105335FD00E21E02 /* TweakedScrollView.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -916,6 +1132,210 @@
 			productName = Titanium;
 			productReference = 1D6058910D05DD3D006BFB54 /* Titanium.app */;
 			productType = "com.apple.product-type.application";
+		};
+		24EB776F1053326C00E21E02 /* libAnalytics */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 24EB77731053328B00E21E02 /* Build configuration list for PBXNativeTarget "libAnalytics" */;
+			buildPhases = (
+				24EB776C1053326C00E21E02 /* Headers */,
+				24EB776D1053326C00E21E02 /* Sources */,
+				24EB776E1053326C00E21E02 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libAnalytics;
+			productName = Analytics;
+			productReference = 24EB77701053326C00E21E02 /* libAnalytics.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		24EB778C1053333300E21E02 /* libGesture */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 24EB780C105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libGesture" */;
+			buildPhases = (
+				24EB77891053333300E21E02 /* Headers */,
+				24EB778A1053333300E21E02 /* Sources */,
+				24EB778B1053333300E21E02 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libGesture;
+			productName = libGesture;
+			productReference = 24EB778D1053333300E21E02 /* libGesture.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		24EB77951053336300E21E02 /* libApi */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 24EB780D105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libApi" */;
+			buildPhases = (
+				24EB77921053336300E21E02 /* Headers */,
+				24EB77931053336300E21E02 /* Sources */,
+				24EB77941053336300E21E02 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libApi;
+			productName = libAPI;
+			productReference = 24EB77961053336300E21E02 /* libApi.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		24EB779E1053337F00E21E02 /* libApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 24EB780E105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libApp" */;
+			buildPhases = (
+				24EB779B1053337F00E21E02 /* Headers */,
+				24EB779C1053337F00E21E02 /* Sources */,
+				24EB779D1053337F00E21E02 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libApp;
+			productName = libApp;
+			productReference = 24EB779F1053337F00E21E02 /* libApp.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		24EB77A71053339A00E21E02 /* libDatabase */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 24EB780F105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libDatabase" */;
+			buildPhases = (
+				24EB77A41053339A00E21E02 /* Headers */,
+				24EB77A51053339A00E21E02 /* Sources */,
+				24EB77A61053339A00E21E02 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libDatabase;
+			productName = libDatabase;
+			productReference = 24EB77A81053339A00E21E02 /* libDatabase.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		24EB77BB105333D900E21E02 /* libFilesystem */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 24EB7810105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libFilesystem" */;
+			buildPhases = (
+				24EB77B8105333D900E21E02 /* Headers */,
+				24EB77B9105333D900E21E02 /* Sources */,
+				24EB77BA105333D900E21E02 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libFilesystem;
+			productName = libFilesystem;
+			productReference = 24EB77BC105333D900E21E02 /* libFilesystem.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		24EB77C4105333FD00E21E02 /* libGeolocation */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 24EB7811105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libGeolocation" */;
+			buildPhases = (
+				24EB77C1105333FD00E21E02 /* Headers */,
+				24EB77C2105333FD00E21E02 /* Sources */,
+				24EB77C3105333FD00E21E02 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libGeolocation;
+			productName = libGeolocation;
+			productReference = 24EB77C5105333FD00E21E02 /* libGeolocation.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		24EB77CD1053341B00E21E02 /* libMedia */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 24EB7812105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libMedia" */;
+			buildPhases = (
+				24EB77CA1053341B00E21E02 /* Headers */,
+				24EB77CB1053341B00E21E02 /* Sources */,
+				24EB77CC1053341B00E21E02 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libMedia;
+			productName = libMedia;
+			productReference = 24EB77CE1053341B00E21E02 /* libMedia.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		24EB77D61053343E00E21E02 /* libAccelerometer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 24EB7813105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libAccelerometer" */;
+			buildPhases = (
+				24EB77D31053343E00E21E02 /* Headers */,
+				24EB77D41053343E00E21E02 /* Sources */,
+				24EB77D51053343E00E21E02 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libAccelerometer;
+			productName = libAccelerometer;
+			productReference = 24EB77D71053343E00E21E02 /* libAccelerometer.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		24EB77DF1053346100E21E02 /* libNetwork */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 24EB7814105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libNetwork" */;
+			buildPhases = (
+				24EB77DC1053346100E21E02 /* Headers */,
+				24EB77DD1053346100E21E02 /* Sources */,
+				24EB77DE1053346100E21E02 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libNetwork;
+			productName = libNetwork;
+			productReference = 24EB77E01053346100E21E02 /* libNetwork.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		24EB77E81053348200E21E02 /* libPlatform */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 24EB7815105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libPlatform" */;
+			buildPhases = (
+				24EB77E51053348200E21E02 /* Headers */,
+				24EB77E61053348200E21E02 /* Sources */,
+				24EB77E71053348200E21E02 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libPlatform;
+			productName = libPlatform;
+			productReference = 24EB77E91053348200E21E02 /* libPlatform.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		24EB77F11053349800E21E02 /* libUi */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 24EB7816105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libUi" */;
+			buildPhases = (
+				24EB77EE1053349800E21E02 /* Headers */,
+				24EB77EF1053349800E21E02 /* Sources */,
+				24EB77F01053349800E21E02 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libUi;
+			productName = libUI;
+			productReference = 24EB77F21053349800E21E02 /* libUi.a */;
+			productType = "com.apple.product-type.library.static";
 		};
 		B41068A10FBB730F00310448 /* libTitanium */ = {
 			isa = PBXNativeTarget;
@@ -965,8 +1385,20 @@
 			projectRoot = "";
 			targets = (
 				1D6058900D05DD3D006BFB54 /* Titanium */,
-				B41068A10FBB730F00310448 /* libTitanium */,
 				B47A26CB1035F040002146CD /* Titanium-Spaz */,
+				B41068A10FBB730F00310448 /* libTitanium */,
+				24EB776F1053326C00E21E02 /* libAnalytics */,
+				24EB778C1053333300E21E02 /* libGesture */,
+				24EB77951053336300E21E02 /* libApi */,
+				24EB779E1053337F00E21E02 /* libApp */,
+				24EB77A71053339A00E21E02 /* libDatabase */,
+				24EB77BB105333D900E21E02 /* libFilesystem */,
+				24EB77C4105333FD00E21E02 /* libGeolocation */,
+				24EB77CD1053341B00E21E02 /* libMedia */,
+				24EB77D61053343E00E21E02 /* libAccelerometer */,
+				24EB77DF1053346100E21E02 /* libNetwork */,
+				24EB77E81053348200E21E02 /* libPlatform */,
+				24EB77F11053349800E21E02 /* libUi */,
 			);
 		};
 /* End PBXProject section */
@@ -1120,53 +1552,137 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		24EB776D1053326C00E21E02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB7775105332AC00E21E02 /* AnalyticsModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB778A1053333300E21E02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77911053335200E21E02 /* GestureModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77931053336300E21E02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB779A1053337500E21E02 /* ApiModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB779C1053337F00E21E02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB787C10533E7600E21E02 /* AppModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77A51053339A00E21E02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77B3105333C700E21E02 /* DatabaseModule.m in Sources */,
+				24EB77B4105333C700E21E02 /* PlausibleDatabase.m in Sources */,
+				24EB77B5105333C700E21E02 /* PLSqliteDatabase.m in Sources */,
+				24EB77B6105333C700E21E02 /* PLSqlitePreparedStatement.m in Sources */,
+				24EB77B7105333C700E21E02 /* PLSqliteResultSet.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77B9105333D900E21E02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77C0105333E400E21E02 /* FilesystemModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77C2105333FD00E21E02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77C91053340C00E21E02 /* GeolocationModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77CB1053341B00E21E02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77D21053342700E21E02 /* MediaModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77D41053343E00E21E02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77DB1053344E00E21E02 /* AccelerometerModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77DD1053346100E21E02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77E41053346F00E21E02 /* NetworkModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77E61053348200E21E02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77ED1053348F00E21E02 /* PlatformModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24EB77EF1053349800E21E02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24EB77F7105334AB00E21E02 /* UiModule.m in Sources */,
+				24EB77F8105334AB00E21E02 /* NativeControlProxy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B410689F0FBB730F00310448 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B41068A80FBB745600310448 /* TitaniumAppDelegate.m in Sources */,
-				B41068AA0FBB745600310448 /* TitaniumViewController.m in Sources */,
-				B41068AB0FBB745600310448 /* SBJSON.m in Sources */,
-				B41068B00FBB745600310448 /* TitaniumAppProtocol.m in Sources */,
-				B41068B20FBB745600310448 /* TitaniumCmdThread.m in Sources */,
-				B41068B40FBB745600310448 /* TitaniumUIViewController.m in Sources */,
-				B41068B60FBB745600310448 /* TitaniumHost.m in Sources */,
-				B41068B80FBB745600310448 /* TitaniumAccessorTuple.m in Sources */,
-				B41068BA0FBB745600310448 /* TitaniumJSConstants.m in Sources */,
-				B41068BE0FBB745600310448 /* TitaniumInvocationGenerator.m in Sources */,
-				B41068C00FBB745600310448 /* TitaniumJSCode.m in Sources */,
-				B41068C20FBB745600310448 /* TitaniumActionSheetHelper.m in Sources */,
-				B41068C40FBB745600310448 /* Webcolor.m in Sources */,
-				2444F8480FC9FCA400063972 /* ApiModule.m in Sources */,
-				2444F84A0FC9FCA400063972 /* AppModule.m in Sources */,
-				2444F84C0FC9FCA400063972 /* DatabaseModule.m in Sources */,
-				2444F84E0FC9FCA400063972 /* PlausibleDatabase.m in Sources */,
-				2444F8530FC9FCA400063972 /* PLSqliteDatabase.m in Sources */,
-				2444F8550FC9FCA400063972 /* PLSqlitePreparedStatement.m in Sources */,
-				2444F8570FC9FCA400063972 /* PLSqliteResultSet.m in Sources */,
-				2444F8590FC9FCA400063972 /* FilesystemModule.m in Sources */,
-				2444F85B0FC9FCA400063972 /* GeolocationModule.m in Sources */,
-				2444F85D0FC9FCA400063972 /* MediaModule.m in Sources */,
-				2444F8630FC9FCA400063972 /* NetworkModule.m in Sources */,
-				2444F8650FC9FCA400063972 /* PlatformModule.m in Sources */,
-				2444F8690FC9FCA400063972 /* UiModule.m in Sources */,
-				2444FA570FCA4E2E00063972 /* IPAddress.c in Sources */,
-				2444FC7E0FCA6F8000063972 /* NSData+Additions.m in Sources */,
-				2444FCD30FCA741E00063972 /* base64.c in Sources */,
-				24BBD8400FCD245F00A261A4 /* GestureModule.m in Sources */,
-				B4A49BBB0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */,
-				B4110C9F0FD4653A00BE17F8 /* AccelerometerModule.m in Sources */,
-				24F02E480FD482D2007894DA /* AnalyticsModule.m in Sources */,
-				B4C6D7060FE99F4E00D62384 /* TitaniumWebViewController.m in Sources */,
-				B4C6D7350FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */,
-				B45C71810FEDAF93002A8675 /* WebTableViewCell.m in Sources */,
-				B47B52D80FF1B2F400BD7229 /* ValueTableViewCell.m in Sources */,
-				B4290A76100D31FD00C4FF98 /* TweakedNavController.m in Sources */,
-				B4B5720010110324003546C7 /* TitaniumContentViewController.m in Sources */,
-				B4200E531035FAB1009598FC /* Logging.c in Sources */,
-				B4A6D3B2103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
-				B4D4AF5810472271006E42E0 /* TweakedScrollView.m in Sources */,
-				B4D4B07710489FDC006E42E0 /* WebFont.m in Sources */,
+				24EB78541053365E00E21E02 /* TitaniumWebViewController.m in Sources */,
+				24EB78551053365E00E21E02 /* TitaniumTableViewController.m in Sources */,
+				24EB78561053365E00E21E02 /* TitaniumViewController.m in Sources */,
+				24EB78571053365E00E21E02 /* TitaniumContentViewController.m in Sources */,
+				24EB78491053364000E21E02 /* SBJSON.m in Sources */,
+				24EB784A1053364000E21E02 /* IPAddress.c in Sources */,
+				24EB784B1053364000E21E02 /* NSData+Additions.m in Sources */,
+				24EB784C1053364000E21E02 /* base64.c in Sources */,
+				24EB784D1053364000E21E02 /* Webcolor.m in Sources */,
+				24EB784E1053364000E21E02 /* Logging.c in Sources */,
+				24EB784F1053364000E21E02 /* WebFont.m in Sources */,
+				24EB783E1053362200E21E02 /* TitaniumInvocationGenerator.m in Sources */,
+				24EB783F1053362200E21E02 /* TitaniumAccessorTuple.m in Sources */,
+				24EB78401053362200E21E02 /* TitaniumJSCode.m in Sources */,
+				24EB78411053362200E21E02 /* TitaniumBlobWrapper.m in Sources */,
+				24EB7823105335EE00E21E02 /* TitaniumAppDelegate.m in Sources */,
+				24EB7824105335EE00E21E02 /* TitaniumAppProtocol.m in Sources */,
+				24EB7825105335EE00E21E02 /* TitaniumUIViewController.m in Sources */,
+				24EB7826105335EE00E21E02 /* TitaniumHost.m in Sources */,
+				24EB7827105335EE00E21E02 /* TitaniumCmdThread.m in Sources */,
+				24EB7828105335EE00E21E02 /* TitaniumJSConstants.m in Sources */,
+				24EB7829105335EE00E21E02 /* TitaniumActionSheetHelper.m in Sources */,
+				24EB782A105335EE00E21E02 /* WebTableViewCell.m in Sources */,
+				24EB782B105335EE00E21E02 /* ValueTableViewCell.m in Sources */,
+				24EB782C105335EE00E21E02 /* TweakedNavController.m in Sources */,
+				24EB782D105335EE00E21E02 /* TweakedScrollView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1248,6 +1764,306 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				PRODUCT_NAME = Titanium;
+			};
+			name = Release;
+		};
+		24EB77711053326D00E21E02 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Analytics;
+			};
+			name = Debug;
+		};
+		24EB77721053326D00E21E02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Analytics;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		24EB778E1053333400E21E02 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Gesture;
+			};
+			name = Debug;
+		};
+		24EB778F1053333400E21E02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Gesture;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		24EB77971053336400E21E02 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Api;
+			};
+			name = Debug;
+		};
+		24EB77981053336400E21E02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Api;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		24EB77A01053338000E21E02 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = App;
+			};
+			name = Debug;
+		};
+		24EB77A11053338000E21E02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = App;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		24EB77A91053339B00E21E02 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Database;
+			};
+			name = Debug;
+		};
+		24EB77AA1053339B00E21E02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Database;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		24EB77BD105333DA00E21E02 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Filesystem;
+			};
+			name = Debug;
+		};
+		24EB77BE105333DA00E21E02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Filesystem;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		24EB77C6105333FE00E21E02 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Geolocation;
+			};
+			name = Debug;
+		};
+		24EB77C7105333FE00E21E02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Geolocation;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		24EB77CF1053341C00E21E02 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Media;
+			};
+			name = Debug;
+		};
+		24EB77D01053341C00E21E02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Media;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		24EB77D81053343F00E21E02 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Accelerometer;
+			};
+			name = Debug;
+		};
+		24EB77D91053343F00E21E02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Accelerometer;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		24EB77E11053346200E21E02 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Network;
+			};
+			name = Debug;
+		};
+		24EB77E21053346200E21E02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Network;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		24EB77EA1053348300E21E02 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Platform;
+			};
+			name = Debug;
+		};
+		24EB77EB1053348300E21E02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Platform;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		24EB77F31053349900E21E02 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Ui;
+			};
+			name = Debug;
+		};
+		24EB77F41053349900E21E02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Ui;
+				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -1391,6 +2207,114 @@
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,
 				1D6058950D05DD3E006BFB54 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		24EB77731053328B00E21E02 /* Build configuration list for PBXNativeTarget "libAnalytics" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24EB77711053326D00E21E02 /* Debug */,
+				24EB77721053326D00E21E02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		24EB780C105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libGesture" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24EB778E1053333400E21E02 /* Debug */,
+				24EB778F1053333400E21E02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		24EB780D105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libApi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24EB77971053336400E21E02 /* Debug */,
+				24EB77981053336400E21E02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		24EB780E105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24EB77A01053338000E21E02 /* Debug */,
+				24EB77A11053338000E21E02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		24EB780F105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libDatabase" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24EB77A91053339B00E21E02 /* Debug */,
+				24EB77AA1053339B00E21E02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		24EB7810105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libFilesystem" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24EB77BD105333DA00E21E02 /* Debug */,
+				24EB77BE105333DA00E21E02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		24EB7811105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libGeolocation" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24EB77C6105333FE00E21E02 /* Debug */,
+				24EB77C7105333FE00E21E02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		24EB7812105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libMedia" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24EB77CF1053341C00E21E02 /* Debug */,
+				24EB77D01053341C00E21E02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		24EB7813105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libAccelerometer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24EB77D81053343F00E21E02 /* Debug */,
+				24EB77D91053343F00E21E02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		24EB7814105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libNetwork" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24EB77E11053346200E21E02 /* Debug */,
+				24EB77E21053346200E21E02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		24EB7815105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libPlatform" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24EB77EA1053348300E21E02 /* Debug */,
+				24EB77EB1053348300E21E02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		24EB7816105334BF00E21E02 /* Build configuration list for PBXNativeTarget "libUi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24EB77F31053349900E21E02 /* Debug */,
+				24EB77F41053349900E21E02 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

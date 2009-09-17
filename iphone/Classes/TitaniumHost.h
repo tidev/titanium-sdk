@@ -20,6 +20,22 @@
 
 #define TI_VERSION_STR STRING(TI_VERSION)
 
+// in simulator we redefine to format for Titanium Developer console
+// #ifdef __LOG__ID__
+// #endif
+
+#define NSLog(...) {\
+	const char *__s = [[NSString stringWithFormat:__VA_ARGS__] UTF8String];\
+	if (__s[0]=='[')\
+	{\
+	    fprintf(stderr,"%s\n", __s);\
+	}\
+	else\
+	{\
+	    fprintf(stderr,"[DEBUG] %s\n", __s);\
+	}\
+}
+
 extern NSString * const TitaniumTabChangeNotification;
 extern NSString * const TitaniumJsonKey;
 
