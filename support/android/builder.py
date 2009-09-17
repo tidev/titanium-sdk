@@ -104,7 +104,13 @@ class Builder(object):
 		sys.exit(rc)
 		
 	def build_and_run(self, install, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None):
-		#TODO: win32
+		deploy_type = 'development'
+		if install:
+			if keystore == None:
+				deploy_type = 'test'
+			else:
+				deploy_type = 'production'
+				
 		aapt = os.path.join(self.tools_dir,'aapt')
 		jar = os.path.join(self.platform_dir,'android.jar')
 		dx = os.path.join(self.tools_dir,'dx')
@@ -163,8 +169,12 @@ class Builder(object):
 
 			shutil.copy(os.path.join(self.top_dir,'tiapp.xml'), assets_dir)
 			
+			tiapp = open(os.path.join(assets_dir, 'tiapp.xml')).read()
+			
 			finalxml = os.path.join(assets_dir,'tiapp.xml')
 			tiapp = TiAppXML(finalxml)
+			tiapp.setDeployType(deploy_type)
+			
 			iconname = tiapp.properties['icon']
 			iconpath = os.path.join(asset_resource_dir,iconname)
 			iconext = os.path.splitext(iconpath)[1]
