@@ -7,8 +7,12 @@
 
 
 #import "TitaniumContentViewController.h"
+
 #import "TitaniumWebViewController.h"
 #import "TitaniumTableViewController.h"
+#import "TitaniumScrollableViewController.h"
+#import "TitaniumCompositeViewController.h"
+
 #import "TitaniumViewController.h"
 #import "TitaniumHost.h"
 
@@ -43,6 +47,10 @@ int nextContentViewToken = 0;
 		if ([typeString isKindOfClass:[NSString class]]) {
 			if ([typeString isEqualToString:@"table"]){
 				result = [[TitaniumTableViewController alloc] init];
+			} else if ([typeString isEqualToString:@""]){
+				result = [[TitaniumScrollableViewController alloc] init];
+			} else if ([typeString isEqualToString:@""]){
+				result = [[TitaniumCompositeViewController alloc] init];
 			}
 		}
 		resultName = [(NSDictionary *)inputState objectForKey:@"name"];
@@ -63,26 +71,11 @@ int nextContentViewToken = 0;
 	
 }
 
-/*
-// Implement loadView to create a view hierarchy programmatically, without using a nib.
-- (void)loadView {
+- (BOOL) isShowingView: (TitaniumContentViewController *) contentView;
+{
+	return (self==contentView);
 }
-*/
 
-/*
-// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
-- (void)viewDidLoad {
-    [super viewDidLoad];
-}
-*/
-
-/*
-// Override to allow orientations other than the default portrait orientation.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-*/
 - (void)updateLayout: (BOOL)animated;
 {
 	
@@ -93,11 +86,6 @@ int nextContentViewToken = 0;
     [super didReceiveMemoryWarning];
 	
 	// Release any cached data, images, etc that aren't in use.
-}
-
-- (void)viewDidUnload {
-	// Release any retained subviews of the main view.
-	// e.g. self.myOutlet = nil;
 }
 
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;

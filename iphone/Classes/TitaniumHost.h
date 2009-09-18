@@ -174,7 +174,7 @@ typedef enum {
 
 //Executes and returns the string inline with the background thread, or if not in a thread,
 //with the main page of the currently visible most foreground page.
-- (NSString *) performJavascript: (NSString *) inputString;
+//- (NSString *) performJavascript: (NSString *) inputString;
 
 //Schedules the main thread to run the code to run for the appropriate page at some later time.
 //If no such page exists for the token, the event is dropped on the floor.

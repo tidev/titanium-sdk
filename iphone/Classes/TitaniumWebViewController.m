@@ -490,7 +490,8 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
 {
-	if ([[TitaniumHost sharedHost] currentTitaniumContentViewController] != self) return;
+	TitaniumContentViewController * currentVC = [[TitaniumHost sharedHost] currentTitaniumContentViewController];
+	if (![currentVC isShowingView:self]) return;
 	if (motion == UIEventSubtypeMotionShake){
 		NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent({type:'shake'})"];
 		[webView stringByEvaluatingJavaScriptFromString:eventString];

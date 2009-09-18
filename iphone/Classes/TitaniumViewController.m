@@ -488,7 +488,12 @@ int nextWindowToken = 0;
 	isVisible = NO;
 }
 
-- (void)motionEnded:(int)motion withEvent:(UIEvent *)event
+#ifndef __IPHONE_3_0
+typedef int UIEventSubtype;
+const UIEventSubtype UIEventSubtypeMotionShake=1;
+#endif
+
+- (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
 {
 	TitaniumContentViewController * ourVC = [self viewControllerForIndex:selectedContentIndex];
 	if([ourVC respondsToSelector:@selector(motionEnded:withEvent:)]){

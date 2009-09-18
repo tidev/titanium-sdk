@@ -1067,20 +1067,20 @@ TitaniumHost * lastSharedHost = nil;
 
 //Executes and returns the string inline with the background thread, or if not in a thread,
 //with the main page of the currently visible most foreground page.
-- (NSString *) performJavascript: (NSString *) inputString
-{
-	TitaniumCmdThread * ourThread = [self currentThread];
-	if (ourThread == nil) {
-		//Find the current view, and send it the message.
-		TitaniumContentViewController * currentVC = [self currentTitaniumContentViewController];
-		if ([currentVC isKindOfClass:[TitaniumWebViewController class]]){
-			return [[(TitaniumWebViewController *)currentVC webView] stringByEvaluatingJavaScriptFromString:inputString];
-		}
-		
-	}
-	
-	return [ourThread pauseForJavascriptFetch:inputString];	
-}
+//- (NSString *) performJavascript: (NSString *) inputString
+//{
+//	TitaniumCmdThread * ourThread = [self currentThread];
+//	if (ourThread == nil) {
+//		//Find the current view, and send it the message.
+//		TitaniumContentViewController * currentVC = [self currentTitaniumContentViewController];
+//		if ([currentVC isKindOfClass:[TitaniumWebViewController class]]){
+//			return [[(TitaniumWebViewController *)currentVC webView] stringByEvaluatingJavaScriptFromString:inputString];
+//		}
+//		
+//	}
+//	
+//	return [ourThread pauseForJavascriptFetch:inputString];	
+//}
 
 - (TitaniumViewController *) visibleTitaniumViewController
 {

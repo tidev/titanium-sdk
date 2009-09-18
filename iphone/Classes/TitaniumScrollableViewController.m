@@ -10,36 +10,15 @@
 
 @implementation TitaniumScrollableViewController
 
-/*
- // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        // Custom initialization
-    }
-    return self;
-}
-*/
-
-
 // Implement loadView to create a view hierarchy programmatically, without using a nib.
 - (void)loadView {
+	
 }
 
-
-/*
-// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
-- (void)viewDidLoad {
-    [super viewDidLoad];
+- (UIView *) view;
+{
+	return pagedView;
 }
-*/
-
-/*
-// Override to allow orientations other than the default portrait orientation.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-*/
 
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
@@ -48,15 +27,30 @@
 	// Release any cached data, images, etc that aren't in use.
 }
 
-- (void)viewDidUnload {
-	// Release any retained subviews of the main view.
-	// e.g. self.myOutlet = nil;
-}
-
-
 - (void)dealloc {
     [super dealloc];
 }
+
+#ifndef __IPHONE_3_0
+typedef int UIEventSubtype;
+const UIEventSubtype UIEventSubtypeMotionShake=1;
+#endif
+
+- (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
+{
+	TitaniumContentViewController * ourVC = [contentViewControllers objectAtIndex:currentPage];
+	if([ourVC respondsToSelector:@selector(motionEnded:withEvent:)]){
+		[(id)ourVC motionEnded:motion withEvent:event];
+	}
+}
+
+- (BOOL) isShowingView: (TitaniumContentViewController *) contentView;
+{
+	if(self==contentView)return YES;
+	return([contentViewControllers objectAtIndex:currentPage]==contentView);
+}
+
+
 
 - (void) setPagedViewControllerProxies: (NSArray *) newPagedViewControllerProxies;
 {
@@ -64,8 +58,8 @@
 	Class stringClass = [NSString class];
 	int controllerCount = 0;
 	
-	if(pagedViewControllers != nil){
-		[pagedViewControllers removeAllObjects];
+	if(contentViewControllers != nil){
+		[contentViewControllers removeAllObjects];
 	}
 	
 	for(NSDictionary * thisProxyObject in newPagedViewControllerProxies){
@@ -81,10 +75,10 @@
 //		}
 		if(ourVC == nil)continue;
 		
-		if(pagedViewControllers==nil){
-			pagedViewControllers = [[NSMutableArray alloc] initWithObjects:ourVC,nil];
+		if(contentViewControllers==nil){
+			contentViewControllers = [[NSMutableArray alloc] initWithObjects:ourVC,nil];
 		} else {
-			[pagedViewControllers addObject:ourVC];
+			[contentViewControllers addObject:ourVC];
 		}
 		controllerCount++;
 	}
@@ -94,8 +88,8 @@
 		pagedView = nil;
 		[pageControl release];
 		pageControl = nil;
-		[pagedViewControllers release];
-		pagedViewControllers = nil;
+		[contentViewControllers release];
+		contentViewControllers = nil;
 		[self needsUpdate:TitaniumViewControllerNeedsRefresh];
 		return;
 	}
@@ -120,9 +114,9 @@
 
 - (void)prepareViewAtPage:(int) pageNum;
 {
-	if((pageNum < 0) || (pageNum >= [pagedViewControllers count]))return;
+	if((pageNum < 0) || (pageNum >= [contentViewControllers count]))return;
 	
-	TitaniumContentViewController * thisPageViewController = [pagedViewControllers objectAtIndex:pageNum];
+	TitaniumContentViewController * thisPageViewController = [contentViewControllers objectAtIndex:pageNum];
 	UIView * thisPageView = [thisPageViewController view];
 	if ([thisPageView superview] != pagedView){
 		CGRect thisFrame = [thisPageView frame];

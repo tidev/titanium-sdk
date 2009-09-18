@@ -130,8 +130,6 @@ typedef enum {
 - (void)doUpdateLayout;
 - (void)refreshBackground;
 
-- (void)motionEnded:(int)motion withEvent:(UIEvent *)event;
-
 - (void) updateContentViewArray: (NSArray *) messagePacket;
 
 - (NSDictionary *) propertiesDict;

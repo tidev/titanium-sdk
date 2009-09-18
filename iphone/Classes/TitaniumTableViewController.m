@@ -284,30 +284,24 @@ UIColor * checkmarkColor = nil;
 
 - (void) setView:(UIView *)newView;
 {
-	[super setView:newView];
 	if(newView == nil){
 		[tableView release];
 		tableView = nil;
 	}
 }
 
-- (void) loadView;
+- (UIView *) view;
 {
-	CGRect startSize = CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height);
-	UIView * rootView = [[UIView alloc] initWithFrame:startSize];
-	[rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-
-	[tableView release];
-	tableView = [[UITableView alloc] initWithFrame:startSize style:tableStyle];
-	[tableView setDelegate:self];	[tableView setDataSource:self];
-	[tableView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-	if (tableRowHeight > 5){
-		[tableView setRowHeight:tableRowHeight];
+	if(tableView == nil){
+		CGRect startSize = CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height);
+		tableView = [[UITableView alloc] initWithFrame:startSize style:tableStyle];
+		[tableView setDelegate:self];	[tableView setDataSource:self];
+		[tableView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+		if (tableRowHeight > 5){
+			[tableView setRowHeight:tableRowHeight];
+		}		
 	}
-	[rootView addSubview:tableView];
-
-	[self setView:rootView];
-	[rootView release];
+	return tableView;
 }
 
 - (void) readRowData: (NSArray *)dataArray relativeToUrl: (NSURL *)baseUrl;
@@ -418,6 +412,7 @@ UIColor * checkmarkColor = nil;
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
+	if([tableView superview]==nil)[self setView:nil];
 	
 	// Release any cached data, images, etc that aren't in use.
 }
@@ -430,6 +425,7 @@ UIColor * checkmarkColor = nil;
 	[callbackWindowToken release];
 	[sectionLock release];
 	[tableView release];
+	tableView = nil;
 	
 	[actionQueue release];
 	[actionLock release];

@@ -68,9 +68,23 @@
 		}
 
 		noteTest=function(){
-			var notty=Titanium.Notification.createNotification({html:'Hello, world!'});
-			notty.show();
-			lastnote = notty;
+		var html  = '<div style="height:50px;background-color:#000;opacity:0.9;color:white;text-align:center;margin-left:-8px;margin-right:-8px;margin-bottom:-8px;border-top:1px solid #000;font-family:Helvetica Neue;font-size:16px;font-weight:bold;line-height:50px;background-image:-webkit-gradient(linear, 0% 0%, 0% 50%, from(#777), to(#000), color-stop(1,#333));"><img src="ebay-logo.png" height="17" width="44"/> New iPod - $30 on eBay</div>';
+		var n = Titanium.Notification.createNotification({html:html});
+		n.addEventListener('click',function()
+		{
+			Titanium.API.info("IN HERE YO");
+			var w = Titanium.UI.createWindow({url:'http://www.ebay.com'});
+			w.open({modal:true});
+		});
+		n.addEventListener('close',function()
+		{
+			Titanium.API.info("IN CLOSE YO");
+			n.close();
+		});
+		Titanium.API.info("BEFORE OPEN ");
+
+		n.show();
+		lastnote = n;
 		}
 		
 		var btn1=Ti.UI.createButton({title:'-'});

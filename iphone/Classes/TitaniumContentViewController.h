@@ -30,5 +30,6 @@
 - (BOOL) hasToken: (NSString *) tokenString;
 - (void)updateLayout: (BOOL)animated;
 - (NSDictionary *) stateValue;
+- (BOOL) isShowingView: (TitaniumContentViewController *) contentView;
 
 @end
