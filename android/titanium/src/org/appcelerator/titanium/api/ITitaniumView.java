@@ -14,7 +14,6 @@ import android.view.View;
 public interface ITitaniumView
 {
 	boolean isPrimary();
-	void requestLayout();
 	String getName();
 	void setName(String name);
 	void showing();

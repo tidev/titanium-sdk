@@ -460,6 +460,53 @@ var ImageView = function(proxy) {
 	};
 };
 
+var ScrollableView = function(proxy) {
+	this.proxy = proxy; // reference to Java object
+
+	this._views = [];
+
+	this.setViews = function(views) {
+		if (!isUndefined(views)) {
+			var keys = this.internalSetViews(views);
+			this.proxy.setViews(Titanium.JSON.stringify(keys));
+		}
+	};
+
+	this.internalSetViews = function(views) {
+		this._views = [];
+		var keys =[];
+		for(i=0; i < views.length; i++) {
+			this._views.push(views[i]);
+			var key = views[i].proxy.getKey();
+			keys.push(String(key));
+		}
+		return keys;
+	};
+
+	this.scrollToView = function(view) {
+		if (!isUndefined(view)) {
+			var pos = -1;
+
+			if (typeOf(view) == "object") {
+				for(i=0; i< this._views.length; i++) {
+					if (view === this._views[i]) {
+						pos = i;
+						break;
+					}
+				}
+			} else if (typeOf(view) == "number") {
+				pos = view;
+			}
+
+			this.proxy.scrollToView(pos);
+		}
+	};
+
+	this.setShowPagingControl = function(show) {
+		this.proxy.setShowPagingControl(show);
+	};
+};
+
 var TableView = function(proxy) {
 	this.proxy = proxy; // reference to Java object
 	this._callback;
@@ -1269,7 +1316,7 @@ Titanium.UI = {
 			if (!isUndefined(title)) {
 				dlg.setTitle(title);
 			}
-			if (!isUndefined(buttonNames)) {
+			if (!isUndefined(optionValues)) {
 				dlg.setOptions(optionValues);
 			}
 		}
@@ -1363,6 +1410,31 @@ Titanium.UI = {
 		}
 		iv.proxy.processOptions(Titanium.JSON.stringify(options));
 		return iv;
+	},
+	/**
+	 * @tiapi(method=true,name=UI.createScrollableView,since=0.7.0) Create a scrollable view
+	 * @tiarg[object, options] a dictionary/hash of options
+	 * @tiresult[ScrollableView] the scrollable view.
+	 */
+	createScrollableView : function(options) {
+		var sv = new ScrollableView(Titanium.uiProxy.createScrollableView());
+		if (isUndefined(options)) {
+			options = {};
+		}
+		var opts = {};
+
+		if(!isUndefined(options.views)) {
+			for (key in options) {
+				if (key == "views") {
+					var keys = sv.internalSetViews(options["views"])
+					opts["views"] = keys;
+				} else {
+					opts[key] = options[key];
+				}
+			}
+		}
+		sv.proxy.processOptions(Titanium.JSON.stringify(opts));
+		return sv;
 	},
 	/**
 	 * @tiapi(method=true,name=UI.createTableView,since=0.5) Create a table view

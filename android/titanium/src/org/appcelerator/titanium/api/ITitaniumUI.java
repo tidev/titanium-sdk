@@ -49,4 +49,5 @@ public interface ITitaniumUI
 	public ITitaniumPicker createPicker(String json);
 	public ITitaniumModalPicker createModalPicker(String json);
 	public ITitaniumImageView createImageView();
+	public ITitaniumScrollableView createScrollableView();
 }

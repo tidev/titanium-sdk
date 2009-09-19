@@ -69,6 +69,8 @@ public abstract class TitaniumBaseView extends FrameLayout
 		this.eventManager.supportEvent(EVENT_UNFOCUSED);
 
 		this.hasBeenOpened = false;
+
+		tmm.getActivity().registerView(this);
 	}
 
 	public boolean handleMessage(Message msg)
@@ -167,6 +169,9 @@ public abstract class TitaniumBaseView extends FrameLayout
 
 	public void processOptions(String options)
 	{
+		if (DBG) {
+			Log.d(LCAT, "JSON Options: " + options);
+		}
 		try {
 			JSONObject o = new JSONObject(options);
 
@@ -179,6 +184,8 @@ public abstract class TitaniumBaseView extends FrameLayout
 		} catch (JSONException e) {
 			Log.e(LCAT,"Error processing options: " + options, e);
 		}
+
+		handler.sendEmptyMessage(MSG_OPEN);
 	}
 
 	protected void doPreOpen() {
@@ -199,7 +206,6 @@ public abstract class TitaniumBaseView extends FrameLayout
 			}
 			addView(getContentView(), params);
 		}
-		invalidate();
 		eventManager.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
 		hasBeenOpened = true;
 	}

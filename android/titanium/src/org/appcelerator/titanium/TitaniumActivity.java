@@ -85,7 +85,8 @@ public class TitaniumActivity extends Activity
 	protected TitaniumWindowInfo windowInfo;
 
 	protected ArrayList<ITitaniumView> views;
-	protected HashMap<String, WeakReference<ITitaniumView>> viewKeyIndex;
+	protected HashMap<String, WeakReference<ITitaniumView>> registeredViews;
+
 	protected int activeViewIndex;
 
 	protected boolean loadOnPageEnd;
@@ -140,7 +141,7 @@ public class TitaniumActivity extends Activity
         needsDelayedFocusedEvent = true;
 
         views = new ArrayList<ITitaniumView>(5);
-        viewKeyIndex = new HashMap<String,WeakReference<ITitaniumView>>(5);
+        registeredViews = new HashMap<String,WeakReference<ITitaniumView>>(5);
         activeViewIndex = -1;
 
         logWatcher = new TitaniumLogWatcher(this);
@@ -598,14 +599,22 @@ public class TitaniumActivity extends Activity
 		}
 	}
 */
-    // TODO, may return index
+	public void registerView(ITitaniumView view)
+	{
+		if (view.getKey() == null) {
+			view.setKey("NPRX" + idGenerator.getAndIncrement());
+		}
+		synchronized(views) {
+			if (!registeredViews.containsKey(view.getKey())) {
+				registeredViews.put(view.getKey(), new WeakReference<ITitaniumView>(view));
+			}
+		}
+	}
+
+	// TODO, may return index
     public void addView(ITitaniumView view) {
      	synchronized(views) {
-     		if (view.getKey() == null) {
-     			view.setKey("NPRX" + idGenerator.getAndIncrement());
-     		}
     		views.add(view);
-    		viewKeyIndex.put(view.getKey(), new WeakReference<ITitaniumView>(view));
     		Log.e(LCAT, "ADDING VIEW: " + view + " with Key: " + view.getKey());
     	}
     }
@@ -613,8 +622,8 @@ public class TitaniumActivity extends Activity
     public ITitaniumView getViewFromKey(String key) {
     	ITitaniumView tiView = null;
     	synchronized(views) {
-    		if (viewKeyIndex.containsKey(key)) {
-    			tiView = viewKeyIndex.get(key).get();
+    		if (registeredViews.containsKey(key)) {
+    			tiView = registeredViews.get(key).get();
     		} else {
     			Log.w(LCAT, "No view with key : " + key + " is registered with this activity.");
     		}
@@ -671,13 +680,10 @@ public class TitaniumActivity extends Activity
     public ITitaniumView getViewByName(String name) {
     	ITitaniumView view = null;
     	synchronized(views) {
-    		for(ITitaniumView v : views) {
-    			if (name != null && v.getName() != null) {
-    				if (name.equals(v.getName())) {
-    					view = v;
-    					break;
-    				}
-    			}
+    		try {
+    			view = registeredViews.get(name).get();
+    		} catch (NullPointerException e) {
+    			// Ignore
     		}
     	}
     	return view;

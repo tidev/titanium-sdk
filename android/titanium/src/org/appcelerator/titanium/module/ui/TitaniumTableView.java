@@ -303,7 +303,7 @@ public class TitaniumTableView extends TitaniumBaseView
 	{
 		final String callback = this.callback;
 
-		view = new ListView(getContext());
+		this.view = new ListView(getContext());
 		view.setFocusable(true);
 		view.setFocusableInTouchMode(true);
 		//view.setDrawingCacheEnabled(true);
