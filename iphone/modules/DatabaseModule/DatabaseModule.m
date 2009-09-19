@@ -111,7 +111,7 @@
 	[databaseDict removeObjectForKey:databaseName];
 }
 
-- (NSDictionary *) runDatabase: (NSString *) databaseName command: (NSString *) commandString arguments: (NSArray *) arguments;
+- (id) runDatabase: (NSString *) databaseName command: (NSString *) commandString arguments: (NSArray *) arguments;
 {
 	Class NSStringClass = [NSString class];
 	if (![databaseName isKindOfClass:NSStringClass] || ![commandString isKindOfClass:NSStringClass]) return nil;
@@ -154,6 +154,10 @@
 	int affectedRowCount = sqlite3_changes(actualDB);
 #endif
 	
+	if(ourResultSet == nil){
+		//TODO: raise exception?
+		return nil;
+	}
 	[databaseResultsDict setObject:ourResultSet forKey:tokenString];
 	
 	if (tokenString == nil) tokenString = (id)[NSNull null];
