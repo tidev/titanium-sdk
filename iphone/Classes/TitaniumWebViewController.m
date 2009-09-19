@@ -99,7 +99,7 @@ TitaniumWebViewController * mostRecentController = nil;
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
-	
+	if([scrollView superview]==nil)[self setView:nil];
 	// Release any cached data, images, etc that aren't in use.
 }
 
@@ -136,7 +136,6 @@ TitaniumWebViewController * mostRecentController = nil;
 
 - (void) setView: (UIView *) newView;
 {
-	[super setView:newView];
 	if (newView == nil) {
 		if([[scrollView subviews] count]<1)[self setScrollView:nil];
 	}
@@ -171,11 +170,23 @@ TitaniumWebViewController * mostRecentController = nil;
 //	[contentView setFrame:[newContentView frame]];
 //	[newContentView removeFromSuperview];
 //}
-- (UIScrollView *) scrollView;
+
+- (UIView *) view;
 {
 	if (scrollView == nil){
+		CGRect quikframe = CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height);
+		UIViewAutoresizing stretchy = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+		
 		scrollView = [[TweakedScrollView alloc] init];
 		[scrollView setDelaysContentTouches:NO];
+		[scrollView setFrame:quikframe];
+		[scrollView setAutoresizingMask:stretchy];
+		
+		if([[self webView] superview] != scrollView){
+			[webView setAutoresizingMask:stretchy];
+			[webView setFrame:quikframe];
+			[scrollView insertSubview:webView atIndex:0];
+		}
 	}
 	return scrollView;
 }
@@ -228,29 +239,6 @@ TitaniumWebViewController * mostRecentController = nil;
 
 
 #pragma mark viewController methods
-
-// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
-- (void)loadView{
-	CGRect quikframe = CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height);
-	UIViewAutoresizing stretchy = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-	UIView * ourRootView = [[UIView alloc] initWithFrame:quikframe];
-	[ourRootView setAutoresizingMask:stretchy];
-
-	[[self scrollView] setFrame:quikframe];
-	[scrollView setAutoresizingMask:stretchy];
-	[ourRootView addSubview:scrollView];
-	
-	if([[self webView] superview] != scrollView){
-		[webView setAutoresizingMask:stretchy];
-		[webView setFrame:quikframe];
-		[scrollView insertSubview:webView atIndex:0];
-	}
-	
-	[self setView:ourRootView];
-	[ourRootView release];
-
-	mostRecentController = self;
-}
 
 - (void)setFocused:(BOOL)isFocused;
 {

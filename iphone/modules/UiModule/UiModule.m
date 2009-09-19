@@ -1397,6 +1397,7 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:createWindowString],@"createWindow",
 			[TitaniumJSCode codeWithString:getWindowByNameString],@"getWindowByName",
 			[TitaniumJSCode codeWithString:createWebViewString],@"createWebView",
+			[TitaniumJSCode codeWithString:createScrollingViewString],@"createScrollingView",
 			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",
 			[TitaniumJSCode codeWithString:setActiveTabString],@"setActiveTab",
 			[TitaniumJSCode codeWithString:createTabString],@"createTab",

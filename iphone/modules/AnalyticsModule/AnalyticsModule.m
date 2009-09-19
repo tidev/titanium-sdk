@@ -253,6 +253,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 							   VAL_OR_NSNULL(app_name),@"app_name",
 							   [NSNumber numberWithInt:1],@"oscpu",
 							   @"iphone",@"platform",
+							   VAL_OR_NSNULL(APPLICATION_DEPLOYTYPE),@"deploytype",
 							   VAL_OR_NSNULL(app_id),@"app_id",
 							   @"32bit",@"ostype",
 							   @"arm",@"osarch",
