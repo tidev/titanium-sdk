@@ -13,10 +13,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Message;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.TouchDelegate;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -147,17 +151,24 @@ public class TitaniumScrollableView extends TitaniumBaseView
 			setPagerTimeout();
 			return super.onTouchEvent(event);
 		}
+
+		@Override
+		public boolean onTrackballEvent(MotionEvent event) {
+			return me.onTrackballEvent(event);
+		}
 	}
 
 	protected LocalGallery gallery;
 	protected RelativeLayout pager;
+	protected View glass;
 	protected boolean showPagingControl;
 	protected String viewJSON;
-
+	final protected TitaniumScrollableView me;
 
 	public TitaniumScrollableView(TitaniumModuleManager tmm)
 	{
 		super(tmm);
+		me = this;
 		showPagingControl = true;
 		viewJSON = "[]";
 	}
@@ -226,7 +237,56 @@ public class TitaniumScrollableView extends TitaniumBaseView
 
 		addView(pager);
 
+		glass = new View(getContext()) {
+
+			@Override
+			public boolean onTouchEvent(MotionEvent event) {
+				boolean handled = false;
+
+				if (event.getAction() == MotionEvent.ACTION_DOWN && showPagingControl) {
+					if (pager.getVisibility() != View.VISIBLE) {
+						gallery.onTouchEvent(event);
+					}
+				}
+
+				if (!handled) {
+					handled = super.onTouchEvent(event);
+				}
+				return handled;
+			}
+
+			@Override
+			public boolean onTrackballEvent(MotionEvent event) {
+				Log.w(LCAT, "TRACKBALL");
+				return super.onTrackballEvent(event);
+			}
+
+
+		};
+		//glass.setBackgroundColor(Color.argb(100, 0, 0, 255));
+		addView(glass);
+
 		setViews(viewJSON);
+	}
+
+	public void setPagerTimeout() {
+		handler.removeMessages(MSG_HIDE_PAGER);
+		handler.sendEmptyMessageDelayed(MSG_HIDE_PAGER, 3000);
+	}
+
+	@Override
+	public boolean onTrackballEvent(MotionEvent event) {
+		boolean handled = false;
+
+		if (showPagingControl) {
+			if (pager.getVisibility() != View.VISIBLE) {
+				handler.sendEmptyMessage(MSG_SHOW_PAGER);
+			}
+			setPagerTimeout();
+		}
+
+		handled = super.onTrackballEvent(event);
+		return handled;
 	}
 
 	@Override
