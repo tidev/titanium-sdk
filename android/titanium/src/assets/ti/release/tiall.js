@@ -126,7 +126,7 @@ iv.proxy.processOptions(Titanium.JSON.stringify(options));return iv;},createScro
 var opts={};if(!isUndefined(options.views)){for(key in options){if(key=="views"){var keys=sv.internalSetViews(options["views"])
 opts["views"]=keys;}else{opts[key]=options[key];}}}
 sv.proxy.processOptions(Titanium.JSON.stringify(opts));return sv;},createTableView:function(options,callback){var tv=new TableView(Titanium.uiProxy.createTableView());if(isUndefined(options)){options={}}
-tv.proxy.processOptions(Titanium.JSON.stringify(options));tv.setCallback(callback);return tv;},createWebView:function(options){var wv=new WebView(Titanium.uiProxy.createWebView());if(isUndefined(options)){options={};}
+tv.setCallback(callback);tv.proxy.processOptions(Titanium.JSON.stringify(options));return tv;},createWebView:function(options){var wv=new WebView(Titanium.uiProxy.createWebView());if(isUndefined(options)){options={};}
 wv.proxy.processOptions(Titanium.JSON.stringify(options));return wv;},createEmailDialog:function(options){var dlg=new EmailDialog(Titanium.uiProxy.createEmailDialog());if(!isUndefined(options)){var subject=options["subject"];var to=options["toRecipients"];var cc=options["ccRecipients"];var bcc=options["bccRecipients"];var msg=options["messageBody"];var attachment=options["attachment"];if(!isUndefined(subject)){dlg.setSubject(subject);}
 if(!isUndefined(to)){dlg.setToRecipients(to);}
 if(!isUndefined(cc)){dlg.setCcRecipients(cc);}

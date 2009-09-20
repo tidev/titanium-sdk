@@ -394,7 +394,7 @@ public class TitaniumWebView extends WebView
 		}
 
 		if (handler != null) {
-			if (!expr.startsWith(JAVASCRIPT)) {
+			if (expr != null && !expr.startsWith(JAVASCRIPT)) {
 				expr = JAVASCRIPT + expr;
 			}
 

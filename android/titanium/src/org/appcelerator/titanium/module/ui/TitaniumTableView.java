@@ -24,7 +24,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class TitaniumTableView extends TitaniumBaseView
@@ -93,9 +95,9 @@ public class TitaniumTableView extends TitaniumBaseView
 			} else {
 				v = new TitaniumTableViewItem(tmm.getAppContext());
 			}
+			Log.e(LCAT, "Data Row: " + position);
 
 			v.setRowData((JSONObject) getItem(position), rowHeight, fontSize, fontWeight);
-
 			return v;
 		}
 
@@ -301,6 +303,9 @@ public class TitaniumTableView extends TitaniumBaseView
 
 	protected void doOpen()
 	{
+		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+		setLayoutParams(params);
+
 		final String callback = this.callback;
 
 		this.view = new ListView(getContext());
@@ -341,7 +346,9 @@ public class TitaniumTableView extends TitaniumBaseView
 						event.put("name", item.getString("name"));
 					}
 
-					tmm.getWebView().evalJS(callback, event);
+					if (callback != null) {
+						tmm.getWebView().evalJS(callback, event);
+					}
 
 				} catch (JSONException e) {
 					Log.e(LCAT, "Error handling event at position: " + position);

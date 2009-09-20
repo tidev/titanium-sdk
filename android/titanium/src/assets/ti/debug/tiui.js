@@ -1446,8 +1446,8 @@ Titanium.UI = {
 		 if (isUndefined(options)) {
 			 options = {}
 		 }
-		 tv.proxy.processOptions(Titanium.JSON.stringify(options));
 		 tv.setCallback(callback);
+		 tv.proxy.processOptions(Titanium.JSON.stringify(options));
 		 return tv;
 	},
 	/**

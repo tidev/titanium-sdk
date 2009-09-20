@@ -71,9 +71,9 @@ public class TitaniumScrollableView extends TitaniumBaseView
 
 				public View getView(int position, View convertView, ViewGroup parent) {
 					ITitaniumView tv = views.get(position);
-					tv.showing();
 					View view = tv.getNativeView();
 					view.setLayoutParams(new Gallery.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+					tv.showing();
 					return view;
 				}
 	        };
@@ -171,6 +171,9 @@ public class TitaniumScrollableView extends TitaniumBaseView
 		if (o.has("showPagingControl")) {
 			this.showPagingControl = o.getBoolean("showPagingControl");
 		}
+
+		openViewAfterOptions = true;
+		openViewDelay = 0;
 	}
 
 	@Override
@@ -181,6 +184,8 @@ public class TitaniumScrollableView extends TitaniumBaseView
 		gallery = new LocalGallery(context);
 		addView(gallery, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		gallery.setOnItemSelectedListener(this);
+		gallery.setFocusable(false);
+		gallery.setFocusableInTouchMode(false);
 
 		pager = new RelativeLayout(context);
 

@@ -16,6 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
@@ -45,6 +46,8 @@ public abstract class TitaniumBaseView extends FrameLayout
 	protected String key;
 	protected String name;
 	protected boolean hasBeenOpened;
+	protected boolean openViewAfterOptions;
+	protected int openViewDelay;
 
 
 	public TitaniumBaseView(TitaniumModuleManager tmm)
@@ -69,6 +72,8 @@ public abstract class TitaniumBaseView extends FrameLayout
 		this.eventManager.supportEvent(EVENT_UNFOCUSED);
 
 		this.hasBeenOpened = false;
+		openViewAfterOptions = true;
+		openViewDelay = 1000;
 
 		tmm.getActivity().registerView(this);
 	}
@@ -80,9 +85,11 @@ public abstract class TitaniumBaseView extends FrameLayout
 		switch(msg.what)
 		{
 			case MSG_OPEN : {
-				doPreOpen();
-				doOpen();
-				doPostOpen();
+				if (!hasBeenOpened) {
+					doPreOpen();
+					doOpen();
+					doPostOpen();
+				}
 				handled = true;
 				break;
 			}
@@ -185,7 +192,9 @@ public abstract class TitaniumBaseView extends FrameLayout
 			Log.e(LCAT,"Error processing options: " + options, e);
 		}
 
-		handler.sendEmptyMessage(MSG_OPEN);
+		if (openViewAfterOptions) {
+			handler.sendEmptyMessageDelayed(MSG_OPEN, openViewDelay);
+		}
 	}
 
 	protected void doPreOpen() {
