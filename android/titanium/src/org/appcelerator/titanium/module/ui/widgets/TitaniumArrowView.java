@@ -16,7 +16,8 @@ public class TitaniumArrowView extends ImageView
 	public TitaniumArrowView(Context context) {
 		super(context);
 		leftArrow = true;
-
+		setFocusable(false);
+		setFocusableInTouchMode(false);
 		configureDrawable();
 	}
 

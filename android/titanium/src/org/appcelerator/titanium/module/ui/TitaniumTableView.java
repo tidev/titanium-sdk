@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.TitaniumUIHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
@@ -26,7 +27,6 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class TitaniumTableView extends TitaniumBaseView
@@ -95,7 +95,6 @@ public class TitaniumTableView extends TitaniumBaseView
 			} else {
 				v = new TitaniumTableViewItem(tmm.getAppContext());
 			}
-			Log.e(LCAT, "Data Row: " + position);
 
 			v.setRowData((JSONObject) getItem(position), rowHeight, fontSize, fontWeight);
 			return v;
@@ -305,10 +304,19 @@ public class TitaniumTableView extends TitaniumBaseView
 	{
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
 		setLayoutParams(params);
-
+		setFocusable(false);
+		setFocusableInTouchMode(false);
 		final String callback = this.callback;
 
-		this.view = new ListView(getContext());
+		this.view = new ListView(getContext()) {
+
+			@Override
+			public boolean dispatchKeyEvent(KeyEvent event) {
+				Log.w(LCAT, "KEY DISPATCHED");
+				return super.dispatchKeyEvent(event);
+			}
+
+		};
 		view.setFocusable(true);
 		view.setFocusableInTouchMode(true);
 		//view.setDrawingCacheEnabled(true);
@@ -323,8 +331,7 @@ public class TitaniumTableView extends TitaniumBaseView
 						keyEvent.getAction() == KeyEvent.ACTION_DOWN
 						)
 				{
-//						close();
-					return root ? false : true;
+					return true;
 				}
 				return false;
 			}});
@@ -355,6 +362,11 @@ public class TitaniumTableView extends TitaniumBaseView
 				}
 			}});
 
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		return view.onKeyDown(keyCode, event);
 	}
 
 	@Override

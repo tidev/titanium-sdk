@@ -53,6 +53,9 @@ public class TitaniumScrollableView extends TitaniumBaseView
 			setVerticalFadingEdgeEnabled(false);
 			setUnselectedAlpha(0.85f);
 			setGravity(Gravity.CENTER);
+
+			setFocusable(false);
+			setFocusableInTouchMode(false);
 		}
 
 		public void setViews(ArrayList<ITitaniumView> v)
@@ -137,7 +140,13 @@ public class TitaniumScrollableView extends TitaniumBaseView
 					break;
 				}
 				default :
-					handled = super.onKeyDown(keyCode, event);
+					//handled = super.onKeyDown(keyCode, event);
+					View v = getChildAt(0);
+					if (v != null) {
+						handled = v.onKeyDown(keyCode, event);
+					} else {
+						handled = super.onKeyDown(keyCode, event);
+					}
 			}
 			return handled;
 		}
@@ -154,7 +163,17 @@ public class TitaniumScrollableView extends TitaniumBaseView
 
 		@Override
 		public boolean onTrackballEvent(MotionEvent event) {
-			return me.onTrackballEvent(event);
+			boolean handled = false;
+
+			if (showPagingControl) {
+				if (pager.getVisibility() != View.VISIBLE) {
+					handler.sendEmptyMessage(MSG_SHOW_PAGER);
+				}
+				setPagerTimeout();
+			}
+
+			handled = super.onTrackballEvent(event);
+			return handled;
 		}
 	}
 
@@ -195,10 +214,10 @@ public class TitaniumScrollableView extends TitaniumBaseView
 		gallery = new LocalGallery(context);
 		addView(gallery, new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		gallery.setOnItemSelectedListener(this);
-		gallery.setFocusable(false);
-		gallery.setFocusableInTouchMode(false);
 
 		pager = new RelativeLayout(context);
+		pager.setFocusable(false);
+		pager.setFocusableInTouchMode(false);
 
 		TitaniumArrowView left = new TitaniumArrowView(context);
 		left.setVisibility(View.INVISIBLE);
@@ -263,8 +282,11 @@ public class TitaniumScrollableView extends TitaniumBaseView
 
 
 		};
-		//glass.setBackgroundColor(Color.argb(100, 0, 0, 255));
-		addView(glass);
+		glass.setBackgroundColor(Color.argb(100, 0, 0, 255));
+		glass.setFocusable(false);
+		glass.setFocusableInTouchMode(false);
+
+		//addView(glass);
 
 		setViews(viewJSON);
 	}
@@ -272,21 +294,6 @@ public class TitaniumScrollableView extends TitaniumBaseView
 	public void setPagerTimeout() {
 		handler.removeMessages(MSG_HIDE_PAGER);
 		handler.sendEmptyMessageDelayed(MSG_HIDE_PAGER, 3000);
-	}
-
-	@Override
-	public boolean onTrackballEvent(MotionEvent event) {
-		boolean handled = false;
-
-		if (showPagingControl) {
-			if (pager.getVisibility() != View.VISIBLE) {
-				handler.sendEmptyMessage(MSG_SHOW_PAGER);
-			}
-			setPagerTimeout();
-		}
-
-		handled = super.onTrackballEvent(event);
-		return handled;
 	}
 
 	@Override
