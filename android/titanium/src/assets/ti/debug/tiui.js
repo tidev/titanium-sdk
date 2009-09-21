@@ -464,7 +464,12 @@ var ScrollableView = function(proxy) {
 	this.proxy = proxy; // reference to Java object
 
 	this._views = [];
+	this._callback = null;
 
+	/**
+	 * @tiapi(method=true,name=UI.ScrollableView.setViews,since=0.7.0) set views in scrollable
+	 * @tiarg[array,views] Array of Titanium views
+	 */
 	this.setViews = function(views) {
 		if (!isUndefined(views)) {
 			var keys = this.internalSetViews(views);
@@ -483,6 +488,10 @@ var ScrollableView = function(proxy) {
 		return keys;
 	};
 
+	/**
+	 * @tiapi(method=true,name=UI.ScrollableView.scrollToView,since=0.7.0) scroll to a particular view
+	 * @tiarg[Object,view] A view or index
+	 */
 	this.scrollToView = function(view) {
 		if (!isUndefined(view)) {
 			var pos = -1;
@@ -502,8 +511,33 @@ var ScrollableView = function(proxy) {
 		}
 	};
 
+	/**
+	 * @tiapi(method=true,name=UI.ScrollableView.setShowPagingControl,since=0.7.0) turn paging on and off.
+	 * @tiarg[boolean,view] true if you want paging controls.
+	 */
 	this.setShowPagingControl = function(show) {
 		this.proxy.setShowPagingControl(show);
+	};
+	/**
+	 * @tiapi(method=true,name=UI.ScrollableView.addEventListener,since=0.7.0) Add a listener for to this view. Support 'focused' and 'unfocused'
+	 * @tiarg[string,eventName] The event name
+	 * @tiarg[function,listener] The event listener
+	 * @tiresult[int] id used when removing the listener
+	 */
+	this.addEventListener = function(eventName, listener) {
+		this._callback = listener;
+		var f = function(e) {
+			this._callback({ view: this._views[e.index], index: e.index});
+		}
+		return this.proxy.addEventListener(eventName, registerCallback(this, f));
+	};
+	/**
+	 * @tiapi(method=true,name=UI.ScrollableView.removeEventListener,since=0.7.0) Remove a previously added listener
+	 * @tiarg[string,eventName] The event name
+	 * @tiarg[int,listenerId] id returned from addEventListener
+	 */
+	this.removeEventListener = function(eventName, listenerId) {
+		this.proxy.removeEventListener(eventName, listenerId);
 	};
 };
 

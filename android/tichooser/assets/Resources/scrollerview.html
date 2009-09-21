@@ -227,6 +227,15 @@
 		showPagingControl : false
 	});
 
+	sv1.addEventListener('scroll', function(e) {
+		Titanium.Media.beep();
+		if (e.index == 1 || e.view === wv1) {
+			sv1.setShowPagingControl(true);
+		} else {
+			sv1.setShowPagingControl(false);
+		}
+	});
+
   	window.onload = function()
   	{
   	  	var w = Titanium.UI.currentWindow;
@@ -238,34 +247,9 @@
 
   	  	w.addView(sv1);
   	  	w.setActiveViewIndex(1, fadeIn);
-
-  	  	var btn_launch = document.getElementById('launch');
-  	  	if (btn_launch !== null) {
-
-  	  		btn_launch.onclick = function () {
-  	  	  		alert('CLICK');
-  	  	  		tableView.open({});
-   	  		}
-  	  	} else {
-  	  	  	Titanium.UI.createAlertDialog({
-  	  	  	  	title : 'Error',
-  	  	  	  	message : 'Missing element "launch"',
-  	  	  	  	buttonNames : 'OK'
-  	  	  	}).show();
-  	  	}
-
-  	  	var btn = Titanium.UI.createButton({id : 'n1', title : 'Click Me'});
-
    	}
   --></script>
 </head>
 <body style="background-color: white;">
-<input id='launch' type='button' value='Launch TableView' />
-<div id='n1' style='height: 40px;'>&nbsp;</div>
-<input id='holder' type='button' value='Here for my health' />
-<input id="t1" type="textarea" cols="30" rows="10" />
-<a href="#">A Link</a>
-
-
 </body>
 </html>

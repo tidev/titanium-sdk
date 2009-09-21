@@ -312,7 +312,6 @@ public class TitaniumTableView extends TitaniumBaseView
 
 			@Override
 			public boolean dispatchKeyEvent(KeyEvent event) {
-				Log.w(LCAT, "KEY DISPATCHED");
 				return super.dispatchKeyEvent(event);
 			}
 
