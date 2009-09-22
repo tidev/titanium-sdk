@@ -993,6 +993,7 @@ TitaniumHost * lastSharedHost = nil;
 	if([ourPath hasPrefix:@"/_TICMD/"]) result = TitaniumAppResourceCommandType;
 	if([ourPath hasPrefix:@"/_TICON/"]) result = TitaniumAppResourceContinueType;
 	if([ourPath hasPrefix:@"/_TIBLOB/"]) result = TitaniumAppResourceBlobType;
+	if([ourPath hasPrefix:@"/_TIWIN/"]) result = TitaniumAppResourceWindowBindingType;
 	if([ourPath isEqualToString:@"/blank"]) result = TitaniumAppResourceNoType;
 	return result;
 }
@@ -1018,8 +1019,6 @@ TitaniumHost * lastSharedHost = nil;
 {
 	CLOCKSTAMP("Starting Javascript for Resource %@",resourceUrl);
 	NSString * thisThreadHashString = [NSString stringWithFormat:@"x%Xx",lastThreadHash];
-	TitaniumWebViewController *wvc = (TitaniumWebViewController*)[TitaniumWebViewController mostRecentController];
-	[wvc acceptToken:thisThreadHashString forContext:@"window"];
 	NSString * result = [self javaScriptForResource:resourceUrl hash:thisThreadHashString extremeDebug:NO];
 
 #ifdef USE_VERBOSE_DEBUG	

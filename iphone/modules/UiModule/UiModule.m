@@ -15,6 +15,7 @@
 
 #import "TitaniumWebViewController.h"
 #import "TitaniumTableViewController.h"
+#import "TitaniumScrollableViewController.h"
 
 #ifdef __IPHONE_3_0
 #import <MessageUI/MessageUI.h>
@@ -856,6 +857,35 @@ NSString * UrlEncodeString(NSString * string)
 	[newAction release];	
 }
 
+#define SCROLLVIEW_ADDVIEW				0
+#define SCROLLVIEW_SETCURRENTPAGE		1
+#define SCROLLVIEW_SETPAGECONTROL		2
+
+- (id)	scrollView:(NSString *)tokenString doAction:(NSNumber *)action args:(id)args options:(NSDictionary *)optionsObject;
+{
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	TitaniumScrollableViewController * scrollView = (TitaniumScrollableViewController *)[theHost titaniumContentViewControllerForToken:tokenString];
+	if(![scrollView isKindOfClass:[TitaniumScrollableViewController class]] || ![action respondsToSelector:@selector(intValue)])return nil;
+	switch ([action intValue]) {
+		case SCROLLVIEW_ADDVIEW:{
+			TitaniumWebViewController * contextVC = (TitaniumWebViewController *)[theHost currentTitaniumContentViewController];
+			TitaniumContentViewController * newVC = [TitaniumContentViewController viewControllerForState:args relativeToUrl:[contextVC currentContentURL]];
+			if(newVC != nil)[scrollView addViewController:newVC];
+			return nil;
+		}
+		case SCROLLVIEW_SETCURRENTPAGE:{
+			if(![args respondsToSelector:@selector(intValue)])return nil;
+			[scrollView setCurrentPage:[args intValue]];
+			return nil;
+		}
+		default:
+			break;
+	}
+	
+	return nil;
+}
+
+
 #pragma mark Current Window actions
 
 - (void) setStatusBarStyle: (id) newValue;
@@ -958,6 +988,9 @@ NSString * UrlEncodeString(NSString * string)
 
 
 #pragma mark startModule
+#define STRINGIFY(foo)	# foo
+#define STRINGVAL(foo)	STRINGIFY(foo)
+
 
 - (BOOL) startModule;
 {
@@ -1078,6 +1111,8 @@ NSString * UrlEncodeString(NSString * string)
 	[(UiModule *)invocGen modalPicker: nil visible: nil options:nil];
 	NSInvocation * displayInputModallyInvoc = [invocGen invocation];
 	
+	[(UiModule *)invocGen scrollView:nil doAction:nil args:nil options:nil];
+	NSInvocation * scrollViewInvoc = [invocGen invocation];
 	
 	buttonContexts = [[NSMutableDictionary alloc] init];
 	
@@ -1200,8 +1235,10 @@ NSString * UrlEncodeString(NSString * string)
 			"return res;}";
 
 	NSString * createScrollingViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='scroll';if(!res.views)res.views=[];"
-			"res.addView=function(view){if(!view)return;this.views.push(newView);if(this._TOKEN){view.ensureToken();Ti.UI._SVAVIEW(this._TOKEN,view);}};"
-			"res.scrollToView=function(view){if(typeof(view)=='number'){this.selectedViewIndex=view;}else{if(!view)return;        }};"//TODO: implement
+			"res.addView=function(view){if(!view)return;this.views.push(view);if(this._TOKEN){view.ensureToken();Ti.UI._SCRVWACT(this._TOKEN," STRINGVAL(SCROLLVIEW_ADDVIEW) ",view);}};"
+			"res.scrollToView=function(view){if(typeof(view)=='number'){this.setSelectedViewIndex(view);return;}if(!view)return;"
+			"var views=this.views;var len=views.length;for(var i=0;i<len;i++){if(views[i]==view){this.setSelectedViewIndex(i);return;}}};"
+			"res.setCurrentPage=function(indx){this.selectedViewIndex=indx;if(this._TOKEN)Ti.UI._SCRVWACT(this._TOKEN," STRINGVAL(SCROLLVIEW_SETCURRENTPAGE) ",indx);};"
 			"res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res._EVT={scroll:[]};doEvent:Ti._ONEVT;"
 			"return res;}";
 
@@ -1359,6 +1396,8 @@ NSString * UrlEncodeString(NSString * string)
 			buttonTokenGen,@"_BTNTKN",
 			setButtonFocusInvoc,@"_BTNFOC",
 			updateButtonInvoc,@"_BTNUPD",
+
+			scrollViewInvoc,@"_SCRVWACT",
 
 			[TitaniumJSCode codeWithString:createButtonString],@"createButton",
 			[TitaniumJSCode codeWithString:createActivityIndicatorString],@"createActivityIndicator",

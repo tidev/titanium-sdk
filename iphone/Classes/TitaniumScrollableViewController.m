@@ -8,6 +8,7 @@
 #import "TitaniumScrollableViewController.h"
 #import "TitaniumViewController.h"
 #import "TweakedScrollView.h"
+#import "TitaniumHost.h"
 
 @implementation TitaniumScrollableViewController
 
@@ -82,6 +83,7 @@
 		pageControl = [[UIPageControl alloc] init];
 		[pageControl setAutoresizingMask:UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleWidth];
 		[pageControl setBackgroundColor:[UIColor colorWithWhite:0 alpha:0.5]]; //TODO: Settable, er, settings?
+		[pageControl setHidesForSinglePage:YES];
 		[pageControl addTarget:self action:@selector(changePage:) forControlEvents:UIControlEventValueChanged];
 	}
 	return pageControl;
@@ -258,6 +260,14 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 
 // At the end of scroll animation, reset the boolean used when scrolls originate from the UIPageControl
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+	CGPoint offset = [scrollView contentOffset];
+	CGSize scrollFrame = [scrollView frame].size;
+	CGFloat newPage=offset.x/scrollFrame.width;
+	currentPage = floor(newPage);
+	
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+//	[theHost sendJavascript:[callbackProxyPath stringByAppendingString:triggeredCode] toPageWithToken:callbackWindowToken];
+
 	//    pageControlUsed = NO;
 }
 
@@ -278,7 +288,31 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 
 #pragma mark Javascript entry points
 
+- (void) shouldUpdate;
+{
+	TitaniumContentViewController * currentVC = [[TitaniumHost sharedHost] visibleTitaniumContentViewController];
+	if(![currentVC isShowingView:self])return;
+	if([NSThread isMainThread]){
+		[self updateLayout:NO];
+	} else {
+		[self performSelectorOnMainThread:@selector(updateLayout:) withObject:nil waitUntilDone:NO];
+	}	
+}
 
+- (void) addViewController: (TitaniumContentViewController *) newViewController;
+{
+	if(newViewController==nil)return;
+	
+	[contentViewControllers addObject:newViewController];
+	[self shouldUpdate];
+}
+
+- (void) setCurrentPage: (int) newPage;
+{
+	if(newPage==currentPage)return;
+	currentPage=newPage;
+	[self shouldUpdate];
+}
 
 
 

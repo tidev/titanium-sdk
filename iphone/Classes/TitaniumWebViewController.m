@@ -12,16 +12,10 @@
 #import "Logging.h"
 #import "TweakedScrollView.h"
 
-TitaniumWebViewController * mostRecentController = nil;
-
 @implementation TitaniumWebViewController
 @synthesize webView, currentContentURL, scrollView;
 
 #pragma mark Class Methods
-+ (TitaniumWebViewController *) mostRecentController;
-{
-	return mostRecentController;
-}
 
 #pragma mark init and dealloc and allocations
 /*
@@ -297,12 +291,12 @@ TitaniumWebViewController * mostRecentController = nil;
 
 - (BOOL)webView:(UIWebView *)inputWebView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType;
 {
-	mostRecentController = self;
 	NSURL * requestURL = [request URL];
 	if ([[TitaniumAppDelegate sharedDelegate] shouldTakeCareOfUrl:requestURL useSystemBrowser:NO]) return NO;
 	CLOCKSTAMP("Should load request %@ for %@",requestURL,self);
 	[currentContentURL release];
 	currentContentURL = [requestURL copy];
+	[webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window._WINTKN='%@'",[self primaryToken]]];
 	return YES;
 }
 
@@ -334,6 +328,7 @@ TitaniumWebViewController * mostRecentController = nil;
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
 {
 	CLOCKSTAMP("Finished load request for %@",self);
+
 	[UIView beginAnimations:@"webView" context:nil];
 	[UIView setAnimationDuration:0.1];
 	[self updateLayout:NO];

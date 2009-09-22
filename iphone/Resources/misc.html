@@ -11,13 +11,17 @@
 	}
 	window.onload = function()
 	{
+		try{
 		buggyView = Ti.UI.createWebView({url:'buggy.html',name:'bugger'});
 //		Ti.UI.currentWindow.addView(buggyView);
 		otherView = Ti.UI.createWebView({url:'unitTest.html',name:'number1'});
 //		Ti.UI.currentWindow.addView(otherView);
-		pagy = Ti.UI.createScrollingView({views:[buggyView,otherView]});
+		pagy = Ti.UI.createScrollingView({views:[buggyView]});
 		Ti.UI.currentWindow.addView(pagy);
+		pagy.addView(otherView);
 //		Ti.UI.currentWindow.showView(buggyView,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000});
+
+		}catch(E){Ti.API.debug(E);}
 
 		testFun = function(act){
 			var msg = "Success!";
@@ -143,6 +147,10 @@ Titanium.UI.addEventListener('tabchange',function(e)
 </script>
 </head>
 <body>
+<script>
+document.write(window._WINTKN);
+</script>
+
 	<button onclick="testFun('Ti.UI.currentWindow.close()')">Back</button>
 
 	<button onclick="testFun('goBlack()')">Black</button>
