@@ -62,7 +62,7 @@
 			result = [superduperviewdelegate touchesShouldCancelInContentView:superduperview];
 		}
 	}
-	NSLog(@"TouchesShouldCancelInContentView:%@(%@) == %d",NSStringFromClass([view class]),NSStringFromClass([[[view superview] superview] class]),result);
+//	NSLog(@"TouchesShouldCancelInContentView:%@(%@) == %d",NSStringFromClass([view class]),NSStringFromClass([[[view superview] superview] class]),result);
 	return result;
 }
 

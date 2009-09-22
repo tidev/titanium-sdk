@@ -868,9 +868,14 @@ NSString * UrlEncodeString(NSString * string)
 	if(![scrollView isKindOfClass:[TitaniumScrollableViewController class]] || ![action respondsToSelector:@selector(intValue)])return nil;
 	switch ([action intValue]) {
 		case SCROLLVIEW_ADDVIEW:{
-			TitaniumWebViewController * contextVC = (TitaniumWebViewController *)[theHost currentTitaniumContentViewController];
+			NSString * callingToken = [[theHost currentThread] magicToken];
+				
+			TitaniumWebViewController * contextVC = (TitaniumWebViewController *)[theHost titaniumContentViewControllerForToken:callingToken];
 			TitaniumContentViewController * newVC = [TitaniumContentViewController viewControllerForState:args relativeToUrl:[contextVC currentContentURL]];
-			if(newVC != nil)[scrollView addViewController:newVC];
+			if(newVC != nil){
+				[scrollView addViewController:newVC];
+				[newVC addListeningWebContextToken:callingToken];
+			}
 			return nil;
 		}
 		case SCROLLVIEW_SETCURRENTPAGE:{
@@ -1239,7 +1244,7 @@ NSString * UrlEncodeString(NSString * string)
 			"res.scrollToView=function(view){if(typeof(view)=='number'){this.setSelectedViewIndex(view);return;}if(!view)return;"
 			"var views=this.views;var len=views.length;for(var i=0;i<len;i++){if(views[i]==view){this.setSelectedViewIndex(i);return;}}};"
 			"res.setCurrentPage=function(indx){this.selectedViewIndex=indx;if(this._TOKEN)Ti.UI._SCRVWACT(this._TOKEN," STRINGVAL(SCROLLVIEW_SETCURRENTPAGE) ",indx);};"
-			"res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res._EVT={scroll:[]};doEvent:Ti._ONEVT;"
+			"res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res._EVT={scroll:[]};res.doEvent=Ti._ONEVT;"
 			"return res;}";
 
 	NSString * createCompositeViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='multi';if(!res.rules)res.rules=[];"

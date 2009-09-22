@@ -16,9 +16,10 @@
 //		Ti.UI.currentWindow.addView(buggyView);
 		otherView = Ti.UI.createWebView({url:'unitTest.html',name:'number1'});
 //		Ti.UI.currentWindow.addView(otherView);
-		pagy = Ti.UI.createScrollingView({views:[buggyView]});
+		pagy = Ti.UI.createScrollingView({views:[buggyView],showPagingControl:true});
 		Ti.UI.currentWindow.addView(pagy);
 		pagy.addView(otherView);
+		pagy.addEventListener('scroll',function(ev){Ti.API.debug('We scrolled to page '+ev.currentPage);});
 //		Ti.UI.currentWindow.showView(buggyView,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000});
 
 		}catch(E){Ti.API.debug(E);}

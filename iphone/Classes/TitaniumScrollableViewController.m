@@ -47,10 +47,14 @@
 		}
 		contentViewControllers = [[NSMutableArray alloc] initWithCapacity:[viewsArray count]];
 		NSString * ourTitaniumWindowToken = [self titaniumWindowToken];
+		NSString * callingToken = [[[TitaniumHost sharedHost] currentThread] magicToken];
 		for(NSDictionary * thisViewObject in viewsArray){
 			TitaniumContentViewController * ourNewVC = [TitaniumContentViewController viewControllerForState:thisViewObject relativeToUrl:baseUrl];
-			[ourNewVC setTitaniumWindowToken:ourTitaniumWindowToken];
-			if(ourNewVC != nil) [contentViewControllers addObject:ourNewVC];
+			if(ourNewVC != nil){
+				[ourNewVC setTitaniumWindowToken:ourTitaniumWindowToken];
+				[ourNewVC addListeningWebContextToken:callingToken];
+				[contentViewControllers addObject:ourNewVC];
+			}
 		}
 	}
 }
@@ -223,6 +227,9 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 		} else {
 			[pageControl setFrame:pageControlFrame];
 		}
+		if(currentPage != [pageControl currentPage]){
+			[pageControl setCurrentPage:currentPage];
+		}
 	} else if(!pageControl && (pageControl != nil)) {
 		[pageControl removeFromSuperview];
 		[pageControl release];
@@ -266,24 +273,24 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	currentPage = floor(newPage);
 	
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	NSString * pathString = [self javaScriptPath];
+	NSString * commandString = [NSString stringWithFormat:@"(function(){%@.currentPage=%d;"
+			"%@.doEvent({type:'scroll',currentPage:%d,view:%@})})();",pathString,currentPage,pathString,currentPage,
+			[[contentViewControllers objectAtIndex:currentPage] javaScriptPath]];
+
+	[theHost sendJavascript:commandString toPagesWithTokens:listeningWebContextTokens update:YES];
+
+	[self shouldUpdate];
 //	[theHost sendJavascript:[callbackProxyPath stringByAppendingString:triggeredCode] toPageWithToken:callbackWindowToken];
 
 	//    pageControlUsed = NO;
 }
 
 - (IBAction)changePage:(id)sender {
-	//    int page = pageControl.currentPage;
-	//    // load the visible page and the page on either side of it (to avoid flashes when the user starts scrolling)
-	//    [self loadScrollViewWithPage:page - 1];
-	//    [self loadScrollViewWithPage:page];
-	//    [self loadScrollViewWithPage:page + 1];
-	//    // update the scroll view to the appropriate page
-	//    CGRect frame = scrollView.frame;
-	//    frame.origin.x = frame.size.width * page;
-	//    frame.origin.y = 0;
-	//    [scrollView scrollRectToVisible:frame animated:YES];
-	//    // Set the boolean used when scrolls originate from the UIPageControl. See scrollViewDidScroll: above.
-	//    pageControlUsed = YES;
+	int newPage = [sender currentPage];
+	if (newPage == currentPage) return;
+	currentPage = newPage;
+	[self shouldUpdate];
 }
 
 #pragma mark Javascript entry points
@@ -293,7 +300,7 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	TitaniumContentViewController * currentVC = [[TitaniumHost sharedHost] visibleTitaniumContentViewController];
 	if(![currentVC isShowingView:self])return;
 	if([NSThread isMainThread]){
-		[self updateLayout:NO];
+		[self updateLayout:YES];
 	} else {
 		[self performSelectorOnMainThread:@selector(updateLayout:) withObject:nil waitUntilDone:NO];
 	}	

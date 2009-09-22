@@ -33,6 +33,7 @@
 - (NSDictionary *) stateValue;
 - (BOOL) isShowingView: (TitaniumContentViewController *) contentView;
 
+- (NSString *) javaScriptPath;
 - (void) addListeningWebContextToken: (NSString *)newContext;
 - (void) removeListeningWebContextToken: (NSString *)oldContext;
 

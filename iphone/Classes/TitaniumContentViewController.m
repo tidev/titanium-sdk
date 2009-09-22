@@ -120,5 +120,25 @@ int nextContentViewToken = 0;
 	return ([primaryToken isEqualToString:tokenString]);
 }
 
+- (void) addListeningWebContextToken: (NSString *)newContext;
+{
+	if(newContext==nil)return;
+	if(listeningWebContextTokens == nil){
+		listeningWebContextTokens = [[NSMutableSet alloc] initWithObjects:newContext,nil];
+	} else {
+		[listeningWebContextTokens addObject:newContext];
+	}
+}
+
+- (void) removeListeningWebContextToken: (NSString *)oldContext;
+{
+	if(oldContext==nil)return;
+	[listeningWebContextTokens removeObject:oldContext];
+}
+
+- (NSString *) javaScriptPath;
+{
+	return [@"Ti.UI._VIEW." stringByAppendingString:primaryToken];
+}
 
 @end

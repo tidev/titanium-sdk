@@ -101,6 +101,9 @@ int nextWindowToken = 0;
 	if(focusedContentController == nil){
 		[contentView release];
 		contentView = nil;
+		[toolBar removeFromSuperview];
+		[toolBar release];
+		toolBar = nil;
 	}
 	
 	[contentViewLock lock];	
@@ -260,18 +263,24 @@ int nextWindowToken = 0;
 	
 	if(contentViewControllers == nil){
 		NSArray * viewsArrayObject = [inputState objectForKey:@"views"];
+		NSString * callingToken = [[[TitaniumHost sharedHost] currentThread] magicToken];
 		if([viewsArrayObject isKindOfClass:[NSArray class]]){
 			contentViewControllers = [[NSMutableArray alloc] initWithCapacity:[viewsArrayObject count]];
-			for(id viewObject in viewsArrayObject){
-				TitaniumContentViewController * ourNewVC = [TitaniumContentViewController viewControllerForState:viewObject relativeToUrl:baseUrl];
-				[ourNewVC setTitaniumWindowToken:primaryToken];
-				if(ourNewVC != nil) [contentViewControllers addObject:ourNewVC];
+
+			for(NSDictionary * thisViewObject in viewsArrayObject){
+				TitaniumContentViewController * ourNewVC = [TitaniumContentViewController viewControllerForState:thisViewObject relativeToUrl:baseUrl];
+				if(ourNewVC != nil){
+					[ourNewVC setTitaniumWindowToken:primaryToken];
+					[ourNewVC addListeningWebContextToken:callingToken];
+					[contentViewControllers addObject:ourNewVC];
+				}
 			}
 		} else {
 			NSMutableDictionary * reducedInputState = [inputState mutableCopy];
 			[reducedInputState removeObjectForKey:@"_TOKEN"];
 			TitaniumContentViewController * ourNewVC = [TitaniumContentViewController viewControllerForState:reducedInputState relativeToUrl:baseUrl];
 			[ourNewVC setTitaniumWindowToken:primaryToken];
+			[ourNewVC addListeningWebContextToken:callingToken];
 			if(ourNewVC != nil) contentViewControllers = [[NSMutableArray alloc] initWithObjects:ourNewVC,nil];
 			[reducedInputState release];
 		}
@@ -640,6 +649,10 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 			[toolBar setHidden:YES];
 			[ourView addSubview:toolBar];
 		} else {
+			if([toolBar superview]!=ourView){
+				[ourView addSubview:toolBar];
+				
+			}
 			toolBarFrame = [toolBar frame];
 		}
 		
@@ -876,12 +889,15 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	Class dictClass = [NSDictionary class];
 	
 	NSURL * baseUrl = [messagePacket objectAtIndex:2];
+
+	NSString * callingToken = [[[TitaniumHost sharedHost] currentThread] magicToken];
 	
 	for(NSDictionary * thisProxyObject in viewsProxyArray){
 		if (![thisProxyObject isKindOfClass:dictClass]) continue;
 		
 		TitaniumContentViewController * thisVC = [TitaniumContentViewController viewControllerForState:thisProxyObject relativeToUrl:baseUrl];
 		[thisVC setTitaniumWindowToken:primaryToken];
+		[thisVC addListeningWebContextToken:callingToken];
 		if(thisVC != nil) [contentViewControllers addObject:thisVC];
 	}
 	

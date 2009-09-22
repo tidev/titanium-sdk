@@ -1195,6 +1195,39 @@ TitaniumHost * lastSharedHost = nil;
 	return YES;
 }
 
+- (void) sendJavascript: (NSString *) inputString toPagesWithTokens: (NSMutableSet *)tokenArray update:(BOOL) shouldUpdate;
+{
+	NSMutableSet * tokensToUpdate=nil;
+	BOOL isMainThread = [NSThread isMainThread];
+
+	[TitaniumHostContentViewLock lock];	
+	for(NSString * thisToken in tokenArray){
+		TitaniumWebViewController * currentVC = (id)CFDictionaryGetValue(contentViewControllerRegistry, thisToken);
+		if([currentVC isKindOfClass:[TitaniumWebViewController class]]){
+			if(isMainThread){
+				[[currentVC webView] performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:inputString afterDelay:0.0];
+			} else {
+				[[currentVC webView] performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:inputString waitUntilDone:NO];
+			}
+		} else if(shouldUpdate){
+			if(tokensToUpdate==nil){
+				tokensToUpdate = [NSMutableSet setWithObject:thisToken];
+			}else{
+				[tokensToUpdate addObject:thisToken];
+			}
+		}
+	}	
+	[TitaniumHostContentViewLock unlock];
+
+	if(tokensToUpdate != nil){
+		for(NSString * thisToken in tokensToUpdate){
+			[tokenArray removeObject:thisToken];
+		}
+	}
+	
+}
+
+
 - (void) flushCache;
 {
 	[cachedRootJavaScript release];

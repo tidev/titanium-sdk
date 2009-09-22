@@ -19,4 +19,7 @@
 
 }
 
+- (void) addViewController: (TitaniumContentViewController *) newViewController;
+- (void) setCurrentPage: (int) newPage;
+
 @end

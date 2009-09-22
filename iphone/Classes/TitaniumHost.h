@@ -181,6 +181,7 @@ typedef enum {
 //If no such page exists for the token, the event is dropped on the floor.
 //Returns YES if an event was scheduled, NO if no such page was found and scheduled.
 - (BOOL) sendJavascript: (NSString *) inputString toPageWithToken: (NSString *) token;
+- (void) sendJavascript: (NSString *) inputString toPagesWithTokens: (NSMutableSet *)tokenArray update:(BOOL) shouldUpdate;
 
 - (BOOL) sendJavascript: (NSString *) inputString;
 
