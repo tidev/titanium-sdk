@@ -42,6 +42,10 @@
 - (NSData*) pageNamedPlatform_data;
 - (NSData*) pageNamedProgress_bars;
 - (NSData*) pageNamedProperties;
+- (NSData*) pageNamedScroll_view_child_1;
+- (NSData*) pageNamedScroll_view_child_2;
+- (NSData*) pageNamedScroll_view_child_3;
+- (NSData*) pageNamedScroll_views;
 - (NSData*) pageNamedShake;
 - (NSData*) pageNamedSlider;
 - (NSData*) pageNamedSound;
@@ -63,6 +67,7 @@
 - (NSData*) pageNamedToolbar_middle;
 - (NSData*) pageNamedToolbar_right;
 - (NSData*) pageNamedUi;
+- (NSData*) pageNamedView_main;
 - (NSData*) pageNamedViews;
 - (NSData*) pageNamedViews1;
 - (NSData*) pageNamedViews2;

@@ -1,0 +1,51 @@
+<html>
+<head>
+	<title>Views API</title>
+	
+	<script>
+	Titanium.UI.addEventListener('tabchange',function(e)
+	{
+		Titanium.API.info('>>>>>>>>>>>>>>>>>>>>>>>>>> TABCHANGE index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
+	});
+	
+	// data for tableview
+	var data = [
+		{title:'Scroll Views', hasChild:true},
+		{title:'View Animations', hasChild:true}
+		
+	];
+	
+	// tableview object
+	var tableView = Titanium.UI.createTableView({
+		data:data,
+		title:'Views',
+	}, function(eventObject) 
+	{
+		// handle tableview click events
+		var idx = eventObject.index;
+		switch(idx)
+		{
+			case 0:
+			{
+				var win = Titanium.UI.createWindow({url:'scroll_views.html',title:'Scroll Views'});
+				win.open({animated:true});
+				break;
+			}
+			case 1:
+			{
+				var win = Titanium.UI.createWindow({url:'views.html',title:'View Animations'});
+				win.open({animated:true});
+				break;
+			}
+
+		}
+	});
+	Titanium.UI.currentWindow.addView(tableView);
+	Titanium.UI.currentWindow.showView(tableView);
+	
+	</script>
+</head>
+<body>
+	
+</body>
+</html>

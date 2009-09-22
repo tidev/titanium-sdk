@@ -26,7 +26,7 @@
         </window>
         <window>
             <id>Views</id>
-            <url>views.html</url>
+            <url>view_main.html</url>
  			<title>Views API</title>
  			<icon>profile.png</icon>
 			<orientation>either</orientation>
