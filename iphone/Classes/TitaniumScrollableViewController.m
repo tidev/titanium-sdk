@@ -25,7 +25,7 @@
 	[wrapperView release];
 	[pagedView release];
 	[pageControl release];
-	[contentViewControllers release];
+	[contentViewControllers autorelease];
     [super dealloc];
 }
 
