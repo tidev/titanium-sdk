@@ -7,17 +7,38 @@
 	<div id="message"></div>
 	
 	<script>
-	Titanium.App.Properties.setString('String','I am a String Value 123456789abcdefghijklmnopqrstuvwxyz123');
+	
+	var array = [
+		{name:'Name 1', address:'1 Main St'},
+		{name:'Name 2', address:'2 Main St'},
+		{name:'Name 3', address:'3 Main St'},
+		{name:'Name 4', address:'4 Main St'}	
+	];
+	
+	Titanium.App.Properties.setString('String','I am a String Value ');
 	Titanium.App.Properties.setInt('Int',10);
 	Titanium.App.Properties.setBool('Bool',true);
 	Titanium.App.Properties.setDouble('Double',10.6);
 
+	Titanium.API.info('BEFORE SET LIST');
+
+	Titanium.App.Properties.setList('MyList',array);
+	
+	Titanium.API.info('AFTER SET LIST');
+	
 	var html  = '';
 	html+= 'String: ' + Titanium.App.Properties.getString('String') + '<br/>';
 	html+= 'Int: ' + Titanium.App.Properties.getInt('Int') + '<br/>';
 	html+= 'Bool: ' + Titanium.App.Properties.getBool('Bool') + '<br/>';
 	html+= 'Double: ' + Titanium.App.Properties.getDouble('Double') + '<br/>';
-
+	var list = Titanium.App.Properties.getList('MyList');
+	
+	Titanium.API.info('AFTER GET LIST');
+	
+	for (var i=0;i<list.length;i++)
+	{
+		html += ' list row ' + i + ' name is ' + list[i].name + ' address is ' + list[i].address + '<br/>';
+	}
 	document.getElementById('message').innerHTML = html;
 
 	</script>

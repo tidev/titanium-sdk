@@ -8,19 +8,16 @@
 	var c = Titanium.Network.createHTTPClient();
 	
 	// set on ready state change function
-	c.onreadystatechange = function()
+	c.onload = function()
 	{
-		Titanium.API.debug('>>>>>>>>>>>>>>>>>>>>>>>> readyState = ' + this.readyState)
-		if (this.readyState == 4)
-		{
-			document.getElementById('html').innerHTML = this.responseText;
-		}
+		document.getElementById('html').innerHTML = this.responseText;
+		Titanium.API.info('RESPONSE ' + this.responseText)
 	};
 	// open the client
-	c.open('GET','http://www.google.com');
+	c.open('POST','http://api.appcelerator.net/p/v1/echo');
 	
 	// send the data
-	c.send();
+	c.send({name:'my name'});
 	
 	</script>
 
