@@ -97,7 +97,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
         <window>
             <id>ImageView</id>
             <title>Image View</title>
@@ -107,6 +107,18 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
+-->
+
+        <window>
+            <id>ScrollerView</id>
+            <title>Scroller View</title>
+            <url>scrollerview.html</url>
+            <type>single</type>
+            <fullscreen>false</fullscreen>
+            <backgroundColor>argb(0,255,255,255)</backgroundColor>
+            <barColor>#000</barColor>
+        </window>
+
 <!--
         <window>
             <id>TableView</id>

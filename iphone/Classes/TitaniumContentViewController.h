@@ -15,6 +15,7 @@
 	NSString * nameString;
 	CGSize preferredViewSize;
 	
+	NSMutableSet * listeningWebContextTokens;
 	NSString * titaniumWindowToken;
 }
 
@@ -31,5 +32,9 @@
 - (void)updateLayout: (BOOL)animated;
 - (NSDictionary *) stateValue;
 - (BOOL) isShowingView: (TitaniumContentViewController *) contentView;
+
+- (NSString *) javaScriptPath;
+- (void) addListeningWebContextToken: (NSString *)newContext;
+- (void) removeListeningWebContextToken: (NSString *)oldContext;
 
 @end

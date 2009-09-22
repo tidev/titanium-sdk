@@ -56,11 +56,12 @@ extern NSLock * TitaniumHostContentViewLock;
 extern NSLock * TitaniumHostWindowLock;
 
 typedef enum {
-	TitaniumAppResourceNoType = 0,
-	TitaniumAppResourceFileType = 1,
-	TitaniumAppResourceCommandType =	0x10,
-	TitaniumAppResourceContinueType =	0x20,
-	TitaniumAppResourceBlobType =		0x40,
+	TitaniumAppResourceNoType				= 0x00,
+	TitaniumAppResourceFileType				= 0x01,
+	TitaniumAppResourceCommandType			= 0x10,
+	TitaniumAppResourceContinueType			= 0x20,
+	TitaniumAppResourceBlobType				= 0x40,
+	TitaniumAppResourceWindowBindingType	= 0x80,
 	TitaniumAppResourceFunctionType = TitaniumAppResourceCommandType | TitaniumAppResourceContinueType,
 } TitaniumAppResourceType;
 
@@ -180,6 +181,7 @@ typedef enum {
 //If no such page exists for the token, the event is dropped on the floor.
 //Returns YES if an event was scheduled, NO if no such page was found and scheduled.
 - (BOOL) sendJavascript: (NSString *) inputString toPageWithToken: (NSString *) token;
+- (void) sendJavascript: (NSString *) inputString toPagesWithTokens: (NSMutableSet *)tokenArray update:(BOOL) shouldUpdate;
 
 - (BOOL) sendJavascript: (NSString *) inputString;
 

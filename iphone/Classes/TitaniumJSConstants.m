@@ -103,6 +103,7 @@ NSString * const titaniumJavascriptInjection =
 	"platform:'iphone',"
 	"version:'%s',"
 "};Titanium=Ti;"
+"(function(){var A=new Ti._NET();A.open('GET','/_TIWIN/'+Ti._TOKEN+'/'+window._WINTKN,false);A.send(null);})();"
 "Ti.userAgent=navigator.userAgent+' Titanium/'+Ti.version;"
 "document.addEventListener('click',function(e){"
 	"var targ = e.target;"

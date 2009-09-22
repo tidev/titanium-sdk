@@ -47,9 +47,9 @@ int nextContentViewToken = 0;
 		if ([typeString isKindOfClass:[NSString class]]) {
 			if ([typeString isEqualToString:@"table"]){
 				result = [[TitaniumTableViewController alloc] init];
-			} else if ([typeString isEqualToString:@""]){
+			} else if ([typeString isEqualToString:@"scroll"]){
 				result = [[TitaniumScrollableViewController alloc] init];
-			} else if ([typeString isEqualToString:@""]){
+			} else if ([typeString isEqualToString:@"multi"]){
 				result = [[TitaniumCompositeViewController alloc] init];
 			}
 		}
@@ -120,5 +120,25 @@ int nextContentViewToken = 0;
 	return ([primaryToken isEqualToString:tokenString]);
 }
 
+- (void) addListeningWebContextToken: (NSString *)newContext;
+{
+	if(newContext==nil)return;
+	if(listeningWebContextTokens == nil){
+		listeningWebContextTokens = [[NSMutableSet alloc] initWithObjects:newContext,nil];
+	} else {
+		[listeningWebContextTokens addObject:newContext];
+	}
+}
+
+- (void) removeListeningWebContextToken: (NSString *)oldContext;
+{
+	if(oldContext==nil)return;
+	[listeningWebContextTokens removeObject:oldContext];
+}
+
+- (NSString *) javaScriptPath;
+{
+	return [@"Ti.UI._VIEW." stringByAppendingString:primaryToken];
+}
 
 @end

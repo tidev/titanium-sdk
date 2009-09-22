@@ -26,8 +26,6 @@
 @property (nonatomic,retain)	IBOutlet UIWebView * webView;
 @property (nonatomic,retain)	NSURL * currentContentURL;	//Used as a base url.
 
-+ (TitaniumWebViewController *) mostRecentController;
-
 - (NSString *) performJavascript: (NSString *) inputString onPageWithToken: (NSString *) token;
 - (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
 

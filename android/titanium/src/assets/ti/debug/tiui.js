@@ -460,6 +460,87 @@ var ImageView = function(proxy) {
 	};
 };
 
+var ScrollableView = function(proxy) {
+	this.proxy = proxy; // reference to Java object
+
+	this._views = [];
+	this._callback = null;
+
+	/**
+	 * @tiapi(method=true,name=UI.ScrollableView.setViews,since=0.7.0) set views in scrollable
+	 * @tiarg[array,views] Array of Titanium views
+	 */
+	this.setViews = function(views) {
+		if (!isUndefined(views)) {
+			var keys = this.internalSetViews(views);
+			this.proxy.setViews(Titanium.JSON.stringify(keys));
+		}
+	};
+
+	this.internalSetViews = function(views) {
+		this._views = [];
+		var keys =[];
+		for(i=0; i < views.length; i++) {
+			this._views.push(views[i]);
+			var key = views[i].proxy.getKey();
+			keys.push(String(key));
+		}
+		return keys;
+	};
+
+	/**
+	 * @tiapi(method=true,name=UI.ScrollableView.scrollToView,since=0.7.0) scroll to a particular view
+	 * @tiarg[Object,view] A view or index
+	 */
+	this.scrollToView = function(view) {
+		if (!isUndefined(view)) {
+			var pos = -1;
+
+			if (typeOf(view) == "object") {
+				for(i=0; i< this._views.length; i++) {
+					if (view === this._views[i]) {
+						pos = i;
+						break;
+					}
+				}
+			} else if (typeOf(view) == "number") {
+				pos = view;
+			}
+
+			this.proxy.scrollToView(pos);
+		}
+	};
+
+	/**
+	 * @tiapi(method=true,name=UI.ScrollableView.setShowPagingControl,since=0.7.0) turn paging on and off.
+	 * @tiarg[boolean,view] true if you want paging controls.
+	 */
+	this.setShowPagingControl = function(show) {
+		this.proxy.setShowPagingControl(show);
+	};
+	/**
+	 * @tiapi(method=true,name=UI.ScrollableView.addEventListener,since=0.7.0) Add a listener for to this view. Support 'focused' and 'unfocused'
+	 * @tiarg[string,eventName] The event name
+	 * @tiarg[function,listener] The event listener
+	 * @tiresult[int] id used when removing the listener
+	 */
+	this.addEventListener = function(eventName, listener) {
+		this._callback = listener;
+		var f = function(e) {
+			this._callback({ view: this._views[e.index], index: e.index});
+		}
+		return this.proxy.addEventListener(eventName, registerCallback(this, f));
+	};
+	/**
+	 * @tiapi(method=true,name=UI.ScrollableView.removeEventListener,since=0.7.0) Remove a previously added listener
+	 * @tiarg[string,eventName] The event name
+	 * @tiarg[int,listenerId] id returned from addEventListener
+	 */
+	this.removeEventListener = function(eventName, listenerId) {
+		this.proxy.removeEventListener(eventName, listenerId);
+	};
+};
+
 var TableView = function(proxy) {
 	this.proxy = proxy; // reference to Java object
 	this._callback;
@@ -1269,7 +1350,7 @@ Titanium.UI = {
 			if (!isUndefined(title)) {
 				dlg.setTitle(title);
 			}
-			if (!isUndefined(buttonNames)) {
+			if (!isUndefined(optionValues)) {
 				dlg.setOptions(optionValues);
 			}
 		}
@@ -1365,6 +1446,31 @@ Titanium.UI = {
 		return iv;
 	},
 	/**
+	 * @tiapi(method=true,name=UI.createScrollableView,since=0.7.0) Create a scrollable view
+	 * @tiarg[object, options] a dictionary/hash of options
+	 * @tiresult[ScrollableView] the scrollable view.
+	 */
+	createScrollableView : function(options) {
+		var sv = new ScrollableView(Titanium.uiProxy.createScrollableView());
+		if (isUndefined(options)) {
+			options = {};
+		}
+		var opts = {};
+
+		if(!isUndefined(options.views)) {
+			for (key in options) {
+				if (key == "views") {
+					var keys = sv.internalSetViews(options["views"])
+					opts["views"] = keys;
+				} else {
+					opts[key] = options[key];
+				}
+			}
+		}
+		sv.proxy.processOptions(Titanium.JSON.stringify(opts));
+		return sv;
+	},
+	/**
 	 * @tiapi(method=true,name=UI.createTableView,since=0.5) Create a table view
 	 * @tiarg[object, options] a dictionary/hash of options
 	 * @tiresult[TableView] the table view.
@@ -1374,8 +1480,8 @@ Titanium.UI = {
 		 if (isUndefined(options)) {
 			 options = {}
 		 }
-		 tv.proxy.processOptions(Titanium.JSON.stringify(options));
 		 tv.setCallback(callback);
+		 tv.proxy.processOptions(Titanium.JSON.stringify(options));
 		 return tv;
 	},
 	/**

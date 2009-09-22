@@ -12,16 +12,10 @@
 #import "Logging.h"
 #import "TweakedScrollView.h"
 
-TitaniumWebViewController * mostRecentController = nil;
-
 @implementation TitaniumWebViewController
 @synthesize webView, currentContentURL, scrollView;
 
 #pragma mark Class Methods
-+ (TitaniumWebViewController *) mostRecentController;
-{
-	return mostRecentController;
-}
 
 #pragma mark init and dealloc and allocations
 /*
@@ -99,7 +93,7 @@ TitaniumWebViewController * mostRecentController = nil;
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
-	
+	if([scrollView superview]==nil)[self setView:nil];
 	// Release any cached data, images, etc that aren't in use.
 }
 
@@ -136,7 +130,6 @@ TitaniumWebViewController * mostRecentController = nil;
 
 - (void) setView: (UIView *) newView;
 {
-	[super setView:newView];
 	if (newView == nil) {
 		if([[scrollView subviews] count]<1)[self setScrollView:nil];
 	}
@@ -171,11 +164,23 @@ TitaniumWebViewController * mostRecentController = nil;
 //	[contentView setFrame:[newContentView frame]];
 //	[newContentView removeFromSuperview];
 //}
-- (UIScrollView *) scrollView;
+
+- (UIView *) view;
 {
 	if (scrollView == nil){
+		CGRect quikframe = CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height);
+		UIViewAutoresizing stretchy = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+		
 		scrollView = [[TweakedScrollView alloc] init];
 		[scrollView setDelaysContentTouches:NO];
+		[scrollView setFrame:quikframe];
+		[scrollView setAutoresizingMask:stretchy];
+		
+		if([[self webView] superview] != scrollView){
+			[webView setAutoresizingMask:stretchy];
+			[webView setFrame:quikframe];
+			[scrollView insertSubview:webView atIndex:0];
+		}
 	}
 	return scrollView;
 }
@@ -228,29 +233,6 @@ TitaniumWebViewController * mostRecentController = nil;
 
 
 #pragma mark viewController methods
-
-// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
-- (void)loadView{
-	CGRect quikframe = CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height);
-	UIViewAutoresizing stretchy = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-	UIView * ourRootView = [[UIView alloc] initWithFrame:quikframe];
-	[ourRootView setAutoresizingMask:stretchy];
-
-	[[self scrollView] setFrame:quikframe];
-	[scrollView setAutoresizingMask:stretchy];
-	[ourRootView addSubview:scrollView];
-	
-	if([[self webView] superview] != scrollView){
-		[webView setAutoresizingMask:stretchy];
-		[webView setFrame:quikframe];
-		[scrollView insertSubview:webView atIndex:0];
-	}
-	
-	[self setView:ourRootView];
-	[ourRootView release];
-
-	mostRecentController = self;
-}
 
 - (void)setFocused:(BOOL)isFocused;
 {
@@ -309,12 +291,12 @@ TitaniumWebViewController * mostRecentController = nil;
 
 - (BOOL)webView:(UIWebView *)inputWebView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType;
 {
-	mostRecentController = self;
 	NSURL * requestURL = [request URL];
 	if ([[TitaniumAppDelegate sharedDelegate] shouldTakeCareOfUrl:requestURL useSystemBrowser:NO]) return NO;
 	CLOCKSTAMP("Should load request %@ for %@",requestURL,self);
 	[currentContentURL release];
 	currentContentURL = [requestURL copy];
+	[webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window._WINTKN='%@'",[self primaryToken]]];
 	return YES;
 }
 
@@ -346,6 +328,7 @@ TitaniumWebViewController * mostRecentController = nil;
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
 {
 	CLOCKSTAMP("Finished load request for %@",self);
+
 	[UIView beginAnimations:@"webView" context:nil];
 	[UIView setAnimationDuration:0.1];
 	[self updateLayout:NO];

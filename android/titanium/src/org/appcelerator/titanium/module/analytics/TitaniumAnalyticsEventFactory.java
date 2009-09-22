@@ -54,8 +54,9 @@ public class TitaniumAnalyticsEventFactory
 //	- osarch		-- os architecture (string)
 //	- phonenumber		-- phone number of the phone (string)
 //	- model			-- model of the phone (string)
+//  - deploytype    -- deployment type [development|test|production]
 
-	public static TitaniumAnalyticsEvent createAppEnrollEvent(ITitaniumPlatform platform, ITitaniumApp application)
+	public static TitaniumAnalyticsEvent createAppEnrollEvent(ITitaniumPlatform platform, ITitaniumApp application, String deployType)
 	{
 		TitaniumAnalyticsEvent event = null;
 
@@ -72,6 +73,7 @@ public class TitaniumAnalyticsEventFactory
 			json.put("osarch", platform.getArchitecture());
 			json.put("phonenumber", platform.getPhoneNumber());
 			json.put("model", platform.getModel());
+			json.put("deploytype", deployType);
 
 			event = new TitaniumAnalyticsEvent(EVENT_APP_ENROLL, json);
 		} catch (JSONException e) {

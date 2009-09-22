@@ -306,28 +306,6 @@ public class TitaniumActivityGroup extends ActivityGroup
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event)
 	{
-		/*
-        if ((event.getKeyCode() == KeyEvent.KEYCODE_BACK &&
-        		event.getAction() == KeyEvent.ACTION_DOWN))
-        {
-        	Log.e(LCAT, "DISPATCH: BACK");
-         	LocalActivityInfo activityInfo = null;
-    		if (!activityStack.isEmpty()) {
-        		 activityInfo = activityStack.pop();
-
-        		if (DBG) {
-        			Log.d(LCAT, "Popping current activity off of stack: " + activityInfo.getActivityId());
-        		}
-    		}
-
-    		if (activityStack.size() > 0) {
-    			//getLocalActivityManager().destroyActivity(activityInfo.getActivityId(), true);
-
-           		activateActivity(activityStack.peek());
-                //return true;
-    		}
-
-        }*/
 		return super.dispatchKeyEvent(event);
 	}
 

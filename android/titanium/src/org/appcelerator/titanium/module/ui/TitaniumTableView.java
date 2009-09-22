@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.TitaniumUIHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
@@ -24,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -95,7 +97,6 @@ public class TitaniumTableView extends TitaniumBaseView
 			}
 
 			v.setRowData((JSONObject) getItem(position), rowHeight, fontSize, fontWeight);
-
 			return v;
 		}
 
@@ -301,9 +302,20 @@ public class TitaniumTableView extends TitaniumBaseView
 
 	protected void doOpen()
 	{
+		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+		setLayoutParams(params);
+		setFocusable(false);
+		setFocusableInTouchMode(false);
 		final String callback = this.callback;
 
-		view = new ListView(getContext());
+		this.view = new ListView(getContext()) {
+
+			@Override
+			public boolean dispatchKeyEvent(KeyEvent event) {
+				return super.dispatchKeyEvent(event);
+			}
+
+		};
 		view.setFocusable(true);
 		view.setFocusableInTouchMode(true);
 		//view.setDrawingCacheEnabled(true);
@@ -318,8 +330,7 @@ public class TitaniumTableView extends TitaniumBaseView
 						keyEvent.getAction() == KeyEvent.ACTION_DOWN
 						)
 				{
-//						close();
-					return root ? false : true;
+					return true;
 				}
 				return false;
 			}});
@@ -341,13 +352,20 @@ public class TitaniumTableView extends TitaniumBaseView
 						event.put("name", item.getString("name"));
 					}
 
-					tmm.getWebView().evalJS(callback, event);
+					if (callback != null) {
+						tmm.getWebView().evalJS(callback, event);
+					}
 
 				} catch (JSONException e) {
 					Log.e(LCAT, "Error handling event at position: " + position);
 				}
 			}});
 
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		return view.onKeyDown(keyCode, event);
 	}
 
 	@Override

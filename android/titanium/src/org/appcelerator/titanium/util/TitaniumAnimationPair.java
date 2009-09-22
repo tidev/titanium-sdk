@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.util;
 
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.ViewAnimator;
 
 public class TitaniumAnimationPair
@@ -17,5 +18,9 @@ public class TitaniumAnimationPair
 	public void apply(ViewAnimator layout) {
 		layout.setInAnimation(in);
 		layout.setOutAnimation(out);
+	}
+
+	public void setAnimationListener(AnimationListener listener) {
+		in.setAnimationListener(listener);
 	}
 }

@@ -257,7 +257,8 @@ public class TitaniumWebView extends WebView
 
 		if (!useAsView) {
 			if (app.needsEnrollEvent()) {
-				app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createAppEnrollEvent(tiPlatform, tiApp));
+				String deployType = appInfo.getSystemProperties().getString("ti.deploytype", "unknown");
+				app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createAppEnrollEvent(tiPlatform, tiApp,deployType));
 			}
 
 			if (app.needsStartEvent()) {
@@ -394,7 +395,7 @@ public class TitaniumWebView extends WebView
 		}
 
 		if (handler != null) {
-			if (!expr.startsWith(JAVASCRIPT)) {
+			if (expr != null && !expr.startsWith(JAVASCRIPT)) {
 				expr = JAVASCRIPT + expr;
 			}
 

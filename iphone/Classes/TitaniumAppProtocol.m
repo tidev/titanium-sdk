@@ -185,6 +185,19 @@ id<TitaniumAppAssetResolver> resolver = nil;
 					data = [NSData dataWithContentsOfFile:resourcePath options:NSMappedRead error:&error];
 				}
 				break;
+			case TitaniumAppResourceWindowBindingType:
+				path = [url path];
+				NSArray * pathParts = [path componentsSeparatedByString:@"/"];
+				if([pathParts count]>3){
+					NSString * contextToken = [pathParts objectAtIndex:2];
+					NSString * windowToken = [pathParts objectAtIndex:3];
+					TitaniumWebViewController *ourWebView = (TitaniumWebViewController*)[[TitaniumHost sharedHost] titaniumContentViewControllerForToken:windowToken];
+					[ourWebView acceptToken:contextToken forContext:@"window"];
+					
+					NSLog(@"Path parts,%@",pathParts);
+					data = [NSData data];
+				}
+				break;
 			case TitaniumAppResourceCommandType:
 			case TitaniumAppResourceContinueType:
 				dataString = [theHost performFunction:url];

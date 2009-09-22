@@ -9,13 +9,17 @@
 #import "TitaniumContentViewController.h"
 
 @interface TitaniumScrollableViewController : TitaniumContentViewController<UIScrollViewDelegate> {
-	UIScrollView * pagedView;		//Is typecast version of view.
+	UIView * wrapperView; // Contains pagedView and pageControl
+	UIScrollView * pagedView;
 	UIPageControl * pageControl;
-	NSMutableArray * contentViewControllers;
 	
-	BOOL isControlVisibile;
+	BOOL showPagingControl;
 	int currentPage;
+	NSMutableArray * contentViewControllers;
 
 }
+
+- (void) addViewController: (TitaniumContentViewController *) newViewController;
+- (void) setCurrentPage: (int) newPage;
 
 @end

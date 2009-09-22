@@ -26,6 +26,7 @@ import org.appcelerator.titanium.api.ITitaniumModalPicker;
 import org.appcelerator.titanium.api.ITitaniumNotifier;
 import org.appcelerator.titanium.api.ITitaniumPicker;
 import org.appcelerator.titanium.api.ITitaniumProgressDialog;
+import org.appcelerator.titanium.api.ITitaniumScrollableView;
 import org.appcelerator.titanium.api.ITitaniumSlider;
 import org.appcelerator.titanium.api.ITitaniumSwitch;
 import org.appcelerator.titanium.api.ITitaniumTableView;
@@ -40,10 +41,12 @@ import org.appcelerator.titanium.module.ui.TitaniumDatePicker;
 import org.appcelerator.titanium.module.ui.TitaniumDatePickerDialog;
 import org.appcelerator.titanium.module.ui.TitaniumDialog;
 import org.appcelerator.titanium.module.ui.TitaniumEmailDialog;
+import org.appcelerator.titanium.module.ui.TitaniumImageView;
 import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
 import org.appcelerator.titanium.module.ui.TitaniumPicker;
 import org.appcelerator.titanium.module.ui.TitaniumPickerDialog;
 import org.appcelerator.titanium.module.ui.TitaniumProgressDialog;
+import org.appcelerator.titanium.module.ui.TitaniumScrollableView;
 import org.appcelerator.titanium.module.ui.TitaniumSlider;
 import org.appcelerator.titanium.module.ui.TitaniumSwitch;
 import org.appcelerator.titanium.module.ui.TitaniumTableView;
@@ -86,6 +89,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	private static final int MSG_CREATE_MODALDATEPICKER = 315;
 	private static final int MSG_CREATE_MODALPICKER = 316;
 	private static final int MSG_CREATE_IMAGEVIEW = 317;
+	private static final int MSG_CREATE_SCROLLABLEVIEW = 318;
 
 	private static final int MSG_END_CREATE_SECTION = 330;
 
@@ -196,6 +200,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 					break;
 				case MSG_CREATE_IMAGEVIEW :
 					h.o = new TitaniumImageView(getModuleManager());
+					break;
+				case MSG_CREATE_SCROLLABLEVIEW :
+					h.o = new TitaniumScrollableView(getModuleManager());
 					break;
 				default :
 					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
@@ -422,6 +429,11 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 
 	public ITitaniumImageView createImageView() {
 		TitaniumImageView view = (TitaniumImageView) create(MSG_CREATE_IMAGEVIEW);
+		return view;
+	}
+
+	public ITitaniumScrollableView createScrollableView() {
+		TitaniumScrollableView view = (TitaniumScrollableView) create(MSG_CREATE_SCROLLABLEVIEW);
 		return view;
 	}
 
