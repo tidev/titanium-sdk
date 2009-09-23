@@ -12,25 +12,35 @@
 {
 	TitaniumContentViewController * viewController;
 	CGFloat z;
-	CGRect bounds;
-	BOOL hasXConstraint;
-	BOOL hasYConstraint;
+
+	CGFloat left;
+	CGFloat right;
+	CGFloat width;
+
+	CGFloat top;
+	CGFloat bottom;
+	CGFloat height;
+
+	BOOL hasZConstraint;
+
+	BOOL hasLeftConstraint;
+	BOOL hasRightConstraint;
 	BOOL hasWidthConstraint;
+
+	BOOL hasTopConstraint;
+	BOOL hasBottomConstraint;
 	BOOL hasHeightConstraint;
 }
 @property(nonatomic,readwrite,retain)	TitaniumContentViewController * viewController;
-@property(nonatomic,readwrite,assign)	CGFloat z;
-@property(nonatomic,readwrite,assign)	CGRect bounds;
-@property(nonatomic,readwrite,assign)	BOOL hasXConstraint;
-@property(nonatomic,readwrite,assign)	BOOL hasYConstraint;
-@property(nonatomic,readwrite,assign)	BOOL hasWidthConstraint;
-@property(nonatomic,readwrite,assign)	BOOL hasHeightConstraint;
 
 @end
 
 
 @interface TitaniumCompositeViewController : TitaniumContentViewController {
-	NSArray * viewControllerRules;
+	NSMutableArray * viewControllerRules;
+	NSMutableArray * pendingRules;
+
+	UIView * view;
 }
 
 @end

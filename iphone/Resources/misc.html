@@ -16,11 +16,16 @@
 //		Ti.UI.currentWindow.addView(buggyView);
 		otherView = Ti.UI.createWebView({url:'unitTest.html',name:'number1'});
 //		Ti.UI.currentWindow.addView(otherView);
-		pagy = Ti.UI.createScrollingView({views:[buggyView],showPagingControl:true});
-		Ti.UI.currentWindow.addView(pagy);
-		pagy.addView(otherView);
-		pagy.addEventListener('scroll',function(ev){Ti.API.debug('We scrolled to page '+ev.currentPage);});
+//		pagy = Ti.UI.createScrollingView({views:[buggyView],showPagingControl:true});
+//		pagy.addView(otherView);
+//		Ti.UI.currentWindow.addView(pagy);
+//		pagy.addEventListener('scroll',function(ev){Ti.API.debug('We scrolled to page '+ev.currentPage);});
 //		Ti.UI.currentWindow.showView(buggyView,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000});
+
+		compy = Ti.UI.createCompositeView();
+		compy.addView(buggyView,{top:0,height:150});
+		compy.addView(otherView,{top:150});
+		Ti.UI.currentWindow.addView(compy);
 
 		}catch(E){Ti.API.debug(E);}
 
@@ -168,7 +173,7 @@ document.write(window._WINTKN);
 	<button onclick="testFun('noteTest()')">Notification</button>
 	<button onclick="testFun('lastnote.hide()')">hide</button>
 
-	<button onclick="testFun('Titanium.UI.currentWindow.showView(pagy,{animated:true})')">Switch by view</button>
+	<button onclick="testFun('Titanium.UI.currentWindow.showView(compy,{animated:true})')">Switch by view</button>
 <!--
 	<button onclick="Titanium.UI.currentWindow.showView(buggyView,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000})">Switch by view</button>
 	<button onclick="Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('bugger'),{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000})">Switch by name</button>

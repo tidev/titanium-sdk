@@ -101,6 +101,8 @@
 		[pagedView setPagingEnabled:YES];
 		[pagedView setOpaque:NO];
 		[pagedView setBackgroundColor:[UIColor clearColor]];
+		[pagedView setShowsVerticalScrollIndicator:NO];
+		[pagedView setShowsHorizontalScrollIndicator:NO];
 		[pagedView setDelegate:self];
 		[pagedView setDelaysContentTouches:NO];
 	}
@@ -265,6 +267,11 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	//    // A possible optimization would be to unload the views+controllers which are no longer visible
 }
 
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView; // called when setContentOffset/scrollRectVisible:animated: finishes. not called if not animating
+{
+	[self scrollViewDidEndDecelerating:scrollView];
+}
+
 // At the end of scroll animation, reset the boolean used when scrolls originate from the UIPageControl
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
 	CGPoint offset = [scrollView contentOffset];
@@ -319,85 +326,6 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	if(newPage==currentPage)return;
 	currentPage=newPage;
 	[self shouldUpdate];
-}
-
-
-
-
-// BUG BARRIER---------------------------------------------
-
-- (void) setPagedViewControllerProxies: (NSArray *) newPagedViewControllerProxies;
-{
-	Class dictClass = [NSDictionary class];
-	Class stringClass = [NSString class];
-	int controllerCount = 0;
-	
-	if(contentViewControllers != nil){
-		[contentViewControllers removeAllObjects];
-	}
-	
-	for(NSDictionary * thisProxyObject in newPagedViewControllerProxies){
-		if(![thisProxyObject isKindOfClass:dictClass])continue;
-		NSString * thisProxyToken = [thisProxyObject objectForKey:@"_TOKEN"];
-		if(![thisProxyToken isKindOfClass:stringClass])continue;
-		TitaniumContentViewController * ourVC = nil;
-//		for(TitaniumContentViewController * thisVC in contentViewControllers){
-//			if([thisVC hasToken:thisProxyToken]){
-//				ourVC = thisVC;
-//				break;
-//			}
-//		}
-		if(ourVC == nil)continue;
-		
-		if(contentViewControllers==nil){
-			contentViewControllers = [[NSMutableArray alloc] initWithObjects:ourVC,nil];
-		} else {
-			[contentViewControllers addObject:ourVC];
-		}
-		controllerCount++;
-	}
-	
-	if(controllerCount==0){
-		[pagedView release];
-		pagedView = nil;
-		[pageControl release];
-		pageControl = nil;
-		[contentViewControllers release];
-		contentViewControllers = nil;
-		[self needsUpdate:TitaniumViewControllerNeedsRefresh];
-		return;
-	}
-	
-	
-	if(pageControl == nil){
-		pageControl = [[UIPageControl alloc] initWithFrame:CGRectZero];
-		[pageControl addTarget:self action:@selector(changePage:) forControlEvents:UIControlEventValueChanged];
-		
-	}
-	[pageControl setNumberOfPages:controllerCount];
-	
-	if(pagedView == nil){
-		pagedView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, 320, 480)];
-		[pagedView setDelegate:self];
-		[pagedView setPagingEnabled:YES];
-		[pagedView setDelaysContentTouches:NO];
-	}
-	
-	[self needsUpdate:TitaniumViewControllerNeedsRefresh];
-}
-
-- (void)prepareViewAtPage:(int) pageNum;
-{	
-	TitaniumContentViewController * thisPageViewController = [contentViewControllers objectAtIndex:pageNum];
-	UIView * thisPageView = [thisPageViewController view];
-	if ([thisPageView superview] != pagedView){
-		CGRect thisFrame = [thisPageView frame];
-		CGRect pagedFrame = [pagedView frame];
-		thisFrame.origin.y=0;
-		thisFrame.origin.x=pageNum * pagedFrame.size.width;
-		thisFrame.size=pagedFrame.size;
-		[pagedView addSubview:thisPageView];
-	}
 }
 
 

@@ -15,10 +15,12 @@
 	
 	BOOL showPagingControl;
 	int currentPage;
+	int lastAnnouncedPage;
 	NSMutableArray * contentViewControllers;
 
 }
 
+- (void) shouldUpdate;
 - (void) addViewController: (TitaniumContentViewController *) newViewController;
 - (void) setCurrentPage: (int) newPage;
 

@@ -1248,9 +1248,7 @@ NSString * UrlEncodeString(NSString * string)
 			"return res;}";
 
 	NSString * createCompositeViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='multi';if(!res.rules)res.rules=[];"
-			"res.addView=function(view,traits){if(!view)return;var rule={};for(prop in traits){rule.prop=traits.prop;};rule.view=view;this.rules.push(rule);if(this._TOKEN){view.ensureToken();Ti.UI._SVAVIEW(this._TOKEN,view);}};"
-//			"res.scrollToView=function(view){if(typeof(view)=='number'){this.selectedViewIndex=view;}else{if(!view)return;        }};"//TODO: implement
-//			"res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res._EVT={scroll:[]};doEvent:Ti._ONEVT;"
+			"res.addView=function(view,traits){if(!view)return;var rule={};for(prop in traits){rule[prop]=traits[prop];};rule.view=view;this.rules.push(rule);if(this._TOKEN){view.ensureToken();Ti.UI._SVAVIEW(this._TOKEN,view);}};"
 			"return res;}";
 	
 	NSString * createTableWindowString = [NSString stringWithFormat:@"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
@@ -1442,6 +1440,7 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:getWindowByNameString],@"getWindowByName",
 			[TitaniumJSCode codeWithString:createWebViewString],@"createWebView",
 			[TitaniumJSCode codeWithString:createScrollingViewString],@"createScrollingView",
+			[TitaniumJSCode codeWithString:createCompositeViewString],@"createCompositeView",
 			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",
 			[TitaniumJSCode codeWithString:setActiveTabString],@"setActiveTab",
 			[TitaniumJSCode codeWithString:createTabString],@"createTab",
