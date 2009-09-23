@@ -8,7 +8,5 @@ package org.appcelerator.titanium.api;
 
 public interface ITitaniumCompositeView
 {
-	public void setViews(String json);
-	public void scrollToView(int position);
-	public void setShowPagingControl(boolean showPagingControl);
+	public void addView(String key, String layout);
 }

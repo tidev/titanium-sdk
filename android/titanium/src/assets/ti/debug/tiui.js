@@ -445,6 +445,40 @@ var TitaniumNotifier = function(proxy) {
 		this.proxy.hide(transformObjectValue(animate, false));
 	}
 };
+var CompositeView = function(proxy) {
+	this.proxy = proxy; // reference to Java object
+
+	this._views = [];
+
+	/**
+	 * @tiapi(method=true,name=UI.CompositeView.addView,since=0.7.0) add a view
+	 * @tiarg[View,view] A Titanium view
+	 * @tiarg[Object,layout] layout parameters for the view
+	 */
+	this.addView = function(view,layout) {
+		if (!isUndefined(view)) {
+			this.proxy.addView(view.proxy.getKey(),Titanium.JSON.stringify(layout));
+		}
+	};
+
+	/**
+	 * @tiapi(method=true,name=UI.CompositeView.addEventListener,since=0.7.0) Add a listener for to this view. Support 'focused' and 'unfocused'
+	 * @tiarg[string,eventName] The event name
+	 * @tiarg[function,listener] The event listener
+	 * @tiresult[int] id used when removing the listener
+	 */
+	this.addEventListener = function(eventName, listener) {
+		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
+	};
+	/**
+	 * @tiapi(method=true,name=UI.CompositeView.removeEventListener,since=0.7.0) Remove a previously added listener
+	 * @tiarg[string,eventName] The event name
+	 * @tiarg[int,listenerId] id returned from addEventListener
+	 */
+	this.removeEventListener = function(eventName, listenerId) {
+		this.proxy.removeEventListener(eventName, listenerId);
+	};
+};
 
 var ImageView = function(proxy) {
 	this.proxy = proxy; // reference to Java object
@@ -1431,6 +1465,21 @@ Titanium.UI = {
 			}
 		}
 		return ind;
+	},
+	/**
+	 * @tiapi(method=true,name=UI.createCompositeView,since=0.7.0) Create a composite view
+	 * @tiarg[object, options] a dictionary/hash of options
+	 * @tiresult[CompositeView] the composite view.
+	 */
+	createCompositeView : function(options) {
+		var cv = new CompositeView(Titanium.uiProxy.createCompositeView());
+		if (isUndefined(options)) {
+			options = {};
+		}
+		var opts = {};
+
+		cv.proxy.processOptions(Titanium.JSON.stringify(opts));
+		return cv;
 	},
 	/**
 	 * @tiapi(method=true,name=UI.createImageView,since=0.7.0) Create an image view

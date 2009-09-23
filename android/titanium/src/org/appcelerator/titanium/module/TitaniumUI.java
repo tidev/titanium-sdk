@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumButton;
+import org.appcelerator.titanium.api.ITitaniumCompositeView;
 import org.appcelerator.titanium.api.ITitaniumDatePicker;
 import org.appcelerator.titanium.api.ITitaniumDialog;
 import org.appcelerator.titanium.api.ITitaniumEmailDialog;
@@ -37,6 +38,7 @@ import org.appcelerator.titanium.api.ITitaniumUserWindow;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.module.ui.TitaniumButton;
+import org.appcelerator.titanium.module.ui.TitaniumCompositeView;
 import org.appcelerator.titanium.module.ui.TitaniumDatePicker;
 import org.appcelerator.titanium.module.ui.TitaniumDatePickerDialog;
 import org.appcelerator.titanium.module.ui.TitaniumDialog;
@@ -90,6 +92,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	private static final int MSG_CREATE_MODALPICKER = 316;
 	private static final int MSG_CREATE_IMAGEVIEW = 317;
 	private static final int MSG_CREATE_SCROLLABLEVIEW = 318;
+	private static final int MSG_CREATE_COMPOSITEVIEW = 319;
 
 	private static final int MSG_END_CREATE_SECTION = 330;
 
@@ -203,6 +206,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 					break;
 				case MSG_CREATE_SCROLLABLEVIEW :
 					h.o = new TitaniumScrollableView(getModuleManager());
+					break;
+				case MSG_CREATE_COMPOSITEVIEW :
+					h.o = new TitaniumCompositeView(getModuleManager());
 					break;
 				default :
 					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
@@ -429,6 +435,11 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 
 	public ITitaniumImageView createImageView() {
 		TitaniumImageView view = (TitaniumImageView) create(MSG_CREATE_IMAGEVIEW);
+		return view;
+	}
+
+	public ITitaniumCompositeView createCompositeView() {
+		TitaniumCompositeView view = (TitaniumCompositeView) create(MSG_CREATE_COMPOSITEVIEW);
 		return view;
 	}
 
