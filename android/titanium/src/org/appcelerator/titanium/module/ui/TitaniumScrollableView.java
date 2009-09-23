@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package org.appcelerator.titanium.module.ui;
 
 import java.util.ArrayList;
@@ -289,10 +295,11 @@ public class TitaniumScrollableView extends TitaniumBaseView
 			}
 
 			for (int i = 0; i < a.length(); i++) {
-				ITitaniumView tv = tmm.getActivity().getViewByName(a.getString(i));
+				ITitaniumView tv = findViewByKey(a.getString(i));
 				if (tv != null) {
 					views.add(tv);
 					gallery.addView(tv.getNativeView());
+					tv.postOpen();
 				}
 			}
 		} catch (JSONException e) {

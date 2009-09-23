@@ -771,6 +771,11 @@ public class TitaniumWebView extends WebView
 
 	// Lifecycle Methods
 
+	public void postOpen() {
+		// TODO Auto-generated method stub
+
+	}
+
 	public void onDestroy()
 	{
 		Log.e(LCAT, "ON DESTROY: " + getId());

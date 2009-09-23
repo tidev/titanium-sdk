@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium.module.ui;
 
+import java.util.concurrent.Semaphore;
+
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumView;
@@ -16,10 +18,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -90,6 +90,10 @@ public abstract class TitaniumBaseView extends FrameLayout
 					doPreOpen();
 					doOpen();
 					doPostOpen();
+					if (msg.obj != null) {
+						Semaphore lock = (Semaphore) msg.obj;
+						lock.release();
+					}
 				}
 				handled = true;
 				break;
@@ -122,6 +126,10 @@ public abstract class TitaniumBaseView extends FrameLayout
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	protected ITitaniumView findViewByKey(String key) {
+		return tmm.getActivity().getViewFromKey(key);
 	}
 
 	public int addEventListener(String eventName, String listener) {
@@ -194,7 +202,13 @@ public abstract class TitaniumBaseView extends FrameLayout
 		}
 
 		if (openViewAfterOptions) {
-			handler.sendEmptyMessageDelayed(MSG_OPEN, openViewDelay);
+			Semaphore lock = new Semaphore(0);
+			handler.obtainMessage(MSG_OPEN, openViewDelay, -1, lock).sendToTarget();
+			try {
+				lock.acquire();
+			} catch (InterruptedException e) {
+				// Ignore
+			}
 		}
 	}
 
@@ -223,6 +237,10 @@ public abstract class TitaniumBaseView extends FrameLayout
 	protected void doClose() {
 		destroyDrawingCache();
 		removeAllViews();
+	}
+
+	public void postOpen() {
+		handler.sendEmptyMessageDelayed(MSG_OPEN, openViewDelay);
 	}
 
 	protected FrameLayout.LayoutParams getContentLayoutParams() {

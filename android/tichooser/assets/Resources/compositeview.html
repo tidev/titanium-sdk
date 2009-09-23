@@ -1,0 +1,164 @@
+<html>
+<head>
+	<title>Scroller View</title>
+  	<script><!--
+
+  	var page1 = [
+		{
+  			header : 'Section 1',
+			title : 'Row 1',
+			image : 'images/icon.png',
+			name : 'n1',
+			fontWeight: 'bold'
+		},
+		{
+			title : 'Row 2',
+			html : '<b>Row 2</b><br/><span>Hello</span>',
+			image : 'images/icon.png',
+			name : 'n2'
+		},
+		{
+			title : 'Row 3',
+			name : 'n3',
+			fontSize : '20pt',
+			fontWeight : 'bold'
+		},
+		{
+//			header : 'Section 2',
+			title : 'Row 4',
+			image : 'images/icon.png',
+			name : 'n4',
+			hasChild : true
+		},
+		{
+			title : 'Row 5',
+			name : 'n5',
+			tag : { name: 'tag'}
+		},
+		{
+//			header : "Animations",
+			title : 'Fade In',
+			name : 'fade-in',
+			hasChild : true
+		},
+		{
+			title : 'Slide From Top',
+			name : 'slide-from-top',
+			hasChild : true
+		},
+		{
+			title : 'Slide From Left',
+			name : 'slide-from-left',
+			hasChild : true
+		},
+		{
+			title : 'Slide From Right',
+			name : 'slide-from-right',
+			hasChild : true
+		},
+		{
+			title : 'Slide From Bottom',
+			name : 'slide-from-bottom',
+			hasChild : true
+		},
+		{
+			title : 'Scale In',
+			name : 'scale-in',
+			hasChild : true
+		},
+		{
+			title : 'Wink In',
+			name : 'wink-in',
+			hasChild : true
+		},
+		{
+			title : 'Headlines',
+			name : 'headlines',
+			hasChild : true
+		},
+		{
+			title : 'Exit',
+			name : 'exit'
+		}
+  	];
+
+	var tv1 = Titanium.UI.createTableView({
+			'data' : page1,
+			'name' : "p1",
+			'rowHeight' : '65',
+			'isPrimary' : true,
+			'fontSize' :  '7pt'
+ 		},
+ 			function(e) {
+ 				// rowData, section, row, index, detail
+ 				var ext = false;
+
+ 				var s = "index: " + e.index +
+ 				    " ibn: " + this.getIndexByName(e.name) +
+ 					" name: " + e.name +
+ 					" section: " + e.section +
+ 					" row: " + e.row +
+ 					" detail: " + e.detail + "\n" +
+ 					" rowData: " + Titanium.JSON.stringify(e.rowData)
+ 					;
+
+ 				if (e.rowData.name === 'exit') {
+ 	 				ext = true;
+ 				}
+
+ 				if (e.index < 5) {
+					var dlg = Titanium.UI.createAlertDialog({
+						title : 'Click',
+						message : s,
+						buttonNames : "OK"
+					});
+
+					var lid = dlg.addEventListener("click", function() {
+						if (ext) {
+							Titanium.UI.currentWindow.setActiveViewIndex(0);
+							dlg.removeEventListener("click", lid);
+						} else if (e.index == 3) {
+							Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('p2'));
+						}
+					});
+					alert('LID: ' + lid);
+					dlg.show();
+ 				}
+  			}
+ 		);
+
+	var iv1 = Titanium.UI.createImageView({
+ 	  		url : "images/icon.png",
+ 	  		scale : false
+ 	});
+
+	var iv2 = Titanium.UI.createImageView({
+	  		url : "images/icon.png",
+	  		scale : false
+	});
+
+	var wv1 = Titanium.UI.createWebView({url: 'textfield.html', name : 'blue'});
+
+	var cv1 = Titanium.UI.createCompositeView({});
+
+	window.onload = function()
+  	{
+  	  	var w = Titanium.UI.currentWindow;
+  	  	w.addEventListener("focused", function(e) {
+			alert("TV FOCUSED: " /*+ e.type*/);
+			Titanium.Media.vibrate();
+			 });
+		w.addEventListener("unfocused", function(e) { alert("tableview.html UNFOCUSED: "/* + e.type*/);});
+
+		cv1.addView(wv1, { left : 5, top: 5, right: 5, height: 120});
+		cv1.addView(tv1, { left : 5, bottom: 5, right: 5, height: 120, zIndex:0});
+		cv1.addView(iv1, { zIndex: -1});
+
+  	  	w.addView(cv1);
+  	  	w.setActiveViewIndex(1);
+   	};
+  --></script>
+</head>
+<body style="background-color: white;">
+</body>
+</html>

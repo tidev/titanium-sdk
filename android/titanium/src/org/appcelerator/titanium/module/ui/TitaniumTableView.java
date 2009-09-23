@@ -17,7 +17,6 @@ import org.appcelerator.titanium.util.TitaniumUIHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
