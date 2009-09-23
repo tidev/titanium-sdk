@@ -23,9 +23,9 @@
 //		Ti.UI.currentWindow.showView(buggyView,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000});
 
 		compy = Ti.UI.createCompositeView();
+		Ti.UI.currentWindow.addView(compy);
 		compy.addView(buggyView,{top:0,height:150});
 		compy.addView(otherView,{top:150});
-		Ti.UI.currentWindow.addView(compy);
 
 		}catch(E){Ti.API.debug(E);}
 

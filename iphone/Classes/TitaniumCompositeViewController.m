@@ -91,7 +91,7 @@
 	UIView * subView = [viewController view];
 	[[subView layer] setZPosition:(hasZConstraint)?z:0];
 	[subView setFrame:resultFrame];
-	[superView addSubview:subView];
+	if([subView superview]!=superView)[superView addSubview:subView];
 }
 
 #define READ_CONSTRAINT(key,boolVar,floatVar)	\
@@ -132,6 +132,7 @@
 		viewFrame.origin = CGPointZero;
 		viewFrame.size = preferredViewSize;
 		view = [[UIView alloc] initWithFrame:viewFrame];
+		[view setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
 		for(TitaniumCompositeRule * thisRule in viewControllerRules){
 			[thisRule positionInView:view bounds:preferredViewSize];
 		}
@@ -225,17 +226,17 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 {
 	if(!view) return;
 
-//	if(pendingRules != nil){
-//		for(TitaniumCompositeRule * thisRule in pendingRules){
-//			[thisRule positionInView:view bounds:preferredViewSize];
-//		}
-//		[pendingRules release];
-//		pendingRules = nil;	
-//	}
-
-	for(TitaniumCompositeRule * thisRule in viewControllerRules){
-		[thisRule positionInView:view bounds:preferredViewSize];
+	if(pendingRules != nil){
+		for(TitaniumCompositeRule * thisRule in pendingRules){
+			[thisRule positionInView:view bounds:preferredViewSize];
+		}
+		[pendingRules release];
+		pendingRules = nil;	
 	}
+
+//	for(TitaniumCompositeRule * thisRule in viewControllerRules){
+//		[thisRule positionInView:view bounds:preferredViewSize];
+//	}
 	
 	for(TitaniumCompositeRule * thisRule in viewControllerRules){
 		[[thisRule viewController] updateLayout:animated];
@@ -243,6 +244,32 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 
 }
 
+#pragma mark Javascript callbacks
+
+- (void) addRule: (NSDictionary *) newRuleObject baseUrl:(NSURL *)baseUrl;
+{
+	NSDictionary * ourVCObject = [newRuleObject objectForKey:@"view"];
+	TitaniumContentViewController * ourVC = [TitaniumContentViewController viewControllerForState:ourVCObject relativeToUrl:baseUrl];
+	if(ourVC==nil)return;
+
+	TitaniumCompositeRule * ourRule = [[TitaniumCompositeRule alloc] init];
+	[ourRule setViewController:ourVC];
+	[ourRule readConstraints:newRuleObject];
+
+	if(viewControllerRules == nil){
+		viewControllerRules = [[NSMutableArray alloc] initWithObjects:ourRule,nil];
+	} else {
+		[viewControllerRules addObject:ourRule];
+	}
+	if(pendingRules == nil){
+		pendingRules = [[NSMutableArray alloc] initWithObjects:ourRule,nil];
+	} else {
+		[pendingRules addObject:ourRule];
+	}
+	[ourRule release];
+
+	[self performSelectorOnMainThread:@selector(updateLayout:) withObject:nil waitUntilDone:NO];
+}
 
 
 @end

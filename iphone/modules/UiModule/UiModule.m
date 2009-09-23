@@ -16,6 +16,7 @@
 #import "TitaniumWebViewController.h"
 #import "TitaniumTableViewController.h"
 #import "TitaniumScrollableViewController.h"
+#import "TitaniumCompositeViewController.h"
 
 #ifdef __IPHONE_3_0
 #import <MessageUI/MessageUI.h>
@@ -861,7 +862,7 @@ NSString * UrlEncodeString(NSString * string)
 #define SCROLLVIEW_SETCURRENTPAGE		1
 #define SCROLLVIEW_SETPAGECONTROL		2
 
-- (id)	scrollView:(NSString *)tokenString doAction:(NSNumber *)action args:(id)args options:(NSDictionary *)optionsObject;
+- (id) scrollView:(NSString *)tokenString doAction:(NSNumber *)action args:(id)args options:(NSDictionary *)optionsObject;
 {
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	TitaniumScrollableViewController * scrollView = (TitaniumScrollableViewController *)[theHost titaniumContentViewControllerForToken:tokenString];
@@ -883,13 +884,29 @@ NSString * UrlEncodeString(NSString * string)
 			[scrollView setCurrentPage:[args intValue]];
 			return nil;
 		}
-		default:
-			break;
 	}
 	
 	return nil;
 }
 
+#define COMPOSITEVIEW_ADDRULE	0
+
+- (id) compositeView:(NSString *)tokenString doAction:(NSNumber *)action args:(id)args options:(NSDictionary *)optionsObject;
+{
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	TitaniumCompositeViewController * compositeView = (TitaniumCompositeViewController *)[theHost titaniumContentViewControllerForToken:tokenString];
+	if(![compositeView isKindOfClass:[TitaniumCompositeViewController class]] || ![action respondsToSelector:@selector(intValue)])return nil;
+	switch ([action intValue]) {
+		case COMPOSITEVIEW_ADDRULE:{
+			if(![args isKindOfClass:[NSDictionary class]])return nil;
+			NSString * callingToken = [[theHost currentThread] magicToken];
+			TitaniumWebViewController * contextVC = (TitaniumWebViewController *)[theHost titaniumContentViewControllerForToken:callingToken];
+			[compositeView addRule:args baseUrl:[contextVC currentContentURL]];
+			return nil;
+		}
+	}
+	return nil;
+}
 
 #pragma mark Current Window actions
 
@@ -1119,6 +1136,9 @@ NSString * UrlEncodeString(NSString * string)
 	[(UiModule *)invocGen scrollView:nil doAction:nil args:nil options:nil];
 	NSInvocation * scrollViewInvoc = [invocGen invocation];
 	
+	[(UiModule *)invocGen compositeView:nil doAction:nil args:nil options:nil];
+	NSInvocation * compositeViewInvoc = [invocGen invocation];
+	
 	buttonContexts = [[NSMutableDictionary alloc] init];
 	
 	//NOTE: createWindow doesn't actually create a native-side window. Instead, it simply sets up the dict.
@@ -1184,6 +1204,8 @@ NSString * UrlEncodeString(NSString * string)
 				"Ti.UI._VIEW[viewTkn]=view;"
 			"}res.push(view);i++;}return res;}";
 
+//	NSString * createViewString = @"function(args){if(args){var tkn=args._TOKEN;}}";
+
 
 	NSString * createWindowString = @"function(args){var res={};"
 			"for(property in args){res[property]=args[property];res['_'+property]=args[property];};"
@@ -1245,10 +1267,15 @@ NSString * UrlEncodeString(NSString * string)
 			"var views=this.views;var len=views.length;for(var i=0;i<len;i++){if(views[i]==view){this.setSelectedViewIndex(i);return;}}};"
 			"res.setCurrentPage=function(indx){this.selectedViewIndex=indx;if(this._TOKEN)Ti.UI._SCRVWACT(this._TOKEN," STRINGVAL(SCROLLVIEW_SETCURRENTPAGE) ",indx);};"
 			"res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res._EVT={scroll:[]};res.doEvent=Ti._ONEVT;"
+			"res.ensureToken=function(){var views=this.views;var len=views.length;for(var i=0;i<len;i++){"
+				"views[i].ensureToken();}if(this._TOKEN)return;var tkn=Ti.UI._VTOKEN();this._TOKEN=tkn;Ti.UI._VIEW[tkn]=this;};"
 			"return res;}";
 
 	NSString * createCompositeViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='multi';if(!res.rules)res.rules=[];"
-			"res.addView=function(view,traits){if(!view)return;var rule={};for(prop in traits){rule[prop]=traits[prop];};rule.view=view;this.rules.push(rule);if(this._TOKEN){view.ensureToken();Ti.UI._SVAVIEW(this._TOKEN,view);}};"
+			"res.addView=function(view,traits){if(!view)return;var rule={};for(prop in traits){rule[prop]=traits[prop];};rule.view=view;this.rules.push(rule);"
+				"if(this._TOKEN){view.ensureToken();Ti.UI._CMPVWACT(this._TOKEN," STRINGVAL(COMPOSITEVIEW_ADDRULE) ",rule);}};"
+			"res.ensureToken=function(){var rules=this.rules;var len=rules.length;for(var i=0;i<len;i++){"
+				"rules[i].view.ensureToken();}if(this._TOKEN)return;var tkn=Ti.UI._VTOKEN();this._TOKEN=tkn;Ti.UI._VIEW[tkn]=this;};"
 			"return res;}";
 	
 	NSString * createTableWindowString = [NSString stringWithFormat:@"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
@@ -1401,6 +1428,7 @@ NSString * UrlEncodeString(NSString * string)
 			updateButtonInvoc,@"_BTNUPD",
 
 			scrollViewInvoc,@"_SCRVWACT",
+			compositeViewInvoc,@"_CMPVWACT",
 
 			[TitaniumJSCode codeWithString:createButtonString],@"createButton",
 			[TitaniumJSCode codeWithString:createActivityIndicatorString],@"createActivityIndicator",
