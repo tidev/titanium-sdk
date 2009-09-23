@@ -150,9 +150,9 @@
 			 });
 		w.addEventListener("unfocused", function(e) { alert("tableview.html UNFOCUSED: "/* + e.type*/);});
 
-		cv1.addView(iv1);
 		cv1.addView(wv1, { left : 5, top: 5, right: 5, height: 120});
-		cv1.addView(tv1, { left : 5, bottom: 5, right: 5, height: 120});
+		cv1.addView(tv1, { left : 5, bottom: 5, right: 5, height: 120, zIndex:0});
+		cv1.addView(iv1, { zIndex: -1});
 
   	  	w.addView(cv1);
   	  	w.setActiveViewIndex(1);

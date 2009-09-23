@@ -113,9 +113,10 @@ public class TitaniumCompositeView extends TitaniumBaseView
 				Log.e(LCAT, "Error processing layout object: " + layout, e);
 			}
 
+			params.index = views.size();
 			views.add(new ViewHolder(tv,params));
 			tv.postOpen();
-			// Forget z-order for the moment and just add them.
+
 			View v = tv.getNativeView();
 			v.setLayoutParams(params);
 			tiLayout.addView(v);

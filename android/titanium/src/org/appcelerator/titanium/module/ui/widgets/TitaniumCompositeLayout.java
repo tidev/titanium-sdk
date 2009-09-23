@@ -1,22 +1,64 @@
 package org.appcelerator.titanium.module.ui.widgets;
 
-import org.appcelerator.titanium.util.TitaniumLogWatcher;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.TreeSet;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 
 public class TitaniumCompositeLayout extends ViewGroup
 {
+	private TreeSet<View> viewSorter;
 
 	public TitaniumCompositeLayout(Context context)
 	{
 		super(context);
 
-		//setBackgroundColor(Color.RED);
+		this.viewSorter = new TreeSet<View>(new Comparator<View>(){
+
+			public int compare(View o1, View o2)
+			{
+				TitaniumCompositeLayout.TitaniumCompositeLayoutParams p1 =
+					(TitaniumCompositeLayout.TitaniumCompositeLayoutParams) o1.getLayoutParams();
+				TitaniumCompositeLayout.TitaniumCompositeLayoutParams p2 =
+					(TitaniumCompositeLayout.TitaniumCompositeLayoutParams) o2.getLayoutParams();
+
+				int result = 0;
+
+				if (p1.optionZIndex != null && p2.optionZIndex != null) {
+					if (p1.optionZIndex.intValue() < p2.optionZIndex.intValue()) {
+						result = -1;
+					} else if (p1.optionZIndex.intValue() > p2.optionZIndex.intValue()) {
+						result = -1;
+					}
+				} else if (p1.optionZIndex != null) {
+					if (p1.optionZIndex.intValue() < 0) {
+						result = -1;
+					} if (p1.optionZIndex.intValue() > 0) {
+						result = 1;
+					}
+				} else if (p2.optionZIndex != null) {
+					if (p2.optionZIndex.intValue() < 0) {
+						result = -1;
+					} if (p2.optionZIndex.intValue() > 0) {
+						result = 1;
+					}
+				}
+
+				if (result == 0) {
+					if (p1.index < p2.index) {
+						result = -1;
+					} else if (p1.index > p2.index) {
+						result = 1;
+					}
+				}
+
+				return result;
+			}});
 	}
 
 	public TitaniumCompositeLayout(Context context, AttributeSet attrs) {
@@ -62,11 +104,25 @@ public class TitaniumCompositeLayout extends ViewGroup
 		// measure all the kids
 
 		//ignore z-order for now
-		for (int i = 0; i < count; i++) {
-			View child = getChildAt(i);
+
+
+		viewSorter.clear();
+
+		for(int i = 0; i < count; i++) {
+			viewSorter.add(getChildAt(i));
+		}
+
+		detachAllViewsFromParent();
+		int i = 0;
+		for (View child : viewSorter) {
+			attachViewToParent(child, i++, child.getLayoutParams());
+		}
+
+		for (View child : viewSorter) {
 			if (child.getVisibility() != View.GONE) {
 				TitaniumCompositeLayout.TitaniumCompositeLayoutParams p =
 					(TitaniumCompositeLayout.TitaniumCompositeLayoutParams) child.getLayoutParams();
+
 				if (p.optionLeft != null) {
 					p.mLeft = Math.min(p.optionLeft.intValue(), w);
 					if (p.optionRight != null) {
@@ -151,11 +207,7 @@ public class TitaniumCompositeLayout extends ViewGroup
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b)
 	{
-		int count = getChildCount();
-
-		// should already be in z-order and coords stamped during layout.
-		for (int i = 0; i < count; i++) {
-			View child = getChildAt(i);
+		for (View child : viewSorter) {
 			if (child.getVisibility() != View.GONE) {
 				TitaniumCompositeLayout.TitaniumCompositeLayoutParams params =
 					(TitaniumCompositeLayout.TitaniumCompositeLayoutParams) child.getLayoutParams();
@@ -166,6 +218,8 @@ public class TitaniumCompositeLayout extends ViewGroup
 
 	public static class TitaniumCompositeLayoutParams extends LayoutParams
 	{
+		public int index;
+
 		public Integer optionZIndex;
 		public Integer optionLeft;
 		public Integer optionTop;
