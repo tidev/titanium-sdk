@@ -11,6 +11,10 @@ import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumCompositeView;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.ui.widgets.TitaniumCompositeLayout;
+import org.appcelerator.titanium.module.ui.widgets.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
+import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TitaniumLogWatcher;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,11 +30,25 @@ public class TitaniumCompositeView extends TitaniumBaseView
 	private static final String LCAT = "TiCompositeView";
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
-	ArrayList<ITitaniumView> views;
+	ArrayList<ViewHolder> views;
+	TitaniumCompositeLayout tiLayout;
+
+	class ViewHolder {
+		public ViewHolder(ITitaniumView view, TitaniumCompositeLayout.TitaniumCompositeLayoutParams params) {
+			this.index = views.size(); // original add index needed for ordering w/ z
+			this.view = view;
+			this.params = params;
+		}
+
+		int index;
+		ITitaniumView view;
+		TitaniumCompositeLayout.TitaniumCompositeLayoutParams params;
+	}
 
 	public TitaniumCompositeView(TitaniumModuleManager tmm)
 	{
 		super(tmm);
+		this.views = new ArrayList<ViewHolder>();
 	}
 
 	@Override
@@ -48,6 +66,13 @@ public class TitaniumCompositeView extends TitaniumBaseView
 		setFocusable(true);
 		setFocusableInTouchMode(true);
 		setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+
+		tiLayout = new TitaniumCompositeLayout(context);
+		tiLayout.setFocusable(false);
+		tiLayout.setFocusableInTouchMode(false);
+		tiLayout.setClickable(false);
+
+		addView(tiLayout);
 	}
 
 	public boolean handleMessage(Message msg)
@@ -56,15 +81,52 @@ public class TitaniumCompositeView extends TitaniumBaseView
 		return handled;
 	}
 
-	public void addView(String key, String layout) {
-		// TODO Auto-generated method stub
+	public void addView(String key, String layout)
+	{
+		ITitaniumView tv = findViewByKey(key);
+		if (tv != null) {
+			TitaniumCompositeLayoutParams params = new TitaniumCompositeLayout.TitaniumCompositeLayoutParams();
+			try {
+				JSONObject o = new JSONObject(layout);
+				if (o.has("zIndex")) {
+					params.optionZIndex = o.getInt("zIndex");
+				}
+				if (o.has("left")) {
+					params.optionLeft = o.getInt("left");
+				}
+				if (o.has("top")) {
+					params.optionTop = o.getInt("top");
+				}
+				if (o.has("right")) {
+					params.optionRight = o.getInt("right");
+				}
+				if (o.has("bottom")) {
+					params.optionBottom = o.getInt("bottom");
+				}
+				if (o.has("width")) {
+					params.optionWidth = o.getInt("width");
+				}
+				if (o.has("height")) {
+					params.optionHeight = o.getInt("height");
+				}
+			} catch (JSONException e) {
+				Log.e(LCAT, "Error processing layout object: " + layout, e);
+			}
 
+			views.add(new ViewHolder(tv,params));
+			tv.postOpen();
+			// Forget z-order for the moment and just add them.
+			View v = tv.getNativeView();
+			v.setLayoutParams(params);
+			tiLayout.addView(v);
+
+		} else {
+			Log.w(LCAT, "TitaniumView not found for key: " + key);
+		}
 	}
 
 	@Override
 	protected View getContentView() {
-		// TODO Auto-generated method stub
 		return null;
 	}
-
 }

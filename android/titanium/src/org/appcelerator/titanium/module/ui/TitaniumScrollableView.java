@@ -295,7 +295,7 @@ public class TitaniumScrollableView extends TitaniumBaseView
 			}
 
 			for (int i = 0; i < a.length(); i++) {
-				ITitaniumView tv = tmm.getActivity().getViewByName(a.getString(i));
+				ITitaniumView tv = findViewByKey(a.getString(i));
 				if (tv != null) {
 					views.add(tv);
 					gallery.addView(tv.getNativeView());

@@ -182,4 +182,10 @@ public class TitaniumUIWebView
 	public void setKey(String key) {
 		this.key = key;
 	}
+
+	public void postOpen() {
+		if (!hasBeenOpened) {
+			handler.obtainMessage(MSG_SHOWING).sendToTarget();
+		}
+	}
 }

@@ -88,6 +88,11 @@ public abstract class TitaniumBaseView extends FrameLayout
 					doPreOpen();
 					doOpen();
 					doPostOpen();
+					if (msg.obj != null) {
+						synchronized(msg.obj) {
+							msg.obj.notify();
+						}
+					}
 				}
 				handled = true;
 				break;
@@ -120,6 +125,10 @@ public abstract class TitaniumBaseView extends FrameLayout
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	protected ITitaniumView findViewByKey(String key) {
+		return tmm.getActivity().getViewFromKey(key);
 	}
 
 	public int addEventListener(String eventName, String listener) {
@@ -192,7 +201,15 @@ public abstract class TitaniumBaseView extends FrameLayout
 		}
 
 		if (openViewAfterOptions) {
-			handler.sendEmptyMessageDelayed(MSG_OPEN, openViewDelay);
+			Object lock = new Object();
+			handler.obtainMessage(MSG_OPEN, openViewDelay, -1, lock).sendToTarget();
+			synchronized (lock) {
+				try {
+					lock.wait();
+				} catch (InterruptedException e) {
+					//Ignore
+				}
+			}
 		}
 	}
 
@@ -221,6 +238,10 @@ public abstract class TitaniumBaseView extends FrameLayout
 	protected void doClose() {
 		destroyDrawingCache();
 		removeAllViews();
+	}
+
+	public void postOpen() {
+		handler.sendEmptyMessageDelayed(MSG_OPEN, openViewDelay);
 	}
 
 	protected FrameLayout.LayoutParams getContentLayoutParams() {

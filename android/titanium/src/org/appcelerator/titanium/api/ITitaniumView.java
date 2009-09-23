@@ -38,4 +38,5 @@ public interface ITitaniumView
 	void setKey(String key);
 
 	void processOptions(String options);
+	void postOpen();
 }
