@@ -299,6 +299,7 @@ public class TitaniumScrollableView extends TitaniumBaseView
 				if (tv != null) {
 					views.add(tv);
 					gallery.addView(tv.getNativeView());
+					tv.postOpen();
 				}
 			}
 		} catch (JSONException e) {

@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium.module.ui;
 
+import java.util.concurrent.Semaphore;
+
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumView;
@@ -89,9 +91,8 @@ public abstract class TitaniumBaseView extends FrameLayout
 					doOpen();
 					doPostOpen();
 					if (msg.obj != null) {
-						synchronized(msg.obj) {
-							msg.obj.notify();
-						}
+						Semaphore lock = (Semaphore) msg.obj;
+						lock.release();
 					}
 				}
 				handled = true;
@@ -201,14 +202,12 @@ public abstract class TitaniumBaseView extends FrameLayout
 		}
 
 		if (openViewAfterOptions) {
-			Object lock = new Object();
+			Semaphore lock = new Semaphore(0);
 			handler.obtainMessage(MSG_OPEN, openViewDelay, -1, lock).sendToTarget();
-			synchronized (lock) {
-				try {
-					lock.wait();
-				} catch (InterruptedException e) {
-					//Ignore
-				}
+			try {
+				lock.acquire();
+			} catch (InterruptedException e) {
+				// Ignore
 			}
 		}
 	}
