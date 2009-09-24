@@ -24,9 +24,8 @@
 		[htmlLabel setUserInteractionEnabled:NO];
 		[htmlLabel setBackgroundColor:[UIColor clearColor]];
 		[htmlLabel setOpaque:NO];
-//		[htmlLabel setAlpha:0.0];
-		[htmlLabel stringByEvaluatingJavaScriptFromString:@"document.write('<body></body>');"];
-//		[htmlLabel loadHTMLString:@"<body></body>" baseURL:[[TitaniumHost sharedHost] appBaseUrl]];
+		NSString * injection = [NSString stringWithFormat:@"document.write('<base href=\"%@\" /><body></body>')",[[TitaniumHost sharedHost] appBaseUrl]];
+		[htmlLabel stringByEvaluatingJavaScriptFromString:injection];
 		[cellContentView addSubview:htmlLabel];
 	}
 	return self;
@@ -34,10 +33,6 @@
 
 - (void)prepareForReuse;
 {
-//	[htmlLabel stopLoading];
-//	[htmlLabel setAlpha:0.0];
-
-//	[self setHTML:@""];
 	[super prepareForReuse];
 }
 
@@ -78,36 +73,8 @@
 
 - (void) setHTML: (NSString *) htmlString;
 {
-//	[htmlLabel loadHTMLString:htmlString baseURL:[[TitaniumHost sharedHost] appBaseUrl]];
-
 	NSString * injection = [NSString stringWithFormat:@"document.body.innerHTML=%@;",[SBJSON stringify:htmlString]];
-//	NSString * injection = [NSString stringWithFormat:@"document.write(%@);",[SBJSON stringify:htmlString]];
 	[htmlLabel stringByEvaluatingJavaScriptFromString:injection];
 }
-
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType;
-{
-	NSLog(@"START? %X",self);
-	return YES;
-}
-- (void)webViewDidStartLoad:(UIWebView *)webView;
-{
-	NSLog(@"START! %X",self);
-}
-- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error;
-{
-	NSLog(@"FAIL! %X",self);
-}
-
-
-- (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
-{
-	NSLog(@"FINISH! %X",self);
-	[self updateState:NO];
-	[UIView beginAnimations:@"webView" context:nil];
-	[UIView setAnimationDuration:0.1];
-	[inputWebView setAlpha:1.0];
-	[UIView commitAnimations];
-}	
 
 @end
