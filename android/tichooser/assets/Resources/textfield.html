@@ -3,6 +3,12 @@
 	<title>Text Field</title>
   	<script><!--
 
+  	window.onresize = function(e) {
+  	  	setTimeout(function() {
+  	  		Titanium.API.debug("Window resized. width: " + window.outerWidth + " height: " + window.outerHeight);
+  	  	}, 25);
+  	};
+
   	var t1 = Titanium.UI.createTextField({
   	  		id : 't1', value : '',
   	  		color : 'white', backgroundColor : '#006633',
@@ -12,6 +18,7 @@
   	t1.addEventListener('change', function(e) {
   	  	document.getElementById('counter').innerHTML = e.value.length;
   	});
+
   	t1.addEventListener('return', function(e) {
 
   	});
