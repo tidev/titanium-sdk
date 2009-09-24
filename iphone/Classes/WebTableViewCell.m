@@ -9,23 +9,100 @@
 #import "SBJSON.h"
 #import "TitaniumHost.h"
 
+@interface WebViewWasher : NSObject<UIWebViewDelegate>
+{
+	NSString * baseMessage;
+	NSMutableSet * cleanedWebViews;
+	NSMutableSet * dirtyWebViews;
+}
+
+- (void) takeDirtyWebView: (UIWebView *) oldWebView;
+- (UIWebView *) giveCleanWebView;
+
+@end
+
+WebViewWasher * sharedWebWasher = nil;
+
+@implementation WebViewWasher
+
+- (id) init
+{
+	self = [super init];
+	if (self != nil) {
+		baseMessage = [[NSString alloc] initWithFormat:@"<base href=\"%@\" /><body></body>",[[[TitaniumHost sharedHost] appBaseUrl] absoluteString]];
+	}
+	return self;
+}
+
+
+- (void) takeDirtyWebView: (UIWebView *) oldWebView;
+{
+	if([dirtyWebViews count] > 16)return; //If there's too many, we don't want any more. Just dispose them.
+
+	[oldWebView setDelegate:self];
+	[oldWebView loadHTMLString:baseMessage baseURL:nil];
+	
+	if(dirtyWebViews==nil){
+		dirtyWebViews = [[NSMutableSet alloc] initWithObjects:oldWebView,nil];
+	} else if([dirtyWebViews count] < 6){ 
+		[dirtyWebViews addObject:oldWebView];
+	}
+}
+
+- (UIWebView *) giveCleanWebView;
+{
+	UIWebView * result = [cleanedWebViews anyObject];
+	if (result != nil){
+		[[result retain] autorelease];
+		[result setDelegate:nil];
+		[cleanedWebViews removeObject:result];
+		return result;
+	}
+	
+	result = [[UIWebView alloc] init];
+	[result setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+	[result setExclusiveTouch:NO];
+	[result setUserInteractionEnabled:NO];
+	[result setBackgroundColor:[UIColor clearColor]];
+	[result setOpaque:NO];
+	NSString * injection = [NSString stringWithFormat:@"document.write('%@')",baseMessage];
+	[result stringByEvaluatingJavaScriptFromString:injection];
+	return result;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView;
+{
+	if(cleanedWebViews == nil){
+		cleanedWebViews = [[NSMutableSet alloc] initWithObjects:webView,nil];
+	} else {
+		[cleanedWebViews addObject:webView];
+	}
+	[dirtyWebViews removeObject:webView];
+}
+
+
+@end
+
+
+
 @implementation WebTableViewCell
 @synthesize htmlLabel;
+
+//Okay, the issue is that drawing is asychronous as well, so there's a CPU-bound flicker of stuff even with our inline stuff.
+//So we need some way to clear house and make sure 
+
+
 
 - (id)initWithFrame:(CGRect)frame reuseIdentifier:(NSString *)reuseIdentifier;
 {
 	self = [super initWithFrame:frame reuseIdentifier:reuseIdentifier];
 	if (self != nil){
+		if(sharedWebWasher==nil){
+			sharedWebWasher = [[WebViewWasher alloc] init];
+		}
 		UIView * cellContentView = [self contentView];
-		htmlLabel = [[UIWebView alloc] initWithFrame:[cellContentView frame]];
-		[htmlLabel setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-		[htmlLabel setDelegate:self];
-		[htmlLabel setExclusiveTouch:NO];
-		[htmlLabel setUserInteractionEnabled:NO];
-		[htmlLabel setBackgroundColor:[UIColor clearColor]];
-		[htmlLabel setOpaque:NO];
-		NSString * injection = [NSString stringWithFormat:@"document.write('<base href=\"%@\" /><body></body>')",[[TitaniumHost sharedHost] appBaseUrl]];
-		[htmlLabel stringByEvaluatingJavaScriptFromString:injection];
+		htmlLabel = [[sharedWebWasher giveCleanWebView] retain];
+		[htmlLabel setFrame:[cellContentView frame]];
 		[cellContentView addSubview:htmlLabel];
 	}
 	return self;
@@ -33,6 +110,15 @@
 
 - (void)prepareForReuse;
 {
+	[sharedWebWasher takeDirtyWebView:htmlLabel];
+	[htmlLabel removeFromSuperview];
+	[htmlLabel release];
+	
+	UIView * cellContentView = [self contentView];
+	htmlLabel = [[sharedWebWasher giveCleanWebView] retain];
+	[htmlLabel setFrame:[cellContentView frame]];
+	[cellContentView addSubview:htmlLabel];
+
 	[super prepareForReuse];
 }
 
