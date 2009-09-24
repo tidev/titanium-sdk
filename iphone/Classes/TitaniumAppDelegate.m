@@ -201,7 +201,7 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	{
 		if (!histeresisExcited && L0AccelerationIsShaking(self.lastAcceleration, acceleration, 0.7)) {
 			histeresisExcited = YES;
-			TitaniumViewController * currentView = [[TitaniumHost sharedHost] currentTitaniumViewController];
+			TitaniumViewController * currentView = [[TitaniumHost sharedHost] visibleTitaniumViewController];
 			[currentView motionEnded:UIEventSubtypeMotionShake withEvent:nil];
 		} else if (histeresisExcited && !L0AccelerationIsShaking(self.lastAcceleration, acceleration, 0.2)) {
 			histeresisExcited = NO;
