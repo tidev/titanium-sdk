@@ -37,6 +37,8 @@ WebViewWasher * sharedWebWasher = nil;
 
 - (void) takeDirtyWebView: (UIWebView *) oldWebView;
 {
+	return; //No dirties!
+	
 	if([dirtyWebViews count] > 16)return; //If there's too many, we don't want any more. Just dispose them.
 
 	[oldWebView setDelegate:self];
