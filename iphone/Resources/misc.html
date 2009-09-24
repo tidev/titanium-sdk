@@ -15,6 +15,7 @@
 		buggyView = Ti.UI.createWebView({url:'buggy.html',name:'bugger'});
 //		Ti.UI.currentWindow.addView(buggyView);
 		otherView = Ti.UI.createWebView({url:'unitTest.html',name:'number1'});
+		imageView = Ti.UI.createImageView({url:'Phone.png'});
 //		Ti.UI.currentWindow.addView(otherView);
 //		pagy = Ti.UI.createScrollingView({views:[buggyView],showPagingControl:true});
 //		pagy.addView(otherView);
@@ -26,7 +27,8 @@
 		Ti.UI.currentWindow.addView(compy);
 		compy.addView(buggyView,{top:0,height:150});
 		compy.addView(otherView,{top:150});
-
+		compy.addView(imageView,{top:120,height:60,width:60});
+	
 		}catch(E){Ti.API.debug(E);}
 
 		testFun = function(act){

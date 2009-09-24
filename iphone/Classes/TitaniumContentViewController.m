@@ -12,6 +12,7 @@
 #import "TitaniumTableViewController.h"
 #import "TitaniumScrollableViewController.h"
 #import "TitaniumCompositeViewController.h"
+#import "TitaniumImageViewController.h"
 
 #import "TitaniumViewController.h"
 #import "TitaniumHost.h"
@@ -51,6 +52,8 @@ int nextContentViewToken = 0;
 				result = [[TitaniumScrollableViewController alloc] init];
 			} else if ([typeString isEqualToString:@"multi"]){
 				result = [[TitaniumCompositeViewController alloc] init];
+			} else if ([typeString isEqualToString:@"image"]){
+				result = [[TitaniumImageViewController alloc] init];
 			}
 		}
 		resultName = [(NSDictionary *)inputState objectForKey:@"name"];

@@ -575,7 +575,7 @@ UIColor * checkmarkColor = nil;
 		if (result == nil) {
 			result = [[[WebTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"html"] autorelease];
 		}
-		[[(WebTableViewCell *)result htmlLabel] loadHTMLString:htmlString baseURL:[[TitaniumHost sharedHost] appBaseUrl]];
+		[(WebTableViewCell *)result setHTML:htmlString];
 		
 	} else if ([rowWrapper isButton]) {
 		result = [ourTableView dequeueReusableCellWithIdentifier:@"button"];

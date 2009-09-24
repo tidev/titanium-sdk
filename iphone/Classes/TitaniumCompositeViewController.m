@@ -90,6 +90,7 @@
 	
 	UIView * subView = [viewController view];
 	[[subView layer] setZPosition:(hasZConstraint)?z:0];
+	[subView setAutoresizingMask:resultMask];
 	[subView setFrame:resultFrame];
 	if([subView superview]!=superView)[superView addSubview:subView];
 }

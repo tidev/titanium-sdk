@@ -43,4 +43,6 @@
 	UIView * view;
 }
 
+- (void) addRule: (NSDictionary *) newRuleObject baseUrl:(NSURL *)baseUrl;
+
 @end

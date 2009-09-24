@@ -273,6 +273,10 @@
 		B48E4AE40FC1DBEE00204C8E /* iPhone_BG.png in Resources */ = {isa = PBXBuildFile; fileRef = B4880BA20F96B4E3007589FC /* iPhone_BG.png */; };
 		B48E4AE50FC1DBF200204C8E /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = B4F51CB00F981F23004D9D2D /* Default.png */; };
 		B492D43E0FCC6DB20030772B /* network.html in Resources */ = {isa = PBXBuildFile; fileRef = B492D43D0FCC6DB20030772B /* network.html */; };
+		B49358DC106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B49358DB106AE51C00BC4A77 /* TitaniumImageViewController.m */; };
+		B49358DD106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B49358DB106AE51C00BC4A77 /* TitaniumImageViewController.m */; };
+		B49358DE106AE51C00BC4A77 /* TitaniumImageViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B49358DA106AE51C00BC4A77 /* TitaniumImageViewController.h */; };
+		B49358DF106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B49358DB106AE51C00BC4A77 /* TitaniumImageViewController.m */; };
 		B4A10F3E0F86BC490040D850 /* AppDownloadView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B4A10F3D0F86BC490040D850 /* AppDownloadView.xib */; };
 		B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
 		B4A49BA30FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
@@ -473,6 +477,8 @@
 		B4864F5B0F7C48E700A851C5 /* TitaniumUIViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumUIViewController.m; sourceTree = "<group>"; };
 		B4880BA20F96B4E3007589FC /* iPhone_BG.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iPhone_BG.png; sourceTree = "<group>"; };
 		B492D43D0FCC6DB20030772B /* network.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = network.html; sourceTree = "<group>"; };
+		B49358DA106AE51C00BC4A77 /* TitaniumImageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumImageViewController.h; sourceTree = "<group>"; };
+		B49358DB106AE51C00BC4A77 /* TitaniumImageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumImageViewController.m; sourceTree = "<group>"; };
 		B4A10F3D0F86BC490040D850 /* AppDownloadView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AppDownloadView.xib; sourceTree = "<group>"; };
 		B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumBlobWrapper.h; sourceTree = "<group>"; };
@@ -1030,6 +1036,8 @@
 				B40CDEE7105F21F6004CFED3 /* TitaniumScrollableViewController.m */,
 				B40CDF15105F248F004CFED3 /* TitaniumCompositeViewController.h */,
 				B40CDF16105F248F004CFED3 /* TitaniumCompositeViewController.m */,
+				B49358DA106AE51C00BC4A77 /* TitaniumImageViewController.h */,
+				B49358DB106AE51C00BC4A77 /* TitaniumImageViewController.m */,
 			);
 			name = TitaniumViewControllers;
 			sourceTree = "<group>";
@@ -1243,6 +1251,7 @@
 				24C5AC821061FBF50063594B /* TweakedScrollView.h in Headers */,
 				24C5AC831061FBF50063594B /* TitaniumCellWrapper.h in Headers */,
 				24C5AC841061FBF50063594B /* PickerImageTextCell.h in Headers */,
+				B49358DE106AE51C00BC4A77 /* TitaniumImageViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1710,6 +1719,7 @@
 				B40CDEEA105F21F6004CFED3 /* TitaniumScrollableViewController.m in Sources */,
 				B40CDF19105F248F004CFED3 /* TitaniumCompositeViewController.m in Sources */,
 				B4F37DE01061913E00ED12AF /* NotificationModule.m in Sources */,
+				B49358DC106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1856,6 +1866,7 @@
 				24C5ACB11061FC540063594B /* TweakedScrollView.m in Sources */,
 				24C5ACB21061FC540063594B /* TitaniumCellWrapper.m in Sources */,
 				24C5ACB31061FC540063594B /* PickerImageTextCell.m in Sources */,
+				B49358DF106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1917,6 +1928,7 @@
 				B40CDEEB105F21F6004CFED3 /* TitaniumScrollableViewController.m in Sources */,
 				B40CDF1A105F248F004CFED3 /* TitaniumCompositeViewController.m in Sources */,
 				B4F37DDF1061913E00ED12AF /* NotificationModule.m in Sources */,
+				B49358DD106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

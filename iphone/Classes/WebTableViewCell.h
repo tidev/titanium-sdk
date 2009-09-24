@@ -16,4 +16,6 @@
 
 @property(nonatomic,retain,readonly) UIWebView * htmlLabel;
 
+- (void) setHTML: (NSString *) htmlString;
+
 @end

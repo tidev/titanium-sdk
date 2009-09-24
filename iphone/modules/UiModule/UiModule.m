@@ -1183,14 +1183,14 @@ NSString * UrlEncodeString(NSString * string)
 //				"Ti.UI._WSVIEWS(Ti._TOKEN,newViews,true,args)},"
 			"setActiveViewIndex:function(newIndex,args){Ti.UI._WSAVIEW(Ti._TOKEN,newIndex,args);},"
 			"showView:function(blessedView,args){var ourViews = Ti.UI.viewsForWindowToken(Ti._TOKEN);var viewCount=ourViews.length;"
-				"for(var i=0;i<viewCount;i++){if(ourViews[i]._TOKEN==blessedView._TOKEN){Ti.UI._WSAVIEW(Ti._TOKEN,i,args);return;}}"
-			"},"
-
+				"for(var i=0;i<viewCount;i++){if(ourViews[i]._TOKEN==blessedView._TOKEN){Ti.UI._WSAVIEW(Ti._TOKEN,i,args);return;}}},"
+			"repaint:function(){if(!Ti.UI._WILLRESIZE && !Ti.UI._ISRESIZING){"
+				"Ti.UI._WILLRESIZE=true;setTimeout('Ti.UI._DORESIZE();Ti.UI._WILLRESIZE=false;',0);}},"
 			"setToolbar:function(bar,args){if(bar){var i=bar.length;while(i>0){i--;bar[i].ensureToken();}}Ti.UI._WTOOL(Ti._TOKEN,bar,args);},"
 			"insertButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(Ti._TOKEN,btn,args);},"
 			"}"];
-	[currentWindowScript setEpilogueCode:@"window.addEventListener('DOMNodeInserted',function(){if(!Ti.UI._WILLRESIZE && !Ti.UI._ISRESIZING){"
-			"Ti.UI._WILLRESIZE=true;setTimeout('Ti.UI._DORESIZE();Ti.UI._WILLRESIZE=false;',0);}},false);"];	
+			
+	[currentWindowScript setEpilogueCode:@"window.addEventListener('DOMNodeInserted',Ti.UI.currentWindow.repaint,false);"];
 
 	NSString * viewsForWindowString = @"function(winTkn){var fetched=Ti.UI._WGVIEWS(winTkn);if(!fetched)return {};var res=[];var i=0;var viewCount=fetched.length;while(i<viewCount){"
 			"var props=fetched[i];var viewTkn=props._TOKEN;var view;"
@@ -1277,6 +1277,8 @@ NSString * UrlEncodeString(NSString * string)
 			"res.ensureToken=function(){var rules=this.rules;var len=rules.length;for(var i=0;i<len;i++){"
 				"rules[i].view.ensureToken();}if(this._TOKEN)return;var tkn=Ti.UI._VTOKEN();this._TOKEN=tkn;Ti.UI._VIEW[tkn]=this;};"
 			"return res;}";
+	
+	NSString * createImageViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='image';return res;}";
 	
 	NSString * createTableWindowString = [NSString stringWithFormat:@"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
 			"if(!res.data)res.data=[];"
@@ -1469,6 +1471,7 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:createWebViewString],@"createWebView",
 			[TitaniumJSCode codeWithString:createScrollingViewString],@"createScrollingView",
 			[TitaniumJSCode codeWithString:createCompositeViewString],@"createCompositeView",
+			[TitaniumJSCode codeWithString:createImageViewString],@"createImageView",
 			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",
 			[TitaniumJSCode codeWithString:setActiveTabString],@"setActiveTab",
 			[TitaniumJSCode codeWithString:createTabString],@"createTab",
