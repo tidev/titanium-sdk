@@ -328,15 +328,15 @@
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
 {
 	CLOCKSTAMP("Finished load request for %@",self);
-
-	[UIView beginAnimations:@"webView" context:nil];
-	[UIView setAnimationDuration:0.1];
-	[self updateLayout:NO];
 	
 	NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
 	TitaniumViewController * parentVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:titaniumWindowToken];
 	if([newTitle length]>0)[parentVC setTitle:newTitle];
 
+	[UIView beginAnimations:@"webView" context:nil];
+	[UIView setAnimationDuration:0.1];
+	[self updateLayout:NO];
+	
 	[scrollView setAlpha:1.0];
 	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
 	[UIView commitAnimations];
