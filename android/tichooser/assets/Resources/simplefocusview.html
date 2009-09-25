@@ -1,0 +1,41 @@
+<html>
+<head>
+	<title>Simple Focus View</title>
+  	<script><!--
+
+  	window.onload = function()
+  	{
+  	  	var w = Titanium.UI.currentWindow;
+  	  	w.addEventListener("focused", function(e) {
+			alert("Page1 FOCUSED: " /*+ e.type*/);
+			Titanium.Media.vibrate();
+			 });
+		w.addEventListener("unfocused", function(e) { alert("Page1 UNFOCUSED: "/* + e.type*/);});
+
+		var w1 = Titanium.UI.createWebView({name:'wv1', url:'simplefocusview2.html'});
+
+		var p2 = Titanium.UI.createButton({id:'p2',title:'Page 2'});
+		p2.addEventListener('click', function(e) {
+			Titanium.UI.currentWindow.setActiveViewIndex(1);
+		});
+
+  	  	w.addView(w1);
+  	  	w.setActiveViewIndex(0);
+
+ 	   var menu = Titanium.UI.createMenu();
+
+		menu.addItem("Google", function() {
+			Titanium.Platform.openURL('http://google.com');
+			} , Titanium.UI.Android.SystemIcon.ADD);
+		menu.addItem("Yahoo", function() {
+			Titanium.Platform.openURL('http://yahoo.com');
+			}, 'images/refresh.png');
+		Titanium.UI.setMenu(menu);
+   	}
+  --></script>
+</head>
+<body style="background-color: white;">
+<div>Page 1</div>
+<div id="p2" style="width:100px;height:48px;">&nbsp;</div>
+</body>
+</html>
