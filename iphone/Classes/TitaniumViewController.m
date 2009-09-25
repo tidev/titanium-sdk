@@ -299,6 +299,18 @@ int nextWindowToken = 0;
 //	}
 //}
 
+- (void)setTitle: (NSString *) newTitle;
+{
+	UITabBarItem * tabItem = [[self navigationController] tabBarItem];
+	NSString * oldTitle = [tabItem title];
+
+	[super setTitle:newTitle];
+
+	if([oldTitle length]>0){
+		[tabItem setTitle:oldTitle];
+	}
+}
+
 
 - (void)setTitleViewProxy: (NativeControlProxy *) newProxy;
 {

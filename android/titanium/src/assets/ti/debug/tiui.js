@@ -1867,6 +1867,8 @@ Titanium.UI.__defineGetter__("currentView", function() {
 	var index = Titanium.UI.currentWindow.getActiveViewIndex();
 	if (index > -1) {
 		view = Titanium.UI.currentWindow.getViews()[index];
+	} else {
+		Titanium.API.error("A view is not active, have you called showView?");
 	}
 	return view;
 });

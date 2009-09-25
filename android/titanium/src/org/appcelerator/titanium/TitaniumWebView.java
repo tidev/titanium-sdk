@@ -119,6 +119,7 @@ public class TitaniumWebView extends WebView
 
 	public TitaniumWebView(TitaniumActivity activity, String url) {
 		this(activity, url, null);
+		activity.registerView(this);
 	}
 
 	public TitaniumWebView(TitaniumActivity activity, String url, TitaniumUIWebView uiWebView)

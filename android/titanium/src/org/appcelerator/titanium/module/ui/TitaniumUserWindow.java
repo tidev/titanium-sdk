@@ -271,6 +271,12 @@ public class TitaniumUserWindow
 		TitaniumActivity activity = getActivity();
 		if (activity != null) {
 			index =  activity.getActiveViewIndex();
+			// If views are available, but showView has not been called yet
+			// show view 0 instead of failing.
+			if (index == -1 && activity.getViewCount() > 0) {
+				index = 0;
+				Log.w(LCAT, "getActiveViewIndex called before showView. Forcing to first View");
+			}
 		}
 		return index;
 	}

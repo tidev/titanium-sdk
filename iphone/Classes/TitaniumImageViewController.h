@@ -16,14 +16,18 @@
 
 @end
 
-
+@class TitaniumBlobWrapper;
 @interface TitaniumImageViewController : TitaniumContentViewController {
 	TitaniumImageView * imageView;
 	UIScrollView * scrollView;
 
-	NSURL * singleImageUrl;
+	TitaniumBlobWrapper * singleImageBlob;
+
+	CGSize imageSize;
 	BOOL scrollEnabled;
 //	NSArray * animatedImageUrls;
 }
+@property(nonatomic,readwrite,retain)	TitaniumBlobWrapper * singleImageBlob;
+
 
 @end

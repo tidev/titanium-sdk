@@ -189,6 +189,11 @@
 
 #ifdef MODULE_TI_GESTURE
 
+#ifndef __IPHONE_3_0
+typedef int UIEventSubtype;
+const UIEventSubtype UIEventSubtypeMotionShake=1;
+#endif
+
 // using iPhone 2.2 this is how we do shake
 - (void) accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
 	
@@ -196,8 +201,8 @@
 	{
 		if (!histeresisExcited && L0AccelerationIsShaking(self.lastAcceleration, acceleration, 0.7)) {
 			histeresisExcited = YES;
-			NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent({type:'shake'})"];
-			[currentHost sendJavascript:eventString];
+			TitaniumViewController * currentView = [[TitaniumHost sharedHost] visibleTitaniumViewController];
+			[currentView motionEnded:UIEventSubtypeMotionShake withEvent:nil];
 		} else if (histeresisExcited && !L0AccelerationIsShaking(self.lastAcceleration, acceleration, 0.2)) {
 			histeresisExcited = NO;
 		}

@@ -12,7 +12,7 @@
 NSDictionary * namesFromMimeTypeDict = nil;
 
 @implementation TitaniumBlobWrapper
-@synthesize dataBlob, token, filePath, mimeType, imageBlob;
+@synthesize dataBlob, token, filePath, mimeType, imageBlob, url;
 
 - (NSData *) dataBlob;
 {
@@ -55,6 +55,16 @@ NSDictionary * namesFromMimeTypeDict = nil;
 	return mimeType;
 }
 
+- (NSURL *) url;
+{
+	if (url == nil) {
+		if(filePath != nil){
+//			url = [[TitaniumHost sharedHost] 
+		}
+	}
+
+	return url;
+}
 
 - (NSString *) virtualUrl;
 {
@@ -116,6 +126,7 @@ NSDictionary * namesFromMimeTypeDict = nil;
 	[imageBlob release];
 	[filePath release];
 	[token release];
+	[url release];
 	[super dealloc];
 }
 
