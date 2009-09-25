@@ -165,10 +165,8 @@
 		SBJSON * jasonEncoder = [[SBJSON alloc] init];
 		NSString * resultingJavascript = nil;
 		if ([objectResult isKindOfClass:[TitaniumJSCode class]]){
-			NSString * prelude = [objectResult preludeCode];
-			NSString * epilogue = [objectResult epilogueCode];
-			if ([prelude length] < 1) prelude = @"";
-			if ([epilogue length] < 1) epilogue = @"";
+			NSString * prelude = CleanJSEnd([objectResult preludeCode]);
+			NSString * epilogue = CleanJSEnd([objectResult epilogueCode]);
 			resultingJavascript = [[NSString alloc] initWithFormat:@"%@result=%@;%@",prelude,[objectResult valueCode],epilogue];
 		} else if ([objectResult isKindOfClass:[NSError class]]) {
 			resultingJavascript = [NSString stringWithFormat:@""];//TODO: raise error.
