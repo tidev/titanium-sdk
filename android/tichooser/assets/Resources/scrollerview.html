@@ -240,13 +240,23 @@
   	{
   	  	var w = Titanium.UI.currentWindow;
   	  	w.addEventListener("focused", function(e) {
-			alert("TV FOCUSED: " /*+ e.type*/);
+			alert("Scroller FOCUSED: " /*+ e.type*/);
 			Titanium.Media.vibrate();
 			 });
-		w.addEventListener("unfocused", function(e) { alert("tableview.html UNFOCUSED: "/* + e.type*/);});
+		w.addEventListener("unfocused", function(e) { alert("scroller UNFOCUSED: "/* + e.type*/);});
 
   	  	w.addView(sv1);
   	  	w.setActiveViewIndex(1, fadeIn);
+
+ 	   var menu = Titanium.UI.createMenu();
+
+		menu.addItem("Google", function() {
+			Titanium.Platform.openURL('http://google.com');
+			} , Titanium.UI.Android.SystemIcon.ADD);
+		menu.addItem("Yahoo", function() {
+			Titanium.Platform.openURL('http://yahoo.com');
+			}, 'images/refresh.png');
+		Titanium.UI.setMenu(menu);
    	}
   --></script>
 </head>

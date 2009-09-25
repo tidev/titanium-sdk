@@ -16,7 +16,6 @@
   	  		returnKeyType : Titanium.UI.RETURNKEY_GOOGLE
   	  	});
   	t1.addEventListener('change', function(e) {
-  	  	document.getElementById('counter').innerHTML = e.value.length;
   	});
 
   	t1.addEventListener('return', function(e) {
@@ -79,6 +78,22 @@
    		hintText : 'Password',
    		passwordMask : true
   	});
+
+  	window.onload = function() {
+	   var menu = Titanium.UI.createMenu();
+
+		menu.addItem("Google 2", function() {
+			Titanium.Platform.openURL('http://google.com');
+			} , Titanium.UI.Android.SystemIcon.ADD);
+		menu.addItem("Yahoo 2", function() {
+			Titanium.Platform.openURL('http://yahoo.com');
+			}, 'images/refresh.png');
+
+		Titanium.UI.currentView.addEventListener('focused', function(e) {
+			Titanium.API.debug("Textfield.html window received focus");
+			Titanium.UI.setMenu(menu);
+		});
+  	}
 
   --></script>
 </head>
