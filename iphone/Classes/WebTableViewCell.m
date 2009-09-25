@@ -69,7 +69,7 @@ WebViewWasher * sharedWebWasher = nil;
 	[result setOpaque:NO];
 	NSString * injection = [NSString stringWithFormat:@"document.write('%@')",baseMessage];
 	[result stringByEvaluatingJavaScriptFromString:injection];
-	return result;
+	return [result autorelease];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView;

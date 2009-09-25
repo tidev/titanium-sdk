@@ -147,6 +147,9 @@
 		24C5ACF31061FDD70063594B /* NativeControlProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A6D3AF103C9EFD00131CD4 /* NativeControlProxy.h */; };
 		24C5ACF41061FDDC0063594B /* UiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8360FC9FCA400063972 /* UiModule.m */; };
 		24F02E460FD482D2007894DA /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F02E450FD482D2007894DA /* AnalyticsModule.m */; };
+		24FD2052106C9198004D4127 /* TitaniumBasicModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD204C106C9198004D4127 /* TitaniumBasicModule.m */; };
+		24FD2059106C9198004D4127 /* TitaniumBasicModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD204B106C9198004D4127 /* TitaniumBasicModule.h */; };
+		24FD205A106C9198004D4127 /* TitaniumBasicModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD204C106C9198004D4127 /* TitaniumBasicModule.m */; };
 		288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		28D7ACF80DDB3853001CB0EB /* TitaniumViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */; };
@@ -395,6 +398,8 @@
 		24C5AC581061FB4C0063594B /* libUI.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libUI.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		24F02E440FD482D2007894DA /* AnalyticsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnalyticsModule.h; sourceTree = "<group>"; };
 		24F02E450FD482D2007894DA /* AnalyticsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnalyticsModule.m; sourceTree = "<group>"; };
+		24FD204B106C9198004D4127 /* TitaniumBasicModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumBasicModule.h; sourceTree = "<group>"; };
+		24FD204C106C9198004D4127 /* TitaniumBasicModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumBasicModule.m; sourceTree = "<group>"; };
 		288765A40DF7441C002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		28AD733E0D9D9553002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		28D7ACF60DDB3853001CB0EB /* TitaniumViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumViewController.h; sourceTree = "<group>"; };
@@ -693,6 +698,7 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				24FD2045106C9171004D4127 /* Module Helpers */,
 				B4C6D7640FE9B54800D62384 /* Data wrappers */,
 				B4C6D7630FE9B50C00D62384 /* Utilities */,
 				B4C6D7560FE9B34D00D62384 /* TitaniumViewControllers */,
@@ -888,6 +894,15 @@
 				24F02E450FD482D2007894DA /* AnalyticsModule.m */,
 			);
 			path = AnalyticsModule;
+			sourceTree = "<group>";
+		};
+		24FD2045106C9171004D4127 /* Module Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				24FD204B106C9198004D4127 /* TitaniumBasicModule.h */,
+				24FD204C106C9198004D4127 /* TitaniumBasicModule.m */,
+			);
+			name = "Module Helpers";
 			sourceTree = "<group>";
 		};
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
@@ -1252,6 +1267,7 @@
 				24C5AC831061FBF50063594B /* TitaniumCellWrapper.h in Headers */,
 				24C5AC841061FBF50063594B /* PickerImageTextCell.h in Headers */,
 				B49358DE106AE51C00BC4A77 /* TitaniumImageViewController.h in Headers */,
+				24FD2059106C9198004D4127 /* TitaniumBasicModule.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1720,6 +1736,7 @@
 				B40CDF19105F248F004CFED3 /* TitaniumCompositeViewController.m in Sources */,
 				B4F37DE01061913E00ED12AF /* NotificationModule.m in Sources */,
 				B49358DC106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */,
+				24FD2052106C9198004D4127 /* TitaniumBasicModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1867,6 +1884,7 @@
 				24C5ACB21061FC540063594B /* TitaniumCellWrapper.m in Sources */,
 				24C5ACB31061FC540063594B /* PickerImageTextCell.m in Sources */,
 				B49358DF106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */,
+				24FD205A106C9198004D4127 /* TitaniumBasicModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

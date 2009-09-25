@@ -54,6 +54,7 @@ NSURL * AnalyticsModuleURL = nil;
 	}
 	[data appendData:[@"]" dataUsingEncoding:NSUTF8StringEncoding]];
 	[ourRequest setHTTPBody:data];
+	[data release];
 
 	connection = [[NSURLConnection alloc] initWithRequest:ourRequest delegate:self startImmediately:YES];
 	

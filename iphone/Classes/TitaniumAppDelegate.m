@@ -102,7 +102,7 @@
 		NSInvocation * browseInvoc = [TitaniumInvocationGenerator invocationWithTarget:[UIApplication sharedApplication] selector:@selector(openURL:) object:requestURL];
 		[browseInvoc retainArguments];
 		
-		resultHelper = [[TitaniumActionSheetHelper alloc] init];
+		if (resultHelper==nil) resultHelper = [[TitaniumActionSheetHelper alloc] init];
 		[resultHelper addButton:browseInvoc title:title];
 	}
 	
