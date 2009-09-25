@@ -229,6 +229,19 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 
 	UIView * nextContentPage = [self loadViewForPage:currentPage+1 size:pageFrame.size animated:animated didPresentView:nil];
 	if(nextContentPage != nil)[visiblePages addIndex:currentPage+1];
+
+	if(lastAnnouncedPage != currentPage){
+		TitaniumContentViewController * focusedContentController = [self viewControllerForIndex:lastAnnouncedPage];
+		if([focusedContentController respondsToSelector:@selector(setFocused:)]){
+			[focusedContentController setFocused:NO];
+		}
+		focusedContentController = [self viewControllerForIndex:currentPage];
+		if([focusedContentController respondsToSelector:@selector(setFocused:)]){
+			[focusedContentController setFocused:YES];
+		}
+		lastAnnouncedPage = currentPage;
+	}
+
 	
 	NSArray * pagedSubViews = [pagedView subviews];
 	if([visiblePages count] < [pagedSubViews count]){
