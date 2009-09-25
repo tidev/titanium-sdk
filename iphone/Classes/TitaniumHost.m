@@ -24,6 +24,15 @@
 #import "TweakedNavController.h"
 #import "Logging.h"
 
+NSString * CleanJSEnd(NSString * inputString)
+{
+	if(inputString == nil)return @"";
+	if(([inputString length]>0)&&![inputString hasSuffix:@";"])return [inputString stringByAppendingString:@";"];
+	return inputString;
+}
+
+
+
 NSString * const TitaniumTabChangeNotification = @"tabChange";
 NSString * const TitaniumJsonKey = @"json";
 
@@ -563,6 +572,24 @@ TitaniumHost * lastSharedHost = nil;
 	return [result autorelease];
 }
 
+- (TitaniumBlobWrapper *) blobForUrl:	(NSURL *) blobUrl;
+{
+	if (![blobUrl isKindOfClass:[NSURL class]]) return nil;
+	blobUrl = [blobUrl absoluteURL];
+	NSString * filePath = [self filePathFromURL:blobUrl];
+	NSString * virtualUrl = [blobUrl absoluteString];
+
+	for(TitaniumBlobWrapper * thisBlob in [blobRegistry objectEnumerator]){
+		if([filePath isEqual:[thisBlob filePath]] || [blobUrl isEqual:[thisBlob url]] || [virtualUrl isEqual:[thisBlob virtualUrl]]){
+			return thisBlob;
+		}
+	}
+
+	TitaniumBlobWrapper * result = [self newBlob];
+	[result setUrl:blobUrl];
+	[result setFilePath:filePath];
+	return [result autorelease];
+}
 #pragma mark Modal view handling
 
 - (void) navigationController: (UINavigationController *) navController presentModalView: (UIViewController *)newModalView animated:(BOOL) animated;
@@ -727,7 +754,10 @@ TitaniumHost * lastSharedHost = nil;
 	if (!([[url scheme] isEqualToString:@"app"] &&
 			[[url host] isEqualToString:appID])) return nil;
 
-	return [appResourcesPath stringByAppendingPathComponent:[url path]];
+	NSString * path = [url path];
+	if([path hasPrefix:@"/_"])return nil;
+
+	return [appResourcesPath stringByAppendingPathComponent:path];
 }
 
 - (void) incrementActivityIndicator
@@ -919,6 +949,7 @@ TitaniumHost * lastSharedHost = nil;
 
 			NSString * epilogue = [thisObject epilogueCode];
 			if([epilogue length]>0){
+				epilogue = CleanJSEnd(epilogue);
 				if (resultEpilogue == nil) {
 					resultEpilogue = [NSMutableString stringWithString:epilogue];
 				} else {

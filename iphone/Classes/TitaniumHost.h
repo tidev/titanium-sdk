@@ -39,6 +39,7 @@
 extern NSString * const TitaniumTabChangeNotification;
 extern NSString * const TitaniumJsonKey;
 
+NSString * CleanJSEnd(NSString * inputString);
 
 @interface TitaniumProxyObject : NSObject
 {
@@ -148,6 +149,7 @@ typedef enum {
 - (TitaniumBlobWrapper *) blobForImage: (UIImage *) inputImage;
 - (TitaniumBlobWrapper *) blobForFile:	(NSString *) filePath;
 - (TitaniumBlobWrapper *) blobForData:	(NSData *) blobData;
+- (TitaniumBlobWrapper *) blobForUrl:	(NSURL *) blobUrl;
 
 #pragma mark Modal view handling
 

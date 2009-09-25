@@ -1278,7 +1278,9 @@ NSString * UrlEncodeString(NSString * string)
 				"rules[i].view.ensureToken();}if(this._TOKEN)return;var tkn=Ti.UI._VTOKEN();this._TOKEN=tkn;Ti.UI._VIEW[tkn]=this;};"
 			"return res;}";
 	
-	NSString * createImageViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='image';return res;}";
+	NSString * createImageViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='image';"
+			"res.setURL=function(newUrl){this.url=newUrl;if(this._TOKEN){Ti.UI._IMGVWACT(this._TOKEN," STRINGVAL(IMAGEVIEW_SETURL) ",newUrl);}};"
+			"return res;}";
 	
 	NSString * createTableWindowString = [NSString stringWithFormat:@"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
 			"if(!res.data)res.data=[];"

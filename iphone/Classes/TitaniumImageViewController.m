@@ -8,6 +8,7 @@
 #import "TitaniumImageViewController.h"
 #import "TweakedScrollView.h"
 #import "TitaniumHost.h"
+#import "TitaniumBlobWrapper.h"
 
 @implementation TitaniumImageView
 @synthesize delegate;
@@ -27,7 +28,7 @@
 
 
 @implementation TitaniumImageViewController
-
+@synthesize singleImageBlob;
 
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
@@ -46,13 +47,33 @@
 {
 	if(![inputState isKindOfClass:[NSDictionary class]])return;
 	
-	NSString * imageUrlObject = [inputState objectForKey:@"url"];
-	if([imageUrlObject isKindOfClass:[NSString class]]){
-		[singleImageUrl release];
-		singleImageUrl = [[NSURL URLWithString:imageUrlObject relativeToURL:baseUrl] retain];
+	TitaniumBlobWrapper * newImageBlob = [inputState objectForKey:@"image"];
+	if([newImageBlob isKindOfClass:[TitaniumBlobWrapper class]]){
+		[self setSingleImageBlob:newImageBlob];
+	} else {
+		NSString * imageUrlObject = [inputState objectForKey:@"url"];
+		if([imageUrlObject isKindOfClass:[NSString class]]){
+			NSURL * singleImageUrl = [NSURL URLWithString:imageUrlObject relativeToURL:baseUrl];
+			[self setSingleImageBlob:[[TitaniumHost sharedHost] blobForUrl:singleImageUrl]];
+		}
 	}
-	
+
 }
+
+- (UIImage *) singleImage;
+{
+	UIImage * result = [singleImageBlob imageBlob];
+
+	if(result == nil){
+		//Add listener!
+	}
+
+	if(imageSize.width > 1.0){
+		//Reshape!
+	}
+	return result;
+}
+
 
 - (UIView *) view;
 {
@@ -64,7 +85,7 @@
 		[imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		[imageView setUserInteractionEnabled:YES];
 		[imageView setDelegate:self];
-		[imageView setImage:[[TitaniumHost sharedHost] imageForResource:singleImageUrl]];
+		[imageView setImage:[self singleImage]];
 	}
 	if(!scrollEnabled){
 		return imageView;

@@ -16,6 +16,7 @@
 	NSString * token;
 	NSString * filePath;
 	NSString * mimeType;
+	NSURL * url;
 }
 
 @property(readwrite,nonatomic,retain)	NSData * dataBlob;
@@ -23,6 +24,7 @@
 @property(readwrite,nonatomic,retain)	NSString * token;
 @property(readwrite,nonatomic,retain)	NSString * filePath;
 @property(readwrite,nonatomic,retain)	NSString * mimeType;
+@property(readwrite,nonatomic,retain)	NSURL * url;
 
 - (NSString *) stringValue;
 - (NSString *) virtualFileName;
