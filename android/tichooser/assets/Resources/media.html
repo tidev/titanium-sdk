@@ -14,7 +14,7 @@
 
 	function play() {
 		if (sound == null) {
-			sound = Titanium.Media.createSound("/test.mp3");
+			sound = Titanium.Media.createSound("test.mp3");
 			listenerId = sound.addEventListener("complete", function() {
 				alert("Audio completed");
 				allowPlay(true);

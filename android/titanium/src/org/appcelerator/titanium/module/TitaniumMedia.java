@@ -10,6 +10,7 @@ package org.appcelerator.titanium.module;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
 
@@ -47,6 +48,7 @@ import android.net.Uri;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
+import android.webkit.URLUtil;
 import android.webkit.WebView;
 
 public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
@@ -116,7 +118,9 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 	public ITitaniumSound createSound(String url) {
 		TitaniumSound s = null;
 
-		url = TitaniumUrlHelper.buildAssetUrlFromResourcesRoot(getActivity(), url);
+		if(!URLUtil.isNetworkUrl(url) && !URLUtil.isFileUrl(url)) {
+			url = TitaniumUrlHelper.buildAssetUrlFromResourcesRoot(getActivity(), url);
+		}
 
 		Uri uri = Uri.parse(url);
 		s = new TitaniumSound(this, uri);

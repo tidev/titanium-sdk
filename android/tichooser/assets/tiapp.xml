@@ -18,7 +18,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+-->
         <window>
             <id>media</id>
             <title>Media</title>
@@ -29,6 +29,17 @@
             <barColor>#000</barColor>
         </window>
 
+        <window>
+            <id>video</id>
+            <title>Video</title>
+            <url>video.html</url>
+            <type>single</type>
+            <fullscreen>false</fullscreen>
+            <backgroundColor>argb(0,255,255,255)</backgroundColor>
+            <barColor>#000</barColor>
+        </window>
+
+<!--
         <window>
             <id>urls</id>
             <title>URLs</title>
@@ -137,7 +148,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
         <window>
             <id>SimpleViewFocus</id>
             <title>View Focus</title>
@@ -147,7 +158,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-<!--
+
         <window>
             <id>TableView HTML</id>
             <title>Table View HTML</title>
