@@ -182,7 +182,7 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 #pragma mark Layout
 - (UIView *) loadViewForPage: (int) page size:(CGSize) pageSize animated:(BOOL) animated didPresentView: (BOOL *) didPresentView;
 {
-	TitaniumContentViewController * resultController = [self viewControllerForIndex:currentPage];
+	TitaniumContentViewController * resultController = [self viewControllerForIndex:page];
 	if(resultController == nil)return nil;
 
 	UIView * result = [resultController view];
