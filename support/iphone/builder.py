@@ -9,6 +9,8 @@
 
 import os, sys, uuid, subprocess, shutil, signal, time, re, run, glob
 from compiler import Compiler
+from os.path import join, splitext, split, exists
+from shutil import copyfile
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../'))
@@ -22,6 +24,22 @@ def dequote(s):
 
 def kill_simulator():
 	run.run(['/usr/bin/killall',"iPhone Simulator"],True)
+
+def copy_resources(source, target):
+	 if not os.path.exists(os.path.expanduser(target)):
+		  os.mkdir(os.path.expanduser(target))
+	 for root, dirs, files in os.walk(source):
+		  if '.svn' in dirs:
+				dirs.remove('.svn')	# don't visit .svn directories			  
+		  for file in files:
+				if splitext(file)[-1] in ('.html', '.js', '.css', '.a', '.m', '.c', '.cpp', '.h', '.mm'):
+					 continue
+				from_ = join(root, file)			  
+				to_ = os.path.expanduser(from_.replace(source, target, 1))
+				to_directory = os.path.expanduser(split(to_)[0])
+				if not exists(to_directory):
+					 os.makedirs(to_directory)
+				copyfile(from_, to_)
 
 def main(args):
 	argc = len(args)
@@ -119,6 +137,10 @@ def main(args):
 	
 	# in case the developer has their own modules we can pick them up
 	project_module_dir = os.path.join(project_dir,"modules","iphone")
+	
+	# copy in any resources in our module like icons
+	if os.path.exists(project_module_dir):
+		copy_resources(project_module_dir,iphone_tmp_dir)
 	
 	# we build a new libTitanium that is basically only the modules used by the application all injected into the 
 	# final libTitanium that is used by xcode

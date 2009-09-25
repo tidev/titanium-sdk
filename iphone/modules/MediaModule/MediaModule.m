@@ -422,7 +422,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 - (id) startPicker: (NSNumber *) isCameraObject options: (id) arguments;
 {
 	if(currentImagePicker != nil) return [TitaniumJSCode codeWithString:@"{code:Ti.Media.DEVICE_BUSY}"];
-	if(![isCameraObject respondsToSelector:@selector(boolValue)])return [TitaniumJSCode codeWithString:@"{code:Ti.Media.UNKOWN_ERROR}"]; //Shouldn't happen.
+	if(![isCameraObject respondsToSelector:@selector(boolValue)])return [TitaniumJSCode codeWithString:@"{code:Ti.Media.UNKNOWN_ERROR}"]; //Shouldn't happen.
 	BOOL isCamera = [isCameraObject boolValue];
 	
 	UIImagePickerControllerSourceType ourSource = (isCamera ? UIImagePickerControllerSourceTypeCamera : UIImagePickerControllerSourceTypePhotoLibrary);

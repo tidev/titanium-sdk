@@ -1,8 +1,10 @@
 import os,subprocess,types,sys
 
-def run(args,ignore_error=False):
-	(stdout,stderr) = subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
-	if type(stderr)!=types.NoneType and len(stderr)>0:
+def run(args,ignore_error=False,debug=False):
+	if debug:
+		print " ".join(args)
+	(so,se) = subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
+	if type(se)!=types.NoneType and len(se)>0:
 		if not ignore_error:
-			sys.stderr.write("[ERROR] %s" % stderr)
-	return stdout
+			sys.stderr.write("[ERROR] %s" % str(se))
+	return so

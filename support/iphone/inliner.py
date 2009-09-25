@@ -16,7 +16,7 @@ def get_platform(arch):
 def compile(include_dir,sdk_version,arch,src_file,obj_file):
     platform = get_platform(arch)
     out = run.run([
-        "/Developer/Platforms/iPhone%s.platform/Developer/usr/bin/gcc-4.2" % platform,
+        "/Developer/Platforms/iPhone%s.platform/Developer/usr/bin/gcc" % platform,
         "-x",
         "objective-c",
         "-arch",
@@ -89,4 +89,4 @@ def inliner(include_dir,sdk_version,arch,src_dir,out_dir):
         compile(include_dir,sdk_version,arch,src_file,out_file)
 
 
-#inliner("","3.1","armv6x","/Users/jhaynie/work/titanium_mobile/iphone/modules/GeolocationModule","~/tmp/compiler")
+inliner("/Users/jhaynie/Library/Application Support/Titanium/mobilesdk/osx/0.7.0/iphone/include","3.1","i386","/Users/jhaynie/tmp/iphone/test07/modules/iphone","~/tmp/compiler")
