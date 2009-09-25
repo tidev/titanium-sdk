@@ -14,6 +14,16 @@
 
 #pragma mark Init and dealloc
 
+- (id) init
+{
+	self = [super init];
+	if (self != nil) {
+		visiblePages = [[NSMutableIndexSet alloc] init];
+	}
+	return self;
+}
+
+
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
@@ -150,7 +160,48 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	}
 }
 
+- (void)setFocused:(BOOL)isFocused;
+{
+	TitaniumContentViewController * focusedContentController = [self viewControllerForIndex:currentPage];
+	if([focusedContentController respondsToSelector:@selector(setFocused:)]){
+		[focusedContentController setFocused:isFocused];
+	}
+}
+
+
+- (void)setWindowFocused:(BOOL)isFocused;
+{
+	for(TitaniumContentViewController * focusedContentController in contentViewControllers){
+		if([focusedContentController respondsToSelector:@selector(setWindowFocused:)]){
+			[focusedContentController setWindowFocused:isFocused];
+		}
+	}
+}
+
+
 #pragma mark Layout
+- (UIView *) loadViewForPage: (int) page size:(CGSize) pageSize animated:(BOOL) animated didPresentView: (BOOL *) didPresentView;
+{
+	TitaniumContentViewController * resultController = [self viewControllerForIndex:currentPage];
+	if(resultController == nil)return nil;
+
+	UIView * result = [resultController view];
+	CGRect resultFrame;
+	resultFrame.size = pageSize;
+	resultFrame.origin.y = 0;
+	resultFrame.origin.x = pageSize.width * page;
+	
+	[result setFrame:resultFrame];
+	
+	BOOL needsPresentView = [result superview] != pagedView;
+	if(needsPresentView){
+		[pagedView addSubview:result];
+	}
+	[resultController updateLayout:animated];
+	if(didPresentView!=nil)*didPresentView=needsPresentView;
+	return result;
+}
+
 
 - (void)updateLayout: (BOOL)animated;
 { //No need to deal with views that aren't onscreen.
@@ -168,52 +219,19 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	}
 	
 	pageFrame.origin.y=0;
-	int visibleViews = 0;
+	[visiblePages removeAllIndexes];
 	
-	TitaniumContentViewController * prevController = [self viewControllerForIndex:currentPage-1];
-	UIView * prevContentPage;
-	if(prevController != nil){
-		prevContentPage = [prevController view];
-		pageFrame.origin.x = currentPagePosition-pageFrameWidth;
-		[prevContentPage setFrame:pageFrame];
-		if([prevContentPage superview] != pagedView){
-			[pagedView addSubview:prevContentPage];
-		}
-		visibleViews++;
-	}else{
-		prevContentPage = nil;
-	}
+	UIView * prevContentPage = [self loadViewForPage:currentPage-1 size:pageFrame.size animated:animated didPresentView:nil];
+	if(prevContentPage != nil)[visiblePages addIndex:currentPage-1];
 
-	TitaniumContentViewController * currentController = [self viewControllerForIndex:currentPage];
-	UIView * currentContentPage;
-	if(currentController != nil){
-		currentContentPage = [currentController view];
-		pageFrame.origin.x = currentPagePosition;
-		[currentContentPage setFrame:pageFrame];
-		if([currentContentPage superview] != pagedView){
-			[pagedView addSubview:currentContentPage];
-		}
-		visibleViews++;
-	}else{
-		currentContentPage = nil;
-	}
+	UIView * currentContentPage = [self loadViewForPage:currentPage size:pageFrame.size animated:animated didPresentView:nil];
+	if(currentContentPage != nil)[visiblePages addIndex:currentPage];
 
-	TitaniumContentViewController * nextController = [self viewControllerForIndex:currentPage+1];
-	UIView * nextContentPage;
-	if(nextController != nil){
-		nextContentPage = [nextController view];
-		pageFrame.origin.x = currentPagePosition+pageFrameWidth;
-		[nextContentPage setFrame:pageFrame];
-		if([nextContentPage superview] != pagedView){
-			[pagedView addSubview:nextContentPage];
-		}
-		visibleViews++;
-	}else{
-		nextContentPage = nil;
-	}
+	UIView * nextContentPage = [self loadViewForPage:currentPage+1 size:pageFrame.size animated:animated didPresentView:nil];
+	if(nextContentPage != nil)[visiblePages addIndex:currentPage+1];
 	
 	NSArray * pagedSubViews = [pagedView subviews];
-	if(visibleViews < [pagedSubViews count]){
+	if([visiblePages count] < [pagedSubViews count]){
 		for(UIView * thisView in pagedSubViews){
 			if((thisView == prevContentPage)||(thisView == nextContentPage)||(thisView == currentContentPage))continue;
 			[thisView removeFromSuperview];
@@ -238,33 +256,29 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 		pageControl = nil;
 	}
 
-
-	[prevController updateLayout:animated];
-	[currentController updateLayout:animated];
-	[nextController updateLayout:animated];
 }
 
 #pragma mark User interaction
 
 - (void)scrollViewDidScroll:(UIScrollView *)sender {
-	//    // We don't want a "feedback loop" between the UIPageControl and the scroll delegate in
-	//    // which a scroll event generated from the user hitting the page control triggers updates from
-	//    // the delegate method. We use a boolean to disable the delegate logic when the page control is used.
-	//    if (pageControlUsed) {
-	//        // do nothing - the scroll was initiated from the page control, not the user dragging
-	//        return;
-	//    }
-	//    // Switch the indicator when more than 50% of the previous/next page is visible
-	//    CGFloat pageWidth = scrollView.frame.size.width;
-	//    int page = floor((scrollView.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
-	//    pageControl.currentPage = page;
-	//	
-	//    // load the visible page and the page on either side of it (to avoid flashes when the user starts scrolling)
-	//    [self loadScrollViewWithPage:page - 1];
-	//    [self loadScrollViewWithPage:page];
-	//    [self loadScrollViewWithPage:page + 1];
-	//	
-	//    // A possible optimization would be to unload the views+controllers which are no longer visible
+	CGRect scrollFrame = [pagedView frame];
+	int newScrolledPage = floor(pagedView.contentOffset.x / scrollFrame.size.width);
+
+	if((newScrolledPage>0) && ![visiblePages containsIndex:newScrolledPage-1]){
+		[self loadViewForPage:newScrolledPage-1 size:scrollFrame.size animated:YES didPresentView:nil];
+		[visiblePages addIndex:newScrolledPage-1];
+	}
+
+	int maxPage = [contentViewControllers count]-1;
+	if((newScrolledPage >= 0) && (newScrolledPage <= maxPage) && ![visiblePages containsIndex:newScrolledPage]){
+		[self loadViewForPage:newScrolledPage size:scrollFrame.size animated:YES didPresentView:nil];
+		[visiblePages addIndex:newScrolledPage];
+	}
+
+	if((newScrolledPage < maxPage) && ![visiblePages containsIndex:newScrolledPage+1]){
+		[self loadViewForPage:newScrolledPage+1 size:scrollFrame.size animated:YES didPresentView:nil];
+		[visiblePages addIndex:newScrolledPage+1];
+	}
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView; // called when setContentOffset/scrollRectVisible:animated: finishes. not called if not animating
