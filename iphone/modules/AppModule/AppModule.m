@@ -121,7 +121,7 @@
 								 setInvoc,@"setInt",
 								 setInvoc,@"setString",
 								 setInvoc,@"setList",
-								 [TitaniumJSCode codeWithString:@"function(key){Ti.App.Properties.setString(key);}"],@"removeProperty",
+								 [TitaniumJSCode codeWithString:@"function(){Ti.App.Properties.setString(null);}"],@"removeProperty",
 								 hasInvoc,@"hasProperty",
 								 listInvoc,@"listProperties",
 								 nil];
