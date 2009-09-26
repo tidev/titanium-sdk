@@ -297,6 +297,7 @@
 		B4AA8708105ED1DF00D29939 /* timeline-dms.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AA86FD105ED1DF00D29939 /* timeline-dms.html */; };
 		B4ABEDC4101903CA00639ED5 /* buggy.html in Resources */ = {isa = PBXBuildFile; fileRef = B4ABEDC3101903CA00639ED5 /* buggy.html */; };
 		B4ABEDC7101903F300639ED5 /* buggy.js in Sources */ = {isa = PBXBuildFile; fileRef = B4ABEDC6101903F300639ED5 /* buggy.js */; };
+		B4ADF5FA106D8C0200D26B13 /* WeCanDoIt.png in Resources */ = {isa = PBXBuildFile; fileRef = B4ADF5F9106D8C0200D26B13 /* WeCanDoIt.png */; };
 		B4B571FE10110324003546C7 /* TitaniumContentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B571FD10110324003546C7 /* TitaniumContentViewController.m */; };
 		B4B587010FB00B670047B651 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4B587000FB00B670047B651 /* AudioToolbox.framework */; };
 		B4B8E56B10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B8E56A10586D3500D08D44 /* TitaniumCellWrapper.m */; };
@@ -498,6 +499,7 @@
 		B4AA86FD105ED1DF00D29939 /* timeline-dms.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "timeline-dms.html"; path = "../../spaz/Resources/timeline-dms.html"; sourceTree = SOURCE_ROOT; };
 		B4ABEDC3101903CA00639ED5 /* buggy.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = buggy.html; sourceTree = "<group>"; };
 		B4ABEDC6101903F300639ED5 /* buggy.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = buggy.js; sourceTree = "<group>"; };
+		B4ADF5F9106D8C0200D26B13 /* WeCanDoIt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WeCanDoIt.png; sourceTree = "<group>"; };
 		B4B571FC10110324003546C7 /* TitaniumContentViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumContentViewController.h; sourceTree = "<group>"; };
 		B4B571FD10110324003546C7 /* TitaniumContentViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumContentViewController.m; sourceTree = "<group>"; };
 		B4B587000FB00B670047B651 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -912,6 +914,7 @@
 				B4ABEDC3101903CA00639ED5 /* buggy.html */,
 				B4DDBE2A0FD0AE31004DD79E /* ui.html */,
 				B481D3360FD4C45A00F0A961 /* song.mp3 */,
+				B4ADF5F9106D8C0200D26B13 /* WeCanDoIt.png */,
 				B4FC30A30FEC89E800D31C75 /* Phone.png */,
 				B4F37E2D1061B50E00ED12AF /* closebox.png */,
 				B4ABEDC6101903F300639ED5 /* buggy.js */,
@@ -1591,6 +1594,7 @@
 				B4ABEDC4101903CA00639ED5 /* buggy.html in Resources */,
 				B40C00241031ECC4009DEFF9 /* docs.html in Resources */,
 				B4F37E2E1061B50E00ED12AF /* closebox.png in Resources */,
+				B4ADF5FA106D8C0200D26B13 /* WeCanDoIt.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

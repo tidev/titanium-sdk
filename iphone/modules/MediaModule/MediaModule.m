@@ -39,6 +39,9 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 //Connections to the native side
 	AVAudioPlayer * nativePlayer;
 	NSURL * soundUrl;
+	NSData * soundData;
+	NSURLConnection * soundConnection;
+	
 	NSTimeInterval resumeTime;
 	CGFloat volume;
 	BOOL isLooping;

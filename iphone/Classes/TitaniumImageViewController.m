@@ -58,6 +58,9 @@
 		}
 	}
 
+	NSNumber * canScaleObject = [inputState objectForKey:@"canScale"];
+	scrollEnabled = [canScaleObject respondsToSelector:@selector(boolValue)] && [canScaleObject boolValue];
+
 }
 
 - (UIImage *) singleImage;
@@ -82,24 +85,43 @@
 	viewFrame.size = preferredViewSize;
 	if(imageView==nil){
 		imageView = [[TitaniumImageView alloc] initWithFrame:viewFrame];
-		[imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-		[imageView setUserInteractionEnabled:YES];
+	//	[imageView setUserInteractionEnabled:YES];
 		[imageView setDelegate:self];
 		[imageView setImage:[self singleImage]];
 	}
 	if(!scrollEnabled){
+		[imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		return imageView;
 	}
 	if(scrollView==nil){
 		scrollView = [[TweakedScrollView alloc] initWithFrame:viewFrame];
 		viewFrame.size = [[imageView image] size];
+		[scrollView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		[scrollView setContentSize:viewFrame.size];
 		[imageView setFrame:viewFrame];
 		[scrollView addSubview:imageView];
+
+		[scrollView setMultipleTouchEnabled:YES];
+		[scrollView setDelegate:self];
 	}
 
 	return scrollView;
 }
+
+- (void)updateLayout: (BOOL)animated;
+{
+	if(scrollEnabled){
+		[scrollView setMaximumZoomScale:4.0];
+		CGSize contentSize = [scrollView contentSize];
+		CGSize frameSize = [scrollView frame].size;
+		float minZoom = 0;
+		if (contentSize.width > 1) minZoom = frameSize.width/contentSize.width;
+		if (contentSize.height > 1) minZoom = MAX(minZoom,frameSize.height/contentSize.height);
+		minZoom = MIN(1.0,minZoom);
+		[scrollView setMinimumZoomScale:minZoom];
+	}
+}
+
 
 - (void) setView: (UIView *) newView;
 {
@@ -115,5 +137,11 @@
 {
 	NSLog(@"We're touched. Now what? %@",ourTouch);
 }
+
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView;     // return a view that will be scaled. if delegate returns nil, nothing happens
+{
+	return imageView;
+}
+
 
 @end

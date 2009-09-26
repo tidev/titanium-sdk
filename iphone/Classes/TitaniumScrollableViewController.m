@@ -9,6 +9,7 @@
 #import "TitaniumViewController.h"
 #import "TweakedScrollView.h"
 #import "TitaniumHost.h"
+#import "TitaniumViewController.h"
 
 @implementation TitaniumScrollableViewController
 
@@ -253,6 +254,11 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 
 	if(showPagingControl){
 		CGRect pageControlFrame = CGRectMake(0, pageFrame.size.height-20, pageFrameWidth, 20);
+		TitaniumViewController * TitaniumWindow = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[self titaniumWindowToken]];
+		if([TitaniumWindow toolbarOverlaid]){
+			CGPoint toolbarOrigin = [wrapperView convertPoint:[TitaniumWindow toolbarOrigin] fromView:nil];
+			pageControlFrame.origin.y = toolbarOrigin.y - 20;
+		}
 		if(pageControl == nil){
 				[[self pageControl] setNumberOfPages:[contentViewControllers count]];
 				[pageControl setFrame:pageControlFrame];
