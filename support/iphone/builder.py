@@ -183,7 +183,7 @@ def main(args):
 	# we build a new libTitanium that is basically only the modules used by the application all injected into the 
 	# final libTitanium that is used by xcode
 	os.chdir(iphone_tmp_module_dir)
-	modules_detected=[]
+	modules_detected=['Userdata']
 	for arch in ['i386','armv6']:
 		os.mkdir(os.path.join(iphone_tmp_module_dir,arch))
 		os.chdir(os.path.join(iphone_tmp_module_dir,arch))
@@ -206,6 +206,9 @@ def main(args):
 			else:
 				if not os.path.exists(os.path.join(project_module_dir,"%sModule.m"%module_normalized_name)) and module_normalized_name!='Userdata':
 					print "[WARN] couldn't find module library for Titanium.%s" % module_normalized_name
+				elif not module_normalized_name in modules_detected:
+					print "[DEBUG] module library dependency detected Titanium.%s" % (module_normalized_name)
+					modules_detected.append(module_normalized_name)
 
 	os.chdir(iphone_tmp_module_dir)
 	
