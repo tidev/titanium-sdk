@@ -35,6 +35,7 @@ import org.appcelerator.titanium.api.ITitaniumText;
 import org.appcelerator.titanium.api.ITitaniumUI;
 import org.appcelerator.titanium.api.ITitaniumUIWebView;
 import org.appcelerator.titanium.api.ITitaniumUserWindow;
+import org.appcelerator.titanium.api.ITitaniumUserWindowBuilder;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.module.ui.TitaniumButton;
@@ -57,6 +58,7 @@ import org.appcelerator.titanium.module.ui.TitaniumTextField;
 import org.appcelerator.titanium.module.ui.TitaniumToastNotifier;
 import org.appcelerator.titanium.module.ui.TitaniumUIWebView;
 import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
+import org.appcelerator.titanium.module.ui.TitaniumUserWindowBuilder;
 import org.appcelerator.titanium.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -119,9 +121,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 		handler = new Handler(this);
 
 		windowObjects = new HashSet<ITitaniumLifecycle>();
-		this.userWindow = new TitaniumUserWindow(this, false);
-		Log.e(LCAT, "UIMThreadName: " + Thread.currentThread().getName());
-
+		this.userWindow = tmm.getCurrentWindow();
 	}
 
 	@Override
@@ -181,7 +181,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 					h.o = new TitaniumProgressDialog(getActivity());
 					break;
 				case MSG_CREATE_WINDOW :
-					h.o = new TitaniumUserWindow(this, true);
+					h.o = new TitaniumUserWindowBuilder(getActivity());
 					break;
 				case MSG_CREATE_EMAILDIALOG :
 					h.o = new TitaniumEmailDialog(getModuleManager());
@@ -236,8 +236,8 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 		windowObjects.remove(listener);
 	}
 
-	public ITitaniumUserWindow createWindow() {
-		return (ITitaniumUserWindow) create(MSG_CREATE_WINDOW);
+	public ITitaniumUserWindowBuilder createWindow() {
+		return (ITitaniumUserWindowBuilder) create(MSG_CREATE_WINDOW);
  	}
 
 	public TitaniumMenuItem getInternalMenu() {

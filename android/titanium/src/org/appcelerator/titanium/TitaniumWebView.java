@@ -119,17 +119,12 @@ public class TitaniumWebView extends WebView
 
 	public TitaniumWebView(TitaniumActivity activity, String url) {
 		this(activity, url, null);
-		activity.registerView(this);
 	}
 
 	public TitaniumWebView(TitaniumActivity activity, String url, TitaniumUIWebView uiWebView)
 	{
 		super(activity);
 
-		this.useAsView = uiWebView != null;
-		if (this.useAsView) {
-			softUIWebView = new SoftReference<TitaniumUIWebView>(uiWebView);
-		}
 		this.hasBeenOpened = false;
 
 		this.handler = new Handler(this);
@@ -137,6 +132,14 @@ public class TitaniumWebView extends WebView
 		this.locks = new HashMap<String,Semaphore>();
 		this.uniqueLockId = new AtomicInteger();
         this.tmm = new TitaniumModuleManager(activity, this);
+
+		this.useAsView = uiWebView != null;
+		if (this.useAsView) {
+			softUIWebView = new SoftReference<TitaniumUIWebView>(uiWebView);
+		} else {
+			tmm.getCurrentWindow().registerView(this);
+		}
+
         this.url = url;
 		this.configurationChangeListeners = new HashSet<OnConfigChange>();
 
@@ -231,7 +234,8 @@ public class TitaniumWebView extends WebView
 
 	}
 
-	protected void initializeModules() {
+	protected void initializeModules()
+	{
         // Add Modules
         this.tiUI = new TitaniumUI(tmm, "TitaniumUI");
         TitaniumAppInfo appInfo = tmm.getActivity().getAppInfo();

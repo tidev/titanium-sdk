@@ -60,7 +60,7 @@ public class TitaniumUIWebView
 		this.eventListeners.supportEvent(EVENT_UNFOCUSED);
 		this.eventListeners.supportEvent(EVENT_UI_TABCHANGED);
 
-		tmm.getActivity().registerView(this);
+		tmm.getCurrentWindow().registerView(this);
 	}
 
 	public boolean handleMessage(Message msg) {

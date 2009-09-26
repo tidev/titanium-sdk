@@ -7,15 +7,12 @@
 
 package org.appcelerator.titanium.api;
 
-public interface ITitaniumUserWindow
+import android.content.res.Configuration;
+import android.view.Menu;
+import android.view.MenuItem;
+
+public interface ITitaniumUserWindow extends ITitaniumUserWindowBuilder
 {
-	public void setWindowId(String windowId);
-	public void setUrl(String url);
-	public void setTitle(String title);
-	public void setTitleImage(String titleImageUrl);
-	public void setFullscreen(boolean fullscreen);
-	public void setType(String type);
-	public void open();
 	public void close();
 	public int addEventListener(String eventName, String listener);
 	public void removeEventListener(String eventName, int listenerId);
@@ -34,4 +31,11 @@ public interface ITitaniumUserWindow
 	public String getViewName(String key);
 	public int addViewEventListener(String key, String eventName, String listener);
 	public void removeEventListener(String key, String eventName, int listenerId);
+
+	// new in 0.7.0 due to refactor
+	public void dispatchTabChange(String data);
+	public void dispatchConfigurationChange(Configuration newConfig);
+	public boolean dispatchPrepareOptionsMenu(Menu menu);
+	public boolean dispatchOptionsItemSelected(MenuItem item);
+
 }

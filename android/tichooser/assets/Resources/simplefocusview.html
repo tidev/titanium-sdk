@@ -16,6 +16,7 @@
 
 		var p2 = Titanium.UI.createButton({id:'p2',title:'Page 2'});
 		p2.addEventListener('click', function(e) {
+			Titanium.API.debug("CLICK");
 			Titanium.UI.currentWindow.setActiveViewIndex(1);
 		});
 

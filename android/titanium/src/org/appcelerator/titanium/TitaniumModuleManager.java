@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import org.appcelerator.titanium.api.ITitaniumModule;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
 import org.appcelerator.titanium.util.Log;
 
 import android.content.Context;
@@ -68,6 +69,10 @@ public class TitaniumModuleManager
 
 	public Context getAppContext() {
 		return appContext;
+	}
+
+	public TitaniumUserWindow getCurrentWindow() {
+		return getActivity().getCurrentWindow();
 	}
 	public TitaniumWebView getWebView() {
 		return softWebView.get();

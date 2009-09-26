@@ -7,27 +7,21 @@
 
 package org.appcelerator.titanium;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.api.ITabChangeListener;
-import org.appcelerator.titanium.api.ITitaniumLifecycle;
-import org.appcelerator.titanium.api.ITitaniumView;
+import org.appcelerator.titanium.api.ITitaniumUserWindow;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.config.TitaniumWindowInfo;
+import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumActivityHelper;
-import org.appcelerator.titanium.util.TitaniumAnimationFactory;
-import org.appcelerator.titanium.util.TitaniumAnimationPair;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.appcelerator.titanium.util.TitaniumLogWatcher;
 import org.appcelerator.titanium.util.TitaniumUIHelper;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -49,7 +43,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -69,9 +62,6 @@ public class TitaniumActivity extends Activity
 	protected static final int ACCELEROMETER_DELAY = 100; // send event no more frequently than
 
 	protected static final int MSG_START_ACTIVITY = 300;
-	protected static final int MSG_ACTIVATE_VIEW = 301;
-	//protected static final int MSG_PUSH_VIEW = 302;
-	//protected static final int MSG_POP_VIEW = 303;
 	protected static final int MSG_SET_LOAD_ON_PAGE_END = 304;
 	protected static final int MSG_CLOSE = 305;
 	protected static final int MSG_SETACTIVETAB = 306;
@@ -84,13 +74,7 @@ public class TitaniumActivity extends Activity
 	protected TitaniumAppInfo appInfo;
 	protected TitaniumWindowInfo windowInfo;
 
-	protected ArrayList<ITitaniumView> views;
-	protected HashMap<String, WeakReference<ITitaniumView>> registeredViews;
-
-	protected int activeViewIndex;
-
 	protected boolean loadOnPageEnd;
-	protected boolean needsDelayedFocusedEvent;
 
 	protected ImageView splashView;
 
@@ -102,16 +86,16 @@ public class TitaniumActivity extends Activity
 
 	private HashMap<Integer, TitaniumResultHandler> resultHandlers;
 	private AtomicInteger uniqueResultCodeAllocator;
-	private static AtomicInteger idGenerator;
 	private int initialOrientation;
 	private TitaniumLogWatcher logWatcher;
 
-	private ViewAnimator layout;
 	private Drawable backgroundDrawable;
 
 	private boolean showingJSError;
 
 	private boolean fullscreen;
+
+	TitaniumUserWindow userWindow;
 
 	public interface CheckedRunnable {
 		public void run(boolean isUISafe);
@@ -137,19 +121,10 @@ public class TitaniumActivity extends Activity
     	}
         super.onCreate(savedInstanceState);
 
-        // Make sure the first ActiveView for this activity gets a window focused event
-        needsDelayedFocusedEvent = true;
-
-        views = new ArrayList<ITitaniumView>(5);
-        registeredViews = new HashMap<String,WeakReference<ITitaniumView>>(5);
-        activeViewIndex = -1;
-
         logWatcher = new TitaniumLogWatcher(this);
-		if (idGenerator == null) {
-			idGenerator = new AtomicInteger(1);
-		}
 
         final TitaniumActivity me = this;
+
         tfh = new TitaniumFileHelper(this);
         intent = new TitaniumIntentWrapper(getIntent());
 
@@ -185,18 +160,11 @@ public class TitaniumActivity extends Activity
         	 }
          }
 
-        TitaniumWebView webView = new TitaniumWebView(me, url);
-        webView.setId(idGenerator.incrementAndGet());
-        addView(webView);
-
-		layout = new ViewAnimator(this);
-		layout.setAnimateFirstView(true);
-		AlphaAnimation inAnim = new AlphaAnimation(0.0f, 1.0f);
-		inAnim.setDuration(200);
-		layout.setInAnimation(inAnim);
-
 		resultHandlers = new HashMap<Integer, TitaniumResultHandler>();
 		uniqueResultCodeAllocator = new AtomicInteger();
+
+		this.userWindow = new TitaniumUserWindow(this);
+		userWindow.attachWebView(url);
 
         loadOnPageEnd = true;
 
@@ -297,7 +265,7 @@ public class TitaniumActivity extends Activity
 				((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
 				splashView.setImageDrawable(backgroundDrawable);
 			}
-			layout.addView(splashView);
+			//TODO layout.addView(splashView);
 			app.setNeedsSplashScreen(false);
 		}
 
@@ -310,7 +278,7 @@ public class TitaniumActivity extends Activity
 	    	}
 		}
 
-		setContentView(layout);
+		setContentView(userWindow);
 
         ts("end of onCreate");
 	}
@@ -329,95 +297,7 @@ public class TitaniumActivity extends Activity
 				intent.putExtra("ParentMessenger", messenger);
 				startActivity(intent);
 				return true;
-			case MSG_ACTIVATE_VIEW : {
-				int index = msg.arg1;
-				String options = (String) msg.obj;
 
-				synchronized(views) {
-					int currentIndex = activeViewIndex;
-					activeViewIndex = index;
-					ITitaniumView tiCurrent = null;
-					if (currentIndex >= 0 && currentIndex < views.size()) {
-						tiCurrent = views.get(currentIndex);
-					}
-					ITitaniumView tiView = views.get(index);
-					View newView = tiView.getNativeView();
-					View current = layout.getCurrentView();
-					if (current != newView) {
-						if (newView != null) {
-							if (tiCurrent != null) {
-								if (tiCurrent instanceof ITitaniumView) {
-									tiCurrent.hiding();
-								}
-							}
-							tiView.showing();
-							layout.addView(newView);
-							if (needsDelayedFocusedEvent) {
-								try {
-									tiView.dispatchWindowFocusChanged(true);
-								} catch (Throwable t) {
-									Log.e(LCAT, "Error while dispatching fake focus: ", t);
-								}
-								needsDelayedFocusedEvent = false;
-							}
-							try {
-								if (options != null) {
-									JSONObject o = new JSONObject(options);
-									if (o != null && o.has("animated")) {
-										if (o.getBoolean("animated")) {
-											if (o.has("animationStyle")) {
-												String style = o.getString("animationStyle");
-												int duration = 1000;
-												if (o.has("animationDuration")) {
-													duration = o.getInt("animationDuration");
-												}
-
-												TitaniumAnimationPair ap = TitaniumAnimationFactory.getAnimationFor(style, duration);
-												ap.apply(layout);
-											}
-										}
-									}
-								}
-							} catch (JSONException e) {
-								Log.w(LCAT, "Unable to process animation options: " + options, e);
-							} finally {
-								layout.setAnimation(null);
-							}
-
-							layout.showNext();
-							if (current != null) {
-								layout.removeView(current);
-								current.destroyDrawingCache();
-							}
-
-							if (!newView.hasFocus()) {
-								newView.requestFocus();
-							}
-						} else {
-							Log.w(LCAT, "Atempt to show null view ignored.");
-						}
-					}
-				}
-				return true;
-			}
-			/*
-			case MSG_PUSH_VIEW: {
-				View v = (View)msg.obj;
-				layout.addView(v, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));
-				layout.showNext();
-
-				if (!v.hasFocus()) {
-					v.requestFocus();
-				}
-				return true;
-			}
-			case MSG_POP_VIEW : {
-				View v = (View) msg.obj;
-				layout.showPrevious();
-				layout.removeView(v);
-				return true;
-			}
-			*/
 			case MSG_CLOSE : {
 				finish();
 				return true;
@@ -442,9 +322,7 @@ public class TitaniumActivity extends Activity
 			}
 			case MSG_TABCHANGE : {
 				String data = (String) msg.obj;
-				for (ITitaniumView tiView : views) {
-					tiView.dispatchApplicationEvent("ui.tabchange", data);
-				}
+				userWindow.dispatchTabChange(data);
 				return true;
 			}
 		}
@@ -462,6 +340,10 @@ public class TitaniumActivity extends Activity
 
     public TitaniumWindowInfo getWindowInfo() {
     	return windowInfo;
+    }
+
+    public TitaniumUserWindow getCurrentWindow() {
+    	return userWindow;
     }
 
     public void launchTitaniumActivity(final String name) {
@@ -516,25 +398,18 @@ public class TitaniumActivity extends Activity
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-
-		for(ITitaniumView view : views) {
-			view.dispatchConfigurationChange(newConfig);
-		}
+		userWindow.dispatchConfigurationChange(newConfig);
 	}
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0)) {
-        	Log.e(LCAT, "BACK in Activity");
-//       	if (webView.canGoBack()) {
-//        		webView.goBack();
-//        		Log.e(LCAT, "Activity back key and has webView back");
-//                return true;
-//        	} else {
-        		Log.i(LCAT, "Injecting onWindowFocusChanged(false)");
-        		onWindowFocusChanged(false);
-        		finish();
-//        	}
+        	if (DBG) {
+        		Log.d(LCAT, "BACK in Activity");
+        	}
+    		Log.i(LCAT, "Injecting onWindowFocusChanged(false)");
+    		onWindowFocusChanged(false);
+    		finish();
         }
         return false;
     }
@@ -556,16 +431,7 @@ public class TitaniumActivity extends Activity
 		}
 		super.onPrepareOptionsMenu(menu);
 
-		boolean handled = false;
-
-		if (activeViewIndex > -1) {
-			ITitaniumView tiView = getActiveView();
-			if (tiView != null) {
-				handled = tiView.dispatchPrepareOptionsMenu(menu);
-			}
-		}
-
-		return handled;
+		return userWindow.dispatchPrepareOptionsMenu(menu);
 	}
 
 	@Override
@@ -575,119 +441,12 @@ public class TitaniumActivity extends Activity
 			Log.d(LCAT, "onOptionsItemSelected");
 		}
 		boolean result = super.onOptionsItemSelected(item);
-
-		ITitaniumView tiView = getActiveView();
-		if (tiView != null) {
-			result = tiView.dispatchOptionsItemSelected(item);
+		if (!result) {
+			result = userWindow.dispatchOptionsItemSelected(item);
 		}
 
 		return result;
 	}
-
-/*    public void triggerLoad ()
-	{
-		if (DBG) {
-			Log.d(LCAT, "triggerLoad = " + !loaded);
-		}
-		if (false == loaded)
-		{
-			if (!destroyed) {
-				handler.obtainMessage(MSG_ACTIVATE_VIEW).sendToTarget();
-			} else {
-				//webView.destroy();
-			}
-		}
-	}
-*/
-	public void registerView(ITitaniumView view)
-	{
-		if (view.getKey() == null) {
-			view.setKey("NPRX" + idGenerator.getAndIncrement());
-		}
-		synchronized(views) {
-			if (!registeredViews.containsKey(view.getKey())) {
-				registeredViews.put(view.getKey(), new WeakReference<ITitaniumView>(view));
-			}
-		}
-	}
-
-	// TODO, may return index
-    public void addView(ITitaniumView view) {
-     	synchronized(views) {
-    		views.add(view);
-    		Log.e(LCAT, "ADDING VIEW: " + view + " with Key: " + view.getKey());
-    	}
-    }
-
-    public ITitaniumView getViewFromKey(String key) {
-    	ITitaniumView tiView = null;
-    	synchronized(views) {
-    		if (registeredViews.containsKey(key)) {
-    			tiView = registeredViews.get(key).get();
-    		} else {
-    			Log.w(LCAT, "No view with key : " + key + " is registered with this activity.");
-    		}
-    	}
-
-    	return tiView;
-    }
-
-    public ITitaniumView getActiveView()
-    {
-    	ITitaniumView tiView = null;
-     	synchronized(views) {
-     		if (activeViewIndex > -1) {
-    			tiView = views.get(activeViewIndex);
-    		}
-    	}
-    	return tiView;
-    }
-
-    public int getActiveViewIndex() {
-    	synchronized(views) {
-    		return activeViewIndex;
-    	}
-    }
-
-    public void setActiveView(int index, String options) {
-    	handler.obtainMessage(MSG_ACTIVATE_VIEW, index, -1, options).sendToTarget();
-    }
-
-    public void setActiveView(ITitaniumView tiView, String options) {
-    	int index = 0;
-    	synchronized(views) {
-    		index = views.indexOf(tiView);
-    	}
-    	setActiveView(index, options);
-    }
-
-    public int getViewCount() {
-    	synchronized (views) {
-			return views.size();
-		}
-    }
-
-    public ITitaniumView getViewAt(int index) {
-    	synchronized(views) {
-    		ITitaniumView v = views.get(index);
-    		if (v == null) {
-    			Log.e(LCAT, "No view at index: " + index);
-    		}
-    		return v;
-    	}
-    }
-
-    public ITitaniumView getViewByName(String name) {
-    	ITitaniumView view = null;
-    	synchronized(views) {
-    		try {
-    			view = registeredViews.get(name).get();
-    		} catch (NullPointerException e) {
-    			// Ignore
-    		}
-    	}
-    	return view;
-    }
 
     public void setActiveTab(int index) {
     	handler.obtainMessage(MSG_SETACTIVETAB, index, -1).sendToTarget();
@@ -746,51 +505,32 @@ public class TitaniumActivity extends Activity
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 
-		if (activeViewIndex > -1) {
-			ITitaniumView tiView = views.get(activeViewIndex);
-			//tiView.dispatchWindowFocusChanged(hasFocus);
-		}
+//		if (activeViewIndex > -1) {
+//			ITitaniumView tiView = views.get(activeViewIndex);
+//			//tiView.dispatchWindowFocusChanged(hasFocus);
+//		}
 	}
 
 	public void onTabChange(String data) {
 		handler.obtainMessage(MSG_TABCHANGE, data).sendToTarget();
 	}
+// UserWindow
+
+// UserWindow
 
 	@Override
 	protected void onResume()
 	{
 		allowVisible = true;
 		super.onResume();
-		if (!showingJSError) {
-			if (appInfo != null && appInfo.getSystemProperties().getBool(TitaniumAppInfo.PROP_ANDROID_WATCHLOG, false)) {
-				logWatcher.attach();
-			}
-
-			for(ITitaniumView view : views) {
-				ITitaniumLifecycle lifecycle = view.getLifecycle();
-				if (lifecycle != null) {
-					lifecycle.onResume();
-				}
-			}
-		}
+		userWindow.onResume();
 	}
 
 	@Override
 	protected void onPause() {
 		allowVisible = false;
 		super.onPause();
-		if (!showingJSError) {
-			for(ITitaniumView view : views) {
-				ITitaniumLifecycle lifecycle = view.getLifecycle();
-				if (lifecycle != null) {
-					lifecycle.onPause();
-				}
-			}
-
-			if (appInfo != null && appInfo.getSystemProperties().getBool(TitaniumAppInfo.PROP_ANDROID_WATCHLOG, false)) {
-				logWatcher.detach();
-			}
-		}
+		userWindow.onPause();
 	}
 
 	@Override
@@ -805,15 +545,8 @@ public class TitaniumActivity extends Activity
 	    }
 
 		super.onDestroy();
-		if (!showingJSError) {
-			for(ITitaniumView view : views) {
-				ITitaniumLifecycle lifecycle = view.getLifecycle();
-				if (lifecycle != null) {
-					lifecycle.onDestroy();
-				}
-			}
-		}
-		views.clear();
+		userWindow.onDestroy();
+
 		destroyed = true;
 	}
 }

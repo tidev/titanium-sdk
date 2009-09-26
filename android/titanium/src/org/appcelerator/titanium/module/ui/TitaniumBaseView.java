@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import android.content.res.Configuration;
 import android.os.Handler;
 import android.os.Message;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -76,7 +77,7 @@ public abstract class TitaniumBaseView extends FrameLayout
 		openViewAfterOptions = true;
 		openViewDelay = 1000;
 
-		tmm.getActivity().registerView(this);
+		tmm.getCurrentWindow().registerView(this);
 	}
 
 	public boolean handleMessage(Message msg)
@@ -108,6 +109,13 @@ public abstract class TitaniumBaseView extends FrameLayout
 		return handled;
 	}
 
+
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		// TODO Auto-generated method stub
+		return super.dispatchKeyEvent(event);
+	}
+
 	public View getNativeView() {
 		return this;
 	}
@@ -129,7 +137,7 @@ public abstract class TitaniumBaseView extends FrameLayout
 	}
 
 	protected ITitaniumView findViewByKey(String key) {
-		return tmm.getActivity().getViewFromKey(key);
+		return tmm.getCurrentWindow().getViewFromKey(key);
 	}
 
 	public int addEventListener(String eventName, String listener) {
