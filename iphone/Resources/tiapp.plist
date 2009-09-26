@@ -53,6 +53,8 @@
 			<string>Network</string>
 		</dict>
 		<dict>
+			<key>barColor</key>
+			<string>transparent</string>
 			<key>views</key>
 			<array>
 				<dict>

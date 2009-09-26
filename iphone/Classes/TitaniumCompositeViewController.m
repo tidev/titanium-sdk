@@ -245,6 +245,28 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 
 }
 
+- (void)setFocused:(BOOL)isFocused;
+{
+	for(TitaniumCompositeRule * thisRule in viewControllerRules){
+		TitaniumContentViewController * focusedContentController = [thisRule viewController];
+		if([focusedContentController respondsToSelector:@selector(setFocused:)]){
+			[focusedContentController setFocused:isFocused];
+		}
+	}
+}
+
+
+- (void)setWindowFocused:(BOOL)isFocused;
+{
+	for(TitaniumCompositeRule * thisRule in viewControllerRules){
+		TitaniumContentViewController * focusedContentController = [thisRule viewController];
+		if([focusedContentController respondsToSelector:@selector(setWindowFocused:)]){
+			[focusedContentController setWindowFocused:isFocused];
+		}
+	}
+}
+
+
 #pragma mark Javascript callbacks
 
 - (void) addRule: (NSDictionary *) newRuleObject baseUrl:(NSURL *)baseUrl;

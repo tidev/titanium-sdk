@@ -754,6 +754,16 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	[self setAnimationOptionsDict:nil];
 }
 
+- (BOOL) toolbarOverlaid;
+{
+	return (toolBar!=nil) && ![toolBar isHidden] && (navBarStyle == UIBarStyleBlackTranslucent);
+}
+
+- (CGPoint) toolbarOrigin;
+{
+	return [toolBar convertPoint:CGPointZero toView:nil];
+}
+
 #pragma mark Methods called by the UIModule
 - (void) setStatusBarStyleObject: (id) object;
 {

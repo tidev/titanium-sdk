@@ -16,6 +16,7 @@
 	BOOL showPagingControl;
 	int currentPage;
 	int lastAnnouncedPage;
+	NSMutableIndexSet * visiblePages;
 	NSMutableArray * contentViewControllers;
 
 }

@@ -17,7 +17,7 @@
 @end
 
 @class TitaniumBlobWrapper;
-@interface TitaniumImageViewController : TitaniumContentViewController {
+@interface TitaniumImageViewController : TitaniumContentViewController<UIScrollViewDelegate> {
 	TitaniumImageView * imageView;
 	UIScrollView * scrollView;
 

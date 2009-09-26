@@ -138,6 +138,8 @@ typedef enum {
 - (void) addNotification:(NotificationProxy *)notification;
 - (void) removeNotification:(NotificationProxy *)notification;
 
+- (BOOL) toolbarOverlaid;
+- (CGPoint) toolbarOrigin;
 
 @end
 
