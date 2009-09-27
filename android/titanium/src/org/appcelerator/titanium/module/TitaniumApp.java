@@ -10,6 +10,7 @@ package org.appcelerator.titanium.module;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumApp;
 import org.appcelerator.titanium.api.ITitaniumProperties;
+import org.appcelerator.titanium.api.ITitaniumUserData;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.app.TitaniumProperties;
@@ -32,6 +33,17 @@ public class TitaniumApp extends TitaniumBaseModule implements ITitaniumApp
 		this.appInfo = appInfo;
 		this.appProperties = new TitaniumProperties(moduleMgr.getActivity(), "titanium", false);
 		systemProperties = appInfo.getSystemProperties();
+		
+		// attempt to load any compiled in application user data
+		try
+		{
+			ITitaniumUserData userData = (ITitaniumUserData)Class.forName("AppUserData").newInstance();
+			userData.load(this.appProperties);
+		}
+		catch(Exception ignore)
+		{
+			// this is OK, not all apps have user data
+		}
 	}
 
 	@Override

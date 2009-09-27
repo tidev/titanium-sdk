@@ -6,7 +6,8 @@
 # Android Simulator for building a project and launching
 # the Android Emulator or on the device
 #
-import os, sys, subprocess, shutil, time, signal, string, platform, re
+import os, sys, subprocess, shutil, time, signal, string, platform, re, run
+from os.path import splitext
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'..'))
@@ -17,10 +18,22 @@ def dequote(s):
 	return s[1:-1]
     return s
 
-def run(args):
-	output = subprocess.Popen(args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()[0]
-	#print output
-	return output
+def read_properties(propFile):
+	propDict = dict()
+	for propLine in propFile:
+	    propDef = propLine.strip()
+	    if len(propDef) == 0:
+	        continue
+	    if propDef[0] in ( '!', '#' ):
+	        continue
+	    punctuation= [ propDef.find(c) for c in ':= ' ] + [ len(propDef) ]
+	    found= min( [ pos for pos in punctuation if pos != -1 ] )
+	    name= propDef[:found].rstrip()
+	    value= propDef[found:].lstrip(":= ").rstrip()
+	    propDict[name]= value
+	propFile.close()
+	return propDict
+
 
 class Builder(object):
 
@@ -48,17 +61,17 @@ class Builder(object):
 		
 
 	def wait_for_device(self,type):
-		print "Waiting for device..."
+		print "[DEBUG] Waiting for device..."
 		os.system("\"%s\" -%s wait-for-device" % (self.adb,type))
-		print "Device connected..."
+		print "[DEBUG] Device connected..."
 	
 	def run_emulator(self):
-		#FIXME: this stuff aint gonna work for our
-		#dear friends windoooz
 		
-		print "Launching Android emulator...one moment"
-		print "From: " + self.emulator
-		print "SDCard: " + self.sdcard
+		print "[INFO] Launching Android emulator...one moment"
+		print "[DEBUG] From: " + self.emulator
+		print "[DEBUG] SDCard: " + self.sdcard
+		
+		sys.stdout.flush()
 
 		# start the emulator
 		p = subprocess.Popen([
@@ -74,9 +87,9 @@ class Builder(object):
 		])
 		
 		def handler(signum, frame):
-			print "signal caught: %d" % signum
+			print "[DEBUG] signal caught: %d" % signum
 			if not p == None:
-				print "calling emulator kill on %d" % p.pid
+				print "[DEBUG] calling emulator kill on %d" % p.pid
 				os.system("kill -9 %d" % p.pid)
 
 		if platform.system() != "Windows":
@@ -191,24 +204,34 @@ class Builder(object):
 			src_dir = os.path.join(self.project_dir, 'src')
 			android_manifest = os.path.join(self.project_dir, 'AndroidManifest.xml')
 			res_dir = os.path.join(self.project_dir, 'res')
-			output = run([aapt, 'package', '-m', '-J', src_dir, '-M', android_manifest, '-S', res_dir, '-I', jar])
+			output = run.run([aapt, 'package', '-m', '-J', src_dir, '-M', android_manifest, '-S', res_dir, '-I', jar])
 			success = re.findall(r'ERROR (.*)',output)
 			if len(success) > 0:
-				print success[0]
+				print "[ERROR] %s" % success[0]
 				sys.exit(1)
 			
-			#cmd = "\"%s\" package -m -J src -M AndroidManifest.xml -S res -I \"%s\"" %(aapt,jar)
-			#print cmd
-			#os.system(cmd)
-			
 			srclist = []
+			jarlist = []
 						
 			for root, dirs, files in os.walk(os.path.join(self.project_dir,'src')):
 				if len(files) > 0:
-					#prefix = root[len(self.project_dir)+1:]
 					for f in files:
+						if f == '.DS_Store' or f == '.svn': continue
 						path = root + os.sep + f
 						srclist.append(path)
+		
+			project_module_dir = os.path.join(self.top_dir,'modules','android')
+			if os.path.exists(project_module_dir):
+				for root, dirs, files in os.walk(project_module_dir):
+					if len(files) > 0:
+						for f in files:
+							path = root + os.sep + f
+							ext = splitext(f)[-1]
+							if ext in ('.java'):
+								srclist.append(path)
+							elif ext in ('.jar'):
+								jarlist.append(path) 
+				
 		
 			classes_dir = os.path.join(self.project_dir, 'bin', 'classes')	
 			if not os.path.exists(classes_dir):
@@ -233,44 +256,57 @@ class Builder(object):
 							found = True
 							break
 					if not found:
-						print "Error locating JDK: set $JAVA_HOME or put javac and jarsigner on your $PATH"
+						print "[ERROR] Error locating JDK: set $JAVA_HOME or put javac and jarsigner on your $PATH"
 						sys.exit(1)
 						
-			javac_command = [javac, '-classpath', jar + os.pathsep + tijar, '-d', classes_dir, '-sourcepath', src_dir]
+			# see if the user has app data and if so, compile in the user data
+			# such that it can be accessed automatically using Titanium.App.Properties.getString
+			app_data_cfg = os.path.join(self.top_dir,"appdata.cfg")
+			if os.path.exists(app_data_cfg):
+				props = read_properties(open(app_data_cfg,"r"))
+				module_data = ''
+				for key in props.keys():
+					data = props[key]
+					module_data+="properties.setString(\"%s\",\"%s\");\n   " % (key,data)
+					print("[DEBUG] detected user application data at = %s"% app_data_cfg)
+					sys.stdout.flush()
+					dtf = os.path.join(src_dir,"AppUserData.java")
+					if os.path.exists(dtf):
+						os.remove(dtf)
+					ctf = open(dtf,"w")
+					cf_template = open(os.path.join(template_dir,'templates','AppUserData.java'),'r').read()
+					cf_template = cf_template.replace('__MODULE_BODY__',module_data)
+					ctf.write(cf_template)
+					ctf.close()
+					srclist.append(dtf)
+						
+			classpath = jar + os.pathsep + tijar + os.pathsep.join(jarlist)
+			
+			javac_command = [javac, '-classpath', classpath, '-d', classes_dir, '-sourcepath', src_dir]
 			javac_command += srclist
-			run(javac_command)
-			#cmd = "javac -classpath \"%s\"" % jar + os.pathsep + "\"%s\"" % tijar + " -d bin/classes -sourcepath src %s" % " ".join(srclist)
-			#print cmd
-			#os.system(cmd)
+			print "[DEBUG] %s" % javac_command
+			sys.stdout.flush()
+			out = run.run(javac_command)
 			
 		
 			classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')	
-			run([dx, '--dex', '--output='+classes_dex, classes_dir, tijar])
-			#cmd = "\"%s\" --dex --output=bin/classes.dex bin/classes \"%s\"" %(dx,tijar)
-			#print cmd
-			#os.system(cmd)
+			run.run([dx, '-JXmx512M', '--dex', '--output='+classes_dex, classes_dir, tijar])
 									
 			ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')	
-			run([aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', assets_dir, '-S', 'res', '-I', jar, '-I', tijar, '-F', ap_])
-			#cmd = "\"%s\" package -f -M AndroidManifest.xml -A \"%s\" -S res -I \"%s\" -I \"%s\" -F bin/app.ap_" %(aapt,assets_dir,jar,tijar)
-			#print cmd
-			#os.system(cmd)
+			run.run([aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', assets_dir, '-S', 'res', '-I', jar, '-I', tijar, '-F', ap_])
 		
 			unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')	
-			run([apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', classes_dex, '-rf', src_dir, '-rj', tijar])
-			#cmd = "\"%s\" bin/app-unsigned.apk -u -z bin/app.ap_ -f bin/classes.dex -rf src -rj \"%s\"" %(apkbuilder,tijar)
-			#print cmd
-			#os.system(cmd)
+			run.run([apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', classes_dex, '-rf', src_dir, '-rj', tijar])
 	
 			if dist_dir:
 				app_apk = os.path.join(dist_dir, project_name + '.apk')	
 			else:
 				app_apk = os.path.join(self.project_dir, 'bin', 'app.apk')	
 
-			output = run([jarsigner, '-storepass', keystore_pass, '-keystore', keystore, '-signedjar', app_apk, unsigned_apk, keystore_alias])
+			output = run.run([jarsigner, '-storepass', keystore_pass, '-keystore', keystore, '-signedjar', app_apk, unsigned_apk, keystore_alias])
 			success = re.findall(r'RuntimeException: (.*)',output)
 			if len(success) > 0:
-				print success[0]
+				print "[ERROR] %s " %success[0]
 				sys.exit(1)
 
 			if dist_dir:
@@ -287,34 +323,30 @@ class Builder(object):
 					cmd = [self.adb]
 					if install:
 						self.wait_for_device('d')
-						print "Installing application on emulator"
+						print "[INFO] Installing application on emulator"
 						cmd += ['-d', 'install', '-r', app_apk]
-						#cmd = "\"%s\" -d install -r bin/app.apk" % self.adb
 					else:
 						self.wait_for_device('e')
-						print "Installing application on device"
+						print "[INFO] Installing application on device"
 						cmd += ['-e', 'install', '-r', app_apk]
-						#cmd = "\"%s\" -e install -r bin/app.apk" % self.adb
-					run(cmd)
-					#print cmd
-					#os.system(cmd)
-					#launched = True
+					run.run(cmd)
 					break
 				except:
 					time.sleep(3)
 					attempts+=1
 
 			if launched:
-				print "Launching application ... %s" % self.name
+				print "[INFO] Launching application ... %s" % self.name
+				sys.stdout.flush()
 				time.sleep(3)
-				run([self.adb, 'shell', 'am', 'start', '-a', 'android.intent.action.MAIN', '-n', '%s/%s.%s' % (self.app_id, self.app_id , self.classname)])
-				#os.system("adb shell am start -a android.intent.action.MAIN -n %s/%s.%s" % (self.app_id, self.app_id , self.classname))
-				print "Deployed %s ... " % self.name
+				run.run([self.adb, 'shell', 'am', 'start', '-a', 'android.intent.action.MAIN', '-n', '%s/%s.%s' % (self.app_id, self.app_id , self.classname)])
+				print "[DEBUG] Deployed %s ... " % self.name
 			else :
-				print "Application installed. Launch from drawer on Home Screen"
+				print "[INFO] Application installed. Launch from drawer on Home Screen"
 
 		finally:
 			os.chdir(curdir)
+			sys.stdout.flush()
 			
 
 if __name__ == "__main__":
@@ -342,7 +374,7 @@ if __name__ == "__main__":
 	if sys.argv[1] == 'emulator':
 		s.run_emulator()
 	elif sys.argv[1] == 'simulator':
-		print "Building %s for Android ... one moment" % project_name
+		print "[INFO] Building %s for Android ... one moment" % project_name
 		s.build_and_run(False)
 	elif sys.argv[1] == 'install':
 		s.build_and_run(True)
@@ -353,7 +385,7 @@ if __name__ == "__main__":
 		output_dir = dequote(sys.argv[9])
 		s.build_and_run(True,key,password,alias, output_dir)
 	else:
-		print "Unknown command"
+		print "[ERROR] Unknown command"
 		sys.exit(1)		
 
 	sys.exit(0)
