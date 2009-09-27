@@ -16,9 +16,10 @@ modules = [	'api',
 		'filesystem',
 		'network',
 		'platform',
-        'analytics',
+      'analytics',
 		'gesture',
-		'notification']
+		'notification',
+		'facebook']
 
 try:
 	# pull in the version from the top-level SConstruct
@@ -56,7 +57,7 @@ def build(name):
     	os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target lib%s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s %s' clean build" % (apiversion,name,config,defines,flags))
 
     if os.path.exists('/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator%s.sdk' % apiversion):
-    	os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target lib%s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s %s' clean build" % (apiversion,name,config,defines,flags))
+    	os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target lib%s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='DEBUG=1 %s %s' clean build" % (apiversion,name,config,defines,flags))
 	
 
     # build the merged library using lipo

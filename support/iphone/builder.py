@@ -212,6 +212,16 @@ def main(args):
 
 	os.chdir(iphone_tmp_module_dir)
 	
+	# copy any module image directories
+	for module in modules_detected:
+		img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
+		if os.path.exists(img_dir):
+			dest_img_dir = os.path.join(iphone_tmp_dir,'modules',module.lower(),'images')
+			if os.path.exists(dest_img_dir):
+				shutil.rmtree(dest_img_dir)
+			os.makedirs(dest_img_dir)
+			copy_resources(img_dir,dest_img_dir)
+			
 	
 	for arch in ['i386','armv6']:
 		arch_dir = os.path.join(iphone_tmp_module_dir,arch)

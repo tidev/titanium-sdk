@@ -31,7 +31,6 @@
 {
 	dictionary = [[NSMutableDictionary alloc] init];
 	NSMutableDictionary * titaniumObject = [[TitaniumHost sharedHost] titaniumObject];
-	NSString *className = NSStringFromClass([self class]);
 	[self configure];
 	[titaniumObject setValue:dictionary forKey:[self moduleName]];
 	[dictionary release];
