@@ -137,6 +137,15 @@ def main(args):
 	main_dest.write(main_template)
 	main_dest.close()
 	
+	# migrate the xcode project given that it can change per release of sdk
+	xcodeproj = open(os.path.join(template_dir,'project.pbxproj'),'r').read()
+	xcodeproj = xcodeproj.replace('__PROJECT_NAME__',name)
+	xcodeproj = xcodeproj.replace('__PROJECT_ID__',appid)
+	xcode_dir = os.path.join(iphone_dir,name+'.xcodeproj')
+	xcode_pbx = open(os.path.join(xcode_dir,'project.pbxproj'),'w')
+	xcode_pbx.write(xcodeproj)
+	xcode_pbx.close()	
+	
 	# copy in the default PNG
 	default_png = os.path.join(project_resources,'iphone','Default.png')
 	if os.path.exists(default_png):
