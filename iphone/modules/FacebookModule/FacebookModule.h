@@ -11,12 +11,22 @@
 @interface FacebookModule : TitaniumBasicModule<FBSessionDelegate,FBDialogDelegate,FBRequestDelegate> {
 	FBSession *session;
 	FBLoginDialog *dialog;
+	NSMutableDictionary *permissions;
 }
+-(void)fetchPermissions;
+-(void)addPermission:(NSString*)permission value:(NSNumber*)value;
+-(void)setPermissions:(NSDictionary*)dict;
 @end
 
 @interface FBRequestCallback : NSObject<FBRequestDelegate> {
 	NSString *token;
 	NSString *pageToken;
+	FacebookModule *module;
+	NSString *prefix;
+}
+@end
+
+@interface FBPermissionPrefetch : NSObject<FBRequestDelegate>{
 	FacebookModule *module;
 }
 @end
@@ -76,6 +86,17 @@
  * @tiapi(method=True,name=Facebook.query,since=0.7) invoke facebook FQL query (must be logged in)
  * @tiarg(for=Facebook.query,type=string,name=fql) fql
  * @tiarg(for=Facebook.query,type=function,name=callback) callback function to be invoked with result of query
+ */
+
+/**
+ * @tiapi(method=True,name=Facebook.hasPermission,since=0.7) returns true if user has permission (must be logged in)
+ * @tiarg(for=Facebook.hasPermission,type=string,name=permission) permission name
+ * @tiresult(for=Facebook.hasPermission,type=boolean) returns true if user has permission, false if not
+ */
+
+/**
+ * @tiapi(method=True,name=Facebook.getPermissions,since=0.7) get all the user permissions (must be logged in)
+ * @tiresult(for=Facebook.getPermissions,type=object) returns hash contains key/value pairs for each permission or null if no permissions
  */
 
 /**
