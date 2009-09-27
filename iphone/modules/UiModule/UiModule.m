@@ -18,7 +18,7 @@
 #import "TitaniumScrollableViewController.h"
 #import "TitaniumCompositeViewController.h"
 
-#ifdef __IPHONE_3_0
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 30000
 #import <MessageUI/MessageUI.h>
 #import <MessageUI/MFMailComposeViewController.h>
 #else
@@ -1341,7 +1341,7 @@ NSString * UrlEncodeString(NSString * string)
 	NSString * rowAnimationStyleString = [NSString stringWithFormat:@"{FADE:%d,RIGHT:%d,LEFT:%d,TOP:%d,BOTTOM:%d,NONE:%d}",
 				UITableViewRowAnimationFade,UITableViewRowAnimationRight,UITableViewRowAnimationLeft,
 				UITableViewRowAnimationTop,UITableViewRowAnimationBottom,
-#ifdef __IPHONE_3_0	 	
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 30000	 	
 				UITableViewRowAnimationNone];        // available in iPhone 3.0
 #else
 				UITableViewRowAnimationBottom+1];	//We cheat!
