@@ -94,8 +94,14 @@
 
 - (NSString*) toJSON:(id)jsonObj
 {
-	SBJSON *json = [[SBJSON alloc] init];
+	SBJSON *json = [[[SBJSON alloc] init] autorelease];
 	return [json stringWithObject:jsonObj error:nil];
+}
+
+- (id) fromJSON:(NSString*)json
+{
+	SBJSON *j = [[[SBJSON alloc] init] autorelease];
+	return [j objectWithString:json error:nil];
 }
 
 @end

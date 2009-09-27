@@ -71,6 +71,11 @@
  * return JSON representation of an array or dictionary
  */
 - (NSString*) toJSON:(id)json;
+
+/**
+ * return an object from a JSON string representation
+ */
+- (id) fromJSON:(NSString*)json;
 @end
 
 

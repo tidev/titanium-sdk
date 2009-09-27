@@ -131,7 +131,11 @@
 	{
 		result = [NSDictionary dictionaryWithObjectsAndKeys:result,@"success",nil];
 	}
-	NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:[module toJSON:result],@"data",[NSNumber numberWithBool:true],@"success",nil];
+	else if ([result isKindOfClass:[NSString class]])
+	{
+		result = [module fromJSON:result];
+	}
+	NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:result,@"data",[NSNumber numberWithBool:true],@"success",nil];
 	[module evaluateJavascript:[NSString stringWithFormat:@"try{Ti.Facebook._%@['%@'](%@);}catch(X){}; delete Ti.Facebook._%@['%@'];",prefix,token,[module toJSON:dictionary],prefix,token] token:pageToken];
 	[self autorelease];
 }
