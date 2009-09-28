@@ -451,22 +451,11 @@
 	[webView loadRequest:urlRequest];
 }
 
-
-
-
-
-
-
-
-
-
-
-
 #ifdef MODULE_TI_GESTURE
 
 #pragma mark Gestures
 
-#ifndef __IPHONE_3_0
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < 30000
 typedef int UIEventSubtype;
 const UIEventSubtype UIEventSubtypeMotionShake=1;
 #endif
@@ -479,8 +468,6 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 		NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent({type:'shake'})"];
 		[webView stringByEvaluatingJavaScriptFromString:eventString];
 	}
-	
-	NSLog(@"Ended!");
 }
 
 

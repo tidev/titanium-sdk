@@ -147,6 +147,31 @@
 		24C5ACF31061FDD70063594B /* NativeControlProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A6D3AF103C9EFD00131CD4 /* NativeControlProxy.h */; };
 		24C5ACF41061FDDC0063594B /* UiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8360FC9FCA400063972 /* UiModule.m */; };
 		24F02E460FD482D2007894DA /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F02E450FD482D2007894DA /* AnalyticsModule.m */; };
+		24FD2052106C9198004D4127 /* TitaniumBasicModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD204C106C9198004D4127 /* TitaniumBasicModule.m */; };
+		24FD2059106C9198004D4127 /* TitaniumBasicModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD204B106C9198004D4127 /* TitaniumBasicModule.h */; };
+		24FD205A106C9198004D4127 /* TitaniumBasicModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD204C106C9198004D4127 /* TitaniumBasicModule.m */; };
+		24FD23A1106F185D004D4127 /* FacebookModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD237C106F1802004D4127 /* FacebookModule.m */; };
+		24FD23A2106F185D004D4127 /* FBConnectGlobal.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2387106F1802004D4127 /* FBConnectGlobal.m */; };
+		24FD23A3106F185D004D4127 /* FBDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2388106F1802004D4127 /* FBDialog.m */; };
+		24FD23A4106F185D004D4127 /* FBFeedDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2389106F1802004D4127 /* FBFeedDialog.m */; };
+		24FD23A5106F185D004D4127 /* FBLoginButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238A106F1802004D4127 /* FBLoginButton.m */; };
+		24FD23A6106F185D004D4127 /* FBLoginDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238B106F1802004D4127 /* FBLoginDialog.m */; };
+		24FD23A7106F185D004D4127 /* FBPermissionDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238C106F1802004D4127 /* FBPermissionDialog.m */; };
+		24FD23A8106F185D004D4127 /* FBRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238D106F1802004D4127 /* FBRequest.m */; };
+		24FD23A9106F185D004D4127 /* FBSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238E106F1802004D4127 /* FBSession.m */; };
+		24FD23AB106F185D004D4127 /* FBXMLHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2390106F1802004D4127 /* FBXMLHandler.m */; };
+		24FD23BF106F1901004D4127 /* FBConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23B6106F1901004D4127 /* FBConnect.h */; };
+		24FD23C0106F1901004D4127 /* FBConnectGlobal.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23B7106F1901004D4127 /* FBConnectGlobal.h */; };
+		24FD23C1106F1901004D4127 /* FBDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23B8106F1901004D4127 /* FBDialog.h */; };
+		24FD23C2106F1901004D4127 /* FBFeedDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23B9106F1901004D4127 /* FBFeedDialog.h */; };
+		24FD23C3106F1901004D4127 /* FBLoginButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23BA106F1901004D4127 /* FBLoginButton.h */; };
+		24FD23C4106F1901004D4127 /* FBLoginDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23BB106F1901004D4127 /* FBLoginDialog.h */; };
+		24FD23C5106F1901004D4127 /* FBPermissionDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23BC106F1901004D4127 /* FBPermissionDialog.h */; };
+		24FD23C6106F1901004D4127 /* FBRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23BD106F1901004D4127 /* FBRequest.h */; };
+		24FD23C7106F1901004D4127 /* FBSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23BE106F1901004D4127 /* FBSession.h */; };
+		24FD23CC106F1A1C004D4127 /* TitaniumModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 249075290FC9D55B00D38073 /* TitaniumModule.h */; };
+		24FD23D2106F1A36004D4127 /* TitaniumBasicModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD204B106C9198004D4127 /* TitaniumBasicModule.h */; };
+		24FD2423106F2C50004D4127 /* FacebookModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD2422106F2C50004D4127 /* FacebookModule.h */; };
 		288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		28D7ACF80DDB3853001CB0EB /* TitaniumViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D7ACF70DDB3853001CB0EB /* TitaniumViewController.m */; };
@@ -333,6 +358,16 @@
 		B4FFBE3E0FD4A778001D5E81 /* unitTest.html in Resources */ = {isa = PBXBuildFile; fileRef = B4FFBE3D0FD4A778001D5E81 /* unitTest.html */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		24FD23DB106F1A53004D4127 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 24FD2394106F180F004D4127 /* libFacebook */;
+			remoteInfo = libFacebook;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D3623240D0F684500981E51 /* TitaniumAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumAppDelegate.h; sourceTree = "<group>"; };
@@ -396,6 +431,30 @@
 		24C5AC581061FB4C0063594B /* libUI.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libUI.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		24F02E440FD482D2007894DA /* AnalyticsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnalyticsModule.h; sourceTree = "<group>"; };
 		24F02E450FD482D2007894DA /* AnalyticsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnalyticsModule.m; sourceTree = "<group>"; };
+		24FD204B106C9198004D4127 /* TitaniumBasicModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumBasicModule.h; sourceTree = "<group>"; };
+		24FD204C106C9198004D4127 /* TitaniumBasicModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumBasicModule.m; sourceTree = "<group>"; };
+		24FD237C106F1802004D4127 /* FacebookModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FacebookModule.m; path = FacebookModule/FacebookModule.m; sourceTree = "<group>"; };
+		24FD2387106F1802004D4127 /* FBConnectGlobal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBConnectGlobal.m; path = FacebookModule/FBConnectGlobal.m; sourceTree = "<group>"; };
+		24FD2388106F1802004D4127 /* FBDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBDialog.m; path = FacebookModule/FBDialog.m; sourceTree = "<group>"; };
+		24FD2389106F1802004D4127 /* FBFeedDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBFeedDialog.m; path = FacebookModule/FBFeedDialog.m; sourceTree = "<group>"; };
+		24FD238A106F1802004D4127 /* FBLoginButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBLoginButton.m; path = FacebookModule/FBLoginButton.m; sourceTree = "<group>"; };
+		24FD238B106F1802004D4127 /* FBLoginDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBLoginDialog.m; path = FacebookModule/FBLoginDialog.m; sourceTree = "<group>"; };
+		24FD238C106F1802004D4127 /* FBPermissionDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBPermissionDialog.m; path = FacebookModule/FBPermissionDialog.m; sourceTree = "<group>"; };
+		24FD238D106F1802004D4127 /* FBRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBRequest.m; path = FacebookModule/FBRequest.m; sourceTree = "<group>"; };
+		24FD238E106F1802004D4127 /* FBSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBSession.m; path = FacebookModule/FBSession.m; sourceTree = "<group>"; };
+		24FD238F106F1802004D4127 /* FBXMLHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBXMLHandler.h; path = FacebookModule/FBXMLHandler.h; sourceTree = "<group>"; };
+		24FD2390106F1802004D4127 /* FBXMLHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBXMLHandler.m; path = FacebookModule/FBXMLHandler.m; sourceTree = "<group>"; };
+		24FD2395106F180F004D4127 /* libFacebook.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libFacebook.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24FD23B6106F1901004D4127 /* FBConnect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBConnect.h; path = FacebookModule/FBConnect.h; sourceTree = "<group>"; };
+		24FD23B7106F1901004D4127 /* FBConnectGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBConnectGlobal.h; path = FacebookModule/FBConnectGlobal.h; sourceTree = "<group>"; };
+		24FD23B8106F1901004D4127 /* FBDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBDialog.h; path = FacebookModule/FBDialog.h; sourceTree = "<group>"; };
+		24FD23B9106F1901004D4127 /* FBFeedDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBFeedDialog.h; path = FacebookModule/FBFeedDialog.h; sourceTree = "<group>"; };
+		24FD23BA106F1901004D4127 /* FBLoginButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBLoginButton.h; path = FacebookModule/FBLoginButton.h; sourceTree = "<group>"; };
+		24FD23BB106F1901004D4127 /* FBLoginDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBLoginDialog.h; path = FacebookModule/FBLoginDialog.h; sourceTree = "<group>"; };
+		24FD23BC106F1901004D4127 /* FBPermissionDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBPermissionDialog.h; path = FacebookModule/FBPermissionDialog.h; sourceTree = "<group>"; };
+		24FD23BD106F1901004D4127 /* FBRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBRequest.h; path = FacebookModule/FBRequest.h; sourceTree = "<group>"; };
+		24FD23BE106F1901004D4127 /* FBSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBSession.h; path = FacebookModule/FBSession.h; sourceTree = "<group>"; };
+		24FD2422106F2C50004D4127 /* FacebookModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FacebookModule.h; path = FacebookModule/FacebookModule.h; sourceTree = "<group>"; };
 		288765A40DF7441C002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		28AD733E0D9D9553002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		28D7ACF60DDB3853001CB0EB /* TitaniumViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumViewController.h; sourceTree = "<group>"; };
@@ -433,7 +492,7 @@
 		B45CA77E0F81565D00B80900 /* TitaniumHost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumHost.m; sourceTree = "<group>"; };
 		B4676CB40FB0E492009B81F4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		B47A271E1035F040002146CD /* TestSpaz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestSpaz.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B47A271E1035F040002146CD /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B47A27261035F11F002146CD /* accounts.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = accounts.html; path = ../../spaz/Resources/accounts.html; sourceTree = SOURCE_ROOT; };
 		B47A27271035F11F002146CD /* accounts.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = accounts.js; path = ../../spaz/Resources/accounts.js; sourceTree = SOURCE_ROOT; };
 		B47A272B1035F11F002146CD /* DM.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = DM.html; path = ../../spaz/Resources/DM.html; sourceTree = SOURCE_ROOT; };
@@ -653,6 +712,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		24FD2393106F180F004D4127 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B41068A00FBB730F00310448 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -695,6 +761,7 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				24FD2045106C9171004D4127 /* Module Helpers */,
 				B4C6D7640FE9B54800D62384 /* Data wrappers */,
 				B4C6D7630FE9B50C00D62384 /* Utilities */,
 				B4C6D7560FE9B34D00D62384 /* TitaniumViewControllers */,
@@ -734,7 +801,7 @@
 			children = (
 				1D6058910D05DD3D006BFB54 /* Titanium.app */,
 				B41068A20FBB730F00310448 /* libTitanium.a */,
-				B47A271E1035F040002146CD /* TestSpaz.app */,
+				B47A271E1035F040002146CD /* Titanium.app */,
 				24C5ABF11061FA9D0063594B /* libNotification.a */,
 				24C5ABF91061FABE0063594B /* libAnalytics.a */,
 				24C5AC001061FAC80063594B /* libGesture.a */,
@@ -748,6 +815,7 @@
 				24C5AC381061FB240063594B /* libNetwork.a */,
 				24C5AC3F1061FB2E0063594B /* libPlatform.a */,
 				24C5AC581061FB4C0063594B /* libUI.a */,
+				24FD2395106F180F004D4127 /* libFacebook.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -755,6 +823,7 @@
 		2444F8060FC9FCA400063972 /* modules */ = {
 			isa = PBXGroup;
 			children = (
+				24FD237B106F17E4004D4127 /* FacebookModule */,
 				B4F37DDA1061911100ED12AF /* NotificationModule */,
 				24F02E430FD482D2007894DA /* AnalyticsModule */,
 				24BBD83B0FCD245F00A261A4 /* GestureModule */,
@@ -890,6 +959,43 @@
 				24F02E450FD482D2007894DA /* AnalyticsModule.m */,
 			);
 			path = AnalyticsModule;
+			sourceTree = "<group>";
+		};
+		24FD2045106C9171004D4127 /* Module Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				24FD204B106C9198004D4127 /* TitaniumBasicModule.h */,
+				24FD204C106C9198004D4127 /* TitaniumBasicModule.m */,
+			);
+			name = "Module Helpers";
+			sourceTree = "<group>";
+		};
+		24FD237B106F17E4004D4127 /* FacebookModule */ = {
+			isa = PBXGroup;
+			children = (
+				24FD2422106F2C50004D4127 /* FacebookModule.h */,
+				24FD23B6106F1901004D4127 /* FBConnect.h */,
+				24FD23B7106F1901004D4127 /* FBConnectGlobal.h */,
+				24FD23B8106F1901004D4127 /* FBDialog.h */,
+				24FD23B9106F1901004D4127 /* FBFeedDialog.h */,
+				24FD23BA106F1901004D4127 /* FBLoginButton.h */,
+				24FD23BB106F1901004D4127 /* FBLoginDialog.h */,
+				24FD23BC106F1901004D4127 /* FBPermissionDialog.h */,
+				24FD23BD106F1901004D4127 /* FBRequest.h */,
+				24FD23BE106F1901004D4127 /* FBSession.h */,
+				24FD237C106F1802004D4127 /* FacebookModule.m */,
+				24FD2387106F1802004D4127 /* FBConnectGlobal.m */,
+				24FD2388106F1802004D4127 /* FBDialog.m */,
+				24FD2389106F1802004D4127 /* FBFeedDialog.m */,
+				24FD238A106F1802004D4127 /* FBLoginButton.m */,
+				24FD238B106F1802004D4127 /* FBLoginDialog.m */,
+				24FD238C106F1802004D4127 /* FBPermissionDialog.m */,
+				24FD238D106F1802004D4127 /* FBRequest.m */,
+				24FD238E106F1802004D4127 /* FBSession.m */,
+				24FD238F106F1802004D4127 /* FBXMLHandler.h */,
+				24FD2390106F1802004D4127 /* FBXMLHandler.m */,
+			);
+			name = FacebookModule;
 			sourceTree = "<group>";
 		};
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
@@ -1218,6 +1324,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		24FD2391106F180F004D4127 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24FD23D2106F1A36004D4127 /* TitaniumBasicModule.h in Headers */,
+				24FD23CC106F1A1C004D4127 /* TitaniumModule.h in Headers */,
+				24FD23BF106F1901004D4127 /* FBConnect.h in Headers */,
+				24FD23C0106F1901004D4127 /* FBConnectGlobal.h in Headers */,
+				24FD23C1106F1901004D4127 /* FBDialog.h in Headers */,
+				24FD23C2106F1901004D4127 /* FBFeedDialog.h in Headers */,
+				24FD23C3106F1901004D4127 /* FBLoginButton.h in Headers */,
+				24FD23C4106F1901004D4127 /* FBLoginDialog.h in Headers */,
+				24FD23C5106F1901004D4127 /* FBPermissionDialog.h in Headers */,
+				24FD23C6106F1901004D4127 /* FBRequest.h in Headers */,
+				24FD23C7106F1901004D4127 /* FBSession.h in Headers */,
+				24FD2423106F2C50004D4127 /* FacebookModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B410689E0FBB730F00310448 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -1255,6 +1380,7 @@
 				24C5AC831061FBF50063594B /* TitaniumCellWrapper.h in Headers */,
 				24C5AC841061FBF50063594B /* PickerImageTextCell.h in Headers */,
 				B49358DE106AE51C00BC4A77 /* TitaniumImageViewController.h in Headers */,
+				24FD2059106C9198004D4127 /* TitaniumBasicModule.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1476,6 +1602,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				24FD23DC106F1A53004D4127 /* PBXTargetDependency */,
 			);
 			name = libPlatform;
 			productName = libPlatform;
@@ -1497,6 +1624,23 @@
 			name = libUI;
 			productName = libUI;
 			productReference = 24C5AC581061FB4C0063594B /* libUI.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		24FD2394106F180F004D4127 /* libFacebook */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 24FD23B3106F18A3004D4127 /* Build configuration list for PBXNativeTarget "libFacebook" */;
+			buildPhases = (
+				24FD2391106F180F004D4127 /* Headers */,
+				24FD2392106F180F004D4127 /* Sources */,
+				24FD2393106F180F004D4127 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libFacebook;
+			productName = Facebook;
+			productReference = 24FD2395106F180F004D4127 /* libFacebook.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		B41068A10FBB730F00310448 /* libTitanium */ = {
@@ -1531,7 +1675,7 @@
 			);
 			name = "Titanium-Spaz";
 			productName = Titanium;
-			productReference = B47A271E1035F040002146CD /* TestSpaz.app */;
+			productReference = B47A271E1035F040002146CD /* Titanium.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -1548,6 +1692,7 @@
 			targets = (
 				1D6058900D05DD3D006BFB54 /* Titanium */,
 				B47A26CB1035F040002146CD /* Titanium-Spaz */,
+				24FD2394106F180F004D4127 /* libFacebook */,
 				B41068A10FBB730F00310448 /* libTitanium */,
 				24C5ABF01061FA9D0063594B /* libNotification */,
 				24C5ABF81061FABE0063594B /* libAnalytics */,
@@ -1724,6 +1869,7 @@
 				B40CDF19105F248F004CFED3 /* TitaniumCompositeViewController.m in Sources */,
 				B4F37DE01061913E00ED12AF /* NotificationModule.m in Sources */,
 				B49358DC106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */,
+				24FD2052106C9198004D4127 /* TitaniumBasicModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1835,6 +1981,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		24FD2392106F180F004D4127 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24FD23A1106F185D004D4127 /* FacebookModule.m in Sources */,
+				24FD23A2106F185D004D4127 /* FBConnectGlobal.m in Sources */,
+				24FD23A3106F185D004D4127 /* FBDialog.m in Sources */,
+				24FD23A4106F185D004D4127 /* FBFeedDialog.m in Sources */,
+				24FD23A5106F185D004D4127 /* FBLoginButton.m in Sources */,
+				24FD23A6106F185D004D4127 /* FBLoginDialog.m in Sources */,
+				24FD23A7106F185D004D4127 /* FBPermissionDialog.m in Sources */,
+				24FD23A8106F185D004D4127 /* FBRequest.m in Sources */,
+				24FD23A9106F185D004D4127 /* FBSession.m in Sources */,
+				24FD23AB106F185D004D4127 /* FBXMLHandler.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B410689F0FBB730F00310448 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1871,6 +2034,7 @@
 				24C5ACB21061FC540063594B /* TitaniumCellWrapper.m in Sources */,
 				24C5ACB31061FC540063594B /* PickerImageTextCell.m in Sources */,
 				B49358DF106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */,
+				24FD205A106C9198004D4127 /* TitaniumBasicModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1937,6 +2101,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		24FD23DC106F1A53004D4127 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 24FD2394106F180F004D4127 /* libFacebook */;
+			targetProxy = 24FD23DB106F1A53004D4127 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1D6058940D05DD3E006BFB54 /* Debug */ = {
@@ -2291,6 +2463,31 @@
 			};
 			name = Release;
 		};
+		24FD2396106F180F004D4127 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Facebook;
+			};
+			name = Debug;
+		};
+		24FD2397106F180F004D4127 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Facebook;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 		B41068A30FBB730F00310448 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2548,6 +2745,15 @@
 			buildConfigurations = (
 				24C5AC591061FB4C0063594B /* Debug */,
 				24C5AC5A1061FB4C0063594B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		24FD23B3106F18A3004D4127 /* Build configuration list for PBXNativeTarget "libFacebook" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24FD2396106F180F004D4127 /* Debug */,
+				24FD2397106F180F004D4127 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

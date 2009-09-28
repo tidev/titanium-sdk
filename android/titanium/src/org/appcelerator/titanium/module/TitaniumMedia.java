@@ -10,7 +10,6 @@ package org.appcelerator.titanium.module;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
 
@@ -133,7 +132,7 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 		if (pattern == null) {
 			pattern = DEFAULT_VIBRATE_PATTERN;
 		}
-		Vibrator vibrator = (Vibrator) getWebView().getContext().getSystemService(Context.VIBRATOR_SERVICE);
+		Vibrator vibrator = (Vibrator) getTitaniumWebView().getContext().getSystemService(Context.VIBRATOR_SERVICE);
 		if (vibrator != null) {
 			vibrator.vibrate(pattern, -1);
 		}

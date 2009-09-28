@@ -8,10 +8,16 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.api.ITitaniumModule;
+import org.appcelerator.titanium.api.ITitaniumUIWebView;
+import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.ui.TitaniumUIWebView;
+import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
 import org.appcelerator.titanium.util.Log;
 
 import android.content.Context;
@@ -24,19 +30,30 @@ public class TitaniumModuleManager
 
 	private ArrayList<ITitaniumModule> modules;
 	private SoftReference<TitaniumActivity> softActivity;
-	private SoftReference<TitaniumWebView> softWebView;
+	private WeakReference<TitaniumUIWebView> weakUIWebView;
+	private TitaniumWebView webView;
 	private Context appContext;
 
 	private long creationThreadId;
 	private String creationThreadName;
 
-	public TitaniumModuleManager(TitaniumActivity activity, TitaniumWebView webView)
+	private static AtomicInteger idGenerator;
+
+	public TitaniumModuleManager(TitaniumActivity activity) {
+		this(activity, false);
+	}
+	public TitaniumModuleManager(TitaniumActivity activity, boolean isWindow)
 	{
 		this.softActivity = new SoftReference<TitaniumActivity>(activity);
-		this.softWebView = new SoftReference<TitaniumWebView>(webView);
+		this.webView = new TitaniumWebView(this, isWindow);
 		this.modules = new ArrayList<ITitaniumModule>();
 		this.appContext = activity.getApplicationContext();
 
+		if (idGenerator == null) {
+			idGenerator = new AtomicInteger(1);
+		}
+
+        webView.setId(idGenerator.incrementAndGet());
 
 		Thread t = Thread.currentThread();
 		creationThreadId = t.getId();
@@ -58,6 +75,9 @@ public class TitaniumModuleManager
 		}
 	}
 
+	public String generateId(String prefix) {
+		return prefix + idGenerator.getAndIncrement();
+	}
 	public TitaniumApplication getApplication() {
 		return (TitaniumApplication) getActivity().getApplication();
 	}
@@ -69,10 +89,25 @@ public class TitaniumModuleManager
 	public Context getAppContext() {
 		return appContext;
 	}
-	public TitaniumWebView getWebView() {
-		return softWebView.get();
+
+	public TitaniumUserWindow getCurrentWindow() {
+		return getActivity().getCurrentWindow();
 	}
 
+	public void setCurrentView(TitaniumUIWebView v) {
+		this.weakUIWebView = new WeakReference<TitaniumUIWebView>(v);
+	}
+
+	public ITitaniumUIWebView getCurrentUIWebView() {
+		return weakUIWebView.get();
+	}
+
+	public ITitaniumView getCurrentView() {
+		return (ITitaniumView) weakUIWebView.get();
+	}
+	public TitaniumWebView getWebView() {
+		return webView;
+	}
 	public void addModule(ITitaniumModule m) {
 		if (! modules.contains(m)) {
 			modules.add(m);
@@ -82,9 +117,10 @@ public class TitaniumModuleManager
 	}
 
 	public void registerModules() {
-		TitaniumWebView webView = softWebView.get();
-		for (ITitaniumModule m : modules) {
-			m.register(webView);
+		if (webView != null) {
+			for (ITitaniumModule m : modules) {
+				m.register(webView);
+			}
 		}
 	}
 
@@ -96,6 +132,7 @@ public class TitaniumModuleManager
 				Log.e(LCAT, "Error invoking onResume in " + m.getModuleName(), t);
 			}
 		}
+		webView.onResume();
 	}
 
 	public void onPause() {
@@ -106,6 +143,7 @@ public class TitaniumModuleManager
 				Log.e(LCAT, "Error invoking onPause in " + m.getModuleName(), t);
 			}
 		}
+		webView.onPause();
 	}
 
 	public void onDestroy() {
@@ -116,5 +154,10 @@ public class TitaniumModuleManager
 				Log.e(LCAT, "Error invoking onDestroy in " + m.getModuleName());
 			}
 		}
+		softActivity.clear();
+		weakUIWebView.clear();
+		webView.onDestroy();
+		appContext = null;
+
 	}
 }

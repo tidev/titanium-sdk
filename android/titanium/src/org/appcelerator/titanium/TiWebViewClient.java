@@ -9,7 +9,6 @@ package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
 
-import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumActivityHelper;
@@ -45,35 +44,27 @@ public class TiWebViewClient extends WebViewClient
 		TitaniumActivity activity = weakActivity.get();
 		if (activity != null) {
 			if (activity.getLoadOnPageEnd()) {
-				ITitaniumView tiView = (ITitaniumView) view;
-				int activeView = activity.getActiveViewIndex();
-				if (activity.getViewCount() == 1 ||  activeView <= 0) {
-					activity.setActiveView(tiView, null);
+				int activeView = activity.getCurrentWindow().getActiveViewIndex();
+				if (activity.getCurrentWindow().getViewCount() == 1) {
+					activity.getCurrentWindow().setActiveView(0, null);
 				} else {
-					if (tiView != null) {
-						tiView.showing();
-					}
+					activity.getCurrentWindow().setActiveView(activeView, null);
 				}
 			}
 
 			// Fire a fake tab change
+			//TODO: Move this to currentWindow and let it decide.
 			Activity root = TitaniumActivityHelper.getRootActivity(activity);
 			if (root != null && root instanceof TitaniumActivityGroup) {
 				TitaniumActivityGroup tag = (TitaniumActivityGroup) root;
 				if (view instanceof TitaniumWebView) {
 					TitaniumWebView twv = (TitaniumWebView) view;
-					if (!twv.isUseAsView()) {
-						String data = tag.getLastTabChange();
-						if (data != null) {
-							try {
-								activity.onTabChange(data);
-							} catch (Throwable t) {
-								Log.e(LCAT, "Error while firing initial tab change on open: ", t);
-							}
-						}
-					} else {
-						if (DBG) {
-							Log.d(LCAT, "Not sending fake tabchange to webview used as a view");
+					String data = tag.getLastTabChange();
+					if (data != null) {
+						try {
+							activity.onTabChange(data);
+						} catch (Throwable t) {
+							Log.e(LCAT, "Error while firing initial tab change on open: ", t);
 						}
 					}
 				}

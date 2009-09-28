@@ -9,6 +9,8 @@
 
 import os, sys, uuid, subprocess, shutil, signal, time, re, run, glob
 from compiler import Compiler
+from os.path import join, splitext, split, exists
+from shutil import copyfile
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../'))
@@ -23,6 +25,38 @@ def dequote(s):
 def kill_simulator():
 	run.run(['/usr/bin/killall',"iPhone Simulator"],True)
 
+def copy_resources(source, target):
+	 if not os.path.exists(os.path.expanduser(target)):
+		  os.mkdir(os.path.expanduser(target))
+	 for root, dirs, files in os.walk(source):
+		  if '.svn' in dirs:
+				dirs.remove('.svn')	# don't visit .svn directories			  
+		  for file in files:
+				if splitext(file)[-1] in ('.html', '.js', '.css', '.a', '.m', '.c', '.cpp', '.h', '.mm'):
+					 continue
+				from_ = join(root, file)			  
+				to_ = os.path.expanduser(from_.replace(source, target, 1))
+				to_directory = os.path.expanduser(split(to_)[0])
+				if not exists(to_directory):
+					 os.makedirs(to_directory)
+				copyfile(from_, to_)
+
+def read_properties(propFile):
+	propDict = dict()
+	for propLine in propFile:
+	    propDef = propLine.strip()
+	    if len(propDef) == 0:
+	        continue
+	    if propDef[0] in ( '!', '#' ):
+	        continue
+	    punctuation= [ propDef.find(c) for c in ':= ' ] + [ len(propDef) ]
+	    found= min( [ pos for pos in punctuation if pos != -1 ] )
+	    name= propDef[:found].rstrip()
+	    value= propDef[found:].lstrip(":= ").rstrip()
+	    propDict[name]= value
+	propFile.close()
+	return propDict
+	
 def main(args):
 	argc = len(args)
 	if argc < 5 or (argc > 1 and args[1] == 'distribute' and argc!=9):
@@ -103,6 +137,15 @@ def main(args):
 	main_dest.write(main_template)
 	main_dest.close()
 	
+	# migrate the xcode project given that it can change per release of sdk
+	xcodeproj = open(os.path.join(template_dir,'project.pbxproj'),'r').read()
+	xcodeproj = xcodeproj.replace('__PROJECT_NAME__',name)
+	xcodeproj = xcodeproj.replace('__PROJECT_ID__',appid)
+	xcode_dir = os.path.join(iphone_dir,name+'.xcodeproj')
+	xcode_pbx = open(os.path.join(xcode_dir,'project.pbxproj'),'w')
+	xcode_pbx.write(xcodeproj)
+	xcode_pbx.close()	
+	
 	# copy in the default PNG
 	default_png = os.path.join(project_resources,'iphone','Default.png')
 	if os.path.exists(default_png):
@@ -120,10 +163,36 @@ def main(args):
 	# in case the developer has their own modules we can pick them up
 	project_module_dir = os.path.join(project_dir,"modules","iphone")
 	
+	# copy in any resources in our module like icons
+	if os.path.exists(project_module_dir):
+		copy_resources(project_module_dir,iphone_tmp_dir)
+	
+	# see if the user has app data and if so, compile in the user data
+	# such that it can be accessed automatically using Titanium.App.Properties.getString
+	app_data_cfg = os.path.join(project_dir,"appdata.cfg")
+	if os.path.exists(app_data_cfg):
+		props = read_properties(open(app_data_cfg,"r"))
+		module_data = ''
+		for key in props.keys():
+			value = props[key]
+			data = str(value).encode("hex")
+			module_data+="[[NSUserDefaults standardUserDefaults] setObject:[[[NSString alloc] initWithData:dataWithHexString(@\"%s\") encoding:NSUTF8StringEncoding] autorelease] forKey:@\"%s\"];\n" % (data,key)
+		print("[DEBUG] detected user application data at = %s"% app_data_cfg)
+		sys.stdout.flush()
+		dtf = os.path.join(iphone_tmp_module_dir,"UserDataModule.m")
+		if os.path.exists(dtf):
+			os.remove(dtf)
+		ctf = open(dtf,"w")
+		cf_template = open(os.path.join(template_dir,'UserDataModule.m'),'r').read()
+		cf_template = cf_template.replace('__MODULE_BODY__',module_data)
+		ctf.write(cf_template)
+		ctf.close()
+		compiler.modules.append('Userdata')
+	
 	# we build a new libTitanium that is basically only the modules used by the application all injected into the 
 	# final libTitanium that is used by xcode
 	os.chdir(iphone_tmp_module_dir)
-	modules_detected=[]
+	modules_detected=['Userdata']
 	for arch in ['i386','armv6']:
 		os.mkdir(os.path.join(iphone_tmp_module_dir,arch))
 		os.chdir(os.path.join(iphone_tmp_module_dir,arch))
@@ -144,10 +213,24 @@ def main(args):
 				os.system("ar -x tmp.a")
 				os.remove("tmp.a")	
 			else:
-				print "[WARN] couldn't find module library for Titanium.%s" % module_normalized_name
+				if not os.path.exists(os.path.join(project_module_dir,"%sModule.m"%module_normalized_name)) and module_normalized_name!='Userdata':
+					print "[WARN] couldn't find module library for Titanium.%s" % module_normalized_name
+				elif not module_normalized_name in modules_detected:
+					print "[DEBUG] module library dependency detected Titanium.%s" % (module_normalized_name)
+					modules_detected.append(module_normalized_name)
 
 	os.chdir(iphone_tmp_module_dir)
 	
+	# copy any module image directories
+	for module in modules_detected:
+		img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
+		if os.path.exists(img_dir):
+			dest_img_dir = os.path.join(iphone_tmp_dir,'modules',module.lower(),'images')
+			if os.path.exists(dest_img_dir):
+				shutil.rmtree(dest_img_dir)
+			os.makedirs(dest_img_dir)
+			copy_resources(img_dir,dest_img_dir)
+			
 	
 	for arch in ['i386','armv6']:
 		arch_dir = os.path.join(iphone_tmp_module_dir,arch)
@@ -164,10 +247,13 @@ def main(args):
 		os.system("ar -x \"%s\"" % os.path.join(iphone_tmp_module_dir,arch,"libTitanium-%s.a"%arch))
 
 		#compile in any user source
+		import inliner
 		include_dir = os.path.join(template_dir,"include")
 		if os.path.exists(include_dir) and os.path.exists(project_module_dir):
-			import inliner
 			inliner.inliner(include_dir,iphone_version,arch,project_module_dir,os.path.join(iphone_tmp_module_dir,arch))
+
+		if os.path.exists(include_dir) and os.path.exists(iphone_tmp_module_dir):
+			inliner.inliner(include_dir,iphone_version,arch,iphone_tmp_module_dir,os.path.join(iphone_tmp_module_dir,arch))
         
 		os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/libtool -static -o \"%s\" *.o" % os.path.join(iphone_tmp_module_dir,"libTitanium-%s.a"%arch))
     
@@ -255,12 +341,14 @@ def main(args):
     			"-sdk",
     			"iphonesimulator%s" % iphone_version,
     			"WEB_SRC_ROOT=%s" % iphone_tmp_dir,
-    			"GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development" % log_id
+    			"GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development DEBUG=1" % log_id
 			])
-			
+	    	
 			print output
 			print "[END_VERBOSE]"
 			sys.stdout.flush()
+
+			shutil.rmtree(iphone_tmp_dir)
 
 			if output.find("** BUILD FAILED **")!=-1 or output.find("ld returned 1")!=-1:
 			    print "[ERROR] Build Failed. Please see output for more details"
@@ -351,6 +439,8 @@ def main(args):
 				"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name
 			])
+
+			shutil.rmtree(iphone_tmp_dir)
 			
 			if output.find("** BUILD FAILED **")!=-1:
 			    print "[ERROR] Build Failed. Please see output for more details"
@@ -404,6 +494,8 @@ def main(args):
 				"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name
 			])
+
+			shutil.rmtree(iphone_tmp_dir)
 			
 			if output.find("** BUILD FAILED **")!=-1:
 			    print "[ERROR] Build Failed. Please see output for more details"

@@ -41,7 +41,6 @@ public class TitaniumTableView extends TitaniumBaseView
 	private static final int MSG_INDEXBYNAME = 307;
 
 	private int rowHeight;
-	private boolean root;
 	private String callback;
 	private TableViewModel viewModel;
 	private TTVListAdapter adapter;
@@ -130,7 +129,6 @@ public class TitaniumTableView extends TitaniumBaseView
 		super(tmm, themeId);
 
 		this.rowHeight = 65;
-		this.root = true;
 		this.viewModel = new TableViewModel();
 		this.hasBeenOpened = false;
 		this.fontSize = TitaniumUIHelper.getDefaultFontSize(tmm.getActivity());
@@ -144,9 +142,6 @@ public class TitaniumTableView extends TitaniumBaseView
 		}
 		if (o.has("rowHeight")) {
 			setRowHeight(o.getString("rowHeight"));
-		}
-		if (o.has("isPrimary")) {
-			setIsRoot(o.getBoolean("isPrimary"));
 		}
 		if (o.has("fontSize")) {
 			setFontSize(o.getString("fontSize"));
@@ -244,10 +239,6 @@ public class TitaniumTableView extends TitaniumBaseView
 		this.rowHeight = Integer.parseInt(height);
 	}
 
-	public void setIsRoot(boolean root) {
-		this.root = root;
-	}
-
 	public String getName() {
 		return name;
 	}
@@ -320,19 +311,6 @@ public class TitaniumTableView extends TitaniumBaseView
 		//view.setDrawingCacheEnabled(true);
 		adapter = new TTVListAdapter(viewModel);
 		view.setAdapter(adapter);
-		view.setOnKeyListener(new View.OnKeyListener() {
-
-			public boolean onKey(View view, int keyCode, KeyEvent keyEvent)
-			{
-				if (keyCode == KeyEvent.KEYCODE_BACK &&
-						keyEvent.getRepeatCount() == 0 &&
-						keyEvent.getAction() == KeyEvent.ACTION_DOWN
-						)
-				{
-					return true;
-				}
-				return false;
-			}});
 
 		view.setOnItemClickListener(new OnItemClickListener() {
 
@@ -364,7 +342,11 @@ public class TitaniumTableView extends TitaniumBaseView
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		return view.onKeyDown(keyCode, event);
+		boolean handled = super.onKeyDown(keyCode, event);
+		if (! handled) {
+			handled = view.onKeyDown(keyCode, event);
+		}
+		return handled;
 	}
 
 	@Override

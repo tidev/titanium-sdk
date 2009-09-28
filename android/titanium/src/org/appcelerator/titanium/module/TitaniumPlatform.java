@@ -227,7 +227,7 @@ public class TitaniumPlatform extends TitaniumBaseModule implements ITitaniumPla
 		Uri uri = Uri.parse(url);
 		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 		try {
-			getWebView().getContext().startActivity(intent);
+			getTitaniumWebView().getContext().startActivity(intent);
 			return true;
 		} catch (ActivityNotFoundException e) {
 			Log.e(LCAT,"Activity not found: " + url, e);

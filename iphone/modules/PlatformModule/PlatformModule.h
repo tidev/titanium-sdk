@@ -7,9 +7,9 @@
 #ifdef MODULE_TI_PLATFORM
 
 #import <Foundation/Foundation.h>
-#import "TitaniumModule.h"
+#import "TitaniumBasicModule.h"
 
-@interface PlatformModule : NSObject<TitaniumModule> {
+@interface PlatformModule : TitaniumBasicModule {
 }
 
 - (NSString *) createUUID;

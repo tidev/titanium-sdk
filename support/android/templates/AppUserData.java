@@ -1,0 +1,18 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009 by Appcelerator, Inc. All Rights Reserved.
+ * This is a generated file -- DO NOT HAND EDIT
+ */
+import org.appcelerator.titanium.api.ITitaniumUserData;
+import org.appcelerator.titanium.api.ITitaniumProperties;
+
+public class AppUserData implements ITitaniumUserData 
+{
+	public AppUserData()
+	{
+	}
+	public void load (ITitaniumProperties properties)
+	{
+		__MODULE_BODY__
+	}
+}

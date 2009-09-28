@@ -6,186 +6,287 @@
  */
 package org.appcelerator.titanium.module.ui;
 
+import java.util.HashMap;
+import java.util.HashSet;
+
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.TitaniumWebView;
+import org.appcelerator.titanium.TitaniumWebView.OnConfigChange;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumUIWebView;
 import org.appcelerator.titanium.api.ITitaniumView;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
-import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
+import android.widget.FrameLayout;
 
-public class TitaniumUIWebView
-	implements ITitaniumUIWebView, ITitaniumView, Handler.Callback
+public class TitaniumUIWebView extends TitaniumBaseView
+	implements ITitaniumUIWebView, ITitaniumView, Handler.Callback, ITitaniumLifecycle
 {
 	private static final String LCAT = "TitaniumUIWebView";
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
-	public static final String EVENT_FOCUSED = "focused";
-	public static final String EVENT_FOCUSED_JSON = "{type:'" + EVENT_FOCUSED + "'}";
-	public static final String EVENT_UNFOCUSED = "unfocused";
-	public static final String EVENT_UNFOCUSED_JSON = "{type:'" + EVENT_UNFOCUSED + "'}";
 	// App/UI level events
 	public static final String EVENT_UI_TABCHANGED = "ui.tabchange";
 
 	private static final int MSG_SHOWING = 300;
-	private static final int MSG_CONFIG = 301;
 
 	private TitaniumModuleManager tmm;
 	private WebView view;
 	private String url;
 	private Handler handler;
-	private String name;
 	private boolean hasBeenOpened;
-	private TitaniumJSEventManager eventListeners;
-	private String key;
+	private boolean needsInitialOnResume;
+
+	private HashMap<Integer, String> optionMenuCallbacks;
+	private HashSet<OnConfigChange> configurationChangeListeners;
 
 	public TitaniumUIWebView(TitaniumModuleManager tmm) {
-		this.tmm = tmm;
+		super(tmm);
+		this.tmm = tmm; //Todo use parent
+		tmm.setCurrentView(this);
+
 		handler = new Handler(this);
 		this.hasBeenOpened = false;
+		this.needsInitialOnResume = true;
+		this.configurationChangeListeners = new HashSet<OnConfigChange>();
 
-		this.eventListeners = new TitaniumJSEventManager(tmm);
-		this.eventListeners.supportEvent(EVENT_FOCUSED);
-		this.eventListeners.supportEvent(EVENT_UNFOCUSED);
-		this.eventListeners.supportEvent(EVENT_UI_TABCHANGED);
+		eventManager.supportEvent(EVENT_UI_TABCHANGED);
 
-		tmm.getActivity().registerView(this);
+		tmm.getCurrentWindow().registerView(this);
 	}
 
-	public boolean handleMessage(Message msg) {
-		if (msg.what == MSG_CONFIG) {
-			String u = url;
-			if (!URLUtil.isNetworkUrl(url)) {
-				TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getActivity());
-				u = tfh.getResourceUrl(url);
-				view = new TitaniumWebView(tmm.getActivity(), u, this);
-			} else {
-				view = new WebView(tmm.getAppContext());
+	public boolean handleMessage(Message msg)
+	{
+		boolean handled = false;
+
+		if (msg.what == MSG_SHOWING) {
+			if (needsInitialOnResume) {
+				onResume();
+				needsInitialOnResume = false;
 			}
-			return true;
-		} else if (msg.what == MSG_SHOWING) {
 			if (view != null) {
 				if (view instanceof TitaniumWebView) {
-					((TitaniumWebView) view).showing();
+					//((TitaniumWebView) view).showing();
 				} else {
 					view.loadUrl(url);
 				}
 				hasBeenOpened = true;
+				handled = true;
 			}
+		} else {
+			handled = super.handleMessage(msg);
 		}
-		return false;
+		return handled;
 	}
 
-	public void processOptions(String options) {
-		try {
-			JSONObject o = new JSONObject(options);
-
-			if (o.has("url")) {
-				setUrl(o.getString("url"));
-			}
-			if (o.has("name")) {
-				setName(o.getString("name"));
-			}
-
-		} catch (JSONException e) {
-			Log.e(LCAT, "Unable to process options: " + options, e);
+	@Override
+	protected void processLocalOptions(JSONObject o) throws JSONException {
+		if (o.has("url")) {
+			setUrl(o.getString("url"));
 		}
-		handler.obtainMessage(MSG_CONFIG).sendToTarget();
+	}
+
+	@Override
+	protected void doOpen()
+	{
+		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+		setLayoutParams(params);
+		setFocusable(false);
+		setFocusableInTouchMode(false);
+
+		if (!URLUtil.isNetworkUrl(url)) {
+			TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getActivity());
+			String u = url;
+			if (!URLUtil.isAssetUrl(url)) {
+				u = tfh.getResourceUrl(url);
+			}
+			TitaniumWebView tv = tmm.getWebView();
+			tv.setUrl(u);
+	        tv.initializeModules();
+	    	tv.buildWebView(); //TODO Performance?
+	    	view = tv;
+		} else {
+			view = new WebView(tmm.getAppContext());
+		}
+	}
+
+	public WebView getWebView() {
+		return view;
+	}
+
+	@Override
+	protected View getContentView() {
+		return view;
+	}
+
+	@Override
+	protected LayoutParams getContentLayoutParams() {
+		return new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+	}
+
+	public TitaniumWebView getTitaniumWebView() {
+		TitaniumWebView v = null;
+
+		if (view instanceof TitaniumWebView) {
+			v = (TitaniumWebView) view;
+		}
+
+		return v;
 	}
 
 	public void setUrl(String url) {
 		this.url = url;
 	}
 
-	public void showing() {
-		if (!hasBeenOpened) {
-			handler.obtainMessage(MSG_SHOWING).sendToTarget();
-		} else {
-			eventListeners.invokeSuccessListeners((TitaniumWebView) view, EVENT_FOCUSED, EVENT_FOCUSED_JSON);
+	public void addConfigChangeListener(OnConfigChange listener) {
+		synchronized(configurationChangeListeners) {
+			configurationChangeListeners.add(listener);
 		}
 	}
 
-	public void hiding() {
-		eventListeners.invokeSuccessListeners((TitaniumWebView) view, EVENT_UNFOCUSED, EVENT_UNFOCUSED_JSON);
+	public void removeConfigChangeListener(OnConfigChange listener) {
+		synchronized(configurationChangeListeners) {
+			configurationChangeListeners.remove(listener);
+		}
 	}
 
-	public int addEventListener(String eventName, String listener) {
-		return eventListeners.addListener(eventName, listener);
+	public void dispatchConfigurationChange(Configuration newConfig)
+	{
+		synchronized(configurationChangeListeners) {
+			for(OnConfigChange listener : configurationChangeListeners) {
+				try {
+					listener.configurationChanged(newConfig);
+				} catch (Throwable t) {
+					Log.e(LCAT, "Error invoking configuration changed on a listener");
+				}
+			}
+		}
 	}
 
-	public void removeEventListener(String eventName, int listenerId) {
-		eventListeners.removeListener(eventName, listenerId);
-	}
+    protected void buildMenuTree(Menu menu, TitaniumMenuItem md, HashMap<Integer, String> map)
+    {
+    	if (md.isRoot()) {
+    		for(TitaniumMenuItem mi : md.getMenuItems()) {
+    			buildMenuTree(menu, mi, map);
+    		}
+    	} else if (md.isSubMenu()) {
+    		SubMenu sm = menu.addSubMenu(0, md.getItemId(), 0, md.getLabel());
+    		for(TitaniumMenuItem mi : md.getMenuItems()) {
+    			buildMenuTree(sm, mi, map);
+    		}
+    	} else if (md.isSeparator()) {
+    		// Skip, no equivalent in Android
+    	} else if (md.isItem()) {
+    		MenuItem mi = menu.add(0, md.getItemId(), 0, md.getLabel());
+    		String s = md.getIcon();
+    		if (s != null) {
+     			Drawable d = null;
+				TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getActivity());
+				d = tfh.loadDrawable(s, true);
+				if (d != null) {
+					mi.setIcon(d);
+				}
+    		}
 
-	public void dispatchConfigurationChange(Configuration newConfig) {
-		// TODO Auto-generated method stub
+    		s = md.getCallback();
+    		if (s != null) {
+    			map.put(md.getItemId(), s);
+    		}
+    	} else {
+    		throw new IllegalStateException("Unknown menu type expected: root, submenu, separator, or item");
+    	}
+    }
 
+	public boolean dispatchPrepareOptionsMenu(Menu menu)
+	{
+		boolean handled = false;
+		TitaniumWebView v = getTitaniumWebView();
+		if (v != null) {
+			TitaniumMenuItem md = v.getInternalMenu();
+			if (md != null) {
+				if (!md.isRoot()) {
+					throw new IllegalStateException("Expected root menuitem");
+				}
+
+				if (optionMenuCallbacks != null) {
+					optionMenuCallbacks.clear();
+				}
+
+				optionMenuCallbacks = new HashMap<Integer, String>();
+				menu.clear(); // Inefficient, but safest at the moment
+				buildMenuTree(menu, md, optionMenuCallbacks);
+				handled = true;
+			} else {
+				if (DBG) {
+					Log.d(LCAT, "No option menu set.");
+				}
+			}
+		}
+		return handled;
 	}
 
 	public boolean dispatchOptionsItemSelected(MenuItem item) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+		boolean result = false;
 
-	public boolean dispatchPrepareOptionsMenu(Menu menu) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+		if (optionMenuCallbacks != null) {
+			int id = item.getItemId();
+			final String callback = optionMenuCallbacks.get(id);
+			if (callback != null) {
+				TitaniumWebView v = getTitaniumWebView();
+				if (v != null) {
+					v.evalJS(callback);
+				}
+				result = true;
+			}
+		}
 
-	public void dispatchWindowFocusChanged(boolean hasFocus) {
-		// TODO Auto-generated method stub
-
+		return result;
 	}
 
 	public void dispatchApplicationEvent(String eventName, String data) {
-		eventListeners.invokeSuccessListeners(eventName, data);
+		//eventListeners.invokeSuccessListeners(eventName, data);
 	}
 
 	public ITitaniumLifecycle getLifecycle() {
-		return null;
-	}
-
-	public View getNativeView() {
-		return view;
-	}
-
-	public boolean isPrimary() {
-		return true;
-	}
-
-	public void requestLayout() {
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getKey() {
-		return key;
-	}
-
-	public void setKey(String key) {
-		this.key = key;
+		return this;
 	}
 
 	public void postOpen() {
 		if (!hasBeenOpened) {
-			handler.obtainMessage(MSG_SHOWING).sendToTarget();
+			handler.obtainMessage(MSG_OPEN).sendToTarget();
+			handler.obtainMessage(MSG_SHOWING).sendToTarget(); // Showing?
+		}
+	}
+
+	public void onResume() {
+		if (tmm != null) {
+			tmm.onResume();
+		}
+	}
+
+	public void onPause() {
+		if (tmm != null) {
+			tmm.onPause();
+		}
+	}
+
+	public void onDestroy() {
+		if (tmm != null) {
+			tmm.onDestroy();
 		}
 	}
 }

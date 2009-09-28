@@ -47,22 +47,8 @@
 	return [NSNumber numberWithBool:result];
 }
 
-#define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
-
-- (BOOL) startModule;
+- (void)configure
 {
-	TitaniumInvocationGenerator * openURLInvocGen = [TitaniumInvocationGenerator generatorWithTarget:self];
-	[(PlatformModule *)openURLInvocGen openURL:nil];
-	NSInvocation * openURLInvoc = [openURLInvocGen invocation];	
-
-	NSInvocation * UUIDGenerator = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(createUUID)]];
-	[UUIDGenerator setTarget:self];
-	[UUIDGenerator setSelector:@selector(createUUID)];
-
-	TitaniumAccessorTuple * memoryAccessor = [[[TitaniumAccessorTuple alloc] init] autorelease];
-	[memoryAccessor setGetterTarget:self];
-	[memoryAccessor setGetterSelector:@selector(availableMemory)];
-	
 	NSString *deviceMac = nil; 
 	NSString *deviceIP = nil;
 	InitAddresses();
@@ -93,6 +79,8 @@
 	struct utsname u;
 	uname(&u);
 	
+	NSString *arch = @"arm";
+	
 	// detect iPhone 3G model
 	if (!strcmp(u.machine, "iPhone1,2")) 
 	{
@@ -112,6 +100,7 @@
 	else if (!strcmp(u.machine, "i386")) 
 	{
 		model = @"Simulator";
+		arch = @"i386";
 	}
 
 	NSString * phoneNumber = [[NSUserDefaults standardUserDefaults] stringForKey:@"SBFormattedPhoneNumber"];
@@ -120,25 +109,20 @@
 		phoneNumber = @"1 (650) 867-5309"; // tommy says: call jenny
 	}	
 	
-	NSDictionary * platformDict = [NSDictionary dictionaryWithObjectsAndKeys:
-								   [theDevice systemName],@"name",
-								   model,@"model",
-								   [theDevice systemVersion],@"version",
-								   @"arm",@"architecture",
-								   VAL_OR_NSNULL(deviceMac),@"macaddress",
-								   [theDevice uniqueIdentifier],@"id",
-								   [NSNumber numberWithInt:1],@"processorCount",
-								   [theDevice name],@"username",
-								   UUIDGenerator,@"createUUID",
-								   VAL_OR_NSNULL(deviceIP),@"address",
-								   VAL_OR_NSNULL(phoneNumber),@"phoneNumber",
-								   memoryAccessor,@"availableMemory",
-								   openURLInvoc,@"openURL",
-								   @"32bit",@"ostype",
-									nil];
-	[[[TitaniumHost sharedHost] titaniumObject] setObject:platformDict forKey:@"Platform"];
-	
-	return YES;
+	[self bindProperty:@"name" value:[theDevice systemName]];
+	[self bindProperty:@"model" value:model];
+	[self bindProperty:@"version" value:[theDevice systemVersion]];
+	[self bindProperty:@"architecture" value:arch];
+	[self bindProperty:@"macaddress" value:deviceMac];
+	[self bindProperty:@"id" value:[theDevice uniqueIdentifier]];
+	[self bindProperty:@"processorCount" value:[NSNumber numberWithInt:1]];
+	[self bindProperty:@"username" value:[theDevice name]];
+	[self bindProperty:@"address" value:deviceIP];
+	[self bindProperty:@"phoneNumber" value:phoneNumber];
+	[self bindProperty:@"ostype" value:@"32bit"];	
+	[self bindAccessor:@"availableMemory" method:@selector(availableMemory)];
+	[self bindFunction:@"createUUID" method:@selector(createUUID)];
+	[self bindFunction:@"openURL" method:@selector(openURL:)];
 }
 
 @end

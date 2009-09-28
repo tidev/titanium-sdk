@@ -14,7 +14,6 @@ import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.ui.widgets.TitaniumCompositeLayout;
 import org.appcelerator.titanium.module.ui.widgets.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TitaniumLogWatcher;
 import org.json.JSONException;
 import org.json.JSONObject;
 

@@ -147,7 +147,7 @@ public class TitaniumNetwork extends TitaniumBaseModule implements ITitaniumNetw
 		if (DBG) {
 			Log.d(LCAT, "Returning new TitaniumHttpClient");
 		}
-		return new TitaniumHttpClient(getWebView(), userAgent);
+		return new TitaniumHttpClient(getTitaniumWebView(), userAgent);
 	}
 
 	public int addEventListener(String eventName, String eventListener) {

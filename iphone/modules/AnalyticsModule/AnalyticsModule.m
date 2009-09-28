@@ -54,6 +54,7 @@ NSURL * AnalyticsModuleURL = nil;
 	}
 	[data appendData:[@"]" dataUsingEncoding:NSUTF8StringEncoding]];
 	[ourRequest setHTTPBody:data];
+	[data release];
 
 	connection = [[NSURLConnection alloc] initWithRequest:ourRequest delegate:self startImmediately:YES];
 	
@@ -148,7 +149,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 		
 	[encoder release];
 
-#ifdef DEBUG 
+#ifdef EXTREME_DEBUG 
 	NSLog(@"Generating Analytics event data: %@",json);
 #endif
 	

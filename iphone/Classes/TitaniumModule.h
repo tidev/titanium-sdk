@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import <Foundation/Foundation.h>
 #include "TargetConditionals.h" // this is important to get correct iphone preprocessor definitions
 
 @protocol TitaniumModule

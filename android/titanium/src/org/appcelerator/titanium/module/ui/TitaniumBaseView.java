@@ -76,7 +76,7 @@ public abstract class TitaniumBaseView extends FrameLayout
 		openViewAfterOptions = true;
 		openViewDelay = 1000;
 
-		tmm.getActivity().registerView(this);
+		tmm.getCurrentWindow().registerView(this);
 	}
 
 	public boolean handleMessage(Message msg)
@@ -129,7 +129,7 @@ public abstract class TitaniumBaseView extends FrameLayout
 	}
 
 	protected ITitaniumView findViewByKey(String key) {
-		return tmm.getActivity().getViewFromKey(key);
+		return tmm.getCurrentWindow().getViewFromKey(key);
 	}
 
 	public int addEventListener(String eventName, String listener) {
@@ -144,21 +144,25 @@ public abstract class TitaniumBaseView extends FrameLayout
 	}
 
 	public void dispatchWindowFocusChanged(boolean hasFocus) {
-		tmm.getWebView().dispatchWindowFocusChanged(hasFocus);
+		if (hasFocus) {
+			eventManager.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
+		} else {
+			eventManager.invokeSuccessListeners(EVENT_UNFOCUSED, EVENT_UNFOCUSED_JSON);
+		}
 	}
 
 	public void dispatchConfigurationChange(Configuration newConfig) {
-		//tmm.getWebView().dispatchConfigurationChange(newConfig);
+		tmm.getCurrentView().dispatchConfigurationChange(newConfig);
 	}
 
 	// Called on the current view, so forward to our controller
 	public boolean dispatchOptionsItemSelected(MenuItem item) {
-		return tmm.getWebView().dispatchOptionsItemSelected(item);
+		return tmm.getCurrentView().dispatchOptionsItemSelected(item);
 	}
 
 	// Called on the current view, so forward to our controller
 	public boolean dispatchPrepareOptionsMenu(Menu menu) {
-		return tmm.getWebView().dispatchPrepareOptionsMenu(menu);
+		return tmm.getCurrentView().dispatchPrepareOptionsMenu(menu);
 	}
 
 	public ITitaniumLifecycle getLifecycle() {
@@ -176,11 +180,6 @@ public abstract class TitaniumBaseView extends FrameLayout
 
 	public void hiding() {
 		eventManager.invokeSuccessListeners(EVENT_UNFOCUSED, EVENT_UNFOCUSED_JSON);
-	}
-
-
-	public boolean isPrimary() {
-		return true;
 	}
 
 	public void processOptions(String options)

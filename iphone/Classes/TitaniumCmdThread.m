@@ -144,6 +144,11 @@
 		}
 		@try
 		{
+			if ([[ourObject target] respondsToSelector:@selector(setPageToken:)])
+			{
+				[[ourObject target] setPageToken:[[theHost currentThread] magicToken] ];
+			}
+			
 			[ourInvocation invoke];
 			if ([ourSig methodReturnLength] == sizeof(id)) {
 				[ourInvocation getReturnValue:&objectResult];
