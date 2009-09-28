@@ -10,10 +10,9 @@ package org.appcelerator.titanium.module.ui;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TitaniumActivity;
-import org.appcelerator.titanium.TitaniumWebView;
+import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumUserWindow;
 import org.appcelerator.titanium.api.ITitaniumView;
@@ -59,11 +58,11 @@ public class TitaniumUserWindow extends ViewAnimator
 	protected String titleImageUrl;
 	protected String url;
 
+	protected TitaniumModuleManager tmm;
 	protected TitaniumJSEventManager eventListeners;
 	protected HashMap<String, WeakReference<ITitaniumView>> registeredViews;
 	protected ArrayList<ITitaniumView> views;
 	protected int activeViewIndex;
-	private static AtomicInteger idGenerator;
 	protected boolean needsDelayedFocusedEvent;
 	protected boolean isOpen;
 
@@ -75,9 +74,7 @@ public class TitaniumUserWindow extends ViewAnimator
 
 		this.handler = new Handler(this);
 
-		if (idGenerator == null) {
-			idGenerator = new AtomicInteger(1);
-		}
+		this.tmm = new TitaniumModuleManager(activity);
 
 		registeredViews = new HashMap<String,WeakReference<ITitaniumView>>(5);
 		views = new ArrayList<ITitaniumView>(5);
@@ -93,12 +90,15 @@ public class TitaniumUserWindow extends ViewAnimator
 
 	public void attachWebView(String url) {
 		this.url = null;
-        TitaniumWebView webView = new TitaniumWebView(activity, url);
-        webView.setId(idGenerator.incrementAndGet());
-        addView((ITitaniumView) webView);
+
+		TitaniumUIWebView uiWebView = new TitaniumUIWebView(tmm);
+        addView((ITitaniumView) uiWebView); // Make it views[0]
+		uiWebView.setUrl(url);
+
+        uiWebView.postOpen();
 
 		isOpen = true;
-		this.eventListeners = new TitaniumJSEventManager(webView);
+		this.eventListeners = new TitaniumJSEventManager(tmm.getWebView());
 		this.eventListeners.supportEvent(EVENT_FOCUSED);
 		this.eventListeners.supportEvent(EVENT_UNFOCUSED);
 	}
@@ -222,7 +222,7 @@ public class TitaniumUserWindow extends ViewAnimator
 
 	public void open()
 	{
-		Log.w(LCAT, "Method supported on currentWindow");
+		Log.w(LCAT, "Method not supported on currentWindow");
 	}
 
 	public void setWindowId(String windowId) {
@@ -272,7 +272,7 @@ public class TitaniumUserWindow extends ViewAnimator
 	public void registerView(ITitaniumView view)
 	{
 		if (view.getKey() == null) {
-			view.setKey("NPRX" + idGenerator.getAndIncrement());
+			view.setKey(tmm.generateId("NPRX"));
 		}
 		synchronized(views) {
 			if (!registeredViews.containsKey(view.getKey())) {
@@ -419,6 +419,9 @@ public class TitaniumUserWindow extends ViewAnimator
 			}
 		}
 
+		removeAllViews();
+		tmm.onDestroy();
+		tmm = null;
 		views.clear();
 		this.eventListeners.clear();
 		this.registeredViews.clear();
@@ -431,6 +434,7 @@ public class TitaniumUserWindow extends ViewAnimator
 				lifecycle.onPause();
 			}
 		}
+		tmm.onPause();
 	}
 
 	public void onResume() {
@@ -440,6 +444,7 @@ public class TitaniumUserWindow extends ViewAnimator
 				lifecycle.onResume();
 			}
 		}
+		tmm.onResume();
 	}
 
 	public String getViewKey(int i) {

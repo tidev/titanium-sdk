@@ -133,7 +133,7 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 		if (pattern == null) {
 			pattern = DEFAULT_VIBRATE_PATTERN;
 		}
-		Vibrator vibrator = (Vibrator) getWebView().getContext().getSystemService(Context.VIBRATOR_SERVICE);
+		Vibrator vibrator = (Vibrator) getTitaniumWebView().getContext().getSystemService(Context.VIBRATOR_SERVICE);
 		if (vibrator != null) {
 			vibrator.vibrate(pattern, -1);
 		}

@@ -187,7 +187,8 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 					h.o = new TitaniumEmailDialog(getModuleManager());
 					break;
 				case MSG_CREATE_WEBVIEW :
-					h.o = new TitaniumUIWebView(getModuleManager());
+					TitaniumModuleManager tmm = new TitaniumModuleManager(getModuleManager().getActivity());
+					h.o = new TitaniumUIWebView(tmm);
 					break;
 				case MSG_CREATE_DATEPICKER :
 					h.o = new TitaniumDatePicker(getModuleManager());
@@ -246,7 +247,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 
 	public ITitaniumMenuItem createMenu()
 	{
-		return new TitaniumMenuItem(getWebView(), new AtomicInteger(0));
+		return new TitaniumMenuItem(getTitaniumWebView(), new AtomicInteger(0));
 	}
 
 	public ITitaniumMenuItem getMenu()
@@ -400,11 +401,11 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	}
 
 	public int addEventListener(String eventName, String eventListener) {
-		return tmm.getWebView().addEventListener("ui." + eventName, eventListener);
+		return tmm.getCurrentView().addEventListener("ui." + eventName, eventListener);
 	}
 
 	public void removeEventListener(String eventName, int listenerId) {
-		tmm.getWebView().removeEventListener("ui." + eventName, listenerId);
+		tmm.getCurrentView().removeEventListener("ui." + eventName, listenerId);
 	}
 
 	//Created in 0.7.0

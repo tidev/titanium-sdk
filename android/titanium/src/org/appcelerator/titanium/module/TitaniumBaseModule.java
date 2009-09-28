@@ -46,7 +46,7 @@ public abstract class TitaniumBaseModule implements ITitaniumModule
 		return tmm.getActivity();
 	}
 
-	public TitaniumWebView getWebView() {
+	public TitaniumWebView getTitaniumWebView() {
 		return tmm.getWebView();
 	}
 
@@ -103,7 +103,9 @@ public abstract class TitaniumBaseModule implements ITitaniumModule
 
 	protected void invokeUserCallback(String method, String data) {
 		TitaniumWebView webView = tmm.getWebView();
-		webView.evalJS(method, data);
+		if (webView != null) {
+			webView.evalJS(method, data);
+		}
 	}
 
 	protected String createJSONError(int code, String msg)

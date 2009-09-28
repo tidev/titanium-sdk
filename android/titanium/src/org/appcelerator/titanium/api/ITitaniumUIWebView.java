@@ -6,6 +6,15 @@
  */
 package org.appcelerator.titanium.api;
 
+import org.appcelerator.titanium.TitaniumWebView;
+import org.appcelerator.titanium.TitaniumWebView.OnConfigChange;
+
+import android.webkit.WebView;
+
 public interface ITitaniumUIWebView {
 	public void setUrl(String url);
+	public WebView getWebView();
+	public TitaniumWebView getTitaniumWebView();
+	public void addConfigChangeListener(OnConfigChange listener);
+	public void removeConfigChangeListener(OnConfigChange listener);
 }

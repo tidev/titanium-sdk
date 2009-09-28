@@ -1369,6 +1369,7 @@ Titanium.UI = {
 	 * @tiarg[MenuItem,m] A root menu item
 	 */
 	setMenu : function(m) {
+		 Titanium.API.debug("MENU SET");
 		Titanium.uiProxy.setMenu(m.obj);
 	},
 	getMenu : function() {

@@ -64,7 +64,7 @@ import android.widget.AbsoluteLayout;
 
 @SuppressWarnings("deprecation")
 public class TitaniumWebView extends WebView
-	implements Handler.Callback, ITitaniumView, ITitaniumLifecycle
+	implements Handler.Callback, /*ITitaniumView, */ITitaniumLifecycle
 {
 	private static final String LCAT = "TiWebView";
 	private static final boolean DBG = TitaniumConfig.LOGD;
@@ -103,27 +103,21 @@ public class TitaniumWebView extends WebView
 	private String url;
 	private String source;
 	private Semaphore sourceReady;
-	private boolean useAsView;
+//	private boolean useAsView;
 	private boolean hasBeenOpened;
 	private TitaniumJSEventManager eventListeners;
-	private SoftReference<TitaniumUIWebView> softUIWebView;
+//	private SoftReference<TitaniumUIWebView> softUIWebView;
 
-	private HashSet<OnConfigChange> configurationChangeListeners;
 	private String key;
 
 	public interface OnConfigChange {
 		public void configurationChanged(Configuration config);
 	}
 
-	private HashMap<Integer, String> optionMenuCallbacks;
-
-	public TitaniumWebView(TitaniumActivity activity, String url) {
-		this(activity, url, null);
-	}
-
-	public TitaniumWebView(TitaniumActivity activity, String url, TitaniumUIWebView uiWebView)
+	public TitaniumWebView(TitaniumModuleManager tmm)
 	{
-		super(activity);
+		super(tmm.getActivity());
+		this.tmm = tmm;
 
 		this.hasBeenOpened = false;
 
@@ -131,26 +125,10 @@ public class TitaniumWebView extends WebView
 		this.mtm = MimeTypeMap.getSingleton();
 		this.locks = new HashMap<String,Semaphore>();
 		this.uniqueLockId = new AtomicInteger();
-        this.tmm = new TitaniumModuleManager(activity, this);
 
-		this.useAsView = uiWebView != null;
-		if (this.useAsView) {
-			softUIWebView = new SoftReference<TitaniumUIWebView>(uiWebView);
-		} else {
-			tmm.getCurrentWindow().registerView(this);
-		}
-
-        this.url = url;
-		this.configurationChangeListeners = new HashSet<OnConfigChange>();
-
-		this.eventListeners = new TitaniumJSEventManager(tmm);
-		this.eventListeners.supportEvent(EVENT_FOCUSED);
-		this.eventListeners.supportEvent(EVENT_UNFOCUSED);
-		// UI/App level events
-		this.eventListeners.supportEvent(EVENT_UI_TABCHANGED);
-
-        setWebViewClient(new TiWebViewClient(activity));
-        setWebChromeClient(new TiWebChromeClient(activity, useAsView));
+//?
+        setWebViewClient(new TiWebViewClient(tmm.getActivity()));
+        setWebChromeClient(new TiWebChromeClient(tmm.getActivity(), /*useAsView*/true)); //TODO: Fix
 
 		WebSettings settings = getSettings();
 
@@ -206,12 +184,18 @@ public class TitaniumWebView extends WebView
         }
 
         sourceReady = new Semaphore(0);
+	}
+
+	public void setUrl(String url) {
+        this.url = url;
+
         final String furl = url;
+        final TitaniumModuleManager ftmm = tmm;
 		Thread sourceLoadThread = new Thread(new Runnable(){
 
 			public void run() {
 				try {
-					TitaniumApplication app = tmm.getApplication();
+					TitaniumApplication app = ftmm.getApplication();
 					source = TitaniumUrlHelper.getSource(app, app.getApplicationContext(), furl, null);
 					Log.i(LCAT, "Source loaded for " + furl);
 				} catch (IOException e) {
@@ -221,21 +205,16 @@ public class TitaniumWebView extends WebView
 				}
 			}});
         sourceLoadThread.start();
-
-
-        initializeModules();
-        if (!useAsView) {
-        	buildWebView();
-        }
 	}
 
-    public void processOptions(String options) {
-		// TODO Auto-generated method stub
-
-	}
-
-	protected void initializeModules()
+	public void initializeModules()
 	{
+		this.eventListeners = new TitaniumJSEventManager(this);
+		this.eventListeners.supportEvent(EVENT_FOCUSED);
+		this.eventListeners.supportEvent(EVENT_UNFOCUSED);
+		// UI/App level events
+		this.eventListeners.supportEvent(EVENT_UI_TABCHANGED);
+
         // Add Modules
         this.tiUI = new TitaniumUI(tmm, "TitaniumUI");
         TitaniumAppInfo appInfo = tmm.getActivity().getAppInfo();
@@ -260,32 +239,32 @@ public class TitaniumWebView extends WebView
 
 		tmm.registerModules();
 
-		if (!useAsView) {
-			if (app.needsEnrollEvent()) {
-				String deployType = appInfo.getSystemProperties().getString("ti.deploytype", "unknown");
-				app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createAppEnrollEvent(tiPlatform, tiApp,deployType));
-			}
+		//TODO: Move to Window?
+		if (app.needsEnrollEvent()) {
+			String deployType = appInfo.getSystemProperties().getString("ti.deploytype", "unknown");
+			app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createAppEnrollEvent(tiPlatform, tiApp,deployType));
+		}
 
-			if (app.needsStartEvent()) {
-				String deployType = appInfo.getSystemProperties().getString("ti.deploytype", "unknown");
+		if (app.needsStartEvent()) {
+			String deployType = appInfo.getSystemProperties().getString("ti.deploytype", "unknown");
 
-				app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createAppStartEvent(tiNetwork, tiPlatform, tiApp, deployType));
-			}
+			app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createAppStartEvent(tiNetwork, tiPlatform, tiApp, deployType));
 		}
     }
 
-    protected void buildWebView()
+    public void buildWebView()
     {
     	if (DBG) {
     		Log.d(LCAT, "buildWebView");
     	}
-    	if (!useAsView) {
-	    	TitaniumWindowInfo windowInfo = tmm.getActivity().getWindowInfo();
-
-			if (windowInfo != null && windowInfo.hasBackgroundColor()) {
-				setBackgroundColor(windowInfo.getBackgroundColor());
-			}
-    	}
+// TODO: Move to window?
+//    	if (!useAsView) {
+//	    	TitaniumWindowInfo windowInfo = tmm.getActivity().getWindowInfo();
+//
+//			if (windowInfo != null && windowInfo.hasBackgroundColor()) {
+//				setBackgroundColor(windowInfo.getBackgroundColor());
+//			}
+//    	}
         if (url != null)
 		{
         	try {
@@ -603,32 +582,7 @@ public class TitaniumWebView extends WebView
 		        });
 	}
 
-	public void addConfigChangeListener(OnConfigChange listener) {
-		synchronized(configurationChangeListeners) {
-			configurationChangeListeners.add(listener);
-		}
-	}
-
-	public void removeConfigChangeListener(OnConfigChange listener) {
-		synchronized(configurationChangeListeners) {
-			configurationChangeListeners.remove(listener);
-		}
-	}
-
-	// View methods
-
-	public boolean isPrimary() {
-		return true;
-	}
-
-	public String getName() {
-		return null; // This is handled in the TitaniumUIWebView
-	}
-
-	public void setName(String name) {
-		// This is handled in the TitaniumUIWebView
-	}
-
+/*
 	public void showing() {
 		if (!hasBeenOpened) {
 			buildWebView();
@@ -666,104 +620,14 @@ public class TitaniumWebView extends WebView
 	public void dispatchApplicationEvent(String eventName, String data) {
 		eventListeners.invokeSuccessListeners(eventName, data);
 	}
-
-	public void dispatchConfigurationChange(Configuration newConfig) {
-		synchronized(configurationChangeListeners) {
-			for(OnConfigChange listener : configurationChangeListeners) {
-				try {
-					listener.configurationChanged(newConfig);
-				} catch (Throwable t) {
-					Log.e(LCAT, "Error invoking configuration changed on a listener");
-				}
-			}
-		}
-	}
-
-	public boolean isUseAsView() {
-		return useAsView;
-	}
-
-	public boolean dispatchPrepareOptionsMenu(Menu menu)
+*/
+	public TitaniumMenuItem getInternalMenu()
 	{
-		TitaniumMenuItem md = tiUI.getInternalMenu();
-		if (md != null) {
-			if (!md.isRoot()) {
-				throw new IllegalStateException("Expected root menuitem");
-			}
-
-			if (optionMenuCallbacks != null) {
-				optionMenuCallbacks.clear();
-			}
-
-			optionMenuCallbacks = new HashMap<Integer, String>();
-			menu.clear(); // Inefficient, but safest at the moment
-			buildMenuTree(menu, md, optionMenuCallbacks);
-
-		} else {
-			if (DBG) {
-				Log.d(LCAT, "No option menu set.");
-			}
-			return false;
+		TitaniumMenuItem menu = null;
+		if (tiUI != null) {
+			menu = tiUI.getInternalMenu();
 		}
-		return true;
-	}
-
-	public String getKey() {
-		return key;
-	}
-
-	public void setKey(String key) {
-		this.key = key;
-	}
-
-    protected void buildMenuTree(Menu menu, TitaniumMenuItem md, HashMap<Integer, String> map)
-    {
-    	if (md.isRoot()) {
-    		for(TitaniumMenuItem mi : md.getMenuItems()) {
-    			buildMenuTree(menu, mi, map);
-    		}
-    	} else if (md.isSubMenu()) {
-    		SubMenu sm = menu.addSubMenu(0, md.getItemId(), 0, md.getLabel());
-    		for(TitaniumMenuItem mi : md.getMenuItems()) {
-    			buildMenuTree(sm, mi, map);
-    		}
-    	} else if (md.isSeparator()) {
-    		// Skip, no equivalent in Android
-    	} else if (md.isItem()) {
-    		MenuItem mi = menu.add(0, md.getItemId(), 0, md.getLabel());
-    		String s = md.getIcon();
-    		if (s != null) {
-     			Drawable d = null;
-				TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getActivity());
-				d = tfh.loadDrawable(s, true);
-				if (d != null) {
-					mi.setIcon(d);
-				}
-    		}
-
-    		s = md.getCallback();
-    		if (s != null) {
-    			map.put(md.getItemId(), s);
-    		}
-    	} else {
-    		throw new IllegalStateException("Unknown menu type expected: root, submenu, separator, or item");
-    	}
-    }
-
-
-	public boolean dispatchOptionsItemSelected(MenuItem item) {
-		boolean result = false;
-
-		if (optionMenuCallbacks != null) {
-			int id = item.getItemId();
-			final String callback = optionMenuCallbacks.get(id);
-			if (callback != null) {
-				evalJS(callback);
-				result = true;
-			}
-		}
-
-		return result;
+		return menu;
 	}
 
 	public ITitaniumLifecycle getLifecycle() {

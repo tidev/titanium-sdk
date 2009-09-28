@@ -152,7 +152,7 @@ public abstract class TitaniumBaseView extends FrameLayout
 	}
 
 	public void dispatchWindowFocusChanged(boolean hasFocus) {
-		tmm.getWebView().dispatchWindowFocusChanged(hasFocus);
+		//tmm.getWebView().dispatchWindowFocusChanged(hasFocus);
 	}
 
 	public void dispatchConfigurationChange(Configuration newConfig) {
@@ -161,12 +161,12 @@ public abstract class TitaniumBaseView extends FrameLayout
 
 	// Called on the current view, so forward to our controller
 	public boolean dispatchOptionsItemSelected(MenuItem item) {
-		return tmm.getWebView().dispatchOptionsItemSelected(item);
+		return tmm.getCurrentView().dispatchOptionsItemSelected(item);
 	}
 
 	// Called on the current view, so forward to our controller
 	public boolean dispatchPrepareOptionsMenu(Menu menu) {
-		return tmm.getWebView().dispatchPrepareOptionsMenu(menu);
+		return tmm.getCurrentView().dispatchPrepareOptionsMenu(menu);
 	}
 
 	public ITitaniumLifecycle getLifecycle() {

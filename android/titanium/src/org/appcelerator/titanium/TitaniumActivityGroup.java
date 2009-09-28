@@ -306,7 +306,13 @@ public class TitaniumActivityGroup extends ActivityGroup
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event)
 	{
-		return super.dispatchKeyEvent(event);
+		boolean handled = super.dispatchKeyEvent(event);
+
+		if(!handled) {
+			handled = getCurrentActivity().dispatchKeyEvent(event);
+		}
+
+		return handled;
 	}
 
 	@Override

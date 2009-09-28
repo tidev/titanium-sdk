@@ -8,9 +8,12 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.api.ITitaniumModule;
+import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
 import org.appcelerator.titanium.util.Log;
@@ -25,19 +28,28 @@ public class TitaniumModuleManager
 
 	private ArrayList<ITitaniumModule> modules;
 	private SoftReference<TitaniumActivity> softActivity;
-	private SoftReference<TitaniumWebView> softWebView;
+	private WeakReference<ITitaniumView> weakView;
+	private TitaniumWebView webView;
 	private Context appContext;
 
 	private long creationThreadId;
 	private String creationThreadName;
 
-	public TitaniumModuleManager(TitaniumActivity activity, TitaniumWebView webView)
+	private static AtomicInteger idGenerator;
+
+	public TitaniumModuleManager(TitaniumActivity activity)
 	{
 		this.softActivity = new SoftReference<TitaniumActivity>(activity);
-		this.softWebView = new SoftReference<TitaniumWebView>(webView);
+		this.webView = new TitaniumWebView(this);
+		this.webView.loadDataWithBaseURL("", "<html><body</body></html>", "text/html", "UTF-8", null); //initialize with data
 		this.modules = new ArrayList<ITitaniumModule>();
 		this.appContext = activity.getApplicationContext();
 
+		if (idGenerator == null) {
+			idGenerator = new AtomicInteger(1);
+		}
+
+        webView.setId(idGenerator.incrementAndGet());
 
 		Thread t = Thread.currentThread();
 		creationThreadId = t.getId();
@@ -59,6 +71,9 @@ public class TitaniumModuleManager
 		}
 	}
 
+	public String generateId(String prefix) {
+		return prefix + idGenerator.getAndIncrement();
+	}
 	public TitaniumApplication getApplication() {
 		return (TitaniumApplication) getActivity().getApplication();
 	}
@@ -74,10 +89,18 @@ public class TitaniumModuleManager
 	public TitaniumUserWindow getCurrentWindow() {
 		return getActivity().getCurrentWindow();
 	}
-	public TitaniumWebView getWebView() {
-		return softWebView.get();
+
+	public void setCurrentView(ITitaniumView v) {
+		this.weakView = new WeakReference<ITitaniumView>(v);
 	}
 
+	public ITitaniumView getCurrentView() {
+		return weakView.get();
+	}
+
+	public TitaniumWebView getWebView() {
+		return webView;
+	}
 	public void addModule(ITitaniumModule m) {
 		if (! modules.contains(m)) {
 			modules.add(m);
@@ -87,9 +110,10 @@ public class TitaniumModuleManager
 	}
 
 	public void registerModules() {
-		TitaniumWebView webView = softWebView.get();
-		for (ITitaniumModule m : modules) {
-			m.register(webView);
+		if (webView != null) {
+			for (ITitaniumModule m : modules) {
+				m.register(webView);
+			}
 		}
 	}
 
@@ -121,5 +145,10 @@ public class TitaniumModuleManager
 				Log.e(LCAT, "Error invoking onDestroy in " + m.getModuleName());
 			}
 		}
+		softActivity.clear();
+		weakView.clear();
+		webView.destroy();
+		appContext = null;
+
 	}
 }

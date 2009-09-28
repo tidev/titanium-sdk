@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.api.ITabChangeListener;
-import org.appcelerator.titanium.api.ITitaniumUserWindow;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.config.TitaniumWindowInfo;
@@ -47,7 +46,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.ViewAnimator;
 
 /**
  * Class that controls a mobile Titanium application.
@@ -410,8 +408,13 @@ public class TitaniumActivity extends Activity
     		Log.i(LCAT, "Injecting onWindowFocusChanged(false)");
     		onWindowFocusChanged(false);
     		finish();
+    		return false;
+        } if (event.getKeyCode() == KeyEvent.KEYCODE_MENU && event.getRepeatCount() == 0) {
+				getWindow().openPanel(Window.FEATURE_OPTIONS_PANEL, event);
+				return true;
+		}else {
+        	return super.onKeyDown(keyCode, event);
         }
-        return false;
     }
 
 	@Override

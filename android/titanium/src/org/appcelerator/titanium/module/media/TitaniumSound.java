@@ -69,7 +69,7 @@ public class TitaniumSound
 		try {
 			TitaniumMedia mediaModule = softMediaModule.get();
 			if (mediaModule != null) {
-				WebView webView = mediaModule.getWebView();
+				WebView webView = mediaModule.getTitaniumWebView();
 				if (webView != null) {
 					mp = new MediaPlayer();
 					if (URLUtil.isAssetUrl(url)) {
