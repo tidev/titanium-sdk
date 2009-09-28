@@ -2,7 +2,7 @@
 #
 # tiapp parser
 # 
-import os, types
+import os, types, uuid
 from xml.dom.minidom import parse
 
 def getText(nodelist):
@@ -51,7 +51,8 @@ class TiAppXML(object):
 			'icon':None
 		}
 		
-		children = self.dom.getElementsByTagName("ti:app")[0].childNodes
+		root = self.dom.getElementsByTagName("ti:app")
+		children = root[0].childNodes
 		self.windows = []
 		for child in children:
 			if child.nodeType == 1:
@@ -67,6 +68,16 @@ class TiAppXML(object):
 				# properties of the app
 				else:
 					self.properties[child.nodeName]=getText(child.childNodes)
+		
+		# ensure we create a guid if the project doesn't already have one
+		if not self.properties.has_key('guid'):
+			guid = uuid.uuid4().hex
+			self.properties['guid'] = guid
+			n = self.dom.createElement("guid")
+			n.appendChild(self.dom.createTextNode(guid))
+			root[0].appendChild(n)
+			root[0].appendChild(self.dom.createTextNode("\n"))
+			self.dom.writexml(open(self.file, "w+"), encoding="UTF-8")
 					
 	def setDeployType(self, deploy_type):
 		found = False
