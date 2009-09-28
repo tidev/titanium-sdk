@@ -378,7 +378,7 @@ public class TitaniumUserWindow extends ViewAnimator
 	}
 
 	public void dispatchConfigurationChange(Configuration newConfig) {
-		handler.obtainMessage(MSG_CONFIGCHANGE, newConfig);
+		handler.obtainMessage(MSG_CONFIGCHANGE, newConfig).sendToTarget();
 	}
 
 	public boolean dispatchPrepareOptionsMenu(Menu menu) {

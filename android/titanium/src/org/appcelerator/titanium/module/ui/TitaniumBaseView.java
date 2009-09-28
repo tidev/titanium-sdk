@@ -183,11 +183,6 @@ public abstract class TitaniumBaseView extends FrameLayout
 		eventManager.invokeSuccessListeners(EVENT_UNFOCUSED, EVENT_UNFOCUSED_JSON);
 	}
 
-
-	public boolean isPrimary() {
-		return true;
-	}
-
 	public void processOptions(String options)
 	{
 		if (DBG) {

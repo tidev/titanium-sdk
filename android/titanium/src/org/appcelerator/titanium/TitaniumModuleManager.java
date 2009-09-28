@@ -13,8 +13,10 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.api.ITitaniumModule;
+import org.appcelerator.titanium.api.ITitaniumUIWebView;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.ui.TitaniumUIWebView;
 import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
 import org.appcelerator.titanium.util.Log;
 
@@ -28,7 +30,7 @@ public class TitaniumModuleManager
 
 	private ArrayList<ITitaniumModule> modules;
 	private SoftReference<TitaniumActivity> softActivity;
-	private WeakReference<ITitaniumView> weakView;
+	private WeakReference<TitaniumUIWebView> weakUIWebView;
 	private TitaniumWebView webView;
 	private Context appContext;
 
@@ -90,14 +92,17 @@ public class TitaniumModuleManager
 		return getActivity().getCurrentWindow();
 	}
 
-	public void setCurrentView(ITitaniumView v) {
-		this.weakView = new WeakReference<ITitaniumView>(v);
+	public void setCurrentView(TitaniumUIWebView v) {
+		this.weakUIWebView = new WeakReference<TitaniumUIWebView>(v);
+	}
+
+	public ITitaniumUIWebView getCurrentUIWebView() {
+		return weakUIWebView.get();
 	}
 
 	public ITitaniumView getCurrentView() {
-		return weakView.get();
+		return (ITitaniumView) weakUIWebView.get();
 	}
-
 	public TitaniumWebView getWebView() {
 		return webView;
 	}
@@ -148,7 +153,7 @@ public class TitaniumModuleManager
 			}
 		}
 		softActivity.clear();
-		weakView.clear();
+		weakUIWebView.clear();
 		webView.onDestroy();
 		appContext = null;
 
