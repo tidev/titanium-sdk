@@ -17,6 +17,7 @@
 #import "TitaniumTableViewController.h"
 #import "TitaniumScrollableViewController.h"
 #import "TitaniumCompositeViewController.h"
+#import "TitaniumImageViewController.h"
 
 #ifdef __IPHONE_3_0
 #import <MessageUI/MessageUI.h>
@@ -908,6 +909,26 @@ NSString * UrlEncodeString(NSString * string)
 	return nil;
 }
 
+#define IMAGEVIEW_SETURL	0
+
+- (id) imageView:(NSString *)tokenString doAction:(NSNumber *)action args:(id)args options:(NSDictionary *)optionsObject;
+{
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	TitaniumImageViewController * imageViewCon = (TitaniumImageViewController *)[theHost titaniumContentViewControllerForToken:tokenString];
+	if(![imageViewCon isKindOfClass:[TitaniumImageViewController class]] || ![action respondsToSelector:@selector(intValue)])return nil;
+	switch ([action intValue]) {
+		case IMAGEVIEW_SETURL:{
+			if(![args isKindOfClass:[NSString class]])return nil;
+			NSString * callingToken = [[theHost currentThread] magicToken];
+			TitaniumWebViewController * contextVC = (TitaniumWebViewController *)[theHost titaniumContentViewControllerForToken:callingToken];
+			[imageViewCon setUrl:[NSURL URLWithString:args relativeToURL:[contextVC currentContentURL]]];
+			return nil;
+		}
+	}
+	return nil;
+}
+
+
 #pragma mark Current Window actions
 
 - (void) setStatusBarStyle: (id) newValue;
@@ -1138,6 +1159,9 @@ NSString * UrlEncodeString(NSString * string)
 	
 	[(UiModule *)invocGen compositeView:nil doAction:nil args:nil options:nil];
 	NSInvocation * compositeViewInvoc = [invocGen invocation];
+	
+	[(UiModule *)invocGen imageView:nil doAction:nil args:nil options:nil];
+	NSInvocation * imageViewInvoc = [invocGen invocation];
 	
 	buttonContexts = [[NSMutableDictionary alloc] init];
 	
@@ -1433,6 +1457,7 @@ NSString * UrlEncodeString(NSString * string)
 
 			scrollViewInvoc,@"_SCRVWACT",
 			compositeViewInvoc,@"_CMPVWACT",
+			imageViewInvoc,@"_IMGVWACT",
 
 			[TitaniumJSCode codeWithString:createButtonString],@"createButton",
 			[TitaniumJSCode codeWithString:createActivityIndicatorString],@"createActivityIndicator",
@@ -1471,7 +1496,7 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:createWindowString],@"createWindow",
 			[TitaniumJSCode codeWithString:getWindowByNameString],@"getWindowByName",
 			[TitaniumJSCode codeWithString:createWebViewString],@"createWebView",
-			[TitaniumJSCode codeWithString:createScrollingViewString],@"createScrollingView",
+			[TitaniumJSCode codeWithString:createScrollingViewString],@"createScrollableView",
 			[TitaniumJSCode codeWithString:createCompositeViewString],@"createCompositeView",
 			[TitaniumJSCode codeWithString:createImageViewString],@"createImageView",
 			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",

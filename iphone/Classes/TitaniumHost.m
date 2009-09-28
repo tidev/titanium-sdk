@@ -484,6 +484,27 @@ TitaniumHost * lastSharedHost = nil;
 	}
 }
 
+- (void) bindObject: (id) object toKeyPath: (NSString *) keyPath;
+{
+	NSArray * keyPathComponents = [keyPath componentsSeparatedByString:@"."];
+
+	int pathCount = [keyPathComponents count];
+	int pathIndex = 0;
+	id oldObject = titaniumObject;
+	id owningObject = nil;
+	
+	for(NSString * thisKey in keyPathComponents){
+		owningObject = oldObject;
+		if(![owningObject isKindOfClass:[NSDictionary class]]){
+			NSLog(@"FAILED BINDING TO '%@': %@. %@ is not a dictionary, so can not go to %@",keyPath,object,oldObject,thisKey);
+		}
+		oldObject = [owningObject objectForKey:thisKey];
+		
+	}
+	
+	
+}
+
 - (void) applyDefaultViewSettings: (UIViewController *) viewController;
 {
 	

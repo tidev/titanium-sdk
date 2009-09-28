@@ -37,7 +37,6 @@
 	// Release any cached data, images, etc that aren't in use.
 }
 
-
 - (void)dealloc {
 	[imageView release];
     [super dealloc];
@@ -54,7 +53,7 @@
 		NSString * imageUrlObject = [inputState objectForKey:@"url"];
 		if([imageUrlObject isKindOfClass:[NSString class]]){
 			NSURL * singleImageUrl = [NSURL URLWithString:imageUrlObject relativeToURL:baseUrl];
-			[self setSingleImageBlob:[[TitaniumHost sharedHost] blobForUrl:singleImageUrl]];
+			[self setUrl:singleImageUrl];
 		}
 	}
 
@@ -63,14 +62,15 @@
 
 }
 
+#pragma mark Accessors
 - (UIImage *) singleImage;
 {
 	UIImage * result = [singleImageBlob imageBlob];
-
+	
 	if(result == nil){
 		//Add listener!
 	}
-
+	
 	if(imageSize.width > 1.0){
 		//Reshape!
 	}
@@ -85,7 +85,7 @@
 	viewFrame.size = preferredViewSize;
 	if(imageView==nil){
 		imageView = [[TitaniumImageView alloc] initWithFrame:viewFrame];
-	//	[imageView setUserInteractionEnabled:YES];
+		//	[imageView setUserInteractionEnabled:YES];
 		[imageView setDelegate:self];
 		[imageView setImage:[self singleImage]];
 	}
@@ -100,16 +100,43 @@
 		[scrollView setContentSize:viewFrame.size];
 		[imageView setFrame:viewFrame];
 		[scrollView addSubview:imageView];
-
+		
 		[scrollView setMultipleTouchEnabled:YES];
 		[scrollView setDelegate:self];
 	}
-
+	
 	return scrollView;
 }
 
+- (void) setView: (UIView *) newView;
+{
+	if(newView==nil){
+		[scrollView release];
+		scrollView = nil;
+		[imageView release];
+		imageView = nil;
+	}
+}
+
+#pragma mark Graphics
+
 - (void)updateLayout: (BOOL)animated;
 {
+	if(dirtyImage){
+		UIImage * newImage = [self singleImage];
+		[imageView setImage:newImage];
+		
+		if(scrollEnabled){
+			CGRect imageRect;
+			imageRect.origin = CGPointZero;
+			imageRect.size = [newImage size];
+			
+			[scrollView setContentSize:imageRect.size];
+			[imageView setFrame:imageRect];
+		}
+		dirtyImage = NO;
+	}
+
 	if(scrollEnabled){
 		[scrollView setMaximumZoomScale:4.0];
 		CGSize contentSize = [scrollView contentSize];
@@ -122,16 +149,7 @@
 	}
 }
 
-
-- (void) setView: (UIView *) newView;
-{
-	if(newView==nil){
-		[scrollView release];
-		scrollView = nil;
-		[imageView release];
-		imageView = nil;
-	}
-}
+#pragma mark Callbacks
 
 - (void) handleTouch: (UITouch *) ourTouch;
 {
@@ -142,6 +160,24 @@
 {
 	return imageView;
 }
+
+#pragma mark Javascript entrances
+
+- (void) setUrl: (NSURL *) newUrl;
+{
+	[self setSingleImageBlob:[[TitaniumHost sharedHost] blobForUrl:newUrl]];
+	if(imageView != nil){
+		dirtyImage = YES;
+		if(![NSThread isMainThread]){
+			[self performSelectorOnMainThread:@selector(updateLayout:) withObject:nil waitUntilDone:NO];
+		} else {
+			[self updateLayout:NO];
+		}
+	}
+}
+
+
+
 
 
 @end

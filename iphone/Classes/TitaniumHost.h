@@ -133,6 +133,7 @@ typedef enum {
 - (BOOL) registerModuleNamed: (NSString *) moduleClassName;
 - (void) startModules;
 - (void) endModules;
+- (void) bindObject: (id) object toKeyPath: (NSString *) keyPath;
 
 #pragma mark View registration
 - (void) applyDefaultViewSettings: (UIViewController *) viewController;

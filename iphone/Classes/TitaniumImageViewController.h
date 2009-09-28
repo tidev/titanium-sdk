@@ -25,9 +25,11 @@
 
 	CGSize imageSize;
 	BOOL scrollEnabled;
+	BOOL dirtyImage;
 //	NSArray * animatedImageUrls;
 }
 @property(nonatomic,readwrite,retain)	TitaniumBlobWrapper * singleImageBlob;
-
+- (void) setUrl: (NSURL *) newUrl;
+- (UIImage *) singleImage;
 
 @end
