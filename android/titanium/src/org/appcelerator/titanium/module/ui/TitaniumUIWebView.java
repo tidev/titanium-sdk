@@ -22,7 +22,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
@@ -33,10 +32,9 @@ import android.view.View;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
-import android.widget.FrameLayout.LayoutParams;
 
 public class TitaniumUIWebView extends TitaniumBaseView
-	implements ITitaniumUIWebView, ITitaniumView, Handler.Callback
+	implements ITitaniumUIWebView, ITitaniumView, Handler.Callback, ITitaniumLifecycle
 {
 	private static final String LCAT = "TitaniumUIWebView";
 	private static final boolean DBG = TitaniumConfig.LOGD;
@@ -50,10 +48,8 @@ public class TitaniumUIWebView extends TitaniumBaseView
 	private WebView view;
 	private String url;
 	private Handler handler;
-	private String name;
 	private boolean hasBeenOpened;
-	private String key;
-	private boolean attachToWindow;
+	private boolean needsInitialOnResume;
 
 	private HashMap<Integer, String> optionMenuCallbacks;
 	private HashSet<OnConfigChange> configurationChangeListeners;
@@ -65,6 +61,7 @@ public class TitaniumUIWebView extends TitaniumBaseView
 
 		handler = new Handler(this);
 		this.hasBeenOpened = false;
+		this.needsInitialOnResume = true;
 		this.configurationChangeListeners = new HashSet<OnConfigChange>();
 
 		eventManager.supportEvent(EVENT_UI_TABCHANGED);
@@ -77,6 +74,10 @@ public class TitaniumUIWebView extends TitaniumBaseView
 		boolean handled = false;
 
 		if (msg.what == MSG_SHOWING) {
+			if (needsInitialOnResume) {
+				onResume();
+				needsInitialOnResume = false;
+			}
 			if (view != null) {
 				if (view instanceof TitaniumWebView) {
 					//((TitaniumWebView) view).showing();
@@ -117,7 +118,6 @@ public class TitaniumUIWebView extends TitaniumBaseView
 			tv.setUrl(u);
 	        tv.initializeModules();
 	    	tv.buildWebView(); //TODO Performance?
-
 	    	view = tv;
 		} else {
 			view = new WebView(tmm.getAppContext());
@@ -151,12 +151,6 @@ public class TitaniumUIWebView extends TitaniumBaseView
 	public void setUrl(String url) {
 		this.url = url;
 	}
-
-//	public void showing() {
-//		if (!hasBeenOpened) {
-//			handler.obtainMessage(MSG_SHOWING).sendToTarget();
-//		}
-//	}
 
 	public void addConfigChangeListener(OnConfigChange listener) {
 		synchronized(configurationChangeListeners) {
@@ -268,18 +262,31 @@ public class TitaniumUIWebView extends TitaniumBaseView
 	}
 
 	public ITitaniumLifecycle getLifecycle() {
-		return null;
+		return this;
 	}
-
-//	public View getNativeView() {
-//		return view;
-//	}
-//
 
 	public void postOpen() {
 		if (!hasBeenOpened) {
 			handler.obtainMessage(MSG_OPEN).sendToTarget();
 			handler.obtainMessage(MSG_SHOWING).sendToTarget(); // Showing?
+		}
+	}
+
+	public void onResume() {
+		if (tmm != null) {
+			tmm.onResume();
+		}
+	}
+
+	public void onPause() {
+		if (tmm != null) {
+			tmm.onPause();
+		}
+	}
+
+	public void onDestroy() {
+		if (tmm != null) {
+			tmm.onDestroy();
 		}
 	}
 }

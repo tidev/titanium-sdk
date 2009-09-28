@@ -422,11 +422,10 @@ public class TitaniumUserWindow extends ViewAnimator
 		}
 
 		removeAllViews();
-		tmm.onDestroy();
 		tmm = null;
 		views.clear();
-		this.eventListeners.clear();
-		this.registeredViews.clear();
+		eventListeners.clear();
+		registeredViews.clear();
 	}
 
 	public void onPause() {
@@ -436,7 +435,6 @@ public class TitaniumUserWindow extends ViewAnimator
 				lifecycle.onPause();
 			}
 		}
-		tmm.onPause();
 	}
 
 	public void onResume() {
@@ -446,7 +444,6 @@ public class TitaniumUserWindow extends ViewAnimator
 				lifecycle.onResume();
 			}
 		}
-		tmm.onResume();
 	}
 
 	public String getViewKey(int i) {

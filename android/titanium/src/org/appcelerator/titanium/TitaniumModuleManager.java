@@ -125,6 +125,7 @@ public class TitaniumModuleManager
 				Log.e(LCAT, "Error invoking onResume in " + m.getModuleName(), t);
 			}
 		}
+		webView.onResume();
 	}
 
 	public void onPause() {
@@ -135,6 +136,7 @@ public class TitaniumModuleManager
 				Log.e(LCAT, "Error invoking onPause in " + m.getModuleName(), t);
 			}
 		}
+		webView.onPause();
 	}
 
 	public void onDestroy() {
@@ -147,7 +149,7 @@ public class TitaniumModuleManager
 		}
 		softActivity.clear();
 		weakView.clear();
-		webView.destroy();
+		webView.onDestroy();
 		appContext = null;
 
 	}

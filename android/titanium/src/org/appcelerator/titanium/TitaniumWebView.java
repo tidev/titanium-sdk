@@ -7,10 +7,8 @@
 package org.appcelerator.titanium;
 
 import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -19,10 +17,8 @@ import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumNativeControl;
 import org.appcelerator.titanium.api.ITitaniumNetwork;
 import org.appcelerator.titanium.api.ITitaniumPlatform;
-import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.module.TitaniumAPI;
 import org.appcelerator.titanium.module.TitaniumAccelerometer;
 import org.appcelerator.titanium.module.TitaniumAnalytics;
@@ -37,9 +33,7 @@ import org.appcelerator.titanium.module.TitaniumPlatform;
 import org.appcelerator.titanium.module.TitaniumUI;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
 import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
-import org.appcelerator.titanium.module.ui.TitaniumUIWebView;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.appcelerator.titanium.util.TitaniumUrlHelper;
 import org.json.JSONArray;
@@ -47,15 +41,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.res.Configuration;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.webkit.WebSettings;
@@ -64,7 +54,7 @@ import android.widget.AbsoluteLayout;
 
 @SuppressWarnings("deprecation")
 public class TitaniumWebView extends WebView
-	implements Handler.Callback, /*ITitaniumView, */ITitaniumLifecycle
+	implements Handler.Callback, ITitaniumLifecycle
 {
 	private static final String LCAT = "TiWebView";
 	private static final boolean DBG = TitaniumConfig.LOGD;
@@ -650,7 +640,6 @@ public class TitaniumWebView extends WebView
 		Log.e(LCAT, "ON DESTROY: " + getId());
 		//Log.e(LCAT, "Loaded? " + loaded);
 
-		tmm.onDestroy();
 		if (/*loaded*/ true) {
 			destroy();
 		}
@@ -658,11 +647,9 @@ public class TitaniumWebView extends WebView
 
 	public void onPause() {
 		pauseTimers();
-		tmm.onPause();
 	}
 
 	public void onResume() {
 		resumeTimers();
-		tmm.onResume();
 	}
 }
