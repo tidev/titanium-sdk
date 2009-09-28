@@ -508,10 +508,7 @@ public class TitaniumActivity extends Activity
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 
-//		if (activeViewIndex > -1) {
-//			ITitaniumView tiView = views.get(activeViewIndex);
-//			//tiView.dispatchWindowFocusChanged(hasFocus);
-//		}
+		getCurrentWindow().onWindowFocusChanged(hasFocus);
 	}
 
 	public void onTabChange(String data) {

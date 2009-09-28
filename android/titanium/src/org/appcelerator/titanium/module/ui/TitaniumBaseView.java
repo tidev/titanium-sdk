@@ -109,13 +109,6 @@ public abstract class TitaniumBaseView extends FrameLayout
 		return handled;
 	}
 
-
-	@Override
-	public boolean dispatchKeyEvent(KeyEvent event) {
-		// TODO Auto-generated method stub
-		return super.dispatchKeyEvent(event);
-	}
-
 	public View getNativeView() {
 		return this;
 	}
@@ -152,11 +145,15 @@ public abstract class TitaniumBaseView extends FrameLayout
 	}
 
 	public void dispatchWindowFocusChanged(boolean hasFocus) {
-		//tmm.getWebView().dispatchWindowFocusChanged(hasFocus);
+		if (hasFocus) {
+			eventManager.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
+		} else {
+			eventManager.invokeSuccessListeners(EVENT_UNFOCUSED, EVENT_UNFOCUSED_JSON);
+		}
 	}
 
 	public void dispatchConfigurationChange(Configuration newConfig) {
-		//tmm.getWebView().dispatchConfigurationChange(newConfig);
+		tmm.getCurrentView().dispatchConfigurationChange(newConfig);
 	}
 
 	// Called on the current view, so forward to our controller

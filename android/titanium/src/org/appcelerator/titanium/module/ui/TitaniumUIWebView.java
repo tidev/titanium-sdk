@@ -79,7 +79,7 @@ public class TitaniumUIWebView extends TitaniumBaseView
 		if (msg.what == MSG_SHOWING) {
 			if (view != null) {
 				if (view instanceof TitaniumWebView) {
-					//TODO fix ((TitaniumWebView) view).showing();
+					//((TitaniumWebView) view).showing();
 				} else {
 					view.loadUrl(url);
 				}
@@ -152,11 +152,11 @@ public class TitaniumUIWebView extends TitaniumBaseView
 		this.url = url;
 	}
 
-	public void showing() {
-		if (!hasBeenOpened) {
-			handler.obtainMessage(MSG_SHOWING).sendToTarget();
-		}
-	}
+//	public void showing() {
+//		if (!hasBeenOpened) {
+//			handler.obtainMessage(MSG_SHOWING).sendToTarget();
+//		}
+//	}
 
 	public void addConfigChangeListener(OnConfigChange listener) {
 		synchronized(configurationChangeListeners) {
@@ -261,11 +261,6 @@ public class TitaniumUIWebView extends TitaniumBaseView
 		}
 
 		return result;
-	}
-
-	public void dispatchWindowFocusChanged(boolean hasFocus) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void dispatchApplicationEvent(String eventName, String data) {

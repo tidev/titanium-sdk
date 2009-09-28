@@ -41,7 +41,7 @@ public class TitaniumModuleManager
 	{
 		this.softActivity = new SoftReference<TitaniumActivity>(activity);
 		this.webView = new TitaniumWebView(this);
-		this.webView.loadDataWithBaseURL("", "<html><body</body></html>", "text/html", "UTF-8", null); //initialize with data
+		//this.webView.loadDataWithBaseURL("", "<html><body</body></html>", "text/html", "UTF-8", null); //initialize with data
 		this.modules = new ArrayList<ITitaniumModule>();
 		this.appContext = activity.getApplicationContext();
 

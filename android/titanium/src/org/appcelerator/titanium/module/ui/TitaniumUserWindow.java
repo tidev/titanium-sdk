@@ -95,12 +95,13 @@ public class TitaniumUserWindow extends ViewAnimator
         addView((ITitaniumView) uiWebView); // Make it views[0]
 		uiWebView.setUrl(url);
 
-        uiWebView.postOpen();
-
-		isOpen = true;
 		this.eventListeners = new TitaniumJSEventManager(tmm.getWebView());
 		this.eventListeners.supportEvent(EVENT_FOCUSED);
 		this.eventListeners.supportEvent(EVENT_UNFOCUSED);
+
+        uiWebView.postOpen();
+
+		isOpen = true;
 	}
 
 	public boolean handleMessage(Message msg)
@@ -161,7 +162,8 @@ public class TitaniumUserWindow extends ViewAnimator
 							addView(newView);
 							if (needsDelayedFocusedEvent) {
 								try {
-									tiView.dispatchWindowFocusChanged(true);
+									onWindowFocusChanged(true);
+									//tiView.dispatchWindowFocusChanged(true);
 								} catch (Throwable t) {
 									Log.e(LCAT, "Error while dispatching fake focus: ", t);
 								}
