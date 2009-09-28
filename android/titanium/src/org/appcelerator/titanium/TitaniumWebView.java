@@ -72,6 +72,9 @@ public class TitaniumWebView extends WebView
 	public static final int MSG_RUN_JAVASCRIPT = 300;
 	public static final int MSG_LOAD_FROM_SOURCE = 301;
 	public static final int MSG_ADD_CONTROL = 302;
+	public static final int MSG_UPDATE_NATIVE_CONTROLS = 303;
+	public static final int MSG_REQUEST_NATIVE_LAYOUT = 304;
+	public static final int MSG_INVALIDATE_LAYOUT = 305;
 
 	protected static final String MSG_EXTRA_URL = "url";
 	protected static final String MSG_EXTRA_SOURCE = "source";
@@ -104,7 +107,7 @@ public class TitaniumWebView extends WebView
 		public void configurationChanged(Configuration config);
 	}
 
-	public TitaniumWebView(TitaniumModuleManager tmm)
+	public TitaniumWebView(TitaniumModuleManager tmm, boolean isWindow)
 	{
 		super(tmm.getActivity());
 		this.tmm = tmm;
@@ -118,7 +121,7 @@ public class TitaniumWebView extends WebView
 
 //?
         setWebViewClient(new TiWebViewClient(tmm.getActivity()));
-        setWebChromeClient(new TiWebChromeClient(tmm.getActivity(), /*useAsView*/true)); //TODO: Fix
+        setWebChromeClient(new TiWebChromeClient(tmm.getActivity(), isWindow)); //TODO: Fix
 
 		WebSettings settings = getSettings();
 
@@ -401,44 +404,82 @@ public class TitaniumWebView extends WebView
 		Bundle b = msg.getData();
 
 		switch (msg.what) {
-		case MSG_LOAD_FROM_SOURCE:
-      		String url = b.getString(MSG_EXTRA_URL);
-      		String source = b.getString(MSG_EXTRA_SOURCE);
+			case MSG_LOAD_FROM_SOURCE:
+	      		String url = b.getString(MSG_EXTRA_URL);
+	      		String source = b.getString(MSG_EXTRA_SOURCE);
 
-      		Log.w(LCAT, "Handling load source message: " + url);
+	      		Log.w(LCAT, "Handling load source message: " + url);
 
-			String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-			String mimetype = "application/octet-stream";
-			if (extension != null) {
-				String type = mtm.getMimeTypeFromExtension(extension);
-				if (type != null) {
-					mimetype = type;
-				} else {
-					mimetype = "text/html";
-				}
-
-				if("text/html".equals(mimetype)) {
-
-					if (source != null) {
-							loadDataWithBaseURL(url, source, mimetype, "utf-8", "about:blank");
-							return true;
+				String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+				String mimetype = "application/octet-stream";
+				if (extension != null) {
+					String type = mtm.getMimeTypeFromExtension(extension);
+					if (type != null) {
+						mimetype = type;
 					} else {
-						loadUrl(url); // For testing, doesn't normally run.
+						mimetype = "text/html";
+					}
+
+					if("text/html".equals(mimetype)) {
+
+						if (source != null) {
+								loadDataWithBaseURL(url, source, mimetype, "utf-8", "about:blank");
+								return true;
+						} else {
+							loadUrl(url); // For testing, doesn't normally run.
+						}
 					}
 				}
+				handled = true;
+				break;
+			case MSG_ADD_CONTROL :
+				if (isFocusable()) {
+					setFocusable(false);
+				}
+				View v = (View) msg.obj;
+				addView(v, offScreen);
+				handled = true;
+				break;
+			case MSG_REQUEST_NATIVE_LAYOUT : {
+				evalJS((String) msg.obj);
+				handled = true;
+				break;
 			}
-			handled = true;
-			break;
-		case MSG_ADD_CONTROL :
-			if (isFocusable()) {
-				setFocusable(false);
+			case MSG_INVALIDATE_LAYOUT : {
+				requestNativeLayout();
+				handled = true;
+				break;
 			}
-			View v = (View) msg.obj;
-			addView(v, offScreen);
-			handled = true;
-			break;
-		}
+			case MSG_UPDATE_NATIVE_CONTROLS : {
+				String json = (String) msg.obj;
+				synchronized(nativeControls) {
+					try {
+						JSONObject o = new JSONObject(json);
+						for (String id : nativeControls.keySet()) {
+							if (o.has(id)) {
+								JSONObject pos = o.getJSONObject(id);
+								Bundle b1 = new Bundle(4);
+								b1.putInt("top", pos.getInt("top"));
+								b1.putInt("left", pos.getInt("left"));
+								b1.putInt("width", pos.getInt("width"));
+								b1.putInt("height", pos.getInt("height"));
 
+								ITitaniumNativeControl c = nativeControls.get(id).get();
+								c.handleLayoutRequest(b1);
+							} else {
+								if (DBG) {
+									Log.w(LCAT, "Position data not found for id " + id);
+								}
+							}
+						}
+					} catch (JSONException e) {
+						Log.e(LCAT, "Malformed location object from Titanium.API: " + json);
+					}
+				}
+				handled = true;
+				break;
+			}
+		}
 		return handled;
 	}
 
@@ -466,7 +507,7 @@ public class TitaniumWebView extends WebView
 		synchronized(nativeControls) {
 			nativeControls.put(id, new WeakReference<ITitaniumNativeControl>(control));
 		}
-		requestNativeLayout(id);
+		//requestNativeLayout(id);
 
 		if (DBG) {
 			Log.d(LCAT, "Native control linked to html id " + id);
@@ -521,39 +562,19 @@ public class TitaniumWebView extends WebView
 			.append(a.toString())
 			.append(")");
 
-		evalJS(sb.toString());
+		handler.removeMessages(MSG_REQUEST_NATIVE_LAYOUT);
+		Message msg = handler.obtainMessage(MSG_REQUEST_NATIVE_LAYOUT, sb.toString());
+		handler.sendMessageDelayed(msg, 250);
 		sb.setLength(0);
 	}
 
 	public void updateNativeControls(String json) {
-		synchronized(nativeControls) {
-			try {
-				JSONObject o = new JSONObject(json);
-				for (String id : nativeControls.keySet()) {
-					if (o.has(id)) {
-						JSONObject pos = o.getJSONObject(id);
-						Bundle b = new Bundle(4);
-						b.putInt("top", pos.getInt("top"));
-						b.putInt("left", pos.getInt("left"));
-						b.putInt("width", pos.getInt("width"));
-						b.putInt("height", pos.getInt("height"));
-
-						ITitaniumNativeControl c = nativeControls.get(id).get();
-						c.handleLayoutRequest(b);
-					} else {
-						if (DBG) {
-							Log.w(LCAT, "Position data not found for id " + id);
-						}
-					}
-				}
-			} catch (JSONException e) {
-				Log.e(LCAT, "Malformed location object from Titanium.API: " + json);
-			}
-		}
+		handler.obtainMessage(MSG_UPDATE_NATIVE_CONTROLS, json).sendToTarget();
 	}
 
 	public void invalidateLayout() {
-		requestNativeLayout();
+		handler.removeMessages(MSG_INVALIDATE_LAYOUT);
+		handler.sendEmptyMessageDelayed(MSG_INVALIDATE_LAYOUT, 250);
 	}
 
 	public void addControl(View control) {
@@ -573,40 +594,6 @@ public class TitaniumWebView extends WebView
 	}
 
 /*
-	public void showing() {
-		if (!hasBeenOpened) {
-			buildWebView();
-		} else {
-			if (useAsView) {
-				TitaniumUIWebView wv = softUIWebView.get();
-				if (wv != null) {
-					wv.showing();
-				}
-				requestNativeLayout();
-			} else {
-				eventListeners.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
-			}
-		}
-		resumeTimers();
-	}
-
-	public void hiding() {
-		pauseTimers();
-		eventListeners.invokeSuccessListeners(EVENT_UNFOCUSED, EVENT_UNFOCUSED_JSON);
-	}
-
-	public int addEventListener(String eventName, String listener) {
-		return eventListeners.addListener(eventName, listener);
-	}
-
-	public void removeEventListener(String eventName, int listenerId) {
-		eventListeners.removeListener(eventName, listenerId);
-	}
-
-	public void dispatchWindowFocusChanged(boolean hasFocus) {
-		tiUI.onWindowFocusChanged(hasFocus);
-	}
-
 	public void dispatchApplicationEvent(String eventName, String data) {
 		eventListeners.invokeSuccessListeners(eventName, data);
 	}

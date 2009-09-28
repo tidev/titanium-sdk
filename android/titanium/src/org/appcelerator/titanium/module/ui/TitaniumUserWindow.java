@@ -74,7 +74,7 @@ public class TitaniumUserWindow extends ViewAnimator
 
 		this.handler = new Handler(this);
 
-		this.tmm = new TitaniumModuleManager(activity);
+		this.tmm = new TitaniumModuleManager(activity, true);
 
 		registeredViews = new HashMap<String,WeakReference<ITitaniumView>>(5);
 		views = new ArrayList<ITitaniumView>(5);

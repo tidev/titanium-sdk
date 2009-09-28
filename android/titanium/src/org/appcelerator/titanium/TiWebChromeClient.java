@@ -23,22 +23,22 @@ public class TiWebChromeClient extends WebChromeClient {
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private SoftReference<Activity> softActivity;
-	private boolean useAsView;
+	private boolean isWindow;
 
 	public TiWebChromeClient(TitaniumActivity activity) {
 		this(activity, false);
 	}
 
-	public TiWebChromeClient(TitaniumActivity activity, boolean useAsView) {
+	public TiWebChromeClient(TitaniumActivity activity, boolean isWindow) {
 		super();
 		this.softActivity = new SoftReference<Activity>(TitaniumActivityHelper.getRootActivity(activity));
-		this.useAsView = useAsView;
+		this.isWindow = isWindow;
 	}
 
     @Override
 	public void onProgressChanged(WebView view, final int newProgress)
     {
-    	if (!useAsView) {
+    	if (isWindow) {
 			//super.onProgressChanged(view, newProgress);
     		final Activity activity = softActivity.get();
     		if (activity != null) {

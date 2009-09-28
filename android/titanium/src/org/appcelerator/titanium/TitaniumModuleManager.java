@@ -39,11 +39,13 @@ public class TitaniumModuleManager
 
 	private static AtomicInteger idGenerator;
 
-	public TitaniumModuleManager(TitaniumActivity activity)
+	public TitaniumModuleManager(TitaniumActivity activity) {
+		this(activity, false);
+	}
+	public TitaniumModuleManager(TitaniumActivity activity, boolean isWindow)
 	{
 		this.softActivity = new SoftReference<TitaniumActivity>(activity);
-		this.webView = new TitaniumWebView(this);
-		//this.webView.loadDataWithBaseURL("", "<html><body</body></html>", "text/html", "UTF-8", null); //initialize with data
+		this.webView = new TitaniumWebView(this, isWindow);
 		this.modules = new ArrayList<ITitaniumModule>();
 		this.appContext = activity.getApplicationContext();
 

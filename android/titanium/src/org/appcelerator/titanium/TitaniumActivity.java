@@ -263,7 +263,7 @@ public class TitaniumActivity extends Activity
 				((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
 				splashView.setImageDrawable(backgroundDrawable);
 			}
-			//TODO layout.addView(splashView);
+			userWindow.addView(splashView);
 			app.setNeedsSplashScreen(false);
 		}
 
