@@ -45,12 +45,12 @@ public class TitaniumDatabase extends TitaniumBaseModule implements
 		ITitaniumDB tdb = null;
 
 		try {
-			SQLiteDatabase db = getWebView().getContext().openOrCreateDatabase(name, Context.MODE_PRIVATE, null);
+			SQLiteDatabase db = getTitaniumWebView().getContext().openOrCreateDatabase(name, Context.MODE_PRIVATE, null);
 			if (DBG) {
 				Log.d(LCAT, "Opened database: " + name);
 			}
 
-			tdb = new TitaniumDB(getWebView().getContext(), name, db);
+			tdb = new TitaniumDB(getTitaniumWebView().getContext(), name, db);
 		} catch (SQLException e) {
 			String msg = "Error opening database: " + name + " msg=" + e.getMessage();
 			Log.e(LCAT, msg, e);

@@ -33,7 +33,7 @@ public class TitaniumJSEventManager
 		this(manager.getWebView());
 	}
 	public TitaniumJSEventManager(TitaniumBaseModule module) {
-		this(module.getWebView());
+		this(module.getTitaniumWebView());
 	}
 
 	public TitaniumJSEventManager(TitaniumWebView webView)

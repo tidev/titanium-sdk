@@ -13,7 +13,6 @@ import android.view.View;
 
 public interface ITitaniumView
 {
-	boolean isPrimary();
 	String getName();
 	void setName(String name);
 	void showing();
@@ -21,7 +20,6 @@ public interface ITitaniumView
 
 	int addEventListener(String eventName, String listener);
 	void removeEventListener(String eventName, int listenerId);
-
 
 	void dispatchWindowFocusChanged(boolean hasFocus);
 	void dispatchConfigurationChange(Configuration newConfig);

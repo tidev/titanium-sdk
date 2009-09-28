@@ -751,9 +751,6 @@ var UserWindow = function(proxy) {
 	this.proxy = proxy; // reference to java object
 	this._window; // the DOM window
 
-	this.setWindowId = function(name) { //TODO: Is this to be exposed or not? -blain
-		this.proxy.setWindowId(name);
-	}
 	/**
 	 * @tiapi(method=true,name=UI.UserWindow.setURL,since=0.4) Sets the url for the window
 	 * @tiarg[string,url] url to HTML file.
@@ -775,29 +772,15 @@ var UserWindow = function(proxy) {
 	this.setTitleImage = function(imageUrl) {
 		this.proxy.setTitleImage(imageUrl);
 	};
-	/**
-	 * @tiapi(method=true,name=UI.UserWindow.setFullscreen,since=0.4) Set the window to take over the full screen
-	 * @tiapi In the beta release of Android this method cannot override the state set in tiapp.xml
-	 * @tiarg[boolean,fullscreen] true, if the image should be fullscreen; otherwise, false.
-	 */
 	this.setFullscreen = function(fullscreen) {
 		this.proxy.setFullscreen(fullscreen);
 	};
-	/**
-	 * @tiapi(method=true,name=UI.UserWindow.setType,since=0.4) Set type of window. Current types are 'single' and 'tabbed'
-	 * @tiapi tabbed windows should not be used except for the initial view.
-	 * @tiarg[string,type] WINDOW_NORMAL or WINDOW_TABBED
-	 */
-	this.setType = function(type) {
-		this.proxy.setType(type);
-	}
 	/**
 	 * @tiapi(method=true,name=UI.UserWindow,since=0.4) open the window
 	 * @tiarg[hash,options,optional=true] Options used to configure window before opening.
 	 */
 	this.open = function(options) {
 		this._window = this.proxy.open(); // Handle options later
-		// append to windows
 		return this._window;
 	};
 	/**
@@ -955,6 +938,79 @@ var UserWindow = function(proxy) {
 UserWindow.prototype.__defineGetter__("window", function() {
 	return this._window;
 });
+
+var UserWindowBuilder = function(proxy) {
+	this.proxy = proxy; // reference to java object
+	this._window; // the DOM window
+
+	this.setWindowId = function(name) {
+		this.proxy.setWindowId(name);
+	}
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.setURL,since=0.4) Sets the url for the window
+	 * @tiarg[string,url] url to HTML file.
+	 */
+	this.setURL = function(url) {
+		this.proxy.setUrl(url);
+	};
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.setTitle,since=0.4) Sets the window title
+	 * @tiarg[string,title] The title for the window
+	 */
+	this.setTitle = function(title) {
+		this.proxy.setTitle(title);
+	};
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.setTitleImage,since=0.4) Set an image in the title area
+	 * @tiarg[string,imageUrl] url to image
+	 */
+	this.setTitleImage = function(imageUrl) {
+		this.proxy.setTitleImage(imageUrl);
+	};
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.setFullscreen,since=0.4) Set the window to take over the full screen
+	 * @tiapi In the beta release of Android this method cannot override the state set in tiapp.xml
+	 * @tiarg[boolean,fullscreen] true, if the image should be fullscreen; otherwise, false.
+	 */
+	this.setFullscreen = function(fullscreen) {
+		this.proxy.setFullscreen(fullscreen);
+	};
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow,since=0.4) open the window
+	 * @tiarg[hash,options,optional=true] Options used to configure window before opening.
+	 */
+	this.open = function(options) {
+		this._window = this.proxy.open(); // Handle options later
+		// append to windows
+		return this._window;
+	};
+
+	// IPhone only methods
+	this.setNavBarColor = function (color) {
+
+	};
+	this.setLeftNavButton = function(button) {
+
+	};
+	this.setRightNavButton = function(button) {
+
+	};
+	this.showNavBar = function(options) {
+
+	};
+	this.hideNavBar = function(options) {
+
+	};
+	this.setBarColor = function(options) {
+
+	};
+	this.setTitleControl = function(button) {
+
+	};
+	this.setToolbar = function() {
+
+	};
+};
 
 var Button = function(proxy) {
 	this.proxy = proxy;
@@ -1268,25 +1324,15 @@ TextField.prototype.__defineSetter__("value", function(value) {
 
 Titanium.UI = {
 	/**
-	 * @tiapi(property=true,name=UI.WINDOW_TABBED,since=0.4) Used in UserWindow.setType for a tabbed window
-	 * @tiapi Android currently does not support tabbed windows except as the root/initial window.
-	 */
-	WINDOW_TABBED : 'tabbed',
-	/**
-	 * @tiapi(property=true,name=UI.WINDOW_NORMAL,since=0.4) Used in UserWindow.setType for a single window
-	 */
-	WINDOW_NORMAL : 'single',
-	/**
 	 * @tiapi(method=true,name=UI.createWindow,since=0.4) Create a new window
 	 * @tiarg[hash,options,optional=true] Options for configuring window
 	 * @tiresult[UserWindow] the new window
 	 */
 	createWindow : function(options) {
-		var w = new UserWindow(Titanium.uiProxy.createWindow());
+		var w = new UserWindowBuilder(Titanium.uiProxy.createWindow());
 		if (!isUndefined(options)) {
 			var url = options['url'];
 			var fullscreen = options['fullscreen'];
-			var type = options['type'];
 			var title = options['title'];
 			var titleImage = options['titleImage'];
 
@@ -1295,9 +1341,6 @@ Titanium.UI = {
 			}
 			if (!isUndefined(fullscreen)) {
 				w.setFullscreen(fullscreen);
-			}
-			if (!isUndefined(type)) {
-				w.setType(type);
 			}
 			if (!isUndefined(title)) {
 				w.setTitle(title);
@@ -1326,6 +1369,7 @@ Titanium.UI = {
 	 * @tiarg[MenuItem,m] A root menu item
 	 */
 	setMenu : function(m) {
+		 Titanium.API.debug("MENU SET");
 		Titanium.uiProxy.setMenu(m.obj);
 	},
 	getMenu : function() {

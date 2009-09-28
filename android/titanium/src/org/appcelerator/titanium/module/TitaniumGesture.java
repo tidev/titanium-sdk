@@ -251,10 +251,10 @@ public class TitaniumGesture extends TitaniumBaseModule implements ITitaniumGest
 
 	protected void manageOrientationListener(boolean register) {
 		if (register) {
-			tmm.getWebView().addConfigChangeListener(orientationListener);
+//			tmm.getWebView().addConfigChangeListener(orientationListener);
 			listeningForOrientation = true;
 		} else {
-			tmm.getWebView().removeConfigChangeListener(orientationListener);
+//			tmm.getWebView().removeConfigChangeListener(orientationListener);
 			listeningForOrientation = false;
 		}
 	}

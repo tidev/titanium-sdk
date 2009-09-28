@@ -10,7 +10,7 @@ package org.appcelerator.titanium.api;
 public interface ITitaniumUI
 {
 	// In 0.4.0
-	public ITitaniumUserWindow createWindow();
+	public ITitaniumUserWindowBuilder createWindow(); // Changed in 0.7.0 to return a creator.
 
 	public ITitaniumMenuItem createMenu();
 	public void setMenu(ITitaniumMenuItem menu);
