@@ -93,6 +93,8 @@
 	</array>
 	<key>modules</key>
 	<dict>
+		<key>facebook</key>
+		<real>0.7</real>
 		<key>notification</key>
 		<real>0.4</real>
 		<key>analytics</key>

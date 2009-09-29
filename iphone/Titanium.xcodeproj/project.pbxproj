@@ -363,7 +363,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 24FD2394106F180F004D4127 /* libFacebook */;
+			remoteGlobalIDString = 24FD2394106F180F004D4127;
 			remoteInfo = libFacebook;
 		};
 /* End PBXContainerItemProxy section */
@@ -492,7 +492,7 @@
 		B45CA77E0F81565D00B80900 /* TitaniumHost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumHost.m; sourceTree = "<group>"; };
 		B4676CB40FB0E492009B81F4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		B47A271E1035F040002146CD /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B47A271E1035F040002146CD /* TestSpaz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestSpaz.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B47A27261035F11F002146CD /* accounts.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = accounts.html; path = ../../spaz/Resources/accounts.html; sourceTree = SOURCE_ROOT; };
 		B47A27271035F11F002146CD /* accounts.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = accounts.js; path = ../../spaz/Resources/accounts.js; sourceTree = SOURCE_ROOT; };
 		B47A272B1035F11F002146CD /* DM.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = DM.html; path = ../../spaz/Resources/DM.html; sourceTree = SOURCE_ROOT; };
@@ -801,7 +801,7 @@
 			children = (
 				1D6058910D05DD3D006BFB54 /* Titanium.app */,
 				B41068A20FBB730F00310448 /* libTitanium.a */,
-				B47A271E1035F040002146CD /* Titanium.app */,
+				B47A271E1035F040002146CD /* TestSpaz.app */,
 				24C5ABF11061FA9D0063594B /* libNotification.a */,
 				24C5ABF91061FABE0063594B /* libAnalytics.a */,
 				24C5AC001061FAC80063594B /* libGesture.a */,
@@ -1675,7 +1675,7 @@
 			);
 			name = "Titanium-Spaz";
 			productName = Titanium;
-			productReference = B47A271E1035F040002146CD /* Titanium.app */;
+			productReference = B47A271E1035F040002146CD /* TestSpaz.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */

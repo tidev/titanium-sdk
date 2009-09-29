@@ -31,5 +31,6 @@
 @property(nonatomic,readwrite,retain)	TitaniumBlobWrapper * singleImageBlob;
 - (void) setUrl: (NSURL *) newUrl;
 - (UIImage *) singleImage;
+- (void) handleTouch: (UITouch *) ourTouch;
 
 @end

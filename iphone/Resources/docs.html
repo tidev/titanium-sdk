@@ -31,7 +31,7 @@ documentObject = function(object,pathPrefix){
 		}
 	}else docObject={};
 
-	if(!docObject.since)docObject.since = 'PRIVATE';
+	if(!docObject.since)docObject.since = '0.7';
 
 	if(type=='function'){
 		docObject.generalType = 'method';
@@ -143,7 +143,7 @@ jsonifyObjectDocumentation = function(objectName){
 
 tiapifyObjectDocumentation = function(objectName){
 	var docObject=documentation[objectName];
-	if(docObject.since == 'PRIVATE')return '';
+	if((docObject.hidden)||(docObject.since == 'PRIVATE'))return '';
 	
 	var result = '@tiapi(' + docObject.generalType + '=true,name=' + objectName;
 	if(docObject.since)result +=',since=' + docObject.since;
@@ -252,85 +252,85 @@ documentation['API.warn']={since:0.4,desc:'logs an object with severity "warn"',
 	args:[{name:'note',dataType:'string',desc:'the value to log'}]};
 
 documentation['UI']={"since": "0.4", "desc": "UI module"};
-//documentation['UI.INPUT_BORDERSTYLE_BEZEL']={"since": "0.5", "desc": "A possible value for UI.TextField.borderStyle; indicates a shaded rectangular bezel will be used."};
-//documentation['UI.INPUT_BORDERSTYLE_LINE']={"since": "0.5", "desc": "A possible value for UI.TextField.borderStyle; indicates a simple line will be used."};
-//documentation['UI.INPUT_BORDERSTYLE_NONE']={"since": "0.5", "desc": "A possible value for UI.TextField.borderStyle; indicates no outline will be used."};
-//documentation['UI.INPUT_BORDERSTYLE_ROUNDED']={"since": "0.5", "desc": "A possible value for UI.TextField.borderStyle; indicates a round-rectangle-shaped bezel will be used."};
-//documentation['UI.INPUT_BUTTONMODE_ALWAYS']={"since": "0.5", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.INPUT_BUTTONMODE_NEVER']={"since": "0.5", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.INPUT_BUTTONMODE_ONBLUR']={"since": "0.5", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.INPUT_BUTTONMODE_ONFOCUS']={"since": "0.5", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.KEYBOARD_ASCII']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.KEYBOARD_DEFAULT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.KEYBOARD_EMAIL_ADDRESS']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.KEYBOARD_NUMBERS_PUNCTUATION']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.KEYBOARD_NUMBER_PAD']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.KEYBOARD_PHONE_PAD']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.KEYBOARD_URL']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.LANDSCAPE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.PORTRAIT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.PORTRAIT_AND_LANDSCAPE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.RETURNKEY_DEFAULT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.RETURNKEY_DONE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.RETURNKEY_EMERGENCY_CALL']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.RETURNKEY_GO']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.RETURNKEY_GOOGLE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.RETURNKEY_JOIN']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.RETURNKEY_NEXT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.RETURNKEY_ROUTE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.RETURNKEY_SEARCH']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.RETURNKEY_SEND']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.RETURNKEY_YAHOO']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.INPUT_BORDERSTYLE_BEZEL']={hidden:true,"since": "0.5", "desc": "A possible value for UI.TextField.borderStyle; indicates a shaded rectangular bezel will be used."};
+		documentation['UI.INPUT_BORDERSTYLE_LINE']={hidden:true,"since": "0.5", "desc": "A possible value for UI.TextField.borderStyle; indicates a simple line will be used."};
+		documentation['UI.INPUT_BORDERSTYLE_NONE']={hidden:true,"since": "0.5", "desc": "A possible value for UI.TextField.borderStyle; indicates no outline will be used."};
+		documentation['UI.INPUT_BORDERSTYLE_ROUNDED']={hidden:true,"since": "0.5", "desc": "A possible value for UI.TextField.borderStyle; indicates a round-rectangle-shaped bezel will be used."};
+		documentation['UI.INPUT_BUTTONMODE_ALWAYS']={hidden:true,"since": "0.5", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.INPUT_BUTTONMODE_NEVER']={hidden:true,"since": "0.5", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.INPUT_BUTTONMODE_ONBLUR']={hidden:true,"since": "0.5", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.INPUT_BUTTONMODE_ONFOCUS']={hidden:true,"since": "0.5", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.KEYBOARD_ASCII']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.KEYBOARD_DEFAULT']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.KEYBOARD_EMAIL_ADDRESS']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.KEYBOARD_NUMBERS_PUNCTUATION']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.KEYBOARD_NUMBER_PAD']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.KEYBOARD_PHONE_PAD']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.KEYBOARD_URL']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.LANDSCAPE']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.PORTRAIT']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.PORTRAIT_AND_LANDSCAPE']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.RETURNKEY_DEFAULT']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.RETURNKEY_DONE']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.RETURNKEY_EMERGENCY_CALL']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.RETURNKEY_GO']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.RETURNKEY_GOOGLE']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.RETURNKEY_JOIN']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.RETURNKEY_NEXT']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.RETURNKEY_ROUTE']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.RETURNKEY_SEARCH']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.RETURNKEY_SEND']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.RETURNKEY_YAHOO']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.TableView']={"since": "0.6", "desc": "Object used to represent a view containing a table. Created with UI.createTableView()"};
-//documentation['UI.TableView.addView']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.TableView.close']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.TableView.data']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.addView']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.close']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.data']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
 tableRowAnimationOptions = {name:'options',dataType:'object',desc:'If the table view is visible, the animationStyle property may be one of UI.iPhone.RowAnimationStyle to specify how the transition is animated'};
 windowAnimationOption = {name:"options",dataType:'object',desc:"object with an animated property set to false to surpress the animation of opening"};
 copyPropsOnInit = {name:'properties',dataType:'object',desc:'the properties to copy to the new object during creation'};
 
 documentation['UI.TableView.deleteRow']={"since": "0.6", "desc": "deletes a row from the table view\nKeep in mind that after this is called, all rows afterward are renumbered appropriately.",
 	args:[{name:'rowIndex',dataType:'int',desc:'The index of the row to delete. Valid values are 0 to (number of rows - 1)'},tableRowAnimationOptions],minArgCount:1};
-//documentation['UI.TableView.ensureToken']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.ensureToken']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.TableView.getIndexByName']={"since": "0.6", "desc": "returns the index of the first row whose name property is the value provided",
 	args:[{name:'name',dataType:'string',desc:'The name to search for'}],result:{dataType:'int',desc:'the index of the row found. -1 if no row was found'}};
-//documentation['UI.TableView.getViewByName']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.TableView.getViews']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.TableView.hideNavBar']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.getViewByName']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.getViews']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.hideNavBar']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.TableView.insertRowAfter']={"since": "0.6", "desc": "inserts a row from the table view\nKeep in mind that after this is called, all rows afterward are renumbered appropriately.",
 	args:[{name:'rowIndex',dataType:'int',desc:'The index of the row to insert after. Valid values are 0 to (number of rows - 1)'},
 		{name:'row',dataType:'object',desc:'The data representing the row to be inserted'},tableRowAnimationOptions],minArgCount:2};
 documentation['UI.TableView.insertRowBefore']={"since": "0.6", "desc": "inserts a row from the table view\nKeep in mind that after this is called, all rows afterward are renumbered appropriately.",
 	args:[{name:'rowIndex',dataType:'int',desc:'The index of the row to insert before. Valid values are 0 to (number of rows)'},
 		{name:'row',dataType:'object',desc:'The data representing the row to be inserted'},tableRowAnimationOptions],minArgCount:2};
-//documentation['UI.TableView.onClick']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.TableView.open']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.TableView.setActiveViewIndex']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.TableView.setBarColor']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.onClick']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.open']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.setActiveViewIndex']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.setBarColor']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.TableView.setData']={"since": "0.6", "desc": "removes replaces all previous rows and replaces them with the supplied data",
 	args:[{name:'newData',dataType:'array',desc:'An array of data objects representing the new rows'},tableRowAnimationOptions],minArgCount:1};
-//documentation['UI.TableView.setFullscreen']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.TableView.setLeftNavButton']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.TableView.setRightNavButton']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.TableView.setTitle']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.TableView.setTitleControl']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.TableView.setTitleImage']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.TableView.setToolbar']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.TableView.showNavBar']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.TableView.showView']={"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.TableView.update']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.setFullscreen']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.setLeftNavButton']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.setRightNavButton']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.setTitle']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.setTitleControl']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.setTitleImage']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.setToolbar']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.showNavBar']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.showView']={hidden:true,"since": "PRIVATE", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.update']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.TableView.updateRow']={"since": "0.6", "desc": "replaces a row from the table view",
 	args:[{name:'row',dataType:'object',desc:'the data representing the new data for the row'},tableRowAnimationOptions],minArgCount:1};
 
 documentation['UI.createActivityIndicator']={"since": "0.6", "creates": "UI.ActivityIndicator", desc2:"Also known as a 'spinner'."};
-//documentation['UI.createAlertDialog']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.createButton']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.createButtonBar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.createAlertDialog']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.createButton']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.createButtonBar']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.createEmailDialog']={"since": "0.6", "creates":"UI.EmailDialog", "desc2": "Allows the user to send off a pre-made email"};
 documentation['UI.EmailDialog']={"since": "0.6", "desc": "Object that represents an Email Dialog", "generalType": "property", "dataType": "object"};
 documentation['UI.EmailDialog.addAttachment']={"since": "0.6", "desc": "Adds 'attachment' to the attachments property for the resulting email",
 	args:[{name:'attachment',dataType:'object',desc:'A Media.Image object (which are handed to success callbacks by Media.showCamera and Media.openPhotoGallery)'}]};
-//documentation['UI.EmailDialog.attachments']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "object"};
+		documentation['UI.EmailDialog.attachments']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "object"};
 
 documentation['UI.EmailDialog.open']={"since": "0.6", "desc": "Displays the email dialog, prompting the user to edit the email before sending or canceling\n"+
 	"Note that in the event that the email dialog can't be used, a mailto: url will be created and launched, terminating your app",
@@ -341,57 +341,57 @@ documentation['UI.EmailDialog.setMessageBody']={"since": "0.6", "isSetter":true,
 documentation['UI.EmailDialog.setSubject']={"since": "0.6", "isSetter":true, args:[{dataType:'string'}]};
 documentation['UI.EmailDialog.setToRecipients']={"since": "0.6",  "isSetter":true, args:[{dataType:'object',desc:'array of strings, each an email address that will appear in the To field'}]};
 
-//documentation['UI.createOptionDialog']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.createOptionDialog']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.createProgressBar']={"since": "0.6", creates:"UI.ProgressBar"};
-//documentation['UI.createSlider']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.createSwitch']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.createTabbedBar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.createTableView']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.createTextArea']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.createTextField']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.createSlider']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.createSwitch']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.createTabbedBar']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.createTableView']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.createTextArea']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.createTextField']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.createWebView']={"since": "0.6", creates:"UI.WebView"};
-//documentation['UI.createWindow']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.createWindow']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.currentView']={"since": "0.6", "desc": "Object that represents the current webView. Can be used like a UI.WebView"};
 documentation['UI.currentView.addEventListener']={"since": "0.6", "createsEvents":[{name:'load'},{name:'focused'},{name:'unfocused'}]};
-//documentation['UI.currentView.doEvent']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.currentView.doEvent']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 
 documentation['UI.currentView.removeEventListener']={"since": "0.6", "removesEvents":['load','focused','unfocused']};
 documentation['UI.currentView.setURL']={"since": "0.6", "desc": "Replaces the contents of this view with a new page",
 	args:[{name:"newURL",dataType:"string",desc:'a relative url'}]};
-//documentation['UI.currentWindow']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.currentWindow.addEventListener']={"since": "0.4", "createsEvents":[{name:'focused'},{name:'unfocused'}]};
+		documentation['UI.currentWindow']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.currentWindow.addEventListener']={hidden:true,"since": "0.4", "createsEvents":[{name:'focused'},{name:'unfocused'}]};
 documentation['UI.currentWindow.addView']={"since": "0.6", "desc": "Adds a view to the current window, but does not change the visible view",
 	args:[{dataType:'object',name:'newView',desc:'a UI.WebView, UI.TableView, or UI.GroupedView object to be added.'}]};
-//documentation['UI.currentWindow.close']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.currentWindow.doEvent']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.currentWindow.close']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.currentWindow.doEvent']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.currentWindow.getViewByName']={"since": "0.6", "desc": "finds the first view that has its name property set to the specified value",
 	args:[{name:'searchedName',dataType:'string',desc:'the name value to search for amongst the window\'s views'}],
 	result:{dataType:'object',desc:'the UI.WebView, UI.TableView, or UI.GroupedView that matches, or null if none was found'}};
 
 documentation['UI.currentWindow.getViews']={"since": "0.6", "desc": "lists the window's views at that current moment",
 	result:{dataType:'object',desc:'an array of UI.WebView, UI.TableView, and/or UI.GroupedViews that are owned by the window'}};
-//documentation['UI.currentWindow.hideNavBar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.currentWindow.insertButton']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.currentWindow.removeEventListener']={"since": "0.4", "removesEvents":['focused','unfocused']};
-//documentation['UI.currentWindow.setActiveViewIndex']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.currentWindow.setBarColor']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.currentWindow.setFullscreen']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.currentWindow.setLeftNavButton']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.currentWindow.setRightNavButton']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.currentWindow.setTitle']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.currentWindow.hideNavBar']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.currentWindow.insertButton']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.currentWindow.removeEventListener']={hidden:true,"since": "0.4", "removesEvents":['focused','unfocused']};
+		documentation['UI.currentWindow.setActiveViewIndex']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.currentWindow.setBarColor']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.currentWindow.setFullscreen']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.currentWindow.setLeftNavButton']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.currentWindow.setRightNavButton']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.currentWindow.setTitle']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.currentWindow.setTitleControl']={"since": "0.6", isSetter:true, "desc2": "Replaces the window's title and title image while not set to null"};
-//documentation['UI.currentWindow.setTitleImage']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.currentWindow.setToolbar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.currentWindow.showNavBar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.currentWindow.setTitleImage']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.currentWindow.setToolbar']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.currentWindow.showNavBar']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.currentWindow.showView']={"since": "0.6", "desc": "Changes the view that the current window is showing"};
-//documentation['UI.currentWindow.toolbar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.currentWindow.toolbar']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.iPhone.ActivityIndicatorStyle']={"since": "0.6", "desc": "Possible styles for UI.ActivityIndicator"};
-//documentation['UI.iPhone.ActivityIndicatorStyle.BAR']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.ActivityIndicatorStyle.BAR']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.iPhone.ActivityIndicatorStyle.BIG']={"since": "0.6", "desc": "constant representing a large (37 pixels wide) white activity indicator"};
-//documentation['UI.iPhone.ActivityIndicatorStyle.BORDERED']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.ActivityIndicatorStyle.BORDERED']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.iPhone.ActivityIndicatorStyle.DARK']={"since": "0.6", "desc": "constant representing a small (20 pixels wide) gray activity indicator"};
-//documentation['UI.iPhone.ActivityIndicatorStyle.DONE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.ActivityIndicatorStyle.DONE']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.iPhone.ActivityIndicatorStyle.PLAIN']={"since": "0.6", "desc": "constant representing a small (20 pixels wide) white activity indicator"};
 documentation['UI.iPhone.AnimationStyle']={"since": "0.6", "desc": "Animation styles possible when changing views"};
 documentation['UI.iPhone.AnimationStyle.CURL_DOWN']={"since": "0.6", "desc": "constant used to describe an animation where the new view curls down, covering the current view", "usage":["UI.currentWindow.showView","UI.UserWindow.showView"]};
@@ -400,10 +400,10 @@ documentation['UI.iPhone.AnimationStyle.FLIP_FROM_LEFT']={"since": "0.6", "desc"
 documentation['UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT']={"since": "0.6", "desc": "constant used to describe an animation where the current view flips over with the new view on the opposite side. The leftmost edge is foreground","usage":["UI.currentWindow.showView","UI.UserWindow.showView"]};
 documentation['UI.iPhone.ProgressBarStyle']={"since": "0.6", "desc": "Possible styles for UI.ProgressBar"};
 documentation['UI.iPhone.ProgressBarStyle.BAR']={"since": "0.6", "desc": "constant representing the silver and black style often seen when a progress bar is in a toolbar"};
-//documentation['UI.iPhone.ProgressBarStyle.BIG']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.ProgressBarStyle.BORDERED']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.ProgressBarStyle.DARK']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.ProgressBarStyle.DONE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.ProgressBarStyle.BIG']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.ProgressBarStyle.BORDERED']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.ProgressBarStyle.DARK']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.ProgressBarStyle.DONE']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.iPhone.ProgressBarStyle.PLAIN']={"since": "0.6", "desc": "constant representing the blue and white style often seen when a progress bar is not in the toolbar"};
 documentation['UI.iPhone.RowAnimationStyle']={"since": "0.6", "desc": "Possible transition styles for rows and sections"};
 documentation['UI.iPhone.RowAnimationStyle.BOTTOM']={"since": "0.6", "desc": "constant used to describe a row animation where the inserted row or rows slides in from the bottom; the deleted row or rows slides out toward the bottom."};
@@ -412,71 +412,151 @@ documentation['UI.iPhone.RowAnimationStyle.LEFT']={"since": "0.6", "desc": "cons
 documentation['UI.iPhone.RowAnimationStyle.NONE']={"since": "0.6", "desc": "constant used to describe a row replacement where the new cell value appears as if the cell had just been reloaded.. In iPhone OS 2.2.1, this is a fade instead."};
 documentation['UI.iPhone.RowAnimationStyle.RIGHT']={"since": "0.6", "desc": "constant used to describe a row animation where the inserted row or rows slides in from the right; the deleted row or rows slides out to the right."};
 documentation['UI.iPhone.RowAnimationStyle.TOP']={"since": "0.6", "desc": "constant used to describe a row animation where the inserted row or rows slides in from the top; the deleted row or rows slides out toward the top."};
-//documentation['UI.iPhone.StatusBar']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.StatusBar.DEFAULT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.StatusBar.GRAY']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.StatusBar.GREY']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.StatusBar.OPAQUE_BLACK']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.StatusBar.TRANSLUCENT_BLACK']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.ACTION']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.ACTIVITY']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.ADD']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.BOOKMARKS']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.CAMERA']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.CANCEL']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.COMPOSE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.DONE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.EDIT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.FAST_FORWARD']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.FIXED_SPACE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.FLEXIBLE_SPACE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.INFO_DARK']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.INFO_LIGHT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.ORGANIZE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.PAUSE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.PLAY']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.REFRESH']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.REPLY']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.REWIND']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.SAVE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.SEARCH']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.STOP']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButton.TRASH']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButtonStyle']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.StatusBar']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.StatusBar.DEFAULT']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.StatusBar.GRAY']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.StatusBar.GREY']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.StatusBar.OPAQUE_BLACK']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.StatusBar.TRANSLUCENT_BLACK']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.ACTION']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.ACTIVITY']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.ADD']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.BOOKMARKS']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.CAMERA']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.CANCEL']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.COMPOSE']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.DONE']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.EDIT']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.FAST_FORWARD']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.FIXED_SPACE']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.FLEXIBLE_SPACE']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.INFO_DARK']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.INFO_LIGHT']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.ORGANIZE']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.PAUSE']={hidden:true,hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.PLAY']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.REFRESH']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.REPLY']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.REWIND']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.SAVE']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.SEARCH']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.STOP']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButton.TRASH']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButtonStyle']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.iPhone.SystemButtonStyle.BAR']={"since": "0.6", "desc": "constant representing the toolbar style for both UI.ButtonBar and UI.TabbedBar. The native element will be shorter in hieght and will honor the tinting color, even when not in the toolbar"};
-//documentation['UI.iPhone.SystemButtonStyle.BIG']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButtonStyle.BORDERED']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButtonStyle.DARK']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButtonStyle.DONE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemButtonStyle.PLAIN']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemIcon']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemIcon.BOOKMARKS']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemIcon.CONTACTS']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemIcon.DOWNLOADS']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemIcon.FAVORITES']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemIcon.FEATURED']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemIcon.MORE']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemIcon.MOST_RECENT']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemIcon.MOST_VIEWED']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemIcon.RECENTS']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemIcon.SEARCH']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.SystemIcon.TOP_RATED']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.createGroupedSection']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.createGroupedView']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.iPhone.setStatusBarStyle']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.setAppBadge']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.setTabBadge']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
-//documentation['UI.viewsForWindowToken']={"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButtonStyle.BIG']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButtonStyle.BORDERED']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButtonStyle.DARK']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButtonStyle.DONE']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemButtonStyle.PLAIN']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemIcon']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemIcon.BOOKMARKS']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemIcon.CONTACTS']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemIcon.DOWNLOADS']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemIcon.FAVORITES']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemIcon.FEATURED']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemIcon.MORE']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemIcon.MOST_RECENT']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemIcon.MOST_VIEWED']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemIcon.RECENTS']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemIcon.SEARCH']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.SystemIcon.TOP_RATED']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.createGroupedSection']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.createGroupedView']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.iPhone.setStatusBarStyle']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.setAppBadge']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.setTabBadge']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.viewsForWindowToken']={hidden:true,"since": "0.6", "desc": "*NEEDS*DESCRIPTION*"};
+
+
+
+documentation['API.reportUnhandledException']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['Analytics']={"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "object"};
+documentation['Analytics.addEvent']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['Analytics.init']={"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "object"};
+
+documentation['UI.DatePicker']={"since": "0.7", "desc": "Possible modes availible for datePicker", "generalType": "property", "dataType": "object", "minArgCount": 1};
+documentation['UI.DatePicker.MODE_DATE']={"since": "0.7", "desc": "constant used to describe a date picker that has columns for month, date, and year", "generalType": "property", "dataType": "int"};
+documentation['UI.DatePicker.MODE_DATE_AND_TIME']={"since": "0.7", "desc": "constant used to describe a date picker that has columns for date, hour, minute, and optionally a 12-hour period", "generalType": "property", "dataType": "int"};
+documentation['UI.DatePicker.MODE_TIME']={"since": "0.7", "desc": "constant used to describe a date picker that has columns for hour, minute, and optionally a 12-hour period", "generalType": "property", "dataType": "int"};
+documentation['UI.DatePicker.addEventListener']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePicker.blur']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePicker.ensureToken']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePicker.findDivPos']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePicker.focus']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePicker.hide']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePicker.onClick']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePicker.removeEventListener']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePicker.setId']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePicker.setIndex']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePicker.setMax']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePicker.setMin']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePicker.setValue']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePicker.show']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePicker.systemButton']={"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "string"};
+documentation['UI.DatePicker.update']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.EmailDialog.setBarColor']={"since": "0.7", "isSetter": true, "args": [{"dataType": "string", "desc": "a web color to tint the navigation bar of the email dialog", "name": "newBarColor"}], "generalType": "method", "desc": "sets the barColor property"};
+documentation['UI.Picker']={"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "object", "minArgCount": 1};
+documentation['UI.Picker.addEventListener']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.blur']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.ensureToken']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.findDivPos']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.focus']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.hide']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.onClick']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.removeEventListener']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.setId']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.setIndex']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.setMax']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.setMin']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.setValue']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.show']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.systemButton']={"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "string"};
+documentation['UI.Picker.update']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.TableView.appendRow']={"since": "0.7", "generalType": "method", "args": [{"name": "row", "dataType": "object", "desc": "The data representing the row to be appended"}, {"name": "options", "dataType": "object", "desc": "If the table view is visible, the animationStyle property may be one of UI.iPhone.RowAnimationStyle to specify how the transition is animated"}], "desc": "appends a row at the end of the table view"};
+		documentation['UI.TableView.setBackButtonTitle']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.TableView.setBackButtonTitleImage']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.addEventListener']={"since": "0.7", "createsEvents": [{"name": "tabchange"}], "generalType": "method", "args": [{"name": "type", "dataType": "string", "desc": "the type of event to listen for.  Must be or tabchange"}, {"name": "callback", "dataType": "function", "desc": "the function that will be called when the event occurs. A single object event is passed as an argument"}], "desc": "adds an event listener to be called for a or tabchange event", "minArgCount": 2, "result": {"dataType": "method", "desc": "the callback function, for use in removeEventListener"}};
+documentation['UI.createCompositeView']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.createDatePicker']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.createImageView']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.createModalDatePicker']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.createModalPicker']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.createPicker']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.createScrollableView']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.createTab']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.currentTab']={"since": "0.7", "desc": "object that represents the current tab for use in setActiveTab", "generalType": "property", "dataType": "object"};
+documentation['UI.currentWindow.repaint']={"since": "0.7", "generalType": "method", "args": [], "desc": "Forces the window containing the javascript to ensure that all of the web page can be visible. This is often done automatically"};
+documentation['UI.getTabByName']={"since": "0.7", "generalType": "method", "args": [{"name": "name", "dataType": "string", "desc": "the name of the tab desired"}], "desc": "finds the tab whose name was set in tiapp.xml", "result": {"dataType": "object", "desc": "object that represents the requested tab"}};
+documentation['UI.getTabs']={"since": "0.7", "generalType": "method", "args": [], "desc": "lists the tabs specified in tiapp.xml", "result": {"dataType": "object", "desc": "array of objects that represent the tabs"}};
+documentation['UI.getWindowByName']={"since": "0.7", "generalType": "method", "args": [{"name": "name", "dataType": "string", "desc": "the name of the window desired"}], "desc": "returns the userWindow with a given name", "result": {"dataType": "object", "desc": "the UI.UserWindow object"}};
+documentation['UI.removeEventListener']={"since": "0.7", "removesEvents": ["tabchange"], "generalType": "method", "args": [{"name": "type", "dataType": "string", "desc": "the type of event to remove the listener from.  Must be or undefined"}, {"name": "callback", "dataType": "function", "desc": "the function to be removed"}], "desc": "removes an event listener from or undefined events", "minArgCount": 2, "result": {"dataType": "boolean", "desc": "returns true if successfully removed"}};
+documentation['UI.setActiveTab']={"since": "0.7", "generalType": "method", "args": [{"name": "tab", "dataType": "object", "desc": "the object representing the tab"}], "desc": "changes the active tab visible. Note that modally presented windows obscure all tabs"};
+documentation['UI.userWindow.setBackButtonTitle']={"since": "0.7", "isSetter": true, "args": [{"dataType": "string", "desc": "the title of the back button that will represent the window"}]};
+documentation['UI.userWindow.setBackButtonTitleImage']={"since": "0.7", "isSetter": true, "args": [{"dataType": "string", "desc": "the url of the image of the back button that will represent the window."}]};
+
+
+
 /*
 */
 //documentObject(Titanium,'');
 documentObject(Titanium.API,'API');
 documentObject(Titanium.UI,'UI');
+documentObject(Titanium.Facebook,'Facebook');
+documentObject(Titanium.Analytics,'Analytics');
+
 var tableView = Ti.UI.createTableView();
 documentObject(tableView,'UI.TableView');
 var EmailDialog = Ti.UI.createEmailDialog();
 documentObject(EmailDialog,'UI.EmailDialog');
+
+var picker = Ti.UI.createPicker();
+documentObject(picker,'UI.Picker');
+
+var datePicker = Ti.UI.createDatePicker();
+documentObject(datePicker,'UI.DatePicker');
+
 printAllDocumentation();
 
 </script>

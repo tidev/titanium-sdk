@@ -28,6 +28,7 @@
 
 - (NSString *) stringValue;
 - (NSString *) virtualFileName;
+- (NSString *) virtualUrl;
 
 - (void) compress;
 
