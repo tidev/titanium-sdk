@@ -334,12 +334,25 @@
 
 - (void)feed:(NSNumber*)templateBundleId data:(NSString*)templateData body:(NSString*)body_ queryId:(NSString*)queryId
 {
+	Class stringClass = [NSString class];
+	if(![templateBundleId respondsToSelector:@selector(longLongValue)] || ![templateData isKindOfClass:stringClass] ||
+			![body_ isKindOfClass:stringClass] || ![queryId isKindOfClass:stringClass]){
+		NSLog(@"Facebook feed had invalid values. Feed: %@, data: %@, body: %@, queryId: %@",templateBundleId,templateData,body_,queryId);
+		return;
+	}
+	
 	FBFeedCallback *cb = [[FBFeedCallback alloc] initWithToken:queryId pageToken:[self getPageToken] module:self templateBundleId:templateBundleId templateData:templateData body:body_];
 	[self performSelectorOnMainThread:@selector(showDialog:) withObject:cb waitUntilDone:NO];
 }
 
 - (void)setup:(NSString*)key secret:(NSString*)secret
 {
+	Class stringClass = [NSString class];
+	if(![key isKindOfClass:stringClass] || ![secret isKindOfClass:stringClass]){
+		NSLog(@"Facebook setup had invalid values. Key: %@ secret: %@",key,secret);
+		return;
+	}
+
 	[permissions release];
 	[dialog release];
 	[session release];

@@ -1,72 +1,129 @@
-<html>
-<head>
+<html><head>
 <style>
 .button
-{
-	font-size:18px;width:280px;text-align:center
-}
+{font-size:18px;width:280px;text-align:center}
 </style>
 </head>
 <body style="background-color:#f00;font-size:20px;font-family:'Helvetica Neue';font-weight:bold">
-	<button onclick="Titanium.UI.currentWindow.setActiveViewIndex(0,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,animationDuration:2000})">Switch by index</button>
+<button onclick="Titanium.UI.currentWindow.setActiveViewIndex(0,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,animationDuration:2000})">Switch by index</button>
 
-	<div><input type="button" id="1" value="Launch Email" class="button"/></div>
-	<div><input type="button" id="2" value="Try URL" class="button"/></div>
+<div><input type="button" id="1" value="Launch Email" class="button"/></div>
+<div><input type="button" id="2" value="Try URL" class="button"/></div>
+<div><input type="button" id="3" value="Facebooks" class="button"/></div>
+	<p>
+		<div id="b"></div>
+	</p>
+	<p>
+		<div id="name">Loading...</div>
+		<div id="profile"></div>
+	</p>
+	<p>
+		<img id="pic" />
+	</p>
 
-	<script>
-Titanium.API.debug("Bwa?");
-	document.getElementById('1').onclick = function()
+<script>
+document.getElementById('1').onclick = function(){
+	Titanium.Media.openPhotoGallery({
+		success: function(image,details){
+			var emailDialog = Titanium.UI.createEmailDialog()
+			emailDialog.setSubject('foo');
+			emailDialog.setToRecipients(['nolan11169@yahoo.com']);
+			emailDialog.setCcRecipients(['nwright@appcelerator.com']);
+			emailDialog.setBccRecipients(['obama@whitehouse.gov']);
+			emailDialog.setMessageBody('this is a test message');
+			emailDialog.addAttachment({mimeType:'image/png', file:image});
+			emailDialog.open({animated:true});
+
+		},
+		error: function(error){},
+		cancel: function(){},
+		animated:true,
+		allowImageEditing:true,
+	});		
+};
+
+document.getElementById('2').onclick = function(){
+	var xhr = Titanium.Network.createHTTPClient();
+	xhr.onreadystatechange = function() 
 	{
-		Titanium.Media.openPhotoGallery({
-			success: function(image,details)
-			{
-				var emailDialog = Titanium.UI.createEmailDialog()
-				emailDialog.setSubject('foo');
-				emailDialog.setToRecipients(['nolan11169@yahoo.com']);
-				emailDialog.setCcRecipients(['nwright@appcelerator.com']);
-				emailDialog.setBccRecipients(['obama@whitehouse.gov']);
-				emailDialog.setMessageBody('this is a test message');
-				emailDialog.addAttachment({mimeType:'image/png', file:image});
-				emailDialog.open({animated:true});
-
-			},
-			error: function(error)
-			{
-			},
-			cancel: function()
-			{
-
-			},
-			animated:true,
-			allowImageEditing:true,
-		});
-		
-	};
-
-	document.getElementById('2').onclick = function(){
-	    var xhr = Titanium.Network.createHTTPClient();
-		xhr.onreadystatechange = function() 
+		if (this.readyState == 4)
 		{
-			if (this.readyState == 4)
+			var responseText = this.responseText;
+			Titanium.UI.createAlertDialog({message:responseText}).show();
+			Titanium.API.debug(responseText);
+			document.getElementById('pagey').innerHTML=responseText;
+		}
+	};
+	xhr.open('GET','http://www.liturgiadashoras.org/Horas/1terca_laudes.htm');
+	xhr.send(null);
+}
+
+document.getElementById('3').onclick = function(){
+	var button = Titanium.Facebook.createLoginButton({
+		'id':'b',
+		'style':'normal',
+		'apikey':null, //'9494e611f2a93b8d7bfcdfa8cefdaf9f',
+		'secret':null //'a65766d631c8e6f73f0fafc84b9885bc'
+	});
+	
+	button.addEventListener('login',function()
+	{
+		console.info("LOGIN");
+	});
+	
+	button.addEventListener('logout',function()
+	{
+		console.info("LOGOUT");
+	});
+
+	if (Titanium.Facebook.isLoggedIn())
+	{
+ 		Titanium.Facebook.query("select name,profile_blurb,pic_with_logo from user where uid == "+Titanium.Facebook.getUserId(),function(r)
+ 		{
+ 			console.info("QUERY RESULT RETURNED success = "+r.success+", error = "+r.error+", data="+typeof(r.data));
+			document.getElementById('name').innerHTML = r.data[0].name;
+			document.getElementById('profile').innerHTML = r.data[0].profile_blurb;
+			document.getElementById('pic').src = r.data[0].pic_with_logo;
+ 		});
+
+
+		// Titanium.Facebook.requestPermission("status_update",function(evt)
+		// {
+		// 	console.info("evt = "+evt+", success="+evt.success+",cancel="+evt.cancel+",error="+evt.error+",json="+Ti._JSON(evt));
+		// 	Titanium.Facebook.execute("facebook.Users.setStatus",{"status":"packing for trip"},function(evt)
+		// 	{
+		// 		console.info("evt = "+evt+", success="+evt.success+",cancel="+evt.cancel+",error="+evt.error+",json="+Ti._JSON(evt));
+		// 	});
+		// });
+		
+		
+		// Titanium.Facebook.publishFeed(134879989930,null,null,function(evt)
+		// {
+		// 	console.info("evt = "+evt+", success="+evt.success+",cancel="+evt.cancel+",error="+evt.error+",json="+Ti._JSON(evt));
+		// });
+	
+		function displayPermissions()
+		{
+			var permissions = Titanium.Facebook.getPermissions();
+			if (permissions==null)
 			{
-				var responseText = this.responseText;
-				Titanium.UI.createAlertDialog({message:responseText}).show();
-				Titanium.API.debug(responseText);
-				document.getElementById('pagey').innerHTML=responseText;
+				// if we get a null, we haven't yet fetched them, re-schedule
+				setTimeout(displayPermissions,500);
+				return;
 			}
-		};
-		xhr.open('GET','http://www.liturgiadashoras.org/Horas/1terca_laudes.htm');
-		xhr.send(null);
+			console.info("permissions = "+Ti._JSON(permissions));
+			console.info("has permission = "+Titanium.Facebook.hasPermission("status_update"));
+		}
+	
+		setTimeout(displayPermissions,500);
 	}
+}
+
 
 function touchHandler(event)
 {
     var touches = event.changedTouches,
         first = touches[0];
-            
-    //initMouseEvent(type, canBubble, cancelable, view, clickCount, 
-    //           screenX, screenY, clientX, clientY, ctrlKey, 
-    //           altKey, shiftKey, metaKey, button, relatedTarget);
     
 	Ti.API.debug('Type:' + event.type + ' first: (' + first.screenX + ',' + first.screenY + ')=(' + first.clientX +
 			',' + first.clientY + ')');
@@ -78,71 +135,31 @@ function touchy(event){
     event.preventDefault();
 }
 
-//function toucher(event){
-////	event.stopPropagation();
-//	Ti.API.debug("we're in document!");
-//	event._NODEF = event.preventDefault;
-//	Ti._NOCAN = false;
-//	event.preventDefault = function(){Ti._NOCAN=true;this._NODEF();}
-//	setTimeout("Ti.API.debug('Cancel was '+Ti._NOCAN)",0);
-//	touchHandler(event);
-//}
-//
-//    document.addEventListener("touchstart", toucher, true);
-//    document.addEventListener("touchmove", toucher, true);
-//    document.addEventListener("touchend", toucher, true);
-//    document.addEventListener("touchcancel", toucher, true);    
-	</script>
-	
-	
-		<div style="height:47px;margin-top:20px" id="button2"></div>
-	<script>
-	var button2 = Titanium.UI.createButton({
-		id:'button2',
-		backgroundImage:'blue.png',
-		backgroundSelectedImage:'blue_pressed.png',
-		title:'Close Window',
-		color:'#ffffff',
-		height:47,
-	});
-	button2.addEventListener('click',function(e)
-	{
-		Titanium.UI.currentWindow.close();
-	});
-	
-	</script>
-	<div id='pagey'></div>
+</script>
+<div style="height:47px;margin-top:20px" id="button2"></div>
+<script>
+var button2 = Titanium.UI.createButton({
+	id:'button2',
+	backgroundImage:'blue.png',
+	backgroundSelectedImage:'blue_pressed.png',
+	title:'Close Window',
+	color:'#ffffff',
+	height:47,
+});
+button2.addEventListener('click',function(e)
+{
+	Titanium.UI.currentWindow.close();
+});
+</script>
+<div id='pagey'></div>
 <div id='lipsum' style='background-color:blue;width:200px'>
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam arcu sem, scelerisque sed tincidunt sodales, pharetra ut nulla. Praesent vel sem sit amet lacus varius lobortis. Etiam eu metus eu libero pulvinar tincidunt non in ante. Vestibulum rhoncus, tellus cursus consectetur blandit, lectus libero facilisis ipsum, nec commodo mi arcu eget metus. Quisque pellentesque, nulla tincidunt pharetra porttitor, lacus nulla gravida nunc, at porttitor nisl dolor porta lectus. Aliquam tempor, metus in egestas lacinia, diam justo luctus quam, ut ullamcorper mauris ipsum quis urna. Donec justo nulla, laoreet sit amet egestas eu, molestie id magna. Donec commodo hendrerit porta. Nullam consectetur ultricies imperdiet. Ut et nibh nisl. Pellentesque lorem tortor, porta et fringilla et, ultrices eget eros. Morbi aliquam turpis in ipsum placerat sed luctus felis laoreet. Ut luctus, magna nec porta hendrerit, neque dolor malesuada nulla, at euismod augue ante non sapien. Nunc eu tortor felis, semper condimentum elit. Etiam lectus odio, dignissim et tristique eu, posuere quis quam. Morbi auctor, risus a sollicitudin eleifend, erat nisl vestibulum nulla, sed posuere est dui eget lacus. Pellentesque viverra rhoncus semper. Nunc egestas leo a dui interdum vitae viverra ante adipiscing. Donec interdum interdum est, vel condimentum leo condimentum sed. Etiam cursus accumsan ligula in rutrum.
-
-Nulla interdum lacinia iaculis. Integer augue lorem, porttitor non dapibus eget, mollis ac nunc. Sed sed tincidunt felis. Suspendisse molestie condimentum malesuada. Cras a venenatis odio. Mauris lectus quam, consequat ut dictum nec, convallis ac purus. Duis vitae lacus neque, a luctus quam. Cras in quam et ipsum hendrerit elementum. Aenean justo magna, mattis in suscipit id, rhoncus nec orci. Vivamus pulvinar lacus at ipsum mattis consectetur. Fusce a dui nisi. Suspendisse in adipiscing massa. Fusce luctus dictum lacinia. Nullam et felis nulla. Fusce quis justo leo.
-
-Aliquam erat volutpat. Fusce nec bibendum felis. Morbi semper placerat dui sit amet congue. Fusce nec eros non sem imperdiet consectetur vel nec eros. Sed cursus est ac eros auctor nec lobortis dolor scelerisque. Etiam at bibendum ipsum. Pellentesque imperdiet vehicula auctor. Cras quis aliquet dui. Donec vehicula commodo mi, non ultrices nisl luctus imperdiet. Aliquam pretium nisl quis tellus aliquam mattis. Quisque tincidunt vehicula rutrum. Etiam ac orci nisl. Pellentesque elementum purus sodales orci dapibus feugiat. Sed eu mi vitae neque molestie volutpat. Fusce nec purus magna. In vel aliquet ante. Aliquam et ipsum quis mauris interdum tincidunt. Proin vel ipsum nulla, id tincidunt diam. Nulla sit amet dui libero, vitae mattis magna.
-
-Donec volutpat turpis est, ut laoreet odio. Vivamus non consequat libero. Proin sit amet mi erat, nec accumsan erat. In tristique, mi sed congue interdum, nisl enim varius nulla, id tincidunt augue dui ut purus. Phasellus bibendum volutpat mauris, eget volutpat lacus iaculis ut. Fusce nec blandit massa. Phasellus sagittis gravida orci, ultrices feugiat nibh cursus et. Vestibulum hendrerit purus at magna sagittis vitae bibendum leo ullamcorper. Integer tincidunt, felis et sodales sollicitudin, lorem orci molestie tortor, vitae venenatis erat erat quis odio. Mauris eget dignissim tortor. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer congue facilisis lacus a aliquam. Praesent ullamcorper velit vel mauris tristique molestie. Praesent varius sem risus, at pulvinar orci. Duis pharetra feugiat risus, sit amet semper tellus tincidunt sed. Nam in accumsan elit. Donec purus nibh, molestie in dignissim at, rutrum a tortor. Maecenas non ipsum ornare eros hendrerit placerat.
-
-Nulla vel lectus tempus lectus interdum luctus in et ante. Cras mi quam, bibendum a porttitor at, dignissim vitae orci. Cras tempus congue facilisis. Sed eget erat leo. Vestibulum porttitor dignissim enim sit amet euismod. Ut eget imperdiet quam. Curabitur gravida nulla eget nisi gravida ac luctus justo elementum. Donec a diam in nisl rutrum pellentesque id quis eros. In hac habitasse platea dictumst. Fusce convallis elit a magna interdum faucibus. Vivamus id imperdiet lectus. Donec neque dui, posuere sit amet malesuada ac, feugiat pellentesque nulla. Cras vitae tellus et nunc auctor pellentesque. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Quisque vestibulum elit sed arcu venenatis tristique. Vestibulum pulvinar vestibulum elit, non dictum enim pellentesque sed. Nulla facilisi. Ut eget nulla vestibulum nunc ornare commodo eget eget urna. Etiam ut ante at est adipiscing fermentum quis id tortor.
-
-Vestibulum eget est sed felis rutrum pretium. Praesent aliquam nunc eget felis rutrum eget convallis elit tincidunt. Cras sodales, enim porta sodales vehicula, enim nunc hendrerit nibh, id fringilla diam tellus id urna. Duis malesuada quam urna, id blandit magna. Etiam id odio posuere lectus viverra fringilla accumsan ut ante. Quisque dapibus eleifend est, quis porta ipsum commodo nec. Fusce et augue eu mi pharetra eleifend eget nec lectus. Nunc sit amet erat eu ante consectetur vulputate vitae vitae est. Donec vitae nisi diam, eget suscipit diam. Nulla aliquet mauris eget justo pulvinar sit amet mollis felis facilisis. Quisque nunc enim, adipiscing vitae varius a, lacinia venenatis orci. Phasellus sed ante felis, quis gravida ipsum. Donec in vulputate elit. Suspendisse potenti. Etiam sit amet sagittis ipsum. Donec convallis erat ut turpis semper facilisis. Donec vel iaculis neque. Suspendisse porttitor odio sed tellus auctor condimentum. Sed facilisis pretium sollicitudin. Donec sit amet tortor mauris, vel pretium eros.
-
-Nam dolor dolor, lobortis vitae suscipit sit amet, porta ut odio. Phasellus ultricies dignissim neque, id rutrum turpis varius ac. Ut nec diam urna, egestas ultrices ligula. Fusce lacinia ultrices nulla at sollicitudin. Cras tellus elit, gravida tincidunt ultrices ut, placerat sit amet sem. Nullam id neque condimentum diam posuere tempus sed eget eros. Etiam dapibus, felis vitae tincidunt dictum, dolor lectus bibendum quam, non sollicitudin justo diam quis dui. Sed vel neque lectus, ac dignissim sem. Duis convallis libero non nisi venenatis viverra. Phasellus ut nulla non sapien dictum ornare consectetur commodo purus. Nam elementum cursus mi at tristique. Ut id tortor nunc. Curabitur lectus nibh, vehicula id consequat quis, auctor id mi. Aenean eu diam erat, ut imperdiet dui. Quisque vel turpis ac nisi mattis egestas.
-
-Aenean malesuada mollis consequat. Fusce venenatis vulputate metus a semper. Morbi placerat ipsum egestas dui pellentesque congue. Suspendisse ut ante lectus, vel dignissim velit. Sed ac accumsan justo. Vestibulum tincidunt volutpat venenatis. Nam fringilla pellentesque consectetur. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. In in tellus in nulla cursus vestibulum sit amet non nunc. Sed vitae nunc et neque faucibus luctus. Quisque a turpis nec leo placerat facilisis. Vivamus feugiat ligula at sem volutpat ut tempus nisi porttitor. Pellentesque aliquam vehicula elit sit amet blandit. Duis sodales eleifend dolor vitae accumsan. Nullam luctus, felis nec facilisis sagittis, urna leo ultrices diam, et blandit ipsum urna at metus. Donec tempus leo ut ipsum dictum fringilla. Sed risus elit, lacinia et accumsan sit amet, porttitor vel nisi. Etiam at ante est, nec posuere augue. Aliquam molestie elit posuere dui imperdiet fringilla non sit amet arcu. Sed bibendum tincidunt metus, sit amet facilisis metus pulvinar nec.
-
-In nec leo nisl. Suspendisse sit amet accumsan ante. Cras neque augue, volutpat in ultricies tempus, porttitor in ligula. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nulla feugiat tempor sem, ac dapibus eros facilisis et. Sed commodo, tortor at varius lobortis, lacus nisi vehicula est, vitae auctor lacus justo eget nunc. Donec ligula elit, lacinia porttitor volutpat vitae, vestibulum at nibh. Proin malesuada accumsan quam et euismod. Praesent fringilla vestibulum orci a pulvinar. Quisque congue vestibulum tortor vulputate vestibulum. Donec gravida vehicula tortor, in posuere felis hendrerit vitae. Nullam ut nibh metus.
-
-Vestibulum a nunc justo. Praesent eu diam vitae elit viverra venenatis. Aenean sodales tincidunt rhoncus. Donec ut mi quis nisi dapibus lobortis. Praesent scelerisque tristique nulla eget volutpat. Nunc mattis elit vitae velit dictum sed condimentum arcu pulvinar. Aliquam aliquet convallis ipsum, vel tincidunt leo viverra ut. Pellentesque non mattis nibh. Pellentesque et odio sed sem consequat luctus. In placerat, nunc sed blandit iaculis, leo tortor volutpat diam, sed sagittis nibh magna mattis ligula. Aliquam erat volutpat. Vestibulum elit lorem, placerat eget hendrerit eu, venenatis aliquam justo.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam arcu sem, scelerisque sed tincidunt sodales, pharetra ut nulla.
 </div>
 <script>
 document.getElementById('lipsum').addEventListener("touchstart", touchy, false);
 document.getElementById('lipsum').addEventListener("touchmove", touchy, false);
 document.getElementById('lipsum').addEventListener("touchend", touchy, false);
 document.getElementById('lipsum').addEventListener("touchcancel", touchy, false);    
-
-//document.getElementById('lipsum').ontouchstart=touchy;
-//document.getElementById('lipsum').ontouchmove=touchy;
-//document.getElementById('lipsum').ontouchend=touchy;
-//document.getElementById('lipsum').ontouchcancel=touchy;    
 
 </script>
 </body>

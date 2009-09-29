@@ -297,6 +297,16 @@
 		B4864F5C0F7C48E700A851C5 /* TitaniumUIViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4864F5B0F7C48E700A851C5 /* TitaniumUIViewController.m */; };
 		B48E4AE40FC1DBEE00204C8E /* iPhone_BG.png in Resources */ = {isa = PBXBuildFile; fileRef = B4880BA20F96B4E3007589FC /* iPhone_BG.png */; };
 		B48E4AE50FC1DBF200204C8E /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = B4F51CB00F981F23004D9D2D /* Default.png */; };
+		B49029EE1072848D009678FC /* FBPermissionDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238C106F1802004D4127 /* FBPermissionDialog.m */; };
+		B49029EF1072848E009678FC /* FacebookModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD237C106F1802004D4127 /* FacebookModule.m */; };
+		B49029F01072848E009678FC /* FBLoginDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238B106F1802004D4127 /* FBLoginDialog.m */; };
+		B49029F11072848F009678FC /* FBRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238D106F1802004D4127 /* FBRequest.m */; };
+		B49029F210728490009678FC /* FBSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238E106F1802004D4127 /* FBSession.m */; };
+		B49029F310728490009678FC /* FBFeedDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2389106F1802004D4127 /* FBFeedDialog.m */; };
+		B49029F410728491009678FC /* FBDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2388106F1802004D4127 /* FBDialog.m */; };
+		B49029F510728492009678FC /* FBConnectGlobal.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2387106F1802004D4127 /* FBConnectGlobal.m */; };
+		B49029F610728492009678FC /* FBXMLHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2390106F1802004D4127 /* FBXMLHandler.m */; };
+		B49029F710728493009678FC /* FBLoginButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238A106F1802004D4127 /* FBLoginButton.m */; };
 		B492D43E0FCC6DB20030772B /* network.html in Resources */ = {isa = PBXBuildFile; fileRef = B492D43D0FCC6DB20030772B /* network.html */; };
 		B49358DC106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B49358DB106AE51C00BC4A77 /* TitaniumImageViewController.m */; };
 		B49358DD106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B49358DB106AE51C00BC4A77 /* TitaniumImageViewController.m */; };
@@ -1870,6 +1880,16 @@
 				B4F37DE01061913E00ED12AF /* NotificationModule.m in Sources */,
 				B49358DC106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */,
 				24FD2052106C9198004D4127 /* TitaniumBasicModule.m in Sources */,
+				B49029EE1072848D009678FC /* FBPermissionDialog.m in Sources */,
+				B49029EF1072848E009678FC /* FacebookModule.m in Sources */,
+				B49029F01072848E009678FC /* FBLoginDialog.m in Sources */,
+				B49029F11072848F009678FC /* FBRequest.m in Sources */,
+				B49029F210728490009678FC /* FBSession.m in Sources */,
+				B49029F310728490009678FC /* FBFeedDialog.m in Sources */,
+				B49029F410728491009678FC /* FBDialog.m in Sources */,
+				B49029F510728492009678FC /* FBConnectGlobal.m in Sources */,
+				B49029F610728492009678FC /* FBXMLHandler.m in Sources */,
+				B49029F710728493009678FC /* FBLoginButton.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2571,7 +2591,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = /CodeValhalla/Appcelerate/mobile/iphone/Classes;
 				INFOPLIST_FILE = Info.plist;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DPL_DB_PRIVATE=1";
@@ -2608,7 +2628,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = /CodeValhalla/Appcelerate/mobile/iphone/Classes;
 				INFOPLIST_FILE = Info.plist;
 				OTHER_CFLAGS = "-DPL_DB_PRIVATE=1";
 				OTHER_CODE_SIGN_FLAGS = "";

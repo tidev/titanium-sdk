@@ -13,22 +13,24 @@
 	{
 		try{
 		buggyView = Ti.UI.createWebView({url:'buggy.html',name:'bugger'});
-//		Ti.UI.currentWindow.addView(buggyView);
 		otherView = Ti.UI.createWebView({url:'unitTest.html',name:'number1'});
 		imageView = Ti.UI.createImageView({url:'WeCanDoIt.png',canScale:true});
+
+		pagy = Ti.UI.createScrollableView({views:[buggyView],showPagingControl:true});
+		pagy.addView(otherView);
+		pagy.addView(imageView);
+		Ti.UI.currentWindow.addView(pagy);
+		pagy.addEventListener('scroll',function(ev){Ti.API.debug('We scrolled to page '+ev.currentPage);});
+
+//		Ti.UI.currentWindow.addView(buggyView);
 //		Ti.UI.currentWindow.addView(otherView);
-//		pagy = Ti.UI.createScrollingView({views:[buggyView],showPagingControl:true});
-//		pagy.addView(otherView);
-//		pagy.addView(imageView);
-//		Ti.UI.currentWindow.addView(pagy);
-//		pagy.addEventListener('scroll',function(ev){Ti.API.debug('We scrolled to page '+ev.currentPage);});
 //		Ti.UI.currentWindow.showView(buggyView,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000});
 
-		compy = Ti.UI.createCompositeView();
-		Ti.UI.currentWindow.addView(compy);
-		compy.addView(buggyView,{top:0,height:150});
-		compy.addView(otherView,{top:150});
-		compy.addView(imageView,{top:80,height:120,width:120});
+//		compy = Ti.UI.createCompositeView();
+//		Ti.UI.currentWindow.addView(compy);
+//		compy.addView(buggyView,{top:0,height:150});
+//		compy.addView(otherView,{top:150});
+//		compy.addView(imageView,{top:80,height:120,width:120});
 	
 		}catch(E){Ti.API.debug(E);}
 
@@ -178,7 +180,7 @@ document.write(window._WINTKN);
 	<button onclick="testFun('noteTest()')">Notification</button>
 	<button onclick="testFun('lastnote.hide()')">hide</button>
 
-	<button onclick="Titanium.UI.currentWindow.showView(compy,{animated:true})">Switch by view</button>
+	<button onclick="Titanium.UI.currentWindow.showView(pagy,{animated:true})">Switch by view</button>
 <!--
 	<button onclick="Titanium.UI.currentWindow.showView(buggyView,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000})">Switch by view</button>
 	<button onclick="Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('bugger'),{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000})">Switch by name</button>
