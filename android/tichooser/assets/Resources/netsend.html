@@ -139,6 +139,19 @@
 			}
 		};
 
+		$('object').onclick = function()
+		{
+			$('echo').innerHTML = 'Posting remotely...one moment';
+			var ourClient = Titanium.Network.createHTTPClient();
+			ourClient.open('POST','http://192.168.123.102:8000');
+			ourClient.onreadystatechange=function(){
+				if(this.readyState == 4) {
+					$('echo').innerHTML = this.responseText;
+				}
+			};
+			ourClient.send({name:'namey'});
+		};
+
 	};
 </script>
 </head>
@@ -160,6 +173,7 @@
 	<button id="googleOnLoad">Get Google 2</button>
 	<button id="head">Get Yahoo</button>
 	<button id="xml">Get XML</button>
+	<button id="object">Post Object</button>
 </div>
 
 <div id='status' style="bottom-margin:10px;">

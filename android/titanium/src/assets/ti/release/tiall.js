@@ -17,6 +17,14 @@ function typeOf(value){var s=typeof value;if(s==='object'){if(value){if(value in
 return s;}
 function transformObjectValue(value,def)
 {if(isUndefined(value))return def;return value;}
+function transformObjectValueAsString(value,def)
+{if(isUndefined(value))return def;return String(value);}
+function transformObjectValueAsInt(value,def)
+{if(isUndefined(value))return def;return parseInt(value);}
+function transformObjectValueAsBool(value,def)
+{if(isUndefined(value))return def;return!!value;}
+function transformObjectValueAsDouble(value,def)
+{if(isUndefined(value))return def;return parseFloat(value);}
 Titanium.API={log:function(severity,msg)
 {Titanium.apiProxy.log(severity,msg);},debug:function(msg)
 {this.log(this.DEBUG,msg);},error:function(msg)
@@ -56,18 +64,18 @@ cx.lastIndex=0;if(cx.test(text)){text=text.replace(cx,function(a){return'\\u'+
 if(/^[\],:{}\s]*$/.test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g,'@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,']').replace(/(?:^|:|,)(?:\s*\[)+/g,''))){j=eval('('+text+')');return typeof reviver==='function'?walk({'':j},''):j;}
 throw new SyntaxError('Titanium.JSON.parse: '+text);};}}());
 Titanium.appProxy=window.TitaniumApp;Titanium.App={getID:function()
-{return transformObjectValue(Titanium.appProxy.getID(),null);},getName:function()
-{return transformObjectValue(Titanium.appProxy.getModuleName(),null);},getVersion:function()
-{return transformObjectValue(Titanium.appProxy.getVersion(),null);},getPublisher:function()
-{return transformObjectValue(Titanium.appProxy.getPublisher(),null);},getURL:function()
-{return transformObjectValue(Titanium.appProxy.getURL(),null);},getDescription:function()
-{return transformObjectValue(Titanium.appProxy.getDescription(),null);},getCopyright:function()
-{return transformObjectValue(Titanium.appProxy.getCopyright(),null);},getGUID:function()
-{return transformObjectValue(Titanium.appProxy.getGUID(),null);},appURLToPath:function(url)
-{return transformObjectValue(Titanium.appProxy.appURLToPath(url),null);},getStreamURL:function(stream)
-{return transformObjectValue(Titanium.appProxy.getStreamURL(stream),null);},triggerLoad:function()
+{return transformObjectValueAsString(Titanium.appProxy.getID(),null);},getName:function()
+{return transformObjectValueAsString(Titanium.appProxy.getModuleName(),null);},getVersion:function()
+{return transformObjectValueAsString(Titanium.appProxy.getVersion(),null);},getPublisher:function()
+{return transformObjectValueAsString(Titanium.appProxy.getPublisher(),null);},getURL:function()
+{return transformObjectValueAsString(Titanium.appProxy.getURL(),null);},getDescription:function()
+{return transformObjectValueAsString(Titanium.appProxy.getDescription(),null);},getCopyright:function()
+{return transformObjectValueAsString(Titanium.appProxy.getCopyright(),null);},getGUID:function()
+{return transformObjectValueAsString(Titanium.appProxy.getGUID(),null);},appURLToPath:function(url)
+{return transformObjectValueAsString(Titanium.appProxy.appURLToPath(url),null);},getStreamURL:function(stream)
+{return transformObjectValueAsString(Titanium.appProxy.getStreamURL(stream),null);},triggerLoad:function()
 {Titanium.appProxy.triggerLoad();},setLoadOnPageEnd:function(load)
-{return transformObjectValue(Titanium.appProxy.setLoadOnPageEnd(load),null);}};Properties=function(proxy){this.proxy=proxy;this.getString=function(name,def){def=arguments.length==1||isUndefined(def)?null:def;var r=this.proxy.getString(name,def);return transformObjectValue(r,def);};this.setString=function(name,value){return this.proxy.setString(name,value);};this.getInt=function(name,def){def=arguments.length==1||isUndefined(def)?-1:def;var r=this.proxy.getInt(name,def);return transformObjectValue(r,def);};this.setInt=function(name,value){return this.proxy.setInt(name,value);};this.getBool=function(name,def){def=arguments.length==1||isUndefined(def)?false:def;var r=this.proxy.getBool(name,def);return transformObjectValue(r,def);};this.setBool=function(name,value){return this.proxy.setBool(name,value);},this.getDouble=function(name,def){def=arguments.length==1||isUndefined(def)?0.0:def;var r=this.proxy.getDouble(name,def);return transformObjectValue(r,def);},this.setDouble=function(name,value){return this.proxy.setDouble(name,value);},this.getList=function(name,def)
+{return transformObjectValue(Titanium.appProxy.setLoadOnPageEnd(load),null);}};Properties=function(proxy){this.proxy=proxy;this.getString=function(name,def){def=arguments.length==1||isUndefined(def)?null:def;var r=this.proxy.getString(name,def);return transformObjectValueAsString(r,def);};this.setString=function(name,value){return this.proxy.setString(name,value);};this.getInt=function(name,def){def=arguments.length==1||isUndefined(def)?-1:def;var r=this.proxy.getInt(name,def);return transformObjectValueAsInt(r,def);};this.setInt=function(name,value){return this.proxy.setInt(name,value);};this.getBool=function(name,def){def=arguments.length==1||isUndefined(def)?false:def;var r=this.proxy.getBool(name,def);return transformObjectValueAsBool(r,def);};this.setBool=function(name,value){return this.proxy.setBool(name,value);},this.getDouble=function(name,def){def=arguments.length==1||isUndefined(def)?0.0:def;var r=this.proxy.getDouble(name,def);return transformObjectValueAsDouble(r,def);},this.setDouble=function(name,value){return this.proxy.setDouble(name,value);},this.getList=function(name,def)
 {if(isUndefined(def)){def=[];}
 var s=this.proxy.getList(name,Titanium.JSON.stringify(def));return eval("("+s+")");},this.setList=function(name,value){if(isUndefined(value)){value=[];}
 if(!typeOf(value)=='array'){value=[value];}

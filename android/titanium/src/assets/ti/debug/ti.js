@@ -166,6 +166,31 @@ function transformObjectValue(value,def)
 	return value;
 }
 
+function transformObjectValueAsString(value,def)
+{
+	if (isUndefined(value)) return def;
+	return String(value);
+}
+
+function transformObjectValueAsInt(value,def)
+{
+	if (isUndefined(value)) return def;
+	return parseInt(value);
+}
+
+function transformObjectValueAsBool(value,def)
+{
+	if (isUndefined(value)) return def;
+	return !!value;
+}
+
+function transformObjectValueAsDouble(value,def)
+{
+	if (isUndefined(value)) return def;
+	return parseFloat(value);
+}
+
+
 // Logging should always be available
 Titanium.API = {
 	/*

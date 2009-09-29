@@ -15,7 +15,7 @@ Titanium.App =
 	 */
 	getID : function ()
 	{
-		return transformObjectValue(Titanium.appProxy.getID(),null);
+		return transformObjectValueAsString(Titanium.appProxy.getID(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getName,since=0.4) Get the name of the application.
@@ -23,7 +23,7 @@ Titanium.App =
 	 */
 	getName: function()
 	{
-		return transformObjectValue(Titanium.appProxy.getModuleName(),null);
+		return transformObjectValueAsString(Titanium.appProxy.getModuleName(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getVersion,since=0.4) Get the application version.
@@ -31,7 +31,7 @@ Titanium.App =
 	 */
 	getVersion: function()
 	{
-		return transformObjectValue(Titanium.appProxy.getVersion(),null);
+		return transformObjectValueAsString(Titanium.appProxy.getVersion(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getPublisher,since=0.4) Get the publisher.
@@ -39,7 +39,7 @@ Titanium.App =
 	 */
 	getPublisher: function()
 	{
-		return transformObjectValue(Titanium.appProxy.getPublisher(),null);
+		return transformObjectValueAsString(Titanium.appProxy.getPublisher(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getURL,since=0.4) Get the url to application's external website.
@@ -47,7 +47,7 @@ Titanium.App =
 	 */
 	getURL: function()
 	{
-		return transformObjectValue(Titanium.appProxy.getURL(),null);
+		return transformObjectValueAsString(Titanium.appProxy.getURL(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getDescription,since=0.4) Get description of application
@@ -55,7 +55,7 @@ Titanium.App =
 	 */
 	getDescription: function()
 	{
-		return transformObjectValue(Titanium.appProxy.getDescription(),null);
+		return transformObjectValueAsString(Titanium.appProxy.getDescription(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getCopyright,since=0.4) Get application copyright
@@ -63,7 +63,7 @@ Titanium.App =
 	 */
 	getCopyright: function()
 	{
-		return transformObjectValue(Titanium.appProxy.getCopyright(),null);
+		return transformObjectValueAsString(Titanium.appProxy.getCopyright(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getGUID,since=0.4) get the application's globally unique id
@@ -71,7 +71,7 @@ Titanium.App =
 	 */
 	getGUID: function()
 	{
-		return transformObjectValue(Titanium.appProxy.getGUID(),null);
+		return transformObjectValueAsString(Titanium.appProxy.getGUID(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.appURLToPath,since=0.4) Get url for file under Resources
@@ -80,7 +80,7 @@ Titanium.App =
 	 */
 	appURLToPath: function(url)
 	{
-		return transformObjectValue(Titanium.appProxy.appURLToPath(url),null);
+		return transformObjectValueAsString(Titanium.appProxy.appURLToPath(url),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getStreamURL,since=0.4) Not implemented yet
@@ -89,7 +89,7 @@ Titanium.App =
 	 */
 	getStreamURL: function(stream)
 	{
-		return transformObjectValue(Titanium.appProxy.getStreamURL(stream),null);
+		return transformObjectValueAsString(Titanium.appProxy.getStreamURL(stream),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.triggerLoad,since=0.4) (Internal, Android only)
@@ -129,7 +129,7 @@ Properties = function(proxy) {
 	this.getString = function(name, def) {
 		def = arguments.length == 1 || isUndefined(def) ? null : def;
 		var r = this.proxy.getString(name,def);
-		return transformObjectValue(r,def);
+		return transformObjectValueAsString(r,def);
 	};
 	/**
 	 * @tiapi(method=True,name=App.Properties.setString,since=0.4) Store a string property
@@ -159,7 +159,7 @@ Properties = function(proxy) {
 	this.getInt = function(name,def) {
 		def = arguments.length == 1 || isUndefined(def) ? -1 : def;
 		var r = this.proxy.getInt(name,def);
-		return transformObjectValue(r,def);
+		return transformObjectValueAsInt(r,def);
 	};
 	/**
 	 * @tiapi(method=True,name=App.Properties.setInt,since=0.4) Store an integer property
@@ -189,7 +189,7 @@ Properties = function(proxy) {
 	this.getBool = function(name,def) {
 		def = arguments.length == 1 || isUndefined(def) ? false : def;
 		var r = this.proxy.getBool(name,def);
-		return transformObjectValue(r,def);
+		return transformObjectValueAsBool(r,def);
 	};
 	/**
 	 * @tiapi(method=True,name=App.Properties.setBool,since=0.4) Store a boolean property
@@ -219,7 +219,7 @@ Properties = function(proxy) {
 	this.getDouble = function(name,def){
 		def = arguments.length == 1 || isUndefined(def) ? 0.0 : def;
 		var r = this.proxy.getDouble(name,def);
-		return transformObjectValue(r,def);
+		return transformObjectValueAsDouble(r,def);
 	},
 	this.setDouble = function(name,value){
 		return this.proxy.setDouble(name,value);
