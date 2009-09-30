@@ -138,6 +138,10 @@ UIColor * checkmarkColor = nil;
 			if (![thisEntry isKindOfClass:dictClass]) continue;
 			
 			TitaniumCellWrapper * thisRow = [[TitaniumCellWrapper alloc] init];
+			TitaniumFontDescription defaultFont;
+			defaultFont.isBold = YES;
+			defaultFont.size = 20;
+			[thisRow setFontDesc:defaultFont];
 			if (isButtonGroup) [thisRow setIsButton:YES];
 			
 			[thisRow useProperties:thisEntry withUrl:baseURL];
@@ -313,10 +317,16 @@ UIColor * checkmarkColor = nil;
 	sectionArray = [[NSMutableArray alloc] init];
 
 	TableSectionWrapper * thisSectionWrapper = nil;
+
+	TitaniumFontDescription defaultFont;
+	defaultFont.isBold = YES;
+	defaultFont.size = 20;
+
 	for(NSDictionary * thisEntry in dataArray){
 		if (![thisEntry isKindOfClass:dictClass]) continue;
 		
-		TitaniumCellWrapper * thisRow = [[[TitaniumCellWrapper alloc] init] autorelease];		
+		TitaniumCellWrapper * thisRow = [[[TitaniumCellWrapper alloc] init] autorelease];
+		[thisRow setFontDesc:defaultFont];
 		[thisRow useProperties:thisEntry withUrl:baseUrl];
 		
 		id headerString = [thisEntry objectForKey:@"header"];
@@ -915,7 +925,12 @@ UIColor * checkmarkColor = nil;
 				return;
 			}
 			//Okay, now it's an insert before or after.
+			TitaniumFontDescription defaultFont;
+			defaultFont.isBold = YES;
+			defaultFont.size = 20;
+			
 			TitaniumCellWrapper * insertedRow = [[[TitaniumCellWrapper alloc] init] autorelease];
+			[insertedRow setFontDesc:defaultFont];
 			[insertedRow useProperties:rowData withUrl:baseUrl];
 			if(isInsertAfter){
 				index++;
@@ -1062,7 +1077,11 @@ UIColor * checkmarkColor = nil;
 				break;
 			case TitaniumGroupActionInsertBeforeRow:
 				if(row > [thisSectionWrapper rowCount]) break;
+				TitaniumFontDescription defaultFont;
+				defaultFont.isBold = YES;
+				defaultFont.size = 20;
 				thisRow = [[TitaniumCellWrapper alloc] init];
+				[thisRow setFontDesc:defaultFont];
 				[thisRow useProperties:[thisAction rowData] withUrl:[thisAction baseUrl]];
 				[thisSectionWrapper insertRow:thisRow atIndex:row];
 				[tableView insertRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];

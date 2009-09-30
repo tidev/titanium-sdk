@@ -11,7 +11,7 @@
 #import "UiModule.h"
 
 @implementation TitaniumCellWrapper
-@synthesize title,html,imageURL,imageWrapper,accessoryType,inputProxy,isButton, value, name;
+@synthesize title,html,imageURL,imageWrapper,accessoryType,inputProxy,isButton, value, name, fontDesc;
 
 - (id) init
 {

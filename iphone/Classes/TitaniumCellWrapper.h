@@ -35,7 +35,7 @@
 @property(nonatomic,readwrite,assign)	UITableViewCellAccessoryType accessoryType;
 @property(nonatomic,readwrite,retain)	NativeControlProxy * inputProxy;
 @property(nonatomic,readwrite,assign)	BOOL isButton;
-
+@property(nonatomic,readwrite,assign)	TitaniumFontDescription fontDesc;
 
 - (void) useProperties: (NSDictionary *) propDict withUrl: (NSURL *) baseUrl;
 - (NSString *) stringValue;
