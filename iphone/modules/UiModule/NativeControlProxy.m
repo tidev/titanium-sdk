@@ -82,20 +82,23 @@ int barButtonSystemItemForString(NSString * inputString){
 {
 	CGFloat	width;
 	CGFloat	rowHeight;
+	int selectedRow;
 	NSMutableArray * data;
 }
 
 @property(nonatomic,readwrite,assign)	CGFloat	width;
 @property(nonatomic,readwrite,assign)	CGFloat	rowHeight;
 @property(nonatomic,readwrite,retain)	NSMutableArray * data;
+@property(nonatomic,readwrite,assign)	int selectedRow;
 
 @end
 
 @implementation PickerColumnWrapper
-@synthesize width,rowHeight,data;
+@synthesize width,rowHeight,data, selectedRow;
 
 - (void) readState: (NSDictionary *) inputState relativeToUrl: (NSURL *) baseUrl;
 {
+	selectedRow = -1;
 	SEL floatVal=@selector(floatValue);
 	id widthObject = [inputState objectForKey:@"width"];
 	if([widthObject respondsToSelector:floatVal])width=[widthObject floatValue];
@@ -112,11 +115,14 @@ int barButtonSystemItemForString(NSString * inputString){
 			[data removeAllObjects];
 		}
 		Class dictClass = [NSDictionary class];
+		SEL boolSel = @selector(boolValue);
 		
 		for(NSDictionary * thisCellObject in dataObject){
 			if(![thisCellObject isKindOfClass:dictClass])continue;
 			TitaniumCellWrapper * thisCell = [[TitaniumCellWrapper alloc] init];
 			[thisCell useProperties:thisCellObject withUrl:baseUrl];
+			NSNumber * isSelected = [thisCellObject objectForKey:@"selected"];
+			if([isSelected respondsToSelector:boolSel] && [isSelected boolValue])selectedRow=[data count];
 			[data addObject:thisCell];
 		}
 	}
@@ -625,10 +631,12 @@ needsRefreshing = YES;	\
 			
 			[(UIPickerView *)resultView setShowsSelectionIndicator:showSelectionIndicator];
 			int thisColumnIndex = 0;
-			for(id pickerColumn in pickerColumnsArray){
-				int neededSelection = 0; //TODO: Getting the column picker value.
-				int currentSelection = [(UIPickerView *)resultView selectedRowInComponent:thisColumnIndex];
-				if(neededSelection != currentSelection)[(UIPickerView *)resultView selectRow:neededSelection inComponent:thisColumnIndex animated:animated];
+			for(PickerColumnWrapper * pickerColumn in pickerColumnsArray){
+				int neededSelection = [pickerColumn selectedRow];
+				if(neededSelection >= 0){
+					int currentSelection = [(UIPickerView *)resultView selectedRowInComponent:thisColumnIndex];
+					if(neededSelection != currentSelection)[(UIPickerView *)resultView selectRow:neededSelection inComponent:thisColumnIndex animated:animated];
+				}
 
 				thisColumnIndex ++;
 			}			
@@ -968,7 +976,7 @@ needsRefreshing = YES;	\
 
 #pragma mark Events sent to Javascript
 
-- (void) reportEvent: (NSString *) eventType value: (NSString *) newValue index: (int) index;
+- (void) reportEvent: (NSString *) eventType value: (NSString *) newValue index: (int) index init:(NSString *)customInit arguments:(NSString *)extraArgs;
 {
 	NSString * initalizer;
 	NSString * arguments;
@@ -982,8 +990,11 @@ needsRefreshing = YES;	\
 		initalizer = @"";
 		arguments = @"";
 	}
+	if(customInit == nil)customInit = @"";
+	if(extraArgs == nil)extraArgs = @"";
+	
 	NSString * handleClickCommand = [NSString stringWithFormat:
-			@"(function(){%@Titanium.UI._BTN.%@.onClick({type:'%@'%@});}).call(Titanium.UI._BTN.%@);",
+			@"(function(){%@%@Titanium.UI._BTN.%@.onClick({type:'%@'%@%@});}).call(Titanium.UI._BTN.%@);",
 			initalizer,token,eventType,arguments,token];
 //	NSLog(@"Sending '%@' to the page.",handleClickCommand);
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
@@ -991,43 +1002,43 @@ needsRefreshing = YES;	\
 
 - (IBAction) onClick: (id) sender;
 {
-	[self reportEvent:@"click" value:nil index:-1];
+	[self reportEvent:@"click" value:nil index:-1 init:nil arguments:nil];
 }
 
 - (IBAction) onSwitchChange: (id) sender;
 {
 	floatValue = [(UISwitch *)sender isOn];
-	[self reportEvent:@"change" value:(floatValue ? @"true":@"false") index:-1];
+	[self reportEvent:@"change" value:(floatValue ? @"true":@"false") index:-1 init:nil arguments:nil];
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField;
 {
 	[self setStringValue:[textField text]];
-	[self reportEvent:@"blur" value:[SBJSON stringify:stringValue] index:-1];
+	[self reportEvent:@"blur" value:[SBJSON stringify:stringValue] index:-1 init:nil arguments:nil];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView;
 {
 	[self setStringValue:[textView text]];
-	[self reportEvent:@"blur" value:[SBJSON stringify:stringValue] index:-1];
+	[self reportEvent:@"blur" value:[SBJSON stringify:stringValue] index:-1 init:nil arguments:nil];
 }
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField;           // became first responder
 {
 	[self setStringValue:[textField text]];
-	[self reportEvent:@"focus" value:[SBJSON stringify:stringValue] index:-1];
+	[self reportEvent:@"focus" value:[SBJSON stringify:stringValue] index:-1 init:nil arguments:nil];
 }
 
 - (void)textViewDidBeginEditing:(UITextView *)textView;
 {
 	[self setStringValue:[textView text]];
-	[self reportEvent:@"focus" value:[SBJSON stringify:stringValue] index:-1];
+	[self reportEvent:@"focus" value:[SBJSON stringify:stringValue] index:-1 init:nil arguments:nil];
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;   // return NO to not change text
 {
 	[self setStringValue:[[textField text] stringByReplacingCharactersInRange:range withString:string]];
-	[self reportEvent:@"change" value:[SBJSON stringify:stringValue] index:-1];
+	[self reportEvent:@"change" value:[SBJSON stringify:stringValue] index:-1 init:nil arguments:nil];
 	return YES;
 }
 
@@ -1039,20 +1050,20 @@ needsRefreshing = YES;	\
 - (void)textViewDidChange:(UITextView *)textView;
 {
 	[self setStringValue:[textView text]];
-	[self reportEvent:@"change" value:[SBJSON stringify:stringValue] index:-1];
+	[self reportEvent:@"change" value:[SBJSON stringify:stringValue] index:-1 init:nil arguments:nil];
 }
 
 - (BOOL)textFieldShouldClear:(UITextField *)textField;               // called when clear button pressed. return NO to ignore (no notifications)
 {
 	[self setStringValue:@""];
-	[self reportEvent:@"change" value:@"''" index:-1];
+	[self reportEvent:@"change" value:@"''" index:-1 init:nil arguments:nil];
 	return YES;
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField;              // called when 'return' key pressed. return NO to ignore.
 {
 	[self setStringValue:[textField text]];
-	[self reportEvent:@"return" value:[SBJSON stringify:stringValue] index:-1];
+	[self reportEvent:@"return" value:[SBJSON stringify:stringValue] index:-1 init:nil arguments:nil];
 	return !surpressReturnCharacter;
 }
 
@@ -1060,20 +1071,45 @@ needsRefreshing = YES;	\
 - (IBAction) onSegmentChange: (id) sender;
 {
 	segmentSelectedIndex = [(UISegmentedControl *)sender selectedSegmentIndex];
-	[self reportEvent:@"click" value:nil index:segmentSelectedIndex];
+	[self reportEvent:@"click" value:nil index:segmentSelectedIndex init:nil arguments:nil];
 }
 
 - (IBAction) onValueChange: (id) sender;
 {
 	floatValue = [(UISlider *)sender value];
 	NSString * newValue = [[NSString alloc] initWithFormat:@"%f",floatValue];
-	[self reportEvent:@"change" value:newValue index:-1];
+	[self reportEvent:@"change" value:newValue index:-1 init:nil arguments:nil];
 	[newValue release];
 }
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component;
 {
-	
+	PickerColumnWrapper * ourColumn = [pickerColumnsArray objectAtIndex:component];
+
+	int oldSelectedValue = [ourColumn selectedRow];
+
+	NSString * ourInit;
+	if(oldSelectedValue >= 0){
+		ourInit = [NSString stringWithFormat:@"Titanium.UI._BTN.%@.data[%d].data[%d].selected=false;"
+				"Titanium.UI._BTN.%@.data[%d].data[%d].selected=true;",token,component,oldSelectedValue,
+				token,component,row];
+	} else {
+		ourInit = [NSString stringWithFormat:@"Titanium.UI._BTN.%@.data[%d].data[%d].selected=true;",token,component,row];
+	}
+
+	NSMutableString * ourArgs = [NSMutableString stringWithFormat:@",column:%d,row:%d,selectedValue:[",component,row];
+	BOOL needsComma = NO;
+	for(PickerColumnWrapper * thisColumn in pickerColumnsArray){
+		if(needsComma){
+			[ourArgs appendFormat:@",%d",[thisColumn selectedRow]];
+		} else {
+			[ourArgs appendFormat:@"%d",[thisColumn selectedRow]];
+			needsComma = YES;
+		}
+	}
+	[ourArgs appendString:@"]"];
+
+	[self reportEvent:@"change" value:nil index:-1 init:ourInit arguments:ourArgs];
 }
 
 - (IBAction) dateChanged: (id) sender;
@@ -1086,7 +1122,7 @@ needsRefreshing = YES;	\
 		[self setDateValue:[(UIDatePicker *)sender date]];
 		newValue = [[NSString alloc] initWithFormat:@"new Date(%f)",[dateValue timeIntervalSince1970]*1000.0];		
 	}
-	[self reportEvent:@"change" value:newValue index:-1];
+	[self reportEvent:@"change" value:newValue index:-1 init:nil arguments:nil];
 	[newValue release];
 }
 

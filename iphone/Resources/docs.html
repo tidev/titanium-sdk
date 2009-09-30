@@ -471,61 +471,62 @@ documentation['UI.iPhone.SystemButtonStyle.BAR']={"since": "0.6", "desc": "const
 
 
 
-documentation['API.reportUnhandledException']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['Analytics']={"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "object"};
-documentation['Analytics.addEvent']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['Analytics.init']={"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "object"};
-
-documentation['UI.DatePicker']={"since": "0.7", "desc": "Possible modes availible for datePicker", "generalType": "property", "dataType": "object", "minArgCount": 1};
+documentation['UI.DatePicker']={"since": "0.7", "desc": "Possible modes availible for DatePickerObject", "generalType": "property", "dataType": "object", "minArgCount": 1};
 documentation['UI.DatePicker.MODE_DATE']={"since": "0.7", "desc": "constant used to describe a date picker that has columns for month, date, and year", "generalType": "property", "dataType": "int"};
 documentation['UI.DatePicker.MODE_DATE_AND_TIME']={"since": "0.7", "desc": "constant used to describe a date picker that has columns for date, hour, minute, and optionally a 12-hour period", "generalType": "property", "dataType": "int"};
 documentation['UI.DatePicker.MODE_TIME']={"since": "0.7", "desc": "constant used to describe a date picker that has columns for hour, minute, and optionally a 12-hour period", "generalType": "property", "dataType": "int"};
-documentation['UI.DatePicker.addEventListener']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.DatePicker.blur']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.DatePicker.ensureToken']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.DatePicker.findDivPos']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.DatePicker.focus']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.DatePicker.hide']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.DatePicker.onClick']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.DatePicker.removeEventListener']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.DatePicker.setId']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.DatePicker.setIndex']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.DatePicker.setMax']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.DatePicker.setMin']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.DatePicker.setValue']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.DatePicker.show']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.DatePicker.systemButton']={"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "string"};
-documentation['UI.DatePicker.update']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePicker.addEventListener']={"since": "0.7", "createsEvents":[{name:'change'}]};
+
+		documentation['UI.DatePickerObject.blur']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.DatePickerObject.ensureToken']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.DatePickerObject.findDivPos']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.DatePickerObject.focus']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePickerObject.hide']={"since": "0.7", "generalType": "method", "args": [], "desc": "sets the hidden property of the DatePickerObject to true and updates the picker"};
+		documentation['UI.DatePickerObject.onClick']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePickerObject.removeEventListener']={"since": "0.7", "removesEvents": ["change"]};
+documentation['UI.DatePickerObject.setId']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.DatePickerObject.setIndex']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.DatePickerObject.setMax']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.DatePickerObject.setMin']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePickerObject.setValue']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePickerObject.show']={"since": "0.7", "generalType": "method", "args": [], "desc": "sets the hidden property of the DatePickerObject to false and updates the picker"};
+		documentation['UI.DatePickerObject.systemButton']={hidden:true,"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "string"};
+documentation['UI.DatePickerObject.update']={"since": "0.7", "generalType": "method", "args": [], "desc": "Forces the window containing the javascript to ensure that all of the web page can be visible. This is often done automatically"};
+
 documentation['UI.EmailDialog.setBarColor']={"since": "0.7", "isSetter": true, "args": [{"dataType": "string", "desc": "a web color to tint the navigation bar of the email dialog", "name": "newBarColor"}], "generalType": "method", "desc": "sets the barColor property"};
+
 documentation['UI.Picker']={"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "object", "minArgCount": 1};
-documentation['UI.Picker.addEventListener']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.Picker.blur']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.Picker.ensureToken']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.Picker.findDivPos']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.Picker.focus']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.addEventListener']={"since": "0.7", "createsEvents":['']};
+		documentation['UI.Picker.blur']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.Picker.ensureToken']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.Picker.findDivPos']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.Picker.focus']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.Picker.hide']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.Picker.onClick']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.Picker.onClick']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.Picker.removeEventListener']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.Picker.setId']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.Picker.setIndex']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.Picker.setMax']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.Picker.setMin']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.Picker.setValue']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.Picker.setIndex']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.Picker.setMax']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.Picker.setMin']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.Picker.setValue']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.Picker.show']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.Picker.systemButton']={"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "string"};
+		documentation['UI.Picker.systemButton']={hidden:true,"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "string"};
 documentation['UI.Picker.update']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+
 documentation['UI.TableView.appendRow']={"since": "0.7", "generalType": "method", "args": [{"name": "row", "dataType": "object", "desc": "The data representing the row to be appended"}, {"name": "options", "dataType": "object", "desc": "If the table view is visible, the animationStyle property may be one of UI.iPhone.RowAnimationStyle to specify how the transition is animated"}], "desc": "appends a row at the end of the table view"};
 		documentation['UI.TableView.setBackButtonTitle']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 		documentation['UI.TableView.setBackButtonTitleImage']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.addEventListener']={"since": "0.7", "createsEvents": [{"name": "tabchange"}], "generalType": "method", "args": [{"name": "type", "dataType": "string", "desc": "the type of event to listen for.  Must be or tabchange"}, {"name": "callback", "dataType": "function", "desc": "the function that will be called when the event occurs. A single object event is passed as an argument"}], "desc": "adds an event listener to be called for a or tabchange event", "minArgCount": 2, "result": {"dataType": "method", "desc": "the callback function, for use in removeEventListener"}};
+
 documentation['UI.createCompositeView']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.createDatePicker']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.createImageView']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.createModalDatePicker']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.createModalPicker']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.createModalDatePicker']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.createModalPicker']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.createPicker']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.createScrollableView']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 		documentation['UI.createTab']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+
 documentation['UI.currentTab']={"since": "0.7", "desc": "object that represents the current tab for use in setActiveTab", "generalType": "property", "dataType": "object"};
 documentation['UI.currentWindow.repaint']={"since": "0.7", "generalType": "method", "args": [], "desc": "Forces the window containing the javascript to ensure that all of the web page can be visible. This is often done automatically"};
 documentation['UI.getTabByName']={"since": "0.7", "generalType": "method", "args": [{"name": "name", "dataType": "string", "desc": "the name of the tab desired"}], "desc": "finds the tab whose name was set in tiapp.xml", "result": {"dataType": "object", "desc": "object that represents the requested tab"}};
@@ -543,8 +544,6 @@ documentation['UI.userWindow.setBackButtonTitleImage']={"since": "0.7", "isSette
 //documentObject(Titanium,'');
 documentObject(Titanium.API,'API');
 documentObject(Titanium.UI,'UI');
-documentObject(Titanium.Facebook,'Facebook');
-documentObject(Titanium.Analytics,'Analytics');
 
 var tableView = Ti.UI.createTableView();
 documentObject(tableView,'UI.TableView');
@@ -555,7 +554,7 @@ var picker = Ti.UI.createPicker();
 documentObject(picker,'UI.Picker');
 
 var datePicker = Ti.UI.createDatePicker();
-documentObject(datePicker,'UI.DatePicker');
+documentObject(datePicker,'UI.DatePickerObject');
 
 printAllDocumentation();
 
