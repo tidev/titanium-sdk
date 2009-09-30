@@ -482,11 +482,18 @@ documentation['Filesystem.File.exists']={"since": "0.7", "generalType": "method"
 documentation['Filesystem.File.extension']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.getDirectoryListing']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.getParent']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['Filesystem.File.isExecutable']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['Filesystem.File.isHidden']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['Filesystem.File.isReadonly']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['Filesystem.File.isSymbolicLink']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['Filesystem.File.isWritable']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+
+documentation['Filesystem.File.isExecutable']={"since": "0.7", "generalType": "method", "args": [], "desc": "Checks whether a file is an executable file",
+	"result": {"dataType": "boolean", "desc": "true if the file is an executable file; for the iPhone, this is always false"}};
+documentation['Filesystem.File.isHidden']={"since": "0.7", "generalType": "method", "args": [], "desc": "Checks whether a file or directory is hidden",
+	"result": {"dataType": "boolean", "desc": "true if the file or directory is hidden; for the iPhone, this is always false"}};
+documentation['Filesystem.File.isReadonly']={"since": "0.7", "generalType": "method", "args": [], "desc": "Checks whether a file or directory is read-only",
+	"result": {"dataType": "boolean", "desc": "true if the file or directory is read-only or does not exist, false if otherwise"}};
+documentation['Filesystem.File.isSymbolicLink']={"since": "0.7", "generalType": "method", "args": [], "desc": "Checks whether the File object references a symbolic link"};
+	"result": {"dataType": "boolean", "desc": "true if the File object references a symbolic link, false if otherwise"}};
+documentation['Filesystem.File.isWritable']={"since": "0.7", "generalType": "method", "args": [], "desc": "Checks whether a file or directory is writeable"};
+	"result": {"dataType": "boolean", "desc": "true if the file or directory exists and is writeable, false if otherwise"}};
+
 documentation['Filesystem.File.modificationTimeStamp']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.move']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.name']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
@@ -496,16 +503,19 @@ documentation['Filesystem.File.read']={"since": "0.7", "generalType": "method", 
 documentation['Filesystem.File.rename']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.resolve']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.setExecutable']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['Filesystem.File.setHidden']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['Filesystem.File.setHidden']={"since": "0.7", "generalType": "method", "args": [{name:'hidden',dataType:'boolean',desc:'the new value'}], "desc": "sets the hidden flag of files on desktop. On the iPhone, does nothing"};
 documentation['Filesystem.File.setReadonly']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.toString']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.write']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 		documentation['Filesystem.MODE_APPEND']={hidden:true,"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "int"};
 		documentation['Filesystem.MODE_READ']={hidden:true,"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "int"};
 		documentation['Filesystem.MODE_WRITE']={hidden:true,"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "int"};
-documentation['Filesystem.getFile']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['Filesystem.getFile']={"since": "0.7", "generalType": "method", "args": [], "desc": "Returns a file object based on the path provided, optionally joining multiple arguments together in an OS specific way",
+	"result": {"dataType": "File", "desc": "a File reference the file"}};
+
 documentation['Filesystem.getResourcesDirectory']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['Filesystem.isExteralStoragePresent']={"since": "0.7", "generalType": "method", "args": [], "desc": "whether or not a memory card is in the device. For the iPhone, this is always false","result": {"dataType": "boolean", "desc": ""}};
+documentation['Filesystem.isExteralStoragePresent']={"since": "0.7", "generalType": "method", "args": [], "desc": "Check to see if external media storage exists",
+	"result": {"dataType": "boolean", "desc": "true if external storage is present; for the iPhone, this is always false"}};
 
 
 documentation['UI.DatePicker']={"since": "0.7", "desc": "Possible modes availible for DatePickerObject", "generalType": "property", "dataType": "object", "minArgCount": 1};
@@ -555,13 +565,13 @@ documentation['UI.TableView.appendRow']={"since": "0.7", "generalType": "method"
 		documentation['UI.TableView.setBackButtonTitleImage']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.addEventListener']={"since": "0.7", "createsEvents": [{"name": "tabchange"}], "generalType": "method", "args": [{"name": "type", "dataType": "string", "desc": "the type of event to listen for.  Must be or tabchange"}, {"name": "callback", "dataType": "function", "desc": "the function that will be called when the event occurs. A single object event is passed as an argument"}], "desc": "adds an event listener to be called for a or tabchange event", "minArgCount": 2, "result": {"dataType": "method", "desc": "the callback function, for use in removeEventListener"}};
 
-documentation['UI.createCompositeView']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.createDatePicker']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.createImageView']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.createCompositeView']={"since": "0.7", creates:"UI.CompositeView"};
+documentation['UI.createDatePicker']={"since": "0.7",creates:"UI.DatePickerObject"};
+documentation['UI.createImageView']={"since": "0.7", creates:"UI.ImageView"};
 		documentation['UI.createModalDatePicker']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 		documentation['UI.createModalPicker']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.createPicker']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.createScrollableView']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.createPicker']={"since": "0.7", creates:"UI.Picker"};
+documentation['UI.createScrollableView']={"since": "0.7", creates:"UI.ScrollableView"};
 		documentation['UI.createTab']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 
 documentation['UI.currentTab']={"since": "0.7", "desc": "object that represents the current tab for use in setActiveTab", "generalType": "property", "dataType": "object"};

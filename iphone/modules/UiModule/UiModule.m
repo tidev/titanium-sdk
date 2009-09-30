@@ -1214,7 +1214,8 @@ NSString * UrlEncodeString(NSString * string)
 			"insertButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(Ti._TOKEN,btn,args);},"
 			"}"];
 			
-	[currentWindowScript setEpilogueCode:@"window.addEventListener('DOMNodeInserted',Ti.UI.currentWindow.repaint,false);"];
+	[currentWindowScript setEpilogueCode:@"window.addEventListener('DOMNodeInserted',Ti.UI.currentWindow.repaint,false);"
+			"window.addEventListener('load',function(){if(e.srcElement.tagName=='IMG')Titanium.UI.currentWindow.repaint();},false);"];
 
 	NSString * viewsForWindowString = @"function(winTkn){var fetched=Ti.UI._WGVIEWS(winTkn);if(!fetched)return {};var res=[];var i=0;var viewCount=fetched.length;while(i<viewCount){"
 			"var props=fetched[i];var viewTkn=props._TOKEN;var view;"
