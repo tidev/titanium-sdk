@@ -29,7 +29,6 @@
  			<title>Views API</title>
  			<icon>profile.png</icon>
 			<orientation>either</orientation>
-			<backgroundColor>#336699</backgroundColor>
         </window>
 
         <window>

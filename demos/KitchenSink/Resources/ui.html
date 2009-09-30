@@ -48,7 +48,9 @@
 		{title:'Menu (Android)'},
 		{title:'Dynamic Content', hasChild:true},
 		{title:'Tab Change', hasChild:true},
-		{title:'JS Events', hasChild:true}
+		{title:'JS Events', hasChild:true},
+		{title:'Dynamic Images', hasChild:true},
+		{title:'Window Title Change (iPhone)', hasChild:false}
 		
 		
 	];
@@ -396,6 +398,16 @@
 				var win = Titanium.UI.createWindow({url:'js_events.html',title:'JS Events'});
 				win.open({animated:true});		
 				break;
+			}
+			case 38:
+			{
+				var win = Titanium.UI.createWindow({url:'dynamic_images.html',title:'Dynamic Images'});
+				win.open({animated:true});		
+				break;
+			}
+			case 39:
+			{
+				Titanium.UI.currentWindow.setTitle('New Title');
 			}
 
 		}

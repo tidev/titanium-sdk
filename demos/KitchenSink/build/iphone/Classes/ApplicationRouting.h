@@ -21,10 +21,13 @@
 - (NSData*) pageNamedApplication_data;
 - (NSData*) pageNamedButtonbar;
 - (NSData*) pageNamedButtons;
+- (NSData*) pageNamedComp_view_1_body;
 - (NSData*) pageNamedComposite;
+- (NSData*) pageNamedComposite_views;
 - (NSData*) pageNamedDatabase;
 - (NSData*) pageNamedDatabase2;
 - (NSData*) pageNamedDynamic_content;
+- (NSData*) pageNamedDynamic_images;
 - (NSData*) pageNamedEmail;
 - (NSData*) pageNamedFilesystem;
 - (NSData*) pageNamedFullscreen;
