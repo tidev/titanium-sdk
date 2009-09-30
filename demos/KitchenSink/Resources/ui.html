@@ -47,7 +47,9 @@
 		{title:'Notifications (Android)'},
 		{title:'Menu (Android)'},
 		{title:'Dynamic Content', hasChild:true},
-		{title:'Tab Change', hasChild:true}
+		{title:'Tab Change', hasChild:true},
+		{title:'JS Events', hasChild:true}
+		
 		
 	];
 	
@@ -386,6 +388,12 @@
 			case 36:
 			{
 				var win = Titanium.UI.createWindow({url:'tabchange.html',title:'Tab Change'});
+				win.open({animated:true});		
+				break;
+			}
+			case 37:
+			{
+				var win = Titanium.UI.createWindow({url:'js_events.html',title:'JS Events'});
 				win.open({animated:true});		
 				break;
 			}

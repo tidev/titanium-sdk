@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ti:app xmlns:ti="http://ti.appcelerator.org">
+<?xml version="1.0" encoding="UTF-8"?><ti:app xmlns:ti="http://ti.appcelerator.org">
 <id>com.nolanwright.kitchensink</id>
 <name>KitchenSink</name>
 <version>1.0</version>
@@ -30,6 +29,7 @@
  			<title>Views API</title>
  			<icon>profile.png</icon>
 			<orientation>either</orientation>
+			<backgroundColor>#336699</backgroundColor>
         </window>
 
         <window>
@@ -40,4 +40,5 @@
 			<orientation>either</orientation>
         </window>
     </windows>
+<guid>6fe33f33fd1f4e95a06d2d217170866d</guid>
 </ti:app>

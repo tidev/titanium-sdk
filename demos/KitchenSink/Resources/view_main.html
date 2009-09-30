@@ -11,7 +11,8 @@
 	// data for tableview
 	var data = [
 		{title:'Scroll Views', hasChild:true},
-		{title:'View Animations', hasChild:true}
+		{title:'View Animations', hasChild:true},
+		{title:'Image Views', hasChild:true}
 		
 	];
 	
@@ -34,6 +35,18 @@
 			case 1:
 			{
 				var win = Titanium.UI.createWindow({url:'views.html',title:'View Animations'});
+				win.open({animated:true});
+				break;
+			}
+			case 2:
+			{
+				var win = Titanium.UI.createWindow({
+					url:'image_views.html',
+					title:'Image Views',
+					backgroundColor:'#000000'
+				});
+				win.setBarColor('#000000');
+				
 				win.open({animated:true});
 				break;
 			}
