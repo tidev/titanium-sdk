@@ -544,6 +544,7 @@ documentation['UI.userWindow.setBackButtonTitleImage']={"since": "0.7", "isSette
 //documentObject(Titanium,'');
 documentObject(Titanium.API,'API');
 documentObject(Titanium.UI,'UI');
+documentObject(Titanium.Filesystem,'Filesystem');
 
 var tableView = Ti.UI.createTableView();
 documentObject(tableView,'UI.TableView');
@@ -555,6 +556,9 @@ documentObject(picker,'UI.Picker');
 
 var datePicker = Ti.UI.createDatePicker();
 documentObject(datePicker,'UI.DatePickerObject');
+
+var anyFile = Ti.Filesystem.getFile('Safari.png');
+documentObject(anyFile,'Filesystem.File');
 
 printAllDocumentation();
 

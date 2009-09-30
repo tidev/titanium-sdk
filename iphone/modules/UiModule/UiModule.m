@@ -1287,9 +1287,9 @@ NSString * UrlEncodeString(NSString * string)
 
 	NSString * createScrollingViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='scroll';if(!res.views)res.views=[];"
 			"res.addView=function(view){if(!view)return;this.views.push(view);if(this._TOKEN){view.ensureToken();Ti.UI._SCRVWACT(this._TOKEN," STRINGVAL(SCROLLVIEW_ADDVIEW) ",view);}};"
-			"res.scrollToView=function(view){if(typeof(view)=='number'){this.setSelectedViewIndex(view);return;}if(!view)return;"
-			"var views=this.views;var len=views.length;for(var i=0;i<len;i++){if(views[i]==view){this.setSelectedViewIndex(i);return;}}};"
-			"res.setCurrentPage=function(indx){this.selectedViewIndex=indx;if(this._TOKEN)Ti.UI._SCRVWACT(this._TOKEN," STRINGVAL(SCROLLVIEW_SETCURRENTPAGE) ",indx);};"
+			"res.scrollToView=function(view){if(typeof(view)=='number'){this.setCurrentPage(view);return;}if(!view)return;"
+			"var views=this.views;var len=views.length;for(var i=0;i<len;i++){if(views[i]==view){this.setCurrentPage(i);return;}}};"
+			"res.setCurrentPage=function(indx){this.currentPage=indx;if(this._TOKEN)Ti.UI._SCRVWACT(this._TOKEN," STRINGVAL(SCROLLVIEW_SETCURRENTPAGE) ",indx);};"
 			"res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res._EVT={scroll:[]};res.doEvent=Ti._ONEVT;"
 			"res.ensureToken=function(){var views=this.views;var len=views.length;for(var i=0;i<len;i++){"
 				"views[i].ensureToken();}if(this._TOKEN)return;var tkn=Ti.UI._VTOKEN();this._TOKEN=tkn;Ti.UI._VIEW[tkn]=this;};"

@@ -995,7 +995,7 @@ needsRefreshing = YES;	\
 	
 	NSString * handleClickCommand = [NSString stringWithFormat:
 			@"(function(){%@%@Titanium.UI._BTN.%@.onClick({type:'%@'%@%@});}).call(Titanium.UI._BTN.%@);",
-			initalizer,token,eventType,arguments,token];
+			customInit,initalizer,token,eventType,arguments,extraArgs,token];
 //	NSLog(@"Sending '%@' to the page.",handleClickCommand);
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
