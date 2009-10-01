@@ -174,6 +174,8 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 
 - (void) refreshPositionWithWebView: (UIWebView *) webView animated:(BOOL)animated;
 
+- (void) reportEvent: (NSString *) eventType value: (NSString *) newValue index: (int) index init:(NSString *)customInit arguments:(NSString *)extraArgs;
+
 @end
 
 extern NSString * const systemButtonString;
