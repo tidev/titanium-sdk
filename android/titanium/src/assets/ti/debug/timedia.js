@@ -99,7 +99,7 @@ var Sound = function(proxy) {
 	 */
 	this.removeEventListener = function(eventName, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
-	}
+	};
 };
 
 var Video = function(proxy) {
@@ -168,7 +168,7 @@ var Video = function(proxy) {
 	 */
 	this.removeEventListener = function(eventName, listenerId) {
 		this.proxy.removeEventListener(eventName, listenerId);
-	}
+	};
 };
 
 Titanium.Media = {
@@ -264,7 +264,7 @@ Titanium.Media = {
 		var player = null;
 		if (!isUndefined(options)) {
 			var proxy = Titanium.mediaProxy.createVideoPlayer(Titanium.JSON.stringify(options));
-			if (proxy != null) {
+			if (proxy !== null) {
 				player = new Video(proxy);
 				if (!isUndefined(options.complete)) {
 					player.completeId = addEventListener("complete", registerCallback(this, options.complete));

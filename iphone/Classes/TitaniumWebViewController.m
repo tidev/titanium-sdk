@@ -59,7 +59,7 @@
 		[self setCurrentContentURL:newUrl];
 	} else {
 		//Now what, doctor?
-		NSLog(@"WARNING: WebView %@ was not given an URL relative to %@ for %@",self,baseUrl,inputState);
+		NSLog(@"[WARN] WebView %@ was not given an URL relative to %@ for %@",self,baseUrl,inputState);
 	}
 }
 
@@ -214,13 +214,13 @@
 	
 	//Now if we have an old view and new view, the old view has to kill the new one. There can be only one!
 	//But we're not fully set yet? Let's find out.
-	NSLog(@"Should no longer happen. Two web views go in! NewWebView %@ has %@ as a superview",newWebView,[newWebView superview]);
+	NSLog(@"[WARN] Should no longer happen. Two web views go in! NewWebView %@ has %@ as a superview",newWebView,[newWebView superview]);
 	
 	[[newWebView superview] insertSubview:webView belowSubview:newWebView];
 	[webView setFrame:[newWebView frame]];
 	[newWebView removeFromSuperview];
 	[[webView superview] setAlpha:1.0];
-	NSLog(@"One comes out! webView %@ has %@ as a superview",webView,[webView superview]);
+	NSLog(@"[DEBUG] One comes out! webView %@ has %@ as a superview",webView,[webView superview]);
 }
 
 
@@ -252,7 +252,7 @@
 	if ([super respondsToSelector:@selector(_clearBecomeFirstResponderWhenCapable)]){
 		[(id)super _clearBecomeFirstResponderWhenCapable];
 	} else {
-		NSLog(@"This is because 2.2.1 fails if we give a viewController -[becomeFirstResponder]");
+		NSLog(@"[DEBUG] This is because 2.2.1 fails if we give a viewController -[becomeFirstResponder]");
 	}
 }
 
@@ -295,7 +295,7 @@
 
 - (void)webViewDidStartLoad:(UIWebView *)inputWebView;
 {
-	CLOCKSTAMP("Started load request for %@",self);
+	CLOCKSTAMP("[DEBUG] Started load request for %@",self);
 }
 
 - (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
@@ -314,13 +314,13 @@
 	NSString * tokenQuery = [contextString stringByAppendingString:@".Titanium._TOKEN"];
 	[self acceptToken:[webView stringByEvaluatingJavaScriptFromString:tokenQuery] forContext:contextString];
 #ifdef USE_VERBOSE_DEBUG	
-	NSLog(@"Dict is now: %@",magicTokenDict);
+	NSLog(@"[DEBUG] Dict is now: %@",magicTokenDict);
 #endif
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
 {
-	CLOCKSTAMP("Finished load request for %@",self);
+	CLOCKSTAMP("[DEBUG] Finished load request for %@",self);
 
 	TitaniumContentViewController * visibleVC = [[TitaniumHost sharedHost] visibleTitaniumContentViewController];
 	BOOL isVisible = [visibleVC isShowingView:self];
@@ -343,14 +343,12 @@
 	if([[webView stringByEvaluatingJavaScriptFromString:@"typeof(Titanium)"] isEqualToString:@"undefined"])[self investigateTitaniumCrashSite];
 	
 	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'load'});"];
-	if ([titaniumWindowToken isEqualToString:[visibleVC titaniumWindowToken]])
+	if ([titaniumWindowToken isEqualToString:[visibleVC titaniumWindowToken]]){
 		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'focused'});"];
 		if(isVisible){
 			[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'focused'});"];
 		}
 	}
-
-	
 }
 
 - (void)webView:(UIWebView *)inputWebView didFailLoadWithError:(NSError *)error;
@@ -381,7 +379,7 @@
 	if ([scrollView superview]==nil) return;
 	CGRect webFrame;
 	if(isNonTitaniumPage){
-		NSLog(@"Was not titanium page!");
+		NSLog(@"[DEBUG] Was not titanium page!");
 		CGRect webFrame;
 		webFrame.origin = CGPointZero;
 		webFrame.size = [scrollView frame].size;
@@ -448,7 +446,7 @@
 	NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:currentContentURL];
 	
 #ifdef USE_VERBOSE_DEBUG	
-	NSLog(@"Url request: %@",[urlRequest allHTTPHeaderFields]);
+	NSLog(@"[DEBUG] Url request: %@",[urlRequest allHTTPHeaderFields]);
 #endif
 
 	[webView loadRequest:urlRequest];

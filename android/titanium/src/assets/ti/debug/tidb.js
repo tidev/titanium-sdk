@@ -12,7 +12,7 @@ function throwIfException(e) {
 	if (!isUndefined(e)) {
 		throw new Error(e);
 	}
-};
+}
 
 var ResultSet = function(rs) {
 	this.proxy = rs;
@@ -109,7 +109,7 @@ var DB = function(db) {
 		var rs = this.proxy.execute(sql, qargs);
 		throwIfException(this.proxy.getLastException());
 		var trs = null;
-		if (rs != null) {
+		if (rs !== null) {
 			trs = new ResultSet(rs);
 		}
 		return trs;
@@ -161,5 +161,5 @@ Titanium.Database = {
 		db = new DB(Titanium.databaseProxy.open(name));
 		throwIfException(Titanium.databaseProxy.getLastException());
 		return db;
-	},
+	}
 };

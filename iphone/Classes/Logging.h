@@ -13,7 +13,7 @@ extern double firstTimestamp;
 #define CLOCKSTAMP(foo, ...)	\
 	{double thisTimeStamp = CFAbsoluteTimeGetCurrent();	\
 	if(firstTimestamp==0.0)firstTimestamp=thisTimeStamp;	\
-	NSLog(@"CLOCKLOG: %f seconds: " foo, thisTimeStamp-firstTimestamp , ##__VA_ARGS__);	}
+	NSLog(@"[DEBUG] CLOCKLOG: %f seconds: " foo, thisTimeStamp-firstTimestamp , ##__VA_ARGS__);	}
 #else
 #define CLOCKSTAMP(foo, ...)
 #endif

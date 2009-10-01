@@ -227,7 +227,7 @@ NSString * UrlEncodeString(NSString * string)
 
 - (id) init
 {
-	NSLog(@"Initing emailcomposerproxy");
+	NSLog(@"[DEBUG] Initing emailcomposerproxy");
 	self = [super init];
 	if (self != nil) {
 		animated = YES;
@@ -237,7 +237,7 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void) dealloc
 {
-	NSLog(@"Deallocing emailcomposer");
+	NSLog(@"[DEBUG] Deallocing emailcomposer");
 	[emailComposer release];
 	[urlVersion release];
 	[super dealloc];
@@ -282,7 +282,7 @@ NSString * UrlEncodeString(NSString * string)
 	
 	if ((mailClass != nil) && [mailClass canSendMail]){
 		if(emailComposer==nil){
-			NSLog(@"Creating emailcomposer");
+			NSLog(@"[DEBUG] Creating emailcomposer");
 			emailComposer = [[mailClass alloc] init];
 			[emailComposer setMailComposeDelegate:self];
 		}
@@ -327,12 +327,12 @@ NSString * UrlEncodeString(NSString * string)
 	urlVersion = [[NSURL alloc] initWithString:resultString];
 	
 	if(urlVersion==nil){
-		NSLog(@"UiModule: Trying to generate an email url failed. Url \"%@\" came from dict %@",resultString,propertyDict);
+		NSLog(@"[WARN] UiModule: Trying to generate an email url failed. Url \"%@\" came from dict %@",resultString,propertyDict);
 	}
 	
 	[resultString release];
 	
-	NSLog(@"Since we don't have access to MFMailComposeViewController, we're launching %@ instead.",urlVersion);
+	NSLog(@"[INFO] Since we don't have access to MFMailComposeViewController, we're launching %@ instead.",urlVersion);
 	[[UIApplication sharedApplication] openURL:urlVersion];
 }
 
@@ -340,7 +340,7 @@ NSString * UrlEncodeString(NSString * string)
 {
 
 	if(error){
-		NSLog(@"Unexpected composing error: %@",error);
+		NSLog(@"[ERROR] Unexpected composing error: %@",error);
 	}
 
 	switch (result) {

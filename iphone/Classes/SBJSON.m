@@ -113,7 +113,7 @@ static char ctrl[0x24];
 		NSError * error = nil;
 		result = [jasonDecoder fragmentWithString:queryString error:&error];
 		if (error != nil){
-			NSLog(@"Error in decodeUrlQuery(%@): %@",queryString,error);
+			NSLog(@"[ERROR] Error in decodeUrlQuery(%@): %@",queryString,error);
 		}
 		[jasonDecoder release];
 		return result;
@@ -128,7 +128,7 @@ static char ctrl[0x24];
 	NSString * result = [stringer stringWithFragment:inputObject error:&error];
 	[stringer release];
 	if (error != nil) {
-		NSLog(@"Error in stringify(%@): %@",inputObject,error);
+		NSLog(@"[ERROR] Error in stringify(%@): %@",inputObject,error);
 	}
 	return result;
 }
@@ -681,11 +681,11 @@ static char ctrl[0x24];
             return NO;
             
         } else {
-            NSLog(@"should not be able to get here");
+            NSLog(@"[ERROR] should not be able to get here in SBJSON.m");
         }
     } while (*c);
     
-    *error = err(EEOF, @"Unexpected EOF while parsing string");
+    *error = err(EEOF, @"[ERROR] Unexpected EOF while parsing string");
     return NO;
 }
 

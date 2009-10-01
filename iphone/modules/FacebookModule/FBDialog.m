@@ -392,7 +392,6 @@ static CGFloat kBorderWidth = 10;
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request
     navigationType:(UIWebViewNavigationType)navigationType {
   NSURL* url = request.URL;
-  //NSLog(@"URL LOAD = %@,  _loadingURL=%@",url,_loadingURL);
   if ([url.scheme isEqualToString:@"fbconnect"]) {
     if ([url.resourceSpecifier isEqualToString:@"cancel"]) {
       [self dismissWithSuccess:NO animated:YES];

@@ -53,7 +53,7 @@ public class TitaniumFilesystem extends TitaniumBaseModule implements ITitaniumF
 	public ITitaniumFile createTempFile() throws IOException
 	{
 		File f = File.createTempFile("ti","tmp");
-		return new TitaniumFile(f,f.getAbsolutePath(), false);
+		return new TitaniumFile(tmm, f,f.getAbsolutePath(), false);
 	}
 
 	public ITitaniumFile createTempDirectory() throws IOException
@@ -62,7 +62,7 @@ public class TitaniumFilesystem extends TitaniumBaseModule implements ITitaniumF
 		File tmpdir = new File(System.getProperty("java.io.tmpdir"));
 		File f = new File(tmpdir,dir);
 		f.mkdirs();
-		return new TitaniumFile(f,f.getAbsolutePath(), false);
+		return new TitaniumFile(tmm, f,f.getAbsolutePath(), false);
 	}
 
 	private String formPath(String path, String parts[])
@@ -99,7 +99,7 @@ public class TitaniumFilesystem extends TitaniumBaseModule implements ITitaniumF
 		{
 			String path = initial.substring(6);
 			path = formPath(path,parts);
-			file = new TitaniumResourceFile(this,getContext(),path);
+			file = new TitaniumResourceFile(tmm, this,getContext(),path);
 		}
 		else if (initial.startsWith("appdata://"))
 		{
@@ -110,26 +110,30 @@ public class TitaniumFilesystem extends TitaniumBaseModule implements ITitaniumF
 				path = path.substring(1);
 			}
 			File f = new File(getDataDirectory(false),path);
-			file = new TitaniumFile(f,"appdata://"+path, stream);
+			file = new TitaniumFile(tmm, f,"appdata://"+path, stream);
 		}
 		else if (initial.startsWith("appdata-private://"))
 		{
 			String path = initial.substring(18);
 			path = formPath(path,parts);
 			File f = new File(getDataDirectory(true),path);
-			file = new TitaniumFile(f,"appdata-private://"+path, stream);
+			file = new TitaniumFile(tmm, f,"appdata-private://"+path, stream);
+		} else if (initial.startsWith("file://")) {
+			String path = initial.substring(7);
+			path = formPath(path, parts);
+			file = new TitaniumFile(tmm, new File(path), "file://" + path, stream);
 		}
 
 		return file;
 	}
 
-	public ITitaniumFile getFile(String parts[]) throws IOException
+	public ITitaniumInvoker getFile(String parts[]) throws IOException
 	{
 		if (parts==null)
 		{
 			throw new IOException("invalid file passed");
 		}
-		return parseParts(parts, false);
+		return new TitaniumDelegate(parseParts(parts, false));
 	}
 
 	public ITitaniumInvoker getFileStream(String[] parts)  throws IOException
@@ -156,12 +160,12 @@ public class TitaniumFilesystem extends TitaniumBaseModule implements ITitaniumF
 	{
 		if (privateStorage)
 		{
-			TitaniumFile f = new TitaniumFile(getDataDirectory(true),"appdata-private://", false);
+			TitaniumFile f = new TitaniumFile(tmm, getDataDirectory(true),"appdata-private://", false);
 			f.createDirectory(true);
 			return f;
 		}
 		File f = getDataDirectory(false);
-		return new TitaniumFile(f,"appdata://", false);
+		return new TitaniumFile(tmm, f,"appdata://", false);
 	}
 
 	public ITitaniumFile getResourcesDirectory()

@@ -9,7 +9,9 @@ package org.appcelerator.titanium.module;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumAPI;
+import org.appcelerator.titanium.api.ITitaniumJSRef;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.api.TitaniumMemoryBlob;
 import org.appcelerator.titanium.util.Log;
 
 import android.webkit.WebView;
@@ -75,5 +77,18 @@ public class TitaniumAPI extends TitaniumBaseModule implements ITitaniumAPI
 
 	public void invalidateLayout() {
 		getModuleManager().getWebView().invalidateLayout();
+	}
+
+	public ITitaniumJSRef getObjectReference(int key) {
+		return getModuleManager().getObjectReference(key);
+	}
+
+	public int getTitaniumMemoryBlobLength(int key) {
+		int len = -1;
+		TitaniumMemoryBlob blob = (TitaniumMemoryBlob) tmm.getObject(key);
+		if (blob != null) {
+			len = blob.getLength();
+		}
+		return len;
 	}
 }

@@ -370,7 +370,7 @@ UIColor * checkmarkColor = nil;
 
 	Class dictClass = [NSDictionary class];
 	if (![inputState isKindOfClass:dictClass]){
-		NSLog(@"SHOULDN'T HAPPEN: %@ is trying to read the state of a non-dictionary %@!",self,inputState);
+		NSLog(@"[WARN] SHOULDN'T HAPPEN: %@ is trying to read the state of a non-dictionary %@!",self,inputState);
 		return;
 	}
 
@@ -760,7 +760,7 @@ UIColor * checkmarkColor = nil;
 - (void)deleteRowAtIndex: (int)index animation: (UITableViewRowAnimation) animation;
 {	
 	if(index < 0){
-		VERBOSE_LOG(@"-[%@ deleteRowAtIndex:%d animation:%d]: Index is less than 0.",self,index,animation);
+		VERBOSE_LOG(@"[DEBUG] -[%@ deleteRowAtIndex:%d animation:%d]: Index is less than 0.",self,index,animation);
 		return;
 	}
 	
@@ -775,7 +775,7 @@ UIColor * checkmarkColor = nil;
 			NSIndexPath * thisPath = [NSIndexPath indexPathForRow:index inSection:thisSectionIndex];
 			if(rowCount > 1){ //We're done here.
 #ifdef USE_VERBOSE_DEBUG	
-					NSLog(@"-[%@ deleteRowAtIndex:%d animation:%d]: Going for Section %d, row %d. (%@)",self,oldIndex,animation,thisSectionIndex,index,thisPath);
+					NSLog(@"[DEBUG] -[%@ deleteRowAtIndex:%d animation:%d]: Going for Section %d, row %d. (%@)",self,oldIndex,animation,thisSectionIndex,index,thisPath);
 #endif
 				[tableView beginUpdates];
 				[thisSection removeRowAtIndex:index];
@@ -797,7 +797,7 @@ UIColor * checkmarkColor = nil;
 	//At this point, We failed to delete a nonexistant index. Drop on the ground?
 	
 #ifdef USE_VERBOSE_DEBUG	
-		NSLog(@"-[%@ deleteRowAtIndex:%d animation:%d]: Index is %d rows past the end. %d sections exist.",self,oldIndex,animation,index,thisSectionIndex);
+		NSLog(@"[DEBUG] -[%@ deleteRowAtIndex:%d animation:%d]: Index is %d rows past the end. %d sections exist.",self,oldIndex,animation,index,thisSectionIndex);
 #endif
 	
 }
@@ -823,7 +823,7 @@ UIColor * checkmarkColor = nil;
 				default:
 					actionString = [NSString stringWithFormat:@"[SHOULDN'T HAPPEN: UNKNOWN ACTION %d]",action];
 			}
-			NSLog(@"%@ was told to %@ row %d from %@",self,actionString,index,baseUrl);
+			NSLog(@"[DEBUG] %@ was told to %@ row %d from %@",self,actionString,index,baseUrl);
 #endif
 		return;
 	}
@@ -988,7 +988,7 @@ UIColor * checkmarkColor = nil;
 			default:
 				actionString = [NSString stringWithFormat:@"[SHOULDN'T HAPPEN: UNKNOWN ACTION %d]",action];
 		}
-		NSLog(@"%@ was told to %@ the row %d beyond the end (from %@)",self,actionString,index,baseUrl);
+		NSLog(@"[DEBUG] %@ was told to %@ the row %d beyond the end (from %@)",self,actionString,index,baseUrl);
 #endif
 	
 }

@@ -50,6 +50,10 @@ public class TitaniumDelegate implements ITitaniumInvoker
 		argList.add(s);
 	}
 
+	public Object getObject() {
+		return this.obj;
+	}
+
 	public ITitaniumCheckedResult call(String name)
 	{
 		ITitaniumCheckedResult result = null;

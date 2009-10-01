@@ -42,7 +42,9 @@
 		left.addEventListener('click', function(e)
 		{
 			if (i == 0) return;
-			i--;
+			
+			i--;		
+			activeView = (i==0)?wv1:wv2;
 			
 			// change view using index
 			scrollView.scrollToView(i)
@@ -55,7 +57,9 @@
 		right.addEventListener('click', function(e)
 		{
 			if (i == 2) return;
+
 			i++;
+			activeView = (i==2)?wv3:wv2;
 			
 			// change view using instance var
 			switch(i)

@@ -12,7 +12,8 @@
 	var data = [
 		{title:'Scroll Views', hasChild:true},
 		{title:'View Animations', hasChild:true},
-		{title:'Image Views', hasChild:true}
+		{title:'Image Views', hasChild:true},
+		{title:'Composite Views', hasChild:true}
 		
 	];
 	
@@ -28,7 +29,11 @@
 		{
 			case 0:
 			{
-				var win = Titanium.UI.createWindow({url:'scroll_views.html',title:'Scroll Views'});
+				var win = Titanium.UI.createWindow({
+					url:'scroll_views.html',
+					title:'Scroll Views',
+					backgroundColor:'#336699'
+				});
 				win.open({animated:true});
 				break;
 			}
@@ -47,6 +52,13 @@
 				});
 				win.setBarColor('#000000');
 				
+				win.open({animated:true});
+				break;
+			}
+			case 3:
+			{
+				var win = Titanium.UI.createWindow({url:'composite_views.html',title:'Composite Views',
+					backgroundColor:'#ffffff'});
 				win.open({animated:true});
 				break;
 			}

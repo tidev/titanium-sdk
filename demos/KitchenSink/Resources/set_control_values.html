@@ -1,0 +1,91 @@
+<html>
+<head>
+	<script>
+	window.onload = function()
+	{
+		var slider = Titanium.UI.createSlider({
+			id:'slider',
+			min:0,
+			max:100,
+			value:0,
+			width:200
+		});
+		slider.addEventListener('change',function(e)
+		{
+			document.getElementById('slider_value').innerHTML = 'Slider Updated!';
+		});
+		document.getElementById('slider_button').onclick = function()
+		{
+			slider.setValue(50);
+		};
+		
+		
+		var sw = Titanium.UI.createSwitch({
+			id:'switch',
+			value:true
+		});
+		sw.addEventListener('change',function(e)
+		{
+			document.getElementById('switch_value').innerHTML = 'Switch Updated!';
+		});
+		document.getElementById('switch_button').onclick = function()
+		{
+			sw.setValue(false);
+		};
+
+		var tf = Titanium.UI.createTextField({
+			id:'textfield',
+			backgroundColor:'#fff',
+			returnKeyType:Titanium.UI.RETURNKEY_GO,
+			keyboardType:Titanium.UI.KEYBOARD_ASCII,
+			textAlign:'left',
+			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
+		});
+
+		tf.addEventListener('change',function(e)
+		{
+			document.getElementById('textfield_value').innerHTML = 'TextField Updated!' ;
+		});
+		document.getElementById('textfield_button').onclick = function()
+		{
+			tf.setValue('HELLO');
+		};
+
+		var ta = Titanium.UI.createTextArea({
+			id:'textarea', 
+			height:200,
+			width:300,
+			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_BEZEL
+
+		});
+		ta.addEventListener('change',function(e)
+		{
+			document.getElementById('textarea_value').innerHTML = 'Text Area Updated !';
+		})
+		document.getElementById('textarea_button').onclick = function()
+		{
+			ta.setValue('HELLO WORLD');
+		};
+		
+	};
+	</script>
+</head>
+<body style="font-family:Hevetica Neue">
+	<button id="slider_button" style="font-size:18px">Set Slider to 50</button>
+	<div id="slider_value" style="font-size:12px;color:#888;height:20px"></div>
+	<div id="slider" style="height:30px;margin-bottom:20px;"></div>
+	
+	<button id="switch_button" style="font-size:18px">Set Switch to Off</button>
+	<div id="switch_value" style="font-size:12px;color:#888;height:20px"></div>
+	<div id="switch" style="height:30px;margin-bottom:20px;"></div>
+	
+	<button id="textfield_button" style="font-size:18px">Set Text Field to HELLO</button>
+	<div id="textfield_value" style="font-size:12px;color:#888;height:20px"></div>
+	<div id="textfield" style="height:25px;margin-bottom:20px;"></div>
+
+	<button id="textarea_button" style="font-size:18px">Set Text Area HELLO WORLD</button>
+	<div id="textarea_value" style="font-size:12px;color:#888;height:20px"></div>
+	<div id="textarea" style="height:50px;margin-bottom:20px;"></div>
+	
+</body>
+</html>

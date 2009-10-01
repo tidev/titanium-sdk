@@ -5,6 +5,17 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+//this is a special androidized bridge conversion routine
+//to determine if the thing passed is really undefined
+function isUndefined(value)
+{
+	if (value === null || typeof(value)==='undefined')
+	{
+		return true;
+	}
+	return (typeof(value)=='object' && String(value).length === 0);
+}
+
 var Titanium = new function() {
 	/*
 	 * @tiapi(method=False,property=True,name=platform,since=0.4,type=string) titanium platform name property
@@ -43,11 +54,11 @@ var Titanium = new function() {
 		for(i=0; i < imgs.length;i++) {
 			var s = imgs[i].src;
 			//alert('BEFORE: ' + s);
-			if (s.indexOf('file:///') == 0) {
+			if (s.indexOf('file:///') === 0) {
 				if (s.indexOf('file:///sdcard/') == -1 && s.indexOf('file:///android_asset') == -1) {
 					imgs[i].src = s.substring(8);
 				}
-			} else if (s.indexOf('app://') == 0) {
+			} else if (s.indexOf('app://') === 0) {
 				imgs[i].src = s.substring(6);
 			}
 
@@ -83,23 +94,31 @@ var Titanium = new function() {
 		}
 
 		this.apiProxy.updateNativeControls(Titanium.JSON.stringify(positions));
-	}
+	};
 
 	this.callbackCounter = 0;
-	this.callbacks = new Object();
+	this.callbacks = {};
 
 	this.nextCallbackId = function() {
 		return 'cb' + this.callbackCounter++;
-	}
+	};
 
 	this.addCallback = function(o,f,os) {
 		var cb = new TitaniumCallback(o, f, os);
 		return (new TitaniumCallback(o, f, os)).register();
-	}
+	};
 	this.removeCallback = function(name) {
 		delete this.callbacks[name];
 		Titanium.API.debug('Deleted callback with name: ' + name);
-	}
+	};
+
+	this.getObjectReference = function(key) {
+		return this.apiProxy.getObjectReference(key);
+	};
+
+	this.getTitaniumMemoryBlobLength = function(key) {
+		return this.apiProxy.getTitaniumMemoryBlobLength(key);
+	};
 };
 
 function TitaniumCallback(obj, method, oneShot) {
@@ -124,26 +143,15 @@ function TitaniumCallback(obj, method, oneShot) {
 	this.register = function() {
 		Titanium.callbacks[this.name] = this;
 		return 'Titanium.callbacks["' + this.name + '"]'; // Don't pass javascript: native layer will prepend as needed
-	}
-};
+	};
+}
 
 function registerCallback(o, f) {
 	return Titanium.addCallback(o, f, false);
-};
+}
 
 function registerOneShot(o, f) {
 	return Titanium.addCallback(o, f, true);
-}
-
-//this is a special androidized bridge conversion routine
-//to determine if the thing passed is really undefined
-function isUndefined(value)
-{
-	if (value === null || typeof(value)==='undefined')
-	{
-		return true;
-	}
-	return (typeof(value)=='object' && String(value).length === 0);
 }
 
 function typeOf(value) {
@@ -162,32 +170,27 @@ function typeOf(value) {
 
 function transformObjectValue(value,def)
 {
-	if (isUndefined(value)) return def;
-	return value;
+	return isUndefined(value) ? def : value;
 }
 
 function transformObjectValueAsString(value,def)
 {
-	if (isUndefined(value)) return def;
-	return String(value);
+	return isUndefined(value) ? def : String(value);
 }
 
 function transformObjectValueAsInt(value,def)
 {
-	if (isUndefined(value)) return def;
-	return parseInt(value);
+	return isUndefined(value) ? def : parseInt(value,10);
 }
 
 function transformObjectValueAsBool(value,def)
 {
-	if (isUndefined(value)) return def;
-	return !!value;
+	return isUndefined(value) ? def : !!value;
 }
 
 function transformObjectValueAsDouble(value,def)
 {
-	if (isUndefined(value)) return def;
-	return parseFloat(value);
+	return isUndefined(value) ? def : parseFloat(value);
 }
 
 
@@ -291,5 +294,18 @@ Titanium.Process = {
 	}
 };
 
+var TitaniumMemoryBlob = function(key) {
+	this._key = key;
+	this._ref = Titanium.getObjectReference(key); // get the native reference for tracking.
 
+	this.getLength = function() {
+		return Titanium.getTitaniumMemoryBlobLength(this._key);
+	};
+	this.getKey = function() {
+		return this._key;
+	};
+};
+TitaniumMemoryBlob.prototype.__defineGetter__("length", function(){
+	return this.getLength();
+});
 

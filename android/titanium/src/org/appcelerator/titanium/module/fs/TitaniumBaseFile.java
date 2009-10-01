@@ -12,8 +12,10 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
+import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumFile;
 import org.appcelerator.titanium.util.Log;
 
@@ -43,7 +45,10 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 	protected boolean stream;
 	protected boolean binary;
 
-	protected TitaniumBaseFile(int type) {
+	protected WeakReference<TitaniumModuleManager> weakTmm;
+
+	protected TitaniumBaseFile(TitaniumModuleManager tmm, int type) {
+		this.weakTmm = new WeakReference<TitaniumModuleManager>(tmm);
 		this.type = type;
 		this.typeFile = true;
 		this.typeDir = false;

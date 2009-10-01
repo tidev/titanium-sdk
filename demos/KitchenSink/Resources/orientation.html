@@ -2,23 +2,32 @@
 <head>
 
 <script>
-Titanium.Gesture.addEventListener('orientationchange',function(e)
+window.onload = function()
 {
-	var o = '';
-	if (Titanium.Gesture.isLandscape(e.to))
-	{	
-		o = 'I am landscape';
-	}
-	else if (Titanium.Gesture.isPortrait(e.to))
+	Titanium.Gesture.addEventListener('orientationchange',function(e)
 	{
-		o = 'I am portrait';
-	}
- 	document.getElementById('orientation').innerHTML = o;
-});
+		var o = '';
+		if (Titanium.Gesture.isLandscape(e.to))
+		{	
+			o = 'I am landscape';
+		}
+		else if (Titanium.Gesture.isPortrait(e.to))
+		{
+			o = 'I am portrait';
+		}
+	 	document.getElementById('orientation').innerHTML = o;
+		document.getElementById('win_orientation').innerHTML = 'window.orienation = ' + window.orientation;
+		
+	});
+	
+	document.getElementById('win_orientation').innerHTML = 'window.orienation = ' + window.orientation;
+};
+
 
 </script>
 </head>
 <body  style="font-family:'Helvetica Neue'">
 	<div id="orientation">I am portrait</div>
+	<div id="win_orientation">window.orienation = </div>
 </body>
 </html>

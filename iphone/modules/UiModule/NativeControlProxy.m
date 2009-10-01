@@ -962,7 +962,7 @@ needsRefreshing = YES;	\
 		[(PickerImageTextCell *)view setImageView:nil];
 	}
 	
-	NSLog(@"Returning ImageText");
+	NSLog(@"[DEBUG] Returning ImageText");
 	return view;
 }
 
@@ -996,7 +996,7 @@ needsRefreshing = YES;	\
 	NSString * handleClickCommand = [NSString stringWithFormat:
 			@"(function(){%@%@Titanium.UI._BTN.%@.onClick({type:'%@'%@%@});}).call(Titanium.UI._BTN.%@);",
 			customInit,initalizer,token,eventType,arguments,extraArgs,token];
-//	NSLog(@"Sending '%@' to the page.",handleClickCommand);
+//	NSLog(@"[DEBUG] Sending '%@' to the page.",handleClickCommand);
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
 

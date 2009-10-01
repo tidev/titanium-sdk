@@ -9,6 +9,7 @@ package org.appcelerator.titanium.module.net;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
@@ -17,13 +18,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -31,18 +35,22 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.DefaultHttpRequestFactory;
-import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.api.ITitaniumFile;
 import org.appcelerator.titanium.api.ITitaniumHttpClient;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.api.TitaniumMemoryBlob;
 import org.appcelerator.titanium.module.fs.TitaniumBlob;
 import org.appcelerator.titanium.module.fs.TitaniumFile;
 import org.appcelerator.titanium.module.fs.TitaniumResourceFile;
 import org.appcelerator.titanium.util.Log;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.net.Uri;
 
@@ -56,6 +64,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	private String userAgent;
 	private String onReadyStateChangeCallback;
 	private String onLoadCallback;
+	private String onDataStreamCallback;
 	private int readyState;
 	private String responseText;
 	private int status;
@@ -69,11 +78,12 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	private ArrayList<NameValuePair> nvPairs;
 	private HashMap<String, ContentBody> parts;
 	private String data;
+	private WeakReference<TitaniumModuleManager> weakTmm;
 
 	private final TitaniumHttpClient me;
 	String syncId;
 
-	class LocalResponseHandler extends BasicResponseHandler
+	class LocalResponseHandler implements ResponseHandler<String>
 	{
 		private WeakReference<TitaniumHttpClient> client;
 
@@ -81,7 +91,6 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 			this.client = new WeakReference<TitaniumHttpClient>(client);
 		}
 
-		@Override
 		public String handleResponse(HttpResponse response)
 				throws HttpResponseException, IOException
 		{
@@ -93,18 +102,76 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 				c.setStatusText(response.getStatusLine().getReasonPhrase());
 				c.setReadyState(READY_STATE_INTERACTIVE, syncId);
 			}
-			return super.handleResponse(response);
+
+			Log.w(LCAT, "Entity Type: " + response.getEntity().getClass());
+			Log.w(LCAT, "Entity Content Type: " + response.getEntity().getContentType().getValue());
+			Log.w(LCAT, "Entity isChunked: " + response.getEntity().isChunked());
+			Log.w(LCAT, "Entity isStreaming: " + response.getEntity().isStreaming());
+
+	        StatusLine statusLine = response.getStatusLine();
+	        if (statusLine.getStatusCode() >= 300) {
+	        	throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
+	        }
+
+	        HttpEntity entity = response.getEntity();
+	        String clientResponse = null;
+
+	        if (c.onDataStreamCallback != null) {
+	        	InputStream is = entity.getContent();
+
+	        	if (is != null) {
+    				final String cb = c.onDataStreamCallback;
+        			final TitaniumWebView webView = softWebView.get();
+
+	        		long contentLength = entity.getContentLength();
+	        		if (DBG) {
+	        			Log.d(LCAT, "Content length: " + contentLength);
+	        		}
+	        		int count = 0;
+	        		int totalSize = 0;
+	        		byte[] buf = new byte[4096];
+	        		while((count = is.read(buf)) != -1) {
+	        			totalSize += count;
+	        			if (webView != null) {
+	        				TitaniumModuleManager tmm = weakTmm.get();
+	        				if (tmm != null) {
+		        				try {
+		        					JSONObject o = new JSONObject();
+		        					o.put("totalCount", contentLength);
+		        					o.put("totalSize", totalSize);
+		        					o.put("size", count);
+		        					byte[] newbuf = new byte[count];
+		        					for (int i = 0; i < count; i++) {
+		        						newbuf[i] = buf[i];
+		        					}
+		        					TitaniumMemoryBlob blob = new TitaniumMemoryBlob(newbuf);
+		        					int key = tmm.cacheObject(blob);
+		        					o.put("key", key);
+		        					webView.evalJS(cb, o.toString(), syncId);
+		        				} catch (JSONException e) {
+		        					Log.e(LCAT, "Unable to send ondatastream event: ", e);
+		        				}
+	        				}
+	        			}
+	        		}
+	        	}
+	        } else {
+	        	clientResponse = entity == null ? null : EntityUtils.toString(entity);
+	        }
+
+	        return clientResponse;
 		}
 
 	}
-	public TitaniumHttpClient(TitaniumWebView webView, String userAgent)
+	public TitaniumHttpClient(TitaniumModuleManager tmm, String userAgent)
 	{
+		this.weakTmm = new WeakReference<TitaniumModuleManager>(tmm);
 		me = this;
 		onReadyStateChangeCallback = null;
 		readyState = 0;
 		responseText = "";
 		this.userAgent = userAgent;
-		this.softWebView = new SoftReference<TitaniumWebView>(webView);
+		this.softWebView = new SoftReference<TitaniumWebView>(tmm.getWebView());
 		this.nvPairs = new ArrayList<NameValuePair>();
 		this.parts = new HashMap<String,ContentBody>();
 	}
@@ -205,6 +272,10 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 
 	public void setOnLoadCallback(String callback) {
 		this.onLoadCallback = callback;
+	}
+
+	public void setOnDataStreamCallback(String callback) {
+		this.onDataStreamCallback = callback;
 	}
 
 	/* (non-Javadoc)
