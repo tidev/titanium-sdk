@@ -111,10 +111,8 @@ NSString * const titaniumJavascriptInjection =
 	"if (Ti.Platform && targ.target == 'ti:systembrowser') { Ti.Platform.openURL(targ.href); return false; }"
 "},true);"
 "(function(){function _rm(a,b,c){a[b]=function(){c.apply(this,arguments)}}_rm(console,'debug',function(a){Ti.API.debug(a)});_rm(console,'log',function(a){Ti.API.log(a)});_rm(console,'info',function(a){Ti.API.info(a)});_rm(console,'warn',function(a){Ti.API.warn(a)});_rm(console,'error',function(a){Ti.API.error(a)})})();"
-"document.addEventListener('touchstart',Ti._TOUCHLOAD,true);"
-//"document.addEventListener('touchmove',Ti._TOUCHLOAD,true);"
-//"document.addEventListener('touchend',Ti._TOUCHLOAD,true);"
-//"document.addEventListener('touchcancel',Ti._TOUCHLOAD,true);"
+//"document.addEventListener('touchstart',Ti._TOUCHLOAD,true);"
+"document.addEventListener('touchmove',Ti._TOUCHLOAD,true);"
 "%@"
 "</script>";
 
