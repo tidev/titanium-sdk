@@ -368,7 +368,9 @@
 {
 	if(isNonTitaniumPage)return NO;
 	NSString * noCancel = [webView stringByEvaluatingJavaScriptFromString:@"Ti._DOTOUCH"];
-	return ![noCancel boolValue];
+	BOOL wasTouched = [noCancel boolValue];
+//	[webView stringByEvaluatingJavaScriptFromString:@"Ti._DOTOUCH=false;"];
+	return !wasTouched;
 }
 
 #pragma mark Updating things
