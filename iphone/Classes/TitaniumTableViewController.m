@@ -1067,6 +1067,7 @@ UIColor * checkmarkColor = nil;
 			case TitaniumTableActionInsertAfterRow:
 			case TitaniumTableActionInsertBeforeRow:
 			case TitaniumTableActionUpdateRow:
+			case TitaniumTableActionAppendRow:
 				[self modifyRow:[thisAction rowData] atIndex:[thisAction index] action:kind relativeUrl:[thisAction baseUrl] animation:animation];
 				break;
 			case TitaniumTableActionDeleteRow:

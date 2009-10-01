@@ -479,13 +479,13 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 
 	switch (interfaceOrientation) {
 		case TitaniumViewControllerPortrait:
-			[webView stringByEvaluatingJavaScriptFromString:@"window.orientation=0;window.onorientationchange();"];
+			[webView stringByEvaluatingJavaScriptFromString:@"window.__defineGetter__('orientation',function(){return 0;});window.onorientationchange();"];
 			break;
 		case TitaniumViewControllerLandscapeLeft:
-			[webView stringByEvaluatingJavaScriptFromString:@"window.orientation=90;window.onorientationchange();"];
+			[webView stringByEvaluatingJavaScriptFromString:@"window.__defineGetter__('orientation',function(){return 90;});window.onorientationchange();"];
 			break;
 		case TitaniumViewControllerLandscapeRight:
-			[webView stringByEvaluatingJavaScriptFromString:@"window.orientation=-90;window.onorientationchange();"];
+			[webView stringByEvaluatingJavaScriptFromString:@"window.__defineGetter__('orientation',function(){return -90;});window.onorientationchange();"];
 			break;
 		default:
 			break;
