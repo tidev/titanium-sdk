@@ -38,6 +38,7 @@
 - (NSData*) pageNamedImage_views;
 - (NSData*) pageNamedIphone_ui;
 - (NSData*) pageNamedJs_events;
+- (NSData*) pageNamedModal;
 - (NSData*) pageNamedNavbar_color;
 - (NSData*) pageNamedNavbar_hide;
 - (NSData*) pageNamedNavbar_left;

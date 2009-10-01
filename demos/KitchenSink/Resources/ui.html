@@ -55,7 +55,8 @@
 		{title:'Custom Back Button I (iPhone)', hasChild:false},
 		{title:'Custom Back Button II (iPhone)', hasChild:false},
 		{title:'Custom Table View Data', hasChild:false},
-		{title:'Set Control Values', hasChild:false}
+		{title:'Set Control Values', hasChild:false},
+		{title:'Modal Window (iPhone)', hasChild:false}
 		
 		
 	];
@@ -456,6 +457,24 @@
 					title:'Set Control Values' 
 				});
 				win.open({animated:true});		
+				break;
+			}
+			case 45:
+			{
+				var win = Titanium.UI.createWindow({
+					url:'modal.html',
+					title:'Modal Window' 
+				});
+				var b = Titanium.UI.createButton({
+					title:'Close',
+					Titanium.UI.iPhone.SystemButtonStyle.PLAIN
+				});
+				win.setLeftNavButton(b);
+				b.addEventListener('click',function()
+				{
+					win.close();
+				})
+				win.open({modal:true});		
 				break;
 			}
 

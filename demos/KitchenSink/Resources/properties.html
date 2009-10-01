@@ -40,7 +40,19 @@
 		html += ' list row ' + i + ' name is ' + list[i].name + ' address is ' + list[i].address + '<br/>';
 	}
 	document.getElementById('message').innerHTML = html;
+	
+	// test out remove property and setting to null
+	Titanium.App.Properties.setString('String',null);
+	Titanium.App.Properties.removeProperty('Int');
+	
+	document.getElementById('message').innerHTML += '<br/>String should be null.  It is : ' 
+		+ 	Titanium.App.Properties.getString('String');
 
+	document.getElementById('message').innerHTML += '<br/>Int should be null.  It is : ' 
+		+ 	Titanium.App.Properties.getInt('Int');
+	
+	
+	
 	</script>
 </body>
 </html>
