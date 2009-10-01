@@ -19,11 +19,13 @@
 - (NSData*) pageNamedActivity_indicators;
 - (NSData*) pageNamedAnimated_false;
 - (NSData*) pageNamedApplication_data;
+- (NSData*) pageNamedBack_button;
 - (NSData*) pageNamedButtonbar;
 - (NSData*) pageNamedButtons;
 - (NSData*) pageNamedComp_view_1_body;
 - (NSData*) pageNamedComposite;
 - (NSData*) pageNamedComposite_views;
+- (NSData*) pageNamedCustom_table_view_data;
 - (NSData*) pageNamedDatabase;
 - (NSData*) pageNamedDatabase2;
 - (NSData*) pageNamedDynamic_content;
@@ -51,6 +53,7 @@
 - (NSData*) pageNamedScroll_view_child_2;
 - (NSData*) pageNamedScroll_view_child_3;
 - (NSData*) pageNamedScroll_views;
+- (NSData*) pageNamedSet_control_values;
 - (NSData*) pageNamedShake;
 - (NSData*) pageNamedSlider;
 - (NSData*) pageNamedSound;
@@ -60,6 +63,7 @@
 - (NSData*) pageNamedTabbar_hide;
 - (NSData*) pageNamedTabchange;
 - (NSData*) pageNamedTableview_add;
+- (NSData*) pageNamedTableview_append;
 - (NSData*) pageNamedTableview_delete;
 - (NSData*) pageNamedTableview_set;
 - (NSData*) pageNamedTableview_update;
