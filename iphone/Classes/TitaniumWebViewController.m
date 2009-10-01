@@ -368,7 +368,9 @@
 {
 	if(isNonTitaniumPage)return NO;
 	NSString * noCancel = [webView stringByEvaluatingJavaScriptFromString:@"Ti._DOTOUCH"];
-	return ![noCancel boolValue];
+	BOOL wasTouched = [noCancel boolValue];
+//	[webView stringByEvaluatingJavaScriptFromString:@"Ti._DOTOUCH=false;"];
+	return !wasTouched;
 }
 
 #pragma mark Updating things
@@ -477,13 +479,13 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 
 	switch (interfaceOrientation) {
 		case TitaniumViewControllerPortrait:
-			[webView stringByEvaluatingJavaScriptFromString:@"window.orientation=0;window.onorientationchange();"];
+			[webView stringByEvaluatingJavaScriptFromString:@"window.__defineGetter__('orientation',function(){return 0;});window.onorientationchange();"];
 			break;
 		case TitaniumViewControllerLandscapeLeft:
-			[webView stringByEvaluatingJavaScriptFromString:@"window.orientation=90;window.onorientationchange();"];
+			[webView stringByEvaluatingJavaScriptFromString:@"window.__defineGetter__('orientation',function(){return 90;});window.onorientationchange();"];
 			break;
 		case TitaniumViewControllerLandscapeRight:
-			[webView stringByEvaluatingJavaScriptFromString:@"window.orientation=-90;window.onorientationchange();"];
+			[webView stringByEvaluatingJavaScriptFromString:@"window.__defineGetter__('orientation',function(){return -90;});window.onorientationchange();"];
 			break;
 		default:
 			break;
