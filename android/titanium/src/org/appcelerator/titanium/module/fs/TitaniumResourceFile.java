@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.SoftReference;
 
+import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumFile;
 import org.appcelerator.titanium.api.ITitaniumFilesystem;
 import org.appcelerator.titanium.config.TitaniumConfig;
@@ -33,9 +34,9 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 	private final SoftReference<Context> softContext;
 	private final String path;
 
-	public TitaniumResourceFile(ITitaniumFilesystem filesystem, Context context, String path)
+	public TitaniumResourceFile(TitaniumModuleManager tmm, ITitaniumFilesystem filesystem, Context context, String path)
 	{
-		super(TYPE_RESOURCE);
+		super(tmm, TYPE_RESOURCE);
 		this.filesystem = filesystem;
 		this.softContext = new SoftReference<Context>(context);
 		this.path = path;
@@ -139,7 +140,7 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 		try
 		{
 			String data = read();
-			ITitaniumFile dest = filesystem.getFile(new String[]{destination});
+			ITitaniumFile dest = (ITitaniumFile) filesystem.getFile(new String[]{destination});
 			dest.write(data,false);
 
 			return dest.exists();

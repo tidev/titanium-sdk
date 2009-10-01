@@ -9,9 +9,10 @@ Titanium.networkProxy = window.TitaniumNetwork;
 //Titanium.Net is aliased at the bottom for Titanium.Network
 
 var HTTPClient = function() {
-	this.obj; // reference to java TitaniumHttpClient
-	this._onreadystatechange;
-	this._onload
+	this.obj = null; // reference to java TitaniumHttpClient
+	this._onreadystatechange = null;
+	this._onload = null;
+	this._ondatastream = null;
 
 	/**
 	 * @tiapi(method=true,name=Network.HTTPClient.getReadyState,since=0.4) the state of the network operation
@@ -128,7 +129,7 @@ var HTTPClient = function() {
  * @tiapi(property=true,name=Network.HTTPClient.onreadystatechange,since=0.4) Set or get the ready stage change handler
  */
 HTTPClient.prototype.__defineGetter__("onreadystatechange", function(){
-	return this._onreadystatechange
+	return this._onreadystatechange;
 });
 HTTPClient.prototype.__defineSetter__("onreadystatechange", function(f) {
 	this.setOnReadyStateChange(f);
@@ -137,11 +138,25 @@ HTTPClient.prototype.__defineSetter__("onreadystatechange", function(f) {
  * @tiapi(property=true,name=Network.HTTPClient.onload,since=0.7.0) Set or get the onload handler.
  */
 HTTPClient.prototype.__defineGetter__("onload", function(){
-	return this._onload
+	return this._onload;
 });
 HTTPClient.prototype.__defineSetter__("onload", function(f) {
 	this._onload = f;
 	this.obj.setOnLoadCallback(registerCallback(this, f));
+});
+/**
+ * @tiapi(property=true,name=Network.HTTPClient.ondatastream,since=0.7.0) receive data as a blob a chunk at a time.
+ */
+HTTPClient.prototype.__defineGetter__("ondatastream", function(){
+	return this._ondatastream;
+});
+HTTPClient.prototype.__defineSetter__("ondatastream", function(f) {
+	var self = this;
+	this._ondatastream = function(o) {
+		var blob = new TitaniumMemoryBlob(o.key);
+		f.apply(self, [o.totalCount, o.totalSize, blob, o.size]);
+	};
+	this.obj.setOnDataStreamCallback(registerCallback(this, this._ondatastream));
 });
 /**
  * @tiapi(property=true,name=Network.HTTPClient.readyState,since=0.4) Get the current ready state
@@ -312,5 +327,5 @@ Titanium.Net = Titanium.Network;
 // patch the internal XMLHttpRequest object to use our network client instead
 // this fixes apps that would like to use Ajax-libraries like jQuery, YUI, etc.
 window.XMLHttpRequest = function() {
-	return new Titanium.Network.createHTTPClient()
+	return new Titanium.Network.createHTTPClient();
 };

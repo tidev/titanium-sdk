@@ -19,7 +19,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
+import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.api.TitaniumMemoryBlob;
 import org.appcelerator.titanium.util.Log;
 
 public class TitaniumFile extends TitaniumBaseFile
@@ -30,9 +32,9 @@ public class TitaniumFile extends TitaniumBaseFile
 	private final File file;
 	private final String path;
 
-	public TitaniumFile(File file, String path, boolean stream)
+	public TitaniumFile(TitaniumModuleManager tmm, File file, String path, boolean stream)
 	{
-		super(TitaniumBaseFile.TYPE_FILE);
+		super(tmm, TitaniumBaseFile.TYPE_FILE);
 		this.file = file;
 		this.path = path;
 		this.stream = stream;
@@ -249,6 +251,29 @@ public class TitaniumFile extends TitaniumBaseFile
 		}
 
 		return result;
+	}
+
+	public void write(int key, boolean append) throws IOException
+	{
+		if (DBG) {
+			Log.d(LCAT,"write called for file = " + file);
+		}
+
+		if (!opened) {
+			throw new IOException("Must open before calling write");
+		}
+
+		TitaniumModuleManager tmm = weakTmm.get();
+		if (tmm != null) {
+			TitaniumMemoryBlob blob = (TitaniumMemoryBlob) tmm.getObject(key);
+			if (blob != null) {
+				if (binary) {
+					outstream.write(blob.getData());
+				} else {
+					outwriter.write(new String(blob.getData(),"UTF-8"));
+				}
+			}
+		}
 	}
 
 	@Override

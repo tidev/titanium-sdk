@@ -15,4 +15,8 @@ public interface ITitaniumAPI
 
 	// Added in 0.6.2
 	public void invalidateLayout();
+
+	// Added in 0.7.0
+	public ITitaniumJSRef getObjectReference(int key);
+	public int getTitaniumMemoryBlobLength(int key);
 }

@@ -17,7 +17,7 @@ import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.TitaniumResultHandler;
 import org.appcelerator.titanium.TitaniumVideoActivity;
-import org.appcelerator.titanium.api.ITitaniumFile;
+import org.appcelerator.titanium.api.ITitaniumInvoker;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumMedia;
 import org.appcelerator.titanium.api.ITitaniumSound;
@@ -28,6 +28,7 @@ import org.appcelerator.titanium.module.fs.TitaniumBlob;
 import org.appcelerator.titanium.module.media.TitaniumSound;
 import org.appcelerator.titanium.module.media.TitaniumVideo;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TitaniumDelegate;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.appcelerator.titanium.util.TitaniumUrlHelper;
@@ -180,12 +181,12 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 	}
 
 	public void showCamera(final String successCallback, final String cancelCallback,
-			final String errorCallback, final String options, ITitaniumFile file)
+			final String errorCallback, final String options, ITitaniumInvoker file)
 	{
 		if (DBG) {
 			Log.d(LCAT, "showCamera called");
 		}
-		if (!(file instanceof TitaniumBlob)) {
+		if (!(file.getObject() instanceof TitaniumBlob)) {
 			throw new IllegalArgumentException("blob parameter must be of type TitaniumBlob");
 		}
 		Camera camera = null;
@@ -217,7 +218,7 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 			Log.w(LCAT, "Invalid options JSON: " + options, e);
 		}
 
-		final TitaniumBlob blob = (TitaniumBlob) file;
+		final TitaniumBlob blob = (TitaniumBlob) file.getObject();
 		TitaniumActivity activity = getActivity();
 		TitaniumFileHelper tfh = new TitaniumFileHelper(getContext());
 
@@ -306,16 +307,16 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 
 	}
 
-	public void openPhotoGallery(final String successCallback, final String cancelCallback, final String errorCallback, ITitaniumFile file)
+	public void openPhotoGallery(final String successCallback, final String cancelCallback, final String errorCallback, ITitaniumInvoker file)
 	{
 		if (DBG) {
 			Log.d(LCAT, "openPhotoGallery called");
 		}
-		if (!(file instanceof TitaniumBlob)) {
+		if (!(file.getObject() instanceof TitaniumBlob)) {
 			throw new IllegalArgumentException("blob parameter must be of type TitaniumBlob");
 		}
 
-		final TitaniumBlob blob = (TitaniumBlob) file;
+		final TitaniumBlob blob = (TitaniumBlob) file.getObject();
 		TitaniumActivity activity = getActivity();
 		TitaniumIntentWrapper galleryIntent = new TitaniumIntentWrapper(new Intent());
 		galleryIntent.getIntent().setAction(Intent.ACTION_PICK);
@@ -372,17 +373,17 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 		return sb.toString();
 	}
 
-	public void previewImage(final String successCallback, final String errorCallback, final ITitaniumFile file)
+	public void previewImage(final String successCallback, final String errorCallback, final ITitaniumInvoker file)
 	{
 		if (DBG) {
 			Log.d(LCAT, "previewImage");
 		}
 
-		if (!(file instanceof TitaniumBlob)) {
+		if (!(file.getObject() instanceof TitaniumBlob)) {
 			throw new IllegalArgumentException("blob parameter must be of type TitaniumBlob");
 		}
 
-		final TitaniumBlob blob = (TitaniumBlob) file;
+		final TitaniumBlob blob = (TitaniumBlob) file.getObject();
 
 		TitaniumActivity activity = getActivity();
 		Uri uri = Uri.parse(blob.nativePath());
@@ -412,11 +413,11 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 			});
 	}
 
-	public ITitaniumFile createBlob() {
+	public ITitaniumInvoker createBlob() {
 		if (DBG) {
 			Log.d(LCAT, "creating blob");
 		}
-		return new TitaniumBlob(getActivity().getApplicationContext());
+		return new TitaniumDelegate(new TitaniumBlob(tmm));
 	}
 
 	public ITitaniumVideo createVideoPlayer(final String jsonOptions) {

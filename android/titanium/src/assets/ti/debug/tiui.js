@@ -8,8 +8,8 @@
 Titanium.uiProxy = window.TitaniumUI;
 
 var MenuItem = function() {
-	this.obj; // reference to Java object
-	this._callback;
+	this.obj = null; // reference to Java object
+	this._callback = null;
 
 	/**
 	 * @tiapi(method=true,name=UI.MenuItem.isRoot,since=0.4) Determines if this menu item is the root item
@@ -52,7 +52,7 @@ var MenuItem = function() {
 	 * @tiresult[MenuItem] the separator menu item.
 	 */
 	this.addSeparator = function() {
-		var m = new MenuItem;
+		var m = new MenuItem();
 		m.obj = this.obj.addSeparator();
 		return m;
 	};
@@ -184,7 +184,7 @@ var OptionDialog = function(proxy) {
 	};
 	this.setCancel = function(id) {
 
-	}
+	};
 };
 
 var AlertDialog = function(proxy) {
@@ -246,7 +246,7 @@ var AlertDialog = function(proxy) {
 	 */
 	this.show = function() {
 		this.proxy.show();
-	}
+	};
 };
 
 var ActivityIndicator = function(proxy) {
@@ -390,7 +390,7 @@ var EmailDialog = function(proxy) {
 
 var TitaniumNotifier = function(proxy) {
 	this.proxy = proxy; // reference to Java object
-	this._callback; //
+	this._callback = null; //
 
 	/**
 	 * @tiapi(method=true,name=UI.Notifier.setTitle,since=0.4) Set the title for a notification
@@ -443,7 +443,7 @@ var TitaniumNotifier = function(proxy) {
 	 */
 	this.hide = function(animate) {
 		this.proxy.hide(transformObjectValue(animate, false));
-	}
+	};
 };
 var CompositeView = function(proxy) {
 	this.proxy = proxy; // reference to Java object
@@ -562,7 +562,7 @@ var ScrollableView = function(proxy) {
 		this._callback = listener;
 		var f = function(e) {
 			this._callback({ view: this._views[e.index], index: e.index});
-		}
+		};
 		return this.proxy.addEventListener(eventName, registerCallback(this, f));
 	};
 	/**
@@ -577,7 +577,7 @@ var ScrollableView = function(proxy) {
 
 var TableView = function(proxy) {
 	this.proxy = proxy; // reference to Java object
-	this._callback;
+	this._callback = null;
 
 	/**
 	 * @tiapi(method=true,name=UI.TableView.setData,since=0.5) set options data describing view
@@ -749,7 +749,7 @@ var WebView = function(proxy) {
 
 var UserWindow = function(proxy) {
 	this.proxy = proxy; // reference to java object
-	this._window; // the DOM window
+	this._window = null; // the DOM window
 
 	/**
 	 * @tiapi(method=true,name=UI.UserWindow.setURL,since=0.4) Sets the url for the window
@@ -941,11 +941,11 @@ UserWindow.prototype.__defineGetter__("window", function() {
 
 var UserWindowBuilder = function(proxy) {
 	this.proxy = proxy; // reference to java object
-	this._window; // the DOM window
+	this._window = null; // the DOM window
 
 	this.setWindowId = function(name) {
 		this.proxy.setWindowId(name);
-	}
+	};
 	/**
 	 * @tiapi(method=true,name=UI.UserWindow.setURL,since=0.4) Sets the url for the window
 	 * @tiarg[string,url] url to HTML file.
@@ -1051,7 +1051,7 @@ var DatePicker = function(proxy) {
 			var d = new Date(0);
 			d.setTime(e.value);
 			listener({ value : d});
-		}
+		};
 		return this.proxy.addEventListener(eventName, registerCallback(this, l));
 	};
 	/**
@@ -1102,7 +1102,7 @@ var Picker = function(proxy) {
 
 	this.selectRow = function(col, row) {
 		this.proxy.selectRow(col, row);
-	}
+	};
 };
 
 var Switch = function(proxy) {
@@ -1209,13 +1209,13 @@ var TextArea = function(proxy) {
 	 */
 	this.focus = function() {
 		this.proxy.focus();
-	}
+	};
 	/**
 	 * @tiapi(method=true,name=UI.TextArea.blur,since=0.6) Closed soft keyboard if it's display. Android doesn't seem to actual clearing of focus for Text controls.
 	 */
 	this.blur = function() {
 		this.proxy.blur();
-	}
+	};
 	/**
 	 * @tiapi(method=true,name=UI.TextArea.addEventListener,since=0.6) Add a listener.
 	 * @tiarg[string,eventName] The name of the event. Supports:
@@ -1269,13 +1269,13 @@ var TextField = function(proxy) {
 	 */
 	this.focus = function() {
 		this.proxy.focus();
-	}
+	};
 	/**
 	 * @tiapi(method=true,name=UI.TextField.blur,since=0.6) Closed soft keyboard if it's display. Android doesn't seem to actual clearing of focus for Text controls.
 	 */
 	this.blur = function() {
 		this.proxy.blur();
-	}
+	};
 	/**
 	 * @tiapi(method=true,name=UI.TextField.addEventListener,since=0.6) Add a listener.
 	 * @tiarg[string,eventName] The name of the event. Supports:
@@ -1331,10 +1331,10 @@ Titanium.UI = {
 	createWindow : function(options) {
 		var w = new UserWindowBuilder(Titanium.uiProxy.createWindow());
 		if (!isUndefined(options)) {
-			var url = options['url'];
-			var fullscreen = options['fullscreen'];
-			var title = options['title'];
-			var titleImage = options['titleImage'];
+			var url = options.url;
+			var fullscreen = options.fullscreen;
+			var title = options.title;
+			var titleImage = options.titleImage;
 
 			if (!isUndefined(url)) {
 				w.setURL(url);
@@ -1357,7 +1357,7 @@ Titanium.UI = {
 	 * @tiresult[MenuItem] the new root menu item
 	 */
 	createMenu : function() {
-		var m = new MenuItem;
+		var m = new MenuItem();
 		m.obj = Titanium.uiProxy.createMenu(); // Consider a hash of menus
 		return m;
 	},
@@ -1395,9 +1395,9 @@ Titanium.UI = {
 		var dlg = new AlertDialog(Titanium.uiProxy.createAlertDialog());
 
 		if (! isUndefined(options)) {
-			title = options['title'];
-			message = options['message'];
-			buttonNames = options['buttonNames'];
+			title = options.title;
+			message = options.message;
+			buttonNames = options.buttonNames;
 
 			if (!isUndefined(title)) {
 				dlg.setTitle(title);
@@ -1421,8 +1421,8 @@ Titanium.UI = {
 		var dlg = new OptionDialog(Titanium.uiProxy.createOptionDialog());
 
 		if (! isUndefined(options)) {
-			title = options['title'];
-			optionValues = options['options'];
+			title = options.title;
+			optionValues = options.options;
 
 			if (!isUndefined(title)) {
 				dlg.setTitle(title);
@@ -1443,12 +1443,12 @@ Titanium.UI = {
 		var ind = new ActivityIndicator(Titanium.uiProxy.createProgressDialog());
 		ind.setLocation(1); // Dialog
 		if (!isUndefined(options)) {
-			var message = options['message'];
-			var loc = options['location'];
-			var type = options['type'];
-			var minVal = options['min'];
-			var maxVal = options['max'];
-			var value = options['value'];
+			var message = options.message;
+			var loc = options.location;
+			var type = options.type;
+			var minVal = options.min;
+			var maxVal = options.max;
+			var value = options.value;
 
 			if (!isUndefined(message)) {
 				ind.setMessage(message);
@@ -1481,12 +1481,12 @@ Titanium.UI = {
 		ind.setLocation(0); // StatusBar
 
 		if (!isUndefined(options)) {
-			var message = options['message'];
-			var loc = options['location'];
-			var type = options['type'];
-			var minVal = options['min'];
-			var maxVal = options['max'];
-			var value = options['value'];
+			var message = options.message;
+			var loc = options.location;
+			var type = options.type;
+			var minVal = options.min;
+			var maxVal = options.max;
+			var value = options.value;
 
 			if (!isUndefined(message)) {
 				ind.setMessage(message);
@@ -1552,8 +1552,8 @@ Titanium.UI = {
 		if(!isUndefined(options.views)) {
 			for (key in options) {
 				if (key == "views") {
-					var keys = sv.internalSetViews(options["views"])
-					opts["views"] = keys;
+					var keys = sv.internalSetViews(options.views);
+					opts.views = keys;
 				} else {
 					opts[key] = options[key];
 				}
@@ -1570,7 +1570,7 @@ Titanium.UI = {
 	createTableView : function(options, callback) {
 		 var tv = new TableView(Titanium.uiProxy.createTableView());
 		 if (isUndefined(options)) {
-			 options = {}
+			 options = {};
 		 }
 		 tv.setCallback(callback);
 		 tv.proxy.processOptions(Titanium.JSON.stringify(options));
@@ -1597,12 +1597,12 @@ Titanium.UI = {
 	createEmailDialog : function(options) {
 		var dlg = new EmailDialog(Titanium.uiProxy.createEmailDialog());
 		if (!isUndefined(options)) {
-			var subject = options["subject"];
-			var to = options["toRecipients"];
-			var cc = options["ccRecipients"];
-			var bcc = options["bccRecipients"];
-			var msg = options["messageBody"];
-			var attachment = options["attachment"];
+			var subject = options.subject;
+			var to = options.toRecipients;
+			var cc = options.ccRecipients;
+			var bcc = options.bccRecipients;
+			var msg = options.messageBody;
+			var attachment = options.attachment;
 
 			if (!isUndefined(subject)) {
 				dlg.setSubject(subject);
@@ -1828,7 +1828,7 @@ Titanium.UI = {
 		}
 		var c = new DatePicker(Titanium.uiProxy.createDatePicker(Titanium.JSON.stringify(o)));
 		c.proxy.open();
-		return c
+		return c;
 	},
 
 	createModalDatePicker : function(options) {
@@ -1896,7 +1896,7 @@ Titanium.UI.createAlert = Titanium.UI.createAlertDialog; //TODO remove
 Titanium.UI._currentWindow = null;
 Titanium.UI.__defineGetter__("currentWindow", function(){
 	// Can't set this from the native side, so set on first access
-	if (Titanium.UI._currentWindow == null) {
+	if (Titanium.UI._currentWindow === null) {
 		Titanium.UI._currentWindow = new UserWindow(Titanium.uiProxy.getCurrentWindow());
 	}
 	return Titanium.UI._currentWindow;
@@ -2147,14 +2147,14 @@ Titanium.UI.createNotification = function(options)
 {
 	proxy = Titanium.uiProxy.createNotification();
 	notifier = null;
-	if (proxy != null) {
+	if (proxy !== null) {
 		notifier = new TitaniumNotifier(proxy);
-		if (options != null) {
-			var title = options['title'];
-			var message = options['message'];
-			var color = options['color'];
-			var delay = options['delay'];
-			var transparency = options['transparency'];
+		if (!isUndefined(options)) {
+			var title = options.title;
+			var message = options.message;
+			var color = options.color;
+			var delay = options.delay;
+			var transparency = options.transparency;
 
 			if (!isUndefined(title)) {
 				notifier.setTitle(title);
@@ -2191,7 +2191,7 @@ Titanium.UI.iPhone = {
 		REWIND : -1,
 		PLAY : -1,
 		FIXED_SPACE : -1,
-		FLEXIBLE_SPACE : -1,
+		FLEXIBLE_SPACE : -1
 	},
 	SystemButtonStyle : {
 		PLAIN : -1

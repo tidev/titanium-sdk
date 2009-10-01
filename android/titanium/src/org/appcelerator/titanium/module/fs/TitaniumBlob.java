@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import org.appcelerator.titanium.TitaniumModuleManager;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -23,17 +25,17 @@ public class TitaniumBlob extends TitaniumBaseFile
 	protected String name;
 	protected String path;
 
-	public TitaniumBlob(Context context, String url) {
-		super(TitaniumBaseFile.TYPE_BLOB);
-		this.context = context.getApplicationContext();
+	public TitaniumBlob(TitaniumModuleManager tmm, String url) {
+		super(tmm, TitaniumBaseFile.TYPE_BLOB);
+		this.context = tmm.getAppContext();
 		this.url = url;
 		if (url != null) {
 			init();
 		}
 	}
 
-	public TitaniumBlob(Context context) {
-		this(context, null);
+	public TitaniumBlob(TitaniumModuleManager tmm) {
+		this(tmm, null);
 	}
 
 	protected void init() {

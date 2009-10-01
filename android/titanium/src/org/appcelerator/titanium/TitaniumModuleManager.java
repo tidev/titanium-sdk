@@ -19,6 +19,8 @@ import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.ui.TitaniumUIWebView;
 import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TitaniumJSRef;
+import org.appcelerator.titanium.util.TitaniumJSRefCache;
 
 import android.content.Context;
 
@@ -33,6 +35,7 @@ public class TitaniumModuleManager
 	private WeakReference<TitaniumUIWebView> weakUIWebView;
 	private TitaniumWebView webView;
 	private Context appContext;
+	private WeakReference<TitaniumJSRefCache> weakObjectCache;
 
 	private long creationThreadId;
 	private String creationThreadName;
@@ -58,6 +61,8 @@ public class TitaniumModuleManager
 		Thread t = Thread.currentThread();
 		creationThreadId = t.getId();
 		creationThreadName = t.getName();
+
+		this.weakObjectCache = new WeakReference<TitaniumJSRefCache>(getApplication().getObjectCache());
 	}
 
 	public void checkThread() {
@@ -108,6 +113,38 @@ public class TitaniumModuleManager
 	public TitaniumWebView getWebView() {
 		return webView;
 	}
+	public TitaniumJSRef getObjectReference(int key)
+	{
+		TitaniumJSRef ref = null;
+		TitaniumJSRefCache cache = weakObjectCache.get();
+		if (cache != null) {
+			ref = cache.getReference(key);
+		}
+
+		return ref;
+	}
+	public Object getObject(int key) {
+		Object obj = null;
+		TitaniumJSRefCache cache = weakObjectCache.get();
+		if (cache != null) {
+			obj = cache.getObject(key);
+		}
+
+		return obj;
+	}
+
+	public int cacheObject(Object obj)
+	{
+		TitaniumJSRefCache cache = weakObjectCache.get();
+		if (cache == null) {
+			throw new IllegalStateException("Object cache is null");
+		}
+
+		TitaniumJSRef ref = new TitaniumJSRef(obj);
+		cache.add(ref);
+		return ref.getKey();
+	}
+
 	public void addModule(ITitaniumModule m) {
 		if (! modules.contains(m)) {
 			modules.add(m);

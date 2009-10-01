@@ -172,6 +172,48 @@
 		  }
 		  progress.hide();
 	  });
+
+	  var fsGetImage = Titanium.UI.createButton({id: 'fs-get-image', title: "Get Image"});
+	  fsGetImage.addEventListener('click', function(e) {
+		try {
+			var fs = Titanium.Filesystem.getFileStream("file:///sdcard/logo.gif");
+			fs.open(Titanium.Filesystem.MODE_WRITE, true);
+
+			var progress2 = Titanium.UI.createActivityIndicator({
+				message: 'Downloading...', min : 0, max : 100, value : 0,
+				type: Titanium.UI.ActivityIndicator.DETERMINANT
+			});
+			progress2.show();
+
+			log('Requesting Image from Google...');
+			var ourClient = Titanium.Network.createHTTPClient();
+			ourClient.open('GET','http://www.google.com/intl/en_ALL/images/logo.gif');
+			ourClient.ondatastream = function(totalCount, totalSize, blob, size) {
+				Titanium.API.debug("ODS: tCount: " + totalCount +
+						" tSize: " + totalSize + " Length: " + blob.length + " size: " + size);
+				progress2.setValue(totalSize/totalCount * 100);
+				try {
+					fs.write(blob);
+				} catch(E) {
+					alert('Exception: ' + E);
+				}
+				if (totalCount == totalSize) {
+					fs.close();
+					progress2.hide();
+				}
+			};
+
+			ourClient.onreadystatechange=function(){
+				if(this.readyState == 4) {
+					log('Download complete');
+				}
+			};
+			ourClient.send();
+		} catch(E) {
+			alert('Exception: ' + E);
+		}
+
+	  });
   }
   </script>
 </head>
@@ -185,6 +227,7 @@
 	<div id="fs-writeline-b" class="button">&nbsp;</div>
 	<div id="fs-writeline-ba" class="button">&nbsp;</div>
 	<div id="fs-readline-b" class="button">&nbsp;</div>
+	<div id="fs-get-image" class="button">&nbsp;</div>
 	<div style="clear:both">&nbsp;</div>
 </div>
 <div id="log">&nbsp;</div>
