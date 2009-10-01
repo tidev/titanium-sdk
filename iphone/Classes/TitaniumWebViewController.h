@@ -30,6 +30,7 @@
 - (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
 
 - (void)reloadWebView;
+- (void)updateTitle;
 
 - (void) investigateTitaniumCrashSite;
 

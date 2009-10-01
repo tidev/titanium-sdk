@@ -18,15 +18,7 @@
 #pragma mark Class Methods
 
 #pragma mark init and dealloc and allocations
-/*
- // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
- - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
- if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
- // Custom initialization
- }
- return self;
- }
- */
+
 
 
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
@@ -237,6 +229,7 @@
 - (void)setFocused:(BOOL)isFocused;
 {
 	if(isFocused){
+		[self updateTitle];
 		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'focused'})"];
 	} else {
 		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'unfocused'})"];
@@ -328,10 +321,11 @@
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
 {
 	CLOCKSTAMP("Finished load request for %@",self);
-	
-	NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
-	TitaniumViewController * parentVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:titaniumWindowToken];
-	if([newTitle length]>0)[parentVC setTitle:newTitle];
+
+	TitaniumContentViewController * visibleVC = [[TitaniumHost sharedHost] visibleTitaniumContentViewController];
+	BOOL isVisible = [visibleVC isShowingView:self];
+
+	if(isVisible)[self updateTitle];	
 
 	[UIView beginAnimations:@"webView" context:nil];
 	[UIView setAnimationDuration:0.1];
@@ -349,9 +343,9 @@
 	if([[webView stringByEvaluatingJavaScriptFromString:@"typeof(Titanium)"] isEqualToString:@"undefined"])[self investigateTitaniumCrashSite];
 	
 	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'load'});"];
-	if ([[TitaniumHost sharedHost] currentTitaniumViewController] == parentVC){
+	if ([titaniumWindowToken isEqualToString:[visibleVC titaniumWindowToken]])
 		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'focused'});"];
-		if([[parentVC contentViewControllers] objectAtIndex:[parentVC selectedContentIndex]]){
+		if(isVisible){
 			[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'focused'});"];
 		}
 	}
@@ -374,6 +368,13 @@
 }
 
 #pragma mark Updating things
+
+- (void)updateTitle;
+{
+	NSString * newTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
+	TitaniumViewController * parentVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:titaniumWindowToken];
+	if([newTitle length]>0)[parentVC setTitle:newTitle];	
+}
 
 - (void)updateLayout: (BOOL)animated;
 {
