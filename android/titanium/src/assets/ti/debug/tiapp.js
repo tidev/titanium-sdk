@@ -203,7 +203,7 @@ Properties = function(proxy) {
 	 */
 	this.setBool = function(name,value){
 		return this.proxy.setBool(name,value);
-	},
+	};
 	/**
 	 * @tiapi(method=True,name=App.Properties.getDouble,since=0.4) Retrieve a double property
 	 * @tiarg[string,name] property name
@@ -220,10 +220,10 @@ Properties = function(proxy) {
 		def = arguments.length == 1 || isUndefined(def) ? 0.0 : def;
 		var r = this.proxy.getDouble(name,def);
 		return transformObjectValueAsDouble(r,def);
-	},
+	};
 	this.setDouble = function(name,value){
 		return this.proxy.setDouble(name,value);
-	},
+	};
 	/**
 	 * @tiapi(method=True,name=App.Properties.getList,since=0.7.0) Retrieve a list
 	 * @tiarg[string,name] property name
@@ -243,7 +243,7 @@ Properties = function(proxy) {
 		 }
 		 var s = this.proxy.getList(name, Titanium.JSON.stringify(def));
 		 return eval("(" + s + ")");
-	},
+	};
 
 	/**
 	 * @tiapi(method=True,name=App.Properties.setList,since=0.7.0) Store a list of JSON'able objects
@@ -265,7 +265,7 @@ Properties = function(proxy) {
 		}
 
 		this.proxy.setList(name, Titanium.JSON.stringify(value));
-	},
+	};
 	/**
 	 * @tiapi(method=True,name=App.Properties.hasProperty,since=0.7.0) Detect existence of a property
 	 * @tiarg[string,name] property name
@@ -278,7 +278,7 @@ Properties = function(proxy) {
 	 */
 	this.hasProperty = function(name) {
 		return this.proxy.hasProperty(name);
-	},
+	};
 	/**
 	 * @tiapi(method=True,name=App.Properties.listProperties,since=0.7.0) Retrieve a list of property names
 	 * @tiresult[list] list of property names
@@ -289,7 +289,7 @@ Properties = function(proxy) {
 	 */
 	this.listProperties = function() {
 		return eval("(" + this.proxy.listProperties() + ")");
-	},
+	};
 	/**
 	 * @tiapi(method=True,name=App.Properties.removeProperty,since=0.7.0) Remove a property
 	 * @tiarg[string,name] property name
@@ -302,7 +302,7 @@ Properties = function(proxy) {
 		if (!isUndefined(name)) {
 			this.proxy.removeProperty(name);
 		}
-	}
+	};
 };
 
 Titanium.App.Properties = new Properties(Titanium.appProxy.getAppProperties());

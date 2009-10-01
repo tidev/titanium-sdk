@@ -18,6 +18,7 @@ import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEvent;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
 import org.appcelerator.titanium.module.app.TitaniumProperties;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TitaniumJSRefCache;
 import org.appcelerator.titanium.util.TitaniumPlatformHelper;
 import org.xml.sax.SAXException;
 
@@ -39,11 +40,11 @@ public class TitaniumApplication
 	private boolean needsStartEvent;
 	private boolean needsEnrollEvent;
 	private boolean needsSplashScreen;
+	private HashMap<String,String> sourceCache;
+	private TitaniumJSRefCache objectCache;
 
 	protected TitaniumAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
-
-	HashMap<String,String> sourceCache;
 
 	private static TitaniumApplication me;
 
@@ -52,6 +53,7 @@ public class TitaniumApplication
 		needsStartEvent = true;
 		needsSplashScreen = true;
 		sourceCache = new HashMap<String,String>(8);
+		objectCache = new TitaniumJSRefCache();
 	}
 
 	public static TitaniumApplication getInstance() {
@@ -243,5 +245,9 @@ public class TitaniumApplication
 		if (startService(analyticsIntent) == null) {
 			Log.w(LCAT, "Analytics service not found.");
 		}
+	}
+
+	public TitaniumJSRefCache getObjectCache() {
+		return objectCache;
 	}
 }

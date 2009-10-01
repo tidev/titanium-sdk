@@ -56,4 +56,5 @@ public interface ITitaniumHttpClient {
 	public void addTitaniumFileAsPostData(String name, ITitaniumFile value);
 	public void addStringData(String data);
 	public void setOnLoadCallback(String callback);
+	public void setOnDataStreamCallback(String callback);
 }

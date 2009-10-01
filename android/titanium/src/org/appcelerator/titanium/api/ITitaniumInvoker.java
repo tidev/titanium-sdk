@@ -15,4 +15,7 @@ public interface ITitaniumInvoker
 	public void pushBoolean(boolean b);
 
 	ITitaniumCheckedResult call(String name);
+
+	// Internal
+	public Object getObject();
 }

@@ -34,14 +34,14 @@ Titanium.Gesture = {
 	 * @tiarg[int,orientation] Obtained via the 'orientationchange' event's 'to' or 'from' property.
 	 */
 	isPortrait : function(orientation) {
-		return (orientation & 0x06) != 0; // orientation & (PORTRAIT | UPSIDE_PORTRAIT)
+		return (orientation & 0x06) !== 0; // orientation & (PORTRAIT | UPSIDE_PORTRAIT)
 	},
 	/**
 	 * @tiapi(method=True,name=Gesture.isLandscape,since=0.4) Helper method to determine if device is in any landscape position.
 	 * @tiarg[int,orientation] Obtained via the 'orientationchange' event's 'to' or 'from' property.
 	 */
 	isLandscape : function(orientation) {
-		return (orientation & 0x18) != 0; // orientation & ((LANDSCAPE | LANDSCAPE_LEFT) | LANDSCAPE_RIGHT)
+		return (orientation & 0x18) !== 0; // orientation & ((LANDSCAPE | LANDSCAPE_LEFT) | LANDSCAPE_RIGHT)
 	},
 	/**
 	 * @tiapi(method=True,name=Gesture.addEventListener,since=0.4) Listen for Gesture events.

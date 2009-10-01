@@ -13,11 +13,11 @@ public interface ITitaniumMedia
 	public ITitaniumSound createSound(String url);
 	public void vibrate(long[] pattern);
 
-	public void showCamera(final String successCallback, final String cancelCallback, final String errorCallback, final String options, final ITitaniumFile blob);
-	public void openPhotoGallery(final String successCallback, final String cancelCallback, final String errorCallback, final ITitaniumFile blob);
-	public void previewImage(final String successCallback, String errorCallback, final ITitaniumFile blob);
+	public void showCamera(final String successCallback, final String cancelCallback, final String errorCallback, final String options, final ITitaniumInvoker blob);
+	public void openPhotoGallery(final String successCallback, final String cancelCallback, final String errorCallback, final ITitaniumInvoker blob);
+	public void previewImage(final String successCallback, String errorCallback, final ITitaniumInvoker blob);
 	public ITitaniumVideo createVideoPlayer(final String jsonOptions);
 
 	// internal use
-	public ITitaniumFile createBlob();
+	public ITitaniumInvoker createBlob();
 }
