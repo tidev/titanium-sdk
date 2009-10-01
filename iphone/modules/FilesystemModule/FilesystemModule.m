@@ -314,18 +314,10 @@
 - (BOOL) startModule;
 {
 	TitaniumInvocationGenerator * invocGen = [TitaniumInvocationGenerator generatorWithTarget:self];
-	
-//	[(FilesystemModule *)invocGen doAsyncFileCopy:nil from:nil to:nil];
-//	NSInvocation * asyncCopyInvoc = [invocGen invocation];
 
 	[(FilesystemModule *)invocGen filePath:nil performFunction:nil arguments:nil];
 	NSInvocation * fileActionInvoc = [invocGen invocation];
 	
-//	TitaniumJSCode * asyncCopyObjectCode = [TitaniumJSCode codeWithString:@"function(call){this.running=true;this.callback=call;}"];
-////	[asyncCopyObjectCode setEpilogueCode:@"Ti.Filesystem.AsyncCopyObj.prototype={};"];
-//	TitaniumJSCode * asyncCopyCode = [TitaniumJSCode codeWithString:@"function(src,dst,call){var res=new Ti.Filesystem._ASYNCOBJ(call);"
-//			"var tkn=Ti.Filesystem._FILESYSTKN++;Ti.Filesystem._COPIES[tkn]=res;Ti.Filesystem._ASYNCCOPYACT(tkn,src,dst);"
-//			"return res;}"];
 	
 	TitaniumJSCode * fileWrapperObjectCode = [TitaniumJSCode codeWithString:@"function(newPath){this.path=newPath;}"];
 	[fileWrapperObjectCode setEpilogueCode:@"Ti.Filesystem._FILEOBJ.prototype={"
@@ -374,20 +366,17 @@
 	TitaniumJSCode * falseFunct = [TitaniumJSCode codeWithString:@"function(){return false;}"];
 	
 	NSDictionary * moduleDict = [NSDictionary dictionaryWithObjectsAndKeys:
-			[NSNumber numberWithInt:0],@"_FILESYSTKN",
 
-//			asyncCopyObjectCode,@"_ASYNCOBJ",
 			fileWrapperObjectCode,@"_FILEOBJ",
 			fileActionInvoc,@"_FILEACT",
-			
-//			[TitaniumJSCode codeWithString:@"{}"],@"_COPIES",
 			[TitaniumJSCode codeWithString:@"{}"],@"_FILES",
-//			asyncCopyInvoc,@"_ASYNCCOPYACT",
-//			asyncCopyCode,@"asyncCopy",
 			
 			getFileCode,@"getFile",
 			
 			[TitaniumJSCode functionReturning:[[NSBundle mainBundle] resourcePath]],@"getResourcesDirectory",
+			[TitaniumJSCode codeWithString:@"function(){return '/';}"],@"getSeperator",
+			[TitaniumJSCode codeWithString:@"function(){return '\\n';}"],@"getLineEnding",
+
 			falseFunct,@"isExteralStoragePresent",
 			
 			[NSNumber numberWithInt:(int)'A'],@"MODE_APPEND",
