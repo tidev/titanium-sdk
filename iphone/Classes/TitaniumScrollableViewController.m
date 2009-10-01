@@ -123,6 +123,7 @@
 		[pagedView setShowsHorizontalScrollIndicator:NO];
 		[pagedView setDelegate:self];
 		[pagedView setDelaysContentTouches:NO];
+		
 	}
 
 	if(wrapperView==nil){

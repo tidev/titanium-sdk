@@ -208,7 +208,7 @@ TitaniumHost * lastSharedHost = nil;
 
 #if FASTREGISTRATION == 1
 	if (threadStackCount >= MAXTHREADDEPTH) {
-		NSLog(@"Shouldn't happen! No space to register %@",thread);
+		NSLog(@"[WARN] Shouldn't happen! No space to register %@",thread);
 		//Crash hard!
 		return;
 	}
@@ -250,9 +250,9 @@ TitaniumHost * lastSharedHost = nil;
 			threadStackCount = thisThreadIndex;
 			return;
 		}
-		NSLog(@"Shouldn't happen! Thread %@ at count %d was not unregistering thread %@",thisThread,thisThreadIndex,thread);
+		NSLog(@"[WARN] Shouldn't happen! Thread %@ at count %d was not unregistering thread %@",thisThread,thisThreadIndex,thread);
 	}
-	NSLog(@"Shouldn't happen! Unregistering thread %@ was not in stack",thread);
+	NSLog(@"[WARN] Shouldn't happen! Unregistering thread %@ was not in stack",thread);
 	return;
 
 //	NSThread * currentNSThread = [NSThread currentThread];
@@ -268,11 +268,11 @@ TitaniumHost * lastSharedHost = nil;
 			[ourThreadStack removeLastObject];
 
 		} else if ([ourThreadStack containsObject:thread]) {
-			NSLog(@"ERROR! Unregistering a thread(%@-%@) in the middle of a stack(%@)!",thread,magicToken,ourThreadStack);
+			NSLog(@"[ERROR] ERROR! Unregistering a thread(%@-%@) in the middle of a stack(%@)!",thread,magicToken,ourThreadStack);
 			[ourThreadStack removeObject:thread];
 
 		} else {
-			NSLog(@"ERROR! Tried to unregister a thread(%@-%@) that doesn't exist in stack(%@)!",thread,magicToken,ourThreadStack);
+			NSLog(@"[ERROR] ERROR! Tried to unregister a thread(%@-%@) that doesn't exist in stack(%@)!",thread,magicToken,ourThreadStack);
 		}
 	}
 #endif
@@ -289,9 +289,9 @@ TitaniumHost * lastSharedHost = nil;
 		if([[thisThread magicToken] isEqualToString:token]){
 			return thisThread;
 		}
-		NSLog(@"Shouldn't happen! Thread %@ at count %d did not have token %@",thisThread,thisThreadIndex,token);
+		NSLog(@"[WARN] Shouldn't happen! Thread %@ at count %d did not have token %@",thisThread,thisThreadIndex,token);
 	}
-	NSLog(@"Shouldn't happen! Token %@ was not in stack",token);
+	NSLog(@"[WARN] Shouldn't happen! Token %@ was not in stack",token);
 	return nil;
 	
 #else if FASTREGISTRATION == 0
@@ -333,7 +333,7 @@ TitaniumHost * lastSharedHost = nil;
 		}
 		
 		if (result == nil){
-			NSLog(@"ERROR! CurrentThread isn't the most recent thread!");
+			NSLog(@"[WARN] ERROR! CurrentThread isn't the most recent thread!");
 			//This scan is very inefficient, but is a 'Shouldn't happen' situation.
 			for (NSMutableArray * thisThreadStack in [threadRegistry allValues]){
 				for (TitaniumCmdThread * thisThread in thisThreadStack){
@@ -362,16 +362,16 @@ TitaniumHost * lastSharedHost = nil;
 {
 	Class moduleClass = NSClassFromString(moduleClassName);
 	if (moduleClass == nil) {
-		NSLog(@"Class \"%@\" was not found",moduleClassName);
+		NSLog(@"[ERROR] Class \"%@\" was not found",moduleClassName);
 		return NO;
 	}
 	if (![moduleClass conformsToProtocol:@protocol(TitaniumModule)]) {
-		NSLog(@"Class \"%@\" was found but does not conform to the TitaniumModule protocol",moduleClassName);
+		NSLog(@"[ERROR] Class \"%@\" was found but does not conform to the TitaniumModule protocol",moduleClassName);
 		return NO;
 	}
 	id module = [[moduleClass alloc] init];
 	if (module == nil){
-		NSLog(@"TitaniumModule \"%@\" was found but failed to init",moduleClassName);
+		NSLog(@"[ERROR] TitaniumModule \"%@\" was found but failed to init",moduleClassName);
 		return NO;
 	}
 	if (nativeModules == nil) {
@@ -398,7 +398,7 @@ TitaniumHost * lastSharedHost = nil;
 										  [[thisModuleName substringToIndex:1] uppercaseString],[thisModuleName substringFromIndex:1]];
 
 #ifdef USE_VERBOSE_DEBUG	
-		NSLog(@"loading module %@, class name = %@",thisModuleName,thisModuleClassName);
+		NSLog(@"[DEBUG] loading module %@, class name = %@",thisModuleName,thisModuleClassName);
 #endif
 		
 		@try
@@ -406,7 +406,7 @@ TitaniumHost * lastSharedHost = nil;
 			[self registerModuleNamed:thisModuleClassName];
 		}
 		@catch (NSException *e) {
-			NSLog(@"Exception registering module: %@, Error: %@",thisModuleName,[e description]);
+			NSLog(@"[ERROR] Exception registering module: %@, Error: %@",thisModuleName,[e description]);
 		}
 	}
 }
@@ -436,7 +436,7 @@ TitaniumHost * lastSharedHost = nil;
 
 	appBaseUrl = [[NSURL alloc] initWithScheme:@"app" host:appID path:@"/index.html"];
 
-	NSLog(@"Application base url = %@, appid = %@",appBaseUrl, appID);
+	NSLog(@"[DEBUG] Application base url = %@, appid = %@",appBaseUrl, appID);
 	
 	// install the application
 	Class routingClass = NSClassFromString(@"ApplicationRouting");
@@ -470,7 +470,7 @@ TitaniumHost * lastSharedHost = nil;
 	//If needed, set up the tab bar.
 	//Then set up the heirarchy.
 #ifdef USE_VERBOSE_DEBUG	
-	NSLog(@"Modules loaded. TitaniumObject is now:%@",titaniumObject);
+	NSLog(@"[DEBUG] Modules loaded. TitaniumObject is now:%@",titaniumObject);
 #endif
 
 	[[TitaniumAppDelegate sharedDelegate] setViewController:rootViewController];
@@ -817,7 +817,7 @@ TitaniumHost * lastSharedHost = nil;
 	if (pathOrUrl == nil) return nil;
 	
 #ifdef USE_VERBOSE_DEBUG	
-	NSLog(@"imageForResource = %@",pathOrUrl);
+	NSLog(@"[DEBUG] imageForResource = %@",pathOrUrl);
 #endif
 
 	// first check the image cache
@@ -924,7 +924,7 @@ TitaniumHost * lastSharedHost = nil;
 	}
 	
 	if (![ourObject respondsToSelector:@selector(allKeys)]){
-		NSLog(@"ERROR: %@ (%@) does not respond to allKeys",keyPath,ourObject);
+		NSLog(@"[ERROR] %@ (%@) does not respond to allKeys",keyPath,ourObject);
 		return [NSMutableString stringWithFormat:@""]; //FAILED!
 	}
 
@@ -1074,7 +1074,7 @@ TitaniumHost * lastSharedHost = nil;
 	NSString * result = [self javaScriptForResource:resourceUrl hash:thisThreadHashString extremeDebug:NO];
 
 #ifdef USE_VERBOSE_DEBUG	
-		NSLog(@"Javascript for resource (%@) \n%@",resourceUrl,result);
+		NSLog(@"[DEBUG] Javascript for resource (%@) \n%@",resourceUrl,result);
 #endif
 
 	lastThreadHash+=1;

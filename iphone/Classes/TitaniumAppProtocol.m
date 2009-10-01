@@ -136,7 +136,7 @@ id<TitaniumAppAssetResolver> resolver = nil;
 	NSString * resourcePath;
 
 #ifdef USE_VERBOSE_DEBUG	
-	NSLog(@"loading request for url = %@, type = %d", url, ourType);
+	NSLog(@"[DEBUG] loading request for url = %@, type = %d", url, ourType);
 #endif
 
 	if (resolver!=nil && ourType==TitaniumAppResourceFileType)
@@ -193,8 +193,7 @@ id<TitaniumAppAssetResolver> resolver = nil;
 					NSString * windowToken = [pathParts objectAtIndex:3];
 					TitaniumWebViewController *ourWebView = (TitaniumWebViewController*)[[TitaniumHost sharedHost] titaniumContentViewControllerForToken:windowToken];
 					[ourWebView acceptToken:contextToken forContext:@"window"];
-					
-					NSLog(@"Path parts,%@",pathParts);
+//					NSLog(@"[DEBUG] Path parts,%@",pathParts);
 					data = [NSData data];
 				}
 				break;
@@ -217,7 +216,7 @@ id<TitaniumAppAssetResolver> resolver = nil;
 				caching = NSURLCacheStorageNotAllowed;
 				break;
 			default:
-				NSLog(@"Url %@ was not understood? It had a resourceType of %x",url,ourType);
+				NSLog(@"[ERROR] Url %@ was not understood? It had a resourceType of %x",url,ourType);
 				break;
 		}
 	}

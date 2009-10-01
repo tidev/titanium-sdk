@@ -151,7 +151,7 @@
     
     /* An error occurred. Log it and throw an exceptions. */
     NSString *error = [NSString stringWithFormat: @"Error occurred calling next on a PLSqliteResultSet. SQLite error #%d", ret];
-    NSLog(@"%@", error);
+    NSLog(@"[ERROR] %@", error);
 
     [NSException raise: PLSqliteException format: @"%@", error];
 

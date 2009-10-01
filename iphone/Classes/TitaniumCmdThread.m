@@ -27,7 +27,7 @@
 		//	if([statusLock)
 		[statusLock unlock]; //TODO: what if there's a hung background thread? THis might be a crasher.
 	} else {
-		NSLog(@"WARNING: Thread was still in use while dealloced?");
+		NSLog(@"[WARN] Thread was still in use while dealloced?");
 		[moduleThread release];
 	}
 	[statusLock release];
@@ -162,7 +162,7 @@
 	}
 	
 	if (error != nil){
-		NSLog(@"Error in calling \"%@\" function: \"%@\" args: \"%@\" result: \"%@\" error: \"%@\"",
+		NSLog(@"[ERROR] Error in calling \"%@\" function: \"%@\" args: \"%@\" result: \"%@\" error: \"%@\"",
 			  objectName,functionName,argList,objectResult,error);
 		[self setModuleResult:[NSString stringWithFormat:@"throw \"%@\";",[error description]]];
 	}
@@ -181,7 +181,7 @@
 		}
 		
 		if (error != nil){
-			NSLog(@"Error in converting result of \"%@\" function: \"%@\" args: \"%@\" result: \"%@\" error: \"%@\"",
+			NSLog(@"[ERROR] Error in converting result of \"%@\" function: \"%@\" args: \"%@\" result: \"%@\" error: \"%@\"",
 				  objectName,functionName,argList,objectResult,error);
 		}
 		
