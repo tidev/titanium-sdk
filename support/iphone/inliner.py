@@ -15,6 +15,12 @@ def get_platform(arch):
     
 def compile(include_dir,sdk_version,arch,src_file,obj_file):
     platform = get_platform(arch)
+    short_sdk_version = sdk_version.replace('.','')
+    min_sdk = short_sdk_version
+    if len(short_sdk_version) == 3:
+        min_sdk += '00'
+    else:
+        min_sdk += '000'
     out = run.run([
         "/Developer/Platforms/iPhone%s.platform/Developer/usr/bin/gcc" % platform,
         "-x",
@@ -22,6 +28,7 @@ def compile(include_dir,sdk_version,arch,src_file,obj_file):
         "-arch",
         arch,
         "-fmessage-length=0",
+		  "-D__IPHONE_OS_VERSION_MIN_REQUIRED=%s" % min_sdk,
         "-pipe",
         "-std=c99",
         "-Wno-trigraphs",
@@ -44,7 +51,6 @@ def compile(include_dir,sdk_version,arch,src_file,obj_file):
         "-o",
         obj_file
     ])
-    print out
 
 def link(sdk_version,arch,obj_files,out_file):
     
