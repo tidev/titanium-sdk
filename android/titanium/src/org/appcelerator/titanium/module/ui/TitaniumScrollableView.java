@@ -337,9 +337,9 @@ public class TitaniumScrollableView extends TitaniumBaseView
 
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
-		boolean handled = super.dispatchKeyEvent(event);
+		boolean handled = false;
 
-		if (!handled && event.getAction() == KeyEvent.ACTION_DOWN) {
+		if (event.getAction() == KeyEvent.ACTION_DOWN) {
 			switch (event.getKeyCode()) {
 				case KeyEvent.KEYCODE_DPAD_LEFT : {
 					movePrevious();
@@ -352,6 +352,10 @@ public class TitaniumScrollableView extends TitaniumBaseView
 					break;
 				}
 			}
+		}
+
+		if (!handled) {
+			handled = super.dispatchKeyEvent(event);
 		}
 
 		return handled;
