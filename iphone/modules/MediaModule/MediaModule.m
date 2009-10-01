@@ -64,7 +64,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 		[nativePlayer setNumberOfLoops:(isLooping?-1:0)];
 		[nativePlayer setCurrentTime:resumeTime];
 		if (resultError != nil){
-			NSLog(@"ERROR MAKING SOUND: %@ (%@)",soundUrl,resultError);
+			NSLog(@"[ERROR] ERROR MAKING SOUND: %@ (%@)",soundUrl,resultError);
 		}
 	}
 	return nativePlayer;
@@ -115,12 +115,12 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 
 - (void)audioPlayerBeginInterruption:(AVAudioPlayer *)player;
 {
-	NSLog(@"SOUND INTERRUPTION STARTED!");
+	NSLog(@"[DEBUG] SOUND INTERRUPTION STARTED!");
 }
 
 - (void)audioPlayerEndInterruption:(AVAudioPlayer *)player;
 {
-	NSLog(@"SOUND INTERRUPTION FINISHED!");
+	NSLog(@"[DEBUG] SOUND INTERRUPTION FINISHED!");
 }
 
 
@@ -402,7 +402,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	if ([theNotification object] != currentMovie) return;
 	NSString * notificationType = [theNotification name];
 	
-	NSLog(@"HandlePlayer: %@ = %@",theNotification,[theNotification userInfo]);
+	NSLog(@"[DEBUG] HandlePlayer: %@ = %@",theNotification,[theNotification userInfo]);
 	
 	if ([notificationType isEqualToString:MPMoviePlayerPlaybackDidFinishNotification]){
 		MovieWrapper * cmw = [mediaDictionary objectForKey:currentMovieToken];

@@ -17,6 +17,17 @@
 
 #import "Logging.h"
 
+TitaniumCellWrapper * TitaniumCellWithData(NSDictionary * rowData, NSURL * baseUrl)
+{
+	TitaniumFontDescription defaultFont;
+	defaultFont.isBold = YES;
+	defaultFont.size = 20;
+	
+	TitaniumCellWrapper * result = [[TitaniumCellWrapper alloc] init];
+	[result setFontDesc:defaultFont];
+	[result useProperties:rowData withUrl:baseUrl];
+	return result;
+}
 
 @implementation TitaniumTableActionWrapper
 @synthesize kind,row,section,index,animation;
@@ -137,10 +148,9 @@ UIColor * checkmarkColor = nil;
 		for(NSDictionary * thisEntry in thisDataArray){
 			if (![thisEntry isKindOfClass:dictClass]) continue;
 			
-			TitaniumCellWrapper * thisRow = [[TitaniumCellWrapper alloc] init];
+			TitaniumCellWrapper * thisRow = TitaniumCellWithData(thisEntry,baseURL);
 			if (isButtonGroup) [thisRow setIsButton:YES];
 			
-			[thisRow useProperties:thisEntry withUrl:baseURL];
 			[result addRow:thisRow];
 			[thisRow release];
 		}
@@ -313,11 +323,11 @@ UIColor * checkmarkColor = nil;
 	sectionArray = [[NSMutableArray alloc] init];
 
 	TableSectionWrapper * thisSectionWrapper = nil;
+
 	for(NSDictionary * thisEntry in dataArray){
 		if (![thisEntry isKindOfClass:dictClass]) continue;
 		
-		TitaniumCellWrapper * thisRow = [[[TitaniumCellWrapper alloc] init] autorelease];		
-		[thisRow useProperties:thisEntry withUrl:baseUrl];
+		TitaniumCellWrapper * thisRow = [TitaniumCellWithData(thisEntry,baseUrl) autorelease];
 		
 		id headerString = [thisEntry objectForKey:@"header"];
 		if ([headerString respondsToSelector:stringSel]) headerString = [headerString stringValue];
@@ -360,7 +370,7 @@ UIColor * checkmarkColor = nil;
 
 	Class dictClass = [NSDictionary class];
 	if (![inputState isKindOfClass:dictClass]){
-		NSLog(@"SHOULDN'T HAPPEN: %@ is trying to read the state of a non-dictionary %@!",self,inputState);
+		NSLog(@"[WARN] SHOULDN'T HAPPEN: %@ is trying to read the state of a non-dictionary %@!",self,inputState);
 		return;
 	}
 
@@ -750,7 +760,7 @@ UIColor * checkmarkColor = nil;
 - (void)deleteRowAtIndex: (int)index animation: (UITableViewRowAnimation) animation;
 {	
 	if(index < 0){
-		VERBOSE_LOG(@"-[%@ deleteRowAtIndex:%d animation:%d]: Index is less than 0.",self,index,animation);
+		VERBOSE_LOG(@"[DEBUG] -[%@ deleteRowAtIndex:%d animation:%d]: Index is less than 0.",self,index,animation);
 		return;
 	}
 	
@@ -765,7 +775,7 @@ UIColor * checkmarkColor = nil;
 			NSIndexPath * thisPath = [NSIndexPath indexPathForRow:index inSection:thisSectionIndex];
 			if(rowCount > 1){ //We're done here.
 #ifdef USE_VERBOSE_DEBUG	
-					NSLog(@"-[%@ deleteRowAtIndex:%d animation:%d]: Going for Section %d, row %d. (%@)",self,oldIndex,animation,thisSectionIndex,index,thisPath);
+					NSLog(@"[DEBUG] -[%@ deleteRowAtIndex:%d animation:%d]: Going for Section %d, row %d. (%@)",self,oldIndex,animation,thisSectionIndex,index,thisPath);
 #endif
 				[tableView beginUpdates];
 				[thisSection removeRowAtIndex:index];
@@ -787,7 +797,7 @@ UIColor * checkmarkColor = nil;
 	//At this point, We failed to delete a nonexistant index. Drop on the ground?
 	
 #ifdef USE_VERBOSE_DEBUG	
-		NSLog(@"-[%@ deleteRowAtIndex:%d animation:%d]: Index is %d rows past the end. %d sections exist.",self,oldIndex,animation,index,thisSectionIndex);
+		NSLog(@"[DEBUG] -[%@ deleteRowAtIndex:%d animation:%d]: Index is %d rows past the end. %d sections exist.",self,oldIndex,animation,index,thisSectionIndex);
 #endif
 	
 }
@@ -813,7 +823,7 @@ UIColor * checkmarkColor = nil;
 				default:
 					actionString = [NSString stringWithFormat:@"[SHOULDN'T HAPPEN: UNKNOWN ACTION %d]",action];
 			}
-			NSLog(@"%@ was told to %@ row %d from %@",self,actionString,index,baseUrl);
+			NSLog(@"[DEBUG] %@ was told to %@ row %d from %@",self,actionString,index,baseUrl);
 #endif
 		return;
 	}
@@ -832,9 +842,6 @@ UIColor * checkmarkColor = nil;
 	
 	for(TableSectionWrapper * thisSection in sectionArray){
 		int rowCount = [thisSection rowCount];
-		if (action == TitaniumTableActionAppendRow){
-			index = rowCount;
-		}
 		if(thisSectionIndex==lastSectionIndex){
 			if(action==TitaniumTableActionAppendRow)action=TitaniumTableActionInsertBeforeRow;
 			isLastSection = (action==TitaniumTableActionInsertBeforeRow);
@@ -915,8 +922,8 @@ UIColor * checkmarkColor = nil;
 				return;
 			}
 			//Okay, now it's an insert before or after.
-			TitaniumCellWrapper * insertedRow = [[[TitaniumCellWrapper alloc] init] autorelease];
-			[insertedRow useProperties:rowData withUrl:baseUrl];
+			
+			TitaniumCellWrapper * insertedRow = [TitaniumCellWithData(rowData,baseUrl) autorelease];
 			if(isInsertAfter){
 				index++;
 			}
@@ -981,9 +988,37 @@ UIColor * checkmarkColor = nil;
 			default:
 				actionString = [NSString stringWithFormat:@"[SHOULDN'T HAPPEN: UNKNOWN ACTION %d]",action];
 		}
-		NSLog(@"%@ was told to %@ the row %d beyond the end (from %@)",self,actionString,index,baseUrl);
+		NSLog(@"[DEBUG] %@ was told to %@ the row %d beyond the end (from %@)",self,actionString,index,baseUrl);
 #endif
 	
+}
+
+- (void)appendRow: (NSDictionary *)rowData relativeUrl: (NSURL *) baseUrl animation: (UITableViewRowAnimation) animation;
+{
+	TitaniumCellWrapper * ourRow = TitaniumCellWithData(rowData, baseUrl);
+	TableSectionWrapper * lastSection = [sectionArray lastObject];
+	SEL stringSel = @selector(stringValue);
+	
+	id headerString = [rowData objectForKey:@"header"];
+	if ([headerString respondsToSelector:stringSel]) headerString = [headerString stringValue];
+	
+	id footerString = [rowData objectForKey:@"footer"];
+	if ([footerString respondsToSelector:stringSel]) footerString = [footerString stringValue];
+	
+	if((lastSection != nil) && (headerString==nil) && (footerString == nil)){
+		[lastSection addRow:ourRow];
+		[tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:
+				[NSIndexPath indexPathForRow:[lastSection rowCount]-1 inSection:[sectionArray count]-1]] withRowAnimation:animation];
+	} else {
+		lastSection = [[TableSectionWrapper alloc] initWithHeader:headerString footer:footerString];
+		[lastSection addRow:ourRow];
+		[sectionArray addObject:lastSection];
+		
+		[tableView insertSections:[NSIndexSet indexSetWithIndex:[sectionArray count]-1] withRowAnimation:animation];
+		[lastSection release];
+	}
+
+	[ourRow release];
 }
 
 - (void)reloadData:(NSArray *)newData relativeUrl:(NSURL *)baseUrl animation:(UITableViewRowAnimation) animation;
@@ -1054,6 +1089,9 @@ UIColor * checkmarkColor = nil;
 			case TitaniumTableActionUpdateRow:
 				[self modifyRow:[thisAction rowData] atIndex:[thisAction index] action:kind relativeUrl:[thisAction baseUrl] animation:animation];
 				break;
+			case TitaniumTableActionAppendRow:
+				[self appendRow:[thisAction rowData] relativeUrl:[thisAction baseUrl] animation:animation];
+				break;
 			case TitaniumTableActionDeleteRow:
 				[self deleteRowAtIndex:[thisAction index] animation:animation];
 				break;
@@ -1062,8 +1100,7 @@ UIColor * checkmarkColor = nil;
 				break;
 			case TitaniumGroupActionInsertBeforeRow:
 				if(row > [thisSectionWrapper rowCount]) break;
-				thisRow = [[TitaniumCellWrapper alloc] init];
-				[thisRow useProperties:[thisAction rowData] withUrl:[thisAction baseUrl]];
+				thisRow = TitaniumCellWithData([thisAction rowData],[thisAction baseUrl]);
 				[thisSectionWrapper insertRow:thisRow atIndex:row];
 				[tableView insertRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
 				[thisRow release];

@@ -20,6 +20,7 @@
 	self = [super init];
 	if (self != nil) {
 		visiblePages = [[NSMutableIndexSet alloc] init];
+		pageControlHeight = 20;
 	}
 	return self;
 }
@@ -49,7 +50,13 @@
 	if([currentPageObject respondsToSelector:@selector(intValue)])currentPage = [currentPageObject intValue];
 	
 	NSNumber * showPageControlObject = [(NSDictionary *)inputState objectForKey:@"showPagingControl"];
-	if([showPageControlObject respondsToSelector:@selector(boolValue)])showPagingControl = [showPageControlObject boolValue];
+	if([showPageControlObject respondsToSelector:@selector(boolValue)])
+	{
+		showPagingControl = [showPageControlObject boolValue];
+		
+		NSNumber * pagingControlHeight = [(NSDictionary *)inputState objectForKey:@"pagingControlHeight"];
+		if([pagingControlHeight respondsToSelector:@selector(intValue)])pageControlHeight = [pagingControlHeight intValue];
+	}
 	
 	NSArray * viewsArray = [(NSDictionary *)inputState objectForKey:@"views"];
 	if([viewsArray isKindOfClass:[NSArray class]]){
@@ -116,6 +123,7 @@
 		[pagedView setShowsHorizontalScrollIndicator:NO];
 		[pagedView setDelegate:self];
 		[pagedView setDelaysContentTouches:NO];
+		
 	}
 
 	if(wrapperView==nil){
@@ -124,7 +132,7 @@
 		[wrapperView addSubview:pagedView];
 		
 		if(pageControl){
-			[[self pageControl] setFrame:CGRectMake(0, 460, 320, 20)];
+			[[self pageControl] setFrame:CGRectMake(0, 460, 320, pageControlHeight)];
 			[wrapperView addSubview:pageControl];
 		}
 	}
@@ -133,7 +141,7 @@
 
 #pragma mark Repeaters to subviews
 
-#ifndef __IPHONE_3_0
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < 30000
 typedef int UIEventSubtype;
 const UIEventSubtype UIEventSubtypeMotionShake=1;
 #endif
@@ -253,11 +261,11 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	}
 
 	if(showPagingControl){
-		CGRect pageControlFrame = CGRectMake(0, pageFrame.size.height-20, pageFrameWidth, 20);
+		CGRect pageControlFrame = CGRectMake(0, pageFrame.size.height-pageControlHeight, pageFrameWidth, pageControlHeight);
 		TitaniumViewController * TitaniumWindow = [[TitaniumHost sharedHost] titaniumViewControllerForToken:[self titaniumWindowToken]];
 		if([TitaniumWindow toolbarOverlaid]){
 			CGPoint toolbarOrigin = [wrapperView convertPoint:[TitaniumWindow toolbarOrigin] fromView:nil];
-			pageControlFrame.origin.y = toolbarOrigin.y - 20;
+			pageControlFrame.origin.y = toolbarOrigin.y - pageControlHeight;
 		}
 		if(pageControl == nil){
 				[[self pageControl] setNumberOfPages:[contentViewControllers count]];

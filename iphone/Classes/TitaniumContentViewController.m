@@ -93,7 +93,7 @@ int nextContentViewToken = 0;
 
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
-	NSLog(@"Shouldn't happen: readstate on the abstract contentViewController");
+	NSLog(@"[WARN] Shouldn't happen: readstate on the abstract contentViewController");
 }
 
 - (NSDictionary *) stateValue;

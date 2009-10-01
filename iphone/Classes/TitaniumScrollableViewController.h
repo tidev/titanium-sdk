@@ -14,6 +14,7 @@
 	UIPageControl * pageControl;
 	
 	BOOL showPagingControl;
+	int pageControlHeight;
 	int currentPage;
 	int lastAnnouncedPage;
 	NSMutableIndexSet * visiblePages;

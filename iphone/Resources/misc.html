@@ -116,6 +116,7 @@
 				barry.update({animated:true,animationDuration:1000});});
 		btn2.addEventListener('click',function(foo){spinny.show({animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT});barry.value+=1;
 				barry.message = 'Completed ' + barry.value + ' of ' + barry.max;
+				pagy.scrollToView(imageView);
 				imageView.setURL('WeCanDoIt.png');
 				barry.update({animated:true,animationDuration:1000});});
 		Ti.UI.currentWindow.setToolbar([btn1,btn2,spinny,barry]);

@@ -95,7 +95,7 @@
 
 	NSFileManager * theFM = [[NSFileManager alloc] init];
 	BOOL success = [theFM removeItemAtPath:dbPath error:nil];
-	if (!success) NSLog(@"Failed to wipe %@",dbPath);
+	if (!success) NSLog(@"[WARN] Failed to wipe %@",dbPath);
 	[theFM release];
 	
 	[ourDB open];

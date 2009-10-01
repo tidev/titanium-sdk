@@ -227,7 +227,7 @@ NSString * UrlEncodeString(NSString * string)
 
 - (id) init
 {
-	NSLog(@"Initing emailcomposerproxy");
+	NSLog(@"[DEBUG] Initing emailcomposerproxy");
 	self = [super init];
 	if (self != nil) {
 		animated = YES;
@@ -237,7 +237,7 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void) dealloc
 {
-	NSLog(@"Deallocing emailcomposer");
+	NSLog(@"[DEBUG] Deallocing emailcomposer");
 	[emailComposer release];
 	[urlVersion release];
 	[super dealloc];
@@ -282,7 +282,7 @@ NSString * UrlEncodeString(NSString * string)
 	
 	if ((mailClass != nil) && [mailClass canSendMail]){
 		if(emailComposer==nil){
-			NSLog(@"Creating emailcomposer");
+			NSLog(@"[DEBUG] Creating emailcomposer");
 			emailComposer = [[mailClass alloc] init];
 			[emailComposer setMailComposeDelegate:self];
 		}
@@ -327,12 +327,12 @@ NSString * UrlEncodeString(NSString * string)
 	urlVersion = [[NSURL alloc] initWithString:resultString];
 	
 	if(urlVersion==nil){
-		NSLog(@"UiModule: Trying to generate an email url failed. Url \"%@\" came from dict %@",resultString,propertyDict);
+		NSLog(@"[WARN] UiModule: Trying to generate an email url failed. Url \"%@\" came from dict %@",resultString,propertyDict);
 	}
 	
 	[resultString release];
 	
-	NSLog(@"Since we don't have access to MFMailComposeViewController, we're launching %@ instead.",urlVersion);
+	NSLog(@"[INFO] Since we don't have access to MFMailComposeViewController, we're launching %@ instead.",urlVersion);
 	[[UIApplication sharedApplication] openURL:urlVersion];
 }
 
@@ -340,7 +340,7 @@ NSString * UrlEncodeString(NSString * string)
 {
 
 	if(error){
-		NSLog(@"Unexpected composing error: %@",error);
+		NSLog(@"[ERROR] Unexpected composing error: %@",error);
 	}
 
 	switch (result) {
@@ -1214,7 +1214,8 @@ NSString * UrlEncodeString(NSString * string)
 			"insertButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(Ti._TOKEN,btn,args);},"
 			"}"];
 			
-	[currentWindowScript setEpilogueCode:@"window.addEventListener('DOMNodeInserted',Ti.UI.currentWindow.repaint,false);"];
+	[currentWindowScript setEpilogueCode:@"window.addEventListener('DOMNodeInserted',Ti.UI.currentWindow.repaint,false);"
+			"document.body.addEventListener('load',function(){if(e.srcElement.tagName=='IMG')Titanium.UI.currentWindow.repaint();},false);"];
 
 	NSString * viewsForWindowString = @"function(winTkn){var fetched=Ti.UI._WGVIEWS(winTkn);if(!fetched)return {};var res=[];var i=0;var viewCount=fetched.length;while(i<viewCount){"
 			"var props=fetched[i];var viewTkn=props._TOKEN;var view;"
@@ -1287,9 +1288,9 @@ NSString * UrlEncodeString(NSString * string)
 
 	NSString * createScrollingViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='scroll';if(!res.views)res.views=[];"
 			"res.addView=function(view){if(!view)return;this.views.push(view);if(this._TOKEN){view.ensureToken();Ti.UI._SCRVWACT(this._TOKEN," STRINGVAL(SCROLLVIEW_ADDVIEW) ",view);}};"
-			"res.scrollToView=function(view){if(typeof(view)=='number'){this.setSelectedViewIndex(view);return;}if(!view)return;"
-			"var views=this.views;var len=views.length;for(var i=0;i<len;i++){if(views[i]==view){this.setSelectedViewIndex(i);return;}}};"
-			"res.setCurrentPage=function(indx){this.selectedViewIndex=indx;if(this._TOKEN)Ti.UI._SCRVWACT(this._TOKEN," STRINGVAL(SCROLLVIEW_SETCURRENTPAGE) ",indx);};"
+			"res.scrollToView=function(view){if(typeof(view)=='number'){this.setCurrentPage(view);return;}if(!view)return;"
+			"var views=this.views;var len=views.length;for(var i=0;i<len;i++){if(views[i]==view){this.setCurrentPage(i);return;}}};"
+			"res.setCurrentPage=function(indx){this.currentPage=indx;if(this._TOKEN)Ti.UI._SCRVWACT(this._TOKEN," STRINGVAL(SCROLLVIEW_SETCURRENTPAGE) ",indx);};"
 			"res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;res._EVT={scroll:[]};res.doEvent=Ti._ONEVT;"
 			"res.ensureToken=function(){var views=this.views;var len=views.length;for(var i=0;i<len;i++){"
 				"views[i].ensureToken();}if(this._TOKEN)return;var tkn=Ti.UI._VTOKEN();this._TOKEN=tkn;Ti.UI._VIEW[tkn]=this;};"

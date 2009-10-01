@@ -1,0 +1,50 @@
+<html>
+<head>
+	<script>
+	window.onload = function()
+	{
+		document.getElementById('top').onclick = function()
+		{
+			window.scrollTo(0);
+		};
+		var startCount = 0;
+		var endCount = 0;
+		var moveCount = 0;
+		document.body.ontouchstart = function()
+		{
+			startCount++;
+			document.getElementById('start').innerHTML = 'Touch Start Count: ' + startCount;
+		};
+		document.body.ontouchend = function()
+		{
+			endCount++;
+			document.getElementById('end').innerHTML = 'Touch End Count: ' + endCount;
+		};
+		document.body.ontouchmove = function()
+		{
+			moveCount++;
+			document.getElementById('move').innerHTML = 'Touch Move Count: ' + moveCount;
+
+		};
+
+	};
+	</script>
+	<style>
+	button
+	{
+		position:fixed;
+		bottom:20px;
+	}
+	</style>
+</head>
+
+<body style="margin:20px;background-color:#336699">
+	<div  style="-webkit-border-radius:10px;background-color:white;height:400px;padding:10px;text-align:center">
+		<div id="start">Touch Start Count: 0</div>
+		<div id="end">Touch End Count: 0</div>
+		<div id="move">Touch Move Count: 0</div>
+	</div>
+	<button id="top">Scroll to top</button>
+	
+</body>
+</html>

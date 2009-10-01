@@ -479,7 +479,6 @@
 		B40CDEE7105F21F6004CFED3 /* TitaniumScrollableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumScrollableViewController.m; sourceTree = "<group>"; };
 		B40CDF15105F248F004CFED3 /* TitaniumCompositeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumCompositeViewController.h; sourceTree = "<group>"; };
 		B40CDF16105F248F004CFED3 /* TitaniumCompositeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumCompositeViewController.m; sourceTree = "<group>"; };
-		B40F54520F746D11008E0A55 /* TitaniumView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TitaniumView.xib; sourceTree = "<group>"; };
 		B41068A20FBB730F00310448 /* libTitanium.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libTitanium.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4110C9B0FD4653A00BE17F8 /* AccelerometerModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccelerometerModule.h; sourceTree = "<group>"; };
 		B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AccelerometerModule.m; sourceTree = "<group>"; };
@@ -502,7 +501,7 @@
 		B45CA77E0F81565D00B80900 /* TitaniumHost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumHost.m; sourceTree = "<group>"; };
 		B4676CB40FB0E492009B81F4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		B47A271E1035F040002146CD /* TestSpaz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestSpaz.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B47A271E1035F040002146CD /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B47A27261035F11F002146CD /* accounts.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = accounts.html; path = ../../spaz/Resources/accounts.html; sourceTree = SOURCE_ROOT; };
 		B47A27271035F11F002146CD /* accounts.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = accounts.js; path = ../../spaz/Resources/accounts.js; sourceTree = SOURCE_ROOT; };
 		B47A272B1035F11F002146CD /* DM.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = DM.html; path = ../../spaz/Resources/DM.html; sourceTree = SOURCE_ROOT; };
@@ -811,7 +810,7 @@
 			children = (
 				1D6058910D05DD3D006BFB54 /* Titanium.app */,
 				B41068A20FBB730F00310448 /* libTitanium.a */,
-				B47A271E1035F040002146CD /* TestSpaz.app */,
+				B47A271E1035F040002146CD /* Titanium.app */,
 				24C5ABF11061FA9D0063594B /* libNotification.a */,
 				24C5ABF91061FABE0063594B /* libAnalytics.a */,
 				24C5AC001061FAC80063594B /* libGesture.a */,
@@ -1048,7 +1047,6 @@
 				B4F51CB00F981F23004D9D2D /* Default.png */,
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
 				B4B9E4711003D52F004B8831 /* jquery.js */,
-				B40F54520F746D11008E0A55 /* TitaniumView.xib */,
 				B4A10F3D0F86BC490040D850 /* AppDownloadView.xib */,
 				B4FFBE3D0FD4A778001D5E81 /* unitTest.html */,
 				2444F98A0FCA417C00063972 /* tiapp.plist */,
@@ -1685,7 +1683,7 @@
 			);
 			name = "Titanium-Spaz";
 			productName = Titanium;
-			productReference = B47A271E1035F040002146CD /* TestSpaz.app */;
+			productReference = B47A271E1035F040002146CD /* Titanium.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -2591,7 +2589,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /CodeValhalla/Appcelerate/mobile/iphone/Classes;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Classes";
 				INFOPLIST_FILE = Info.plist;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DPL_DB_PRIVATE=1";
@@ -2628,7 +2626,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /CodeValhalla/Appcelerate/mobile/iphone/Classes;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Classes";
 				INFOPLIST_FILE = Info.plist;
 				OTHER_CFLAGS = "-DPL_DB_PRIVATE=1";
 				OTHER_CODE_SIGN_FLAGS = "";

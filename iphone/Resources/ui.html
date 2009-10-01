@@ -151,11 +151,13 @@ try{
 			win.open({animated:true});		
 		}
 		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.LEFT});
+		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.LEFT});
+		tableView.deleteRow(index,{animationStyle:Ti.UI.iPhone.RowAnimationStyle.LEFT});
 	});
 	
 	var insertButton = Ti.UI.createButton({systemButton:Ti.UI.iPhone.SystemButton.ADD});
 	insertButton.addEventListener('click',function(e){
-		tableView.updateRow(0,{title:'row 1', header:'Header 1', hasChild:true, },
+		tableView.appendRow({title:'row 1', hasChild:true, },
 //		tableView.insertRowBefore(1,{title:'row 1', header:'Header 1', hasChild:true, },
 //		tableView.setData([{title:'row 1', header:'Header 1', hasChild:true, }],
 		{animationStyle:Ti.UI.iPhone.RowAnimationStyle.LEFT}

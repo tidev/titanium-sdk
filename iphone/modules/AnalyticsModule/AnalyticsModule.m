@@ -150,7 +150,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	[encoder release];
 
 #ifdef EXTREME_DEBUG 
-	NSLog(@"Generating Analytics event data: %@",json);
+	NSLog(@"[DEBUG] Generating Analytics event data: %@",json);
 #endif
 	
 	return [json dataUsingEncoding:NSUTF8StringEncoding];
