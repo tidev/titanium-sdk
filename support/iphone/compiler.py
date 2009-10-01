@@ -153,8 +153,6 @@ catch(__ex__)
 			out = subprocess.Popen([self.encryptor,file,key], stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
 			data = str(out).strip()
 			method = """
-	#pragma mark %s
-	// %s
 	%s
 	{
 	   NSString *k1 = @"%s";
@@ -169,15 +167,13 @@ catch(__ex__)
 			sys.stdout.flush()
 			data = str(file_contents).encode("hex")
 			method = """
-	#pragma mark %s
-	// %s
 	%s
 	{
 		NSData *d = dataWithHexString(@"%s");
 	   	if ([d length] == 0) return nil;
 		return d;
 	}
-			""" % (url,file,method_define,data)
+			""" % (method_define,data)
 			
 		return {'name':methodname,'method':method,'define':method_define,'url':url,'path':path}
 

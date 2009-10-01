@@ -85,7 +85,7 @@ int nextWindowToken = 0;
 + (TitaniumViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
 	TitaniumViewController * result=[[self alloc] init];
-		//[[self alloc] initWithNibName:@"TitaniumView" bundle:nil];
+
 	NSString * token = [[NSString alloc] initWithFormat:@"WIN%d",nextWindowToken++];
 	[result setPrimaryToken:token];
 	[[TitaniumHost sharedHost] registerViewController:result forKey:token];
@@ -439,7 +439,7 @@ int nextWindowToken = 0;
 	if ([super respondsToSelector:@selector(_clearBecomeFirstResponderWhenCapable)]){
 		[(id)super _clearBecomeFirstResponderWhenCapable];
 	} else {
-		NSLog(@"This is because 2.2.1 fails if we give a viewController -[becomeFirstResponder]");
+		NSLog(@"[DEBUG] This is because 2.2.1 fails if we give a viewController -[becomeFirstResponder]");
 	}
 }
 

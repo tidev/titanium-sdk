@@ -153,7 +153,7 @@
 
 - (void) handleTouch: (UITouch *) ourTouch;
 {
-	NSLog(@"We're touched. Now what? %@",ourTouch);
+	NSLog(@"[DEBUG] We're touched. Now what? %@",ourTouch);
 }
 
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView;     // return a view that will be scaled. if delegate returns nil, nothing happens

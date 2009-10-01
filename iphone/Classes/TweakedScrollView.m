@@ -32,11 +32,11 @@
 	}
 
 	if([view isKindOfClass:[UIWebView class]]){
-		NSLog(@"In web view!");
+		NSLog(@"[DEBUG] In web view!");
 	}
 	
 	BOOL result=[super touchesShouldBegin:touches withEvent:event inContentView:view];
-	NSLog(@"TouchesShouldBegin:%d withEvent:%@ inContentView:%@ == %d",[touches count],
+	NSLog(@"[DEBUG] TouchesShouldBegin:%d withEvent:%@ inContentView:%@ == %d",[touches count],
 		  ([event type]==UIEventTypeTouches)?@"touches":@"motion",NSStringFromClass([view class]),result);
 	
 //	if([view isKindOfClass:[UIScrollView class]]){
@@ -62,7 +62,7 @@
 			result = [superduperviewdelegate touchesShouldCancelInContentView:superduperview];
 		}
 	}
-	NSLog(@"TouchesShouldCancelInContentView:%@(%@) == %d",NSStringFromClass([view class]),NSStringFromClass([[[view superview] superview] class]),result);
+	NSLog(@"[DEBUG] TouchesShouldCancelInContentView:%@(%@) == %d",NSStringFromClass([view class]),NSStringFromClass([[[view superview] superview] class]),result);
 	return result;
 }
 
