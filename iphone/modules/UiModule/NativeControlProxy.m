@@ -189,7 +189,10 @@ needsRefreshing = YES;	\
 #define GRAB_IF_STRING(keyString,resultOutput)	GRAB_IF_CLASS(keyString,stringClass,resultOutput)
 
 - (void) setPropertyDict: (NSDictionary *) newDict;
-{	
+{
+	BOOL handleChange = NO;
+	NSString * changeEvent = nil;
+
 	Class stringClass = [NSString class];
 	Class dateClass = [NSDate class];
 	//General purpose
@@ -207,20 +210,39 @@ needsRefreshing = YES;	\
 	id valueObject = [newDict objectForKey:@"value"];
 	
 	if ([valueObject isKindOfClass:dateClass]){
+		handleChange = ![valueObject isEqualToDate:dateValue];
 		[self setDateValue:valueObject];
 		needsRefreshing = YES;
 	}
 	
 	if ([valueObject respondsToSelector:@selector(floatValue)]){
-		floatValue = [valueObject floatValue];
+		float newValue = [valueObject floatValue];
+		handleChange = newValue != floatValue;
+		floatValue = newValue;
 		needsRefreshing = YES;
 	}
 	if ([valueObject respondsToSelector:@selector(stringValue)]){
-		[self setStringValue:[valueObject stringValue]];
+		NSString * newString = [valueObject stringValue];
+		handleChange = ![newString isEqualToString:stringValue];
+		[self setStringValue:newString];
 		needsRefreshing = YES;
 	} else if ([valueObject isKindOfClass:[NSString class]]) {
+		handleChange = ![valueObject isEqualToString:stringValue];
 		[self setStringValue:valueObject];
 		needsRefreshing = YES;
+	}
+	
+	if(handleChange){
+		switch (templateValue) {
+			case UITitaniumNativeItemNone:
+				break;
+			case UITitaniumNativeItemDatePicker:
+				changeEvent = [NSString stringWithFormat:@",value:new Date(%f)",[dateValue timeIntervalSince1970]*1000.0];
+				break;
+			default:
+				changeEvent = [NSString stringWithFormat:@",value:%@",[SBJSON stringify:valueObject]];
+				break;
+		}
 	}
 	
 	//Segmented
@@ -257,17 +279,7 @@ needsRefreshing = YES;	\
 	GRAB_IF_SELECTOR(@"height",floatValue,frame.size.height);
 	GRAB_IF_SELECTOR(@"x",floatValue,frame.origin.x);
 	GRAB_IF_SELECTOR(@"y",floatValue,frame.origin.y);
-	
-	//System button	
-	id newTemplate = [newDict objectForKey:@"systemButton"];
-	if ([newTemplate isKindOfClass:[NSString class]]) {
-		[self setTemplateValue:barButtonSystemItemForString(newTemplate)];
-		needsRefreshing = YES;
-	} else if ([newTemplate isKindOfClass:[NSNumber class]]) {
-		[self setTemplateValue:[newTemplate intValue]];
-		needsRefreshing = YES;
-	}
-	
+		
 	//Tab bar stuff
 	GRAB_IF_SELECTOR(@"style",intValue,buttonStyle);
 	
@@ -365,7 +377,21 @@ needsRefreshing = YES;	\
 		needsRefreshing = YES;
 	}
 	
+	//System button	
+	id newTemplate = [newDict objectForKey:@"systemButton"];
+	if ([newTemplate isKindOfClass:[NSString class]]) {
+		[self setTemplateValue:barButtonSystemItemForString(newTemplate)];
+		needsRefreshing = YES;
+	} else if ([newTemplate isKindOfClass:[NSNumber class]]) {
+		[self setTemplateValue:[newTemplate intValue]];
+		needsRefreshing = YES;
+	}	
 	//Because the proxies are best from the UIModule itself, we don't check here.
+	
+	if(changeEvent != nil){
+		[self reportEvent:@"change" value:nil index:-1 init:nil arguments:changeEvent];
+	}
+	
 }
 
 #pragma mark Generating views
