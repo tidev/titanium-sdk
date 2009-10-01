@@ -85,7 +85,7 @@ int nextWindowToken = 0;
 + (TitaniumViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
 	TitaniumViewController * result=[[self alloc] init];
-		//[[self alloc] initWithNibName:@"TitaniumView" bundle:nil];
+
 	NSString * token = [[NSString alloc] initWithFormat:@"WIN%d",nextWindowToken++];
 	[result setPrimaryToken:token];
 	[[TitaniumHost sharedHost] registerViewController:result forKey:token];
