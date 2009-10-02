@@ -303,18 +303,25 @@
 		if(error != nil)return error;
 	}
 	
-	int timestamp = (int)(time(NULL) * 1000.0);
+	int timestamp = (int)(time(NULL) & 0xFFFFL);
 	NSString * resultPath;
 	do {
 		resultPath = [tempDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%X",timestamp]];
 		timestamp ++;
 	} while ([ourFileManager fileExistsAtPath:resultPath]);
 
-	
-
+	if([isDirectoryObject boolValue]){
+		[ourFileManager createDirectoryAtPath:resultPath withIntermediateDirectories:NO attributes:nil error:&error];
+	} else {
+		[[NSData data] writeToFile:resultPath options:0 error:&error];
+	}
 
 	[ourFileManager release];
 
+	if(error != nil)return error;
+	
+	NSString * command = [NSString stringWithFormat:@"Ti.Filesystem.getFile('%@')",resultPath];
+	return [TitaniumJSCode codeWithString:command];
 }
 
 
@@ -330,6 +337,8 @@
 	[(FilesystemModule *)invocGen filePath:nil performFunction:nil arguments:nil];
 	NSInvocation * fileActionInvoc = [invocGen invocation];
 	
+	[(FilesystemModule *)invocGen makeNewTempPath:nil];
+	NSInvocation * fileTempInvoc = [invocGen invocation];
 	
 	TitaniumJSCode * fileWrapperObjectCode = [TitaniumJSCode codeWithString:@"function(newPath){this.path=newPath;}"];
 	[fileWrapperObjectCode setEpilogueCode:@"Ti.Filesystem._FILEOBJ.prototype={"
@@ -388,6 +397,10 @@
 			[TitaniumJSCode codeWithString:@"{}"],@"_FILES",
 			
 			getFileCode,@"getFile",
+			
+			fileTempInvoc,@"_MKTMP",
+			[TitaniumJSCode codeWithString:@"function(){return Ti.Filesystem._MKTMP(false);}"],@"createTempFile",
+			[TitaniumJSCode codeWithString:@"function(){return Ti.Filesystem._MKTMP(true);}"],@"createTempDirectory",
 			
 			[TitaniumJSCode functionReturning:resourcePath],@"getResourcesDirectory",
 			[TitaniumJSCode functionReturning:appDirectory],@"getApplicationDirectory",
