@@ -52,6 +52,10 @@
 
   window.onload = function()
   {
+	  Titanium.UI.currentWindow.addEventListener('notify', function(e) {
+		  Titanium.UI.createNotification({message: e.message}).show();
+	  });
+
 	  var clearBtn = Titanium.UI.createButton({id: 'clear', title: 'Clear'});
 	  clearBtn.addEventListener('click', function(e) {
 		  document.getElementById("data").innerHTML = "&nbsp;";
@@ -200,6 +204,7 @@
 				if (totalCount == totalSize) {
 					fs.close();
 					progress2.hide();
+					Titanium.UI.currentWindow.fireEvent('notify', { message : 'Downloaded OK'});
 				}
 			};
 

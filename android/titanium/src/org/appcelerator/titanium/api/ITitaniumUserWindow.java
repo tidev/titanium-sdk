@@ -29,13 +29,17 @@ public interface ITitaniumUserWindow extends ITitaniumUserWindowBuilder
 	public int getActiveViewIndex();
 
 	public String getViewName(String key);
-	public int addViewEventListener(String key, String eventName, String listener);
-	public void removeEventListener(String key, String eventName, int listenerId);
+//	public int addViewEventListener(String key, String eventName, String listener);
+//	public void removeEventListener(String key, String eventName, int listenerId);
 
 	// new in 0.7.0 due to refactor
 	public void dispatchTabChange(String data);
 	public void dispatchConfigurationChange(Configuration newConfig);
 	public boolean dispatchPrepareOptionsMenu(Menu menu);
 	public boolean dispatchOptionsItemSelected(MenuItem item);
+	public void fireEvent(String eventName, String eventData);
+	public void registerView(ITitaniumView view);
+    public ITitaniumView getViewFromKey(String key);
+	public void onWindowFocusChanged(boolean hasFocus);
 
 }

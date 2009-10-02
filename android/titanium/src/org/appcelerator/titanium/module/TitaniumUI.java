@@ -57,7 +57,6 @@ import org.appcelerator.titanium.module.ui.TitaniumText;
 import org.appcelerator.titanium.module.ui.TitaniumTextField;
 import org.appcelerator.titanium.module.ui.TitaniumToastNotifier;
 import org.appcelerator.titanium.module.ui.TitaniumUIWebView;
-import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
 import org.appcelerator.titanium.module.ui.TitaniumUserWindowBuilder;
 import org.appcelerator.titanium.util.Log;
 import org.json.JSONArray;
@@ -101,7 +100,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	private static final int MSG_WINDOW_FOCUS_CHANGED = 340;
 
 	protected TitaniumMenuItem menu;
-	protected TitaniumUserWindow userWindow;
+	protected ITitaniumUserWindow userWindow;
 
 	protected HashSet<ITitaniumLifecycle> windowObjects;
 

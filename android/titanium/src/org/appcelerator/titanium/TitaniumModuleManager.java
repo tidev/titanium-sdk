@@ -14,10 +14,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.api.ITitaniumModule;
 import org.appcelerator.titanium.api.ITitaniumUIWebView;
+import org.appcelerator.titanium.api.ITitaniumUserWindow;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.ui.TitaniumDelegatingUserWindow;
 import org.appcelerator.titanium.module.ui.TitaniumUIWebView;
-import org.appcelerator.titanium.module.ui.TitaniumUserWindow;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumJSRef;
 import org.appcelerator.titanium.util.TitaniumJSRefCache;
@@ -41,12 +42,14 @@ public class TitaniumModuleManager
 	private String creationThreadName;
 
 	private static AtomicInteger idGenerator;
+	private boolean isWindow;
 
 	public TitaniumModuleManager(TitaniumActivity activity) {
 		this(activity, false);
 	}
 	public TitaniumModuleManager(TitaniumActivity activity, boolean isWindow)
 	{
+		this.isWindow = isWindow;
 		this.softActivity = new SoftReference<TitaniumActivity>(activity);
 		this.webView = new TitaniumWebView(this, isWindow);
 		this.modules = new ArrayList<ITitaniumModule>();
@@ -95,8 +98,12 @@ public class TitaniumModuleManager
 		return appContext;
 	}
 
-	public TitaniumUserWindow getCurrentWindow() {
-		return getActivity().getCurrentWindow();
+	public ITitaniumUserWindow getCurrentWindow() {
+		if (isWindow) {
+			return getActivity().getCurrentWindow();
+		} else {
+			return new TitaniumDelegatingUserWindow(getActivity().getCurrentWindow(), getCurrentUIWebView());
+		}
 	}
 
 	public void setCurrentView(TitaniumUIWebView v) {

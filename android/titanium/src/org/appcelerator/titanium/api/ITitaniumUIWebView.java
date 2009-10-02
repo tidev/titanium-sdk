@@ -17,4 +17,7 @@ public interface ITitaniumUIWebView {
 	public TitaniumWebView getTitaniumWebView();
 	public void addConfigChangeListener(OnConfigChange listener);
 	public void removeConfigChangeListener(OnConfigChange listener);
+
+	public int addWindowEventListener(String eventName, String eventListener);
+	public void removeWindowEventListener(String eventName, int listenerId);
 }

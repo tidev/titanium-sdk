@@ -908,6 +908,20 @@ var UserWindow = function(proxy) {
 		return this.proxy.getActiveViewIndex();
 	};
 
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.fireEvent,since=0.7.0) fire a custom event
+	 * @tiarg[String, eventName] the event name
+	 * @tiarg[Object, eventData] A JSON compatible object.
+	 */
+	this.fireEvent = function(eventName, eventData) {
+		if (isUndefined(eventData)) {
+			eventData = {};
+		}
+		if (!isUndefined(eventName)) {
+			this.proxy.fireEvent(eventName, Titanium.JSON.stringify(eventData));
+		}
+	};
+
 	// IPhone only methods
 	this.setNavBarColor = function (color) {
 
