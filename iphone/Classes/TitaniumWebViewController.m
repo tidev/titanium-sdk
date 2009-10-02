@@ -295,7 +295,7 @@
 
 - (void)webViewDidStartLoad:(UIWebView *)inputWebView;
 {
-	CLOCKSTAMP("[DEBUG] Started load request for %@",self);
+	CLOCKSTAMP("Started load request for %@",self);
 }
 
 - (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
@@ -320,7 +320,7 @@
 
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
 {
-	CLOCKSTAMP("[DEBUG] Finished load request for %@",self);
+	CLOCKSTAMP("Finished load request for %@",self);
 
 	TitaniumContentViewController * visibleVC = [[TitaniumHost sharedHost] visibleTitaniumContentViewController];
 	BOOL isVisible = [visibleVC isShowingView:self];
