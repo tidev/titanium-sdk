@@ -30,7 +30,7 @@ var ResultSet = function(rs) {
 	 * @tiresult[string] The contents of the column.
 	 */
 	this.field = function(index) {
-		return this.proxy.getField(index);
+		return transformObjectValueAsString(this.proxy.getField(index),null);
 	};
 	/**
 	 * @tiapi(method=True,name=Database.ResultSet.fieldByName,since=0.4) Retrieve the contents of a column on the current row using the column name.
@@ -38,7 +38,7 @@ var ResultSet = function(rs) {
 	 * @tiresult[string] the contents of the column.
 	 */
 	this.fieldByName = function(fieldName) {
-		var name = this.proxy.getFieldByName(fieldName);
+		var name = transformObjectValueAsString(this.proxy.getFieldByName(fieldName),null);
 		throwIfException(this.proxy.getLastException());
 		return name;
 	};
@@ -55,7 +55,7 @@ var ResultSet = function(rs) {
 	 * @tiresult[string] the column name
 	 */
 	this.fieldName = function(index) {
-		return this.proxy.getFieldName(index);
+		return transformObjectValueAsString(this.proxy.getFieldName(index),null);
 	};
 	/**
 	 * @tiapi(method=True,name=Database.ResultSet.rowCount,since=0.4) The number of rows in the ResultSet.
