@@ -187,6 +187,17 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	}
 }
 
+- (BOOL) sendJavascript: (NSString *) inputString;
+{
+	BOOL result = NO;
+	for(TitaniumContentViewController * thisVC in contentViewControllers){
+		if([thisVC respondsToSelector:@selector(sendJavascript:)]){
+			result |= [(id)thisVC sendJavascript:inputString];
+		}
+	}
+	return result;
+}
+
 
 #pragma mark Layout
 - (UIView *) loadViewForPage: (int) page size:(CGSize) pageSize animated:(BOOL) animated didPresentView: (BOOL *) didPresentView;

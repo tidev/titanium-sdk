@@ -511,6 +511,12 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	return ([magicTokenDict objectForKey:tokenString] != nil);
 }
 
+- (BOOL) sendJavascript: (NSString *) inputString;
+{
+	[webView stringByEvaluatingJavaScriptFromString:inputString];
+	return YES;
+}
+
 - (NSString *) performJavascript: (NSString *) inputString onPageWithToken: (NSString *) token;
 {
 	NSString * contextString = [magicTokenDict objectForKey:token];

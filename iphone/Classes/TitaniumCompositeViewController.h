@@ -44,5 +44,6 @@
 }
 
 - (void) addRule: (NSDictionary *) newRuleObject baseUrl:(NSURL *)baseUrl;
+- (BOOL) sendJavascript: (NSString *) inputString;
 
 @end

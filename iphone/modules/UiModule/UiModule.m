@@ -533,6 +533,20 @@ NSString * UrlEncodeString(NSString * string)
 	[ourVC performSelectorOnMainThread:@selector(setCurrentContentURL:) withObject:newURL waitUntilDone:NO];
 }
 
+#define WINDOW_FIRE_JSEVENT		0
+
+- (id) window:(NSString *)tokenString action:(NSNumber *)actionNumber arguments: (id) args;
+{
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
+	if((ourVC == nil) || ![actionNumber respondsToSelector:@selector(intValue)])return nil;
+	switch ([actionNumber intValue]) {
+		case WINDOW_FIRE_JSEVENT:
+			[ourVC performSelectorOnMainThread:@selector(handleJavascriptEvent) withObject:args waitUntilDone:NO];
+			return nil;
+	}
+	return nil;
+}
+
 - (void) setWindow:(NSString *)tokenString fullscreen:(id) fullscreenObject;
 {
 	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
@@ -1039,6 +1053,9 @@ NSString * UrlEncodeString(NSString * string)
 {
 	TitaniumInvocationGenerator * invocGen = [TitaniumInvocationGenerator generatorWithTarget:self];
 	
+	[(UiModule *)invocGen window:nil action:nil arguments:nil];
+	NSInvocation * windowActionInvoc = [invocGen invocation];
+	
 	[(UiModule *)invocGen setWindow:nil title:nil];
 	NSInvocation * setTitleInvoc = [invocGen invocation];
 
@@ -1189,6 +1206,7 @@ NSString * UrlEncodeString(NSString * string)
 			"addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
 			"close:function(args){Ti.UI._CLS(Ti._TOKEN,args);},"
 			"setTitle:function(args){Ti.UI._WTITLE(Ti._TOKEN,args);},"
+			"fireEvent:function(evt){Ti.UI._WACT(Ti._TOKEN," STRINGVAL(WINDOW_FIRE_JSEVENT) ",evt);},"
 			"setBarColor:function(args){Ti.UI._WNAVTNT(Ti._TOKEN,args);},"
 			"setFullscreen:function(newBool){Ti.UI._WFSCN(Ti._TOKEN,newBool);},"
 			"setTitle:function(args){Ti.UI._WTITLE(Ti._TOKEN,args);},"
@@ -1236,6 +1254,7 @@ NSString * UrlEncodeString(NSString * string)
 	NSString * createWindowString = @"function(args){var res={};"
 			"for(property in args){res[property]=args[property];res['_'+property]=args[property];};"
 //			"delete res._TOKEN;"
+			"res.fireEvent=function(evt){if(this._TOKEN){Ti.UI._WACT(this._TOKEN," STRINGVAL(WINDOW_FIRE_JSEVENT) ",evt);}};"
 			"res.setFullscreen=function(newBool){this.fullscreen=newBool;if(this._TOKEN){Ti.UI._WFSCN(this._TOKEN,newBool);};};"
 			"res.setTitle=function(args){this.title=args;if(this._TOKEN){Ti.UI._WTITLE(this._TOKEN,args);}};"
 			"res.showNavBar=function(args){this._hideNavBar=false;if(this._TOKEN){Ti.UI._WSHNAV(this._TOKEN,args);}};"
@@ -1413,6 +1432,8 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:@"{tabchange:[]}"],@"_EVT",
 			[TitaniumJSCode codeWithString:@"Ti._REMEVT"],@"removeEventListener",
 			[TitaniumJSCode codeWithString:@"Ti._ONEVT"],@"_ONEVT",
+
+			windowActionInvoc,@"_WACT",
 
 			closeWinInvoc,@"_CLS",
 			openWinInvoc,@"_OPN",

@@ -266,6 +266,18 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	}
 }
 
+- (BOOL) sendJavascript: (NSString *) inputString;
+{
+	BOOL result = NO;
+	for(TitaniumCompositeRule * thisRule in viewControllerRules){
+		TitaniumContentViewController * thisVC = [thisRule viewController];
+		if([thisVC respondsToSelector:@selector(sendJavascript:)]){
+			result |= [(id)thisVC sendJavascript:inputString];
+		}
+	}
+	return result;
+}
+
 
 #pragma mark Javascript callbacks
 
