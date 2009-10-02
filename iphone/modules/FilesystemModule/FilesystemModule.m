@@ -290,19 +290,31 @@
 	return nil;
 }
 
-
-
-- (void) doAsyncFileCopy: (NSNumber *) copyToken from:(id)sourceObj to:(id)destObj;
+- (id) makeNewTempPath: (NSNumber *) isDirectoryObject;
 {
-	if(fileCopyQueue == nil){
-		fileCopyQueue = [[NSOperationQueue alloc] init];
-	}
-	FileCopy * ourFileCopy = [[FileCopy alloc] init:[copyToken intValue] From:sourceObj to:destObj];
+	if(![isDirectoryObject respondsToSelector:@selector(boolValue)])return nil;
 	
-	NSInvocationOperation * ourOp = [[NSInvocationOperation alloc] initWithTarget:ourFileCopy selector:@selector(begin) object:nil];
-	[fileCopyQueue addOperation:ourOp];
-	[ourOp release];
-	[ourFileCopy release];
+	NSFileManager * ourFileManager = [[NSFileManager alloc] init];
+	NSString * tempDir = NSTemporaryDirectory();
+	NSError * error=nil;
+	
+	if(![ourFileManager fileExistsAtPath:tempDir]){
+		[ourFileManager createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:&error];
+		if(error != nil)return error;
+	}
+	
+	int timestamp = (int)(time(NULL) * 1000.0);
+	NSString * resultPath;
+	do {
+		resultPath = [tempDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%X",timestamp]];
+		timestamp ++;
+	} while ([ourFileManager fileExistsAtPath:resultPath]);
+
+	
+
+
+	[ourFileManager release];
+
 }
 
 

@@ -254,7 +254,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 
 - (void) handlePlayerFinished: (NSDictionary *) userInfo;
 {
-	NSString * commandString = [[NSString alloc] initWithFormat:@"Ti.Media._MEDIA.%@.doEvent({type:'complete'})",token];
+	NSString * commandString = [[NSString alloc] initWithFormat:@"Ti.Media._MEDIA.%@.doEvent('complete',{type:'complete'})",token];
 	[[TitaniumHost sharedHost] sendJavascript:commandString toPageWithToken:parentPageToken];
 	[commandString release];
 }
