@@ -492,6 +492,24 @@ var ImageView = function(proxy) {
 	this.setScale = function(scale) {
 		this.setScale(scale);
 	};
+
+	/**
+	 * @tiapi(method=true,name=UI.ImageView.addEventListener,since=0.7.0) Add a listener for to this view. Support 'focused' and 'unfocused'
+	 * @tiarg[string,eventName] The event name
+	 * @tiarg[function,listener] The event listener
+	 * @tiresult[int] id used when removing the listener
+	 */
+	this.addEventListener = function(eventName, listener) {
+		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
+	};
+	/**
+	 * @tiapi(method=true,name=UI.ImageView.removeEventListener,since=0.7.0) Remove a previously added listener
+	 * @tiarg[string,eventName] The event name
+	 * @tiarg[int,listenerId] id returned from addEventListener
+	 */
+	this.removeEventListener = function(eventName, listenerId) {
+		this.proxy.removeEventListener(eventName, listenerId);
+	};
 };
 
 var ScrollableView = function(proxy) {

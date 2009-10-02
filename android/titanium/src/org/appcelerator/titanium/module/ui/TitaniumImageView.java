@@ -15,14 +15,18 @@ import org.json.JSONObject;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Message;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
 public class TitaniumImageView extends TitaniumBaseView
-	implements ITitaniumImageView
+	implements ITitaniumImageView, View.OnClickListener
 {
+	private static final String EVENT_CLICK = "click";
+
+	private static final int MSG_CLICK = 500;
 
 	private String url;
 	private boolean scaleImage;
@@ -32,7 +36,26 @@ public class TitaniumImageView extends TitaniumBaseView
 
 	public TitaniumImageView(TitaniumModuleManager tmm) {
 		super(tmm);
+
+		eventManager.supportEvent(EVENT_CLICK);
+
 		scaleImage = false;
+	}
+
+	@Override
+	public boolean handleMessage(Message msg) {
+		boolean handled = super.handleMessage(msg);
+
+		if (!handled) {
+			switch(msg.what) {
+				case MSG_CLICK : {
+					eventManager.invokeSuccessListeners(EVENT_CLICK, "{}");
+					handled = true;
+				}
+			}
+		}
+
+		return handled;
 	}
 
 	@Override
@@ -68,6 +91,8 @@ public class TitaniumImageView extends TitaniumBaseView
 		} else {
 			view.setScaleType(ScaleType.CENTER);
 		}
+
+		setOnClickListener(this);
 
 		TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getAppContext());
 
@@ -109,5 +134,9 @@ public class TitaniumImageView extends TitaniumBaseView
 
 	public void setURL(String url) {
 		this.url = url;
+	}
+
+	public void onClick(View view) {
+		handler.sendEmptyMessage(MSG_CLICK);
 	}
 }
