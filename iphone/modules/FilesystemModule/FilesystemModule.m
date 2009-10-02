@@ -365,6 +365,10 @@
 	
 	TitaniumJSCode * falseFunct = [TitaniumJSCode codeWithString:@"function(){return false;}"];
 	
+	NSString * resourcePath = [[NSBundle mainBundle] resourcePath];
+	NSString * appDirectory = [NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+	NSString * dataDirectory = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+	
 	NSDictionary * moduleDict = [NSDictionary dictionaryWithObjectsAndKeys:
 
 			fileWrapperObjectCode,@"_FILEOBJ",
@@ -373,7 +377,9 @@
 			
 			getFileCode,@"getFile",
 			
-			[TitaniumJSCode functionReturning:[[NSBundle mainBundle] resourcePath]],@"getResourcesDirectory",
+			[TitaniumJSCode functionReturning:resourcePath],@"getResourcesDirectory",
+			[TitaniumJSCode functionReturning:appDirectory],@"getApplicationDirectory",
+			[TitaniumJSCode functionReturning:dataDirectory],@"getApplicationDataDirectory",
 			[TitaniumJSCode codeWithString:@"function(){return '/';}"],@"getSeperator",
 			[TitaniumJSCode codeWithString:@"function(){return '\\n';}"],@"getLineEnding",
 

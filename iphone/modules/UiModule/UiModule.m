@@ -541,7 +541,7 @@ NSString * UrlEncodeString(NSString * string)
 	if((ourVC == nil) || ![actionNumber respondsToSelector:@selector(intValue)])return nil;
 	switch ([actionNumber intValue]) {
 		case WINDOW_FIRE_JSEVENT:
-			[ourVC performSelectorOnMainThread:@selector(handleJavascriptEvent) withObject:args waitUntilDone:NO];
+			[ourVC performSelectorOnMainThread:@selector(handleJavascriptEvent:) withObject:args waitUntilDone:NO];
 			return nil;
 	}
 	return nil;
