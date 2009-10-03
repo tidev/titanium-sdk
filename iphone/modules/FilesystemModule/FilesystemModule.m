@@ -368,8 +368,8 @@
 			"createTimeStamp:function(){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_CREATIONSTAMP) ");},"
 			"modificationTimeStamp:function(){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_MODIFYSTAMP) ");},"
 			"getDirectoryListing:function(){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_LISTFILES) ");},"
-			"size:function(){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_FILESIZE) ");"
-			"spaceAvailible:function(){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_DRIVESPACE) ");"
+			"size:function(){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_FILESIZE) ");},"
+			"spaceAvailible:function(){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_DRIVESPACE) ");},"
 //Functions that change data
 			"copy:function(dest){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_COPY) ",dest.toString());},"
 			"createDirectory:function(recur){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_MAKEDIRECTORY) ",recur);},"
