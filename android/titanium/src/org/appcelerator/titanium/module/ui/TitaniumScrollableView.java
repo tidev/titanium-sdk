@@ -13,6 +13,7 @@ import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumScrollableView;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.ui.TitaniumCompositeView.ViewHolder;
 import org.appcelerator.titanium.module.ui.widgets.TitaniumArrowView;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumAnimationFactory;
@@ -400,6 +401,13 @@ public class TitaniumScrollableView extends TitaniumBaseView
 
 		if (v != null) {
 			v.setVisibility(hasNext() ? View.VISIBLE : View.INVISIBLE);
+		}
+	}
+
+	@Override
+	public void dispatchWindowEvent(String eventName, String eventData) {
+		for(ITitaniumView view : views) {
+			view.dispatchWindowEvent(eventName, eventData);
 		}
 	}
 

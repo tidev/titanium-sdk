@@ -107,7 +107,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+-->
         <window>
             <id>ImageView</id>
             <title>Image View</title>
@@ -117,7 +117,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+<!--
         <window>
             <id>CompositeView</id>
             <title>Composite View</title>
@@ -305,7 +305,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
 		<window>
             <id>Filestream</id>
             <title>filestream</title>
@@ -315,7 +315,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-<!--
+
 		<window>
             <id>iPhoneAPI</id>
             <title>iPhone API</title>

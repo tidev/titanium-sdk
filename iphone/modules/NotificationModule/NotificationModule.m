@@ -139,7 +139,7 @@
 - (void)triggerEvent: (NSString *)eventKind values: (NSString *)values;
 {
 	if(values==nil)values=@"";
-	NSString * commandString = [NSString stringWithFormat:@"Ti.Notification._NOTES.%@.doEvent({type:'%@',%@})",token,eventKind,values];
+	NSString * commandString = [NSString stringWithFormat:@"Ti.Notification._NOTES.%@.doEvent('%@',{type:'%@',%@})",token,eventKind,eventKind,values];
 	[[TitaniumHost sharedHost] sendJavascript:commandString toPageWithToken:[self parentPageToken]];
 }
 

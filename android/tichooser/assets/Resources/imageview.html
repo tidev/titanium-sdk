@@ -6,6 +6,10 @@
   	  		url : "images/icon.png",
   	  		scale : false
   	  	});
+  	  	var notify = Titanium.UI.createNotification({message:'Click!'});
+  	  	iv1.addEventListener('click', function(e) {
+  	  	  	notify.show();
+  	  	});
   		Titanium.UI.currentWindow.addView(iv1);
   		Titanium.UI.currentWindow.showView(iv1);
 	</script>

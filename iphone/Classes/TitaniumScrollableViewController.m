@@ -187,6 +187,17 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	}
 }
 
+- (BOOL) sendJavascript: (NSString *) inputString;
+{
+	BOOL result = NO;
+	for(TitaniumContentViewController * thisVC in contentViewControllers){
+		if([thisVC respondsToSelector:@selector(sendJavascript:)]){
+			result |= [(id)thisVC sendJavascript:inputString];
+		}
+	}
+	return result;
+}
+
 
 #pragma mark Layout
 - (UIView *) loadViewForPage: (int) page size:(CGSize) pageSize animated:(BOOL) animated didPresentView: (BOOL *) didPresentView;
@@ -323,7 +334,7 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	NSString * pathString = [self javaScriptPath];
 	NSString * commandString = [NSString stringWithFormat:@"(function(){%@.currentPage=%d;"
-			"%@.doEvent({type:'scroll',currentPage:%d,view:%@})})();",pathString,currentPage,pathString,currentPage,
+			"%@.doEvent('scroll',{type:'scroll',currentPage:%d,view:%@})})();",pathString,currentPage,pathString,currentPage,
 			[[contentViewControllers objectAtIndex:currentPage] javaScriptPath]];
 
 	[theHost sendJavascript:commandString toPagesWithTokens:listeningWebContextTokens update:YES];

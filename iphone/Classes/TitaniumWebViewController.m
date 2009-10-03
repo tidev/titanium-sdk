@@ -230,9 +230,9 @@
 {
 	if(isFocused){
 		[self updateTitle];
-		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'focused'})"];
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent('focused',{type:'focused'})"];
 	} else {
-		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'unfocused'})"];
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent('unfocused',{type:'unfocused'})"];
 	}
 }
 
@@ -240,9 +240,9 @@
 - (void)setWindowFocused:(BOOL)isFocused;
 {
 	if(isFocused){
-		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'focused'})"];
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent('focused',{type:'focused'})"];
 	} else {
-		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'unfocused'})"];
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent('unfocused',{type:'unfocused'})"];
 	}
 }
 
@@ -275,7 +275,7 @@
 - (void)tabChange: (NSNotification *) notification;
 {
 	NSString * jsonString = [[notification userInfo] objectForKey:TitaniumJsonKey];
-	NSString * commandString = [NSString stringWithFormat:@"Ti.UI._ONEVT({%@});",jsonString];
+	NSString * commandString = [NSString stringWithFormat:@"Ti.UI._ONEVT('tabchange',{%@});",jsonString];
 	[webView stringByEvaluatingJavaScriptFromString:commandString];
 }
 
@@ -295,7 +295,7 @@
 
 - (void)webViewDidStartLoad:(UIWebView *)inputWebView;
 {
-	CLOCKSTAMP("[DEBUG] Started load request for %@",self);
+	CLOCKSTAMP("Started load request for %@",self);
 }
 
 - (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
@@ -320,7 +320,7 @@
 
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
 {
-	CLOCKSTAMP("[DEBUG] Finished load request for %@",self);
+	CLOCKSTAMP("Finished load request for %@",self);
 
 	TitaniumContentViewController * visibleVC = [[TitaniumHost sharedHost] visibleTitaniumContentViewController];
 	BOOL isVisible = [visibleVC isShowingView:self];
@@ -342,11 +342,11 @@
 	
 	if([[webView stringByEvaluatingJavaScriptFromString:@"typeof(Titanium)"] isEqualToString:@"undefined"])[self investigateTitaniumCrashSite];
 	
-	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'load'});"];
+	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent('load',{type:'load'});"];
 	if ([titaniumWindowToken isEqualToString:[visibleVC titaniumWindowToken]]){
-		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'focused'});"];
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent('focused',{type:'focused'});"];
 		if(isVisible){
-			[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent({type:'focused'});"];
+			[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent('focused',{type:'focused'});"];
 		}
 	}
 }
@@ -466,7 +466,7 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	TitaniumContentViewController * currentVC = [[TitaniumHost sharedHost] currentTitaniumContentViewController];
 	if (![currentVC isShowingView:self]) return;
 	if (motion == UIEventSubtypeMotionShake){
-		NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent({type:'shake'})"];
+		NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent('shake',{type:'shake'})"];
 		[webView stringByEvaluatingJavaScriptFromString:eventString];
 	}
 }
@@ -492,7 +492,7 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	
 	NSString * animatedString = (duration>0)?@"true":@"false";
 	
-	NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent({type:'orientationchange',"
+	NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent('orientationchange',{type:'orientationchange',"
 			"to:%d,from:%d,animated:%@,duration:%d})",
 			interfaceOrientation,lastOrientation,animatedString,(int)(duration * 1000)];
 	[webView stringByEvaluatingJavaScriptFromString:eventString];
@@ -509,6 +509,12 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 {
 	if ([super hasToken:tokenString]) return YES;
 	return ([magicTokenDict objectForKey:tokenString] != nil);
+}
+
+- (BOOL) sendJavascript: (NSString *) inputString;
+{
+	[webView stringByEvaluatingJavaScriptFromString:inputString];
+	return YES;
 }
 
 - (NSString *) performJavascript: (NSString *) inputString onPageWithToken: (NSString *) token;

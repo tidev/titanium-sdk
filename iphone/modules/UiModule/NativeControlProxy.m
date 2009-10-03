@@ -1020,8 +1020,8 @@ needsRefreshing = YES;	\
 	if(extraArgs == nil)extraArgs = @"";
 	
 	NSString * handleClickCommand = [NSString stringWithFormat:
-			@"(function(){%@%@Titanium.UI._BTN.%@.onClick({type:'%@'%@%@});}).call(Titanium.UI._BTN.%@);",
-			customInit,initalizer,token,eventType,arguments,extraArgs,token];
+			@"(function(){%@%@Titanium.UI._BTN.%@.onClick('%@',{type:'%@'%@%@});}).call(Titanium.UI._BTN.%@);",
+			customInit,initalizer,token,eventType,eventType,arguments,extraArgs,token];
 //	NSLog(@"[DEBUG] Sending '%@' to the page.",handleClickCommand);
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }

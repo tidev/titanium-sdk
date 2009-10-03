@@ -196,6 +196,10 @@
 		B4200E511035FAB1009598FC /* Logging.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* Logging.c */; };
 		B4200E541035FAB1009598FC /* Logging.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* Logging.c */; };
 		B4290A77100D31FD00C4FF98 /* TweakedNavController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4290A74100D31FD00C4FF98 /* TweakedNavController.m */; };
+		B43543641076995400A38EC9 /* TitaniumJSEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B43543631076995400A38EC9 /* TitaniumJSEvent.m */; };
+		B43543651076995400A38EC9 /* TitaniumJSEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B43543631076995400A38EC9 /* TitaniumJSEvent.m */; };
+		B43543661076995400A38EC9 /* TitaniumJSEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = B43543621076995400A38EC9 /* TitaniumJSEvent.h */; };
+		B43543671076995400A38EC9 /* TitaniumJSEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B43543631076995400A38EC9 /* TitaniumJSEvent.m */; };
 		B4468EFD10027417002BAC64 /* misc.html in Resources */ = {isa = PBXBuildFile; fileRef = B4468EFC10027417002BAC64 /* misc.html */; };
 		B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
 		B44BCFDA0FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
@@ -491,6 +495,8 @@
 		B4250689100C0A4B00AD6A6B /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		B4290A73100D31FD00C4FF98 /* TweakedNavController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TweakedNavController.h; sourceTree = "<group>"; };
 		B4290A74100D31FD00C4FF98 /* TweakedNavController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TweakedNavController.m; sourceTree = "<group>"; };
+		B43543621076995400A38EC9 /* TitaniumJSEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumJSEvent.h; sourceTree = "<group>"; };
+		B43543631076995400A38EC9 /* TitaniumJSEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumJSEvent.m; sourceTree = "<group>"; };
 		B4468EFC10027417002BAC64 /* misc.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = misc.html; sourceTree = "<group>"; };
 		B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		B451D42410599C1C0025A18B /* PickerImageTextCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PickerImageTextCell.h; sourceTree = "<group>"; };
@@ -1191,6 +1197,8 @@
 				B4FC66FB0F95590D00B21EA1 /* TitaniumJSCode.m */,
 				B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */,
 				B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */,
+				B43543621076995400A38EC9 /* TitaniumJSEvent.h */,
+				B43543631076995400A38EC9 /* TitaniumJSEvent.m */,
 			);
 			name = "Data wrappers";
 			sourceTree = "<group>";
@@ -1389,6 +1397,7 @@
 				24C5AC841061FBF50063594B /* PickerImageTextCell.h in Headers */,
 				B49358DE106AE51C00BC4A77 /* TitaniumImageViewController.h in Headers */,
 				24FD2059106C9198004D4127 /* TitaniumBasicModule.h in Headers */,
+				B43543661076995400A38EC9 /* TitaniumJSEvent.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1888,6 +1897,7 @@
 				B49029F510728492009678FC /* FBConnectGlobal.m in Sources */,
 				B49029F610728492009678FC /* FBXMLHandler.m in Sources */,
 				B49029F710728493009678FC /* FBLoginButton.m in Sources */,
+				B43543651076995400A38EC9 /* TitaniumJSEvent.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2053,6 +2063,7 @@
 				24C5ACB31061FC540063594B /* PickerImageTextCell.m in Sources */,
 				B49358DF106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */,
 				24FD205A106C9198004D4127 /* TitaniumBasicModule.m in Sources */,
+				B43543671076995400A38EC9 /* TitaniumJSEvent.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2115,6 +2126,7 @@
 				B40CDF1A105F248F004CFED3 /* TitaniumCompositeViewController.m in Sources */,
 				B4F37DDF1061913E00ED12AF /* NotificationModule.m in Sources */,
 				B49358DD106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */,
+				B43543641076995400A38EC9 /* TitaniumJSEvent.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

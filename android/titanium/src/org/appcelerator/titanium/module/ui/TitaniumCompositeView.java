@@ -126,6 +126,13 @@ public class TitaniumCompositeView extends TitaniumBaseView
 	}
 
 	@Override
+	public void dispatchWindowEvent(String eventName, String eventData) {
+		for(ViewHolder holder : views) {
+			holder.view.dispatchWindowEvent(eventName, eventData);
+		}
+	}
+
+	@Override
 	protected View getContentView() {
 		return null;
 	}

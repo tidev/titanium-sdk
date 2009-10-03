@@ -27,6 +27,7 @@ public interface ITitaniumView
 	boolean dispatchPrepareOptionsMenu(Menu menu);
 	boolean dispatchOptionsItemSelected(MenuItem item);
 
+	void dispatchWindowEvent(String eventName, String eventData);
 	void dispatchApplicationEvent(String eventName, String data);
 
 	ITitaniumLifecycle getLifecycle();

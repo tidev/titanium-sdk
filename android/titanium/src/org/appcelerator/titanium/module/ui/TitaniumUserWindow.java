@@ -14,6 +14,7 @@ import java.util.HashMap;
 import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
+import org.appcelerator.titanium.api.ITitaniumUIWebView;
 import org.appcelerator.titanium.api.ITitaniumUserWindow;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumConfig;
@@ -59,7 +60,6 @@ public class TitaniumUserWindow extends ViewAnimator
 	protected String url;
 
 	protected TitaniumModuleManager tmm;
-	protected TitaniumJSEventManager eventListeners;
 	protected HashMap<String, WeakReference<ITitaniumView>> registeredViews;
 	protected ArrayList<ITitaniumView> views;
 	protected int activeViewIndex;
@@ -94,10 +94,6 @@ public class TitaniumUserWindow extends ViewAnimator
 		TitaniumUIWebView uiWebView = new TitaniumUIWebView(tmm);
         addView((ITitaniumView) uiWebView); // Make it views[0]
 		uiWebView.setUrl(url);
-
-		this.eventListeners = new TitaniumJSEventManager(tmm.getWebView());
-		this.eventListeners.supportEvent(EVENT_FOCUSED);
-		this.eventListeners.supportEvent(EVENT_UNFOCUSED);
 
         uiWebView.postOpen();
 
@@ -257,7 +253,7 @@ public class TitaniumUserWindow extends ViewAnimator
 			throw new IllegalStateException(msg);
 		}
 		int listenerId = -1;
-		listenerId = eventListeners.addListener(eventName, listener);
+		listenerId = tmm.getCurrentUIWebView().addWindowEventListener(eventName, listener);
 		return listenerId;
 	}
 
@@ -268,7 +264,7 @@ public class TitaniumUserWindow extends ViewAnimator
 			throw new IllegalStateException(msg);
 		}
 
-		eventListeners.removeListener(eventName, listenerId);
+		tmm.getCurrentUIWebView().removeWindowEventListener(eventName, listenerId);
 	}
 
 	public void registerView(ITitaniumView view)
@@ -362,13 +358,11 @@ public class TitaniumUserWindow extends ViewAnimator
 
 	public void onWindowFocusChanged(boolean hasFocus)
 	{
-		if (hasFocus) {
-			if (eventListeners.hasListeners(EVENT_FOCUSED)) {
-				eventListeners.invokeSuccessListeners(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
-			}
-		} else {
-			if (eventListeners.hasListeners(EVENT_UNFOCUSED)) {
-				eventListeners.invokeSuccessListeners(EVENT_UNFOCUSED, EVENT_UNFOCUSED_JSON);
+		for(ITitaniumView view : views) {
+			if (hasFocus) {
+				view.dispatchWindowEvent(EVENT_FOCUSED, EVENT_FOCUSED_JSON);
+			} else {
+				view.dispatchWindowEvent(EVENT_UNFOCUSED, EVENT_UNFOCUSED_JSON);
 			}
 		}
 	}
@@ -424,7 +418,6 @@ public class TitaniumUserWindow extends ViewAnimator
 		removeAllViews();
 		tmm = null;
 		views.clear();
-		eventListeners.clear();
 		registeredViews.clear();
 	}
 
@@ -486,6 +479,13 @@ public class TitaniumUserWindow extends ViewAnimator
 		return name;
 	}
 
+	public void fireEvent(String eventName, String eventData)
+	{
+		for(ITitaniumView view : views) {
+			view.dispatchWindowEvent(eventName, eventData);
+		}
+	}
+/*
 	public int addViewEventListener(String key, String eventName,
 			String listener) {
 		// TODO Auto-generated method stub
@@ -496,7 +496,7 @@ public class TitaniumUserWindow extends ViewAnimator
 		// TODO Auto-generated method stub
 
 	}
-
+*/
 	public void showView(ITitaniumView view, String options) {
 		setActiveView(view, options);
 	}

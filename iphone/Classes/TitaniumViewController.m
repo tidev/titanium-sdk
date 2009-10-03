@@ -17,6 +17,8 @@
 #import "NativeControlProxy.h"
 #import "NotificationModule.h"
 
+#import "TitaniumJSEvent.h"
+
 NSDictionary * tabBarItemFromObjectDict = nil;
 
 UITabBarSystemItem tabBarItemFromObject(id inputObject){
@@ -971,5 +973,14 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	[self performSelectorOnMainThread:@selector(needsUpdate:) withObject:nil waitUntilDone:NO];
 }	
 
+- (void) handleJavascriptEvent: (TitaniumJSEvent *) event;
+{
+	NSString * currentWindowVersion = [NSString stringWithFormat:@"Ti.UI.currentWindow.doEvent(%@,%@)",[event eventName],[event eventString]];
+	for(TitaniumContentViewController * thisVC in contentViewControllers){
+		if([thisVC respondsToSelector:@selector(sendJavascript:)]){
+			[(id)thisVC sendJavascript:currentWindowVersion];
+		}
+	}
+}
 
 @end

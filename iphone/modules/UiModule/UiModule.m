@@ -19,6 +19,8 @@
 #import "TitaniumCompositeViewController.h"
 #import "TitaniumImageViewController.h"
 
+#import "TitaniumJSEvent.h"
+
 #if __IPHONE_OS_VERSION_MIN_REQUIRED >= 30000
 #import <MessageUI/MessageUI.h>
 #import <MessageUI/MFMailComposeViewController.h>
@@ -174,7 +176,7 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void)actionSheet:(UIActionSheet *)anActionSheet clickedButtonAtIndex:(NSInteger)buttonIndex;
 {
-	NSString * result = [NSString stringWithFormat:@"Ti.UI._MODAL.%@.onClick("
+	NSString * result = [NSString stringWithFormat:@"Ti.UI._MODAL.%@.onClick('click',"
 			"{type:'click',index:%d,cancel:%d,destructive:%d})",tokenString,buttonIndex,
 			[anActionSheet cancelButtonIndex],[anActionSheet destructiveButtonIndex]];
 	
@@ -185,7 +187,7 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void)alertView:(UIAlertView *)anAlertView clickedButtonAtIndex:(NSInteger)buttonIndex;
 {
-	NSString * result = [NSString stringWithFormat:@"Ti.UI._MODAL.%@.onClick("
+	NSString * result = [NSString stringWithFormat:@"Ti.UI._MODAL.%@.onClick('click'"
 			"{type:'click',index:%d,cancel:%d})",tokenString,buttonIndex,[anAlertView cancelButtonIndex]];
 
 	[[TitaniumHost sharedHost] sendJavascript:result toPageWithToken:contextString];
@@ -531,6 +533,31 @@ NSString * UrlEncodeString(NSString * string)
 	}
 
 	[ourVC performSelectorOnMainThread:@selector(setCurrentContentURL:) withObject:newURL waitUntilDone:NO];
+}
+
+#define WINDOW_FIRE_JSEVENT		0
+
+- (id) window:(NSString *)tokenString action:(NSNumber *)actionNumber arguments: (id) args;
+{
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
+	if((ourVC == nil) || ![actionNumber respondsToSelector:@selector(intValue)])return nil;
+	switch ([actionNumber intValue]) {
+		case WINDOW_FIRE_JSEVENT:{
+			if(![args isKindOfClass:[NSArray class]] || ([args count]<2))return nil;
+			NSString * eventName = [args objectAtIndex:0];
+			NSDictionary * eventDict = [args objectAtIndex:1];
+			if(![eventName isKindOfClass:[NSString class]] || ![eventDict isKindOfClass:[NSDictionary class]])return nil;
+
+			TitaniumJSEvent * ourEvent = [[TitaniumJSEvent alloc] init];
+			[ourEvent setEventName:eventName];
+			[ourEvent setEventDict:eventDict];
+
+			[ourVC performSelectorOnMainThread:@selector(handleJavascriptEvent:) withObject:ourEvent waitUntilDone:NO];
+			[ourEvent release];
+			return nil;
+		}
+	}
+	return nil;
 }
 
 - (void) setWindow:(NSString *)tokenString fullscreen:(id) fullscreenObject;
@@ -1039,6 +1066,9 @@ NSString * UrlEncodeString(NSString * string)
 {
 	TitaniumInvocationGenerator * invocGen = [TitaniumInvocationGenerator generatorWithTarget:self];
 	
+	[(UiModule *)invocGen window:nil action:nil arguments:nil];
+	NSInvocation * windowActionInvoc = [invocGen invocation];
+	
 	[(UiModule *)invocGen setWindow:nil title:nil];
 	NSInvocation * setTitleInvoc = [invocGen invocation];
 
@@ -1189,6 +1219,7 @@ NSString * UrlEncodeString(NSString * string)
 			"addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
 			"close:function(args){Ti.UI._CLS(Ti._TOKEN,args);},"
 			"setTitle:function(args){Ti.UI._WTITLE(Ti._TOKEN,args);},"
+			"fireEvent:function(){Ti.UI._WACT(Ti._TOKEN," STRINGVAL(WINDOW_FIRE_JSEVENT) ",arguments);},"
 			"setBarColor:function(args){Ti.UI._WNAVTNT(Ti._TOKEN,args);},"
 			"setFullscreen:function(newBool){Ti.UI._WFSCN(Ti._TOKEN,newBool);},"
 			"setTitle:function(args){Ti.UI._WTITLE(Ti._TOKEN,args);},"
@@ -1236,6 +1267,7 @@ NSString * UrlEncodeString(NSString * string)
 	NSString * createWindowString = @"function(args){var res={};"
 			"for(property in args){res[property]=args[property];res['_'+property]=args[property];};"
 //			"delete res._TOKEN;"
+			"res.fireEvent=function(evt){if(this._TOKEN){Ti.UI._WACT(this._TOKEN," STRINGVAL(WINDOW_FIRE_JSEVENT) ",evt);}};"
 			"res.setFullscreen=function(newBool){this.fullscreen=newBool;if(this._TOKEN){Ti.UI._WFSCN(this._TOKEN,newBool);};};"
 			"res.setTitle=function(args){this.title=args;if(this._TOKEN){Ti.UI._WTITLE(this._TOKEN,args);}};"
 			"res.showNavBar=function(args){this._hideNavBar=false;if(this._TOKEN){Ti.UI._WSHNAV(this._TOKEN,args);}};"
@@ -1413,6 +1445,8 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:@"{tabchange:[]}"],@"_EVT",
 			[TitaniumJSCode codeWithString:@"Ti._REMEVT"],@"removeEventListener",
 			[TitaniumJSCode codeWithString:@"Ti._ONEVT"],@"_ONEVT",
+
+			windowActionInvoc,@"_WACT",
 
 			closeWinInvoc,@"_CLS",
 			openWinInvoc,@"_OPN",

@@ -28,6 +28,7 @@ public class TitaniumJSEventManager
 	protected AtomicInteger idGenerator;
 	protected HashMap<String, HashMap<Integer, TitaniumJSEvent>> eventListeners;
 	protected TreeSet<String> supportedEventNames;
+	protected boolean enforceEventNames;
 
 	public TitaniumJSEventManager(TitaniumModuleManager manager) {
 		this(manager.getWebView());
@@ -45,6 +46,11 @@ public class TitaniumJSEventManager
 		idGenerator = new AtomicInteger();
 		this.eventListeners = new HashMap<String, HashMap<Integer, TitaniumJSEvent>>();
 		this.supportedEventNames = new TreeSet<String>();
+		this.enforceEventNames = true;
+	}
+
+	public void setEnforceEventNames(boolean enforceEventNames) {
+		this.enforceEventNames = enforceEventNames;
 	}
 
 	public void clear() {
@@ -83,7 +89,7 @@ public class TitaniumJSEventManager
 		if (supportedEventNames != null) {
 			synchronized(supportedEventNames) {
 
-				if (!supportedEventNames.contains(eventName)) {
+				if (enforceEventNames && !supportedEventNames.contains(eventName)) {
 					throw new IllegalArgumentException("This event handler does not support events named '" + eventName
 							+ "'. Use supportEvent method to register valid event names."
 						);
@@ -100,6 +106,11 @@ public class TitaniumJSEventManager
 			checkSupportsEvent(eventName); // Throws exception of failure
 
 			HashMap<Integer, TitaniumJSEvent> listeners = eventListeners.get(eventName);
+			if (!enforceEventNames && listeners == null) {
+				listeners = new HashMap<Integer, TitaniumJSEvent>();
+				eventListeners.put(eventName, listeners);
+			}
+
 			eventId = idGenerator.incrementAndGet();
 
 			synchronized(listeners) {

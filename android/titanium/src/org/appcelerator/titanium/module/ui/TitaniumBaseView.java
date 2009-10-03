@@ -76,7 +76,8 @@ public abstract class TitaniumBaseView extends FrameLayout
 		openViewAfterOptions = true;
 		openViewDelay = 1000;
 
-		tmm.getCurrentWindow().registerView(this);
+		// Chicken and egg, so use the Activity to get the UserWindow
+		tmm.getActivity().getCurrentWindow().registerView(this);
 	}
 
 	public boolean handleMessage(Message msg)
@@ -138,6 +139,9 @@ public abstract class TitaniumBaseView extends FrameLayout
 
 	public void removeEventListener(String eventName, int listenerId) {
 		eventManager.removeListener(eventName, listenerId);
+	}
+
+	public void dispatchWindowEvent(String eventName, String eventData) {
 	}
 
 	public void dispatchApplicationEvent(String eventName, String data) {

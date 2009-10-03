@@ -18,6 +18,7 @@ import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
+import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -43,6 +44,7 @@ public class TitaniumUIWebView extends TitaniumBaseView
 	public static final String EVENT_UI_TABCHANGED = "ui.tabchange";
 
 	private static final int MSG_SHOWING = 300;
+	private static final int MSG_DISPATCH_WINDOW_EVENT = 301;
 
 	private TitaniumModuleManager tmm;
 	private WebView view;
@@ -53,10 +55,11 @@ public class TitaniumUIWebView extends TitaniumBaseView
 
 	private HashMap<Integer, String> optionMenuCallbacks;
 	private HashSet<OnConfigChange> configurationChangeListeners;
+	private TitaniumJSEventManager windowEventManager;
 
 	public TitaniumUIWebView(TitaniumModuleManager tmm) {
 		super(tmm);
-		this.tmm = tmm; //Todo use parent
+		this.tmm = tmm;
 		tmm.setCurrentView(this);
 
 		handler = new Handler(this);
@@ -65,6 +68,11 @@ public class TitaniumUIWebView extends TitaniumBaseView
 		this.configurationChangeListeners = new HashSet<OnConfigChange>();
 
 		eventManager.supportEvent(EVENT_UI_TABCHANGED);
+
+		this.windowEventManager = new TitaniumJSEventManager(tmm);
+		this.windowEventManager.setEnforceEventNames(false); // Allow custom user events.
+		this.windowEventManager.supportEvent(EVENT_FOCUSED);
+		this.windowEventManager.supportEvent(EVENT_UNFOCUSED);
 
 		tmm.getCurrentWindow().registerView(this);
 	}
@@ -87,6 +95,12 @@ public class TitaniumUIWebView extends TitaniumBaseView
 				hasBeenOpened = true;
 				handled = true;
 			}
+		} else if (msg.what == MSG_DISPATCH_WINDOW_EVENT) {
+			String eventName = (String) msg.obj;
+			String eventData = (String) msg.getData().getString("eventData");
+
+			windowEventManager.invokeSuccessListeners(eventName, eventData);
+			handled = true;
 		} else {
 			handled = super.handleMessage(msg);
 		}
@@ -257,6 +271,21 @@ public class TitaniumUIWebView extends TitaniumBaseView
 		return result;
 	}
 
+	public int addWindowEventListener(String eventName, String eventListener)
+	{
+		return windowEventManager.addListener(eventName, eventListener);
+	}
+
+	public void removeWindowEventListener(String eventName, int listenerId) {
+		windowEventManager.removeListener(eventName, listenerId);
+	}
+
+	public void dispatchWindowEvent(String eventName, String eventData) {
+		Message msg = handler.obtainMessage(MSG_DISPATCH_WINDOW_EVENT, eventName);
+		msg.getData().putString("eventData", eventData);
+		msg.sendToTarget();
+	}
+
 	public void dispatchApplicationEvent(String eventName, String data) {
 		//eventListeners.invokeSuccessListeners(eventName, data);
 	}
@@ -288,5 +317,6 @@ public class TitaniumUIWebView extends TitaniumBaseView
 		if (tmm != null) {
 			tmm.onDestroy();
 		}
+		windowEventManager.clear();
 	}
 }

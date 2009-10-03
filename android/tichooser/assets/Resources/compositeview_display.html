@@ -1,0 +1,14 @@
+<html>
+<head>
+<script>
+window.onload = function() {
+	Titanium.UI.currentWindow.addEventListener('notify', function(e) {
+		document.getElementById("msg").innerHTML = e.message;
+	});
+};
+</script>
+</head>
+<body style="background-color: white;">
+<div id="msg">&nbsp;</div>
+</body>
+</html>

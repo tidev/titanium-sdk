@@ -141,6 +141,8 @@ typedef enum {
 - (BOOL) toolbarOverlaid;
 - (CGPoint) toolbarOrigin;
 
+- (void) handleJavascriptEvent: (NSDictionary *) eventObject;
+
 @end
 
 @protocol TitaniumWindowDelegate
