@@ -144,7 +144,7 @@ public abstract class TitaniumBaseNativeControl
 
 					createControl(tmm);
 
-					if (id != null) {
+					if (control != null && id != null) {
 						TitaniumWebView wv = tmm.getWebView();
 						if (wv != null) {
 							//TODO: POSSIBLE LEAK
