@@ -50,12 +50,15 @@
 		{title:'Dynamic Content', hasChild:true},
 		{title:'Tab Change', hasChild:true},
 		{title:'JS Events', hasChild:true},
+		{title:'JS Events 2', hasChild:true},
 		{title:'Dynamic Images', hasChild:true},
 		{title:'Window Title Change (iPhone)', hasChild:false},
 		{title:'Custom Back Button I (iPhone)', hasChild:false},
 		{title:'Custom Back Button II (iPhone)', hasChild:false},
 		{title:'Custom Table View Data', hasChild:false},
-		{title:'Set Control Values', hasChild:false}
+		{title:'Set Control Values', hasChild:false},
+		{title:'Modal Window (iPhone)', hasChild:false},
+		{title:'Picker', hasChild:false}
 		
 		
 	];
@@ -412,15 +415,23 @@
 			}
 			case 39:
 			{
+				var win = Titanium.UI.createWindow({url:'js_events2.html',title:'JS Events 2'});
+				win.open({animated:true});		
+				break;
+			}
+
+			case 40:
+			{
 				var win = Titanium.UI.createWindow({url:'dynamic_images.html',title:'Dynamic Images'});
 				win.open({animated:true});		
 				break;
 			}
-			case 40:
+			case 41:
 			{
 				Titanium.UI.currentWindow.setTitle('New Title');
+				break;
 			}
-			case 41:
+			case 42:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'back_button.html',
@@ -430,7 +441,7 @@
 				win.open({animated:true});		
 				break;
 			}
-			case 42:
+			case 43:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'back_button.html',
@@ -440,7 +451,7 @@
 				win.open({animated:true});		
 				break;
 			}
-			case 43:
+			case 44:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'custom_table_view_data.html',
@@ -449,11 +460,38 @@
 				win.open({animated:true});		
 				break;
 			}
-			case 44:
+			case 45:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'set_control_values.html',
 					title:'Set Control Values' 
+				});
+				win.open({animated:true});		
+				break;
+			}
+			case 46:
+			{
+				var win = Titanium.UI.createWindow({
+					url:'modal.html',
+					title:'Modal Window' 
+				});
+				var b = Titanium.UI.createButton({
+					title:'Close',
+					style:Titanium.UI.iPhone.SystemButtonStyle.PLAIN
+				});
+				win.setLeftNavButton(b);
+				b.addEventListener('click',function()
+				{
+					win.close();
+				})
+				win.open({modal:true});		
+				break;
+			}
+			case 47:
+			{
+				var win = Titanium.UI.createWindow({
+					url:'pickers.html',
+					title:'Pickers' 
 				});
 				win.open({animated:true});		
 				break;
@@ -464,7 +502,7 @@
 
 	Titanium.UI.currentWindow.addView(tableView);
 	Titanium.UI.currentWindow.showView(tableView);
-	
+
 	// FUNCTIONS
 	
 	//

@@ -19,6 +19,8 @@
 #import "TitaniumCompositeViewController.h"
 #import "TitaniumImageViewController.h"
 
+#import "TitaniumJSEvent.h"
+
 #if __IPHONE_OS_VERSION_MIN_REQUIRED >= 30000
 #import <MessageUI/MessageUI.h>
 #import <MessageUI/MFMailComposeViewController.h>
@@ -174,7 +176,7 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void)actionSheet:(UIActionSheet *)anActionSheet clickedButtonAtIndex:(NSInteger)buttonIndex;
 {
-	NSString * result = [NSString stringWithFormat:@"Ti.UI._MODAL.%@.onClick("
+	NSString * result = [NSString stringWithFormat:@"Ti.UI._MODAL.%@.onClick('click',"
 			"{type:'click',index:%d,cancel:%d,destructive:%d})",tokenString,buttonIndex,
 			[anActionSheet cancelButtonIndex],[anActionSheet destructiveButtonIndex]];
 	
@@ -185,7 +187,7 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void)alertView:(UIAlertView *)anAlertView clickedButtonAtIndex:(NSInteger)buttonIndex;
 {
-	NSString * result = [NSString stringWithFormat:@"Ti.UI._MODAL.%@.onClick("
+	NSString * result = [NSString stringWithFormat:@"Ti.UI._MODAL.%@.onClick('click'"
 			"{type:'click',index:%d,cancel:%d})",tokenString,buttonIndex,[anAlertView cancelButtonIndex]];
 
 	[[TitaniumHost sharedHost] sendJavascript:result toPageWithToken:contextString];
@@ -540,9 +542,20 @@ NSString * UrlEncodeString(NSString * string)
 	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
 	if((ourVC == nil) || ![actionNumber respondsToSelector:@selector(intValue)])return nil;
 	switch ([actionNumber intValue]) {
-		case WINDOW_FIRE_JSEVENT:
-			[ourVC performSelectorOnMainThread:@selector(handleJavascriptEvent:) withObject:args waitUntilDone:NO];
+		case WINDOW_FIRE_JSEVENT:{
+			if(![args isKindOfClass:[NSArray class]] || ([args count]<2))return nil;
+			NSString * eventName = [args objectAtIndex:0];
+			NSDictionary * eventDict = [args objectAtIndex:1];
+			if(![eventName isKindOfClass:[NSString class]] || ![eventDict isKindOfClass:[NSDictionary class]])return nil;
+
+			TitaniumJSEvent * ourEvent = [[TitaniumJSEvent alloc] init];
+			[ourEvent setEventName:eventName];
+			[ourEvent setEventDict:eventDict];
+
+			[ourVC performSelectorOnMainThread:@selector(handleJavascriptEvent:) withObject:ourEvent waitUntilDone:NO];
+			[ourEvent release];
 			return nil;
+		}
 	}
 	return nil;
 }
@@ -1206,7 +1219,7 @@ NSString * UrlEncodeString(NSString * string)
 			"addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
 			"close:function(args){Ti.UI._CLS(Ti._TOKEN,args);},"
 			"setTitle:function(args){Ti.UI._WTITLE(Ti._TOKEN,args);},"
-			"fireEvent:function(evt){Ti.UI._WACT(Ti._TOKEN," STRINGVAL(WINDOW_FIRE_JSEVENT) ",evt);},"
+			"fireEvent:function(){Ti.UI._WACT(Ti._TOKEN," STRINGVAL(WINDOW_FIRE_JSEVENT) ",arguments);},"
 			"setBarColor:function(args){Ti.UI._WNAVTNT(Ti._TOKEN,args);},"
 			"setFullscreen:function(newBool){Ti.UI._WFSCN(Ti._TOKEN,newBool);},"
 			"setTitle:function(args){Ti.UI._WTITLE(Ti._TOKEN,args);},"

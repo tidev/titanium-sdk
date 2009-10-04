@@ -115,6 +115,8 @@
 #define FILEPATH_PARENTDIR			15
 #define FILEPATH_NAME				16
 #define FILEPATH_RESOLVEPATH		17
+#define FILEPATH_DRIVESPACE			18
+#define FILEPATH_FILESIZE			19
 
 @implementation FilesystemModule
 
@@ -122,45 +124,60 @@
 {
 	Class stringClass = [NSString class];
 	if(![path isKindOfClass:stringClass] || ![functNum respondsToSelector:@selector(intValue)])return nil;
+	path = [path stringByStandardizingPath];
+
 	switch ([functNum intValue]) {
 		case FILEPATH_EXISTS:{
-			path = [path stringByStandardizingPath];
 			BOOL result = [[NSFileManager defaultManager] fileExistsAtPath:path];
 			return [NSNumber numberWithBool:result];
 		}
 		case FILEPATH_ISLOCKED:{
-			path = [path stringByStandardizingPath];
-			NSDictionary * resultDict = [[NSFileManager defaultManager] fileAttributesAtPath:path traverseLink:NO];
+			NSError * error=nil;
+			NSDictionary * resultDict = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
+//			if(error!=nil)return error;
 			return [resultDict objectForKey:NSFileImmutable];
 		}
 		case FILEPATH_ISLINK:{
-			path = [path stringByStandardizingPath];
-			NSDictionary * resultDict = [[NSFileManager defaultManager] fileAttributesAtPath:path traverseLink:NO];
+			NSError * error=nil;
+			NSDictionary * resultDict = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
+//			if(error!=nil)return error;
 			BOOL result = [[resultDict objectForKey:NSFileType] isEqualToString:NSFileTypeSymbolicLink];
 			return [NSNumber numberWithBool:result];
 		}
 		case FILEPATH_CREATIONSTAMP:{
-			path = [path stringByStandardizingPath];
-			NSDictionary * resultDict = [[NSFileManager defaultManager] fileAttributesAtPath:path traverseLink:NO];
+			NSError * error=nil;
+			NSDictionary * resultDict = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
+			if(error!=nil)return error;
 			return [resultDict objectForKey:NSFileCreationDate];
 		}
 		case FILEPATH_MODIFYSTAMP:{
-			path = [path stringByStandardizingPath];
-			NSDictionary * resultDict = [[NSFileManager defaultManager] fileAttributesAtPath:path traverseLink:NO];
+			NSError * error=nil;
+			NSDictionary * resultDict = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
+			if(error!=nil)return error;
 			return [resultDict objectForKey:NSFileModificationDate];
 		}
 		case FILEPATH_LISTFILES:{
 			NSError * error=nil;
-			path = [path stringByStandardizingPath];
 			NSArray * resultArray = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:&error];
 			if(error!=nil)return error;
 			return resultArray;			
+		}
+		case FILEPATH_DRIVESPACE:{
+			NSError * error=nil;
+			NSDictionary * resultDict = [[NSFileManager defaultManager] attributesOfFileSystemForPath:path error:&error];
+			if(error!=nil)return error;
+			return [resultDict objectForKey:NSFileSystemFreeSize];
+		}
+		case FILEPATH_FILESIZE:{
+			NSError * error=nil;
+			NSDictionary * resultDict = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
+			if(error!=nil)return error;
+			return [resultDict objectForKey:NSFileSize];
 		}
 		case FILEPATH_COPY:{
 			if(![args isKindOfClass:[NSString class]])return [NSNumber numberWithBool:NO];
 			NSError * error=nil;
 			NSString * dest=[args stringByStandardizingPath];
-			path = [path stringByStandardizingPath];
 			BOOL result = [[NSFileManager defaultManager] copyItemAtPath:path toPath:dest error:&error];
 			VERBOSE_LOG_IF_TRUE((error!=nil),@"Tried to copy file '%@' to '%@', error was %@",path,dest,error);
 			return [NSNumber numberWithBool:result];			
@@ -168,7 +185,6 @@
 		case FILEPATH_MAKEDIRECTORY:{
 			NSFileManager * theFM = [NSFileManager defaultManager];
 			BOOL result;
-			path = [path stringByStandardizingPath];
 			if(![theFM fileExistsAtPath:path]){
 				BOOL recurse;
 				if([args respondsToSelector:@selector(boolValue)]){
@@ -188,7 +204,6 @@
 			NSFileManager * theFM = [NSFileManager defaultManager];
 			BOOL result = NO;
 			BOOL isDirectory = NO;
-			path = [path stringByStandardizingPath];
 			BOOL exists = [theFM fileExistsAtPath:path isDirectory:&isDirectory];
 			if(exists && isDirectory){
 				NSError * error = nil;
@@ -217,7 +232,6 @@
 			NSFileManager * theFM = [NSFileManager defaultManager];
 			BOOL result;
 			BOOL isDirectory = YES;
-			path = [path stringByStandardizingPath];
 			BOOL exists = [theFM fileExistsAtPath:path isDirectory:&isDirectory];
 			if(exists && !isDirectory){
 				NSError * error = nil;
@@ -231,7 +245,6 @@
 		case FILEPATH_MAKEFILE:{
 			NSFileManager * theFM = [NSFileManager defaultManager];
 			BOOL result;
-			path = [path stringByStandardizingPath];
 			if(![theFM fileExistsAtPath:path]){
 				if([args respondsToSelector:@selector(boolValue)] && [args boolValue]){
 					[theFM createDirectoryAtPath:[path stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:nil];
@@ -248,14 +261,12 @@
 		case FILEPATH_MOVE:{
 			if(![args isKindOfClass:[NSString class]])return [NSNumber numberWithBool:NO];
 			NSError * error=nil;
-			path = [path stringByStandardizingPath];
 			NSString * dest=[args stringByStandardizingPath];
 			BOOL result = [[NSFileManager defaultManager] moveItemAtPath:path toPath:dest error:&error];
 			VERBOSE_LOG_IF_TRUE((error!=nil),@"Tried to move file '%@' to '%@', error was %@",path,dest,error);
 			return [NSNumber numberWithBool:result];			
 		}
 		case FILEPATH_READ:{
-			path = [path stringByStandardizingPath];
 			NSError * error = nil;
 			NSStringEncoding enc = 0;
 			NSString * result = [NSString stringWithContentsOfFile:path usedEncoding:&enc error:&error];
@@ -267,8 +278,7 @@
 			NSError * error = nil;
 			if([args isKindOfClass:stringClass]){
 				NSStringEncoding enc = [(NSString *)args fastestEncoding];
-				path = [path stringByStandardizingPath];
-				result = [(NSString *)args writeToFile:path atomically:NO encoding:enc error:&error];
+					result = [(NSString *)args writeToFile:path atomically:NO encoding:enc error:&error];
 			}
 			VERBOSE_LOG_IF_TRUE((error!=nil),@"Tried read write to file '%@', error was %@, data to write was %@",path,error,args);
 			return [NSNumber numberWithBool:result];
@@ -283,26 +293,45 @@
 			return [path lastPathComponent];
 		}
 		case FILEPATH_RESOLVEPATH:{
-			return [path stringByStandardizingPath];
+			return path;
 		}
 	}
 	
 	return nil;
 }
 
-
-
-- (void) doAsyncFileCopy: (NSNumber *) copyToken from:(id)sourceObj to:(id)destObj;
+- (id) makeNewTempPath: (NSNumber *) isDirectoryObject;
 {
-	if(fileCopyQueue == nil){
-		fileCopyQueue = [[NSOperationQueue alloc] init];
-	}
-	FileCopy * ourFileCopy = [[FileCopy alloc] init:[copyToken intValue] From:sourceObj to:destObj];
+	if(![isDirectoryObject respondsToSelector:@selector(boolValue)])return nil;
 	
-	NSInvocationOperation * ourOp = [[NSInvocationOperation alloc] initWithTarget:ourFileCopy selector:@selector(begin) object:nil];
-	[fileCopyQueue addOperation:ourOp];
-	[ourOp release];
-	[ourFileCopy release];
+	NSFileManager * ourFileManager = [[NSFileManager alloc] init];
+	NSString * tempDir = NSTemporaryDirectory();
+	NSError * error=nil;
+	
+	if(![ourFileManager fileExistsAtPath:tempDir]){
+		[ourFileManager createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:&error];
+		if(error != nil)return error;
+	}
+	
+	int timestamp = (int)(time(NULL) & 0xFFFFL);
+	NSString * resultPath;
+	do {
+		resultPath = [tempDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%X",timestamp]];
+		timestamp ++;
+	} while ([ourFileManager fileExistsAtPath:resultPath]);
+
+	if([isDirectoryObject boolValue]){
+		[ourFileManager createDirectoryAtPath:resultPath withIntermediateDirectories:NO attributes:nil error:&error];
+	} else {
+		[[NSData data] writeToFile:resultPath options:0 error:&error];
+	}
+
+	[ourFileManager release];
+
+	if(error != nil)return error;
+	
+	NSString * command = [NSString stringWithFormat:@"Ti.Filesystem.getFile('%@')",resultPath];
+	return [TitaniumJSCode codeWithString:command];
 }
 
 
@@ -318,6 +347,8 @@
 	[(FilesystemModule *)invocGen filePath:nil performFunction:nil arguments:nil];
 	NSInvocation * fileActionInvoc = [invocGen invocation];
 	
+	[(FilesystemModule *)invocGen makeNewTempPath:nil];
+	NSInvocation * fileTempInvoc = [invocGen invocation];
 	
 	TitaniumJSCode * fileWrapperObjectCode = [TitaniumJSCode codeWithString:@"function(newPath){this.path=newPath;}"];
 	[fileWrapperObjectCode setEpilogueCode:@"Ti.Filesystem._FILEOBJ.prototype={"
@@ -337,6 +368,8 @@
 			"createTimeStamp:function(){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_CREATIONSTAMP) ");},"
 			"modificationTimeStamp:function(){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_MODIFYSTAMP) ");},"
 			"getDirectoryListing:function(){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_LISTFILES) ");},"
+			"size:function(){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_FILESIZE) ");},"
+			"spaceAvailible:function(){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_DRIVESPACE) ");},"
 //Functions that change data
 			"copy:function(dest){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_COPY) ",dest.toString());},"
 			"createDirectory:function(recur){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_MAKEDIRECTORY) ",recur);},"
@@ -376,6 +409,10 @@
 			[TitaniumJSCode codeWithString:@"{}"],@"_FILES",
 			
 			getFileCode,@"getFile",
+			
+			fileTempInvoc,@"_MKTMP",
+			[TitaniumJSCode codeWithString:@"function(){return Ti.Filesystem._MKTMP(false);}"],@"createTempFile",
+			[TitaniumJSCode codeWithString:@"function(){return Ti.Filesystem._MKTMP(true);}"],@"createTempDirectory",
 			
 			[TitaniumJSCode functionReturning:resourcePath],@"getResourcesDirectory",
 			[TitaniumJSCode functionReturning:appDirectory],@"getApplicationDirectory",

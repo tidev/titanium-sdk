@@ -19,7 +19,6 @@
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		B4EA71F00FBC94DB005AA7FB /* libTitanium.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B49D35000FBC943A0029ABEB /* libTitanium.a */; };
-		B4EA72040FBC9549005AA7FB /* TitaniumView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B4EA72030FBC9549005AA7FB /* TitaniumView.xib */; };
 		B4EA732B0FBC9893005AA7FB /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4EA72ED0FBC9868005AA7FB /* AudioToolbox.framework */; };
 		B4EA732C0FBC9896005AA7FB /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B4EA72EE0FBC9868005AA7FB /* libz.dylib */; };
 		B4EA732D0FBC989A005AA7FB /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4EA72EF0FBC9868005AA7FB /* CoreLocation.framework */; };
@@ -45,7 +44,6 @@
 		32CA4F630368D1EE00C91783 /* KitchenSink_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "KitchenSink_Prefix.pch"; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 		B49D35000FBC943A0029ABEB /* libTitanium.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libTitanium.a; path = Resources/libTitanium.a; sourceTree = "<group>"; };
-		B4EA72030FBC9549005AA7FB /* TitaniumView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = TitaniumView.xib; path = Resources/TitaniumView.xib; sourceTree = "<group>"; };
 		B4EA72050FBC9594005AA7FB /* project */ = {isa = PBXFileReference; lastKnownFileType = folder; name = project; path = ../..; sourceTree = SOURCE_ROOT; };
 		B4EA72C80FBC9857005AA7FB /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		B4EA72ED0FBC9868005AA7FB /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -125,7 +123,6 @@
 				B49D35000FBC943A0029ABEB /* libTitanium.a */,
 				B4EA83650FBCA52B005AA7FB /* Default.png */,
 				8D1107310486CEB800E47090 /* Info.plist */,
-				B4EA72030FBC9549005AA7FB /* TitaniumView.xib */,
 				2418F5910FCB9EB100BFE545 /* tiapp.plist */,
 			);
 			name = "iPhone Resources";
@@ -193,7 +190,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
-				B4EA72040FBC9549005AA7FB /* TitaniumView.xib in Resources */,
 				B4EA83660FBCA52C005AA7FB /* Default.png in Resources */,
 				2418F5920FCB9EB100BFE545 /* tiapp.plist in Resources */,
 				259A152D0FDB01B5000372D8 /* Resources/Entitlements.plist in Resources */,

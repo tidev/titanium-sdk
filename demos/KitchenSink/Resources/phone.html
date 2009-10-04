@@ -3,6 +3,7 @@
 	<title>Phone API</title>
 	
 	<script>
+	
 	Titanium.UI.addEventListener('tabchange',function(e)
 	{
 		Titanium.API.info('>>>>>>>>>>>>>>>>>>>>>>>>>> TABCHANGE index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
@@ -30,6 +31,7 @@
 		title:'Phone API',
 	}, function(eventObject) 
 	{
+		Titanium.API.info('HERE I AM ' + eventObject.index)
 		// handle tableview click events
 		var idx = eventObject.index;
 		switch(idx)

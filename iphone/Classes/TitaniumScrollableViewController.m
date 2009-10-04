@@ -334,7 +334,7 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	NSString * pathString = [self javaScriptPath];
 	NSString * commandString = [NSString stringWithFormat:@"(function(){%@.currentPage=%d;"
-			"%@.doEvent({type:'scroll',currentPage:%d,view:%@})})();",pathString,currentPage,pathString,currentPage,
+			"%@.doEvent('scroll',{type:'scroll',currentPage:%d,view:%@})})();",pathString,currentPage,pathString,currentPage,
 			[[contentViewControllers objectAtIndex:currentPage] javaScriptPath]];
 
 	[theHost sendJavascript:commandString toPagesWithTokens:listeningWebContextTokens update:YES];

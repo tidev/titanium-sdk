@@ -230,6 +230,7 @@ printAllDocumentation = function(){
 <div id='output'></div>
 
 <script>
+
 Ti.API.debug('Starting...');
 documentation['API']={since:0.4,desc:'API module'};
 documentation['API.log']={since:0.4,desc:'writes information to the console log/STDERR',
@@ -483,16 +484,11 @@ documentation['Filesystem.File.extension']={"since": "0.7", "generalType": "meth
 documentation['Filesystem.File.getDirectoryListing']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.getParent']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 
-documentation['Filesystem.File.isExecutable']={"since": "0.7", "generalType": "method", "args": [], "desc": "Checks whether a file is an executable file",
-	"result": {"dataType": "boolean", "desc": "true if the file is an executable file; for the iPhone, this is always false"}};
-documentation['Filesystem.File.isHidden']={"since": "0.7", "generalType": "method", "args": [], "desc": "Checks whether a file or directory is hidden",
-	"result": {"dataType": "boolean", "desc": "true if the file or directory is hidden; for the iPhone, this is always false"}};
-documentation['Filesystem.File.isReadonly']={"since": "0.7", "generalType": "method", "args": [], "desc": "Checks whether a file or directory is read-only",
-	"result": {"dataType": "boolean", "desc": "true if the file or directory is read-only or does not exist, false if otherwise"}};
-documentation['Filesystem.File.isSymbolicLink']={"since": "0.7", "generalType": "method", "args": [], "desc": "Checks whether the File object references a symbolic link"};
-	"result": {"dataType": "boolean", "desc": "true if the File object references a symbolic link, false if otherwise"}};
-documentation['Filesystem.File.isWritable']={"since": "0.7", "generalType": "method", "args": [], "desc": "Checks whether a file or directory is writeable"};
-	"result": {"dataType": "boolean", "desc": "true if the file or directory exists and is writeable, false if otherwise"}};
+documentation['Filesystem.File.isExecutable']={"since": "0.7", "generalType": "method", "args": [], "desc": "Checks whether a file is an executable file", "result": {"dataType": "boolean", "desc": "true if the file is an executable file; for the iPhone, this is always false"}};
+documentation['Filesystem.File.isHidden']={"since": "0.7", "generalType": "method", "args": [], "desc": "Checks whether a file or directory is hidden", "result": {"dataType": "boolean", "desc": "true if the file or directory is hidden; for the iPhone, this is always false"}};
+documentation['Filesystem.File.isReadonly']={"since": "0.7", "generalType": "method", "args": [], "desc": "Checks whether a file or directory is read-only", "result": {"dataType": "boolean", "desc": "true if the file or directory is read-only or does not exist, false if otherwise"}};
+documentation['Filesystem.File.isSymbolicLink']={"since": "0.7", "generalType": "method", "args": [], "desc": "Checks whether the File object references a symbolic link", "result": {"dataType": "boolean", "desc": "true if the File object references a symbolic link, false if otherwise"}};
+documentation['Filesystem.File.isWritable']={"since": "0.7", "generalType": "method", "args": [], "desc": "Checks whether a file or directory is writeable", "result": {"dataType": "boolean", "desc": "true if the file or directory exists and is writeable, false if otherwise"}};
 
 documentation['Filesystem.File.modificationTimeStamp']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.move']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
@@ -503,81 +499,87 @@ documentation['Filesystem.File.read']={"since": "0.7", "generalType": "method", 
 documentation['Filesystem.File.rename']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.resolve']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.setExecutable']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['Filesystem.File.setHidden']={"since": "0.7", "generalType": "method", "args": [{name:'hidden',dataType:'boolean',desc:'the new value'}], "desc": "sets the hidden flag of files on desktop. On the iPhone, does nothing"};
+documentation['Filesystem.File.setHidden']={"since": "0.7", "generalType": "method", "args": [{"name": "hidden", "dataType": "boolean", "desc": "the new value"}], "desc": "sets the hidden flag of files on desktop. On the iPhone, does nothing"};
 documentation['Filesystem.File.setReadonly']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['Filesystem.File.size']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['Filesystem.File.spaceAvailible']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.toString']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.write']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['Filesystem.MODE_APPEND']={hidden:true,"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "int"};
-		documentation['Filesystem.MODE_READ']={hidden:true,"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "int"};
-		documentation['Filesystem.MODE_WRITE']={hidden:true,"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "int"};
-documentation['Filesystem.getFile']={"since": "0.7", "generalType": "method", "args": [], "desc": "Returns a file object based on the path provided, optionally joining multiple arguments together in an OS specific way",
-	"result": {"dataType": "File", "desc": "a File reference the file"}};
-
+		documentation['Filesystem.MODE_APPEND']={"hidden": true, "since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "int"};
+		documentation['Filesystem.MODE_READ']={"hidden": true, "since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "int"};
+		documentation['Filesystem.MODE_WRITE']={"hidden": true, "since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "int"};
+documentation['Filesystem.createTempDirectory']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['Filesystem.createTempFile']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['Filesystem.getApplicationDataDirectory']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['Filesystem.getApplicationDirectory']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['Filesystem.getFile']={"since": "0.7", "generalType": "method", "args": [], "desc": "Returns a file object based on the path provided, optionally joining multiple arguments together in an OS specific way", "result": {"dataType": "File", "desc": "a File reference the file"}};
+documentation['Filesystem.getLineEnding']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.getResourcesDirectory']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['Filesystem.isExteralStoragePresent']={"since": "0.7", "generalType": "method", "args": [], "desc": "Check to see if external media storage exists",
-	"result": {"dataType": "boolean", "desc": "true if external storage is present; for the iPhone, this is always false"}};
-
+documentation['Filesystem.getSeperator']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['Filesystem.isExteralStoragePresent']={"since": "0.7", "generalType": "method", "args": [], "desc": "Check to see if external media storage exists", "result": {"dataType": "boolean", "desc": "true if external storage is present; for the iPhone, this is always false"}};
 
 documentation['UI.DatePicker']={"since": "0.7", "desc": "Possible modes availible for DatePickerObject", "generalType": "property", "dataType": "object", "minArgCount": 1};
 documentation['UI.DatePicker.MODE_DATE']={"since": "0.7", "desc": "constant used to describe a date picker that has columns for month, date, and year", "generalType": "property", "dataType": "int"};
 documentation['UI.DatePicker.MODE_DATE_AND_TIME']={"since": "0.7", "desc": "constant used to describe a date picker that has columns for date, hour, minute, and optionally a 12-hour period", "generalType": "property", "dataType": "int"};
 documentation['UI.DatePicker.MODE_TIME']={"since": "0.7", "desc": "constant used to describe a date picker that has columns for hour, minute, and optionally a 12-hour period", "generalType": "property", "dataType": "int"};
-documentation['UI.DatePicker.addEventListener']={"since": "0.7", "createsEvents":[{name:'change'}]};
 
-		documentation['UI.DatePickerObject.blur']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['UI.DatePickerObject.ensureToken']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['UI.DatePickerObject.findDivPos']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['UI.DatePickerObject.focus']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePickerObject']={"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "object", "minArgCount": 2};
+documentation['UI.DatePickerObject.addEventListener']={"since": "0.7", "createsEvents": [{"name": "change"}]};
+		documentation['UI.DatePickerObject.blur']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.DatePickerObject.ensureToken']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.DatePickerObject.findDivPos']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.DatePickerObject.focus']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.DatePickerObject.hide']={"since": "0.7", "generalType": "method", "args": [], "desc": "sets the hidden property of the DatePickerObject to true and updates the picker"};
-		documentation['UI.DatePickerObject.onClick']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.DatePickerObject.removeEventListener']={"since": "0.7", "removesEvents": ["change"]};
+		documentation['UI.DatePickerObject.onClick']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.DatePickerObject.removeEventListener']={"since": "0.7", "removesEvents": ["change"], "generalType": "method", "args": [{"name": "type", "dataType": "string", "desc": "the type of event to remove the listener from.  Must be or undefined"}, {"name": "callback", "dataType": "function", "desc": "the function to be removed"}], "desc": "removes an event listener from or undefined events", "minArgCount": 2, "result": {"dataType": "boolean", "desc": "returns true if successfully removed"}};
 documentation['UI.DatePickerObject.setId']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['UI.DatePickerObject.setIndex']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['UI.DatePickerObject.setMax']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['UI.DatePickerObject.setMin']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.DatePickerObject.setIndex']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.DatePickerObject.setMax']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.DatePickerObject.setMin']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.DatePickerObject.setValue']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.DatePickerObject.show']={"since": "0.7", "generalType": "method", "args": [], "desc": "sets the hidden property of the DatePickerObject to false and updates the picker"};
-		documentation['UI.DatePickerObject.systemButton']={hidden:true,"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "string"};
-documentation['UI.DatePickerObject.update']={"since": "0.7", "generalType": "method", "args": [],
-	"desc": "Forces the UI.DatePicker native object to reload its javascript properties. This is often done automatically"};
+		documentation['UI.DatePickerObject.systemButton']={"hidden": true, "since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "string"};
+documentation['UI.DatePickerObject.update']={"since": "0.7", "generalType": "method", "args": [], "desc": "Forces the UI.DatePicker native object to reload its javascript properties. This is often done automatically"};
 
 documentation['UI.EmailDialog.setBarColor']={"since": "0.7", "isSetter": true, "args": [{"dataType": "string", "desc": "a web color to tint the navigation bar of the email dialog", "name": "newBarColor"}], "generalType": "method", "desc": "sets the barColor property"};
 
 documentation['UI.Picker']={"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "object", "minArgCount": 1};
-documentation['UI.Picker.addEventListener']={"since": "0.7", "createsEvents":[{"name": "change"}]};
-		documentation['UI.Picker.blur']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['UI.Picker.ensureToken']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['UI.Picker.findDivPos']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['UI.Picker.focus']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.addEventListener']={"since": "0.7", "createsEvents": [{"name": "change"}], "generalType": "method", "args": [{"name": "type", "dataType": "string", "desc": "the type of event to listen for.  Must be or change"}, {"name": "callback", "dataType": "function", "desc": "the function that will be called when the event occurs. A single object event is passed as an argument"}], "desc": "adds an event listener to be called for a or change event", "minArgCount": 2, "result": {"dataType": "method", "desc": "the callback function, for use in removeEventListener"}};
+		documentation['UI.Picker.blur']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.Picker.ensureToken']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.Picker.findDivPos']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.Picker.focus']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.Picker.hide']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['UI.Picker.onClick']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.Picker.removeEventListener']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.Picker.setId']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['UI.Picker.setIndex']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['UI.Picker.setMax']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['UI.Picker.setMin']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['UI.Picker.setValue']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.Picker.onClick']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.removeEventListener']={"since": "0.7", "removesEvents": ["change"], "generalType": "method", "args": [{"name": "type", "dataType": "string", "desc": "the type of event to remove the listener from.  Must be or undefined"}, {"name": "callback", "dataType": "function", "desc": "the function to be removed"}], "desc": "removes an event listener from or undefined events", "minArgCount": 2, "result": {"dataType": "boolean", "desc": "returns true if successfully removed"}};
+		documentation['UI.Picker.setId']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.Picker.setIndex']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.Picker.setMax']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.Picker.setMin']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.Picker.setValue']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.Picker.show']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['UI.Picker.systemButton']={hidden:true,"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "string"};
-documentation['UI.Picker.update']={"since": "0.7", "generalType": "method", "args": [],
-	"desc": "Forces the UI.DatePicker native object to reload its javascript properties. This is often done automatically"};
+		documentation['UI.Picker.systemButton']={"hidden": true, "since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "string"};
+documentation['UI.Picker.update']={"since": "0.7", "generalType": "method", "args": [], "desc": "Forces the UI.DatePicker native object to reload its javascript properties. This is often done automatically"};
 
 documentation['UI.TableView.appendRow']={"since": "0.7", "generalType": "method", "args": [{"name": "row", "dataType": "object", "desc": "The data representing the row to be appended"}, {"name": "options", "dataType": "object", "desc": "If the table view is visible, the animationStyle property may be one of UI.iPhone.RowAnimationStyle to specify how the transition is animated"}], "desc": "appends a row at the end of the table view"};
+		documentation['UI.TableView.fireEvent']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 		documentation['UI.TableView.setBackButtonTitle']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 		documentation['UI.TableView.setBackButtonTitleImage']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.addEventListener']={"since": "0.7", "createsEvents": [{"name": "tabchange"}], "generalType": "method", "args": [{"name": "type", "dataType": "string", "desc": "the type of event to listen for.  Must be or tabchange"}, {"name": "callback", "dataType": "function", "desc": "the function that will be called when the event occurs. A single object event is passed as an argument"}], "desc": "adds an event listener to be called for a or tabchange event", "minArgCount": 2, "result": {"dataType": "method", "desc": "the callback function, for use in removeEventListener"}};
 
-documentation['UI.createCompositeView']={"since": "0.7", creates:"UI.CompositeView"};
-documentation['UI.createDatePicker']={"since": "0.7",creates:"UI.DatePickerObject"};
-documentation['UI.createImageView']={"since": "0.7", creates:"UI.ImageView"};
-		documentation['UI.createModalDatePicker']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-		documentation['UI.createModalPicker']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['UI.createPicker']={"since": "0.7", creates:"UI.Picker"};
-documentation['UI.createScrollableView']={"since": "0.7", creates:"UI.ScrollableView"};
+documentation['UI.createCompositeView']={"since": "0.7", "creates": "UI.CompositeView", "generalType": "method", "args": [{"name": "properties", "dataType": "object", "desc": "the properties to copy to the new UI.CompositeView object during creation"}], "desc": "Creates an UI.CompositeView object", "minArgCount": 0, "result": {"dataType": "object", "desc": "the created UI.CompositeView object"}};
+documentation['UI.createDatePicker']={"since": "0.7", "creates": "UI.DatePickerObject", "generalType": "method", "args": [{"name": "properties", "dataType": "object", "desc": "the properties to copy to the new UI.DatePickerObject object during creation"}], "desc": "Creates an UI.DatePickerObject object", "minArgCount": 0, "result": {"dataType": "object", "desc": "the created UI.DatePickerObject object"}};
+documentation['UI.createImageView']={"since": "0.7", "creates": "UI.ImageView", "generalType": "method", "args": [{"name": "properties", "dataType": "object", "desc": "the properties to copy to the new UI.ImageView object during creation"}], "desc": "Creates an UI.ImageView object", "minArgCount": 0, "result": {"dataType": "object", "desc": "the created UI.ImageView object"}};
+		documentation['UI.createModalDatePicker']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+		documentation['UI.createModalPicker']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.createPicker']={"since": "0.7", "creates": "UI.Picker", "generalType": "method", "args": [{"name": "properties", "dataType": "object", "desc": "the properties to copy to the new UI.Picker object during creation"}], "desc": "Creates an UI.Picker object", "minArgCount": 0, "result": {"dataType": "object", "desc": "the created UI.Picker object"}};
+documentation['UI.createScrollableView']={"since": "0.7", "creates": "UI.ScrollableView", "generalType": "method", "args": [{"name": "properties", "dataType": "object", "desc": "the properties to copy to the new UI.ScrollableView object during creation"}], "desc": "Creates an UI.ScrollableView object", "minArgCount": 0, "result": {"dataType": "object", "desc": "the created UI.ScrollableView object"}};
 		documentation['UI.createTab']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-
 documentation['UI.currentTab']={"since": "0.7", "desc": "object that represents the current tab for use in setActiveTab", "generalType": "property", "dataType": "object"};
+
+documentation['UI.currentWindow.fireEvent']={"since": "0.7", "generalType": "method", "args": [], "desc": "Triggers all "};
 documentation['UI.currentWindow.repaint']={"since": "0.7", "generalType": "method", "args": [], "desc": "Forces the window containing the javascript to ensure that all of the web page can be visible. This is often done automatically"};
+
 documentation['UI.getTabByName']={"since": "0.7", "generalType": "method", "args": [{"name": "name", "dataType": "string", "desc": "the name of the tab desired"}], "desc": "finds the tab whose name was set in tiapp.xml", "result": {"dataType": "object", "desc": "object that represents the requested tab"}};
 documentation['UI.getTabs']={"since": "0.7", "generalType": "method", "args": [], "desc": "lists the tabs specified in tiapp.xml", "result": {"dataType": "object", "desc": "array of objects that represent the tabs"}};
 documentation['UI.getWindowByName']={"since": "0.7", "generalType": "method", "args": [{"name": "name", "dataType": "string", "desc": "the name of the window desired"}], "desc": "returns the userWindow with a given name", "result": {"dataType": "object", "desc": "the UI.UserWindow object"}};
@@ -586,13 +588,11 @@ documentation['UI.setActiveTab']={"since": "0.7", "generalType": "method", "args
 documentation['UI.userWindow.setBackButtonTitle']={"since": "0.7", "isSetter": true, "args": [{"dataType": "string", "desc": "the title of the back button that will represent the window"}]};
 documentation['UI.userWindow.setBackButtonTitleImage']={"since": "0.7", "isSetter": true, "args": [{"dataType": "string", "desc": "the url of the image of the back button that will represent the window."}]};
 
-
-
+try{
 /*
 */
 //documentObject(Titanium,'');
-try{
-documentObject(Titanium.API,'API');
+//documentObject(Titanium.API,'API');
 documentObject(Titanium.UI,'UI');
 documentObject(Titanium.Filesystem,'Filesystem');
 

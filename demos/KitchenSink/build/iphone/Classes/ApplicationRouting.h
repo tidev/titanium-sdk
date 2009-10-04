@@ -25,6 +25,10 @@
 - (NSData*) pageNamedComp_view_1_body;
 - (NSData*) pageNamedComposite;
 - (NSData*) pageNamedComposite_views;
+- (NSData*) pageNamedCustom_events;
+- (NSData*) pageNamedCustom_events1;
+- (NSData*) pageNamedCustom_events2;
+- (NSData*) pageNamedCustom_events3;
 - (NSData*) pageNamedCustom_table_view_data;
 - (NSData*) pageNamedDatabase;
 - (NSData*) pageNamedDatabase2;
@@ -34,10 +38,13 @@
 - (NSData*) pageNamedFilesystem;
 - (NSData*) pageNamedFullscreen;
 - (NSData*) pageNamedGeo;
+- (NSData*) pageNamedHtml_table_view;
 - (NSData*) pageNamedImage;
 - (NSData*) pageNamedImage_views;
 - (NSData*) pageNamedIphone_ui;
 - (NSData*) pageNamedJs_events;
+- (NSData*) pageNamedJs_events2;
+- (NSData*) pageNamedModal;
 - (NSData*) pageNamedNavbar_color;
 - (NSData*) pageNamedNavbar_hide;
 - (NSData*) pageNamedNavbar_left;
@@ -45,6 +52,11 @@
 - (NSData*) pageNamedNavbar_title;
 - (NSData*) pageNamedOrientation;
 - (NSData*) pageNamedPhone;
+- (NSData*) pageNamedPicker1;
+- (NSData*) pageNamedPicker2;
+- (NSData*) pageNamedPicker3;
+- (NSData*) pageNamedPicker4;
+- (NSData*) pageNamedPickers;
 - (NSData*) pageNamedPlatform;
 - (NSData*) pageNamedPlatform_data;
 - (NSData*) pageNamedProgress_bars;
