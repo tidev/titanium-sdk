@@ -39,8 +39,9 @@
  			<icon>profile.png</icon>
 			<orientation>either</orientation>
 			<backButtonTitleImage>chat.png</backButtonTitleImage>
-			
+
         </window>
     </windows>
+    <property name="ti.android.debug" type="bool">true</property>
 <guid>6fe33f33fd1f4e95a06d2d217170866d</guid>
 </ti:app>

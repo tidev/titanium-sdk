@@ -1192,7 +1192,7 @@ var Switch = function(proxy) {
  * @tiapi(property=true,name=UI.Switch.value,since=0.7.0) get/set the switch value
  */
 Switch.prototype.__defineGetter__("value", function() {
-	return this.getValue;
+	return this.getValue();
 });
 
 Switch.prototype.__defineSetter__("value", function(value) {
@@ -1240,7 +1240,7 @@ var Slider = function(proxy) {
  * @tiapi(property=true,name=UI.Slider.value,since=0.7.0) get/set the slider value
  */
 Slider.prototype.__defineGetter__("value", function() {
-	return this.getValue;
+	return this.getValue();
 });
 
 Slider.prototype.__defineSetter__("value", function(value) {
@@ -1300,7 +1300,7 @@ var TextArea = function(proxy) {
  * @tiapi(property=true,name=UI.TextField.value,since=0.7.0) get/set the text field value
  */
 TextArea.prototype.__defineGetter__("value", function() {
-	return this.getValue;
+	return this.getValue();
 });
 
 TextArea.prototype.__defineSetter__("value", function(value) {
@@ -1360,7 +1360,7 @@ var TextField = function(proxy) {
  * @tiapi(property=true,name=UI.TextField.value,since=0.7.0) get/set the text field value
  */
 TextField.prototype.__defineGetter__("value", function() {
-	return this.getValue;
+	return this.getValue();
 });
 
 TextField.prototype.__defineSetter__("value", function(value) {
@@ -1930,6 +1930,9 @@ Titanium.UI = {
 	},
 	setStatusBarColor : function(color) {
 		// do nothing
+	},
+	createTabbedBar : function() {
+
 	}
 };
 Titanium.UI.createAlert = Titanium.UI.createAlertDialog; //TODO remove
