@@ -865,10 +865,10 @@ var UserWindow = function(proxy) {
 			v.index = i;
 			v.name = this.proxy.getViewName(v.key);
 			v.addEventListener = function(eventName, listener) {
-				return this.window.addViewEventListener(this.key, eventName, registerCallback(this, listener));
+				return this.window.addEventListener(this.key, eventName, registerCallback(this, listener));
 			};
 			v.removeEventListener = function(eventName, listenerId) {
-				this.window.removeViewEventListener(this.key, eventName, listenerId);
+				this.window.removeEventListener(this.key, eventName, listenerId);
 			};
 
 			views[i] = v;
