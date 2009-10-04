@@ -13,8 +13,8 @@
 		{title:'Change Me', name:'row2'},
 		{title:'Change Me'},
 		{title:'Change Me'},
-		{title:'Row5'},
-		{title:'Row6'},
+		{title:'Click to go HTML'},
+		{title:'Click to go title (above)'},
 		{title:'Row7'},
 		{title:'Row8',header:'Section 1'},
 		{title:'Row9'},
@@ -59,6 +59,21 @@
 			{
 				data = {title:'New Row4'};
 				tableView.updateRow(3,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+
+				break;
+			}
+
+			case 4:
+			{
+				data = {html:'<div>I am div</div>'};
+				tableView.updateRow(4,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+
+				break;
+			}
+			case 5:
+			{
+				data = {title:'I am a title'};
+				tableView.updateRow(4,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
 
 				break;
 			}

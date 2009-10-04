@@ -669,7 +669,7 @@ UIColor * checkmarkColor = nil;
 	}
 	NSString * detail = accessoryTapped ? @"true" : @"false";
 
-	NSString * triggeredCode = [[NSString alloc] initWithFormat:@".onClick('click',{type:'click',"
+	NSString * triggeredCode = [[NSString alloc] initWithFormat:@".onClick({type:'click',"
 			"index:%d,row:%d,section:%d,rowData:%@,detail:%@})",
 			index,row,section,rowData,detail];
 	

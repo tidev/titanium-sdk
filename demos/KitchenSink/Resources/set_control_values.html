@@ -12,7 +12,7 @@
 		});
 		slider.addEventListener('change',function(e)
 		{
-			document.getElementById('slider_value').innerHTML = 'Slider Updated!';
+			document.getElementById('slider_value').innerHTML = 'Slider changed to ' + slider.value;
 		});
 		document.getElementById('slider_button').onclick = function()
 		{
@@ -26,7 +26,7 @@
 		});
 		sw.addEventListener('change',function(e)
 		{
-			document.getElementById('switch_value').innerHTML = 'Switch Updated!';
+			document.getElementById('switch_value').innerHTML = 'Switch Updated to ' + sw.value;
 		});
 		document.getElementById('switch_button').onclick = function()
 		{
@@ -44,7 +44,7 @@
 
 		tf.addEventListener('change',function(e)
 		{
-			document.getElementById('textfield_value').innerHTML = 'TextField Updated!' ;
+			document.getElementById('textfield_value').innerHTML = 'TextField Updated to ' + tf.value ;
 		});
 		document.getElementById('textfield_button').onclick = function()
 		{
@@ -60,17 +60,38 @@
 		});
 		ta.addEventListener('change',function(e)
 		{
-			document.getElementById('textarea_value').innerHTML = 'Text Area Updated !';
+			document.getElementById('textarea_value').innerHTML = 'Text Area Updated to ' + ta.value;
 		})
 		document.getElementById('textarea_button').onclick = function()
 		{
 			ta.setValue('HELLO WORLD');
 		};
 		
+		var tabbar = Titanium.UI.createTabbedBar({
+			id:'tabbar', 
+			index:1,
+			labels:['Tab3', 'Tab4','Tab4a'],
+			backgroundColor:'#C11B17',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BAR
+		});
+
+		tabbar.addEventListener('change',function(e)
+		{
+			document.getElementById('tabbar_value').innerHTML = 'TabbedBar Updated to ' + tabbar.value;
+		})
+		document.getElementById('tabbar_button').onclick = function()
+		{
+			tabbar.setValue(0);
+		};
+		
 	};
 	</script>
 </head>
 <body style="font-family:Hevetica Neue">
+	<button id="tabbar_button" style="font-size:18px">Set Tab Bar to 0</button>
+	<div id="tabbar_value" style="font-size:12px;color:#888;height:20px"></div>
+	<div id="tabbar" style="width:200px;height:40px;margin:auto;margin-top:10px;"></div>
+
 	<button id="slider_button" style="font-size:18px">Set Slider to 50</button>
 	<div id="slider_value" style="font-size:12px;color:#888;height:20px"></div>
 	<div id="slider" style="height:30px;margin-bottom:20px;"></div>
@@ -86,6 +107,7 @@
 	<button id="textarea_button" style="font-size:18px">Set Text Area HELLO WORLD</button>
 	<div id="textarea_value" style="font-size:12px;color:#888;height:20px"></div>
 	<div id="textarea" style="height:50px;margin-bottom:20px;"></div>
+	
 	
 </body>
 </html>

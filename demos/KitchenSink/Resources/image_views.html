@@ -12,15 +12,17 @@
 		Titanium.UI.currentWindow.showView(scrollView);
 		
 		var activeView = wv1;
+		var i = 0;
+
 		scrollView.addEventListener('scroll', function(e)
 		{
 		    activeView = e.view  // the object handle to the view that is about to become visible
+			i = e.currentPage;
 		});
 
 		//
 		//  View handlers
 		//
-		var i = 0;
 
 		// change button to dynamically change the image
 		var change = Titanium.UI.createButton({

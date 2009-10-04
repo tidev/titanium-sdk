@@ -1,0 +1,52 @@
+<html>
+<head>
+	<script>
+	window.onload = function()
+	{
+		// set min time
+		var minDate = new Date();
+		minDate.setHours(0);
+		minDate.setMinutes(0);
+		
+		// set max time
+		var maxDate = new Date();
+		maxDate.setHours(23);
+		maxDate.setMinutes(59);
+		
+		var value = new Date();
+		value.setHours(10);
+		value.setMinutes(0);
+		
+		// create date picker
+		var datePicker = Titanium.UI.createDatePicker({
+		    id:'picker',
+			minDate:minDate,
+			maxDate:maxDate,
+			value:value,
+		    mode:Titanium.UI.DatePicker.MODE_TIME, 
+		});
+
+		// add change listener for date picker
+		datePicker.addEventListener('change', function(e)
+		{
+		    document.getElementById('value').innerHTML = e.value;
+			
+		});
+
+		// set date value
+		//datePicker.setValue(new Date(), {animated:true});		
+	
+	};
+	
+	
+	</script>
+	
+</head>
+<body style="margin:0;padding:0;font-family:Helvetica Neue;font-size:18px">
+	<div style="margin:20px">
+		<p>Current Value</p>
+		<div id="value" style="font-weight:bold;color:#336699;font-size:14px"></div>
+	</div>
+	<div id="picker" style="position:absolute;bottom:200"></div>
+</body>
+</html>

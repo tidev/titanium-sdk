@@ -4,9 +4,46 @@
 
 </head>
 <body  style="font-family:'Helvetica Neue'">
-	Coming soon.
-	<script>
+	<div>This test will open the photo gallery and save the image file</div>
+	<button id="test1">Photo Gallery Test</button>
+	<div>This test will open the file above and set the background image</div>
+	<button id="test2">Set Background Image</button>
 
+	<script>
+	window.onload = function()
+	{
+
+		document.getElementById('test1').onclick = function()
+		{
+			Titanium.Media.openPhotoGallery({
+				success: function(image,details)
+				{
+					var f= Titanium.Filesystem.getFile(image.url);
+					Titanium.API.info('FILE ' + f.size())
+					f.copy('foo.png');
+				},
+				error: function(error)
+				{
+				},
+				cancel: function()
+				{
+
+				},
+				allowImageEditing:true
+			});
+		
+		};
+		document.getElementById('test2').onclick = function()
+		{
+			var f= Titanium.Filesystem.getFile('foo.png');
+			Titanium.API.info('path ' + f.path)
+			if (f)
+			{
+				document.body.style.backgroundImage = 'url('+f.path+')';
+			}
+		};
+		
+	};
 
 	</script>
 </body>
