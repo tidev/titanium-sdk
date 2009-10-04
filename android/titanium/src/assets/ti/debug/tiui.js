@@ -66,6 +66,9 @@ var MenuItem = function() {
 	this.addItem = function(label, callback, icon) {
 		var m = new MenuItem();
 		this._callback = callback;
+		if (isUndefined(icon)) {
+			icon = null;
+		}
 		m.obj = this.obj.addItem(label, registerCallback(this, this._callback), icon);
 		return m;
 	};
@@ -77,6 +80,9 @@ var MenuItem = function() {
 	 */
 	this.addSubMenu = function(label, icon) {
 		var m = new MenuItem();
+		if (isUndefined(icon)) {
+			icon = null;
+		}
 		m.obj = this.obj.addSubMenu(label, icon);
 		return m;
 	};
@@ -485,12 +491,14 @@ var ImageView = function(proxy) {
 
 	this.setURL = function(url) {
 		if (!isUndefined(url)) {
-			this.proxy.setURL(proxy);
+			this.proxy.setURL(url);
 		}
 	};
 
-	this.setScale = function(scale) {
-		this.setScale(scale);
+	this.setCanScale = function(canScale) {
+		if (!isUndefined(canScale)) {
+			this.proxy.setCanScale(canScale);
+		}
 	};
 
 	/**
