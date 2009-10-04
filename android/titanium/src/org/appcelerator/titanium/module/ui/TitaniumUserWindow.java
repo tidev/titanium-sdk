@@ -234,7 +234,7 @@ public class TitaniumUserWindow extends ViewAnimator
 	public void setTitle(String title) {
 		this.title = title;
 		if (isOpen) {
-			handler.obtainMessage(MSG_SET_TITLE, title);
+			handler.obtainMessage(MSG_SET_TITLE, title).sendToTarget();
 		}
 	}
 
