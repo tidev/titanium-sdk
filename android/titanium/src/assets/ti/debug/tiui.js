@@ -392,6 +392,11 @@ var EmailDialog = function(proxy) {
 	this.open = function() {
 		this.proxy.open();
 	};
+
+	// iPhone methods
+	this.setBarColor = function() {
+
+	};
 };
 
 var TitaniumNotifier = function(proxy) {

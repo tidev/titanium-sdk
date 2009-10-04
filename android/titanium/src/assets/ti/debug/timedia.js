@@ -275,5 +275,9 @@ Titanium.Media = {
 			}
 		}
 		return player;
+	},
+	//iPhone
+	saveToPhotoGallery : function() {
+
 	}
 };
