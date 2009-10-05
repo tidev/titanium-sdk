@@ -1,0 +1,29 @@
+<html>
+<head>
+
+
+</head>
+<body  style="font-family:'Helvetica Neue';background-color:#999">
+	View 2</br>
+	<button id="one" style="font-size:14px">show view 1 - get by name </button></br>
+
+	<script>
+
+	document.getElementById('one').onclick = function()
+	{
+		var one = Titanium.UI.currentWindow.getViewByName('number1');
+		
+		var style = (Titanium.Platform.name == 'android')
+				? Titanium.UI.Android.AnimationStyle.WINK
+				:Titanium.UI.iPhone.AnimationStyle.CURL_UP;
+		
+		Titanium.UI.currentWindow.showView(one,{
+			animated:true,
+			animationStyle:style,
+			animationDuration:1000
+		});
+	};
+
+	</script>
+</body>
+</html>

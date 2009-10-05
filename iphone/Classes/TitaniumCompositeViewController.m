@@ -104,7 +104,7 @@
 {
 	SEL floatValue = @selector(floatValue);
 	NSNumber * inputVal;
-	READ_CONSTRAINT(@"z",hasZConstraint,z);
+	READ_CONSTRAINT(@"zIndex",hasZConstraint,z);
 	READ_CONSTRAINT(@"left",hasLeftConstraint,left);
 	READ_CONSTRAINT(@"right",hasRightConstraint,right);
 	READ_CONSTRAINT(@"width",hasWidthConstraint,width);
@@ -193,7 +193,7 @@
 
 #ifndef __IPHONE_3_0
 typedef int UIEventSubtype;
-const UIEventSubtype UIEventSubtypeMotionShake=1;
+#define UIEventSubtypeMotionShake	1
 #endif
 
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event

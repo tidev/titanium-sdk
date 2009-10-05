@@ -1,0 +1,45 @@
+<html>
+<head>
+<style>
+.button
+{
+	font-size:18px;width:280px;text-align:center
+}
+</style>
+</head>
+<body style="background-color:#fff;font-size:20px;font-family:'Helvetica Neue';font-weight:bold">
+
+	<div><input type="button" id="1" value="Launch Email" class="button"/></div>
+
+	<script>
+	document.getElementById('1').onclick = function()
+	{
+		Titanium.Media.openPhotoGallery({
+			success: function(image,details)
+			{
+				var emailDialog = Titanium.UI.createEmailDialog()
+				emailDialog.setSubject('foo');
+				emailDialog.setToRecipients(['foo@yahoo.com']);
+				emailDialog.setCcRecipients(['bar@yahoo.com']);
+				emailDialog.setBccRecipients(['obama@whitehouse.gov']);
+				emailDialog.setMessageBody('this is a test message');
+				emailDialog.addAttachment(image);
+				emailDialog.setBarColor('#336699');
+				emailDialog.open();
+
+			},
+			error: function(error)
+			{
+			},
+			cancel: function()
+			{
+
+			},
+			allowImageEditing:true
+		});
+		
+	};
+
+	</script>
+</body>
+</html>

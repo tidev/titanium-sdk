@@ -1,0 +1,30 @@
+<html>
+<head>
+
+
+</head>
+<body  style="font-family:'Helvetica Neue'">
+
+	Using the fixed spaced button to do custom spacing.
+	
+	<script>
+	var button1 = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.SAVE
+	});
+	var button2 = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.CANCEL
+	});
+	var fixedSpace = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.FIXED_SPACE,
+		width:20
+	});
+	var flexSpace = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE,
+		width:20
+	});
+
+	Titanium.UI.currentWindow.setToolbar([flexSpace,button1,fixedSpace,button2,flexSpace]);
+
+	</script>
+</body>
+</html>

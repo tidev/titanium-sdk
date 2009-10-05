@@ -1,0 +1,39 @@
+<html>
+<head>
+
+
+</head>
+<body  style="font-family:'Helvetica Neue';font-size:11px">
+	
+	<div style="margin-bottom:5px">Switch (default true)</div>
+	<div id="s1" style="height:30px"></div>
+	<div id="s1_value" style="margin-top:5px;margin-bottom:20px;color:#999;height:10px"></div>
+	<div style="margin-bottom:5px;height:10px">Switch (default false)</div>
+	<div id="s2" style="height:30px"></div>
+	<div id="s2_value" style="margin-top:5px;margin-bottom:10px;color:#999;height:10px"></div>
+	
+	
+	<script>
+	var s1 = Titanium.UI.createSwitch({
+		id:'s1',
+		value:true
+	});
+	
+	s1.addEventListener('change',function(e)
+	{
+		document.getElementById('s1_value').innerHTML = 'SWITCH 1 VALUE = ' + e.value;
+	});
+
+	var s2 = Titanium.UI.createSwitch({
+		id:'s2',
+		value:false
+	});
+	
+	s2.addEventListener('change',function(e)
+	{
+		document.getElementById('s2_value').innerHTML = 'SWITCH 2 VALUE = ' +e.value;
+	});
+
+	</script>
+</body>
+</html>

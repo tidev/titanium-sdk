@@ -1,0 +1,44 @@
+<html>
+<head>
+
+
+</head>
+<body  style="font-family:'Helvetica Neue'">
+	Hide and Show the toolbar
+	
+	<br/><button id="hide" style="font-size:18px">Hide</button></br>
+	<button id="show" style="font-size:18px">Show</button>
+
+	<script>
+	var flexSpace = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+	});
+
+	var a = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.ACTION
+	});
+	var b = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.CAMERA
+	});
+	var c = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.COMPOSE
+	});
+	var d = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.BOOKMARKS
+	});
+	var e = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.REFRESH
+	});
+	
+	document.getElementById('hide').onclick = function()
+	{
+		Titanium.UI.currentWindow.setToolbar(null);
+	};
+	document.getElementById('show').onclick = function()
+	{
+		Titanium.UI.currentWindow.setToolbar([a,flexSpace,b,flexSpace,c,flexSpace,d,flexSpace,e]);
+	};
+
+	</script>
+</body>
+</html>

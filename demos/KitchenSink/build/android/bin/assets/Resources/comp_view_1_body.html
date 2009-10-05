@@ -1,0 +1,35 @@
+<html>
+<head>
+	<script>
+	window.onload = function()
+	{
+		// data for tableview
+		var data = [
+			{title:'Row 1', hasChild:true},
+			{title:'Row 2', hasChild:true},
+			{title:'Row 3', hasChild:true},
+			{title:'Row 4', hasChild:true},
+			{title:'Row 5', hasChild:true},
+			{title:'Row 6', hasChild:true},
+			{title:'Row 7', hasChild:true},
+			{title:'Row 8', hasChild:true},
+			{title:'Row 9', hasChild:true},
+			
+
+		];
+
+		// tableview object
+		var tableView = Titanium.UI.createTableView({
+			data:data,
+		}, function(e)
+		{
+			
+		});
+		Titanium.UI.currentWindow
+	};
+	</script>
+</head>
+<body>
+ 
+</body>
+</html>

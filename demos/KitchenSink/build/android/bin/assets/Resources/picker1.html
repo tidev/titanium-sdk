@@ -1,0 +1,75 @@
+<html>
+<head>
+	<script>
+	window.onload = function()
+	{
+		var data = [];
+		
+		// support title attribute
+		var col1 = {data:[
+		    {title:'Pizza', selected:true,fontSize:20},
+		    {title:'Shrimp',fontSize:20},
+		    {title:'Pasta',fontSize:20},
+		    {title:'Tacos',fontSize:20},
+		    {title:'Oysters',fontSize:20},
+		
+			]
+		};
+		
+		// support html attribute (also supports selected attribute for initial value)
+		var col2 = {width:50,data:[
+		    {html:'<img src="iTunes.png"/>'},
+		    {html:'<img src="Safari.png"/>'},
+		    {html:'<img src="Mail.png"/>'},
+		    {html:'<img src="Phone.png"/>'},
+
+			]
+		};
+		
+		// add columns to array
+		data.push(col1);
+		data.push(col2);
+
+		var picker = Titanium.UI.createPicker({id:'picker',data:data,selectionIndicator:true});
+		picker.addEventListener('change', function(e)
+		{
+			document.getElementById('value').innerHTML = 'column ' + e.column + '<br/> row ' + e.row;			
+		});
+
+		setTimeout(function()
+		{
+			picker.selectRow(3,0,{animated:true});
+		},1000);
+		
+		document.getElementById('button').onclick = function()
+		{
+			var data = {data:[
+			    {title:'Dogs', selected:true,fontSize:20},
+			    {title:'Cats',fontSize:20},
+			    {title:'Birds',fontSize:20},
+			    {title:'Donkeys',fontSize:20},
+			    {title:'Elephants',fontSize:20},
+
+				]
+			};
+			//picker.setColumnData(0,data);
+			picker.setData(data)
+		};
+	
+	};
+	
+	
+	</script>
+	
+</head>
+<body style="margin:0;padding:0;font-family:Helvetica Neue;font-size:18px">
+	
+	<div style="margin:20px">
+		<button style="font-size:18px" id="button">Change Data</button>
+	
+		<p>Current Value </p>
+		<div id="value" style="font-weight:bold;color:#336699;font-size:14px"></div>
+	</div>
+	<div id="picker" style="position:absolute;bottom:200"></div>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<html>
+<head>
+
+
+</head>
+<body  style="font-family:'Helvetica Neue'">
+	<div id="message"></div>
+	
+	<script>
+	var type = (Titanium.Network.networkType==0)?'None':(Titanium.Network.networkType==1)?'WiFi':
+		(Titanium.Network.networkType==2)?'Mobile':(Titanium.Network.networkType==3)?'Network LAN':'Unknown';
+	
+	var html  = '';
+	html+= 'Name: ' + Titanium.Platform.name + '<br/>';
+	html+= 'Model: ' + Titanium.Platform.model + '<br/>';
+	html+= 'Version: ' + Titanium.Platform.version + '<br/>';
+	html+= 'Available Memory: ' + Titanium.Platform.availableMemory + '<br/>';
+	html+= 'Phone Number: ' + Titanium.Platform.phoneNumber + '<br/>';
+	html+= 'OS Type: ' + Titanium.Platform.ostype + '<br/>';
+	html+= 'Architecture: ' + Titanium.Platform.architecture + '<br/>';
+	html+= 'Address: ' + Titanium.Platform.address + '<br/>';
+	html+= 'ID: ' + Titanium.Platform.id + '<br/>';
+	html+= 'Mac Address: ' + Titanium.Platform.macaddress + '<br/>';
+	html+= 'Processor count: ' + Titanium.Platform.processorCount + '<br/>';
+	html+= 'Username: ' + Titanium.Platform.username + '<br/>';
+	html+= 'Create UUID: ' + Titanium.Platform.createUUID() + '<br/>';
+	html+= 'Titanium.Network.online: ' + Titanium.Network.online  + '<br/>';
+	html+= 'Titanium.Network.networkType: ' + type  + '<br/>';
+
+	document.getElementById('message').innerHTML = html;
+
+	</script>
+</body>
+</html>
