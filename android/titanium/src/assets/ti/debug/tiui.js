@@ -468,7 +468,11 @@ var CompositeView = function(proxy) {
 	 */
 	this.addView = function(view,layout) {
 		if (!isUndefined(view)) {
-			this.proxy.addView(view.proxy.getKey(),Titanium.JSON.stringify(layout));
+			if (!isUndefined(view.key)) {
+				this.proxy.addView(view.key, Titanium.JSON.stringify(layout));
+			} else {
+				this.proxy.addView(view.proxy.getKey(),Titanium.JSON.stringify(layout));
+			}
 		}
 	};
 
@@ -862,6 +866,7 @@ var UserWindow = function(proxy) {
 			v = {};
 			v.window = this.proxy;
 			v.key = this.proxy.getViewKey(i);
+			Titanium.API.debug("VIEW KEY: " + v.key);
 			v.index = i;
 			v.name = this.proxy.getViewName(v.key);
 			v.addEventListener = function(eventName, listener) {
@@ -901,6 +906,7 @@ var UserWindow = function(proxy) {
 		} else {
 			options = Titanium.JSON.stringify(options);
 		}
+		Titanium.API.debug("VIEW OBJ: " + String(view));
 		if(!isUndefined(view.key)) {
 			this.proxy.showViewByKey(view.key, options);
 		} else {

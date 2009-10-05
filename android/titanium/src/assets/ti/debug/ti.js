@@ -36,8 +36,8 @@ var Titanium = new function() {
 	this.checked = function(r) {
 		if (!isUndefined(r)) {
 			if (typeof(r.getException) !== 'undefined') {
-				this.apiProxy.log(6,"checking: " + r.getException());
 				if(!isUndefined(r.getException())) {
+					this.apiProxy.log(6,"checking: " + r.getException());
 					throw r.getException();
 				} else {
 					if (typeof(r.getResult) !== 'undefined') {
