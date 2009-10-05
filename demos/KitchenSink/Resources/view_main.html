@@ -13,7 +13,9 @@
 		{title:'Scroll Views', hasChild:true},
 		{title:'View Animations', hasChild:true},
 		{title:'Image Views', hasChild:true},
-		{title:'Composite Views', hasChild:true},
+		{title:'Composite View 1', hasChild:true},
+		{title:'Composite View 2', hasChild:true},
+
 		{title:'Custom Events', hasChild:true},
 		{title:'HTML Table View', hasChild:true}
 		
@@ -66,13 +68,21 @@
 			}
 			case 4:
 			{
-				var win = Titanium.UI.createWindow({url:'custom_events.html',title:'Custom Events',
+				var win = Titanium.UI.createWindow({url:'composite_views2.html',title:'Composite Views',
 					backgroundColor:'#ffffff'});
 				win.open({animated:true});
 				break;
 			}
 
 			case 5:
+			{
+				var win = Titanium.UI.createWindow({url:'custom_events.html',title:'Custom Events',
+					backgroundColor:'#ffffff'});
+				win.open({animated:true});
+				break;
+			}
+
+			case 6:
 			{
 				var win = Titanium.UI.createWindow({url:'html_table_view.html',title:'HTML TableView',
 					backgroundColor:'#ffffff'});

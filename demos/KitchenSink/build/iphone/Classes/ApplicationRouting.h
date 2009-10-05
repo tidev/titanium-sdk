@@ -25,6 +25,7 @@
 - (NSData*) pageNamedComp_view_1_body;
 - (NSData*) pageNamedComposite;
 - (NSData*) pageNamedComposite_views;
+- (NSData*) pageNamedComposite_views2;
 - (NSData*) pageNamedCustom_events;
 - (NSData*) pageNamedCustom_events1;
 - (NSData*) pageNamedCustom_events2;

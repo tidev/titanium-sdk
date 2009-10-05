@@ -1,0 +1,97 @@
+<html>
+<head>
+
+
+</head>
+<body  style="font-family:'Helvetica Neue'">
+	<div style="margin-bottom:10px">Watch Position</div>
+	<div style="height:20px" id="callcount"></div>
+	<div style="height:20px" id="timestamp"></div>
+	<div style="height:20px" id="latitude"></div>
+	<div style="height:20px" id="longitude"></div>
+	<div style="height:20px" id="altitude"></div>
+	<div style="height:20px" id="accuracy"></div>
+	<div style="height:20px" id="altitudeAccuracy"></div>
+	<div style="height:20px" id="heading"></div>
+	<div style="height:20px" id="speed"></div>
+	
+	<div style="margin-top:10px">Current Position</div>
+	<div style="height:20px" id="callcount2"></div>
+	<div style="height:20px" id="timestamp2"></div>
+	<div style="height:20px" id="latitude2"></div>
+	<div style="height:20px" id="longitude2"></div>
+	<div style="height:20px" id="altitude2"></div>
+	<div style="height:20px" id="accuracy2"></div>
+	<div style="height:20px" id="altitudeAccuracy2"></div>
+	<div style="height:20px" id="heading2"></div>
+	<div style="height:20px" id="speed2"></div>
+	
+	<script>
+	var count =0;
+	var count2 = 0;
+	Titanium.Geolocation.getCurrentPosition(
+		function(pos)
+		{
+			count2++;
+			document.getElementById('callcount2').innerHTML = 'Call count = ' + count2;
+			var timestamp = document.getElementById('timestamp2');
+			var latitude = document.getElementById('latitude2');
+			var longitude = document.getElementById('longitude2');
+			var altitude = document.getElementById('altitude2');
+			var accuracy = document.getElementById('accuracy2');
+			var altitudeAccuracy = document.getElementById('altitudeAccuracy2');
+			var heading = document.getElementById('heading2');
+			var speed = document.getElementById('speed2');
+			
+			var coords = pos.coords;
+			timestamp.innerHTML = 'Timestamp: ' + pos.timestamp;
+			latitude.innerHTML = 'Latitude: ' + coords.latitude;
+			longitude.innerHTML = 'Longitude: ' + coords.longitude;
+		    altitude.innerHTML= 'Altitude: ' + coords.altitude;
+			accuracy.innerHTML = 'Accuracy: ' + coords.accuracy;
+			altitudeAccuracy.innerHTML = 'Altitude Accuracy: ' + coords.altitudeAccuracy;
+			heading.innerHTML = 'Heading: ' + coords.heading;
+			speed.innerHTML = 'Speed: ' + coords.speed;
+			
+		}, 
+		function()
+		{
+			
+		}
+	);
+
+	Titanium.Geolocation.watchPosition(
+		function(pos)
+		{
+			count++;
+			document.getElementById('callcount').innerHTML = 'Call count = ' + count;
+
+			var timestamp = document.getElementById('timestamp');
+			var latitude = document.getElementById('latitude');
+			var longitude = document.getElementById('longitude');
+			var altitude = document.getElementById('altitude');
+			var accuracy = document.getElementById('accuracy');
+			var altitudeAccuracy = document.getElementById('altitudeAccuracy');
+			var heading = document.getElementById('heading');
+			var speed = document.getElementById('speed');
+
+			var coords = pos.coords;
+			timestamp.innerHTML = 'Timestamp: ' + pos.timestamp;
+			latitude.innerHTML = 'Latitude: ' + coords.latitude;
+			longitude.innerHTML = 'Longitude: ' + coords.longitude;
+		    altitude.innerHTML= 'Altitude: ' + coords.altitude;
+			accuracy.innerHTML = 'Accuracy: ' + coords.accuracy;
+			altitudeAccuracy.innerHTML = 'Altitude Accuracy: ' + coords.altitudeAccuracy;
+			heading.innerHTML = 'Heading: ' + coords.heading;
+			speed.innerHTML = 'Speed: ' + coords.speed;
+
+		}, 
+		function()
+		{
+
+		}
+	);
+
+	</script>
+</body>
+</html>

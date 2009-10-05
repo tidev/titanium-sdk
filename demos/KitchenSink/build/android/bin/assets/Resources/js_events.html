@@ -1,0 +1,193 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+	"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, user-scalable=no">
+		<style type="text/css" media="screen">
+			div {
+				position: absolute;
+				width: 50px;
+				height: 50px;
+			}
+			p {
+				position: absolute;
+				left: 10px;
+				bottom: 10px;
+			}
+
+			#item {
+				background-color: grey;
+				width: 150px;
+				height: 150px;
+				left: 80px;
+				top: 80px;
+			}
+
+			#green, #blue, #red {
+				left: 10px;
+			}
+			#green {
+				background-color: green;
+				top: 10px;
+			}
+			#blue {
+				background-color: blue;
+				top: 90px;
+			}
+			#red {
+				background-color: red;
+				top: 170px;
+			}
+
+			#solid, #dashed, #dotted {
+				right: 10px;
+				height: 46px;
+				width: 46px;
+				border-size: 2px;
+				border-color: black;
+			}
+			#solid {
+				border-style: solid;
+				top: 10px;
+			}
+			#dashed {
+				border-style: dashed;
+				top: 90px;
+			}
+			#dotted {
+				border-style: dotted;
+				top: 170px;
+			}
+			body
+			{
+				-webkit-user-select:none;
+			}
+		</style>
+		<script type="text/javascript" charset="utf-8" src="http://o.aolcdn.com/dojo/1.1.1/dojo/dojo.xd.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			dojo.addOnLoad(function(){
+				var nodes = [];
+				dojo.query("div").forEach(function(node){
+					nodes[node.id] = node;
+				});
+
+				var dragging = false;
+				var sizing = false;
+				var rotating = 0;
+
+				function touch(e){
+					dojo.forEach(e.changedTouches, function(e){
+						var color, border;
+						var target = e.target;
+						if(target == nodes.green || target == nodes.blue || target == nodes.red){
+							// Change the color based on whatever's been changed in the touch start
+							color = target.id;
+						}else if(target == nodes.solid || target == nodes.dashed || target == nodes.dotted){
+							// Change the border based on whatever's been changed in the touch start
+							border = target.id;
+						}else if(target == nodes.item && !dragging){
+							// Save the offset of the touch within the current note
+							dragging = [e.pageX - dojo.style(nodes.item, "left"), e.pageY - dojo.style(nodes.item, "top")];
+						}
+
+						if(color){
+							dojo.style(nodes.item, "backgroundColor", color);
+						}else if(border){
+							dojo.style(nodes.item, "border", "3px " + border + " black");
+							dojo.style(nodes.item, "border"); // Random Safari bug where I have to read style for it to "take"
+						}
+					});
+					
+				}
+
+				function touchend(evt){
+					dojo.forEach(evt.changedTouches, function(e){
+						// Check to see if we've gone from a gesture back down to a touch
+						if(e.target == nodes.item){
+							if(evt.targetTouches.length == 1){
+								// If there was rotation, this number needs to be reset
+								dragging = [evt.targetTouches[0].pageX - dojo.style(nodes.item, "left"), evt.targetTouches[0].pageY - dojo.style(nodes.item, "top")];
+							}else if(!evt.targetTouches.length){
+								// Great use of e.targeTouches, since releasing on finger that's part
+								// of a gesture over this node would trigger a touchend even though
+								// it could keep going
+								dragging = false;
+							}
+						}
+					});
+
+					var color = "grey", border = "none";
+					dojo.forEach(evt.touches, function(e){
+						// If when a finger is removed, if there's another finger down
+						// then we'll use that value to override the defaults
+						var target = e.target;
+						if(target == nodes.green || target == nodes.blue || target == nodes.red){
+							color = target.id;
+						}else if(target == nodes.solid || target == nodes.dashed || target == nodes.dotted){
+							border = target.id;
+						}
+					});
+
+					dojo.style(nodes.item, {
+						backgroundColor: color,
+						border: "3px " + border + " black"
+					});
+					
+				}
+
+				function touchmove(evt){
+					evt.preventDefault();
+					dojo.forEach(evt.changedTouches, function(e){
+						if(dragging && !sizing && e.target == nodes.item){
+							// Move the node if we're in a state of dragging, but not resizing
+							dojo.style(nodes.item, {
+								left: e.pageX - dragging[0] + "px",
+								top: e.pageY - dragging[1] + "px"
+							});
+						}
+					});
+				}
+
+				function gesture(e){
+					var node = e.target;
+					// Save the original size (since we'll be getting a multiplier later)
+					sizing = [dojo.style(node, "width"), dojo.style(node, "height")];
+				}
+
+				function gesturechange(e){
+					if(sizing){
+						var node = e.target;
+						// Change size and rotation using the scale and rotating properties
+						dojo.style(node, {
+							width: Math.min(sizing[0] * e.scale, 300) + "px",
+							height: Math.min(sizing[1] * e.scale, 300) + "px",
+							webkitTransform: "rotate(" + ((rotating + e.rotation) % 360) + "deg)"
+						});
+					}
+				}
+
+				function gestureend(e){
+					sizing = false;
+					rotating = (rotating + e.rotation) % 360;
+				}
+
+				dojo.connect(dojo.doc, "ontouchstart", touch);
+				dojo.query("div").connect("ontouchmove", touchmove);
+				dojo.connect(dojo.doc, "ontouchend", touchend);
+				dojo.connect(nodes.item, "ongesturestart", gesture);
+				dojo.connect(nodes.item, "ongesturechange", gesturechange);
+				dojo.connect(nodes.item, "ongestureend", gestureend);
+			});
+		</script>
+	</head>
+	<body>
+		<div id="item"></div>
+		<div id="green"></div>
+		<div id="blue"></div>
+		<div id="red"></div>
+		<div id="solid"></div>
+		<div id="dashed"></div>
+		<div id="dotted"></div>
+		<p>Demo is courtesy of SitePen </p>
+	</body>
+</html>
