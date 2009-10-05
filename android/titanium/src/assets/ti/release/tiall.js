@@ -161,7 +161,7 @@ if(!isUndefined(message)){notifier.setMessage(message);}
 if(!isUndefined(color)){notifier.setColor(color);}
 if(!isUndefined(delay)){notifier.setDelay(delay);}
 if(!isUndefined(transparency)){notifier.setTransparency(transparency);}}}else{Titanium.API.warn("Unable to create proxy, returning null.");}
-return notifier;};Titanium.UI.iPhone={BORDERED:-1,StatusBar:{OPAQUE_BLACK:-1},setStatusBarStyle:function(x){},SystemButton:{PAUSE:-1,REWIND:-1,PLAY:-1,FIXED_SPACE:-1,FLEXIBLE_SPACE:-1},SystemButtonStyle:{PLAIN:-1},AnimationStyle:{FLIP_FROM_LEFT:-1,FLIP_FROM_RIGHT:-1,CURL_UP:-1,CURL_DOWN:-1},RowAnimationStyle:{LEFT:-1,RIGHT:-1,UP:-1,DOWN:-1}};
+return notifier;};Titanium.UI.iPhone={BORDERED:-1,StatusBar:{OPAQUE_BLACK:-1},setStatusBarStyle:function(x){},SystemButton:{PAUSE:-1,REWIND:-1,PLAY:-1,FIXED_SPACE:-1,FLEXIBLE_SPACE:-1},SystemButtonStyle:{PLAIN:-1},AnimationStyle:{FLIP_FROM_LEFT:-1,FLIP_FROM_RIGHT:-1,CURL_UP:-1,CURL_DOWN:-1},RowAnimationStyle:{LEFT:-1,RIGHT:-1,UP:-1,DOWN:-1},createGroupedSection:function(){},createGroupedView:function(){}};
 Titanium.fileSystemProxy=window.TitaniumFilesystem;TitaniumFile=function(f)
 {this.proxy=f;};TitaniumFile.prototype.isFile=function()
 {return Titanium.checked(this.proxy.call("isFile"));};TitaniumFile.prototype.isDirectory=function()

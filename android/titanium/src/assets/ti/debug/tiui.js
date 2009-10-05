@@ -2279,6 +2279,12 @@ Titanium.UI.iPhone = {
 		RIGHT : -1,
 		UP : -1,
 		DOWN : -1
+	},
+	createGroupedSection : function () {
+
+	},
+	createGroupedView : function() {
+
 	}
 };
 
