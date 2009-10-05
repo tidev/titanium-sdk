@@ -249,7 +249,7 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 	{
 		if (msg.what == MSG_CHANGE) {
 			EditText tv = (EditText) control;
-			value = tv.getText();
+			value = tv.getText().toString();
 			JSONObject o = new JSONObject();
 			try {
 				o.put("value", value);
@@ -259,7 +259,7 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 			}
 		} else if (msg.what == MSG_RETURN) {
 			EditText tv = (EditText) control;
-			value = tv.getText();
+			value = tv.getText().toString();
 			JSONObject o = new JSONObject();
 			try {
 				o.put("value", value);
@@ -309,6 +309,7 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 	}
 
 	public String getValue() {
+		String s = (String) value;
 		return (String) value;
 	}
 

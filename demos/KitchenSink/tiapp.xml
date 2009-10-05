@@ -39,7 +39,7 @@
  			<icon>profile.png</icon>
 			<orientation>either</orientation>
 			<backButtonTitleImage>chat.png</backButtonTitleImage>
-			
+
         </window>
     </windows>
 <guid>6fe33f33fd1f4e95a06d2d217170866d</guid>

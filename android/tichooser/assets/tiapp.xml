@@ -107,7 +107,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
         <window>
             <id>ImageView</id>
             <title>Image View</title>
@@ -117,7 +117,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-<!--
+
         <window>
             <id>CompositeView</id>
             <title>Composite View</title>
@@ -157,7 +157,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+-->
         <window>
             <id>TableView HTML</id>
             <title>Table View HTML</title>
@@ -167,7 +167,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+<!--
 		<window>
             <id>TableViewUpdates</id>
             <title>Table View Updates</title>

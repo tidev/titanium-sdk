@@ -72,6 +72,11 @@
 	[dictionary setValue:js forKey:@"__INIT"];
 }
 
+- (void)registerContentViewController: (Class)controller forToken:(NSString*)token
+{
+	[TitaniumContentViewController registerContentViewController:controller forToken:token];
+}
+
 - (void) evaluateJavascript:(NSString *) code token:(NSString*)token
 {
 	if (token == nil)

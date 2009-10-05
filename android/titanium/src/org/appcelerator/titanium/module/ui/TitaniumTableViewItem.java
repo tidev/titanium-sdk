@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.module.ui;
 
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumUIHelper;
@@ -34,6 +35,7 @@ import android.widget.ViewAnimator;
 public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callback
 {
 	private static final String LCAT = "TitaniamTableViewItem";
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private static final int MSG_SHOW_VIEW_1 = 300;
 
@@ -221,7 +223,7 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 						String html = data.getString("html");
 						if (html != null) {
 							setDisplayedChild(0);
-							webView.load(html);
+							webView.load(html, rowHeight);
 							switchView = false;
 						}
 					} catch (JSONException e) {
@@ -256,6 +258,7 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 
 		private String htmlPrefix;
 		private String htmlPostfix;
+		private int rowHeight;
 
 		public LocalWebView(Context context, int defaultTextColor)
 		{
@@ -284,7 +287,7 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 				.append(Color.green(defaultTextColor)).append(",")
 				.append(Color.blue(defaultTextColor)).append(",")
 				.append(Color.alpha(defaultTextColor))
-				.append("); '>")
+				.append(";height:100px); '>")
 				;
 			htmlPrefix = sb.toString();
 			htmlPostfix = "</body></html>";
@@ -295,17 +298,41 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 				public void onPageFinished(WebView view, String url) {
 					super.onPageFinished(view, url);
 
-					handler.sendEmptyMessageDelayed(MSG_SHOW_VIEW_1, 150);
+					handler.sendEmptyMessageDelayed(MSG_SHOW_VIEW_1, 100);
 				}
 
 			});
 		}
 
-		public void load(String html)
+		public void load(String html, int rowHeight)
 		{
+			this.rowHeight = rowHeight;
 			StringBuilder sb = new StringBuilder();
 			sb.append(htmlPrefix).append(html).append(htmlPostfix);
+			//sb.append(html);
 			loadDataWithBaseURL("file:///android_asset/Resources/", sb.toString(), "text/html", "UTF-8", null);
+		}
+
+		private String modeString(int mode) {
+			switch (mode) {
+			case MeasureSpec.AT_MOST : return "AT_MOST";
+			case MeasureSpec.EXACTLY : return "EXACTLY";
+			case MeasureSpec.UNSPECIFIED : return "UNSPECIFIED";
+			default : return "DEFAULT";
+			}
+		}
+
+		@Override
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+			if (false) {
+				int wMode = MeasureSpec.getMode(widthMeasureSpec);
+				int wSize = MeasureSpec.getSize(widthMeasureSpec);
+				int hMode = MeasureSpec.getMode(heightMeasureSpec);
+				int hSize = MeasureSpec.getSize(heightMeasureSpec);
+
+				Log.e(LCAT, "MEASURE: " + modeString(wMode) + " " + wSize + ", " + modeString(hMode) + " " + hSize);
+			}
+			setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), rowHeight);
 		}
 	}
 

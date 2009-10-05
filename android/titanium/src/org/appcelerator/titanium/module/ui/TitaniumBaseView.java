@@ -156,7 +156,6 @@ public abstract class TitaniumBaseView extends FrameLayout
 	}
 
 	public void dispatchConfigurationChange(Configuration newConfig) {
-		tmm.getCurrentView().dispatchConfigurationChange(newConfig);
 	}
 
 	// Called on the current view, so forward to our controller
