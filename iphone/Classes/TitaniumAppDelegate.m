@@ -191,7 +191,7 @@
 
 #ifndef __IPHONE_3_0
 typedef int UIEventSubtype;
-const UIEventSubtype UIEventSubtypeMotionShake=1;
+#define UIEventSubtypeMotionShake	1
 #endif
 
 // using iPhone 2.2 this is how we do shake
