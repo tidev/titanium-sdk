@@ -18,6 +18,7 @@
 #import "TitaniumHost.h"
 
 int nextContentViewToken = 0;
+NSMutableDictionary * registery = nil;
 
 @implementation TitaniumContentViewController
 @synthesize titaniumWindowToken, primaryToken, nameString;
@@ -27,6 +28,16 @@ int nextContentViewToken = 0;
 {
 	return [NSString stringWithFormat:@"VIEW%d",nextContentViewToken++];
 }
+
++ (void)registerContentViewController: (Class)controllerClass forToken:(NSString*)token
+{
+	if (registery == nil)
+	{
+		registery = [[NSMutableDictionary alloc] init];
+	}
+	[registery setObject:controllerClass forKey:token];
+}
+
 
 + (TitaniumContentViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
@@ -45,7 +56,9 @@ int nextContentViewToken = 0;
 		}
 
 		NSString * typeString = [(NSDictionary *)inputState objectForKey:@"_TYPE"];
-		if ([typeString isKindOfClass:[NSString class]]) {
+		if ([typeString isKindOfClass:[NSString class]]) 
+		{
+			//TODO: refactor to register these from within the modules after 0.7
 			if ([typeString isEqualToString:@"table"]){
 				result = [[TitaniumTableViewController alloc] init];
 			} else if ([typeString isEqualToString:@"scroll"]){
@@ -54,6 +67,14 @@ int nextContentViewToken = 0;
 				result = [[TitaniumCompositeViewController alloc] init];
 			} else if ([typeString isEqualToString:@"image"]){
 				result = [[TitaniumImageViewController alloc] init];
+			}
+			else 
+			{
+				Class viewControllerClass = [registery objectForKey:typeString];
+				if (viewControllerClass!=nil)
+				{
+					result = [[viewControllerClass alloc] init];
+				}
 			}
 		}
 		resultName = [(NSDictionary *)inputState objectForKey:@"name"];

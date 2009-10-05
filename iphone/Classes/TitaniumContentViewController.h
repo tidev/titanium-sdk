@@ -17,6 +17,7 @@
 	
 	NSMutableSet * listeningWebContextTokens;
 	NSString * titaniumWindowToken;
+	
 }
 
 @property(nonatomic,readwrite,copy)	NSString * titaniumWindowToken;	//Does not retain the parent, just the token.
@@ -26,6 +27,7 @@
 
 + (NSString *) requestToken;
 + (TitaniumContentViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
++ (void)registerContentViewController: (Class)controller forToken:(NSString*)token;
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 
 - (BOOL) hasToken: (NSString *) tokenString;

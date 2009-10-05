@@ -6,6 +6,7 @@
  */
 #import <Foundation/Foundation.h>
 #import "TitaniumModule.h"
+#import "TitaniumContentViewController.h"
 
 /**
  * This is a convenient base class for Titanium Modules that provides
@@ -55,6 +56,11 @@
  * bind javascript code that will execute once the module is loaded (can only be called during configure)
  */
 - (void) bindInitializer:(NSString *)code;
+
+/**
+ * create new content view controller class which is used to create windows/views using token passed in createWindow
+ */
+- (void)registerContentViewController: (Class)controllerClass forToken:(NSString*)token;
 
 /**
  * evaluate Javascript code in the context of a page. Pass nil for token to invoke in the current page token for the

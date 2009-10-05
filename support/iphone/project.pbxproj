@@ -12,6 +12,11 @@
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		2418F31F0FCB095700BFE545 /* ApplicationRouting.m in Sources */ = {isa = PBXBuildFile; fileRef = 2418F31E0FCB095700BFE545 /* ApplicationRouting.m */; };
 		2418F5920FCB9EB100BFE545 /* tiapp.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2418F5910FCB9EB100BFE545 /* tiapp.plist */; };
+                249377BD10797681003847F0 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 249377BC10797681003847F0 /* OpenGLES.framework */; };
+                249378A210797846003847F0 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 249378A110797846003847F0 /* QuartzCore.framework */; };
+                2493799C10798AD0003847F0 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2493799B10798AD0003847F0 /* MapKit.framework */; };
+                249379A010798AF8003847F0 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2493799F10798AF8003847F0 /* AddressBook.framework */; };
+                249379A210798AF8003847F0 /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 249379A110798AF8003847F0 /* AddressBookUI.framework */; };
 		24B7119F0FC7758C004726E8 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2432E3980FC77343004A7260 /* libsqlite3.dylib */; };
 		25444A39102CE6BF0089FBDD /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25444A38102CE6BF0089FBDD /* MessageUI.framework */; };
 		259A152D0FDB01B5000372D8 /* Resources/Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = 259A152C0FDB01B5000372D8 /* Resources/Entitlements.plist */; };
@@ -35,6 +40,11 @@
 		2418F31E0FCB095700BFE545 /* ApplicationRouting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ApplicationRouting.m; sourceTree = "<group>"; };
 		2418F5910FCB9EB100BFE545 /* tiapp.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = tiapp.plist; path = Resources/tiapp.plist; sourceTree = "<group>"; };
 		2432E3980FC77343004A7260 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
+                249377BC10797681003847F0 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk/System/Library/Frameworks/OpenGLES.framework; sourceTree = DEVELOPER_DIR; };
+                249378A110797846003847F0 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
+                2493799B10798AD0003847F0 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk/System/Library/Frameworks/MapKit.framework; sourceTree = DEVELOPER_DIR; };
+                2493799F10798AF8003847F0 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk/System/Library/Frameworks/AddressBook.framework; sourceTree = DEVELOPER_DIR; };
+                249379A110798AF8003847F0 /* AddressBookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBookUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk/System/Library/Frameworks/AddressBookUI.framework; sourceTree = DEVELOPER_DIR; };
 		25444A38102CE6BF0089FBDD /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		259A152C0FDB01B5000372D8 /* Resources/Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Resources/Entitlements.plist; sourceTree = "<group>"; };
 		25C89E2D0FD0671D000A63BB /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
@@ -70,6 +80,11 @@
 				B4EA71F00FBC94DB005AA7FB /* libTitanium.a in Frameworks */,
 				24B7119F0FC7758C004726E8 /* libsqlite3.dylib in Frameworks */,
 				25444A39102CE6BF0089FBDD /* MessageUI.framework in Frameworks */,
+                                249377BD10797681003847F0 /* OpenGLES.framework in Frameworks */,
+                                249378A210797846003847F0 /* QuartzCore.framework in Frameworks */,
+                                2493799C10798AD0003847F0 /* MapKit.framework in Frameworks */,
+                                249379A010798AF8003847F0 /* AddressBook.framework in Frameworks */,
+                                249379A210798AF8003847F0 /* AddressBookUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -142,6 +157,11 @@
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				288765FC0DF74451002DB57D /* CoreGraphics.framework */,
+                                249377BC10797681003847F0 /* OpenGLES.framework */,
+                                249378A110797846003847F0 /* QuartzCore.framework */,
+                                2493799B10798AD0003847F0 /* MapKit.framework */,
+                                2493799F10798AF8003847F0 /* AddressBook.framework */,
+                                249379A110798AF8003847F0 /* AddressBookUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
