@@ -66,6 +66,9 @@ var MenuItem = function() {
 	this.addItem = function(label, callback, icon) {
 		var m = new MenuItem();
 		this._callback = callback;
+		if (isUndefined(icon)) {
+			icon = null;
+		}
 		m.obj = this.obj.addItem(label, registerCallback(this, this._callback), icon);
 		return m;
 	};
@@ -77,6 +80,9 @@ var MenuItem = function() {
 	 */
 	this.addSubMenu = function(label, icon) {
 		var m = new MenuItem();
+		if (isUndefined(icon)) {
+			icon = null;
+		}
 		m.obj = this.obj.addSubMenu(label, icon);
 		return m;
 	};
@@ -386,6 +392,11 @@ var EmailDialog = function(proxy) {
 	this.open = function() {
 		this.proxy.open();
 	};
+
+	// iPhone methods
+	this.setBarColor = function() {
+
+	};
 };
 
 var TitaniumNotifier = function(proxy) {
@@ -485,12 +496,14 @@ var ImageView = function(proxy) {
 
 	this.setURL = function(url) {
 		if (!isUndefined(url)) {
-			this.proxy.setURL(proxy);
+			this.proxy.setURL(url);
 		}
 	};
 
-	this.setScale = function(scale) {
-		this.setScale(scale);
+	this.setCanScale = function(canScale) {
+		if (!isUndefined(canScale)) {
+			this.proxy.setCanScale(canScale);
+		}
 	};
 
 	/**
@@ -852,10 +865,10 @@ var UserWindow = function(proxy) {
 			v.index = i;
 			v.name = this.proxy.getViewName(v.key);
 			v.addEventListener = function(eventName, listener) {
-				return this.window.addViewEventListener(this.key, eventName, registerCallback(this, listener));
+				return this.window.addEventListener(this.key, eventName, registerCallback(this, listener));
 			};
 			v.removeEventListener = function(eventName, listenerId) {
-				this.window.removeViewEventListener(this.key, eventName, listenerId);
+				this.window.removeEventListener(this.key, eventName, listenerId);
 			};
 
 			views[i] = v;
@@ -1179,7 +1192,7 @@ var Switch = function(proxy) {
  * @tiapi(property=true,name=UI.Switch.value,since=0.7.0) get/set the switch value
  */
 Switch.prototype.__defineGetter__("value", function() {
-	return this.getValue;
+	return this.getValue();
 });
 
 Switch.prototype.__defineSetter__("value", function(value) {
@@ -1227,7 +1240,7 @@ var Slider = function(proxy) {
  * @tiapi(property=true,name=UI.Slider.value,since=0.7.0) get/set the slider value
  */
 Slider.prototype.__defineGetter__("value", function() {
-	return this.getValue;
+	return this.getValue();
 });
 
 Slider.prototype.__defineSetter__("value", function(value) {
@@ -1287,7 +1300,7 @@ var TextArea = function(proxy) {
  * @tiapi(property=true,name=UI.TextField.value,since=0.7.0) get/set the text field value
  */
 TextArea.prototype.__defineGetter__("value", function() {
-	return this.getValue;
+	return this.getValue();
 });
 
 TextArea.prototype.__defineSetter__("value", function(value) {
@@ -1347,7 +1360,7 @@ var TextField = function(proxy) {
  * @tiapi(property=true,name=UI.TextField.value,since=0.7.0) get/set the text field value
  */
 TextField.prototype.__defineGetter__("value", function() {
-	return this.getValue;
+	return this.getValue();
 });
 
 TextField.prototype.__defineSetter__("value", function(value) {
@@ -1917,6 +1930,9 @@ Titanium.UI = {
 	},
 	setStatusBarColor : function(color) {
 		// do nothing
+	},
+	createTabbedBar : function() {
+
 	}
 };
 Titanium.UI.createAlert = Titanium.UI.createAlertDialog; //TODO remove

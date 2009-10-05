@@ -18,8 +18,8 @@
 		{
 			slider.setValue(50);
 		};
-		
-		
+
+
 		var sw = Titanium.UI.createSwitch({
 			id:'switch',
 			value:true
@@ -52,7 +52,7 @@
 		};
 
 		var ta = Titanium.UI.createTextArea({
-			id:'textarea', 
+			id:'textarea',
 			height:200,
 			width:300,
 			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_BEZEL
@@ -66,24 +66,25 @@
 		{
 			ta.setValue('HELLO WORLD');
 		};
-		
-		var tabbar = Titanium.UI.createTabbedBar({
-			id:'tabbar', 
-			index:1,
-			labels:['Tab3', 'Tab4','Tab4a'],
-			backgroundColor:'#C11B17',
-			style:Titanium.UI.iPhone.SystemButtonStyle.BAR
-		});
 
-		tabbar.addEventListener('change',function(e)
-		{
-			document.getElementById('tabbar_value').innerHTML = 'TabbedBar Updated to ' + tabbar.value;
-		})
-		document.getElementById('tabbar_button').onclick = function()
-		{
-			tabbar.setValue(0);
-		};
-		
+		if(Titanium.Platform.name != 'android') {
+			var tabbar = Titanium.UI.createTabbedBar({
+				id:'tabbar',
+				index:1,
+				labels:['Tab3', 'Tab4','Tab4a'],
+				backgroundColor:'#C11B17',
+				style:Titanium.UI.iPhone.SystemButtonStyle.BAR
+			});
+
+			tabbar.addEventListener('change',function(e)
+			{
+				document.getElementById('tabbar_value').innerHTML = 'TabbedBar Updated to ' + tabbar.value;
+			})
+			document.getElementById('tabbar_button').onclick = function()
+			{
+				tabbar.setValue(0);
+			};
+		}
 	};
 	</script>
 </head>
@@ -95,11 +96,11 @@
 	<button id="slider_button" style="font-size:18px">Set Slider to 50</button>
 	<div id="slider_value" style="font-size:12px;color:#888;height:20px"></div>
 	<div id="slider" style="height:30px;margin-bottom:20px;"></div>
-	
+
 	<button id="switch_button" style="font-size:18px">Set Switch to Off</button>
 	<div id="switch_value" style="font-size:12px;color:#888;height:20px"></div>
 	<div id="switch" style="height:30px;margin-bottom:20px;"></div>
-	
+
 	<button id="textfield_button" style="font-size:18px">Set Text Field to HELLO</button>
 	<div id="textfield_value" style="font-size:12px;color:#888;height:20px"></div>
 	<div id="textfield" style="height:25px;margin-bottom:20px;"></div>
@@ -107,7 +108,7 @@
 	<button id="textarea_button" style="font-size:18px">Set Text Area HELLO WORLD</button>
 	<div id="textarea_value" style="font-size:12px;color:#888;height:20px"></div>
 	<div id="textarea" style="height:50px;margin-bottom:20px;"></div>
-	
-	
+
+
 </body>
 </html>

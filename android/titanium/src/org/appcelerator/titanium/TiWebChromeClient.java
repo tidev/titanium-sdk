@@ -64,5 +64,16 @@ public class TiWebChromeClient extends WebChromeClient {
 		Log.i(LCAT, message);
    		result.confirm();
         return true;
-    };
+    }
+
+	@Override
+	public void onReceivedTitle(WebView view, String title) {
+		super.onReceivedTitle(view, title);
+		Activity activity = softActivity.get();
+		if (activity != null) {
+			activity.setTitle(title);
+		}
+	};
+
+
 }

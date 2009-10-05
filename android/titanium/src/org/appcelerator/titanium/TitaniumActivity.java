@@ -514,9 +514,16 @@ public class TitaniumActivity extends Activity
 	public void onTabChange(String data) {
 		handler.obtainMessage(MSG_TABCHANGE, data).sendToTarget();
 	}
-// UserWindow
 
-// UserWindow
+	@Override
+	public void setTitle(CharSequence title) {
+		Activity a = TitaniumActivityHelper.getRootActivity(this);
+		if (a instanceof TitaniumActivityGroup) {
+			a.setTitle(title);
+		} else {
+			super.setTitle(title);
+		}
+	}
 
 	@Override
 	protected void onResume()

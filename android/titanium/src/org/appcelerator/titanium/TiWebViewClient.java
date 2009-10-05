@@ -45,7 +45,7 @@ public class TiWebViewClient extends WebViewClient
 		if (activity != null) {
 			if (activity.getLoadOnPageEnd()) {
 				int activeView = activity.getCurrentWindow().getActiveViewIndex();
-				if (activity.getCurrentWindow().getViewCount() == 1) {
+				if (activity.getCurrentWindow().getViewCount() <= 1) {
 					activity.getCurrentWindow().setActiveView(0, null);
 				} else {
 					activity.getCurrentWindow().setActiveView(activeView, null);

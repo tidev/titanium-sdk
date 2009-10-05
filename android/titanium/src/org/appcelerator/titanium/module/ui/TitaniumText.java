@@ -105,7 +105,7 @@ public class TitaniumText extends TitaniumBaseNativeControl
 	{
 		if (msg.what == MSG_CHANGE) {
 			EditText tv = (EditText) control;
-			value = tv.getText();
+			value = tv.getText().toString();
 			JSONObject o = new JSONObject();
 			try {
 				o.put("value", value);
@@ -115,7 +115,7 @@ public class TitaniumText extends TitaniumBaseNativeControl
 			}
 		} else if (msg.what == MSG_RETURN) {
 			EditText tv = (EditText) control;
-			value = tv.getText();
+			value = tv.getText().toString();
 			JSONObject o = new JSONObject();
 			try {
 				o.put("value", value);
