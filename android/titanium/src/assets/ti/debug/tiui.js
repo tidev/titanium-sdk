@@ -807,6 +807,13 @@ var UserWindow = function(proxy) {
 	this.setTitleImage = function(imageUrl) {
 		this.proxy.setTitleImage(imageUrl);
 	};
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.setBackgroundColor,since=0.7.0) Set background color
+	 * @tiarg[string,backgroundColor] backgroundColor
+	 */
+	this.setBackgroundColor = function(backgroundColor) {
+		this.proxy.setBackgroundColor(backgroundColor);
+	};
 	this.setFullscreen = function(fullscreen) {
 		this.proxy.setFullscreen(fullscreen);
 	};
@@ -1017,6 +1024,13 @@ var UserWindowBuilder = function(proxy) {
 	 */
 	this.setTitleImage = function(imageUrl) {
 		this.proxy.setTitleImage(imageUrl);
+	};
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.setBackgroundColor,since=0.7.0) Set background color
+	 * @tiarg[string,backgroundColor] backgroundColor
+	 */
+	this.setBackgroundColor = function(backgroundColor) {
+		this.proxy.setBackgroundColor(backgroundColor);
 	};
 	/**
 	 * @tiapi(method=true,name=UI.UserWindow.setFullscreen,since=0.4) Set the window to take over the full screen
@@ -1386,6 +1400,7 @@ Titanium.UI = {
 			var fullscreen = options.fullscreen;
 			var title = options.title;
 			var titleImage = options.titleImage;
+			var backgroundColor = options.backgroundColor;
 
 			if (!isUndefined(url)) {
 				w.setURL(url);
@@ -1398,6 +1413,9 @@ Titanium.UI = {
 			}
 			if (!isUndefined(titleImage)) {
 				w.setTitleImage(titleImage);
+			}
+			if (!isUndefined(backgroundColor)) {
+				w.setBackgroundColor(backgroundColor);
 			}
 		}
 

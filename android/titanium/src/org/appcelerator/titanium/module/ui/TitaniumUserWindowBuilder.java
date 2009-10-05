@@ -39,6 +39,7 @@ public class TitaniumUserWindowBuilder
 	protected String url;
 	protected String type;
 	protected boolean fullscreen;
+	protected String backgroundColor;
 
 	protected WeakReference<TitaniumActivity> weakActivity;
 	protected static AtomicInteger activityCounter;
@@ -86,6 +87,9 @@ public class TitaniumUserWindowBuilder
 						if (type != null) {
 							intent.setActivityType(type);
 						}
+						if (backgroundColor != null) {
+							intent.setBackgroundColor(backgroundColor);
+						}
 						intent.setFullscreen(fullscreen);
 						if (windowId == null) {
 							intent.setWindowId(TitaniumIntentWrapper.createActivityName("UW-" + activityCounter.incrementAndGet()));
@@ -131,5 +135,9 @@ public class TitaniumUserWindowBuilder
 
 	public void setWindowId(String windowId) {
 		this.windowId = windowId;
+	}
+
+	public void setBackgroundColor(String backgroundColor) {
+		this.backgroundColor = backgroundColor;
 	}
 }

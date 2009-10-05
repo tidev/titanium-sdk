@@ -250,14 +250,7 @@ public class TitaniumWebView extends WebView
     	if (DBG) {
     		Log.d(LCAT, "buildWebView");
     	}
-// TODO: Move to window?
-//    	if (!useAsView) {
-//	    	TitaniumWindowInfo windowInfo = tmm.getActivity().getWindowInfo();
-//
-//			if (windowInfo != null && windowInfo.hasBackgroundColor()) {
-//				setBackgroundColor(windowInfo.getBackgroundColor());
-//			}
-//    	}
+
         if (url != null)
 		{
         	try {
