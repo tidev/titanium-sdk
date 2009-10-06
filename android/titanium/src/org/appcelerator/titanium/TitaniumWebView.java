@@ -567,7 +567,7 @@ public class TitaniumWebView extends WebView
 
 	public void invalidateLayout() {
 		handler.removeMessages(MSG_INVALIDATE_LAYOUT);
-		handler.sendEmptyMessageDelayed(MSG_INVALIDATE_LAYOUT, 250);
+		handler.sendEmptyMessageDelayed(MSG_INVALIDATE_LAYOUT, 100);
 	}
 
 	public void addControl(View control) {
