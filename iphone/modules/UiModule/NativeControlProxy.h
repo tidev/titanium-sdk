@@ -10,6 +10,8 @@
 #import "TitaniumModule.h"
 #import "WebFont.h"
 
+#define PICKER_SELECTROW	0
+
 enum {
 	UITitaniumNativeStyleBar = -32,
 	UITitaniumNativeStyleBig = -33,

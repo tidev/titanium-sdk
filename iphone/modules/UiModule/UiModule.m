@@ -187,7 +187,7 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void)alertView:(UIAlertView *)anAlertView clickedButtonAtIndex:(NSInteger)buttonIndex;
 {
-	NSString * result = [NSString stringWithFormat:@"Ti.UI._MODAL.%@.onClick('click'"
+	NSString * result = [NSString stringWithFormat:@"Ti.UI._MODAL.%@.onClick('click',"
 			"{type:'click',index:%d,cancel:%d})",tokenString,buttonIndex,[anAlertView cancelButtonIndex]];
 
 	[[TitaniumHost sharedHost] sendJavascript:result toPageWithToken:contextString];
@@ -439,6 +439,27 @@ NSString * UrlEncodeString(NSString * string)
 	} else {
 		[target performSelectorOnMainThread:@selector(resignFirstResponder) withObject:nil waitUntilDone:NO];
 	}
+}
+
+//New rules: When called by the Javascript, exceptions raised will be handled and relayed properly, so we need not
+//Double-check and fail silently when an invalid call comes through. However, things in the main thread NEEDS to not
+//raise exceptions
+- (id) picker: (NSString *)tokenString action: (NSNumber *) actionNumber arguments: (NSArray *) arguments;
+{
+	NativeControlProxy * target = [self proxyForObject:tokenString scan:NO recurse:NO];
+	if(target==nil)return nil;
+	BOOL argsIsArray = [arguments isKindOfClass:[NSArray class]];
+	switch ([actionNumber intValue]) {
+		case PICKER_SELECTROW:{
+			if(([target templateValue]==UITitaniumNativeItemPicker) && argsIsArray && ([arguments count]>1)){
+				[target performSelectorOnMainThread:@selector(selectColumnRow:) withObject:arguments waitUntilDone:NO];
+			}
+			return nil;
+		}
+		default:
+			break;
+	}
+	return nil;
 }
 
 - (void) modalPicker: (id)proxyObject visible:(NSNumber *) isVisibleObject options: (NSDictionary *) optionsObject;
@@ -1219,7 +1240,7 @@ NSString * UrlEncodeString(NSString * string)
 			"addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
 			"close:function(args){Ti.UI._CLS(Ti._TOKEN,args);},"
 			"setTitle:function(args){Ti.UI._WTITLE(Ti._TOKEN,args);},"
-			"fireEvent:function(){Ti.UI._WACT(Ti._TOKEN," STRINGVAL(WINDOW_FIRE_JSEVENT) ",arguments);},"
+			"fireEvent:function(typ,evt){if(Ti._TOKEN){Ti.UI._WACT(Ti._TOKEN," STRINGVAL(WINDOW_FIRE_JSEVENT) ",[typ,evt]);}},"
 			"setBarColor:function(args){Ti.UI._WNAVTNT(Ti._TOKEN,args);},"
 			"setFullscreen:function(newBool){Ti.UI._WFSCN(Ti._TOKEN,newBool);},"
 			"setTitle:function(args){Ti.UI._WTITLE(Ti._TOKEN,args);},"
@@ -1267,7 +1288,7 @@ NSString * UrlEncodeString(NSString * string)
 	NSString * createWindowString = @"function(args){var res={};"
 			"for(property in args){res[property]=args[property];res['_'+property]=args[property];};"
 //			"delete res._TOKEN;"
-			"res.fireEvent=function(evt){if(this._TOKEN){Ti.UI._WACT(this._TOKEN," STRINGVAL(WINDOW_FIRE_JSEVENT) ",evt);}};"
+			"res.fireEvent=function(typ,evt){if(this._TOKEN){Ti.UI._WACT(this._TOKEN," STRINGVAL(WINDOW_FIRE_JSEVENT) ",[typ,evt]);}};"
 			"res.setFullscreen=function(newBool){this.fullscreen=newBool;if(this._TOKEN){Ti.UI._WFSCN(this._TOKEN,newBool);};};"
 			"res.setTitle=function(args){this.title=args;if(this._TOKEN){Ti.UI._WTITLE(this._TOKEN,args);}};"
 			"res.showNavBar=function(args){this._hideNavBar=false;if(this._TOKEN){Ti.UI._WSHNAV(this._TOKEN,args);}};"
@@ -1510,6 +1531,8 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:createPickerString],@"createPicker",
 			[TitaniumJSCode codeWithString:createModalDatePickerString],@"createModalDatePicker",
 			[TitaniumJSCode codeWithString:createModalPickerString],@"createModalPicker",
+
+			[TitaniumInvocationGenerator invocationWithTarget:self selector:@selector(picker:action:arguments:) object:nil],@"_PICACT",
 
 			[NSNumber numberWithInt:1],@"_NEXTTKN",
 			showModalInvoc,@"_MSHOW",

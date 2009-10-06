@@ -915,6 +915,33 @@ needsRefreshing = YES;	\
 	if(changed)[self updateNativeView:animated];
 }
 
+#pragma mark Javascript calls
+//TODO: Make not ugly
+- (void) selectColumnRow: (NSArray *) arguments;
+{
+	NSNumber * columnObject = [arguments objectAtIndex:0];
+	NSNumber * rowObject = [arguments objectAtIndex:1];
+	if(![columnObject respondsToSelector:@selector(intValue)] || ![rowObject respondsToSelector:@selector(intValue)])return;
+
+	BOOL animated = NO;
+	if([arguments count]>2){
+		NSDictionary * optionObject = [arguments objectAtIndex:2];
+		if([optionObject isKindOfClass:[NSDictionary class]]){
+			NSNumber * animatedObject = [optionObject objectForKey:@"animated"];
+			if([animatedObject respondsToSelector:@selector(boolValue)])animated = [animatedObject boolValue];
+		}
+	}
+	
+	int column = [columnObject intValue];
+	int row = [columnObject intValue];
+	if(column >= [pickerColumnsArray count])return;
+	PickerColumnWrapper * ourColumn = [pickerColumnsArray objectAtIndex:column];
+	[ourColumn setSelectedRow:row];
+	if([nativeView isKindOfClass:[UIPickerView class]]){
+		[(UIPickerView *)nativeView selectRow:row inComponent:column animated:animated];
+	}
+}
+
 #pragma mark Picker data source callbacks
 - (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView;
 {
@@ -1113,6 +1140,7 @@ needsRefreshing = YES;	\
 	PickerColumnWrapper * ourColumn = [pickerColumnsArray objectAtIndex:component];
 
 	int oldSelectedValue = [ourColumn selectedRow];
+	[ourColumn setSelectedRow:row];
 
 	NSString * ourInit;
 	if(oldSelectedValue >= 0){
@@ -1153,6 +1181,9 @@ needsRefreshing = YES;	\
 }
 
 @end
+
+#define STRINGIFY(foo)	# foo
+#define STRINGVAL(foo)	STRINGIFY(foo)
 
 NSString * const systemButtonString = @"{ACTION:'action',ACTIVITY:'activity',CAMERA:'camera',COMPOSE:'compose',BOOKMARKS:'bookmarks',"
 	"SEARCH:'search',ADD:'add',TRASH:'trash',ORGANIZE:'organize',REPLY:'reply',STOP:'stop',REFRESH:'refresh',"
@@ -1196,7 +1227,13 @@ NSString * const createActivityIndicatorString = @"function(args,btnType){if(!bt
 
 NSString * const createDatePickerString = @"function(args){var res=Ti.UI.createButton(args,'datepicker');return res;}";
 
-NSString * const createPickerString = @"function(args){var res=Ti.UI.createButton(args,'picker');return res;}";
+NSString * const createPickerString = @"function(args){var res=Ti.UI.createButton(args,'picker');"
+	"res.selectRow=function(row,col,options){var colDat=this.data[col].data;var cnt=colDat.length;"
+		"for(var i=0;i<cnt;i++){colDat[i].selected=i==row;}if(this._TOKEN){Ti.UI._PICACT(this._TOKEN," STRINGVAL(PICKER_SELECTROW) ",arguments)}};"
+	"res.getSelectedRow=function(col){var colData=this.data[col].data;var cnt=colDat.length;for(var i=0;i<cnt;i++){if(colDat[i].selected)return i;}return 0;};"
+	"res.setColumnData=function(col,data){this.data[col].data=data;this.update();};"
+	"res.setData=function(data){this.data=data;this.update();};"
+	"return res;}";
 
 NSString * const createModalDatePickerString = @"function(args){var res=Ti.UI.createButton(args,'datepicker');"
 	"res.show=function(args){Ti.UI._DISPMODAL(this,true,args);};res.hide=function(args){Ti.UI._DISPMODAL(this,false,args);};return res;}";

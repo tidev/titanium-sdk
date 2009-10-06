@@ -975,7 +975,7 @@ typedef int UIEventSubtype;
 
 - (void) handleJavascriptEvent: (TitaniumJSEvent *) event;
 {
-	NSString * currentWindowVersion = [NSString stringWithFormat:@"Ti.UI.currentWindow.doEvent(%@,%@)",[event eventName],[event eventString]];
+	NSString * currentWindowVersion = [NSString stringWithFormat:@"Ti.UI.currentWindow.doEvent('%@',%@)",[event eventName],[event eventString]];
 	for(TitaniumContentViewController * thisVC in contentViewControllers){
 		if([thisVC respondsToSelector:@selector(sendJavascript:)]){
 			[(id)thisVC sendJavascript:currentWindowVersion];

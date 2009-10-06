@@ -95,6 +95,13 @@ NSMutableDictionary * registery = nil;
 	
 }
 
+//- (void) setTitaniumWindowToken: (NSString *) newToken;
+//{
+//	NSLog(@"[%@ setTitaniumWindowToken: %@] (was %@)",self,newToken,titaniumWindowToken);
+//	[titaniumWindowToken autorelease];
+//	titaniumWindowToken = [newToken copy];
+//}
+
 - (BOOL) isShowingView: (TitaniumContentViewController *) contentView;
 {
 	return (self==contentView);

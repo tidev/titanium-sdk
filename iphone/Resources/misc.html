@@ -14,23 +14,23 @@
 		try{
 		buggyView = Ti.UI.createWebView({url:'buggy.html',name:'bugger'});
 		otherView = Ti.UI.createWebView({url:'unitTest.html',name:'number1'});
-		imageView = Ti.UI.createImageView({url:'WeCanDoIt.png',canScale:true});
+		imageView = Ti.UI.createImageView({url:'Safari.png',canScale:true});
 
-		pagy = Ti.UI.createScrollableView({views:[buggyView],showPagingControl:true});
-		pagy.addView(otherView);
-		pagy.addView(imageView);
-		Ti.UI.currentWindow.addView(pagy);
-		pagy.addEventListener('scroll',function(ev){Ti.API.debug('We scrolled to page '+ev.currentPage);});
+//		pagy = Ti.UI.createScrollableView({views:[buggyView],showPagingControl:true});
+//		pagy.addView(otherView);
+//		pagy.addView(imageView);
+//		Ti.UI.currentWindow.addView(pagy);
+//		pagy.addEventListener('scroll',function(ev){Ti.API.debug('We scrolled to page '+ev.currentPage);});
 
 //		Ti.UI.currentWindow.addView(buggyView);
 //		Ti.UI.currentWindow.addView(otherView);
 //		Ti.UI.currentWindow.showView(buggyView,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000});
 
-//		compy = Ti.UI.createCompositeView();
-//		Ti.UI.currentWindow.addView(compy);
-//		compy.addView(buggyView,{top:0,height:150});
-//		compy.addView(otherView,{top:150});
-//		compy.addView(imageView,{top:80,height:120,width:120});
+		compy = Ti.UI.createCompositeView();
+		Ti.UI.currentWindow.addView(compy);
+		compy.addView(buggyView,{top:0,height:150});
+		compy.addView(otherView,{top:150});
+		compy.addView(imageView,{bottom:0,height:120,width:120});
 	
 		}catch(E){Ti.API.debug(E);}
 
@@ -101,6 +101,8 @@
 		lastnote = n;
 		}
 		
+		Titanium.UI.currentWindow.addEventListener('foo',function(e){Ti.API.info('We got foo!' + e.bar);});
+		
 		var btn1=Ti.UI.createButton({title:'-'});
 		var btn2=Ti.UI.createButton({title:'+'});
 		var spinny=Ti.UI.createActivityIndicator({width:80,message:'Foo'});
@@ -113,7 +115,7 @@
 				barry.update({animated:true,animationDuration:1000});});
 		btn2.addEventListener('click',function(foo){spinny.show({animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT});barry.value+=1;
 				barry.message = 'Completed ' + barry.value + ' of ' + barry.max;
-				pagy.scrollToView(imageView);
+			//	pagy.scrollToView(imageView);
 				imageView.setURL('WeCanDoIt.png');
 				barry.update({animated:true,animationDuration:1000});});
 		Ti.UI.currentWindow.setToolbar([btn1,btn2,spinny,barry]);
@@ -134,7 +136,7 @@ picky = Ti.UI.createPicker({x:0,id:'buttony',data:dataz,selectionIndicator:true}
 }catch(E){
 Ti.API.debug('We got '+E);
 }
-picky.addEventListener('change',function(e){Ti.API.debug('The time is now: ' + e.value);});
+picky.addEventListener('change',function(e){for(prop in e){Ti.API.debug('We changed. ' + prop + ' = ' +e[prop]);}});
 
 	};
 
@@ -178,7 +180,7 @@ document.write(window._WINTKN);
 	<button onclick="testFun('noteTest()')">Notification</button>
 	<button onclick="testFun('lastnote.hide()')">hide</button>
 
-	<button onclick="Titanium.UI.currentWindow.showView(pagy,{animated:true})">Switch by view</button>
+	<button onclick="Titanium.UI.currentWindow.showView(compy,{animated:true})">Switch by view</button>
 <!--
 	<button onclick="Titanium.UI.currentWindow.showView(buggyView,{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000})">Switch by view</button>
 	<button onclick="Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('bugger'),{animated:true,animationStyle:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,animationDuration:2000})">Switch by name</button>
