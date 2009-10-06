@@ -873,7 +873,6 @@ var UserWindow = function(proxy) {
 			v = {};
 			v.window = this.proxy;
 			v.key = this.proxy.getViewKey(i);
-			Titanium.API.debug("VIEW KEY: " + v.key);
 			v.index = i;
 			v.name = this.proxy.getViewName(v.key);
 			v.addEventListener = function(eventName, listener) {
@@ -913,7 +912,6 @@ var UserWindow = function(proxy) {
 		} else {
 			options = Titanium.JSON.stringify(options);
 		}
-		Titanium.API.debug("VIEW OBJ: " + String(view));
 		if(!isUndefined(view.key)) {
 			this.proxy.showViewByKey(view.key, options);
 		} else {
@@ -932,7 +930,7 @@ var UserWindow = function(proxy) {
 
 			for(i = 0; i < views.length; i++) {
 				var view = views[i];
-				Titanium.API.debug("*** Name: " + name + " vName: " + view.name);
+				//Titanium.API.debug("*** Name: " + name + " vName: " + view.name);
 				if (!isUndefined(view.name)) {
 					if (name == view.name) {
 						v = view;
