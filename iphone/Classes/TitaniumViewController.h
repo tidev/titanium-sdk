@@ -33,7 +33,7 @@ typedef enum {
 } TitaniumViewControllerOrientationsAllowed;
 
 @class NativeControlProxy,NotificationProxy;
-@class TitaniumContentViewController;
+@class TitaniumContentViewController, TitaniumJSEvent;
 @interface TitaniumViewController : UIViewController<UIWebViewDelegate,UIScrollViewDelegate> {
 
 //Commont to all viewControllers:
@@ -141,7 +141,7 @@ typedef enum {
 - (BOOL) toolbarOverlaid;
 - (CGPoint) toolbarOrigin;
 
-- (void) handleJavascriptEvent: (NSDictionary *) eventObject;
+- (void) handleJavascriptEvent: (TitaniumJSEvent *) event;
 
 @end
 

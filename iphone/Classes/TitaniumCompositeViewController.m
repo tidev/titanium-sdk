@@ -31,7 +31,7 @@
 		
 	} else if(hasRightConstraint){
 		if(hasWidthConstraint){
-			resultFrame.size.width = viewBounds.width;
+			resultFrame.size.width = width;
 			resultFrame.origin.x = viewBounds.width - (right+width);
 			resultMask = UIViewAutoresizingFlexibleLeftMargin;
 		} else {
@@ -67,8 +67,8 @@
 		
 	} else if(hasBottomConstraint){
 		if(hasHeightConstraint){
-			resultFrame.size.height = viewBounds.height;
-			resultFrame.origin.y = viewBounds.height - bottom;
+			resultFrame.size.height = height;
+			resultFrame.origin.y = viewBounds.height - (bottom+height);
 			resultMask |= UIViewAutoresizingFlexibleTopMargin;
 		} else {
 			resultFrame.origin.y = 0;
@@ -180,6 +180,8 @@
 			TitaniumCompositeRule * thisRule = [[TitaniumCompositeRule alloc] init];
 			id viewObject = [thisRuleObject objectForKey:@"view"];
 			TitaniumContentViewController * thisVC = [TitaniumContentViewController viewControllerForState:viewObject relativeToUrl:baseUrl];
+			[thisVC setTitaniumWindowToken:[self titaniumWindowToken]];
+
 			[thisRule readConstraints:thisRuleObject];
 			[thisRule setViewController:thisVC];
 
@@ -286,6 +288,7 @@ typedef int UIEventSubtype;
 	NSDictionary * ourVCObject = [newRuleObject objectForKey:@"view"];
 	TitaniumContentViewController * ourVC = [TitaniumContentViewController viewControllerForState:ourVCObject relativeToUrl:baseUrl];
 	if(ourVC==nil)return;
+	[ourVC setTitaniumWindowToken:[self titaniumWindowToken]];
 
 	TitaniumCompositeRule * ourRule = [[TitaniumCompositeRule alloc] init];
 	[ourRule setViewController:ourVC];

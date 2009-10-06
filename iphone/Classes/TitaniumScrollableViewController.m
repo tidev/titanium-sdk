@@ -370,6 +370,7 @@ typedef int UIEventSubtype;
 	if(newViewController==nil)return;
 	
 	[contentViewControllers addObject:newViewController];
+	[newViewController setTitaniumWindowToken:[self titaniumWindowToken]];
 	[self shouldUpdate];
 }
 
