@@ -41,6 +41,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -133,6 +134,8 @@ public class TitaniumWebView extends WebView
         settings.setSupportZoom(false);
         settings.setLoadsImagesAutomatically(true);
         settings.setLightTouchEnabled(true);
+
+        setBackgroundColor(Color.TRANSPARENT);
 
         offScreen = new AbsoluteLayout.LayoutParams(1, 1, -100, -100);
         final TitaniumWebView me = this;
