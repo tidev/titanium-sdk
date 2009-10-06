@@ -242,7 +242,7 @@ TitaniumFile.prototype.size = function()
  */
 TitaniumFile.prototype.nativePath = function()
 {
-	return Titanium.checked(this.proxy.call("nativePath"));
+	return transformObjectValueAsString(Titanium.checked(this.proxy.call("nativePath")),null);
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.spaceAvailable,since=0.4) Returns the space available on the filesystem
@@ -284,6 +284,10 @@ TitaniumFile.prototype.toString = function()
 {
 	return String(Titanium.checked(this.proxy.call("toString")));
 };
+
+TitaniumFile.prototype.__defineGetter__("path", function(){
+	return this.nativePath();
+});
 
 TitaniumFile.createBlob = function(native) {
 	var f = new TitaniumFile(native);
