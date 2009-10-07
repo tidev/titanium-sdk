@@ -21,8 +21,8 @@
 		var views = Titanium.UI.currentWindow.getViews();
 		
 		var compositeView = Titanium.UI.createCompositeView();
-		compositeView.addView(groupedView,{left:0,top:0});
-		compositeView.addView(views[0],{top:151,left:0});
+		compositeView.addView(groupedView,{left:0,top:0, height:151});
+		compositeView.addView(views[0],{top:151, left:0});
 		
 		
 		Titanium.UI.currentWindow.addView(compositeView);
@@ -53,7 +53,7 @@
 			var inputData = [
 				{title:'Subject', value:col1.data[e.row].title},
 			];
-			inputSection.setData(inputData);
+			inputSection.updateRow(0,inputData);
 			
 			
 		});
@@ -62,6 +62,6 @@
 	</script>
 	</head>
 <body style="margin:0;padding:0">
-	<div id="picker">
+	<div id="picker"></div>
 </body>
 </html>
