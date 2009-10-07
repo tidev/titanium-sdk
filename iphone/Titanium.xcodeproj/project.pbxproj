@@ -317,6 +317,7 @@
 		B49358DE106AE51C00BC4A77 /* TitaniumImageViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B49358DA106AE51C00BC4A77 /* TitaniumImageViewController.h */; };
 		B49358DF106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B49358DB106AE51C00BC4A77 /* TitaniumImageViewController.m */; };
 		B49B21E7107A868900836F35 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; };
+		B49B23A5107BEDE700836F35 /* picker3.html in Resources */ = {isa = PBXBuildFile; fileRef = B49B23A4107BEDE700836F35 /* picker3.html */; };
 		B4A10F3E0F86BC490040D850 /* AppDownloadView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B4A10F3D0F86BC490040D850 /* AppDownloadView.xib */; };
 		B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
 		B4A49BA30FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
@@ -554,6 +555,7 @@
 		B492D43D0FCC6DB20030772B /* network.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = network.html; sourceTree = "<group>"; };
 		B49358DA106AE51C00BC4A77 /* TitaniumImageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumImageViewController.h; sourceTree = "<group>"; };
 		B49358DB106AE51C00BC4A77 /* TitaniumImageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumImageViewController.m; sourceTree = "<group>"; };
+		B49B23A4107BEDE700836F35 /* picker3.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = picker3.html; sourceTree = "<group>"; };
 		B4A10F3D0F86BC490040D850 /* AppDownloadView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AppDownloadView.xib; sourceTree = "<group>"; };
 		B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumBlobWrapper.h; sourceTree = "<group>"; };
@@ -1034,6 +1036,7 @@
 				2418F4660FCB6A2100BFE545 /* sound.wav */,
 				B4ABEDC3101903CA00639ED5 /* buggy.html */,
 				B4DDBE2A0FD0AE31004DD79E /* ui.html */,
+				B49B23A4107BEDE700836F35 /* picker3.html */,
 				B481D3360FD4C45A00F0A961 /* song.mp3 */,
 				B4ADF5F9106D8C0200D26B13 /* WeCanDoIt.png */,
 				B4FC30A30FEC89E800D31C75 /* Phone.png */,
@@ -1757,6 +1760,7 @@
 				B40C00241031ECC4009DEFF9 /* docs.html in Resources */,
 				B4F37E2E1061B50E00ED12AF /* closebox.png in Resources */,
 				B4ADF5FA106D8C0200D26B13 /* WeCanDoIt.png in Resources */,
+				B49B23A5107BEDE700836F35 /* picker3.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

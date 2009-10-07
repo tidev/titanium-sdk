@@ -629,17 +629,22 @@ needsRefreshing = YES;	\
 			}
 			if(datePickerMode != [(UIDatePicker *) resultView datePickerMode])[(UIDatePicker *)resultView setDatePickerMode:datePickerMode];
 			
-			NSDate * oldMinDate = [(UIDatePicker *) resultView minimumDate];
-			if((minDate != oldMinDate) && ![minDate isEqualToDate:oldMinDate])[(UIDatePicker *)resultView setMinimumDate:minDate];
-			
-			NSDate * oldMaxDate = [(UIDatePicker *) resultView maximumDate];
-			if((maxDate != oldMaxDate) && ![maxDate isEqualToDate:oldMaxDate])[(UIDatePicker *)resultView setMaximumDate:maxDate];
-			
-			if(floatValue != [(UIDatePicker *) resultView countDownDuration])[(UIDatePicker *)resultView setCountDownDuration:floatValue];
 			if(minuteInterval != [(UIDatePicker *) resultView minuteInterval])[(UIDatePicker *)resultView setMinuteInterval:minuteInterval];
-			
-			NSDate * oldValue = [(UIDatePicker *) resultView date];
-			if((dateValue!=nil) && ![dateValue isEqualToDate:oldValue])[(UIDatePicker *)resultView setDate:dateValue animated:animated];
+
+			if(datePickerMode == UIDatePickerModeCountDownTimer){
+				if(floatValue != [(UIDatePicker *) resultView countDownDuration])[(UIDatePicker *)resultView setCountDownDuration:floatValue];
+			} else {
+				NSDate * oldMinDate = [(UIDatePicker *) resultView minimumDate];
+				if((minDate != oldMinDate) && ![minDate isEqualToDate:oldMinDate])[(UIDatePicker *)resultView setMinimumDate:minDate];
+				
+				NSDate * oldMaxDate = [(UIDatePicker *) resultView maximumDate];
+				if((maxDate != oldMaxDate) && ![maxDate isEqualToDate:oldMaxDate])[(UIDatePicker *)resultView setMaximumDate:maxDate];
+				
+				NSDate * oldValue = [(UIDatePicker *) resultView date];
+				if((dateValue!=nil) && ![dateValue isEqualToDate:oldValue]){
+					[(UIDatePicker *)resultView setDate:dateValue animated:animated];
+				}
+			}
 			
 			viewFrame.size = [resultView frame].size;
 		}break;

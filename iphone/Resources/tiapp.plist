@@ -78,7 +78,7 @@
 			<array>
 				<dict>
 					<key>url</key>
-					<string>misc.html</string>
+					<string>picker3.html</string>
 				</dict>
 			</array>
 			<key>background</key>
@@ -88,7 +88,7 @@
 			<key>orientation</key>
 			<string>either</string>
 			<key>title</key>
-			<string>Other</string>
+			<string>Pickers ahoy</string>
 		</dict>
 	</array>
 	<key>modules</key>
