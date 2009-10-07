@@ -141,6 +141,7 @@ TitaniumHost * lastSharedHost = nil;
 	CFRelease(contentViewControllerRegistry);
 
 	[nativeModules release];
+	[nativeModuleLoadOrder release];
 	
 	[modalActionLock release];
 	[modalActionDict release];
@@ -358,28 +359,38 @@ TitaniumHost * lastSharedHost = nil;
 	return [nativeModules objectForKey:moduleClassName];
 }
 
-- (BOOL) registerModuleNamed: (NSString *) moduleClassName
+- (TitaniumModule *) registerModuleNamed: (NSString *) moduleClassName
 {
+	TitaniumModule * module = nil;
+	
+	// only load if not already loaded
+	if (nativeModules && (module = [nativeModules objectForKey:moduleClassName]) != nil)
+	{
+		// return nil if already found
+		return nil;
+	}
 	Class moduleClass = NSClassFromString(moduleClassName);
 	if (moduleClass == nil) {
 		NSLog(@"[ERROR] Class \"%@\" was not found",moduleClassName);
-		return NO;
+		return nil;
 	}
 	if (![moduleClass conformsToProtocol:@protocol(TitaniumModule)]) {
 		NSLog(@"[ERROR] Class \"%@\" was found but does not conform to the TitaniumModule protocol",moduleClassName);
-		return NO;
+		return nil;
 	}
-	id module = [[moduleClass alloc] init];
+	module = (TitaniumModule*)[[moduleClass alloc] init];
 	if (module == nil){
 		NSLog(@"[ERROR] TitaniumModule \"%@\" was found but failed to init",moduleClassName);
-		return NO;
+		return nil;
 	}
 	if (nativeModules == nil) {
 		nativeModules = [[NSMutableDictionary alloc] init];
 	}
+	if (nativeModuleLoadOrder == nil) {
+		nativeModuleLoadOrder = [[NSMutableArray alloc] init];
+	}
 	[nativeModules setObject:module forKey:moduleClassName];
-	[module release];
-	return YES;
+	return module;
 }
 
 - (UIViewController *) viewControllerForDict: (NSDictionary *) sourceDict
@@ -390,24 +401,47 @@ TitaniumHost * lastSharedHost = nil;
 	return [navVC autorelease];
 }
 
+- (void)loadModuleNamed:(NSString*)thisModuleName
+{
+	NSString * thisModuleClassName = [NSString stringWithFormat:@"%@%@Module",
+									  [[thisModuleName substringToIndex:1] uppercaseString],[thisModuleName substringFromIndex:1]];
+	
+	NSLog(@"[DEBUG] loading module %@, class name = %@",thisModuleName,thisModuleClassName);
+	
+	@try
+	{
+		TitaniumModule *module = [self registerModuleNamed:thisModuleClassName];
+		if (module!=nil)
+		{
+			// if the module has dependencies, cause it to automatically load them
+			if ([module respondsToSelector:@selector(moduleDependencies)])
+			{
+				NSArray* depends = [module moduleDependencies];
+				if (depends && [depends count] > 0)
+				{
+					for (int c=0;c<[depends count];c++)
+					{
+						NSString *name = [depends objectAtIndex:c];
+						// this is recursive
+						[self loadModuleNamed:name];
+					}
+				}
+			}
+			// we do this *explicitly* after the depends since the dependencies need to be loaded before us
+			[nativeModuleLoadOrder addObject:module];
+			[module release];
+		}
+	}
+	@catch (NSException *e) {
+		NSLog(@"[ERROR] Exception registering module: %@, Error: %@",thisModuleName,[e description]);
+	}
+}
+
 - (void) loadModulesFromDict:(NSDictionary *)modulesDict
 {
 	for (NSString * thisModuleName in modulesDict){
 		if ([thisModuleName length] < 1) continue;
-		NSString * thisModuleClassName = [NSString stringWithFormat:@"%@%@Module",
-										  [[thisModuleName substringToIndex:1] uppercaseString],[thisModuleName substringFromIndex:1]];
-
-#ifdef USE_VERBOSE_DEBUG	
-		NSLog(@"[DEBUG] loading module %@, class name = %@",thisModuleName,thisModuleClassName);
-#endif
-		
-		@try
-		{
-			[self registerModuleNamed:thisModuleClassName];
-		}
-		@catch (NSException *e) {
-			NSLog(@"[ERROR] Exception registering module: %@, Error: %@",thisModuleName,[e description]);
-		}
+		[self loadModuleNamed:thisModuleName];
 	}
 }
 
@@ -447,7 +481,7 @@ TitaniumHost * lastSharedHost = nil;
 		[router release];
 	}
 
-	for (id thisModule in [nativeModules objectEnumerator]) {
+	for (id thisModule in [nativeModuleLoadOrder objectEnumerator]) {
 		if ([thisModule respondsToSelector:@selector(startModule)]) [thisModule startModule];
 	}
 
@@ -474,7 +508,6 @@ TitaniumHost * lastSharedHost = nil;
 #endif
 
 	[[TitaniumAppDelegate sharedDelegate] setViewController:rootViewController];
-	
 }
 
 - (void) endModules;
@@ -488,8 +521,6 @@ TitaniumHost * lastSharedHost = nil;
 {
 	NSArray * keyPathComponents = [keyPath componentsSeparatedByString:@"."];
 
-	int pathCount = [keyPathComponents count];
-	int pathIndex = 0;
 	id oldObject = titaniumObject;
 	id owningObject = nil;
 	

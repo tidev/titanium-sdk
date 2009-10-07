@@ -107,6 +107,11 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	[self sendEvents];
 }
 
+- (NSArray*) moduleDependencies
+{
+	return [NSArray arrayWithObjects:@"network",@"platform",nil];
+}
+
 
 #define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
 

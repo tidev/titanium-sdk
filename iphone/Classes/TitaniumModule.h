@@ -14,6 +14,7 @@
 - (BOOL) endModule;
 - (id) runFunctionNamed: (NSString *) functionName withObject: (id) objectValue error: (NSError **) error;
 - (void) flushCache;
+- (NSArray*) moduleDependencies;
 
 @end
 

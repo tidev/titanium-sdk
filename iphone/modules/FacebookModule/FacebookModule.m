@@ -403,6 +403,12 @@
 	return permissions;
 }
 
+- (NSArray*) moduleDependencies
+{
+	return [NSArray arrayWithObject:@"ui"];
+}
+
+
 - (void)configure
 {
 	NSString *initJS = @"Ti.Facebook._LSC=function(a){if(Ti.Facebook._LIS){for(var c=0;c<Ti.Facebook._LIS.length;c++){try{Ti.Facebook._LIS[c](a)}catch(X){Titanium.API.error('error: '+X)}}}if(Ti.Facebook._CB){Ti.Facebook._CB(s);Ti.Facebook._CB=null}};Ti.Facebook._AL=function(l){if(typeof(Ti.Facebook._LIS)=='undefined'){Ti.Facebook._LIS=[]}Ti.Facebook._LIS.push(l)};";

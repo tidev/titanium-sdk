@@ -89,6 +89,7 @@ typedef enum {
 	CFMutableDictionaryRef contentViewControllerRegistry; //Say what? Yeah. Because we don't want to retain views unnecessairly, this will be core foundation!
 	
 	NSMutableDictionary * nativeModules;
+	NSMutableArray * nativeModuleLoadOrder;
 
 	NSInteger lastBlobHash;
 	NSMutableDictionary * blobRegistry;
@@ -130,7 +131,7 @@ typedef enum {
 
 #pragma mark Module registration
 - (TitaniumModule *) moduleNamed: (NSString *) moduleClassName;
-- (BOOL) registerModuleNamed: (NSString *) moduleClassName;
+- (TitaniumModule *) registerModuleNamed: (NSString *) moduleClassName;
 - (void) startModules;
 - (void) endModules;
 - (void) bindObject: (id) object toKeyPath: (NSString *) keyPath;
