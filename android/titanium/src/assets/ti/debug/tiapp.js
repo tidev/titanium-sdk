@@ -127,8 +127,16 @@ Properties = function(proxy) {
 	 * @tiresult[string] property value or default
 	 */
 	this.getString = function(name, def) {
-		def = arguments.length == 1 || isUndefined(def) ? null : def;
-		var r = this.proxy.getString(name,def);
+		var r = null;
+
+		if (this.hasProperty(name)) {
+			def = arguments.length == 1 || isUndefined(def) ? null : def;
+			r = this.proxy.getString(name,def);
+		} else {
+			if (isUndefined(def)) {
+				def = null;
+			}
+		}
 		return transformObjectValueAsString(r,def);
 	};
 	/**
@@ -157,8 +165,16 @@ Properties = function(proxy) {
 	 * @tiresult[int] property value or default
 	 */
 	this.getInt = function(name,def) {
-		def = arguments.length == 1 || isUndefined(def) ? -1 : def;
-		var r = this.proxy.getInt(name,def);
+		var r = null;
+
+		if(this.hasProperty(name)) {
+			def = arguments.length == 1 || isUndefined(def) ? -1 : def;
+			r = this.proxy.getInt(name,def);
+		} else {
+			if (isUndefined(def)) {
+				def = null;
+			}
+		}
 		return transformObjectValueAsInt(r,def);
 	};
 	/**
@@ -187,8 +203,15 @@ Properties = function(proxy) {
 	 * @tiresult[bool] property value or default
 	 */
 	this.getBool = function(name,def) {
-		def = arguments.length == 1 || isUndefined(def) ? false : def;
-		var r = this.proxy.getBool(name,def);
+		var r = null;
+		if (this.hasProperty(name)) {
+			def = arguments.length == 1 || isUndefined(def) ? false : def;
+			r = this.proxy.getBool(name,def);
+		} else {
+			if(isUndefined(def)) {
+				def = null;
+			}
+		}
 		return transformObjectValueAsBool(r,def);
 	};
 	/**
@@ -217,8 +240,14 @@ Properties = function(proxy) {
 	 * @tiresult[double] property value or default
 	 */
 	this.getDouble = function(name,def){
-		def = arguments.length == 1 || isUndefined(def) ? 0.0 : def;
-		var r = this.proxy.getDouble(name,def);
+		if (this.hasProperty(name)) {
+			def = arguments.length == 1 || isUndefined(def) ? 0.0 : def;
+			r = this.proxy.getDouble(name,def);
+		} else {
+			if(isUndefined(def)) {
+				def = null;
+			}
+		}
 		return transformObjectValueAsDouble(r,def);
 	};
 	this.setDouble = function(name,value){

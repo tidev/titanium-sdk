@@ -20,6 +20,7 @@
 	<p>
 		<img id="pic" />
 	</p>
+<div><input type="button" id="4" value="Fire event!" class="button"/></div>
 
 <script>
 document.getElementById('1').onclick = function(){
@@ -56,6 +57,14 @@ document.getElementById('2').onclick = function(){
 	};
 	xhr.open('GET','http://www.liturgiadashoras.org/Horas/1terca_laudes.htm');
 	xhr.send(null);
+}
+
+document.getElementById('4').onclick = function(){
+	try{
+	Ti.UI.currentWindow.fireEvent('foo',{bar:'baz'});
+	}catch(E){
+	Ti.API.debug('Failed to fire event: '+E);
+	}
 }
 
 document.getElementById('3').onclick = function(){

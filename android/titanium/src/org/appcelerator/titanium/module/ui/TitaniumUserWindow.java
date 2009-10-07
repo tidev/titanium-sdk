@@ -14,14 +14,14 @@ import java.util.HashMap;
 import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
-import org.appcelerator.titanium.api.ITitaniumUIWebView;
 import org.appcelerator.titanium.api.ITitaniumUserWindow;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumAnimationFactory;
 import org.appcelerator.titanium.util.TitaniumAnimationPair;
-import org.appcelerator.titanium.util.TitaniumJSEventManager;
+import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -90,6 +90,20 @@ public class TitaniumUserWindow extends ViewAnimator
 
 	public void attachWebView(String url) {
 		this.url = null;
+
+		TitaniumWindowInfo windowInfo = tmm.getActivity().getWindowInfo();
+		if (windowInfo != null) {
+			if (windowInfo.hasBackgroundColor()) {
+				setBackgroundColor(windowInfo.getBackgroundColor());
+			}
+		} else {
+	    	TitaniumIntentWrapper tiw = new TitaniumIntentWrapper(tmm.getActivity().getIntent());
+
+			if (tiw.hasBackgroundColor()) {
+				int backgroundColor = tiw.getBackgroundColor();
+				setBackgroundColor(backgroundColor);
+			}
+		}
 
 		TitaniumUIWebView uiWebView = new TitaniumUIWebView(tmm);
         addView((ITitaniumView) uiWebView); // Make it views[0]
@@ -236,6 +250,10 @@ public class TitaniumUserWindow extends ViewAnimator
 		if (isOpen) {
 			handler.obtainMessage(MSG_SET_TITLE, title).sendToTarget();
 		}
+	}
+
+	public void setBackgroundColor(String backgroundColor) {
+		Log.w(LCAT, "fullscreen cannot be changed on currentWindow");
 	}
 
 	public void setTitleImage(String titleImageUrl) {

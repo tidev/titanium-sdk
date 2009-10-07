@@ -10,6 +10,8 @@
 #import "TitaniumModule.h"
 #import "WebFont.h"
 
+#define PICKER_SELECTROW	0
+
 enum {
 	UITitaniumNativeStyleBar = -32,
 	UITitaniumNativeStyleBig = -33,
@@ -110,6 +112,7 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 	
 	//Pickers, date:
 	NSDate * dateValue;		//Countdown duration is floatValue
+//	NSDate * oldDateValue; //For some reason, datepicker gets strange when you ask it for its date
 	NSDate * minDate;
 	NSDate * maxDate;
 	UIDatePickerMode datePickerMode;
@@ -160,6 +163,7 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 @property(nonatomic,readwrite,retain)	NativeControlProxy	*rightViewProxy;
 
 @property(nonatomic,readwrite,copy)		NSDate * dateValue;
+//@property(nonatomic,readwrite,copy)		NSDate * oldDateValue;
 @property(nonatomic,readwrite,copy)		NSDate * minDate;
 @property(nonatomic,readwrite,copy)		NSDate * maxDate;
 @property(nonatomic,readwrite,assign)	UIDatePickerMode datePickerMode;

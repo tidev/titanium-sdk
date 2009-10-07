@@ -143,7 +143,7 @@
 
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < 30000
 typedef int UIEventSubtype;
-const UIEventSubtype UIEventSubtypeMotionShake=1;
+#define UIEventSubtypeMotionShake	1
 #endif
 
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
@@ -370,6 +370,7 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 	if(newViewController==nil)return;
 	
 	[contentViewControllers addObject:newViewController];
+	[newViewController setTitaniumWindowToken:[self titaniumWindowToken]];
 	[self shouldUpdate];
 }
 

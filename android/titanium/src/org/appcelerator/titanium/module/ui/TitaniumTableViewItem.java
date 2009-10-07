@@ -17,7 +17,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
@@ -42,30 +41,6 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 	private Handler handler;
 
 	private RowView rowView;
-	private EmptyView emptyView;
-
-	class EmptyView extends ImageView
-	{
-		public int rowHeight;
-
-		public EmptyView(Context context)
-		{
-			super(context);
-
-			setImageDrawable(new ColorDrawable(Color.TRANSPARENT));
-			setScaleType(ImageView.ScaleType.FIT_XY);
-			setAdjustViewBounds(true);
-			setFocusable(false);
-			setFocusableInTouchMode(false);
-			setClickable(false);
-		}
-
-		@Override
-		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-			setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), rowHeight);
-		}
-
-	}
 
 	class RowView extends RelativeLayout
 	{
@@ -113,6 +88,7 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 			params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
 			params.addRule(CENTER_VERTICAL);
 			params.addRule(ALIGN_RIGHT);
+			params.setMargins(0, 0, 7, 0);
 			params.alignWithParent = true;
 			addView(hasChildView, params);
 
@@ -133,11 +109,10 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 
 		public void setRowData(JSONObject data, int rowHeight, String fontSize, String fontWeight)
 		{
-			boolean switchView = true;
-
 			TitaniumFileHelper tfh = new TitaniumFileHelper(getContext());
 
 			header = false;
+			handler.removeMessages(MSG_SHOW_VIEW_1);
 
 			boolean isDisplayHeader = false;
 			try {
@@ -145,6 +120,8 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 			} catch (JSONException e) {
 				Log.e(LCAT, "Unable to get header flag", e);
 			}
+
+			setPadding(0, 0, 0, 0);
 
 			if (isDisplayHeader) {
 				iconView.setVisibility(View.GONE);
@@ -154,9 +131,7 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 
 				 if(data.has("header")) {
 					header = true;
-					setPadding(0, 0, 0, 0);
 					setMinimumHeight(18);
-					emptyView.rowHeight = 18;
 					setVerticalFadingEdgeEnabled(false);
 					try {
 						TitaniumUIHelper.styleText(textView, "10dp", "normal");
@@ -170,10 +145,7 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 					}
 				 }
 			} else {
-				emptyView.rowHeight = rowHeight;
-
 				setVerticalFadingEdgeEnabled(true);
-				setPadding(10, 2, 10, 2);
 				setMinimumHeight(rowHeight);
 
 				if (data.has("image")) {
@@ -215,22 +187,21 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 				}
 
 				if (data.has("html")) {
-					webView.setVisibility(View.VISIBLE);
+					webView.setVisibility(View.INVISIBLE);
 					textView.setVisibility(View.GONE);
 					webView.setMinimumHeight(rowHeight);
 
 					try {
 						String html = data.getString("html");
 						if (html != null) {
-							setDisplayedChild(0);
 							webView.load(html, rowHeight);
-							switchView = false;
 						}
 					} catch (JSONException e) {
 						Log.e(LCAT, "Error retrieving html", e);
 					}
 				} else if (data.has("title")) {
 					webView.setVisibility(View.GONE);
+					textView.setPadding(4, 0, 4, 0);
 					textView.setVisibility(View.VISIBLE);
 					textView.setBackgroundDrawable(defaultBackground);
 		 			textView.setTextColor(defaultTextColor);
@@ -245,10 +216,13 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 				}
 			}
 
-			if (switchView) {
-				setDisplayedChild(1);
-			}
 			requestLayout();
+		}
+
+		public void showWebView() {
+			if (webView.getVisibility() == View.INVISIBLE) {
+				webView.setVisibility(View.VISIBLE);
+			}
 		}
 	}
 
@@ -287,7 +261,7 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 				.append(Color.green(defaultTextColor)).append(",")
 				.append(Color.blue(defaultTextColor)).append(",")
 				.append(Color.alpha(defaultTextColor))
-				.append(";height:100px); '>")
+				.append("); '>")
 				;
 			htmlPrefix = sb.toString();
 			htmlPostfix = "</body></html>";
@@ -298,7 +272,7 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 				public void onPageFinished(WebView view, String url) {
 					super.onPageFinished(view, url);
 
-					handler.sendEmptyMessageDelayed(MSG_SHOW_VIEW_1, 100);
+					handler.sendEmptyMessageDelayed(MSG_SHOW_VIEW_1, 10);
 				}
 
 			});
@@ -341,11 +315,9 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 		super(context);
 
 		this.handler = new Handler(this);
-		emptyView = new EmptyView(context);
-		this.addView(emptyView, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
-
 		rowView = new RowView(context);
 		this.addView(rowView, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
+		setDisplayedChild(0);
 
 		//Animation a = new AlphaAnimation(0.0f, 1.0f);
 		//a.setDuration(150);
@@ -359,8 +331,8 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 	public boolean handleMessage(Message msg)
 	{
 		if (msg.what == MSG_SHOW_VIEW_1) {
-			setDisplayedChild(1);
-			requestLayout();
+			rowView.showWebView();
+			//requestLayout();
 			invalidate();
 			return true;
 		}

@@ -807,6 +807,13 @@ var UserWindow = function(proxy) {
 	this.setTitleImage = function(imageUrl) {
 		this.proxy.setTitleImage(imageUrl);
 	};
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.setBackgroundColor,since=0.7.0) Set background color
+	 * @tiarg[string,backgroundColor] backgroundColor
+	 */
+	this.setBackgroundColor = function(backgroundColor) {
+		this.proxy.setBackgroundColor(backgroundColor);
+	};
 	this.setFullscreen = function(fullscreen) {
 		this.proxy.setFullscreen(fullscreen);
 	};
@@ -866,7 +873,6 @@ var UserWindow = function(proxy) {
 			v = {};
 			v.window = this.proxy;
 			v.key = this.proxy.getViewKey(i);
-			Titanium.API.debug("VIEW KEY: " + v.key);
 			v.index = i;
 			v.name = this.proxy.getViewName(v.key);
 			v.addEventListener = function(eventName, listener) {
@@ -906,7 +912,6 @@ var UserWindow = function(proxy) {
 		} else {
 			options = Titanium.JSON.stringify(options);
 		}
-		Titanium.API.debug("VIEW OBJ: " + String(view));
 		if(!isUndefined(view.key)) {
 			this.proxy.showViewByKey(view.key, options);
 		} else {
@@ -925,7 +930,7 @@ var UserWindow = function(proxy) {
 
 			for(i = 0; i < views.length; i++) {
 				var view = views[i];
-				Titanium.API.debug("*** Name: " + name + " vName: " + view.name);
+				//Titanium.API.debug("*** Name: " + name + " vName: " + view.name);
 				if (!isUndefined(view.name)) {
 					if (name == view.name) {
 						v = view;
@@ -1017,6 +1022,13 @@ var UserWindowBuilder = function(proxy) {
 	 */
 	this.setTitleImage = function(imageUrl) {
 		this.proxy.setTitleImage(imageUrl);
+	};
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.setBackgroundColor,since=0.7.0) Set background color
+	 * @tiarg[string,backgroundColor] backgroundColor
+	 */
+	this.setBackgroundColor = function(backgroundColor) {
+		this.proxy.setBackgroundColor(backgroundColor);
 	};
 	/**
 	 * @tiapi(method=true,name=UI.UserWindow.setFullscreen,since=0.4) Set the window to take over the full screen
@@ -1386,6 +1398,7 @@ Titanium.UI = {
 			var fullscreen = options.fullscreen;
 			var title = options.title;
 			var titleImage = options.titleImage;
+			var backgroundColor = options.backgroundColor;
 
 			if (!isUndefined(url)) {
 				w.setURL(url);
@@ -1398,6 +1411,9 @@ Titanium.UI = {
 			}
 			if (!isUndefined(titleImage)) {
 				w.setTitleImage(titleImage);
+			}
+			if (!isUndefined(backgroundColor)) {
+				w.setBackgroundColor(backgroundColor);
 			}
 		}
 
@@ -2261,6 +2277,12 @@ Titanium.UI.iPhone = {
 		RIGHT : -1,
 		UP : -1,
 		DOWN : -1
+	},
+	createGroupedSection : function () {
+
+	},
+	createGroupedView : function() {
+
 	}
 };
 

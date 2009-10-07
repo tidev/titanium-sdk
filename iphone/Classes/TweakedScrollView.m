@@ -36,8 +36,8 @@
 	}
 	
 	BOOL result=[super touchesShouldBegin:touches withEvent:event inContentView:view];
-	NSLog(@"[DEBUG] TouchesShouldBegin:%d withEvent:%@ inContentView:%@ == %d",[touches count],
-		  ([event type]==UIEventTypeTouches)?@"touches":@"motion",NSStringFromClass([view class]),result);
+//	NSLog(@"[DEBUG] TouchesShouldBegin:%d withEvent:%@ inContentView:%@ == %d",[touches count],
+//		  ([event type]==UIEventTypeTouches)?@"touches":@"motion",NSStringFromClass([view class]),result);
 	
 //	if([view isKindOfClass:[UIScrollView class]]){
 //		[view touchesBegan:touches withEvent:event];

@@ -7,6 +7,8 @@
 
 package org.appcelerator.titanium.module.fs;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -96,8 +98,57 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 	}
 
 	public boolean copy(String destination) {
-		logNotSupported(null);
-		return false;
+		InputStream is = null;
+		OutputStream os = null;
+		boolean copied = false;
+
+		if (destination != null) {
+			TitaniumModuleManager tmm = weakTmm.get();
+			if (tmm != null) {
+				try {
+					is = getInputStream();
+					if (is != null) {
+						String parts[] = { destination };
+						TitaniumBaseFile bf = TitaniumFileFactory.createTitaniumFile(tmm, parts, false);
+						if (bf != null) {
+							os = bf.getOutputStream();
+							if (os != null) {
+								byte[] buf = new byte[8096];
+								int count = 0;
+								is = new BufferedInputStream(is);
+								os = new BufferedOutputStream(os);
+
+								while((count = is.read(buf)) != -1) {
+									os.write(buf, 0, count);
+								}
+
+								copied = true;
+							}
+						}
+					}
+				} catch (IOException e) {
+					Log.e(LCAT, "Error while copying file: ", e);
+				} finally {
+					if (is != null) {
+						try {
+							is.close();
+						} catch (IOException e) {
+							// ignore;
+						}
+					}
+
+					if (os != null) {
+						try {
+							os.close();
+						} catch (IOException e) {
+							// ignore;
+						}
+					}
+				}
+			}
+		}
+
+		return copied;
 	}
 
 	public void createDirectory(boolean recursive) {
@@ -278,4 +329,7 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 		}
 		Log.w(LCAT, "Method is not supported " + this.getClass().getName() + " : " + method);
 	}
+
+	public abstract InputStream getInputStream() throws IOException;
+	public abstract OutputStream getOutputStream() throws IOException;
 }

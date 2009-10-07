@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.TitaniumUIHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
@@ -308,6 +309,7 @@ public class TitaniumTableView extends TitaniumBaseView
 		};
 		view.setFocusable(true);
 		view.setFocusableInTouchMode(true);
+		view.setCacheColorHint(Color.TRANSPARENT);
 		//view.setDrawingCacheEnabled(true);
 		adapter = new TTVListAdapter(viewModel);
 		view.setAdapter(adapter);

@@ -266,7 +266,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	}
 	
 	
-	int tz = [[NSTimeZone systemTimeZone] secondsFromGMT] / 3600; // get the timezone offset to UTC
+	int tz = [[NSTimeZone systemTimeZone] secondsFromGMT] / 60; // get the timezone offset to UTC in minutes
 	struct utsname u;
 	uname(&u);
 	

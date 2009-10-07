@@ -8,6 +8,8 @@
 package org.appcelerator.titanium.api;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 public interface ITitaniumFile
@@ -54,4 +56,8 @@ public interface ITitaniumFile
 	public void close();
 	public boolean isOpen();
 	public void open(int mode, boolean binary) throws IOException;
+
+	// Internal methods
+	public InputStream getInputStream() throws IOException;
+	public OutputStream getOutputStream() throws IOException;
 }

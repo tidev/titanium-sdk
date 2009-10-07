@@ -27,10 +27,7 @@ public interface ITitaniumUserWindow extends ITitaniumUserWindowBuilder
 	public String getViewKey(int i);
 	public ITitaniumView getViewByName(String name);
 	public int getActiveViewIndex();
-
 	public String getViewName(String key);
-//	public int addViewEventListener(String key, String eventName, String listener);
-//	public void removeEventListener(String key, String eventName, int listenerId);
 
 	// new in 0.7.0 due to refactor
 	public void dispatchTabChange(String data);
