@@ -38,7 +38,7 @@ public class TitaniumAnalyticsService extends Service
 	@SuppressWarnings("unused")
 	private final static int BUCKET_SIZE_SLOW_NETWORK = 5;
 
-	private final static String ANALYTICS_URL = "https://api.appcelerator.net/p/v1/mobile-track";
+	private final static String ANALYTICS_URL = "https://api.appcelerator.net/p/v2/mobile-track";
 	//private final static String ANALYTICS_URL = "http://192.168.123.102:8000/test";
 
 	private ConnectivityManager connectivityManager;
@@ -125,7 +125,7 @@ public class TitaniumAnalyticsService extends Service
 						   			@SuppressWarnings("unused")
 									String response = client.execute(httpPost, responseHandler);
 						   		} catch (Throwable t) {
-						   			Log.e(LCAT, "Error posting events" + t.getMessage());
+						   			Log.e(LCAT, "Error posting events: " + t.getMessage(), t);
 						   			deleteEvents = false;
 						   			records = null;
 						   			break;

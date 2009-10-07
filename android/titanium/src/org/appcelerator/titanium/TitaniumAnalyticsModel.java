@@ -26,7 +26,7 @@ public class TitaniumAnalyticsModel extends SQLiteOpenHelper{
 	private static final String LCAT = "TiAnalyticsDb";
 
 	private static final String DB_NAME = "tianalytics.db";
-	private static final int DB_VERSION = 3;
+	private static final int DB_VERSION = 4;
 
 	public TitaniumAnalyticsModel(Context context)
 	{
@@ -69,6 +69,10 @@ public class TitaniumAnalyticsModel extends SQLiteOpenHelper{
 			case 2 :
 				doMigration_2(db);
 				version = 3;
+				break;
+			case 3 :
+				doMigration_3(db);
+				version = 4;
 				break;
 			default :
 				throw new IllegalStateException("Missing migration path version=" + version);
@@ -114,21 +118,47 @@ public class TitaniumAnalyticsModel extends SQLiteOpenHelper{
 		db.execSQL(sql);
 	}
 
+	private void doMigration_3(SQLiteDatabase db)
+	{
+		// We're still in working toward 1.0 of analytics, drop unsent data
+		String sql =
+			"drop table if exists Events"
+			;
+		db.execSQL(sql);
+
+		sql =
+			"create table Events (" +
+			"  _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+			"  EventId TEXT, " +
+			"  Type TEXT, " +
+			"  Event TEXT, " +
+			"  Timestamp TEXT, " +
+			"  MID TEXT, " +
+			"  SID TEXT, " +
+			"  AppGUID TEXT, " +
+			"  isJSON INTEGER, " +
+			"  Payload TEXT " +
+			");"
+			;
+		db.execSQL(sql);
+	}
+
 	public void addEvent(final TitaniumAnalyticsEvent event)
 	{
 		SQLiteDatabase db = null;
 		try {
 			db = getWritableDatabase();
 			String sql =
-				"insert into Events(EventId, Name, Timestamp, MID, SID, AppID, isJSON, Payload) values(?,?,?,?,?,?,?,?)"
+				"insert into Events(EventId, Type, Event, Timestamp, MID, SID, AppGUID, isJSON, Payload) values(?,?,?,?,?,?,?,?,?)"
 				;
 			Object[] args = {
 				TitaniumPlatformHelper.createEventId(),
-				event.getEventName(),
+				event.getEventType(),
+				event.getEventEvent(),
 				event.getEventTimestamp(),
 				event.getEventMid(),
 				event.getEventSid(),
-				event.getEventAppId(),
+				event.getEventAppGuid(),
 				event.mustExpandPayload() ? 1 : 0,
 				event.getEventPayload()
 			};
@@ -208,7 +238,7 @@ public class TitaniumAnalyticsModel extends SQLiteOpenHelper{
 			db = getReadableDatabase();
 
 			String sql =
-				"select _id, EventId, Name, Timestamp, MID, SID, AppID, isJSON, Payload from Events " +
+				"select _id, EventId, Type, Event, Timestamp, MID, SID, AppGUID, isJSON, Payload from Events " +
 				" order by 1 limit " +
 				limit
 				;
@@ -219,23 +249,23 @@ public class TitaniumAnalyticsModel extends SQLiteOpenHelper{
 				int seq = c.getInt(0);
 				JSONObject json = new JSONObject();
 				json.put("seq", seq);
-				json.put("ver", "1");
+				json.put("ver", "2");
 				json.put("id", c.getString(1));
-				json.put("name", c.getString(2));
-				json.put("ts", c.getString(3));
-				json.put("mid", c.getString(4));
-				json.put("sid", c.getString(5));
-				json.put("aguid", c.getString(6));
-				boolean isJSON = c.getInt(7) == 1 ? true : false;
+				json.put("type", c.getString(2));
+				json.put("event", c.getString(3));
+				json.put("ts", c.getString(4));
+				json.put("mid", c.getString(5));
+				json.put("sid", c.getString(6));
+				json.put("aguid", c.getString(7));
+				boolean isJSON = c.getInt(8) == 1 ? true : false;
 				if (isJSON) {
-					json.put("data", new JSONObject(c.getString(8)));
+					json.put("data", new JSONObject(c.getString(9)));
 				} else {
-					json.put("data", c.getString(8));
+					json.put("data", c.getString(9));
 				}
 
 				result.put(seq, json);
 			}
-
 		} catch (JSONException e) {
 			Log.e(LCAT, "Error creating JSON.", e);
 		} catch (SQLException e) {

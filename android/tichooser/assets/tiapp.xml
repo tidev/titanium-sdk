@@ -157,7 +157,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
         <window>
             <id>TableView HTML</id>
             <title>Table View HTML</title>
@@ -167,7 +167,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-<!--
+
 		<window>
             <id>TableViewUpdates</id>
             <title>Table View Updates</title>
@@ -346,6 +346,14 @@
             <barColor>#000</barColor>
         </window>
 -->
+		<window>
+            <id>AppEvents</id>
+            <title>Application Events</title>
+            <url>events.html</url>
+            <fullscreen>true</fullscreen>
+            <backgroundColor>rgba(32,32,32,255)</backgroundColor>
+        </window>
+
     </windows>
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.android.watchlog" type="bool">false</property>
