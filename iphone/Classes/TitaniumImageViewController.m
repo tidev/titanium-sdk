@@ -50,7 +50,7 @@
 	if([newImageBlob isKindOfClass:[TitaniumBlobWrapper class]]){
 		[self setSingleImageBlob:newImageBlob];
 	} else {
-		NSString * imageUrlObject = [inputState objectForKey:@"url"];
+		id imageUrlObject = [inputState objectForKey:@"url"];
 		if([imageUrlObject isKindOfClass:[NSString class]]){
 			NSURL * singleImageUrl = [NSURL URLWithString:imageUrlObject relativeToURL:baseUrl];
 			[self setUrl:singleImageUrl];
@@ -59,7 +59,6 @@
 
 	NSNumber * canScaleObject = [inputState objectForKey:@"canScale"];
 	scrollEnabled = [canScaleObject respondsToSelector:@selector(boolValue)] && [canScaleObject boolValue];
-
 }
 
 #pragma mark Accessors

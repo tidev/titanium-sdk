@@ -31,6 +31,10 @@
 		2444FA550FCA4E2E00063972 /* IPAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FA540FCA4E2E00063972 /* IPAddress.c */; };
 		2444FC7F0FCA6F8000063972 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444FC7C0FCA6F8000063972 /* NSData+Additions.m */; };
 		2444FCD40FCA741E00063972 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FCD10FCA741E00063972 /* base64.c */; };
+		247DCBD2107C8366009CD0D1 /* YahooModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 247DCBD1107C8366009CD0D1 /* YahooModule.m */; };
+		247DCBE4107C83AB009CD0D1 /* YahooModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 247DCBD0107C8366009CD0D1 /* YahooModule.h */; };
+		247DCBE5107C83AF009CD0D1 /* YahooModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 247DCBD1107C8366009CD0D1 /* YahooModule.m */; };
+		247DCBE8107C83D2009CD0D1 /* TitaniumBasicModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD204B106C9198004D4127 /* TitaniumBasicModule.h */; };
 		24B4B9A310622B9D00C859D4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
 		24BBD83E0FCD245F00A261A4 /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BBD83D0FCD245F00A261A4 /* GestureModule.m */; };
 		24C5AC5B1061FB630063594B /* NotificationModule.h in Headers */ = {isa = PBXBuildFile; fileRef = B4F37DDB1061913E00ED12AF /* NotificationModule.h */; };
@@ -316,13 +320,14 @@
 		B49358DD106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B49358DB106AE51C00BC4A77 /* TitaniumImageViewController.m */; };
 		B49358DE106AE51C00BC4A77 /* TitaniumImageViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = B49358DA106AE51C00BC4A77 /* TitaniumImageViewController.h */; };
 		B49358DF106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B49358DB106AE51C00BC4A77 /* TitaniumImageViewController.m */; };
+		B49B21E7107A868900836F35 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; };
+		B49B23A5107BEDE700836F35 /* picker3.html in Resources */ = {isa = PBXBuildFile; fileRef = B49B23A4107BEDE700836F35 /* picker3.html */; };
 		B4A10F3E0F86BC490040D850 /* AppDownloadView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B4A10F3D0F86BC490040D850 /* AppDownloadView.xib */; };
 		B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
 		B4A49BA30FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
 		B4A49BBC0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */; };
 		B4A6D3B3103C9EFD00131CD4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
 		B4A6D3B4103C9EFD00131CD4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
-		B4AA86A2105ECEC700D29939 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; };
 		B4AA86FE105ED1DF00D29939 /* nointernet.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AA86F3105ED1DF00D29939 /* nointernet.html */; };
 		B4AA86FF105ED1DF00D29939 /* timeline-all.js in Sources */ = {isa = PBXBuildFile; fileRef = B4AA86F4105ED1DF00D29939 /* timeline-all.js */; };
 		B4AA8700105ED1DF00D29939 /* timeline-all.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AA86F5105ED1DF00D29939 /* timeline-all.html */; };
@@ -373,6 +378,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		247DCBE6107C83C8009CD0D1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 247DCBE0107C837F009CD0D1 /* libYahoo */;
+			remoteInfo = libYahoo;
+		};
+		247DCBEB107C83DB009CD0D1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 247DCBE0107C837F009CD0D1 /* libYahoo */;
+			remoteInfo = libYahoo;
+		};
 		24FD23DB106F1A53004D4127 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
@@ -427,6 +446,9 @@
 		2444FC7C0FCA6F8000063972 /* NSData+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Additions.m"; sourceTree = "<group>"; };
 		2444FCD00FCA741E00063972 /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base64.h; sourceTree = "<group>"; };
 		2444FCD10FCA741E00063972 /* base64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = base64.c; sourceTree = "<group>"; };
+		247DCBD0107C8366009CD0D1 /* YahooModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YahooModule.h; path = YahooModule/YahooModule.h; sourceTree = "<group>"; };
+		247DCBD1107C8366009CD0D1 /* YahooModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YahooModule.m; path = YahooModule/YahooModule.m; sourceTree = "<group>"; };
+		247DCBE1107C837F009CD0D1 /* libYahoo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libYahoo.a; path = "build/Release-iphonesimulator/libYahoo.a"; sourceTree = "<group>"; };
 		249075290FC9D55B00D38073 /* TitaniumModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumModule.h; sourceTree = "<group>"; };
 		24BBD83C0FCD245F00A261A4 /* GestureModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GestureModule.h; sourceTree = "<group>"; };
 		24BBD83D0FCD245F00A261A4 /* GestureModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GestureModule.m; sourceTree = "<group>"; };
@@ -554,6 +576,7 @@
 		B492D43D0FCC6DB20030772B /* network.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = network.html; sourceTree = "<group>"; };
 		B49358DA106AE51C00BC4A77 /* TitaniumImageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumImageViewController.h; sourceTree = "<group>"; };
 		B49358DB106AE51C00BC4A77 /* TitaniumImageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumImageViewController.m; sourceTree = "<group>"; };
+		B49B23A4107BEDE700836F35 /* picker3.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = picker3.html; sourceTree = "<group>"; };
 		B4A10F3D0F86BC490040D850 /* AppDownloadView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AppDownloadView.xib; sourceTree = "<group>"; };
 		B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumBlobWrapper.h; sourceTree = "<group>"; };
@@ -631,8 +654,15 @@
 				B4C3F8B60FB3B11C0037F210 /* CoreLocation.framework in Frameworks */,
 				B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */,
 				B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */,
-				B4AA86A2105ECEC700D29939 /* MessageUI.framework in Frameworks */,
 				B4F37E181061AB5D00ED12AF /* QuartzCore.framework in Frameworks */,
+				B49B21E7107A868900836F35 /* MessageUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		247DCBDF107C837F009CD0D1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -831,6 +861,7 @@
 				24C5AC3F1061FB2E0063594B /* libPlatform.a */,
 				24C5AC581061FB4C0063594B /* libUI.a */,
 				24FD2395106F180F004D4127 /* libFacebook.a */,
+				247DCBE1107C837F009CD0D1 /* libYahoo.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -838,6 +869,7 @@
 		2444F8060FC9FCA400063972 /* modules */ = {
 			isa = PBXGroup;
 			children = (
+				247DCBCF107C834F009CD0D1 /* YahooModule */,
 				24FD237B106F17E4004D4127 /* FacebookModule */,
 				B4F37DDA1061911100ED12AF /* NotificationModule */,
 				24F02E430FD482D2007894DA /* AnalyticsModule */,
@@ -958,6 +990,15 @@
 			path = UiModule;
 			sourceTree = "<group>";
 		};
+		247DCBCF107C834F009CD0D1 /* YahooModule */ = {
+			isa = PBXGroup;
+			children = (
+				247DCBD0107C8366009CD0D1 /* YahooModule.h */,
+				247DCBD1107C8366009CD0D1 /* YahooModule.m */,
+			);
+			name = YahooModule;
+			sourceTree = "<group>";
+		};
 		24BBD83B0FCD245F00A261A4 /* GestureModule */ = {
 			isa = PBXGroup;
 			children = (
@@ -1034,6 +1075,7 @@
 				2418F4660FCB6A2100BFE545 /* sound.wav */,
 				B4ABEDC3101903CA00639ED5 /* buggy.html */,
 				B4DDBE2A0FD0AE31004DD79E /* ui.html */,
+				B49B23A4107BEDE700836F35 /* picker3.html */,
 				B481D3360FD4C45A00F0A961 /* song.mp3 */,
 				B4ADF5F9106D8C0200D26B13 /* WeCanDoIt.png */,
 				B4FC30A30FEC89E800D31C75 /* Phone.png */,
@@ -1215,6 +1257,15 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		247DCBDD107C837F009CD0D1 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				247DCBE8107C83D2009CD0D1 /* TitaniumBasicModule.h in Headers */,
+				247DCBE4107C83AB009CD0D1 /* YahooModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		24C5ABED1061FA9D0063594B /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -1415,11 +1466,29 @@
 			buildRules = (
 			);
 			dependencies = (
+				247DCBE7107C83C8009CD0D1 /* PBXTargetDependency */,
 			);
 			name = Titanium;
 			productName = Titanium;
 			productReference = 1D6058910D05DD3D006BFB54 /* Titanium.app */;
 			productType = "com.apple.product-type.application";
+		};
+		247DCBE0107C837F009CD0D1 /* libYahoo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 247DCBFD107C842B009CD0D1 /* Build configuration list for PBXNativeTarget "libYahoo" */;
+			buildPhases = (
+				247DCBDD107C837F009CD0D1 /* Headers */,
+				247DCBDE107C837F009CD0D1 /* Sources */,
+				247DCBDF107C837F009CD0D1 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libYahoo;
+			productName = Yahoo;
+			productReference = 247DCBE1107C837F009CD0D1 /* libYahoo.a */;
+			productType = "com.apple.product-type.library.static";
 		};
 		24C5ABF01061FA9D0063594B /* libNotification */ = {
 			isa = PBXNativeTarget;
@@ -1637,6 +1706,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				247DCBEC107C83DB009CD0D1 /* PBXTargetDependency */,
 			);
 			name = libUI;
 			productName = libUI;
@@ -1709,6 +1779,7 @@
 			targets = (
 				1D6058900D05DD3D006BFB54 /* Titanium */,
 				B47A26CB1035F040002146CD /* Titanium-Spaz */,
+				247DCBE0107C837F009CD0D1 /* libYahoo */,
 				24FD2394106F180F004D4127 /* libFacebook */,
 				B41068A10FBB730F00310448 /* libTitanium */,
 				24C5ABF01061FA9D0063594B /* libNotification */,
@@ -1757,6 +1828,7 @@
 				B40C00241031ECC4009DEFF9 /* docs.html in Resources */,
 				B4F37E2E1061B50E00ED12AF /* closebox.png in Resources */,
 				B4ADF5FA106D8C0200D26B13 /* WeCanDoIt.png in Resources */,
+				B49B23A5107BEDE700836F35 /* picker3.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1898,6 +1970,15 @@
 				B49029F610728492009678FC /* FBXMLHandler.m in Sources */,
 				B49029F710728493009678FC /* FBLoginButton.m in Sources */,
 				B43543651076995400A38EC9 /* TitaniumJSEvent.m in Sources */,
+				247DCBD2107C8366009CD0D1 /* YahooModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		247DCBDE107C837F009CD0D1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				247DCBE5107C83AF009CD0D1 /* YahooModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2133,6 +2214,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		247DCBE7107C83C8009CD0D1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 247DCBE0107C837F009CD0D1 /* libYahoo */;
+			targetProxy = 247DCBE6107C83C8009CD0D1 /* PBXContainerItemProxy */;
+		};
+		247DCBEC107C83DB009CD0D1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 247DCBE0107C837F009CD0D1 /* libYahoo */;
+			targetProxy = 247DCBEB107C83DB009CD0D1 /* PBXContainerItemProxy */;
+		};
 		24FD23DC106F1A53004D4127 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 24FD2394106F180F004D4127 /* libFacebook */;
@@ -2165,6 +2256,31 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				PRODUCT_NAME = Titanium;
+			};
+			name = Release;
+		};
+		247DCBE2107C8380009CD0D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Yahoo;
+			};
+			name = Debug;
+		};
+		247DCBE3107C8380009CD0D1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Yahoo;
+				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -2658,6 +2774,15 @@
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,
 				1D6058950D05DD3E006BFB54 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		247DCBFD107C842B009CD0D1 /* Build configuration list for PBXNativeTarget "libYahoo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				247DCBE2107C8380009CD0D1 /* Debug */,
+				247DCBE3107C8380009CD0D1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

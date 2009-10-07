@@ -16,7 +16,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
@@ -161,6 +163,20 @@ public class TitaniumFile extends TitaniumBaseFile
 	}
 
 	@Override
+	public InputStream getInputStream() throws IOException {
+		return new FileInputStream(file);
+	}
+
+	@Override
+	public OutputStream getOutputStream() throws IOException {
+		return getOutputStream(MODE_WRITE);
+	}
+
+	public OutputStream getOutputStream(int mode) throws IOException {
+		return new FileOutputStream(file, mode == MODE_APPEND ? true : false);
+	}
+
+	@Override
 	public void open(int mode, boolean binary) throws IOException
 	{
 		this.binary = binary;
@@ -170,12 +186,12 @@ public class TitaniumFile extends TitaniumBaseFile
 				throw new FileNotFoundException(file.getAbsolutePath());
 			}
 			if (binary) {
-				instream = new BufferedInputStream(new FileInputStream(file));
+				instream = new BufferedInputStream(getInputStream());
 			} else {
 				inreader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "utf-8"));
 			}
 		} else {
-			FileOutputStream os = new FileOutputStream(file, mode == MODE_APPEND ? true : false);
+			OutputStream os = getOutputStream(mode);
 			if (binary) {
 				outstream = new BufferedOutputStream(os);
 			} else {

@@ -18,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
@@ -217,10 +218,11 @@ public abstract class TitaniumBaseView extends FrameLayout
 	protected void doPreOpen() {
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
 		setLayoutParams(params);
-		setPadding(5,5,5,5);
+		setPadding(0,0,0,0);
 		setFocusable(false);
 		setFocusableInTouchMode(false);
 		setClickable(false);
+		setBackgroundColor(Color.TRANSPARENT);
 	}
 
 	protected void doPostOpen() {

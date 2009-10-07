@@ -90,6 +90,7 @@ public class TitaniumSwitch extends TitaniumBaseNativeControl
 				ToggleButton b = (ToggleButton) control;
 				value = msg.getData().getBoolean("VALUE");
 				b.setChecked(value);
+				eventManager.invokeSuccessListeners(CHANGE_EVENT, "{ value : " + value + "}");
 				break;
 			}
 		}

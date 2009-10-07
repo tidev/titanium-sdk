@@ -187,7 +187,7 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void)alertView:(UIAlertView *)anAlertView clickedButtonAtIndex:(NSInteger)buttonIndex;
 {
-	NSString * result = [NSString stringWithFormat:@"Ti.UI._MODAL.%@.onClick('click'"
+	NSString * result = [NSString stringWithFormat:@"Ti.UI._MODAL.%@.onClick('click',"
 			"{type:'click',index:%d,cancel:%d})",tokenString,buttonIndex,[anAlertView cancelButtonIndex]];
 
 	[[TitaniumHost sharedHost] sendJavascript:result toPageWithToken:contextString];
@@ -441,12 +441,33 @@ NSString * UrlEncodeString(NSString * string)
 	}
 }
 
-- (void) modalPicker: (id)proxyObject visible:(NSNumber *) isVisibleObject options: (NSDictionary *) optionsObject;
+//New rules: When called by the Javascript, exceptions raised will be handled and relayed properly, so we need not
+//Double-check and fail silently when an invalid call comes through. However, things in the main thread NEEDS to not
+//raise exceptions
+- (id) picker: (NSString *)tokenString action: (NSNumber *) actionNumber arguments: (NSArray *) arguments;
 {
-	if(![isVisibleObject respondsToSelector:@selector(boolValue)])return;
-	NativeControlProxy * target = [self proxyForObject:proxyObject scan:YES recurse:YES];
-	//TODO: Modal picker stuff
+	NativeControlProxy * target = [self proxyForObject:tokenString scan:NO recurse:NO];
+	if(target==nil)return nil;
+	BOOL argsIsArray = [arguments isKindOfClass:[NSArray class]];
+	switch ([actionNumber intValue]) {
+		case PICKER_SELECTROW:{
+			if(([target templateValue]==UITitaniumNativeItemPicker) && argsIsArray && ([arguments count]>1)){
+				[target performSelectorOnMainThread:@selector(selectColumnRow:) withObject:arguments waitUntilDone:NO];
+			}
+			return nil;
+		}
+		default:
+			break;
+	}
+	return nil;
 }
+
+//- (void) modalPicker: (id)proxyObject visible:(NSNumber *) isVisibleObject options: (NSDictionary *) optionsObject;
+//{
+//	if(![isVisibleObject respondsToSelector:@selector(boolValue)])return;
+//	NativeControlProxy * target = [self proxyForObject:proxyObject scan:YES recurse:YES];
+//	//TODO: Modal picker stuff
+//}
 
 #pragma mark Window actions
 
@@ -1181,8 +1202,8 @@ NSString * UrlEncodeString(NSString * string)
 	[(UiModule *)invocGen resizeCurrentWindow];
 	NSInvocation * resizeWindowInvoc = [invocGen invocation];
 	
-	[(UiModule *)invocGen modalPicker: nil visible: nil options:nil];
-	NSInvocation * displayInputModallyInvoc = [invocGen invocation];
+//	[(UiModule *)invocGen modalPicker: nil visible: nil options:nil];
+//	NSInvocation * displayInputModallyInvoc = [invocGen invocation];
 	
 	[(UiModule *)invocGen scrollView:nil doAction:nil args:nil options:nil];
 	NSInvocation * scrollViewInvoc = [invocGen invocation];
@@ -1219,7 +1240,7 @@ NSString * UrlEncodeString(NSString * string)
 			"addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
 			"close:function(args){Ti.UI._CLS(Ti._TOKEN,args);},"
 			"setTitle:function(args){Ti.UI._WTITLE(Ti._TOKEN,args);},"
-			"fireEvent:function(){Ti.UI._WACT(Ti._TOKEN," STRINGVAL(WINDOW_FIRE_JSEVENT) ",arguments);},"
+			"fireEvent:function(typ,evt){if(Ti._TOKEN){Ti.UI._WACT(Ti._TOKEN," STRINGVAL(WINDOW_FIRE_JSEVENT) ",[typ,evt]);}},"
 			"setBarColor:function(args){Ti.UI._WNAVTNT(Ti._TOKEN,args);},"
 			"setFullscreen:function(newBool){Ti.UI._WFSCN(Ti._TOKEN,newBool);},"
 			"setTitle:function(args){Ti.UI._WTITLE(Ti._TOKEN,args);},"
@@ -1247,7 +1268,7 @@ NSString * UrlEncodeString(NSString * string)
 			
 	[currentWindowScript setEpilogueCode:@"window.addEventListener('DOMNodeInserted',Ti.UI.currentWindow.repaint,false);"
 			"window.addEventListener('load',function(){if(document.body){document.body.addEventListener('load',"
-				"function(){if(e.srcElement.tagName=='IMG')Titanium.UI.currentWindow.repaint();},false);}},false);"];
+				"function(e){if(e.srcElement.tagName=='IMG')Titanium.UI.currentWindow.repaint();},true);}},false);"];
 
 	NSString * viewsForWindowString = @"function(winTkn){var fetched=Ti.UI._WGVIEWS(winTkn);if(!fetched)return {};var res=[];var i=0;var viewCount=fetched.length;while(i<viewCount){"
 			"var props=fetched[i];var viewTkn=props._TOKEN;var view;"
@@ -1267,7 +1288,7 @@ NSString * UrlEncodeString(NSString * string)
 	NSString * createWindowString = @"function(args){var res={};"
 			"for(property in args){res[property]=args[property];res['_'+property]=args[property];};"
 //			"delete res._TOKEN;"
-			"res.fireEvent=function(evt){if(this._TOKEN){Ti.UI._WACT(this._TOKEN," STRINGVAL(WINDOW_FIRE_JSEVENT) ",evt);}};"
+			"res.fireEvent=function(typ,evt){if(this._TOKEN){Ti.UI._WACT(this._TOKEN," STRINGVAL(WINDOW_FIRE_JSEVENT) ",[typ,evt]);}};"
 			"res.setFullscreen=function(newBool){this.fullscreen=newBool;if(this._TOKEN){Ti.UI._WFSCN(this._TOKEN,newBool);};};"
 			"res.setTitle=function(args){this.title=args;if(this._TOKEN){Ti.UI._WTITLE(this._TOKEN,args);}};"
 			"res.showNavBar=function(args){this._hideNavBar=false;if(this._TOKEN){Ti.UI._WSHNAV(this._TOKEN,args);}};"
@@ -1278,7 +1299,7 @@ NSString * UrlEncodeString(NSString * string)
 			"res.setLeftNavButton=function(btn,args){if(btn)btn.ensureToken();this.lNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,true,btn,args);}};"
 			"res.setRightNavButton=function(btn,args){if(btn)btn.ensureToken();this.rNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,false,btn,args);}};"
 			"res.close=function(args){Ti.UI._CLS(this._TOKEN,args);};"
-			"res.addView=function(newView,args){this.views.push(newView);if(this._TOKEN){newView.ensureToken();Ti.UI._WSVIEWS(this._TOKEN,[newView],false,args);}};"
+			"res.addView=function(newView,args){if(this.views){this.views.push(newView);}else{this.views=[newView];}if(this._TOKEN){newView.ensureToken();Ti.UI._WSVIEWS(this._TOKEN,[newView],false,args);}};"
 			"res.getViews=function(){return Ti.UI.viewsForWindowToken(This._TOKEN);};"
 			"res.getViewByName=function(name){var views=this.getViews();for(var i=0;i<views.length;i++){if(views[i].name==name)return views[i];}return null;};"
 //			"res.setViews=function(newViews,args){this.views=newViews;if(this._TOKEN){"
@@ -1313,13 +1334,33 @@ NSString * UrlEncodeString(NSString * string)
 
 	NSString * setActiveTabString = @"function(win){var tok;if(win==Ti.currentWindow){tok=Ti._TOKEN;}else{tok=win._TOKEN;if(!tok)return;}Ti.UI._TABACT(tok);}";
 
-	NSString * createWebViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='web';"
+
+	NSString * createViewString = @"function(args){var res={};"
+			"for(property in args){res[property]=args[property];};"
+			"res.addView=function(newView,args){if(this.views){this.views.push(newView);}else{this.views=[newView];}if(this._TOKEN){newView.ensureToken();Ti.UI._WSVIEWS(this._TOKEN,[newView],false,args);}};"
+			"res.getViews=function(){return Ti.UI.viewsForWindowToken(This._TOKEN);};"
+			"res.getViewByName=function(name){var views=this.getViews();for(var i=0;i<views.length;i++){if(views[i].name==name)return views[i];}return null;};"
+			"res.setActiveViewIndex=function(newIndex,args){this.activeViewIndex=newIndex;if(this._TOKEN){Ti.UI._WSAVIEW(this._TOKEN,newIndex,args);}};"
+			"res.showView=function(blessedView,args){if(!this.views)return;var newIndex=0;var viewCount=this.views.length;"
+			"for(var i=0;i<viewCount;i++){if(this.views[i]._TOKEN==blessedView._TOKEN){this.setActiveViewIndex(i,args);return;}}};"
+			"res.open=function(){Ti.API.fatal('Open is no longer supported in web/table views, as they are no longer their own windows.');};"
+			"res.ensureToken=function(){"
+				"if(this.data){var data=this.data;var i=data.length;while(i>0){i--;var inp=data[i].input;if(inp)inp.ensureToken();}};"
+				"if(this.sections){var grp=this.sections;var j=grp.length;while(j>0){j--;var data=grp[j].data;var i=data.length;"
+					"while(i>0){i--;var inp=data[i].input;if(inp)inp.ensureToken();}"
+				"}};"
+				"if(this._TOKEN)return;var tkn=Ti.UI._VTOKEN();this._TOKEN=tkn;Ti.UI._VIEW[tkn]=this;};"
+			"res.update=function(args){if(!this._TOKEN)return;Ti.UI._WUPDATE(this,args);};"
+			"if(res.rightNavButton)res.setRightNavButton(res.rightNavButton);"
+			"if(res.leftNavButton)res.setLeftNavButton(res.leftNavButton);"
+			"return res;}";
+	
+	NSString * createWebViewString = @"function(args){var res=Ti.UI.createView(args);res._TYPE='web';"
 			"res.insertButton=function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
 			"res.setURL=function(newUrl){this.url=newUrl;if(this._TOKEN){Ti.UI._WURL(this._TOKEN,newUrl,document.location);};};"
-			"res.open=function(){Ti.API.fatal('Open is no longer supported in webViews, as they are no longer their own windows.');};"
 			"return res;}";
 
-	NSString * createScrollingViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='scroll';if(!res.views)res.views=[];"
+	NSString * createScrollingViewString = @"function(args){var res=Ti.UI.createView(args);res._TYPE='scroll';if(!res.views)res.views=[];"
 			"res.addView=function(view){if(!view)return;this.views.push(view);if(this._TOKEN){view.ensureToken();Ti.UI._SCRVWACT(this._TOKEN," STRINGVAL(SCROLLVIEW_ADDVIEW) ",view);}};"
 			"res.scrollToView=function(view){if(typeof(view)=='number'){this.setCurrentPage(view);return;}if(!view)return;"
 			"var views=this.views;var len=views.length;for(var i=0;i<len;i++){if(views[i]==view){this.setCurrentPage(i);return;}}};"
@@ -1329,18 +1370,20 @@ NSString * UrlEncodeString(NSString * string)
 				"views[i].ensureToken();}if(this._TOKEN)return;var tkn=Ti.UI._VTOKEN();this._TOKEN=tkn;Ti.UI._VIEW[tkn]=this;};"
 			"return res;}";
 
-	NSString * createCompositeViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='multi';if(!res.rules)res.rules=[];"
+	NSString * createCompositeViewString = @"function(args){var res=Ti.UI.createView(args);res._TYPE='multi';if(!res.rules)res.rules=[];"
 			"res.addView=function(view,traits){if(!view)return;var rule={};for(prop in traits){rule[prop]=traits[prop];};rule.view=view;this.rules.push(rule);"
 				"if(this._TOKEN){view.ensureToken();Ti.UI._CMPVWACT(this._TOKEN," STRINGVAL(COMPOSITEVIEW_ADDRULE) ",rule);}};"
 			"res.ensureToken=function(){var rules=this.rules;var len=rules.length;for(var i=0;i<len;i++){"
 				"rules[i].view.ensureToken();}if(this._TOKEN)return;var tkn=Ti.UI._VTOKEN();this._TOKEN=tkn;Ti.UI._VIEW[tkn]=this;};"
 			"return res;}";
 	
-	NSString * createImageViewString = @"function(args){var res=Ti.UI.createWindow(args);res._TYPE='image';"
+	NSString * createImageViewString = @"function(args){var res=Ti.UI.createView(args);res._TYPE='image';"
 			"res.setURL=function(newUrl){this.url=newUrl;if(this._TOKEN){Ti.UI._IMGVWACT(this._TOKEN," STRINGVAL(IMAGEVIEW_SETURL) ",newUrl);}};"
 			"return res;}";
 	
-	NSString * createTableWindowString = [NSString stringWithFormat:@"function(args,callback){var res=Ti.UI.createWindow(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;res.onClick=callback;"
+	NSString * createTableWindowString = [NSString stringWithFormat:@"function(args,callback){var res=Ti.UI.createView(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;"
+			"res._EVT={click:[]};res.onClick=Ti._ONEVT;res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;"
+			"res.addEventListener('click',callback);"
 			"if(!res.data)res.data=[];"
 			"res.getIndexByName=function(name){var rowCount=this.data.length;for(var i=0;i<rowCount;i++){if(this.data[i].name==name)return i}return -1;};"
 			"res.insertRowAfter=function(rowIndex,row,args){this.data.splice(rowIndex+1,0,row);if(this._TOKEN){if(row.input)row.input.ensureToken();Ti.UI._WROWCHG(this._TOKEN,rowIndex,row,%d,args);}};"
@@ -1352,7 +1395,6 @@ NSString * UrlEncodeString(NSString * string)
 				"this.data.splice(rowIndex,1);if(this._TOKEN){Ti.UI._WROWDEL(this._TOKEN,rowIndex,args);}};"
 			"res.updateRow=function(rowIndex,row,args){this.data.splice(rowIndex,1,row);if(this._TOKEN){if(row.input)row.input.ensureToken();Ti.UI._WROWCHG(this._TOKEN,rowIndex,row,%d,args);}};"
 			"res.appendRow=function(row,args){this.data.push(row);if(this._TOKEN){if(row.input)row.input.ensureToken();Ti.UI._WROWCHG(this._TOKEN,0,row,%d,args);}};"
-			"res.open=function(){Ti.API.fatal('Open is no longer supported in webViews, as they are no longer their own windows.');};"
 			"res.setData=function(newData,args){this.data=newData;if(this._TOKEN){"
 					"for(var i=0;i<newData.length;i++){if(newData[i].input)newData[i].input.ensureToken();}Ti.UI._WDTAUPD(this._TOKEN,newData,false,args);}};"
 			"var tkn='TBL'+(Ti.UI._NEXTTKN++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}",
@@ -1382,6 +1424,7 @@ NSString * UrlEncodeString(NSString * string)
 				"if(tkn){Ti.UI._WSECROWDEL(tkn,this._GRPNUM(),rowIndex,args);}};"
 			"res.updateRow=function(rowIndex,row,args){this.data.splice(rowIndex,1,row);if(!this._PATH)return;var tkn=eval(this._PATH)._TOKEN;"
 				"if(tkn){if(row.input)row.input.ensureToken();Ti.UI._WSECROWCHG(tkn,this._GRPNUM(),rowIndex,row,true,args);}};"
+			"res.setData=function(data,args){this.data=data;eval(this._PATH).updateSection(this._GRPNUM(),this,args);};"
 			"return res;}";
 
 	NSString * systemButtonStyleString = [NSString stringWithFormat:@"{PLAIN:%d,BORDERED:%d,DONE:%d,BAR:%d,BIG:%d,DARK:%d}",
@@ -1470,7 +1513,7 @@ NSString * UrlEncodeString(NSString * string)
 			getTabByNameInvoc,@"_TABGET",
 			getAllTabsInvoc,@"_TABALL",
 			
-			displayInputModallyInvoc,@"_DISPMODAL",
+//			displayInputModallyInvoc,@"_DISPMODAL",
 			
 			insertRowInvoc,@"_WROWCHG",
 			deleteRowInvoc,@"_WROWDEL",
@@ -1506,8 +1549,10 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'segmented');}"],@"createTabbedBar",
 			[TitaniumJSCode codeWithString:createDatePickerString],@"createDatePicker",
 			[TitaniumJSCode codeWithString:createPickerString],@"createPicker",
-			[TitaniumJSCode codeWithString:createModalDatePickerString],@"createModalDatePicker",
-			[TitaniumJSCode codeWithString:createModalPickerString],@"createModalPicker",
+//			[TitaniumJSCode codeWithString:createModalDatePickerString],@"createModalDatePicker",
+//			[TitaniumJSCode codeWithString:createModalPickerString],@"createModalPicker",
+
+			[TitaniumInvocationGenerator invocationWithTarget:self selector:@selector(picker:action:arguments:) object:nil],@"_PICACT",
 
 			[NSNumber numberWithInt:1],@"_NEXTTKN",
 			showModalInvoc,@"_MSHOW",
@@ -1531,6 +1576,9 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:@"{_TOKEN:Ti._TOKEN}"],@"currentTab",
 			[TitaniumJSCode codeWithString:createWindowString],@"createWindow",
 			[TitaniumJSCode codeWithString:getWindowByNameString],@"getWindowByName",
+
+
+			[TitaniumJSCode codeWithString:createViewString],@"createView",
 			[TitaniumJSCode codeWithString:createWebViewString],@"createWebView",
 			[TitaniumJSCode codeWithString:createScrollingViewString],@"createScrollableView",
 			[TitaniumJSCode codeWithString:createCompositeViewString],@"createCompositeView",

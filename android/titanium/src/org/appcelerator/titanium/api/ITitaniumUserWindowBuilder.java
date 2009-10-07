@@ -14,4 +14,7 @@ public interface ITitaniumUserWindowBuilder
 	public void setTitleImage(String titleImageUrl);
 	public void setFullscreen(boolean fullscreen);
 	public void open();
+
+	// Added in 0.7.0
+	public void setBackgroundColor(String backgroundColor);
 }

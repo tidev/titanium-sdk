@@ -41,6 +41,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -133,6 +134,8 @@ public class TitaniumWebView extends WebView
         settings.setSupportZoom(false);
         settings.setLoadsImagesAutomatically(true);
         settings.setLightTouchEnabled(true);
+
+        setBackgroundColor(Color.TRANSPARENT);
 
         offScreen = new AbsoluteLayout.LayoutParams(1, 1, -100, -100);
         final TitaniumWebView me = this;
@@ -250,14 +253,7 @@ public class TitaniumWebView extends WebView
     	if (DBG) {
     		Log.d(LCAT, "buildWebView");
     	}
-// TODO: Move to window?
-//    	if (!useAsView) {
-//	    	TitaniumWindowInfo windowInfo = tmm.getActivity().getWindowInfo();
-//
-//			if (windowInfo != null && windowInfo.hasBackgroundColor()) {
-//				setBackgroundColor(windowInfo.getBackgroundColor());
-//			}
-//    	}
+
         if (url != null)
 		{
         	try {
@@ -574,7 +570,7 @@ public class TitaniumWebView extends WebView
 
 	public void invalidateLayout() {
 		handler.removeMessages(MSG_INVALIDATE_LAYOUT);
-		handler.sendEmptyMessageDelayed(MSG_INVALIDATE_LAYOUT, 250);
+		handler.sendEmptyMessageDelayed(MSG_INVALIDATE_LAYOUT, 100);
 	}
 
 	public void addControl(View control) {

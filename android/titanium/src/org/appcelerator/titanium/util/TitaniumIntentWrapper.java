@@ -28,6 +28,7 @@ public class TitaniumIntentWrapper implements Serializable
 	public static final String EXTRA_IS_FULLSCREEN = "isFullscreen";
 	public static final String EXTRA_ICON_URL = "iconUrl";
 	public static final String EXTRA_ACTIVITY_TYPE = "activityType";
+	public static final String EXTRA_BACKGROUND_COLOR = "backgroundColor";
 
 	private Intent intent;
 
@@ -62,6 +63,7 @@ public class TitaniumIntentWrapper implements Serializable
 		setData(window.getWindowUrl());
 		setActivityType(window.getWindowType());
 		setIconUrl(window.getWindowIconUrl());
+		setBackgroundColor(window.getBackgroundColor());
 		//TODO windowsize
 	}
 
@@ -121,6 +123,19 @@ public class TitaniumIntentWrapper implements Serializable
 		intent.putExtra(Intent.EXTRA_TITLE, title);
 	}
 
+	public boolean hasBackgroundColor() {
+		return intent.getExtras().containsKey(EXTRA_BACKGROUND_COLOR);
+	}
+
+	public int getBackgroundColor() {
+		return intent.getExtras().getInt(EXTRA_BACKGROUND_COLOR);
+	}
+	public void setBackgroundColor(int color) {
+		intent.putExtra(EXTRA_BACKGROUND_COLOR, color);
+	}
+	public void setBackgroundColor(String colorCode) {
+		intent.putExtra(EXTRA_BACKGROUND_COLOR, TitaniumColorHelper.parseColor(colorCode));
+	}
 	public Uri getData() {
 		return intent.getData();
 	}

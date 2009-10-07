@@ -8,8 +8,9 @@
 package org.appcelerator.titanium.module.fs;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
 
@@ -83,9 +84,14 @@ public class TitaniumBlob extends TitaniumBaseFile
 		return context.getContentResolver().getType(Uri.parse(url));
 	}
 
-	public InputStream openInputStream()
-		throws FileNotFoundException
+	public InputStream getInputStream()
+		throws IOException
 	{
 		return context.getContentResolver().openInputStream(Uri.parse(url));
+	}
+
+	@Override
+	public OutputStream getOutputStream() throws IOException {
+		return null;
 	}
 }

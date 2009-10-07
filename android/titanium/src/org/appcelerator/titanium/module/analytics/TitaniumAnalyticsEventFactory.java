@@ -75,7 +75,7 @@ public class TitaniumAnalyticsEventFactory
 			json.put("model", platform.getModel());
 			json.put("deploytype", deployType);
 
-			event = new TitaniumAnalyticsEvent(EVENT_APP_ENROLL, json);
+			event = new TitaniumAnalyticsEvent(EVENT_APP_ENROLL, EVENT_APP_ENROLL, json);
 		} catch (JSONException e) {
 			Log.e(LCAT, "Unable to encode start event", e);
 			event = null;
@@ -116,7 +116,7 @@ public class TitaniumAnalyticsEventFactory
 
 		try {
 			json = new JSONObject();
-			json.put("tz",GregorianCalendar.getInstance().getTimeZone().getRawOffset()/3600000);
+			json.put("tz",GregorianCalendar.getInstance().getTimeZone().getRawOffset()/60000);
 			json.put("deploytype", deployType);
 			json.put("os", platform.getModel());
 			json.put("osver", platform.getVersion());
@@ -125,7 +125,7 @@ public class TitaniumAnalyticsEventFactory
 			json.put("app_version", application.getVersion());
 			json.put("nettype", network.getNetworkTypeName());
 
-			event = new TitaniumAnalyticsEvent(EVENT_APP_START, json);
+			event = new TitaniumAnalyticsEvent(EVENT_APP_START, EVENT_APP_START, json);
 		} catch (JSONException e) {
 			Log.e(LCAT, "Unable to encode start event", e);
 			event = null;
@@ -150,7 +150,7 @@ public class TitaniumAnalyticsEventFactory
 
 	public static TitaniumAnalyticsEvent createAppEndEvent()
 	{
-		return new TitaniumAnalyticsEvent(EVENT_APP_END, "");
+		return new TitaniumAnalyticsEvent(EVENT_APP_END, EVENT_APP_END, "");
 	}
 
 //	4. Application Crash Detected
@@ -186,7 +186,7 @@ public class TitaniumAnalyticsEventFactory
 			sb.append(elements[i].toString()).append("\n");
 		}
 
-		event = new TitaniumAnalyticsEvent(EVENT_ERROR, sb.toString());
+		event = new TitaniumAnalyticsEvent(EVENT_ERROR, EVENT_ERROR, sb.toString());
 		sb.setLength(0);
 		sb = null;
 
@@ -245,7 +245,7 @@ public class TitaniumAnalyticsEventFactory
 					wrapper.put("from", null);
 				}
 
-				result = new TitaniumAnalyticsEvent(EVENT_APP_GEO, wrapper);
+				result = new TitaniumAnalyticsEvent(EVENT_APP_GEO, EVENT_APP_GEO, wrapper);
 				lastLocation = location;
 			} catch (JSONException e) {
 				Log.e(LCAT, "Error building ti.geo event", e);
@@ -286,7 +286,13 @@ public class TitaniumAnalyticsEventFactory
 //	- name			-- name of the event
 //	- data			-- data provided by the user (or NULL if not provided)
 
-	public static TitaniumAnalyticsEvent createEvent(String eventName, String data) {
-		return new TitaniumAnalyticsEvent(eventName, data);
+	public static TitaniumAnalyticsEvent createEvent(String type, String event, String data) {
+		try {
+			JSONObject o = new JSONObject(data);
+			return new TitaniumAnalyticsEvent(type, event, o);
+		} catch (JSONException e) {
+			Log.w(LCAT,"data object was not JSON, sending as string");
+			return new TitaniumAnalyticsEvent(type, event, data);
+		}
 	}
 }

@@ -513,7 +513,7 @@ int nextWindowToken = 0;
 
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < 30000
 typedef int UIEventSubtype;
-const UIEventSubtype UIEventSubtypeMotionShake=1;
+#define UIEventSubtypeMotionShake	1
 #endif
 
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
@@ -975,7 +975,7 @@ const UIEventSubtype UIEventSubtypeMotionShake=1;
 
 - (void) handleJavascriptEvent: (TitaniumJSEvent *) event;
 {
-	NSString * currentWindowVersion = [NSString stringWithFormat:@"Ti.UI.currentWindow.doEvent(%@,%@)",[event eventName],[event eventString]];
+	NSString * currentWindowVersion = [NSString stringWithFormat:@"Ti.UI.currentWindow.doEvent('%@',%@)",[event eventName],[event eventString]];
 	for(TitaniumContentViewController * thisVC in contentViewControllers){
 		if([thisVC respondsToSelector:@selector(sendJavascript:)]){
 			[(id)thisVC sendJavascript:currentWindowVersion];

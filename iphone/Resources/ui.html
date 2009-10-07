@@ -182,6 +182,7 @@ try{
 	var buttonSection = Titanium.UI.iPhone.createGroupedSection({type:'button',data:buttonData});
 	buttonSection.addEventListener('click',function(e)
 	{
+//		Ti.API.debug(e.toString());
 		Titanium.UI.createAlertDialog({title:"Click!",message:('Button:'+e.index)}).show();
 	});
 
@@ -194,6 +195,7 @@ try{
 	var optionSection = Titanium.UI.iPhone.createGroupedSection({type:'option', data:optionData});
 	optionSection.addEventListener('click',function(e)
 	{
+//		Ti.API.debug(e.toString());
 		Titanium.UI.createAlertDialog({title:"Option!",message:('Button:'+e.index)}).show();
 	});
 
@@ -222,6 +224,7 @@ try{
 	var inputSection = Titanium.UI.iPhone.createGroupedSection({type:'input', data:inputData});
 	inputSection.addEventListener('click',function(e)
 	{
+//		Ti.API.debug(e.toString());
 		Titanium.UI.createAlertDialog({title:"Input!",message:('Button:'+e.index)}).show();
 	});
 	var groupedView = Titanium.UI.iPhone.createGroupedView();
@@ -248,7 +251,10 @@ try{
 //	groupedView.setLeftNavButton(Ti.UI.createButton({systemButton:'rewind'}));
 
 //	groupedView.setLeftNavButton(null);
-	groupedView.open({animated:false});
+	var winny = Ti.UI.createWindow({views:[groupedView]});
+//	winny.addView(groupedView);
+	winny.open();
+//	groupedView.open({animated:false});
 } catch(E){Titanium.UI.createAlertDialog({title:"Error!",message:('Msg:'+E)}).show();};
 };
 		var btn8 = Ti.UI.createButton({systemButton:'rewind'});

@@ -27,247 +27,247 @@ extern NSData * AES128DecryptWithKey(NSData * data, NSString * key);
 {
    NSString *urlStr = [url absoluteString];
 
-   if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"accelerometer.html"]]){
+   if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"accelerometer.html"]]){
      return [self pageNamedAccelerometer];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"activity_indicators.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"activity_indicators.html"]]){
      return [self pageNamedActivity_indicators];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"animated_false.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"animated_false.html"]]){
      return [self pageNamedAnimated_false];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"application_data.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"application_data.html"]]){
      return [self pageNamedApplication_data];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"back_button.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"back_button.html"]]){
      return [self pageNamedBack_button];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"buttonbar.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"buttonbar.html"]]){
      return [self pageNamedButtonbar];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"buttons.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"buttons.html"]]){
      return [self pageNamedButtons];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"comp_view_1_body.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"comp_view_1_body.html"]]){
      return [self pageNamedComp_view_1_body];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"composite.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"composite.html"]]){
      return [self pageNamedComposite];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"composite_views.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"composite_views.html"]]){
      return [self pageNamedComposite_views];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"composite_views2.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"composite_views2.html"]]){
      return [self pageNamedComposite_views2];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"custom_events.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"custom_events.html"]]){
      return [self pageNamedCustom_events];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"custom_events1.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"custom_events1.html"]]){
      return [self pageNamedCustom_events1];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"custom_events2.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"custom_events2.html"]]){
      return [self pageNamedCustom_events2];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"custom_events3.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"custom_events3.html"]]){
      return [self pageNamedCustom_events3];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"custom_table_view_data.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"custom_table_view_data.html"]]){
      return [self pageNamedCustom_table_view_data];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"database.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"database.html"]]){
      return [self pageNamedDatabase];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"database2.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"database2.html"]]){
      return [self pageNamedDatabase2];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"dynamic_content.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"dynamic_content.html"]]){
      return [self pageNamedDynamic_content];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"dynamic_images.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"dynamic_images.html"]]){
      return [self pageNamedDynamic_images];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"email.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"email.html"]]){
      return [self pageNamedEmail];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"filesystem.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"filesystem.html"]]){
      return [self pageNamedFilesystem];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"fullscreen.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"fullscreen.html"]]){
      return [self pageNamedFullscreen];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"geo.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"geo.html"]]){
      return [self pageNamedGeo];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"html_table_view.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"html_table_view.html"]]){
      return [self pageNamedHtml_table_view];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"image.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"image.html"]]){
      return [self pageNamedImage];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"image_views.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"image_views.html"]]){
      return [self pageNamedImage_views];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"iphone_ui.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"iphone_ui.html"]]){
      return [self pageNamedIphone_ui];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"js_events.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"js_events.html"]]){
      return [self pageNamedJs_events];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"js_events2.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"js_events2.html"]]){
      return [self pageNamedJs_events2];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"modal.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"modal.html"]]){
      return [self pageNamedModal];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"navbar_color.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"navbar_color.html"]]){
      return [self pageNamedNavbar_color];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"navbar_hide.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"navbar_hide.html"]]){
      return [self pageNamedNavbar_hide];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"navbar_left.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"navbar_left.html"]]){
      return [self pageNamedNavbar_left];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"navbar_right.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"navbar_right.html"]]){
      return [self pageNamedNavbar_right];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"navbar_title.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"navbar_title.html"]]){
      return [self pageNamedNavbar_title];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"orientation.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"orientation.html"]]){
      return [self pageNamedOrientation];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"phone.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"phone.html"]]){
      return [self pageNamedPhone];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"picker1.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"picker1.html"]]){
      return [self pageNamedPicker1];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"picker2.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"picker2.html"]]){
      return [self pageNamedPicker2];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"picker3.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"picker3.html"]]){
      return [self pageNamedPicker3];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"picker4.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"picker4.html"]]){
      return [self pageNamedPicker4];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"pickers.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"pickers.html"]]){
      return [self pageNamedPickers];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"platform.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"platform.html"]]){
      return [self pageNamedPlatform];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"platform_data.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"platform_data.html"]]){
      return [self pageNamedPlatform_data];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"progress_bars.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"progress_bars.html"]]){
      return [self pageNamedProgress_bars];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"properties.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"properties.html"]]){
      return [self pageNamedProperties];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"scroll_view_child_1.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"scroll_view_child_1.html"]]){
      return [self pageNamedScroll_view_child_1];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"scroll_view_child_2.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"scroll_view_child_2.html"]]){
      return [self pageNamedScroll_view_child_2];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"scroll_view_child_3.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"scroll_view_child_3.html"]]){
      return [self pageNamedScroll_view_child_3];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"scroll_views.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"scroll_views.html"]]){
      return [self pageNamedScroll_views];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"set_control_values.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"set_control_values.html"]]){
      return [self pageNamedSet_control_values];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"shake.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"shake.html"]]){
      return [self pageNamedShake];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"slider.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"slider.html"]]){
      return [self pageNamedSlider];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"sound.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"sound.html"]]){
      return [self pageNamedSound];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"statusbar.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"statusbar.html"]]){
      return [self pageNamedStatusbar];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"switch.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"switch.html"]]){
      return [self pageNamedSwitch];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"tabbar.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"tabbar.html"]]){
      return [self pageNamedTabbar];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"tabbar_hide.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"tabbar_hide.html"]]){
      return [self pageNamedTabbar_hide];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"tabchange.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"tabchange.html"]]){
      return [self pageNamedTabchange];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"tableview_add.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"tableview_add.html"]]){
      return [self pageNamedTableview_add];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"tableview_append.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"tableview_append.html"]]){
      return [self pageNamedTableview_append];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"tableview_delete.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"tableview_delete.html"]]){
      return [self pageNamedTableview_delete];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"tableview_set.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"tableview_set.html"]]){
      return [self pageNamedTableview_set];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"tableview_update.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"tableview_update.html"]]){
      return [self pageNamedTableview_update];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"textfield_events.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"textfield_events.html"]]){
      return [self pageNamedTextfield_events];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"textfields.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"textfields.html"]]){
      return [self pageNamedTextfields];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"toolbar_fixedspace.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"toolbar_fixedspace.html"]]){
      return [self pageNamedToolbar_fixedspace];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"toolbar_hideshow.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"toolbar_hideshow.html"]]){
      return [self pageNamedToolbar_hideshow];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"toolbar_left.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"toolbar_left.html"]]){
      return [self pageNamedToolbar_left];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"toolbar_lots.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"toolbar_lots.html"]]){
      return [self pageNamedToolbar_lots];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"toolbar_middle.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"toolbar_middle.html"]]){
      return [self pageNamedToolbar_middle];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"toolbar_right.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"toolbar_right.html"]]){
      return [self pageNamedToolbar_right];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"ui.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"ui.html"]]){
      return [self pageNamedUi];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"view_main.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"view_main.html"]]){
      return [self pageNamedView_main];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"views.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"views.html"]]){
      return [self pageNamedViews];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"views1.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"views1.html"]]){
      return [self pageNamedViews1];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"views2.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"views2.html"]]){
      return [self pageNamedViews2];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"views3.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"views3.html"]]){
      return [self pageNamedViews3];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"window_unfocus.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"window_unfocus.html"]]){
      return [self pageNamedWindow_unfocus];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"xhr.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"xhr.html"]]){
      return [self pageNamedXhr];
    }
    else {

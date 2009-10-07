@@ -19,7 +19,8 @@ modules = [	'api',
       'analytics',
 		'gesture',
 		'notification',
-		'facebook']
+		'facebook',
+		'yahoo']
 
 try:
 	# pull in the version from the top-level SConstruct
