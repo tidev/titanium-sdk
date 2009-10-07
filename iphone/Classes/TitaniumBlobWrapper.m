@@ -37,6 +37,11 @@ NSDictionary * namesFromMimeTypeDict = nil;
 		if ((imageBlob == nil) && (filePath != nil)) {
 			imageBlob = [[UIImage alloc] initWithContentsOfFile:filePath];
 		}
+		if (imageBlob == nil && url!=nil && [url isFileURL]==NO)
+		{
+			NSData *data = [NSData dataWithContentsOfURL:url];
+			imageBlob = [[UIImage alloc] initWithData:data cache:NO];
+		}
 		if (imageBlob == nil) failedImage = YES;
 	}
 	return imageBlob;

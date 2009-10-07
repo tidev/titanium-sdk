@@ -27,247 +27,247 @@ extern NSData * AES128DecryptWithKey(NSData * data, NSString * key);
 {
    NSString *urlStr = [url absoluteString];
 
-   if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"accelerometer.html"]]){
+   if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"accelerometer.html"]]){
      return [self pageNamedAccelerometer];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"activity_indicators.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"activity_indicators.html"]]){
      return [self pageNamedActivity_indicators];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"animated_false.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"animated_false.html"]]){
      return [self pageNamedAnimated_false];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"application_data.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"application_data.html"]]){
      return [self pageNamedApplication_data];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"back_button.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"back_button.html"]]){
      return [self pageNamedBack_button];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"buttonbar.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"buttonbar.html"]]){
      return [self pageNamedButtonbar];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"buttons.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"buttons.html"]]){
      return [self pageNamedButtons];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"comp_view_1_body.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"comp_view_1_body.html"]]){
      return [self pageNamedComp_view_1_body];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"composite.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"composite.html"]]){
      return [self pageNamedComposite];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"composite_views.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"composite_views.html"]]){
      return [self pageNamedComposite_views];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"composite_views2.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"composite_views2.html"]]){
      return [self pageNamedComposite_views2];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"custom_events.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"custom_events.html"]]){
      return [self pageNamedCustom_events];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"custom_events1.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"custom_events1.html"]]){
      return [self pageNamedCustom_events1];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"custom_events2.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"custom_events2.html"]]){
      return [self pageNamedCustom_events2];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"custom_events3.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"custom_events3.html"]]){
      return [self pageNamedCustom_events3];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"custom_table_view_data.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"custom_table_view_data.html"]]){
      return [self pageNamedCustom_table_view_data];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"database.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"database.html"]]){
      return [self pageNamedDatabase];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"database2.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"database2.html"]]){
      return [self pageNamedDatabase2];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"dynamic_content.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"dynamic_content.html"]]){
      return [self pageNamedDynamic_content];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"dynamic_images.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"dynamic_images.html"]]){
      return [self pageNamedDynamic_images];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"email.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"email.html"]]){
      return [self pageNamedEmail];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"filesystem.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"filesystem.html"]]){
      return [self pageNamedFilesystem];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"fullscreen.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"fullscreen.html"]]){
      return [self pageNamedFullscreen];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"geo.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"geo.html"]]){
      return [self pageNamedGeo];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"html_table_view.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"html_table_view.html"]]){
      return [self pageNamedHtml_table_view];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"image.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"image.html"]]){
      return [self pageNamedImage];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"image_views.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"image_views.html"]]){
      return [self pageNamedImage_views];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"iphone_ui.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"iphone_ui.html"]]){
      return [self pageNamedIphone_ui];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"js_events.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"js_events.html"]]){
      return [self pageNamedJs_events];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"js_events2.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"js_events2.html"]]){
      return [self pageNamedJs_events2];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"modal.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"modal.html"]]){
      return [self pageNamedModal];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"navbar_color.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"navbar_color.html"]]){
      return [self pageNamedNavbar_color];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"navbar_hide.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"navbar_hide.html"]]){
      return [self pageNamedNavbar_hide];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"navbar_left.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"navbar_left.html"]]){
      return [self pageNamedNavbar_left];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"navbar_right.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"navbar_right.html"]]){
      return [self pageNamedNavbar_right];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"navbar_title.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"navbar_title.html"]]){
      return [self pageNamedNavbar_title];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"orientation.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"orientation.html"]]){
      return [self pageNamedOrientation];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"phone.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"phone.html"]]){
      return [self pageNamedPhone];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"picker1.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"picker1.html"]]){
      return [self pageNamedPicker1];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"picker2.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"picker2.html"]]){
      return [self pageNamedPicker2];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"picker3.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"picker3.html"]]){
      return [self pageNamedPicker3];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"picker4.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"picker4.html"]]){
      return [self pageNamedPicker4];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"pickers.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"pickers.html"]]){
      return [self pageNamedPickers];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"platform.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"platform.html"]]){
      return [self pageNamedPlatform];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"platform_data.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"platform_data.html"]]){
      return [self pageNamedPlatform_data];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"progress_bars.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"progress_bars.html"]]){
      return [self pageNamedProgress_bars];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"properties.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"properties.html"]]){
      return [self pageNamedProperties];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"scroll_view_child_1.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"scroll_view_child_1.html"]]){
      return [self pageNamedScroll_view_child_1];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"scroll_view_child_2.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"scroll_view_child_2.html"]]){
      return [self pageNamedScroll_view_child_2];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"scroll_view_child_3.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"scroll_view_child_3.html"]]){
      return [self pageNamedScroll_view_child_3];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"scroll_views.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"scroll_views.html"]]){
      return [self pageNamedScroll_views];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"set_control_values.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"set_control_values.html"]]){
      return [self pageNamedSet_control_values];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"shake.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"shake.html"]]){
      return [self pageNamedShake];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"slider.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"slider.html"]]){
      return [self pageNamedSlider];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"sound.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"sound.html"]]){
      return [self pageNamedSound];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"statusbar.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"statusbar.html"]]){
      return [self pageNamedStatusbar];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"switch.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"switch.html"]]){
      return [self pageNamedSwitch];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"tabbar.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"tabbar.html"]]){
      return [self pageNamedTabbar];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"tabbar_hide.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"tabbar_hide.html"]]){
      return [self pageNamedTabbar_hide];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"tabchange.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"tabchange.html"]]){
      return [self pageNamedTabchange];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"tableview_add.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"tableview_add.html"]]){
      return [self pageNamedTableview_add];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"tableview_append.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"tableview_append.html"]]){
      return [self pageNamedTableview_append];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"tableview_delete.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"tableview_delete.html"]]){
      return [self pageNamedTableview_delete];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"tableview_set.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"tableview_set.html"]]){
      return [self pageNamedTableview_set];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"tableview_update.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"tableview_update.html"]]){
      return [self pageNamedTableview_update];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"textfield_events.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"textfield_events.html"]]){
      return [self pageNamedTextfield_events];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"textfields.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"textfields.html"]]){
      return [self pageNamedTextfields];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"toolbar_fixedspace.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"toolbar_fixedspace.html"]]){
      return [self pageNamedToolbar_fixedspace];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"toolbar_hideshow.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"toolbar_hideshow.html"]]){
      return [self pageNamedToolbar_hideshow];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"toolbar_left.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"toolbar_left.html"]]){
      return [self pageNamedToolbar_left];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"toolbar_lots.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"toolbar_lots.html"]]){
      return [self pageNamedToolbar_lots];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"toolbar_middle.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"toolbar_middle.html"]]){
      return [self pageNamedToolbar_middle];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"toolbar_right.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"toolbar_right.html"]]){
      return [self pageNamedToolbar_right];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"ui.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"ui.html"]]){
      return [self pageNamedUi];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"view_main.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"view_main.html"]]){
      return [self pageNamedView_main];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"views.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"views.html"]]){
      return [self pageNamedViews];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"views1.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"views1.html"]]){
      return [self pageNamedViews1];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"views2.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"views2.html"]]){
      return [self pageNamedViews2];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"views3.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"views3.html"]]){
      return [self pageNamedViews3];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"window_unfocus.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"window_unfocus.html"]]){
      return [self pageNamedWindow_unfocus];
    }
-   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.nolanwright.kitchensink",@"xhr.html"]]){
+   else if ([urlStr isEqualToString:[NSString stringWithFormat:@"app%s//%@/%@",":",@"com.appcelerator.KitchenSink",@"xhr.html"]]){
      return [self pageNamedXhr];
    }
    else {
@@ -634,7 +634,7 @@ extern NSData * AES128DecryptWithKey(NSData * data, NSString * key);
 			
 	- (NSData*) pageNamedSet_control_values;
 	{
-		NSData *d = dataWithHexString(@"3c68746d6c3e0a3c686561643e0a093c7363726970743e0a0977696e646f772e6f6e6c6f6164203d2066756e6374696f6e28290a097b0a090976617220736c69646572203d20546974616e69756d2e55492e637265617465536c69646572287b0a09090969643a27736c69646572272c0a0909096d696e3a302c0a0909096d61783a3130302c0a09090976616c75653a302c0a09090977696474683a3230300a09097d293b0a0909736c696465722e6164644576656e744c697374656e657228276368616e6765272c66756e6374696f6e2865290a09097b0a090909646f63756d656e742e676574456c656d656e74427949642827736c696465725f76616c756527292e696e6e657248544d4c203d2027536c69646572206368616e67656420746f2027202b20736c696465722e76616c75653b0a09097d293b0a0909646f63756d656e742e676574456c656d656e74427949642827736c696465725f627574746f6e27292e6f6e636c69636b203d2066756e6374696f6e28290a09097b0a090909736c696465722e73657456616c7565283530293b0a09097d3b0a09090a09090a0909766172207377203d20546974616e69756d2e55492e637265617465537769746368287b0a09090969643a27737769746368272c0a09090976616c75653a747275650a09097d293b0a090973772e6164644576656e744c697374656e657228276368616e6765272c66756e6374696f6e2865290a09097b0a090909646f63756d656e742e676574456c656d656e744279496428277377697463685f76616c756527292e696e6e657248544d4c203d2027537769746368205570646174656420746f2027202b2073772e76616c75653b0a09097d293b0a0909646f63756d656e742e676574456c656d656e744279496428277377697463685f627574746f6e27292e6f6e636c69636b203d2066756e6374696f6e28290a09097b0a09090973772e73657456616c75652866616c7365293b0a09097d3b0a0a0909766172207466203d20546974616e69756d2e55492e637265617465546578744669656c64287b0a09090969643a27746578746669656c64272c0a0909096261636b67726f756e64436f6c6f723a2723666666272c0a09090972657475726e4b6579547970653a546974616e69756d2e55492e52455455524e4b45595f474f2c0a0909096b6579626f617264547970653a546974616e69756d2e55492e4b4559424f4152445f41534349492c0a09090974657874416c69676e3a276c656674272c0a090909626f726465725374796c653a546974616e69756d2e55492e494e5055545f424f524445525354594c455f524f554e4445442c0a09097d293b0a0a090974662e6164644576656e744c697374656e657228276368616e6765272c66756e6374696f6e2865290a09097b0a090909646f63756d656e742e676574456c656d656e74427949642827746578746669656c645f76616c756527292e696e6e657248544d4c203d2027546578744669656c64205570646174656420746f2027202b2074662e76616c7565203b0a09097d293b0a0909646f63756d656e742e676574456c656d656e74427949642827746578746669656c645f627574746f6e27292e6f6e636c69636b203d2066756e6374696f6e28290a09097b0a09090974662e73657456616c7565282748454c4c4f27293b0a09097d3b0a0a0909766172207461203d20546974616e69756d2e55492e6372656174655465787441726561287b0a09090969643a277465787461726561272c200a0909096865696768743a3230302c0a09090977696474683a3330302c0a090909626f726465725374796c653a546974616e69756d2e55492e494e5055545f424f524445525354594c455f42455a454c0a0a09097d293b0a090974612e6164644576656e744c697374656e657228276368616e6765272c66756e6374696f6e2865290a09097b0a090909646f63756d656e742e676574456c656d656e7442794964282774657874617265615f76616c756527292e696e6e657248544d4c203d2027546578742041726561205570646174656420746f2027202b2074612e76616c75653b0a09097d290a0909646f63756d656e742e676574456c656d656e7442794964282774657874617265615f627574746f6e27292e6f6e636c69636b203d2066756e6374696f6e28290a09097b0a09090974612e73657456616c7565282748454c4c4f20574f524c4427293b0a09097d3b0a09090a090976617220746162626172203d20546974616e69756d2e55492e637265617465546162626564426172287b0a09090969643a27746162626172272c200a090909696e6465783a312c0a0909096c6162656c733a5b2754616233272c202754616234272c275461623461275d2c0a0909096261636b67726f756e64436f6c6f723a2723433131423137272c0a0909097374796c653a546974616e69756d2e55492e6950686f6e652e53797374656d427574746f6e5374796c652e4241520a09097d293b0a0a09097461626261722e6164644576656e744c697374656e657228276368616e6765272c66756e6374696f6e2865290a09097b0a090909646f63756d656e742e676574456c656d656e744279496428277461626261725f76616c756527292e696e6e657248544d4c203d2027546162626564426172205570646174656420746f2027202b207461626261722e76616c75653b0a09097d290a0909646f63756d656e742e676574456c656d656e744279496428277461626261725f627574746f6e27292e6f6e636c69636b203d2066756e6374696f6e28290a09097b0a0909097461626261722e73657456616c75652830293b0a09097d3b0a09090a097d3b0a093c2f7363726970743e0a3c2f686561643e0a3c626f6479207374796c653d22666f6e742d66616d696c793a4865766574696361204e657565223e0a093c627574746f6e2069643d227461626261725f627574746f6e22207374796c653d22666f6e742d73697a653a31387078223e536574205461622042617220746f20303c2f627574746f6e3e0a093c6469762069643d227461626261725f76616c756522207374796c653d22666f6e742d73697a653a313270783b636f6c6f723a233838383b6865696768743a32307078223e3c2f6469763e0a093c6469762069643d2274616262617222207374796c653d2277696474683a32303070783b6865696768743a343070783b6d617267696e3a6175746f3b6d617267696e2d746f703a313070783b223e3c2f6469763e0a0a093c627574746f6e2069643d22736c696465725f627574746f6e22207374796c653d22666f6e742d73697a653a31387078223e53657420536c6964657220746f2035303c2f627574746f6e3e0a093c6469762069643d22736c696465725f76616c756522207374796c653d22666f6e742d73697a653a313270783b636f6c6f723a233838383b6865696768743a32307078223e3c2f6469763e0a093c6469762069643d22736c6964657222207374796c653d226865696768743a333070783b6d617267696e2d626f74746f6d3a323070783b223e3c2f6469763e0a090a093c627574746f6e2069643d227377697463685f627574746f6e22207374796c653d22666f6e742d73697a653a31387078223e5365742053776974636820746f204f66663c2f627574746f6e3e0a093c6469762069643d227377697463685f76616c756522207374796c653d22666f6e742d73697a653a313270783b636f6c6f723a233838383b6865696768743a32307078223e3c2f6469763e0a093c6469762069643d2273776974636822207374796c653d226865696768743a333070783b6d617267696e2d626f74746f6d3a323070783b223e3c2f6469763e0a090a093c627574746f6e2069643d22746578746669656c645f627574746f6e22207374796c653d22666f6e742d73697a653a31387078223e5365742054657874204669656c6420746f2048454c4c4f3c2f627574746f6e3e0a093c6469762069643d22746578746669656c645f76616c756522207374796c653d22666f6e742d73697a653a313270783b636f6c6f723a233838383b6865696768743a32307078223e3c2f6469763e0a093c6469762069643d22746578746669656c6422207374796c653d226865696768743a323570783b6d617267696e2d626f74746f6d3a323070783b223e3c2f6469763e0a0a093c627574746f6e2069643d2274657874617265615f627574746f6e22207374796c653d22666f6e742d73697a653a31387078223e536574205465787420417265612048454c4c4f20574f524c443c2f627574746f6e3e0a093c6469762069643d2274657874617265615f76616c756522207374796c653d22666f6e742d73697a653a313270783b636f6c6f723a233838383b6865696768743a32307078223e3c2f6469763e0a093c6469762069643d22746578746172656122207374796c653d226865696768743a353070783b6d617267696e2d626f74746f6d3a323070783b223e3c2f6469763e0a090a090a3c2f626f64793e0a3c2f68746d6c3e");
+		NSData *d = dataWithHexString(@"3c68746d6c3e0a3c686561643e0a093c7363726970743e0a0977696e646f772e6f6e6c6f6164203d2066756e6374696f6e28290a097b0a090976617220736c69646572203d20546974616e69756d2e55492e637265617465536c69646572287b0a09090969643a27736c69646572272c0a0909096d696e3a302c0a0909096d61783a3130302c0a09090976616c75653a302c0a09090977696474683a3230300a09097d293b0a0909736c696465722e6164644576656e744c697374656e657228276368616e6765272c66756e6374696f6e2865290a09097b0a090909646f63756d656e742e676574456c656d656e74427949642827736c696465725f76616c756527292e696e6e657248544d4c203d2027536c69646572206368616e67656420746f2027202b20736c696465722e76616c75653b0a09097d293b0a0909646f63756d656e742e676574456c656d656e74427949642827736c696465725f627574746f6e27292e6f6e636c69636b203d2066756e6374696f6e28290a09097b0a090909736c696465722e73657456616c7565283530293b0a09097d3b0a0a0a0909766172207377203d20546974616e69756d2e55492e637265617465537769746368287b0a09090969643a27737769746368272c0a09090976616c75653a747275650a09097d293b0a090973772e6164644576656e744c697374656e657228276368616e6765272c66756e6374696f6e2865290a09097b0a090909646f63756d656e742e676574456c656d656e744279496428277377697463685f76616c756527292e696e6e657248544d4c203d2027537769746368205570646174656420746f2027202b2073772e76616c75653b0a09097d293b0a0909646f63756d656e742e676574456c656d656e744279496428277377697463685f627574746f6e27292e6f6e636c69636b203d2066756e6374696f6e28290a09097b0a09090973772e73657456616c75652866616c7365293b0a09097d3b0a0a0909766172207466203d20546974616e69756d2e55492e637265617465546578744669656c64287b0a09090969643a27746578746669656c64272c0a0909096261636b67726f756e64436f6c6f723a2723666666272c0a09090972657475726e4b6579547970653a546974616e69756d2e55492e52455455524e4b45595f474f2c0a0909096b6579626f617264547970653a546974616e69756d2e55492e4b4559424f4152445f41534349492c0a09090974657874416c69676e3a276c656674272c0a090909626f726465725374796c653a546974616e69756d2e55492e494e5055545f424f524445525354594c455f524f554e4445442c0a09097d293b0a0a090974662e6164644576656e744c697374656e657228276368616e6765272c66756e6374696f6e2865290a09097b0a090909646f63756d656e742e676574456c656d656e74427949642827746578746669656c645f76616c756527292e696e6e657248544d4c203d2027546578744669656c64205570646174656420746f2027202b2074662e76616c7565203b0a09097d293b0a0909646f63756d656e742e676574456c656d656e74427949642827746578746669656c645f627574746f6e27292e6f6e636c69636b203d2066756e6374696f6e28290a09097b0a09090974662e73657456616c7565282748454c4c4f27293b0a09097d3b0a0a0909766172207461203d20546974616e69756d2e55492e6372656174655465787441726561287b0a09090969643a277465787461726561272c0a0909096865696768743a3230302c0a09090977696474683a3330302c0a090909626f726465725374796c653a546974616e69756d2e55492e494e5055545f424f524445525354594c455f42455a454c0a0a09097d293b0a090974612e6164644576656e744c697374656e657228276368616e6765272c66756e6374696f6e2865290a09097b0a090909646f63756d656e742e676574456c656d656e7442794964282774657874617265615f76616c756527292e696e6e657248544d4c203d2027546578742041726561205570646174656420746f2027202b2074612e76616c75653b0a09097d290a0909646f63756d656e742e676574456c656d656e7442794964282774657874617265615f627574746f6e27292e6f6e636c69636b203d2066756e6374696f6e28290a09097b0a09090974612e73657456616c7565282748454c4c4f20574f524c4427293b0a09097d3b0a0a0909696628546974616e69756d2e506c6174666f726d2e6e616d6520213d2027616e64726f69642729207b0a09090976617220746162626172203d20546974616e69756d2e55492e637265617465546162626564426172287b0a0909090969643a27746162626172272c0a09090909696e6465783a312c0a090909096c6162656c733a5b2754616233272c202754616234272c275461623461275d2c0a090909096261636b67726f756e64436f6c6f723a2723433131423137272c0a090909097374796c653a546974616e69756d2e55492e6950686f6e652e53797374656d427574746f6e5374796c652e4241520a0909097d293b0a0a0909097461626261722e6164644576656e744c697374656e657228276368616e6765272c66756e6374696f6e2865290a0909097b0a09090909646f63756d656e742e676574456c656d656e744279496428277461626261725f76616c756527292e696e6e657248544d4c203d2027546162626564426172205570646174656420746f2027202b207461626261722e76616c75653b0a0909097d290a090909646f63756d656e742e676574456c656d656e744279496428277461626261725f627574746f6e27292e6f6e636c69636b203d2066756e6374696f6e28290a0909097b0a090909097461626261722e73657456616c75652830293b0a0909097d3b0a09097d0a097d3b0a093c2f7363726970743e0a3c2f686561643e0a3c626f6479207374796c653d22666f6e742d66616d696c793a4865766574696361204e657565223e0a093c627574746f6e2069643d227461626261725f627574746f6e22207374796c653d22666f6e742d73697a653a31387078223e536574205461622042617220746f20303c2f627574746f6e3e0a093c6469762069643d227461626261725f76616c756522207374796c653d22666f6e742d73697a653a313270783b636f6c6f723a233838383b6865696768743a32307078223e3c2f6469763e0a093c6469762069643d2274616262617222207374796c653d2277696474683a32303070783b6865696768743a343070783b6d617267696e3a6175746f3b6d617267696e2d746f703a313070783b223e3c2f6469763e0a0a093c627574746f6e2069643d22736c696465725f627574746f6e22207374796c653d22666f6e742d73697a653a31387078223e53657420536c6964657220746f2035303c2f627574746f6e3e0a093c6469762069643d22736c696465725f76616c756522207374796c653d22666f6e742d73697a653a313270783b636f6c6f723a233838383b6865696768743a32307078223e3c2f6469763e0a093c6469762069643d22736c6964657222207374796c653d226865696768743a333070783b6d617267696e2d626f74746f6d3a323070783b223e3c2f6469763e0a0a093c627574746f6e2069643d227377697463685f627574746f6e22207374796c653d22666f6e742d73697a653a31387078223e5365742053776974636820746f204f66663c2f627574746f6e3e0a093c6469762069643d227377697463685f76616c756522207374796c653d22666f6e742d73697a653a313270783b636f6c6f723a233838383b6865696768743a32307078223e3c2f6469763e0a093c6469762069643d2273776974636822207374796c653d226865696768743a333070783b6d617267696e2d626f74746f6d3a323070783b223e3c2f6469763e0a0a093c627574746f6e2069643d22746578746669656c645f627574746f6e22207374796c653d22666f6e742d73697a653a31387078223e5365742054657874204669656c6420746f2048454c4c4f3c2f627574746f6e3e0a093c6469762069643d22746578746669656c645f76616c756522207374796c653d22666f6e742d73697a653a313270783b636f6c6f723a233838383b6865696768743a32307078223e3c2f6469763e0a093c6469762069643d22746578746669656c6422207374796c653d226865696768743a323570783b6d617267696e2d626f74746f6d3a323070783b223e3c2f6469763e0a0a093c627574746f6e2069643d2274657874617265615f627574746f6e22207374796c653d22666f6e742d73697a653a31387078223e536574205465787420417265612048454c4c4f20574f524c443c2f627574746f6e3e0a093c6469762069643d2274657874617265615f76616c756522207374796c653d22666f6e742d73697a653a313270783b636f6c6f723a233838383b6865696768743a32307078223e3c2f6469763e0a093c6469762069643d22746578746172656122207374796c653d226865696768743a353070783b6d617267696e2d626f74746f6d3a323070783b223e3c2f6469763e0a0a0a3c2f626f64793e0a3c2f68746d6c3e");
 	   	if ([d length] == 0) return nil;
 		return d;
 	}

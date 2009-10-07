@@ -11,7 +11,7 @@
 	<key>CFBundleIconFile</key>
 	<string>appicon.png</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.nolanwright.kitchensink</string>
+	<string>com.appcelerator.KitchenSink</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

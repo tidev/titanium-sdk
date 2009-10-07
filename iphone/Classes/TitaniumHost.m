@@ -597,19 +597,29 @@ TitaniumHost * lastSharedHost = nil;
 {
 	if (![blobUrl isKindOfClass:[NSURL class]]) return nil;
 	blobUrl = [blobUrl absoluteURL];
-	NSString * filePath = [self filePathFromURL:blobUrl];
-	NSString * virtualUrl = [blobUrl absoluteString];
+	
+	if ([blobUrl isFileURL])
+	{
+		NSString * filePath = [self filePathFromURL:blobUrl];
+		NSString * virtualUrl = [blobUrl absoluteString];
 
-	for(TitaniumBlobWrapper * thisBlob in [blobRegistry objectEnumerator]){
-		if([filePath isEqual:[thisBlob filePath]] || [blobUrl isEqual:[thisBlob url]] || [virtualUrl isEqual:[thisBlob virtualUrl]]){
-			return thisBlob;
+		for(TitaniumBlobWrapper * thisBlob in [blobRegistry objectEnumerator]){
+			if([filePath isEqual:[thisBlob filePath]] || [blobUrl isEqual:[thisBlob url]] || [virtualUrl isEqual:[thisBlob virtualUrl]]){
+				return thisBlob;
+			}
 		}
-	}
 
-	TitaniumBlobWrapper * result = [self newBlob];
-	[result setUrl:blobUrl];
-	[result setFilePath:filePath];
-	return [result autorelease];
+		TitaniumBlobWrapper * result = [self newBlob];
+		[result setUrl:blobUrl];
+		[result setFilePath:filePath];
+		return [result autorelease];
+	}
+	else
+	{
+		TitaniumBlobWrapper * result = [self newBlob];
+		[result setUrl:blobUrl];
+		return [result autorelease];
+	}
 }
 #pragma mark Modal view handling
 
