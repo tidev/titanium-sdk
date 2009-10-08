@@ -102,6 +102,25 @@
 			<key>title</key>
 			<string>Pickers ahoy</string>
 		</dict>
+		<dict>
+			<key>hideNavBar</key>
+			<false/>
+			<key>views</key>
+			<array>
+				<dict>
+					<key>url</key>
+					<string>http://www.google.com</string>
+				</dict>
+			</array>
+			<key>background</key>
+			<string>white</string>
+			<key>backgroundnImage</key>
+			<string>default.png</string>
+			<key>orientation</key>
+			<string>either</string>
+			<key>title</key>
+			<string>Gooogle</string>
+		</dict>
 	</array>
 	<key>verboseDebugging</key>
 	<true/>
