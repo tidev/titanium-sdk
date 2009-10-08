@@ -35,7 +35,7 @@ NSURL * AnalyticsModuleURL = nil;
 	
 	module = newModule; eventArray = newEventArray;
 	if(AnalyticsModuleURL == nil){
-		AnalyticsModuleURL = [[NSURL URLWithString:@"https://api.appcelerator.net/p/v1/mobile-track"] retain];
+		AnalyticsModuleURL = [[NSURL URLWithString:@"https://api.appcelerator.net/p/v2/mobile-track"] retain];
 	}
 	NSMutableURLRequest * ourRequest = [NSMutableURLRequest requestWithURL:AnalyticsModuleURL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:timeout];
 	[ourRequest setHTTPMethod: @"POST"];[ourRequest setHTTPShouldHandleCookies:YES];
@@ -125,7 +125,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	return [dateFormatter stringFromDate:[NSDate date]];
 }
 
-- (NSData*) generateEventObject: (NSString*)name data:(id)data
+- (NSData*) generateEventObject: (NSString*)evttype evtname:(NSString*) evtname data:(id)data
 {
 	SBJSON * encoder = [[SBJSON alloc] init];
 
@@ -146,9 +146,10 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 		VAL_OR_NSNULL(aguid),@"aguid",
 		VAL_OR_NSNULL(mid),@"mid",
 		VAL_OR_NSNULL(ts),@"ts",
-		@"1",@"ver", // spec version
+		@"2",@"ver", // spec version
 		VAL_OR_NSNULL(sid),@"sid",
-		VAL_OR_NSNULL(name),@"name",
+		VAL_OR_NSNULL(evtname),@"event",
+		VAL_OR_NSNULL(evttype),@"type",
 		VAL_OR_NSNULL(data),@"data",
 		nil] error:nil];
 		
@@ -212,10 +213,10 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	[mutex unlock];
 }
 
-- (void)enqueuePlatformEvent:(NSString*)name data:(NSDictionary*)data;
+- (void)enqueuePlatformEvent:(NSString*)eventtype evtname:(NSString*)eventname data:(NSDictionary*)data;
 {
 	[mutex lock];
-	NSData * newEvent = [self generateEventObject:name data:data];
+	NSData * newEvent = [self generateEventObject:eventtype evtname:eventname data:data];
 	if(events==nil){
 		events = [[NSMutableArray alloc] initWithObjects:newEvent,nil];
 		[self performSelectorOnMainThread:@selector(sendEvents) withObject:nil waitUntilDone:NO];
@@ -267,7 +268,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 							   VAL_OR_NSNULL(model),@"model",
 							   nil
 							   ];
-		[self enqueuePlatformEvent:@"ti.enroll" data:data];
+		[self enqueuePlatformEvent:@"ti.enroll" evtname:@"ti.enroll" data:data];
 	}
 	
 	
@@ -300,15 +301,16 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 						   VAL_OR_NSNULL(nettype),@"nettype",
 						   nil
 						   ];
-	[self enqueuePlatformEvent:@"ti.start" data:data];
+	[self enqueuePlatformEvent:@"ti.start" evtname: @"ti.start" data:data];
 }
 
 
-- (void) addEvent: (NSString *) name value: (id) value;
+- (void) addEvent: (NSString *) eventtype evtname: (NSString *) eventname value: (NSString*) value;
 {
-	if(![name isKindOfClass:[NSString class]])return;
-	NSDictionary * data = [NSDictionary dictionaryWithObjectsAndKeys:name,@"name",value,@"data",nil];
-	[self enqueuePlatformEvent:@"ti.user" data:data];
+	if(![eventtype isKindOfClass:[NSString class]])return;
+	if(![eventname isKindOfClass:[NSString class]])return;
+	NSDictionary * data = [NSDictionary dictionaryWithObjectsAndKeys:value,@"data",nil];
+	[self enqueuePlatformEvent:eventtype evtname: eventname data:data];
 }
 
 
@@ -325,7 +327,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	TitaniumJSCode * epilogueCode = [TitaniumJSCode codeWithString:@"Ti.Analytics._START();"];
 	
 	TitaniumInvocationGenerator * invocGen = [TitaniumInvocationGenerator generatorWithTarget:self];
-	[(AnalyticsModule *)invocGen addEvent:nil value:nil];
+	[(AnalyticsModule *)invocGen addEvent:nil evtname:nil value:nil];
 	NSInvocation * setInvoc = [invocGen invocation];
 	
 	[(AnalyticsModule *)invocGen pageLoaded];
@@ -342,7 +344,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	// first add to our queue (so we can flush)
 	[packetDueDate release];
 	packetDueDate = [[NSDate alloc] init];
-	[self enqueuePlatformEvent:@"ti.end" data:nil];
+	[self enqueuePlatformEvent:@"ti.end" evtname:@"ti.end" data:nil];
 	[self sendEvents];
 	return YES;
 }

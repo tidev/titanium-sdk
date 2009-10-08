@@ -23,16 +23,17 @@
 
 @property(readwrite,retain,nonatomic)	NSString * sessionID;
 
-- (NSData*) generateEventObject: (NSString*)name data:(id)data;
-- (void)enqueuePlatformEvent:(NSString*)name data:(NSDictionary*)data;
+- (NSData*) generateEventObject: (NSString*)evttype evtname:(NSString*) evtname data:(id)data;
+- (void)enqueuePlatformEvent:(NSString*)evttype evtname:(NSString*)evtname data:(NSDictionary*)data;
 
 /**
  * @tiapi(method=True,name=Analytics.addEvent,since=0.4) send an analytics event associated with the application
- * @tiarg(for=Analytics.addEvent,type=string,name=event) event name
+ * @tiarg(for=Analytics.addEvent,type=string,name=evttype) event type
+ * @tiarg(for=Analytics.addEvent,type=string,name=evtname) event name
  * @tiarg(for=Analytics.addEvent,type=string,name=data,optional=True) event data
  * @tidepends(for=Analytics.addEvent,uses=Network.createHTTPClient)
  */
-- (void) addEvent: (NSString *) name value: (id) value;
+- (void) addEvent: (NSString *) eventtype evtname: (NSString*) eventname value: (NSString*) value;
 - (void) keepEvents: (NSMutableArray *)newEvents;
 - (void) setConnectionState: (NetworkModuleConnectionState) newState;
 - (void)sendEvents;
