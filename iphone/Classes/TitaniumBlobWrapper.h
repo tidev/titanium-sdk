@@ -10,6 +10,9 @@
 
 
 @interface TitaniumBlobWrapper : NSObject {
+//	NSStringEncoding stringEncoding;
+//	NSString * stringBlob;
+
 	NSData * dataBlob;
 	UIImage * imageBlob;
 	BOOL	failedImage;
@@ -18,6 +21,10 @@
 	NSString * mimeType;
 	NSURL * url;
 }
+
+//@property(readwrite,nonatomic,retain)	NSString * stringBlob;
+//@property(readwrite,nonatomic,assign)	NSStringEncoding stringEncoding;
+
 
 @property(readwrite,nonatomic,retain)	NSData * dataBlob;
 @property(readwrite,nonatomic,retain)	UIImage * imageBlob;

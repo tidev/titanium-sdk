@@ -19,11 +19,11 @@
 	<script>
 	document.getElementById('button').onclick = function(e)
 	{
-		Titanium.UI.currentWindow.showNavBar();
+		Titanium.UI.currentWindow.showNavBar({animated:true});
 	};
 	document.getElementById('button_2').onclick = function(e)
 	{
-		Titanium.UI.currentWindow.hideNavBar();
+		Titanium.UI.currentWindow.hideNavBar({animated:true});
 	};
 	document.getElementById('button_3').onclick = function(e)
 	{

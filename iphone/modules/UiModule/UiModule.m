@@ -452,7 +452,7 @@ NSString * UrlEncodeString(NSString * string)
 	switch ([actionNumber intValue]) {
 		case PICKER_SELECTROW:{
 			if(([target templateValue]==UITitaniumNativeItemPicker) && argsIsArray && ([arguments count]>1)){
-				[target performSelectorOnMainThread:@selector(selectColumnRow:) withObject:arguments waitUntilDone:NO];
+				[target performSelectorOnMainThread:@selector(selectRowColumn:) withObject:arguments waitUntilDone:NO];
 			}
 			return nil;
 		}
@@ -726,12 +726,16 @@ NSString * UrlEncodeString(NSString * string)
 
 - (NSArray *) getWindowViewsForToken: (NSString *) tokenString;
 {
-	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	TitaniumViewController * ourVC = [theHost titaniumViewControllerForToken:tokenString];
 	if(ourVC == nil) return nil;
 	
+	NSString * callingToken = [[theHost currentThread] magicToken];
+
 	NSMutableArray * result = [NSMutableArray array];
 	for(TitaniumContentViewController * thisContent in [ourVC contentViewControllers]){
 		[result addObject:[thisContent stateValue]];
+		[thisContent addListeningWebContextToken:callingToken];
 	}
 	
 	return result;
@@ -1546,7 +1550,7 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'text');}"],@"createTextField",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'textarea');}"],@"createTextArea",
 			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'multibutton');}"],@"createButtonBar",
-			[TitaniumJSCode codeWithString:@"function(args){return Ti.UI.createButton(args,'segmented');}"],@"createTabbedBar",
+			[TitaniumJSCode codeWithString:@"function(args){var res=Ti.UI.createButton(args,'segmented');res.setIndex=function(val){this.index=val;this.update();};return res;}"],@"createTabbedBar",
 			[TitaniumJSCode codeWithString:createDatePickerString],@"createDatePicker",
 			[TitaniumJSCode codeWithString:createPickerString],@"createPicker",
 //			[TitaniumJSCode codeWithString:createModalDatePickerString],@"createModalDatePicker",

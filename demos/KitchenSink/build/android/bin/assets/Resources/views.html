@@ -21,7 +21,7 @@
 			var a = Titanium.UI.createAlertDialog({title:'Grouped View Test', buttonNames:['OK']});
 
 			var buttonData = [
-				{title:'Show View 1'},
+				{title:'Show View 1', fontSize:14,fontWeight:'bold'},
 				{title:'Show View 2'},
 				{title:'Show View 3'},
 				{title:'Show View 4'},
@@ -38,7 +38,7 @@
 			});
 			buttonSection.addEventListener('click',function(e)
 			{
-				switch (e.row)
+				switch (e.index)
 				{
 					case 0:
 					{

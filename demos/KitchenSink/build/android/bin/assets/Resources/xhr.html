@@ -1,4 +1,4 @@
-<html>
+<!-- <html>
  <head>
  </head>
 <body style="background-color:white">
@@ -89,5 +89,92 @@
 	
 	</script>
 
+</body>
+</html> -->
+
+<html>
+<head>
+	<title>eBay Local</title>
+	<link href="index.css" rel="stylesheet" type="text/css">
+    <script>    
+        var results = [];
+        var adTitle;
+        
+        var ad_url_map = {};
+        var ad_url;
+        
+        var xhr = Titanium.Network.createHTTPClient();
+        
+        xhr.onreadystatechange = function() {
+               if(this.readyState == 4) {
+                       this.onload();
+               }
+        }
+        
+        xhr.onload = function()
+		{
+            var responseXML = this.responseXML;
+            var xmlDoc = responseXML.documentElement;
+            
+            // A better way to do the following is to fetch all ads first and then for an ad, get title, then url, then images
+            
+            // fetch ad titles
+            try {
+                var titleElements = xmlDoc.getElementsByTagName("title");
+                for(var i = 0; i < titleElements.length; i++) {
+                    adTitle = titleElements[i].childNodes[0].nodeValue;
+                    results.push({title: adTitle, hasChild: true});
+                }
+                
+            } catch(err) {
+                var a = Titanium.UI.createAlertDialog();
+                a.setTitle("Error");
+                a.setMessage("Title not found in results.");
+                a.show();
+                return;	
+            }
+            
+            // fetch ad urls
+            try {
+                var titleElements = xmlDoc.getElementsByTagName("view_ad_url");
+                for(var i = 0; i < titleElements.length; i++) {
+                    ad_url = titleElements[i].childNodes[0].nodeValue;
+                    ad_url_map[i] = ad_url;
+                }
+                
+            } catch(err) {
+                var a = Titanium.UI.createAlertDialog();
+                a.setTitle("Error");
+                a.setMessage("ad_url not found in results.");
+                a.show();
+                return;	
+            }
+            
+            showTableView();
+        };
+        
+        function showTableView() {
+            var tableView = Titanium.UI.createTableView({data:results,title:'eBay'}, function(eventObject) 
+            {
+				var win = Titanium.UI.createWindow({url:ad_url_map[eventObject.index],title:'View Ad'});
+				win.open({animated:true});
+            });
+            
+            //add view to current window
+            Titanium.UI.currentWindow.addView(tableView);
+            // show view
+            Titanium.UI.currentWindow.showView(tableView);
+        }
+        
+        xhr.open("GET", "http://apil.kijiji.com/c-ClassiApiSearchAdExCommand?xml=%3C?xml%20version=%221.0%22%20encoding=%22utf-8%22%20?%3E%3CSOAP:Envelope%20xmlns:SOAP=%22http://www.w3.org/2003/05/soap-envelope%22%3E%3CSOAP:Header%3E%3Cm:version%20xmlns:m=%22http://www.kijiji.com/soap%22%3E1%3C/m:version%3E%3C/SOAP:Header%3E%3CSOAP:Body%3E%3Cm:search_options%20xmlns:m=%22http://www.kijiji.com/soap%22%3E%3Carea_id%3E2600001%3C/area_id%3E%3Ckeyword%3E%3C/keyword%3E%3C/m:search_options%3E%3C/SOAP:Body%3E%3C/SOAP:Envelope%3E");
+        xhr.send();
+
+                
+
+
+    </script>
+
+</head>
+<body>
 </body>
 </html>

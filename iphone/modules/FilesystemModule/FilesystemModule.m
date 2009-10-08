@@ -10,6 +10,7 @@
 #import "TitaniumJSCode.h"
 #import "TitaniumHost.h"
 #import "Logging.h"
+#import "TitaniumBlobWrapper.h"
 
 @interface FileProxy : TitaniumProxyObject
 {
@@ -267,11 +268,15 @@
 			return [NSNumber numberWithBool:result];			
 		}
 		case FILEPATH_READ:{
-			NSError * error = nil;
-			NSStringEncoding enc = 0;
-			NSString * result = [NSString stringWithContentsOfFile:path usedEncoding:&enc error:&error];
+			BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
+			if(!exists) return nil;
+			NSError * error = nil;	//TODO: Be tricky. Return to lazyloading with blobForFile, but have write orphan data blobs that have that file path.
+			NSData * resultData = [NSData dataWithContentsOfFile:path options:0 error:&error];
 			VERBOSE_LOG_IF_TRUE((error!=nil),@"Tried read file '%@', error was %@",path,error);
-			return result;
+			return [[TitaniumHost sharedHost] blobForData:resultData];
+//			NSStringEncoding enc = 0;
+//			NSString * result = [NSString stringWithContentsOfFile:path usedEncoding:&enc error:&error];
+//			return result;
 		}
 		case FILEPATH_WRITE:{
 			BOOL result = NO;
@@ -279,6 +284,8 @@
 			if([args isKindOfClass:stringClass]){
 				NSStringEncoding enc = [(NSString *)args fastestEncoding];
 					result = [(NSString *)args writeToFile:path atomically:NO encoding:enc error:&error];
+			} else if([args isKindOfClass:[TitaniumBlobWrapper class]]){
+				result = [[(TitaniumBlobWrapper *)args dataBlob] writeToFile:path options:0 error:&error];
 			}
 			VERBOSE_LOG_IF_TRUE((error!=nil),@"Tried read write to file '%@', error was %@, data to write was %@",path,error,args);
 			return [NSNumber numberWithBool:result];
@@ -344,6 +351,7 @@
 {
 	TitaniumInvocationGenerator * invocGen = [TitaniumInvocationGenerator generatorWithTarget:self];
 
+
 	[(FilesystemModule *)invocGen filePath:nil performFunction:nil arguments:nil];
 	NSInvocation * fileActionInvoc = [invocGen invocation];
 	
@@ -400,8 +408,10 @@
 	
 	NSString * resourcePath = [[NSBundle mainBundle] resourcePath];
 	NSString * appDirectory = [NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-	NSString * dataDirectory = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+	NSString * dataDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
 	
+	[[NSFileManager defaultManager] changeCurrentDirectoryPath:dataDirectory];
+
 	NSDictionary * moduleDict = [NSDictionary dictionaryWithObjectsAndKeys:
 
 			fileWrapperObjectCode,@"_FILEOBJ",
