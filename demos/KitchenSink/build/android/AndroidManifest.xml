@@ -23,16 +23,10 @@
         </activity>
 		<activity
         	android:name="org.appcelerator.titanium.TitaniumActivity"
-        	android:label="TA"
         	android:configChanges="keyboardHidden|orientation"
       	/>
-		<!-- <activity
-        	android:name="org.appcelerator.titanium.TitaniumTabbedActivity"
-        	android:label="TTA"
-      	/> -->
     	<activity
     		android:name="org.appcelerator.titanium.TitaniumVideoActivity"
-    		android:label="TVA"
     		android:configChanges="keyboardHidden|orientation"
             android:launchMode="singleTask"
     	/>
@@ -40,10 +34,6 @@
 			android:authorities="com.nolanwright.kitchensink.titanium"
 			android:name="org.appcelerator.titanium.TitaniumContentProvider"
 		/>
-		<!-- <provider
-			android:authorities="com.nolanwright.kitchensink.titanium.js"
-			android:name="org.appcelerator.titanium.TitaniumJSContentProvider"
-		/> -->
 		<service
 			android:name="org.appcelerator.titanium.TitaniumAnalyticsService"
 			android:exported="false"
