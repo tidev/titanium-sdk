@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>startup</key>
+	<key>startup-3</key>
 	<dict>
 		<key>hideNavBar</key>
 		<false/>
@@ -22,7 +22,7 @@
 		<key>title</key>
 		<string>Pickers ahoy</string>
 	</dict>
-	<key>startup - 2</key>
+	<key>startup</key>
 	<array>
 		<dict>
 			<key>orientation</key>

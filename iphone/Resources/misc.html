@@ -16,6 +16,10 @@
 		otherView = Ti.UI.createWebView({url:'unitTest.html',name:'number1'});
 		imageView = Ti.UI.createImageView({url:'Safari.png',canScale:true});
 
+		imageView.addEventListener('click',function(e){
+			Ti.API.debug('Click event got!');
+		});
+
 		pagy = Ti.UI.createScrollableView({views:[otherView,buggyView],showPagingControl:true});
 		pagy.addView(imageView);
 		Ti.UI.currentWindow.addView(pagy);
@@ -93,7 +97,9 @@ document.addEventListener("DOMCharacterDataModified",function(e){Ti.API.debug('T
 			Ti.API.debug('Is type:' + typeof(fileContents));
 			Ti.API.debug('Has url:' + fileContents.url);
 			document.title= fileContents.toString();
-//			document.getElementById('image1').src = 'file://' + fileListing;
+
+			var otherFileThing = Ti.Filesystem.getFile(Ti.Filesystem.getResourcesDirectory(),"Safari.png");
+			document.getElementById('image1').src = otherFileThing.url;
 		}
 	Ti.API.debug(Ti.Filesystem.getApplicationDataDirectory());
 

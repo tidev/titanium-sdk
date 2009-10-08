@@ -84,7 +84,7 @@
 	viewFrame.size = preferredViewSize;
 	if(imageView==nil){
 		imageView = [[TitaniumImageView alloc] initWithFrame:viewFrame];
-		//	[imageView setUserInteractionEnabled:YES];
+		[imageView setUserInteractionEnabled:YES];
 		[imageView setDelegate:self];
 		[imageView setImage:[self singleImage]];
 	}
