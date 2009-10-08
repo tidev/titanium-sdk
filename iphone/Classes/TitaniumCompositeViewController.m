@@ -7,6 +7,7 @@
 
 #import "TitaniumCompositeViewController.h"
 #import <QuartzCore/QuartzCore.h>
+#import "TitaniumHost.h"
 
 @implementation TitaniumCompositeRule
 @synthesize viewController;
@@ -173,7 +174,8 @@
 		} else {
 			[viewControllerRules removeAllObjects];
 		}
-		
+		NSString * callingToken = [[[TitaniumHost sharedHost] currentThread] magicToken];
+
 		for(NSDictionary * thisRuleObject in rulesObject){
 			if(![thisRuleObject isKindOfClass:dictClass])continue;
 
@@ -181,6 +183,7 @@
 			id viewObject = [thisRuleObject objectForKey:@"view"];
 			TitaniumContentViewController * thisVC = [TitaniumContentViewController viewControllerForState:viewObject relativeToUrl:baseUrl];
 			[thisVC setTitaniumWindowToken:[self titaniumWindowToken]];
+			[thisVC addListeningWebContextToken:callingToken];
 
 			[thisRule readConstraints:thisRuleObject];
 			[thisRule setViewController:thisVC];
@@ -288,6 +291,9 @@ typedef int UIEventSubtype;
 	NSDictionary * ourVCObject = [newRuleObject objectForKey:@"view"];
 	TitaniumContentViewController * ourVC = [TitaniumContentViewController viewControllerForState:ourVCObject relativeToUrl:baseUrl];
 	if(ourVC==nil)return;
+
+	NSString * callingToken = [[[TitaniumHost sharedHost] currentThread] magicToken];
+	[ourVC addListeningWebContextToken:callingToken];
 	[ourVC setTitaniumWindowToken:[self titaniumWindowToken]];
 
 	TitaniumCompositeRule * ourRule = [[TitaniumCompositeRule alloc] init];
