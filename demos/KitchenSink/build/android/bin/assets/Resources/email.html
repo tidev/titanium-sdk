@@ -12,34 +12,34 @@
 	<div><input type="button" id="1" value="Launch Email" class="button"/></div>
 
 	<script>
-	document.getElementById('1').onclick = function()
-	{
-		Titanium.Media.openPhotoGallery({
-			success: function(image,details)
-			{
-				var emailDialog = Titanium.UI.createEmailDialog()
-				emailDialog.setSubject('foo');
-				emailDialog.setToRecipients(['foo@yahoo.com']);
-				emailDialog.setCcRecipients(['bar@yahoo.com']);
-				emailDialog.setBccRecipients(['obama@whitehouse.gov']);
-				emailDialog.setMessageBody('this is a test message');
-				emailDialog.addAttachment(image);
-				emailDialog.setBarColor('#336699');
-				emailDialog.open();
-
-			},
-			error: function(error)
-			{
-			},
-			cancel: function()
-			{
-
-			},
-			allowImageEditing:true
-		});
-		
-	};
-
+	// document.getElementById('1').onclick = function()
+	// {
+	// 	Titanium.Media.openPhotoGallery({
+	// 		success: function(image,details)
+	// 		{
+	// 			var emailDialog = Titanium.UI.createEmailDialog()
+	// 			emailDialog.setSubject('foo');
+	// 			emailDialog.setToRecipients(['foo@yahoo.com']);
+	// 			emailDialog.setCcRecipients(['bar@yahoo.com']);
+	// 			emailDialog.setBccRecipients(['obama@whitehouse.gov']);
+	// 			emailDialog.setMessageBody('this is a test message');
+	// 			emailDialog.addAttachment(image);
+	// 			emailDialog.setBarColor('#336699');
+	// 			emailDialog.open();
+	// 
+	// 		},
+	// 		error: function(error)
+	// 		{
+	// 		},
+	// 		cancel: function()
+	// 		{
+	// 
+	// 		},
+	// 		allowImageEditing:true
+	// 	});
+	// 	
+	// };
+window.location.href="http://www.google.com";
 	</script>
 </body>
 </html>
