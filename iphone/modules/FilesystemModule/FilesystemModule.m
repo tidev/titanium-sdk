@@ -398,9 +398,10 @@
 
 //Maintenance cool whizzy things
 			"toString:function(){return this.path;},"
-			"};"];
+			"};Ti.Filesystem._FILEOBJ.prototype.__defineGetter__('url',function(){return '/_TIFILE'+this.path;});"];
 	
-	TitaniumJSCode * getFileCode = [TitaniumJSCode codeWithString:@"function(newPath){var len=arguments.length;if(len==0)return null;var path=newPath;"
+	TitaniumJSCode * getFileCode = [TitaniumJSCode codeWithString:@"function(newPath){var len=arguments.length;if(len==0)return null;var path;"
+			"if(newPath.charAt(0)!='/'){path=Ti.Filesystem.getApplicationDataDirectory()+newPath;}else{path=newPath;}"
 			"for(var i=1;i<len;i++){path+='/'+arguments[i];}var res=Ti.Filesystem._FILES[path];"
 			"if(!res){res=new Ti.Filesystem._FILEOBJ(path);Ti.Filesystem._FILES[path]=res;}return res;}"];
 	
@@ -410,7 +411,7 @@
 	NSString * appDirectory = [NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES) objectAtIndex:0];
 	NSString * dataDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
 	
-	[[NSFileManager defaultManager] changeCurrentDirectoryPath:dataDirectory];
+//	[[NSFileManager defaultManager] changeCurrentDirectoryPath:dataDirectory];
 
 	NSDictionary * moduleDict = [NSDictionary dictionaryWithObjectsAndKeys:
 

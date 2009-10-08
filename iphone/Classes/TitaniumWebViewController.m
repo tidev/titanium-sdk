@@ -337,6 +337,8 @@
 
 	isNonTitaniumPage = ![[currentContentURL scheme] isEqualToString:@"app"];
 	[webView setScalesPageToFit:isNonTitaniumPage];
+	[webView setMultipleTouchEnabled:isNonTitaniumPage];
+
 	if(isNonTitaniumPage)return;
 	[self probeWebViewForTokenInContext:@"window"];
 	
