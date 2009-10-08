@@ -452,7 +452,7 @@ NSString * UrlEncodeString(NSString * string)
 	switch ([actionNumber intValue]) {
 		case PICKER_SELECTROW:{
 			if(([target templateValue]==UITitaniumNativeItemPicker) && argsIsArray && ([arguments count]>1)){
-				[target performSelectorOnMainThread:@selector(selectColumnRow:) withObject:arguments waitUntilDone:NO];
+				[target performSelectorOnMainThread:@selector(selectRowColumn:) withObject:arguments waitUntilDone:NO];
 			}
 			return nil;
 		}

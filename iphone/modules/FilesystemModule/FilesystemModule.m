@@ -270,12 +270,12 @@
 		case FILEPATH_READ:{
 			BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
 			if(!exists) return nil;
-			
-			return [[TitaniumHost sharedHost] blobForFile:path];
-//			NSError * error = nil;
+			NSError * error = nil;	//TODO: Be tricky. Return to lazyloading with blobForFile, but have write orphan data blobs that have that file path.
+			NSData * resultData = [NSData dataWithContentsOfFile:path options:0 error:&error];
+			VERBOSE_LOG_IF_TRUE((error!=nil),@"Tried read file '%@', error was %@",path,error);
+			return [[TitaniumHost sharedHost] blobForData:resultData];
 //			NSStringEncoding enc = 0;
 //			NSString * result = [NSString stringWithContentsOfFile:path usedEncoding:&enc error:&error];
-//			VERBOSE_LOG_IF_TRUE((error!=nil),@"Tried read file '%@', error was %@",path,error);
 //			return result;
 		}
 		case FILEPATH_WRITE:{
@@ -351,6 +351,7 @@
 {
 	TitaniumInvocationGenerator * invocGen = [TitaniumInvocationGenerator generatorWithTarget:self];
 
+
 	[(FilesystemModule *)invocGen filePath:nil performFunction:nil arguments:nil];
 	NSInvocation * fileActionInvoc = [invocGen invocation];
 	
@@ -409,6 +410,8 @@
 	NSString * appDirectory = [NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES) objectAtIndex:0];
 	NSString * dataDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
 	
+	[[NSFileManager defaultManager] changeCurrentDirectoryPath:dataDirectory];
+
 	NSDictionary * moduleDict = [NSDictionary dictionaryWithObjectsAndKeys:
 
 			fileWrapperObjectCode,@"_FILEOBJ",

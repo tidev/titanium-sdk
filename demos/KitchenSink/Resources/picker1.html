@@ -48,7 +48,11 @@
 
 				]
 			};
-			picker.setColumnData(0,data);
+			
+			try{
+			picker.setColumnData(0,col1.data);
+			}catch(e){Ti.API.debug('Failed '+e);}
+
 		};
 		
 		// select a row
@@ -89,12 +93,20 @@
 
 		document.getElementById('button4').onclick = function()
 		{
-			document.getElementById('value').innerHTML = picker.getSelectedRow(0);
+			try{
+			var res=picker.getSelectedRow(0);
+			Ti.API.debug('Selected: '+res);
+			document.getElementById('value').innerHTML = res;
+			}catch(e){Ti.API.debug('Failed '+e);}
 		};
 
-		document.getElementById('button4').onclick = function()
+		document.getElementById('button5').onclick = function()
 		{
-			document.getElementById('value').innerHTML = picker.getSelectedRow(1);
+			try{
+			var res=picker.getSelectedRow(1);
+			Ti.API.debug('Selected: '+res);
+			document.getElementById('value').innerHTML = res;
+			}catch(e){Ti.API.debug('Failed '+e);}
 		};
 
 	};
