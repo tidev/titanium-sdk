@@ -948,6 +948,20 @@ needsRefreshing = YES;	\
 	[ourColumn setSelectedRow:row];
 	if([nativeView isKindOfClass:[UIPickerView class]]){
 		[(UIPickerView *)nativeView selectRow:row inComponent:column animated:animated];
+		
+		NSMutableString * ourArgs = [NSMutableString stringWithFormat:@",column:%d,row:%d,selectedValue:[",column,row];
+		BOOL needsComma = NO;
+		for(PickerColumnWrapper * thisColumn in pickerColumnsArray){
+			if(needsComma){
+				[ourArgs appendFormat:@",%d",[thisColumn selectedRow]];
+			} else {
+				[ourArgs appendFormat:@"%d",[thisColumn selectedRow]];
+				needsComma = YES;
+			}
+		}
+		[ourArgs appendString:@"]"];
+		
+		[self reportEvent:@"change" value:nil index:-1 init:nil arguments:ourArgs];
 	}
 }
 
@@ -1023,8 +1037,6 @@ needsRefreshing = YES;	\
 	} else {
 		[(PickerImageTextCell *)view setImageView:nil];
 	}
-	
-	NSLog(@"[DEBUG] Returning ImageText");
 	return view;
 }
 
