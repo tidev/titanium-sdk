@@ -31,6 +31,15 @@ var HTTPClient = function() {
 	};
 
 	/**
+	 * @tiapi(method=true,name=Network.HTTPClient.getResponseData,since=0.7.0) The response of an HTTP request as blob
+	 * @tiresult[Blob] the response text
+	 */
+	this.getResponseData = function() {
+		var key = this.obj.getResponseData();
+		return (key != -1) ? new TitaniumMemoryBlob(key) : null;
+	};
+
+	/**
 	 * @tiapi(method=true,name=Network.HTTPClient.getStatus,since=0.4) The response status code of an HTTP request
 	 * @tiresult[int] the response status code.
 	 */
@@ -178,6 +187,14 @@ HTTPClient.prototype.__defineGetter__("responseText", function(){
  */
 HTTPClient.prototype.__defineGetter__('responseXML',function(){
 	return new DOMParser().parseFromString(this.getResponseText(),'text/xml');
+});
+
+/**
+ * @tiapi(property=true,name=Network.HTTPClient.responseXML,since=0.7.0) Get the response as blob
+ * @tiresult[Blob] the response
+ */
+HTTPClient.prototype.__defineGetter__('responseData',function(){
+	return this.getResponseData();
 });
 
 /**

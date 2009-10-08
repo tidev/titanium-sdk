@@ -305,7 +305,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+-->
 		<window>
             <id>Filestream</id>
             <title>filestream</title>
@@ -315,7 +315,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+<!--
 		<window>
             <id>iPhoneAPI</id>
             <title>iPhone API</title>
@@ -345,7 +345,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
 		<window>
             <id>AppEvents</id>
             <title>Application Events</title>
@@ -353,7 +353,7 @@
             <fullscreen>true</fullscreen>
             <backgroundColor>rgba(32,32,32,255)</backgroundColor>
         </window>
-
+-->
     </windows>
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.android.watchlog" type="bool">false</property>
