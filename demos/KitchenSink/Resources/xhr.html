@@ -105,8 +105,8 @@
 		{
 			var f= Titanium.Filesystem.getFile("xhr.png");
 			f.write(this.responseData);
-		
-			document.getElementById('html').innerHTML = '<img src="'+f.read().url+'"/>';
+			Titanium.UI.createAlertDialog({message:f.url}).show();
+			document.getElementById('html').innerHTML = '<img src="'+f.url+'"/>';
 		};
 		// open the client
 		c.open('GET','http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png');
