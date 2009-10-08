@@ -11,3 +11,4 @@ tidb.js
 tiaccelerometer.js
 tigesture.js
 tigeo.js
+yahoo.js
