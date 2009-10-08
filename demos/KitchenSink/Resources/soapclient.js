@@ -50,7 +50,9 @@ function SOAPClientParameters()
 		for(var p in _pl)
 		{
 			if(typeof(_pl[p]) != "function")
+			{
 				xml += "<" + p + ">" + _pl[p].toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</" + p + ">";
+			}
 		}
 		return xml;	
 	};
@@ -69,7 +71,7 @@ SOAPClient.invoke = function(url, method, parameters, async, callback)
 		return SOAPClient._loadWsdl(url, method, parameters, async, callback);
 	}
 	return 0;
-}
+};
 
 // private: wsdl cache
 SOAPClient_cacheWsdl = [];
@@ -80,7 +82,9 @@ SOAPClient._loadWsdl = function(url, method, parameters, async, callback)
 	// load from cache?
 	var wsdl = SOAPClient_cacheWsdl[url];
 	if(wsdl + "" != "" && wsdl + "" != "undefined")
+	{
 		return SOAPClient._sendSoapRequest(url, method, parameters, async, callback, wsdl);
+	}
 	// get wsdl
 	var xmlHttp = SOAPClient._getXmlHttp();
 	xmlHttp.open("GET", url + "?wsdl", async);
@@ -93,7 +97,9 @@ SOAPClient._loadWsdl = function(url, method, parameters, async, callback)
 	}
 	xmlHttp.send(null);
 	if (!async)
+	{
 		return SOAPClient._onLoadWsdl(url, method, parameters, async, callback, xmlHttp);
+	}
 };
 SOAPClient._onLoadWsdl = function(url, method, parameters, async, callback, req)
 {
@@ -131,7 +137,9 @@ SOAPClient._sendSoapRequest = function(url, method, parameters, async, callback,
 	}
 	xmlHttp.send(sr);
 	if (!async)
+	{
 		return SOAPClient._onSendSoapRequest(method, async, callback, wsdl, xmlHttp);
+	}
 };
 SOAPClient._onSendSoapRequest = function(method, async, callback, wsdl, req)
 {
@@ -140,14 +148,22 @@ SOAPClient._onSendSoapRequest = function(method, async, callback, wsdl, req)
 	if(nd.length == 0)
 	{
 		if(req.responseXML.getElementsByTagName("faultcode").length > 0)
+		{
 			throw new Error(500, req.responseXML.getElementsByTagName("faultstring")[0].childNodes[0].nodeValue);
+		}
 	}
 	else
+	{
 		o = SOAPClient._soapresult2object(nd[0], wsdl);
+	}
 	if(callback)
+	{
 		callback(o, req.responseXML);
+	}
 	if(!async)
+	{
 		return o;		
+	}
 };
 
 // private: utils
@@ -158,7 +174,8 @@ SOAPClient._getElementsByTagName = function(document, tagName)
 		// trying to get node omitting any namespaces (latest versions of MSXML.XMLDocument)
 		return document.selectNodes(".//*[local-name()=\""+ tagName +"\"]");
 	}
-	catch (ex) {}
+	catch (ex) {
+	}
 	// old XML parser support
 	return document.getElementsByTagName(tagName);
 };
@@ -172,20 +189,28 @@ SOAPClient._node2object = function(node, wsdl)
 {
 	// null node
 	if(node == null)
+	{
 		return null;
+	}
 	// text node
 	if(node.nodeType == 3 || node.nodeType == 4)
+	{
 		return SOAPClient._extractValue(node, wsdl);
+	}
 	// leaf node
 	if (node.childNodes.length == 1 && (node.childNodes[0].nodeType == 3 || node.childNodes[0].nodeType == 4))
+	{
 		return SOAPClient._node2object(node.childNodes[0], wsdl);
+	}
 	var isarray = SOAPClient._getTypeFromWsdl(node.nodeName, wsdl).toLowerCase().indexOf("arrayof") != -1;
 	// object node
 	if(!isarray)
 	{
 		var obj = null;
 		if(node.hasChildNodes())
-			obj = new Object();
+		{
+			obj = {};
+		}
 		for(var i = 0; i < node.childNodes.length; i++)
 		{
 			var p = SOAPClient._node2object(node.childNodes[i], wsdl);
@@ -198,8 +223,10 @@ SOAPClient._node2object = function(node, wsdl)
 	{
 		// create node ref
 		var l = [];
-		for(var i = 0; i < node.childNodes.length; i++)
-			l[l.length] = SOAPClient._node2object(node.childNodes[i], wsdl);
+		for(var b = 0; b < node.childNodes.length; b++)
+		{
+			l[l.length] = SOAPClient._node2object(node.childNodes[b], wsdl);
+		}
 		return l;
 	}
 	return null;
@@ -210,9 +237,6 @@ SOAPClient._extractValue = function(node, wsdl)
 	var value = node.nodeValue;
 	switch(SOAPClient._getTypeFromWsdl(node.parentNode.nodeName, wsdl).toLowerCase())
 	{
-		default:
-		case "s:string":			
-			return (value != null) ? value + "" : "";
 		case "s:boolean":
 			return value+"" == "true";
 		case "s:int":
@@ -222,7 +246,9 @@ SOAPClient._extractValue = function(node, wsdl)
 			return (value != null) ? parseFloat(value + "") : 0;
 		case "s:datetime":
 			if(value == null)
+			{
 				return null;
+			}
 			else
 			{
 				value = value + "";
@@ -233,6 +259,9 @@ SOAPClient._extractValue = function(node, wsdl)
 				d.setTime(Date.parse(value));										
 				return d;				
 			}
+			break;
+		default:
+			return (value != null) ? value + "" : "";
 	}
 };
 
@@ -240,18 +269,24 @@ SOAPClient._getTypeFromWsdl = function(elementname, wsdl)
 {
 	var ell = wsdl.getElementsByTagName("s:element");	// IE
 	if(ell.length == 0)
+	{
 		ell = wsdl.getElementsByTagName("element");	// MOZ
+	}
 	for(var i = 0; i < ell.length; i++)
 	{
 		if(ell[i].attributes["name"] + "" == "undefined")	// IE
 		{
 			if(ell[i].attributes.getNamedItem("name") != null && ell[i].attributes.getNamedItem("name").nodeValue == elementname && ell[i].attributes.getNamedItem("type") != null) 
+			{	
 				return ell[i].attributes.getNamedItem("type").nodeValue;
+			}
 		}	
 		else // MOZ
 		{
 			if(ell[i].attributes["name"] != null && ell[i].attributes["name"].value == elementname && ell[i].attributes["type"] != null)
+			{	
 				return ell[i].attributes["type"].value;
+			}
 		}
 	}
 	return "";
