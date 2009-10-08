@@ -2,15 +2,27 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>verboseDebugging</key>
-	<true/>
-	<key>id</key>
-	<string>com.titaniumapp.test</string>
-	<key>name</key>
-	<string>Titanium Test App</string>
-	<key>version</key>
-	<string>0.1</string>
 	<key>startup</key>
+	<dict>
+		<key>hideNavBar</key>
+		<false/>
+		<key>views</key>
+		<array>
+			<dict>
+				<key>url</key>
+				<string>picker3.html</string>
+			</dict>
+		</array>
+		<key>background</key>
+		<string>white</string>
+		<key>backgroundnImage</key>
+		<string>default.png</string>
+		<key>orientation</key>
+		<string>either</string>
+		<key>title</key>
+		<string>Pickers ahoy</string>
+	</dict>
+	<key>startup - 2</key>
 	<array>
 		<dict>
 			<key>orientation</key>
@@ -73,7 +85,7 @@
 		</dict>
 		<dict>
 			<key>hideNavBar</key>
-			<true/>
+			<false/>
 			<key>views</key>
 			<array>
 				<dict>
@@ -91,6 +103,14 @@
 			<string>Pickers ahoy</string>
 		</dict>
 	</array>
+	<key>verboseDebugging</key>
+	<true/>
+	<key>id</key>
+	<string>com.titaniumapp.test</string>
+	<key>name</key>
+	<string>Titanium Test App</string>
+	<key>version</key>
+	<string>0.1</string>
 	<key>modules</key>
 	<dict>
 		<key>facebook</key>

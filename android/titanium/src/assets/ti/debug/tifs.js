@@ -298,15 +298,23 @@ TitaniumFile.prototype.__defineGetter__("path", function(){
 	return this.nativePath();
 });
 
+/**
+ * @tiapi(method=true,name=Filesystem.File.toURL,since=0.7) Returns the url to a file or directory
+ * @tiresult[string] full url of the file or directory
+ */
+TitaniumFile.prototype.toURL = function()
+{
+	return transformObjectValueAsString(Titanium.checked(this.proxy.call("toURL")),null);
+};
+
+TitaniumFile.prototype.__defineGetter__("url", function() {
+	return this.toURL();
+});
+
 TitaniumFile.createBlob = function(native) {
 	var f = new TitaniumFile(native);
 	function TitaniumBlob(f) {this.obj = f;}
 	TitaniumBlob.prototype = f;
-
-	var b = new TitaniumBlob(f);
-	b.__defineGetter__("url", function() {
-		return this.nativePath();
-	});
 
 	return b;
 };
@@ -364,6 +372,19 @@ Filestream.prototype.writeLine = function(value) {
 	p.pushString(value);
 	Titanium.checked(this.proxy.call("writeLine"));
 };
+
+/**
+ * @tiapi(method=true,name=Filesystem.Filestream.toURL,since=0.7) Returns the url to a file or directory
+ * @tiresult[string] full url of the file or directory
+ */
+Filestream.prototype.toURL = function()
+{
+	return transformObjectValueAsString(Titanium.checked(this.proxy.call("toURL")),null);
+};
+
+Filestream.prototype.__defineGetter__("url", function() {
+	return this.toURL();
+});
 
 Titanium.Filesystem = {
 	/**

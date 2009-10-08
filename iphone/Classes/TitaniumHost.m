@@ -1081,14 +1081,15 @@ TitaniumHost * lastSharedHost = nil;
 
 - (TitaniumAppResourceType) appResourceTypeForUrl:(NSURL *) url
 {
-	TitaniumAppResourceType result = TitaniumAppResourceFileType;
 	NSString * ourPath = [url path];
-	if([ourPath hasPrefix:@"/_TICMD/"]) result = TitaniumAppResourceCommandType;
-	if([ourPath hasPrefix:@"/_TICON/"]) result = TitaniumAppResourceContinueType;
-	if([ourPath hasPrefix:@"/_TIBLOB/"]) result = TitaniumAppResourceBlobType;
-	if([ourPath hasPrefix:@"/_TIWIN/"]) result = TitaniumAppResourceWindowBindingType;
-	if([ourPath isEqualToString:@"/blank"]) result = TitaniumAppResourceNoType;
-	return result;
+	if([ourPath isEqualToString:@"/blank"]) return TitaniumAppResourceNoType;
+	if(![ourPath hasPrefix:@"/_"]) return TitaniumAppResourceFileType;
+	if([ourPath hasPrefix:@"/_TICMD/"]) return TitaniumAppResourceCommandType;
+	if([ourPath hasPrefix:@"/_TIFILE/"]) return TitaniumAppResourceRandomFileType;
+	if([ourPath hasPrefix:@"/_TICON/"]) return TitaniumAppResourceContinueType;
+	if([ourPath hasPrefix:@"/_TIBLOB/"]) return TitaniumAppResourceBlobType;
+	if([ourPath hasPrefix:@"/_TIWIN/"]) return TitaniumAppResourceWindowBindingType;
+	return TitaniumAppResourceFileType;
 }
 
 - (NSString *) javaScriptForResource: (NSURL *)resourceUrl hash: (NSString *)thisThreadHashString extremeDebug: (BOOL)extremeDebug;

@@ -71,6 +71,10 @@ public class TitaniumBlob extends TitaniumBaseFile
 		return url;
 	}
 
+	public String getURL() {
+		return url;
+	}
+
 	@Override
 	public String name() {
 		return name;
