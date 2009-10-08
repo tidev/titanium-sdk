@@ -1,0 +1,58 @@
+<html>
+<head>
+	<title>Mashups</title>
+	
+	<script>
+	
+	// data for tableview
+	var data = [
+		{title:'Yahoo YQL Flickr Demo',image:'KS_share_Yahoo.png'},
+		{title:'Facebook Connect',image:'KS_share_FB.png'},
+		{title:'Twitter',image:'KS_share_TW.png'},
+		{title:'SOAP Web Services',image:'KS_share_soap2.png'}
+	];
+	
+	// tableview object
+	var tableView = Titanium.UI.createTableView({
+		data:data,
+		title:'Mashup Demos',
+	}, function(eventObject) 
+	{
+		// handle tableview click events
+		var idx = eventObject.index;
+		switch(idx)
+		{
+			case 0:
+			{
+				var w = Titanium.UI.createWindow({url:'yql.html',barColor:'#004e8c'});
+				w.open({animated:true});
+				break;
+			}
+			case 1:
+			{
+				var w = Titanium.UI.createWindow({url:'facebook.html',barColor:'#3b5998'});
+				w.open({animated:true});
+				break;
+			}
+			case 2:
+			{
+				var w = Titanium.UI.createWindow({url:'twitter.html',barColor:'#33ccff'});
+				w.open({animated:true});
+				break;
+				break;
+			}
+			case 3:
+			{
+				var w = Titanium.UI.createWindow({url:'soap.html',barColor:'#990000'});
+				w.open({animated:true});
+				break;
+			}
+		}
+	});
+	Titanium.UI.currentWindow.addView(tableView);
+	Titanium.UI.currentWindow.showView(tableView);
+	</script>
+</head>
+<body>
+</body>
+</html>

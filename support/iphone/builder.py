@@ -138,7 +138,10 @@ def main(args):
 	main_dest.close()
 	
 	# migrate the xcode project given that it can change per release of sdk
-	xcodeproj = open(os.path.join(template_dir,'project.pbxproj'),'r').read()
+	if iphone_version == '2.2.1':
+		xcodeproj = open(os.path.join(template_dir,'project_221.pbxproj'),'r').read()
+	else:
+		xcodeproj = open(os.path.join(template_dir,'project.pbxproj'),'r').read()
 	xcodeproj = xcodeproj.replace('__PROJECT_NAME__',name)
 	xcodeproj = xcodeproj.replace('__PROJECT_ID__',appid)
 	xcode_dir = os.path.join(iphone_dir,name+'.xcodeproj')
