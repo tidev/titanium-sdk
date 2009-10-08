@@ -6,6 +6,7 @@
 	<div id="button1" style="height:47px"></div>
 	<div id="button2" style="height:47px"></div>
 	<div id="button3" style="height:47px"></div>
+	<div id="button4" style="height:47px"></div>
 	
 	<div id="html"></div>
 
@@ -86,7 +87,33 @@
 		// send the data
 		c.send();
 	})
-	
+
+	var button4 = Titanium.UI.createButton({
+		id:'button4',
+		backgroundImage:'blue.png',
+		backgroundSelectedImage:'blue_pressed.png',
+		backgroundFocusedImage:'blue_focused.png',
+		title:'Binary Data',
+		color:'#ffffff',
+		height:47,
+	});
+	button4.addEventListener('click',function(e)
+	{
+		var c = Titanium.Network.createHTTPClient();
+
+		c.onload = function()
+		{
+			var f= Titanium.Filesystem.getFile("xhr.png");
+			f.write(this.responseData);
+		
+			document.getElementById('html').innerHTML = '<img src="'+f.read().url+'"/>';
+		};
+		// open the client
+		c.open('GET','http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png');
+
+		// send the data
+		c.send();
+	})
 	</script>
 
 </body>
@@ -102,61 +129,62 @@
         
         var ad_url_map = {};
         var ad_url;
-        
+        HTTPClient.prototype.__defineGetter__('responseXML',function(){
+		    return new DOMParser().parseFromString(this.getResponseText(),'text/xml');
+		});
         var xhr = Titanium.Network.createHTTPClient();
         
         xhr.onreadystatechange = function() {
                if(this.readyState == 4) {
-                       this.onload();
+
+
+	            var responseXML = this.responseXML;
+	            var xmlDoc = responseXML.documentElement;
+
+	            // A better way to do the following is to fetch all ads first and then for an ad, get title, then url, then images
+
+	            // fetch ad titles
+	            try {
+	                var titleElements = xmlDoc.getElementsByTagName("title");
+	                for(var i = 0; i < titleElements.length; i++) {
+	                    adTitle = titleElements[i].childNodes[0].nodeValue;
+	                    results.push({title: adTitle, hasChild: true});
+	                }
+
+	            } catch(err) {
+	                var a = Titanium.UI.createAlertDialog();
+	                a.setTitle("Error");
+	                a.setMessage("Title not found in results.");
+	                a.show();
+	                return;	
+	            }
+
+	            // fetch ad urls
+	            try {
+	                var titleElements = xmlDoc.getElementsByTagName("view_ad_url");
+	                for(var i = 0; i < titleElements.length; i++) {
+	                    ad_url = titleElements[i].childNodes[0].nodeValue;
+	                    ad_url_map[i] = ad_url;
+	                }
+
+	            } catch(err) {
+	                var a = Titanium.UI.createAlertDialog();
+	                a.setTitle("Error");
+	                a.setMessage("ad_url not found in results.");
+	                a.show();
+	                return;	
+	            }
+
+	            showTableView();
+
                }
         }
         
-        xhr.onload = function()
-		{
-            var responseXML = this.responseXML;
-            var xmlDoc = responseXML.documentElement;
-            
-            // A better way to do the following is to fetch all ads first and then for an ad, get title, then url, then images
-            
-            // fetch ad titles
-            try {
-                var titleElements = xmlDoc.getElementsByTagName("title");
-                for(var i = 0; i < titleElements.length; i++) {
-                    adTitle = titleElements[i].childNodes[0].nodeValue;
-                    results.push({title: adTitle, hasChild: true});
-                }
-                
-            } catch(err) {
-                var a = Titanium.UI.createAlertDialog();
-                a.setTitle("Error");
-                a.setMessage("Title not found in results.");
-                a.show();
-                return;	
-            }
-            
-            // fetch ad urls
-            try {
-                var titleElements = xmlDoc.getElementsByTagName("view_ad_url");
-                for(var i = 0; i < titleElements.length; i++) {
-                    ad_url = titleElements[i].childNodes[0].nodeValue;
-                    ad_url_map[i] = ad_url;
-                }
-                
-            } catch(err) {
-                var a = Titanium.UI.createAlertDialog();
-                a.setTitle("Error");
-                a.setMessage("ad_url not found in results.");
-                a.show();
-                return;	
-            }
-            
-            showTableView();
-        };
         
         function showTableView() {
             var tableView = Titanium.UI.createTableView({data:results,title:'eBay'}, function(eventObject) 
             {
-				var win = Titanium.UI.createWindow({url:ad_url_map[eventObject.index],title:'View Ad'});
+				var win = Titanium.UI.createWindow({url:ad_url_map[eventObject.row],title:'View Ad'});
 				win.open({animated:true});
             });
             
