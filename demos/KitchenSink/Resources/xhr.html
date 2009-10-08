@@ -6,6 +6,7 @@
 	<div id="button1" style="height:47px"></div>
 	<div id="button2" style="height:47px"></div>
 	<div id="button3" style="height:47px"></div>
+	<div id="button4" style="height:47px"></div>
 	
 	<div id="html"></div>
 
@@ -92,7 +93,7 @@
 		backgroundImage:'blue.png',
 		backgroundSelectedImage:'blue_pressed.png',
 		backgroundFocusedImage:'blue_focused.png',
-		title:'Google',
+		title:'Binary Data',
 		color:'#ffffff',
 		height:47,
 	});
@@ -102,7 +103,10 @@
 
 		c.onload = function()
 		{
-		//	document.getElementById('html').innerHTML = this.responseData;
+			var f= Titanium.Filesystem.getFile("xhr.png");
+			f.write(this.responseData);
+		
+			document.getElementById('html').innerHTML = '<img src="'+f.read().url+'"/>';
 		};
 		// open the client
 		c.open('GET','http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png');
