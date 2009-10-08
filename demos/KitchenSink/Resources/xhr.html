@@ -105,7 +105,6 @@
 		{
 			var f= Titanium.Filesystem.getFile("xhr.png");
 			f.write(this.responseData);
-			Titanium.UI.createAlertDialog({message:f.url}).show();
 			document.getElementById('html').innerHTML = '<img src="'+f.url+'"/>';
 		};
 		// open the client
