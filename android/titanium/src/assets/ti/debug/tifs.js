@@ -103,8 +103,13 @@ TitaniumFile.prototype.write = function(data,append)
 		p.pushInteger(data.getKey());
 		p.pushBoolean(append);
 		Titanium.checked(p.call("write"));
+	} else if (!isUndefined(data.blob) && data.blob) {
+		Titanium.API.debug("Write As Blob File: " + String(data));
+		p.pushString(data.obj.toURL());
+		p.pushBoolean(append);
+		Titanium.checked(p.call("writeFromUrl"));
 	} else {
-		Titanium.API.debug("Write As Blob");
+		Titanium.API.debug("Write As String");
 		p.pushString(data);
 		p.pushBoolean(append);
 		return Titanium.checked(p.call("write"));
@@ -313,8 +318,9 @@ TitaniumFile.prototype.__defineGetter__("url", function() {
 
 TitaniumFile.createBlob = function(native) {
 	var f = new TitaniumFile(native);
-	function TitaniumBlob(f) {this.obj = f;}
+	function TitaniumBlob(f) {this.obj = f; this.blob = true;}
 	TitaniumBlob.prototype = f;
+	var b = new TitaniumBlob(f);
 
 	return b;
 };
