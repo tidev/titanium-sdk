@@ -240,6 +240,7 @@ public class TitaniumImageView extends TitaniumBaseView
 	private void loadImageFromUrl() {
 		TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getAppContext());
 
+		Log.i(LCAT, "Loading image: " + url);
 		Drawable d = tfh.loadDrawable(url, false);
 		if (d != null) {
 			BitmapDrawable bd = (BitmapDrawable) d;
@@ -260,6 +261,8 @@ public class TitaniumImageView extends TitaniumBaseView
 			view.setImageDrawable(d);
 			scaleFactor = originalScaleFactor;
 			updateChangeMatrix(0);
+		} else {
+			Log.w(LCAT, "Unable to load image from " + url);
 		}
 	}
 

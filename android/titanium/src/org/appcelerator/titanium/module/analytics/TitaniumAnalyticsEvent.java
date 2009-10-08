@@ -12,7 +12,9 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.appcelerator.titanium.TitaniumApplication;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumPlatformHelper;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 //All event payloads MUST have the following key/value pairs at the root of the
@@ -30,6 +32,8 @@ import org.json.JSONObject;
 
 public class TitaniumAnalyticsEvent
 {
+	private static final String LCAT = "TitaniumAnalyticsEvent";
+
 	private static TimeZone utc = TimeZone.getTimeZone("utc");
 	private static SimpleDateFormat isoDateFormatter =
 		new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -37,35 +41,48 @@ public class TitaniumAnalyticsEvent
 		isoDateFormatter.setTimeZone(utc);
 	}
 
-	private String eventName;
+	private String eventType;
+	private String eventEvent;
 	private String eventTimestamp;
 	private String eventMid;
 	private String eventSid;
-	private String eventAppId;
 	private String eventPayload;
+	private String eventAppGuid;
 
 	private boolean expandPayload;
 
-	TitaniumAnalyticsEvent(String eventName, String eventPayload, boolean expandPayload) {
-		this.eventName = eventName;
+	TitaniumAnalyticsEvent(String eventType, String eventEvent, String eventPayload) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("value", eventPayload);
+			init(eventType, eventEvent, o);
+		} catch (JSONException e) {
+			Log.e(LCAT, "Error packaging string.", e);
+			init(eventType, eventEvent, new JSONObject());
+		}
+	}
+
+	TitaniumAnalyticsEvent(String eventType, String eventEvent, JSONObject eventPayload) {
+		init(eventType, eventEvent, eventPayload);
+	}
+
+	private void init(String eventType, String eventEvent, JSONObject eventPayload) {
+		this.eventType = eventType;
+		this.eventEvent = eventEvent;
 		this.eventTimestamp = getTimestamp();
 		this.eventMid = TitaniumPlatformHelper.getMobileId();
 		this.eventSid = TitaniumPlatformHelper.getSessionId();
-		this.eventAppId = TitaniumApplication.getInstance().getAppInfo().getAppId();
-		this.eventPayload = eventPayload;
-		this.expandPayload = expandPayload;
+		this.eventAppGuid = TitaniumApplication.getInstance().getAppInfo().getAppGUID();
+		this.eventPayload = eventPayload.toString();
+		this.expandPayload = true;
 	}
 
-	TitaniumAnalyticsEvent(String eventName, String eventPayload) {
-		this(eventName, eventPayload, false);
+	public String getEventType() {
+		return eventType;
 	}
 
-	TitaniumAnalyticsEvent(String eventName, JSONObject eventPayload) {
-		this(eventName, eventPayload.toString(), true);
-	}
-
-	public String getEventName() {
-		return eventName;
+	public String getEventEvent() {
+		return eventEvent;
 	}
 
 	public String getEventTimestamp() {
@@ -80,8 +97,8 @@ public class TitaniumAnalyticsEvent
 		return eventSid;
 	}
 
-	public String getEventAppId() {
-		return eventAppId;
+	public String getEventAppGuid() {
+		return eventAppGuid;
 	}
 
 	public String getEventPayload() {

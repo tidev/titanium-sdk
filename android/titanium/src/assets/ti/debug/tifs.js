@@ -97,9 +97,18 @@ TitaniumFile.prototype.write = function(data,append)
 {
 	append = typeof(append)=='undefined' ? false : append;
 	var p = this.proxy;
-	p.pushString(data);
-	p.pushBoolean(append);
-	return Titanium.checked(p.call("write"));
+
+	if(data instanceof TitaniumMemoryBlob) {
+		Titanium.API.debug("Write As Blob");
+		p.pushInteger(data.getKey());
+		p.pushBoolean(append);
+		Titanium.checked(p.call("write"));
+	} else {
+		Titanium.API.debug("Write As Blob");
+		p.pushString(data);
+		p.pushBoolean(append);
+		return Titanium.checked(p.call("write"));
+	}
 };
 /**
  * @tiapi(method=true,name=Filesystem.File.readline,since=0.4) Returns one line (separated by line ending) from a file

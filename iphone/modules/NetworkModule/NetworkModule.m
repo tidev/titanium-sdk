@@ -49,6 +49,7 @@ NSString * const netHTTPClientGeneratorFormat = @"Ti.%@ = {"
 "}"
 "};"
 "Ti.%@.__defineGetter__('responseText',function(){return Ti._TICMD('%@','responseText',[])});"
+"Ti.%@.__defineGetter__('responseData',function(){return Ti._TICMD('%@','responseData',[])});"
 "Ti.%@.__defineGetter__('responseXML',function(){var xml = Ti._TICMD('%@','responseText',[]); return new DOMParser().parseFromString(xml,'text/xml'); });"
 "Ti.%@.__defineGetter__('status',function(){return Ti._TICMD('%@','status',[])});"
 "Ti.%@.__defineGetter__('connected',function(){return Ti._TICMD('%@','connected',[])});";
@@ -360,6 +361,11 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 
 		return [result autorelease];
 
+	} else if ([functionName isEqualToString:@"responseData"]) {
+		if(loadedData == nil)return nil;
+		
+		return [[TitaniumHost sharedHost] blobForData:loadedData];
+		
 	} else if ([functionName isEqualToString:@"status"]) {
 		return [NSNumber numberWithInt:currentStatus];
 
@@ -457,7 +463,7 @@ NetworkModuleConnectionState stateForReachabilityFlags(SCNetworkReachabilityFlag
 	NSString * generatorCode = [NSString stringWithFormat:netHTTPClientGeneratorFormat,
 			tiObjectPath,tiObjectPath,tiObjectPath,tiObjectPath,tiObjectPath,tiObjectPath,
 			tiObjectPath,tiObjectPath,tiObjectPath,tiObjectPath,tiObjectPath,tiObjectPath,
-			tiObjectPath,tiObjectPath,tiObjectPath,tiObjectPath,tiObjectPath,tiObjectPath];
+			tiObjectPath,tiObjectPath,tiObjectPath,tiObjectPath,tiObjectPath,tiObjectPath,tiObjectPath];
 
 	if ([pendingConnnections count] == 0) {
 		generatorCode = [@"delete Titanium.Network._CONN;Titanium.Network._CONN={};" stringByAppendingString:generatorCode];

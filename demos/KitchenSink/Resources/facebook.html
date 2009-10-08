@@ -25,7 +25,7 @@
 			{
 				try
 				{
-					Titanium.API.info(Titanium._JSON(r));
+					// Titanium.API.info(Titanium._JSON(r));
 					
 					var data = [];
 					
@@ -67,7 +67,6 @@
 		
 		function loggedIn()
 		{
-			Titanium.API.info("logged in => " + Titanium._JSON(Titanium.Facebook.getPermissions()));
 
 			document.getElementById('loggedin').style.display='none';
 			document.getElementById('loggedout').style.display='block';
@@ -90,8 +89,6 @@
 		
 		function loggedOut()
 		{
-			Titanium.API.info("logged out");
-			
 			document.getElementById('loggedin').style.display='block';
 			document.getElementById('loggedout').style.display='none';
 		}

@@ -7,10 +7,25 @@
 		var wv2 = Titanium.UI.createImageView({url:'image_view_image2.jpeg'});
 		var wv3 = Titanium.UI.createImageView({url:'image_view_image3.jpg'});
 		
+<<<<<<< HEAD:demos/KitchenSink/Resources/image_views.html
 		// wv1.addEventListener('click',function()
 		// {
 		// 	Titanium.API.info('you clicked on image1');
 		// });
+=======
+		wv1.addEventListener('click',function(e)
+		{
+			Titanium.UI.createAlertDialog({title:'you clicked me'}).show();
+		});
+		wv2.addEventListener('click',function(e)
+		{
+			Titanium.UI.createAlertDialog({title:'you clicked me'}).show();
+		});
+		wv3.addEventListener('click',function(e)
+		{
+			Titanium.UI.createAlertDialog({title:'you clicked me'}).show();
+		});
+>>>>>>> cc2ab0f27e7781a96a63e03c358506be88d1ab07:demos/KitchenSink/Resources/image_views.html
 		
 		var scrollView = Titanium.UI.createScrollableView({views:[wv1,wv2,wv3],showPagingControl:false});
 		Titanium.UI.currentWindow.addView(scrollView);

@@ -275,14 +275,26 @@ public class TitaniumFile extends TitaniumBaseFile
 			Log.d(LCAT,"write called for file = " + file);
 		}
 
-		if (!opened) {
-			throw new IOException("Must open before calling write");
-		}
-
+		TitaniumMemoryBlob blob = null;
 		TitaniumModuleManager tmm = weakTmm.get();
 		if (tmm != null) {
-			TitaniumMemoryBlob blob = (TitaniumMemoryBlob) tmm.getObject(key);
-			if (blob != null) {
+			blob = (TitaniumMemoryBlob) tmm.getObject(key);
+		}
+
+		if (blob != null) {
+			if (!stream) {
+				try {
+					open(append ? MODE_APPEND : MODE_WRITE, true);
+					outstream.write(blob.getData());
+				} finally {
+					close();
+				}
+			} else {
+
+				if (!opened) {
+					throw new IOException("Must open before calling write");
+				}
+
 				if (binary) {
 					outstream.write(blob.getData());
 				} else {

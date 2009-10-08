@@ -119,6 +119,24 @@ var Titanium = new function() {
 	this.getTitaniumMemoryBlobLength = function(key) {
 		return this.apiProxy.getTitaniumMemoryBlobLength(key);
 	};
+
+	this.DateFormatter = {
+		pad : function(n) {
+	    	return (n < 10 ? "0" : "") + String(n);
+	  	},
+	  	formatUTC : function(d) {
+	  		/* format to yyyy-MM-dd'T'HH:mm:ss.SSSZ to be consistent with mobile's UTC timestamp strings */
+	  		return [
+	  		    d.getUTCFullYear() , '-',
+	  		    this.pad(1 + d.getUTCMonth()), '-',
+	  		    this.pad(d.getUTCDate()),
+	  		    'T',
+	  		    this.pad(d.getUTCHours()) ,':',
+	  		    this.pad(d.getUTCMinutes()), ':',
+	  		    this.pad(d.getUTCSeconds()),'+0000'
+	  		].join("");
+	  }
+	};
 };
 
 function TitaniumCallback(obj, method, oneShot) {

@@ -20,7 +20,7 @@
 				{
 					var f= Titanium.Filesystem.getFile(image.url);
 					Titanium.API.info('FILE ' + f.size())
-					f.copy('foo.png');
+					f.move('foo.png');
 				},
 				error: function(error)
 				{

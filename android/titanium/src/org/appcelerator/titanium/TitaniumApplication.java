@@ -205,17 +205,19 @@ public class TitaniumApplication
 
 		if (DBG) {
 			StringBuilder sb = new StringBuilder();
-			sb.append("Analytics Event: name=").append(event.getEventName())
-				.append(" timestamp=").append(event.getEventTimestamp())
+			sb.append("Analytics Event: type=").append(event.getEventType())
+				.append("\n event=").append(event.getEventEvent())
+				.append("\n timestamp=").append(event.getEventTimestamp())
 				.append("\n mid=").append(event.getEventMid())
 				.append("\n sid=").append(event.getEventSid())
-				.append(" isJSON=").append(event.mustExpandPayload())
+				.append("\n aguid=").append(event.getEventAppGuid())
+				.append("\n isJSON=").append(event.mustExpandPayload())
 				.append("\n payload=").append(event.getEventPayload())
 				;
 			Log.d(LCAT, sb.toString());
 		}
 
-		if (event.getEventName() == TitaniumAnalyticsEventFactory.EVENT_APP_ENROLL) {
+		if (event.getEventType() == TitaniumAnalyticsEventFactory.EVENT_APP_ENROLL) {
 			if (needsEnrollEvent) {
 				analyticsModel.addEvent(event);
 				needsEnrollEvent = false;
@@ -223,14 +225,14 @@ public class TitaniumApplication
 				analyticsModel.markEnrolled();
 			}
 			return;
-		} else if (event.getEventName() == TitaniumAnalyticsEventFactory.EVENT_APP_START) {
+		} else if (event.getEventType() == TitaniumAnalyticsEventFactory.EVENT_APP_START) {
 			if (needsStartEvent) {
 				analyticsModel.addEvent(event);
 				needsStartEvent = false;
 				sendAnalytics();
 			}
 			return;
-		} else if (event.getEventName() == TitaniumAnalyticsEventFactory.EVENT_APP_END) {
+		} else if (event.getEventType() == TitaniumAnalyticsEventFactory.EVENT_APP_END) {
 			needsStartEvent = true;
 		}
 		analyticsModel.addEvent(event);

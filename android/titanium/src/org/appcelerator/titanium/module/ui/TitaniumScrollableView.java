@@ -13,7 +13,6 @@ import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumScrollableView;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumConfig;
-import org.appcelerator.titanium.module.ui.TitaniumCompositeView.ViewHolder;
 import org.appcelerator.titanium.module.ui.widgets.TitaniumArrowView;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumAnimationFactory;

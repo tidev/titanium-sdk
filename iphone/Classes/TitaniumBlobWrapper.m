@@ -13,6 +13,9 @@ NSDictionary * namesFromMimeTypeDict = nil;
 
 @implementation TitaniumBlobWrapper
 @synthesize dataBlob, token, filePath, mimeType, imageBlob, url;
+//@synthesize stringBlob, stringEncoding;
+
+
 
 - (NSData *) dataBlob;
 {
@@ -24,6 +27,9 @@ NSDictionary * namesFromMimeTypeDict = nil;
 		if ((dataBlob == nil) && (filePath != nil)){
 			dataBlob = [[NSData alloc] initWithContentsOfFile:filePath options:NSMappedRead error:nil];
 		}
+//		if ((dataBlob == nil) && (stringBlob != nil)){
+//			dataBlob = [[stringBlob dataUsingEncoding:stringEncoding] retain];
+//		}
 	}
 	return dataBlob;
 }
@@ -40,7 +46,7 @@ NSDictionary * namesFromMimeTypeDict = nil;
 		if (imageBlob == nil && url!=nil && [url isFileURL]==NO)
 		{
 			NSData *data = [NSData dataWithContentsOfURL:url];
-			imageBlob = [[UIImage alloc] initWithData:data cache:NO];
+			imageBlob = [[UIImage alloc] initWithData:data];
 		}
 		if (imageBlob == nil) failedImage = YES;
 	}
@@ -56,6 +62,9 @@ NSDictionary * namesFromMimeTypeDict = nil;
 		if ((mimeType == nil) && (dataBlob == nil) && (imageBlob != nil)) {
 			mimeType = @"image/png";
 		}
+//		if ((mimeType == nil) && (stringBlob != nil)) {
+//			mimeType = textMimeType;
+//		}
 	}
 	return mimeType;
 }
@@ -88,7 +97,8 @@ NSDictionary * namesFromMimeTypeDict = nil;
 		[result appendString:@",width:-1,height:-1"];
 	}
 	if ([self mimeType] != nil) [result appendFormat:@",mimeType:'%@'",mimeType];
-	[result appendString:@"}"];
+	[result appendString:@",toString:function(){var req=new Ti._NET();"
+			"req.open('GET',this.url,false);req.send(null);return req.responseText;}}"];
 	return result;
 }
 

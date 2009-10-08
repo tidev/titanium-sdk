@@ -342,6 +342,7 @@
 		B4ABEDC4101903CA00639ED5 /* buggy.html in Resources */ = {isa = PBXBuildFile; fileRef = B4ABEDC3101903CA00639ED5 /* buggy.html */; };
 		B4ABEDC7101903F300639ED5 /* buggy.js in Sources */ = {isa = PBXBuildFile; fileRef = B4ABEDC6101903F300639ED5 /* buggy.js */; };
 		B4ADF5FA106D8C0200D26B13 /* WeCanDoIt.png in Resources */ = {isa = PBXBuildFile; fileRef = B4ADF5F9106D8C0200D26B13 /* WeCanDoIt.png */; };
+		B4AF713D107D56F9000347A7 /* buggy.js in Resources */ = {isa = PBXBuildFile; fileRef = B4ABEDC6101903F300639ED5 /* buggy.js */; };
 		B4B571FE10110324003546C7 /* TitaniumContentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B571FD10110324003546C7 /* TitaniumContentViewController.m */; };
 		B4B587010FB00B670047B651 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4B587000FB00B670047B651 /* AudioToolbox.framework */; };
 		B4B8E56B10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B8E56A10586D3500D08D44 /* TitaniumCellWrapper.m */; };
@@ -382,14 +383,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 247DCBE0107C837F009CD0D1 /* libYahoo */;
+			remoteGlobalIDString = 247DCBE0107C837F009CD0D1;
 			remoteInfo = libYahoo;
 		};
 		247DCBEB107C83DB009CD0D1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 247DCBE0107C837F009CD0D1 /* libYahoo */;
+			remoteGlobalIDString = 247DCBE0107C837F009CD0D1;
 			remoteInfo = libYahoo;
 		};
 		24FD23DB106F1A53004D4127 /* PBXContainerItemProxy */ = {
@@ -448,7 +449,7 @@
 		2444FCD10FCA741E00063972 /* base64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = base64.c; sourceTree = "<group>"; };
 		247DCBD0107C8366009CD0D1 /* YahooModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YahooModule.h; path = YahooModule/YahooModule.h; sourceTree = "<group>"; };
 		247DCBD1107C8366009CD0D1 /* YahooModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YahooModule.m; path = YahooModule/YahooModule.m; sourceTree = "<group>"; };
-		247DCBE1107C837F009CD0D1 /* libYahoo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libYahoo.a; path = "build/Release-iphonesimulator/libYahoo.a"; sourceTree = "<group>"; };
+		247DCBE1107C837F009CD0D1 /* libYahoo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libYahoo.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		249075290FC9D55B00D38073 /* TitaniumModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumModule.h; sourceTree = "<group>"; };
 		24BBD83C0FCD245F00A261A4 /* GestureModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GestureModule.h; sourceTree = "<group>"; };
 		24BBD83D0FCD245F00A261A4 /* GestureModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GestureModule.m; sourceTree = "<group>"; };
@@ -529,7 +530,7 @@
 		B45CA77E0F81565D00B80900 /* TitaniumHost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumHost.m; sourceTree = "<group>"; };
 		B4676CB40FB0E492009B81F4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		B47A271E1035F040002146CD /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B47A271E1035F040002146CD /* TestSpaz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestSpaz.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B47A27261035F11F002146CD /* accounts.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = accounts.html; path = ../../spaz/Resources/accounts.html; sourceTree = SOURCE_ROOT; };
 		B47A27271035F11F002146CD /* accounts.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = accounts.js; path = ../../spaz/Resources/accounts.js; sourceTree = SOURCE_ROOT; };
 		B47A272B1035F11F002146CD /* DM.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = DM.html; path = ../../spaz/Resources/DM.html; sourceTree = SOURCE_ROOT; };
@@ -846,7 +847,7 @@
 			children = (
 				1D6058910D05DD3D006BFB54 /* Titanium.app */,
 				B41068A20FBB730F00310448 /* libTitanium.a */,
-				B47A271E1035F040002146CD /* Titanium.app */,
+				B47A271E1035F040002146CD /* TestSpaz.app */,
 				24C5ABF11061FA9D0063594B /* libNotification.a */,
 				24C5ABF91061FABE0063594B /* libAnalytics.a */,
 				24C5AC001061FAC80063594B /* libGesture.a */,
@@ -1762,7 +1763,7 @@
 			);
 			name = "Titanium-Spaz";
 			productName = Titanium;
-			productReference = B47A271E1035F040002146CD /* Titanium.app */;
+			productReference = B47A271E1035F040002146CD /* TestSpaz.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -1807,6 +1808,7 @@
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
 				B4A10F3E0F86BC490040D850 /* AppDownloadView.xib in Resources */,
 				B48E4AE40FC1DBEE00204C8E /* iPhone_BG.png in Resources */,
+				B4AF713D107D56F9000347A7 /* buggy.js in Resources */,
 				B48E4AE50FC1DBF200204C8E /* Default.png in Resources */,
 				24440B9B0FC9DFA0000A025D /* iPhone_icon.png in Resources */,
 				2444F98B0FCA417C00063972 /* tiapp.plist in Resources */,

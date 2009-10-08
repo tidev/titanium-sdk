@@ -6,6 +6,7 @@
 	<div id="button1" style="height:47px"></div>
 	<div id="button2" style="height:47px"></div>
 	<div id="button3" style="height:47px"></div>
+	<div id="button4" style="height:47px"></div>
 	
 	<div id="html"></div>
 
@@ -86,7 +87,33 @@
 		// send the data
 		c.send();
 	})
-	
+
+	var button4 = Titanium.UI.createButton({
+		id:'button4',
+		backgroundImage:'blue.png',
+		backgroundSelectedImage:'blue_pressed.png',
+		backgroundFocusedImage:'blue_focused.png',
+		title:'Binary Data',
+		color:'#ffffff',
+		height:47,
+	});
+	button4.addEventListener('click',function(e)
+	{
+		var c = Titanium.Network.createHTTPClient();
+
+		c.onload = function()
+		{
+			var f= Titanium.Filesystem.getFile("xhr.png");
+			f.write(this.responseData);
+		
+			document.getElementById('html').innerHTML = '<img src="'+f.read().url+'"/>';
+		};
+		// open the client
+		c.open('GET','http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png');
+
+		// send the data
+		c.send();
+	})
 	</script>
 
 </body>

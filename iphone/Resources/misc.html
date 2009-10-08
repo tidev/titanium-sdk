@@ -76,10 +76,29 @@
 			emailDialog.open();
 		}
 		
+		try{
+		var oldTitleSetter = document.__lookupSetter__('title');
+		delete document.title;
+		document.__defineSetter__('title',function(val){Ti.API.debug('Aha! Setting title to '+val);oldTitleSetter(val);});
+//		for(prop in document.title){
+//			Ti.API.debug("Prop: " + prop + " = " + document.title[prop]);
+//		}
+document.addEventListener("DOMCharacterDataModified",function(e){Ti.API.debug('Title changed?');},false);
+		}catch(E){Ti.API.debug('Adding event listener failed: '+E)}
+
 		fileTest=function(){
-			var filething=Ti.Filesystem.createTempDirectory();
-			Ti.API.debug(filething.name());
+			var filething=Ti.Filesystem.getFile(Ti.Filesystem.getResourcesDirectory(),"buggy.js");
+			var fileListing = filething.resolve();
+			Ti.API.debug('File: ' + fileListing);
+			var fileContents = filething.read();
+			Ti.API.debug('Is type:' + typeof(fileContents));
+			Ti.API.debug('Has url:' + fileContents.url);
+			document.title= fileContents.toString();
+//			document.getElementById('image1').src = 'file://' + fileListing;
 		}
+	Ti.API.debug(Ti.Filesystem.getApplicationDataDirectory());
+
+
 
 		noteTest=function(){
 		var html  = '<div style="height:50px;background-color:#000;opacity:0.9;color:white;text-align:center;margin-left:-8px;margin-right:-8px;margin-bottom:-8px;border-top:1px solid #000;font-family:Helvetica Neue;font-size:16px;font-weight:bold;line-height:50px;background-image:-webkit-gradient(linear, 0% 0%, 0% 50%, from(#777), to(#000), color-stop(1,#333));"><img src="ebay-logo.png" height="17" width="44"/> New iPod - $30 on eBay</div>';
@@ -193,7 +212,8 @@ document.write(window._WINTKN);
 	<button onclick="daty.setValue(new Date(), {animated:true})">Update Time</button>
 
 	<div id='buttony' style="width:300px;height:218px;">What should be here?</div>
-	
+	<img id="image1" src=""/>
+
 	<div id='sliderValue'>Unchanged slider value!</div>
 
 	<div id='sliderPlace' style="width:200px;height:70px;"></div>

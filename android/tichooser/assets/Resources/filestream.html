@@ -219,6 +219,44 @@
 		}
 
 	  });
+
+	  var fsGetImage2 = Titanium.UI.createButton({id: 'fs-get-image2', title: "Get Image2"});
+	  fsGetImage2.addEventListener('click', function(e) {
+		try {
+			var fs = Titanium.Filesystem.getFileStream("file:///sdcard/logo2.gif");
+			fs.open(Titanium.Filesystem.MODE_WRITE, true);
+
+			var progress3 = Titanium.UI.createActivityIndicator({
+				message: 'Downloading...', title : 'Using responseData'
+			});
+			progress3.show();
+
+			var ourClient = Titanium.Network.createHTTPClient();
+			ourClient.open('GET','http://www.google.com/intl/en_ALL/images/logo.gif');
+			ourClient.onreadystatechange=function(){
+				if(this.readyState == 4) {
+					try {
+						var blob = this.responseData;
+						Titanium.API.debug(String(blob));
+						fs.write(blob);
+					} catch(E) {
+						alert('Exception: ' + E);
+					} finally {
+						fs.close();
+					}
+
+					Titanium.UI.currentWindow.fireEvent('notify', { message : 'Downloaded OK'});
+					log('Download complete');
+					progress3.hide();
+				}
+			};
+			ourClient.send();
+		} catch(E) {
+			alert('Exception: ' + E);
+		}
+
+	  });
+
   }
   </script>
 </head>
@@ -233,6 +271,7 @@
 	<div id="fs-writeline-ba" class="button">&nbsp;</div>
 	<div id="fs-readline-b" class="button">&nbsp;</div>
 	<div id="fs-get-image" class="button">&nbsp;</div>
+	<div id="fs-get-image2" class="button">&nbsp;</div>
 	<div style="clear:both">&nbsp;</div>
 </div>
 <div id="log">&nbsp;</div>

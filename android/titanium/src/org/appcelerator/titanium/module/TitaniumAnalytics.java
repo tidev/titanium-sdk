@@ -38,8 +38,8 @@ public class TitaniumAnalytics extends TitaniumBaseModule implements ITitaniumAn
 		webView.addJavascriptInterface((ITitaniumAnalytics) this, name);
 	}
 
-	public void addEvent (String eventName, String data)
+	public void addEvent (String type, String event, String data)
 	{
-		app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createEvent(eventName, data));
+		app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createEvent(type, event, data));
 	}
 }

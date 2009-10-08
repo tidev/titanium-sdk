@@ -98,7 +98,8 @@ int barButtonSystemItemForString(NSString * inputString){
 
 - (void) readState: (NSDictionary *) inputState relativeToUrl: (NSURL *) baseUrl;
 {
-	selectedRow = -1;
+//	selectedRow = -1;
+	selectedRow = 0;
 	SEL floatVal=@selector(floatValue);
 	id widthObject = [inputState objectForKey:@"width"];
 	if([widthObject respondsToSelector:floatVal])width=[widthObject floatValue];
@@ -246,6 +247,7 @@ needsRefreshing = YES;	\
 	}
 	
 	//Segmented
+	int oldIndex = segmentSelectedIndex;
 	GRAB_IF_SELECTOR(@"index",intValue,segmentSelectedIndex);
 	
 	id labelArray = [newDict objectForKey:@"labels"];
@@ -390,6 +392,8 @@ needsRefreshing = YES;	\
 	
 	if(changeEvent != nil){
 		[self reportEvent:@"change" value:nil index:-1 init:nil arguments:changeEvent];
+	} else if((templateValue == UITitaniumNativeItemSegmented) && (oldIndex != segmentSelectedIndex)){
+		[self reportEvent:@"click" value:nil index:segmentSelectedIndex init:nil arguments:nil];
 	}
 	
 }
@@ -922,10 +926,10 @@ needsRefreshing = YES;	\
 
 #pragma mark Javascript calls
 //TODO: Make not ugly
-- (void) selectColumnRow: (NSArray *) arguments;
+- (void) selectRowColumn: (NSArray *) arguments;
 {
-	NSNumber * columnObject = [arguments objectAtIndex:0];
-	NSNumber * rowObject = [arguments objectAtIndex:1];
+	NSNumber * columnObject = [arguments objectAtIndex:1];
+	NSNumber * rowObject = [arguments objectAtIndex:0];
 	if(![columnObject respondsToSelector:@selector(intValue)] || ![rowObject respondsToSelector:@selector(intValue)])return;
 
 	BOOL animated = NO;
@@ -938,12 +942,26 @@ needsRefreshing = YES;	\
 	}
 	
 	int column = [columnObject intValue];
-	int row = [columnObject intValue];
+	int row = [rowObject intValue];
 	if(column >= [pickerColumnsArray count])return;
 	PickerColumnWrapper * ourColumn = [pickerColumnsArray objectAtIndex:column];
 	[ourColumn setSelectedRow:row];
 	if([nativeView isKindOfClass:[UIPickerView class]]){
 		[(UIPickerView *)nativeView selectRow:row inComponent:column animated:animated];
+		
+		NSMutableString * ourArgs = [NSMutableString stringWithFormat:@",column:%d,row:%d,selectedValue:[",column,row];
+		BOOL needsComma = NO;
+		for(PickerColumnWrapper * thisColumn in pickerColumnsArray){
+			if(needsComma){
+				[ourArgs appendFormat:@",%d",[thisColumn selectedRow]];
+			} else {
+				[ourArgs appendFormat:@"%d",[thisColumn selectedRow]];
+				needsComma = YES;
+			}
+		}
+		[ourArgs appendString:@"]"];
+		
+		[self reportEvent:@"change" value:nil index:-1 init:nil arguments:ourArgs];
 	}
 }
 
@@ -1019,8 +1037,6 @@ needsRefreshing = YES;	\
 	} else {
 		[(PickerImageTextCell *)view setImageView:nil];
 	}
-	
-	NSLog(@"[DEBUG] Returning ImageText");
 	return view;
 }
 
@@ -1054,7 +1070,7 @@ needsRefreshing = YES;	\
 	NSString * handleClickCommand = [NSString stringWithFormat:
 			@"(function(){%@%@Titanium.UI._BTN.%@.onClick('%@',{type:'%@'%@%@});}).call(Titanium.UI._BTN.%@);",
 			customInit,initalizer,token,eventType,eventType,arguments,extraArgs,token];
-//	NSLog(@"[DEBUG] Sending '%@' to the page.",handleClickCommand);
+	NSLog(@"[DEBUG] Sending '%@' to the page.",handleClickCommand);
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
 
@@ -1234,10 +1250,10 @@ NSString * const createDatePickerString = @"function(args){var res=Ti.UI.createB
 
 NSString * const createPickerString = @"function(args){var res=Ti.UI.createButton(args,'picker');"
 	"res.selectRow=function(row,col,options){var colDat=this.data[col].data;var cnt=colDat.length;"
-		"for(var i=0;i<cnt;i++){colDat[i].selected=i==row;}if(this._TOKEN){Ti.UI._PICACT(this._TOKEN," STRINGVAL(PICKER_SELECTROW) ",arguments)}};"
-	"res.getSelectedRow=function(col){var colData=this.data[col].data;var cnt=colDat.length;for(var i=0;i<cnt;i++){if(colDat[i].selected)return i;}return 0;};"
-	"res.setColumnData=function(col,data){this.data[col].data=data;this.update();};"
-	"res.setData=function(data){this.data=data;this.update();};"
+		"for(var i=0;i<cnt;i++){colDat[i].selected=i==row;}if(this._TOKEN){Ti.UI._PICACT(this._TOKEN," STRINGVAL(PICKER_SELECTROW) ",[row,col,options])}};"
+	"res.getSelectedRow=function(col){var colDat=this.data[col].data;var cnt=colDat.length;for(var i=0;i<cnt;i++){if(colDat[i].selected)return i;}return 0;};"
+	"res.setColumnData=function(col,dat){this.data[col].data=dat;this.update();};"
+	"res.setData=function(dat){this.data=dat;this.update();};"
 	"return res;}";
 
 NSString * const createModalDatePickerString = @"function(args){var res=Ti.UI.createButton(args,'datepicker');"
