@@ -152,7 +152,10 @@
 
 - (void) handleTouch: (UITouch *) ourTouch;
 {
-	NSLog(@"[DEBUG] We're touched. Now what? %@",ourTouch);
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	NSString * pathString = [self javaScriptPath];
+	NSString * commandString = [NSString stringWithFormat:@"%@.doEvent('click',{type:'click'});",pathString];	
+	[theHost sendJavascript:commandString toPagesWithTokens:listeningWebContextTokens update:YES];
 }
 
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView;     // return a view that will be scaled. if delegate returns nil, nothing happens

@@ -343,6 +343,9 @@
 		B4ABEDC7101903F300639ED5 /* buggy.js in Sources */ = {isa = PBXBuildFile; fileRef = B4ABEDC6101903F300639ED5 /* buggy.js */; };
 		B4ADF5FA106D8C0200D26B13 /* WeCanDoIt.png in Resources */ = {isa = PBXBuildFile; fileRef = B4ADF5F9106D8C0200D26B13 /* WeCanDoIt.png */; };
 		B4AF713D107D56F9000347A7 /* buggy.js in Resources */ = {isa = PBXBuildFile; fileRef = B4ABEDC6101903F300639ED5 /* buggy.js */; };
+		B4AF73B9107E7920000347A7 /* view1.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AF73B6107E7920000347A7 /* view1.html */; };
+		B4AF73BA107E7920000347A7 /* view2.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AF73B7107E7920000347A7 /* view2.html */; };
+		B4AF73BB107E7920000347A7 /* view3.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AF73B8107E7920000347A7 /* view3.html */; };
 		B4B571FE10110324003546C7 /* TitaniumContentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B571FD10110324003546C7 /* TitaniumContentViewController.m */; };
 		B4B587010FB00B670047B651 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4B587000FB00B670047B651 /* AudioToolbox.framework */; };
 		B4B8E56B10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B8E56A10586D3500D08D44 /* TitaniumCellWrapper.m */; };
@@ -598,6 +601,9 @@
 		B4ABEDC3101903CA00639ED5 /* buggy.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = buggy.html; sourceTree = "<group>"; };
 		B4ABEDC6101903F300639ED5 /* buggy.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = buggy.js; sourceTree = "<group>"; };
 		B4ADF5F9106D8C0200D26B13 /* WeCanDoIt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WeCanDoIt.png; sourceTree = "<group>"; };
+		B4AF73B6107E7920000347A7 /* view1.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = view1.html; sourceTree = "<group>"; };
+		B4AF73B7107E7920000347A7 /* view2.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = view2.html; sourceTree = "<group>"; };
+		B4AF73B8107E7920000347A7 /* view3.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = view3.html; sourceTree = "<group>"; };
 		B4B571FC10110324003546C7 /* TitaniumContentViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumContentViewController.h; sourceTree = "<group>"; };
 		B4B571FD10110324003546C7 /* TitaniumContentViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumContentViewController.m; sourceTree = "<group>"; };
 		B4B587000FB00B670047B651 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -1073,6 +1079,9 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				B4AF73B6107E7920000347A7 /* view1.html */,
+				B4AF73B7107E7920000347A7 /* view2.html */,
+				B4AF73B8107E7920000347A7 /* view3.html */,
 				2418F4660FCB6A2100BFE545 /* sound.wav */,
 				B4ABEDC3101903CA00639ED5 /* buggy.html */,
 				B4DDBE2A0FD0AE31004DD79E /* ui.html */,
@@ -1831,6 +1840,9 @@
 				B4F37E2E1061B50E00ED12AF /* closebox.png in Resources */,
 				B4ADF5FA106D8C0200D26B13 /* WeCanDoIt.png in Resources */,
 				B49B23A5107BEDE700836F35 /* picker3.html in Resources */,
+				B4AF73B9107E7920000347A7 /* view1.html in Resources */,
+				B4AF73BA107E7920000347A7 /* view2.html in Resources */,
+				B4AF73BB107E7920000347A7 /* view3.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
