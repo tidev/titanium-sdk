@@ -29,6 +29,8 @@ public interface ITitaniumHttpClient {
 
 	public void setResponseText(String responseText);
 
+	public int getResponseData();
+
 	public int getStatus();
 
 	public void setStatus(int status);

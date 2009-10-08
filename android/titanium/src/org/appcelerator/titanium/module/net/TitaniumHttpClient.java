@@ -25,6 +25,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
@@ -38,6 +39,7 @@ import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.TitaniumWebView;
@@ -67,6 +69,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	private String onDataStreamCallback;
 	private int readyState;
 	private String responseText;
+	private int responseDataKey;
 	private int status;
 	private String statusText;
 
@@ -74,6 +77,9 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	private HttpResponse response;
 	private HttpHost host;
 	private DefaultHttpClient client;
+
+	private static byte[] responseData;
+	private static String charset;
 
 	private ArrayList<NameValuePair> nvPairs;
 	private HashMap<String, ContentBody> parts;
@@ -156,13 +162,22 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	        		}
 	        	}
 	        } else {
-	        	clientResponse = entity == null ? null : EntityUtils.toString(entity);
+	        	setResponseData(entity);
 	        }
 
 	        return clientResponse;
 		}
 
+		private void setResponseData(HttpEntity entity)
+			throws IOException, ParseException
+		{
+			if (entity != null) {
+				responseData = EntityUtils.toByteArray(entity);
+				charset = EntityUtils.getContentCharSet(entity);
+			}
+		}
 	}
+
 	public TitaniumHttpClient(TitaniumModuleManager tmm, String userAgent)
 	{
 		this.weakTmm = new WeakReference<TitaniumModuleManager>(tmm);
@@ -170,6 +185,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 		onReadyStateChangeCallback = null;
 		readyState = 0;
 		responseText = "";
+		responseDataKey = -1;
 		this.userAgent = userAgent;
 		this.softWebView = new SoftReference<TitaniumWebView>(tmm.getWebView());
 		this.nvPairs = new ArrayList<NameValuePair>();
@@ -231,8 +247,36 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#getResponseText()
 	 */
-	public  String getResponseText() {
+	public  String getResponseText()
+	{
+		if (responseData != null && responseText == null) {
+			if (charset == null) {
+				charset = HTTP.DEFAULT_CONTENT_CHARSET;
+			}
+
+			try {
+				responseText = new String(responseData, charset);
+			} catch (UnsupportedEncodingException e) {
+				Log.e(LCAT, "Unable to convert to String using charset: " + charset);
+			}
+		}
+
 		return responseText;
+	}
+
+	public int getResponseData()
+	{
+		if (responseData != null && responseDataKey == -1) {
+			TitaniumModuleManager tmm = weakTmm.get();
+			if (tmm != null) {
+				TitaniumMemoryBlob blob = new TitaniumMemoryBlob(responseData);
+				responseDataKey = tmm.cacheObject(blob);
+			}
+		} else {
+			responseDataKey = -1;
+		}
+
+		return responseDataKey;
 	}
 
 	/* (non-Javadoc)
