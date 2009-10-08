@@ -12,6 +12,8 @@
 	FBSession *session;
 	FBLoginDialog *dialog;
 	NSMutableDictionary *permissions;
+	NSString *pendingPermission;
+	NSString *pendingQueryId;
 }
 -(void)fetchPermissions;
 -(void)addPermission:(NSString*)permission value:(NSNumber*)value;

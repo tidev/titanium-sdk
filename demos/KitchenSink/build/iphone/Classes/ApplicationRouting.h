@@ -26,6 +26,7 @@
 - (NSData*) pageNamedComposite;
 - (NSData*) pageNamedComposite_views;
 - (NSData*) pageNamedComposite_views2;
+- (NSData*) pageNamedCredits;
 - (NSData*) pageNamedCustom_events;
 - (NSData*) pageNamedCustom_events1;
 - (NSData*) pageNamedCustom_events2;
@@ -36,6 +37,7 @@
 - (NSData*) pageNamedDynamic_content;
 - (NSData*) pageNamedDynamic_images;
 - (NSData*) pageNamedEmail;
+- (NSData*) pageNamedFacebook;
 - (NSData*) pageNamedFilesystem;
 - (NSData*) pageNamedFullscreen;
 - (NSData*) pageNamedGeo;
@@ -45,6 +47,7 @@
 - (NSData*) pageNamedIphone_ui;
 - (NSData*) pageNamedJs_events;
 - (NSData*) pageNamedJs_events2;
+- (NSData*) pageNamedMashups;
 - (NSData*) pageNamedModal;
 - (NSData*) pageNamedNavbar_color;
 - (NSData*) pageNamedNavbar_hide;
@@ -69,6 +72,9 @@
 - (NSData*) pageNamedSet_control_values;
 - (NSData*) pageNamedShake;
 - (NSData*) pageNamedSlider;
+- (NSData*) pageNamedSoap;
+- (NSData*) pageNamedSoap_header;
+- (NSData*) scriptNamedSoapclient;
 - (NSData*) pageNamedSound;
 - (NSData*) pageNamedStatusbar;
 - (NSData*) pageNamedSwitch;
@@ -88,6 +94,7 @@
 - (NSData*) pageNamedToolbar_lots;
 - (NSData*) pageNamedToolbar_middle;
 - (NSData*) pageNamedToolbar_right;
+- (NSData*) pageNamedTwitter;
 - (NSData*) pageNamedUi;
 - (NSData*) pageNamedView_main;
 - (NSData*) pageNamedViews;
@@ -96,5 +103,6 @@
 - (NSData*) pageNamedViews3;
 - (NSData*) pageNamedWindow_unfocus;
 - (NSData*) pageNamedXhr;
+- (NSData*) pageNamedYql;
 
 @end

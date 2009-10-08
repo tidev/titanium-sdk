@@ -12,35 +12,43 @@
         <window>
             <id>Phone</id>
            <url>phone.html</url>
- 			<title>Phone API</title>
- 			<icon>profile.png</icon>
+ 			<title>Phone</title>
+ 			<icon>KS_nav_phone.png</icon>
 			<orientation>either</orientation>
 			<backButtonTitle>Back</backButtonTitle>
         </window>
         <window>
             <id>UI</id>
             <url>ui.html</url>
- 			<title>UI API</title>
- 			<icon>profile.png</icon>
+ 			<title>UI</title>
+ 			<icon>KS_nav_ui.png</icon>
 			<orientation>either</orientation>
         </window>
         <window>
             <id>Views</id>
             <url>view_main.html</url>
- 			<title>Views API</title>
- 			<icon>profile.png</icon>
+ 			<title>Views</title>
+ 			<icon>KS_nav_views.png</icon>
+			<orientation>either</orientation>
+        </window>
+
+        <window>
+            <id>Mashups</id>
+            <url>mashups.html</url>
+ 			<title>Mashups</title>
+ 			<icon>KS_nav_mashup.png</icon>
 			<orientation>either</orientation>
         </window>
 
         <window>
             <id>Platform</id>
             <url>platform.html</url>
- 			<title>Platform API</title>
- 			<icon>profile.png</icon>
+ 			<title>Platform</title>
+ 			<icon>KS_nav_platform.png</icon>
 			<orientation>either</orientation>
 			<backButtonTitleImage>chat.png</backButtonTitleImage>
-
         </window>
+
     </windows>
 <guid>6fe33f33fd1f4e95a06d2d217170866d</guid>
 </ti:app>
