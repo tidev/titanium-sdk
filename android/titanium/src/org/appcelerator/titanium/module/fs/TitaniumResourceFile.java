@@ -188,7 +188,11 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 	@Override
 	public String nativePath()
 	{
-		return toString();
+		return path;
+	}
+
+	public String getURL() {
+		return "file:///android_asset/Resources/" + path;
 	}
 	public double size()
 	{

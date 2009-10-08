@@ -51,6 +51,7 @@ public interface ITitaniumFile
 	public boolean setReadonly();
 	public boolean setWriteable();
 	public void unzip (String destination);
+	public String getURL();
 
 	// Filestream methods
 	public void close();
