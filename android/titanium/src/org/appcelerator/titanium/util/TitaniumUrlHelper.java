@@ -41,7 +41,8 @@ public class TitaniumUrlHelper
 		"tidb.js",
 		"tiaccelerometer.js",
 		"tigesture.js",
-		"tigeo.js"
+		"tigeo.js",
+		"yahoo.js"
 	};
 
 	public static String getSource(TitaniumApplication app, Context context, String url, String[] files)
