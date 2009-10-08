@@ -289,7 +289,8 @@
 	CLOCKSTAMP("Should load request %@ for %@",requestURL,self);
 	[currentContentURL release];
 	currentContentURL = [requestURL copy];
-	[webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window._WINTKN='%@'",[self primaryToken]]];
+	isNonTitaniumPage = ![[currentContentURL scheme] isEqualToString:@"app"];
+	if(!isNonTitaniumPage)[webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window._WINTKN='%@'",[self primaryToken]]];
 	return YES;
 }
 
@@ -335,8 +336,10 @@
 	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
 	[UIView commitAnimations];
 
-	isNonTitaniumPage = ![[currentContentURL scheme] isEqualToString:@"app"];
+	NSLog(@"[Debug] isNonTitaniumPage is %d because %@ has scheme %@",isNonTitaniumPage,currentContentURL,[currentContentURL scheme]);
 	[webView setScalesPageToFit:isNonTitaniumPage];
+	[webView setMultipleTouchEnabled:isNonTitaniumPage];
+
 	if(isNonTitaniumPage)return;
 	[self probeWebViewForTokenInContext:@"window"];
 	
@@ -382,7 +385,8 @@
 		NSLog(@"[DEBUG] Was not titanium page!");
 		CGRect webFrame;
 		webFrame.origin = CGPointZero;
-		webFrame.size = [scrollView frame].size;
+		webFrame.size = [[self view] frame].size;
+		[scrollView setFrame:webFrame];
 		[scrollView setContentSize:webFrame.size];
 		[webView setFrame:webFrame];
 		return;

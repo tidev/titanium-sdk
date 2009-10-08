@@ -23,6 +23,8 @@ import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
+import org.appcelerator.titanium.api.ITitaniumFile;
+import org.appcelerator.titanium.api.ITitaniumInvoker;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.api.TitaniumMemoryBlob;
 import org.appcelerator.titanium.util.Log;
@@ -133,7 +135,7 @@ public class TitaniumFile extends TitaniumBaseFile
 		return file.getAbsolutePath();
 	}
 
-	public String getURL() {
+	public String toURL() {
 		String url = null;
 		try {
 			url = file.toURI().toURL().toExternalForm();
@@ -310,6 +312,62 @@ public class TitaniumFile extends TitaniumBaseFile
 					outstream.write(blob.getData());
 				} else {
 					outwriter.write(new String(blob.getData(),"UTF-8"));
+				}
+			}
+		}
+	}
+
+	public void writeFromUrl(String url, boolean append) throws IOException
+	{
+		if (DBG) {
+			Log.d(LCAT,"write called for file = " + file);
+		}
+		TitaniumModuleManager tmm = weakTmm.get();
+		if (tmm != null) {
+			String[] parts = { url };
+
+			ITitaniumFile f = TitaniumFileFactory.createTitaniumFile(tmm, parts, append);
+
+			if (f != null) {
+				if (!stream) {
+					InputStream is = null;
+					try {
+						open(append ? MODE_APPEND : MODE_WRITE, true);
+						is = f.getInputStream();
+						copyStream(is, outstream);
+					} finally {
+						if (is != null) {
+							is.close();
+						}
+						close();
+					}
+				} else {
+
+					if (!opened) {
+						throw new IOException("Must open before calling write");
+					}
+
+					if (binary) {
+						InputStream is = null;
+						try {
+							is = f.getInputStream();
+							copyStream(is, outstream);
+						} finally {
+							if (is != null) {
+								is.close();
+							}
+						}
+					} else {
+						BufferedReader ir = null;
+						try {
+							ir = new BufferedReader(new InputStreamReader(f.getInputStream(), "utf-8"));
+							copyStream(ir, outwriter);
+						} finally {
+							if(ir != null) {
+								ir.close();
+							}
+						}
+					}
 				}
 			}
 		}

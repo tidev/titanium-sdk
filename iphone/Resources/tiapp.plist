@@ -2,14 +2,26 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>verboseDebugging</key>
-	<true/>
-	<key>id</key>
-	<string>com.titaniumapp.test</string>
-	<key>name</key>
-	<string>Titanium Test App</string>
-	<key>version</key>
-	<string>0.1</string>
+	<key>startup-3</key>
+	<dict>
+		<key>hideNavBar</key>
+		<false/>
+		<key>views</key>
+		<array>
+			<dict>
+				<key>url</key>
+				<string>picker3.html</string>
+			</dict>
+		</array>
+		<key>background</key>
+		<string>white</string>
+		<key>backgroundnImage</key>
+		<string>default.png</string>
+		<key>orientation</key>
+		<string>either</string>
+		<key>title</key>
+		<string>Pickers ahoy</string>
+	</dict>
 	<key>startup</key>
 	<array>
 		<dict>
@@ -73,7 +85,7 @@
 		</dict>
 		<dict>
 			<key>hideNavBar</key>
-			<true/>
+			<false/>
 			<key>views</key>
 			<array>
 				<dict>
@@ -90,7 +102,34 @@
 			<key>title</key>
 			<string>Pickers ahoy</string>
 		</dict>
+		<dict>
+			<key>hideNavBar</key>
+			<false/>
+			<key>views</key>
+			<array>
+				<dict>
+					<key>url</key>
+					<string>http://www.google.com</string>
+				</dict>
+			</array>
+			<key>background</key>
+			<string>white</string>
+			<key>backgroundnImage</key>
+			<string>default.png</string>
+			<key>orientation</key>
+			<string>either</string>
+			<key>title</key>
+			<string>Gooogle</string>
+		</dict>
 	</array>
+	<key>verboseDebugging</key>
+	<true/>
+	<key>id</key>
+	<string>com.titaniumapp.test</string>
+	<key>name</key>
+	<string>Titanium Test App</string>
+	<key>version</key>
+	<string>0.1</string>
 	<key>modules</key>
 	<dict>
 		<key>facebook</key>

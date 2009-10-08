@@ -191,7 +191,7 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 		return path;
 	}
 
-	public String getURL() {
+	public String toURL() {
 		return "file:///android_asset/Resources/" + path;
 	}
 	public double size()

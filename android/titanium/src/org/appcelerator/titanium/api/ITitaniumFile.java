@@ -27,6 +27,7 @@ public interface ITitaniumFile
 	public boolean isWriteable();
 	public ITitaniumFile resolve();
 	public void write(String data, boolean append)  throws IOException;
+	public void writeFromUrl(String url, boolean append) throws IOException;
 	public String read()  throws IOException;
 	public String readLine()  throws IOException;
 	public void writeLine(String data) throws IOException;
@@ -51,7 +52,7 @@ public interface ITitaniumFile
 	public boolean setReadonly();
 	public boolean setWriteable();
 	public void unzip (String destination);
-	public String getURL();
+	public String toURL();
 
 	// Filestream methods
 	public void close();

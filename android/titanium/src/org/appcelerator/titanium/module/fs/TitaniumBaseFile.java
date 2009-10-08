@@ -14,6 +14,8 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -267,6 +269,10 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 		logNotSupported(null);
 	}
 
+	public void writeFromUrl(String url, boolean append) throws IOException {
+		logNotSupported(null);
+	}
+
 	public void writeLine(String data) throws IOException {
 		logNotSupported("writeLine");
 	}
@@ -328,6 +334,22 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 			method = Thread.currentThread().getStackTrace()[1].getMethodName();
 		}
 		Log.w(LCAT, "Method is not supported " + this.getClass().getName() + " : " + method);
+	}
+
+	protected void copyStream(InputStream is, OutputStream os) throws IOException {
+		byte[] buf = new byte[8096];
+		int count = 0;
+		while((count = is.read(buf)) != -1) {
+			os.write(buf, 0, count);
+		}
+	}
+
+	protected void copyStream(Reader r, Writer w) throws IOException {
+		char[] buf = new char[8096];
+		int count = 0;
+		while((count = r.read(buf, 0, count)) != -1) {
+			w.write(buf, 0, count);
+		}
 	}
 
 	public abstract InputStream getInputStream() throws IOException;

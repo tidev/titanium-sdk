@@ -1,0 +1,123 @@
+<html>
+<head>
+	<title>Y! Finance Prototype 3</title>
+	<style>
+		body 
+		{
+			background-color:#000;
+			background-image:url(bg.png);
+		}
+		#body
+		{
+			background-color: #fff;
+			padding:12px;
+			-webkit-border-radius:5px;
+			border:1px solid #fff;
+			height:350px;
+		}
+		#bottom
+		{
+			height:25px;
+			border-top:1px solid #999;
+			background-image:none;
+			background-color:#000;
+			position:absolute;
+			bottom:0;
+			left:0;
+			right:0;
+		}
+		#logo
+		{
+			position:absolute;
+			bottom:0;
+			left:5px;
+		}
+		#info 
+		{
+			position:absolute;
+			bottom:0;
+			right:5px;
+		}
+		#desc {
+			font-family:serif;
+			font-weight:normal;
+		}
+		#desc h1
+		{
+			font-size:14px;
+		}
+		#desc p
+		{
+			height:40px;
+			font-size:11px;
+			text-overflow: ellipsis;
+		}
+		#desc button
+		{
+			-webkit-border-radius:3px;
+			border:1px solid #444;
+			background-color:#eee;
+		}
+		#video 
+		{
+			position:relative;
+		}
+		#mask
+		{
+			position:absolute;
+			z-index:1;
+			top:70px;
+			left:100px;
+		}
+		button
+		{
+			-webkit-border-image: url(smallbubble.png) 7 10 12 10 stretch stretch;
+			width:100px;
+			height:22px;
+		}
+		button img
+		{
+			position:relative;
+		}
+		#button1
+		{
+			position:absolute;
+			left:20px;
+			top:0;
+		}
+		#button2
+		{
+			position:absolute;
+			right:20px;
+			top:0;
+		}
+		#button1 img
+		{
+			width:18px;
+			position:relative;
+			left:-3px;
+			top:2px;
+		}
+	</style>
+</head>
+<body>
+	<div id="body">
+		<div id="video">
+			<img src="video3.png" height="220" width="280"/>
+			<div id="mask"><img src="techticker_play.png"/></div>
+		</div>
+		<div id="desc">
+			<h1>America's "Very Soggy" Outlook: Why the Recovery Won't Be V-Shaped</h1>
+			<p>
+				"The deeper the slump, the zippier the recovery," Jim Grant declared in a recent WSJ op-ed, stunning many on Wall Street as the longtime bear ...
+			</p>
+			<div style="position:absolute;left:30px;right:30px;bottom:70px;">
+				<button id="button1"><img src="techticker_camera_gray.png"/> Play Video</button><button id="button2">View Article</button>
+			</div>
+		</div>
+	</div>
+	<div id="bottom">
+		<img src="branding_logo.png" id="logo"/><img src="branding_info.png" id="info"/>
+	</div>
+</body>
+</html>

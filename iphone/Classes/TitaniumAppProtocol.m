@@ -185,6 +185,12 @@ id<TitaniumAppAssetResolver> resolver = nil;
 					data = [NSData dataWithContentsOfFile:resourcePath options:NSMappedRead error:&error];
 				}
 				break;
+			case TitaniumAppResourceRandomFileType:
+				path = [[url path] substringFromIndex:8]; // To remove the '/_TIFILE'
+				mime = [TitaniumAppProtocol mimeTypeFromExtension:path];
+				data = [NSData dataWithContentsOfFile:path options:NSMappedRead error:&error];
+				caching = NSURLCacheStorageNotAllowed;
+				break;
 			case TitaniumAppResourceWindowBindingType:
 				path = [url path];
 				NSArray * pathParts = [path componentsSeparatedByString:@"/"];

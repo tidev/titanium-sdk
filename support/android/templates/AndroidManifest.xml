@@ -24,12 +24,10 @@
         </activity>
 		<activity
         	android:name="org.appcelerator.titanium.TitaniumActivity"
-        	android:label="TA"
         	android:configChanges="keyboardHidden|orientation"
       	/>
     	<activity
     		android:name="org.appcelerator.titanium.TitaniumVideoActivity"
-    		android:label="TVA"
     		android:configChanges="keyboardHidden|orientation"
             android:launchMode="singleTask"
     	/>
