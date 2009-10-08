@@ -27,6 +27,9 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -77,6 +80,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	private HttpResponse response;
 	private HttpHost host;
 	private DefaultHttpClient client;
+	private Credentials credentials;
 
 	private static byte[] responseData;
 	private static String charset;
@@ -186,6 +190,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 		readyState = 0;
 		responseText = "";
 		responseDataKey = -1;
+		credentials = null;
 		this.userAgent = userAgent;
 		this.softWebView = new SoftReference<TitaniumWebView>(tmm.getWebView());
 		this.nvPairs = new ArrayList<NameValuePair>();
@@ -402,6 +407,9 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 		request = new DefaultHttpRequestFactory().newHttpRequest(method, url);
 		Uri uri = Uri.parse(url);
 		host = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
+		if (uri.getUserInfo() != null) {
+			credentials = new UsernamePasswordCredentials(uri.getUserInfo());
+		}
 		setReadyState(READY_STATE_LOADING, syncId);
 		setRequestHeader("User-Agent",userAgent);
 		setRequestHeader("X-Requested-With","XMLHttpRequest");
@@ -466,6 +474,12 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 					 */
 					final LocalResponseHandler handler = new LocalResponseHandler(me);
 					client = new DefaultHttpClient();
+					if (credentials != null) {
+						client.getCredentialsProvider().setCredentials(
+								new AuthScope(null, -1), credentials);
+						credentials = null;
+					}
+
 
 					if(request instanceof BasicHttpEntityEnclosingRequest) {
 

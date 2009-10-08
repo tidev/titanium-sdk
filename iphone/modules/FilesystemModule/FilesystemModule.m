@@ -401,7 +401,7 @@
 			"};Ti.Filesystem._FILEOBJ.prototype.__defineGetter__('url',function(){return '/_TIFILE'+this.path;});"];
 	
 	TitaniumJSCode * getFileCode = [TitaniumJSCode codeWithString:@"function(newPath){var len=arguments.length;if(len==0)return null;var path;"
-			"if(newPath.charAt(0)!='/'){path=Ti.Filesystem.getApplicationDataDirectory()+newPath;}else{path=newPath;}"
+			"if(newPath.charAt(0)!='/'){path=Ti.Filesystem.getApplicationDataDirectory()+'/'+newPath;}else{path=newPath;}"
 			"for(var i=1;i<len;i++){path+='/'+arguments[i];}var res=Ti.Filesystem._FILES[path];"
 			"if(!res){res=new Ti.Filesystem._FILEOBJ(path);Ti.Filesystem._FILES[path]=res;}return res;}"];
 	

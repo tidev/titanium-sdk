@@ -1382,6 +1382,7 @@ NSString * UrlEncodeString(NSString * string)
 			"return res;}";
 	
 	NSString * createImageViewString = @"function(args){var res=Ti.UI.createView(args);res._TYPE='image';"
+			"res._EVT={click:[]};res.doEvent=Ti._ONEVT;res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;"
 			"res.setURL=function(newUrl){this.url=newUrl;if(this._TOKEN){Ti.UI._IMGVWACT(this._TOKEN," STRINGVAL(IMAGEVIEW_SETURL) ",newUrl);}};"
 			"return res;}";
 	
