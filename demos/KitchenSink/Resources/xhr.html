@@ -86,7 +86,30 @@
 		// send the data
 		c.send();
 	})
-	
+
+	var button4 = Titanium.UI.createButton({
+		id:'button4',
+		backgroundImage:'blue.png',
+		backgroundSelectedImage:'blue_pressed.png',
+		backgroundFocusedImage:'blue_focused.png',
+		title:'Google',
+		color:'#ffffff',
+		height:47,
+	});
+	button4.addEventListener('click',function(e)
+	{
+		var c = Titanium.Network.createHTTPClient();
+
+		c.onload = function()
+		{
+		//	document.getElementById('html').innerHTML = this.responseData;
+		};
+		// open the client
+		c.open('GET','http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png');
+
+		// send the data
+		c.send();
+	})
 	</script>
 
 </body>
