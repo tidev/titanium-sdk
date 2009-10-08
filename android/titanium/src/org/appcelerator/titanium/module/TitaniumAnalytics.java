@@ -13,8 +13,6 @@ import org.appcelerator.titanium.api.ITitaniumAnalytics;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
 import org.appcelerator.titanium.util.Log;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.webkit.WebView;
 
