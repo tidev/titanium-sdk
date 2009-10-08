@@ -8,6 +8,8 @@
 package org.appcelerator.titanium.util;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -30,6 +33,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.webkit.URLUtil;
 
 public class TitaniumFileHelper
 {
@@ -118,7 +122,44 @@ public class TitaniumFileHelper
 				} else {
 					Log.e(LCAT, "Unknown section identifier: " + section);
 				}
-			} else {
+			} else if (URLUtil.isNetworkUrl(path)) {
+				URL u = new URL(path);
+				InputStream lis = u.openStream();
+				ByteArrayOutputStream bos = null;
+				try {
+					bos = new ByteArrayOutputStream(8192);
+					int count = 0;
+					byte[] buf = new byte[8192];
+
+					while((count = lis.read(buf)) != -1) {
+						bos.write(buf, 0, count);
+					}
+
+					is = new ByteArrayInputStream(bos.toByteArray());
+
+				} catch (IOException e) {
+
+					Log.e(LCAT, "Problem pulling image data from " + path, e);
+					throw e;
+				} finally {
+					if (lis != null) {
+						try {
+							lis.close();
+							lis = null;
+						} catch (Exception e) {
+							// Ignore
+						}
+					}
+					if (bos != null) {
+						try {
+							bos.close();
+							bos = null;
+						} catch (Exception e) {
+							// ignore
+						}
+					}
+				}
+			}	else {
 				path = joinPaths("Resources", path);
 				is = context.getAssets().open(path);
 			}
