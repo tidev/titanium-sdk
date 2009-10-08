@@ -83,7 +83,7 @@ class Compiler(object):
 				for sym in f:
 					# skip Titanium.version, Titanium.userAgent and Titanium.name since these
 					# properties are not modules
-					if sym == 'version' or sym == 'userAgent' or sym == 'name':
+					if sym == 'version' or sym == 'userAgent' or sym == 'name' or sym == '_JSON':
 						continue
 					try:
 						self.modules.index(sym)
