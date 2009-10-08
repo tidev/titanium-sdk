@@ -1029,6 +1029,7 @@
 		24FD237B106F17E4004D4127 /* FacebookModule */ = {
 			isa = PBXGroup;
 			children = (
+				24FD237C106F1802004D4127 /* FacebookModule.m */,
 				24FD2422106F2C50004D4127 /* FacebookModule.h */,
 				24FD23B6106F1901004D4127 /* FBConnect.h */,
 				24FD23B7106F1901004D4127 /* FBConnectGlobal.h */,
@@ -1039,7 +1040,6 @@
 				24FD23BC106F1901004D4127 /* FBPermissionDialog.h */,
 				24FD23BD106F1901004D4127 /* FBRequest.h */,
 				24FD23BE106F1901004D4127 /* FBSession.h */,
-				24FD237C106F1802004D4127 /* FacebookModule.m */,
 				24FD2387106F1802004D4127 /* FBConnectGlobal.m */,
 				24FD2388106F1802004D4127 /* FBDialog.m */,
 				24FD2389106F1802004D4127 /* FBFeedDialog.m */,
