@@ -11,6 +11,7 @@
 #import <sys/utsname.h>
 
 #import "Logging.h"
+#import "TitaniumJSCode.h"
 
 #define TI_ANALYTICS_TIMER_DELAY_IN_SEC 10
 #define TI_ANALYTICS_NETWORK_TIMEOUT_IN_SEC 30
@@ -305,12 +306,12 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 }
 
 
-- (void) addEvent: (NSString *) eventtype evtname: (NSString *) eventname value: (NSString*) value;
+- (void) addEvent: (NSString *) eventtype evtname: (NSString *) eventname value: (id) value;
 {
-	if(![eventtype isKindOfClass:[NSString class]])return;
-	if(![eventname isKindOfClass:[NSString class]])return;
-	NSDictionary * data = [NSDictionary dictionaryWithObjectsAndKeys:value,@"data",nil];
-	[self enqueuePlatformEvent:eventtype evtname: eventname data:data];
+	Class stringClass = [NSString class];
+	if(![eventtype isKindOfClass:stringClass] || ![eventname isKindOfClass:stringClass])return;
+	if([value isKindOfClass:stringClass]) value = [NSDictionary dictionaryWithObject:value forKey:@"data"];
+	[self enqueuePlatformEvent:eventtype evtname: eventname data:value];
 }
 
 
@@ -333,7 +334,28 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	[(AnalyticsModule *)invocGen pageLoaded];
 	NSInvocation * handlePageInvoc = [invocGen invocation];
 
-	NSDictionary * methods = [NSDictionary dictionaryWithObjectsAndKeys:handlePageInvoc,@"_START",setInvoc,@"addEvent",epilogueCode,@"init",nil];
+	NSDictionary * methods = [NSDictionary dictionaryWithObjectsAndKeys:
+			handlePageInvoc,@"_START",
+			setInvoc,@"addEvent",
+			epilogueCode,@"init",
+			[TitaniumJSCode codeWithString:@"function(from, to, event, data) {"
+				"var isUndefined=function(val){return typeof(val)=='undefined';};"
+				"if (!isUndefined(from) && !isUndefined(to)) {"
+					"if (isUndefined(event)) {"
+						"event = '';"
+					"}"
+					"var payload = {};"
+					"payload.from = isUndefined(from) ? {} : from;"
+					"payload.to = isUndefined(to) ? {} : to;"
+					"payload.data = isUndefined(data) ? {} : data;"
+
+					"Ti.Analytics.addEvent('app.nav', event, payload);"
+				"} else {"
+					"Titanium.API.error('from and to are required parameters for navEvent');"
+				"}"
+			"}"],@"navEvent",
+			
+			nil];
 	[[[TitaniumHost sharedHost] titaniumObject] setObject:methods forKey:@"Analytics"];
 	
 	return YES;
