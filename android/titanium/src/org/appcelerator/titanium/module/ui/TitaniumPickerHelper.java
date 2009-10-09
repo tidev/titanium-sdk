@@ -101,7 +101,14 @@ public class TitaniumPickerHelper
 			case MSG_SETCOLUMNDATA : {
 				try {
 					int col = msg.arg1;
-					JSONObject d = new JSONObject((String) msg.obj);
+					JSONObject d = null;
+					try {
+						d = new JSONObject((String) msg.obj);
+					} catch (JSONException e) {
+						JSONArray a = new JSONArray((String) msg.obj);
+						d = new JSONObject();
+						d.put("data", a);
+					}
 					data.put(col, d);
 					getView().setColumnData(col, d);
 				} catch (JSONException e) {

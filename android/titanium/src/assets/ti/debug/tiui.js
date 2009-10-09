@@ -1113,7 +1113,12 @@ var DatePicker = function(proxy) {
 	this.proxy = proxy;
 
 	this.setValue = function(value, options) {
-		// send date using getTime()
+		if(!isUndefined(value)) {
+			if (isUndefined(options)) {
+				options = {};
+			}
+			this.proxy.setValue(value.getTime(), Titanium.JSON.stringify(options));
+		}
 	};
 
 	/**
@@ -1176,8 +1181,11 @@ var Picker = function(proxy) {
 		this.proxy.setData(Titanium.JSON.stringify(data));
 	};
 
-	this.selectRow = function(col, row) {
-		this.proxy.selectRow(col, row);
+	this.selectRow = function(row, col, options) {
+		if (isUndefined(options)) {
+			options = {}
+		}
+		this.proxy.selectRow(col, row, Titanium.JSON.stringify(options));
 	};
 };
 
