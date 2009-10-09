@@ -13,6 +13,7 @@ Titanium.fileSystemProxy = window.TitaniumFilesystem;
 TitaniumFile = function(f) //Note: Not implemented on iPhone yet
 {
 	this.proxy = f;
+	Titanium.API.error("FILE: " + typeOf(f));
 };
 /**
  * @tiapi(method = true,name=Filesystem.File.isFile,since=0.4) Checks whether a file object references a file
@@ -294,7 +295,7 @@ TitaniumFile.prototype.setWriteable = function()
  * @tiapi(method=true,name=Filesystem.File.toString,since=0.4) Get the string representation
  * @tiresult[string] returns string representation of the file or directory
  */
-TitaniumFile.prototype.toString = function()
+TitaniumFile.prototype.toStringa = function()
 {
 	return String(Titanium.checked(this.proxy.call("toString")));
 };
@@ -407,6 +408,15 @@ Titanium.Filesystem = {
 	createTempDirectory : function() {
 		return new TitaniumFile(Titanium.fileSystemProxy.createTempDirectory());
 	},
+	pathSegment : function(p) {
+		if ('string' == typeOf(p)) {
+			return p;
+		} else if (!isUndefined(p.url)) {
+			return p.url;
+		} else {
+			return ".";
+		}
+	},
 	/**
 	 * @tiapi(method=true,name=Filesystem.getFile,since=0.4) Returns a file path, optionally joining multiple arguments together in an OS specific way
 	 * @tiarg[string,arguments] one or more path segments to join.
@@ -415,7 +425,8 @@ Titanium.Filesystem = {
 	getFile : function() {
 		var parts = [];
 		for(i=0; i < arguments.length; i++) {
-			parts.push(String(arguments[i]));
+			Titanium.API.error("A1: " + arguments[i] + " Typeof: " + typeOf(arguments[i]));
+			parts.push(this.pathSegment(arguments[i]));
 		}
 		return new TitaniumFile(Titanium.fileSystemProxy.getFile(parts));
 	},
@@ -428,7 +439,7 @@ Titanium.Filesystem = {
 		var parts = [];
 
 		for(i=0; i < arguments.length; i++) {
-			parts.push(String(arguments[i]));
+			parts.push(this.pathSegment(arguments[i]));
 		}
 		return new Filestream(Titanium.fileSystemProxy.getFileStream(parts));
 	},

@@ -107,6 +107,10 @@ public class TitaniumDelegatingUserWindow implements ITitaniumUserWindow
 		userWindow.setBackgroundColor(backgroundColor);
 	}
 
+	public void setOrientation(String orientation) {
+		userWindow.setOrientation(orientation);
+	}
+
 	public void setUrl(String url) {
 		userWindow.setUrl(url);
 	}

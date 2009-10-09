@@ -285,7 +285,7 @@
 				NSStringEncoding enc = [(NSString *)args fastestEncoding];
 					result = [(NSString *)args writeToFile:path atomically:NO encoding:enc error:&error];
 			} else if([args isKindOfClass:[TitaniumBlobWrapper class]]){
-				result = [[(TitaniumBlobWrapper *)args dataBlob] writeToFile:path options:0 error:&error];
+				result = [[(TitaniumBlobWrapper *)args dataBlob] writeToFile:path options:NSAtomicWrite error:&error];
 			}
 			VERBOSE_LOG_IF_TRUE((error!=nil),@"Tried read write to file '%@', error was %@, data to write was %@",path,error,args);
 			return [NSNumber numberWithBool:result];
@@ -358,9 +358,9 @@
 	[(FilesystemModule *)invocGen makeNewTempPath:nil];
 	NSInvocation * fileTempInvoc = [invocGen invocation];
 	
-	TitaniumJSCode * fileWrapperObjectCode = [TitaniumJSCode codeWithString:@"function(newPath){this.path=newPath;}"];
+	TitaniumJSCode * fileWrapperObjectCode = [TitaniumJSCode codeWithString:@"function(newPath){this.path=newPath;this._HACK=0;}"];
 	[fileWrapperObjectCode setEpilogueCode:@"Ti.Filesystem._FILEOBJ.prototype={"
-			"path:null,nativePath:function(){return this.path},"
+			"path:null,_HACK:0,nativePath:function(){return this.path},"
 //Boolean functions
 			"exists:function(){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_EXISTS) ");},"
 			"isReadonly:function(){return Ti.Filesystem._FILEACT(this.path," STRINGVAL(FILEPATH_ISLOCKED) ");},"
@@ -398,7 +398,7 @@
 
 //Maintenance cool whizzy things
 			"toString:function(){return this.path;},"
-			"};Ti.Filesystem._FILEOBJ.prototype.__defineGetter__('url',function(){return '/_TIFILE'+this.path;});"];
+			"};Ti.Filesystem._FILEOBJ.prototype.__defineGetter__('url',function(){this._HACK++;return '/_TIFILE'+this.path+'?'+this._HACK;});"];
 	
 	TitaniumJSCode * getFileCode = [TitaniumJSCode codeWithString:@"function(newPath){var len=arguments.length;if(len==0)return null;var path;"
 			"if(newPath.charAt(0)!='/'){path=Ti.Filesystem.getApplicationDataDirectory()+'/'+newPath;}else{path=newPath;}"

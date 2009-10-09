@@ -11,14 +11,14 @@ import java.io.IOException;
 
 public interface ITitaniumFilesystem
 {
-	public ITitaniumFile createTempFile() throws IOException;
-	public ITitaniumFile createTempDirectory() throws IOException;
+	public ITitaniumInvoker createTempFile() throws IOException;
+	public ITitaniumInvoker createTempDirectory() throws IOException;
 	public ITitaniumInvoker getFile(String parts[]) throws IOException;
 	public ITitaniumInvoker getFileStream(String[] parts) throws IOException;
-	public ITitaniumFile getApplicationDirectory();
-	public ITitaniumFile getApplicationDataDirectory(boolean privateStorage);
-	public ITitaniumFile getResourcesDirectory();
-	public ITitaniumFile getUserDirectory();
+	public ITitaniumInvoker getApplicationDirectory();
+	public ITitaniumInvoker getApplicationDataDirectory(boolean privateStorage);
+	public ITitaniumInvoker getResourcesDirectory();
+	public ITitaniumInvoker getUserDirectory();
 	public void asyncCopy (String files[], String callback);
 
 	// special to mobile

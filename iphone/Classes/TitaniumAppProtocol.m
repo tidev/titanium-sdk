@@ -43,6 +43,13 @@ id<TitaniumAppAssetResolver> resolver = nil;
 	return [theScheme isEqual:@"app"];
 }
 
++ (BOOL)requestIsCacheEquivalent:(NSURLRequest *)a toRequest:(NSURLRequest *)b;
+{
+	BOOL result = [super requestIsCacheEquivalent:a toRequest:b];
+	NSLog(@"[DEBUG] We're returning %d for if %@ == %@",result,a,b);
+	return result;
+}
+
 + (NSString*)getPath:(NSURL*)url
 {
 	NSString *s = [url path];
@@ -188,7 +195,8 @@ id<TitaniumAppAssetResolver> resolver = nil;
 			case TitaniumAppResourceRandomFileType:
 				path = [[url path] substringFromIndex:8]; // To remove the '/_TIFILE'
 				mime = [TitaniumAppProtocol mimeTypeFromExtension:path];
-				data = [NSData dataWithContentsOfFile:path options:NSMappedRead error:&error];
+				data = [NSData dataWithContentsOfFile:path options:NSUncachedRead error:&error];
+				NSLog(@"[DEBUG] Loading %X for %@",data,url);
 				caching = NSURLCacheStorageNotAllowed;
 				break;
 			case TitaniumAppResourceWindowBindingType:

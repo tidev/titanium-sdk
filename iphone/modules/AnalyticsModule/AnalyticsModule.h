@@ -33,7 +33,7 @@
  * @tiarg(for=Analytics.addEvent,type=string,name=data,optional=True) event data
  * @tidepends(for=Analytics.addEvent,uses=Network.createHTTPClient)
  */
-- (void) addEvent: (NSString *) eventtype evtname: (NSString*) eventname value: (NSString*) value;
+- (void) addEvent: (NSString *) eventtype evtname: (NSString*) eventname value: (id) value;
 - (void) keepEvents: (NSMutableArray *)newEvents;
 - (void) setConnectionState: (NetworkModuleConnectionState) newState;
 - (void)sendEvents;

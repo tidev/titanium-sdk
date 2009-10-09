@@ -40,6 +40,7 @@ public class TitaniumUserWindowBuilder
 	protected String type;
 	protected boolean fullscreen;
 	protected String backgroundColor;
+	protected String orientation;
 
 	protected WeakReference<TitaniumActivity> weakActivity;
 	protected static AtomicInteger activityCounter;
@@ -90,6 +91,9 @@ public class TitaniumUserWindowBuilder
 						if (backgroundColor != null) {
 							intent.setBackgroundColor(backgroundColor);
 						}
+						if (orientation != null) {
+							intent.setOrientation(orientation);
+						}
 						intent.setFullscreen(fullscreen);
 						if (windowId == null) {
 							intent.setWindowId(TitaniumIntentWrapper.createActivityName("UW-" + activityCounter.incrementAndGet()));
@@ -139,5 +143,9 @@ public class TitaniumUserWindowBuilder
 
 	public void setBackgroundColor(String backgroundColor) {
 		this.backgroundColor = backgroundColor;
+	}
+
+	public void setOrientation(String orientation) {
+		this.orientation = orientation;
 	}
 }
