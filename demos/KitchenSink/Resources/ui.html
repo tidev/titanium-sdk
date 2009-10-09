@@ -52,7 +52,7 @@
 		{title:'JS Events', hasChild:true},
 		{title:'JS Events 2', hasChild:true},
 		{title:'Dynamic Images', hasChild:true},
-		{title:'Window Title Change (iPhone)', hasChild:false},
+		{title:'Window Title Change', hasChild:false},
 		{title:'Custom Back Button I (iPhone)', hasChild:false},
 		{title:'Custom Back Button II (iPhone)', hasChild:false},
 		{title:'Custom Table View Data', hasChild:false},
@@ -82,13 +82,13 @@
 			}
 			case 2:
 			{
-				var win = Titanium.UI.createWindow({url:'window_unfocus.html',title:'Focus Events', barColor:'#336699'});				
+				var win = Titanium.UI.createWindow({url:'window_unfocus.html',title:'Focus Events', barColor:'#336699',backgroundColor:'#fff'});				
 				win.open({animated:true});
 				break;
 			}
 			case 3:
 			{
-				var win = Titanium.UI.createWindow({url:'slider.html',title:'Slider'});
+				var win = Titanium.UI.createWindow({url:'slider.html',title:'Slider',backgroundColor:'#fff'});
 				
 				if (Titanium.Platform.name != 'android')
 				{
@@ -100,26 +100,26 @@
 			}
 			case 4:
 			{
-				var win = Titanium.UI.createWindow({url:'textfields.html',title:'Text Fields'});
+				var win = Titanium.UI.createWindow({url:'textfields.html',title:'Text Fields',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}
 			case 5:
 			{
-				var win = Titanium.UI.createWindow({url:'textfield_events.html',title:'Text Field Events'});
+				var win = Titanium.UI.createWindow({url:'textfield_events.html',title:'Text Field Events',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}
 
 			case 6:
 			{
-				var win = Titanium.UI.createWindow({url:'buttons.html',title:'Content Buttons'});
+				var win = Titanium.UI.createWindow({url:'buttons.html',title:'Content Buttons',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}
 			case 7:
 			{
-				var win = Titanium.UI.createWindow({url:'switch.html',title:'Switch'});
+				var win = Titanium.UI.createWindow({url:'switch.html',title:'Switch',backgroundColor:'#fff'});
 				if (Titanium.Platform.name != 'android')
 				{
 					var inst = Titanium.UI.createSwitch({value:true,width:95});
@@ -130,14 +130,14 @@
 			}
 			case 8:
 			{
-				var win = Titanium.UI.createWindow({url:'progress_bars.html',title:'Progress Bar'});
+				var win = Titanium.UI.createWindow({url:'progress_bars.html',title:'Progress Bar',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}
 
 			case 9:
 			{
-				var win = Titanium.UI.createWindow({url:'activity_indicators.html',title:'Indicators'});
+				var win = Titanium.UI.createWindow({url:'activity_indicators.html',title:'Indicators',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}
@@ -145,7 +145,7 @@
 
 			case 10:
 			{
-				var win = Titanium.UI.createWindow({url:'composite.html',title:'Composite'});
+				var win = Titanium.UI.createWindow({url:'composite.html',title:'Composite',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}
@@ -183,7 +183,7 @@
 			
 			case 16:
 			{
-				var win = Titanium.UI.createWindow({url:'fullscreen.html',fullscreen:true,title:'Fullscreen'});
+				var win = Titanium.UI.createWindow({url:'fullscreen.html',fullscreen:true,title:'Fullscreen',backgroundColor:'#fff'});
 				win.open({animated:true});
 				break;
 			}
@@ -396,33 +396,33 @@
 			
 			case 36:
 			{
-				var win = Titanium.UI.createWindow({url:'dynamic_content.html',title:'Dynamic Content'});
+				var win = Titanium.UI.createWindow({url:'dynamic_content.html',title:'Dynamic Content',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}
 
 			case 37:
 			{
-				var win = Titanium.UI.createWindow({url:'tabchange.html',title:'Tab Change'});
+				var win = Titanium.UI.createWindow({url:'tabchange.html',title:'Tab Change',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}
 			case 38:
 			{
-				var win = Titanium.UI.createWindow({url:'js_events.html',title:'JS Events'});
+				var win = Titanium.UI.createWindow({url:'js_events.html',title:'JS Events',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}
 			case 39:
 			{
-				var win = Titanium.UI.createWindow({url:'js_events2.html',title:'JS Events 2'});
+				var win = Titanium.UI.createWindow({url:'js_events2.html',title:'JS Events 2',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}
 
 			case 40:
 			{
-				var win = Titanium.UI.createWindow({url:'dynamic_images.html',title:'Dynamic Images'});
+				var win = Titanium.UI.createWindow({url:'dynamic_images.html',title:'Dynamic Images',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}
@@ -455,7 +455,7 @@
 			{
 				var win = Titanium.UI.createWindow({
 					url:'custom_table_view_data.html',
-					title:'Custom TV Data' 
+					title:'Custom TV Data'
 				});
 				win.open({animated:true});		
 				break;
@@ -464,7 +464,8 @@
 			{
 				var win = Titanium.UI.createWindow({
 					url:'set_control_values.html',
-					title:'Set Control Values' 
+					title:'Set Control Values',
+					backgroundColor:'#fff' 
 				});
 				win.open({animated:true});		
 				break;
@@ -491,7 +492,8 @@
 			{
 				var win = Titanium.UI.createWindow({
 					url:'pickers.html',
-					title:'Pickers' 
+					title:'Pickers',
+					backgroundColor:'#fff' 
 				});
 				win.open({animated:true});		
 				break;
