@@ -1048,6 +1048,15 @@ var UserWindowBuilder = function(proxy) {
 		return this._window;
 	};
 
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.setOrientation,since=0.7) Set the window orientation
+	 * @tiarg[string,orientation] one of: landscape, portrait, or either
+	 */
+	this.setOrientation = function(orientation) {
+		if (!isUndefined(orientation)) {
+			this.proxy.setOrientation(orientation);
+		}
+	};
 	// IPhone only methods
 	this.setNavBarColor = function (color) {
 
@@ -1074,6 +1083,10 @@ var UserWindowBuilder = function(proxy) {
 
 	};
 };
+
+UserWindowBuilder.prototype.__defineSetter__("orientation", function(orientation){
+	this.setOrientation(orientation);
+});
 
 var Button = function(proxy) {
 	this.proxy = proxy;
@@ -1399,6 +1412,7 @@ Titanium.UI = {
 			var title = options.title;
 			var titleImage = options.titleImage;
 			var backgroundColor = options.backgroundColor;
+			var orientation = options.orientation;
 
 			if (!isUndefined(url)) {
 				w.setURL(url);
@@ -1414,6 +1428,9 @@ Titanium.UI = {
 			}
 			if (!isUndefined(backgroundColor)) {
 				w.setBackgroundColor(backgroundColor);
+			}
+			if (!isUndefined(orientation)) {
+				w.setOrientation(orientation);
 			}
 		}
 
