@@ -547,10 +547,10 @@ typedef int UIEventSubtype;
 {
 	NSString * extremeDebugString = [[TitaniumHost sharedHost] javaScriptForResource:currentContentURL hash:[self primaryToken] extremeDebug:YES];
 	NSLog(@"****** BEGIN TITANIUM FAILURE RECREATION FOR VIEW %@ ******",self);
-	NSLog(@"%@",extremeDebugString);
-	NSLog(@"****** END TITANIUM FAILURE RECREATION ******");
+//	NSLog(@"%@",extremeDebugString);
+//	NSLog(@"****** END TITANIUM FAILURE RECREATION ******");
 	
-	NSLog(@"****** BEGIN TITANIUM FAILURE SCAN ******");
+//	NSLog(@"****** BEGIN TITANIUM FAILURE SCAN ******");
 
 	NSArray * commandLineArray=[extremeDebugString componentsSeparatedByString:@"</script>"];
 	for(NSString * thisCommand in commandLineArray){

@@ -66,7 +66,7 @@
 		</dict>
 		<dict>
 			<key>barColor</key>
-			<string>transparent</string>
+			<string>blue</string>
 			<key>views</key>
 			<array>
 				<dict>
