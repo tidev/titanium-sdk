@@ -1,2 +1,4 @@
-tmp/*
+tmp
+build
 build/*
+tmp/*

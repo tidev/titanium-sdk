@@ -49,10 +49,34 @@
 						});
 
 						Titanium.UI.currentWindow.addView(tableView);
-						Titanium.UI.currentWindow.showView(tableView);
+						Titanium.UI.currentWindow.showView(tableView,
+						{
+							animated:true,
+							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+							animationDuration:1000
+						});
 					}
 					
 					Titanium.UI.currentWindow.setRightNavButton(refreshButton);
+					var flexSpace = Titanium.UI.createButton({
+						systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+					});
+					var b = Titanium.UI.createButton({
+						title:'Logout',
+						style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+					});
+					b.addEventListener('click',function()
+					{
+						Titanium.Facebook.logout();
+						var views = Titanium.UI.currentWindow.getViews();
+						Titanium.UI.currentWindow.showView(views[0],{
+							animated:true,
+							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,
+							animationDuration:1000
+						});
+						Titanium.UI.currentWindow.setToolbar(null);
+					});
+					Titanium.UI.currentWindow.setToolbar([flexSpace,b,flexSpace]);
 				}
 				catch(e)
 				{
