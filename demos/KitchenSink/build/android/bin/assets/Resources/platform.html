@@ -19,6 +19,7 @@
 		{title:'Database', hasChild:true},
 		{title:'Platform Data', hasChild:true},
 		{title:'Filesystem', hasChild:true},
+		{title:'External URLs', hasChild:true},
 		{title:'Open URL (http)'},
 		{title:'Open URL (tel)'},
 		{title:'Open URL (sms)'}
@@ -98,15 +99,22 @@
 			}
 			case 8:
 			{
+				var win = Titanium.UI.createWindow({url:'http://wwww.google.com',backgroundColor:'#fff',title:'Google'});
+				win.open({animated:true});
+				break;
+			}
+
+			case 9:
+			{
 				Titanium.Platform.openURL('http://maps.google.com/?q=Cupertino');
 				break;
 			}
-			case 9:
+			case 10:
 			{
 				Titanium.Platform.openURL('tel:4043332222');
 				break;
 			}
-			case 10:
+			case 11:
 			{
 				Titanium.Platform.openURL('sms:4043334444/foo');
 				break;

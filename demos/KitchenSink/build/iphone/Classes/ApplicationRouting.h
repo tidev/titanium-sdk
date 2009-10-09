@@ -37,6 +37,7 @@
 - (NSData*) pageNamedDynamic_content;
 - (NSData*) pageNamedDynamic_images;
 - (NSData*) pageNamedEmail;
+- (NSData*) pageNamedExternal_urls;
 - (NSData*) pageNamedFacebook;
 - (NSData*) pageNamedFilesystem;
 - (NSData*) pageNamedFullscreen;

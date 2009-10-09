@@ -3,10 +3,21 @@
 	<script>
 	window.onload = function()
 	{
+		// adjust height
+		if (Titanium.Platform.name == 'android')
+		{
+			document.getElementById('picker').style.height="80px";
+		}
+		else
+		{
+			document.getElementById('picker').style.height="217px";
+
+		}
+
 		var data = [];
 
 		// support title attribute
-		var col1 = {data:[
+		var col1 = {width:100,data:[
 		    {title:'Pizza', selected:true,fontSize:20},
 		    {title:'Shrimp',fontSize:20},
 		    {title:'Pasta',fontSize:20},
@@ -111,8 +122,6 @@
 
 	};
 
-
-
 	</script>
 
 </head>
@@ -127,6 +136,6 @@
 
 		<div id="value" style="font-weight:bold;color:#336699;font-size:14px"></div>
 	</div>
-	<div id="picker" style="position:absolute;bottom:0;height:80px;width:99%">&nbsp;</div>
+	<div id="picker" style="position:absolute;bottom:0;width:99%"></div>
 </body>
 </html>
