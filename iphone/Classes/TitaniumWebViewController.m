@@ -220,7 +220,7 @@
 	[webView setFrame:[newWebView frame]];
 	[newWebView removeFromSuperview];
 	[[webView superview] setAlpha:1.0];
-	NSLog(@"[DEBUG] One comes out! webView %@ has %@ as a superview",webView,[webView superview]);
+	VERBOSE_LOG(@"[DEBUG] One comes out! webView %@ has %@ as a superview",webView,[webView superview]);
 }
 
 
@@ -252,7 +252,7 @@
 	if ([super respondsToSelector:@selector(_clearBecomeFirstResponderWhenCapable)]){
 		[(id)super _clearBecomeFirstResponderWhenCapable];
 	} else {
-		NSLog(@"[DEBUG] This is because 2.2.1 fails if we give a viewController -[becomeFirstResponder]");
+		NSLog(@"[WARN] Should not happen. This is because 2.2.1 fails if we give a viewController -[becomeFirstResponder]");
 	}
 }
 
@@ -316,9 +316,7 @@
 	if (contextString == nil) return;
 	NSString * tokenQuery = [contextString stringByAppendingString:@".Titanium._TOKEN"];
 	[self acceptToken:[webView stringByEvaluatingJavaScriptFromString:tokenQuery] forContext:contextString];
-#ifdef USE_VERBOSE_DEBUG	
-	NSLog(@"[DEBUG] Dict is now: %@",magicTokenDict);
-#endif
+	VERBOSE_LOG(@"[DEBUG] Dict is now: %@",magicTokenDict);
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
@@ -338,7 +336,7 @@
 	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
 	[UIView commitAnimations];
 
-	NSLog(@"[Debug] isNonTitaniumPage is %d because %@ has scheme %@",isNonTitaniumPage,currentContentURL,[currentContentURL scheme]);
+	VERBOSE_LOG(@"[Debug] isNonTitaniumPage is %d because %@ has scheme %@",isNonTitaniumPage,currentContentURL,[currentContentURL scheme]);
 
 	if(isNonTitaniumPage)return;
 	[self probeWebViewForTokenInContext:@"window"];
@@ -382,7 +380,7 @@
 	if ([scrollView superview]==nil) return;
 	CGRect webFrame;
 	if(isNonTitaniumPage){
-		NSLog(@"[DEBUG] Was not titanium page!");
+		VERBOSE_LOG(@"[DEBUG] Was not titanium page!");
 		CGRect webFrame;
 		webFrame.origin = CGPointZero;
 		webFrame.size = [[self view] frame].size;
@@ -449,9 +447,7 @@
 	
 	NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:currentContentURL];
 	
-#ifdef USE_VERBOSE_DEBUG	
-	NSLog(@"[DEBUG] Url request: %@",[urlRequest allHTTPHeaderFields]);
-#endif
+	VERBOSE_LOG(@"[DEBUG] Url request: %@",[urlRequest allHTTPHeaderFields]);
 
 	[webView loadRequest:urlRequest];
 }
@@ -546,11 +542,7 @@ typedef int UIEventSubtype;
 - (void) investigateTitaniumCrashSite;
 {
 	NSString * extremeDebugString = [[TitaniumHost sharedHost] javaScriptForResource:currentContentURL hash:[self primaryToken] extremeDebug:YES];
-	NSLog(@"****** BEGIN TITANIUM FAILURE RECREATION FOR VIEW %@ ******",self);
-//	NSLog(@"%@",extremeDebugString);
-//	NSLog(@"****** END TITANIUM FAILURE RECREATION ******");
-	
-//	NSLog(@"****** BEGIN TITANIUM FAILURE SCAN ******");
+	NSLog(@"[ERROR] ****** BEGIN TITANIUM FAILURE SCAN FOR VIEW %@ ******",self);
 
 	NSArray * commandLineArray=[extremeDebugString componentsSeparatedByString:@"</script>"];
 	for(NSString * thisCommand in commandLineArray){
@@ -564,10 +556,10 @@ typedef int UIEventSubtype;
 		if([result hasPrefix:@"FAIL"])errorTypeString = [result substringFromIndex:4];
 		else errorTypeString = @"Webview could not parse javascript";
 		
-		NSLog(@"****** FAILURE, %@ for (%@)",errorTypeString,thisCommand);
+		NSLog(@"[ERROR] ****** FAILURE, %@ for (%@)",errorTypeString,thisCommand);
 	}
 
-	NSLog(@"****** END TITANIUM FAILURE SCAN ******");
+	NSLog(@"[ERROR] ****** END TITANIUM FAILURE SCAN ******");
 	
 }
 

@@ -774,9 +774,7 @@ UIColor * checkmarkColor = nil;
 		if (rowCount > index){
 			NSIndexPath * thisPath = [NSIndexPath indexPathForRow:index inSection:thisSectionIndex];
 			if(rowCount > 1){ //We're done here.
-#ifdef USE_VERBOSE_DEBUG	
-					NSLog(@"[DEBUG] -[%@ deleteRowAtIndex:%d animation:%d]: Going for Section %d, row %d. (%@)",self,oldIndex,animation,thisSectionIndex,index,thisPath);
-#endif
+				VERBOSE_LOG(@"[DEBUG] -[%@ deleteRowAtIndex:%d animation:%d]: Going for Section %d, row %d. (%@)",self,oldIndex,animation,thisSectionIndex,index,thisPath);
 				[tableView beginUpdates];
 				[thisSection removeRowAtIndex:index];
 				[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:thisPath] withRowAnimation:animation];
@@ -796,9 +794,7 @@ UIColor * checkmarkColor = nil;
 	}
 	//At this point, We failed to delete a nonexistant index. Drop on the ground?
 	
-#ifdef USE_VERBOSE_DEBUG	
-		NSLog(@"[DEBUG] -[%@ deleteRowAtIndex:%d animation:%d]: Index is %d rows past the end. %d sections exist.",self,oldIndex,animation,index,thisSectionIndex);
-#endif
+	VERBOSE_LOG(@"[DEBUG] -[%@ deleteRowAtIndex:%d animation:%d]: Index is %d rows past the end. %d sections exist.",self,oldIndex,animation,index,thisSectionIndex);
 	
 }
 

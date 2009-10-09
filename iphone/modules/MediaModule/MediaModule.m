@@ -11,6 +11,7 @@
 #import <AVFoundation/AVAudioPlayer.h>
 #import <MediaPlayer/MediaPlayer.h>
 #import "TitaniumBlobWrapper.h"
+#import "Logging.h"
 
 NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	"var result={"
@@ -115,12 +116,12 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 
 - (void)audioPlayerBeginInterruption:(AVAudioPlayer *)player;
 {
-	NSLog(@"[DEBUG] SOUND INTERRUPTION STARTED!");
+	VERBOSE_LOG(@"[DEBUG] SOUND INTERRUPTION STARTED!");
 }
 
 - (void)audioPlayerEndInterruption:(AVAudioPlayer *)player;
 {
-	NSLog(@"[DEBUG] SOUND INTERRUPTION FINISHED!");
+	VERBOSE_LOG(@"[DEBUG] SOUND INTERRUPTION FINISHED!");
 }
 
 
@@ -402,7 +403,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	if ([theNotification object] != currentMovie) return;
 	NSString * notificationType = [theNotification name];
 	
-	NSLog(@"[DEBUG] HandlePlayer: %@ = %@",theNotification,[theNotification userInfo]);
+	VERBOSE_LOG(@"[DEBUG] HandlePlayer: %@ = %@",theNotification,[theNotification userInfo]);
 	
 	if ([notificationType isEqualToString:MPMoviePlayerPlaybackDidFinishNotification]){
 		MovieWrapper * cmw = [mediaDictionary objectForKey:currentMovieToken];

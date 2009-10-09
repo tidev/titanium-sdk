@@ -20,6 +20,7 @@
 #import "TitaniumImageViewController.h"
 
 #import "TitaniumJSEvent.h"
+#import "Logging.h"
 
 #if __IPHONE_OS_VERSION_MIN_REQUIRED >= 30000
 #import <MessageUI/MessageUI.h>
@@ -229,7 +230,7 @@ NSString * UrlEncodeString(NSString * string)
 
 - (id) init
 {
-	NSLog(@"[DEBUG] Initing emailcomposerproxy");
+	VERBOSE_LOG(@"[DEBUG] Initing emailcomposerproxy");
 	self = [super init];
 	if (self != nil) {
 		animated = YES;
@@ -239,7 +240,7 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void) dealloc
 {
-	NSLog(@"[DEBUG] Deallocing emailcomposer");
+	VERBOSE_LOG(@"[DEBUG] Deallocing emailcomposer");
 	[emailComposer release];
 	[urlVersion release];
 	[super dealloc];
@@ -284,7 +285,7 @@ NSString * UrlEncodeString(NSString * string)
 	
 	if ((mailClass != nil) && [mailClass canSendMail]){
 		if(emailComposer==nil){
-			NSLog(@"[DEBUG] Creating emailcomposer");
+			VERBOSE_LOG(@"[DEBUG] Creating emailcomposer");
 			emailComposer = [[mailClass alloc] init];
 			[emailComposer setMailComposeDelegate:self];
 		}
@@ -334,7 +335,7 @@ NSString * UrlEncodeString(NSString * string)
 	
 	[resultString release];
 	
-	NSLog(@"[INFO] Since we don't have access to MFMailComposeViewController, we're launching %@ instead.",urlVersion);
+	VERBOSE_LOG(@"[INFO] Since we don't have access to MFMailComposeViewController, we're launching %@ instead.",urlVersion);
 	[[UIApplication sharedApplication] openURL:urlVersion];
 }
 
