@@ -26,6 +26,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
@@ -51,6 +52,7 @@ public class TitaniumUserWindow extends ViewAnimator
 	protected static final int MSG_TABCHANGE = 302;
 	protected static final int MSG_CONFIGCHANGE = 303;
 	protected static final int MSG_ACTIVATE_VIEW = 304;
+	protected static final int MSG_FIRE_FOCUS = 305;
 
 	protected TitaniumActivity activity;
 	protected Handler handler;
@@ -91,10 +93,15 @@ public class TitaniumUserWindow extends ViewAnimator
 	public void attachWebView(String url) {
 		this.url = null;
 
+		TitaniumUIWebView uiWebView = new TitaniumUIWebView(tmm);
+        addView((ITitaniumView) uiWebView); // Make it views[0]
+		uiWebView.setUrl(url);
+
 		TitaniumWindowInfo windowInfo = tmm.getActivity().getWindowInfo();
 		if (windowInfo != null) {
 			if (windowInfo.hasBackgroundColor()) {
 				setBackgroundColor(windowInfo.getBackgroundColor());
+				tmm.getWebView().setBackgroundColor(windowInfo.getBackgroundColor());
 			}
 		} else {
 	    	TitaniumIntentWrapper tiw = new TitaniumIntentWrapper(tmm.getActivity().getIntent());
@@ -102,12 +109,9 @@ public class TitaniumUserWindow extends ViewAnimator
 			if (tiw.hasBackgroundColor()) {
 				int backgroundColor = tiw.getBackgroundColor();
 				setBackgroundColor(backgroundColor);
+				tmm.getWebView().setBackgroundColor(backgroundColor);
 			}
 		}
-
-		TitaniumUIWebView uiWebView = new TitaniumUIWebView(tmm);
-        addView((ITitaniumView) uiWebView); // Make it views[0]
-		uiWebView.setUrl(url);
 
         uiWebView.postOpen();
 
@@ -171,12 +175,7 @@ public class TitaniumUserWindow extends ViewAnimator
 							tiView.showing();
 							addView(newView);
 							if (needsDelayedFocusedEvent) {
-								try {
-									onWindowFocusChanged(true);
-									//tiView.dispatchWindowFocusChanged(true);
-								} catch (Throwable t) {
-									Log.e(LCAT, "Error while dispatching fake focus: ", t);
-								}
+								handler.sendEmptyMessageDelayed(MSG_FIRE_FOCUS, 100);
 								needsDelayedFocusedEvent = false;
 							}
 							try {
@@ -219,6 +218,11 @@ public class TitaniumUserWindow extends ViewAnimator
 				}
 				return true;
 			}
+
+			case MSG_FIRE_FOCUS : {
+				onWindowFocusChanged(true);
+				return true;
+			}
 		}
 		return false;
 	}
@@ -253,11 +257,15 @@ public class TitaniumUserWindow extends ViewAnimator
 	}
 
 	public void setBackgroundColor(String backgroundColor) {
-		Log.w(LCAT, "fullscreen cannot be changed on currentWindow");
+		Log.w(LCAT, "background cannot be changed on currentWindow");
 	}
 
 	public void setTitleImage(String titleImageUrl) {
 		this.titleImageUrl = titleImageUrl;
+	}
+
+	public void setOrientation(String orientation) {
+		throw new IllegalStateException("FIX ME");
 	}
 
 	public void setUrl(String url) {

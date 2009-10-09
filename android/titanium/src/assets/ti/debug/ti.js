@@ -80,6 +80,7 @@ var Titanium = new function() {
 	            pos.top+= obj.offsetTop;
 	            obj= obj.offsetParent;
 		    }
+		    //Titanium.API.debug("COORDS: " + pos.left + " " + pos.top + " " + pos.width + " " + pos.height);
         }
 	    return pos;
 	};
@@ -138,6 +139,8 @@ var Titanium = new function() {
 	  }
 	};
 };
+
+var Ti = Titanium;
 
 function TitaniumCallback(obj, method, oneShot) {
 	this.name = Titanium.nextCallbackId();

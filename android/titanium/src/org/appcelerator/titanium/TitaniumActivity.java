@@ -84,7 +84,8 @@ public class TitaniumActivity extends Activity
 
 	private HashMap<Integer, TitaniumResultHandler> resultHandlers;
 	private AtomicInteger uniqueResultCodeAllocator;
-	private int initialOrientation;
+	int initialOrientation;
+	String orientation;
 	private TitaniumLogWatcher logWatcher;
 
 	private Drawable backgroundDrawable;
@@ -232,20 +233,18 @@ public class TitaniumActivity extends Activity
         ts("After Window Configuration");
 
         if (windowInfo != null) {
-        	String orientation = windowInfo.getWindowOrientation();
-        	if ("portrait".compareTo(orientation) == 0) {
-        		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        	} else if ("landscape".compareTo(orientation) == 0) {
-        		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        	} else {
-        		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-        	}
+        	orientation = windowInfo.getWindowOrientation();
+        	setOrientation(orientation);
         	if(windowInfo.getWindowTitle() != null) {
         		root.setTitle(windowInfo.getWindowTitle());
         	}
         } else {
         	if (intent.getTitle() != null) {
         		root.setTitle(intent.getTitle());
+        	}
+        	if (intent.getOrientation() != null) {
+        		orientation = intent.getOrientation();
+        		setOrientation(orientation);
         	}
         }
 
@@ -280,6 +279,16 @@ public class TitaniumActivity extends Activity
 
         ts("end of onCreate");
 	}
+
+    public void setOrientation(String orientation) {
+    	if ("portrait".compareTo(orientation) == 0) {
+    		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    	} else if ("landscape".compareTo(orientation) == 0) {
+    		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    	} else {
+    		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+    	}
+    }
 
     public boolean isFullscreen() {
     	TitaniumActivityGroup parent = (TitaniumActivityGroup) getParent();
@@ -531,6 +540,9 @@ public class TitaniumActivity extends Activity
 		allowVisible = true;
 		super.onResume();
 		userWindow.onResume();
+		if (orientation != null) {
+			setOrientation(orientation);
+		}
 	}
 
 	@Override

@@ -1,14 +1,14 @@
 <html>
 <head>
 	<title>Phone API</title>
-	
+
 	<script>
-	
+
 	Titanium.UI.addEventListener('tabchange',function(e)
 	{
 		Titanium.API.info('>>>>>>>>>>>>>>>>>>>>>>>>>> TABCHANGE index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
 	});
-	
+
 	// data for tableview
 	var data = [
 		{title:'Play Movie'},
@@ -21,14 +21,14 @@
 		{title:'Sound',hasChild:true},
 		{title:'Shake',hasChild:true},
 		{title:'Email Client',hasChild:true},
-		{title:'Save to Gallery'}		
+		{title:'Save to Gallery'}
 	];
-	
+
 	// tableview object
 	var tableView = Titanium.UI.createTableView({
 		data:data,
 		title:'Phone API',
-	}, function(eventObject) 
+	}, function(eventObject)
 	{
 		Titanium.API.info('HERE I AM ' + eventObject.index)
 		// handle tableview click events
@@ -52,7 +52,7 @@
 			}
 			case 3:
 			{
-				var win = Titanium.UI.createWindow({url:'orientation.html',title:'Orientation Change',barColor:'#000'});
+				var win = Titanium.UI.createWindow({url:'orientation.html',title:'Orientation Change',barColor:'#000',backgroundColor:'#fff'});
 				win.orientation ='either';
 				win.open({animated:true});
 				break;
@@ -64,31 +64,31 @@
 			}
 			case 5:
 			{
-				var win = Titanium.UI.createWindow({url:'geo.html',title:'Geolocation', barColor:'#336699'});
+				var win = Titanium.UI.createWindow({url:'geo.html',title:'Geolocation', barColor:'#336699', backgroundColor:'#fff'});
 				win.open({animated:true});
 				break;
 			}
 			case 6:
 			{
-				var win = Titanium.UI.createWindow({url:'accelerometer.html',title:'Accelerometer', barColor:'#336699'});
+				var win = Titanium.UI.createWindow({url:'accelerometer.html',title:'Accelerometer', barColor:'#336699', backgroundColor:'#fff', orientation:'landscape'});
 				win.open({animated:true});
 				break;
 			}
 			case 7:
 			{
-				var win = Titanium.UI.createWindow({url:'sound.html',title:'Sound', barColor:'#336699'});
+				var win = Titanium.UI.createWindow({url:'sound.html',title:'Sound', barColor:'#336699', backgroundColor:'#fff'});
 				win.open({animated:true});
 				break;
 			}
 			case 8:
 			{
-				var win = Titanium.UI.createWindow({url:'shake.html',title:'Shake', barColor:'#336699'});
+				var win = Titanium.UI.createWindow({url:'shake.html',title:'Shake', barColor:'#336699', backgroundColor:'#fff', orientation:'portrait'});
 				win.open({animated:true});
 				break;
 			}
 			case 9:
 			{
-				var win = Titanium.UI.createWindow({url:'email.html',title:'Email', barColor:'#336699'});
+				var win = Titanium.UI.createWindow({url:'email.html',title:'Email', barColor:'#336699', backgroundColor:'#fff'});
 				win.open({animated:true});
 				break;
 			}
@@ -105,7 +105,7 @@
 	Titanium.UI.currentWindow.showView(tableView);
 
 	// FUNCTIONS
-	
+
 	//
 	// play movie
 	//
@@ -125,15 +125,15 @@
 			a.setMessage('Video Completed');
 			a.show();
 		});
-		
+
 		// play movie
-		activeMovie.play();	
-		
+		activeMovie.play();
+
 	};
 
 	//
 	// show camera
-	// 
+	//
 	function showCamera()
 	{
 		Titanium.Media.showCamera({
@@ -183,8 +183,8 @@
 			allowImageEditing:true
 		});
 	};
-	
-	
+
+
 	//
 	// open photo gallery
 	//
@@ -195,14 +195,14 @@
 			{
 				var win = Titanium.UI.createWindow({url:'image.html',title:'Image'});
 				Titanium.App.Properties.setString('photo',image.url);
-				if (details) 
+				if (details)
 				{
 					Titanium.App.Properties.setString('x',details.cropRect.x);
 					Titanium.App.Properties.setString('y',details.cropRect.y);
 					Titanium.App.Properties.setString('height',details.cropRect.height);
 					Titanium.App.Properties.setString('width',details.cropRect.width);
-				} 
-				else 
+				}
+				else
 				{
 					Titanium.App.Properties.setString('x',0);
 					Titanium.App.Properties.setString('y',0);
@@ -225,13 +225,13 @@
 			},
 			allowImageEditing:true
 		});
-		
+
 	};
 
 
 	//
 	// show camera
-	// 
+	//
 	function savePhoto()
 	{
 		Titanium.Media.showCamera({
@@ -271,7 +271,7 @@
 			allowImageEditing:true
 		});
 	};
-	
+
 	</script>
 </head>
 <body>
