@@ -290,6 +290,8 @@
 	[currentContentURL release];
 	currentContentURL = [requestURL copy];
 	isNonTitaniumPage = ![[currentContentURL scheme] isEqualToString:@"app"];
+	[webView setScalesPageToFit:isNonTitaniumPage];
+	[webView setMultipleTouchEnabled:isNonTitaniumPage];
 	if(!isNonTitaniumPage)[webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window._WINTKN='%@'",[self primaryToken]]];
 	return YES;
 }
@@ -337,8 +339,6 @@
 	[UIView commitAnimations];
 
 	NSLog(@"[Debug] isNonTitaniumPage is %d because %@ has scheme %@",isNonTitaniumPage,currentContentURL,[currentContentURL scheme]);
-	[webView setScalesPageToFit:isNonTitaniumPage];
-	[webView setMultipleTouchEnabled:isNonTitaniumPage];
 
 	if(isNonTitaniumPage)return;
 	[self probeWebViewForTokenInContext:@"window"];
