@@ -119,14 +119,17 @@ public class TitaniumDialog implements ITitaniumDialog
 	}
 
 	public void show() {
-		tmm.getActivity().runOnUiThreadWithCheck(new TitaniumActivity.CheckedRunnable(){
+		TitaniumActivity activity = tmm.getActivity();
+		if (activity != null) {
+			activity.runOnUiThreadWithCheck(new TitaniumActivity.CheckedRunnable(){
 
-			public void run(boolean isUISafe) {
-				if (isUISafe) {
-					builder.create().show();
-				} else {
-					Log.w(LCAT, "Attempt to show dialog ignored, UI is not available.");
-				}
-			}});
+				public void run(boolean isUISafe) {
+					if (isUISafe) {
+						builder.create().show();
+					} else {
+						Log.w(LCAT, "Attempt to show dialog ignored, UI is not available.");
+					}
+				}});
+		}
 	}
 }
