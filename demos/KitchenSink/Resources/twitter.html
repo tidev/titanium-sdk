@@ -96,13 +96,14 @@
 				{
 					var row = json[c];
 					var bgcolor = (c % 2) == 0 ? '' : 'background-color:#eee';
-					var html = "<div style='position:relative;"+bgcolor+"'>";
+					var html = "<div style='position:relative;padding:0;height:80px;"+bgcolor+"'>";
 					html += "<div style='position:absolute;left:0;top:5px;border:2px solid #999;'><img src='"+row.user.profile_image_url+"'/></div>";
 					html+='<div style="position:absolute;top:6px;left:60px;height:70px;font-size:11px;">'+row.text+'</div>';
 					html+="</div>";
+					
 					data[c] = {html:html};
 				}
-				var tableView = Titanium.UI.createTableView({data:data,rowHeight:'80'},function(evt){});
+				var tableView = Titanium.UI.createTableView({data:data,rowHeight:80},function(){});
 				Titanium.UI.currentWindow.addView(tableView);
 				Titanium.UI.currentWindow.showView(tableView);
 				
