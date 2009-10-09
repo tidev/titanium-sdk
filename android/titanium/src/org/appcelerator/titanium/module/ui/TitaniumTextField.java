@@ -167,7 +167,8 @@ public class TitaniumTextField extends TitaniumBaseNativeControl
 		tv.setOnFocusChangeListener(this);
 		tv.setText(value);
 		tv.setHint(hintText);
-		tv.setPadding(10, 5, 10, 7);
+		//tv.setPadding(10, 5, 10, 7);
+		tv.setPadding(5,0,5,0);
 		TitaniumUIHelper.styleText(tv, fontSize, fontWeight);
 
 		switch(textAlign) {
