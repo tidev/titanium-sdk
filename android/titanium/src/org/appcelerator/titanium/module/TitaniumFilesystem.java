@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
-import org.appcelerator.titanium.api.ITitaniumFile;
 import org.appcelerator.titanium.api.ITitaniumFilesystem;
 import org.appcelerator.titanium.api.ITitaniumInvoker;
 import org.appcelerator.titanium.config.TitaniumConfig;
@@ -49,19 +48,19 @@ public class TitaniumFilesystem extends TitaniumBaseModule implements ITitaniumF
 		webView.addJavascriptInterface((ITitaniumFilesystem) this, name);
 	}
 
-	public ITitaniumFile createTempFile() throws IOException
+	public ITitaniumInvoker createTempFile() throws IOException
 	{
 		File f = File.createTempFile("ti","tmp");
-		return new TitaniumFile(tmm, f,f.getAbsolutePath(), false);
+		return new TitaniumDelegate(new TitaniumFile(tmm, f,f.getAbsolutePath(), false));
 	}
 
-	public ITitaniumFile createTempDirectory() throws IOException
+	public ITitaniumInvoker createTempDirectory() throws IOException
 	{
 		String dir = String.valueOf(System.currentTimeMillis());
 		File tmpdir = new File(System.getProperty("java.io.tmpdir"));
 		File f = new File(tmpdir,dir);
 		f.mkdirs();
-		return new TitaniumFile(tmm, f,f.getAbsolutePath(), false);
+		return new TitaniumDelegate(new TitaniumFile(tmm, f,f.getAbsolutePath(), false));
 	}
 
 	public boolean isExternalStoragePresent()
@@ -88,12 +87,12 @@ public class TitaniumFilesystem extends TitaniumBaseModule implements ITitaniumF
 		return new TitaniumDelegate(TitaniumFileFactory.createTitaniumFile(tmm, parts, true));
 	}
 
-	public ITitaniumFile getApplicationDirectory()
+	public ITitaniumInvoker getApplicationDirectory()
 	{
 		return null;
 	}
 
-	public ITitaniumFile getApplicationDataDirectory(boolean privateStorage)
+	public ITitaniumInvoker getApplicationDataDirectory(boolean privateStorage)
 	{
 		String[] parts = new String[1];
 		if (privateStorage)
@@ -105,15 +104,16 @@ public class TitaniumFilesystem extends TitaniumBaseModule implements ITitaniumF
 
 		TitaniumFile f = (TitaniumFile) TitaniumFileFactory.createTitaniumFile(tmm, parts , false);
 		f.createDirectory(true);
-		return f;
+		return new TitaniumDelegate(f);
 	}
 
-	public ITitaniumFile getResourcesDirectory()
+	public ITitaniumInvoker getResourcesDirectory()
 	{
-		return null;
+		String[] parts = { "app://"};
+		return new TitaniumDelegate(TitaniumFileFactory.createTitaniumFile(tmm, parts, false));
 	}
 
-	public ITitaniumFile getUserDirectory()
+	public ITitaniumInvoker getUserDirectory()
 	{
 		return null;
 	}

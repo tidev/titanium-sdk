@@ -29,6 +29,7 @@ public class TitaniumIntentWrapper implements Serializable
 	public static final String EXTRA_ICON_URL = "iconUrl";
 	public static final String EXTRA_ACTIVITY_TYPE = "activityType";
 	public static final String EXTRA_BACKGROUND_COLOR = "backgroundColor";
+	public static final String EXTRA_ORIENTATION = "orientation";
 
 	private Intent intent;
 
@@ -64,6 +65,7 @@ public class TitaniumIntentWrapper implements Serializable
 		setActivityType(window.getWindowType());
 		setIconUrl(window.getWindowIconUrl());
 		setBackgroundColor(window.getBackgroundColor());
+		setOrientation(window.getWindowOrientation());
 		//TODO windowsize
 	}
 
@@ -135,6 +137,12 @@ public class TitaniumIntentWrapper implements Serializable
 	}
 	public void setBackgroundColor(String colorCode) {
 		intent.putExtra(EXTRA_BACKGROUND_COLOR, TitaniumColorHelper.parseColor(colorCode));
+	}
+	public String getOrientation() {
+		return intent.getExtras().getString(EXTRA_ORIENTATION);
+	}
+	public void setOrientation(String orientation) {
+		intent.putExtra(EXTRA_ORIENTATION, orientation);
 	}
 	public Uri getData() {
 		return intent.getData();

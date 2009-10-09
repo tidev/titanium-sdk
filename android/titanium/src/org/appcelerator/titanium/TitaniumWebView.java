@@ -135,10 +135,10 @@ public class TitaniumWebView extends WebView
         settings.setLoadsImagesAutomatically(true);
         settings.setLightTouchEnabled(true);
 
-        setBackgroundColor(Color.TRANSPARENT);
-
         offScreen = new AbsoluteLayout.LayoutParams(1, 1, -100, -100);
         final TitaniumWebView me = this;
+
+        setBackgroundColor(Color.TRANSPARENT);
 
         HandlerThread ht = new HandlerThread("TiJSEvalThread"){
 
@@ -560,7 +560,7 @@ public class TitaniumWebView extends WebView
 
 		handler.removeMessages(MSG_REQUEST_NATIVE_LAYOUT);
 		Message msg = handler.obtainMessage(MSG_REQUEST_NATIVE_LAYOUT, sb.toString());
-		handler.sendMessageDelayed(msg, 250);
+		handler.sendMessageDelayed(msg, 100);
 		sb.setLength(0);
 	}
 
@@ -570,7 +570,7 @@ public class TitaniumWebView extends WebView
 
 	public void invalidateLayout() {
 		handler.removeMessages(MSG_INVALIDATE_LAYOUT);
-		handler.sendEmptyMessageDelayed(MSG_INVALIDATE_LAYOUT, 100);
+		handler.sendEmptyMessageDelayed(MSG_INVALIDATE_LAYOUT, 250);
 	}
 
 	public void addControl(View control) {

@@ -13,6 +13,7 @@ public interface ITitaniumUserWindowBuilder
 	public void setTitle(String title);
 	public void setTitleImage(String titleImageUrl);
 	public void setFullscreen(boolean fullscreen);
+	public void setOrientation(String orientation);
 	public void open();
 
 	// Added in 0.7.0
