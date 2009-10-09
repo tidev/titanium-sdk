@@ -441,7 +441,7 @@ int nextWindowToken = 0;
 	if ([super respondsToSelector:@selector(_clearBecomeFirstResponderWhenCapable)]){
 		[(id)super _clearBecomeFirstResponderWhenCapable];
 	} else {
-		NSLog(@"[DEBUG] This is because 2.2.1 fails if we give a viewController -[becomeFirstResponder]");
+		NSLog(@"[WARN] Should not happen. This is because 2.2.1 fails if we give a viewController -[becomeFirstResponder]");
 	}
 }
 

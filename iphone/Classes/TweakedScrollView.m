@@ -7,7 +7,7 @@
 
 
 #import "TweakedScrollView.h"
-
+#import "Logging.h"
 
 @implementation TweakedScrollView
 
@@ -32,7 +32,7 @@
 	}
 
 	if([view isKindOfClass:[UIWebView class]]){
-		NSLog(@"[DEBUG] In web view!");
+		VERBOSE_LOG(@"[DEBUG] In web view!");
 	}
 	
 	BOOL result=[super touchesShouldBegin:touches withEvent:event inContentView:view];
@@ -62,7 +62,7 @@
 			result = [superduperviewdelegate touchesShouldCancelInContentView:superduperview];
 		}
 	}
-	NSLog(@"[DEBUG] TouchesShouldCancelInContentView:%@(%@) == %d",NSStringFromClass([view class]),NSStringFromClass([[[view superview] superview] class]),result);
+	VERBOSE_LOG(@"[DEBUG] TouchesShouldCancelInContentView:%@(%@) == %d",NSStringFromClass([view class]),NSStringFromClass([[[view superview] superview] class]),result);
 	return result;
 }
 

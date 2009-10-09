@@ -9,6 +9,7 @@
 #import "NativeControlProxy.h"
 #import "TitaniumCellWrapper.h"
 #import "PickerImageTextCell.h"
+#import "Logging.h"
 
 BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view)
 {
@@ -1070,9 +1071,7 @@ needsRefreshing = YES;	\
 	NSString * handleClickCommand = [NSString stringWithFormat:
 			@"(function(){%@%@Titanium.UI._BTN.%@.onClick('%@',{type:'%@'%@%@});}).call(Titanium.UI._BTN.%@);",
 			customInit,initalizer,token,eventType,eventType,arguments,extraArgs,token];
-#ifdef VERBOSE_DEBUG
-	NSLog(@"[DEBUG] Sending '%@' to the page.",handleClickCommand);
-#endif
+	VERBOSE_LOG(@"[DEBUG] Sending '%@' to the page.",handleClickCommand);
 	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
 }
 
