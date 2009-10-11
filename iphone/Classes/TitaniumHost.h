@@ -108,6 +108,8 @@ typedef enum {
 	
 	NSLock	* modalActionLock;
 	NSMutableDictionary * modalActionDict;
+	
+	NSMutableArray * moduleListeners;
 }
 
 @property(readwrite,copy)	NSString * appID;
@@ -145,6 +147,12 @@ typedef enum {
 
 - (void) registerContentViewController: (UIViewController *) viewController forKey: (NSString *) key;
 - (void) unregisterContentViewControllerForKey: (NSString *) key;
+
+#pragma mark Listener Management
+- (void) registerListener: (id)listener;
+- (void) unregisterListener: (id)listener;
+- (void) fireListenerAction: (SEL)method source:(id) source properties:(NSDictionary*)dict;
+- (BOOL) hasListeners;
 
 #pragma mark Blob Management
 

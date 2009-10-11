@@ -24,6 +24,8 @@
 #import "TweakedNavController.h"
 #import "Logging.h"
 
+#define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
+
 NSString * CleanJSEnd(NSString * inputString)
 {
 	if(inputString == nil)return @"";
@@ -148,6 +150,9 @@ TitaniumHost * lastSharedHost = nil;
 	
 	[titaniumObject release];
 	[imageCache release];
+	
+	[moduleListeners release];
+	
 	[super dealloc];
 }
 
@@ -175,12 +180,17 @@ TitaniumHost * lastSharedHost = nil;
 
 	TitaniumViewController * ourVC = [self visibleTitaniumViewController];
 	[ourVC needsUpdate:TitaniumViewControllerVisibleAreaChanged | TitaniumViewControllerRefreshIsAnimated];
+	
+	if ([self hasListeners]) [self fireListenerAction:@selector(eventKeyboardShowing:properties:) source:ourVC properties:userInfo];
 }
 
 - (void)handleKeyboardHiding: (NSNotification *) notification;
 {
 	keyboardTop = 0;
-	[[self visibleTitaniumViewController] needsUpdate:TitaniumViewControllerVisibleAreaChanged | TitaniumViewControllerRefreshIsAnimated];
+	TitaniumViewController * ourVC = [self visibleTitaniumViewController];
+	[ourVC needsUpdate:TitaniumViewControllerVisibleAreaChanged | TitaniumViewControllerRefreshIsAnimated];
+	
+	if ([self hasListeners]) [self fireListenerAction:@selector(eventKeyboardHiding:properties:) source:ourVC properties:[notification userInfo]];
 }
 
 #pragma mark Thread registration
@@ -532,32 +542,36 @@ TitaniumHost * lastSharedHost = nil;
 		oldObject = [owningObject objectForKey:thisKey];
 		
 	}
-	
-	
 }
 
 - (void) applyDefaultViewSettings: (UIViewController *) viewController;
 {
-	
+	if ([self hasListeners]) [self fireListenerAction:@selector(eventApplyDefaultViewSettings:properties:) source:viewController properties:nil];
 }
 
 - (void) registerViewController: (UIViewController *) viewController forKey: (NSString *) key;
 {
+	if ([self hasListeners]) [self fireListenerAction:@selector(eventRegisterViewController:properties:) source:viewController properties:[NSDictionary dictionaryWithObject:VAL_OR_NSNULL(key) forKey:@"key"]];
 	CFDictionarySetValue(viewControllerRegistry, key, viewController);
 }
 
 - (void) unregisterViewControllerForKey: (NSString *) key;
 {
+	id viewController = (id)CFDictionaryGetValue(viewControllerRegistry, key);
+	if ([self hasListeners]) [self fireListenerAction:@selector(eventUnregisterViewController:properties:) source:viewController properties:[NSDictionary dictionaryWithObject:VAL_OR_NSNULL(key) forKey:@"key"]];
 	CFDictionaryRemoveValue(viewControllerRegistry, key);
 }
 
 - (void) registerContentViewController: (UIViewController *) viewController forKey: (NSString *) key;
 {
+	if ([self hasListeners]) [self fireListenerAction:@selector(eventRegisterContentViewController:properties:) source:viewController properties:[NSDictionary dictionaryWithObject:VAL_OR_NSNULL(key) forKey:@"key"]];
 	CFDictionarySetValue(contentViewControllerRegistry, key, viewController);
 }
 
 - (void) unregisterContentViewControllerForKey: (NSString *) key;
 {
+	id viewController = (id)CFDictionaryGetValue(contentViewControllerRegistry, key);
+	if ([self hasListeners]) [self fireListenerAction:@selector(eventUnregisterContentViewController:properties:) source:viewController properties:[NSDictionary dictionaryWithObject:VAL_OR_NSNULL(key) forKey:@"key"]];
 	CFDictionaryRemoveValue(contentViewControllerRegistry, key);
 }
 
@@ -711,6 +725,7 @@ TitaniumHost * lastSharedHost = nil;
 	if(ourModalQueueCount > 0){
 		modalActionWrapper * ourWrapper = [ourModalQueue objectAtIndex:0];
 		[navController presentModalViewController:[ourWrapper modalView] animated:[ourWrapper animated]];
+		if ([self hasListeners]) [self fireListenerAction:@selector(eventModalViewControllerShown:properties:) source:[ourWrapper modalView] properties:[NSDictionary dictionaryWithObject:VAL_OR_NSNULL(navController) forKey:@"controller"]];
 	}
 	
 	if(ourModalQueueCount > 1){
@@ -762,10 +777,10 @@ TitaniumHost * lastSharedHost = nil;
 		currentName = nil;
 	}
 	
+	NSString * previousName;
 	if(currentName != nil)[eventString appendFormat:@",name:%@",[SBJSON stringify:currentName]];
 	if(previousTabRoot != nil){
 		int previousIndex = [controllerArray indexOfObject:[previousTabRoot navigationController]];
-		NSString * previousName;
 		if([previousTabRoot respondsToSelector:@selector(nameString)]){
 			previousName = [previousTabRoot nameString];
 		}else{
@@ -777,10 +792,13 @@ TitaniumHost * lastSharedHost = nil;
 		if(previousIndex != NSNotFound)[eventString appendFormat:@",prevIndex:%d",previousIndex];
 	}
 
+	if ([self hasListeners]) [self fireListenerAction:@selector(eventTabBarShown:properties:) source:currentTabRoot properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(tabBarController),@"tabBarController",VAL_OR_NSNULL(viewController), @"viewController", nil]];
+
 	NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
 	[theNC postNotificationName:TitaniumTabChangeNotification object:tabBarController userInfo:[NSDictionary dictionaryWithObject:eventString forKey:TitaniumJsonKey]];
 	[previousTabRoot release];
 	previousTabRoot = [currentTabRoot retain];
+
 }
 
 //- (void)tabBarController:(UITabBarController *)tabBarController willBeginCustomizingViewControllers:(NSArray *)viewControllers __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
@@ -1347,6 +1365,54 @@ TitaniumHost * lastSharedHost = nil;
 		[imageCache removeObjectsForKeys:doomedKeys];
 		[doomedKeys release];
 	}
+}
+
+- (void) registerListener: (id)listener;
+{
+	if (moduleListeners == nil)
+	{
+		moduleListeners = [[NSMutableArray alloc] init];
+	}
+	[moduleListeners addObject:listener];
+}
+
+- (void) unregisterListener: (id)listener;
+{
+	if (moduleListeners!=nil)
+	{
+		[moduleListeners removeObject:moduleListeners];
+		if ([moduleListeners count]==0)
+		{
+			[moduleListeners release];
+			moduleListeners = nil;
+		}
+	}
+}
+
+- (void) fireListenerAction: (SEL)method source:(id) source properties:(NSDictionary*)dict;
+{
+	if (moduleListeners==nil) return;
+	
+	for (int c=0;c<[moduleListeners count];c++)
+	{
+		id listener = [moduleListeners objectAtIndex:c];
+		if ([listener respondsToSelector:method])
+		{
+			@try
+			{
+				[listener performSelector:method withObject:source withObject:dict];	
+			}
+			@catch(NSException *e)
+			{
+				NSLog(@"[ERROR] Error invoking listener action. %@",[e description]);
+			}
+		}
+	}
+}
+
+- (BOOL) hasListeners;
+{
+	return (moduleListeners!=nil);
 }
 
 @end

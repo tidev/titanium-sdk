@@ -7,6 +7,8 @@
 
 #import <UIKit/UIKit.h>
 
+#define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
+
 typedef enum {
 	TitaniumViewControllerIsClean				= 0,
 	TitaniumViewControllerNeedsRefresh			= 0x01,

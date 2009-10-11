@@ -18,6 +18,8 @@
 	NSMutableDictionary *dictionary;
 	
 	NSString *pageToken;
+	
+	TitaniumHost *host;
 }
 /**
  * method returns the name of the module. by default, modules that use the convention
@@ -83,6 +85,12 @@
  * return an object from a JSON string representation
  */
 - (id) fromJSON:(NSString*)json;
+
+/**
+ * return YES to receive extended module notifications. defaults to NO. 
+ */
+- (BOOL) wantsNotifications;
+
 @end
 
 

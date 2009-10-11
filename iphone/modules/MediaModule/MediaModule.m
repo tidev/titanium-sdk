@@ -64,6 +64,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 		[nativePlayer setVolume:volume];
 		[nativePlayer setNumberOfLoops:(isLooping?-1:0)];
 		[nativePlayer setCurrentTime:resumeTime];
+		if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerCreated:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(nativePlayer),@"player",nil]];
 		if (resultError != nil){
 			NSLog(@"[ERROR] ERROR MAKING SOUND: %@ (%@)",soundUrl,resultError);
 		}
@@ -97,6 +98,9 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 
 - (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag;
 {
+	// fire event listener
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerDidFinishPlaying:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(player),@"player",[NSNumber numberWithBool:flag],@"success",nil]];
+
 	NSString * resultString = [NSString stringWithFormat:@"Ti.Media._MEDIA.%@.onComplete({"
 							   "type:'complete',success:%@,})",
 							   token,(flag ? @"true" : @"false")];
@@ -107,6 +111,8 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 
 - (void)audioPlayerDecodeErrorDidOccur:(AVAudioPlayer *)player error:(NSError *)error;
 {
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerDecodeErrorDidOccur:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(player),@"player",VAL_OR_NSNULL(error),@"error",nil]];
+
 	NSString * resultString = [NSString stringWithFormat:@"Ti.Media._MEDIA.%@.onComplete({"
 							   "type:'error',success:false,message:%@})",
 							   token,[error localizedDescription]];
@@ -116,11 +122,15 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 
 - (void)audioPlayerBeginInterruption:(AVAudioPlayer *)player;
 {
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerBeginInterruption:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(player),@"player",nil]];
+
 	VERBOSE_LOG(@"[DEBUG] SOUND INTERRUPTION STARTED!");
 }
 
 - (void)audioPlayerEndInterruption:(AVAudioPlayer *)player;
 {
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerEndInterruption:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(player),@"player",nil]];
+
 	VERBOSE_LOG(@"[DEBUG] SOUND INTERRUPTION FINISHED!");
 }
 
@@ -137,19 +147,24 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	if ([functionName isEqualToString:@"play"]){ //Resume is mapped to play.
 		[[self nativePlayer] setCurrentTime:0];
 		[nativePlayer play];
+		if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerPlay:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL([self nativePlayer]),@"player",nil]];
 	} else if ([functionName isEqualToString:@"resume"]) {
 		[[self nativePlayer] play];
+		if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerResume:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL([self nativePlayer]),@"player",nil]];
 	} else if ([functionName isEqualToString:@"pause"]) {
 		[nativePlayer pause];
+		if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerPause:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL([self nativePlayer]),@"player",nil]];
 	} else if ([functionName isEqualToString:@"reset"]) {
 //		[[self nativePlayer] stop];
 		[nativePlayer setCurrentTime:0];
+		if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerReset:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL([self nativePlayer]),@"player",nil]];
 		resumeTime = 0;
 //		[nativePlayer play];
 	} else if ([functionName isEqualToString:@"stop"]) {
 		if (nativePlayer != nil){
 			[nativePlayer stop];
 			[nativePlayer setCurrentTime:0];
+			if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerStop:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL([self nativePlayer]),@"player",nil]];
 		}
 		resumeTime = 0;
 
@@ -177,6 +192,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 		if ([boolObject respondsToSelector:@selector(boolValue)]) {
 			isLooping = [boolObject boolValue];
 			[nativePlayer setNumberOfLoops:(isLooping?-1:0)];
+			if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerSetLooping:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL([self nativePlayer]),@"player",[NSNumber numberWithBool:isLooping],@"isLooping",nil]];
 		}
 	} else if ([functionName isEqualToString:@"setVolume"]) {
 		id floatObject = nil;
@@ -184,6 +200,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 		if ([floatObject respondsToSelector:@selector(floatValue)]) {
 			volume = [floatObject floatValue];
 			[nativePlayer setVolume:volume];
+			if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerSetVolume:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL([self nativePlayer]),@"player",[NSNumber numberWithFloat:volume],"volume",nil]];
 		}
 	}
 	return nil;
@@ -219,7 +236,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	[result setMovieControlMode:movieControlMode];
 	[result setBackgroundColor:backgroundColor];
 	if([result respondsToSelector:@selector(setInitialPlaybackTime:)])[result setInitialPlaybackTime:initialPlaybackTime];
-
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventMoviePlayerCreated:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(result),@"player",nil]];
 	return result;
 }
 
@@ -255,6 +272,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 
 - (void) handlePlayerFinished: (NSDictionary *) userInfo;
 {
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventMoviePlayerFinished:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(userInfo),@"userInfo",nil]];
 	NSString * commandString = [[NSString alloc] initWithFormat:@"Ti.Media._MEDIA.%@.doEvent('complete',{type:'complete'})",token];
 	[[TitaniumHost sharedHost] sendJavascript:commandString toPageWithToken:parentPageToken];
 	[commandString release];
@@ -405,6 +423,8 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	
 	VERBOSE_LOG(@"[DEBUG] HandlePlayer: %@ = %@",theNotification,[theNotification userInfo]);
 	
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventMoviePlayerNotification:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(theNotification),@"notification",VAL_OR_NSNULL(mediaDictionary),"dictionary",nil]];
+
 	if ([notificationType isEqualToString:MPMoviePlayerPlaybackDidFinishNotification]){
 		MovieWrapper * cmw = [mediaDictionary objectForKey:currentMovieToken];
 		[cmw handlePlayerFinished:[theNotification userInfo]];
@@ -461,7 +481,11 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	}
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	UINavigationController * theNavController = [[theHost currentTitaniumViewController] navigationController];
+
 	[theHost navigationController:theNavController presentModalView:currentImagePicker animated:isImagePickerAnimated];
+
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventCameraShown:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(theNavController),@"navController",VAL_OR_NSNULL(currentImagePicker),@"picker",VAL_OR_NSNULL(arguments),@"arguments",nil]];
+
 	return nil;
 }
 
@@ -496,6 +520,9 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	[resultString appendString:@")"];
 
 	[[picker parentViewController] dismissModalViewControllerAnimated:isImagePickerAnimated];
+
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventCameraFinished:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(picker),@"picker",VAL_OR_NSNULL(image),@"image",VAL_OR_NSNULL(editingInfo),@"info",VAL_OR_NSNULL(ourImageBlob),@"blob",nil]];
+
 	[currentImagePicker release];
 	currentImagePicker = nil;
 	[[TitaniumHost sharedHost] sendJavascript:resultString toPageWithToken:imagePickerCallbackParentPageString];
@@ -505,6 +532,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 {
 	[[TitaniumHost sharedHost] sendJavascript:@"Ti.Media._PIC.cancel()" toPageWithToken:imagePickerCallbackParentPageString];
 	[[picker parentViewController] dismissModalViewControllerAnimated:isImagePickerAnimated];
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventCameraCancelled:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(picker),@"picker",nil]];
 	[currentImagePicker release];
 	currentImagePicker = nil;
 }
@@ -517,6 +545,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	UIImage * savedImage = [savedImageBlob imageBlob];
 	if (savedImage == nil) return;
 	
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventSaveImageToRoll:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(savedImage),@"image",nil]];
 	UIImageWriteToSavedPhotosAlbum(savedImage, nil, nil, NULL);
 }
 
