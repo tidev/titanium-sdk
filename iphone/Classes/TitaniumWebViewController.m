@@ -170,6 +170,7 @@
 		
 		if([[self webView] superview] != scrollView){
 			[webView setAutoresizingMask:stretchy];
+		//	[webView setMultipleTouchEnabled:YES];
 			[webView setFrame:quikframe];
 			[scrollView insertSubview:webView atIndex:0];
 		}
@@ -291,7 +292,7 @@
 	currentContentURL = [requestURL copy];
 	isNonTitaniumPage = ![[currentContentURL scheme] isEqualToString:@"app"];
 	[webView setScalesPageToFit:isNonTitaniumPage];
-	[webView setMultipleTouchEnabled:isNonTitaniumPage];
+//	[webView setMultipleTouchEnabled:isNonTitaniumPage];
 	if(!isNonTitaniumPage)[webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window._WINTKN='%@'",[self primaryToken]]];
 	return YES;
 }
@@ -563,5 +564,14 @@ typedef int UIEventSubtype;
 	
 }
 
+- (void) trackingSanityCheck;
+{
+	//This happens when there's been two fingers in the web view and it's canceled, the web view is still tracking.
+	if([scrollView isTracking] || [scrollView isDragging] || [scrollView isDecelerating])return;
+	
+	NSLog(@"[WARN] Suspected that webView is locked in tracking. Resetting its connection to the view tree...");
+	[webView removeFromSuperview];
+	[scrollView insertSubview:webView atIndex:0];
+}
 
 @end

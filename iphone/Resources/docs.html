@@ -472,11 +472,17 @@ documentation['UI.iPhone.SystemButtonStyle.BAR']={"since": "0.6", "desc": "const
 
 
 documentation['Filesystem']={"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "object", "minArgCount": 1};
-documentation['Filesystem.File']={"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "object", "minArgCount": 1};
-documentation['Filesystem.File.copy']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['Filesystem.File.createDirectory']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['Filesystem.File.createFile']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
-documentation['Filesystem.File.createTimeStamp']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['Filesystem.File']={"since": "0.7", "desc": "An object that represents a file location on the device", "generalType": "property", "dataType": "object", "minArgCount": 1};
+documentation['Filesystem.File.copy']={"since": "0.7", "generalType": "method", "args": [{name:'destination',dataType:'string',desc:'the full path (or file object) to copy to'}], "desc": "Copies the file to the new destination"};
+documentation['Filesystem.File.createDirectory']={"since": "0.7", "generalType": "method",
+	"args": [{name:'recurse',dataType:'boolean',desc:'If true, generates intermediate directories if necessary. If false, missing intermediate directories will cause a failure'}],
+	"desc": "creates a directory at location represented by the file object\nIf a file or directory already exists at the location, this will fail",
+	"result":{dataType:"boolean",desc:"true if the directory was successfully created, false if otherwise"}};
+documentation['Filesystem.File.createFile']={"since": "0.7", "generalType": "method",
+	"args": [{name:'recurse',dataType:'boolean',desc:'If true, generates intermediate directories if necessary. If false, missing intermediate directories will cause a failure'}],
+	"desc": "creates a blank file at location represented by the file object\nIf a file or directory already exists at the location, this will fail",
+	"result":{dataType:"boolean",desc:"true if the directory was successfully created, false if otherwise"}};
+documentation['Filesystem.File.createTimeStamp']={"since": "0.7", "generalType": "method", "args": [], "desc": "Returns the created timestamp of a file or directory"};
 documentation['Filesystem.File.deleteDirectory']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.deleteFile']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.exists']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
@@ -504,6 +510,7 @@ documentation['Filesystem.File.setReadonly']={"since": "0.7", "generalType": "me
 documentation['Filesystem.File.size']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.spaceAvailible']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['Filesystem.File.toString']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['Filesystem.File.url']={"since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "string"};
 documentation['Filesystem.File.write']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 		documentation['Filesystem.MODE_APPEND']={"hidden": true, "since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "int"};
 		documentation['Filesystem.MODE_READ']={"hidden": true, "since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "int"};
@@ -549,9 +556,13 @@ documentation['UI.Picker.addEventListener']={"since": "0.7", "createsEvents": [{
 		documentation['UI.Picker.ensureToken']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 		documentation['UI.Picker.findDivPos']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 		documentation['UI.Picker.focus']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.getSelectedRow']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.Picker.hide']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 		documentation['UI.Picker.onClick']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.Picker.removeEventListener']={"since": "0.7", "removesEvents": ["change"], "generalType": "method", "args": [{"name": "type", "dataType": "string", "desc": "the type of event to remove the listener from.  Must be or undefined"}, {"name": "callback", "dataType": "function", "desc": "the function to be removed"}], "desc": "removes an event listener from or undefined events", "minArgCount": 2, "result": {"dataType": "boolean", "desc": "returns true if successfully removed"}};
+documentation['UI.Picker.selectRow']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.setColumnData']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.Picker.setData']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 		documentation['UI.Picker.setId']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 		documentation['UI.Picker.setIndex']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 		documentation['UI.Picker.setMax']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
@@ -561,8 +572,10 @@ documentation['UI.Picker.show']={"since": "0.7", "generalType": "method", "args"
 		documentation['UI.Picker.systemButton']={"hidden": true, "since": "0.7", "desc": "*NEEDS*DESCRIPTION*", "generalType": "property", "dataType": "string"};
 documentation['UI.Picker.update']={"since": "0.7", "generalType": "method", "args": [], "desc": "Forces the UI.DatePicker native object to reload its javascript properties. This is often done automatically"};
 
+documentation['UI.TableView.addEventListener']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.TableView.appendRow']={"since": "0.7", "generalType": "method", "args": [{"name": "row", "dataType": "object", "desc": "The data representing the row to be appended"}, {"name": "options", "dataType": "object", "desc": "If the table view is visible, the animationStyle property may be one of UI.iPhone.RowAnimationStyle to specify how the transition is animated"}], "desc": "appends a row at the end of the table view"};
 		documentation['UI.TableView.fireEvent']={hidden:true,"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
+documentation['UI.TableView.removeEventListener']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 		documentation['UI.TableView.setBackButtonTitle']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 		documentation['UI.TableView.setBackButtonTitleImage']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.addEventListener']={"since": "0.7", "createsEvents": [{"name": "tabchange"}], "generalType": "method", "args": [{"name": "type", "dataType": "string", "desc": "the type of event to listen for.  Must be or tabchange"}, {"name": "callback", "dataType": "function", "desc": "the function that will be called when the event occurs. A single object event is passed as an argument"}], "desc": "adds an event listener to be called for a or tabchange event", "minArgCount": 2, "result": {"dataType": "method", "desc": "the callback function, for use in removeEventListener"}};
@@ -574,6 +587,7 @@ documentation['UI.createImageView']={"since": "0.7", "creates": "UI.ImageView", 
 		documentation['UI.createModalPicker']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.createPicker']={"since": "0.7", "creates": "UI.Picker", "generalType": "method", "args": [{"name": "properties", "dataType": "object", "desc": "the properties to copy to the new UI.Picker object during creation"}], "desc": "Creates an UI.Picker object", "minArgCount": 0, "result": {"dataType": "object", "desc": "the created UI.Picker object"}};
 documentation['UI.createScrollableView']={"since": "0.7", "creates": "UI.ScrollableView", "generalType": "method", "args": [{"name": "properties", "dataType": "object", "desc": "the properties to copy to the new UI.ScrollableView object during creation"}], "desc": "Creates an UI.ScrollableView object", "minArgCount": 0, "result": {"dataType": "object", "desc": "the created UI.ScrollableView object"}};
+documentation['UI.createView']={"since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 		documentation['UI.createTab']={"hidden": true, "since": "0.7", "generalType": "method", "args": [], "desc": "*NEEDS*DESCRIPTION*"};
 documentation['UI.currentTab']={"since": "0.7", "desc": "object that represents the current tab for use in setActiveTab", "generalType": "property", "dataType": "object"};
 

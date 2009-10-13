@@ -110,6 +110,9 @@ typedef enum {
 	NSMutableDictionary * modalActionDict;
 	
 	NSMutableArray * moduleListeners;
+	
+	NSTimer * bugSentry;
+	
 }
 
 @property(readwrite,copy)	NSString * appID;

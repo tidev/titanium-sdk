@@ -518,6 +518,9 @@ TitaniumHost * lastSharedHost = nil;
 #endif
 
 	[[TitaniumAppDelegate sharedDelegate] setViewController:rootViewController];
+	bugSentry = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(guardAgainstIphoneBugs:) userInfo:nil repeats:YES];
+	[[NSRunLoop mainRunLoop] addTimer:bugSentry forMode:NSRunLoopCommonModes];
+
 }
 
 - (void) endModules;
@@ -574,6 +577,15 @@ TitaniumHost * lastSharedHost = nil;
 	if ([self hasListeners]) [self fireListenerAction:@selector(eventUnregisterContentViewController:properties:) source:viewController properties:[NSDictionary dictionaryWithObject:VAL_OR_NSNULL(key) forKey:@"key"]];
 	CFDictionaryRemoveValue(contentViewControllerRegistry, key);
 }
+
+- (void) guardAgainstIphoneBugs: (NSTimer *) timer;
+{
+	if([[[NSRunLoop currentRunLoop] currentMode] isEqualToString:NSDefaultRunLoopMode])return;
+	TitaniumContentViewController * ourVC = [self currentTitaniumContentViewController];
+	if([ourVC respondsToSelector:@selector(trackingSanityCheck)])[(id)ourVC trackingSanityCheck];
+	
+}
+
 
 
 #pragma mark Blob Management
@@ -1297,7 +1309,7 @@ TitaniumHost * lastSharedHost = nil;
 {
 	TitaniumContentViewController * currentVC = [self titaniumContentViewControllerForToken:token];
 	if (![currentVC isKindOfClass:[TitaniumWebViewController class]]){ return NO; }
-	
+	NSLog(@"Send Javascript: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
 	if ([NSThread isMainThread]){
 		[[(TitaniumWebViewController *)currentVC webView] performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:inputString afterDelay:0.0];
 	} else {
