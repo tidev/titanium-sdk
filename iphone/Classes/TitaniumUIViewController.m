@@ -53,7 +53,7 @@ TitaniumViewController * CurrentTitaniumViewController(UIViewController * baseCo
 		return (TitaniumViewController *)baseController;
 	}
 	if ([baseController isKindOfClass:[UITabBarController class]]){
-		UINavigationController * thisVC = [(UITabBarController *)baseController selectedViewController];
+		UINavigationController * thisVC = (UINavigationController*)[(UITabBarController *)baseController selectedViewController];
 		if ([[thisVC viewControllers] count]==0){
 			thisVC = [(UITabBarController *)baseController moreNavigationController];
 		}

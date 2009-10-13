@@ -257,6 +257,45 @@
 
 	  });
 
+	  var fsGetText = Titanium.UI.createButton({id: 'fs-get-text', title: "Get Text"});
+	  fsGetText.addEventListener('click', function(e) {
+		try {
+			var progress3 = Titanium.UI.createActivityIndicator({
+				message: 'Downloading...', min : 0, max : 100, value : 0,
+				type: Titanium.UI.ActivityIndicator.DETERMINANT
+			});
+			progress3.show();
+
+			log('Requesting Text rfc0850...');
+			var ourClient = Titanium.Network.createHTTPClient();
+			ourClient.open('GET','http://www.ietf.org/rfc/rfc0850.txt');
+			ourClient.ondatastream = function(totalCount, totalSize, blob, size) {
+				Titanium.API.debug("ODS: tCount: " + totalCount +
+						" tSize: " + totalSize + " Length: " + blob.length + " size: " + size);
+				progress3.setValue(totalSize/totalCount * 100);
+				try {
+					document.getElementById('data').innerHTML += blob.toString();
+				} catch(E) {
+					alert('Exception: ' + E);
+				}
+				if (totalCount == totalSize) {
+					progress3.hide();
+					Titanium.UI.currentWindow.fireEvent('notify', { message : 'Downloaded OK'});
+				}
+			};
+
+			ourClient.onreadystatechange=function(){
+				if(this.readyState == 4) {
+					log('Download complete');
+				}
+			};
+			ourClient.send();
+		} catch(E) {
+			alert('Exception: ' + E);
+		}
+
+	  });
+
   }
   </script>
 </head>
@@ -272,6 +311,7 @@
 	<div id="fs-readline-b" class="button">&nbsp;</div>
 	<div id="fs-get-image" class="button">&nbsp;</div>
 	<div id="fs-get-image2" class="button">&nbsp;</div>
+	<div id="fs-get-text" class="button">&nbsp;</div>
 	<div style="clear:both">&nbsp;</div>
 </div>
 <div id="log">&nbsp;</div>

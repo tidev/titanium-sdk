@@ -7,6 +7,8 @@
 
 package org.appcelerator.titanium.module;
 
+import java.io.UnsupportedEncodingException;
+
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumAPI;
 import org.appcelerator.titanium.api.ITitaniumJSRef;
@@ -90,5 +92,20 @@ public class TitaniumAPI extends TitaniumBaseModule implements ITitaniumAPI
 			len = blob.getLength();
 		}
 		return len;
+	}
+
+	public String getTitaniumMemoryBlobString(int key) {
+		String value = null;
+
+		TitaniumMemoryBlob blob = (TitaniumMemoryBlob) tmm.getObject(key);
+		if (blob != null) {
+			try {
+				value = new String(blob.getData(), "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				Log.w(LCAT, "Unable to encode data as utf-8", e);
+			}
+		}
+
+		return value;
 	}
 }

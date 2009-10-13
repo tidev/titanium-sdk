@@ -13,6 +13,7 @@
 
 - (void) dealloc 
 {
+	[host release];
 	[pageToken release];
 	[super dealloc];
 }
@@ -30,11 +31,25 @@
 - (BOOL) startModule
 {
 	dictionary = [[NSMutableDictionary alloc] init];
-	NSMutableDictionary * titaniumObject = [[TitaniumHost sharedHost] titaniumObject];
+	host = [[TitaniumHost sharedHost] retain];
+	NSMutableDictionary * titaniumObject = [host titaniumObject];
 	[self configure];
+	if ([self wantsNotifications])
+	{
+		[host registerListener:self];
+	}
 	[titaniumObject setValue:dictionary forKey:[self moduleName]];
 	[dictionary release];
 	dictionary = nil;
+	return YES;
+}
+
+- (BOOL) endModule
+{
+	if ([self wantsNotifications])
+	{
+		[host unregisterListener:self];
+	}
 	return YES;
 }
 
@@ -83,7 +98,7 @@
 	{
 		token = [self getPageToken];
 	}
-	[[TitaniumHost sharedHost] sendJavascript:code toPageWithToken:token];
+	[host sendJavascript:code toPageWithToken:token];
 }
 
 - (void) setPageToken: (NSString *)token
@@ -107,6 +122,11 @@
 {
 	SBJSON *j = [[[SBJSON alloc] init] autorelease];
 	return [j objectWithString:json error:nil];
+}
+
+- (BOOL) wantsNotifications
+{
+	return NO;
 }
 
 @end

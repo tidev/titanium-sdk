@@ -126,6 +126,10 @@ NSString * UrlEncodeString(NSString * string)
 	UIView * doomedView = [[[TitaniumAppDelegate sharedDelegate] viewController] view];
 	[actionSheet performSelectorOnMainThread:@selector(showInView:) withObject:doomedView waitUntilDone:NO];
 	[[TitaniumAppDelegate sharedDelegate] setIsShowingDialog:YES];
+
+	// fire action to any module listeners
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventActionSheetShown:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(actionSheet),@"actionSheet",VAL_OR_NSNULL(inputDict),@"properties",nil]];
+
 	[self retain];
 }
 
@@ -172,6 +176,8 @@ NSString * UrlEncodeString(NSString * string)
 	
 	[alertView performSelectorOnMainThread:@selector(show) withObject:nil waitUntilDone:NO];
 	[[TitaniumAppDelegate sharedDelegate] setIsShowingDialog:YES];
+	// fire event listener
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAlertViewShown:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(alertView),@"alertView",VAL_OR_NSNULL(inputDict),@"properties",nil]];
 	[self retain];
 }
 

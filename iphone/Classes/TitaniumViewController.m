@@ -354,6 +354,7 @@ int nextWindowToken = 0;
 	} //Hideous hack: swap between the styles in hopes to elude the colored back bug.
 
 	UINavigationController * theNC = [self navigationController];
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewSetNavBarTint:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(newColor),@"color",VAL_OR_NSNULL(theNC),@"navController",nil]];
 	if([theNC topViewController] == self)[self needsUpdate:TitaniumViewControllerRefreshIsAnimated];
 }
 
@@ -361,6 +362,7 @@ int nextWindowToken = 0;
 {
 	if(newColor == backgroundColor) return;
 	[backgroundColor release]; backgroundColor = newColor; [newColor retain];
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewSetBackgroundColor:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(newColor),@"color",nil]];
 	[self refreshBackground];
 }
 
@@ -368,25 +370,22 @@ int nextWindowToken = 0;
 {
 	if(newImage == backgroundImage)
 	[newImage retain];[backgroundImage release];backgroundImage=newImage;
-	
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewSetBackgroundImage:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(newImage),@"image",nil]];
 	[self refreshBackground];
 }
 
 - (void) setStatusBarStyle: (UIStatusBarStyle) newStyle;
 {
 	statusBarStyle = newStyle;
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewSetBackgroundImage:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:newStyle],@"style",nil]];
 	[self needsUpdate:TitaniumViewControllerRefreshIsAnimated];
-//	if ([[TitaniumHost sharedHost] currentTitaniumViewController] == self){
-//
-//		[[UIApplication sharedApplication] setStatusBarStyle:statusBarStyle animated:YES];
-//	}
 }
 
 - (void) setFullscreen: (BOOL) newSetting;
 {
 	if (newSetting == fullscreen) return;
 	fullscreen = newSetting;
-	//	if (fullscreen) [self setHidesBottomBarWhenPushed:YES];
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewSetFullscreen:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:fullscreen],@"fullscreen",nil]];
 	[self needsUpdate:TitaniumViewControllerRefreshIsAnimated];
 }
 
@@ -401,6 +400,7 @@ int nextWindowToken = 0;
 	[newItems retain];
 	[toolbarItems release];
 	toolbarItems = newItems;
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewSetToolbarItems:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(toolbarItems),@"items",nil]];
 	[self needsUpdate:TitaniumViewControllerRefreshIsAnimated];
 }
 
@@ -473,6 +473,8 @@ int nextWindowToken = 0;
 	[self refreshBackground];
 	if (animated) dirtyFlags |= TitaniumViewControllerRefreshIsAnimated;
 	[self updateLayout:dirtyFlags]; //This is what will notify the focused contentController.
+	
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewWillAppear:properties:) source:self properties:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated;
@@ -483,6 +485,7 @@ int nextWindowToken = 0;
 	UINavigationController * theNC = [self navigationController];
 	[[TitaniumHost sharedHost] navigationController:theNC didShowViewController:self animated:animated];
 
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewDidAppear:properties:) source:self properties:nil];
 }
 
 - (void)viewWillDisappear: (BOOL) animated;
@@ -492,6 +495,7 @@ int nextWindowToken = 0;
 	if(hidesNavBar && ![[[self navigationController] visibleViewController] isKindOfClass:[TitaniumViewController class]]){
 		[[self navigationController] setNavigationBarHidden:NO animated:animated];
 	}
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewWillDisappear:properties:) source:self properties:nil];
 }
 
 - (void)viewDidDisappear: (BOOL) animated;
@@ -509,6 +513,7 @@ int nextWindowToken = 0;
 		}
 	}
 	isVisible = NO;
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewDidDisappear:properties:) source:self properties:nil];
 }
 
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < 30000
@@ -566,11 +571,13 @@ typedef int UIEventSubtype;
 	if ([ourVC respondsToSelector:@selector(setInterfaceOrientation:duration:)]){
 		[(TitaniumContentViewController<TitaniumWindowDelegate> *)ourVC setInterfaceOrientation:currentOrientation duration:duration];
 	}
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewWillRotateToInterfaceOrientation:properties:) source:self properties:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:toInterfaceOrientation] forKey:@"orientation"]];
 }
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
 {
 	TitaniumContentViewController * ourVC = [self viewControllerForIndex:selectedContentIndex];
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewDidRotateToInterfaceOrientation:properties:) source:self properties:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:fromInterfaceOrientation] forKey:@"orientation"]];
 	[ourVC updateLayout:YES];
 }
 
@@ -748,7 +755,9 @@ typedef int UIEventSubtype;
 		}
 		[newContentViewController updateLayout:animated];
 	}
-	
+
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewUpdateLayout:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(newContentViewController),@"contentViewController",VAL_OR_NSNULL(newContentView),@"contentView",nil]];
+
 	if (animated) {
 		[UIView commitAnimations];
 	}
@@ -778,6 +787,7 @@ typedef int UIEventSubtype;
 {
 	if (![object respondsToSelector:@selector(boolValue)]) return;
 	[self setFullscreen:[object boolValue]];
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewSetFullscreen:properties:) source:self properties:[NSDictionary dictionaryWithObject:VAL_OR_NSNULL(object) forKey:@"fullscreen"]];
 }
 
 #pragma mark Setting Nav buttons
@@ -785,21 +795,25 @@ typedef int UIEventSubtype;
 - (void) setLeftNavButtonAnimated: (UIBarButtonItem *)newButton;
 {
 	[[self navigationItem] setLeftBarButtonItem:newButton animated:YES];
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewSetLeftNavBarButton:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(newButton),@"button",[NSNumber numberWithBool:YES],@"animated",nil]];
 }
 
 - (void) setLeftNavButtonNonAnimated: (UIBarButtonItem *)newButton;
 {
 	[[self navigationItem] setLeftBarButtonItem:newButton animated:NO];
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewSetLeftNavBarButton:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(newButton),@"button",[NSNumber numberWithBool:NO],@"animated",nil]];
 }
 
 - (void) setRightNavButtonNonAnimated: (UIBarButtonItem *)newButton;
 {
 	[[self navigationItem] setRightBarButtonItem:newButton animated:NO];
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewSetRightNavBarButton:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(newButton),@"button",[NSNumber numberWithBool:NO],@"animated",nil]];
 }
 
 - (void) setRightNavButtonAnimated: (UIBarButtonItem *)newButton;
 {
 	[[self navigationItem] setRightBarButtonItem:newButton animated:YES];
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewSetRightNavBarButton:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(newButton),@"button",[NSNumber numberWithBool:YES],@"animated",nil]];
 }
 
 #pragma mark Showing and hiding the nav bar
@@ -812,6 +826,7 @@ typedef int UIEventSubtype;
 	if([animatedObject respondsToSelector:@selector(boolValue)]) animated = [animatedObject boolValue];
 	UINavigationController * theNC = [self navigationController];
 	if ([theNC topViewController] == self) [theNC setNavigationBarHidden:YES animated:animated];
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewHideRightNavBarButton:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:animated],@"animated",nil]];
 }
 
 - (void) showNavBarWithAnimation: (id) animatedObject;
@@ -822,6 +837,7 @@ typedef int UIEventSubtype;
 	if([animatedObject respondsToSelector:@selector(boolValue)]) animated = [animatedObject boolValue];
 	UINavigationController * theNC = [self navigationController];
 	if ([theNC topViewController] == self) [theNC setNavigationBarHidden:NO animated:animated];
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewShowRightNavBarButton:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:animated],@"animated",nil]];
 }
 
 #pragma mark Pushing and popping views
@@ -847,6 +863,7 @@ typedef int UIEventSubtype;
 	} else {
 		[ourNavCon pushViewController:newVC animated:isAnimated];
 	}
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewShow:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(ourNavCon),@"navController",VAL_OR_NSNULL(modalController),@"modalController",VAL_OR_NSNULL(newVC),@"viewController",[NSNumber numberWithBool:isModal],@"modal",[NSNumber numberWithBool:isAnimated],@"animated",nil]];
 }
 
 - (void) presentViewControllerAnimated: (TitaniumViewController *) newVC;
@@ -878,6 +895,8 @@ typedef int UIEventSubtype;
 	UINavigationController * theNC = [self navigationController];
 	NSArray * theVCArray = [theNC viewControllers];
 	NSInteger thisIndex = [theVCArray indexOfObject:self];
+
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewClose:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(theNC),@"navController",thisIndex,@"index",[NSNumber numberWithBool:animated],@"animated",nil]];
 
 	if(thisIndex == 0){
 		UIViewController * parentNC = [theNC parentViewController];

@@ -549,12 +549,12 @@ needsRefreshing = YES;	\
 			if (elementColor != nil) [(UITextField *)resultView setTextColor:elementColor];
 			[(UITextField *)resultView setText:stringValue];
 			[(UITextField *)resultView setFont:FontFromDescription(&fontDesc)];
-			[(UITextField *)resultView setAutocorrectionType:autocorrectionType];
-			[(UITextField *)resultView setAutocapitalizationType:autocapitalizationType];
-			[(UITextField *)resultView setTextAlignment:textAlignment];
-			[(UITextField *)resultView setKeyboardType:keyboardType];
-			[(UITextField *)resultView setReturnKeyType:returnKeyType];
-			[(UITextField *)resultView setEnablesReturnKeyAutomatically:enablesReturnKeyAutomatically];			
+			if([(UITextField *)resultView autocorrectionType] != autocorrectionType) [(UITextField *)resultView setAutocorrectionType:autocorrectionType];
+			if([(UITextField *)resultView autocapitalizationType] != autocapitalizationType) [(UITextField *)resultView setAutocapitalizationType:autocapitalizationType];
+			if([(UITextField *)resultView textAlignment] != textAlignment) [(UITextField *)resultView setTextAlignment:textAlignment];
+			if([(UITextField *)resultView keyboardType] != keyboardType) [(UITextField *)resultView setKeyboardType:keyboardType];
+			if([(UITextField *)resultView returnKeyType] != returnKeyType) [(UITextField *)resultView setReturnKeyType:returnKeyType];
+			if([(UITextField *)resultView enablesReturnKeyAutomatically] != enablesReturnKeyAutomatically) [(UITextField *)resultView setEnablesReturnKeyAutomatically:enablesReturnKeyAutomatically];			
 		}break;
 
 		case UITitaniumNativeItemMultiButton:	case UITitaniumNativeItemSegmented:{
@@ -720,9 +720,9 @@ needsRefreshing = YES;	\
 		default:
 			break;
 	}
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
 
 	if (resultView == nil) {
-		TitaniumHost * theHost = [TitaniumHost sharedHost];
 		UIImage * bgImage = [theHost stretchableImageForResource:backgroundImagePath];
 		
 		UIButtonType resultType = ((bgImage==nil) && (buttonStyle != UIBarButtonItemStylePlain))?UIButtonTypeRoundedRect:UIButtonTypeCustom;
@@ -787,6 +787,10 @@ needsRefreshing = YES;	\
 	[nativeView autorelease];
 	nativeView = resultView;
 	needsRefreshing = NO;
+	
+	// fire action to any module listeners
+	if ([theHost hasListeners]) [theHost fireListenerAction:@selector(eventUpdateNativeView:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(nativeView),@"nativeView",VAL_OR_NSNULL(wrapperView),@"wrapperView",[NSNumber numberWithBool:isNewView],@"newView",viewFrame,@"viewFrame",nil]];
+
 	return isNewView;
 }
 
@@ -1072,7 +1076,13 @@ needsRefreshing = YES;	\
 			@"(function(){%@%@Titanium.UI._BTN.%@.onClick('%@',{type:'%@'%@%@});}).call(Titanium.UI._BTN.%@);",
 			customInit,initalizer,token,eventType,eventType,arguments,extraArgs,token];
 	VERBOSE_LOG(@"[DEBUG] Sending '%@' to the page.",handleClickCommand);
-	[[TitaniumHost sharedHost] sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
+	
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	
+	[theHost sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
+
+	// fire action to any module listeners
+	if ([theHost hasListeners]) [theHost fireListenerAction:@selector(eventNativeControlEvent:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(eventType),@"event",VAL_OR_NSNULL(newValue),@"value",VAL_OR_NSNULL(parentPageToken),@"pageToken",nil]];
 }
 
 - (IBAction) onClick: (id) sender;

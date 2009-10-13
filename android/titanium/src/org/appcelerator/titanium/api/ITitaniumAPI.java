@@ -19,4 +19,6 @@ public interface ITitaniumAPI
 	// Added in 0.7.0
 	public ITitaniumJSRef getObjectReference(int key);
 	public int getTitaniumMemoryBlobLength(int key);
+
+	public String getTitaniumMemoryBlobString(int key);
 }

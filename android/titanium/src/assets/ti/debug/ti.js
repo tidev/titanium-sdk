@@ -121,6 +121,10 @@ var Titanium = new function() {
 		return this.apiProxy.getTitaniumMemoryBlobLength(key);
 	};
 
+	this.getTitaniumMemoryBlobString = function(key) {
+		return this.apiProxy.getTitaniumMemoryBlobString(key);
+	};
+
 	this.DateFormatter = {
 		pad : function(n) {
 	    	return (n < 10 ? "0" : "") + String(n);
@@ -325,6 +329,10 @@ var TitaniumMemoryBlob = function(key) {
 	this.getKey = function() {
 		return this._key;
 	};
+
+	this.toString = function() {
+		return transformObjectValueAsString(Titanium.getTitaniumMemoryBlobString(this._key));
+	}
 };
 TitaniumMemoryBlob.prototype.__defineGetter__("length", function(){
 	return this.getLength();
