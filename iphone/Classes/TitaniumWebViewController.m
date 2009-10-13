@@ -170,7 +170,6 @@
 		
 		if([[self webView] superview] != scrollView){
 			[webView setAutoresizingMask:stretchy];
-		//	[webView setMultipleTouchEnabled:YES];
 			[webView setFrame:quikframe];
 			[scrollView insertSubview:webView atIndex:0];
 		}
@@ -185,6 +184,7 @@
 		if([webView respondsToSelector:@selector(setDetectsPhoneNumbers:)])[(id)webView setDetectsPhoneNumbers:NO];
 		if([webView respondsToSelector:@selector(setDataDetectorTypes:)])[(id)webView setDataDetectorTypes:0];
 		[webView setDelegate:self];
+		[webView setMultipleTouchEnabled:YES];
 		[webView setBackgroundColor:[UIColor clearColor]];
 		[webView setOpaque:NO];
 		[scrollView setAlpha:0.0];
@@ -292,7 +292,6 @@
 	currentContentURL = [requestURL copy];
 	isNonTitaniumPage = ![[currentContentURL scheme] isEqualToString:@"app"];
 	[webView setScalesPageToFit:isNonTitaniumPage];
-//	[webView setMultipleTouchEnabled:isNonTitaniumPage];
 	if(!isNonTitaniumPage)[webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window._WINTKN='%@'",[self primaryToken]]];
 	return YES;
 }
