@@ -549,12 +549,12 @@ needsRefreshing = YES;	\
 			if (elementColor != nil) [(UITextField *)resultView setTextColor:elementColor];
 			[(UITextField *)resultView setText:stringValue];
 			[(UITextField *)resultView setFont:FontFromDescription(&fontDesc)];
-			[(UITextField *)resultView setAutocorrectionType:autocorrectionType];
-			[(UITextField *)resultView setAutocapitalizationType:autocapitalizationType];
-			[(UITextField *)resultView setTextAlignment:textAlignment];
-			[(UITextField *)resultView setKeyboardType:keyboardType];
-			[(UITextField *)resultView setReturnKeyType:returnKeyType];
-			[(UITextField *)resultView setEnablesReturnKeyAutomatically:enablesReturnKeyAutomatically];			
+			if([(UITextField *)resultView autocorrectionType] != autocorrectionType) [(UITextField *)resultView setAutocorrectionType:autocorrectionType];
+			if([(UITextField *)resultView autocapitalizationType] != autocapitalizationType) [(UITextField *)resultView setAutocapitalizationType:autocapitalizationType];
+			if([(UITextField *)resultView textAlignment] != textAlignment) [(UITextField *)resultView setTextAlignment:textAlignment];
+			if([(UITextField *)resultView keyboardType] != keyboardType) [(UITextField *)resultView setKeyboardType:keyboardType];
+			if([(UITextField *)resultView returnKeyType] != returnKeyType) [(UITextField *)resultView setReturnKeyType:returnKeyType];
+			if([(UITextField *)resultView enablesReturnKeyAutomatically] != enablesReturnKeyAutomatically) [(UITextField *)resultView setEnablesReturnKeyAutomatically:enablesReturnKeyAutomatically];			
 		}break;
 
 		case UITitaniumNativeItemMultiButton:	case UITitaniumNativeItemSegmented:{
