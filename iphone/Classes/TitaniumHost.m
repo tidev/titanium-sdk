@@ -518,8 +518,8 @@ TitaniumHost * lastSharedHost = nil;
 #endif
 
 	[[TitaniumAppDelegate sharedDelegate] setViewController:rootViewController];
-	bugSentry = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(guardAgainstIphoneBugs:) userInfo:nil repeats:YES];
-	[[NSRunLoop mainRunLoop] addTimer:bugSentry forMode:NSRunLoopCommonModes];
+//	bugSentry = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(guardAgainstIphoneBugs:) userInfo:nil repeats:YES];
+//	[[NSRunLoop mainRunLoop] addTimer:bugSentry forMode:NSRunLoopCommonModes];
 
 }
 
