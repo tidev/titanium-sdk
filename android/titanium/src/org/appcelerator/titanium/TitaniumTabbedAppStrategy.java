@@ -42,6 +42,8 @@ public class TitaniumTabbedAppStrategy implements ITitaniumAppStrategy, OnTabCha
 	private String lastTabId;
 	private int lastTabIndex;
 
+	boolean addedToContentView = false;
+
 	public TitaniumTabbedAppStrategy() {
 	}
 
@@ -51,9 +53,6 @@ public class TitaniumTabbedAppStrategy implements ITitaniumAppStrategy, OnTabCha
 		TitaniumApplication app = (TitaniumApplication) tag.getApplication();
 
         tabHost = new TabHost(tag);
-        LinearLayout.LayoutParams linearParams = new LinearLayout.LayoutParams(
-                LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-
         TabWidget tabWidget = new TabWidget(tag);
 
         tabWidget.setId(android.R.id.tabs);
@@ -69,8 +68,6 @@ public class TitaniumTabbedAppStrategy implements ITitaniumAppStrategy, OnTabCha
         tabHost.setup(tag.getLocalActivityManager());
 
         ArrayList<TitaniumWindowInfo> windows = app.getAppInfo().getWindows();
-
-        boolean addedToContentView = false;
 
         int len = windows.size();
         for (int i = 0; i < len; i++) {
@@ -125,14 +122,22 @@ public class TitaniumTabbedAppStrategy implements ITitaniumAppStrategy, OnTabCha
 			spec.setContent(tabIntent.getIntent());
 
 			tabHost.addTab(spec);
-
-			if (!addedToContentView) {
-		 		tag.setContentView(tabHost,linearParams);
-		 		addedToContentView = true;
-			}
         }
 
         tabHost.setOnTabChangedListener(this);
+	}
+
+	public void attachContentView() {
+		if (!addedToContentView) {
+	        LinearLayout.LayoutParams linearParams = new LinearLayout.LayoutParams(
+	                LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+
+	        TitaniumActivityGroup tag = (TitaniumActivityGroup) weakActivityGroup.get();
+	        if (tag != null) {
+		 		tag.setContentView(tabHost,linearParams);
+		 		addedToContentView = true;
+	        }
+		}
 	}
 
 	public void setActiveTab(int index) {

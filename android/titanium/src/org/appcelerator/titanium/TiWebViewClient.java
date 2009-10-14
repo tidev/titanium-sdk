@@ -41,7 +41,7 @@ public class TiWebViewClient extends WebViewClient
 		if (DBG) {
 			Log.d(LCAT, "Page Finished");
 		}
-		TitaniumActivity activity = weakActivity.get();
+		final TitaniumActivity activity = weakActivity.get();
 		if (activity != null) {
 			if (activity.getLoadOnPageEnd()) {
 				int activeView = activity.getCurrentWindow().getActiveViewIndex();
@@ -56,7 +56,7 @@ public class TiWebViewClient extends WebViewClient
 			//TODO: Move this to currentWindow and let it decide.
 			Activity root = TitaniumActivityHelper.getRootActivity(activity);
 			if (root != null && root instanceof TitaniumActivityGroup) {
-				TitaniumActivityGroup tag = (TitaniumActivityGroup) root;
+				final TitaniumActivityGroup tag = (TitaniumActivityGroup) root;
 				if (view instanceof TitaniumWebView) {
 					TitaniumWebView twv = (TitaniumWebView) view;
 					String data = tag.getLastTabChange();
@@ -69,6 +69,17 @@ public class TiWebViewClient extends WebViewClient
 					}
 				}
 			}
+
+			activity.handler.postDelayed(new Runnable(){
+
+				public void run() {
+					Activity root = TitaniumActivityHelper.getRootActivity(activity);
+					if (root != null && root instanceof TitaniumActivityGroup) {
+						final TitaniumActivityGroup tag = (TitaniumActivityGroup) root;
+						tag.attachContentView();
+					}
+
+				}}, 250);
 		}
 	}
 

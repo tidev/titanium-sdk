@@ -25,7 +25,13 @@ import org.appcelerator.titanium.util.TitaniumUrlHelper;
 import android.app.Activity;
 import android.app.ActivityGroup;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
@@ -40,6 +46,9 @@ public class TitaniumActivityGroup extends ActivityGroup
 	protected TitaniumApplication app;
 	protected TitaniumAppInfo appInfo;
 	protected ITitaniumAppStrategy appStrategy;
+	protected boolean attached;
+
+	protected Handler handler;
 
 	protected boolean fullscreen;
 
@@ -54,6 +63,7 @@ public class TitaniumActivityGroup extends ActivityGroup
 		super(singleActivityMode);
 		fullscreen = false;
 		lastTabChangeData = null;
+		attached = false;
 	}
 
 	@Override
@@ -133,6 +143,24 @@ public class TitaniumActivityGroup extends ActivityGroup
 			return;
 		}
 
+        if (app.needsSplashScreen()) {
+    		Drawable backgroundDrawable = null;
+
+    		String backgroundImage = "default.png";
+	    	if(info != null && info.hasWindowBackgroundImage()) {
+	    		backgroundImage = info.getWindowBackgroundImage();
+	    	}
+
+	    	backgroundDrawable = tfh.loadDrawable(backgroundImage, false); // Ok to not have background
+			if (backgroundDrawable != null) {
+				((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
+				getWindow().setBackgroundDrawable(backgroundDrawable);
+				//getWindow().setBackgroundDrawable(backgroundDrawable);
+			} else {
+				getWindow().setBackgroundDrawable(new ColorDrawable(Color.RED));
+			}
+        }
+
 		if (numWindows > 1) {
 			appStrategy = new TitaniumTabbedAppStrategy();
 			tabChangeListeners = new ArrayList<WeakReference<ITabChangeListener>>();
@@ -143,6 +171,15 @@ public class TitaniumActivityGroup extends ActivityGroup
 		appStrategy.onCreate(this, savedInstanceState);
 	}
 
+	public void attachContentView() {
+		if (appStrategy != null) {
+			if (!attached) {
+				appStrategy.attachContentView();
+				attached = true;
+			}
+			getWindow().setBackgroundDrawableResource(android.R.drawable.screen_background_dark);
+		}
+	}
 	public void setActiveTab(int index) {
 		if (appStrategy instanceof TitaniumTabbedAppStrategy) {
 			TitaniumTabbedAppStrategy strategy = (TitaniumTabbedAppStrategy) appStrategy;
