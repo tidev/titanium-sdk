@@ -311,29 +311,38 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 		[urlRequest setValue:valueString forHTTPHeaderField:keyString];
 		//Todo: error handling?
 
-	} else if ([functionName isEqualToString:@"send"]) {
-		NSUInteger arrayCount = [objectValue count];
-		if (arrayCount > 0) {
-			BOOL goPost = NO;
-			NSMutableData * resultData = [[NSMutableData alloc] init];
-			for(id thisObject in objectValue){
-				if ([thisObject isKindOfClass:[NSDictionary class]]){
-					goPost=YES;
-					appendDictToData(thisObject, resultData);
-				} else if([thisObject isKindOfClass:[NSString class]]){
-					[resultData appendData:[thisObject dataUsingEncoding:NSUTF8StringEncoding]];
-				}
-			}
-			if (goPost){
-				[urlRequest setHTTPMethod:@"POST"];
-				NSString *contentType = [@"multipart/form-data; boundary=" stringByAppendingString: MultiPartBoundaryString];
-				[urlRequest addValue:contentType forHTTPHeaderField: @"Content-Type"];
-				[resultData appendBytes:MultiPartFormEpilogue length:sizeof(MultiPartFormEpilogue)-1];
-			}
-			[urlRequest setHTTPBody:resultData];
-			[resultData release];
+	} else if ([functionName isEqualToString:@"send"]) 
+	{
+		// if a string, just take it as-is
+		if ([objectValue isKindOfClass:[NSString class]])
+		{
+			NSString *strValue = (NSString*)objectValue;
+			[urlRequest setHTTPBody:[strValue dataUsingEncoding:NSUTF8StringEncoding]];
 		}
-		
+		else
+		{
+			NSUInteger arrayCount = [objectValue count];
+			if (arrayCount > 0) {
+				BOOL goPost = NO;
+				NSMutableData * resultData = [[NSMutableData alloc] init];
+				for(id thisObject in objectValue){
+					if ([thisObject isKindOfClass:[NSDictionary class]]){
+						goPost=YES;
+						appendDictToData(thisObject, resultData);
+					} else if([thisObject isKindOfClass:[NSString class]]){
+						[resultData appendData:[thisObject dataUsingEncoding:NSUTF8StringEncoding]];
+					}
+				}
+				if (goPost){
+					[urlRequest setHTTPMethod:@"POST"];
+					NSString *contentType = [@"multipart/form-data; boundary=" stringByAppendingString: MultiPartBoundaryString];
+					[urlRequest addValue:contentType forHTTPHeaderField: @"Content-Type"];
+					[resultData appendBytes:MultiPartFormEpilogue length:sizeof(MultiPartFormEpilogue)-1];
+				}
+				[urlRequest setHTTPBody:resultData];
+				[resultData release];
+			}
+		}
 		[self performSelectorOnMainThread:@selector(runSend) withObject:nil waitUntilDone:NO];
 		[[TitaniumHost sharedHost] incrementActivityIndicator];
 
@@ -389,15 +398,23 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 {
 	[self setConnected:YES];
 	[self setUrlResponse:response];
-	id encodingObject = [[(NSHTTPURLResponse *)response allHeaderFields] objectForKey:@"Content-Type"];
-	returnedEncoding = NSUTF8StringEncoding;
+	
+	if ([response textEncodingName]!=nil)
+	{
+		returnedEncoding = [response textEncodingName];
+	}
+	else
+	{
+		id encodingObject = [[(NSHTTPURLResponse *)response allHeaderFields] objectForKey:@"Content-Type"];
+		returnedEncoding = NSUTF8StringEncoding;
 
-	if(encodingObject != nil){
-		encodingObject = [encodingObject lowercaseString];
-		if([encodingObject hasSuffix:@"utf-8"]){
-			
-		} else if([encodingObject hasSuffix:@"windows-1252"]){
-			returnedEncoding = NSWindowsCP1252StringEncoding;
+		if(encodingObject != nil){
+			encodingObject = [encodingObject lowercaseString];
+			if([encodingObject hasSuffix:@"utf-8"]){
+
+			} else if([encodingObject hasSuffix:@"windows-1252"]){
+				returnedEncoding = NSWindowsCP1252StringEncoding;
+			}
 		}
 	}
 	
