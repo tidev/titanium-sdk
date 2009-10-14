@@ -155,9 +155,8 @@ public class TitaniumActivityGroup extends ActivityGroup
 			if (backgroundDrawable != null) {
 				((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
 				getWindow().setBackgroundDrawable(backgroundDrawable);
-				//getWindow().setBackgroundDrawable(backgroundDrawable);
 			} else {
-				getWindow().setBackgroundDrawable(new ColorDrawable(Color.RED));
+				getWindow().setBackgroundDrawable(new ColorDrawable(Color.argb(255,46,46,46)));
 			}
         }
 
