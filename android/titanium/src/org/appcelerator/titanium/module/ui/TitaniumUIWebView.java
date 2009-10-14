@@ -9,6 +9,7 @@ package org.appcelerator.titanium.module.ui;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import org.appcelerator.titanium.TitaniumActivityGroup;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.TitaniumWebView.OnConfigChange;
@@ -17,6 +18,7 @@ import org.appcelerator.titanium.api.ITitaniumUIWebView;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TitaniumActivityHelper;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.json.JSONException;

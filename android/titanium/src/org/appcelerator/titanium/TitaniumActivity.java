@@ -28,7 +28,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,7 +35,6 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.Process;
 import android.os.RemoteException;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -74,7 +72,7 @@ public class TitaniumActivity extends Activity
 
 	protected boolean loadOnPageEnd;
 
-	protected ImageView splashView;
+	//protected ImageView splashView;
 
 	protected Handler handler;
 	protected Messenger parentMessenger;
@@ -88,7 +86,7 @@ public class TitaniumActivity extends Activity
 	String orientation;
 	private TitaniumLogWatcher logWatcher;
 
-	private Drawable backgroundDrawable;
+	//private Drawable backgroundDrawable;
 
 	private boolean showingJSError;
 
@@ -162,15 +160,15 @@ public class TitaniumActivity extends Activity
 		resultHandlers = new HashMap<Integer, TitaniumResultHandler>();
 		uniqueResultCodeAllocator = new AtomicInteger();
 
-		this.userWindow = new TitaniumUserWindow(this);
-		userWindow.attachWebView(url);
+//		this.userWindow = new TitaniumUserWindow(this);
+//		userWindow.attachWebView(url);
 
         loadOnPageEnd = true;
 
         ts("After getApplication()");
 
         Thread backgroundDrawableThread = null;
-
+/*
         if (app.needsSplashScreen()) {
 	        String backgroundImage = "default.png";
 	        final String fBackgroundImage = backgroundImage;
@@ -185,7 +183,7 @@ public class TitaniumActivity extends Activity
 				}});
 	        backgroundDrawableThread.start();
         }
-
+*/
         initialOrientation = this.getRequestedOrientation();
         Intent activityIntent = getIntent();
         if (activityIntent != null) {
@@ -248,8 +246,8 @@ public class TitaniumActivity extends Activity
         	}
         }
 
-		splashView=new ImageView(this);
-		splashView.setScaleType(ImageView.ScaleType.FIT_XY);
+		//splashView=new ImageView(this);
+		//splashView.setScaleType(ImageView.ScaleType.FIT_XY);
 
 		if (backgroundDrawableThread != null) {
 			try {
@@ -258,22 +256,24 @@ public class TitaniumActivity extends Activity
 				Log.w(LCAT, "Interrupted");
 			}
 
-			if (backgroundDrawable != null) {
-				((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
-				splashView.setImageDrawable(backgroundDrawable);
-			}
-			userWindow.addView(splashView);
+//			if (backgroundDrawable != null) {
+//				((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
+//				splashView.setImageDrawable(backgroundDrawable);
+//			}
+//			userWindow.addView(splashView);
 			app.setNeedsSplashScreen(false);
 		}
 
 		ts("After splash");
 
 		if (root instanceof TitaniumActivityGroup) {
-	    	TitaniumActivityGroup tag = (TitaniumActivityGroup) root;
+			TitaniumActivityGroup tag = (TitaniumActivityGroup) root;
 	    	if (tag != null && tag.isTabbed()) {
 	    		tag.addTabChangeListener(this);
 	    	}
 		}
+		this.userWindow = new TitaniumUserWindow(this);
+		userWindow.attachWebView(url);
 
 		setContentView(userWindow);
 

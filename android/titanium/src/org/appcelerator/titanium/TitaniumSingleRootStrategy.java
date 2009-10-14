@@ -29,4 +29,8 @@ public class TitaniumSingleRootStrategy implements ITitaniumAppStrategy {
 
 		tag.launch(appIntent);
 	}
+
+	public void attachContentView() {
+		// Nothing to do.
+	}
 }
