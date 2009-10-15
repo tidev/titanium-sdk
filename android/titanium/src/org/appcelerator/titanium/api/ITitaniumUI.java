@@ -51,4 +51,7 @@ public interface ITitaniumUI
 	public ITitaniumCompositeView createCompositeView();
 	public ITitaniumImageView createImageView();
 	public ITitaniumScrollableView createScrollableView();
+
+	// In 0.7.1
+	public ITitaniumUIWebView getCurrentView();
 }

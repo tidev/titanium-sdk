@@ -270,6 +270,14 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 		return userWindow;
 	}
 
+	public ITitaniumUIWebView getCurrentView() {
+		if (DBG) {
+			Log.d(LCAT, "returning current view");
+		}
+
+		return tmm.getCurrentUIWebView();
+	}
+
 	public ITitaniumDialog createAlertDialog() {
 		return (ITitaniumDialog) create(MSG_CREATE_ALERTDIALOG);
 	}
