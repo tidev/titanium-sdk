@@ -3,6 +3,18 @@
 	<script>
 	window.onload = function()
 	{
+
+		// adjust height
+		if (Titanium.Platform.name == 'android')
+		{
+			document.getElementById('picker').style.height="120px";
+		}
+		else
+		{
+			document.getElementById('picker').style.height="217px";
+
+		}
+
 		var minDate = new Date()
 		minDate.setFullYear(1960);
 		minDate.setMonth(0);

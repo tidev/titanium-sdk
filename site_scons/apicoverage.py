@@ -17,7 +17,7 @@ baseVersion = titanium_version.version
 t = baseVersion.split(".")
 defaultVersion = "%s.%s" % (t[0],t[1])
 
-default_desktop_platforms = {"win23":[""], "linux":[""], "osx": [""]}
+default_desktop_platforms = {"win32":[""], "linux":[""], "osx": [""]}
 default_mobile_platforms = {}
 default_platforms = default_desktop_platforms
 
