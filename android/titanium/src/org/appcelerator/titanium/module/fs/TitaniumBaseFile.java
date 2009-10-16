@@ -11,6 +11,8 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -99,7 +101,8 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 		return flagSymbolicLink;
 	}
 
-	public boolean copy(String destination) {
+	public boolean copy(String destination) throws IOException
+	{
 		InputStream is = null;
 		OutputStream os = null;
 		boolean copied = false;
@@ -130,10 +133,12 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 					}
 				} catch (IOException e) {
 					Log.e(LCAT, "Error while copying file: ", e);
+					throw e;
 				} finally {
 					if (is != null) {
 						try {
 							is.close();
+							is = null;
 						} catch (IOException e) {
 							// ignore;
 						}
@@ -142,6 +147,7 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 					if (os != null) {
 						try {
 							os.close();
+							os = null;
 						} catch (IOException e) {
 							// ignore;
 						}
@@ -154,65 +160,96 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 	}
 
 	public void createDirectory(boolean recursive) {
-		logNotSupported(null);
+		logNotSupported("createDirectory");
 	}
 
 	public boolean createShortcut() {		// TODO Auto-generated method stub
-		logNotSupported(null);
+		logNotSupported("createShortcut");
 		return false;
 	}
 
 	public double createTimestamp() {
-		logNotSupported(null);
+		logNotSupported("createTimestamp");
 		return 0;
 	}
 
-	public void deleteDirectory(boolean recursive) {
-		logNotSupported(null);
+	public boolean deleteDirectory(boolean recursive) {
+		logNotSupported("deleteDirectory");
+		return false;
 	}
 
 	public boolean deleteFile() {
-		logNotSupported(null);
+		logNotSupported("deleteFile");
 		return false;
 	}
 
 	public boolean exists() {
-		logNotSupported(null);
+		logNotSupported("exists");
 		return false;
 	}
 
 	public String extension() {
-		logNotSupported(null);
+		logNotSupported("extensionsion");
 		return null;
 	}
 
 	public List<String> getDirectoryListing() {
-		logNotSupported(null);
+		logNotSupported("getDirectoryListing");
 		return null;
 	}
 
 	public ITitaniumFile getParent() {
-		logNotSupported(null);
+		logNotSupported("getParent");
 		return null;
 	}
 
 	public double modificationTimestamp() {
-		logNotSupported(null);
+		logNotSupported("modificationTimestamp");
 		return 0;
 	}
 
-	public boolean move(String destination) {
-		logNotSupported(null);
-		return false;
+	public boolean move(String destination)  throws IOException
+	{
+		boolean moved = false;
+
+		if (destination != null) {
+			TitaniumModuleManager tmm = weakTmm.get();
+			if (tmm != null) {
+				String parts[] = { destination };
+				TitaniumBaseFile bf = TitaniumFileFactory.createTitaniumFile(tmm, parts, false);
+				if (bf != null) {
+					if (bf.exists()) {
+						throw new IOException("Destination already exists.");
+					}
+
+					File fsrc = getNativeFile();
+					if (fsrc == null) {
+						throw new FileNotFoundException("Source is not a true file.");
+					}
+					File fdest = bf.getNativeFile();
+					if (fdest == null) {
+						throw new FileNotFoundException("Destination is not a valid location for writing");
+					}
+
+					if(copy(destination)) {
+						moved = deleteFile();
+					}
+				} else {
+					throw new FileNotFoundException("Destination not found: " + destination);
+				}
+			}
+		}
+
+		return moved;
 	}
 
 	public String name() {
-		logNotSupported(null);
+		logNotSupported("name");
 		return null;
 	}
 
 	public String nativePath() {
-		logNotSupported(null);
+		logNotSupported("nativePath");
 		return null;
 	}
 
@@ -227,8 +264,16 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 	}
 
 	public boolean rename(String destination) {
-		logNotSupported("rename");
-		return false;
+		boolean renamed = false;
+		if (destination != null) {
+			File f = getNativeFile();
+			if (f != null) {
+				File dest = new File(f.getParent(), destination);
+				renamed = f.renameTo(dest);
+			}
+		}
+
+		return renamed;
 	}
 
 	public ITitaniumFile resolve() {
@@ -237,40 +282,40 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 	}
 
 	public boolean setExecutable() {
-		logNotSupported(null);
+		logNotSupported("setExecutable");
 		return false;
 	}
 
 	public boolean setReadonly() {
-		logNotSupported(null);
+		logNotSupported("setReadonly");
 		return false;
 	}
 
 	public boolean setWriteable() {
-		logNotSupported(null);
+		logNotSupported("setWriteable");
 		return false;
 	}
 
 	public double size() {
-		logNotSupported(null);
+		logNotSupported("size");
 		return 0;
 	}
 
 	public double spaceAvailable() {
-		logNotSupported(null);
+		logNotSupported("spaceAvailable");
 		return 0;
 	}
 
 	public void unzip(String destination) {
-		logNotSupported(null);
+		logNotSupported("unzip");
 	}
 
 	public void write(String data, boolean append) throws IOException {
-		logNotSupported(null);
+		logNotSupported("write");
 	}
 
 	public void writeFromUrl(String url, boolean append) throws IOException {
-		logNotSupported(null);
+		logNotSupported("writeFromUrl");
 	}
 
 	public void writeLine(String data) throws IOException {
@@ -354,4 +399,5 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 
 	public abstract InputStream getInputStream() throws IOException;
 	public abstract OutputStream getOutputStream() throws IOException;
+	public abstract File getNativeFile();
 }

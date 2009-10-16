@@ -1,0 +1,312 @@
+<html>
+<head>
+  <title>File Operations</title>
+  <style>
+  	#suite th,td { text-align:center;}
+  	.test-pass {
+  		display:none;
+  	}
+    .test-desc {
+    	font-size: 85%;
+    }
+    .pass {
+    	color:green;
+    }
+    .fail {
+    	color: red;
+    }
+    .exception {
+    	color: orange;
+    	font-size: 75%;
+    }
+  </style>
+  <script>
+
+  var TestCase = function(name, desc) {
+	  this.name = name;
+	  this.desc = desc;
+	  this.passCount = 0;
+	  this.failCount = 0;
+	  this.exceptionCount = 0;
+	  this.tests = [];
+
+	  this.addTest = function(s, f) {
+		  this.tests.push({ desc : s, test : f});
+	  };
+
+	  this.performTests = function(suite) {
+		  for(var i = 0; i < this.tests.length; i++) {
+			  var t = this.tests[i];
+			  var h = "<div class='test-";
+			  try {
+				  if (t.test.apply(this)) {
+					  h += "pass'><span class='pass'>PASS: </span>";
+					  this.passCount++;
+					  suite.pass();
+				  } else {
+					  h += "fail'><span class='fail'>FAIL: </span>";
+					  this.failCount++;
+					  suite.fail();
+				  }
+			  } catch (E) {
+				  h += "exception'><span class='exception'>" + E + ": </span>";
+				  this.exceptionCount++;
+				  suite.exception();
+			  }
+
+			  h += "<span class='test-desc'>" + t.desc + "</span></div>";
+			  document.getElementById("tests").innerHTML += h;
+		  }
+	  };
+  };
+
+  var TestSuite = function() {
+	  this.passCount = 0;
+	  this.failCount = 0;
+	  this.exceptionCount = 0;
+	  this.testCount = 0;
+	  this.testCases = [];
+	  this.progress = null;
+
+	  this.addTestCase = function(tc) {
+		  this.testCases.push(tc);
+	  };
+
+	  this.performTests = function() {
+		  var testsToRun = 0;
+		  for (var i = 0; i < this.testCases.length; i++) {
+			  testsToRun += this.testCases[i].tests.length;
+		  }
+
+		  this.progress = Titanium.UI.createActivityIndicator({
+				'location' : Titanium.UI.ActivityIndicator.DIALOG,
+				'type' : Titanium.UI.ActivityIndicator.DETERMINANT,
+				'message' : 'Testing...',
+				'min' : 0, 'max' : testsToRun, 'pos' : 0
+			});
+
+		  this.progress.show();
+		  for(var i = 0; i < this.testCases.length; i++) {
+			  var tc = this.testCases[i];
+			  if (tc.setup !== undefined) {
+				  tc.setup();
+			  }
+
+			  tc.performTests(this);
+
+			  if (tc.teardown !== undefined) {
+				  tc.teardown();
+			  }
+		  }
+		  this.progress.hide();
+		  this.progress = null;
+	  };
+	  this.postResult = function(id, count) {
+		  Titanium.API.debug("id: " + id + " count: " + count);
+		  document.getElementById(id).innerHTML = String(count);
+		  document.getElementById("suite-total").innerHTML = String(++this.testCount);
+		  this.progress.setValue(this.testCount);
+	  };
+	  this.pass = function() {
+		  this.postResult("suite-pass", ++this.passCount);
+	  };
+	  this.fail = function() {
+		  this.postResult("suite-fail", ++this.failCount);
+	  };
+	  this.exception = function() {
+		  this.postResult("suite-exception", ++this.exceptionCount);
+	  };
+  };
+
+
+var TFS = Titanium.Filesystem;
+
+var suite = new TestSuite();
+
+var tc1 = new TestCase("appdata:// file tests");
+suite.addTestCase(tc1);
+
+tc1.setup = function() {
+	this.f = TFS.getFile("appdata://");
+};
+
+tc1.addTest('appdata: != null', function() {
+	return (this.f !== null);
+});
+tc1.addTest('appdata: nativePath starts with /sdcard', function() {
+	return this.f.nativePath().indexOf("/sdcard/") > -1;
+});
+tc1.addTest('appdata: toURL starts with file:///', function() {
+	Titanium.API.info("toURL: " + this.f.toURL());
+	return this.f.toURL().indexOf("file:///") > -1;
+});
+tc1.addTest('appdata: exists()', function(){
+	return this.f.exists();
+});
+tc1.addTest('appdata: isDirectory()', function(){
+	return this.f.isDirectory();
+});
+tc1.addTest('appdata: isFile()', function(){
+	return !this.f.isFile();
+});
+tc1.addTest('appdata: isHidden()', function() {
+	return !this.f.isHidden();
+});
+tc1.addTest('appdata: isReadonly()', function() {
+	return !this.f.isReadonly();
+});
+tc1.addTest('appdata: isWritable()', function() {
+	return this.f.isWriteable();
+});
+tc1.addTest('appdata: createTimestamp', function() {
+	return this.f.createTimestamp() > 0;
+});
+tc1.addTest('appdata: modificationTimestamp', function() {
+	return this.f.modificationTimestamp();
+});
+tc1.addTest('appdata: name != null', function() {
+	return this.f.name() !== null;
+});
+tc1.addTest('appdata: name.length > 0', function() {
+	return this.f.name().length > 0;
+});
+tc1.addTest('appdata: org.appcelerator.tichooser', function() {
+	return this.f.name() == 'org.appcelerator.tichooser';
+});
+
+// File: String data
+
+var tc2 = new TestCase("appdata:// IO");
+suite.addTestCase(tc2);
+
+tc2.setup = function() {
+	this.f = TFS.getFile("appdata://a1.txt");
+	if (this.f !== null && this.f.exists()) {
+		this.f.deleteFile();
+	}
+	this.f2 = TFS.getFile("appdata://a2.txt");
+	if (this.f2 !== null && this.f2.exists()) {
+		this.f2.deleteFile();
+	}
+};
+
+tc2.teardown = function() {
+	var files = [
+		'appdata://a1.txt',
+		'appdata://a2.txt',
+		'appdata://a2a.txt'
+	];
+
+	for (var i = 0; i < files.length; i++) {
+		var f = TFS.getFile(files[i]);
+		if (f != null) {
+			f.deleteFile();
+		}
+	}
+};
+
+tc2.addTest('appdata: a1.txt !exists', function() {
+	return !this.f.exists();
+});
+tc2.addTest('appdata: a1.txt: write string 0123456789', function() {
+	this.f.write('0123456789');
+	return this.f.exists();
+});
+tc2.addTest('appdata: a1.txt: length == 10', function() {
+	return this.f.size() === 10;
+});
+tc2.addTest('appdata: a1.txt read == 0123456789', function() {
+	var b = this.f.read();
+	return b.toString() == '0123456789';
+});
+tc2.addTest('appdata: a1.txt readline == 0123456789', function() {
+	var s = this.f.readLine();
+	return s == '0123456789';
+});
+tc2.addTest('appdata: a2 !exists', function() {
+	return !this.f2.exists();
+});
+tc2.addTest('appdata: a1.txt copy to a2.txt', function() {
+	this.f.copy("appdata://a2.txt");
+	return this.f2.exists();
+});
+tc2.addTest('appdata: a2.txt read == a1.txt.read', function() {
+	var b1 = this.f.read();
+	var b2 = this.f2.read();
+	return b1.toString() == b2.toString();
+});
+tc2.addTest('appdata: a2.txt deleteFile', function() {
+	this.f2.deleteFile();
+	return !this.f2.exists();
+});
+tc2.addTest('appdata: move a1.txt to a2.txt', function() {
+	this.f.move('appdata://a2.txt');
+	return !this.f.exists() && this.f2.exists();
+});
+tc2.addTest('appdata: contents of a2.txt post move', function() {
+	var b = this.f2.read();
+	return b.toString() == '0123456789';
+});
+tc2.addTest('appdata: rename a2.txt a2a.txt', function() {
+	this.f2.rename("a2a.txt");
+	var nf = TFS.getFile("appdata://a2a.txt");
+	return nf.exists();
+});
+tc2.addTest('appdata: dir tmp1 !exists', function() {
+	var nd = TFS.getFile('appdata://tmp1');
+	return !nd.exists();
+});
+tc2.addTest('appdata: dir create tmp1', function() {
+	var nd = TFS.getFile('appdata://tmp1');
+	nd.createDirectory(false);
+	return nd.exists() && nd.isDirectory();
+});
+tc2.addTest('appdata: dir rename', function() {
+	var nd = TFS.getFile('appdata://tmp1');
+	nd.rename('tmp2');
+	nd = TFS.getFile('appdata://tmp2');
+	return nd.exists();
+});
+tc2.addTest('appdata: dir delete', function() {
+	var nd = TFS.getFile('appdata://tmp2');
+	nd.deleteDirectory();
+	return !nd.exists();
+});
+
+tc2.addTest('appdata: recursive delete', function() {
+	var pass = false;
+	var nd = TFS.getFile('appdata://a/b/c');
+	if (!nd.exists()) {
+		nd.createDirectory(true);
+		if (nd.exists()) {
+			var f1 = TFS.getFile('appdata://a/b/c/a1.txt');
+			f1.write("Hello, please delete me");
+			f1 = TFS.getFile('appdata://a/b/a2.txt');
+			f1.write("Hello, please delete me 2");
+			f1 = TFS.getFile('appdata://a/a3.txt');
+			f1.write("Hello, please delete me 3");
+
+			var dr = TFS.getFile('appdata://a');
+			dr.deleteDirectory(true);
+			pass = !dr.exists();
+		}
+	}
+
+	return pass;
+});
+
+window.onload = function() {
+	setTimeout(function(){suite.performTests();}, 500);
+}
+  </script>
+</head>
+<body style="background-color: white;">
+<div id='suite'>
+<table style="width:100%">
+<tr><th>Pass</th><th>Fail</th><th>Exceptions</th><th>Tests</th></tr>
+<tr><td id='suite-pass'>0</td><td id='suite-fail'>0</td><td id='suite-exception'>0</td><td id='suite-total'>0</td></tr>
+</table>
+</div>
+<div id='tests'/>
+</body>
+</html>

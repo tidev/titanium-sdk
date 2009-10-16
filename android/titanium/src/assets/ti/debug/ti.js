@@ -16,6 +16,46 @@ function isUndefined(value)
 	return (typeof(value)=='object' && String(value).length === 0);
 }
 
+
+function typeOf(value) {
+    var s = typeof value;
+    if (s === 'object') {
+        if (value) {
+            if (value instanceof Array) {
+                s = 'array';
+            }
+        } else {
+            s = 'null';
+        }
+    }
+    return s;
+}
+
+function transformObjectValue(value,def)
+{
+	return isUndefined(value) ? def : value;
+}
+
+function transformObjectValueAsString(value,def)
+{
+	return isUndefined(value) ? def : String(value);
+}
+
+function transformObjectValueAsInt(value,def)
+{
+	return isUndefined(value) ? def : parseInt(value,10);
+}
+
+function transformObjectValueAsBool(value,def)
+{
+	return isUndefined(value) ? def : !!value;
+}
+
+function transformObjectValueAsDouble(value,def)
+{
+	return isUndefined(value) ? def : parseFloat(value);
+}
+
 var Titanium = new function() {
 	/*
 	 * @tiapi(method=False,property=True,name=platform,since=0.4,type=string) titanium platform name property
@@ -34,19 +74,32 @@ var Titanium = new function() {
 	this.rethrow = function(e) { throw e; };
 
 	this.checked = function(r) {
+		var v = null;
 		if (!isUndefined(r)) {
 			if (typeof(r.getException) !== 'undefined') {
 				if(!isUndefined(r.getException())) {
 					this.apiProxy.log(6,"checking: " + r.getException());
-					throw r.getException();
+					var e = r.getException();
+					r.destroy();
+					r = null;
+					throw e;
 				} else {
 					if (typeof(r.getResult) !== 'undefined') {
-						r = r.getResult();
+						var v = r.getResult();
+						this.apiProxy.log(6,"TYPE: " + r.getType());
+						switch(String(r.getType())) {
+							case 'string' : v = transformObjectValueAsString(v); break;
+							case 'int' : v = transformObjectValueAsInt(v.intValue()); break;
+							case 'boolean' : v = transformObjectValueAsBool(v.booleanValue()); break;
+							case 'double' : v = transformObjectValueAsDouble(v.doubleValue()); break;
+						}
 					}
+					r.destroy(); // cleanup native
+					r = null;
 				}
 			}
 		}
-		return r;
+		return v;
 	};
 
 	this.doPostProcessing = function () {
@@ -177,45 +230,6 @@ function registerCallback(o, f) {
 
 function registerOneShot(o, f) {
 	return Titanium.addCallback(o, f, true);
-}
-
-function typeOf(value) {
-    var s = typeof value;
-    if (s === 'object') {
-        if (value) {
-            if (value instanceof Array) {
-                s = 'array';
-            }
-        } else {
-            s = 'null';
-        }
-    }
-    return s;
-}
-
-function transformObjectValue(value,def)
-{
-	return isUndefined(value) ? def : value;
-}
-
-function transformObjectValueAsString(value,def)
-{
-	return isUndefined(value) ? def : String(value);
-}
-
-function transformObjectValueAsInt(value,def)
-{
-	return isUndefined(value) ? def : parseInt(value,10);
-}
-
-function transformObjectValueAsBool(value,def)
-{
-	return isUndefined(value) ? def : !!value;
-}
-
-function transformObjectValueAsDouble(value,def)
-{
-	return isUndefined(value) ? def : parseFloat(value);
 }
 
 

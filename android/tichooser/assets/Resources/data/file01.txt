@@ -1,0 +1,1 @@
+This file is used in testing copying to various places from the Resource dir.

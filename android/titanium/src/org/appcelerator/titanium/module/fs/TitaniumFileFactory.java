@@ -19,7 +19,7 @@ public class TitaniumFileFactory
 
 		String initial = parts[0];
 		if (DBG) {
-			Log.d(LCAT,"creating initial: " + initial);
+			Log.d(LCAT,"getting initial from parts: " + initial);
 		}
 
 		if (initial.startsWith("app://")) {
@@ -30,7 +30,7 @@ public class TitaniumFileFactory
 		else if (initial.startsWith("appdata://")) {
 			String path = initial.substring(10);
 			path = formPath(path,parts);
-			if (path.charAt(0)=='/')
+			if (path != null && path.length() > 0 && path.charAt(0)=='/')
 			{
 				path = path.substring(1);
 			}
