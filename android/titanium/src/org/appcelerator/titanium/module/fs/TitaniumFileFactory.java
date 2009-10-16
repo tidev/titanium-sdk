@@ -30,7 +30,7 @@ public class TitaniumFileFactory
 		else if (initial.startsWith("appdata://")) {
 			String path = initial.substring(10);
 			path = formPath(path,parts);
-			if (path.charAt(0)=='/')
+			if (path != null && path.length() > 0 && path.charAt(0)=='/')
 			{
 				path = path.substring(1);
 			}

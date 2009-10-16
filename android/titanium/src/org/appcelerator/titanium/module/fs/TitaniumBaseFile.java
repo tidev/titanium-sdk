@@ -11,6 +11,8 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -99,7 +101,8 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 		return flagSymbolicLink;
 	}
 
-	public boolean copy(String destination) {
+	public boolean copy(String destination) throws IOException
+	{
 		InputStream is = null;
 		OutputStream os = null;
 		boolean copied = false;
@@ -130,10 +133,12 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 					}
 				} catch (IOException e) {
 					Log.e(LCAT, "Error while copying file: ", e);
+					throw e;
 				} finally {
 					if (is != null) {
 						try {
 							is.close();
+							is = null;
 						} catch (IOException e) {
 							// ignore;
 						}
@@ -142,6 +147,7 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 					if (os != null) {
 						try {
 							os.close();
+							os = null;
 						} catch (IOException e) {
 							// ignore;
 						}
@@ -201,9 +207,39 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 		return 0;
 	}
 
-	public boolean move(String destination) {
-		logNotSupported(null);
-		return false;
+	public boolean move(String destination)  throws IOException
+	{
+		boolean moved = false;
+
+		if (destination != null) {
+			TitaniumModuleManager tmm = weakTmm.get();
+			if (tmm != null) {
+				String parts[] = { destination };
+				TitaniumBaseFile bf = TitaniumFileFactory.createTitaniumFile(tmm, parts, false);
+				if (bf != null) {
+					if (bf.exists()) {
+						throw new IOException("Destination already exists.");
+					}
+
+					File fsrc = getNativeFile();
+					if (fsrc == null) {
+						throw new FileNotFoundException("Source is not a true file.");
+					}
+					File fdest = bf.getNativeFile();
+					if (fdest == null) {
+						throw new FileNotFoundException("Destination is not a valid location for writing");
+					}
+
+					if(copy(destination)) {
+						moved = deleteFile();
+					}
+				} else {
+					throw new FileNotFoundException("Destination not found: " + destination);
+				}
+			}
+		}
+
+		return moved;
 	}
 
 	public String name() {
@@ -354,4 +390,5 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 
 	public abstract InputStream getInputStream() throws IOException;
 	public abstract OutputStream getOutputStream() throws IOException;
+	public abstract File getNativeFile();
 }

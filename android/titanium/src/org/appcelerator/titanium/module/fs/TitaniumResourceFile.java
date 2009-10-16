@@ -9,6 +9,7 @@ package org.appcelerator.titanium.module.fs;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,6 +61,11 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 	@Override
 	public OutputStream getOutputStream() {
 		return null; // read-only;
+	}
+
+	@Override
+	public File getNativeFile() {
+		return new File(toURL());
 	}
 
 	@Override
@@ -137,26 +143,6 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 		return result;
 	}
 
-	public boolean copy(String destination)
-	{
-		//NOTE: this isn't really efficient but not sure
-		//if there's a better way with the different file
-		//abstractions
-
-		try
-		{
-			String data = read();
-			ITitaniumFile dest = (ITitaniumFile) null; //filesystem.getFile(new String[]{destination});
-			dest.write(data,false);
-
-			return dest.exists();
-		}
-		catch(Exception ig)
-		{
-			return false;
-		}
-	}
-
 	@Override
 	public boolean exists()
 	{
@@ -198,29 +184,7 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 	{
 		return 0L;
 	}
-	public double spaceAvailable()
-	{
-		return 99999999L;
-	}
-	public boolean createShortcut()
-	{
-		return false;
-	}
-	public boolean setExecutable()
-	{
-		return false;
-	}
-	public boolean setReadonly()
-	{
-		return false;
-	}
-	public boolean setWriteable()
-	{
-		return false;
-	}
-	public void unzip (String destination)
-	{
-	}
+
 	public String toString ()
 	{
 		return getPath();

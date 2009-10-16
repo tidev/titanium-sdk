@@ -20,14 +20,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.net.MalformedURLException;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumFile;
-import org.appcelerator.titanium.api.ITitaniumInvoker;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.api.TitaniumMemoryBlob;
 import org.appcelerator.titanium.util.Log;
+
+import android.net.Uri;
 
 public class TitaniumFile extends TitaniumBaseFile
 {
@@ -137,11 +137,7 @@ public class TitaniumFile extends TitaniumBaseFile
 
 	public String toURL() {
 		String url = null;
-		try {
-			url = file.toURI().toURL().toExternalForm();
-		} catch (MalformedURLException e) {
-			Log.e(LCAT, "Unable to get URL for " + path, e);
-		}
+		url = Uri.fromFile(file).toString();
 		return url;
 	}
 
@@ -154,7 +150,6 @@ public class TitaniumFile extends TitaniumBaseFile
 	@Override
 	public double spaceAvailable()
 	{
-		//FIXME
 		return 99999999L;
 	}
 
@@ -187,6 +182,10 @@ public class TitaniumFile extends TitaniumBaseFile
 
 	public OutputStream getOutputStream(int mode) throws IOException {
 		return new FileOutputStream(file, mode == MODE_APPEND ? true : false);
+	}
+
+	public File getNativeFile() {
+		return file;
 	}
 
 	@Override
