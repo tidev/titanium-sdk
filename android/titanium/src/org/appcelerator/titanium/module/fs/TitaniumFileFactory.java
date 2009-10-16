@@ -19,7 +19,7 @@ public class TitaniumFileFactory
 
 		String initial = parts[0];
 		if (DBG) {
-			Log.d(LCAT,"creating initial: " + initial);
+			Log.d(LCAT,"getting initial from parts: " + initial);
 		}
 
 		if (initial.startsWith("app://")) {

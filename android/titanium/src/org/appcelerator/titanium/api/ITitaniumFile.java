@@ -36,7 +36,7 @@ public interface ITitaniumFile
 	public boolean move(String destination) throws IOException;
 	public boolean rename(String destination) throws IOException;
 	public void createDirectory(boolean recursive);
-	public void deleteDirectory(boolean recursive);
+	public boolean deleteDirectory(boolean recursive);
 	public boolean deleteFile();
 	public List<String> getDirectoryListing();
 	public ITitaniumFile getParent();

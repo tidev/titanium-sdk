@@ -87,6 +87,43 @@ public class TitaniumFile extends TitaniumBaseFile
 		}
 	}
 
+	private boolean deleteTree(File d) {
+		boolean deleted = false;
+
+		File[] files = d.listFiles();
+		for (File f : files) {
+			if (f.isFile()) {
+				deleted = f.delete();
+				if (!deleted) {
+					break;
+				}
+			} else {
+				if (deleteTree(f)) {
+					deleted = f.delete();
+				} else {
+					break;
+				}
+			}
+		}
+
+		return deleted;
+	}
+
+	@Override
+	public boolean deleteDirectory(boolean recursive) {
+		boolean deleted = false;
+
+		if (recursive) {
+			deleted = deleteTree(file);
+			if (deleted) {
+				deleted = file.delete();
+			}
+		} else {
+			deleted = file.delete();
+		}
+
+		return deleted;
+	}
 	@Override
 	public boolean deleteFile()
 	{
