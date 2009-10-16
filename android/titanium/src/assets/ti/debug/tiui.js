@@ -2000,15 +2000,13 @@ Titanium.UI.__defineGetter__("currentWindow", function(){
  * @tiapi(method=true,name=UI.currentView,since=0.6) the current View in the current window.
  * @tiresult[View] the view.
  */
+Titanium.UI._currentView = null;
 Titanium.UI.__defineGetter__("currentView", function() {
-	var view = null;
-	var index = Titanium.UI.currentWindow.getActiveViewIndex();
-	if (index > -1) {
-		view = Titanium.UI.currentWindow.getViews()[index];
-	} else {
-		Titanium.API.error("A view is not active, have you called showView?");
+	if (Titanium.UI._currentView === null) {
+		Titanium.UI._currentView = new WebView(Titanium.uiProxy.getCurrentView());
 	}
-	return view;
+
+	return Titanium.UI._currentView;
 });
 
 Titanium.UI.ActivityIndicator = {
