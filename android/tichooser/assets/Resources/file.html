@@ -252,28 +252,31 @@ tc2.addTest('appdata: rename a2.txt a2a.txt', function() {
 	var nf = TFS.getFile("appdata://a2a.txt");
 	return nf.exists();
 });
-tc2.addTest('appdata: dir tmp1 !exists', function() {
+
+var tc3 = new TestCase("appdata: dir ops");
+suite.addTestCase(tc3);
+
+tc3.addTest('appdata: dir tmp1 !exists', function() {
 	var nd = TFS.getFile('appdata://tmp1');
 	return !nd.exists();
 });
-tc2.addTest('appdata: dir create tmp1', function() {
+tc3.addTest('appdata: dir create tmp1', function() {
 	var nd = TFS.getFile('appdata://tmp1');
 	nd.createDirectory(false);
 	return nd.exists() && nd.isDirectory();
 });
-tc2.addTest('appdata: dir rename', function() {
+tc3.addTest('appdata: dir rename', function() {
 	var nd = TFS.getFile('appdata://tmp1');
 	nd.rename('tmp2');
 	nd = TFS.getFile('appdata://tmp2');
 	return nd.exists();
 });
-tc2.addTest('appdata: dir delete', function() {
+tc3.addTest('appdata: dir delete', function() {
 	var nd = TFS.getFile('appdata://tmp2');
 	nd.deleteDirectory();
 	return !nd.exists();
 });
-
-tc2.addTest('appdata: recursive delete', function() {
+tc3.addTest('appdata: recursive delete', function() {
 	var pass = false;
 	var nd = TFS.getFile('appdata://a/b/c');
 	if (!nd.exists()) {
@@ -289,6 +292,22 @@ tc2.addTest('appdata: recursive delete', function() {
 			var dr = TFS.getFile('appdata://a');
 			dr.deleteDirectory(true);
 			pass = !dr.exists();
+		}
+	}
+
+	return pass;
+});
+tc3.addTest('appdata: rename directory', function() {
+	var pass = false;
+
+	var nd = TFS.getFile('appdata://a');
+	if (!nd.exists()) {
+		nd.createDirectory(false);
+		if (nd.exists()) {
+			nd.rename("b");
+			nd = TFS.getFile('appdata://b');
+			pass = nd.exists() && nd.isDirectory();
+			nd.deleteDirectory();
 		}
 	}
 
