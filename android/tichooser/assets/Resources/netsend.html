@@ -75,9 +75,9 @@
 
 		$('google').onclick = function() {
 			try {
-				$('echo').innerHTML = 'Requesting from Google...one moment';
+				$('echo').innerHTML = 'Requesting from Google UK, one moment';
 				var ourClient = Titanium.Network.createHTTPClient();
-				ourClient.open('GET','http://google.com');
+				ourClient.open('GET','http://www.google.co.uk:80');
 				ourClient.onreadystatechange=function(){
 					if(this.readyState == 4) {
 						$('echo').innerHTML = this.responseText;
