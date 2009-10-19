@@ -48,7 +48,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
         <window>
             <id>windows</id>
             <title>Windows</title>
@@ -58,7 +58,7 @@
             <backgroundImage>images/geese.jpg</backgroundImage>
             <barColor>#000</barColor>
         </window>
-<!--
+
         <window>
             <id>initial</id>
             <title>TextF</title>
@@ -117,7 +117,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+-->
         <window>
             <id>CompositeView</id>
             <title>Composite View</title>
@@ -127,7 +127,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+<!--
         <window>
             <id>ScrollerView</id>
             <title>Scroller View</title>

@@ -964,6 +964,13 @@ var UserWindow = function(proxy) {
 		}
 	};
 
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.repaint,since=0.7.3) force layout of native controls
+	 */
+	this.repaint = function() {
+		Titanium.apiProxy.invalidateLayout();
+	}
+
 	// IPhone only methods
 	this.setNavBarColor = function (color) {
 
