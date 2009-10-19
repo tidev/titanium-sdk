@@ -253,9 +253,9 @@ public abstract class TitaniumBaseFile implements ITitaniumFile
 		return null;
 	}
 
-	public String read() throws IOException {
+	public int read() throws IOException {
 		logNotSupported("read");
-		return null;
+		return -1;
 	}
 
 	public String readLine() throws IOException {

@@ -253,7 +253,7 @@ public class TitaniumFile extends TitaniumBaseFile
 	}
 
 	@Override
-	public String read() throws IOException
+	public int read() throws IOException
 	{
 		String result = null;
 
@@ -294,7 +294,15 @@ public class TitaniumFile extends TitaniumBaseFile
 			}
 		}
 
-		return result;
+		int blobId = -1;
+		if (result != null) {
+			TitaniumModuleManager tmm = weakTmm.get();
+			if (tmm != null) {
+				TitaniumMemoryBlob blob = new TitaniumMemoryBlob(result.getBytes());
+				blobId = tmm.cacheObject(blob);
+			}
+		}
+		return blobId;
 	}
 
 	@Override

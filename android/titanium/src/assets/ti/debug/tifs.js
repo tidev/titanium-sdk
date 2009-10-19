@@ -86,7 +86,8 @@ TitaniumFile.prototype.resolve = function()
  */
 TitaniumFile.prototype.read = function()
 {
-	return Titanium.checked(this.proxy.call("read"));
+	var key = Titanium.checked(this.proxy.call("read"));
+	return (key != -1) ? new TitaniumMemoryBlob(key) : null;
 };
 /**
  * @tiapi (method=True,name=Filesystem.File.write,since=0.4) Writes data to the file

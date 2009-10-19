@@ -29,7 +29,7 @@ public interface ITitaniumFile
 	public ITitaniumFile resolve();
 	public void write(String data, boolean append)  throws IOException;
 	public void writeFromUrl(String url, boolean append) throws IOException;
-	public String read()  throws IOException;
+	public int read()  throws IOException;
 	public String readLine()  throws IOException;
 	public void writeLine(String data) throws IOException;
 	public boolean copy(String destination) throws IOException;

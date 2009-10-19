@@ -9,6 +9,7 @@ package org.appcelerator.titanium.module.fs;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.lang.ref.SoftReference;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumFile;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.api.TitaniumMemoryBlob;
 import org.appcelerator.titanium.util.Log;
 
 import android.content.Context;
@@ -94,12 +96,13 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 	}
 
 	@Override
-	public String read() throws IOException
+	public int read() throws IOException
 	{
-		StringBuilder builder=new StringBuilder();
+		ByteArrayOutputStream baos = null;
 		InputStream in = null;
 		try
 		{
+			baos = new ByteArrayOutputStream();
 			in = getInputStream();
 			byte buffer [] = new byte[4096];
 			while(true)
@@ -109,7 +112,7 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 				{
 					break;
 				}
-				builder.append(new String(buffer,0,count));
+				baos.write(buffer, 0, count);
 			}
 		}
 		finally
@@ -119,7 +122,16 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 				in.close();
 			}
 		}
-		return builder.toString();
+
+		int blobId = -1;
+		if (baos != null) {
+			TitaniumModuleManager tmm = weakTmm.get();
+			if (tmm != null) {
+				TitaniumMemoryBlob blob = new TitaniumMemoryBlob(baos.toByteArray());
+				blobId = tmm.cacheObject(blob);
+			}
+		}
+		return blobId;
 	}
 
 	@Override
