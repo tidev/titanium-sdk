@@ -126,10 +126,16 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 					c.setReadyState(READY_STATE_INTERACTIVE, syncId);
 				}
 
-				Log.w(LCAT, "Entity Type: " + response.getEntity().getClass());
-				Log.w(LCAT, "Entity Content Type: " + response.getEntity().getContentType().getValue());
-				Log.w(LCAT, "Entity isChunked: " + response.getEntity().isChunked());
-				Log.w(LCAT, "Entity isStreaming: " + response.getEntity().isStreaming());
+				if (DBG) {
+					try {
+						Log.w(LCAT, "Entity Type: " + response.getEntity().getClass());
+						Log.w(LCAT, "Entity Content Type: " + response.getEntity().getContentType().getValue());
+						Log.w(LCAT, "Entity isChunked: " + response.getEntity().isChunked());
+						Log.w(LCAT, "Entity isStreaming: " + response.getEntity().isStreaming());
+					} catch (Throwable t) {
+						// Ignore
+					}
+				}
 
 		        StatusLine statusLine = response.getStatusLine();
 		        if (statusLine.getStatusCode() >= 300) {
