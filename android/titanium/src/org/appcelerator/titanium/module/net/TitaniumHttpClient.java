@@ -16,6 +16,7 @@ import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -64,6 +65,8 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	private static final String LCAT = "TiHttpClient";
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
+	private static AtomicInteger httpClientThreadCounter;
+
 	private SoftReference<TitaniumWebView> softWebView;
 
 	private String userAgent;
@@ -80,22 +83,29 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	private HttpResponse response;
 	private HttpHost host;
 	private DefaultHttpClient client;
+	private LocalResponseHandler handler;
 	private Credentials credentials;
 
-	private static byte[] responseData;
-	private static String charset;
+	private byte[] responseData;
+	private String charset;
 
 	private ArrayList<NameValuePair> nvPairs;
 	private HashMap<String, ContentBody> parts;
 	private String data;
 	private WeakReference<TitaniumModuleManager> weakTmm;
 
+	Thread clientThread;
+
 	private final TitaniumHttpClient me;
 	String syncId;
 
+	private boolean aborted;
+
 	class LocalResponseHandler implements ResponseHandler<String>
 	{
-		private WeakReference<TitaniumHttpClient> client;
+		public WeakReference<TitaniumHttpClient> client;
+		public InputStream is;
+		public HttpEntity entity;
 
 		public LocalResponseHandler(TitaniumHttpClient client) {
 			this.client = new WeakReference<TitaniumHttpClient>(client);
@@ -104,71 +114,88 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 		public String handleResponse(HttpResponse response)
 				throws HttpResponseException, IOException
 		{
-			TitaniumHttpClient c = client.get();
-			if (c != null) {
-				c.response = response;
-				c.setReadyState(READY_STATE_LOADED, syncId);
-				c.setStatus(response.getStatusLine().getStatusCode());
-				c.setStatusText(response.getStatusLine().getReasonPhrase());
-				c.setReadyState(READY_STATE_INTERACTIVE, syncId);
-			}
-
-			Log.w(LCAT, "Entity Type: " + response.getEntity().getClass());
-			Log.w(LCAT, "Entity Content Type: " + response.getEntity().getContentType().getValue());
-			Log.w(LCAT, "Entity isChunked: " + response.getEntity().isChunked());
-			Log.w(LCAT, "Entity isStreaming: " + response.getEntity().isStreaming());
-
-	        StatusLine statusLine = response.getStatusLine();
-	        if (statusLine.getStatusCode() >= 300) {
-	        	throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
-	        }
-
-	        HttpEntity entity = response.getEntity();
 	        String clientResponse = null;
 
-	        if (c.onDataStreamCallback != null) {
-	        	InputStream is = entity.getContent();
+			if (client != null) {
+				TitaniumHttpClient c = client.get();
+				if (c != null) {
+					c.response = response;
+					c.setReadyState(READY_STATE_LOADED, syncId);
+					c.setStatus(response.getStatusLine().getStatusCode());
+					c.setStatusText(response.getStatusLine().getReasonPhrase());
+					c.setReadyState(READY_STATE_INTERACTIVE, syncId);
+				}
 
-	        	if (is != null) {
-    				final String cb = c.onDataStreamCallback;
-        			final TitaniumWebView webView = softWebView.get();
+				Log.w(LCAT, "Entity Type: " + response.getEntity().getClass());
+				Log.w(LCAT, "Entity Content Type: " + response.getEntity().getContentType().getValue());
+				Log.w(LCAT, "Entity isChunked: " + response.getEntity().isChunked());
+				Log.w(LCAT, "Entity isStreaming: " + response.getEntity().isStreaming());
 
-	        		long contentLength = entity.getContentLength();
-	        		if (DBG) {
-	        			Log.d(LCAT, "Content length: " + contentLength);
-	        		}
-	        		int count = 0;
-	        		int totalSize = 0;
-	        		byte[] buf = new byte[4096];
-	        		while((count = is.read(buf)) != -1) {
-	        			totalSize += count;
-	        			if (webView != null) {
-	        				TitaniumModuleManager tmm = weakTmm.get();
-	        				if (tmm != null) {
-		        				try {
-		        					JSONObject o = new JSONObject();
-		        					o.put("totalCount", contentLength);
-		        					o.put("totalSize", totalSize);
-		        					o.put("size", count);
-		        					byte[] newbuf = new byte[count];
-		        					for (int i = 0; i < count; i++) {
-		        						newbuf[i] = buf[i];
-		        					}
-		        					TitaniumMemoryBlob blob = new TitaniumMemoryBlob(newbuf);
-		        					int key = tmm.cacheObject(blob);
-		        					o.put("key", key);
-		        					webView.evalJS(cb, o.toString(), syncId);
-		        				} catch (JSONException e) {
-		        					Log.e(LCAT, "Unable to send ondatastream event: ", e);
-		        				}
-	        				}
-	        			}
-	        		}
-	        	}
-	        } else {
-	        	setResponseData(entity);
-	        }
+		        StatusLine statusLine = response.getStatusLine();
+		        if (statusLine.getStatusCode() >= 300) {
+		        	throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
+		        }
 
+		        entity = response.getEntity();
+
+		        if (c.onDataStreamCallback != null) {
+		        	is = entity.getContent();
+
+		        	if (is != null) {
+	    				final String cb = c.onDataStreamCallback;
+	        			final TitaniumWebView webView = softWebView.get();
+
+		        		long contentLength = entity.getContentLength();
+		        		if (DBG) {
+		        			Log.d(LCAT, "Content length: " + contentLength);
+		        		}
+		        		int count = 0;
+		        		int totalSize = 0;
+		        		byte[] buf = new byte[4096];
+		        		if (DBG) {
+		        			Log.d(LCAT, "Available: " + is.available());
+		        		}
+		        		if (aborted) {
+		        			if (entity != null) {
+		        				entity.consumeContent();
+		        			}
+		        		} else {
+			        		while((count = is.read(buf)) != -1) {
+			        			totalSize += count;
+			        			if (webView != null) {
+			        				TitaniumModuleManager tmm = weakTmm.get();
+			        				if (tmm != null) {
+				        				try {
+				        					JSONObject o = new JSONObject();
+				        					o.put("totalCount", contentLength);
+				        					o.put("totalSize", totalSize);
+				        					o.put("size", count);
+				        					byte[] newbuf = new byte[count];
+				        					for (int i = 0; i < count; i++) {
+				        						newbuf[i] = buf[i];
+				        					}
+				        					TitaniumMemoryBlob blob = new TitaniumMemoryBlob(newbuf);
+				        					int key = tmm.cacheObject(blob);
+				        					o.put("key", key);
+			        						webView.evalJS(cb, o.toString(), syncId);
+				        				} catch (JSONException e) {
+				        					Log.e(LCAT, "Unable to send ondatastream event: ", e);
+				        				}
+			        				}
+			        			}
+			        			if(!entity.isStreaming()) {
+			        				break;
+			        			}
+			        		}
+			        		if (entity != null) {
+			        			entity.consumeContent();
+			        		}
+		        		}
+		        	}
+		        } else {
+		        	setResponseData(entity);
+		        }
+			}
 	        return clientResponse;
 		}
 
@@ -184,6 +211,9 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 
 	public TitaniumHttpClient(TitaniumModuleManager tmm, String userAgent)
 	{
+		if (httpClientThreadCounter == null) {
+			httpClientThreadCounter = new AtomicInteger();
+		}
 		this.weakTmm = new WeakReference<TitaniumModuleManager>(tmm);
 		me = this;
 		onReadyStateChangeCallback = null;
@@ -336,7 +366,26 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 				if (DBG) {
 					Log.d(LCAT, "Calling shutdown on clientConnectionManager");
 				}
-				client.getConnectionManager().shutdown();
+				aborted = true;
+				if(handler != null) {
+					handler.client = null;
+					if (handler.is != null) {
+						try {
+							if (handler.entity.isStreaming()) {
+								handler.entity.consumeContent();
+							}
+							handler.is.close();
+						} catch (IOException e) {
+							Log.i(LCAT, "Force closing HTTP content input stream", e);
+						} finally {
+							handler.is = null;
+						}
+					}
+				}
+				if (client != null) {
+					client.getConnectionManager().shutdown();
+					client = null;
+				}
 			}
 		}
 	}
@@ -456,7 +505,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 
 		// TODO consider using task manager
 		final TitaniumHttpClient me = this;
-		Thread t = new Thread(new Runnable(){
+		clientThread = new Thread(new Runnable(){
 
 			public void run() {
 				try {
@@ -472,8 +521,9 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 						//Log.e(LCAT, "HEADER: " + hdr.toString());
 					}
 					 */
-					final LocalResponseHandler handler = new LocalResponseHandler(me);
+					handler = new LocalResponseHandler(me);
 					client = new DefaultHttpClient();
+
 					if (credentials != null) {
 						client.getCredentialsProvider().setCredentials(
 								new AuthScope(null, -1), credentials);
@@ -559,10 +609,10 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 					}
 					syncId = null;
 				}
-			}});
-		t.setPriority(Thread.MIN_PRIORITY);
+			}}, "TitaniumHTTPClient-" + httpClientThreadCounter.incrementAndGet());
+		clientThread.setPriority(Thread.MIN_PRIORITY);
 
-		t.start();
+		clientThread.start();
 
 		if (DBG) {
 			Log.d(LCAT, "Leaving send()");
