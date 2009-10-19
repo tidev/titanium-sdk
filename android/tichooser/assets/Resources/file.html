@@ -342,6 +342,54 @@ tc4.addTest('app: copy icon.png to appdata:', function() {
 	return tf.length == this.fi.length
 });
 
+var tc5 = new TestCase("appdata-private:");
+suite.addTestCase(tc5);
+
+tc5.setup = function() {
+	this.f = TFS.getFile("appdata-private://");
+};
+
+tc5.addTest('appdata-private: != null', function() {
+	return (this.f !== null);
+});
+tc5.addTest('appdata-private: nativePath starts with /data/data', function() {
+	return this.f.nativePath().indexOf("/data/data/") > -1;
+});
+tc5.addTest('appdata-private: toURL starts with file:///', function() {
+	Titanium.API.info("toURL: " + this.f.toURL());
+	return this.f.toURL().indexOf("file:///") > -1;
+});
+tc5.addTest('appdata-private: exists()', function(){
+	return this.f.exists();
+});
+tc5.addTest('appdata-private: isDirectory()', function(){
+	return this.f.isDirectory();
+});
+tc5.addTest('appdata-private: isFile()', function(){
+	return !this.f.isFile();
+});
+tc5.addTest('appdata-private: isHidden()', function() {
+	return !this.f.isHidden();
+});
+tc5.addTest('appdata-private: isReadonly()', function() {
+	return !this.f.isReadonly();
+});
+tc5.addTest('appdata-private: isWritable()', function() {
+	return this.f.isWriteable();
+});
+tc5.addTest('appdata-private: createTimestamp', function() {
+	return this.f.createTimestamp() > 0;
+});
+tc5.addTest('appdata-private: modificationTimestamp', function() {
+	return this.f.modificationTimestamp();
+});
+tc5.addTest('appdata-private: name != null', function() {
+	return this.f.name() !== null;
+});
+tc5.addTest('appdata-private: name.length > 0', function() {
+	return this.f.name().length > 0;
+});
+
 
 window.onload = function() {
 	setTimeout(function(){suite.performTests();}, 500);
