@@ -22,9 +22,9 @@
 	  var w = Titanium.UI.createWindow();
 	  w.setTitle("Platform");
 	  w.setURL("platform.html");
-	  w.setType("single");
 	  w.setTitleImage('images/refresh.png');
 	  w.setFullscreen(false);
+	  w.setBackgroundImage("default.png");
 
 	  w.open();
   }
@@ -33,7 +33,6 @@
 	  var w = Titanium.UI.createWindow();
 	  w.setTitle("Google");
 	  w.setURL("http://google.com");
-	  w.setType("single");
 	  w.setTitleImage('images/refresh.png');
 	  w.setFullscreen(false);
 
@@ -41,7 +40,7 @@
   }
   </script>
 </head>
-<body style="background-color: white;">
+<body>
 Windows<br/>
 <a href="#" onclick='doPlatform(); return false;'>Open Platform Window</a><br/>
 <div id="event">&nbsp;</div>

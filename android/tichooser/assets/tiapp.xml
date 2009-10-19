@@ -48,17 +48,17 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+-->
         <window>
             <id>windows</id>
             <title>Windows</title>
             <url>windows.html</url>
             <type>single</type>
             <fullscreen>false</fullscreen>
-            <backgroundColor>argb(0,255,255,255)</backgroundColor>
+            <backgroundImage>images/geese.jpg</backgroundImage>
             <barColor>#000</barColor>
         </window>
-
+<!--
         <window>
             <id>initial</id>
             <title>TextF</title>
@@ -305,7 +305,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
 		<window>
             <id>File</id>
             <title>file</title>
@@ -315,7 +315,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-<!--
+
 		<window>
             <id>Filestream</id>
             <title>filestream</title>
