@@ -314,6 +314,35 @@ tc3.addTest('appdata: rename directory', function() {
 	return pass;
 });
 
+var tc4 = new TestCase("app: to appdata:");
+suite.addTestCase(tc4);
+
+tc4.setup = function() {
+	this.f = TFS.getFile("app://data/file01.txt");
+	this.fi = TFS.getFile("app://images/icon.png");
+	this.td = TFS.getFile("appdata://tests");
+	if (this.td.exists()) {
+		this.td.deleteDirectory(true);
+	}
+	this.td.createDirectory();
+};
+tc4.addTest('app: exists', function() {
+	return this.f.exists() && this.fi.exists() && this.td.exists();
+});
+
+tc4.addTest('app: copy file01.txt to appdata:', function() {
+	this.f.copy('appdata://tests/file01.txt');
+	var tf = TFS.getFile('appdata://tests/file01.txt');
+	return tf.length == this.f.length
+});
+
+tc4.addTest('app: copy icon.png to appdata:', function() {
+	this.fi.copy('appdata://tests/image.png');
+	var tf = TFS.getFile('appdata://tests/image.png');
+	return tf.length == this.fi.length
+});
+
+
 window.onload = function() {
 	setTimeout(function(){suite.performTests();}, 500);
 }
