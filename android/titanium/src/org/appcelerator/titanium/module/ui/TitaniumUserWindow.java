@@ -21,14 +21,19 @@ import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumAnimationFactory;
 import org.appcelerator.titanium.util.TitaniumAnimationPair;
+import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -60,6 +65,7 @@ public class TitaniumUserWindow extends ViewAnimator
 	protected String title;
 	protected String titleImageUrl;
 	protected String url;
+	protected String backgroundImage;
 
 	protected TitaniumModuleManager tmm;
 	protected HashMap<String, WeakReference<ITitaniumView>> registeredViews;
@@ -96,12 +102,18 @@ public class TitaniumUserWindow extends ViewAnimator
 		TitaniumUIWebView uiWebView = new TitaniumUIWebView(tmm);
         addView((ITitaniumView) uiWebView); // Make it views[0]
 		uiWebView.setUrl(url);
+		TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getActivity());
 
 		TitaniumWindowInfo windowInfo = tmm.getActivity().getWindowInfo();
+		String backgroundImage = null;
+
 		if (windowInfo != null) {
 			if (windowInfo.hasBackgroundColor()) {
 				setBackgroundColor(windowInfo.getBackgroundColor());
 				tmm.getWebView().setBackgroundColor(windowInfo.getBackgroundColor());
+			}
+			if (windowInfo.hasWindowBackgroundImage()) {
+				backgroundImage = windowInfo.getWindowBackgroundImage();
 			}
 		} else {
 	    	TitaniumIntentWrapper tiw = new TitaniumIntentWrapper(tmm.getActivity().getIntent());
@@ -110,6 +122,17 @@ public class TitaniumUserWindow extends ViewAnimator
 				int backgroundColor = tiw.getBackgroundColor();
 				setBackgroundColor(backgroundColor);
 				tmm.getWebView().setBackgroundColor(backgroundColor);
+			}
+			if (tiw.hasBackgroundImage()) {
+				backgroundImage = tiw.getBackgroundImage();
+			}
+		}
+
+		if (backgroundImage != null) {
+	    	Drawable backgroundDrawable = tfh.loadDrawable(backgroundImage, false); // Ok to not have background
+			if (backgroundDrawable != null) {
+				((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
+				tmm.getWebView().setBackgroundDrawable(backgroundDrawable);
 			}
 		}
 
@@ -257,7 +280,11 @@ public class TitaniumUserWindow extends ViewAnimator
 	}
 
 	public void setBackgroundColor(String backgroundColor) {
-		Log.w(LCAT, "background cannot be changed on currentWindow");
+		Log.w(LCAT, "backgroundColor cannot be changed on currentWindow");
+	}
+
+	public void setBackgroundImage(String backgroundImage) {
+		Log.w(LCAT, "backgroundImage cannot be changed on currentWindow");
 	}
 
 	public void setTitleImage(String titleImageUrl) {

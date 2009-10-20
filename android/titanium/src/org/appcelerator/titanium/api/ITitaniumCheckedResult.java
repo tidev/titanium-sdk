@@ -9,5 +9,7 @@ package org.appcelerator.titanium.api;
 public interface ITitaniumCheckedResult
 {
 	Object getResult();
+	String getType();
 	String getException();
+	void destroy();
 }

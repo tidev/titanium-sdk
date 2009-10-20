@@ -98,4 +98,9 @@ public class TitaniumBlob extends TitaniumBaseFile
 	public OutputStream getOutputStream() throws IOException {
 		return null;
 	}
+
+	@Override
+	public File getNativeFile() {
+		return null;
+	}
 }

@@ -18,4 +18,7 @@ public interface ITitaniumUserWindowBuilder
 
 	// Added in 0.7.0
 	public void setBackgroundColor(String backgroundColor);
+
+	// Added in 0.7.1
+	public void setBackgroundImage(String backgroundImage);
 }

@@ -14,7 +14,7 @@
 			for (var c=0;c<r.length;c++)
 			{
 				// this is particular to this webservice which has multiple lists - just break at ALL
-				if (r[c].CurrencyShortName=="ALL")
+				if (!r[c].CurrencyName)
 				{
 					break;
 				}

@@ -290,8 +290,11 @@ class Builder(object):
 			
 		
 			classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')	
-			run.run([dx, '-JXmx512M', '--dex', '--output='+classes_dex, classes_dir, tijar])
-									
+			if platform.system() == "Windows":
+				run.run([dx, '--dex', '--output='+classes_dex, classes_dir, tijar])
+			else:
+				run.run([dx, '-JXmx512M', '--dex', '--output='+classes_dex, classes_dir, tijar])
+										
 			ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')	
 			run.run([aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', assets_dir, '-S', 'res', '-I', jar, '-I', tijar, '-F', ap_])
 		

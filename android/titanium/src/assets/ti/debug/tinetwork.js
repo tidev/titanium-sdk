@@ -27,7 +27,7 @@ var HTTPClient = function() {
 	 * @tiresult[string] the response text
 	 */
 	this.getResponseText = function() {
-		return this.obj.getResponseText();
+		return transformObjectValueAsString(this.obj.getResponseText());
 	};
 
 	/**
@@ -102,7 +102,7 @@ var HTTPClient = function() {
 					if (type != 'object') {
 						this.obj.addPostData(key, String(value));
 					} else if (type.indexOf('TitaniumBlob') != -1) {
-						Titanium.API.error("send: typeof=" + typeof value);
+						//Titanium.API.error("send: typeof=" + typeof value);
 						this.obj.addTitaniumFileAsPostData(key, value.obj.proxy);
 					} else {
 						this.obj.addTitaniumFileAsPostData(key, value.proxy);

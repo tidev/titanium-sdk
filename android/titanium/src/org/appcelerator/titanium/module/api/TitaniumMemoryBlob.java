@@ -7,19 +7,30 @@
 
 package org.appcelerator.titanium.module.api;
 
+import java.lang.ref.WeakReference;
+
 public class TitaniumMemoryBlob
 {
-	private byte[] data;
+	private WeakReference<byte[]> weakData;
 
 	public TitaniumMemoryBlob(byte[] data) {
-		this.data = data;
+		this.weakData = new WeakReference<byte[]>(data);
 	}
 
 	public int getLength() {
-		return data.length;
+		int length = 0;
+		byte[] data = weakData.get();
+		if (data != null) {
+			length = data.length;
+		}
+		return length;
 	}
 
 	public byte[] getData() {
-		return data;
+		return weakData.get();
+	}
+
+	public void clear() {
+		weakData = null;
 	}
 }

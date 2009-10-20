@@ -17,8 +17,8 @@ baseVersion = titanium_version.version
 t = baseVersion.split(".")
 defaultVersion = "%s.%s" % (t[0],t[1])
 
-default_desktop_platforms = {"win23":[""], "linux":[""], "osx": [""]}
-default_mobile_platforms = {}
+default_desktop_platforms = {"win32":[""], "linux":[""], "osx": [""]}
+default_mobile_platforms = {"android":["1.5"], "iphone" : ["2.2.1","3.0","3.1"]}
 default_platforms = default_desktop_platforms
 
 class GlobDirectoryWalker:

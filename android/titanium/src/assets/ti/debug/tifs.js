@@ -13,7 +13,6 @@ Titanium.fileSystemProxy = window.TitaniumFilesystem;
 TitaniumFile = function(f) //Note: Not implemented on iPhone yet
 {
 	this.proxy = f;
-	Titanium.API.error("FILE: " + typeOf(f));
 };
 /**
  * @tiapi(method = true,name=Filesystem.File.isFile,since=0.4) Checks whether a file object references a file
@@ -87,7 +86,8 @@ TitaniumFile.prototype.resolve = function()
  */
 TitaniumFile.prototype.read = function()
 {
-	return Titanium.checked(this.proxy.call("read"));
+	var key = Titanium.checked(this.proxy.call("read"));
+	return (key != -1) ? new TitaniumMemoryBlob(key) : null;
 };
 /**
  * @tiapi (method=True,name=Filesystem.File.write,since=0.4) Writes data to the file
@@ -425,7 +425,6 @@ Titanium.Filesystem = {
 	getFile : function() {
 		var parts = [];
 		for(i=0; i < arguments.length; i++) {
-			Titanium.API.error("A1: " + arguments[i] + " Typeof: " + typeOf(arguments[i]));
 			parts.push(this.pathSegment(arguments[i]));
 		}
 		return new TitaniumFile(Titanium.fileSystemProxy.getFile(parts));
