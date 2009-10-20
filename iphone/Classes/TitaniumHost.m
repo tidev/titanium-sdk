@@ -1309,7 +1309,6 @@ TitaniumHost * lastSharedHost = nil;
 {
 	TitaniumContentViewController * currentVC = [self titaniumContentViewControllerForToken:token];
 	if (![currentVC isKindOfClass:[TitaniumWebViewController class]]){ return NO; }
-	NSLog(@"Send Javascript: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
 	if ([NSThread isMainThread]){
 		[[(TitaniumWebViewController *)currentVC webView] performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:inputString afterDelay:0.0];
 	} else {
