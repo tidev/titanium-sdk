@@ -583,7 +583,8 @@ UIColor * checkmarkColor = nil;
 	if (htmlString != nil){ //HTML cell
 		result = [ourTableView dequeueReusableCellWithIdentifier:@"html"];
 		if (result == nil) {
-			result = [[[WebTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"html"] autorelease];
+			CGRect standardSize = CGRectMake(0, 0, 280, 30);
+			result = [[[WebTableViewCell alloc] initWithFrame:standardSize reuseIdentifier:@"html"] autorelease];
 		}
 		[(WebTableViewCell *)result setHTML:htmlString];
 		

@@ -66,6 +66,7 @@ WebViewWasher * sharedWebWasher = nil;
 	[result setExclusiveTouch:NO];
 	[result setUserInteractionEnabled:NO];
 	[result setBackgroundColor:[UIColor clearColor]];
+	[result setScalesPageToFit:NO];
 	[result setOpaque:NO];
 	NSString * injection = [NSString stringWithFormat:@"document.write('%@')",baseMessage];
 	[result stringByEvaluatingJavaScriptFromString:injection];
