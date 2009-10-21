@@ -1115,6 +1115,7 @@ TitaniumHost * lastSharedHost = nil;
 	if([ourPath isEqualToString:@"/blank"]) return TitaniumAppResourceNoType;
 	if(![ourPath hasPrefix:@"/_"]) return TitaniumAppResourceFileType;
 	if([ourPath hasPrefix:@"/_TICMD/"]) return TitaniumAppResourceCommandType;
+	if([ourPath hasPrefix:@"/_TIDO/"]) return TitaniumAppResourceDoMethodType;
 	if([ourPath hasPrefix:@"/_TIFILE/"]) return TitaniumAppResourceRandomFileType;
 	if([ourPath hasPrefix:@"/_TICON/"]) return TitaniumAppResourceContinueType;
 	if([ourPath hasPrefix:@"/_TIBLOB/"]) return TitaniumAppResourceBlobType;
@@ -1154,6 +1155,70 @@ TitaniumHost * lastSharedHost = nil;
 	return result;
 }
 
+- (NSString *)	doTitaniumMethod:(NSURL *)functionUrl withArgumentBody:(NSData *)argData;
+{
+	NSArray * pathParts = [[functionUrl path] componentsSeparatedByString:@"/"];
+	int pathPartsCount = [pathParts count];
+	//Entry 0 is /, entry 1 is _TIDO, Entry 2 is token, Entry 3 is the module, Entry 4 is method name
+	if(pathPartsCount < 5) return [NSString stringWithFormat:@"throw \"Error: malformed Method Url: %@\";",functionUrl];
+
+	TitaniumModule * ourModule = [self moduleNamed:[pathParts objectAtIndex:3]];
+	if(ourModule == nil) {
+		return [NSString stringWithFormat:@"throw \"Error: no module named %@ (%@)\"",
+				[pathParts objectAtIndex:3],functionUrl];
+	}
+	
+	NSString * ourMethodName = [[pathParts objectAtIndex:4] stringByAppendingString:@":"];
+	SEL ourMethod = NSSelectorFromString(ourMethodName);
+	
+	if(![ourModule respondsToSelector:ourMethod]){
+		return [NSString stringWithFormat:@"throw \"Error: %@ module does not respond to %@ (%@)\"",
+				[pathParts objectAtIndex:3],ourMethodName,functionUrl];
+	}
+	
+
+	SBJSON * parser = [[SBJSON alloc] init];
+	NSError * error = nil;
+	
+	NSString * argString = [[NSString alloc] initWithData:argData encoding:NSUTF8StringEncoding];
+	id argObject = [parser fragmentWithString:argString error:&error];
+	[argString release];
+
+	NSString * result;
+	
+	if(error == nil){
+		TitaniumCmdThread * worker = [[TitaniumCmdThread alloc] init];
+		[worker setModuleThread:[NSThread currentThread]];
+		[worker setMagicToken:[pathParts objectAtIndex:2]];
+		[self registerThread:worker];
+		
+		@try{
+			id responseObject = [ourModule performSelector:ourMethod withObject: argObject];
+
+			if(responseObject==nil){
+				result = nil;
+			} else if([responseObject isKindOfClass:[NSError class]]){
+				error = responseObject;
+			} else {
+				result = [NSString stringWithFormat:@"result=%@;",[parser stringWithFragment:responseObject error:&error]];
+			}
+		} @catch (id e) {
+			error = e;
+		}
+		
+		[self unregisterThread:worker];
+		[worker release];
+	}
+
+	if(error != nil){
+		result = [NSString stringWithFormat:@"throw %@;",[parser stringWithFragment:[error localizedDescription] error:nil]];
+	}
+
+	[parser release];
+
+	return result;
+}
+
 - (NSString *) performFunction: (NSURL *) functionUrl
 {
 	TitaniumCmdThread * worker = nil;
@@ -1187,23 +1252,6 @@ TitaniumHost * lastSharedHost = nil;
 	}
 	return [worker moduleResult];
 }
-
-//Executes and returns the string inline with the background thread, or if not in a thread,
-//with the main page of the currently visible most foreground page.
-//- (NSString *) performJavascript: (NSString *) inputString
-//{
-//	TitaniumCmdThread * ourThread = [self currentThread];
-//	if (ourThread == nil) {
-//		//Find the current view, and send it the message.
-//		TitaniumContentViewController * currentVC = [self currentTitaniumContentViewController];
-//		if ([currentVC isKindOfClass:[TitaniumWebViewController class]]){
-//			return [[(TitaniumWebViewController *)currentVC webView] stringByEvaluatingJavaScriptFromString:inputString];
-//		}
-//		
-//	}
-//	
-//	return [ourThread pauseForJavascriptFetch:inputString];	
-//}
 
 - (TitaniumViewController *) visibleTitaniumViewController
 {
