@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ti:app xmlns:ti="http://ti.appcelerator.org" xmlns:appc="http://www.appcelerator.org">
-    <id>com.appcelerator.tichooser</id>
+    <id>org.appcelerator.tichooser</id>
     <name>Titanium TestBed</name>
     <version>0.1</version>
     <icon>/images/app.png</icon>
