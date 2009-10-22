@@ -57,13 +57,14 @@ extern NSLock * TitaniumHostContentViewLock;
 extern NSLock * TitaniumHostWindowLock;
 
 typedef enum {
-	TitaniumAppResourceNoType				= 0x00,
-	TitaniumAppResourceFileType				= 0x01,
-	TitaniumAppResourceRandomFileType		= 0x02,
-	TitaniumAppResourceCommandType			= 0x10,
-	TitaniumAppResourceContinueType			= 0x20,
-	TitaniumAppResourceBlobType				= 0x40,
-	TitaniumAppResourceWindowBindingType	= 0x80,
+	TitaniumAppResourceNoType				= 0x0000,
+	TitaniumAppResourceFileType				= 0x0001,
+	TitaniumAppResourceRandomFileType		= 0x0002,
+	TitaniumAppResourceCommandType			= 0x0010,
+	TitaniumAppResourceContinueType			= 0x0020,
+	TitaniumAppResourceBlobType				= 0x0040,
+	TitaniumAppResourceWindowBindingType	= 0x0080,
+	TitaniumAppResourceDoMethodType			= 0x0100,
 	TitaniumAppResourceFunctionType = TitaniumAppResourceCommandType | TitaniumAppResourceContinueType,
 } TitaniumAppResourceType;
 

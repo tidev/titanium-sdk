@@ -28,7 +28,6 @@
 #import "TitaniumViewController.h"
 #import "TitaniumWebViewController.h"
 #import "TitaniumAppDelegate.h"
-#import "TitaniumCmdThread.h"
 #import "TitaniumInvocationGenerator.h"
 #import "TitaniumJSCode.h"
 #import "TitaniumJSConstants.h"

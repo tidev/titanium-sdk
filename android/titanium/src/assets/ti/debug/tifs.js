@@ -132,7 +132,11 @@ TitaniumFile.prototype.readLine = function()
 TitaniumFile.prototype.copy = function(destination)
 {
 	var p = this.proxy;
-	p.pushString(destination);
+	if (!isUndefined(destination.url)) {
+		p.pushString(destination.url);
+	} else {
+		p.pushString(destination);
+	}
 	return Titanium.checked(p.call("copy"));
 };
 /**
@@ -143,7 +147,11 @@ TitaniumFile.prototype.copy = function(destination)
 TitaniumFile.prototype.move = function(destination)
 {
 	var p = this.proxy;
-	p.pushString(destination);
+	if (!isUndefined(destination.url)) {
+		p.pushString(destination.url);
+	} else {
+		p.pushString(destination);
+	}
 	return Titanium.checked(p.call("move"));
 };
 /**
@@ -450,12 +458,18 @@ Titanium.Filesystem = {
 		return new TitaniumFile(Titanium.fileSystemProxy.getApplicationDirectory());
 	},
 	/**
-	 * @tiapi(method=true,name=Filesystem.getApplicationDataDirectory,since=0.4) Returns a file object pointing to the application's data directory.
+	 * @tiapi(method=true,name=Filesystem.getApplicationDataDirectory,since=0.4) Returns a file object pointing to the application's on device data directory.
 	 * @tiresult[File] the file object to the application data directory.
 	 */
-	getApplicationDataDirectory : function(priv) {
-		priv = typeof(priv)=='undefined' ? false : priv;
-		return new TitaniumFile(Titanium.fileSystemProxy.getApplicationDataDirectory(priv));
+	getApplicationDataDirectory : function() {
+		return new TitaniumFile(Titanium.fileSystemProxy.getApplicationDataDirectory(true));
+	},
+	/**
+	 * @tiapi(method=true,name=Filesystem.getApplicationMassDataDirectory,since=0.7.2) Returns a file object pointing to the application's off device data directory.
+	 * @tiresult[File] the file object to the application mass data directory.
+	 */
+	getApplicationMassDataDirectory : function() {
+		return new TitaniumFile(Titanium.fileSystemProxy.getApplicationDataDirectory(false));
 	},
 	/**
 	 * @tiapi(method=true,name=Filesystem.getResourcesDirectory,since=0.4) Returns a file object pointing to the application's Resources.

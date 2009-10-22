@@ -510,6 +510,7 @@ needsRefreshing = YES;	\
 			if (templateValue == UITitaniumNativeItemTextField){
 				if ([nativeView isKindOfClass:[UITextField class]]){
 					resultView = [nativeView retain];
+					[(UIControl *)resultView setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
 				} else {
 					resultView = [[UITextField alloc] initWithFrame:viewFrame];
 					[(UITextField *)resultView setDelegate:self];

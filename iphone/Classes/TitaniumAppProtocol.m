@@ -7,7 +7,6 @@
 
 #import "TitaniumAppProtocol.h"
 #import "TitaniumHost.h"
-#import "TitaniumCmdThread.h"
 #import "NSData+Additions.h"
 #import "TitaniumBlobWrapper.h"
 
@@ -208,6 +207,16 @@ id<TitaniumAppAssetResolver> resolver = nil;
 //					NSLog(@"[DEBUG] Path parts,%@",pathParts);
 					data = [NSData data];
 				}
+				break;
+			case TitaniumAppResourceDoMethodType:
+				dataString = [theHost doTitaniumMethod:url withArgumentBody:[request HTTPBody]];
+				if (dataString != nil) {
+					data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
+				} else {
+					data = [NSData data];
+				}
+				mime = textMimeType;
+				caching = NSURLCacheStorageNotAllowed;
 				break;
 			case TitaniumAppResourceCommandType:
 			case TitaniumAppResourceContinueType:
