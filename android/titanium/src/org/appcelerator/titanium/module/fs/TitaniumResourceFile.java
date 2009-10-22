@@ -158,7 +158,24 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 	@Override
 	public boolean exists()
 	{
-		return true;
+		boolean result = false;
+		InputStream is = null;
+		try {
+			is = getInputStream();
+			result = true;
+		} catch (IOException e) {
+			// Ignore
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					// Ignore
+				}
+			}
+		}
+
+		return result;
 	}
 
 	@Override
@@ -186,7 +203,7 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 	@Override
 	public String nativePath()
 	{
-		return path;
+		return toURL();
 	}
 
 	public String toURL() {
@@ -194,18 +211,18 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 	}
 	public double size()
 	{
-		return 0L;
+		return getNativeFile().length();
 	}
 
 	public String toString ()
 	{
-		return getPath();
+		return toURL();
 	}
 
 
 	// OUTSIDE OF THE API
-	String getPath()
-	{
-		return path;
-	}
+//	String getPath()
+//	{
+//		return path;
+//	}
 }

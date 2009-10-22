@@ -30,8 +30,10 @@
 	  this.exceptionCount = 0;
 	  this.tests = [];
 
-	  this.addTest = function(s, f) {
-		  this.tests.push({ desc : s, test : f});
+	  this.addTest = function(s, f, p) {
+		  if (isUndefined(p) || Titanium.Platform.name == p) {
+		  	this.tests.push({ desc : s, test : f});
+		  }
 	  };
 
 	  this.performTests = function(suite) {
@@ -123,68 +125,74 @@ var TFS = Titanium.Filesystem;
 
 var suite = new TestSuite();
 
-var tc1 = new TestCase("appdata:// file tests");
+var tc1 = new TestCase("ApplicationDataDirectory file tests");
 suite.addTestCase(tc1);
 
 tc1.setup = function() {
-	this.f = TFS.getFile("appdata://");
+	this.f = Titanium.Filesystem.getApplicationDataDirectory();
 };
 
-tc1.addTest('appdata: != null', function() {
+tc1.addTest('AppDataDir: != null', function() {
 	return (this.f !== null);
 });
-tc1.addTest('appdata: nativePath starts with /sdcard', function() {
+
+tc1.addTest('AppDataDir: nativePath starts with /sdcard', function() {
 	return this.f.nativePath().indexOf("/sdcard/") > -1;
-});
-tc1.addTest('appdata: toURL starts with file:///', function() {
+},'android');
+tc1.addTest('AppDataDir: toURL starts with file:///', function() {
 	Titanium.API.info("toURL: " + this.f.toURL());
 	return this.f.toURL().indexOf("file:///") > -1;
 });
-tc1.addTest('appdata: exists()', function(){
+
+tc1.addTest('AppDataDir: toURL == url', function() {
+	return this.f.toURL() == this.f.url;
+});
+
+tc1.addTest('AppDataDir: exists()', function(){
 	return this.f.exists();
 });
-tc1.addTest('appdata: isDirectory()', function(){
+tc1.addTest('AppDataDir: isDirectory()', function(){
 	return this.f.isDirectory();
 });
-tc1.addTest('appdata: isFile()', function(){
+tc1.addTest('AppDataDir: isFile()', function(){
 	return !this.f.isFile();
 });
-tc1.addTest('appdata: isHidden()', function() {
+tc1.addTest('AppDataDir: isHidden()', function() {
 	return !this.f.isHidden();
 });
-tc1.addTest('appdata: isReadonly()', function() {
+tc1.addTest('AppDataDir: isReadonly()', function() {
 	return !this.f.isReadonly();
 });
-tc1.addTest('appdata: isWritable()', function() {
+tc1.addTest('AppDataDir: isWritable()', function() {
 	return this.f.isWriteable();
 });
-tc1.addTest('appdata: createTimestamp', function() {
+tc1.addTest('AppDataDir: createTimestamp', function() {
 	return this.f.createTimestamp() > 0;
 });
-tc1.addTest('appdata: modificationTimestamp', function() {
+tc1.addTest('AppDataDir: modificationTimestamp', function() {
 	return this.f.modificationTimestamp();
 });
-tc1.addTest('appdata: name != null', function() {
+tc1.addTest('AppDataDir: name != null', function() {
 	return this.f.name() !== null;
 });
-tc1.addTest('appdata: name.length > 0', function() {
+tc1.addTest('AppDataDir: name.length > 0', function() {
 	return this.f.name().length > 0;
 });
-tc1.addTest('appdata: org.appcelerator.tichooser', function() {
+tc1.addTest('AppDataDir: org.appcelerator.tichooser', function() {
 	return this.f.name() == 'org.appcelerator.tichooser';
-});
+}, 'android');
 
 // File: String data
 
-var tc2 = new TestCase("appdata:// IO");
+var tc2 = new TestCase("AppDataDir::// IO");
 suite.addTestCase(tc2);
 
 tc2.setup = function() {
-	this.f = TFS.getFile("appdata://a1.txt");
+	this.f = TFS.getFile(Titanium.Filesystem.getApplicationDataDirectory(), "a1.txt");
 	if (this.f !== null && this.f.exists()) {
 		this.f.deleteFile();
 	}
-	this.f2 = TFS.getFile("appdata://a2.txt");
+	this.f2 = TFS.getFile(Titanium.Filesystem.getApplicationDataDirectory(), "a2.txt");
 	if (this.f2 !== null && this.f2.exists()) {
 		this.f2.deleteFile();
 	}
@@ -192,104 +200,106 @@ tc2.setup = function() {
 
 tc2.teardown = function() {
 	var files = [
-		'appdata://a1.txt',
-		'appdata://a2.txt',
-		'appdata://a2a.txt'
+		'a1.txt',
+		'a2.txt',
+		'a2a.txt'
 	];
 
 	for (var i = 0; i < files.length; i++) {
-		var f = TFS.getFile(files[i]);
+		var f = TFS.getFile(Titanium.Filesystem.getApplicationDataDirectory(), files[i]);
 		if (f != null) {
 			f.deleteFile();
 		}
 	}
 };
 
-tc2.addTest('appdata: a1.txt !exists', function() {
+tc2.addTest('AppDataDir: a1.txt !exists', function() {
 	return !this.f.exists();
 });
-tc2.addTest('appdata: a1.txt: write string 0123456789', function() {
+tc2.addTest('AppDataDir: a1.txt: write string 0123456789', function() {
 	this.f.write('0123456789');
 	return this.f.exists();
 });
-tc2.addTest('appdata: a1.txt: length == 10', function() {
+tc2.addTest('AppDataDir: a1.txt: length == 10', function() {
 	return this.f.size() === 10;
 });
-tc2.addTest('appdata: a1.txt read == 0123456789', function() {
+tc2.addTest('AppDataDir: a1.txt read == 0123456789', function() {
 	var b = this.f.read();
 	return b.toString() == '0123456789';
 });
-tc2.addTest('appdata: a1.txt readline == 0123456789', function() {
+tc2.addTest('AppDataDir: a1.txt readline == 0123456789', function() {
 	var s = this.f.readLine();
 	return s == '0123456789';
 });
-tc2.addTest('appdata: a2 !exists', function() {
+tc2.addTest('AppDataDir: a2 !exists', function() {
 	return !this.f2.exists();
 });
-tc2.addTest('appdata: a1.txt copy to a2.txt', function() {
-	this.f.copy("appdata://a2.txt");
+tc2.addTest('AppDataDir: a1.txt copy to a2.txt', function() {
+	var fc = TFS.getFile(TFS.getApplicationDataDirectory(), "a2.txt");
+	this.f.copy(fc);
 	return this.f2.exists();
 });
-tc2.addTest('appdata: a2.txt read == a1.txt.read', function() {
+tc2.addTest('AppDataDir: a2.txt read == a1.txt.read', function() {
 	var b1 = this.f.read();
 	var b2 = this.f2.read();
 	return b1.toString() == b2.toString();
 });
-tc2.addTest('appdata: a2.txt deleteFile', function() {
+tc2.addTest('AppDataDir: a2.txt deleteFile', function() {
 	this.f2.deleteFile();
 	return !this.f2.exists();
 });
-tc2.addTest('appdata: move a1.txt to a2.txt', function() {
-	this.f.move('appdata://a2.txt');
+tc2.addTest('AppDataDir: move a1.txt to a2.txt', function() {
+	var fm = TFS.getFile(TFS.getApplicationDataDirectory(), "a2.txt");
+	this.f.move(fm);
 	return !this.f.exists() && this.f2.exists();
 });
-tc2.addTest('appdata: contents of a2.txt post move', function() {
+tc2.addTest('AppDataDir: contents of a2.txt post move', function() {
 	var b = this.f2.read();
 	return b.toString() == '0123456789';
 });
-tc2.addTest('appdata: rename a2.txt a2a.txt', function() {
+tc2.addTest('AppDataDir:: rename a2.txt a2a.txt', function() {
 	this.f2.rename("a2a.txt");
 	var nf = TFS.getFile("appdata://a2a.txt");
 	return nf.exists();
 });
 
-var tc3 = new TestCase("appdata: dir ops");
+var tc3 = new TestCase("AppDataDir:: dir ops");
 suite.addTestCase(tc3);
 
-tc3.addTest('appdata: dir tmp1 !exists', function() {
-	var nd = TFS.getFile('appdata://tmp1');
+tc3.addTest('AppDataDir: dir tmp1 !exists', function() {
+	var nd = TFS.getFile(TFS.getApplicationDataDirectory(),'tmp1');
 	return !nd.exists();
 });
-tc3.addTest('appdata: dir create tmp1', function() {
-	var nd = TFS.getFile('appdata://tmp1');
+tc3.addTest('AppDataDir: dir create tmp1', function() {
+	var nd = TFS.getFile(TFS.getApplicationDataDirectory(), 'tmp1');
 	nd.createDirectory(false);
 	return nd.exists() && nd.isDirectory();
 });
-tc3.addTest('appdata: dir rename', function() {
-	var nd = TFS.getFile('appdata://tmp1');
+tc3.addTest('AppDataDir: dir rename', function() {
+	var nd = TFS.getFile(TFS.getApplicationDataDirectory(), 'tmp1');
 	nd.rename('tmp2');
-	nd = TFS.getFile('appdata://tmp2');
+	nd = TFS.getFile(TFS.getApplicationDataDirectory(), 'tmp2');
 	return nd.exists();
 });
-tc3.addTest('appdata: dir delete', function() {
-	var nd = TFS.getFile('appdata://tmp2');
+tc3.addTest('AppDataDir: dir delete', function() {
+	var nd = TFS.getFile(TFS.getApplicationDataDirectory(), 'tmp2');
 	nd.deleteDirectory();
 	return !nd.exists();
 });
-tc3.addTest('appdata: recursive delete', function() {
+tc3.addTest('AppDataDir: recursive delete', function() {
 	var pass = false;
-	var nd = TFS.getFile('appdata://a/b/c');
+	var nd = TFS.getFile(TFS.getApplicationDataDirectory(),'a','b','c');
 	if (!nd.exists()) {
 		nd.createDirectory(true);
 		if (nd.exists()) {
-			var f1 = TFS.getFile('appdata://a/b/c/a1.txt');
+			var f1 = TFS.getFile(TFS.getApplicationDataDirectory(), "a/b/c/a1.txt");
 			f1.write("Hello, please delete me");
-			f1 = TFS.getFile('appdata://a/b/a2.txt');
+			f1 = TFS.getFile(TFS.getApplicationDataDirectory(), 'a', "b", 'a2.txt');
 			f1.write("Hello, please delete me 2");
-			f1 = TFS.getFile('appdata://a/a3.txt');
+			f1 = TFS.getFile(TFS.getApplicationDataDirectory(), 'a/a3.txt');
 			f1.write("Hello, please delete me 3");
 
-			var dr = TFS.getFile('appdata://a');
+			var dr = TFS.getFile(TFS.getApplicationDataDirectory(), 'a');
 			dr.deleteDirectory(true);
 			pass = !dr.exists();
 		}
@@ -297,15 +307,15 @@ tc3.addTest('appdata: recursive delete', function() {
 
 	return pass;
 });
-tc3.addTest('appdata: rename directory', function() {
+tc3.addTest('AppDataDir:: rename directory', function() {
 	var pass = false;
 
-	var nd = TFS.getFile('appdata://a');
+	var nd = TFS.getFile(TFS.getApplicationDataDirectory(), 'a');
 	if (!nd.exists()) {
 		nd.createDirectory(false);
 		if (nd.exists()) {
 			nd.rename("b");
-			nd = TFS.getFile('appdata://b');
+			nd = TFS.getFile(TFS.getApplicationDataDirectory(), 'b');
 			pass = nd.exists() && nd.isDirectory();
 			nd.deleteDirectory();
 		}
@@ -314,13 +324,13 @@ tc3.addTest('appdata: rename directory', function() {
 	return pass;
 });
 
-var tc4 = new TestCase("app: to appdata:");
+var tc4 = new TestCase("app: to AppDataDir::");
 suite.addTestCase(tc4);
 
 tc4.setup = function() {
 	this.f = TFS.getFile("app://data/file01.txt");
-	this.fi = TFS.getFile("app://images/icon.png");
-	this.td = TFS.getFile("appdata://tests");
+	this.fi = TFS.getFile(TFS.getResourcesDirectory(), "images/icon.png");
+	this.td = TFS.getFile(TFS.getApplicationDataDirectory(), "tests");
 	if (this.td.exists()) {
 		this.td.deleteDirectory(true);
 	}
@@ -330,63 +340,63 @@ tc4.addTest('app: exists', function() {
 	return this.f.exists() && this.fi.exists() && this.td.exists();
 });
 
-tc4.addTest('app: copy file01.txt to appdata:', function() {
-	this.f.copy('appdata://tests/file01.txt');
-	var tf = TFS.getFile('appdata://tests/file01.txt');
+tc4.addTest('app: copy file01.txt to AppDataDir::', function() {
+	this.f.copy(TFS.getFile(TFS.getApplicationDataDirectory(),'tests', 'file01.txt'));
+	var tf = TFS.getFile(TFS.getApplicationDataDirectory(), 'tests/file01.txt');
 	return tf.length == this.f.length
 });
 
-tc4.addTest('app: copy icon.png to appdata:', function() {
-	this.fi.copy('appdata://tests/image.png');
-	var tf = TFS.getFile('appdata://tests/image.png');
+tc4.addTest('app: copy icon.png to AppDataDir::', function() {
+	this.fi.copy(TFS.getFile(TFS.getApplicationDataDirectory(), 'tests/image.png'));
+	var tf = TFS.getFile(TFS.getApplicationDataDirectory(), 'tests/image.png');
 	return tf.length == this.fi.length
 });
 
-var tc5 = new TestCase("appdata-private:");
+var tc5 = new TestCase("Private AppDataDir:");
 suite.addTestCase(tc5);
 
 tc5.setup = function() {
-	this.f = TFS.getFile("appdata-private://");
+	this.f = TFS.getFile(TFS.getApplicationDataDirectory(true));
 };
 
-tc5.addTest('appdata-private: != null', function() {
+tc5.addTest('Private AppDataDir:!= null', function() {
 	return (this.f !== null);
 });
-tc5.addTest('appdata-private: nativePath starts with /data/data', function() {
+tc5.addTest('Private AppDataDir:nativePath starts with /data/data', function() {
 	return this.f.nativePath().indexOf("/data/data/") > -1;
-});
-tc5.addTest('appdata-private: toURL starts with file:///', function() {
+}, 'android');
+tc5.addTest('Private AppDataDir:toURL starts with file:///', function() {
 	Titanium.API.info("toURL: " + this.f.toURL());
 	return this.f.toURL().indexOf("file:///") > -1;
 });
-tc5.addTest('appdata-private: exists()', function(){
+tc5.addTest('Private AppDataDir:exists()', function(){
 	return this.f.exists();
 });
-tc5.addTest('appdata-private: isDirectory()', function(){
+tc5.addTest('Private AppDataDir:isDirectory()', function(){
 	return this.f.isDirectory();
 });
-tc5.addTest('appdata-private: isFile()', function(){
+tc5.addTest('Private AppDataDir:isFile()', function(){
 	return !this.f.isFile();
 });
-tc5.addTest('appdata-private: isHidden()', function() {
+tc5.addTest('Private AppDataDir:isHidden()', function() {
 	return !this.f.isHidden();
 });
-tc5.addTest('appdata-private: isReadonly()', function() {
+tc5.addTest('Private AppDataDir:isReadonly()', function() {
 	return !this.f.isReadonly();
 });
-tc5.addTest('appdata-private: isWritable()', function() {
+tc5.addTest('Private AppDataDir:isWritable()', function() {
 	return this.f.isWriteable();
 });
-tc5.addTest('appdata-private: createTimestamp', function() {
+tc5.addTest('Private AppDataDir:createTimestamp', function() {
 	return this.f.createTimestamp() > 0;
 });
-tc5.addTest('appdata-private: modificationTimestamp', function() {
+tc5.addTest('Private AppDataDir:modificationTimestamp', function() {
 	return this.f.modificationTimestamp();
 });
-tc5.addTest('appdata-private: name != null', function() {
+tc5.addTest('Private AppDataDir:name != null', function() {
 	return this.f.name() !== null;
 });
-tc5.addTest('appdata-private: name.length > 0', function() {
+tc5.addTest('Private AppDataDir:name.length > 0', function() {
 	return this.f.name().length > 0;
 });
 

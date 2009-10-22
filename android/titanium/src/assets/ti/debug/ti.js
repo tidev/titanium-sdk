@@ -86,7 +86,7 @@ var Titanium = new function() {
 				} else {
 					if (typeof(r.getResult) !== 'undefined') {
 						var v = r.getResult();
-						this.apiProxy.log(6,"TYPE: " + r.getType());
+						//this.apiProxy.log(6,"TYPE: " + r.getType());
 						switch(String(r.getType())) {
 							case 'string' : v = transformObjectValueAsString(v); break;
 							case 'int' : v = transformObjectValueAsInt(v.intValue()); break;

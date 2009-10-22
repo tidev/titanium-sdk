@@ -117,7 +117,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
         <window>
             <id>CompositeView</id>
             <title>Composite View</title>
@@ -127,7 +127,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-<!--
+
         <window>
             <id>ScrollerView</id>
             <title>Scroller View</title>
@@ -305,7 +305,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+-->
 		<window>
             <id>File</id>
             <title>file</title>
@@ -315,7 +315,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+<!--
 		<window>
             <id>Filestream</id>
             <title>filestream</title>

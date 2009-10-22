@@ -132,7 +132,11 @@ TitaniumFile.prototype.readLine = function()
 TitaniumFile.prototype.copy = function(destination)
 {
 	var p = this.proxy;
-	p.pushString(destination);
+	if (!isUndefined(destination.url)) {
+		p.pushString(destination.url);
+	} else {
+		p.pushString(destination);
+	}
 	return Titanium.checked(p.call("copy"));
 };
 /**
@@ -143,7 +147,11 @@ TitaniumFile.prototype.copy = function(destination)
 TitaniumFile.prototype.move = function(destination)
 {
 	var p = this.proxy;
-	p.pushString(destination);
+	if (!isUndefined(destination.url)) {
+		p.pushString(destination.url);
+	} else {
+		p.pushString(destination);
+	}
 	return Titanium.checked(p.call("move"));
 };
 /**
