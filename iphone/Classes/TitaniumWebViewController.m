@@ -537,6 +537,30 @@ typedef int UIEventSubtype;
 	[scrollView addSubview:[proxyObject nativeView]];
 }
 
+- (void) scrollRelative: (NSValue *) positionValue;
+{
+	CGPoint position = [positionValue CGPointValue];
+	if (isNonTitaniumPage) {
+		[webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window.scrollBy(%f,%f);",position.x,position.y]];
+	} else {
+		CGPoint oldPosition = [scrollView contentOffset];
+		position.x += oldPosition.x;
+		position.y += oldPosition.y;
+		[scrollView setContentOffset:position];
+	}
+}
+
+- (void) scrollAbsolute: (NSValue *) positionValue;
+{
+	CGPoint position = [positionValue CGPointValue];
+	if (isNonTitaniumPage) {
+		[webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window.scrollTo(%f,%f);",position.x,position.y]];
+	} else {
+		[scrollView setContentOffset:position];
+	}
+}
+	
+
 #pragma mark Extreme Debugging. EXTREEEEEEEEEEEEEME!
 
 - (void) investigateTitaniumCrashSite;

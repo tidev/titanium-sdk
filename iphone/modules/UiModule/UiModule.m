@@ -1088,6 +1088,29 @@ NSString * UrlEncodeString(NSString * string)
 	[ourProxy release];
 }
 
+#define SAFE_ARRAY_COUNT(foo)	([foo isKindOfClass:[NSArray class]]?[foo count]:-1)
+
+#define TITANIUM_JS_ERROR(foo)	[NSError errorWithDomain:@"Titanium" code:2 userInfo:[NSDictionary dictionaryWithObject:foo forKey:NSLocalizedDescriptionKey]]
+
+- (id) doScrollTo: (NSArray *) args;
+{
+	if(SAFE_ARRAY_COUNT(args)<4)return TITANIUM_JS_ERROR(@"Missing arguments");
+	NSString * tokenString = [args objectAtIndex:0];
+	TitaniumWebViewController * targetView = (TitaniumWebViewController *)[[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
+	if(![targetView isKindOfClass:[TitaniumWebViewController class]])return TITANIUM_JS_ERROR(@"Invalid token");
+	
+	CGPoint position;
+	position.x = [[args objectAtIndex:1] floatValue];
+	position.y = [[args objectAtIndex:2] floatValue];
+	NSValue * positionValue = [NSValue valueWithCGPoint:position];
+	BOOL relative = [[args objectAtIndex:3] boolValue];
+	if(relative){
+		[targetView performSelectorOnMainThread:@selector(scrollRelative:) withObject:positionValue waitUntilDone:NO];
+	}else{
+		[targetView performSelectorOnMainThread:@selector(scrollAbsolute:) withObject:positionValue waitUntilDone:NO];
+	}
+	return nil;
+}
 
 #pragma mark startModule
 #define STRINGIFY(foo)	# foo
@@ -1225,6 +1248,10 @@ NSString * UrlEncodeString(NSString * string)
 	[(UiModule *)invocGen imageView:nil doAction:nil args:nil options:nil];
 	NSInvocation * imageViewInvoc = [invocGen invocation];
 	
+	[(UiModule *)invocGen doScrollTo:nil];
+	NSInvocation * doScrollInvoc = [invocGen invocation];
+	
+	
 	buttonContexts = [[NSMutableDictionary alloc] init];
 	
 	//NOTE: createWindow doesn't actually create a native-side window. Instead, it simply sets up the dict.
@@ -1279,7 +1306,9 @@ NSString * UrlEncodeString(NSString * string)
 			
 	[currentWindowScript setEpilogueCode:@"window.addEventListener('DOMNodeInserted',Ti.UI.currentWindow.repaint,false);"
 			"window.addEventListener('load',function(){if(document.body){document.body.addEventListener('load',"
-				"function(e){if(e.srcElement.tagName=='IMG')Titanium.UI.currentWindow.repaint();},true);}},false);"];
+				"function(e){if(e.srcElement.tagName=='IMG')Titanium.UI.currentWindow.repaint();},true);}},false);"
+				"delete window.scrollTo;window.scrollTo=function(x,y){Ti.UI._WSCROLL([Ti._TOKEN,x,y,false]);};"
+				"delete window.scrollBy;window.scrollBy=function(x,y){Ti.UI._WSCROLL([Ti._TOKEN,x,y,true]);};"];
 
 	NSString * viewsForWindowString = @"function(winTkn){var fetched=Ti.UI._WGVIEWS(winTkn);if(!fetched)return {};var res=[];var i=0;var viewCount=fetched.length;while(i<viewCount){"
 			"var props=fetched[i];var viewTkn=props._TOKEN;var view;"
@@ -1512,6 +1541,8 @@ NSString * UrlEncodeString(NSString * string)
 			hideNavBarInvoc,@"_WHDNAV",
 			setTitleInvoc,@"_WTITLE",
 			
+			
+			doScrollInvoc,@"_WSCROLL",
 			getWindowInvoc,@"_WINGET",
 			
 			setTitleImageInvoc,@"_WTITLEIMG",
