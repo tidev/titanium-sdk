@@ -366,7 +366,13 @@ TitaniumHost * lastSharedHost = nil;
 
 - (TitaniumModule *) moduleNamed: (NSString *) moduleClassName;
 {
-	return [nativeModules objectForKey:moduleClassName];
+	TitaniumModule * result = [nativeModules objectForKey:moduleClassName];
+	if(result!=nil)return result;
+	NSString * secondModuleClassName = [NSString stringWithFormat:@"%@%@Module",
+									  [[moduleClassName substringToIndex:1] uppercaseString],[moduleClassName substringFromIndex:1]];
+
+	result = [nativeModules objectForKey:secondModuleClassName];
+	return result;
 }
 
 - (TitaniumModule *) registerModuleNamed: (NSString *) moduleClassName
@@ -447,10 +453,9 @@ TitaniumHost * lastSharedHost = nil;
 	}
 }
 
-- (void) loadModulesFromDict:(NSDictionary *)modulesDict
+- (void) loadModules:(id)modulesContainer
 {
-	for (NSString * thisModuleName in modulesDict){
-		if ([thisModuleName length] < 1) continue;
+	for (NSString * thisModuleName in modulesContainer){
 		[self loadModuleNamed:thisModuleName];
 	}
 }
@@ -471,7 +476,7 @@ TitaniumHost * lastSharedHost = nil;
 
 	if (appProperties!=nil)
 	{
-		[self loadModulesFromDict:[appProperties objectForKey:@"modules"]];
+		[self loadModules:[appProperties objectForKey:@"modules"]];
 		[self setAppID:[appProperties objectForKey:@"id"]];
 		[appProperties retain];
 	}
@@ -530,21 +535,42 @@ TitaniumHost * lastSharedHost = nil;
 	}
 }
 
+- (void) mergeObject: (id) object toKey: (NSString *) key intoDictionary: (NSMutableDictionary *) destination;
+{
+	id oldObject = [destination objectForKey:key];
+	if(oldObject==nil){
+		[destination setObject:object forKey:key];
+		return;
+	}
+	if([oldObject isKindOfClass:[NSDictionary class]]&&[object isKindOfClass:[NSDictionary class]]){
+		NSMutableDictionary * mergedDict = [NSMutableDictionary dictionaryWithDictionary:oldObject];
+		[destination setObject:mergedDict forKey:key];
+		oldObject = mergedDict;
+		for (NSString * thisKey in object) {
+			[self mergeObject:[object objectForKey:thisKey] toKey:thisKey intoDictionary:oldObject];
+		}
+		return;
+	}
+	if([oldObject isEqual:object]){
+		return;
+	}
+	NSLog(@"[ERROR] Failed to merge %@ into %@ because %@ was already at key %@",object,destination,oldObject,key);
+}
+
+
 - (void) bindObject: (id) object toKeyPath: (NSString *) keyPath;
 {
 	NSArray * keyPathComponents = [keyPath componentsSeparatedByString:@"."];
 
-	id oldObject = titaniumObject;
-	id owningObject = nil;
-	
-	for(NSString * thisKey in keyPathComponents){
-		owningObject = oldObject;
-		if(![owningObject isKindOfClass:[NSDictionary class]]){
-			NSLog(@"FAILED BINDING TO '%@': %@. %@ is not a dictionary, so can not go to %@",keyPath,object,oldObject,thisKey);
-		}
-		oldObject = [owningObject objectForKey:thisKey];
-		
+	int leadingPathCount=[keyPathComponents count]-1;
+
+	for(int thisIndex=leadingPathCount;thisIndex>0;thisIndex++){
+		NSString * thiskey = [keyPathComponents objectAtIndex:thisIndex];
+		NSDictionary * newDict = [NSDictionary dictionaryWithObject:object forKey:thiskey];
+		object = newDict;
 	}
+
+	[self mergeObject:object toKey:[keyPathComponents objectAtIndex:0] intoDictionary:titaniumObject];
 }
 
 - (void) applyDefaultViewSettings: (UIViewController *) viewController;
@@ -1156,6 +1182,7 @@ TitaniumHost * lastSharedHost = nil;
 }
 
 - (NSString *)	doTitaniumMethod:(NSURL *)functionUrl withArgumentBody:(NSData *)argData;
+//- (NSString *)	doTitaniumMethod:(NSURL *)functionUrl withArgumentString:(NSString *)argString;
 {
 	NSArray * pathParts = [[functionUrl path] componentsSeparatedByString:@"/"];
 	int pathPartsCount = [pathParts count];
@@ -1207,6 +1234,7 @@ TitaniumHost * lastSharedHost = nil;
 		}
 		
 		[self unregisterThread:worker];
+		[worker setModuleThread:nil];
 		[worker release];
 	}
 

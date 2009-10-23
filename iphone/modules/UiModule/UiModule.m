@@ -1681,7 +1681,7 @@ NSString * UrlEncodeString(NSString * string)
 					[TitaniumJSCode codeWithString:rowAnimationStyleString],@"RowAnimationStyle",
 					nil],@"iPhone",
 			nil];
-	[[[TitaniumHost sharedHost] titaniumObject] setObject:uiDict forKey:@"UI"];
+	[[TitaniumHost sharedHost] bindObject:uiDict toKeyPath:@"UI"];
 	
 	return YES;
 }
