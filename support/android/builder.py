@@ -140,10 +140,23 @@ class Builder(object):
 		tijar = os.path.join(self.support_dir,'titanium.jar')
 		
 		try:
+			#Files to ignore during build tree operations
+			ignoreFiles = ['.gitignore', '.cvsignore'];
+			ignoreDirs = ['.git','.svn','_svn', 'CVS'];
+			
 			os.chdir(self.project_dir)
 			
 			if os.path.exists('bin'):
-				shutil.rmtree('bin')
+				#shutil.rmtree('bin')
+				for root, dirs, files in os.walk('bin', topdown=False):
+					for name in ignoreFiles:
+						if name in files:
+							files.remove(name)
+					#delete everything else
+					for name in files:
+						os.remove(os.path.join(root, name))
+					for name in dirs:
+						os.rmdir(os.path.join(root, name))
 				
 			if os.path.exists('lib'):
 				shutil.copy(tijar,'lib')
@@ -158,6 +171,15 @@ class Builder(object):
 				return s
 			def recursive_cp(dir,dest):
 				for root, dirs, files in os.walk(dir):
+					# Remove file from the list of files copied
+					# that shouldn't appear in the binaries
+					for name in ignoreFiles:
+						if name in files:
+							files.remove(name);
+					for name in ignoreDirs:
+						if name in dirs:
+							dirs.remove(name)
+					# Copy remaining files
 					relative = strip_slash(root.replace(dir,''))
 					relative_dest = os.path.join(dest,relative)
 					if not os.path.exists(relative_dest):
@@ -214,15 +236,25 @@ class Builder(object):
 			jarlist = []
 						
 			for root, dirs, files in os.walk(os.path.join(self.project_dir,'src')):
+				# Strip out directories we shouldn't traverse
+				for name in ignoreDirs:
+					if name in dirs:
+						dirs.remove(name)
+						
 				if len(files) > 0:
 					for f in files:
-						if f == '.DS_Store' or f == '.svn': continue
+						if f == '.DS_Store' or f in ignoreFiles : continue
 						path = root + os.sep + f
 						srclist.append(path)
 		
 			project_module_dir = os.path.join(self.top_dir,'modules','android')
 			if os.path.exists(project_module_dir):
 				for root, dirs, files in os.walk(project_module_dir):
+					# Strip out directories we shouldn't traverse
+					for name in ignoreDirs:
+						if name in dirs:
+							dirs.remove(name)
+
 					if len(files) > 0:
 						for f in files:
 							path = root + os.sep + f
