@@ -17,7 +17,8 @@
 		{title:'Composite View 2 (iPhone)', hasChild:true},
 
 		{title:'Custom Events', hasChild:true},
-		{title:'HTML Table View', hasChild:true}
+		{title:'HTML Table View', hasChild:true},
+		{title:'Maps View (iPhone)', hasChild:true}
 		
 	];
 	
@@ -82,6 +83,13 @@
 			case 6:
 			{
 				var win = Titanium.UI.createWindow({url:'html_table_view.html',title:'HTML TableView'});
+				win.open({animated:true});
+				break;
+			}
+			
+			case 7:
+			{
+				var win = Titanium.UI.createWindow({url:'maps.html',title:'Maps View'});
 				win.open({animated:true});
 				break;
 			}

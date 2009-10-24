@@ -31,6 +31,12 @@
 		2444FA550FCA4E2E00063972 /* IPAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FA540FCA4E2E00063972 /* IPAddress.c */; };
 		2444FC7F0FCA6F8000063972 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444FC7C0FCA6F8000063972 /* NSData+Additions.m */; };
 		2444FCD40FCA741E00063972 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FCD10FCA741E00063972 /* base64.c */; };
+		2454ACC31092D299004BF80E /* AddressModule.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A4A102109123680021CC46 /* AddressModule.h */; };
+		2454ACC41092D2A0004BF80E /* TitaniumModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 249075290FC9D55B00D38073 /* TitaniumModule.h */; };
+		2454ACC61092D2B2004BF80E /* AddressModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A4A103109123680021CC46 /* AddressModule.m */; };
+		2454ACD21092D301004BF80E /* TitaniumModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 249075290FC9D55B00D38073 /* TitaniumModule.h */; };
+		2454ACD51092D328004BF80E /* MapModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2454ACD41092D328004BF80E /* MapModule.m */; };
+		2454ACD61092D328004BF80E /* MapModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2454ACD41092D328004BF80E /* MapModule.m */; };
 		247DCBD2107C8366009CD0D1 /* YahooModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 247DCBD1107C8366009CD0D1 /* YahooModule.m */; };
 		247DCBE4107C83AB009CD0D1 /* YahooModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 247DCBD0107C8366009CD0D1 /* YahooModule.h */; };
 		247DCBE5107C83AF009CD0D1 /* YahooModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 247DCBD1107C8366009CD0D1 /* YahooModule.m */; };
@@ -452,6 +458,9 @@
 		2444FC7C0FCA6F8000063972 /* NSData+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Additions.m"; sourceTree = "<group>"; };
 		2444FCD00FCA741E00063972 /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base64.h; sourceTree = "<group>"; };
 		2444FCD10FCA741E00063972 /* base64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = base64.c; sourceTree = "<group>"; };
+		2454ACBF1092D27C004BF80E /* libAddress.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAddress.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2454ACCD1092D2CD004BF80E /* libMap.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMap.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2454ACD41092D328004BF80E /* MapModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MapModule.m; path = MapModule/MapModule.m; sourceTree = "<group>"; };
 		247DCBD0107C8366009CD0D1 /* YahooModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YahooModule.h; path = YahooModule/YahooModule.h; sourceTree = "<group>"; };
 		247DCBD1107C8366009CD0D1 /* YahooModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YahooModule.m; path = YahooModule/YahooModule.m; sourceTree = "<group>"; };
 		247DCBE1107C837F009CD0D1 /* libYahoo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libYahoo.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -535,7 +544,7 @@
 		B45CA77E0F81565D00B80900 /* TitaniumHost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumHost.m; sourceTree = "<group>"; };
 		B4676CB40FB0E492009B81F4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		B47A271E1035F040002146CD /* TestSpaz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestSpaz.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B47A271E1035F040002146CD /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B47A27261035F11F002146CD /* accounts.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = accounts.html; path = ../../spaz/Resources/accounts.html; sourceTree = SOURCE_ROOT; };
 		B47A27271035F11F002146CD /* accounts.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = accounts.js; path = ../../spaz/Resources/accounts.js; sourceTree = SOURCE_ROOT; };
 		B47A272B1035F11F002146CD /* DM.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = DM.html; path = ../../spaz/Resources/DM.html; sourceTree = SOURCE_ROOT; };
@@ -667,6 +676,20 @@
 				B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */,
 				B4F37E181061AB5D00ED12AF /* QuartzCore.framework in Frameworks */,
 				B49B21E7107A868900836F35 /* MessageUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2454ACBD1092D27C004BF80E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2454ACCB1092D2CD004BF80E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -857,7 +880,7 @@
 			children = (
 				1D6058910D05DD3D006BFB54 /* Titanium.app */,
 				B41068A20FBB730F00310448 /* libTitanium.a */,
-				B47A271E1035F040002146CD /* TestSpaz.app */,
+				B47A271E1035F040002146CD /* Titanium.app */,
 				24C5ABF11061FA9D0063594B /* libNotification.a */,
 				24C5ABF91061FABE0063594B /* libAnalytics.a */,
 				24C5AC001061FAC80063594B /* libGesture.a */,
@@ -873,6 +896,8 @@
 				24C5AC581061FB4C0063594B /* libUI.a */,
 				24FD2395106F180F004D4127 /* libFacebook.a */,
 				247DCBE1107C837F009CD0D1 /* libYahoo.a */,
+				2454ACBF1092D27C004BF80E /* libAddress.a */,
+				2454ACCD1092D2CD004BF80E /* libMap.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -880,6 +905,7 @@
 		2444F8060FC9FCA400063972 /* modules */ = {
 			isa = PBXGroup;
 			children = (
+				2454ACD31092D30F004BF80E /* MapModule */,
 				B4A4A101109123680021CC46 /* AddressModule */,
 				247DCBCF107C834F009CD0D1 /* YahooModule */,
 				24FD237B106F17E4004D4127 /* FacebookModule */,
@@ -1000,6 +1026,14 @@
 				B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */,
 			);
 			path = UiModule;
+			sourceTree = "<group>";
+		};
+		2454ACD31092D30F004BF80E /* MapModule */ = {
+			isa = PBXGroup;
+			children = (
+				2454ACD41092D328004BF80E /* MapModule.m */,
+			);
+			name = MapModule;
 			sourceTree = "<group>";
 		};
 		247DCBCF107C834F009CD0D1 /* YahooModule */ = {
@@ -1281,6 +1315,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		2454ACBB1092D27C004BF80E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2454ACC41092D2A0004BF80E /* TitaniumModule.h in Headers */,
+				2454ACC31092D299004BF80E /* AddressModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2454ACC91092D2CD004BF80E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2454ACD21092D301004BF80E /* TitaniumModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		247DCBDD107C837F009CD0D1 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -1496,6 +1547,40 @@
 			productName = Titanium;
 			productReference = 1D6058910D05DD3D006BFB54 /* Titanium.app */;
 			productType = "com.apple.product-type.application";
+		};
+		2454ACBE1092D27C004BF80E /* libAddress */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2454ACD01092D2F6004BF80E /* Build configuration list for PBXNativeTarget "libAddress" */;
+			buildPhases = (
+				2454ACBB1092D27C004BF80E /* Headers */,
+				2454ACBC1092D27C004BF80E /* Sources */,
+				2454ACBD1092D27C004BF80E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libAddress;
+			productName = libAddress;
+			productReference = 2454ACBF1092D27C004BF80E /* libAddress.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		2454ACCC1092D2CD004BF80E /* libMap */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2454ACD11092D2F6004BF80E /* Build configuration list for PBXNativeTarget "libMap" */;
+			buildPhases = (
+				2454ACC91092D2CD004BF80E /* Headers */,
+				2454ACCA1092D2CD004BF80E /* Sources */,
+				2454ACCB1092D2CD004BF80E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libMap;
+			productName = libMap;
+			productReference = 2454ACCD1092D2CD004BF80E /* libMap.a */;
+			productType = "com.apple.product-type.library.static";
 		};
 		247DCBE0107C837F009CD0D1 /* libYahoo */ = {
 			isa = PBXNativeTarget;
@@ -1786,7 +1871,7 @@
 			);
 			name = "Titanium-Spaz";
 			productName = Titanium;
-			productReference = B47A271E1035F040002146CD /* TestSpaz.app */;
+			productReference = B47A271E1035F040002146CD /* Titanium.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -1819,6 +1904,8 @@
 				24C5AC371061FB240063594B /* libNetwork */,
 				24C5AC3E1061FB2E0063594B /* libPlatform */,
 				24C5AC571061FB4C0063594B /* libUI */,
+				2454ACBE1092D27C004BF80E /* libAddress */,
+				2454ACCC1092D2CD004BF80E /* libMap */,
 			);
 		};
 /* End PBXProject section */
@@ -2000,6 +2087,23 @@
 				B43543651076995400A38EC9 /* TitaniumJSEvent.m in Sources */,
 				247DCBD2107C8366009CD0D1 /* YahooModule.m in Sources */,
 				B4A4A104109123680021CC46 /* AddressModule.m in Sources */,
+				2454ACD51092D328004BF80E /* MapModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2454ACBC1092D27C004BF80E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2454ACC61092D2B2004BF80E /* AddressModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2454ACCA1092D2CD004BF80E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2454ACD61092D328004BF80E /* MapModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2286,6 +2390,56 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				PRODUCT_NAME = Titanium;
+			};
+			name = Release;
+		};
+		2454ACC01092D27D004BF80E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = libAddress;
+			};
+			name = Debug;
+		};
+		2454ACC11092D27D004BF80E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Address;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		2454ACCE1092D2CE004BF80E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = libMap;
+			};
+			name = Debug;
+		};
+		2454ACCF1092D2CE004BF80E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Map;
+				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -2804,6 +2958,24 @@
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,
 				1D6058950D05DD3E006BFB54 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2454ACD01092D2F6004BF80E /* Build configuration list for PBXNativeTarget "libAddress" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2454ACC01092D27D004BF80E /* Debug */,
+				2454ACC11092D27D004BF80E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2454ACD11092D2F6004BF80E /* Build configuration list for PBXNativeTarget "libMap" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2454ACCE1092D2CE004BF80E /* Debug */,
+				2454ACCF1092D2CE004BF80E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
