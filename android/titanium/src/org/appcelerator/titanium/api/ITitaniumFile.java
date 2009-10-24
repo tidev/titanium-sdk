@@ -7,6 +7,7 @@
 
 package org.appcelerator.titanium.api;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,14 +29,14 @@ public interface ITitaniumFile
 	public ITitaniumFile resolve();
 	public void write(String data, boolean append)  throws IOException;
 	public void writeFromUrl(String url, boolean append) throws IOException;
-	public String read()  throws IOException;
+	public int read()  throws IOException;
 	public String readLine()  throws IOException;
 	public void writeLine(String data) throws IOException;
-	public boolean copy(String destination);
-	public boolean move(String destination);
-	public boolean rename(String destination);
+	public boolean copy(String destination) throws IOException;
+	public boolean move(String destination) throws IOException;
+	public boolean rename(String destination) throws IOException;
 	public void createDirectory(boolean recursive);
-	public void deleteDirectory(boolean recursive);
+	public boolean deleteDirectory(boolean recursive);
 	public boolean deleteFile();
 	public List<String> getDirectoryListing();
 	public ITitaniumFile getParent();
@@ -62,4 +63,5 @@ public interface ITitaniumFile
 	// Internal methods
 	public InputStream getInputStream() throws IOException;
 	public OutputStream getOutputStream() throws IOException;
+	public File getNativeFile();
 }

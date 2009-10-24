@@ -14,6 +14,8 @@ template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filena
 sys.path.append(os.path.join(template_dir,'../'))
 from tiapp import *
 
+ignoreFiles = ['.gitignore', '.cvsignore'];
+ignoreDirs = ['.git','.svn', 'CVS'];
 
 def dequote(s):
 	if s[0:1] == '"':
@@ -27,10 +29,13 @@ def copy_resources(source, target):
 	 if not os.path.exists(os.path.expanduser(target)):
 		  os.mkdir(os.path.expanduser(target))
 	 for root, dirs, files in os.walk(source):
-		  if '.svn' in dirs:
-				dirs.remove('.svn')	# don't visit .svn directories			  
+		  for name in ignoreDirs:
+		  	    if name in dirs:
+				    dirs.remove(name)	# don't visit ignored directories			  
 		  for file in files:
 				if splitext(file)[-1] in ('.html', '.js', '.css', '.a', '.m', '.c', '.cpp', '.h', '.mm'):
+					 continue
+				if file in ignoreFiles:
 					 continue
 				from_ = join(root, file)			  
 				to_ = os.path.expanduser(from_.replace(source, target, 1))

@@ -32,13 +32,12 @@
 {
 	dictionary = [[NSMutableDictionary alloc] init];
 	host = [[TitaniumHost sharedHost] retain];
-	NSMutableDictionary * titaniumObject = [host titaniumObject];
 	[self configure];
 	if ([self wantsNotifications])
 	{
 		[host registerListener:self];
 	}
-	[titaniumObject setValue:dictionary forKey:[self moduleName]];
+	[host bindObject:dictionary toKeyPath:[self moduleName]];
 	[dictionary release];
 	dictionary = nil;
 	return YES;

@@ -366,7 +366,13 @@ TitaniumHost * lastSharedHost = nil;
 
 - (TitaniumModule *) moduleNamed: (NSString *) moduleClassName;
 {
-	return [nativeModules objectForKey:moduleClassName];
+	TitaniumModule * result = [nativeModules objectForKey:moduleClassName];
+	if(result!=nil)return result;
+	NSString * secondModuleClassName = [NSString stringWithFormat:@"%@%@Module",
+									  [[moduleClassName substringToIndex:1] uppercaseString],[moduleClassName substringFromIndex:1]];
+
+	result = [nativeModules objectForKey:secondModuleClassName];
+	return result;
 }
 
 - (TitaniumModule *) registerModuleNamed: (NSString *) moduleClassName
@@ -447,10 +453,9 @@ TitaniumHost * lastSharedHost = nil;
 	}
 }
 
-- (void) loadModulesFromDict:(NSDictionary *)modulesDict
+- (void) loadModules:(id)modulesContainer
 {
-	for (NSString * thisModuleName in modulesDict){
-		if ([thisModuleName length] < 1) continue;
+	for (NSString * thisModuleName in modulesContainer){
 		[self loadModuleNamed:thisModuleName];
 	}
 }
@@ -471,7 +476,7 @@ TitaniumHost * lastSharedHost = nil;
 
 	if (appProperties!=nil)
 	{
-		[self loadModulesFromDict:[appProperties objectForKey:@"modules"]];
+		[self loadModules:[appProperties objectForKey:@"modules"]];
 		[self setAppID:[appProperties objectForKey:@"id"]];
 		[appProperties retain];
 	}
@@ -530,21 +535,42 @@ TitaniumHost * lastSharedHost = nil;
 	}
 }
 
+- (void) mergeObject: (id) object toKey: (NSString *) key intoDictionary: (NSMutableDictionary *) destination;
+{
+	id oldObject = [destination objectForKey:key];
+	if(oldObject==nil){
+		[destination setObject:object forKey:key];
+		return;
+	}
+	if([oldObject isKindOfClass:[NSDictionary class]]&&[object isKindOfClass:[NSDictionary class]]){
+		NSMutableDictionary * mergedDict = [NSMutableDictionary dictionaryWithDictionary:oldObject];
+		[destination setObject:mergedDict forKey:key];
+		oldObject = mergedDict;
+		for (NSString * thisKey in object) {
+			[self mergeObject:[object objectForKey:thisKey] toKey:thisKey intoDictionary:oldObject];
+		}
+		return;
+	}
+	if([oldObject isEqual:object]){
+		return;
+	}
+	NSLog(@"[ERROR] Failed to merge %@ into %@ because %@ was already at key %@",object,destination,oldObject,key);
+}
+
+
 - (void) bindObject: (id) object toKeyPath: (NSString *) keyPath;
 {
 	NSArray * keyPathComponents = [keyPath componentsSeparatedByString:@"."];
 
-	id oldObject = titaniumObject;
-	id owningObject = nil;
-	
-	for(NSString * thisKey in keyPathComponents){
-		owningObject = oldObject;
-		if(![owningObject isKindOfClass:[NSDictionary class]]){
-			NSLog(@"FAILED BINDING TO '%@': %@. %@ is not a dictionary, so can not go to %@",keyPath,object,oldObject,thisKey);
-		}
-		oldObject = [owningObject objectForKey:thisKey];
-		
+	int leadingPathCount=[keyPathComponents count]-1;
+
+	for(int thisIndex=leadingPathCount;thisIndex>0;thisIndex++){
+		NSString * thiskey = [keyPathComponents objectAtIndex:thisIndex];
+		NSDictionary * newDict = [NSDictionary dictionaryWithObject:object forKey:thiskey];
+		object = newDict;
 	}
+
+	[self mergeObject:object toKey:[keyPathComponents objectAtIndex:0] intoDictionary:titaniumObject];
 }
 
 - (void) applyDefaultViewSettings: (UIViewController *) viewController;
@@ -1115,6 +1141,7 @@ TitaniumHost * lastSharedHost = nil;
 	if([ourPath isEqualToString:@"/blank"]) return TitaniumAppResourceNoType;
 	if(![ourPath hasPrefix:@"/_"]) return TitaniumAppResourceFileType;
 	if([ourPath hasPrefix:@"/_TICMD/"]) return TitaniumAppResourceCommandType;
+	if([ourPath hasPrefix:@"/_TIDO/"]) return TitaniumAppResourceDoMethodType;
 	if([ourPath hasPrefix:@"/_TIFILE/"]) return TitaniumAppResourceRandomFileType;
 	if([ourPath hasPrefix:@"/_TICON/"]) return TitaniumAppResourceContinueType;
 	if([ourPath hasPrefix:@"/_TIBLOB/"]) return TitaniumAppResourceBlobType;
@@ -1154,6 +1181,72 @@ TitaniumHost * lastSharedHost = nil;
 	return result;
 }
 
+- (NSString *)	doTitaniumMethod:(NSURL *)functionUrl withArgumentBody:(NSData *)argData;
+//- (NSString *)	doTitaniumMethod:(NSURL *)functionUrl withArgumentString:(NSString *)argString;
+{
+	NSArray * pathParts = [[functionUrl path] componentsSeparatedByString:@"/"];
+	int pathPartsCount = [pathParts count];
+	//Entry 0 is /, entry 1 is _TIDO, Entry 2 is token, Entry 3 is the module, Entry 4 is method name
+	if(pathPartsCount < 5) return [NSString stringWithFormat:@"throw \"Error: malformed Method Url: %@\";",functionUrl];
+
+	TitaniumModule * ourModule = [self moduleNamed:[pathParts objectAtIndex:3]];
+	if(ourModule == nil) {
+		return [NSString stringWithFormat:@"throw \"Error: no module named %@ (%@)\"",
+				[pathParts objectAtIndex:3],functionUrl];
+	}
+	
+	NSString * ourMethodName = [[pathParts objectAtIndex:4] stringByAppendingString:@":"];
+	SEL ourMethod = NSSelectorFromString(ourMethodName);
+	
+	if(![ourModule respondsToSelector:ourMethod]){
+		return [NSString stringWithFormat:@"throw \"Error: %@ module does not respond to %@ (%@)\"",
+				[pathParts objectAtIndex:3],ourMethodName,functionUrl];
+	}
+	
+
+	SBJSON * parser = [[SBJSON alloc] init];
+	NSError * error = nil;
+	
+	NSString * argString = [[NSString alloc] initWithData:argData encoding:NSUTF8StringEncoding];
+	id argObject = [parser fragmentWithString:argString error:&error];
+	[argString release];
+
+	NSString * result;
+	
+	if(error == nil){
+		TitaniumCmdThread * worker = [[TitaniumCmdThread alloc] init];
+		[worker setModuleThread:[NSThread currentThread]];
+		[worker setMagicToken:[pathParts objectAtIndex:2]];
+		[self registerThread:worker];
+		
+		@try{
+			id responseObject = [ourModule performSelector:ourMethod withObject: argObject];
+
+			if(responseObject==nil){
+				result = nil;
+			} else if([responseObject isKindOfClass:[NSError class]]){
+				error = responseObject;
+			} else {
+				result = [NSString stringWithFormat:@"result=%@;",[parser stringWithFragment:responseObject error:&error]];
+			}
+		} @catch (id e) {
+			error = e;
+		}
+		
+		[self unregisterThread:worker];
+		[worker setModuleThread:nil];
+		[worker release];
+	}
+
+	if(error != nil){
+		result = [NSString stringWithFormat:@"throw %@;",[parser stringWithFragment:[error localizedDescription] error:nil]];
+	}
+
+	[parser release];
+
+	return result;
+}
+
 - (NSString *) performFunction: (NSURL *) functionUrl
 {
 	TitaniumCmdThread * worker = nil;
@@ -1187,23 +1280,6 @@ TitaniumHost * lastSharedHost = nil;
 	}
 	return [worker moduleResult];
 }
-
-//Executes and returns the string inline with the background thread, or if not in a thread,
-//with the main page of the currently visible most foreground page.
-//- (NSString *) performJavascript: (NSString *) inputString
-//{
-//	TitaniumCmdThread * ourThread = [self currentThread];
-//	if (ourThread == nil) {
-//		//Find the current view, and send it the message.
-//		TitaniumContentViewController * currentVC = [self currentTitaniumContentViewController];
-//		if ([currentVC isKindOfClass:[TitaniumWebViewController class]]){
-//			return [[(TitaniumWebViewController *)currentVC webView] stringByEvaluatingJavaScriptFromString:inputString];
-//		}
-//		
-//	}
-//	
-//	return [ourThread pauseForJavascriptFetch:inputString];	
-//}
 
 - (TitaniumViewController *) visibleTitaniumViewController
 {
@@ -1309,7 +1385,6 @@ TitaniumHost * lastSharedHost = nil;
 {
 	TitaniumContentViewController * currentVC = [self titaniumContentViewControllerForToken:token];
 	if (![currentVC isKindOfClass:[TitaniumWebViewController class]]){ return NO; }
-	NSLog(@"Send Javascript: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
 	if ([NSThread isMainThread]){
 		[[(TitaniumWebViewController *)currentVC webView] performSelector:@selector(stringByEvaluatingJavaScriptFromString:) withObject:inputString afterDelay:0.0];
 	} else {

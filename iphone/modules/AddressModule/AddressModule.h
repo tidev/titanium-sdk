@@ -4,12 +4,11 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package org.appcelerator.titanium.api;
+#import <Foundation/Foundation.h>
+#import "TitaniumModule.h"
 
-public interface ITitaniumCheckedResult
-{
-	Object getResult();
-	String getType();
-	String getException();
-	void destroy();
+@interface AddressModule : NSObject<TitaniumModule> {
+
 }
+
+@end

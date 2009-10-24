@@ -1,5 +1,5 @@
-<html>
-<head>
+<html><head>
+<!-- meta http-equiv="content-type" content="text-html; charset=utf-8" -->
 <title>Title of the document</title>
 
 <style>body{background-color:#fff;margin-top:20px;font-size:11px} .passed{color:#090} .failed{color:#900} #summary{margin:0;margin-bottom:10px;padding:10px;border-bottom:1px solid #bbb;font-size:18px;} h1 {margin-bottom:0}</style>
@@ -92,7 +92,8 @@
 	assertFunction("Titanium.API.fatal");
 	assertFunction("Titanium.API.notice");
 	assertFunction("Titanium.API.critical");
-	assert("(function(){Titanium.API.log('custom','Fun');Titanium.API.debug('Debuggy');return true;})()");
+
+	assert("(function(){Titanium.API.log('custom','Fun');Titanium.API.debug('Debuggy');Titanium.API.info(\"she said d'après\");return true;})()");
 
 	assertHeading("Titanium.App");
 	assertFunction("Titanium.App.getID");
@@ -235,6 +236,7 @@
 </script>
 
 <button onclick='Ti.UI.createWindow({url:"docs.html"}).open({animated:true});'>Autodocument</button>
+<button onclick='window.scrollTo(0,0);'>Up top</button>
 
 </body>
 </html>

@@ -401,7 +401,8 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 	
 	if ([response textEncodingName]!=nil)
 	{
-		returnedEncoding = [response textEncodingName];
+		CFStringEncoding grabbedEncoding = CFStringConvertIANACharSetNameToEncoding((CFStringRef)[response textEncodingName]);
+		returnedEncoding = CFStringConvertEncodingToNSStringEncoding(grabbedEncoding);
 	}
 	else
 	{

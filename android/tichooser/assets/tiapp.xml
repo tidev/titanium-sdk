@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ti:app xmlns:ti="http://ti.appcelerator.org" xmlns:appc="http://www.appcelerator.org">
-    <id>com.appcelerator.tichooser</id>
+    <id>org.appcelerator.tichooser</id>
     <name>Titanium TestBed</name>
     <version>0.1</version>
     <icon>/images/app.png</icon>
@@ -55,7 +55,7 @@
             <url>windows.html</url>
             <type>single</type>
             <fullscreen>false</fullscreen>
-            <backgroundColor>argb(0,255,255,255)</backgroundColor>
+            <backgroundImage>images/geese.jpg</backgroundImage>
             <barColor>#000</barColor>
         </window>
 
@@ -307,6 +307,16 @@
         </window>
 -->
 		<window>
+            <id>File</id>
+            <title>file</title>
+            <url>file.html</url>
+            <type>single</type>
+            <fullscreen>false</fullscreen>
+            <backgroundColor>argb(0,128,128,128)</backgroundColor>
+            <barColor>#000</barColor>
+        </window>
+<!--
+		<window>
             <id>Filestream</id>
             <title>filestream</title>
             <url>filestream.html</url>
@@ -315,7 +325,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-<!--
+
 		<window>
             <id>iPhoneAPI</id>
             <title>iPhone API</title>

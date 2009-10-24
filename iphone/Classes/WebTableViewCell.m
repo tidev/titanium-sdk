@@ -66,6 +66,7 @@ WebViewWasher * sharedWebWasher = nil;
 	[result setExclusiveTouch:NO];
 	[result setUserInteractionEnabled:NO];
 	[result setBackgroundColor:[UIColor clearColor]];
+	[result setScalesPageToFit:NO];
 	[result setOpaque:NO];
 	NSString * injection = [NSString stringWithFormat:@"document.write('%@')",baseMessage];
 	[result stringByEvaluatingJavaScriptFromString:injection];
@@ -104,7 +105,10 @@ WebViewWasher * sharedWebWasher = nil;
 		}
 		UIView * cellContentView = [self contentView];
 		htmlLabel = [[sharedWebWasher giveCleanWebView] retain];
-		[htmlLabel setFrame:[cellContentView frame]];
+		CGRect cellFrame = [cellContentView frame];
+		cellFrame.origin = CGPointZero;
+//		NSLog(@"Making new webviewcell with dimensions %f by %f",cellFrame.size.width,cellFrame.size.height);
+		[htmlLabel setFrame:cellFrame];
 		[cellContentView addSubview:htmlLabel];
 	}
 	return self;
@@ -118,7 +122,10 @@ WebViewWasher * sharedWebWasher = nil;
 	
 	UIView * cellContentView = [self contentView];
 	htmlLabel = [[sharedWebWasher giveCleanWebView] retain];
-	[htmlLabel setFrame:[cellContentView frame]];
+	CGRect cellFrame = [cellContentView frame];
+	cellFrame.origin = CGPointZero;
+//	NSLog(@"Reusing webviewcell with dimensions %f by %f",cellFrame.size.width,cellFrame.size.height);
+	[htmlLabel setFrame:cellFrame];
 	[cellContentView addSubview:htmlLabel];
 
 	[super prepareForReuse];

@@ -964,6 +964,13 @@ var UserWindow = function(proxy) {
 		}
 	};
 
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.repaint,since=0.7.3) force layout of native controls
+	 */
+	this.repaint = function() {
+		Titanium.apiProxy.invalidateLayout();
+	}
+
 	// IPhone only methods
 	this.setNavBarColor = function (color) {
 
@@ -1057,6 +1064,14 @@ var UserWindowBuilder = function(proxy) {
 			this.proxy.setOrientation(orientation);
 		}
 	};
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.setBackgroundImage,since=0.7.2) Set background image
+	 * @tiarg[string,backgroundImage] path to background image
+	 */
+	this.setBackgroundImage = function(backgroundImage) {
+		this.proxy.setBackgroundImage(backgroundImage);
+	};
+
 	// IPhone only methods
 	this.setNavBarColor = function (color) {
 
@@ -1421,6 +1436,7 @@ Titanium.UI = {
 			var titleImage = options.titleImage;
 			var backgroundColor = options.backgroundColor;
 			var orientation = options.orientation;
+			var backgroundImage = options.backgroundImage;
 
 			if (!isUndefined(url)) {
 				w.setURL(url);
@@ -1439,6 +1455,9 @@ Titanium.UI = {
 			}
 			if (!isUndefined(orientation)) {
 				w.setOrientation(orientation);
+			}
+			if (!isUndefined(backgroundImage)) {
+				w.setBackgroundImage(backgroundImage);
 			}
 		}
 

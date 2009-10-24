@@ -12,6 +12,7 @@ public class TitaniumCheckedResult implements ITitaniumCheckedResult
 {
 	public Object result;
 	public String exception;
+	public String type;
 
 	public TitaniumCheckedResult() {
 		this(null,null);
@@ -25,6 +26,20 @@ public class TitaniumCheckedResult implements ITitaniumCheckedResult
 	{
 		this.result = result;
 		this.exception = exception;
+		this.type = "null";
+		if (result != null) {
+			if (result instanceof Boolean) {
+				this.type = "boolean";
+			} else if (result instanceof String) {
+				this.type = "string";
+			} else if (result instanceof Integer || result instanceof Long) {
+				this.type = "int";
+			} else if (result instanceof Float || result instanceof Double) {
+				this.type = "double";
+			} else {
+				this.type = "object";
+			}
+		}
 	}
 
 	public String getException() {
@@ -35,4 +50,13 @@ public class TitaniumCheckedResult implements ITitaniumCheckedResult
 		return result;
 	}
 
+	public String getType() {
+		return type;
+	}
+
+	public void destroy() {
+		result = null;
+		exception = null;
+		type = null;
+	}
 }

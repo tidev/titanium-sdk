@@ -8,7 +8,6 @@
 #import "TitaniumAppDelegate.h"
 #import "TitaniumUIViewController.h"
 #import "TitaniumAppProtocol.h"
-#import "TitaniumCmdThread.h"
 #import "TitaniumActionSheetHelper.h"
 #import "TitaniumInvocationGenerator.h"
 #import "TitaniumViewController.h"

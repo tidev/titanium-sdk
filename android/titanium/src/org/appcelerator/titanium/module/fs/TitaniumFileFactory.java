@@ -19,25 +19,27 @@ public class TitaniumFileFactory
 
 		String initial = parts[0];
 		if (DBG) {
-			Log.d(LCAT,"creating initial: " + initial);
+			Log.d(LCAT,"getting initial from parts: " + initial);
 		}
 
 		if (initial.startsWith("app://")) {
 			String path = initial.substring(6);
 			path = formPath(path,parts);
 			file = new TitaniumResourceFile(tmm, path);
-		}
-		else if (initial.startsWith("appdata://")) {
+		} else if (initial.startsWith("file:///android_asset/Resources/")) {
+			String path = initial.substring(32);
+			path = formPath(path,parts);
+			file = new TitaniumResourceFile(tmm, path);
+		} else if (initial.startsWith("appdata://")) {
 			String path = initial.substring(10);
 			path = formPath(path,parts);
-			if (path.charAt(0)=='/')
+			if (path != null && path.length() > 0 && path.charAt(0)=='/')
 			{
 				path = path.substring(1);
 			}
 			File f = new File(getDataDirectory(tmm, false),path);
 			file = new TitaniumFile(tmm, f,"appdata://"+path, stream);
-		}
-		else if (initial.startsWith("appdata-private://")) {
+		} else if (initial.startsWith("appdata-private://")) {
 			String path = initial.substring(18);
 			path = formPath(path,parts);
 			File f = new File(getDataDirectory(tmm, true),path);

@@ -100,7 +100,12 @@ public class TitaniumAPI extends TitaniumBaseModule implements ITitaniumAPI
 		TitaniumMemoryBlob blob = (TitaniumMemoryBlob) tmm.getObject(key);
 		if (blob != null) {
 			try {
-				value = new String(blob.getData(), "UTF-8");
+				byte[] data = blob.getData();
+				if (data != null) {
+					value = new String(data, "UTF-8");
+				} else {
+					Log.w(LCAT, "Blob data reclaimed due to low memory or reference count.");
+				}
 			} catch (UnsupportedEncodingException e) {
 				Log.w(LCAT, "Unable to encode data as utf-8", e);
 			}

@@ -1,0 +1,560 @@
+<html>
+<head>
+  <title>File Operations</title>
+  <style>
+  	#suite th,td { text-align:center;}
+  	.testcase {
+  		background-color: #000066;
+  		color: white;
+  		font-size: 75%;
+  		margin-bottom: 3px;
+  	}
+  	.test-pass {
+  		/*display:none;*/
+  	}
+    .test-desc {
+    	font-size: 85%;
+    }
+    .pass {
+    	font-size: 85%;
+    	color:green;
+    }
+    .fail {
+    	font-size: 85%;
+    	color: red;
+    }
+    .exception {
+    	color: orange;
+    	font-size: 75%;
+    }
+  </style>
+  <script>
+try {
+    var skipIndicator = false;
+
+    var TestCase = function(name, desc) {
+        this.name = name;
+        this.desc = desc;
+        this.passCount = 0;
+        this.failCount = 0;
+        this.exceptionCount = 0;
+        this.tests = [];
+
+        this.addTest = function(s, f, p) {
+            if (p === null || p == undefined || Titanium.Platform.name == p) {
+                this.tests.push({
+                    desc: s,
+                    test: f
+                });
+            }
+        };
+
+        this.assertUndefined = function(s, v, p) {
+            this.addTest(s + " is undefined", function() {
+                return v === undefined;
+            }, p);
+        };
+
+        this.assertFunction = function(s, f, p) {
+            this.addTest(s + " is function", function() {
+                return typeof f == 'function';
+            }, p);
+        };
+
+        this.assertReadOnlyProperty = function(s, o, n, p) {
+            this.addTest(s + " is read-only property", function() {
+                Titanium.API.error("Setter:" + o.__lookupSetter__(n));
+                return (typeof o.__lookupGetter__(n) == 'function') && (typeof o.__lookupSetter__(n) == 'undefined');
+            }, p);
+        };
+
+        this.performTests = function(suite) {
+            document.getElementById('tests').innerHTML += "<div class='testcase'>" + this.name + "</div>";
+            for (var i = 0; i < this.tests.length; i++) {
+                var t = this.tests[i];
+                var h = "<div class='test-";
+                try {
+                    if (t.test.apply(this)) {
+                        h += "pass'><span class='pass'>PASS: </span>";
+                        this.passCount++;
+                        suite.pass();
+                    } else {
+                        h += "fail'><span class='fail'>FAIL: </span>";
+                        this.failCount++;
+                        suite.fail();
+                    }
+                } catch(E) {
+                    h += "exception'><span class='exception'>" + E + ": </span>";
+                    this.exceptionCount++;
+                    suite.exception();
+                }
+
+                h += "<span class='test-desc'>" + t.desc + "</span></div>";
+                document.getElementById("tests").innerHTML += h;
+            }
+        };
+    };
+
+    var TestSuite = function() {
+        this.passCount = 0;
+        this.failCount = 0;
+        this.exceptionCount = 0;
+        this.testCount = 0;
+        this.testCases = [];
+        this.progress = null;
+
+        this.addTestCase = function(tc) {
+            this.testCases.push(tc);
+        };
+
+        this.performTests = function() {
+            var testsToRun = 0;
+            for (var i = 0; i < this.testCases.length; i++) {
+                testsToRun += this.testCases[i].tests.length;
+            }
+
+            Titanium.API.info("Creating Activity Indicator");
+			if (!skipIndicator) {
+	            try {
+	                this.progress = Titanium.UI.createActivityIndicator({
+	                    'location': Titanium.UI.ActivityIndicator.DIALOG,
+	                    'type': Titanium.UI.ActivityIndicator.DETERMINANT,
+	                    'message': 'Testing...',
+	                    'min': 0,
+	                    'max': testsToRun,
+	                    'value': 0
+	                });
+	            } catch(E) {
+	                Titanium.API.error("W? " + E);
+	            }
+
+	            this.progress.show();
+			}
+
+            Titanium.API.info("There are " + this.testCases.length + " testcases");
+            for (var i = 0; i < this.testCases.length; i++) {
+                Titanium.API.info("TC: " + i);
+                var tc = this.testCases[i];
+                if (tc.setup !== undefined) {
+                    tc.setup();
+                }
+
+                tc.performTests(this);
+
+                if (tc.teardown !== undefined) {
+                    tc.teardown();
+                }
+            }
+			if (!skipIndicator) {
+            	this.progress.hide();
+            	this.progress = null;
+			}
+        };
+        this.postResult = function(id, count) {
+            Titanium.API.debug("id: " + id + " count: " + count);
+            document.getElementById(id).innerHTML = String(count);
+            document.getElementById("suite-total").innerHTML = String(++this.testCount);
+			if (!skipIndicator) {
+            	this.progress.setValue(this.testCount);
+			}
+        };
+        this.pass = function() {
+            this.postResult("suite-pass", ++this.passCount);
+        };
+        this.fail = function() {
+            this.postResult("suite-fail", ++this.failCount);
+        };
+        this.exception = function() {
+            this.postResult("suite-exception", ++this.exceptionCount);
+        };
+    };
+
+
+    var TFS = Titanium.Filesystem;
+
+    var suite = new TestSuite();
+
+    var tc1 = new TestCase("ApplicationDataDirectory file tests");
+    suite.addTestCase(tc1);
+
+    tc1.setup = function() {
+        this.f = Titanium.Filesystem.getApplicationMassDataDirectory();
+    };
+
+    tc1.addTest('MassAppDD: != null',
+    function() {
+        return (this.f !== null);
+    });
+
+    tc1.addTest('MassAppDD: nativePath starts with /sdcard',
+    function() {
+        return this.f.nativePath().indexOf("/sdcard/") > -1;
+    },
+    'android');
+    tc1.addTest('MassAppDD: toURL starts with file:///',
+    function() {
+        Titanium.API.info("toURL: " + this.f.toURL());
+        return this.f.toURL().indexOf("file:///") > -1;
+    });
+
+    tc1.addTest('MassAppDD: toURL == url',
+    function() {
+        return this.f.toURL() == this.f.url;
+    });
+
+    tc1.addTest('MassAppDD: exists()',
+    function() {
+        return this.f.exists();
+    });
+    tc1.addTest('MassAppDD: isDirectory()',
+    function() {
+        return this.f.isDirectory();
+    });
+    tc1.addTest('MassAppDD: isFile()',
+    function() {
+        return ! this.f.isFile();
+    });
+    tc1.addTest('MassAppDD: isHidden()',
+    function() {
+        return ! this.f.isHidden();
+    });
+    tc1.addTest('MassAppDD: isReadonly()',
+    function() {
+        return ! this.f.isReadonly();
+    });
+    tc1.addTest('MassAppDD: isWritable()',
+    function() {
+        return this.f.isWriteable();
+    });
+    tc1.addTest('MassAppDD: createTimestamp',
+    function() {
+        return this.f.createTimestamp() > 0;
+    });
+    tc1.addTest('MassAppDD: modificationTimestamp',
+    function() {
+        return this.f.modificationTimestamp();
+    });
+    tc1.addTest('MassAppDD: name != null',
+    function() {
+        return this.f.name() !== null;
+    });
+    tc1.addTest('MassAppDD: name.length > 0',
+    function() {
+        return this.f.name().length > 0;
+    });
+    tc1.addTest('MassAppDD: name == appid',
+    function() {
+        return this.f.name() == String(Titanium.App.getID());
+    },
+    'android');
+
+    // File: String data
+    var tc2 = new TestCase("MassAppDD::// IO");
+    suite.addTestCase(tc2);
+
+    tc2.setup = function() {
+        this.f = TFS.getFile(Titanium.Filesystem.getApplicationMassDataDirectory(), "a1.txt");
+        if (this.f !== null && this.f.exists()) {
+            this.f.deleteFile();
+        }
+        this.f2 = TFS.getFile(Titanium.Filesystem.getApplicationMassDataDirectory(), "a2.txt");
+        if (this.f2 !== null && this.f2.exists()) {
+            this.f2.deleteFile();
+        }
+    };
+
+    tc2.teardown = function() {
+        var files = [
+        'a1.txt',
+        'a2.txt',
+        'a2a.txt'
+        ];
+
+        for (var i = 0; i < files.length; i++) {
+            var f = TFS.getFile(Titanium.Filesystem.getApplicationMassDataDirectory(), files[i]);
+            if (f != null) {
+                f.deleteFile();
+            }
+        }
+    };
+
+    tc2.addTest('MassAppDD: a1.txt !exists',
+    function() {
+        return ! this.f.exists();
+    });
+    tc2.addTest('MassAppDD: a1.txt: write string 0123456789',
+    function() {
+        this.f.write('0123456789');
+        return this.f.exists();
+    });
+    tc2.addTest('MassAppDD: a1.txt: length == 10',
+    function() {
+        return this.f.size() === 10;
+    });
+    tc2.addTest('MassAppDD: a1.txt read == 0123456789',
+    function() {
+        var b = this.f.read();
+        return b.toString() == '0123456789';
+    });
+    tc2.addTest('MassAppDD: a2 !exists',
+    function() {
+        return ! this.f2.exists();
+    });
+    tc2.addTest('MassAppDD: a1.txt copy to a2.txt',
+    function() {
+        var fc = TFS.getFile(TFS.getApplicationMassDataDirectory(), "a2.txt");
+        this.f.copy(fc);
+        return this.f2.exists();
+    });
+    tc2.addTest('MassAppDD: a2.txt read == a1.txt.read',
+    function() {
+        var b1 = this.f.read();
+        var b2 = this.f2.read();
+        return b1.toString() == b2.toString();
+    });
+    tc2.addTest('MassAppDD: a2.txt deleteFile',
+    function() {
+        this.f2.deleteFile();
+        return ! this.f2.exists();
+    });
+    tc2.addTest('MassAppDD: move a1.txt to a2.txt',
+    function() {
+        var fm = TFS.getFile(TFS.getApplicationMassDataDirectory(), "a2.txt");
+        this.f.move(fm);
+        return ! this.f.exists() && this.f2.exists();
+    });
+    tc2.addTest('MassAppDD: contents of a2.txt post move',
+    function() {
+        var b = this.f2.read();
+        return b.toString() == '0123456789';
+    });
+    tc2.addTest('MassAppDD:: rename a2.txt a2a.txt',
+    function() {
+        this.f2.rename("a2a.txt");
+        var nf = TFS.getFile(TFS.getApplicationMassDataDirectory(),"a2a.txt");
+        return nf.exists();
+    });
+
+    var tc3 = new TestCase("MassAppDD:: dir ops");
+    suite.addTestCase(tc3);
+
+    tc3.addTest('MassAppDD: dir tmp1 !exists',
+    function() {
+        var nd = TFS.getFile(TFS.getApplicationMassDataDirectory(), 'tmp1');
+        return ! nd.exists();
+    });
+    tc3.addTest('MassAppDD: dir create tmp1',
+    function() {
+        var nd = TFS.getFile(TFS.getApplicationMassDataDirectory(), 'tmp1');
+        nd.createDirectory(false);
+        return nd.exists() && nd.isDirectory();
+    });
+    tc3.addTest('MassAppDD: dir rename',
+    function() {
+        var nd = TFS.getFile(TFS.getApplicationMassDataDirectory(), 'tmp1');
+        nd.rename('tmp2');
+        nd = TFS.getFile(TFS.getApplicationMassDataDirectory(), 'tmp2');
+        return nd.exists();
+    });
+    tc3.addTest('MassAppDD: dir delete',
+    function() {
+        var nd = TFS.getFile(TFS.getApplicationMassDataDirectory(), 'tmp2');
+        nd.deleteDirectory();
+        return ! nd.exists();
+    });
+    tc3.addTest('MassAppDD: recursive delete',
+    function() {
+        var pass = false;
+        var nd = TFS.getFile(TFS.getApplicationMassDataDirectory(), 'a', 'b', 'c');
+        if (!nd.exists()) {
+            nd.createDirectory(true);
+            if (nd.exists()) {
+                var f1 = TFS.getFile(TFS.getApplicationMassDataDirectory(), "a/b/c/a1.txt");
+                f1.write("Hello, please delete me");
+                f1 = TFS.getFile(TFS.getApplicationMassDataDirectory(), 'a', "b", 'a2.txt');
+                f1.write("Hello, please delete me 2");
+                f1 = TFS.getFile(TFS.getApplicationMassDataDirectory(), 'a/a3.txt');
+                f1.write("Hello, please delete me 3");
+
+                var dr = TFS.getFile(TFS.getApplicationMassDataDirectory(), 'a');
+                dr.deleteDirectory(true);
+                pass = !dr.exists();
+            }
+        }
+
+        return pass;
+    });
+    tc3.addTest('MassAppDD:: rename directory',
+    function() {
+        var pass = false;
+
+        var nd = TFS.getFile(TFS.getApplicationMassDataDirectory(), 'a');
+        if (!nd.exists()) {
+            nd.createDirectory(false);
+            if (nd.exists()) {
+                nd.rename("b");
+                nd = TFS.getFile(TFS.getApplicationMassDataDirectory(), 'b');
+                pass = nd.exists() && nd.isDirectory();
+                nd.deleteDirectory();
+            }
+        }
+
+        return pass;
+    });
+
+    var tc4 = new TestCase("app: to MassAppDD::");
+    suite.addTestCase(tc4);
+
+    tc4.setup = function() {
+        this.f = TFS.getFile("app://data/file01.txt");
+        this.fi = TFS.getFile(TFS.getResourcesDirectory(), "images/icon.png");
+        this.td = TFS.getFile(TFS.getApplicationMassDataDirectory(), "tests");
+        if (this.td.exists()) {
+            this.td.deleteDirectory(true);
+        }
+        this.td.createDirectory();
+    };
+    tc4.addTest('app: exists',
+    function() {
+        return this.f.exists() && this.fi.exists() && this.td.exists();
+    });
+
+    tc4.addTest('app: copy file01.txt to MassAppDD::',
+    function() {
+        this.f.copy(TFS.getFile(TFS.getApplicationMassDataDirectory(), 'tests', 'file01.txt'));
+        var tf = TFS.getFile(TFS.getApplicationMassDataDirectory(), 'tests/file01.txt');
+        return tf.length == this.f.length
+    });
+
+    tc4.addTest('app: copy icon.png to MassAppDD::',
+    function() {
+        this.fi.copy(TFS.getFile(TFS.getApplicationMassDataDirectory(), 'tests/image.png'));
+        var tf = TFS.getFile(TFS.getApplicationMassDataDirectory(), 'tests/image.png');
+        return tf.length == this.fi.length
+    });
+
+    var tc5 = new TestCase("AppDD:");
+    suite.addTestCase(tc5);
+
+    tc5.setup = function() {
+        this.f = TFS.getFile(TFS.getApplicationDataDirectory());
+    };
+
+    tc5.addTest('AppDD:!= null',
+    function() {
+        return (this.f !== null);
+    });
+    tc5.addTest('AppDD:nativePath starts with /data/data',
+    function() {
+        return this.f.nativePath().indexOf("/data/data/") > -1;
+    },
+    'android');
+    tc5.addTest('AppDD:toURL starts with file:///',
+    function() {
+        Titanium.API.info("toURL: " + this.f.toURL());
+        return this.f.toURL().indexOf("file:///") > -1;
+    });
+    tc5.addTest('AppDD:exists()',
+    function() {
+        return this.f.exists();
+    });
+    tc5.addTest('AppDD:isDirectory()',
+    function() {
+        return this.f.isDirectory();
+    });
+    tc5.addTest('AppDD:isFile()',
+    function() {
+        return ! this.f.isFile();
+    });
+    tc5.addTest('AppDD:isHidden()',
+    function() {
+        return ! this.f.isHidden();
+    });
+    tc5.addTest('AppDD:isReadonly()',
+    function() {
+        return ! this.f.isReadonly();
+    });
+    tc5.addTest('AppDD:isWritable()',
+    function() {
+        return this.f.isWriteable();
+    });
+    tc5.addTest('AppDD:createTimestamp',
+    function() {
+        return this.f.createTimestamp() > 0;
+    });
+    tc5.addTest('AppDD:modificationTimestamp',
+    function() {
+        return this.f.modificationTimestamp();
+    });
+    tc5.addTest('AppDD:name != null',
+    function() {
+        return this.f.name() !== null;
+    });
+    tc5.addTest('AppDD:name.length > 0',
+    function() {
+        return this.f.name().length > 0;
+    });
+
+    var tc6 = new TestCase("File methods:");
+    suite.addTestCase(tc6);
+
+    tc6.setup = function() {
+        this.f = TFS.getFile(TFS.getApplicationDataDirectory());
+    };
+
+    tc6.assertUndefined("readLine", TFS.getApplicationDataDirectory().readLine);
+    tc6.assertUndefined("writeLine", TFS.getApplicationDataDirectory().writeLine);
+    tc6.assertUndefined("resolve", TFS.getApplicationDataDirectory().resolve);
+
+    tc6.assertFunction("isFile", TFS.getApplicationDataDirectory().isFile);
+    tc6.assertFunction("isDirectory", TFS.getApplicationDataDirectory().isDirectory);
+    tc6.assertFunction("isHidden", TFS.getApplicationDataDirectory().isHidden);
+    tc6.assertFunction("isExecutable", TFS.getApplicationDataDirectory().isExecutable);
+    tc6.assertFunction("isReadonly", TFS.getApplicationDataDirectory().isReadonly);
+    tc6.assertFunction("isWriteable", TFS.getApplicationDataDirectory().isWriteable);
+    tc6.assertFunction("read", TFS.getApplicationDataDirectory().read);
+    tc6.assertFunction("write", TFS.getApplicationDataDirectory().write);
+    tc6.assertFunction("copy", TFS.getApplicationDataDirectory().copy);
+    tc6.assertFunction("move", TFS.getApplicationDataDirectory().move);
+    tc6.assertFunction("rename", TFS.getApplicationDataDirectory().rename);
+    tc6.assertFunction("createDirectory", TFS.getApplicationDataDirectory().createDirectory);
+    tc6.assertFunction("deleteDirectory", TFS.getApplicationDataDirectory().deleteDirectory);
+    tc6.assertFunction("deleteFile", TFS.getApplicationDataDirectory().deleteFile);
+    tc6.assertFunction("getDirectoryListing", TFS.getApplicationDataDirectory().getDirectoryListing);
+    tc6.assertFunction("getParent", TFS.getApplicationDataDirectory().getParent);
+    tc6.assertFunction("exists", TFS.getApplicationDataDirectory().exists);
+    tc6.assertFunction("createTimestamp", TFS.getApplicationDataDirectory().createTimestamp);
+    tc6.assertFunction("modificationTimestamp", TFS.getApplicationDataDirectory().modificationTimestamp);
+    tc6.assertFunction("name", TFS.getApplicationDataDirectory().name);
+    tc6.assertFunction("extension", TFS.getApplicationDataDirectory().extension);
+    tc6.assertFunction("size", TFS.getApplicationDataDirectory().size);
+    tc6.assertFunction("nativePath", TFS.getApplicationDataDirectory().nativePath);
+    tc6.assertFunction("spaceAvailable", TFS.getApplicationDataDirectory().spaceAvailable);
+    tc6.assertFunction("setExecutable", TFS.getApplicationDataDirectory().setExecutable);
+    tc6.assertFunction("setReadonly", TFS.getApplicationDataDirectory().setReadonly);
+    tc6.assertFunction("setWriteable", TFS.getApplicationDataDirectory().setWriteable);
+    tc6.assertFunction("toURL", TFS.getApplicationDataDirectory().toURL);
+
+    tc6.assertReadOnlyProperty("url", TFS.getApplicationDataDirectory(), "url");
+
+} catch(E) {
+    Titanium.API.error("ERROR: " + E);
+}
+window.onload = function() {
+    setTimeout(function() {
+        suite.performTests();
+    },
+    500);
+}
+  </script>
+</head>
+<body style="background-color: white;">
+<div id='suite'>
+<table style="width:100%">
+<tr><th>Pass</th><th>Fail</th><th>Exceptions</th><th>Tests</th></tr>
+<tr><td id='suite-pass'>0</td><td id='suite-fail'>0</td><td id='suite-exception'>0</td><td id='suite-total'>0</td></tr>
+</table>
+</div>
+<div id='tests'/>
+</body>
+</html>

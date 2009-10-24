@@ -9,6 +9,8 @@ package org.appcelerator.titanium.module.fs;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,6 +21,7 @@ import java.lang.ref.SoftReference;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumFile;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.api.TitaniumMemoryBlob;
 import org.appcelerator.titanium.util.Log;
 
 import android.content.Context;
@@ -63,6 +66,11 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 	}
 
 	@Override
+	public File getNativeFile() {
+		return new File(toURL());
+	}
+
+	@Override
 	public void write(String data, boolean append) throws IOException
 	{
 		throw new IOException("read only");
@@ -88,12 +96,13 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 	}
 
 	@Override
-	public String read() throws IOException
+	public int read() throws IOException
 	{
-		StringBuilder builder=new StringBuilder();
+		ByteArrayOutputStream baos = null;
 		InputStream in = null;
 		try
 		{
+			baos = new ByteArrayOutputStream();
 			in = getInputStream();
 			byte buffer [] = new byte[4096];
 			while(true)
@@ -103,7 +112,7 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 				{
 					break;
 				}
-				builder.append(new String(buffer,0,count));
+				baos.write(buffer, 0, count);
 			}
 		}
 		finally
@@ -113,7 +122,16 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 				in.close();
 			}
 		}
-		return builder.toString();
+
+		int blobId = -1;
+		if (baos != null) {
+			TitaniumModuleManager tmm = weakTmm.get();
+			if (tmm != null) {
+				TitaniumMemoryBlob blob = new TitaniumMemoryBlob(baos.toByteArray());
+				blobId = tmm.cacheObject(blob);
+			}
+		}
+		return blobId;
 	}
 
 	@Override
@@ -137,30 +155,27 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 		return result;
 	}
 
-	public boolean copy(String destination)
-	{
-		//NOTE: this isn't really efficient but not sure
-		//if there's a better way with the different file
-		//abstractions
-
-		try
-		{
-			String data = read();
-			ITitaniumFile dest = (ITitaniumFile) null; //filesystem.getFile(new String[]{destination});
-			dest.write(data,false);
-
-			return dest.exists();
-		}
-		catch(Exception ig)
-		{
-			return false;
-		}
-	}
-
 	@Override
 	public boolean exists()
 	{
-		return true;
+		boolean result = false;
+		InputStream is = null;
+		try {
+			is = getInputStream();
+			result = true;
+		} catch (IOException e) {
+			// Ignore
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					// Ignore
+				}
+			}
+		}
+
+		return result;
 	}
 
 	@Override
@@ -188,7 +203,7 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 	@Override
 	public String nativePath()
 	{
-		return path;
+		return toURL();
 	}
 
 	public String toURL() {
@@ -196,40 +211,18 @@ public class TitaniumResourceFile extends TitaniumBaseFile
 	}
 	public double size()
 	{
-		return 0L;
+		return getNativeFile().length();
 	}
-	public double spaceAvailable()
-	{
-		return 99999999L;
-	}
-	public boolean createShortcut()
-	{
-		return false;
-	}
-	public boolean setExecutable()
-	{
-		return false;
-	}
-	public boolean setReadonly()
-	{
-		return false;
-	}
-	public boolean setWriteable()
-	{
-		return false;
-	}
-	public void unzip (String destination)
-	{
-	}
+
 	public String toString ()
 	{
-		return getPath();
+		return toURL();
 	}
 
 
 	// OUTSIDE OF THE API
-	String getPath()
-	{
-		return path;
-	}
+//	String getPath()
+//	{
+//		return path;
+//	}
 }

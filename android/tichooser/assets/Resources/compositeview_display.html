@@ -5,10 +5,14 @@ window.onload = function() {
 	Titanium.UI.currentWindow.addEventListener('notify', function(e) {
 		document.getElementById("msg").innerHTML = e.message;
 	});
+	document.getElementById("repaint").onclick = function() {
+		Titanium.UI.currentWindow.repaint();
+	};
 };
 </script>
 </head>
 <body style="background-color: white;">
 <div id="msg">&nbsp;</div>
+<input type="button" id="repaint" value="Repaint"/>
 </body>
 </html>
