@@ -21,6 +21,7 @@ import org.appcelerator.titanium.api.ITitaniumDatabase;
 import org.appcelerator.titanium.api.ITitaniumFile;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.db.TitaniumDB;
+import org.appcelerator.titanium.module.fs.TitaniumFileFactory;
 import org.appcelerator.titanium.util.TitaniumUrlHelper;
 import org.appcelerator.titanium.util.Log;
 
@@ -84,23 +85,28 @@ public class TitaniumDatabase extends TitaniumBaseModule implements
 			}
 			// open an empty one to get the full path and then close and delete it
 			File dbPath = ctx.getDatabasePath(name);
-			
-			Log.d(LCAT,"db path is = "+dbPath);
-			Log.d(LCAT,"db url is = "+url);
-			
-			url = TitaniumUrlHelper.buildAssetUrlFromResourcesRoot(getActivity(), url);
+
+			if (DBG) {
+				Log.d(LCAT,"db path is = "+dbPath);
+				Log.d(LCAT,"db url is = "+url);
+			}
+
+			String[] parts = { url };
+			ITitaniumFile srcDb = TitaniumFileFactory.createTitaniumFile(tmm, parts, false);
 			// now copy our installable db into the same location and re-open
 
-			Log.d(LCAT,"new url is = "+url);
+			if (DBG) {
+				Log.d(LCAT,"new url is = "+url);
+			}
 
 			InputStream is = null;
 			OutputStream os = null;
-			
+
 			byte[] buf = new byte[8096];
 			int count = 0;
 			try
 			{
-				is = new BufferedInputStream(ctx.getContentResolver().openInputStream(Uri.parse(url)));
+				is = new BufferedInputStream(srcDb.getInputStream());
 				os = new BufferedOutputStream(new FileOutputStream(dbPath));
 
 				while((count = is.read(buf)) != -1) {
@@ -112,9 +118,9 @@ public class TitaniumDatabase extends TitaniumBaseModule implements
 				try { is.close(); } catch (Exception ig) { }
 				try { os.close(); } catch (Exception ig) { }
 			}
-			
+
 			return open(name);
-			
+
 		} catch (SQLException e) {
 			String msg = "Error installing database: " + name + " msg=" + e.getMessage();
 			Log.e(LCAT, msg, e);
@@ -125,7 +131,7 @@ public class TitaniumDatabase extends TitaniumBaseModule implements
 			Log.e(LCAT, msg, e);
 			setException(msg);
 		}
-		
+
 		return null;
 	}
 
