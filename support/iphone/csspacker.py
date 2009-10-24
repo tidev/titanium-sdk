@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # CSS Minification Script
 # http://www.siafoo.net/snippet/16

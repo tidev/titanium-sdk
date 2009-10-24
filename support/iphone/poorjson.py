@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # Jeff's poor man python JSON encoder
 #
@@ -13,6 +14,9 @@ class PoorJSON(object):
 
 	def string(self,v):
 		return '"%s"' % v
+		
+	def unicode(self,v):
+		return u'"%s"' % v
 
 	def bool(self,v):
 		if v == True:
@@ -34,14 +38,14 @@ class PoorJSON(object):
 
 	def get(self,prop):
 		
-#		print prop
-#		print t
 		t = type(prop)
 		
 		if t == types.BooleanType:
 			return self.bool(prop)
 		elif t == types.NoneType:
 			return self.null(prop)
+		elif t == types.UnicodeType:
+			return self.unicode(prop)
 		elif t == types.StringType:
 			return self.string(prop)
 		elif t == types.IntType:
@@ -58,6 +62,6 @@ class PoorJSON(object):
 	def dump(self,prop):
 		return self.get(prop)
 
-# print PoorJSON().dump({'a':[1,2]})
+#print PoorJSON().dump({u'Très 漢字':[1,2]})
 # print PoorJSON().dump([1,2])
 # print PoorJSON().dump({'a':True})

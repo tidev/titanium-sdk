@@ -1,13 +1,12 @@
 #!/usr/bin/env python
-#
-# Appcelerator Titanium Mobile
-# Copyright (c) 2009 Appcelerator, Inc. All Right Reserved.
+# -*- coding: utf-8 -*-
 #
 # Install a provisioning profile
 #
 
 import os, sys, subprocess, re, time, poorjson
 from xml.dom.minidom import parseString
+import codecs
 
 def dequote(s):
     if s[0:1] == '"':
@@ -19,7 +18,7 @@ def getText(nodelist):
     for node in nodelist:
         if node.nodeType == node.TEXT_NODE:
             rc = rc + node.data
-    return str(rc)
+    return rc
 
 def make_map(dict):
 	props = {}
@@ -54,18 +53,18 @@ def main(args):
 		sys.exit(1)
 		
 	try:
-		xml = os.path.abspath(os.path.expanduser(dequote(args[1])))
-		f = open(xml,'rb').read()
+		xml = os.path.abspath(os.path.expanduser(dequote(args[1].decode("utf-8"))))
+		f = codecs.open(xml,'rb','utf-8').read()
 		
 		b = f.index('<?xml')
 		e = f.index('</plist>')
 	
 		xml_content = f[b:e+8]
-		dom = parseString(xml_content)
+		dom = parseString(xml_content.encode("utf-8"))
 
 		dict = dom.getElementsByTagName('dict')[0]
 		props = make_map(dict)
-		
+				
 		profile_type = 'unknown'
 	
 		if len(re.findall('ProvisionedDevices',xml_content)) > 0:
@@ -109,5 +108,5 @@ def main(args):
 		sys.exit(10)
 
 if __name__ == "__main__":
-    main(sys.argv)
+	main(sys.argv)
 

@@ -1,16 +1,18 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # tiapp parser
 # 
 import os, types, uuid
-from xml.dom.minidom import parse
+import codecs
+from xml.dom.minidom import parseString
 
 def getText(nodelist):
     rc = ""
     for node in nodelist:
         if node.nodeType == node.TEXT_NODE:
             rc = rc + node.data
-    return str(rc)
+    return rc
 
 class TiWindow(object):
 	def __init__(self,properties):
@@ -39,7 +41,7 @@ def get_window_properties(node):
 class TiAppXML(object):
 	def __init__(self,file):
 		self.file = file
-		self.dom = parse(open(self.file))
+		self.dom = parseString(codecs.open(self.file,'r','utf-8').read().encode("utf-8"))
 		
 		self.properties = {
 			'id':None,
@@ -77,7 +79,7 @@ class TiAppXML(object):
 			n.appendChild(self.dom.createTextNode(guid))
 			root[0].appendChild(n)
 			root[0].appendChild(self.dom.createTextNode("\n"))
-			self.dom.writexml(open(self.file, "w+"), encoding="UTF-8")
+			self.dom.writexml(codecs.open(self.file, "w+","utf-8"), encoding="UTF-8")
 					
 	def setDeployType(self, deploy_type):
 		found = False
@@ -96,7 +98,7 @@ class TiAppXML(object):
 			n.appendChild(self.dom.createTextNode(deploy_type))
 			root[0].appendChild(n)
 			
-		self.dom.writexml(open(self.file, "w+"), encoding="UTF-8")
+		self.dom.writexml(codecs.open(self.file, "w+","utf-8"), encoding="UTF-8")
 
 
 #
@@ -116,7 +118,7 @@ class TiPlist(object):
 			if i=='orientation' and value == 'landscape':
 				self.infoplist_properties['UIInterfaceOrientation']='<string>UIInterfaceOrientationLandscapeRight</string>'
 			out+='  <key>UIStatusBarStyle</key>\n  %s\n' % status_bar_style
-			if type(value)==types.StringType:
+			if type(value)==types.StringType or type(value)==types.UnicodeType:
 				out+="  <key>%s</key>\n  <string>%s</string>\n" %(i,window.properties[i])
 			elif type(value)==types.ListType:
 				out+="  <key>%s</key>\n" % i
@@ -131,7 +133,7 @@ class TiPlist(object):
 		if self.tiapp.properties.has_key('icon'):
 			icon = self.tiapp.properties['icon']
 
-		plist = open(template).read()
+		plist = codecs.open(template,'r','utf-8').read()
 		plist = plist.replace('appicon.png',icon)
 		
 		# replace the bundle id with the app id 
@@ -165,8 +167,8 @@ class TiPlist(object):
 				newcontent += '     <key>%s</key>\n     %s\n' %(p,v)
 			plist = before + newcontent + after
 			
-		f = open(file,'w+')
-		f.write(plist)
+		f = codecs.open(file,'w+','utf-8')
+		f.write(plist.encode("utf-8"))
 		f.close()
 		
 		return icon
@@ -182,6 +184,7 @@ class TiPlist(object):
 <plist version="1.0">
 <dict>
 """
+
 		status_bar_style = '<string>UIStatusBarStyleDefault</string>'
 
 		for p in self.tiapp.properties:
@@ -222,5 +225,6 @@ class TiPlist(object):
  </dict>
 </dict>
 </plist>""" % modules
-		return out
+
+		return out.encode("utf-8")
 
