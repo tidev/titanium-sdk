@@ -6,8 +6,8 @@
 		var mapview = Titanium.Map.createView({
 			mapType: Titanium.Map.HYBRID_TYPE,
 			region: {latitude:37.33168900, longitude:-122.03073100, latitudeDelta:0.04, longitudeDelta:0.04},
-			animate:false,
-			regionFit:false,
+			animate:true,
+			regionFit:true,
 			userLocation:false,
 			annotations:[
 				{
@@ -16,7 +16,7 @@
 					title:"Appcelerator's cool",
 					subtitle:'Mountain View',
 					pincolor:Titanium.Map.ANNOTATION_PURPLE,
-					animate:true
+					animate:false
 				},
 				{
 					latitude:37.33168900, 
