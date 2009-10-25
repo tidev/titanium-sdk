@@ -51,7 +51,7 @@
 }
 @end
 
-@interface MapViewController : TitaniumContentViewController<MKMapViewDelegate, MKReverseGeocoderDelegate, CLLocationManagerDelegate> {
+@interface MapViewController : TitaniumContentViewController<MKMapViewDelegate, MKReverseGeocoderDelegate> {
 	NSString *token;
 	NSString *pageToken;
 	MKMapView *view;
@@ -129,6 +129,121 @@
 	}
 }
 
+-(void)addAnnotation:(NSDictionary*)value
+{
+	CLLocationCoordinate2D l;
+	l.latitude = [[value objectForKey:@"latitude"] doubleValue];
+	l.longitude = [[value objectForKey:@"longitude"] doubleValue];
+	MapViewAnnotation * loc = [[MapViewAnnotation alloc] init:l];
+	loc.pincolor = [[value objectForKey:@"pincolor"] unsignedIntegerValue];
+	loc.animate = [[value objectForKey:@"animate"] boolValue];
+	loc.title = [value objectForKey:@"title"];
+	loc.subtitle = [value objectForKey:@"subtitle"];
+	id li = [value objectForKey:@"leftButton"];
+	if (li)
+	{
+		loc.leftButton=(NSString*)li;
+	}
+	id ri = [value objectForKey:@"rightButton"];
+	if (ri)
+	{
+		loc.rightButton=(NSString*)ri;
+	}
+	if (annotations==nil)
+	{
+		annotations = [[NSMutableArray alloc] init];
+	}
+	[annotations addObject:loc];
+	if (view!=nil)
+	{
+		[view addAnnotation:loc];
+	}
+	[loc release];
+}
+
+-(void)removeAnnotation:(NSString*)title
+{
+	if (annotations && [annotations count] > 0)
+	{
+		for (int c=0;c<[annotations count];c++)
+		{
+			MapViewAnnotation *an = (MapViewAnnotation*)[annotations objectAtIndex:c];
+			if ([an.title isEqualToString:title])
+			{
+				[annotations removeObjectAtIndex:c];
+				[view removeAnnotation:an];
+				break;
+			}
+		}
+	}
+}
+
+-(MapViewAnnotation*)getAnnotation:(NSString*)title
+{
+	if (annotations && [annotations count] > 0)
+	{
+		for (int c=0;c<[annotations count];c++)
+		{
+			MapViewAnnotation *an = (MapViewAnnotation*)[annotations objectAtIndex:c];
+			if ([an.title isEqualToString:title])
+			{
+				return an;
+			}
+		}
+	}
+	return nil;
+}
+
+-(void) selectAnnotation:(NSDictionary*)dict
+{
+	NSString *title = (NSString*)[dict objectForKey:@"title"];
+	MapViewAnnotation *ann = [self getAnnotation:title];
+	if (ann!=nil)
+	{
+		BOOL animated = YES;
+		id ani = [dict objectForKey:@"animated"];
+		if (ani)
+		{
+			animated = [ani boolValue];
+		}
+		[view selectAnnotation:ann animated:animated];
+	}
+}
+
+-(void) deselectAnnotation:(NSDictionary*)dict
+{
+	NSString *title = (NSString*)[dict objectForKey:@"title"];
+	MapViewAnnotation *ann = [self getAnnotation:title];
+	if (ann!=nil)
+	{
+		BOOL animated = YES;
+		id ani = [dict objectForKey:@"animated"];
+		if (ani)
+		{
+			animated = [ani boolValue];
+		}
+		[view deselectAnnotation:ann animated:animated];
+	}
+}
+
+-(void) zoom:(NSNumber*)value
+{
+	double v = [value doubleValue];
+	MKCoordinateRegion _region = [view region];
+	if (v > 0)
+	{
+		_region.span.latitudeDelta = _region.span.latitudeDelta / 2.0002;
+		_region.span.longitudeDelta = _region.span.longitudeDelta / 2.0002;
+	}
+	else
+	{
+		_region.span.latitudeDelta = _region.span.latitudeDelta * 2.0002;
+		_region.span.longitudeDelta = _region.span.longitudeDelta * 2.0002;
+	}
+	region = _region;
+	[view setRegion:_region animated:YES];
+}
+
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl
 {
 	// setup defaults
@@ -137,7 +252,7 @@
 	
 	NSDictionary *dict = (NSDictionary*)inputState;
 	id mtype = [dict objectForKey:@"mapType"];
-	if (mtype)
+	if (mtype!=nil)
 	{
 		NSNumber *n = (NSNumber*)mtype;
 		mapType = [n unsignedIntegerValue];
@@ -153,20 +268,24 @@
 		[self setLocation:reg];
 	}
 	
+	userLocation=NO;
+	animate=NO;
+	regionFit=NO;
+	
 	id an = [dict objectForKey:@"animate"];
-	if (an)
+	if (an!=nil)
 	{
 		animate = [an boolValue];
 	}
 	
 	id rf = [dict objectForKey:@"regionFit"];
-	if (rf)
+	if (rf!=nil)
 	{
 		regionFit = [rf boolValue];
 	}
 	
 	id ul = [dict objectForKey:@"userLocation"];
-	if (ul)
+	if (ul!=nil)
 	{
 		userLocation = [ul boolValue];
 	}
@@ -177,30 +296,10 @@
 	if ([ant isKindOfClass:[NSArray class]])
 	{
 		NSArray *anno = (NSArray*)ant;
-		annotations = [[NSMutableArray alloc] init];
 		for (int c=0;c<[anno count];c++)
 		{
 			NSDictionary * value = (NSDictionary*)[anno objectAtIndex:c];
-			CLLocationCoordinate2D l;
-			l.latitude = [[value objectForKey:@"latitude"] doubleValue];
-			l.longitude = [[value objectForKey:@"longitude"] doubleValue];
-			MapViewAnnotation * loc = [[MapViewAnnotation alloc] init:l];
-			loc.pincolor = [[value objectForKey:@"pincolor"] unsignedIntegerValue];
-			loc.animate = [[value objectForKey:@"animate"] boolValue];
-			loc.title = [value objectForKey:@"title"];
-			loc.subtitle = [value objectForKey:@"subtitle"];
-			id li = [value objectForKey:@"leftButton"];
-			if (li)
-			{
-				loc.leftButton=(NSString*)li;
-			}
-			id ri = [value objectForKey:@"rightButton"];
-			if (ri)
-			{
-				loc.rightButton=(NSString*)ri;
-			}
-			[annotations addObject:loc];
-			[loc release];
+			[self addAnnotation:value];
 		}
 	}
 	
@@ -233,10 +332,9 @@
 		viewFrame.size = preferredViewSize;
 		view = [[MKMapView alloc] initWithFrame:viewFrame];
 		view.mapType = mapType;
-		view.showsUserLocation=YES;
+		view.showsUserLocation = userLocation;
 		view.delegate = self;
 		view.userInteractionEnabled = YES;
-		
 		
 		[view setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		
@@ -244,20 +342,10 @@
 		{
 			[view addAnnotations:annotations];
 		}
-		
-		if (userLocation)
-		{
-			CLLocationManager *locationManager=[[CLLocationManager alloc] init];
-			locationManager.delegate=self;
-			locationManager.desiredAccuracy=kCLLocationAccuracyNearestTenMeters;
-			[locationManager startUpdatingLocation];
-		}
-		else
-		{
-			[self performSelectorOnMainThread:@selector(render)
-								   withObject:nil
-								waitUntilDone:NO];
-		}
+
+		[self performSelectorOnMainThread:@selector(render)
+							   withObject:nil
+							waitUntilDone:NO];
 	}
 	return view;
 }
@@ -307,14 +395,10 @@
 			NSString * commandString = [NSString stringWithFormat:@"%@.onEvent('click',{source:'rightButton',type:'click',title:'%@'});",pathString,title];	
 			[theHost sendJavascript:commandString toPagesWithTokens:listeningWebContextTokens update:YES];
 		}
-		else
-		{
-			NSLog(@"[INFO] clicked on center button");
-		}
 	}
 }
 
--(UIButton*)makeButton:(NSString*)url
+-(UIButton*) makeButton:(NSString*)url
 {
 	int type = barButtonSystemItemForString(url);
 	if (type == UITitaniumNativeItemNone)
@@ -341,26 +425,25 @@
 		if (annView==nil)
 		{
 			annView=[[MKPinAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:[ann title]];
-			annView.pinColor = [ann pincolor];
-			annView.animatesDrop = [ann animate];
-			annView.canShowCallout = YES;
-			annView.calloutOffset = CGPointMake(-5, 5);
-			annView.enabled = YES;
-			if (ann.leftButton)
-			{
-				annView.leftCalloutAccessoryView = [self makeButton:ann.leftButton];
-			}
-			if (ann.rightButton)
-			{
-				annView.rightCalloutAccessoryView = [self makeButton:ann.rightButton];
-			}
-			annView.userInteractionEnabled = YES;
 			[annView addObserver:self
 					  forKeyPath:@"selected"
 						 options:NSKeyValueObservingOptionNew
 						 context:@"ANSELECTED"];
-		}				
-
+		}
+		annView.pinColor = [ann pincolor];
+		annView.animatesDrop = [ann animate];
+		annView.canShowCallout = YES;
+		annView.calloutOffset = CGPointMake(-5, 5);
+		annView.enabled = YES;
+		if (ann.leftButton)
+		{
+			annView.leftCalloutAccessoryView = [self makeButton:ann.leftButton];
+		}
+		if (ann.rightButton)
+		{
+			annView.rightCalloutAccessoryView = [self makeButton:ann.rightButton];
+		}
+		annView.userInteractionEnabled = YES;
 		return annView;
 	}
 	return nil;
@@ -376,13 +459,13 @@
 {
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	NSString * pathString = [self javaScriptPath];
-	MKCoordinateRegion aregion = [mapView region];
+	region = [mapView region];
 	NSDictionary * props = [NSDictionary dictionaryWithObjectsAndKeys:
 							@"regionChanged",@"type",
-							[NSNumber numberWithDouble:aregion.center.latitude],@"latitude",
-							[NSNumber numberWithDouble:aregion.center.longitude],@"longitude",
-							[NSNumber numberWithDouble:aregion.span.latitudeDelta],@"latitudeDelta",
-							[NSNumber numberWithDouble:aregion.span.longitudeDelta],@"longitudeDelta",nil];
+							[NSNumber numberWithDouble:region.center.latitude],@"latitude",
+							[NSNumber numberWithDouble:region.center.longitude],@"longitude",
+							[NSNumber numberWithDouble:region.span.latitudeDelta],@"latitudeDelta",
+							[NSNumber numberWithDouble:region.span.longitudeDelta],@"longitudeDelta",nil];
 
 	SBJSON *json = [[[SBJSON alloc] init] autorelease];
 	NSString * commandString = [NSString stringWithFormat:@"%@.onEvent('regionChanged',%@);",pathString,[json stringWithObject:props error:nil]];	
@@ -420,17 +503,6 @@
 
 - (void)reverseGeocoder:(MKReverseGeocoder *)geocoder didFindPlacemark:(MKPlacemark *)placemark{
 	[view addAnnotation:placemark];
-}
-
-- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation{
-	
-	region.center=newLocation.coordinate;
-	[self performSelectorOnMainThread:@selector(render)
-						   withObject:nil
-						waitUntilDone:NO];
-}
-
-- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error{
 }
 
 @end
@@ -488,13 +560,64 @@
 	}
 }
 
--(void)addAnnotation:(NSDictionary*)dict
+-(void)addAnnotation:(NSDictionary*)args token:(NSString*)token
 {
+	MapViewController *view = [self getView:token];
+	if (view)
+	{
+		[view performSelectorOnMainThread:@selector(addAnnotation:)
+							   withObject:args
+							waitUntilDone:NO];
+	}
+}
+
+-(void)removeAnnotation:(NSString*)title token:(NSString*)token
+{
+	MapViewController *view = [self getView:token];
+	if (view)
+	{
+		[view performSelectorOnMainThread:@selector(removeAnnotation:)
+							   withObject:title
+							waitUntilDone:NO];
+	}
+}
+
+-(void)selectAnnotation:(NSDictionary*)dict token:(NSString*)token
+{
+	MapViewController *view = [self getView:token];
+	if (view)
+	{
+		[view performSelectorOnMainThread:@selector(selectAnnotation:)
+							   withObject:dict
+							waitUntilDone:NO];
+	}
+}
+
+-(void)deselectAnnotation:(NSDictionary*)dict token:(NSString*)token
+{
+	MapViewController *view = [self getView:token];
+	if (view)
+	{
+		[view performSelectorOnMainThread:@selector(deselectAnnotation:)
+							   withObject:dict
+							waitUntilDone:NO];
+	}
+}
+
+-(void)zoom:(NSNumber*)value token:(NSString*)token
+{
+	MapViewController *view = [self getView:token];
+	if (view)
+	{
+		[view performSelectorOnMainThread:@selector(zoom:)
+							   withObject:value
+							waitUntilDone:NO];
+	}
 }
 
 -(void) configure
 {
-	NSString * createViewString = @"function(args){var res=Ti.UI.createView(args);res._TYPE='map'; if(!Ti.Map._VIEWS){Ti.Map._VIEWS={};} Ti.Map._VIEWS[res._TOKEN]=res; res.onEvent=Ti._ONEVT; res._EVT = {click:[]}; res.addEventListener=Ti._ADDEVT; res.removeEventListener = Ti._REMEVT; res.setLocation=function(obj){Ti.Map._SETLOC(obj,res._TOKEN);}; res.setMapType=function(type){Ti.Map._SETMAP(type,res._TOKEN);}; return res;}";
+	NSString * createViewString = @"function(args){var res=Ti.UI.createView(args);res._TYPE='map'; if(!Ti.Map._VIEWS){Ti.Map._VIEWS={};} Ti.Map._VIEWS[res._TOKEN]=res; res.onEvent=Ti._ONEVT; res._EVT = {click:[]}; res.addEventListener=Ti._ADDEVT; res.removeEventListener = Ti._REMEVT; res.setLocation=function(obj){Ti.Map._SETLOC(obj,res._TOKEN);}; res.setMapType=function(type){Ti.Map._SETMAP(type,res._TOKEN);}; res.addAnnotation = function(args){Ti.Map._ADDANN(args,res._TOKEN);}; res.removeAnnotation = function(args){Ti.Map._REMANN(args,res._TOKEN);}; res.selectAnnotation = function(title,animated){Ti.Map._SELANN({title:title,animated:animated},res._TOKEN);}; res.deselectAnnotation = function(title,animated){Ti.Map._DSELANN({title:title,animated:animated},res._TOKEN);}; res.zoom = function(value){Ti.Map._ZMN(value,res._TOKEN);}; return res;}";
 	
 	[self registerContentViewController:[MapViewController class] forToken:@"map"];
 	[self bindProperty:@"STANDARD_TYPE" value:[NSNumber numberWithUnsignedInteger:MKMapTypeStandard]];
@@ -507,6 +630,11 @@
 	[self bindCode:@"createView" code:createViewString];
 	[self bindFunction:@"_SETLOC" method:@selector(setLocation:token:)];
 	[self bindFunction:@"_SETMAP" method:@selector(setMapType:token:)];
+	[self bindFunction:@"_ADDANN" method:@selector(addAnnotation:token:)];
+	[self bindFunction:@"_REMANN" method:@selector(removeAnnotation:token:)];
+	[self bindFunction:@"_SELANN" method:@selector(selectAnnotation:token:)];
+	[self bindFunction:@"_DSELANN" method:@selector(deselectAnnotation:token:)];
+	[self bindFunction:@"_ZMN" method:@selector(zoom:token:)];
 }
 
 /**
@@ -534,6 +662,23 @@
  *
  * @tiapi(method=True,name=Map.MapView.removeEventListener,version=0.8) remove event listener
  * @tiarg(for=Map.MapView.addEventListener,type=function,name=listener) function
+ *
+ * @tiapi(method=True,name=Map.MapView.addAnnotation,version=0.8) add an annotation
+ * @tiarg(for=Map.MapView.addAnnotation,type=object,name=details) properties of annotation
+ *
+ * @tiapi(method=True,name=Map.MapView.removeAnnotation,version=0.8) add an annotation
+ * @tiarg(for=Map.MapView.removeAnnotation,type=string,name=title) annotation title string
+ *
+ * @tiapi(method=True,name=Map.MapView.selectAnnotation,version=0.8) select an annotation
+ * @tiarg(for=Map.MapView.selectAnnotation,type=string,name=title) annotation title string
+ * @tiarg(for=Map.MapView.selectAnnotation,type=boolean,name=animated) animated (default to true)
+ *
+ * @tiapi(method=True,name=Map.MapView.deselectAnnotation,version=0.8) deselect an annotation
+ * @tiarg(for=Map.MapView.deselectAnnotation,type=string,name=title) annotation title string
+ * @tiarg(for=Map.MapView.deselectAnnotation,type=boolean,name=animated) animated (default to true)
+ *
+ * @tiapi(method=True,name=Map.MapView.zoom,version=0.8) zoom in or out the view
+ * @tiarg(for=Map.MapView.zoom,type=double,name=value) double value that specifies level to zoom (negative is out, positive is in)
  *
  */
 
