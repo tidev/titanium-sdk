@@ -16,7 +16,7 @@ modules = [	'api',
 		'filesystem',
 		'network',
 		'platform',
-      'analytics',
+      		'analytics',
 		'gesture',
 		'notification',
 		'facebook',
@@ -52,6 +52,7 @@ sys.path.append(iphone_dir)
 
 import run,prereq
 
+quick_build = ARGUMENTS.get('BUILD_TYPE',0) == 'iphone'
 
 def build(name):
     # execute the phone and simulator release builds
@@ -66,17 +67,22 @@ def build(name):
     # build the merged library using lipo
     os.system("lipo build/%s-iphonesimulator/lib%s.a build/%s-iphoneos/lib%s.a -create -output build/lib%s-%s.a" %(config,name,config,name,name,apiversion))
 
-
-for apiversion in prereq.get_sdks():
-    # execute the phone and simulator release builds
-
+def forversion():
     build('Titanium')
-
     # build each of the modules
     for module in modules:
-        module_name = module[0:1].capitalize()+module[1:]
-        if len(module)==2:
-            module_name = module.upper()
-        build(module_name)
+    	module_name = module[0:1].capitalize()+module[1:]
+      	if len(module)==2:
+        	module_name = module.upper()
+      	build(module_name)
+
+
+if quick_build:
+	apiversion = '3.0'
+	forversion()
+else:
+	for apiversion in prereq.get_sdks():
+		forversion()
+
 	
     

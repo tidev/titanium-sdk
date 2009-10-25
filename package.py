@@ -48,7 +48,8 @@ def zip_it(dist_dir,osname,version):
 	 
 	 
 	 android_jar = os.path.join(cur_dir,'android','titanium','bin','titanium.jar')
-	 zf.write(android_jar,'%s/android/titanium.jar' % basepath)
+	 if os.path.exists(android_jar):
+	 	zf.write(android_jar,'%s/android/titanium.jar' % basepath)
 	 
 	 if osname == "osx":
 		  sys.path.append(iphone_dir)

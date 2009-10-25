@@ -33,51 +33,6 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 	return YES;
 }
 
-NSDictionary * barButtonSystemItemForStringDict = nil;
-
-int barButtonSystemItemForString(NSString * inputString){
-	if (barButtonSystemItemForStringDict == nil) {
-		barButtonSystemItemForStringDict = [[NSDictionary alloc] initWithObjectsAndKeys:
-				[NSNumber numberWithInt:UIBarButtonSystemItemAction],@"action",
-				[NSNumber numberWithInt:UIBarButtonSystemItemBookmarks],@"bookmarks",
-				[NSNumber numberWithInt:UIBarButtonSystemItemCamera],@"camera",
-				[NSNumber numberWithInt:UIBarButtonSystemItemCompose],@"compose",
-				[NSNumber numberWithInt:UIBarButtonSystemItemDone],@"done",
-				[NSNumber numberWithInt:UIBarButtonSystemItemCancel],@"cancel",
-				[NSNumber numberWithInt:UIBarButtonSystemItemEdit],@"edit",
-				[NSNumber numberWithInt:UIBarButtonSystemItemSave],@"save",
-				[NSNumber numberWithInt:UIBarButtonSystemItemAdd],@"add",
-				[NSNumber numberWithInt:UIBarButtonSystemItemFlexibleSpace],@"flexiblespace",
-				[NSNumber numberWithInt:UIBarButtonSystemItemFixedSpace],@"fixedspace",
-				[NSNumber numberWithInt:UIBarButtonSystemItemReply],@"reply",
-				[NSNumber numberWithInt:UIBarButtonSystemItemOrganize],@"organize",
-				[NSNumber numberWithInt:UIBarButtonSystemItemSearch],@"search",
-				[NSNumber numberWithInt:UIBarButtonSystemItemRefresh],@"refresh",
-				[NSNumber numberWithInt:UIBarButtonSystemItemStop],@"stop",
-				[NSNumber numberWithInt:UIBarButtonSystemItemTrash],@"trash",
-				[NSNumber numberWithInt:UIBarButtonSystemItemPlay],@"play",
-				[NSNumber numberWithInt:UIBarButtonSystemItemPause],@"pause",
-				[NSNumber numberWithInt:UIBarButtonSystemItemRewind],@"rewind",
-				[NSNumber numberWithInt:UIBarButtonSystemItemFastForward],@"fastforward",
-				[NSNumber numberWithInt:UITitaniumNativeItemSpinner],@"activity",
-				[NSNumber numberWithInt:UITitaniumNativeItemSlider],@"slider",
-				[NSNumber numberWithInt:UITitaniumNativeItemSwitch],@"switch",
-				[NSNumber numberWithInt:UITitaniumNativeItemPicker],@"picker",
-				[NSNumber numberWithInt:UITitaniumNativeItemDatePicker],@"datepicker",
-				[NSNumber numberWithInt:UITitaniumNativeItemTextField],@"text",
-				[NSNumber numberWithInt:UITitaniumNativeItemTextView],@"textarea",
-				[NSNumber numberWithInt:UITitaniumNativeItemSearchBar],@"search",
-				[NSNumber numberWithInt:UITitaniumNativeItemMultiButton],@"multibutton",
-				[NSNumber numberWithInt:UITitaniumNativeItemSegmented],@"segmented",
-				[NSNumber numberWithInt:UITitaniumNativeItemInfoLight],@"infolight",
-				[NSNumber numberWithInt:UITitaniumNativeItemInfoDark],@"infodark",
-				[NSNumber numberWithInt:UITitaniumNativeItemProgressBar],@"progressbar",
-				nil];
-	}
-	NSNumber * result = [barButtonSystemItemForStringDict objectForKey:[inputString lowercaseString]];
-	if (result != nil) return [result intValue];
-	return UITitaniumNativeItemNone;
-}
 
 @interface PickerColumnWrapper : NSObject
 {
@@ -1221,7 +1176,7 @@ needsRefreshing = YES;	\
 NSString * const systemButtonString = @"{ACTION:'action',ACTIVITY:'activity',CAMERA:'camera',COMPOSE:'compose',BOOKMARKS:'bookmarks',"
 	"SEARCH:'search',ADD:'add',TRASH:'trash',ORGANIZE:'organize',REPLY:'reply',STOP:'stop',REFRESH:'refresh',"
 	"PLAY:'play',FAST_FORWARD:'fastforward',PAUSE:'pause',REWIND:'rewind',EDIT:'edit',CANCEL:'cancel',"
-	"SAVE:'save',DONE:'done',FLEXIBLE_SPACE:'flexiblespace',FIXED_SPACE:'fixedspace',INFO_LIGHT:'infolight',INFO_DARK:'infodark'}";
+	"SAVE:'save',DONE:'done',FLEXIBLE_SPACE:'flexiblespace',FIXED_SPACE:'fixedspace',INFO_LIGHT:'infolight',INFO_DARK:'infodark',DISCLOSURE:'disclosure'}";
 
 
 NSString * const createButtonString = @"function(args,btnType){var res={"
