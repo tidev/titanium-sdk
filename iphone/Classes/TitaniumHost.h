@@ -214,4 +214,33 @@ typedef enum {
 
 extern BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view);
 
+int barButtonSystemItemForString(NSString * inputString);
+
+enum {
+	UITitaniumNativeStyleBar = -32,
+	UITitaniumNativeStyleBig = -33,
+	UITitaniumNativeStyleDark = -34,
+};
+
+enum { //MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemItem
+	UITitaniumNativeItemNone = -1, //Also is a bog-standard button.
+	UITitaniumNativeItemSpinner = -2,
+	UITitaniumNativeItemProgressBar = -3,
+	
+	UITitaniumNativeItemSlider = -4,
+	UITitaniumNativeItemSwitch = -5,
+	UITitaniumNativeItemMultiButton = -6,
+	UITitaniumNativeItemSegmented = -7,
+	
+	UITitaniumNativeItemTextView = -8,
+	UITitaniumNativeItemTextField = -9,
+	UITitaniumNativeItemSearchBar = -10,
+	
+	UITitaniumNativeItemPicker = -11,
+	UITitaniumNativeItemDatePicker = -12,
+	
+	UITitaniumNativeItemInfoLight = -13,
+	UITitaniumNativeItemInfoDark = -14,
+};
+
 @end

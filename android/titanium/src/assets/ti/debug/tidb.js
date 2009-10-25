@@ -158,8 +158,31 @@ Titanium.Database = {
 	 * @tiresult[Database.DB] a database object, used to interact with the database.
 	 */
 	open: function(name) {
-		db = new DB(Titanium.databaseProxy.open(name));
+		var db = new DB(Titanium.databaseProxy.open(name));
 		throwIfException(Titanium.databaseProxy.getLastException());
+		return db;
+	},
+	/**
+	 * @tiapi(method=True,name=Database.install,since=0.8) Install and opens a database
+	 * @tiarg[string,name] Path to existing sqlite database file.
+	 * @tiarg[string,name] Name of the database. On Android it must not contain path elements.
+	 * @tiresult[Database.DB] a database object, used to interact with the database.
+	 */
+	install: function(path,name) {
+		var db = null;
+
+		if (!isUndefined(path)) {
+			var p = path;
+			if (!isUndefined(path.toURL)) {
+				p = path.toURL();
+			} else if (path.indexOf("/") == 0) {
+				p = "file://" + path;
+			} else {
+				p = "app://" + path;
+			}
+			db = new DB(Titanium.databaseProxy.install(p,name));
+			throwIfException(Titanium.databaseProxy.getLastException());
+		}
 		return db;
 	}
 };

@@ -15,6 +15,8 @@
 	BOOL animate;
 	MKPinAnnotationColor pincolor;
 	CLLocationCoordinate2D coordinate;
+	NSString *leftButton;
+	NSString *rightButton;
 }
 -(id)init:(CLLocationCoordinate2D)coord;
 @property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
@@ -22,11 +24,14 @@
 @property (nonatomic) MKPinAnnotationColor pincolor;
 @property (nonatomic,retain) NSString* title;
 @property (nonatomic,retain) NSString* subtitle;
+@property (nonatomic,retain) NSString* leftButton;
+@property (nonatomic,retain) NSString* rightButton;
 @end
 
 @implementation MapViewAnnotation
 
 @synthesize animate,pincolor,coordinate,title,subtitle;
+@synthesize leftButton,rightButton;
 
 -(id)init:(CLLocationCoordinate2D)coord
 {
@@ -40,6 +45,8 @@
 {
 	[title release];
 	[subtitle release];
+	[leftButton release];
+	[rightButton release];
 	[super dealloc];
 }
 @end
@@ -84,7 +91,6 @@
 
 -(void)setMapType:(NSNumber*)type
 {
-	//view.mapType = MKMapTypeStandard;
 	view.mapType = [type unsignedIntegerValue];
 }
 
@@ -165,6 +171,8 @@
 		userLocation = [ul boolValue];
 	}
 	
+	TitaniumHost *tiHost = [TitaniumHost sharedHost];
+	
 	id ant = [dict objectForKey:@"annotations"];
 	if ([ant isKindOfClass:[NSArray class]])
 	{
@@ -177,22 +185,31 @@
 			l.latitude = [[value objectForKey:@"latitude"] doubleValue];
 			l.longitude = [[value objectForKey:@"longitude"] doubleValue];
 			MapViewAnnotation * loc = [[MapViewAnnotation alloc] init:l];
-			loc.title = [value objectForKey:@"title"];
-			loc.subtitle = [value objectForKey:@"subtitle"];
 			loc.pincolor = [[value objectForKey:@"pincolor"] unsignedIntegerValue];
 			loc.animate = [[value objectForKey:@"animate"] boolValue];
+			loc.title = [value objectForKey:@"title"];
+			loc.subtitle = [value objectForKey:@"subtitle"];
+			id li = [value objectForKey:@"leftButton"];
+			if (li)
+			{
+				loc.leftButton=(NSString*)li;
+			}
+			id ri = [value objectForKey:@"rightButton"];
+			if (ri)
+			{
+				loc.rightButton=(NSString*)ri;
+			}
 			[annotations addObject:loc];
 			[loc release];
 		}
 	}
 	
-	MapModule * mod = (MapModule *) [[TitaniumHost sharedHost] moduleNamed:@"MapModule"];
+	MapModule * mod = (MapModule *) [tiHost moduleNamed:@"MapModule"];
 	token = [(NSString*)[dict objectForKey:@"_TOKEN"] retain];
 	[mod registerView:self forToken:token];
 	
 	pageToken = [[[TitaniumHost sharedHost] currentThread] magicToken];
 	region.center = coord;
-	
 	region.span = span;
 }
 
@@ -218,6 +235,9 @@
 		view.mapType = mapType;
 		view.showsUserLocation=YES;
 		view.delegate = self;
+		view.userInteractionEnabled = YES;
+		
+		
 		[view setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		
 		if (annotations && [annotations count]>0)
@@ -248,20 +268,68 @@
                        context:(void *)context
 {
 	NSString *action = (NSString*)context;
+	
+//	NSLog(@"[INFO] object key value = %@ for %@",keyPath,object);
+	
 	if([action isEqualToString:@"ANSELECTED"])
 	{
-		BOOL flag = [[change valueForKey:@"new"] boolValue];
+		//BOOL flag = [[change valueForKey:@"new"] boolValue];
 		if ([object isKindOfClass:[MKPinAnnotationView class]])
 		{
 			MKPinAnnotationView *pinview = (MKPinAnnotationView*)object;
 			NSString *title = [[pinview reuseIdentifier] stringByReplacingOccurrencesOfString:@"'" withString:@"\\'"];
 			TitaniumHost * theHost = [TitaniumHost sharedHost];
 			NSString * pathString = [self javaScriptPath];
-			NSString * commandString = [NSString stringWithFormat:@"%@.onClick('click',{type:'click',title:'%@','new':%d});",pathString,title,flag];	
+			NSString * commandString = [NSString stringWithFormat:@"%@.onEvent('click',{source:'annotation',type:'click',title:'%@'});",pathString,title];	
 			[theHost sendJavascript:commandString toPagesWithTokens:listeningWebContextTokens update:YES];
 			
 		}
 	}
+}
+
+- (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)aview calloutAccessoryControlTapped:(UIControl *)control
+{
+	if ([control isKindOfClass:[UIButton class]])
+	{
+		if (aview.leftCalloutAccessoryView == control)
+		{
+			NSString *title = [[aview reuseIdentifier] stringByReplacingOccurrencesOfString:@"'" withString:@"\\'"];
+			TitaniumHost * theHost = [TitaniumHost sharedHost];
+			NSString * pathString = [self javaScriptPath];
+			NSString * commandString = [NSString stringWithFormat:@"%@.onEvent('click',{source:'leftButton',type:'click',title:'%@'});",pathString,title];	
+			[theHost sendJavascript:commandString toPagesWithTokens:listeningWebContextTokens update:YES];
+		}
+		else if (aview.rightCalloutAccessoryView == control)
+		{
+			NSString *title = [[aview reuseIdentifier] stringByReplacingOccurrencesOfString:@"'" withString:@"\\'"];
+			TitaniumHost * theHost = [TitaniumHost sharedHost];
+			NSString * pathString = [self javaScriptPath];
+			NSString * commandString = [NSString stringWithFormat:@"%@.onEvent('click',{source:'rightButton',type:'click',title:'%@'});",pathString,title];	
+			[theHost sendJavascript:commandString toPagesWithTokens:listeningWebContextTokens update:YES];
+		}
+		else
+		{
+			NSLog(@"[INFO] clicked on center button");
+		}
+	}
+}
+
+-(UIButton*)makeButton:(NSString*)url
+{
+	int type = barButtonSystemItemForString(url);
+	if (type == UITitaniumNativeItemNone)
+	{
+		TitaniumHost * theHost = [TitaniumHost sharedHost];
+		UIImage *image = [theHost imageForResource:url];
+		CGSize size = [image size];
+		UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+		button.frame = CGRectMake(0,0,size.width,size.height);
+		button.backgroundColor = [UIColor clearColor];
+		[button setImage:image forState:UIControlStateNormal];
+		[image autorelease];
+		return button;
+	}
+	return [UIButton buttonWithType:type];
 }
 
 - (MKAnnotationView *) mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>) annotation
@@ -269,19 +337,83 @@
 	if ([annotation isKindOfClass:[MapViewAnnotation class]])
 	{
 		MapViewAnnotation *ann = (MapViewAnnotation*)annotation;
-		MKPinAnnotationView *annView=[[MKPinAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:[ann title]];
-		annView.pinColor = [ann pincolor];
-		annView.animatesDrop = [ann animate];
-		annView.canShowCallout = YES;
-		annView.calloutOffset = CGPointMake(-5, 5);
-		[annView addObserver:self
-				  forKeyPath:@"selected"
-					 options:NSKeyValueObservingOptionNew
-					 context:@"ANSELECTED"];
+		MKPinAnnotationView *annView =(MKPinAnnotationView*) [mapView dequeueReusableAnnotationViewWithIdentifier:[ann title]];
+		if (annView==nil)
+		{
+			annView=[[MKPinAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:[ann title]];
+			annView.pinColor = [ann pincolor];
+			annView.animatesDrop = [ann animate];
+			annView.canShowCallout = YES;
+			annView.calloutOffset = CGPointMake(-5, 5);
+			annView.enabled = YES;
+			if (ann.leftButton)
+			{
+				annView.leftCalloutAccessoryView = [self makeButton:ann.leftButton];
+			}
+			if (ann.rightButton)
+			{
+				annView.rightCalloutAccessoryView = [self makeButton:ann.rightButton];
+			}
+			annView.userInteractionEnabled = YES;
+			[annView addObserver:self
+					  forKeyPath:@"selected"
+						 options:NSKeyValueObservingOptionNew
+						 context:@"ANSELECTED"];
+		}				
+
 		return annView;
 	}
 	return nil;
 }
+
+/*
+- (void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views
+{
+	NSLog(@"[INFO] MapKit annotation view added");
+}*/
+
+- (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
+{
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	NSString * pathString = [self javaScriptPath];
+	MKCoordinateRegion aregion = [mapView region];
+	NSDictionary * props = [NSDictionary dictionaryWithObjectsAndKeys:
+							@"regionChanged",@"type",
+							[NSNumber numberWithDouble:aregion.center.latitude],@"latitude",
+							[NSNumber numberWithDouble:aregion.center.longitude],@"longitude",
+							[NSNumber numberWithDouble:aregion.span.latitudeDelta],@"latitudeDelta",
+							[NSNumber numberWithDouble:aregion.span.longitudeDelta],@"longitudeDelta",nil];
+
+	SBJSON *json = [[[SBJSON alloc] init] autorelease];
+	NSString * commandString = [NSString stringWithFormat:@"%@.onEvent('regionChanged',%@);",pathString,[json stringWithObject:props error:nil]];	
+	[theHost sendJavascript:commandString toPagesWithTokens:listeningWebContextTokens update:YES];
+}
+
+/*
+- (void)mapViewWillStartLoadingMap:(MKMapView *)mapView
+{
+	NSLog(@"[INFO] MapKit load map started");
+}*/
+
+- (void)mapViewDidFailLoadingMap:(MKMapView *)mapView withError:(NSError *)error
+{
+	NSLog(@"[ERROR] MapKit load map failed = %@",[error description]);
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	NSString * pathString = [self javaScriptPath];
+	NSDictionary * props = [NSDictionary dictionaryWithObjectsAndKeys:
+							@"error",@"type",
+							[error description],@"message",nil];
+	
+	SBJSON *json = [[[SBJSON alloc] init] autorelease];
+	NSString * commandString = [NSString stringWithFormat:@"%@.onEvent('error',%@);",pathString,[json stringWithObject:props error:nil]];	
+	[theHost sendJavascript:commandString toPagesWithTokens:listeningWebContextTokens update:YES];
+}
+
+/*
+- (void)mapViewDidFinishLoadingMap:(MKMapView *)mapView
+{
+	NSLog(@"[INFO] MapKit load map finished");
+}*/
 
 - (void)reverseGeocoder:(MKReverseGeocoder *)geocoder didFailWithError:(NSError *)error{
 }
@@ -356,9 +488,13 @@
 	}
 }
 
+-(void)addAnnotation:(NSDictionary*)dict
+{
+}
+
 -(void) configure
 {
-	NSString * createViewString = @"function(args){var res=Ti.UI.createView(args);res._TYPE='map'; if(!Ti.Map._VIEWS){Ti.Map._VIEWS={};} Ti.Map._VIEWS[res._TOKEN]=res; res.onClick=Ti._ONEVT; res._EVT = {click:[]}; res.addEventListener=Ti._ADDEVT; res.removeEventListener = Ti._REMEVT; res.setLocation=function(obj){Ti.Map._SETLOC(obj,res._TOKEN);}; res.setMapType=function(type){Ti.Map._SETMAP(type,res._TOKEN);}; return res;}";
+	NSString * createViewString = @"function(args){var res=Ti.UI.createView(args);res._TYPE='map'; if(!Ti.Map._VIEWS){Ti.Map._VIEWS={};} Ti.Map._VIEWS[res._TOKEN]=res; res.onEvent=Ti._ONEVT; res._EVT = {click:[]}; res.addEventListener=Ti._ADDEVT; res.removeEventListener = Ti._REMEVT; res.setLocation=function(obj){Ti.Map._SETLOC(obj,res._TOKEN);}; res.setMapType=function(type){Ti.Map._SETMAP(type,res._TOKEN);}; return res;}";
 	
 	[self registerContentViewController:[MapViewController class] forToken:@"map"];
 	[self bindProperty:@"STANDARD_TYPE" value:[NSNumber numberWithUnsignedInteger:MKMapTypeStandard]];

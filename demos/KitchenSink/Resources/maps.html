@@ -13,33 +13,50 @@
 				{
 					latitude:37.337681, 
 					longitude:-122.038193,
-					title:"Appcelerator's cool",
-					subtitle:'Mountain View',
+					title:"Appcelerator Headquarters",
+					subtitle:'Mountain View, CA',
 					pincolor:Titanium.Map.ANNOTATION_PURPLE,
-					animate:false
+					animate:true,
+					leftButton: 'appcelerator_small.png'
 				},
 				{
 					latitude:37.33168900, 
 					longitude:-122.03073100,
 					title:"Apple, Inc.",
-					subtitle:'Cupertino',
+					subtitle:'Cupertino, CA',
 					pincolor:Titanium.Map.ANNOTATION_BLUE,
-					animate:true
+					animate:true,
+					rightButton: 'apple_logo.jpg'
 				},
 				{
 					latitude:33.74511, 
 					longitude:-84.38993,
-					title:"Atlanta",
-					subtitle:'Georgia',
+					title:"Atlanta, GA",
+					subtitle:'Atlanta Braves Stadium',
 					pincolor:Titanium.Map.ANNOTATION_RED,
-					animate:true
+					animate:true,
+					leftButton:'atlanta.jpg',
+					rightButton:Titanium.UI.iPhone.SystemButton.DISCLOSURE
 				}
 			]
 		});
 		
 		mapview.addEventListener('click',function(evt)
 		{
-			Ti.API.info('you clicked on '+evt.title);
+			Ti.API.info('you clicked on '+evt.title+' with click source = '+evt.source);
+
+			if (evt.title == 'Atlanta, GA' && evt.source == 'rightButton')
+			{
+				var w = Titanium.UI.createWindow({
+					url:'credits.html'
+				});
+				w.open({animated:true});
+			}
+		});
+		
+		mapview.addEventListener('regionChanged',function(evt)
+		{
+			Ti.API.info('maps region has updated to '+evt.longitude+','+evt.latitude);
 		});
 		
 		Titanium.UI.currentWindow.addView(mapview);
