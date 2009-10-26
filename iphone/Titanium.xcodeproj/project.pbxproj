@@ -326,8 +326,12 @@
 		B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
 		B4A49BA30FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
 		B4A49BBC0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */; };
-		B4A4A104109123680021CC46 /* AddressModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A4A103109123680021CC46 /* AddressModule.m */; };
-		B4A4A105109123680021CC46 /* AddressModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A4A103109123680021CC46 /* AddressModule.m */; };
+		B4A4CFE01092807700A7C9A2 /* ContactsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A4CFDF1092807700A7C9A2 /* ContactsModule.m */; };
+		B4A4CFE11092807700A7C9A2 /* ContactsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A4CFDF1092807700A7C9A2 /* ContactsModule.m */; };
+		B4A4D012109281FE00A7C9A2 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A4D010109281FE00A7C9A2 /* AddressBook.framework */; };
+		B4A4D013109281FE00A7C9A2 /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A4D011109281FE00A7C9A2 /* AddressBookUI.framework */; };
+		B4A4D014109281FE00A7C9A2 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A4D010109281FE00A7C9A2 /* AddressBook.framework */; };
+		B4A4D015109281FE00A7C9A2 /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A4D011109281FE00A7C9A2 /* AddressBookUI.framework */; };
 		B4A6D3B3103C9EFD00131CD4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
 		B4A6D3B4103C9EFD00131CD4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
 		B4AA86FE105ED1DF00D29939 /* nointernet.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AA86F3105ED1DF00D29939 /* nointernet.html */; };
@@ -587,8 +591,10 @@
 		B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		B4A49BB80FCE08DA0049ED60 /* TitaniumBlobWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumBlobWrapper.h; sourceTree = "<group>"; };
 		B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumBlobWrapper.m; sourceTree = "<group>"; };
-		B4A4A102109123680021CC46 /* AddressModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddressModule.h; sourceTree = "<group>"; };
-		B4A4A103109123680021CC46 /* AddressModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddressModule.m; sourceTree = "<group>"; };
+		B4A4CFDE1092807700A7C9A2 /* ContactsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactsModule.h; sourceTree = "<group>"; };
+		B4A4CFDF1092807700A7C9A2 /* ContactsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactsModule.m; sourceTree = "<group>"; };
+		B4A4D010109281FE00A7C9A2 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
+		B4A4D011109281FE00A7C9A2 /* AddressBookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBookUI.framework; path = System/Library/Frameworks/AddressBookUI.framework; sourceTree = SDKROOT; };
 		B4A6D3AF103C9EFD00131CD4 /* NativeControlProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeControlProxy.h; sourceTree = "<group>"; };
 		B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NativeControlProxy.m; sourceTree = "<group>"; };
 		B4AA86F3105ED1DF00D29939 /* nointernet.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = nointernet.html; path = ../../spaz/Resources/nointernet.html; sourceTree = SOURCE_ROOT; };
@@ -667,6 +673,8 @@
 				B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */,
 				B4F37E181061AB5D00ED12AF /* QuartzCore.framework in Frameworks */,
 				B49B21E7107A868900836F35 /* MessageUI.framework in Frameworks */,
+				B4A4D012109281FE00A7C9A2 /* AddressBook.framework in Frameworks */,
+				B4A4D013109281FE00A7C9A2 /* AddressBookUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -808,6 +816,8 @@
 				B47A27191035F040002146CD /* MediaPlayer.framework in Frameworks */,
 				B47A271A1035F040002146CD /* MessageUI.framework in Frameworks */,
 				B4F37E171061AB5D00ED12AF /* QuartzCore.framework in Frameworks */,
+				B4A4D014109281FE00A7C9A2 /* AddressBook.framework in Frameworks */,
+				B4A4D015109281FE00A7C9A2 /* AddressBookUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -880,7 +890,7 @@
 		2444F8060FC9FCA400063972 /* modules */ = {
 			isa = PBXGroup;
 			children = (
-				B4A4A101109123680021CC46 /* AddressModule */,
+				B4A4CFDD1092807700A7C9A2 /* ContactsModule */,
 				247DCBCF107C834F009CD0D1 /* YahooModule */,
 				24FD237B106F17E4004D4127 /* FacebookModule */,
 				B4F37DDA1061911100ED12AF /* NotificationModule */,
@@ -1123,6 +1133,8 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B4A4D010109281FE00A7C9A2 /* AddressBook.framework */,
+				B4A4D011109281FE00A7C9A2 /* AddressBookUI.framework */,
 				B4F37E151061AB5D00ED12AF /* QuartzCore.framework */,
 				B4250689100C0A4B00AD6A6B /* MessageUI.framework */,
 				B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */,
@@ -1201,13 +1213,13 @@
 			name = "Spaz Resources";
 			sourceTree = "<group>";
 		};
-		B4A4A101109123680021CC46 /* AddressModule */ = {
+		B4A4CFDD1092807700A7C9A2 /* ContactsModule */ = {
 			isa = PBXGroup;
 			children = (
-				B4A4A102109123680021CC46 /* AddressModule.h */,
-				B4A4A103109123680021CC46 /* AddressModule.m */,
+				B4A4CFDE1092807700A7C9A2 /* ContactsModule.h */,
+				B4A4CFDF1092807700A7C9A2 /* ContactsModule.m */,
 			);
-			path = AddressModule;
+			path = ContactsModule;
 			sourceTree = "<group>";
 		};
 		B4C6D7560FE9B34D00D62384 /* TitaniumViewControllers */ = {
@@ -1999,7 +2011,7 @@
 				B49029F710728493009678FC /* FBLoginButton.m in Sources */,
 				B43543651076995400A38EC9 /* TitaniumJSEvent.m in Sources */,
 				247DCBD2107C8366009CD0D1 /* YahooModule.m in Sources */,
-				B4A4A104109123680021CC46 /* AddressModule.m in Sources */,
+				B4A4CFE01092807700A7C9A2 /* ContactsModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2237,7 +2249,7 @@
 				B4F37DDF1061913E00ED12AF /* NotificationModule.m in Sources */,
 				B49358DD106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */,
 				B43543641076995400A38EC9 /* TitaniumJSEvent.m in Sources */,
-				B4A4A105109123680021CC46 /* AddressModule.m in Sources */,
+				B4A4CFE11092807700A7C9A2 /* ContactsModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,7 +7,7 @@
 #import <Foundation/Foundation.h>
 #import "TitaniumModule.h"
 
-@interface AddressModule : NSObject<TitaniumModule> {
+@interface ContactsModule : NSObject<TitaniumModule> {
 
 }
 
