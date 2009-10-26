@@ -11,11 +11,11 @@
 			userLocation:false,
 			annotations:[
 				{
-					latitude:37.337681, 
-					longitude:-122.038193,
+					latitude:37.390749, 
+					longitude:-122.081651,
 					title:"Appcelerator Headquarters",
 					subtitle:'Mountain View, CA',
-					pincolor:Titanium.Map.ANNOTATION_PURPLE,
+					pincolor:Titanium.Map.ANNOTATION_RED,
 					animate:true,
 					leftButton: 'appcelerator_small.png'
 				},
@@ -24,7 +24,7 @@
 					longitude:-122.03073100,
 					title:"Apple, Inc.",
 					subtitle:'Cupertino, CA',
-					pincolor:Titanium.Map.ANNOTATION_BLUE,
+					pincolor:Titanium.Map.ANNOTATION_GREEN,
 					animate:true,
 					rightButton: 'apple_logo.jpg'
 				},
@@ -33,7 +33,7 @@
 					longitude:-84.38993,
 					title:"Atlanta, GA",
 					subtitle:'Atlanta Braves Stadium',
-					pincolor:Titanium.Map.ANNOTATION_RED,
+					pincolor:Titanium.Map.ANNOTATION_PURPLE,
 					animate:true,
 					leftButton:'atlanta.jpg',
 					rightButton:Titanium.UI.iPhone.SystemButton.DISCLOSURE
@@ -109,7 +109,34 @@
 			mapview.setLocation({latitude:37.337681,longitude:-122.038193,animate:true,latitudeDelta:0.04, longitudeDelta:0.04});
 		});
 
-		Titanium.UI.currentWindow.setToolbar([std,hyb,sat,flexSpace,atl,sv]);
+		var zoomin = Titanium.UI.createButton({
+			title:'+',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		});
+		zoomin.addEventListener('click',function()
+		{
+			mapview.zoom(1);
+		});
+		var zoomout = Titanium.UI.createButton({
+			title:'-',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		});
+		zoomout.addEventListener('click',function()
+		{
+			mapview.zoom(-1);
+		});
+		
+		/*
+		Titanium.Geolocation.reverseGeocoder(37.390749,-122.081651,function(evt)
+		{
+			
+		});
+		Titanium.Geolocation.forwardGeocoder("444 Castro Street, Mountain View, CA 94041",function(evt)
+		{
+			
+		});*/
+
+		Titanium.UI.currentWindow.setToolbar([std,hyb,sat,flexSpace,zoomin,zoomout,flexSpace,atl,sv]);
 	};
 	</script>
 </head>
