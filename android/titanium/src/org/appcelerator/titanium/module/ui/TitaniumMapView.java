@@ -12,12 +12,9 @@ import org.appcelerator.titanium.api.ITitaniumMapView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.android.maps.MapView;
-
 import android.os.Message;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.FrameLayout.LayoutParams;
 
 public class TitaniumMapView extends TitaniumBaseView
 	implements ITitaniumMapView
@@ -30,7 +27,7 @@ public class TitaniumMapView extends TitaniumBaseView
 	private static final int MSG_SET_REGION = 301;
 	private static final int MSG_SET_TYPE = 302;
 
-	private MapView view;
+	//private MapView view;
 	private int type;
 	private boolean zoomEnabled;
 	private boolean scrollEnabled;
@@ -95,12 +92,12 @@ public class TitaniumMapView extends TitaniumBaseView
 		setLayoutParams(params);
 
 		String apiKey = tmm.getApplication().getAppInfo().getSystemProperties().getString(API_KEY, null);
-		view = new MapView(getContext(), apiKey);
+		//view = new MapView(getContext(), apiKey);
 	}
 
 	@Override
 	protected View getContentView() {
-		return view;
+		return null;
 	}
 
 	public void setCenterCoordinate(String json) {
@@ -126,6 +123,7 @@ public class TitaniumMapView extends TitaniumBaseView
 	}
 
 	public void doSetType(int type) {
+		/*
 		if (view != null) {
 			switch(type) {
 			case MAP_VIEW_STANDARD :
@@ -134,5 +132,6 @@ public class TitaniumMapView extends TitaniumBaseView
 				view.setStreetView(false);
 			}
 		}
+		*/
 	}
 }
