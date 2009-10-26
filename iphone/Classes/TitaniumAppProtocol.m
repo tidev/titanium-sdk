@@ -208,8 +208,10 @@ id<TitaniumAppAssetResolver> resolver = nil;
 					data = [NSData data];
 				}
 				break;
-			case TitaniumAppResourceDoMethodType:
-				dataString = [theHost doTitaniumMethod:url withArgumentBody:[request HTTPBody]];
+			case TitaniumAppResourceDoMethodType:{
+				NSString * argumentString = [[request allHTTPHeaderFields] objectForKey:@"Arguments"];
+//				NSString * argumentString = [NSString stringWithFormat:@"%@",[[url query] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+				dataString = [theHost doTitaniumMethod:url withArgumentString:argumentString];
 				if (dataString != nil) {
 					data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
 				} else {
@@ -217,7 +219,7 @@ id<TitaniumAppAssetResolver> resolver = nil;
 				}
 				mime = textMimeType;
 				caching = NSURLCacheStorageNotAllowed;
-				break;
+				break;}
 			case TitaniumAppResourceCommandType:
 			case TitaniumAppResourceContinueType:
 				dataString = [theHost performFunction:url];

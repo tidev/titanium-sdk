@@ -5,7 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "AddressModule.h"
+#import "ContactsModule.h"
+
+#import <AddressBook/AddressBook.h>
+#import <AddressBookUI/AddressBookUI.h>
 
 @interface TemplateProxy : TitaniumProxyObject
 {
@@ -29,7 +32,7 @@
 
 @end
 
-@implementation AddressModule
+@implementation ContactsModule
 
 - (id) helloWorld: (NSArray *)args;
 {
@@ -49,9 +52,30 @@
 	NSDictionary * moduleDict = [NSDictionary dictionaryWithObjectsAndKeys:
 //			@"",@"",
 //			closeWinInvoc,@"_CLS",
-			[TitaniumJSCode codeWithString:@"function(foo,bar){return Ti._TIDO('address','helloWorld',[foo,bar]);}"],@"addressBookThingy",
+
+// Object is hash array. 
+
+
+//			,@"FIRST_NAME"
+//			,@"LAST_NAME"
+//			,@"MIDDLE_NAME",
+//			,@"PREFIX",
+//			,@"SUFFIX",
+//			,@"NICKNAME",
+//			,@"FIRST_NAME_PHONETIC",
+//			,@"LAST_NAME_PHONETIC",
+//			,@"MIDDLE_NAME_PHONETIC",
+//			,@"ORGANIZATION",
+//			,@"JOB_TITLE",
+//			,@"DEPARTMENT",
+//			,@"EMAIL",
+//			,@"BIRTHDAY",
+//			,@"NOTE",
+//			,@"CREATION_DATE",
+//			@"modificationDate",@"MODIFICATION_DATE",
+			[TitaniumJSCode codeWithString:@"function(foo,bar){return Ti._TIDO('contacts','helloWorld',[foo,bar]);}"],@"addressBookThingy",
 			nil];
-	[[TitaniumHost sharedHost] bindObject:moduleDict toKeyPath:@"UI"];
+	[[TitaniumHost sharedHost] bindObject:moduleDict toKeyPath:@"Contacts"];
 	
 	return YES;
 }
