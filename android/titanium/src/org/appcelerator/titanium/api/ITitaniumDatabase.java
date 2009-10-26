@@ -8,6 +8,9 @@
 package org.appcelerator.titanium.api;
 
 public interface ITitaniumDatabase {
+
+	public ITitaniumDB install(String pathOrUrl, String name);
+
 	public ITitaniumDB open(String name);
 
 	// Internal

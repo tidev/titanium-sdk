@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-#
-# Appcelerator Titanium Mobile
-# Copyright (c) 2009 Appcelerator, Inc. All Right Reserved.
+# -*- coding: utf-8 -*-
 #
 # Check the pre-requisites for Android development
 #

@@ -8,19 +8,21 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
+#import <MapKit/MapKit.h>
 
 #import "TitaniumModule.h"
 
-@interface GeolocationModule : NSObject<TitaniumModule,CLLocationManagerDelegate> {
+@interface GeolocationModule : NSObject<TitaniumModule,CLLocationManagerDelegate,MKReverseGeocoderDelegate> {
 	NSMutableDictionary * proxyDictionary;
 	CLLocationManager * locationManager;
 	int	watchEventsFired;
 	NSDate *lastEvent;
 	NSLock *proxyLock;
+	MKReverseGeocoder *geocoder;
+	NSString *geotoken;
 //	NSMutableDictionary * listeningPageTokens;
 //	id	previousDelegate;
 }
-
 -(void)transmitGeoEvent:(CLLocation*)location fromLocation:(CLLocation*)fromLocation;
 
 @end

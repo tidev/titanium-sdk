@@ -1,0 +1,145 @@
+<html>
+<head>
+	<script>
+	window.onload = function()
+	{
+		var mapview = Titanium.Map.createView({
+			mapType: Titanium.Map.HYBRID_TYPE,
+			region: {latitude:37.33168900, longitude:-122.03073100, latitudeDelta:0.2, longitudeDelta:0.2},
+			animate:false,
+			regionFit:false,
+			userLocation:false,
+			annotations:[
+				{
+					latitude:37.390749, 
+					longitude:-122.081651,
+					title:"Appcelerator Headquarters",
+					subtitle:'Mountain View, CA',
+					pincolor:Titanium.Map.ANNOTATION_RED,
+					animate:true,
+					leftButton: 'appcelerator_small.png'
+				},
+				{
+					latitude:37.33168900, 
+					longitude:-122.03073100,
+					title:"Apple, Inc.",
+					subtitle:'Cupertino, CA',
+					pincolor:Titanium.Map.ANNOTATION_GREEN,
+					animate:true,
+					rightButton: 'apple_logo.jpg'
+				},
+				{
+					latitude:33.74511, 
+					longitude:-84.38993,
+					title:"Atlanta, GA",
+					subtitle:'Atlanta Braves Stadium',
+					pincolor:Titanium.Map.ANNOTATION_PURPLE,
+					animate:true,
+					leftButton:'atlanta.jpg',
+					rightButton:Titanium.UI.iPhone.SystemButton.DISCLOSURE
+				}
+			]
+		});
+		
+		mapview.addEventListener('click',function(evt)
+		{
+			Ti.API.info('you clicked on '+evt.title+' with click source = '+evt.source);
+
+			if (evt.title == 'Atlanta, GA' && evt.source == 'rightButton')
+			{
+				var w = Titanium.UI.createWindow({
+					url:'credits.html'
+				});
+				w.open({animated:true});
+			}
+		});
+		
+		mapview.addEventListener('regionChanged',function(evt)
+		{
+			Ti.API.info('maps region has updated to '+evt.longitude+','+evt.latitude);
+		});
+		
+		Titanium.UI.currentWindow.addView(mapview);
+		Titanium.UI.currentWindow.showView(mapview);
+		
+		var flexSpace = Titanium.UI.createButton({
+			systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+		});
+
+		var sat = Titanium.UI.createButton({
+			title:'Sat',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		});
+		sat.addEventListener('click',function()
+		{
+			mapview.setMapType(Titanium.Map.SATELLITE_TYPE);
+		});
+		var std = Titanium.UI.createButton({
+			title:'Std',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		});
+		std.addEventListener('click',function()
+		{
+			mapview.setMapType(Titanium.Map.STANDARD_TYPE);
+		});
+		
+		var hyb = Titanium.UI.createButton({
+			title:'Hyb',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		});
+		hyb.addEventListener('click',function()
+		{
+			mapview.setMapType(Titanium.Map.HYBRID_TYPE);
+		});
+
+		var atl = Titanium.UI.createButton({
+			title:'ATL',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		});
+		atl.addEventListener('click',function()
+		{
+			mapview.setLocation({latitude:33.74511,longitude:-84.38993,animate:true,latitudeDelta:0.04, longitudeDelta:0.04});
+		});
+		var sv = Titanium.UI.createButton({
+			title:'SV',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		});
+		sv.addEventListener('click',function()
+		{
+			mapview.setLocation({latitude:37.337681,longitude:-122.038193,animate:true,latitudeDelta:0.04, longitudeDelta:0.04});
+		});
+
+		var zoomin = Titanium.UI.createButton({
+			title:'+',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		});
+		zoomin.addEventListener('click',function()
+		{
+			mapview.zoom(1);
+		});
+		var zoomout = Titanium.UI.createButton({
+			title:'-',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		});
+		zoomout.addEventListener('click',function()
+		{
+			mapview.zoom(-1);
+		});
+		
+		/*
+		Titanium.Geolocation.reverseGeocoder(37.390749,-122.081651,function(evt)
+		{
+			
+		});
+		Titanium.Geolocation.forwardGeocoder("444 Castro Street, Mountain View, CA 94041",function(evt)
+		{
+			
+		});*/
+
+		Titanium.UI.currentWindow.setToolbar([std,hyb,sat,flexSpace,zoomin,zoomout,flexSpace,atl,sv]);
+	};
+	</script>
+</head>
+<body>
+</body>
+</html>

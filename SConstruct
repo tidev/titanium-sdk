@@ -33,11 +33,23 @@ if os.path.exists('android/titanium/bin'):
 # hard to include python after an external SConscript
 #
 
-build_dirs = ['android/titanium']
-if platform.system() == "Darwin":
+build_dirs = []
+
+if not ARGUMENTS.get('iphone',0):
+	build_dirs.append('android/titanium')
+
+if platform.system() == "Darwin" and not ARGUMENTS.get('android',0):
 	build_dirs.append('iphone')
 
 flags = ''
+build_type = 'full'
+
+
+if ARGUMENTS.get('iphone',0):
+	build_type='iphone'
+
+if ARGUMENTS.get('android',0):
+	build_type='android'
 
 if ARGUMENTS.get('COMPILER_FLAGS', 0):
 	flags = ARGUMENTS.get('COMPILER_FLAGS')
@@ -46,7 +58,7 @@ for dir in build_dirs:
 	d = os.getcwd()
 	os.chdir(dir)
 	try:
-		os.system("scons PRODUCT_VERSION=%s COMPILER_FLAGS='%s'" % (version,flags))	
+		os.system("scons PRODUCT_VERSION=%s COMPILER_FLAGS='%s' BUILD_TYPE='%s'" % (version,flags,build_type))	
 	finally:
 		os.chdir(d)
 

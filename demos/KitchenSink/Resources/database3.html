@@ -1,0 +1,30 @@
+<html>
+<head>
+
+
+</head>
+<body style="font-family:'Helvetica Neue'">
+	<div id="message"></div>
+	
+	<script>
+	
+	var html = '';
+
+	var db = Titanium.Database.install('testdb.db','quotes');
+
+	var rows = db.execute('SELECT * FROM TIPS');
+	
+	while (rows.isValidRow())
+	{
+		html += '<div style="margin-bottom:10px;">'+rows.field(1) + '<br/>&mdash;' + rows.field(0) + '</div>';
+		rows.next();
+	}
+
+	// close database
+	rows.close();
+	
+	document.getElementById('message').innerHTML = html;
+
+	</script>
+</body>
+</html>

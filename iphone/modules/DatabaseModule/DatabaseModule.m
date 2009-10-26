@@ -33,9 +33,6 @@
 	return self;
 }
 
-//- (NSObject *<PLPreparedStatement>) statementWithArgs:
-
-
 - (void) dealloc
 {
 	[database release];
@@ -46,6 +43,66 @@
 @end
 
 @implementation DatabaseModule
+
+- (NSString *) getDBInstallPath
+{
+	if (databaseFolderPath == nil){
+		NSString * supportFolderPath = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+		databaseFolderPath = [[supportFolderPath stringByAppendingPathComponent:@"database"] retain];
+		NSFileManager * theFM = [[NSFileManager alloc] init];
+		BOOL isDirectory;
+		BOOL exists = [theFM fileExistsAtPath:databaseFolderPath isDirectory:&isDirectory];
+		
+		if (exists && !isDirectory) {
+			[theFM release];
+			return nil;
+		}
+		if (!exists) [theFM createDirectoryAtPath:databaseFolderPath withIntermediateDirectories:YES attributes:nil error:nil];
+		[theFM release];
+	}
+	
+	return databaseFolderPath;
+}
+
+- (NSDictionary*) installDatabase: (NSDictionary*) dict
+{
+	NSString *urlString = (NSString*)[dict objectForKey:@"path"];
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	NSString *path = [theHost filePathFromURL:[theHost resolveUrlFromString:urlString useFilePath:NO]];
+	NSFileManager * theFM = [[NSFileManager alloc] init];
+	BOOL isDirectory;
+	BOOL exists = [theFM fileExistsAtPath:path isDirectory:&isDirectory];
+	if (!exists || isDirectory)
+	{
+		[theFM release];
+		return [NSDictionary dictionaryWithObjectsAndKeys:
+					[NSNumber numberWithBool:NO],@"success",
+					@"invalid database path",@"error",
+					nil];
+	}
+	NSError *error = nil;
+	NSString *databaseName = (NSString*)[dict objectForKey:@"name"];
+	NSString * ourDatabasePath = [[[self getDBInstallPath] stringByAppendingPathComponent:databaseName] stringByAppendingPathExtension:@"sql"];
+	exists = [theFM fileExistsAtPath:ourDatabasePath isDirectory:&isDirectory];
+	if (!exists)
+	{
+		[theFM copyItemAtPath:path toPath:ourDatabasePath error:&error];
+		if (error!=nil)
+		{
+			[theFM release];
+			return [NSDictionary dictionaryWithObjectsAndKeys:
+						[NSNumber numberWithBool:NO],@"success",
+						[error description],@"error",
+						nil];
+		}
+	}
+	[theFM release];
+	return [NSDictionary dictionaryWithObjectsAndKeys:
+				[NSNumber numberWithBool:YES],@"success",
+				nil];
+}
+
+
 - (NSString *) openDatabase: (NSString *) databaseName;
 {
 	if (![databaseName isKindOfClass:[NSString class]]) return nil;
@@ -65,7 +122,7 @@
 		[theFM release];
 	}
 	
-	NSString * ourDatabasePath = [[databaseFolderPath stringByAppendingPathComponent:databaseName] stringByAppendingPathExtension:@"sql"];
+	NSString * ourDatabasePath = [[[self getDBInstallPath] stringByAppendingPathComponent:databaseName] stringByAppendingPathExtension:@"sql"];
 	PLSqliteDatabase * newDB = [[PLSqliteDatabase alloc] initWithPath:ourDatabasePath];
 	
 	if (![newDB open]){
@@ -209,6 +266,9 @@
 	
 	[(DatabaseModule *)invocGen openDatabase: nil];
 	NSInvocation * openDBInvoc = [invocGen invocation];
+
+	[(DatabaseModule *)invocGen installDatabase: nil];
+	NSInvocation * installDBInvoc = [invocGen invocation];
 	
 	[(DatabaseModule *)invocGen removeDatabase: nil];
 	NSInvocation * removeDBInvoc = [invocGen invocation];
@@ -254,6 +314,12 @@
 			"};"
 			"Ti.Database._DB[tkn]=res;return res;}";
 
+	NSString * installDBFunctionString = @"function(path,name){"
+		"var r=Ti.Database._INSDB({path:path,name:name});"
+		"if (!r.success) throw r.error;"
+		"return Ti.Database.open(name);"
+		"}";
+
 	databaseDict = [[NSMutableDictionary alloc] init];
 	databaseResultsDict = [[NSMutableDictionary alloc] init];
 	
@@ -262,6 +328,7 @@
 			databaseResultsDict,@"_DBRES",
 
 			openDBInvoc,@"_OPNDB",
+			installDBInvoc,@"_INSDB",
 			removeDBInvoc,@"_RMDB",
 			closeDBInvoc,@"_CLSDB",
 			executeDBInvoc,@"_EXEDB",
@@ -269,6 +336,7 @@
 			nextRSInvoc,@"_NXTRS",
 			
 			[TitaniumJSCode codeWithString:openDBFunctionString],@"open",
+			[TitaniumJSCode codeWithString:installDBFunctionString],@"install",
 			nil];
 	[[[TitaniumHost sharedHost] titaniumObject] setObject:moduleDict forKey:@"Database"];
 	

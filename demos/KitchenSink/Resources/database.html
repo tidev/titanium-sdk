@@ -6,6 +6,7 @@
 <body style="font-family:'Helvetica Neue'">
 	<div id="message"></div>
 	<div id="button1" style="height:50px;margin-top:20px"></div>
+	<div id="button2" style="height:50px;margin-top:20px"></div>
 	
 	<script>
 	var button1 = Titanium.UI.createButton({
@@ -20,7 +21,20 @@
 	{
 		var win = Titanium.UI.createWindow({url:'database2.html',title:'DB Test 2',backgroundColor:'#fff'});
 		win.open({animated:true});
-	})
+	});
+	var button2 = Titanium.UI.createButton({
+		id:'button2',
+		backgroundImage:'blue.png',
+		backgroundSelectedImage:'blue_pressed.png',
+		title:'Open DB from Resources',
+		color:'#ffffff',
+		height:47,
+	});
+	button2.addEventListener('click',function(e)
+	{
+		var win = Titanium.UI.createWindow({url:'database3.html',title:'DB Test 3',backgroundColor:'#fff'});
+		win.open({animated:true});
+	});
 	
 	var html = '';
 

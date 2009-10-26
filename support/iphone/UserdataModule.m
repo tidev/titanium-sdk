@@ -1,6 +1,5 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009 by Appcelerator, Inc. All Rights Reserved.
  * This is a generated file -- DO NOT HAND EDIT
  */
 #import <TitaniumBasicModule.h>

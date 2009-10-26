@@ -1,12 +1,10 @@
 #!/usr/bin/env python
-#
-# Appcelerator Titanium Mobile
-# Copyright (c) 2009 Appcelerator, Inc. All Right Reserved.
+# -*- coding: utf-8 -*-
 #
 # Unified Titanium Mobile Project Script
 #
+import os, sys, subprocess, shutil, codecs
 
-import os, sys, subprocess, shutil
 def run(args):
 	return subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
 	
@@ -15,9 +13,9 @@ def main(args,argc):
 		print "Usage: %s <name> <id> <directory> [iphone,android] [android_sdk]" % os.path.basename(args[0])
 		sys.exit(1)
 		
-	name = args[1]
-	appid = args[2]
-	directory = os.path.abspath(os.path.expanduser(args[3]))
+	name = args[1].decode("utf-8")
+	appid = args[2].decode("utf-8")
+	directory = os.path.abspath(os.path.expanduser(args[3].decode("utf-8")))
 	iphone = False
 	android = False
 	android_sdk = None
@@ -28,7 +26,7 @@ def main(args,argc):
 		android = True
 		
 	if android:
-		android_sdk = args[argc-1]
+		android_sdk = args[argc-1].decode("utf-8")
 	
 	if not os.path.exists(directory):
 		os.makedirs(directory)
@@ -44,12 +42,12 @@ def main(args,argc):
 	if not os.path.exists(all_dir):
 		all_dir = template_dir
 
-	tiapp = open(os.path.join(all_dir,'tiapp.xml')).read()
+	tiapp = codecs.open(os.path.join(all_dir,'tiapp.xml'),'r','utf-8').read()
 	tiapp = tiapp.replace('__PROJECT_ID__',appid)
 	tiapp = tiapp.replace('__PROJECT_NAME__',name)
 	tiapp = tiapp.replace('__PROJECT_VERSION__','1.0')
 	
-	tiapp_file = open(os.path.join(project_dir,'tiapp.xml'),'w+')
+	tiapp_file = codecs.open(os.path.join(project_dir,'tiapp.xml'),'w+','utf-8')
 	tiapp_file.write(tiapp)
 	tiapp_file.close()
 

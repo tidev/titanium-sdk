@@ -26,6 +26,11 @@
  * @tiarg(for=Database.open,name=name,type=string) database name
  * @tiresult(for=Database.open,type=object) returns a Database.DB proxy object
  *
+ * @tiapi(method=True,name=Database.install,since=0.8) Install (if not already installed) and opens a database
+ * @tiarg(for=Database.install,name=path,type=string) database path or url
+ * @tiarg(for=Database.install,name=name,type=string) database name
+ * @tiresult(for=Database.install,type=object) returns a Database.DB proxy object 
+ *
  * @tiapi(method=True,name=Database.DB.execute,since=0.4) perform a command on a database
  * @tiarg(for=Database.DB.execute,name=sql,type=string) sql expression
  * @tiarg(for=Database.DB.execute,name=args,type=object) one or more arguments to be inserted in the expression. May be integer, float, string, or data blob

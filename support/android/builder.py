@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-#
-# Appcelerator Titanium Mobile
-# Copyright (c) 2009 Appcelerator, Inc. All Right Reserved.
+# -*- coding: utf-8 -*-
 #
 # Android Simulator for building a project and launching
 # the Android Emulator or on the device

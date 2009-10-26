@@ -1,7 +1,7 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2009 Appcelerator, Inc. All Right Reserved.
 #
 # Resource to Objective-C Page Compiler
 # Handles JS, CSS and HTML files only

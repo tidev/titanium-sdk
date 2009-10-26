@@ -1,13 +1,11 @@
 #!/usr/bin/env python
-#
-# Appcelerator Titanium Mobile
-# Copyright (c) 2009 Appcelerator, Inc. All Right Reserved.
+# -*- coding: utf-8 -*-
 #
 # Build and Launch iPhone Application in Simulator or install
 # the application on the device via iTunes
 #
 
-import os, sys, uuid, subprocess, shutil, signal, time, re, run, glob
+import os, sys, uuid, subprocess, shutil, signal, time, re, run, glob, codecs
 from compiler import Compiler
 from os.path import join, splitext, split, exists
 from shutil import copyfile
@@ -20,9 +18,9 @@ ignoreFiles = ['.gitignore', '.cvsignore'];
 ignoreDirs = ['.git','.svn', 'CVS'];
 
 def dequote(s):
-    if s[0:1] == '"':
-	return s[1:-1]
-    return s
+	if s[0:1] == '"':
+		return s[1:-1]
+	return s
 
 def kill_simulator():
 	run.run(['/usr/bin/killall',"iPhone Simulator"],True)
@@ -80,27 +78,27 @@ def main(args):
 	
 	simulator = os.path.abspath(os.path.join(template_dir,'iphonesim'))
 	
-	command = args[1]
-	iphone_version = dequote(args[2])
-	project_dir = os.path.expanduser(dequote(args[3]))
-	appid = dequote(args[4])
-	name = dequote(args[5])
+	command = args[1].decode("utf-8")
+	iphone_version = dequote(args[2].decode("utf-8"))
+	project_dir = os.path.expanduser(dequote(args[3].decode("utf-8")))
+	appid = dequote(args[4].decode("utf-8"))
+	name = dequote(args[5].decode("utf-8"))
 	target = 'Debug'
 	deploytype = 'development'
 	debug = False
 	
 	if command == 'distribute':
-		appuuid = dequote(args[6])
-		dist_name = dequote(args[7])
-		output_dir = os.path.expanduser(dequote(args[8]))
+		appuuid = dequote(args[6].decode("utf-8"))
+		dist_name = dequote(args[7].decode("utf-8"))
+		output_dir = os.path.expanduser(dequote(args[8].decode("utf-8")))
 		target = 'Release'
 		deploytype = 'production'
 	elif command == 'simulator':
 		deploytype = 'test'
 		debug = True
 	elif command == 'install':
-		appuuid = dequote(args[6])
-		dist_name = dequote(args[7])
+		appuuid = dequote(args[6].decode("utf-8"))
+		dist_name = dequote(args[7].decode("utf-8"))
 		
 	
 	iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
@@ -135,23 +133,23 @@ def main(args):
 	compiler.compile()
 	
 	# copy over main since it can change with each release
-	main_template = open(os.path.join(template_dir,'main.m'),'r').read()
+	main_template = codecs.open(os.path.join(template_dir,'main.m'),'r','utf-8').read()
 	main_template = main_template.replace('__PROJECT_NAME__',name)
 	main_template = main_template.replace('__PROJECT_ID__',appid)
-	main_dest = open(os.path.join(iphone_dir,'main.m'),'w')
-	main_dest.write(main_template)
+	main_dest = codecs.open(os.path.join(iphone_dir,'main.m'),'w','utf-8')
+	main_dest.write(main_template.encode("utf-8"))
 	main_dest.close()
 	
 	# migrate the xcode project given that it can change per release of sdk
 	if iphone_version == '2.2.1':
-		xcodeproj = open(os.path.join(template_dir,'project_221.pbxproj'),'r').read()
+		xcodeproj = codecs.open(os.path.join(template_dir,'project_221.pbxproj'),'r','utf-8').read()
 	else:
-		xcodeproj = open(os.path.join(template_dir,'project.pbxproj'),'r').read()
+		xcodeproj = codecs.open(os.path.join(template_dir,'project.pbxproj'),'r','utf-8').read()
 	xcodeproj = xcodeproj.replace('__PROJECT_NAME__',name)
 	xcodeproj = xcodeproj.replace('__PROJECT_ID__',appid)
 	xcode_dir = os.path.join(iphone_dir,name+'.xcodeproj')
-	xcode_pbx = open(os.path.join(xcode_dir,'project.pbxproj'),'w')
-	xcode_pbx.write(xcodeproj)
+	xcode_pbx = codecs.open(os.path.join(xcode_dir,'project.pbxproj'),'w','utf-8')
+	xcode_pbx.write(xcodeproj.encode("utf-8"))
 	xcode_pbx.close()	
 	
 	# copy in the default PNG
@@ -190,10 +188,10 @@ def main(args):
 		dtf = os.path.join(iphone_tmp_module_dir,"UserDataModule.m")
 		if os.path.exists(dtf):
 			os.remove(dtf)
-		ctf = open(dtf,"w")
-		cf_template = open(os.path.join(template_dir,'UserDataModule.m'),'r').read()
+		ctf = codecs.open(dtf,"w",'utf-8')
+		cf_template = codecs.open(os.path.join(template_dir,'UserDataModule.m'),'r','utf-8').read()
 		cf_template = cf_template.replace('__MODULE_BODY__',module_data)
-		ctf.write(cf_template)
+		ctf.write(cf_template.encode("utf-8"))
 		ctf.close()
 		compiler.modules.append('Userdata')
 	
@@ -284,7 +282,7 @@ def main(args):
 		path = "~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % uuid
 		f = os.path.expanduser(path)
 		if os.path.exists(f):
-			c = open(f).read()
+			c = codecs.open(f,'r','utf-8').read()
 			return c.find("ProvisionedDevices")!=-1
 		return False	
 		
@@ -305,7 +303,7 @@ def main(args):
 		plist_template = tip.generate(module_str,appid,deploytype)
 	
 		# write out the generated tiapp.plist
-		plist.write(plist_template)
+		plist.write(plist_template.encode("utf-8"))
 		plist.close()
 		
 		# write out the updated Info.plist
@@ -436,7 +434,7 @@ def main(args):
 			# make sure it's clean
 			if os.path.exists(app_bundle):
 				shutil.rmtree(app_bundle)
-	
+				
 			output = run.run(["xcodebuild",
 				"-configuration",
 				"Debug",
