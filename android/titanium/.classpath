@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="/opt/android-sdk-mac_x86-1.5_r2/platforms/android-1.5/android.jar"/>
+	<classpathentry kind="lib" path="/opt/android-sdk-mac_x86-1.5_r2/add-ons/google_apis-3/libs/maps.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

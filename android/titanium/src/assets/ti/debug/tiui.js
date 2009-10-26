@@ -529,6 +529,63 @@ var ImageView = function(proxy) {
 	};
 };
 
+var MapView = function(proxy) {
+	this.proxy = proxy; // reference to Java object
+
+	/**
+	 * @tiapi(method=true,name=UI.MapView.setCenterCoordinate,since=0.8.0) center map view at coordinate
+	 * @tiarg[object,coordinate] An object with longitude and latitude members
+	 */
+	this.setCenterCoordinate = function(coordinate) {
+		if(this.isValidCoordinate(coordinate)) {
+			this.proxy.setCenterCoordinate(Titanium.JSON.stringify(coordinate));
+		}
+	};
+	/**
+	 * @tiapi(method=true,name=UI.MapView.setRegion,since=0.8.0) set the region to view
+	 * @tiarg[object,coordinate] An object with coordinate and span
+	 */
+	this.setRegion = function(region) {
+		if(this.isValidRegion(region)) {
+			this.proxy.setRegion(Titanium.JSON.stringify(region));
+		}
+	};
+	/**
+	 * @tiapi(method=true,name=UI.MapView.setType,since=0.8.0) set the type of map to view
+	 * @tiarg[int,type] Titanium.UI.MAP_VIEW_STANDARD | Titanium.UI.MAP_VIEW_SATELLITE | Titanium.UI.MAP_VIEW_HYBRID
+	 */
+	this.setType = function(type) {
+		if(!isUndefined(type)) {
+			this.proxy.setType(type);
+		}
+	};
+	/**
+	 * @tiapi(method=true,name=UI.MapView.addEventListener,since=0.8.0) Add a listener for to this view. Support 'focused' and 'unfocused'
+	 * @tiarg[string,eventName] The event name
+	 * @tiarg[function,listener] The event listener
+	 * @tiresult[int] id used when removing the listener
+	 */
+	this.addEventListener = function(eventName, listener) {
+		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
+	};
+	/**
+	 * @tiapi(method=true,name=UI.MapView.removeEventListener,since=0.8.0) Remove a previously added listener
+	 * @tiarg[string,eventName] The event name
+	 * @tiarg[int,listenerId] id returned from addEventListener
+	 */
+	this.removeEventListener = function(eventName, listenerId) {
+		this.proxy.removeEventListener(eventName, listenerId);
+	};
+	this.isValidCoordinate = function(c) {
+		return !isUndefined(c) && !isUndefined(c.longitude) && !isUndefined(c.latitude);
+	};
+	this.isValidRegion = function(r) {
+		return !isUndefined(r) && !isUndefined(r.coordinate) && !isUndefined(r.span)
+			&& isValid(r.coordinate) && !isUndefined(r.span.longitudeDelta)
+			&& !isUndefined(r.span.latitudeDelta)
+	};
+};
+
 var ScrollableView = function(proxy) {
 	this.proxy = proxy; // reference to Java object
 
@@ -814,6 +871,14 @@ var UserWindow = function(proxy) {
 	this.setBackgroundColor = function(backgroundColor) {
 		this.proxy.setBackgroundColor(backgroundColor);
 	};
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.setBackgroundImage,since=0.7.2) Set background image
+	 * @tiarg[string,backgroundImage] backgroundImage
+	 */
+	this.setBackgroundImage = function(backgroundImage) {
+		this.proxy.setBackgroundImage(backgroundImage);
+	};
+
 	this.setFullscreen = function(fullscreen) {
 		this.proxy.setFullscreen(fullscreen);
 	};
@@ -1674,6 +1739,20 @@ Titanium.UI = {
 		return sv;
 	},
 	/**
+	 * @tiapi(method=true,name=UI.createMapView,since=0.8.0) Create a map view
+	 * @tiarg[object, options] a dictionary/hash of options
+	 * @tiresult[MapView] the map view.
+	 */
+	createMapView : function(options) {
+		var mv = new MapView(Titanium.uiProxy.createMapView());
+		if (isUndefined(options)) {
+			options = {}
+		}
+		mv.proxy.processOptions(Titanium.JSON.stringify(options));
+		return mv;
+	},
+
+	/**
 	 * @tiapi(method=true,name=UI.createTableView,since=0.5) Create a table view
 	 * @tiarg[object, options] a dictionary/hash of options
 	 * @tiresult[TableView] the table view.
@@ -1851,6 +1930,19 @@ Titanium.UI = {
 	INPUT_BUTTONMODE_ONFOCUS : 0,
 	INPUT_BUTTONMODE_ALWAYS : 1,
 	INPUT_BUTTONMODE_NEVER : 2,
+
+	/**
+	 * @tiapi(property=true,name=UI.MAP_VIEW_STANDARD,since=0.8.0) Standard map view
+	 */
+	MAP_VIEW_STANDARD : 1,
+	/**
+	 * @tiapi(property=true,name=UI.MAP_VIEW_SATELLITE,since=0.8.0) Satellite map view
+	 */
+	MAP_VIEW_SATELLITE : 2,
+	/**
+	 * @tiapi(property=true,name=UI.MAP_VIEW_HYBRID,since=0.8.0) Hybrid map view
+	 */
+	MAP_VIEW_HYBRID : 3,
 
 	/**
 	 * @tiapi(method=true,name=UI.createTextField,since=0.6) Create a native text field
