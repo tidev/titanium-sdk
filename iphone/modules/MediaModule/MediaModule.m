@@ -101,8 +101,8 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	// fire event listener
 	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerDidFinishPlaying:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(player),@"player",[NSNumber numberWithBool:flag],@"success",nil]];
 
-	NSString * resultString = [NSString stringWithFormat:@"Ti.Media._MEDIA.%@.onComplete(type:'complete',{"
-							   "type:'complete',success:%@,})",
+	NSString * resultString = [NSString stringWithFormat:@"Ti.Media._MEDIA.%@.onComplete('complete',{"
+							   "type:'complete',success:%@})",
 							   token,(flag ? @"true" : @"false")];
 	
 	[[TitaniumHost sharedHost] sendJavascript:resultString toPageWithToken:parentPageToken];
@@ -113,7 +113,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 {
 	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerDecodeErrorDidOccur:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(player),@"player",VAL_OR_NSNULL(error),@"error",nil]];
 
-	NSString * resultString = [NSString stringWithFormat:@"Ti.Media._MEDIA.%@.onComplete(type:'complete',{"
+	NSString * resultString = [NSString stringWithFormat:@"Ti.Media._MEDIA.%@.onComplete('error',{"
 							   "type:'error',success:false,message:%@})",
 							   token,[error localizedDescription]];
 	

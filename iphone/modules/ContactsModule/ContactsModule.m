@@ -10,13 +10,13 @@
 #import <AddressBook/AddressBook.h>
 #import <AddressBookUI/AddressBookUI.h>
 
-@interface TemplateProxy : TitaniumProxyObject
+@interface AddressPickerProxy : TitaniumProxyObject
 {
 }
 
 @end
 
-@implementation TemplateProxy
+@implementation AddressPickerProxy
 
 - (id) init
 {
@@ -36,7 +36,30 @@
 
 - (id) getContactRefs: (NSArray *) args;
 {
-	return nil;
+//Args is unused.
+
+	ABAddressBookRef ourAddyBook = ABAddressBookCreate();
+	CFArrayRef ourContactArray = ABAddressBookCopyArrayOfAllPeople(ourAddyBook);
+
+	NSMutableString * result = [NSMutableString stringWithString:@"["];
+
+	int count = CFArrayGetCount(ourContactArray);
+	for (int thisIndex=0; thisIndex<count; thisIndex++) {
+		ABRecordRef thisPerson = CFArrayGetValueAtIndex(ourContactArray, thisIndex);
+		ABRecordID thisPersonID = ABRecordGetRecordID(thisPerson);
+		if (thisIndex==0) {
+			[result appendFormat:@"%d",thisPersonID];
+		} else {
+			[result appendFormat:@",%d",thisPersonID];
+		}
+	}
+
+	[result appendString:@"]"];
+
+	CFRelease(ourContactArray);
+	CFRelease(ourAddyBook);
+	
+	return [TitaniumJSCode codeWithString:result];
 }
 
 - (id) showPicker: (NSArray *) args;
@@ -46,6 +69,7 @@
 
 - (id) getContactProperty: (NSArray *) args;
 {
+
 	return nil;
 }
 

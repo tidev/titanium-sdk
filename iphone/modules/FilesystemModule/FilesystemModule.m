@@ -317,7 +317,10 @@
 	
 	if(![ourFileManager fileExistsAtPath:tempDir]){
 		[ourFileManager createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:&error];
-		if(error != nil)return error;
+		if(error != nil){
+			[ourFileManager release];
+			return error;
+		}
 	}
 	
 	int timestamp = (int)(time(NULL) & 0xFFFFL);
