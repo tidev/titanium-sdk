@@ -305,7 +305,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
 		<window>
             <id>File</id>
             <title>file</title>
@@ -315,7 +315,7 @@
             <backgroundColor>argb(0,128,128,128)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-<!--
+
 		<window>
             <id>Filestream</id>
             <title>filestream</title>
@@ -364,6 +364,13 @@
             <backgroundColor>rgba(32,32,32,255)</backgroundColor>
         </window>
 -->
+		<window>
+            <id>Gowalla</id>
+            <title>Gowalla Test</title>
+            <url>gowalla.html</url>
+            <fullscreen>true</fullscreen>
+        </window>
+
     </windows>
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.android.watchlog" type="bool">false</property>
