@@ -337,7 +337,7 @@
 			
 			[NSNumber numberWithInt:0],@"_COUNTER",
 //			[TitaniumJSCode codeWithString:@"{}"],@"_FETCH"
-			[TitaniumJSCode codeWithString:@"function(){}"
+//			[TitaniumJSCode codeWithString:@"function(){}"
 			[TitaniumJSCode codeWithString:@"function(foo,bar){return Ti._TIDO('contacts','helloWorld',[foo,bar]);}"],@"addressBookThingy",
 			nil];
 	[[TitaniumHost sharedHost] bindObject:moduleDict toKeyPath:@"Contacts"];
