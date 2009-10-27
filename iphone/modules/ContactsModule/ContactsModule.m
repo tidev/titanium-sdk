@@ -34,11 +34,37 @@
 
 @implementation ContactsModule
 
-- (id) helloWorld: (NSArray *)args;
+- (id) getContactRefs: (NSArray *) args;
 {
-	NSLog(@"Hello, world! %@",args);
 	return nil;
 }
+
+- (id) showPicker: (NSArray *) args;
+{
+	return nil;
+}
+
+- (id) getContactProperty: (NSArray *) args;
+{
+	return nil;
+}
+
+- (id) removeContact: (NSArray *) args;
+{
+	return nil;
+}
+
+- (id) addContact: (NSArray *) args;
+{
+	return nil;
+}
+
+- (id) saveContacts: (NSArray *) args;
+{
+	return nil;
+}
+
+
 
 #pragma mark startModule
 
@@ -239,16 +265,16 @@
 				"},"
 				"setModificationDate:function(val){this._DELTA.modificationDate=val;return val;},"
 
-				"getImage:function(){"
-					"var A=this._DELTA.image;"
+				"getImageData:function(){"
+					"var A=this._DELTA.imageData;"
 					"if(A!==undefined)return A;"
-					"A=this._CACHE.image;"
+					"A=this._CACHE.imageData;"
 					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'image']);"
-						"this._CACHE.image=A;}"
+						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'imageData']);"
+						"this._CACHE.imageData=A;}"
 					"return A;"
 				"},"
-				"setImage:function(val){this._DELTA.image=val;return val;},"
+				"setImageData:function(val){this._DELTA.imageData=val;return val;},"
 
 			 "};"
 			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('firstName',Ti.Contacts._CONOBJ.prototype.getFirstName);"
@@ -302,43 +328,32 @@
 			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('modificationDate',Ti.Contacts._CONOBJ.prototype.getModificationDate);"
 			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('modificationDate',Ti.Contacts._CONOBJ.prototype.setModificationDate);"
 
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('image',Ti.Contacts._CONOBJ.prototype.getImage);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('image',Ti.Contacts._CONOBJ.prototype.setImage);"
+			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('imageData',Ti.Contacts._CONOBJ.prototype.getImageData);"
+			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('imageData',Ti.Contacts._CONOBJ.prototype.setImageData);"
 
 			 ];
 
 	
 	NSDictionary * moduleDict = [NSDictionary dictionaryWithObjectsAndKeys:
-//			@"",@"",
-//			closeWinInvoc,@"_CLS",
-
-// Object is hash array.
-
-			contactObjectCode,@"_CONOBJ",
-
-			@"firstName",@"FIRST_NAME",
-			@"lastName",@"LAST_NAME",
-			@"middleName",@"MIDDLE_NAME",
-			@"prefix",@"PREFIX",
-			@"suffix",@"SUFFIX",
-			@"nickname",@"NICKNAME",
-			@"phoneticFirstName",@"FIRST_NAME_PHONETIC",
-			@"phoneticLastName",@"LAST_NAME_PHONETIC",
-			@"phoneticMiddleName",@"MIDDLE_NAME_PHONETIC",
-			@"organization",@"ORGANIZATION",
-			@"jobTitle",@"JOB_TITLE",
-			@"department",@"DEPARTMENT",
-			@"email",@"EMAIL",
-			@"birthday",@"BIRTHDAY",
-			@"note",@"NOTE",
-			@"creationDate",@"CREATION_DATE",
-			@"modificationDate",@"MODIFICATION_DATE",
-			@"image",@"IMAGE_DATA",
-			
+			contactObjectCode,@"_CONOBJ",			
 			[NSNumber numberWithInt:0],@"_COUNTER",
-//			[TitaniumJSCode codeWithString:@"{}"],@"_FETCH"
-//			[TitaniumJSCode codeWithString:@"function(){}"
-			[TitaniumJSCode codeWithString:@"function(foo,bar){return Ti._TIDO('contacts','helloWorld',[foo,bar]);}"],@"addressBookThingy",
+			[TitaniumJSCode codeWithString:@"{}"],@"_PICKER",
+			[TitaniumJSCode codeWithString:@"function(){var refs=Ti._TIDO('contacts','getContactRefs');"
+				"var len=refs.length;var res=[];var ob=Ti.Contacts._CONOBJ;for(var i=0;i<len;i++){"
+					"res.push(new ob(refs[i]));}return res;}"],@"getAllContacts",
+			[TitaniumJSCode codeWithString:@"function(options){var tkn='ADR'+Ti.Contacts._COUNTER++;Ti.Contacts._PICKER[tkn]=options;"
+				"Ti._TIDO('contacts','showPicker',[tkn,options.details]);}"],@"showContactPicker",
+			[TitaniumJSCode codeWithString:@"function(options){var res=new Ti.Contacts._CONOBJ();"
+				"for(prop in options){res._DELTA[prop]=options[prop];}return res;}"],@"createContact",
+			[TitaniumJSCode codeWithString:@"function(contact){if(contact._REFID && "
+				"Ti._TIDO('contacts','removeContact',[contact._REFID])){delete contact._REFID;}"
+				"else{throw 'Contact does not exist in the address book.'}}"],@"removeContact",
+			[TitaniumJSCode codeWithString:@"function(contact){if(!contact._REFID)"
+				"{contact._REFID=Ti._TIDO('contacts','addContact',[contact._DELTA]);contact._DELTA={};}"
+				"else{throw 'Contact already exists in the address book.'}}"],@"addContact",
+			[TitaniumJSCode codeWithString:@"function(contact){if(contact._REFID)"
+				"{Ti._TIDO('contacts','saveContact',[contact._REFID,contact._DELTA]);contact._DELTA={};}"
+				"else{throw 'Contact must be added to the address book first.';}}"],@"saveContact",
 			nil];
 	[[TitaniumHost sharedHost] bindObject:moduleDict toKeyPath:@"Contacts"];
 	
