@@ -653,7 +653,7 @@ var ScrollableView = function(proxy) {
 	this.addEventListener = function(eventName, listener) {
 		this._callback = listener;
 		var f = function(e) {
-			this._callback({ view: this._views[e.index], index: e.index});
+			this._callback({ view: this._views[e.index], index: e.index, currentPage: e.index});
 		};
 		return this.proxy.addEventListener(eventName, registerCallback(this, f));
 	};

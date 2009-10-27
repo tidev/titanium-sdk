@@ -50,6 +50,9 @@ public class TitaniumScrollableView extends TitaniumBaseView
 
 	static final int MSG_SHOW_PAGER = 400;
 	static final int MSG_HIDE_PAGER = 401;
+	static final int MSG_MOVE_PREV = 402;
+	static final int MSG_MOVE_NEXT = 403;
+	static final int MSG_SCROLL_TO = 404;
 
 	ArrayList<ITitaniumView> views;
 
@@ -57,6 +60,7 @@ public class TitaniumScrollableView extends TitaniumBaseView
 	protected TitaniumAnimationPair animPrev;
 	protected TitaniumAnimationPair animNext;
 	protected AtomicBoolean inAnimation;
+	protected AtomicBoolean inScroll;
 
 	protected RelativeLayout pager;
 	protected View glass;
@@ -71,6 +75,7 @@ public class TitaniumScrollableView extends TitaniumBaseView
 		showPagingControl = true;
 		viewJSON = "[]";
 		inAnimation = new AtomicBoolean(false);
+		inScroll = new AtomicBoolean(false);
 
 		eventManager.supportEvent(EVENT_SCROLL);
 	}
@@ -188,7 +193,9 @@ public class TitaniumScrollableView extends TitaniumBaseView
 	}
 
 	public int getSelectedItemPosition() {
-		return gallery.getDisplayedChild();
+		synchronized(gallery) {
+			return gallery.getDisplayedChild();
+		}
 	}
 
 	public boolean hasPrevious() {
@@ -196,41 +203,57 @@ public class TitaniumScrollableView extends TitaniumBaseView
 	}
 
 	public boolean hasNext() {
-		return getSelectedItemPosition() < gallery.getChildCount() - 1;
+		synchronized (gallery) {
+			return getSelectedItemPosition() < gallery.getChildCount() - 1;
+		}
 	}
 
 	public void movePrevious() {
-		if (inAnimation.get()) return;
+		if (inScroll.get() || inAnimation.get()) return;
+		handler.removeMessages(MSG_MOVE_PREV);
+		handler.sendEmptyMessage(MSG_MOVE_PREV);
+	}
 
-		int pos = getSelectedItemPosition();
-		if (pos > 0) {
-			int from = pos;
-			int to = pos - 1;
-			views.get(from).hiding();
-			animPrev.apply(gallery);
-			gallery.setDisplayedChild(to);
-			views.get(to).showing();
-			onScrolled(from, to);
-			if (pager.getVisibility() == View.VISIBLE) {
-				setPagerTimeout();
+	public void doMovePrevious() {
+		synchronized(gallery) {
+			int pos = getSelectedItemPosition();
+			if (pos > 0) {
+				int from = pos;
+				int to = pos - 1;
+				views.get(from).hiding();
+				animPrev.apply(gallery);
+				gallery.setDisplayedChild(to);
+				views.get(to).showing();
+				onScrolled(from, to);
+				if (pager.getVisibility() == View.VISIBLE) {
+					setPagerTimeout();
+				}
 			}
 		}
 	}
 
 	public void moveNext() {
-		if (inAnimation.get()) return;
+		synchronized(gallery) {
+			if (inScroll.get() || inAnimation.get()) return;
+			handler.removeMessages(MSG_MOVE_NEXT);
+			handler.sendEmptyMessage(MSG_MOVE_NEXT);
+		}
+	}
 
-		int pos = getSelectedItemPosition();
-		if (pos < gallery.getChildCount() - 1) {
-			int from = pos;
-			int to = pos + 1;
-			views.get(from).hiding();
-			animNext.apply(gallery);
-			gallery.setDisplayedChild(to);
-			views.get(to).showing();
-			onScrolled(from, to);
-			if (pager.getVisibility() == View.VISIBLE) {
-				setPagerTimeout();
+	public void doMoveNext() {
+		synchronized(gallery) {
+			int pos = getSelectedItemPosition();
+			if (pos < gallery.getChildCount() - 1) {
+				int from = pos;
+				int to = pos + 1;
+				views.get(from).hiding();
+				animNext.apply(gallery);
+				gallery.setDisplayedChild(to);
+				views.get(to).showing();
+				onScrolled(from, to);
+				if (pager.getVisibility() == View.VISIBLE) {
+					setPagerTimeout();
+				}
 			}
 		}
 	}
@@ -272,6 +295,24 @@ public class TitaniumScrollableView extends TitaniumBaseView
 				break;
 			case MSG_HIDE_PAGER :
 				pager.setVisibility(View.INVISIBLE);
+				handled = true;
+				break;
+			case MSG_MOVE_PREV :
+				inScroll.set(true);
+				doMovePrevious();
+				inScroll.set(false);
+				handled = true;
+				break;
+			case MSG_MOVE_NEXT :
+				inScroll.set(true);
+				doMoveNext();
+				inScroll.set(false);
+				handled = true;
+				break;
+			case MSG_SCROLL_TO :
+				inScroll.set(true);
+				doScrollToView(msg.arg1);
+				inScroll.set(false);
 				handled = true;
 				break;
 			default :
@@ -317,15 +358,19 @@ public class TitaniumScrollableView extends TitaniumBaseView
 	}
 
 	public void scrollToView(int position) {
+		if (inScroll.get()) return;
+		handler.obtainMessage(MSG_SCROLL_TO, position, -1).sendToTarget();
+	}
+	public void doScrollToView(int position) {
 		if(position < gallery.getChildCount()) {
 			int current = getSelectedItemPosition();
 			if (current < position) {
 				while(getSelectedItemPosition() < position) {
-					moveNext();
+					doMoveNext();
 				}
-			} else if (position > current) {
+			} else if (current > position) {
 				while(getSelectedItemPosition() > position) {
-					movePrevious();
+					doMovePrevious();
 				}
 			}
 		}

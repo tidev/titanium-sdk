@@ -363,12 +363,19 @@
             <fullscreen>true</fullscreen>
             <backgroundColor>rgba(32,32,32,255)</backgroundColor>
         </window>
--->
+
 		<window>
             <id>Gowalla</id>
             <title>Gowalla Test</title>
             <url>gowalla.html</url>
             <fullscreen>true</fullscreen>
+        </window>
+-->
+
+		<window>
+            <id>InlineScroll</id>
+            <url>inlinescroll.html</url>
+            <fullscreen>false</fullscreen>
         </window>
 
     </windows>
