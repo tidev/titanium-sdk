@@ -442,8 +442,8 @@ def main(args):
 				"iphoneos%s" % iphone_version,
 				"CODE_SIGN_ENTITLEMENTS=",
 				"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=test'",
-				unicode("PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,"utf-8"),
-				unicode("CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name,"utf-8")
+				"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Developer: %s" % dist_name
 			])
 
 			shutil.rmtree(iphone_tmp_dir)
@@ -497,8 +497,8 @@ def main(args):
 				"iphoneos%s" % iphone_version,
 				"%s" % adhoc_line,
 				"GCC_PREPROCESSOR_DEFINITIONS='DEPLOYTYPE=%s'" % deploytype,
-				unicode("PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,"utf-8"),
-				unicode("CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name,"utf-8")
+				"PROVISIONING_PROFILE[sdk=iphoneos*]=%s" % appuuid,
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]=iPhone Distribution: %s" % dist_name
 			])
 
 			shutil.rmtree(iphone_tmp_dir)
@@ -517,7 +517,7 @@ def main(args):
 			os.chdir(app_bundle_folder)
 			
 			# you *must* use ditto here or it won't upload to appstore
-			os.system(unicode('ditto -ck --keepParent --sequesterRsrc "%s" "%s/%s.zip"' % (app_name,output_dir,app_name),"utf-8"))
+			os.system('ditto -ck --keepParent --sequesterRsrc "%s" "%s/%s.zip"' % (app_name,output_dir,app_name))
 			
 			sys.exit(0)
 			

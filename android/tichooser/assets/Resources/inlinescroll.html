@@ -1,0 +1,55 @@
+<html>
+<head>
+<title>Inline Scroll</title>
+<script>
+
+var scrollPos = 0;
+var scrollViewCount = 4;
+
+var cv = Titanium.UI.createCompositeView({});
+
+var iv1 = Titanium.UI.createImageView({ url : "images/icon.png"});
+var iv2 = Titanium.UI.createImageView({ url : "images/geesebg.jpg"});
+var iv3 = Titanium.UI.createImageView({ url : "default.png"});
+var iv4 = Titanium.UI.createImageView({ url : "images/icon-32x32.png"});
+
+var sv = Titanium.UI.createScrollableView({
+	views : [iv1, iv2, iv3, iv4],
+	showPagingControl : false
+});
+sv.addEventListener('scroll', function(e) {
+	Titanium.API.error("scroll: " + String(e));
+	scrollPos = e.currentPage;
+	document.getElementById('position').innerHTML = String(scrollPos);
+});
+
+var btnLeft = Titanium.UI.createButton({id: 'btnLeft', title: "<"});
+btnLeft.addEventListener('click', function(e) {
+	Titanium.API.debug("scroll left: " + scrollPos);
+	if (scrollPos > 0) {
+		sv.scrollToView(scrollPos - 1);
+	}
+});
+var btnRight = Titanium.UI.createButton({id: 'btnRight', title: ">"});
+btnRight.addEventListener('click', function(e) {
+	Titanium.API.debug("scroll right: " + scrollPos);
+	if (scrollPos < (scrollViewCount - 1)) {
+		sv.scrollToView(scrollPos + 1);
+	}
+});
+
+cv.addView(Titanium.UI.currentView, {top: 0, height: 79});
+cv.addView(sv, {top : 80, left: 0, right: 0});
+
+Titanium.UI.currentWindow.addView(cv);
+Titanium.UI.currentWindow.showView(cv);
+</script>
+</head>
+<body style="background-color: #006">
+<div style="height:50; width:100%; border: solid thin red">
+<div id="btnLeft" style="float:left; width:50; height:48">&nbsp;</div>
+<div id="btnRight" style="float:left; width:50; height:48">&nbsp;</div>
+<div id="position" style="color:white">0</div>
+</div>
+</body>
+</html>

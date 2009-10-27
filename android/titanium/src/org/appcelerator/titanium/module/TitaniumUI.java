@@ -21,6 +21,7 @@ import org.appcelerator.titanium.api.ITitaniumDialog;
 import org.appcelerator.titanium.api.ITitaniumEmailDialog;
 import org.appcelerator.titanium.api.ITitaniumImageView;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
+import org.appcelerator.titanium.api.ITitaniumMapView;
 import org.appcelerator.titanium.api.ITitaniumMenuItem;
 import org.appcelerator.titanium.api.ITitaniumModalDatePicker;
 import org.appcelerator.titanium.api.ITitaniumModalPicker;
@@ -45,6 +46,7 @@ import org.appcelerator.titanium.module.ui.TitaniumDatePickerDialog;
 import org.appcelerator.titanium.module.ui.TitaniumDialog;
 import org.appcelerator.titanium.module.ui.TitaniumEmailDialog;
 import org.appcelerator.titanium.module.ui.TitaniumImageView;
+import org.appcelerator.titanium.module.ui.TitaniumMapView;
 import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
 import org.appcelerator.titanium.module.ui.TitaniumPicker;
 import org.appcelerator.titanium.module.ui.TitaniumPickerDialog;
@@ -94,6 +96,7 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	private static final int MSG_CREATE_IMAGEVIEW = 317;
 	private static final int MSG_CREATE_SCROLLABLEVIEW = 318;
 	private static final int MSG_CREATE_COMPOSITEVIEW = 319;
+	private static final int MSG_CREATE_MAPVIEW = 320;
 
 	private static final int MSG_END_CREATE_SECTION = 330;
 
@@ -209,6 +212,9 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 					break;
 				case MSG_CREATE_COMPOSITEVIEW :
 					h.o = new TitaniumCompositeView(getModuleManager());
+					break;
+				case MSG_CREATE_MAPVIEW :
+					h.o = new TitaniumMapView(getModuleManager());
 					break;
 				default :
 					throw new IllegalStateException("Unimplemented Control Creator: " + msg.what);
@@ -453,6 +459,13 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 
 	public ITitaniumScrollableView createScrollableView() {
 		TitaniumScrollableView view = (TitaniumScrollableView) create(MSG_CREATE_SCROLLABLEVIEW);
+		return view;
+	}
+
+	// Created in 0.8.0
+
+	public ITitaniumMapView createMapView() {
+		TitaniumMapView view = (TitaniumMapView) create(MSG_CREATE_MAPVIEW);
 		return view;
 	}
 

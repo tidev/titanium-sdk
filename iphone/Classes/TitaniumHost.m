@@ -1229,8 +1229,8 @@ TitaniumHost * lastSharedHost = nil;
 	return result;
 }
 
-- (NSString *)	doTitaniumMethod:(NSURL *)functionUrl withArgumentBody:(NSData *)argData;
-//- (NSString *)	doTitaniumMethod:(NSURL *)functionUrl withArgumentString:(NSString *)argString;
+//- (NSString *)	doTitaniumMethod:(NSURL *)functionUrl withArgumentBody:(NSData *)argData;
+- (NSString *)	doTitaniumMethod:(NSURL *)functionUrl withArgumentString:(NSString *)argString;
 {
 	NSArray * pathParts = [[functionUrl path] componentsSeparatedByString:@"/"];
 	int pathPartsCount = [pathParts count];
@@ -1255,9 +1255,9 @@ TitaniumHost * lastSharedHost = nil;
 	SBJSON * parser = [[SBJSON alloc] init];
 	NSError * error = nil;
 	
-	NSString * argString = [[NSString alloc] initWithData:argData encoding:NSUTF8StringEncoding];
-	id argObject = [parser fragmentWithString:argString error:&error];
-	[argString release];
+//	NSString * argString = [[NSString alloc] initWithData:argData encoding:NSUTF8StringEncoding];
+	id argObject = [SBJSON decodeUrlQuery:functionUrl];//[parser fragmentWithString:argString error:&error];
+//	[argString release];
 
 	NSString * result;
 	

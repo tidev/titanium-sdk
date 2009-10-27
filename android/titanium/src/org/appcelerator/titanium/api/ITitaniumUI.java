@@ -54,4 +54,7 @@ public interface ITitaniumUI
 
 	// In 0.7.1
 	public ITitaniumUIWebView getCurrentView();
+
+	// In 0.8.0
+	public ITitaniumMapView createMapView();
 }
