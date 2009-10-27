@@ -49,9 +49,7 @@
 	// Titanium.UI.RETURNKEY_EMERGENCY_CALL
 
 	var refresh = Titanium.UI.createButton({
-		title:'To:',
-		style:Titanium.UI.iPhone.SystemButtonStyle.PLAIN
-		
+		image:'chat.png',
 	});
 	
 	var tf1 = Titanium.UI.createTextField({
@@ -68,9 +66,10 @@
 		passwordMask:true,
 		clearOnEdit:true,
 		borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
-		clearButtonMode:Titanium.UI.INPUT_BUTTONMODE_ONFOCUS,
 		leftButton:refresh,
 		leftButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS
+		rightButton:refresh,
+		rightButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS
 
 	});
 

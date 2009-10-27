@@ -22,6 +22,7 @@
             <url>ui.html</url>
  			<title>UI</title>
  			<icon>KS_nav_ui.png</icon>
+			<backgroundColor>#222</backgroundColor>
 			<orientation>either</orientation>
         </window>
         <window>

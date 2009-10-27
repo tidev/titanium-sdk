@@ -1,5 +1,7 @@
 //
 //  Appcelerator Titanium Mobile
+//  Copyright (c) 2009 Appcelerator, Inc. All Rights Reserved.
+//
 //  WARNING: this is a generated file and should not be modified
 //
 
