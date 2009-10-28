@@ -1256,7 +1256,10 @@ TitaniumHost * lastSharedHost = nil;
 	NSError * error = nil;
 	
 //	NSString * argString = [[NSString alloc] initWithData:argData encoding:NSUTF8StringEncoding];
-	id argObject = [SBJSON decodeUrlQuery:functionUrl];//[parser fragmentWithString:argString error:&error];
+	id argObject = nil;
+	if([argString length]>0){
+		argObject = [parser fragmentWithString:argString error:&error];
+	}
 //	[argString release];
 
 	NSString * result;
@@ -1275,7 +1278,7 @@ TitaniumHost * lastSharedHost = nil;
 			} else if([responseObject isKindOfClass:[NSError class]]){
 				error = responseObject;
 			} else {
-				result = [NSString stringWithFormat:@"result=%@;",[parser stringWithFragment:responseObject error:&error]];
+				result = [NSString stringWithFormat:@"res=%@;",[parser stringWithFragment:responseObject error:&error]];
 			}
 		} @catch (id e) {
 			error = e;

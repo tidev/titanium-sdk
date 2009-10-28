@@ -171,6 +171,17 @@ Titanium.UI.addEventListener('tabchange',function(e)
 		a.show();
 	});
 
+contactTest = function(){
+	var records = Ti.Contacts.getAllContacts();
+	var count=records.length;
+	Ti.API.debug('We have ' + count + ' records.');
+	for(var i=0;i<count;i++){
+		var record=records[i];
+		Ti.API.debug(record.firstName + ' ' + record.lastName);
+	}
+}
+
+
 </script>
 </head>
 <body>
@@ -190,7 +201,7 @@ document.write(window._WINTKN);
 
 	<button onclick="doEmailTest()">Email</button>
 
-	<button onclick="Ti.UI.addressBookThingy(0,'åéîøü')">Hello world</button>
+	<button onclick="testFun('contactTest()')">Hello world</button>
 
 	<button onclick="testFun('fileTest()')">File</button>
 	<button onclick="testFun('noteTest()')">Notification</button>

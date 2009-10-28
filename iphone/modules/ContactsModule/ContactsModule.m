@@ -10,6 +10,39 @@
 #import <AddressBook/AddressBook.h>
 #import <AddressBookUI/AddressBookUI.h>
 
+BOOL ContactKeyIsImageDataKey(NSString * contactKey){
+	return [@"imageData" isEqual:contactKey];
+}
+
+NSDictionary * PropertyIDDictionary = nil;
+
+ABPropertyID PropertyIDForContactKey(NSString * contactKey){
+	if (PropertyIDDictionary == nil) {
+		PropertyIDDictionary = [[NSDictionary alloc] initWithObjectsAndKeys:
+				[NSNumber numberWithInt:kABPersonFirstNameProperty],@"firstName",
+				[NSNumber numberWithInt:kABPersonLastNameProperty],@"lastName",
+				[NSNumber numberWithInt:kABPersonMiddleNameProperty],@"middleName",
+				[NSNumber numberWithInt:kABPersonPrefixProperty],@"prefix",
+				[NSNumber numberWithInt:kABPersonSuffixProperty],@"suffix",
+				[NSNumber numberWithInt:kABPersonNicknameProperty],@"nickname",
+				[NSNumber numberWithInt:kABPersonFirstNamePhoneticProperty],@"phoneticFirstName",
+				[NSNumber numberWithInt:kABPersonLastNamePhoneticProperty],@"phoneticLastName",
+				[NSNumber numberWithInt:kABPersonMiddleNamePhoneticProperty],@"phoneticMiddleName",
+				[NSNumber numberWithInt:kABPersonOrganizationProperty],@"organization",
+				[NSNumber numberWithInt:kABPersonJobTitleProperty],@"jobTitle",
+				[NSNumber numberWithInt:kABPersonDepartmentProperty],@"department",
+				[NSNumber numberWithInt:kABPersonEmailProperty],@"email",
+				[NSNumber numberWithInt:kABPersonBirthdayProperty],@"birthday",
+				[NSNumber numberWithInt:kABPersonNoteProperty],@"note",
+				[NSNumber numberWithInt:kABPersonCreationDateProperty],@"creationDate",
+				[NSNumber numberWithInt:kABPersonModificationDateProperty],@"modificationDate",
+				nil];
+	}
+	return [[PropertyIDDictionary objectForKey:contactKey] intValue];
+}
+
+
+
 @interface AddressPickerProxy : TitaniumProxyObject
 {
 }
@@ -69,8 +102,54 @@
 
 - (id) getContactProperty: (NSArray *) args;
 {
-
-	return nil;
+	if(![args isKindOfClass:[NSArray class]] || ([args count]<2)){
+		return [NSError errorWithDomain:@"Titanium" code:1 userInfo:
+				[NSDictionary dictionaryWithObject:@"getContactProperty requires at least 2 arguments"
+				forKey:NSLocalizedDescriptionKey]];
+	}
+	
+	NSNumber * referenceObject = [args objectAtIndex:0];
+	if(![referenceObject respondsToSelector:@selector(intValue)]){
+		return [NSError errorWithDomain:@"Titanium" code:1 userInfo:
+				[NSDictionary dictionaryWithObject:@"getContactProperty requires reference ID"
+				forKey:NSLocalizedDescriptionKey]];
+	}
+	ABAddressBookRef ourAddyBook = ABAddressBookCreate();
+	ABRecordRef ourRecord = ABAddressBookGetPersonWithRecordID(ourAddyBook, [referenceObject intValue]);
+	
+	id result=nil;
+	
+	NSString * propertyKey = [args objectAtIndex:1];
+	if (ContactKeyIsImageDataKey(propertyKey)) {
+		if (ABPersonHasImageData(ourRecord)) {
+			CFDataRef imageData = ABPersonCopyImageData(ourRecord);
+			result = [[TitaniumHost sharedHost] blobForData:(NSData *)imageData];
+			CFRelease(imageData);
+		}
+	} else {
+		ABPropertyID ourPropertyID = PropertyIDForContactKey(propertyKey);
+		ABPropertyType ourPropertyType = ABPersonGetTypeOfProperty(ourPropertyID);
+		CFTypeRef ourProperty = ABRecordCopyValue(ourRecord, ourPropertyID);
+		
+		if (ourPropertyType & kABMultiValueMask) {
+			int ourPropertyCount = ABMultiValueGetCount(ourProperty);
+			result = [NSMutableArray arrayWithCapacity:ourPropertyCount];
+			for (int thisPropertyIndex=0; thisPropertyIndex<ourPropertyCount; thisPropertyIndex++) {
+				CFStringRef thisPropertyLabel = ABMultiValueCopyLabelAtIndex(ourProperty, thisPropertyIndex);
+				CFTypeRef thisPropertyValue = ABMultiValueCopyValueAtIndex(ourProperty, thisPropertyIndex);
+				[result addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+						(NSString *)thisPropertyLabel,@"label",(id)thisPropertyValue,@"value",nil]];
+				CFRelease(thisPropertyValue);
+				CFRelease(thisPropertyLabel);
+			}
+			CFRelease(ourProperty);
+		} else {
+			result = [(id)ourProperty autorelease];
+		}
+	}
+	
+	CFRelease(ourAddyBook);
+	return result;
 }
 
 - (id) removeContact: (NSArray *) args;
