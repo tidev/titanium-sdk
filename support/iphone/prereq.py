@@ -115,7 +115,7 @@ def check_certs(props):
 	props['iphone_dev']=False
 	props['iphone_dist_message'] = 'Missing iPhone Distribution Certificate'
 	props['iphone_dev_message'] = 'Missing iPhone Developer Certificate'
-	output = run.run(['security','dump-keychain']).strip()
+	output = run.run(['security','dump-keychain']).decode("utf-8")
 	for i in output.split('\n'):
 		check_for_wwdr(props,i)
 		check_for_iphone_dev(props,i)
@@ -127,7 +127,7 @@ def check_for_package():
 	check_itunes_version(props)
 	check_certs(props)
 	props['sdks']=get_sdks()
-	print poorjson.PoorJSON().dump(props)
+	print poorjson.PoorJSON().dump(props).encode("utf-8")
 			
 def main(args):
 	if len(args)!=2:
