@@ -295,7 +295,7 @@ static CGFloat kBorderWidth = 10;
 
 - (id)initWithSession:(FBSession*)session {
   if (self = [super initWithFrame:CGRectZero]) {
-  	 _delegate = nil;
+    _delegate = nil;
     _session = [session retain];
     _loadingURL = nil;
     _orientation = UIDeviceOrientationUnknown;
@@ -319,13 +319,7 @@ static CGFloat kBorderWidth = 10;
     [_closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
     [_closeButton addTarget:self action:@selector(cancel)
       forControlEvents:UIControlEventTouchUpInside];
-
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < 30000
     _closeButton.font = [UIFont boldSystemFontOfSize:12];
-#else
-	 _closeButton.titleLabel.font = [UIFont boldSystemFontOfSize:12];
-#endif
-
     _closeButton.showsTouchWhenHighlighted = YES;
     _closeButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin
       | UIViewAutoresizingFlexibleBottomMargin;
@@ -483,7 +477,6 @@ static CGFloat kBorderWidth = 10;
 }
 
 - (void)show {
-	
   [self load];
   [self sizeToFitOrientation:NO];
 
@@ -540,7 +533,6 @@ static CGFloat kBorderWidth = 10;
 }
 
 - (void)dismissWithSuccess:(BOOL)success animated:(BOOL)animated {
-	
   if (success) {
     if ([_delegate respondsToSelector:@selector(dialogDidSucceed:)]) {
       [_delegate dialogDidSucceed:self];

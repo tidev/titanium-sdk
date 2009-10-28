@@ -108,11 +108,15 @@ static char ctrl[0x24];
 	NSString * queryString = [inputUrl query];
 	if([queryString length]>0){
 		id result;
-		queryString = [NSString stringWithFormat:@"[%@]",[queryString stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+		NSString *qs = [queryString stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+		queryString = [NSString stringWithFormat:@"[%@]",qs];
 		SBJSON * jasonDecoder = [[SBJSON alloc] init];
 		NSError * error = nil;
 		result = [jasonDecoder fragmentWithString:queryString error:&error];
 		if (error != nil){
+			// ATTEMPT TO FIGURE OUT WHAT WENT WRONG
+			NSLog(@"[DEBIG] QUERY STRING = %@",queryString);
+			NSLog(@"[DEBUG] QUERY STRING ESCAPED = %@",qs);
 			NSLog(@"[ERROR] Error in decodeUrlQuery(%@): %@",queryString,error);
 		}
 		[jasonDecoder release];
@@ -550,6 +554,7 @@ static char ctrl[0x24];
         }
         
         if (![self scanValue:&v error:error]) {
+				NSLog(@"[ERROR] error in parser = %@",error);
             *error = errWithUnderlier(EPARSE, error, @"Expected value while parsing array");
             return NO;
         }

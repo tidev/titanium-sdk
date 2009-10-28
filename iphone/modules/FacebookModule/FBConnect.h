@@ -20,3 +20,4 @@
 #import "FBLoginDialog.h"
 #import "FBPermissionDialog.h"
 #import "FBFeedDialog.h"
+#import "FBStreamDialog.h"

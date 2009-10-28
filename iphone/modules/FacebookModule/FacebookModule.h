@@ -11,6 +11,8 @@
 @interface FacebookModule : TitaniumBasicModule<FBSessionDelegate,FBDialogDelegate,FBRequestDelegate> {
 	FBSession *session;
 	FBLoginDialog *dialog;
+	NSRecursiveLock *lock;
+	BOOL pendingPermissions;
 	NSMutableDictionary *permissions;
 	NSString *pendingPermission;
 	NSString *pendingQueryId;
@@ -55,6 +57,15 @@
 	NSNumber *templateBundleId;
 	NSString *templateData;
 	NSString *body;
+	FBSession *session;
+}
+@end
+
+@interface FBStreamCallback : FBDialogCallback {
+	NSString *title;
+	NSString *data;
+	NSString *targetId;
+	FBSession *session;
 }
 @end
 

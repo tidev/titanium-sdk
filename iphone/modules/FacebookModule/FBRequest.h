@@ -20,15 +20,16 @@
 @class FBSession;
 
 @interface FBRequest : NSObject {
-  FBSession* _session;
+  FBSession*            _session;
   id<FBRequestDelegate> _delegate;
-  NSString* _url;
-  NSString* _method;
-  id _userInfo;
-  NSMutableDictionary* _params;
-  NSDate* _timestamp;
-  NSURLConnection* _connection;
-  NSMutableData* _responseText;
+  NSString*             _url;
+  NSString*             _method;
+  id                    _userInfo;
+  NSMutableDictionary*  _params;
+  NSObject*             _dataParam;
+  NSDate*               _timestamp;
+  NSURLConnection*      _connection;
+  NSMutableData*        _responseText;
 }
 
 /**
@@ -77,6 +78,14 @@
 @property(nonatomic,readonly) NSDictionary* params;
 
 /**
+ * A data parameter.
+ *
+ * Used for methods such as photos.upload, video.upload, events.create, and
+ * events.edit.
+ */
+@property(nonatomic,readonly) NSObject* dataParam;
+
+/**
  * The timestamp of when the request was sent to the server.
  */
 @property(nonatomic,readonly) NSDate* timestamp;
@@ -97,6 +106,13 @@
  * The delegate will be called for each stage of the loading process.
  */ 
 - (void)call:(NSString*)method params:(NSDictionary*)params;
+
+/**
+ * Calls a method on the server asynchronously, with a file upload component.
+ *
+ * The delegate will be called for each stage of the loading process.
+ */ 
+- (void)call:(NSString*)method params:(NSDictionary*)params dataParam:(NSData*)dataParam;
 
 /**
  * Calls a URL on the server asynchronously.

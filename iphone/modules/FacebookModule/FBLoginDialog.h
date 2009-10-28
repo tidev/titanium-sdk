@@ -19,9 +19,6 @@
 
 @interface FBLoginDialog : FBDialog <FBRequestDelegate> {
   FBRequest* _getSessionRequest;
-  NSString *_username;
-  NSString *_password;
 }
-@property(nonatomic,readonly) NSString* username;
-@property(nonatomic,readonly) NSString* password;
+
 @end

@@ -153,6 +153,11 @@
 - (BOOL)resume;
 
 /**
+ * Cancels a login (no-op if the login is already complete).
+ */
+- (void)cancelLogin;
+
+/**
  * Ends the current session and deletes the uid, session key, and secret from disk.
  */
 - (void)logout;
@@ -174,6 +179,11 @@
 - (void)session:(FBSession*)session didLogin:(FBUID)uid;
 
 @optional
+
+/**
+ * Called when a user closes the login dialog without logging in.
+ */
+- (void)sessionDidNotLogin:(FBSession*)session;
 
 /**
  * Called when a session is about to log out.
