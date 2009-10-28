@@ -133,22 +133,22 @@ def main(args):
 	compiler.compile()
 	
 	# copy over main since it can change with each release
-	main_template = codecs.open(os.path.join(template_dir,'main.m'),'r','utf-8').read()
+	main_template = codecs.open(os.path.join(template_dir,'main.m'),'r','utf-8','replace').read()
 	main_template = main_template.replace('__PROJECT_NAME__',name)
 	main_template = main_template.replace('__PROJECT_ID__',appid)
-	main_dest = codecs.open(os.path.join(iphone_dir,'main.m'),'w','utf-8')
+	main_dest = codecs.open(os.path.join(iphone_dir,'main.m'),'w','utf-8','replace')
 	main_dest.write(main_template.encode("utf-8"))
 	main_dest.close()
 	
 	# migrate the xcode project given that it can change per release of sdk
 	if iphone_version == '2.2.1':
-		xcodeproj = codecs.open(os.path.join(template_dir,'project_221.pbxproj'),'r','utf-8').read()
+		xcodeproj = codecs.open(os.path.join(template_dir,'project_221.pbxproj'),'r','utf-8','replace').read()
 	else:
-		xcodeproj = codecs.open(os.path.join(template_dir,'project.pbxproj'),'r','utf-8').read()
+		xcodeproj = codecs.open(os.path.join(template_dir,'project.pbxproj'),'r','utf-8','replace').read()
 	xcodeproj = xcodeproj.replace('__PROJECT_NAME__',name)
 	xcodeproj = xcodeproj.replace('__PROJECT_ID__',appid)
 	xcode_dir = os.path.join(iphone_dir,name+'.xcodeproj')
-	xcode_pbx = codecs.open(os.path.join(xcode_dir,'project.pbxproj'),'w','utf-8')
+	xcode_pbx = codecs.open(os.path.join(xcode_dir,'project.pbxproj'),'w','utf-8','replace')
 	xcode_pbx.write(xcodeproj.encode("utf-8"))
 	xcode_pbx.close()	
 	
@@ -188,8 +188,8 @@ def main(args):
 		dtf = os.path.join(iphone_tmp_module_dir,"UserDataModule.m")
 		if os.path.exists(dtf):
 			os.remove(dtf)
-		ctf = codecs.open(dtf,"w",'utf-8')
-		cf_template = codecs.open(os.path.join(template_dir,'UserDataModule.m'),'r','utf-8').read()
+		ctf = codecs.open(dtf,'w','utf-8','replace')
+		cf_template = codecs.open(os.path.join(template_dir,'UserDataModule.m'),'r','utf-8','replace').read()
 		cf_template = cf_template.replace('__MODULE_BODY__',module_data)
 		ctf.write(cf_template.encode("utf-8"))
 		ctf.close()
@@ -282,7 +282,7 @@ def main(args):
 		path = "~/Library/MobileDevice/Provisioning Profiles/%s.mobileprovision" % uuid
 		f = os.path.expanduser(path)
 		if os.path.exists(f):
-			c = codecs.open(f,'r','utf-8').read()
+			c = codecs.open(f,'r','utf-8','replace').read()
 			return c.find("ProvisionedDevices")!=-1
 		return False	
 		
@@ -300,11 +300,19 @@ def main(args):
 			module_str += '   <key>%s</key>\n   <real>0.0</real>\n' % (m.lower())
 	
 		tip = TiPlist(ti)
+
+		if command == 'install':
+			version = tip.tiapp.properties['version']
+			# we want to make sure in debug mode the version always changes
+			version = "%s.%d" % (version,time.time())
+			tip.tiapp.properties['version']=version
+
 		plist_template = tip.generate(module_str,appid,deploytype)
 	
 		# write out the generated tiapp.plist
 		plist.write(plist_template.encode("utf-8"))
 		plist.close()
+		
 		
 		# write out the updated Info.plist
 		infoplist_tmpl = os.path.join(iphone_dir,'Info.plist.template')

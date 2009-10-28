@@ -42,12 +42,12 @@ def main(args,argc):
 	if not os.path.exists(all_dir):
 		all_dir = template_dir
 
-	tiapp = codecs.open(os.path.join(all_dir,'tiapp.xml'),'r','utf-8').read()
+	tiapp = codecs.open(os.path.join(all_dir,'tiapp.xml'),'r','utf-8','replace').read()
 	tiapp = tiapp.replace('__PROJECT_ID__',appid)
 	tiapp = tiapp.replace('__PROJECT_NAME__',name)
 	tiapp = tiapp.replace('__PROJECT_VERSION__','1.0')
 	
-	tiapp_file = codecs.open(os.path.join(project_dir,'tiapp.xml'),'w+','utf-8')
+	tiapp_file = codecs.open(os.path.join(project_dir,'tiapp.xml'),'w+','utf-8','replace')
 	tiapp_file.write(tiapp)
 	tiapp_file.close()
 
