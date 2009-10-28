@@ -9,6 +9,7 @@
 
 #import <AddressBook/AddressBook.h>
 #import <AddressBookUI/AddressBookUI.h>
+#import "TitaniumBlobWrapper.h"
 
 BOOL ContactKeyIsImageDataKey(NSString * contactKey){
 	return [@"imageData" isEqual:contactKey];
@@ -45,9 +46,51 @@ ABPropertyID PropertyIDForContactKey(NSString * contactKey){
 				[NSNumber numberWithInt:kABPersonRelatedNamesProperty],@"relatives",
 				nil];
 	}
-	return [[PropertyIDDictionary objectForKey:contactKey] intValue];
+	NSNumber * result = [PropertyIDDictionary objectForKey:contactKey];
+	if(result != nil) return [result intValue];
+	return -1;
 }
 
+id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDict){
+	for (NSString * thisKey in inputDict) {
+		id thisValue = [inputDict objectForKey:thisKey];
+		if (ContactKeyIsImageDataKey(thisKey)) {
+			if([thisValue isKindOfClass:[TitaniumBlobWrapper class]]){
+				thisValue = [(TitaniumBlobWrapper *)thisValue dataBlob];
+			} else if(![thisValue isKindOfClass:[NSData class]]){
+				//Throw error?
+				continue;
+			}
+			ABPersonSetImageData(result, (CFDataRef)thisValue, NULL);
+			continue;
+		}
+		
+		ABPropertyID thisPropertyID = PropertyIDForContactKey(thisKey);		
+		
+		ABPropertyType thisPropertyType = ABPersonGetTypeOfProperty(thisPropertyID);
+		
+		if (thisPropertyType == kABInvalidPropertyType){
+			//Throw error?
+			continue;
+		}
+		
+		if (thisPropertyType & kABMultiValueMask){
+			ABMutableMultiValueRef thisMultiValue = ABMultiValueCreateMutable(thisPropertyType);
+			for (NSDictionary * thisEntryDictionary in thisValue) {
+				ABMultiValueAddValueAndLabel(thisMultiValue,
+						(CFTypeRef)[thisEntryDictionary objectForKey:@"value"],
+						(CFStringRef)[thisEntryDictionary objectForKey:@"label"], NULL);
+			}
+			ABRecordSetValue(result, thisPropertyID, thisMultiValue, NULL);
+			CFRelease(thisMultiValue);
+			continue;
+		}
+		
+		ABRecordSetValue(result, thisPropertyID, (CFTypeRef)thisValue, NULL);
+		
+	}
+	return nil;
+}
 
 
 @interface AddressPickerProxy : TitaniumProxyObject
@@ -161,16 +204,77 @@ ABPropertyID PropertyIDForContactKey(NSString * contactKey){
 
 - (id) removeContact: (NSArray *) args;
 {
+	if(![args isKindOfClass:[NSArray class]] || ([args count]<1)){
+		return [NSError errorWithDomain:@"Titanium" code:1 userInfo:
+				[NSDictionary dictionaryWithObject:@"removeContact requires one argument"
+											forKey:NSLocalizedDescriptionKey]];
+	}
+	
+	NSNumber * referenceObject = [args objectAtIndex:0];
+	if(![referenceObject respondsToSelector:@selector(intValue)]){
+		return [NSError errorWithDomain:@"Titanium" code:1 userInfo:
+				[NSDictionary dictionaryWithObject:@"getContactProperty requires reference ID"
+											forKey:NSLocalizedDescriptionKey]];
+	}
+	
+	ABAddressBookRef ourAddyBook = ABAddressBookCreate();
+	ABRecordRef ourRecord = ABAddressBookGetPersonWithRecordID(ourAddyBook, [referenceObject intValue]);
+	ABAddressBookRemoveRecord(ourAddyBook, ourRecord, NULL);
+
+	ABAddressBookSave(ourAddyBook, NULL);
+	CFRelease(ourAddyBook);
+	
 	return nil;
 }
 
 - (id) addContact: (NSArray *) args;
 {
-	return nil;
+	if(![args isKindOfClass:[NSArray class]] || ([args count]<1)){
+		return [NSError errorWithDomain:@"Titanium" code:1 userInfo:
+				[NSDictionary dictionaryWithObject:@"removeContact requires one argument"
+											forKey:NSLocalizedDescriptionKey]];
+	}
+	
+	NSDictionary * propertiesDict = [args objectAtIndex:0];
+	
+	ABAddressBookRef ourAddyBook = ABAddressBookCreate();
+	ABRecordRef ourRecord = ABPersonCreate();
+	SetContactPropertiesFromDictionary(ourRecord, propertiesDict);
+	ABAddressBookAddRecord(ourAddyBook, ourRecord, NULL);
+
+	ABRecordID result = ABRecordGetRecordID(ourRecord);
+
+	ABAddressBookSave(ourAddyBook, NULL);
+	CFRelease(ourRecord);
+	CFRelease(ourAddyBook);
+	return [NSNumber numberWithInt:result];
 }
 
-- (id) saveContacts: (NSArray *) args;
+- (id) saveContact: (NSArray *) args;
 {
+	if(![args isKindOfClass:[NSArray class]] || ([args count]<2)){
+		return [NSError errorWithDomain:@"Titanium" code:1 userInfo:
+				[NSDictionary dictionaryWithObject:@"getContactProperty requires at least 2 arguments"
+											forKey:NSLocalizedDescriptionKey]];
+	}
+	
+	NSNumber * referenceObject = [args objectAtIndex:0];
+	if(![referenceObject respondsToSelector:@selector(intValue)]){
+		return [NSError errorWithDomain:@"Titanium" code:1 userInfo:
+				[NSDictionary dictionaryWithObject:@"getContactProperty requires reference ID"
+											forKey:NSLocalizedDescriptionKey]];
+	}
+
+	NSDictionary * propertiesDict = [args objectAtIndex:1];
+
+	ABAddressBookRef ourAddyBook = ABAddressBookCreate();
+	ABRecordRef ourRecord = ABAddressBookGetPersonWithRecordID(ourAddyBook, [referenceObject intValue]);
+	
+	SetContactPropertiesFromDictionary(ourRecord, propertiesDict);
+
+	ABAddressBookSave(ourAddyBook, NULL);
+	CFRelease(ourAddyBook);	
+	
 	return nil;
 }
 
@@ -312,10 +416,12 @@ ABPropertyID PropertyIDForContactKey(NSString * contactKey){
 				"Ti._TIDO('contacts','removeContact',[contact._REFID])){delete contact._REFID;}"
 				"else{throw 'Contact does not exist in the address book.'}}"],@"removeContact",
 			[TitaniumJSCode codeWithString:@"function(contact){if(!contact._REFID)"
-				"{contact._REFID=Ti._TIDO('contacts','addContact',[contact._DELTA]);contact._DELTA={};}"
+				"{var del=contact._DELTA;contact._REFID=Ti._TIDO('contacts','addContact',[del]);"
+				"for(prop in del){contact._CACHE[prop]=del[prop]}contact._DELTA={};}"
 				"else{throw 'Contact already exists in the address book.'}}"],@"addContact",
 			[TitaniumJSCode codeWithString:@"function(contact){if(contact._REFID)"
-				"{Ti._TIDO('contacts','saveContact',[contact._REFID,contact._DELTA]);contact._DELTA={};}"
+				"{var del=contact._DELTA;Ti._TIDO('contacts','saveContact',[contact._REFID,del]);"
+				"for(prop in del){contact._CACHE[prop]=del[prop]}contact._DELTA={};}"
 				"else{throw 'Contact must be added to the address book first.';}}"],@"saveContact",
 			nil];
 	[[TitaniumHost sharedHost] bindObject:moduleDict toKeyPath:@"Contacts"];

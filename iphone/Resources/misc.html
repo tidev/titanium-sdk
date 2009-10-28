@@ -172,13 +172,20 @@ Titanium.UI.addEventListener('tabchange',function(e)
 	});
 
 contactTest = function(){
+	var newRecord = Ti.Contacts.createContact({firstName:'Jack',lastName:'Black'});
+	Ti.Contacts.addContact(newRecord);
+
 	var records = Ti.Contacts.getAllContacts();
 	var count=records.length;
 	Ti.API.debug('We have ' + count + ' records.');
 	for(var i=0;i<count;i++){
 		var record=records[i];
 		Ti.API.debug(record.firstName + ' ' + record.lastName);
+		record.email.push({label:'randomMail',value:'blah@blah.com'});
+		Ti.Contacts.saveContact(record);
 	}
+	Ti.API.debug(records);
+//	Ti.Contacts.deleteContact(newRecord);
 }
 
 
