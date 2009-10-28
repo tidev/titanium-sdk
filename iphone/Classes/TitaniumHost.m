@@ -1229,8 +1229,8 @@ TitaniumHost * lastSharedHost = nil;
 	return result;
 }
 
-- (NSString *)	doTitaniumMethod:(NSURL *)functionUrl withArgumentBody:(NSData *)argData;
-//- (NSString *)	doTitaniumMethod:(NSURL *)functionUrl withArgumentString:(NSString *)argString;
+//- (NSString *)	doTitaniumMethod:(NSURL *)functionUrl withArgumentBody:(NSData *)argData;
+- (NSString *)	doTitaniumMethod:(NSURL *)functionUrl withArgumentString:(NSString *)argString;
 {
 	NSArray * pathParts = [[functionUrl path] componentsSeparatedByString:@"/"];
 	int pathPartsCount = [pathParts count];
@@ -1255,9 +1255,12 @@ TitaniumHost * lastSharedHost = nil;
 	SBJSON * parser = [[SBJSON alloc] init];
 	NSError * error = nil;
 	
-	NSString * argString = [[NSString alloc] initWithData:argData encoding:NSUTF8StringEncoding];
-	id argObject = [parser fragmentWithString:argString error:&error];
-	[argString release];
+//	NSString * argString = [[NSString alloc] initWithData:argData encoding:NSUTF8StringEncoding];
+	id argObject = nil;
+	if([argString length]>0){
+		argObject = [parser fragmentWithString:argString error:&error];
+	}
+//	[argString release];
 
 	NSString * result;
 	
@@ -1275,7 +1278,7 @@ TitaniumHost * lastSharedHost = nil;
 			} else if([responseObject isKindOfClass:[NSError class]]){
 				error = responseObject;
 			} else {
-				result = [NSString stringWithFormat:@"result=%@;",[parser stringWithFragment:responseObject error:&error]];
+				result = [NSString stringWithFormat:@"res=%@;",[parser stringWithFragment:responseObject error:&error]];
 			}
 		} @catch (id e) {
 			error = e;

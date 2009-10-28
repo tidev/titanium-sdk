@@ -665,7 +665,7 @@ static char ctrl[0x24];
                 case 't':   uc = '\t';  break;
                 case 'f':   uc = '\f';  break;                    
                     
-                case 'u':
+                case 'u':case 'U':
                     c++;
                     if (![self scanUnicodeChar:&uc error:error]) {
                         *error = errWithUnderlier(EUNICODE, error, @"Broken unicode character");

@@ -414,7 +414,7 @@ NSString * UrlEncodeString(NSString * string)
 			}
 			id rightProxy = [proxyObject objectForKey:@"rightButton"];
 			if (rightProxy != nil){
-				[result setLeftViewProxy:[self proxyForObject:rightProxy scan:YES recurse:NO]];
+				[result setRightViewProxy:[self proxyForObject:rightProxy scan:YES recurse:NO]];
 			}
 		}
 		

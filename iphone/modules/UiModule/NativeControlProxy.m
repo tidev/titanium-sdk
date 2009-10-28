@@ -81,6 +81,7 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 			NSNumber * isSelected = [thisCellObject objectForKey:@"selected"];
 			if([isSelected respondsToSelector:boolSel] && [isSelected boolValue])selectedRow=[data count];
 			[data addObject:thisCell];
+			[thisCell release];
 		}
 	}
 }

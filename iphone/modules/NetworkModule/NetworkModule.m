@@ -404,7 +404,7 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 		CFStringEncoding grabbedEncoding = CFStringConvertIANACharSetNameToEncoding((CFStringRef)[response textEncodingName]);
 		returnedEncoding = CFStringConvertEncodingToNSStringEncoding(grabbedEncoding);
 	}
-	else
+	else if([response isKindOfClass:[NSHTTPURLResponse class]])
 	{
 		id encodingObject = [[(NSHTTPURLResponse *)response allHeaderFields] objectForKey:@"Content-Type"];
 		returnedEncoding = NSUTF8StringEncoding;

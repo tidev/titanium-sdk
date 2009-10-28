@@ -131,3 +131,11 @@
  * @tiarg(for=Facebook.createLoginButton,type=object,name=properties) properties such as id (required), style (optional), apikey (optional), secret (optional)
  * @tiresult(for=Facebook.createLoginButton,type=object) returns button instance
  */
+
+/**
+ * @tiapi(method=True,name=Facebook.publishStream,since=0.8) publish stream dialog for publishing data to wall
+ * @tiarg(for=Facebook.publishStream,type=string,name=title) title of publish stream dialog
+ * @tiarg(for=Facebook.publishStream,type=object,name=data,optional=True) publish data as json object
+ * @tiarg(for=Facebook.publishStream,type=string,name=targetId,optional=True) targetId if related to a specific user
+ * @tiarg(for=Facebook.publishStream,type=function,name=callback) callback function to be invoked with result
+ */

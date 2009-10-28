@@ -21,6 +21,7 @@ import org.appcelerator.titanium.config.TitaniumWindowInfo;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumAnimationFactory;
 import org.appcelerator.titanium.util.TitaniumAnimationPair;
+import org.appcelerator.titanium.util.TitaniumColorHelper;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.json.JSONException;
@@ -58,6 +59,8 @@ public class TitaniumUserWindow extends ViewAnimator
 	protected static final int MSG_CONFIGCHANGE = 303;
 	protected static final int MSG_ACTIVATE_VIEW = 304;
 	protected static final int MSG_FIRE_FOCUS = 305;
+	protected static final int MSG_SET_BACKGROUNDCOLOR = 306;
+	protected static final int MSG_SET_BACKGROUNDIMAGE = 307;
 
 	protected TitaniumActivity activity;
 	protected Handler handler;
@@ -110,10 +113,10 @@ public class TitaniumUserWindow extends ViewAnimator
 		if (windowInfo != null) {
 			if (windowInfo.hasBackgroundColor()) {
 				setBackgroundColor(windowInfo.getBackgroundColor());
-				tmm.getWebView().setBackgroundColor(windowInfo.getBackgroundColor());
+				//tmm.getWebView().setBackgroundColor(windowInfo.getBackgroundColor());
 			}
 			if (windowInfo.hasWindowBackgroundImage()) {
-				backgroundImage = windowInfo.getWindowBackgroundImage();
+				setBackgroundImage(windowInfo.getWindowBackgroundImage());
 			}
 		} else {
 	    	TitaniumIntentWrapper tiw = new TitaniumIntentWrapper(tmm.getActivity().getIntent());
@@ -121,20 +124,20 @@ public class TitaniumUserWindow extends ViewAnimator
 			if (tiw.hasBackgroundColor()) {
 				int backgroundColor = tiw.getBackgroundColor();
 				setBackgroundColor(backgroundColor);
-				tmm.getWebView().setBackgroundColor(backgroundColor);
+				//tmm.getWebView().setBackgroundColor(backgroundColor);
 			}
 			if (tiw.hasBackgroundImage()) {
-				backgroundImage = tiw.getBackgroundImage();
+				setBackgroundImage(tiw.getBackgroundImage());
 			}
 		}
 
-		if (backgroundImage != null) {
-	    	Drawable backgroundDrawable = tfh.loadDrawable(backgroundImage, false); // Ok to not have background
-			if (backgroundDrawable != null) {
-				((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
-				tmm.getWebView().setBackgroundDrawable(backgroundDrawable);
-			}
-		}
+//		if (backgroundImage != null) {
+//	    	Drawable backgroundDrawable = tfh.loadDrawable(backgroundImage, false); // Ok to not have background
+//			if (backgroundDrawable != null) {
+//				((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
+//				tmm.getWebView().setBackgroundDrawable(backgroundDrawable);
+//			}
+//		}
 
         uiWebView.postOpen();
 
@@ -246,6 +249,24 @@ public class TitaniumUserWindow extends ViewAnimator
 				onWindowFocusChanged(true);
 				return true;
 			}
+
+			case MSG_SET_BACKGROUNDCOLOR : {
+				tmm.getWebView().setBackgroundColor(msg.arg1);
+				return true;
+			}
+
+			case MSG_SET_BACKGROUNDIMAGE : {
+				backgroundImage = (String) msg.obj;
+				if (backgroundImage != null) {
+					TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getAppContext());
+			    	Drawable backgroundDrawable = tfh.loadDrawable(backgroundImage, false); // Ok to not have background
+					if (backgroundDrawable != null) {
+						((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
+						tmm.getWebView().setBackgroundDrawable(backgroundDrawable);
+					}
+				}
+				return true;
+			}
 		}
 		return false;
 	}
@@ -280,11 +301,17 @@ public class TitaniumUserWindow extends ViewAnimator
 	}
 
 	public void setBackgroundColor(String backgroundColor) {
-		Log.w(LCAT, "backgroundColor cannot be changed on currentWindow");
+		if (backgroundColor != null) {
+			setBackgroundColorValue(TitaniumColorHelper.parseColor(backgroundColor));
+		}
+	}
+
+	public void setBackgroundColorValue(int backgroundColor) {
+		handler.obtainMessage(MSG_SET_BACKGROUNDCOLOR, backgroundColor).sendToTarget();
 	}
 
 	public void setBackgroundImage(String backgroundImage) {
-		Log.w(LCAT, "backgroundImage cannot be changed on currentWindow");
+		handler.obtainMessage(MSG_SET_BACKGROUNDIMAGE, backgroundImage).sendToTarget();
 	}
 
 	public void setTitleImage(String titleImageUrl) {

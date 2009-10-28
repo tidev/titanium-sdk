@@ -21,7 +21,7 @@ modules = [	'api',
 		'notification',
 		'facebook',
 		'yahoo',
-		'address',
+		'contacts',
 		'map']
 
 try:

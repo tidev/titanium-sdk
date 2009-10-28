@@ -9,7 +9,6 @@ package org.appcelerator.titanium.module.ui;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import org.appcelerator.titanium.TitaniumActivityGroup;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.TitaniumWebView;
 import org.appcelerator.titanium.TitaniumWebView.OnConfigChange;
@@ -18,7 +17,6 @@ import org.appcelerator.titanium.api.ITitaniumUIWebView;
 import org.appcelerator.titanium.api.ITitaniumView;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TitaniumActivityHelper;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.json.JSONException;
@@ -28,12 +26,17 @@ import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.webkit.JsPromptResult;
+import android.webkit.JsResult;
 import android.webkit.URLUtil;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
 public class TitaniumUIWebView extends TitaniumBaseView
@@ -136,7 +139,29 @@ public class TitaniumUIWebView extends TitaniumBaseView
 	    	tv.buildWebView(); //TODO Performance?
 	    	view = tv;
 		} else {
-			view = new WebView(tmm.getAppContext());
+			view = new WebView(tmm.getAppContext()) {
+
+				@Override
+				public boolean onKeyDown(int keyCode, KeyEvent event) {
+					if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+						if (this.canGoBack()) {
+							this.goBack();
+							return true;
+						}
+					}
+					return super.onKeyDown(keyCode, event);
+				}
+			};
+			view.setWebChromeClient(new WebChromeClient() {
+			});
+			view.setWebViewClient(new WebViewClient(){
+			});
+			view.getSettings().setJavaScriptEnabled(true);
+			view.getSettings().setLoadsImagesAutomatically(true);
+			view.getSettings().setAllowFileAccess(false);
+			view.getSettings().setPluginsEnabled(true);
+			view.setScrollBarStyle(WebView.SCROLLBARS_INSIDE_OVERLAY);
+			view.loadUrl(url);
 		}
 	}
 
