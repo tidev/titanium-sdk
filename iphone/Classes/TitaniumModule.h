@@ -7,6 +7,10 @@
 #import <Foundation/Foundation.h>
 #include "TargetConditionals.h" // this is important to get correct iphone preprocessor definitions
 
+#define DECLARE_JS_ACCESSORS(object,propertyName,UpperPropertyName)	\
+	"Ti." object ".prototype.__defineGetter__('" propertyName "',Ti." object ".prototype.get" UpperPropertyName ");"	\
+	"Ti." object ".prototype.__defineSetter__('" propertyName "',Ti." object ".prototype.set" UpperPropertyName ");"
+
 @protocol TitaniumModule
 @optional
 

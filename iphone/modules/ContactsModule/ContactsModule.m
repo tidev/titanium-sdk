@@ -36,6 +36,13 @@ ABPropertyID PropertyIDForContactKey(NSString * contactKey){
 				[NSNumber numberWithInt:kABPersonNoteProperty],@"note",
 				[NSNumber numberWithInt:kABPersonCreationDateProperty],@"creationDate",
 				[NSNumber numberWithInt:kABPersonModificationDateProperty],@"modificationDate",
+
+				[NSNumber numberWithInt:kABPersonAddressProperty],@"address",
+				[NSNumber numberWithInt:kABPersonDateProperty],@"date",
+				[NSNumber numberWithInt:kABPersonPhoneProperty],@"phone",
+				[NSNumber numberWithInt:kABPersonInstantMessageProperty],@"instantMessenger",
+				[NSNumber numberWithInt:kABPersonURLProperty],@"url",
+				[NSNumber numberWithInt:kABPersonRelatedNamesProperty],@"relatives",
 				nil];
 	}
 	return [[PropertyIDDictionary objectForKey:contactKey] intValue];
@@ -177,263 +184,116 @@ ABPropertyID PropertyIDForContactKey(NSString * contactKey){
 	
 //	[(TemplateModule *)invocGen foo];
 //	NSInvocation * fooInvoc = [invocGen invocation];
-	
+#define CACHING_GETTER(propertyKey)	"function(){var A=this._DELTA." propertyKey ";" \
+		"if(A!==undefined)return A;A=this._CACHE." propertyKey ";if((A===undefined)&&(this._REFID)){" \
+		"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'" propertyKey "']);" \
+		"this._CACHE." propertyKey "=A;}return A;}"
+
+#define MULTIVALUE_GETTER(propertyKey)	"function(){var A=this._DELTA." propertyKey ";" \
+		"if(A!==undefined)return A;if(this._REFID){" \
+		"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'" propertyKey "']);" \
+		"this._DELTA." propertyKey "=A;}return A;}"
+
 	TitaniumJSCode * contactObjectCode = [TitaniumJSCode codeWithString:
 			@"function(newRefID){this._REFID=newRefID;this._CACHE={};this._DELTA={};return this;}"];
 	[contactObjectCode setEpilogueCode:@"Ti.Contacts._CONOBJ.prototype={"
-				"getFirstName:function(){"
-					"var A=this._DELTA.firstName;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.firstName;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'firstName']);"
-						"this._CACHE.firstName=A;}"
-					"return A;"
-				"},"
-				"setFirstName:function(val){this._DELTA.firstName=val;return val;},"
+			"getFirstName:" CACHING_GETTER("firstName") ","
+			"setFirstName:function(val){this._DELTA.firstName=val;return val;},"
 
-				"getLastName:function(){"
-					"var A=this._DELTA.lastName;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.lastName;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'lastName']);"
-						"this._CACHE.lastName=A;}"
-					"return A;"
-				"},"
-				"setLastName:function(val){this._DELTA.lastName=val;return val;},"
+			"getLastName:" CACHING_GETTER("lastName") ","
+			"setLastName:function(val){this._DELTA.lastName=val;return val;},"
 
-				"getMiddleName:function(){"
-					"var A=this._DELTA.middleName;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.middleName;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'middleName']);"
-						"this._CACHE.middleName=A;}"
-					"return A;"
-				"},"
-				"setMiddleName:function(val){this._DELTA.middleName=val;return val;},"
+			"getMiddleName:" CACHING_GETTER("middleName") ","
+			"setMiddleName:function(val){this._DELTA.middleName=val;return val;},"
 
-				"getPrefix:function(){"
-					"var A=this._DELTA.prefix;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.prefix;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'prefix']);"
-						"this._CACHE.prefix=A;}"
-					"return A;"
-				"},"
-				"setPrefix:function(val){this._DELTA.prefix=val;return val;},"
+			"getPrefix:" CACHING_GETTER("prefix") ","
+			"setPrefix:function(val){this._DELTA.prefix=val;return val;},"
 
-				"getSuffix:function(){"
-					"var A=this._DELTA.suffix;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.suffix;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'suffix']);"
-						"this._CACHE.suffix=A;}"
-					"return A;"
-				"},"
-				"setSuffix:function(val){this._DELTA.suffix=val;return val;},"
+			"getSuffix:" CACHING_GETTER("suffix") ","
+			"setSuffix:function(val){this._DELTA.suffix=val;return val;},"
 
-				"getNickname:function(){"
-					"var A=this._DELTA.nickname;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.nickname;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'nickname']);"
-						"this._CACHE.nickname=A;}"
-					"return A;"
-				"},"
-				"setNickname:function(val){this._DELTA.nickname=val;return val;},"
+			"getNickname:" CACHING_GETTER("nickname") ","
+			"setNickname:function(val){this._DELTA.nickname=val;return val;},"
 
-				"getPhoneticFirstName:function(){"
-					"var A=this._DELTA.phoneticFirstName;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.phoneticFirstName;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'phoneticFirstName']);"
-						"this._CACHE.phoneticFirstName=A;}"
-					"return A;"
-				"},"
-				"setPhoneticFirstName:function(val){this._DELTA.phoneticFirstName=val;return val;},"
+			"getPhoneticFirstName:" CACHING_GETTER("phoneticFirstName") ","
+			"setPhoneticFirstName:function(val){this._DELTA.phoneticFirstName=val;return val;},"
 
-				"getPhoneticLastName:function(){"
-					"var A=this._DELTA.phoneticLastName;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.phoneticLastName;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'phoneticLastName']);"
-						"this._CACHE.phoneticLastName=A;}"
-					"return A;"
-				"},"
-				"setPhoneticLastName:function(val){this._DELTA.phoneticLastName=val;return val;},"
+			"getPhoneticLastName:" CACHING_GETTER("phoneticLastName") ","
+			"setPhoneticLastName:function(val){this._DELTA.phoneticLastName=val;return val;},"
 
-				"getPhoneticMiddleName:function(){"
-					"var A=this._DELTA.phoneticMiddleName;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.phoneticMiddleName;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'phoneticMiddleName']);"
-						"this._CACHE.phoneticMiddleName=A;}"
-					"return A;"
-				"},"
-				"setPhoneticMiddleName:function(val){this._DELTA.phoneticMiddleName=val;return val;},"
+			"getPhoneticMiddleName:" CACHING_GETTER("phoneticMiddleName") ","
+			"setPhoneticMiddleName:function(val){this._DELTA.phoneticMiddleName=val;return val;},"
 
-				"getOrganization:function(){"
-					"var A=this._DELTA.organization;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.organization;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'organization']);"
-						"this._CACHE.organization=A;}"
-					"return A;"
-				"},"
-				"setOrganization:function(val){this._DELTA.organization=val;return val;},"
+			"getOrganization:" CACHING_GETTER("organization") ","
+			"setOrganization:function(val){this._DELTA.organization=val;return val;},"
 
-				"getJobTitle:function(){"
-					"var A=this._DELTA.jobTitle;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.jobTitle;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'jobTitle']);"
-						"this._CACHE.jobTitle=A;}"
-					"return A;"
-				"},"
-				"setJobTitle:function(val){this._DELTA.jobTitle=val;return val;},"
+			"getJobTitle:" CACHING_GETTER("jobTitle") ","
+			"setJobTitle:function(val){this._DELTA.jobTitle=val;return val;},"
 
-				"getDepartment:function(){"
-					"var A=this._DELTA.department;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.department;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'department']);"
-						"this._CACHE.department=A;}"
-					"return A;"
-				"},"
-				"setDepartment:function(val){this._DELTA.department=val;return val;},"
+			"getDepartment:" CACHING_GETTER("department") ","
+			"setDepartment:function(val){this._DELTA.department=val;return val;},"
 
-				"getEmail:function(){"
-					"var A=this._DELTA.email;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.email;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'email']);"
-						"this._CACHE.email=A;}"
-					"return A;"
-				"},"
-				"setEmail:function(val){this._DELTA.email=val;return val;},"
+			"getEmail:" MULTIVALUE_GETTER("email") ","
+			"setEmail:function(val){this._DELTA.email=val;return val;},"
 
-				"getBirthday:function(){"
-					"var A=this._DELTA.birthday;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.birthday;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'birthday']);"
-						"this._CACHE.birthday=A;}"
-					"return A;"
-				"},"
-				"setBirthday:function(val){this._DELTA.birthday=val;return val;},"
+			"getBirthday:" CACHING_GETTER("birthday") ","
+			"setBirthday:function(val){this._DELTA.birthday=val;return val;},"
 
-				"getNote:function(){"
-					"var A=this._DELTA.note;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.note;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'note']);"
-						"this._CACHE.note=A;}"
-					"return A;"
-				"},"
-				"setNote:function(val){this._DELTA.note=val;return val;},"
+			"getNote:" CACHING_GETTER("note") ","
+			"setNote:function(val){this._DELTA.note=val;return val;},"
 
-				"getCreationDate:function(){"
-					"var A=this._DELTA.creationDate;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.creationDate;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'creationDate']);"
-						"this._CACHE.creationDate=A;}"
-					"return A;"
-				"},"
-				"setCreationDate:function(val){this._DELTA.creationDate=val;return val;},"
+			"getCreationDate:" CACHING_GETTER("creationDate") ","
+			"setCreationDate:function(val){this._DELTA.creationDate=val;return val;},"
 
-				"getModificationDate:function(){"
-					"var A=this._DELTA.modificationDate;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.modificationDate;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'modificationDate']);"
-						"this._CACHE.modificationDate=A;}"
-					"return A;"
-				"},"
-				"setModificationDate:function(val){this._DELTA.modificationDate=val;return val;},"
+			"getModificationDate:" CACHING_GETTER("modificationDate") ","
+			"setModificationDate:function(val){this._DELTA.modificationDate=val;return val;},"
 
-				"getImageData:function(){"
-					"var A=this._DELTA.imageData;"
-					"if(A!==undefined)return A;"
-					"A=this._CACHE.imageData;"
-					"if((A===undefined)&&(this._REFID)){"
-						"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'imageData']);"
-						"this._CACHE.imageData=A;}"
-					"return A;"
-				"},"
-				"setImageData:function(val){this._DELTA.imageData=val;return val;},"
+			"getImageData:" CACHING_GETTER("imageData") ","
+			"setImageData:function(val){this._DELTA.imageData=val;return val;},"
 
-			 "};"
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('firstName',Ti.Contacts._CONOBJ.prototype.getFirstName);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('firstName',Ti.Contacts._CONOBJ.prototype.setFirstName);"
+			 "getAddress:" MULTIVALUE_GETTER("address") ","
+			 "setAddress:function(val){this._DELTA.address=val;return val;},"
 
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('lastName',Ti.Contacts._CONOBJ.prototype.getLastName);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('lastName',Ti.Contacts._CONOBJ.prototype.setLastName);"
+			 "getDate:" MULTIVALUE_GETTER("date") ","
+			 "setDate:function(val){this._DELTA.date=val;return val;},"
 
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('middleName',Ti.Contacts._CONOBJ.prototype.getMiddleName);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('middleName',Ti.Contacts._CONOBJ.prototype.setMiddleName);"
+			 "getPhone:" MULTIVALUE_GETTER("phone") ","
+			 "setPhone:function(val){this._DELTA.phone=val;return val;},"
 
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('prefix',Ti.Contacts._CONOBJ.prototype.getPrefix);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('prefix',Ti.Contacts._CONOBJ.prototype.setPrefix);"
+			 "getInstantMessenger:" MULTIVALUE_GETTER("instantMessenger") ","
+			 "setInstantMessenger:function(val){this._DELTA.instantMessenger=val;return val;},"
 
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('suffix',Ti.Contacts._CONOBJ.prototype.getSuffix);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('suffix',Ti.Contacts._CONOBJ.prototype.setSuffix);"
+			 "getUrl:" MULTIVALUE_GETTER("url") ","
+			 "setUrl:function(val){this._DELTA.url=val;return val;},"
 
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('nickname',Ti.Contacts._CONOBJ.prototype.getNickname);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('nickname',Ti.Contacts._CONOBJ.prototype.setNickname);"
+			 "getRelatives:" MULTIVALUE_GETTER("relatives") ","
+			 "setRelatives:function(val){this._DELTA.relatives=val;return val;},"
 
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('phoneticFirstName',Ti.Contacts._CONOBJ.prototype.getPhoneticFirstName);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('phoneticFirstName',Ti.Contacts._CONOBJ.prototype.setPhoneticFirstName);"
-
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('phoneticLastName',Ti.Contacts._CONOBJ.prototype.getPhoneticLastName);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('phoneticLastName',Ti.Contacts._CONOBJ.prototype.setPhoneticLastName);"
-
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('phoneticMiddleName',Ti.Contacts._CONOBJ.prototype.getPhoneticMiddleName);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('phoneticMiddleName',Ti.Contacts._CONOBJ.prototype.setPhoneticMiddleName);"
-
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('organization',Ti.Contacts._CONOBJ.prototype.getOrganization);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('organization',Ti.Contacts._CONOBJ.prototype.setOrganization);"
-
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('jobTitle',Ti.Contacts._CONOBJ.prototype.getJobTitle);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('jobTitle',Ti.Contacts._CONOBJ.prototype.setJobTitle);"
-
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('department',Ti.Contacts._CONOBJ.prototype.getDepartment);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('department',Ti.Contacts._CONOBJ.prototype.setDepartment);"
-
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('email',Ti.Contacts._CONOBJ.prototype.getEmail);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('email',Ti.Contacts._CONOBJ.prototype.setEmail);"
-
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('birthday',Ti.Contacts._CONOBJ.prototype.getBirthday);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('birthday',Ti.Contacts._CONOBJ.prototype.setBirthday);"
-
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('note',Ti.Contacts._CONOBJ.prototype.getNote);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('note',Ti.Contacts._CONOBJ.prototype.setNote);"
-
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('creationDate',Ti.Contacts._CONOBJ.prototype.getCreationDate);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('creationDate',Ti.Contacts._CONOBJ.prototype.setCreationDate);"
-
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('modificationDate',Ti.Contacts._CONOBJ.prototype.getModificationDate);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('modificationDate',Ti.Contacts._CONOBJ.prototype.setModificationDate);"
-
-			 "Ti.Contacts._CONOBJ.prototype.__defineGetter__('imageData',Ti.Contacts._CONOBJ.prototype.getImageData);"
-			 "Ti.Contacts._CONOBJ.prototype.__defineSetter__('imageData',Ti.Contacts._CONOBJ.prototype.setImageData);"
-
+		"};"
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","firstName","FirstName")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","lastName","LastName")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","middleName","MiddleName")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","prefix","Prefix")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","suffix","Suffix")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","nickname","Nickname")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","phoneticFirstName","PhoneticFirstName")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","phoneticLastName","PhoneticLastName")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","phoneticMiddleName","PhoneticMiddleName")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","organization","Organization")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","jobTitle","JobTitle")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","department","Department")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","email","Email")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","birthday","Birthday")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","note","Note")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","creationDate","CreationDate")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","modificationDate","ModificationDate")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","imageData","ImageData")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","address","Address")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","date","Date")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","phone","Phone")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","instantMessenger","InstantMessenger")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","url","Url")
+	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","relatives","Relatives")
 			 ];
 
 	
