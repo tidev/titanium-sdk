@@ -115,7 +115,7 @@ static char ctrl[0x24];
 		result = [jasonDecoder fragmentWithString:queryString error:&error];
 		if (error != nil){
 			// ATTEMPT TO FIGURE OUT WHAT WENT WRONG
-			NSLog(@"[DEBIG] QUERY STRING = %@",queryString);
+			NSLog(@"[DEBUG] QUERY STRING = %@",queryString);
 			NSLog(@"[DEBUG] QUERY STRING ESCAPED = %@",qs);
 			NSLog(@"[ERROR] Error in decodeUrlQuery(%@): %@",queryString,error);
 		}
