@@ -154,6 +154,8 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 
 - (void) reportEvent: (NSString *) eventType value: (NSString *) newValue index: (int) index init:(NSString *)customInit arguments:(NSString *)extraArgs;
 
+- (BOOL)isFirstResponder;
+
 @end
 
 extern NSString * const systemButtonString;

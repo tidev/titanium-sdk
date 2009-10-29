@@ -36,11 +36,13 @@ static BOOL L0AccelerationIsShaking(UIAcceleration* last, UIAcceleration* curren
 	BOOL histeresisExcited;
 	UIAcceleration * lastAcceleration;
 #endif
-		
+	
 	BOOL abortLaunchingApp;
 	BOOL isShowingDialog;
 	
 	TitaniumHost * currentHost;
+
+	id	remoteNotificationSubdelegate;
 }
 
 + (TitaniumAppDelegate *) sharedDelegate;
@@ -64,6 +66,7 @@ static BOOL L0AccelerationIsShaking(UIAcceleration* last, UIAcceleration* curren
 @property (nonatomic, retain)	TitaniumHost * currentHost;
 @property (nonatomic, assign)	BOOL isShowingDialog;
 
+@property (nonatomic, assign)	id	remoteNotificationSubdelegate;
 
 @end
 

@@ -7,6 +7,7 @@
 #ifdef MODULE_TI_NETWORK
 
 #import "NetworkModule.h"
+#import "TitaniumAppDelegate.h"
 
 #import <ifaddrs.h>
 #import <sys/socket.h>
@@ -608,6 +609,70 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 	if ([connectivityListeners count] == 0) [self stopListening];
 }
 
+#pragma mark Push notification thingy
+
+#ifndef __IPHONE_3_0
+typedef enum {
+    UIRemoteNotificationTypeNone    = 0,
+    UIRemoteNotificationTypeBadge   = 1 << 0,
+    UIRemoteNotificationTypeSound   = 1 << 1,
+    UIRemoteNotificationTypeAlert   = 1 << 2
+} UIRemoteNotificationType;
+#endif
+
+- (id) registerForPushNotifications: (NSArray *) args;
+{
+	ASSERT_ARRAY_COUNT(args,1);
+	UIApplication * theApp = [UIApplication sharedApplication];
+	if (![theApp respondsToSelector:@selector(registerForRemoteNotificationTypes:)]) {
+		return nil;
+	}
+
+	UIRemoteNotificationType ourNotifications = [theApp enabledRemoteNotificationTypes];
+	
+	NSArray * typesRequested = [args objectAtIndex:0];
+	if([typesRequested isKindOfClass:[NSArray class]]){
+		for (NSString * thisTypeRequested in typesRequested) {
+			if ([@"badge" isEqualToString:thisTypeRequested]) {
+				ourNotifications |= UIRemoteNotificationTypeBadge;
+			} else if ([@"sound" isEqualToString:thisTypeRequested]) {
+				ourNotifications |= UIRemoteNotificationTypeSound;
+			} else if ([@"alert" isEqualToString:thisTypeRequested]) {
+				ourNotifications |= UIRemoteNotificationTypeAlert;
+			}
+		}
+	}
+
+	[[theApp delegate] setRemoteNotificationSubdelegate:self];
+	[(TitaniumAppDelegate *)theApp registerForRemoteNotificationTypes:ourNotifications];
+
+	NSString * parentPageToken = [[[TitaniumHost sharedHost] currentThread] magicToken];
+	
+	if (pushListeners == nil) {
+		pushListeners = [[NSMutableSet alloc] initWithObjects:parentPageToken,nil];
+	} else {
+		[pushListeners addObject:parentPageToken];
+	}
+
+	return [NSNumber numberWithBool:YES];
+}
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
+{
+//	[[TitaniumHost sharedHost] sendJavascript: toPagesWithTokens:pushListeners update:YES];
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error;
+{
+
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo;
+{
+
+}
+
+
 - (BOOL) startModule;
 {
 	TitaniumAccessorTuple * onlineAcessor = [TitaniumAccessorTuple tupleForObject:self Key:@"online"];
@@ -649,33 +714,46 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 	// should also map to Titanium.Network.addEventListener('connectivity')
 	// (we can deprecate the other but leave it in place until GA)
 	
+	
+	
+	
 	NSDictionary * moduleDict = [NSDictionary dictionaryWithObjectsAndKeys:
-								 onlineAcessor, @"online",
-								 networkTypeAcessor, @"networkType",
-								 networkTypeNameAcessor, @"networkTypeName",
-								 
-								 createHTTPClientInvoc, @"createHTTPClient",
-								 
-								 pendingConnnections, @"_CONN",
-								 connectivityListeners, @"_LISTEN",
-								 newListenerInvoc,@"_ADDL",
-								 removeListenerInvoc,@"_REML",
-								 
-								 [TitaniumJSCode codeWithString:@"window.encodeURIComponent"],@"encodeURIComponent",
-								 [TitaniumJSCode codeWithString:@"window.decodeURIComponent"],@"decodeURIComponent",
-								 
-								 addListenerCode,@"addConnectivityListener",
-								 [TitaniumJSCode codeWithString:removeListenerString],@"removeConnectivityListner",
-								 
-								 [NSNumber numberWithInt:NetworkModuleConnectionStateNone],@"NETWORK_NONE",
-								 [NSNumber numberWithInt:NetworkModuleConnectionStateWifi],@"NETWORK_WIFI",
-								 [NSNumber numberWithInt:NetworkModuleConnectionStateMobile],@"NETWORK_MOBILE",
-								 [NSNumber numberWithInt:NetworkModuleConnectionStateLan],@"NETWORK_LAN",
-								 [NSNumber numberWithInt:NetworkModuleConnectionStateUnknown],@"NETWORK_UNKNOWN",
-								 
-								 
-								 
-								 nil];
+			onlineAcessor, @"online",
+			networkTypeAcessor, @"networkType",
+			networkTypeNameAcessor, @"networkTypeName",
+
+			createHTTPClientInvoc, @"createHTTPClient",
+
+			pendingConnnections, @"_CONN",
+			connectivityListeners, @"_LISTEN",
+			newListenerInvoc,@"_ADDL",
+			removeListenerInvoc,@"_REML",
+
+			[TitaniumJSCode codeWithString:@"{}"],@"_PUSH",
+			[TitaniumJSCode codeWithString:@"function(options){"
+				"var succ=Ti._TIDO('network','registerForPushNotifications',[options.types]);"
+				"if(succ){Ti.Network._PUSH.push(options);}"
+				"else if(options.error){options.error('Push is unsupported in this iPhone OS')}}"],@"registerForPushNotifications",
+			@"badge",@"NOTIFICATION_TYPE_BADGE",
+			@"alert",@"NOTIFICATION_TYPE_ALERT",
+			@"sound",@"NOTIFICATION_TYPE_SOUND",
+
+
+			[TitaniumJSCode codeWithString:@"window.encodeURIComponent"],@"encodeURIComponent",
+			[TitaniumJSCode codeWithString:@"window.decodeURIComponent"],@"decodeURIComponent",
+
+			addListenerCode,@"addConnectivityListener",
+			[TitaniumJSCode codeWithString:removeListenerString],@"removeConnectivityListner",
+
+			[NSNumber numberWithInt:NetworkModuleConnectionStateNone],@"NETWORK_NONE",
+			[NSNumber numberWithInt:NetworkModuleConnectionStateWifi],@"NETWORK_WIFI",
+			[NSNumber numberWithInt:NetworkModuleConnectionStateMobile],@"NETWORK_MOBILE",
+			[NSNumber numberWithInt:NetworkModuleConnectionStateLan],@"NETWORK_LAN",
+			[NSNumber numberWithInt:NetworkModuleConnectionStateUnknown],@"NETWORK_UNKNOWN",
+
+
+
+			nil];
 	
 	NSMutableDictionary * titaniumObject = [[TitaniumHost sharedHost] titaniumObject];
 	

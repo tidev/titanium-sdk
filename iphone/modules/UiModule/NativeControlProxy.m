@@ -828,6 +828,11 @@ needsRefreshing = YES;	\
 }
 
 #pragma mark Buck passing for firstResponder
+- (BOOL)isFirstResponder;
+{
+	return [nativeView isFirstResponder];
+}
+
 - (BOOL)becomeFirstResponder;
 {
 	return [nativeView becomeFirstResponder];
