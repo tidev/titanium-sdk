@@ -172,8 +172,14 @@ Titanium.UI.addEventListener('tabchange',function(e)
 	});
 
 contactTest = function(){
-	var newRecord = Ti.Contacts.createContact({firstName:'Jack',lastName:'Black'});
-	Ti.Contacts.addContact(newRecord);
+//	Ti.Contacts.showContactPicker({
+//		success:function(ev){Ti.API.debug(ev);},
+//		cancel:function(){Ti.API.debug('Cancelled!');},
+//		details:['email','address']
+//		});
+//
+//	return;
+//
 
 	var records = Ti.Contacts.getAllContacts();
 	var count=records.length;
@@ -181,11 +187,19 @@ contactTest = function(){
 	for(var i=0;i<count;i++){
 		var record=records[i];
 		Ti.API.debug(record.firstName + ' ' + record.lastName);
-		record.email.push({label:'randomMail',value:'blah@blah.com'});
-		Ti.Contacts.saveContact(record);
 	}
 	Ti.API.debug(records);
 //	Ti.Contacts.deleteContact(newRecord);
+}
+
+contactTest2 = function(){
+	Ti.Contacts.showContactPicker({
+		success:function(ev){Ti.API.debug(ev);},
+		cancel:function(){Ti.API.debug('Cancelled!');},
+		details:['email','address']
+		});
+
+	return;
 }
 
 
@@ -209,6 +223,7 @@ document.write(window._WINTKN);
 	<button onclick="doEmailTest()">Email</button>
 
 	<button onclick="testFun('contactTest()')">Hello world</button>
+	<button onclick="testFun('contactTest2()')">Hello world</button>
 
 	<button onclick="testFun('fileTest()')">File</button>
 	<button onclick="testFun('noteTest()')">Notification</button>

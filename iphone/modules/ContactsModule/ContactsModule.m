@@ -10,6 +10,7 @@
 #import <AddressBook/AddressBook.h>
 #import <AddressBookUI/AddressBookUI.h>
 #import "TitaniumBlobWrapper.h"
+#import "TitaniumViewController.h"
 
 BOOL ContactKeyIsImageDataKey(NSString * contactKey){
 	return [@"imageData" isEqual:contactKey];
@@ -17,39 +18,52 @@ BOOL ContactKeyIsImageDataKey(NSString * contactKey){
 
 NSDictionary * PropertyIDDictionary = nil;
 
-ABPropertyID PropertyIDForContactKey(NSString * contactKey){
-	if (PropertyIDDictionary == nil) {
-		PropertyIDDictionary = [[NSDictionary alloc] initWithObjectsAndKeys:
-				[NSNumber numberWithInt:kABPersonFirstNameProperty],@"firstName",
-				[NSNumber numberWithInt:kABPersonLastNameProperty],@"lastName",
-				[NSNumber numberWithInt:kABPersonMiddleNameProperty],@"middleName",
-				[NSNumber numberWithInt:kABPersonPrefixProperty],@"prefix",
-				[NSNumber numberWithInt:kABPersonSuffixProperty],@"suffix",
-				[NSNumber numberWithInt:kABPersonNicknameProperty],@"nickname",
-				[NSNumber numberWithInt:kABPersonFirstNamePhoneticProperty],@"phoneticFirstName",
-				[NSNumber numberWithInt:kABPersonLastNamePhoneticProperty],@"phoneticLastName",
-				[NSNumber numberWithInt:kABPersonMiddleNamePhoneticProperty],@"phoneticMiddleName",
-				[NSNumber numberWithInt:kABPersonOrganizationProperty],@"organization",
-				[NSNumber numberWithInt:kABPersonJobTitleProperty],@"jobTitle",
-				[NSNumber numberWithInt:kABPersonDepartmentProperty],@"department",
-				[NSNumber numberWithInt:kABPersonEmailProperty],@"email",
-				[NSNumber numberWithInt:kABPersonBirthdayProperty],@"birthday",
-				[NSNumber numberWithInt:kABPersonNoteProperty],@"note",
-				[NSNumber numberWithInt:kABPersonCreationDateProperty],@"creationDate",
-				[NSNumber numberWithInt:kABPersonModificationDateProperty],@"modificationDate",
+void EnsurePropertyIDDictionary(){
+	if (PropertyIDDictionary != nil) return;
+	ABAddressBookRef ourAddyBook = ABAddressBookCreate();	//This is necessary to jar the constants to be nonzero.
+	CFRelease(ourAddyBook);
+	PropertyIDDictionary = [[NSDictionary alloc] initWithObjectsAndKeys:
+			[NSNumber numberWithInt:kABPersonFirstNameProperty],@"firstName",
+			[NSNumber numberWithInt:kABPersonLastNameProperty],@"lastName",
+			[NSNumber numberWithInt:kABPersonMiddleNameProperty],@"middleName",
+			[NSNumber numberWithInt:kABPersonPrefixProperty],@"prefix",
+			[NSNumber numberWithInt:kABPersonSuffixProperty],@"suffix",
+			[NSNumber numberWithInt:kABPersonNicknameProperty],@"nickname",
+			[NSNumber numberWithInt:kABPersonFirstNamePhoneticProperty],@"phoneticFirstName",
+			[NSNumber numberWithInt:kABPersonLastNamePhoneticProperty],@"phoneticLastName",
+			[NSNumber numberWithInt:kABPersonMiddleNamePhoneticProperty],@"phoneticMiddleName",
+			[NSNumber numberWithInt:kABPersonOrganizationProperty],@"organization",
+			[NSNumber numberWithInt:kABPersonJobTitleProperty],@"jobTitle",
+			[NSNumber numberWithInt:kABPersonDepartmentProperty],@"department",
+			[NSNumber numberWithInt:kABPersonEmailProperty],@"email",
+			[NSNumber numberWithInt:kABPersonBirthdayProperty],@"birthday",
+			[NSNumber numberWithInt:kABPersonNoteProperty],@"note",
+			[NSNumber numberWithInt:kABPersonCreationDateProperty],@"creationDate",
+			[NSNumber numberWithInt:kABPersonModificationDateProperty],@"modificationDate",
 
-				[NSNumber numberWithInt:kABPersonAddressProperty],@"address",
-				[NSNumber numberWithInt:kABPersonDateProperty],@"date",
-				[NSNumber numberWithInt:kABPersonPhoneProperty],@"phone",
-				[NSNumber numberWithInt:kABPersonInstantMessageProperty],@"instantMessenger",
-				[NSNumber numberWithInt:kABPersonURLProperty],@"url",
-				[NSNumber numberWithInt:kABPersonRelatedNamesProperty],@"relatives",
-				nil];
-	}
+			[NSNumber numberWithInt:kABPersonAddressProperty],@"address",
+			[NSNumber numberWithInt:kABPersonDateProperty],@"date",
+			[NSNumber numberWithInt:kABPersonPhoneProperty],@"phone",
+			[NSNumber numberWithInt:kABPersonInstantMessageProperty],@"instantMessenger",
+			[NSNumber numberWithInt:kABPersonURLProperty],@"url",
+			[NSNumber numberWithInt:kABPersonRelatedNamesProperty],@"relatives",
+			nil];
+}
+
+ABPropertyID PropertyIDForContactKey(NSString * contactKey){
+	EnsurePropertyIDDictionary();
 	NSNumber * result = [PropertyIDDictionary objectForKey:contactKey];
 	if(result != nil) return [result intValue];
 	return -1;
 }
+
+NSString * ContactKeyForPropertyID(ABPropertyID propertyID){
+	EnsurePropertyIDDictionary();
+	NSArray	* keys = [PropertyIDDictionary allKeysForObject:[NSNumber numberWithInt:propertyID]];
+	if([keys count]<1)return nil;
+	return [keys objectAtIndex:0];
+}
+
 
 id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDict){
 	for (NSString * thisKey in inputDict) {
@@ -93,25 +107,90 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 }
 
 
-@interface AddressPickerProxy : TitaniumProxyObject
+@interface ContactPickerProxy : TitaniumProxyObject<ABPeoplePickerNavigationControllerDelegate>
 {
+	NSArray * displayedProperties;
+	BOOL animated;
+	ABPeoplePickerNavigationController * pickerNavController;
+	ContactsModule * owningModule;
 }
-
+@property(nonatomic,copy,readwrite)	NSArray * displayedProperties;
+@property(nonatomic,assign,readwrite) BOOL animated;
+@property(nonatomic,assign,readwrite) ContactsModule * owningModule;
 @end
 
-@implementation AddressPickerProxy
+@implementation ContactPickerProxy
+@synthesize displayedProperties, animated, owningModule;
 
 - (id) init
 {
 	if ((self = [super init])){
+		animated = YES;
 	}
 	return self;
 }
 
 - (void) dealloc
 {
+	[displayedProperties release];
 	[super dealloc];
 }
+
+- (void) beginPicker;
+{
+	pickerNavController = [[ABPeoplePickerNavigationController alloc] init];
+	[pickerNavController setPeoplePickerDelegate:self];
+	[pickerNavController setDisplayedProperties:displayedProperties];
+	
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	TitaniumViewController * ourVC = [theHost titaniumViewControllerForToken:[self parentPageToken]];
+	if (ourVC == nil) {
+		ourVC = [theHost currentTitaniumViewController];
+	}
+	[theHost navigationController:[ourVC navigationController] presentModalView:pickerNavController animated:animated];
+}
+
+- (void)concludePicking:(NSString *)details;
+{
+	[[pickerNavController parentViewController] dismissModalViewControllerAnimated:YES];
+
+	NSString * command;
+	if(details!=nil){
+		command = [NSString stringWithFormat:@"Ti.Contacts._PICKER.%@.success({%@})",[self token],details];
+	} else {
+		command = [NSString stringWithFormat:@"Ti.Contacts._PICKER.%@.cancel()",[self token]];
+	}
+
+	[[TitaniumHost sharedHost] sendJavascript:command toPageWithToken:[self parentPageToken]];
+	[owningModule removePicker:self];
+}
+
+- (void)peoplePickerNavigationControllerDidCancel:(ABPeoplePickerNavigationController *)peoplePicker;
+{
+	[self concludePicking:nil];
+}
+
+- (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person;
+{
+	if(displayedProperties != nil){
+		return YES;
+	}
+
+	NSString * eventThings = [NSString stringWithFormat:@"contact:new Ti.Contacts._CONOBJ(%d)",ABRecordGetRecordID(person)];
+
+	[self concludePicking:eventThings];
+	return NO;
+}
+
+- (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier;
+{
+	NSString * eventThings = [NSString stringWithFormat:@"contact:new Ti.Contacts._CONOBJ(%d),key:'%@',index:%d",
+			ABRecordGetRecordID(person),ContactKeyForPropertyID(property),identifier];
+
+	[self concludePicking:eventThings];
+	return NO;
+}
+
 
 @end
 
@@ -120,7 +199,6 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 - (id) getContactRefs: (NSArray *) args;
 {
 //Args is unused.
-
 	ABAddressBookRef ourAddyBook = ABAddressBookCreate();
 	CFArrayRef ourContactArray = ABAddressBookCopyArrayOfAllPeople(ourAddyBook);
 
@@ -145,18 +223,9 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 	return [TitaniumJSCode codeWithString:result];
 }
 
-- (id) showPicker: (NSArray *) args;
-{
-	return nil;
-}
-
 - (id) getContactProperty: (NSArray *) args;
 {
-	if(![args isKindOfClass:[NSArray class]] || ([args count]<2)){
-		return [NSError errorWithDomain:@"Titanium" code:1 userInfo:
-				[NSDictionary dictionaryWithObject:@"getContactProperty requires at least 2 arguments"
-				forKey:NSLocalizedDescriptionKey]];
-	}
+	ASSERT_ARRAY_COUNT(args,2);
 	
 	NSNumber * referenceObject = [args objectAtIndex:0];
 	if(![referenceObject respondsToSelector:@selector(intValue)]){
@@ -204,11 +273,7 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 
 - (id) removeContact: (NSArray *) args;
 {
-	if(![args isKindOfClass:[NSArray class]] || ([args count]<1)){
-		return [NSError errorWithDomain:@"Titanium" code:1 userInfo:
-				[NSDictionary dictionaryWithObject:@"removeContact requires one argument"
-											forKey:NSLocalizedDescriptionKey]];
-	}
+	ASSERT_ARRAY_COUNT(args,1);
 	
 	NSNumber * referenceObject = [args objectAtIndex:0];
 	if(![referenceObject respondsToSelector:@selector(intValue)]){
@@ -229,11 +294,7 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 
 - (id) addContact: (NSArray *) args;
 {
-	if(![args isKindOfClass:[NSArray class]] || ([args count]<1)){
-		return [NSError errorWithDomain:@"Titanium" code:1 userInfo:
-				[NSDictionary dictionaryWithObject:@"removeContact requires one argument"
-											forKey:NSLocalizedDescriptionKey]];
-	}
+	ASSERT_ARRAY_COUNT(args,1);
 	
 	NSDictionary * propertiesDict = [args objectAtIndex:0];
 	
@@ -252,11 +313,7 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 
 - (id) saveContact: (NSArray *) args;
 {
-	if(![args isKindOfClass:[NSArray class]] || ([args count]<2)){
-		return [NSError errorWithDomain:@"Titanium" code:1 userInfo:
-				[NSDictionary dictionaryWithObject:@"getContactProperty requires at least 2 arguments"
-											forKey:NSLocalizedDescriptionKey]];
-	}
+	ASSERT_ARRAY_COUNT(args,2);
 	
 	NSNumber * referenceObject = [args objectAtIndex:0];
 	if(![referenceObject respondsToSelector:@selector(intValue)]){
@@ -276,6 +333,42 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 	CFRelease(ourAddyBook);	
 	
 	return nil;
+}
+
+- (id) showPicker: (NSArray *) args;
+{
+	ASSERT_ARRAY_COUNT(args,1);
+	NSString * pickerToken = [NSString stringWithFormat:@"PIC%d",nextContactPickerToken++];
+	ContactPickerProxy * ourProxy = [[ContactPickerProxy alloc] init];
+	[ourProxy setToken:pickerToken];
+	[ourProxy setOwningModule:self];
+
+	NSArray * pickerOptions = [args objectAtIndex:0];
+	if ([pickerOptions isKindOfClass:[NSArray class]]) {
+		NSMutableArray * translatedPickerOptions = [[NSMutableArray alloc] initWithCapacity:[pickerOptions count]];
+		for (NSString * thisPropertyKey in pickerOptions) {
+			ABPropertyID thisPropertyID = PropertyIDForContactKey(thisPropertyKey);
+			if (thisPropertyID >= 0) {
+				[translatedPickerOptions addObject:[NSNumber numberWithInt:thisPropertyID]];
+			}
+		}
+		[ourProxy setDisplayedProperties:translatedPickerOptions];
+		[translatedPickerOptions release];
+	}
+	
+	if(contactPickerLookup == nil){
+		contactPickerLookup = [[NSMutableDictionary alloc] initWithObjectsAndKeys:ourProxy,pickerToken,nil];
+	} else {
+		[contactPickerLookup setObject:ourProxy forKey:pickerToken];
+	}
+	[ourProxy performSelectorOnMainThread:@selector(beginPicker) withObject:nil waitUntilDone:NO];
+	[ourProxy release];
+	return pickerToken;
+}
+
+- (void) removePicker: (ContactPickerProxy *) doomedPicker;
+{
+	[contactPickerLookup removeObjectForKey:[doomedPicker token]];
 }
 
 
@@ -403,13 +496,12 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 	
 	NSDictionary * moduleDict = [NSDictionary dictionaryWithObjectsAndKeys:
 			contactObjectCode,@"_CONOBJ",			
-			[NSNumber numberWithInt:0],@"_COUNTER",
 			[TitaniumJSCode codeWithString:@"{}"],@"_PICKER",
+			[TitaniumJSCode codeWithString:@"function(options){var tkn=Ti._TIDO('contacts','showPicker',[options.details]);"
+				"Ti.Contacts._PICKER[tkn]=options;}"],@"showContactPicker",
 			[TitaniumJSCode codeWithString:@"function(){var refs=Ti._TIDO('contacts','getContactRefs');"
 				"var len=refs.length;var res=[];var ob=Ti.Contacts._CONOBJ;for(var i=0;i<len;i++){"
 					"res.push(new ob(refs[i]));}return res;}"],@"getAllContacts",
-			[TitaniumJSCode codeWithString:@"function(options){var tkn='ADR'+Ti.Contacts._COUNTER++;Ti.Contacts._PICKER[tkn]=options;"
-				"Ti._TIDO('contacts','showPicker',[tkn,options.details]);}"],@"showContactPicker",
 			[TitaniumJSCode codeWithString:@"function(options){var res=new Ti.Contacts._CONOBJ();"
 				"for(prop in options){res._DELTA[prop]=options[prop];}return res;}"],@"createContact",
 			[TitaniumJSCode codeWithString:@"function(contact){if(contact._REFID && "
@@ -422,7 +514,7 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 			[TitaniumJSCode codeWithString:@"function(contact){if(contact._REFID)"
 				"{var del=contact._DELTA;Ti._TIDO('contacts','saveContact',[contact._REFID,del]);"
 				"for(prop in del){contact._CACHE[prop]=del[prop]}contact._DELTA={};}"
-				"else{throw 'Contact must be added to the address book first.';}}"],@"saveContact",
+				"else{throw 'Contact must be added to the address book first.';}}"],@"saveContact",			
 			nil];
 	[[TitaniumHost sharedHost] bindObject:moduleDict toKeyPath:@"Contacts"];
 	
