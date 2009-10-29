@@ -105,15 +105,12 @@ public class TitaniumUserWindow extends ViewAnimator
 		TitaniumUIWebView uiWebView = new TitaniumUIWebView(tmm);
         addView((ITitaniumView) uiWebView); // Make it views[0]
 		uiWebView.setUrl(url);
-		TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getActivity());
 
 		TitaniumWindowInfo windowInfo = tmm.getActivity().getWindowInfo();
-		String backgroundImage = null;
 
 		if (windowInfo != null) {
 			if (windowInfo.hasBackgroundColor()) {
 				setBackgroundColor(windowInfo.getBackgroundColor());
-				//tmm.getWebView().setBackgroundColor(windowInfo.getBackgroundColor());
 			}
 			if (windowInfo.hasWindowBackgroundImage()) {
 				setBackgroundImage(windowInfo.getWindowBackgroundImage());
@@ -124,23 +121,16 @@ public class TitaniumUserWindow extends ViewAnimator
 			if (tiw.hasBackgroundColor()) {
 				int backgroundColor = tiw.getBackgroundColor();
 				setBackgroundColor(backgroundColor);
-				//tmm.getWebView().setBackgroundColor(backgroundColor);
 			}
 			if (tiw.hasBackgroundImage()) {
 				setBackgroundImage(tiw.getBackgroundImage());
 			}
 		}
 
-//		if (backgroundImage != null) {
-//	    	Drawable backgroundDrawable = tfh.loadDrawable(backgroundImage, false); // Ok to not have background
-//			if (backgroundDrawable != null) {
-//				((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
-//				tmm.getWebView().setBackgroundDrawable(backgroundDrawable);
-//			}
-//		}
-
         uiWebView.postOpen();
-
+        if (DBG) {
+        	Log.d(LCAT, "after postOpen");
+        }
 		isOpen = true;
 	}
 

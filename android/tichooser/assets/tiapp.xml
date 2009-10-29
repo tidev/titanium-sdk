@@ -127,7 +127,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+-->
         <window>
             <id>ScrollerView</id>
             <title>Scroller View</title>
@@ -137,7 +137,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
-
+<!--
         <window>
             <id>TableView</id>
             <title>Table View</title>
@@ -370,14 +370,13 @@
             <url>gowalla.html</url>
             <fullscreen>true</fullscreen>
         </window>
--->
 
 		<window>
             <id>InlineScroll</id>
             <url>inlinescroll.html</url>
             <fullscreen>false</fullscreen>
         </window>
-
+-->
     </windows>
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.android.watchlog" type="bool">false</property>

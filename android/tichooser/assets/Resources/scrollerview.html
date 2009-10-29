@@ -2,7 +2,7 @@
 <head>
 	<title>Scroller View</title>
   	<script><!--
-
+	Titanium.API.error("TOP OF PAGE");
 	var fadeIn = {
 			animated : true,
 			animationStyle : Titanium.UI.Android.AnimationStyle.FADE,
@@ -133,7 +133,7 @@
          fontSize: '8pt'
         }
 	];
-
+	Titanium.API.error("TABLEVIEW 1 START");
 	var tv1 = Titanium.UI.createTableView({
 			'data' : page1,
 			'name' : "p1",
@@ -200,6 +200,7 @@
 				}
   			}
  		);
+	Titanium.API.error("TABLEVIEW 2 START");
 
 	var tv2 = Titanium.UI.createTableView({
 		'data' : page2, 'rowHeight' : '75', name : 'p2'
@@ -214,13 +215,17 @@
 		}
 	}
 	);
+	Titanium.API.error("IMAGEVIEW START");
 
 	var iv1 = Titanium.UI.createImageView({
  	  		url : "images/icon.png",
  	  		scale : false
  	});
 
+	Titanium.API.error("WEBVIEW START");
+
 	var wv1 = Titanium.UI.createWebView({url: 'textfield.html', name : 'blue'});
+	Titanium.API.error("SCROLLVIEW START");
 
 	var sv1 = Titanium.UI.createScrollableView({
 		views : [tv1, iv1, tv2, wv1],
@@ -257,7 +262,9 @@
 			Titanium.Platform.openURL('http://yahoo.com');
 			}, 'images/refresh.png');
 		Titanium.UI.setMenu(menu);
+		Titanium.API.error("ONLOAD DONE");
    	}
+   	Titanium.API.error("BOTTOM OF PAGE");
   --></script>
 </head>
 <body style="background-color: white;">

@@ -8,6 +8,7 @@
 package org.appcelerator.titanium.util;
 
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
@@ -140,12 +141,6 @@ public class TitaniumUrlHelper
 
     public static String getUrlForCachedJavascript(Context context, String file)
     {
-//    	StringBuilder sb = new StringBuilder();
-//    	sb.append("content://")
-//    		.append(context.getPackageName())
-//    		.append(".titanium.js/")
-//    		.append(file);
-//    	return sb.toString();
     	return ASSET_PATH + "ti/debug/" + file;
     }
 

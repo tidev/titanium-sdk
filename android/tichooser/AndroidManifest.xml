@@ -23,21 +23,19 @@
         </activity>
     	<activity
     		android:name="org.appcelerator.titanium.TitaniumActivity"
-    		android:label="TA"
-    		android:configChanges="keyboardHidden|orientation"
+     		android:configChanges="keyboardHidden|orientation"
     	></activity>
     	<activity
     		android:name="org.appcelerator.titanium.TitaniumVideoActivity"
-    		android:label="TVA"
     		android:configChanges="keyboardHidden|orientation"
             android:launchMode="singleTask"
     	></activity>
 
-		<provider
+<!-- 	<provider
 			android:authorities="org.appcelerator.tichooser.titanium"
 			android:name="org.appcelerator.titanium.TitaniumContentProvider"
 		/>
-
+-->
 		<service
 			android:name="org.appcelerator.titanium.TitaniumAnalyticsService"
 			android:exported="false"
