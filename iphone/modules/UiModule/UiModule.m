@@ -1090,14 +1090,13 @@ NSString * UrlEncodeString(NSString * string)
 
 #define SAFE_ARRAY_COUNT(foo)	([foo isKindOfClass:[NSArray class]]?[foo count]:-1)
 
-#define TITANIUM_JS_ERROR(foo)	[NSError errorWithDomain:@"Titanium" code:2 userInfo:[NSDictionary dictionaryWithObject:foo forKey:NSLocalizedDescriptionKey]]
-
 - (id) doScrollTo: (NSArray *) args;
 {
-	if(SAFE_ARRAY_COUNT(args)<4)return TITANIUM_JS_ERROR(@"Missing arguments");
+	ASSERT_ARRAY_COUNT(args,4);
+//	if(SAFE_ARRAY_COUNT(args)<4)return TITANIUM_JS_ERROR(@"Missing arguments");
 	NSString * tokenString = [args objectAtIndex:0];
 	TitaniumWebViewController * targetView = (TitaniumWebViewController *)[[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
-	if(![targetView isKindOfClass:[TitaniumWebViewController class]])return TITANIUM_JS_ERROR(@"Invalid token");
+	if(![targetView isKindOfClass:[TitaniumWebViewController class]])return TITANIUM_JS_ERROR(TitaniumErrorInvalidTokenValue,"Invalid token");
 	
 	CGPoint position;
 	position.x = [[args objectAtIndex:1] floatValue];

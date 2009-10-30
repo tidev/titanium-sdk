@@ -291,6 +291,37 @@
 		B4BAC64F1096250A005925EA /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4BAC64E1096250A005925EA /* MapKit.framework */; };
 		B4BAC6501096250A005925EA /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4BAC64E1096250A005925EA /* MapKit.framework */; };
 		B4BAC6511096250A005925EA /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4BAC64E1096250A005925EA /* MapKit.framework */; };
+		B4BAC9271098296E005925EA /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8190FC9FCA400063972 /* PLSqlitePreparedStatement.m */; };
+		B4BAC9281098296E005925EA /* ContactsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A4A103109123680021CC46 /* ContactsModule.m */; };
+		B4BAC9291098296F005925EA /* FilesystemModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F81E0FC9FCA400063972 /* FilesystemModule.m */; };
+		B4BAC92A10982972005925EA /* MapModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BA96D81097E16D009ADEDD /* MapModule.m */; };
+		B4BAC92B10982972005925EA /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */; };
+		B4BAC92C10982974005925EA /* FBLoginDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238B106F1802004D4127 /* FBLoginDialog.m */; };
+		B4BAC92D10982976005925EA /* NetworkModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F82D0FC9FCA400063972 /* NetworkModule.m */; };
+		B4BAC92E10982977005925EA /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BBD83D0FCD245F00A261A4 /* GestureModule.m */; };
+		B4BAC92F10982978005925EA /* DatabaseModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F80F0FC9FCA400063972 /* DatabaseModule.m */; };
+		B4BAC9301098297C005925EA /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8210FC9FCA400063972 /* GeolocationModule.m */; };
+		B4BAC9311098297D005925EA /* YahooModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 247DCBD1107C8366009CD0D1 /* YahooModule.m */; };
+		B4BAC9321098297E005925EA /* FBRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238D106F1802004D4127 /* FBRequest.m */; };
+		B4BAC93310982983005925EA /* FBXMLHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2390106F1802004D4127 /* FBXMLHandler.m */; };
+		B4BAC93410982984005925EA /* FBStreamDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BA96011096633D009ADEDD /* FBStreamDialog.m */; };
+		B4BAC93510982984005925EA /* ApiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8090FC9FCA400063972 /* ApiModule.m */; };
+		B4BAC93610982985005925EA /* FBSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238E106F1802004D4127 /* FBSession.m */; };
+		B4BAC93710982986005925EA /* FBPermissionDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238C106F1802004D4127 /* FBPermissionDialog.m */; };
+		B4BAC93810982988005925EA /* FBFeedDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2389106F1802004D4127 /* FBFeedDialog.m */; };
+		B4BAC93910982988005925EA /* UiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8360FC9FCA400063972 /* UiModule.m */; };
+		B4BAC93A1098298B005925EA /* PLSqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8170FC9FCA400063972 /* PLSqliteDatabase.m */; };
+		B4BAC93B1098298C005925EA /* AppModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F80C0FC9FCA400063972 /* AppModule.m */; };
+		B4BAC93C1098298D005925EA /* FacebookModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD237C106F1802004D4127 /* FacebookModule.m */; };
+		B4BAC93D1098298D005925EA /* FBConnectGlobal.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2387106F1802004D4127 /* FBConnectGlobal.m */; };
+		B4BAC93E1098298E005925EA /* FBDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2388106F1802004D4127 /* FBDialog.m */; };
+		B4BAC93F10982990005925EA /* NotificationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F37DDC1061913E00ED12AF /* NotificationModule.m */; };
+		B4BAC94010982991005925EA /* PLSqliteResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F81B0FC9FCA400063972 /* PLSqliteResultSet.m */; };
+		B4BAC94110982992005925EA /* PlausibleDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8120FC9FCA400063972 /* PlausibleDatabase.m */; };
+		B4BAC94210982993005925EA /* MediaModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8240FC9FCA400063972 /* MediaModule.m */; };
+		B4BAC94310982994005925EA /* PlatformModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8300FC9FCA400063972 /* PlatformModule.m */; };
+		B4BAC94410982996005925EA /* FBLoginButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238A106F1802004D4127 /* FBLoginButton.m */; };
+		B4BAC94510982997005925EA /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F02E450FD482D2007894DA /* AnalyticsModule.m */; };
 		B4C3F8B60FB3B11C0037F210 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */; };
 		B4C6D7040FE99F4E00D62384 /* TitaniumWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7030FE99F4E00D62384 /* TitaniumWebViewController.m */; };
 		B4C6D7330FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */; };
@@ -451,7 +482,7 @@
 		B45CA77E0F81565D00B80900 /* TitaniumHost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumHost.m; sourceTree = "<group>"; };
 		B4676CB40FB0E492009B81F4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		B47A271E1035F040002146CD /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B47A271E1035F040002146CD /* TestSpaz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestSpaz.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B47B52D40FF1B2F400BD7229 /* ValueTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ValueTableViewCell.h; sourceTree = "<group>"; };
 		B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ValueTableViewCell.m; sourceTree = "<group>"; };
 		B481D3360FD4C45A00F0A961 /* song.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = song.mp3; sourceTree = "<group>"; };
@@ -750,7 +781,7 @@
 			children = (
 				1D6058910D05DD3D006BFB54 /* Titanium.app */,
 				B41068A20FBB730F00310448 /* libTitanium.a */,
-				B47A271E1035F040002146CD /* Titanium.app */,
+				B47A271E1035F040002146CD /* TestSpaz.app */,
 				24C5ABF11061FA9D0063594B /* libNotification.a */,
 				24C5ABF91061FABE0063594B /* libAnalytics.a */,
 				24C5AC001061FAC80063594B /* libGesture.a */,
@@ -1689,7 +1720,7 @@
 			);
 			name = "Titanium-Spaz";
 			productName = Titanium;
-			productReference = B47A271E1035F040002146CD /* Titanium.app */;
+			productReference = B47A271E1035F040002146CD /* TestSpaz.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -1831,6 +1862,37 @@
 				B49358DC106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */,
 				24FD2052106C9198004D4127 /* TitaniumBasicModule.m in Sources */,
 				B43543651076995400A38EC9 /* TitaniumJSEvent.m in Sources */,
+				B4BAC9271098296E005925EA /* PLSqlitePreparedStatement.m in Sources */,
+				B4BAC9281098296E005925EA /* ContactsModule.m in Sources */,
+				B4BAC9291098296F005925EA /* FilesystemModule.m in Sources */,
+				B4BAC92A10982972005925EA /* MapModule.m in Sources */,
+				B4BAC92B10982972005925EA /* AccelerometerModule.m in Sources */,
+				B4BAC92C10982974005925EA /* FBLoginDialog.m in Sources */,
+				B4BAC92D10982976005925EA /* NetworkModule.m in Sources */,
+				B4BAC92E10982977005925EA /* GestureModule.m in Sources */,
+				B4BAC92F10982978005925EA /* DatabaseModule.m in Sources */,
+				B4BAC9301098297C005925EA /* GeolocationModule.m in Sources */,
+				B4BAC9311098297D005925EA /* YahooModule.m in Sources */,
+				B4BAC9321098297E005925EA /* FBRequest.m in Sources */,
+				B4BAC93310982983005925EA /* FBXMLHandler.m in Sources */,
+				B4BAC93410982984005925EA /* FBStreamDialog.m in Sources */,
+				B4BAC93510982984005925EA /* ApiModule.m in Sources */,
+				B4BAC93610982985005925EA /* FBSession.m in Sources */,
+				B4BAC93710982986005925EA /* FBPermissionDialog.m in Sources */,
+				B4BAC93810982988005925EA /* FBFeedDialog.m in Sources */,
+				B4BAC93910982988005925EA /* UiModule.m in Sources */,
+				B4BAC93A1098298B005925EA /* PLSqliteDatabase.m in Sources */,
+				B4BAC93B1098298C005925EA /* AppModule.m in Sources */,
+				B4BAC93C1098298D005925EA /* FacebookModule.m in Sources */,
+				B4BAC93D1098298D005925EA /* FBConnectGlobal.m in Sources */,
+				B4BAC93E1098298E005925EA /* FBDialog.m in Sources */,
+				B4BAC93F10982990005925EA /* NotificationModule.m in Sources */,
+				B4BAC94010982991005925EA /* PLSqliteResultSet.m in Sources */,
+				B4BAC94110982992005925EA /* PlausibleDatabase.m in Sources */,
+				B4BAC94210982993005925EA /* MediaModule.m in Sources */,
+				B4BAC94310982994005925EA /* PlatformModule.m in Sources */,
+				B4BAC94410982996005925EA /* FBLoginButton.m in Sources */,
+				B4BAC94510982997005925EA /* AnalyticsModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

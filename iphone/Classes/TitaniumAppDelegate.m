@@ -28,6 +28,8 @@
 @synthesize lastAcceleration;
 #endif
 
+@synthesize remoteNotificationSubdelegate;
+
 + (TitaniumAppDelegate *) sharedDelegate;
 {
 	return (TitaniumAppDelegate *) [[UIApplication sharedApplication] delegate];
@@ -210,5 +212,21 @@ typedef int UIEventSubtype;
 }
 #endif
 
+#pragma mark Push
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
+{
+	[remoteNotificationSubdelegate application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error;
+{
+	[remoteNotificationSubdelegate application:application didFailToRegisterForRemoteNotificationsWithError:error];
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo;
+{
+	[remoteNotificationSubdelegate application:application didReceiveRemoteNotification:userInfo];
+}
 
 @end

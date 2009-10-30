@@ -23,6 +23,7 @@ typedef enum {
 @interface NetworkModule : NSObject<TitaniumModule> {
 	NSMutableDictionary * pendingConnnections;
 	NSMutableDictionary * connectivityListeners;
+	NSMutableSet * pushListeners;
 	int nextToken;
 	int nextConnectivityListenerToken;
 	SCNetworkReachabilityRef defaultRouteReachability;

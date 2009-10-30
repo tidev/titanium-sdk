@@ -7,6 +7,26 @@
 #import <Foundation/Foundation.h>
 #include "TargetConditionals.h" // this is important to get correct iphone preprocessor definitions
 
+#define DECLARE_JS_ACCESSORS(object,propertyName,UpperPropertyName)	\
+	"Ti." object ".prototype.__defineGetter__('" propertyName "',Ti." object ".prototype.get" UpperPropertyName ");"	\
+	"Ti." object ".prototype.__defineSetter__('" propertyName "',Ti." object ".prototype.set" UpperPropertyName ");"
+
+typedef enum {
+	TitaniumErrorWrongArgumentCount	= 2,
+	TitaniumErrorWrongArgumentType	= 3,
+	TitaniumErrorInvalidTokenValue	= 4,
+} TitaniumErrorCode;
+
+#define TITANIUM_JS_ERROR(codeNumber,description,...)		\
+	[NSError errorWithDomain:@"Titanium" code:codeNumber userInfo:	\
+		[NSDictionary dictionaryWithObject:	[NSString stringWithFormat:	\
+			@"Titanium error: " description , ##__VA_ARGS__] forKey:NSLocalizedDescriptionKey]]
+
+#define ASSERT_ARRAY_COUNT(array,desiredCount)	\
+	{if(![array isKindOfClass:[NSArray class]]||([array count]<desiredCount))	\
+		return TITANIUM_JS_ERROR(TitaniumErrorWrongArgumentCount,	\
+		"%s was expecting %d or more arguments in an array. ", __FUNCTION__, desiredCount);}
+
 @protocol TitaniumModule
 @optional
 

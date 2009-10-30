@@ -402,25 +402,18 @@
 
 	for(NativeControlProxy * thisProxy in nativeOnscreenProxies){
 		[thisProxy refreshPositionWithWebView:webView animated:animated];
-	}
+		UIView * thisView = [thisProxy nativeView];
 
-	for(UIView * thisView in [scrollView subviews]){
-		if (thisView == webView) continue;
 		CGRect thisFrame = [thisView frame];
 		CGFloat bottom = thisFrame.size.height + thisFrame.origin.y;
-		
-		if ([thisView isFirstResponder]){
+
+		if ([thisProxy isFirstResponder]){
 			firstResponder = thisView;
-		}
-		for (UIView * thisSubView in [thisView subviews]){
-			if ([thisSubView isFirstResponder]){
-				firstResponder = thisView;
-			}			
 		}
 		
 		if (bottom > docHeight) docHeight = bottom;
 	}
-	
+
 	BOOL allowsScrolling = (webFrame.size.height < docHeight);
 	if(allowsScrolling){
 		webFrame.size.height = docHeight;
