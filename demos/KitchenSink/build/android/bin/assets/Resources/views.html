@@ -133,7 +133,7 @@
 				a.setMessage(e.value)
 				a.show();
 			})
-			var textInstance = Titanium.UI.createTextField({value:'Nolan',width:50});
+			var textInstance = Titanium.UI.createTextField({value:'Nolané',width:50});
 			textInstance.addEventListener('change',function(e)
 			{
 				a.setMessage(e.value)
@@ -167,7 +167,7 @@
 			});
 
 			// create grouped view
-			groupedView = Titanium.UI.iPhone.createGroupedView();
+			groupedView = Titanium.UI.iPhone.createGroupedView({backgroundImage:'image_view_image4.jpg'});
 			groupedView.addSection(optionSection);
 			groupedView.addSection(buttonSection);
 			groupedView.addSection(inputSection);

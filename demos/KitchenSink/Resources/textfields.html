@@ -1,7 +1,6 @@
 <html>
 <head>
 
-
 </head>
 <body  style="font-family:'Helvetica Neue';font-size:11px">
 	
@@ -11,7 +10,7 @@
 
 	<div style="margin-bottom:5px;height:10px">Numbers and Punc Keyboard / GO Return Key</div>	
 	<div id="textfield2" style="height:30px"></div>
-	<div id="textfield2_value" style="margin-top:5px;margin-bottom:20px;color:#999;height:10px"></div>
+	<div id="textfield2_value" style="margin-top:5px;margin-bottom:20px;color:#999;height:10px;"></div>
 
 	<div style="margin-bottom:5px;height:10px">URL Keyboard / JOIN Return Key</div>	
 	<div id="textfield3" style="height:30px"></div>
@@ -36,17 +35,6 @@
 	
 	<script>
 	
-	// 
-	// ReturnKeyType : optional. valid values are: 
-	// Titanium.UI.RETURNKEY_GO 
-	// Titanium.UI.RETURNKEY_GOOGLE 
-	// Titanium.UI.RETURNKEY_JOIN 
-	// Titanium.UI.RETURNKEY_NEXT 
-	// Titanium.UI.RETURNKEY_ROUTE 
-	// Titanium.UI.RETURNKEY_SEARCH 
-	// Titanium.UI.RETURNKEY_YAHOO 
-	// Titanium.UI.RETURNKEY_DONE 
-	// Titanium.UI.RETURNKEY_EMERGENCY_CALL
 
 	var refresh = Titanium.UI.createButton({
 		image:'chat.png',
@@ -67,7 +55,7 @@
 		clearOnEdit:true,
 		borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 		leftButton:refresh,
-		leftButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS
+		leftButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS,
 		rightButton:refresh,
 		rightButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS
 
@@ -80,7 +68,7 @@
 
 	var tf2 = Titanium.UI.createTextField({
 		id:'textfield2',
-		value:'hello',
+		value:'helloèëé',
 		color:'#336699',
 		backgroundColor:'#eeeeee',
 		returnKeyType:Titanium.UI.RETURNKEY_GO,
@@ -90,6 +78,7 @@
 		hintText:'fieldone hint text',
 		textAlign:'left',
 		clearOnEdit:false,
+		fontSize:20,
 		borderStyle:Titanium.UI.INPUT_BORDERSTYLE_BEZEL,
 		clearButtonMode:Titanium.UI.INPUT_BUTTONMODE_NEVER,
 	});
