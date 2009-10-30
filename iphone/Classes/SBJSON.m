@@ -554,7 +554,7 @@ static char ctrl[0x24];
         }
         
         if (![self scanValue:&v error:error]) {
-				NSLog(@"[ERROR] error in parser = %@",error);
+				NSLog(@"[ERROR] error in parser = %@",*error);
             *error = errWithUnderlier(EPARSE, error, @"Expected value while parsing array");
             return NO;
         }
