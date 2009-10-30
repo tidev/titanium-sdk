@@ -6,7 +6,7 @@
  */
 
 
-Titanium.databaseProxy = window.TitaniumDatabase;
+Ti.databaseProxy = window.TitaniumDatabase;
 
 function throwIfException(e) {
 	if (!isUndefined(e)) {
@@ -151,15 +151,15 @@ DB.prototype.__defineGetter__("rowsAffected", function(){
 	return this.getRowsAffected();
 });
 
-Titanium.Database = {
+Ti.Database = {
 	/**
 	 * @tiapi(method=True,name=Database.open,since=0.4) Opens a database
 	 * @tiarg[string,name] Name of the database. On Android it must not contain path elements.
 	 * @tiresult[Database.DB] a database object, used to interact with the database.
 	 */
 	open: function(name) {
-		var db = new DB(Titanium.databaseProxy.open(name));
-		throwIfException(Titanium.databaseProxy.getLastException());
+		var db = new DB(Ti.databaseProxy.open(name));
+		throwIfException(Ti.databaseProxy.getLastException());
 		return db;
 	},
 	/**
@@ -180,8 +180,8 @@ Titanium.Database = {
 			} else {
 				p = "app://" + path;
 			}
-			db = new DB(Titanium.databaseProxy.install(p,name));
-			throwIfException(Titanium.databaseProxy.getLastException());
+			db = new DB(Ti.databaseProxy.install(p,name));
+			throwIfException(Ti.databaseProxy.getLastException());
 		}
 		return db;
 	}

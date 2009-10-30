@@ -5,9 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-Titanium.analyticsProxy = window.TitaniumAnalytics;
+Ti.analyticsProxy = window.TitaniumAnalytics;
 
-Titanium.Analytics =
+Ti.Analytics =
 {
 	addEvent : function (type,event,data)
 	{
@@ -18,9 +18,9 @@ Titanium.Analytics =
 			 if (typeOf(data) == "string") {
 				 data = { value : data };
 			 }
-			return transformObjectValue(Titanium.analyticsProxy.addEvent(type,event,Titanium.JSON.stringify(data)));
+			return transformObjectValue(Ti.analyticsProxy.addEvent(type,event,Ti.JSON.stringify(data)));
 		 } else {
-			 Titanium.API.warn("events classes starting with ti. are reserved for use by Appcelerator");
+			 Ti.API.warn("events classes starting with ti. are reserved for use by Appcelerator");
 		 }
 	},
 
@@ -44,7 +44,7 @@ Titanium.Analytics =
 
 			this.addEvent("app.nav", event, payload);
 		} else {
-			Titanium.API.error("from and to are required parameters for navEvent");
+			Ti.API.error("from and to are required parameters for navEvent");
 		}
 	},
 	/**
@@ -59,10 +59,10 @@ Titanium.Analytics =
 		if (!isUndefined(event)) {
 			var payload = {};
 			if (!isUndefined(start)) {
-				payload.start = Titanium.DateFormatter.formatUTC(start);
+				payload.start = Ti.DateFormatter.formatUTC(start);
 			}
 			if (!isUndefined(stop)) {
-				payload.stop = Titanium.DateFormatter.formatUTC(stop);
+				payload.stop = Ti.DateFormatter.formatUTC(stop);
 			}
 			if (!isUndefined(duration)) {
 				payload.duration = duration;
@@ -70,7 +70,7 @@ Titanium.Analytics =
 			payload.data = isUndefined(data) ? {} : data;
 			this.addEvent("app.timed_event", event, payload);
 		} else {
-			Titanium.API.error("timedEvent requires an event name");
+			Ti.API.error("timedEvent requires an event name");
 		}
 	},
 	/**
@@ -84,7 +84,7 @@ Titanium.Analytics =
 			payload.data = isUndefined(data) ? {} : data;
 			this.addEvent("app.feature", event, payload);
 		} else {
-			Titanium.API.error("featureEvent requires an event name");
+			Ti.API.error("featureEvent requires an event name");
 		}
 	},
 	/**
@@ -98,7 +98,7 @@ Titanium.Analytics =
 			payload.data = isUndefined(data) ? {} : data;
 			this.addEvent("app.settings", event, payload);
 		} else {
-			Titanium.API.error("settingsEvent requires an event name");
+			Ti.API.error("settingsEvent requires an event name");
 		}
 	},
 	/**
@@ -112,7 +112,7 @@ Titanium.Analytics =
 			payload.data = isUndefined(data) ? {} : data;
 			this.addEvent("app.user", event, payload);
 		} else {
-			Titanium.API.error("userEvent requires an event name");
+			Ti.API.error("userEvent requires an event name");
 		}
 	}
 };

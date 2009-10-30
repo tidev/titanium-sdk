@@ -56,7 +56,7 @@ function transformObjectValueAsDouble(value,def)
 	return isUndefined(value) ? def : parseFloat(value);
 }
 
-var Titanium = new function() {
+var Ti = new function() {
 	/*
 	 * @tiapi(method=False,property=True,name=platform,since=0.4,type=string) titanium platform name property
 	 */
@@ -119,7 +119,7 @@ var Titanium = new function() {
 		}
 
 		document.addEventListener('DOMSubtreeModified', function(e) {
-			Titanium.apiProxy.invalidateLayout();
+			Ti.apiProxy.invalidateLayout();
 		});
 	};
 
@@ -133,7 +133,7 @@ var Titanium = new function() {
 	            pos.top+= obj.offsetTop;
 	            obj= obj.offsetParent;
 		    }
-		    //Titanium.API.debug("COORDS: " + pos.left + " " + pos.top + " " + pos.width + " " + pos.height);
+		    //Ti.API.debug("COORDS: " + pos.left + " " + pos.top + " " + pos.width + " " + pos.height);
         }
 	    return pos;
 	};
@@ -147,7 +147,7 @@ var Titanium = new function() {
 			positions[id] = this.getPosition(o);
 		}
 
-		this.apiProxy.updateNativeControls(Titanium.JSON.stringify(positions));
+		this.apiProxy.updateNativeControls(Ti.JSON.stringify(positions));
 	};
 
 	this.callbackCounter = 0;
@@ -163,7 +163,7 @@ var Titanium = new function() {
 	};
 	this.removeCallback = function(name) {
 		delete this.callbacks[name];
-		Titanium.API.debug('Deleted callback with name: ' + name);
+		Ti.API.debug('Deleted callback with name: ' + name);
 	};
 
 	this.getObjectReference = function(key) {
@@ -197,10 +197,10 @@ var Titanium = new function() {
 	};
 };
 
-var Ti = Titanium;
+var Titanium = Ti;
 
 function TitaniumCallback(obj, method, oneShot) {
-	this.name = Titanium.nextCallbackId();
+	this.name = Ti.nextCallbackId();
 	this.obj = obj;
 	this.method = method;
 	this.oneShot = oneShot;
@@ -209,32 +209,32 @@ function TitaniumCallback(obj, method, oneShot) {
 		if(!isUndefined(this.method)) {
 			this.method.call(this.obj,data);
 			if (!isUndefined(syncId)) {
-				Titanium.apiProxy.signal(syncId);
+				Ti.apiProxy.signal(syncId);
 			}
 			if (oneShot) {
-				Titanium.removeCallback(this.name);
+				Ti.removeCallback(this.name);
 			}
 		} else {
-			Titanium.API.warn("Expected a valid callback, callback not set");
+			Ti.API.warn("Expected a valid callback, callback not set");
 		}
 	};
 	this.register = function() {
-		Titanium.callbacks[this.name] = this;
-		return 'Titanium.callbacks["' + this.name + '"]'; // Don't pass javascript: native layer will prepend as needed
+		Ti.callbacks[this.name] = this;
+		return 'Ti.callbacks["' + this.name + '"]'; // Don't pass javascript: native layer will prepend as needed
 	};
 }
 
 function registerCallback(o, f) {
-	return Titanium.addCallback(o, f, false);
+	return Ti.addCallback(o, f, false);
 }
 
 function registerOneShot(o, f) {
-	return Titanium.addCallback(o, f, true);
+	return Ti.addCallback(o, f, true);
 }
 
 
 // Logging should always be available
-Titanium.API = {
+Ti.API = {
 	/*
 	 * @tiapi(method=True,name=API.log,since=0.4) log data to the console.
 	 * @tiarg[int,severity] Severity code from FATAL down to TRACE
@@ -242,7 +242,7 @@ Titanium.API = {
 	 */
 	log: function(severity,msg)
 	{
-		Titanium.apiProxy.log(severity,msg);
+		Ti.apiProxy.log(severity,msg);
 	},
 	/**
 	 * @tiapi(method=True,name=API.debug,since=0.4) log data at the DEBUG level.
@@ -318,34 +318,19 @@ Titanium.API = {
 	FATAL: 8
 };
 
-Titanium.Process = {
-	getEnv : function() {
-		//TODO implement Process.getEnv
-	},
-	setEnv : function() {
-		//TODO implement Process.setEnv
-	},
-	hasEnv : function() {
-		//TODO implement Process.hasEnv
-	},
-	launch : function() {
-		//TODO implement Process.launch
-	}
-};
-
 var TitaniumMemoryBlob = function(key) {
 	this._key = key;
-	this._ref = Titanium.getObjectReference(key); // get the native reference for tracking.
+	this._ref = Ti.getObjectReference(key); // get the native reference for tracking.
 
 	this.getLength = function() {
-		return Titanium.getTitaniumMemoryBlobLength(this._key);
+		return Ti.getTitaniumMemoryBlobLength(this._key);
 	};
 	this.getKey = function() {
 		return this._key;
 	};
 
 	this.toString = function() {
-		return transformObjectValueAsString(Titanium.getTitaniumMemoryBlobString(this._key));
+		return transformObjectValueAsString(Ti.getTitaniumMemoryBlobString(this._key));
 	}
 };
 TitaniumMemoryBlob.prototype.__defineGetter__("length", function(){

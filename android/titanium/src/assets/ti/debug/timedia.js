@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-Titanium.mediaProxy = window.TitaniumMedia;
+Ti.mediaProxy = window.TitaniumMedia;
 
 var Sound = function(proxy) {
 	this.proxy = proxy;
@@ -171,12 +171,12 @@ var Video = function(proxy) {
 	};
 };
 
-Titanium.Media = {
+Ti.Media = {
 	/**
 	 * @tiapi(method=True,name=Media.beep,since=0.4) Play an audio alert using the system default notification.
 	 */
 	beep : function() {
-		Titanium.mediaProxy.beep();
+		Ti.mediaProxy.beep();
 	},
 	/**
 	 * @tiapi(method=True,name=Media.createSound,since=0.4) Creates a Sound object.
@@ -184,13 +184,13 @@ Titanium.Media = {
 	 * @tiresult[Sound] the sound object
 	 */
 	createSound : function(url) {
-		return new Sound(Titanium.mediaProxy.createSound(url));
+		return new Sound(Ti.mediaProxy.createSound(url));
 	},
 	/**
 	 * @tiapi(method=True,name=Media.vibrate,since=0.4) Vibrate the device
 	 */
 	vibrate : function() {
-		Titanium.mediaProxy.vibrate(null);
+		Ti.mediaProxy.vibrate(null);
 	},
 	/**
 	 * @tiapi(method=True,name=Media.showCamera,since=0.4) Start the camera for capturing an image.
@@ -201,7 +201,7 @@ Titanium.Media = {
 		var userCancel = transformObjectValue(options.cancel, function(){});
 		var userError = transformObjectValue(options.error, function(){});
 
-		var blob = Titanium.mediaProxy.createBlob();
+		var blob = Ti.mediaProxy.createBlob();
 
 		var success = registerCallback(this, function(attrs) {
 				var b = TitaniumFile.createBlob(blob);
@@ -216,7 +216,7 @@ Titanium.Media = {
 			saveToPhotoGallery : options.saveToPhotoGallery
 		};
 
-		Titanium.mediaProxy.showCamera(success, cancel, error, Titanium.JSON.stringify(args), blob); // TODO handle one-off callbacks
+		Ti.mediaProxy.showCamera(success, cancel, error, Ti.JSON.stringify(args), blob); // TODO handle one-off callbacks
 	},
 	/**
 	 * @tiapi(method=True,name=Media.openPhotoGallery,since=0.4) Show a photo browser. On Android the browser allows editing.
@@ -227,7 +227,7 @@ Titanium.Media = {
 		var userCancel = transformObjectValue(options.cancel, function(){});
 		var userError = transformObjectValue(options.error, function(){});
 
-		var blob = Titanium.mediaProxy.createBlob();
+		var blob = Ti.mediaProxy.createBlob();
 
 		var success = registerCallback(this, function(attrs) {
 			var b = TitaniumFile.createBlob(blob);
@@ -237,7 +237,7 @@ Titanium.Media = {
 			});
 		var cancel = registerCallback(this, function() { blob = null; userCancel();});
 		var error = registerCallback(this, function(err) { blob = null; userError(err);});
-		Titanium.mediaProxy.openPhotoGallery(success, cancel, error, blob); // TODO handle one-off callbacks
+		Ti.mediaProxy.openPhotoGallery(success, cancel, error, blob); // TODO handle one-off callbacks
 	},
 	/**
 	 * @tiapi(method=True,name=Media.previewImage,since=0.4) Start the photo gallery on a specific image.
@@ -251,10 +251,10 @@ Titanium.Media = {
 		// This step is required. If you use img.obj to get the native object
 		// it's valid in this context and gets set to null on the way to previewImage.
 		// I think it's an android bug, but not sure.
-		var blob = Titanium.mediaProxy.createBlob();
+		var blob = Ti.mediaProxy.createBlob();
 		blob.setUrl(img.url);
 
-		Titanium.mediaProxy.previewImage(success, error, blob); // TODO handle one-off callbacks
+		Ti.mediaProxy.previewImage(success, error, blob); // TODO handle one-off callbacks
 	},
 	/**
 	 * @tiapi(method=True,name=Media.createVideoPlayer,since=0.4) Start video player
@@ -263,7 +263,7 @@ Titanium.Media = {
 	createVideoPlayer : function(options) {
 		var player = null;
 		if (!isUndefined(options)) {
-			var proxy = Titanium.mediaProxy.createVideoPlayer(Titanium.JSON.stringify(options));
+			var proxy = Ti.mediaProxy.createVideoPlayer(Ti.JSON.stringify(options));
 			if (proxy !== null) {
 				player = new Video(proxy);
 				if (!isUndefined(options.complete)) {
