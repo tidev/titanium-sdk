@@ -33,8 +33,13 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
 
 @implementation FBRequest
 
-@synthesize delegate = _delegate, url = _url, method = _method, params = _params,
-  userInfo = _userInfo, timestamp = _timestamp;
+@synthesize delegate  = _delegate,
+            url       = _url,
+            method    = _method,
+            params    = _params,
+            dataParam = _dataParam,
+            userInfo  = _userInfo,
+            timestamp = _timestamp;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // class public
@@ -78,6 +83,10 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
 }
 
 - (NSString*)urlForMethod:(NSString*)method {
+  if ([method isEqualToString:@"facebook.video.upload"]) {
+    return @"http://api-video.facebook.com/restserver.php";
+  }
+  
   return _session.apiURL; 
 }
 
@@ -104,10 +113,10 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
 
   NSArray* keys = [_params.allKeys sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
   for (id obj in [keys objectEnumerator]) {
-    [joined appendString:obj];
-    [joined appendString:@"="];
     id value = [_params valueForKey:obj];
     if ([value isKindOfClass:[NSString class]]) {
+      [joined appendString:obj];
+      [joined appendString:@"="];
       [joined appendString:value];
     }
   }
@@ -125,37 +134,40 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
   return [self md5HexDigest:joined];
 }
 
+- (void)utfAppendBody:(NSMutableData*)body data:(NSString*)data {
+  [body appendData:[data dataUsingEncoding:NSUTF8StringEncoding]];
+}
+
 - (NSMutableData*)generatePostBody {
   NSMutableData* body = [NSMutableData data];
   NSString* endLine = [NSString stringWithFormat:@"\r\n--%@\r\n", kStringBoundary];
 
-  [body appendData:[[NSString stringWithFormat:@"--%@\r\n", kStringBoundary]
-    dataUsingEncoding:NSUTF8StringEncoding]];
+  [self utfAppendBody:body data:[NSString stringWithFormat:@"--%@\r\n", kStringBoundary]];
   
   for (id key in [_params keyEnumerator]) {
-    if (![[_params objectForKey:key] isKindOfClass:[UIImage class]]) {
-      [body appendData:[[NSString
-        stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"\r\n\r\n", key]
-          dataUsingEncoding:NSUTF8StringEncoding]];
-      [body appendData:[[_params valueForKey:key] dataUsingEncoding:NSUTF8StringEncoding]];
-      [body appendData:[endLine dataUsingEncoding:NSUTF8StringEncoding]];        
-    }
+    [self utfAppendBody:body
+                   data:[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"\r\n\r\n", key]];
+    [self utfAppendBody:body data:[_params valueForKey:key]];
+    [self utfAppendBody:body data:endLine];
   }
 
-  for (id key in [_params keyEnumerator]) {
-    if ([[_params objectForKey:key] isKindOfClass:[UIImage class]]) {
-      UIImage* image = [_params objectForKey:key];
-      NSData* imageData = UIImageJPEGRepresentation(image, 0.75);
-      
-      [body appendData:[[NSString
-        stringWithFormat:@"Content-Disposition: form-data; filename=\"photo\"\r\n"]
-          dataUsingEncoding:NSUTF8StringEncoding]];
-      [body appendData:[[NSString
-        stringWithString:@"Content-Type: image/jpeg\r\n\r\n"]
-          dataUsingEncoding:NSUTF8StringEncoding]];  
+  if (_dataParam != nil) {
+    if ([_dataParam isKindOfClass:[UIImage class]]) {
+      NSData* imageData = UIImagePNGRepresentation((UIImage*)_dataParam);
+      [self utfAppendBody:body
+                     data:[NSString stringWithFormat:@"Content-Disposition: form-data; filename=\"photo\"\r\n"]];
+      [self utfAppendBody:body
+                     data:[NSString stringWithString:@"Content-Type: image/png\r\n\r\n"]];
       [body appendData:imageData];
-      [body appendData:[endLine dataUsingEncoding:NSUTF8StringEncoding]];
+    } else {
+      NSAssert([_dataParam isKindOfClass:[NSData class]], @"dataParam must be a UIImage or NSData");
+      [self utfAppendBody:body
+                     data:[NSString stringWithFormat:@"Content-Disposition: form-data; filename=\"data\"\r\n"]];
+      [self utfAppendBody:body
+                     data:[NSString stringWithString:@"Content-Type: content/unknown\r\n\r\n"]];
+      [body appendData:(NSData*)_dataParam];
     }
+    [self utfAppendBody:body data:endLine];
   }
   
   FBLOG2(@"Sending %s", [body bytes]);
@@ -312,11 +324,16 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
 }
 
 - (void)call:(NSString*)method params:(NSDictionary*)params {
+  [self call:method params:params dataParam:nil];
+}
+
+- (void)call:(NSString*)method params:(NSDictionary*)params dataParam:(NSData*)dataParam {
   _url = [[self urlForMethod:method] retain];
   _method = [method copy];
   _params = params
     ? [[NSMutableDictionary alloc] initWithDictionary:params]
     : [[NSMutableDictionary alloc] init];
+  _dataParam = dataParam;
 
   [_params setObject:_method forKey:@"method"];
   [_params setObject:_session.apiKey forKey:@"api_key"];
@@ -333,7 +350,7 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
   }
   
   [_params setObject:[self generateSig] forKey:@"sig"];
-  
+	
   [_session send:self];
 }
 

@@ -14,29 +14,30 @@
 		2418F4220FCB629A00BFE545 /* sound.html in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4210FCB629A00BFE545 /* sound.html */; };
 		2418F4670FCB6A2100BFE545 /* sound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4660FCB6A2100BFE545 /* sound.wav */; };
 		24440B9B0FC9DFA0000A025D /* iPhone_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 24440B9A0FC9DFA0000A025D /* iPhone_icon.png */; };
-		2444F8370FC9FCA400063972 /* ApiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8090FC9FCA400063972 /* ApiModule.m */; };
-		2444F8380FC9FCA400063972 /* AppModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F80C0FC9FCA400063972 /* AppModule.m */; };
-		2444F8390FC9FCA400063972 /* DatabaseModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F80F0FC9FCA400063972 /* DatabaseModule.m */; };
-		2444F83A0FC9FCA400063972 /* PlausibleDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8120FC9FCA400063972 /* PlausibleDatabase.m */; };
-		2444F83B0FC9FCA400063972 /* PLSqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8170FC9FCA400063972 /* PLSqliteDatabase.m */; };
-		2444F83C0FC9FCA400063972 /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8190FC9FCA400063972 /* PLSqlitePreparedStatement.m */; };
-		2444F83D0FC9FCA400063972 /* PLSqliteResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F81B0FC9FCA400063972 /* PLSqliteResultSet.m */; };
-		2444F83E0FC9FCA400063972 /* FilesystemModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F81E0FC9FCA400063972 /* FilesystemModule.m */; };
-		2444F83F0FC9FCA400063972 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8210FC9FCA400063972 /* GeolocationModule.m */; };
-		2444F8400FC9FCA400063972 /* MediaModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8240FC9FCA400063972 /* MediaModule.m */; };
-		2444F8430FC9FCA400063972 /* NetworkModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F82D0FC9FCA400063972 /* NetworkModule.m */; };
-		2444F8440FC9FCA400063972 /* PlatformModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8300FC9FCA400063972 /* PlatformModule.m */; };
-		2444F8460FC9FCA400063972 /* UiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8360FC9FCA400063972 /* UiModule.m */; };
 		2444F98B0FCA417C00063972 /* tiapp.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2444F98A0FCA417C00063972 /* tiapp.plist */; };
 		2444FA550FCA4E2E00063972 /* IPAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FA540FCA4E2E00063972 /* IPAddress.c */; };
 		2444FC7F0FCA6F8000063972 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444FC7C0FCA6F8000063972 /* NSData+Additions.m */; };
 		2444FCD40FCA741E00063972 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FCD10FCA741E00063972 /* base64.c */; };
-		247DCBD2107C8366009CD0D1 /* YahooModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 247DCBD1107C8366009CD0D1 /* YahooModule.m */; };
 		247DCBE4107C83AB009CD0D1 /* YahooModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 247DCBD0107C8366009CD0D1 /* YahooModule.h */; };
 		247DCBE5107C83AF009CD0D1 /* YahooModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 247DCBD1107C8366009CD0D1 /* YahooModule.m */; };
 		247DCBE8107C83D2009CD0D1 /* TitaniumBasicModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD204B106C9198004D4127 /* TitaniumBasicModule.h */; };
 		24B4B9A310622B9D00C859D4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
-		24BBD83E0FCD245F00A261A4 /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BBD83D0FCD245F00A261A4 /* GestureModule.m */; };
+		24BA96041096633D009ADEDD /* FBConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA95F71096633D009ADEDD /* FBConnect.h */; };
+		24BA96051096633D009ADEDD /* FBConnectGlobal.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA95F81096633D009ADEDD /* FBConnectGlobal.h */; };
+		24BA96061096633D009ADEDD /* FBDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA95F91096633D009ADEDD /* FBDialog.h */; };
+		24BA96071096633D009ADEDD /* FBFeedDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA95FA1096633D009ADEDD /* FBFeedDialog.h */; };
+		24BA96081096633D009ADEDD /* FBLoginButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA95FB1096633D009ADEDD /* FBLoginButton.h */; };
+		24BA96091096633D009ADEDD /* FBLoginDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA95FC1096633D009ADEDD /* FBLoginDialog.h */; };
+		24BA960A1096633D009ADEDD /* FBPermissionDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA95FD1096633D009ADEDD /* FBPermissionDialog.h */; };
+		24BA960B1096633D009ADEDD /* FBRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA95FE1096633D009ADEDD /* FBRequest.h */; };
+		24BA960C1096633D009ADEDD /* FBSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA95FF1096633D009ADEDD /* FBSession.h */; };
+		24BA960D1096633D009ADEDD /* FBStreamDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA96001096633D009ADEDD /* FBStreamDialog.h */; };
+		24BA960E1096633D009ADEDD /* FBStreamDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BA96011096633D009ADEDD /* FBStreamDialog.m */; };
+		24BA960F1096633D009ADEDD /* FBXMLHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA96021096633D009ADEDD /* FBXMLHandler.h */; };
+		24BA96C21097E00C009ADEDD /* ContactsModule.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A4A102109123680021CC46 /* ContactsModule.h */; };
+		24BA96C31097E021009ADEDD /* TitaniumBasicModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD204B106C9198004D4127 /* TitaniumBasicModule.h */; };
+		24BA96C41097E033009ADEDD /* ContactsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A4A103109123680021CC46 /* ContactsModule.m */; };
+		24BA96DA1097E16D009ADEDD /* MapModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BA96D81097E16D009ADEDD /* MapModule.m */; };
 		24C5AC5B1061FB630063594B /* NotificationModule.h in Headers */ = {isa = PBXBuildFile; fileRef = B4F37DDB1061913E00ED12AF /* NotificationModule.h */; };
 		24C5AC5C1061FB670063594B /* NotificationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F37DDC1061913E00ED12AF /* NotificationModule.m */; };
 		24C5AC731061FBA00063594B /* AnalyticsModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24F02E440FD482D2007894DA /* AnalyticsModule.h */; };
@@ -150,7 +151,6 @@
 		24C5ACF21061FDD70063594B /* UiModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8350FC9FCA400063972 /* UiModule.h */; };
 		24C5ACF31061FDD70063594B /* NativeControlProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A6D3AF103C9EFD00131CD4 /* NativeControlProxy.h */; };
 		24C5ACF41061FDDC0063594B /* UiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8360FC9FCA400063972 /* UiModule.m */; };
-		24F02E460FD482D2007894DA /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F02E450FD482D2007894DA /* AnalyticsModule.m */; };
 		24FD2052106C9198004D4127 /* TitaniumBasicModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD204C106C9198004D4127 /* TitaniumBasicModule.m */; };
 		24FD2059106C9198004D4127 /* TitaniumBasicModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD204B106C9198004D4127 /* TitaniumBasicModule.h */; };
 		24FD205A106C9198004D4127 /* TitaniumBasicModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD204C106C9198004D4127 /* TitaniumBasicModule.m */; };
@@ -164,15 +164,6 @@
 		24FD23A8106F185D004D4127 /* FBRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238D106F1802004D4127 /* FBRequest.m */; };
 		24FD23A9106F185D004D4127 /* FBSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238E106F1802004D4127 /* FBSession.m */; };
 		24FD23AB106F185D004D4127 /* FBXMLHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2390106F1802004D4127 /* FBXMLHandler.m */; };
-		24FD23BF106F1901004D4127 /* FBConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23B6106F1901004D4127 /* FBConnect.h */; };
-		24FD23C0106F1901004D4127 /* FBConnectGlobal.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23B7106F1901004D4127 /* FBConnectGlobal.h */; };
-		24FD23C1106F1901004D4127 /* FBDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23B8106F1901004D4127 /* FBDialog.h */; };
-		24FD23C2106F1901004D4127 /* FBFeedDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23B9106F1901004D4127 /* FBFeedDialog.h */; };
-		24FD23C3106F1901004D4127 /* FBLoginButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23BA106F1901004D4127 /* FBLoginButton.h */; };
-		24FD23C4106F1901004D4127 /* FBLoginDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23BB106F1901004D4127 /* FBLoginDialog.h */; };
-		24FD23C5106F1901004D4127 /* FBPermissionDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23BC106F1901004D4127 /* FBPermissionDialog.h */; };
-		24FD23C6106F1901004D4127 /* FBRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23BD106F1901004D4127 /* FBRequest.h */; };
-		24FD23C7106F1901004D4127 /* FBSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD23BE106F1901004D4127 /* FBSession.h */; };
 		24FD23CC106F1A1C004D4127 /* TitaniumModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 249075290FC9D55B00D38073 /* TitaniumModule.h */; };
 		24FD23D2106F1A36004D4127 /* TitaniumBasicModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD204B106C9198004D4127 /* TitaniumBasicModule.h */; };
 		24FD2423106F2C50004D4127 /* FacebookModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD2422106F2C50004D4127 /* FacebookModule.h */; };
@@ -194,7 +185,6 @@
 		B41069CD0FBB756B00310448 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		B41069CE0FBB756B00310448 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		B41069CF0FBB756B00310448 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
-		B4110C9D0FD4653A00BE17F8 /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */; };
 		B413A6800F7998C500B1C47D /* TitaniumAppProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */; };
 		B413A7530F79A58000B1C47D /* TitaniumCmdThread.m in Sources */ = {isa = PBXBuildFile; fileRef = B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */; };
 		B4200E511035FAB1009598FC /* Logging.c in Sources */ = {isa = PBXBuildFile; fileRef = B4200E501035FAB1009598FC /* Logging.c */; };
@@ -264,57 +254,11 @@
 		B47A27191035F040002146CD /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
 		B47A271A1035F040002146CD /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4250689100C0A4B00AD6A6B /* MessageUI.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		B47A27241035F0BF002146CD /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
-		B47A27841035F11F002146CD /* accounts.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A27261035F11F002146CD /* accounts.html */; };
-		B47A27851035F11F002146CD /* accounts.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27271035F11F002146CD /* accounts.js */; };
-		B47A27881035F11F002146CD /* DM.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A272B1035F11F002146CD /* DM.html */; };
-		B47A27891035F11F002146CD /* DM.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A272C1035F11F002146CD /* DM.js */; };
-		B47A278C1035F11F002146CD /* favorites.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A272F1035F11F002146CD /* favorites.html */; };
-		B47A278D1035F11F002146CD /* favorites.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27301035F11F002146CD /* favorites.js */; };
-		B47A278E1035F11F002146CD /* humane.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27311035F11F002146CD /* humane.js */; };
-		B47A278F1035F11F002146CD /* humaneOG.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27321035F11F002146CD /* humaneOG.js */; };
-		B47A27C81035F11F002146CD /* jquery-1.3.2.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A276D1035F11F002146CD /* jquery-1.3.2.js */; };
-		B47A27C91035F11F002146CD /* json2.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A276E1035F11F002146CD /* json2.js */; };
-		B47A27CA1035F11F002146CD /* message.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A276F1035F11F002146CD /* message.html */; };
-		B47A27CB1035F11F002146CD /* message.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27701035F11F002146CD /* message.js */; };
-		B47A27CC1035F11F002146CD /* more.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A27711035F11F002146CD /* more.html */; };
-		B47A27CD1035F11F002146CD /* more.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27721035F11F002146CD /* more.js */; };
-		B47A27CE1035F11F002146CD /* newaccount.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A27731035F11F002146CD /* newaccount.html */; };
-		B47A27CF1035F11F002146CD /* newaccount.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27741035F11F002146CD /* newaccount.js */; };
-		B47A27D01035F11F002146CD /* post.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A27751035F11F002146CD /* post.html */; };
-		B47A27D11035F11F002146CD /* post.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27761035F11F002146CD /* post.js */; };
-		B47A27D21035F11F002146CD /* results.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A27771035F11F002146CD /* results.html */; };
-		B47A27D31035F11F002146CD /* results.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27781035F11F002146CD /* results.js */; };
-		B47A27D41035F11F002146CD /* search.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A27791035F11F002146CD /* search.html */; };
-		B47A27D51035F11F002146CD /* search.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A277A1035F11F002146CD /* search.js */; };
-		B47A27D61035F11F002146CD /* splash.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A277B1035F11F002146CD /* splash.html */; };
-		B47A27D71035F11F002146CD /* splash.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A277C1035F11F002146CD /* splash.js */; };
-		B47A27D81035F11F002146CD /* style.css in Resources */ = {isa = PBXBuildFile; fileRef = B47A277D1035F11F002146CD /* style.css */; };
-		B47A27D91035F11F002146CD /* timeline.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A277E1035F11F002146CD /* timeline.html */; };
-		B47A27DA1035F11F002146CD /* timeline.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A277F1035F11F002146CD /* timeline.js */; };
-		B47A27DB1035F11F002146CD /* trends.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A27801035F11F002146CD /* trends.html */; };
-		B47A27DC1035F11F002146CD /* trends.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27811035F11F002146CD /* trends.js */; };
-		B47A27DD1035F11F002146CD /* user.html in Resources */ = {isa = PBXBuildFile; fileRef = B47A27821035F11F002146CD /* user.html */; };
-		B47A27DE1035F11F002146CD /* user.js in Resources */ = {isa = PBXBuildFile; fileRef = B47A27831035F11F002146CD /* user.js */; };
-		B47A27E31035F15C002146CD /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B47A27DF1035F15C002146CD /* Info.plist */; };
-		B47A27E41035F15C002146CD /* appicon.png in Resources */ = {isa = PBXBuildFile; fileRef = B47A27E01035F15C002146CD /* appicon.png */; };
-		B47A27E51035F15C002146CD /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = B47A27E11035F15C002146CD /* Default.png */; };
-		B47A27E61035F15C002146CD /* tiapp.plist in Resources */ = {isa = PBXBuildFile; fileRef = B47A27E21035F15C002146CD /* tiapp.plist */; };
-		B47A283D1035F2E3002146CD /* images in Resources */ = {isa = PBXBuildFile; fileRef = B47A28051035F2E3002146CD /* images */; };
 		B47B52D60FF1B2F400BD7229 /* ValueTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */; };
 		B481D3370FD4C45A00F0A961 /* song.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = B481D3360FD4C45A00F0A961 /* song.mp3 */; };
 		B4864F5C0F7C48E700A851C5 /* TitaniumUIViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4864F5B0F7C48E700A851C5 /* TitaniumUIViewController.m */; };
 		B48E4AE40FC1DBEE00204C8E /* iPhone_BG.png in Resources */ = {isa = PBXBuildFile; fileRef = B4880BA20F96B4E3007589FC /* iPhone_BG.png */; };
 		B48E4AE50FC1DBF200204C8E /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = B4F51CB00F981F23004D9D2D /* Default.png */; };
-		B49029EE1072848D009678FC /* FBPermissionDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238C106F1802004D4127 /* FBPermissionDialog.m */; };
-		B49029EF1072848E009678FC /* FacebookModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD237C106F1802004D4127 /* FacebookModule.m */; };
-		B49029F01072848E009678FC /* FBLoginDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238B106F1802004D4127 /* FBLoginDialog.m */; };
-		B49029F11072848F009678FC /* FBRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238D106F1802004D4127 /* FBRequest.m */; };
-		B49029F210728490009678FC /* FBSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238E106F1802004D4127 /* FBSession.m */; };
-		B49029F310728490009678FC /* FBFeedDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2389106F1802004D4127 /* FBFeedDialog.m */; };
-		B49029F410728491009678FC /* FBDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2388106F1802004D4127 /* FBDialog.m */; };
-		B49029F510728492009678FC /* FBConnectGlobal.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2387106F1802004D4127 /* FBConnectGlobal.m */; };
-		B49029F610728492009678FC /* FBXMLHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2390106F1802004D4127 /* FBXMLHandler.m */; };
-		B49029F710728493009678FC /* FBLoginButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238A106F1802004D4127 /* FBLoginButton.m */; };
 		B492D43E0FCC6DB20030772B /* network.html in Resources */ = {isa = PBXBuildFile; fileRef = B492D43D0FCC6DB20030772B /* network.html */; };
 		B49358DC106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B49358DB106AE51C00BC4A77 /* TitaniumImageViewController.m */; };
 		B49358DD106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B49358DB106AE51C00BC4A77 /* TitaniumImageViewController.m */; };
@@ -326,23 +270,10 @@
 		B4A49BA20FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
 		B4A49BA30FCE01070049ED60 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4A49BA10FCE01070049ED60 /* MediaPlayer.framework */; };
 		B4A49BBC0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A49BB90FCE08DA0049ED60 /* TitaniumBlobWrapper.m */; };
-		B4A4A104109123680021CC46 /* ContactsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A4A103109123680021CC46 /* ContactsModule.m */; };
 		B4A4A105109123680021CC46 /* ContactsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A4A103109123680021CC46 /* ContactsModule.m */; };
 		B4A6D3B3103C9EFD00131CD4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
 		B4A6D3B4103C9EFD00131CD4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
-		B4AA86FE105ED1DF00D29939 /* nointernet.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AA86F3105ED1DF00D29939 /* nointernet.html */; };
-		B4AA86FF105ED1DF00D29939 /* timeline-all.js in Sources */ = {isa = PBXBuildFile; fileRef = B4AA86F4105ED1DF00D29939 /* timeline-all.js */; };
-		B4AA8700105ED1DF00D29939 /* timeline-all.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AA86F5105ED1DF00D29939 /* timeline-all.html */; };
-		B4AA8701105ED1DF00D29939 /* timeline-replies.js in Sources */ = {isa = PBXBuildFile; fileRef = B4AA86F6105ED1DF00D29939 /* timeline-replies.js */; };
-		B4AA8702105ED1DF00D29939 /* timeline-replies.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AA86F7105ED1DF00D29939 /* timeline-replies.html */; };
-		B4AA8703105ED1DF00D29939 /* link.js in Sources */ = {isa = PBXBuildFile; fileRef = B4AA86F8105ED1DF00D29939 /* link.js */; };
-		B4AA8704105ED1DF00D29939 /* link.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AA86F9105ED1DF00D29939 /* link.html */; };
-		B4AA8705105ED1DF00D29939 /* timeline-public.js in Sources */ = {isa = PBXBuildFile; fileRef = B4AA86FA105ED1DF00D29939 /* timeline-public.js */; };
-		B4AA8706105ED1DF00D29939 /* timeline-public.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AA86FB105ED1DF00D29939 /* timeline-public.html */; };
-		B4AA8707105ED1DF00D29939 /* timeline-dms.js in Sources */ = {isa = PBXBuildFile; fileRef = B4AA86FC105ED1DF00D29939 /* timeline-dms.js */; };
-		B4AA8708105ED1DF00D29939 /* timeline-dms.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AA86FD105ED1DF00D29939 /* timeline-dms.html */; };
 		B4ABEDC4101903CA00639ED5 /* buggy.html in Resources */ = {isa = PBXBuildFile; fileRef = B4ABEDC3101903CA00639ED5 /* buggy.html */; };
-		B4ABEDC7101903F300639ED5 /* buggy.js in Sources */ = {isa = PBXBuildFile; fileRef = B4ABEDC6101903F300639ED5 /* buggy.js */; };
 		B4ADF5FA106D8C0200D26B13 /* WeCanDoIt.png in Resources */ = {isa = PBXBuildFile; fileRef = B4ADF5F9106D8C0200D26B13 /* WeCanDoIt.png */; };
 		B4AF713D107D56F9000347A7 /* buggy.js in Resources */ = {isa = PBXBuildFile; fileRef = B4ABEDC6101903F300639ED5 /* buggy.js */; };
 		B4AF73B9107E7920000347A7 /* view1.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AF73B6107E7920000347A7 /* view1.html */; };
@@ -353,8 +284,6 @@
 		B4B8E56B10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B8E56A10586D3500D08D44 /* TitaniumCellWrapper.m */; };
 		B4B8E56E10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B8E56A10586D3500D08D44 /* TitaniumCellWrapper.m */; };
 		B4B9E4621003D3DE004B8831 /* logo-m.png in Resources */ = {isa = PBXBuildFile; fileRef = B4B9E4611003D3DE004B8831 /* logo-m.png */; };
-		B4B9E4641003D3E6004B8831 /* ext-core.js in Sources */ = {isa = PBXBuildFile; fileRef = B4B9E4631003D3E6004B8831 /* ext-core.js */; };
-		B4B9E4721003D52F004B8831 /* jquery.js in Sources */ = {isa = PBXBuildFile; fileRef = B4B9E4711003D52F004B8831 /* jquery.js */; };
 		B4BAC627109624C2005925EA /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4BAC625109624C2005925EA /* AddressBook.framework */; };
 		B4BAC628109624C2005925EA /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4BAC626109624C2005925EA /* AddressBookUI.framework */; };
 		B4BAC629109624C2005925EA /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4BAC625109624C2005925EA /* AddressBook.framework */; };
@@ -362,6 +291,37 @@
 		B4BAC64F1096250A005925EA /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4BAC64E1096250A005925EA /* MapKit.framework */; };
 		B4BAC6501096250A005925EA /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4BAC64E1096250A005925EA /* MapKit.framework */; };
 		B4BAC6511096250A005925EA /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4BAC64E1096250A005925EA /* MapKit.framework */; };
+		B4BAC9271098296E005925EA /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8190FC9FCA400063972 /* PLSqlitePreparedStatement.m */; };
+		B4BAC9281098296E005925EA /* ContactsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A4A103109123680021CC46 /* ContactsModule.m */; };
+		B4BAC9291098296F005925EA /* FilesystemModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F81E0FC9FCA400063972 /* FilesystemModule.m */; };
+		B4BAC92A10982972005925EA /* MapModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BA96D81097E16D009ADEDD /* MapModule.m */; };
+		B4BAC92B10982972005925EA /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */; };
+		B4BAC92C10982974005925EA /* FBLoginDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238B106F1802004D4127 /* FBLoginDialog.m */; };
+		B4BAC92D10982976005925EA /* NetworkModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F82D0FC9FCA400063972 /* NetworkModule.m */; };
+		B4BAC92E10982977005925EA /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BBD83D0FCD245F00A261A4 /* GestureModule.m */; };
+		B4BAC92F10982978005925EA /* DatabaseModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F80F0FC9FCA400063972 /* DatabaseModule.m */; };
+		B4BAC9301098297C005925EA /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8210FC9FCA400063972 /* GeolocationModule.m */; };
+		B4BAC9311098297D005925EA /* YahooModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 247DCBD1107C8366009CD0D1 /* YahooModule.m */; };
+		B4BAC9321098297E005925EA /* FBRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238D106F1802004D4127 /* FBRequest.m */; };
+		B4BAC93310982983005925EA /* FBXMLHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2390106F1802004D4127 /* FBXMLHandler.m */; };
+		B4BAC93410982984005925EA /* FBStreamDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24BA96011096633D009ADEDD /* FBStreamDialog.m */; };
+		B4BAC93510982984005925EA /* ApiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8090FC9FCA400063972 /* ApiModule.m */; };
+		B4BAC93610982985005925EA /* FBSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238E106F1802004D4127 /* FBSession.m */; };
+		B4BAC93710982986005925EA /* FBPermissionDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238C106F1802004D4127 /* FBPermissionDialog.m */; };
+		B4BAC93810982988005925EA /* FBFeedDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2389106F1802004D4127 /* FBFeedDialog.m */; };
+		B4BAC93910982988005925EA /* UiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8360FC9FCA400063972 /* UiModule.m */; };
+		B4BAC93A1098298B005925EA /* PLSqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8170FC9FCA400063972 /* PLSqliteDatabase.m */; };
+		B4BAC93B1098298C005925EA /* AppModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F80C0FC9FCA400063972 /* AppModule.m */; };
+		B4BAC93C1098298D005925EA /* FacebookModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD237C106F1802004D4127 /* FacebookModule.m */; };
+		B4BAC93D1098298D005925EA /* FBConnectGlobal.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2387106F1802004D4127 /* FBConnectGlobal.m */; };
+		B4BAC93E1098298E005925EA /* FBDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD2388106F1802004D4127 /* FBDialog.m */; };
+		B4BAC93F10982990005925EA /* NotificationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F37DDC1061913E00ED12AF /* NotificationModule.m */; };
+		B4BAC94010982991005925EA /* PLSqliteResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F81B0FC9FCA400063972 /* PLSqliteResultSet.m */; };
+		B4BAC94110982992005925EA /* PlausibleDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8120FC9FCA400063972 /* PlausibleDatabase.m */; };
+		B4BAC94210982993005925EA /* MediaModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8240FC9FCA400063972 /* MediaModule.m */; };
+		B4BAC94310982994005925EA /* PlatformModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8300FC9FCA400063972 /* PlatformModule.m */; };
+		B4BAC94410982996005925EA /* FBLoginButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238A106F1802004D4127 /* FBLoginButton.m */; };
+		B4BAC94510982997005925EA /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F02E450FD482D2007894DA /* AnalyticsModule.m */; };
 		B4C3F8B60FB3B11C0037F210 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */; };
 		B4C6D7040FE99F4E00D62384 /* TitaniumWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7030FE99F4E00D62384 /* TitaniumWebViewController.m */; };
 		B4C6D7330FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */; };
@@ -375,7 +335,6 @@
 		B4E9BB660F842C9400DD709C /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BB640F842C9400DD709C /* SBJSON.m */; };
 		B4E9BC090F85491F00DD709C /* TitaniumJSConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = B4E9BC080F85491F00DD709C /* TitaniumJSConstants.m */; };
 		B4F37DDF1061913E00ED12AF /* NotificationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F37DDC1061913E00ED12AF /* NotificationModule.m */; };
-		B4F37DE01061913E00ED12AF /* NotificationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F37DDC1061913E00ED12AF /* NotificationModule.m */; };
 		B4F37E161061AB5D00ED12AF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4F37E151061AB5D00ED12AF /* QuartzCore.framework */; };
 		B4F37E171061AB5D00ED12AF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4F37E151061AB5D00ED12AF /* QuartzCore.framework */; };
 		B4F37E181061AB5D00ED12AF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4F37E151061AB5D00ED12AF /* QuartzCore.framework */; };
@@ -389,30 +348,6 @@
 		B4FECD130FAA4B3E0015B658 /* Webcolor.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FECD120FAA4B3E0015B658 /* Webcolor.m */; };
 		B4FFBE3E0FD4A778001D5E81 /* unitTest.html in Resources */ = {isa = PBXBuildFile; fileRef = B4FFBE3D0FD4A778001D5E81 /* unitTest.html */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		247DCBE6107C83C8009CD0D1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 247DCBE0107C837F009CD0D1;
-			remoteInfo = libYahoo;
-		};
-		247DCBEB107C83DB009CD0D1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 247DCBE0107C837F009CD0D1;
-			remoteInfo = libYahoo;
-		};
-		24FD23DB106F1A53004D4127 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 24FD2394106F180F004D4127;
-			remoteInfo = libFacebook;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -463,6 +398,21 @@
 		247DCBD1107C8366009CD0D1 /* YahooModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YahooModule.m; path = YahooModule/YahooModule.m; sourceTree = "<group>"; };
 		247DCBE1107C837F009CD0D1 /* libYahoo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libYahoo.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		249075290FC9D55B00D38073 /* TitaniumModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumModule.h; sourceTree = "<group>"; };
+		24BA95F71096633D009ADEDD /* FBConnect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBConnect.h; path = FacebookModule/FBConnect.h; sourceTree = "<group>"; };
+		24BA95F81096633D009ADEDD /* FBConnectGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBConnectGlobal.h; path = FacebookModule/FBConnectGlobal.h; sourceTree = "<group>"; };
+		24BA95F91096633D009ADEDD /* FBDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBDialog.h; path = FacebookModule/FBDialog.h; sourceTree = "<group>"; };
+		24BA95FA1096633D009ADEDD /* FBFeedDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBFeedDialog.h; path = FacebookModule/FBFeedDialog.h; sourceTree = "<group>"; };
+		24BA95FB1096633D009ADEDD /* FBLoginButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBLoginButton.h; path = FacebookModule/FBLoginButton.h; sourceTree = "<group>"; };
+		24BA95FC1096633D009ADEDD /* FBLoginDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBLoginDialog.h; path = FacebookModule/FBLoginDialog.h; sourceTree = "<group>"; };
+		24BA95FD1096633D009ADEDD /* FBPermissionDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBPermissionDialog.h; path = FacebookModule/FBPermissionDialog.h; sourceTree = "<group>"; };
+		24BA95FE1096633D009ADEDD /* FBRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBRequest.h; path = FacebookModule/FBRequest.h; sourceTree = "<group>"; };
+		24BA95FF1096633D009ADEDD /* FBSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBSession.h; path = FacebookModule/FBSession.h; sourceTree = "<group>"; };
+		24BA96001096633D009ADEDD /* FBStreamDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBStreamDialog.h; path = FacebookModule/FBStreamDialog.h; sourceTree = "<group>"; };
+		24BA96011096633D009ADEDD /* FBStreamDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBStreamDialog.m; path = FacebookModule/FBStreamDialog.m; sourceTree = "<group>"; };
+		24BA96021096633D009ADEDD /* FBXMLHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBXMLHandler.h; path = FacebookModule/FBXMLHandler.h; sourceTree = "<group>"; };
+		24BA96B61097DF41009ADEDD /* libContacts.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libContacts.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24BA96D31097E132009ADEDD /* libMap.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMap.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24BA96D81097E16D009ADEDD /* MapModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MapModule.m; path = MapModule/MapModule.m; sourceTree = "<group>"; };
 		24BBD83C0FCD245F00A261A4 /* GestureModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GestureModule.h; sourceTree = "<group>"; };
 		24BBD83D0FCD245F00A261A4 /* GestureModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GestureModule.m; sourceTree = "<group>"; };
 		24C5ABF11061FA9D0063594B /* libNotification.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libNotification.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -491,18 +441,8 @@
 		24FD238C106F1802004D4127 /* FBPermissionDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBPermissionDialog.m; path = FacebookModule/FBPermissionDialog.m; sourceTree = "<group>"; };
 		24FD238D106F1802004D4127 /* FBRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBRequest.m; path = FacebookModule/FBRequest.m; sourceTree = "<group>"; };
 		24FD238E106F1802004D4127 /* FBSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBSession.m; path = FacebookModule/FBSession.m; sourceTree = "<group>"; };
-		24FD238F106F1802004D4127 /* FBXMLHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBXMLHandler.h; path = FacebookModule/FBXMLHandler.h; sourceTree = "<group>"; };
 		24FD2390106F1802004D4127 /* FBXMLHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBXMLHandler.m; path = FacebookModule/FBXMLHandler.m; sourceTree = "<group>"; };
 		24FD2395106F180F004D4127 /* libFacebook.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libFacebook.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		24FD23B6106F1901004D4127 /* FBConnect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBConnect.h; path = FacebookModule/FBConnect.h; sourceTree = "<group>"; };
-		24FD23B7106F1901004D4127 /* FBConnectGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBConnectGlobal.h; path = FacebookModule/FBConnectGlobal.h; sourceTree = "<group>"; };
-		24FD23B8106F1901004D4127 /* FBDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBDialog.h; path = FacebookModule/FBDialog.h; sourceTree = "<group>"; };
-		24FD23B9106F1901004D4127 /* FBFeedDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBFeedDialog.h; path = FacebookModule/FBFeedDialog.h; sourceTree = "<group>"; };
-		24FD23BA106F1901004D4127 /* FBLoginButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBLoginButton.h; path = FacebookModule/FBLoginButton.h; sourceTree = "<group>"; };
-		24FD23BB106F1901004D4127 /* FBLoginDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBLoginDialog.h; path = FacebookModule/FBLoginDialog.h; sourceTree = "<group>"; };
-		24FD23BC106F1901004D4127 /* FBPermissionDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBPermissionDialog.h; path = FacebookModule/FBPermissionDialog.h; sourceTree = "<group>"; };
-		24FD23BD106F1901004D4127 /* FBRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBRequest.h; path = FacebookModule/FBRequest.h; sourceTree = "<group>"; };
-		24FD23BE106F1901004D4127 /* FBSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBSession.h; path = FacebookModule/FBSession.h; sourceTree = "<group>"; };
 		24FD2422106F2C50004D4127 /* FacebookModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FacebookModule.h; path = FacebookModule/FacebookModule.h; sourceTree = "<group>"; };
 		288765A40DF7441C002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		28AD733E0D9D9553002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
@@ -543,42 +483,6 @@
 		B4676CB40FB0E492009B81F4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		B47A271E1035F040002146CD /* TestSpaz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestSpaz.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B47A27261035F11F002146CD /* accounts.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = accounts.html; path = ../../spaz/Resources/accounts.html; sourceTree = SOURCE_ROOT; };
-		B47A27271035F11F002146CD /* accounts.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = accounts.js; path = ../../spaz/Resources/accounts.js; sourceTree = SOURCE_ROOT; };
-		B47A272B1035F11F002146CD /* DM.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = DM.html; path = ../../spaz/Resources/DM.html; sourceTree = SOURCE_ROOT; };
-		B47A272C1035F11F002146CD /* DM.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = DM.js; path = ../../spaz/Resources/DM.js; sourceTree = SOURCE_ROOT; };
-		B47A272F1035F11F002146CD /* favorites.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = favorites.html; path = ../../spaz/Resources/favorites.html; sourceTree = SOURCE_ROOT; };
-		B47A27301035F11F002146CD /* favorites.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = favorites.js; path = ../../spaz/Resources/favorites.js; sourceTree = SOURCE_ROOT; };
-		B47A27311035F11F002146CD /* humane.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = humane.js; path = ../../spaz/Resources/humane.js; sourceTree = SOURCE_ROOT; };
-		B47A27321035F11F002146CD /* humaneOG.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = humaneOG.js; path = ../../spaz/Resources/humaneOG.js; sourceTree = SOURCE_ROOT; };
-		B47A276D1035F11F002146CD /* jquery-1.3.2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "jquery-1.3.2.js"; path = "../../spaz/Resources/jquery-1.3.2.js"; sourceTree = SOURCE_ROOT; };
-		B47A276E1035F11F002146CD /* json2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = json2.js; path = ../../spaz/Resources/json2.js; sourceTree = SOURCE_ROOT; };
-		B47A276F1035F11F002146CD /* message.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = message.html; path = ../../spaz/Resources/message.html; sourceTree = SOURCE_ROOT; };
-		B47A27701035F11F002146CD /* message.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = message.js; path = ../../spaz/Resources/message.js; sourceTree = SOURCE_ROOT; };
-		B47A27711035F11F002146CD /* more.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = more.html; path = ../../spaz/Resources/more.html; sourceTree = SOURCE_ROOT; };
-		B47A27721035F11F002146CD /* more.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = more.js; path = ../../spaz/Resources/more.js; sourceTree = SOURCE_ROOT; };
-		B47A27731035F11F002146CD /* newaccount.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = newaccount.html; path = ../../spaz/Resources/newaccount.html; sourceTree = SOURCE_ROOT; };
-		B47A27741035F11F002146CD /* newaccount.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = newaccount.js; path = ../../spaz/Resources/newaccount.js; sourceTree = SOURCE_ROOT; };
-		B47A27751035F11F002146CD /* post.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = post.html; path = ../../spaz/Resources/post.html; sourceTree = SOURCE_ROOT; };
-		B47A27761035F11F002146CD /* post.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = post.js; path = ../../spaz/Resources/post.js; sourceTree = SOURCE_ROOT; };
-		B47A27771035F11F002146CD /* results.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = results.html; path = ../../spaz/Resources/results.html; sourceTree = SOURCE_ROOT; };
-		B47A27781035F11F002146CD /* results.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = results.js; path = ../../spaz/Resources/results.js; sourceTree = SOURCE_ROOT; };
-		B47A27791035F11F002146CD /* search.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = search.html; path = ../../spaz/Resources/search.html; sourceTree = SOURCE_ROOT; };
-		B47A277A1035F11F002146CD /* search.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = search.js; path = ../../spaz/Resources/search.js; sourceTree = SOURCE_ROOT; };
-		B47A277B1035F11F002146CD /* splash.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = splash.html; path = ../../spaz/Resources/splash.html; sourceTree = SOURCE_ROOT; };
-		B47A277C1035F11F002146CD /* splash.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = splash.js; path = ../../spaz/Resources/splash.js; sourceTree = SOURCE_ROOT; };
-		B47A277D1035F11F002146CD /* style.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; name = style.css; path = ../../spaz/Resources/style.css; sourceTree = SOURCE_ROOT; };
-		B47A277E1035F11F002146CD /* timeline.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = timeline.html; path = ../../spaz/Resources/timeline.html; sourceTree = SOURCE_ROOT; };
-		B47A277F1035F11F002146CD /* timeline.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = timeline.js; path = ../../spaz/Resources/timeline.js; sourceTree = SOURCE_ROOT; };
-		B47A27801035F11F002146CD /* trends.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = trends.html; path = ../../spaz/Resources/trends.html; sourceTree = SOURCE_ROOT; };
-		B47A27811035F11F002146CD /* trends.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = trends.js; path = ../../spaz/Resources/trends.js; sourceTree = SOURCE_ROOT; };
-		B47A27821035F11F002146CD /* user.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = user.html; path = ../../spaz/Resources/user.html; sourceTree = SOURCE_ROOT; };
-		B47A27831035F11F002146CD /* user.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = user.js; path = ../../spaz/Resources/user.js; sourceTree = SOURCE_ROOT; };
-		B47A27DF1035F15C002146CD /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../spaz/build/iphone/Info.plist; sourceTree = SOURCE_ROOT; };
-		B47A27E01035F15C002146CD /* appicon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = appicon.png; path = ../../spaz/build/iphone/Resources/appicon.png; sourceTree = SOURCE_ROOT; };
-		B47A27E11035F15C002146CD /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = ../../spaz/build/iphone/Resources/Default.png; sourceTree = SOURCE_ROOT; };
-		B47A27E21035F15C002146CD /* tiapp.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; name = tiapp.plist; path = ../../spaz/build/iphone/Resources/tiapp.plist; sourceTree = SOURCE_ROOT; };
-		B47A28051035F2E3002146CD /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; name = images; path = ../../spaz/Resources/images; sourceTree = SOURCE_ROOT; };
 		B47B52D40FF1B2F400BD7229 /* ValueTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ValueTableViewCell.h; sourceTree = "<group>"; };
 		B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ValueTableViewCell.m; sourceTree = "<group>"; };
 		B481D3360FD4C45A00F0A961 /* song.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = song.mp3; sourceTree = "<group>"; };
@@ -598,17 +502,6 @@
 		B4A4A103109123680021CC46 /* ContactsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactsModule.m; sourceTree = "<group>"; };
 		B4A6D3AF103C9EFD00131CD4 /* NativeControlProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeControlProxy.h; sourceTree = "<group>"; };
 		B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NativeControlProxy.m; sourceTree = "<group>"; };
-		B4AA86F3105ED1DF00D29939 /* nointernet.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = nointernet.html; path = ../../spaz/Resources/nointernet.html; sourceTree = SOURCE_ROOT; };
-		B4AA86F4105ED1DF00D29939 /* timeline-all.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "timeline-all.js"; path = "../../spaz/Resources/timeline-all.js"; sourceTree = SOURCE_ROOT; };
-		B4AA86F5105ED1DF00D29939 /* timeline-all.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "timeline-all.html"; path = "../../spaz/Resources/timeline-all.html"; sourceTree = SOURCE_ROOT; };
-		B4AA86F6105ED1DF00D29939 /* timeline-replies.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "timeline-replies.js"; path = "../../spaz/Resources/timeline-replies.js"; sourceTree = SOURCE_ROOT; };
-		B4AA86F7105ED1DF00D29939 /* timeline-replies.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "timeline-replies.html"; path = "../../spaz/Resources/timeline-replies.html"; sourceTree = SOURCE_ROOT; };
-		B4AA86F8105ED1DF00D29939 /* link.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = link.js; path = ../../spaz/Resources/link.js; sourceTree = SOURCE_ROOT; };
-		B4AA86F9105ED1DF00D29939 /* link.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = link.html; path = ../../spaz/Resources/link.html; sourceTree = SOURCE_ROOT; };
-		B4AA86FA105ED1DF00D29939 /* timeline-public.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "timeline-public.js"; path = "../../spaz/Resources/timeline-public.js"; sourceTree = SOURCE_ROOT; };
-		B4AA86FB105ED1DF00D29939 /* timeline-public.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "timeline-public.html"; path = "../../spaz/Resources/timeline-public.html"; sourceTree = SOURCE_ROOT; };
-		B4AA86FC105ED1DF00D29939 /* timeline-dms.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "timeline-dms.js"; path = "../../spaz/Resources/timeline-dms.js"; sourceTree = SOURCE_ROOT; };
-		B4AA86FD105ED1DF00D29939 /* timeline-dms.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = "timeline-dms.html"; path = "../../spaz/Resources/timeline-dms.html"; sourceTree = SOURCE_ROOT; };
 		B4ABEDC3101903CA00639ED5 /* buggy.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = buggy.html; sourceTree = "<group>"; };
 		B4ABEDC6101903F300639ED5 /* buggy.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = buggy.js; sourceTree = "<group>"; };
 		B4ADF5F9106D8C0200D26B13 /* WeCanDoIt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WeCanDoIt.png; sourceTree = "<group>"; };
@@ -684,6 +577,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		247DCBDF107C837F009CD0D1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24BA96B41097DF41009ADEDD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24BA96D11097E132009ADEDD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -890,6 +797,8 @@
 				24C5AC581061FB4C0063594B /* libUI.a */,
 				24FD2395106F180F004D4127 /* libFacebook.a */,
 				247DCBE1107C837F009CD0D1 /* libYahoo.a */,
+				24BA96B61097DF41009ADEDD /* libContacts.a */,
+				24BA96D31097E132009ADEDD /* libMap.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -897,6 +806,7 @@
 		2444F8060FC9FCA400063972 /* modules */ = {
 			isa = PBXGroup;
 			children = (
+				24BA96D61097E14A009ADEDD /* MapModule */,
 				B4A4A101109123680021CC46 /* ContactsModule */,
 				247DCBCF107C834F009CD0D1 /* YahooModule */,
 				24FD237B106F17E4004D4127 /* FacebookModule */,
@@ -1028,6 +938,14 @@
 			name = YahooModule;
 			sourceTree = "<group>";
 		};
+		24BA96D61097E14A009ADEDD /* MapModule */ = {
+			isa = PBXGroup;
+			children = (
+				24BA96D81097E16D009ADEDD /* MapModule.m */,
+			);
+			name = MapModule;
+			sourceTree = "<group>";
+		};
 		24BBD83B0FCD245F00A261A4 /* GestureModule */ = {
 			isa = PBXGroup;
 			children = (
@@ -1058,17 +976,20 @@
 		24FD237B106F17E4004D4127 /* FacebookModule */ = {
 			isa = PBXGroup;
 			children = (
+				24BA95F71096633D009ADEDD /* FBConnect.h */,
+				24BA95F81096633D009ADEDD /* FBConnectGlobal.h */,
+				24BA95F91096633D009ADEDD /* FBDialog.h */,
+				24BA95FA1096633D009ADEDD /* FBFeedDialog.h */,
+				24BA95FB1096633D009ADEDD /* FBLoginButton.h */,
+				24BA95FC1096633D009ADEDD /* FBLoginDialog.h */,
+				24BA95FD1096633D009ADEDD /* FBPermissionDialog.h */,
+				24BA95FE1096633D009ADEDD /* FBRequest.h */,
+				24BA95FF1096633D009ADEDD /* FBSession.h */,
+				24BA96001096633D009ADEDD /* FBStreamDialog.h */,
+				24BA96011096633D009ADEDD /* FBStreamDialog.m */,
+				24BA96021096633D009ADEDD /* FBXMLHandler.h */,
 				24FD237C106F1802004D4127 /* FacebookModule.m */,
 				24FD2422106F2C50004D4127 /* FacebookModule.h */,
-				24FD23B6106F1901004D4127 /* FBConnect.h */,
-				24FD23B7106F1901004D4127 /* FBConnectGlobal.h */,
-				24FD23B8106F1901004D4127 /* FBDialog.h */,
-				24FD23B9106F1901004D4127 /* FBFeedDialog.h */,
-				24FD23BA106F1901004D4127 /* FBLoginButton.h */,
-				24FD23BB106F1901004D4127 /* FBLoginDialog.h */,
-				24FD23BC106F1901004D4127 /* FBPermissionDialog.h */,
-				24FD23BD106F1901004D4127 /* FBRequest.h */,
-				24FD23BE106F1901004D4127 /* FBSession.h */,
 				24FD2387106F1802004D4127 /* FBConnectGlobal.m */,
 				24FD2388106F1802004D4127 /* FBDialog.m */,
 				24FD2389106F1802004D4127 /* FBFeedDialog.m */,
@@ -1077,7 +998,6 @@
 				24FD238C106F1802004D4127 /* FBPermissionDialog.m */,
 				24FD238D106F1802004D4127 /* FBRequest.m */,
 				24FD238E106F1802004D4127 /* FBSession.m */,
-				24FD238F106F1802004D4127 /* FBXMLHandler.h */,
 				24FD2390106F1802004D4127 /* FBXMLHandler.m */,
 			);
 			name = FacebookModule;
@@ -1086,14 +1006,13 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				29B97317FDCFA39411CA2CEA /* Resources */,
+				080E96DDFE201D6D7F000001 /* Classes */,
+				19C28FACFE9D520D11CA2CBB /* Products */,
+				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				2444F8060FC9FCA400063972 /* modules */,
 				32CA4F630368D1EE00C91783 /* Titanium_Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
-				080E96DDFE201D6D7F000001 /* Classes */,
-				29B97317FDCFA39411CA2CEA /* Resources */,
-				B47A27251035F0F0002146CD /* Spaz Resources */,
-				29B97323FDCFA39411CA2CEA /* Frameworks */,
-				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
 			name = CustomTemplate;
 			sourceTree = "<group>";
@@ -1165,60 +1084,6 @@
 				B4110C9C0FD4653A00BE17F8 /* AccelerometerModule.m */,
 			);
 			path = AccelerometerModule;
-			sourceTree = "<group>";
-		};
-		B47A27251035F0F0002146CD /* Spaz Resources */ = {
-			isa = PBXGroup;
-			children = (
-				B47A28051035F2E3002146CD /* images */,
-				B47A27DF1035F15C002146CD /* Info.plist */,
-				B47A27E01035F15C002146CD /* appicon.png */,
-				B47A27E11035F15C002146CD /* Default.png */,
-				B47A27E21035F15C002146CD /* tiapp.plist */,
-				B47A27261035F11F002146CD /* accounts.html */,
-				B47A27271035F11F002146CD /* accounts.js */,
-				B4AA86F3105ED1DF00D29939 /* nointernet.html */,
-				B4AA86F4105ED1DF00D29939 /* timeline-all.js */,
-				B4AA86F5105ED1DF00D29939 /* timeline-all.html */,
-				B4AA86F6105ED1DF00D29939 /* timeline-replies.js */,
-				B4AA86F7105ED1DF00D29939 /* timeline-replies.html */,
-				B4AA86F8105ED1DF00D29939 /* link.js */,
-				B4AA86F9105ED1DF00D29939 /* link.html */,
-				B4AA86FA105ED1DF00D29939 /* timeline-public.js */,
-				B4AA86FB105ED1DF00D29939 /* timeline-public.html */,
-				B4AA86FC105ED1DF00D29939 /* timeline-dms.js */,
-				B4AA86FD105ED1DF00D29939 /* timeline-dms.html */,
-				B47A272B1035F11F002146CD /* DM.html */,
-				B47A272C1035F11F002146CD /* DM.js */,
-				B47A272F1035F11F002146CD /* favorites.html */,
-				B47A27301035F11F002146CD /* favorites.js */,
-				B47A27311035F11F002146CD /* humane.js */,
-				B47A27321035F11F002146CD /* humaneOG.js */,
-				B47A276D1035F11F002146CD /* jquery-1.3.2.js */,
-				B47A276E1035F11F002146CD /* json2.js */,
-				B47A276F1035F11F002146CD /* message.html */,
-				B47A27701035F11F002146CD /* message.js */,
-				B47A27711035F11F002146CD /* more.html */,
-				B47A27721035F11F002146CD /* more.js */,
-				B47A27731035F11F002146CD /* newaccount.html */,
-				B47A27741035F11F002146CD /* newaccount.js */,
-				B47A27751035F11F002146CD /* post.html */,
-				B47A27761035F11F002146CD /* post.js */,
-				B47A27771035F11F002146CD /* results.html */,
-				B47A27781035F11F002146CD /* results.js */,
-				B47A27791035F11F002146CD /* search.html */,
-				B47A277A1035F11F002146CD /* search.js */,
-				B47A277B1035F11F002146CD /* splash.html */,
-				B47A277C1035F11F002146CD /* splash.js */,
-				B47A277D1035F11F002146CD /* style.css */,
-				B47A277E1035F11F002146CD /* timeline.html */,
-				B47A277F1035F11F002146CD /* timeline.js */,
-				B47A27801035F11F002146CD /* trends.html */,
-				B47A27811035F11F002146CD /* trends.js */,
-				B47A27821035F11F002146CD /* user.html */,
-				B47A27831035F11F002146CD /* user.js */,
-			);
-			name = "Spaz Resources";
 			sourceTree = "<group>";
 		};
 		B4A4A101109123680021CC46 /* ContactsModule */ = {
@@ -1307,6 +1172,22 @@
 			files = (
 				247DCBE8107C83D2009CD0D1 /* TitaniumBasicModule.h in Headers */,
 				247DCBE4107C83AB009CD0D1 /* YahooModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24BA96B21097DF41009ADEDD /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24BA96C31097E021009ADEDD /* TitaniumBasicModule.h in Headers */,
+				24BA96C21097E00C009ADEDD /* ContactsModule.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24BA96CF1097E132009ADEDD /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1441,16 +1322,18 @@
 			files = (
 				24FD23D2106F1A36004D4127 /* TitaniumBasicModule.h in Headers */,
 				24FD23CC106F1A1C004D4127 /* TitaniumModule.h in Headers */,
-				24FD23BF106F1901004D4127 /* FBConnect.h in Headers */,
-				24FD23C0106F1901004D4127 /* FBConnectGlobal.h in Headers */,
-				24FD23C1106F1901004D4127 /* FBDialog.h in Headers */,
-				24FD23C2106F1901004D4127 /* FBFeedDialog.h in Headers */,
-				24FD23C3106F1901004D4127 /* FBLoginButton.h in Headers */,
-				24FD23C4106F1901004D4127 /* FBLoginDialog.h in Headers */,
-				24FD23C5106F1901004D4127 /* FBPermissionDialog.h in Headers */,
-				24FD23C6106F1901004D4127 /* FBRequest.h in Headers */,
-				24FD23C7106F1901004D4127 /* FBSession.h in Headers */,
 				24FD2423106F2C50004D4127 /* FacebookModule.h in Headers */,
+				24BA96041096633D009ADEDD /* FBConnect.h in Headers */,
+				24BA96051096633D009ADEDD /* FBConnectGlobal.h in Headers */,
+				24BA96061096633D009ADEDD /* FBDialog.h in Headers */,
+				24BA96071096633D009ADEDD /* FBFeedDialog.h in Headers */,
+				24BA96081096633D009ADEDD /* FBLoginButton.h in Headers */,
+				24BA96091096633D009ADEDD /* FBLoginDialog.h in Headers */,
+				24BA960A1096633D009ADEDD /* FBPermissionDialog.h in Headers */,
+				24BA960B1096633D009ADEDD /* FBRequest.h in Headers */,
+				24BA960C1096633D009ADEDD /* FBSession.h in Headers */,
+				24BA960D1096633D009ADEDD /* FBStreamDialog.h in Headers */,
+				24BA960F1096633D009ADEDD /* FBXMLHandler.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1510,7 +1393,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				247DCBE7107C83C8009CD0D1 /* PBXTargetDependency */,
 			);
 			name = Titanium;
 			productName = Titanium;
@@ -1532,6 +1414,40 @@
 			name = libYahoo;
 			productName = Yahoo;
 			productReference = 247DCBE1107C837F009CD0D1 /* libYahoo.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		24BA96B51097DF41009ADEDD /* libContacts */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 24BA96C11097DFEA009ADEDD /* Build configuration list for PBXNativeTarget "libContacts" */;
+			buildPhases = (
+				24BA96B21097DF41009ADEDD /* Headers */,
+				24BA96B31097DF41009ADEDD /* Sources */,
+				24BA96B41097DF41009ADEDD /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libContacts;
+			productName = libContacts;
+			productReference = 24BA96B61097DF41009ADEDD /* libContacts.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		24BA96D21097E132009ADEDD /* libMap */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 24BA96D71097E14A009ADEDD /* Build configuration list for PBXNativeTarget "libMap" */;
+			buildPhases = (
+				24BA96CF1097E132009ADEDD /* Headers */,
+				24BA96D01097E132009ADEDD /* Sources */,
+				24BA96D11097E132009ADEDD /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libMap;
+			productName = libMap;
+			productReference = 24BA96D31097E132009ADEDD /* libMap.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		24C5ABF01061FA9D0063594B /* libNotification */ = {
@@ -1732,7 +1648,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				24FD23DC106F1A53004D4127 /* PBXTargetDependency */,
 			);
 			name = libPlatform;
 			productName = libPlatform;
@@ -1750,7 +1665,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				247DCBEC107C83DB009CD0D1 /* PBXTargetDependency */,
 			);
 			name = libUI;
 			productName = libUI;
@@ -1838,7 +1752,9 @@
 				24C5AC301061FB190063594B /* libAccelerometer */,
 				24C5AC371061FB240063594B /* libNetwork */,
 				24C5AC3E1061FB2E0063594B /* libPlatform */,
+				24BA96B51097DF41009ADEDD /* libContacts */,
 				24C5AC571061FB4C0063594B /* libUI */,
+				24BA96D21097E132009ADEDD /* libMap */,
 			);
 		};
 /* End PBXProject section */
@@ -1884,49 +1800,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B47A27CD1035F11F002146CD /* more.js in Resources */,
-				B47A27891035F11F002146CD /* DM.js in Resources */,
-				B47A27D31035F11F002146CD /* results.js in Resources */,
-				B47A27C81035F11F002146CD /* jquery-1.3.2.js in Resources */,
-				B47A27DE1035F11F002146CD /* user.js in Resources */,
-				B47A27CF1035F11F002146CD /* newaccount.js in Resources */,
-				B47A278F1035F11F002146CD /* humaneOG.js in Resources */,
-				B47A27DA1035F11F002146CD /* timeline.js in Resources */,
-				B47A27DC1035F11F002146CD /* trends.js in Resources */,
-				B47A27D51035F11F002146CD /* search.js in Resources */,
-				B47A27CB1035F11F002146CD /* message.js in Resources */,
-				B47A27D71035F11F002146CD /* splash.js in Resources */,
-				B47A27C91035F11F002146CD /* json2.js in Resources */,
-				B47A27D11035F11F002146CD /* post.js in Resources */,
-				B47A278E1035F11F002146CD /* humane.js in Resources */,
-				B47A278D1035F11F002146CD /* favorites.js in Resources */,
-				B47A27851035F11F002146CD /* accounts.js in Resources */,
 				B47A27241035F0BF002146CD /* MainWindow.xib in Resources */,
-				B47A27841035F11F002146CD /* accounts.html in Resources */,
-				B47A27881035F11F002146CD /* DM.html in Resources */,
-				B47A278C1035F11F002146CD /* favorites.html in Resources */,
-				B47A27CA1035F11F002146CD /* message.html in Resources */,
-				B47A27CC1035F11F002146CD /* more.html in Resources */,
-				B47A27CE1035F11F002146CD /* newaccount.html in Resources */,
-				B47A27D01035F11F002146CD /* post.html in Resources */,
-				B47A27D21035F11F002146CD /* results.html in Resources */,
-				B47A27D41035F11F002146CD /* search.html in Resources */,
-				B47A27D61035F11F002146CD /* splash.html in Resources */,
-				B47A27D81035F11F002146CD /* style.css in Resources */,
-				B47A27D91035F11F002146CD /* timeline.html in Resources */,
-				B47A27DB1035F11F002146CD /* trends.html in Resources */,
-				B47A27DD1035F11F002146CD /* user.html in Resources */,
-				B47A27E31035F15C002146CD /* Info.plist in Resources */,
-				B47A27E41035F15C002146CD /* appicon.png in Resources */,
-				B47A27E51035F15C002146CD /* Default.png in Resources */,
-				B47A27E61035F15C002146CD /* tiapp.plist in Resources */,
-				B47A283D1035F2E3002146CD /* images in Resources */,
-				B4AA86FE105ED1DF00D29939 /* nointernet.html in Resources */,
-				B4AA8700105ED1DF00D29939 /* timeline-all.html in Resources */,
-				B4AA8702105ED1DF00D29939 /* timeline-replies.html in Resources */,
-				B4AA8704105ED1DF00D29939 /* link.html in Resources */,
-				B4AA8706105ED1DF00D29939 /* timeline-public.html in Resources */,
-				B4AA8708105ED1DF00D29939 /* timeline-dms.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1967,35 +1841,16 @@
 				B4FC66FC0F95590D00B21EA1 /* TitaniumJSCode.m in Sources */,
 				B408AD480F97FA010051FD67 /* TitaniumActionSheetHelper.m in Sources */,
 				B4FECD130FAA4B3E0015B658 /* Webcolor.m in Sources */,
-				2444F8370FC9FCA400063972 /* ApiModule.m in Sources */,
-				2444F8380FC9FCA400063972 /* AppModule.m in Sources */,
-				2444F8390FC9FCA400063972 /* DatabaseModule.m in Sources */,
-				2444F83A0FC9FCA400063972 /* PlausibleDatabase.m in Sources */,
-				2444F83B0FC9FCA400063972 /* PLSqliteDatabase.m in Sources */,
-				2444F83C0FC9FCA400063972 /* PLSqlitePreparedStatement.m in Sources */,
-				2444F83D0FC9FCA400063972 /* PLSqliteResultSet.m in Sources */,
-				2444F83E0FC9FCA400063972 /* FilesystemModule.m in Sources */,
-				2444F83F0FC9FCA400063972 /* GeolocationModule.m in Sources */,
-				2444F8400FC9FCA400063972 /* MediaModule.m in Sources */,
-				2444F8430FC9FCA400063972 /* NetworkModule.m in Sources */,
-				2444F8440FC9FCA400063972 /* PlatformModule.m in Sources */,
-				2444F8460FC9FCA400063972 /* UiModule.m in Sources */,
 				2444FA550FCA4E2E00063972 /* IPAddress.c in Sources */,
 				2444FC7F0FCA6F8000063972 /* NSData+Additions.m in Sources */,
 				2444FCD40FCA741E00063972 /* base64.c in Sources */,
-				24BBD83E0FCD245F00A261A4 /* GestureModule.m in Sources */,
 				B4A49BBC0FCE08DA0049ED60 /* TitaniumBlobWrapper.m in Sources */,
-				B4110C9D0FD4653A00BE17F8 /* AccelerometerModule.m in Sources */,
-				24F02E460FD482D2007894DA /* AnalyticsModule.m in Sources */,
 				B4C6D7040FE99F4E00D62384 /* TitaniumWebViewController.m in Sources */,
 				B4C6D7330FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */,
 				B45C717F0FEDAF93002A8675 /* WebTableViewCell.m in Sources */,
 				B47B52D60FF1B2F400BD7229 /* ValueTableViewCell.m in Sources */,
-				B4B9E4641003D3E6004B8831 /* ext-core.js in Sources */,
-				B4B9E4721003D52F004B8831 /* jquery.js in Sources */,
 				B4290A77100D31FD00C4FF98 /* TweakedNavController.m in Sources */,
 				B4B571FE10110324003546C7 /* TitaniumContentViewController.m in Sources */,
-				B4ABEDC7101903F300639ED5 /* buggy.js in Sources */,
 				B4200E541035FAB1009598FC /* Logging.c in Sources */,
 				B4A6D3B4103C9EFD00131CD4 /* NativeControlProxy.m in Sources */,
 				B4D4AF5510472271006E42E0 /* TweakedScrollView.m in Sources */,
@@ -2004,22 +1859,40 @@
 				B451D42710599C1C0025A18B /* PickerImageTextCell.m in Sources */,
 				B40CDEEA105F21F6004CFED3 /* TitaniumScrollableViewController.m in Sources */,
 				B40CDF19105F248F004CFED3 /* TitaniumCompositeViewController.m in Sources */,
-				B4F37DE01061913E00ED12AF /* NotificationModule.m in Sources */,
 				B49358DC106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */,
 				24FD2052106C9198004D4127 /* TitaniumBasicModule.m in Sources */,
-				B49029EE1072848D009678FC /* FBPermissionDialog.m in Sources */,
-				B49029EF1072848E009678FC /* FacebookModule.m in Sources */,
-				B49029F01072848E009678FC /* FBLoginDialog.m in Sources */,
-				B49029F11072848F009678FC /* FBRequest.m in Sources */,
-				B49029F210728490009678FC /* FBSession.m in Sources */,
-				B49029F310728490009678FC /* FBFeedDialog.m in Sources */,
-				B49029F410728491009678FC /* FBDialog.m in Sources */,
-				B49029F510728492009678FC /* FBConnectGlobal.m in Sources */,
-				B49029F610728492009678FC /* FBXMLHandler.m in Sources */,
-				B49029F710728493009678FC /* FBLoginButton.m in Sources */,
 				B43543651076995400A38EC9 /* TitaniumJSEvent.m in Sources */,
-				247DCBD2107C8366009CD0D1 /* YahooModule.m in Sources */,
-				B4A4A104109123680021CC46 /* ContactsModule.m in Sources */,
+				B4BAC9271098296E005925EA /* PLSqlitePreparedStatement.m in Sources */,
+				B4BAC9281098296E005925EA /* ContactsModule.m in Sources */,
+				B4BAC9291098296F005925EA /* FilesystemModule.m in Sources */,
+				B4BAC92A10982972005925EA /* MapModule.m in Sources */,
+				B4BAC92B10982972005925EA /* AccelerometerModule.m in Sources */,
+				B4BAC92C10982974005925EA /* FBLoginDialog.m in Sources */,
+				B4BAC92D10982976005925EA /* NetworkModule.m in Sources */,
+				B4BAC92E10982977005925EA /* GestureModule.m in Sources */,
+				B4BAC92F10982978005925EA /* DatabaseModule.m in Sources */,
+				B4BAC9301098297C005925EA /* GeolocationModule.m in Sources */,
+				B4BAC9311098297D005925EA /* YahooModule.m in Sources */,
+				B4BAC9321098297E005925EA /* FBRequest.m in Sources */,
+				B4BAC93310982983005925EA /* FBXMLHandler.m in Sources */,
+				B4BAC93410982984005925EA /* FBStreamDialog.m in Sources */,
+				B4BAC93510982984005925EA /* ApiModule.m in Sources */,
+				B4BAC93610982985005925EA /* FBSession.m in Sources */,
+				B4BAC93710982986005925EA /* FBPermissionDialog.m in Sources */,
+				B4BAC93810982988005925EA /* FBFeedDialog.m in Sources */,
+				B4BAC93910982988005925EA /* UiModule.m in Sources */,
+				B4BAC93A1098298B005925EA /* PLSqliteDatabase.m in Sources */,
+				B4BAC93B1098298C005925EA /* AppModule.m in Sources */,
+				B4BAC93C1098298D005925EA /* FacebookModule.m in Sources */,
+				B4BAC93D1098298D005925EA /* FBConnectGlobal.m in Sources */,
+				B4BAC93E1098298E005925EA /* FBDialog.m in Sources */,
+				B4BAC93F10982990005925EA /* NotificationModule.m in Sources */,
+				B4BAC94010982991005925EA /* PLSqliteResultSet.m in Sources */,
+				B4BAC94110982992005925EA /* PlausibleDatabase.m in Sources */,
+				B4BAC94210982993005925EA /* MediaModule.m in Sources */,
+				B4BAC94310982994005925EA /* PlatformModule.m in Sources */,
+				B4BAC94410982996005925EA /* FBLoginButton.m in Sources */,
+				B4BAC94510982997005925EA /* AnalyticsModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2028,6 +1901,22 @@
 			buildActionMask = 2147483647;
 			files = (
 				247DCBE5107C83AF009CD0D1 /* YahooModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24BA96B31097DF41009ADEDD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24BA96C41097E033009ADEDD /* ContactsModule.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		24BA96D01097E132009ADEDD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24BA96DA1097E16D009ADEDD /* MapModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2153,6 +2042,7 @@
 				24FD23A8106F185D004D4127 /* FBRequest.m in Sources */,
 				24FD23A9106F185D004D4127 /* FBSession.m in Sources */,
 				24FD23AB106F185D004D4127 /* FBXMLHandler.m in Sources */,
+				24BA960E1096633D009ADEDD /* FBStreamDialog.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2247,11 +2137,6 @@
 				B4D4B07810489FDC006E42E0 /* WebFont.m in Sources */,
 				B4B8E56B10586D3500D08D44 /* TitaniumCellWrapper.m in Sources */,
 				B451D42610599C1C0025A18B /* PickerImageTextCell.m in Sources */,
-				B4AA86FF105ED1DF00D29939 /* timeline-all.js in Sources */,
-				B4AA8701105ED1DF00D29939 /* timeline-replies.js in Sources */,
-				B4AA8703105ED1DF00D29939 /* link.js in Sources */,
-				B4AA8705105ED1DF00D29939 /* timeline-public.js in Sources */,
-				B4AA8707105ED1DF00D29939 /* timeline-dms.js in Sources */,
 				B40CDEEB105F21F6004CFED3 /* TitaniumScrollableViewController.m in Sources */,
 				B40CDF1A105F248F004CFED3 /* TitaniumCompositeViewController.m in Sources */,
 				B4F37DDF1061913E00ED12AF /* NotificationModule.m in Sources */,
@@ -2262,24 +2147,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		247DCBE7107C83C8009CD0D1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 247DCBE0107C837F009CD0D1 /* libYahoo */;
-			targetProxy = 247DCBE6107C83C8009CD0D1 /* PBXContainerItemProxy */;
-		};
-		247DCBEC107C83DB009CD0D1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 247DCBE0107C837F009CD0D1 /* libYahoo */;
-			targetProxy = 247DCBEB107C83DB009CD0D1 /* PBXContainerItemProxy */;
-		};
-		24FD23DC106F1A53004D4127 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 24FD2394106F180F004D4127 /* libFacebook */;
-			targetProxy = 24FD23DB106F1A53004D4127 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1D6058940D05DD3E006BFB54 /* Debug */ = {
@@ -2330,6 +2197,56 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				PREBINDING = NO;
 				PRODUCT_NAME = Yahoo;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		24BA96B71097DF42009ADEDD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Contacts;
+			};
+			name = Debug;
+		};
+		24BA96B81097DF42009ADEDD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Contacts;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		24BA96D41097E132009ADEDD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Map;
+			};
+			name = Debug;
+		};
+		24BA96D51097E132009ADEDD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = Map;
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -2833,6 +2750,24 @@
 			buildConfigurations = (
 				247DCBE2107C8380009CD0D1 /* Debug */,
 				247DCBE3107C8380009CD0D1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		24BA96C11097DFEA009ADEDD /* Build configuration list for PBXNativeTarget "libContacts" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24BA96B71097DF42009ADEDD /* Debug */,
+				24BA96B81097DF42009ADEDD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		24BA96D71097E14A009ADEDD /* Build configuration list for PBXNativeTarget "libMap" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24BA96D41097E132009ADEDD /* Debug */,
+				24BA96D51097E132009ADEDD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

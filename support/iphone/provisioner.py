@@ -4,7 +4,7 @@
 # Install a provisioning profile
 #
 
-import os, sys, subprocess, re, time, poorjson
+import os, sys, subprocess, re, time, poorjson, types
 from xml.dom.minidom import parseString
 import codecs
 
@@ -54,13 +54,14 @@ def main(args):
 		
 	try:
 		xml = os.path.abspath(os.path.expanduser(dequote(args[1].decode("utf-8"))))
-		f = codecs.open(xml,'rb','utf-8').read()
+		
+		f = codecs.open(xml,'rb','utf-8','replace').read()
 		
 		b = f.index('<?xml')
 		e = f.index('</plist>')
-	
+		
 		xml_content = f[b:e+8]
-		dom = parseString(xml_content.encode("utf-8"))
+		dom = parseString(xml_content)
 
 		dict = dom.getElementsByTagName('dict')[0]
 		props = make_map(dict)

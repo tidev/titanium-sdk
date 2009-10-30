@@ -28,12 +28,12 @@
 
 - (UIImage*)buttonImage {
   if (_session.isConnected) {
-    return [UIImage imageNamed:@"modules/facebook/images/logout.png"];
+    return [UIImage imageNamed:@"FBConnect.bundle/images/logout.png"];
   } else {
     if (_style == FBLoginButtonStyleNormal) {
-      return [UIImage imageNamed:@"modules/facebook/images/login.png"];
+      return [UIImage imageNamed:@"FBConnect.bundle/images/login.png"];
     } else if (_style == FBLoginButtonStyleWide) {
-      return [UIImage imageNamed:@"modules/facebook/images/login2.png"];
+      return [UIImage imageNamed:@"FBConnect.bundle/images/login2.png"];
     } else {
       return nil;
     }
@@ -42,12 +42,12 @@
 
 - (UIImage*)buttonHighlightedImage {
   if (_session.isConnected) {
-    return [UIImage imageNamed:@"modules/facebook/images/logout_down.png"];
+    return [UIImage imageNamed:@"FBConnect.bundle/images/logout_down.png"];
   } else {
     if (_style == FBLoginButtonStyleNormal) {
-      return [UIImage imageNamed:@"modules/facebook/images/login_down.png"];
+      return [UIImage imageNamed:@"FBConnect.bundle/images/login_down.png"];
     } else if (_style == FBLoginButtonStyleWide) {
-      return [UIImage imageNamed:@"modules/facebook/images/login2_down.png"];
+      return [UIImage imageNamed:@"FBConnect.bundle/images/login2_down.png"];
     } else {
       return nil;
     }

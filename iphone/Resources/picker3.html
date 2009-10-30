@@ -1,18 +1,31 @@
 <html>
-<head>
-	<script>
-	window.onload = function()
-{
-	var wv1 = Titanium.UI.createWebView({url:'view1.html'});
-	var wv2 = Titanium.UI.createWebView({url:'view2.html'});
-	var wv3 = Titanium.UI.createWebView({url:'view3.html'});
-	
-	var scrollView = Titanium.UI.createScrollableView({views:[wv1,wv2,wv3],showPagingControl:true,pagingControlHeight:25});
-	Titanium.UI.currentWindow.addView(scrollView);
-	Titanium.UI.currentWindow.showView(scrollView);
-};
-	</script>
-</head>
-<body style="background-color:#000;">
-</body>
+	<head>
+		<script>
+		window.onload = function()
+		{
+		
+			document.getElementById('one').onclick = function()
+			{
+				document.getElementById('large').style.display = 'block';
+				document.getElementById('small').style.display = 'none';
+				Titanium.UI.currentWindow.repaint();
+			};
+			document.getElementById('two').onclick = function()
+			{
+
+				window.scrollTo(0,0);
+				document.getElementById('large').style.display = 'none';
+				document.getElementById('small').style.display = 'block';
+				Titanium.UI.currentWindow.repaint();
+			};
+		};
+		
+		</script>
+	</head>
+	<body>
+		<div id="large" style="height:800px;background-color:#888;display:none">large</div>
+		<div id="small" style="height:200px;background-color:#555;display:block">small</div>
+		<button id="one" style="font-size:20px">large</button>
+		<button id="two" style="font-size:20px">small</button>
+	</body>
 </html>

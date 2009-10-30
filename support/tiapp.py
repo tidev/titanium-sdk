@@ -4,7 +4,7 @@
 # tiapp parser
 # 
 import os, types, uuid
-import codecs
+import codecs, time
 from xml.dom.minidom import parseString
 
 def getText(nodelist):
@@ -41,7 +41,7 @@ def get_window_properties(node):
 class TiAppXML(object):
 	def __init__(self,file):
 		self.file = file
-		self.dom = parseString(codecs.open(self.file,'r','utf-8').read().encode("utf-8"))
+		self.dom = parseString(codecs.open(self.file,'r','utf-8','replace').read())
 		
 		self.properties = {
 			'id':None,
@@ -79,7 +79,7 @@ class TiAppXML(object):
 			n.appendChild(self.dom.createTextNode(guid))
 			root[0].appendChild(n)
 			root[0].appendChild(self.dom.createTextNode("\n"))
-			self.dom.writexml(codecs.open(self.file, "w+","utf-8"), encoding="UTF-8")
+			self.dom.writexml(codecs.open(self.file, 'w+','utf-8','replace'), encoding="UTF-8")
 					
 	def setDeployType(self, deploy_type):
 		found = False
@@ -98,7 +98,7 @@ class TiAppXML(object):
 			n.appendChild(self.dom.createTextNode(deploy_type))
 			root[0].appendChild(n)
 			
-		self.dom.writexml(codecs.open(self.file, "w+","utf-8"), encoding="UTF-8")
+		self.dom.writexml(codecs.open(self.file, 'w+','utf-8','replace'), encoding="UTF-8")
 
 
 #
@@ -133,7 +133,7 @@ class TiPlist(object):
 		if self.tiapp.properties.has_key('icon'):
 			icon = self.tiapp.properties['icon']
 
-		plist = codecs.open(template,'r','utf-8').read()
+		plist = codecs.open(template,'r','utf-8','replace').read()
 		plist = plist.replace('appicon.png',icon)
 		
 		# replace the bundle id with the app id 
@@ -167,8 +167,8 @@ class TiPlist(object):
 				newcontent += '     <key>%s</key>\n     %s\n' %(p,v)
 			plist = before + newcontent + after
 			
-		f = codecs.open(file,'w+','utf-8')
-		f.write(plist.encode("utf-8"))
+		f = codecs.open(file,'w+','utf-8','replace')
+		f.write(plist)
 		f.close()
 		
 		return icon

@@ -100,8 +100,8 @@
 // NSXMLParserDelegate
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName
-    namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName
-    attributes:(NSDictionary *)attributeDict {
+        namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName
+        attributes:(NSDictionary *)attributeDict {
   [self flushCharacters];
 
   id object = nil;
@@ -124,7 +124,7 @@
 }
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName
-    namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
+        namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
   [self flushCharacters];
 
   id object = [[[self topObject:NO] retain] autorelease];

@@ -147,7 +147,7 @@ catch(__ex__)
   }
   Titanium.API.reportUnhandledException(__ex__.line-3,_sur,__ex__.message);
 }
-""" % (_file_contents,url,len('app://%s/'%self.appid))
+""" % (_file_contents,url.encode("utf-8"),len('app://%s/'%self.appid))
 
 		if self.encrypt:		
 			out = subprocess.Popen([self.encryptor,file,key], stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]

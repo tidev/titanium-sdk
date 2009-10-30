@@ -20,6 +20,7 @@
   long long _templateBundleId;
   NSString* _templateData;
   NSString* _bodyGeneral;
+  NSString* _userMessagePrompt;
 }
 
 /**
@@ -38,5 +39,12 @@
  * Additional markup for a short story.
  */
 @property(nonatomic,copy) NSString* bodyGeneral;
+
+/**
+ * Text you provide the user as a prompt to specify a userMessage. This appears
+ * above the box where the user enters a custom message.
+ * For example, "What's on your mind?"
+ */
+@property(nonatomic,copy) NSString* userMessagePrompt;
 
 @end

@@ -36,6 +36,7 @@
 
 - (void)dialogDidSucceed:(FBDialog*)dialog_
 {
+	NSLog(@"[DEBUG] Facebook dialogDidSuccess = %@",prefix);
 	NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNull null],@"error",[NSNumber numberWithBool:true],@"success",[NSNumber numberWithBool:false],@"cancel",@"permission",@"event",nil];
 	[module evaluateJavascript:[NSString stringWithFormat:@"Ti.Facebook._%@['%@'](%@); delete Ti.Facebook._%@['%@'];",prefix,token,[module toJSON:dictionary],prefix,token] token:pageToken];
 	[self autorelease];
@@ -43,6 +44,7 @@
 
 - (void)dialogDidCancel:(FBDialog*)dialog_
 {
+	NSLog(@"[DEBUG] Facebook dialogDidCancel = %@",prefix);
 	NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNull null],@"error",[NSNumber numberWithBool:false],@"success",[NSNumber numberWithBool:true],@"cancel",@"permission",@"event",nil];
 	[module evaluateJavascript:[NSString stringWithFormat:@"Ti.Facebook._%@['%@'](%@); delete Ti.Facebook._%@['%@'];",prefix,token,[module toJSON:dictionary],prefix,token] token:pageToken];
 	[self autorelease];
@@ -50,6 +52,7 @@
 
 - (void)dialog:(FBDialog*)dialog_ didFailWithError:(NSError*)error
 {
+	NSLog(@"[ERROR] Facebook dialog failed with error = %@",[error description]);
 	NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:[error description],@"error",[NSNumber numberWithBool:false],@"success",[NSNumber numberWithBool:false],@"cancel",@"permission",@"event",nil];
 	[module evaluateJavascript:[NSString stringWithFormat:@"Ti.Facebook._%@['%@'](%@); delete Ti.Facebook._%@['%@'];",prefix,token,[module toJSON:dictionary],prefix,token] token:pageToken];
 	[self autorelease];
@@ -88,10 +91,17 @@
 
 - (void)request:(FBRequest*)request didLoad:(id)result
 {
-	NSArray *a = (NSArray*)result;
-	if ([a count] > 0)
+	if ([result isKindOfClass:[NSArray class]])
 	{
-		[module setPermissions:(NSDictionary*)[a objectAtIndex:0]];
+		NSArray *a = result;
+		if ([a count] > 0)
+		{
+			[module setPermissions:(NSDictionary*)[a objectAtIndex:0]];
+		}
+		else
+		{
+			[module setPermissions:[NSDictionary dictionary]];
+		}
 	}
 	[self autorelease];
 }
@@ -136,12 +146,14 @@
 		result = [module fromJSON:result];
 	}
 	NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:result,@"data",[NSNumber numberWithBool:true],@"success",nil];
-	[module evaluateJavascript:[NSString stringWithFormat:@"try{Ti.Facebook._%@['%@'](%@);}catch(X){}; delete Ti.Facebook._%@['%@'];",prefix,token,[module toJSON:dictionary],prefix,token] token:pageToken];
+	NSString *json = [module toJSON:dictionary];
+	[module evaluateJavascript:[NSString stringWithFormat:@"try{Ti.Facebook._%@['%@'](%@);}catch(X){}; delete Ti.Facebook._%@['%@'];",prefix,token,json,prefix,token] token:pageToken];
 	[self autorelease];
 }
 
 - (void)request:(FBRequest*)request didFailWithError:(NSError*)error
 {
+	NSLog(@"[ERROR] Facebook request failed. %@",[error description]);
 	NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:[error description],@"error",[NSNumber numberWithBool:false],@"success",nil];
 	[module evaluateJavascript:[NSString stringWithFormat:@"try{Ti.Facebook._%@['%@'](%@);}catch(X){}; delete Ti.Facebook._%@['%@'];",prefix,token,[module toJSON:dictionary],prefix,token] token:pageToken];
 	[self autorelease];
@@ -183,13 +195,14 @@
 
 @implementation FBFeedCallback
 
-- (id)initWithToken:(NSString*)token_ pageToken:(NSString*)pageToken_ module:(FacebookModule*)module_ templateBundleId:(NSNumber*) templateBundleId_ templateData:(NSString*)templateData_ body:(NSString*)body_
+- (id)initWithToken:(NSString*)token_ pageToken:(NSString*)pageToken_ module:(FacebookModule*)module_ templateBundleId:(NSNumber*) templateBundleId_ templateData:(NSString*)templateData_ body:(NSString*)body_ session:(FBSession*)session_
 {
 	if (self = [super initWithToken:token_ pageToken:pageToken_ module:module_ prefix:@"FCB"])
 	{
-		templateBundleId = [templateBundleId_ retain];
-		templateData = [templateData retain];
-		body = [body_ retain];
+		templateBundleId = [templateBundleId_ copy];
+		templateData = [templateData_ copy];
+		body = [body_ copy];
+		session = [session_ retain];
 	}
 	return self;
 }
@@ -199,18 +212,64 @@
 	[templateBundleId release];
 	[templateData release];
 	[body release];
+	[session release];
 	[super dealloc];
 }
 
 - (FBDialog*)create
 {
-	FBFeedDialog* dialog_ = [[FBFeedDialog alloc] init];
+	FBFeedDialog* dialog_ = [[FBFeedDialog alloc] initWithSession:session];
 	dialog_.templateBundleId = [templateBundleId longLongValue];
 	dialog_.templateData = templateData;
 	dialog_.bodyGeneral = body;
 	return dialog_;
 }
 
+@end
+
+@implementation FBStreamCallback
+
+- (id)initWithToken:(NSString*)token_ pageToken:(NSString*)pageToken_ module:(FacebookModule*)module_ title:(NSString*)title_ data:(NSString*)data_ target:(NSString*)target_ session:(FBSession*)session_
+{
+	if (self = [super initWithToken:token_ pageToken:pageToken_ module:module_ prefix:@"STM"])
+	{
+		title = [title_ copy];
+		if (![data_ isKindOfClass:[NSNull class]])
+		{
+			data = [data_ copy];
+		}
+		if (![target_ isKindOfClass:[NSNull class]])
+		{
+			targetId = [target_ copy];
+		}
+		session = [session_ retain];
+	}
+	return self;
+}
+
+- (void)dealloc
+{
+	[title release];
+	[data release];
+	[targetId release];
+	[session release];
+	[super dealloc];
+}
+
+- (FBDialog*)create
+{
+	FBStreamDialog* dialog_ = [[FBStreamDialog alloc] init];
+	dialog_.userMessagePrompt = title;
+	if (data != nil)
+	{
+		dialog_.attachment = data;
+	}
+	if (targetId != nil)
+	{
+		dialog_.targetId = targetId;
+	}
+	return dialog_;
+}
 @end
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -222,6 +281,7 @@
 	[pendingPermission release];
 	[pendingQueryId release];
 	[permissions release];
+	[lock release];
 	[super dealloc];
 }
 
@@ -244,6 +304,8 @@
 - (void)session:(FBSession*)session didLogin:(FBUID)uid 
 {
 	[self fetchPermissions];
+	NSDictionary *dictionary_ = [NSDictionary dictionaryWithObjectsAndKeys:[NSNull null],@"error",[NSNumber numberWithBool:true],@"success",[NSNumber numberWithBool:false],@"cancel",@"login",@"event",nil];
+	[self evaluateJavascript:[NSString stringWithFormat:@"Ti.Facebook._LSC(%@)",[self toJSON:dictionary_]] token:nil];
 	[dialog release];
 	dialog = nil;
 }
@@ -281,6 +343,17 @@
 	{
 		[session logout];
 	}
+	if (permissions!=nil)
+	{
+		[lock lock];
+		[permissions release];
+		permissions = nil;
+		// remove the permissions from cache
+		NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
+		[def removeObjectForKey:@"FacebookPermissions"];
+		[def synchronize];
+		[lock unlock];
+	}
 }
 
 - (NSNumber*)loggedIn
@@ -315,57 +388,85 @@
 
 - (void)fetchPermissions
 {
-	[permissions release];
-	permissions = nil;
-  	NSDictionary* params = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"select status_update,photo_upload,sms,create_listing,email,create_event,rsvp_event,publish_stream,read_stream,share_item,create_note from permissions where uid = %@",[self userId]] forKey:@"query"];
-	FBPermissionPrefetch *prefetch = [[FBPermissionPrefetch alloc] initWithModule:self];
-  	[[FBRequest requestWithDelegate:prefetch] call:@"facebook.fql.query" params:params];
+	[lock lock];
+	// only fetch if we don't have them cached
+	if (permissions==nil)
+	{
+		pendingPermissions = YES;
+	  	NSDictionary* params = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"select status_update,photo_upload,sms,create_listing,email,create_event,rsvp_event,publish_stream,read_stream,share_item,create_note from permissions where uid = %@",[self userId]] forKey:@"query"];
+		FBPermissionPrefetch *prefetch = [[FBPermissionPrefetch alloc] initWithModule:self];
+	  	[[FBRequest requestWithDelegate:prefetch] call:@"facebook.fql.query" params:params];
+	}
+	[lock unlock];
 }
 
 - (void)permission:(NSString*)perm queryId:(NSString*)queryId
 {
 	// first check to see if we already have the permission
-	if (permissions==nil)
+	[lock lock];
+	if (pendingPermissions==YES)
 	{
 		pendingPermission = [perm copy];
 		pendingQueryId = [queryId copy];
+		[lock unlock];
 		return;
 	}
 	NSNumber *value = [permissions objectForKey:perm];
-	if (value!=nil && [value respondsToSelector:@selector(boolValue)] && [value boolValue])
+	if (value!=nil && [value respondsToSelector:@selector(boolValue)])
 	{
-		NSDictionary *dictionary_ = [NSDictionary dictionaryWithObjectsAndKeys:[NSNull null],@"error",[NSNumber numberWithBool:true],@"success",[NSNumber numberWithBool:false],@"cancel",@"permission",@"event",nil];
+		NSDictionary *dictionary_ = [NSDictionary dictionaryWithObjectsAndKeys:[NSNull null],@"error",[NSNumber numberWithBool:[value boolValue]],@"success",[NSNumber numberWithBool:false],@"cancel",@"permission",@"event",nil];
 		[self evaluateJavascript:[NSString stringWithFormat:@"Ti.Facebook._%@['%@'](%@); delete Ti.Facebook._%@['%@'];",@"PCB",queryId,[self toJSON:dictionary_],@"PCB",queryId] token:nil];
-		return;
 	}
-	FBPermissionCallback *cb = [[FBPermissionCallback alloc] initWithToken:queryId pageToken:[self getPageToken] module:self permission:perm];
-	[self performSelectorOnMainThread:@selector(showDialog:) withObject:cb waitUntilDone:NO];
+	else
+	{
+		FBPermissionCallback *cb = [[FBPermissionCallback alloc] initWithToken:queryId pageToken:[self getPageToken] module:self permission:perm];
+		[self performSelectorOnMainThread:@selector(showDialog:) withObject:cb waitUntilDone:NO];
+	}
+	[lock unlock];
 }
 
 - (void)feed:(NSNumber*)templateBundleId data:(NSString*)templateData body:(NSString*)body_ queryId:(NSString*)queryId
 {
 	Class stringClass = [NSString class];
-	if(![templateBundleId respondsToSelector:@selector(longLongValue)] || ![templateData isKindOfClass:stringClass] ||
-			![body_ isKindOfClass:stringClass] || ![queryId isKindOfClass:stringClass]){
+	if(![templateBundleId respondsToSelector:@selector(longLongValue)] || 
+	      (templateData!=nil && ![templateData isKindOfClass:[NSNull class]] && ![templateData isKindOfClass:stringClass]) ||
+			(body_!=nil && ![body_ isKindOfClass:[NSNull class]] && ![body_ isKindOfClass:stringClass]) || 
+			![queryId isKindOfClass:stringClass])
+	{
+		//TODO: throw exceptions here
 		NSLog(@"[ERROR] Facebook feed had invalid values. Feed: %@, data: %@, body: %@, queryId: %@",templateBundleId,templateData,body_,queryId);
 		return;
 	}
 	
-	FBFeedCallback *cb = [[FBFeedCallback alloc] initWithToken:queryId pageToken:[self getPageToken] module:self templateBundleId:templateBundleId templateData:templateData body:body_];
+	FBFeedCallback *cb = [[FBFeedCallback alloc] initWithToken:queryId pageToken:[self getPageToken] module:self templateBundleId:templateBundleId templateData:templateData body:body_ session:session];
+	[self performSelectorOnMainThread:@selector(showDialog:) withObject:cb waitUntilDone:NO];
+}
+
+- (void)stream:(NSString*)title data:(NSString*)data target:(NSString*)target queryId:(NSString*)queryId
+{
+	FBStreamCallback *cb = [[FBStreamCallback alloc] initWithToken:queryId pageToken:[self getPageToken] module:self title:title data:data target:target session:session];
 	[self performSelectorOnMainThread:@selector(showDialog:) withObject:cb waitUntilDone:NO];
 }
 
 - (void)setup:(NSString*)key secret:(NSString*)secret
 {
-	
 	Class stringClass = [NSString class];
 	if(![key isKindOfClass:stringClass] || ![secret isKindOfClass:stringClass]){
+		//TODO: throw exceptions here
 		NSLog(@"[ERROR] Facebook setup had invalid values. Key: %@ secret: %@",key,secret);
 		return;
 	}
-
+	
 	[permissions release];
 	permissions = nil;
+
+	// grab cached copy
+	NSDictionary *dict = [[NSUserDefaults standardUserDefaults] dictionaryForKey:@"FacebookPermissions"];
+	if (dict!=nil)
+	{
+		permissions = [dict retain];
+	}
+
 	[dialog release];
 	dialog = nil;
 	[session release];
@@ -386,8 +487,16 @@
 
 - (void)setPermissions:(NSDictionary *)dict
 {
+	[lock lock];
 	[permissions release];
+
 	permissions = [[NSMutableDictionary dictionaryWithDictionary:dict] retain];
+	pendingPermissions = NO;
+	
+	// cache the permissions
+	[[NSUserDefaults standardUserDefaults] setObject:dict forKey:@"FacebookPermissions"];
+	
+	NSLog(@"[DEBUG] setPermissions, pendingPermission: %@",pendingPermission);
 	
 	// if we have a pending permission, go ahead and re-invoke
 	if (pendingPermission!=nil)
@@ -398,33 +507,36 @@
 		pendingPermission = nil;
 		pendingQueryId = nil;
 	}
-	else
-	{
-		NSDictionary *dictionary_ = [NSDictionary dictionaryWithObjectsAndKeys:[NSNull null],@"error",[NSNumber numberWithBool:true],@"success",[NSNumber numberWithBool:false],@"cancel",@"login",@"event",nil];
-		[self evaluateJavascript:[NSString stringWithFormat:@"Ti.Facebook._LSC(%@)",[self toJSON:dictionary_]] token:nil];
-	}
+	
+	[lock unlock];
 }
 
 - (void)addPermission:(NSString*)permission value:(NSNumber*)value
 {
+	[lock lock];
 	if (permission==nil)
 	{
 		permissions = [[NSMutableDictionary dictionaryWithCapacity:6] retain];
 	}
 	[permissions setValue:value forKey:permission];
+	[[NSUserDefaults standardUserDefaults] setObject:permissions forKey:@"FacebookPermissions"];
+	[lock unlock];
 }	
 
 - (NSNumber*)hasPermission:(NSString*)permission
 {
+	[lock lock];
+	NSNumber *result = [NSNumber numberWithBool:NO];
 	if (permissions!=nil)
 	{
 		NSNumber *value = [permissions objectForKey:permission];
 		if (value!=nil && [value respondsToSelector:@selector(boolValue)] && [value boolValue])
 		{
-			return [NSNumber numberWithBool:YES];
+			result = [NSNumber numberWithBool:YES];
 		}
 	}
-	return [NSNumber numberWithBool:NO];
+	[lock unlock];
+	return result;
 }
 
 - (NSDictionary*)getPermissions
@@ -437,9 +549,11 @@
 	return [NSArray arrayWithObject:@"ui"];
 }
 
-
 - (void)configure
 {
+	lock = [[NSRecursiveLock alloc] init];
+	pendingPermissions = NO;
+	
 	NSString *initJS = @"Ti.Facebook._LSC=function(a){if(Ti.Facebook._LIS){for(var c=0;c<Ti.Facebook._LIS.length;c++){try{Ti.Facebook._LIS[c](a)}catch(X){Titanium.API.error('error: '+X)}}}if(Ti.Facebook._CB){Ti.Facebook._CB(s);Ti.Facebook._CB=null}};Ti.Facebook._AL=function(l){if(typeof(Ti.Facebook._LIS)=='undefined'){Ti.Facebook._LIS=[]}Ti.Facebook._LIS.push(l)};";
 	[self bindInitializer:initJS];
 	
@@ -450,6 +564,7 @@
 	[self bindFunction:@"_PERM" method:@selector(permission:queryId:)];
 	[self bindFunction:@"_FEED" method:@selector(feed:data:body:queryId:)];
 	[self bindFunction:@"_EXEC" method:@selector(execute:params:queryId:)];
+	[self bindFunction:@"_STREAM" method:@selector(stream:data:target:queryId:)];
 	
 	// external methods (public)
 	[self bindFunction:@"isLoggedIn" method:@selector(loggedIn)];
@@ -457,14 +572,15 @@
 	[self bindFunction:@"setup" method:@selector(setup:secret:)];
 	[self bindFunction:@"hasPermission" method:@selector(hasPermission:)];
 	[self bindFunction:@"getPermissions" method:@selector(getPermissions)];
-	
+		
 	[self bindCode:@"login" code:@"function(c){ Ti.Facebook._CB = c; Ti.Facebook._LOGIN(); }"];
 	[self bindCode:@"logout" code:@"function(c){ Ti.Facebook._CB = c; Ti.Facebook._LOGOUT(); }"];
 	[self bindCode:@"query" code:[NSString stringWithFormat:@"function(q,c){ %@;Ti.Facebook._QRY(q,i); }",[self makeDialogJS:@"QCB"]]];
 	[self bindCode:@"execute" code:[NSString stringWithFormat:@"function(m,d,c){ %@;Ti.Facebook._EXEC(m,d||{},i); }",[self makeDialogJS:@"ECB"]]];
-	[self bindCode:@"createLoginButton" code:@"function(p){var t=document.getElementById(p.id);var s=p.style||'normal';var b=(s=='normal')?'':'2';var l=(Ti.Facebook.isLoggedIn()?'logout':'login');var d=document.createElement('button');d.style.border='none';var i=document.createElement('image');d.appendChild(i);i.src='app://modules/facebook/images/'+l+b+'.png';t.appendChild(d);var c=this;this._EVT={};d.onclick=function(){if(Ti.Facebook.isLoggedIn()){Ti.Facebook.logout(function(){Ti._ONEVT.apply(c,['logout'])})}else{Ti.Facebook.login(function(a){Ti._ONEVT.apply(c,['login',{success:a}])})}};if(typeof(Ti.Facebook._LIS)=='undefined'){Ti.Facebook._LIS=[]}Ti.Facebook._LIS.push(function(a){Ti._ONEVT.apply(c,[a.event,{success:true}]);if((a.event=='logout'||!a.success)&&!Ti.Facebook.isLoggedIn()){i.src='app://modules/facebook/images/login'+b+'.png'}else{i.src='app://modules/facebook/images/logout.png'}});Ti.Facebook.setup(p.apikey,p.secret);return{addEventListener:function(a,b){Ti._ADDEVT.apply(c,[a,b])},removeEventListener:function(a,b){Ti._REMEVT.apply(c,[a,b])}}}"];
+	[self bindCode:@"createLoginButton" code:@"function(p){var t=document.getElementById(p.id);var s=p.style||'normal';var b=(s=='normal')?'':'2';var l=(Ti.Facebook.isLoggedIn()?'logout':'login');var d=document.createElement('button');d.style.border='none';var i=document.createElement('image');d.appendChild(i);i.src='app://modules/facebook/images/'+l+b+'.png';t.appendChild(d);var c=this;this._EVT={};d.onclick=function(){if(Ti.Facebook.isLoggedIn()){Ti.Facebook.logout(function(){Ti._ONEVT.apply(c,['logout'])})}else{Ti.Facebook.login(function(a){Ti._ONEVT.apply(c,['login',{success:a}])})}};if(typeof(Ti.Facebook._LIS)=='undefined'){Ti.Facebook._LIS=[]}Ti.Facebook._LIS.push(function(a){Ti._ONEVT.apply(c,[a.event,{success:true}]);Ti.API.debug('facebook js state changed -- event = '+a.event);if((a.event=='logout'||!a.success)&&!Ti.Facebook.isLoggedIn()){i.src='app://modules/facebook/images/login'+b+'.png'}else{i.src='app://modules/facebook/images/logout.png'}});Ti.Facebook.setup(p.apikey,p.secret);return{addEventListener:function(a,b){Ti._ADDEVT.apply(c,[a,b])},removeEventListener:function(a,b){Ti._REMEVT.apply(c,[a,b])}}}"];
 	[self bindCode:@"requestPermission" code:[NSString stringWithFormat:@"function(p,c){ %@;Ti.Facebook._PERM(p,i); }",[self makeDialogJS:@"PCB"]]];
 	[self bindCode:@"publishFeed" code:[NSString stringWithFormat:@"function(id,data,body,c){ %@;Ti.Facebook._FEED(id,data?Ti._JSON(data):null,body,i); }",[self makeDialogJS:@"FCB"]]];
+	[self bindCode:@"publishStream" code:[NSString stringWithFormat:@"function(title,data,target,c){ %@;Ti.Facebook._STREAM(title,Ti._JSON(data),target,i); }",[self makeDialogJS:@"STM"]]];
 }
 
 @end

@@ -27,8 +27,6 @@ static NSString* kLoginURL = @"http://www.facebook.com/login.php";
 
 @implementation FBLoginDialog
 
-@synthesize /*session = _session,*/ username = _username, password = _password;
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // private
 
@@ -65,8 +63,6 @@ static NSString* kLoginURL = @"http://www.facebook.com/login.php";
 }
 
 - (void)dealloc {
-  [_username release];
-  [_password release];
   _getSessionRequest.delegate = nil;
   [_getSessionRequest release];
   [super dealloc];
@@ -80,22 +76,16 @@ static NSString* kLoginURL = @"http://www.facebook.com/login.php";
 }
 
 - (void)dialogWillDisappear {
-  [_username release];
-  [_password release];
-  _username = nil;
-  _password = nil;
-  NSString* result = [_webView stringByEvaluatingJavaScriptFromString:@"(function(){email.blur();})(); email.value + '|| ' + pass.value"];
-  NSArray *items = [result componentsSeparatedByString:@"|| "];
-  if ([items count] > 1)
-  {
-	  _username = [[items objectAtIndex:0] copy];	
-	  _password = [[items objectAtIndex:1] copy];	
-  }
+  [_webView stringByEvaluatingJavaScriptFromString:@"email.blur();"];
+
   [_getSessionRequest cancel];
+  
+  if (![_session isConnected]) {
+    [_session cancelLogin];
+  }
 }
 
 - (void)dialogDidSucceed:(NSURL*)url {
-	
   NSString* q = url.query;
   NSRange start = [q rangeOfString:@"auth_token="];
   if (start.location != NSNotFound) {
@@ -104,7 +94,7 @@ static NSString* kLoginURL = @"http://www.facebook.com/login.php";
     NSString* token = end.location == NSNotFound
       ? [q substringFromIndex:offset]
       : [q substringWithRange:NSMakeRange(offset, end.location-offset)];
-  
+
     if (token) {
       [self connectToGetSession:token];
     }
@@ -116,7 +106,7 @@ static NSString* kLoginURL = @"http://www.facebook.com/login.php";
 
 - (void)request:(FBRequest*)request didLoad:(id)result {
   NSDictionary* object = result;
-  FBUID uid = [[object objectForKey:@"uid"] intValue];
+  FBUID uid = [[object objectForKey:@"uid"] longLongValue];
   NSString* sessionKey = [object objectForKey:@"session_key"];
   NSString* sessionSecret = [object objectForKey:@"secret"];
   NSTimeInterval expires = [[object objectForKey:@"expires"] floatValue];
@@ -126,9 +116,9 @@ static NSString* kLoginURL = @"http://www.facebook.com/login.php";
   _getSessionRequest = nil;
 
   [_session begin:uid sessionKey:sessionKey sessionSecret:sessionSecret expires:expiration];
-  //JGH: dismiss dialog before resume was switched
-  [self dismissWithSuccess:YES animated:YES];
   [_session resume];
+  
+  [self dismissWithSuccess:YES animated:YES];
 }
 
 - (void)request:(FBRequest*)request didFailWithError:(NSError*)error {

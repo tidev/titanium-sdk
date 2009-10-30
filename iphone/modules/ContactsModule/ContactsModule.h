@@ -8,7 +8,8 @@
 #import "TitaniumModule.h"
 
 @interface ContactsModule : NSObject<TitaniumModule> {
-
+	int nextContactPickerToken;
+	NSMutableDictionary * contactPickerLookup;
 }
 
 @end

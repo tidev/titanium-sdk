@@ -11,6 +11,8 @@
 @interface FacebookModule : TitaniumBasicModule<FBSessionDelegate,FBDialogDelegate,FBRequestDelegate> {
 	FBSession *session;
 	FBLoginDialog *dialog;
+	NSRecursiveLock *lock;
+	BOOL pendingPermissions;
 	NSMutableDictionary *permissions;
 	NSString *pendingPermission;
 	NSString *pendingQueryId;
@@ -55,6 +57,15 @@
 	NSNumber *templateBundleId;
 	NSString *templateData;
 	NSString *body;
+	FBSession *session;
+}
+@end
+
+@interface FBStreamCallback : FBDialogCallback {
+	NSString *title;
+	NSString *data;
+	NSString *targetId;
+	FBSession *session;
 }
 @end
 
@@ -119,4 +130,12 @@
  * @tiapi(method=True,name=Facebook.createLoginButton,since=0.7) create facebook login/logout button (will auto login)
  * @tiarg(for=Facebook.createLoginButton,type=object,name=properties) properties such as id (required), style (optional), apikey (optional), secret (optional)
  * @tiresult(for=Facebook.createLoginButton,type=object) returns button instance
+ */
+
+/**
+ * @tiapi(method=True,name=Facebook.publishStream,since=0.8) publish stream dialog for publishing data to wall
+ * @tiarg(for=Facebook.publishStream,type=string,name=title) title of publish stream dialog
+ * @tiarg(for=Facebook.publishStream,type=object,name=data,optional=True) publish data as json object
+ * @tiarg(for=Facebook.publishStream,type=string,name=targetId,optional=True) targetId if related to a specific user
+ * @tiarg(for=Facebook.publishStream,type=function,name=callback) callback function to be invoked with result
  */

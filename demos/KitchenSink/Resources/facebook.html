@@ -16,6 +16,16 @@
 			systemButton:Titanium.UI.iPhone.SystemButton.REFRESH
 		});
 		var activityIndicator = Titanium.UI.createActivityIndicator();
+
+		var feedButton = Titanium.UI.createButton({
+			title:'Story Test',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		});
+		
+		var streamButton = Titanium.UI.createButton({
+			title:'Stream Test',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		});
 		
 		function fetchStream()
 		{
@@ -76,7 +86,7 @@
 						});
 						Titanium.UI.currentWindow.setToolbar(null);
 					});
-					Titanium.UI.currentWindow.setToolbar([flexSpace,b,flexSpace]);
+					Titanium.UI.currentWindow.setToolbar([flexSpace,b,feedButton,streamButton,flexSpace]);
 				}
 				catch(e)
 				{
@@ -89,12 +99,13 @@
 		
 		function loggedIn()
 		{
-
 			document.getElementById('loggedin').style.display='none';
 			document.getElementById('loggedout').style.display='block';
 			
 			if (!Titanium.Facebook.hasPermission("read_stream"))
 			{
+				Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
+				
 				Titanium.Facebook.requestPermission("read_stream",function(evt)
 				{
 					if (evt.success)
@@ -115,6 +126,65 @@
 			document.getElementById('loggedout').style.display='none';
 		}
 		
+		function postActivity()
+		{
+			var id = 167397171331;
+			var data = {"event":"Fake Event 2010","eventURL":"http://www.appcelerator.com"};
+			Titanium.Facebook.publishFeed(id,data,"Hello, this is a test from Titanium FBConnect!",function(r)
+			{
+				Titanium.API.info("received response = "+Titanium._JSON(r));
+			});
+		}
+		
+		function postStream()
+		{
+			try
+			{
+				// see http://wiki.developers.facebook.com/index.php/Attachment_(Streams)
+				// for description of the contents of this data object
+				var data = {
+					name:"Facebook Connect for Appcelerator Titanium",
+					href:"http://www.appcelerator.com",
+					caption:"I love Titanium",
+					description: "Appcelerator Titanium kicks booty and loves Facebook",
+					media:[
+						{
+							type:"image",
+							src:"http://img.skitch.com/20091027-dick5esbjx9kg63rnfhtfgdre1.jpg",
+							href:"http://www.appcelerator.com"
+						}
+					],
+					properties:
+					{
+						"Homepage":{
+							"text":"Appcelerator Home Page",
+							"href":"http://www.appcelerator.com"
+						}
+					}
+				};
+				Titanium.Facebook.publishStream("Share some love...",data,null,function(r)
+				{
+					Titanium.API.info("received response = "+Titanium._JSON(r));
+				});
+			}
+			catch(E)
+			{
+				alert(E);
+			}
+		}
+		
+		feedButton.addEventListener('click',postActivity);
+		streamButton.addEventListener('click',postStream);
+		
+		var button = Titanium.Facebook.createLoginButton({
+			'id':'fb',
+			'style':'wide',
+			'apikey':'6d6537bbec4526347a6af5d4510e5091',
+			'secret':'f5069ee17cbf7bd11feb38e5317a388b'
+		});
+		button.addEventListener('login',loggedIn);
+		button.addEventListener('logout',loggedOut);
+
 		if (Titanium.Facebook.isLoggedIn())
 		{
 			loggedIn();
@@ -124,14 +194,6 @@
 			loggedOut();
 		}
 
-		var button = Titanium.Facebook.createLoginButton({
-			'id':'fb',
-			'style':'wide',
-			'apikey':'6d6537bbec4526347a6af5d4510e5091',
-			'secret':'f5069ee17cbf7bd11feb38e5317a388b'
-		});
-		button.addEventListener('login',loggedIn);
-		button.addEventListener('logout',loggedOut);
 	};
 	</script>
 	<style>
