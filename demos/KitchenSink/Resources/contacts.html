@@ -1,0 +1,111 @@
+<html>
+<head>
+	<title>Contacts</title>
+	<script>
+	
+		var jack;
+		var selected;
+		
+		function loadContacts()
+		{
+			Titanium.API.info("loadContacts => "+Titanium._JSON(selected));
+			var records = Titanium.Contacts.getAllContacts();
+			var list = document.getElementById('list');
+			var html = '<div>You have '+records.length+' contacts</div>';
+			html+='<ul>';
+			jack = null;
+			for (var c=0;c<records.length;c++)
+			{
+				var rec = records[c];
+				var cls='';
+				if (rec.firstName == 'Jack' && rec.lastName=='Black' )
+				{
+					Titanium.API.info("found jack black = "+Titanium._JSON(rec));
+					jack = rec;
+				}
+				try
+				{
+					if (rec.equals(selected))
+					{
+						cls = 'style="background-color:#ffffcc;"'
+					}
+				}
+				catch(E)
+				{
+					Titanium.API.error("Error = "+E);
+				}
+				html+='<li '+cls+'>'+rec.firstName+' '+rec.lastName+'</li>';
+			}
+			html+='</ul>';
+			list.innerHTML = html;
+		}
+	
+		window.onload = function()
+		{
+			loadContacts();
+			
+			//TODO: add already existing record will crash
+			var btn = document.getElementById('add');
+			btn.onclick = function()
+			{
+				if (!jack)
+				{
+//					var newRecord = Titanium.Contacts.createContact({firstName:'Jack',lastName:'Black',email:'jack@black.com'});
+					var newRecord = Titanium.Contacts.createContact({firstName:'Jack',lastName:'Black'});
+					selected = Titanium.Contacts.addContact(newRecord);
+					Titanium.API.info("added: "+Titanium._JSON(newRecord));
+					loadContacts();
+				}
+			};
+			
+			var rem = document.getElementById('rem');
+			rem.onclick = function()
+			{
+				if (jack)
+				{
+					try
+					{
+						Titanium.API.info("removing: "+Titanium._JSON(jack));
+						Titanium.Contacts.removeContact(jack);
+						selected=null;
+					}
+					catch(e)
+					{
+						Titanium.API.error("error = "+e);
+					}
+					loadContacts();
+				}
+			};
+			
+			var show = document.getElementById('show');
+			show.onclick = function()
+			{
+				selected=null;
+				Titanium.Contacts.showContactPicker(
+				{
+					success:function(ev)
+					{
+						selected=ev.contact;
+						Titanium.API.info("selected = "+Titanium._JSON(selected));
+						loadContacts();
+					},
+					cancel:function()
+					{
+						Titanium.API.info('Cancelled!');
+					},
+					details:['email','firstName','lastName']
+				});
+			};
+		}
+		
+	</script>
+</head>
+<body>
+	<h1>Contact DB List</h1>
+	<div id="list"></div>
+	<div>
+		<button id="add">Add Jack Black</button>
+		<button id="rem">Remove Jack Black</button>
+		<button id="show">Show Contacts</button>
+	</div>
+</body>

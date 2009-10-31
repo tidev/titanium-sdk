@@ -1290,7 +1290,7 @@ TitaniumHost * lastSharedHost = nil;
 	}
 
 	if(error != nil){
-		result = [NSString stringWithFormat:@"throw %@;",[parser stringWithFragment:[error localizedDescription] error:nil]];
+		result = [NSString stringWithFormat:@"throw %@;",[parser stringWithFragment:[error reason] error:nil]];
 	}
 
 	[parser release];

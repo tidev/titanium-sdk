@@ -21,7 +21,8 @@
 		{title:'Sound',hasChild:true},
 		{title:'Shake',hasChild:true},
 		{title:'Email Client',hasChild:true},
-		{title:'Save to Gallery'}
+		{title:'Save to Gallery'},
+		{title:'Contacts',hasChild:true}
 	];
 
 	// tableview object
@@ -97,7 +98,11 @@
 				savePhoto();
 				break;
 			}
-
+			case 11:
+			{
+				showContacts();
+				break;
+			}
 		}
 
 	});
@@ -271,6 +276,12 @@
 			allowImageEditing:true
 		});
 	};
+	
+	function showContacts()
+	{
+		var win = Titanium.UI.createWindow({url:'contacts.html'});
+		win.open({animated:true});
+	}
 
 	</script>
 </head>
