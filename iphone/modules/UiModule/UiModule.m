@@ -1093,7 +1093,7 @@ NSString * UrlEncodeString(NSString * string)
 - (id) doScrollTo: (NSArray *) args;
 {
 	ASSERT_ARRAY_COUNT(args,4);
-//	if(SAFE_ARRAY_COUNT(args)<4)return TITANIUM_JS_ERROR(@"Missing arguments");
+
 	NSString * tokenString = [args objectAtIndex:0];
 	TitaniumWebViewController * targetView = (TitaniumWebViewController *)[[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
 	if(![targetView isKindOfClass:[TitaniumWebViewController class]])return TITANIUM_JS_ERROR(TitaniumErrorInvalidTokenValue,"Invalid token");
@@ -1247,9 +1247,6 @@ NSString * UrlEncodeString(NSString * string)
 	[(UiModule *)invocGen imageView:nil doAction:nil args:nil options:nil];
 	NSInvocation * imageViewInvoc = [invocGen invocation];
 	
-	[(UiModule *)invocGen doScrollTo:nil];
-	NSInvocation * doScrollInvoc = [invocGen invocation];
-	
 	
 	buttonContexts = [[NSMutableDictionary alloc] init];
 	
@@ -1306,8 +1303,8 @@ NSString * UrlEncodeString(NSString * string)
 	[currentWindowScript setEpilogueCode:@"window.addEventListener('DOMNodeInserted',Ti.UI.currentWindow.repaint,false);"
 			"window.addEventListener('load',function(){if(document.body){document.body.addEventListener('load',"
 				"function(e){if(e.srcElement.tagName=='IMG')Titanium.UI.currentWindow.repaint();},true);}},false);"
-				"delete window.scrollTo;window.scrollTo=function(x,y){Ti.UI._WSCROLL([Ti._TOKEN,x,y,false]);};"
-				"delete window.scrollBy;window.scrollBy=function(x,y){Ti.UI._WSCROLL([Ti._TOKEN,x,y,true]);};"];
+				"delete window.scrollTo;window.scrollTo=function(x,y){Ti._TIDO('ui','doScrollTo',[Ti._TOKEN,x,y,false]);};"
+				"delete window.scrollBy;window.scrollBy=function(x,y){Ti._TIDO('ui','doScrollTo',[Ti._TOKEN,x,y,true]);};"];
 
 	NSString * viewsForWindowString = @"function(winTkn){var fetched=Ti.UI._WGVIEWS(winTkn);if(!fetched)return {};var res=[];var i=0;var viewCount=fetched.length;while(i<viewCount){"
 			"var props=fetched[i];var viewTkn=props._TOKEN;var view;"
@@ -1539,9 +1536,7 @@ NSString * UrlEncodeString(NSString * string)
 			showNavBarInvoc,@"_WSHNAV",
 			hideNavBarInvoc,@"_WHDNAV",
 			setTitleInvoc,@"_WTITLE",
-			
-			
-			doScrollInvoc,@"_WSCROLL",
+
 			getWindowInvoc,@"_WINGET",
 			
 			setTitleImageInvoc,@"_WTITLEIMG",

@@ -224,9 +224,30 @@ typedef int UIEventSubtype;
 	[remoteNotificationSubdelegate application:application didFailToRegisterForRemoteNotificationsWithError:error];
 }
 
+- (void)setRemoteNotificationSubdelegate:(id)newDelegate;
+{
+	remoteNotificationSubdelegate = newDelegate;
+	if ((newDelegate != nil) && (notificationQueue != nil)) {
+		UIApplication * application = [UIApplication sharedApplication];
+		for (NSDictionary * userInfo in notificationQueue) {
+			[remoteNotificationSubdelegate application:application didReceiveRemoteNotification:userInfo];
+		}
+		[notificationQueue release];
+		notificationQueue = nil;
+	}
+}
+
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo;
 {
-	[remoteNotificationSubdelegate application:application didReceiveRemoteNotification:userInfo];
+	if(remoteNotificationSubdelegate != nil){
+		[remoteNotificationSubdelegate application:application didReceiveRemoteNotification:userInfo];
+		return;
+	}
+	if (notificationQueue == nil) {
+		notificationQueue = [[NSMutableArray alloc] initWithObjects:userInfo,nil];
+	} else {
+		[notificationQueue addObject:userInfo];
+	}
 }
 
 @end

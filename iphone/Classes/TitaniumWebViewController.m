@@ -231,9 +231,9 @@
 {
 	if(isFocused){
 		[self updateTitle];
-		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent('focused',{type:'focused'})"];
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentView,'focused',{type:'focused'})"];
 	} else {
-		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent('unfocused',{type:'unfocused'})"];
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentView,'unfocused',{type:'unfocused'})"];
 	}
 }
 
@@ -241,9 +241,9 @@
 - (void)setWindowFocused:(BOOL)isFocused;
 {
 	if(isFocused){
-		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent('focused',{type:'focused'})"];
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentWindow,'focused',{type:'focused'})"];
 	} else {
-		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent('unfocused',{type:'unfocused'})"];
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentWindow,'unfocused',{type:'unfocused'})"];
 	}
 }
 
@@ -276,7 +276,7 @@
 - (void)tabChange: (NSNotification *) notification;
 {
 	NSString * jsonString = [[notification userInfo] objectForKey:TitaniumJsonKey];
-	NSString * commandString = [NSString stringWithFormat:@"Ti.UI._ONEVT('tabchange',{%@});",jsonString];
+	NSString * commandString = [NSString stringWithFormat:@"Ti._ONEVT.call(Ti.UI,'tabchange',{%@});",jsonString];
 	[webView stringByEvaluatingJavaScriptFromString:commandString];
 }
 
@@ -343,11 +343,11 @@
 	
 	if([[webView stringByEvaluatingJavaScriptFromString:@"typeof(Titanium)"] isEqualToString:@"undefined"])[self investigateTitaniumCrashSite];
 	
-	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent('load',{type:'load'});"];
+	[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentView,'load',{type:'load'});"];
 	if ([titaniumWindowToken isEqualToString:[visibleVC titaniumWindowToken]]){
-		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent('focused',{type:'focused'});"];
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentWindow,'focused',{type:'focused'});"];
 		if(isVisible){
-			[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent('focused',{type:'focused'});"];
+			[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentView,'focused',{type:'focused'});"];
 		}
 	}
 }
@@ -459,7 +459,7 @@ typedef int UIEventSubtype;
 	TitaniumContentViewController * currentVC = [[TitaniumHost sharedHost] currentTitaniumContentViewController];
 	if (![currentVC isShowingView:self]) return;
 	if (motion == UIEventSubtypeMotionShake){
-		NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent('shake',{type:'shake'})"];
+		NSString * eventString = [NSString stringWithFormat:@"Ti._ONEVT.call(Ti.Gesture,'shake',{type:'shake'})"];
 		[webView stringByEvaluatingJavaScriptFromString:eventString];
 	}
 }
@@ -485,7 +485,7 @@ typedef int UIEventSubtype;
 	
 	NSString * animatedString = (duration>0)?@"true":@"false";
 	
-	NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent('orientationchange',{type:'orientationchange',"
+	NSString * eventString = [NSString stringWithFormat:@"Ti._ONEVT.call(Ti.Gesture,'orientationchange',{type:'orientationchange',"
 			"to:%d,from:%d,animated:%@,duration:%d})",
 			interfaceOrientation,lastOrientation,animatedString,(int)(duration * 1000)];
 	[webView stringByEvaluatingJavaScriptFromString:eventString];
@@ -583,7 +583,7 @@ typedef int UIEventSubtype;
 - (void) trackingSanityCheck;
 {
 	//This happens when there's been two fingers in the web view and it's canceled, the web view is still tracking.
-	if([scrollView isTracking] || [scrollView isDragging] || [scrollView isDecelerating])return;
+	if(isNonTitaniumPage||[scrollView isTracking] || [scrollView isDragging] || [scrollView isDecelerating])return;
 	
 	NSLog(@"[WARN] Suspected that webView is locked in tracking. Resetting its connection to the view tree...");
 	[webView removeFromSuperview];
