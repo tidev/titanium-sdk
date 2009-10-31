@@ -43,6 +43,7 @@ static BOOL L0AccelerationIsShaking(UIAcceleration* last, UIAcceleration* curren
 	TitaniumHost * currentHost;
 
 	id	remoteNotificationSubdelegate;
+	NSMutableArray * notificationQueue;
 }
 
 + (TitaniumAppDelegate *) sharedDelegate;

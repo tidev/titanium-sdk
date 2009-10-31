@@ -20,6 +20,8 @@
 #import "TitaniumBlobWrapper.h"
 #import "AnalyticsModule.h"
 
+#import "SBJSON.h"
+
 #import "Logging.h"
 
 typedef enum {
@@ -628,23 +630,7 @@ typedef enum {
 		return nil;
 	}
 
-	UIRemoteNotificationType ourNotifications = [theApp enabledRemoteNotificationTypes];
-	
-	NSArray * typesRequested = [args objectAtIndex:0];
-	if([typesRequested isKindOfClass:[NSArray class]]){
-		for (NSString * thisTypeRequested in typesRequested) {
-			if ([@"badge" isEqualToString:thisTypeRequested]) {
-				ourNotifications |= UIRemoteNotificationTypeBadge;
-			} else if ([@"sound" isEqualToString:thisTypeRequested]) {
-				ourNotifications |= UIRemoteNotificationTypeSound;
-			} else if ([@"alert" isEqualToString:thisTypeRequested]) {
-				ourNotifications |= UIRemoteNotificationTypeAlert;
-			}
-		}
-	}
-
-	[[theApp delegate] setRemoteNotificationSubdelegate:self];
-	[(TitaniumAppDelegate *)theApp registerForRemoteNotificationTypes:ourNotifications];
+	[self performSelectorOnMainThread:@selector(performPushRegistrationForDataTypes:) withObject:[args objectAtIndex:0] waitUntilDone:NO];
 
 	NSString * parentPageToken = [[[TitaniumHost sharedHost] currentThread] magicToken];
 	
@@ -657,19 +643,48 @@ typedef enum {
 	return [NSNumber numberWithBool:YES];
 }
 
+- (void)performPushRegistrationForDataTypes: (NSArray *)typesRequested;
+{
+	UIApplication * theApp = [UIApplication sharedApplication];
+
+	UIRemoteNotificationType ourNotifications = [theApp enabledRemoteNotificationTypes];
+	
+	if([typesRequested isKindOfClass:[NSArray class]]){
+		for (NSString * thisTypeRequested in typesRequested) {
+			if ([@"badge" isEqualToString:thisTypeRequested]) {
+				ourNotifications |= UIRemoteNotificationTypeBadge;
+			} else if ([@"sound" isEqualToString:thisTypeRequested]) {
+				ourNotifications |= UIRemoteNotificationTypeSound;
+			} else if ([@"alert" isEqualToString:thisTypeRequested]) {
+				ourNotifications |= UIRemoteNotificationTypeAlert;
+			}
+		}
+	}
+	
+	TitaniumAppDelegate * theDelegate = (TitaniumAppDelegate *)[theApp delegate];
+	if ([theDelegate remoteNotificationSubdelegate]!=self) {
+		[theDelegate setRemoteNotificationSubdelegate:self];
+	}
+	[theApp registerForRemoteNotificationTypes:ourNotifications];
+}
+
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
 {
-//	[[TitaniumHost sharedHost] sendJavascript: toPagesWithTokens:pushListeners update:YES];
+	TitaniumBlobWrapper * ourBlob = [[TitaniumHost sharedHost] blobForData:deviceToken];
+	NSString * commandString = [NSString stringWithFormat:@"Ti.Network._FIREPUSH('success',%@)",[ourBlob stringValue]];
+	[[TitaniumHost sharedHost] sendJavascript:commandString toPagesWithTokens:pushListeners update:YES];
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error;
 {
-
+	NSString * commandString = [NSString stringWithFormat:@"Ti.Network._FIREPUSH('error',%@)",[SBJSON stringify:[error localizedDescription]]];
+	[[TitaniumHost sharedHost] sendJavascript:commandString toPagesWithTokens:pushListeners update:YES];
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo;
 {
-
+	NSString * commandString = [NSString stringWithFormat:@"Ti.Network._FIREPUSH('callback',%@)",[SBJSON stringify:userInfo]];
+	[[TitaniumHost sharedHost] sendJavascript:commandString toPagesWithTokens:pushListeners update:YES];	
 }
 
 
@@ -729,11 +744,12 @@ typedef enum {
 			newListenerInvoc,@"_ADDL",
 			removeListenerInvoc,@"_REML",
 
-			[TitaniumJSCode codeWithString:@"{}"],@"_PUSH",
-			[TitaniumJSCode codeWithString:@"function(options){"
+			[TitaniumJSCode codeWithString:@"[]"],@"_PUSH",
+			[TitaniumJSCode codeWithString:@"function(typ,dat){var P=Ti.Network._PUSH;var len=P.length;"
+				"for(var i=0;i<len;i++){var C=P[i];if(C[typ])C[typ](dat);}}"],@"_FIREPUSH",
+			[TitaniumJSCode codeWithString:@"function(options){Ti.Network._PUSH.push(options);"
 				"var succ=Ti._TIDO('network','registerForPushNotifications',[options.types]);"
-				"if(succ){Ti.Network._PUSH.push(options);}"
-				"else if(options.error){options.error('Push is unsupported in this iPhone OS')}}"],@"registerForPushNotifications",
+				"if(!succ && options.error){options.error('Push is unsupported in this iPhone OS')}}"],@"registerForPushNotifications",
 			@"badge",@"NOTIFICATION_TYPE_BADGE",
 			@"alert",@"NOTIFICATION_TYPE_ALERT",
 			@"sound",@"NOTIFICATION_TYPE_SOUND",

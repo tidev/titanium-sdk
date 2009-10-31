@@ -1,31 +1,59 @@
 <html>
-	<head>
-		<script>
-		window.onload = function()
-		{
-		
-			document.getElementById('one').onclick = function()
-			{
-				document.getElementById('large').style.display = 'block';
-				document.getElementById('small').style.display = 'none';
-				Titanium.UI.currentWindow.repaint();
-			};
-			document.getElementById('two').onclick = function()
-			{
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>Hello Mobile</title>
+	<script type="text/javascript" src="index.js"></script>
+	<style>
+	input[type=checkbox]
+	{
+		font-size:40px;
+		height:40px;
+		width:40px;
+	}
 
-				window.scrollTo(0,0);
-				document.getElementById('large').style.display = 'none';
-				document.getElementById('small').style.display = 'block';
-				Titanium.UI.currentWindow.repaint();
-			};
-		};
-		
-		</script>
-	</head>
-	<body>
-		<div id="large" style="height:800px;background-color:#888;display:none">large</div>
-		<div id="small" style="height:200px;background-color:#555;display:block">small</div>
-		<button id="one" style="font-size:20px">large</button>
-		<button id="two" style="font-size:20px">small</button>
-	</body>
+	</style>
+	<script>
+	window.onload = function()
+	{
+		var y = 0;
+		var x= Titanium.UI.createButton({id:'button'});
+		x.addEventListener('click', function()
+		{
+			Titanium.API.info('IN CLICK EVENT LISTENER FOR BUTTON');
+			document.getElementById('button_count').innerHTML = y++;
+		});
+	};
+	</script>
+	<link href="index.css" rel="stylesheet" type="text/css"/>
+</head>
+<body style="color:#000">
+	<div id="button_count">0</div>
+<form>
+	<div id="button" style="height:50px;width:100px;color:#000">foo</div>
+	<a href="/picker3.html" style="font-size:30px">click me </a>
+	<div></div>
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
+</form>
+</body>
 </html>
