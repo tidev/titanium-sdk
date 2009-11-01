@@ -130,10 +130,10 @@ Properties = function(proxy) {
 		var r = null;
 
 		if (this.hasProperty(name)) {
-			def = arguments.length == 1 || isUndefined(def) ? null : def;
+			def = arguments.length == 1 || Ti.isUndefined(def) ? null : def;
 			r = this.proxy.getString(name,def);
 		} else {
-			if (isUndefined(def)) {
+			if (Ti.isUndefined(def)) {
 				def = null;
 			}
 		}
@@ -168,10 +168,10 @@ Properties = function(proxy) {
 		var r = null;
 
 		if(this.hasProperty(name)) {
-			def = arguments.length == 1 || isUndefined(def) ? -1 : def;
+			def = arguments.length == 1 || Ti.isUndefined(def) ? -1 : def;
 			r = this.proxy.getInt(name,def);
 		} else {
-			if (isUndefined(def)) {
+			if (Ti.isUndefined(def)) {
 				def = null;
 			}
 		}
@@ -205,10 +205,10 @@ Properties = function(proxy) {
 	this.getBool = function(name,def) {
 		var r = null;
 		if (this.hasProperty(name)) {
-			def = arguments.length == 1 || isUndefined(def) ? false : def;
+			def = arguments.length == 1 || Ti.isUndefined(def) ? false : def;
 			r = this.proxy.getBool(name,def);
 		} else {
-			if(isUndefined(def)) {
+			if(Ti.isUndefined(def)) {
 				def = null;
 			}
 		}
@@ -241,10 +241,10 @@ Properties = function(proxy) {
 	 */
 	this.getDouble = function(name,def){
 		if (this.hasProperty(name)) {
-			def = arguments.length == 1 || isUndefined(def) ? 0.0 : def;
+			def = arguments.length == 1 || Ti.isUndefined(def) ? 0.0 : def;
 			r = this.proxy.getDouble(name,def);
 		} else {
-			if(isUndefined(def)) {
+			if(Ti.isUndefined(def)) {
 				def = null;
 			}
 		}
@@ -267,7 +267,7 @@ Properties = function(proxy) {
 	 */
 	this.getList = function(name, def)
 	{
-		 if (isUndefined(def)) {
+		 if (Ti.isUndefined(def)) {
 			 def = [];
 		 }
 		 var s = this.proxy.getList(name, Ti.JSON.stringify(def));
@@ -285,11 +285,11 @@ Properties = function(proxy) {
 	 * @tiarg[list,def] value to store
 	 */
 	this.setList = function(name, value) {
-		if (isUndefined(value)) {
+		if (Ti.isUndefined(value)) {
 			value = [];
 		}
 
-		if (!typeOf(value) == 'array') {
+		if (!Ti.typeOf(value) == 'array') {
 			value = [ value ];
 		}
 
@@ -328,7 +328,7 @@ Properties = function(proxy) {
 	 * @tiarg[string,name] property name
 	 */
 	this.removeProperty = function(name) {
-		if (!isUndefined(name)) {
+		if (!Ti.isUndefined(name)) {
 			this.proxy.removeProperty(name);
 		}
 	};

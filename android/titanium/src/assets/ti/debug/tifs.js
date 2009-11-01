@@ -104,7 +104,7 @@ TitaniumFile.prototype.write = function(data,append)
 		p.pushInteger(data.getKey());
 		p.pushBoolean(append);
 		Ti.checked(p.call("write"));
-	} else if (!isUndefined(data.blob) && data.blob) {
+	} else if (!Ti.isUndefined(data.blob) && data.blob) {
 		Ti.API.debug("Write As Blob File: " + String(data));
 		p.pushString(data.obj.toURL());
 		p.pushBoolean(append);
@@ -132,7 +132,7 @@ TitaniumFile.prototype.readLine = function()
 TitaniumFile.prototype.copy = function(destination)
 {
 	var p = this.proxy;
-	if (!isUndefined(destination.url)) {
+	if (!Ti.isUndefined(destination.url)) {
 		p.pushString(destination.url);
 	} else {
 		p.pushString(destination);
@@ -147,7 +147,7 @@ TitaniumFile.prototype.copy = function(destination)
 TitaniumFile.prototype.move = function(destination)
 {
 	var p = this.proxy;
-	if (!isUndefined(destination.url)) {
+	if (!Ti.isUndefined(destination.url)) {
 		p.pushString(destination.url);
 	} else {
 		p.pushString(destination);
@@ -366,7 +366,7 @@ Filestream.prototype.readLine = function() {
 
 Filestream.prototype.write = function(value, append) {
 	var p = this.proxy;
-	if (isUndefined(append)) {
+	if (Ti.isUndefined(append)) {
 		append = false;
 	}
 	if(value instanceof TitaniumMemoryBlob) {
@@ -417,9 +417,9 @@ Ti.Filesystem = {
 		return new TitaniumFile(Ti.fileSystemProxy.createTempDirectory());
 	},
 	pathSegment : function(p) {
-		if ('string' == typeOf(p)) {
+		if ('string' == Ti.typeOf(p)) {
 			return p;
-		} else if (!isUndefined(p.url)) {
+		} else if (!Ti.isUndefined(p.url)) {
 			return p.url;
 		} else {
 			return ".";

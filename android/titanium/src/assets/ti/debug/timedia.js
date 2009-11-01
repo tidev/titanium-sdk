@@ -262,14 +262,14 @@ Ti.Media = {
 	 */
 	createVideoPlayer : function(options) {
 		var player = null;
-		if (!isUndefined(options)) {
+		if (!Ti.isUndefined(options)) {
 			var proxy = Ti.mediaProxy.createVideoPlayer(Ti.JSON.stringify(options));
 			if (proxy !== null) {
 				player = new Video(proxy);
-				if (!isUndefined(options.complete)) {
+				if (!Ti.isUndefined(options.complete)) {
 					player.completeId = addEventListener("complete", registerCallback(this, options.complete));
 				}
-				if (!isUndefined(options.error)) {
+				if (!Ti.isUndefined(options.error)) {
 					player.errorId = addEventListener("error", registerCallback(this, options.error));
 				}
 			}

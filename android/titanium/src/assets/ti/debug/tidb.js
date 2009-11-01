@@ -9,7 +9,7 @@
 Ti.databaseProxy = window.TitaniumDatabase;
 
 function throwIfException(e) {
-	if (!isUndefined(e)) {
+	if (!Ti.isUndefined(e)) {
 		throw new Error(e);
 	}
 }
@@ -91,7 +91,7 @@ var DB = function(db) {
 	 * @tiapi  This should be called to prevent resource leaks.
 	 */
 	this.close = function() {
-		if (!isUndefined(this.proxy)) {
+		if (!Ti.isUndefined(this.proxy)) {
 			this.proxy.close();
 		}
 	};
@@ -171,9 +171,9 @@ Ti.Database = {
 	install: function(path,name) {
 		var db = null;
 
-		if (!isUndefined(path)) {
+		if (!Ti.isUndefined(path)) {
 			var p = path;
-			if (!isUndefined(path.toURL)) {
+			if (!Ti.isUndefined(path.toURL)) {
 				p = path.toURL();
 			} else if (path.indexOf("/") == 0) {
 				p = "file://" + path;

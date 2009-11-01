@@ -66,7 +66,7 @@ var MenuItem = function() {
 	this.addItem = function(label, callback, icon) {
 		var m = new MenuItem();
 		this._callback = callback;
-		if (isUndefined(icon)) {
+		if (Ti.isUndefined(icon)) {
 			icon = null;
 		}
 		m.obj = this.obj.addItem(label, registerCallback(this, this._callback), icon);
@@ -80,7 +80,7 @@ var MenuItem = function() {
 	 */
 	this.addSubMenu = function(label, icon) {
 		var m = new MenuItem();
-		if (isUndefined(icon)) {
+		if (Ti.isUndefined(icon)) {
 			icon = null;
 		}
 		m.obj = this.obj.addSubMenu(label, icon);
@@ -148,7 +148,7 @@ var OptionDialog = function(proxy) {
 	 */
 	this.setOptions = function(options) {
 		var o = transformObjectValue(options, []);
-		if (typeOf(o) !== 'array') {
+		if (Ti.typeOf(o) !== 'array') {
 			o = [ options ];
 		}
 		this.proxy.setOptions(o);
@@ -217,7 +217,7 @@ var AlertDialog = function(proxy) {
 	 */
 	this.setButtonNames = function(names) {
 		var n = transformObjectValue(names, []);
-		if (typeOf(n) !== 'array') {
+		if (Ti.typeOf(n) !== 'array') {
 			n = [ names ];
 		}
 		this.proxy.setButtons(n);
@@ -308,7 +308,7 @@ var EmailDialog = function(proxy) {
 	 * @tiarg[string,subject] the subject text
 	 */
 	this.setSubject = function(subject) {
-		if (isUndefined(subject)) {
+		if (Ti.isUndefined(subject)) {
 			subject = null;
 		}
 		proxy.setSubject(subject);
@@ -316,14 +316,14 @@ var EmailDialog = function(proxy) {
 	// Internal use method
 	this.toStringArray = function(addrs) {
 		var sa = [];
-		if (!isUndefined(addrs)) {
-			if (typeOf(addrs) === 'string') {
+		if (!Ti.isUndefined(addrs)) {
+			if (Ti.typeOf(addrs) === 'string') {
 				Ti.API.debug("addrs is string");
 				sa.push(addrs);
-			} else if (typeOf(addrs) === 'array') {
+			} else if (Ti.typeOf(addrs) === 'array') {
 				Ti.API.debug("addrs is array");
 				for (addr in addrs) {
-					if (typeOf(addrs[addr]) === 'string') {
+					if (Ti.typeOf(addrs[addr]) === 'string') {
 						sa.push(addrs[addr]);
 					}
 				}
@@ -374,10 +374,10 @@ var EmailDialog = function(proxy) {
 	 */
 	this.addAttachment = function(attachment) {
 		var a = {};
-		if (!isUndefined(attachment)) {
-			Ti.API.debug("Attachment type: " + typeOf(attachment));
-			if (typeOf(attachment) != 'string') {
-				if(!isUndefined(attachment.url)) {
+		if (!Ti.isUndefined(attachment)) {
+			Ti.API.debug("Attachment type: " + Ti.typeOf(attachment));
+			if (Ti.typeOf(attachment) != 'string') {
+				if(!Ti.isUndefined(attachment.url)) {
 					a.file = String(attachment.url);
 				}
 			} else {
@@ -467,8 +467,8 @@ var CompositeView = function(proxy) {
 	 * @tiarg[Object,layout] layout parameters for the view
 	 */
 	this.addView = function(view,layout) {
-		if (!isUndefined(view)) {
-			if (!isUndefined(view.key)) {
+		if (!Ti.isUndefined(view)) {
+			if (!Ti.isUndefined(view.key)) {
 				this.proxy.addView(view.key, Ti.JSON.stringify(layout));
 			} else {
 				this.proxy.addView(view.proxy.getKey(),Ti.JSON.stringify(layout));
@@ -499,13 +499,13 @@ var ImageView = function(proxy) {
 	this.proxy = proxy; // reference to Java object
 
 	this.setURL = function(url) {
-		if (!isUndefined(url)) {
+		if (!Ti.isUndefined(url)) {
 			this.proxy.setURL(url);
 		}
 	};
 
 	this.setCanScale = function(canScale) {
-		if (!isUndefined(canScale)) {
+		if (!Ti.isUndefined(canScale)) {
 			this.proxy.setCanScale(canScale);
 		}
 	};
@@ -555,7 +555,7 @@ var MapView = function(proxy) {
 	 * @tiarg[int,type] Titanium.UI.MAP_VIEW_STANDARD | Titanium.UI.MAP_VIEW_SATELLITE | Titanium.UI.MAP_VIEW_HYBRID
 	 */
 	this.setType = function(type) {
-		if(!isUndefined(type)) {
+		if(!Ti.isUndefined(type)) {
 			this.proxy.setType(type);
 		}
 	};
@@ -577,12 +577,12 @@ var MapView = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	this.isValidCoordinate = function(c) {
-		return !isUndefined(c) && !isUndefined(c.longitude) && !isUndefined(c.latitude);
+		return !Ti.isUndefined(c) && !Ti.isUndefined(c.longitude) && !Ti.isUndefined(c.latitude);
 	};
 	this.isValidRegion = function(r) {
-		return !isUndefined(r) && !isUndefined(r.coordinate) && !isUndefined(r.span)
-			&& isValid(r.coordinate) && !isUndefined(r.span.longitudeDelta)
-			&& !isUndefined(r.span.latitudeDelta)
+		return !Ti.isUndefined(r) && !Ti.isUndefined(r.coordinate) && !Ti.isUndefined(r.span)
+			&& isValid(r.coordinate) && !Ti.isUndefined(r.span.longitudeDelta)
+			&& !Ti.isUndefined(r.span.latitudeDelta)
 	};
 };
 
@@ -597,7 +597,7 @@ var ScrollableView = function(proxy) {
 	 * @tiarg[array,views] Array of Titanium views
 	 */
 	this.setViews = function(views) {
-		if (!isUndefined(views)) {
+		if (!Ti.isUndefined(views)) {
 			var keys = this.internalSetViews(views);
 			this.proxy.setViews(Ti.JSON.stringify(keys));
 		}
@@ -619,17 +619,17 @@ var ScrollableView = function(proxy) {
 	 * @tiarg[Object,view] A view or index
 	 */
 	this.scrollToView = function(view) {
-		if (!isUndefined(view)) {
+		if (!Ti.isUndefined(view)) {
 			var pos = -1;
 
-			if (typeOf(view) == "object") {
+			if (Ti.typeOf(view) == "object") {
 				for(i=0; i< this._views.length; i++) {
 					if (view === this._views[i]) {
 						pos = i;
 						break;
 					}
 				}
-			} else if (typeOf(view) == "number") {
+			} else if (Ti.typeOf(view) == "number") {
 				pos = view;
 			}
 
@@ -716,7 +716,7 @@ var TableView = function(proxy) {
 	 * @tiarg[object,options] row data
 	 */
 	this.insertRowAfter = function(index, options) {
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = {};
 		}
 		this.proxy.insertRowAfter(index, Ti.JSON.stringify(options));
@@ -727,7 +727,7 @@ var TableView = function(proxy) {
 	 * @tiarg[object,options] row data
 	 */
 	this.insertRowBefore = function(index, options) {
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = {};
 		}
 		this.proxy.insertRowBefore(index, Ti.JSON.stringify(options));
@@ -745,7 +745,7 @@ var TableView = function(proxy) {
 	 * @tiarg[object,options] row data
 	 */
 	this.updateRow = function(index, options) {
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = {};
 		}
 		this.proxy.updateRow(index, Ti.JSON.stringify(options));
@@ -756,8 +756,8 @@ var TableView = function(proxy) {
 	 * @tiarg[object,options] options for append
 	 */
 	this.appendRow = function(rowData, options) {
-		if (!isUndefined(rowData)) {
-			if (isUndefined(options)) {
+		if (!Ti.isUndefined(rowData)) {
+			if (Ti.isUndefined(options)) {
 				options = {};
 			}
 			this.proxy.appendRow(Ti.JSON.stringify(rowData), Ti.JSON.stringify(options));
@@ -776,7 +776,7 @@ var TableView = function(proxy) {
 	 * @tireslt[int,options] row index
 	 */
 	this.getIndexByName = function(name) {
-		if(isUndefined(name)) {
+		if(Ti.isUndefined(name)) {
 			name = null;
 		}
 		return this.proxy.getIndexByName(name);
@@ -789,7 +789,7 @@ var TableView = function(proxy) {
 		return this.proxy.getName();
 	};
 	this.setName = function(name) {
-		if(!isUndefined(name)) {
+		if(!Ti.isUndefined(name)) {
 			this.proxy.setName(name);
 		}
 	};
@@ -800,12 +800,12 @@ var TableView = function(proxy) {
 		this.proxy.close();
 	};
 	this.setFontWeight = function(fontWeight) {
-		if (!isUndefined(fontWeight)) {
+		if (!Ti.isUndefined(fontWeight)) {
 			this.proxy.setFontWeight(fontWeight);
 		}
 	};
 	this.setFontSize = function(fontSize) {
-		if (!isUndefined(fontSize)) {
+		if (!Ti.isUndefined(fontSize)) {
 			this.proxy.setFontSize(fontSize);
 		}
 	};
@@ -958,7 +958,7 @@ var UserWindow = function(proxy) {
 	 * @tiarg[object, options] options
 	 */
 	this.setActiveViewIndex = function(index, options) {
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = null;
 		} else {
 			options = Ti.JSON.stringify(options);
@@ -972,12 +972,12 @@ var UserWindow = function(proxy) {
 	 * @tiarg[object, options] options
 	 */
 	this.showView = function(view, options) {
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = null;
 		} else {
 			options = Ti.JSON.stringify(options);
 		}
-		if(!isUndefined(view.key)) {
+		if(!Ti.isUndefined(view.key)) {
 			this.proxy.showViewByKey(view.key, options);
 		} else {
 			this.proxy.showView(view.proxy, options);
@@ -990,13 +990,13 @@ var UserWindow = function(proxy) {
 	 */
 	this.getViewByName = function(name) {
 		var v = null;
-		if (!isUndefined(name)) {
+		if (!Ti.isUndefined(name)) {
 			var views = this.getViews();
 
 			for(i = 0; i < views.length; i++) {
 				var view = views[i];
 				//Ti.API.debug("*** Name: " + name + " vName: " + view.name);
-				if (!isUndefined(view.name)) {
+				if (!Ti.isUndefined(view.name)) {
 					if (name == view.name) {
 						v = view;
 						break;
@@ -1021,10 +1021,10 @@ var UserWindow = function(proxy) {
 	 * @tiarg[Object, eventData] A JSON compatible object.
 	 */
 	this.fireEvent = function(eventName, eventData) {
-		if (isUndefined(eventData)) {
+		if (Ti.isUndefined(eventData)) {
 			eventData = {};
 		}
-		if (!isUndefined(eventName)) {
+		if (!Ti.isUndefined(eventName)) {
 			this.proxy.fireEvent(eventName, Ti.JSON.stringify(eventData));
 		}
 	};
@@ -1125,7 +1125,7 @@ var UserWindowBuilder = function(proxy) {
 	 * @tiarg[string,orientation] one of: landscape, portrait, or either
 	 */
 	this.setOrientation = function(orientation) {
-		if (!isUndefined(orientation)) {
+		if (!Ti.isUndefined(orientation)) {
 			this.proxy.setOrientation(orientation);
 		}
 	};
@@ -1193,8 +1193,8 @@ var DatePicker = function(proxy) {
 	this.proxy = proxy;
 
 	this.setValue = function(value, options) {
-		if(!isUndefined(value)) {
-			if (isUndefined(options)) {
+		if(!Ti.isUndefined(value)) {
+			if (Ti.isUndefined(options)) {
 				options = {};
 			}
 			this.proxy.setValue(value.getTime(), Ti.JSON.stringify(options));
@@ -1262,7 +1262,7 @@ var Picker = function(proxy) {
 	};
 
 	this.selectRow = function(row, col, options) {
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = {}
 		}
 		this.proxy.selectRow(col, row, Ti.JSON.stringify(options));
@@ -1294,7 +1294,7 @@ var Switch = function(proxy) {
 	 * @tiarg[boolean,value] value to set the switch too
 	 */
 	this.setValue = function(value) {
-		if (!isUndefined(value)) {
+		if (!Ti.isUndefined(value)) {
 			this.proxy.setValue(value);
 		}
 	};
@@ -1342,7 +1342,7 @@ var Slider = function(proxy) {
 	 * @tiarg[int,value] value to set the slider too
 	 */
 	this.setValue = function(value) {
-		if (!isUndefined(value)) {
+		if (!Ti.isUndefined(value)) {
 			this.proxy.setValue(value);
 		}
 	};
@@ -1402,7 +1402,7 @@ var TextArea = function(proxy) {
 	 * @tiarg[string,value] value to set the slider too
 	 */
 	this.setValue = function(value) {
-		if (!isUndefined(value)) {
+		if (!Ti.isUndefined(value)) {
 			this.proxy.setValue(value);
 		}
 	};
@@ -1462,7 +1462,7 @@ var TextField = function(proxy) {
 	 * @tiarg[string,value] value to set the slider too
 	 */
 	this.setValue = function(value) {
-		if (!isUndefined(value)) {
+		if (!Ti.isUndefined(value)) {
 			this.proxy.setValue(value);
 		}
 	};
@@ -1494,7 +1494,7 @@ Ti.UI = {
 	 */
 	createWindow : function(options) {
 		var w = new UserWindowBuilder(Ti.uiProxy.createWindow());
-		if (!isUndefined(options)) {
+		if (!Ti.isUndefined(options)) {
 			var url = options.url;
 			var fullscreen = options.fullscreen;
 			var title = options.title;
@@ -1503,25 +1503,25 @@ Ti.UI = {
 			var orientation = options.orientation;
 			var backgroundImage = options.backgroundImage;
 
-			if (!isUndefined(url)) {
+			if (!Ti.isUndefined(url)) {
 				w.setURL(url);
 			}
-			if (!isUndefined(fullscreen)) {
+			if (!Ti.isUndefined(fullscreen)) {
 				w.setFullscreen(fullscreen);
 			}
-			if (!isUndefined(title)) {
+			if (!Ti.isUndefined(title)) {
 				w.setTitle(title);
 			}
-			if (!isUndefined(titleImage)) {
+			if (!Ti.isUndefined(titleImage)) {
 				w.setTitleImage(titleImage);
 			}
-			if (!isUndefined(backgroundColor)) {
+			if (!Ti.isUndefined(backgroundColor)) {
 				w.setBackgroundColor(backgroundColor);
 			}
-			if (!isUndefined(orientation)) {
+			if (!Ti.isUndefined(orientation)) {
 				w.setOrientation(orientation);
 			}
-			if (!isUndefined(backgroundImage)) {
+			if (!Ti.isUndefined(backgroundImage)) {
 				w.setBackgroundImage(backgroundImage);
 			}
 		}
@@ -1570,18 +1570,18 @@ Ti.UI = {
 	createAlertDialog : function(options) {
 		var dlg = new AlertDialog(Ti.uiProxy.createAlertDialog());
 
-		if (! isUndefined(options)) {
+		if (! Ti.isUndefined(options)) {
 			title = options.title;
 			message = options.message;
 			buttonNames = options.buttonNames;
 
-			if (!isUndefined(title)) {
+			if (!Ti.isUndefined(title)) {
 				dlg.setTitle(title);
 			}
-			if (!isUndefined(message)) {
+			if (!Ti.isUndefined(message)) {
 				dlg.setMessage(message);
 			}
-			if (!isUndefined(buttonNames)) {
+			if (!Ti.isUndefined(buttonNames)) {
 				dlg.setButtonNames(buttonNames);
 			}
 		}
@@ -1596,14 +1596,14 @@ Ti.UI = {
 	createOptionDialog : function(options) {
 		var dlg = new OptionDialog(Ti.uiProxy.createOptionDialog());
 
-		if (! isUndefined(options)) {
+		if (! Ti.isUndefined(options)) {
 			title = options.title;
 			optionValues = options.options;
 
-			if (!isUndefined(title)) {
+			if (!Ti.isUndefined(title)) {
 				dlg.setTitle(title);
 			}
-			if (!isUndefined(optionValues)) {
+			if (!Ti.isUndefined(optionValues)) {
 				dlg.setOptions(optionValues);
 			}
 		}
@@ -1618,7 +1618,7 @@ Ti.UI = {
 	createActivityIndicator : function(options) {
 		var ind = new ActivityIndicator(Ti.uiProxy.createProgressDialog());
 		ind.setLocation(1); // Dialog
-		if (!isUndefined(options)) {
+		if (!Ti.isUndefined(options)) {
 			var message = options.message;
 			var loc = options.location;
 			var type = options.type;
@@ -1626,22 +1626,22 @@ Ti.UI = {
 			var maxVal = options.max;
 			var value = options.value;
 
-			if (!isUndefined(message)) {
+			if (!Ti.isUndefined(message)) {
 				ind.setMessage(message);
 			}
-			if (!isUndefined(loc)) {
+			if (!Ti.isUndefined(loc)) {
 				ind.setLocation(loc);
 			}
-			if (!isUndefined(type)) {
+			if (!Ti.isUndefined(type)) {
 				ind.setType(type);
 			}
-			if (!isUndefined(minVal)) {
+			if (!Ti.isUndefined(minVal)) {
 				ind.setMin(minVal);
 			}
-			if (!isUndefined(maxVal)) {
+			if (!Ti.isUndefined(maxVal)) {
 				ind.setMax(maxVal);
 			}
-			if (!isUndefined(value)) {
+			if (!Ti.isUndefined(value)) {
 				ind.setValue(value);
 			}
 		}
@@ -1656,7 +1656,7 @@ Ti.UI = {
 		var ind = new ActivityIndicator(Ti.uiProxy.createProgressDialog());
 		ind.setLocation(0); // StatusBar
 
-		if (!isUndefined(options)) {
+		if (!Ti.isUndefined(options)) {
 			var message = options.message;
 			var loc = options.location;
 			var type = options.type;
@@ -1664,22 +1664,22 @@ Ti.UI = {
 			var maxVal = options.max;
 			var value = options.value;
 
-			if (!isUndefined(message)) {
+			if (!Ti.isUndefined(message)) {
 				ind.setMessage(message);
 			}
-			if (!isUndefined(loc)) {
+			if (!Ti.isUndefined(loc)) {
 				ind.setLocation(loc);
 			}
-			if (!isUndefined(type)) {
+			if (!Ti.isUndefined(type)) {
 				ind.setType(type);
 			}
-			if (!isUndefined(minVal)) {
+			if (!Ti.isUndefined(minVal)) {
 				ind.setMin(minVal);
 			}
-			if (!isUndefined(maxVal)) {
+			if (!Ti.isUndefined(maxVal)) {
 				ind.setMax(maxVal);
 			}
-			if (!isUndefined(value)) {
+			if (!Ti.isUndefined(value)) {
 				ind.setValue(value);
 			}
 		}
@@ -1692,7 +1692,7 @@ Ti.UI = {
 	 */
 	createCompositeView : function(options) {
 		var cv = new CompositeView(Ti.uiProxy.createCompositeView());
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = {};
 		}
 		var opts = {};
@@ -1707,7 +1707,7 @@ Ti.UI = {
 	 */
 	createImageView : function(options) {
 		var iv = new ImageView(Ti.uiProxy.createImageView());
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = {};
 		}
 		iv.proxy.processOptions(Ti.JSON.stringify(options));
@@ -1720,12 +1720,12 @@ Ti.UI = {
 	 */
 	createScrollableView : function(options) {
 		var sv = new ScrollableView(Ti.uiProxy.createScrollableView());
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = {};
 		}
 		var opts = {};
 
-		if(!isUndefined(options.views)) {
+		if(!Ti.isUndefined(options.views)) {
 			for (key in options) {
 				if (key == "views") {
 					var keys = sv.internalSetViews(options.views);
@@ -1745,7 +1745,7 @@ Ti.UI = {
 	 */
 	createMapView : function(options) {
 		var mv = new MapView(Ti.uiProxy.createMapView());
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = {}
 		}
 		mv.proxy.processOptions(Ti.JSON.stringify(options));
@@ -1759,7 +1759,7 @@ Ti.UI = {
 	 */
 	createTableView : function(options, callback) {
 		 var tv = new TableView(Ti.uiProxy.createTableView());
-		 if (isUndefined(options)) {
+		 if (Ti.isUndefined(options)) {
 			 options = {};
 		 }
 		 tv.setCallback(callback);
@@ -1773,7 +1773,7 @@ Ti.UI = {
 	 */
 	createWebView : function(options) {
 		 var wv = new WebView(Ti.uiProxy.createWebView());
-		 if (isUndefined(options)) {
+		 if (Ti.isUndefined(options)) {
 			 options = {};
 		 }
 		 wv.proxy.processOptions(Ti.JSON.stringify(options));
@@ -1786,7 +1786,7 @@ Ti.UI = {
 	 */
 	createEmailDialog : function(options) {
 		var dlg = new EmailDialog(Ti.uiProxy.createEmailDialog());
-		if (!isUndefined(options)) {
+		if (!Ti.isUndefined(options)) {
 			var subject = options.subject;
 			var to = options.toRecipients;
 			var cc = options.ccRecipients;
@@ -1794,22 +1794,22 @@ Ti.UI = {
 			var msg = options.messageBody;
 			var attachment = options.attachment;
 
-			if (!isUndefined(subject)) {
+			if (!Ti.isUndefined(subject)) {
 				dlg.setSubject(subject);
 			}
-			if (!isUndefined(to)) {
+			if (!Ti.isUndefined(to)) {
 				dlg.setToRecipients(to);
 			}
-			if (!isUndefined(cc)) {
+			if (!Ti.isUndefined(cc)) {
 				dlg.setCcRecipients(cc);
 			}
-			if (!isUndefined(bcc)) {
+			if (!Ti.isUndefined(bcc)) {
 				dlg.setBccRecipients(bcc);
 			}
-			if (!isUndefined(msg)) {
+			if (!Ti.isUndefined(msg)) {
 				dlg.setMessageBody(msg);
 			}
-			if (!isUndefined(attachment)) {
+			if (!Ti.isUndefined(attachment)) {
 				dlg.addAttachment(attachment);
 			}
 		}
@@ -1963,7 +1963,7 @@ Ti.UI = {
 		var tabs = [];
 		var json = Ti.uiProxy.getTabs();
 
-		if (!isUndefined(json)) {
+		if (!Ti.isUndefined(json)) {
 			tabs = eval('(' + json + ')');
 		}
 
@@ -1981,7 +1981,7 @@ Ti.UI = {
 	getTabByName : function(name) {
 		var tab = {};
 
-		if (!isUndefined(name)) {
+		if (!Ti.isUndefined(name)) {
 			var json = Ti.uiProxy.getTabByName(name);
 			tab = eval('(' + json + ')');
 		}
@@ -1993,7 +1993,7 @@ Ti.UI = {
 	 * @tiarg[object, Tab] The tab to switch to
 	 */
 	setActiveTab : function(tabInfo) {
-		if (!isUndefined(tabInfo)) {
+		if (!Ti.isUndefined(tabInfo)) {
 			Ti.uiProxy.setActiveTab(Ti.JSON.stringify(tabInfo));
 		}
 	},
@@ -2018,7 +2018,7 @@ Ti.UI = {
 
 	//TODO Documentation
 	createDatePicker : function(options) {
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = {};
 		}
 		var o = {};
@@ -2035,7 +2035,7 @@ Ti.UI = {
 	},
 
 	createModalDatePicker : function(options) {
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = {};
 		}
 		var o = {};
@@ -2056,7 +2056,7 @@ Ti.UI = {
 	},
 
 	createPicker : function(options) {
-		if(isUndefined(options)) {
+		if(Ti.isUndefined(options)) {
 			options = {};
 		}
 
@@ -2066,7 +2066,7 @@ Ti.UI = {
 	},
 
 	createModalPicker : function(options) {
-		if(isUndefined(options)) {
+		if(Ti.isUndefined(options)) {
 			options = {};
 		}
 
@@ -2353,26 +2353,26 @@ Ti.UI.createNotification = function(options)
 	notifier = null;
 	if (proxy !== null) {
 		notifier = new TitaniumNotifier(proxy);
-		if (!isUndefined(options)) {
+		if (!Ti.isUndefined(options)) {
 			var title = options.title;
 			var message = options.message;
 			var color = options.color;
 			var delay = options.delay;
 			var transparency = options.transparency;
 
-			if (!isUndefined(title)) {
+			if (!Ti.isUndefined(title)) {
 				notifier.setTitle(title);
 			}
-			if (!isUndefined(message)) {
+			if (!Ti.isUndefined(message)) {
 				notifier.setMessage(message);
 			}
-			if (!isUndefined(color)) {
+			if (!Ti.isUndefined(color)) {
 				notifier.setColor(color);
 			}
-			if (!isUndefined(delay)) {
+			if (!Ti.isUndefined(delay)) {
 				notifier.setDelay(delay);
 			}
-			if (!isUndefined(transparency)) {
+			if (!Ti.isUndefined(transparency)) {
 				notifier.setTransparency(transparency);
 			}
 		}

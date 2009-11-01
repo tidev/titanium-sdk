@@ -7,53 +7,30 @@
 
 //this is a special androidized bridge conversion routine
 //to determine if the thing passed is really undefined
-function isUndefined(value)
-{
-	if (value === null || typeof(value)==='undefined')
-	{
-		return true;
-	}
-	return (typeof(value)=='object' && String(value).length === 0);
-}
-
-
-function typeOf(value) {
-    var s = typeof value;
-    if (s === 'object') {
-        if (value) {
-            if (value instanceof Array) {
-                s = 'array';
-            }
-        } else {
-            s = 'null';
-        }
-    }
-    return s;
-}
 
 function transformObjectValue(value,def)
 {
-	return isUndefined(value) ? def : value;
+	return Ti.isUndefined(value) ? def : value;
 }
 
 function transformObjectValueAsString(value,def)
 {
-	return isUndefined(value) ? def : String(value);
+	return Ti.isUndefined(value) ? def : String(value);
 }
 
 function transformObjectValueAsInt(value,def)
 {
-	return isUndefined(value) ? def : parseInt(value,10);
+	return Ti.isUndefined(value) ? def : parseInt(value,10);
 }
 
 function transformObjectValueAsBool(value,def)
 {
-	return isUndefined(value) ? def : !!value;
+	return Ti.isUndefined(value) ? def : !!value;
 }
 
 function transformObjectValueAsDouble(value,def)
 {
-	return isUndefined(value) ? def : parseFloat(value);
+	return Ti.isUndefined(value) ? def : parseFloat(value);
 }
 
 var Ti = new function() {
@@ -68,16 +45,38 @@ var Ti = new function() {
 	this.window = window;
 	this.document = document;
 
-	//TODO: hide these once we map them
 	this.apiProxy = window.TitaniumAPI;
+
+	this.isUndefined = function(value)
+	{
+		if (value === null || typeof(value)==='undefined')
+		{
+			return true;
+		}
+		return (typeof(value)=='object' && String(value).length === 0);
+	};
+
+	this.typeOf = function(value) {
+	    var s = typeof value;
+	    if (s === 'object') {
+	        if (value) {
+	            if (value instanceof Array) {
+	                s = 'array';
+	            }
+	        } else {
+	            s = 'null';
+	        }
+	    }
+	    return s;
+	};
 
 	this.rethrow = function(e) { throw e; };
 
 	this.checked = function(r) {
 		var v = null;
-		if (!isUndefined(r)) {
+		if (!this.isUndefined(r)) {
 			if (typeof(r.getException) !== 'undefined') {
-				if(!isUndefined(r.getException())) {
+				if(!this.isUndefined(r.getException())) {
 					this.apiProxy.log(6,"checking: " + r.getException());
 					var e = r.getException();
 					r.destroy();
@@ -125,7 +124,7 @@ var Ti = new function() {
 
 	this.getPosition = function(obj) {
         var pos = { top: 0, left: 0, width: 0, height: 0 };
-        if (!isUndefined(obj)) {
+        if (!this.isUndefined(obj)) {
 	        pos.width = obj.offsetWidth;
 	        pos.height = obj.offsetHeight;
 		    while(obj){
@@ -206,9 +205,9 @@ function TitaniumCallback(obj, method, oneShot) {
 	this.oneShot = oneShot;
 	this.invoke = function (data, syncId)
 	{
-		if(!isUndefined(this.method)) {
+		if(!Ti.isUndefined(this.method)) {
 			this.method.call(this.obj,data);
-			if (!isUndefined(syncId)) {
+			if (!Ti.isUndefined(syncId)) {
 				Ti.apiProxy.signal(syncId);
 			}
 			if (oneShot) {

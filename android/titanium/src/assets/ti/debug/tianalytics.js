@@ -11,11 +11,11 @@ Ti.Analytics =
 {
 	addEvent : function (type,event,data)
 	{
-		 if(!isUndefined(type) && type.indexOf("ti.") !== 0) {
-			 if(isUndefined(data)) {
+		 if(!Ti.isUndefined(type) && type.indexOf("ti.") !== 0) {
+			 if(Ti.isUndefined(data)) {
 				 data = {};
 			 }
-			 if (typeOf(data) == "string") {
+			 if (Ti.typeOf(data) == "string") {
 				 data = { value : data };
 			 }
 			return transformObjectValue(Ti.analyticsProxy.addEvent(type,event,Ti.JSON.stringify(data)));
@@ -32,15 +32,15 @@ Ti.Analytics =
 	 * @tiarg(for=Analytics.navEvent,type=Object,name=data,optional=True) data to send with the event
 	 */
 	navEvent : function(from, to, event, data) {
-		if (!isUndefined(from) && !isUndefined(to)) {
-			if (isUndefined(event)) {
+		if (!Ti.isUndefined(from) && !Ti.isUndefined(to)) {
+			if (Ti.isUndefined(event)) {
 				event = "";
 			}
 
 			var payload = {};
-			payload.from = isUndefined(from) ? {} : from;
-			payload.to = isUndefined(to) ? {} : to;
-			payload.data = isUndefined(data) ? {} : data;
+			payload.from = Ti.isUndefined(from) ? {} : from;
+			payload.to = Ti.isUndefined(to) ? {} : to;
+			payload.data = Ti.isUndefined(data) ? {} : data;
 
 			this.addEvent("app.nav", event, payload);
 		} else {
@@ -56,18 +56,18 @@ Ti.Analytics =
 	 * @tiarg(for=Analytics.timedEvent,type=Object,name=data,optional=True) data to send with the event
 	 */
 	timedEvent : function(event, start, stop, duration, data) {
-		if (!isUndefined(event)) {
+		if (!Ti.isUndefined(event)) {
 			var payload = {};
-			if (!isUndefined(start)) {
+			if (!Ti.isUndefined(start)) {
 				payload.start = Ti.DateFormatter.formatUTC(start);
 			}
-			if (!isUndefined(stop)) {
+			if (!Ti.isUndefined(stop)) {
 				payload.stop = Ti.DateFormatter.formatUTC(stop);
 			}
-			if (!isUndefined(duration)) {
+			if (!Ti.isUndefined(duration)) {
 				payload.duration = duration;
 			}
-			payload.data = isUndefined(data) ? {} : data;
+			payload.data = Ti.isUndefined(data) ? {} : data;
 			this.addEvent("app.timed_event", event, payload);
 		} else {
 			Ti.API.error("timedEvent requires an event name");
@@ -79,9 +79,9 @@ Ti.Analytics =
 	 * @tiarg(for=Analytics.featureEvent,type=Object,name=data,optional=True) data to send with the event
 	 */
 	featureEvent : function(event, data) {
-		if (!isUndefined(event)) {
+		if (!Ti.isUndefined(event)) {
 			var payload = {};
-			payload.data = isUndefined(data) ? {} : data;
+			payload.data = Ti.isUndefined(data) ? {} : data;
 			this.addEvent("app.feature", event, payload);
 		} else {
 			Ti.API.error("featureEvent requires an event name");
@@ -93,9 +93,9 @@ Ti.Analytics =
 	 * @tiarg(for=Analytics.settingsEvent,type=Object,name=data,optional=True) data to send with the event
 	 */
 	settingsEvent : function(event, data) {
-		if (!isUndefined(event)) {
+		if (!Ti.isUndefined(event)) {
 			var payload = {};
-			payload.data = isUndefined(data) ? {} : data;
+			payload.data = Ti.isUndefined(data) ? {} : data;
 			this.addEvent("app.settings", event, payload);
 		} else {
 			Ti.API.error("settingsEvent requires an event name");
@@ -107,9 +107,9 @@ Ti.Analytics =
 	 * @tiarg(for=Analytics.userEvent,type=Object,name=data,optional=True) data to send with the event
 	 */
 	userEvent : function(event, data) {
-		if (!isUndefined(event)) {
+		if (!Ti.isUndefined(event)) {
 			var payload = {};
-			payload.data = isUndefined(data) ? {} : data;
+			payload.data = Ti.isUndefined(data) ? {} : data;
 			this.addEvent("app.user", event, payload);
 		} else {
 			Ti.API.error("userEvent requires an event name");
