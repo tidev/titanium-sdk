@@ -18,7 +18,7 @@ Ti.Analytics =
 			 if (Ti.typeOf(data) == "string") {
 				 data = { value : data };
 			 }
-			return transformObjectValue(Ti.analyticsProxy.addEvent(type,event,Ti.JSON.stringify(data)));
+			 return Ti.Method.dispatch("TitaniumAnalytics","addEvent", type, event, Ti.JSON.stringify(data));
 		 } else {
 			 Ti.API.warn("events classes starting with ti. are reserved for use by Appcelerator");
 		 }

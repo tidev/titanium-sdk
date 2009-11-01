@@ -23,10 +23,10 @@ public class TitaniumAnalytics extends TitaniumBaseModule implements ITitaniumAn
 
 	private TitaniumApplication app;
 
-	public TitaniumAnalytics(TitaniumModuleManager moduleMgr, String name) {
-		super(moduleMgr, name);
+	public TitaniumAnalytics(TitaniumModuleManager tmm, String name) {
+		super(tmm, name);
 
-		this.app = (TitaniumApplication) moduleMgr.getActivity().getApplication();
+		this.app = (TitaniumApplication) tmm.getActivity().getApplication();
 	}
 
 	@Override
@@ -35,7 +35,8 @@ public class TitaniumAnalytics extends TitaniumBaseModule implements ITitaniumAn
 		if (DBG) {
 			Log.d(LCAT, "Registering TitaniumAnalytics as " + name);
 		}
-		webView.addJavascriptInterface((ITitaniumAnalytics) this, name);
+		//webView.addJavascriptInterface((ITitaniumAnalytics) this, name);
+		tmm.registerModule(name, this);
 	}
 
 	public void addEvent (String type, String event, String data)

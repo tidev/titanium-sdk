@@ -70,6 +70,61 @@ var Ti = new function() {
 	    return s;
 	};
 
+	this.Method = {
+		caller : this.apiProxy.acquireMethod(),
+		dispatchWithTypes : function(module, method, types, args) {
+			// force to JS String, boosts performance.
+			var r = eval("("+String(this.caller.call(Ti.JSON.stringify({ module : module, method : method, types : types, args : args})))+")");
+			if (r.exception !== undefined) {
+				throw r.exception;
+			}
+			switch(r.resultType) {
+			case 'null' : return null;
+			case 'string' : return r.result;
+			case 'integer' : return parseInt(r.result,10);
+			case 'boolean' : return !!r.result;
+			case 'double' : return parseFloat(r.result);
+			default : return r.result;
+			}
+
+		},
+		dispatch : function(module, method) {
+			var args = [];
+			var types = [];
+
+			for(var i = 2; i < arguments.length; i++) {
+				var a = arguments[i];
+				if (a === undefined) {
+					a = null;
+				}
+				args.push(a);
+				if (a === null) {
+					types.push("null");
+				} else if (typeof a == 'string') {
+					types.push("string");
+				} else if (typeof a == 'number') {
+					if (String(a).indexOf(".") === -1) {
+						types.push("integer");
+					} else {
+						types.push("double");
+					}
+				} else if (typeof a == "object") {
+					types.push("object");
+				} else {
+					throw "Unknown argument type " + typeof a;
+				}
+			}
+			return this.dispatchWithTypes(module, method, types, args);
+		},
+		dispatchWithArguments : function(module, method, args) {
+			var argList = [module,method];
+			for(var i = 0; i < args.length; i++) {
+				argList.push(args[i]);
+			}
+			return Ti.Method.dispatch.apply(this, argList);
+		}
+	};
+
 	this.rethrow = function(e) { throw e; };
 
 	this.checked = function(r) {
@@ -219,11 +274,13 @@ function TitaniumCallback(obj, method, oneShot) {
 	};
 	this.register = function() {
 		Ti.callbacks[this.name] = this;
-		return 'Ti.callbacks["' + this.name + '"]'; // Don't pass javascript: native layer will prepend as needed
+		return 'Titanium.callbacks["' + this.name + '"]'; // Don't pass javascript: native layer will prepend as needed
 	};
 }
 
 function registerCallback(o, f) {
+	Ti.apiProxy.log(6, "TYPEOF: " + Ti.typeOf(f));
+	Ti.apiProxy.log(6, "TYPEOF: " + typeof f);
 	return Ti.addCallback(o, f, false);
 }
 
