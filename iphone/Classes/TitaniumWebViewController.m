@@ -238,6 +238,7 @@
 	if (newWebView == nil) { //Possibly deallocation.
 		if (0) { //This should be a javascript check.
 			[webView removeFromSuperview];
+			[webView setDelegate:nil];
 			[webView release];
 			webView = nil;
 			[[NSNotificationCenter defaultCenter] removeObserver:self name:TitaniumTabChangeNotification object:nil];
