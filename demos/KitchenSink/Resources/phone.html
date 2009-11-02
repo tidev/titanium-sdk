@@ -23,11 +23,12 @@
 		{title:'Email Client',hasChild:true},
 		{title:'Save to Gallery'}
 	];
-
+	Titanium.UI.currentWindow.setTitle('Phone API');
+	
 	// tableview object
 	var tableView = Titanium.UI.createTableView({
 		data:data,
-		title:'Phone API',
+		
 	}, function(eventObject)
 	{
 		Titanium.API.info('HERE I AM ' + eventObject.index)
