@@ -413,6 +413,11 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 	[self setConnected:YES];
 	[self setUrlResponse:response];
 	
+	if ([response respondsToSelector:@selector(statusCode)])
+	{
+		 currentStatus = [((NSHTTPURLResponse *)response) statusCode];
+	}
+	
 	if ([response textEncodingName]!=nil)
 	{
 		CFStringEncoding grabbedEncoding = CFStringConvertIANACharSetNameToEncoding((CFStringRef)[response textEncodingName]);
