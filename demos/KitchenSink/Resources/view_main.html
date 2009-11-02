@@ -18,7 +18,8 @@
 
 		{title:'Custom Events', hasChild:true},
 		{title:'HTML Table View', hasChild:true},
-		{title:'Maps View (iPhone)', hasChild:true}
+		{title:'Maps View (iPhone)', hasChild:true},
+		{title:'CoverFlow View (iPhone)', hasChild:true}
 		
 	];
 	
@@ -90,6 +91,12 @@
 			case 7:
 			{
 				var win = Titanium.UI.createWindow({url:'maps.html',title:'Maps View'});
+				win.open({animated:true});
+				break;
+			}
+			case 8:
+			{
+				var win = Titanium.UI.createWindow({url:'coverflow.html',title:'Cover Flow',barColor:'#000'});
 				win.open({animated:true});
 				break;
 			}

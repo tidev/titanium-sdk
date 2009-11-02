@@ -22,6 +22,18 @@
 		247DCBE5107C83AF009CD0D1 /* YahooModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 247DCBD1107C8366009CD0D1 /* YahooModule.m */; };
 		247DCBE8107C83D2009CD0D1 /* TitaniumBasicModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD204B106C9198004D4127 /* TitaniumBasicModule.h */; };
 		24B4B9A310622B9D00C859D4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
+		24B51D78109EDC2B00B87D18 /* TitaniumCoverFlowViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24B51D77109EDC2B00B87D18 /* TitaniumCoverFlowViewController.m */; };
+		24B51DBE109EE59000B87D18 /* TitaniumCoverFlowViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24B51D77109EDC2B00B87D18 /* TitaniumCoverFlowViewController.m */; };
+		24B51E48109EEDB400B87D18 /* AFItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24B51E42109EEDB400B87D18 /* AFItemView.m */; };
+		24B51E49109EEDB400B87D18 /* AFOpenFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24B51E45109EEDB400B87D18 /* AFOpenFlowView.m */; };
+		24B51E4A109EEDB400B87D18 /* AFUIImageReflection.m in Sources */ = {isa = PBXBuildFile; fileRef = 24B51E47109EEDB400B87D18 /* AFUIImageReflection.m */; };
+		24B51E4B109EEDB400B87D18 /* AFItemView.h in Headers */ = {isa = PBXBuildFile; fileRef = 24B51E41109EEDB400B87D18 /* AFItemView.h */; };
+		24B51E4C109EEDB400B87D18 /* AFItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24B51E42109EEDB400B87D18 /* AFItemView.m */; };
+		24B51E4D109EEDB400B87D18 /* AFOpenFlowConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 24B51E43109EEDB400B87D18 /* AFOpenFlowConstants.h */; };
+		24B51E4E109EEDB400B87D18 /* AFOpenFlowView.h in Headers */ = {isa = PBXBuildFile; fileRef = 24B51E44109EEDB400B87D18 /* AFOpenFlowView.h */; };
+		24B51E4F109EEDB400B87D18 /* AFOpenFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24B51E45109EEDB400B87D18 /* AFOpenFlowView.m */; };
+		24B51E50109EEDB400B87D18 /* AFUIImageReflection.h in Headers */ = {isa = PBXBuildFile; fileRef = 24B51E46109EEDB400B87D18 /* AFUIImageReflection.h */; };
+		24B51E51109EEDB400B87D18 /* AFUIImageReflection.m in Sources */ = {isa = PBXBuildFile; fileRef = 24B51E47109EEDB400B87D18 /* AFUIImageReflection.m */; };
 		24BA96041096633D009ADEDD /* FBConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA95F71096633D009ADEDD /* FBConnect.h */; };
 		24BA96051096633D009ADEDD /* FBConnectGlobal.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA95F81096633D009ADEDD /* FBConnectGlobal.h */; };
 		24BA96061096633D009ADEDD /* FBDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA95F91096633D009ADEDD /* FBDialog.h */; };
@@ -398,6 +410,15 @@
 		247DCBD1107C8366009CD0D1 /* YahooModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YahooModule.m; path = YahooModule/YahooModule.m; sourceTree = "<group>"; };
 		247DCBE1107C837F009CD0D1 /* libYahoo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libYahoo.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		249075290FC9D55B00D38073 /* TitaniumModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumModule.h; sourceTree = "<group>"; };
+		24B51D76109EDC2B00B87D18 /* TitaniumCoverFlowViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumCoverFlowViewController.h; sourceTree = "<group>"; };
+		24B51D77109EDC2B00B87D18 /* TitaniumCoverFlowViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumCoverFlowViewController.m; sourceTree = "<group>"; };
+		24B51E41109EEDB400B87D18 /* AFItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFItemView.h; sourceTree = "<group>"; };
+		24B51E42109EEDB400B87D18 /* AFItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFItemView.m; sourceTree = "<group>"; };
+		24B51E43109EEDB400B87D18 /* AFOpenFlowConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFOpenFlowConstants.h; sourceTree = "<group>"; };
+		24B51E44109EEDB400B87D18 /* AFOpenFlowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFOpenFlowView.h; sourceTree = "<group>"; };
+		24B51E45109EEDB400B87D18 /* AFOpenFlowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFOpenFlowView.m; sourceTree = "<group>"; };
+		24B51E46109EEDB400B87D18 /* AFUIImageReflection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFUIImageReflection.h; sourceTree = "<group>"; };
+		24B51E47109EEDB400B87D18 /* AFUIImageReflection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFUIImageReflection.m; sourceTree = "<group>"; };
 		24BA95F71096633D009ADEDD /* FBConnect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBConnect.h; path = FacebookModule/FBConnect.h; sourceTree = "<group>"; };
 		24BA95F81096633D009ADEDD /* FBConnectGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBConnectGlobal.h; path = FacebookModule/FBConnectGlobal.h; sourceTree = "<group>"; };
 		24BA95F91096633D009ADEDD /* FBDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBDialog.h; path = FacebookModule/FBDialog.h; sourceTree = "<group>"; };
@@ -938,6 +959,20 @@
 			name = YahooModule;
 			sourceTree = "<group>";
 		};
+		24B51E40109EED9200B87D18 /* CoverFlow */ = {
+			isa = PBXGroup;
+			children = (
+				24B51E41109EEDB400B87D18 /* AFItemView.h */,
+				24B51E42109EEDB400B87D18 /* AFItemView.m */,
+				24B51E43109EEDB400B87D18 /* AFOpenFlowConstants.h */,
+				24B51E44109EEDB400B87D18 /* AFOpenFlowView.h */,
+				24B51E45109EEDB400B87D18 /* AFOpenFlowView.m */,
+				24B51E46109EEDB400B87D18 /* AFUIImageReflection.h */,
+				24B51E47109EEDB400B87D18 /* AFUIImageReflection.m */,
+			);
+			name = CoverFlow;
+			sourceTree = "<group>";
+		};
 		24BA96D61097E14A009ADEDD /* MapModule */ = {
 			isa = PBXGroup;
 			children = (
@@ -1098,6 +1133,7 @@
 		B4C6D7560FE9B34D00D62384 /* TitaniumViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				24B51E40109EED9200B87D18 /* CoverFlow */,
 				B4C6D7020FE99F4E00D62384 /* TitaniumWebViewController.h */,
 				B4C6D7030FE99F4E00D62384 /* TitaniumWebViewController.m */,
 				B4C6D7310FE9AB0600D62384 /* TitaniumTableViewController.h */,
@@ -1112,6 +1148,8 @@
 				B40CDF16105F248F004CFED3 /* TitaniumCompositeViewController.m */,
 				B49358DA106AE51C00BC4A77 /* TitaniumImageViewController.h */,
 				B49358DB106AE51C00BC4A77 /* TitaniumImageViewController.m */,
+				24B51D76109EDC2B00B87D18 /* TitaniumCoverFlowViewController.h */,
+				24B51D77109EDC2B00B87D18 /* TitaniumCoverFlowViewController.m */,
 			);
 			name = TitaniumViewControllers;
 			sourceTree = "<group>";
@@ -1376,6 +1414,10 @@
 				B49358DE106AE51C00BC4A77 /* TitaniumImageViewController.h in Headers */,
 				24FD2059106C9198004D4127 /* TitaniumBasicModule.h in Headers */,
 				B43543661076995400A38EC9 /* TitaniumJSEvent.h in Headers */,
+				24B51E4B109EEDB400B87D18 /* AFItemView.h in Headers */,
+				24B51E4D109EEDB400B87D18 /* AFOpenFlowConstants.h in Headers */,
+				24B51E4E109EEDB400B87D18 /* AFOpenFlowView.h in Headers */,
+				24B51E50109EEDB400B87D18 /* AFUIImageReflection.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1893,6 +1935,10 @@
 				B4BAC94310982994005925EA /* PlatformModule.m in Sources */,
 				B4BAC94410982996005925EA /* FBLoginButton.m in Sources */,
 				B4BAC94510982997005925EA /* AnalyticsModule.m in Sources */,
+				24B51D78109EDC2B00B87D18 /* TitaniumCoverFlowViewController.m in Sources */,
+				24B51E48109EEDB400B87D18 /* AFItemView.m in Sources */,
+				24B51E49109EEDB400B87D18 /* AFOpenFlowView.m in Sources */,
+				24B51E4A109EEDB400B87D18 /* AFUIImageReflection.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2084,6 +2130,10 @@
 				B49358DF106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */,
 				24FD205A106C9198004D4127 /* TitaniumBasicModule.m in Sources */,
 				B43543671076995400A38EC9 /* TitaniumJSEvent.m in Sources */,
+				24B51DBE109EE59000B87D18 /* TitaniumCoverFlowViewController.m in Sources */,
+				24B51E4C109EEDB400B87D18 /* AFItemView.m in Sources */,
+				24B51E4F109EEDB400B87D18 /* AFOpenFlowView.m in Sources */,
+				24B51E51109EEDB400B87D18 /* AFUIImageReflection.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
