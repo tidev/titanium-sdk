@@ -106,6 +106,12 @@
 		if (resultHelper==nil) resultHelper = [[TitaniumActionSheetHelper alloc] init];
 		[resultHelper addButton:browseInvoc title:title];
 	}
+	else if ([[UIApplication sharedApplication] canOpenURL:requestURL])
+	{
+		// just delegate it to our app if we can open it
+		[[UIApplication sharedApplication] openURL:requestURL];
+		return YES;
+	}
 	
 	if (resultHelper != nil){
 		if (isShowingDialog) {
