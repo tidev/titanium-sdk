@@ -209,15 +209,15 @@
 	if (appPath == nil) appPath = [[NSBundle mainBundle] resourcePath];
 	self.currentHost = [[[TitaniumHost alloc] init] autorelease];
 
-	[currentHost setAppResourcesPath:appPath];	
-	[currentHost startModules];
-	//Currenthost will do the reading and setting of the views.
 	[window insertSubview:loadingView atIndex:1];
 	[window makeKeyAndVisible];
+
+	[currentHost setAppResourcesPath:appPath];	
+	[currentHost startModules];
 	[pool release];
 }
 
-- (NSArray*)launchOptions
+- (NSDictionary*)launchOptions
 {
 	return launchOptions;
 }

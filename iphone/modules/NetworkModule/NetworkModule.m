@@ -24,7 +24,7 @@
 
 #import "Logging.h"
 
-#define MOBILE_REG_URI @"http://api.appcelerator.net/p/v1/mobile-notif-register?uuid=%@&mid=%@&type=iphone"
+#define MOBILE_REG_URI @"http://api.appcelerator.net/p/v1/mobile-notif-register?%@"
 
 typedef enum {
 	clientStateUnsent = 0,
@@ -67,6 +67,15 @@ const char MultiPartBlobGlue[] = "\"\r\nContent-Type: %@\r\n\r\n";
 const char MultiPartEntryEpilogue[] = "\r\n";
 const char MultiPartFormEpilogue[] = "--XxX~Titanium~HTTPClient~Boundary~XxX--\r\n";
 
+NSString *encodeURIParameters(NSString *unencodedString)
+{
+	return (NSString *)CFURLCreateStringByAddingPercentEscapes(
+	    NULL,
+	    (CFStringRef)unencodedString,
+	    NULL,
+	    (CFStringRef)@"!*'();:@&=+$,/?%#[]",
+	    kCFStringEncodingUTF8 );
+}
 void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 {
 	for(NSString * keyString in keyValueDict){
@@ -700,7 +709,10 @@ typedef enum {
 		NSLog(@"[DEBUG] registered new device ready for remote push notifications: %@",remoteDeviceUUID);
 		UIDevice *theDevice = [UIDevice currentDevice];	
 		NSString *mid = [theDevice uniqueIdentifier];
-		NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:MOBILE_REG_URI,remoteDeviceUUID,mid]];
+		NSDictionary * appPropertiesDict = [[TitaniumHost sharedHost] appProperties];
+		NSString * aguid = [appPropertiesDict objectForKey:@"guid"];
+		NSString *qs = [NSString stringWithFormat:@"uuid=%@&mid=%@&aguid=%@&type=iphone",encodeURIParameters(remoteDeviceUUID),encodeURIParameters(mid),encodeURIParameters(aguid)];
+		NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:MOBILE_REG_URI,qs]];
 		[NSThread detachNewThreadSelector:@selector(sendNewDeviceUUID:) toTarget:self withObject:url];
 	}
 	
