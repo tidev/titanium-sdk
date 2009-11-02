@@ -7,6 +7,7 @@
 	<div id="button2" style="height:47px"></div>
 	<div id="button3" style="height:47px"></div>
 	<div id="button4" style="height:47px"></div>
+	<div id="button5" style="height:47px"></div>
 	
 	<div id="html"></div>
 
@@ -112,7 +113,22 @@
 
 		// send the data
 		c.send();
-	})
+	});
+	
+	var button5 = Titanium.UI.createButton({
+		id:'button5',
+		backgroundImage:'blue.png',
+		backgroundSelectedImage:'blue_pressed.png',
+		backgroundFocusedImage:'blue_focused.png',
+		title:'jQuery Test',
+		color:'#ffffff',
+		height:47,
+	});
+	button5.addEventListener('click',function(e)
+	{
+		var w = Titanium.UI.createWindow({url:'jquery.html'});
+		w.open();
+	});
 	</script>
 
 </body>
