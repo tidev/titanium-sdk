@@ -99,6 +99,8 @@
  * @tiarg(for=App.appURLToPath,type=string,name=url) the url, relative or absolute, to translate.
  * @tiresult(for=App.appURLToPath,type=string) returns the path
  *
+ * @tiapi(method=True,name=App.getArguments,since=0.8) get a dictionary of application launch arguments or null if none
+ * @tiresult(for=App.getArguments,type=object) returns an object or null if none passed
  */
 
 

@@ -26,5 +26,16 @@
 	<true/>
 	<key>NSMainNibFile</key>
 	<string>MainWindow</string>
+	<key>CFBundleURLTypes</key>
+        <array>
+                <dict>
+                        <key>CFBundleURLSchemes</key>
+                        <array>
+                                <string>kitchensink</string>
+                        </array>
+                        <key>CFBundleURLName</key>
+                        <string>com.appcelerator.kitchensink</string>
+                </dict>
+        </array>
 </dict>
 </plist>

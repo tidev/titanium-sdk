@@ -417,7 +417,7 @@ TitaniumHost * lastSharedHost = nil;
 	TitaniumModule * result = [nativeModules objectForKey:moduleClassName];
 	if(result!=nil)return result;
 	NSString * secondModuleClassName = [NSString stringWithFormat:@"%@%@Module",
-									  [[moduleClassName substringToIndex:1] uppercaseString],[moduleClassName substringFromIndex:1]];
+									  [[moduleClassName substringToIndex:1] uppercaseString],[[moduleClassName substringFromIndex:1] lowercaseString]];
 
 	result = [nativeModules objectForKey:secondModuleClassName];
 	return result;
@@ -468,10 +468,10 @@ TitaniumHost * lastSharedHost = nil;
 - (void)loadModuleNamed:(NSString*)thisModuleName
 {
 	NSString * thisModuleClassName = [NSString stringWithFormat:@"%@%@Module",
-									  [[thisModuleName substringToIndex:1] uppercaseString],[thisModuleName substringFromIndex:1]];
-	
+									  [[thisModuleName substringToIndex:1] uppercaseString],[[thisModuleName substringFromIndex:1] lowercaseString]];
+
 	NSLog(@"[DEBUG] loading module %@, class name = %@",thisModuleName,thisModuleClassName);
-	
+
 	@try
 	{
 		TitaniumModule *module = [self registerModuleNamed:thisModuleClassName];
@@ -1290,7 +1290,7 @@ TitaniumHost * lastSharedHost = nil;
 	}
 
 	if(error != nil){
-		result = [NSString stringWithFormat:@"throw %@;",[parser stringWithFragment:[error localizedDescription] error:nil]];
+		result = [NSString stringWithFormat:@"throw %@;",[parser stringWithFragment:[error description] error:nil]];
 	}
 
 	[parser release];

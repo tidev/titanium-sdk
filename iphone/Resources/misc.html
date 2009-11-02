@@ -193,13 +193,19 @@ contactTest = function(){
 }
 
 contactTest2 = function(){
-	Ti.Contacts.showContactPicker({
-		success:function(ev){Ti.API.debug(ev);},
-		cancel:function(){Ti.API.debug('Cancelled!');},
-		details:['email','address']
-		});
-
-	return;
+	Ti.Network.registerForPushNotifications(
+		{success:function(val){
+			var str=val.toString();
+			var output = 'Success! ';
+			var len=str.length;
+			for(i=0;i<len;i++){
+				output += str.charCodeAt(i).toString(16);
+			}
+			Ti.API.debug(output);},
+		error:function(val){Ti.API.error('Error!'+val);},
+		callback:function(val){Ti.API.debug(val);},
+		types:['badge','sound','alert']});
+	Ti.API.debug('Registered!');
 }
 
 

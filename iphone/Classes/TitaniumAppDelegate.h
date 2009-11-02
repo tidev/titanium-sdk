@@ -28,9 +28,10 @@ static BOOL L0AccelerationIsShaking(UIAcceleration* last, UIAcceleration* curren
 {
     IBOutlet UIWindow *window;
     IBOutlet UIViewController *viewController;
-	IBOutlet UIView *loadingView;
-	UIView *notificationView;
-	NSMutableArray *notifications;
+	 IBOutlet UIView *loadingView;
+	 UIView *notificationView;
+	 NSMutableArray *notifications;
+	 NSMutableDictionary *launchOptions;
 
 #ifdef MODULE_TI_GESTURE
 	BOOL histeresisExcited;
@@ -43,6 +44,7 @@ static BOOL L0AccelerationIsShaking(UIAcceleration* last, UIAcceleration* curren
 	TitaniumHost * currentHost;
 
 	id	remoteNotificationSubdelegate;
+	NSMutableArray * notificationQueue;
 }
 
 + (TitaniumAppDelegate *) sharedDelegate;
@@ -52,6 +54,8 @@ static BOOL L0AccelerationIsShaking(UIAcceleration* last, UIAcceleration* curren
 
 - (void)showLoadingView;
 - (void)hideLoadingView;
+
+- (NSDictionary*)launchOptions;
 
 - (void) accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration;
 

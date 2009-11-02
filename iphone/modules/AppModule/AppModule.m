@@ -75,6 +75,11 @@
 	return [[defaultsObject dictionaryRepresentation] allKeys];
 }
 
+- (NSDictionary*) launchOptions;
+{
+	return [[TitaniumAppDelegate sharedDelegate] launchOptions];
+}
+
 - (BOOL) startModule;
 {
 	defaultsObject = [[NSUserDefaults standardUserDefaults] retain];
@@ -84,6 +89,9 @@
 	TitaniumInvocationGenerator * invocGen = [TitaniumInvocationGenerator generatorWithTarget:self];
 	[(AppModule *)invocGen appURLToPath: nil];
 	NSInvocation * appUrlInvoc = [invocGen invocation];
+	
+	[(AppModule *)invocGen launchOptions];
+	NSInvocation * launchOptionsInvoc = [invocGen invocation];
 	
 	[(AppModule *)invocGen getBool:nil defaultValue:nil];
 	NSInvocation * boolInvoc = [invocGen invocation];
@@ -137,6 +145,7 @@
 			[TitaniumJSCode functionReturning:[appPropertiesDict objectForKey:@"url"]],@"getURL",
 			[TitaniumJSCode functionReturning:[appPropertiesDict objectForKey:@"guid"]],@"getGUID",
 			appUrlInvoc,@"appURLToPath",
+			launchOptionsInvoc,@"getArguments",
 			nil];
 	[[[TitaniumHost sharedHost] titaniumObject] setObject:appDict forKey:@"App"];
 	return YES;

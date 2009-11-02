@@ -73,7 +73,7 @@
 
 - (BOOL)touchesShouldCancelInContentView:(UIView *)view;
 {
-	NSLog(@"Scrollview touchesShouldCancelInContentView: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+	NSLog(@"[DEBUG] Scrollview touchesShouldCancelInContentView: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
 
 	UIView * superview = [view superview];
 	if([superview isKindOfClass:[UIPickerView class]]){

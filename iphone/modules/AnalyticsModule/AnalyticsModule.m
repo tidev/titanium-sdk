@@ -140,6 +140,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	UIDevice *theDevice = [UIDevice currentDevice];	
 	NSString *mid = [theDevice uniqueIdentifier];
 	NSString *eventId = [(PlatformModule *)[[TitaniumHost sharedHost] moduleNamed:@"PlatformModule"] createUUID];
+	NSString *remoteDeviceUUID = [(NetworkModule*)[[TitaniumHost sharedHost] moduleNamed:@"NetworkModule"] remoteDeviceUUID];
 	
 	NSString *json = [encoder stringWithObject:[NSDictionary dictionaryWithObjectsAndKeys: 
 		VAL_OR_NSNULL(eventId), @"id",
@@ -152,6 +153,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 		VAL_OR_NSNULL(evtname),@"event",
 		VAL_OR_NSNULL(evttype),@"type",
 		VAL_OR_NSNULL(data),@"data",
+		VAL_OR_NSNULL(remoteDeviceUUID),@"rdu",
 		nil] error:nil];
 		
 	[encoder release];

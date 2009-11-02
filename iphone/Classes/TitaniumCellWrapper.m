@@ -11,7 +11,7 @@
 #import "UiModule.h"
 
 @implementation TitaniumCellWrapper
-@synthesize title,html,imageURL,imageWrapper,accessoryType,inputProxy,isButton, value, name, fontDesc;
+@synthesize title,html,imageURL,imageWrapper,accessoryType,inputProxy,isButton, value, name, fontDesc, rowHeight;
 
 - (id) init
 {
@@ -94,11 +94,12 @@
 		nameString = [packer stringWithFragment:name error:nil];
 	} else { nameString = @"null"; }
 	
-	NSString * result = [NSString stringWithFormat:@"{%@,title:%@,html:%@,image:%@,input:%@,value:%@,name:%@}",
-						 accessoryString,titleString,htmlString,imageURLString,inputProxyString,valueString,nameString];
+	NSString * result = [NSString stringWithFormat:@"{%@,title:%@,html:%@,image:%@,input:%@,value:%@,name:%@,rowHeight:%f}",
+						 accessoryString,titleString,htmlString,imageURLString,inputProxyString,valueString,nameString,rowHeight];
 	[packer release];
 	return result;
 }
+
 
 - (void) useProperties: (NSDictionary *) propDict withUrl: (NSURL *) baseUrl;
 {

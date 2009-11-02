@@ -23,7 +23,6 @@
 		{title:'Open URL (http)'},
 		{title:'Open URL (tel)'},
 		{title:'Open URL (sms)'}
-		
 	];
 	
 	// tableview object
@@ -99,11 +98,10 @@
 			}
 			case 8:
 			{
-				var win = Titanium.UI.createWindow({url:'http://wwww.appcelerator.com',backgroundColor:'#fff',title:'Appcelerator'});
+				var win = Titanium.UI.createWindow({url:'http://www.appcelerator.com',backgroundColor:'#fff',title:'Appcelerator'});
 				win.open({animated:true});
 				break;
 			}
-
 			case 9:
 			{
 				Titanium.Platform.openURL('http://maps.google.com/?q=Cupertino');
@@ -119,7 +117,6 @@
 				Titanium.Platform.openURL('sms:4043334444/foo');
 				break;
 			}
-		
 		}
 	
 	});

@@ -14,11 +14,14 @@
 	IBOutlet UIWebView * webView;
 	NSURL * currentContentURL;	//Used as a base url.
 	NSMutableDictionary * magicTokenDict;
+	UIActivityIndicatorView * spinner;
+	UIView *parentView;
 	
 	TitaniumViewControllerOrientationsAllowed lastOrientation;
 
 	NSMutableSet * nativeOnscreenProxies;
 	BOOL isNonTitaniumPage;
+	BOOL loading;
 }
 
 //For WebView

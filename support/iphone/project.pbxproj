@@ -17,6 +17,7 @@
                 2493799C10798AD0003847F0 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2493799B10798AD0003847F0 /* MapKit.framework */; };
                 249379A010798AF8003847F0 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2493799F10798AF8003847F0 /* AddressBook.framework */; };
                 249379A210798AF8003847F0 /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 249379A110798AF8003847F0 /* AddressBookUI.framework */; };
+                24B51C78109EC1D300B87D18 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24B51C77109EC1D300B87D18 /* CFNetwork.framework */; };
 		24B7119F0FC7758C004726E8 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2432E3980FC77343004A7260 /* libsqlite3.dylib */; };
 		25444A39102CE6BF0089FBDD /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25444A38102CE6BF0089FBDD /* MessageUI.framework */; };
 		259A152D0FDB01B5000372D8 /* Resources/Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = 259A152C0FDB01B5000372D8 /* Resources/Entitlements.plist */; };
@@ -45,6 +46,7 @@
                 2493799B10798AD0003847F0 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk/System/Library/Frameworks/MapKit.framework; sourceTree = DEVELOPER_DIR; };
                 2493799F10798AF8003847F0 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk/System/Library/Frameworks/AddressBook.framework; sourceTree = DEVELOPER_DIR; };
                 249379A110798AF8003847F0 /* AddressBookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBookUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS3.0.sdk/System/Library/Frameworks/AddressBookUI.framework; sourceTree = DEVELOPER_DIR; };
+                24B51C77109EC1D300B87D18 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		25444A38102CE6BF0089FBDD /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		259A152C0FDB01B5000372D8 /* Resources/Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Resources/Entitlements.plist; sourceTree = "<group>"; };
 		25C89E2D0FD0671D000A63BB /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
@@ -85,6 +87,7 @@
                                 2493799C10798AD0003847F0 /* MapKit.framework in Frameworks */,
                                 249379A010798AF8003847F0 /* AddressBook.framework in Frameworks */,
                                 249379A210798AF8003847F0 /* AddressBookUI.framework in Frameworks */,
+				24B51C78109EC1D300B87D18 /* CFNetwork.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -162,6 +165,7 @@
                                 2493799B10798AD0003847F0 /* MapKit.framework */,
                                 2493799F10798AF8003847F0 /* AddressBook.framework */,
                                 249379A110798AF8003847F0 /* AddressBookUI.framework */,
+				24B51C77109EC1D300B87D18 /* CFNetwork.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

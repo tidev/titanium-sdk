@@ -106,6 +106,12 @@
 		if (resultHelper==nil) resultHelper = [[TitaniumActionSheetHelper alloc] init];
 		[resultHelper addButton:browseInvoc title:title];
 	}
+	else if ([[UIApplication sharedApplication] canOpenURL:requestURL])
+	{
+		// just delegate it to our app if we can open it
+		[[UIApplication sharedApplication] openURL:requestURL];
+		return YES;
+	}
 	
 	if (resultHelper != nil){
 		if (isShowingDialog) {
@@ -120,6 +126,43 @@
 	
 	return NO;
 }
+
+// this is called when the app is launched with parameters from openURL from another app
+
+#ifdef __IPHONE_3_0
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions_
+{
+	launchOptions = [[NSMutableDictionary alloc] initWithDictionary:launchOptions_];
+	
+	NSURL *urlOptions = [launchOptions objectForKey:UIApplicationLaunchOptionsURLKey];
+	NSString *sourceBundleId = [launchOptions objectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
+	NSDictionary *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+	
+	// reset these to be a little more common if we have them
+	if (urlOptions!=nil)
+	{
+		[launchOptions setObject:[urlOptions absoluteString] forKey:@"url"];
+		[launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
+	}
+	if (sourceBundleId!=nil)
+	{
+		[launchOptions setObject:sourceBundleId forKey:@"source"];
+		[launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
+	}
+	if (notification!=nil)
+	{
+		[launchOptions setObject:notification forKey:@"notification"];
+		[launchOptions removeObjectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+		// trigger manually since this method isn't called when we have this delegate implemented 
+		[self application:application didReceiveRemoteNotification:notification];
+	}
+	
+	[TitaniumAppProtocol registerSpecialProtocol];
+	[self launchTitaniumApp:nil];
+
+	return YES;
+}
+#endif
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application;
 {
@@ -172,17 +215,24 @@
 	if (appPath == nil) appPath = [[NSBundle mainBundle] resourcePath];
 	self.currentHost = [[[TitaniumHost alloc] init] autorelease];
 
-	[currentHost setAppResourcesPath:appPath];	
-	[currentHost startModules];
-	//Currenthost will do the reading and setting of the views.
 	[window insertSubview:loadingView atIndex:1];
 	[window makeKeyAndVisible];
+
+	[currentHost setAppResourcesPath:appPath];	
+	[currentHost startModules];
 	[pool release];
 }
 
+- (NSDictionary*)launchOptions
+{
+	return launchOptions;
+}
+
+
 - (void)dealloc {
-	[loadingView release];
-	[currentHost release];
+	 [launchOptions release];
+	 [loadingView release];
+	 [currentHost release];
     [viewController release];
     [window release];
     [super dealloc];
@@ -214,6 +264,7 @@ typedef int UIEventSubtype;
 
 #pragma mark Push
 
+#ifdef __IPHONE_3_0
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
 {
 	[remoteNotificationSubdelegate application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
@@ -224,9 +275,31 @@ typedef int UIEventSubtype;
 	[remoteNotificationSubdelegate application:application didFailToRegisterForRemoteNotificationsWithError:error];
 }
 
+- (void)setRemoteNotificationSubdelegate:(id)newDelegate;
+{
+	remoteNotificationSubdelegate = newDelegate;
+	if ((newDelegate != nil) && (notificationQueue != nil)) {
+		UIApplication * application = [UIApplication sharedApplication];
+		for (NSDictionary * userInfo in notificationQueue) {
+			[remoteNotificationSubdelegate application:application didReceiveRemoteNotification:userInfo];
+		}
+		[notificationQueue release];
+		notificationQueue = nil;
+	}
+}
+
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo;
 {
-	[remoteNotificationSubdelegate application:application didReceiveRemoteNotification:userInfo];
+	if(remoteNotificationSubdelegate != nil){
+		[remoteNotificationSubdelegate application:application didReceiveRemoteNotification:userInfo];
+		return;
+	}
+	if (notificationQueue == nil) {
+		notificationQueue = [[NSMutableArray alloc] initWithObjects:userInfo,nil];
+	} else {
+		[notificationQueue addObject:userInfo];
+	}
 }
+#endif
 
 @end

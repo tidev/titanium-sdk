@@ -238,32 +238,35 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 	
 	id result=nil;
 	
-	NSString * propertyKey = [args objectAtIndex:1];
-	if (ContactKeyIsImageDataKey(propertyKey)) {
-		if (ABPersonHasImageData(ourRecord)) {
-			CFDataRef imageData = ABPersonCopyImageData(ourRecord);
-			result = [[TitaniumHost sharedHost] blobForData:(NSData *)imageData];
-			CFRelease(imageData);
-		}
-	} else {
-		ABPropertyID ourPropertyID = PropertyIDForContactKey(propertyKey);
-		ABPropertyType ourPropertyType = ABPersonGetTypeOfProperty(ourPropertyID);
-		CFTypeRef ourProperty = ABRecordCopyValue(ourRecord, ourPropertyID);
-		
-		if (ourPropertyType & kABMultiValueMask) {
-			int ourPropertyCount = ABMultiValueGetCount(ourProperty);
-			result = [NSMutableArray arrayWithCapacity:ourPropertyCount];
-			for (int thisPropertyIndex=0; thisPropertyIndex<ourPropertyCount; thisPropertyIndex++) {
-				CFStringRef thisPropertyLabel = ABMultiValueCopyLabelAtIndex(ourProperty, thisPropertyIndex);
-				CFTypeRef thisPropertyValue = ABMultiValueCopyValueAtIndex(ourProperty, thisPropertyIndex);
-				[result addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-						(NSString *)thisPropertyLabel,@"label",(id)thisPropertyValue,@"value",nil]];
-				CFRelease(thisPropertyValue);
-				CFRelease(thisPropertyLabel);
+	if (ourRecord!=NULL)
+	{
+		NSString * propertyKey = [args objectAtIndex:1];
+		if (ContactKeyIsImageDataKey(propertyKey)) {
+			if (ABPersonHasImageData(ourRecord)) {
+				CFDataRef imageData = ABPersonCopyImageData(ourRecord);
+				result = [[TitaniumHost sharedHost] blobForData:(NSData *)imageData];
+				CFRelease(imageData);
 			}
-			CFRelease(ourProperty);
 		} else {
-			result = [(id)ourProperty autorelease];
+			ABPropertyID ourPropertyID = PropertyIDForContactKey(propertyKey);
+			ABPropertyType ourPropertyType = ABPersonGetTypeOfProperty(ourPropertyID);
+			CFTypeRef ourProperty = ABRecordCopyValue(ourRecord, ourPropertyID);
+
+			if (ourPropertyType & kABMultiValueMask) {
+				int ourPropertyCount = ABMultiValueGetCount(ourProperty);
+				result = [NSMutableArray arrayWithCapacity:ourPropertyCount];
+				for (int thisPropertyIndex=0; thisPropertyIndex<ourPropertyCount; thisPropertyIndex++) {
+					CFStringRef thisPropertyLabel = ABMultiValueCopyLabelAtIndex(ourProperty, thisPropertyIndex);
+					CFTypeRef thisPropertyValue = ABMultiValueCopyValueAtIndex(ourProperty, thisPropertyIndex);
+					[result addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+							(NSString *)thisPropertyLabel,@"label",(id)thisPropertyValue,@"value",nil]];
+					CFRelease(thisPropertyValue);
+					CFRelease(thisPropertyLabel);
+				}
+				CFRelease(ourProperty);
+			} else {
+				result = [(id)ourProperty autorelease];
+			}
 		}
 	}
 	
@@ -289,7 +292,7 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 	ABAddressBookSave(ourAddyBook, NULL);
 	CFRelease(ourAddyBook);
 	
-	return nil;
+	return [NSNumber numberWithBool:YES];
 }
 
 - (id) addContact: (NSArray *) args;
@@ -303,9 +306,9 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 	SetContactPropertiesFromDictionary(ourRecord, propertiesDict);
 	ABAddressBookAddRecord(ourAddyBook, ourRecord, NULL);
 
+	ABAddressBookSave(ourAddyBook, NULL);
 	ABRecordID result = ABRecordGetRecordID(ourRecord);
 
-	ABAddressBookSave(ourAddyBook, NULL);
 	CFRelease(ourRecord);
 	CFRelease(ourAddyBook);
 	return [NSNumber numberWithInt:result];
@@ -392,7 +395,7 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 		"this._DELTA." propertyKey "=A;}return A;}"
 
 	TitaniumJSCode * contactObjectCode = [TitaniumJSCode codeWithString:
-			@"function(newRefID){this._REFID=newRefID;this._CACHE={};this._DELTA={};return this;}"];
+			@"function(newRefID){this._REFID=newRefID;this._CACHE={};this._DELTA={};this.equals=function(ob){return ob && ob._REFID && this._REFID===ob._REFID;}; return this;}"];
 	[contactObjectCode setEpilogueCode:@"Ti.Contacts._CONOBJ.prototype={"
 			"getFirstName:" CACHING_GETTER("firstName") ","
 			"setFirstName:function(val){this._DELTA.firstName=val;return val;},"
@@ -507,9 +510,9 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 			[TitaniumJSCode codeWithString:@"function(contact){if(contact._REFID && "
 				"Ti._TIDO('contacts','removeContact',[contact._REFID])){delete contact._REFID;}"
 				"else{throw 'Contact does not exist in the address book.'}}"],@"removeContact",
-			[TitaniumJSCode codeWithString:@"function(contact){if(!contact._REFID)"
+			[TitaniumJSCode codeWithString:@"function(contact){if(!contact._REFID || contact._REFID==-1)"
 				"{var del=contact._DELTA;contact._REFID=Ti._TIDO('contacts','addContact',[del]);"
-				"for(prop in del){contact._CACHE[prop]=del[prop]}contact._DELTA={};}"
+				"for(prop in del){contact._CACHE[prop]=del[prop]}contact._DELTA={}; return contact;}"
 				"else{throw 'Contact already exists in the address book.'}}"],@"addContact",
 			[TitaniumJSCode codeWithString:@"function(contact){if(contact._REFID)"
 				"{var del=contact._DELTA;Ti._TIDO('contacts','saveContact',[contact._REFID,del]);"

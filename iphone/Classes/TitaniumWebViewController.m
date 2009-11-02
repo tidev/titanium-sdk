@@ -23,6 +23,8 @@
 
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {	
+	loading = YES;
+	
 	Class NSStringClass = [NSString class]; //Because this might be from the web where you could have nsnulls and nsnumbers,
 	//We can't assume that the inputState is 
 	
@@ -70,6 +72,9 @@
 	webView = nil;
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[nativeOnscreenProxies release];
+	
+	[spinner release];
+	[parentView release];
 
 	[currentContentURL release];	//Used as a base url.
 
@@ -131,7 +136,14 @@
 {
 	if(newView == scrollView)return;
 	[newView retain];[scrollView release];scrollView=newView;
-	if(scrollView == nil) [self setWebView:nil];
+	if(scrollView == nil) 
+	{
+		[self setWebView:nil];
+		[spinner release];
+		spinner=nil;
+		[parentView release];
+		parentView = nil;
+	}
 }
 
 //- (void) setContentView: (UIView *) newContentView;
@@ -159,7 +171,23 @@
 
 - (UIView *) view;
 {
-	if (scrollView == nil){
+	if (spinner==nil)
+	{
+		spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+		[spinner setHidesWhenStopped:YES];
+		spinner.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+	}
+	if (parentView==nil)
+	{
+		parentView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height)];	
+		[parentView addSubview:spinner];
+		[spinner sizeToFit];
+		[spinner startAnimating];
+		spinner.center = parentView.center;
+	}
+	
+	if (scrollView == nil)
+	{
 		CGRect quikframe = CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height);
 		UIViewAutoresizing stretchy = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
 		
@@ -168,13 +196,16 @@
 		[scrollView setFrame:quikframe];
 		[scrollView setAutoresizingMask:stretchy];
 		
+		
 		if([[self webView] superview] != scrollView){
 			[webView setAutoresizingMask:stretchy];
 			[webView setFrame:quikframe];
 			[scrollView insertSubview:webView atIndex:0];
 		}
+		
+		[parentView addSubview:scrollView];
 	}
-	return scrollView;
+	return parentView;
 }
 
 - (UIWebView *) webView;
@@ -188,6 +219,7 @@
 		[webView setBackgroundColor:[UIColor clearColor]];
 		[webView setOpaque:NO];
 		[scrollView setAlpha:0.0];
+		webView.hidden = YES;
 		[self reloadWebView];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tabChange:) name:TitaniumTabChangeNotification object:nil];
 	}
@@ -206,6 +238,7 @@
 	if (newWebView == nil) { //Possibly deallocation.
 		if (0) { //This should be a javascript check.
 			[webView removeFromSuperview];
+			[webView setDelegate:nil];
 			[webView release];
 			webView = nil;
 			[[NSNotificationCenter defaultCenter] removeObserver:self name:TitaniumTabChangeNotification object:nil];
@@ -231,9 +264,9 @@
 {
 	if(isFocused){
 		[self updateTitle];
-		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent('focused',{type:'focused'})"];
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentView,'focused',{type:'focused'})"];
 	} else {
-		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent('unfocused',{type:'unfocused'})"];
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentView,'unfocused',{type:'unfocused'})"];
 	}
 }
 
@@ -241,9 +274,9 @@
 - (void)setWindowFocused:(BOOL)isFocused;
 {
 	if(isFocused){
-		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent('focused',{type:'focused'})"];
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentWindow,'focused',{type:'focused'})"];
 	} else {
-		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent('unfocused',{type:'unfocused'})"];
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentWindow,'unfocused',{type:'unfocused'})"];
 	}
 }
 
@@ -276,7 +309,7 @@
 - (void)tabChange: (NSNotification *) notification;
 {
 	NSString * jsonString = [[notification userInfo] objectForKey:TitaniumJsonKey];
-	NSString * commandString = [NSString stringWithFormat:@"Ti.UI._ONEVT('tabchange',{%@});",jsonString];
+	NSString * commandString = [NSString stringWithFormat:@"Ti._ONEVT.call(Ti.UI,'tabchange',{%@});",jsonString];
 	[webView stringByEvaluatingJavaScriptFromString:commandString];
 }
 
@@ -288,9 +321,11 @@
 	NSURL * requestURL = [request URL];
 	if ([[TitaniumAppDelegate sharedDelegate] shouldTakeCareOfUrl:requestURL useSystemBrowser:NO]) return NO;
 	CLOCKSTAMP("Should load request %@ for %@",requestURL,self);
+
 	[currentContentURL release];
 	currentContentURL = [requestURL copy];
 	isNonTitaniumPage = ![[currentContentURL scheme] isEqualToString:@"app"];
+
 	[webView setScalesPageToFit:isNonTitaniumPage];
 	if(!isNonTitaniumPage)[webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window._WINTKN='%@'",[self primaryToken]]];
 	return YES;
@@ -299,6 +334,17 @@
 - (void)webViewDidStartLoad:(UIWebView *)inputWebView;
 {
 	CLOCKSTAMP("Started load request for %@",self);
+	
+	if (loading==NO)
+	{
+		loading = YES;
+		[spinner startAnimating];
+	}
+	// if this is a non-local page, make sure we show activity indicator during page load
+	if (isNonTitaniumPage)
+	{
+		[[TitaniumHost sharedHost] incrementActivityIndicator];
+	}
 }
 
 - (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
@@ -322,11 +368,12 @@
 - (void)webViewDidFinishLoad:(UIWebView *)inputWebView;
 {
 	CLOCKSTAMP("Finished load request for %@",self);
-
+	
 	TitaniumContentViewController * visibleVC = [[TitaniumHost sharedHost] visibleTitaniumContentViewController];
 	BOOL isVisible = [visibleVC isShowingView:self];
 
 	if(isVisible)[self updateTitle];	
+
 
 	[UIView beginAnimations:@"webView" context:nil];
 	[UIView setAnimationDuration:0.1];
@@ -336,25 +383,39 @@
 	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
 	[UIView commitAnimations];
 
-	VERBOSE_LOG(@"[Debug] isNonTitaniumPage is %d because %@ has scheme %@",isNonTitaniumPage,currentContentURL,[currentContentURL scheme]);
+	VERBOSE_LOG(@"[DEBUG] isNonTitaniumPage is %d because %@ has scheme %@",isNonTitaniumPage,currentContentURL,[currentContentURL scheme]);
 
-	if(isNonTitaniumPage)return;
-	[self probeWebViewForTokenInContext:@"window"];
-	
-	if([[webView stringByEvaluatingJavaScriptFromString:@"typeof(Titanium)"] isEqualToString:@"undefined"])[self investigateTitaniumCrashSite];
-	
-	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent('load',{type:'load'});"];
-	if ([titaniumWindowToken isEqualToString:[visibleVC titaniumWindowToken]]){
-		[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent('focused',{type:'focused'});"];
-		if(isVisible){
-			[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentView.doEvent('focused',{type:'focused'});"];
+	if(!isNonTitaniumPage)
+	{
+		[self probeWebViewForTokenInContext:@"window"];
+		
+		if([[webView stringByEvaluatingJavaScriptFromString:@"typeof(Titanium)"] isEqualToString:@"undefined"])[self investigateTitaniumCrashSite];
+		
+		[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentView,'load',{type:'load'});"];
+		if ([titaniumWindowToken isEqualToString:[visibleVC titaniumWindowToken]]){
+			[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentWindow,'focused',{type:'focused'});"];
+			if(isVisible){
+				[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentView,'focused',{type:'focused'});"];
+			}
 		}
+	}
+	
+	loading = NO;
+	[spinner stopAnimating];
+	webView.hidden = NO;
+
+
+	if (isNonTitaniumPage)
+	{
+		[[TitaniumHost sharedHost] decrementActivityIndicator];
 	}
 }
 
 - (void)webView:(UIWebView *)inputWebView didFailLoadWithError:(NSError *)error;
 {
-	
+	NSLog(@"[ERROR] web view failed to load: %@",[error description]);
+	loading=NO;
+	[spinner stopAnimating];
 }
 
 - (BOOL)touchesShouldCancelInContentView:(UIView *)view;
@@ -459,7 +520,7 @@ typedef int UIEventSubtype;
 	TitaniumContentViewController * currentVC = [[TitaniumHost sharedHost] currentTitaniumContentViewController];
 	if (![currentVC isShowingView:self]) return;
 	if (motion == UIEventSubtypeMotionShake){
-		NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent('shake',{type:'shake'})"];
+		NSString * eventString = [NSString stringWithFormat:@"Ti._ONEVT.call(Ti.Gesture,'shake',{type:'shake'})"];
 		[webView stringByEvaluatingJavaScriptFromString:eventString];
 	}
 }
@@ -485,7 +546,7 @@ typedef int UIEventSubtype;
 	
 	NSString * animatedString = (duration>0)?@"true":@"false";
 	
-	NSString * eventString = [NSString stringWithFormat:@"Ti.Gesture.doEvent('orientationchange',{type:'orientationchange',"
+	NSString * eventString = [NSString stringWithFormat:@"Ti._ONEVT.call(Ti.Gesture,'orientationchange',{type:'orientationchange',"
 			"to:%d,from:%d,animated:%@,duration:%d})",
 			interfaceOrientation,lastOrientation,animatedString,(int)(duration * 1000)];
 	[webView stringByEvaluatingJavaScriptFromString:eventString];
@@ -583,7 +644,7 @@ typedef int UIEventSubtype;
 - (void) trackingSanityCheck;
 {
 	//This happens when there's been two fingers in the web view and it's canceled, the web view is still tracking.
-	if([scrollView isTracking] || [scrollView isDragging] || [scrollView isDecelerating])return;
+	if(isNonTitaniumPage||[scrollView isTracking] || [scrollView isDragging] || [scrollView isDecelerating])return;
 	
 	NSLog(@"[WARN] Suspected that webView is locked in tracking. Resetting its connection to the view tree...");
 	[webView removeFromSuperview];
