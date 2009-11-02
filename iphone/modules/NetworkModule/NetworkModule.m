@@ -529,6 +529,11 @@ NetworkModuleConnectionState stateForReachabilityFlags(SCNetworkReachabilityFlag
 	return [NSNumber numberWithBool:[self currentNetworkConnectionState]!=NetworkModuleConnectionStateNone];
 }
 
+- (NSString*) remoteDeviceUUID
+{
+	return remoteDeviceUUID;
+}
+
 - (void) handleNetworkChange:(SCNetworkReachabilityRef) target flags: (SCNetworkReachabilityFlags) flags;
 {
 	TitaniumHost * theTH = [TitaniumHost sharedHost];
@@ -670,8 +675,11 @@ typedef enum {
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
 {
-	TitaniumBlobWrapper * ourBlob = [[TitaniumHost sharedHost] blobForData:deviceToken];
-	NSString * commandString = [NSString stringWithFormat:@"Ti.Network._FIREPUSH('success',%@)",[ourBlob stringValue]];
+	NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"withString:@""] 
+						 stringByReplacingOccurrencesOfString:@">" withString:@""] 
+						stringByReplacingOccurrencesOfString: @" " withString: @""];
+	remoteDeviceUUID = [token copy];
+	NSString * commandString = [NSString stringWithFormat:@"Ti.Network._FIREPUSH('success',%@)",[SBJSON stringify:token]];
 	[[TitaniumHost sharedHost] sendJavascript:commandString toPagesWithTokens:pushListeners update:YES];
 }
 
@@ -709,6 +717,9 @@ typedef enum {
 
 	[(NetworkModule *)ourInvocGen removeConnectivityListenerToken:nil];
 	NSInvocation * removeListenerInvoc = [ourInvocGen invocation];
+
+	TitaniumAccessorTuple * deviceIdAccessor = [TitaniumAccessorTuple tupleForObject:self Key:@"remoteDeviceUUID"];
+	[deviceIdAccessor setSetterSelector:NULL];
 	
 	
 	if (pendingConnnections == nil) {
@@ -753,6 +764,7 @@ typedef enum {
 			@"badge",@"NOTIFICATION_TYPE_BADGE",
 			@"alert",@"NOTIFICATION_TYPE_ALERT",
 			@"sound",@"NOTIFICATION_TYPE_SOUND",
+			deviceIdAccessor,@"remoteDeviceUUID",
 
 
 			[TitaniumJSCode codeWithString:@"window.encodeURIComponent"],@"encodeURIComponent",
@@ -781,6 +793,7 @@ typedef enum {
 
 - (void) dealloc
 {
+	[remoteDeviceUUID release];
 	[pendingConnnections release];
 	[connectivityListeners release];
 	[super dealloc];

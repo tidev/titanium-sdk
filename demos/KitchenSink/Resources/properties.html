@@ -52,6 +52,19 @@
 		+ 	Titanium.App.Properties.getInt('Int');
 	
 	
+	if (Titanium.Platform.name != 'android')
+	{
+		document.getElementById('message').innerHTML += '<br/><br/>Open Settings...Kitchen Sink... to change values:<br/>' ;
+		
+		document.getElementById('message').innerHTML += '<br/>Name Textfield is : ' 
+			+ 	Titanium.App.Properties.getString('name_preference');
+
+		document.getElementById('message').innerHTML += '<br/>Enabled Switch is : ' 
+			+ 	(Titanium.App.Properties.getBool('enabled_preference') ? 'on' : 'off');
+
+		document.getElementById('message').innerHTML += '<br/>Slider value is : ' 
+			+ 	Titanium.App.Properties.getDouble('slider_preference');
+	}
 	
 	</script>
 </body>

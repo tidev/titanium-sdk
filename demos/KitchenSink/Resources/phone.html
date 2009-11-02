@@ -4,6 +4,40 @@
 
 	<script>
 
+	// currently, push notifications are only supported for iphone
+	if (Titanium.Platform.name != 'android')
+	{
+		Titanium.Network.registerForPushNotifications({
+			types: [Titanium.Network.NOTIFICATION_TYPE_BADGE,Titanium.Network.NOTIFICATION_TYPE_ALERT,Titanium.Network.NOTIFICATION_TYPE_SOUND],
+			success:function(e)
+			{
+				Titanium.API.info("registered device id is: "+e);
+				
+				//NOTE: this value is also available as the property Titanium.Network.remoteDeviceUUID
+			},
+			error: function(e)
+			{
+				Titanium.API.warn("push notifications disabled: "+e);
+			},
+			callback:function(e)
+			{
+				var a = Titanium.UI.createAlertDialog();
+				a.setMessage("callback: "+Titanium._JSON(e));
+				a.show();
+			}
+		});
+	}
+
+	// NOTE: you can show arguments that the app was launched with if you
+	// want by uncommenting this
+	/*
+	var a = Titanium.UI.createAlertDialog();
+	a.setMessage("arguments: "+Titanium._JSON(Titanium.App.getArguments()));
+	a.show();
+	*/
+	
+	
+
 	Titanium.UI.addEventListener('tabchange',function(e)
 	{
 		Titanium.API.info('>>>>>>>>>>>>>>>>>>>>>>>>>> TABCHANGE index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);

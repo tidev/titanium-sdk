@@ -28,10 +28,12 @@ typedef enum {
 	int nextConnectivityListenerToken;
 	SCNetworkReachabilityRef defaultRouteReachability;
 	BOOL isListening;
+	NSString *remoteDeviceUUID;
 }
 
 - (NSString *) networkTypeName;
 - (NetworkModuleConnectionState) currentNetworkConnectionState;
+- (NSString*) remoteDeviceUUID;
 
 @end
 
