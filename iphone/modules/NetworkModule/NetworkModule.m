@@ -24,6 +24,8 @@
 
 #import "Logging.h"
 
+#define MOBILE_REG_URI @"http://api.appcelerator.net/p/v1/mobile-notif-register?uuid=%@&mid=%@&type=iphone"
+
 typedef enum {
 	clientStateUnsent = 0,
 	clientStateOpened = 1,
@@ -673,12 +675,35 @@ typedef enum {
 	[theApp registerForRemoteNotificationTypes:ourNotifications];
 }
 
+- (void)sendNewDeviceUUID:(NSURL*) url
+{
+	//this runs on a different thread than the main thread
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	// we can ignore errors and return value
+	[NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:nil];
+	[pool release];
+}
+
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
 {
 	NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"withString:@""] 
 						 stringByReplacingOccurrencesOfString:@">" withString:@""] 
 						stringByReplacingOccurrencesOfString: @" " withString: @""];
 	remoteDeviceUUID = [token copy];
+	
+	NSString *curKey = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
+	if (curKey==nil || ![curKey isEqualToString:remoteDeviceUUID])
+	{
+		// this is the first time being registered, we need to indicate to our backend that we have a 
+		// new registered device to enable this device to receive notifications from the cloud
+		[[NSUserDefaults standardUserDefaults] setObject:remoteDeviceUUID forKey:@"APNSRemoteDeviceUUID"];
+		NSLog(@"[DEBUG] registered new device ready for remote push notifications: %@",remoteDeviceUUID);
+		UIDevice *theDevice = [UIDevice currentDevice];	
+		NSString *mid = [theDevice uniqueIdentifier];
+		NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:MOBILE_REG_URI,remoteDeviceUUID,mid]];
+		[NSThread detachNewThreadSelector:@selector(sendNewDeviceUUID:) toTarget:self withObject:url];
+	}
+	
 	NSString * commandString = [NSString stringWithFormat:@"Ti.Network._FIREPUSH('success',%@)",[SBJSON stringify:token]];
 	[[TitaniumHost sharedHost] sendJavascript:commandString toPagesWithTokens:pushListeners update:YES];
 }
