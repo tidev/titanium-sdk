@@ -13,6 +13,7 @@ var HTTPClient = function() {
 	this._onreadystatechange = null;
 	this._onload = null;
 	this._ondatastream = null;
+	this._onerror = null;
 
 	/**
 	 * @tiapi(method=true,name=Network.HTTPClient.getReadyState,since=0.4) the state of the network operation
@@ -152,6 +153,16 @@ HTTPClient.prototype.__defineGetter__("onload", function(){
 HTTPClient.prototype.__defineSetter__("onload", function(f) {
 	this._onload = f;
 	this.obj.setOnLoadCallback(registerCallback(this, f));
+});
+/**
+ * @tiapi(property=true,name=Network.HTTPClient.onerror,since=0.8.0) Set or get the error handler.
+ */
+HTTPClient.prototype.__defineGetter__("onerror", function(){
+	return this._error;
+});
+HTTPClient.prototype.__defineSetter__("onerror", function(f) {
+	this._error = f;
+	this.obj.setOnErrorCallback(registerCallback(this, f));
 });
 /**
  * @tiapi(property=true,name=Network.HTTPClient.ondatastream,since=0.7.0) receive data as a blob a chunk at a time.

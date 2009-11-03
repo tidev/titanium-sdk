@@ -8,6 +8,7 @@
 	<div id="button3" style="height:47px"></div>
 	<div id="button4" style="height:47px"></div>
 	<div id="button5" style="height:47px"></div>
+	<div id="button6" style="height:47px"></div>
 
 	<div id="html"></div>
 
@@ -129,6 +130,36 @@
 		var w = Titanium.UI.createWindow({url:'jquery.html', backgroundColor:'#fff'});
 		w.open();
 	});
+	var button6 = Titanium.UI.createButton({
+		id:'button6',
+		backgroundImage:'blue.png',
+		backgroundSelectedImage:'blue_pressed.png',
+		backgroundFocusedImage:'blue_focused.png',
+		title:'Bad Domain',
+		color:'#ffffff',
+		height:47,
+	});
+	button6.addEventListener('click',function(e)
+	{
+		var c = Titanium.Network.createHTTPClient();
+
+		c.onload = function()
+		{
+			document.getElementById('html').innerHTML = this.responseText;
+		};
+
+		c.onerror = function(error)
+		{
+			document.getElementById('html').innerHTML = "Error: " + error;
+		};
+
+		// open the client
+		c.open('GET','http://www.fre100.com');
+
+		// send the data
+		c.send();
+	})
+
 	</script>
 
 </body>

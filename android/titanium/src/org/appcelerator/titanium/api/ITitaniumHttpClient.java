@@ -18,33 +18,19 @@ public interface ITitaniumHttpClient {
 	public static final int READY_STATE_COMPLETE = 4; // Complete, all operations have finished
 
 	public String getOnReadyStateChangeCallback();
-
 	public void setOnReadyStateChangeCallback(String onReadyStateChangeCallback);
-
 	public int getReadyState();
-
 	public void setReadyState(int readyState);
-
 	public String getResponseText();
-
 	public void setResponseText(String responseText);
-
 	public int getResponseData();
-
 	public int getStatus();
-
 	public void setStatus(int status);
-
 	public String getStatusText();
-
 	public void setStatusText(String statusText);
-
 	public void abort();
-
 	public String getAllResponseHeaders();
-
 	public void setRequestHeader(String header, String value);
-
 	public String getResponseHeader(String header);
 
 	public void open(String method, String url)
@@ -59,4 +45,5 @@ public interface ITitaniumHttpClient {
 	public void addStringData(String data);
 	public void setOnLoadCallback(String callback);
 	public void setOnDataStreamCallback(String callback);
+	public void setOnErrorCallback(String callback);
 }
