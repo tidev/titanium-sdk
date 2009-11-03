@@ -14,7 +14,7 @@ var Ti=new function(){this.platform='android';this.version='TI_VERSION';this.win
 {return true;}
 return(typeof(value)=='object'&&String(value).length===0);};this.typeOf=function(value){var s=typeof value;if(s==='object'){if(value){if(value instanceof Array){s='array';}}else{s='null';}}
 return s;};this.Method={caller:this.apiProxy.acquireMethod(),dispatchWithTypes:function(module,method,types,args){var r=eval("("+String(this.caller.call(Ti.JSON.stringify({module:module,method:method,types:types,args:args})))+")");if(r.exception!==undefined){throw r.exception;}
-switch(r.resultType){case'null':return null;case'string':return r.result;case'integer':return parseInt(r.result,10);case'boolean':return!!r.result;case'double':return parseFloat(r.result);default:return r.result;}},dispatch:function(module,method){var args=[];var types=[];for(var i=2;i<arguments.length;i++){var a=arguments[i];if(a===undefined){a=null;}
+Ti.apiProxy.log(6,"Result Type: "+r.resultType+" Result: "+r.result);switch(r.resultType){case'null':return null;case'string':return r.result;case'integer':return parseInt(r.result,10);case'boolean':return!!r.result;case'double':return parseFloat(r.result);default:return r.result;}},dispatch:function(module,method){var args=[];var types=[];for(var i=2;i<arguments.length;i++){var a=arguments[i];if(a===undefined){a=null;}
 args.push(a);if(a===null){types.push("null");}else if(typeof a=='string'){types.push("string");}else if(typeof a=='number'){if(String(a).indexOf(".")===-1){types.push("integer");}else{types.push("double");}}else if(typeof a=="object"){types.push("object");}else{throw"Unknown argument type "+typeof a;}}
 return this.dispatchWithTypes(module,method,types,args);},dispatchWithArguments:function(module,method,args){var argList=[module,method];for(var i=0;i<args.length;i++){argList.push(args[i]);}
 return Ti.Method.dispatch.apply(this,argList);}};this.rethrow=function(e){throw e;};this.checked=function(r){var v=null;if(!this.isUndefined(r)){if(typeof(r.getException)!=='undefined'){if(!this.isUndefined(r.getException())){this.apiProxy.log(6,"checking: "+r.getException());var e=r.getException();r.destroy();r=null;throw e;}else{if(typeof(r.getResult)!=='undefined'){var v=r.getResult();switch(String(r.getType())){case'string':v=transformObjectValueAsString(v);break;case'int':v=transformObjectValueAsInt(v.intValue());break;case'boolean':v=transformObjectValueAsBool(v.booleanValue());break;case'double':v=transformObjectValueAsDouble(v.doubleValue());break;}}
@@ -65,19 +65,19 @@ cx.lastIndex=0;if(cx.test(text)){text=text.replace(cx,function(a){return'\\u'+
 ('0000'+a.charCodeAt(0).toString(16)).slice(-4);});}
 if(/^[\],:{}\s]*$/.test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g,'@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,']').replace(/(?:^|:|,)(?:\s*\[)+/g,''))){j=eval('('+text+')');return typeof reviver==='function'?walk({'':j},''):j;}
 throw new SyntaxError('Ti.JSON.parse: '+text);};}}());
-Ti.appProxy=window.TitaniumApp;Ti.App={getID:function()
-{return transformObjectValueAsString(Ti.appProxy.getID(),null);},getName:function()
-{return transformObjectValueAsString(Ti.appProxy.getModuleName(),null);},getVersion:function()
-{return transformObjectValueAsString(Ti.appProxy.getVersion(),null);},getPublisher:function()
-{return transformObjectValueAsString(Ti.appProxy.getPublisher(),null);},getURL:function()
-{return transformObjectValueAsString(Ti.appProxy.getURL(),null);},getDescription:function()
-{return transformObjectValueAsString(Ti.appProxy.getDescription(),null);},getCopyright:function()
-{return transformObjectValueAsString(Ti.appProxy.getCopyright(),null);},getGUID:function()
-{return transformObjectValueAsString(Ti.appProxy.getGUID(),null);},appURLToPath:function(url)
-{return transformObjectValueAsString(Ti.appProxy.appURLToPath(url),null);},getStreamURL:function(stream)
-{return transformObjectValueAsString(Ti.appProxy.getStreamURL(stream),null);},triggerLoad:function()
-{Ti.appProxy.triggerLoad();},setLoadOnPageEnd:function(load)
-{return transformObjectValue(Ti.appProxy.setLoadOnPageEnd(load),null);}};Properties=function(proxy){this.proxy=proxy;this.getString=function(name,def){var r=null;if(this.hasProperty(name)){def=arguments.length==1||Ti.isUndefined(def)?null:def;r=this.proxy.getString(name,def);}else{if(Ti.isUndefined(def)){def=null;}}
+Ti.appProxy=window.TitaniumApp;Ti.App={_module:'TitaniumApp',getID:function()
+{return Ti.Method.dispatch(this._module,"getID");},getName:function()
+{return Ti.Method.dispatch(this._module,"getModuleName");},getVersion:function()
+{return Ti.Method.dispatch(this._module,"getVersion");},getPublisher:function()
+{return Ti.Method.dispatch(this._module,"getPublisher");},getURL:function()
+{return Ti.Method.dispatch(this._module,"getURL");},getDescription:function()
+{return Ti.Method.dispatch(this._module,"getDescription");},getCopyright:function()
+{return Ti.Method.dispatch(this._module,"getCopyright");},getGUID:function()
+{return Ti.Method.dispatch(this._module,"getGUID");},appURLToPath:function(url)
+{return Ti.Method.dispatch(this._module,"appURLToPath",url);},getStreamURL:function(stream)
+{return Ti.Method.dispatch(this._module,"getStreamURL",stream);},triggerLoad:function()
+{return Ti.Method.dispatch(this._module,"triggerLoad");},setLoadOnPageEnd:function(load)
+{return Ti.Method.dispatch(this._module,"setLoadOnPageEnd",load);}};Properties=function(proxy){this.proxy=proxy;this.getString=function(name,def){var r=null;if(this.hasProperty(name)){def=arguments.length==1||Ti.isUndefined(def)?null:def;r=this.proxy.getString(name,def);}else{if(Ti.isUndefined(def)){def=null;}}
 return transformObjectValueAsString(r,def);};this.setString=function(name,value){return this.proxy.setString(name,value);};this.getInt=function(name,def){var r=null;if(this.hasProperty(name)){def=arguments.length==1||Ti.isUndefined(def)?-1:def;r=this.proxy.getInt(name,def);}else{if(Ti.isUndefined(def)){def=null;}}
 return transformObjectValueAsInt(r,def);};this.setInt=function(name,value){return this.proxy.setInt(name,value);};this.getBool=function(name,def){var r=null;if(this.hasProperty(name)){def=arguments.length==1||Ti.isUndefined(def)?false:def;r=this.proxy.getBool(name,def);}else{if(Ti.isUndefined(def)){def=null;}}
 return transformObjectValueAsBool(r,def);};this.setBool=function(name,value){return this.proxy.setBool(name,value);};this.getDouble=function(name,def){if(this.hasProperty(name)){def=arguments.length==1||Ti.isUndefined(def)?0.0:def;r=this.proxy.getDouble(name,def);}else{if(Ti.isUndefined(def)){def=null;}}

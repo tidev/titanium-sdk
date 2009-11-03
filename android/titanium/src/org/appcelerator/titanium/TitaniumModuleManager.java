@@ -216,6 +216,8 @@ public class TitaniumModuleManager
 		}
 		softActivity.clear();
 		weakUIWebView.clear();
+		registeredModules.clear();
+		modules.clear();
 		webView.onDestroy();
 		appContext = null;
 

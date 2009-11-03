@@ -9,13 +9,14 @@ Ti.appProxy = window.TitaniumApp;
 
 Ti.App =
 {
+	_module : 'TitaniumApp',
 	/**
 	 * @tiapi(method=True,name=App.getID,since=0.4) Get the application id.
 	 * @tiresult[string] the id as stored in tiapp.xml
 	 */
 	getID : function ()
 	{
-		return transformObjectValueAsString(Ti.appProxy.getID(),null);
+		 return Ti.Method.dispatch(this._module, "getID");
 	},
 	/**
 	 * @tiapi(method=True,name=App.getName,since=0.4) Get the name of the application.
@@ -23,7 +24,8 @@ Ti.App =
 	 */
 	getName: function()
 	{
-		return transformObjectValueAsString(Ti.appProxy.getModuleName(),null);
+		 return Ti.Method.dispatch(this._module, "getModuleName");
+		//return transformObjectValueAsString(Ti.appProxy.getModuleName(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getVersion,since=0.4) Get the application version.
@@ -31,7 +33,8 @@ Ti.App =
 	 */
 	getVersion: function()
 	{
-		return transformObjectValueAsString(Ti.appProxy.getVersion(),null);
+		 return Ti.Method.dispatch(this._module, "getVersion");
+		//return transformObjectValueAsString(Ti.appProxy.getVersion(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getPublisher,since=0.4) Get the publisher.
@@ -39,7 +42,8 @@ Ti.App =
 	 */
 	getPublisher: function()
 	{
-		return transformObjectValueAsString(Ti.appProxy.getPublisher(),null);
+		 return Ti.Method.dispatch(this._module, "getPublisher");
+		//return transformObjectValueAsString(Ti.appProxy.getPublisher(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getURL,since=0.4) Get the url to application's external website.
@@ -47,7 +51,8 @@ Ti.App =
 	 */
 	getURL: function()
 	{
-		return transformObjectValueAsString(Ti.appProxy.getURL(),null);
+		 return Ti.Method.dispatch(this._module, "getURL");
+		//return transformObjectValueAsString(Ti.appProxy.getURL(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getDescription,since=0.4) Get description of application
@@ -55,7 +60,8 @@ Ti.App =
 	 */
 	getDescription: function()
 	{
-		return transformObjectValueAsString(Ti.appProxy.getDescription(),null);
+		 return Ti.Method.dispatch(this._module, "getDescription");
+		//return transformObjectValueAsString(Ti.appProxy.getDescription(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getCopyright,since=0.4) Get application copyright
@@ -63,7 +69,8 @@ Ti.App =
 	 */
 	getCopyright: function()
 	{
-		return transformObjectValueAsString(Ti.appProxy.getCopyright(),null);
+		 return Ti.Method.dispatch(this._module, "getCopyright");
+		//return transformObjectValueAsString(Ti.appProxy.getCopyright(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getGUID,since=0.4) get the application's globally unique id
@@ -71,7 +78,8 @@ Ti.App =
 	 */
 	getGUID: function()
 	{
-		return transformObjectValueAsString(Ti.appProxy.getGUID(),null);
+		 return Ti.Method.dispatch(this._module, "getGUID");
+		//return transformObjectValueAsString(Ti.appProxy.getGUID(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.appURLToPath,since=0.4) Get url for file under Resources
@@ -80,7 +88,8 @@ Ti.App =
 	 */
 	appURLToPath: function(url)
 	{
-		return transformObjectValueAsString(Ti.appProxy.appURLToPath(url),null);
+		 return Ti.Method.dispatch(this._module, "appURLToPath", url);
+		//return transformObjectValueAsString(Ti.appProxy.appURLToPath(url),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getStreamURL,since=0.4) Not implemented yet
@@ -89,7 +98,8 @@ Ti.App =
 	 */
 	getStreamURL: function(stream)
 	{
-		return transformObjectValueAsString(Ti.appProxy.getStreamURL(stream),null);
+		return Ti.Method.dispatch(this._module, "getStreamURL", stream);
+		//return transformObjectValueAsString(Ti.appProxy.getStreamURL(stream),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.triggerLoad,since=0.4) (Internal, Android only)
@@ -98,7 +108,8 @@ Ti.App =
 	 */
 	triggerLoad: function()
 	{
-		Ti.appProxy.triggerLoad();
+		 return Ti.Method.dispatch(this._module, "triggerLoad");
+		//Ti.appProxy.triggerLoad();
 	},
 	/**
 	 * @tiapi(method=True,name=App.setLoadOnPageEnd,since=0.4)
@@ -107,7 +118,8 @@ Ti.App =
 	 */
 	setLoadOnPageEnd: function(load)
 	{
-		return transformObjectValue(Ti.appProxy.setLoadOnPageEnd(load), null);
+		 return Ti.Method.dispatch(this._module, "setLoadOnPageEnd", load);
+		//return transformObjectValue(Ti.appProxy.setLoadOnPageEnd(load), null);
 	}
 };
 
