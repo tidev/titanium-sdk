@@ -24,32 +24,32 @@
     [super dealloc];
 }
 
-//- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
-//{
-//	NSLog(@"Scrollview touchesBegan: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
-//	[super touchesBegan:touches withEvent:event];
-//}
-//
-//- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
-//{
-//	NSLog(@"Scrollview touchesMoved: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
-//	[super touchesMoved:touches withEvent:event];
-//}
-//
-//- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
-//{
-//	NSLog(@"Scrollview touchesEnded: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
-//	[super touchesEnded:touches withEvent:event];
-//}
-//
-//- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event;
-//{
-//	NSLog(@"Scrollview touchesCancelled: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
-//	[super touchesCancelled:touches withEvent:event];
-//}
-//
-//- (BOOL)touchesShouldBegin:(NSSet *)touches withEvent:(UIEvent *)event inContentView:(UIView *)view;
-//{
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
+{
+	NSLog(@"Scrollview touchesBegan: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+	[super touchesBegan:touches withEvent:event];
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
+{
+	NSLog(@"Scrollview touchesMoved: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+	[super touchesMoved:touches withEvent:event];
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
+{
+	NSLog(@"Scrollview touchesEnded: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+	[super touchesEnded:touches withEvent:event];
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event;
+{
+	NSLog(@"Scrollview touchesCancelled: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+	[super touchesCancelled:touches withEvent:event];
+}
+
+- (BOOL)touchesShouldBegin:(NSSet *)touches withEvent:(UIEvent *)event inContentView:(UIView *)view;
+{
 //	if([[view superview] isKindOfClass:[UIPickerView class]]){
 //		return YES;
 //	}
@@ -58,7 +58,7 @@
 //		VERBOSE_LOG(@"[DEBUG] In web view!");
 //	}
 //	
-//	BOOL result=[super touchesShouldBegin:touches withEvent:event inContentView:view];
+	BOOL result=[super touchesShouldBegin:touches withEvent:event inContentView:view];
 ////	NSLog(@"[DEBUG] TouchesShouldBegin:%d withEvent:%@ inContentView:%@ == %d",[touches count],
 ////		  ([event type]==UIEventTypeTouches)?@"touches":@"motion",NSStringFromClass([view class]),result);
 //	
@@ -66,10 +66,10 @@
 ////		[view touchesBegan:touches withEvent:event];
 ////		return NO;
 ////	}
-//	NSLog(@"Scrollview touchesShouldBegin: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
-//
-//	return result;
-//}
+	NSLog(@"Scrollview touchesShouldBegin: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+
+	return result;
+}
 
 - (BOOL)touchesShouldCancelInContentView:(UIView *)view;
 {
