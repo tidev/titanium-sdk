@@ -151,6 +151,11 @@
 	return YES;
 }
 
+- (BOOL) endModule;
+{
+	[[NSUserDefaults standardUserDefaults] synchronize];
+}
+
 - (void) dealloc
 {
 	[defaultsObject release];

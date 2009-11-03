@@ -1225,8 +1225,12 @@ NSString * const createPickerString = @"function(args){var res=Ti.UI.createButto
 	"res.selectRow=function(row,col,options){var colDat=this.data[col].data;var cnt=colDat.length;"
 		"for(var i=0;i<cnt;i++){colDat[i].selected=i==row;}if(this._TOKEN){Ti.UI._PICACT(this._TOKEN," STRINGVAL(PICKER_SELECTROW) ",[row,col,options])}};"
 	"res.getSelectedRow=function(col){var colDat=this.data[col].data;var cnt=colDat.length;for(var i=0;i<cnt;i++){if(colDat[i].selected)return i;}return 0;};"
-	"res.setColumnData=function(col,dat){this.data[col].data=dat;this.update();};"
-	"res.setData=function(dat){this.data=dat;this.update();};"
+	"res.setColumnData=function(col,dat){var newDat=[];var len=dat.length;for(var i=0;i<len;i++)"
+		"{newDat.push(dat[i])}this.data[col].data=newDat;this.update();};"
+	"res.setData=function(dat){var newDat=[];var len=dat.length;for(var i=0;i<len;i++){"
+		"var col=dat[i];var colDat=col.data;var newColDat=[];var colLen=colDat.length;"
+		"for(var j=0;j<colLen;j++){newColDat.push(colDat[j]);}"
+		"newDat.push({width:col.width,height:col.height,data:newColDat});}this.data=newDat;this.update();};"
 	"return res;}";
 
 NSString * const createModalDatePickerString = @"function(args){var res=Ti.UI.createButton(args,'datepicker');"
