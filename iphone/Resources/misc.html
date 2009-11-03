@@ -172,6 +172,7 @@ Titanium.UI.addEventListener('tabchange',function(e)
 	});
 
 contactTest = function(){
+
 //	Ti.Contacts.showContactPicker({
 //		success:function(ev){Ti.API.debug(ev);},
 //		cancel:function(){Ti.API.debug('Cancelled!');},
@@ -179,7 +180,7 @@ contactTest = function(){
 //		});
 //
 //	return;
-//
+
 
 	var records = Ti.Contacts.getAllContacts();
 	var count=records.length;

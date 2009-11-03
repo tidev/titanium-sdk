@@ -650,8 +650,14 @@ UIColor * checkmarkColor = nil;
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
 {
 	TableSectionWrapper * ourTableSection = [self sectionForIndex:[indexPath section]];
-	float result = [ourTableSection rowHeight];
+	TitaniumCellWrapper * ourTableCell = [ourTableSection rowForIndex:[indexPath row]];
+
+	float result = [ourTableCell rowHeight];
 	if(result > 1.0) return result;
+
+	result = [ourTableSection rowHeight];
+	if(result > 1.0) return result;
+
 	return tableRowHeight;
 }
 

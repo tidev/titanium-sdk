@@ -147,6 +147,10 @@
 	if ([htmlString isKindOfClass:stringClass] && ([htmlString length] != 0)){
 		[self setHtml:htmlString];
 	} else [self setHtml:nil];
+
+	id rowHeightObject = [propDict objectForKey:@"rowHeight"];
+	if ([rowHeightObject respondsToSelector:@selector(floatValue)]) rowHeight = [rowHeightObject floatValue];
+	else rowHeight = 0;
 	
 	id valueString = [propDict objectForKey:@"value"];
 	if ([valueString respondsToSelector:stringSel]) valueString = [valueString stringValue];
