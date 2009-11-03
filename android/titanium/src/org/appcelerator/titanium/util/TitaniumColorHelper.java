@@ -47,7 +47,11 @@ public class TitaniumColorHelper
 					);
 		} else {
 			// Try the parser, will throw illegalArgument if it can't parse it.
-			color = Color.parseColor(lowval);
+			try {
+				color = Color.parseColor(lowval);
+			} catch (IllegalArgumentException e) {
+				Log.w("TiColorHelper", "Unknown color: " + e.getMessage());
+			}
 		}
 
 		return color;

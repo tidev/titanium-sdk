@@ -28,9 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
@@ -105,15 +103,12 @@ public class TitaniumUserWindow extends ViewAnimator
 		TitaniumUIWebView uiWebView = new TitaniumUIWebView(tmm);
         addView((ITitaniumView) uiWebView); // Make it views[0]
 		uiWebView.setUrl(url);
-		TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getActivity());
 
 		TitaniumWindowInfo windowInfo = tmm.getActivity().getWindowInfo();
-		String backgroundImage = null;
 
 		if (windowInfo != null) {
 			if (windowInfo.hasBackgroundColor()) {
-				setBackgroundColor(windowInfo.getBackgroundColor());
-				//tmm.getWebView().setBackgroundColor(windowInfo.getBackgroundColor());
+				setBackgroundColorValue(windowInfo.getBackgroundColor());
 			}
 			if (windowInfo.hasWindowBackgroundImage()) {
 				setBackgroundImage(windowInfo.getWindowBackgroundImage());
@@ -123,21 +118,12 @@ public class TitaniumUserWindow extends ViewAnimator
 
 			if (tiw.hasBackgroundColor()) {
 				int backgroundColor = tiw.getBackgroundColor();
-				setBackgroundColor(backgroundColor);
-				//tmm.getWebView().setBackgroundColor(backgroundColor);
+				setBackgroundColorValue(backgroundColor);
 			}
 			if (tiw.hasBackgroundImage()) {
 				setBackgroundImage(tiw.getBackgroundImage());
 			}
 		}
-
-//		if (backgroundImage != null) {
-//	    	Drawable backgroundDrawable = tfh.loadDrawable(backgroundImage, false); // Ok to not have background
-//			if (backgroundDrawable != null) {
-//				((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
-//				tmm.getWebView().setBackgroundDrawable(backgroundDrawable);
-//			}
-//		}
 
         uiWebView.postOpen();
 
@@ -307,7 +293,7 @@ public class TitaniumUserWindow extends ViewAnimator
 	}
 
 	public void setBackgroundColorValue(int backgroundColor) {
-		handler.obtainMessage(MSG_SET_BACKGROUNDCOLOR, backgroundColor).sendToTarget();
+		handler.obtainMessage(MSG_SET_BACKGROUNDCOLOR, backgroundColor, -1).sendToTarget();
 	}
 
 	public void setBackgroundImage(String backgroundImage) {
