@@ -438,7 +438,14 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 		String result = "";
 
 		if (readyState > READY_STATE_LOADING) {
-			result = response.getFirstHeader(header).getValue();
+			Header h = response.getFirstHeader(header);
+			if (h != null) {
+				result = h.getValue();
+			} else {
+				if (DBG) {
+					Log.w(LCAT, "No value for respose header: " + header);
+				}
+			}
 		} else {
 			throw new IllegalStateException("getResponseHeader can only be called when readyState > 1");
 		}
