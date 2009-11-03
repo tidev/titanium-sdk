@@ -102,7 +102,7 @@
 	float documentHeight = [documentHeightString floatValue];
 	
 	notificationFrame.size.height = documentHeight;
-	notificationFrame.origin.y = bounds.origin.y + bounds.size.height - documentHeight;
+	notificationFrame.origin.y = 10 + (bounds.origin.y + bounds.size.height - documentHeight);
 	
 	[notificationView setFrame:notificationFrame];
 	[[self notificationButton] setFrame:notificationFrame];
@@ -252,36 +252,6 @@
 			[TitaniumJSCode codeWithString:@"{}"],@"_NOTES",
 			notificationObjectCode,@"Notification",
 			[TitaniumJSCode codeWithString:@"function(args){return new Ti.Notification.Notification(args);}"],@"createNotification",
-//								beepInvoc, @"beep",
-//								vibeInvoc, @"vibrate",
-//								newSoundInvoc, @"createSound",
-//								[TitaniumJSCode codeWithString:iPhoneSoundGeneratorFunction],@"_SNDGEN",
-//								[TitaniumJSCode codeWithString:createVideoString],@"createVideoPlayer",
-//								mediaDictionary,@"_MEDIA",
-//								importImageInvoc,@"_NEWPIC",
-//								saveImageInvoc,@"saveToPhotoGallery",
-//								
-//								newMovieInvoc,@"_NEWMOV",
-//								playMovieInvoc,@"_PLAYMOV",
-//								stopMovieInvoc,@"_STOPMOV",
-//								releaseInvoc,@"_REL",
-//								
-//								[TitaniumJSCode codeWithString:showCameraString],@"showCamera",
-//								[TitaniumJSCode codeWithString:showPickerString],@"openPhotoGallery",
-//								
-//								
-//								[NSNumber numberWithInt:MediaModuleErrorUnknown],@"UNKNOWN_ERROR",
-//								[NSNumber numberWithInt:MediaModuleErrorImagePickerBusy],@"DEVICE_BUSY",
-//								[NSNumber numberWithInt:MediaModuleErrorNoCamera],@"NO_CAMERA",
-//								
-//								[NSNumber numberWithInt:MPMovieControlModeDefault],@"VIDEO_CONTROL_DEFAULT",
-//								[NSNumber numberWithInt:MPMovieControlModeVolumeOnly],@"VIDEO_CONTROL_VOLUME_ONLY",
-//								[NSNumber numberWithInt:MPMovieControlModeHidden],@"VIDEO_CONTROL_HIDDEN",
-//								[NSNumber numberWithInt:MPMovieScalingModeNone],@"VIDEO_SCALING_NONE",
-//								[NSNumber numberWithInt:MPMovieScalingModeAspectFit],@"VIDEO_SCALING_ASPECT_FIT",
-//								[NSNumber numberWithInt:MPMovieScalingModeAspectFill],@"VIDEO_SCALING_ASPECT_FILL",
-//								[NSNumber numberWithInt:MPMovieScalingModeFill],@"VIDEO_SCALING_MODE_FILL",
-								
 								nil];
 	[[[TitaniumHost sharedHost] titaniumObject] setObject:moduleDict forKey:@"Notification"];
 	

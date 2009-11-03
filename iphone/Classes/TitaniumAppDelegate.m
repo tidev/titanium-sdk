@@ -84,9 +84,12 @@
 		}
 		title = [NSString stringWithFormat:@"Mail %@",emailAddy];
 	}
+	
+	BOOL http = NO;
 
 	if ([scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"]){
 		NSString * host = [requestURL host];
+		http = YES;
 
 		if (([host hasSuffix:@".youtube.com"] || [host isEqualToString:@"youtube.com"]) && [[requestURL path] isEqualToString:@"/watch"]){
 			title = @"Watch Video";
@@ -106,7 +109,7 @@
 		if (resultHelper==nil) resultHelper = [[TitaniumActionSheetHelper alloc] init];
 		[resultHelper addButton:browseInvoc title:title];
 	}
-	else if ([[UIApplication sharedApplication] canOpenURL:requestURL])
+	else if (!http && [[UIApplication sharedApplication] canOpenURL:requestURL])
 	{
 		// just delegate it to our app if we can open it
 		[[UIApplication sharedApplication] openURL:requestURL];
