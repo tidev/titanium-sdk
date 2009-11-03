@@ -10,9 +10,8 @@
 #import "TitaniumHost.h"
 
 @implementation TitaniumCompositeRule
-@synthesize viewController;
 
--(void) positionInView: (UIView *) superView bounds: (CGSize) viewBounds;
+-(CGRect) rectInBounds: (CGSize) viewBounds resizing: (UIViewAutoresizing *) resultResizing;
 {
 	CGRect resultFrame;
 	UIViewAutoresizing resultMask;
@@ -87,9 +86,20 @@
 		resultFrame.size.height = viewBounds.height;
 		resultMask |= UIViewAutoresizingFlexibleHeight;
 		
-	}
+	}	
 	
-	UIView * subView = [viewController view];
+	if(resultResizing != nil)*resultResizing = resultMask;
+	return resultFrame;
+}
+
+
+-(void) positionView: (UIView *) subView inView: (UIView *) superView bounds: (CGSize) viewBounds;
+{
+	UIViewAutoresizing resultMask;
+	CGRect resultFrame;
+	
+	resultFrame = [self rectInBounds:viewBounds resizing:&resultMask];
+	
 	[[subView layer] setZPosition:(hasZConstraint)?z:0];
 	[subView setAutoresizingMask:resultMask];
 	[subView setFrame:resultFrame];
@@ -117,7 +127,6 @@
 
 - (void) dealloc
 {
-	[viewController autorelease];
 	[super dealloc];
 }
 
@@ -135,8 +144,9 @@
 		viewFrame.size = preferredViewSize;
 		view = [[UIView alloc] initWithFrame:viewFrame];
 		[view setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
-		for(TitaniumCompositeRule * thisRule in viewControllerRules){
-			[thisRule positionInView:view bounds:preferredViewSize];
+		NSEnumerator * viewEnumerator = [contentViewControllers objectEnumerator];
+		for(TitaniumCompositeRule * thisRule in contentRules){
+			[thisRule positionView:[viewEnumerator nextObject] inView:view bounds:preferredViewSize];
 		}
 		[pendingRules release];
 		pendingRules = nil;
@@ -147,15 +157,17 @@
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
-	for(TitaniumCompositeRule * thisRule in viewControllerRules){
-		[[thisRule viewController] didReceiveMemoryWarning];
+	for(TitaniumContentViewController * thisView in contentViewControllers){
+		[thisView didReceiveMemoryWarning];
 	}
 	// Release any cached data, images, etc that aren't in use.
 }
 
 - (void)dealloc {
 	[pendingRules release];
-	[viewControllerRules release];
+	[contentRules release];
+	[pendingViewControllers release];
+	[contentViewControllers release];
     [super dealloc];
 }
 
@@ -168,12 +180,20 @@
 	if([rulesObject isKindOfClass:[NSArray class]]){
 		[pendingRules release];
 		pendingRules=nil;
+		[pendingViewControllers release];
+		pendingViewControllers=nil;
 		
-		if(viewControllerRules == nil){
-			viewControllerRules = [[NSMutableArray alloc] initWithCapacity:[rulesObject count]];
+		if(contentRules == nil){
+			contentRules = [[NSMutableArray alloc] initWithCapacity:[rulesObject count]];
 		} else {
-			[viewControllerRules removeAllObjects];
+			[contentRules removeAllObjects];
 		}
+		if(contentViewControllers == nil){
+			contentViewControllers = [[NSMutableArray alloc] initWithCapacity:[rulesObject count]];
+		} else {
+			[contentViewControllers removeAllObjects];
+		}
+		
 		NSString * callingToken = [[[TitaniumHost sharedHost] currentThread] magicToken];
 
 		for(NSDictionary * thisRuleObject in rulesObject){
@@ -186,9 +206,8 @@
 			[thisVC addListeningWebContextToken:callingToken];
 
 			[thisRule readConstraints:thisRuleObject];
-			[thisRule setViewController:thisVC];
-
-			[viewControllerRules addObject:thisRule];
+			[contentViewControllers addObject:thisVC];
+			[contentRules addObject:thisRule];
 			[thisRule release];
 		}
 	}
@@ -203,10 +222,9 @@ typedef int UIEventSubtype;
 
 - (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
 {
-	for(TitaniumCompositeRule * thisRule in viewControllerRules){
-		TitaniumContentViewController * ourVC = [thisRule viewController];
-		if([ourVC respondsToSelector:@selector(motionEnded:withEvent:)]){
-			[(id)ourVC motionEnded:motion withEvent:event];
+	for(TitaniumContentViewController * thisVC in contentViewControllers){
+		if([thisVC respondsToSelector:@selector(motionEnded:withEvent:)]){
+			[(id)thisVC motionEnded:motion withEvent:event];
 		}
 	}
 }
@@ -214,8 +232,8 @@ typedef int UIEventSubtype;
 - (BOOL) isShowingView: (TitaniumContentViewController *) contentView;
 {
 	if(self==contentView)return YES;
-	for(TitaniumCompositeRule * thisRule in viewControllerRules){
-		if(contentView==[thisRule viewController])return YES;
+	for(TitaniumContentViewController * thisVC in contentViewControllers){
+		if([thisVC isShowingView:contentView])return YES;
 	}
 	return NO;
 }
@@ -223,8 +241,8 @@ typedef int UIEventSubtype;
 - (void) setTitaniumWindowToken: (NSString *) newToken;
 {
 	[super setTitaniumWindowToken:newToken];
-	for(TitaniumCompositeRule * thisRule in viewControllerRules){
-		[[thisRule viewController] setTitaniumWindowToken:newToken];
+	for(TitaniumContentViewController * thisVC in contentViewControllers){
+		[thisVC setTitaniumWindowToken:newToken];
 	}
 }
 
@@ -233,29 +251,27 @@ typedef int UIEventSubtype;
 	if(!view) return;
 
 	if(pendingRules != nil){
+		NSEnumerator * viewEnumerator = [pendingViewControllers objectEnumerator];
 		for(TitaniumCompositeRule * thisRule in pendingRules){
-			[thisRule positionInView:view bounds:preferredViewSize];
+			[thisRule positionView:[[viewEnumerator nextObject] view] inView:view bounds:preferredViewSize];
 		}
 		[pendingRules release];
-		pendingRules = nil;	
+		pendingRules = nil;
+		[pendingViewControllers release];
+		pendingViewControllers = nil;
 	}
-
-//	for(TitaniumCompositeRule * thisRule in viewControllerRules){
-//		[thisRule positionInView:view bounds:preferredViewSize];
-//	}
 	
-	for(TitaniumCompositeRule * thisRule in viewControllerRules){
-		[[thisRule viewController] updateLayout:animated];
+	for(TitaniumContentViewController * thisVC in contentViewControllers){
+		[thisVC updateLayout:animated];
 	}
 
 }
 
 - (void)setFocused:(BOOL)isFocused;
 {
-	for(TitaniumCompositeRule * thisRule in viewControllerRules){
-		TitaniumContentViewController * focusedContentController = [thisRule viewController];
-		if([focusedContentController respondsToSelector:@selector(setFocused:)]){
-			[focusedContentController setFocused:isFocused];
+	for(TitaniumContentViewController * thisVC in contentViewControllers){
+		if([thisVC respondsToSelector:@selector(setFocused:)]){
+			[thisVC setFocused:isFocused];
 		}
 	}
 }
@@ -263,10 +279,9 @@ typedef int UIEventSubtype;
 
 - (void)setWindowFocused:(BOOL)isFocused;
 {
-	for(TitaniumCompositeRule * thisRule in viewControllerRules){
-		TitaniumContentViewController * focusedContentController = [thisRule viewController];
-		if([focusedContentController respondsToSelector:@selector(setWindowFocused:)]){
-			[focusedContentController setWindowFocused:isFocused];
+	for(TitaniumContentViewController * thisVC in contentViewControllers){
+		if([thisVC respondsToSelector:@selector(setWindowFocused:)]){
+			[thisVC setWindowFocused:isFocused];
 		}
 	}
 }
@@ -274,8 +289,7 @@ typedef int UIEventSubtype;
 - (BOOL) sendJavascript: (NSString *) inputString;
 {
 	BOOL result = NO;
-	for(TitaniumCompositeRule * thisRule in viewControllerRules){
-		TitaniumContentViewController * thisVC = [thisRule viewController];
+	for(TitaniumContentViewController * thisVC in contentViewControllers){
 		if([thisVC respondsToSelector:@selector(sendJavascript:)]){
 			result |= [(id)thisVC sendJavascript:inputString];
 		}
@@ -297,18 +311,27 @@ typedef int UIEventSubtype;
 	[ourVC setTitaniumWindowToken:[self titaniumWindowToken]];
 
 	TitaniumCompositeRule * ourRule = [[TitaniumCompositeRule alloc] init];
-	[ourRule setViewController:ourVC];
 	[ourRule readConstraints:newRuleObject];
 
-	if(viewControllerRules == nil){
-		viewControllerRules = [[NSMutableArray alloc] initWithObjects:ourRule,nil];
+	if(contentRules == nil){
+		contentRules = [[NSMutableArray alloc] initWithObjects:ourRule,nil];
 	} else {
-		[viewControllerRules addObject:ourRule];
+		[contentRules addObject:ourRule];
+	}
+	if(contentViewControllers == nil){
+		contentViewControllers = [[NSMutableArray alloc] initWithObjects:ourVC,nil];
+	} else {
+		[contentViewControllers addObject:ourVC];
 	}
 	if(pendingRules == nil){
 		pendingRules = [[NSMutableArray alloc] initWithObjects:ourRule,nil];
 	} else {
 		[pendingRules addObject:ourRule];
+	}
+	if(pendingViewControllers == nil){
+		pendingViewControllers = [[NSMutableArray alloc] initWithObjects:ourVC,nil];
+	} else {
+		[pendingViewControllers addObject:ourVC];
 	}
 	[ourRule release];
 
