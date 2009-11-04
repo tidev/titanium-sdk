@@ -52,7 +52,6 @@ var Tester = {
 				};
 				tc.addTest(s + "." + name + " exists", f1);
 				var f2 = function() {
-					Titanium.API.error("typeof " + name + " is " + typeof o[name]);
 					return (name in o && typeof o[name] == "function");
 				};
 				tc.addTest(s + "." + name + " is function", f2);
