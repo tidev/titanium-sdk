@@ -24,4 +24,7 @@ public interface ITitaniumTableView
 	public void appendRow(String rowData, String json);
 	public void setFontWeight(String fontWeight);
 	public void setFontSize(String fontSize);
+
+	// New in 0.8.0
+	public void scrollToIndex(int index, String options);
 }

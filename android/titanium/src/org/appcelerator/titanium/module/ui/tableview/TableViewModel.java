@@ -308,6 +308,26 @@ public class TableViewModel
 		return viewModel;
 	}
 
+	public int getViewIndex(int index) {
+		int position = -1;
+		// the View index can be larger than model index if there are headers.
+		if (viewModel != null && index <= viewModel.length()) {
+			try {
+				for(int i = 0; i < viewModel.length(); i++) {
+					JSONObject o = viewModel.getJSONObject(i);
+					if (o.has("index") && index == o.getInt("index")) {
+						position = i;
+						break;
+					}
+				}
+			} catch (JSONException e) {
+				Log.e(LCAT, e.getMessage(), e);
+			}
+		}
+
+		return position;
+	}
+
 	private void insertFirstRow(JSONObject data) throws JSONException
 	{
 		Item newItem = new Item(0);

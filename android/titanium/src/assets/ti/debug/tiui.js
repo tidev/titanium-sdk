@@ -793,12 +793,18 @@ var TableView = function(proxy) {
 			this.proxy.setName(name);
 		}
 	};
-	this.setIsPrimary = function(primary) {
-		this.proxy.setIsRoot(primary);
-	};
-	this.close = function() {
-		this.proxy.close();
-	};
+	/**
+	 * @tiapi(method=true,name=UI.TableView.scrollToIndex,since=0.8.0) scroll to the item referenced by index.
+	 * @tiarg[int,index] row index
+	 */
+	this.scrollToIndex = function(index, options) {
+		if (!isUndefined(index)) {
+			if (isUndefined(options)) {
+				options = {};
+			}
+			this.proxy.scrollToIndex(index, Titanium.JSON.stringify(options));
+		}
+	}
 	this.setFontWeight = function(fontWeight) {
 		if (!isUndefined(fontWeight)) {
 			this.proxy.setFontWeight(fontWeight);
@@ -812,6 +818,12 @@ var TableView = function(proxy) {
 	this.setCallback = function(callback) {
 		this._callback = callback;
 		this.proxy.setCallback(registerCallback(this, this._callback));
+	};
+	this.setIsPrimary = function(primary) {
+		this.proxy.setIsRoot(primary);
+	};
+	this.close = function() {
+		this.proxy.close();
 	};
 };
 
@@ -1943,7 +1955,23 @@ Titanium.UI = {
 	 * @tiapi(property=true,name=UI.MAP_VIEW_HYBRID,since=0.8.0) Hybrid map view
 	 */
 	MAP_VIEW_HYBRID : 3,
-
+	/**
+	 * @tiapi(property=true,name=UI.TABLEVIEW_POSITION_ANY,since=0.8.0) Position the row at top if currently above the tableview.
+	 * @tiapi Position the row at bottom if currently below the tableview. Don't change if already visible in the tableview.
+	 */
+	TABLEVIEW_POSITION_ANY : 0,
+	/**
+	 * @tiapi(property=true,name=UI.TABLEVIEW_POSITION_TOP,since=0.8.0) Position the row at the top of the tableview.
+	 */
+	TABLEVIEW_POSITION_TOP : 1,
+	/**
+	 * @tiapi(property=true,name=UI.TABLEVIEW_POSITION_MIDDLE,since=0.8.0) Position the row in the middle of the tableview
+	 */
+	TABLEVIEW_POSITION_MIDDLE : 2,
+	/**
+	 * @tiapi(property=true,name=UI.TABLEVIEW_POSITION_BOTTOM,since=0.8.0) Position the row at the top of the tableview.
+	 */
+	TABLEVIEW_POSITION_BOTTOM : 3,
 	/**
 	 * @tiapi(method=true,name=UI.createTextField,since=0.6) Create a native text field
 	 * @tiarg[object, options] a set of configuration options for the text.

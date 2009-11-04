@@ -40,6 +40,7 @@ public class TitaniumTableView extends TitaniumBaseView
 	private static final int MSG_INSERTBEFORE = 305;
 	private static final int MSG_INSERTAFTER = 306;
 	private static final int MSG_INDEXBYNAME = 307;
+	private static final int MSG_SCROLLTOINDEX = 308;
 
 	private int rowHeight;
 	private String callback;
@@ -248,6 +249,58 @@ public class TitaniumTableView extends TitaniumBaseView
 		this.name = name;
 	}
 
+	public void scrollToIndex(int index, String options) {
+		handler.obtainMessage(MSG_SCROLLTOINDEX, index, -1, options).sendToTarget();
+	}
+
+	public void doScrollToIndex(int index, JSONObject options) {
+		int position = viewModel.getViewIndex(index);
+		int offset = 0;
+
+		if (options != null) {
+			int viewpos = 0; // Titanium.UI.TABLEVIEW_POSITION_ANY
+			int padding = 10;
+			try {
+				if (options.has("position")) {
+					viewpos = options.getInt("position");
+				}
+				if (options.has("padding")) {
+					padding = options.getInt("padding");
+				}
+			} catch (JSONException e) {
+				Log.w(LCAT, "Unable to get position from JSON obect, using ANY/0");
+			}
+
+			if (viewpos == 0) {
+				if (position < view.getFirstVisiblePosition()) {
+					viewpos = 1;
+				} else if (position > view.getLastVisiblePosition()) {
+					viewpos = 3;
+				}
+			}
+
+			switch(viewpos) {
+				case 1 : // Titanium.UI.TABLEVIEW_POSITION_TOP
+					offset = 0;
+					if (position > 0) {
+						offset = padding;
+					}
+					break;
+				case 2 : // Titanium.UI.TABLEVIEW_POSITION_MIDDLE
+					offset = (getHeight()/2) - (rowHeight/2);
+					break;
+				case 3 : // Titanium.UI.TABLEVIEW_POSITION_BOTTOM
+					offset = getHeight() - rowHeight - padding;
+					break;
+				default:
+					offset = -1;
+			}
+		}
+		if (offset != -1) {
+			view.setSelectionFromTop(position, offset);
+		}
+	}
+
 	public boolean isPrimary() {
 		//return root;
 		return true;
@@ -279,6 +332,15 @@ public class TitaniumTableView extends TitaniumBaseView
 				String name = msg.getData().getString("name");
 				h.index = doGetIndexByName(name);
 				h.release();
+				return true;
+			case MSG_SCROLLTOINDEX :
+				JSONObject options = null;
+				try {
+					options = new JSONObject((String) msg.obj);
+				} catch (Exception e) {
+					Log.w(LCAT, "Error converting options to JSON: " + msg.obj);
+				}
+				doScrollToIndex(msg.arg1, options);
 				return true;
 			}
 		}

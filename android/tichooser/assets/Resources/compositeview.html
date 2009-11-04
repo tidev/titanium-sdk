@@ -49,6 +49,15 @@
  				Titanium.UI.currentWindow.fireEvent('notify', { message : s });
   			}
  		);
+	Titanium.UI.currentWindow.addEventListener('scrollTo', function(e) {
+		var options = {};
+		if (!isUndefined(e.position)) {
+			options.position = e.position;
+			tv1.scrollToIndex(e.index, options);
+		} else {
+			tv1.scrollToIndex(e.index);
+		}
+	});
 
 	var iv1 = Titanium.UI.createImageView({
  	  		url : "images/icon.png",
