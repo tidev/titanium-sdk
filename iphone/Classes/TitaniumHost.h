@@ -114,6 +114,9 @@ typedef enum {
 	
 	NSTimer * bugSentry;
 	
+	NSLock * closingLock;
+	NSInteger pendingClosings;
+	
 }
 
 @property(readwrite,copy)	NSString * appID;
@@ -142,6 +145,9 @@ typedef enum {
 - (void) startModules;
 - (void) endModules;
 - (void) bindObject: (id) object toKeyPath: (NSString *) keyPath;
+
+- (void) pauseTermination;
+- (void) resumeTermination;
 
 #pragma mark View registration
 - (void) applyDefaultViewSettings: (UIViewController *) viewController;

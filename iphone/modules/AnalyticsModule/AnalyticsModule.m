@@ -34,6 +34,7 @@ NSURL * AnalyticsModuleURL = nil;
 	self = [super init];
 	if(self == nil)return nil;
 	
+	[[TitaniumHost sharedHost] pauseTermination];
 	module = newModule; eventArray = newEventArray;
 	if(AnalyticsModuleURL == nil){
 		AnalyticsModuleURL = [[NSURL URLWithString:@"https://api.appcelerator.net/p/v2/mobile-track"] retain];
@@ -78,6 +79,7 @@ NSURL * AnalyticsModuleURL = nil;
 
 - (void) dealloc
 {
+	[[TitaniumHost sharedHost] resumeTermination];
 	[connection release];
 	[super dealloc];
 }
@@ -193,6 +195,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	if(events!=nil){ //Yes, we already checked before, but that was BEFORE the mutex!
 		AnalyticsPacket * packet = [[AnalyticsPacket alloc] initWithModule:self sendEvents:events timeout:TI_ANALYTICS_NETWORK_TIMEOUT_IN_SEC];
 		if(packet != nil){
+			[[TitaniumHost sharedHost] resumeTermination];
 			events=nil; //Releasing is handled through sleight of hand.
 			[packetDueDate release];packetDueDate=nil;
 		} else {
@@ -207,6 +210,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 {
 	[mutex lock];
 	if(events==nil){
+		[[TitaniumHost sharedHost] pauseTermination];
 		events = newEvents;
 		[self performSelectorOnMainThread:@selector(sendEvents) withObject:nil waitUntilDone:NO];
 	} else {
@@ -221,6 +225,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	[mutex lock];
 	NSData * newEvent = [self generateEventObject:eventtype evtname:eventname data:data];
 	if(events==nil){
+		[[TitaniumHost sharedHost] pauseTermination];
 		events = [[NSMutableArray alloc] initWithObjects:newEvent,nil];
 		[self performSelectorOnMainThread:@selector(sendEvents) withObject:nil waitUntilDone:NO];
 	} else {
