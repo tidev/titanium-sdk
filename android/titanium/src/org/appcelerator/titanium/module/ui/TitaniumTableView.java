@@ -255,6 +255,10 @@ public class TitaniumTableView extends TitaniumBaseView
 
 	public void doScrollToIndex(int index, JSONObject options) {
 		int position = viewModel.getViewIndex(index);
+		if (position < 0) {
+			return;
+		}
+		int localRowHeight = viewModel.getRowHeight(position, rowHeight);
 		int offset = 0;
 
 		if (options != null) {
@@ -287,10 +291,10 @@ public class TitaniumTableView extends TitaniumBaseView
 					}
 					break;
 				case 2 : // Titanium.UI.TABLEVIEW_POSITION_MIDDLE
-					offset = (getHeight()/2) - (rowHeight/2);
+					offset = (getHeight()/2) - (localRowHeight/2);
 					break;
 				case 3 : // Titanium.UI.TABLEVIEW_POSITION_BOTTOM
-					offset = getHeight() - rowHeight - padding;
+					offset = getHeight() - localRowHeight - padding;
 					break;
 				default:
 					offset = -1;
