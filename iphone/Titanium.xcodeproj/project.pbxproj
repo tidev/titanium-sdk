@@ -287,6 +287,14 @@
 		B4A6D3B4103C9EFD00131CD4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
 		B4ABEDC4101903CA00639ED5 /* buggy.html in Resources */ = {isa = PBXBuildFile; fileRef = B4ABEDC3101903CA00639ED5 /* buggy.html */; };
 		B4ADF5FA106D8C0200D26B13 /* WeCanDoIt.png in Resources */ = {isa = PBXBuildFile; fileRef = B4ADF5F9106D8C0200D26B13 /* WeCanDoIt.png */; };
+		B4AE66E510A104F200126EDA /* TweakedWebView.h in Headers */ = {isa = PBXBuildFile; fileRef = B4AE66E310A104F200126EDA /* TweakedWebView.h */; };
+		B4AE66E610A104F200126EDA /* TweakedWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AE66E410A104F200126EDA /* TweakedWebView.m */; };
+		B4AE66E710A104F200126EDA /* TweakedWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AE66E410A104F200126EDA /* TweakedWebView.m */; };
+		B4AE66E810A104F200126EDA /* TweakedWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AE66E410A104F200126EDA /* TweakedWebView.m */; };
+		B4AE66EB10A1076F00126EDA /* SearchBarControl.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AE66EA10A1076F00126EDA /* SearchBarControl.m */; };
+		B4AE66EC10A1076F00126EDA /* SearchBarControl.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AE66EA10A1076F00126EDA /* SearchBarControl.m */; };
+		B4AE66ED10A1076F00126EDA /* SearchBarControl.h in Headers */ = {isa = PBXBuildFile; fileRef = B4AE66E910A1076F00126EDA /* SearchBarControl.h */; };
+		B4AE66EE10A1076F00126EDA /* SearchBarControl.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AE66EA10A1076F00126EDA /* SearchBarControl.m */; };
 		B4AF713D107D56F9000347A7 /* buggy.js in Resources */ = {isa = PBXBuildFile; fileRef = B4ABEDC6101903F300639ED5 /* buggy.js */; };
 		B4AF73B9107E7920000347A7 /* view1.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AF73B6107E7920000347A7 /* view1.html */; };
 		B4AF73BA107E7920000347A7 /* view2.html in Resources */ = {isa = PBXBuildFile; fileRef = B4AF73B7107E7920000347A7 /* view2.html */; };
@@ -526,6 +534,10 @@
 		B4ABEDC3101903CA00639ED5 /* buggy.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = buggy.html; sourceTree = "<group>"; };
 		B4ABEDC6101903F300639ED5 /* buggy.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = buggy.js; sourceTree = "<group>"; };
 		B4ADF5F9106D8C0200D26B13 /* WeCanDoIt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WeCanDoIt.png; sourceTree = "<group>"; };
+		B4AE66E310A104F200126EDA /* TweakedWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TweakedWebView.h; sourceTree = "<group>"; };
+		B4AE66E410A104F200126EDA /* TweakedWebView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TweakedWebView.m; sourceTree = "<group>"; };
+		B4AE66E910A1076F00126EDA /* SearchBarControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchBarControl.h; sourceTree = "<group>"; };
+		B4AE66EA10A1076F00126EDA /* SearchBarControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchBarControl.m; sourceTree = "<group>"; };
 		B4AF73B6107E7920000347A7 /* view1.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = view1.html; sourceTree = "<group>"; };
 		B4AF73B7107E7920000347A7 /* view2.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = view2.html; sourceTree = "<group>"; };
 		B4AF73B8107E7920000347A7 /* view3.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = view3.html; sourceTree = "<group>"; };
@@ -787,6 +799,8 @@
 				B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */,
 				B4290A73100D31FD00C4FF98 /* TweakedNavController.h */,
 				B4290A74100D31FD00C4FF98 /* TweakedNavController.m */,
+				B4AE66E310A104F200126EDA /* TweakedWebView.h */,
+				B4AE66E410A104F200126EDA /* TweakedWebView.m */,
 				B4D4AF5310472271006E42E0 /* TweakedScrollView.h */,
 				B4D4AF5410472271006E42E0 /* TweakedScrollView.m */,
 				B4B8E56910586D3500D08D44 /* TitaniumCellWrapper.h */,
@@ -946,6 +960,8 @@
 				2444F8350FC9FCA400063972 /* UiModule.h */,
 				B4A6D3AF103C9EFD00131CD4 /* NativeControlProxy.h */,
 				B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */,
+				B4AE66E910A1076F00126EDA /* SearchBarControl.h */,
+				B4AE66EA10A1076F00126EDA /* SearchBarControl.m */,
 			);
 			path = UiModule;
 			sourceTree = "<group>";
@@ -1351,6 +1367,7 @@
 				24C5ACF21061FDD70063594B /* UiModule.h in Headers */,
 				24C5ACF31061FDD70063594B /* NativeControlProxy.h in Headers */,
 				24C5ACD31061FD140063594B /* TitaniumModule.h in Headers */,
+				B4AE66ED10A1076F00126EDA /* SearchBarControl.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1418,6 +1435,7 @@
 				24B51E4D109EEDB400B87D18 /* AFOpenFlowConstants.h in Headers */,
 				24B51E4E109EEDB400B87D18 /* AFOpenFlowView.h in Headers */,
 				24B51E50109EEDB400B87D18 /* AFUIImageReflection.h in Headers */,
+				B4AE66E510A104F200126EDA /* TweakedWebView.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1939,6 +1957,8 @@
 				24B51E48109EEDB400B87D18 /* AFItemView.m in Sources */,
 				24B51E49109EEDB400B87D18 /* AFOpenFlowView.m in Sources */,
 				24B51E4A109EEDB400B87D18 /* AFUIImageReflection.m in Sources */,
+				B4AE66E810A104F200126EDA /* TweakedWebView.m in Sources */,
+				B4AE66EB10A1076F00126EDA /* SearchBarControl.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2071,6 +2091,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				24C5ACF41061FDDC0063594B /* UiModule.m in Sources */,
+				B4AE66EE10A1076F00126EDA /* SearchBarControl.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2134,6 +2155,7 @@
 				24B51E4C109EEDB400B87D18 /* AFItemView.m in Sources */,
 				24B51E4F109EEDB400B87D18 /* AFOpenFlowView.m in Sources */,
 				24B51E51109EEDB400B87D18 /* AFUIImageReflection.m in Sources */,
+				B4AE66E610A104F200126EDA /* TweakedWebView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2193,6 +2215,8 @@
 				B49358DD106AE51C00BC4A77 /* TitaniumImageViewController.m in Sources */,
 				B43543641076995400A38EC9 /* TitaniumJSEvent.m in Sources */,
 				B4A4A105109123680021CC46 /* ContactsModule.m in Sources */,
+				B4AE66E710A104F200126EDA /* TweakedWebView.m in Sources */,
+				B4AE66EC10A1076F00126EDA /* SearchBarControl.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
