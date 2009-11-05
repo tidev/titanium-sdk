@@ -146,6 +146,13 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 				 }
 			} else {
 				setVerticalFadingEdgeEnabled(true);
+				if (data.has("rowHeight")) {
+					try {
+						rowHeight = data.getInt("rowHeight");
+					} catch (JSONException e) {
+						Log.w(LCAT, "Error getting rowHeight: " + e.getMessage());
+					}
+				}
 				setMinimumHeight(rowHeight);
 
 				if (data.has("image")) {

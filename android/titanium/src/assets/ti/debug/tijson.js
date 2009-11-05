@@ -11,7 +11,7 @@
     This file creates a global JSON object containing two methods: stringify
     and parse.
 
-    Note: Modified to create Titanium.JSON instead
+    Note: Modified to create Ti.JSON instead
 
         JSON.stringify(value, replacer, space)
             value       any JavaScript value, usually an object or array.
@@ -160,9 +160,10 @@
 // Create a JSON object only if one does not already exist. We create the
 // methods in a closure to avoid creating global variables.
 
-if (!this.Titanium.JSON) {
-    Titanium.JSON = {};
-}
+if (!this.Ti.JSON) {
+    Ti.JSON = {};
+ }
+
 (function () {
 
     function f(n) {
@@ -351,8 +352,8 @@ if (!this.Titanium.JSON) {
 
 // If the JSON object does not yet have a stringify method, give it one.
 
-    if (typeof Titanium.JSON.stringify !== 'function') {
-        Titanium.JSON.stringify = function (value, replacer, space) {
+    if (typeof Ti.JSON.stringify !== 'function') {
+        Ti.JSON.stringify = function (value, replacer, space) {
 
 // The stringify method takes a value and an optional replacer, and an optional
 // space parameter, and returns a JSON text. The replacer can be a function
@@ -385,7 +386,7 @@ if (!this.Titanium.JSON) {
             if (replacer && typeof replacer !== 'function' &&
                     (typeof replacer !== 'object' ||
                      typeof replacer.length !== 'number')) {
-                throw new Error('Titanium.JSON.stringify');
+                throw new Error('Ti.JSON.stringify');
             }
 
 // Make a fake root object containing our value under the key of ''.
@@ -395,11 +396,12 @@ if (!this.Titanium.JSON) {
         };
     }
 
+	Ti._JSON = Ti.JSON.stringify;
 
 // If the JSON object does not yet have a parse method, give it one.
 
-    if (typeof Titanium.JSON.parse !== 'function') {
-        Titanium.JSON.parse = function (text, reviver) {
+    if (typeof Ti.JSON.parse !== 'function') {
+        Ti.JSON.parse = function (text, reviver) {
 
 // The parse method takes a text and an optional reviver function, and returns
 // a JavaScript value if the text is a valid JSON text.
@@ -474,7 +476,7 @@ replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
 
 // If the text is not JSON parseable, then a SyntaxError is thrown.
 
-            throw new SyntaxError('Titanium.JSON.parse: ' + text);
+            throw new SyntaxError('Ti.JSON.parse: ' + text);
         };
     }
 }());

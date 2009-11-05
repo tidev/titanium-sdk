@@ -33,7 +33,7 @@ public class TitaniumApp extends TitaniumBaseModule implements ITitaniumApp
 		this.appInfo = appInfo;
 		this.appProperties = new TitaniumProperties(moduleMgr.getActivity(), "titanium", false);
 		systemProperties = appInfo.getSystemProperties();
-		
+
 		// attempt to load any compiled in application user data
 		try
 		{
@@ -53,6 +53,7 @@ public class TitaniumApp extends TitaniumBaseModule implements ITitaniumApp
 			Log.d(LCAT, "Registering TitaniumApp as " + name);
 		}
 		webView.addJavascriptInterface((ITitaniumApp) this, name);
+		//tmm.registerModule(name, this);
 	}
 
 	public String getID()

@@ -72,6 +72,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	private String userAgent;
 	private String onReadyStateChangeCallback;
 	private String onLoadCallback;
+	private String onErrorCallback;
 	private String onDataStreamCallback;
 	private int readyState;
 	private String responseText;
@@ -137,7 +138,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 					}
 				}
 
-		        StatusLine statusLine = response.getStatusLine();
+				StatusLine statusLine = response.getStatusLine();
 		        if (statusLine.getStatusCode() >= 300) {
 		        	throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
 		        }
@@ -285,6 +286,17 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 		}
 	}
 
+	public void sendError(final String error, final String syncId) {
+		Log.i(LCAT, "Sending error " + error);
+		final TitaniumWebView webView = softWebView.get();
+		if (webView != null) {
+			final String cb = onErrorCallback;
+			if (cb != null) {
+				webView.evalJS(cb, "\"" + error + "\"", syncId);
+			}
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see org.appcelerator.titanium.module.ITitaniumHttpClient#getResponseText()
 	 */
@@ -357,6 +369,10 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 
 	public void setOnLoadCallback(String callback) {
 		this.onLoadCallback = callback;
+	}
+
+	public void setOnErrorCallback(String callback) {
+		this.onErrorCallback = callback;
 	}
 
 	public void setOnDataStreamCallback(String callback) {
@@ -438,7 +454,14 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 		String result = "";
 
 		if (readyState > READY_STATE_LOADING) {
-			result = response.getFirstHeader(header).getValue();
+			Header h = response.getFirstHeader(header);
+			if (h != null) {
+				result = h.getValue();
+			} else {
+				if (DBG) {
+					Log.w(LCAT, "No value for respose header: " + header);
+				}
+			}
 		} else {
 			throw new IllegalStateException("getResponseHeader can only be called when readyState > 1");
 		}
@@ -607,6 +630,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 					me.setReadyState(READY_STATE_COMPLETE, syncId);
 				} catch(Exception e) {
 					Log.e(LCAT, "HTTP Error: " + e.getMessage(), e);
+					me.sendError(e.getMessage(), syncId);
 				} finally {
 					TitaniumWebView wv = softWebView.get();
 					if (wv != null) {

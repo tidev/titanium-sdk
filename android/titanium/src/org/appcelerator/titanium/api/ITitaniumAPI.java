@@ -21,4 +21,8 @@ public interface ITitaniumAPI
 	public int getTitaniumMemoryBlobLength(int key);
 
 	public String getTitaniumMemoryBlobString(int key);
+
+	// Added in 0.8.0 (Internal/Module)
+	public ITitaniumMethod acquireMethod();
+
 }

@@ -9,9 +9,11 @@ package org.appcelerator.titanium.module;
 
 import java.io.UnsupportedEncodingException;
 
+import org.appcelerator.titanium.TitaniumMethod;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumAPI;
 import org.appcelerator.titanium.api.ITitaniumJSRef;
+import org.appcelerator.titanium.api.ITitaniumMethod;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.api.TitaniumMemoryBlob;
 import org.appcelerator.titanium.util.Log;
@@ -112,5 +114,9 @@ public class TitaniumAPI extends TitaniumBaseModule implements ITitaniumAPI
 		}
 
 		return value;
+	}
+
+	public ITitaniumMethod acquireMethod() {
+		return new TitaniumMethod(tmm);
 	}
 }

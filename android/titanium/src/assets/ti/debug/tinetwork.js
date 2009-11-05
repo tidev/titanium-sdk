@@ -5,14 +5,15 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-Titanium.networkProxy = window.TitaniumNetwork;
-//Titanium.Net is aliased at the bottom for Titanium.Network
+Ti.networkProxy = window.TitaniumNetwork;
+//Ti.Net is aliased at the bottom for Ti.Network
 
 var HTTPClient = function() {
 	this.obj = null; // reference to java TitaniumHttpClient
 	this._onreadystatechange = null;
 	this._onload = null;
 	this._ondatastream = null;
+	this._onerror = null;
 
 	/**
 	 * @tiapi(method=true,name=Network.HTTPClient.getReadyState,since=0.4) the state of the network operation
@@ -102,7 +103,7 @@ var HTTPClient = function() {
 					if (type != 'object') {
 						this.obj.addPostData(key, String(value));
 					} else if (type.indexOf('TitaniumBlob') != -1) {
-						//Titanium.API.error("send: typeof=" + typeof value);
+						//Ti.API.error("send: typeof=" + typeof value);
 						this.obj.addTitaniumFileAsPostData(key, value.obj.proxy);
 					} else {
 						this.obj.addTitaniumFileAsPostData(key, value.proxy);
@@ -152,6 +153,16 @@ HTTPClient.prototype.__defineGetter__("onload", function(){
 HTTPClient.prototype.__defineSetter__("onload", function(f) {
 	this._onload = f;
 	this.obj.setOnLoadCallback(registerCallback(this, f));
+});
+/**
+ * @tiapi(property=true,name=Network.HTTPClient.onerror,since=0.8.0) Set or get the error handler.
+ */
+HTTPClient.prototype.__defineGetter__("onerror", function(){
+	return this._error;
+});
+HTTPClient.prototype.__defineSetter__("onerror", function(f) {
+	this._error = f;
+	this.obj.setOnErrorCallback(registerCallback(this, f));
 });
 /**
  * @tiapi(property=true,name=Network.HTTPClient.ondatastream,since=0.7.0) receive data as a blob a chunk at a time.
@@ -212,7 +223,7 @@ HTTPClient.prototype.__defineGetter__("statusText", function(){
 	return this.getStatusText();
 });
 
-Titanium.Network = {
+Ti.Network = {
 	createTCPSocket : function() {
 		//TODO implement Network.createTCPSocket
 	},
@@ -228,7 +239,7 @@ Titanium.Network = {
 	 */
 	createHTTPClient : function() {
 		var c = new HTTPClient();
-		c.obj = Titanium.networkProxy.createHTTPClient();
+		c.obj = Ti.networkProxy.createHTTPClient();
 		return c;
 	},
 	getHostByName : function() {
@@ -260,7 +271,7 @@ Titanium.Network = {
 	 * @tiresult[int] an id used to remove the event listener.
 	 */
 	addEventListener : function(eventName, listener) {
-		return Titanium.networkProxy.addEventListener(eventName, registerCallback(this, listener));
+		return Ti.networkProxy.addEventListener(eventName, registerCallback(this, listener));
 	},
 	/**
 	 * @tiapi(method=true,name=Network.removeEventListener,since=0.4)
@@ -268,7 +279,7 @@ Titanium.Network = {
 	 * @tiarg[int,listenerId] The id returned by addEventListener
 	 */
 	removeEventListener : function(eventName, listenerId) {
-		Titanium.networkProxy.removeEventListener(eventName, listenerId);
+		Ti.networkProxy.removeEventListener(eventName, listenerId);
 	},
 	/**
 	 * @tiapi(method=true,name=Network.addConnectivityListener,since=0.4) Not supported in android. Use addEventListener
@@ -278,7 +289,7 @@ Titanium.Network = {
 		var fn = function(data) {
 			f(data.online,data.type);
 		};
-		return Titanium.networkProxy.addConnectivityListener(registerCallback(this, fn));
+		return Ti.networkProxy.addConnectivityListener(registerCallback(this, fn));
 	},
 	/**
 	 * @tiapi(method=true,name=Network.removeConnectivityListener,since=0.4) Not supported in android. Use removeEventListener
@@ -319,30 +330,30 @@ Titanium.Network = {
  * @tiapi(property=true,name=Network.online,since=0.4) Examine connectivity state
  * @tiresult[boolean] true, if the device has a network connection; otherwise, false.
  */
-Titanium.Network.__defineGetter__("online", function() {
-	return Titanium.networkProxy.isOnline();
+Ti.Network.__defineGetter__("online", function() {
+	return Ti.networkProxy.isOnline();
 });
 /**
  * @tiapi(property=true,name=Network.networkTypeName,since=0.4) The current network connection type.
  * @tiresult[string] The network type
  */
-Titanium.Network.__defineGetter__("networkTypeName", function() {
-	return Titanium.networkProxy.getNetworkTypeName();
+Ti.Network.__defineGetter__("networkTypeName", function() {
+	return Ti.networkProxy.getNetworkTypeName();
 });
 
 /**
  * @tiapi(property=true,name=Network.networkType,since=0.4) The current network connection type.
  * @tiresult[int] A code representing the current network connection type
  */
-Titanium.Network.__defineGetter__("networkType", function() {
-	return Titanium.networkProxy.getNetworkType();
+Ti.Network.__defineGetter__("networkType", function() {
+	return Ti.networkProxy.getNetworkType();
 });
 
 // alias this to what's in Desktop
-Titanium.Net = Titanium.Network;
+Ti.Net = Ti.Network;
 
 // patch the internal XMLHttpRequest object to use our network client instead
 // this fixes apps that would like to use Ajax-libraries like jQuery, YUI, etc.
 window.XMLHttpRequest = function() {
-	return new Titanium.Network.createHTTPClient();
+	return new Ti.Network.createHTTPClient();
 };

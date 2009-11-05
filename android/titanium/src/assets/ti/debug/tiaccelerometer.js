@@ -5,9 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-Titanium.accelerometerProxy = window.TitaniumAccelerometer;
+Ti.accelerometerProxy = window.TitaniumAccelerometer;
 
-Titanium.Accelerometer = {
+Ti.Accelerometer = {
 	/**
 	 * @tiapi(method=True,name=Accelerometer.addEventListener,since=0.4)
 	 * @tiapi Listen for events from the accelerometer.
@@ -16,7 +16,7 @@ Titanium.Accelerometer = {
 	 * @tiresult[int] id to pass to removeEventListener to cancel the event.
 	 */
 	addEventListener : function(eventName, listener) {
-		return Titanium.accelerometerProxy.addEventListener(eventName, registerCallback(this, listener));
+		return Ti.accelerometerProxy.addEventListener(eventName, registerCallback(this, listener));
 	},
 	/**
 	 * @tiapi(method=True,name=Accelerometer.removeEventListener,since=0.4)
@@ -25,6 +25,6 @@ Titanium.Accelerometer = {
 	 * @tiarg[int,listenerId] Value returned from addEventListener.
 	 */
 	removeEventListener : function(eventName, listenerId) {
-		Titanium.accelerometerProxy.removeEventListener(eventName, listenerId);
+		Ti.accelerometerProxy.removeEventListener(eventName, listenerId);
 	}
 };

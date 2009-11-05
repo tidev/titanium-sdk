@@ -576,11 +576,37 @@ TitaniumHost * lastSharedHost = nil;
 
 }
 
+- (void) pauseTermination;
+{
+	[closingLock lock];
+	pendingClosings ++;
+	[closingLock unlock];
+}
+ 
+ - (void) resumeTermination;
+{
+	[closingLock lock];
+	pendingClosings --;
+	[closingLock unlock];
+}
+
 - (void) endModules;
 {
+	closingLock = [[NSLock alloc] init];
+
 	for (id thisModule in [nativeModules objectEnumerator]) {
 		if ([thisModule respondsToSelector:@selector(endModule)]) [thisModule endModule];
 	}
+
+	int i = 0;
+
+	while ((pendingClosings > 0) && (i<20)) {
+		[NSThread sleepForTimeInterval:0.1];
+		i++;
+	}
+	
+	[closingLock release];
+	closingLock = nil;
 }
 
 - (void) mergeObject: (id) object toKey: (NSString *) key intoDictionary: (NSMutableDictionary *) destination;

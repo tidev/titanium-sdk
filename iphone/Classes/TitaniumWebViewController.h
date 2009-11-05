@@ -9,9 +9,10 @@
 #import "TitaniumContentViewController.h"
 #import "TitaniumViewController.h"
 
+@class TweakedWebView;
 @interface TitaniumWebViewController : TitaniumContentViewController<UIWebViewDelegate> {
 	IBOutlet UIScrollView * scrollView; //The root view of us, effectively.
-	IBOutlet UIWebView * webView;
+	IBOutlet TweakedWebView * webView;
 	NSURL * currentContentURL;	//Used as a base url.
 	NSMutableDictionary * magicTokenDict;
 	UIActivityIndicatorView * spinner;
@@ -26,7 +27,7 @@
 
 //For WebView
 @property (nonatomic,retain)	IBOutlet UIScrollView * scrollView;
-@property (nonatomic,retain)	IBOutlet UIWebView * webView;
+@property (nonatomic,retain)	IBOutlet TweakedWebView * webView;
 @property (nonatomic,retain)	NSURL * currentContentURL;	//Used as a base url.
 
 - (BOOL) sendJavascript: (NSString *) inputString;

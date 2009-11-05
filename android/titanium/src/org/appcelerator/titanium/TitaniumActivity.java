@@ -28,7 +28,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -41,7 +40,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -160,30 +158,11 @@ public class TitaniumActivity extends Activity
 		resultHandlers = new HashMap<Integer, TitaniumResultHandler>();
 		uniqueResultCodeAllocator = new AtomicInteger();
 
-//		this.userWindow = new TitaniumUserWindow(this);
-//		userWindow.attachWebView(url);
-
         loadOnPageEnd = true;
 
         ts("After getApplication()");
 
         Thread backgroundDrawableThread = null;
-/*
-        if (app.needsSplashScreen()) {
-	        String backgroundImage = "default.png";
-	        final String fBackgroundImage = backgroundImage;
-	    	if(windowInfo != null && windowInfo.hasWindowBackgroundImage()) {
-	    		backgroundImage = windowInfo.getWindowBackgroundImage();
-	    	}
-
-	        backgroundDrawableThread = new Thread(new Runnable(){
-
-				public void run() {
-					backgroundDrawable = tfh.loadDrawable(fBackgroundImage, false); // Ok to not have background
-				}});
-	        backgroundDrawableThread.start();
-        }
-*/
         initialOrientation = this.getRequestedOrientation();
         Intent activityIntent = getIntent();
         if (activityIntent != null) {
@@ -246,9 +225,6 @@ public class TitaniumActivity extends Activity
         	}
         }
 
-		//splashView=new ImageView(this);
-		//splashView.setScaleType(ImageView.ScaleType.FIT_XY);
-
 		if (backgroundDrawableThread != null) {
 			try {
 				backgroundDrawableThread.join();
@@ -256,11 +232,6 @@ public class TitaniumActivity extends Activity
 				Log.w(LCAT, "Interrupted");
 			}
 
-//			if (backgroundDrawable != null) {
-//				((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
-//				splashView.setImageDrawable(backgroundDrawable);
-//			}
-//			userWindow.addView(splashView);
 			app.setNeedsSplashScreen(false);
 		}
 

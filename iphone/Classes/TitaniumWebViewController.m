@@ -11,6 +11,7 @@
 #import "NativeControlProxy.h"
 #import "Logging.h"
 #import "TweakedScrollView.h"
+#import "TweakedWebView.h"
 
 @implementation TitaniumWebViewController
 @synthesize webView, currentContentURL, scrollView;
@@ -208,10 +209,10 @@
 	return parentView;
 }
 
-- (UIWebView *) webView;
+- (TweakedWebView *) webView;
 {
 	if(webView == nil){
-		webView = [[UIWebView alloc] init];
+		webView = [[TweakedWebView alloc] init];
 		if([webView respondsToSelector:@selector(setDetectsPhoneNumbers:)])[(id)webView setDetectsPhoneNumbers:NO];
 		if([webView respondsToSelector:@selector(setDataDetectorTypes:)])[(id)webView setDataDetectorTypes:0];
 		[webView setDelegate:self];
@@ -226,7 +227,7 @@
 	return webView;
 }
 
-- (void) setWebView: (UIWebView *) newWebView;
+- (void) setWebView: (TweakedWebView *) newWebView;
 {
 	if (newWebView == webView) return;
 	if (webView == nil){ //Setting up for the first time.

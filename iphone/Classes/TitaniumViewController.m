@@ -215,7 +215,24 @@ int nextWindowToken = 0;
 	}
 	
 	NSString * navTintName = [inputState objectForKey:@"barColor"];
-	[self setNavBarTint:UIColorWebColorNamed(navTintName)];
+	NSLog(@"barColor is = %@",navTintName);
+	if (navTintName==nil)
+	{
+		// if we don't specify a color, by default the new view should inherit the current views barcolor
+		TitaniumViewController *vc = [theTiHost visibleTitaniumViewController];
+		if (vc!=nil)
+		{
+			[self setNavBarTint:[vc navBarTint]];
+		}
+		else
+		{
+			[self setNavBarTint:UIColorWebColorNamed(nil)];
+		}
+	}
+	else
+	{
+		[self setNavBarTint:UIColorWebColorNamed(navTintName)];
+	}
 	
 	NSString * backgroundColorName = [inputState objectForKey:@"backgroundColor"];
 	if ([backgroundColorName isKindOfClass:stringClass]){

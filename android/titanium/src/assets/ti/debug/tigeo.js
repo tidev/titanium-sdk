@@ -5,9 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-Titanium.geoProxy = window.TitaniumGeolocation;
+Ti.geoProxy = window.TitaniumGeolocation;
 
-Titanium.Geolocation = {
+Ti.Geolocation = {
 	UNKNOWN_ERROR : 0,
 	PERMISSION_DENIED : 1,
 	POSITION_UNAVAILABLE : 2,
@@ -21,9 +21,9 @@ Titanium.Geolocation = {
 	 */
 	getCurrentPosition : function(success, failure, options) {
 		var o = transformObjectValue(options, {});
-		var json = Titanium.JSON.stringify(o);
+		var json = Ti.JSON.stringify(o);
 
-		Titanium.geoProxy.getCurrentPosition(
+		Ti.geoProxy.getCurrentPosition(
 				registerOneShot(this, success),
 				registerOneShot(this, failure),
 				json);
@@ -37,9 +37,9 @@ Titanium.Geolocation = {
 	 */
 	watchPosition : function(success, failure, options) {
 		var o = transformObjectValue(options, {});
-		var json = Titanium.JSON.stringify(o);
+		var json = Ti.JSON.stringify(o);
 
-		return Titanium.geoProxy.watchPosition(
+		return Ti.geoProxy.watchPosition(
 			registerCallback(this, success),
 			registerCallback(this, failure),
 			json);
@@ -49,6 +49,6 @@ Titanium.Geolocation = {
 	 * @tiarg[int,watchId] The value returned from watchPosition.
 	 */
 	clearWatch : function(watchId) {
-		Titanium.geoProxy.clearWatch(watchId);
+		Ti.geoProxy.clearWatch(watchId);
 	}
 };

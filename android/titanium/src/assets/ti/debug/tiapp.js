@@ -5,17 +5,19 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-Titanium.appProxy = window.TitaniumApp;
+Ti.appProxy = window.TitaniumApp;
 
-Titanium.App =
+Ti.App =
 {
+	_module : 'TitaniumApp',
 	/**
 	 * @tiapi(method=True,name=App.getID,since=0.4) Get the application id.
 	 * @tiresult[string] the id as stored in tiapp.xml
 	 */
 	getID : function ()
 	{
-		return transformObjectValueAsString(Titanium.appProxy.getID(),null);
+		return transformObjectValueAsString(Ti.appProxy.getID(),null);
+		//return Ti.Method.dispatch(this._module, "getID");
 	},
 	/**
 	 * @tiapi(method=True,name=App.getName,since=0.4) Get the name of the application.
@@ -23,7 +25,8 @@ Titanium.App =
 	 */
 	getName: function()
 	{
-		return transformObjectValueAsString(Titanium.appProxy.getModuleName(),null);
+		//return Ti.Method.dispatch(this._module, "getModuleName");
+		return transformObjectValueAsString(Ti.appProxy.getModuleName(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getVersion,since=0.4) Get the application version.
@@ -31,7 +34,8 @@ Titanium.App =
 	 */
 	getVersion: function()
 	{
-		return transformObjectValueAsString(Titanium.appProxy.getVersion(),null);
+		//return Ti.Method.dispatch(this._module, "getVersion");
+		return transformObjectValueAsString(Ti.appProxy.getVersion(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getPublisher,since=0.4) Get the publisher.
@@ -39,7 +43,8 @@ Titanium.App =
 	 */
 	getPublisher: function()
 	{
-		return transformObjectValueAsString(Titanium.appProxy.getPublisher(),null);
+		//return Ti.Method.dispatch(this._module, "getPublisher");
+		return transformObjectValueAsString(Ti.appProxy.getPublisher(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getURL,since=0.4) Get the url to application's external website.
@@ -47,7 +52,8 @@ Titanium.App =
 	 */
 	getURL: function()
 	{
-		return transformObjectValueAsString(Titanium.appProxy.getURL(),null);
+		//return Ti.Method.dispatch(this._module, "getURL");
+		return transformObjectValueAsString(Ti.appProxy.getURL(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getDescription,since=0.4) Get description of application
@@ -55,7 +61,8 @@ Titanium.App =
 	 */
 	getDescription: function()
 	{
-		return transformObjectValueAsString(Titanium.appProxy.getDescription(),null);
+		//return Ti.Method.dispatch(this._module, "getDescription");
+		return transformObjectValueAsString(Ti.appProxy.getDescription(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getCopyright,since=0.4) Get application copyright
@@ -63,7 +70,8 @@ Titanium.App =
 	 */
 	getCopyright: function()
 	{
-		return transformObjectValueAsString(Titanium.appProxy.getCopyright(),null);
+		//return Ti.Method.dispatch(this._module, "getCopyright");
+		return transformObjectValueAsString(Ti.appProxy.getCopyright(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getGUID,since=0.4) get the application's globally unique id
@@ -71,7 +79,8 @@ Titanium.App =
 	 */
 	getGUID: function()
 	{
-		return transformObjectValueAsString(Titanium.appProxy.getGUID(),null);
+		//return Ti.Method.dispatch(this._module, "getGUID");
+		return transformObjectValueAsString(Ti.appProxy.getGUID(),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.appURLToPath,since=0.4) Get url for file under Resources
@@ -80,7 +89,8 @@ Titanium.App =
 	 */
 	appURLToPath: function(url)
 	{
-		return transformObjectValueAsString(Titanium.appProxy.appURLToPath(url),null);
+		//return Ti.Method.dispatch(this._module, "appURLToPath", url);
+		return transformObjectValueAsString(Ti.appProxy.appURLToPath(url),null);
 	},
 	/**
 	 * @tiapi(method=True,name=App.getStreamURL,since=0.4) Not implemented yet
@@ -89,7 +99,17 @@ Titanium.App =
 	 */
 	getStreamURL: function(stream)
 	{
-		return transformObjectValueAsString(Titanium.appProxy.getStreamURL(stream),null);
+		//return Ti.Method.dispatch(this._module, "getStreamURL", stream);
+		return transformObjectValueAsString(Ti.appProxy.getStreamURL(stream),null);
+	},
+	/**
+	 * @tiapi(method=True,name=App.getArguments,since=0.8.0) Not implemented yet
+	 * @tiresult[object] empty object
+	 */
+	getArguments: function()
+	{
+		//return Ti.Method.dispatch(this._module, "getStreamURL", stream);
+		return {};
 	},
 	/**
 	 * @tiapi(method=True,name=App.triggerLoad,since=0.4) (Internal, Android only)
@@ -98,7 +118,8 @@ Titanium.App =
 	 */
 	triggerLoad: function()
 	{
-		Titanium.appProxy.triggerLoad();
+		//return Ti.Method.dispatch(this._module, "triggerLoad");
+		Ti.appProxy.triggerLoad();
 	},
 	/**
 	 * @tiapi(method=True,name=App.setLoadOnPageEnd,since=0.4)
@@ -107,7 +128,8 @@ Titanium.App =
 	 */
 	setLoadOnPageEnd: function(load)
 	{
-		return transformObjectValue(Titanium.appProxy.setLoadOnPageEnd(load), null);
+		//return Ti.Method.dispatch(this._module, "setLoadOnPageEnd", load);
+		return transformObjectValue(Ti.appProxy.setLoadOnPageEnd(load), null);
 	}
 };
 
@@ -130,10 +152,10 @@ Properties = function(proxy) {
 		var r = null;
 
 		if (this.hasProperty(name)) {
-			def = arguments.length == 1 || isUndefined(def) ? null : def;
+			def = arguments.length == 1 || Ti.isUndefined(def) ? null : def;
 			r = this.proxy.getString(name,def);
 		} else {
-			if (isUndefined(def)) {
+			if (Ti.isUndefined(def)) {
 				def = null;
 			}
 		}
@@ -168,10 +190,10 @@ Properties = function(proxy) {
 		var r = null;
 
 		if(this.hasProperty(name)) {
-			def = arguments.length == 1 || isUndefined(def) ? -1 : def;
+			def = arguments.length == 1 || Ti.isUndefined(def) ? -1 : def;
 			r = this.proxy.getInt(name,def);
 		} else {
-			if (isUndefined(def)) {
+			if (Ti.isUndefined(def)) {
 				def = null;
 			}
 		}
@@ -205,10 +227,10 @@ Properties = function(proxy) {
 	this.getBool = function(name,def) {
 		var r = null;
 		if (this.hasProperty(name)) {
-			def = arguments.length == 1 || isUndefined(def) ? false : def;
+			def = arguments.length == 1 || Ti.isUndefined(def) ? false : def;
 			r = this.proxy.getBool(name,def);
 		} else {
-			if(isUndefined(def)) {
+			if(Ti.isUndefined(def)) {
 				def = null;
 			}
 		}
@@ -241,10 +263,10 @@ Properties = function(proxy) {
 	 */
 	this.getDouble = function(name,def){
 		if (this.hasProperty(name)) {
-			def = arguments.length == 1 || isUndefined(def) ? 0.0 : def;
+			def = arguments.length == 1 || Ti.isUndefined(def) ? 0.0 : def;
 			r = this.proxy.getDouble(name,def);
 		} else {
-			if(isUndefined(def)) {
+			if(Ti.isUndefined(def)) {
 				def = null;
 			}
 		}
@@ -267,10 +289,10 @@ Properties = function(proxy) {
 	 */
 	this.getList = function(name, def)
 	{
-		 if (isUndefined(def)) {
+		 if (Ti.isUndefined(def)) {
 			 def = [];
 		 }
-		 var s = this.proxy.getList(name, Titanium.JSON.stringify(def));
+		 var s = this.proxy.getList(name, Ti.JSON.stringify(def));
 		 return eval("(" + s + ")");
 	};
 
@@ -285,15 +307,15 @@ Properties = function(proxy) {
 	 * @tiarg[list,def] value to store
 	 */
 	this.setList = function(name, value) {
-		if (isUndefined(value)) {
+		if (Ti.isUndefined(value)) {
 			value = [];
 		}
 
-		if (!typeOf(value) == 'array') {
+		if (!Ti.typeOf(value) == 'array') {
 			value = [ value ];
 		}
 
-		this.proxy.setList(name, Titanium.JSON.stringify(value));
+		this.proxy.setList(name, Ti.JSON.stringify(value));
 	};
 	/**
 	 * @tiapi(method=True,name=App.Properties.hasProperty,since=0.7.0) Detect existence of a property
@@ -328,11 +350,11 @@ Properties = function(proxy) {
 	 * @tiarg[string,name] property name
 	 */
 	this.removeProperty = function(name) {
-		if (!isUndefined(name)) {
+		if (!Ti.isUndefined(name)) {
 			this.proxy.removeProperty(name);
 		}
 	};
 };
 
-Titanium.App.Properties = new Properties(Titanium.appProxy.getAppProperties());
-Titanium.App.SystemProperties = new Properties(Titanium.appProxy.getSystemProperties());
+Ti.App.Properties = new Properties(Ti.appProxy.getAppProperties());
+Ti.App.SystemProperties = new Properties(Ti.appProxy.getSystemProperties());

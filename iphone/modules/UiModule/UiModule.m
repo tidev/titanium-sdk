@@ -18,6 +18,7 @@
 #import "TitaniumScrollableViewController.h"
 #import "TitaniumCompositeViewController.h"
 #import "TitaniumImageViewController.h"
+#import "TitaniumCoverFlowViewController.h"
 
 #import "TitaniumJSEvent.h"
 #import "Logging.h"
@@ -124,8 +125,8 @@ NSString * UrlEncodeString(NSString * string)
 	}
 	
 	UIView * doomedView = [[[TitaniumAppDelegate sharedDelegate] viewController] view];
-	[actionSheet performSelectorOnMainThread:@selector(showInView:) withObject:doomedView waitUntilDone:NO];
 	[[TitaniumAppDelegate sharedDelegate] setIsShowingDialog:YES];
+	[actionSheet showInView:doomedView];
 
 	// fire action to any module listeners
 	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventActionSheetShown:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(actionSheet),@"actionSheet",VAL_OR_NSNULL(inputDict),@"properties",nil]];
@@ -174,8 +175,8 @@ NSString * UrlEncodeString(NSString * string)
 		}
 	}
 	
-	[alertView performSelectorOnMainThread:@selector(show) withObject:nil waitUntilDone:NO];
 	[[TitaniumAppDelegate sharedDelegate] setIsShowingDialog:YES];
+	[alertView show];
 	// fire event listener
 	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAlertViewShown:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(alertView),@"alertView",VAL_OR_NSNULL(inputDict),@"properties",nil]];
 	[self retain];
@@ -987,6 +988,31 @@ NSString * UrlEncodeString(NSString * string)
 	return nil;
 }
 
+#define COVERFLOWVIEW_SETURL	0
+#define COVERFLOWVIEW_SETSELECTED 1
+
+- (id) cloverFlowView:(NSString *)tokenString doAction:(NSNumber *)action args:(id)args options:(NSDictionary *)optionsObject;
+{
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	TitaniumCoverFlowViewController * con = (TitaniumCoverFlowViewController *)[theHost titaniumContentViewControllerForToken:tokenString];
+	if(![con isKindOfClass:[TitaniumCoverFlowViewController class]] || ![action respondsToSelector:@selector(intValue)])return nil;
+	switch ([action intValue]) {
+		case COVERFLOWVIEW_SETURL:{
+			NSArray * _args = (NSArray*)args;
+			NSString * callingToken = [[theHost currentThread] magicToken];
+			TitaniumWebViewController * contextVC = (TitaniumWebViewController *)[theHost titaniumContentViewControllerForToken:callingToken];
+			[con setUrl:[NSURL URLWithString:[_args objectAtIndex:1] relativeToURL:[contextVC currentContentURL]] index:(NSNumber*)[_args objectAtIndex:0]];
+			return nil;
+		}
+		case COVERFLOWVIEW_SETSELECTED:{
+			NSArray * _args = (NSArray*)args;
+			[con setSelected:[_args objectAtIndex:0]];
+			return nil;
+		}
+	}
+	return nil;
+}
+
 
 #pragma mark Current Window actions
 
@@ -1059,9 +1085,9 @@ NSString * UrlEncodeString(NSString * string)
 	if ((![isAlertObject respondsToSelector:@selector(boolValue)]) || (![modalObject isKindOfClass:[NSDictionary class]])) return;
 	ModalProxy * result = [[ModalProxy alloc] init];
 	if ([isAlertObject boolValue]){
-		[result showAlertViewWithDict:modalObject];
+		[result performSelectorOnMainThread:@selector(showAlertViewWithDict:) withObject:modalObject waitUntilDone:NO];
 	} else {
-		[result showActionSheetWithDict:modalObject];
+		[result performSelectorOnMainThread:@selector(showActionSheetWithDict:) withObject:modalObject waitUntilDone:NO];
 	}
 	
 	[result release];
@@ -1246,7 +1272,9 @@ NSString * UrlEncodeString(NSString * string)
 	
 	[(UiModule *)invocGen imageView:nil doAction:nil args:nil options:nil];
 	NSInvocation * imageViewInvoc = [invocGen invocation];
-	
+		
+	[(UiModule *)invocGen cloverFlowView:nil doAction:nil args:nil options:nil];
+	NSInvocation * coverflowViewInvoc = [invocGen invocation];
 	
 	buttonContexts = [[NSMutableDictionary alloc] init];
 	
@@ -1417,7 +1445,15 @@ NSString * UrlEncodeString(NSString * string)
 			"res._EVT={click:[]};res.doEvent=Ti._ONEVT;res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;"
 			"res.setURL=function(newUrl){this.url=newUrl;if(this._TOKEN){Ti.UI._IMGVWACT(this._TOKEN," STRINGVAL(IMAGEVIEW_SETURL) ",newUrl);}};"
 			"return res;}";
-	
+
+	NSString * createCoverFlowViewString = @"function(args){var res=Ti.UI.createView(args);res._TYPE='coverflow';"
+			"res._EVT={click:[]};res.doEvent=Ti._ONEVT;res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;"
+			"res._SEL=0; res.__defineGetter__('selected',function(){return res._SEL;}); res.__defineSetter__('selected',function(i){ Ti.UI._CFLVWACT(this._TOKEN," STRINGVAL(COVERFLOWVIEW_SETSELECTED) ",[i]); res._SEL=i; });"
+			"res.setSelected=function(i){ res.selected = i; };"
+			"res.getSelected=function(){ return res.selected; };"
+			"res.setURL=function(i,newUrl){if(this._TOKEN){Ti.UI._CFLVWACT(this._TOKEN," STRINGVAL(COVERFLOWVIEW_SETURL) ",[i,newUrl]);}};"
+			"return res;}";
+
 	NSString * createTableWindowString = [NSString stringWithFormat:@"function(args,callback){var res=Ti.UI.createView(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;"
 			"res._EVT={click:[]};res.onClick=Ti._ONEVT;res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;"
 			"res.addEventListener('click',callback);"
@@ -1574,6 +1610,7 @@ NSString * UrlEncodeString(NSString * string)
 			scrollViewInvoc,@"_SCRVWACT",
 			compositeViewInvoc,@"_CMPVWACT",
 			imageViewInvoc,@"_IMGVWACT",
+			coverflowViewInvoc,@"_CFLVWACT",				 
 
 			[TitaniumJSCode codeWithString:createButtonString],@"createButton",
 			[TitaniumJSCode codeWithString:createActivityIndicatorString],@"createActivityIndicator",
@@ -1621,6 +1658,7 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:createCompositeViewString],@"createCompositeView",
 			[TitaniumJSCode codeWithString:createImageViewString],@"createImageView",
 			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",
+			[TitaniumJSCode codeWithString:createCoverFlowViewString],@"createCoverFlowView",
 			[TitaniumJSCode codeWithString:setActiveTabString],@"setActiveTab",
 			[TitaniumJSCode codeWithString:createTabString],@"createTab",
 			[TitaniumJSCode codeWithString:getTabByNameString],@"getTabByName",

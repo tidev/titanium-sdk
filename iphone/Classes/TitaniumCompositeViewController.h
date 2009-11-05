@@ -10,7 +10,6 @@
 
 @interface TitaniumCompositeRule : NSObject
 {
-	TitaniumContentViewController * viewController;
 	CGFloat z;
 
 	CGFloat left;
@@ -31,14 +30,14 @@
 	BOOL hasBottomConstraint;
 	BOOL hasHeightConstraint;
 }
-@property(nonatomic,readwrite,retain)	TitaniumContentViewController * viewController;
-
 @end
 
 
 @interface TitaniumCompositeViewController : TitaniumContentViewController {
-	NSMutableArray * viewControllerRules;
+	NSMutableArray * contentViewControllers;
+	NSMutableArray * contentRules;
 	NSMutableArray * pendingRules;
+	NSMutableArray * pendingViewControllers;
 
 	UIView * view;
 }

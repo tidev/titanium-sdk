@@ -370,14 +370,17 @@
             <url>gowalla.html</url>
             <fullscreen>true</fullscreen>
         </window>
--->
 
 		<window>
             <id>InlineScroll</id>
             <url>inlinescroll.html</url>
             <fullscreen>false</fullscreen>
         </window>
-
+-->
+	<window>
+		<id>adhoc</id>
+		<url>adhoc.html</url>
+	</window>
     </windows>
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.android.watchlog" type="bool">false</property>

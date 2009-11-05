@@ -129,7 +129,9 @@ public class TitaniumProgressDialog
 						statusBarTitle = null;
 					}
 				} else {
-					progressDialog.dismiss();
+					if (progressDialog != null) {
+						progressDialog.dismiss();
+					}
 				}
 				return true;
 		}

@@ -5,9 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-Titanium.gestureProxy = window.TitaniumGesture;
+Ti.gestureProxy = window.TitaniumGesture;
 
-Titanium.Gesture = {
+Ti.Gesture = {
 	/**
 	 * @tiapi(property=True,name=Gesture.PORTRAIT,since=0.4,type=int) Portrait orientation
 	 */
@@ -51,7 +51,7 @@ Titanium.Gesture = {
 	 * @tiresult[int] id to pass to removeEventListener to stop receiving events. Id is only valid for use with the event name that was used to register the listener.
 	 */
 	addEventListener : function(eventName, listener) {
-		return Titanium.gestureProxy.addEventListener(eventName, registerCallback(this, listener));
+		return Ti.gestureProxy.addEventListener(eventName, registerCallback(this, listener));
 	},
 	/**
 	 * @tiapi(method=True,name=Gesture.removeEventListener,since=0.4) Remove gesture event listener.
@@ -59,6 +59,6 @@ Titanium.Gesture = {
 	 * @tiarg[int,listenerId] Id returned from addEventListener. Ids are only valid for the eventName passed in addEventListener.
 	 */
 	removeEventListener : function(eventName, listenerId) {
-		Titanium.gestureProxy.removeEventListener(eventName, listenerId);
+		Ti.gestureProxy.removeEventListener(eventName, listenerId);
 	}
 };

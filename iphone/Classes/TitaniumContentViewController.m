@@ -13,6 +13,7 @@
 #import "TitaniumScrollableViewController.h"
 #import "TitaniumCompositeViewController.h"
 #import "TitaniumImageViewController.h"
+#import "TitaniumCoverFlowViewController.h"
 
 #import "TitaniumViewController.h"
 #import "TitaniumHost.h"
@@ -67,6 +68,8 @@ NSMutableDictionary * registery = nil;
 				result = [[TitaniumCompositeViewController alloc] init];
 			} else if ([typeString isEqualToString:@"image"]){
 				result = [[TitaniumImageViewController alloc] init];
+			} else if ([typeString isEqualToString:@"coverflow"]){
+				result = [[TitaniumCoverFlowViewController alloc] init];
 			}
 			else 
 			{

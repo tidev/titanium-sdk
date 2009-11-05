@@ -122,7 +122,7 @@ public class TitaniumGeolocation extends TitaniumBaseModule implements ITitanium
 	public void getCurrentPosition(String successListener, String failureListener, String options)
 	{
 		if (locationManager != null) {
-			String provider = locationManager.getBestProvider(createCriteria(options, Criteria.ACCURACY_FINE), false);
+			String provider = locationManager.getBestProvider(createCriteria(options, Criteria.ACCURACY_FINE), true);
 			Location loc = locationManager.getLastKnownLocation(provider);
 
 			if (loc != null) {

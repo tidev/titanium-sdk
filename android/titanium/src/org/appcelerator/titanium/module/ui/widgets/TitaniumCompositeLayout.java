@@ -3,19 +3,23 @@ package org.appcelerator.titanium.module.ui.widgets;
 import java.util.Comparator;
 import java.util.TreeSet;
 
+import org.appcelerator.titanium.util.Log;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.OnHierarchyChangeListener;
 
 public class TitaniumCompositeLayout extends ViewGroup
+	implements OnHierarchyChangeListener
 {
 	private TreeSet<View> viewSorter;
+	private boolean needsSort;
 
 	public TitaniumCompositeLayout(Context context)
 	{
 		super(context);
-
 		this.viewSorter = new TreeSet<View>(new Comparator<View>(){
 
 			public int compare(View o1, View o2)
@@ -31,7 +35,7 @@ public class TitaniumCompositeLayout extends ViewGroup
 					if (p1.optionZIndex.intValue() < p2.optionZIndex.intValue()) {
 						result = -1;
 					} else if (p1.optionZIndex.intValue() > p2.optionZIndex.intValue()) {
-						result = -1;
+						result = 1;
 					}
 				} else if (p1.optionZIndex != null) {
 					if (p1.optionZIndex.intValue() < 0) {
@@ -57,6 +61,9 @@ public class TitaniumCompositeLayout extends ViewGroup
 
 				return result;
 			}});
+
+		needsSort = true;
+		setOnHierarchyChangeListener(this);
 	}
 
 	public TitaniumCompositeLayout(Context context, AttributeSet attrs) {
@@ -66,6 +73,14 @@ public class TitaniumCompositeLayout extends ViewGroup
 	public TitaniumCompositeLayout(Context context, AttributeSet attrs,
 			int defStyle) {
 		super(context, attrs, defStyle);
+	}
+
+	public void onChildViewAdded(View arg0, View arg1) {
+		needsSort = true;
+	}
+
+	public void onChildViewRemoved(View arg0, View arg1) {
+		needsSort = true;
 	}
 
 	@Override
@@ -99,24 +114,23 @@ public class TitaniumCompositeLayout extends ViewGroup
 		int maxWidth = w;
 		int maxHeight = h;
 
-		// measure all the kids
+		if (needsSort) {
+			viewSorter.clear();
 
-		//ignore z-order for now
+			for(int i = 0; i < count; i++) {
+				viewSorter.add(getChildAt(i));
+			}
 
-
-		viewSorter.clear();
-
-		for(int i = 0; i < count; i++) {
-			viewSorter.add(getChildAt(i));
+			detachAllViewsFromParent();
+			int i = 0;
+			for (View child : viewSorter) {
+				attachViewToParent(child, i++, child.getLayoutParams());
+			}
+			needsSort = false;
 		}
 
-		detachAllViewsFromParent();
-		int i = 0;
-		for (View child : viewSorter) {
-			attachViewToParent(child, i++, child.getLayoutParams());
-		}
-
-		for (View child : viewSorter) {
+		for(int i = 0; i < getChildCount(); i++) {
+			View child = getChildAt(i);
 			if (child.getVisibility() != View.GONE) {
 				TitaniumCompositeLayout.TitaniumCompositeLayoutParams p =
 					(TitaniumCompositeLayout.TitaniumCompositeLayoutParams) child.getLayoutParams();
@@ -205,10 +219,12 @@ public class TitaniumCompositeLayout extends ViewGroup
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b)
 	{
-		for (View child : viewSorter) {
+		for (int i = 0; i < getChildCount(); i++) {
+			View child = getChildAt(i);
+			TitaniumCompositeLayout.TitaniumCompositeLayoutParams params =
+				(TitaniumCompositeLayout.TitaniumCompositeLayoutParams) child.getLayoutParams();
+			Log.d("TILAYOUT", "Layout: Child " + i + " zIndex: " + params.optionZIndex);
 			if (child.getVisibility() != View.GONE) {
-				TitaniumCompositeLayout.TitaniumCompositeLayoutParams params =
-					(TitaniumCompositeLayout.TitaniumCompositeLayoutParams) child.getLayoutParams();
 				child.layout(params.mLeft, params.mTop, params.mRight, params.mBottom);
 			}
 		}

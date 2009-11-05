@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-Titanium.uiProxy = window.TitaniumUI;
+Ti.uiProxy = window.TitaniumUI;
 
 var MenuItem = function() {
 	this.obj = null; // reference to Java object
@@ -66,7 +66,7 @@ var MenuItem = function() {
 	this.addItem = function(label, callback, icon) {
 		var m = new MenuItem();
 		this._callback = callback;
-		if (isUndefined(icon)) {
+		if (Ti.isUndefined(icon)) {
 			icon = null;
 		}
 		m.obj = this.obj.addItem(label, registerCallback(this, this._callback), icon);
@@ -80,7 +80,7 @@ var MenuItem = function() {
 	 */
 	this.addSubMenu = function(label, icon) {
 		var m = new MenuItem();
-		if (isUndefined(icon)) {
+		if (Ti.isUndefined(icon)) {
 			icon = null;
 		}
 		m.obj = this.obj.addSubMenu(label, icon);
@@ -148,7 +148,7 @@ var OptionDialog = function(proxy) {
 	 */
 	this.setOptions = function(options) {
 		var o = transformObjectValue(options, []);
-		if (typeOf(o) !== 'array') {
+		if (Ti.typeOf(o) !== 'array') {
 			o = [ options ];
 		}
 		this.proxy.setOptions(o);
@@ -217,7 +217,7 @@ var AlertDialog = function(proxy) {
 	 */
 	this.setButtonNames = function(names) {
 		var n = transformObjectValue(names, []);
-		if (typeOf(n) !== 'array') {
+		if (Ti.typeOf(n) !== 'array') {
 			n = [ names ];
 		}
 		this.proxy.setButtons(n);
@@ -308,7 +308,7 @@ var EmailDialog = function(proxy) {
 	 * @tiarg[string,subject] the subject text
 	 */
 	this.setSubject = function(subject) {
-		if (isUndefined(subject)) {
+		if (Ti.isUndefined(subject)) {
 			subject = null;
 		}
 		proxy.setSubject(subject);
@@ -316,14 +316,14 @@ var EmailDialog = function(proxy) {
 	// Internal use method
 	this.toStringArray = function(addrs) {
 		var sa = [];
-		if (!isUndefined(addrs)) {
-			if (typeOf(addrs) === 'string') {
-				Titanium.API.debug("addrs is string");
+		if (!Ti.isUndefined(addrs)) {
+			if (Ti.typeOf(addrs) === 'string') {
+				Ti.API.debug("addrs is string");
 				sa.push(addrs);
-			} else if (typeOf(addrs) === 'array') {
-				Titanium.API.debug("addrs is array");
+			} else if (Ti.typeOf(addrs) === 'array') {
+				Ti.API.debug("addrs is array");
 				for (addr in addrs) {
-					if (typeOf(addrs[addr]) === 'string') {
+					if (Ti.typeOf(addrs[addr]) === 'string') {
 						sa.push(addrs[addr]);
 					}
 				}
@@ -374,16 +374,16 @@ var EmailDialog = function(proxy) {
 	 */
 	this.addAttachment = function(attachment) {
 		var a = {};
-		if (!isUndefined(attachment)) {
-			Titanium.API.debug("Attachment type: " + typeOf(attachment));
-			if (typeOf(attachment) != 'string') {
-				if(!isUndefined(attachment.url)) {
+		if (!Ti.isUndefined(attachment)) {
+			Ti.API.debug("Attachment type: " + Ti.typeOf(attachment));
+			if (Ti.typeOf(attachment) != 'string') {
+				if(!Ti.isUndefined(attachment.url)) {
 					a.file = String(attachment.url);
 				}
 			} else {
 				a.file = attachment;
 			}
-			this.proxy.addAttachment(Titanium.JSON.stringify(a));
+			this.proxy.addAttachment(Ti.JSON.stringify(a));
 		}
 	};
 	/**
@@ -467,11 +467,11 @@ var CompositeView = function(proxy) {
 	 * @tiarg[Object,layout] layout parameters for the view
 	 */
 	this.addView = function(view,layout) {
-		if (!isUndefined(view)) {
-			if (!isUndefined(view.key)) {
-				this.proxy.addView(view.key, Titanium.JSON.stringify(layout));
+		if (!Ti.isUndefined(view)) {
+			if (!Ti.isUndefined(view.key)) {
+				this.proxy.addView(view.key, Ti.JSON.stringify(layout));
 			} else {
-				this.proxy.addView(view.proxy.getKey(),Titanium.JSON.stringify(layout));
+				this.proxy.addView(view.proxy.getKey(),Ti.JSON.stringify(layout));
 			}
 		}
 	};
@@ -499,13 +499,13 @@ var ImageView = function(proxy) {
 	this.proxy = proxy; // reference to Java object
 
 	this.setURL = function(url) {
-		if (!isUndefined(url)) {
+		if (!Ti.isUndefined(url)) {
 			this.proxy.setURL(url);
 		}
 	};
 
 	this.setCanScale = function(canScale) {
-		if (!isUndefined(canScale)) {
+		if (!Ti.isUndefined(canScale)) {
 			this.proxy.setCanScale(canScale);
 		}
 	};
@@ -538,7 +538,7 @@ var MapView = function(proxy) {
 	 */
 	this.setCenterCoordinate = function(coordinate) {
 		if(this.isValidCoordinate(coordinate)) {
-			this.proxy.setCenterCoordinate(Titanium.JSON.stringify(coordinate));
+			this.proxy.setCenterCoordinate(Ti.JSON.stringify(coordinate));
 		}
 	};
 	/**
@@ -547,7 +547,7 @@ var MapView = function(proxy) {
 	 */
 	this.setRegion = function(region) {
 		if(this.isValidRegion(region)) {
-			this.proxy.setRegion(Titanium.JSON.stringify(region));
+			this.proxy.setRegion(Ti.JSON.stringify(region));
 		}
 	};
 	/**
@@ -555,7 +555,7 @@ var MapView = function(proxy) {
 	 * @tiarg[int,type] Titanium.UI.MAP_VIEW_STANDARD | Titanium.UI.MAP_VIEW_SATELLITE | Titanium.UI.MAP_VIEW_HYBRID
 	 */
 	this.setType = function(type) {
-		if(!isUndefined(type)) {
+		if(!Ti.isUndefined(type)) {
 			this.proxy.setType(type);
 		}
 	};
@@ -577,12 +577,12 @@ var MapView = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	this.isValidCoordinate = function(c) {
-		return !isUndefined(c) && !isUndefined(c.longitude) && !isUndefined(c.latitude);
+		return !Ti.isUndefined(c) && !Ti.isUndefined(c.longitude) && !Ti.isUndefined(c.latitude);
 	};
 	this.isValidRegion = function(r) {
-		return !isUndefined(r) && !isUndefined(r.coordinate) && !isUndefined(r.span)
-			&& isValid(r.coordinate) && !isUndefined(r.span.longitudeDelta)
-			&& !isUndefined(r.span.latitudeDelta)
+		return !Ti.isUndefined(r) && !Ti.isUndefined(r.coordinate) && !Ti.isUndefined(r.span)
+			&& isValid(r.coordinate) && !Ti.isUndefined(r.span.longitudeDelta)
+			&& !Ti.isUndefined(r.span.latitudeDelta)
 	};
 };
 
@@ -597,9 +597,9 @@ var ScrollableView = function(proxy) {
 	 * @tiarg[array,views] Array of Titanium views
 	 */
 	this.setViews = function(views) {
-		if (!isUndefined(views)) {
+		if (!Ti.isUndefined(views)) {
 			var keys = this.internalSetViews(views);
-			this.proxy.setViews(Titanium.JSON.stringify(keys));
+			this.proxy.setViews(Ti.JSON.stringify(keys));
 		}
 	};
 
@@ -619,17 +619,17 @@ var ScrollableView = function(proxy) {
 	 * @tiarg[Object,view] A view or index
 	 */
 	this.scrollToView = function(view) {
-		if (!isUndefined(view)) {
+		if (!Ti.isUndefined(view)) {
 			var pos = -1;
 
-			if (typeOf(view) == "object") {
+			if (Ti.typeOf(view) == "object") {
 				for(i=0; i< this._views.length; i++) {
 					if (view === this._views[i]) {
 						pos = i;
 						break;
 					}
 				}
-			} else if (typeOf(view) == "number") {
+			} else if (Ti.typeOf(view) == "number") {
 				pos = view;
 			}
 
@@ -676,7 +676,7 @@ var TableView = function(proxy) {
 	 * @tiarg[string,data] options data
 	 */
 	this.setData = function(data) {
-		this.proxy.setData(Titanium.JSON.stringify(data));
+		this.proxy.setData(Ti.JSON.stringify(data));
 	};
 	/**
 	 * @tiapi(method=true,name=UI.TableView.setRowHeight,since=0.5) set the height of each row
@@ -716,10 +716,10 @@ var TableView = function(proxy) {
 	 * @tiarg[object,options] row data
 	 */
 	this.insertRowAfter = function(index, options) {
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = {};
 		}
-		this.proxy.insertRowAfter(index, Titanium.JSON.stringify(options));
+		this.proxy.insertRowAfter(index, Ti.JSON.stringify(options));
 	};
 	/**
 	 * @tiapi(method=true,name=UI.TableView.insertRowBefore,since=0.6) insert a row before the given index
@@ -727,10 +727,10 @@ var TableView = function(proxy) {
 	 * @tiarg[object,options] row data
 	 */
 	this.insertRowBefore = function(index, options) {
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = {};
 		}
-		this.proxy.insertRowBefore(index, Titanium.JSON.stringify(options));
+		this.proxy.insertRowBefore(index, Ti.JSON.stringify(options));
 	};
 	/**
 	 * @tiapi(method=true,name=UI.TableView.deleteRow,since=0.6) delete row at the given index
@@ -745,10 +745,10 @@ var TableView = function(proxy) {
 	 * @tiarg[object,options] row data
 	 */
 	this.updateRow = function(index, options) {
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = {};
 		}
-		this.proxy.updateRow(index, Titanium.JSON.stringify(options));
+		this.proxy.updateRow(index, Ti.JSON.stringify(options));
 	};
 	/**
 	 * @tiapi(method=true,name=UI.TableView.appendRow,since=0.7.0) append a row at the end of the table.
@@ -756,11 +756,11 @@ var TableView = function(proxy) {
 	 * @tiarg[object,options] options for append
 	 */
 	this.appendRow = function(rowData, options) {
-		if (!isUndefined(rowData)) {
-			if (isUndefined(options)) {
+		if (!Ti.isUndefined(rowData)) {
+			if (Ti.isUndefined(options)) {
 				options = {};
 			}
-			this.proxy.appendRow(Titanium.JSON.stringify(rowData), Titanium.JSON.stringify(options));
+			this.proxy.appendRow(Ti.JSON.stringify(rowData), Ti.JSON.stringify(options));
 		}
 	};
 	/**
@@ -776,7 +776,7 @@ var TableView = function(proxy) {
 	 * @tireslt[int,options] row index
 	 */
 	this.getIndexByName = function(name) {
-		if(isUndefined(name)) {
+		if(Ti.isUndefined(name)) {
 			name = null;
 		}
 		return this.proxy.getIndexByName(name);
@@ -789,29 +789,41 @@ var TableView = function(proxy) {
 		return this.proxy.getName();
 	};
 	this.setName = function(name) {
-		if(!isUndefined(name)) {
+		if(!Ti.isUndefined(name)) {
 			this.proxy.setName(name);
 		}
 	};
-	this.setIsPrimary = function(primary) {
-		this.proxy.setIsRoot(primary);
-	};
-	this.close = function() {
-		this.proxy.close();
-	};
+	/**
+	 * @tiapi(method=true,name=UI.TableView.scrollToIndex,since=0.8.0) scroll to the item referenced by index.
+	 * @tiarg[int,index] row index
+	 */
+	this.scrollToIndex = function(index, options) {
+		if (!isUndefined(index)) {
+			if (isUndefined(options)) {
+				options = {};
+			}
+			this.proxy.scrollToIndex(index, Titanium.JSON.stringify(options));
+		}
+	}
 	this.setFontWeight = function(fontWeight) {
-		if (!isUndefined(fontWeight)) {
+		if (!Ti.isUndefined(fontWeight)) {
 			this.proxy.setFontWeight(fontWeight);
 		}
 	};
 	this.setFontSize = function(fontSize) {
-		if (!isUndefined(fontSize)) {
+		if (!Ti.isUndefined(fontSize)) {
 			this.proxy.setFontSize(fontSize);
 		}
 	};
 	this.setCallback = function(callback) {
 		this._callback = callback;
 		this.proxy.setCallback(registerCallback(this, this._callback));
+	};
+	this.setIsPrimary = function(primary) {
+		this.proxy.setIsRoot(primary);
+	};
+	this.close = function() {
+		this.proxy.close();
 	};
 };
 
@@ -958,10 +970,10 @@ var UserWindow = function(proxy) {
 	 * @tiarg[object, options] options
 	 */
 	this.setActiveViewIndex = function(index, options) {
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = null;
 		} else {
-			options = Titanium.JSON.stringify(options);
+			options = Ti.JSON.stringify(options);
 		}
 		this.proxy.setActiveViewIndex(index, options);
 	};
@@ -972,12 +984,12 @@ var UserWindow = function(proxy) {
 	 * @tiarg[object, options] options
 	 */
 	this.showView = function(view, options) {
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = null;
 		} else {
-			options = Titanium.JSON.stringify(options);
+			options = Ti.JSON.stringify(options);
 		}
-		if(!isUndefined(view.key)) {
+		if(!Ti.isUndefined(view.key)) {
 			this.proxy.showViewByKey(view.key, options);
 		} else {
 			this.proxy.showView(view.proxy, options);
@@ -990,13 +1002,13 @@ var UserWindow = function(proxy) {
 	 */
 	this.getViewByName = function(name) {
 		var v = null;
-		if (!isUndefined(name)) {
+		if (!Ti.isUndefined(name)) {
 			var views = this.getViews();
 
 			for(i = 0; i < views.length; i++) {
 				var view = views[i];
-				//Titanium.API.debug("*** Name: " + name + " vName: " + view.name);
-				if (!isUndefined(view.name)) {
+				//Ti.API.debug("*** Name: " + name + " vName: " + view.name);
+				if (!Ti.isUndefined(view.name)) {
 					if (name == view.name) {
 						v = view;
 						break;
@@ -1021,11 +1033,11 @@ var UserWindow = function(proxy) {
 	 * @tiarg[Object, eventData] A JSON compatible object.
 	 */
 	this.fireEvent = function(eventName, eventData) {
-		if (isUndefined(eventData)) {
+		if (Ti.isUndefined(eventData)) {
 			eventData = {};
 		}
-		if (!isUndefined(eventName)) {
-			this.proxy.fireEvent(eventName, Titanium.JSON.stringify(eventData));
+		if (!Ti.isUndefined(eventName)) {
+			this.proxy.fireEvent(eventName, Ti.JSON.stringify(eventData));
 		}
 	};
 
@@ -1033,7 +1045,7 @@ var UserWindow = function(proxy) {
 	 * @tiapi(method=true,name=UI.UserWindow.repaint,since=0.7.3) force layout of native controls
 	 */
 	this.repaint = function() {
-		Titanium.apiProxy.invalidateLayout();
+		Ti.apiProxy.invalidateLayout();
 	}
 
 	// IPhone only methods
@@ -1125,7 +1137,7 @@ var UserWindowBuilder = function(proxy) {
 	 * @tiarg[string,orientation] one of: landscape, portrait, or either
 	 */
 	this.setOrientation = function(orientation) {
-		if (!isUndefined(orientation)) {
+		if (!Ti.isUndefined(orientation)) {
 			this.proxy.setOrientation(orientation);
 		}
 	};
@@ -1193,11 +1205,11 @@ var DatePicker = function(proxy) {
 	this.proxy = proxy;
 
 	this.setValue = function(value, options) {
-		if(!isUndefined(value)) {
-			if (isUndefined(options)) {
+		if(!Ti.isUndefined(value)) {
+			if (Ti.isUndefined(options)) {
 				options = {};
 			}
-			this.proxy.setValue(value.getTime(), Titanium.JSON.stringify(options));
+			this.proxy.setValue(value.getTime(), Ti.JSON.stringify(options));
 		}
 	};
 
@@ -1250,7 +1262,7 @@ var Picker = function(proxy) {
 	};
 
 	this.setColumnData = function(col, data) {
-		this.proxy.setColumnData(col, Titanium.JSON.stringify(data));
+		this.proxy.setColumnData(col, Ti.JSON.stringify(data));
 	};
 
 	this.getSelectedRow = function(col) {
@@ -1258,14 +1270,14 @@ var Picker = function(proxy) {
 	};
 
 	this.setData = function(data) {
-		this.proxy.setData(Titanium.JSON.stringify(data));
+		this.proxy.setData(Ti.JSON.stringify(data));
 	};
 
 	this.selectRow = function(row, col, options) {
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = {}
 		}
-		this.proxy.selectRow(col, row, Titanium.JSON.stringify(options));
+		this.proxy.selectRow(col, row, Ti.JSON.stringify(options));
 	};
 };
 
@@ -1294,7 +1306,7 @@ var Switch = function(proxy) {
 	 * @tiarg[boolean,value] value to set the switch too
 	 */
 	this.setValue = function(value) {
-		if (!isUndefined(value)) {
+		if (!Ti.isUndefined(value)) {
 			this.proxy.setValue(value);
 		}
 	};
@@ -1342,7 +1354,7 @@ var Slider = function(proxy) {
 	 * @tiarg[int,value] value to set the slider too
 	 */
 	this.setValue = function(value) {
-		if (!isUndefined(value)) {
+		if (!Ti.isUndefined(value)) {
 			this.proxy.setValue(value);
 		}
 	};
@@ -1402,7 +1414,7 @@ var TextArea = function(proxy) {
 	 * @tiarg[string,value] value to set the slider too
 	 */
 	this.setValue = function(value) {
-		if (!isUndefined(value)) {
+		if (!Ti.isUndefined(value)) {
 			this.proxy.setValue(value);
 		}
 	};
@@ -1462,7 +1474,7 @@ var TextField = function(proxy) {
 	 * @tiarg[string,value] value to set the slider too
 	 */
 	this.setValue = function(value) {
-		if (!isUndefined(value)) {
+		if (!Ti.isUndefined(value)) {
 			this.proxy.setValue(value);
 		}
 	};
@@ -1486,15 +1498,15 @@ TextField.prototype.__defineSetter__("value", function(value) {
 	this.setValue(value);
 });
 
-Titanium.UI = {
+Ti.UI = {
 	/**
 	 * @tiapi(method=true,name=UI.createWindow,since=0.4) Create a new window
 	 * @tiarg[hash,options,optional=true] Options for configuring window
 	 * @tiresult[UserWindow] the new window
 	 */
 	createWindow : function(options) {
-		var w = new UserWindowBuilder(Titanium.uiProxy.createWindow());
-		if (!isUndefined(options)) {
+		var w = new UserWindowBuilder(Ti.uiProxy.createWindow());
+		if (!Ti.isUndefined(options)) {
 			var url = options.url;
 			var fullscreen = options.fullscreen;
 			var title = options.title;
@@ -1503,25 +1515,25 @@ Titanium.UI = {
 			var orientation = options.orientation;
 			var backgroundImage = options.backgroundImage;
 
-			if (!isUndefined(url)) {
+			if (!Ti.isUndefined(url)) {
 				w.setURL(url);
 			}
-			if (!isUndefined(fullscreen)) {
+			if (!Ti.isUndefined(fullscreen)) {
 				w.setFullscreen(fullscreen);
 			}
-			if (!isUndefined(title)) {
+			if (!Ti.isUndefined(title)) {
 				w.setTitle(title);
 			}
-			if (!isUndefined(titleImage)) {
+			if (!Ti.isUndefined(titleImage)) {
 				w.setTitleImage(titleImage);
 			}
-			if (!isUndefined(backgroundColor)) {
+			if (!Ti.isUndefined(backgroundColor)) {
 				w.setBackgroundColor(backgroundColor);
 			}
-			if (!isUndefined(orientation)) {
+			if (!Ti.isUndefined(orientation)) {
 				w.setOrientation(orientation);
 			}
-			if (!isUndefined(backgroundImage)) {
+			if (!Ti.isUndefined(backgroundImage)) {
 				w.setBackgroundImage(backgroundImage);
 			}
 		}
@@ -1534,7 +1546,7 @@ Titanium.UI = {
 	 */
 	createMenu : function() {
 		var m = new MenuItem();
-		m.obj = Titanium.uiProxy.createMenu(); // Consider a hash of menus
+		m.obj = Ti.uiProxy.createMenu(); // Consider a hash of menus
 		return m;
 	},
 	createTrayMenu : function() {
@@ -1545,10 +1557,10 @@ Titanium.UI = {
 	 * @tiarg[MenuItem,m] A root menu item
 	 */
 	setMenu : function(m) {
-		Titanium.uiProxy.setMenu(m.obj);
+		Ti.uiProxy.setMenu(m.obj);
 	},
 	getMenu : function() {
-		Titanium.uiProxy.getMenu(); //Not sure what this should/will do
+		Ti.uiProxy.getMenu(); //Not sure what this should/will do
 	},
 	setContextMenu : function() {
 		//TODO implement UI.setContextMenu
@@ -1568,20 +1580,20 @@ Titanium.UI = {
 	 * @tiresult[AlertDialog] the dialog.
 	 */
 	createAlertDialog : function(options) {
-		var dlg = new AlertDialog(Titanium.uiProxy.createAlertDialog());
+		var dlg = new AlertDialog(Ti.uiProxy.createAlertDialog());
 
-		if (! isUndefined(options)) {
+		if (! Ti.isUndefined(options)) {
 			title = options.title;
 			message = options.message;
 			buttonNames = options.buttonNames;
 
-			if (!isUndefined(title)) {
+			if (!Ti.isUndefined(title)) {
 				dlg.setTitle(title);
 			}
-			if (!isUndefined(message)) {
+			if (!Ti.isUndefined(message)) {
 				dlg.setMessage(message);
 			}
-			if (!isUndefined(buttonNames)) {
+			if (!Ti.isUndefined(buttonNames)) {
 				dlg.setButtonNames(buttonNames);
 			}
 		}
@@ -1594,16 +1606,16 @@ Titanium.UI = {
 	 * @tiresult[OptionDialog] the dialog.
 	 */
 	createOptionDialog : function(options) {
-		var dlg = new OptionDialog(Titanium.uiProxy.createOptionDialog());
+		var dlg = new OptionDialog(Ti.uiProxy.createOptionDialog());
 
-		if (! isUndefined(options)) {
+		if (! Ti.isUndefined(options)) {
 			title = options.title;
 			optionValues = options.options;
 
-			if (!isUndefined(title)) {
+			if (!Ti.isUndefined(title)) {
 				dlg.setTitle(title);
 			}
-			if (!isUndefined(optionValues)) {
+			if (!Ti.isUndefined(optionValues)) {
 				dlg.setOptions(optionValues);
 			}
 		}
@@ -1616,9 +1628,9 @@ Titanium.UI = {
 	 * @tiresult[ActivityIndicator] the dialog.
 	 */
 	createActivityIndicator : function(options) {
-		var ind = new ActivityIndicator(Titanium.uiProxy.createProgressDialog());
+		var ind = new ActivityIndicator(Ti.uiProxy.createProgressDialog());
 		ind.setLocation(1); // Dialog
-		if (!isUndefined(options)) {
+		if (!Ti.isUndefined(options)) {
 			var message = options.message;
 			var loc = options.location;
 			var type = options.type;
@@ -1626,22 +1638,22 @@ Titanium.UI = {
 			var maxVal = options.max;
 			var value = options.value;
 
-			if (!isUndefined(message)) {
+			if (!Ti.isUndefined(message)) {
 				ind.setMessage(message);
 			}
-			if (!isUndefined(loc)) {
+			if (!Ti.isUndefined(loc)) {
 				ind.setLocation(loc);
 			}
-			if (!isUndefined(type)) {
+			if (!Ti.isUndefined(type)) {
 				ind.setType(type);
 			}
-			if (!isUndefined(minVal)) {
+			if (!Ti.isUndefined(minVal)) {
 				ind.setMin(minVal);
 			}
-			if (!isUndefined(maxVal)) {
+			if (!Ti.isUndefined(maxVal)) {
 				ind.setMax(maxVal);
 			}
-			if (!isUndefined(value)) {
+			if (!Ti.isUndefined(value)) {
 				ind.setValue(value);
 			}
 		}
@@ -1653,10 +1665,10 @@ Titanium.UI = {
 	 * @tiresult[ActivityIndicator] the dialog.
 	 */
 	createProgressBar : function(options) {
-		var ind = new ActivityIndicator(Titanium.uiProxy.createProgressDialog());
+		var ind = new ActivityIndicator(Ti.uiProxy.createProgressDialog());
 		ind.setLocation(0); // StatusBar
 
-		if (!isUndefined(options)) {
+		if (!Ti.isUndefined(options)) {
 			var message = options.message;
 			var loc = options.location;
 			var type = options.type;
@@ -1664,22 +1676,22 @@ Titanium.UI = {
 			var maxVal = options.max;
 			var value = options.value;
 
-			if (!isUndefined(message)) {
+			if (!Ti.isUndefined(message)) {
 				ind.setMessage(message);
 			}
-			if (!isUndefined(loc)) {
+			if (!Ti.isUndefined(loc)) {
 				ind.setLocation(loc);
 			}
-			if (!isUndefined(type)) {
+			if (!Ti.isUndefined(type)) {
 				ind.setType(type);
 			}
-			if (!isUndefined(minVal)) {
+			if (!Ti.isUndefined(minVal)) {
 				ind.setMin(minVal);
 			}
-			if (!isUndefined(maxVal)) {
+			if (!Ti.isUndefined(maxVal)) {
 				ind.setMax(maxVal);
 			}
-			if (!isUndefined(value)) {
+			if (!Ti.isUndefined(value)) {
 				ind.setValue(value);
 			}
 		}
@@ -1691,13 +1703,13 @@ Titanium.UI = {
 	 * @tiresult[CompositeView] the composite view.
 	 */
 	createCompositeView : function(options) {
-		var cv = new CompositeView(Titanium.uiProxy.createCompositeView());
-		if (isUndefined(options)) {
+		var cv = new CompositeView(Ti.uiProxy.createCompositeView());
+		if (Ti.isUndefined(options)) {
 			options = {};
 		}
 		var opts = {};
 
-		cv.proxy.processOptions(Titanium.JSON.stringify(opts));
+		cv.proxy.processOptions(Ti.JSON.stringify(opts));
 		return cv;
 	},
 	/**
@@ -1706,11 +1718,11 @@ Titanium.UI = {
 	 * @tiresult[ImageView] the image view.
 	 */
 	createImageView : function(options) {
-		var iv = new ImageView(Titanium.uiProxy.createImageView());
-		if (isUndefined(options)) {
+		var iv = new ImageView(Ti.uiProxy.createImageView());
+		if (Ti.isUndefined(options)) {
 			options = {};
 		}
-		iv.proxy.processOptions(Titanium.JSON.stringify(options));
+		iv.proxy.processOptions(Ti.JSON.stringify(options));
 		return iv;
 	},
 	/**
@@ -1719,13 +1731,13 @@ Titanium.UI = {
 	 * @tiresult[ScrollableView] the scrollable view.
 	 */
 	createScrollableView : function(options) {
-		var sv = new ScrollableView(Titanium.uiProxy.createScrollableView());
-		if (isUndefined(options)) {
+		var sv = new ScrollableView(Ti.uiProxy.createScrollableView());
+		if (Ti.isUndefined(options)) {
 			options = {};
 		}
 		var opts = {};
 
-		if(!isUndefined(options.views)) {
+		if(!Ti.isUndefined(options.views)) {
 			for (key in options) {
 				if (key == "views") {
 					var keys = sv.internalSetViews(options.views);
@@ -1735,7 +1747,7 @@ Titanium.UI = {
 				}
 			}
 		}
-		sv.proxy.processOptions(Titanium.JSON.stringify(opts));
+		sv.proxy.processOptions(Ti.JSON.stringify(opts));
 		return sv;
 	},
 	/**
@@ -1744,11 +1756,11 @@ Titanium.UI = {
 	 * @tiresult[MapView] the map view.
 	 */
 	createMapView : function(options) {
-		var mv = new MapView(Titanium.uiProxy.createMapView());
-		if (isUndefined(options)) {
+		var mv = new MapView(Ti.uiProxy.createMapView());
+		if (Ti.isUndefined(options)) {
 			options = {}
 		}
-		mv.proxy.processOptions(Titanium.JSON.stringify(options));
+		mv.proxy.processOptions(Ti.JSON.stringify(options));
 		return mv;
 	},
 
@@ -1758,12 +1770,12 @@ Titanium.UI = {
 	 * @tiresult[TableView] the table view.
 	 */
 	createTableView : function(options, callback) {
-		 var tv = new TableView(Titanium.uiProxy.createTableView());
-		 if (isUndefined(options)) {
+		 var tv = new TableView(Ti.uiProxy.createTableView());
+		 if (Ti.isUndefined(options)) {
 			 options = {};
 		 }
 		 tv.setCallback(callback);
-		 tv.proxy.processOptions(Titanium.JSON.stringify(options));
+		 tv.proxy.processOptions(Ti.JSON.stringify(options));
 		 return tv;
 	},
 	/**
@@ -1772,11 +1784,11 @@ Titanium.UI = {
 	 * @tiresult[WebView] the web view.
 	 */
 	createWebView : function(options) {
-		 var wv = new WebView(Titanium.uiProxy.createWebView());
-		 if (isUndefined(options)) {
+		 var wv = new WebView(Ti.uiProxy.createWebView());
+		 if (Ti.isUndefined(options)) {
 			 options = {};
 		 }
-		 wv.proxy.processOptions(Titanium.JSON.stringify(options));
+		 wv.proxy.processOptions(Ti.JSON.stringify(options));
 		 return wv;
 	},
 	/**
@@ -1785,8 +1797,8 @@ Titanium.UI = {
 	 * @tiresult[EmailDialog] the dialog.
 	 */
 	createEmailDialog : function(options) {
-		var dlg = new EmailDialog(Titanium.uiProxy.createEmailDialog());
-		if (!isUndefined(options)) {
+		var dlg = new EmailDialog(Ti.uiProxy.createEmailDialog());
+		if (!Ti.isUndefined(options)) {
 			var subject = options.subject;
 			var to = options.toRecipients;
 			var cc = options.ccRecipients;
@@ -1794,22 +1806,22 @@ Titanium.UI = {
 			var msg = options.messageBody;
 			var attachment = options.attachment;
 
-			if (!isUndefined(subject)) {
+			if (!Ti.isUndefined(subject)) {
 				dlg.setSubject(subject);
 			}
-			if (!isUndefined(to)) {
+			if (!Ti.isUndefined(to)) {
 				dlg.setToRecipients(to);
 			}
-			if (!isUndefined(cc)) {
+			if (!Ti.isUndefined(cc)) {
 				dlg.setCcRecipients(cc);
 			}
-			if (!isUndefined(bcc)) {
+			if (!Ti.isUndefined(bcc)) {
 				dlg.setBccRecipients(bcc);
 			}
-			if (!isUndefined(msg)) {
+			if (!Ti.isUndefined(msg)) {
 				dlg.setMessageBody(msg);
 			}
-			if (!isUndefined(attachment)) {
+			if (!Ti.isUndefined(attachment)) {
 				dlg.addAttachment(attachment);
 			}
 		}
@@ -1822,7 +1834,7 @@ Titanium.UI = {
 	 * @tiresult[Button] the button.
 	 */
 	createButton : function(options) {
-		var c = new Button(Titanium.uiProxy.createButton(Titanium.JSON.stringify(options)));
+		var c = new Button(Ti.uiProxy.createButton(Ti.JSON.stringify(options)));
 		c.proxy.open();
 		return c;
 	},
@@ -1833,7 +1845,7 @@ Titanium.UI = {
 	 * @tiresult[Switch] the Switch.
 	 */
 	createSwitch : function(options) {
-		var c = new Switch(Titanium.uiProxy.createSwitch(Titanium.JSON.stringify(options)));
+		var c = new Switch(Ti.uiProxy.createSwitch(Ti.JSON.stringify(options)));
 		c.proxy.open();
 		return c;
 	},
@@ -1844,7 +1856,7 @@ Titanium.UI = {
 	 * @tiresult[Slider] the Slider.
 	 */
 	createSlider : function(options) {
-		var c = new Slider(Titanium.uiProxy.createSlider(Titanium.JSON.stringify(options)));
+		var c = new Slider(Ti.uiProxy.createSlider(Ti.JSON.stringify(options)));
 		c.proxy.open();
 		return c;
 	},
@@ -1855,7 +1867,7 @@ Titanium.UI = {
 	 * @tiresult[TextArea] the TextArea.
 	 */
 	createTextArea : function(options) {
-		var c = new TextArea(Titanium.uiProxy.createTextArea(Titanium.JSON.stringify(options)));
+		var c = new TextArea(Ti.uiProxy.createTextArea(Ti.JSON.stringify(options)));
 		c.proxy.open();
 		return c;
 	},
@@ -1943,14 +1955,30 @@ Titanium.UI = {
 	 * @tiapi(property=true,name=UI.MAP_VIEW_HYBRID,since=0.8.0) Hybrid map view
 	 */
 	MAP_VIEW_HYBRID : 3,
-
+	/**
+	 * @tiapi(property=true,name=UI.TABLEVIEW_POSITION_ANY,since=0.8.0) Position the row at top if currently above the tableview.
+	 * @tiapi Position the row at bottom if currently below the tableview. Don't change if already visible in the tableview.
+	 */
+	TABLEVIEW_POSITION_ANY : 0,
+	/**
+	 * @tiapi(property=true,name=UI.TABLEVIEW_POSITION_TOP,since=0.8.0) Position the row at the top of the tableview.
+	 */
+	TABLEVIEW_POSITION_TOP : 1,
+	/**
+	 * @tiapi(property=true,name=UI.TABLEVIEW_POSITION_MIDDLE,since=0.8.0) Position the row in the middle of the tableview
+	 */
+	TABLEVIEW_POSITION_MIDDLE : 2,
+	/**
+	 * @tiapi(property=true,name=UI.TABLEVIEW_POSITION_BOTTOM,since=0.8.0) Position the row at the top of the tableview.
+	 */
+	TABLEVIEW_POSITION_BOTTOM : 3,
 	/**
 	 * @tiapi(method=true,name=UI.createTextField,since=0.6) Create a native text field
 	 * @tiarg[object, options] a set of configuration options for the text.
 	 * @tiresult[TextField] the TextField.
 	 */
 	createTextField : function(options) {
-		var c = new TextField(Titanium.uiProxy.createTextField(Titanium.JSON.stringify(options)));
+		var c = new TextField(Ti.uiProxy.createTextField(Ti.JSON.stringify(options)));
 		c.proxy.open();
 		return c;
 	},
@@ -1961,9 +1989,9 @@ Titanium.UI = {
 	 */
 	getTabs : function() {
 		var tabs = [];
-		var json = Titanium.uiProxy.getTabs();
+		var json = Ti.uiProxy.getTabs();
 
-		if (!isUndefined(json)) {
+		if (!Ti.isUndefined(json)) {
 			tabs = eval('(' + json + ')');
 		}
 
@@ -1981,8 +2009,8 @@ Titanium.UI = {
 	getTabByName : function(name) {
 		var tab = {};
 
-		if (!isUndefined(name)) {
-			var json = Titanium.uiProxy.getTabByName(name);
+		if (!Ti.isUndefined(name)) {
+			var json = Ti.uiProxy.getTabByName(name);
 			tab = eval('(' + json + ')');
 		}
 		tab.setBadge = function(value){}; // Add method for iPhone compatibility.
@@ -1993,8 +2021,8 @@ Titanium.UI = {
 	 * @tiarg[object, Tab] The tab to switch to
 	 */
 	setActiveTab : function(tabInfo) {
-		if (!isUndefined(tabInfo)) {
-			Titanium.uiProxy.setActiveTab(Titanium.JSON.stringify(tabInfo));
+		if (!Ti.isUndefined(tabInfo)) {
+			Ti.uiProxy.setActiveTab(Ti.JSON.stringify(tabInfo));
 		}
 	},
 	/**
@@ -2004,7 +2032,7 @@ Titanium.UI = {
 	 * @tiresult[int] the listener id used to remove the event..
 	 */
 	addEventListener : function(eventName, eventHandler) {
-		return Titanium.uiProxy.addEventListener(eventName, registerCallback(this, eventHandler));
+		return Ti.uiProxy.addEventListener(eventName, registerCallback(this, eventHandler));
 
 	},
 	/**
@@ -2013,12 +2041,12 @@ Titanium.UI = {
 	 * @tiarg[int, listenerId] id of listener to remove as returned from addEventListener.
 	 */
 	removeEventListener : function(eventName, listenerId) {
-		Titanium.uiProxy.removeEventListener(eventName, listenerId);
+		Ti.uiProxy.removeEventListener(eventName, listenerId);
 	},
 
 	//TODO Documentation
 	createDatePicker : function(options) {
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = {};
 		}
 		var o = {};
@@ -2029,13 +2057,13 @@ Titanium.UI = {
 			}
 			o[k] = v;
 		}
-		var c = new DatePicker(Titanium.uiProxy.createDatePicker(Titanium.JSON.stringify(o)));
+		var c = new DatePicker(Ti.uiProxy.createDatePicker(Ti.JSON.stringify(o)));
 		c.proxy.open();
 		return c;
 	},
 
 	createModalDatePicker : function(options) {
-		if (isUndefined(options)) {
+		if (Ti.isUndefined(options)) {
 			options = {};
 		}
 		var o = {};
@@ -2047,7 +2075,7 @@ Titanium.UI = {
 			o[k] = v;
 		}
 
-		var dlg = new DatePicker(Titanium.uiProxy.createModalDatePicker(Titanium.JSON.stringify(o)));
+		var dlg = new DatePicker(Ti.uiProxy.createModalDatePicker(Ti.JSON.stringify(o)));
 		dlg.show = function() { this.proxy.show(); };
 		dlg.hide = function() { this.proxy.hide(); };
 		dlg.proxy.open();
@@ -2056,21 +2084,21 @@ Titanium.UI = {
 	},
 
 	createPicker : function(options) {
-		if(isUndefined(options)) {
+		if(Ti.isUndefined(options)) {
 			options = {};
 		}
 
-		var c = new Picker(Titanium.uiProxy.createPicker(Titanium.JSON.stringify(options)));
+		var c = new Picker(Ti.uiProxy.createPicker(Ti.JSON.stringify(options)));
 		c.proxy.open();
 		return c;
 	},
 
 	createModalPicker : function(options) {
-		if(isUndefined(options)) {
+		if(Ti.isUndefined(options)) {
 			options = {};
 		}
 
-		var dlg = new Picker(Titanium.uiProxy.createModalPicker(Titanium.JSON.stringify(options)));
+		var dlg = new Picker(Ti.uiProxy.createModalPicker(Ti.JSON.stringify(options)));
 		dlg.show = function() { this.proxy.show(); };
 		dlg.hide = function() { this.proxy.hide(); };
 		dlg.proxy.open();
@@ -2093,34 +2121,34 @@ Titanium.UI = {
 
 	}
 };
-Titanium.UI.createAlert = Titanium.UI.createAlertDialog; //TODO remove
+Ti.UI.createAlert = Ti.UI.createAlertDialog; //TODO remove
 
 /**
  * @tiapi(method=true,name=UI.currentWindow,since=0.4) the current UserWindow
  * @tiresult[UserWindow] this window.
  */
-Titanium.UI._currentWindow = null;
-Titanium.UI.__defineGetter__("currentWindow", function(){
+Ti.UI._currentWindow = null;
+Ti.UI.__defineGetter__("currentWindow", function(){
 	// Can't set this from the native side, so set on first access
-	if (Titanium.UI._currentWindow === null) {
-		Titanium.UI._currentWindow = new UserWindow(Titanium.uiProxy.getCurrentWindow());
+	if (Ti.UI._currentWindow === null) {
+		Ti.UI._currentWindow = new UserWindow(Ti.uiProxy.getCurrentWindow());
 	}
-	return Titanium.UI._currentWindow;
+	return Ti.UI._currentWindow;
 });
 /**
  * @tiapi(method=true,name=UI.currentView,since=0.6) the current View in the current window.
  * @tiresult[View] the view.
  */
-Titanium.UI._currentView = null;
-Titanium.UI.__defineGetter__("currentView", function() {
-	if (Titanium.UI._currentView === null) {
-		Titanium.UI._currentView = new WebView(Titanium.uiProxy.getCurrentView());
+Ti.UI._currentView = null;
+Ti.UI.__defineGetter__("currentView", function() {
+	if (Ti.UI._currentView === null) {
+		Ti.UI._currentView = new WebView(Ti.uiProxy.getCurrentView());
 	}
 
-	return Titanium.UI._currentView;
+	return Ti.UI._currentView;
 });
 
-Titanium.UI.ActivityIndicator = {
+Ti.UI.ActivityIndicator = {
 	/**
 	 * @tiapi(property=true,name=UI.ActivityIndicator.STATUS_BAR,since=0.4) Display activity indicator in status bar
 	 */
@@ -2139,7 +2167,7 @@ Titanium.UI.ActivityIndicator = {
 	DETERMINANT : 1
 };
 
-Titanium.UI.Android = {
+Ti.UI.Android = {
 	AnimationStyle : {
 		/**
 		 * @tiapi(property=true,name=UI.Android.AnimationStyle.FADE,since=0.6.2) Fade the current view out while fading the new view in.
@@ -2176,7 +2204,7 @@ Titanium.UI.Android = {
 	}
 };
 
-Titanium.UI.Android.SystemIcon = {
+Ti.UI.Android.SystemIcon = {
 	/**
 	 * @tiapi(property=true,name=UI.Android.SystemIcon.ACTION,since=0.4) icon
 	 */
@@ -2304,7 +2332,7 @@ Titanium.UI.Android.SystemIcon = {
 	ZOOM : 'ti:Sys:ic_menu_zoom'
 };
 
-Titanium.UI.DatePicker = {
+Ti.UI.DatePicker = {
 	/**
 	 * @tiapi(property=true,name=UI.DatePicker.MODE_DATE,since=0.7.0) Date
 	 */
@@ -2324,8 +2352,8 @@ Titanium.UI.DatePicker = {
  * @tiarg[int,location] STATUS_BAR or DIALOG
  */
 ActivityIndicator.prototype.setLocation = function(loc) {
-	if (! (loc == Titanium.UI.ActivityIndicator.STATUS_BAR ||
-			loc == Titanium.UI.ActivityIndicator.DIALOG)) {
+	if (! (loc == Ti.UI.ActivityIndicator.STATUS_BAR ||
+			loc == Ti.UI.ActivityIndicator.DIALOG)) {
 		throw new Error("Unsupported indicator location.");
 	}
 	this.proxy.setLocation(loc);
@@ -2335,8 +2363,8 @@ ActivityIndicator.prototype.setLocation = function(loc) {
  * @tiarg[int,type] INDETERMINANT or DETERMINANT
  */
 ActivityIndicator.prototype.setType = function(type) {
-	if (!(type == Titanium.UI.ActivityIndicator.DETERMINANT ||
-			type == Titanium.UI.ActivityIndicator.INDETERMINANT)) {
+	if (!(type == Ti.UI.ActivityIndicator.DETERMINANT ||
+			type == Ti.UI.ActivityIndicator.INDETERMINANT)) {
 		throw new Error("Unsupported indicator type.");
 	}
 	this.proxy.setType(type);
@@ -2347,42 +2375,42 @@ ActivityIndicator.prototype.setType = function(type) {
  * @tiarg[hash,options,optional=true] Configuration options
  * @tiresult[Notifier] the notifier.
  */
-Titanium.UI.createNotification = function(options)
+Ti.UI.createNotification = function(options)
 {
-	proxy = Titanium.uiProxy.createNotification();
+	proxy = Ti.uiProxy.createNotification();
 	notifier = null;
 	if (proxy !== null) {
 		notifier = new TitaniumNotifier(proxy);
-		if (!isUndefined(options)) {
+		if (!Ti.isUndefined(options)) {
 			var title = options.title;
 			var message = options.message;
 			var color = options.color;
 			var delay = options.delay;
 			var transparency = options.transparency;
 
-			if (!isUndefined(title)) {
+			if (!Ti.isUndefined(title)) {
 				notifier.setTitle(title);
 			}
-			if (!isUndefined(message)) {
+			if (!Ti.isUndefined(message)) {
 				notifier.setMessage(message);
 			}
-			if (!isUndefined(color)) {
+			if (!Ti.isUndefined(color)) {
 				notifier.setColor(color);
 			}
-			if (!isUndefined(delay)) {
+			if (!Ti.isUndefined(delay)) {
 				notifier.setDelay(delay);
 			}
-			if (!isUndefined(transparency)) {
+			if (!Ti.isUndefined(transparency)) {
 				notifier.setTransparency(transparency);
 			}
 		}
 	} else {
-		Titanium.API.warn("Unable to create proxy, returning null.");
+		Ti.API.warn("Unable to create proxy, returning null.");
 	}
 	return notifier;
 };
 
-Titanium.UI.iPhone = {
+Ti.UI.iPhone = {
 	BORDERED : -1,
 	StatusBar : {
 		OPAQUE_BLACK : -1

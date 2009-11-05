@@ -7,56 +7,33 @@
 
 //this is a special androidized bridge conversion routine
 //to determine if the thing passed is really undefined
-function isUndefined(value)
-{
-	if (value === null || typeof(value)==='undefined')
-	{
-		return true;
-	}
-	return (typeof(value)=='object' && String(value).length === 0);
-}
-
-
-function typeOf(value) {
-    var s = typeof value;
-    if (s === 'object') {
-        if (value) {
-            if (value instanceof Array) {
-                s = 'array';
-            }
-        } else {
-            s = 'null';
-        }
-    }
-    return s;
-}
 
 function transformObjectValue(value,def)
 {
-	return isUndefined(value) ? def : value;
+	return Ti.isUndefined(value) ? def : value;
 }
 
 function transformObjectValueAsString(value,def)
 {
-	return isUndefined(value) ? def : String(value);
+	return Ti.isUndefined(value) ? def : String(value);
 }
 
 function transformObjectValueAsInt(value,def)
 {
-	return isUndefined(value) ? def : parseInt(value,10);
+	return Ti.isUndefined(value) ? def : parseInt(value,10);
 }
 
 function transformObjectValueAsBool(value,def)
 {
-	return isUndefined(value) ? def : !!value;
+	return Ti.isUndefined(value) ? def : !!value;
 }
 
 function transformObjectValueAsDouble(value,def)
 {
-	return isUndefined(value) ? def : parseFloat(value);
+	return Ti.isUndefined(value) ? def : parseFloat(value);
 }
 
-var Titanium = new function() {
+var Ti = new function() {
 	/*
 	 * @tiapi(method=False,property=True,name=platform,since=0.4,type=string) titanium platform name property
 	 */
@@ -68,16 +45,94 @@ var Titanium = new function() {
 	this.window = window;
 	this.document = document;
 
-	//TODO: hide these once we map them
 	this.apiProxy = window.TitaniumAPI;
+
+	this.isUndefined = function(value)
+	{
+		if (value === null || typeof(value)==='undefined')
+		{
+			return true;
+		}
+		return (typeof(value)=='object' && String(value).length === 0);
+	};
+
+	this.typeOf = function(value) {
+	    var s = typeof value;
+	    if (s === 'object') {
+	        if (value) {
+	            if (value instanceof Array) {
+	                s = 'array';
+	            }
+	        } else {
+	            s = 'null';
+	        }
+	    }
+	    return s;
+	};
+
+	this.Method = {
+		caller : this.apiProxy.acquireMethod(),
+		dispatchWithTypes : function(module, method, types, args) {
+			// force to JS String, boosts performance.
+			var r = eval("("+String(this.caller.call(Ti.JSON.stringify({ module : module, method : method, types : types, args : args})))+")");
+			if (r.exception !== undefined) {
+				throw r.exception;
+			}
+			Ti.apiProxy.log(6, "Result Type: " + r.resultType + " Result: " + r.result);
+			switch(r.resultType) {
+			case 'null' : return null;
+			case 'string' : return r.result;
+			case 'integer' : return parseInt(r.result,10);
+			case 'boolean' : return !!r.result;
+			case 'double' : return parseFloat(r.result);
+			default : return r.result;
+			}
+
+		},
+		dispatch : function(module, method) {
+			var args = [];
+			var types = [];
+
+			for(var i = 2; i < arguments.length; i++) {
+				var a = arguments[i];
+				if (a === undefined) {
+					a = null;
+				}
+				args.push(a);
+				if (a === null) {
+					types.push("null");
+				} else if (typeof a == 'string') {
+					types.push("string");
+				} else if (typeof a == 'number') {
+					if (String(a).indexOf(".") === -1) {
+						types.push("integer");
+					} else {
+						types.push("double");
+					}
+				} else if (typeof a == "object") {
+					types.push("object");
+				} else {
+					throw "Unknown argument type " + typeof a;
+				}
+			}
+			return this.dispatchWithTypes(module, method, types, args);
+		},
+		dispatchWithArguments : function(module, method, args) {
+			var argList = [module,method];
+			for(var i = 0; i < args.length; i++) {
+				argList.push(args[i]);
+			}
+			return Ti.Method.dispatch.apply(this, argList);
+		}
+	};
 
 	this.rethrow = function(e) { throw e; };
 
 	this.checked = function(r) {
 		var v = null;
-		if (!isUndefined(r)) {
+		if (!this.isUndefined(r)) {
 			if (typeof(r.getException) !== 'undefined') {
-				if(!isUndefined(r.getException())) {
+				if(!this.isUndefined(r.getException())) {
 					this.apiProxy.log(6,"checking: " + r.getException());
 					var e = r.getException();
 					r.destroy();
@@ -119,13 +174,13 @@ var Titanium = new function() {
 		}
 
 		document.addEventListener('DOMSubtreeModified', function(e) {
-			Titanium.apiProxy.invalidateLayout();
+			Ti.apiProxy.invalidateLayout();
 		});
 	};
 
 	this.getPosition = function(obj) {
         var pos = { top: 0, left: 0, width: 0, height: 0 };
-        if (!isUndefined(obj)) {
+        if (!this.isUndefined(obj)) {
 	        pos.width = obj.offsetWidth;
 	        pos.height = obj.offsetHeight;
 		    while(obj){
@@ -133,7 +188,7 @@ var Titanium = new function() {
 	            pos.top+= obj.offsetTop;
 	            obj= obj.offsetParent;
 		    }
-		    //Titanium.API.debug("COORDS: " + pos.left + " " + pos.top + " " + pos.width + " " + pos.height);
+		    //Ti.API.debug("COORDS: " + pos.left + " " + pos.top + " " + pos.width + " " + pos.height);
         }
 	    return pos;
 	};
@@ -147,7 +202,7 @@ var Titanium = new function() {
 			positions[id] = this.getPosition(o);
 		}
 
-		this.apiProxy.updateNativeControls(Titanium.JSON.stringify(positions));
+		this.apiProxy.updateNativeControls(Ti.JSON.stringify(positions));
 	};
 
 	this.callbackCounter = 0;
@@ -163,7 +218,7 @@ var Titanium = new function() {
 	};
 	this.removeCallback = function(name) {
 		delete this.callbacks[name];
-		Titanium.API.debug('Deleted callback with name: ' + name);
+		Ti.API.debug('Deleted callback with name: ' + name);
 	};
 
 	this.getObjectReference = function(key) {
@@ -197,44 +252,46 @@ var Titanium = new function() {
 	};
 };
 
-var Ti = Titanium;
+var Titanium = Ti;
 
 function TitaniumCallback(obj, method, oneShot) {
-	this.name = Titanium.nextCallbackId();
+	this.name = Ti.nextCallbackId();
 	this.obj = obj;
 	this.method = method;
 	this.oneShot = oneShot;
 	this.invoke = function (data, syncId)
 	{
-		if(!isUndefined(this.method)) {
+		if(!Ti.isUndefined(this.method)) {
 			this.method.call(this.obj,data);
-			if (!isUndefined(syncId)) {
-				Titanium.apiProxy.signal(syncId);
+			if (!Ti.isUndefined(syncId)) {
+				Ti.apiProxy.signal(syncId);
 			}
 			if (oneShot) {
-				Titanium.removeCallback(this.name);
+				Ti.removeCallback(this.name);
 			}
 		} else {
-			Titanium.API.warn("Expected a valid callback, callback not set");
+			Ti.API.warn("Expected a valid callback, callback not set");
 		}
 	};
 	this.register = function() {
-		Titanium.callbacks[this.name] = this;
+		Ti.callbacks[this.name] = this;
 		return 'Titanium.callbacks["' + this.name + '"]'; // Don't pass javascript: native layer will prepend as needed
 	};
 }
 
 function registerCallback(o, f) {
-	return Titanium.addCallback(o, f, false);
+	Ti.apiProxy.log(6, "TYPEOF: " + Ti.typeOf(f));
+	Ti.apiProxy.log(6, "TYPEOF: " + typeof f);
+	return Ti.addCallback(o, f, false);
 }
 
 function registerOneShot(o, f) {
-	return Titanium.addCallback(o, f, true);
+	return Ti.addCallback(o, f, true);
 }
 
 
 // Logging should always be available
-Titanium.API = {
+Ti.API = {
 	/*
 	 * @tiapi(method=True,name=API.log,since=0.4) log data to the console.
 	 * @tiarg[int,severity] Severity code from FATAL down to TRACE
@@ -242,7 +299,7 @@ Titanium.API = {
 	 */
 	log: function(severity,msg)
 	{
-		Titanium.apiProxy.log(severity,msg);
+		Ti.apiProxy.log(severity,msg);
 	},
 	/**
 	 * @tiapi(method=True,name=API.debug,since=0.4) log data at the DEBUG level.
@@ -318,34 +375,19 @@ Titanium.API = {
 	FATAL: 8
 };
 
-Titanium.Process = {
-	getEnv : function() {
-		//TODO implement Process.getEnv
-	},
-	setEnv : function() {
-		//TODO implement Process.setEnv
-	},
-	hasEnv : function() {
-		//TODO implement Process.hasEnv
-	},
-	launch : function() {
-		//TODO implement Process.launch
-	}
-};
-
 var TitaniumMemoryBlob = function(key) {
 	this._key = key;
-	this._ref = Titanium.getObjectReference(key); // get the native reference for tracking.
+	this._ref = Ti.getObjectReference(key); // get the native reference for tracking.
 
 	this.getLength = function() {
-		return Titanium.getTitaniumMemoryBlobLength(this._key);
+		return Ti.getTitaniumMemoryBlobLength(this._key);
 	};
 	this.getKey = function() {
 		return this._key;
 	};
 
 	this.toString = function() {
-		return transformObjectValueAsString(Titanium.getTitaniumMemoryBlobString(this._key));
+		return transformObjectValueAsString(Ti.getTitaniumMemoryBlobString(this._key));
 	}
 };
 TitaniumMemoryBlob.prototype.__defineGetter__("length", function(){
