@@ -11,7 +11,8 @@
 #import "UiModule.h"
 
 @implementation TitaniumCellWrapper
-@synthesize title,html,imageURL,imageWrapper,accessoryType,inputProxy,isButton, value, name, fontDesc, rowHeight;
+@synthesize jsonUrl, jsonValues;
+@synthesize imageURL,imageWrapper,accessoryType,inputProxy,isButton, fontDesc, rowHeight;
 
 - (id) init
 {
@@ -22,6 +23,52 @@
 	}
 	return self;
 }
+
+- (void) dealloc
+{
+	[imageURL release];
+	[imageWrapper release]; [inputProxy release];
+
+	[jsonUrl release];
+	[jsonValues release];
+	[super dealloc];
+}
+
+- (NSString *) stringForKey: (NSString *) key;
+{
+	id result = [jsonValues objectForKey:key];
+	
+	if([result isKindOfClass:[NSString class]]){
+		return result;
+	}
+	
+	if ([result respondsToSelector:@selector(stringValue)]) {
+		return [result stringValue];
+	}
+	
+	return nil;
+}
+
+- (NSString *) title;
+{
+	return [self stringForKey:@"title"];
+}
+
+- (NSString *) html;
+{
+	return [self stringForKey:@"html"];
+}
+
+- (NSString *) name;
+{
+	return [self stringForKey:@"name"];
+}
+
+- (NSString *) value;
+{
+	return [self stringForKey:@"value"];
+}
+
 
 
 - (UIImage *) image;
@@ -38,71 +85,69 @@
 	return FontFromDescription(&fontDesc);
 }
 
-- (void) dealloc
-{
-	[title release]; [html release]; [imageURL release];
-	[imageWrapper release]; [inputProxy release];
-	[super dealloc];
-}
-
 - (NSString *) stringValue;
 {
-	NSString * accessoryString;
-	switch (accessoryType) {
-		case UITableViewCellAccessoryDetailDisclosureButton:
-			accessoryString = @"hasDetail:true,hasChild:false,selected:false";
-			break;
-		case UITableViewCellAccessoryDisclosureIndicator:
-			accessoryString = @"hasDetail:false,hasChild:true,selected:false";
-			break;
-		case UITableViewCellAccessoryCheckmark:
-			accessoryString = @"hasDetail:false,hasChild:false,selected:true";
-			break;
-		default:
-			accessoryString = @"hasDetail:false,hasChild:false,selected:false";
-			break;
-	}
-	
-	SBJSON * packer = [[SBJSON alloc] init];
-	NSString * titleString;
-	if (title != nil){
-		titleString = [packer stringWithFragment:title error:nil];
-	} else { titleString = @"null"; }
-	
-	NSString * valueString;
-	if (value != nil){
-		valueString = [packer stringWithFragment:value error:nil];
-	} else { valueString = @"null"; }
-	
-	NSString * htmlString;
-	if (html != nil){
-		htmlString = [packer stringWithFragment:html error:nil];
-	} else { htmlString = @"null"; }
-	
-	NSString * imageURLString;
-	if (imageURL != nil){
-		imageURLString = [packer stringWithFragment:[imageURL absoluteString] error:nil];
-	} else { imageURLString = @"null"; }
-	
-	NSString * inputProxyString;
-	if (inputProxy != nil){
-		inputProxyString = [@"Ti.UI._BTN." stringByAppendingString:[inputProxy token]];
-	} else { inputProxyString = @"null"; }
-	
-	NSString * nameString;
-	if (name != nil){
-		nameString = [packer stringWithFragment:name error:nil];
-	} else { nameString = @"null"; }
-	
-	NSString * result = [NSString stringWithFormat:@"{%@,title:%@,html:%@,image:%@,input:%@,value:%@,name:%@,rowHeight:%f}",
-						 accessoryString,titleString,htmlString,imageURLString,inputProxyString,valueString,nameString,rowHeight];
-	[packer release];
-	return result;
+	return [SBJSON stringify:jsonValues];
+
+//	NSString * accessoryString;
+//	switch (accessoryType) {
+//		case UITableViewCellAccessoryDetailDisclosureButton:
+//			accessoryString = @"hasDetail:true,hasChild:false,selected:false";
+//			break;
+//		case UITableViewCellAccessoryDisclosureIndicator:
+//			accessoryString = @"hasDetail:false,hasChild:true,selected:false";
+//			break;
+//		case UITableViewCellAccessoryCheckmark:
+//			accessoryString = @"hasDetail:false,hasChild:false,selected:true";
+//			break;
+//		default:
+//			accessoryString = @"hasDetail:false,hasChild:false,selected:false";
+//			break;
+//	}
+//	
+//	SBJSON * packer = [[SBJSON alloc] init];
+//	NSString * titleString;
+//	if (title != nil){
+//		titleString = [packer stringWithFragment:title error:nil];
+//	} else { titleString = @"null"; }
+//	
+//	NSString * valueString;
+//	if (value != nil){
+//		valueString = [packer stringWithFragment:value error:nil];
+//	} else { valueString = @"null"; }
+//	
+//	NSString * htmlString;
+//	if (html != nil){
+//		htmlString = [packer stringWithFragment:html error:nil];
+//	} else { htmlString = @"null"; }
+//	
+//	NSString * imageURLString;
+//	if (imageURL != nil){
+//		imageURLString = [packer stringWithFragment:[imageURL absoluteString] error:nil];
+//	} else { imageURLString = @"null"; }
+//	
+//	NSString * inputProxyString;
+//	if (inputProxy != nil){
+//		inputProxyString = [@"Ti.UI._BTN." stringByAppendingString:[inputProxy token]];
+//	} else { inputProxyString = @"null"; }
+//	
+//	NSString * nameString;
+//	if (name != nil){
+//		nameString = [packer stringWithFragment:name error:nil];
+//	} else { nameString = @"null"; }
+//	
+//	NSString * result = [NSString stringWithFormat:@"{%@,title:%@,html:%@,image:%@,input:%@,value:%@,name:%@,rowHeight:%f}",
+//						 accessoryString,titleString,htmlString,imageURLString,inputProxyString,valueString,nameString,rowHeight];
+//	[packer release];
+//	return result;
 }
 
 
 - (void) useProperties: (NSDictionary *) propDict withUrl: (NSURL *) baseUrl;
 {
+	[self setJsonValues:propDict];
+	[self setJsonUrl:baseUrl];
+
 	SEL boolSel = @selector(boolValue);
 	SEL stringSel = @selector(stringValue);
 	Class stringClass = [NSString class];
@@ -130,34 +175,10 @@
 	} else isButton = NO;
 	
 	
-	id titleString = [propDict objectForKey:@"title"];
-	if ([titleString respondsToSelector:stringSel]) titleString = [titleString stringValue];
-	if ([titleString isKindOfClass:stringClass] && ([titleString length] != 0)){
-		[self setTitle:titleString];
-	}
-	
-	id nameString = [propDict objectForKey:@"name"];
-	if ([nameString respondsToSelector:stringSel]) nameString = [nameString stringValue];
-	if ([nameString isKindOfClass:stringClass] && ([nameString length] != 0)){
-		[self setName:nameString];
-	}
-	
-	id htmlString = [propDict objectForKey:@"html"];
-	if ([htmlString respondsToSelector:stringSel]) htmlString = [htmlString stringValue];
-	if ([htmlString isKindOfClass:stringClass] && ([htmlString length] != 0)){
-		[self setHtml:htmlString];
-	} else [self setHtml:nil];
-
 	id rowHeightObject = [propDict objectForKey:@"rowHeight"];
 	if ([rowHeightObject respondsToSelector:@selector(floatValue)]) rowHeight = [rowHeightObject floatValue];
 	else rowHeight = 0;
-	
-	id valueString = [propDict objectForKey:@"value"];
-	if ([valueString respondsToSelector:stringSel]) valueString = [valueString stringValue];
-	if ([valueString isKindOfClass:stringClass] && ([valueString length] != 0)){
-		[self setValue:valueString];
-	} else [self setValue:nil];
-	
+		
 	id imageString = [propDict objectForKey:@"image"];
 	if ([imageString isKindOfClass:stringClass]){
 		[self setImageURL:[NSURL URLWithString:imageString relativeToURL:baseUrl]];

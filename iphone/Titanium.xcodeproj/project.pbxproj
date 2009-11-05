@@ -343,6 +343,12 @@
 		B4BAC94410982996005925EA /* FBLoginButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238A106F1802004D4127 /* FBLoginButton.m */; };
 		B4BAC94510982997005925EA /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F02E450FD482D2007894DA /* AnalyticsModule.m */; };
 		B4C3F8B60FB3B11C0037F210 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */; };
+		B4C579C410A27F1E00198B82 /* ComplexTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C579C310A27F1E00198B82 /* ComplexTableViewCell.m */; };
+		B4C579C510A27F1E00198B82 /* ComplexTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C579C310A27F1E00198B82 /* ComplexTableViewCell.m */; };
+		B4C579C610A27F1E00198B82 /* ComplexTableViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = B4C579C210A27F1E00198B82 /* ComplexTableViewCell.h */; };
+		B4C579C710A27F1E00198B82 /* ComplexTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C579C310A27F1E00198B82 /* ComplexTableViewCell.m */; };
+		B4C579C810A27F1E00198B82 /* ComplexTableViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = B4C579C210A27F1E00198B82 /* ComplexTableViewCell.h */; };
+		B4C579C910A27F1E00198B82 /* ComplexTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C579C310A27F1E00198B82 /* ComplexTableViewCell.m */; };
 		B4C6D7040FE99F4E00D62384 /* TitaniumWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7030FE99F4E00D62384 /* TitaniumWebViewController.m */; };
 		B4C6D7330FE9AB0600D62384 /* TitaniumTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C6D7320FE9AB0600D62384 /* TitaniumTableViewController.m */; };
 		B4D4AF5510472271006E42E0 /* TweakedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D4AF5410472271006E42E0 /* TweakedScrollView.m */; };
@@ -553,6 +559,8 @@
 		B4BAC626109624C2005925EA /* AddressBookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBookUI.framework; path = System/Library/Frameworks/AddressBookUI.framework; sourceTree = SDKROOT; };
 		B4BAC64E1096250A005925EA /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		B4C579C210A27F1E00198B82 /* ComplexTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComplexTableViewCell.h; sourceTree = "<group>"; };
+		B4C579C310A27F1E00198B82 /* ComplexTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ComplexTableViewCell.m; sourceTree = "<group>"; };
 		B4C6D7020FE99F4E00D62384 /* TitaniumWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumWebViewController.h; sourceTree = "<group>"; };
 		B4C6D7030FE99F4E00D62384 /* TitaniumWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumWebViewController.m; sourceTree = "<group>"; };
 		B4C6D7310FE9AB0600D62384 /* TitaniumTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumTableViewController.h; sourceTree = "<group>"; };
@@ -774,39 +782,20 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				B4C579BD10A27A8100198B82 /* Base Titanium Engine */,
+				B4C579BC10A27A3A00198B82 /* Fixed iPhone classes */,
+				B4C579BB10A279F300198B82 /* Cell view subclasses */,
 				24FD2045106C9171004D4127 /* Module Helpers */,
-				B4C6D7640FE9B54800D62384 /* Data wrappers */,
+				B4C6D7640FE9B54800D62384 /* Javascript Data wrappers */,
 				B4C6D7630FE9B50C00D62384 /* Utilities */,
 				B4C6D7560FE9B34D00D62384 /* TitaniumViewControllers */,
-				1D3623240D0F684500981E51 /* TitaniumAppDelegate.h */,
-				1D3623250D0F684500981E51 /* TitaniumAppDelegate.m */,
-				B413A67E0F7998C500B1C47D /* TitaniumAppProtocol.h */,
-				B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */,
-				B413A7510F79A58000B1C47D /* TitaniumCmdThread.h */,
 				B4864F5A0F7C48E700A851C5 /* TitaniumUIViewController.h */,
 				B4864F5B0F7C48E700A851C5 /* TitaniumUIViewController.m */,
-				B45CA77D0F81565D00B80900 /* TitaniumHost.h */,
-				B45CA77E0F81565D00B80900 /* TitaniumHost.m */,
-				B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */,
-				B4E9BC070F85491F00DD709C /* TitaniumJSConstants.h */,
-				B4E9BC080F85491F00DD709C /* TitaniumJSConstants.m */,
 				B408AD460F97FA010051FD67 /* TitaniumActionSheetHelper.h */,
 				B408AD470F97FA010051FD67 /* TitaniumActionSheetHelper.m */,
-				249075290FC9D55B00D38073 /* TitaniumModule.h */,
-				B45C717D0FEDAF93002A8675 /* WebTableViewCell.h */,
-				B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */,
-				B47B52D40FF1B2F400BD7229 /* ValueTableViewCell.h */,
-				B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */,
-				B4290A73100D31FD00C4FF98 /* TweakedNavController.h */,
-				B4290A74100D31FD00C4FF98 /* TweakedNavController.m */,
-				B4AE66E310A104F200126EDA /* TweakedWebView.h */,
-				B4AE66E410A104F200126EDA /* TweakedWebView.m */,
-				B4D4AF5310472271006E42E0 /* TweakedScrollView.h */,
-				B4D4AF5410472271006E42E0 /* TweakedScrollView.m */,
 				B4B8E56910586D3500D08D44 /* TitaniumCellWrapper.h */,
 				B4B8E56A10586D3500D08D44 /* TitaniumCellWrapper.m */,
-				B451D42410599C1C0025A18B /* PickerImageTextCell.h */,
-				B451D42510599C1C0025A18B /* PickerImageTextCell.m */,
+				249075290FC9D55B00D38073 /* TitaniumModule.h */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -1146,6 +1135,51 @@
 			path = ContactsModule;
 			sourceTree = "<group>";
 		};
+		B4C579BB10A279F300198B82 /* Cell view subclasses */ = {
+			isa = PBXGroup;
+			children = (
+				B45C717D0FEDAF93002A8675 /* WebTableViewCell.h */,
+				B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */,
+				B47B52D40FF1B2F400BD7229 /* ValueTableViewCell.h */,
+				B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */,
+				B451D42410599C1C0025A18B /* PickerImageTextCell.h */,
+				B451D42510599C1C0025A18B /* PickerImageTextCell.m */,
+				B4C579C210A27F1E00198B82 /* ComplexTableViewCell.h */,
+				B4C579C310A27F1E00198B82 /* ComplexTableViewCell.m */,
+			);
+			name = "Cell view subclasses";
+			sourceTree = "<group>";
+		};
+		B4C579BC10A27A3A00198B82 /* Fixed iPhone classes */ = {
+			isa = PBXGroup;
+			children = (
+				B4290A73100D31FD00C4FF98 /* TweakedNavController.h */,
+				B4290A74100D31FD00C4FF98 /* TweakedNavController.m */,
+				B4AE66E310A104F200126EDA /* TweakedWebView.h */,
+				B4AE66E410A104F200126EDA /* TweakedWebView.m */,
+				B4D4AF5310472271006E42E0 /* TweakedScrollView.h */,
+				B4D4AF5410472271006E42E0 /* TweakedScrollView.m */,
+			);
+			name = "Fixed iPhone classes";
+			sourceTree = "<group>";
+		};
+		B4C579BD10A27A8100198B82 /* Base Titanium Engine */ = {
+			isa = PBXGroup;
+			children = (
+				1D3623240D0F684500981E51 /* TitaniumAppDelegate.h */,
+				1D3623250D0F684500981E51 /* TitaniumAppDelegate.m */,
+				B413A67E0F7998C500B1C47D /* TitaniumAppProtocol.h */,
+				B413A67F0F7998C500B1C47D /* TitaniumAppProtocol.m */,
+				B413A7510F79A58000B1C47D /* TitaniumCmdThread.h */,
+				B413A7520F79A58000B1C47D /* TitaniumCmdThread.m */,
+				B45CA77D0F81565D00B80900 /* TitaniumHost.h */,
+				B45CA77E0F81565D00B80900 /* TitaniumHost.m */,
+				B4E9BC070F85491F00DD709C /* TitaniumJSConstants.h */,
+				B4E9BC080F85491F00DD709C /* TitaniumJSConstants.m */,
+			);
+			name = "Base Titanium Engine";
+			sourceTree = "<group>";
+		};
 		B4C6D7560FE9B34D00D62384 /* TitaniumViewControllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -1191,7 +1225,7 @@
 			name = Utilities;
 			sourceTree = "<group>";
 		};
-		B4C6D7640FE9B54800D62384 /* Data wrappers */ = {
+		B4C6D7640FE9B54800D62384 /* Javascript Data wrappers */ = {
 			isa = PBXGroup;
 			children = (
 				B4FC656D0F95078000B21EA1 /* TitaniumInvocationGenerator.h */,
@@ -1205,7 +1239,7 @@
 				B43543621076995400A38EC9 /* TitaniumJSEvent.h */,
 				B43543631076995400A38EC9 /* TitaniumJSEvent.m */,
 			);
-			name = "Data wrappers";
+			name = "Javascript Data wrappers";
 			sourceTree = "<group>";
 		};
 		B4F37DDA1061911100ED12AF /* NotificationModule */ = {
@@ -1368,6 +1402,7 @@
 				24C5ACF31061FDD70063594B /* NativeControlProxy.h in Headers */,
 				24C5ACD31061FD140063594B /* TitaniumModule.h in Headers */,
 				B4AE66ED10A1076F00126EDA /* SearchBarControl.h in Headers */,
+				B4C579C610A27F1E00198B82 /* ComplexTableViewCell.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1436,6 +1471,7 @@
 				24B51E4E109EEDB400B87D18 /* AFOpenFlowView.h in Headers */,
 				24B51E50109EEDB400B87D18 /* AFUIImageReflection.h in Headers */,
 				B4AE66E510A104F200126EDA /* TweakedWebView.h in Headers */,
+				B4C579C810A27F1E00198B82 /* ComplexTableViewCell.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1959,6 +1995,7 @@
 				24B51E4A109EEDB400B87D18 /* AFUIImageReflection.m in Sources */,
 				B4AE66E810A104F200126EDA /* TweakedWebView.m in Sources */,
 				B4AE66EB10A1076F00126EDA /* SearchBarControl.m in Sources */,
+				B4C579C510A27F1E00198B82 /* ComplexTableViewCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2092,6 +2129,7 @@
 			files = (
 				24C5ACF41061FDDC0063594B /* UiModule.m in Sources */,
 				B4AE66EE10A1076F00126EDA /* SearchBarControl.m in Sources */,
+				B4C579C710A27F1E00198B82 /* ComplexTableViewCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2156,6 +2194,7 @@
 				24B51E4F109EEDB400B87D18 /* AFOpenFlowView.m in Sources */,
 				24B51E51109EEDB400B87D18 /* AFUIImageReflection.m in Sources */,
 				B4AE66E610A104F200126EDA /* TweakedWebView.m in Sources */,
+				B4C579C910A27F1E00198B82 /* ComplexTableViewCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2217,6 +2256,7 @@
 				B4A4A105109123680021CC46 /* ContactsModule.m in Sources */,
 				B4AE66E710A104F200126EDA /* TweakedWebView.m in Sources */,
 				B4AE66EC10A1076F00126EDA /* SearchBarControl.m in Sources */,
+				B4C579C410A27F1E00198B82 /* ComplexTableViewCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
