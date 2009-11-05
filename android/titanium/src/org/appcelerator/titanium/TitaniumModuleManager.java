@@ -10,6 +10,7 @@ package org.appcelerator.titanium;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.api.ITitaniumModule;
@@ -38,6 +39,8 @@ public class TitaniumModuleManager
 	private Context appContext;
 	private WeakReference<TitaniumJSRefCache> weakObjectCache;
 
+	private HashMap<String, Object> registeredModules;
+
 	private long creationThreadId;
 	private String creationThreadName;
 
@@ -53,6 +56,7 @@ public class TitaniumModuleManager
 		this.softActivity = new SoftReference<TitaniumActivity>(activity);
 		this.webView = new TitaniumWebView(this, isWindow);
 		this.modules = new ArrayList<ITitaniumModule>();
+		this.registeredModules = new HashMap<String, Object>();
 		this.appContext = activity.getApplicationContext();
 
 		if (idGenerator == null) {
@@ -168,6 +172,18 @@ public class TitaniumModuleManager
 		}
 	}
 
+	public void registerModule(String name, Object module) {
+		if (registeredModules.containsKey(name)) {
+			throw new IllegalStateException("Attempt to add another module with name: " + name);
+		}
+
+		registeredModules.put(name, module);
+	}
+
+	public Object getModuleForName(String name) {
+		return registeredModules.get(name);
+	}
+
 	public void onResume() {
 		for (ITitaniumModule m : modules) {
 			try {
@@ -200,6 +216,8 @@ public class TitaniumModuleManager
 		}
 		softActivity.clear();
 		weakUIWebView.clear();
+		registeredModules.clear();
+		modules.clear();
 		webView.onDestroy();
 		appContext = null;
 

@@ -92,17 +92,17 @@ public class TitaniumActivityGroup extends ActivityGroup
 		final TitaniumWindowInfo info = windows.get(0);
 		final TitaniumFileHelper tfh = new TitaniumFileHelper(this.getApplicationContext());
 
-		Thread initialSourceThread = new Thread(new Runnable(){
-			public void run() {
+//		Thread initialSourceThread = new Thread(new Runnable(){
+//			public void run() {
 				String url = tfh.getResourceUrl(info.getWindowUrl());
 				try {
 					app.setSourceFor(url, TitaniumUrlHelper.getSource(app, app.getApplicationContext(), url, null));
 				} catch (IOException e) {
 					Log.e(LCAT, "Unable to pre-load source for " + url);
 				}
-			}});
-		initialSourceThread.setPriority(Thread.NORM_PRIORITY);
-		initialSourceThread.start();
+//			}});
+//		initialSourceThread.setPriority(Thread.NORM_PRIORITY);
+//		initialSourceThread.start();
 
 		final int len = windows.size();
 
