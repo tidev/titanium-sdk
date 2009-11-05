@@ -7,7 +7,6 @@
 
 #import "ContactsModule.h"
 
-#import <AddressBook/AddressBook.h>
 #import <AddressBookUI/AddressBookUI.h>
 #import "TitaniumBlobWrapper.h"
 #import "TitaniumViewController.h"
@@ -20,8 +19,6 @@ NSDictionary * PropertyIDDictionary = nil;
 
 void EnsurePropertyIDDictionary(){
 	if (PropertyIDDictionary != nil) return;
-	ABAddressBookRef ourAddyBook = ABAddressBookCreate();	//This is necessary to jar the constants to be nonzero.
-	CFRelease(ourAddyBook);
 	PropertyIDDictionary = [[NSDictionary alloc] initWithObjectsAndKeys:
 			[NSNumber numberWithInt:kABPersonFirstNameProperty],@"firstName",
 			[NSNumber numberWithInt:kABPersonLastNameProperty],@"lastName",
@@ -64,6 +61,56 @@ NSString * ContactKeyForPropertyID(ABPropertyID propertyID){
 	return [keys objectAtIndex:0];
 }
 
+NSDictionary * ConvertAddressToNativeFormat(NSDictionary * inputDict){
+	NSMutableDictionary * result = [NSMutableDictionary dictionary];
+	
+	NSString * street1 = [inputDict objectForKey:@"street1"];
+	NSString * street2 = [inputDict objectForKey:@"street2"];
+
+	if((street1 != nil) && (street2 != nil)){
+		[result setObject:[NSString stringWithFormat:@"%@\n%@",street1,street2]
+				forKey:kABPersonAddressStreetKey];
+	} else if ((street1 != nil)) {
+		[result setObject:street1 forKey:kABPersonAddressStreetKey];
+	} else if ((street2 != nil)) {
+		[result setObject:[@"\n" stringByAppendingString:street1] forKey:kABPersonAddressStreetKey];
+	}
+	[result setValue:[inputDict objectForKey:@"city"] forKey:kABPersonAddressCityKey];
+	[result setValue:[inputDict objectForKey:@"region1"] forKey:kABPersonAddressStateKey];
+	[result setValue:[inputDict objectForKey:@"region2"] forKey:@"Region"];
+	[result setValue:[inputDict objectForKey:@"postalCode"] forKey:kABPersonAddressZIPKey];
+	
+	[result setValue:[inputDict objectForKey:@"country"] forKey:kABPersonAddressCountryKey];
+	[result setValue:[inputDict objectForKey:@"countryCode"] forKey:kABPersonAddressCountryCodeKey];
+	
+	return result;
+}
+
+NSDictionary * ConvertAddressFromNativeFormat(NSDictionary * inputDict){
+	NSMutableDictionary * result = [NSMutableDictionary dictionary];
+
+	NSString * street = [inputDict objectForKey:kABPersonAddressStreetKey];
+
+	if ([street length]>0) {
+		NSRange returnKey = [street rangeOfString:@"\n"];
+		if (returnKey.location == NSNotFound) {
+			[result setObject:street forKey:@"street1"];
+		} else {
+			[result setObject:[street substringToIndex:returnKey.location] forKey:@"street1"];
+			[result setObject:[street substringFromIndex:returnKey.location+1] forKey:@"street2"];
+		}
+	}
+
+	[result setValue:[inputDict objectForKey:kABPersonAddressCityKey] forKey:@"city"];
+	[result setValue:[inputDict objectForKey:kABPersonAddressStateKey] forKey:@"region1"];
+	[result setValue:[inputDict objectForKey:@"Region"] forKey:@"region2"];
+	[result setValue:[inputDict objectForKey:kABPersonAddressZIPKey] forKey:@"postalCode"];
+	
+	[result setValue:[inputDict objectForKey:kABPersonAddressCountryKey] forKey:@"country"];
+	[result setValue:[inputDict objectForKey:kABPersonAddressCountryCodeKey] forKey:@"countryCode"];
+	
+	return result;
+}
 
 id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDict){
 	for (NSString * thisKey in inputDict) {
@@ -91,9 +138,15 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 		if (thisPropertyType & kABMultiValueMask){
 			ABMutableMultiValueRef thisMultiValue = ABMultiValueCreateMutable(thisPropertyType);
 			for (NSDictionary * thisEntryDictionary in thisValue) {
-				ABMultiValueAddValueAndLabel(thisMultiValue,
-						(CFTypeRef)[thisEntryDictionary objectForKey:@"value"],
-						(CFStringRef)[thisEntryDictionary objectForKey:@"label"], NULL);
+				if (thisPropertyID == kABPersonAddressProperty) {
+					ABMultiValueAddValueAndLabel(thisMultiValue,
+							(CFTypeRef)ConvertAddressToNativeFormat([thisEntryDictionary objectForKey:@"value"]),
+							(CFStringRef)[thisEntryDictionary objectForKey:@"label"], NULL);
+				} else {
+					ABMultiValueAddValueAndLabel(thisMultiValue,
+												 (CFTypeRef)[thisEntryDictionary objectForKey:@"value"],
+												 (CFStringRef)[thisEntryDictionary objectForKey:@"label"], NULL);
+				}
 			}
 			ABRecordSetValue(result, thisPropertyID, thisMultiValue, NULL);
 			CFRelease(thisMultiValue);
@@ -196,11 +249,26 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 
 @implementation ContactsModule
 
+- (id) init
+{
+	if ((self = [super init])){
+		sharedAddressBook = ABAddressBookCreate();
+	}
+	return self;
+}
+
+- (void) dealloc
+{
+	[contactPickerLookup release];
+	CFRelease(sharedAddressBook);
+	[super dealloc];
+}
+
+
 - (id) getContactRefs: (NSArray *) args;
 {
 //Args is unused.
-	ABAddressBookRef ourAddyBook = ABAddressBookCreate();
-	CFArrayRef ourContactArray = ABAddressBookCopyArrayOfAllPeople(ourAddyBook);
+	CFArrayRef ourContactArray = ABAddressBookCopyArrayOfAllPeople(sharedAddressBook);
 
 	NSMutableString * result = [NSMutableString stringWithString:@"["];
 
@@ -218,7 +286,6 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 	[result appendString:@"]"];
 
 	CFRelease(ourContactArray);
-	CFRelease(ourAddyBook);
 	
 	return [TitaniumJSCode codeWithString:result];
 }
@@ -233,8 +300,7 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 				[NSDictionary dictionaryWithObject:@"getContactProperty requires reference ID"
 				forKey:NSLocalizedDescriptionKey]];
 	}
-	ABAddressBookRef ourAddyBook = ABAddressBookCreate();
-	ABRecordRef ourRecord = ABAddressBookGetPersonWithRecordID(ourAddyBook, [referenceObject intValue]);
+	ABRecordRef ourRecord = ABAddressBookGetPersonWithRecordID(sharedAddressBook, [referenceObject intValue]);
 	
 	id result=nil;
 	
@@ -258,19 +324,31 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 				for (int thisPropertyIndex=0; thisPropertyIndex<ourPropertyCount; thisPropertyIndex++) {
 					CFStringRef thisPropertyLabel = ABMultiValueCopyLabelAtIndex(ourProperty, thisPropertyIndex);
 					CFTypeRef thisPropertyValue = ABMultiValueCopyValueAtIndex(ourProperty, thisPropertyIndex);
-					[result addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-							(NSString *)thisPropertyLabel,@"label",(id)thisPropertyValue,@"value",nil]];
+					if(ourPropertyID == kABPersonAddressProperty){
+						[result addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+								(NSString *)thisPropertyLabel,@"label",
+								ConvertAddressFromNativeFormat((NSDictionary *)thisPropertyValue),@"value",nil]];
+					} else {
+						[result addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+								(NSString *)thisPropertyLabel,@"label",(id)thisPropertyValue,@"value",nil]];
+					}
+					
 					CFRelease(thisPropertyValue);
 					CFRelease(thisPropertyLabel);
 				}
 				CFRelease(ourProperty);
+			} else if (ourPropertyID == kABPersonNoteProperty) {
+				result = [NSArray arrayWithObject:[NSDictionary dictionaryWithObjectsAndKeys:
+						@"notes",@"label",(id)result,@"value",nil]];
+//			} else if (ourPropertyID == kABPersonNoteProperty) {
+//				result = [NSArray arrayWithObject:[NSDictionary dictionaryWithObjectsAndKeys:
+//						@"notes",@"label",(id)result,@"value",nil]];
 			} else {
 				result = [(id)ourProperty autorelease];
 			}
 		}
 	}
 	
-	CFRelease(ourAddyBook);
 	return result;
 }
 
@@ -285,12 +363,10 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 											forKey:NSLocalizedDescriptionKey]];
 	}
 	
-	ABAddressBookRef ourAddyBook = ABAddressBookCreate();
-	ABRecordRef ourRecord = ABAddressBookGetPersonWithRecordID(ourAddyBook, [referenceObject intValue]);
-	ABAddressBookRemoveRecord(ourAddyBook, ourRecord, NULL);
+	ABRecordRef ourRecord = ABAddressBookGetPersonWithRecordID(sharedAddressBook, [referenceObject intValue]);
+	ABAddressBookRemoveRecord(sharedAddressBook, ourRecord, NULL);
 
-	ABAddressBookSave(ourAddyBook, NULL);
-	CFRelease(ourAddyBook);
+	ABAddressBookSave(sharedAddressBook, NULL);
 	
 	return [NSNumber numberWithBool:YES];
 }
@@ -301,16 +377,14 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 	
 	NSDictionary * propertiesDict = [args objectAtIndex:0];
 	
-	ABAddressBookRef ourAddyBook = ABAddressBookCreate();
 	ABRecordRef ourRecord = ABPersonCreate();
 	SetContactPropertiesFromDictionary(ourRecord, propertiesDict);
-	ABAddressBookAddRecord(ourAddyBook, ourRecord, NULL);
+	ABAddressBookAddRecord(sharedAddressBook, ourRecord, NULL);
 
-	ABAddressBookSave(ourAddyBook, NULL);
+	ABAddressBookSave(sharedAddressBook, NULL);
 	ABRecordID result = ABRecordGetRecordID(ourRecord);
 
 	CFRelease(ourRecord);
-	CFRelease(ourAddyBook);
 	return [NSNumber numberWithInt:result];
 }
 
@@ -327,13 +401,11 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 
 	NSDictionary * propertiesDict = [args objectAtIndex:1];
 
-	ABAddressBookRef ourAddyBook = ABAddressBookCreate();
-	ABRecordRef ourRecord = ABAddressBookGetPersonWithRecordID(ourAddyBook, [referenceObject intValue]);
+	ABRecordRef ourRecord = ABAddressBookGetPersonWithRecordID(sharedAddressBook, [referenceObject intValue]);
 	
 	SetContactPropertiesFromDictionary(ourRecord, propertiesDict);
 
-	ABAddressBookSave(ourAddyBook, NULL);
-	CFRelease(ourAddyBook);	
+	ABAddressBookSave(sharedAddressBook, NULL);
 	
 	return nil;
 }
@@ -498,6 +570,18 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 
 	
 	NSDictionary * moduleDict = [NSDictionary dictionaryWithObjectsAndKeys:
+			@"street1",@"ADDRESS_STREET_1",
+			@"street2",@"ADDRESS_STREET_2",
+			@"city",@"ADDRESS_CITY",
+			@"region1",@"ADDRESS_STATE",
+			@"region1",@"ADDRESS_PROVINCE",
+			@"region2",@"ADDRESS_SECONDARY_REGION",
+			@"postalCode",@"ADDRESS_ZIP",
+			@"postalCode",@"ADDRESS_POSTAL_CODE",
+			@"country",@"ADDRESS_COUNTRY",
+			@"countryCode",@"ADDRESS_COUNTRY_CODE",
+	
+	
 			contactObjectCode,@"_CONOBJ",			
 			[TitaniumJSCode codeWithString:@"{}"],@"_PICKER",
 			[TitaniumJSCode codeWithString:@"function(options){var tkn=Ti._TIDO('contacts','showPicker',[options.details]);"
