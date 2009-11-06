@@ -11,7 +11,7 @@
 #import "UiModule.h"
 
 @implementation TitaniumCellWrapper
-@synthesize jsonUrl, jsonValues;
+@synthesize jsonValues;
 @synthesize imageURL,imageWrapper,accessoryType,inputProxy,isButton, fontDesc, rowHeight;
 
 - (id) init
@@ -29,7 +29,6 @@
 	[imageURL release];
 	[imageWrapper release]; [inputProxy release];
 
-	[jsonUrl release];
 	[jsonValues release];
 	[super dealloc];
 }
@@ -37,17 +36,47 @@
 - (NSString *) stringForKey: (NSString *) key;
 {
 	id result = [jsonValues objectForKey:key];
-	
-	if([result isKindOfClass:[NSString class]]){
-		return result;
-	}
-	
-	if ([result respondsToSelector:@selector(stringValue)]) {
-		return [result stringValue];
-	}
+	if([result isKindOfClass:[NSString class]])return result;
+	if ([result respondsToSelector:@selector(stringValue)])return [result stringValue];
 	
 	return nil;
 }
+
+- (UIImage *) imageForKey: (NSString *) key;
+{
+	id result = [imagesCache objectForKey:key];
+	if([result isKindOfClass:[NSURL class]]){
+		TitaniumHost * theHost = [TitaniumHost sharedHost];
+		UIImage * resultImage = [theHost imageForResource:result];
+		if(resultImage!=nil)return resultImage;
+		
+		//Not a built-in or resource image. Consult the blobs.
+		result = [theHost blobForUrl:result];
+		if(result == nil)return nil; //Failed!
+		[imagesCache setObject:result forKey:key];
+	}
+	
+	if([result isKindOfClass:[TitaniumBlobWrapper class]]){
+		UIImage * resultImage = [(TitaniumBlobWrapper *)result imageBlob];
+		if(resultImage!=nil)return resultImage;
+		
+		//Okay, we'll have to take a rain check.
+		[result addObserver:self forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:nil];
+	}
+	return nil;
+}
+
+- (UIImage *) stretchableImageForKey: (NSString *) key;
+{
+	id result = [imagesCache objectForKey:key];
+	if([result isKindOfClass:[NSURL class]]){
+		TitaniumHost * theHost = [TitaniumHost sharedHost];
+		UIImage * resultImage = [theHost stretchableImageForResource:result];
+		if(resultImage!=nil)return resultImage;
+	}
+	return nil;
+}
+
 
 - (NSString *) title;
 {
@@ -146,7 +175,6 @@
 - (void) useProperties: (NSDictionary *) propDict withUrl: (NSURL *) baseUrl;
 {
 	[self setJsonValues:propDict];
-	[self setJsonUrl:baseUrl];
 
 	SEL boolSel = @selector(boolValue);
 	SEL stringSel = @selector(stringValue);

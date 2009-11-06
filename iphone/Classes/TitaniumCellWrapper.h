@@ -14,8 +14,8 @@
 {
 	TitaniumFontDescription fontDesc;
 
-	NSURL * jsonUrl;	//Indicates the url that any relative urls will be relative to.
 	NSDictionary * jsonValues;
+	NSMutableDictionary * imagesCache;
 
 	NSURL * imageURL;
 	TitaniumBlobWrapper * imageWrapper;
@@ -26,7 +26,6 @@
 	BOOL isButton;
 	
 }
-@property(nonatomic,readwrite,copy)	NSURL * jsonUrl;
 @property(nonatomic,readwrite,copy)	NSDictionary * jsonValues;
 
 @property(nonatomic,readonly)	NSString * title;
