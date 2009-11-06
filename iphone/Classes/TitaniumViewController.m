@@ -170,6 +170,7 @@ int nextWindowToken = 0;
 
 	HANDLESTRING(@"title",[self setTitle:object],[self setTitle:nil]);
 	HANDLESTRING(@"titleImage",[self setTitleViewImagePath:object],[self setTitleViewImagePath:nil]);
+	HANDLESTRING(@"titlePrompt",[self setTitlePrompt:object],[self setTitlePrompt:nil]);
 	HANDLESTRING(@"id",[self setNameString:object],[self setNameString:nil]);
 	HANDLESTRING(@"name",[self setNameString:object],[self setNameString:nil]);
 
@@ -215,7 +216,6 @@ int nextWindowToken = 0;
 	}
 	
 	NSString * navTintName = [inputState objectForKey:@"barColor"];
-	NSLog(@"barColor is = %@",navTintName);
 	if (navTintName==nil)
 	{
 		// if we don't specify a color, by default the new view should inherit the current views barcolor
@@ -328,6 +328,12 @@ int nextWindowToken = 0;
 	if([oldTitle length]>0){
 		[tabItem setTitle:oldTitle];
 	}
+}
+
+- (void)setTitlePrompt:(NSString*)prompt;
+{
+	
+	[[self navigationItem] setPrompt:prompt];
 }
 
 

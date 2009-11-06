@@ -10,7 +10,7 @@
 #import "TitaniumViewController.h"
 
 @class TweakedWebView;
-@interface TitaniumWebViewController : TitaniumContentViewController<UIWebViewDelegate> {
+@interface TitaniumWebViewController : TitaniumContentViewController<UIWebViewDelegate, UIScrollViewDelegate> {
 	IBOutlet UIScrollView * scrollView; //The root view of us, effectively.
 	IBOutlet TweakedWebView * webView;
 	NSURL * currentContentURL;	//Used as a base url.

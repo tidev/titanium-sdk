@@ -624,6 +624,17 @@ NSString * UrlEncodeString(NSString * string)
 	[ourVC performSelectorOnMainThread:@selector(setTitleViewProxy:) withObject:newTitleProxy waitUntilDone:NO];	
 }
 
+- (void) setWindow:(NSString *)tokenString titlePrompt: (id) newValue;
+{
+	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
+	NSString *value = nil;
+	if ([newValue isKindOfClass:[NSString class]])
+	{
+		value = newValue;
+	}
+	[ourVC performSelectorOnMainThread:@selector(setTitlePrompt:) withObject:value waitUntilDone:NO];
+}
+
 - (void) setWindow:(NSString *)tokenString showNavBar: (id) animatedObject;
 {
 	TitaniumViewController * ourVC = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
@@ -1157,6 +1168,9 @@ NSString * UrlEncodeString(NSString * string)
 
 	[(UiModule *)invocGen setWindow:nil titleProxy:nil];
 	NSInvocation * setTitleImageProxyInvoc = [invocGen invocation];
+	
+	[(UiModule *)invocGen setWindow:nil titlePrompt:nil];
+	NSInvocation * setTitlePromptInvoc = [invocGen invocation];
 
 	[(UiModule *)invocGen openWindow:nil options:nil];
 	NSInvocation * openWinInvoc = [invocGen invocation];
@@ -1308,6 +1322,7 @@ NSString * UrlEncodeString(NSString * string)
 			"setTitle:function(args){Ti.UI._WTITLE(Ti._TOKEN,args);},"
 			"showNavBar:function(args){Ti.UI._WSHNAV(Ti._TOKEN,args);},"
 			"hideNavBar:function(args){Ti.UI._WHDNAV(Ti._TOKEN,args);},"
+			"setTitlePrompt:function(args){Ti.UI._WTITLEPROMPT(Ti._TOKEN,args);},"
 			"setTitleImage:function(args){Ti.UI._WTITLEIMG(Ti._TOKEN,args);},"
 			"setTitleControl:function(args){if(args)args.ensureToken();Ti.UI._WTITLEPXY(Ti._TOKEN,args);},"
 			"setLeftNavButton:function(btn,args){if(btn)btn.ensureToken();Ti.UI._WNAVBTN(Ti._TOKEN,true,btn,args);},"
@@ -1359,6 +1374,7 @@ NSString * UrlEncodeString(NSString * string)
 			"res.hideNavBar=function(args){this._hideNavBar=true;if(this._TOKEN){Ti.UI._WHDNAV(this._TOKEN,args);}};"
 			"res.setTitleControl=function(args){if(args)args.ensureToken();this.titleControl=args;if(this._TOKEN){Ti.UI._WTITLEPXY(this._TOKEN,args);}};"
 			"res.setTitleImage=function(args){this.titleImage=args;if(this._TOKEN){Ti.UI._WTITLEIMG(this._TOKEN,args);}};"
+			"res.setTitlePrompt=function(args){this.titlePrompt=args;if(this._TOKEN){Ti.UI._WTITLEPROMPT(this._TOKEN,args);}};"
 			"res.setBarColor=function(args){this.barColor=args;if(this._TOKEN){Ti.UI._WNAVTNT(this._TOKEN,args);}};"
 			"res.setLeftNavButton=function(btn,args){if(btn)btn.ensureToken();this.lNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,true,btn,args);}};"
 			"res.setRightNavButton=function(btn,args){if(btn)btn.ensureToken();this.rNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,false,btn,args);}};"
@@ -1577,6 +1593,7 @@ NSString * UrlEncodeString(NSString * string)
 			
 			setTitleImageInvoc,@"_WTITLEIMG",
 			setTitleImageProxyInvoc,@"_WTITLEPXY",
+			setTitlePromptInvoc,@"_WTITLEPROMPT",
 			changeWinNavColorInvoc,@"_WNAVTNT",
 			setNavButtonInvoc,@"_WNAVBTN",
 			updateToolbarInvoc,@"_WTOOL",
