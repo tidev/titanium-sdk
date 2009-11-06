@@ -196,7 +196,7 @@
 		[scrollView setDelaysContentTouches:NO];
 		[scrollView setFrame:quikframe];
 		[scrollView setAutoresizingMask:stretchy];
-		
+		[scrollView setDelegate:self];
 		
 		if([[self webView] superview] != scrollView){
 			[webView setAutoresizingMask:stretchy];
@@ -313,6 +313,32 @@
 	NSString * commandString = [NSString stringWithFormat:@"Ti._ONEVT.call(Ti.UI,'tabchange',{%@});",jsonString];
 	[webView stringByEvaluatingJavaScriptFromString:commandString];
 }
+
+#pragma mark ScrollViewDelegate methods
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView;                              // called on start of dragging (may require some time and or distance to move)
+{
+	[webView setUserInteractionEnabled:NO];
+}
+- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView;   // called on finger up as we are moving
+{
+	[webView setUserInteractionEnabled:NO];
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate; // called on finger up if user dragged. decelerate is true if it will continue moving afterwards
+{
+	if(!decelerate)[webView setUserInteractionEnabled:YES];
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView;      // called when scroll view grinds to a halt
+{
+	[webView setUserInteractionEnabled:YES];
+}
+
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView; // called when setContentOffset/scrollRectVisible:animated: finishes. not called if not animating
+{
+	[webView setUserInteractionEnabled:YES];
+}
+
 
 #pragma mark WebViewDelegate methods
 #pragma mark UIWebViewDelegate methods
