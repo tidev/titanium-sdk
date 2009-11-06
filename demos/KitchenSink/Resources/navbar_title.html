@@ -26,6 +26,12 @@
 	<div style="margin-bottom:5px">
 		<input type="button" value="set title control (switch)" id="button_control_5" style="font-size:18px"/>
 	</div>
+	<div style="margin-bottom:5px">
+		<input type="button" value="set title prompt" id="button_control_6" style="font-size:18px"/>
+	</div>
+	<div style="margin-bottom:5px">
+		<input type="button" value="unset title prompt" id="button_control_7" style="font-size:18px"/>
+	</div>
 	
 	<script>
 	document.getElementById('button_title').onclick = function()
@@ -100,6 +106,16 @@
 		})
 		Titanium.UI.currentWindow.setTitleControl(inst);
 		
+	};
+
+	document.getElementById('button_control_6').onclick = function()
+	{
+		Titanium.UI.currentWindow.setTitlePrompt("This is a title prompt");
+	};
+
+	document.getElementById('button_control_7').onclick = function()
+	{
+		Titanium.UI.currentWindow.setTitlePrompt(null);
 	};
 
 	</script>

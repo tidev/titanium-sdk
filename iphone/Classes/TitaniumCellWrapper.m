@@ -177,7 +177,6 @@
 	[self setJsonValues:propDict];
 
 	SEL boolSel = @selector(boolValue);
-	SEL stringSel = @selector(stringValue);
 	Class stringClass = [NSString class];
 	
 	NSNumber * hasDetail = [propDict objectForKey:@"hasDetail"];

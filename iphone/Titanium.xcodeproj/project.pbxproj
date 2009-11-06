@@ -34,6 +34,7 @@
 		24B51E4F109EEDB400B87D18 /* AFOpenFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24B51E45109EEDB400B87D18 /* AFOpenFlowView.m */; };
 		24B51E50109EEDB400B87D18 /* AFUIImageReflection.h in Headers */ = {isa = PBXBuildFile; fileRef = 24B51E46109EEDB400B87D18 /* AFUIImageReflection.h */; };
 		24B51E51109EEDB400B87D18 /* AFUIImageReflection.m in Sources */ = {isa = PBXBuildFile; fileRef = 24B51E47109EEDB400B87D18 /* AFUIImageReflection.m */; };
+		24B5229110A2D4B600B87D18 /* UiModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2444F8350FC9FCA400063972 /* UiModule.h */; };
 		24BA96041096633D009ADEDD /* FBConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA95F71096633D009ADEDD /* FBConnect.h */; };
 		24BA96051096633D009ADEDD /* FBConnectGlobal.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA95F81096633D009ADEDD /* FBConnectGlobal.h */; };
 		24BA96061096633D009ADEDD /* FBDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 24BA95F91096633D009ADEDD /* FBDialog.h */; };
@@ -1431,6 +1432,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24B5229110A2D4B600B87D18 /* UiModule.h in Headers */,
 				24C5ACD41061FD1F0063594B /* Titanium_Prefix.pch in Headers */,
 				24C5AC851061FC260063594B /* TitaniumInvocationGenerator.h in Headers */,
 				24C5AC861061FC260063594B /* TitaniumAccessorTuple.h in Headers */,
