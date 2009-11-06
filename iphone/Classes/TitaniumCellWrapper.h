@@ -14,28 +14,23 @@
 {
 	TitaniumFontDescription fontDesc;
 
-	NSDictionary * jsonValues;
+	NSMutableDictionary * jsonValues;
 	NSMutableDictionary * imagesCache;
 
-	NSURL * imageURL;
-	TitaniumBlobWrapper * imageWrapper;
-	UITableViewCellAccessoryType accessoryType;
 	NativeControlProxy * inputProxy;
 	
 	float rowHeight;	
 	BOOL isButton;
 	
 }
-@property(nonatomic,readwrite,copy)	NSDictionary * jsonValues;
+@property(nonatomic,readwrite,copy)	NSMutableDictionary * jsonValues;
 
 @property(nonatomic,readonly)	NSString * title;
 @property(nonatomic,readonly)	NSString * html;
 @property(nonatomic,readonly)	NSString * name;
 @property(nonatomic,readonly)	NSString * value;
 
-@property(nonatomic,readwrite,copy)	NSURL * imageURL;
 @property(nonatomic,readonly,copy)	UIImage * image;
-@property(nonatomic,readwrite,retain)	TitaniumBlobWrapper * imageWrapper;
 @property(nonatomic,readwrite,retain)	NativeControlProxy * inputProxy;
 
 @property(nonatomic,readwrite,assign)	UITableViewCellAccessoryType accessoryType;
