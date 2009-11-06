@@ -90,6 +90,11 @@
 		if ([superduperviewdelegate respondsToSelector:@selector(touchesShouldCancelInContentView:)]){
 			result = [superduperviewdelegate touchesShouldCancelInContentView:superduperview];
 		}
+		if (result) {
+			int index=[[superview subviews] indexOfObject:view];
+			[view removeFromSuperview];
+			[superview insertSubview:view atIndex:index];
+		}
 	}
 	VERBOSE_LOG(@"[DEBUG] TouchesShouldCancelInContentView:%@(%@) == %d",NSStringFromClass([view class]),NSStringFromClass([[[view superview] superview] class]),result);
 

@@ -6,10 +6,13 @@
  */
 #import <Foundation/Foundation.h>
 #import "TitaniumModule.h"
+#import <AddressBook/AddressBook.h>
+
 
 @interface ContactsModule : NSObject<TitaniumModule> {
 	int nextContactPickerToken;
 	NSMutableDictionary * contactPickerLookup;
+	ABAddressBookRef sharedAddressBook;
 }
 
 @end

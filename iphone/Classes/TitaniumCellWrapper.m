@@ -11,7 +11,8 @@
 #import "UiModule.h"
 
 @implementation TitaniumCellWrapper
-@synthesize title,html,imageURL,imageWrapper,accessoryType,inputProxy,isButton, value, name, fontDesc, rowHeight;
+@synthesize jsonValues;
+@synthesize inputProxy,isButton, fontDesc, rowHeight;
 
 - (id) init
 {
@@ -23,14 +24,83 @@
 	return self;
 }
 
+- (void) dealloc
+{
+	[inputProxy release];
+
+	[imagesCache release];
+	[jsonValues release];
+	[super dealloc];
+}
+
+- (NSString *) stringForKey: (NSString *) key;
+{
+	id result = [jsonValues objectForKey:key];
+	if([result isKindOfClass:[NSString class]])return result;
+	if ([result respondsToSelector:@selector(stringValue)])return [result stringValue];
+	
+	return nil;
+}
+
+- (UIImage *) imageForKey: (NSString *) key;
+{
+	id result = [imagesCache objectForKey:key];
+	if([result isKindOfClass:[NSURL class]]){
+		TitaniumHost * theHost = [TitaniumHost sharedHost];
+		UIImage * resultImage = [theHost imageForResource:result];
+		if(resultImage!=nil)return resultImage;
+		
+		//Not a built-in or resource image. Consult the blobs.
+		result = [theHost blobForUrl:result];
+		if(result == nil)return nil; //Failed!
+		[imagesCache setObject:result forKey:key];
+	}
+	
+	if([result isKindOfClass:[TitaniumBlobWrapper class]]){
+		UIImage * resultImage = [(TitaniumBlobWrapper *)result imageBlob];
+		if(resultImage!=nil)return resultImage;
+		
+		//Okay, we'll have to take a rain check.
+		[result addObserver:self forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:nil];
+	}
+	return nil;
+}
+
+- (UIImage *) stretchableImageForKey: (NSString *) key;
+{
+	id result = [imagesCache objectForKey:key];
+	if([result isKindOfClass:[NSURL class]]){
+		TitaniumHost * theHost = [TitaniumHost sharedHost];
+		UIImage * resultImage = [theHost stretchableImageForResource:result];
+		if(resultImage!=nil)return resultImage;
+	}
+	return nil;
+}
+
+
+- (NSString *) title;
+{
+	return [self stringForKey:@"title"];
+}
+
+- (NSString *) html;
+{
+	return [self stringForKey:@"html"];
+}
+
+- (NSString *) name;
+{
+	return [self stringForKey:@"name"];
+}
+
+- (NSString *) value;
+{
+	return [self stringForKey:@"value"];
+}
 
 - (UIImage *) image;
 {
-	if (imageWrapper != nil){
-		return [imageWrapper imageBlob];
-	}
-	if (imageURL == nil) return nil;
-	return [[TitaniumHost sharedHost] imageForResource:imageURL];
+	return [self imageForKey:@"image"];
 }
 
 - (UIFont *) font;
@@ -38,130 +108,150 @@
 	return FontFromDescription(&fontDesc);
 }
 
-- (void) dealloc
-{
-	[title release]; [html release]; [imageURL release];
-	[imageWrapper release]; [inputProxy release];
-	[super dealloc];
-}
-
 - (NSString *) stringValue;
 {
-	NSString * accessoryString;
-	switch (accessoryType) {
-		case UITableViewCellAccessoryDetailDisclosureButton:
-			accessoryString = @"hasDetail:true,hasChild:false,selected:false";
-			break;
-		case UITableViewCellAccessoryDisclosureIndicator:
-			accessoryString = @"hasDetail:false,hasChild:true,selected:false";
-			break;
-		case UITableViewCellAccessoryCheckmark:
-			accessoryString = @"hasDetail:false,hasChild:false,selected:true";
-			break;
-		default:
-			accessoryString = @"hasDetail:false,hasChild:false,selected:false";
-			break;
-	}
-	
+	NSMutableString * result = [NSMutableString stringWithString:@"{"];
 	SBJSON * packer = [[SBJSON alloc] init];
-	NSString * titleString;
-	if (title != nil){
-		titleString = [packer stringWithFragment:title error:nil];
-	} else { titleString = @"null"; }
 	
-	NSString * valueString;
-	if (value != nil){
-		valueString = [packer stringWithFragment:value error:nil];
-	} else { valueString = @"null"; }
+	Class blobClass = [TitaniumBlobWrapper class];
+	Class urlClass = [NSURL class];
 	
-	NSString * htmlString;
-	if (html != nil){
-		htmlString = [packer stringWithFragment:html error:nil];
-	} else { htmlString = @"null"; }
+	BOOL needsComma=NO;
 	
-	NSString * imageURLString;
-	if (imageURL != nil){
-		imageURLString = [packer stringWithFragment:[imageURL absoluteString] error:nil];
-	} else { imageURLString = @"null"; }
-	
-	NSString * inputProxyString;
-	if (inputProxy != nil){
-		inputProxyString = [@"Ti.UI._BTN." stringByAppendingString:[inputProxy token]];
-	} else { inputProxyString = @"null"; }
-	
-	NSString * nameString;
-	if (name != nil){
-		nameString = [packer stringWithFragment:name error:nil];
-	} else { nameString = @"null"; }
-	
-	NSString * result = [NSString stringWithFormat:@"{%@,title:%@,html:%@,image:%@,input:%@,value:%@,name:%@,rowHeight:%f}",
-						 accessoryString,titleString,htmlString,imageURLString,inputProxyString,valueString,nameString,rowHeight];
-	[packer release];
+	for (NSString * thisKey in jsonValues) {
+		id thisValue = [imagesCache objectForKey:thisKey];
+		if (thisValue == nil) {
+			thisValue = [jsonValues objectForKey:thisKey];
+		}
+		
+		if([thisValue isKindOfClass:blobClass]){
+			thisValue = [thisValue virtualUrl];
+		}else if ([thisValue isKindOfClass:urlClass]) {
+			thisValue = [thisValue absoluteURL];
+		}
+		
+		if (needsComma) {
+			[result appendString:@","];
+		}
+		
+		[result appendFormat:@"%@:%@",[packer stringWithFragment:thisKey error:nil],
+				[packer stringWithFragment:thisValue error:nil]];
+		needsComma = YES;
+	}
+
+	[result appendString:@"}"];
+
 	return result;
 }
+
+- (UITableViewCellAccessoryType) accessoryType;
+{
+	SEL boolSel = @selector(boolValue);
+
+	NSNumber * hasDetail = [jsonValues objectForKey:@"hasDetail"];
+	if ([hasDetail respondsToSelector:boolSel] && [hasDetail boolValue]){
+		return UITableViewCellAccessoryDetailDisclosureButton;
+	}
+
+	NSNumber * hasChild = [jsonValues objectForKey:@"hasChild"];
+	if ([hasChild respondsToSelector:boolSel] && [hasChild boolValue]){
+		return UITableViewCellAccessoryDisclosureIndicator;
+	}
+	
+	NSNumber * isSelected = [jsonValues objectForKey:@"selected"];
+	if ([isSelected respondsToSelector:boolSel] && [isSelected boolValue]){
+		return UITableViewCellAccessoryCheckmark;
+	}
+
+	return UITableViewCellAccessoryNone;
+}
+
+- (void) setAccessoryType:(UITableViewCellAccessoryType) newType;
+{
+	NSNumber * falseNum = [NSNumber numberWithBool:NO];
+
+	[jsonValues setObject:((newType==UITableViewCellAccessoryDetailDisclosureButton)?
+						   [NSNumber numberWithBool:YES]:falseNum) forKey:@"hasDetail"];
+
+	[jsonValues setObject:((newType==UITableViewCellAccessoryDisclosureIndicator)?
+						   [NSNumber numberWithBool:YES]:falseNum) forKey:@"hasChild"];
+
+	[jsonValues setObject:((newType==UITableViewCellAccessoryCheckmark)?
+						   [NSNumber numberWithBool:YES]:falseNum) forKey:@"selected"];
+
+}
+
+
+
+- (void) noteImage: (NSString *)key relativeToUrl: (NSURL *) baseUrl;
+{
+	id oldImageEntry = [imagesCache objectForKey:key];
+	id jsonEntry = [jsonValues objectForKey:key];
+
+//Okay, first make sure we don't already have this.
+
+//First check to see if they're both null, or both the same datablob.
+	if(oldImageEntry==jsonEntry)return;
+
+//Okay, try it being a relative string.
+	if ([jsonEntry isKindOfClass:[NSString class]]) {
+		NSURL * newImageUrl = [[NSURL URLWithString:jsonEntry relativeToURL:baseUrl] absoluteURL];
+		if([newImageUrl isEqual:oldImageEntry])return;
+		
+		if ([oldImageEntry isKindOfClass:[TitaniumBlobWrapper class]] && 
+				([newImageUrl isEqual:[oldImageEntry url]] ||
+				[[newImageUrl absoluteString] isEqual:[oldImageEntry virtualUrl]])){
+			return; //The old entry contains the url already.
+		}
+		//Okay, this is a new url. Update it.
+		[imagesCache setObject:newImageUrl forKey:key];
+		return;
+
+	}
+	
+	if ([jsonEntry isKindOfClass:[TitaniumBlobWrapper class]]){
+		[imagesCache setObject:jsonEntry forKey:key];
+		return;
+	}
+	
+	//No image!
+	[imagesCache removeObjectForKey:key];
+}
+
+
+
 
 
 - (void) useProperties: (NSDictionary *) propDict withUrl: (NSURL *) baseUrl;
 {
-	SEL boolSel = @selector(boolValue);
-	SEL stringSel = @selector(stringValue);
-	Class stringClass = [NSString class];
-	
-	NSNumber * hasDetail = [propDict objectForKey:@"hasDetail"];
-	if ([hasDetail respondsToSelector:boolSel] && [hasDetail boolValue]){
-		accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+	[self willChangeValueForKey:@"jsonValues"];
+	[jsonValues release];
+	jsonValues = [propDict mutableCopy];
+	[self didChangeValueForKey:@"jsonValues"];
+
+
+	if (imagesCache==nil) {
+		[self willChangeValueForKey:@"imagesCache"];
+		imagesCache = [[NSMutableDictionary alloc] init];
+		[self didChangeValueForKey:@"imagesCache"];
 	} else {
-		NSNumber * hasChild = [propDict objectForKey:@"hasChild"];
-		if ([hasChild respondsToSelector:boolSel] && [hasChild boolValue]){
-			[self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
-		} else {
-			NSNumber * isSelected = [propDict objectForKey:@"selected"];
-			if ([isSelected respondsToSelector:boolSel] && [isSelected boolValue]){
-				[self setAccessoryType:UITableViewCellAccessoryCheckmark];
-			} else {
-				[self setAccessoryType:UITableViewCellAccessoryNone];
-			}
-		}
+		[imagesCache removeAllObjects];
 	}
-	
+
+
+	Class stringClass = [NSString class];
+
 	NSString * rowType = [propDict objectForKey:@"type"];
 	if ([rowType isKindOfClass:stringClass]){
 		isButton = [rowType isEqualToString:@"button"];
 	} else isButton = NO;
 	
 	
-	id titleString = [propDict objectForKey:@"title"];
-	if ([titleString respondsToSelector:stringSel]) titleString = [titleString stringValue];
-	if ([titleString isKindOfClass:stringClass] && ([titleString length] != 0)){
-		[self setTitle:titleString];
-	}
-	
-	id nameString = [propDict objectForKey:@"name"];
-	if ([nameString respondsToSelector:stringSel]) nameString = [nameString stringValue];
-	if ([nameString isKindOfClass:stringClass] && ([nameString length] != 0)){
-		[self setName:nameString];
-	}
-	
-	id htmlString = [propDict objectForKey:@"html"];
-	if ([htmlString respondsToSelector:stringSel]) htmlString = [htmlString stringValue];
-	if ([htmlString isKindOfClass:stringClass] && ([htmlString length] != 0)){
-		[self setHtml:htmlString];
-	} else [self setHtml:nil];
-
 	id rowHeightObject = [propDict objectForKey:@"rowHeight"];
 	if ([rowHeightObject respondsToSelector:@selector(floatValue)]) rowHeight = [rowHeightObject floatValue];
 	else rowHeight = 0;
-	
-	id valueString = [propDict objectForKey:@"value"];
-	if ([valueString respondsToSelector:stringSel]) valueString = [valueString stringValue];
-	if ([valueString isKindOfClass:stringClass] && ([valueString length] != 0)){
-		[self setValue:valueString];
-	} else [self setValue:nil];
-	
-	id imageString = [propDict objectForKey:@"image"];
-	if ([imageString isKindOfClass:stringClass]){
-		[self setImageURL:[NSURL URLWithString:imageString relativeToURL:baseUrl]];
-	} else [self setImageURL:nil];
+
+	[self noteImage:@"image" relativeToUrl:baseUrl];
 	
 	NSDictionary * inputProxyDict = [propDict objectForKey:@"input"];
 	if ([inputProxyDict isKindOfClass:[NSDictionary class]]){

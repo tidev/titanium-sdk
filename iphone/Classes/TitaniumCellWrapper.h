@@ -12,29 +12,28 @@
 
 @interface TitaniumCellWrapper : NSObject
 {
-	NSString * title;
 	TitaniumFontDescription fontDesc;
-	NSString * html;
-	NSString * name;
-	NSString * value;
-	NSURL * imageURL;
-	TitaniumBlobWrapper * imageWrapper;
-	UITableViewCellAccessoryType accessoryType;
+
+	NSMutableDictionary * jsonValues;
+	NSMutableDictionary * imagesCache;
+
 	NativeControlProxy * inputProxy;
 	
 	float rowHeight;	
 	BOOL isButton;
 	
 }
-@property(nonatomic,readwrite,copy)	NSString * title;
-@property(nonatomic,readwrite,copy)	NSString * html;
-@property(nonatomic,readwrite,copy)	NSString * name;
-@property(nonatomic,readwrite,copy)	NSString * value;
-@property(nonatomic,readwrite,copy)	NSURL * imageURL;
+@property(nonatomic,readwrite,copy)	NSMutableDictionary * jsonValues;
+
+@property(nonatomic,readonly)	NSString * title;
+@property(nonatomic,readonly)	NSString * html;
+@property(nonatomic,readonly)	NSString * name;
+@property(nonatomic,readonly)	NSString * value;
+
 @property(nonatomic,readonly,copy)	UIImage * image;
-@property(nonatomic,readwrite,retain)	TitaniumBlobWrapper * imageWrapper;
-@property(nonatomic,readwrite,assign)	UITableViewCellAccessoryType accessoryType;
 @property(nonatomic,readwrite,retain)	NativeControlProxy * inputProxy;
+
+@property(nonatomic,readwrite,assign)	UITableViewCellAccessoryType accessoryType;
 @property(nonatomic,readwrite,assign)	BOOL isButton;
 @property(nonatomic,readwrite,assign)	float rowHeight;
 @property(nonatomic,readwrite,assign)	TitaniumFontDescription fontDesc;

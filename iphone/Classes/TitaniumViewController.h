@@ -115,6 +115,8 @@ typedef enum {
 
 - (void)setTitleViewProxy: (NativeControlProxy *) newProxy;
 
+- (void)setTitlePrompt:(NSString*)prompt;
+
 + (TitaniumViewController *) viewControllerForState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 - (void) setStatusBarStyleObject: (id) object;

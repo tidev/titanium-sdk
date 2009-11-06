@@ -7,7 +7,6 @@
 
 #import "ContactsModule.h"
 
-#import <AddressBook/AddressBook.h>
 #import <AddressBookUI/AddressBookUI.h>
 #import "TitaniumBlobWrapper.h"
 #import "TitaniumViewController.h"
@@ -20,8 +19,6 @@ NSDictionary * PropertyIDDictionary = nil;
 
 void EnsurePropertyIDDictionary(){
 	if (PropertyIDDictionary != nil) return;
-	ABAddressBookRef ourAddyBook = ABAddressBookCreate();	//This is necessary to jar the constants to be nonzero.
-	CFRelease(ourAddyBook);
 	PropertyIDDictionary = [[NSDictionary alloc] initWithObjectsAndKeys:
 			[NSNumber numberWithInt:kABPersonFirstNameProperty],@"firstName",
 			[NSNumber numberWithInt:kABPersonLastNameProperty],@"lastName",
@@ -33,8 +30,8 @@ void EnsurePropertyIDDictionary(){
 			[NSNumber numberWithInt:kABPersonLastNamePhoneticProperty],@"phoneticLastName",
 			[NSNumber numberWithInt:kABPersonMiddleNamePhoneticProperty],@"phoneticMiddleName",
 			[NSNumber numberWithInt:kABPersonOrganizationProperty],@"organization",
-			[NSNumber numberWithInt:kABPersonJobTitleProperty],@"jobTitle",
-			[NSNumber numberWithInt:kABPersonDepartmentProperty],@"department",
+//			[NSNumber numberWithInt:kABPersonJobTitleProperty],@"jobTitle",
+//			[NSNumber numberWithInt:kABPersonDepartmentProperty],@"department",
 			[NSNumber numberWithInt:kABPersonEmailProperty],@"email",
 			[NSNumber numberWithInt:kABPersonBirthdayProperty],@"birthday",
 			[NSNumber numberWithInt:kABPersonNoteProperty],@"note",
@@ -64,6 +61,65 @@ NSString * ContactKeyForPropertyID(ABPropertyID propertyID){
 	return [keys objectAtIndex:0];
 }
 
+NSDictionary * ConvertAddressToNativeFormat(NSDictionary * inputDict){
+	NSMutableDictionary * result = [NSMutableDictionary dictionary];
+	
+	NSString * street1 = [inputDict objectForKey:@"street1"];
+	NSString * street2 = [inputDict objectForKey:@"street2"];
+
+	if((street1 != nil) && (street2 != nil)){
+		[result setObject:[NSString stringWithFormat:@"%@\n%@",street1,street2]
+				forKey:(id)kABPersonAddressStreetKey];
+	} else if ((street1 != nil)) {
+		[result setObject:street1 forKey:(id)kABPersonAddressStreetKey];
+	} else if ((street2 != nil)) {
+		[result setObject:[@"\n" stringByAppendingString:street1] forKey:(id)kABPersonAddressStreetKey];
+	}
+	[result setValue:[inputDict objectForKey:@"city"] forKey:(id)kABPersonAddressCityKey];
+	[result setValue:[inputDict objectForKey:@"region1"] forKey:(id)kABPersonAddressStateKey];
+	[result setValue:[inputDict objectForKey:@"region2"] forKey:@"Region"];
+	[result setValue:[inputDict objectForKey:@"postalCode"] forKey:(id)kABPersonAddressZIPKey];
+	
+	[result setValue:[inputDict objectForKey:@"country"] forKey:(id)kABPersonAddressCountryKey];
+	[result setValue:[inputDict objectForKey:@"countryCode"] forKey:(id)kABPersonAddressCountryCodeKey];
+	
+	return result;
+}
+
+NSDictionary * ConvertAddressFromNativeFormat(NSDictionary * inputDict){
+	NSMutableDictionary * result = [NSMutableDictionary dictionary];
+
+	NSString * street = [inputDict objectForKey:(id)kABPersonAddressStreetKey];
+
+	if ([street length]>0) {
+		NSRange returnKey = [street rangeOfString:@"\n"];
+		if (returnKey.location == NSNotFound) {
+			[result setObject:street forKey:@"street1"];
+		} else {
+			[result setObject:[street substringToIndex:returnKey.location] forKey:@"street1"];
+			[result setObject:[street substringFromIndex:returnKey.location+1] forKey:@"street2"];
+		}
+	}
+
+	[result setValue:[inputDict objectForKey:(id)kABPersonAddressCityKey] forKey:@"city"];
+	[result setValue:[inputDict objectForKey:(id)kABPersonAddressStateKey] forKey:@"region1"];
+	[result setValue:[inputDict objectForKey:@"Region"] forKey:@"region2"];
+	[result setValue:[inputDict objectForKey:(id)kABPersonAddressZIPKey] forKey:@"postalCode"];
+	
+	[result setValue:[inputDict objectForKey:(id)kABPersonAddressCountryKey] forKey:@"country"];
+	[result setValue:[inputDict objectForKey:(id)kABPersonAddressCountryCodeKey] forKey:@"countryCode"];
+	
+	return result;
+}
+
+#define SAVE_RECORD_IF_STRING(resultRecord, propertyID, savedValue)	\
+	if([savedValue respondsToSelector:@selector(stringValue)])savedValue = [savedValue stringValue];	\
+	if([savedValue isKindOfClass:[NSString class]]){\
+		ABRecordSetValue(resultRecord, propertyID, (CFTypeRef)savedValue, NULL);	\
+	} else {	\
+		ABRecordRemoveValue(resultRecord, propertyID, NULL);	\
+	}
+
 
 id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDict){
 	for (NSString * thisKey in inputDict) {
@@ -73,6 +129,7 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 				thisValue = [(TitaniumBlobWrapper *)thisValue dataBlob];
 			} else if(![thisValue isKindOfClass:[NSData class]]){
 				//Throw error?
+				ABPersonRemoveImageData(result, NULL);
 				continue;
 			}
 			ABPersonSetImageData(result, (CFDataRef)thisValue, NULL);
@@ -88,12 +145,54 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 			continue;
 		}
 		
+		if (thisPropertyID == kABPersonOrganizationProperty){
+			id organization = nil;
+			id jobTitle = nil;
+			id department = nil;
+			if ([thisValue isKindOfClass:[NSArray class]] && ([thisValue count]>0)) {
+				NSDictionary * thisValueDict = [thisValue objectForKey:0];
+				if ([thisValueDict isKindOfClass:[NSDictionary class]]) {
+					NSDictionary * organizationDict = [thisValueDict objectForKey:@"value"];
+					if ([organizationDict isKindOfClass:[NSDictionary class]]) {
+						organization = [organizationDict objectForKey:@"organization"];
+						jobTitle = [organizationDict objectForKey:@"jobTitle"];
+						department = [organizationDict objectForKey:@"department"];
+					}
+				}
+			}
+			SAVE_RECORD_IF_STRING(result,thisPropertyID,organization);
+			SAVE_RECORD_IF_STRING(result,kABPersonJobTitleProperty,jobTitle);
+			SAVE_RECORD_IF_STRING(result,kABPersonDepartmentProperty,department);
+		}
+		
+		if(thisValue==[NSNull null]){
+			ABRecordRemoveValue(result, thisPropertyID, NULL);
+			continue;
+		}
+
+		if (thisPropertyID == kABPersonNoteProperty) {
+			id note = nil;
+			if ([thisValue isKindOfClass:[NSArray class]] && ([thisValue count]>0)) {
+				NSDictionary * thisValueDict = [thisValue objectForKey:0];
+				if ([thisValueDict isKindOfClass:[NSDictionary class]]) {
+					note = [thisValueDict objectForKey:@"value"];
+				}
+			}
+			SAVE_RECORD_IF_STRING(result,thisPropertyID,note);
+		}		
+		
 		if (thisPropertyType & kABMultiValueMask){
 			ABMutableMultiValueRef thisMultiValue = ABMultiValueCreateMutable(thisPropertyType);
 			for (NSDictionary * thisEntryDictionary in thisValue) {
-				ABMultiValueAddValueAndLabel(thisMultiValue,
-						(CFTypeRef)[thisEntryDictionary objectForKey:@"value"],
-						(CFStringRef)[thisEntryDictionary objectForKey:@"label"], NULL);
+				if (thisPropertyID == kABPersonAddressProperty) {
+					ABMultiValueAddValueAndLabel(thisMultiValue,
+							(CFTypeRef)ConvertAddressToNativeFormat([thisEntryDictionary objectForKey:@"value"]),
+							(CFStringRef)[thisEntryDictionary objectForKey:@"label"], NULL);
+				} else {
+					ABMultiValueAddValueAndLabel(thisMultiValue,
+												 (CFTypeRef)[thisEntryDictionary objectForKey:@"value"],
+												 (CFStringRef)[thisEntryDictionary objectForKey:@"label"], NULL);
+				}
 			}
 			ABRecordSetValue(result, thisPropertyID, thisMultiValue, NULL);
 			CFRelease(thisMultiValue);
@@ -107,6 +206,7 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 }
 
 
+
 @interface ContactPickerProxy : TitaniumProxyObject<ABPeoplePickerNavigationControllerDelegate>
 {
 	NSArray * displayedProperties;
@@ -117,6 +217,10 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 @property(nonatomic,copy,readwrite)	NSArray * displayedProperties;
 @property(nonatomic,assign,readwrite) BOOL animated;
 @property(nonatomic,assign,readwrite) ContactsModule * owningModule;
+@end
+
+@interface ContactsModule(internalPickerSupport)
+- (void) removePicker: (ContactPickerProxy *) doomedPicker;
 @end
 
 @implementation ContactPickerProxy
@@ -196,11 +300,26 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 
 @implementation ContactsModule
 
+- (id) init
+{
+	if ((self = [super init])){
+		sharedAddressBook = ABAddressBookCreate();
+	}
+	return self;
+}
+
+- (void) dealloc
+{
+	[contactPickerLookup release];
+	CFRelease(sharedAddressBook);
+	[super dealloc];
+}
+
+
 - (id) getContactRefs: (NSArray *) args;
 {
 //Args is unused.
-	ABAddressBookRef ourAddyBook = ABAddressBookCreate();
-	CFArrayRef ourContactArray = ABAddressBookCopyArrayOfAllPeople(ourAddyBook);
+	CFArrayRef ourContactArray = ABAddressBookCopyArrayOfAllPeople(sharedAddressBook);
 
 	NSMutableString * result = [NSMutableString stringWithString:@"["];
 
@@ -218,7 +337,6 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 	[result appendString:@"]"];
 
 	CFRelease(ourContactArray);
-	CFRelease(ourAddyBook);
 	
 	return [TitaniumJSCode codeWithString:result];
 }
@@ -233,8 +351,7 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 				[NSDictionary dictionaryWithObject:@"getContactProperty requires reference ID"
 				forKey:NSLocalizedDescriptionKey]];
 	}
-	ABAddressBookRef ourAddyBook = ABAddressBookCreate();
-	ABRecordRef ourRecord = ABAddressBookGetPersonWithRecordID(ourAddyBook, [referenceObject intValue]);
+	ABRecordRef ourRecord = ABAddressBookGetPersonWithRecordID(sharedAddressBook, [referenceObject intValue]);
 	
 	id result=nil;
 	
@@ -253,24 +370,56 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 			CFTypeRef ourProperty = ABRecordCopyValue(ourRecord, ourPropertyID);
 
 			if (ourPropertyType & kABMultiValueMask) {
-				int ourPropertyCount = ABMultiValueGetCount(ourProperty);
-				result = [NSMutableArray arrayWithCapacity:ourPropertyCount];
-				for (int thisPropertyIndex=0; thisPropertyIndex<ourPropertyCount; thisPropertyIndex++) {
-					CFStringRef thisPropertyLabel = ABMultiValueCopyLabelAtIndex(ourProperty, thisPropertyIndex);
-					CFTypeRef thisPropertyValue = ABMultiValueCopyValueAtIndex(ourProperty, thisPropertyIndex);
-					[result addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-							(NSString *)thisPropertyLabel,@"label",(id)thisPropertyValue,@"value",nil]];
-					CFRelease(thisPropertyValue);
-					CFRelease(thisPropertyLabel);
+				if (ourProperty!=NULL) {
+					int ourPropertyCount = ABMultiValueGetCount(ourProperty);
+					result = [NSMutableArray arrayWithCapacity:ourPropertyCount];
+					for (int thisPropertyIndex=0; thisPropertyIndex<ourPropertyCount; thisPropertyIndex++) {
+						CFStringRef thisPropertyLabel = ABMultiValueCopyLabelAtIndex(ourProperty, thisPropertyIndex);
+						CFTypeRef thisPropertyValue = ABMultiValueCopyValueAtIndex(ourProperty, thisPropertyIndex);
+						if(ourPropertyID == kABPersonAddressProperty){
+							[result addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+											   (NSString *)thisPropertyLabel,@"label",
+											   ConvertAddressFromNativeFormat((NSDictionary *)thisPropertyValue),@"value",nil]];
+						} else {
+							[result addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+											   (NSString *)thisPropertyLabel,@"label",(id)thisPropertyValue,@"value",nil]];
+						}
+						
+						CFRelease(thisPropertyValue);
+						CFRelease(thisPropertyLabel);
+					}
+					CFRelease(ourProperty);
 				}
-				CFRelease(ourProperty);
+			} else if (ourPropertyID == kABPersonNoteProperty) {
+				result = [NSArray arrayWithObject:[NSDictionary dictionaryWithObjectsAndKeys:
+						@"notes",@"label",(id)ourProperty,@"value",nil]];
+				if(ourProperty!=NULL)CFRelease(ourProperty);
+			} else if (ourPropertyID == kABPersonOrganizationProperty) { //Organization is organized?
+				NSMutableDictionary * organizationDict = [[NSMutableDictionary alloc] initWithCapacity:3];
+				if (ourProperty!=NULL) {
+					[organizationDict setObject:(id)ourProperty forKey:@"company"];
+					CFRelease(ourProperty);
+				}
+				ourProperty = ABRecordCopyValue(ourRecord, kABPersonDepartmentProperty);
+				if (ourProperty!=NULL) {
+					[organizationDict setObject:(id)ourProperty forKey:@"department"];
+					CFRelease(ourProperty);
+				}
+				ourProperty = ABRecordCopyValue(ourRecord, kABPersonJobTitleProperty);
+				if (ourProperty!=NULL) {
+					[organizationDict setObject:(id)ourProperty forKey:@"jobTitle"];
+					CFRelease(ourProperty);
+				}
+				
+				result = [NSArray arrayWithObject:[NSDictionary dictionaryWithObjectsAndKeys:
+						(id)kABWorkLabel,@"label",(id)organizationDict,@"value",nil]];
+				[organizationDict release];
 			} else {
 				result = [(id)ourProperty autorelease];
 			}
 		}
 	}
 	
-	CFRelease(ourAddyBook);
 	return result;
 }
 
@@ -285,12 +434,10 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 											forKey:NSLocalizedDescriptionKey]];
 	}
 	
-	ABAddressBookRef ourAddyBook = ABAddressBookCreate();
-	ABRecordRef ourRecord = ABAddressBookGetPersonWithRecordID(ourAddyBook, [referenceObject intValue]);
-	ABAddressBookRemoveRecord(ourAddyBook, ourRecord, NULL);
+	ABRecordRef ourRecord = ABAddressBookGetPersonWithRecordID(sharedAddressBook, [referenceObject intValue]);
+	ABAddressBookRemoveRecord(sharedAddressBook, ourRecord, NULL);
 
-	ABAddressBookSave(ourAddyBook, NULL);
-	CFRelease(ourAddyBook);
+	ABAddressBookSave(sharedAddressBook, NULL);
 	
 	return [NSNumber numberWithBool:YES];
 }
@@ -301,16 +448,14 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 	
 	NSDictionary * propertiesDict = [args objectAtIndex:0];
 	
-	ABAddressBookRef ourAddyBook = ABAddressBookCreate();
 	ABRecordRef ourRecord = ABPersonCreate();
 	SetContactPropertiesFromDictionary(ourRecord, propertiesDict);
-	ABAddressBookAddRecord(ourAddyBook, ourRecord, NULL);
+	ABAddressBookAddRecord(sharedAddressBook, ourRecord, NULL);
 
-	ABAddressBookSave(ourAddyBook, NULL);
+	ABAddressBookSave(sharedAddressBook, NULL);
 	ABRecordID result = ABRecordGetRecordID(ourRecord);
 
 	CFRelease(ourRecord);
-	CFRelease(ourAddyBook);
 	return [NSNumber numberWithInt:result];
 }
 
@@ -327,13 +472,11 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 
 	NSDictionary * propertiesDict = [args objectAtIndex:1];
 
-	ABAddressBookRef ourAddyBook = ABAddressBookCreate();
-	ABRecordRef ourRecord = ABAddressBookGetPersonWithRecordID(ourAddyBook, [referenceObject intValue]);
+	ABRecordRef ourRecord = ABAddressBookGetPersonWithRecordID(sharedAddressBook, [referenceObject intValue]);
 	
 	SetContactPropertiesFromDictionary(ourRecord, propertiesDict);
 
-	ABAddressBookSave(ourAddyBook, NULL);
-	CFRelease(ourAddyBook);	
+	ABAddressBookSave(sharedAddressBook, NULL);
 	
 	return nil;
 }
@@ -424,14 +567,14 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 			"getPhoneticMiddleName:" CACHING_GETTER("phoneticMiddleName") ","
 			"setPhoneticMiddleName:function(val){this._DELTA.phoneticMiddleName=val;return val;},"
 
-			"getOrganization:" CACHING_GETTER("organization") ","
+			"getOrganization:" MULTIVALUE_GETTER("organization") ","
 			"setOrganization:function(val){this._DELTA.organization=val;return val;},"
 
-			"getJobTitle:" CACHING_GETTER("jobTitle") ","
-			"setJobTitle:function(val){this._DELTA.jobTitle=val;return val;},"
-
-			"getDepartment:" CACHING_GETTER("department") ","
-			"setDepartment:function(val){this._DELTA.department=val;return val;},"
+//			"getJobTitle:" CACHING_GETTER("jobTitle") ","
+//			"setJobTitle:function(val){this._DELTA.jobTitle=val;return val;},"
+//
+//			"getDepartment:" CACHING_GETTER("department") ","
+//			"setDepartment:function(val){this._DELTA.department=val;return val;},"
 
 			"getEmail:" MULTIVALUE_GETTER("email") ","
 			"setEmail:function(val){this._DELTA.email=val;return val;},"
@@ -439,7 +582,7 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 			"getBirthday:" CACHING_GETTER("birthday") ","
 			"setBirthday:function(val){this._DELTA.birthday=val;return val;},"
 
-			"getNote:" CACHING_GETTER("note") ","
+			"getNote:" MULTIVALUE_GETTER("note") ","
 			"setNote:function(val){this._DELTA.note=val;return val;},"
 
 			"getCreationDate:" CACHING_GETTER("creationDate") ","
@@ -480,8 +623,8 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","phoneticLastName","PhoneticLastName")
 	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","phoneticMiddleName","PhoneticMiddleName")
 	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","organization","Organization")
-	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","jobTitle","JobTitle")
-	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","department","Department")
+//	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","jobTitle","JobTitle")
+//	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","department","Department")
 	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","email","Email")
 	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","birthday","Birthday")
 	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","note","Note")
@@ -498,6 +641,18 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 
 	
 	NSDictionary * moduleDict = [NSDictionary dictionaryWithObjectsAndKeys:
+			@"street1",@"ADDRESS_STREET_1",
+			@"street2",@"ADDRESS_STREET_2",
+			@"city",@"ADDRESS_CITY",
+			@"region1",@"ADDRESS_STATE",
+			@"region1",@"ADDRESS_PROVINCE",
+			@"region2",@"ADDRESS_SECONDARY_REGION",
+			@"postalCode",@"ADDRESS_ZIP",
+			@"postalCode",@"ADDRESS_POSTAL_CODE",
+			@"country",@"ADDRESS_COUNTRY",
+			@"countryCode",@"ADDRESS_COUNTRY_CODE",
+	
+	
 			contactObjectCode,@"_CONOBJ",			
 			[TitaniumJSCode codeWithString:@"{}"],@"_PICKER",
 			[TitaniumJSCode codeWithString:@"function(options){var tkn=Ti._TIDO('contacts','showPicker',[options.details]);"
