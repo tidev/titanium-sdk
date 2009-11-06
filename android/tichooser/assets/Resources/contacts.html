@@ -13,15 +13,15 @@ var toHTML = function(c) {
 	var h = "<table style='width:100%'>";
 
 	h += "<tr><td class='header' colspan='2'>Contact</td></tr>";
-	h += "<tr><td>Name</td><td>" + c.getName() + "</td></tr>";
+	h += "<tr><td>DisplayLabel</td><td>" + c.getDisplayLabel() + "</td></tr>";
 	h += "<tr><td>DisplayName</td><td>" + c.getDisplayName() + "</td></tr>";
-	h += "<tr><td>PhoneticName</td><td>" + c.getPhoneticName() + "</td></tr>";
+	h += "<tr><td>DisplayPhoneticName</td><td>" + c.getDisplayPhoneticName() + "</td></tr>";
 
 	h += "<tr><td class='header' colspan='2'>Phones</td></tr>";
 	for(var i = 0; i < c.getPhoneNumber().length; i++) {
 		var phone = c.getPhoneNumber()[i];
 
-		h += "<tr><td>" + phone.label + "</td><td>" + phone.number + "</td></tr>";
+		h += "<tr><td>" + phone.label + "</td><td>" + phone.value + "</td></tr>";
 	}
 
 	h += "<tr><td class='header' colspan='2'>Email Addresses</td></tr>";
@@ -35,7 +35,7 @@ var toHTML = function(c) {
 	for(var i = 0; i < c.getAddress().length; i++) {
 		var address = c.getAddress()[i];
 
-		h += "<tr><td>" + address.label + "</td><td>" + address.value + "</td></tr>";
+		h += "<tr><td>" + address.label + "</td><td>" + address.value.displayAddress + "</td></tr>";
 	}
 
 	h += "<tr><td class='header' colspan='2'>Organizations</td></tr>";
@@ -64,7 +64,7 @@ btnShowContactsDlg.addEventListener('click', function() {
 		success : function(e) {
 			var contact = e.contact;
 			if (!Ti.isUndefined(contact)) {
-				notifier.setMessage("Name: " + e.contact.name);
+				notifier.setMessage("Name: " + e.contact.getDisplayLabel());
 				notifier.show();
 				document.getElementById("data").innerHTML = toHTML(e.contact);
 			} else {

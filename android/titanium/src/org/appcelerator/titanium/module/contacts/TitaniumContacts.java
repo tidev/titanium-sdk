@@ -253,7 +253,7 @@ public class TitaniumContacts extends TitaniumBaseModule
 				c = activity.getContentResolver().query(queryUri, projection, null, null, null);
 				while(c.moveToNext()) {
 					JSONObject phone = new JSONObject();
-					addAttribute(phone, c, "number", Contacts.PhonesColumns.NUMBER);
+					addAttribute(phone, c, "value", Contacts.PhonesColumns.NUMBER);
 					int type = c.getInt(c.getColumnIndex(Contacts.PhonesColumns.TYPE));
 					switch (type) {
 					case Contacts.Phones.TYPE_CUSTOM :
@@ -342,7 +342,19 @@ public class TitaniumContacts extends TitaniumBaseModule
 							JSONObject address = new JSONObject();
 
 							address.put("label", label);
-							address.put("value", data);
+
+							JSONObject addr = new JSONObject();
+							addr.put("displayAddress", data);
+							addr.put("street1", "");
+							addr.put("street2", "");
+							addr.put("city", "");
+							addr.put("region1", "");
+							addr.put("region2", "");
+							addr.put("postalCode", "");
+							addr.put("country", "");
+							addr.put("countryCode", "");
+
+							address.put("value", addr);
 
 							addresses.put(address);
 							break;

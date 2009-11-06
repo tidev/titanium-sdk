@@ -55,4 +55,6 @@
 	<uses-permission android:name="android.permission.VIBRATE"/>
 	<!-- required for using the camera -->
 	<uses-permission android:name="android.permission.CAMERA" />
+	<!-- required for reading contact data -->
+	<uses-permission android:name="android.permission.READ_CONTACTS"/>
 </manifest>

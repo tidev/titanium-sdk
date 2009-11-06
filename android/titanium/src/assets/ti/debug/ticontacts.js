@@ -18,12 +18,16 @@ Ti.Contacts = {
 			return this._contact;
 		};
 
-		this.getDisplayName = function() {
+		this.getDisplayLabel = function() {
 			return this._get().displayName;
 		};
 
-		this.getName = function() {
+		this.getDisplayName = function() {
 			return this._get().name;
+		};
+
+		this.getDisplayPhoneticName = function() {
+			return this._get().phoneticName;
 		};
 
 		this.getFirstName = function() {
@@ -48,10 +52,6 @@ Ti.Contacts = {
 
 		this.getNickname = function() {
 			return "";
-		};
-
-		this.getPhoneticName = function() {
-			return this._get().phoneticName;
 		};
 
 		this.getFirstNamePhonetic = function() {
