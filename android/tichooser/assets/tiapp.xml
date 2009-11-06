@@ -376,11 +376,16 @@
             <url>inlinescroll.html</url>
             <fullscreen>false</fullscreen>
         </window>
--->
-	<window>
-		<id>adhoc</id>
-		<url>adhoc.html</url>
-	</window>
+
+		<window>
+			<id>adhoc</id>
+			<url>adhoc.html</url>
+		</window>
+		-->
+		<window>
+			<id>Contacts</id>
+			<url>contacts.html</url>
+		</window>
     </windows>
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.android.watchlog" type="bool">false</property>

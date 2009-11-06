@@ -110,7 +110,11 @@ var Ti = new function() {
 						types.push("double");
 					}
 				} else if (typeof a == "object") {
-					types.push("object");
+					if (a.constructor.name == "Array") {
+						types.push("array");
+					} else {
+						types.push("object");
+					}
 				} else {
 					throw "Unknown argument type " + typeof a;
 				}
@@ -280,8 +284,6 @@ function TitaniumCallback(obj, method, oneShot) {
 }
 
 function registerCallback(o, f) {
-	Ti.apiProxy.log(6, "TYPEOF: " + Ti.typeOf(f));
-	Ti.apiProxy.log(6, "TYPEOF: " + typeof f);
 	return Ti.addCallback(o, f, false);
 }
 
