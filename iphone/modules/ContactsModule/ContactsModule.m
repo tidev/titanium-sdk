@@ -205,10 +205,6 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 	return nil;
 }
 
-@interface ContactsModule(internalPickerSupport)
-- (void) removePicker: (ContactPickerProxy *) doomedPicker;
-@end
-
 
 
 @interface ContactPickerProxy : TitaniumProxyObject<ABPeoplePickerNavigationControllerDelegate>
@@ -221,6 +217,10 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 @property(nonatomic,copy,readwrite)	NSArray * displayedProperties;
 @property(nonatomic,assign,readwrite) BOOL animated;
 @property(nonatomic,assign,readwrite) ContactsModule * owningModule;
+@end
+
+@interface ContactsModule(internalPickerSupport)
+- (void) removePicker: (ContactPickerProxy *) doomedPicker;
 @end
 
 @implementation ContactPickerProxy
