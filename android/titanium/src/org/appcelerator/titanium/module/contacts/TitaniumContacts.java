@@ -156,11 +156,24 @@ public class TitaniumContacts extends TitaniumBaseModule
 			try {
 				String[] projection = new String[] {
 					People._ID,
+					People.NAME,
+					People.DISPLAY_NAME,
+					People.PHONETIC_NAME
 				};
 
 				c = activity.getContentResolver().query(Contacts.People.CONTENT_URI, projection, null, null, null);
-				while(c.moveToNext()) {
-					contacts.put(c.getLong(0));
+				try {
+					while(c.moveToNext()) {
+						JSONObject contact = new JSONObject();
+						contact.put("id", c.getLong(0));
+						contact.put("displayName", c.getString(1));
+						contact.put("displayLabel", c.getString(2));
+						contact.put("displayPhoneticName", c.getString(3));
+
+						contacts.put(contact);
+					}
+				} catch (JSONException e) {
+					Log.e(LCAT, "Error building getAllContacts response JSON: " + e.getMessage());
 				}
 			} finally {
 				if (c != null) {

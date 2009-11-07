@@ -18,8 +18,8 @@ var toHTML = function(c) {
 	h += "<tr><td>DisplayPhoneticName</td><td>" + c.getDisplayPhoneticName() + "</td></tr>";
 
 	h += "<tr><td class='header' colspan='2'>Phones</td></tr>";
-	for(var i = 0; i < c.getPhoneNumber().length; i++) {
-		var phone = c.getPhoneNumber()[i];
+	for(var i = 0; i < c.getPhone().length; i++) {
+		var phone = c.getPhone()[i];
 
 		h += "<tr><td>" + phone.label + "</td><td>" + phone.value + "</td></tr>";
 	}
@@ -82,15 +82,23 @@ btnShowContactsDlg.addEventListener('click', function() {
 	});
 });
 
+var loading = Titanium.UI.createActivityIndicator({message: 'Loading Contacts'});
+
 var btnAllContacts = Titanium.UI.createButton({ id : 'allContacts', title : 'All'});
 btnAllContacts.addEventListener('click', function() {
+	loading.show();
+
 	document.getElementById('data').innerHTML = "&nbsp;";
 	var contacts = Titanium.Contacts.getAllContacts();
 	var h = "Contacts on device: " + contacts.length;
-	for(var i = 0; i < Math.min(contacts.length, 10); i++) {
-		h += "<br/>Contact[" + i + "]: " + contacts[i].getDisplayName();
+	h += "<br/><ol>";
+	for(var i = 0; i < Math.min(contacts.length, 1000); i++) {
+		h += "<li>" + contacts[i].getDisplayLabel() + "</li>";
 	}
+	h += "</ol>";
 	document.getElementById('data').innerHTML =  h;
+
+	loading.hide();
 });
 
 </script>
