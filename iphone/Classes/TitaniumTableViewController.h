@@ -62,7 +62,7 @@ typedef enum {
 @end
 
 
-
+@class TitaniumCellWrapper;
 @interface TitaniumTableViewController : TitaniumContentViewController<UITableViewDelegate,UITableViewDataSource,UIWebViewDelegate> {
 	UITableViewStyle tableStyle;
 	CGFloat tableRowHeight;
@@ -78,6 +78,8 @@ typedef enum {
 	
 	NSLock * actionLock;
 	NSMutableArray * actionQueue;
+
+	TitaniumCellWrapper * templateCell;
 }
 
 - (void)enqueueAction: (TitaniumTableActionWrapper *) newAction;

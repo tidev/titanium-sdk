@@ -17,9 +17,14 @@
 	NSMutableDictionary * jsonValues;
 	NSMutableDictionary * imagesCache;
 
+	NSMutableSet * imageKeys;
+	NSMutableArray * layoutArray;
+
 	NativeControlProxy * inputProxy;
-	
-	float rowHeight;	
+
+	TitaniumCellWrapper * templateCell;
+
+	float rowHeight;
 	BOOL isButton;
 	
 }
@@ -32,11 +37,15 @@
 
 @property(nonatomic,readonly,copy)	UIImage * image;
 @property(nonatomic,readwrite,retain)	NativeControlProxy * inputProxy;
+@property(nonatomic,readwrite,retain)	TitaniumCellWrapper * templateCell;
 
 @property(nonatomic,readwrite,assign)	UITableViewCellAccessoryType accessoryType;
 @property(nonatomic,readwrite,assign)	BOOL isButton;
 @property(nonatomic,readwrite,assign)	float rowHeight;
 @property(nonatomic,readwrite,assign)	TitaniumFontDescription fontDesc;
+
+@property(nonatomic,readonly)	NSMutableSet * imageKeys;
+@property(nonatomic,readonly)	NSMutableArray * layoutArray;
 
 - (void) useProperties: (NSDictionary *) propDict withUrl: (NSURL *) baseUrl;
 - (NSString *) stringValue;

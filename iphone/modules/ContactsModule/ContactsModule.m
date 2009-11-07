@@ -89,8 +89,16 @@ NSDictionary * ConvertAddressToNativeFormat(NSDictionary * inputDict){
 NSDictionary * ConvertAddressFromNativeFormat(NSDictionary * inputDict){
 	NSMutableDictionary * result = [NSMutableDictionary dictionary];
 
+	
 	NSString * street = [inputDict objectForKey:(id)kABPersonAddressStreetKey];
+	NSString * city = [inputDict objectForKey:(id)kABPersonAddressCityKey];
+	NSString * region1 = [inputDict objectForKey:(id)kABPersonAddressStateKey];
+	NSString * region2 = [inputDict objectForKey:@"Region"];
+	NSString * postalCode = [inputDict objectForKey:(id)kABPersonAddressZIPKey];
+	NSString * country = [inputDict objectForKey:(id)kABPersonAddressCountryKey];
+	NSString * countryCode = [inputDict objectForKey:(id)kABPersonAddressCountryCodeKey];
 
+	NSMutableString * displayAddress = [NSMutableString string];
 	if ([street length]>0) {
 		NSRange returnKey = [street rangeOfString:@"\n"];
 		if (returnKey.location == NSNotFound) {
@@ -99,15 +107,64 @@ NSDictionary * ConvertAddressFromNativeFormat(NSDictionary * inputDict){
 			[result setObject:[street substringToIndex:returnKey.location] forKey:@"street1"];
 			[result setObject:[street substringFromIndex:returnKey.location+1] forKey:@"street2"];
 		}
+		[displayAddress appendString:street];
 	}
 
-	[result setValue:[inputDict objectForKey:(id)kABPersonAddressCityKey] forKey:@"city"];
-	[result setValue:[inputDict objectForKey:(id)kABPersonAddressStateKey] forKey:@"region1"];
-	[result setValue:[inputDict objectForKey:@"Region"] forKey:@"region2"];
-	[result setValue:[inputDict objectForKey:(id)kABPersonAddressZIPKey] forKey:@"postalCode"];
+	[result setValue:city forKey:@"city"];
+	[result setValue:region1 forKey:@"region1"];
+	[result setValue:region2 forKey:@"region2"];
+	[result setValue:postalCode forKey:@"postalCode"];
+	[result setValue:country forKey:@"country"];
+	[result setValue:countryCode forKey:@"countryCode"];
 	
-	[result setValue:[inputDict objectForKey:(id)kABPersonAddressCountryKey] forKey:@"country"];
-	[result setValue:[inputDict objectForKey:(id)kABPersonAddressCountryCodeKey] forKey:@"countryCode"];
+	if (region2 != nil) {
+		if(city != nil){
+			[displayAddress appendFormat:@"\n%@",city];
+		}
+
+		[displayAddress appendFormat:@"\n%@",region2];
+		if (region1 != nil) {
+			[displayAddress appendFormat:@" %@",region1];
+		}
+
+		if (postalCode != nil){
+			[displayAddress appendFormat:@"\n%@",postalCode];
+		}
+
+	} else {
+		BOOL addedLine=NO;
+		if (city != nil) {
+			[displayAddress appendFormat:@"\n%@",city];
+			addedLine = YES;
+		}
+
+		if (region1 != nil) {
+			if (addedLine) {
+				[displayAddress appendFormat:@" %@",region1];
+			} else {
+				[displayAddress appendFormat:@"\n%@",region1];
+				addedLine = YES;
+			}
+		}
+
+
+		if (postalCode != nil) {
+			if (addedLine) {
+				[displayAddress appendFormat:@" %@",postalCode];
+			} else {
+				[displayAddress appendFormat:@"\n%@",postalCode];
+			}
+		}
+		
+	}
+
+	NSLocale * ourLocale = [NSLocale currentLocale];
+	if(([countryCode length]>0) && ![countryCode isEqual:
+			[ourLocale objectForKey:NSLocaleCountryCode]]){
+		[displayAddress appendFormat:@"\n%@",country];
+	}	
+
+	[result setValue:displayAddress forKey:@"displayAddress"];
 	
 	return result;
 }
@@ -535,7 +592,7 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 #define MULTIVALUE_GETTER(propertyKey)	"function(){var A=this._DELTA." propertyKey ";" \
 		"if(A!==undefined)return A;if(this._REFID){" \
 		"A=Ti._TIDO('Contacts','getContactProperty',[this._REFID,'" propertyKey "']);" \
-		"this._DELTA." propertyKey "=A;}return A;}"
+		"this._DELTA." propertyKey "=A;}return A;}"	
 
 	TitaniumJSCode * contactObjectCode = [TitaniumJSCode codeWithString:
 			@"function(newRefID){this._REFID=newRefID;this._CACHE={};this._DELTA={};this.equals=function(ob){return ob && ob._REFID && this._REFID===ob._REFID;}; return this;}"];
@@ -611,7 +668,25 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 
 			 "getRelatives:" MULTIVALUE_GETTER("relatives") ","
 			 "setRelatives:function(val){this._DELTA.relatives=val;return val;},"
-
+			 
+			 "getDisplayName:function(){var R=this.getPrefix();"
+				 "var a=this.getFirstName();if(a)if(R)R+=' '+a;else R=a;"
+				 "a=this.getMiddleName();if(a)if(R)R+=' '+a;else R=a;"
+				 "a=this.getLastName();if(a)if(R)R+=' '+a;else R=a;"
+				 "a=this.getSuffix();if(a)if(R)R+=' '+a;else R=a;"
+				 "return R;},"
+			
+			 "getDisplayPhoneticName:function(){var R=this.getPrefix();"
+				 "var a=this.getFirstPhoneticName();if(a)if(R)R+=' '+a;else R=a;"
+				 "a=this.getMiddlePhoneticName();if(a)if(R)R+=' '+a;else R=a;"
+				 "a=this.getLastPhoneticName();if(a)if(R)R+=' '+a;else R=a;"
+				 "a=this.getSuffix();if(a)if(R)R+=' '+a;else R=a;"
+				 "return R;},"
+	 
+			 "getDisplayLabel:function(){var R=this.getDisplayName();if(R)return R;"
+				"try{R=this.getOrganization()[0].value.company;if(R)return R;}catch(E){}"
+				"try{R=this.getPhone()[0].value;if(R)return R;}catch(E){}"
+				"return 'No Name';},"
 		"};"
 	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","firstName","FirstName")
 	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","lastName","LastName")
@@ -637,6 +712,11 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","instantMessenger","InstantMessenger")
 	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","url","Url")
 	DECLARE_JS_ACCESSORS("Contacts._CONOBJ","relatives","Relatives")
+
+	DECLARE_JS_GETTER("Contacts._CONOBJ","displayLabel","DisplayLabel")
+	DECLARE_JS_GETTER("Contacts._CONOBJ","displayName","DisplayName")
+	DECLARE_JS_GETTER("Contacts._CONOBJ","displayPhoneticName","DisplayPhoneticName")
+
 			 ];
 
 	

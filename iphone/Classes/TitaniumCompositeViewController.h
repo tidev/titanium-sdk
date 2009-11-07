@@ -6,29 +6,12 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "LayoutConstraint.h"
 #import "TitaniumContentViewController.h"
 
 @interface TitaniumCompositeRule : NSObject
 {
-	CGFloat z;
-
-	CGFloat left;
-	CGFloat right;
-	CGFloat width;
-
-	CGFloat top;
-	CGFloat bottom;
-	CGFloat height;
-
-	BOOL hasZConstraint;
-
-	BOOL hasLeftConstraint;
-	BOOL hasRightConstraint;
-	BOOL hasWidthConstraint;
-
-	BOOL hasTopConstraint;
-	BOOL hasBottomConstraint;
-	BOOL hasHeightConstraint;
+	LayoutConstraint constraint;
 }
 @end
 
