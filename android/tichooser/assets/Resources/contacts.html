@@ -1,0 +1,112 @@
+<html>
+<head>
+<title>Contacts</title>
+<style>
+.header {
+	background-color : #000033;
+	color: white
+</style>
+<script>
+var notifier = Titanium.UI.createNotification();
+
+var toHTML = function(c) {
+	var h = "<table style='width:100%'>";
+
+	h += "<tr><td class='header' colspan='2'>Contact</td></tr>";
+	h += "<tr><td>DisplayLabel</td><td>" + c.getDisplayLabel() + "</td></tr>";
+	h += "<tr><td>DisplayName</td><td>" + c.getDisplayName() + "</td></tr>";
+	h += "<tr><td>DisplayPhoneticName</td><td>" + c.getDisplayPhoneticName() + "</td></tr>";
+
+	h += "<tr><td class='header' colspan='2'>Phones</td></tr>";
+	for(var i = 0; i < c.getPhone().length; i++) {
+		var phone = c.getPhone()[i];
+
+		h += "<tr><td>" + phone.label + "</td><td>" + phone.value + "</td></tr>";
+	}
+
+	h += "<tr><td class='header' colspan='2'>Email Addresses</td></tr>";
+	for(var i = 0; i < c.getEmail().length; i++) {
+		var email = c.getEmail()[i];
+
+		h += "<tr><td>" + email.label + "</td><td>" + email.value + "</td></tr>";
+	}
+
+	h += "<tr><td class='header' colspan='2'>Addresses</td></tr>";
+	for(var i = 0; i < c.getAddress().length; i++) {
+		var address = c.getAddress()[i];
+
+		h += "<tr><td>" + address.label + "</td><td>" + address.value.displayAddress + "</td></tr>";
+	}
+
+	h += "<tr><td class='header' colspan='2'>Organizations</td></tr>";
+	for(var i = 0; i < c.getOrganization().length; i++) {
+		var organization = c.getOrganization()[i];
+
+		h += "<tr><td>" + organization.label + "</td><td>" + organization.value.position + " at " + organization.value.company + "</td></tr>";
+	}
+
+	h += "<tr><td class='header' colspan='2'>Notes</td></tr>";
+	for(var i = 0; i < c.getNote().length; i++) {
+		var note = c.getNote()[i];
+
+		h += "<tr><td colspan='2' style='border-bottom: solid thin black'>" + note.value + "</td></tr>";
+	}
+
+	h += "</table>";
+	return h;
+};
+
+var btnShowContactsDlg = Titanium.UI.createButton({ id : 'showContactsDlg', title : 'Contacts' });
+btnShowContactsDlg.addEventListener('click', function() {
+	document.getElementById("data").innerHTML = "&nbsp;";
+
+	Titanium.Contacts.showContactPicker({
+		success : function(e) {
+			var contact = e.contact;
+			if (!Ti.isUndefined(contact)) {
+				notifier.setMessage("Name: " + e.contact.getDisplayLabel());
+				notifier.show();
+				document.getElementById("data").innerHTML = toHTML(e.contact);
+			} else {
+				notifier.setMessage("No contact returned");
+				notifier.show();
+			}
+		},
+
+		cancel : function() {
+			notifier.setMessage("Contact Lookup Cancelled");
+			notifier.show();
+		},
+
+		details : []
+	});
+});
+
+var loading = Titanium.UI.createActivityIndicator({message: 'Loading Contacts'});
+
+var btnAllContacts = Titanium.UI.createButton({ id : 'allContacts', title : 'All'});
+btnAllContacts.addEventListener('click', function() {
+	loading.show();
+
+	document.getElementById('data').innerHTML = "&nbsp;";
+	var contacts = Titanium.Contacts.getAllContacts();
+	var h = "Contacts on device: " + contacts.length;
+	h += "<br/><ol>";
+	for(var i = 0; i < Math.min(contacts.length, 1000); i++) {
+		h += "<li>" + contacts[i].getDisplayLabel() + "</li>";
+	}
+	h += "</ol>";
+	document.getElementById('data').innerHTML =  h;
+
+	loading.hide();
+});
+
+</script>
+</head>
+<body style='background-color: white'>
+	<div id="showContactsDlg" style="width:90px;height:35px;border:solid thin red; float:left"></div>
+	<div id="allContacts" style="width:90px;height:35px;border:solid thin red; float:left"></div>
+	<div id="data" style="clear:both;"/>
+</body>
+</html>
+<script>Titanium.Media.vibrate();</script>

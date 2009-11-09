@@ -17,13 +17,14 @@
 
 #import "Logging.h"
 
-TitaniumCellWrapper * TitaniumCellWithData(NSDictionary * rowData, NSURL * baseUrl)
+TitaniumCellWrapper * TitaniumCellWithData(NSDictionary * rowData, NSURL * baseUrl, TitaniumCellWrapper * templateCell)
 {
 	TitaniumFontDescription defaultFont;
 	defaultFont.isBold = YES;
 	defaultFont.size = 20;
 	
 	TitaniumCellWrapper * result = [[TitaniumCellWrapper alloc] init];
+	[result setTemplateCell:templateCell];
 	[result setFontDesc:defaultFont];
 	[result useProperties:rowData withUrl:baseUrl];
 	return result;
@@ -118,7 +119,7 @@ UIColor * checkmarkColor = nil;
 	nullHeader = (id)headerString == [NSNull null];	
 }
 
-+ (TableSectionWrapper *) tableSectionWithData: (NSDictionary *) newData withUrl: (NSURL *)baseURL;
++ (TableSectionWrapper *) tableSectionWithData: (NSDictionary *) newData withUrl: (NSURL *)baseURL template: (TitaniumCellWrapper *) tableTemplateCell;
 {
 	TableSectionWrapper * result = [[self alloc] initWithHeader:[newData objectForKey:@"header"] footer:[newData objectForKey:@"footer"]];
 
@@ -148,7 +149,7 @@ UIColor * checkmarkColor = nil;
 		for(NSDictionary * thisEntry in thisDataArray){
 			if (![thisEntry isKindOfClass:dictClass]) continue;
 			
-			TitaniumCellWrapper * thisRow = TitaniumCellWithData(thisEntry,baseURL);
+			TitaniumCellWrapper * thisRow = TitaniumCellWithData(thisEntry,baseURL,tableTemplateCell);
 			if (isButtonGroup) [thisRow setIsButton:YES];
 			
 			[result addRow:thisRow];
@@ -327,7 +328,7 @@ UIColor * checkmarkColor = nil;
 	for(NSDictionary * thisEntry in dataArray){
 		if (![thisEntry isKindOfClass:dictClass]) continue;
 		
-		TitaniumCellWrapper * thisRow = [TitaniumCellWithData(thisEntry,baseUrl) autorelease];
+		TitaniumCellWrapper * thisRow = [TitaniumCellWithData(thisEntry,baseUrl,templateCell) autorelease];
 		
 		id headerString = [thisEntry objectForKey:@"header"];
 		if ([headerString respondsToSelector:stringSel]) headerString = [headerString stringValue];
@@ -356,7 +357,7 @@ UIColor * checkmarkColor = nil;
 	Class dictClass = [NSDictionary class];
 	for(NSDictionary * thisSectionEntry in newSections){
 		if (![thisSectionEntry isKindOfClass:dictClass])continue;
-		[sectionArray addObject:[TableSectionWrapper tableSectionWithData:thisSectionEntry withUrl:baseUrl]];
+		[sectionArray addObject:[TableSectionWrapper tableSectionWithData:thisSectionEntry withUrl:baseUrl template:templateCell]];
 	}
 
 }
@@ -926,7 +927,7 @@ UIColor * checkmarkColor = nil;
 			}
 			//Okay, now it's an insert before or after.
 			
-			TitaniumCellWrapper * insertedRow = [TitaniumCellWithData(rowData,baseUrl) autorelease];
+			TitaniumCellWrapper * insertedRow = [TitaniumCellWithData(rowData,baseUrl,templateCell) autorelease];
 			if(isInsertAfter){
 				index++;
 			}
@@ -998,7 +999,7 @@ UIColor * checkmarkColor = nil;
 
 - (void)appendRow: (NSDictionary *)rowData relativeUrl: (NSURL *) baseUrl animation: (UITableViewRowAnimation) animation;
 {
-	TitaniumCellWrapper * ourRow = TitaniumCellWithData(rowData, baseUrl);
+	TitaniumCellWrapper * ourRow = TitaniumCellWithData(rowData, baseUrl,templateCell);
 	TableSectionWrapper * lastSection = [sectionArray lastObject];
 	SEL stringSel = @selector(stringValue);
 	
@@ -1103,7 +1104,7 @@ UIColor * checkmarkColor = nil;
 				break;
 			case TitaniumGroupActionInsertBeforeRow:
 				if(row > [thisSectionWrapper rowCount]) break;
-				thisRow = TitaniumCellWithData([thisAction rowData],[thisAction baseUrl]);
+				thisRow = TitaniumCellWithData([thisAction rowData],[thisAction baseUrl],templateCell);
 				[thisSectionWrapper insertRow:thisRow atIndex:row];
 				[tableView insertRowsAtIndexPaths:ourIndexPathArray withRowAnimation:animation];
 				[thisRow release];
@@ -1126,13 +1127,15 @@ UIColor * checkmarkColor = nil;
 				break;
 			case TitaniumGroupActionInsertBeforeGroup:
 				if(section > [sectionArray count])break;
-				[sectionArray insertObject:[TableSectionWrapper tableSectionWithData:[thisAction sectionData] withUrl:[thisAction baseUrl]] atIndex:section];
+				[sectionArray insertObject:[TableSectionWrapper tableSectionWithData:[thisAction sectionData]
+						withUrl:[thisAction baseUrl] template:templateCell] atIndex:section];
 				[tableView insertSections:ourSectionSet withRowAnimation:animation];
 				break;
 			case TitaniumGroupActionUpdateGroup:
 				if(section >= [sectionArray count])break;
 				//Todo: Possibly not replace, but just update?
-				[sectionArray replaceObjectAtIndex:section withObject:[TableSectionWrapper tableSectionWithData:[thisAction sectionData] withUrl:[thisAction baseUrl]]];
+				[sectionArray replaceObjectAtIndex:section withObject:[TableSectionWrapper
+						tableSectionWithData:[thisAction sectionData] withUrl:[thisAction baseUrl] template:templateCell]];
 				if([tableView respondsToSelector:@selector(reloadSections:withRowAnimation:)]){
 					[tableView reloadSections:ourSectionSet withRowAnimation:animation];
 				} else {

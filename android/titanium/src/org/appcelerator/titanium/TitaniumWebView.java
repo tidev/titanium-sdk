@@ -32,6 +32,7 @@ import org.appcelerator.titanium.module.TitaniumNetwork;
 import org.appcelerator.titanium.module.TitaniumPlatform;
 import org.appcelerator.titanium.module.TitaniumUI;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
+import org.appcelerator.titanium.module.contacts.TitaniumContacts;
 import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
@@ -228,6 +229,8 @@ public class TitaniumWebView extends WebView
 		new TitaniumAccelerometer(tmm, "TitaniumAccelerometer");
 		new TitaniumGesture(tmm, "TitaniumGesture");
 		new TitaniumGeolocation(tmm, "TitaniumGeolocation");
+
+		new TitaniumContacts(tmm, "TitaniumContacts");
 
 		// Add Modules from Applications
 		TitaniumApplication app = tmm.getApplication();

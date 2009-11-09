@@ -58,6 +58,9 @@ public class TitaniumMethod implements ITitaniumMethod
 						} else if ("object".equals(type)) {
 							types[i] = JSONObject.class;
 							args[i] = argList.getJSONObject(i);
+						} else if ("array".equals(type)) {
+							types[i] = JSONArray.class;
+							args[i] = argList.getJSONArray(i);
 						} else {
 							throw new IllegalArgumentException("Unknown type: " + type);
 						}
@@ -105,6 +108,9 @@ public class TitaniumMethod implements ITitaniumMethod
 		} else if (result instanceof Float || result instanceof Double) {
 			js.key("result").value((Double) result);
 			js.key("resultType").value("double");
+		} else if (result instanceof JSONArray) {
+			js.key("result").value((JSONArray) result);
+			js.key("resultType").value("array");
 		} else {
 			js.key("result").value((JSONObject) result);
 			js.key("resultType").value("object");
