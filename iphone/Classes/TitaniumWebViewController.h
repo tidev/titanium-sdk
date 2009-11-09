@@ -23,6 +23,7 @@
 	NSMutableSet * nativeOnscreenProxies;
 	BOOL isNonTitaniumPage;
 	BOOL loading;
+	BOOL showActivity;
 }
 
 //For WebView

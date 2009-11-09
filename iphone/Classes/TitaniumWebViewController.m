@@ -25,6 +25,7 @@
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {	
 	loading = YES;
+	showActivity = YES;
 	
 	Class NSStringClass = [NSString class]; //Because this might be from the web where you could have nsnulls and nsnumbers,
 	//We can't assume that the inputState is 
@@ -46,6 +47,12 @@
 		NSNumber * doPreload = [inputState objectForKey:@"preload"];
 		if([doPreload respondsToSelector:@selector(boolValue)] && [doPreload boolValue])[self webView]; //That's enough to get the ball rolling.
 		
+
+		NSNumber * doActivity = [inputState objectForKey:@"activityIndicator"];
+		if([doActivity respondsToSelector:@selector(boolValue)] && ![doActivity boolValue])
+		{
+			showActivity = NO;
+		}
 	}
 	
 	if([newUrlString isKindOfClass:NSStringClass]){
@@ -147,32 +154,9 @@
 	}
 }
 
-//- (void) setContentView: (UIView *) newContentView;
-//{
-//	if (newContentView == contentView) return;
-//	if (contentView == nil){
-//		contentView = [newContentView retain];
-//		return;
-//	}
-//	
-//	if (newContentView == nil){
-//		[self setWebView:nil];
-//		if((webView == nil) || ([[contentView subviews] count] <= 1)){ //Okay, clear on out!
-//			[contentView removeFromSuperview];
-//			[contentView release];
-//			contentView = nil;
-//		}
-//		return;
-//	}
-//	
-//	[[newContentView superview] insertSubview:contentView belowSubview:newContentView];
-//	[contentView setFrame:[newContentView frame]];
-//	[newContentView removeFromSuperview];
-//}
-
 - (UIView *) view;
 {
-	if (spinner==nil)
+	if (spinner==nil && showActivity)
 	{
 		spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
 		[spinner setHidesWhenStopped:YES];
@@ -181,10 +165,13 @@
 	if (parentView==nil)
 	{
 		parentView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height)];	
-		[parentView addSubview:spinner];
-		[spinner sizeToFit];
-		[spinner startAnimating];
-		spinner.center = parentView.center;
+		if (showActivity)
+		{
+			[parentView addSubview:spinner];
+			[spinner sizeToFit];
+			[spinner startAnimating];
+			spinner.center = parentView.center;
+		}
 	}
 	
 	if (scrollView == nil)
@@ -365,7 +352,10 @@
 	if (loading==NO)
 	{
 		loading = YES;
-		[spinner startAnimating];
+		if (showActivity)
+		{
+			[spinner startAnimating];
+		}
 	}
 	// if this is a non-local page, make sure we show activity indicator during page load
 	if (isNonTitaniumPage)
@@ -428,7 +418,10 @@
 	}
 	
 	loading = NO;
-	[spinner stopAnimating];
+	if (showActivity)
+	{
+		[spinner stopAnimating];
+	}
 	webView.hidden = NO;
 
 
@@ -442,7 +435,10 @@
 {
 	NSLog(@"[ERROR] web view failed to load: %@",[error description]);
 	loading=NO;
-	[spinner stopAnimating];
+	if (showActivity)
+	{
+		[spinner stopAnimating];	
+	}
 }
 
 - (BOOL)touchesShouldCancelInContentView:(UIView *)view;

@@ -96,7 +96,11 @@ void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint,UIV
 	
 	resultFrame = ApplyConstraintToSizeWithResizing(constraint,viewBounds,&resultMask);
 	
-	[[subView layer] setZPosition:(constraint->hasZConstraint)?constraint->z:0];
+	id layer = [subView layer];
+	if ([layer respondsToSelector:@selector(setZPosition:)])
+	{
+		[layer setZPosition:(constraint->hasZConstraint)?constraint->z:0];
+	}
 	[subView setAutoresizingMask:resultMask];
 	[subView setFrame:resultFrame];
 	if([subView superview]!=superView)[superView addSubview:subView];

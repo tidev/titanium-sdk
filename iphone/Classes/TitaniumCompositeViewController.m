@@ -42,7 +42,7 @@
 		[view setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
 		NSEnumerator * viewEnumerator = [contentViewControllers objectEnumerator];
 		for(TitaniumCompositeRule * thisRule in contentRules){
-			[thisRule positionView:[viewEnumerator nextObject] inView:view bounds:preferredViewSize];
+			[thisRule positionView:[[viewEnumerator nextObject] view] inView:view bounds:preferredViewSize];
 		}
 		[pendingRules release];
 		pendingRules = nil;
