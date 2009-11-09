@@ -44,7 +44,6 @@
 		id:'textfield1',
 		value:'hello',
 		color:'#336699',
-		backgroundColor:'#fff',
 		returnKeyType:Titanium.UI.RETURNKEY_GOOGLE,
 		enableReturnKey:true,
 		keyboardType:Titanium.UI.KEYBOARD_ASCII,
@@ -58,9 +57,8 @@
 		leftButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS,
 		rightButton:refresh,
 		rightButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS
-
+	
 	});
-
 	tf1.addEventListener('return',function(e)
 	{
 		document.getElementById('textfield1_value').innerHTML = ' You hit the return key, current value is ' + e.value;
@@ -70,7 +68,7 @@
 		id:'textfield2',
 		value:'helloèëé',
 		color:'#336699',
-		backgroundColor:'#eeeeee',
+		backgroundImage:'chat.png',
 		returnKeyType:Titanium.UI.RETURNKEY_GO,
 		enableReturnKey:false,
 		keyboardType:Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,

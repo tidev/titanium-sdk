@@ -1,11 +1,6 @@
 <html>
-<head>
-
-
-</head>
 <body  style="font-family:'Helvetica Neue'">
 	<div id="message"></div>
-	
 	<script>
 	var html  = '';
 	html+= 'ID: ' + Titanium.App.getID() + '<br/>';
@@ -19,7 +14,6 @@
 	html+= 'Path: ' + Titanium.App.appURLToPath('index.html') + '<br/>';
 	html+= 'Arguments: ' + Titanium._JSON(Titanium.App.getArguments()) + '<br/>';
 	document.getElementById('message').innerHTML = html;
-
 	</script>
 </body>
 </html>
