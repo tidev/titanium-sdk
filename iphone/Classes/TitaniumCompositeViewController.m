@@ -63,7 +63,7 @@
 	[pendingRules release];
 	[contentRules release];
 	[pendingViewControllers release];
-	[contentViewControllers release];
+	[contentViewControllers autorelease];
     [super dealloc];
 }
 
