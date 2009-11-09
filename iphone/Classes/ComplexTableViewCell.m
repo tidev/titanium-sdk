@@ -38,13 +38,27 @@
 	[dataWrapper release];
 	dataWrapper=newWrapper;
 	[dataWrapper addObserver:self forKeyPath:@"jsonValues" options:NSKeyValueObservingOptionNew context:nil];
+	[self setNeedsLayout];
+	[self setNeedsDisplay];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context;
 {
-	
+	[self setNeedsLayout];
+	[self setNeedsDisplay];
 }
 
+- (void)layoutSubviews;
+{
+	NSLog(@"Laying out...");
+	[super layoutSubviews];
+}
+
+- (void)drawRect:(CGRect)rect;
+{
+	NSLog(@"Drawing rect...(%f,%f),(%f,%f)",rect.origin.x,rect.origin.y,rect.size.width,rect.size.height);
+	[super drawRect:rect];
+}
 
 - (void)setHighlighted:(BOOL)hilighted animated:(BOOL)animated;
 {

@@ -90,15 +90,17 @@ function test1()
 {
 try{
 	var data = [
-		{title:'row 1', hasChild:true,fontWeight:'bold',fontSize:'36px'},
+		{title:'row 1', hasChild:true,fontWeight:'bold',fontSize:'36px',backgroundColor:'#00FFFF'},
 		{title:'row 2', hasDetail:true,fontWeight:'normal',fontSize:'6px'},
-		{title:'row 3'},
+		{title:'row 3',backgroundColor:'#00FFFF'},
 		{html:'<b>row</b> 4 has <i>html?</i>',selected:true},
 
-		{title:'row 1', hasChild:true, image:'Mail.png'},
+		{title:'Layout test',layout:[]},
+
+		{title:'row 1', hasChild:true, image:'Mail.png',backgroundColor:'#00FFFF'},
 		{title:'row 2', hasDetail:true, image:'Safari.png'},
 		{title:'row 3', image:'Phone.png'},
-		{title:'row 4', image:'iTunes.png'},
+		{title:'row 4', image:'iTunes.png',backgroundColor:'#00FFFF'},
 
 		{title:'row 1', hasChild:true, image:'Mail.png'},
 		{title:'row 2', hasDetail:true, image:'Safari.png'},
@@ -126,7 +128,7 @@ try{
 
 
 	];
-	tableView = Titanium.UI.createTableView({data:data,rowHeight:80}, function(eventObject) {
+	tableView = Titanium.UI.createTableView({data:data,rowHeight:80,template:{title:'Button?',backgroundColor:'#FFFF00'}}, function(eventObject) {
 		var rowData = eventObject.rowData;
 
 		var section = eventObject.section;
@@ -175,8 +177,8 @@ function test2()
 {
 try{
 	var buttonData = [
-		{title:'Button 1', image:'images/one.png'},
-		{title:'Button 2', image:'images/two.png'}
+		{title:null,image:'images/one.png'},
+		{image:'images/two.png',backgroundColor:'#00FFFF'}
 	];
 
 	var buttonSection = Titanium.UI.iPhone.createGroupedSection({type:'button',data:buttonData});
@@ -187,7 +189,7 @@ try{
 	});
 
 	var optionData = [
-		{title:'Option 1', image:'images/one.png'},
+		{title:'Option 1', image:'images/one.png',backgroundColor:'#00FFFF'},
 		{title:'Option 2', image:'images/two.png', selected:true},
 		{title:'Option 3', image:'images/three.png'}	
 	];
@@ -227,7 +229,7 @@ try{
 //		Ti.API.debug(e.toString());
 		Titanium.UI.createAlertDialog({title:"Input!",message:('Button:'+e.index)}).show();
 	});
-	var groupedView = Titanium.UI.iPhone.createGroupedView();
+	var groupedView = Titanium.UI.iPhone.createGroupedView({template:{title:'Button?',backgroundColor:'#FFFF00'}});
 //{data:data,rowHeight:80}, function(eventObject) {
 //		var rowData = eventObject.rowData;
 //

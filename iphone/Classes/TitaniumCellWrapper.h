@@ -51,4 +51,13 @@
 - (NSString *) stringValue;
 - (UIFont *) font;
 
+
+
+- (UIColor *) colorForKey:(NSString *) key;
+- (NSString *) stringForKey: (NSString *) key;
+- (UIImage *) imageForKey: (NSString *) key;
+- (UIImage *) stretchableImageForKey: (NSString *) key;
+
+
+
 @end
