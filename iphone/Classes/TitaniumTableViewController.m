@@ -614,7 +614,7 @@ UIColor * checkmarkColor = nil;
 	} else if ([rowWrapper isButton]) {
 		result = [ourTableView dequeueReusableCellWithIdentifier:@"button"];
 		if (result == nil){
-			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"button"] autorelease];
+			result = [[[ValueTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"button"] autorelease];
 			[(id)result setTextAlignment:UITextAlignmentCenter];
 		}
 		[(id)result setText:[rowWrapper title]];
@@ -624,7 +624,7 @@ UIColor * checkmarkColor = nil;
 		NSString * valueString = [rowWrapper value];
 		if (valueString == nil){
 			result = [ourTableView dequeueReusableCellWithIdentifier:@"text"];
-			if (result == nil) result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"text"] autorelease];
+			if (result == nil) result = [[[ValueTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"text"] autorelease];
 		} else {
 			UILabel * valueLabel;
 			result = [ourTableView dequeueReusableCellWithIdentifier:@"value"];
@@ -636,7 +636,7 @@ UIColor * checkmarkColor = nil;
 				valueLabel = [(ValueTableViewCell *)result valueLabel];
 			}
 			[valueLabel setText:valueString];
-			[valueLabel setFont:[rowWrapper font]];
+			[valueLabel setFont:[rowWrapper font]];			
 		}
 		[(id)result setText:[rowWrapper title]];
 		[(id)result setFont:[rowWrapper font]];
@@ -651,20 +651,23 @@ UIColor * checkmarkColor = nil;
 	UIColor * bgColor = [rowWrapper colorForKey:@"backgroundColor"];
 	UIColor * selectedBgColor = [rowWrapper colorForKey:@"selectedBackgroundColor"];
 
-	UIImage * bgImage = [rowWrapper stretchableImageForKey:@"backgroundImage"];
-	UIImage	* selectedBgImage = [rowWrapper stretchableImageForKey:@"selectedBackgroundImage"];
+	UIImage * bgImage = [rowWrapper imageForKey:@"backgroundImage"]; //[rowWrapper stretchableImageForKey:@"backgroundImage"];
+	UIImage	* selectedBgImage = [rowWrapper imageForKey:@"selectedBackgroundImage"]; //[rowWrapper stretchableImageForKey:@"selectedBackgroundImage"];
 
 	if((tableStyle == UITableViewStyleGrouped) && (bgImage == nil)){
 		if(bgColor != nil)[result setBackgroundColor:bgColor];
 		else [result setBackgroundColor:[UIColor whiteColor]];
 	} else {
+
 		UIImageView * bgView = (UIImageView *)[result backgroundView];
 		if(![bgView isKindOfClass:[UIImageView class]]){
 			bgView = [[[UIImageView alloc] initWithFrame:[result frame]] autorelease];
 			[result setBackgroundView:bgView];
 		}
+		[bgView setContentMode:UIViewContentModeCenter];
 		[bgView setImage:bgImage];
 		[bgView setBackgroundColor:(bgColor==nil)?[UIColor clearColor]:bgColor];
+		
 	}
 
 	if((selectedBgColor == nil)&&(selectedBgImage == nil)){
@@ -676,6 +679,7 @@ UIColor * checkmarkColor = nil;
 			[result setSelectedBackgroundView:selectedBgView];
 		}
 		
+		[selectedBgView setContentMode:UIViewContentModeCenter];
 		[selectedBgView setImage:selectedBgImage];
 		[selectedBgView setBackgroundColor:(selectedBgColor==nil)?[UIColor clearColor]:selectedBgColor];
 		
