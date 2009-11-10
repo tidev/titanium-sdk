@@ -294,76 +294,67 @@ NSUInteger lastWatchID = 0;
 	[proxyLock unlock];
 }
 
--(void) reverseGeocoder:(MKReverseGeocoder *)geocoder_ didFindPlacemark:(MKPlacemark *)placemark
+-(NSString*) performGeo:(NSString*)direction address:(NSString*)address
 {
-	NSLog(@"[INFO] reverse geo = %@",placemark.addressDictionary);
-	[geocoder release];
-	geocoder = nil;
-	[geotoken release];
-	geotoken = nil;
+	TitaniumHost *tiHost = [TitaniumHost sharedHost];
+	AnalyticsModule * mod = (AnalyticsModule *) [tiHost moduleNamed:@"AnalyticsModule"];
+	NSDictionary * appPropertiesDict = [tiHost appProperties];
+	NSString * aguid = [appPropertiesDict objectForKey:@"guid"];
+	NSString *sid = (mod!=nil) ? [mod sessionID] : nil;
+	UIDevice *theDevice = [UIDevice currentDevice];	
+	NSString *mid = [theDevice uniqueIdentifier];
+
+	NSLocale *locale = [NSLocale currentLocale];
+	NSString *countryCode = [locale objectForKey: NSLocaleCountryCode];
+	
+	// hit our unified geocoding service for both reverse and forward geocoding
+	NSString *urlString = [NSString stringWithFormat:@"http://api.appcelerator.net/p/v1/geo?d=%@&mid=%@&aguid=%@&sid=%@&q=%@&c=%@",direction,mid,aguid,sid,[address stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],countryCode];
+	return [NSString stringWithContentsOfURL:[NSURL URLWithString:urlString] encoding:NSUTF8StringEncoding error:nil];
 }
 
-- (void)reverseGeocoder:(MKReverseGeocoder *)geocoder_ didFailWithError:(NSError *)error
+-(void)reverseGeo:(NSDictionary *)dict
 {
-	NSLog(@"[ERROR] reverse geo error = %@",error);
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
+	NSString *result = [self performGeo:@"r" address:[NSString stringWithFormat:@"%@,%@",[dict objectForKey:@"latitude"],[dict objectForKey:@"longitude"]]];
+	NSString * token = [dict objectForKey:@"token"];
+	NSString * actionString = [NSString stringWithFormat:@"Ti.Geolocation._TOKEN['%@'](%@); delete Ti.Geolocation._TOKEN['%@'];",token,result,token];
+	
+	[[TitaniumHost sharedHost] sendJavascript:actionString toPageWithToken:[dict objectForKey:@"pageToken"]];
+
+	[pool release];
 }
 
 -(void) reverseGeo:(NSDictionary*)dict token:(NSString*)token
 {
-	NSLog(@"[INFO] reverse geo incoming = %@, token = %@",dict,token);
-	
-	// only do one at a time
-	if (geocoder!=nil)
-	{
-		[geocoder cancel];
-		[geocoder release];
-	}
-	if (geotoken!=nil)
-	{
-		[geotoken release];
-	}
-	
-	geotoken = [token copy];
-	
-	CLLocationCoordinate2D coord;
-	coord.latitude = [[dict objectForKey:@"latitude"] doubleValue];
-	coord.longitude = [[dict objectForKey:@"longitude"] doubleValue];
-	geocoder = [[MKReverseGeocoder alloc] initWithCoordinate:coord];
-	geocoder.delegate = self;
-	[geocoder start];
+	NSDictionary *newdict = [NSDictionary dictionaryWithObjectsAndKeys:[dict objectForKey:@"latitude"],@"latitude",[dict objectForKey:@"longitude"],@"longitude",token,@"token",pageToken,@"pageToken",nil];
+	[NSThread detachNewThreadSelector:@selector(reverseGeo:) toTarget:self withObject:newdict];
 }
 
 -(void)forwardGeo:(NSDictionary*)dict
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
 	NSString *address = [dict objectForKey:@"address"];
+	NSString *locationString = [self performGeo:@"f" address:address];
 
-	TitaniumHost *tiHost = [TitaniumHost sharedHost];
-	AnalyticsModule * mod = (AnalyticsModule *) [tiHost moduleNamed:@"AnaltyicsModule"];
-	NSDictionary * appPropertiesDict = [tiHost appProperties];
-	NSString * aguid = [appPropertiesDict objectForKey:@"guid"];
-	NSString *sid = [mod sessionID];
-	UIDevice *theDevice = [UIDevice currentDevice];	
-	NSString *mid = [theDevice uniqueIdentifier];
-
-	//TODO: complete this on the backend
-	
-	NSString *urlString = [NSString stringWithFormat:@"http://api.appcelerator.net/p/v1/geo?d=f&mid=%@&aguid=%@&sid=%@&q=%@",mid,aguid,sid,[address stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-	NSString *locationString = [NSString stringWithContentsOfURL:[NSURL URLWithString:urlString] encoding:NSUTF8StringEncoding error:nil];
-	
-	NSLog(@"[INFO] forward geo result = %@",locationString);
-	
+	// forward geo comes back as CSV
 	NSArray *listItems = [locationString componentsSeparatedByString:@","];
-	double latitude = 0.0;
-	double longitude = 0.0;
-	if([listItems count] >= 4 && [[listItems objectAtIndex:0] isEqualToString:@"200"]) 
+	if([listItems count] == 4 && [[listItems objectAtIndex:0] isEqualToString:@"200"]) 
 	{
-		latitude = [[listItems objectAtIndex:2] doubleValue];
-		longitude = [[listItems objectAtIndex:3] doubleValue];
+		id accuracy = [listItems objectAtIndex:1];
+		id latitude = [listItems objectAtIndex:2];
+		id longitude = [listItems objectAtIndex:3];
+		NSString * token = [dict objectForKey:@"token"];
+		NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES],@"success",accuracy,@"accuracy",latitude,@"latitude",longitude,@"longitude",nil];
+		NSString * actionString = [NSString stringWithFormat:@"Ti.Geolocation._FTOKEN['%@'](%@); delete Ti.Geolocation._FTOKEN['%@'];",token,[SBJSON stringify:result],token];
+		[[TitaniumHost sharedHost] sendJavascript:actionString toPageWithToken:[dict objectForKey:@"pageToken"]];
 	}
 	else 
 	{
-		//Error handling
+		//TODO: better error handling
+		NSString * actionString = [NSString stringWithFormat:@"Ti.Geolocation._FTOKEN['%@']({success:false}); delete Ti.Geolocation._FTOKEN['%@'];",[dict objectForKey:@"token"]];
+		[[TitaniumHost sharedHost] sendJavascript:actionString toPageWithToken:[dict objectForKey:@"pageToken"]];
 	}	
 
 	[pool release];
@@ -371,8 +362,14 @@ NSUInteger lastWatchID = 0;
 
 -(void)forwardGeo:(NSString*)address token:(NSString*)token
 {
-	NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:address,@"address",token,@"token",nil];
+	NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:address,@"address",token,@"token",pageToken,@"pageToken",nil];
 	[NSThread detachNewThreadSelector:@selector(forwardGeo:) toTarget:self withObject:dict];
+}
+
+- (void) setPageToken: (NSString *)token
+{
+	[pageToken release];
+	pageToken = [token copy];
 }
 
 - (BOOL) startModule;
@@ -407,7 +404,7 @@ NSUInteger lastWatchID = 0;
 			"Ti.Geolocation._WATCH[token]={success:succCB,fail:errCB};Ti.Geolocation.setWatchEnabled(token,true);return token;}"];
 	TitaniumJSCode * watchPosition = [TitaniumJSCode codeWithString:@"function(succCB,errCB,details){var token=Ti.Geolocation._NEWTOK(false,details);"
 			"Ti.Geolocation._WATCH[token]={success:succCB,fail:errCB};Ti.Geolocation.setWatchEnabled(token,true);return token;}"];
-	TitaniumJSCode * reserveGeo = [TitaniumJSCode codeWithString:@"function(lat,lon,cb){"
+	TitaniumJSCode * reverseGeo = [TitaniumJSCode codeWithString:@"function(lat,lon,cb){"
 		"if (!Ti.Geolocation._TOKEN){Ti.Geolocation._TOKEN={};Ti.Geolocation._TOKENID=0;}"
 		"var t=String(++Ti.Geolocation._TOKENID);"
 		"Ti.Geolocation._TOKEN[t]=cb;"
@@ -427,7 +424,7 @@ NSUInteger lastWatchID = 0;
 			tokenInvoc,@"_NEWTOK",
 			geoInvo,@"_REVG",
 			fowardGeoInvo,@"_FWDG",
-			reserveGeo,@"reverseGeocoder",
+			reverseGeo,@"reverseGeocoder",
 	 	    forwardGeo,@"forwardGeocoder",
 			enableInvoc,@"setWatchEnabled",
 			[NSDictionary dictionary],@"_WATCH",
@@ -453,12 +450,11 @@ NSUInteger lastWatchID = 0;
 
 - (void) dealloc
 {
+	[pageToken release];
 	[proxyDictionary release];
 	[locationManager stopUpdatingLocation];
 	[locationManager release];
 	[proxyLock release];
-	[geocoder release];
-	[geotoken release];
 	[super dealloc];
 }
 

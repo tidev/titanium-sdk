@@ -26,6 +26,12 @@
 	<div style="height:20px" id="heading2"></div>
 	<div style="height:20px" id="speed2"></div>
 	
+	<div style="margin-top:10px">Forward Geocode: 444 Castro Street, Mountain View, CA 94041</div>
+	<div id="fgc"></div>
+
+	<div style="margin-top:10px">Reverse Geocode: 444 Castro Street, Mountain View, CA 94041</div>
+	<div id="rgc"></div>
+	
 	<script>
 	var count =0;
 	var count2 = 0;
@@ -91,7 +97,19 @@
 
 		}
 	);
+	
+	Titanium.Geolocation.forwardGeocoder("444 Castro Street, Mountain View, CA 94041",function(evt)
+	{
+		document.getElementById("fgc").innerHTML = "latitude: "+evt.latitude + ", longitude: " + evt.longitude;
+		
+		Titanium.Geolocation.reverseGeocoder(evt.latitude,evt.longitude,function(evt)
+		{
+			Titanium.API.info("receive reverse geo");
+			document.getElementById("rgc").innerHTML = Titanium._JSON(evt);
+		});
+	});
 
+	
 	</script>
 </body>
 </html>
