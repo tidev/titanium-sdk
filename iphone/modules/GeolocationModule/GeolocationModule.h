@@ -40,7 +40,14 @@
  * @tiapi(method=True,name=Geolocation.clearWatch,since=0.4) stops querying the Geolocation services
  * @tiarg(for=Geolocation.clearWatch,name=token,type=object) the token created by Geolocation.getCurrentPosition or Geolocation.watchPosition
  *
- * NOTE: See http://www.w3.org/TR/2008/WD-geolocation-API-20081222/ for details
+ * @tiapi(method=True,name=Geolocation.forwardGeocoder,since=0.8) forward geocode an address into a latitude, longitude coordinate
+ * @tiarg(for=Geolocation.forwardGeocoder,name=address,type=string) address to forward geocode
+ * @tiarg(for=Geolocation.forwardGeocoder,name=callback,type=function) function to callback
+ *
+ * @tiapi(method=True,name=Geolocation.reverseGeocoder,since=0.8) reverse geocode a latitude, longitude coordinate into a set of locations
+ * @tiarg(for=Geolocation.reverseGeocoder,name=latitude,type=string) latitude
+ * @tiarg(for=Geolocation.reverseGeocoder,name=longitude,type=string) longitude
+ * @tiarg(for=Geolocation.reverseGeocoder,name=callback,type=function) function to callback
  */ 
 
 #endif

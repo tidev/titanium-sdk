@@ -26,25 +26,25 @@
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
 {
-	NSLog(@"Scrollview touchesBegan: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+	NSLog(@"[DEBUG] Scrollview touchesBegan: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
 	[super touchesBegan:touches withEvent:event];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
 {
-	NSLog(@"Scrollview touchesMoved: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+	NSLog(@"[DEBUG] Scrollview touchesMoved: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
 	[super touchesMoved:touches withEvent:event];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
 {
-	NSLog(@"Scrollview touchesEnded: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+	NSLog(@"[DEBUG] Scrollview touchesEnded: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
 	[super touchesEnded:touches withEvent:event];
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event;
 {
-	NSLog(@"Scrollview touchesCancelled: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+	NSLog(@"[DEBUG] Scrollview touchesCancelled: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
 	[super touchesCancelled:touches withEvent:event];
 }
 
@@ -66,7 +66,7 @@
 ////		[view touchesBegan:touches withEvent:event];
 ////		return NO;
 ////	}
-	NSLog(@"Scrollview touchesShouldBegin: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+	NSLog(@"[DEBUG] Scrollview touchesShouldBegin: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
 
 	return result;
 }

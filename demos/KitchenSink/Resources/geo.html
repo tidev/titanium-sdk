@@ -106,8 +106,21 @@
 		
 		Titanium.Geolocation.reverseGeocoder(evt.latitude,evt.longitude,function(evt)
 		{
-			Titanium.API.info("receive reverse geo");
-			document.getElementById("rgc").innerHTML = Titanium._JSON(evt);
+			if (!evt.success)
+			{
+				document.getElementById("rgc").innerHTML = "Failed";
+			}
+			else
+			{
+				var html = '<UL>';
+				var places = evt.places;
+				for (var c=0;c<places.length;c++)
+				{
+					html+='<LI>'+Titanium._JSON(places[c])+'</LI>';
+				}
+				html+='</UL>';
+				document.getElementById("rgc").innerHTML = html;
+			}
 		});
 	});
 
