@@ -309,6 +309,7 @@ UIColor * checkmarkColor = nil;
 		tableView = [[UITableView alloc] initWithFrame:startSize style:tableStyle];
 		[tableView setDelegate:self];	[tableView setDataSource:self];
 		[tableView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+		if(backgroundColor != nil)[tableView setBackgroundColor:backgroundColor];
 		if (tableRowHeight > 5){
 			[tableView setRowHeight:tableRowHeight];
 		}		
@@ -369,6 +370,9 @@ UIColor * checkmarkColor = nil;
 	if (checkmarkColor == nil){
 		checkmarkColor = [[UIColor alloc] initWithRed:(55.0/255.0) green:(79.0/255.0) blue:(130.0/255.0) alpha:1.0];
 	}
+
+	[backgroundColor release];
+	backgroundColor = [UIColorWebColorNamed([inputState objectForKey:@"backgroundColor"]) retain];
 
 	Class dictClass = [NSDictionary class];
 	if (![inputState isKindOfClass:dictClass]){
@@ -606,8 +610,6 @@ UIColor * checkmarkColor = nil;
 			result = [[[ComplexTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"complex"] autorelease];
 		}
 		[(ComplexTableViewCell *)result setDataWrapper:rowWrapper];
-		[sectionLock unlock];
-		return result;
 		
 	} else if ([rowWrapper isButton]) {
 		result = [ourTableView dequeueReusableCellWithIdentifier:@"button"];
@@ -617,6 +619,7 @@ UIColor * checkmarkColor = nil;
 		}
 		[(id)result setText:[rowWrapper title]];
 		[(id)result setFont:[rowWrapper font]];
+		[(id)result setImage:[rowWrapper image]];
 	} else { //plain cell
 		NSString * valueString = [rowWrapper value];
 		if (valueString == nil){
@@ -640,14 +643,44 @@ UIColor * checkmarkColor = nil;
 		UIColor * textColor = [UIColor blackColor];
 		if (ourType == UITableViewCellAccessoryCheckmark) textColor = checkmarkColor;
 		[(id)result setTextColor:textColor];
+		[(id)result setImage:[rowWrapper image]];
 	}
 
-	[(id)result setImage:[rowWrapper image]];
 	[result setAccessoryType:ourType];
 	[result setAccessoryView:[[rowWrapper inputProxy] nativeView]];
 	UIColor * bgColor = [rowWrapper colorForKey:@"backgroundColor"];
-	if(bgColor != nil)[result setBackgroundColor:bgColor];
-	else [result setBackgroundColor:[UIColor whiteColor]];
+	UIColor * selectedBgColor = [rowWrapper colorForKey:@"selectedBackgroundColor"];
+
+	UIImage * bgImage = [rowWrapper stretchableImageForKey:@"backgroundImage"];
+	UIImage	* selectedBgImage = [rowWrapper stretchableImageForKey:@"selectedBackgroundImage"];
+
+	if((tableStyle == UITableViewStyleGrouped) && (bgImage == nil)){
+		if(bgColor != nil)[result setBackgroundColor:bgColor];
+		else [result setBackgroundColor:[UIColor whiteColor]];
+	} else {
+		UIImageView * bgView = (UIImageView *)[result backgroundView];
+		if(![bgView isKindOfClass:[UIImageView class]]){
+			bgView = [[[UIImageView alloc] initWithFrame:[result frame]] autorelease];
+			[result setBackgroundView:bgView];
+		}
+		[bgView setImage:bgImage];
+		[bgView setBackgroundColor:(bgColor==nil)?[UIColor clearColor]:bgColor];
+	}
+
+	if((selectedBgColor == nil)&&(selectedBgImage == nil)){
+		[result setSelectedBackgroundView:nil];
+	} else {
+		UIImageView * selectedBgView = (UIImageView *)[result selectedBackgroundView];
+		if(![selectedBgView isKindOfClass:[UIImageView class]]){
+			selectedBgView = [[[UIImageView alloc] initWithFrame:[result frame]] autorelease];
+			[result setSelectedBackgroundView:selectedBgView];
+		}
+		
+		[selectedBgView setImage:selectedBgImage];
+		[selectedBgView setBackgroundColor:(selectedBgColor==nil)?[UIColor clearColor]:selectedBgColor];
+		
+	}
+
 
 
 	[sectionLock unlock];

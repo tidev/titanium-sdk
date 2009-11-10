@@ -41,13 +41,11 @@
 	dataWrapper=newWrapper;
 	[dataWrapper addObserver:self forKeyPath:@"jsonValues" options:NSKeyValueObservingOptionNew context:nil];
 	[self setNeedsLayout];
-	[self setNeedsDisplay];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context;
 {
 	[self setNeedsLayout];
-	[self setNeedsDisplay];
 }
 
 - (void)layoutSubviews;
@@ -99,6 +97,7 @@
 				break;}
 			case LayoutEntryImage:{
 				thisEntryView = [[[TitaniumImageView alloc] initWithFrame:CGRectZero] autorelease];
+				[(TitaniumImageView *)thisEntryView setDelegate:self];
 				UIImage * entryImage = [dataWrapper imageForKey:name];
 				[(TitaniumImageView *)thisEntryView setImage:entryImage];
 				
@@ -150,6 +149,12 @@
 - (void)dealloc {
 	[self setDataWrapper:nil];
     [super dealloc];
+}
+
+
+- (void) imageView: (TitaniumImageView *)touchedImage touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
+{
+//	[self 
 }
 
 

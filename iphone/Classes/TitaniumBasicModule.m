@@ -102,6 +102,9 @@
 
 - (void) setPageToken: (NSString *)token
 {
+	if ([token isEqualToString:pageToken]) {
+		return;
+	}
 	[pageToken release];
 	pageToken = [token retain];
 }
