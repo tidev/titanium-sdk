@@ -74,6 +74,7 @@
  * get the current page token for the currently executing method or the last method executed.  this token is automatically
  * set before a bound method is invoked and persists until the next method is invoked against the module.
  */
+
 - (NSString*) getPageToken;
 
 /**

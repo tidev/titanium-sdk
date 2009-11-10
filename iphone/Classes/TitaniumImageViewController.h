@@ -20,9 +20,9 @@
 
 @interface TitaniumImageView : UIImageView
 {
-	id<TitaniumImageViewDelegate>	delegate;
+	NSObject<TitaniumImageViewDelegate>	* delegate;
 }
-@property(nonatomic,readwrite,assign)	id<TitaniumImageViewDelegate> delegate;
+@property(nonatomic,readwrite,assign)	NSObject<TitaniumImageViewDelegate> * delegate;
 
 @end
 
