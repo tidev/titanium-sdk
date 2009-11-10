@@ -34,30 +34,46 @@
 
 
 @implementation TitaniumImageViewController
-@synthesize singleImageBlob;
+
+@synthesize singleImageBlob, imageDefault;
 
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
 	
 	// Release any cached data, images, etc that aren't in use.
+	[imageDefault release];
+	imageDefault=nil;
 }
 
-- (void)dealloc {
+- (void)dealloc 
+{
+	[singleImageBlob release];
+	[imageDefault release];
 	[imageView release];
+	[url release];
     [super dealloc];
 }
 
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
 	if(![inputState isKindOfClass:[NSDictionary class]])return;
-	
+		
 	TitaniumBlobWrapper * newImageBlob = [inputState objectForKey:@"image"];
-	if([newImageBlob isKindOfClass:[TitaniumBlobWrapper class]]){
-		[self setSingleImageBlob:newImageBlob];
-	} else {
+	if([newImageBlob isKindOfClass:[TitaniumBlobWrapper class]])
+	{
+		[self setSingleImageBlob:[newImageBlob imageBlob]];
+	} 
+	else 
+	{
+		// set the default image while fetching
+		UIImage* iconImage = [UIImage imageNamed:@"modules/ui/images/photoDefault.png"];
+		[self setImageDefault:iconImage];
+
 		id imageUrlObject = [inputState objectForKey:@"url"];
-		if([imageUrlObject isKindOfClass:[NSString class]]){
+		if([imageUrlObject isKindOfClass:[NSString class]])
+		{
+			// will automatically put on new thread
 			NSURL * singleImageUrl = [NSURL URLWithString:imageUrlObject relativeToURL:baseUrl];
 			[self setUrl:singleImageUrl];
 		}
@@ -70,16 +86,11 @@
 #pragma mark Accessors
 - (UIImage *) singleImage;
 {
-	UIImage * result = [singleImageBlob imageBlob];
-	
-	if(result == nil){
-		//Add listener!
+	if (imageDefault!=nil)
+	{
+		return imageDefault;
 	}
-	
-	if(imageSize.width > 1.0){
-		//Reshape!
-	}
-	return result;
+	return singleImageBlob;
 }
 
 
@@ -88,11 +99,28 @@
 	CGRect viewFrame;
 	viewFrame.origin = CGPointZero;
 	viewFrame.size = preferredViewSize;
+	
 	if(imageView==nil){
 		imageView = [[TitaniumImageView alloc] initWithFrame:viewFrame];
 		[imageView setDelegate:self];
+		[imageView setOpaque:NO];
+		[imageView setBackgroundColor:[UIColor clearColor]];
 		[imageView setImage:[self singleImage]];
+		if (imageDefault!=nil)
+		{
+			[imageView setContentMode:UIViewContentModeCenter];
+		}
+		else 
+		{
+			[imageView setContentMode:UIViewContentModeScaleToFill];
+		}
 	}
+
+	if (singleImageBlob==nil)
+	{
+		[self fetchImage];
+	}
+	
 	if(!scrollEnabled){
 		[imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		return imageView;
@@ -108,6 +136,7 @@
 		[scrollView setMultipleTouchEnabled:YES];
 		[scrollView setDelegate:self];
 	}
+	
 	
 	return scrollView;
 }
@@ -126,8 +155,14 @@
 
 - (void)updateLayout: (BOOL)animated;
 {
-	if(dirtyImage){
+	if(dirtyImage)
+	{
+		// force image view to nil so it will display our loaded image
+		[imageDefault release];
+		imageDefault = nil;
+		
 		UIImage * newImage = [self singleImage];
+		[imageView setContentMode:UIViewContentModeScaleToFill];
 		[imageView setImage:newImage];
 		
 		if(scrollEnabled){
@@ -173,18 +208,45 @@
 	return imageView;
 }
 
+- (void)fetchImage
+{
+	// this should always run on separate thread
+	if ([NSThread isMainThread])
+	{
+		[NSThread detachNewThreadSelector:@selector(fetchImage) toTarget:self withObject:nil];
+		return;
+	}
+	
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
+	NSData * data = [NSData dataWithContentsOfURL:url];
+	
+	[self setSingleImageBlob:[UIImage imageWithData:data]];
+	
+	fetchRequired = NO;
+	dirtyImage = YES;
+
+	[self performSelectorOnMainThread:@selector(updateLayout:) withObject:nil waitUntilDone:NO];
+	
+	[pool release];
+}
+
 #pragma mark Javascript entrances
 
 - (void) setUrl: (NSURL *) newUrl;
 {
-	[self setSingleImageBlob:[[TitaniumHost sharedHost] blobForUrl:newUrl]];
-	if(imageView != nil){
-		dirtyImage = YES;
-		if(![NSThread isMainThread]){
-			[self performSelectorOnMainThread:@selector(updateLayout:) withObject:nil waitUntilDone:NO];
-		} else {
-			[self updateLayout:NO];
-		}
+	BOOL doFetch = NO;
+	if (url!=nil)
+	{
+		// we need to refetch on new image
+		[url release];
+		doFetch = YES;
+	}
+	url = [newUrl retain];
+	fetchRequired = YES;
+	if (doFetch)
+	{
+		[self fetchImage];
 	}
 }
 
