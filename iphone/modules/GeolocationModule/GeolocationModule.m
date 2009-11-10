@@ -11,19 +11,25 @@
 
 
 NSUInteger lastWatchID = 0;
+NSUInteger lastHeadingID = 0;
 
 #define MAX_DELAY_BEFORE_TRANSMIT_GEO_EVENT_IN_MS (60000) * 1
 
+#define TYPE_HEADING 1
+#define TYPE_POSITION 2
 
 @interface GeolocationProxy : TitaniumProxyObject {
-//	NSString * 
 	BOOL	highAccuracy;
 	NSDate * timeoutDate;
 	NSDate * minimumCacheTime;
 	NSTimer * timeoutTimer;
 	BOOL	singleShot;
 	BOOL	enabled;
-//	NSTimer
+	CLLocationDistance distanceFilter;
+	CLLocationDegrees headingFilter;
+	CLLocation *location;
+	CLHeading *heading;
+	short type;
 }
 
 - (BOOL) handlesLocation: (CLLocation *) newLocation;
@@ -33,13 +39,18 @@ NSUInteger lastWatchID = 0;
 @property(nonatomic,readwrite,assign)	BOOL	highAccuracy;
 @property(nonatomic,readwrite,assign)	BOOL	singleShot;
 @property(nonatomic,readwrite,assign)	BOOL	enabled;
+@property(nonatomic,readwrite,assign)	short type;
+@property(nonatomic,readwrite,assign)	CLLocationDistance	distanceFilter;
+@property(nonatomic,readwrite,assign)	CLLocationDegrees	headingFilter;
+@property(nonatomic,readwrite,retain)   CLLocation *location;
+@property(nonatomic,readwrite,retain)   CLHeading *heading;
 @property(nonatomic,readwrite,retain)	NSDate * minimumCacheTime;
 
 
 @end
 
 @implementation GeolocationProxy
-@synthesize highAccuracy, singleShot, minimumCacheTime,enabled;
+@synthesize highAccuracy, singleShot, minimumCacheTime, enabled, distanceFilter, headingFilter, location, heading, type;
 
 - (void) takeDetails: (NSDictionary *) detailsDict;
 {
@@ -57,12 +68,51 @@ NSUInteger lastWatchID = 0;
 		[self setMinimumCacheTime:[NSDate dateWithTimeIntervalSinceNow: -[maxAgeObj floatValue]]];
 	}
 	
+	[self setDistanceFilter:kCLDistanceFilterNone];
+	
+	id distance = [detailsDict objectForKey:@"distanceFilter"];
+	if ([distance respondsToSelector:@selector(doubleValue)]){
+		[self setDistanceFilter:[distance doubleValue]];
+	}
+	
+	[self setHeadingFilter:kCLHeadingFilterNone];
+
+	id headingF = [detailsDict objectForKey:@"headingFilter"];
+	if ([headingF respondsToSelector:@selector(doubleValue)]){
+		[self setHeadingFilter:[headingF doubleValue]];
+	}
 }
 
 - (BOOL) handlesLocation: (CLLocation *) newLocation;
 {
-	if (minimumCacheTime == nil) return YES;
+	if (minimumCacheTime == nil || location == nil)
+	{
+		return YES;
+	}
+	// check the distance filter since we're aggregating multiples locations
+	if (kCLDistanceFilterNone!=distanceFilter && location!=nil)
+	{
+		if ([location getDistanceFrom:newLocation] < distanceFilter)
+		{
+			[self setLocation:newLocation];
+			return NO;
+		}
+	}
+	[self setLocation:newLocation];
 	return [minimumCacheTime timeIntervalSinceDate:[newLocation timestamp]] > 0;
+}
+
+- (BOOL) handlesHeading: (CLHeading*)newHeading
+{
+	if (heading == nil || kCLHeadingFilterNone==headingFilter)
+	{
+		[self setHeading:newHeading];
+		return YES;
+	}
+	[self setHeading:newHeading];
+	CLLocationDirection newDir = [newHeading magneticHeading];
+	CLLocationDirection oldDir = [heading magneticHeading];
+	return (newDir - oldDir >= headingFilter);
 }
 
 - (BOOL) handlesError: (NSError *) error;
@@ -90,6 +140,8 @@ NSUInteger lastWatchID = 0;
 	[minimumCacheTime release];
 	[timeoutDate release];
 	[timeoutTimer release];
+	[location release];
+	[heading release];
 	[super dealloc];
 }
 
@@ -102,6 +154,22 @@ NSUInteger lastWatchID = 0;
 			(long long)([[newLocation timestamp] timeIntervalSinceReferenceDate] * 1000)];
 }
 
++ (NSString*) stringFromHeading: (CLHeading *) newHeading
+{
+	long long ts = (long long)[[newHeading timestamp] timeIntervalSinceReferenceDate] * 1000;
+	
+	NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:
+						  [NSNumber numberWithDouble:[newHeading magneticHeading]],@"magneticHeading",
+						  [NSNumber numberWithDouble:[newHeading trueHeading]],@"trueHeading",
+						  [NSNumber numberWithDouble:[newHeading headingAccuracy]],@"accuracy",
+						  [NSNumber numberWithLongLong:ts],@"timestamp",
+						  [NSNumber numberWithDouble:[newHeading x]],@"x",
+						  [NSNumber numberWithDouble:[newHeading y]],@"y",
+						  [NSNumber numberWithDouble:[newHeading z]],@"z",
+						  nil];
+	
+	return [NSString stringWithFormat:@"success(%@)",[SBJSON stringify:dict]];
+}
 
 + (NSString *) stringFromError: (NSError *) error timedout: (BOOL) isTimeout;
 {
@@ -129,20 +197,29 @@ NSUInteger lastWatchID = 0;
 
 @implementation GeolocationModule
 
-- (void) updateLocManagerAccuracy;
+- (void) updateLocManagerAccuracy:(BOOL)startPolling;
 {
 	[proxyLock lock];
 	for (GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator]){
 		if ([thisProxy highAccuracy]) {
 			[locationManager setDesiredAccuracy:kCLLocationAccuracyBest];
 			[proxyLock unlock];
+			if (startPolling)
+			{
+				[self updatePolling];	
+			}
 			return;
 		}
 	}
 	[proxyLock unlock];
 
 	[locationManager setDesiredAccuracy:kCLLocationAccuracyKilometer];
+	if (startPolling)
+	{
+		[self updatePolling];	
+	}
 }
+
 
 -(NSDictionary*)getGeoData:(CLLocation*)newLocation;
 {
@@ -171,15 +248,19 @@ NSUInteger lastWatchID = 0;
 -(void)transmitGeoEvent:(CLLocation*)location fromLocation:(CLLocation*)fromLocation;
 {
 	AnalyticsModule *module = (AnalyticsModule*)[[TitaniumHost sharedHost] moduleNamed:@"AnalyticsModule"];
-	NSDictionary * data = [NSDictionary dictionaryWithObjectsAndKeys:[self getGeoData:location],@"to",[self getGeoData:fromLocation],@"from",nil];
-	[module enqueuePlatformEvent:@"ti.geo" evtname:@"ti.geo" data:data];
+	if (module!=nil)
+	{
+		NSDictionary * data = [NSDictionary dictionaryWithObjectsAndKeys:[self getGeoData:location],@"to",[self getGeoData:fromLocation],@"from",nil];
+		[module enqueuePlatformEvent:@"ti.geo" evtname:@"ti.geo" data:data];
+	}
 }
 
 - (void) updatePolling;
 {
 	[proxyLock lock];
 	for (GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator]){
-		if ([thisProxy enabled]) { //TODO: Do we want to expose a way to disable polling yet keep the listener?
+		if ([thisProxy enabled] && [thisProxy type]==TYPE_POSITION) 
+		{ 
 			[locationManager startUpdatingLocation];
 			[proxyLock unlock];
 			return;
@@ -190,6 +271,27 @@ NSUInteger lastWatchID = 0;
 	[locationManager stopUpdatingLocation];
 }
 
+- (void) updateHeading
+{
+	if (![locationManager headingAvailable]) return;
+	
+	[proxyLock lock];
+
+	for (GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator]){
+		if ([thisProxy enabled] && [thisProxy type]==TYPE_HEADING) 
+		{ 
+			[locationManager startUpdatingHeading];
+			[proxyLock unlock];
+			return;
+		}
+	}
+	
+	
+	[proxyLock unlock];
+	
+	[locationManager stopUpdatingHeading];
+}
+
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation;
 {
 	NSString * locationString = nil;
@@ -197,7 +299,7 @@ NSUInteger lastWatchID = 0;
 	[proxyLock lock];
 	for (GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator]){
 		if(![thisProxy enabled])continue;
-		if ([thisProxy handlesLocation:newLocation]) {
+		if ([thisProxy type]==TYPE_POSITION && [thisProxy handlesLocation:newLocation]) {
 			if (locationString == nil){ locationString = [GeolocationProxy stringFromLocation:newLocation]; }
 			[thisProxy runCallback:locationString];
 		}
@@ -236,10 +338,47 @@ NSUInteger lastWatchID = 0;
 	[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 }
 
-- (NSString *) tokenIsOneShot: (id)isOneShotObj options: (id)propertiesDict;
+- (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading
 {
-	NSString * newToken = [NSString stringWithFormat:@"GEO%d",lastWatchID++];
+	NSString * locationString = nil;
+	
+	[proxyLock lock];
+	for (GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator]){
+		if(![thisProxy enabled])continue;
+		if ([thisProxy type]==TYPE_HEADING && [thisProxy handlesHeading:newHeading]) {
+			if (locationString == nil){ locationString = [GeolocationProxy stringFromHeading:newHeading]; }
+			[thisProxy runCallback:locationString];
+		}
+	}
+	[proxyLock unlock];
+	
+	lastHeadingID++;
+	[lastHeadingEvent release];
+	lastHeadingEvent = [[NSDate alloc] init];
+	[self performSelectorOnMainThread:@selector(updateHeading) withObject:nil waitUntilDone:NO];
+}
+
+- (BOOL)locationManagerShouldDisplayHeadingCalibration:(CLLocationManager *)manager
+{
+	return YES;
+}
+
+- (NSString *) tokenIsOneShot: (id)isOneShotObj options: (id)propertiesDict type:(NSString*)type
+{
 	GeolocationProxy * newProxy = [[GeolocationProxy alloc] init];
+	BOOL heading=NO;
+	NSString * newToken = [NSString stringWithFormat:@"GEO%d",lastWatchID++];
+	
+	if ([type isEqualToString:@"position"])
+	{
+		[newProxy setType:TYPE_POSITION];
+	}
+	else
+	{
+		[newProxy setType:TYPE_HEADING];
+		heading = YES;
+	}
+
 	[newProxy setToken:newToken];
 
 	[proxyLock lock];
@@ -251,8 +390,17 @@ NSUInteger lastWatchID = 0;
 	if ([isOneShotObj respondsToSelector:@selector(boolValue)]){
 		[newProxy setSingleShot:[isOneShotObj boolValue]];
 	}
-	[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];
-	[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
+
+	if (heading == NO)
+	{
+		[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy:) withObject:[NSNumber numberWithBool:YES] waitUntilDone:NO];
+	}
+	else 
+	{
+		[self performSelectorOnMainThread:@selector(updateHeading) withObject:nil waitUntilDone:NO];
+	}
+
+	
 	[newProxy release];
 	
 	return newToken;
@@ -264,37 +412,60 @@ NSUInteger lastWatchID = 0;
 	[proxyLock lock];
 	[proxyDictionary removeObjectForKey:token];
 	
-	int count=0;
-	for(GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator]){
-		if([thisProxy enabled]){
-			count++; break;
+	int position_count=0;
+	int heading_count=0;
+	
+	for(GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator])
+	{
+		if([thisProxy enabled])
+		{
+			if ([thisProxy type]==TYPE_POSITION)
+			{
+				position_count++;
+			}
+			else 
+			{
+				heading_count++;
+			}
 		}
 	}
 	
-	if (count == 0){
+	if (position_count == 0)
+	{
 		[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
 	}
-	[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];
+	if (heading_count==0 && [locationManager headingAvailable]) 
+	{
+		[self performSelectorOnMainThread:@selector(updateHeading) withObject:nil waitUntilDone:NO];
+	}
+	[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy:) withObject:[NSNumber numberWithBool:NO] waitUntilDone:NO];
 	[proxyLock unlock];
 	
 	return [TitaniumJSCode codeWithString:[NSString stringWithFormat:@"delete Ti.Geolocation._WATCH.%@;",token]];
 }
 
-- (void) setWatch: (NSString *) token enabled: (NSNumber *) isEnabled;
+- (void) setWatch: (NSString *) token enabled: (NSNumber *) isEnabled
 {
 	if(![isEnabled respondsToSelector:@selector(boolValue)])return;
 	[proxyLock lock];
 	GeolocationProxy * ourProxy = [proxyDictionary objectForKey:token];
 
-	if(ourProxy != nil){
+	if(ourProxy != nil)
+	{
 		[ourProxy setEnabled:[isEnabled boolValue]];
-		[self performSelectorOnMainThread:@selector(updatePolling) withObject:nil waitUntilDone:NO];
-		[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy) withObject:nil waitUntilDone:NO];		
+		if ([ourProxy type]==TYPE_POSITION)
+		{
+			[self performSelectorOnMainThread:@selector(updateLocManagerAccuracy:) withObject:[NSNumber numberWithBool:YES] waitUntilDone:NO];		
+		}
+		else 
+		{
+			[self performSelectorOnMainThread:@selector(updateHeading) withObject:nil waitUntilDone:NO];
+		}
 	}
 	[proxyLock unlock];
 }
 
--(NSString*) performGeo:(NSString*)direction address:(NSString*)address
+- (NSString*) performGeo:(NSString*)direction address:(NSString*)address
 {
 	TitaniumHost *tiHost = [TitaniumHost sharedHost];
 	AnalyticsModule * mod = (AnalyticsModule *) [tiHost moduleNamed:@"AnalyticsModule"];
@@ -312,32 +483,42 @@ NSUInteger lastWatchID = 0;
 	return [NSString stringWithContentsOfURL:[NSURL URLWithString:urlString] encoding:NSUTF8StringEncoding error:nil];
 }
 
--(void)reverseGeo:(NSDictionary *)dict
+- (void) reverseGeo:(NSDictionary *)dict
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-	NSString *result = [self performGeo:@"r" address:[NSString stringWithFormat:@"%@,%@",[dict objectForKey:@"latitude"],[dict objectForKey:@"longitude"]]];
+	// result comes back as JSON
+	NSString * result = [self performGeo:@"r" address:[NSString stringWithFormat:@"%@,%@",[dict objectForKey:@"latitude"],[dict objectForKey:@"longitude"]]];
+	
 	NSString * token = [dict objectForKey:@"token"];
 	NSString * actionString = [NSString stringWithFormat:@"Ti.Geolocation._TOKEN['%@'](%@); delete Ti.Geolocation._TOKEN['%@'];",token,result,token];
+
+#ifdef VERBOSE_LOG
+	NSLog(@"[DEBUG] reverse geo result: %@",actionString);
+#endif
 	
 	[[TitaniumHost sharedHost] sendJavascript:actionString toPageWithToken:[dict objectForKey:@"pageToken"]];
 
 	[pool release];
 }
 
--(void) reverseGeo:(NSDictionary*)dict token:(NSString*)token
+- (void) reverseGeo:(NSDictionary*)dict token:(NSString*)token
 {
 	NSDictionary *newdict = [NSDictionary dictionaryWithObjectsAndKeys:[dict objectForKey:@"latitude"],@"latitude",[dict objectForKey:@"longitude"],@"longitude",token,@"token",pageToken,@"pageToken",nil];
 	[NSThread detachNewThreadSelector:@selector(reverseGeo:) toTarget:self withObject:newdict];
 }
 
--(void)forwardGeo:(NSDictionary*)dict
+- (void) forwardGeo:(NSDictionary*)dict
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	NSString *address = [dict objectForKey:@"address"];
 	NSString *locationString = [self performGeo:@"f" address:address];
 
+#ifdef VERBOSE_LOG
+	NSLog(@"[DEBUG] forward geo result: %@",locationString);
+#endif
+	
 	// forward geo comes back as CSV
 	NSArray *listItems = [locationString componentsSeparatedByString:@","];
 	if([listItems count] == 4 && [[listItems objectAtIndex:0] isEqualToString:@"200"]) 
@@ -360,7 +541,7 @@ NSUInteger lastWatchID = 0;
 	[pool release];
 }
 
--(void)forwardGeo:(NSString*)address token:(NSString*)token
+- (void) forwardGeo:(NSString*)address token:(NSString*)token
 {
 	NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:address,@"address",token,@"token",pageToken,@"pageToken",nil];
 	[NSThread detachNewThreadSelector:@selector(forwardGeo:) toTarget:self withObject:dict];
@@ -385,7 +566,7 @@ NSUInteger lastWatchID = 0;
 	proxyDictionary = [[NSMutableDictionary alloc] init];
 	
 	TitaniumInvocationGenerator * invocGen = [TitaniumInvocationGenerator generatorWithTarget:self];
-	[(GeolocationModule *)invocGen tokenIsOneShot:nil options:nil];
+	[(GeolocationModule *)invocGen tokenIsOneShot:nil options:nil type:nil];
 	NSInvocation * tokenInvoc = [invocGen invocation];
 	
 	[(GeolocationModule *)invocGen clearWatch:nil];
@@ -400,10 +581,18 @@ NSUInteger lastWatchID = 0;
 	[(GeolocationModule *)invocGen forwardGeo:nil token:nil];
 	NSInvocation * fowardGeoInvo = [invocGen invocation];
 
-	TitaniumJSCode * getCurrentPosition = [TitaniumJSCode codeWithString:@"function(succCB,errCB,details){var token=Ti.Geolocation._NEWTOK(true,details);"
+	TitaniumJSCode * getCurrentPosition = [TitaniumJSCode codeWithString:@"function(succCB,errCB,details){var token=Ti.Geolocation._NEWTOK(true,details,'position');"
 			"Ti.Geolocation._WATCH[token]={success:succCB,fail:errCB};Ti.Geolocation.setWatchEnabled(token,true);return token;}"];
-	TitaniumJSCode * watchPosition = [TitaniumJSCode codeWithString:@"function(succCB,errCB,details){var token=Ti.Geolocation._NEWTOK(false,details);"
+
+	TitaniumJSCode * getCurrentHeading = [TitaniumJSCode codeWithString:@"function(succCB,errCB,details){var token=Ti.Geolocation._NEWTOK(true,details,'heading');"
 			"Ti.Geolocation._WATCH[token]={success:succCB,fail:errCB};Ti.Geolocation.setWatchEnabled(token,true);return token;}"];
+
+	TitaniumJSCode * watchPosition = [TitaniumJSCode codeWithString:@"function(succCB,errCB,details){var token=Ti.Geolocation._NEWTOK(false,details,'position');"
+			"Ti.Geolocation._WATCH[token]={success:succCB,fail:errCB};Ti.Geolocation.setWatchEnabled(token,true);return token;}"];
+
+	TitaniumJSCode * watchHeading = [TitaniumJSCode codeWithString:@"function(succCB,errCB,details){var token=Ti.Geolocation._NEWTOK(false,details,'heading');"
+			"Ti.Geolocation._WATCH[token]={success:succCB,fail:errCB};Ti.Geolocation.setWatchEnabled(token,true);return token;}"];
+
 	TitaniumJSCode * reverseGeo = [TitaniumJSCode codeWithString:@"function(lat,lon,cb){"
 		"if (!Ti.Geolocation._TOKEN){Ti.Geolocation._TOKEN={};Ti.Geolocation._TOKENID=0;}"
 		"var t=String(++Ti.Geolocation._TOKENID);"
@@ -417,10 +606,15 @@ NSUInteger lastWatchID = 0;
 	   "Ti.Geolocation._FWDG(addr,t);"
 	   "}"];
 	
+	// determine if we have compass support
+	NSNumber *headingAvailable = [NSNumber numberWithBool:[locationManager respondsToSelector:@selector(headingAvailable)] ? [locationManager headingAvailable] : NO];
+	
 	NSDictionary * geoDict = [NSDictionary dictionaryWithObjectsAndKeys:
 			getCurrentPosition, @"getCurrentPosition",
+			getCurrentHeading, @"getCurrentHeading",
 			watchPosition, @"watchPosition",
 			removeInvoc,@"clearWatch",
+			watchHeading, @"watchHeading",
 			tokenInvoc,@"_NEWTOK",
 			geoInvo,@"_REVG",
 			fowardGeoInvo,@"_FWDG",
@@ -428,28 +622,16 @@ NSUInteger lastWatchID = 0;
 	 	    forwardGeo,@"forwardGeocoder",
 			enableInvoc,@"setWatchEnabled",
 			[NSDictionary dictionary],@"_WATCH",
+			headingAvailable,@"hasCompass",				  
 			nil];
 	[[[TitaniumHost sharedHost] titaniumObject] setObject: geoDict forKey:@"Geolocation"];
-
-/* according to the doc this should work and tell us the user has already granted permission to this app.
-   however, on 3.0 GA, it doesn't work on device.
-
-	if ([locationManager locationServicesEnabled]) 
-	{
-		// start monitoring one-shot so we can get the initial geo
-		// will automatically stop after the first location if no listeners
-		// have been added - this also has the benefit of warming up geo
-		// for apps that use it initially
-		[self updateLocManagerAccuracy];
-		[locationManager startUpdatingLocation];
-	}
-*/
 	
 	return YES;
 }
 
 - (void) dealloc
 {
+	[lastEvent release];
 	[pageToken release];
 	[proxyDictionary release];
 	[locationManager stopUpdatingLocation];
