@@ -1,40 +1,63 @@
 <html>
-<head>
-
-
-</head>
 <body  style="font-family:'Helvetica Neue'">
-	<div style="margin-bottom:10px">Watch Position</div>
-	<div style="height:20px" id="callcount"></div>
-	<div style="height:20px" id="timestamp"></div>
-	<div style="height:20px" id="latitude"></div>
-	<div style="height:20px" id="longitude"></div>
-	<div style="height:20px" id="altitude"></div>
-	<div style="height:20px" id="accuracy"></div>
-	<div style="height:20px" id="altitudeAccuracy"></div>
-	<div style="height:20px" id="heading"></div>
-	<div style="height:20px" id="speed"></div>
+
+	<div style="margin-bottom:10px;font-weight:bold;">Watch Position</div>
+	<div style="height:20px" id="callcount">Fetching...</div>
+	<div style="height:20px" id="timestamp">Fetching...</div>
+	<div style="height:20px" id="latitude">Fetching...</div>
+	<div style="height:20px" id="longitude">Fetching...</div>
+	<div style="height:20px" id="altitude">Fetching...</div>
+	<div style="height:20px" id="accuracy">Fetching...</div>
+	<div style="height:20px" id="altitudeAccuracy">Fetching...</div>
+	<div style="height:20px" id="heading">Fetching...</div>
+	<div style="height:20px" id="speed">Fetching...</div>
 	
-	<div style="margin-top:10px">Current Position</div>
-	<div style="height:20px" id="callcount2"></div>
-	<div style="height:20px" id="timestamp2"></div>
-	<div style="height:20px" id="latitude2"></div>
-	<div style="height:20px" id="longitude2"></div>
-	<div style="height:20px" id="altitude2"></div>
-	<div style="height:20px" id="accuracy2"></div>
+	<div style="margin-top:10px;margin-bottom:10px;font-weight:bold;">Current Position</div>
+	<div style="height:20px" id="callcount2">Fetching...</div>
+	<div style="height:20px" id="timestamp2">Fetching...</div>
+	<div style="height:20px" id="latitude2">Fetching...</div>
+	<div style="height:20px" id="longitude2">Fetching...</div>
+	<div style="height:20px" id="altitude2">Fetching...</div>
+	<div style="height:20px" id="accuracy2">Fetching...</div>
 	<div style="height:20px" id="altitudeAccuracy2"></div>
 	<div style="height:20px" id="heading2"></div>
 	<div style="height:20px" id="speed2"></div>
-	
-	<div style="margin-top:10px">Forward Geocode: 444 Castro Street, Mountain View, CA 94041</div>
-	<div id="fgc"></div>
 
-	<div style="margin-top:10px">Reverse Geocode: 444 Castro Street, Mountain View, CA 94041</div>
-	<div id="rgc"></div>
+	<div style="margin-top:10px;margin-bottom:10px;font-weight:bold;">Compass: <span id="compass" style="font-weight:normal;">Determining compass availability...</span></div>
+	<div style="margin-top:10px;margin-bottom:10px;font-weight:bold;">Magnetic field strength: <span id="magneticfield" style="font-weight:normal;">Determining compass availability...</span></div>
+
+	<div style="margin-bottom:10px;font-weight:bold;">Watch Heading</div>
+	<div style="height:20px" id="callcount3">Fetching...</div>
+	<div style="height:20px" id="timestamp3">Fetching...</div>
+	<div style="height:20px" id="accuracy3">Fetching...</div>
+	<div style="height:20px" id="magnetic">Fetching...</div>
+	<div style="height:20px" id="trueheading">Fetching...</div>
+	<div style="height:20px" id="x">Fetching...</div>
+	<div style="height:20px" id="y">Fetching...</div>
+	<div style="height:20px" id="z">Fetching...</div>
+	
+	<div style="margin-bottom:10px;font-weight:bold;margin-top:10px;">Current Heading</div>
+	<div style="height:20px" id="callcount4">Fetching...</div>
+	<div style="height:20px" id="timestamp4">Fetching...</div>
+	<div style="height:20px" id="accuracy4">Fetching...</div>
+	<div style="height:20px" id="magnetic2">Fetching...</div>
+	<div style="height:20px" id="trueheading2">Fetching...</div>
+	<div style="height:20px" id="x2">Fetching...</div>
+	<div style="height:20px" id="y2">Fetching...</div>
+	<div style="height:20px" id="z2">Fetching...</div>
+	
+	<div style="margin-top:10px;margin-bottom:10px;font-weight:bold;">Forward Geocode: 444 Castro Street</div>
+	<div id="fgc">Fetching...</div>
+
+	<div style="margin-bottom:10px;margin-top:10px;;font-weight:bold;">Reverse Geocode: 444 Castro Street</div>
+	<div id="rgc">Fetching...</div>
+
 	
 	<script>
 	var count =0;
 	var count2 = 0;
+	var count3 =0;
+	var count4 = 0;
 	Titanium.Geolocation.getCurrentPosition(
 		function(pos)
 		{
@@ -94,34 +117,115 @@
 		}, 
 		function()
 		{
-
-		}
+		},
+		{enableHighAccuracy:true}
 	);
 	
-	Titanium.Geolocation.forwardGeocoder("444 Castro Street, Mountain View, CA 94041",function(evt)
+	if (Titanium.Platform.name == 'android')
 	{
-		document.getElementById("fgc").innerHTML = "latitude: "+evt.latitude + ", longitude: " + evt.longitude;
-		
-		Titanium.Geolocation.reverseGeocoder(evt.latitude,evt.longitude,function(evt)
-		{
-			if (!evt.success)
-			{
-				document.getElementById("rgc").innerHTML = "Failed";
-			}
-			else
-			{
-				var html = '<UL>';
-				var places = evt.places;
-				for (var c=0;c<places.length;c++)
-				{
-					html+='<LI>'+Titanium._JSON(places[c])+'</LI>';
-				}
-				html+='</UL>';
-				document.getElementById("rgc").innerHTML = html;
-			}
-		});
-	});
+		document.getElementById("fgc").innerHTML = "Forward Geocoding not available yet on Android";
+		document.getElementById("rgc").innerHTML = "Reverse Geocoding not available yet on Android";
+		document.getElementById("compass").innerHTML = "No compass reading available on Android";
+		document.getElementById("magneticfield").innerHTML = "No compass reading available on Android";
 
+		document.getElementById("callcount3").innerHTML = "Call count: Not available";
+		document.getElementById("timestamp3").innerHTML = "Timestamp: Not available";
+		document.getElementById("accuracy3").innerHTML = "Accuracy: Not available";
+		document.getElementById("magnetic").innerHTML = "Magnetic Heading: Not available";
+		document.getElementById("trueheading").innerHTML = "True Heading: Not available";
+		document.getElementById("x").innerHTML ="x: Not available";
+		document.getElementById("y").innerHTML = "y: Not available";
+		document.getElementById("z").innerHTML = "z: Not available";
+
+		document.getElementById("callcount4").innerHTML = "Call count: Not available";
+		document.getElementById("timestamp4").innerHTML = "Timestamp: Not available";
+		document.getElementById("accuracy4").innerHTML = "Accuracy: Not available";
+		document.getElementById("magnetic2").innerHTML = "Magnetic Heading: Not available";
+		document.getElementById("trueheading2").innerHTML = "True Heading: Not available";
+		document.getElementById("x2").innerHTML ="x: Not available";
+		document.getElementById("y2").innerHTML = "y: Not available";
+		document.getElementById("z2").innerHTML = "z: Not available";
+	}
+	else
+	{
+		//NOTE: compass is currently only available on iPhone in 0.8
+		
+		function magneticStrength(heading)
+		{
+		    // Compute and display the magnitude (size or strength) of the vector.
+			//  magnitude = sqrt(x^2 + y^2 + z^2)
+			
+			var magnitude = Math.sqrt(heading.x*heading.x + heading.y*heading.y + heading.z*heading.z);
+			
+			document.getElementById("magneticfield").innerHTML = Math.round(magnitude);
+		}
+		
+		Titanium.Geolocation.watchHeading(
+			function(pos){
+				count3++;
+
+				document.getElementById("callcount3").innerHTML = "Call count: "+count3;
+				document.getElementById("timestamp3").innerHTML = "Timestamp: "+pos.timestamp;
+				document.getElementById("accuracy3").innerHTML = "Accuracy: "+pos.accuracy;
+				document.getElementById("magnetic").innerHTML = "Magnetic Heading: "+pos.magneticHeading;
+				document.getElementById("trueheading").innerHTML = "True Heading: "+pos.trueHeading;
+				document.getElementById("x").innerHTML = "x: "+pos.x;
+				document.getElementById("y").innerHTML = "y: "+pos.y;
+				document.getElementById("z").innerHTML = "z: "+pos.z;
+				magneticStrength(pos);
+			},
+			function(){
+			
+			}
+		);
+
+		Titanium.Geolocation.getCurrentHeading(
+			function(pos){
+				count4++;
+
+				document.getElementById("callcount4").innerHTML = "Call count: "+count4;
+				document.getElementById("timestamp4").innerHTML = "Timestamp: "+pos.timestamp;
+				document.getElementById("accuracy4").innerHTML = "Accuracy: "+pos.accuracy;
+				document.getElementById("magnetic2").innerHTML = "Magnetic Heading: "+pos.magneticHeading;
+				document.getElementById("trueheading2").innerHTML = "True Heading: "+pos.trueHeading;
+				document.getElementById("x2").innerHTML = "x: "+pos.x;
+				document.getElementById("y2").innerHTML = "y: "+pos.y;
+				document.getElementById("z2").innerHTML = "z: "+pos.z;
+				
+				magneticStrength(pos);
+			},
+			function(){
+			
+			}
+		);
+		
+		Titanium.Geolocation.forwardGeocoder("444 Castro Street, Mountain View, CA 94041",function(evt)
+		{
+			document.getElementById("fgc").innerHTML = "latitude: "+evt.latitude + ", longitude: " + evt.longitude;
+
+			Titanium.Geolocation.reverseGeocoder(evt.latitude,evt.longitude,function(evt)
+			{
+				if (!evt.success)
+				{
+					document.getElementById("rgc").innerHTML = "Failed";
+				}
+				else
+				{
+					var html = '<UL>';
+					var places = evt.places;
+					for (var c=0;c<places.length;c++)
+					{
+						html+='<LI>'+Titanium._JSON(places[c])+'</LI>';
+					}
+					html+='</UL>';
+					document.getElementById("rgc").innerHTML = html;
+				}
+			});
+		});
+
+		document.getElementById("compass").innerHTML = Titanium.Geolocation.hasCompass ? "Compass present" : "No compass present";
+	}
+	
 	
 	</script>
 </body>
