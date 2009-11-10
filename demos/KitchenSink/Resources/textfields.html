@@ -9,7 +9,7 @@
 	<div id="textfield1_value" style="margin-top:5px;margin-bottom:20px;color:#999;height:10px"></div>
 
 	<div style="margin-bottom:5px;height:10px">Numbers and Punc Keyboard / GO Return Key</div>	
-	<div id="textfield2" style="height:30px"></div>
+	<div id="textfield2" style="height:50px"></div>
 	<div id="textfield2_value" style="margin-top:5px;margin-bottom:20px;color:#999;height:10px;"></div>
 
 	<div style="margin-bottom:5px;height:10px">URL Keyboard / JOIN Return Key</div>	
@@ -37,7 +37,7 @@
 	
 
 	var refresh = Titanium.UI.createButton({
-		image:'chat.png',
+		backgroundImage:'chat.png',
 	});
 	
 	var tf1 = Titanium.UI.createTextField({
@@ -66,9 +66,8 @@
 
 	var tf2 = Titanium.UI.createTextField({
 		id:'textfield2',
-		value:'helloèëé',
+		value:'vertically aligned? helloèëé',
 		color:'#336699',
-		backgroundImage:'chat.png',
 		returnKeyType:Titanium.UI.RETURNKEY_GO,
 		enableReturnKey:false,
 		keyboardType:Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
@@ -77,6 +76,7 @@
 		textAlign:'left',
 		clearOnEdit:false,
 		fontSize:20,
+		height:50,
 		borderStyle:Titanium.UI.INPUT_BORDERSTYLE_BEZEL,
 		clearButtonMode:Titanium.UI.INPUT_BUTTONMODE_NEVER,
 	});
