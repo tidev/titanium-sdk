@@ -177,7 +177,7 @@ function test2()
 {
 try{
 	var buttonData = [
-		{title:null,image:'images/one.png'},
+		{title:null,image:'images/one.png',backgroundImage:'Safari.png',selectedBackgroundImage:'Phone.png'},
 		{image:'images/two.png',backgroundColor:'#00FFFF'}
 	];
 
@@ -229,7 +229,7 @@ try{
 //		Ti.API.debug(e.toString());
 		Titanium.UI.createAlertDialog({title:"Input!",message:('Button:'+e.index)}).show();
 	});
-	var groupedView = Titanium.UI.iPhone.createGroupedView({template:{title:'Button?',backgroundColor:'#FFFF00'}});
+	var groupedView = Titanium.UI.iPhone.createGroupedView({backgroundColor:'transparent',template:{title:'Button?',backgroundColor:'#FFFF00'}});
 //{data:data,rowHeight:80}, function(eventObject) {
 //		var rowData = eventObject.rowData;
 //
@@ -253,7 +253,7 @@ try{
 //	groupedView.setLeftNavButton(Ti.UI.createButton({systemButton:'rewind'}));
 
 //	groupedView.setLeftNavButton(null);
-	var winny = Ti.UI.createWindow({views:[groupedView]});
+	var winny = Ti.UI.createWindow({backgroundImage:'Default.png',views:[groupedView]});
 //	winny.addView(groupedView);
 	winny.open();
 //	groupedView.open({animated:false});

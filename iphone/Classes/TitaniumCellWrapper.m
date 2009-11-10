@@ -374,7 +374,8 @@
 			imageKeys = [templateKeys mutableCopy];
 		}
 	}
-
+	[imageKeys addObject:@"backgroundImage"];
+	[imageKeys addObject:@"selectedBackgroundImage"];
 
 	NSArray * oldKeys = [imagesCache allKeys];
 	for (NSString * thisKey in oldKeys) {

@@ -79,6 +79,8 @@ typedef enum {
 	NSLock * actionLock;
 	NSMutableArray * actionQueue;
 
+	UIColor * backgroundColor;
+
 	TitaniumCellWrapper * templateCell;
 }
 
