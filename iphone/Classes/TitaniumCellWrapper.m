@@ -391,7 +391,7 @@
 	
 	
 	for (NSString * thisKey in imageKeys) {
-		[self noteImage:@"image" relativeToUrl:baseUrl];
+		[self noteImage:thisKey relativeToUrl:baseUrl];
 	}
 
 

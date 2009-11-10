@@ -138,6 +138,7 @@ typedef enum {
 - (void) unregisterThread:(TitaniumCmdThread *) thread;
 - (TitaniumCmdThread *) threadForToken: (NSString *) token;
 - (TitaniumCmdThread *) currentThread;
+- (NSString *)	doTitaniumMethod:(NSURL *)functionUrl withArgumentString:(NSString *)argString;
 
 #pragma mark Module registration
 - (TitaniumModule *) moduleNamed: (NSString *) moduleClassName;
