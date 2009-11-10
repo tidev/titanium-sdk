@@ -10,43 +10,48 @@
 #import	"TitaniumBlobWrapper.h"
 #import "UiModule.h"
 
-#import "LayoutConstraint.h"
-#import "WebFont.h"
-
-typedef enum {
-	LayoutEntryText,
-	LayoutEntryImage,
-	LayoutEntryButton,
-} LayoutEntryType;
-
-@interface LayoutEntry : NSObject
-{
-	LayoutEntryType type;
-	LayoutConstraint constraint;
-	TitaniumFontDescription labelFont;
-	UIColor * textColor;
-	NSString * name;
-}
-
-+ (LayoutEntry *) layoutWithDictionary: (NSDictionary *) layoutDict;
-
-@property(nonatomic,readwrite,assign)	LayoutEntryType type;
-@property(nonatomic,readwrite,assign)	LayoutConstraint constraint;
-@property(nonatomic,readwrite,assign)	TitaniumFontDescription labelFont;
-@property(nonatomic,readwrite,copy)		UIColor * textColor;
-@property(nonatomic,readwrite,copy)		NSString * name;
-
-@end
-
 @implementation LayoutEntry
-@synthesize type,constraint,labelFont,textColor,name;
+@synthesize type,constraint,labelFont,textColor,nameString,selectedTextColor;
 
-+ (LayoutEntry *) layoutWithDictionary: (NSDictionary *) layoutDict;
+- (id) initWithDictionary: (NSDictionary *) inputDict;
 {
-	LayoutEntry * result = [[[self alloc] init] autorelease];
+	self = [super init];
+	if (self != nil) {
+		NSString * typeString = [inputDict objectForKey:@"type"];
+		
+		if([@"text" isEqual:typeString]){
+			type = LayoutEntryText;
+		} else if ([@"image" isEqual:typeString]) {
+			type = LayoutEntryImage;
+		} else if ([@"button" isEqual:typeString]) {
+			type = LayoutEntryButton;
+		} else {
+			[self release];
+			return nil;
+		}
 	
-	return result;
+	
+		NSString * possibleName = [inputDict objectForKey:@"name"];
+		if([possibleName isKindOfClass:[NSString class]])[self setNameString:possibleName];
+
+		ReadConstraintFromDictionary(&constraint, inputDict);
+		UpdateFontDescriptionFromDict(inputDict, &labelFont);
+
+		textColor = [UIColorWebColorNamed([inputDict objectForKey:@"color"]) retain];
+		selectedTextColor = [UIColorWebColorNamed([inputDict objectForKey:@"selectedColor"]) retain];
+		
+		
+	}
+	return self;
 }
+
+- (void) dealloc
+{
+	[textColor release];
+	[nameString release];
+	[super dealloc];
+}
+
 
 @end
 
@@ -82,6 +87,16 @@ typedef enum {
 	[imagesCache release];
 	[jsonValues release];
 	[super dealloc];
+}
+
+- (UIColor *) colorForKey:(NSString *) key;
+{
+	id result = [jsonValues objectForKey:key];
+	
+	//Okay, if it's blank, we default to the template. If there is no template, we get nil anyways.
+	if(result == nil) return [templateCell colorForKey:key];
+	
+	return UIColorWebColorNamed(result);
 }
 
 - (NSString *) stringForKey: (NSString *) key;
@@ -297,6 +312,8 @@ typedef enum {
 
 - (void) useProperties: (NSDictionary *) propDict withUrl: (NSURL *) baseUrl;
 {
+	Class dictClass = [NSDictionary class];
+
 	[self willChangeValueForKey:@"jsonValues"];
 	if (jsonValues != nil) {
 		[jsonValues removeAllObjects];
@@ -313,6 +330,23 @@ typedef enum {
 		} else {
 			layoutArray = [[NSMutableArray alloc] initWithCapacity:[newlayoutArray count]];
 		}
+		
+		if (imageKeys == nil) {
+			imageKeys = [[NSMutableSet alloc] init];
+		} else {
+			[imageKeys removeAllObjects];
+		}		
+		
+		for (NSDictionary * thisLayoutDict in newlayoutArray) {
+			if(![thisLayoutDict isKindOfClass:dictClass])continue;
+			LayoutEntry * thisLayout = [[LayoutEntry alloc] initWithDictionary:thisLayoutDict];
+			[layoutArray addObject:thisLayout];
+			if ([thisLayout type]==LayoutEntryImage) {
+				[imageKeys addObject:[thisLayout nameString]];
+			}
+			[thisLayout release];
+		}
+		
 		
 		//Generate actual layoutArray and image Keys from layoutArray.
 		
@@ -374,7 +408,7 @@ typedef enum {
 	else rowHeight = 0;
 	
 	NSDictionary * inputProxyDict = [propDict objectForKey:@"input"];
-	if ([inputProxyDict isKindOfClass:[NSDictionary class]]){
+	if ([inputProxyDict isKindOfClass:dictClass]){
 		UiModule * theUiModule = (UiModule *)[[TitaniumHost sharedHost] moduleNamed:@"UiModule"];
 		NativeControlProxy * thisInputProxy = [theUiModule proxyForObject:inputProxyDict scan:YES recurse:YES];
 		if (thisInputProxy != nil) [self setInputProxy:thisInputProxy];

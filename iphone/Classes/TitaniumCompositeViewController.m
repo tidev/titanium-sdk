@@ -13,7 +13,10 @@
 
 -(void) positionView: (UIView *) subView inView: (UIView *) superView bounds: (CGSize) viewBounds;
 {
-	ApplyConstraintToViewWithinViewWithBounds(&constraint, subView, superView, viewBounds);
+	CGRect viewRect;
+	viewRect.origin=CGPointZero;
+	viewRect.size=viewBounds;
+	ApplyConstraintToViewWithinViewWithBounds(&constraint, subView, superView, viewRect);
 }
 
 - (void) readConstraints:(NSDictionary *) inputDict;
@@ -42,7 +45,7 @@
 		[view setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
 		NSEnumerator * viewEnumerator = [contentViewControllers objectEnumerator];
 		for(TitaniumCompositeRule * thisRule in contentRules){
-			[thisRule positionView:[viewEnumerator nextObject] inView:view bounds:preferredViewSize];
+			[thisRule positionView:[[viewEnumerator nextObject] view] inView:view bounds:preferredViewSize];
 		}
 		[pendingRules release];
 		pendingRules = nil;
@@ -63,7 +66,7 @@
 	[pendingRules release];
 	[contentRules release];
 	[pendingViewControllers release];
-	[contentViewControllers release];
+	[contentViewControllers autorelease];
     [super dealloc];
 }
 

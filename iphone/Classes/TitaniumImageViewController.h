@@ -8,16 +8,26 @@
 #import <UIKit/UIKit.h>
 #import "TitaniumContentViewController.h"
 
+@class TitaniumImageView;
+@protocol TitaniumImageViewDelegate
+
+@optional
+- (void) imageView: (TitaniumImageView *)touchedImage touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
+
+@end
+
+
+
 @interface TitaniumImageView : UIImageView
 {
-	id	delegate;
+	id<TitaniumImageViewDelegate>	delegate;
 }
-@property(nonatomic,readwrite,assign)	id delegate;
+@property(nonatomic,readwrite,assign)	id<TitaniumImageViewDelegate> delegate;
 
 @end
 
 @class TitaniumBlobWrapper;
-@interface TitaniumImageViewController : TitaniumContentViewController<UIScrollViewDelegate> {
+@interface TitaniumImageViewController : TitaniumContentViewController<UIScrollViewDelegate,TitaniumImageViewDelegate> {
 	TitaniumImageView * imageView;
 	UIScrollView * scrollView;
 
@@ -31,6 +41,5 @@
 @property(nonatomic,readwrite,retain)	TitaniumBlobWrapper * singleImageBlob;
 - (void) setUrl: (NSURL *) newUrl;
 - (UIImage *) singleImage;
-- (void) handleTouch: (UITouch *) ourTouch;
 
 @end

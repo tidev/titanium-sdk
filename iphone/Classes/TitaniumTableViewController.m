@@ -12,6 +12,7 @@
 
 #import "WebTableViewCell.h"
 #import "ValueTableViewCell.h"
+#import "ComplexTableViewCell.h"
 
 #import "NativeControlProxy.h"
 
@@ -380,6 +381,14 @@ UIColor * checkmarkColor = nil;
 	NSNumber * isGrouped = [inputState objectForKey:@"grouped"];
 	SEL boolSel = @selector(boolValue);
 
+	NSDictionary * templateDict = [inputState objectForKey:@"template"];
+	if([templateDict isKindOfClass:dictClass]){
+		[templateCell release];
+		templateCell = [[TitaniumCellWrapper alloc] init];
+		[templateCell useProperties:templateDict withUrl:baseUrl];
+	}
+	
+
 	if ([isGrouped respondsToSelector:boolSel]){
 		tableStyle = [isGrouped boolValue] ? UITableViewStyleGrouped : UITableViewStylePlain;
 	} else {
@@ -581,6 +590,9 @@ UIColor * checkmarkColor = nil;
 	UITableViewCellAccessoryType ourType = [rowWrapper accessoryType];
 	UITableViewCell * result = nil;
 
+	id activeLayoutArray=[rowWrapper layoutArray];
+	if(activeLayoutArray==nil)activeLayoutArray = [templateCell layoutArray];
+
 	if (htmlString != nil){ //HTML cell
 		result = [ourTableView dequeueReusableCellWithIdentifier:@"html"];
 		if (result == nil) {
@@ -588,6 +600,14 @@ UIColor * checkmarkColor = nil;
 			result = [[[WebTableViewCell alloc] initWithFrame:standardSize reuseIdentifier:@"html"] autorelease];
 		}
 		[(WebTableViewCell *)result setHTML:htmlString];
+	} else if ([activeLayoutArray isKindOfClass:[NSArray class]]) {
+		result = [ourTableView dequeueReusableCellWithIdentifier:@"complex"];
+		if(result == nil){
+			result = [[[ComplexTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"complex"] autorelease];
+		}
+		[(ComplexTableViewCell *)result setDataWrapper:rowWrapper];
+		[sectionLock unlock];
+		return result;
 		
 	} else if ([rowWrapper isButton]) {
 		result = [ourTableView dequeueReusableCellWithIdentifier:@"button"];
@@ -625,6 +645,10 @@ UIColor * checkmarkColor = nil;
 	[(id)result setImage:[rowWrapper image]];
 	[result setAccessoryType:ourType];
 	[result setAccessoryView:[[rowWrapper inputProxy] nativeView]];
+	UIColor * bgColor = [rowWrapper colorForKey:@"backgroundColor"];
+	if(bgColor != nil)[result setBackgroundColor:bgColor];
+	else [result setBackgroundColor:[UIColor whiteColor]];
+
 
 	[sectionLock unlock];
 	return result;
@@ -657,6 +681,9 @@ UIColor * checkmarkColor = nil;
 	if(result > 1.0) return result;
 
 	result = [ourTableSection rowHeight];
+	if(result > 1.0) return result;
+
+	result = [templateCell rowHeight];
 	if(result > 1.0) return result;
 
 	return tableRowHeight;

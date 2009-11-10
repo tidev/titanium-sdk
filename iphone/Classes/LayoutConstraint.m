@@ -8,79 +8,79 @@
 #import "LayoutConstraint.h"
 #import "QuartzCore/QuartzCore.h"
 
-CGRect ApplyConstraintToSizeWithResizing(LayoutConstraint * constraint,CGSize viewBounds,UIViewAutoresizing * resultResizing)
+CGRect ApplyConstraintToRectWithResizing(LayoutConstraint * constraint,CGRect viewBounds,UIViewAutoresizing * resultResizing)
 {
 	CGRect resultFrame;
 	UIViewAutoresizing resultMask;
 	
 	if(constraint->hasLeftConstraint){
-		resultFrame.origin.x = constraint->left;
+		resultFrame.origin.x = constraint->left+viewBounds.origin.x;
 		if(constraint->hasRightConstraint){
-			resultFrame.size.width = viewBounds.width-(constraint->left+constraint->right);
+			resultFrame.size.width = viewBounds.size.width-(constraint->left+constraint->right);
 			resultMask = UIViewAutoresizingFlexibleWidth;
 		} else if(constraint->hasWidthConstraint){
 			resultFrame.size.width = constraint->width;
 			resultMask = UIViewAutoresizingFlexibleRightMargin;
 		} else {
-			resultFrame.size.width = viewBounds.width-constraint->left;
+			resultFrame.size.width = viewBounds.size.width-constraint->left;
 			resultMask = UIViewAutoresizingFlexibleWidth;
 		}
 		
 	} else if(constraint->hasRightConstraint){
 		if(constraint->hasWidthConstraint){
 			resultFrame.size.width = constraint->width;
-			resultFrame.origin.x = viewBounds.width - (constraint->right+constraint->width);
+			resultFrame.origin.x = viewBounds.origin.x + viewBounds.size.width - (constraint->right+constraint->width);
 			resultMask = UIViewAutoresizingFlexibleLeftMargin;
 		} else {
-			resultFrame.origin.x = 0;
-			resultFrame.size.width = viewBounds.width - constraint->right;
+			resultFrame.origin.x = viewBounds.origin.x;
+			resultFrame.size.width = viewBounds.size.width - constraint->right;
 			resultMask = UIViewAutoresizingFlexibleWidth;
 		}
 		
 	} else if(constraint->hasWidthConstraint){
 		resultFrame.size.width = constraint->width;
-		resultFrame.origin.x = (viewBounds.width-constraint->width)/2;
+		resultFrame.origin.x = viewBounds.origin.x + (viewBounds.size.width-constraint->width)/2;
 		resultMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
 		
 	} else {
-		resultFrame.origin.x=0;
-		resultFrame.size.width=viewBounds.width;
+		resultFrame.origin.x=viewBounds.origin.x;
+		resultFrame.size.width=viewBounds.size.width;
 		resultMask = UIViewAutoresizingFlexibleWidth;
 	}
 	
 	
 	if(constraint->hasTopConstraint){
-		resultFrame.origin.y = constraint->top;
+		resultFrame.origin.y = constraint->top+viewBounds.origin.y;
 		if(constraint->hasBottomConstraint){
-			resultFrame.size.height = viewBounds.height-(constraint->top+constraint->bottom);
+			resultFrame.size.height = viewBounds.size.height-(constraint->top+constraint->bottom);
 			resultMask |= UIViewAutoresizingFlexibleHeight;
 		} else if(constraint->hasHeightConstraint){
 			resultFrame.size.height = constraint->height;
 			resultMask |= UIViewAutoresizingFlexibleBottomMargin;
 		} else {
-			resultFrame.size.height = viewBounds.height-constraint->top;
+			resultFrame.size.height = viewBounds.size.height-constraint->top;
 			resultMask |= UIViewAutoresizingFlexibleHeight;
 		}
 		
 	} else if(constraint->hasBottomConstraint){
 		if(constraint->hasHeightConstraint){
 			resultFrame.size.height = constraint->height;
-			resultFrame.origin.y = viewBounds.height - (constraint->bottom+constraint->height);
+			resultFrame.origin.y = viewBounds.size.height+viewBounds.origin.y - (constraint->bottom+constraint->height);
 			resultMask |= UIViewAutoresizingFlexibleTopMargin;
 		} else {
-			resultFrame.origin.y = 0;
-			resultFrame.size.height = viewBounds.height - constraint->bottom;
+			resultFrame.origin.y = viewBounds.origin.y;
+			resultFrame.size.height = viewBounds.size.height - constraint->bottom;
 			resultMask |= UIViewAutoresizingFlexibleHeight;
 		}
 		
 	} else if(constraint->hasHeightConstraint){
 		resultFrame.size.height = constraint->height;
-		resultFrame.origin.y = (viewBounds.height-constraint->height)/2;
+		resultFrame.origin.y = viewBounds.origin.y+(viewBounds.size.height-constraint->height)/2;
 		resultMask |= UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
 		
 	} else{
-		resultFrame.origin.y=0;
-		resultFrame.size.height = viewBounds.height;
+		resultFrame.origin.y=viewBounds.origin.y;
+		resultFrame.size.height = viewBounds.size.height;
 		resultMask |= UIViewAutoresizingFlexibleHeight;
 		
 	}	
@@ -89,14 +89,18 @@ CGRect ApplyConstraintToSizeWithResizing(LayoutConstraint * constraint,CGSize vi
 		return resultFrame;
 }
 
-void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint,UIView * subView,UIView * superView,CGSize viewBounds)
+void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint,UIView * subView,UIView * superView,CGRect viewBounds)
 {
 	UIViewAutoresizing resultMask;
 	CGRect resultFrame;
 	
-	resultFrame = ApplyConstraintToSizeWithResizing(constraint,viewBounds,&resultMask);
+	resultFrame = ApplyConstraintToRectWithResizing(constraint,viewBounds,&resultMask);
 	
-	[[subView layer] setZPosition:(constraint->hasZConstraint)?constraint->z:0];
+	id layer = [subView layer];
+	if ([layer respondsToSelector:@selector(setZPosition:)])
+	{
+		[layer setZPosition:(constraint->hasZConstraint)?constraint->z:0];
+	}
 	[subView setAutoresizingMask:resultMask];
 	[subView setFrame:resultFrame];
 	if([subView superview]!=superView)[superView addSubview:subView];

@@ -316,11 +316,11 @@
 {
 	region.center = coord;
 	region.span = span;
-	[view setRegion:region animated:animate];
 	if (regionFit)
 	{
-		[view regionThatFits:region];
+		region = [view regionThatFits:region];
 	}
+	[view setRegion:region animated:animate];
 }
 
 - (UIView *) view
