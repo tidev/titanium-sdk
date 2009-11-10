@@ -13,3 +13,4 @@ tigesture.js
 tigeo.js
 yahoo.js
 ticontacts.js
+timap.js
