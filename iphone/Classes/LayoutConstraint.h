@@ -32,8 +32,8 @@ typedef struct {
 } LayoutConstraint;
 
 
-CGRect ApplyConstraintToSizeWithResizing(LayoutConstraint * constraint,CGSize viewBounds,UIViewAutoresizing * resultResizing);
-void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint,UIView * subView,UIView * superView,CGSize viewBounds);
+CGRect ApplyConstraintToRectWithResizing(LayoutConstraint * constraint,CGRect viewBounds,UIViewAutoresizing * resultResizing);
+void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint,UIView * subView,UIView * superView,CGRect viewBounds);
 void ReadConstraintFromDictionary(LayoutConstraint * constraint, NSDictionary * inputDict);
 
 

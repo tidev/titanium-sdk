@@ -6,7 +6,36 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "LayoutConstraint.h"
 #import "WebFont.h"
+
+typedef enum {
+	LayoutEntryText,
+	LayoutEntryImage,
+	LayoutEntryButton,
+} LayoutEntryType;
+
+@interface LayoutEntry : NSObject
+{
+	LayoutEntryType type;
+	LayoutConstraint constraint;
+	TitaniumFontDescription labelFont;
+	UIColor * textColor;
+	UIColor * selectedTextColor;
+	NSString * nameString;
+}
+
+- (id) initWithDictionary: (NSDictionary *) inputDict;
+
+@property(nonatomic,readwrite,assign)	LayoutEntryType type;
+@property(nonatomic,readwrite,assign)	LayoutConstraint constraint;
+@property(nonatomic,readwrite,assign)	TitaniumFontDescription labelFont;
+@property(nonatomic,readwrite,copy)		UIColor * textColor;
+@property(nonatomic,readwrite,copy)		UIColor * selectedTextColor;
+@property(nonatomic,readwrite,copy)		NSString * nameString;
+
+@end
+
 
 @class TitaniumBlobWrapper, NativeControlProxy;
 

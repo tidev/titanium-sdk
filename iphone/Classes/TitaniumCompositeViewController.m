@@ -13,7 +13,10 @@
 
 -(void) positionView: (UIView *) subView inView: (UIView *) superView bounds: (CGSize) viewBounds;
 {
-	ApplyConstraintToViewWithinViewWithBounds(&constraint, subView, superView, viewBounds);
+	CGRect viewRect;
+	viewRect.origin=CGPointZero;
+	viewRect.size=viewBounds;
+	ApplyConstraintToViewWithinViewWithBounds(&constraint, subView, superView, viewRect);
 }
 
 - (void) readConstraints:(NSDictionary *) inputDict;

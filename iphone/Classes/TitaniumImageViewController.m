@@ -13,14 +13,20 @@
 @implementation TitaniumImageView
 @synthesize delegate;
 
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+- (id) initWithFrame: (CGRect) newFrame;
 {
-	UITouch * ourTouch = [[event touchesForView:self] anyObject];
-	CGPoint ourTouchLocation = [ourTouch locationInView:self];
-	CGRect ourBounds = [self bounds];
-	if(!CGRectContainsPoint(ourBounds, ourTouchLocation))return;
-	
-	if([delegate respondsToSelector:@selector(handleTouch:)])[delegate handleTouch:ourTouch];
+	self = [super initWithFrame:newFrame];
+	if (self != nil) {
+		[self setUserInteractionEnabled:YES];
+	}
+	return self;
+}
+
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{	
+	if([delegate respondsToSelector:@selector(imageView:touchesEnded:withEvent:)])
+		[delegate imageView:self touchesEnded:touches withEvent:event];
 }
 
 
@@ -84,7 +90,6 @@
 	viewFrame.size = preferredViewSize;
 	if(imageView==nil){
 		imageView = [[TitaniumImageView alloc] initWithFrame:viewFrame];
-		[imageView setUserInteractionEnabled:YES];
 		[imageView setDelegate:self];
 		[imageView setImage:[self singleImage]];
 	}
@@ -150,8 +155,13 @@
 
 #pragma mark Callbacks
 
-- (void) handleTouch: (UITouch *) ourTouch;
+- (void) imageView: (TitaniumImageView *)touchedImage touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
 {
+	UITouch * ourTouch = [[event touchesForView:imageView] anyObject];
+	CGPoint ourTouchLocation = [ourTouch locationInView:imageView];
+	CGRect ourBounds = [imageView bounds];
+	if(!CGRectContainsPoint(ourBounds, ourTouchLocation))return;
+	
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	NSString * pathString = [self javaScriptPath];
 	NSString * commandString = [NSString stringWithFormat:@"%@.doEvent('click',{type:'click'});",pathString];	
