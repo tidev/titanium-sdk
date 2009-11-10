@@ -461,7 +461,7 @@ UIColor * checkmarkColor = nil;
 	
 	[actionQueue release];
 	[actionLock release];
-	
+	[borderColor release];
     [super dealloc];
 }
 
