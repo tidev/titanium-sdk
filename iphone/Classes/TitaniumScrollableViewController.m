@@ -330,7 +330,7 @@ typedef int UIEventSubtype;
 	CGSize scrollFrame = [scrollView frame].size;
 	CGFloat newPage=offset.x/scrollFrame.width;
 	currentPage = floor(newPage);
-	
+
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	NSString * pathString = [self javaScriptPath];
 	NSString * commandString = [NSString stringWithFormat:@"(function(){%@.currentPage=%d;"

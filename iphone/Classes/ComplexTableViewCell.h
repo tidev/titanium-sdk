@@ -7,10 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "TitaniumImageViewController.h"
 
 @class TitaniumCellWrapper;
-@interface ComplexTableViewCell : UITableViewCell {
+@interface ComplexTableViewCell : UITableViewCell<TitaniumImageViewDelegate> {
 	TitaniumCellWrapper * dataWrapper;
+	NSMutableArray * layoutViewsArray;
 }
 
 @property(nonatomic,readwrite,retain) TitaniumCellWrapper * dataWrapper;
