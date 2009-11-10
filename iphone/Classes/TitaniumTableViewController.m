@@ -312,7 +312,13 @@ UIColor * checkmarkColor = nil;
 		if(backgroundColor != nil)[tableView setBackgroundColor:backgroundColor];
 		if (tableRowHeight > 5){
 			[tableView setRowHeight:tableRowHeight];
-		}		
+		}
+		if([borderColor isEqual:[UIColor clearColor]]){
+			[tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+		} else {
+			[tableView setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
+			if(borderColor != nil)[tableView setSeparatorColor:borderColor];
+		}
 	}
 	return tableView;
 }
@@ -385,6 +391,12 @@ UIColor * checkmarkColor = nil;
 	NSNumber * isGrouped = [inputState objectForKey:@"grouped"];
 	SEL boolSel = @selector(boolValue);
 
+	if ([isGrouped respondsToSelector:boolSel]){
+		tableStyle = [isGrouped boolValue] ? UITableViewStyleGrouped : UITableViewStylePlain;
+	} else {
+		tableStyle = UITableViewStylePlain;
+	}
+	
 	NSDictionary * templateDict = [inputState objectForKey:@"template"];
 	if([templateDict isKindOfClass:dictClass]){
 		[templateCell release];
@@ -392,12 +404,8 @@ UIColor * checkmarkColor = nil;
 		[templateCell useProperties:templateDict withUrl:baseUrl];
 	}
 	
-
-	if ([isGrouped respondsToSelector:boolSel]){
-		tableStyle = [isGrouped boolValue] ? UITableViewStyleGrouped : UITableViewStylePlain;
-	} else {
-		tableStyle = UITableViewStylePlain;
-	}
+	[borderColor release];
+	borderColor = [UIColorWebColorNamed([inputState objectForKey:@"borderColor"]) retain];
 
 	NSNumber * tableRowHeightObject = [inputState objectForKey:@"rowHeight"];
 	

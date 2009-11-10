@@ -68,6 +68,8 @@ typedef enum {
 	CGFloat tableRowHeight;
 //	BOOL	useRowHeightCallback;
 	
+	UIColor * borderColor;
+	
 	NSLock * sectionLock;
 	NSMutableArray * sectionArray;
 	NSString * callbackWindowToken;
