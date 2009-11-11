@@ -468,8 +468,8 @@ var CompositeView = function(proxy) {
 	 */
 	this.addView = function(view,layout) {
 		if (!Ti.isUndefined(view)) {
-			if (!Ti.isUndefined(view.key)) {
-				this.proxy.addView(view.key, Ti.JSON.stringify(layout));
+			if (!Ti.isUndefined(view.getKey)) {
+				this.proxy.addView(view.getKey(), Ti.JSON.stringify(layout));
 			} else {
 				this.proxy.addView(view.proxy.getKey(),Ti.JSON.stringify(layout));
 			}
@@ -936,7 +936,13 @@ var UserWindow = function(proxy) {
 	 * @tiarg[View,view] The view object
 	 */
 	this.addView = function(view) {
-		this.proxy.addView(view.proxy);
+		if (!Ti.isUndefined(view)) {
+			if (!Ti.isUndefined(view.getKey)) {
+				this.proxy.addView(view.getKey());
+			} else {
+				this.proxy.addView(view.proxy.getKey());
+			}
+		}
 	};
 
 	/**
@@ -952,6 +958,9 @@ var UserWindow = function(proxy) {
 			v.key = this.proxy.getViewKey(i);
 			v.index = i;
 			v.name = this.proxy.getViewName(v.key);
+			v.getKey = function() {
+				return this.key;
+			};
 			v.addEventListener = function(eventName, listener) {
 				return this.window.addEventListener(this.key, eventName, registerCallback(this, listener));
 			};
@@ -989,8 +998,8 @@ var UserWindow = function(proxy) {
 		} else {
 			options = Ti.JSON.stringify(options);
 		}
-		if(!Ti.isUndefined(view.key)) {
-			this.proxy.showViewByKey(view.key, options);
+		if(!Ti.isUndefined(view.getKey)) {
+			this.proxy.showViewByKey(view.getKey(), options);
 		} else {
 			this.proxy.showView(view.proxy, options);
 		}

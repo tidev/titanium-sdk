@@ -9,30 +9,51 @@ package org.appcelerator.titanium.module.map;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.TitaniumBaseModule;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TitaniumActivityHelper;
 import org.appcelerator.titanium.util.TitaniumDispatchException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapView;
-
 import android.app.LocalActivityManager;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.Message;
+import android.view.Window;
 import android.webkit.WebView;
+import android.widget.FrameLayout;
+
+import com.google.android.maps.GeoPoint;
+import com.google.android.maps.MapActivity;
+import com.google.android.maps.MapController;
+import com.google.android.maps.MapView;
 
 public class TitaniumMap extends TitaniumBaseModule
 {
 	private static final String LCAT = "TiMap";
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
-	public TitaniumMap(TitaniumModuleManager manager, String moduleName) {
-		super(manager, moduleName);
+	private static final int MSG_CREATE_MAPVIEW = 300;
+
+	private static LocalActivityManager lam;
+	private static Window mapWindow;
+
+	class Holder extends Semaphore {
+		private static final long serialVersionUID = 1L;
+		public Holder() {
+			super(0);
+		}
+		public Object o;
+	}
+
+	public TitaniumMap(TitaniumModuleManager tmm, String moduleName) {
+		super(tmm, moduleName);
 	}
 
 	@Override
@@ -41,7 +62,48 @@ public class TitaniumMap extends TitaniumBaseModule
 			Log.d(LCAT, "Registering TitaniumMap as " + moduleName + " using TitaniumMethod.");
 		}
 
-		tmm.registerModule(moduleName, this);
+		tmm.registerInstance(moduleName, this);
+
+		lam = new LocalActivityManager(TitaniumActivityHelper.getRootActivity(tmm.getActivity()), true);
+		lam.dispatchCreate(null);
+	}
+
+
+	@Override
+	public boolean handleMessage(Message msg) {
+		boolean handled = super.handleMessage(msg);
+		if (!handled) {
+			switch(msg.what) {
+			case MSG_CREATE_MAPVIEW :
+				if (DBG) {
+					Log.d(LCAT, "Creating MapView");
+				}
+				Holder h = (Holder) msg.obj;
+
+				mapWindow = lam.startActivity("TIMAP", new Intent(tmm.getAppContext(), TitaniumMapActivity.class));
+				h.o = new TitaniumMapView(tmm, mapWindow);
+				handled = true;
+
+				h.release();
+				break;
+			}
+		}
+
+		return handled;
+	}
+
+	private Object create(int what)
+	{
+		Holder h = new Holder();
+		handler.obtainMessage(what, h).sendToTarget();
+		synchronized (h) {
+			try {
+				h.acquire();
+			} catch (InterruptedException e) {
+				Log.w(LCAT, "Interrupted while waiting for object construction: ", e);
+			}
+		}
+		return h.o;
 	}
 
 	public void reverseGeocoder(JSONObject coordinate, String callback) {
@@ -113,4 +175,75 @@ public class TitaniumMap extends TitaniumBaseModule
 		}
 	}
 
+	public String createMapView()
+	{
+		if (mapWindow != null) {
+			throw new TitaniumDispatchException("MapView already created. Android can only support one MapView per Application.", moduleName);
+		}
+		TitaniumMapView tmv = (TitaniumMapView) create(MSG_CREATE_MAPVIEW);
+		String name = tmm.generateId("TitaniumMapView");
+		tmm.registerInstance(name, tmv);
+
+		return name;
+	}
+
+	public void test() {
+		if (mapWindow == null) {
+
+			mapWindow = lam.startActivity("TIMAP", new Intent(tmm.getAppContext(), TitaniumMapActivity.class));
+
+			tmm.getActivity().runOnUiThread(new Runnable(){
+
+				public void run() {
+					MapActivity ma = (MapActivity) mapWindow.getContext();
+					MapView mv = new MapView(mapWindow.getContext(), "0Rq5tT4bUSXcVQ3F0gt8ekVBkqgn05ZJBQMj6uw");
+					ma.setContentView(mv);
+
+					tmm.getActivity().addContentView(mapWindow.getDecorView(),new FrameLayout.LayoutParams(300,300));
+
+					mv.setBuiltInZoomControls(true);
+					MapController mc = mv.getController();
+					//32.941238, longitude : -97.130447
+					int lat = (int)(32.941238 * 1000000);
+					int lng = (int)(-97.130447 * 1000000);
+					GeoPoint gp = new GeoPoint(lat,lng);
+					mc.setCenter(gp);
+					mc.setZoom(11);
+				}});
+
+			Log.d(LCAT, "Starting new map activity");
+		} else {
+			Log.d(LCAT, "Map activity already started");
+		}
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (mapWindow != null) {
+			mapWindow.closeAllPanels();
+			mapWindow = null;
+		}
+		if (lam != null) {
+			lam.dispatchDestroy(true);
+			lam.removeAllActivities();
+			lam = null;
+		}
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		if (lam != null) {
+			lam.dispatchPause(false);
+		}
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		if (lam != null) {
+			lam.dispatchResume();
+		}
+	}
 }

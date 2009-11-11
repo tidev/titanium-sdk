@@ -30,7 +30,12 @@
     		android:configChanges="keyboardHidden|orientation"
             android:launchMode="singleTask"
     	></activity>
-
+    	<activity
+    		android:name="org.appcelerator.titanium.module.map.TitaniumMapActivity"
+    		android:configChanges="keyboardHidden|orientation"
+    		android:launchMode="singleTask"
+    	/>
+    	<uses-library android:name="com.google.android.maps" />
 <!-- 	<provider
 			android:authorities="org.appcelerator.tichooser.titanium"
 			android:name="org.appcelerator.titanium.TitaniumContentProvider"

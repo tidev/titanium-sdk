@@ -7,13 +7,13 @@
 
 package org.appcelerator.titanium.module;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.FileOutputStream;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumDB;
@@ -22,14 +22,12 @@ import org.appcelerator.titanium.api.ITitaniumFile;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.db.TitaniumDB;
 import org.appcelerator.titanium.module.fs.TitaniumFileFactory;
-import org.appcelerator.titanium.util.TitaniumUrlHelper;
 import org.appcelerator.titanium.util.Log;
 
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.webkit.WebView;
-import android.net.Uri;
 
 public class TitaniumDatabase extends TitaniumBaseModule implements
 		ITitaniumDatabase
