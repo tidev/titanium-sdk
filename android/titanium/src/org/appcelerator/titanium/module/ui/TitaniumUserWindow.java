@@ -101,7 +101,8 @@ public class TitaniumUserWindow extends ViewAnimator
 		this.url = null;
 
 		TitaniumUIWebView uiWebView = new TitaniumUIWebView(tmm);
-        addView((ITitaniumView) uiWebView); // Make it views[0]
+		String key = uiWebView.getKey();
+        addView(key); // Make it views[0]
 		uiWebView.setUrl(url);
 
 		TitaniumWindowInfo windowInfo = tmm.getActivity().getWindowInfo();
@@ -345,8 +346,9 @@ public class TitaniumUserWindow extends ViewAnimator
 		}
 	}
 
-    public void addView(ITitaniumView view) {
+    public void addView(String key) {
      	synchronized(views) {
+     		ITitaniumView view = getViewFromKey(key);
     		views.add(view);
     		Log.e(LCAT, "ADDING VIEW: " + view + " with Key: " + view.getKey());
     	}

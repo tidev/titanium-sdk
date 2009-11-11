@@ -1,0 +1,31 @@
+<html>
+<head>
+<title>Reverse Lookup</title>
+<script>
+var btn1 = Titanium.UI.createButton({id:'btn1', title : "Southlake"});
+btn1.addEventListener('click', function() {
+	document.getElementById("output").innerHTML = "&nbsp;";
+
+	Titanium.Geolocation.reverseGeocoder( {latitude: 32.941238, longitude : -97.130447 }, function(location) {
+		var h = "street1: " + location.street1 + "<br/>" +
+		"street2: " + location.street2 + "<br/>" +
+		"city: " + location.city + "<br/>" +
+		"region1: " + location.region1 + "<br/>" +
+		"region2: " + location.region2 + "<br/>" +
+		"postalCode: " + location.postalCode + "<br/>" +
+		"country: " + location.country + "<br/>" +
+		"countryCode: " + location.countryCode + "<br/>" +
+		"feature: " + location.feature + "<br/>" +
+		"phone: " + location.phone + "<br/>";
+
+		document.getElementById("output").innerHTML = h;
+	});
+});
+</script>
+</head>
+<body style='background-color: white'>
+<div id="btn1" style="width:120px;height:40px">&nbsp;</div>
+<div style="clear:both; padding-top:5px;" id="output">
+</div>
+</body>
+</html>

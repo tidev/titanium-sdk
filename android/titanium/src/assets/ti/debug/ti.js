@@ -72,9 +72,9 @@ var Ti = new function() {
 
 	this.Method = {
 		caller : this.apiProxy.acquireMethod(),
-		dispatchWithTypes : function(module, method, types, args) {
+		dispatchWithTypes : function(name, method, types, args) {
 			// force to JS String, boosts performance.
-			var r = eval("("+String(this.caller.call(Ti.JSON.stringify({ module : module, method : method, types : types, args : args})))+")");
+			var r = eval("("+String(this.caller.call(Ti.JSON.stringify({ name : name, method : method, types : types, args : args})))+")");
 			if (r.exception !== undefined) {
 				throw r.exception;
 			}
@@ -89,7 +89,7 @@ var Ti = new function() {
 			}
 
 		},
-		dispatch : function(module, method) {
+		dispatch : function(name, method) {
 			var args = [];
 			var types = [];
 
@@ -119,10 +119,10 @@ var Ti = new function() {
 					throw "Unknown argument type " + typeof a;
 				}
 			}
-			return this.dispatchWithTypes(module, method, types, args);
+			return this.dispatchWithTypes(name, method, types, args);
 		},
-		dispatchWithArguments : function(module, method, args) {
-			var argList = [module,method];
+		dispatchWithArguments : function(name, method, args) {
+			var argList = [name,method];
 			for(var i = 0; i < args.length; i++) {
 				argList.push(args[i]);
 			}

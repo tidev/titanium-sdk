@@ -39,7 +39,7 @@ public class TitaniumModuleManager
 	private Context appContext;
 	private WeakReference<TitaniumJSRefCache> weakObjectCache;
 
-	private HashMap<String, Object> registeredModules;
+	private HashMap<String, Object> registeredInvocables;
 
 	private long creationThreadId;
 	private String creationThreadName;
@@ -56,7 +56,7 @@ public class TitaniumModuleManager
 		this.softActivity = new SoftReference<TitaniumActivity>(activity);
 		this.webView = new TitaniumWebView(this, isWindow);
 		this.modules = new ArrayList<ITitaniumModule>();
-		this.registeredModules = new HashMap<String, Object>();
+		this.registeredInvocables = new HashMap<String, Object>();
 		this.appContext = activity.getApplicationContext();
 
 		if (idGenerator == null) {
@@ -172,16 +172,16 @@ public class TitaniumModuleManager
 		}
 	}
 
-	public void registerModule(String name, Object module) {
-		if (registeredModules.containsKey(name)) {
-			throw new IllegalStateException("Attempt to add another module with name: " + name);
+	public void registerInstance(String name, Object instance) {
+		if (registeredInvocables.containsKey(name)) {
+			throw new IllegalStateException("Attempt to add another object instance with name: " + name);
 		}
 
-		registeredModules.put(name, module);
+		registeredInvocables.put(name, instance);
 	}
 
-	public Object getModuleForName(String name) {
-		return registeredModules.get(name);
+	public Object getInstanceForName(String name) {
+		return registeredInvocables.get(name);
 	}
 
 	public void onResume() {
@@ -216,7 +216,7 @@ public class TitaniumModuleManager
 		}
 		softActivity.clear();
 		weakUIWebView.clear();
-		registeredModules.clear();
+		registeredInvocables.clear();
 		modules.clear();
 		webView.onDestroy();
 		appContext = null;
