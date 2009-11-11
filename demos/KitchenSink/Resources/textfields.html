@@ -1,7 +1,6 @@
 <html>
 <head>
 
-
 </head>
 <body  style="font-family:'Helvetica Neue';font-size:11px">
 	
@@ -10,8 +9,8 @@
 	<div id="textfield1_value" style="margin-top:5px;margin-bottom:20px;color:#999;height:10px"></div>
 
 	<div style="margin-bottom:5px;height:10px">Numbers and Punc Keyboard / GO Return Key</div>	
-	<div id="textfield2" style="height:30px"></div>
-	<div id="textfield2_value" style="margin-top:5px;margin-bottom:20px;color:#999;height:10px"></div>
+	<div id="textfield2" style="height:50px"></div>
+	<div id="textfield2_value" style="margin-top:5px;margin-bottom:20px;color:#999;height:10px;"></div>
 
 	<div style="margin-bottom:5px;height:10px">URL Keyboard / JOIN Return Key</div>	
 	<div id="textfield3" style="height:30px"></div>
@@ -36,29 +35,15 @@
 	
 	<script>
 	
-	// 
-	// ReturnKeyType : optional. valid values are: 
-	// Titanium.UI.RETURNKEY_GO 
-	// Titanium.UI.RETURNKEY_GOOGLE 
-	// Titanium.UI.RETURNKEY_JOIN 
-	// Titanium.UI.RETURNKEY_NEXT 
-	// Titanium.UI.RETURNKEY_ROUTE 
-	// Titanium.UI.RETURNKEY_SEARCH 
-	// Titanium.UI.RETURNKEY_YAHOO 
-	// Titanium.UI.RETURNKEY_DONE 
-	// Titanium.UI.RETURNKEY_EMERGENCY_CALL
 
 	var refresh = Titanium.UI.createButton({
-		title:'To:',
-		style:Titanium.UI.iPhone.SystemButtonStyle.PLAIN
-		
+		backgroundImage:'chat.png',
 	});
 	
 	var tf1 = Titanium.UI.createTextField({
 		id:'textfield1',
 		value:'hello',
 		color:'#336699',
-		backgroundColor:'#fff',
 		returnKeyType:Titanium.UI.RETURNKEY_GOOGLE,
 		enableReturnKey:true,
 		keyboardType:Titanium.UI.KEYBOARD_ASCII,
@@ -68,11 +53,12 @@
 		passwordMask:true,
 		clearOnEdit:true,
 		borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
-		clearButtonMode:Titanium.UI.INPUT_BUTTONMODE_ONFOCUS,
 		leftButton:refresh,
-		leftButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS
+		leftButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS,
+		rightButton:refresh,
+		rightButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS
+	
 	});
-
 	tf1.addEventListener('return',function(e)
 	{
 		document.getElementById('textfield1_value').innerHTML = ' You hit the return key, current value is ' + e.value;
@@ -80,9 +66,8 @@
 
 	var tf2 = Titanium.UI.createTextField({
 		id:'textfield2',
-		value:'hello',
+		value:'vertically aligned? helloèëé',
 		color:'#336699',
-		backgroundColor:'#eeeeee',
 		returnKeyType:Titanium.UI.RETURNKEY_GO,
 		enableReturnKey:false,
 		keyboardType:Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
@@ -90,6 +75,8 @@
 		hintText:'fieldone hint text',
 		textAlign:'left',
 		clearOnEdit:false,
+		fontSize:20,
+		height:50,
 		borderStyle:Titanium.UI.INPUT_BORDERSTYLE_BEZEL,
 		clearButtonMode:Titanium.UI.INPUT_BUTTONMODE_NEVER,
 	});

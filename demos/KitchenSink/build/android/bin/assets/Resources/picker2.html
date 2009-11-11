@@ -1,0 +1,68 @@
+<html>
+<head>
+	<script>
+	window.onload = function()
+	{
+		// adjust height
+		if (Titanium.Platform.name == 'android')
+		{
+			document.getElementById('picker').style.height="80px";
+		}
+		else
+		{
+			document.getElementById('picker').style.height="217px";
+
+		}
+
+		var minDate = new Date()
+		minDate.setFullYear(2009);
+		minDate.setMonth(0);
+		minDate.setDate(1)
+
+		var maxDate = new Date()
+		maxDate.setFullYear(2009);
+		maxDate.setMonth(11);
+		maxDate.setDate(31)
+
+		var value = new Date();
+		value.setFullYear(2009);
+		value.setMonth(0);
+		value.setDate(1);
+
+		// create date picker
+		var datePicker = Titanium.UI.createDatePicker({
+		    id:'picker',
+			minDate:minDate,
+			maxDate:maxDate,
+			value:value,
+		    mode:Titanium.UI.DatePicker.MODE_DATE_AND_TIME,
+		});
+
+		// add change listener for date picker
+		datePicker.addEventListener('change', function(e)
+		{
+		    document.getElementById('value').innerHTML = e.value;
+
+		});
+
+		// set date value
+		//datePicker.setValue(new Date(), {animated:true});
+
+		if (Titanium.Platform.name == 'android') {
+			document.getElementById('value').innerHTML = "DatePicker.MODE_DATE_AND_TIME. Not yet available on Android";
+		}
+
+	};
+
+
+	</script>
+
+</head>
+<body style="margin:0;padding:0;font-family:Helvetica Neue;font-size:18px;background-color: #fff">
+	<div style="margin:20px">
+		<p>Current Value</p>
+		<div id="value" style="font-weight:bold;color:#336699;font-size:14px"></div>
+	</div>
+	<div id="picker" style="position:absolute;bottom:0;height:80px;width:99%"></div>
+</body>
+</html>

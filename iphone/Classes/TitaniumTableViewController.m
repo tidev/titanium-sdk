@@ -662,8 +662,11 @@ UIColor * checkmarkColor = nil;
 	UIColor * bgColor = [rowWrapper colorForKey:@"backgroundColor"];
 	UIColor * selectedBgColor = [rowWrapper colorForKey:@"selectedBackgroundColor"];
 
-	UIImage * bgImage = [rowWrapper imageForKey:@"backgroundImage"]; //[rowWrapper stretchableImageForKey:@"backgroundImage"];
-	UIImage	* selectedBgImage = [rowWrapper imageForKey:@"selectedBackgroundImage"]; //[rowWrapper stretchableImageForKey:@"selectedBackgroundImage"];
+	// UIImage * bgImage = [rowWrapper imageForKey:@"backgroundImage"]; //[rowWrapper stretchableImageForKey:@"backgroundImage"];
+	// UIImage	* selectedBgImage = [rowWrapper imageForKey:@"selectedBackgroundImage"]; //[rowWrapper stretchableImageForKey:@"selectedBackgroundImage"];
+	UIImage * bgImage = [rowWrapper stretchableImageForKey:@"backgroundImage"];
+	UIImage	* selectedBgImage = [rowWrapper stretchableImageForKey:@"selectedBackgroundImage"];
+
 
 	if((tableStyle == UITableViewStyleGrouped) && (bgImage == nil)){
 		if(bgColor != nil)[result setBackgroundColor:bgColor];
@@ -673,9 +676,10 @@ UIColor * checkmarkColor = nil;
 		UIImageView * bgView = (UIImageView *)[result backgroundView];
 		if(![bgView isKindOfClass:[UIImageView class]]){
 			bgView = [[[UIImageView alloc] initWithFrame:[result frame]] autorelease];
+			[bgView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 			[result setBackgroundView:bgView];
 		}
-		[bgView setContentMode:UIViewContentModeCenter];
+		//[bgView setContentMode:UIViewContentModeCenter];
 		[bgView setImage:bgImage];
 		[bgView setBackgroundColor:(bgColor==nil)?[UIColor clearColor]:bgColor];
 		
@@ -687,10 +691,11 @@ UIColor * checkmarkColor = nil;
 		UIImageView * selectedBgView = (UIImageView *)[result selectedBackgroundView];
 		if(![selectedBgView isKindOfClass:[UIImageView class]]){
 			selectedBgView = [[[UIImageView alloc] initWithFrame:[result frame]] autorelease];
+			[selectedBgView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 			[result setSelectedBackgroundView:selectedBgView];
 		}
 		
-		[selectedBgView setContentMode:UIViewContentModeCenter];
+		//[selectedBgView setContentMode:UIViewContentModeCenter];
 		[selectedBgView setImage:selectedBgImage];
 		[selectedBgView setBackgroundColor:(selectedBgColor==nil)?[UIColor clearColor]:selectedBgColor];
 		

@@ -7,10 +7,17 @@
 		document.getElementById('image2').src = 'image_view_image2.jpeg';
 		document.getElementById('image3').src = 'image_view_image3.jpg';
 		document.getElementById('image4').src = 'image_view_image4.jpg';
-
-	//	Titanium.UI.currentWindow.repaint();
+		//Titanium.UI.currentWindow.repaint();
 		
 	},1500)
+	window.onload = function()
+	{
+		document.getElementById('button').onclick = function()
+		{
+			window.scrollTo(0,0);
+		};
+		
+	};
 	</script>	
 	</head>
 <body>
@@ -27,6 +34,6 @@
 	<div style="margin-bottom:10px">
 	<img id="image4" src=""/>
 	</div>
-	
+	<button style="font-size:16px" id="button">Scroll To Top</button>
 </body>
 </html>
