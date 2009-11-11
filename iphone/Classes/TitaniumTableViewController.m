@@ -312,7 +312,13 @@ UIColor * checkmarkColor = nil;
 		if(backgroundColor != nil)[tableView setBackgroundColor:backgroundColor];
 		if (tableRowHeight > 5){
 			[tableView setRowHeight:tableRowHeight];
-		}		
+		}
+		if([borderColor isEqual:[UIColor clearColor]]){
+			[tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+		} else {
+			[tableView setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
+			if(borderColor != nil)[tableView setSeparatorColor:borderColor];
+		}
 	}
 	return tableView;
 }
@@ -385,6 +391,12 @@ UIColor * checkmarkColor = nil;
 	NSNumber * isGrouped = [inputState objectForKey:@"grouped"];
 	SEL boolSel = @selector(boolValue);
 
+	if ([isGrouped respondsToSelector:boolSel]){
+		tableStyle = [isGrouped boolValue] ? UITableViewStyleGrouped : UITableViewStylePlain;
+	} else {
+		tableStyle = UITableViewStylePlain;
+	}
+	
 	NSDictionary * templateDict = [inputState objectForKey:@"template"];
 	if([templateDict isKindOfClass:dictClass]){
 		[templateCell release];
@@ -392,12 +404,8 @@ UIColor * checkmarkColor = nil;
 		[templateCell useProperties:templateDict withUrl:baseUrl];
 	}
 	
-
-	if ([isGrouped respondsToSelector:boolSel]){
-		tableStyle = [isGrouped boolValue] ? UITableViewStyleGrouped : UITableViewStylePlain;
-	} else {
-		tableStyle = UITableViewStylePlain;
-	}
+	[borderColor release];
+	borderColor = [UIColorWebColorNamed([inputState objectForKey:@"borderColor"]) retain];
 
 	NSNumber * tableRowHeightObject = [inputState objectForKey:@"rowHeight"];
 	
@@ -453,7 +461,7 @@ UIColor * checkmarkColor = nil;
 	
 	[actionQueue release];
 	[actionLock release];
-	
+	[borderColor release];
     [super dealloc];
 }
 
@@ -614,7 +622,7 @@ UIColor * checkmarkColor = nil;
 	} else if ([rowWrapper isButton]) {
 		result = [ourTableView dequeueReusableCellWithIdentifier:@"button"];
 		if (result == nil){
-			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"button"] autorelease];
+			result = [[[ValueTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"button"] autorelease];
 			[(id)result setTextAlignment:UITextAlignmentCenter];
 		}
 		[(id)result setText:[rowWrapper title]];
@@ -624,7 +632,7 @@ UIColor * checkmarkColor = nil;
 		NSString * valueString = [rowWrapper value];
 		if (valueString == nil){
 			result = [ourTableView dequeueReusableCellWithIdentifier:@"text"];
-			if (result == nil) result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"text"] autorelease];
+			if (result == nil) result = [[[ValueTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"text"] autorelease];
 		} else {
 			UILabel * valueLabel;
 			result = [ourTableView dequeueReusableCellWithIdentifier:@"value"];
@@ -636,7 +644,7 @@ UIColor * checkmarkColor = nil;
 				valueLabel = [(ValueTableViewCell *)result valueLabel];
 			}
 			[valueLabel setText:valueString];
-			[valueLabel setFont:[rowWrapper font]];
+			[valueLabel setFont:[rowWrapper font]];			
 		}
 		[(id)result setText:[rowWrapper title]];
 		[(id)result setFont:[rowWrapper font]];
@@ -651,20 +659,23 @@ UIColor * checkmarkColor = nil;
 	UIColor * bgColor = [rowWrapper colorForKey:@"backgroundColor"];
 	UIColor * selectedBgColor = [rowWrapper colorForKey:@"selectedBackgroundColor"];
 
-	UIImage * bgImage = [rowWrapper stretchableImageForKey:@"backgroundImage"];
-	UIImage	* selectedBgImage = [rowWrapper stretchableImageForKey:@"selectedBackgroundImage"];
+	UIImage * bgImage = [rowWrapper imageForKey:@"backgroundImage"]; //[rowWrapper stretchableImageForKey:@"backgroundImage"];
+	UIImage	* selectedBgImage = [rowWrapper imageForKey:@"selectedBackgroundImage"]; //[rowWrapper stretchableImageForKey:@"selectedBackgroundImage"];
 
 	if((tableStyle == UITableViewStyleGrouped) && (bgImage == nil)){
 		if(bgColor != nil)[result setBackgroundColor:bgColor];
 		else [result setBackgroundColor:[UIColor whiteColor]];
 	} else {
+
 		UIImageView * bgView = (UIImageView *)[result backgroundView];
 		if(![bgView isKindOfClass:[UIImageView class]]){
 			bgView = [[[UIImageView alloc] initWithFrame:[result frame]] autorelease];
 			[result setBackgroundView:bgView];
 		}
+		[bgView setContentMode:UIViewContentModeCenter];
 		[bgView setImage:bgImage];
 		[bgView setBackgroundColor:(bgColor==nil)?[UIColor clearColor]:bgColor];
+		
 	}
 
 	if((selectedBgColor == nil)&&(selectedBgImage == nil)){
@@ -676,6 +687,7 @@ UIColor * checkmarkColor = nil;
 			[result setSelectedBackgroundView:selectedBgView];
 		}
 		
+		[selectedBgView setContentMode:UIViewContentModeCenter];
 		[selectedBgView setImage:selectedBgImage];
 		[selectedBgView setBackgroundColor:(selectedBgColor==nil)?[UIColor clearColor]:selectedBgColor];
 		

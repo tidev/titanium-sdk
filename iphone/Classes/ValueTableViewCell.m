@@ -36,6 +36,15 @@
 	return self;
 }
 
+- (void) layoutSubviews;
+{
+	[super layoutSubviews];
+	for (UIView * thisView in [[self contentView] subviews]) {
+		[thisView setBackgroundColor:[UIColor clearColor]];
+	}
+}
+
+
 - (void)setHighlighted:(BOOL)hilighted animated:(BOOL)animated;
 {
 	[super setHighlighted:hilighted animated:animated];

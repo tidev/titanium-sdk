@@ -50,7 +50,12 @@
 
 - (void)layoutSubviews;
 {
+	[super layoutSubviews];
+
 	NSArray * layoutArray = [dataWrapper layoutArray];
+	if(layoutArray == nil) layoutArray = [[dataWrapper templateCell] layoutArray];
+	if(![layoutArray isKindOfClass:[NSArray class]])layoutArray = nil;
+
 
 	if(layoutViewsArray == nil){
 		layoutViewsArray = [[NSMutableArray alloc] initWithCapacity:[layoutArray count]];
@@ -113,12 +118,9 @@
 		LayoutConstraint thisConstraint = [thisEntry constraint];
 		
 		ApplyConstraintToViewWithinViewWithBounds(&thisConstraint, thisEntryView, self, boundRect);
+		[layoutViewsArray addObject:thisEntryView];
 	}
 	
-	
-
-	NSLog(@"Laying out...");
-	[super layoutSubviews];
 }
 
 //- (void)drawRect:(CGRect)rect;
@@ -148,6 +150,7 @@
 
 - (void)dealloc {
 	[self setDataWrapper:nil];
+	[layoutViewsArray release];
     [super dealloc];
 }
 
