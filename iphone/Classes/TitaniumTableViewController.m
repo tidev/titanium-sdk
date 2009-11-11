@@ -36,6 +36,8 @@ TitaniumCellWrapper * TitaniumCellWithData(NSDictionary * rowData, NSURL * baseU
 @synthesize rowData, sectionData, replacedData;
 @synthesize baseUrl;
 
+@synthesize isAnimated, scrollPosition;
+
 - (void) dealloc
 {
 	[baseUrl release];
@@ -524,6 +526,7 @@ UIColor * checkmarkColor = nil;
 
 - (NSIndexPath *) indexPathFromInt: (int) index;
 {
+	if(index < 0)return nil;
 	int section = 0;
 	int rowCount = 0;
 	for(TableSectionWrapper * thisSection in sectionArray){
@@ -1140,6 +1143,25 @@ UIColor * checkmarkColor = nil;
 		TitaniumTableAction kind = [thisAction kind];
 		
 		UITableViewRowAnimation animation = [thisAction animation];
+
+		if (animation & TitaniumTableActionScroll) {
+			NSIndexPath * thisPath = nil;
+			switch (animation) {
+				case TitaniumTableActionScrollRow:
+					thisPath = [self indexPathFromInt:[thisAction index]];
+					break;
+				case TitaniumTableActionScrollSectionRow:
+					break;
+				default:
+					break;
+			}
+			if(thisPath == nil)continue;
+			
+			[tableView scrollToRowAtIndexPath:thisPath
+					atScrollPosition:[thisAction scrollPosition] animated:[thisAction isAnimated]];
+			continue;
+		}
+
 		TableSectionWrapper * thisSectionWrapper=nil;
 		int row = -1;
 		int section = -1;

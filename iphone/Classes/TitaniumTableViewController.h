@@ -30,6 +30,11 @@ typedef enum {
 	TitaniumGroupActionInsertBeforeGroup=0x801,
 	TitaniumGroupActionDeleteGroup		=0x802,
 	TitaniumGroupActionUpdateGroup		=0x803,
+
+	TitaniumTableActionScroll			=0x010,
+	TitaniumTableActionScrollRow		=TitaniumTableActionScroll | TitaniumTableActionIndexed,
+	TitaniumTableActionScrollSectionRow	=TitaniumTableActionScroll | TitaniumTableActionSectionRow,
+
 	
 } TitaniumTableAction;
 
@@ -39,11 +44,15 @@ typedef enum {
 	int index;
 	int section;
 	int row;
+
 	NSDictionary * sectionData;
 	NSDictionary * rowData;
 	NSArray * replacedData;
 	UITableViewRowAnimation animation;
 	NSURL * baseUrl;
+	
+	BOOL	isAnimated;
+	UITableViewScrollPosition scrollPosition;
 }
 
 @property(nonatomic,assign)	TitaniumTableAction kind;
@@ -55,6 +64,10 @@ typedef enum {
 @property(nonatomic,copy)	NSArray * replacedData;
 @property(nonatomic,copy)	NSURL * baseUrl;
 @property(nonatomic,assign)	UITableViewRowAnimation animation;
+
+@property(nonatomic,assign)	BOOL	isAnimated;
+@property(nonatomic,assign)	UITableViewScrollPosition scrollPosition;
+
 
 - (void) getBaseUrl;
 - (void) setAnimationDict: (NSDictionary *) animationDict;
