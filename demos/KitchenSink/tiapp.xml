@@ -16,7 +16,7 @@
  			<icon>KS_nav_phone.png</icon>
 			<orientation>either</orientation>
 			<backButtonTitle>Back</backButtonTitle>
-			<statusBarStyle>TRANSLUCENT_BLACK</statusBarStyle>
+			<backgroundImage>sb_bg.jpg</backgroundImage>
         </window>
         <window>
             <id>UI</id>

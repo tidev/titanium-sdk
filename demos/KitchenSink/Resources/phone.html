@@ -45,8 +45,8 @@
 
 	// data for tableview
 	var data = [
-		{title:'Play Movie'},
-		{title:'Camera'},
+		{title:'Play Movie',backgroundImage:'FindCoffeesButton.png'},
+		{title:'Camera',backgroundImage:'table_view_bg.png'},
 		{title:'Vibrate'},
 		{title:'Orientation',hasChild:true},
 		{title:'Photo Gallery'},
@@ -60,7 +60,7 @@
 	];
 	Titanium.UI.currentWindow.setTitle('Phone API');
 	// tableview object
-	var tableView = Titanium.UI.createTableView({
+	var tableView = Titanium.UI.createTableView({backgroundColor:'transparent',
 		data:data,
 		
 	}, function(eventObject)

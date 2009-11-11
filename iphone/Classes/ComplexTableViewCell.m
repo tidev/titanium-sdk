@@ -1,17 +1,16 @@
-//
-//  ComplexTableViewCell.m
-//  Titanium
-//
-//  Created by Blain Hamon on 11/4/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
-//
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 
 #import "ComplexTableViewCell.h"
 #import "TitaniumCellWrapper.h"
 
 @implementation ComplexTableViewCell
 
-@synthesize dataWrapper;
+@synthesize dataWrapper, clickedName;
 
 - (id)initWithFrame:(CGRect)frame reuseIdentifier:(NSString *)reuseIdentifier;
 {
@@ -51,7 +50,14 @@
 
 - (void)layoutSubviews;
 {
+	[super layoutSubviews];
+
+	[self setUserInteractionEnabled:YES];
+
 	NSArray * layoutArray = [dataWrapper layoutArray];
+	if(layoutArray == nil) layoutArray = [[dataWrapper templateCell] layoutArray];
+	if(![layoutArray isKindOfClass:[NSArray class]])layoutArray = nil;
+
 
 	if(layoutViewsArray == nil){
 		layoutViewsArray = [[NSMutableArray alloc] initWithCapacity:[layoutArray count]];
@@ -97,8 +103,11 @@
 				
 				break;}
 			case LayoutEntryImage:{
-				thisEntryView = [[[TitaniumImageView alloc] initWithFrame:CGRectZero] autorelease];
-				[(TitaniumImageView *)thisEntryView setDelegate:self];
+//				thisEntryView = [[[TitaniumImageView alloc] initWithFrame:CGRectZero] autorelease];
+//				[(TitaniumImageView *)thisEntryView setDelegate:self];
+
+				thisEntryView = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+
 				UIImage * entryImage = [dataWrapper imageForKey:name];
 				[(TitaniumImageView *)thisEntryView setImage:entryImage];
 				
@@ -114,12 +123,9 @@
 		LayoutConstraint thisConstraint = [thisEntry constraint];
 		
 		ApplyConstraintToViewWithinViewWithBounds(&thisConstraint, thisEntryView, self, boundRect);
+		[layoutViewsArray addObject:thisEntryView];
 	}
 	
-	
-
-	NSLog(@"Laying out...");
-	[super layoutSubviews];
 }
 
 //- (void)drawRect:(CGRect)rect;
@@ -149,8 +155,30 @@
 
 - (void)dealloc {
 	[self setDataWrapper:nil];
+	[layoutViewsArray release];
     [super dealloc];
 }
+
+- (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
+{
+	UITouch * anyTouch = [touches anyObject];
+	int currentViewIndex = 0;
+	for (UIView * thisView in layoutViewsArray) {
+		CGPoint thisPoint;
+		thisPoint = [anyTouch locationInView:thisView];
+		if ([thisView pointInside:thisPoint withEvent:nil]) {
+			LayoutEntry * thisEntry = [[dataWrapper layoutArray] objectAtIndex:currentViewIndex];
+			[self setClickedName:[thisEntry nameString]];
+			[super touchesEnded:touches withEvent:event];
+			return;
+		}
+		currentViewIndex ++;
+	}
+	
+	[self setClickedName:nil];
+	[super touchesEnded:touches withEvent:event];
+}
+
 
 
 - (void) imageView: (TitaniumImageView *)touchedImage touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;

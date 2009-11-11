@@ -662,7 +662,6 @@ typedef int UIEventSubtype;
 	
 	UINavigationBar * theNB = [theNC navigationBar];
 	
-//	NSLog(@"View %@ is updating tint to %@. Foreground View is: %@",self,navBarTint,[[TitaniumHost sharedHost] currentTitaniumViewController]);
 	[theNB setTintColor:navBarTint];
 	if (navBarTint != nil){
 		navBarStyle = ([[[self navigationController] navigationBar] barStyle]==UIBarStyleBlackOpaque) ?

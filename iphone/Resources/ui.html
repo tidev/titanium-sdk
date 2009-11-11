@@ -86,6 +86,70 @@
 //		Ti.UI.currentWindow.insertButton(btn6);
 //		btn6.focus();
 		var btn7 = Ti.UI.createButton({systemButton:'fastforward'});
+function test3(){
+	var template = {
+	 backgroundColor:'white',
+	 selectedBackgroundColor:'#336699',
+	 selectedColor:'white',
+	 rowHeight:100,
+	 layout:[
+	   {type:'image', left:10, top:5, width:32, height:33, name:'image1'},
+	   {type:'text', fontSize:20, fontWeight:'bold', left:50, top:10, width:100, height:20, color:'#336699', name:'title1'},
+	   {type:'text', fontSize:13, left:50, top:40, width:150, color:'#000',height:50, name:'detail_text'},
+	]};
+
+	//  backgroundColor:transparent
+	//  table data
+	//
+	var data = [
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text'},
+		
+	];
+	//
+	// create table view (
+	//
+	Titanium.API.info('before table view create');
+	var tableView = Titanium.UI.createTableView({template:template, data:data}, function(e){
+	});
+	
+	Titanium.UI.currentWindow.addView(tableView);
+	Titanium.UI.currentWindow.showView(tableView);
+}
+
+
 function test1()
 {
 try{
@@ -95,7 +159,7 @@ try{
 		{title:'row 3',backgroundColor:'#00FFFF'},
 		{html:'<b>row</b> 4 has <i>html?</i>',selected:true},
 
-		{rowHeight:50,title1:'Layout test1',image3:'Phone.png',layout:[{top:5,height:5,left:45,name:'title1',type:'text',fontSize:'10px'},{type:'image',name:'image3',top:0,height:40,left:5,width:40}]},
+		{rowHeight:50,title1:'Layout test1',image3:'Phone.png',layout:[{top:5,bottom:5,left:45,name:'title1',type:'text',fontSize:'10px'},{type:'image',name:'image3',top:0,height:40,left:5,width:40}]},
 
 		{title:'row 1', hasChild:true, image:'Mail.png',backgroundColor:'#00FFFF'},
 		{title:'row 2', hasDetail:true, image:'Safari.png'},
@@ -141,6 +205,7 @@ try{
 				', SECTION = ' + section +
 				', ROW = ' + row +
 				', INDEX = ' + index +
+				', NAME = ' + eventObject.layout +
 				', DETAIL = ' + detail
 			)}).show();
 		} else {
@@ -171,13 +236,14 @@ try{
 } catch(E){Titanium.UI.createAlertDialog({title:"Error!",message:('Msg:'+E)}).show();};
 };
 		btn7.addEventListener('click',test1);
+//		btn7.addEventListener('click',test3);
 
 
 function test2()
 {
 try{
 	var buttonData = [
-		{title:null,image:'images/one.png',backgroundImage:'Safari.png',selectedBackgroundImage:'Phone.png'},
+		{title:'Yay button',image:'images/one.png',backgroundColor:null,backgroundImage:'Safari.png',selectedBackgroundImage:'Phone.png'},
 		{image:'images/two.png',backgroundColor:'#00FFFF'}
 	];
 

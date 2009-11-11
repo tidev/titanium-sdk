@@ -31,15 +31,22 @@
 	TitaniumImageView * imageView;
 	UIScrollView * scrollView;
 
-	TitaniumBlobWrapper * singleImageBlob;
+	NSURL *url;
+	UIImage *singleImageBlob;
 
 	CGSize imageSize;
 	BOOL scrollEnabled;
 	BOOL dirtyImage;
-//	NSArray * animatedImageUrls;
+	BOOL fetchRequired;
+	
+	UIImage* imageDefault;
 }
-@property(nonatomic,readwrite,retain)	TitaniumBlobWrapper * singleImageBlob;
+
+@property(nonatomic,readwrite,retain) UIImage * singleImageBlob;
+@property(nonatomic,readwrite,retain) UIImage* imageDefault;
+
 - (void) setUrl: (NSURL *) newUrl;
 - (UIImage *) singleImage;
+- (void)fetchImage;
 
 @end

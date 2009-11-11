@@ -1127,13 +1127,13 @@ NSString * UrlEncodeString(NSString * string)
 
 #define SAFE_ARRAY_COUNT(foo)	([foo isKindOfClass:[NSArray class]]?[foo count]:-1)
 
-- (id) doScrollTo: (NSArray *) args;
+- (id) scrollWindowTo: (NSArray *) args;
 {
 	ASSERT_ARRAY_COUNT(args,4);
 
 	NSString * tokenString = [args objectAtIndex:0];
 	TitaniumWebViewController * targetView = (TitaniumWebViewController *)[[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
-	if(![targetView isKindOfClass:[TitaniumWebViewController class]])return TITANIUM_JS_ERROR(TitaniumErrorInvalidTokenValue,"Invalid token");
+	if(![targetView isKindOfClass:[TitaniumWebViewController class]])return TITANIUM_JS_ERROR(TitaniumErrorInvalidTokenValue,"Token doesn't represent a web view");
 	
 	CGPoint position;
 	position.x = [[args objectAtIndex:1] floatValue];
@@ -1145,6 +1145,36 @@ NSString * UrlEncodeString(NSString * string)
 	}else{
 		[targetView performSelectorOnMainThread:@selector(scrollAbsolute:) withObject:positionValue waitUntilDone:NO];
 	}
+	return nil;
+}
+
+- (id) scrollTableViewTo: (NSArray *) args;
+{
+	ASSERT_ARRAY_COUNT(args,2);
+	TitaniumTableViewController * targetView = (TitaniumTableViewController *)[[TitaniumHost sharedHost]
+			titaniumContentViewControllerForToken:[args objectAtIndex:0]];
+	if(![targetView isKindOfClass:[TitaniumTableViewController class]])return TITANIUM_JS_ERROR(TitaniumErrorInvalidTokenValue,"Token doesn't represent a table view");
+	int blessedRow = [[args objectAtIndex:1] intValue];
+	BOOL animated = NO;
+	UITableViewScrollPosition scrollPosition = UITableViewScrollPositionNone;
+	NSDictionary * options = ([args count]>2)?[args objectAtIndex:2]:nil;
+	if ([options isKindOfClass:[NSDictionary class]]) {
+		id animatedObject = [options objectForKey:@"animated"];
+		if ([animatedObject respondsToSelector:@selector(boolValue)])animated = [animatedObject boolValue];
+
+		id positionObject = [options objectForKey:@"position"];
+		if ([positionObject respondsToSelector:@selector(intValue)])scrollPosition = [positionObject intValue];
+	}
+	
+	TitaniumTableActionWrapper * newAction = [[TitaniumTableActionWrapper alloc] init];
+	[newAction setKind:TitaniumTableActionScrollRow];
+	[newAction setIndex:blessedRow];
+	[newAction setIsAnimated:animated];
+	[newAction setScrollPosition:scrollPosition];
+	
+	[targetView enqueueAction:newAction];
+	[newAction release];
+	
 	return nil;
 }
 
@@ -1346,8 +1376,8 @@ NSString * UrlEncodeString(NSString * string)
 	[currentWindowScript setEpilogueCode:@"window.addEventListener('DOMNodeInserted',Ti.UI.currentWindow.repaint,false);"
 			"window.addEventListener('load',function(){if(document.body){document.body.addEventListener('load',"
 				"function(e){if(e.srcElement.tagName=='IMG')Titanium.UI.currentWindow.repaint();},true);}},false);"
-				"delete window.scrollTo;window.scrollTo=function(x,y){Ti._TIDO('ui','doScrollTo',[Ti._TOKEN,x,y,false]);};"
-				"delete window.scrollBy;window.scrollBy=function(x,y){Ti._TIDO('ui','doScrollTo',[Ti._TOKEN,x,y,true]);};"];
+				"delete window.scrollTo;window.scrollTo=function(x,y){Ti._TIDO('ui','scrollWindowTo',[Ti._TOKEN,x,y,false]);};"
+				"delete window.scrollBy;window.scrollBy=function(x,y){Ti._TIDO('ui','scrollWindowTo',[Ti._TOKEN,x,y,true]);};"];
 
 	NSString * viewsForWindowString = @"function(winTkn){var fetched=Ti.UI._WGVIEWS(winTkn);if(!fetched)return {};var res=[];var i=0;var viewCount=fetched.length;while(i<viewCount){"
 			"var props=fetched[i];var viewTkn=props._TOKEN;var view;"
@@ -1470,7 +1500,7 @@ NSString * UrlEncodeString(NSString * string)
 			"res.setURL=function(i,newUrl){if(this._TOKEN){Ti.UI._CFLVWACT(this._TOKEN," STRINGVAL(COVERFLOWVIEW_SETURL) ",[i,newUrl]);}};"
 			"return res;}";
 
-	NSString * createTableWindowString = [NSString stringWithFormat:@"function(args,callback){var res=Ti.UI.createView(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;"
+	NSString * createTableViewString = [NSString stringWithFormat:@"function(args,callback){var res=Ti.UI.createView(args);res._TYPE='table';res._WINTKN=Ti._TOKEN;"
 			"res._EVT={click:[]};res.onClick=Ti._ONEVT;res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;"
 			"res.addEventListener('click',callback);"
 			"if(!res.data)res.data=[];"
@@ -1484,6 +1514,7 @@ NSString * UrlEncodeString(NSString * string)
 				"this.data.splice(rowIndex,1);if(this._TOKEN){Ti.UI._WROWDEL(this._TOKEN,rowIndex,args);}};"
 			"res.updateRow=function(rowIndex,row,args){this.data.splice(rowIndex,1,row);if(this._TOKEN){if(row.input)row.input.ensureToken();Ti.UI._WROWCHG(this._TOKEN,rowIndex,row,%d,args);}};"
 			"res.appendRow=function(row,args){this.data.push(row);if(this._TOKEN){if(row.input)row.input.ensureToken();Ti.UI._WROWCHG(this._TOKEN,0,row,%d,args);}};"
+			"res.scrollToIndex=function(rowIndex,args){if(this._TOKEN)Ti._TIDO('ui','scrollTableViewTo',[this._TOKEN,rowIndex,args])};"
 			"res.setData=function(newData,args){this.data=newData;if(this._TOKEN){"
 					"for(var i=0;i<newData.length;i++){if(newData[i].input)newData[i].input.ensureToken();}Ti.UI._WDTAUPD(this._TOKEN,newData,false,args);}};"
 			"var tkn='TBL'+(Ti.UI._NEXTTKN++);Ti.UI._TBL[tkn]=res;res._PATH='Ti.UI._TBL.'+tkn;return res;}",
@@ -1577,6 +1608,12 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:@"{tabchange:[]}"],@"_EVT",
 			[TitaniumJSCode codeWithString:@"Ti._REMEVT"],@"removeEventListener",
 			[TitaniumJSCode codeWithString:@"Ti._ONEVT"],@"_ONEVT",
+
+			[NSNumber numberWithInt:UITableViewScrollPositionNone],@"TABLEVIEW_POSITION_ANY",
+			[NSNumber numberWithInt:UITableViewScrollPositionTop],@"TABLEVIEW_POSITION_TOP",
+			[NSNumber numberWithInt:UITableViewScrollPositionMiddle],@"TABLEVIEW_POSITION_MIDDLE",
+			[NSNumber numberWithInt:UITableViewScrollPositionBottom],@"TABLEVIEW_POSITION_BOTTOM",
+
 
 			windowActionInvoc,@"_WACT",
 
@@ -1674,7 +1711,7 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:createScrollingViewString],@"createScrollableView",
 			[TitaniumJSCode codeWithString:createCompositeViewString],@"createCompositeView",
 			[TitaniumJSCode codeWithString:createImageViewString],@"createImageView",
-			[TitaniumJSCode codeWithString:createTableWindowString],@"createTableView",
+			[TitaniumJSCode codeWithString:createTableViewString],@"createTableView",
 			[TitaniumJSCode codeWithString:createCoverFlowViewString],@"createCoverFlowView",
 			[TitaniumJSCode codeWithString:setActiveTabString],@"setActiveTab",
 			[TitaniumJSCode codeWithString:createTabString],@"createTab",
