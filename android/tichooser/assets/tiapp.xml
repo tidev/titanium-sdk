@@ -388,9 +388,14 @@
 		</window>
 -->
 	<window>
+		<id>map</id>
+		<url>map.html</url>
+	</window>
+	<window>
 		<id>map1</id>
 		<url>map1.html</url>
 	</window>
+
     </windows>
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.android.watchlog" type="bool">false</property>

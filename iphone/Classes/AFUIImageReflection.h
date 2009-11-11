@@ -24,8 +24,10 @@
  */
 #import <UIKit/UIKit.h>
 
-@interface UIImage (AFUIImageReflection)
+// Appcelerator modification note: 
+// using categories with static libraries don't seem to work
+// right on device with iphone - probably a symbol issue
+// turn this into a static function (from what was a category to UIImage
+// originally)
 
-- (UIImage *)addImageReflection:(CGFloat)reflectionFraction;
-
-@end
+UIImage* AddImageReflection(UIImage *src, CGFloat reflectionFraction);

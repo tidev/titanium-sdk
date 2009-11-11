@@ -208,27 +208,17 @@
 	return imageView;
 }
 
-- (void)fetchImage
+-(void)loadImage
 {
-	// this should always run on separate thread
-	if ([NSThread isMainThread])
-	{
-		[NSThread detachNewThreadSelector:@selector(fetchImage) toTarget:self withObject:nil];
-		return;
-	}
-	
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
 	NSData * data = [NSData dataWithContentsOfURL:url];
-	
 	[self setSingleImageBlob:[UIImage imageWithData:data]];
-	
 	fetchRequired = NO;
 	dirtyImage = YES;
+}
 
-	[self performSelectorOnMainThread:@selector(updateLayout:) withObject:nil waitUntilDone:NO];
-	
-	[pool release];
+- (void)fetchImage
+{
+	[[OperationQueue sharedQueue] queue:@selector(loadImage) target:self arg:nil after:@selector(updateLayout:) on:self ui:YES];
 }
 
 #pragma mark Javascript entrances
@@ -249,9 +239,6 @@
 		[self fetchImage];
 	}
 }
-
-
-
 
 
 @end

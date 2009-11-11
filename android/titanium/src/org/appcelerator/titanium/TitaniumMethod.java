@@ -31,8 +31,8 @@ public class TitaniumMethod implements ITitaniumMethod
 			JSONObject o = new JSONObject(json);
 			TitaniumModuleManager tmm = weakTmm.get();
 			if (tmm != null) {
-				String moduleName = o.getString("module");
-				Object obj = tmm.getModuleForName(moduleName);
+				String name = o.getString("name");
+				Object obj = tmm.getInstanceForName(name);
 
 				JSONStringer js = new JSONStringer();
 				if (obj != null) {
@@ -77,7 +77,7 @@ public class TitaniumMethod implements ITitaniumMethod
 						fillException(js, e.getMessage());
 					}
 				} else {
-					fillException(js, "Module " + moduleName + " not registered");
+					fillException(js, "Object " + name + " not registered");
 				}
 				result = js.toString();
 				js = null;

@@ -15,9 +15,10 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Message;
 import android.webkit.WebView;
 
-public abstract class TitaniumBaseModule implements ITitaniumModule
+public abstract class TitaniumBaseModule implements ITitaniumModule, Handler.Callback
 {
 	//private static final String LCAT = "TiBaseModule";
 	//private static final boolean DBG = TitaniumConfig.LOGD;
@@ -33,9 +34,13 @@ public abstract class TitaniumBaseModule implements ITitaniumModule
 
 		this.tmm = manager;
 		this.moduleName = moduleName;
-		this.handler = new Handler();
+		this.handler = new Handler(this);
 
 		manager.addModule(this);
+	}
+
+	public boolean handleMessage(Message msg) {
+		return false;
 	}
 
 	public TitaniumModuleManager getModuleManager() {

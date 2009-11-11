@@ -36,7 +36,7 @@ public class TitaniumAnalytics extends TitaniumBaseModule implements ITitaniumAn
 			Log.d(LCAT, "Registering TitaniumAnalytics as " + name);
 		}
 		//webView.addJavascriptInterface((ITitaniumAnalytics) this, name);
-		tmm.registerModule(name, this);
+		tmm.registerInstance(name, this);
 	}
 
 	public void addEvent (String type, String event, String data)
