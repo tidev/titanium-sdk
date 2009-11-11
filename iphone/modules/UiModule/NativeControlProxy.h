@@ -143,9 +143,17 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 @property(nonatomic,readwrite,assign)	UIDatePickerMode datePickerMode;
 @property(nonatomic,readwrite,assign)	int		minuteInterval;
 
++ (NSString *) newToken;
++ (id) controlProxyForToken: (NSString *) tokenString;
++ (id) controlProxyWithDictionary: (NSDictionary *) inputDict relativeToUrl: (NSURL *) baseUrl;
+
++ (void) registerAsClassNamed: (NSString *)JSClassName;
+
 
 - (BOOL) hasNativeView;
 - (BOOL) hasNativeBarButton;
+- (void) updateNativeBarButton;
+
 
 - (IBAction) onClick: (id) sender;
 - (void) setPropertyDict: (NSDictionary *) newDict;

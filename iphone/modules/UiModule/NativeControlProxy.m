@@ -7,6 +7,8 @@
 
 
 #import "NativeControlProxy.h"
+
+
 #import "TitaniumCellWrapper.h"
 #import "PickerImageTextCell.h"
 #import "Logging.h"
@@ -90,19 +92,86 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 
 
 
-
-
-
+int nextControlToken = 0;
+NSMutableDictionary * controlProxyInstanceRegistry = nil;
+NSMutableDictionary * controlProxyClassRegistry = nil;
 
 
 @implementation NativeControlProxy
-@synthesize nativeBarButton, segmentLabelArray, segmentImageArray, segmentSelectedIndex;
-@synthesize titleString, iconPath, templateValue, buttonStyle, nativeView, labelView, wrapperView;
-@synthesize minValue,maxValue,floatValue,stringValue, placeholderText, isHidden;
+@synthesize nativeBarButton, templateValue, buttonStyle, nativeView, labelView, wrapperView;
+@synthesize isHidden;
+
++ (NSString *) newToken;
+{
+	return [NSString stringWithFormat:@"BTN%X",nextControlToken++];
+}
+
++ (id) controlProxyForToken: (NSString *) tokenString;
+{
+	return [controlProxyInstanceRegistry objectForKey:tokenString];
+}
+
++ (id) controlProxyWithDictionary: (NSDictionary *) inputDict relativeToUrl: (NSURL *) baseUrl;
+{
+	if(![inputDict isKindOfClass:[NSDictionary class]])return nil;
+	NSString * dictToken = [inputDict objectForKey:@"_TOKEN"];
+	
+	NativeControlProxy * result;
+	if (dictToken==nil) {
+		dictToken = [self newToken];
+		result = nil;
+	} else {
+		result = [controlProxyInstanceRegistry objectForKey:dictToken];
+	}
+
+	if (result==nil) { //Time to create a new instance!
+		NSString * className = [inputDict objectForKey:@"_TYPE"];
+		Class classType = (className==nil)?nil:[controlProxyClassRegistry objectForKey:className];
+		if (classType==nil)classType = [NativeControlProxy class];
+		result = [[[classType alloc] init] autorelease];
+		[result setToken:dictToken];
+		if (controlProxyInstanceRegistry==nil) {
+			controlProxyInstanceRegistry=[[NSMutableDictionary alloc] initWithObjectsAndKeys:
+					result,dictToken,nil];
+		} else {
+			[controlProxyInstanceRegistry setObject:result forKey:dictToken];
+		}
+	}
+	
+	NSDictionary * divAttributeDict = [inputDict objectForKey:@"divAttr"];	//Todo: make not ugly.
+	if ([divAttributeDict isKindOfClass:[NSDictionary class]])[result setPropertyDict:divAttributeDict];
+
+	id leftProxy = [inputDict objectForKey:@"leftButton"];	//This should be in the textField proxy class
+	if (leftProxy != nil){
+		[result setLeftViewProxy:[self controlProxyWithDictionary:leftProxy relativeToUrl:baseUrl]];
+	}
+	id rightProxy = [inputDict objectForKey:@"rightButton"];
+	if (rightProxy != nil){
+		[result setRightViewProxy:[self controlProxyWithDictionary:rightProxy relativeToUrl:baseUrl]];
+	}
+	
+
+	[result setPropertyDict:inputDict];
+	
+	return result;
+}
+
++ (void) registerAsClassNamed: (NSString *)JSClassName;
+{
+	if(controlProxyClassRegistry==nil){
+		controlProxyClassRegistry = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+				[self class],JSClassName,nil];
+	} else {
+		[controlProxyClassRegistry setObject:[self class] forKey:JSClassName];
+	}
+
+}
+
+@synthesize segmentLabelArray, segmentImageArray, segmentSelectedIndex;
+@synthesize titleString, iconPath, minValue,maxValue,floatValue,stringValue, placeholderText;
 @synthesize elementColor, elementBorderColor, elementBackgroundColor, messageString;
 @synthesize leftViewProxy, rightViewProxy, leftViewMode, rightViewMode, surpressReturnCharacter;
 @synthesize backgroundImagePath, backgroundDisabledImagePath, backgroundSelectedImagePath;
-
 @synthesize dateValue, minDate, maxDate, datePickerMode, minuteInterval;
 
 

@@ -748,7 +748,7 @@ UIColor * checkmarkColor = nil;
 	UITableViewCell * triggeredCell = [tableView cellForRowAtIndexPath:indexPath];
 	if([triggeredCell isKindOfClass:[ComplexTableViewCell class]]){
 		NSString * newItemName = [(ComplexTableViewCell *)triggeredCell clickedName];
-		if(newItemName != nil) itemName = [NSString stringWithFormat:@",layout:'%@'",newItemName];
+		if(newItemName != nil) itemName = [NSString stringWithFormat:@",layoutName:'%@'",newItemName];
 	}
 	
 	NSString * rowData;
