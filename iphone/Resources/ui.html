@@ -205,6 +205,7 @@ try{
 				', SECTION = ' + section +
 				', ROW = ' + row +
 				', INDEX = ' + index +
+				', NAME = ' + eventObject.layout +
 				', DETAIL = ' + detail
 			)}).show();
 		} else {
@@ -234,8 +235,8 @@ try{
 	tableWindow.open({animated:true});
 } catch(E){Titanium.UI.createAlertDialog({title:"Error!",message:('Msg:'+E)}).show();};
 };
-//		btn7.addEventListener('click',test1);
-		btn7.addEventListener('click',test3);
+		btn7.addEventListener('click',test1);
+//		btn7.addEventListener('click',test3);
 
 
 function test2()

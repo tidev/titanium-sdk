@@ -10,7 +10,7 @@
 
 @implementation ComplexTableViewCell
 
-@synthesize dataWrapper;
+@synthesize dataWrapper, clickedName;
 
 - (id)initWithFrame:(CGRect)frame reuseIdentifier:(NSString *)reuseIdentifier;
 {
@@ -51,6 +51,8 @@
 - (void)layoutSubviews;
 {
 	[super layoutSubviews];
+
+	[self setUserInteractionEnabled:YES];
 
 	NSArray * layoutArray = [dataWrapper layoutArray];
 	if(layoutArray == nil) layoutArray = [[dataWrapper templateCell] layoutArray];
@@ -101,8 +103,11 @@
 				
 				break;}
 			case LayoutEntryImage:{
-				thisEntryView = [[[TitaniumImageView alloc] initWithFrame:CGRectZero] autorelease];
-				[(TitaniumImageView *)thisEntryView setDelegate:self];
+//				thisEntryView = [[[TitaniumImageView alloc] initWithFrame:CGRectZero] autorelease];
+//				[(TitaniumImageView *)thisEntryView setDelegate:self];
+
+				thisEntryView = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+
 				UIImage * entryImage = [dataWrapper imageForKey:name];
 				[(TitaniumImageView *)thisEntryView setImage:entryImage];
 				
@@ -153,6 +158,27 @@
 	[layoutViewsArray release];
     [super dealloc];
 }
+
+- (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
+{
+	UITouch * anyTouch = [touches anyObject];
+	int currentViewIndex = 0;
+	for (UIView * thisView in layoutViewsArray) {
+		CGPoint thisPoint;
+		thisPoint = [anyTouch locationInView:thisView];
+		if ([thisView pointInside:thisPoint withEvent:nil]) {
+			LayoutEntry * thisEntry = [[dataWrapper layoutArray] objectAtIndex:currentViewIndex];
+			[self setClickedName:[thisEntry nameString]];
+			[super touchesEnded:touches withEvent:event];
+			return;
+		}
+		currentViewIndex ++;
+	}
+	
+	[self setClickedName:nil];
+	[super touchesEnded:touches withEvent:event];
+}
+
 
 
 - (void) imageView: (TitaniumImageView *)touchedImage touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;

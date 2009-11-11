@@ -744,6 +744,13 @@ UIColor * checkmarkColor = nil;
 	int row = [indexPath row];
 	int index = [self rowCountBeforeSection:section] + row;
 	
+	NSString * itemName = @"";
+	UITableViewCell * triggeredCell = [tableView cellForRowAtIndexPath:indexPath];
+	if([triggeredCell isKindOfClass:[ComplexTableViewCell class]]){
+		NSString * newItemName = [(ComplexTableViewCell *)triggeredCell clickedName];
+		if(newItemName != nil) itemName = [NSString stringWithFormat:@",layout:'%@'",newItemName];
+	}
+	
 	NSString * rowData;
 	if(tableStyle == UITableViewStyleGrouped){
 		rowData = [callbackProxyPath stringByAppendingFormat:@".sections[%d].data[%d]",section,row];
@@ -753,8 +760,8 @@ UIColor * checkmarkColor = nil;
 	NSString * detail = accessoryTapped ? @"true" : @"false";
 
 	NSString * triggeredCode = [[NSString alloc] initWithFormat:@".onClick('click',{type:'click',"
-			"index:%d,row:%d,section:%d,rowData:%@,detail:%@})",
-			index,row,section,rowData,detail];
+			"index:%d,row:%d,section:%d,rowData:%@,detail:%@%@})",
+			index,row,section,rowData,detail,itemName];
 	
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	[theHost sendJavascript:[callbackProxyPath stringByAppendingString:triggeredCode] toPageWithToken:callbackWindowToken];

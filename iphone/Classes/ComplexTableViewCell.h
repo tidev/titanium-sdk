@@ -12,8 +12,10 @@
 @interface ComplexTableViewCell : UITableViewCell<TitaniumImageViewDelegate> {
 	TitaniumCellWrapper * dataWrapper;
 	NSMutableArray * layoutViewsArray;
+	NSString * clickedName;
 }
 
 @property(nonatomic,readwrite,retain) TitaniumCellWrapper * dataWrapper;
+@property(nonatomic,readwrite,retain) NSString * clickedName;
 
 @end
