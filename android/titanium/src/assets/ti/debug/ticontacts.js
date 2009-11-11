@@ -385,4 +385,3 @@ Ti.Contacts.Contact.prototype.__defineGetter__("note", function(){
 Ti.Contacts.Contact.prototype.__defineSetter__("note", function(value){
 	this.setNote(value);
 });
-

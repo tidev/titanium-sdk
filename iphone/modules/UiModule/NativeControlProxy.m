@@ -761,10 +761,11 @@ needsRefreshing = YES;	\
 	
 	if (templateValue <= UITitaniumNativeItemSpinner){
 		[self updateNativeView:NO];
-		if ([nativeBarButton customView]==wrapperView) {
+		UIView * ourWrapperView = [self nativeBarView];
+		if ([nativeBarButton customView]==ourWrapperView) {
 			result = [nativeBarButton retain]; //Why waste a good bar button?
 		} else {
-			result = [[UIBarButtonItem alloc] initWithCustomView:wrapperView];
+			result = [[UIBarButtonItem alloc] initWithCustomView:ourWrapperView];
 		}
 		
 		[result setStyle:barButtonStyle];

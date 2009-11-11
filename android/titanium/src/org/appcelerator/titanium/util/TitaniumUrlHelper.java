@@ -8,10 +8,10 @@
 package org.appcelerator.titanium.util;
 
 import java.io.BufferedReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
 
 import org.appcelerator.titanium.TitaniumApplication;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
@@ -29,7 +29,7 @@ public class TitaniumUrlHelper
 
 	public static final String ASSET_PATH = "file:///android_asset/";
 
-	public static final String[] DEFAULT_JS_FILES = {
+/*	public static String[] DEFAULT_JS_FILES = {
 		"ti.js",
 		"tijson.js", // From json.org injected into Titanium namespace
 		"tiapp.js",
@@ -45,7 +45,7 @@ public class TitaniumUrlHelper
 		"tigeo.js",
 		"yahoo.js",
 		"ticontacts.js"
-	};
+	};*/
 
 	public static String getSource(TitaniumApplication app, Context context, String url, String[] files)
 		throws IOException
@@ -58,8 +58,30 @@ public class TitaniumUrlHelper
 			String mimetype = "application/octet-stream";
 
 			if (files == null) {
-				files = DEFAULT_JS_FILES;
 				Log.i(LCAT, "Using default javascript files.");
+				ArrayList<String> names = new ArrayList<String>();
+				BufferedReader isr = null;
+				try {
+					isr = new BufferedReader(new InputStreamReader(context.getAssets().open("ti/debug/tilist.txt")));
+					String line;
+
+					while((line = isr.readLine()) != null) {
+						names.add(line.trim());
+					}
+
+					files = names.toArray(new String[0]);
+				} catch (IOException e) {
+					Log.w(LCAT, "Unable to load default javascript file list", e);
+				} finally {
+					if (isr != null) {
+						try {
+							isr.close();
+						} catch (IOException ignore) {
+							// Ignore
+						}
+						isr = null;
+					}
+				}
 			}
 
 			if (extension != null) {

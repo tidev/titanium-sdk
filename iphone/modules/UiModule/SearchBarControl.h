@@ -10,7 +10,7 @@
 #import "NativeControlProxy.h"
 
 @interface SearchBarControl : NativeControlProxy {
-
+	UISearchBar * searchView;
 }
 
 @end

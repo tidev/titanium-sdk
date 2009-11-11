@@ -36,6 +36,8 @@ TitaniumCellWrapper * TitaniumCellWithData(NSDictionary * rowData, NSURL * baseU
 @synthesize rowData, sectionData, replacedData;
 @synthesize baseUrl;
 
+@synthesize isAnimated, scrollPosition;
+
 - (void) dealloc
 {
 	[baseUrl release];
@@ -312,7 +314,13 @@ UIColor * checkmarkColor = nil;
 		if(backgroundColor != nil)[tableView setBackgroundColor:backgroundColor];
 		if (tableRowHeight > 5){
 			[tableView setRowHeight:tableRowHeight];
-		}		
+		}
+		if([borderColor isEqual:[UIColor clearColor]]){
+			[tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+		} else {
+			[tableView setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
+			if(borderColor != nil)[tableView setSeparatorColor:borderColor];
+		}
 	}
 	return tableView;
 }
@@ -385,6 +393,12 @@ UIColor * checkmarkColor = nil;
 	NSNumber * isGrouped = [inputState objectForKey:@"grouped"];
 	SEL boolSel = @selector(boolValue);
 
+	if ([isGrouped respondsToSelector:boolSel]){
+		tableStyle = [isGrouped boolValue] ? UITableViewStyleGrouped : UITableViewStylePlain;
+	} else {
+		tableStyle = UITableViewStylePlain;
+	}
+	
 	NSDictionary * templateDict = [inputState objectForKey:@"template"];
 	if([templateDict isKindOfClass:dictClass]){
 		[templateCell release];
@@ -392,12 +406,8 @@ UIColor * checkmarkColor = nil;
 		[templateCell useProperties:templateDict withUrl:baseUrl];
 	}
 	
-
-	if ([isGrouped respondsToSelector:boolSel]){
-		tableStyle = [isGrouped boolValue] ? UITableViewStyleGrouped : UITableViewStylePlain;
-	} else {
-		tableStyle = UITableViewStylePlain;
-	}
+	[borderColor release];
+	borderColor = [UIColorWebColorNamed([inputState objectForKey:@"borderColor"]) retain];
 
 	NSNumber * tableRowHeightObject = [inputState objectForKey:@"rowHeight"];
 	
@@ -453,7 +463,7 @@ UIColor * checkmarkColor = nil;
 	
 	[actionQueue release];
 	[actionLock release];
-	
+	[borderColor release];
     [super dealloc];
 }
 
@@ -516,6 +526,7 @@ UIColor * checkmarkColor = nil;
 
 - (NSIndexPath *) indexPathFromInt: (int) index;
 {
+	if(index < 0)return nil;
 	int section = 0;
 	int rowCount = 0;
 	for(TableSectionWrapper * thisSection in sectionArray){
@@ -614,7 +625,7 @@ UIColor * checkmarkColor = nil;
 	} else if ([rowWrapper isButton]) {
 		result = [ourTableView dequeueReusableCellWithIdentifier:@"button"];
 		if (result == nil){
-			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"button"] autorelease];
+			result = [[[ValueTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"button"] autorelease];
 			[(id)result setTextAlignment:UITextAlignmentCenter];
 		}
 		[(id)result setText:[rowWrapper title]];
@@ -624,7 +635,7 @@ UIColor * checkmarkColor = nil;
 		NSString * valueString = [rowWrapper value];
 		if (valueString == nil){
 			result = [ourTableView dequeueReusableCellWithIdentifier:@"text"];
-			if (result == nil) result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"text"] autorelease];
+			if (result == nil) result = [[[ValueTableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"text"] autorelease];
 		} else {
 			UILabel * valueLabel;
 			result = [ourTableView dequeueReusableCellWithIdentifier:@"value"];
@@ -636,7 +647,7 @@ UIColor * checkmarkColor = nil;
 				valueLabel = [(ValueTableViewCell *)result valueLabel];
 			}
 			[valueLabel setText:valueString];
-			[valueLabel setFont:[rowWrapper font]];
+			[valueLabel setFont:[rowWrapper font]];			
 		}
 		[(id)result setText:[rowWrapper title]];
 		[(id)result setFont:[rowWrapper font]];
@@ -651,20 +662,23 @@ UIColor * checkmarkColor = nil;
 	UIColor * bgColor = [rowWrapper colorForKey:@"backgroundColor"];
 	UIColor * selectedBgColor = [rowWrapper colorForKey:@"selectedBackgroundColor"];
 
-	UIImage * bgImage = [rowWrapper stretchableImageForKey:@"backgroundImage"];
-	UIImage	* selectedBgImage = [rowWrapper stretchableImageForKey:@"selectedBackgroundImage"];
+	UIImage * bgImage = [rowWrapper imageForKey:@"backgroundImage"]; //[rowWrapper stretchableImageForKey:@"backgroundImage"];
+	UIImage	* selectedBgImage = [rowWrapper imageForKey:@"selectedBackgroundImage"]; //[rowWrapper stretchableImageForKey:@"selectedBackgroundImage"];
 
 	if((tableStyle == UITableViewStyleGrouped) && (bgImage == nil)){
 		if(bgColor != nil)[result setBackgroundColor:bgColor];
 		else [result setBackgroundColor:[UIColor whiteColor]];
 	} else {
+
 		UIImageView * bgView = (UIImageView *)[result backgroundView];
 		if(![bgView isKindOfClass:[UIImageView class]]){
 			bgView = [[[UIImageView alloc] initWithFrame:[result frame]] autorelease];
 			[result setBackgroundView:bgView];
 		}
+		[bgView setContentMode:UIViewContentModeCenter];
 		[bgView setImage:bgImage];
 		[bgView setBackgroundColor:(bgColor==nil)?[UIColor clearColor]:bgColor];
+		
 	}
 
 	if((selectedBgColor == nil)&&(selectedBgImage == nil)){
@@ -676,6 +690,7 @@ UIColor * checkmarkColor = nil;
 			[result setSelectedBackgroundView:selectedBgView];
 		}
 		
+		[selectedBgView setContentMode:UIViewContentModeCenter];
 		[selectedBgView setImage:selectedBgImage];
 		[selectedBgView setBackgroundColor:(selectedBgColor==nil)?[UIColor clearColor]:selectedBgColor];
 		
@@ -729,6 +744,13 @@ UIColor * checkmarkColor = nil;
 	int row = [indexPath row];
 	int index = [self rowCountBeforeSection:section] + row;
 	
+	NSString * itemName = @"";
+	UITableViewCell * triggeredCell = [tableView cellForRowAtIndexPath:indexPath];
+	if([triggeredCell isKindOfClass:[ComplexTableViewCell class]]){
+		NSString * newItemName = [(ComplexTableViewCell *)triggeredCell clickedName];
+		if(newItemName != nil) itemName = [NSString stringWithFormat:@",layout:'%@'",newItemName];
+	}
+	
 	NSString * rowData;
 	if(tableStyle == UITableViewStyleGrouped){
 		rowData = [callbackProxyPath stringByAppendingFormat:@".sections[%d].data[%d]",section,row];
@@ -738,8 +760,8 @@ UIColor * checkmarkColor = nil;
 	NSString * detail = accessoryTapped ? @"true" : @"false";
 
 	NSString * triggeredCode = [[NSString alloc] initWithFormat:@".onClick('click',{type:'click',"
-			"index:%d,row:%d,section:%d,rowData:%@,detail:%@})",
-			index,row,section,rowData,detail];
+			"index:%d,row:%d,section:%d,rowData:%@,detail:%@%@})",
+			index,row,section,rowData,detail,itemName];
 	
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	[theHost sendJavascript:[callbackProxyPath stringByAppendingString:triggeredCode] toPageWithToken:callbackWindowToken];
@@ -1128,6 +1150,25 @@ UIColor * checkmarkColor = nil;
 		TitaniumTableAction kind = [thisAction kind];
 		
 		UITableViewRowAnimation animation = [thisAction animation];
+
+		if (animation & TitaniumTableActionScroll) {
+			NSIndexPath * thisPath = nil;
+			switch (animation) {
+				case TitaniumTableActionScrollRow:
+					thisPath = [self indexPathFromInt:[thisAction index]];
+					break;
+				case TitaniumTableActionScrollSectionRow:
+					break;
+				default:
+					break;
+			}
+			if(thisPath == nil)continue;
+			
+			[tableView scrollToRowAtIndexPath:thisPath
+					atScrollPosition:[thisAction scrollPosition] animated:[thisAction isAnimated]];
+			continue;
+		}
+
 		TableSectionWrapper * thisSectionWrapper=nil;
 		int row = -1;
 		int section = -1;
