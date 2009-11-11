@@ -19,7 +19,7 @@ public interface ITitaniumUserWindow extends ITitaniumUserWindowBuilder
 
 	// new in 0.6.0
 
-	public void addView(ITitaniumView view);
+	//public void addView(ITitaniumView view);
 	public void setActiveViewIndex(int index, String options);
 	public void showViewByKey(String key, String options);
 	public void showView(ITitaniumView view, String options);
@@ -39,4 +39,6 @@ public interface ITitaniumUserWindow extends ITitaniumUserWindowBuilder
     public ITitaniumView getViewFromKey(String key);
 	public void onWindowFocusChanged(boolean hasFocus);
 
+	// In 0.8.0
+	void addView(String key);
 }

@@ -1,0 +1,27 @@
+<html>
+<head>
+<title>Map View</title>
+<script>
+var mv = Titanium.UI.createMapView({
+	type: Titanium.UI.MAP_VIEW_STANDARD,
+	zoomEnabled: true,
+	region : {
+		coordinate : { latitude : 37.390756, longitude : -122.081132},
+		span : { latitudeDelta : 1 , longitudeDelta : 1 }
+	}
+});
+
+Titanium.API.error("Proxy: " + mv._proxy);
+Titanium.API.error("Map View Key: " + mv.getKey());
+
+Titanium.UI.currentWindow.addView(mv);
+Titanium.UI.currentWindow.showView(mv);
+
+setTimeout(function() {
+	mv.setCenterCoordinate({latitude : 32.941238, longitude : -97.130447 });
+}, 10000);
+</script>
+</head>
+<body style='background-color: white'>
+</body>
+</html>

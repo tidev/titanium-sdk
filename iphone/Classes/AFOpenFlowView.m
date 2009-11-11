@@ -234,13 +234,16 @@ const static CGFloat kReflectionFraction = 0.85;
 
 - (void)setDefaultImage:(UIImage *)newDefaultImage {
 	[defaultImage release];
-	defaultImageHeight = newDefaultImage.size.height;
-	defaultImage = [[newDefaultImage addImageReflection:kReflectionFraction] retain];
+	if (newDefaultImage)
+	{
+		defaultImageHeight = newDefaultImage.size.height;
+		defaultImage = [AddImageReflection(newDefaultImage,kReflectionFraction) retain];
+	}
 }
 
 - (void)setImage:(UIImage *)image forIndex:(int)index {
 	// Create a reflection for this image.
-	UIImage *imageWithReflection = [image addImageReflection:kReflectionFraction];
+	UIImage *imageWithReflection = AddImageReflection(image,kReflectionFraction);
 	NSNumber *coverNumber = [NSNumber numberWithInt:index];
 	[coverImages setObject:imageWithReflection forKey:coverNumber];
 	[coverImageHeights setObject:[NSNumber numberWithFloat:image.size.height] forKey:coverNumber];
@@ -303,6 +306,12 @@ const static CGFloat kReflectionFraction = 0.85;
 		AFItemView *targetCover = [self findCoverOnscreen:targetLayer];
 		if (targetCover && (targetCover.number != selectedCoverView.number))
 			[self setSelectedCover:targetCover.number];
+
+		//jhaynie: modification to send click events on single taps
+		if ([self.viewDelegate respondsToSelector:@selector(openFlowView:click:)])
+		{
+			[self.viewDelegate openFlowView:self click:selectedCoverView.number];
+		}
 	}
 	[self centerOnSelectedCover:YES];
 	

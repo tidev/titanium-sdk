@@ -43,7 +43,7 @@ public class TitaniumContacts extends TitaniumBaseModule
 			Log.d(LCAT, "Registering TitaniumContact as " + moduleName + " using TitaniumMethod.");
 		}
 
-		tmm.registerModule(moduleName, this);
+		tmm.registerInstance(moduleName, this);
 	}
 
 	public void showContact(JSONObject args) {

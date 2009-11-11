@@ -25,10 +25,15 @@
 #import "AFUIImageReflection.h"
 
 
-@implementation UIImage (AFUIImageReflection)
+// Appcelerator modification note: 
+// using categories with static libraries don't seem to work
+// right on device with iphone - probably a symbol issue
+// turn this into a static function (from what was a category to UIImage
+// originally)
 
-- (UIImage *)addImageReflection:(CGFloat)reflectionFraction {
-	int reflectionHeight = self.size.height * reflectionFraction;
+UIImage* AddImageReflection(UIImage *image, CGFloat reflectionFraction) 
+{
+	int reflectionHeight = image.size.height * reflectionFraction;
 	
     // create a 2 bit CGImage containing a gradient that will be used for masking the 
     // main view content to create the 'fade' of the reflection.  The CGImageCreateWithMask
@@ -69,16 +74,16 @@
 	
     // create an image by masking the bitmap of the mainView content with the gradient view
     // then release the  pre-masked content bitmap and the gradient bitmap
-    CGImageRef reflectionImage = CGImageCreateWithMask(self.CGImage, gradientMaskImage);
+    CGImageRef reflectionImage = CGImageCreateWithMask(image.CGImage, gradientMaskImage);
     CGImageRelease(gradientMaskImage);
 	
-	CGSize size = CGSizeMake(self.size.width, self.size.height + reflectionHeight);
+	CGSize size = CGSizeMake(image.size.width, image.size.height + reflectionHeight);
 	
 	UIGraphicsBeginImageContext(size);
 	
-	[self drawAtPoint:CGPointZero];
+	[image drawAtPoint:CGPointZero];
 	CGContextRef context = UIGraphicsGetCurrentContext();
-	CGContextDrawImage(context, CGRectMake(0, self.size.height, self.size.width, reflectionHeight), reflectionImage);
+	CGContextDrawImage(context, CGRectMake(0, image.size.height, image.size.width, reflectionHeight), reflectionImage);
 	
 	UIImage* result = UIGraphicsGetImageFromCurrentImageContext();
 	UIGraphicsEndImageContext();
@@ -86,5 +91,3 @@
 	
 	return result;
 }
-
-@end

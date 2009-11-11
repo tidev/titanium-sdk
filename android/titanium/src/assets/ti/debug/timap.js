@@ -6,33 +6,42 @@
  */
 // requires Ti, UI, Geolocation
 
-Ti.UI.MAP_VIEW_STANDARD = 0;
-Ti.UI.MAP_VIEW_SATELLITE = 1;
-Ti.UI.MAP_VIEW_HYBRID = 2;
+Ti.UI.MAP_VIEW_STANDARD = 1;
+Ti.UI.MAP_VIEW_SATELLITE = 2;
+Ti.UI.MAP_VIEW_HYBRID = 3;
 
-Ti.UI.MapView =
+Ti.UI.MapView = function(proxy)
 {
-	_module : "TitaniumMap",
+	this._proxy = proxy;
 
-	setCenterCoordinate : function(coordinate) {
-		Ti.Method.dispatch(this._module, "setCenterCoordinate", coordinate);
-	},
+	this.getKey = function() {
+		return Ti.Method.dispatch(this._proxy, "getKey");
+	};
 
-	setRegion : function(region) {
-		Ti.Method.dispatch(this._module, "setRegion", region);
-	},
+	this.processOptions = function(options) {
+		// Stringify until other views are moved to dispatch
+		Ti.Method.dispatch(this._proxy, "processOptions", Ti.JSON.stringify(options));
+	};
 
-	setType : function(type) {
-		Ti.Method.dispatch(this._module, "setType", type);
-	},
+	this.setCenterCoordinate = function(coordinate) {
+		Ti.Method.dispatch(this._proxy, "setCenterCoordinate", coordinate);
+	};
 
-	setZoomEnabled : function(enabled) {
-		Ti.Method.dipatch(this._module,"setZoomEnabled", enabled);
-	},
+	this.setRegion = function(region) {
+		Ti.Method.dispatch(this._proxy, "setRegion", region);
+	};
 
-	setScrollEnabled : function(enabled) {
-		Ti.Method.dipatch(this._module,"setScrollEnabled", enabled);
-	}
+	this.setType = function(type) {
+		Ti.Method.dispatch(this._proxy, "setType", type);
+	};
+
+	this.setZoomEnabled = function(enabled) {
+		Ti.Method.dipatch(this._proxy,"setZoomEnabled", enabled);
+	};
+
+	this.setScrollEnabled = function(enabled) {
+		Ti.Method.dipatch(this._proxy,"setScrollEnabled", enabled);
+	};
 };
 
 Ti.UI.createMapView = function(options) {
@@ -40,6 +49,9 @@ Ti.UI.createMapView = function(options) {
 		options = {};
 	}
 
+	var mv = new Ti.UI.MapView(Ti.Method.dispatch("TitaniumMap","createMapView"));
+	mv.processOptions(options);
+	return mv;
 };
 
 Ti.Geolocation.reverseGeocoder = function(coordinate, location) {

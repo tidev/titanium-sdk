@@ -32,6 +32,7 @@
 
 		c.onload = function()
 		{
+			Titanium.API.info('STATUS = ' + this.status)
 			document.getElementById('html').innerHTML = this.responseText;
 		};
 		// open the client
@@ -57,6 +58,8 @@
 
 		c.onload = function()
 		{
+			Titanium.API.info('STATUS = ' + this.status)
+			
 			document.getElementById('html').innerHTML = this.responseText;
 		};
 		// open the client

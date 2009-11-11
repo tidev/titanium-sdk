@@ -1,5 +1,7 @@
 <html>
 <head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	
 	<script>
 	window.onload = function()
 	{
@@ -48,7 +50,8 @@
 		});
 		document.getElementById('textfield_button').onclick = function()
 		{
-			tf.setValue('HELLO');
+			var x= 'Привет всем'
+			tf.setValue(x);
 		};
 
 		var ta = Titanium.UI.createTextArea({

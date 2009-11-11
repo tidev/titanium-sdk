@@ -22,11 +22,11 @@
 
 			var buttonData = [
 				{title:'Show View 1', fontSize:14,fontWeight:'bold'},
-				{title:'Show View 2'},
-				{title:'Show View 3'},
+				{image:'Mail.png',title:'Show View 2'},
+				{title:'Show View 3', rowHeight:70},
 				{title:'Show View 4'},
 				{title:'Show View 5'},
-				{title:'Show View 6'},
+				{title:'Show View 6' , backgroundImage:'table_view_bg.png'},
 
 			];
 
@@ -104,8 +104,8 @@
 			});
 
 			var optionData = [
-				{title:'Option 1'},
-				{title:'Option 2' , selected:true},
+				{image:'Mail.png', title:'Option 1'},
+				{title:'Option 2' , selected:true, rowHeight:50},
 				{title:'Option 3'}
 			];
 
@@ -133,7 +133,7 @@
 				a.setMessage(e.value)
 				a.show();
 			})
-			var textInstance = Titanium.UI.createTextField({value:'Nolan',width:50});
+			var textInstance = Titanium.UI.createTextField({value:'Nolané',width:50});
 			textInstance.addEventListener('change',function(e)
 			{
 				a.setMessage(e.value)
@@ -145,7 +145,7 @@
 			})
 
 			var inputData = [
-				{title:'Input 1', input:switchInstance, image:'iTunes.png', foo:'bar'},
+				{title:'Input 1', input:switchInstance, image:'iTunes.png', foo:'bar', rowHeight:50},
 				{title:'Sound', input:sliderInstance, image:'Mail.png'},
 				{title:'Name', input:textInstance},
 				{title:'Input 2', value:'foo', hasChild:true},
@@ -167,7 +167,7 @@
 			});
 
 			// create grouped view
-			groupedView = Titanium.UI.iPhone.createGroupedView();
+			groupedView = Titanium.UI.iPhone.createGroupedView({backgroundColor:'#999'});
 			groupedView.addSection(optionSection);
 			groupedView.addSection(buttonSection);
 			groupedView.addSection(inputSection);

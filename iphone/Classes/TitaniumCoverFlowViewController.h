@@ -8,7 +8,7 @@
 #import "AFOpenFlowView.h"
 
 @interface TitaniumCoverFlowViewController : TitaniumContentViewController<AFOpenFlowViewDelegate,AFOpenFlowViewDataSource> {
-	NSArray *images;
+	NSMutableArray *images;
 	AFOpenFlowView *view;
 	UIColor *backgroundColor;
 }

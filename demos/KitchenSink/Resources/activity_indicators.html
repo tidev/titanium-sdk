@@ -20,13 +20,6 @@
 	
 	<script>
 	
-	// THESE SHOULD BE FIXED IN NEXT PUSH
-	// message in constructor doesn't work
-	// message does not hide when indicator is hidden
-	
-	
-	// should we use bold font when on toolbar and navbar
-	
 	document.getElementById('1').onclick = function()
 	{
 		var flexSpace = Titanium.UI.createButton({
@@ -35,6 +28,7 @@
 		
 		var ind = Titanium.UI.createActivityIndicator();
 		Titanium.UI.currentWindow.setToolbar([flexSpace,ind,flexSpace]);
+
 		ind.show();
       	setTimeout(function()
       	{
@@ -48,8 +42,7 @@
 			systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 		});
 
-		var ind = Titanium.UI.createActivityIndicator({width:150,fontWeight:'bold',fontSize:20});
-		ind.setMessage('Hello World...');
+		var ind = Titanium.UI.createActivityIndicator({width:150,fontWeight:'bold',fontSize:20, message:'Hello World'});
 
 		Titanium.UI.currentWindow.setToolbar([flexSpace,ind,flexSpace]);
 
@@ -70,6 +63,7 @@
 			style:Titanium.UI.iPhone.ActivityIndicatorStyle.BIG
 		});
 		Titanium.UI.currentWindow.setToolbar([flexSpace,ind,flexSpace]);
+
 		ind.show();
       	setTimeout(function()
       	{
@@ -97,6 +91,7 @@
 		var ind = Titanium.UI.createActivityIndicator({width:100});
 		ind.setMessage('Hello World...')
 		Titanium.UI.currentWindow.setTitleControl(ind);
+
 		ind.show();
       	setTimeout(function()
       	{
@@ -109,9 +104,9 @@
 		var ind = Titanium.UI.createActivityIndicator({
 			id:'content_indicator',
 			style:Titanium.UI.iPhone.ActivityIndicatorStyle.DARK,
-			color:'#000000'
+			color:'#000000',
+			message:'Hello World...'
 		});
-		ind.setMessage('Hello World...');
 		ind.show();
       	setTimeout(function()
       	{

@@ -23,8 +23,8 @@ public class TitaniumDelegatingUserWindow implements ITitaniumUserWindow
 		return uiWebView.addWindowEventListener(eventName, eventListener);
 	}
 
-	public void addView(ITitaniumView view) {
-		userWindow.addView(view);
+	public void addView(String key) {
+		userWindow.addView(key);
 	}
 
 	public void close() {
