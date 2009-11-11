@@ -17,6 +17,7 @@
 			<orientation>either</orientation>
 			<backButtonTitle>Back</backButtonTitle>
 			<backgroundImage>sb_bg.jpg</backgroundImage>
+			<barColor>#19613b</barColor>
         </window>
         <window>
             <id>UI</id>

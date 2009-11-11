@@ -40,27 +40,47 @@
 
 	Titanium.UI.addEventListener('tabchange',function(e)
 	{
-		Titanium.API.info('>>>>>>>>>>>>>>>>>>>>>>>>>> TABCHANGE index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
+		Titanium.API.info('TABCHANGE index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
 	});
 
+	var template = {
+	 selectedBackgroundImage:'table_view_bg.png', 
+	 selectedColor:'white',
+	 color:'brown',
+	 layout:[
+	   {type:'text', left:50,  name:'title', fontWeight:'bold'}
+	]};
 	// data for tableview
 	var data = [
-		{title:'Play Movie',backgroundImage:'FindCoffeesButton.png'},
-		{title:'Camera',backgroundImage:'table_view_bg.png'},
-		{title:'Vibrate'},
-		{title:'Orientation',hasChild:true},
-		{title:'Photo Gallery'},
-		{title:'Geo Location', hasChild:true},
-		{title:'Accelerometer', hasChild:true},
-		{title:'Sound',hasChild:true},
-		{title:'Shake',hasChild:true},
-		{title:'Email Client',hasChild:true},
-		{title:'Save to Gallery'},
-		{title:'Contacts',hasChild:true}
+		{rowHeight:20},
+		{title:'Play Movie',backgroundImage:'images/tableview/off_1.png', 
+				selectedBackgroundImage:'images/tableview/on_1.png'},
+		{title:'Camera',backgroundImage:'images/tableview/off_2.png',
+				selectedBackgroundImage:'images/tableview/on_2.png'},
+		{title:'Vibrate',backgroundImage:'images/tableview/off_3.png',
+				selectedBackgroundImage:'images/tableview/on_3.png'},
+		{title:'Orientation',backgroundImage:'images/tableview/off_4.png',
+			selectedBackgroundImage:'images/tableview/on_4.png'},
+		{title:'Photo Gallery',backgroundImage:'images/tableview/off_1.png',
+				selectedBackgroundImage:'images/tableview/on_1.png'},
+		{title:'Geo Location',backgroundImage:'images/tableview/off_2.png',
+				selectedBackgroundImage:'images/tableview/on_2.png'},
+		{title:'Accelerometer',backgroundImage:'images/tableview/off_3.png',
+				selectedBackgroundImage:'images/tableview/on_3.png'},
+		{title:'Sound',backgroundImage:'images/tableview/off_4.png',
+				selectedBackgroundImage:'images/tableview/on_4.png'},
+		{title:'Shake',backgroundImage:'images/tableview/off_1.png',
+				selectedBackgroundImage:'images/tableview/on_1.png'},
+		{title:'Email Client',backgroundImage:'images/tableview/off_2.png',
+				selectedBackgroundImage:'images/tableview/on_2.png'},
+		{title:'Save to Gallery',backgroundImage:'images/tableview/off_3.png',
+				selectedBackgroundImage:'images/tableview/on_3.png'},
+		{title:'Contacts',backgroundImage:'images/tableview/off_4.png',
+				 selectedBackgroundImage:'images/tableview/on_4.png'}
 	];
 	Titanium.UI.currentWindow.setTitle('Phone API');
 	// tableview object
-	var tableView = Titanium.UI.createTableView({backgroundColor:'transparent',
+	var tableView = Titanium.UI.createTableView({template:template,backgroundColor:'transparent', borderColor:'transparent',
 		data:data,
 		
 	}, function(eventObject)
