@@ -11,6 +11,9 @@
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
+		2402F6C810AB1CFD0060E89D /* OperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2402F6C710AB1CFD0060E89D /* OperationQueue.m */; };
+		2402F6C910AB1CFD0060E89D /* OperationQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 2402F6C610AB1CFD0060E89D /* OperationQueue.h */; };
+		2402F6CA10AB1CFD0060E89D /* OperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2402F6C710AB1CFD0060E89D /* OperationQueue.m */; };
 		2418F4220FCB629A00BFE545 /* sound.html in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4210FCB629A00BFE545 /* sound.html */; };
 		2418F4670FCB6A2100BFE545 /* sound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4660FCB6A2100BFE545 /* sound.wav */; };
 		24440B9B0FC9DFA0000A025D /* iPhone_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 24440B9A0FC9DFA0000A025D /* iPhone_icon.png */; };
@@ -388,6 +391,8 @@
 		1D3623250D0F684500981E51 /* TitaniumAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumAppDelegate.m; sourceTree = "<group>"; };
 		1D6058910D05DD3D006BFB54 /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		2402F6C610AB1CFD0060E89D /* OperationQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OperationQueue.h; sourceTree = "<group>"; };
+		2402F6C710AB1CFD0060E89D /* OperationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OperationQueue.m; sourceTree = "<group>"; };
 		2418F4210FCB629A00BFE545 /* sound.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = sound.html; sourceTree = "<group>"; };
 		2418F4660FCB6A2100BFE545 /* sound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound.wav; sourceTree = "<group>"; };
 		24440B9A0FC9DFA0000A025D /* iPhone_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iPhone_icon.png; sourceTree = "<group>"; };
@@ -1232,6 +1237,8 @@
 				B4D4B07410489FDC006E42E0 /* WebFont.m */,
 				B4C57BB410A54D3900198B82 /* LayoutConstraint.h */,
 				B4C57BB510A54D3900198B82 /* LayoutConstraint.m */,
+				2402F6C610AB1CFD0060E89D /* OperationQueue.h */,
+				2402F6C710AB1CFD0060E89D /* OperationQueue.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -1486,6 +1493,7 @@
 				B4AE66E510A104F200126EDA /* TweakedWebView.h in Headers */,
 				B4C579C810A27F1E00198B82 /* ComplexTableViewCell.h in Headers */,
 				B4C57BB610A54D3900198B82 /* LayoutConstraint.h in Headers */,
+				2402F6C910AB1CFD0060E89D /* OperationQueue.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2011,6 +2019,7 @@
 				B4AE66EB10A1076F00126EDA /* SearchBarControl.m in Sources */,
 				B4C579C510A27F1E00198B82 /* ComplexTableViewCell.m in Sources */,
 				B4C57BB810A54D3900198B82 /* LayoutConstraint.m in Sources */,
+				2402F6C810AB1CFD0060E89D /* OperationQueue.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2212,6 +2221,7 @@
 				B4AE66E610A104F200126EDA /* TweakedWebView.m in Sources */,
 				B4C579C910A27F1E00198B82 /* ComplexTableViewCell.m in Sources */,
 				B4C57BB710A54D3900198B82 /* LayoutConstraint.m in Sources */,
+				2402F6CA10AB1CFD0060E89D /* OperationQueue.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

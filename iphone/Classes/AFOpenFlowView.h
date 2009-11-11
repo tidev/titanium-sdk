@@ -72,6 +72,7 @@
 
 @protocol AFOpenFlowViewDelegate <NSObject>
 @optional
+- (void)openFlowView:(AFOpenFlowView *)openFlowView click:(int)index;
 - (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(int)index;
 @end
 

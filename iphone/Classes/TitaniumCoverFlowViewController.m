@@ -15,7 +15,6 @@
 #import "TitaniumHost.h"
 #import "TitaniumBlobWrapper.h"
 
-
 @implementation TitaniumCoverFlowViewController
 
 - (UIView *) view;
@@ -32,25 +31,18 @@
 		[view setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		if (images!=nil)
 		{
-			int count = 0;
-			for (int c=0;c<[images count];c++)
-			{
-				id path = [images objectAtIndex:c];
-				UIImage *image = [[TitaniumHost sharedHost] imageForResource:path];
-				if (image!=nil)
-				{
-					[view setImage:image forIndex:c];
-					[image release];
-					count++;
-				}
-			}
 			[view setNumberOfImages:[images count]];
 		}
-		[backgroundColor release];
-		backgroundColor=nil;
 	}
 	return view;
 }
+
+- (void)didReceiveMemoryWarning {
+	[view release];
+	view = nil;
+    [super didReceiveMemoryWarning];
+}
+
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
 	return YES;
@@ -72,35 +64,25 @@
 	NSArray *array = [inputState objectForKey:@"images"];
 	if (array!=nil)
 	{
-		images = [array retain];
+		images = [[NSMutableArray arrayWithArray:array] retain];
 	}
-	
+	else
+	{
+		images = [[NSMutableArray alloc] init];
+	}
+
 	NSString *clr = [inputState objectForKey:@"backgroundColor"];
 	if (clr!=nil)
 	{
-		backgroundColor = UIColorWebColorNamed(clr);
+		backgroundColor = [UIColorWebColorNamed(clr) retain];
 	}
-}
-
--(void)updateImage:(NSArray*)data
-{
-	TitaniumBlobWrapper *wrapper = [[TitaniumHost sharedHost] blobForUrl:[data objectAtIndex:0]];
-	UIImage * image = [wrapper imageBlob];
-	int index = [[data objectAtIndex:1] intValue];
-	[view setImage:image forIndex:index];
-	[image release];
+	
 }
 
 -(void)setUrl:(NSURL*)url index:(NSNumber*)index
 {
-	NSArray *array = [NSArray arrayWithObjects:url,index,nil];
-	
-	if(![NSThread isMainThread]){
-		[self performSelectorOnMainThread:@selector(updateImage:) withObject:array waitUntilDone:NO];
-	} else {
-		[self updateImage:array];
-	}
-	
+	[images replaceObjectAtIndex:[index intValue] withObject:url];
+	[[OperationQueue sharedQueue] queue:@selector(loadImage:) target:self arg:index after:@selector(setImageData:) on:self ui:YES];
 }
 
 -(void)setSelected:(NSNumber*)index
@@ -110,7 +92,23 @@
 	} else {
 		[view setSelectedCover:[index intValue]];
 		[view centerOnSelectedCover:YES];
+		// trigger callback event
+		[self openFlowView:view selectionDidChange:[index intValue]];
 	}
+}
+
+#pragma mark OperationQueue callbacks
+
+-(id)loadImage:(NSNumber*)index
+{
+	id path = [images objectAtIndex:[index intValue]];
+	UIImage *image = [[TitaniumHost sharedHost] imageForResource:path];
+	return [NSDictionary dictionaryWithObjectsAndKeys:image,@"image",index,@"index",nil];
+}
+
+- (void)setImageData:(NSDictionary*)args
+{
+	[view setImage:[args objectForKey:@"image"] forIndex:[[args objectForKey:@"index"] intValue]];
 }
 
 #pragma mark Delegates
@@ -120,17 +118,26 @@
 {
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	NSString * pathString = [self javaScriptPath];
+	NSString * commandString = [NSString stringWithFormat:@"var prev = %@._SEL; %@._SEL=%d; %@.doEvent('change',{type:'change',index:%d,previous:prev}); ",pathString, pathString,index,pathString,index];	
+	[theHost sendJavascript:commandString toPagesWithTokens:listeningWebContextTokens update:YES];
+}
+
+- (void)openFlowView:(AFOpenFlowView *)openFlowView click:(int)index
+{
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	NSString * pathString = [self javaScriptPath];
 	NSString * commandString = [NSString stringWithFormat:@"var prev = %@._SEL; %@._SEL=%d; %@.doEvent('click',{type:'click',index:%d,previous:prev}); ",pathString, pathString,index,pathString,index];	
 	[theHost sendJavascript:commandString toPagesWithTokens:listeningWebContextTokens update:YES];
 }
 
 - (void)openFlowView:(AFOpenFlowView *)openFlowView requestImageForIndex:(int)index
 {
+	[[OperationQueue sharedQueue] queue:@selector(loadImage:) target:self arg:[NSNumber numberWithInt:index] after:@selector(setImageData:) on:self ui:YES];
 }
 
 - (UIImage *)defaultImage
 {
-	return nil;
+	return [UIImage imageNamed:@"modules/ui/images/photoDefault.png"];
 }
 
 @end

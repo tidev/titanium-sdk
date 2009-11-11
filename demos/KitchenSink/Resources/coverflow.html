@@ -16,6 +16,10 @@
 		{
 			Titanium.API.info("image clicked: "+e.index+', selected is '+view.selected);	
 		});
+		view.addEventListener('change',function(e)
+		{
+			Titanium.API.info("image changed: "+e.index+', selected is '+view.selected);	
+		});
 		Titanium.UI.currentWindow.addView(view);
 		Titanium.UI.currentWindow.showView(view);
 		
