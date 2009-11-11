@@ -679,7 +679,7 @@ UIColor * checkmarkColor = nil;
 			[bgView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 			[result setBackgroundView:bgView];
 		}
-		[bgView setContentMode:UIViewContentModeCenter];
+		//[bgView setContentMode:UIViewContentModeCenter];
 		[bgView setImage:bgImage];
 		[bgView setBackgroundColor:(bgColor==nil)?[UIColor clearColor]:bgColor];
 		
@@ -695,7 +695,7 @@ UIColor * checkmarkColor = nil;
 			[result setSelectedBackgroundView:selectedBgView];
 		}
 		
-		[selectedBgView setContentMode:UIViewContentModeCenter];
+		//[selectedBgView setContentMode:UIViewContentModeCenter];
 		[selectedBgView setImage:selectedBgImage];
 		[selectedBgView setBackgroundColor:(selectedBgColor==nil)?[UIColor clearColor]:selectedBgColor];
 		
