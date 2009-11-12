@@ -11,7 +11,7 @@
 #import "UiModule.h"
 
 @implementation LayoutEntry
-@synthesize type,constraint,labelFont,textColor,nameString,selectedTextColor;
+@synthesize type,constraint,labelFont,textColor,nameString,selectedTextColor,validLabelFont;
 
 - (id) initWithDictionary: (NSDictionary *) inputDict inheriting: (LayoutEntry *) inheritance;
 {

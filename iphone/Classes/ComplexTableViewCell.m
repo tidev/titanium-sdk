@@ -107,7 +107,7 @@
 				} else {
 					entryDesc = [dataWrapper fontDesc];
 				}
-				[(UILabel *)thisEntry setFont:FontFromDescription(&entryDesc)];
+				//[(UILabel *)thisEntry setFont:FontFromDescription(&entryDesc)];
 				
 				break;}
 			case LayoutEntryImage:{

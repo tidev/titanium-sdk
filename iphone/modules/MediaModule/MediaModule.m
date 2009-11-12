@@ -10,6 +10,7 @@
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVAudioPlayer.h>
 #import <MediaPlayer/MediaPlayer.h>
+#import <MobileCoreServices/UTCoreTypes.h>
 #import "TitaniumBlobWrapper.h"
 #import "Logging.h"
 
@@ -155,11 +156,9 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 		[nativePlayer pause];
 		if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerPause:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL([self nativePlayer]),@"player",nil]];
 	} else if ([functionName isEqualToString:@"reset"]) {
-//		[[self nativePlayer] stop];
 		[nativePlayer setCurrentTime:0];
 		if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerReset:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL([self nativePlayer]),@"player",nil]];
 		resumeTime = 0;
-//		[nativePlayer play];
 	} else if ([functionName isEqualToString:@"stop"]) {
 		if (nativePlayer != nil){
 			[nativePlayer stop];
@@ -477,7 +476,29 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 		if([saveToRollObject respondsToSelector:@selector(boolValue)]){
 			saveImageToRoll = [saveToRollObject boolValue];
 		}
-		
+				
+		id types = [arguments objectForKey:@"mediaTypes"];
+		if ([types isKindOfClass:[NSArray class]])
+		{
+			currentImagePicker.mediaTypes = [NSArray arrayWithArray:types];
+		}
+		else if ([types isKindOfClass:[NSString class]])
+		{
+			currentImagePicker.mediaTypes = [NSArray arrayWithObject:types];
+		}
+
+/*		
+		id videoMaximumDuration = [arguments objectForKey:@"videoMaximumDuration"];
+		if ([videoMaximumDuration respondsToSelector:@selector(doubleValue)] && [currentImagePicker respondsToSelector:@selector(setVideoMaximumDuration:)])
+		{
+			[currentImagePicker setVideoMaximumDuration:[videoMaximumDuration doubleValue]];
+		}
+		id videoQuality = [arguments objectForKey:@"videoQuality"];
+		if ([videoQuality respondsToSelector:@selector(doubleValue)] && [currentImagePicker respondsToSelector:@selector(setVideoQuality:)])
+		{
+			[currentImagePicker setVideoQuality:[videoQuality doubleValue]];
+		}
+*/ 
 	}
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	UINavigationController * theNavController = [[theHost currentTitaniumViewController] navigationController];
@@ -488,12 +509,6 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 
 	return nil;
 }
-
-//- (void) startPickerInMainThread;
-//{
-//	UIViewController * visibleController = [[TitaniumHost sharedHost] visibleTitaniumViewController];
-//	[[visibleController navigationController] presentModalViewController:currentImagePicker animated:isImagePickerAnimated];
-//}
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingImage:(UIImage *)image editingInfo:(NSDictionary *)editingInfo;
 {
@@ -617,7 +632,30 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	[theNC addObserver:self selector:@selector(handlePlayerNotification:) name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
 
 	mediaDictionary = [[NSMutableDictionary alloc] init];
-
+	
+	id mediaSourceTypes = nil, photoSourceTypes = nil, albumSourceTypes = nil;
+	
+	// this is a new method in 3.0 - otherwise hardcode
+	if ([UIImagePickerController respondsToSelector:@selector(availableMediaTypesForSourceType:)])
+	{
+		mediaSourceTypes = [UIImagePickerController availableMediaTypesForSourceType: UIImagePickerControllerSourceTypeCamera];
+		photoSourceTypes = [UIImagePickerController availableMediaTypesForSourceType: UIImagePickerControllerSourceTypePhotoLibrary];
+		albumSourceTypes = [UIImagePickerController availableMediaTypesForSourceType: UIImagePickerControllerSourceTypeSavedPhotosAlbum];
+	}
+	// pre 3.1 these seem to return nil ... we at least always support images
+	if (mediaSourceTypes==nil)
+	{
+		mediaSourceTypes = [NSArray arrayWithObject:(NSString*)kUTTypeImage];
+	}
+	if (photoSourceTypes==nil)
+	{
+		photoSourceTypes = [NSArray arrayWithObject:(NSString*)kUTTypeImage];
+	}
+	if (albumSourceTypes==nil)
+	{
+		albumSourceTypes = [NSArray arrayWithObject:(NSString*)kUTTypeImage];
+	}
+	
 	NSDictionary * mediaDict = [NSDictionary dictionaryWithObjectsAndKeys:
 			beepInvoc, @"beep",
 			vibeInvoc, @"vibrate",
@@ -640,7 +678,19 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 			[NSNumber numberWithInt:MediaModuleErrorUnknown],@"UNKNOWN_ERROR",
 			[NSNumber numberWithInt:MediaModuleErrorImagePickerBusy],@"DEVICE_BUSY",
 			[NSNumber numberWithInt:MediaModuleErrorNoCamera],@"NO_CAMERA",
-			
+			[NSNumber numberWithInt:MediaModuleErrorNoVideo],@"NO_VIDEO",
+								
+			kUTTypeMovie,@"MEDIA_TYPE_VIDEO",
+			kUTTypeImage,@"MEDIA_TYPE_PHOTO",
+								
+			[NSNumber numberWithInt:UIImagePickerControllerQualityTypeHigh], @"QUALITY_HIGH",					
+			[NSNumber numberWithInt:UIImagePickerControllerQualityTypeMedium], @"QUALITY_MEDIUM",					
+			[NSNumber numberWithInt:UIImagePickerControllerQualityTypeLow], @"QUALITY_LOW",					
+
+			mediaSourceTypes,@"availableCameraMediaTypes",					
+			photoSourceTypes,@"availablePhotoMediaTypes",					
+			albumSourceTypes,@"availablePhotoGalleryMediaTypes",					
+								
 			[NSNumber numberWithInt:MPMovieControlModeDefault],@"VIDEO_CONTROL_DEFAULT",
 			[NSNumber numberWithInt:MPMovieControlModeVolumeOnly],@"VIDEO_CONTROL_VOLUME_ONLY",
 			[NSNumber numberWithInt:MPMovieControlModeHidden],@"VIDEO_CONTROL_HIDDEN",

@@ -10,6 +10,7 @@
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
+		2402F88D10AB57070060E89D /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2402F88C10AB57070060E89D /* MobileCoreServices.framework */; };
 		2418F31F0FCB095700BFE545 /* ApplicationRouting.m in Sources */ = {isa = PBXBuildFile; fileRef = 2418F31E0FCB095700BFE545 /* ApplicationRouting.m */; };
 		2418F5920FCB9EB100BFE545 /* tiapp.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2418F5910FCB9EB100BFE545 /* tiapp.plist */; };
                 249377BD10797681003847F0 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 249377BC10797681003847F0 /* OpenGLES.framework */; };
@@ -37,6 +38,7 @@
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D6058910D05DD3D006BFB54 /* __PROJECT_NAME__.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "__PROJECT_NAME__.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		2402F88C10AB57070060E89D /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		2418F31D0FCB095700BFE545 /* ApplicationRouting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ApplicationRouting.h; sourceTree = "<group>"; };
 		2418F31E0FCB095700BFE545 /* ApplicationRouting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ApplicationRouting.m; sourceTree = "<group>"; };
 		2418F5910FCB9EB100BFE545 /* tiapp.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = tiapp.plist; path = Resources/tiapp.plist; sourceTree = "<group>"; };
@@ -88,6 +90,7 @@
                                 249379A010798AF8003847F0 /* AddressBook.framework in Frameworks */,
                                 249379A210798AF8003847F0 /* AddressBookUI.framework in Frameworks */,
 				24B51C78109EC1D300B87D18 /* CFNetwork.framework in Frameworks */,
+				2402F88D10AB57070060E89D /* MobileCoreServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -166,6 +169,7 @@
                                 2493799F10798AF8003847F0 /* AddressBook.framework */,
                                 249379A110798AF8003847F0 /* AddressBookUI.framework */,
 				24B51C77109EC1D300B87D18 /* CFNetwork.framework */,
+				2402F88C10AB57070060E89D /* MobileCoreServices.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
