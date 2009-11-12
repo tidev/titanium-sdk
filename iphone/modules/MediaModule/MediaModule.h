@@ -17,7 +17,7 @@ typedef enum {
 	MediaModuleErrorUnknown,
 } MediaModuleError;
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < 30000
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < 300000
 enum {
     UIImagePickerControllerQualityTypeHigh,
     UIImagePickerControllerQualityTypeMedium,
