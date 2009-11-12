@@ -1094,7 +1094,8 @@ TitaniumHost * lastSharedHost = nil;
 		ourObject = titaniumObject;
 	}
 	
-	if (![ourObject respondsToSelector:@selector(allKeys)]){
+	if (![ourObject respondsToSelector:@selector(allKeys)])
+	{
 		NSLog(@"[ERROR] %@ (%@) does not respond to allKeys",keyPath,ourObject);
 		return [NSMutableString stringWithFormat:@""]; //FAILED!
 	}
@@ -1103,7 +1104,7 @@ TitaniumHost * lastSharedHost = nil;
 	NSMutableString * resultPrelude = nil;
 	NSMutableString * resultEpilogue = nil;
 	if (makeObject){
-		result = [NSMutableString stringWithFormat:@"delete Ti%@;Ti%@=new Object();",relativeKeyPath,relativeKeyPath];
+		result = [NSMutableString stringWithFormat:@"delete Ti%@;Ti%@={};",relativeKeyPath,relativeKeyPath];
 	} else {
 		result = [NSMutableString string];
 	}
@@ -1123,9 +1124,10 @@ TitaniumHost * lastSharedHost = nil;
 		
 		if ([thisObject isKindOfClass:[NSString class]]){
 			keyValue = [SBJSON stringify:thisObject];
-//			[NSString stringWithFormat:@"'%@'",thisObject];
 		} else if ([thisObject isKindOfClass:[NSNumber class]]){
 			keyValue = [thisObject stringValue];
+		} else if ([thisObject isKindOfClass:[NSArray class]]){
+			keyValue = [SBJSON stringify:thisObject];
 		} else if ([thisObject isKindOfClass:[NSInvocation class]]){
 			keyValue = [NSString stringWithFormat:
 						@"function(){return Ti._INVOC('%@.%@',arguments);}",keyPath,thisKey];
@@ -1167,7 +1169,6 @@ TitaniumHost * lastSharedHost = nil;
 			if ([thisObject setterSelector] != nil){
 				[result appendFormat:@"Ti%@.__defineSetter__('%@',"
 						"function(){Ti._TICMD('%@.%@','_SET',arguments);return arguments[0]});",
-//						"function(){return Titanium._TICMD('%@.%@','_SET',arguments)});",
 						relativeKeyPath,thisKey,keyPath,thisKey];
 			}
 			continue;
