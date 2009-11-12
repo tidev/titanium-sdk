@@ -153,48 +153,90 @@ function test3(){
 function test1()
 {
 try{
+	var template = {
+	 selectedBackgroundImage:'table_view_bg.png', 
+	 selectedColor:'white',
+	 color:'brown',
+	 layout:[
+	   {type:'text', left:50,  name:'title', fontWeight:'bold'}
+	]};
+	// data for tableview
 	var data = [
-		{title:'row 1', hasChild:true,fontWeight:'bold',fontSize:'36px',backgroundColor:'#00FFFF'},
-		{title:'row 2', hasDetail:true,fontWeight:'normal',fontSize:'6px'},
-		{title:'row 3',backgroundColor:'#00FFFF'},
-		{html:'<b>row</b> 4 has <i>html?</i>',selected:true},
-
-		{rowHeight:50,title:'Layout test1',image:'Phone.png',layout:[{top:0,height:30,bottom:null,fontSize:'20px'},{type:'image',name:'image',top:0,height:40,left:5,width:40}]},
-
-		{title:'row 1', hasChild:true, image:'Mail.png',backgroundColor:'#00FFFF'},
-		{title:'row 2', hasDetail:true, image:'Safari.png'},
-		{title:'row 3', image:'Phone.png'},
-		{title:'row 4', image:'iTunes.png',backgroundColor:'#00FFFF'},
-
-		{title:'row 1', hasChild:true, image:'Mail.png'},
-		{title:'row 2', hasDetail:true, image:'Safari.png'},
-		{title:'row 3', image:'Phone.png'},
-		{title:'row 4', image:'iTunes.png'},
-
-		{title:'row 1', header:'Header 1', hasChild:true, },
-		{title:'row 2', hasDetail:true},
-		{title:'row 3'},
-		{title:'row 4'},
-		{title:'row 5', header:'Header 2', hasChild:true, },
-		{title:'row 6', hasDetail:true},
-		{title:'row 7'},
-		{title:'row 8'},
-		{title:'row 9', header:'Header 3', hasChild:true, },
-		{title:'row 10', hasDetail:true},
-		{title:'row 11',selected:true},
-		{title:'row 12'},
-
-		{html:'<div><div style="font-weight:bold;font-size:18px">Row 1</div><div style="font-size:11px;margin-top:5px;>row 1 detail...</div></div>"',hasChild:true},
-		{html:'<div><div style="font-weight:bold;font-size:18px">Row 2</div><div style="font-size:11px;margin-top:5px;>row 2 detail...</div></div>"',hasChild:true},
-		{html:'<div><div style="font-weight:bold;font-size:18px">Row 3</div><div style="font-size:11px;margin-top:5px;>row 3 detail...</div></div>"',selected:true},
-		{html:'<div><div style="font-weight:bold;font-size:18px">Row 4</div><div style="font-size:11px;margin-top:5px;>row 4 detail...</div></div>"'},
-		{html:'<div><div style="font-weight:bold;font-size:18px">Row 5</div><div style="font-size:11px;margin-top:5px;>row 5 detail...</div></div>"'}		
-
-
+		{title:'Play Movie',backgroundImage:'images/tableview/off_1.png', 
+				selectedBackgroundImage:'images/tableview/on_1.png'},
+		{title:'Camera',backgroundImage:'images/tableview/off_2.png',
+				selectedBackgroundImage:'images/tableview/on_2.png'},
+		{title:'Vibrate',backgroundImage:'images/tableview/off_3.png',
+				selectedBackgroundImage:'images/tableview/on_3.png'},
+		{title:'Orientation',backgroundImage:'images/tableview/off_4.png',
+			selectedBackgroundImage:'images/tableview/on_4.png'},
+		{title:'Photo Gallery',backgroundImage:'images/tableview/off_1.png',
+				selectedBackgroundImage:'images/tableview/on_1.png'},
+		{title:'Geo Location',backgroundImage:'images/tableview/off_2.png',
+				selectedBackgroundImage:'images/tableview/on_2.png'},
+		{title:'Accelerometer',backgroundImage:'images/tableview/off_3.png',
+				selectedBackgroundImage:'images/tableview/on_3.png'},
+		{title:'Sound',backgroundImage:'images/tableview/off_4.png',
+				selectedBackgroundImage:'images/tableview/on_4.png'},
+		{title:'Shake',backgroundImage:'images/tableview/off_1.png',
+				selectedBackgroundImage:'images/tableview/on_1.png'},
+		{title:'Email Client',backgroundImage:'images/tableview/off_2.png',
+				selectedBackgroundImage:'images/tableview/on_2.png'},
+		{title:'Save to Gallery',backgroundImage:'images/tableview/off_3.png',
+				selectedBackgroundImage:'images/tableview/on_3.png'},
+		{title:'Contacts',backgroundImage:'images/tableview/off_4.png',
+				 selectedBackgroundImage:'images/tableview/on_4.png'}
 	];
+	
+
+
+
+
+
+
+//	var data = [
+//		{title:'row 1', hasChild:true,fontWeight:'bold',fontSize:'36px',backgroundColor:'#00FFFF'},
+//		{title:'row 2', hasDetail:true,fontWeight:'normal',fontSize:'6px'},
+//		{title:'row 3',backgroundColor:'#00FFFF'},
+//		{html:'<b>row</b> 4 has <i>html?</i>',selected:true},
+//
+//		{rowHeight:50,title:'Layout test1',image:'Phone.png',layout:[{top:0,height:30,bottom:null,fontSize:'20px'},{type:'image',name:'image',top:0,height:40,left:5,width:40}]},
+//
+//		{title:'row 1', hasChild:true, image:'Mail.png',backgroundColor:'#00FFFF'},
+//		{title:'row 2', hasDetail:true, image:'Safari.png'},
+//		{title:'row 3', image:'Phone.png'},
+//		{title:'row 4', image:'iTunes.png',backgroundColor:'#00FFFF'},
+//
+//		{title:'row 1', hasChild:true, image:'Mail.png'},
+//		{title:'row 2', hasDetail:true, image:'Safari.png'},
+//		{title:'row 3', image:'Phone.png'},
+//		{title:'row 4', image:'iTunes.png'},
+//
+//		{title:'row 1', header:'Header 1', hasChild:true, },
+//		{title:'row 2', hasDetail:true},
+//		{title:'row 3'},
+//		{title:'row 4'},
+//		{title:'row 5', header:'Header 2', hasChild:true, },
+//		{title:'row 6', hasDetail:true},
+//		{title:'row 7'},
+//		{title:'row 8'},
+//		{title:'row 9', header:'Header 3', hasChild:true, },
+//		{title:'row 10', hasDetail:true},
+//		{title:'row 11',selected:true},
+//		{title:'row 12'},
+//
+//		{html:'<div><div style="font-weight:bold;font-size:18px">Row 1</div><div style="font-size:11px;margin-top:5px;>row 1 detail...</div></div>"',hasChild:true},
+//		{html:'<div><div style="font-weight:bold;font-size:18px">Row 2</div><div style="font-size:11px;margin-top:5px;>row 2 detail...</div></div>"',hasChild:true},
+//		{html:'<div><div style="font-weight:bold;font-size:18px">Row 3</div><div style="font-size:11px;margin-top:5px;>row 3 detail...</div></div>"',selected:true},
+//		{html:'<div><div style="font-weight:bold;font-size:18px">Row 4</div><div style="font-size:11px;margin-top:5px;>row 4 detail...</div></div>"'},
+//		{html:'<div><div style="font-weight:bold;font-size:18px">Row 5</div><div style="font-size:11px;margin-top:5px;>row 5 detail...</div></div>"'}		
+//
+//
+//	];
 	tableView = Titanium.UI.createTableView({marginLeft:20,marginRight:10,data:data,rowHeight:80,
-			template:{title:'Button?',backgroundColor:'#FFFF00',layout:[{top:5,bottom:5,left:45,name:'title',type:'text',fontSize:'10px'},{type:'image',name:'image',top:0,height:40,left:5,width:40}]
-			}}, function(eventObject) {
+			template:template
+//			{title:'Button?',backgroundColor:'#FFFF00',layout:[{top:5,bottom:5,left:45,name:'title',type:'text',fontSize:'10px'},{type:'image',name:'image',top:0,height:40,left:5,width:40}]}
+			}, function(eventObject) {
 		var rowData = eventObject.rowData;
 
 		var section = eventObject.section;

@@ -10,7 +10,8 @@
 
 typedef struct {
 	float	size;
-	BOOL	isBold;
+	BOOL	isBoldWeight;
+	BOOL	isNormalWeight;
 } TitaniumFontDescription;
 
 BOOL UpdateFontDescriptionFromDict(NSDictionary * fontDict,TitaniumFontDescription * result,TitaniumFontDescription * inheritance);

@@ -98,13 +98,7 @@
 					[(UILabel *)thisEntryView setTextColor:useHilightColors?[UIColor whiteColor]:[UIColor blackColor]];
 				}
 				
-				TitaniumFontDescription entryDesc;
-				if([thisEntry validLabelFont]){
-					entryDesc = [thisEntry labelFont];
-				} else {
-					entryDesc = [dataWrapper fontDesc];
-				}
-				[(UILabel *)thisEntryView setFont:FontFromDescription(&entryDesc)];
+				[(UILabel *)thisEntryView setFont:FontFromDescription([thisEntry labelFontPointer])];
 				
 				break;}
 			case LayoutEntryImage:{

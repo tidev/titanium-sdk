@@ -178,7 +178,7 @@ TitaniumFontDescription defaultControlFontDesc;
 
 + (void) initialize;
 {
-	defaultControlFontDesc.isBold=NO;
+	defaultControlFontDesc.isBoldWeight=NO;
 	defaultControlFontDesc.size = [UIFont systemFontSize];
 }
 

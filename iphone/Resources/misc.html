@@ -173,13 +173,13 @@ Titanium.UI.addEventListener('tabchange',function(e)
 
 contactTest = function(){
 
-//	Ti.Contacts.showContactPicker({
-//		success:function(ev){Ti.API.debug(ev);},
-//		cancel:function(){Ti.API.debug('Cancelled!');},
-//		details:['email','address']
-//		});
-//
-//	return;
+	Ti.Contacts.showContactPicker({
+		success:function(ev){Ti.API.debug(ev);},
+		cancel:function(){Ti.API.debug('Cancelled!');},
+		details:['email','address']
+		});
+
+	return;
 
 
 	var records = Ti.Contacts.getAllContacts();
