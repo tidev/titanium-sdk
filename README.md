@@ -1,4 +1,4 @@
-Appcelerator Titanium Mobile
+Appcelerator Titanium Mobile  <img src="http://www.appcelerator.com/wp-content/themes/app/images/ti-logo.png" align="right">
 ============================
 
 Welcome to the Appcelerator Titanium Mobile open source project.  Titanium provides
