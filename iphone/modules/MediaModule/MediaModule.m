@@ -448,17 +448,14 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	if(![isCameraObject respondsToSelector:@selector(boolValue)])return [TitaniumJSCode codeWithString:@"{code:Ti.Media.UNKNOWN_ERROR}"]; //Shouldn't happen.
 	BOOL isCamera = [isCameraObject boolValue];
 	
-	UIImagePickerControllerSourceType ourSource = (isCamera ? UIImagePickerControllerSourceTypeCamera : UIImagePickerControllerSourceTypePhotoLibrary);
-	if (![UIImagePickerController isSourceTypeAvailable:ourSource])return [TitaniumJSCode codeWithString:@"{code:Ti.Media.NO_CAMERA}"];
-	
 	[self setImagePickerCallbackParentPageString:[[[TitaniumHost sharedHost] currentThread] magicToken]];
 	currentImagePicker = [[UIImagePickerController alloc] init];
 	[currentImagePicker setDelegate:self];
-	[currentImagePicker setSourceType:ourSource];
 
+	
 	//The promised land! Let's set stuff up!
 	isImagePickerAnimated = YES;
-	saveImageToRoll = NO;
+	saveMediaToRoll = NO;
 
 	if([arguments isKindOfClass:[NSDictionary class]]){
 		NSNumber * animatedObject = [arguments objectForKey:@"animated"];
@@ -471,35 +468,77 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 		
 		if([imageEditingObject respondsToSelector:@selector(boolValue)]){
 			[currentImagePicker setAllowsImageEditing:[imageEditingObject boolValue]];
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 310000
+			// introduced in 3.1
+			[currentImagePicker setAllowsEditing:[imageEditingObject boolValue]];
+#endif
 		}
 		
 		if([saveToRollObject respondsToSelector:@selector(boolValue)]){
-			saveImageToRoll = [saveToRollObject boolValue];
+			saveMediaToRoll = [saveToRollObject boolValue];
 		}
 				
+		NSArray *sourceTypes = [UIImagePickerController availableMediaTypesForSourceType:UIImagePickerControllerSourceTypeCamera];
 		id types = [arguments objectForKey:@"mediaTypes"];
+		
+		NSLog(@"[INFO] types = %@, sourceTypes = %@",types,sourceTypes);
+		
 		if ([types isKindOfClass:[NSArray class]])
 		{
+			for (int c=0;c<[types count];c++)
+			{
+				if ([[types objectAtIndex:c] isEqualToString:(NSString*)kUTTypeMovie])
+				{
+					if (![sourceTypes containsObject:(NSString *)kUTTypeMovie])
+					{
+						// no movie type supported...
+						[currentImagePicker release];
+						currentImagePicker=nil;
+						return [TitaniumJSCode codeWithString:@"{code:Ti.Media.NO_VIDEO}"];
+					}
+				}
+			}
 			currentImagePicker.mediaTypes = [NSArray arrayWithArray:types];
 		}
 		else if ([types isKindOfClass:[NSString class]])
 		{
+			if ([types isEqualToString:(NSString*)kUTTypeMovie] && ![sourceTypes containsObject:(NSString *)kUTTypeMovie])
+			{
+				// no movie type supported...
+				[currentImagePicker release];
+				currentImagePicker=nil;
+				return [TitaniumJSCode codeWithString:@"{code:Ti.Media.NO_VIDEO}"];
+			}
 			currentImagePicker.mediaTypes = [NSArray arrayWithObject:types];
 		}
 
-/*		
+		// introduced in 3.1
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 310000
 		id videoMaximumDuration = [arguments objectForKey:@"videoMaximumDuration"];
-		if ([videoMaximumDuration respondsToSelector:@selector(doubleValue)] && [currentImagePicker respondsToSelector:@selector(setVideoMaximumDuration:)])
+		if ([videoMaximumDuration respondsToSelector:@selector(doubleValue)])
 		{
 			[currentImagePicker setVideoMaximumDuration:[videoMaximumDuration doubleValue]];
 		}
 		id videoQuality = [arguments objectForKey:@"videoQuality"];
-		if ([videoQuality respondsToSelector:@selector(doubleValue)] && [currentImagePicker respondsToSelector:@selector(setVideoQuality:)])
+		if ([videoQuality respondsToSelector:@selector(doubleValue)])
 		{
 			[currentImagePicker setVideoQuality:[videoQuality doubleValue]];
 		}
-*/ 
+#endif
 	}
+	
+	// do this afterwards above so we can first check for video support
+
+	UIImagePickerControllerSourceType ourSource = (isCamera ? UIImagePickerControllerSourceTypeCamera : UIImagePickerControllerSourceTypePhotoLibrary);
+	if (![UIImagePickerController isSourceTypeAvailable:ourSource])
+	{
+		[currentImagePicker release];
+		currentImagePicker=nil;
+		return [TitaniumJSCode codeWithString:@"{code:Ti.Media.NO_CAMERA}"];
+	}
+	[currentImagePicker setSourceType:ourSource];
+	
+	
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	UINavigationController * theNavController = [[theHost currentTitaniumViewController] navigationController];
 
@@ -510,13 +549,17 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	return nil;
 }
 
+// NOTE: this method delegate is deprecated in 3.0 but we keep it for 2.2
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingImage:(UIImage *)image editingInfo:(NSDictionary *)editingInfo;
 {
 	NSMutableString * resultString = [NSMutableString stringWithString:@"Ti.Media._PIC.success("];
 	TitaniumBlobWrapper * ourImageBlob = [[TitaniumHost sharedHost] blobForImage:image];
 	if (ourImageBlob != nil) [resultString appendString:[ourImageBlob stringValue]];
 	
-	if (saveImageToRoll) UIImageWriteToSavedPhotosAlbum(image, nil, nil, NULL);
+	if (saveMediaToRoll) 
+	{
+		UIImageWriteToSavedPhotosAlbum(image, nil, nil, NULL);
+	}
 	
 	if (editingInfo != nil) {
 		[resultString appendString:@",{"];
@@ -541,6 +584,110 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	[currentImagePicker release];
 	currentImagePicker = nil;
 	[[TitaniumHost sharedHost] sendJavascript:resultString toPageWithToken:imagePickerCallbackParentPageString];
+}
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)editingInfo
+{
+	
+	[[picker parentViewController] dismissModalViewControllerAnimated:isImagePickerAnimated];
+
+	NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+	
+	TitaniumBlobWrapper *media = nil;
+	
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 300000
+	NSString *mediaType = [editingInfo objectForKey:UIImagePickerControllerMediaType];
+	[dictionary setObject:mediaType forKey:@"mediaType"];
+
+	NSURL *mediaURL = [editingInfo objectForKey:UIImagePickerControllerMediaURL];
+	if (mediaURL!=nil)
+	{
+		// this is a video, get the path to the URL
+		media = [[TitaniumHost sharedHost] blobForUrl:mediaURL];
+		if (saveMediaToRoll)
+		{
+			NSString *tempFilePath = [mediaURL absoluteString];
+			UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
+		}
+	}
+#endif
+	
+	if (media==nil)
+	{
+		UIImage *image = [editingInfo objectForKey:UIImagePickerControllerEditedImage];
+		if (image==nil)
+		{
+			image = [editingInfo objectForKey:UIImagePickerControllerOriginalImage];
+		}
+		media = [[TitaniumHost sharedHost] blobForImage:image];
+		if (saveMediaToRoll)
+		{
+			UIImageWriteToSavedPhotosAlbum(image, nil, nil, NULL);
+		}
+	}
+	
+	NSValue * ourRectValue = [editingInfo objectForKey:UIImagePickerControllerCropRect];
+	if (ourRectValue != nil)
+	{
+		CGRect ourRect = [ourRectValue CGRectValue];
+		[dictionary setObject:[NSDictionary dictionaryWithObjectsAndKeys:
+							   [NSNumber numberWithFloat:ourRect.origin.x],@"x",
+							   [NSNumber numberWithFloat:ourRect.origin.y],@"y",
+							   [NSNumber numberWithFloat:ourRect.size.width],@"width",
+							   [NSNumber numberWithFloat:ourRect.size.height],@"height",
+							   nil] forKey:@"cropRect"];
+	}
+	
+	
+
+	[currentImagePicker release];
+	currentImagePicker = nil;
+
+	NSString * resultString = [NSString stringWithFormat:@"Ti.Media._PIC.success(%@,%@);",[media stringValue],[SBJSON stringify:dictionary]];
+	[[TitaniumHost sharedHost] sendJavascript:resultString toPageWithToken:imagePickerCallbackParentPageString];
+	
+	
+	/*
+	TitaniumBlobWrapper * ourImageBlob = [[TitaniumHost sharedHost] blobForImage:image];
+	if (ourImageBlob != nil) [resultString appendString:[ourImageBlob stringValue]];
+	
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 300000
+	NSString *mediaType = [editingInfo objectForKey:UIImagePickerControllerMediaType];
+	if ([mediaType isEqualToString:kUTTypeMovie])
+	{
+		NSString *tempFilePath = [(NSURL *)[info valueForKey:UIImagePickerControllerMediaURL] absoluteString];
+		//	// e.g. /private/var/mobile/Applications/D1E784A4-EC1A-402B-81BF-F36D3A08A332/tmp/capture/capturedvideo.MOV
+		//tempFilePath = [[tempFilePath substringFromIndex:16] retain];
+		UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
+	}
+	else 
+	{
+		UIImageWriteToSavedPhotosAlbum(image, nil, nil, NULL);
+	}
+#else
+	UIImageWriteToSavedPhotosAlbum(image, nil, nil, NULL);
+#endif
+	
+	if (editingInfo != nil) {
+		[resultString appendString:@",{"];
+		TitaniumBlobWrapper * oldImageBlob = [[TitaniumHost sharedHost] blobForImage:[editingInfo objectForKey:UIImagePickerControllerOriginalImage]];
+		if (oldImageBlob != nil){
+			[resultString appendFormat:@"oldImage:%@,",[oldImageBlob stringValue]];
+		}
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 300000
+		[resultString appendFormat:@"mediaType:'%@',",[editingInfo objectForKey:UIImagePickerControllerMediaType]];
+#endif
+		NSValue * ourRectValue = [editingInfo objectForKey:UIImagePickerControllerCropRect];
+		if (ourRectValue != nil){
+			CGRect ourRect = [ourRectValue CGRectValue];
+			[resultString appendFormat:@"cropRect:{x:%f,y:%f,width:%f,height:%f},",
+			 ourRect.origin.x, ourRect.origin.y, ourRect.size.width, ourRect.size.height];
+		}
+		[resultString appendString:@"}"];
+	}*/
+	
+
+// EXAMPLE SAVING VIDEO	from http://stackoverflow.com/questions/1259316/iphone-sdk-3-0-video-thumbnail
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker;
@@ -656,6 +803,18 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 		albumSourceTypes = [NSArray arrayWithObject:(NSString*)kUTTypeImage];
 	}
 	
+	NSString *isMediaTypeAvailableString = @"function(d,t){\
+		var s = Ti.Media['available'+d.substring(0,1).toUpperCase()+d.substring(1)+'MediaTypes'];\
+		if (s)\
+		{\
+			for (var c=0;c<s.length;c++)\
+			{\
+				if (s[c]==t) return true;\
+			}\
+		}\
+		return false;\
+	}";
+	
 	NSDictionary * mediaDict = [NSDictionary dictionaryWithObjectsAndKeys:
 			beepInvoc, @"beep",
 			vibeInvoc, @"vibrate",
@@ -682,14 +841,19 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 								
 			kUTTypeMovie,@"MEDIA_TYPE_VIDEO",
 			kUTTypeImage,@"MEDIA_TYPE_PHOTO",
-								
+
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 300000
 			[NSNumber numberWithInt:UIImagePickerControllerQualityTypeHigh], @"QUALITY_HIGH",					
 			[NSNumber numberWithInt:UIImagePickerControllerQualityTypeMedium], @"QUALITY_MEDIUM",					
 			[NSNumber numberWithInt:UIImagePickerControllerQualityTypeLow], @"QUALITY_LOW",					
-
+#endif
+								
 			mediaSourceTypes,@"availableCameraMediaTypes",					
 			photoSourceTypes,@"availablePhotoMediaTypes",					
 			albumSourceTypes,@"availablePhotoGalleryMediaTypes",					
+			[TitaniumJSCode codeWithString:isMediaTypeAvailableString],@"isMediaTypeSupported",
+			[NSNumber numberWithBool:[UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]],@"isCameraSupported",
+
 								
 			[NSNumber numberWithInt:MPMovieControlModeDefault],@"VIDEO_CONTROL_DEFAULT",
 			[NSNumber numberWithInt:MPMovieControlModeVolumeOnly],@"VIDEO_CONTROL_VOLUME_ONLY",

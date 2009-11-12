@@ -6,6 +6,7 @@
  */
 #ifdef MODULE_TI_MEDIA
 
+
 #import <Foundation/Foundation.h>
 #import "TitaniumModule.h"
 
@@ -17,14 +18,6 @@ typedef enum {
 	MediaModuleErrorUnknown,
 } MediaModuleError;
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < 300000
-enum {
-    UIImagePickerControllerQualityTypeHigh,
-    UIImagePickerControllerQualityTypeMedium,
-    UIImagePickerControllerQualityTypeLow
-};
-typedef NSUInteger UIImagePickerControllerQualityType;
-#endif
 
 @class MPMoviePlayerController,MovieWrapper;
 @interface MediaModule : NSObject<TitaniumModule,UIImagePickerControllerDelegate,UINavigationControllerDelegate> {
@@ -34,7 +27,7 @@ typedef NSUInteger UIImagePickerControllerQualityType;
 	UIImagePickerController * currentImagePicker;
 	NSString * imagePickerCallbackParentPageString;
 	BOOL isImagePickerAnimated;
-	BOOL saveImageToRoll;
+	BOOL saveMediaToRoll;
 	
 	MPMoviePlayerController * currentMovie;
 	MovieWrapper * currentMovieWrapper; //To avoid releasing while playing causing crashes.

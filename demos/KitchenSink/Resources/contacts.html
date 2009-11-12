@@ -14,7 +14,8 @@
 			var html = '<div>You have '+records.length+' contacts</div>';
 			html+='<ul>';
 			jack = null;
-			for (var c=0;c<records.length;c++)
+			int count = Math.min(records.length,10);
+			for (var c=0;c<count;c++)
 			{
 				var rec = records[c];
 				var cls='';
