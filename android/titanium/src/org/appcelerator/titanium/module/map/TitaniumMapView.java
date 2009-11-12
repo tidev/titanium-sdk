@@ -23,13 +23,14 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
+import com.google.android.maps.MapView.ReticleDrawMode;
 
 public class TitaniumMapView extends TitaniumBaseView
 	implements Handler.Callback
 {
 	private static final String LCAT = "TiMapView";
 
-	private static final String API_KEY = "google.map.api.key";
+	private static final String API_KEY = "ti.android.google.map.api.key";
 
 	public static final int MAP_VIEW_STANDARD = 1;
 	public static final int MAP_VIEW_SATELLITE = 2;
@@ -109,7 +110,6 @@ public class TitaniumMapView extends TitaniumBaseView
 		setLayoutParams(params);
 
 		String apiKey = tmm.getApplication().getAppInfo().getSystemProperties().getString(API_KEY, null);
-		apiKey = "0Rq5tT4bUSXcVQ3F0gt8ekVBkqgn05ZJBQMj6uw";
 
 		view = new MapView(mapWindow.getContext(), apiKey);
 		MapActivity ma = (MapActivity) mapWindow.getContext();
@@ -136,7 +136,7 @@ public class TitaniumMapView extends TitaniumBaseView
 			if (o.has("longitude") && o.has("latitude")) {
 				try {
 					GeoPoint gp = new GeoPoint(scaleToGoogle(o.getDouble("latitude")), scaleToGoogle(o.getDouble("longitude")));
-					if (o.optBoolean("animate", true)) {
+					if (o.optBoolean("animate", false)) {
 						view.getController().animateTo(gp);
 					} else {
 						view.getController().setCenter(gp);

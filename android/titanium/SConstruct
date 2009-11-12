@@ -71,10 +71,11 @@ if platform.system() == 'Windows':
 
 tiall = env.Command('bin/classes/assets/ti/release/tiall.js', 'bin/classes/assets/ti/debug', os.path.join(cwd, 'gen-tiall.py') + " $TARGET $SOURCE")
 
+maps_jar = os.path.join(android_sdk, 'add-ons','google_apis-3','libs','maps.jar')
 android_jar = os.path.join(android_sdk, 'platforms', 'android-1.5', 'android.jar')
 commons_logging_jar = os.path.join(cwd, 'lib', 'commons-logging-1.1.1.jar')
 
-j = env.Java('bin/classes', 'src', JAVACFLAGS="-target 1.5 -classpath "+android_jar+os.pathsep+commons_logging_jar)
+j = env.Java('bin/classes', 'src', JAVACFLAGS="-target 1.5 -classpath "+android_jar+os.pathsep+commons_logging_jar+os.pathsep+maps_jar)
 env.AddPostAction(j,JarAction())
 env.Depends(j, tiall)
 env.Depends(tiall, targets)
