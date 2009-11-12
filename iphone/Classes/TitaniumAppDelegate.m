@@ -44,7 +44,13 @@
 	[viewController release];
 	viewController = newViewController;
 	[viewController retain];
-	[window addSubview:[viewController view]];
+	
+	// we initially hide the view until after hideLoadingView is called
+	// this will prevent for the initial view a double indicator
+	UIView *view = [viewController view];
+	view.hidden = YES;
+	
+	[window addSubview:view];
 }
 
 - (BOOL)shouldTakeCareOfUrl:(NSURL *)requestURL useSystemBrowser: (BOOL) useSystemBrowser;
@@ -203,8 +209,24 @@
 
 - (void)hideLoadingView;
 {
-	if([loadingView isHidden])return;
+	if ([loadingView isHidden])return;
 	[loadingView setHidden:YES];
+	UIView *view = [viewController view];
+	view.hidden = NO;
+	
+	// save memory, release once we get here
+	if (imageView!=nil)
+	{
+		[imageView removeFromSuperview];
+		[imageView release];
+		imageView = nil;
+	}
+	if (loadingView!=nil)
+	{
+		[loadingView removeFromSuperview];
+		[loadingView release];
+		loadingView = nil;
+	}
 }
 
 - (void)launchTitaniumApp: (NSString *) appPath;
@@ -215,11 +237,13 @@
 	}
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
+	[window addSubview:imageView];
+	[window addSubview:loadingView];
+	[window makeKeyAndVisible];
+	[self showLoadingView];
+
 	if (appPath == nil) appPath = [[NSBundle mainBundle] resourcePath];
 	self.currentHost = [[[TitaniumHost alloc] init] autorelease];
-
-	[window insertSubview:loadingView atIndex:1];
-	[window makeKeyAndVisible];
 
 	[currentHost setAppResourcesPath:appPath];	
 	[currentHost startModules];
@@ -233,9 +257,10 @@
 
 
 - (void)dealloc {
-	 [launchOptions release];
-	 [loadingView release];
-	 [currentHost release];
+	[launchOptions release];
+	[loadingView release];
+	[imageView release];
+	[currentHost release];
     [viewController release];
     [window release];
     [super dealloc];

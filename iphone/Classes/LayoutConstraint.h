@@ -24,16 +24,15 @@ typedef struct {
 	BOOL hasLeftConstraint;
 	BOOL hasRightConstraint;
 	BOOL hasWidthConstraint;
-	
+
 	BOOL hasTopConstraint;
 	BOOL hasBottomConstraint;
 	BOOL hasHeightConstraint;
-	
-} LayoutConstraint;
 
+} LayoutConstraint;
 
 CGRect ApplyConstraintToRectWithResizing(LayoutConstraint * constraint,CGRect viewBounds,UIViewAutoresizing * resultResizing);
 void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint,UIView * subView,UIView * superView,CGRect viewBounds);
-void ReadConstraintFromDictionary(LayoutConstraint * constraint, NSDictionary * inputDict);
+void ReadConstraintFromDictionary(LayoutConstraint * constraint, NSDictionary * inputDict, LayoutConstraint * inheritance);
 
 

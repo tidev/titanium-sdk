@@ -6,15 +6,18 @@
  */
 #ifdef MODULE_TI_MEDIA
 
+
 #import <Foundation/Foundation.h>
 #import "TitaniumModule.h"
 
 typedef enum {
 	MediaModuleErrorNone,
 	MediaModuleErrorNoCamera,
+	MediaModuleErrorNoVideo,
 	MediaModuleErrorImagePickerBusy,
 	MediaModuleErrorUnknown,
 } MediaModuleError;
+
 
 @class MPMoviePlayerController,MovieWrapper;
 @interface MediaModule : NSObject<TitaniumModule,UIImagePickerControllerDelegate,UINavigationControllerDelegate> {
@@ -24,7 +27,7 @@ typedef enum {
 	UIImagePickerController * currentImagePicker;
 	NSString * imagePickerCallbackParentPageString;
 	BOOL isImagePickerAnimated;
-	BOOL saveImageToRoll;
+	BOOL saveMediaToRoll;
 	
 	MPMoviePlayerController * currentMovie;
 	MovieWrapper * currentMovieWrapper; //To avoid releasing while playing causing crashes.
@@ -125,6 +128,7 @@ typedef enum {
  * @tiapi(property=True,name=Media.UNKNOWN_ERROR,since=0.4,type=int) integer error indicating an unknown error occured with the camera or image picker
  * @tiapi(property=True,name=Media.DEVICE_BUSY,since=0.4,type=int) integer error indicating the camera or image picker is already in use
  * @tiapi(property=True,name=Media.NO_CAMERA,since=0.4,type=int) integer error indicating the camera does not exist on the device
+ * @tiapi(property=True,name=Media.NO_VIDEO,since=0.8,type=int) integer error indicating that video recording capabilities does not exist on the device
 
  * @tiapi(property=True,name=Media.VIDEO_CONTROL_DEFAULT,since=0.4,type=int) movieControlMode that allows showing all controls while playing a movie 
  * @tiapi(property=True,name=Media.VIDEO_CONTROL_VOLUME_ONLY,since=0.4,type=int) movieControlMode that allows showing only volume controls while playing a movie

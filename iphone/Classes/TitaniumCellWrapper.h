@@ -20,19 +20,24 @@ typedef enum {
 	LayoutEntryType type;
 	LayoutConstraint constraint;
 	TitaniumFontDescription labelFont;
+	BOOL validLabelFont;
 	UIColor * textColor;
 	UIColor * selectedTextColor;
 	NSString * nameString;
 }
 
-- (id) initWithDictionary: (NSDictionary *) inputDict;
+- (id) initWithDictionary: (NSDictionary *) inputDict inheriting: (LayoutEntry *) inheritance;
 
 @property(nonatomic,readwrite,assign)	LayoutEntryType type;
 @property(nonatomic,readwrite,assign)	LayoutConstraint constraint;
+@property(nonatomic,readwrite,assign)	BOOL validLabelFont;
 @property(nonatomic,readwrite,assign)	TitaniumFontDescription labelFont;
 @property(nonatomic,readwrite,copy)		UIColor * textColor;
 @property(nonatomic,readwrite,copy)		UIColor * selectedTextColor;
 @property(nonatomic,readwrite,copy)		NSString * nameString;
+
+@property(nonatomic,readonly)	TitaniumFontDescription * labelFontPointer;
+@property(nonatomic,readonly)	LayoutConstraint * constraintPointer;
 
 @end
 

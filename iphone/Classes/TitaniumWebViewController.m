@@ -32,6 +32,7 @@
 	
 	NSString * newUrlString = nil;
 	NSURL * newUrl = nil;
+	BOOL preload = NO;
 	
 	if ([inputState isKindOfClass:NSStringClass]){
 		newUrlString = inputState;
@@ -45,8 +46,10 @@
 		}
 		
 		NSNumber * doPreload = [inputState objectForKey:@"preload"];
-		if([doPreload respondsToSelector:@selector(boolValue)] && [doPreload boolValue])[self webView]; //That's enough to get the ball rolling.
-		
+		if([doPreload respondsToSelector:@selector(boolValue)])
+		{
+			preload = [doPreload boolValue];
+		}
 
 		NSNumber * doActivity = [inputState objectForKey:@"activityIndicator"];
 		if([doActivity respondsToSelector:@selector(boolValue)] && ![doActivity boolValue])
@@ -71,11 +74,25 @@
 		//Now what, doctor?
 		NSLog(@"[WARN] WebView %@ was not given an URL relative to %@ for %@",self,baseUrl,inputState);
 	}
+	
+	if (preload)
+	{
+		[[OperationQueue sharedQueue] queue:@selector(noop) target:self arg:nil after:@selector(preload) on:self ui:YES];
+	}
+}
+
+-(void)noop
+{
+	//THIS IS IMPORTANT.. just serves as empty method for op queue
+}
+
+-(void)preload
+{
+	[self webView];
 }
 
 - (void)dealloc {
 	[webView setDelegate:nil];
-//	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI.currentWindow.doEvent({type:'close'})"];
 	[webView release];
 	webView = nil;
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -164,7 +181,8 @@
 	}
 	if (parentView==nil)
 	{
-		parentView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height)];	
+		parentView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height)];
+		[parentView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 		if (showActivity)
 		{
 			[parentView addSubview:spinner];
@@ -172,6 +190,11 @@
 			[spinner startAnimating];
 			spinner.center = parentView.center;
 		}
+	}
+	
+	if (webView==nil)
+	{
+		[self webView];
 	}
 	
 	if (scrollView == nil)
@@ -185,13 +208,13 @@
 		[scrollView setAutoresizingMask:stretchy];
 		[scrollView setDelegate:self];
 		
+		[parentView addSubview:scrollView];
+
 		if([[self webView] superview] != scrollView){
-			[webView setAutoresizingMask:stretchy];
-			[webView setFrame:quikframe];
 			[scrollView insertSubview:webView atIndex:0];
+			[self reloadWebView];
 		}
 		
-		[parentView addSubview:scrollView];
 	}
 	return parentView;
 }
@@ -206,9 +229,11 @@
 		[webView setMultipleTouchEnabled:YES];
 		[webView setBackgroundColor:[UIColor clearColor]];
 		[webView setOpaque:NO];
+		if (showActivity) 
+		{
+			webView.hidden = YES;
+		}
 		[scrollView setAlpha:0.0];
-		webView.hidden = YES;
-		[self reloadWebView];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tabChange:) name:TitaniumTabChangeNotification object:nil];
 	}
 	return webView;
@@ -362,6 +387,11 @@
 	{
 		[[TitaniumHost sharedHost] incrementActivityIndicator];
 	}
+
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	NSString * pathString = [self javaScriptPath];
+	NSString * commandString = [NSString stringWithFormat:@"%@.doEvent('preload',{type:'preload',url:'%@'});",pathString,currentContentURL];	
+	[theHost sendJavascript:commandString toPagesWithTokens:listeningWebContextTokens update:YES];
 }
 
 - (void)acceptToken:(NSString *)tokenString forContext:(NSString *) contextString;
@@ -391,15 +421,6 @@
 
 	if(isVisible)[self updateTitle];	
 
-
-	[UIView beginAnimations:@"webView" context:nil];
-	[UIView setAnimationDuration:0.1];
-	[self updateLayout:NO];
-	
-	[scrollView setAlpha:1.0];
-	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
-	[UIView commitAnimations];
-
 	VERBOSE_LOG(@"[DEBUG] isNonTitaniumPage is %d because %@ has scheme %@",isNonTitaniumPage,currentContentURL,[currentContentURL scheme]);
 
 	if(!isNonTitaniumPage)
@@ -408,7 +429,7 @@
 		
 		if([[webView stringByEvaluatingJavaScriptFromString:@"typeof(Titanium)"] isEqualToString:@"undefined"])[self investigateTitaniumCrashSite];
 		
-		[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentView,'load',{type:'load'});"];
+		[webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"Ti._ONEVT.call(Ti.UI.currentView,'load',{type:'load',url:'%@'});",currentContentURL]];
 		if ([titaniumWindowToken isEqualToString:[visibleVC titaniumWindowToken]]){
 			[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentWindow,'focused',{type:'focused'});"];
 			if(isVisible){
@@ -417,13 +438,27 @@
 		}
 	}
 	
+	TitaniumHost * theHost = [TitaniumHost sharedHost];
+	NSString * pathString = [self javaScriptPath];
+	NSString * commandString = [NSString stringWithFormat:@"%@.doEvent('load',{type:'load',url:'%@'});",pathString,currentContentURL];	
+
+	[theHost sendJavascript:commandString toPagesWithTokens:listeningWebContextTokens update:YES];
+	
 	loading = NO;
 	if (showActivity)
 	{
 		[spinner stopAnimating];
 	}
-	webView.hidden = NO;
 
+	[UIView beginAnimations:@"webView" context:nil];
+	[UIView setAnimationDuration:0.1];
+	[self updateLayout:NO];
+	webView.hidden = NO;
+	[scrollView setAlpha:1.0];
+	[UIView commitAnimations];
+	
+
+	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
 
 	if (isNonTitaniumPage)
 	{
@@ -522,11 +557,20 @@
 {
 	if ((webView == nil) || (currentContentURL == nil)) return;
 	
-	NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:currentContentURL];
-	
-	VERBOSE_LOG(@"[DEBUG] Url request: %@",[urlRequest allHTTPHeaderFields]);
-
-	[webView loadRequest:urlRequest];
+	// this is special support for loading a pure JS file into titanium instead of starting with an HTML page and then loading one
+	if ([[[currentContentURL absoluteString] pathExtension] isEqualToString:@"js"])
+	{
+		NSString *tijs = [[TitaniumHost sharedHost] javaScriptForResource:currentContentURL];
+		NSString *jscode = [NSString stringWithContentsOfURL:currentContentURL encoding:NSUTF8StringEncoding error:nil];
+		NSString *code = [NSString stringWithFormat:@"<html>%@<script>%@</script></html>",tijs,jscode];
+		[webView loadHTMLString:code baseURL:currentContentURL];
+	}
+	else
+	{
+		NSMutableURLRequest * urlRequest = [NSMutableURLRequest requestWithURL:currentContentURL];
+		VERBOSE_LOG(@"[DEBUG] Url request: %@",[urlRequest allHTTPHeaderFields]);
+		[webView loadRequest:urlRequest];
+	}
 }
 
 #ifdef MODULE_TI_GESTURE
@@ -592,6 +636,18 @@ typedef int UIEventSubtype;
 {
 	[webView stringByEvaluatingJavaScriptFromString:inputString];
 	return YES;
+}
+
+-(void) sendJavascriptAndGetResult:(NSMutableDictionary*)dict
+{
+	NSLog(@"[INFO] sendJavascriptAndGetResult %@",dict);
+	
+	if (webView==nil)
+	{
+		NSLog(@"[WARN] sendJavascriptAndGetResult but webView is nil");
+	}
+	id result = [webView stringByEvaluatingJavaScriptFromString:[dict objectForKey:@"code"]];
+	[dict setObject:result forKey:@"result"];
 }
 
 - (NSString *) performJavascript: (NSString *) inputString onPageWithToken: (NSString *) token;

@@ -1,29 +1,30 @@
-//
-//  SearchBarControl.m
-//  Titanium
-//
-//  Created by Blain Hamon on 11/3/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
-//
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 
 #import "SearchBarControl.h"
+
+NSString * const createSearchBarString = @"function(args){var res=Ti.UI.createButton(args,null,'searchBar');return res;}";
 
 
 @implementation SearchBarControl
 
 - (void) setPropertyDict: (NSDictionary *) newDict;
 {
-	
+	[super setPropertyDict:newDict];
 }
 
 - (void) refreshPositionWithWebView: (UIWebView *) webView animated:(BOOL)animated;
 {
-	
+	[super refreshPositionWithWebView:webView animated:animated];
 }
 
 - (BOOL)isFirstResponder;
 {
-	
+	return [searchView isFirstResponder];
 }
 
 

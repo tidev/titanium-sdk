@@ -11,7 +11,11 @@
 #import "TitaniumHost.h"
 #import "TitaniumAppDelegate.h"
 #import "TitaniumBlobWrapper.h"
+
 #import "NativeControlProxy.h"
+#import "SearchBarControl.h"
+
+
 
 #import "TitaniumWebViewController.h"
 #import "TitaniumTableViewController.h"
@@ -84,8 +88,6 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void) showActionSheetWithDict: (NSDictionary *) inputDict;
 {
-	if (![self takeToken:inputDict])return;
-
 	Class NSStringClass = [NSString class];
 
 	[actionSheet release];
@@ -136,8 +138,6 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void) showAlertViewWithDict: (NSDictionary *) inputDict;
 {
-	if (![self takeToken:inputDict])return;
-
 	Class NSStringClass = [NSString class];
 	
 	[alertView release];
@@ -187,7 +187,6 @@ NSString * UrlEncodeString(NSString * string)
 	NSString * result = [NSString stringWithFormat:@"Ti.UI._MODAL.%@.onClick('click',"
 			"{type:'click',index:%d,cancel:%d,destructive:%d})",tokenString,buttonIndex,
 			[anActionSheet cancelButtonIndex],[anActionSheet destructiveButtonIndex]];
-	
 	[[TitaniumHost sharedHost] sendJavascript:result toPageWithToken:contextString];
 	[[TitaniumAppDelegate sharedDelegate] setIsShowingDialog:NO];
 	[self autorelease];
@@ -197,7 +196,6 @@ NSString * UrlEncodeString(NSString * string)
 {
 	NSString * result = [NSString stringWithFormat:@"Ti.UI._MODAL.%@.onClick('click',"
 			"{type:'click',index:%d,cancel:%d})",tokenString,buttonIndex,[anAlertView cancelButtonIndex]];
-
 	[[TitaniumHost sharedHost] sendJavascript:result toPageWithToken:contextString];
 	[[TitaniumAppDelegate sharedDelegate] setIsShowingDialog:NO];
 	[self autorelease];
@@ -385,12 +383,7 @@ NSString * UrlEncodeString(NSString * string)
 
 - (NSString *) makeButtonToken;
 {
-	NativeControlProxy * newProxy = [[NativeControlProxy alloc] init];
-	NSString * buttonToken = [NSString stringWithFormat:@"BTN%X",nextButtonToken++];
-	[newProxy setToken:buttonToken];
-	[buttonContexts setObject:newProxy forKey:buttonToken];
-	[newProxy release];
-	return buttonToken;
+	return [NativeControlProxy requestToken];
 }
 
 - (NativeControlProxy *) proxyForObject: (id) proxyObject scan: (BOOL) scanning recurse: (BOOL) recursion;
@@ -398,31 +391,17 @@ NSString * UrlEncodeString(NSString * string)
 	NSString * token = nil;
 	if ([proxyObject isKindOfClass:[NSDictionary class]]){
 		token = [proxyObject objectForKey:@"_TOKEN"];
-		if (![token isKindOfClass:[NSString class]]) return nil;
-		NativeControlProxy * result = [buttonContexts objectForKey:token];
+		if(!scanning) return [NativeControlProxy controlProxyForToken:token];
 
-		if(!scanning)return result;
+		TitaniumContentViewController * thisVC = [[TitaniumHost sharedHost] currentTitaniumContentViewController];
+		NSURL * currentUrl = [(TitaniumWebViewController *)thisVC currentContentURL];
 
-		NSDictionary * divAttributeDict = [proxyObject objectForKey:@"divAttr"];
-		if ([divAttributeDict isKindOfClass:[NSDictionary class]])[result setPropertyDict:divAttributeDict];
-		
-		[result setPropertyDict:proxyObject];
-		
-		if (recursion){
-			id leftProxy = [proxyObject objectForKey:@"leftButton"];
-			if (leftProxy != nil){
-				[result setLeftViewProxy:[self proxyForObject:leftProxy scan:YES recurse:NO]];
-			}
-			id rightProxy = [proxyObject objectForKey:@"rightButton"];
-			if (rightProxy != nil){
-				[result setRightViewProxy:[self proxyForObject:rightProxy scan:YES recurse:NO]];
-			}
-		}
+		NativeControlProxy * result = [NativeControlProxy controlProxyWithDictionary:proxyObject relativeToUrl:currentUrl];
 		
 		return result;
 
 	} else if ([proxyObject isKindOfClass:[NSString class]]){
-		return [buttonContexts objectForKey:proxyObject];
+		return [NativeControlProxy controlProxyForToken:proxyObject];
 	}
 
 	return nil;
@@ -790,6 +769,27 @@ NSString * UrlEncodeString(NSString * string)
 	[messagePacket release];
 }
 
+- (id) setWindow:(NSString *)tokenString code:(NSString *)code
+{
+	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
+	if (![ourVC isKindOfClass:[TitaniumWebViewController class]]) return nil;
+	
+	if ([ourVC respondsToSelector:@selector(sendJavascriptAndGetResult:)])
+	{
+		NSMutableDictionary *a = [NSMutableDictionary dictionaryWithObject:code forKey:@"code"];
+		NSLog(@"[INFO] before sned %@",a);
+		[ourVC performSelectorOnMainThread:@selector(sendJavascriptAndGetResult:) withObject:a waitUntilDone:YES];
+		NSLog(@"[INFO] result is %@",a);
+		return [a objectForKey:@"result"];
+	}
+	else
+	{
+		NSLog(@"[ERROR] evalJS called but on incorrect content view. %@",[ourVC class]);
+	}
+	
+	return nil;
+}
+
 - (void) setTab: (NSString *)tokenString badge: (id) newBadge;
 {
 	TitaniumViewController * currentViewController = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
@@ -1094,14 +1094,13 @@ NSString * UrlEncodeString(NSString * string)
 - (void) showModal: (NSDictionary *) modalObject isAlert: (id) isAlertObject;
 {
 	if ((![isAlertObject respondsToSelector:@selector(boolValue)]) || (![modalObject isKindOfClass:[NSDictionary class]])) return;
-	ModalProxy * result = [[ModalProxy alloc] init];
+	ModalProxy * result = [[[ModalProxy alloc] init] autorelease];
+	if (![result takeToken:modalObject])return;
 	if ([isAlertObject boolValue]){
 		[result performSelectorOnMainThread:@selector(showAlertViewWithDict:) withObject:modalObject waitUntilDone:NO];
 	} else {
 		[result performSelectorOnMainThread:@selector(showActionSheetWithDict:) withObject:modalObject waitUntilDone:NO];
 	}
-	
-	[result release];
 }
 
 #pragma mark Email thingy generation
@@ -1185,6 +1184,9 @@ NSString * UrlEncodeString(NSString * string)
 
 - (BOOL) startModule;
 {
+	[SearchBarControl registerAsClassNamed:@"searchBar"];
+
+
 	TitaniumInvocationGenerator * invocGen = [TitaniumInvocationGenerator generatorWithTarget:self];
 	
 	[(UiModule *)invocGen window:nil action:nil arguments:nil];
@@ -1209,7 +1211,10 @@ NSString * UrlEncodeString(NSString * string)
 	NSInvocation * closeWinInvoc = [invocGen invocation];	
 
 	[(UiModule *)invocGen setWindow:nil URL:nil baseURL:nil];
-	NSInvocation * changeWinUrlInvoc = [invocGen invocation];	
+	NSInvocation * changeWinUrlInvoc = [invocGen invocation];
+	
+	[(UiModule *)invocGen setWindow:nil code:nil];
+	NSInvocation * evalInvoc = [invocGen invocation];
 
 	[(UiModule *)invocGen setWindow:nil fullscreen:nil];
 	NSInvocation * changeWinFullScreenInvoc = [invocGen invocation];	
@@ -1319,9 +1324,7 @@ NSString * UrlEncodeString(NSString * string)
 		
 	[(UiModule *)invocGen cloverFlowView:nil doAction:nil args:nil options:nil];
 	NSInvocation * coverflowViewInvoc = [invocGen invocation];
-	
-	buttonContexts = [[NSMutableDictionary alloc] init];
-	
+		
 	//NOTE: createWindow doesn't actually create a native-side window. Instead, it simply sets up the dict.
 	//The actual actions are performed at open time.
 	
@@ -1391,8 +1394,6 @@ NSString * UrlEncodeString(NSString * string)
 				"Ti.UI._VIEW[viewTkn]=view;"
 			"}res.push(view);i++;}return res;}";
 
-//	NSString * createViewString = @"function(args){if(args){var tkn=args._TOKEN;}}";
-
 
 	NSString * createWindowString = @"function(args){var res={};"
 			"for(property in args){res[property]=args[property];res['_'+property]=args[property];};"
@@ -1409,6 +1410,8 @@ NSString * UrlEncodeString(NSString * string)
 			"res.setLeftNavButton=function(btn,args){if(btn)btn.ensureToken();this.lNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,true,btn,args);}};"
 			"res.setRightNavButton=function(btn,args){if(btn)btn.ensureToken();this.rNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,false,btn,args);}};"
 			"res.close=function(args){Ti.UI._CLS(this._TOKEN,args);};"
+			"res.evalJS=function(js){if(this._TOKEN){return Ti.UI._WEJS(this._TOKEN,String(js));};};"
+			"res._EVT={preload:[],load:[]};res.doEvent=Ti._ONEVT;res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;"
 			"res.addView=function(newView,args){if(this.views){this.views.push(newView);}else{this.views=[newView];}if(this._TOKEN){newView.ensureToken();Ti.UI._WSVIEWS(this._TOKEN,[newView],false,args);}};"
 			"res.getViews=function(){return Ti.UI.viewsForWindowToken(This._TOKEN);};"
 			"res.getViewByName=function(name){var views=this.getViews();for(var i=0;i<views.length;i++){if(views[i].name==name)return views[i];}return null;};"
@@ -1468,6 +1471,8 @@ NSString * UrlEncodeString(NSString * string)
 	NSString * createWebViewString = @"function(args){var res=Ti.UI.createView(args);res._TYPE='web';"
 			"res.insertButton=function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
 			"res.setURL=function(newUrl){this.url=newUrl;if(this._TOKEN){Ti.UI._WURL(this._TOKEN,newUrl,document.location);};};"
+			"res.evalJS=function(js){if(this._TOKEN){return Ti.UI._WEJS(this._TOKEN,String(js));};};"
+			"res._EVT={preload:[],load:[]};res.doEvent=Ti._ONEVT;res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;"
 			"return res;}";
 
 	NSString * createScrollingViewString = @"function(args){var res=Ti.UI.createView(args);res._TYPE='scroll';if(!res.views)res.views=[];"
@@ -1621,6 +1626,7 @@ NSString * UrlEncodeString(NSString * string)
 			openWinInvoc,@"_OPN",
 			resizeWindowInvoc,@"_DORESIZE",
 			changeWinUrlInvoc,@"_WURL",
+			evalInvoc,@"_WEJS",				 
 			changeWinFullScreenInvoc,@"_WFSCN",
 			showNavBarInvoc,@"_WSHNAV",
 			hideNavBarInvoc,@"_WHDNAV",
@@ -1640,8 +1646,6 @@ NSString * UrlEncodeString(NSString * string)
 			getTabByNameInvoc,@"_TABGET",
 			getAllTabsInvoc,@"_TABALL",
 			
-//			displayInputModallyInvoc,@"_DISPMODAL",
-			
 			insertRowInvoc,@"_WROWCHG",
 			deleteRowInvoc,@"_WROWDEL",
 			updateDataInvoc,@"_WDTAUPD",
@@ -1656,7 +1660,7 @@ NSString * UrlEncodeString(NSString * string)
 			getWindowViewsInvoc,@"_WGVIEWS",
 			setWindowActiveViewInvoc,@"_WSAVIEW",
 			
-			buttonContexts, @"_BTN",
+			[TitaniumJSCode codeWithString:@"{}"], @"_BTN",
 			buttonTokenGen,@"_BTNTKN",
 			setButtonFocusInvoc,@"_BTNFOC",
 			updateButtonInvoc,@"_BTNUPD",
@@ -1677,6 +1681,8 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:@"function(args){var res=Ti.UI.createButton(args,'segmented');res.setIndex=function(val){this.index=val;this.update();};return res;}"],@"createTabbedBar",
 			[TitaniumJSCode codeWithString:createDatePickerString],@"createDatePicker",
 			[TitaniumJSCode codeWithString:createPickerString],@"createPicker",
+			[TitaniumJSCode codeWithString:createSearchBarString],@"createSearchBar",
+
 //			[TitaniumJSCode codeWithString:createModalDatePickerString],@"createModalDatePicker",
 //			[TitaniumJSCode codeWithString:createModalPickerString],@"createModalPicker",
 
@@ -1774,8 +1780,6 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void) dealloc
 {
-//	[virtualWindowsDict release];
-	[buttonContexts release];
 	[super dealloc];
 }
 

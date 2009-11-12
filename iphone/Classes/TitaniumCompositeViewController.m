@@ -21,7 +21,7 @@
 
 - (void) readConstraints:(NSDictionary *) inputDict;
 {
-	ReadConstraintFromDictionary(&constraint, inputDict);
+	ReadConstraintFromDictionary(&constraint, inputDict,NULL);
 }
 
 - (void) dealloc

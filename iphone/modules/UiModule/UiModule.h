@@ -10,9 +10,6 @@
 #import "TitaniumModule.h"
 
 @interface UiModule : NSObject<TitaniumModule> {
-	NSUInteger nextButtonToken;
-
-	NSMutableDictionary * buttonContexts;
 }
 
 - (void) setWindow:(NSString *)tokenString URL:(NSString *)newURLString baseURL:(NSString *)baseURLString;

@@ -14,6 +14,8 @@
 		2402F6C810AB1CFD0060E89D /* OperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2402F6C710AB1CFD0060E89D /* OperationQueue.m */; };
 		2402F6C910AB1CFD0060E89D /* OperationQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 2402F6C610AB1CFD0060E89D /* OperationQueue.h */; };
 		2402F6CA10AB1CFD0060E89D /* OperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2402F6C710AB1CFD0060E89D /* OperationQueue.m */; };
+		2402F7A410AB55ED0060E89D /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2402F7A310AB55ED0060E89D /* MobileCoreServices.framework */; };
+		2402FAF210ABF51A0060E89D /* unitTest.js in Resources */ = {isa = PBXBuildFile; fileRef = 2402FA5310ABEE900060E89D /* unitTest.js */; };
 		2418F4220FCB629A00BFE545 /* sound.html in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4210FCB629A00BFE545 /* sound.html */; };
 		2418F4670FCB6A2100BFE545 /* sound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4660FCB6A2100BFE545 /* sound.wav */; };
 		24440B9B0FC9DFA0000A025D /* iPhone_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 24440B9A0FC9DFA0000A025D /* iPhone_icon.png */; };
@@ -393,6 +395,8 @@
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		2402F6C610AB1CFD0060E89D /* OperationQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OperationQueue.h; sourceTree = "<group>"; };
 		2402F6C710AB1CFD0060E89D /* OperationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OperationQueue.m; sourceTree = "<group>"; };
+		2402F7A310AB55ED0060E89D /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		2402FA5310ABEE900060E89D /* unitTest.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = unitTest.js; sourceTree = "<group>"; };
 		2418F4210FCB629A00BFE545 /* sound.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = sound.html; sourceTree = "<group>"; };
 		2418F4660FCB6A2100BFE545 /* sound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound.wav; sourceTree = "<group>"; };
 		24440B9A0FC9DFA0000A025D /* iPhone_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iPhone_icon.png; sourceTree = "<group>"; };
@@ -529,7 +533,7 @@
 		B45CA77E0F81565D00B80900 /* TitaniumHost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumHost.m; sourceTree = "<group>"; };
 		B4676CB40FB0E492009B81F4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		B47A271E1035F040002146CD /* TestSpaz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestSpaz.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B47A271E1035F040002146CD /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B47B52D40FF1B2F400BD7229 /* ValueTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ValueTableViewCell.h; sourceTree = "<group>"; };
 		B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ValueTableViewCell.m; sourceTree = "<group>"; };
 		B481D3360FD4C45A00F0A961 /* song.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = song.mp3; sourceTree = "<group>"; };
@@ -628,6 +632,7 @@
 				B4BAC627109624C2005925EA /* AddressBook.framework in Frameworks */,
 				B4BAC628109624C2005925EA /* AddressBookUI.framework in Frameworks */,
 				B4BAC64F1096250A005925EA /* MapKit.framework in Frameworks */,
+				2402F7A410AB55ED0060E89D /* MobileCoreServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -819,7 +824,7 @@
 			children = (
 				1D6058910D05DD3D006BFB54 /* Titanium.app */,
 				B41068A20FBB730F00310448 /* libTitanium.a */,
-				B47A271E1035F040002146CD /* TestSpaz.app */,
+				B47A271E1035F040002146CD /* Titanium.app */,
 				24C5ABF11061FA9D0063594B /* libNotification.a */,
 				24C5ABF91061FABE0063594B /* libAnalytics.a */,
 				24C5AC001061FAC80063594B /* libGesture.a */,
@@ -1106,6 +1111,7 @@
 				2418F4210FCB629A00BFE545 /* sound.html */,
 				B4468EFC10027417002BAC64 /* misc.html */,
 				B40C00231031ECC4009DEFF9 /* docs.html */,
+				2402FA5310ABEE900060E89D /* unitTest.js */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1127,6 +1133,7 @@
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				288765A40DF7441C002DB57D /* CoreGraphics.framework */,
+				2402F7A310AB55ED0060E89D /* MobileCoreServices.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1838,7 +1845,7 @@
 			);
 			name = "Titanium-Spaz";
 			productName = Titanium;
-			productReference = B47A271E1035F040002146CD /* TestSpaz.app */;
+			productReference = B47A271E1035F040002146CD /* Titanium.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -1882,6 +1889,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2402FAF210ABF51A0060E89D /* unitTest.js in Resources */,
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
 				B4A10F3E0F86BC490040D850 /* AppDownloadView.xib in Resources */,
 				B48E4AE40FC1DBEE00204C8E /* iPhone_BG.png in Resources */,
@@ -2869,7 +2877,6 @@
 				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphonesimulator2.2.1;
 				SYMROOT = build;
 			};

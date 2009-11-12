@@ -6,10 +6,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "TitaniumImageViewController.h"
 
 @class TitaniumCellWrapper;
-@interface ComplexTableViewCell : UITableViewCell<TitaniumImageViewDelegate> {
+@interface ComplexTableViewCell : UITableViewCell {
 	TitaniumCellWrapper * dataWrapper;
 	NSMutableArray * layoutViewsArray;
 	NSString * clickedName;

@@ -36,6 +36,8 @@ typedef enum {
 
 @class NativeControlProxy,NotificationProxy;
 @class TitaniumContentViewController, TitaniumJSEvent;
+@class TitaniumBlobWrapper;
+
 @interface TitaniumViewController : UIViewController<UIWebViewDelegate,UIScrollViewDelegate> {
 
 //Commont to all viewControllers:
@@ -75,6 +77,8 @@ typedef enum {
 
 	UIColor *	backgroundColor;
 	UIImage *	backgroundImage;
+	TitaniumBlobWrapper *	landscapeBackgroundImageBlob;
+
 	NSArray *	toolbarItems;
 	
 	BOOL		fullscreen;
@@ -103,6 +107,9 @@ typedef enum {
 @property (nonatomic,copy)		NSString *	titleViewImagePath;
 @property (nonatomic,retain)	UIColor *	backgroundColor;
 @property (nonatomic,retain)	UIImage *	backgroundImage;
+@property (nonatomic,retain)	TitaniumBlobWrapper *	landscapeBackgroundImageBlob;
+- (void)setLandscapeBackgroundImageUrl:(NSURL *) newURL;
+
 @property (nonatomic,assign)	BOOL		hidesNavBar;
 @property (nonatomic,assign)	BOOL		cancelOpening;
 @property (nonatomic,assign)	BOOL		fullscreen;

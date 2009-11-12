@@ -11,15 +11,18 @@
 #import "UiModule.h"
 
 @implementation LayoutEntry
-@synthesize type,constraint,labelFont,textColor,nameString,selectedTextColor;
+@synthesize type,constraint,labelFont,textColor,nameString,selectedTextColor,validLabelFont;
 
-- (id) initWithDictionary: (NSDictionary *) inputDict;
+- (id) initWithDictionary: (NSDictionary *) inputDict inheriting: (LayoutEntry *) inheritance;
 {
 	self = [super init];
 	if (self != nil) {
 		NSString * typeString = [inputDict objectForKey:@"type"];
+		if(typeString != nil) inheritance=nil;
 		
-		if([@"text" isEqual:typeString]){
+		if(inheritance != nil){
+			type = [inheritance type];
+		} else if([@"text" isEqual:typeString]){
 			type = LayoutEntryText;
 		} else if ([@"image" isEqual:typeString]) {
 			type = LayoutEntryImage;
@@ -33,13 +36,18 @@
 	
 		NSString * possibleName = [inputDict objectForKey:@"name"];
 		if([possibleName isKindOfClass:[NSString class]])[self setNameString:possibleName];
+		else if(inheritance!=nil) [self setNameString:[inheritance nameString]];
 
-		ReadConstraintFromDictionary(&constraint, inputDict);
-		UpdateFontDescriptionFromDict(inputDict, &labelFont);
+		ReadConstraintFromDictionary(&constraint, inputDict, [inheritance constraintPointer]);
+		validLabelFont = UpdateFontDescriptionFromDict(inputDict, &labelFont, [inheritance labelFontPointer]);
 
-		textColor = [UIColorWebColorNamed([inputDict objectForKey:@"color"]) retain];
-		selectedTextColor = [UIColorWebColorNamed([inputDict objectForKey:@"selectedColor"]) retain];
-		
+		NSString * newTextColor = [inputDict objectForKey:@"color"];
+		if(newTextColor == nil)[self setTextColor:[inheritance textColor]];
+		else [self setTextColor:UIColorWebColorNamed(newTextColor)];
+
+		NSString * newSelectedTextColor = [inputDict objectForKey:@"selectedColor"];
+		if(newSelectedTextColor == nil)[self setSelectedTextColor:[inheritance selectedTextColor]];
+		else [self setSelectedTextColor:UIColorWebColorNamed(newSelectedTextColor)];
 		
 	}
 	return self;
@@ -50,6 +58,16 @@
 	[textColor release];
 	[nameString release];
 	[super dealloc];
+}
+
+- (TitaniumFontDescription *) labelFontPointer;
+{
+	return &labelFont;
+}
+
+- (LayoutConstraint *) constraintPointer;
+{
+	return &constraint;
 }
 
 
@@ -162,6 +180,13 @@
 	return nil;
 }
 
+- (NSMutableArray *) layoutArray;
+{
+	if(layoutArray == nil)return [templateCell layoutArray];
+	if(![layoutArray isKindOfClass:[NSArray class]])return nil;
+	return layoutArray;
+}
+
 
 - (NSString *) title;
 {
@@ -223,7 +248,7 @@
 				[packer stringWithFragment:thisValue error:nil]];
 		needsComma = YES;
 	}
-
+	[packer release];
 	[result appendString:@"}"];
 
 	return result;
@@ -323,6 +348,13 @@
 	}
 	[self didChangeValueForKey:@"jsonValues"];
 
+	if(templateCell == nil){
+		UpdateFontDescriptionFromDict(propDict, &fontDesc,NULL);
+	} else {
+		TitaniumFontDescription templateFontDesc = [templateCell fontDesc];
+		UpdateFontDescriptionFromDict(propDict, &fontDesc, &templateFontDesc);
+	}	
+
 	NSArray * newlayoutArray = [propDict objectForKey:@"layout"];
 	if ([newlayoutArray isKindOfClass:[NSArray class]]) {
 		if (layoutArray != nil) {
@@ -337,18 +369,20 @@
 			[imageKeys removeAllObjects];
 		}		
 		
+		NSEnumerator * templateEntryEnumerator = [[templateCell layoutArray] objectEnumerator];
+		
 		for (NSDictionary * thisLayoutDict in newlayoutArray) {
+			LayoutEntry * templateEntry = [templateEntryEnumerator nextObject];
 			if(![thisLayoutDict isKindOfClass:dictClass])continue;
-			LayoutEntry * thisLayout = [[LayoutEntry alloc] initWithDictionary:thisLayoutDict];
+			LayoutEntry * thisLayout = [[LayoutEntry alloc] initWithDictionary:thisLayoutDict
+					inheriting:templateEntry];
+			if(thisLayout==nil)continue;
 			[layoutArray addObject:thisLayout];
 			if ([thisLayout type]==LayoutEntryImage) {
 				[imageKeys addObject:[thisLayout nameString]];
 			}
 			[thisLayout release];
 		}
-		
-		
-		//Generate actual layoutArray and image Keys from layoutArray.
 		
 	} else {
 		[layoutArray release];
@@ -414,8 +448,6 @@
 		NativeControlProxy * thisInputProxy = [theUiModule proxyForObject:inputProxyDict scan:YES recurse:YES];
 		if (thisInputProxy != nil) [self setInputProxy:thisInputProxy];
 	} else [self setInputProxy:nil];
-	
-	UpdateFontDescriptionFromDict(propDict, &fontDesc);
 }
 
 

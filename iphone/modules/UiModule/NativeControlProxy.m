@@ -7,6 +7,8 @@
 
 
 #import "NativeControlProxy.h"
+
+
 #import "TitaniumCellWrapper.h"
 #import "PickerImageTextCell.h"
 #import "Logging.h"
@@ -90,21 +92,95 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 
 
 
-
-
-
+int nextControlToken = 0;
+NSMutableDictionary * controlProxyInstanceRegistry = nil;
+NSMutableDictionary * controlProxyClassRegistry = nil;
 
 
 @implementation NativeControlProxy
-@synthesize nativeBarButton, segmentLabelArray, segmentImageArray, segmentSelectedIndex;
-@synthesize titleString, iconPath, templateValue, buttonStyle, nativeView, labelView, wrapperView;
-@synthesize minValue,maxValue,floatValue,stringValue, placeholderText, isHidden;
+@synthesize nativeBarButton, templateValue, buttonStyle, nativeView, labelView, wrapperView;
+@synthesize isHidden;
+
++ (NSString *) requestToken;
+{
+	return [NSString stringWithFormat:@"BTN%X",nextControlToken++];
+}
+
++ (id) controlProxyForToken: (NSString *) tokenString;
+{
+	return [controlProxyInstanceRegistry objectForKey:tokenString];
+}
+
++ (id) controlProxyWithDictionary: (NSDictionary *) inputDict relativeToUrl: (NSURL *) baseUrl;
+{
+	if(![inputDict isKindOfClass:[NSDictionary class]])return nil;
+	NSString * dictToken = [inputDict objectForKey:@"_TOKEN"];
+	
+	NativeControlProxy * result;
+	if (dictToken==nil) {
+		dictToken = [self requestToken];
+		result = nil;
+	} else {
+		result = [controlProxyInstanceRegistry objectForKey:dictToken];
+	}
+
+	if (result==nil) { //Time to create a new instance!
+		NSString * className = [inputDict objectForKey:@"_TYPE"];
+		Class classType = (className==nil)?nil:[controlProxyClassRegistry objectForKey:className];
+		if (classType==nil)classType = [NativeControlProxy class];
+		result = [[[classType alloc] init] autorelease];
+		[result setToken:dictToken];
+		if (controlProxyInstanceRegistry==nil) {
+			controlProxyInstanceRegistry=[[NSMutableDictionary alloc] initWithObjectsAndKeys:
+					result,dictToken,nil];
+		} else {
+			[controlProxyInstanceRegistry setObject:result forKey:dictToken];
+		}
+	}
+	
+	NSDictionary * divAttributeDict = [inputDict objectForKey:@"divAttr"];	//Todo: make not ugly.
+	if ([divAttributeDict isKindOfClass:[NSDictionary class]])[result setPropertyDict:divAttributeDict];
+
+	id leftProxy = [inputDict objectForKey:@"leftButton"];	//This should be in the textField proxy class
+	if (leftProxy != nil){
+		[result setLeftViewProxy:[self controlProxyWithDictionary:leftProxy relativeToUrl:baseUrl]];
+	}
+	id rightProxy = [inputDict objectForKey:@"rightButton"];
+	if (rightProxy != nil){
+		[result setRightViewProxy:[self controlProxyWithDictionary:rightProxy relativeToUrl:baseUrl]];
+	}
+	
+
+	[result setPropertyDict:inputDict];
+	
+	return result;
+}
+
++ (void) registerAsClassNamed: (NSString *)JSClassName;
+{
+	if(controlProxyClassRegistry==nil){
+		controlProxyClassRegistry = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+				[self class],JSClassName,nil];
+	} else {
+		[controlProxyClassRegistry setObject:[self class] forKey:JSClassName];
+	}
+
+}
+
+@synthesize segmentLabelArray, segmentImageArray, segmentSelectedIndex;
+@synthesize titleString, iconPath, minValue,maxValue,floatValue,stringValue, placeholderText;
 @synthesize elementColor, elementBorderColor, elementBackgroundColor, messageString;
 @synthesize leftViewProxy, rightViewProxy, leftViewMode, rightViewMode, surpressReturnCharacter;
 @synthesize backgroundImagePath, backgroundDisabledImagePath, backgroundSelectedImagePath;
-
 @synthesize dateValue, minDate, maxDate, datePickerMode, minuteInterval;
 
+TitaniumFontDescription defaultControlFontDesc;
+
++ (void) initialize;
+{
+	defaultControlFontDesc.isBold=NO;
+	defaultControlFontDesc.size = [UIFont systemFontSize];
+}
 
 #pragma mark Initilization and getting properties
 - (id) init;
@@ -115,8 +191,6 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 		segmentSelectedIndex = -1;
 		buttonStyle = -1;
 		datePickerMode = UIDatePickerModeDateAndTime;
-		fontDesc.isBold = NO;
-		fontDesc.size = [UIFont systemFontSize];
 	}
 	return self;
 }
@@ -332,7 +406,7 @@ needsRefreshing = YES;	\
 
 //	if([nativeView isKindOfClass:[UIPickerView class]])[(UIPickerView *)nativeView reloadAllComponents];
 	
-	if(UpdateFontDescriptionFromDict(newDict, &fontDesc)){
+	if(UpdateFontDescriptionFromDict(newDict, &fontDesc, &defaultControlFontDesc)){
 		needsRefreshing = YES;
 	}
 	
@@ -1186,7 +1260,7 @@ NSString * const systemButtonString = @"{ACTION:'action',ACTIVITY:'activity',CAM
 	"SAVE:'save',DONE:'done',FLEXIBLE_SPACE:'flexiblespace',FIXED_SPACE:'fixedspace',INFO_LIGHT:'infolight',INFO_DARK:'infodark',DISCLOSURE:'disclosure'}";
 
 
-NSString * const createButtonString = @"function(args,btnType){var res={"
+NSString * const createButtonString = @"function(args,btnType,conTyp){var res={"
 	"onClick:Ti._ONEVT,_EVT:{click:[],change:[],focus:[],blur:[],'return':[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
 	"focus:function(){Ti.UI._BTNFOC(this,true);},blur:function(){Ti.UI._BTNFOC(this,false);},"
 	"update:function(arg){if(!this._TOKEN)return;"
@@ -1211,6 +1285,7 @@ NSString * const createButtonString = @"function(args,btnType){var res={"
 	"};"
 	"if(args){for(prop in args){res[prop]=args[prop];}};"
 	"if(btnType)res.systemButton=btnType;"
+	"if(conTyp)res._TYPE=conTyp;"
 	"if(res.id){res.setId(res.id);}"
 	"return res;}";
 
