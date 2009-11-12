@@ -12,6 +12,41 @@ platforms.
 Titanium is licensed under the OSI approved Apache Public License (version 2). Please
 see the LICENSE file for specific details.
 
+Features
+--------------------
+
+With Titanium, you use JavaScript to code your application.  Titanium's compiler will compile
+your application code into an efficient native executable for each target mobile platform. 
+Titanium writes native code so you don't have to. :)
+
+- Native apps built using web technologies
+- Apps are compiled and run locally (offline available)
+- Full support for HTML5 and CSS3
+- Ability to mix and match native UI controls with HTML controls (hybrid UIs)
+- Support for all native platform UI controls
+- Third-party JavaScript support such as jQuery, Dojo, etc.
+- Support for in-application SQL database
+- Support for Geolocation (compass, geolocation, forward/reverse lookup)
+- Support for Camera (taking Photos, playing and recording Video)
+- Support for Photo Album (reading and writing)
+- Support for Contacts Database
+- Support for Streaming Audio
+- Support for Vibration
+- Support for Social APIs such as Facebook Connect, Twitter, etc
+- Support for Yahoo YQL
+- Support for Web Services via REST, SOAP
+- Support for native Maps
+- Support for Push Notifications
+- Support for in-application Email
+- Support for in-application SMS, Telephone
+- Support for Filesystem (reading, writing, etc)
+- Support for Gestures (such as Shake)
+- Support for Platform and Device capabilities
+- Support for complex native views such as Coverflow, Image viewers, Table views, Grouped Views, Composites, etc.
+- Completely extensible via Module API for building your own controls or extending capabilities at compile-time
+
+And much, much more.  
+
 
 Getting Help
 ------------
