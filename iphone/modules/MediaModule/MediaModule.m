@@ -655,9 +655,6 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	{
 		albumSourceTypes = [NSArray arrayWithObject:(NSString*)kUTTypeImage];
 	}
-
-	NSLog(@"[INFO] available media types = %@",mediaSourceTypes);
-	
 	
 	NSDictionary * mediaDict = [NSDictionary dictionaryWithObjectsAndKeys:
 			beepInvoc, @"beep",
