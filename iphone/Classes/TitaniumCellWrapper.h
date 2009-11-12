@@ -36,6 +36,8 @@ typedef enum {
 @property(nonatomic,readwrite,copy)		UIColor * selectedTextColor;
 @property(nonatomic,readwrite,copy)		NSString * nameString;
 
+@property(nonatomic,readonly)	TitaniumFontDescription * labelFontPointer;
+
 @end
 
 

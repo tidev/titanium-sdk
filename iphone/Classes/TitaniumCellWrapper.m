@@ -13,13 +13,16 @@
 @implementation LayoutEntry
 @synthesize type,constraint,labelFont,textColor,nameString,selectedTextColor;
 
-- (id) initWithDictionary: (NSDictionary *) inputDict;
+- (id) initWithDictionary: (NSDictionary *) inputDict inheriting: (LayoutEntry *) inheritance;
 {
 	self = [super init];
 	if (self != nil) {
 		NSString * typeString = [inputDict objectForKey:@"type"];
+		if(typeString != nil) inheritance=nil;
 		
-		if([@"text" isEqual:typeString]){
+		if(inheritance != nil){
+			type = [inheritance type];
+		} else if([@"text" isEqual:typeString]){
 			type = LayoutEntryText;
 		} else if ([@"image" isEqual:typeString]) {
 			type = LayoutEntryImage;
@@ -33,6 +36,7 @@
 	
 		NSString * possibleName = [inputDict objectForKey:@"name"];
 		if([possibleName isKindOfClass:[NSString class]])[self setNameString:possibleName];
+		else if(inheritance!=nil) [self setNameString:[inheritance nameString]];
 
 		ReadConstraintFromDictionary(&constraint, inputDict, NULL);
 		validLabelFont = UpdateFontDescriptionFromDict(inputDict, &labelFont, NULL);
@@ -50,6 +54,11 @@
 	[textColor release];
 	[nameString release];
 	[super dealloc];
+}
+
+- (TitaniumFontDescription *) labelFontPointer;
+{
+	return &labelFont;
 }
 
 
