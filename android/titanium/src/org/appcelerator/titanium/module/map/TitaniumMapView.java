@@ -23,6 +23,7 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
+import com.google.android.maps.MapView.ReticleDrawMode;
 
 public class TitaniumMapView extends TitaniumBaseView
 	implements Handler.Callback
@@ -135,7 +136,7 @@ public class TitaniumMapView extends TitaniumBaseView
 			if (o.has("longitude") && o.has("latitude")) {
 				try {
 					GeoPoint gp = new GeoPoint(scaleToGoogle(o.getDouble("latitude")), scaleToGoogle(o.getDouble("longitude")));
-					if (o.optBoolean("animate", true)) {
+					if (o.optBoolean("animate", false)) {
 						view.getController().animateTo(gp);
 					} else {
 						view.getController().setCenter(gp);
