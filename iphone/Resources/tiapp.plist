@@ -28,11 +28,13 @@
 			<key>orientation</key>
 			<string>either</string>
 			<key>url</key>
-			<string>unitTest.html</string>
+			<string>unitTest.js</string>
 			<key>title</key>
 			<string>Units</string>
 		</dict>
 		<dict>
+			<key>preload</key>
+			<string>true</string>
 			<key>icon</key>
 			<string>profile.png</string>
 			<key>orientation</key>

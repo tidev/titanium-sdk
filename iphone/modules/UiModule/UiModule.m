@@ -769,6 +769,27 @@ NSString * UrlEncodeString(NSString * string)
 	[messagePacket release];
 }
 
+- (id) setWindow:(NSString *)tokenString code:(NSString *)code
+{
+	TitaniumContentViewController * ourVC = [[TitaniumHost sharedHost] titaniumContentViewControllerForToken:tokenString];
+	if (![ourVC isKindOfClass:[TitaniumWebViewController class]]) return nil;
+	
+	if ([ourVC respondsToSelector:@selector(sendJavascriptAndGetResult:)])
+	{
+		NSMutableDictionary *a = [NSMutableDictionary dictionaryWithObject:code forKey:@"code"];
+		NSLog(@"[INFO] before sned %@",a);
+		[ourVC performSelectorOnMainThread:@selector(sendJavascriptAndGetResult:) withObject:a waitUntilDone:YES];
+		NSLog(@"[INFO] result is %@",a);
+		return [a objectForKey:@"result"];
+	}
+	else
+	{
+		NSLog(@"[ERROR] evalJS called but on incorrect content view. %@",[ourVC class]);
+	}
+	
+	return nil;
+}
+
 - (void) setTab: (NSString *)tokenString badge: (id) newBadge;
 {
 	TitaniumViewController * currentViewController = [[TitaniumHost sharedHost] titaniumViewControllerForToken:tokenString];
@@ -1190,7 +1211,10 @@ NSString * UrlEncodeString(NSString * string)
 	NSInvocation * closeWinInvoc = [invocGen invocation];	
 
 	[(UiModule *)invocGen setWindow:nil URL:nil baseURL:nil];
-	NSInvocation * changeWinUrlInvoc = [invocGen invocation];	
+	NSInvocation * changeWinUrlInvoc = [invocGen invocation];
+	
+	[(UiModule *)invocGen setWindow:nil code:nil];
+	NSInvocation * evalInvoc = [invocGen invocation];
 
 	[(UiModule *)invocGen setWindow:nil fullscreen:nil];
 	NSInvocation * changeWinFullScreenInvoc = [invocGen invocation];	
@@ -1370,8 +1394,6 @@ NSString * UrlEncodeString(NSString * string)
 				"Ti.UI._VIEW[viewTkn]=view;"
 			"}res.push(view);i++;}return res;}";
 
-//	NSString * createViewString = @"function(args){if(args){var tkn=args._TOKEN;}}";
-
 
 	NSString * createWindowString = @"function(args){var res={};"
 			"for(property in args){res[property]=args[property];res['_'+property]=args[property];};"
@@ -1388,6 +1410,8 @@ NSString * UrlEncodeString(NSString * string)
 			"res.setLeftNavButton=function(btn,args){if(btn)btn.ensureToken();this.lNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,true,btn,args);}};"
 			"res.setRightNavButton=function(btn,args){if(btn)btn.ensureToken();this.rNavBtn=btn;if(this._TOKEN){Ti.UI._WNAVBTN(this._TOKEN,false,btn,args);}};"
 			"res.close=function(args){Ti.UI._CLS(this._TOKEN,args);};"
+			"res.evalJS=function(js){if(this._TOKEN){return Ti.UI._WEJS(this._TOKEN,String(js));};};"
+			"res._EVT={preload:[],load:[]};res.doEvent=Ti._ONEVT;res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;"
 			"res.addView=function(newView,args){if(this.views){this.views.push(newView);}else{this.views=[newView];}if(this._TOKEN){newView.ensureToken();Ti.UI._WSVIEWS(this._TOKEN,[newView],false,args);}};"
 			"res.getViews=function(){return Ti.UI.viewsForWindowToken(This._TOKEN);};"
 			"res.getViewByName=function(name){var views=this.getViews();for(var i=0;i<views.length;i++){if(views[i].name==name)return views[i];}return null;};"
@@ -1447,6 +1471,8 @@ NSString * UrlEncodeString(NSString * string)
 	NSString * createWebViewString = @"function(args){var res=Ti.UI.createView(args);res._TYPE='web';"
 			"res.insertButton=function(btn,args){if(btn)btn.ensureToken();Ti.UI._WINSBTN(this._TOKEN,btn,args);};"
 			"res.setURL=function(newUrl){this.url=newUrl;if(this._TOKEN){Ti.UI._WURL(this._TOKEN,newUrl,document.location);};};"
+			"res.evalJS=function(js){if(this._TOKEN){return Ti.UI._WEJS(this._TOKEN,String(js));};};"
+			"res._EVT={preload:[],load:[]};res.doEvent=Ti._ONEVT;res.addEventListener=Ti._ADDEVT;res.removeEventListener=Ti._REMEVT;"
 			"return res;}";
 
 	NSString * createScrollingViewString = @"function(args){var res=Ti.UI.createView(args);res._TYPE='scroll';if(!res.views)res.views=[];"
@@ -1600,6 +1626,7 @@ NSString * UrlEncodeString(NSString * string)
 			openWinInvoc,@"_OPN",
 			resizeWindowInvoc,@"_DORESIZE",
 			changeWinUrlInvoc,@"_WURL",
+			evalInvoc,@"_WEJS",				 
 			changeWinFullScreenInvoc,@"_WFSCN",
 			showNavBarInvoc,@"_WSHNAV",
 			hideNavBarInvoc,@"_WHDNAV",
@@ -1618,8 +1645,6 @@ NSString * UrlEncodeString(NSString * string)
 			activateTabInvoc,@"_TABACT",
 			getTabByNameInvoc,@"_TABGET",
 			getAllTabsInvoc,@"_TABALL",
-			
-//			displayInputModallyInvoc,@"_DISPMODAL",
 			
 			insertRowInvoc,@"_WROWCHG",
 			deleteRowInvoc,@"_WROWDEL",

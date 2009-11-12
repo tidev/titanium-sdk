@@ -26,9 +26,10 @@ static BOOL L0AccelerationIsShaking(UIAcceleration* last, UIAcceleration* curren
 
 @interface TitaniumAppDelegate : NSObject <UIApplicationDelegate,UIAccelerometerDelegate>
 {
-    IBOutlet UIWindow *window;
-    IBOutlet UIViewController *viewController;
+     IBOutlet UIWindow *window;
+     IBOutlet UIViewController *viewController;
 	 IBOutlet UIView *loadingView;
+	 IBOutlet UIView *imageView;
 	 UIView *notificationView;
 	 NSMutableArray *notifications;
 	 NSMutableDictionary *launchOptions;

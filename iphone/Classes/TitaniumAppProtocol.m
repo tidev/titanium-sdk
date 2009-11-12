@@ -143,9 +143,16 @@ id<TitaniumAppAssetResolver> resolver = nil;
 
 	VERBOSE_LOG(@"[DEBUG] loading request for url = %@, type = %d", url, ourType);
 
-	if (resolver!=nil && ourType==TitaniumAppResourceFileType)
+	if (ourType==TitaniumAppResourceFileType)
 	{
 		NSData *fileData = [resolver resolveAppAsset:url];
+		if (fileData==nil && resolver==nil)
+		{
+			NSString *path=[[NSBundle mainBundle] bundlePath];
+			NSString *fullpath = [NSString stringWithFormat:@"%@/%@",path,[[url absoluteString] lastPathComponent]];
+			NSString *pathdata = [NSString stringWithContentsOfFile:fullpath encoding:NSUTF8StringEncoding error:nil];		
+			fileData = [pathdata dataUsingEncoding:NSUTF8StringEncoding];					  
+		}
 		if (fileData!=nil)
 		{
 			mime = [TitaniumAppProtocol mimeTypeFromExtension:[url path]];
