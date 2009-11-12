@@ -483,7 +483,8 @@
 				win.setLeftNavButton(b);
 				b.addEventListener('click',function()
 				{
-					win.close();
+					win.close({animated:false});
+					Titanium.UI.currentWindow.repaint();
 				})
 				win.open({modal:true});		
 				break;

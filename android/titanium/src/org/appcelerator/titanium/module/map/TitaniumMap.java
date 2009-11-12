@@ -187,36 +187,6 @@ public class TitaniumMap extends TitaniumBaseModule
 		return name;
 	}
 
-	public void test() {
-		if (mapWindow == null) {
-
-			mapWindow = lam.startActivity("TIMAP", new Intent(tmm.getAppContext(), TitaniumMapActivity.class));
-
-			tmm.getActivity().runOnUiThread(new Runnable(){
-
-				public void run() {
-					MapActivity ma = (MapActivity) mapWindow.getContext();
-					MapView mv = new MapView(mapWindow.getContext(), "0Rq5tT4bUSXcVQ3F0gt8ekVBkqgn05ZJBQMj6uw");
-					ma.setContentView(mv);
-
-					tmm.getActivity().addContentView(mapWindow.getDecorView(),new FrameLayout.LayoutParams(300,300));
-
-					mv.setBuiltInZoomControls(true);
-					MapController mc = mv.getController();
-					//32.941238, longitude : -97.130447
-					int lat = (int)(32.941238 * 1000000);
-					int lng = (int)(-97.130447 * 1000000);
-					GeoPoint gp = new GeoPoint(lat,lng);
-					mc.setCenter(gp);
-					mc.setZoom(11);
-				}});
-
-			Log.d(LCAT, "Starting new map activity");
-		} else {
-			Log.d(LCAT, "Map activity already started");
-		}
-	}
-
 	@Override
 	public void onDestroy() {
 		super.onDestroy();

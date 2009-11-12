@@ -10,6 +10,7 @@
 #import "TitaniumHost.h"
 #import "Webcolor.h"
 #import "TweakedNavController.h"
+#import "TitaniumBlobWrapper.h"
 
 #import "TitaniumTableViewController.h"
 #import "TitaniumWebViewController.h"
@@ -81,6 +82,7 @@ int nextWindowToken = 0;
 @synthesize hidesNavBar, fullscreen, statusBarStyle, toolbarItems;
 @synthesize selectedContentIndex, contentViewControllers;
 @synthesize animationOptionsDict;
+@synthesize landscapeBackgroundImageBlob;
 
 #pragma mark Class Methods
 
@@ -244,6 +246,12 @@ int nextWindowToken = 0;
 		[self setBackgroundImage:[theTiHost imageForResource:backgroundImageName]];
 	}
 
+	NSString * landscapeBackgroundImageName = [inputState objectForKey:@"landscapeBackgroundImage"];
+	if ([landscapeBackgroundImageName isKindOfClass:stringClass]){
+		[self setLandscapeBackgroundImageUrl:[NSURL URLWithString:landscapeBackgroundImageName relativeToURL:baseUrl]];
+	}
+	
+
 	
 	id orientationObject = [inputState objectForKey:@"orientation"];
 	if (orientationObject != nil) {
@@ -381,6 +389,18 @@ int nextWindowToken = 0;
 	if([theNC topViewController] == self)[self needsUpdate:TitaniumViewControllerRefreshIsAnimated];
 }
 
+- (void)setLandscapeBackgroundImageUrl:(NSURL *) newURL;
+{
+	if ([[landscapeBackgroundImageBlob url] isEqual:newURL] ||
+			[[landscapeBackgroundImageBlob virtualUrl] isEqual:newURL]) return;
+	
+	[landscapeBackgroundImageBlob release];
+	landscapeBackgroundImageBlob = [[[TitaniumHost sharedHost] blobForUrl:newURL] retain];
+	if (currentOrientation & TitaniumViewControllerLandscape) {
+		[self refreshBackground];
+	}
+}
+
 - (void)setBackgroundColor: (UIColor *) newColor;
 {
 	if(newColor == backgroundColor) return;
@@ -391,7 +411,7 @@ int nextWindowToken = 0;
 
 - (void)setBackgroundImage: (UIImage *) newImage;
 {
-	if(newImage == backgroundImage)
+	if(newImage == backgroundImage) return;
 	[newImage retain];[backgroundImage release];backgroundImage=newImage;
 	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewSetBackgroundImage:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(newImage),@"image",nil]];
 	[self refreshBackground];
@@ -600,8 +620,8 @@ typedef int UIEventSubtype;
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
 {
 	TitaniumContentViewController * ourVC = [self viewControllerForIndex:selectedContentIndex];
-	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewDidRotateToInterfaceOrientation:properties:) source:self properties:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:fromInterfaceOrientation] forKey:@"orientation"]];
 	[ourVC updateLayout:YES];
+	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewDidRotateToInterfaceOrientation:properties:) source:self properties:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:fromInterfaceOrientation] forKey:@"orientation"]];
 }
 
 #pragma mark Refreshments
@@ -627,15 +647,25 @@ typedef int UIEventSubtype;
 	
 	[ourRootView setBackgroundColor:(backgroundColor != nil)?backgroundColor:[UIColor whiteColor]];
 	
-	if(backgroundImage != nil){
+	UIImage * newBackgroundImage = nil;
+	
+	if((currentOrientation & TitaniumViewControllerLandscape) && (landscapeBackgroundImageBlob != nil)){
+		newBackgroundImage = [landscapeBackgroundImageBlob imageBlob];
+	}
+
+	if (newBackgroundImage == nil) {
+		newBackgroundImage = backgroundImage;
+	}
+	
+	if(newBackgroundImage != nil){
 		if(backgroundView==nil){
-			backgroundView = [[UIImageView alloc] initWithImage:backgroundImage];
+			backgroundView = [[UIImageView alloc] initWithImage:newBackgroundImage];
 			[backgroundView setFrame:[ourRootView bounds]];
 			[backgroundView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 			[backgroundView setContentMode:UIViewContentModeCenter];
 			[ourRootView insertSubview:backgroundView atIndex:0];
 		} else {
-			[backgroundView setImage:backgroundImage];
+			[backgroundView setImage:newBackgroundImage];
 			
 			if([backgroundView superview]==nil){
 				[backgroundView setFrame:[ourRootView bounds]];
@@ -737,11 +767,11 @@ typedef int UIEventSubtype;
 	if(contentView == nil){
 		contentView = [[UIView alloc] initWithFrame:contentViewBounds];
 		[contentView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-		[ourView insertSubview:contentView atIndex:(backgroundImage!=nil)?1:0];
+		[ourView insertSubview:contentView atIndex:([backgroundView superview]!=nil)?1:0];
 	} else {
 		[contentView setFrame:contentViewBounds];
 		if([contentView superview] != ourView){
-			[ourView insertSubview:contentView atIndex:(backgroundImage!=nil)?1:0];
+			[ourView insertSubview:contentView atIndex:([backgroundView superview]!=nil)?1:0];
 		}
 	}
 	
@@ -869,6 +899,7 @@ typedef int UIEventSubtype;
 	if([newVC cancelOpening]) return;
 	if ([newVC backgroundColor]==nil)[newVC setBackgroundColor:backgroundColor];
 	if ([newVC backgroundImage]==nil)[newVC setBackgroundImage:backgroundImage];
+	if ([newVC landscapeBackgroundImageBlob]==nil)[newVC setLandscapeBackgroundImageBlob:landscapeBackgroundImageBlob];
 	
 	UINavigationController * ourNavCon = [self navigationController];
 	UIViewController * modalController = [ourNavCon visibleViewController];

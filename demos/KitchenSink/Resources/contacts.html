@@ -50,8 +50,8 @@
 			{
 				if (!jack)
 				{
-//					var newRecord = Titanium.Contacts.createContact({firstName:'Jack',lastName:'Black',email:'jack@black.com'});
-					var newRecord = Titanium.Contacts.createContact({firstName:'Jack',lastName:'Black'});
+					var newRecord = Titanium.Contacts.createContact({firstName:'Jack',lastName:'Black',email:'jack@black.com'});
+				//	var newRecord = Titanium.Contacts.createContact({firstName:'Jack',lastName:'Black'});
 					selected = Titanium.Contacts.addContact(newRecord);
 					Titanium.API.info("added: "+Titanium._JSON(newRecord));
 					loadContacts();

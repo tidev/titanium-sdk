@@ -11,7 +11,11 @@
 #import "TitaniumHost.h"
 #import "TitaniumAppDelegate.h"
 #import "TitaniumBlobWrapper.h"
+
 #import "NativeControlProxy.h"
+#import "SearchBarControl.h"
+
+
 
 #import "TitaniumWebViewController.h"
 #import "TitaniumTableViewController.h"
@@ -385,12 +389,7 @@ NSString * UrlEncodeString(NSString * string)
 
 - (NSString *) makeButtonToken;
 {
-	NativeControlProxy * newProxy = [[NativeControlProxy alloc] init];
-	NSString * buttonToken = [NSString stringWithFormat:@"BTN%X",nextButtonToken++];
-	[newProxy setToken:buttonToken];
-	[buttonContexts setObject:newProxy forKey:buttonToken];
-	[newProxy release];
-	return buttonToken;
+	return [NativeControlProxy requestToken];
 }
 
 - (NativeControlProxy *) proxyForObject: (id) proxyObject scan: (BOOL) scanning recurse: (BOOL) recursion;
@@ -398,31 +397,17 @@ NSString * UrlEncodeString(NSString * string)
 	NSString * token = nil;
 	if ([proxyObject isKindOfClass:[NSDictionary class]]){
 		token = [proxyObject objectForKey:@"_TOKEN"];
-		if (![token isKindOfClass:[NSString class]]) return nil;
-		NativeControlProxy * result = [buttonContexts objectForKey:token];
+		if(!scanning) return [NativeControlProxy controlProxyForToken:token];
 
-		if(!scanning)return result;
+		TitaniumContentViewController * thisVC = [[TitaniumHost sharedHost] currentTitaniumContentViewController];
+		NSURL * currentUrl = [(TitaniumWebViewController *)thisVC currentContentURL];
 
-		NSDictionary * divAttributeDict = [proxyObject objectForKey:@"divAttr"];
-		if ([divAttributeDict isKindOfClass:[NSDictionary class]])[result setPropertyDict:divAttributeDict];
-		
-		[result setPropertyDict:proxyObject];
-		
-		if (recursion){
-			id leftProxy = [proxyObject objectForKey:@"leftButton"];
-			if (leftProxy != nil){
-				[result setLeftViewProxy:[self proxyForObject:leftProxy scan:YES recurse:NO]];
-			}
-			id rightProxy = [proxyObject objectForKey:@"rightButton"];
-			if (rightProxy != nil){
-				[result setRightViewProxy:[self proxyForObject:rightProxy scan:YES recurse:NO]];
-			}
-		}
+		NativeControlProxy * result = [NativeControlProxy controlProxyWithDictionary:proxyObject relativeToUrl:currentUrl];
 		
 		return result;
 
 	} else if ([proxyObject isKindOfClass:[NSString class]]){
-		return [buttonContexts objectForKey:proxyObject];
+		return [NativeControlProxy controlProxyForToken:proxyObject];
 	}
 
 	return nil;
@@ -1185,6 +1170,9 @@ NSString * UrlEncodeString(NSString * string)
 
 - (BOOL) startModule;
 {
+	[SearchBarControl registerAsClassNamed:@"searchBar"];
+
+
 	TitaniumInvocationGenerator * invocGen = [TitaniumInvocationGenerator generatorWithTarget:self];
 	
 	[(UiModule *)invocGen window:nil action:nil arguments:nil];
@@ -1319,9 +1307,7 @@ NSString * UrlEncodeString(NSString * string)
 		
 	[(UiModule *)invocGen cloverFlowView:nil doAction:nil args:nil options:nil];
 	NSInvocation * coverflowViewInvoc = [invocGen invocation];
-	
-	buttonContexts = [[NSMutableDictionary alloc] init];
-	
+		
 	//NOTE: createWindow doesn't actually create a native-side window. Instead, it simply sets up the dict.
 	//The actual actions are performed at open time.
 	
@@ -1656,7 +1642,7 @@ NSString * UrlEncodeString(NSString * string)
 			getWindowViewsInvoc,@"_WGVIEWS",
 			setWindowActiveViewInvoc,@"_WSAVIEW",
 			
-			buttonContexts, @"_BTN",
+			[TitaniumJSCode codeWithString:@"{}"], @"_BTN",
 			buttonTokenGen,@"_BTNTKN",
 			setButtonFocusInvoc,@"_BTNFOC",
 			updateButtonInvoc,@"_BTNUPD",
@@ -1774,8 +1760,6 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void) dealloc
 {
-//	[virtualWindowsDict release];
-	[buttonContexts release];
 	[super dealloc];
 }
 

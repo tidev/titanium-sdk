@@ -34,8 +34,8 @@
 		NSString * possibleName = [inputDict objectForKey:@"name"];
 		if([possibleName isKindOfClass:[NSString class]])[self setNameString:possibleName];
 
-		ReadConstraintFromDictionary(&constraint, inputDict);
-		UpdateFontDescriptionFromDict(inputDict, &labelFont);
+		ReadConstraintFromDictionary(&constraint, inputDict, NULL);
+		validLabelFont = UpdateFontDescriptionFromDict(inputDict, &labelFont, NULL);
 
 		textColor = [UIColorWebColorNamed([inputDict objectForKey:@"color"]) retain];
 		selectedTextColor = [UIColorWebColorNamed([inputDict objectForKey:@"selectedColor"]) retain];
@@ -223,7 +223,7 @@
 				[packer stringWithFragment:thisValue error:nil]];
 		needsComma = YES;
 	}
-
+	[packer release];
 	[result appendString:@"}"];
 
 	return result;
@@ -323,6 +323,13 @@
 	}
 	[self didChangeValueForKey:@"jsonValues"];
 
+	if(templateCell == nil){
+		UpdateFontDescriptionFromDict(propDict, &fontDesc,NULL);
+	} else {
+		TitaniumFontDescription templateFontDesc = [templateCell fontDesc];
+		UpdateFontDescriptionFromDict(propDict, &fontDesc, &templateFontDesc);
+	}	
+
 	NSArray * newlayoutArray = [propDict objectForKey:@"layout"];
 	if ([newlayoutArray isKindOfClass:[NSArray class]]) {
 		if (layoutArray != nil) {
@@ -414,8 +421,6 @@
 		NativeControlProxy * thisInputProxy = [theUiModule proxyForObject:inputProxyDict scan:YES recurse:YES];
 		if (thisInputProxy != nil) [self setInputProxy:thisInputProxy];
 	} else [self setInputProxy:nil];
-	
-	UpdateFontDescriptionFromDict(propDict, &fontDesc);
 }
 
 

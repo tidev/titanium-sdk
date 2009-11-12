@@ -78,6 +78,9 @@ UIColor * checkmarkColor = nil;
 	float rowHeight;
 	BOOL isOptionList;
 	BOOL nullHeader;
+
+	UIColor * headerColor;
+	TitaniumCellWrapper * templateCell;
 }
 - (id) initWithHeader: (NSString *) headerString footer: (NSString *) footerString;
 - (void) addRow: (TitaniumCellWrapper *) newRow;
@@ -95,11 +98,12 @@ UIColor * checkmarkColor = nil;
 
 
 @property(nonatomic,readwrite,retain)		NSMutableArray * rowArray;
+@property(nonatomic,readwrite,retain)		TitaniumCellWrapper * templateCell;
 
 @end
 
 @implementation TableSectionWrapper
-@synthesize header,footer,groupType,isOptionList,nullHeader,rowArray,name,rowHeight;
+@synthesize header,footer,groupType,isOptionList,nullHeader,rowArray,name,rowHeight,templateCell;
 
 - (void) forceHeader: (NSString *) headerString footer: (NSString *)footerString;
 {
@@ -146,6 +150,14 @@ UIColor * checkmarkColor = nil;
 	}
 
 	Class dictClass = [NSDictionary class];
+	
+	NSDictionary * templateCellDict = [newData objectForKey:@"template"];
+	if([templateCellDict isKindOfClass:dictClass]){
+		tableTemplateCell = TitaniumCellWithData(templateCellDict, baseURL, tableTemplateCell);
+		[result setTemplateCell:tableTemplateCell];
+		[tableTemplateCell autorelease];
+	}
+	
 
 	NSArray * thisDataArray = [newData objectForKey:@"data"];
 	if ([thisDataArray isKindOfClass:[NSArray class]]){
@@ -301,13 +313,25 @@ UIColor * checkmarkColor = nil;
 	if(newView == nil){
 		[tableView release];
 		tableView = nil;
+		[wrapperView release];
+		wrapperView = nil;
 	}
 }
 
 - (UIView *) view;
 {
+	if(wrapperView == nil){
+		wrapperView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height)];
+		[wrapperView setBackgroundColor:[UIColor clearColor]];
+		[wrapperView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+	}
 	if(tableView == nil){
-		CGRect startSize = CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height);
+		CGRect startSize = [wrapperView bounds];
+		startSize.origin.x += leftMargin;
+		startSize.origin.y += topMargin;
+		startSize.size.width -= leftMargin + rightMargin;
+		startSize.size.height -= topMargin + bottomMargin;
+
 		tableView = [[UITableView alloc] initWithFrame:startSize style:tableStyle];
 		[tableView setDelegate:self];	[tableView setDataSource:self];
 		[tableView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
@@ -321,8 +345,10 @@ UIColor * checkmarkColor = nil;
 			[tableView setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
 			if(borderColor != nil)[tableView setSeparatorColor:borderColor];
 		}
+		[wrapperView addSubview:tableView];
 	}
-	return tableView;
+	
+	return wrapperView;
 }
 
 - (void) readRowData: (NSArray *)dataArray relativeToUrl: (NSURL *)baseUrl;
@@ -390,8 +416,24 @@ UIColor * checkmarkColor = nil;
 
 	Class arrayClass = [NSArray class];
 	
+	SEL floatSel = @selector(floatValue);
+	NSNumber * floatNumber;
+	floatNumber = [inputState objectForKey:@"topMargin"];
+	if([floatNumber respondsToSelector:floatSel])topMargin=[floatNumber floatValue];
+
+	floatNumber = [inputState objectForKey:@"leftMargin"];
+	if([floatNumber respondsToSelector:floatSel])leftMargin=[floatNumber floatValue];
+
+	floatNumber = [inputState objectForKey:@"rightMargin"];
+	if([floatNumber respondsToSelector:floatSel])rightMargin=[floatNumber floatValue];
+
+	floatNumber = [inputState objectForKey:@"bottomMargin"];
+	if([floatNumber respondsToSelector:floatSel])bottomMargin=[floatNumber floatValue];
+	
+	
 	NSNumber * isGrouped = [inputState objectForKey:@"grouped"];
 	SEL boolSel = @selector(boolValue);
+
 
 	if ([isGrouped respondsToSelector:boolSel]){
 		tableStyle = [isGrouped boolValue] ? UITableViewStyleGrouped : UITableViewStylePlain;
@@ -662,8 +704,11 @@ UIColor * checkmarkColor = nil;
 	UIColor * bgColor = [rowWrapper colorForKey:@"backgroundColor"];
 	UIColor * selectedBgColor = [rowWrapper colorForKey:@"selectedBackgroundColor"];
 
-	UIImage * bgImage = [rowWrapper imageForKey:@"backgroundImage"]; //[rowWrapper stretchableImageForKey:@"backgroundImage"];
-	UIImage	* selectedBgImage = [rowWrapper imageForKey:@"selectedBackgroundImage"]; //[rowWrapper stretchableImageForKey:@"selectedBackgroundImage"];
+	// UIImage * bgImage = [rowWrapper imageForKey:@"backgroundImage"]; //[rowWrapper stretchableImageForKey:@"backgroundImage"];
+	// UIImage	* selectedBgImage = [rowWrapper imageForKey:@"selectedBackgroundImage"]; //[rowWrapper stretchableImageForKey:@"selectedBackgroundImage"];
+	UIImage * bgImage = [rowWrapper stretchableImageForKey:@"backgroundImage"];
+	UIImage	* selectedBgImage = [rowWrapper stretchableImageForKey:@"selectedBackgroundImage"];
+
 
 	if((tableStyle == UITableViewStyleGrouped) && (bgImage == nil)){
 		if(bgColor != nil)[result setBackgroundColor:bgColor];
@@ -673,9 +718,9 @@ UIColor * checkmarkColor = nil;
 		UIImageView * bgView = (UIImageView *)[result backgroundView];
 		if(![bgView isKindOfClass:[UIImageView class]]){
 			bgView = [[[UIImageView alloc] initWithFrame:[result frame]] autorelease];
+			[bgView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 			[result setBackgroundView:bgView];
 		}
-		[bgView setContentMode:UIViewContentModeCenter];
 		[bgView setImage:bgImage];
 		[bgView setBackgroundColor:(bgColor==nil)?[UIColor clearColor]:bgColor];
 		
@@ -687,10 +732,10 @@ UIColor * checkmarkColor = nil;
 		UIImageView * selectedBgView = (UIImageView *)[result selectedBackgroundView];
 		if(![selectedBgView isKindOfClass:[UIImageView class]]){
 			selectedBgView = [[[UIImageView alloc] initWithFrame:[result frame]] autorelease];
+			[selectedBgView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 			[result setSelectedBackgroundView:selectedBgView];
 		}
 		
-		[selectedBgView setContentMode:UIViewContentModeCenter];
 		[selectedBgView setImage:selectedBgImage];
 		[selectedBgView setBackgroundColor:(selectedBgColor==nil)?[UIColor clearColor]:selectedBgColor];
 		
@@ -748,7 +793,7 @@ UIColor * checkmarkColor = nil;
 	UITableViewCell * triggeredCell = [tableView cellForRowAtIndexPath:indexPath];
 	if([triggeredCell isKindOfClass:[ComplexTableViewCell class]]){
 		NSString * newItemName = [(ComplexTableViewCell *)triggeredCell clickedName];
-		if(newItemName != nil) itemName = [NSString stringWithFormat:@",layout:'%@'",newItemName];
+		if(newItemName != nil) itemName = [NSString stringWithFormat:@",layoutName:'%@'",newItemName];
 	}
 	
 	NSString * rowData;

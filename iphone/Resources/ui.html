@@ -192,7 +192,7 @@ try{
 
 
 	];
-	tableView = Titanium.UI.createTableView({data:data,rowHeight:80,template:{title:'Button?',backgroundColor:'#FFFF00'}}, function(eventObject) {
+	tableView = Titanium.UI.createTableView({leftMargin:20,rightMargin:10,data:data,rowHeight:80,template:{title:'Button?',backgroundColor:'#FFFF00'}}, function(eventObject) {
 		var rowData = eventObject.rowData;
 
 		var section = eventObject.section;

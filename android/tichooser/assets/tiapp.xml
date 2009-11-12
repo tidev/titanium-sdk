@@ -404,4 +404,5 @@
     <property name="ti.android.shake.factor" type="double">1.3</property>
     <property name="ti.android.shake.quiet.milliseconds" type="int">500</property>
     <property name="ti.android.shake.active.milliseconds" type="int">1000</property>
+    <property name="ti.android.google.map.api.key">0Rq5tT4bUSXcVQ3F0gt8ekVBkqgn05ZJBQMj6uw</property>
 </ti:app>

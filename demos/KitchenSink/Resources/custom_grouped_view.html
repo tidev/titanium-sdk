@@ -1,0 +1,41 @@
+<html>
+  <head>
+	<script>
+	var win = Titanium.UI.currentWindow;
+	
+	var template = {
+		selectedBackgroundColor:'#400302',
+		
+		layout:[
+			{type:'text', name:'item', color:'white', fontSize:30, fontWeight:'bold', left:5, top:5},
+			{type:'text', name:'cost', color:'white', fontSize:14, left:5, bottom:5}
+			
+		]		
+	}	
+	var optionData = [
+		{item:'Burger', cost:'$1.99'},
+		{item:'Cheese Burger', cost:'$2.99'},
+		{item:'Double Cheese', cost:'$3.99'},
+		{item:'Salad', cost:'$0.99'}
+		
+		
+	]
+	var groupedSection = Titanium.UI.iPhone.createGroupedSection({
+		template:template,
+		type:'option',
+		data:optionData,
+		color:'#fff',
+		footer:'Footer',
+		header:'Header'
+	});
+	
+	var groupedView = Titanium.UI.iPhone.createGroupedView({backgroundColor:'transparent', borderColor:'#480000'});
+	groupedView.addSection(groupedSection);
+	
+	win.addView(groupedView);
+	win.showView(groupedView);
+	
+	</script>
+  </head>
+<body></body>
+</html>
