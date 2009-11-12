@@ -2,111 +2,244 @@
 <head>
 	<title>Contacts</title>
 	<script>
-	
-		var jack;
-		var selected;
-		
-		function loadContacts()
+	window.onload  = function()
+	{
+		// 
+		// display a selected contact
+		//
+		function displayContact(c)
 		{
-			Titanium.API.info("loadContacts => "+Titanium._JSON(selected));
-			var records = Titanium.Contacts.getAllContacts();
-			var list = document.getElementById('list');
-			var html = '<div>You have '+records.length+' contacts</div>';
-			html+='<ul>';
-			jack = null;
-			int count = Math.min(records.length,10);
-			for (var c=0;c<count;c++)
+			var html = 'You selected contact:';
+			html += '<br/>firstName :' + ((c.firstName)?c.firstName:'not specified');
+			html += '<br/>lastName :' + ((c.lastName)?c.lastName:'not specified');
+			html += '<br/>middleName :' + ((c.middleName)?c.middleName:'not specified');
+			html += '<br/>prefix :' + ((c.prefix)?c.prefix:'not specified');
+			html += '<br/>suffix :' + ((c.suffix)?c.suffix:'not specified');
+			html += '<br/>nickname :' + ((c.nickname)?c.nickname:'not specified');
+			html += '<br/>phoneticFirstName :' + ((c.phoneticFirstName)?c.phoneticFirstName:'not specified');
+			html += '<br/>phoneticLastName :' + ((c.phoneticLastName)?c.phoneticLastName:'not specified');
+			html += '<br/>phoneticMiddleName :' + ((c.phoneticMiddleName)?c.phoneticMiddleName:'not specified');
+			html += '<br/>organization :' + ((c.organization)?c.organization[0].value.company:'not specified');
+			html += '<br/>email :' + ((c.email)?c.email[0].value:'not specified');
+			html += '<br/>birthday :' + ((c.birthday)?c.birthday:'not specified');
+			html += '<br/>note :' + ((c.note)?c.note[0].value:'not specified');
+			html += '<br/>creationDate :' + ((c.creationDate)?c.creationDate:'not specified');
+			html += '<br/>modificationDate :' 
+			 		+ ((c.modificationDate)?c.modificationDate:'not specified');
+			html += '<br/>date :' + ((c.date)?c.date:'not specified');
+			html += '<br/>phone :' + ((c.phone)?c.phone[0].value:'not specified');
+			html += '<br/>instantMessenger :' + ((c.instantMessenger)?c.instantMessenger:'not specified');
+			html += '<br/>imageData :' + ((c.imageData)?'<img src="'+c.imageData.url + '"/>':'not specified');
+			html += '<br/>url :' + ((c.url)?c.url:'not specified');
+			html += '<br/>relatives :' + ((c.relatives)?c.relatives:'not specified');
+			html += '<br/>displayLabel :' + ((c.displayLabel)?c.displayLabel:'not specified');
+			html += '<br/>displayName :' + ((c.displayName)?c.displayName:'not specified');
+			html += '<br/>street1 :' + ((c.address)?c.address[0].value.street1:'not specified');
+			html += '<br/>city :' + ((c.address)?c.address[0].value.city:'not specified');
+			html += '<br/>region1 :' + ((c.address)?c.address[0].value.region1:'not specified');
+			html += '<br/>postalCode :' + ((c.address)?c.address[0].value.postalCode:'not specified');
+			html += '<br/>countryCode :' + ((c.address)?c.address[0].value.countryCode:'not specified');
+			html += '<br/>displayAddress :' + ((c.address)?c.address[0].value.displayAddress:'not specified');
+			document.getElementById('selectedContact').innerHTML = html;
+			
+		};
+
+		//
+		// get all contacts and display in table view
+		//
+		function reloadContacts()
+		{
+			var data = [];
+			var contacts = Titanium.Contacts.getAllContacts();
+			for (var i=0;i<contacts.length;i++)
 			{
-				var rec = records[c];
-				var cls='';
-				if (rec.firstName == 'Jack' && rec.lastName=='Black' )
-				{
-					Titanium.API.info("found jack black = "+Titanium._JSON(rec));
-					jack = rec;
-				}
-				try
-				{
-					if (rec.equals(selected))
-					{
-						cls = 'style="background-color:#ffffcc;"'
-					}
-				}
-				catch(E)
-				{
-					Titanium.API.error("Error = "+E);
-				}
-				html+='<li '+cls+'>'+rec.firstName+' '+rec.lastName+'</li>';
+				data.push({title:contacts[i].displayName});
 			}
-			html+='</ul>';
-			list.innerHTML = html;
-		}
-	
-		window.onload = function()
-		{
-			loadContacts();
-			
-			//TODO: add already existing record will crash
-			var btn = document.getElementById('add');
-			btn.onclick = function()
-			{
-				if (!jack)
-				{
-					var newRecord = Titanium.Contacts.createContact({firstName:'Jack',lastName:'Black',email:'jack@black.com'});
-				//	var newRecord = Titanium.Contacts.createContact({firstName:'Jack',lastName:'Black'});
-					selected = Titanium.Contacts.addContact(newRecord);
-					Titanium.API.info("added: "+Titanium._JSON(newRecord));
-					loadContacts();
-				}
-			};
-			
-			var rem = document.getElementById('rem');
-			rem.onclick = function()
-			{
-				if (jack)
-				{
-					try
-					{
-						Titanium.API.info("removing: "+Titanium._JSON(jack));
-						Titanium.Contacts.removeContact(jack);
-						selected=null;
-					}
-					catch(e)
-					{
-						Titanium.API.error("error = "+e);
-					}
-					loadContacts();
-				}
-			};
-			
-			var show = document.getElementById('show');
-			show.onclick = function()
-			{
-				selected=null;
-				Titanium.Contacts.showContactPicker(
-				{
-					success:function(ev)
-					{
-						selected=ev.contact;
-						Titanium.API.info("selected = "+Titanium._JSON(selected));
-						loadContacts();
-					},
-					cancel:function()
-					{
-						Titanium.API.info('Cancelled!');
-					},
-					details:['email','firstName','lastName']
-				});
-			};
-		}
+			tableView.setData(data);
+		};
 		
+		//
+		//  button for showing contact picker 1
+		//
+		var button1 = Titanium.UI.createButton({
+			id:'button1',
+			backgroundImage:'blue.png',
+			backgroundSelectedImage:'blue_pressed.png',
+			backgroundFocusedImage:'blue_focused.png',
+			title:'Show Contact Picker',
+			color:'#ffffff',
+			height:47,
+			fontSize:16
+		});
+		button1.addEventListener('click',function(e)
+		{
+			Titanium.Contacts.showContactPicker({
+			
+			   	success:function(e)
+			   	{
+					displayContact(e.contact);
+			   	},
+			   	cancel:function()
+			   	{
+			   	},
+			   	details:['firstName','lastName','phone','email', 'organization']
+			});
+		});
+
+		//
+		// button for showing contact picker 2
+		//
+		var button2 = Titanium.UI.createButton({
+			id:'button2',
+			backgroundImage:'blue.png',
+			backgroundSelectedImage:'blue_pressed.png',
+			backgroundFocusedImage:'blue_focused.png',
+			title:'Show Contact Picker (no detail)',
+			color:'#ffffff',
+			height:47,
+			fontSize:16
+		});
+		button2.addEventListener('click',function(e)
+		{
+			Titanium.Contacts.showContactPicker({
+			
+			   	success:function(e)
+			   	{
+					displayContact(e.contact);
+			   	},
+			   	cancel:function()
+			   	{
+			   	}
+			});
+		
+		});
+
+		//
+		// button for adding new contact
+		//
+		var button3 = Titanium.UI.createButton({
+			id:'button3',
+			backgroundImage:'blue.png',
+			backgroundSelectedImage:'blue_pressed.png',
+			backgroundFocusedImage:'blue_focused.png',
+			title:'Add Contact',
+			color:'#ffffff',
+			height:47,
+			fontSize:16
+		});
+		button3.addEventListener('click',function(e)
+		{
+			Titanium.UI.currentWindow.showView(groupedView,{
+				animated:true,
+				animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+				animationDuration:1000
+			});
+		});
+
+		//
+		// button for viewing all contacts
+		//
+		var button4 = Titanium.UI.createButton({
+			id:'button4',
+			backgroundImage:'blue.png',
+			backgroundSelectedImage:'blue_pressed.png',
+			backgroundFocusedImage:'blue_focused.png',
+			title:'View Contacts',
+			color:'#ffffff',
+			height:47,
+			fontSize:16
+		});
+		button4.addEventListener('click',function(e)
+		{
+			reloadContacts();
+			Titanium.UI.currentWindow.showView(tableView,{
+				animated:true,
+				animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+				animationDuration:1000
+			});
+		});
+	
+		//
+		//  Create Table View to show contacts
+		//
+		var data = [{title:'No Contacts...'}]
+		var tableView = Titanium.UI.createTableView({data:data});
+		
+		// create grouped view for adding contacts
+		var firstName = Titanium.UI.createTextField({width:100,hintText:'first name'});
+		firstName.addEventListener('return',function(e)
+		{
+			lastName.focus();
+		});
+		var lastName = Titanium.UI.createTextField({width:100,hintText:'first name'});
+		lastName.addEventListener('return',function(e)
+		{
+			email.focus();
+		});
+		var email = Titanium.UI.createTextField({width:100,hintText:'first name'});
+		email.addEventListener('return',function(e)
+		{
+			email.blur();
+		});
+
+		var inputData = [
+			{title:'First Name', input:firstName, fontSize:16},
+			{title:'Last Name', input:lastName,fontSize:16},
+			{title:'Email', input:email,fontSize:16}
+		];
+
+		var inputSection = Titanium.UI.iPhone.createGroupedSection({
+			header:'Create Contact',
+			type:'input',
+			data:inputData
+		});
+		
+		var buttonData = [
+			{title:'Add Contact'},
+			{title:'Go Back'}
+		];
+		var buttonSection = Titanium.UI.iPhone.createGroupedSection({
+			type:'button',
+			data:buttonData
+		});
+		buttonSection.addEventListener('click', function(e)
+		{
+			if (e.row==1)
+			{
+				Titanium.UI.currentWindow.showView(compositeView,{
+					animated:true,
+					animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+					animationDuration:1000
+				});
+			}
+			else
+			{
+				// add contact
+			}
+		});
+		var groupedView = Titanium.UI.iPhone.createGroupedView();
+		groupedView.addSection(inputSection);
+		groupedView.addSection(buttonSection);
+		
+		
+		// add views
+		Titanium.UI.currentWindow.addView(compositeView);
+		Titanium.UI.currentWindow.addView(groupedView);
+		Titanium.UI.currentWindow.addView(tableView);
+		
+		Titanium.UI.currentWindow.showView(compositeView);
+
+	};
+	
+	
 	</script>
 </head>
-<body>
-	<h1>Contact DB List</h1>
-	<div id="list"></div>
-	<div>
-		<button id="add">Add Jack Black</button>
-		<button id="rem">Remove Jack Black</button>
-		<button id="show">Show Contacts</button>
-	</div>
+<body  style="font-family:'Helvetica Neue';background-color:#444">
+	<div id="button1" style="height:50px"></div>
+	<div id="button2" style="height:50px"></div>
+	<div id="button3" style="height:50px"></div>
+	<div id="button4" style="height:50px"></div>
+
+	<div id="selectedContact" style="background-color:#000;color:#fff;-webkit-border-radius:5px;padding:5px">No Contact Selected</div>
+
 </body>

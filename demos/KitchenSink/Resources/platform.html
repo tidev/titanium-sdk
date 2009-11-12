@@ -9,24 +9,67 @@
 		Titanium.API.info('>>>>>>>>>>>>>>>>>>>>>>>>>> TABCHANGE index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
 	});
 	
+	// create table view template
+	var template = {
+		backgroundImage:'images/tableview/on2_1.png',
+		selectedBackgroundImage:'images/tableview/off2_1.png',
+	 	layout:[
+	  	{
+			type:'text', 
+			left:20,  
+			name:'title', 
+			fontSize:18, 
+			fontWeight:'bold', 
+			color:'#fff'
+		}]
+	};
+
+	
 	// data for tableview
 	var data = [
 		{title:'Credits'},
-		{title:'XHR Request', hasChild:true},
+		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
+		{title:'XHR Request'},
+		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
+
 		{title:'Logging'},
-		{title:'Application Data',hasChild:true},
-		{title:'Properties',hasChild:true},
-		{title:'Database', hasChild:true},
-		{title:'Platform Data', hasChild:true},
-		{title:'Filesystem', hasChild:true},
-		{title:'External URLs', hasChild:true},
+		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
+
+		{title:'Application Data'},
+		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
+
+		{title:'Properties'},
+		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
+
+		{title:'Database'},
+		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
+
+		{title:'Platform Data'},
+		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
+
+		{title:'Filesystem'},
+		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
+
+		{title:'External URLs'},
+		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
+
 		{title:'Open URL (http)'},
+		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
+
 		{title:'Open URL (tel)'},
+		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
+
 		{title:'Open URL (sms)'}
 	];
 	
 	// tableview object
-	var tableView = Titanium.UI.createTableView({data:data,title:'Platform API',isPrimary:true}, function(eventObject) 
+	var tableView = Titanium.UI.createTableView({
+		template:template,
+		data:data,
+		backgroundColor:'transparent', 
+		borderColor:'transparent',
+		title:'Platform API'
+	}, function(eventObject) 
 	{
 		// handle tableview click events
 		var idx = eventObject.index;

@@ -16,7 +16,8 @@
  			<icon>KS_nav_phone.png</icon>
 			<orientation>either</orientation>
 			<backButtonTitle>Back</backButtonTitle>
-			<backgroundImage>sb_bg.jpg</backgroundImage>
+			<backgroundImage>images/tableview/bg.png</backgroundImage>
+			<landscapeBackgroundImage>images/tableview/landscape_bg.png</landscapeBackgroundImage>
 			<barColor>#19613b</barColor>
         </window>
         <window>
@@ -50,6 +51,8 @@
  			<icon>KS_nav_platform.png</icon>
 			<orientation>either</orientation>
 			<backButtonTitleImage>chat.png</backButtonTitleImage>
+			<backgroundImage>images/tableview/bg2.png</backgroundImage>
+			<barColor>#111</barColor>
         </window>
 
     </windows>

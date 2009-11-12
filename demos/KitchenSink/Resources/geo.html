@@ -54,9 +54,9 @@
 
 	
 	<script>
-	var count =0;
+	var count = 0;
 	var count2 = 0;
-	var count3 =0;
+	var count3 = 0;
 	var count4 = 0;
 	Titanium.Geolocation.getCurrentPosition(
 		function(pos)
@@ -162,7 +162,8 @@
 		}
 		
 		Titanium.Geolocation.watchHeading(
-			function(pos){
+			function(pos)
+			{
 				count3++;
 
 				document.getElementById("callcount3").innerHTML = "Call count: "+count3;
@@ -175,13 +176,15 @@
 				document.getElementById("z").innerHTML = "z: "+pos.z;
 				magneticStrength(pos);
 			},
-			function(){
-			
+			function(e)
+			{
+				Titanium.UI.createAlertDialog({title:'Watch Heading', message:'Error: e ' + e}).show();
 			}
 		);
 
 		Titanium.Geolocation.getCurrentHeading(
-			function(pos){
+			function(pos)
+			{
 				count4++;
 
 				document.getElementById("callcount4").innerHTML = "Call count: "+count4;
@@ -192,11 +195,11 @@
 				document.getElementById("x2").innerHTML = "x: "+pos.x;
 				document.getElementById("y2").innerHTML = "y: "+pos.y;
 				document.getElementById("z2").innerHTML = "z: "+pos.z;
-				
 				magneticStrength(pos);
 			},
-			function(){
-			
+			function(e)
+			{
+				Titanium.UI.createAlertDialog({title:'Watch Heading', message:'Error: e ' + e}).show();
 			}
 		);
 		
@@ -224,7 +227,8 @@
 			});
 		});
 
-		document.getElementById("compass").innerHTML = Titanium.Geolocation.hasCompass ? "Compass present" : "No compass present";
+		document.getElementById("compass").innerHTML = Titanium.Geolocation.hasCompass 
+				? "Compass present" : "No compass present";
 	}
 	
 	
