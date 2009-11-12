@@ -2,29 +2,55 @@
 <head>
 <title>Reverse Lookup</title>
 <script>
-var btn1 = Titanium.UI.createButton({id:'btn1', title : "Southlake"});
-btn1.addEventListener('click', function() {
+var displayAddress = function(latitude,longitude) {
 	document.getElementById("output").innerHTML = "&nbsp;";
 
-	Titanium.Geolocation.reverseGeocoder( {latitude: 32.941238, longitude : -97.130447 }, function(location) {
-		var h = "street1: " + location.street1 + "<br/>" +
-		"street2: " + location.street2 + "<br/>" +
-		"city: " + location.city + "<br/>" +
-		"region1: " + location.region1 + "<br/>" +
-		"region2: " + location.region2 + "<br/>" +
-		"postalCode: " + location.postalCode + "<br/>" +
-		"country: " + location.country + "<br/>" +
-		"countryCode: " + location.countryCode + "<br/>" +
-		"feature: " + location.feature + "<br/>" +
-		"phone: " + location.phone + "<br/>";
+	Titanium.Geolocation.reverseGeocoder( {latitude: latitude, longitude : longitude }, function(location) {
+		var h = "Not found";
+		if (!Ti.isUndefined(location)) {
+			h = "street1: " + location.street1 + "<br/>" +
+				"street2: " + location.street2 + "<br/>" +
+				"city: " + location.city + "<br/>" +
+				"region1: " + location.region1 + "<br/>" +
+				"region2: " + location.region2 + "<br/>" +
+				"postalCode: " + location.postalCode + "<br/>" +
+				"country: " + location.country + "<br/>" +
+				"countryCode: " + location.countryCode + "<br/>" +
+				"displayAddress: " + location.displayAddress + "<br/>"
+			;
+		}
 
 		document.getElementById("output").innerHTML = h;
 	});
+};
+
+var btn1 = Titanium.UI.createButton({id:'btn1', title : "Southlake"});
+btn1.addEventListener('click', function() {
+	displayAddress(32.941238, -97.130447);
 });
+
+var btn2 = Titanium.UI.createButton({id:'btn2', title : "London"});
+btn2.addEventListener('click', function() {
+	displayAddress(51.496845,-0.134105);
+});
+
+var btn3 = Titanium.UI.createButton({id:'btn3', title : "Bejing"});
+btn3.addEventListener('click', function() {
+	displayAddress(39.913423,116.397142);
+});
+
+var btn4 = Titanium.UI.createButton({id:'btn4', title : "Samarkand"});
+btn4.addEventListener('click', function() {
+	displayAddress(39.649331,66.969025);
+});
+
 </script>
 </head>
 <body style='background-color: white'>
-<div id="btn1" style="width:120px;height:40px">&nbsp;</div>
+<div id="btn1" style="width:90px;height:40px;float:left;">&nbsp;</div>
+<div id="btn2" style="width:90px;height:40px;float:left;">&nbsp;</div>
+<div id="btn3" style="width:90px;height:40px;float:left;">&nbsp;</div>
+<div id="btn4" style="width:90px;height:40px;float:left;">&nbsp;</div>
 <div style="clear:both; padding-top:5px;" id="output">
 </div>
 </body>
