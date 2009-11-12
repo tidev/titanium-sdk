@@ -84,10 +84,10 @@ typedef enum {
 	
 	UIColor * borderColor;
 
-	float topMargin;
-	float leftMargin;
-	float rightMargin;
-	float bottomMargin;
+	float marginTop;
+	float marginLeft;
+	float marginRight;
+	float marginBottom;
 	
 	NSLock * sectionLock;
 	NSMutableArray * sectionArray;

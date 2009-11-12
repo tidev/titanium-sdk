@@ -159,7 +159,7 @@ try{
 		{title:'row 3',backgroundColor:'#00FFFF'},
 		{html:'<b>row</b> 4 has <i>html?</i>',selected:true},
 
-		{rowHeight:50,title1:'Layout test1',image3:'Phone.png',layout:[{top:5,bottom:5,left:45,name:'title1',type:'text',fontSize:'10px'},{type:'image',name:'image3',top:0,height:40,left:5,width:40}]},
+		{rowHeight:50,title:'Layout test1',image:'Phone.png',layout:[{top:0,height:30,bottom:null,fontSize:'20px'},{type:'image',name:'image',top:0,height:40,left:5,width:40}]},
 
 		{title:'row 1', hasChild:true, image:'Mail.png',backgroundColor:'#00FFFF'},
 		{title:'row 2', hasDetail:true, image:'Safari.png'},
@@ -192,7 +192,9 @@ try{
 
 
 	];
-	tableView = Titanium.UI.createTableView({leftMargin:20,rightMargin:10,data:data,rowHeight:80,template:{title:'Button?',backgroundColor:'#FFFF00'}}, function(eventObject) {
+	tableView = Titanium.UI.createTableView({marginLeft:20,marginRight:10,data:data,rowHeight:80,
+			template:{title:'Button?',backgroundColor:'#FFFF00',layout:[{top:5,bottom:5,left:45,name:'title',type:'text',fontSize:'10px'},{type:'image',name:'image',top:0,height:40,left:5,width:40}]
+			}}, function(eventObject) {
 		var rowData = eventObject.rowData;
 
 		var section = eventObject.section;
@@ -319,7 +321,7 @@ try{
 //	groupedView.setLeftNavButton(Ti.UI.createButton({systemButton:'rewind'}));
 
 //	groupedView.setLeftNavButton(null);
-	var winny = Ti.UI.createWindow({backgroundImage:'Default.png',views:[groupedView]});
+	var winny = Ti.UI.createWindow({backgroundImage:'Default.png',landscapeBackgroundImage:'Safari.png',orientation:'either',views:[groupedView]});
 //	winny.addView(groupedView);
 	winny.open();
 //	groupedView.open({animated:false});
@@ -349,7 +351,10 @@ try{
 
 //		var btn8 = Ti.UI.createButton({title:'moo',id:'buttony',image:'Safari.png'});
 
-		var btn8 = Ti.UI.createButton({title:'moo',id:'buttony',image:'Safari.png',backgroundImage:'Mail.png',fontWeight:'bold',fontSize:'36px'});
+//		var btn8 = Ti.UI.createButton({title:'moo',id:'buttony',image:'Safari.png',backgroundImage:'Mail.png',fontWeight:'bold',fontSize:'36px'});
+
+		var btn8 = Ti.UI.createSearchBar({title:'moo',id:'buttony',image:'Safari.png',backgroundImage:'Mail.png',fontWeight:'bold',fontSize:'36px'});
+
 //		btn8.width=100;
 		btn8.addEventListener('click',function(foo){document.getElementById('sliderValue').innerHTML='Clicked!';});
 
@@ -486,6 +491,26 @@ try{
 		
 	};
 
+	function showAlert()
+	{
+		var a = Titanium.UI.createAlertDialog({title:'Alert Test',message:'it worked',buttonNames:['OK','Cancel']});
+		a.show();
+		var b = Titanium.UI.createAlertDialog({buttonNames:['OK']});
+		b.setTitle('Click Event');
+		a.addEventListener('click',function(e)
+		{
+			if (e.index == 0)
+			{
+				b.setMessage('You clicked OK');
+			}
+			else
+			{
+				b.setMessage('You clicked Cancel');
+			}
+			b.show();
+		});
+		
+	};
 
 
 </script>
@@ -506,15 +531,16 @@ try{
 
 żźćłóąś
 	<a href="tel:1234567">Call me</a>
-	<div id='buttony' style='position:absolute;top:200;right:120;width:200px;height:80px'>Button goes here!</div>
+	<div id='buttony' style='position:absolute;top:240;right:10;width:300px;height:80px'> </div>
 	<!--div id='buttony' style=''>Button goes here!</div-->
 	<a href="tel:1234567">Call me</a>
 	
 	<div id='sliderValue'>Unchanged slider value!</div>
 
 	<!--div id='sliderPlace' style="width:200px;height:70px;"></div-->
+	<button onclick="showOptionsDialog()">Options?</button>
+	<button onclick="showAlert()">Alert?</button>
 	<div id='sliderPlace' style="width:150px"></div>
-	<button onclick="showOptionsDialog()">
 	
 </body>
 </html>

@@ -55,9 +55,6 @@
 	[self setUserInteractionEnabled:YES];
 
 	NSArray * layoutArray = [dataWrapper layoutArray];
-	if(layoutArray == nil) layoutArray = [[dataWrapper templateCell] layoutArray];
-	if(![layoutArray isKindOfClass:[NSArray class]])layoutArray = nil;
-
 
 	if(layoutViewsArray == nil){
 		layoutViewsArray = [[NSMutableArray alloc] initWithCapacity:[layoutArray count]];
@@ -107,17 +104,14 @@
 				} else {
 					entryDesc = [dataWrapper fontDesc];
 				}
-				//[(UILabel *)thisEntry setFont:FontFromDescription(&entryDesc)];
+				[(UILabel *)thisEntryView setFont:FontFromDescription(&entryDesc)];
 				
 				break;}
 			case LayoutEntryImage:{
-//				thisEntryView = [[[TitaniumImageView alloc] initWithFrame:CGRectZero] autorelease];
-//				[(TitaniumImageView *)thisEntryView setDelegate:self];
-
 				thisEntryView = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
 
 				UIImage * entryImage = [dataWrapper imageForKey:name];
-				[(TitaniumImageView *)thisEntryView setImage:entryImage];
+				[(UIImageView *)thisEntryView setImage:entryImage];
 				
 				break;}
 			case LayoutEntryButton:{
@@ -136,29 +130,17 @@
 	
 }
 
-//- (void)drawRect:(CGRect)rect;
+//- (void)setHighlighted:(BOOL)hilighted animated:(BOOL)animated;
 //{
-//	NSLog(@"Drawing rect...(%f,%f),(%f,%f)",rect.origin.x,rect.origin.y,rect.size.width,rect.size.height);
-//
-//	UIColor * blueColor = [UIColor blueColor];
-//	[blueColor set];
-//	UIRectFill(rect);
-//
-//
-//	[super drawRect:rect];
+//	[super setHighlighted:hilighted animated:animated];
+////	[self updateState:animated];
 //}
-
-- (void)setHighlighted:(BOOL)hilighted animated:(BOOL)animated;
-{
-	[super setHighlighted:hilighted animated:animated];
-//	[self updateState:animated];
-}
-
-- (void)setSelected:(BOOL)selected animated:(BOOL)animated;
-{
-	[super setSelected:selected animated:animated];
-//	[self updateState:animated];
-}
+//
+//- (void)setSelected:(BOOL)selected animated:(BOOL)animated;
+//{
+//	[super setSelected:selected animated:animated];
+////	[self updateState:animated];
+//}
 
 
 - (void)dealloc {
@@ -185,13 +167,6 @@
 	
 	[self setClickedName:nil];
 	[super touchesEnded:touches withEvent:event];
-}
-
-
-
-- (void) imageView: (TitaniumImageView *)touchedImage touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
-{
-//	[self 
 }
 
 

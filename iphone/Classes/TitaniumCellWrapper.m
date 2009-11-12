@@ -38,12 +38,16 @@
 		if([possibleName isKindOfClass:[NSString class]])[self setNameString:possibleName];
 		else if(inheritance!=nil) [self setNameString:[inheritance nameString]];
 
-		ReadConstraintFromDictionary(&constraint, inputDict, NULL);
-		validLabelFont = UpdateFontDescriptionFromDict(inputDict, &labelFont, NULL);
+		ReadConstraintFromDictionary(&constraint, inputDict, [inheritance constraintPointer]);
+		validLabelFont = UpdateFontDescriptionFromDict(inputDict, &labelFont, [inheritance labelFontPointer]);
 
-		textColor = [UIColorWebColorNamed([inputDict objectForKey:@"color"]) retain];
-		selectedTextColor = [UIColorWebColorNamed([inputDict objectForKey:@"selectedColor"]) retain];
-		
+		NSString * newTextColor = [inputDict objectForKey:@"color"];
+		if(newTextColor == nil)[self setTextColor:[inheritance textColor]];
+		else [self setTextColor:UIColorWebColorNamed(newTextColor)];
+
+		NSString * newSelectedTextColor = [inputDict objectForKey:@"selectedColor"];
+		if(newSelectedTextColor == nil)[self setSelectedTextColor:[inheritance selectedTextColor]];
+		else [self setSelectedTextColor:UIColorWebColorNamed(newSelectedTextColor)];
 		
 	}
 	return self;
@@ -174,6 +178,13 @@
 
 	//If it's NSNull, then we want nil.
 	return nil;
+}
+
+- (NSMutableArray *) layoutArray;
+{
+	if(layoutArray == nil)return [templateCell layoutArray];
+	if(![layoutArray isKindOfClass:[NSArray class]])return nil;
+	return layoutArray;
 }
 
 
@@ -358,18 +369,20 @@
 			[imageKeys removeAllObjects];
 		}		
 		
+		NSEnumerator * templateEntryEnumerator = [[templateCell layoutArray] objectEnumerator];
+		
 		for (NSDictionary * thisLayoutDict in newlayoutArray) {
+			LayoutEntry * templateEntry = [templateEntryEnumerator nextObject];
 			if(![thisLayoutDict isKindOfClass:dictClass])continue;
-			LayoutEntry * thisLayout = [[LayoutEntry alloc] initWithDictionary:thisLayoutDict inheriting:nil];
+			LayoutEntry * thisLayout = [[LayoutEntry alloc] initWithDictionary:thisLayoutDict
+					inheriting:templateEntry];
+			if(thisLayout==nil)continue;
 			[layoutArray addObject:thisLayout];
 			if ([thisLayout type]==LayoutEntryImage) {
 				[imageKeys addObject:[thisLayout nameString]];
 			}
 			[thisLayout release];
 		}
-		
-		
-		//Generate actual layoutArray and image Keys from layoutArray.
 		
 	} else {
 		[layoutArray release];

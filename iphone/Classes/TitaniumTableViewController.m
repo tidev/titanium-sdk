@@ -327,10 +327,10 @@ UIColor * checkmarkColor = nil;
 	}
 	if(tableView == nil){
 		CGRect startSize = [wrapperView bounds];
-		startSize.origin.x += leftMargin;
-		startSize.origin.y += topMargin;
-		startSize.size.width -= leftMargin + rightMargin;
-		startSize.size.height -= topMargin + bottomMargin;
+		startSize.origin.x += marginLeft;
+		startSize.origin.y += marginTop;
+		startSize.size.width -= marginLeft + marginRight;
+		startSize.size.height -= marginTop + marginBottom;
 
 		tableView = [[UITableView alloc] initWithFrame:startSize style:tableStyle];
 		[tableView setDelegate:self];	[tableView setDataSource:self];
@@ -418,17 +418,17 @@ UIColor * checkmarkColor = nil;
 	
 	SEL floatSel = @selector(floatValue);
 	NSNumber * floatNumber;
-	floatNumber = [inputState objectForKey:@"topMargin"];
-	if([floatNumber respondsToSelector:floatSel])topMargin=[floatNumber floatValue];
+	floatNumber = [inputState objectForKey:@"marginTop"];
+	if([floatNumber respondsToSelector:floatSel])marginTop=[floatNumber floatValue];
 
-	floatNumber = [inputState objectForKey:@"leftMargin"];
-	if([floatNumber respondsToSelector:floatSel])leftMargin=[floatNumber floatValue];
+	floatNumber = [inputState objectForKey:@"marginLeft"];
+	if([floatNumber respondsToSelector:floatSel])marginLeft=[floatNumber floatValue];
 
-	floatNumber = [inputState objectForKey:@"rightMargin"];
-	if([floatNumber respondsToSelector:floatSel])rightMargin=[floatNumber floatValue];
+	floatNumber = [inputState objectForKey:@"marginRight"];
+	if([floatNumber respondsToSelector:floatSel])marginRight=[floatNumber floatValue];
 
-	floatNumber = [inputState objectForKey:@"bottomMargin"];
-	if([floatNumber respondsToSelector:floatSel])bottomMargin=[floatNumber floatValue];
+	floatNumber = [inputState objectForKey:@"marginBottom"];
+	if([floatNumber respondsToSelector:floatSel])marginBottom=[floatNumber floatValue];
 	
 	
 	NSNumber * isGrouped = [inputState objectForKey:@"grouped"];
@@ -648,7 +648,6 @@ UIColor * checkmarkColor = nil;
 	UITableViewCell * result = nil;
 
 	id activeLayoutArray=[rowWrapper layoutArray];
-	if(activeLayoutArray==nil)activeLayoutArray = [templateCell layoutArray];
 
 	if (htmlString != nil){ //HTML cell
 		result = [ourTableView dequeueReusableCellWithIdentifier:@"html"];

@@ -1260,7 +1260,7 @@ NSString * const systemButtonString = @"{ACTION:'action',ACTIVITY:'activity',CAM
 	"SAVE:'save',DONE:'done',FLEXIBLE_SPACE:'flexiblespace',FIXED_SPACE:'fixedspace',INFO_LIGHT:'infolight',INFO_DARK:'infodark',DISCLOSURE:'disclosure'}";
 
 
-NSString * const createButtonString = @"function(args,btnType){var res={"
+NSString * const createButtonString = @"function(args,btnType,conTyp){var res={"
 	"onClick:Ti._ONEVT,_EVT:{click:[],change:[],focus:[],blur:[],'return':[]},addEventListener:Ti._ADDEVT,removeEventListener:Ti._REMEVT,"
 	"focus:function(){Ti.UI._BTNFOC(this,true);},blur:function(){Ti.UI._BTNFOC(this,false);},"
 	"update:function(arg){if(!this._TOKEN)return;"
@@ -1285,6 +1285,7 @@ NSString * const createButtonString = @"function(args,btnType){var res={"
 	"};"
 	"if(args){for(prop in args){res[prop]=args[prop];}};"
 	"if(btnType)res.systemButton=btnType;"
+	"if(conTyp)res._TYPE=conTyp;"
 	"if(res.id){res.setId(res.id);}"
 	"return res;}";
 

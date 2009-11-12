@@ -620,6 +620,7 @@ typedef int UIEventSubtype;
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
 {
 	TitaniumContentViewController * ourVC = [self viewControllerForIndex:selectedContentIndex];
+	[self refreshBackground];
 	[ourVC updateLayout:YES];
 	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewDidRotateToInterfaceOrientation:properties:) source:self properties:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:fromInterfaceOrientation] forKey:@"orientation"]];
 }

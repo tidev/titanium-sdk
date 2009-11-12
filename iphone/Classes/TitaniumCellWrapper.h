@@ -26,7 +26,7 @@ typedef enum {
 	NSString * nameString;
 }
 
-- (id) initWithDictionary: (NSDictionary *) inputDict;
+- (id) initWithDictionary: (NSDictionary *) inputDict inheriting: (LayoutEntry *) inheritance;
 
 @property(nonatomic,readwrite,assign)	LayoutEntryType type;
 @property(nonatomic,readwrite,assign)	LayoutConstraint constraint;

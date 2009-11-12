@@ -12,4 +12,6 @@
 	UISearchBar * searchView;
 }
 
+extern NSString * const createSearchBarString;
+
 @end

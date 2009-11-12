@@ -88,8 +88,6 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void) showActionSheetWithDict: (NSDictionary *) inputDict;
 {
-	if (![self takeToken:inputDict])return;
-
 	Class NSStringClass = [NSString class];
 
 	[actionSheet release];
@@ -140,8 +138,6 @@ NSString * UrlEncodeString(NSString * string)
 
 - (void) showAlertViewWithDict: (NSDictionary *) inputDict;
 {
-	if (![self takeToken:inputDict])return;
-
 	Class NSStringClass = [NSString class];
 	
 	[alertView release];
@@ -191,7 +187,6 @@ NSString * UrlEncodeString(NSString * string)
 	NSString * result = [NSString stringWithFormat:@"Ti.UI._MODAL.%@.onClick('click',"
 			"{type:'click',index:%d,cancel:%d,destructive:%d})",tokenString,buttonIndex,
 			[anActionSheet cancelButtonIndex],[anActionSheet destructiveButtonIndex]];
-	
 	[[TitaniumHost sharedHost] sendJavascript:result toPageWithToken:contextString];
 	[[TitaniumAppDelegate sharedDelegate] setIsShowingDialog:NO];
 	[self autorelease];
@@ -201,7 +196,6 @@ NSString * UrlEncodeString(NSString * string)
 {
 	NSString * result = [NSString stringWithFormat:@"Ti.UI._MODAL.%@.onClick('click',"
 			"{type:'click',index:%d,cancel:%d})",tokenString,buttonIndex,[anAlertView cancelButtonIndex]];
-
 	[[TitaniumHost sharedHost] sendJavascript:result toPageWithToken:contextString];
 	[[TitaniumAppDelegate sharedDelegate] setIsShowingDialog:NO];
 	[self autorelease];
@@ -1079,14 +1073,13 @@ NSString * UrlEncodeString(NSString * string)
 - (void) showModal: (NSDictionary *) modalObject isAlert: (id) isAlertObject;
 {
 	if ((![isAlertObject respondsToSelector:@selector(boolValue)]) || (![modalObject isKindOfClass:[NSDictionary class]])) return;
-	ModalProxy * result = [[ModalProxy alloc] init];
+	ModalProxy * result = [[[ModalProxy alloc] init] autorelease];
+	if (![result takeToken:modalObject])return;
 	if ([isAlertObject boolValue]){
 		[result performSelectorOnMainThread:@selector(showAlertViewWithDict:) withObject:modalObject waitUntilDone:NO];
 	} else {
 		[result performSelectorOnMainThread:@selector(showActionSheetWithDict:) withObject:modalObject waitUntilDone:NO];
 	}
-	
-	[result release];
 }
 
 #pragma mark Email thingy generation
@@ -1663,6 +1656,8 @@ NSString * UrlEncodeString(NSString * string)
 			[TitaniumJSCode codeWithString:@"function(args){var res=Ti.UI.createButton(args,'segmented');res.setIndex=function(val){this.index=val;this.update();};return res;}"],@"createTabbedBar",
 			[TitaniumJSCode codeWithString:createDatePickerString],@"createDatePicker",
 			[TitaniumJSCode codeWithString:createPickerString],@"createPicker",
+			[TitaniumJSCode codeWithString:createSearchBarString],@"createSearchBar",
+
 //			[TitaniumJSCode codeWithString:createModalDatePickerString],@"createModalDatePicker",
 //			[TitaniumJSCode codeWithString:createModalPickerString],@"createModalPicker",
 

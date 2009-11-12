@@ -7,22 +7,24 @@
 
 #import "SearchBarControl.h"
 
+NSString * const createSearchBarString = @"function(args){var res=Ti.UI.createButton(args,null,'searchBar');return res;}";
+
 
 @implementation SearchBarControl
 
 - (void) setPropertyDict: (NSDictionary *) newDict;
 {
-	
+	[super setPropertyDict:newDict];
 }
 
 - (void) refreshPositionWithWebView: (UIWebView *) webView animated:(BOOL)animated;
 {
-	
+	[super refreshPositionWithWebView:webView animated:animated];
 }
 
 - (BOOL)isFirstResponder;
 {
-	
+	return [searchView isFirstResponder];
 }
 
 
