@@ -164,7 +164,8 @@
 	}
 	if (parentView==nil)
 	{
-		parentView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height)];	
+		parentView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height)];
+		[parentView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 		if (showActivity)
 		{
 			[parentView addSubview:spinner];

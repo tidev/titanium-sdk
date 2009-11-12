@@ -109,9 +109,13 @@ void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint,UIV
 #define READ_CONSTRAINT(key,boolVar,floatVar)	\
 inputVal = [inputDict objectForKey:key];	\
 constraint->boolVar = [inputVal respondsToSelector:floatValue];	\
-if(constraint->boolVar)constraint->floatVar = [inputVal floatValue];
+if(constraint->boolVar)constraint->floatVar = [inputVal floatValue]; \
+else if((inputVal == nil) && (inheritance!=NULL)){	\
+	constraint->boolVar=inheritance->boolVar; \
+	constraint->floatVar=inheritance->floatVar; \
+}
 
-void ReadConstraintFromDictionary(LayoutConstraint * constraint, NSDictionary * inputDict)
+void ReadConstraintFromDictionary(LayoutConstraint * constraint, NSDictionary * inputDict, LayoutConstraint * inheritance)
 {
 	SEL floatValue = @selector(floatValue);
 	NSNumber * inputVal;

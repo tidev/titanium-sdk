@@ -59,6 +59,7 @@ typedef enum {
 @property(nonatomic,assign)	int index;
 @property(nonatomic,assign)	int section;
 @property(nonatomic,assign)	int row;
+
 @property(nonatomic,copy)	NSDictionary * sectionData;
 @property(nonatomic,copy)	NSDictionary * rowData;
 @property(nonatomic,copy)	NSArray * replacedData;
@@ -82,6 +83,11 @@ typedef enum {
 //	BOOL	useRowHeightCallback;
 	
 	UIColor * borderColor;
+
+	float topMargin;
+	float leftMargin;
+	float rightMargin;
+	float bottomMargin;
 	
 	NSLock * sectionLock;
 	NSMutableArray * sectionArray;
@@ -89,6 +95,8 @@ typedef enum {
 	NSString * callbackProxyPath;
 
 	NSIndexPath * blessedPath;
+	
+	UIView * wrapperView;
 	UITableView * tableView;
 	
 	NSLock * actionLock;

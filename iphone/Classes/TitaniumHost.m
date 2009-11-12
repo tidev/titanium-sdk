@@ -810,6 +810,7 @@ TitaniumHost * lastSharedHost = nil;
 	} else {
 		[ourModalQueue addObject:ourWrapper];
 	}
+	[ourWrapper release];
 	
 	if(!isFree){
 	} else if(!isMainThread){

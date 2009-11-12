@@ -143,7 +143,7 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 @property(nonatomic,readwrite,assign)	UIDatePickerMode datePickerMode;
 @property(nonatomic,readwrite,assign)	int		minuteInterval;
 
-+ (NSString *) newToken;
++ (NSString *) requestToken;
 + (id) controlProxyForToken: (NSString *) tokenString;
 + (id) controlProxyWithDictionary: (NSDictionary *) inputDict relativeToUrl: (NSURL *) baseUrl;
 

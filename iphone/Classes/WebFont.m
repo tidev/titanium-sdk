@@ -8,7 +8,7 @@
 
 #import "WebFont.h"
 
-BOOL UpdateFontDescriptionFromDict(NSDictionary * fontDict,TitaniumFontDescription * result)
+BOOL UpdateFontDescriptionFromDict(NSDictionary * fontDict,TitaniumFontDescription * result,TitaniumFontDescription * inheritance)
 {
 	BOOL didChange = NO;
 	
@@ -22,13 +22,21 @@ BOOL UpdateFontDescriptionFromDict(NSDictionary * fontDict,TitaniumFontDescripti
 		}
 		//TODO: Mod multipler with different suffixes (in, cm, etc)
 	}
+	
 	if([sizeObject respondsToSelector:@selector(floatValue)]){
 		float fontSize = multiplier * [sizeObject floatValue];
 		if (fontSize != result->size){
 			didChange = YES;
 			result->size = fontSize;
 		}
+	} else if((inheritance != NULL) && (sizeObject == nil)) {
+		float fontSize = inheritance->size;
+		if(result->size != fontSize){
+			didChange = YES;
+			result->size = fontSize;
+		}
 	}
+
 
 	NSString * isBoldObject = [fontDict objectForKey:@"fontWeight"];
 	if([isBoldObject isKindOfClass:[NSString class]]){
@@ -39,6 +47,12 @@ BOOL UpdateFontDescriptionFromDict(NSDictionary * fontDict,TitaniumFontDescripti
 		} else if([isBoldObject isEqualToString:@"normal"]){
 			didChange |= (result->isBold);
 			result->isBold = NO;
+		}
+	} else if((inheritance != NULL) && (isBoldObject == nil)) {
+		BOOL isBoldBool = inheritance->isBold;
+		if(result->isBold != isBoldBool){
+			didChange = YES;
+			result->isBold = isBoldBool;
 		}
 	}
 

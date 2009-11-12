@@ -101,7 +101,7 @@ NSMutableDictionary * controlProxyClassRegistry = nil;
 @synthesize nativeBarButton, templateValue, buttonStyle, nativeView, labelView, wrapperView;
 @synthesize isHidden;
 
-+ (NSString *) newToken;
++ (NSString *) requestToken;
 {
 	return [NSString stringWithFormat:@"BTN%X",nextControlToken++];
 }
@@ -118,7 +118,7 @@ NSMutableDictionary * controlProxyClassRegistry = nil;
 	
 	NativeControlProxy * result;
 	if (dictToken==nil) {
-		dictToken = [self newToken];
+		dictToken = [self requestToken];
 		result = nil;
 	} else {
 		result = [controlProxyInstanceRegistry objectForKey:dictToken];
@@ -174,6 +174,13 @@ NSMutableDictionary * controlProxyClassRegistry = nil;
 @synthesize backgroundImagePath, backgroundDisabledImagePath, backgroundSelectedImagePath;
 @synthesize dateValue, minDate, maxDate, datePickerMode, minuteInterval;
 
+TitaniumFontDescription defaultControlFontDesc;
+
++ (void) initialize;
+{
+	defaultControlFontDesc.isBold=NO;
+	defaultControlFontDesc.size = [UIFont systemFontSize];
+}
 
 #pragma mark Initilization and getting properties
 - (id) init;
@@ -184,8 +191,6 @@ NSMutableDictionary * controlProxyClassRegistry = nil;
 		segmentSelectedIndex = -1;
 		buttonStyle = -1;
 		datePickerMode = UIDatePickerModeDateAndTime;
-		fontDesc.isBold = NO;
-		fontDesc.size = [UIFont systemFontSize];
 	}
 	return self;
 }
@@ -401,7 +406,7 @@ needsRefreshing = YES;	\
 
 //	if([nativeView isKindOfClass:[UIPickerView class]])[(UIPickerView *)nativeView reloadAllComponents];
 	
-	if(UpdateFontDescriptionFromDict(newDict, &fontDesc)){
+	if(UpdateFontDescriptionFromDict(newDict, &fontDesc, &defaultControlFontDesc)){
 		needsRefreshing = YES;
 	}
 	

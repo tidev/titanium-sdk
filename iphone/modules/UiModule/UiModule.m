@@ -389,7 +389,7 @@ NSString * UrlEncodeString(NSString * string)
 
 - (NSString *) makeButtonToken;
 {
-	NSString * buttonToken = [NativeControlProxy newToken];
+	return [NativeControlProxy requestToken];
 }
 
 - (NativeControlProxy *) proxyForObject: (id) proxyObject scan: (BOOL) scanning recurse: (BOOL) recursion;

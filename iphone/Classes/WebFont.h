@@ -13,7 +13,7 @@ typedef struct {
 	BOOL	isBold;
 } TitaniumFontDescription;
 
-BOOL UpdateFontDescriptionFromDict(NSDictionary * fontDict,TitaniumFontDescription * result);
+BOOL UpdateFontDescriptionFromDict(NSDictionary * fontDict,TitaniumFontDescription * result,TitaniumFontDescription * inheritance);
 
 UIFont * FontFromDescription(TitaniumFontDescription * inputDesc);
 
