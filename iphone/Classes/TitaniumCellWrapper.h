@@ -37,6 +37,7 @@ typedef enum {
 @property(nonatomic,readwrite,copy)		NSString * nameString;
 
 @property(nonatomic,readonly)	TitaniumFontDescription * labelFontPointer;
+@property(nonatomic,readonly)	LayoutConstraint * constraintPointer;
 
 @end
 

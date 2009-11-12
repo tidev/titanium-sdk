@@ -61,6 +61,11 @@
 	return &labelFont;
 }
 
+- (LayoutConstraint *) constraintPointer;
+{
+	return &constraint;
+}
+
 
 @end
 
@@ -355,7 +360,7 @@
 		
 		for (NSDictionary * thisLayoutDict in newlayoutArray) {
 			if(![thisLayoutDict isKindOfClass:dictClass])continue;
-			LayoutEntry * thisLayout = [[LayoutEntry alloc] initWithDictionary:thisLayoutDict];
+			LayoutEntry * thisLayout = [[LayoutEntry alloc] initWithDictionary:thisLayoutDict inheriting:nil];
 			[layoutArray addObject:thisLayout];
 			if ([thisLayout type]==LayoutEntryImage) {
 				[imageKeys addObject:[thisLayout nameString]];
