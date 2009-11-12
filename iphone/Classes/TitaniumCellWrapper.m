@@ -11,7 +11,7 @@
 #import "UiModule.h"
 
 @implementation LayoutEntry
-@synthesize type,constraint,labelFont,textColor,nameString,selectedTextColor,validLabelFont;
+@synthesize type,constraint,labelFont,textColor,nameString,selectedTextColor;
 
 - (id) initWithDictionary: (NSDictionary *) inputDict inheriting: (LayoutEntry *) inheritance;
 {
@@ -39,7 +39,7 @@
 		else if(inheritance!=nil) [self setNameString:[inheritance nameString]];
 
 		ReadConstraintFromDictionary(&constraint, inputDict, [inheritance constraintPointer]);
-		validLabelFont = UpdateFontDescriptionFromDict(inputDict, &labelFont, [inheritance labelFontPointer]);
+		UpdateFontDescriptionFromDict(inputDict, &labelFont, [inheritance labelFontPointer]);
 
 		NSString * newTextColor = [inputDict objectForKey:@"color"];
 		if(newTextColor == nil)[self setTextColor:[inheritance textColor]];
@@ -88,7 +88,7 @@
 {
 	self = [super init];
 	if (self != nil) {
-		fontDesc.isBold=YES;
+		fontDesc.isBoldWeight=YES;
 		fontDesc.size=15;
 	}
 	return self;
@@ -378,8 +378,23 @@
 					inheriting:templateEntry];
 			if(thisLayout==nil)continue;
 			[layoutArray addObject:thisLayout];
-			if ([thisLayout type]==LayoutEntryImage) {
-				[imageKeys addObject:[thisLayout nameString]];
+			
+			LayoutEntryType	thisType = [thisLayout type];
+			switch (thisType) {
+				case LayoutEntryImage:
+					[imageKeys addObject:[thisLayout nameString]];
+					break;
+				case LayoutEntryText:{
+					TitaniumFontDescription * entryFont = [thisLayout labelFontPointer];
+					if(entryFont->isBoldWeight == entryFont->isNormalWeight){
+						entryFont->isBoldWeight = fontDesc.isBoldWeight;
+						entryFont->isNormalWeight = fontDesc.isNormalWeight;
+					}
+					if(entryFont->size < 1.0){
+						entryFont->size = fontDesc.size;
+					}
+					
+					break;}
 			}
 			[thisLayout release];
 		}

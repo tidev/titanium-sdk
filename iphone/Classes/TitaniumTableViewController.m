@@ -21,12 +21,12 @@
 TitaniumCellWrapper * TitaniumCellWithData(NSDictionary * rowData, NSURL * baseUrl, TitaniumCellWrapper * templateCell)
 {
 	TitaniumFontDescription defaultFont;
-	defaultFont.isBold = YES;
+	defaultFont.isBoldWeight = YES;
 	defaultFont.size = 20;
 	
 	TitaniumCellWrapper * result = [[TitaniumCellWrapper alloc] init];
-	[result setTemplateCell:templateCell];
 	[result setFontDesc:defaultFont];
+	[result setTemplateCell:templateCell];
 	[result useProperties:rowData withUrl:baseUrl];
 	return result;
 }
@@ -444,8 +444,7 @@ UIColor * checkmarkColor = nil;
 	NSDictionary * templateDict = [inputState objectForKey:@"template"];
 	if([templateDict isKindOfClass:dictClass]){
 		[templateCell release];
-		templateCell = [[TitaniumCellWrapper alloc] init];
-		[templateCell useProperties:templateDict withUrl:baseUrl];
+		templateCell = TitaniumCellWithData(templateDict, baseUrl, nil);
 	}
 	
 	[borderColor release];
