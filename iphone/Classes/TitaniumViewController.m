@@ -434,7 +434,7 @@ int nextWindowToken = 0;
 
 - (void) setToolbarProxies: (NSArray *) newProxies;
 {
-	[self setToolbarItems:[newProxies valueForKey:@"nativeBarButton"]];
+	[self setToolbarItems:[newProxies valueForKey:@"barButton"]];
 }
 
 - (void) setToolbarItems: (NSArray *) newItems;
@@ -631,7 +631,7 @@ typedef int UIEventSubtype;
 {
 	UIImageView * newTitleView = nil;
 	
-	if (titleViewProxy != nil) newTitleView = [[titleViewProxy nativeBarView] retain];
+	if (titleViewProxy != nil) newTitleView = [[titleViewProxy barButtonView] retain];
 	else {
 		UIImage * newTitleViewImage = [[TitaniumHost sharedHost] imageForResource:titleViewImagePath];
 		if (newTitleViewImage != nil) newTitleView = [[UIImageView alloc] initWithImage:newTitleViewImage];

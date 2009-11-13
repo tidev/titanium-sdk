@@ -18,15 +18,25 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 @interface NativeControlProxy : TitaniumProxyObject<UITextViewDelegate,UITextFieldDelegate,UIPickerViewDelegate,UIPickerViewDataSource,UIWebViewDelegate>
 {
 	//Properties that are stored until the time is right
-	BOOL needsRefreshing;
-	BOOL placedInBar;
-	
+	BOOL needsLayout;
+	BOOL isInBar;
+	CGRect	frame;
+	BOOL isHidden;
+
+
+
+
+	UIView * view;
+	UIBarButtonItem * barButton;
+
+
+
+//These need to go into appropriate subclasses.	
 	NSString * titleString;
 	NSString * messageString;
 	TitaniumFontDescription fontDesc;
 
 	NSString * iconPath;
-	CGRect	frame;
 	int templateValue;
 	
 	//For buttons
@@ -37,7 +47,6 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 	UIColor * elementSelectedColor; //The text color on a button being pressed
 	UIColor * elementBackgroundColor; //The color that fills the element.
 	UIColor * elementBorderColor; //Actually, the color that appears behind the element.
-	BOOL isHidden;
 	
 	//For Multibutton/segmented
 	NSArray * segmentLabelArray;
@@ -80,9 +89,7 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 	
 	//Connections to the native side
 	UILabel * labelView;
-	UIView * wrapperView;
 	UIView * nativeView;
-	UIBarButtonItem * nativeBarButton;
 	
 	//Pickers, date:
 	NSDate * dateValue;		//Countdown duration is floatValue
@@ -98,13 +105,54 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 	NSURL * baseURL;
 }
 
+//Class methods. Do not override.
++ (void) registerAsClassNamed: (NSString *)JSClassName;
+
++ (NSString *) requestToken;
++ (id) controlProxyForToken: (NSString *) tokenString;
++ (id) controlProxyWithDictionary: (NSDictionary *) inputDict relativeToUrl: (NSURL *) baseUrl;
+
+
+//This is the initializer you should overwrite.
+- (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
+
+//Convenience properties that all subclasses can use.
+@property(nonatomic,readwrite,assign)	CGRect	frame;
+@property(nonatomic,readwrite,assign)	BOOL isHidden;
+@property(nonatomic,readwrite,assign)	BOOL needsLayout;
+@property(nonatomic,readwrite,assign)	BOOL isInBar;
+//- (void) setNeedsLayout;	//TODO: improve implementation.
+
+
+
+
+
+@property(nonatomic,readonly)	UIView * view;
+@property(nonatomic,readonly)	UIBarButtonItem * barButton;
+@property(nonatomic,readonly)	UIView * barButtonView;
+- (BOOL) hasView;
+- (BOOL) hasBarButton;
+
+- (BOOL) isFirstResponder;
+- (BOOL) becomeFirstResponder;
+- (BOOL) resignFirstResponder;
+
+
+
+
+
+
+
+
+
+
+//The following need exporting into subclasses:
 @property(nonatomic,readwrite,copy)		NSString * titleString;
 @property(nonatomic,readwrite,copy)		NSString * messageString;
 @property(nonatomic,readwrite,copy)		NSString * iconPath;
 @property(nonatomic,readwrite,assign)	int templateValue;
 @property(nonatomic,readwrite,assign)	int buttonStyle;
 @property(nonatomic,readwrite,assign)	BOOL surpressReturnCharacter;
-@property(nonatomic,readwrite,assign)	BOOL isHidden;
 
 @property(nonatomic,readwrite,copy)		NSString * backgroundImagePath;
 @property(nonatomic,readwrite,copy)		NSString * backgroundDisabledImagePath;
@@ -117,12 +165,6 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 @property(nonatomic,readwrite,retain)	UIColor * elementColor;
 @property(nonatomic,readwrite,retain)	UIColor * elementBackgroundColor;
 @property(nonatomic,readwrite,retain)	UIColor * elementBorderColor;
-
-@property(nonatomic,readwrite,retain)	UILabel * labelView;
-@property(nonatomic,readwrite,retain)	UIView * wrapperView;
-@property(nonatomic,readwrite,retain)	UIView * nativeView;
-@property(nonatomic,readwrite,retain)	UIBarButtonItem * nativeBarButton;
-- (UIView *) nativeBarView;
 
 @property(nonatomic,readwrite,assign)	float minValue;	
 @property(nonatomic,readwrite,assign)	float maxValue;	
@@ -143,26 +185,12 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 @property(nonatomic,readwrite,assign)	UIDatePickerMode datePickerMode;
 @property(nonatomic,readwrite,assign)	int		minuteInterval;
 
-+ (NSString *) requestToken;
-+ (id) controlProxyForToken: (NSString *) tokenString;
-+ (id) controlProxyWithDictionary: (NSDictionary *) inputDict relativeToUrl: (NSURL *) baseUrl;
-
-+ (void) registerAsClassNamed: (NSString *)JSClassName;
-
-
-- (BOOL) hasNativeView;
-- (BOOL) hasNativeBarButton;
-- (void) updateNativeBarButton;
-
 
 - (IBAction) onClick: (id) sender;
-- (void) setPropertyDict: (NSDictionary *) newDict;
 
 - (void) refreshPositionWithWebView: (UIWebView *) webView animated:(BOOL)animated;
 
 - (void) reportEvent: (NSString *) eventType value: (NSString *) newValue index: (int) index init:(NSString *)customInit arguments:(NSString *)extraArgs;
-
-- (BOOL)isFirstResponder;
 
 @end
 

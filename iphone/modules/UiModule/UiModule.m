@@ -419,7 +419,7 @@ NSString * UrlEncodeString(NSString * string)
 	if(![isFocusObject respondsToSelector:@selector(boolValue)]) return;
 	
 	NativeControlProxy * target = [self proxyForObject:proxyObject scan:NO recurse:YES];
-	if (![target hasNativeView]) return;
+	if (![target hasView]) return;
 	
 	if ([isFocusObject boolValue]){
 		[target performSelectorOnMainThread:@selector(becomeFirstResponder) withObject:nil waitUntilDone:NO];
@@ -662,7 +662,7 @@ NSString * UrlEncodeString(NSString * string)
 				: @selector(setRightNavButtonNonAnimated:);
 	}
 //TODO: Edge cases with the button being applied to a different window?
-	[ourVC performSelectorOnMainThread:actionSelector withObject:[ourButton nativeBarButton] waitUntilDone:NO];
+	[ourVC performSelectorOnMainThread:actionSelector withObject:[ourButton barButton] waitUntilDone:NO];
 }
 
 - (void) setWindow:(NSString *)tokenString toolbar: (id) barObject options: (id) optionsObject;

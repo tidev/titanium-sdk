@@ -51,36 +51,51 @@
 	// create table view template
 	var template = {
 	 layout:[
-	   {type:'text', left:20,  name:'title', fontSize:18, fontWeight:'bold', color:'darkbrown'}
+	   {type:'text', left:50,  name:'title', fontSize:18, fontWeight:'bold', color:'darkbrown'},
+	   {type:'image', left:15, name:'image', width: 31, height: 28 }
 	]};
 
 	// data for tableview
 	// we are using custom background images to customize the row display
 	var data = [
+	
+		{rowHeight:10},	// create an empty row to give it space up top..
+		
 		{title:'Play Movie',backgroundImage:'images/tableview/off_1.png', 
-				selectedBackgroundImage:'images/tableview/on_1.png'},
+				selectedBackgroundImage:'images/tableview/on_1.png', image: 'phone_playmovie.png'},
+				
 		{title:'Camera',backgroundImage:'images/tableview/off_2.png',
-				selectedBackgroundImage:'images/tableview/on_2.png'},
+				selectedBackgroundImage:'images/tableview/on_2.png', image: 'phone_camera.png'},
+
 		{title:'Vibrate',backgroundImage:'images/tableview/off_3.png',
-				selectedBackgroundImage:'images/tableview/on_3.png'},
+				selectedBackgroundImage:'images/tableview/on_3.png', image: 'phone_vibrate.png'},
+
 		{title:'Orientation',backgroundImage:'images/tableview/off_4.png',
-			selectedBackgroundImage:'images/tableview/on_4.png'},
+			selectedBackgroundImage:'images/tableview/on_4.png', image: 'phone_orientation.png'},
+
 		{title:'Photo Gallery',backgroundImage:'images/tableview/off_1.png',
-				selectedBackgroundImage:'images/tableview/on_1.png'},
+				selectedBackgroundImage:'images/tableview/on_1.png', image: 'phone_photogallery.png'},
+
 		{title:'Geo Location',backgroundImage:'images/tableview/off_2.png',
-				selectedBackgroundImage:'images/tableview/on_2.png'},
+				selectedBackgroundImage:'images/tableview/on_2.png', image: 'phone_geoloc.png'},
+
 		{title:'Accelerometer',backgroundImage:'images/tableview/off_3.png',
-				selectedBackgroundImage:'images/tableview/on_3.png'},
+				selectedBackgroundImage:'images/tableview/on_3.png', image: 'phone_accelerometer.png'},
+
 		{title:'Sound',backgroundImage:'images/tableview/off_4.png',
-				selectedBackgroundImage:'images/tableview/on_4.png'},
+				selectedBackgroundImage:'images/tableview/on_4.png', image: 'phone_sound.png'},
+
 		{title:'Shake',backgroundImage:'images/tableview/off_1.png',
-				selectedBackgroundImage:'images/tableview/on_1.png'},
+				selectedBackgroundImage:'images/tableview/on_1.png', image: 'phone_shake.png'},
+
 		{title:'Email Client',backgroundImage:'images/tableview/off_2.png',
-				selectedBackgroundImage:'images/tableview/on_2.png'},
+				selectedBackgroundImage:'images/tableview/on_2.png', image: 'phone_email.png'},
+
 		{title:'Save to Gallery',backgroundImage:'images/tableview/off_3.png',
-				selectedBackgroundImage:'images/tableview/on_3.png'},
+				selectedBackgroundImage:'images/tableview/on_3.png', image: 'phone_savetogallery.png'},
+
 		{title:'Contacts',backgroundImage:'images/tableview/off_4.png',
-				 selectedBackgroundImage:'images/tableview/on_4.png'}
+				 selectedBackgroundImage:'images/tableview/on_4.png', image: 'phone_contact.png'}
 	];
 
 
@@ -91,7 +106,6 @@
 		template:template,
 		backgroundColor:'transparent', 
 		borderColor:'transparent',
-		marginTop:10,
 		marginLeft:15,
 		marginRight:15,
 		data:data
@@ -102,12 +116,12 @@
 		var idx = eventObject.index;
 		switch(idx)
 		{
-			case 0:
+			case 1:
 			{
 				playMovie();
 				break;
 			}
-			case 1:
+			case 2:
 			{
 				var dialog = Titanium.UI.createOptionDialog();
 				
@@ -149,12 +163,12 @@
 
 				break;
 			}
-			case 2:
+			case 3:
 			{
 				Titanium.Media.vibrate();
 				break;
 			}
-			case 3:
+			case 4:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'orientation.html',
@@ -166,12 +180,12 @@
 				win.open({animated:true});
 				break;
 			}
-			case 4:
+			case 5:
 			{
 				openPhotoGallery();
 				break;
 			}
-			case 5:
+			case 6:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'geo.html',
@@ -182,7 +196,7 @@
 				win.open();
 				break;
 			}
-			case 6:
+			case 7:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'accelerometer.html',
@@ -193,7 +207,7 @@
 				win.open();
 				break;
 			}
-			case 7:
+			case 8:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'sound.html',
@@ -204,7 +218,7 @@
 				win.open();
 				break;
 			}
-			case 8:
+			case 9:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'shake.html',
@@ -215,7 +229,7 @@
 				win.open();
 				break;
 			}
-			case 9:
+			case 10:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'email.html',
@@ -226,18 +240,17 @@
 				win.open();
 				break;
 			}
-			case 10:
+			case 11:
 			{
 				savePhoto();
 				break;
 			}
-			case 11:
+			case 12:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'contacts.html',
 					title:'Contacts', 
-					barColor:'#336699', 
-					backgroundColor:'#fff'			
+					barColor:'#382E1C'
 				});
 				win.open();
 				break;

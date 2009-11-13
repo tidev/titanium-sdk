@@ -10,8 +10,11 @@
 
 @interface SearchBarControl : NativeControlProxy {
 	UISearchBar * searchView;
+	UIColor * barColor;
+	BOOL showCancel;
 }
 
-extern NSString * const createSearchBarString;
 
 @end
+
+extern NSString * const createSearchBarString;

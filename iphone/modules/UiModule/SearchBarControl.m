@@ -7,19 +7,63 @@
 
 #import "SearchBarControl.h"
 
+#import "Webcolor.h"
+
+
 NSString * const createSearchBarString = @"function(args){var res=Ti.UI.createButton(args,null,'searchBar');return res;}";
 
 
 @implementation SearchBarControl
 
-- (void) setPropertyDict: (NSDictionary *) newDict;
+- (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
-	[super setPropertyDict:newDict];
+	[super readState:inputState relativeToUrl:baseUrl];
+	
+	NSString * barColorString = [inputState objectForKey:@"barColor"];
+	if ([barColorString isKindOfClass:[NSString class]]) {
+		[barColor autorelease];
+		barColor = [UIColorWebColorNamed(barColorString) retain];
+		[self setNeedsLayout:YES];
+	} else if ((barColorString != nil) && (barColor != nil)) {
+		[barColor release];
+		barColor = nil;
+		[self setNeedsLayout:YES];
+	}
+
+	NSNumber * showCancelNumber = [inputState objectForKey:@"showCancel"];
+	if ([showCancelNumber respondsToSelector:@selector(boolValue)]) {
+		BOOL newShowCancel = [showCancelNumber boolValue];
+		if (newShowCancel != showCancel) {
+			showCancel = newShowCancel;
+			[self setNeedsLayout:YES];
+		}
+	}
 }
 
-- (void) refreshPositionWithWebView: (UIWebView *) webView animated:(BOOL)animated;
+- (UIView *) view;
 {
-	[super refreshPositionWithWebView:webView animated:animated];
+	if (![self needsLayout] && (searchView != nil)) {
+		return searchView;
+	}
+
+	if (searchView == nil) {
+		searchView = [[UISearchBar alloc] initWithFrame:[self frame]];
+	}
+	
+	[searchView setShowsCancelButton:showCancel];
+
+	if (barColor == nil) {
+		[searchView setTintColor:nil];
+		[searchView setBarStyle:UIBarStyleDefault];
+	} else if (barColor == [UIColor clearColor]){
+		[searchView setTintColor:nil];
+		[searchView setBarStyle:UIBarStyleBlackTranslucent];
+	} else {
+		[searchView setTintColor:barColor];
+		[searchView setBarStyle:UIBarStyleBlackOpaque];
+	}
+	
+	return searchView;
 }
 
 - (BOOL)isFirstResponder;
@@ -27,42 +71,16 @@ NSString * const createSearchBarString = @"function(args){var res=Ti.UI.createBu
 	return [searchView isFirstResponder];
 }
 
-
-- (UIBarButtonItem *) nativeBarButton;
+- (BOOL)becomeFirstResponder;
 {
-	if ((nativeBarButton == nil) || needsRefreshing) {
-		[self updateNativeBarButton];
-	}
-	return nativeBarButton;
+	return [searchView becomeFirstResponder];
 }
 
-- (UIView *) nativeBarView;
+- (BOOL)resignFirstResponder;
 {
-	if ((nativeView == nil) || needsRefreshing){
-		placedInBar = YES;
-		[self updateNativeView:NO];
-	}
-	return wrapperView;
+	return [searchView resignFirstResponder];
 }
 
-- (UIView *) nativeView;
-{
-	if ((nativeView == nil) || needsRefreshing){
-		placedInBar = NO;
-		[self updateNativeView:NO];
-	}
-	return wrapperView;
-}
-
-- (BOOL) hasNativeView;
-{
-	return (searchView != nil);
-}
-
-- (BOOL) hasNativeBarButton;
-{
-	return (nativeBarButton != nil);
-}
 
 
 @end
