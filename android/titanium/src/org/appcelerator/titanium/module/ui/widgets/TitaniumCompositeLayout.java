@@ -106,9 +106,9 @@ public class TitaniumCompositeLayout extends ViewGroup
 	{
 		int count = getChildCount();
 
-		int w = MeasureSpec.getSize(widthMeasureSpec);
+		int w = Math.max(MeasureSpec.getSize(widthMeasureSpec), getSuggestedMinimumWidth());
 		int wMode = MeasureSpec.getMode(widthMeasureSpec);
-		int h = MeasureSpec.getSize(heightMeasureSpec);
+		int h = Math.max(MeasureSpec.getSize(heightMeasureSpec), getSuggestedMinimumHeight());
 		int hMode = MeasureSpec.getMode(heightMeasureSpec);
 
 		int maxWidth = w;
@@ -132,6 +132,7 @@ public class TitaniumCompositeLayout extends ViewGroup
 		for(int i = 0; i < getChildCount(); i++) {
 			View child = getChildAt(i);
 			if (child.getVisibility() != View.GONE) {
+
 				TitaniumCompositeLayout.TitaniumCompositeLayoutParams p =
 					(TitaniumCompositeLayout.TitaniumCompositeLayoutParams) child.getLayoutParams();
 
@@ -197,8 +198,8 @@ public class TitaniumCompositeLayout extends ViewGroup
 					p.mBottom = h;
 				}
 
-				child.measure(MeasureSpec.makeMeasureSpec(p.mRight-p.mLeft, MeasureSpec.EXACTLY),
-						MeasureSpec.makeMeasureSpec(p.mBottom-p.mTop, MeasureSpec.EXACTLY));
+				child.measure(MeasureSpec.makeMeasureSpec(p.mRight-p.mLeft, wMode /*MeasureSpec.EXACTLY*/),
+						MeasureSpec.makeMeasureSpec(p.mBottom-p.mTop, hMode /*MeasureSpec.EXACTLY*/));
 
 			}
 		}

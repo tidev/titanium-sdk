@@ -28,7 +28,7 @@ public abstract class TitaniumBaseTableViewItem extends FrameLayout implements H
 		this.handler = new Handler(this);
 	}
 
-	public abstract void setRowData(JSONObject template, JSONObject data, int rowHeight, String fontSize, String fontWeight);
+	public abstract void setRowData(TitaniumTableViewItemOptions defaults, JSONObject template, JSONObject data);
 
 	public boolean handleMessage(Message msg)
 	{

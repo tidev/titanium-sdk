@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium.module.ui.tableview;
 
+import java.util.HashMap;
+
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumUIHelper;
@@ -53,7 +55,7 @@ public class TitaniumTableViewHeaderItem extends TitaniumBaseTableViewItem
 			textView.setPadding(4, 2, 4, 2);
 		}
 
-		public void setRowData(JSONObject template, JSONObject data, int rowHeight, String fontSize, String fontWeight)
+		public void setRowData(JSONObject data)
 		{
 			try {
 				textView.setText(data.getString("header"), TextView.BufferType.NORMAL);
@@ -74,7 +76,7 @@ public class TitaniumTableViewHeaderItem extends TitaniumBaseTableViewItem
 		this.addView(rowView, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 	}
 
-	public void setRowData(JSONObject template, JSONObject data, int rowHeight, String fontSize, String fontWeight) {
-		rowView.setRowData(template, data, rowHeight, fontSize, fontWeight);
+	public void setRowData(TitaniumTableViewItemOptions defaults, JSONObject template, JSONObject data) {
+		rowView.setRowData(data);
 	}
 }

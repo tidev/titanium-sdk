@@ -89,10 +89,11 @@ public class TitaniumTableViewHtmlItem extends TitaniumBaseTableViewItem
 			setVerticalFadingEdgeEnabled(true);
 		}
 
-		public void setRowData(JSONObject template, JSONObject data, int rowHeight, String fontSize, String fontWeight)
+		public void setRowData(TitaniumTableViewItemOptions defaults, JSONObject data)
 		{
 			TitaniumFileHelper tfh = new TitaniumFileHelper(getContext());
 
+			int rowHeight = defaults.resolveIntOption("rowHeight", data);
 			if (data.has("rowHeight")) {
 				try {
 					rowHeight = data.getInt("rowHeight");
@@ -255,8 +256,8 @@ public class TitaniumTableViewHtmlItem extends TitaniumBaseTableViewItem
 		this.addView(rowView, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 	}
 
-	public void setRowData(JSONObject template, JSONObject data, int rowHeight, String fontSize, String fontWeight) {
-		rowView.setRowData(template, data, rowHeight, fontSize, fontWeight);
+	public void setRowData(TitaniumTableViewItemOptions defaults, JSONObject template, JSONObject data) {
+		rowView.setRowData(defaults, data);
 	}
 
 	public boolean handleMessage(Message msg)

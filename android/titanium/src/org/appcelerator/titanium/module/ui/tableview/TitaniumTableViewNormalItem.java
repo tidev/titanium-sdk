@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium.module.ui.tableview;
 
+import java.util.HashMap;
+
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
@@ -85,18 +87,13 @@ public class TitaniumTableViewNormalItem extends TitaniumBaseTableViewItem
 			setPadding(0, 0, 0, 0);
 		}
 
-		public void setRowData(JSONObject template, JSONObject data, int rowHeight, String fontSize, String fontWeight)
+		public void setRowData(TitaniumTableViewItemOptions options, JSONObject data)
 		{
 			TitaniumFileHelper tfh = new TitaniumFileHelper(getContext());
 
+			int rowHeight = options.resolveIntOption("rowHeight", data);
 			setVerticalFadingEdgeEnabled(true);
-			if (data.has("rowHeight")) {
-				try {
-					rowHeight = data.getInt("rowHeight");
-				} catch (JSONException e) {
-					Log.w(LCAT, "Error getting rowHeight: " + e.getMessage());
-				}
-			}
+
 			setMinimumHeight(rowHeight);
 
 			if (data.has("image")) {
@@ -144,7 +141,7 @@ public class TitaniumTableViewNormalItem extends TitaniumBaseTableViewItem
 
 				try {
 					textView.setText(data.getString("title"), TextView.BufferType.NORMAL);
-					TitaniumUIHelper.styleText(textView, data.optString("fontSize", fontSize), data.optString("fontWeight", fontWeight));
+					TitaniumUIHelper.styleText(textView, options.resolveOption("fontSize", data), options.resolveOption("fontWeight", data));
 				} catch (JSONException e) {
 					textView.setText(e.getMessage());
 					Log.e(LCAT, "Error retrieving title", e);
@@ -161,7 +158,7 @@ public class TitaniumTableViewNormalItem extends TitaniumBaseTableViewItem
 		this.addView(rowView, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 	}
 
-	public void setRowData(JSONObject template, JSONObject data, int rowHeight, String fontSize, String fontWeight) {
-		rowView.setRowData(template, data, rowHeight, fontSize, fontWeight);
+	public void setRowData(TitaniumTableViewItemOptions defaults, JSONObject template, JSONObject data) {
+		rowView.setRowData(defaults, data);
 	}
 }

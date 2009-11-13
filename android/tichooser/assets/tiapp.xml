@@ -137,15 +137,22 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
         <window>
             <id>TableView</id>
             <title>Table View</title>
             <url>tableview.html</url>
-            <type>single</type>
-            <fullscreen>false</fullscreen>
-            <backgroundColor>argb(0,255,255,255)</backgroundColor>
-            <barColor>#000</barColor>
+        </window>
+        <window>
+            <id>TableView HTML</id>
+            <title>Table View HTML</title>
+            <url>tableview-html.html</url>
+        </window>
+-->
+        <window>
+            <id>TableView Custom</id>
+            <title>TableView Custom</title>
+            <url>tableview-custom.html</url>
         </window>
 <!--
         <window>
@@ -157,17 +164,7 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
-        <window>
-            <id>TableView HTML</id>
-            <title>Table View HTML</title>
-            <url>tableview-html.html</url>
-            <type>single</type>
-            <fullscreen>false</fullscreen>
-            <backgroundColor>argb(0,255,255,255)</backgroundColor>
-            <barColor>#000</barColor>
-        </window>
-<!--
+
 		<window>
             <id>TableViewUpdates</id>
             <title>Table View Updates</title>
