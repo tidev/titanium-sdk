@@ -56,7 +56,9 @@ typedef enum {
 	int selectedContentIndex;
 	TitaniumContentViewController * focusedContentController;
 
-	
+
+	UIImageView *tabBarBackground;
+	UIImageView *toolBarBackground;
 
 //For the modal progress view
 //	IBOutlet UIView * modalProgressView;
@@ -74,6 +76,7 @@ typedef enum {
 	BOOL		hidesNavBar;
 	NSString *	titleViewImagePath;
 	NativeControlProxy * titleViewProxy;
+	UIImage * navBarImage;
 
 	UIColor *	backgroundColor;
 	UIImage *	backgroundImage;
@@ -101,6 +104,7 @@ typedef enum {
 @property (nonatomic,retain)	IBOutlet UIView * contentView;
 
 @property (nonatomic,retain)	UIColor *	navBarTint;
+@property (nonatomic,retain)  UIImage * navBarImage;
 @property (nonatomic,copy)		NSString * primaryToken;
 @property (nonatomic,copy)		NSString * nameString;
 

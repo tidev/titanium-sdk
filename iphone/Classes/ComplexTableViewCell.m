@@ -98,7 +98,7 @@
 					[(UILabel *)thisEntryView setTextColor:useHilightColors?[UIColor whiteColor]:[UIColor blackColor]];
 				}
 				
-				[(UILabel *)thisEntryView setFont:FontFromDescription([thisEntry labelFontPointer])];
+				[(UILabel *)thisEntryView setFont:[[thisEntry labelFontPointer] font]];
 				
 				break;}
 			case LayoutEntryImage:{

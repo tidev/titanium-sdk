@@ -16,6 +16,7 @@
 		2402F6CA10AB1CFD0060E89D /* OperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2402F6C710AB1CFD0060E89D /* OperationQueue.m */; };
 		2402F7A410AB55ED0060E89D /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2402F7A310AB55ED0060E89D /* MobileCoreServices.framework */; };
 		2402FAF210ABF51A0060E89D /* unitTest.js in Resources */ = {isa = PBXBuildFile; fileRef = 2402FA5310ABEE900060E89D /* unitTest.js */; };
+		2402FF3C10AD6C4D0060E89D /* woodgrain.png in Resources */ = {isa = PBXBuildFile; fileRef = 2402FF3B10AD6C4D0060E89D /* woodgrain.png */; };
 		2418F4220FCB629A00BFE545 /* sound.html in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4210FCB629A00BFE545 /* sound.html */; };
 		2418F4670FCB6A2100BFE545 /* sound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4660FCB6A2100BFE545 /* sound.wav */; };
 		24440B9B0FC9DFA0000A025D /* iPhone_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 24440B9A0FC9DFA0000A025D /* iPhone_icon.png */; };
@@ -397,6 +398,7 @@
 		2402F6C710AB1CFD0060E89D /* OperationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OperationQueue.m; sourceTree = "<group>"; };
 		2402F7A310AB55ED0060E89D /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		2402FA5310ABEE900060E89D /* unitTest.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = unitTest.js; sourceTree = "<group>"; };
+		2402FF3B10AD6C4D0060E89D /* woodgrain.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = woodgrain.png; sourceTree = "<group>"; };
 		2418F4210FCB629A00BFE545 /* sound.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = sound.html; sourceTree = "<group>"; };
 		2418F4660FCB6A2100BFE545 /* sound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound.wav; sourceTree = "<group>"; };
 		24440B9A0FC9DFA0000A025D /* iPhone_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iPhone_icon.png; sourceTree = "<group>"; };
@@ -1079,6 +1081,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2402FF3B10AD6C4D0060E89D /* woodgrain.png */,
 				B4AF73B6107E7920000347A7 /* view1.html */,
 				B4AF73B7107E7920000347A7 /* view2.html */,
 				B4AF73B8107E7920000347A7 /* view3.html */,
@@ -1919,6 +1922,7 @@
 				B4AF73B9107E7920000347A7 /* view1.html in Resources */,
 				B4AF73BA107E7920000347A7 /* view2.html in Resources */,
 				B4AF73BB107E7920000347A7 /* view3.html in Resources */,
+				2402FF3C10AD6C4D0060E89D /* woodgrain.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

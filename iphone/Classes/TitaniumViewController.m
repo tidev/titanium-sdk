@@ -77,7 +77,7 @@ int nextWindowToken = 0;
 
 @implementation TitaniumViewController
 @synthesize primaryToken, contentView, nameString;
-@synthesize navBarTint, titleViewImagePath, cancelOpening;
+@synthesize navBarTint, titleViewImagePath, cancelOpening, navBarImage;
 @synthesize backgroundColor, backgroundImage;
 @synthesize hidesNavBar, fullscreen, statusBarStyle, toolbarItems;
 @synthesize selectedContentIndex, contentViewControllers;
@@ -148,7 +148,9 @@ int nextWindowToken = 0;
 	[contentViewLock release];
 	[contentViewControllers release];
 	[navBarTint release];
-	
+	[navBarImage release];
+	[tabBarBackground release];
+	[toolBarBackground release];
     [super dealloc];
 }
 
@@ -182,8 +184,37 @@ int nextWindowToken = 0;
 		NativeControlProxy * thisInputProxy = [theUiModule proxyForObject:newTitleProxy scan:YES recurse:YES];
 		[self setTitleViewProxy:thisInputProxy];
 	}
+
+	id navBarImage_ = [inputState objectForKey:@"barImage"];
+	if (navBarImage_==nil)
+	{
+		// if we don't specify an image, by default the new view should inherit the current views barimage
+		TitaniumViewController *vc = [theTiHost visibleTitaniumViewController];
+		if (vc!=nil)
+		{
+			[self setNavBarImage:[vc navBarImage]];
+		}
+	}
+	else
+	{
+		[self setNavBarImage:[theTiHost imageForResource:navBarImage_]];
+	}
 	
 	UIBarButtonItem * backButton = nil;
+	
+	if ([self navBarImage]!=nil)
+	{
+		/*
+		UIButton *backButton2 = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 63, 30)];
+		[backButton2 setImage:[UIImage imageNamed:@"closebox.png"] forState:UIControlStateNormal];
+		[backButton2 setBackgroundImage:[UIImage imageNamed:@"woodgrain.png"] forState:UIControlStateNormal];
+		UIBarButtonItem *backButtonItem = [[UIBarButtonItem alloc] initWithCustomView:backButton2];
+		[[self navigationItem] setLeftBarButtonItem:backButtonItem];
+		self.navigationItem.hidesBackButton = YES;
+		[backButtonItem release];
+		[backButton2 release];*/
+	}
+
 	UIImage * backTitleImage = [theTiHost imageForResource:[inputState objectForKey:@"backButtonTitleImage"]];
 	if (backTitleImage != nil){
 		backButton = [[[UIBarButtonItem alloc] initWithImage:backTitleImage style:UIBarButtonItemStyleBordered target:nil action:nil] autorelease];
@@ -235,6 +266,7 @@ int nextWindowToken = 0;
 	{
 		[self setNavBarTint:UIColorWebColorNamed(navTintName)];
 	}
+	
 	
 	NSString * backgroundColorName = [inputState objectForKey:@"backgroundColor"];
 	if ([backgroundColorName isKindOfClass:stringClass]){
@@ -533,6 +565,13 @@ int nextWindowToken = 0;
 
 - (void)viewWillDisappear: (BOOL) animated;
 {
+	if (tabBarBackground!=nil)
+	{
+		[tabBarBackground removeFromSuperview];
+		[tabBarBackground release];
+		tabBarBackground = nil;
+	}	
+	
 	[super viewWillDisappear:animated];
 	if(![[[UIDevice currentDevice] systemVersion] hasPrefix:@"2."]) [self resignFirstResponder];
 	if(hidesNavBar && ![[[self navigationController] visibleViewController] isKindOfClass:[TitaniumViewController class]]){
@@ -634,7 +673,10 @@ typedef int UIEventSubtype;
 	if (titleViewProxy != nil) newTitleView = [[titleViewProxy barButtonView] retain];
 	else {
 		UIImage * newTitleViewImage = [[TitaniumHost sharedHost] imageForResource:titleViewImagePath];
-		if (newTitleViewImage != nil) newTitleView = [[UIImageView alloc] initWithImage:newTitleViewImage];
+		if (newTitleViewImage != nil)
+		{
+			newTitleView = [[UIImageView alloc] initWithImage:newTitleViewImage];
+		}
 	}
 	
 	[[self navigationItem] setTitleView:newTitleView];
@@ -699,6 +741,7 @@ typedef int UIEventSubtype;
 			UIBarStyleDefault : UIBarStyleBlackOpaque;
 	}
 	
+	
 	[theNB setBarStyle:navBarStyle];
 	[theNB setOpaque:(navBarStyle != UIBarStyleBlackTranslucent)];
 
@@ -745,6 +788,26 @@ typedef int UIEventSubtype;
 		[toolBar setHidden:YES];
 	}
 
+
+	if (navBarImage!=nil)
+	{
+		if (tabBarBackground==nil)
+		{
+			tabBarBackground = [[UIImageView alloc]initWithImage:navBarImage];
+			tabBarBackground.frame = CGRectMake(0,0,theNB.frame.size.width,theNB.frame.size.height);
+			[theNB addSubview:tabBarBackground];
+			[theNB sendSubviewToBack:tabBarBackground];
+		}
+	}
+
+	if (toolBar!=nil && toolBarBackground==nil)
+	{
+		toolBarBackground = [[UIImageView alloc]initWithImage:navBarImage];
+		toolBarBackground.frame = CGRectMake(0,0,toolBar.frame.size.width,toolBar.frame.size.height);
+		[toolBar addSubview:toolBarBackground];
+		[toolBar sendSubviewToBack:toolBarBackground];
+	}
+	
 	
 	if([notificationsArray count]>0){
 		CGRect notificationBounds=contentViewBounds;
@@ -847,6 +910,10 @@ typedef int UIEventSubtype;
 
 - (void) setLeftNavButtonAnimated: (UIBarButtonItem *)newButton;
 {
+	if (navBarImage!=nil)
+	{
+		[newButton setImage:navBarImage];
+	}
 	[[self navigationItem] setLeftBarButtonItem:newButton animated:YES];
 	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewSetLeftNavBarButton:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(newButton),@"button",[NSNumber numberWithBool:YES],@"animated",nil]];
 }
@@ -865,6 +932,10 @@ typedef int UIEventSubtype;
 
 - (void) setRightNavButtonAnimated: (UIBarButtonItem *)newButton;
 {
+	if (navBarImage!=nil)
+	{
+		[newButton setImage:navBarImage];
+	}
 	[[self navigationItem] setRightBarButtonItem:newButton animated:YES];
 	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewSetRightNavBarButton:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(newButton),@"button",[NSNumber numberWithBool:YES],@"animated",nil]];
 }
@@ -959,7 +1030,7 @@ typedef int UIEventSubtype;
 			return;
 		}			
 	}
-		
+	
 	if(self==[theNC topViewController]){
 		[theNC popViewControllerAnimated:animated];
 		return;
