@@ -4,43 +4,68 @@
 	<script>
 	window.onload  = function()
 	{
+		// helper variable used to control update/create mode for contacts
+		var mode = 'ADD';
+		var contactToUpdate = null;
+		
+		var detailTableView = Titanium.UI.createTableView({template:{fontSize:14}}, function(e)
+		{
+			if (e.index==0)
+			{
+				Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViews()[0],{
+					animated:true,
+					animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+					animationDuration:1000
+				});
+				
+			}
+		});
+		
 		// 
 		// display a selected contact
 		//
 		function displayContact(c)
 		{
-			var html = 'You selected contact:';
-			html += '<br/>firstName :' + ((c.firstName)?c.firstName:'not specified');
-			html += '<br/>lastName :' + ((c.lastName)?c.lastName:'not specified');
-			html += '<br/>middleName :' + ((c.middleName)?c.middleName:'not specified');
-			html += '<br/>prefix :' + ((c.prefix)?c.prefix:'not specified');
-			html += '<br/>suffix :' + ((c.suffix)?c.suffix:'not specified');
-			html += '<br/>nickname :' + ((c.nickname)?c.nickname:'not specified');
-			html += '<br/>phoneticFirstName :' + ((c.phoneticFirstName)?c.phoneticFirstName:'not specified');
-			html += '<br/>phoneticLastName :' + ((c.phoneticLastName)?c.phoneticLastName:'not specified');
-			html += '<br/>phoneticMiddleName :' + ((c.phoneticMiddleName)?c.phoneticMiddleName:'not specified');
-			html += '<br/>organization :' + ((c.organization)?c.organization[0].value.company:'not specified');
-			html += '<br/>email :' + ((c.email)?c.email[0].value:'not specified');
-			html += '<br/>birthday :' + ((c.birthday)?c.birthday:'not specified');
-			html += '<br/>note :' + ((c.note)?c.note[0].value:'not specified');
-			html += '<br/>creationDate :' + ((c.creationDate)?c.creationDate:'not specified');
-			html += '<br/>modificationDate :' 
-			 		+ ((c.modificationDate)?c.modificationDate:'not specified');
-			html += '<br/>date :' + ((c.date)?c.date:'not specified');
-			html += '<br/>phone :' + ((c.phone)?c.phone[0].value:'not specified');
-			html += '<br/>instantMessenger :' + ((c.instantMessenger)?c.instantMessenger:'not specified');
-			html += '<br/>imageData :' + ((c.imageData)?'<img src="'+c.imageData.url + '"/>':'not specified');
-			html += '<br/>url :' + ((c.url)?c.url:'not specified');
-			html += '<br/>relatives :' + ((c.relatives)?c.relatives:'not specified');
-			html += '<br/>displayLabel :' + ((c.displayLabel)?c.displayLabel:'not specified');
-			html += '<br/>displayName :' + ((c.displayName)?c.displayName:'not specified');
-			html += '<br/>street1 :' + ((c.address)?c.address[0].value.street1:'not specified');
-			html += '<br/>city :' + ((c.address)?c.address[0].value.city:'not specified');
-			html += '<br/>region1 :' + ((c.address)?c.address[0].value.region1:'not specified');
-			html += '<br/>postalCode :' + ((c.address)?c.address[0].value.postalCode:'not specified');
-			html += '<br/>countryCode :' + ((c.address)?c.address[0].value.countryCode:'not specified');
-			html += '<br/>displayAddress :' + ((c.address)?c.address[0].value.displayAddress:'not specified');
-			document.getElementById('selectedContact').innerHTML = html;
+			var data = [];
+			data.push({title:'Go Back'});
+			data.push({title:'firstName :' + ((c.firstName)?c.firstName:'not specified')});
+			data.push({title: 'lastName :' + ((c.lastName)?c.lastName:'not specified')});
+			data.push({title: 'middleName :' + ((c.middleName)?c.middleName:'not specified')});
+			data.push({title:'prefix :' + ((c.prefix)?c.prefix:'not specified')});
+			data.push({title: 'suffix :' + ((c.suffix)?c.suffix:'not specified')});
+			data.push({title: 'nickname :' + ((c.nickname)?c.nickname:'not specified')});
+			data.push({title: 'phoneticFirstName :' + ((c.phoneticFirstName)?c.phoneticFirstName:'not specified')});
+			data.push({title: 'phoneticLastName :' + ((c.phoneticLastName)?c.phoneticLastName:'not specified')});
+			data.push({title: 'phoneticMiddleName :' + ((c.phoneticMiddleName)?c.phoneticMiddleName:'not specified')});
+			data.push({title: 'organization :' + ((c.organization)?c.organization[0].value.company:'not specified')});
+			data.push({title: 'email :' + ((c.email[0])?c.email[0].value:'not specified')});			
+			data.push({title: 'birthday :' + ((c.birthday)?c.birthday:'not specified')});
+			data.push({title: 'note :' + ((c.note[0])?c.note[0].value:'not specified')});
+			data.push({title: 'creationDate :' + ((c.creationDate)?c.creationDate:'not specified')});
+			data.push({title: 'modificationDate :' 
+			 		+ ((c.modificationDate)?c.modificationDate:'not specified')});
+			data.push({title: 'date :' + ((c.date)?c.date:'not specified')});
+			data.push({title: 'phone :' + ((c.phone[0])?c.phone[0].value:'not specified')});
+			data.push({title: 'instantMessenger :' + ((c.instantMessenger)?c.instantMessenger:'not specified')});
+			data.push({title: 'url :' + ((c.url)?c.url:'not specified')});
+			data.push({title: 'relatives :' + ((c.relatives)?c.relatives:'not specified')});
+			data.push({title: 'displayLabel :' + ((c.displayLabel)?c.displayLabel:'not specified')});
+			data.push({title: 'displayName :' + ((c.displayName)?c.displayName:'not specified')});
+			data.push({title: 'street1 :' + ((c.address[0])?c.address[0].value.street1:'not specified')});
+			data.push({title: 'city :' + ((c.address[0])?c.address[0].value.city:'not specified')});
+			data.push({title: 'region1 :' + ((c.address[0])?c.address[0].value.region1:'not specified')});
+			data.push({title: 'postalCode :' + ((c.address[0])?c.address[0].value.postalCode:'not specified')});
+			data.push({title: 'countryCode :' + ((c.address[0])?c.address[0].value.countryCode:'not specified')});
+			data.push({title: 'displayAddress :' + ((c.address[0])?c.address[0].value.displayAddress:'not specified')});
+
+			// use c.imageData to get image for contact
+
+			detailTableView.setData(data);
+			Titanium.UI.currentWindow.showView(detailTableView,{
+				animated:true,
+				animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+				animationDuration:1000
+			});
 			
 		};
 
@@ -49,7 +74,7 @@
 		//
 		function reloadContacts()
 		{
-			var data = [];
+			var data = [{title:'Go Back', layout:[{color:'blue',fontSize:14}]}];
 			var contacts = Titanium.Contacts.getAllContacts();
 			for (var i=0;i<contacts.length;i++)
 			{
@@ -63,13 +88,14 @@
 		//
 		var button1 = Titanium.UI.createButton({
 			id:'button1',
-			backgroundImage:'blue.png',
-			backgroundSelectedImage:'blue_pressed.png',
-			backgroundFocusedImage:'blue_focused.png',
-			title:'Show Contact Picker',
+			backgroundImage:'images/BUTT_drk_off.png',
+			backgroundSelectedImage:'images/BUTT_drk_on.png',
+			backgroundFocusedImage:'images/BUTT_drk_on.png',
+			title:'Contact Picker',
 			color:'#ffffff',
-			height:47,
-			fontSize:16
+			height:57,
+			fontSize:18,
+			fontWeight:'bold'
 		});
 		button1.addEventListener('click',function(e)
 		{
@@ -91,13 +117,14 @@
 		//
 		var button2 = Titanium.UI.createButton({
 			id:'button2',
-			backgroundImage:'blue.png',
-			backgroundSelectedImage:'blue_pressed.png',
-			backgroundFocusedImage:'blue_focused.png',
-			title:'Show Contact Picker (no detail)',
+			backgroundImage:'images/BUTT_drk_off.png',
+			backgroundSelectedImage:'images/BUTT_drk_on.png',
+			backgroundFocusedImage:'images/BUTT_drk_on.png',
+			title:'Contact Picker (no detail)',
 			color:'#ffffff',
-			height:47,
-			fontSize:16
+			height:57,
+			fontSize:18,
+			fontWeight:'bold'
 		});
 		button2.addEventListener('click',function(e)
 		{
@@ -119,13 +146,14 @@
 		//
 		var button3 = Titanium.UI.createButton({
 			id:'button3',
-			backgroundImage:'blue.png',
-			backgroundSelectedImage:'blue_pressed.png',
-			backgroundFocusedImage:'blue_focused.png',
+			backgroundImage:'images/BUTT_grn_off.png',
+			backgroundSelectedImage:'images/BUTT_grn_on.png',
+			backgroundFocusedImage:'images/BUTT_grn_on.png',
 			title:'Add Contact',
 			color:'#ffffff',
-			height:47,
-			fontSize:16
+			height:57,
+			fontSize:18,
+			fontWeight:'bold'
 		});
 		button3.addEventListener('click',function(e)
 		{
@@ -134,6 +162,7 @@
 				animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 				animationDuration:1000
 			});
+			mode = 'ADD'
 		});
 
 		//
@@ -141,13 +170,14 @@
 		//
 		var button4 = Titanium.UI.createButton({
 			id:'button4',
-			backgroundImage:'blue.png',
-			backgroundSelectedImage:'blue_pressed.png',
-			backgroundFocusedImage:'blue_focused.png',
+			backgroundImage:'images/BUTT_grn_off.png',
+			backgroundSelectedImage:'images/BUTT_grn_on.png',
+			backgroundFocusedImage:'images/BUTT_grn_on.png',
 			title:'View Contacts',
 			color:'#ffffff',
-			height:47,
-			fontSize:16
+			height:57,
+			fontSize:18,
+			fontWeight:'bold'
 		});
 		button4.addEventListener('click',function(e)
 		{
@@ -158,12 +188,91 @@
 				animationDuration:1000
 			});
 		});
+		//
+		// button for viewing all contacts
+		//
+		var button5 = Titanium.UI.createButton({
+			id:'button5',
+			backgroundImage:'images/BUTT_red_off.png',
+			backgroundSelectedImage:'images/BUTT_red_on.png',
+			backgroundFocusedImage:'images/BUTT_red_on.png',
+			title:'Remove Contact',
+			color:'#ffffff',
+			height:57,
+			fontSize:18,
+			fontWeight:'bold'
+		});
+		button5.addEventListener('click',function(e)
+		{
+			Titanium.Contacts.showContactPicker({
+			
+			   	success:function(e)
+			   	{
+					Titanium.Contacts.removeContact(e.contact);
+					Titanium.UI.createAlertDialog({title:'Contacts',message:'Contact removed.'}).show();
+			   	},
+			   	cancel:function()
+			   	{
+			   	}
+			});
+		});
+
+		//
+		// button for updating  contact
+		//
+		var button6 = Titanium.UI.createButton({
+			id:'button6',
+			backgroundImage:'images/BUTT_grn_off.png',
+			backgroundSelectedImage:'images/BUTT_grn_on.png',
+			backgroundFocusedImage:'images/BUTT_grn_on.png',
+			title:'Update Contact',
+			color:'#ffffff',
+			height:57,
+			fontSize:18,
+			fontWeight:'bold'
+		});
+		button6.addEventListener('click',function(e)
+		{
+			Titanium.Contacts.showContactPicker({
+			
+			   	success:function(e)
+			   	{
+					contactToUpdate = e.contact;
+					Titanium.UI.currentWindow.showView(groupedView,{
+						animated:true,
+						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationDuration:1000
+					});
+					mode = 'UPDATE'
+					firstName.setValue(e.contact.firstName);
+					lastName.setValue(e.contact.lastName);
+					email.setValue(e.contact.email[0].value);
+					
+			   	},
+			   	cancel:function()
+			   	{
+			   	}
+			});
+
+		});
 	
 		//
 		//  Create Table View to show contacts
 		//
-		var data = [{title:'No Contacts...'}]
-		var tableView = Titanium.UI.createTableView({data:data});
+		var data = [{title:'No Contacts...'}];
+		var template = {layout:[{name:'title', fontSize:20, fontWeight:'bold',left:10, type:'text', color:'black'}]};
+		var tableView = Titanium.UI.createTableView({template:template,data:data}, function(e)
+		{
+			if (e.index ==0)
+			{
+				Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViews()[0],{
+					animated:true,
+					animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+					animationDuration:1000
+				});
+				
+			}
+		});
 		
 		// create grouped view for adding contacts
 		var firstName = Titanium.UI.createTextField({width:100,hintText:'first name'});
@@ -189,13 +298,13 @@
 		];
 
 		var inputSection = Titanium.UI.iPhone.createGroupedSection({
-			header:'Create Contact',
+			header:'Manage Contact',
 			type:'input',
 			data:inputData
 		});
 		
 		var buttonData = [
-			{title:'Add Contact'},
+			{title:'Save Contact'},
 			{title:'Go Back'}
 		];
 		var buttonSection = Titanium.UI.iPhone.createGroupedSection({
@@ -206,7 +315,7 @@
 		{
 			if (e.row==1)
 			{
-				Titanium.UI.currentWindow.showView(compositeView,{
+				Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViews()[0],{
 					animated:true,
 					animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 					animationDuration:1000
@@ -214,7 +323,36 @@
 			}
 			else
 			{
-				// add contact
+				if (mode == 'UPDATE')
+				{
+					// update contact
+					contactToUpdate.firstName = firstName.value;
+					contactToUpdate.lastName = lastName.value;
+					contactToUpdate.email = [{label:'home', value:email.value}]
+					Titanium.Contacts.saveContact(contactToUpdate);
+
+					// show main view
+					Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViews()[0],{
+						animated:true,
+						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationDuration:1000
+					});
+					
+					
+				}
+				else
+				{
+					// add contact
+					var c = Titanium.Contacts.createContact({
+					    firstName:firstName.value,
+					    lastName:lastName.value,
+						email:[{label:'home', value:email.value}]
+					});
+					Titanium.Contacts.addContact(c);
+					Titanium.UI.createAlertDialog({title:'Contacts',message:'Contact Added.'}).show();
+					
+				}
+				
 			}
 		});
 		var groupedView = Titanium.UI.iPhone.createGroupedView();
@@ -223,23 +361,20 @@
 		
 		
 		// add views
-		Titanium.UI.currentWindow.addView(compositeView);
 		Titanium.UI.currentWindow.addView(groupedView);
 		Titanium.UI.currentWindow.addView(tableView);
-		
-		Titanium.UI.currentWindow.showView(compositeView);
+		Titanium.UI.currentWindow.addView(detailTableView);
 
 	};
 	
 	
 	</script>
 </head>
-<body  style="font-family:'Helvetica Neue';background-color:#444">
-	<div id="button1" style="height:50px"></div>
-	<div id="button2" style="height:50px"></div>
-	<div id="button3" style="height:50px"></div>
-	<div id="button4" style="height:50px"></div>
-
-	<div id="selectedContact" style="background-color:#000;color:#fff;-webkit-border-radius:5px;padding:5px">No Contact Selected</div>
-
+<body  style="font-family:'Helvetica Neue'">
+	<div id="button1" style="height:60px"></div>
+	<div id="button2" style="height:60px"></div>
+	<div id="button3" style="height:60px"></div>
+	<div id="button4" style="height:60px"></div>
+	<div id="button6" style="height:60px"></div>
+	<div id="button5" style="height:60px"></div>
 </body>
