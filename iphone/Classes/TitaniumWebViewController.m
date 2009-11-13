@@ -521,7 +521,7 @@
 
 	for(NativeControlProxy * thisProxy in nativeOnscreenProxies){
 		[thisProxy refreshPositionWithWebView:webView animated:animated];
-		UIView * thisView = [thisProxy nativeView];
+		UIView * thisView = [thisProxy view];
 
 		CGRect thisFrame = [thisView frame];
 		CGFloat bottom = thisFrame.size.height + thisFrame.origin.y;
@@ -667,7 +667,7 @@ typedef int UIEventSubtype;
 	} else {
 		[nativeOnscreenProxies addObject:proxyObject];
 	}
-	[scrollView addSubview:[proxyObject nativeView]];
+	[scrollView addSubview:[proxyObject view]];
 }
 
 - (void) scrollRelative: (NSValue *) positionValue;

@@ -13,29 +13,6 @@
 #import "PickerImageTextCell.h"
 #import "Logging.h"
 
-BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view)
-{
-	if(![optionObject isKindOfClass:[NSDictionary class]])return NO;
-	id animatedObject = [optionObject objectForKey:@"animated"];
-	if((![animatedObject respondsToSelector:@selector(boolValue)]) || (![animatedObject boolValue]))return NO;
-	
-	[UIView beginAnimations:nil context:nil];
-	
-	if(view != nil){
-		id animatedStyleObject = [optionObject objectForKey:@"animationStyle"];
-		if ([animatedStyleObject respondsToSelector:@selector(intValue)]){
-			[UIView setAnimationTransition:[animatedStyleObject intValue] forView:view cache:YES];
-		}
-	}
-	
-	id animatedDurationObject = [optionObject objectForKey:@"animationDuration"];
-	if([animatedDurationObject respondsToSelector:@selector(floatValue)]){
-		[UIView setAnimationDuration:[animatedDurationObject floatValue]/1000.0];
-	}
-	return YES;
-}
-
-
 @interface PickerColumnWrapper : NSObject
 {
 	CGFloat	width;
@@ -92,14 +69,51 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 
 
 
+
+
+
+
+BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view)
+{
+	if(![optionObject isKindOfClass:[NSDictionary class]])return NO;
+	id animatedObject = [optionObject objectForKey:@"animated"];
+	if((![animatedObject respondsToSelector:@selector(boolValue)]) || (![animatedObject boolValue]))return NO;
+	
+	[UIView beginAnimations:nil context:nil];
+	
+	if(view != nil){
+		id animatedStyleObject = [optionObject objectForKey:@"animationStyle"];
+		if ([animatedStyleObject respondsToSelector:@selector(intValue)]){
+			[UIView setAnimationTransition:[animatedStyleObject intValue] forView:view cache:YES];
+		}
+	}
+	
+	id animatedDurationObject = [optionObject objectForKey:@"animationDuration"];
+	if([animatedDurationObject respondsToSelector:@selector(floatValue)]){
+		[UIView setAnimationDuration:[animatedDurationObject floatValue]/1000.0];
+	}
+	return YES;
+}
+
+
 int nextControlToken = 0;
 NSMutableDictionary * controlProxyInstanceRegistry = nil;
 NSMutableDictionary * controlProxyClassRegistry = nil;
 
 
 @implementation NativeControlProxy
-@synthesize nativeBarButton, templateValue, buttonStyle, nativeView, labelView, wrapperView;
-@synthesize isHidden;
+@synthesize isHidden, isInBar, needsLayout, frame;
+
++ (void) registerAsClassNamed: (NSString *)JSClassName;
+{
+	if(controlProxyClassRegistry==nil){
+		controlProxyClassRegistry = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+									 [self class],JSClassName,nil];
+	} else {
+		[controlProxyClassRegistry setObject:[self class] forKey:JSClassName];
+	}
+	
+}
 
 + (NSString *) requestToken;
 {
@@ -139,7 +153,7 @@ NSMutableDictionary * controlProxyClassRegistry = nil;
 	}
 	
 	NSDictionary * divAttributeDict = [inputDict objectForKey:@"divAttr"];	//Todo: make not ugly.
-	if ([divAttributeDict isKindOfClass:[NSDictionary class]])[result setPropertyDict:divAttributeDict];
+	if ([divAttributeDict isKindOfClass:[NSDictionary class]])[result readState:divAttributeDict relativeToUrl:baseUrl];
 
 	id leftProxy = [inputDict objectForKey:@"leftButton"];	//This should be in the textField proxy class
 	if (leftProxy != nil){
@@ -151,22 +165,13 @@ NSMutableDictionary * controlProxyClassRegistry = nil;
 	}
 	
 
-	[result setPropertyDict:inputDict];
+	[result readState:inputDict relativeToUrl:baseUrl];
 	
 	return result;
 }
 
-+ (void) registerAsClassNamed: (NSString *)JSClassName;
-{
-	if(controlProxyClassRegistry==nil){
-		controlProxyClassRegistry = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-				[self class],JSClassName,nil];
-	} else {
-		[controlProxyClassRegistry setObject:[self class] forKey:JSClassName];
-	}
 
-}
-
+@synthesize templateValue, buttonStyle;
 @synthesize segmentLabelArray, segmentImageArray, segmentSelectedIndex;
 @synthesize titleString, iconPath, minValue,maxValue,floatValue,stringValue, placeholderText;
 @synthesize elementColor, elementBorderColor, elementBackgroundColor, messageString;
@@ -199,28 +204,28 @@ TitaniumFontDescription defaultControlFontDesc;
 {
 	[titleString release];
 	[iconPath release];
-	[nativeBarButton release];
+	[barButton release];
 	[super dealloc];
 }
 
 
 #define GRAB_IF_SELECTOR(keyString,methodName,resultOutput)	\
-{id newObject=[newDict objectForKey:keyString];	\
+{id newObject=[inputState objectForKey:keyString];	\
 if ([newObject respondsToSelector:@selector(methodName)]){	\
 resultOutput = [newObject methodName];	\
-needsRefreshing = YES;	\
+needsLayout = YES;	\
 }}
 
 #define GRAB_IF_CLASS(keyString,classy,resultOutput)	\
-{id newObject=[newDict objectForKey:keyString];	\
+{id newObject=[inputState objectForKey:keyString];	\
 if ([newObject isKindOfClass:classy] && ![resultOutput isEqual:newObject]) {	\
 self.resultOutput = newObject;	\
-needsRefreshing = YES;	\
+needsLayout = YES;	\
 }}
 
 #define GRAB_IF_STRING(keyString,resultOutput)	GRAB_IF_CLASS(keyString,stringClass,resultOutput)
 
-- (void) setPropertyDict: (NSDictionary *) newDict;
+- (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
 	BOOL handleChange = NO;
 	NSString * changeEvent = nil;
@@ -239,29 +244,29 @@ needsRefreshing = YES;	\
 	GRAB_IF_SELECTOR(@"min",floatValue,minValue);
 	GRAB_IF_SELECTOR(@"max",floatValue,maxValue);
 	
-	id valueObject = [newDict objectForKey:@"value"];
+	id valueObject = [inputState objectForKey:@"value"];
 	
 	if ([valueObject isKindOfClass:dateClass]){
 		handleChange = ![valueObject isEqualToDate:dateValue];
 		[self setDateValue:valueObject];
-		needsRefreshing = YES;
+		needsLayout = YES;
 	}
 	
 	if ([valueObject respondsToSelector:@selector(floatValue)]){
 		float newValue = [valueObject floatValue];
 		handleChange = newValue != floatValue;
 		floatValue = newValue;
-		needsRefreshing = YES;
+		needsLayout = YES;
 	}
 	if ([valueObject respondsToSelector:@selector(stringValue)]){
 		NSString * newString = [valueObject stringValue];
 		handleChange = ![newString isEqualToString:stringValue];
 		[self setStringValue:newString];
-		needsRefreshing = YES;
+		needsLayout = YES;
 	} else if ([valueObject isKindOfClass:[NSString class]]) {
 		handleChange = ![valueObject isEqualToString:stringValue];
 		[self setStringValue:valueObject];
-		needsRefreshing = YES;
+		needsLayout = YES;
 	}
 	
 	if(handleChange){
@@ -281,30 +286,30 @@ needsRefreshing = YES;	\
 	int oldIndex = segmentSelectedIndex;
 	GRAB_IF_SELECTOR(@"index",intValue,segmentSelectedIndex);
 	
-	id labelArray = [newDict objectForKey:@"labels"];
+	id labelArray = [inputState objectForKey:@"labels"];
 	if ([labelArray isKindOfClass:[NSArray class]]){
 		[self setSegmentLabelArray:labelArray];
 	} else if (labelArray == [NSNull null]){
 		[self setSegmentLabelArray:nil];
 	}
 	
-	id imageArray = [newDict objectForKey:@"images"];
+	id imageArray = [inputState objectForKey:@"images"];
 	if ([imageArray isKindOfClass:[NSArray class]]){
 		[self setSegmentImageArray:imageArray];
-		needsRefreshing = YES;
+		needsLayout = YES;
 	} else if (imageArray == [NSNull null]) {
 		[self setSegmentImageArray:nil];
-		needsRefreshing = YES;
+		needsLayout = YES;
 	}
 	
 	//Colors
-	id bgColorObject = [newDict objectForKey:@"backgroundColor"];
+	id bgColorObject = [inputState objectForKey:@"backgroundColor"];
 	if (bgColorObject != nil)[self setElementBackgroundColor:UIColorWebColorNamed(bgColorObject)];
 	
-	id colorObject = [newDict objectForKey:@"color"];
+	id colorObject = [inputState objectForKey:@"color"];
 	if (colorObject != nil)[self setElementColor:UIColorWebColorNamed(colorObject)];
 	
-	id borderColorObject = [newDict objectForKey:@"borderColor"];
+	id borderColorObject = [inputState objectForKey:@"borderColor"];
 	if (borderColorObject != nil)[self setElementBorderColor:UIColorWebColorNamed(borderColorObject)];
 	
 	//Sizes
@@ -325,7 +330,7 @@ needsRefreshing = YES;	\
 	GRAB_IF_SELECTOR(@"returnKeyType",intValue,returnKeyType);
 	GRAB_IF_SELECTOR(@"keyboardType",intValue,keyboardType);
 	
-	id autoCorrectObject = [newDict objectForKey:@"autocorrect"];
+	id autoCorrectObject = [inputState objectForKey:@"autocorrect"];
 	if ([autoCorrectObject respondsToSelector:@selector(boolValue)]){
 		autocorrectionType = ([autoCorrectObject boolValue]?UITextAutocorrectionTypeYes:UITextAutocorrectionTypeNo);
 	} else if (autoCorrectObject == [NSNull null]) {
@@ -334,13 +339,13 @@ needsRefreshing = YES;	\
 	
 	GRAB_IF_STRING(@"hintText",placeholderText);
 	
-	id alignmentObject = [newDict objectForKey:@"textAlign"];
+	id alignmentObject = [inputState objectForKey:@"textAlign"];
 	if ([alignmentObject isKindOfClass:stringClass]){
 		alignmentObject = [alignmentObject lowercaseString];
 		if ([alignmentObject isEqualToString:@"left"]) textAlignment = UITextAlignmentLeft;
 		else if ([alignmentObject isEqualToString:@"center"]) textAlignment = UITextAlignmentCenter;
 		else if ([alignmentObject isEqualToString:@"right"]) textAlignment = UITextAlignmentRight;
-		needsRefreshing = YES;
+		needsLayout = YES;
 	}
 	
 	GRAB_IF_SELECTOR(@"clearOnEdit",boolValue,clearsOnBeginEditing);
@@ -362,7 +367,7 @@ needsRefreshing = YES;	\
 
 	GRAB_IF_SELECTOR(@"selectionIndicator",boolValue,showSelectionIndicator);
 	
-	id dataObject = [newDict objectForKey:@"data"];
+	id dataObject = [inputState objectForKey:@"data"];
 	if ([dataObject isKindOfClass:[NSArray class]]){
 		if(pickerColumnsArray == nil){
 			pickerColumnsArray = [[NSMutableArray alloc] initWithCapacity:[dataObject count]];
@@ -398,7 +403,7 @@ needsRefreshing = YES;	\
 				if(missingWidthColumns < 1)break;
 			}
 		}
-		needsRefreshing = YES;
+		needsLayout = YES;
 	}
 
 
@@ -406,18 +411,18 @@ needsRefreshing = YES;	\
 
 //	if([nativeView isKindOfClass:[UIPickerView class]])[(UIPickerView *)nativeView reloadAllComponents];
 	
-	if(UpdateFontDescriptionFromDict(newDict, &fontDesc, &defaultControlFontDesc)){
-		needsRefreshing = YES;
+	if(UpdateFontDescriptionFromDict(inputState, &fontDesc, &defaultControlFontDesc)){
+		needsLayout = YES;
 	}
 	
 	//System button	
-	id newTemplate = [newDict objectForKey:@"systemButton"];
+	id newTemplate = [inputState objectForKey:@"systemButton"];
 	if ([newTemplate isKindOfClass:[NSString class]]) {
 		[self setTemplateValue:barButtonSystemItemForString(newTemplate)];
-		needsRefreshing = YES;
+		needsLayout = YES;
 	} else if ([newTemplate isKindOfClass:[NSNumber class]]) {
 		[self setTemplateValue:[newTemplate intValue]];
-		needsRefreshing = YES;
+		needsLayout = YES;
 	}	
 	//Because the proxies are best from the UIModule itself, we don't check here.
 	
@@ -447,25 +452,25 @@ needsRefreshing = YES;	\
 	[labelView setBackgroundColor:((bgColor != nil)?bgColor:[UIColor clearColor])];
 	[labelView setTextColor:((elementColor != nil)?elementColor:[UIColor whiteColor])];
 	
-	if([labelView superview]!=wrapperView){
-		[wrapperView addSubview:labelView];
+	if([labelView superview]!=view){
+		[view addSubview:labelView];
 	}
 }
 
-- (BOOL) updateNativeView: (BOOL) animated;
+- (BOOL) updateView: (BOOL) animated;
 {
 	UIView * resultView=nil;
 	BOOL customPlacement = NO;
 	
-	if(wrapperView == nil){
-		wrapperView = [[UIView alloc] init];
+	if(view == nil){
+		view = [[UIView alloc] init];
 	}
 	
 	
 	CGRect viewFrame=frame;
-	if (placedInBar){
+	if (isInBar){
 		viewFrame.size.height = 30.0;
-		if (wrapperView != nil) viewFrame.origin = [wrapperView frame].origin;
+		if (view != nil) viewFrame.origin = [view frame].origin;
 	} else if (viewFrame.size.height < 2) viewFrame.size.height = 20;
 	if (viewFrame.size.width < 2) viewFrame.size.width = 30;
 	
@@ -550,9 +555,9 @@ needsRefreshing = YES;	\
 				[(UITextField *)resultView setClearsOnBeginEditing:clearsOnBeginEditing];
 				[(UITextField *)resultView setClearButtonMode:clearButtonMode];
 				[(UITextField *)resultView setLeftViewMode:leftViewMode];
-				[(UITextField *)resultView setLeftView:[leftViewProxy nativeView]];
+				[(UITextField *)resultView setLeftView:[leftViewProxy view]];
 				[(UITextField *)resultView setRightViewMode:rightViewMode];
-				[(UITextField *)resultView setRightView:[rightViewProxy nativeView]];
+				[(UITextField *)resultView setRightView:[rightViewProxy view]];
 				[(UITextField *)resultView setSecureTextEntry:passwordMask];
 				
 				TitaniumHost * theHost = [TitaniumHost sharedHost];
@@ -628,7 +633,7 @@ needsRefreshing = YES;	\
 				[(UISegmentedControl *)resultView setMomentary:NO];
 				[(UISegmentedControl *)resultView setSelectedSegmentIndex:segmentSelectedIndex];
 			}
-			if (placedInBar || (buttonStyle == UITitaniumNativeStyleBar)){
+			if (isInBar || (buttonStyle == UITitaniumNativeStyleBar)){
 				[(UISegmentedControl *)resultView setSegmentedControlStyle:UISegmentedControlStyleBar];
 			} else {
 				[(UISegmentedControl *)resultView setSegmentedControlStyle:((buttonStyle==UIBarButtonItemStyleBordered)?UISegmentedControlStyleBar:UISegmentedControlStylePlain)];
@@ -711,7 +716,7 @@ needsRefreshing = YES;	\
 
 		case UITitaniumNativeItemProgressBar:{
 			UIProgressViewStyle progressStyle;
-			if(placedInBar){
+			if(isInBar){
 				progressStyle = (buttonStyle != UIBarButtonItemStylePlain)?UIProgressViewStyleBar:UIProgressViewStyleDefault;
 			}else{
 				progressStyle = (buttonStyle == UITitaniumNativeStyleBar)?UIProgressViewStyleBar:UIProgressViewStyleDefault;			
@@ -800,8 +805,8 @@ needsRefreshing = YES;	\
 		[resultView setBackgroundColor:elementBorderColor];
 	}
 	
-	if((viewFrame.origin.x > 1.0) || (viewFrame.origin.y > 1.0) || ![[wrapperView superview] isKindOfClass:[UITableViewCell class]]){
-		[wrapperView setFrame:viewFrame];
+	if((viewFrame.origin.x > 1.0) || (viewFrame.origin.y > 1.0) || ![[view superview] isKindOfClass:[UITableViewCell class]]){
+		[view setFrame:viewFrame];
 	}
 	
 	if(!customPlacement){
@@ -809,35 +814,35 @@ needsRefreshing = YES;	\
 		viewFrame.origin = CGPointZero;
 		[resultView setFrame:viewFrame];
 	}
-	[wrapperView setHidden:isHidden];
+	[view setHidden:isHidden];
 	BOOL isNewView = (nativeView != resultView);
 	if(isNewView){
-		[wrapperView addSubview:resultView];
+		[view addSubview:resultView];
 		[nativeView removeFromSuperview];
 	}
 	[nativeView autorelease];
 	nativeView = resultView;
-	needsRefreshing = NO;
+	needsLayout = NO;
 	
 	// fire action to any module listeners
-	if ([theHost hasListeners]) [theHost fireListenerAction:@selector(eventUpdateNativeView:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(nativeView),@"nativeView",VAL_OR_NSNULL(wrapperView),@"wrapperView",[NSNumber numberWithBool:isNewView],@"newView",viewFrame,@"viewFrame",nil]];
+	if ([theHost hasListeners]) [theHost fireListenerAction:@selector(eventUpdateNativeView:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(nativeView),@"nativeView",VAL_OR_NSNULL(view),@"view",[NSNumber numberWithBool:isNewView],@"newView",viewFrame,@"viewFrame",nil]];
 
 	return isNewView;
 }
 
-- (void) updateNativeBarButton;
+- (void) updateBarButton;
 {
-	placedInBar = YES;
+	isInBar = YES;
 	
 	UIBarButtonItem * result = nil;
 	UIBarButtonItemStyle barButtonStyle = ((buttonStyle<0)?UIBarButtonItemStylePlain:buttonStyle);
 	SEL onClickSel = @selector(onClick:);
 	
 	if (templateValue <= UITitaniumNativeItemSpinner){
-		[self updateNativeView:NO];
-		UIView * ourWrapperView = [self nativeBarView];
-		if ([nativeBarButton customView]==ourWrapperView) {
-			result = [nativeBarButton retain]; //Why waste a good bar button?
+		[self updateView:NO];
+		UIView * ourWrapperView = [self barButtonView];
+		if ([barButton customView]==ourWrapperView) {
+			result = [barButton retain]; //Why waste a good bar button?
 		} else {
 			result = [[UIBarButtonItem alloc] initWithCustomView:ourWrapperView];
 		}
@@ -859,47 +864,47 @@ needsRefreshing = YES;	\
 	}
 	
 	[result setWidth:frame.size.width];
-	[nativeBarButton autorelease];
-	nativeBarButton = result;
-	needsRefreshing = NO;
+	[barButton autorelease];
+	barButton = result;
+	needsLayout = NO;
 }
 
 #pragma mark Accessors
 
-- (UIBarButtonItem *) nativeBarButton;
+- (UIBarButtonItem *) barButton;
 {
-	if ((nativeBarButton == nil) || needsRefreshing) {
-		[self updateNativeBarButton];
+	if ((barButton == nil) || needsLayout) {
+		[self updateBarButton];
 	}
-	return nativeBarButton;
+	return barButton;
 }
 
-- (UIView *) nativeBarView;
+- (UIView *) barButtonView;
 {
-	if ((nativeView == nil) || needsRefreshing){
-		placedInBar = YES;
-		[self updateNativeView:NO];
+	if ((nativeView == nil) || needsLayout){
+		isInBar = YES;
+		[self updateView:NO];
 	}
-	return wrapperView;
+	return view;
 }
 
-- (UIView *) nativeView;
+- (UIView *) view;
 {
-	if ((nativeView == nil) || needsRefreshing){
-		placedInBar = NO;
-		[self updateNativeView:NO];
+	if ((nativeView == nil) || needsLayout){
+		isInBar = NO;
+		[self updateView:NO];
 	}
-	return wrapperView;
+	return view;
 }
 
-- (BOOL) hasNativeView;
+- (BOOL) hasView;
 {
 	return (nativeView != nil);
 }
 
-- (BOOL) hasNativeBarButton;
+- (BOOL) hasBarButton;
 {
-	return (nativeBarButton != nil);
+	return (barButton != nil);
 }
 
 #pragma mark Buck passing for firstResponder
@@ -921,9 +926,9 @@ needsRefreshing = YES;	\
 #pragma mark Updating
 - (void) updateWithOptions: (NSDictionary *) optionObject;
 {
-	BOOL animated = TitaniumPrepareAnimationsForView(optionObject,wrapperView);
+	BOOL animated = TitaniumPrepareAnimationsForView(optionObject,view);
 	
-	[self updateNativeView:animated];
+	[self updateView:animated];
 	
 	if (animated){
 		[UIView commitAnimations];
@@ -963,7 +968,7 @@ needsRefreshing = YES;	\
 		changed = YES;
 	}
 	
-	if(changed)[self updateNativeView:animated];
+	if(changed)[self updateView:animated];
 }
 
 #pragma mark Javascript calls
@@ -1031,7 +1036,7 @@ needsRefreshing = YES;	\
 	return [ourColumn rowHeight];
 }
 
-- (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view;
+- (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)recycledView;
 {
 	PickerColumnWrapper * ourColumn = [pickerColumnsArray objectAtIndex:component];
 	TitaniumCellWrapper * ourRow = [[ourColumn data] objectAtIndex:row];
@@ -1040,46 +1045,46 @@ needsRefreshing = YES;	\
 	NSString * html = [ourRow html];
 	
 	if([html isKindOfClass:[NSString class]] && ([html length]>0)){
-		if([view isKindOfClass:[UIWebView class]]){
-			[(UIWebView *)view stopLoading];
-			[view setFrame:ourFrame];
+		if([recycledView isKindOfClass:[UIWebView class]]){
+			[(UIWebView *)recycledView stopLoading];
+			[recycledView setFrame:ourFrame];
 		}else{
-			view = [[[UIWebView alloc] initWithFrame:ourFrame] autorelease];
-			[(UIWebView *)view setDelegate:self];
-			[view setBackgroundColor:[UIColor clearColor]];
-			[view setOpaque:NO];
+			recycledView = [[[UIWebView alloc] initWithFrame:ourFrame] autorelease];
+			[(UIWebView *)recycledView setDelegate:self];
+			[recycledView setBackgroundColor:[UIColor clearColor]];
+			[recycledView setOpaque:NO];
 		}
-		[view setAlpha:0.0];
-		[(UIWebView *)view loadHTMLString:html baseURL:baseURL];
-		return view;
+		[recycledView setAlpha:0.0];
+		[(UIWebView *)recycledView loadHTMLString:html baseURL:baseURL];
+		return recycledView;
 	}
 	
-	if([view isKindOfClass:[PickerImageTextCell class]]){
-		[view setFrame:ourFrame];
+	if([recycledView isKindOfClass:[PickerImageTextCell class]]){
+		[recycledView setFrame:ourFrame];
 	} else {
-		view = [[[PickerImageTextCell alloc] initWithFrame:ourFrame] autorelease];
+		recycledView = [[[PickerImageTextCell alloc] initWithFrame:ourFrame] autorelease];
 	}
 	NSString * thisTitle = [ourRow title];
 	if([thisTitle length] > 0){
-		UILabel * ourLabel = [(PickerImageTextCell *)view textLabel];
+		UILabel * ourLabel = [(PickerImageTextCell *)recycledView textLabel];
 		[ourLabel setText:thisTitle];
 		[ourLabel setFont:[ourRow font]];
 	} else {
-		[(PickerImageTextCell *)view setTextLabel:nil];
+		[(PickerImageTextCell *)recycledView setTextLabel:nil];
 	}
 	
 	UIImage * thisImage = [ourRow image];
 	if(thisImage != nil){
-		UIImageView * ourImageView = [(PickerImageTextCell *)view imageView];
+		UIImageView * ourImageView = [(PickerImageTextCell *)recycledView imageView];
 		[ourImageView setImage:thisImage];
 		CGRect imageFrame;
 		imageFrame.size=[thisImage size];
 		imageFrame.origin=CGPointZero;
 		[ourImageView setFrame:imageFrame];
 	} else {
-		[(PickerImageTextCell *)view setImageView:nil];
+		[(PickerImageTextCell *)recycledView setImageView:nil];
 	}
-	return view;
+	return recycledView;
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView;

@@ -698,7 +698,7 @@ UIColor * checkmarkColor = nil;
 	}
 
 	[result setAccessoryType:ourType];
-	[result setAccessoryView:[[rowWrapper inputProxy] nativeView]];
+	[result setAccessoryView:[[rowWrapper inputProxy] view]];
 	UIColor * bgColor = [rowWrapper colorForKey:@"backgroundColor"];
 	UIColor * selectedBgColor = [rowWrapper colorForKey:@"selectedBackgroundColor"];
 
