@@ -142,26 +142,23 @@
             <id>TableView</id>
             <title>Table View</title>
             <url>tableview.html</url>
-            <type>single</type>
-            <fullscreen>false</fullscreen>
-            <backgroundColor>argb(0,255,255,255)</backgroundColor>
-            <barColor>#000</barColor>
         </window>
-
-        <window>
-            <id>SimpleViewFocus</id>
-            <title>View Focus</title>
-            <url>simplefocusview.html</url>
-            <type>single</type>
-            <fullscreen>false</fullscreen>
-            <backgroundColor>argb(0,255,255,255)</backgroundColor>
-            <barColor>#000</barColor>
-        </window>
-
         <window>
             <id>TableView HTML</id>
             <title>Table View HTML</title>
             <url>tableview-html.html</url>
+        </window>
+-->
+        <window>
+            <id>TableView Custom</id>
+            <title>TableView Custom</title>
+            <url>tableview-custom.html</url>
+        </window>
+<!--
+        <window>
+            <id>SimpleViewFocus</id>
+            <title>View Focus</title>
+            <url>simplefocusview.html</url>
             <type>single</type>
             <fullscreen>false</fullscreen>
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
@@ -386,16 +383,16 @@
 			<id>Contacts</id>
 			<url>contacts.html</url>
 		</window>
--->
-	<window>
-		<id>map1</id>
-		<url>map1.html</url>
-	</window>
-	<window>
-		<id>map</id>
-		<url>map.html</url>
-	</window>
 
+		<window>
+			<id>map1</id>
+			<url>map1.html</url>
+		</window>
+		<window>
+			<id>map</id>
+			<url>map.html</url>
+		</window>
+-->
     </windows>
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.android.watchlog" type="bool">false</property>
