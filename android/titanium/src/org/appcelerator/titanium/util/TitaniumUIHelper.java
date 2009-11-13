@@ -121,9 +121,11 @@ public class TitaniumUIHelper
 						units = TypedValue.COMPLEX_UNIT_IN;
 					} else {
 						if (DBG) {
-							Log.w(LCAT, "Unknown unit: " + unit);
+							if (unit != null) {
+								Log.w(LCAT, "Unknown unit: " + unit);
+							}
 						}
-						units = TypedValue.COMPLEX_UNIT_PX;
+						//units = TypedValue.COMPLEX_UNIT_PX;
 					}
 				}
 			}

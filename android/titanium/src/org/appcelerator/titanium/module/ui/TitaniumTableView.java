@@ -455,6 +455,7 @@ public class TitaniumTableView extends TitaniumBaseView
 
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 			{
+				Log.e(LCAT, "CLICKED TAG: " + view.getTag());
 				try {
 					JSONObject item = viewModel.getViewModel().getJSONObject(position);
 					JSONObject event = new JSONObject();

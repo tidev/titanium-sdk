@@ -134,6 +134,11 @@ public class TitaniumCompositeLayout extends ViewGroup
 			View child = getChildAt(i);
 			if (child.getVisibility() != View.GONE) {
 
+				// Ask the child how big it would naturally like to be.
+				child.measure(MeasureSpec.makeMeasureSpec(maxWidth, MeasureSpec.AT_MOST),
+						MeasureSpec.makeMeasureSpec(maxHeight, MeasureSpec.AT_MOST));
+
+
 				TitaniumCompositeLayout.TitaniumCompositeLayoutParams p =
 					(TitaniumCompositeLayout.TitaniumCompositeLayoutParams) child.getLayoutParams();
 
@@ -166,6 +171,11 @@ public class TitaniumCompositeLayout extends ViewGroup
 				} else {
 					p.mLeft = 0;
 					p.mRight = w;
+					int space = (w - child.getMeasuredWidth())/2;
+					if (space > 0) {
+						p.mLeft = space;
+						p.mRight = w - space;
+					}
 				}
 
 				if (p.optionTop != null) {
@@ -197,6 +207,11 @@ public class TitaniumCompositeLayout extends ViewGroup
 				} else {
 					p.mTop = 0;
 					p.mBottom = h;
+					int space = (h - child.getMeasuredHeight())/2;
+					if (space > 0) {
+						p.mTop = space;
+						p.mBottom = h - space;
+					}
 				}
 
 				child.measure(MeasureSpec.makeMeasureSpec(p.mRight-p.mLeft, wMode /*MeasureSpec.EXACTLY*/),
