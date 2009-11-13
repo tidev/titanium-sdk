@@ -123,6 +123,7 @@ public class TitaniumUIHelper
 						if (DBG) {
 							Log.w(LCAT, "Unknown unit: " + unit);
 						}
+						units = TypedValue.COMPLEX_UNIT_PX;
 					}
 				}
 			}

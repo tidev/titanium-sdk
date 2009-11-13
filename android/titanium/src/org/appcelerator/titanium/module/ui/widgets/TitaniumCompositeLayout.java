@@ -118,7 +118,8 @@ public class TitaniumCompositeLayout extends ViewGroup
 			viewSorter.clear();
 
 			for(int i = 0; i < count; i++) {
-				viewSorter.add(getChildAt(i));
+				View child = getChildAt(i);
+				viewSorter.add(child);
 			}
 
 			detachAllViewsFromParent();
@@ -224,7 +225,6 @@ public class TitaniumCompositeLayout extends ViewGroup
 			View child = getChildAt(i);
 			TitaniumCompositeLayout.TitaniumCompositeLayoutParams params =
 				(TitaniumCompositeLayout.TitaniumCompositeLayoutParams) child.getLayoutParams();
-			Log.d("TILAYOUT", "Layout: Child " + i + " zIndex: " + params.optionZIndex);
 			if (child.getVisibility() != View.GONE) {
 				child.layout(params.mLeft, params.mTop, params.mRight, params.mBottom);
 			}

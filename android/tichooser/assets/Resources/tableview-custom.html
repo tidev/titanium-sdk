@@ -8,9 +8,9 @@
 		selectedBackgroundImage:'foo.png',
 		selectedColor:'white',
 		layout:[
-			{name : 'image', type:'image', left:0, top:0, width:30, height:40},
-			{name : 'title2', type:'text', fontSize:20, fontWeight:'bold', left:30, top:10, width:100},
-			{name : 'detailText', type:'text', fontSize:30, left:30, top:30, width:150, color:'#336699'}
+			{name : 'image', type:'image', left:0, top:10, width:32, height:32},
+			{name : 'title2', type:'text', fontSize:20, fontWeight:'bold', left:40, top:10, height: 30, right:20, backgroundColor : '#40FF0000'},
+			{name : 'detailText', type:'text', fontSize:10, left:50 , top:40, height:12, right: 20, color:'#336699', backgroundColor : '#40606060'}
 		]
 	};
 
@@ -24,18 +24,18 @@
 		{
 			selectedBackgroundColor:'red',
 			rowHeight:80,
-			image:'foo.png',
+			image:'images/icon-32x32.png',
 			title2:'My Title',
 			detailText:'My detail text'
 		 },
 		 {
 			selectedBackgroundImage:'bar.png',
-			image:'foo.png',
+			image:'images/icon-32x32.png',
 			title2:'My Title2',
 			detailText:'My detail text2',
 			layout:[
 				{name:'image', type:'image', left:0, top:0, width:30, height:40},
-				{name:'title2', type:'text', fontSize:30, fontWeight:'bold', left:30, top:10, width:100},
+				{name:'title2', type:'text', fontSize:30, fontWeight:'bold', left:30, top:10, width:200},
 				{name : 'detailText', type:'text', fontSize:13, left:30, top:80, width:150, color:'#336699'}
 		 	]
 		 },
@@ -44,11 +44,27 @@
 			 layout : null
 		 }
   	];
+
+  	for(var i = 0; i < 100; i++) {
+  	  	if (i % 2 == 0) {
+	  	  	data.push({
+	  	  	  	image : 'images/icon-32x32.png',
+	  	  	  	title2 : 'My Title ' + i,
+	  	  	  	detailText : 'Detail text ' + i
+	  	  	});
+  	  	} else {
+	  	  	data.push({
+	  	  	  	title2 : 'My Title ' + i,
+	  	  	  	detailText : 'Detail text ' + i
+	  	  	});
+  	  	}
+  	}
+
 	var tv1 = Titanium.UI.createTableView({
 		template : template,
 		data : data,
 		name : "p1",
-		rowHeight : '100',
+		rowHeight : '60',
 		fontSize :  '7pt'
  		},
  			function(e) {
