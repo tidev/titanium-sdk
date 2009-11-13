@@ -4,12 +4,11 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package org.appcelerator.titanium.module.ui;
+package org.appcelerator.titanium.module.ui.tableview;
 
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
-import org.appcelerator.titanium.util.TitaniumUIHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,36 +17,28 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
 import android.os.Message;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.ViewAnimator;
 
-public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callback
+public class TitaniumTableViewHtmlItem extends TitaniumBaseTableViewItem
 {
 	private static final String LCAT = "TitaniamTableViewItem";
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
-	private static final int MSG_SHOW_VIEW_1 = 300;
-
-	private Handler handler;
+	private static final int MSG_SHOW_WEBVIEW = 300;
 
 	private RowView rowView;
 
 	class RowView extends RelativeLayout
 	{
 		private ImageView iconView;
-		private TextView textView;
 		private ImageView hasChildView;
-		public boolean header;
 		private LocalWebView webView;
 
 		private Drawable hasMoreDrawable;
@@ -65,13 +56,8 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 			iconView.setFocusable(false);
 			iconView.setFocusableInTouchMode(false);
 
-			textView = new TextView(context);
-			textView.setId(101);
-			textView.setFocusable(false);
-			textView.setFocusableInTouchMode(false);
-
 			defaultBackground = getBackground();
-			defaultTextColor = textView.getCurrentTextColor();
+			defaultTextColor = Color.BLACK;
 
 			hasChildView = new ImageView(context);
 			hasChildView.setId(102);
@@ -97,129 +83,75 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 			params.addRule(RIGHT_OF, iconView.getId());
 			params.addRule(LEFT_OF, hasChildView.getId());
 			params.alignWithParent = true;
-			addView(textView, params);
-
-			params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-			params.addRule(CENTER_VERTICAL);
-			params.addRule(RIGHT_OF, iconView.getId());
-			params.addRule(LEFT_OF, hasChildView.getId());
-			params.alignWithParent = true;
 			addView(webView, params);
+
+			setPadding(0, 0, 0, 0);
+			setVerticalFadingEdgeEnabled(true);
 		}
 
-		public void setRowData(JSONObject data, int rowHeight, String fontSize, String fontWeight)
+		public void setRowData(TitaniumTableViewItemOptions defaults, JSONObject data)
 		{
 			TitaniumFileHelper tfh = new TitaniumFileHelper(getContext());
 
-			header = false;
-			handler.removeMessages(MSG_SHOW_VIEW_1);
+			int rowHeight = defaults.resolveIntOption("rowHeight", data);
+			if (data.has("rowHeight")) {
+				try {
+					rowHeight = data.getInt("rowHeight");
+				} catch (JSONException e) {
+					Log.w(LCAT, "Error getting rowHeight: " + e.getMessage());
+				}
+			}
+			setMinimumHeight(rowHeight);
 
-			boolean isDisplayHeader = false;
-			try {
-				isDisplayHeader = data.getBoolean("isDisplayHeader");
-			} catch (JSONException e) {
-				Log.e(LCAT, "Unable to get header flag", e);
+			if (data.has("image")) {
+				try {
+					String path = data.getString("image");
+					Drawable d = tfh.loadDrawable(path, false);
+					if (d != null) {
+						BitmapDrawable b = (BitmapDrawable) d;
+						if (b.getBitmap().getHeight() > rowHeight) {
+							d = new BitmapDrawable(Bitmap.createScaledBitmap(b.getBitmap(), rowHeight, rowHeight, true));
+						}
+						iconView.setImageDrawable(d);
+						iconView.setVisibility(View.VISIBLE);
+					}
+
+				} catch (JSONException e) {
+					Log.e(LCAT, "Error retrieving image", e);
+				}
+			} else {
+				iconView.setVisibility(View.GONE);
 			}
 
-			setPadding(0, 0, 0, 0);
-
-			if (isDisplayHeader) {
-				iconView.setVisibility(View.GONE);
-				textView.setVisibility(View.VISIBLE);
-				hasChildView.setVisibility(View.GONE);
-				webView.setVisibility(View.GONE);
-
-				 if(data.has("header")) {
-					header = true;
-					setMinimumHeight(18);
-					setVerticalFadingEdgeEnabled(false);
-					try {
-						TitaniumUIHelper.styleText(textView, "10dp", "normal");
-						textView.setBackgroundColor(Color.DKGRAY);
-						textView.setTextColor(Color.LTGRAY);
-						textView.setPadding(4, 2, 4, 2);
-						textView.setText(data.getString("header"), TextView.BufferType.NORMAL);
-					} catch (JSONException e) {
-						textView.setText(e.getMessage());
-						Log.e(LCAT, "Error retrieving header", e);
+			if (data.has("hasChild")) {
+				try {
+					if (data.getBoolean("hasChild")) {
+						if(hasMoreDrawable == null) {
+							hasMoreDrawable = new BitmapDrawable(getClass().getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));
+						}
+						if (hasMoreDrawable != null) {
+							hasChildView.setImageDrawable(hasMoreDrawable);
+						}
+						hasChildView.setVisibility(View.VISIBLE);
 					}
-				 }
+				} catch (JSONException e) {
+					Log.e(LCAT, "Error retrieving hasChild", e);
+				}
 			} else {
-				setVerticalFadingEdgeEnabled(true);
-				if (data.has("rowHeight")) {
-					try {
-						rowHeight = data.getInt("rowHeight");
-					} catch (JSONException e) {
-						Log.w(LCAT, "Error getting rowHeight: " + e.getMessage());
+				hasChildView.setVisibility(View.GONE);
+			}
+
+			if (data.has("html")) {
+				webView.setVisibility(View.INVISIBLE);
+				webView.setMinimumHeight(rowHeight);
+
+				try {
+					String html = data.getString("html");
+					if (html != null) {
+						webView.load(html, rowHeight);
 					}
-				}
-				setMinimumHeight(rowHeight);
-
-				if (data.has("image")) {
-					try {
-						String path = data.getString("image");
-						Drawable d = tfh.loadDrawable(path, false);
-						if (d != null) {
-							BitmapDrawable b = (BitmapDrawable) d;
-							if (b.getBitmap().getHeight() > rowHeight) {
-								d = new BitmapDrawable(Bitmap.createScaledBitmap(b.getBitmap(), rowHeight, rowHeight, true));
-							}
-							iconView.setImageDrawable(d);
-							iconView.setVisibility(View.VISIBLE);
-						}
-
-					} catch (JSONException e) {
-						Log.e(LCAT, "Error retrieving image", e);
-					}
-				} else {
-					iconView.setVisibility(View.GONE);
-				}
-
-				if (data.has("hasChild")) {
-					try {
-						if (data.getBoolean("hasChild")) {
-							if(hasMoreDrawable == null) {
-								hasMoreDrawable = new BitmapDrawable(getClass().getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));
-							}
-							if (hasMoreDrawable != null) {
-								hasChildView.setImageDrawable(hasMoreDrawable);
-							}
-							hasChildView.setVisibility(View.VISIBLE);
-						}
-					} catch (JSONException e) {
-						Log.e(LCAT, "Error retrieving hasChild", e);
-					}
-				} else {
-					hasChildView.setVisibility(View.GONE);
-				}
-
-				if (data.has("html")) {
-					webView.setVisibility(View.INVISIBLE);
-					textView.setVisibility(View.GONE);
-					webView.setMinimumHeight(rowHeight);
-
-					try {
-						String html = data.getString("html");
-						if (html != null) {
-							webView.load(html, rowHeight);
-						}
-					} catch (JSONException e) {
-						Log.e(LCAT, "Error retrieving html", e);
-					}
-				} else if (data.has("title")) {
-					webView.setVisibility(View.GONE);
-					textView.setPadding(4, 0, 4, 0);
-					textView.setVisibility(View.VISIBLE);
-					textView.setBackgroundDrawable(defaultBackground);
-		 			textView.setTextColor(defaultTextColor);
-
-					try {
-						textView.setText(data.getString("title"), TextView.BufferType.NORMAL);
-						TitaniumUIHelper.styleText(textView, data.optString("fontSize", fontSize), data.optString("fontWeight", fontWeight));
-					} catch (JSONException e) {
-						textView.setText(e.getMessage());
-						Log.e(LCAT, "Error retrieving title", e);
-					}
+				} catch (JSONException e) {
+					Log.e(LCAT, "Error retrieving html", e);
 				}
 			}
 
@@ -279,7 +211,7 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 				public void onPageFinished(WebView view, String url) {
 					super.onPageFinished(view, url);
 
-					handler.sendEmptyMessageDelayed(MSG_SHOW_VIEW_1, 10);
+					handler.sendEmptyMessageDelayed(MSG_SHOW_WEBVIEW, 10);
 				}
 
 			});
@@ -290,7 +222,6 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 			this.rowHeight = rowHeight;
 			StringBuilder sb = new StringBuilder();
 			sb.append(htmlPrefix).append(html).append(htmlPostfix);
-			//sb.append(html);
 			loadDataWithBaseURL("file:///android_asset/Resources/", sb.toString(), "text/html", "UTF-8", null);
 		}
 
@@ -317,48 +248,25 @@ public class TitaniumTableViewItem extends ViewAnimator implements Handler.Callb
 		}
 	}
 
-	public TitaniumTableViewItem(Context context)
+	public TitaniumTableViewHtmlItem(Context context)
 	{
 		super(context);
 
-		this.handler = new Handler(this);
 		rowView = new RowView(context);
 		this.addView(rowView, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
-		setDisplayedChild(0);
-
-		//Animation a = new AlphaAnimation(0.0f, 1.0f);
-		//a.setDuration(150);
-		//setInAnimation(a);
 	}
 
-	public void setRowData(JSONObject data, int rowHeight, String fontSize, String fontWeight) {
-		rowView.setRowData(data, rowHeight, fontSize, fontWeight);
+	public void setRowData(TitaniumTableViewItemOptions defaults, JSONObject template, JSONObject data) {
+		rowView.setRowData(defaults, data);
 	}
 
 	public boolean handleMessage(Message msg)
 	{
-		if (msg.what == MSG_SHOW_VIEW_1) {
+		if (!super.handleMessage(msg) && msg.what == MSG_SHOW_WEBVIEW) {
 			rowView.showWebView();
-			//requestLayout();
 			invalidate();
 			return true;
 		}
 		return false;
-	}
-
-	@Override
-	public boolean dispatchKeyEvent(KeyEvent event) {
-		Log.e(LCAT, "TTVI d1");
-		return super.dispatchKeyEvent(event);
-	}
-
-	@Override
-	public boolean dispatchKeyEventPreIme(KeyEvent event) {
-		Log.e(LCAT, "TTVI d2");
-		return super.dispatchKeyEventPreIme(event);
-	}
-
-	public boolean isHeader() {
-		return rowView.header;
 	}
 }

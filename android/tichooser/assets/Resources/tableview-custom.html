@@ -1,0 +1,96 @@
+<html>
+<head>
+  	<script>
+  	<!--
+
+  	var template = {
+		selectedBackgroundColor:'blue',
+		selectedBackgroundImage:'foo.png',
+		selectedColor:'white',
+		layout:[
+			{name : 'image', type:'image', left:0, top:0, width:30, height:40},
+			{name : 'title2', type:'text', fontSize:20, fontWeight:'bold', left:30, top:10, width:100},
+			{name : 'detailText', type:'text', fontSize:30, left:30, top:30, width:150, color:'#336699'}
+		]
+	};
+
+  	var data = [
+        {
+			header : 'Weird Data Below',
+			title : 'Hello',
+			rowHeight : 30,
+			layout : null
+        },
+		{
+			selectedBackgroundColor:'red',
+			rowHeight:80,
+			image:'foo.png',
+			title2:'My Title',
+			detailText:'My detail text'
+		 },
+		 {
+			selectedBackgroundImage:'bar.png',
+			image:'foo.png',
+			title2:'My Title2',
+			detailText:'My detail text2',
+			layout:[
+				{name:'image', type:'image', left:0, top:0, width:30, height:40},
+				{name:'title2', type:'text', fontSize:30, fontWeight:'bold', left:30, top:10, width:100},
+				{name : 'detailText', type:'text', fontSize:13, left:30, top:80, width:150, color:'#336699'}
+		 	]
+		 },
+		 {
+			 title : 'No Layout',
+			 layout : null
+		 }
+  	];
+	var tv1 = Titanium.UI.createTableView({
+		template : template,
+		data : data,
+		name : "p1",
+		rowHeight : '100',
+		fontSize :  '7pt'
+ 		},
+ 			function(e) {
+ 				// rowData, section, row, index, detail
+ 				var s = "index: " + e.index +
+ 				    " ibn: " + this.getIndexByName(e.name) +
+ 					" name: " + e.name +
+ 					" section: " + e.section +
+ 					" row: " + e.row +
+ 					" detail: " + e.detail + "\n" +
+ 					" rowData: " + Titanium.JSON.stringify(e.rowData)
+ 					;
+
+					var dlg = Titanium.UI.createAlertDialog({
+					title : 'Click',
+					message : s,
+					buttonNames : "OK",
+
+				});
+
+				var lid = dlg.addEventListener("click", function() {
+					dlg.removeEventListener("click", lid);
+				});
+				alert('LID: ' + lid);
+				dlg.show();
+  			}
+ 	);
+
+  	window.onload = function()
+  	{
+  	  	var w = Titanium.UI.currentWindow;
+  	  	w.addEventListener("focused", function(e) {
+			alert("TV FOCUSED: " /*+ e.type*/);
+			Titanium.Media.vibrate();
+			 });
+		w.addEventListener("unfocused", function(e) { alert("tableview.html UNFOCUSED: "/* + e.type*/);});
+
+  	  	w.addView(tv1);
+  	  	w.setActiveViewIndex(1);
+  	}
+  --></script>
+</head>
+<body style="background-color: white;">
+</body>
+</html>

@@ -6,17 +6,25 @@
  */
 package org.appcelerator.titanium.module.ui;
 
+import java.util.HashMap;
 import java.util.concurrent.Semaphore;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumTableView;
 import org.appcelerator.titanium.module.ui.tableview.TableViewModel;
+import org.appcelerator.titanium.module.ui.tableview.TitaniumBaseTableViewItem;
+import org.appcelerator.titanium.module.ui.tableview.TitaniumTableViewCustomItem;
+import org.appcelerator.titanium.module.ui.tableview.TitaniumTableViewHeaderItem;
+import org.appcelerator.titanium.module.ui.tableview.TitaniumTableViewHtmlItem;
+import org.appcelerator.titanium.module.ui.tableview.TitaniumTableViewItemOptions;
+import org.appcelerator.titanium.module.ui.tableview.TitaniumTableViewNormalItem;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumUIHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
@@ -34,6 +42,11 @@ public class TitaniumTableView extends TitaniumBaseView
 {
 	private static final String LCAT = "TitaniumTableView";
 
+	public static final int TYPE_HEADER = 0;
+	public static final int TYPE_NORMAL = 1;
+	public static final int TYPE_HTML = 2;
+	public static final int TYPE_CUSTOM = 3;
+
 	private static final int MSG_SETDATA = 302;
 	private static final int MSG_DELETEROW = 303;
 	private static final int MSG_UPDATEROW = 304;
@@ -41,14 +54,14 @@ public class TitaniumTableView extends TitaniumBaseView
 	private static final int MSG_INSERTAFTER = 306;
 	private static final int MSG_INDEXBYNAME = 307;
 	private static final int MSG_SCROLLTOINDEX = 308;
+	private static final int MSG_SET_TEMPLATE = 309;
 
-	private int rowHeight;
 	private String callback;
 	private TableViewModel viewModel;
 	private TTVListAdapter adapter;
 	private ListView view;
-	private String fontWeight;
-	private String fontSize;
+	private JSONObject rowTemplate;
+	private TitaniumTableViewItemOptions defaults;
 
 	private Runnable dataSetChanged = new Runnable() {
 
@@ -87,16 +100,55 @@ public class TitaniumTableView extends TitaniumBaseView
 			return 0;
 		}
 
+		@Override
+		public int getViewTypeCount() {
+			return 4;
+		}
+
+		@Override
+		public int getItemViewType(int position) {
+			JSONObject o = (JSONObject) getItem(position);
+			return typeForItem(o);
+		}
+
+		private int typeForItem(JSONObject o) {
+			if (o.optBoolean("isDisplayHeader", false)) {
+				return TYPE_HEADER;
+			} else if ((o.has("layout") && !o.isNull("layout")) || (rowTemplate != null && !o.has("layout"))) {
+				return TYPE_CUSTOM;
+			} else if (o.has("html")) {
+				return TYPE_HTML;
+			} else {
+				return TYPE_NORMAL;
+			}
+		}
+
 		public View getView(int position, View convertView, ViewGroup parent)
 		{
-			TitaniumTableViewItem v = null;
+			JSONObject o = (JSONObject) getItem(position);
+			TitaniumBaseTableViewItem v = null;
+
 			if (convertView != null) {
-				v = (TitaniumTableViewItem) convertView;
+				v = (TitaniumBaseTableViewItem) convertView;
 			} else {
-				v = new TitaniumTableViewItem(tmm.getAppContext());
+				Context ctx = tmm.getAppContext();
+				switch(typeForItem(o)) {
+				case TYPE_HEADER :
+					v = new TitaniumTableViewHeaderItem(ctx);
+					break;
+				case TYPE_NORMAL :
+					v = new TitaniumTableViewNormalItem(ctx);
+					break;
+				case TYPE_HTML :
+					v = new TitaniumTableViewHtmlItem(ctx);
+					break;
+				case TYPE_CUSTOM:
+					v = new TitaniumTableViewCustomItem(ctx);
+					break;
+				}
 			}
 
-			v.setRowData((JSONObject) getItem(position), rowHeight, fontSize, fontWeight);
+			v.setRowData(defaults, rowTemplate, o);
 			return v;
 		}
 
@@ -130,15 +182,19 @@ public class TitaniumTableView extends TitaniumBaseView
 	{
 		super(tmm, themeId);
 
-		this.rowHeight = 65;
+		this.defaults = new TitaniumTableViewItemOptions();
+		defaults.put("rowHeight", "65");
+		defaults.put("fontSize", TitaniumUIHelper.getDefaultFontSize(tmm.getActivity()));
+		defaults.put("fontWeight", TitaniumUIHelper.getDefaultFontWeight(tmm.getActivity()));
 		this.viewModel = new TableViewModel();
 		this.hasBeenOpened = false;
-		this.fontSize = TitaniumUIHelper.getDefaultFontSize(tmm.getActivity());
-		this.fontWeight = TitaniumUIHelper.getDefaultFontWeight(tmm.getActivity());
 	}
 
 	public void processLocalOptions(JSONObject o) throws JSONException
 	{
+		if (o.has("template")) {
+			setTemplate(o.getString("template"));
+		}
 		if (o.has("data")) {
 			setData(o.getString("data"));
 		}
@@ -151,6 +207,19 @@ public class TitaniumTableView extends TitaniumBaseView
 		if (o.has("fontWeight")) {
 			setFontWeight(o.getString("fontWeight"));
 		}
+	}
+
+	public void setTemplate(String template) {
+		try {
+			JSONObject t = new JSONObject(template);
+			handler.obtainMessage(MSG_SET_TEMPLATE, t).sendToTarget();
+		} catch (JSONException e) {
+			Log.e(LCAT, "Unable to load template: " + e.getMessage(), e);
+		}
+	}
+
+	public void doSetTemplate(JSONObject template) {
+		this.rowTemplate = template;
 	}
 
 	public void setData(String data) {
@@ -238,7 +307,7 @@ public class TitaniumTableView extends TitaniumBaseView
 	}
 
 	public void setRowHeight(String height) {
-		this.rowHeight = Integer.parseInt(height);
+		defaults.put("rowHeight", height);
 	}
 
 	public String getName() {
@@ -258,7 +327,7 @@ public class TitaniumTableView extends TitaniumBaseView
 		if (position < 0) {
 			return;
 		}
-		int localRowHeight = viewModel.getRowHeight(position, rowHeight);
+		int localRowHeight = viewModel.getRowHeight(position, Integer.parseInt(defaults.get("rowHeight")));
 		int offset = 0;
 
 		if (options != null) {
@@ -346,6 +415,9 @@ public class TitaniumTableView extends TitaniumBaseView
 				}
 				doScrollToIndex(msg.arg1, options);
 				return true;
+			case MSG_SET_TEMPLATE :
+				doSetTemplate((JSONObject) msg.obj);
+				return true;
 			}
 		}
 		return false;
@@ -376,7 +448,6 @@ public class TitaniumTableView extends TitaniumBaseView
 		view.setFocusable(true);
 		view.setFocusableInTouchMode(true);
 		view.setCacheColorHint(Color.TRANSPARENT);
-		//view.setDrawingCacheEnabled(true);
 		adapter = new TTVListAdapter(viewModel);
 		view.setAdapter(adapter);
 
@@ -423,11 +494,11 @@ public class TitaniumTableView extends TitaniumBaseView
 	}
 
 	public void setFontSize(String fontSize) {
-		this.fontSize = fontSize;
+		defaults.put("fontSize", fontSize);
 	}
 
 	public void setFontWeight(String fontWeight) {
-		this.fontWeight = fontWeight;
+		defaults.put("fontWeight", fontWeight);
 	}
 
 	public void close()
