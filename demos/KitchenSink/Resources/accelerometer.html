@@ -4,14 +4,11 @@
 
 </head>
 <body  style="font-family:'Helvetica Neue'">
-
 	<div>X: <span id="x"></span></div>
 	<div>Y: <span id="y"></span></div>
 	<div>Z: <span id="z"></span></div>
 	
 	<script>
-
-
 	Titanium.Accelerometer.addEventListener('update',function(e)
 	{
 	 	document.getElementById('x').innerHTML =  e.x;

@@ -38,21 +38,28 @@ BOOL UpdateFontDescriptionFromDict(NSDictionary * fontDict,TitaniumFontDescripti
 	}
 
 
-	NSString * isBoldObject = [fontDict objectForKey:@"fontWeight"];
-	if([isBoldObject isKindOfClass:[NSString class]]){
-		isBoldObject = [isBoldObject lowercaseString];
-		if([isBoldObject isEqualToString:@"bold"]){
-			didChange |= !(result->isBold);
-			result->isBold = YES;
-		} else if([isBoldObject isEqualToString:@"normal"]){
-			didChange |= (result->isBold);
-			result->isBold = NO;
+	NSString * fontWeightObject = [fontDict objectForKey:@"fontWeight"];
+	if([fontWeightObject isKindOfClass:[NSString class]]){
+		fontWeightObject = [fontWeightObject lowercaseString];
+		if([fontWeightObject isEqualToString:@"bold"]){
+			didChange |= !(result->isBoldWeight)||(result->isNormalWeight);
+			result->isBoldWeight = YES;
+			result->isNormalWeight = NO;
+		} else if([fontWeightObject isEqualToString:@"normal"]){
+			didChange |= (result->isBoldWeight)||!(result->isNormalWeight);
+			result->isBoldWeight = NO;
+			result->isNormalWeight = YES;
 		}
-	} else if((inheritance != NULL) && (isBoldObject == nil)) {
-		BOOL isBoldBool = inheritance->isBold;
-		if(result->isBold != isBoldBool){
+	} else if((inheritance != NULL) && (fontWeightObject == nil)) {
+		BOOL isBoldBool = inheritance->isBoldWeight;
+		if(result->isBoldWeight != isBoldBool){
 			didChange = YES;
-			result->isBold = isBoldBool;
+			result->isBoldWeight = isBoldBool;
+		}
+		BOOL isNormalBool = inheritance->isNormalWeight;
+		if(result->isNormalWeight != isNormalBool){
+			didChange = YES;
+			result->isNormalWeight = isNormalBool;
 		}
 	}
 
@@ -62,7 +69,7 @@ BOOL UpdateFontDescriptionFromDict(NSDictionary * fontDict,TitaniumFontDescripti
 UIFont * FontFromDescription(TitaniumFontDescription * inputDesc)
 {
 	UIFont * result;
-	if (inputDesc->isBold){
+	if (inputDesc->isBoldWeight){ //normalWeight is the default.
 		result = [UIFont boldSystemFontOfSize:inputDesc->size];
 	} else {
 		result = [UIFont systemFontOfSize:inputDesc->size];
