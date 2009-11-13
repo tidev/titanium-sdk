@@ -8,7 +8,14 @@
 		var mode = 'ADD';
 		var contactToUpdate = null;
 		
-		var detailTableView = Titanium.UI.createTableView({template:{fontSize:14}}, function(e)
+		var detailTemplate = {
+			layout:[
+				{type:'text', name:'title', fontSize:13, color:'grey', left:5},
+				{type:'text', name:'value', fontSize:15, color:'blue', left:130},
+				
+			]
+		}
+		var detailTableView = Titanium.UI.createTableView({template:detailTemplate}, function(e)
 		{
 			if (e.index==0)
 			{
@@ -27,36 +34,36 @@
 		function displayContact(c)
 		{
 			var data = [];
-			data.push({title:'Go Back'});
-			data.push({title:'firstName :' + ((c.firstName)?c.firstName:'not specified')});
-			data.push({title: 'lastName :' + ((c.lastName)?c.lastName:'not specified')});
-			data.push({title: 'middleName :' + ((c.middleName)?c.middleName:'not specified')});
-			data.push({title:'prefix :' + ((c.prefix)?c.prefix:'not specified')});
-			data.push({title: 'suffix :' + ((c.suffix)?c.suffix:'not specified')});
-			data.push({title: 'nickname :' + ((c.nickname)?c.nickname:'not specified')});
-			data.push({title: 'phoneticFirstName :' + ((c.phoneticFirstName)?c.phoneticFirstName:'not specified')});
-			data.push({title: 'phoneticLastName :' + ((c.phoneticLastName)?c.phoneticLastName:'not specified')});
-			data.push({title: 'phoneticMiddleName :' + ((c.phoneticMiddleName)?c.phoneticMiddleName:'not specified')});
-			data.push({title: 'organization :' + ((c.organization)?c.organization[0].value.company:'not specified')});
-			data.push({title: 'email :' + ((c.email[0])?c.email[0].value:'not specified')});			
-			data.push({title: 'birthday :' + ((c.birthday)?c.birthday:'not specified')});
-			data.push({title: 'note :' + ((c.note[0])?c.note[0].value:'not specified')});
-			data.push({title: 'creationDate :' + ((c.creationDate)?c.creationDate:'not specified')});
-			data.push({title: 'modificationDate :' 
+			data.push({title:'Go Back', layout:[{color:'blue',fontWeight:'bold',fontSize:20}]});
+			data.push({title:'firstName', value:((c.firstName)?c.firstName:'not specified')});
+			data.push({title: 'lastName', value:((c.lastName)?c.lastName:'not specified')});
+			data.push({title: 'middleName', value:((c.middleName)?c.middleName:'not specified')});
+			data.push({title:'prefix', value:((c.prefix)?c.prefix:'not specified')});
+			data.push({title: 'suffix', value:((c.suffix)?c.suffix:'not specified')});
+			data.push({title: 'nickname', value:((c.nickname)?c.nickname:'not specified')});
+			data.push({title: 'phoneticFirstName', value:((c.phoneticFirstName)?c.phoneticFirstName:'not specified')});
+			data.push({title: 'phoneticLastName', value:((c.phoneticLastName)?c.phoneticLastName:'not specified')});
+			data.push({title: 'phoneticMiddleName', value:((c.phoneticMiddleName)?c.phoneticMiddleName:'not specified')});
+			data.push({title: 'organization', value:((c.organization)?c.organization[0].value.company:'not specified')});
+			data.push({title: 'email', value:((c.email[0])?c.email[0].value:'not specified')});			
+			data.push({title: 'birthday', value:((c.birthday)?c.birthday:'not specified')});
+			data.push({title: 'note', value:((c.note[0])?c.note[0].value:'not specified')});
+			data.push({title: 'creationDate', value:((c.creationDate)?c.creationDate:'not specified')});
+			data.push({title: 'modificationDate', value: 
 			 		+ ((c.modificationDate)?c.modificationDate:'not specified')});
-			data.push({title: 'date :' + ((c.date)?c.date:'not specified')});
-			data.push({title: 'phone :' + ((c.phone[0])?c.phone[0].value:'not specified')});
-			data.push({title: 'instantMessenger :' + ((c.instantMessenger)?c.instantMessenger:'not specified')});
-			data.push({title: 'url :' + ((c.url)?c.url:'not specified')});
-			data.push({title: 'relatives :' + ((c.relatives)?c.relatives:'not specified')});
-			data.push({title: 'displayLabel :' + ((c.displayLabel)?c.displayLabel:'not specified')});
-			data.push({title: 'displayName :' + ((c.displayName)?c.displayName:'not specified')});
-			data.push({title: 'street1 :' + ((c.address[0])?c.address[0].value.street1:'not specified')});
-			data.push({title: 'city :' + ((c.address[0])?c.address[0].value.city:'not specified')});
-			data.push({title: 'region1 :' + ((c.address[0])?c.address[0].value.region1:'not specified')});
-			data.push({title: 'postalCode :' + ((c.address[0])?c.address[0].value.postalCode:'not specified')});
-			data.push({title: 'countryCode :' + ((c.address[0])?c.address[0].value.countryCode:'not specified')});
-			data.push({title: 'displayAddress :' + ((c.address[0])?c.address[0].value.displayAddress:'not specified')});
+			data.push({title: 'date', value:((c.date)?c.date:'not specified')});
+			data.push({title: 'phone', value:((c.phone[0])?c.phone[0].value:'not specified')});
+			data.push({title: 'instantMessenge', value:((c.instantMessenger)?c.instantMessenger:'not specified')});
+			data.push({title: 'url', value:((c.url)?c.url:'not specified')});
+			data.push({title: 'relatives', value:((c.relatives)?c.relatives:'not specified')});
+			data.push({title: 'displayLabel', value:((c.displayLabel)?c.displayLabel:'not specified')});
+			data.push({title: 'displayName', value:((c.displayName)?c.displayName:'not specified')});
+			data.push({title: 'street1', value:((c.address[0])?c.address[0].value.street1:'not specified')});
+			data.push({title: 'city', value:((c.address[0])?c.address[0].value.city:'not specified')});
+			data.push({title: 'region1', value:((c.address[0])?c.address[0].value.region1:'not specified')});
+			data.push({title: 'postalCode', value:((c.address[0])?c.address[0].value.postalCode:'not specified')});
+			data.push({title: 'countryCode', value:((c.address[0])?c.address[0].value.countryCode:'not specified')});
+			data.push({title: 'displayAddress', value:((c.address[0])?c.address[0].value.displayAddress:'not specified')});
 
 			// use c.imageData to get image for contact
 
