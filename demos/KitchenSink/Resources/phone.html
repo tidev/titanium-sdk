@@ -57,6 +57,7 @@
 	// data for tableview
 	// we are using custom background images to customize the row display
 	var data = [
+		{rowHeight:10},
 		{title:'Play Movie',backgroundImage:'images/tableview/off_1.png', 
 				selectedBackgroundImage:'images/tableview/on_1.png'},
 		{title:'Camera',backgroundImage:'images/tableview/off_2.png',
@@ -91,7 +92,6 @@
 		template:template,
 		backgroundColor:'transparent', 
 		borderColor:'transparent',
-		marginTop:10,
 		marginLeft:15,
 		marginRight:15,
 		data:data
@@ -102,12 +102,12 @@
 		var idx = eventObject.index;
 		switch(idx)
 		{
-			case 0:
+			case 1:
 			{
 				playMovie();
 				break;
 			}
-			case 1:
+			case 2:
 			{
 				var dialog = Titanium.UI.createOptionDialog();
 				
@@ -149,12 +149,12 @@
 
 				break;
 			}
-			case 2:
+			case 3:
 			{
 				Titanium.Media.vibrate();
 				break;
 			}
-			case 3:
+			case 4:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'orientation.html',
@@ -166,12 +166,12 @@
 				win.open({animated:true});
 				break;
 			}
-			case 4:
+			case 5:
 			{
 				openPhotoGallery();
 				break;
 			}
-			case 5:
+			case 6:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'geo.html',
@@ -182,7 +182,7 @@
 				win.open();
 				break;
 			}
-			case 6:
+			case 7:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'accelerometer.html',
@@ -193,7 +193,7 @@
 				win.open();
 				break;
 			}
-			case 7:
+			case 8:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'sound.html',
@@ -204,7 +204,7 @@
 				win.open();
 				break;
 			}
-			case 8:
+			case 9:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'shake.html',
@@ -215,7 +215,7 @@
 				win.open();
 				break;
 			}
-			case 9:
+			case 10:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'email.html',
@@ -226,18 +226,17 @@
 				win.open();
 				break;
 			}
-			case 10:
+			case 11:
 			{
 				savePhoto();
 				break;
 			}
-			case 11:
+			case 12:
 			{
 				var win = Titanium.UI.createWindow({
 					url:'contacts.html',
 					title:'Contacts', 
-					barColor:'#336699', 
-					backgroundColor:'#fff'			
+					barColor:'#336699'
 				});
 				win.open();
 				break;
