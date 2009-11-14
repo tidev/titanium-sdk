@@ -92,7 +92,11 @@
 			case 6:
 			{
 				Titanium.Analytics.featureEvent('views.html_table');
-				var win = Titanium.UI.createWindow({url:'custom_table_view.html',title:'Custom TableView'});
+				var win = Titanium.UI.createWindow({
+					url:'custom_table_view.html',
+					title:'Foobook',
+					barColor:'#385292'
+				});
 				win.open({animated:true});
 				break;
 			}

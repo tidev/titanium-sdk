@@ -6,51 +6,137 @@
 	// 2. use layout
 	// 3. override layout and template at row level
 	
+	
+	// add to DIV with ID = foo
+	var search = Titanium.UI.createSearchBar({barColor:'#385292', showCancel:true});
+	search.addEventListener('change', function(e)
+	{
+	   e.value // search string as user types
+	});
+	search.addEventListener('cancel', function(e)
+	{
+	   search.blur();
+	});
+	
 	var template = {
-	 selectedBackgroundColor:'#336699', 
+	 selectedBackgroundColor:'#fff', 
 	 rowHeight:100,
-	 backgroundColor:'#999',
 	 layout:[
-	   {type:'image', left:10, top:5, width:32, height:33, name:'image1'},
-	   {type:'text', fontSize:20, fontWeight:'bold', left:50, top:10, width:100, height:20, color:'black', name:'title1', selectedColor:'#fff'},
-	   {type:'text', fontSize:13, left:50, top:40, width:150, color:'#000',height:50, name:'detail_text', selectedColor:'white'},
+	   {type:'image', left:10, top:5, width:50, height:50, name:'photo'},
+	   {type:'text', fontSize:16, fontWeight:'bold', left:70, top:5, width:200, height:15, color:'#576996', name:'user'},
+	   {type:'text', fontSize:13, fontWeight:'normal', left:70, top:5, height:50,width:200,color:'#222', name:'comment'},
+	   {type:'image', right:5, top:35, width:36, height:34, name:'button'},
+	
 	]};
 
 	var data = [
-		{'image1':'images/tag.png', 'title1':'Title Text', 'detail_text':'This is my detail text',hasChild:true},
-		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text',hasDetail:true,
-			layout:[
-		   {type:'text',  left:80,  name:'title1', backgrounColor:'#777'},
-		]},
-		
+		{welcome:'Click different parts of the row', backgroundColor:'#d4d9e8', selectedBackgroundColor:'#385292', rowHeight:40,  layout:[{name:'welcome', type:'text', fontSize:14, fontWeight:'bold', left:60, top:0, color:'#385292',selectedColor:'#ffffff'}]},
+
+		{photo:'images/custom_tableview/user.png', user:'Fred Smith',comment:'I just went to the store', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Lucy Smith',comment:'I just hired a PI to follow Fred, then off to the store', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Don Corelone',comment:'Got some fresh fruit, conducted some business, took a nap', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Joe Bobby',comment:'Ate pizza.  Found a dollar.', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Don Corelone',comment:'Got some fresh fruit, conducted some business, took a nap', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Frankie',comment:'Trip over a cord, broke my neck.', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Lou Thompson',comment:'Singing in the rain.', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Gary Coleman',comment:'Whatchou talkin bout Willis?', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Willis',comment:'Hey Gary - shut your piehole.', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Fred Smith',comment:'I just went to the store', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Lucy Smith',comment:'I just hired a PI to follow Fred, then off to the store', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Don Corelone',comment:'Got some fresh fruit, conducted some business, took a nap', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Joe Bobby',comment:'Ate pizza.  Found a dollar.', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Don Corelone',comment:'Got some fresh fruit, conducted some business, took a nap', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Frankie',comment:'Trip over a cord, broke my neck.', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Lou Thompson',comment:'Singing in the rain.', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Gary Coleman',comment:'Whatchou talkin bout Willis?', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Willis',comment:'Hey Gary - shut your piehole.', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Fred Smith',comment:'I just went to the store', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Lucy Smith',comment:'I just hired a PI to follow Fred, then off to the store', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Don Corelone',comment:'Got some fresh fruit, conducted some business, took a nap', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Joe Bobby',comment:'Ate pizza.  Found a dollar.', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Don Corelone',comment:'Got some fresh fruit, conducted some business, took a nap', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Frankie',comment:'Trip over a cord, broke my neck.', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Lou Thompson',comment:'Singing in the rain.', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Gary Coleman',comment:'Whatchou talkin bout Willis?', button:'images/custom_tableview/commentButton.png'},
+		{photo:'images/custom_tableview/user.png', user:'Willis',comment:'Hey Gary - shut your piehole.', button:'images/custom_tableview/commentButton.png'},
 
 	];
+
+	var currentSelectedData = null;
+	var currentSelectedRow = null;
 	//
 	// create table view (
 	//
 	var tableView = Titanium.UI.createTableView({
 		template:template, 
 		data:data,
-		borderColor:'transparent'
+		search:search,
+		filterAttribute:'user'
 		}, 
 		function(eventObject)
 		{
+			// row data
 			var rowData = eventObject.rowData;
+
+			// section index
 			var section = eventObject.section;
+
+			// row index clicked within section
 			var row = eventObject.row;
+
+			// index of row clicked
 			var index = eventObject.index;
+
+			// was hasDetail button clicked
 			var detail = eventObject.detail;
 
-			Titanium.UI.createAlertDialog({message:(
-				'ROWDATA = ' + rowData +
-				', SECTION = ' + section +
-				', ROW = ' + row +
-				', INDEX = ' + index +
-				', NAME = ' + eventObject.layout +
-				', DETAIL = ' + detail
-			)}).show();
+			// layout object that was clicked
+			var name = eventObject.layoutName;
+
+			if (name && name != 'message')
+			{
+				// create new row layout 
+				var data = {
+						backgroundColor:'#385292', 
+						selectedBackgroundColor:'#385292',
+						message:'You clicked the '+name,
+						layout:[{
+							name:'message', 
+							type:'text', 
+							color:'#fff', 
+							fontWeight:'bold', 
+							fontSize:20,
+							top:40,
+							height:20,
+							left:50
+						}]
+					};
+					
+					// if we have an selected row, then reset
+					if (currentSelectedRow !=null)
+					{
+						tableView.updateRow(currentSelectedRow,currentSelectedData,{
+							animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT
+						});
+					}
+					
+					// update our row
+					tableView.updateRow(index,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});
+					currentSelectedData = rowData;
+					currentSelectedRow = index;
+
+			}
+			else if (name == 'message')
+			{
+				// if you clicked on the updated row, reset it back to its original value
+				tableView.updateRow(index,currentSelectedData,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});
+				currentSelectedRow = null;
+				currentSelectedData = null;
+			}
+
 		
-	});
+		}
+	);
 	
 	Titanium.UI.currentWindow.addView(tableView);
 	Titanium.UI.currentWindow.showView(tableView);
