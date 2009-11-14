@@ -109,7 +109,7 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 			TitaniumUIHelper.styleText(b, fontSize, fontWeight);
 
 			if (backgroundImage != null || backgroundSelectedImage != null || backgroundFocusedImage != null) {
-				TitaniumFileHelper tfh = new TitaniumFileHelper(context);
+/*				TitaniumFileHelper tfh = new TitaniumFileHelper(context);
 				StateListDrawable bd = new StateListDrawable();
 				if (backgroundFocusedImage != null) {
 					Drawable d = tfh.loadDrawable(backgroundFocusedImage, false, true);
@@ -135,6 +135,7 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 						bd.addState(stateSet, d);
 					}
 				}
+*/				StateListDrawable bd = TitaniumUIHelper.buildBackgroundDrawable(context, backgroundImage, backgroundSelectedImage, backgroundFocusedImage);
 				b.setBackgroundDrawable(bd);
 			}
 			control = b;

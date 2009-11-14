@@ -179,10 +179,11 @@ NSMutableDictionary * controlProxyClassRegistry = nil;
 @synthesize backgroundImagePath, backgroundDisabledImagePath, backgroundSelectedImagePath;
 @synthesize dateValue, minDate, maxDate, datePickerMode, minuteInterval;
 
-TitaniumFontDescription defaultControlFontDesc;
+TitaniumFontDescription* defaultControlFontDesc;
 
 + (void) initialize;
 {
+	defaultControlFontDesc = [[TitaniumFontDescription alloc] init];
 	defaultControlFontDesc.isBoldWeight=NO;
 	defaultControlFontDesc.size = [UIFont systemFontSize];
 }
@@ -202,6 +203,7 @@ TitaniumFontDescription defaultControlFontDesc;
 
 - (void) dealloc
 {
+	[fontDesc release];
 	[titleString release];
 	[iconPath release];
 	[barButton release];
@@ -229,6 +231,8 @@ needsLayout = YES;	\
 {
 	BOOL handleChange = NO;
 	NSString * changeEvent = nil;
+	
+	fontDesc = [[TitaniumFontDescription alloc]init];
 
 	Class stringClass = [NSString class];
 	Class dateClass = [NSDate class];
@@ -411,7 +415,7 @@ needsLayout = YES;	\
 
 //	if([nativeView isKindOfClass:[UIPickerView class]])[(UIPickerView *)nativeView reloadAllComponents];
 	
-	if(UpdateFontDescriptionFromDict(inputState, &fontDesc, &defaultControlFontDesc)){
+	if(UpdateFontDescriptionFromDict(inputState, fontDesc, defaultControlFontDesc)){
 		needsLayout = YES;
 	}
 	
@@ -447,8 +451,7 @@ needsLayout = YES;	\
 	}
 	
 	[labelView setText:messageString];
-//	[labelView setFont:[UIFont systemFontOfSize:newFrame.size.height-4]];
-	[labelView setFont:FontFromDescription(&fontDesc)];
+	[labelView setFont:[fontDesc font]];
 	[labelView setBackgroundColor:((bgColor != nil)?bgColor:[UIColor clearColor])];
 	[labelView setTextColor:((elementColor != nil)?elementColor:[UIColor whiteColor])];
 	
@@ -545,11 +548,11 @@ needsLayout = YES;	\
 			if (templateValue == UITitaniumNativeItemTextField){
 				if ([nativeView isKindOfClass:[UITextField class]]){
 					resultView = [nativeView retain];
-					[(UIControl *)resultView setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
 				} else {
 					resultView = [[UITextField alloc] initWithFrame:viewFrame];
 					[(UITextField *)resultView setDelegate:self];
 				}
+				[(UIControl *)resultView setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
 				[(UITextField *)resultView setPlaceholder:placeholderText];
 				[(UITextField *)resultView setBorderStyle:borderStyle];
 				[(UITextField *)resultView setClearsOnBeginEditing:clearsOnBeginEditing];
@@ -584,7 +587,7 @@ needsLayout = YES;	\
 			}
 			if (elementColor != nil) [(UITextField *)resultView setTextColor:elementColor];
 			[(UITextField *)resultView setText:stringValue];
-			[(UITextField *)resultView setFont:FontFromDescription(&fontDesc)];
+			[(UITextField *)resultView setFont:[fontDesc font]];
 			if([(UITextField *)resultView autocorrectionType] != autocorrectionType) [(UITextField *)resultView setAutocorrectionType:autocorrectionType];
 			if([(UITextField *)resultView autocapitalizationType] != autocapitalizationType) [(UITextField *)resultView setAutocapitalizationType:autocapitalizationType];
 			if([(UITextField *)resultView textAlignment] != textAlignment) [(UITextField *)resultView setTextAlignment:textAlignment];
@@ -801,7 +804,7 @@ needsLayout = YES;	\
 		if (elementSelectedColor != nil) [(UIButton *)resultView setTitleColor:elementSelectedColor forState:UIControlStateHighlighted];
 		else if(resultType == UIButtonTypeCustom)[(UIButton *)resultView setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
 		
-		[(id)resultView setFont:FontFromDescription(&fontDesc)];
+		[(id)resultView setFont:[fontDesc font]];
 		[resultView setBackgroundColor:elementBorderColor];
 	}
 	
@@ -833,13 +836,13 @@ needsLayout = YES;	\
 - (void) updateBarButton;
 {
 	isInBar = YES;
+	needsLayout = YES;
 	
 	UIBarButtonItem * result = nil;
 	UIBarButtonItemStyle barButtonStyle = ((buttonStyle<0)?UIBarButtonItemStylePlain:buttonStyle);
 	SEL onClickSel = @selector(onClick:);
 	
 	if (templateValue <= UITitaniumNativeItemSpinner){
-		[self updateView:NO];
 		UIView * ourWrapperView = [self barButtonView];
 		if ([barButton customView]==ourWrapperView) {
 			result = [barButton retain]; //Why waste a good bar button?
@@ -885,7 +888,7 @@ needsLayout = YES;	\
 		isInBar = YES;
 		[self updateView:NO];
 	}
-	return view;
+	return [self view];
 }
 
 - (UIView *) view;
@@ -941,34 +944,33 @@ needsLayout = YES;	\
 	NSString * commandString = [NSString stringWithFormat:@"Titanium.UI._BTN.%@.findDivPos()",token];
 	NSArray * valueArray = [[webView stringByEvaluatingJavaScriptFromString:commandString] componentsSeparatedByString:@","];
 	if([valueArray count]!=4)return;
-	BOOL changed=NO;
 	float value;
 	
 	value = [[valueArray objectAtIndex:0] floatValue];
 	if(value != frame.origin.x){
 		frame.origin.x = value;
-		changed = YES;
+		[self setNeedsLayout:YES];
 	}
 	
 	value = [[valueArray objectAtIndex:1] floatValue];
 	if(value != frame.origin.y){
 		frame.origin.y = value;
-		changed = YES;
+		[self setNeedsLayout:YES];
 	}
 	
 	value = [[valueArray objectAtIndex:2] floatValue];
 	if(value != frame.size.width){
 		frame.size.width = value;
-		changed = YES;
+		[self setNeedsLayout:YES];
 	}
 	
 	value = [[valueArray objectAtIndex:3] floatValue];
 	if(value != frame.size.height){
 		frame.size.height = value;
-		changed = YES;
+		[self setNeedsLayout:YES];
 	}
 	
-	if(changed)[self updateView:animated];
+	if([self needsLayout])[self updateView:animated];
 }
 
 #pragma mark Javascript calls
@@ -1097,6 +1099,21 @@ needsLayout = YES;	\
 
 #pragma mark Events sent to Javascript
 
+//- (void) sendJavascriptEvent: (NSString *) eventType arguments: (NSString *)argsString prefix:(NSString *)prefixString;
+//{
+//	NSMutableString result;
+//	if (prefixString) {
+//		result = [NSMutableString stringWithString:prefixString];
+//	} else {
+//		result = [NSMutableString string];
+//	}
+//
+//	[result append
+//	
+//	
+//}
+
+
 - (void) reportEvent: (NSString *) eventType value: (NSString *) newValue index: (int) index init:(NSString *)customInit arguments:(NSString *)extraArgs;
 {
 	NSString * initalizer;
@@ -1121,7 +1138,7 @@ needsLayout = YES;	\
 	
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	
-	[theHost sendJavascript:handleClickCommand toPageWithToken:parentPageToken];
+	[self sendJavascript:handleClickCommand];
 
 	// fire action to any module listeners
 	if ([theHost hasListeners]) [theHost fireListenerAction:@selector(eventNativeControlEvent:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(eventType),@"event",VAL_OR_NSNULL(newValue),@"value",VAL_OR_NSNULL(parentPageToken),@"pageToken",nil]];

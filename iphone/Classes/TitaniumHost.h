@@ -46,11 +46,16 @@ NSString * CleanJSEnd(NSString * inputString);
 	//Stringy ties to the outside world
 	NSString * token;
 	NSString * javaScriptPath;
+	NSMutableSet * listeningContexts;
 	NSString * parentPageToken;
 }
 @property(nonatomic,readwrite,retain)	NSString * token;
 @property(nonatomic,readwrite,retain)	NSString * javaScriptPath;
 @property(nonatomic,readwrite,retain)	NSString * parentPageToken;
+@property(nonatomic,readwrite,retain)	NSMutableSet * listeningContexts;
+
+- (BOOL) sendJavascript: (NSString *) commandString;
+
 @end
 
 extern NSLock * TitaniumHostContentViewLock;

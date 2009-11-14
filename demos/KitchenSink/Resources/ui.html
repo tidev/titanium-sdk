@@ -58,8 +58,8 @@
 		{title:'Custom Table View Data', hasChild:false},
 		{title:'Set Control Values', hasChild:false},
 		{title:'Modal Window (iPhone)', hasChild:false},
-		{title:'Picker', hasChild:false}
-		
+		{title:'Picker', hasChild:false},
+		{title:'Custom Table Views',hasChild:true}
 		
 	];
 	
@@ -549,6 +549,18 @@
 					url:'pickers.html',
 					title:'Pickers',
 					backgroundColor:'#fff' 
+				});
+				win.open({animated:true});		
+				break;
+			}
+			case 48:
+			{
+				var win = Titanium.UI.createWindow({
+					url:'tableview_woodgrain.html',
+					title:'Custom TableView',
+					backgroundColor:'#fff',
+					barImage:'images/woodgrainheader.png',
+					barColor:'brown'
 				});
 				win.open({animated:true});		
 				break;

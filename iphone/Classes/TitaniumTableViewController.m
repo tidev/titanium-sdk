@@ -20,7 +20,7 @@
 
 TitaniumCellWrapper * TitaniumCellWithData(NSDictionary * rowData, NSURL * baseUrl, TitaniumCellWrapper * templateCell)
 {
-	TitaniumFontDescription defaultFont;
+	TitaniumFontDescription * defaultFont = [[TitaniumFontDescription alloc] init];
 	defaultFont.isBoldWeight = YES;
 	defaultFont.size = 20;
 	
@@ -28,6 +28,8 @@ TitaniumCellWrapper * TitaniumCellWithData(NSDictionary * rowData, NSURL * baseU
 	[result setFontDesc:defaultFont];
 	[result setTemplateCell:templateCell];
 	[result useProperties:rowData withUrl:baseUrl];
+	
+	[defaultFont release];
 	return result;
 }
 
@@ -345,6 +347,12 @@ UIColor * checkmarkColor = nil;
 			[tableView setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
 			if(borderColor != nil)[tableView setSeparatorColor:borderColor];
 		}
+		
+		[searchField setFrame:CGRectMake(0, 0, startSize.size.width, tableRowHeight)];
+		UIView * searchView = [searchField view];
+		[searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+		[tableView setTableHeaderView:searchView];
+		
 		[wrapperView addSubview:tableView];
 	}
 	
@@ -429,6 +437,12 @@ UIColor * checkmarkColor = nil;
 
 	floatNumber = [inputState objectForKey:@"marginBottom"];
 	if([floatNumber respondsToSelector:floatSel])marginBottom=[floatNumber floatValue];
+	
+	id searchFieldObject = [inputState objectForKey:@"search"];
+	if(searchFieldObject!=nil){
+		[searchField autorelease];
+		searchField = [[NativeControlProxy controlProxyWithDictionary:searchFieldObject relativeToUrl:baseUrl] retain];
+	}
 	
 	
 	NSNumber * isGrouped = [inputState objectForKey:@"grouped"];
@@ -1300,6 +1314,45 @@ UIColor * checkmarkColor = nil;
 	[actionQueue release];
 	actionQueue = nil;
 	[actionLock unlock];
+}
+
+#pragma mark Search bar stuffs
+
+- (void)updateSearchResultIndexesForString:(NSString *) searchString;
+{
+	
+	
+	
+	
+	
+	
+}
+
+
+
+- (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar;                     // called when text starts editing
+{
+	
+}
+
+- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar;                       // called when text ends editing
+{
+	
+}
+
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText;   // called when text changes (including clear)
+{
+	
+}
+
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar;
+{
+	
+}
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar;
+{
+	
 }
 
 @end

@@ -192,7 +192,7 @@ typedef int UIEventSubtype;
 	BOOL result = NO;
 	for(TitaniumContentViewController * thisVC in contentViewControllers){
 		if([thisVC respondsToSelector:@selector(sendJavascript:)]){
-			result |= [(id)thisVC sendJavascript:inputString];
+			result |= [(TitaniumWebViewController *)thisVC sendJavascript:inputString];
 		}
 	}
 	return result;
