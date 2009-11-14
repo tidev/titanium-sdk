@@ -29,6 +29,7 @@ import org.json.JSONObject;
 
 import android.content.res.Configuration;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
@@ -239,6 +240,7 @@ public class TitaniumUserWindow extends ViewAnimator
 
 			case MSG_SET_BACKGROUNDCOLOR : {
 				tmm.getWebView().setBackgroundColor(msg.arg1);
+				tmm.getActivity().getWindow().setBackgroundDrawable(new ColorDrawable(msg.arg1));
 				return true;
 			}
 
@@ -249,7 +251,8 @@ public class TitaniumUserWindow extends ViewAnimator
 			    	Drawable backgroundDrawable = tfh.loadDrawable(backgroundImage, false); // Ok to not have background
 					if (backgroundDrawable != null) {
 						((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
-						tmm.getWebView().setBackgroundDrawable(backgroundDrawable);
+						//tmm.getWebView().setBackgroundDrawable(backgroundDrawable);
+						tmm.getActivity().getWindow().setBackgroundDrawable(backgroundDrawable);
 					}
 				}
 				return true;

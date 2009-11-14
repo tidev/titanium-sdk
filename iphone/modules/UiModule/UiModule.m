@@ -777,9 +777,7 @@ NSString * UrlEncodeString(NSString * string)
 	if ([ourVC respondsToSelector:@selector(sendJavascriptAndGetResult:)])
 	{
 		NSMutableDictionary *a = [NSMutableDictionary dictionaryWithObject:code forKey:@"code"];
-		NSLog(@"[INFO] before sned %@",a);
 		[ourVC performSelectorOnMainThread:@selector(sendJavascriptAndGetResult:) withObject:a waitUntilDone:YES];
-		NSLog(@"[INFO] result is %@",a);
 		return [a objectForKey:@"result"];
 	}
 	else

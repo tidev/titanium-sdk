@@ -16,7 +16,7 @@ public class TitaniumTableViewItemOptions extends HashMap<String, String>
 		super(initialCapacity);
 	}
 
-	String resolveOption(String key, JSONObject ... items) {
+	public String resolveOption(String key, JSONObject ... items) {
 
 		String value = get(key);
 
@@ -29,8 +29,13 @@ public class TitaniumTableViewItemOptions extends HashMap<String, String>
 		return value;
 	}
 
-	int resolveIntOption(String key, JSONObject ... items) {
+	public int resolveIntOption(String key, JSONObject ... items) {
 		String value = resolveOption(key, items);
+		return value == null ? -1 : Integer.parseInt(value);
+	}
+
+	public int getIntOption(String key) {
+		String value = get(key);
 		return value == null ? -1 : Integer.parseInt(value);
 	}
 }

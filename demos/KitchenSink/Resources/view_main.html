@@ -19,6 +19,7 @@
 		{title:'Custom Table View', hasChild:true},
 		{title:'Maps View (iPhone)', hasChild:true},
 		{title:'CoverFlow View (iPhone)', hasChild:true},
+		{title:'YQL + CoverFlow View (iPhone)', hasChild:true},
 		{title:'Custom Grouped View (iPhone)', hasChild:true},
 		
 		
@@ -36,6 +37,7 @@
 		{
 			case 0:
 			{
+				Titanium.Analytics.featureEvent('views.scroll');
 				var win = Titanium.UI.createWindow({
 					url:'scroll_views.html',
 					title:'Scroll Views',
@@ -46,12 +48,14 @@
 			}
 			case 1:
 			{
+				Titanium.Analytics.featureEvent('views.animation');
 				var win = Titanium.UI.createWindow({url:'views.html',title:'View Animations'});
 				win.open({animated:true});
 				break;
 			}
 			case 2:
 			{
+				Titanium.Analytics.featureEvent('views.image');
 				var win = Titanium.UI.createWindow({
 					url:'image_views.html',
 					title:'Image Views',
@@ -64,12 +68,14 @@
 			}
 			case 3:
 			{
+				Titanium.Analytics.featureEvent('views.composite.1');
 				var win = Titanium.UI.createWindow({url:'composite_views.html',title:'Composite Views'});
 				win.open({animated:true});
 				break;
 			}
 			case 4:
 			{
+				Titanium.Analytics.featureEvent('views.composite.2');
 				var win = Titanium.UI.createWindow({url:'composite_views2.html',title:'Composite Views'});
 				win.open({animated:true});
 				break;
@@ -77,6 +83,7 @@
 
 			case 5:
 			{
+				Titanium.Analytics.featureEvent('views.custom_events');
 				var win = Titanium.UI.createWindow({url:'custom_events.html',title:'Custom Events'});
 				win.open({animated:true});
 				break;
@@ -84,6 +91,7 @@
 
 			case 6:
 			{
+				Titanium.Analytics.featureEvent('views.html_table');
 				var win = Titanium.UI.createWindow({url:'custom_table_view.html',title:'Custom TableView'});
 				win.open({animated:true});
 				break;
@@ -91,19 +99,29 @@
 			
 			case 7:
 			{
+				Titanium.Analytics.featureEvent('views.maps');
 				var win = Titanium.UI.createWindow({url:'maps.html',title:'Maps View'});
 				win.open({animated:true});
 				break;
 			}
 			case 8:
 			{
+				Titanium.Analytics.featureEvent('views.coverflow');
 				var win = Titanium.UI.createWindow({url:'coverflow.html',title:'Cover Flow',barColor:'#000'});
 				win.open({animated:true});
 				break;
 			}
 			case 9:
 			{
-				var win = Titanium.UI.createWindow({url:'custom_grouped_view.html',title:'Custom Grouped View',barColor:'#340f00', backgroundImage:'images/chip.jpg'});
+				Titanium.Analytics.featureEvent('views.coverflow_yql');
+				var win = Titanium.UI.createWindow({url:'yql_coverflow.html',title:'YQL Cover Flow',barColor:'#000', backgroundImage:'images/flickr.png'});
+				win.open({animated:true});
+				break;
+			}
+			case 10:
+			{
+				Titanium.Analytics.featureEvent('views.custom_grouped_view');
+				var win = Titanium.UI.createWindow({url:'custom_grouped_view.html',title:'Custom Grouped View',barColor:'#340f00', backgroundColor:'#970F19'});
 				win.open({animated:true});
 				break;
 			}

@@ -25,7 +25,6 @@
 		}]
 	};
 
-	
 	// data for tableview
 	var data = [
 		{title:'Credits'},
@@ -41,7 +40,7 @@
 		{title:'Open URL (tel)'},
 		{title:'Open URL (sms)'}
 	];
-	
+
 	// tableview object
 	var tableView = Titanium.UI.createTableView({
 		template:template,
@@ -57,6 +56,7 @@
 		{
 			case 0:
 			{
+				Titanium.Analytics.featureEvent('platform.credits');
 				var win = Titanium.UI.createWindow({url:'credits.html',barColor:'#000000',backgroundColor:'#fff'});
 				win.open({modal:true});
 				var close = Titanium.UI.createButton({title:'Close'});
@@ -69,6 +69,7 @@
 			}
 			case 1:
 			{
+				Titanium.Analytics.featureEvent('platform.xhr');
 				var win = Titanium.UI.createWindow({url:'xhr.html',title:'XHR Request',backgroundColor:'#fff'});
 				win.open({animated:true});
 				break;
@@ -95,6 +96,7 @@
 					title:'Properties',
 					backgroundColor:'#fff'
 				});
+				Titanium.Analytics.featureEvent('platform.properties');
 				win.open({animated:true});
 				break;
 			}
@@ -105,6 +107,7 @@
 					title:'Database',
 					backgroundColor:'#fff'
 				});
+				Titanium.Analytics.featureEvent('platform.database');
 				win.open({animated:true});
 				break;
 			}
@@ -115,6 +118,7 @@
 					title:'Platform Data',
 					backgroundColor:'#fff'
 				});
+				Titanium.Analytics.featureEvent('platform.platform_data');
 				win.open({animated:true});
 				break;
 			}
@@ -125,6 +129,7 @@
 					title:'Filesystem',
 					backgroundColor:'#fff'
 				});
+				Titanium.Analytics.featureEvent('platform.filesystem');
 				win.open({animated:true});
 				break;
 			}
@@ -135,21 +140,25 @@
 					backgroundColor:'#fff',
 					title:'Appcelerator'
 				});
+				Titanium.Analytics.featureEvent('platform.external_urls');
 				win.open({animated:true});
 				break;
 			}
 			case 9:
 			{
+				Titanium.Analytics.featureEvent('platform.open_url.http');
 				Titanium.Platform.openURL('http://maps.google.com/?q=Cupertino');
 				break;
 			}
 			case 10:
 			{
+				Titanium.Analytics.featureEvent('platform.open_url.tel');
 				Titanium.Platform.openURL('tel:4043332222');
 				break;
 			}
 			case 11:
 			{
+				Titanium.Analytics.featureEvent('platform.open_url.sms');
 				Titanium.Platform.openURL('sms:4043334444/foo');
 				break;
 			}

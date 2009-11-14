@@ -8,15 +8,25 @@
 
 #import <UIKit/UIKit.h>
 
-typedef struct {
-	float	size;
-	BOOL	isBoldWeight;
-	BOOL	isNormalWeight;
-} TitaniumFontDescription;
+@interface TitaniumFontDescription : NSObject {
+	NSString* family;
+	float size;
+	BOOL isBoldWeight;
+	BOOL isNormalWeight;
+	UIFont *font;
+}
+@property(nonatomic,retain) NSString *family;
+@property(nonatomic) float size;
+@property(nonatomic) BOOL isBoldWeight;
+@property(nonatomic) BOOL isNormalWeight;
+
+-(UIFont*)font;
+
+@end
+
 
 BOOL UpdateFontDescriptionFromDict(NSDictionary * fontDict,TitaniumFontDescription * result,TitaniumFontDescription * inheritance);
 
-UIFont * FontFromDescription(TitaniumFontDescription * inputDesc);
 
 /*
 Okay, time to think about this, seriously. Making fonts aren't too too expensive, but at the same time, we should cache them, right?

@@ -26,7 +26,6 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 		"isPlaying:function(){return Ti._TICMD(this._PATH,'isPlaying',arguments);},"
 		"pause:function(){return Ti._TICMD(this._PATH,'pause',arguments);},"
 		"reset:function(){return Ti._TICMD(this._PATH,'reset',arguments);},"
-		"resume:function(){return Ti._TICMD(this._PATH,'resume',arguments);},"
 		"stop:function(){return Ti._TICMD(this._PATH,'stop',arguments);},"
 		"setLooping:function(){return Ti._TICMD(this._PATH,'setLooping',arguments);},"
 		"setVolume:function(){return Ti._TICMD(this._PATH,'setVolume',arguments);},"
@@ -106,7 +105,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 							   "type:'complete',success:%@})",
 							   token,(flag ? @"true" : @"false")];
 	
-	[[TitaniumHost sharedHost] sendJavascript:resultString toPageWithToken:parentPageToken];
+	[self sendJavascript:resultString];
 
 }
 
@@ -118,7 +117,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 							   "type:'error',success:false,message:%@})",
 							   token,[error localizedDescription]];
 	
-	[[TitaniumHost sharedHost] sendJavascript:resultString toPageWithToken:parentPageToken];
+	[self sendJavascript:resultString];
 }
 
 - (void)audioPlayerBeginInterruption:(AVAudioPlayer *)player;
@@ -146,12 +145,8 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 - (id) runFunctionNamed: (NSString *) functionName withObject: (id) objectValue error: (NSError **) error;
 {
 	if ([functionName isEqualToString:@"play"]){ //Resume is mapped to play.
-		[[self nativePlayer] setCurrentTime:0];
 		[nativePlayer play];
 		if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerPlay:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL([self nativePlayer]),@"player",nil]];
-	} else if ([functionName isEqualToString:@"resume"]) {
-		[[self nativePlayer] play];
-		if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerResume:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL([self nativePlayer]),@"player",nil]];
 	} else if ([functionName isEqualToString:@"pause"]) {
 		[nativePlayer pause];
 		if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerPause:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL([self nativePlayer]),@"player",nil]];
@@ -273,7 +268,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 {
 	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventMoviePlayerFinished:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(userInfo),@"userInfo",nil]];
 	NSString * commandString = [[NSString alloc] initWithFormat:@"Ti.Media._MEDIA.%@.doEvent('complete',{type:'complete'})",token];
-	[[TitaniumHost sharedHost] sendJavascript:commandString toPageWithToken:parentPageToken];
+	[self sendJavascript:commandString];
 	[commandString release];
 }
 

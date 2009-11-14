@@ -252,7 +252,7 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 	// since the callback usually calls back on readyState to get the state which calls back into this (and it's 
 	// not efficient either anyway). this is faster and safer.
 	NSString *jscode = [NSString stringWithFormat:@"._changestate(%d)",readyState];
-	[[TitaniumHost sharedHost] sendJavascript:[javaScriptPath stringByAppendingString:jscode] toPageWithToken:parentPageToken];
+	[self sendJavascript:[javaScriptPath stringByAppendingString:jscode]];
 }
 
 - (void) runSend;
@@ -455,7 +455,7 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 {
 	[self setConnected:NO];
 	[self setReadyState:clientStateDone];
-	[[TitaniumHost sharedHost] sendJavascript:[javaScriptPath stringByAppendingString:@".ondatastream()"] toPageWithToken:parentPageToken];
+	[self sendJavascript:[javaScriptPath stringByAppendingString:@".ondatastream()"]];
 	[[TitaniumHost sharedHost] decrementActivityIndicator];
 }
 

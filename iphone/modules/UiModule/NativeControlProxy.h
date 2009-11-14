@@ -34,7 +34,7 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 //These need to go into appropriate subclasses.	
 	NSString * titleString;
 	NSString * messageString;
-	TitaniumFontDescription fontDesc;
+	TitaniumFontDescription *fontDesc;
 
 	NSString * iconPath;
 	int templateValue;

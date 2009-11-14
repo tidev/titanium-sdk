@@ -14,7 +14,7 @@
 		btn1.style = Ti.UI.iPhone.SystemButtonStyle.BORDERED;
 		btn1.width = 50;
 //		btn1.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'green'});newWindow.open();})
-		btn1.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'rgba(0,255,0,1.0)',backButtonTitle:'green'});newWindow.open();})
+		btn1.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'rgba(0,255,0,1.0)',backButtonTitle:'green',barImage:'woodgrain.png'});newWindow.open();})
 //		Ti.UI.currentWindow.setRightNavButton(btn1);
 		var btn2 = Ti.UI.createButton({systemButton:'play'});
 		var btn3 = Ti.UI.createButton({systemButton:'pause'});
@@ -157,8 +157,9 @@ try{
 	 selectedBackgroundImage:'table_view_bg.png', 
 	 selectedColor:'white',
 	 color:'brown',
+	rowHeight:80,
 	 layout:[
-	   {type:'text', left:50,  name:'title', fontWeight:'bold'}
+	   {type:'text', left:50, color:'#336699', name:'title', fontWeight:'bold', fontFamily:'Marker Felt'}
 	]};
 	// data for tableview
 	var data = [
@@ -233,7 +234,7 @@ try{
 //
 //
 //	];
-	tableView = Titanium.UI.createTableView({marginLeft:20,marginRight:10,data:data,rowHeight:80,
+	tableView = Titanium.UI.createTableView({search:Ti.UI.createSearchBar({barColor:'#990000'}),data:data,
 			template:template
 //			{title:'Button?',backgroundColor:'#FFFF00',layout:[{top:5,bottom:5,left:45,name:'title',type:'text',fontSize:'10px'},{type:'image',name:'image',top:0,height:40,left:5,width:40}]}
 			}, function(eventObject) {
@@ -383,7 +384,9 @@ try{
 		Ti.UI.currentWindow.setRightNavButton(btn8);
 		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5,btn7]);
 //		Ti.UI.currentWindow.setToolbar([btn1,btn2,multiBtn2]);
-		Ti.UI.currentWindow.setTitleControl(multiBtn);
+//		Ti.UI.currentWindow.setTitleControl(multiBtn);
+
+//		Ti.UI.currentWindow.setTitleControl(Ti.UI.createSearchBar());
 		
 		Titanium.Gesture.addEventListener('shake',function(){
 			var alerty = Titanium.UI.createAlertDialog();
