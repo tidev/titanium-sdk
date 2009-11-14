@@ -6,20 +6,24 @@
 	{
 		// helper variable used to control update/create mode for contacts
 		var mode = 'ADD';
+
+		// helper variable to store contact to update
 		var contactToUpdate = null;
 		
+		// template for table view that shows contact detail
 		var detailTemplate = {
 			layout:[
 				{type:'text', name:'title', fontSize:13, color:'grey', left:5},
-				{type:'text', name:'value', fontSize:15, color:'blue', left:130},
+				{type:'text', name:'value', fontSize:15, color:'blue', left:140},
 				
 			]
 		}
+		// table view for contact detail
 		var detailTableView = Titanium.UI.createTableView({template:detailTemplate}, function(e)
 		{
 			if (e.index==0)
 			{
-				Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViews()[0],{
+				Titanium.UI.currentWindow.showView(mainView,{
 					animated:true,
 					animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 					animationDuration:1000
@@ -29,7 +33,7 @@
 		});
 		
 		// 
-		// display a selected contact
+		// set table view data for a selected contact and show table view
 		//
 		function displayContact(c)
 		{
@@ -90,179 +94,146 @@
 			tableView.setData(data);
 		};
 		
-		//
-		//  button for showing contact picker 1
-		//
-		var button1 = Titanium.UI.createButton({
-			id:'button1',
-			backgroundImage:'images/BUTT_drk_off.png',
-			backgroundSelectedImage:'images/BUTT_drk_on.png',
-			backgroundFocusedImage:'images/BUTT_drk_on.png',
-			title:'Contact Picker',
-			color:'#ffffff',
-			height:57,
-			fontSize:18,
-			fontWeight:'bold'
-		});
-		button1.addEventListener('click',function(e)
-		{
-			Titanium.Contacts.showContactPicker({
-			
-			   	success:function(e)
-			   	{
-					displayContact(e.contact);
-			   	},
-			   	cancel:function()
-			   	{
-			   	},
-			   	details:['firstName','lastName','phone','email', 'organization']
-			});
-		});
+		// main table view template
+		var mainTemplate = {
+		 	layout:[
+		   		{type:'text', left:50,  name:'title', fontSize:18, fontWeight:'bold', color:'darkbrown'}
+		]};
 
-		//
-		// button for showing contact picker 2
-		//
-		var button2 = Titanium.UI.createButton({
-			id:'button2',
-			backgroundImage:'images/BUTT_drk_off.png',
-			backgroundSelectedImage:'images/BUTT_drk_on.png',
-			backgroundFocusedImage:'images/BUTT_drk_on.png',
-			title:'Contact Picker (no detail)',
-			color:'#ffffff',
-			height:57,
-			fontSize:18,
-			fontWeight:'bold'
-		});
-		button2.addEventListener('click',function(e)
-		{
-			Titanium.Contacts.showContactPicker({
-			
-			   	success:function(e)
-			   	{
-					displayContact(e.contact);
-			   	},
-			   	cancel:function()
-			   	{
-			   	}
-			});
-		
-		});
+		// main table view data
+		var mainData = [
 
-		//
-		// button for adding new contact
-		//
-		var button3 = Titanium.UI.createButton({
-			id:'button3',
-			backgroundImage:'images/BUTT_grn_off.png',
-			backgroundSelectedImage:'images/BUTT_grn_on.png',
-			backgroundFocusedImage:'images/BUTT_grn_on.png',
-			title:'Add Contact',
-			color:'#ffffff',
-			height:57,
-			fontSize:18,
-			fontWeight:'bold'
-		});
-		button3.addEventListener('click',function(e)
-		{
-			Titanium.UI.currentWindow.showView(groupedView,{
-				animated:true,
-				animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
-				animationDuration:1000
-			});
-			mode = 'ADD'
-		});
+			{rowHeight:10},	// create an empty row to give it space up top..
 
-		//
-		// button for viewing all contacts
-		//
-		var button4 = Titanium.UI.createButton({
-			id:'button4',
-			backgroundImage:'images/BUTT_grn_off.png',
-			backgroundSelectedImage:'images/BUTT_grn_on.png',
-			backgroundFocusedImage:'images/BUTT_grn_on.png',
-			title:'View Contacts',
-			color:'#ffffff',
-			height:57,
-			fontSize:18,
-			fontWeight:'bold'
-		});
-		button4.addEventListener('click',function(e)
-		{
-			reloadContacts();
-			Titanium.UI.currentWindow.showView(tableView,{
-				animated:true,
-				animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
-				animationDuration:1000
-			});
-		});
-		//
-		// button for viewing all contacts
-		//
-		var button5 = Titanium.UI.createButton({
-			id:'button5',
-			backgroundImage:'images/BUTT_red_off.png',
-			backgroundSelectedImage:'images/BUTT_red_on.png',
-			backgroundFocusedImage:'images/BUTT_red_on.png',
-			title:'Remove Contact',
-			color:'#ffffff',
-			height:57,
-			fontSize:18,
-			fontWeight:'bold'
-		});
-		button5.addEventListener('click',function(e)
-		{
-			Titanium.Contacts.showContactPicker({
-			
-			   	success:function(e)
-			   	{
-					Titanium.Contacts.removeContact(e.contact);
-					Titanium.UI.createAlertDialog({title:'Contacts',message:'Contact removed.'}).show();
-			   	},
-			   	cancel:function()
-			   	{
-			   	}
-			});
-		});
+			{title:'Show Picker',backgroundImage:'images/tableview/off_1.png', 
+					selectedBackgroundImage:'images/tableview/on_1.png'},
 
-		//
-		// button for updating  contact
-		//
-		var button6 = Titanium.UI.createButton({
-			id:'button6',
-			backgroundImage:'images/BUTT_grn_off.png',
-			backgroundSelectedImage:'images/BUTT_grn_on.png',
-			backgroundFocusedImage:'images/BUTT_grn_on.png',
-			title:'Update Contact',
-			color:'#ffffff',
-			height:57,
-			fontSize:18,
-			fontWeight:'bold'
-		});
-		button6.addEventListener('click',function(e)
+			{title:'Show Picker (no detail)',backgroundImage:'images/tableview/off_2.png',
+					selectedBackgroundImage:'images/tableview/on_2.png'},
+
+			{title:'Add Contact',backgroundImage:'images/tableview/off_3.png',
+					selectedBackgroundImage:'images/tableview/on_3.png'},
+
+			{title:'View Contact',backgroundImage:'images/tableview/off_4.png',
+				selectedBackgroundImage:'images/tableview/on_4.png'},
+
+			{title:'Remove Contact',backgroundImage:'images/tableview/off_1.png',
+					selectedBackgroundImage:'images/tableview/on_1.png'},
+
+			{title:'Update Contact',backgroundImage:'images/tableview/off_2.png',
+					selectedBackgroundImage:'images/tableview/on_2.png'},
+
+		];
+
+		// main table view
+		var mainView = Titanium.UI.createTableView({
+			template:mainTemplate,
+			backgroundColor:'transparent', 
+			borderColor:'transparent',
+			marginLeft:15,
+			marginRight:15,
+			data:mainData
+
+		}, function(e)
 		{
-			Titanium.Contacts.showContactPicker({
-			
-			   	success:function(e)
-			   	{
-					contactToUpdate = e.contact;
+			switch(e.index)
+			{
+				case 1:
+				{
+					// show contact picker (with detail view)
+					Titanium.Contacts.showContactPicker({
+
+					   	success:function(e)
+					   	{
+							displayContact(e.contact);
+					   	},
+					   	cancel:function()
+					   	{
+					   	},
+					   	details:['firstName','lastName','phone','email', 'organization']
+					});
+					break;
+				}
+				case 2:
+				{
+					// show contact picker normal
+					Titanium.Contacts.showContactPicker({
+
+					   	success:function(e)
+					   	{
+							displayContact(e.contact);
+					   	},
+					   	cancel:function()
+					   	{
+					   	}
+					});
+					break;
+				}
+				case 3:
+				{
+					// show add contact view
 					Titanium.UI.currentWindow.showView(groupedView,{
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
 					});
-					mode = 'UPDATE'
-					firstName.setValue(e.contact.firstName);
-					lastName.setValue(e.contact.lastName);
-					email.setValue(e.contact.email[0].value);
-					
-			   	},
-			   	cancel:function()
-			   	{
-			   	}
-			});
+					mode = 'ADD'
+					break;
+				}
+				case 4:
+				{
+					// show view contacts view
+					reloadContacts();
+					Titanium.UI.currentWindow.showView(tableView,{
+						animated:true,
+						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationDuration:1000
+					});
+					break;
+				}
+				case 5:
+				{
+					// remove a contact when selected
+					Titanium.Contacts.showContactPicker({
+					   	success:function(e)
+					   	{
+							Titanium.Contacts.removeContact(e.contact);
+							Titanium.UI.createAlertDialog({title:'Contacts',message:'Contact removed.'}).show();
+					   	},
+					   	cancel:function()
+					   	{
+					   	}
+					});
+					break;
+				}
+				case 6:
+				{
+					// update a contact
+					Titanium.Contacts.showContactPicker({
+					   	success:function(e)
+					   	{
+							contactToUpdate = e.contact;
+							Titanium.UI.currentWindow.showView(groupedView,{
+								animated:true,
+								animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+								animationDuration:1000
+							});
+							mode = 'UPDATE'
+							firstName.setValue(e.contact.firstName);
+							lastName.setValue(e.contact.lastName);
+							email.setValue(e.contact.email[0].value);
 
+					   	},
+					   	cancel:function()
+					   	{
+					   	}
+					});
+					break;
+				}
+			}
 		});
-	
+
+
 		//
 		//  Create Table View to show contacts
 		//
@@ -272,7 +243,7 @@
 		{
 			if (e.index ==0)
 			{
-				Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViews()[0],{
+				Titanium.UI.currentWindow.showView(mainView,{
 					animated:true,
 					animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 					animationDuration:1000
@@ -281,48 +252,60 @@
 			}
 		});
 		
-		// create grouped view for adding contacts
+		//
+		// create grouped view for adding/updating contacts
+		//
+		
+		// firstname
 		var firstName = Titanium.UI.createTextField({width:100,hintText:'first name'});
 		firstName.addEventListener('return',function(e)
 		{
 			lastName.focus();
 		});
+		// lastname
 		var lastName = Titanium.UI.createTextField({width:100,hintText:'first name'});
 		lastName.addEventListener('return',function(e)
 		{
 			email.focus();
 		});
+		// email
 		var email = Titanium.UI.createTextField({width:100,hintText:'first name'});
 		email.addEventListener('return',function(e)
 		{
 			email.blur();
 		});
 
+		// data for input grouped section
 		var inputData = [
 			{title:'First Name', input:firstName, fontSize:16},
 			{title:'Last Name', input:lastName,fontSize:16},
 			{title:'Email', input:email,fontSize:16}
 		];
 
+		// input grouped section
 		var inputSection = Titanium.UI.iPhone.createGroupedSection({
 			header:'Manage Contact',
 			type:'input',
 			data:inputData
 		});
 		
+		// data for button section
 		var buttonData = [
 			{title:'Save Contact'},
 			{title:'Go Back'}
 		];
+		// button grouped section
 		var buttonSection = Titanium.UI.iPhone.createGroupedSection({
 			type:'button',
-			data:buttonData
+			data:buttonData,
+			fontSize:14
 		});
 		buttonSection.addEventListener('click', function(e)
 		{
 			if (e.row==1)
 			{
-				Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViews()[0],{
+				// go back to main view
+				Titanium.UI.currentWindow.showView(mainView,{
 					animated:true,
 					animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 					animationDuration:1000
@@ -330,6 +313,7 @@
 			}
 			else
 			{
+				// update or create contact
 				if (mode == 'UPDATE')
 				{
 					// update contact
@@ -339,7 +323,7 @@
 					Titanium.Contacts.saveContact(contactToUpdate);
 
 					// show main view
-					Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViews()[0],{
+					Titanium.UI.currentWindow.showView(mainView,{
 						animated:true,
 						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 						animationDuration:1000
@@ -362,6 +346,8 @@
 				
 			}
 		});
+		
+		// create grouped view
 		var groupedView = Titanium.UI.iPhone.createGroupedView();
 		groupedView.addSection(inputSection);
 		groupedView.addSection(buttonSection);
@@ -371,6 +357,10 @@
 		Titanium.UI.currentWindow.addView(groupedView);
 		Titanium.UI.currentWindow.addView(tableView);
 		Titanium.UI.currentWindow.addView(detailTableView);
+		Titanium.UI.currentWindow.addView(mainView);
+
+		Titanium.UI.currentWindow.showView(mainView);
+
 
 	};
 	
@@ -378,10 +368,5 @@
 	</script>
 </head>
 <body  style="font-family:'Helvetica Neue'">
-	<div id="button1" style="height:60px"></div>
-	<div id="button2" style="height:60px"></div>
-	<div id="button3" style="height:60px"></div>
-	<div id="button4" style="height:60px"></div>
-	<div id="button6" style="height:60px"></div>
-	<div id="button5" style="height:60px"></div>
 </body>
+</html>

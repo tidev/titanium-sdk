@@ -247,17 +247,19 @@
 			}
 			case 12:
 			{
-				var win = Titanium.UI.createWindow({
-					url:'contacts.html',
-					title:'Contacts', 
-					barColor:'#382E1C'
-				});
-				win.open();
+				contactsWin.open();
 				break;
 			}
 		}
 
 	});
+	var contactsWin = Titanium.UI.createWindow({
+		url:'contacts.html',
+		title:'Contacts', 
+		barColor:'#382E1C',
+		preload:true,
+	});
+
 	Titanium.UI.currentWindow.addView(tableView);
 	Titanium.UI.currentWindow.showView(tableView);
 

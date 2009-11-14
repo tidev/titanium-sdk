@@ -6,7 +6,8 @@
 	
 	Titanium.UI.addEventListener('tabchange',function(e)
 	{
-		Titanium.API.info('>>>>>>>>>>>>>>>>>>>>>>>>>> TABCHANGE index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
+		Titanium.API.info('TABCHANGE index ' + e.index  + ' name ' 
+			+ e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
 	});
 	
 	// create table view template
@@ -28,37 +29,16 @@
 	// data for tableview
 	var data = [
 		{title:'Credits'},
-		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
 		{title:'XHR Request'},
-		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
-
 		{title:'Logging'},
-		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
-
 		{title:'Application Data'},
-		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
-
 		{title:'Properties'},
-		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
-
 		{title:'Database'},
-		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
-
 		{title:'Platform Data'},
-		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
-
 		{title:'Filesystem'},
-		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
-
 		{title:'External URLs'},
-		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
-
 		{title:'Open URL (http)'},
-		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
-
 		{title:'Open URL (tel)'},
-		{rowHeight:4, backgroundImage:null,backgroundSelectedImage:null},
-
 		{title:'Open URL (sms)'}
 	];
 	
@@ -95,53 +75,66 @@
 			}
 			case 2:
 			{
-				Titanium.API.log('ERROR','>>>>>>>>>>>>>>>>>>>>>>>>>>> ERROR MESSAGE');
-				Titanium.API.debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>DEBUG MESSAGE');
-				Titanium.API.error('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>ERROR MESSAGE');
-				Titanium.API.warn('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WARN MESSAGE');
-				Titanium.API.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>INFO MESSAGE');
-				Titanium.API.trace('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>TRACE MESSAGE');
-				Titanium.API.notice('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>NOTICE MESSAGE');
-				Titanium.API.critical('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>CRITICAL MESSAGE');
-				Titanium.API.fatal('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FATAL MESSAGE');
-				alert('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>ALERT LOG');
-
 				functionLogging();
 				break;
 			}
 			case 3:
 			{
-				var win = Titanium.UI.createWindow({url:'application_data.html',title:'Application Data',backgroundColor:'#fff'});
+				var win = Titanium.UI.createWindow({
+					url:'application_data.html',
+					title:'Application Data',
+					backgroundColor:'#fff'
+				});
 				win.open({animated:true});
 				break;
 			}
 			case 4:
 			{
-				var win = Titanium.UI.createWindow({url:'properties.html',title:'Properties',backgroundColor:'#fff'});
+				var win = Titanium.UI.createWindow({
+					url:'properties.html',
+					title:'Properties',
+					backgroundColor:'#fff'
+				});
 				win.open({animated:true});
 				break;
 			}
 			case 5:
 			{
-				var win = Titanium.UI.createWindow({url:'database.html',title:'Database',backgroundColor:'#fff'});
+				var win = Titanium.UI.createWindow({
+					url:'database.html',
+					title:'Database',
+					backgroundColor:'#fff'
+				});
 				win.open({animated:true});
 				break;
 			}
 			case 6:
 			{
-				var win = Titanium.UI.createWindow({url:'platform_data.html',title:'Platform Data',backgroundColor:'#fff'});
+				var win = Titanium.UI.createWindow({
+					url:'platform_data.html',
+					title:'Platform Data',
+					backgroundColor:'#fff'
+				});
 				win.open({animated:true});
 				break;
 			}
 			case 7:
 			{
-				var win = Titanium.UI.createWindow({url:'filesystem.html',title:'Filesystem',backgroundColor:'#fff'});
+				var win = Titanium.UI.createWindow({
+					url:'filesystem.html',
+					title:'Filesystem',
+					backgroundColor:'#fff'
+				});
 				win.open({animated:true});
 				break;
 			}
 			case 8:
 			{
-				var win = Titanium.UI.createWindow({url:'http://www.appcelerator.com',backgroundColor:'#fff',title:'Appcelerator'});
+				var win = Titanium.UI.createWindow({
+					url:'http://www.appcelerator.com',
+					backgroundColor:'#fff',
+					title:'Appcelerator'
+				});
 				win.open({animated:true});
 				break;
 			}
@@ -168,16 +161,16 @@
 	
 	function functionLogging()
 	{
-		Titanium.API.log('ERROR','>>>>>>>>>>>>>>>>>>>>>>>>>>> ERROR MESSAGE FROM FUNCTION');
-		Titanium.API.debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>DEBUG MESSAGE FROM FUNCTION');
-		Titanium.API.error('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>ERROR MESSAGE FROM FUNCTION');
-		Titanium.API.warn('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WARN MESSAGE FROM FUNCTION');
-		Titanium.API.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>INFO MESSAGE FROM FUNCTION');
-		Titanium.API.trace('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>TRACE MESSAGE FROM FUNCTION');
-	//	Titanium.API.notice('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>NOTICE MESSAGE FROM FUNCTION');
-		Titanium.API.critical('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>CRITICAL MESSAGE FROM FUNCTION');
-		Titanium.API.fatal('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FATAL MESSAGE FROM FUNCTION');
-		alert('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>ALERT LOG FROM FUNCTION');
+		Titanium.API.log('ERROR','ERROR MESSAGE FROM FUNCTION');
+		Titanium.API.debug('DEBUG MESSAGE FROM FUNCTION');
+		Titanium.API.error('ERROR MESSAGE FROM FUNCTION');
+		Titanium.API.warn('WARN MESSAGE FROM FUNCTION');
+		Titanium.API.info('INFO MESSAGE FROM FUNCTION');
+		Titanium.API.trace('TRACE MESSAGE FROM FUNCTION');
+	//	Titanium.API.notice('NOTICE MESSAGE FROM FUNCTION');
+		Titanium.API.critical('CRITICAL MESSAGE FROM FUNCTION');
+		Titanium.API.fatal('FATAL MESSAGE FROM FUNCTION');
+		alert('ALERT LOG FROM FUNCTION');
 	}
 	</script>
 </head>

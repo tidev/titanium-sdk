@@ -1,20 +1,26 @@
 <html>
 <head>
 	<script>
+	// concepts to demonstrate/test
+	// 1. use template-level values
+	// 2. use layout
+	// 3. override layout and template at row level
+	
 	var template = {
 	 selectedBackgroundColor:'#336699', 
 	 rowHeight:100,
+	 backgroundColor:'#999',
 	 layout:[
 	   {type:'image', left:10, top:5, width:32, height:33, name:'image1'},
-	   {type:'text', fontSize:20, fontWeight:'bold', left:50, top:10, width:100, height:20, color:'#336699', name:'title1', selectedColor:'#fff'},
+	   {type:'text', fontSize:20, fontWeight:'bold', left:50, top:10, width:100, height:20, color:'black', name:'title1', selectedColor:'#fff'},
 	   {type:'text', fontSize:13, left:50, top:40, width:150, color:'#000',height:50, name:'detail_text', selectedColor:'white'},
 	]};
 
 	var data = [
-		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text',hasChild:true},
+		{'image1':'images/tag.png', 'title1':'Title Text', 'detail_text':'This is my detail text',hasChild:true},
 		{'image1':'Phone.png', 'title1':'Title Text', 'detail_text':'This is my detail text',hasDetail:true,
 			layout:[
-		   {type:'text',  left:80,  name:'title1'},
+		   {type:'text',  left:80,  name:'title1', backgrounColor:'#777'},
 		]},
 		
 
@@ -22,22 +28,27 @@
 	//
 	// create table view (
 	//
-	var tableView = Titanium.UI.createTableView({template:template, data:data}, function(eventObject){
-		var rowData = eventObject.rowData;
+	var tableView = Titanium.UI.createTableView({
+		template:template, 
+		data:data,
+		borderColor:'transparent'
+		}, 
+		function(eventObject)
+		{
+			var rowData = eventObject.rowData;
+			var section = eventObject.section;
+			var row = eventObject.row;
+			var index = eventObject.index;
+			var detail = eventObject.detail;
 
-		var section = eventObject.section;
-		var row = eventObject.row;
-		var index = eventObject.index;
-		var detail = eventObject.detail;
-
-		Titanium.UI.createAlertDialog({message:(
-			'ROWDATA = ' + rowData +
-			', SECTION = ' + section +
-			', ROW = ' + row +
-			', INDEX = ' + index +
-			', NAME = ' + eventObject.layout +
-			', DETAIL = ' + detail
-		)}).show();
+			Titanium.UI.createAlertDialog({message:(
+				'ROWDATA = ' + rowData +
+				', SECTION = ' + section +
+				', ROW = ' + row +
+				', INDEX = ' + index +
+				', NAME = ' + eventObject.layout +
+				', DETAIL = ' + detail
+			)}).show();
 		
 	});
 	

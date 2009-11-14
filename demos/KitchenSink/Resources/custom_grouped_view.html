@@ -4,11 +4,13 @@
 	var win = Titanium.UI.currentWindow;
 	
 	var template = {
-		selectedBackgroundColor:'#400302',
-		
+		backgroundColor:'#670000',
+		selectedBackgroundColor:'#440000',
+		color:'#fff',
+		rowHeight:100,
 		layout:[
-			{type:'text', name:'item', color:'white', fontSize:30, fontWeight:'bold', left:5, top:5},
-			{type:'text', name:'cost', color:'white', fontSize:14, left:5, bottom:5}
+			{type:'text', name:'item', color:'white', fontSize:20, fontWeight:'bold', left:5, top:-10},
+			{type:'text', name:'cost', color:'white', fontSize:14, left:5, top:0}
 			
 		]		
 	}	
@@ -24,12 +26,16 @@
 		template:template,
 		type:'option',
 		data:optionData,
-		color:'#fff',
+		color:'white',
 		footer:'Footer',
-		header:'Header'
+		header:'Header',
+		rowHeight:50
 	});
 	
-	var groupedView = Titanium.UI.iPhone.createGroupedView({backgroundColor:'transparent', borderColor:'#480000'});
+	var groupedView = Titanium.UI.iPhone.createGroupedView({
+		backgroundColor:'transparent', 
+		borderColor:'#390A0E'
+	});
 	groupedView.addSection(groupedSection);
 	
 	win.addView(groupedView);

@@ -6,7 +6,8 @@
 	
 	Titanium.UI.addEventListener('tabchange',function(e)
 	{
-		Titanium.API.info('>>>>>>>>>>>>>>>>>>>>>>>>>> TABCHANGE index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
+		Titanium.API.info('TABCHANGE index ' + e.index  + ' name ' 
+				+ e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
 	});
 	
 	// data for tableview
@@ -484,7 +485,6 @@
 				b.addEventListener('click',function()
 				{
 					win.close({animated:false});
-					Titanium.UI.currentWindow.repaint();
 				})
 				win.open({modal:true});		
 				break;
