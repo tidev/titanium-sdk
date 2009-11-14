@@ -30,8 +30,8 @@ typedef enum {
 @property(nonatomic,readwrite,assign)	LayoutEntryType type;
 @property(nonatomic,readwrite,assign)	LayoutConstraint constraint;
 @property(nonatomic,readwrite,retain)	TitaniumFontDescription * labelFont;
-@property(nonatomic,readwrite,copy)		UIColor * textColor;
-@property(nonatomic,readwrite,copy)		UIColor * selectedTextColor;
+@property(nonatomic,readwrite,retain)	UIColor * textColor;
+@property(nonatomic,readwrite,retain)	UIColor * selectedTextColor;
 @property(nonatomic,readwrite,copy)		NSString * nameString;
 
 @property(nonatomic,readonly)	TitaniumFontDescription * labelFontPointer;

@@ -89,14 +89,17 @@ NSString * const TitaniumJsonKey = @"json";
 int extremeDebugLineNumber;
 
 @implementation TitaniumProxyObject : NSObject
-@synthesize token, javaScriptPath, parentPageToken;
+@synthesize token, javaScriptPath, parentPageToken, listeningContexts;
+
+
 
 - (id) init
 {
 	self = [super init];
 	if (self != nil) {
-		TitaniumCmdThread * ourThread = [[TitaniumHost sharedHost] currentThread];
-		parentPageToken = [[ourThread magicToken] retain];
+		NSString * ourToken = [[[TitaniumHost sharedHost] currentThread] magicToken];
+		listeningContexts = [[NSMutableSet alloc] initWithObjects: ourToken,nil];
+		parentPageToken = [ourToken retain];
 	}
 	return self;
 }
@@ -107,7 +110,14 @@ int extremeDebugLineNumber;
 	[token release];
 	[javaScriptPath release];
 	[parentPageToken release];
+	[listeningContexts release];
 	[super dealloc];
+}
+
+- (BOOL) sendJavascript: (NSString *) commandString;
+{
+	[[TitaniumHost sharedHost] sendJavascript:commandString toPagesWithTokens:listeningContexts update:YES];
+	return [listeningContexts count]>0;
 }
 
 @end

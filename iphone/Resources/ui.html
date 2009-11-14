@@ -157,8 +157,9 @@ try{
 	 selectedBackgroundImage:'table_view_bg.png', 
 	 selectedColor:'white',
 	 color:'brown',
+	rowHeight:80,
 	 layout:[
-	   {type:'text', left:50,  name:'title', fontWeight:'bold', fontFamily:'Marker Felt'}
+	   {type:'text', left:50, color:'#336699', name:'title', fontWeight:'bold', fontFamily:'Marker Felt'}
 	]};
 	// data for tableview
 	var data = [
@@ -233,7 +234,7 @@ try{
 //
 //
 //	];
-	tableView = Titanium.UI.createTableView({marginLeft:20,marginRight:10,data:data,rowHeight:80,
+	tableView = Titanium.UI.createTableView({search:Ti.UI.createSearchBar({barColor:'#990000'}),data:data,
 			template:template
 //			{title:'Button?',backgroundColor:'#FFFF00',layout:[{top:5,bottom:5,left:45,name:'title',type:'text',fontSize:'10px'},{type:'image',name:'image',top:0,height:40,left:5,width:40}]}
 			}, function(eventObject) {
@@ -383,7 +384,9 @@ try{
 		Ti.UI.currentWindow.setRightNavButton(btn8);
 		Ti.UI.currentWindow.setToolbar([btn1,btn2,btn3,btn4,btn5,btn7]);
 //		Ti.UI.currentWindow.setToolbar([btn1,btn2,multiBtn2]);
-		Ti.UI.currentWindow.setTitleControl(multiBtn);
+//		Ti.UI.currentWindow.setTitleControl(multiBtn);
+
+//		Ti.UI.currentWindow.setTitleControl(Ti.UI.createSearchBar());
 		
 		Titanium.Gesture.addEventListener('shake',function(){
 			var alerty = Titanium.UI.createAlertDialog();

@@ -8,12 +8,17 @@
 #import <Foundation/Foundation.h>
 #import "NativeControlProxy.h"
 
-@interface SearchBarControl : NativeControlProxy {
+@interface SearchBarControl : NativeControlProxy<UISearchBarDelegate> {
 	UISearchBar * searchView;
+//	NSString * stringValue;
 	UIColor * barColor;
 	BOOL showCancel;
+	
+	id<UISearchBarDelegate> delegate;	//Yes, we subdelegate.
 }
 
+@property(nonatomic,readwrite,copy)	NSString * stringValue;
+@property(nonatomic,readwrite,assign)	id<UISearchBarDelegate> delegate;
 
 @end
 

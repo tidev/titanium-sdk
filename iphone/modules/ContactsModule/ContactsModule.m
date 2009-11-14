@@ -304,7 +304,7 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 	[pickerNavController setDisplayedProperties:displayedProperties];
 	
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
-	TitaniumViewController * ourVC = [theHost titaniumViewControllerForToken:[self parentPageToken]];
+	TitaniumViewController * ourVC = [theHost titaniumViewControllerForToken:[[self listeningContexts] anyObject]];
 	if (ourVC == nil) {
 		ourVC = [theHost currentTitaniumViewController];
 	}
@@ -322,7 +322,7 @@ id SetContactPropertiesFromDictionary(ABRecordRef result,NSDictionary * inputDic
 		command = [NSString stringWithFormat:@"Ti.Contacts._PICKER.%@.cancel()",[self token]];
 	}
 
-	[[TitaniumHost sharedHost] sendJavascript:command toPageWithToken:[self parentPageToken]];
+	[self sendJavascript:command];
 	[owningModule removePicker:self];
 }
 
