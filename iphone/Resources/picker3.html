@@ -22,7 +22,32 @@
 			Titanium.API.info('IN CLICK EVENT LISTENER FOR BUTTON');
 			document.getElementById('button_count').innerHTML = y++;
 		});
+
+
+	var tf2 = Titanium.UI.createTextField({
+		id:'textfield2',
+		value:'vertically aligned? helloèëé',
+		color:'#336699',
+		returnKeyType:Titanium.UI.RETURNKEY_GO,
+		enableReturnKey:false,
+		keyboardType:Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
+		autocorrect:false,
+		hintText:'fieldone hint text',
+		textAlign:'left',
+		clearOnEdit:false,
+		fontSize:20,
+		height:50,
+		borderStyle:Titanium.UI.INPUT_BORDERSTYLE_BEZEL,
+		clearButtonMode:Titanium.UI.INPUT_BUTTONMODE_NEVER,
+	});
+	tf2.addEventListener('return',function(e)
+	{
+//		document.getElementById('textfield2_value').innerHTML = ' You hit the return key, current value is ' + e.value;
+	});
+
+
 	};
+
 	</script>
 	<link href="index.css" rel="stylesheet" type="text/css"/>
 </head>
@@ -32,6 +57,10 @@
 	<div id="button" style="height:50px;width:100px;color:#000">foo</div>
 	<a href="/picker3.html" style="font-size:30px">click me </a>
 	<div></div>
+
+	<div id="textfield2" style="height:50px"></div>
+	
+
 	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
 	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />
 	<input type="checkbox" name="test_checkbox" value="" />Test Checkbox<br />

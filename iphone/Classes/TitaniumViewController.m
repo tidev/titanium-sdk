@@ -565,12 +565,6 @@ int nextWindowToken = 0;
 
 - (void)viewWillDisappear: (BOOL) animated;
 {
-	if (tabBarBackground!=nil)
-	{
-		[tabBarBackground removeFromSuperview];
-		[tabBarBackground release];
-		tabBarBackground = nil;
-	}	
 	
 	[super viewWillDisappear:animated];
 	if(![[[UIDevice currentDevice] systemVersion] hasPrefix:@"2."]) [self resignFirstResponder];
@@ -582,6 +576,13 @@ int nextWindowToken = 0;
 
 - (void)viewDidDisappear: (BOOL) animated;
 {
+	if (tabBarBackground!=nil)
+	{
+		[tabBarBackground removeFromSuperview];
+		[tabBarBackground release];
+		tabBarBackground = nil;
+	}	
+	
 	[super viewDidDisappear:animated];
 	if([focusedContentController respondsToSelector:@selector(setFocused:)]){
 		[focusedContentController setFocused:NO];
@@ -796,7 +797,13 @@ typedef int UIEventSubtype;
 			tabBarBackground = [[UIImageView alloc]initWithImage:navBarImage];
 			tabBarBackground.frame = CGRectMake(0,0,theNB.frame.size.width,theNB.frame.size.height);
 			[theNB addSubview:tabBarBackground];
-			[theNB sendSubviewToBack:tabBarBackground];
+			
+//			UILabel * replacementTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0,0,theNB.frame.size.width,theNB.frame.size.height)];
+//			[replacementTitleLabel setTextAlignment:UITextAlignmentLeft];
+//			[replacementTitleLabel setText:@"WootWoot Woot Woot Woot Woot Woot Woot Woot Woot Woot Woot Woot Woot Woot Woot Woot Woot Woot "];
+//			[replacementTitleLabel setBackgroundColor:[UIColor clearColor]];
+//			[tabBarBackground addSubview:replacementTitleLabel];
+			
 		}
 	}
 
