@@ -470,5 +470,13 @@
 	} else [self setInputProxy:nil];
 }
 
+- (BOOL) stringForKey:(NSString *)key containsString: (NSString *)matchString;
+{
+	NSString * valueString = [self stringForKey:key];
+	NSRange matchLocation = [valueString rangeOfString:matchString options:
+			NSCaseInsensitiveSearch|NSDiacriticInsensitiveSearch|NSWidthInsensitiveSearch];
+	return matchLocation.location != NSNotFound;
+}
+
 
 @end

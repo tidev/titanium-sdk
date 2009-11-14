@@ -107,7 +107,10 @@ typedef enum {
 	NativeControlProxy * searchField;
 	NSString * searchAttributeKey;
 //	NSString * lastSearchString;	//Todo: Optimize
-	NSArray * searchResultIndexes;
+	NSMutableArray * searchResultIndexes;
+
+	UITableView * searchTableView;
+	UIButton * searchScreenView;
 
 
 	TitaniumCellWrapper * templateCell;
