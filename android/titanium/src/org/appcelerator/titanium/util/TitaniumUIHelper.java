@@ -18,6 +18,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Process;
 import android.util.TypedValue;
 import android.widget.TextView;
@@ -174,5 +176,50 @@ public class TitaniumUIHelper
 		}
 
 		return style;
+	}
+
+	public static StateListDrawable buildBackgroundDrawable(Context context,
+			String image,
+			String selectedImage,
+			String focusedImage)
+	{
+		StateListDrawable sld = null;
+
+		if (image != null || selectedImage != null || focusedImage != null) {
+			sld = new StateListDrawable();
+			TitaniumFileHelper tfh = new TitaniumFileHelper(context);
+
+			if (focusedImage != null) {
+				Drawable d = tfh.loadDrawable(focusedImage, false, true);
+				if (d != null) {
+					int[] ss = { android.R.attr.state_focused };
+					sld.addState(ss, d);
+				}
+			}
+
+			if (selectedImage != null) {
+				Drawable d = tfh.loadDrawable(selectedImage, false, true);
+				if (d != null) {
+					int[] ss = { android.R.attr.state_pressed };
+					sld.addState(ss, d);
+					int[] ss1 = {android.R.attr.state_focused, android.R.attr.state_pressed };
+					sld.addState(ss1, d);
+					int[] ss2 = { android.R.attr.state_selected };
+					sld.addState(ss2, d);
+				}
+			}
+
+			if (image != null) {
+				Drawable d = tfh.loadDrawable(image, false, true);
+				if (d != null) {
+					int[] stateSet = { android.R.attr.state_enabled };
+					sld.addState(stateSet, d);
+				}
+			}
+
+
+		}
+
+		return sld;
 	}
 }

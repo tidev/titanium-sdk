@@ -6,7 +6,6 @@
  */
 package org.appcelerator.titanium.module.ui;
 
-import java.util.HashMap;
 import java.util.concurrent.Semaphore;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
@@ -26,8 +25,11 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +38,7 @@ import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 
 public class TitaniumTableView extends TitaniumBaseView
 	implements ITitaniumTableView, Handler.Callback
@@ -183,9 +186,15 @@ public class TitaniumTableView extends TitaniumBaseView
 		super(tmm, themeId);
 
 		this.defaults = new TitaniumTableViewItemOptions();
-		defaults.put("rowHeight", "65");
+		defaults.put("rowHeight", "43");
 		defaults.put("fontSize", TitaniumUIHelper.getDefaultFontSize(tmm.getActivity()));
 		defaults.put("fontWeight", TitaniumUIHelper.getDefaultFontWeight(tmm.getActivity()));
+		defaults.put("marginLeft", "0");
+		defaults.put("marginTop", "0");
+		defaults.put("marginRight", "0");
+		defaults.put("marginBottom", "0");
+		defaults.put("scrollBar", "auto");
+
 		this.viewModel = new TableViewModel();
 		this.hasBeenOpened = false;
 	}
@@ -206,6 +215,21 @@ public class TitaniumTableView extends TitaniumBaseView
 		}
 		if (o.has("fontWeight")) {
 			setFontWeight(o.getString("fontWeight"));
+		}
+		if (o.has("marginLeft")) {
+			setOption("marginLeft", o.getString("marginLeft"));
+		}
+		if (o.has("marginTop")) {
+			setOption("marginTop", o.getString("marginTop"));
+		}
+		if (o.has("marginRight")) {
+			setOption("marginRight", o.getString("marginRight"));
+		}
+		if (o.has("marginBottom")) {
+			setOption("marginBottom", o.getString("marginBottom"));
+		}
+		if (o.has("scrollBar")) {
+			setOption("scrollBar", o.getString("scrollBar"));
 		}
 	}
 
@@ -443,13 +467,47 @@ public class TitaniumTableView extends TitaniumBaseView
 			public boolean dispatchKeyEvent(KeyEvent event) {
 				return super.dispatchKeyEvent(event);
 			}
-
 		};
+
+		final Drawable defaultSelector = view.getSelector();
+		final Drawable transparentSelector = new ColorDrawable(Color.TRANSPARENT);
+
+		view.setOnItemSelectedListener(new OnItemSelectedListener(){
+
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				TitaniumBaseTableViewItem item = (TitaniumBaseTableViewItem) view;
+				ListView lv = ((ListView) parent);
+				if (item.providesOwnSelector()) {
+					if (lv.getSelector() != transparentSelector) {
+						lv.setSelector(transparentSelector);
+					}
+				} else {
+					if (lv.getSelector() != defaultSelector) {
+						lv.setSelector(defaultSelector);
+					}
+				}
+			}
+
+			public void onNothingSelected(AdapterView<?> parent) {
+			}});
+
 		view.setFocusable(true);
 		view.setFocusableInTouchMode(true);
+		view.setBackgroundColor(Color.TRANSPARENT);
 		view.setCacheColorHint(Color.TRANSPARENT);
 		adapter = new TTVListAdapter(viewModel);
 		view.setAdapter(adapter);
+
+		String scrollBar = defaults.get("scrollBar");
+		if (scrollBar.equals("true")) {
+			view.setVerticalScrollBarEnabled(true);
+		} else if (scrollBar.equals("false")) {
+			view.setVerticalScrollBarEnabled(false);
+		} else {
+			int margin = defaults.getIntOption("marginLeft") + defaults.getIntOption("marginTop") +
+			defaults.getIntOption("marginRight") + defaults.getIntOption("marginBottom");
+			view.setVerticalScrollBarEnabled(margin > 0 ? false : true);
+		}
 
 		view.setOnItemClickListener(new OnItemClickListener() {
 
@@ -477,7 +535,6 @@ public class TitaniumTableView extends TitaniumBaseView
 					Log.e(LCAT, "Error handling event at position: " + position);
 				}
 			}});
-
 	}
 
 	@Override
@@ -494,12 +551,27 @@ public class TitaniumTableView extends TitaniumBaseView
 		return view;
 	}
 
+	@Override
+	protected LayoutParams getContentLayoutParams() {
+		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+		params.gravity = Gravity.NO_GRAVITY;
+		params.leftMargin = defaults.getIntOption("marginLeft");
+		params.topMargin = defaults.getIntOption("marginTop");
+		params.rightMargin = defaults.getIntOption("marginRight");
+		params.bottomMargin = defaults.getIntOption("marginBottom");
+		return params;
+	}
+
 	public void setFontSize(String fontSize) {
 		defaults.put("fontSize", fontSize);
 	}
 
 	public void setFontWeight(String fontWeight) {
 		defaults.put("fontWeight", fontWeight);
+	}
+
+	public void setOption(String key, String value) {
+		defaults.put(key, value);
 	}
 
 	public void close()
