@@ -98,7 +98,6 @@
 				 selectedBackgroundImage:'images/tableview/on_4.png', image: 'phone_contact.png'}
 	];
 
-
 	// tableview object
 	// use transparent backgroundColor to use the backgroundColor/Image of the window
 	// margins provide gaps between table view and window
@@ -118,6 +117,14 @@
 		{
 			case 1:
 			{
+				// featureEvents track the use of specific application features.
+				// The tag is required and is used to organize the data for reporting.
+				// Tags can be used to define an organizational hierarchy using a dot-delimited notation.
+				// All of the features accessible from the Phone tab are organized into the 'phone' area.
+				// The individual sub-areas follow the dot.  All of the statistics for featureEvents
+				// will be summarized to the area level ('phone', 'ui', ...) but can be broken down into
+				// the sub-area level ('phone.movie', 'phone.camera', ...).
+				Titanium.Analytics.featureEvent('phone.movie');
 				playMovie();
 				break;
 			}
@@ -143,11 +150,13 @@
 					{
 						case 0:
 						{
+							Titanium.Analytics.featureEvent('phone.camera.record_video');
 							recordVideo();
 							break;
 						}
 						case 1:
 						{
+							Titanium.Analytics.featureEvent('phone.camera.show_camera');
 							showCamera();
 							break;
 						}
@@ -165,11 +174,13 @@
 			}
 			case 3:
 			{
+				Titanium.Analytics.featureEvent('phone.vibrate');
 				Titanium.Media.vibrate();
 				break;
 			}
 			case 4:
 			{
+				Titanium.Analytics.featureEvent('phone.orientation');
 				var win = Titanium.UI.createWindow({
 					url:'orientation.html',
 					title:'Orientation Change',
@@ -182,11 +193,13 @@
 			}
 			case 5:
 			{
+				Titanium.Analytics.featureEvent('phone.photo_gallery');
 				openPhotoGallery();
 				break;
 			}
 			case 6:
 			{
+				Titanium.Analytics.featureEvent('phone.geolocation');
 				var win = Titanium.UI.createWindow({
 					url:'geo.html',
 					title:'Geolocation', 
@@ -198,6 +211,7 @@
 			}
 			case 7:
 			{
+				Titanium.Analytics.featureEvent('phone.accelerometer');
 				var win = Titanium.UI.createWindow({
 					url:'accelerometer.html',
 					title:'Accelerometer', 
@@ -209,6 +223,7 @@
 			}
 			case 8:
 			{
+				Titanium.Analytics.featureEvent('phone.sound');
 				var win = Titanium.UI.createWindow({
 					url:'sound.html',
 					title:'Sound', 
@@ -220,6 +235,7 @@
 			}
 			case 9:
 			{
+				Titanium.Analytics.featureEvent('phone.shake');
 				var win = Titanium.UI.createWindow({
 					url:'shake.html',
 					title:'Shake', 
@@ -231,6 +247,7 @@
 			}
 			case 10:
 			{
+				Titanium.Analytics.featureEvent('phone.email');
 				var win = Titanium.UI.createWindow({
 					url:'email.html',
 					title:'Email', 
@@ -242,11 +259,13 @@
 			}
 			case 11:
 			{
+				Titanium.Analytics.featureEvent('phone.photo_save');
 				savePhoto();
 				break;
 			}
 			case 12:
 			{
+				Titanium.Analytics.featureEvent('phone.contacts');
 				var win = Titanium.UI.createWindow({
 					url:'contacts.html',
 					title:'Contacts', 
@@ -268,6 +287,8 @@
 	//
 	// play movie
 	//
+	var movieTimedStart = null;
+	
 	function playMovie()
 	{
 		var activeMovie = Titanium.Media.createVideoPlayer({
@@ -279,11 +300,17 @@
 
 		activeMovie.addEventListener('complete',function()
 		{
+			if (null !== movieTimedStart)
+			{
+				Titanium.Analytics.timedEvent('phone.play_movie',movieTimedStart, new Date());
+				movieTimedStart = null;
+			}
 			var a = Titanium.UI.createAlertDialog();
 			a.setMessage('Video Completed');
 			a.show();
 		});
 
+		movieTimedStart = new Date();
 		// play movie
 		activeMovie.play();
 

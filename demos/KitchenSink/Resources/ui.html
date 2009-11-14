@@ -72,22 +72,26 @@
 		{
 			case 0:
 			{
+				Titanium.Analytics.featureEvent('ui.alert');
 				showAlert();
 				break;
 			}
 			case 1:
 			{
+				Titanium.Analytics.featureEvent('ui.options');
 				showOptionsDialog();
 				break;
 			}
 			case 2:
 			{
+				Titanium.Analytics.featureEvent('ui.window_focus_events');
 				var win = Titanium.UI.createWindow({url:'window_unfocus.html',title:'Focus Events', barColor:'#336699',backgroundColor:'#fff'});				
 				win.open({animated:true});
 				break;
 			}
 			case 3:
 			{
+				Titanium.Analytics.featureEvent('ui.slider');
 				var win = Titanium.UI.createWindow({url:'slider.html',title:'Slider',backgroundColor:'#fff'});
 				
 				if (Titanium.Platform.name != 'android')
@@ -100,12 +104,14 @@
 			}
 			case 4:
 			{
+				Titanium.Analytics.featureEvent('ui.textfields');
 				var win = Titanium.UI.createWindow({url:'textfields.html',title:'Text Fields',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}
 			case 5:
 			{
+				Titanium.Analytics.featureEvent('ui.textfield_events');
 				var win = Titanium.UI.createWindow({url:'textfield_events.html',title:'Text Field Events',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
@@ -119,6 +125,7 @@
 			}
 			case 7:
 			{
+				Titanium.Analytics.featureEvent('ui.buttons');
 				var win = Titanium.UI.createWindow({url:'switch.html',title:'Switch',backgroundColor:'#fff'});
 				if (Titanium.Platform.name != 'android')
 				{
@@ -130,6 +137,7 @@
 			}
 			case 8:
 			{
+				Titanium.Analytics.featureEvent('ui.progress_bars');
 				var win = Titanium.UI.createWindow({url:'progress_bars.html',title:'Progress Bar',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
@@ -137,6 +145,7 @@
 
 			case 9:
 			{
+				Titanium.Analytics.featureEvent('ui.activity_indicators');
 				var win = Titanium.UI.createWindow({url:'activity_indicators.html',title:'Indicators',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
@@ -145,6 +154,7 @@
 
 			case 10:
 			{
+				Titanium.Analytics.featureEvent('ui.composite');
 				var win = Titanium.UI.createWindow({url:'composite.html',title:'Composite',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
@@ -152,30 +162,35 @@
 
 			case 11:
 			{
+				Titanium.Analytics.featureEvent('ui.tableview.delete');
 				var win = Titanium.UI.createWindow({url:'tableview_delete.html',title:'TableView Delete'});
 				win.open({animated:true});		
 				break;
 			}
 			case 12:
 			{
+				Titanium.Analytics.featureEvent('ui.tableview.add');
 				var win = Titanium.UI.createWindow({url:'tableview_add.html',title:'TableView Add'});
 				win.open({animated:true});		
 				break;
 			}
 			case 13:
 			{
+				Titanium.Analytics.featureEvent('ui.tableview.update');
 				var win = Titanium.UI.createWindow({url:'tableview_update.html',title:'TableView Update'});
 				win.open({animated:true});		
 				break;
 			}
 			case 14:
 			{
+				Titanium.Analytics.featureEvent('ui.tableview.set');
 				var win = Titanium.UI.createWindow({url:'tableview_set.html',title:'TableView Set'});
 				win.open({animated:true});		
 				break;
 			}
 			case 15:
 			{
+				Titanium.Analytics.featureEvent('ui.tableview.append');
 				var win = Titanium.UI.createWindow({url:'tableview_append.html',title:'TableView Append'});
 				win.open({animated:true});		
 				break;
@@ -183,18 +198,21 @@
 			
 			case 16:
 			{
+				Titanium.Analytics.featureEvent('ui.fullscreen');
 				var win = Titanium.UI.createWindow({url:'fullscreen.html',fullscreen:true,title:'Fullscreen',backgroundColor:'#fff'});
 				win.open({animated:true});
 				break;
 			}
 			case 17:
 			{
+				Titanium.Analytics.featureEvent('ui.statusbar');
 				var win = Titanium.UI.createWindow({url:'statusbar.html',title:'Status Bar'});
 				win.open({animated:true});		
 				break;
 			}
 			case 18:
 			{
+				Titanium.Analytics.featureEvent('ui.tabs');
 				var tabs = Titanium.UI.getTabs();
 				tabs[0].setBadge(1);
 				tabs[1].setBadge(2);
@@ -205,6 +223,7 @@
 			}
 			case 19:
 			{
+				Titanium.Analytics.featureEvent('ui.button_bar');
 				var buttonBar = Titanium.UI.createButtonBar({labels:['Button1', 'Button2'],color:'#336699'});
 				buttonBar.addEventListener('click',function(e)
 				{
@@ -234,6 +253,7 @@
 			}
 			case 20:
 			{
+				Titanium.Analytics.featureEvent('ui.tabbed_bar');
 				var tabbar = Titanium.UI.createTabbedBar({labels:['Tab1', 'Tab2'],index:1});
 				var flexSpace = Titanium.UI.createButton({
 					systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
@@ -253,12 +273,17 @@
 
 			case 21:
 			{
+				// The organizational hierarchy defined by the tags is not limited to two levels.
+				// Here, I want to track my navbar feature at a finer level of detail, so I
+				// define subareas under 'ui.navbar'.  The roll-ups and breakdowns are handled automatically. 
+				Titanium.Analytics.featureEvent('ui.navbar.title');
 				var win = Titanium.UI.createWindow({url:'navbar_title.html',title:'Navbar Title'});
 				win.open({animated:true});		
 				break;
 			}
 			case 22:
 			{
+				Titanium.Analytics.featureEvent('ui.navbar.right');
 				var win = Titanium.UI.createWindow({url:'navbar_right.html',title:'Navbar Right'});
 				var b = Titanium.UI.createButton({
 					systemButton:Titanium.UI.iPhone.SystemButton.TRASH
@@ -277,6 +302,7 @@
 			}
 			case 23:
 			{
+				Titanium.Analytics.featureEvent('ui.navbar.left');
 				var win = Titanium.UI.createWindow({url:'navbar_left.html',title:'Navbar Left'});
 				var b = Titanium.UI.createButton({
 					systemButton:Titanium.UI.iPhone.SystemButton.TRASH
@@ -294,12 +320,14 @@
 			}
 			case 24:
 			{
+				Titanium.Analytics.featureEvent('ui.navbar.hide');
 				var win = Titanium.UI.createWindow({url:'navbar_hide.html',title:'Navbar Hide',hideNavBar:true});
 				win.open({animated:true});		
 				break;
 			}
 			case 25:
 			{
+				Titanium.Analytics.featureEvent('ui.navbar.color');
 				var win = Titanium.UI.createWindow({url:'navbar_color.html',title:'Bar Color'});
 				win.setBarColor('#111111')
 				win.open({animated:true});		
@@ -307,24 +335,28 @@
 			}
 			case 26:
 			{
+				Titanium.Analytics.featureEvent('ui.toolbar.left');
 				var win = Titanium.UI.createWindow({url:'toolbar_left.html',title:'Toolbar Left'});
 				win.open({animated:true});		
 				break;
 			}
 			case 27:
 			{
+				Titanium.Analytics.featureEvent('ui.toolbar.middle');
 				var win = Titanium.UI.createWindow({url:'toolbar_middle.html',title:'Toolbar Middle'});
 				win.open({animated:true});		
 				break;
 			}
 			case 28:
 			{
+				Titanium.Analytics.featureEvent('ui.toolbar.right');
 				var win = Titanium.UI.createWindow({url:'toolbar_right.html',title:'Toolbar Right'});
 				win.open({animated:true});		
 				break;
 			}
 			case 29:
 			{
+				Titanium.Analytics.featureEvent('ui.toolbar.lots');
 				var win = Titanium.UI.createWindow({url:'toolbar_lots.html',
 					title:'Toolbar Many Buttons',hideTabBar:true,barColor:'#000000'});
 				win.open({animated:true});		
@@ -332,6 +364,7 @@
 			}
 			case 30:
 			{
+				Titanium.Analytics.featureEvent('ui.toolbar.fixedspace');
 				var win = Titanium.UI.createWindow({url:'toolbar_fixedspace.html',
 					title:'Toolbar Fixed Space',hideTabBar:true});
 				win.open({animated:true});		
@@ -339,6 +372,7 @@
 			}
 			case 31:
 			{
+				Titanium.Analytics.featureEvent('ui.toolbar.hideshow');
 				var win = Titanium.UI.createWindow({url:'toolbar_hideshow.html',
 					title:'Toolbar Hide/Show'});
 				win.open({animated:true});		
@@ -347,6 +381,7 @@
 
 			case 32:
 			{
+				Titanium.Analytics.featureEvent('ui.tabbar');
 				var win = Titanium.UI.createWindow({
 					url:'tabbar_hide.html',
 					title:'Tabbar Hide',
@@ -358,6 +393,7 @@
 			}
 			case 33:
 			{
+				Titanium.Analytics.featureEvent('ui.open_no_animation');
 				var win = Titanium.UI.createWindow({url:'animated_false.html',title:'Animated False'});
 				win.open({animated:false});		
 				break;
@@ -365,6 +401,7 @@
 
 			case 34:
 			{
+				Titanium.Analytics.featureEvent('ui.notification');
 				if (Titanium.Platform.name == 'android')
 				{
 					var notification = Titanium.UI.createNotification()
@@ -376,6 +413,11 @@
 			
 			case 35:
 			{
+				// Putting this event outside of the conditionally executed block
+				// allows me to track whether users on one platform are trying to access
+				// features accessible only to another platform.  Perhaps I will need to re-design
+				// my UI if this appears to be the case!
+				Titanium.Analytics.featureEvent('ui.menu');
 				if (Titanium.Platform.name == 'android')
 				{
 				
@@ -396,6 +438,7 @@
 			
 			case 36:
 			{
+				Titanium.Analytics.featureEvent('ui.dynamic.content');
 				var win = Titanium.UI.createWindow({url:'dynamic_content.html',title:'Dynamic Content',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
@@ -403,18 +446,21 @@
 
 			case 37:
 			{
+				Titanium.Analytics.featureEvent('ui.tab_change');
 				var win = Titanium.UI.createWindow({url:'tabchange.html',title:'Tab Change',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}
 			case 38:
 			{
+				Titanium.Analytics.featureEvent('ui.js.events');
 				var win = Titanium.UI.createWindow({url:'js_events.html',title:'JS Events',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}
 			case 39:
 			{
+				Titanium.Analytics.featureEvent('ui.js.events2');
 				var win = Titanium.UI.createWindow({url:'js_events2.html',title:'JS Events 2',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
@@ -422,17 +468,20 @@
 
 			case 40:
 			{
+				Titanium.Analytics.featureEvent('ui.dynamic.images');
 				var win = Titanium.UI.createWindow({url:'dynamic_images.html',title:'Dynamic Images',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}
 			case 41:
 			{
+				Titanium.Analytics.featureEvent('ui.window_title');
 				Titanium.UI.currentWindow.setTitle('New Title');
 				break;
 			}
 			case 42:
 			{
+				Titanium.Analytics.featureEvent('ui.back_button.1');
 				var win = Titanium.UI.createWindow({
 					url:'back_button.html',
 					title:'Custom Back Button', 
@@ -443,6 +492,7 @@
 			}
 			case 43:
 			{
+				Titanium.Analytics.featureEvent('ui.back_button.2');
 				var win = Titanium.UI.createWindow({
 					url:'back_button.html',
 					title:'Custom Back Image', 
@@ -453,6 +503,7 @@
 			}
 			case 44:
 			{
+				Titanium.Analytics.featureEvent('ui.table_view_data');
 				var win = Titanium.UI.createWindow({
 					url:'custom_table_view_data.html',
 					title:'Custom TV Data'
@@ -462,6 +513,7 @@
 			}
 			case 45:
 			{
+				Titanium.Analytics.featureEvent('ui.set_control_values');
 				var win = Titanium.UI.createWindow({
 					url:'set_control_values.html',
 					title:'Set Control Values',
@@ -472,6 +524,7 @@
 			}
 			case 46:
 			{
+				Titanium.Analytics.featureEvent('ui.modal_window');
 				var win = Titanium.UI.createWindow({
 					url:'modal.html',
 					title:'Modal Window' 
@@ -491,6 +544,7 @@
 			}
 			case 47:
 			{
+				Titanium.Analytics.featureEvent('ui.picker');
 				var win = Titanium.UI.createWindow({
 					url:'pickers.html',
 					title:'Pickers',
