@@ -19,7 +19,7 @@ typedef enum {
 {
 	LayoutEntryType type;
 	LayoutConstraint constraint;
-	TitaniumFontDescription labelFont;
+	TitaniumFontDescription* labelFont;
 	UIColor * textColor;
 	UIColor * selectedTextColor;
 	NSString * nameString;
@@ -29,7 +29,7 @@ typedef enum {
 
 @property(nonatomic,readwrite,assign)	LayoutEntryType type;
 @property(nonatomic,readwrite,assign)	LayoutConstraint constraint;
-@property(nonatomic,readwrite,assign)	TitaniumFontDescription labelFont;
+@property(nonatomic,readwrite,retain)	TitaniumFontDescription * labelFont;
 @property(nonatomic,readwrite,copy)		UIColor * textColor;
 @property(nonatomic,readwrite,copy)		UIColor * selectedTextColor;
 @property(nonatomic,readwrite,copy)		NSString * nameString;
@@ -44,7 +44,7 @@ typedef enum {
 
 @interface TitaniumCellWrapper : NSObject
 {
-	TitaniumFontDescription fontDesc;
+	TitaniumFontDescription* fontDesc;
 
 	NSMutableDictionary * jsonValues;
 	NSMutableDictionary * imagesCache;
@@ -74,7 +74,7 @@ typedef enum {
 @property(nonatomic,readwrite,assign)	UITableViewCellAccessoryType accessoryType;
 @property(nonatomic,readwrite,assign)	BOOL isButton;
 @property(nonatomic,readwrite,assign)	float rowHeight;
-@property(nonatomic,readwrite,assign)	TitaniumFontDescription fontDesc;
+@property(nonatomic,readwrite,retain)	TitaniumFontDescription* fontDesc;
 
 @property(nonatomic,readonly)	NSMutableSet * imageKeys;
 @property(nonatomic,readonly)	NSMutableArray * layoutArray;

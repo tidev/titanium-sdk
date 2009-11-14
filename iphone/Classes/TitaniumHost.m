@@ -989,13 +989,15 @@ TitaniumHost * lastSharedHost = nil;
 	if (pathOrUrl == nil) return nil;
 	
 #ifdef USE_VERBOSE_DEBUG	
-	NSLog(@"[DEBUG] imageForResource = %@",pathOrUrl);
+	NSLog(@"[INFO] imageForResource = %@",pathOrUrl);
 #endif
 
 	// first check the image cache
 	
 	NSString * filePath = nil;
 	NSString * buildInPath = nil;
+	UIImage * result = nil;
+	
 	if ([pathOrUrl isKindOfClass:[NSString class]])
 	{
 		NSString *str = (NSString*)pathOrUrl;
@@ -1008,7 +1010,12 @@ TitaniumHost * lastSharedHost = nil;
 		{
 			str = [self trimSlashes:filePath startingAt:4];
 		}
-		if (str!=nil)
+		else if ([str hasPrefix:@"http:"] || [str hasPrefix:@"https:"])
+		{
+			// load it from URL 
+			result = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:pathOrUrl]]];
+		}
+		if (str!=nil && result == nil)
 		{
 			filePath = [appResourcesPath stringByAppendingPathComponent:str];
 		}
@@ -1028,30 +1035,40 @@ TitaniumHost * lastSharedHost = nil;
 		{
 			buildInPath = [self trimSlashes:[url absoluteString] startingAt:3];
 		}
+		else
+		{
+			// load it from URL - possibly a remote URL
+			result = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
+		}
 	}
 
-	UIImage * result = [imageCache objectForKey:filePath];
-	if (result!=nil) return result;
-	
-	if (filePath==nil && buildInPath==nil) 
+	// check the image cache
+	if (result == nil)
+	{
+		result = [imageCache objectForKey:filePath];
+	}
+
+	if (result == nil && (filePath==nil && buildInPath==nil))
 	{
 		return nil;
 	}
-	
-	if (buildInPath!=nil)
+		
+	if (result == nil)
 	{
-		// look for the builtin path
+		result = [UIImage imageWithContentsOfFile:filePath];
 	}
-
-	result = [UIImage imageWithContentsOfFile:filePath];
+	
+	// still don't have an image, just bail
 	if(result==nil) return nil;
 
 	// create the image cache the first time through
 	if (imageCache == nil)
 	{
-		imageCache = [[NSMutableDictionary alloc] initWithObjectsAndKeys:result,filePath,nil];
-	} else {
-		[imageCache setObject:result forKey:filePath];
+		imageCache = [[NSMutableDictionary alloc] initWithObjectsAndKeys:result,pathOrUrl,nil];
+	} 
+	else 
+	{
+		[imageCache setObject:result forKey:pathOrUrl];
 	}
 	
 	return result;

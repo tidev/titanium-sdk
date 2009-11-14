@@ -32,6 +32,8 @@
 			[self release];
 			return nil;
 		}
+		
+		labelFont = [[TitaniumFontDescription alloc]init];
 	
 	
 		NSString * possibleName = [inputDict objectForKey:@"name"];
@@ -39,7 +41,7 @@
 		else if(inheritance!=nil) [self setNameString:[inheritance nameString]];
 
 		ReadConstraintFromDictionary(&constraint, inputDict, [inheritance constraintPointer]);
-		UpdateFontDescriptionFromDict(inputDict, &labelFont, [inheritance labelFontPointer]);
+		UpdateFontDescriptionFromDict(inputDict, labelFont, [inheritance labelFontPointer]);
 
 		NSString * newTextColor = [inputDict objectForKey:@"color"];
 		if(newTextColor == nil)[self setTextColor:[inheritance textColor]];
@@ -55,6 +57,7 @@
 
 - (void) dealloc
 {
+	[labelFont release];
 	[textColor release];
 	[nameString release];
 	[super dealloc];
@@ -62,7 +65,7 @@
 
 - (TitaniumFontDescription *) labelFontPointer;
 {
-	return &labelFont;
+	return labelFont;
 }
 
 - (LayoutConstraint *) constraintPointer;
@@ -88,6 +91,7 @@
 {
 	self = [super init];
 	if (self != nil) {
+		fontDesc = [[TitaniumFontDescription alloc]init];
 		fontDesc.isBoldWeight=YES;
 		fontDesc.size=15;
 	}
@@ -96,6 +100,7 @@
 
 - (void) dealloc
 {
+	[fontDesc release];
 	[imageKeys release];
 	[layoutArray release];
 	
@@ -215,7 +220,7 @@
 
 - (UIFont *) font;
 {
-	return FontFromDescription(&fontDesc);
+	return [fontDesc font];
 }
 
 - (NSString *) stringValue;
@@ -349,10 +354,10 @@
 	[self didChangeValueForKey:@"jsonValues"];
 
 	if(templateCell == nil){
-		UpdateFontDescriptionFromDict(propDict, &fontDesc,NULL);
+		UpdateFontDescriptionFromDict(propDict, fontDesc,NULL);
 	} else {
-		TitaniumFontDescription templateFontDesc = [templateCell fontDesc];
-		UpdateFontDescriptionFromDict(propDict, &fontDesc, &templateFontDesc);
+		TitaniumFontDescription* templateFontDesc = [templateCell fontDesc];
+		UpdateFontDescriptionFromDict(propDict, fontDesc, templateFontDesc);
 	}	
 
 	NSArray * newlayoutArray = [propDict objectForKey:@"layout"];
@@ -386,12 +391,12 @@
 					break;
 				case LayoutEntryText:{
 					TitaniumFontDescription * entryFont = [thisLayout labelFontPointer];
-					if(entryFont->isBoldWeight == entryFont->isNormalWeight){
-						entryFont->isBoldWeight = fontDesc.isBoldWeight;
-						entryFont->isNormalWeight = fontDesc.isNormalWeight;
+					if(entryFont.isBoldWeight == entryFont.isNormalWeight){
+						entryFont.isBoldWeight = fontDesc.isBoldWeight;
+						entryFont.isNormalWeight = fontDesc.isNormalWeight;
 					}
-					if(entryFont->size < 1.0){
-						entryFont->size = fontDesc.size;
+					if(entryFont.size < 1.0){
+						entryFont.size = fontDesc.size;
 					}
 					
 					break;}

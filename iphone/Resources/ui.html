@@ -14,7 +14,7 @@
 		btn1.style = Ti.UI.iPhone.SystemButtonStyle.BORDERED;
 		btn1.width = 50;
 //		btn1.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'green'});newWindow.open();})
-		btn1.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'rgba(0,255,0,1.0)',backButtonTitle:'green'});newWindow.open();})
+		btn1.addEventListener('click',function(){var newWindow = Ti.UI.createWindow({url:'ui.html',barColor:'rgba(0,255,0,1.0)',backButtonTitle:'green',barImage:'woodgrain.png'});newWindow.open();})
 //		Ti.UI.currentWindow.setRightNavButton(btn1);
 		var btn2 = Ti.UI.createButton({systemButton:'play'});
 		var btn3 = Ti.UI.createButton({systemButton:'pause'});
@@ -158,7 +158,7 @@ try{
 	 selectedColor:'white',
 	 color:'brown',
 	 layout:[
-	   {type:'text', left:50,  name:'title', fontWeight:'bold'}
+	   {type:'text', left:50,  name:'title', fontWeight:'bold', fontFamily:'Marker Felt'}
 	]};
 	// data for tableview
 	var data = [

@@ -20,7 +20,7 @@
 
 TitaniumCellWrapper * TitaniumCellWithData(NSDictionary * rowData, NSURL * baseUrl, TitaniumCellWrapper * templateCell)
 {
-	TitaniumFontDescription defaultFont;
+	TitaniumFontDescription * defaultFont = [[TitaniumFontDescription alloc] init];
 	defaultFont.isBoldWeight = YES;
 	defaultFont.size = 20;
 	
@@ -28,6 +28,8 @@ TitaniumCellWrapper * TitaniumCellWithData(NSDictionary * rowData, NSURL * baseU
 	[result setFontDesc:defaultFont];
 	[result setTemplateCell:templateCell];
 	[result useProperties:rowData withUrl:baseUrl];
+	
+	[defaultFont release];
 	return result;
 }
 

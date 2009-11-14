@@ -103,12 +103,20 @@
 {
 	id path = [images objectAtIndex:[index intValue]];
 	UIImage *image = [[TitaniumHost sharedHost] imageForResource:path];
+	if (image==nil)
+	{
+		NSLog(@"[ERROR] couldn't find URL: %@ for cover flow image index: %@",path,index);
+		return nil;
+	}
 	return [NSDictionary dictionaryWithObjectsAndKeys:image,@"image",index,@"index",nil];
 }
 
 - (void)setImageData:(NSDictionary*)args
 {
-	[view setImage:[args objectForKey:@"image"] forIndex:[[args objectForKey:@"index"] intValue]];
+	if (args!=nil)
+	{
+		[view setImage:[args objectForKey:@"image"] forIndex:[[args objectForKey:@"index"] intValue]];
+	}
 }
 
 #pragma mark Delegates

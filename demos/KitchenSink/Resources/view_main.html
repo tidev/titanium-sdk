@@ -19,6 +19,7 @@
 		{title:'Custom Table View', hasChild:true},
 		{title:'Maps View (iPhone)', hasChild:true},
 		{title:'CoverFlow View (iPhone)', hasChild:true},
+		{title:'YQL + CoverFlow View (iPhone)', hasChild:true},
 		{title:'Custom Grouped View (iPhone)', hasChild:true},
 		
 		
@@ -102,6 +103,12 @@
 				break;
 			}
 			case 9:
+			{
+				var win = Titanium.UI.createWindow({url:'yql_coverflow.html',title:'YQL Cover Flow',barColor:'#000', backgroundImage:'images/flickr.png'});
+				win.open({animated:true});
+				break;
+			}
+			case 10:
 			{
 				var win = Titanium.UI.createWindow({url:'custom_grouped_view.html',title:'Custom Grouped View',barColor:'#340f00', backgroundColor:'#970F19'});
 				win.open({animated:true});
