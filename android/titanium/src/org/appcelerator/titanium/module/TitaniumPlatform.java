@@ -175,7 +175,23 @@ public class TitaniumPlatform extends TitaniumBaseModule implements ITitaniumPla
 		} else {
 			TelephonyManager telMgr = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
 			if (telMgr != null) {
+				// for privacy, we don't actually expose the full phone number to the application but instead expose
+				// only a portion of the number that can still be useful for understanding generic information about usage
 				phoneNumber = telMgr.getLine1Number();
+				if (phoneNumber!=null)
+				{
+					int i = phoneNumber.lastIndexOf("-");
+					if (i < 0)
+					{
+						// just trim off last 4 characters if we can't find last separator...
+						phoneNumber = phoneNumber.substring(0,phoneNumber.length());
+					}
+					else
+					{
+						phoneNumber = phoneNumber.substring(0,i+1);
+					}
+					phoneNumber = phoneNumber + "XXXX";
+				}
 			}
 		}
 
