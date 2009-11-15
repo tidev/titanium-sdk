@@ -24,18 +24,21 @@
 		{
 			case 0:
 			{
+				Titanium.Analytics.featureEvent('mashups.yql');
 				var w = Titanium.UI.createWindow({url:'yql.html',barColor:'#004e8c'});
 				w.open({animated:true});
 				break;
 			}
 			case 1:
 			{
+				Titanium.Analytics.featureEvent('mashups.facebook');
 				var w = Titanium.UI.createWindow({url:'facebook.html',barColor:'#3b5998'});
 				w.open({animated:true});
 				break;
 			}
 			case 2:
 			{
+				Titanium.Analytics.featureEvent('mashups.twitter');
 				var w = Titanium.UI.createWindow({url:'twitter.html',barColor:'#33ccff'});
 				w.open({animated:true});
 				break;
@@ -43,6 +46,7 @@
 			}
 			case 3:
 			{
+				Titanium.Analytics.featureEvent('mashups.soap');
 				var w = Titanium.UI.createWindow({url:'soap.html',barColor:'#990000'});
 				w.open({animated:true});
 				break;

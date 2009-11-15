@@ -24,13 +24,20 @@
 	var isPaused = document.getElementById('isPaused');
 	var isLooping = document.getElementById('isLooping');
 	var volume = document.getElementById('volume');
+	var timedEventStart = null;
+	var cumulativeTimeStart = null;
+	var cumulativeTimeDuration = 0;
 	
 	// create a sound object
 	var s = Titanium.Media.createSound('cricket.wav');
 
 	Titanium.UI.currentWindow.addEventListener('unfocused',function()
 	{
-		document.getElementById('audio_controls').style.display = 'none';
+		if (cumulativeTimeDuration > 0)
+		{
+			Titanium.Analytics.timedEvent('ui.sound.time_spent_looping',null,null,(cumulativeTimeDuration/1000).toFixed(0));
+		}
+		//document.getElementById('audio_controls').style.display = 'none';
 		s.stop();
 		s.release();
 	});
@@ -42,6 +49,7 @@
 		isPaused.innerHTML = 'isPaused = ' + s.isPaused();
 		isLooping.innerHTML = 'isLooping = ' + s.isLooping();
 		volume.innerHTML = 'volume = ' + s.getVolume();
+		timedEventStart = new Date();
 		
 	};
 	document.getElementById('pause').onclick = function()
@@ -51,6 +59,20 @@
 		isPaused.innerHTML = 'isPaused = ' + s.isPaused();
 		isLooping.innerHTML = 'isLooping = ' + s.isLooping();
 		volume.innerHTML = 'volume = ' + s.getVolume();
+		if (null !== timedEventStart && 'undefined' !== typeof(timedEventStart))
+		{
+			// Titanium.Analytics.timedEvent(String tag, Date start, Date end, Number duration_in_seconds, Object eventData)
+			// timedEvents are used to get data about how long something takes to occur or to complete.
+			// The timing precision is restricted to seconds.
+			// There are three ways to call timedEvent.
+			// You can pass in just the start time of the action, and the end time will be set to the time the event is triggered.
+			// You can pass in both start and end times, if you need to construct either the tag or the data object after the
+			// action is complete, but you don't want that time to be included in the duration.
+			// Or you can pass in the duration in seconds explicitly.
+			// In this instance, we are tracking how long users listen to the sound before hitting Pause
+			Titanium.Analytics.timedEvent('ui.sound.play_until_pause',timedEventStart);
+			timedEventStart = null;
+		}
 
 	};
 	document.getElementById('reset').onclick = function()
@@ -68,6 +90,7 @@
 		isPaused.innerHTML = 'isPaused = ' + s.isPaused();
 		isLooping.innerHTML = 'isLooping = ' + s.isLooping();
 		volume.innerHTML = 'volume = ' + s.getVolume();
+		cumulativeTimeStart = new Date();
 	};
 	document.getElementById('endloop').onclick = function()
 	{
@@ -76,6 +99,11 @@
 		isPaused.innerHTML = 'isPaused = ' + s.isPaused();
 		isLooping.innerHTML = 'isLooping = ' + s.isLooping();
 		volume.innerHTML = 'volume = ' + s.getVolume();
+		if (null !== cumulativeTimeStart && 'undefined' !== typeof(cumulativeTimeStart))
+		{
+			cumulativeTimeDuration += ((new Date()).getTime() - cumulativeTimeStart.getTime());
+			cumulativeTimeStart = null;
+		}
 	};
 	document.getElementById('volume_up').onclick = function()
 	{

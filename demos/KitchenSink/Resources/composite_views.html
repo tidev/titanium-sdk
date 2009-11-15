@@ -3,31 +3,18 @@
 	<script>
 	window.onload = function()
 	{
-		var search = Titanium.UI.createButton({backgroundImage:'images/search2.png',height:11,width:11});
-		var tf = Titanium.UI.createTextField({
-			id:'textfield',
-			backgroundColor:'#fff',
-			returnKeyType:Titanium.UI.RETURNKEY_GO,
-			keyboardType:Titanium.UI.KEYBOARD_ASCII,
-			hintText:'Search View',
-			textAlign:'left',
-			clearOnEdit:true,
-			fontSize:16,
-			fontWeight:'bold',
-			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
-			leftButton:search,
-			leftButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS
-			
-		});
-		
-		tf.addEventListener('return',function(e)
+
+		// add a native search bar to HTML
+		var search = Titanium.UI.createSearchBar({id:'textfield',barColor:'#777777', showCancel:true});
+		search.addEventListener('change', function(e)
 		{
-			tf.blur();
-			Titanium.UI.createAlertDialog({title:'search value',message:e.value}).show();
-
+		   e.value // search string as user types
+		});
+		search.addEventListener('cancel', function(e)
+		{
+		   search.blur();
 		});
 
-		// COMPOSITE VIEW 
 		
 		// data for tableview
 		var data = [
@@ -51,47 +38,21 @@
 		});
 		var views = Titanium.UI.currentWindow.getViews();
 		
+		// create composite view of table view + search bar
 		var compositeView = Titanium.UI.createCompositeView();
 		compositeView.addView(views[0],{left:0,top:0,height:52});
 		compositeView.addView(body,{top:53,left:0});
 		
-		
+		// add and show the view
 		Titanium.UI.currentWindow.addView(compositeView);
 		Titanium.UI.currentWindow.showView(compositeView);
 		
 	};
 	</script>
-	<style>
-	.container
-	{
-		background-image:-webkit-gradient(linear, 0% 0%, 0% 50%, from(#eee), to(#000), color-stop(.99,#999));
-		height:50px;
-		
-	}
-	.divider
-	{
-		height:1px;
-		background-color:#777;
-	}
-	body
-	{
-		padding:0;
-		margin:0;
-	}
-	#textfield
-	{
-		height:27px;
-		position:relative;
-		top:12px;
-		margin-left:10px;
-		margin-right:10px
-	}
-	</style>
+
 </head>
-<body  style="font-family:'Helvetica Neue'">
-	<div class="container">
-		<div id="textfield"></div>
-	</div>
-	<div class="divider"></div>
+<body  style="font-family:'Helvetica Neue';padding:0;margin:0">
+	<div id="textfield" style="height:50px"></div>
+
 </body>
 </html>

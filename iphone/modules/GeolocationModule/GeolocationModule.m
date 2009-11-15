@@ -131,7 +131,7 @@ NSUInteger lastHeadingID = 0;
 		[actionString appendFormat:@";Ti.Geolocation.clearWatch('%@')",[self token]];
 	}
 
-	[[TitaniumHost sharedHost] sendJavascript:actionString toPageWithToken:[self parentPageToken]];
+	[self sendJavascript:actionString];
 	[actionString release];
 }
 

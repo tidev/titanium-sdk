@@ -10,7 +10,6 @@
 	<script>
 	window.onload = function()
 	{
-	
 		Titanium.UI.currentWindow.addEventListener('my_event',function(data)
 		{
 			Titanium.API.info('in listener');
@@ -22,7 +21,6 @@
 			Titanium.UI.currentWindow.fireEvent('my_event', {eventData:'My event data'});
 			Titanium.API.info('after fire')
 		};
-		
 	};
 	</script>
 </body>

@@ -10,6 +10,7 @@ import org.appcelerator.titanium.config.TitaniumConfig;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.FrameLayout;
@@ -32,6 +33,10 @@ public abstract class TitaniumBaseTableViewItem extends FrameLayout implements H
 
 	public boolean handleMessage(Message msg)
 	{
+		return false;
+	}
+
+	public boolean providesOwnSelector() {
 		return false;
 	}
 }

@@ -55,6 +55,7 @@ import org.appcelerator.titanium.module.fs.TitaniumBlob;
 import org.appcelerator.titanium.module.fs.TitaniumFile;
 import org.appcelerator.titanium.module.fs.TitaniumResourceFile;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TitaniumDelegate;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -509,6 +510,9 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 	}
 
 	public void addTitaniumFileAsPostData(String name, ITitaniumFile value) {
+		if(value instanceof TitaniumDelegate) {
+			value = (ITitaniumFile) ((TitaniumDelegate) value).getObject();
+		}
 		if (value instanceof TitaniumBlob) {
 			TitaniumBlob blob = (TitaniumBlob) value;
 			FileBody body = new FileBody(blob.getFile(), blob.getContentType());

@@ -6,10 +6,10 @@
  */
 package org.appcelerator.titanium.module.ui.tableview;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-
-import javax.swing.text.IconView;
 
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.ui.widgets.TitaniumCompositeLayout;
@@ -25,6 +25,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
@@ -49,6 +50,12 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 			}
 		}
 
+		private Drawable defaultBackground;
+
+		public boolean providesSelector;
+
+		private HashMap<String,WeakReference<? extends View>> viewCache;
+
 		public RowView(Context context)
 		{
 			super(context);
@@ -58,7 +65,8 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 			setLayoutParams(p);
 			setPadding(0, 0, 0, 0);
 			setVerticalFadingEdgeEnabled(true);
-
+			defaultBackground = getBackground();
+			viewCache = new HashMap<String, WeakReference<? extends View>>(4);
 		}
 
 		private JSONObject layoutDataForName(String name, JSONObject item)
@@ -193,6 +201,10 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 
 			}
 
+			providesSelector = false;
+
+			int displayedItems = 0;
+
 			for(DisplayItem item : items) {
 				try {
 					if (data.has(item.name)) {
@@ -200,9 +212,23 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 						JSONObject rLayout = layoutDataForName(item.name, data);
 
 						View v = null;
+						WeakReference<? extends View> weakView = viewCache.get(item.name);
+						View cv = weakView == null ? null : weakView.get();
 
 						if (item.type.equals("text")) {
-							TextView tv = new TextView(getContext());
+							TextView tv = null;
+
+							if (cv == null) {
+								tv = new TextView(getContext());
+								viewCache.put(item.name, new WeakReference<View>(tv));
+							} else if (cv.getClass() != TextView.class) {
+									viewCache.remove(item.name);
+									tv = new TextView(getContext());
+									viewCache.put(item.name, new WeakReference<View>(tv));
+							} else {
+								tv = (TextView) cv;
+							}
+
 							tv.setTag(item.name);
 							tv.setPadding(0, 0, 0, 0);
 							tv.setGravity(Gravity.CENTER_VERTICAL);
@@ -230,9 +256,22 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 							String path = data.getString(item.name);
 							Drawable d = tfh.loadDrawable(path, false);
 							if (d != null) {
-								ImageView iv = new ImageView(getContext());
+								ImageView iv = null;
+
+								if (cv == null) {
+									iv = new ImageView(getContext());;
+									viewCache.put(item.name, new WeakReference<View>(iv));
+								} else if (cv.getClass() != ImageView.class) {
+										viewCache.remove(item.name);
+										iv = new ImageView(getContext());
+										viewCache.put(item.name, new WeakReference<View>(iv));
+								} else {
+									iv = (ImageView) cv;
+								}
+
 								BitmapDrawable b = (BitmapDrawable) d;
 								if (b.getBitmap().getHeight() > rowHeight) {
+									//TODO proportional scale
 									d = new BitmapDrawable(Bitmap.createScaledBitmap(b.getBitmap(), rowHeight, rowHeight, true));
 								}
 								iv.setPadding(0, 0, 0, 0);
@@ -245,12 +284,27 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 						}
 
 						if (v != null) {
+							displayedItems++;
 							addView(v, item.params);
 						}
 					}
 				} catch (JSONException e) {
 					Log.e(LCAT, "Error while processing item with name: " + item.name);
 				}
+			}
+			if (displayedItems > 0) {
+				String backgroundImage = defaults.resolveOption("backgroundImage", data, template);
+				String backgroundSelectedImage = defaults.resolveOption("selectedBackgroundImage", data, template);
+				String backgroundFocusedImage = defaults.resolveOption("focusedBackgroundImage", data, template);
+
+				StateListDrawable sld = TitaniumUIHelper.buildBackgroundDrawable(getContext(), backgroundImage, backgroundSelectedImage, backgroundFocusedImage);
+				if (sld != null) {
+					setBackgroundDrawable(sld);
+					providesSelector = true;
+				}
+			} else {
+				setBackgroundDrawable(defaultBackground);
+				providesSelector = true;
 			}
 		}
 	}
@@ -266,4 +320,11 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 	public void setRowData(TitaniumTableViewItemOptions defaults, JSONObject template, JSONObject data) {
 		rowView.setRowData(defaults, template, data);
 	}
+
+	@Override
+	public boolean providesOwnSelector() {
+		return rowView.providesSelector;
+	}
+
+
 }

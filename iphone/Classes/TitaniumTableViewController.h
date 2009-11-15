@@ -77,7 +77,7 @@ typedef enum {
 
 
 @class TitaniumCellWrapper;
-@interface TitaniumTableViewController : TitaniumContentViewController<UITableViewDelegate,UITableViewDataSource,UIWebViewDelegate> {
+@interface TitaniumTableViewController : TitaniumContentViewController<UITableViewDelegate,UITableViewDataSource,UIWebViewDelegate,UISearchBarDelegate> {
 	UITableViewStyle tableStyle;
 	CGFloat tableRowHeight;
 //	BOOL	useRowHeightCallback;
@@ -103,6 +103,15 @@ typedef enum {
 	NSMutableArray * actionQueue;
 
 	UIColor * backgroundColor;
+	
+	NativeControlProxy * searchField;
+	NSString * searchAttributeKey;
+//	NSString * lastSearchString;	//Todo: Optimize
+	NSMutableArray * searchResultIndexes;
+
+	UITableView * searchTableView;
+	UIButton * searchScreenView;
+
 
 	TitaniumCellWrapper * templateCell;
 }

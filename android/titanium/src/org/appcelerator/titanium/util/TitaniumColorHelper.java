@@ -50,7 +50,7 @@ public class TitaniumColorHelper
 			try {
 				color = Color.parseColor(lowval);
 			} catch (IllegalArgumentException e) {
-				Log.w("TiColorHelper", "Unknown color: " + e.getMessage());
+				Log.w("TiColorHelper", "Unknown color: " + value);
 			}
 		}
 

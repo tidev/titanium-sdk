@@ -87,7 +87,7 @@
 	}
 	[resultString appendFormat:@"delete Ti.Filesystem._COPIES[%d];",numberToken];
 	
-	[[TitaniumHost sharedHost] sendJavascript:resultString toPageWithToken:[self parentPageToken]];
+	[self sendJavascript:resultString];
 	
 	[resultString release];
 	[ourFileManager release];

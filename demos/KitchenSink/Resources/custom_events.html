@@ -3,10 +3,9 @@
 	<script>
 	window.onload = function()
 	{
-		
-		var wv1 = Titanium.UI.createWebView({url:'custom_events1.html',showActivity:false});
-		var wv2 = Titanium.UI.createWebView({url:'custom_events2.html',showActivity:false});
-		var wv3 = Titanium.UI.createWebView({url:'custom_events3.html',showActivity:false});
+		var wv1 = Titanium.UI.createWebView({url:'custom_events1.html',activityIndicator:false});
+		var wv2 = Titanium.UI.createWebView({url:'custom_events2.html',activityIndicator:false});
+		var wv3 = Titanium.UI.createWebView({url:'custom_events3.html',activityIndicator:false});
 		
 		var compositeView = Titanium.UI.createCompositeView();
 		compositeView.addView(wv1,{left:0,top:0,height:50});
