@@ -3,6 +3,7 @@
 	<script>
 	window.onload = function()
 	{
+		// create an input grouped section to store the selected value from the picker
 		var inputData = [
 			{title:'Subject', value:''},
 		];
@@ -28,6 +29,7 @@
 		Titanium.UI.currentWindow.addView(compositeView);
 		Titanium.UI.currentWindow.showView(compositeView);
 		
+		// create a picker and add it to this web view
 		var data = [];
 		
 		// support title attribute
@@ -50,7 +52,7 @@
 		var picker = Titanium.UI.createPicker({id:'picker',data:data,selectionIndicator:true});
 		picker.addEventListener('change', function(e)
 		{
-			var inputData = {value:col1.data[e.row].title}
+			var inputData = {title:'Subject',value:col1.data[e.row].title}
 			inputSection.updateRow(0,inputData);
 		});
 		

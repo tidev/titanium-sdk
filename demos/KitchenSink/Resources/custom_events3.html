@@ -9,12 +9,10 @@
 	<script>
 	window.onload = function()
 	{
-	
 		Titanium.UI.currentWindow.addEventListener('my_event',function(data)
 		{
 			document.getElementById('event_data').innerHTML = data.eventData;
-		})
-		
+		});
 	};
 	</script>
 </body>
