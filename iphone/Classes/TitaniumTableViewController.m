@@ -361,7 +361,7 @@ UIColor * checkmarkColor = nil;
 		
 		if(searchField != nil){
 			if([searchField isKindOfClass:[SearchBarControl class]]){
-				//[(SearchBarControl *)searchField setDelegate:self];
+				[(SearchBarControl *)searchField setDelegate:self];
 			}
 			UIView * searchView = [searchField view];
 			[searchView setFrame:CGRectMake(0, 0, startSize.size.width, tableRowHeight)];
@@ -647,7 +647,14 @@ UIColor * checkmarkColor = nil;
 	return [NSIndexPath indexPathForRow:row inSection:section];
 }
 
-- (TitaniumCellWrapper *) rowForSearchIndex: (int) index;
+- (TitaniumCellWrapper *) cellForIndexPath: (NSIndexPath *) path;
+{
+	TableSectionWrapper * thisSectionWrapper = [self sectionForIndex:[path section]];
+	TitaniumCellWrapper * result = [thisSectionWrapper rowForIndex:[path row]];
+	return result;	
+}
+
+- (NSIndexPath *) indexPathFromSearchIndex: (int) index;
 {
 	int sectionIndex = 0;
 	for (NSIndexSet * thisSet in searchResultIndexes) {
@@ -658,9 +665,7 @@ UIColor * checkmarkColor = nil;
 				rowIndex = [thisSet indexGreaterThanIndex:rowIndex];
 				index --;
 			}
-			TableSectionWrapper * thisSectionWrapper = [self sectionForIndex:sectionIndex];
-			TitaniumCellWrapper * result = [thisSectionWrapper rowForIndex:rowIndex];
-			return result;
+			return [NSIndexPath indexPathForRow:rowIndex inSection:sectionIndex];
 		}
 		sectionIndex ++;
 		index -= thisSetCount;
@@ -709,7 +714,7 @@ UIColor * checkmarkColor = nil;
 		if(result==nil){
 			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"search"] autorelease];
 		}
-		TitaniumCellWrapper * rowWrapper = [self rowForSearchIndex:[indexPath row]];
+		TitaniumCellWrapper * rowWrapper = [self cellForIndexPath:[self indexPathFromSearchIndex:[indexPath row]]];
 		[(id)result setText:[rowWrapper title]];
 		return result;
 	}
@@ -913,6 +918,10 @@ UIColor * checkmarkColor = nil;
 {
 	[sectionLock lock];
 	[ourTableView deselectRowAtIndexPath:indexPath animated:YES];
+
+	if(ourTableView == searchTableView){
+		indexPath = [self indexPathFromSearchIndex:[indexPath row]];
+	}
 
 	int section = [indexPath section];
 	int blessedRow = [indexPath row];
