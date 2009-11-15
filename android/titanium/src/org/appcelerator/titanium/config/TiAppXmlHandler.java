@@ -82,6 +82,7 @@ public class TiAppXmlHandler extends DefaultHandler
 		} else {
 			if ("id".compareTo(localName) == 0 || "name".compareTo(localName) == 0 ||
 				"version".compareTo(localName) == 0 || "icon".compareTo(localName) == 0 ||
+				"analytics".compareTo(localName) == 0 ||
 				/* Properties unsupported on Android */
 				"persistent-wifi".compareTo(localName) == 0 ||
 				"prerendered-icon".compareTo(localName) == 0 ||
@@ -193,7 +194,9 @@ public class TiAppXmlHandler extends DefaultHandler
 				tai.setAppCopyright(getTextAndClear());
 			} else if ("url".compareTo(localName) == 0) {
 				tai.setAppURL(getTextAndClear());
-			} else if ("property".compareTo(localName) == 0) {
+			} else if( "analytics".compareTo(localName) == 0) {
+				tai.setCollectAnalytics(getTextAndClear());
+ 			} else if ("property".compareTo(localName) == 0) {
 				if (currentPropertyName == null) {
 					Log.e(LCAT, "property element missing name attribute value: " + currentText.toString());
 					clearText();

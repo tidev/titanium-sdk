@@ -41,6 +41,12 @@ public class TitaniumAnalytics extends TitaniumBaseModule implements ITitaniumAn
 
 	public void addEvent (String type, String event, String data)
 	{
-		app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createEvent(type, event, data));
+		if (app.getAppInfo().collectAnalytics()) {
+			app.postAnalyticsEvent(TitaniumAnalyticsEventFactory.createEvent(type, event, data));
+		} else {
+			if (DBG) {
+				Log.i(LCAT, "Ignoring addEvent, analytics have been disabled");
+			}
+		}
 	}
 }

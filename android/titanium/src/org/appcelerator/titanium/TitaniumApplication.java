@@ -91,12 +91,17 @@ public class TitaniumApplication
 			Log.e(LCAT, "Error loading tiapp.xml", e);
 		}
 
-		analyticsIntent = new Intent(this, TitaniumAnalyticsService.class);
-
 		TitaniumPlatformHelper.initialize(this);
-		analyticsModel = new TitaniumAnalyticsModel(this);
 
-		needsEnrollEvent = analyticsModel.needsEnrollEvent();
+		if (appInfo.collectAnalytics()) {
+			analyticsIntent = new Intent(this, TitaniumAnalyticsService.class);
+			analyticsModel = new TitaniumAnalyticsModel(this);
+			needsEnrollEvent = analyticsModel.needsEnrollEvent();
+		} else {
+			needsEnrollEvent = false;
+			needsStartEvent = false;
+			Log.i(LCAT, "Analytics have been disabled");
+		}
 	}
 
 	@Override
@@ -202,6 +207,12 @@ public class TitaniumApplication
 
 	public synchronized void postAnalyticsEvent(TitaniumAnalyticsEvent event)
 	{
+		if (!appInfo.collectAnalytics()) {
+			if (DBG) {
+				Log.i(LCAT, "Analytics are disabled, ignoring postAnalyticsEvent");
+			}
+			return;
+		}
 
 		if (DBG) {
 			StringBuilder sb = new StringBuilder();
@@ -244,8 +255,10 @@ public class TitaniumApplication
 	}
 
 	public void sendAnalytics() {
-		if (startService(analyticsIntent) == null) {
-			Log.w(LCAT, "Analytics service not found.");
+		if (analyticsIntent != null) {
+			if (startService(analyticsIntent) == null) {
+				Log.w(LCAT, "Analytics service not found.");
+			}
 		}
 	}
 

@@ -50,6 +50,7 @@ public class TitaniumAppInfo
 	protected String appCopyright;
 	protected String appGUID;
 	protected String appPublisher;
+	protected boolean appCollectAnalytics;
 
 	protected HashMap<String, TitaniumWindowInfo> windows;
 	protected ArrayList<TitaniumModuleInfo> modules;
@@ -90,6 +91,8 @@ public class TitaniumAppInfo
 		systemProperties.setBool(PROP_ANDROID_WATCHLOG, false);
 		String versionString = systemProperties.getString("ti.version", "0.0.0");
 		systemProperties.setString(PROP_NETWORK_USER_AGENT, NETWORK_USER_AGENT + " Titanium/" + versionString);
+
+		appCollectAnalytics = true;
 
 		if (DBG) {
 			Log.d(LCAT, "Default Titanium system properties loaded.");
@@ -195,6 +198,16 @@ public class TitaniumAppInfo
 
 	public String getAppURL (){
 		return this.appURL;
+	}
+
+	public boolean collectAnalytics() {
+		return appCollectAnalytics;
+	}
+
+	public void setCollectAnalytics(String collectAnalytics) {
+		if (collectAnalytics != null) {
+			appCollectAnalytics = Boolean.parseBoolean(collectAnalytics);
+		}
 	}
 
 	public ArrayList<TitaniumWindowInfo> getWindows() {

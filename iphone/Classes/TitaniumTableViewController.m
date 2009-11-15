@@ -462,6 +462,13 @@ UIColor * checkmarkColor = nil;
 		searchField = [[NativeControlProxy controlProxyWithDictionary:searchFieldObject relativeToUrl:baseUrl] retain];
 	}
 	
+	id searchKeyObject = [inputState objectForKey:@"filterAttribute"];
+	if((searchKeyObject != nil) && ![searchKeyObject isEqual:searchAttributeKey]){
+		[searchAttributeKey release];
+		if([searchKeyObject isKindOfClass:[NSString class]])searchAttributeKey = [searchKeyObject retain];
+		else searchAttributeKey = nil;
+	}
+	
 	
 	NSNumber * isGrouped = [inputState objectForKey:@"grouped"];
 	SEL boolSel = @selector(boolValue);
