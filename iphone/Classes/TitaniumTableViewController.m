@@ -15,6 +15,8 @@
 #import "ComplexTableViewCell.h"
 
 #import "NativeControlProxy.h"
+#import "SearchBarControl.h"
+
 
 #import "Logging.h"
 
@@ -70,7 +72,7 @@ TitaniumCellWrapper * TitaniumCellWithData(NSDictionary * rowData, NSURL * baseU
 
 UIColor * checkmarkColor = nil;
 
-@interface TableSectionWrapper : NSObject
+@interface TableSectionWrapper : NSObject<NSFastEnumeration>
 {
 	NSString * name;
 	NSString * groupType;
@@ -262,6 +264,15 @@ UIColor * checkmarkColor = nil;
 	return result;
 }
 
+- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackbuf count:(NSUInteger)len;
+{
+	return [rowArray countByEnumeratingWithState:state objects:stackbuf count:len];
+}
+
+
+
+
+
 - (BOOL) accceptsHeader: (id) newHeader footer: (id) newFooter;
 {
 	Class stringClass = [NSString class];
@@ -348,10 +359,17 @@ UIColor * checkmarkColor = nil;
 			if(borderColor != nil)[tableView setSeparatorColor:borderColor];
 		}
 		
-		[searchField setFrame:CGRectMake(0, 0, startSize.size.width, tableRowHeight)];
-		UIView * searchView = [searchField view];
-		[searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
-		[tableView setTableHeaderView:searchView];
+		if(searchField != nil){
+			if([searchField isKindOfClass:[SearchBarControl class]]){
+				[(SearchBarControl *)searchField setDelegate:self];
+			}
+			[searchField setFrame:CGRectMake(0, 0, startSize.size.width, tableRowHeight)];
+			UIView * searchView = [searchField view];
+			[searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+			[tableView setTableHeaderView:searchView];
+			[tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
+					atScrollPosition:UITableViewScrollPositionTop animated:NO];
+		}
 		
 		[wrapperView addSubview:tableView];
 	}
@@ -502,7 +520,10 @@ UIColor * checkmarkColor = nil;
 	// Releases the view if it doesn't have a superview.
     [super didReceiveMemoryWarning];
 	if([tableView superview]==nil)[self setView:nil];
-	
+	if([searchTableView superview]==nil){
+		[searchTableView release];
+		searchTableView == nil;
+	}
 	// Release any cached data, images, etc that aren't in use.
 }
 
@@ -1318,21 +1339,85 @@ UIColor * checkmarkColor = nil;
 
 #pragma mark Search bar stuffs
 
+
 - (void)updateSearchResultIndexesForString:(NSString *) searchString;
 {
+	NSEnumerator * searchResultIndexEnumerator;
+	if(searchResultIndexes == nil){
+		searchResultIndexes = [[NSMutableArray alloc] initWithCapacity:[sectionArray count]];
+		searchResultIndexEnumerator = nil;
+	} else {
+		searchResultIndexEnumerator = [searchResultIndexes objectEnumerator];
+	}
+
+	//TODO: If the search is adding letters to the previous search string, do it by elimination instead of adding.
 	
-	
-	
-	
-	
-	
+	for (TableSectionWrapper * thisSection in sectionArray) {
+		NSMutableIndexSet * thisIndexSet = [searchResultIndexEnumerator nextObject];
+		if(thisIndexSet == nil){
+			searchResultIndexEnumerator = nil; //Make sure we don't use the enumerator anymore. 
+			thisIndexSet = [NSMutableIndexSet indexSet];
+			[searchResultIndexes addObject:thisIndexSet];
+		} else {
+			[thisIndexSet removeAllIndexes];
+		}
+		int cellIndex = 0;
+		for (TitaniumCellWrapper * thisCell in thisSection) {
+			if([thisCell stringForKey:searchAttributeKey containsString:searchString]){
+				[thisIndexSet addIndex:cellIndex];
+			}
+			cellIndex ++;
+		}
+	}
 }
 
 
+- (IBAction) hideSearchScreen: (id) sender;
+{
+	[UIView beginAnimations:@"searchy" context:nil];
+	[searchField resignFirstResponder];
+	[searchTableView removeFromSuperview];
+	[searchScreenView setEnabled:NO];
+	[searchScreenView setAlpha:0.0];
+	[UIView commitAnimations];
+}
+
+- (IBAction) showSearchScreen: (id) sender;
+{
+	[tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
+			atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+
+	CGRect screenRect = [tableView frame];
+	CGFloat searchHeight = [[tableView tableHeaderView] frame].size.height;
+
+	screenRect.origin.y += searchHeight;
+	screenRect.size.height -= searchHeight;
+
+	if (searchScreenView == nil) {
+		searchScreenView = [[UIButton alloc] init];
+		[searchScreenView addTarget:self action:@selector(hideSearchScreen:) forControlEvents:UIControlEventTouchUpInside];
+		[searchScreenView setShowsTouchWhenHighlighted:NO];
+		[searchScreenView setAdjustsImageWhenDisabled:NO];
+		[searchScreenView setOpaque:NO];
+		[searchScreenView setAlpha:0.0];
+		[searchScreenView setBackgroundColor:[UIColor blackColor]];
+		
+		[wrapperView insertSubview:searchScreenView aboveSubview:tableView];
+	} else if ([searchScreenView superview] != wrapperView) {
+		[searchScreenView setAlpha:0.0];
+		[wrapperView insertSubview:searchScreenView aboveSubview:tableView];
+	}
+	[searchScreenView setFrame:screenRect];
+
+	[UIView beginAnimations:@"searchy" context:nil];
+	[searchScreenView setEnabled:YES];
+	[searchScreenView setAlpha:0.85];
+	[UIView commitAnimations];
+}
 
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar;                     // called when text starts editing
 {
-	
+	[self showSearchScreen:nil];
 }
 
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar;                       // called when text ends editing
@@ -1347,12 +1432,12 @@ UIColor * checkmarkColor = nil;
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar;
 {
-	
+	[searchField resignFirstResponder];
 }
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar;
 {
-	
+	[self hideSearchScreen:nil];
 }
 
 @end

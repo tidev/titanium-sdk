@@ -78,6 +78,7 @@
 		switch ([thisEntry type]) {
 			case LayoutEntryText:{
 				thisEntryView = [[[UILabel alloc] initWithFrame:CGRectZero] autorelease];
+				[(UILabel *)thisEntryView setNumberOfLines:0];
 				[(UILabel *)thisEntryView setText:[dataWrapper stringForKey:name]];
 				UIColor * textColor = nil;
 				if (useHilightColors) {

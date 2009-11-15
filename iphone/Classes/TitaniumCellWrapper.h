@@ -90,6 +90,6 @@ typedef enum {
 - (UIImage *) imageForKey: (NSString *) key;
 - (UIImage *) stretchableImageForKey: (NSString *) key;
 
-
+- (BOOL) stringForKey:(NSString *)key containsString: (NSString *)matchString;
 
 @end
