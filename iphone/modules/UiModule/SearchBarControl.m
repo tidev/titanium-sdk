@@ -22,7 +22,8 @@ NSString * const createSearchBarString = @"function(args){var res=Ti.UI.createBu
 
 
 @implementation SearchBarControl
-@synthesize stringValue, delegate;
+@synthesize delegate;
+//@synthesize stringValue;
 
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
@@ -81,6 +82,7 @@ NSString * const createSearchBarString = @"function(args){var res=Ti.UI.createBu
 		[searchView setFrame:ourFrame];
 	}
 
+	[searchView setText:[self stringValue]];
 	
 	[searchView setShowsCancelButton:showCancel];
 
@@ -125,7 +127,7 @@ NSString * const createSearchBarString = @"function(args){var res=Ti.UI.createBu
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar;                     // called when text starts editing
 {
 	[self setStringValue:[searchBar text]];
-	[self reportEvent:@"focus" value:[SBJSON stringify:stringValue] index:-1 init:nil arguments:nil];
+	[self reportEvent:@"focus" value:[SBJSON stringify:[self stringValue]] index:-1 init:nil arguments:nil];
 
 	if([delegate respondsToSelector:@selector(searchBarTextDidBeginEditing:)])[delegate searchBarTextDidBeginEditing:searchBar];
 }
@@ -133,7 +135,7 @@ NSString * const createSearchBarString = @"function(args){var res=Ti.UI.createBu
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar;                       // called when text ends editing
 {
 	[self setStringValue:[searchBar text]];
-	[self reportEvent:@"blur" value:[SBJSON stringify:stringValue] index:-1 init:nil arguments:nil];
+	[self reportEvent:@"blur" value:[SBJSON stringify:[self stringValue]] index:-1 init:nil arguments:nil];
 
 	if([delegate respondsToSelector:@selector(searchBarTextDidEndEditing:)])[delegate searchBarTextDidEndEditing:searchBar];
 }
@@ -141,7 +143,7 @@ NSString * const createSearchBarString = @"function(args){var res=Ti.UI.createBu
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText;   // called when text changes (including clear)
 {
 	[self setStringValue:searchText];
-	[self reportEvent:@"change" value:[SBJSON stringify:stringValue] index:-1 init:nil arguments:nil];
+	[self reportEvent:@"change" value:[SBJSON stringify:[self stringValue]] index:-1 init:nil arguments:nil];
 
 	if([delegate respondsToSelector:@selector(searchBar:textDidChange:)])[delegate searchBar:searchBar textDidChange:searchText];
 }
@@ -149,7 +151,7 @@ NSString * const createSearchBarString = @"function(args){var res=Ti.UI.createBu
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar;                     // called when keyboard search button pressed
 {
 	[self setStringValue:[searchBar text]];
-	[self reportEvent:@"return" value:[SBJSON stringify:stringValue] index:-1 init:nil arguments:nil];
+	[self reportEvent:@"return" value:[SBJSON stringify:[self stringValue]] index:-1 init:nil arguments:nil];
 
 	if([delegate respondsToSelector:@selector(searchBarSearchButtonClicked:)])[delegate searchBarSearchButtonClicked:searchBar];
 }
@@ -163,7 +165,7 @@ NSString * const createSearchBarString = @"function(args){var res=Ti.UI.createBu
 - (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar;                    // called when cancel button pressed
 {
 	[self setStringValue:[searchBar text]];
-	[self reportEvent:@"cancel" value:[SBJSON stringify:stringValue] index:-1 init:nil arguments:nil];
+	[self reportEvent:@"cancel" value:[SBJSON stringify:[self stringValue]] index:-1 init:nil arguments:nil];
 
 	if([delegate respondsToSelector:@selector(searchBarCancelButtonClicked:)])[delegate searchBarCancelButtonClicked:searchBar];	
 }
