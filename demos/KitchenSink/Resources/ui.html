@@ -22,7 +22,7 @@
 		{title:'Switch',hasChild:true},
 		{title:'Progress Bar',hasChild:true},
 		{title:'Activity Indicator',hasChild:true},
-		{title:'Composite View ',hasChild:true},
+		{title:'Web + Native',hasChild:true},
 		{title:'TableView - Delete',hasChild:true},
 		{title:'TableView - Add',hasChild:true},
 		{title:'TableView - Update',hasChild:true},
@@ -155,8 +155,8 @@
 
 			case 10:
 			{
-				Titanium.Analytics.featureEvent('ui.composite');
-				var win = Titanium.UI.createWindow({url:'composite.html',title:'Composite',backgroundColor:'#fff'});
+				Titanium.Analytics.featureEvent('ui.web_plus_native');
+				var win = Titanium.UI.createWindow({url:'composite.html',title:'Web+Native',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}

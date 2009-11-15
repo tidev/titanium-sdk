@@ -361,10 +361,10 @@ UIColor * checkmarkColor = nil;
 		
 		if(searchField != nil){
 			if([searchField isKindOfClass:[SearchBarControl class]]){
-				[(SearchBarControl *)searchField setDelegate:self];
+				//[(SearchBarControl *)searchField setDelegate:self];
 			}
-			[searchField setFrame:CGRectMake(0, 0, startSize.size.width, tableRowHeight)];
 			UIView * searchView = [searchField view];
+			[searchView setFrame:CGRectMake(0, 0, startSize.size.width, tableRowHeight)];
 			[searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
 			[tableView setTableHeaderView:searchView];
 			[tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]

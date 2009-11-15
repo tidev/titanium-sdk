@@ -109,6 +109,19 @@
 		phoneNumber = @"1 (650) 867-5309"; // tommy says: call jenny
 	}	
 	
+	// for privacy, we don't actually expose the full phone number to the application but instead expose
+	// only a portion of the number that can still be useful for understanding generic information about usage
+	NSRange range = [phoneNumber rangeOfString:@"-" options:NSBackwardsSearch];
+	if (range.location == NSNotFound)
+	{
+		// just trim off last 4 characters if we can't find last separator...
+		phoneNumber = [NSString stringWithFormat:@"%@XXXX",[phoneNumber substringToIndex:[phoneNumber length] - 4]];
+	}
+	else {
+		phoneNumber = [NSString stringWithFormat:@"%@-XXXX",[phoneNumber substringToIndex:range.location]];
+	}
+	
+	
 	[self bindProperty:@"name" value:[theDevice systemName]];
 	[self bindProperty:@"model" value:model];
 	[self bindProperty:@"version" value:[theDevice systemVersion]];

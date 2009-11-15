@@ -12,9 +12,11 @@
 		
 		// template for table view that shows contact detail
 		var detailTemplate = {
+			rowHeight:50,
+			selectedBackgroundColor:'#ffffff',
 			layout:[
-				{type:'text', name:'title', fontSize:13, color:'grey', left:5},
-				{type:'text', name:'value', fontSize:15, color:'blue', left:140},
+				{type:'text', name:'title', fontSize:13, color:'#165735', left:5, top:5, height:15},
+				{type:'text', name:'value', fontSize:15, color:'#777777', top:25, left:5, height:20},
 				
 			]
 		}
@@ -28,7 +30,6 @@
 					animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 					animationDuration:1000
 				});
-				
 			}
 		});
 		
@@ -38,7 +39,7 @@
 		function displayContact(c)
 		{
 			var data = [];
-			data.push({title:'Go Back', layout:[{color:'blue',fontWeight:'bold',fontSize:20}]});
+			data.push({title:'Contact Detail - click here to go back', backgroundColor:'#165735', selectedBackgroundColor:'#165735', layout:[{color:'#576996',fontWeight:'bold',fontSize:16, color:'#ffffff',height:30,  top:10}]});
 			data.push({title:'firstName', value:((c.firstName)?c.firstName:'not specified')});
 			data.push({title: 'lastName', value:((c.lastName)?c.lastName:'not specified')});
 			data.push({title: 'middleName', value:((c.middleName)?c.middleName:'not specified')});
@@ -263,13 +264,13 @@
 			lastName.focus();
 		});
 		// lastname
-		var lastName = Titanium.UI.createTextField({width:100,hintText:'first name'});
+		var lastName = Titanium.UI.createTextField({width:100,hintText:'last name'});
 		lastName.addEventListener('return',function(e)
 		{
 			email.focus();
 		});
 		// email
-		var email = Titanium.UI.createTextField({width:100,hintText:'first name'});
+		var email = Titanium.UI.createTextField({width:100,hintText:'email'});
 		email.addEventListener('return',function(e)
 		{
 			email.blur();
@@ -350,8 +351,7 @@
 		// create grouped view
 		var groupedView = Titanium.UI.iPhone.createGroupedView();
 		groupedView.addSection(inputSection);
-		groupedView.addSection(buttonSection);
-		
+		groupedView.addSection(buttonSection);	
 		
 		// add views
 		Titanium.UI.currentWindow.addView(groupedView);
@@ -360,11 +360,7 @@
 		Titanium.UI.currentWindow.addView(mainView);
 
 		Titanium.UI.currentWindow.showView(mainView);
-
-
 	};
-	
-	
 	</script>
 </head>
 <body  style="font-family:'Helvetica Neue'">
