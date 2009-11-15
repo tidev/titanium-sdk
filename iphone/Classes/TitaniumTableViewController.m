@@ -647,9 +647,32 @@ UIColor * checkmarkColor = nil;
 	return [NSIndexPath indexPathForRow:row inSection:section];
 }
 
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView;              // Default is 1 if not implemented
+- (TitaniumCellWrapper *) rowForSearchIndex: (int) index;
 {
+	int sectionIndex = 0;
+	for (NSIndexSet * thisSet in searchResultIndexes) {
+		int thisSetCount = [thisSet count];
+		if(index < thisSetCount){
+			int rowIndex = [thisSet firstIndex];
+			while (index > 0) {
+				rowIndex = [thisSet indexGreaterThanIndex:rowIndex];
+				index --;
+			}
+			TableSectionWrapper * thisSectionWrapper = [self sectionForIndex:sectionIndex];
+			TitaniumCellWrapper * result = [thisSectionWrapper rowForIndex:rowIndex];
+			return result;
+		}
+		sectionIndex ++;
+		index -= thisSetCount;
+	}
+	return nil;
+}
+
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)ourTableView;              // Default is 1 if not implemented
+{
+	if(ourTableView == searchTableView)return 1;
+
 	[sectionLock lock];
 	NSInteger count = [sectionArray count];
 	[sectionLock unlock];
@@ -659,8 +682,16 @@ UIColor * checkmarkColor = nil;
 //	return MAX(count,1);
 }
 
-- (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section;
+- (NSInteger)tableView:(UITableView *)ourTableView numberOfRowsInSection:(NSInteger)section;
 {
+	if(ourTableView == searchTableView){
+		int rowCount = 0;
+		for (NSIndexSet * thisSet in searchResultIndexes) {
+			rowCount += [thisSet count];
+		}
+		return rowCount;
+	}
+
 	[sectionLock lock];
 	NSInteger rowCount = [[self sectionForIndex:section] rowCount];
 	[sectionLock unlock];
@@ -671,9 +702,18 @@ UIColor * checkmarkColor = nil;
 // Cell gets various attributes set automatically based on table (separators) and data source (accessory views, editing controls)
 
 
-
 - (UITableViewCell *)tableView:(UITableView *)ourTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
 {
+	if(ourTableView == searchTableView){
+		UITableViewCell * result = [ourTableView dequeueReusableCellWithIdentifier:@"search"];
+		if(result==nil){
+			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"search"] autorelease];
+		}
+		TitaniumCellWrapper * rowWrapper = [self rowForSearchIndex:[indexPath row]];
+		[(id)result setText:[rowWrapper title]];
+		return result;
+	}
+
 	[sectionLock lock];
 	TableSectionWrapper * sectionWrapper = [self sectionForIndex:[indexPath section]];
 	TitaniumCellWrapper * rowWrapper = [sectionWrapper rowForIndex:[indexPath row]];
@@ -780,16 +820,20 @@ UIColor * checkmarkColor = nil;
 	return result;
 }
 
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section;    // fixed font style. use custom view (UILabel) if you want something different
+- (NSString *)tableView:(UITableView *)ourTableView titleForHeaderInSection:(NSInteger)section;    // fixed font style. use custom view (UILabel) if you want something different
 {
+	if(ourTableView==searchTableView)return nil;
+
 	[sectionLock lock];
 	NSString * result = [[[[self sectionForIndex:section] header] copy] autorelease];
 	[sectionLock unlock];
 	return result;
 }
 
-- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section;
+- (NSString *)tableView:(UITableView *)ourTableView titleForFooterInSection:(NSInteger)section;
 {
+	if(ourTableView==searchTableView)return nil;
+	
 	[sectionLock lock];
 	NSString * result = [[[[self sectionForIndex:section] footer] copy] autorelease];
 	[sectionLock unlock];
@@ -798,8 +842,10 @@ UIColor * checkmarkColor = nil;
 
 
 #pragma mark Delegate methods
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
 {
+	if(ourTableView==searchTableView)return 43;
+
 	TableSectionWrapper * ourTableSection = [self sectionForIndex:[indexPath section]];
 	TitaniumCellWrapper * ourTableCell = [ourTableSection rowForIndex:[indexPath row]];
 
@@ -1339,6 +1385,32 @@ UIColor * checkmarkColor = nil;
 
 #pragma mark Search bar stuffs
 
+- (UIButton *) searchScreenView;
+{
+	if (searchScreenView == nil) {
+		searchScreenView = [[UIButton alloc] init];
+		[searchScreenView addTarget:self action:@selector(hideSearchScreen:) forControlEvents:UIControlEventTouchUpInside];
+		[searchScreenView setShowsTouchWhenHighlighted:NO];
+		[searchScreenView setAdjustsImageWhenDisabled:NO];
+		[searchScreenView setOpaque:NO];
+		[searchScreenView setBackgroundColor:[UIColor blackColor]];
+	}
+	return searchScreenView;
+}
+
+
+- (UITableView *) searchTableView;
+{
+	if(searchTableView == nil){
+		CGRect searchFrame = [[self searchScreenView] frame];
+		//Todo: make sure we account for the keyboard.
+		searchTableView = [[UITableView alloc] initWithFrame:searchFrame style:UITableViewStylePlain];
+		[searchTableView setDelegate:self];
+		[searchTableView setDataSource:self];
+	}
+	return searchTableView;
+}
+
 
 - (void)updateSearchResultIndexesForString:(NSString *) searchString;
 {
@@ -1352,6 +1424,9 @@ UIColor * checkmarkColor = nil;
 
 	//TODO: If the search is adding letters to the previous search string, do it by elimination instead of adding.
 	
+	NSString * ourSearchAttribute = searchAttributeKey;
+	if(ourSearchAttribute == nil)ourSearchAttribute = @"title";
+	
 	for (TableSectionWrapper * thisSection in sectionArray) {
 		NSMutableIndexSet * thisIndexSet = [searchResultIndexEnumerator nextObject];
 		if(thisIndexSet == nil){
@@ -1363,7 +1438,7 @@ UIColor * checkmarkColor = nil;
 		}
 		int cellIndex = 0;
 		for (TitaniumCellWrapper * thisCell in thisSection) {
-			if([thisCell stringForKey:searchAttributeKey containsString:searchString]){
+			if([thisCell stringForKey:ourSearchAttribute containsString:searchString]){
 				[thisIndexSet addIndex:cellIndex];
 			}
 			cellIndex ++;
@@ -1392,18 +1467,8 @@ UIColor * checkmarkColor = nil;
 
 	screenRect.origin.y += searchHeight;
 	screenRect.size.height -= searchHeight;
-
-	if (searchScreenView == nil) {
-		searchScreenView = [[UIButton alloc] init];
-		[searchScreenView addTarget:self action:@selector(hideSearchScreen:) forControlEvents:UIControlEventTouchUpInside];
-		[searchScreenView setShowsTouchWhenHighlighted:NO];
-		[searchScreenView setAdjustsImageWhenDisabled:NO];
-		[searchScreenView setOpaque:NO];
-		[searchScreenView setAlpha:0.0];
-		[searchScreenView setBackgroundColor:[UIColor blackColor]];
 		
-		[wrapperView insertSubview:searchScreenView aboveSubview:tableView];
-	} else if ([searchScreenView superview] != wrapperView) {
+	if ([[self searchScreenView] superview] != wrapperView) {
 		[searchScreenView setAlpha:0.0];
 		[wrapperView insertSubview:searchScreenView aboveSubview:tableView];
 	}
@@ -1427,7 +1492,24 @@ UIColor * checkmarkColor = nil;
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText;   // called when text changes (including clear)
 {
+	if([searchText length]==0){
+		[searchTableView removeFromSuperview];
+		return;
+	}
+	[self updateSearchResultIndexesForString:searchText];
 	
+	if([searchTableView superview] != wrapperView){
+		if(searchTableView == nil){
+			[self searchTableView];
+		} else {
+			[searchTableView reloadSections:[NSIndexSet indexSetWithIndex:0]
+					withRowAnimation:UITableViewRowAnimationFade];
+		}
+		[wrapperView addSubview:searchTableView];
+	} else {
+		[searchTableView reloadSections:[NSIndexSet indexSetWithIndex:0]
+				withRowAnimation:UITableViewRowAnimationFade];
+	}
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar;
@@ -1437,6 +1519,7 @@ UIColor * checkmarkColor = nil;
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar;
 {
+	[searchBar setText:nil];
 	[self hideSearchScreen:nil];
 }
 

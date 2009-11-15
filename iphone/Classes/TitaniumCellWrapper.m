@@ -473,6 +473,7 @@
 - (BOOL) stringForKey:(NSString *)key containsString: (NSString *)matchString;
 {
 	NSString * valueString = [self stringForKey:key];
+	if(valueString == nil) return NO;
 	NSRange matchLocation = [valueString rangeOfString:matchString options:
 			NSCaseInsensitiveSearch|NSDiacriticInsensitiveSearch|NSWidthInsensitiveSearch];
 	return matchLocation.location != NSNotFound;
