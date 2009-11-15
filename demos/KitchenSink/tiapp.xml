@@ -6,7 +6,6 @@
 <url>appcelerator.com</url>
 <copyright>2009 by nwright</copyright>
 	<description>Mobile Unit Test App</description>
-
 <icon>appicon.png</icon>
     <windows>
         <window>

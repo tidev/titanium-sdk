@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
@@ -41,9 +42,13 @@ public class TitaniumAnalyticsService extends Service
 	private final static String ANALYTICS_URL = "https://api.appcelerator.net/p/v2/mobile-track";
 	//private final static String ANALYTICS_URL = "http://192.168.123.102:8000/test";
 
-	private ConnectivityManager connectivityManager;
+	private static AtomicBoolean sending;
 
+	private ConnectivityManager connectivityManager;
 	public TitaniumAnalyticsService() {
+		if (sending == null) {
+			this.sending = new AtomicBoolean(false);
+		}
 	}
 
 	@Override
@@ -64,6 +69,10 @@ public class TitaniumAnalyticsService extends Service
 	@Override
 	public void onStart(Intent intent, final int startId) {
 		super.onStart(intent, startId);
+
+		if (!sending.compareAndSet(false, true)) {
+			Log.i(LCAT, "Send already in progress, skipping intent");
+		}
 
 		final TitaniumAnalyticsService self = this;
 
@@ -140,6 +149,7 @@ public class TitaniumAnalyticsService extends Service
 
 							events.clear();
 						} else {
+							Log.i(LCAT, "Network unavailable, can't send analytics");
 							//TODO reset alarm?
 							break;
 						}
@@ -150,6 +160,10 @@ public class TitaniumAnalyticsService extends Service
 				} catch (Throwable t) {
 					Log.e(LCAT, "Unhandle exception in analytics thread: ", t);
 					stopSelf(startId);
+				} finally {
+					if (!sending.compareAndSet(true, false)) {
+						Log.w(LCAT, "Expected to be in a sending state. Sending was already false.");
+					}
 				}
 			}
 		});
@@ -164,7 +178,12 @@ public class TitaniumAnalyticsService extends Service
 		//int subType = netInfo.getSubType();
 		// TODO change defaults based on implied speed of network
 
-		NetworkInfo netInfo = connectivityManager.getActiveNetworkInfo();
+		NetworkInfo netInfo = null;
+		try {
+			netInfo = connectivityManager.getActiveNetworkInfo();
+		} catch (SecurityException e) {
+			Log.e(LCAT, "Connectivity permissions have been removed from AndroidManifest.xml: " + e.getMessage());
+		}
 		if (netInfo != null && netInfo.isConnected() && !netInfo.isRoaming()) {
 			result = true;
 		}
