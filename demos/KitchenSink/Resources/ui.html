@@ -60,7 +60,9 @@
 		{title:'Set Control Values', hasChild:false},
 		{title:'Modal Window (iPhone)', hasChild:false},
 		{title:'Picker', hasChild:false},
-		{title:'Custom Table Views',hasChild:true}
+		{title:'Custom Table Views',hasChild:true},
+		{title:'Set App Badge (iPhone)'},
+		{title:'Reset App Badge (iPhone)'}
 		
 	];
 	
@@ -563,6 +565,16 @@
 					barColor:'brown'
 				});
 				win.open({animated:true});		
+				break;
+			}
+			case 49:
+			{
+				Titanium.UI.setAppBadge(2);
+				break;
+			}
+			case 50:
+			{
+				Titanium.UI.setAppBadge(null);
 				break;
 			}
 
