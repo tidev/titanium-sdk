@@ -133,6 +133,10 @@
 
 - (void)request:(FBRequest*)request didLoad:(id)result
 {
+#ifdef VERBOSE_LOG
+	NSLog(@"[DEBUG] Facebook result = (%@) %@",[result class],result);
+#endif
+	
 	if (result == nil)
 	{
 		result = [NSNull null];
@@ -147,7 +151,7 @@
 	}
 	NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:result,@"data",[NSNumber numberWithBool:true],@"success",nil];
 	NSString *json = [module toJSON:dictionary];
-	[module evaluateJavascript:[NSString stringWithFormat:@"try{Ti.Facebook._%@['%@'](%@);}catch(X){}; delete Ti.Facebook._%@['%@'];",prefix,token,json,prefix,token] token:pageToken];
+	[module evaluateJavascript:[NSString stringWithFormat:@"try{Ti.Facebook._%@['%@'](%@);}catch(X){Ti.API.error('Error:'+X);}; delete Ti.Facebook._%@['%@'];",prefix,token,json,prefix,token] token:pageToken];
 	[self autorelease];
 }
 

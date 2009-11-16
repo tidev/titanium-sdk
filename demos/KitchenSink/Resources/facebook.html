@@ -18,12 +18,22 @@
 		var activityIndicator = Titanium.UI.createActivityIndicator();
 
 		var feedButton = Titanium.UI.createButton({
-			title:'Story Test',
+			title:'Story',
 			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
 		});
 		
 		var streamButton = Titanium.UI.createButton({
-			title:'Stream Test',
+			title:'Stream',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		});
+
+		var statusButton = Titanium.UI.createButton({
+			title:'Status',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		});
+
+		var friendsButton = Titanium.UI.createButton({
+			title:'Friends',
 			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
 		});
 		
@@ -86,7 +96,7 @@
 						});
 						Titanium.UI.currentWindow.setToolbar(null);
 					});
-					Titanium.UI.currentWindow.setToolbar([flexSpace,b,feedButton,streamButton,flexSpace]);
+					Titanium.UI.currentWindow.setToolbar([b,statusButton,friendsButton,feedButton,streamButton]);
 				}
 				catch(e)
 				{
@@ -164,7 +174,7 @@
 				};
 				Titanium.Facebook.publishStream("Share some love...",data,null,function(r)
 				{
-					Titanium.API.info("received response = "+Titanium._JSON(r));
+					Titanium.API.info("received publish stream response = "+Titanium._JSON(r));
 				});
 			}
 			catch(E)
@@ -173,8 +183,91 @@
 			}
 		}
 		
+		function pushStatus()
+		{
+			// pass null as data parameter for publishing to your stream - this will set your
+			// status. the dialog will collect the status to display on your wall
+			Titanium.Facebook.publishStream("Set your status",null,null,function(r)
+			{
+				Titanium.API.info("received status response = "+Titanium._JSON(r));
+			});
+		}
+		
+		function showFriends()
+		{
+			Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
+			Titanium.Facebook.query("SELECT uid, name, pic_square, status FROM user where uid IN (SELECT uid2 FROM friend WHERE uid1 = " + Titanium.Facebook.getUserId() + ") order by last_name",function(r)
+			{
+				try
+				{
+					var search = Titanium.UI.createSearchBar({barColor:'#385292', showCancel:true});
+					search.addEventListener('cancel', function(e)
+					{
+					   search.blur();
+					});
+
+					var template = {
+					 selectedBackgroundColor:'#fff', 
+					 backgroundColor:'#fff',
+					 rowHeight:100,
+					 layout:[
+					   {type:'image', left:10, top:20, width:50, height:50, name:'photo'},
+					   {type:'text', fontSize:16, fontWeight:'bold', left:70, top:10, width:200, height:15, color:'#576996', name:'user'},
+					   {type:'text', fontSize:13, fontWeight:'normal', left:70, top:20, height:80,width:200,color:'#222', name:'status'},
+					   {type:'image', right:5, top:35, width:36, height:34, name:'button'}
+					]};
+
+					var data = [];
+					for (var c=0;c<r.data.length;c++)
+					{
+						var row = r.data[c];
+						data[c]= {
+							photo: row.pic_square == null ? 'images/custom_tableview/user.png' : row.pic_square,
+							user: row.name,
+							status: row.status==null ? null : row.status.message,
+							button:'images/custom_tableview/commentButton.png',
+							uid: row.uid
+						};
+					}
+					var friendTableView = Titanium.UI.createTableView({
+						template:template, 
+						data:data,
+						search:search,
+						filterAttribute:'user'
+						}, 
+						function(eventObject)
+						{
+							var rowData = eventObject.rowData;
+							Titanium.Facebook.publishStream("Post on "+rowData.user+" wall",null,rowData.uid,function(r)
+							{
+								Titanium.API.info("received wall response = "+Titanium._JSON(r));
+							});
+						}
+					);
+					Titanium.UI.currentWindow.addView(friendTableView);
+					Titanium.UI.currentWindow.showView(friendTableView);
+
+					var closeFriendsButton = Titanium.UI.createButton({
+						title:'Close',
+						style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+					});
+					Titanium.UI.currentWindow.setRightNavButton(closeFriendsButton);
+					closeFriendsButton.addEventListener('click',function()
+					{
+						Titanium.UI.currentWindow.close();
+					});
+				}
+				catch(EX)
+				{
+					Titanium.API.error("Error loading friends UI: "+EX);
+				}
+			});
+		}
+		
 		feedButton.addEventListener('click',postActivity);
 		streamButton.addEventListener('click',postStream);
+		statusButton.addEventListener('click',pushStatus);
+		friendsButton.addEventListener('click',showFriends);
 		
 		var button = Titanium.Facebook.createLoginButton({
 			'id':'fb',

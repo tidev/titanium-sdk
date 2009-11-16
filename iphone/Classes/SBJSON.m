@@ -108,18 +108,24 @@ static char ctrl[0x24];
 	NSString * queryString = [inputUrl query];
 	if([queryString length]>0){
 		id result;
-		NSString *qs = [queryString stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-		queryString = [NSString stringWithFormat:@"[%@]",qs];
-		SBJSON * jasonDecoder = [[SBJSON alloc] init];
+		NSString *urlString = [inputUrl absoluteString];
+		// we need to manually pull out the query string since the way we're encoding from JS
+		// makes some cases not pull our query part correctly but this seems to work at all times
+		NSRange range = [urlString rangeOfString:@"?"];
+		NSString *query = [urlString substringFromIndex:range.location+1];
+		query = [query stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+		queryString = [NSString stringWithFormat:@"[%@]",query];
+		SBJSON * jsonDecoder = [[SBJSON alloc] init];
 		NSError * error = nil;
-		result = [jasonDecoder fragmentWithString:queryString error:&error];
+		result = [jsonDecoder fragmentWithString:queryString error:&error];
 		if (error != nil){
 			// ATTEMPT TO FIGURE OUT WHAT WENT WRONG
+			NSLog(@"[DEBUG] QUERY URL = %@",inputUrl);
 			NSLog(@"[DEBUG] QUERY STRING = %@",queryString);
-			NSLog(@"[DEBUG] QUERY STRING ESCAPED = %@",qs);
+			NSLog(@"[DEBUG] QUERY STRING ESCAPED = %@",query);
 			NSLog(@"[ERROR] Error in decodeUrlQuery(%@): %@",queryString,error);
 		}
-		[jasonDecoder release];
+		[jsonDecoder release];
 		return result;
 	}
 	return nil;	
@@ -429,13 +435,15 @@ static char ctrl[0x24];
 - (BOOL)scanValue:(NSObject **)o error:(NSError **)error
 {
 	
-    skipWhitespace(c);
+   skipWhitespace(c);
 
 	BOOL result;
 	NSString * token;
 	TitaniumBlobWrapper * ourBlob;
 	
-    switch (*c++) {
+	char ch = *c++;
+	
+    switch (ch) {
         case '{':
             result = [self scanRestOfDictionary:(NSMutableDictionary **)o error:error];
 			if (!result) return result;
@@ -493,7 +501,7 @@ static char ctrl[0x24];
             return NO;
             break;
         default:
-            *error = err(EPARSE, @"Unrecognised leading character");
+            *error = err(EPARSE, [NSString stringWithFormat:@"Unrecognised leading character '%c'",ch]);
             return NO;
             break;
     }
@@ -612,7 +620,7 @@ static char ctrl[0x24];
         }
         
         [*o setObject:v forKey:k];
-        
+
         skipWhitespace(c);
         if (*c == ',' && c++) {
             skipWhitespace(c);

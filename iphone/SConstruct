@@ -54,10 +54,6 @@ import run,prereq
 
 quick_build = ARGUMENTS.get('BUILD_TYPE',0) == 'iphone'
 
-def build_failed(output):
-	if output.find("Build Failed")==-1:
-		return False
-	return True
 
 def build(name):
     # execute the phone and simulator release builds
