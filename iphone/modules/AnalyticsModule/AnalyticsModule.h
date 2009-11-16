@@ -19,6 +19,8 @@
 	NSMutableArray * events;
 	NSTimer * timer;
 	NSLock * mutex;
+	
+	BOOL disabled;
 }
 
 @property(readwrite,retain,nonatomic)	NSString * sessionID;

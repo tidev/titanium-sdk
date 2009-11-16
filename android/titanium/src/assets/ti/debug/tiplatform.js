@@ -119,10 +119,3 @@ Ti.Platform.__defineGetter__("username", function(){
 Ti.Platform.__defineGetter__("availableMemory", function(){
 	return Ti.platformProxy.getAvailableMemory();
 });
-/**
- * @tiapi(method=False,property=True,name=Platform.phoneNumber,since=0.4) Phone number if available. [read-only]
- * @tireturn[string] phone number.
- */
-Ti.Platform.__defineGetter__("phoneNumber", function(){
-	return Ti.platformProxy.getPhoneNumber();
-});

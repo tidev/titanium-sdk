@@ -52,7 +52,6 @@ public class TitaniumAnalyticsEventFactory
 //	- app_id		-- application id (string)
 //	- ostype		-- os type (string)
 //	- osarch		-- os architecture (string)
-//	- phonenumber		-- phone number of the phone (string)
 //	- model			-- model of the phone (string)
 //  - deploytype    -- deployment type [development|test|production]
 
@@ -71,7 +70,6 @@ public class TitaniumAnalyticsEventFactory
 			json.put("app_id", application.getID());
 			json.put("ostype", platform.getOsType());
 			json.put("osarch", platform.getArchitecture());
-			json.put("phonenumber", platform.getPhoneNumber());
 			json.put("model", platform.getModel());
 			json.put("deploytype", deployType);
 
