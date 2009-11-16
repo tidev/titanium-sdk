@@ -313,7 +313,7 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 				}
 			} else {
 				setBackgroundDrawable(defaultBackground);
-				providesSelector = true;
+				providesSelector = false;
 			}
 			Log.w(LCAT, "Set Row Data Done");
 		}

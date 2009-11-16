@@ -477,13 +477,16 @@ public class TitaniumTableView extends TitaniumBaseView
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				TitaniumBaseTableViewItem item = (TitaniumBaseTableViewItem) view;
 				ListView lv = ((ListView) parent);
-				if (item.providesOwnSelector()) {
+				boolean hasSelector = item.providesOwnSelector();
+				if (hasSelector) {
 					if (lv.getSelector() != transparentSelector) {
 						lv.setSelector(transparentSelector);
+						view.invalidate();
 					}
 				} else {
 					if (lv.getSelector() != defaultSelector) {
 						lv.setSelector(defaultSelector);
+						view.invalidate();
 					}
 				}
 			}
