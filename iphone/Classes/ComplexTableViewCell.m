@@ -8,6 +8,20 @@
 #import "ComplexTableViewCell.h"
 #import "TitaniumCellWrapper.h"
 
+#ifndef __IPHONE_3_0
+typedef enum {
+    UITableViewCellStyleDefault,	// Simple cell with text label and optional image view (behavior of UITableViewCell in iPhoneOS 2.x)
+    UITableViewCellStyleValue1,		// Left aligned label on left and right aligned label on right with blue text (Used in Settings)
+    UITableViewCellStyleValue2,		// Right aligned label on left with blue text and left aligned label on right (Used in Phone/Contacts)
+    UITableViewCellStyleSubtitle	// Left aligned label on top and left aligned label on bottom with gray text (Used in iPod).
+} UITableViewCellStyle;                 // available in iPhone 3.0
+
+@interface UITableViewCell(30Compatibility)
+- (BOOL) isHighlighted;
+@end
+
+#endif
+
 @implementation ComplexTableViewCell
 
 @synthesize dataWrapper, clickedName;
@@ -68,8 +82,11 @@
 	CGRect boundRect;
 	boundRect = [[self contentView] frame];
 
-	BOOL useHilightColors = [self isSelected] || [self isHighlighted];
-
+	BOOL useHilightColors = [self isSelected];
+	
+	if([self respondsToSelector:@selector(isHighlighted)]){
+		useHilightColors = useHilightColors || [self isHighlighted];
+	}
 	
 	for (LayoutEntry * thisEntry in layoutArray) {
 		UIView * thisEntryView;
@@ -77,9 +94,9 @@
 
 		switch ([thisEntry type]) {
 			case LayoutEntryText:{
-				thisEntryView = [[[UILabel alloc] initWithFrame:CGRectZero] autorelease];
-				[(UILabel *)thisEntryView setNumberOfLines:0];
-				[(UILabel *)thisEntryView setText:[dataWrapper stringForKey:name]];
+				thisEntryView = [[[UITextView alloc] initWithFrame:CGRectZero] autorelease];
+				[(UITextView *)thisEntryView setEditable:NO];
+				[(UITextView *)thisEntryView setText:[dataWrapper stringForKey:name]];
 				UIColor * textColor = nil;
 				if (useHilightColors) {
 					textColor = [thisEntry selectedTextColor];
@@ -94,12 +111,12 @@
 					textColor = [dataWrapper colorForKey:@"color"];
 				}
 				if (textColor != nil) {
-					[(UILabel *)thisEntryView setTextColor:textColor];
+					[(UITextView *)thisEntryView setTextColor:textColor];
 				} else {
-					[(UILabel *)thisEntryView setTextColor:useHilightColors?[UIColor whiteColor]:[UIColor blackColor]];
+					[(UITextView *)thisEntryView setTextColor:useHilightColors?[UIColor whiteColor]:[UIColor blackColor]];
 				}
 				
-				[(UILabel *)thisEntryView setFont:[[thisEntry labelFontPointer] font]];
+				[(UITextView *)thisEntryView setFont:[[thisEntry labelFontPointer] font]];
 				
 				break;}
 			case LayoutEntryImage:{

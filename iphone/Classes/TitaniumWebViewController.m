@@ -192,11 +192,9 @@
 		}
 	}
 	
-	if (webView==nil)
-	{
-		[self webView];
-	}
-	
+	//Ensuring webview is non-nil is unnecessary, as it's set at the end of scrollView.
+	//Furthermore, webview has to be made after scrollview, in order for webview's side
+	//effect of setting scrollview's alpha to 0.
 	if (scrollView == nil)
 	{
 		CGRect quikframe = CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height);
