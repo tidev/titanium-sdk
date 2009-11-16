@@ -34,8 +34,10 @@ def get_sdks():
 			if len(m) > 0 and sdk_found('3.0'):
 				found.append('3.0')
 			
-			m = re.findall(r"iphoneos2\.2\.1$",cmd)
-			if len(m) > 0 and sdk_found('2.2.1'):
+			# as of 0.8 we no longer support < 3.0 
+			#
+			#m = re.findall(r"iphoneos2\.2\.1$",cmd)
+			#if len(m) > 0 and sdk_found('2.2.1'):
 				found.append('2.2.1')
 	return found
 	
