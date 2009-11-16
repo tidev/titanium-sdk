@@ -319,7 +319,7 @@ static CGFloat kBorderWidth = 10;
     [_closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
     [_closeButton addTarget:self action:@selector(cancel)
       forControlEvents:UIControlEventTouchUpInside];
-    _closeButton.font = [UIFont boldSystemFontOfSize:12];
+    _closeButton.titleLabel.font = [UIFont boldSystemFontOfSize:12];
     _closeButton.showsTouchWhenHighlighted = YES;
     _closeButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin
       | UIViewAutoresizingFlexibleBottomMargin;
@@ -415,6 +415,9 @@ static CGFloat kBorderWidth = 10;
   
   self.title = [_webView stringByEvaluatingJavaScriptFromString:@"document.title"];
   [self updateWebOrientation];
+
+  //JGH: this is patch fix for the current cancel URL not getting set properly
+  [_webView stringByEvaluatingJavaScriptFromString:@"document.getElementById('cancel').onclick=function(){window.location.href='fbconnect:cancel'};"];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
