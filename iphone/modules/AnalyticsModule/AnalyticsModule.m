@@ -60,19 +60,20 @@ NSURL * AnalyticsModuleURL = nil;
 
 	connection = [[NSURLConnection alloc] initWithRequest:ourRequest delegate:self startImmediately:YES];
 	
+	VERBOSE_LOG(@"[INFO] Analytics will send %@",eventArray);
 	return self;
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)URLConnection;
 {
-	VERBOSE_LOG(@"Analytics successfully sent %@",eventArray);
+	VERBOSE_LOG(@"[INFO] Analytics successfully sent %@",eventArray);
 	[eventArray release];
 	[self autorelease];
 }
 
 - (void)connection:(NSURLConnection *)URLConnection didFailWithError:(NSError *)error;
 {
-	VERBOSE_LOG(@"Analytics failed with %@. Tried to send: %@",error,eventArray);
+	VERBOSE_LOG(@"[INFO] Analytics failed with %@. Tried to send: %@",error,eventArray);
 	[module keepEvents:eventArray];
 	[self autorelease];
 }
@@ -224,6 +225,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 {
 	[mutex lock];
 	NSData * newEvent = [self generateEventObject:eventtype evtname:eventname data:data];
+	VERBOSE_LOG(@"[INFO] Analytics enqueing event %@",newEvent);
 	if(events==nil){
 		[[TitaniumHost sharedHost] pauseTermination];
 		events = [[NSMutableArray alloc] initWithObjects:newEvent,nil];
