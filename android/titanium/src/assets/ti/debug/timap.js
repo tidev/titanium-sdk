@@ -6,11 +6,17 @@
  */
 // requires Ti, UI, Geolocation
 
-Ti.UI.MAP_VIEW_STANDARD = 1;
-Ti.UI.MAP_VIEW_SATELLITE = 2;
-Ti.UI.MAP_VIEW_HYBRID = 3;
+Ti.Map = {
+	MAP_VIEW_STANDARD : 1,
+	MAP_VIEW_SATELLITE : 2,
+	MAP_VIEW_HYBRID : 1, /* standard is basically hybrid */
 
-Ti.UI.MapView = function(proxy)
+	ANNOTATION_RED : 1,
+	ANNOTATION_GREEN : 2,
+	ANNOTATION_PURPLE : 3
+};
+
+Ti.Map.MapView = function(proxy)
 {
 	this._proxy = proxy;
 
@@ -23,16 +29,12 @@ Ti.UI.MapView = function(proxy)
 		Ti.Method.dispatch(this._proxy, "processOptions", Ti.JSON.stringify(options));
 	};
 
-	this.setCenterCoordinate = function(coordinate) {
-		Ti.Method.dispatch(this._proxy, "setCenterCoordinate", coordinate);
+	this.setLocation = function(region) {
+		Ti.Method.dispatch(this._proxy, "setLocation", region);
 	};
 
-	this.setRegion = function(region) {
-		Ti.Method.dispatch(this._proxy, "setRegion", region);
-	};
-
-	this.setType = function(type) {
-		Ti.Method.dispatch(this._proxy, "setType", type);
+	this.setMapType = function(type) {
+		Ti.Method.dispatch(this._proxy, "setMapType", type);
 	};
 
 	this.setZoomEnabled = function(enabled) {
@@ -42,14 +44,22 @@ Ti.UI.MapView = function(proxy)
 	this.setScrollEnabled = function(enabled) {
 		Ti.Method.dipatch(this._proxy,"setScrollEnabled", enabled);
 	};
+
+	this.addEventListener = function() {
+
+	};
+
+	this.removeEventListener = function() {
+
+	};
 };
 
-Ti.UI.createMapView = function(options) {
+Ti.Map.createView = function(options) {
 	if (Ti.isUndefined(options)) {
 		options = {};
 	}
 
-	var mv = new Ti.UI.MapView(Ti.Method.dispatch("TitaniumMap","createMapView"));
+	var mv = new Ti.Map.MapView(Ti.Method.dispatch("TitaniumMap","createMapView"));
 	mv.processOptions(options);
 	return mv;
 };
