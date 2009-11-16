@@ -16,7 +16,8 @@ typedef enum {
     UITableViewCellStyleSubtitle	// Left aligned label on top and left aligned label on bottom with gray text (Used in iPod).
 } UITableViewCellStyle;                 // available in iPhone 3.0
 
-@interface UITableViewCell(30Compatibility)
+@interface UITableViewCell(futureProofeded)
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier;
 - (BOOL) isHighlighted;
 @end
 
@@ -96,6 +97,7 @@ typedef enum {
 			case LayoutEntryText:{
 				thisEntryView = [[[UITextView alloc] initWithFrame:CGRectZero] autorelease];
 				[(UITextView *)thisEntryView setEditable:NO];
+				[thisEntryView setUserInteractionEnabled:NO];
 				[(UITextView *)thisEntryView setText:[dataWrapper stringForKey:name]];
 				UIColor * textColor = nil;
 				if (useHilightColors) {
