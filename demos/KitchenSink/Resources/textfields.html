@@ -5,7 +5,7 @@
 <body  style="font-family:'Helvetica Neue';font-size:11px">
 	
 	<div style="margin-bottom:5px;height:10px">ASCII Keyboard / GOOGLE Return Key / Password Mask</div>	
-	<div id="textfield1" style="height:25px"></div>
+	<div id="textfield1" style="height:35px"></div>
 	<div id="textfield1_value" style="margin-top:5px;margin-bottom:20px;color:#999;height:10px"></div>
 
 	<div style="margin-bottom:5px;height:10px">Numbers and Punc Keyboard / GO Return Key</div>	
@@ -52,6 +52,7 @@
 		textAlign:'left',
 		passwordMask:true,
 		clearOnEdit:true,
+		height:35,
 		borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 		leftButton:refresh,
 		leftButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS,
@@ -62,6 +63,7 @@
 	tf1.addEventListener('return',function(e)
 	{
 		document.getElementById('textfield1_value').innerHTML = ' You hit the return key, current value is ' + e.value;
+		tf1.blur();
 	});
 
 	var tf2 = Titanium.UI.createTextField({
@@ -83,6 +85,8 @@
 	tf2.addEventListener('return',function(e)
 	{
 		document.getElementById('textfield2_value').innerHTML = ' You hit the return key, current value is ' + e.value;
+		tf2.blur();
+
 	});
 
 	var tf3 = Titanium.UI.createTextField({
@@ -103,6 +107,8 @@
 	tf3.addEventListener('return',function(e)
 	{
 		document.getElementById('textfield3_value').innerHTML = ' You hit the return key, current value is ' + e.value;
+		tf3.blur();
+
 	});
 
 	var tf4 = Titanium.UI.createTextField({
@@ -122,6 +128,8 @@
 	tf4.addEventListener('return',function(e)
 	{
 		document.getElementById('textfield4_value').innerHTML = ' You hit the return key, current value is ' + e.value;
+		tf4.blur();
+
 	});
 
 	var tf5 = Titanium.UI.createTextField({
@@ -140,8 +148,8 @@
 	});
 	tf5.addEventListener('return',function(e)
 	{
-		
 		document.getElementById('textfield5_value').innerHTML = ' You hit the return key, current value is ' + e.value;
+		tf5.blur();
 	});
 
 	var tf6 = Titanium.UI.createTextField({
@@ -162,6 +170,8 @@
 	tf6.addEventListener('return',function(e)
 	{
 		document.getElementById('textfield6_value').innerHTML = ' You hit the return key, current value is ' + e.value;
+		tf6.blur();
+
 	});
 
 
@@ -176,6 +186,8 @@
 	ta1.addEventListener('return',function(e)
 	{
 		document.getElementById('textarea1_value').innerHTML = ' You hit the return key, current value is ' + e.value;
+		ta1.blur();
+
 	})
 
 	</script>
