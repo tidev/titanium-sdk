@@ -8,11 +8,16 @@
 		var search = Titanium.UI.createSearchBar({id:'textfield',barColor:'#777777', showCancel:true});
 		search.addEventListener('change', function(e)
 		{
-		   e.value // search string as user types
+		   	e.value // search string as user types
 		});
 		search.addEventListener('cancel', function(e)
 		{
-		   search.blur();
+		   	search.blur();
+		});
+		search.addEventListener('return', function(e)
+		{
+			Titanium.UI.createAlertDialog({title:'Search Bar', message:'You typed ' + e.value }).show();
+		   	search.blur();
 		});
 
 		

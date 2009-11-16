@@ -60,7 +60,9 @@
 		{title:'Set Control Values', hasChild:false},
 		{title:'Modal Window (iPhone)', hasChild:false},
 		{title:'Picker', hasChild:false},
-		{title:'Custom Table Views',hasChild:true}
+		{title:'Custom Table Views',hasChild:true},
+		{title:'Set App Badge (iPhone)'},
+		{title:'Reset App Badge (iPhone)'}
 		
 	];
 	
@@ -518,7 +520,7 @@
 				var win = Titanium.UI.createWindow({
 					url:'set_control_values.html',
 					title:'Set Control Values',
-					backgroundColor:'#fff' 
+					backgroundColor:'#fff'
 				});
 				win.open({animated:true});		
 				break;
@@ -537,7 +539,7 @@
 				win.setLeftNavButton(b);
 				b.addEventListener('click',function()
 				{
-					win.close({animated:false});
+					win.close();
 				})
 				win.open({modal:true});		
 				break;
@@ -563,6 +565,16 @@
 					barColor:'brown'
 				});
 				win.open({animated:true});		
+				break;
+			}
+			case 49:
+			{
+				Titanium.UI.setAppBadge(2);
+				break;
+			}
+			case 50:
+			{
+				Titanium.UI.setAppBadge(null);
 				break;
 			}
 
