@@ -18,7 +18,7 @@ NSString * const titaniumJavascriptInjection =
 		"switch (type) {"
 			"case 'undefined': case 'function': case 'unknown': return undefined;"
 			"case 'number': case 'boolean': return object;"
-			"case 'string': return '\"'+object.replace(/\"/g,'%%22').replace(/\\n/g,'%%0A').replace(/\\r/g,'%%0D')+'\"';"
+			"case 'string': return '\"'+object.replace(/\"/g,'\\\\\"').replace(/\\n/g,'\\\\n').replace(/\\r/g,'\\\\r')+'\"';"
 		"}"
 		"if((object===null) || (object.nodeType==1)) return 'null';"
 		"if(typeof(object.toJson)=='function')return object.toJson();"
