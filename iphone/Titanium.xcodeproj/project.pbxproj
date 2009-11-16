@@ -349,6 +349,7 @@
 		B4BAC94310982994005925EA /* PlatformModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8300FC9FCA400063972 /* PlatformModule.m */; };
 		B4BAC94410982996005925EA /* FBLoginButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238A106F1802004D4127 /* FBLoginButton.m */; };
 		B4BAC94510982997005925EA /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F02E450FD482D2007894DA /* AnalyticsModule.m */; };
+		B4BF789D10B1F19900C7D46E /* facebook.html in Resources */ = {isa = PBXBuildFile; fileRef = B4BF789C10B1F19900C7D46E /* facebook.html */; };
 		B4C3F8B60FB3B11C0037F210 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */; };
 		B4C579C410A27F1E00198B82 /* ComplexTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C579C310A27F1E00198B82 /* ComplexTableViewCell.m */; };
 		B4C579C510A27F1E00198B82 /* ComplexTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C579C310A27F1E00198B82 /* ComplexTableViewCell.m */; };
@@ -575,7 +576,8 @@
 		B4B9E4711003D52F004B8831 /* jquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.js; sourceTree = "<group>"; };
 		B4BAC625109624C2005925EA /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
 		B4BAC626109624C2005925EA /* AddressBookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBookUI.framework; path = System/Library/Frameworks/AddressBookUI.framework; sourceTree = SDKROOT; };
-		B4BAC64E1096250A005925EA /* MapKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		B4BAC64E1096250A005925EA /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		B4BF789C10B1F19900C7D46E /* facebook.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = facebook.html; sourceTree = "<group>"; };
 		B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		B4C579C210A27F1E00198B82 /* ComplexTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComplexTableViewCell.h; sourceTree = "<group>"; };
 		B4C579C310A27F1E00198B82 /* ComplexTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ComplexTableViewCell.m; sourceTree = "<group>"; };
@@ -1081,6 +1083,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				B4BF789C10B1F19900C7D46E /* facebook.html */,
 				2402FF3B10AD6C4D0060E89D /* woodgrain.png */,
 				B4AF73B6107E7920000347A7 /* view1.html */,
 				B4AF73B7107E7920000347A7 /* view2.html */,
@@ -1923,6 +1926,7 @@
 				B4AF73BA107E7920000347A7 /* view2.html in Resources */,
 				B4AF73BB107E7920000347A7 /* view3.html in Resources */,
 				2402FF3C10AD6C4D0060E89D /* woodgrain.png in Resources */,
+				B4BF789D10B1F19900C7D46E /* facebook.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

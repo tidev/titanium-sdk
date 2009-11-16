@@ -610,8 +610,9 @@ TitaniumHost * lastSharedHost = nil;
 
 	int i = 0;
 
-	while ((pendingClosings > 0) && (i<20)) {
-		[NSThread sleepForTimeInterval:0.1];
+	while ((pendingClosings > 0) && (i<40)) {
+		VERBOSE_LOG(@"Waiting for %d pending closings, attempt #%d",pendingClosings,i);
+		[NSThread sleepForTimeInterval:0.25];
 		i++;
 	}
 	
@@ -1020,11 +1021,6 @@ TitaniumHost * lastSharedHost = nil;
 		{
 			str = [self trimSlashes:filePath startingAt:4];
 		}
-		else if ([str hasPrefix:@"http:"] || [str hasPrefix:@"https:"])
-		{
-			// load it from URL 
-			result = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:pathOrUrl]]];
-		}
 		if (str!=nil && result == nil)
 		{
 			filePath = [appResourcesPath stringByAppendingPathComponent:str];
@@ -1044,11 +1040,6 @@ TitaniumHost * lastSharedHost = nil;
 		else if ([[pathOrUrl scheme] isEqualToString:@"ti"])
 		{
 			buildInPath = [self trimSlashes:[url absoluteString] startingAt:3];
-		}
-		else
-		{
-			// load it from URL - possibly a remote URL
-			result = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
 		}
 	}
 
