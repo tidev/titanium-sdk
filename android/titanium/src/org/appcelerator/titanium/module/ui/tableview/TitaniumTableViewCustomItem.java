@@ -23,10 +23,12 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -39,6 +41,8 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 
 	class RowView extends TitaniumCompositeLayout
 	{
+		private String lastTouchedViewName;
+
 		class DisplayItem
 		{
 			public String name;
@@ -186,6 +190,10 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 
 		public void setRowData(TitaniumTableViewItemOptions defaults, JSONObject template, JSONObject data)
 		{
+			Log.w(LCAT,"Set Row Data Begin");
+
+			lastTouchedViewName = null;
+			setTag(null);
 			removeAllViews(); // consider detaching and reusing, versus dumping.
 
 			TitaniumFileHelper tfh = new TitaniumFileHelper(getContext());
@@ -284,6 +292,7 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 						}
 
 						if (v != null) {
+							v.setTag(item.name);
 							displayedItems++;
 							addView(v, item.params);
 						}
@@ -304,8 +313,36 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 				}
 			} else {
 				setBackgroundDrawable(defaultBackground);
-				providesSelector = true;
+				providesSelector = false;
 			}
+			Log.w(LCAT, "Set Row Data Done");
+		}
+
+		@Override
+		public boolean dispatchTouchEvent(MotionEvent ev) {
+			if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+				int x = (int) ev.getX();
+				int y = (int) ev.getY();
+
+				lastTouchedViewName = null;
+				Rect hitRect = new Rect();
+
+				int count = getChildCount();
+				for(int i = 0; i < count; i++) {
+					View v = getChildAt(i);
+					if (v.getVisibility() == View.VISIBLE) {
+						v.getHitRect(hitRect);
+						if (hitRect.contains(x, y)) {
+							lastTouchedViewName = (String) v.getTag();
+							if (DBG) {
+								Log.i(LCAT, "View touched: " + lastTouchedViewName);
+							}
+						}
+  					}
+				}
+			}
+
+			return super.dispatchTouchEvent(ev);
 		}
 	}
 
@@ -323,8 +360,15 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 
 	@Override
 	public boolean providesOwnSelector() {
+		Log.e(LCAT, "PROVIDES SELECTOR: " + rowView.providesSelector);
 		return rowView.providesSelector;
 	}
+
+	@Override
+	public String getLastClickedViewName() {
+		return rowView.lastTouchedViewName;
+	}
+
 
 
 }
