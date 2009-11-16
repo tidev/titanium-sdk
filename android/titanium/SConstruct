@@ -75,6 +75,17 @@ maps_jar = os.path.join(android_sdk, 'add-ons','google_apis-3','libs','maps.jar'
 android_jar = os.path.join(android_sdk, 'platforms', 'android-1.5', 'android.jar')
 commons_logging_jar = os.path.join(cwd, 'lib', 'commons-logging-1.1.1.jar')
 
+if not os.path.exists(android_jar):
+	sys.stderr.write("Couldn't find Android JAR at %s\n" % android_jar)
+	sys.exit(-1)
+
+if not os.path.exists(maps_jar):
+	maps_jar = os.path.join(android_sdk, 'add-ons', 'google_apis-3-r03', 'libs','maps.jar')
+	if not os.path.exists(maps_jar):
+		sys.stderr.write("Couldn't find Android Google Maps JAR at %s\n" % maps_jar)
+		sys.exit(-1)
+
+
 j = env.Java('bin/classes', 'src', JAVACFLAGS="-target 1.5 -classpath "+android_jar+os.pathsep+commons_logging_jar+os.pathsep+maps_jar)
 env.AddPostAction(j,JarAction())
 env.Depends(j, tiall)

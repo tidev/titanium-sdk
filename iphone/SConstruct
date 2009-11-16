@@ -54,14 +54,24 @@ import run,prereq
 
 quick_build = ARGUMENTS.get('BUILD_TYPE',0) == 'iphone'
 
+def build_failed(output):
+	if output.find("Build Failed")==-1:
+		return False
+	return True
+
 def build(name):
     # execute the phone and simulator release builds
 
     if os.path.exists('/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%s.sdk' % apiversion):
-    	os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target lib%s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s %s' clean build" % (apiversion,name,config,defines,flags))
+    	output = os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target lib%s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s %s' clean build" % (apiversion,name,config,defines,flags))
+	if output!=0:
+		sys.exit(output)
 
     if os.path.exists('/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator%s.sdk' % apiversion):
-    	os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target lib%s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='DEBUG=1 %s %s' clean build" % (apiversion,name,config,defines,flags))
+    	output = os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target lib%s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='DEBUG=1 %s %s' clean build" % (apiversion,name,config,defines,flags))
+
+	if output!=0:
+		sys.exit(-1)
 	
 
     # build the merged library using lipo
@@ -86,3 +96,4 @@ else:
 
 	
     
+sys.exit(0)

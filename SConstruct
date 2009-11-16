@@ -2,7 +2,7 @@
 #
 # Top level scons script
 #
-import os, shutil, platform, os.path as path
+import os, shutil, platform, os.path as path, sys
 import package
 import SCons.Variables
 import SCons.Environment
@@ -58,7 +58,16 @@ for dir in build_dirs:
 	d = os.getcwd()
 	os.chdir(dir)
 	try:
-		os.system("scons PRODUCT_VERSION=%s COMPILER_FLAGS='%s' BUILD_TYPE='%s'" % (version,flags,build_type))	
+		output = os.system("scons PRODUCT_VERSION=%s COMPILER_FLAGS='%s' BUILD_TYPE='%s'" % (version,flags,build_type))	
+		if output!=0:
+			sys.stderr.write("BUILD FAILED!!!!\n")
+			# beep, please
+			if platform.system() == "Darwin":
+				os.system("say 'OH NO...the build failed!!!'")
+				os.system("printf \"\a\"")
+				os.system("printf \"\a\"")
+				os.system("printf \"\a\"")
+			sys.exit(output)
 	finally:
 		os.chdir(d)
 
