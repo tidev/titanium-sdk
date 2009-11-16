@@ -50,7 +50,8 @@
 							user: row.name,
 							status: (row.status ? row.status.message : 'No status message'),
 							button:'images/custom_tableview/commentButton.png',
-							uid: row.uid
+							uid: row.uid,
+							title: row.name
 						};
 					}
 					if (tableView)
@@ -85,6 +86,15 @@
 							function(eventObject)
 							{
 								var rowData = eventObject.rowData;
+								
+								// Titanium.API.info("layoutName == "+eventObject.layoutName);
+								// 
+								// if (typeof(eventObject.layoutName)=='undefined')
+								// {
+								// 	Titanium.API.info("before blur");
+								// 	search.blur();
+								// 	return;
+								// }
 								Titanium.Facebook.publishStream("What to say?",null,rowData.uid,function(pr)
 								{
 									Titanium.API.info("received wall response = "+Titanium._JSON(pr));
