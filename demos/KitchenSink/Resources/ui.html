@@ -520,7 +520,7 @@
 				var win = Titanium.UI.createWindow({
 					url:'set_control_values.html',
 					title:'Set Control Values',
-					backgroundColor:'#fff' 
+					backgroundColor:'#fff'
 				});
 				win.open({animated:true});		
 				break;
@@ -539,7 +539,7 @@
 				win.setLeftNavButton(b);
 				b.addEventListener('click',function()
 				{
-					win.close({animated:false});
+					win.close();
 				})
 				win.open({modal:true});		
 				break;
