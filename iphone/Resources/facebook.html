@@ -1,0 +1,314 @@
+<html>
+<head>
+	<title>Facebook Connect</title>
+	<script>
+	
+	window.onload = function()
+	{
+		if (Titanium.Platform.name == 'android')
+		{
+			document.getElementById("fb").innerHTML = "Facebook Connect is not yet available on Android."
+			return;
+		}
+		
+		var tableView;
+		var refreshButton = Titanium.UI.createButton({
+			systemButton:Titanium.UI.iPhone.SystemButton.REFRESH
+		});
+		var activityIndicator = Titanium.UI.createActivityIndicator();
+
+		var feedButton = Titanium.UI.createButton({
+			title:'Story',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		});
+		
+		var streamButton = Titanium.UI.createButton({
+			title:'Stream',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		});
+
+		var statusButton = Titanium.UI.createButton({
+			title:'Status',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		});
+
+		
+		function fetchStream()
+		{
+			Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
+			
+			Titanium.Facebook.query("SELECT uid, name, pic_square, status FROM user where uid IN (SELECT uid2 FROM friend WHERE uid1 = " + Titanium.Facebook.getUserId() + ") order by last_name",function(r)
+			{
+				try
+				{
+					var data = [];
+					for (var c=0;c<r.data.length;c++)
+					{
+						var row = r.data[c];
+						data[c]= {
+							photo: row.pic_square == null ? 'images/custom_tableview/user.png' : row.pic_square,
+							user: row.name,
+							status: (row.status ? row.status.message : 'No status message'),
+							button:'images/custom_tableview/commentButton.png',
+							uid: row.uid,
+							title: row.name
+						};
+					}
+					if (tableView)
+					{
+						tableView.setData(data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+					}
+					else
+					{
+						var search = Titanium.UI.createSearchBar({barColor:'#385292', showCancel:true});
+						search.addEventListener('cancel', function(e)
+						{
+						   search.blur();
+						});
+
+						var template = {
+						 selectedBackgroundColor:'#fff', 
+						 backgroundColor:'#fff',
+						 rowHeight:100,
+						 layout:[
+						   {type:'image', left:10, width:50, height:50, name:'photo'},
+						   {type:'text', fontSize:16, fontWeight:'bold', left:70, top:0, width:200, height:25, color:'#576996', name:'user'},
+						   {type:'text', fontSize:13, fontWeight:'normal', left:70, top:20, bottom:5, width:200, color:'#222', name:'status'},
+						   {type:'image', right:5, top:35, width:36, height:34, name:'button'}
+						]};
+
+						tableView = Titanium.UI.createTableView({
+							template:template, 
+							data:data,
+							search:search,
+							filterAttribute:'user'
+							}, 
+							function(eventObject)
+							{
+								var rowData = eventObject.rowData;
+								
+								// Titanium.API.info("layoutName == "+eventObject.layoutName);
+								// 
+								// if (typeof(eventObject.layoutName)=='undefined')
+								// {
+								// 	Titanium.API.info("before blur");
+								// 	search.blur();
+								// 	return;
+								// }
+								Titanium.Facebook.publishStream("What to say?",null,rowData.uid,function(pr)
+								{
+									Titanium.API.info("received wall response = "+Titanium._JSON(pr));
+									var message = pr.cancel ? 'Message Cancelled' : pr.success ? 'Message Posted' : 'Message Failed';
+									var data = {
+											backgroundColor:'#385292', 
+											selectedBackgroundColor:'#385292',
+											message:message,
+											layout:[{
+												name:'message', 
+												type:'text', 
+												color:'#fff', 
+												fontWeight:'bold', 
+												fontSize:20,
+												top:40,
+												height:25,
+												left:50
+											}]
+									};
+									tableView.updateRow(eventObject.index,data,{
+											animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT
+									});
+									setTimeout(function()
+									{
+										tableView.updateRow(eventObject.index,rowData,{
+												animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT
+										});
+									},750);
+								});
+							}
+						);
+						Titanium.UI.currentWindow.addView(tableView);
+						Titanium.UI.currentWindow.showView(tableView,{
+							animated:true,
+							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+							animationDuration:1000
+						});
+					}
+
+					Titanium.UI.currentWindow.setRightNavButton(refreshButton);
+					
+					var flexSpace = Titanium.UI.createButton({
+						systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+					});
+					var b = Titanium.UI.createButton({
+						title:'Logout',
+						style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+					});
+					b.addEventListener('click',function()
+					{
+						Titanium.Facebook.logout();
+						var views = Titanium.UI.currentWindow.getViews();
+						Titanium.UI.currentWindow.showView(views[0],{
+							animated:true,
+							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,
+							animationDuration:1000
+						});
+						Titanium.UI.currentWindow.setToolbar(null);
+					});
+					Titanium.UI.currentWindow.setToolbar([flexSpace,b,statusButton,feedButton,streamButton,flexSpace]);
+					
+				}
+				catch(EX)
+				{
+					Titanium.API.error("Error loading friends UI: "+EX);
+				}
+			});
+		}
+		
+		refreshButton.addEventListener('click',fetchStream);
+		
+		function loggedIn()
+		{
+			document.getElementById('loggedin').style.display='none';
+			document.getElementById('loggedout').style.display='block';
+			
+			if (!Titanium.Facebook.hasPermission("read_stream"))
+			{
+				Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
+				
+				Titanium.Facebook.requestPermission("read_stream",function(evt)
+				{
+					if (evt.success)
+					{
+						fetchStream();
+					}
+				});
+			}
+			else
+			{
+				fetchStream();
+			}
+		}
+		
+		function loggedOut()
+		{
+			document.getElementById('loggedin').style.display='block';
+			document.getElementById('loggedout').style.display='none';
+		}
+		
+		function postActivity()
+		{
+			var id = 167397171331;
+			var data = {"event":"Fake Event 2010","eventURL":"http://www.appcelerator.com"};
+			Titanium.Facebook.publishFeed(id,data,"Hello, this is a test from Titanium FBConnect!",function(r)
+			{
+				Titanium.API.info("received response = "+Titanium._JSON(r));
+			});
+		}
+		
+		function postStream()
+		{
+			try
+			{
+				// see http://wiki.developers.facebook.com/index.php/Attachment_(Streams)
+				// for description of the contents of this data object
+				var data = {
+					name:"Facebook Connect for Appcelerator Titanium",
+					href:"http://www.appcelerator.com",
+					caption:"I love Titanium",
+					description: "Appcelerator Titanium kicks booty and loves Facebook",
+					media:[
+						{
+							type:"image",
+							src:"http://img.skitch.com/20091027-dick5esbjx9kg63rnfhtfgdre1.jpg",
+							href:"http://www.appcelerator.com"
+						}
+					],
+					properties:
+					{
+						"Homepage":{
+							"text":"Appcelerator Home Page",
+							"href":"http://www.appcelerator.com"
+						}
+					}
+				};
+				Titanium.Facebook.publishStream("Share some love...",data,null,function(r)
+				{
+					Titanium.API.info("received publish stream response = "+Titanium._JSON(r));
+				});
+			}
+			catch(E)
+			{
+				alert(E);
+			}
+		}
+		
+		function pushStatus()
+		{
+			// pass null as data parameter for publishing to your stream - this will set your
+			// status. the dialog will collect the status to display on your wall
+			Titanium.Facebook.publishStream("Set your status",null,null,function(r)
+			{
+				Titanium.API.info("received status response = "+Titanium._JSON(r));
+			});
+		}
+		
+		function showFriends()
+		{
+			Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
+		}
+		
+		feedButton.addEventListener('click',postActivity);
+		streamButton.addEventListener('click',postStream);
+		statusButton.addEventListener('click',pushStatus);
+		
+		var button = Titanium.Facebook.createLoginButton({
+			'id':'fb',
+			'style':'wide',
+			'apikey':'6d6537bbec4526347a6af5d4510e5091',
+			'secret':'f5069ee17cbf7bd11feb38e5317a388b'
+		});
+		button.addEventListener('login',loggedIn);
+		button.addEventListener('logout',loggedOut);
+
+		if (Titanium.Facebook.isLoggedIn())
+		{
+			loggedIn();
+		}
+		else
+		{
+			loggedOut();
+		}
+
+	};
+	</script>
+	<style>
+		body
+		{
+			background-color:#aaa;
+			font-family:"Helvetica Neue";
+		}
+		#loggedin, #loggedout
+		{
+			margin-top:80px;
+			text-align:center;
+			font-weight:bold;
+			font-size:15px;
+		}
+		#fb
+		{
+			margin-top:80px;
+			text-align:center;
+		}
+	</style>
+</head>
+<body>
+	<div id="loggedin" style="display:none">
+		This is a demo that uses Facebook Connect. Click the button to login using your 
+		facebook credentials.
+	</div>
+	<div id="loggedout" style="display:none">
+		This is a demo that uses Facebook Connect. Click the button to logout of Facebook.
+	</div>
+	<div id="fb"></div>
+</body>
+</html>

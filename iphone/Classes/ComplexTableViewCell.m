@@ -60,7 +60,19 @@ typedef enum {
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context;
 {
-	[self setNeedsLayout];
+	if(object==dataWrapper){
+		[self setNeedsLayout];
+	}
+
+	if ([keyPath isEqualToString:@"imageBlob"]) {
+		[object removeObserver:self forKeyPath:keyPath];
+		for (UIView * changedView in layoutViewsArray) {
+			if (changedView == context) {
+				[(UIImageView *)changedView setImage:[object imageBlob]];
+				return;
+			}
+		}
+	}
 }
 
 - (void)layoutSubviews;
@@ -126,6 +138,10 @@ typedef enum {
 
 				UIImage * entryImage = [dataWrapper imageForKey:name];
 				[(UIImageView *)thisEntryView setImage:entryImage];
+				if (entryImage==nil) {
+					[[dataWrapper blobWrapperForKey:name] addObserver:self
+							forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:thisEntryView];
+				}
 				
 				break;}
 			case LayoutEntryButton:{
