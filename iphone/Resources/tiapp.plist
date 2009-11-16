@@ -123,6 +123,25 @@
 			<key>title</key>
 			<string>Gooogle</string>
 		</dict>
+		<dict>
+			<key>hideNavBar</key>
+			<false/>
+			<key>views</key>
+			<array>
+				<dict>
+					<key>url</key>
+					<string>facebook.html</string>
+				</dict>
+			</array>
+			<key>background</key>
+			<string>white</string>
+			<key>backgroundnImage</key>
+			<string>default.png</string>
+			<key>orientation</key>
+			<string>either</string>
+			<key>title</key>
+			<string>Facebook</string>
+		</dict>
 	</array>
 	<key>verboseDebugging</key>
 	<true/>

@@ -9,17 +9,53 @@
 #import "TitaniumHost.h"
 #import "TitaniumAppProtocol.h"
 
+#import "OperationQueue.h"
+
 NSDictionary * namesFromMimeTypeDict = nil;
+NSLock * networkFetchingLock = nil;
 
 @implementation TitaniumBlobWrapper
-@synthesize dataBlob, token, filePath, mimeType, imageBlob, url;
+@synthesize dataBlob, token, filePath, mimeType, imageBlob, url, isLoading;
 //@synthesize stringBlob, stringEncoding;
 
++ (void) initialize;
+{
+	if (networkFetchingLock == nil) {
+		networkFetchingLock = [[NSLock alloc] init];
+		[networkFetchingLock setName:@"TitaniumBlobWrapper network lock"];
+	}
+}
 
+
+- (void) enqueueLoadData;
+{
+	[networkFetchingLock lock];
+	if (!isLoading) {
+		[self setIsLoading:YES];
+		[[OperationQueue sharedQueue] queue:@selector(dataWithContentsOfURL:) target:[NSData class]
+				arg:url after:@selector(updateDataBlob:) on:self ui:YES];
+	}
+	[networkFetchingLock unlock];
+}
+
+
+- (void) updateDataBlob:(NSData *)newData;
+{
+	if (newData == dataBlob) {
+		return;
+	}
+
+	[self setDataBlob:newData];
+	[self setIsLoading:NO];
+	[self willChangeValueForKey:@"imageBlob"];
+	[imageBlob release];
+	imageBlob = nil;
+	[self didChangeValueForKey:@"imageBlob"];
+}
 
 - (NSData *) dataBlob;
 {
-	if (dataBlob == nil){
+	if (dataBlob == nil && !isLoading){
 		if (imageBlob != nil){
 			dataBlob = UIImagePNGRepresentation(imageBlob);
 			[dataBlob retain];
@@ -27,6 +63,11 @@ NSDictionary * namesFromMimeTypeDict = nil;
 		if ((dataBlob == nil) && (filePath != nil)){
 			dataBlob = [[NSData alloc] initWithContentsOfFile:filePath options:NSMappedRead error:nil];
 		}
+		if (imageBlob == nil && url!=nil)
+		{
+			[self enqueueLoadData];
+		}
+		
 //		if ((dataBlob == nil) && (stringBlob != nil)){
 //			dataBlob = [[stringBlob dataUsingEncoding:stringEncoding] retain];
 //		}
@@ -36,19 +77,20 @@ NSDictionary * namesFromMimeTypeDict = nil;
 
 - (UIImage *) imageBlob;
 {
-	if ((imageBlob == nil) && !failedImage){
+	if ((imageBlob == nil) && !isLoading){
 		if (dataBlob != nil) {
 			imageBlob = [[UIImage alloc] initWithData:dataBlob];
 		}
 		if ((imageBlob == nil) && (filePath != nil)) {
 			imageBlob = [[UIImage alloc] initWithContentsOfFile:filePath];
 		}
-		if (imageBlob == nil && url!=nil && [url isFileURL]==NO)
+		if ((imageBlob == nil) && (url!=nil))
 		{
-			NSData *data = [NSData dataWithContentsOfURL:url];
-			imageBlob = [[UIImage alloc] initWithData:data];
+			imageBlob = [[TitaniumHost sharedHost] imageForResource:url];
+			if (imageBlob == nil) {
+				[self enqueueLoadData];
+			}
 		}
-		if (imageBlob == nil) failedImage = YES;
 	}
 	return imageBlob;
 }

@@ -8,14 +8,13 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+//Todo: this should be in a 
+
 
 @interface TitaniumBlobWrapper : NSObject {
-//	NSStringEncoding stringEncoding;
-//	NSString * stringBlob;
-
 	NSData * dataBlob;
 	UIImage * imageBlob;
-	BOOL	failedImage;
+	BOOL	isLoading;
 	NSString * token;
 	NSString * filePath;
 	NSString * mimeType;
@@ -27,6 +26,7 @@
 
 
 @property(readwrite,nonatomic,retain)	NSData * dataBlob;
+@property(readwrite,nonatomic,assign)	BOOL isLoading;
 @property(readwrite,nonatomic,retain)	UIImage * imageBlob;
 @property(readwrite,nonatomic,retain)	NSString * token;
 @property(readwrite,nonatomic,retain)	NSString * filePath;

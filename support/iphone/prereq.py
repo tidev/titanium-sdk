@@ -20,25 +20,17 @@ def sdk_found(apiversion):
 def get_sdks():
 	found = []
 	output = run.run(["xcodebuild","-showsdks"])
+	#print output
 	for line in output.split("\n"):
 		if line[0:1] == '\t':
 			line = line.strip()
 			i = line.index('-sdk')
 			type = line[0:i]
 			cmd = line[i+5:]
-			m = re.findall(r"iphoneos3\.1$",cmd)
-			if len(m) > 0 and sdk_found('3.1'):
-				found.append('3.1')
-
-			m = re.findall(r"iphoneos3\.0$",cmd)
-			if len(m) > 0 and sdk_found('3.0'):
-				found.append('3.0')
-			
-			# as of 0.8 we no longer support < 3.0 
-			#
-			#m = re.findall(r"iphoneos2\.2\.1$",cmd)
-			#if len(m) > 0 and sdk_found('2.2.1'):
-				found.append('2.2.1')
+			if cmd.find("iphoneos")==0:
+				ver = cmd[8:]
+				if ver[0]=='3':
+					found.append(ver)
 	return found
 	
 def check_iphone3():

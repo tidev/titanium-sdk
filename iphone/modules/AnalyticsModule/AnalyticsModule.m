@@ -60,26 +60,27 @@ NSURL * AnalyticsModuleURL = nil;
 
 	connection = [[NSURLConnection alloc] initWithRequest:ourRequest delegate:self startImmediately:YES];
 	
-	VERBOSE_LOG(@"[INFO] Analytics will send %@",eventArray);
+	VERBOSE_LOG(@"[INFO] Analytics %@ will send %@",self,eventArray);
 	return self;
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)URLConnection;
 {
-	VERBOSE_LOG(@"[INFO] Analytics successfully sent %@",eventArray);
+	VERBOSE_LOG(@"[INFO] Analytics %@ successful!",self);
 	[eventArray release];
 	[self autorelease];
 }
 
 - (void)connection:(NSURLConnection *)URLConnection didFailWithError:(NSError *)error;
 {
-	VERBOSE_LOG(@"[INFO] Analytics failed with %@. Tried to send: %@",error,eventArray);
+	VERBOSE_LOG(@"[INFO] Analytics %@ failed with %@",self,error);
 	[module keepEvents:eventArray];
 	[self autorelease];
 }
 
 - (void) dealloc
 {
+	VERBOSE_LOG(@"[INFO] Analytics %@ deallocing",self);
 	[[TitaniumHost sharedHost] resumeTermination];
 	[connection release];
 	[super dealloc];
@@ -238,7 +239,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	[mutex unlock];
 }
 
-#pragma mark 
+#pragma mark -
 
 - (void) pageLoaded;
 {
