@@ -34,6 +34,7 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
+import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
@@ -67,6 +68,7 @@ public class TitaniumMapView extends TitaniumBaseView
 
 	private LocalMapView view;
 	private Window mapWindow;
+	private MyLocationOverlay myLocation;
 
 	class LocalMapView extends MapView
 	{
@@ -199,8 +201,8 @@ public class TitaniumMapView extends TitaniumBaseView
 					handled = true;
 					break;
 				case MSG_SET_USERLOCATION :
-					userLocation = (Boolean) msg.obj;
-					// Todo, maybe a specialized overlay?
+					userLocation = msg.arg1 == 1 ? true : false;
+					doUserLocation(userLocation);
 					handled = true;
 					break;
 			}
@@ -258,6 +260,7 @@ public class TitaniumMapView extends TitaniumBaseView
 			doSetMapType(type);
 			doSetLocation(region);
 			doSetAnnotations(annotations);
+			doUserLocation(userLocation);
 		} catch (IllegalArgumentException e) {
 			Log.e(LCAT, "Missing API Key: " + e.getMessage());
 			Toast.makeText(getContext(), "Missing MAP API Key", Toast.LENGTH_LONG).show();
@@ -332,6 +335,35 @@ public class TitaniumMapView extends TitaniumBaseView
 					TitaniumOverlay overlay = new TitaniumOverlay(makeMarker(Color.BLUE));
 					overlay.setAnnotations(annotations);
 					overlays.add(overlay);
+				}
+			}
+		}
+	}
+
+	public void doUserLocation(boolean userLocation)
+	{
+		if (view != null) {
+			if (userLocation) {
+				if (myLocation == null) {
+					myLocation = new MyLocationOverlay(getContext(), view);
+				}
+
+				List<Overlay> overlays = view.getOverlays();
+				synchronized(overlays) {
+					if (!overlays.contains(myLocation)) {
+						overlays.add(myLocation);
+					}
+				}
+
+				myLocation.enableMyLocation();
+
+			} else {
+				List<Overlay> overlays = view.getOverlays();
+				synchronized(overlays) {
+					if (overlays.contains(myLocation)) {
+						overlays.remove(myLocation);
+					}
+					myLocation.disableMyLocation();
 				}
 			}
 		}

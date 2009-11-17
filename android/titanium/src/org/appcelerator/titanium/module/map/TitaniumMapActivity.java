@@ -1,7 +1,5 @@
 package org.appcelerator.titanium.module.map;
 
-import org.appcelerator.titanium.util.Log;
-
 import android.os.Bundle;
 
 import com.google.android.maps.MapActivity;
