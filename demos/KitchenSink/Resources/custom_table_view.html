@@ -82,6 +82,15 @@
 		}, 
 		function(eventObject)
 		{
+			// see if we are in search mode
+			if (eventObject.searchMode==true)
+			{
+				search.blur();
+				Titanium.UI.createAlertDialog({
+					title:'Search Results', 
+					message:'You clicked ' + eventObject.rowData.title
+				}).show();
+			}
 			// row data
 			var rowData = eventObject.rowData;
 
