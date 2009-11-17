@@ -142,6 +142,19 @@
 			<key>title</key>
 			<string>Facebook</string>
 		</dict>
+		<dict>
+			<key>title</key>
+			<string>Coverflow</string>
+			<key>orientation</key>
+			<string>either</string>
+			<key>views</key>
+			<array>
+				<dict>
+					<key>url</key>
+					<string>coverflow.html</string>
+				</dict>
+			</array>
+		</dict>
 	</array>
 	<key>verboseDebugging</key>
 	<true/>

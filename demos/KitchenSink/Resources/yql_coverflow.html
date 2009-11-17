@@ -63,7 +63,7 @@
 						url: 'modules/ui/images/photoDefault.png',
 						backgroundColor: '#000'
 					});
-					var imagewin = Titanium.UI.createWindow({views:[flipview],fullscreen:true});
+					var imagewin = Titanium.UI.createWindow({views:[flipview],fullscreen:true,orientation:'either'});
 					view.addEventListener('click',function(evt)
 					{
 						var flip_url = images[evt.index].replace('_m.jpg','.jpg');
