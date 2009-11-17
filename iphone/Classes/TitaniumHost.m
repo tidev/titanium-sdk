@@ -610,7 +610,7 @@ TitaniumHost * lastSharedHost = nil;
 
 	int i = 0;
 
-	while ((pendingClosings > 0) && (i<40)) {
+	while ((pendingClosings > 0) && (i<20)) {
 		VERBOSE_LOG(@"Waiting for %d pending closings, attempt #%d",pendingClosings,i);
 		[NSThread sleepForTimeInterval:0.25];
 		i++;
