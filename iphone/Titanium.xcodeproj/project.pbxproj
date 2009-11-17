@@ -217,7 +217,6 @@
 		B43543671076995400A38EC9 /* TitaniumJSEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B43543631076995400A38EC9 /* TitaniumJSEvent.m */; };
 		B4468EFD10027417002BAC64 /* misc.html in Resources */ = {isa = PBXBuildFile; fileRef = B4468EFC10027417002BAC64 /* misc.html */; };
 		B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
-		B44BCFDA0FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
 		B451D42610599C1C0025A18B /* PickerImageTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B451D42510599C1C0025A18B /* PickerImageTextCell.m */; };
 		B451D42710599C1C0025A18B /* PickerImageTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B451D42510599C1C0025A18B /* PickerImageTextCell.m */; };
 		B45C717F0FEDAF93002A8675 /* WebTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */; };
@@ -775,7 +774,6 @@
 				B41069CD0FBB756B00310448 /* UIKit.framework in Frameworks */,
 				B41069CE0FBB756B00310448 /* Foundation.framework in Frameworks */,
 				B41069CF0FBB756B00310448 /* CoreGraphics.framework in Frameworks */,
-				B44BCFDA0FC5E03400733BDD /* libsqlite3.dylib in Frameworks */,
 				B4A49BA30FCE01070049ED60 /* MediaPlayer.framework in Frameworks */,
 				B401107D102CA204009ADA57 /* MessageUI.framework in Frameworks */,
 				B4F37E161061AB5D00ED12AF /* QuartzCore.framework in Frameworks */,
