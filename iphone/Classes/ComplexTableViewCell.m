@@ -112,6 +112,7 @@ typedef enum {
 - (void)prepareForReuse;                                                        // if the cell is reusable (has a reuse identifier), this is called just before the cell is returned from the table view method dequeueReusableCellWithIdentifier:.  If you override, you MUST call super.
 {
 	[super prepareForReuse];
+	lastLayoutArray = nil;
 	[self setUserInteractionEnabled:YES];
 }
 
@@ -206,11 +207,12 @@ typedef enum {
 
 			if([thisEntryView isKindOfClass:[UIImageView class]]){
 				[self applyImageNamed:name toView:(UIImageView *)thisEntryView];
-				continue;	
+				continue;
 			}
 			if([thisEntryView isKindOfClass:[TitaniumTextLabel class]]){
 				[(TitaniumTextLabel *)thisEntryView setText:[dataWrapper stringForKey:name]];
 				[(TitaniumTextLabel *)thisEntryView setHighlighted:useHilightColors];
+				[thisEntryView setNeedsDisplay];
 				continue;
 			}
 		}
@@ -293,7 +295,6 @@ typedef enum {
 	[super setSelected:selected animated:animated];
 //	[self updateState:animated];
 }
-
 
 - (void)dealloc {
 	[self setDataWrapper:nil];
