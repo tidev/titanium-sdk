@@ -32,6 +32,20 @@
 			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
 		});
 
+		var sound = null;
+		
+		if (Titanium.Platform.name != 'android')
+		{
+			// CAF is a specific iphone sound format
+			sound = Titanium.Media.createSound('pop.caf');
+		}
+		
+		// just play the facebook earcon -- nice little example of combining sounds
+		function playEarcon()
+		{
+			if (sound) sound.play();
+		}
+
 		
 		function fetchStream()
 		{
@@ -95,8 +109,14 @@
 								// 	search.blur();
 								// 	return;
 								// }
+								
 								Titanium.Facebook.publishStream("What to say?",null,rowData.uid,function(pr)
 								{
+									if (pr.success)
+									{
+										playEarcon();
+									}
+									
 									Titanium.API.info("received wall response = "+Titanium._JSON(pr));
 									var message = pr.cancel ? 'Message Cancelled' : pr.success ? 'Message Posted' : 'Message Failed';
 									var data = {
@@ -202,6 +222,10 @@
 			Titanium.Facebook.publishFeed(id,data,"Hello, this is a test from Titanium FBConnect!",function(r)
 			{
 				Titanium.API.info("received response = "+Titanium._JSON(r));
+				if (r.success)
+				{
+					playEarcon();
+				}
 			});
 		}
 		
@@ -234,6 +258,10 @@
 				Titanium.Facebook.publishStream("Share some love...",data,null,function(r)
 				{
 					Titanium.API.info("received publish stream response = "+Titanium._JSON(r));
+					if (r.success)
+					{
+						playEarcon();
+					}
 				});
 			}
 			catch(E)
@@ -249,6 +277,10 @@
 			Titanium.Facebook.publishStream("Set your status",null,null,function(r)
 			{
 				Titanium.API.info("received status response = "+Titanium._JSON(r));
+				if (r.success)
+				{
+					playEarcon();
+				}
 			});
 		}
 		
