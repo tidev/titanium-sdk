@@ -24,7 +24,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -170,6 +174,11 @@ public class TitaniumTableView extends TitaniumBaseView
 				Log.w(LCAT, "Missing isDisplayHeader attribute at position " + position);
 			}
 			return enabled;
+		}
+
+		@Override
+		public boolean hasStableIds() {
+			return false;
 		}
 	}
 
@@ -470,35 +479,39 @@ public class TitaniumTableView extends TitaniumBaseView
 		};
 
 		final Drawable defaultSelector = view.getSelector();
-		final Drawable transparentSelector = new ColorDrawable(Color.TRANSPARENT);
+		final Drawable adaptableSelector = new ColorDrawable(Color.TRANSPARENT) {
 
-		view.setOnItemSelectedListener(new OnItemSelectedListener(){
+			@Override
+			public void draw(Canvas canvas) {
+				TitaniumBaseTableViewItem v = (TitaniumBaseTableViewItem) view.getSelectedView();
 
-			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				TitaniumBaseTableViewItem item = (TitaniumBaseTableViewItem) view;
-				ListView lv = ((ListView) parent);
-				boolean hasSelector = item.providesOwnSelector();
-				if (hasSelector) {
-					if (lv.getSelector() != transparentSelector) {
-						lv.setSelector(transparentSelector);
-						view.invalidate();
+				if (v != null) {
+					if (v.providesOwnSelector()) {
+						super.draw(canvas);
+					} else {
+						Rect r = getBounds();
+						defaultSelector.setBounds(r);
+						defaultSelector.setState(view.getDrawableState());
+						defaultSelector.draw(canvas);
 					}
 				} else {
-					if (lv.getSelector() != defaultSelector) {
-						lv.setSelector(defaultSelector);
-						view.invalidate();
-					}
+					Rect r = getBounds();
+					defaultSelector.setBounds(r);
+					defaultSelector.setState(view.getDrawableState());
+					defaultSelector.draw(canvas);
 				}
 			}
 
-			public void onNothingSelected(AdapterView<?> parent) {
-			}});
+		};
+		view.setSelector(adaptableSelector);
 
 		view.setFocusable(true);
 		view.setFocusableInTouchMode(true);
 		view.setBackgroundColor(Color.TRANSPARENT);
 		view.setCacheColorHint(Color.TRANSPARENT);
 		adapter = new TTVListAdapter(viewModel);
+		Log.e(LCAT, "CHOICE MODE: " + view.getChoiceMode());
+		Log.e(LCAT, "Checked Item Pos: " + view.getCheckedItemPosition());
 		view.setAdapter(adapter);
 
 		String scrollBar = defaults.get("scrollBar");

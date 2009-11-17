@@ -12,6 +12,7 @@
 	TitaniumCellWrapper * dataWrapper;
 	NSMutableArray * layoutViewsArray;
 	NSString * clickedName;
+	NSMutableSet * watchedBlobs;
 }
 
 @property(nonatomic,readwrite,retain) TitaniumCellWrapper * dataWrapper;
