@@ -975,7 +975,7 @@ UIColor * checkmarkColor = nil;
 
 	NSString * triggeredCode = [[NSString alloc] initWithFormat:@".onClick('click',{type:'click',"
 			"index:%d,row:%d,section:%d,rowData:%@,detail:%@,searchMode:%@%@})",
-			index,row,section,rowData,detail,viaSearch,itemName];
+			index,row,section,rowData,detail,search,itemName];
 	
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	[theHost sendJavascript:[callbackProxyPath stringByAppendingString:triggeredCode] toPageWithToken:callbackWindowToken];
