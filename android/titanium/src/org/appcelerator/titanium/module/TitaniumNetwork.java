@@ -211,7 +211,7 @@ public class TitaniumNetwork extends TitaniumBaseModule implements ITitaniumNetw
 				type = TitaniumNetwork.NETWORK_NONE;
 			}
 		} catch (SecurityException e) {
-			Log.i(LCAT, "Permission has been removed. Cannot determine network type.");
+			Log.w(LCAT, "Permission has been removed. Cannot determine network type: " + e.getMessage());
 		}
 		return type;
 	}
