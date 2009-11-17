@@ -14,6 +14,7 @@ NSUInteger lastWatchID = 0;
 NSUInteger lastHeadingID = 0;
 
 #define MAX_DELAY_BEFORE_TRANSMIT_GEO_EVENT_IN_MS (60000) * 1
+#define MAX_DELAY_BEFORE_TRANSMIT_HEADING_EVENT_IN_MS (60000) * 3
 
 #define TYPE_HEADING 1
 #define TYPE_POSITION 2
@@ -340,6 +341,16 @@ NSUInteger lastHeadingID = 0;
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading
 {
+	[lastHeadingEvent release];
+	lastHeadingID++;
+
+	// only send heading events every so often to the JS layer since they come very fast and often
+	if ((lastHeadingEvent == nil) || ((-[lastHeadingEvent timeIntervalSinceNow]) < MAX_DELAY_BEFORE_TRANSMIT_HEADING_EVENT_IN_MS))
+	{
+		lastHeadingEvent = [[NSDate alloc] init];
+		return;
+	}
+
 	NSString * locationString = nil;
 	
 	[proxyLock lock];
@@ -352,8 +363,6 @@ NSUInteger lastHeadingID = 0;
 	}
 	[proxyLock unlock];
 	
-	lastHeadingID++;
-	[lastHeadingEvent release];
 	lastHeadingEvent = [[NSDate alloc] init];
 	[self performSelectorOnMainThread:@selector(updateHeading) withObject:nil waitUntilDone:NO];
 }

@@ -59,14 +59,15 @@
 						images:images,
 						backgroundColor:'#000'
 					});
-					flipview = Titanium.UI.createWebView({
-						url:'flickr.html',
-						preload:true,
-						backgroundColor:'#fff',
-						backgroundImage:null
+					flipview = Titanium.UI.createImageView({
+						url: 'modules/ui/images/photoDefault.png',
+						backgroundColor: '#900'
 					});
 					view.addEventListener('click',function(evt)
 					{
+						var flip_url = images[evt.index].replace('_m.jpg','.jpg');
+						flipview.setURL('modules/ui/images/photoDefault.png'); // cause it to load our default loading image (which should happen immediately)
+						flipview.setURL(flip_url); // now cause it to load our remote image, which might take some time since it's large and remote
 						Titanium.UI.currentWindow.showView(flipview,{
 							animated:true,
 							animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_RIGHT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,
