@@ -8,13 +8,15 @@
 
 #import "GeolocationModule.h"
 #import "AnalyticsModule.h"
+#import <sys/utsname.h>
 
 
 NSUInteger lastWatchID = 0;
 NSUInteger lastHeadingID = 0;
 
-#define MAX_DELAY_BEFORE_TRANSMIT_GEO_EVENT_IN_MS (60000) * 1
-#define MAX_DELAY_BEFORE_TRANSMIT_HEADING_EVENT_IN_MS (60000) * 3
+#define MAX_DELAY_BEFORE_TRANSMIT_GEO_EVENT_IN_SEC 30		// only transmit geo events at most every 30 seconds
+#define MAX_DELAY_BEFORE_TRANSMIT_LOCATION_EVENT_IN_SEC 1	// only transmit location events at most every 1 sec up to JS layer
+#define MAX_DELAY_BEFORE_TRANSMIT_HEADING_EVENT_IN_SEC 1	// only transmit heading events at most every 1 sec up to JS layer
 
 #define TYPE_HEADING 1
 #define TYPE_POSITION 2
@@ -293,8 +295,24 @@ NSUInteger lastHeadingID = 0;
 	[locationManager stopUpdatingHeading];
 }
 
+- (void)triggerGeo:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation;
+{
+	if ((lastEvent == nil) || ((-[lastEvent timeIntervalSinceNow]) >= MAX_DELAY_BEFORE_TRANSMIT_GEO_EVENT_IN_SEC))
+	{
+		[self transmitGeoEvent:newLocation fromLocation:oldLocation];
+	}
+}
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation;
 {
+	// only send location events every so often to the JS layer since they come very fast and often
+	if ((lastEvent != nil) && ((-[lastEvent timeIntervalSinceNow]) < MAX_DELAY_BEFORE_TRANSMIT_LOCATION_EVENT_IN_SEC))
+	{
+		[self triggerGeo:newLocation fromLocation:oldLocation];
+		[lastEvent release];
+		lastEvent = [[NSDate alloc] init];
+		return;
+	}
+
 	NSString * locationString = nil;
 	
 	[proxyLock lock];
@@ -307,10 +325,7 @@ NSUInteger lastHeadingID = 0;
 	}
 	[proxyLock unlock];
 
-	if ((lastEvent == nil) || ((-[lastEvent timeIntervalSinceNow]) >= MAX_DELAY_BEFORE_TRANSMIT_GEO_EVENT_IN_MS))
-	{
-		[self transmitGeoEvent:newLocation fromLocation:oldLocation];
-	}
+	[self triggerGeo:newLocation fromLocation:oldLocation];
 
 	watchEventsFired++;
 	[lastEvent release];
@@ -341,12 +356,10 @@ NSUInteger lastHeadingID = 0;
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading
 {
-	[lastHeadingEvent release];
-	lastHeadingID++;
-
 	// only send heading events every so often to the JS layer since they come very fast and often
-	if ((lastHeadingEvent == nil) || ((-[lastHeadingEvent timeIntervalSinceNow]) < MAX_DELAY_BEFORE_TRANSMIT_HEADING_EVENT_IN_MS))
+	if ((lastHeadingEvent != nil) && ((-[lastHeadingEvent timeIntervalSinceNow]) < MAX_DELAY_BEFORE_TRANSMIT_HEADING_EVENT_IN_SEC))
 	{
+		[lastHeadingEvent release];
 		lastHeadingEvent = [[NSDate alloc] init];
 		return;
 	}
@@ -363,7 +376,9 @@ NSUInteger lastHeadingID = 0;
 	}
 	[proxyLock unlock];
 	
+	[lastHeadingEvent release];
 	lastHeadingEvent = [[NSDate alloc] init];
+	lastHeadingID++;
 	[self performSelectorOnMainThread:@selector(updateHeading) withObject:nil waitUntilDone:NO];
 }
 
@@ -615,8 +630,28 @@ NSUInteger lastHeadingID = 0;
 	   "Ti.Geolocation._FWDG(addr,t);"
 	   "}"];
 	
+	UIDevice * theDevice = [UIDevice currentDevice];
+	NSString* version = [theDevice systemVersion];
+	
+	BOOL headingAvailableBool = NO;
+	if ([locationManager respondsToSelector:@selector(headingAvailable)])
+	{
+		struct utsname u;
+		uname(&u);
+		if (!strcmp(u.machine, "i386")) 
+		{
+			// 3.0 simulator headingAvailable will report YES but its not really available except post 3.0
+			headingAvailableBool = [version hasPrefix:@"3.0"] ? NO : [locationManager headingAvailable];
+		}
+		else {
+			headingAvailableBool = [locationManager headingAvailable];
+		}
+
+		
+	}
+	
 	// determine if we have compass support
-	NSNumber *headingAvailable = [NSNumber numberWithBool:[locationManager respondsToSelector:@selector(headingAvailable)] ? [locationManager headingAvailable] : NO];
+	NSNumber *headingAvailable = [NSNumber numberWithBool:headingAvailableBool];
 	
 	NSDictionary * geoDict = [NSDictionary dictionaryWithObjectsAndKeys:
 			getCurrentPosition, @"getCurrentPosition",

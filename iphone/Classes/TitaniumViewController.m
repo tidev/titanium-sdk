@@ -560,6 +560,9 @@ int nextWindowToken = 0;
 	UINavigationController * theNC = [self navigationController];
 	[[TitaniumHost sharedHost] navigationController:theNC didShowViewController:self animated:animated];
 
+	if (animated) dirtyFlags |= TitaniumViewControllerRefreshIsAnimated;
+	[self updateLayout:dirtyFlags]; //This is what will notify the focused contentController.
+
 	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewDidAppear:properties:) source:self properties:nil];
 }
 

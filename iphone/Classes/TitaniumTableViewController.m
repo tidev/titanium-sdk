@@ -92,6 +92,7 @@ UIColor * checkmarkColor = nil;
 - (BOOL) accceptsHeader: (id) newHeader footer: (id) newFooter;
 
 @property(nonatomic,readwrite,copy)		NSString * header;
+@property(nonatomic,readwrite,retain)	UIColor * headerColor;
 @property(nonatomic,readwrite,copy)		NSString * footer;
 @property(nonatomic,readwrite,copy)		NSString * name;
 @property(nonatomic,readonly,assign)	NSUInteger rowCount;
@@ -107,7 +108,7 @@ UIColor * checkmarkColor = nil;
 @end
 
 @implementation TableSectionWrapper
-@synthesize header,footer,groupType,isOptionList,nullHeader,rowArray,name,rowHeight,templateCell;
+@synthesize header,footer,groupType,isOptionList,nullHeader,rowArray,name,rowHeight,templateCell,headerColor;
 
 - (void) forceHeader: (NSString *) headerString footer: (NSString *)footerString;
 {
@@ -152,6 +153,8 @@ UIColor * checkmarkColor = nil;
 			[result setIsOptionList:YES];
 		}
 	}
+
+	[result setHeaderColor:UIColorWebColorNamed([newData objectForKey:@"color"])];
 
 	Class dictClass = [NSDictionary class];
 	
@@ -241,6 +244,8 @@ UIColor * checkmarkColor = nil;
 	if(rowIndex < rowCount) {
 		[result addRowsFromArray:[rowArray subarrayWithRange:NSMakeRange(rowIndex,rowCount-rowIndex)]];
 	}
+	[result setRowHeight:rowHeight];
+	[result setHeaderColor:headerColor];
 	return [result autorelease];
 }
 
@@ -248,6 +253,8 @@ UIColor * checkmarkColor = nil;
 {
 	TableSectionWrapper * result = [self subSectionFromIndex:rowIndex header:header footer:footer];
 	[result setNullHeader:nullHeader];
+	[result setRowHeight:rowHeight];
+	[result setHeaderColor:headerColor];
 	return result;
 }
 
@@ -850,16 +857,88 @@ UIColor * checkmarkColor = nil;
 	return result;
 }
 
+- (UIView *)tableView:(UITableView *)ourTableView viewForHeaderInSection:(NSInteger)section;   // custom view for header. will be adjusted to default or specified header height
+{
+	if([ourTableView style]==UITableViewStylePlain)return nil;
+
+	[sectionLock lock];
+	TableSectionWrapper * thisSection = [self sectionForIndex:section];
+	NSString * ourTitle = [thisSection header];
+	UIColor * ourColor = [thisSection headerColor];
+	[sectionLock unlock];
+	
+	if((ourTitle==nil) || (ourColor == nil))return nil;
+	
+	UILabel * result = [[UILabel alloc] initWithFrame:CGRectMake(20, 0, [tableView frame].size.width-20, 20)];
+	[result setText:ourTitle];
+	[result setBackgroundColor:[UIColor clearColor]];
+	
+	[result setTextColor:ourColor];
+	[result setShadowColor:[UIColor whiteColor]];
+	[result setShadowOffset:CGSizeMake(0, 1)];
+	
+	return [result autorelease];
+}
+
+- (UIView *)tableView:(UITableView *)ourTableView viewForFooterInSection:(NSInteger)section;   // custom view for footer. will be adjusted to default or specified footer height
+{
+	if([ourTableView style]==UITableViewStylePlain)return nil;
+
+	[sectionLock lock];
+	TableSectionWrapper * thisSection = [self sectionForIndex:section];
+	NSString * ourTitle = [thisSection footer];
+	UIColor * ourColor = [thisSection headerColor];
+	[sectionLock unlock];
+	
+	if((ourTitle==nil) || (ourColor == nil))return nil;
+
+	UILabel * result = [[UILabel alloc] initWithFrame:CGRectMake(20, 0, [tableView frame].size.width-20, 20)];
+	[result setText:ourTitle];
+	[result setBackgroundColor:[UIColor clearColor]];
+	
+	[result setTextColor:[UIColor redColor]];
+	[result setShadowColor:[UIColor whiteColor]];
+	[result setShadowOffset:CGSizeMake(0, 1)];
+	
+	return [result autorelease];
+}
+
+- (CGFloat)tableView:(UITableView *)ourTableView heightForHeaderInSection:(NSInteger)section;
+{
+	CGFloat result = [ourTableView sectionFooterHeight];
+	if([ourTableView style]==UITableViewStylePlain)return result;
+
+	NSString * ourTitle = [self tableView:ourTableView titleForHeaderInSection:section];
+	if(ourTitle==nil)return result;
+
+	return result + 26;
+}
+
+
+- (CGFloat)tableView:(UITableView *)ourTableView heightForFooterInSection:(NSInteger)section;
+{
+	CGFloat result = [ourTableView sectionFooterHeight];
+	if([ourTableView style]==UITableViewStylePlain)return result;
+
+	NSString * ourTitle = [self tableView:ourTableView titleForFooterInSection:section];
+	if(ourTitle==nil)return result;
+
+	return result + 26;
+}
+
 
 #pragma mark Delegate methods
 - (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
 {
-	if(ourTableView==searchTableView)return 43;
+	if(ourTableView==searchTableView)return [ourTableView rowHeight];
 
 	TableSectionWrapper * ourTableSection = [self sectionForIndex:[indexPath section]];
 	TitaniumCellWrapper * ourTableCell = [ourTableSection rowForIndex:[indexPath row]];
 
 	float result = [ourTableCell rowHeight];
+	if(result > 1.0) return result;
+
+	result = [[ourTableSection templateCell] rowHeight];
 	if(result > 1.0) return result;
 
 	result = [ourTableSection rowHeight];
@@ -871,7 +950,7 @@ UIColor * checkmarkColor = nil;
 	return tableRowHeight;
 }
 
-- (void)triggerActionForIndexPath: (NSIndexPath *)indexPath wasAccessory: (BOOL) accessoryTapped;
+- (void)triggerActionForIndexPath: (NSIndexPath *)indexPath wasAccessory: (BOOL) accessoryTapped search: (BOOL) viaSearch;
 {
 	if ((callbackProxyPath == nil) || (callbackWindowToken == nil)) return;
 	int section = [indexPath section];
@@ -892,10 +971,11 @@ UIColor * checkmarkColor = nil;
 		rowData = [callbackProxyPath stringByAppendingFormat:@".data[%d]",index];
 	}
 	NSString * detail = accessoryTapped ? @"true" : @"false";
+	NSString * search = viaSearch ? @"true" : @"false";
 
 	NSString * triggeredCode = [[NSString alloc] initWithFormat:@".onClick('click',{type:'click',"
-			"index:%d,row:%d,section:%d,rowData:%@,detail:%@%@})",
-			index,row,section,rowData,detail,itemName];
+			"index:%d,row:%d,section:%d,rowData:%@,detail:%@,searchMode:%@%@})",
+			index,row,section,rowData,detail,search,itemName];
 	
 	TitaniumHost * theHost = [TitaniumHost sharedHost];
 	[theHost sendJavascript:[callbackProxyPath stringByAppendingString:triggeredCode] toPageWithToken:callbackWindowToken];
@@ -915,7 +995,7 @@ UIColor * checkmarkColor = nil;
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath;
 {
 	[sectionLock lock];
-	[self triggerActionForIndexPath:indexPath wasAccessory:YES];
+	[self triggerActionForIndexPath:indexPath wasAccessory:YES search:NO];
 	[sectionLock unlock];
 }
 
@@ -964,7 +1044,7 @@ UIColor * checkmarkColor = nil;
 		}
 	}
 
-	[self triggerActionForIndexPath:indexPath wasAccessory:NO];
+	[self triggerActionForIndexPath:indexPath wasAccessory:NO search:(ourTableView == searchTableView)];
 	[sectionLock unlock];
 }
 

@@ -63,17 +63,13 @@
 						url: 'modules/ui/images/photoDefault.png',
 						backgroundColor: '#000'
 					});
+					var imagewin = Titanium.UI.createWindow({views:[flipview],fullscreen:true,orientation:'either'});
 					view.addEventListener('click',function(evt)
 					{
 						var flip_url = images[evt.index].replace('_m.jpg','.jpg');
 						flipview.setURL('modules/ui/images/photoDefault.png'); // cause it to load our default loading image (which should happen immediately)
 						flipview.setURL(flip_url); // now cause it to load our remote image, which might take some time since it's large and remote
-						Titanium.UI.currentWindow.showView(flipview,{
-							animated:true,
-							animationStyle:(Titanium.Platform.name == 'android')?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_RIGHT:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,
-							animationDuration:800
-						});
-						Titanium.UI.currentWindow.setRightNavButton(doneButton);
+						imagewin.open({animated:false});
 					});
 					doneButton.addEventListener('click',function()
 					{
@@ -84,8 +80,11 @@
 							animationDuration:800
 						});
 					});
+					flipview.addEventListener('click',function()
+					{
+						imagewin.close({animated:false});
+					});
 					Titanium.UI.currentWindow.addView(view);
-					Titanium.UI.currentWindow.addView(flipview);
 					Titanium.UI.currentWindow.showView(view);
 					loaded=true;
 				}

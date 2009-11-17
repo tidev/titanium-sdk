@@ -162,7 +162,7 @@ catch(__ex__)
 	   if ([d length] == 0) return nil;
 	   return decode64(d);
 	}
-			""" % (url,file,method_define,self.appid,seed,methodname,data)
+			""" % (method_define,self.appid,seed,methodname,data)
 		else:
 			sys.stdout.flush()
 			data = str(file_contents).encode("hex")

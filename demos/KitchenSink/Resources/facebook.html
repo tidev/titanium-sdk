@@ -32,6 +32,20 @@
 			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
 		});
 
+		var sound = null;
+		
+		if (Titanium.Platform.name != 'android')
+		{
+			// CAF is a specific iphone sound format
+			sound = Titanium.Media.createSound('pop.caf');
+		}
+		
+		// just play the facebook earcon -- nice little example of combining sounds
+		function playEarcon()
+		{
+			if (sound) sound.play();
+		}
+
 		
 		function fetchStream()
 		{
@@ -72,8 +86,8 @@
 						 rowHeight:100,
 						 layout:[
 						   {type:'image', left:10, width:50, height:50, name:'photo'},
-						   {type:'text', fontSize:16, fontWeight:'bold', left:70, top:5, width:200, height:20, color:'#576996', name:'user'},
-						   {type:'text', fontSize:13, fontWeight:'normal', left:70, top:25, bottom:5, width:200, color:'#222', name:'status'},
+						   {type:'text', fontSize:16, fontWeight:'bold', left:70, top:5, right:5, height:20, color:'#576996', name:'user'},
+						   {type:'text', fontSize:13, fontWeight:'normal', left:70, top:25, bottom:5, right:50, color:'#222', name:'status'},
 						   {type:'image', right:5, top:35, width:36, height:34, name:'button'}
 						]};
 
@@ -95,8 +109,14 @@
 								// 	search.blur();
 								// 	return;
 								// }
+								
 								Titanium.Facebook.publishStream("What to say?",null,rowData.uid,function(pr)
 								{
+									if (pr.success)
+									{
+										playEarcon();
+									}
+									
 									Titanium.API.info("received wall response = "+Titanium._JSON(pr));
 									var message = pr.cancel ? 'Message Cancelled' : pr.success ? 'Message Posted' : 'Message Failed';
 									var data = {
@@ -202,6 +222,10 @@
 			Titanium.Facebook.publishFeed(id,data,"Hello, this is a test from Titanium FBConnect!",function(r)
 			{
 				Titanium.API.info("received response = "+Titanium._JSON(r));
+				if (r.success)
+				{
+					playEarcon();
+				}
 			});
 		}
 		
@@ -234,6 +258,10 @@
 				Titanium.Facebook.publishStream("Share some love...",data,null,function(r)
 				{
 					Titanium.API.info("received publish stream response = "+Titanium._JSON(r));
+					if (r.success)
+					{
+						playEarcon();
+					}
 				});
 			}
 			catch(E)
@@ -249,6 +277,10 @@
 			Titanium.Facebook.publishStream("Set your status",null,null,function(r)
 			{
 				Titanium.API.info("received status response = "+Titanium._JSON(r));
+				if (r.success)
+				{
+					playEarcon();
+				}
 			});
 		}
 		
