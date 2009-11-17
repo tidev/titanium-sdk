@@ -10,6 +10,7 @@ import org.appcelerator.titanium.config.TitaniumConfig;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.FrameLayout;
@@ -41,5 +42,9 @@ public abstract class TitaniumBaseTableViewItem extends FrameLayout implements H
 
 	public String getLastClickedViewName() {
 		return null;
+	}
+
+	public BitmapDrawable createHasChildDrawable() {
+		return new BitmapDrawable(getClass().getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));
 	}
 }

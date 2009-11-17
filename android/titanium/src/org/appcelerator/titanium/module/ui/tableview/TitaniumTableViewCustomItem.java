@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -42,6 +43,7 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 	class RowView extends TitaniumCompositeLayout
 	{
 		private String lastTouchedViewName;
+		private Drawable hasMoreDrawable;
 
 		class DisplayItem
 		{
@@ -195,6 +197,9 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 			lastTouchedViewName = null;
 			setTag(null);
 			removeAllViews(); // consider detaching and reusing, versus dumping.
+			if (!data.optBoolean("hasChild", false) && hasMoreDrawable != null) {
+				hasMoreDrawable = null; // If this row doesn't need the drawable ditch it.
+			}
 
 			TitaniumFileHelper tfh = new TitaniumFileHelper(getContext());
 
@@ -311,11 +316,33 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 					setBackgroundDrawable(sld);
 					providesSelector = true;
 				}
+
+				if (data.optBoolean("hasChild", false)) {
+					hasMoreDrawable = createHasChildDrawable();
+				}
 			} else {
 				setBackgroundDrawable(defaultBackground);
 				providesSelector = false;
 			}
 			Log.w(LCAT, "Set Row Data Done");
+		}
+
+		@Override
+		public void draw(Canvas canvas) {
+			if (hasMoreDrawable != null) {
+				int width = getWidth();
+				int height = getHeight();
+
+				int w = hasMoreDrawable.getIntrinsicWidth();
+				int h = hasMoreDrawable.getIntrinsicHeight();
+
+				int left = Math.max(width - w - 4, 0);
+				int top = Math.max(height/2 - h/2, 0);
+
+				hasMoreDrawable.setBounds(left, top, left + w, top + h);
+				hasMoreDrawable.draw(canvas);
+			}
+			super.draw(canvas);
 		}
 
 		@Override
@@ -360,7 +387,6 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 
 	@Override
 	public boolean providesOwnSelector() {
-		Log.e(LCAT, "PROVIDES SELECTOR: " + rowView.providesSelector);
 		return rowView.providesSelector;
 	}
 
