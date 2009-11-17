@@ -10,9 +10,10 @@ package org.appcelerator.titanium.module.map;
 import java.util.List;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
+import org.appcelerator.titanium.api.ITitaniumLifecycle;
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.ui.TitaniumBaseView;
 import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,7 +33,6 @@ import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
-import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
@@ -42,6 +42,7 @@ public class TitaniumMapView extends TitaniumBaseView
 	implements Handler.Callback
 {
 	private static final String LCAT = "TiMapView";
+	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private static final String API_KEY = "ti.android.google.map.api.key";
 
@@ -250,7 +251,7 @@ public class TitaniumMapView extends TitaniumBaseView
 			String apiKey = tmm.getApplication().getAppInfo().getSystemProperties().getString(API_KEY, null);
 
 			view = new LocalMapView(mapWindow.getContext(), apiKey);
-			MapActivity ma = (MapActivity) mapWindow.getContext();
+			TitaniumMapActivity ma = (TitaniumMapActivity) mapWindow.getContext();
 			ma.setContentView(view);
 
 			view.setBuiltInZoomControls(zoomEnabled);
@@ -261,6 +262,31 @@ public class TitaniumMapView extends TitaniumBaseView
 			doSetLocation(region);
 			doSetAnnotations(annotations);
 			doUserLocation(userLocation);
+
+			ma.setLifecycleListener(new ITitaniumLifecycle()
+			{
+				public void onDestroy() {
+					// Ignore
+				}
+
+				public void onPause() {
+					if (myLocation != null) {
+						if (DBG) {
+							Log.d(LCAT, "onPause: Disabling My Location");
+						}
+						myLocation.disableMyLocation();
+					}
+				}
+
+				public void onResume() {
+					if (myLocation != null && userLocation) {
+						if (DBG) {
+							Log.d(LCAT, "onResume: Enabling My Location");
+						}
+						myLocation.enableMyLocation();
+					}
+				}
+			});
 		} catch (IllegalArgumentException e) {
 			Log.e(LCAT, "Missing API Key: " + e.getMessage());
 			Toast.makeText(getContext(), "Missing MAP API Key", Toast.LENGTH_LONG).show();
