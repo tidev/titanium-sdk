@@ -8,7 +8,9 @@
 	<script>
 	document.getElementById('button').onclick = function()
 	{
-		Titanium.UI.currentWindow.close();
+		var w = Titanium.UI.createWindow({url:'email.html', showNavBar:'true', showTabBar:'true'});
+		w.open({modal:true});
+		//Titanium.UI.currentWindow.close();
 	}
 	</script>
 </body>

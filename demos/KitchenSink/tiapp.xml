@@ -7,7 +7,7 @@
 <analytics>false</analytics>
 <copyright>2009 by nwright</copyright>
 <description>Mobile Unit Test App</description>
-<icon>appicon.png</icon>
+<icon>default_app_logo.png</icon>
     <windows>
         <window>
             <id>Phone</id>
