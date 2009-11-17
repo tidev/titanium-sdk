@@ -122,12 +122,10 @@
 		{enableHighAccuracy:true}
 	);
 	
-	if (Titanium.Platform.name == 'android')
+	function noCompassAvailable()
 	{
-		document.getElementById("fgc").innerHTML = "Forward Geocoding not available yet on Android";
-		document.getElementById("rgc").innerHTML = "Reverse Geocoding not available yet on Android";
-		document.getElementById("compass").innerHTML = "No compass reading available on Android";
-		document.getElementById("magneticfield").innerHTML = "No compass reading available on Android";
+		document.getElementById("compass").innerHTML = "No compass reading available";
+		document.getElementById("magneticfield").innerHTML = "No compass reading available";
 
 		document.getElementById("callcount3").innerHTML = "Call count: Not available";
 		document.getElementById("timestamp3").innerHTML = "Timestamp: Not available";
@@ -147,6 +145,11 @@
 		document.getElementById("y2").innerHTML = "y: Not available";
 		document.getElementById("z2").innerHTML = "z: Not available";
 	}
+	
+	if (Titanium.Platform.name == 'android')
+	{
+		noCompassAvailable();
+	}
 	else
 	{
 		//NOTE: compass is currently only available on iPhone in 0.8
@@ -161,47 +164,54 @@
 			document.getElementById("magneticfield").innerHTML = Math.round(magnitude);
 		}
 		
-		Titanium.Geolocation.watchHeading(
-			function(pos)
-			{
-				count3++;
+		if (Titanium.Geolocation.hasCompass)
+		{
+			Titanium.Geolocation.watchHeading(
+				function(pos)
+				{
+					count3++;
 
-				document.getElementById("callcount3").innerHTML = "Call count: "+count3;
-				document.getElementById("timestamp3").innerHTML = "Timestamp: "+pos.timestamp;
-				document.getElementById("accuracy3").innerHTML = "Accuracy: "+pos.accuracy;
-				document.getElementById("magnetic").innerHTML = "Magnetic Heading: "+pos.magneticHeading;
-				document.getElementById("trueheading").innerHTML = "True Heading: "+pos.trueHeading;
-				document.getElementById("x").innerHTML = "x: "+pos.x;
-				document.getElementById("y").innerHTML = "y: "+pos.y;
-				document.getElementById("z").innerHTML = "z: "+pos.z;
-				magneticStrength(pos);
-			},
-			function(e)
-			{
-				Titanium.UI.createAlertDialog({title:'Watch Heading', message:'Error: e ' + e}).show();
-			}
-		);
+					document.getElementById("callcount3").innerHTML = "Call count: "+count3;
+					document.getElementById("timestamp3").innerHTML = "Timestamp: "+pos.timestamp;
+					document.getElementById("accuracy3").innerHTML = "Accuracy: "+pos.accuracy;
+					document.getElementById("magnetic").innerHTML = "Magnetic Heading: "+pos.magneticHeading;
+					document.getElementById("trueheading").innerHTML = "True Heading: "+pos.trueHeading;
+					document.getElementById("x").innerHTML = "x: "+pos.x;
+					document.getElementById("y").innerHTML = "y: "+pos.y;
+					document.getElementById("z").innerHTML = "z: "+pos.z;
+					magneticStrength(pos);
+				},
+				function(e)
+				{
+					Titanium.UI.createAlertDialog({title:'Watch Heading', message:'Error: e ' + e}).show();
+				}
+			);
 
-		Titanium.Geolocation.getCurrentHeading(
-			function(pos)
-			{
-				count4++;
+			Titanium.Geolocation.getCurrentHeading(
+				function(pos)
+				{
+					count4++;
 
-				document.getElementById("callcount4").innerHTML = "Call count: "+count4;
-				document.getElementById("timestamp4").innerHTML = "Timestamp: "+pos.timestamp;
-				document.getElementById("accuracy4").innerHTML = "Accuracy: "+pos.accuracy;
-				document.getElementById("magnetic2").innerHTML = "Magnetic Heading: "+pos.magneticHeading;
-				document.getElementById("trueheading2").innerHTML = "True Heading: "+pos.trueHeading;
-				document.getElementById("x2").innerHTML = "x: "+pos.x;
-				document.getElementById("y2").innerHTML = "y: "+pos.y;
-				document.getElementById("z2").innerHTML = "z: "+pos.z;
-				magneticStrength(pos);
-			},
-			function(e)
-			{
-				Titanium.UI.createAlertDialog({title:'Watch Heading', message:'Error: e ' + e}).show();
-			}
-		);
+					document.getElementById("callcount4").innerHTML = "Call count: "+count4;
+					document.getElementById("timestamp4").innerHTML = "Timestamp: "+pos.timestamp;
+					document.getElementById("accuracy4").innerHTML = "Accuracy: "+pos.accuracy;
+					document.getElementById("magnetic2").innerHTML = "Magnetic Heading: "+pos.magneticHeading;
+					document.getElementById("trueheading2").innerHTML = "True Heading: "+pos.trueHeading;
+					document.getElementById("x2").innerHTML = "x: "+pos.x;
+					document.getElementById("y2").innerHTML = "y: "+pos.y;
+					document.getElementById("z2").innerHTML = "z: "+pos.z;
+					magneticStrength(pos);
+				},
+				function(e)
+				{
+					Titanium.UI.createAlertDialog({title:'Watch Heading', message:'Error: e ' + e}).show();
+				}
+			);
+		}
+		else
+		{
+			noCompassAvailable();
+		}
 		
 		Titanium.Geolocation.forwardGeocoder("444 Castro Street, Mountain View, CA 94041",function(evt)
 		{

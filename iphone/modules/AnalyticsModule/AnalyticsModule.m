@@ -352,7 +352,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 		disabled = NO;
 	}
 	
-	NSLog(@"[DEBUG] Anlaytics is enabled = %@", (disabled ? @"NO":@"YES"));
+	NSLog(@"[DEBUG] Analytics is enabled = %@", (disabled ? @"NO":@"YES"));
 
 	
 	timer = nil;
