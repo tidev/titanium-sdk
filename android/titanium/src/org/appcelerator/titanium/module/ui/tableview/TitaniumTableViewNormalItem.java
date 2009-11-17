@@ -19,6 +19,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
@@ -41,6 +42,7 @@ public class TitaniumTableViewNormalItem extends TitaniumBaseTableViewItem
 
 		private Drawable defaultBackground;
 		private int defaultTextColor;
+		boolean providesSelector;
 
 		public RowView(Context context) {
 			super(context);
@@ -87,12 +89,13 @@ public class TitaniumTableViewNormalItem extends TitaniumBaseTableViewItem
 			setPadding(0, 0, 0, 0);
 		}
 
-		public void setRowData(TitaniumTableViewItemOptions options, JSONObject data)
+		public void setRowData(TitaniumTableViewItemOptions defaults, JSONObject data)
 		{
 			TitaniumFileHelper tfh = new TitaniumFileHelper(getContext());
 
-			int rowHeight = options.resolveIntOption("rowHeight", data);
+			int rowHeight = defaults.resolveIntOption("rowHeight", data);
 			setVerticalFadingEdgeEnabled(true);
+			providesSelector = false;
 
 			setMinimumHeight(rowHeight);
 
@@ -141,11 +144,21 @@ public class TitaniumTableViewNormalItem extends TitaniumBaseTableViewItem
 
 				try {
 					textView.setText(data.getString("title"), TextView.BufferType.NORMAL);
-					TitaniumUIHelper.styleText(textView, options.resolveOption("fontSize", data), options.resolveOption("fontWeight", data));
+					TitaniumUIHelper.styleText(textView, defaults.resolveOption("fontSize", data), defaults.resolveOption("fontWeight", data));
 				} catch (JSONException e) {
 					textView.setText(e.getMessage());
 					Log.e(LCAT, "Error retrieving title", e);
 				}
+			}
+
+			String backgroundImage = defaults.resolveOption("backgroundImage", data);
+			String backgroundSelectedImage = defaults.resolveOption("selectedBackgroundImage", data);
+			String backgroundFocusedImage = defaults.resolveOption("focusedBackgroundImage", data);
+
+			StateListDrawable sld = TitaniumUIHelper.buildBackgroundDrawable(getContext(), backgroundImage, backgroundSelectedImage, backgroundFocusedImage);
+			if (sld != null) {
+				setBackgroundDrawable(sld);
+				providesSelector = true;
 			}
 		}
 	}
@@ -160,5 +173,10 @@ public class TitaniumTableViewNormalItem extends TitaniumBaseTableViewItem
 
 	public void setRowData(TitaniumTableViewItemOptions defaults, JSONObject template, JSONObject data) {
 		rowView.setRowData(defaults, data);
+	}
+
+	@Override
+ 	public boolean providesOwnSelector() {
+		return rowView.providesSelector;
 	}
 }
