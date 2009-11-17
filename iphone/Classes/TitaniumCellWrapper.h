@@ -89,6 +89,7 @@ typedef enum {
 - (NSString *) stringForKey: (NSString *) key;
 - (UIImage *) imageForKey: (NSString *) key;
 - (UIImage *) stretchableImageForKey: (NSString *) key;
+- (TitaniumBlobWrapper *) blobWrapperForKey: (NSString *) key;
 
 - (BOOL) stringForKey:(NSString *)key containsString: (NSString *)matchString;
 
