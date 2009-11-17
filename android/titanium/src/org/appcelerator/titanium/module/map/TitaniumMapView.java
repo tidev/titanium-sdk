@@ -36,15 +36,21 @@ import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
+
+interface TitaniumOverlayListener {
+	public void onTap(int index);
+}
 
 public class TitaniumMapView extends TitaniumBaseView
-	implements Handler.Callback
+	implements Handler.Callback, TitaniumOverlayListener
 {
 	private static final String LCAT = "TiMapView";
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
 	private static final String API_KEY = "ti.android.google.map.api.key";
+
+	public static final String EVENT_CLICK = "click";
+	public static final String EVENT_REGION_CHANGED = "regionChanged";
 
 	public static final int MAP_VIEW_STANDARD = 1;
 	public static final int MAP_VIEW_SATELLITE = 2;
@@ -69,7 +75,9 @@ public class TitaniumMapView extends TitaniumBaseView
 
 	private LocalMapView view;
 	private Window mapWindow;
+	private TitaniumOverlay overlay;
 	private MyLocationOverlay myLocation;
+	private TitaniumOverlayItemView itemView;
 
 	class LocalMapView extends MapView
 	{
@@ -101,12 +109,14 @@ public class TitaniumMapView extends TitaniumBaseView
 		}
 	}
 
-	class TitaniumOverlay extends ItemizedOverlay<OverlayItem>
+	class TitaniumOverlay extends ItemizedOverlay<TitaniumOverlayItem>
 	{
 		JSONArray annotations;
+		TitaniumOverlayListener listener;
 
-		public TitaniumOverlay(Drawable defaultDrawable) {
+		public TitaniumOverlay(Drawable defaultDrawable, TitaniumOverlayListener listener) {
 			super(defaultDrawable);
+			this.listener = listener;
 		}
 
 		public void setAnnotations(JSONArray annotations) {
@@ -116,8 +126,8 @@ public class TitaniumMapView extends TitaniumBaseView
 		}
 
 		@Override
-		protected OverlayItem createItem(int i) {
-			OverlayItem item = null;
+		protected TitaniumOverlayItem createItem(int i) {
+			TitaniumOverlayItem item = null;
 			try {
 				JSONObject a = annotations.getJSONObject(i);
 				if (a.has("latitude") && a.has("longitude")) {
@@ -125,7 +135,7 @@ public class TitaniumMapView extends TitaniumBaseView
 					String subtitle = a.optString("subtitle", "");
 
 					GeoPoint location = new GeoPoint(scaleToGoogle(a.getDouble("latitude")), scaleToGoogle(a.getDouble("longitude")));
-					item = new OverlayItem(location, title, subtitle);
+					item = new TitaniumOverlayItem(location, title, subtitle);
 
 					if (a.has("pincolor")) {
 						switch(a.getInt("pincolor")) {
@@ -139,6 +149,13 @@ public class TitaniumMapView extends TitaniumBaseView
 							item.setMarker(makeMarker(Color.argb(255,192,0,192)));
 							break;
 						}
+					}
+
+					if (a.has("leftButton")) {
+						item.setLeftButton(a.getString("leftButton"));
+					}
+					if (a.has("rightButton")) {
+						item.setRightButton(a.getString("rightButton"));
 					}
 				} else {
 					Log.w(LCAT, "Skipping annotation: No coordinates #" + i);
@@ -154,9 +171,21 @@ public class TitaniumMapView extends TitaniumBaseView
 		public int size() {
 			return (annotations == null) ? 0 : annotations.length();
 		}
+
+		@Override
+		protected boolean onTap(int index)
+		{
+			boolean handled = super.onTap(index);
+			if(!handled ) {
+				listener.onTap(index);
+			}
+
+			return handled;
+		}
 	}
 
-	public TitaniumMapView(TitaniumModuleManager tmm, Window mapWindow) {
+	public TitaniumMapView(TitaniumModuleManager tmm, Window mapWindow)
+	{
 		super(tmm);
 
 		this.mapWindow = mapWindow;
@@ -168,6 +197,9 @@ public class TitaniumMapView extends TitaniumBaseView
 		this.regionFit =true;
 		this.animate = false;
 		this.userLocation = false;
+
+		eventManager.supportEvent(EVENT_CLICK);
+		eventManager.supportEvent(EVENT_REGION_CHANGED);
 	}
 
 	@Override
@@ -210,6 +242,58 @@ public class TitaniumMapView extends TitaniumBaseView
 		}
 
 		return handled;
+	}
+
+	public void onTap(int index)
+	{
+		if (overlay != null) {
+			synchronized(overlay) {
+				TitaniumOverlayItem item = overlay.getItem(index);
+
+				if (itemView != null && index == itemView.getLastIndex() && itemView.getVisibility() == View.VISIBLE) {
+					view.removeView(itemView);
+					itemView.clearLastIndex();
+					return;
+				}
+
+				if (item.hasData())
+				{
+					if (itemView == null) {
+						itemView = new TitaniumOverlayItemView(getContext());
+						itemView.setOnOverlayClickedListener(new TitaniumOverlayItemView.OnOverlayClicked(){
+							public void onClick(int lastIndex, String clickedItem) {
+								TitaniumOverlayItem item = overlay.getItem(lastIndex);
+								if (item != null) {
+									try {
+										JSONObject o = new JSONObject();
+										o.put("source", clickedItem);
+										o.put("title", item.getTitle());
+										o.put("subtitle", item.getSnippet());
+										o.put("latitude", scaleFromGoogle(item.getPoint().getLatitudeE6()));
+										o.put("longitude", scaleFromGoogle(item.getPoint().getLongitudeE6()));
+
+										eventManager.invokeSuccessListeners(EVENT_CLICK, o.toString());
+									} catch (JSONException e) {
+										Log.e(LCAT, "Error building click event: " + e.getMessage());
+									}
+								}
+							}});
+					} else {
+						view.removeView(itemView);
+					}
+
+					itemView.setItem(index, item);
+
+					MapView.LayoutParams params = new MapView.LayoutParams(LayoutParams.WRAP_CONTENT,
+							LayoutParams.WRAP_CONTENT, item.getPoint(), MapView.LayoutParams.BOTTOM_CENTER);
+					params.mode = MapView.LayoutParams.MODE_MAP;
+
+					view.addView(itemView, params);
+				} else {
+					Toast.makeText(getContext(), "No information for location", Toast.LENGTH_SHORT).show();
+				}
+			}
+		}
 	}
 
 	@Override
@@ -356,9 +440,14 @@ public class TitaniumMapView extends TitaniumBaseView
 			List<Overlay> overlays = view.getOverlays();
 
 			synchronized(overlays) {
+				if (overlays.contains(overlay)) {
+					overlays.remove(overlay);
+					overlay = null;
+				}
+
 				int len = annotations.length();
 				if (len > 0) {
-					TitaniumOverlay overlay = new TitaniumOverlay(makeMarker(Color.BLUE));
+					overlay = new TitaniumOverlay(makeMarker(Color.BLUE), this);
 					overlay.setAnnotations(annotations);
 					overlays.add(overlay);
 				}

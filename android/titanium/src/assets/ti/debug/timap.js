@@ -45,12 +45,12 @@ Ti.Map.MapView = function(proxy)
 		Ti.Method.dipatch(this._proxy,"setScrollEnabled", enabled);
 	};
 
-	this.addEventListener = function() {
-
+	this.addEventListener = function(event, listener) {
+		return Ti.Method.dispatch(this._proxy, "addEventListener", event, registerCallback(this, listener));
 	};
 
-	this.removeEventListener = function() {
-
+	this.removeEventListener = function(event, listenerId) {
+		Ti.Method.dispatch(this._proxy, "removeEventListener", event, listenerId);
 	};
 };
 
