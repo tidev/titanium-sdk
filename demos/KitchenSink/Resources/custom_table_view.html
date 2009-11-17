@@ -39,12 +39,12 @@
 	var data = [
 		{welcome:'Click different parts of the row', backgroundColor:'#d4d9e8', selectedBackgroundColor:'#385292', rowHeight:40,  layout:[{name:'welcome', type:'text', fontSize:14, fontWeight:'bold', left:60, top:10, color:'#385292',selectedColor:'#ffffff'}]},
 
-		{photo:'images/custom_tableview/user.png', user:'Fred Smith',comment:'I just went to the store', button:'images/custom_tableview/commentButton.png', calendar:'images/custom_tableview/eventsButton.png', date:'3 hours ago'},
-		{photo:'images/custom_tableview/user.png', user:'Lucy Smith',comment:'I just hired a PI to follow Fred, then off to the store', button:'images/custom_tableview/commentButton.png', calendar:'images/custom_tableview/eventsButton.png', date:'4 hours ago'},
-		{photo:'images/custom_tableview/user.png', user:'Don Corelone',comment:'Got some fresh fruit, conducted some business, took a nap', button:'images/custom_tableview/commentButton.png', calendar:'images/custom_tableview/eventsButton.png', date:'5 hours ago'},
-		{photo:'images/custom_tableview/user.png', user:'Joe Bobby',comment:'Ate pizza.  Found a dollar.', button:'images/custom_tableview/commentButton.png', calendar:'images/custom_tableview/eventsButton.png', date:'6 hours ago'},
-		{photo:'images/custom_tableview/user.png', user:'Don Corelone',comment:'Got some fresh fruit, conducted some business, took a nap', button:'images/custom_tableview/commentButton.png', calendar:'images/custom_tableview/eventsButton.png', date:'7 hours ago'},
-		{photo:'images/custom_tableview/user.png', user:'Frankie',comment:'Trip over a cord, broke my neck.', button:'images/custom_tableview/commentButton.png', calendar:'images/custom_tableview/eventsButton.png', date:'8 hours ago'},
+		{photo:'images/custom_tableview/user.png', user:'Fred Smith',comment:'I just went to the store', button:'images/custom_tableview/commentButton.png', calendar:'images/custom_tableview/eventsButton.png', date:'3 hours ago', title:'Fred Smith'},
+		{photo:'images/custom_tableview/user.png', user:'Lucy Smith',comment:'I just hired a PI to follow Fred, then off to the store', button:'images/custom_tableview/commentButton.png', calendar:'images/custom_tableview/eventsButton.png', date:'4 hours ago', title:'Lucy Smith'},
+		{photo:'images/custom_tableview/user.png', user:'Don Corelone',comment:'Got some fresh fruit, conducted some business, took a nap', button:'images/custom_tableview/commentButton.png', calendar:'images/custom_tableview/eventsButton.png', date:'5 hours ago', title:'Don Corelone'},
+		{photo:'images/custom_tableview/user.png', user:'Joe Bobby',comment:'Ate pizza.  Found a dollar.', button:'images/custom_tableview/commentButton.png', calendar:'images/custom_tableview/eventsButton.png', date:'6 hours ago', title:'Joe Bobby'},
+		{photo:'images/custom_tableview/user.png', user:'Don Corelone',comment:'Got some fresh fruit, conducted some business, took a nap', button:'images/custom_tableview/commentButton.png', calendar:'images/custom_tableview/eventsButton.png', date:'7 hours ago', title:'Don Corelone'},
+		{photo:'images/custom_tableview/user.png', user:'Frankie',comment:'Trip over a cord, broke my neck.', button:'images/custom_tableview/commentButton.png', calendar:'images/custom_tableview/eventsButton.png', date:'8 hours ago', title:'Frankie'},
 		{photo:'images/custom_tableview/user.png', user:'Lou Thompson',comment:'Singing in the rain.', button:'images/custom_tableview/commentButton.png', calendar:'images/custom_tableview/eventsButton.png', date:'9 hours ago'},
 		{photo:'images/custom_tableview/user.png', user:'Gary Coleman',comment:'Whatchou talkin bout Willis?', button:'images/custom_tableview/commentButton.png', calendar:'images/custom_tableview/eventsButton.png', date:'10 hours ago'},
 		{photo:'images/custom_tableview/user.png', user:'Willis',comment:'Hey Gary - shut your piehole.', button:'images/custom_tableview/commentButton.png'},
@@ -82,6 +82,15 @@
 		}, 
 		function(eventObject)
 		{
+			// see if we are in search mode
+			if (eventObject.searchMode==true)
+			{
+				search.blur();
+				Titanium.UI.createAlertDialog({
+					title:'Search Results', 
+					message:'You clicked ' + eventObject.rowData.title
+				}).show();
+			}
 			// row data
 			var rowData = eventObject.rowData;
 

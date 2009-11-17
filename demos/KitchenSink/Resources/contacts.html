@@ -86,9 +86,9 @@
 		//
 		function reloadContacts()
 		{
-			var data = [{title:'Go Back', layout:[{color:'blue',fontSize:14}]}];
+			var data = [{title:'Go Back - Showing 10 (or less)', layout:[{color:'blue',fontSize:14}]}];
 			var contacts = Titanium.Contacts.getAllContacts();
-			for (var i=0;i<contacts.length;i++)
+			for (var i=0;i<Math.min(10, contacts.length);i++)
 			{
 				data.push({title:contacts[i].displayName});
 			}
@@ -115,7 +115,7 @@
 			{title:'Add Contact',backgroundImage:'images/tableview/off_3.png',
 					selectedBackgroundImage:'images/tableview/on_3.png'},
 
-			{title:'View Contact',backgroundImage:'images/tableview/off_4.png',
+			{title:'View Contacts',backgroundImage:'images/tableview/off_4.png',
 				selectedBackgroundImage:'images/tableview/on_4.png'},
 
 			{title:'Remove Contact',backgroundImage:'images/tableview/off_1.png',
@@ -239,7 +239,7 @@
 		//  Create Table View to show contacts
 		//
 		var data = [{title:'No Contacts...'}];
-		var template = {layout:[{name:'title', fontSize:20, fontWeight:'bold',left:10, type:'text', color:'black'}]};
+		var template = {layout:[{name:'title', fontSize:20, fontWeight:'bold',left:10, type:'text', color:'black',top:10}]};
 		var tableView = Titanium.UI.createTableView({template:template,data:data}, function(e)
 		{
 			if (e.index ==0)
