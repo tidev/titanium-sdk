@@ -217,7 +217,6 @@
 		B43543671076995400A38EC9 /* TitaniumJSEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = B43543631076995400A38EC9 /* TitaniumJSEvent.m */; };
 		B4468EFD10027417002BAC64 /* misc.html in Resources */ = {isa = PBXBuildFile; fileRef = B4468EFC10027417002BAC64 /* misc.html */; };
 		B44BCFD90FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
-		B44BCFDA0FC5E03400733BDD /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B44BCFD80FC5E03400733BDD /* libsqlite3.dylib */; };
 		B451D42610599C1C0025A18B /* PickerImageTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B451D42510599C1C0025A18B /* PickerImageTextCell.m */; };
 		B451D42710599C1C0025A18B /* PickerImageTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B451D42510599C1C0025A18B /* PickerImageTextCell.m */; };
 		B45C717F0FEDAF93002A8675 /* WebTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B45C717E0FEDAF93002A8675 /* WebTableViewCell.m */; };
@@ -540,7 +539,7 @@
 		B45CA77E0F81565D00B80900 /* TitaniumHost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumHost.m; sourceTree = "<group>"; };
 		B4676CB40FB0E492009B81F4 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		B4676CBE0FB0E4AE009B81F4 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		B47A271E1035F040002146CD /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B47A271E1035F040002146CD /* TestSpaz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestSpaz.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B47B52D40FF1B2F400BD7229 /* ValueTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ValueTableViewCell.h; sourceTree = "<group>"; };
 		B47B52D50FF1B2F400BD7229 /* ValueTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ValueTableViewCell.m; sourceTree = "<group>"; };
 		B481D3360FD4C45A00F0A961 /* song.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = song.mp3; sourceTree = "<group>"; };
@@ -775,7 +774,6 @@
 				B41069CD0FBB756B00310448 /* UIKit.framework in Frameworks */,
 				B41069CE0FBB756B00310448 /* Foundation.framework in Frameworks */,
 				B41069CF0FBB756B00310448 /* CoreGraphics.framework in Frameworks */,
-				B44BCFDA0FC5E03400733BDD /* libsqlite3.dylib in Frameworks */,
 				B4A49BA30FCE01070049ED60 /* MediaPlayer.framework in Frameworks */,
 				B401107D102CA204009ADA57 /* MessageUI.framework in Frameworks */,
 				B4F37E161061AB5D00ED12AF /* QuartzCore.framework in Frameworks */,
@@ -832,7 +830,7 @@
 			children = (
 				1D6058910D05DD3D006BFB54 /* Titanium.app */,
 				B41068A20FBB730F00310448 /* libTitanium.a */,
-				B47A271E1035F040002146CD /* Titanium.app */,
+				B47A271E1035F040002146CD /* TestSpaz.app */,
 				24C5ABF11061FA9D0063594B /* libNotification.a */,
 				24C5ABF91061FABE0063594B /* libAnalytics.a */,
 				24C5AC001061FAC80063594B /* libGesture.a */,
@@ -1857,7 +1855,7 @@
 			);
 			name = "Titanium-Spaz";
 			productName = Titanium;
-			productReference = B47A271E1035F040002146CD /* Titanium.app */;
+			productReference = B47A271E1035F040002146CD /* TestSpaz.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */

@@ -64,10 +64,27 @@
 		
         if (theAddr == 0) break;
         if (theAddr == localHost) continue;
+		if (!if_names[i]) continue;
 		NSString *s = [NSString stringWithCString:if_names[i] encoding:NSUTF8StringEncoding];
 		if ([s hasPrefix:@"lo"]) continue;
-		deviceMac = [NSString stringWithCString:hw_addrs[i] encoding:NSUTF8StringEncoding];
-		deviceIP = [NSString stringWithCString:ip_names[i] encoding:NSUTF8StringEncoding];
+		// guard in case we don't have a mac or ipaddress which has been reported
+		if (hw_addrs[i])
+		{
+			deviceMac = [NSString stringWithCString:hw_addrs[i] encoding:NSUTF8StringEncoding];
+		}
+		else
+		{
+			deviceMac = @"0-0-0-0";
+		}
+		if (ip_names[i])
+		{
+			deviceIP = [NSString stringWithCString:ip_names[i] encoding:NSUTF8StringEncoding];
+		}
+		else 
+		{
+			deviceIP = @"0.0.0.0";
+		}
+
 		break;
 	}
 	

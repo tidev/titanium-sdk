@@ -175,4 +175,11 @@ NSMutableDictionary * registery = nil;
 	return [@"Ti.UI._VIEW." stringByAppendingString:primaryToken];
 }
 
+- (void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event;
+{
+	return;
+	//To stop the event chain from oscillating.
+}
+
+
 @end

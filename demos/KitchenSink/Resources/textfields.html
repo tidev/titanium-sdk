@@ -37,8 +37,9 @@
 	
 
 	var refresh = Titanium.UI.createButton({
-		backgroundImage:'chat.png',
+		image:'chat.png',
 	});
+	var leftBtn = Ti.UI.createButton({width:16,height:16,title:'Button:',style:Ti.UI.iPhone.SystemButtonStyle.PLAIN});
 	
 	var tf1 = Titanium.UI.createTextField({
 		id:'textfield1',
@@ -54,7 +55,7 @@
 		clearOnEdit:true,
 		height:35,
 		borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
-		leftButton:refresh,
+		leftButton:leftBtn,
 		leftButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS,
 		rightButton:refresh,
 		rightButtonMode:Titanium.UI.INPUT_BUTTONMODE_ALWAYS
