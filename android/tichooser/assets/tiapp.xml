@@ -137,22 +137,23 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
+-->
+        <window>
+            <id>TableView Custom</id>
+            <title>TableView Custom</title>
+            <url>tableview-custom.html</url>
+        </window>
 
         <window>
             <id>TableView</id>
             <title>Table View</title>
             <url>tableview.html</url>
         </window>
+
         <window>
             <id>TableView HTML</id>
             <title>Table View HTML</title>
             <url>tableview-html.html</url>
-        </window>
--->
-        <window>
-            <id>TableView Custom</id>
-            <title>TableView Custom</title>
-            <url>tableview-custom.html</url>
         </window>
 <!--
         <window>
