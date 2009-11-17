@@ -107,6 +107,10 @@ NSString * const createSearchBarString = @"function(args){var res=Ti.UI.createBu
 	return result;
 }
 
+- (BOOL) hasView;
+{
+	return searchView != nil;
+}
 
 - (BOOL)isFirstResponder;
 {

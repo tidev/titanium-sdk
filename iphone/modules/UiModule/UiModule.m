@@ -1460,6 +1460,7 @@ NSString * UrlEncodeString(NSString * string)
 				"if(this.sections){var grp=this.sections;var j=grp.length;while(j>0){j--;var data=grp[j].data;var i=data.length;"
 					"while(i>0){i--;var inp=data[i].input;if(inp)inp.ensureToken();}"
 				"}};"
+				"if(this.search)this.search.ensureToken();"
 				"if(this._TOKEN)return;var tkn=Ti.UI._VTOKEN();this._TOKEN=tkn;Ti.UI._VIEW[tkn]=this;};"
 			"res.update=function(args){if(!this._TOKEN)return;Ti.UI._WUPDATE(this,args);};"
 			"if(res.rightNavButton)res.setRightNavButton(res.rightNavButton);"
