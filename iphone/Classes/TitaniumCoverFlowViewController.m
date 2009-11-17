@@ -53,6 +53,7 @@
 	[view release];
 	[images release];
 	[backgroundColor release];
+	[backgrouders release];
 	[super dealloc];
 }
 
@@ -81,8 +82,27 @@
 
 -(void)setUrl:(NSURL*)url index:(NSNumber*)index
 {
+	// replace our internal URL reference
 	[images replaceObjectAtIndex:[index intValue] withObject:url];
-	[[OperationQueue sharedQueue] queue:@selector(loadImage:) target:self arg:index after:@selector(setImageData:) on:self ui:YES];
+	
+	UIImage *image = [[TitaniumHost sharedHost] imageForResource:url];
+	if (image==nil)
+	{
+		TitaniumBlobWrapper *wrapper = [[TitaniumHost sharedHost] blobForUrl:url];
+		image = [wrapper imageBlob];
+		if (image==nil)
+		{
+			if (backgrouders==nil) backgrouders = [[NSMutableArray alloc]init];
+			[backgrouders addObject:wrapper];
+			// queue it
+			[index retain]; // addObserver doesn't retain so we need to
+			[wrapper addObserver:self forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:index];
+			return;
+		}
+	}
+	// push the load on the main event UI thread
+	NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:image,@"image",index,@"index",nil];
+	[self performSelectorOnMainThread:@selector(setImage:) withObject:args waitUntilDone:NO];
 }
 
 -(void)setSelected:(NSNumber*)index
@@ -97,6 +117,24 @@
 	}
 }
 
+#pragma mark Callback for blob loading
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context;
+{
+	if ([keyPath isEqualToString:@"imageBlob"]) 
+	{
+		[object removeObserver:self forKeyPath:keyPath];
+		
+		NSNumber *index = (NSNumber*)context;
+		UIImage *image = [(TitaniumBlobWrapper*)object imageBlob];
+		// callback is always on the UI thread
+		[view setImage:image forIndex:[index intValue]];
+		[index release];
+		[backgrouders removeObject:object];
+	}
+}
+
+
 #pragma mark OperationQueue callbacks
 
 -(id)loadImage:(NSNumber*)index
@@ -105,8 +143,26 @@
 	UIImage *image = [[TitaniumHost sharedHost] imageForResource:path];
 	if (image==nil)
 	{
-		NSLog(@"[ERROR] couldn't find URL: %@ for cover flow image index: %@",path,index);
-		return nil;
+		NSURL *url = nil;
+		if ([path isKindOfClass:[NSURL class]])
+		{
+			url = (NSURL*)path;
+		}
+		else 
+		{
+			url = [NSURL URLWithString:path];
+		}
+		TitaniumBlobWrapper *wrapper = [[TitaniumHost sharedHost] blobForUrl:url];
+		// check since it could be cached
+		image = [wrapper imageBlob];
+		if (image==nil)
+		{
+			if (backgrouders==nil) backgrouders = [[NSMutableArray alloc]init];
+			[index retain]; // addObserver doesn't retain so we need to
+			[backgrouders addObject:wrapper];
+			[wrapper addObserver:self forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:index];
+			return nil;
+		}
 	}
 	return [NSDictionary dictionaryWithObjectsAndKeys:image,@"image",index,@"index",nil];
 }
@@ -140,12 +196,43 @@
 
 - (void)openFlowView:(AFOpenFlowView *)openFlowView requestImageForIndex:(int)index
 {
-	[[OperationQueue sharedQueue] queue:@selector(loadImage:) target:self arg:[NSNumber numberWithInt:index] after:@selector(setImageData:) on:self ui:YES];
+	id path = [images objectAtIndex:index];
+	UIImage *image = [[TitaniumHost sharedHost] imageForResource:path];
+	if (image==nil)
+	{
+		NSURL *url = nil;
+		if ([path isKindOfClass:[NSURL class]])
+		{
+			url = (NSURL*)path;
+		}
+		else 
+		{
+			url = [NSURL URLWithString:path];
+		}
+		TitaniumBlobWrapper *wrapper = [[TitaniumHost sharedHost] blobForUrl:url];
+		image = [wrapper imageBlob];
+		if (image==nil)
+		{
+			// just set the placeholder placeholder
+			UIImage *image = [self defaultImage];
+			[view setImage:image forIndex:index];
+
+			// queue it
+			if (backgrouders==nil) backgrouders = [[NSMutableArray alloc]init];
+			[backgrouders addObject:wrapper];
+			NSNumber *i = [NSNumber numberWithInt:index];
+			[i retain];
+			 // addObserver doesn't retain so we need to
+			[wrapper addObserver:self forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:i];
+			return;
+		}
+	}
+	[view setImage:image forIndex:index];
 }
 
 - (UIImage *)defaultImage
 {
-	return [UIImage imageNamed:@"modules/ui/images/photoDefault.png"];
+	return [[TitaniumHost sharedHost] imageForResource:@"modules/ui/images/photoDefault.png"];
 }
 
 @end
