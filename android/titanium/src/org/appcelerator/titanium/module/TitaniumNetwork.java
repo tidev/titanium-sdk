@@ -203,11 +203,15 @@ public class TitaniumNetwork extends TitaniumBaseModule implements ITitaniumNetw
 			connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 		}
 
-		NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
-		if(ni != null && ni.isAvailable() && ni.isConnected()) {
-			type = networkTypeToTitanium(true, ni.getType());
-		} else {
-			type = TitaniumNetwork.NETWORK_NONE;
+		try {
+			NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+			if(ni != null && ni.isAvailable() && ni.isConnected()) {
+				type = networkTypeToTitanium(true, ni.getType());
+			} else {
+				type = TitaniumNetwork.NETWORK_NONE;
+			}
+		} catch (SecurityException e) {
+			Log.w(LCAT, "Permission has been removed. Cannot determine network type: " + e.getMessage());
 		}
 		return type;
 	}

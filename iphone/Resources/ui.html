@@ -27,7 +27,9 @@
 		var btn5 = Ti.UI.createButton({title:'Moo'});
 		btn5.addEventListener('click',function(){Ti.UI.currentWindow.setFullscreen(true);});
 
-		var sideBtn = Ti.UI.createButton({width:16,height:16,title:'Y',style:Ti.UI.iPhone.SystemButtonStyle.PLAIN});
+		var leftBtn = Ti.UI.createButton({width:16,height:16,title:'L',style:Ti.UI.iPhone.SystemButtonStyle.PLAIN});
+		var rightBtn = Ti.UI.createButton({width:16,height:16,title:'R',style:Ti.UI.iPhone.SystemButtonStyle.PLAIN});
+
 //		var btn6 = Ti.UI.createTextField({borderStyle:Ti.UI.INPUT_BORDERSTYLE_ROUNDED,min:-1,max:10,leftButton:sideBtn,leftButtonMode:Ti.UI.INPUT_BUTTONMODE_ALWAYS,clearButtonMode:Ti.UI.INPUT_BUTTONMODE_ALWAYS,hintText:'Hint me!',id:'sliderPlace',keyboardType:Ti.UI.KEYBOARD_EMAIL_ADDRESS,textAlign:'center',color:'red',backgroundColor:'blue',borderColor:'green'});
 
 		var btn6 = Titanium.UI.createTextField({
@@ -37,13 +39,14 @@
 			keyboardType:Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
 			autocorrect:false,
 			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
-			clearButtonMode:Titanium.UI.INPUT_BUTTONMODE_NEVER,
+//			clearButtonMode:Titanium.UI.INPUT_BUTTONMODE_NEVER,
 			height:40,
 			width:200,
 			fontSize:30,
 			fontWeight:"bold",
-			textAlign:'right'
-			
+			textAlign:'right',
+			leftButton:leftBtn,leftButtonMode:Ti.UI.INPUT_BUTTONMODE_ALWAYS,
+			rightButton:rightBtn,rightButtonMode:Ti.UI.INPUT_BUTTONMODE_ALWAYS,
 		});
 
 
@@ -162,32 +165,32 @@ try{
 	   {type:'text', left:50, color:'#336699', name:'title', fontWeight:'bold', top:20,fontFamily:'Marker Felt'}
 	]};
 	// data for tableview
-	var data = [
-		{title:'Play Movie\rNew line',backgroundImage:'images/tableview/off_1.png', 
-				selectedBackgroundImage:'images/tableview/on_1.png'},
-		{title:'Camera adsfasdf AWDSF ASDF ASDFsadfgdfh adfgasdfas asdfasd asdrftawdr asdrzxzxcf asdfraweraw axrew',backgroundImage:'images/tableview/off_2.png',
-				selectedBackgroundImage:'images/tableview/on_2.png'},
-		{title:'Vibrate oiweroiqoewr qweroqweiroipoiqwer qwre',backgroundImage:'images/tableview/off_3.png',
-				selectedBackgroundImage:'images/tableview/on_3.png'},
-		{title:'Orientation',backgroundImage:'images/tableview/off_4.png',
-			selectedBackgroundImage:'images/tableview/on_4.png'},
-		{title:'Photo Gallery',backgroundImage:'images/tableview/off_1.png',
-				selectedBackgroundImage:'images/tableview/on_1.png'},
-		{title:'Geo Location',backgroundImage:'images/tableview/off_2.png',
-				selectedBackgroundImage:'images/tableview/on_2.png'},
-		{title:'Accelerometer',backgroundImage:'images/tableview/off_3.png',
-				selectedBackgroundImage:'images/tableview/on_3.png'},
-		{title:'Sound',backgroundImage:'images/tableview/off_4.png',
-				selectedBackgroundImage:'images/tableview/on_4.png'},
-		{title:'Shake',backgroundImage:'images/tableview/off_1.png',
-				selectedBackgroundImage:'images/tableview/on_1.png'},
-		{title:'Email Client',backgroundImage:'images/tableview/off_2.png',
-				selectedBackgroundImage:'images/tableview/on_2.png'},
-		{title:'Save to Gallery',backgroundImage:'images/tableview/off_3.png',
-				selectedBackgroundImage:'images/tableview/on_3.png'},
-		{title:'Contacts',backgroundImage:'images/tableview/off_4.png',
-				 selectedBackgroundImage:'images/tableview/on_4.png'}
-	];
+//	var data = [
+//		{title:'Play Movie\rNew line',backgroundImage:'images/tableview/off_1.png', 
+//				selectedBackgroundImage:'images/tableview/on_1.png'},
+//		{title:'Camera adsfasdf AWDSF ASDF ASDFsadfgdfh adfgasdfas asdfasd asdrftawdr asdrzxzxcf asdfraweraw axrew',backgroundImage:'images/tableview/off_2.png',
+//				selectedBackgroundImage:'images/tableview/on_2.png'},
+//		{title:'Vibrate oiweroiqoewr qweroqweiroipoiqwer qwre',backgroundImage:'images/tableview/off_3.png',
+//				selectedBackgroundImage:'images/tableview/on_3.png'},
+//		{title:'Orientation',backgroundImage:'images/tableview/off_4.png',
+//			selectedBackgroundImage:'images/tableview/on_4.png'},
+//		{title:'Photo Gallery',backgroundImage:'images/tableview/off_1.png',
+//				selectedBackgroundImage:'images/tableview/on_1.png'},
+//		{title:'Geo Location',backgroundImage:'images/tableview/off_2.png',
+//				selectedBackgroundImage:'images/tableview/on_2.png'},
+//		{title:'Accelerometer',backgroundImage:'images/tableview/off_3.png',
+//				selectedBackgroundImage:'images/tableview/on_3.png'},
+//		{title:'Sound',backgroundImage:'images/tableview/off_4.png',
+//				selectedBackgroundImage:'images/tableview/on_4.png'},
+//		{title:'Shake',backgroundImage:'images/tableview/off_1.png',
+//				selectedBackgroundImage:'images/tableview/on_1.png'},
+//		{title:'Email Client',backgroundImage:'images/tableview/off_2.png',
+//				selectedBackgroundImage:'images/tableview/on_2.png'},
+//		{title:'Save to Gallery',backgroundImage:'images/tableview/off_3.png',
+//				selectedBackgroundImage:'images/tableview/on_3.png'},
+//		{title:'Contacts',backgroundImage:'images/tableview/off_4.png',
+//				 selectedBackgroundImage:'images/tableview/on_4.png'}
+//	];
 	
 
 
@@ -195,46 +198,47 @@ try{
 
 
 
-//	var data = [
-//		{title:'row 1', hasChild:true,fontWeight:'bold',fontSize:'36px',backgroundColor:'#00FFFF'},
-//		{title:'row 2', hasDetail:true,fontWeight:'normal',fontSize:'6px'},
-//		{title:'row 3',backgroundColor:'#00FFFF'},
-//		{html:'<b>row</b> 4 has <i>html?</i>',selected:true},
-//
-//		{rowHeight:50,title:'Layout test1',image:'Phone.png',layout:[{top:0,height:30,bottom:null,fontSize:'20px'},{type:'image',name:'image',top:0,height:40,left:5,width:40}]},
-//
-//		{title:'row 1', hasChild:true, image:'Mail.png',backgroundColor:'#00FFFF'},
-//		{title:'row 2', hasDetail:true, image:'Safari.png'},
-//		{title:'row 3', image:'Phone.png'},
-//		{title:'row 4', image:'iTunes.png',backgroundColor:'#00FFFF'},
-//
-//		{title:'row 1', hasChild:true, image:'Mail.png'},
-//		{title:'row 2', hasDetail:true, image:'Safari.png'},
-//		{title:'row 3', image:'Phone.png'},
-//		{title:'row 4', image:'iTunes.png'},
-//
-//		{title:'row 1', header:'Header 1', hasChild:true, },
-//		{title:'row 2', hasDetail:true},
-//		{title:'row 3'},
-//		{title:'row 4'},
-//		{title:'row 5', header:'Header 2', hasChild:true, },
-//		{title:'row 6', hasDetail:true},
-//		{title:'row 7'},
-//		{title:'row 8'},
-//		{title:'row 9', header:'Header 3', hasChild:true, },
-//		{title:'row 10', hasDetail:true},
-//		{title:'row 11',selected:true},
-//		{title:'row 12'},
-//
-//		{html:'<div><div style="font-weight:bold;font-size:18px">Row 1</div><div style="font-size:11px;margin-top:5px;>row 1 detail...</div></div>"',hasChild:true},
-//		{html:'<div><div style="font-weight:bold;font-size:18px">Row 2</div><div style="font-size:11px;margin-top:5px;>row 2 detail...</div></div>"',hasChild:true},
-//		{html:'<div><div style="font-weight:bold;font-size:18px">Row 3</div><div style="font-size:11px;margin-top:5px;>row 3 detail...</div></div>"',selected:true},
-//		{html:'<div><div style="font-weight:bold;font-size:18px">Row 4</div><div style="font-size:11px;margin-top:5px;>row 4 detail...</div></div>"'},
-//		{html:'<div><div style="font-weight:bold;font-size:18px">Row 5</div><div style="font-size:11px;margin-top:5px;>row 5 detail...</div></div>"'}		
-//
-//
-//	];
-	tableView = Titanium.UI.createTableView({search:Ti.UI.createSearchBar({showCancel:true,barColor:'#990000'}),data:data,
+	var data = [
+		{title:'row 1', hasChild:true,fontWeight:'bold',fontSize:'36px',backgroundColor:'#00FFFF'},
+		{title:'row 2', hasDetail:true,fontWeight:'normal',fontSize:'6px'},
+		{title:'row 3',backgroundColor:'#00FFFF'},
+		{html:'<b>row</b> 4 has <i>html?</i>',selected:true},
+
+		{rowHeight:50,title:'Layout test1',image:'Phone.png',layout:[{top:0,height:30,bottom:null,fontSize:'20px'},{type:'image',name:'image',top:0,height:40,left:5,width:40}]},
+
+		{title:'row 1', hasChild:true, image:'Mail.png',backgroundColor:'#00FFFF'},
+		{title:'row 2', hasDetail:true, image:'Safari.png'},
+		{title:'row 3', image:'Phone.png'},
+		{title:'row 4', image:'iTunes.png',backgroundColor:'#00FFFF'},
+
+		{title:'row 1', hasChild:true, image:'Mail.png'},
+		{title:'row 2', hasDetail:true, image:'Safari.png'},
+		{title:'row 3', image:'Phone.png'},
+		{title:'row 4', image:'iTunes.png'},
+
+		{title:'row 1', header:'Header 1', hasChild:true, },
+		{title:'row 2', hasDetail:true},
+		{title:'row 3'},
+		{title:'row 4'},
+		{title:'row 5', header:'Header 2', hasChild:true, },
+		{title:'row 6', hasDetail:true},
+		{title:'row 7'},
+		{title:'row 8'},
+		{title:'row 9', header:'Header 3', hasChild:true, },
+		{title:'row 10', hasDetail:true},
+		{title:'row 11',selected:true},
+		{title:'row 12'},
+
+		{html:'<div><div style="font-weight:bold;font-size:18px">Row 1</div><div style="font-size:11px;margin-top:5px;>row 1 detail...</div></div>"',hasChild:true},
+		{html:'<div><div style="font-weight:bold;font-size:18px">Row 2</div><div style="font-size:11px;margin-top:5px;>row 2 detail...</div></div>"',hasChild:true},
+		{html:'<div><div style="font-weight:bold;font-size:18px">Row 3</div><div style="font-size:11px;margin-top:5px;>row 3 detail...</div></div>"',selected:true},
+		{html:'<div><div style="font-weight:bold;font-size:18px">Row 4</div><div style="font-size:11px;margin-top:5px;>row 4 detail...</div></div>"'},
+		{html:'<div><div style="font-weight:bold;font-size:18px">Row 5</div><div style="font-size:11px;margin-top:5px;>row 5 detail...</div></div>"'}		
+
+
+	];
+	var searchy = Ti.UI.createSearchBar({showCancel:true,barColor:'#990000'});
+	tableView = Titanium.UI.createTableView({search:searchy,data:data,
 			template:template
 //			{title:'Button?',backgroundColor:'#FFFF00',layout:[{top:5,bottom:5,left:45,name:'title',type:'text',fontSize:'10px'},{type:'image',name:'image',top:0,height:40,left:5,width:40}]}
 			}, function(eventObject) {
@@ -269,6 +273,7 @@ try{
 	
 	var insertButton = Ti.UI.createButton({systemButton:Ti.UI.iPhone.SystemButton.ADD});
 	insertButton.addEventListener('click',function(e){
+		searchy.blur();
 		tableView.appendRow({title:'row 1', hasChild:true, },
 //		tableView.insertRowBefore(1,{title:'row 1', header:'Header 1', hasChild:true, },
 //		tableView.setData([{title:'row 1', header:'Header 1', hasChild:true, }],
@@ -292,7 +297,7 @@ try{
 		{image:'images/two.png',backgroundColor:'#00FFFF'}
 	];
 
-	var buttonSection = Titanium.UI.iPhone.createGroupedSection({type:'button',data:buttonData});
+	var buttonSection = Titanium.UI.iPhone.createGroupedSection({header:'Group 3',color:'red',type:'button',data:buttonData});
 	buttonSection.addEventListener('click',function(e)
 	{
 //		Ti.API.debug(e.toString());
@@ -305,7 +310,7 @@ try{
 		{title:'Option 3', image:'images/three.png'}	
 	];
 
-	var optionSection = Titanium.UI.iPhone.createGroupedSection({type:'option', data:optionData});
+	var optionSection = Titanium.UI.iPhone.createGroupedSection({header:'Group 1',type:'option', data:optionData});
 	optionSection.addEventListener('click',function(e)
 	{
 //		Ti.API.debug(e.toString());
@@ -334,7 +339,7 @@ try{
 		{title:'Input 3', image:'images/three.png'}	
 	];
 
-	var inputSection = Titanium.UI.iPhone.createGroupedSection({type:'input', data:inputData});
+	var inputSection = Titanium.UI.iPhone.createGroupedSection({header:'Group 2',type:'input',rowHeight:100, data:inputData});
 	inputSection.addEventListener('click',function(e)
 	{
 //		Ti.API.debug(e.toString());

@@ -182,7 +182,7 @@ public class TitaniumAnalyticsService extends Service
 		try {
 			netInfo = connectivityManager.getActiveNetworkInfo();
 		} catch (SecurityException e) {
-			Log.e(LCAT, "Connectivity permissions have been removed from AndroidManifest.xml: " + e.getMessage());
+			Log.w(LCAT, "Connectivity permissions have been removed from AndroidManifest.xml: " + e.getMessage());
 		}
 		if (netInfo != null && netInfo.isConnected() && !netInfo.isRoaming()) {
 			result = true;

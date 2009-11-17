@@ -510,8 +510,6 @@ public class TitaniumTableView extends TitaniumBaseView
 		view.setBackgroundColor(Color.TRANSPARENT);
 		view.setCacheColorHint(Color.TRANSPARENT);
 		adapter = new TTVListAdapter(viewModel);
-		Log.e(LCAT, "CHOICE MODE: " + view.getChoiceMode());
-		Log.e(LCAT, "Checked Item Pos: " + view.getCheckedItemPosition());
 		view.setAdapter(adapter);
 
 		String scrollBar = defaults.get("scrollBar");
@@ -532,7 +530,6 @@ public class TitaniumTableView extends TitaniumBaseView
 				TitaniumBaseTableViewItem v = (TitaniumBaseTableViewItem) view;
 				String viewClicked = v.getLastClickedViewName();
 
-				Log.e(LCAT, "CLICKED TAG: " + view.getTag());
 				try {
 					JSONObject item = viewModel.getViewModel().getJSONObject(position);
 					JSONObject event = new JSONObject();
