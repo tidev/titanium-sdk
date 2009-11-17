@@ -374,11 +374,10 @@
 
 	NSArray * newlayoutArray = [propDict objectForKey:@"layout"];
 	if ([newlayoutArray isKindOfClass:[NSArray class]]) {
-		if (layoutArray != nil) {
-			[layoutArray removeAllObjects];
-		} else {
-			layoutArray = [[NSMutableArray alloc] initWithCapacity:[newlayoutArray count]];
-		}
+
+		//Because Complex TableViewCell caches the layout based on the actual int value, we need to flush the old one.
+		[layoutArray release];
+		layoutArray = [[NSMutableArray alloc] initWithCapacity:[newlayoutArray count]];
 		
 		if (imageKeys == nil) {
 			imageKeys = [[NSMutableSet alloc] init];

@@ -15,6 +15,8 @@
 {
 	UIFont * font;
 	UIColor * textColor;
+	UIColor * highlightedTextColor;
+	BOOL highlighted;
 	NSString * text;
 }
 
@@ -22,10 +24,13 @@
 @property(nonatomic,readwrite,retain)	UIColor * textColor;
 @property(nonatomic,readwrite,retain)	NSString * text;
 
+@property(nonatomic,retain)               UIColor *highlightedTextColor; // default is nil
+@property(nonatomic,getter=isHighlighted) BOOL     highlighted;          // default is NO
+
 @end
 
 @implementation TitaniumTextLabel
-@synthesize font,textColor,text;
+@synthesize font,textColor,text,highlightedTextColor,highlighted;
 
 - (id)initWithFrame:(CGRect)frame;          // default initializer
 {
@@ -38,11 +43,11 @@
 
 - (void)drawRect:(CGRect)rect;
 {
-	CGRect ourFrame = [self frame];
-	
-	CGSize drawSize = ourFrame.size;
-	
-	[textColor set];
+	if(highlighted){
+		[highlightedTextColor set];
+	} else {
+		[textColor set];
+	}
 	
 	[text drawInRect:[self bounds] withFont:font lineBreakMode:UILineBreakModeTailTruncation alignment:UITextAlignmentLeft];
 }
@@ -51,6 +56,7 @@
 {
 	[text release];
 	[textColor release];
+	[highlightedTextColor release];
 	[font release];
 	[super dealloc];
 }
@@ -98,13 +104,20 @@ typedef enum {
 {
 	self = [super initWithFrame:frame reuseIdentifier:reuseIdentifier];
 	if (self != nil){
-
+		[self setUserInteractionEnabled:YES];
 	}
 	return self;
 }
 
+- (void)prepareForReuse;                                                        // if the cell is reusable (has a reuse identifier), this is called just before the cell is returned from the table view method dequeueReusableCellWithIdentifier:.  If you override, you MUST call super.
+{
+	[super prepareForReuse];
+	[self setUserInteractionEnabled:YES];
+}
+
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+		[self setUserInteractionEnabled:YES];
         // Initialization code
     }
     return self;
@@ -152,13 +165,59 @@ typedef enum {
 	}
 }
 
+- (void) applyImageNamed: (NSString *) name toView: (UIImageView *) view;
+{
+	UIImage * entryImage = [dataWrapper imageForKey:name];
+	[view setImage:entryImage];
+	if (entryImage==nil) {
+		TitaniumBlobWrapper * ourBlob = [dataWrapper blobWrapperForKey:name];
+		if (ourBlob != nil) {
+			VERBOSE_LOG(@"[INFO] %@ is watching blob %@. %@",self,ourBlob,watchedBlobs);
+			if (watchedBlobs == nil) {
+				watchedBlobs = [[NSMutableSet alloc] initWithObjects:ourBlob,nil];
+			} else {
+				[watchedBlobs addObject:ourBlob];
+			}
+			[ourBlob addObserver:self forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:view];
+		}
+	}
+}
+
+
 - (void)layoutSubviews;
 {
 	[super layoutSubviews];
 
-	[self setUserInteractionEnabled:YES];
-
+	BOOL useHilightColors = [self isSelected];
+	
+	if([self respondsToSelector:@selector(isHighlighted)]){
+		useHilightColors = useHilightColors || [self isHighlighted];
+	}
+	
 	NSArray * layoutArray = [dataWrapper layoutArray];
+	[self flushBlobWatching];
+
+	if(layoutArray == lastLayoutArray){ //Okay, everyone's still in position!
+		NSEnumerator * viewEnumerator = [layoutViewsArray objectEnumerator];
+		
+		for (LayoutEntry * thisEntry in layoutArray) {
+			UIView * thisEntryView = [viewEnumerator nextObject];
+			NSString * name = [thisEntry nameString];
+
+			if([thisEntryView isKindOfClass:[UIImageView class]]){
+				[self applyImageNamed:name toView:(UIImageView *)thisEntryView];
+				continue;	
+			}
+			if([thisEntryView isKindOfClass:[TitaniumTextLabel class]]){
+				[(TitaniumTextLabel *)thisEntryView setText:[dataWrapper stringForKey:name]];
+				[(TitaniumTextLabel *)thisEntryView setHighlighted:useHilightColors];
+				continue;
+			}
+		}
+		return;
+	}
+
+	lastLayoutArray = layoutArray;
 
 	if(layoutViewsArray == nil){
 		layoutViewsArray = [[NSMutableArray alloc] initWithCapacity:[layoutArray count]];
@@ -168,71 +227,42 @@ typedef enum {
 		}
 		[layoutViewsArray removeAllObjects];
 	}
-	
-	[self flushBlobWatching];
-	
+		
 	CGRect boundRect;
 	boundRect = [[self contentView] frame];
-
-	BOOL useHilightColors = [self isSelected];
-	
-	if([self respondsToSelector:@selector(isHighlighted)]){
-		useHilightColors = useHilightColors || [self isHighlighted];
-	}
-	
+		
 	for (LayoutEntry * thisEntry in layoutArray) {
 		UIView * thisEntryView;
 		NSString * name = [thisEntry nameString];
 
 		switch ([thisEntry type]) {
 			case LayoutEntryText:{
-//				thisEntryView = [[[UITextView alloc] initWithFrame:CGRectZero] autorelease];
-//				[(UITextView *)thisEntryView setEditable:NO];
-//				[thisEntryView setUserInteractionEnabled:NO];
 				thisEntryView = [[[TitaniumTextLabel alloc] initWithFrame:CGRectZero] autorelease];
-//				[(UILabel *)thisEntryView setNumberOfLines:0];
 
-				[(UITextView *)thisEntryView setText:[dataWrapper stringForKey:name]];
-				UIColor * textColor = nil;
-				if (useHilightColors) {
-					textColor = [thisEntry selectedTextColor];
-				}
-				if (textColor == nil) {
-					textColor = [thisEntry textColor];
-				}
-				if (useHilightColors && (textColor == nil)) {
-					textColor = [dataWrapper colorForKey:@"selectedColor"];
-				}
-				if (textColor == nil) {
-					textColor = [dataWrapper colorForKey:@"color"];
-				}
-				if (textColor != nil) {
-					[(UITextView *)thisEntryView setTextColor:textColor];
-				} else {
-					[(UITextView *)thisEntryView setTextColor:useHilightColors?[UIColor whiteColor]:[UIColor blackColor]];
-				}
+				[(TitaniumTextLabel *)thisEntryView setText:[dataWrapper stringForKey:name]];
+				[(TitaniumTextLabel *)thisEntryView setHighlighted:useHilightColors];
+
+				UIColor * thisTextColor = [thisEntry textColor];
+				UIColor * thisHighlightedTextColor = [thisEntry selectedTextColor];
+				if(thisHighlightedTextColor == nil) thisHighlightedTextColor = thisTextColor;
+
+				if(thisHighlightedTextColor == nil) thisHighlightedTextColor = [dataWrapper colorForKey:@"selectedColor"];
+
+				if (thisTextColor == nil) thisTextColor = [dataWrapper colorForKey:@"color"];
+				if(thisHighlightedTextColor == nil) thisHighlightedTextColor = thisTextColor;
+
+				if (thisTextColor == nil) thisTextColor = [UIColor blackColor];
+				if(thisHighlightedTextColor == nil) thisHighlightedTextColor = [UIColor whiteColor];
+
+				[(TitaniumTextLabel *)thisEntryView setTextColor:thisTextColor];
+				[(TitaniumTextLabel *)thisEntryView setHighlightedTextColor:thisHighlightedTextColor];
 				
-				[(UITextView *)thisEntryView setFont:[[thisEntry labelFontPointer] font]];
+				[(TitaniumTextLabel *)thisEntryView setFont:[[thisEntry labelFontPointer] font]];
 				
 				break;}
 			case LayoutEntryImage:{
 				thisEntryView = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
-
-				UIImage * entryImage = [dataWrapper imageForKey:name];
-				[(UIImageView *)thisEntryView setImage:entryImage];
-				if (entryImage==nil) {
-					TitaniumBlobWrapper * ourBlob = [dataWrapper blobWrapperForKey:name];
-					if (ourBlob != nil) {
-						VERBOSE_LOG(@"[INFO] %@ is watching blob %@. %@",self,ourBlob,watchedBlobs);
-						if (watchedBlobs == nil) {
-							watchedBlobs = [[NSMutableSet alloc] initWithObjects:ourBlob,nil];
-						} else {
-							[watchedBlobs addObject:ourBlob];
-						}
-						[ourBlob addObserver:self forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:thisEntryView];
-					}
-				}
-				
+				[self applyImageNamed:name toView:(UIImageView *)thisEntryView];				
 				break;}
 			case LayoutEntryButton:{
 				thisEntryView = nil;
@@ -250,17 +280,19 @@ typedef enum {
 	
 }
 
-//- (void)setHighlighted:(BOOL)hilighted animated:(BOOL)animated;
-//{
-//	[super setHighlighted:hilighted animated:animated];
-////	[self updateState:animated];
-//}
-//
-//- (void)setSelected:(BOOL)selected animated:(BOOL)animated;
-//{
-//	[super setSelected:selected animated:animated];
-////	[self updateState:animated];
-//}
+- (void)setHighlighted:(BOOL)hilighted animated:(BOOL)animated;
+{
+	NSLog(@"[DEBUG] Cell %X hilighted %d animated %d",self,hilighted,animated);
+	[super setHighlighted:hilighted animated:animated];
+//	[self updateState:animated];
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated;
+{
+	NSLog(@"[DEBUG] Cell %X selected %d animated %d",self,selected,animated);
+	[super setSelected:selected animated:animated];
+//	[self updateState:animated];
+}
 
 
 - (void)dealloc {
@@ -270,6 +302,12 @@ typedef enum {
 	[clickedName release];
 	[watchedBlobs release];
     [super dealloc];
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event;
+{
+	NSLog(@"[DEBUG] %X Touches cancelled",self);
+	[super touchesCancelled:touches withEvent:event];
 }
 
 - (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
@@ -282,6 +320,7 @@ typedef enum {
 		if ([thisView pointInside:thisPoint withEvent:nil]) {
 			LayoutEntry * thisEntry = [[dataWrapper layoutArray] objectAtIndex:currentViewIndex];
 			[self setClickedName:[thisEntry nameString]];
+			NSLog(@"[DEBUG] Touches ended for %X name %@",self,clickedName);
 			[super touchesEnded:touches withEvent:event];
 			return;
 		}
@@ -289,6 +328,7 @@ typedef enum {
 	}
 	
 	[self setClickedName:nil];
+	NSLog(@"[DEBUG] Touches ended for %X no name",self);
 	[super touchesEnded:touches withEvent:event];
 }
 
