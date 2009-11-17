@@ -6,8 +6,6 @@
  */
 package org.appcelerator.titanium.module.ui.tableview;
 
-import java.util.HashMap;
-
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
@@ -20,6 +18,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
@@ -47,7 +46,11 @@ public class TitaniumTableViewNormalItem extends TitaniumBaseTableViewItem
 		public RowView(Context context) {
 			super(context);
 
-			setGravity(Gravity.CENTER_VERTICAL);
+			if (Integer.parseInt(Build.VERSION.SDK) > 3) {
+				setGravity(Gravity.NO_GRAVITY);
+			} else {
+				setGravity(Gravity.CENTER_VERTICAL);
+			}
 
 			iconView = new ImageView(context);
 			iconView.setId(100);
@@ -79,7 +82,7 @@ public class TitaniumTableViewNormalItem extends TitaniumBaseTableViewItem
 			params.alignWithParent = true;
 			addView(hasChildView, params);
 
-			params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
 			params.addRule(CENTER_VERTICAL);
 			params.addRule(RIGHT_OF, iconView.getId());
 			params.addRule(LEFT_OF, hasChildView.getId());
@@ -123,7 +126,7 @@ public class TitaniumTableViewNormalItem extends TitaniumBaseTableViewItem
 				try {
 					if (data.getBoolean("hasChild")) {
 						if(hasMoreDrawable == null) {
-							hasMoreDrawable = new BitmapDrawable(getClass().getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));
+							hasMoreDrawable = createHasChildDrawable();
 						}
 						if (hasMoreDrawable != null) {
 							hasChildView.setImageDrawable(hasMoreDrawable);
