@@ -9,6 +9,7 @@ package org.appcelerator.titanium.module.ui;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumImageView;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TitaniumColorHelper;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,10 +20,12 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Message;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.URLUtil;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -50,6 +53,7 @@ public class TitaniumImageView extends TitaniumBaseView
 	private ImageView view;
 	private Integer height;
 	private Integer width;
+	private String backgroundColor;
 
 	private GestureDetector gestureDetector;
 
@@ -153,6 +157,9 @@ public class TitaniumImageView extends TitaniumBaseView
 		if (o.has("width")) {
 			width = o.getInt("width");
 		}
+		if (o.has("backgroundColor")) {
+			backgroundColor = o.getString("backgroundColor");
+		}
 	}
 
 	@Override
@@ -162,6 +169,10 @@ public class TitaniumImageView extends TitaniumBaseView
 		setLayoutParams(params);
 
 		view = new ImageView(getContext());
+		if (backgroundColor != null) {
+			int c = TitaniumColorHelper.parseColor(backgroundColor);
+			view.setBackgroundColor(c);
+		}
 
 		if (canScaleImage) {
 			view.setAdjustViewBounds(true);
@@ -238,32 +249,57 @@ public class TitaniumImageView extends TitaniumBaseView
 	}
 
 	private void loadImageFromUrl() {
-		TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getAppContext());
 
 		Log.i(LCAT, "Loading image: " + url);
-		Drawable d = tfh.loadDrawable(url, false);
-		if (d != null) {
-			BitmapDrawable bd = (BitmapDrawable) d;
-			int w = bd.getBitmap().getWidth();
-			int h = bd.getBitmap().getHeight();
+		if (URLUtil.isNetworkUrl(url)) {
+			Drawable ld = new BitmapDrawable(getClass().getResourceAsStream("/org/appcelerator/titanium/res/drawable/photoDefault.png"));
+			if (ld != null) {
+				view.setImageDrawable(ld);
+			}
+		}
 
-			if (height != null || width != null) {
-				if (width != null) {
-					w = width;
+		AsyncTask<String, Long, Drawable> task = new AsyncTask<String, Long, Drawable>()
+		{
+
+			@Override
+			protected Drawable doInBackground(String... arg) {
+				TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getAppContext());
+				Drawable d = tfh.loadDrawable(arg[0], false);
+				if (d != null) {
+					BitmapDrawable bd = (BitmapDrawable) d;
+					int w = bd.getBitmap().getWidth();
+					int h = bd.getBitmap().getHeight();
+
+					if (height != null || width != null) {
+						if (width != null) {
+							w = width;
+						}
+						if (height != null) {
+							h = height;
+						}
+						Bitmap b = Bitmap.createScaledBitmap(bd.getBitmap(), w, h, true);
+						d = new BitmapDrawable(b);
+					}
+
+				} else {
+					Log.w(LCAT, "Unable to load image from " + url);
 				}
-				if (height != null) {
-					h = height;
-				}
-				Bitmap b = Bitmap.createScaledBitmap(bd.getBitmap(), w, h, true);
-				d = new BitmapDrawable(b);
+				return d;
 			}
 
-			view.setImageDrawable(d);
-			scaleFactor = originalScaleFactor;
-			updateChangeMatrix(0);
-		} else {
-			Log.w(LCAT, "Unable to load image from " + url);
-		}
+			@Override
+			protected void onPostExecute(Drawable d) {
+				if (d != null) {
+					view.setImageDrawable(d);
+					scaleFactor = originalScaleFactor;
+					updateChangeMatrix(0);
+				}
+
+				super.onPostExecute(d);
+			}
+		};
+		task.execute(url);
+
 	}
 
 	private void manageControls() {
