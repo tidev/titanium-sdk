@@ -246,7 +246,7 @@ TitaniumHost * lastSharedHost = nil;
 {
 	keyboardTop = 0;
 	TitaniumViewController * ourVC = [self visibleTitaniumViewController];
-	[ourVC needsUpdate:TitaniumViewControllerVisibleAreaChanged | TitaniumViewControllerRefreshIsAnimated];
+	[ourVC needsUpdate:TitaniumViewControllerVisibleAreaChanged]; // | TitaniumViewControllerRefreshIsAnimated];
 	
 	if ([self hasListeners]) [self fireListenerAction:@selector(eventKeyboardHiding:properties:) source:ourVC properties:[notification userInfo]];
 }
