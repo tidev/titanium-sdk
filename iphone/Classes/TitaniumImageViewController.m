@@ -52,6 +52,7 @@
 	[imageDefault release];
 	[imageView release];
 	[url release];
+	[bgcolor release];
     [super dealloc];
 }
 
@@ -67,7 +68,7 @@
 	else 
 	{
 		// set the default image while fetching
-		UIImage* iconImage = [UIImage imageNamed:@"modules/ui/images/photoDefault.png"];
+		UIImage* iconImage = [[TitaniumHost sharedHost] imageForResource:@"modules/ui/images/photoDefault.png"];
 		[self setImageDefault:iconImage];
 
 		id imageUrlObject = [inputState objectForKey:@"url"];
@@ -77,6 +78,12 @@
 			NSURL * singleImageUrl = [NSURL URLWithString:imageUrlObject relativeToURL:baseUrl];
 			[self setUrl:singleImageUrl];
 		}
+	}
+	
+	id bg = [inputState objectForKey:@"backgroundColor"];
+	if (bg!=nil)
+	{
+		bgcolor = [UIColorWebColorNamed(bg) retain];
 	}
 
 	NSNumber * canScaleObject = [inputState objectForKey:@"canScale"];
@@ -104,7 +111,6 @@
 		imageView = [[TitaniumImageView alloc] initWithFrame:viewFrame];
 		[imageView setDelegate:self];
 		[imageView setOpaque:NO];
-		[imageView setBackgroundColor:[UIColor clearColor]];
 		[imageView setImage:[self singleImage]];
 		if (imageDefault!=nil)
 		{
@@ -113,6 +119,14 @@
 		else 
 		{
 			[imageView setContentMode:UIViewContentModeScaleToFill];
+		}
+		if (bgcolor!=nil)
+		{
+			[imageView setBackgroundColor:bgcolor];
+		}
+		else 
+		{
+			[imageView setBackgroundColor:[UIColor clearColor]];
 		}
 	}
 
@@ -210,6 +224,8 @@
 
 -(void)loadImage
 {
+	//FIXME: we need to change this over to blain's new super bad ass BlobWrapper do hicky
+	
 	NSData * data = [NSData dataWithContentsOfURL:url];
 	[self setSingleImageBlob:[UIImage imageWithData:data]];
 	fetchRequired = NO;

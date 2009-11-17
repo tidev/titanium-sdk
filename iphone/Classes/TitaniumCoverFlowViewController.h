@@ -11,6 +11,7 @@
 	NSMutableArray *images;
 	AFOpenFlowView *view;
 	UIColor *backgroundColor;
+	NSMutableArray *backgrouders;
 }
 
 -(void)setUrl:(NSURL*)url index:(NSNumber*)index;

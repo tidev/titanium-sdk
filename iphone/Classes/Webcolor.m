@@ -67,8 +67,6 @@ UIColor * UIColorWebColorNamed(NSString * colorName)
 
 UIColor * UIColorForRGBFunction(NSString * functionString){ //TODO: Make pretty.
 	int stringLength=[functionString length];
-	if(stringLength < 5) return nil;
-
 	NSRange openParensRange = [functionString rangeOfString:@"("];
 	if (openParensRange.location == NSNotFound) return nil;
 

@@ -39,6 +39,8 @@
 	BOOL dirtyImage;
 	BOOL fetchRequired;
 	
+	UIColor *bgcolor;
+	
 	UIImage* imageDefault;
 }
 
