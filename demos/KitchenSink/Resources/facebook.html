@@ -48,7 +48,7 @@
 						data[c]= {
 							photo: row.pic_square == null ? 'images/custom_tableview/user.png' : row.pic_square,
 							user: row.name,
-							status: (row.status ? row.status.message : 'No status message'),
+							status: (!row.status || !row.status.message ? 'No status message' : row.status.message),
 							button:'images/custom_tableview/commentButton.png',
 							uid: row.uid,
 							title: row.name
@@ -72,8 +72,8 @@
 						 rowHeight:100,
 						 layout:[
 						   {type:'image', left:10, width:50, height:50, name:'photo'},
-						   {type:'text', fontSize:16, fontWeight:'bold', left:70, top:0, width:200, height:25, color:'#576996', name:'user'},
-						   {type:'text', fontSize:13, fontWeight:'normal', left:70, top:23, bottom:5, width:200, color:'#222', name:'status'},
+						   {type:'text', fontSize:16, fontWeight:'bold', left:70, top:5, width:200, height:20, color:'#576996', name:'user'},
+						   {type:'text', fontSize:13, fontWeight:'normal', left:70, top:25, bottom:5, width:200, color:'#222', name:'status'},
 						   {type:'image', right:5, top:35, width:36, height:34, name:'button'}
 						]};
 
