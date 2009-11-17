@@ -410,7 +410,6 @@
 		button.frame = CGRectMake(0,0,size.width,size.height);
 		button.backgroundColor = [UIColor clearColor];
 		[button setImage:image forState:UIControlStateNormal];
-		[image autorelease];
 		return button;
 	}
 	return [UIButton buttonWithType:type];
@@ -429,6 +428,7 @@
 					  forKeyPath:@"selected"
 						 options:NSKeyValueObservingOptionNew
 						 context:@"ANSELECTED"];
+			[annView autorelease];
 		}
 		annView.pinColor = [ann pincolor];
 		annView.animatesDrop = [ann animate];

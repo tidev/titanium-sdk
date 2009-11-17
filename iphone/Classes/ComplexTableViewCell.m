@@ -7,6 +7,73 @@
 
 #import "ComplexTableViewCell.h"
 #import "TitaniumCellWrapper.h"
+#import "TitaniumBlobWrapper.h"
+
+#import "Logging.h"
+
+@interface TitaniumTextLabel : UIView
+{
+	UIFont * font;
+	UIColor * textColor;
+	NSString * text;
+}
+
+@property(nonatomic,readwrite,retain)	UIFont * font;
+@property(nonatomic,readwrite,retain)	UIColor * textColor;
+@property(nonatomic,readwrite,retain)	NSString * text;
+
+@end
+
+@implementation TitaniumTextLabel
+@synthesize font,textColor,text;
+
+- (id)initWithFrame:(CGRect)frame;          // default initializer
+{
+	self = [super initWithFrame:frame];
+	if (self != nil) {
+		[self setOpaque:NO];
+	}
+	return self;
+}
+
+- (void)drawRect:(CGRect)rect;
+{
+	CGRect ourFrame = [self frame];
+	
+	CGSize drawSize = ourFrame.size;
+	
+	[textColor set];
+	
+	[text drawInRect:[self bounds] withFont:font lineBreakMode:UILineBreakModeTailTruncation alignment:UITextAlignmentLeft];
+}
+
+- (void) dealloc
+{
+	[text release];
+	[textColor release];
+	[font release];
+	[super dealloc];
+}
+
+
+@end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #ifndef __IPHONE_3_0
 typedef enum {
@@ -44,6 +111,13 @@ typedef enum {
 }
 
 //- (void) applyDictionary: (NSDictionary *) layoutDict toText: (UILabel *) 
+- (void)flushBlobWatching;
+{
+	for (TitaniumBlobWrapper * thisBlob in watchedBlobs) {
+		[thisBlob removeObserver:self forKeyPath:@"imageBlob"];
+	}
+	[watchedBlobs removeAllObjects];
+}
 
 
 - (void)setDataWrapper:(TitaniumCellWrapper *)newWrapper;
@@ -66,12 +140,15 @@ typedef enum {
 
 	if ([keyPath isEqualToString:@"imageBlob"]) {
 		[object removeObserver:self forKeyPath:keyPath];
+		VERBOSE_LOG(@"[INFO] %@ is removing blob %@. %@",self,object,watchedBlobs);
+		[watchedBlobs removeObject:object];
 		for (UIView * changedView in layoutViewsArray) {
 			if (changedView == context) {
-				[(UIImageView *)changedView setImage:[object imageBlob]];
+				[(UIImageView *)changedView setImage:[(TitaniumBlobWrapper *)object imageBlob]];
 				return;
 			}
 		}
+		NSLog(@"[WARN] Shouldn't happen. %@ notified us, but we didn't care.",object);
 	}
 }
 
@@ -92,6 +169,8 @@ typedef enum {
 		[layoutViewsArray removeAllObjects];
 	}
 	
+	[self flushBlobWatching];
+	
 	CGRect boundRect;
 	boundRect = [[self contentView] frame];
 
@@ -107,9 +186,12 @@ typedef enum {
 
 		switch ([thisEntry type]) {
 			case LayoutEntryText:{
-				thisEntryView = [[[UITextView alloc] initWithFrame:CGRectZero] autorelease];
-				[(UITextView *)thisEntryView setEditable:NO];
-				[thisEntryView setUserInteractionEnabled:NO];
+//				thisEntryView = [[[UITextView alloc] initWithFrame:CGRectZero] autorelease];
+//				[(UITextView *)thisEntryView setEditable:NO];
+//				[thisEntryView setUserInteractionEnabled:NO];
+				thisEntryView = [[[TitaniumTextLabel alloc] initWithFrame:CGRectZero] autorelease];
+//				[(UILabel *)thisEntryView setNumberOfLines:0];
+
 				[(UITextView *)thisEntryView setText:[dataWrapper stringForKey:name]];
 				UIColor * textColor = nil;
 				if (useHilightColors) {
@@ -139,8 +221,16 @@ typedef enum {
 				UIImage * entryImage = [dataWrapper imageForKey:name];
 				[(UIImageView *)thisEntryView setImage:entryImage];
 				if (entryImage==nil) {
-					[[dataWrapper blobWrapperForKey:name] addObserver:self
-							forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:thisEntryView];
+					TitaniumBlobWrapper * ourBlob = [dataWrapper blobWrapperForKey:name];
+					if (ourBlob != nil) {
+						VERBOSE_LOG(@"[INFO] %@ is watching blob %@. %@",self,ourBlob,watchedBlobs);
+						if (watchedBlobs == nil) {
+							watchedBlobs = [[NSMutableSet alloc] initWithObjects:ourBlob,nil];
+						} else {
+							[watchedBlobs addObject:ourBlob];
+						}
+						[ourBlob addObserver:self forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:thisEntryView];
+					}
 				}
 				
 				break;}
@@ -176,6 +266,9 @@ typedef enum {
 - (void)dealloc {
 	[self setDataWrapper:nil];
 	[layoutViewsArray release];
+	[self flushBlobWatching];
+	[clickedName release];
+	[watchedBlobs release];
     [super dealloc];
 }
 

@@ -47,6 +47,7 @@
 						var row = r.data[c];
 						data[c]= {
 							photo: row.pic_square == null ? 'images/custom_tableview/user.png' : row.pic_square,
+//							photo: 'safari.png',
 							user: row.name,
 							status: (row.status ? row.status.message : 'No status message'),
 							button:'images/custom_tableview/commentButton.png',
