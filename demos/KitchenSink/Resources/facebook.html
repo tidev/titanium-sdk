@@ -101,14 +101,10 @@
 							{
 								var rowData = eventObject.rowData;
 								
-								// Titanium.API.info("layoutName == "+eventObject.layoutName);
-								// 
-								// if (typeof(eventObject.layoutName)=='undefined')
-								// {
-								// 	Titanium.API.info("before blur");
-								// 	search.blur();
-								// 	return;
-								// }
+								if (eventObject.searchMode)
+								{
+									search.blur();
+								}
 								
 								Titanium.Facebook.publishStream("What to say?",null,rowData.uid,function(pr)
 								{
