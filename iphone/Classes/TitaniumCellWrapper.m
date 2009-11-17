@@ -136,6 +136,21 @@
 	return nil;
 }
 
+- (TitaniumBlobWrapper *) blobWrapperForKey: (NSString *) key;
+{
+	id result = [imagesCache objectForKey:key];
+	
+	//Okay, if it's blank, we default to the template. If there is no template, we get nil anyways.
+	if(result == nil) return [templateCell blobWrapperForKey:key];
+	
+	if([result isKindOfClass:[TitaniumBlobWrapper class]]){
+		return result;
+	}
+	
+	//If it's NSNull, then we want nil.
+	return nil;	
+}
+
 - (UIImage *) imageForKey: (NSString *) key;
 {
 	id result = [imagesCache objectForKey:key];
@@ -159,9 +174,6 @@
 	if([result isKindOfClass:[TitaniumBlobWrapper class]]){
 		UIImage * resultImage = [(TitaniumBlobWrapper *)result imageBlob];
 		if(resultImage!=nil)return resultImage;
-		
-		//Okay, we'll have to take a rain check.
-		[result addObserver:self forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:nil];
 	}
 
 	//If it's NSNull, then we want nil.

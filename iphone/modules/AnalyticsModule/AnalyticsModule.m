@@ -60,25 +60,27 @@ NSURL * AnalyticsModuleURL = nil;
 
 	connection = [[NSURLConnection alloc] initWithRequest:ourRequest delegate:self startImmediately:YES];
 	
+	VERBOSE_LOG(@"[INFO] Analytics %@ will send %@",self,eventArray);
 	return self;
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)URLConnection;
 {
-	VERBOSE_LOG(@"Analytics successfully sent %@",eventArray);
+	VERBOSE_LOG(@"[INFO] Analytics %@ successful!",self);
 	[eventArray release];
 	[self autorelease];
 }
 
 - (void)connection:(NSURLConnection *)URLConnection didFailWithError:(NSError *)error;
 {
-	VERBOSE_LOG(@"Analytics failed with %@. Tried to send: %@",error,eventArray);
+	VERBOSE_LOG(@"[INFO] Analytics %@ failed with %@",self,error);
 	[module keepEvents:eventArray];
 	[self autorelease];
 }
 
 - (void) dealloc
 {
+	VERBOSE_LOG(@"[INFO] Analytics %@ deallocing",self);
 	[[TitaniumHost sharedHost] resumeTermination];
 	[connection release];
 	[super dealloc];
@@ -172,7 +174,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 
 - (void)sendEvents;
 {
-	if(events==nil)return;
+	if(events==nil || disabled)return;
 
 	if(packetDueDate==nil){
 		packetDueDate = [[NSDate alloc] initWithTimeIntervalSinceNow:TI_ANALYTICS_TIMER_DELAY_IN_SEC];
@@ -222,8 +224,11 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 
 - (void)enqueuePlatformEvent:(NSString*)eventtype evtname:(NSString*)eventname data:(NSDictionary*)data;
 {
+	if (disabled) return;
+	
 	[mutex lock];
 	NSData * newEvent = [self generateEventObject:eventtype evtname:eventname data:data];
+	VERBOSE_LOG(@"[INFO] Analytics enqueing event %@",newEvent);
 	if(events==nil){
 		[[TitaniumHost sharedHost] pauseTermination];
 		events = [[NSMutableArray alloc] initWithObjects:newEvent,nil];
@@ -234,11 +239,11 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	[mutex unlock];
 }
 
-#pragma mark 
+#pragma mark -
 
 - (void) pageLoaded;
 {
-	if (hasSentStart)return;
+	if (hasSentStart || disabled) return;
 	hasSentStart = YES;
 
 	NSString * supportFolderPath = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
@@ -315,6 +320,8 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 
 - (void) addEvent: (NSString *) eventtype evtname: (NSString *) eventname value: (id) value;
 {
+	if (disabled) return;
+	
 	Class stringClass = [NSString class];
 	if(![eventtype isKindOfClass:stringClass] || ![eventname isKindOfClass:stringClass])return;
 	if([value isKindOfClass:stringClass]) value = [NSDictionary dictionaryWithObject:value forKey:@"data"];
@@ -329,6 +336,25 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	[self setSessionID:[(PlatformModule *)[[TitaniumHost sharedHost] moduleNamed:@"PlatformModule"] createUUID]];
 	sequence = 1;
 
+	TitaniumHost *tiHost = [TitaniumHost sharedHost];
+	
+	
+	// determine if we can even do analytics at all -- we keep the analytics module in place but the 
+	// method calls are no-op if analytics if off. this is so that it's easy to enabled/disable without
+	// API bustage - analytics off effectively is a no-op on the API calls
+	id analyticsEnablement = [[tiHost appProperties] objectForKey:@"analytics"];
+	if (analyticsEnablement!=nil && [analyticsEnablement respondsToSelector:@selector(boolValue)])
+	{
+		disabled = [analyticsEnablement boolValue]==NO;
+	}
+	else 
+	{
+		disabled = NO;
+	}
+	
+	NSLog(@"[DEBUG] Anlaytics is enabled = %@", (disabled ? @"NO":@"YES"));
+
+	
 	timer = nil;
 	connectionState = NetworkModuleConnectionStateUnknown;
 	
@@ -424,13 +450,15 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 				"}"
 			"}"],@"userEvent",
 			nil];
-	[[[TitaniumHost sharedHost] titaniumObject] setObject:methods forKey:@"Analytics"];
+	[[tiHost titaniumObject] setObject:methods forKey:@"Analytics"];
 	
 	return YES;
 }
 
 - (BOOL) endModule;
 {
+	if (disabled) return YES;
+	
 	// first add to our queue (so we can flush)
 	[packetDueDate release];
 	packetDueDate = [[NSDate alloc] init];

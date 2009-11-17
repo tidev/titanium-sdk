@@ -367,8 +367,6 @@ UIColor * checkmarkColor = nil;
 			[searchView setFrame:CGRectMake(0, 0, startSize.size.width, tableRowHeight)];
 			[searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
 			[tableView setTableHeaderView:searchView];
-			[tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
-					atScrollPosition:UITableViewScrollPositionTop animated:NO];
 		}
 		
 		[wrapperView addSubview:tableView];

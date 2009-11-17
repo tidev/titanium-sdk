@@ -20,7 +20,6 @@ public interface ITitaniumPlatform
 	public String getUsername();
 	public String createUUID();
 	public double getAvailableMemory();
-	public String getPhoneNumber();
 	public String getModel();
 
 	public boolean openApplication(String app);

@@ -349,6 +349,7 @@
 		B4BAC94310982994005925EA /* PlatformModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8300FC9FCA400063972 /* PlatformModule.m */; };
 		B4BAC94410982996005925EA /* FBLoginButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD238A106F1802004D4127 /* FBLoginButton.m */; };
 		B4BAC94510982997005925EA /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F02E450FD482D2007894DA /* AnalyticsModule.m */; };
+		B4BF789D10B1F19900C7D46E /* facebook.html in Resources */ = {isa = PBXBuildFile; fileRef = B4BF789C10B1F19900C7D46E /* facebook.html */; };
 		B4C3F8B60FB3B11C0037F210 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */; };
 		B4C579C410A27F1E00198B82 /* ComplexTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C579C310A27F1E00198B82 /* ComplexTableViewCell.m */; };
 		B4C579C510A27F1E00198B82 /* ComplexTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C579C310A27F1E00198B82 /* ComplexTableViewCell.m */; };
@@ -576,6 +577,7 @@
 		B4BAC625109624C2005925EA /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
 		B4BAC626109624C2005925EA /* AddressBookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBookUI.framework; path = System/Library/Frameworks/AddressBookUI.framework; sourceTree = SDKROOT; };
 		B4BAC64E1096250A005925EA /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		B4BF789C10B1F19900C7D46E /* facebook.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = facebook.html; sourceTree = "<group>"; };
 		B4C3F8B50FB3B11C0037F210 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		B4C579C210A27F1E00198B82 /* ComplexTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComplexTableViewCell.h; sourceTree = "<group>"; };
 		B4C579C310A27F1E00198B82 /* ComplexTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ComplexTableViewCell.m; sourceTree = "<group>"; };
@@ -1081,6 +1083,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				B4BF789C10B1F19900C7D46E /* facebook.html */,
 				2402FF3B10AD6C4D0060E89D /* woodgrain.png */,
 				B4AF73B6107E7920000347A7 /* view1.html */,
 				B4AF73B7107E7920000347A7 /* view2.html */,
@@ -1923,6 +1926,7 @@
 				B4AF73BA107E7920000347A7 /* view2.html in Resources */,
 				B4AF73BB107E7920000347A7 /* view3.html in Resources */,
 				2402FF3C10AD6C4D0060E89D /* woodgrain.png in Resources */,
+				B4BF789D10B1F19900C7D46E /* facebook.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2813,6 +2817,293 @@
 			};
 			name = Release;
 		};
+		B4BF77C510B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					USE_VERBOSE_DEBUG,
+					MODULE_TI_GESTURE,
+					MODULE_TI_APP,
+					MODULE_TI_UI,
+					MODULE_TI_API,
+					MODULE_TI_DATABASE,
+					MODULE_TI_GEOLOCATION,
+					MODULE_TI_ACCELEROMETER,
+					MODULE_TI_MEDIA,
+					MODULE_TI_FILESYSTEM,
+					MODULE_TI_NETWORK,
+					MODULE_TI_PLATFORM,
+					MODULE_TI_GESTURE,
+					MODULE_TI_SYSTEM,
+				);
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Classes";
+				INFOPLIST_FILE = Info.plist;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "-DPL_DB_PRIVATE=1";
+				OTHER_CODE_SIGN_FLAGS = "";
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				PREBINDING = NO;
+				SDKROOT = iphonesimulator3.0;
+				SYMROOT = build;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77C610B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Blain Hamon";
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_VERSION = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
+				PRODUCT_NAME = Titanium;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77C710B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Blain Hamon";
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_VERSION = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
+				INFOPLIST_FILE = /CodeValhalla/Appcelerate/spaz/build/iphone/Info.plist;
+				PRODUCT_NAME = TestSpaz;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77C810B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Yahoo;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77C910B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Facebook;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77CA10B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_VERSION = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CPLUSPLUSFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = Titanium;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77CB10B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Notification;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77CC10B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Analytics;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77CD10B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Gesture;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77CE10B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Api;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77CF10B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = App;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77D010B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Database;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77D110B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Filesystem;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77D210B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Geolocation;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77D310B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Media;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77D410B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Accelerometer;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77D510B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Network;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77D610B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Platform;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77D710B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Contacts;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77D810B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = UI;
+			};
+			name = "Verbose Debug";
+		};
+		B4BF77D910B1DE6D00C7D46E /* Verbose Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = Map;
+			};
+			name = "Verbose Debug";
+		};
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2893,6 +3184,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,
+				B4BF77C610B1DE6D00C7D46E /* Verbose Debug */,
 				1D6058950D05DD3E006BFB54 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2902,6 +3194,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				247DCBE2107C8380009CD0D1 /* Debug */,
+				B4BF77C810B1DE6D00C7D46E /* Verbose Debug */,
 				247DCBE3107C8380009CD0D1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2911,6 +3204,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24BA96B71097DF42009ADEDD /* Debug */,
+				B4BF77D710B1DE6D00C7D46E /* Verbose Debug */,
 				24BA96B81097DF42009ADEDD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2920,6 +3214,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24BA96D41097E132009ADEDD /* Debug */,
+				B4BF77D910B1DE6D00C7D46E /* Verbose Debug */,
 				24BA96D51097E132009ADEDD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2929,6 +3224,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24C5ABF21061FA9E0063594B /* Debug */,
+				B4BF77CB10B1DE6D00C7D46E /* Verbose Debug */,
 				24C5ABF31061FA9E0063594B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2938,6 +3234,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24C5ABFA1061FABF0063594B /* Debug */,
+				B4BF77CC10B1DE6D00C7D46E /* Verbose Debug */,
 				24C5ABFB1061FABF0063594B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2947,6 +3244,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24C5AC011061FAC80063594B /* Debug */,
+				B4BF77CD10B1DE6D00C7D46E /* Verbose Debug */,
 				24C5AC021061FAC80063594B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2956,6 +3254,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24C5AC081061FAD30063594B /* Debug */,
+				B4BF77CE10B1DE6D00C7D46E /* Verbose Debug */,
 				24C5AC091061FAD30063594B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2965,6 +3264,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24C5AC0F1061FADD0063594B /* Debug */,
+				B4BF77CF10B1DE6D00C7D46E /* Verbose Debug */,
 				24C5AC101061FADD0063594B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2974,6 +3274,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24C5AC161061FAE50063594B /* Debug */,
+				B4BF77D010B1DE6D00C7D46E /* Verbose Debug */,
 				24C5AC171061FAE50063594B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2983,6 +3284,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24C5AC1D1061FAF00063594B /* Debug */,
+				B4BF77D110B1DE6D00C7D46E /* Verbose Debug */,
 				24C5AC1E1061FAF00063594B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2992,6 +3294,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24C5AC241061FB000063594B /* Debug */,
+				B4BF77D210B1DE6D00C7D46E /* Verbose Debug */,
 				24C5AC251061FB000063594B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -3001,6 +3304,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24C5AC2B1061FB080063594B /* Debug */,
+				B4BF77D310B1DE6D00C7D46E /* Verbose Debug */,
 				24C5AC2C1061FB080063594B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -3010,6 +3314,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24C5AC321061FB1A0063594B /* Debug */,
+				B4BF77D410B1DE6D00C7D46E /* Verbose Debug */,
 				24C5AC331061FB1A0063594B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -3019,6 +3324,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24C5AC391061FB250063594B /* Debug */,
+				B4BF77D510B1DE6D00C7D46E /* Verbose Debug */,
 				24C5AC3A1061FB250063594B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -3028,6 +3334,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24C5AC401061FB2F0063594B /* Debug */,
+				B4BF77D610B1DE6D00C7D46E /* Verbose Debug */,
 				24C5AC411061FB2F0063594B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -3037,6 +3344,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24C5AC591061FB4C0063594B /* Debug */,
+				B4BF77D810B1DE6D00C7D46E /* Verbose Debug */,
 				24C5AC5A1061FB4C0063594B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -3046,6 +3354,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24FD2396106F180F004D4127 /* Debug */,
+				B4BF77C910B1DE6D00C7D46E /* Verbose Debug */,
 				24FD2397106F180F004D4127 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -3055,6 +3364,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B41068A30FBB730F00310448 /* Debug */,
+				B4BF77CA10B1DE6D00C7D46E /* Verbose Debug */,
 				B41068A40FBB730F00310448 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -3064,6 +3374,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B47A271C1035F040002146CD /* Debug */,
+				B4BF77C710B1DE6D00C7D46E /* Verbose Debug */,
 				B47A271D1035F040002146CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -3073,6 +3384,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C01FCF4F08A954540054247B /* Debug */,
+				B4BF77C510B1DE6D00C7D46E /* Verbose Debug */,
 				C01FCF5008A954540054247B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
