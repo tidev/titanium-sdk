@@ -6,6 +6,7 @@
 	var section1Template = {
 		backgroundColor:'#670000',
 		selectedBackgroundColor:'#670000',
+		selectionStyle:'none',
 		color:'#fff',
 		layout:[
 		{type:'text', name:'item', color:'white', fontSize:20, fontWeight:'bold', left:10, top:3, height:30, width:150},
@@ -69,8 +70,8 @@
 				cost:selectedData[e.rowData.item].cost,
 				addImage:'images/addDefault.png',
 				layout:[
-		{type:'text', name:'item', color:'white', fontSize:20, fontWeight:'bold', left:50, top:3, height:30, width:150},
-		{type:'text', name:'cost', color:'white', fontSize:14, left:50, top:23, height:25, width:150},
+		{type:'text', name:'item', color:'white', fontSize:20, fontWeight:'bold', left:10, top:3, height:30, width:150},
+		{type:'text', name:'cost', color:'white', fontSize:14, left:10, top:23, height:25, width:150},
 		{type:'image', name:'addImage', height:27, width:27, top:10, right:10}
 				]		
 			};
@@ -88,7 +89,7 @@
 		backgroundColor:'#670000',
 		selectedBackgroundColor:'#440000',
 		color:'#fff',
-		rowHeight:30,
+		rowHeight:45,
 		layout:[
 		{type:'text', name:'button', color:'white', fontSize:20, fontWeight:'bold', left:9, top:10, height:30, width:100},
 		]		
