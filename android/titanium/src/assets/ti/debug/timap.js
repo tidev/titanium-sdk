@@ -7,9 +7,9 @@
 // requires Ti, UI, Geolocation
 
 Ti.Map = {
-	MAP_VIEW_STANDARD : 1,
-	MAP_VIEW_SATELLITE : 2,
-	MAP_VIEW_HYBRID : 1, /* standard is basically hybrid */
+	STANDARD_TYPE : 1,
+	SATELLITE_TYPE : 2,
+	HYBRID_TYPE : 2, /* satellite is basically hybrid */
 
 	ANNOTATION_RED : 1,
 	ANNOTATION_GREEN : 2,
@@ -30,20 +30,34 @@ Ti.Map.MapView = function(proxy)
 	};
 
 	this.setLocation = function(region) {
-		Ti.Method.dispatch(this._proxy, "setLocation", region);
+		if (!Ti.isUndefined(region)) {
+			Ti.Method.dispatch(this._proxy, "setLocation", region);
+		}
 	};
 
 	this.setMapType = function(type) {
-		Ti.Method.dispatch(this._proxy, "setMapType", type);
+		if (!Ti.isUndefined(type)) {
+			Ti.Method.dispatch(this._proxy, "setMapType", type);
+		}
 	};
 
 	this.setZoomEnabled = function(enabled) {
-		Ti.Method.dipatch(this._proxy,"setZoomEnabled", enabled);
+		if (!Ti.isUndefined(enabled)) {
+			Ti.Method.dipatch(this._proxy,"setZoomEnabled", enabled);
+		}
 	};
 
 	this.setScrollEnabled = function(enabled) {
-		Ti.Method.dipatch(this._proxy,"setScrollEnabled", enabled);
+		if (!Ti.isUndefined(enabled)) {
+			Ti.Method.dipatch(this._proxy,"setScrollEnabled", enabled);
+		}
 	};
+
+	this.zoom = function(delta) {
+		if (!Ti.isUndefined(delta)) {
+			Ti.Method.dispatch(this._proxy, "changeZoomLevel", delta);
+		}
+	}
 
 	this.addEventListener = function(event, listener) {
 		return Ti.Method.dispatch(this._proxy, "addEventListener", event, registerCallback(this, listener));
