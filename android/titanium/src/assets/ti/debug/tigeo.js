@@ -52,3 +52,12 @@ Ti.Geolocation = {
 		Ti.geoProxy.clearWatch(watchId);
 	}
 };
+
+Ti.Geolocation.reverseGeocoder = function(latitude, longitude, location) {
+	var coordinate = { latitude : latitude, longitude : longitude };
+	return Ti.Method.dispatch("TitaniumGeo2", "reverseGeocoder", coordinate, registerOneShot(this, location));
+};
+
+Ti.Geolocation.forwardGeocoder = function(address, location) {
+	return Ti.Method.dispatch("TitaniumGeo2", "forwardGeocoder", address, registerOneShot(this, location));
+};

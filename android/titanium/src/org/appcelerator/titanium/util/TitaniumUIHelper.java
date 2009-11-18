@@ -189,10 +189,18 @@ public class TitaniumUIHelper
 			sld = new StateListDrawable();
 			TitaniumFileHelper tfh = new TitaniumFileHelper(context);
 
+			if (focusedImage == null) {
+				focusedImage = selectedImage;
+			}
+
 			if (focusedImage != null) {
 				Drawable d = tfh.loadDrawable(focusedImage, false, true);
 				if (d != null) {
-					int[] ss = { android.R.attr.state_focused };
+					int[] ss = {
+						android.R.attr.state_focused,
+						android.R.attr.state_window_focused,
+						android.R.attr.state_enabled
+					};
 					sld.addState(ss, d);
 				}
 			}
@@ -202,7 +210,12 @@ public class TitaniumUIHelper
 				if (d != null) {
 					int[] ss = { android.R.attr.state_pressed };
 					sld.addState(ss, d);
-					int[] ss1 = {android.R.attr.state_focused, android.R.attr.state_pressed };
+					int[] ss1 = {
+							android.R.attr.state_focused,
+							android.R.attr.state_window_focused,
+							android.R.attr.state_enabled,
+							android.R.attr.state_pressed
+					};
 					sld.addState(ss1, d);
 					int[] ss2 = { android.R.attr.state_selected };
 					sld.addState(ss2, d);
@@ -216,8 +229,6 @@ public class TitaniumUIHelper
 					sld.addState(stateSet, d);
 				}
 			}
-
-
 		}
 
 		return sld;

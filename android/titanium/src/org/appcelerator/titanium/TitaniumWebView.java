@@ -33,6 +33,7 @@ import org.appcelerator.titanium.module.TitaniumPlatform;
 import org.appcelerator.titanium.module.TitaniumUI;
 import org.appcelerator.titanium.module.analytics.TitaniumAnalyticsEventFactory;
 import org.appcelerator.titanium.module.contacts.TitaniumContacts;
+import org.appcelerator.titanium.module.geo.TitaniumGeolocation2;
 import org.appcelerator.titanium.module.map.TitaniumMap;
 import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
 import org.appcelerator.titanium.util.Log;
@@ -233,6 +234,7 @@ public class TitaniumWebView extends WebView
 
 		new TitaniumContacts(tmm, "TitaniumContacts");
 		new TitaniumMap(tmm, "TitaniumMap");
+		new TitaniumGeolocation2(tmm, "TitaniumGeo2"); // forward/reverse geo
 
 		// Add Modules from Applications
 		TitaniumApplication app = tmm.getApplication();
