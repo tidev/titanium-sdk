@@ -515,6 +515,7 @@ int nextWindowToken = 0;
 - (void) loadView;
 {
 	UIView * ourRootView = [[UIView alloc] initWithFrame:CGRectZero];
+//	UIView * ourRootView = [[UIView alloc] init];
 	[ourRootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 	[self setView:ourRootView];
 	[ourRootView release];
