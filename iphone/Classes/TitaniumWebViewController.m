@@ -517,30 +517,49 @@
 	NSString * docHeightString = [webView stringByEvaluatingJavaScriptFromString:@"document.height"];
 	CGFloat docHeight = [docHeightString floatValue];
 
+	NSString * docWidthString = [webView stringByEvaluatingJavaScriptFromString:@"document.width"];
+	CGFloat docWidth = [docWidthString floatValue];
+
 	for(NativeControlProxy * thisProxy in nativeOnscreenProxies){
 		[thisProxy refreshPositionWithWebView:webView animated:animated];
 		UIView * thisView = [thisProxy view];
 
 		CGRect thisFrame = [thisView frame];
 		CGFloat bottom = thisFrame.size.height + thisFrame.origin.y;
+		CGFloat right = thisFrame.size.width + thisFrame.origin.x;
 
 		if ([thisProxy isFirstResponder]){
 			firstResponder = thisView;
 		}
 		
 		if (bottom > docHeight) docHeight = bottom;
+		if (right > docWidth) docWidth = right;
 	}
 
-	BOOL allowsScrolling = (webFrame.size.height < docHeight);
-	if(allowsScrolling){
+
+
+	BOOL allowsVertScrolling = (webFrame.size.height < docHeight);
+	if(allowsVertScrolling){
 		webFrame.size.height = docHeight;
 	}
+	
+	VERBOSE_LOG(@"[INFO] Resizing web view. Docwidth %f > webFrame width %f?",docWidth,webFrame.size.width);
+	
+#ifdef USEHORIZSCROLLING
+	BOOL allowsHorizScrolling = (webFrame.size.width < docWidth);
+	if(allowsHorizScrolling){
+		webFrame.size.width = docHeight;
+	}
+#else
+	BOOL allowsHorizScrolling = NO;
+#endif	
 	[scrollView setContentSize:webFrame.size];
 	[webView setFrame:webFrame];
+	[webView setScalesPageToFit:NO];
 	[scrollView setScrollEnabled:YES];
 	[scrollView setBounces:YES];
-	[scrollView setShowsVerticalScrollIndicator:allowsScrolling];
-	[scrollView setShowsHorizontalScrollIndicator:allowsScrolling];
+	[scrollView setShowsVerticalScrollIndicator:allowsVertScrolling];
+	[scrollView setShowsHorizontalScrollIndicator:allowsHorizScrolling];
 
 	if(firstResponder != nil){
 		[scrollView scrollRectToVisible:[firstResponder frame] animated:animated];

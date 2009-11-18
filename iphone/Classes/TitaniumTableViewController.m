@@ -24,14 +24,17 @@
 {
 	NSString * text;
 	UIColor * textColor;
+	UITextAlignment textAlignment;
 }
 
 @property(nonatomic,readwrite,retain)	UIColor * textColor;
 @property(nonatomic,readwrite,retain)	NSString * text;
+@property(nonatomic) UITextAlignment textAlignment;    // default is UITextAlignmentLeft
 
 @end
 
 @implementation TitaniumTitleView
+@synthesize text,textColor,textAlignment;
 
 - (id)initWithFrame:(CGRect)frame;          // default initializer
 {
@@ -47,8 +50,19 @@
 {
 	[textColor set];
 	CGRect labelBounds = [self bounds];
-	
-	[text drawInRect:labelBounds withFont:[UIFont boldSystemFontOfSize:[UIFont systemFontSize]] lineBreakMode:UILineBreakModeTailTruncation alignment:UITextAlignmentLeft];
+	UIFont * fontToUse = nil;
+	if(textAlignment == UITextAlignmentLeft){
+		labelBounds.origin.y += 8;
+		labelBounds.size.height -= 8;
+		labelBounds.origin.x += 18;
+		labelBounds.size.width -= 18;
+		fontToUse = [UIFont boldSystemFontOfSize:[UIFont labelFontSize]];
+	} else if (textAlignment == UITextAlignmentCenter) {
+		labelBounds.origin.y += 7;
+		labelBounds.size.height -= 7;
+		fontToUse = [UIFont systemFontOfSize:[UIFont labelFontSize]-1.5];
+	}
+	[text drawInRect:labelBounds withFont:fontToUse lineBreakMode:UILineBreakModeTailTruncation alignment:textAlignment];
 }
 
 - (void) dealloc
@@ -835,6 +849,16 @@ UIColor * checkmarkColor = nil;
 		[(id)result setImage:[rowWrapper image]];
 	}
 
+	NSString * selectionStyleString = [rowWrapper stringForKey:@"selectionStyle"];
+	if([selectionStyleString isEqualToString:@"none"]){
+		[result setSelectionStyle:UITableViewCellSelectionStyleNone];
+	} else if([selectionStyleString isEqualToString:@"gray"]){
+		[result setSelectionStyle:UITableViewCellSelectionStyleGray];
+	} else {
+		[result setSelectionStyle:UITableViewCellSelectionStyleBlue];
+	}
+	
+
 	[result setAccessoryType:ourType];
 	[result setAccessoryView:[[rowWrapper inputProxy] view]];
 	UIColor * bgColor = [rowWrapper colorForKey:@"backgroundColor"];
@@ -915,13 +939,10 @@ UIColor * checkmarkColor = nil;
 	
 	if((ourTitle==nil) || (ourColor == nil))return nil;
 	
-	UILabel * result = [[UILabel alloc] initWithFrame:CGRectMake(20, 0, [tableView frame].size.width-20, 20)];
+	TitaniumTitleView * result = [[TitaniumTitleView alloc] initWithFrame:CGRectMake(0, 0, [tableView frame].size.width, 20)];
 	[result setText:ourTitle];
-	[result setBackgroundColor:[UIColor clearColor]];
-	
 	[result setTextColor:ourColor];
-//	[result setShadowColor:[UIColor whiteColor]];
-//	[result setShadowOffset:CGSizeMake(0, 1)];
+	[result setTextAlignment:UITextAlignmentLeft];
 	
 	return [result autorelease];
 }
@@ -938,13 +959,10 @@ UIColor * checkmarkColor = nil;
 	
 	if((ourTitle==nil) || (ourColor == nil))return nil;
 
-	UILabel * result = [[UILabel alloc] initWithFrame:CGRectMake(20, 0, [tableView frame].size.width-20, 20)];
+	TitaniumTitleView * result = [[TitaniumTitleView alloc] initWithFrame:CGRectMake(0, 0, [tableView frame].size.width, 20)];
 	[result setText:ourTitle];
-	[result setBackgroundColor:[UIColor clearColor]];
-	
-	[result setTextColor:[UIColor redColor]];
-	[result setShadowColor:[UIColor whiteColor]];
-	[result setShadowOffset:CGSizeMake(0, 1)];
+	[result setTextColor:ourColor];
+	[result setTextAlignment:UITextAlignmentCenter];
 	
 	return [result autorelease];
 }

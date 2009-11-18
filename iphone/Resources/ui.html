@@ -201,14 +201,14 @@ try{
 	var data = [
 		{title:'row 1', hasChild:true,fontWeight:'bold',fontSize:'36px',backgroundColor:'#00FFFF'},
 		{title:'row 2', hasDetail:true,fontWeight:'normal',fontSize:'6px'},
-		{title:'row 3',backgroundColor:'#00FFFF'},
+		{title:'row 3',backgroundColor:'#00FFFF',selectionStyle:'none'},
 		{html:'<b>row</b> 4 has <i>html?</i>',selected:true},
 
 		{rowHeight:50,title:'Layout test1',image:'Phone.png',layout:[{top:0,height:30,bottom:null,fontSize:'20px'},{type:'image',name:'image',top:0,height:40,left:5,width:40}]},
 
 		{title:'row 1', hasChild:true, image:'Mail.png',backgroundColor:'#00FFFF'},
-		{title:'row 2', hasDetail:true, image:'Safari.png'},
-		{title:'row 3', image:'Phone.png'},
+		{title:'row 2', hasDetail:true, image:'Safari.png',selectionStyle:'gray'},
+		{title:'row 3', image:'Phone.png',selectionStyle:'blue'},
 		{title:'row 4', image:'iTunes.png',backgroundColor:'#00FFFF'},
 
 		{title:'row 1', hasChild:true, image:'Mail.png'},
@@ -294,10 +294,10 @@ function test2()
 try{
 	var buttonData = [
 		{title:'Yay button',image:'images/one.png',backgroundColor:null,backgroundImage:'Safari.png',selectedBackgroundImage:'Phone.png'},
-		{image:'images/two.png',backgroundColor:'#00FFFF'}
+		{image:'images/two.png',selectedBackgroundColor:'red',backgroundColor:'#00FFFF'}
 	];
 
-	var buttonSection = Titanium.UI.iPhone.createGroupedSection({header:'Group 3',color:'red',type:'button',data:buttonData});
+	var buttonSection = Titanium.UI.iPhone.createGroupedSection({header:'Group 3',footer:'Footsy',color:'green',type:'button',data:buttonData});
 	buttonSection.addEventListener('click',function(e)
 	{
 //		Ti.API.debug(e.toString());
@@ -310,7 +310,7 @@ try{
 		{title:'Option 3', image:'images/three.png'}	
 	];
 
-	var optionSection = Titanium.UI.iPhone.createGroupedSection({header:'Group 1',type:'option', data:optionData});
+	var optionSection = Titanium.UI.iPhone.createGroupedSection({header:'Group 1',footer:'Footsy',type:'option', data:optionData});
 	optionSection.addEventListener('click',function(e)
 	{
 //		Ti.API.debug(e.toString());
