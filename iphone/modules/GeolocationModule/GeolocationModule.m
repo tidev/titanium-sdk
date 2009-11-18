@@ -84,10 +84,13 @@ NSUInteger lastHeadingID = 0;
 	if ([headingF respondsToSelector:@selector(doubleValue)]){
 		[self setHeadingFilter:[headingF doubleValue]];
 	}
+
 }
 
 - (BOOL) handlesLocation: (CLLocation *) newLocation;
 {
+	float newLocationDistance = [location getDistanceFrom:newLocation];
+
 	if (minimumCacheTime == nil || location == nil)
 	{
 		return YES;
@@ -95,7 +98,7 @@ NSUInteger lastHeadingID = 0;
 	// check the distance filter since we're aggregating multiples locations
 	if (kCLDistanceFilterNone!=distanceFilter && location!=nil)
 	{
-		if ([location getDistanceFrom:newLocation] < distanceFilter)
+		if (newLocationDistance < distanceFilter)
 		{
 			[self setLocation:newLocation];
 			return NO;
@@ -303,7 +306,8 @@ NSUInteger lastHeadingID = 0;
 	}
 }
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation;
-{
+{	
+
 	// only send location events every so often to the JS layer since they come very fast and often
 	if ((lastEvent != nil) && ((-[lastEvent timeIntervalSinceNow]) < MAX_DELAY_BEFORE_TRANSMIT_LOCATION_EVENT_IN_SEC))
 	{
@@ -409,7 +413,7 @@ NSUInteger lastHeadingID = 0;
 	[proxyDictionary setObject:newProxy forKey:newToken];
 	[proxyLock unlock];
 
-	if ([propertiesDict isKindOfClass:[NSDictionary dictionary]]) [newProxy takeDetails:propertiesDict];
+	if ([propertiesDict isKindOfClass:[NSDictionary class]]) [newProxy takeDetails:propertiesDict];
 
 	if ([isOneShotObj respondsToSelector:@selector(boolValue)]){
 		[newProxy setSingleShot:[isOneShotObj boolValue]];
@@ -558,7 +562,8 @@ NSUInteger lastHeadingID = 0;
 	else 
 	{
 		//TODO: better error handling
-		NSString * actionString = [NSString stringWithFormat:@"Ti.Geolocation._FTOKEN['%@']({success:false}); delete Ti.Geolocation._FTOKEN['%@'];",[dict objectForKey:@"token"]];
+		NSString * ourToken = [dict objectForKey:@"token"];
+		NSString * actionString = [NSString stringWithFormat:@"Ti.Geolocation._FTOKEN['%@']({success:false}); delete Ti.Geolocation._FTOKEN['%@'];",ourToken,ourToken];
 		[[TitaniumHost sharedHost] sendJavascript:actionString toPageWithToken:[dict objectForKey:@"pageToken"]];
 	}	
 

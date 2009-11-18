@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
@@ -33,6 +34,7 @@ import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
+import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
@@ -62,6 +64,7 @@ public class TitaniumMapView extends TitaniumBaseView
 	private static final int MSG_SET_ANIMATE = 303;
 	private static final int MSG_SET_USERLOCATION = 304;
 	private static final int MSG_SET_SCROLLENABLED = 305;
+	private static final int MSG_CHANGE_ZOOM = 306;
 
 	//private MapView view;
 	private int type;
@@ -237,6 +240,13 @@ public class TitaniumMapView extends TitaniumBaseView
 					userLocation = msg.arg1 == 1 ? true : false;
 					doUserLocation(userLocation);
 					handled = true;
+					break;
+
+				case MSG_CHANGE_ZOOM :
+					MapController mc = view.getController();
+					if (mc != null) {
+						mc.setZoom(view.getZoomLevel() + msg.arg1);
+					}
 					break;
 			}
 		}
@@ -482,6 +492,10 @@ public class TitaniumMapView extends TitaniumBaseView
 				}
 			}
 		}
+	}
+
+	public void changeZoomLevel(int delta) {
+		handler.obtainMessage(MSG_CHANGE_ZOOM, delta, 0).sendToTarget();
 	}
 
 	private Drawable makeMarker(int c)

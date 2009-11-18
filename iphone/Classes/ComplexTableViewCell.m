@@ -282,19 +282,6 @@ typedef enum {
 	
 }
 
-- (void)setHighlighted:(BOOL)hilighted animated:(BOOL)animated;
-{
-	NSLog(@"[DEBUG] Cell %X hilighted %d animated %d",self,hilighted,animated);
-	[super setHighlighted:hilighted animated:animated];
-//	[self updateState:animated];
-}
-
-- (void)setSelected:(BOOL)selected animated:(BOOL)animated;
-{
-	NSLog(@"[DEBUG] Cell %X selected %d animated %d",self,selected,animated);
-	[super setSelected:selected animated:animated];
-//	[self updateState:animated];
-}
 
 - (void)dealloc {
 	[self setDataWrapper:nil];
@@ -303,12 +290,6 @@ typedef enum {
 	[clickedName release];
 	[watchedBlobs release];
     [super dealloc];
-}
-
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event;
-{
-	NSLog(@"[DEBUG] %X Touches cancelled",self);
-	[super touchesCancelled:touches withEvent:event];
 }
 
 - (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
@@ -321,7 +302,7 @@ typedef enum {
 		if ([thisView pointInside:thisPoint withEvent:nil]) {
 			LayoutEntry * thisEntry = [[dataWrapper layoutArray] objectAtIndex:currentViewIndex];
 			[self setClickedName:[thisEntry nameString]];
-			NSLog(@"[DEBUG] Touches ended for %X name %@",self,clickedName);
+			VERBOSE_LOG(@"[DEBUG] Touches ended for %X name %@",self,clickedName);
 			[super touchesEnded:touches withEvent:event];
 			return;
 		}
@@ -329,7 +310,7 @@ typedef enum {
 	}
 	
 	[self setClickedName:nil];
-	NSLog(@"[DEBUG] Touches ended for %X no name",self);
+	VERBOSE_LOG(@"[DEBUG] Touches ended for %X no name",self);
 	[super touchesEnded:touches withEvent:event];
 }
 

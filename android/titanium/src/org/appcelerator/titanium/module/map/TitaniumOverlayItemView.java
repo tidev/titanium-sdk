@@ -88,10 +88,11 @@ public class TitaniumOverlayItemView extends FrameLayout
 
 		rightImage = new ImageView(context);
 		rightImage.setId(103);
-		rightImage.setTag("rightImage");
+		rightImage.setTag("rightButton");
 		params = createBaseParams();
 		params.addRule(RelativeLayout.CENTER_VERTICAL);
 		params.addRule(RelativeLayout.RIGHT_OF, 101);
+		params.addRule(RelativeLayout.RIGHT_OF, 102);
 		params.setMargins(5, 0, 0, 0);
 		layout.addView(rightImage, params);
 
