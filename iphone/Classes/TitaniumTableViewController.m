@@ -20,6 +20,52 @@
 
 #import "Logging.h"
 
+@interface TitaniumTitleView : UIView
+{
+	NSString * text;
+	UIColor * textColor;
+}
+
+@property(nonatomic,readwrite,retain)	UIColor * textColor;
+@property(nonatomic,readwrite,retain)	NSString * text;
+
+@end
+
+@implementation TitaniumTitleView
+
+- (id)initWithFrame:(CGRect)frame;          // default initializer
+{
+	self = [super initWithFrame:frame];
+	if (self != nil) {
+		[self setOpaque:NO];
+		[self setBackgroundColor:[UIColor clearColor]];
+	}
+	return self;
+}
+
+- (void)drawRect:(CGRect)rect;
+{
+	[textColor set];
+	CGRect labelBounds = [self bounds];
+	
+	[text drawInRect:labelBounds withFont:[UIFont boldSystemFontOfSize:[UIFont systemFontSize]] lineBreakMode:UILineBreakModeTailTruncation alignment:UITextAlignmentLeft];
+}
+
+- (void) dealloc
+{
+	[text release];
+	[textColor release];
+	[super dealloc];
+}
+
+@end
+
+
+
+
+
+
+
 TitaniumCellWrapper * TitaniumCellWithData(NSDictionary * rowData, NSURL * baseUrl, TitaniumCellWrapper * templateCell)
 {
 	TitaniumFontDescription * defaultFont = [[TitaniumFontDescription alloc] init];
@@ -874,8 +920,8 @@ UIColor * checkmarkColor = nil;
 	[result setBackgroundColor:[UIColor clearColor]];
 	
 	[result setTextColor:ourColor];
-	[result setShadowColor:[UIColor whiteColor]];
-	[result setShadowOffset:CGSizeMake(0, 1)];
+//	[result setShadowColor:[UIColor whiteColor]];
+//	[result setShadowOffset:CGSizeMake(0, 1)];
 	
 	return [result autorelease];
 }
