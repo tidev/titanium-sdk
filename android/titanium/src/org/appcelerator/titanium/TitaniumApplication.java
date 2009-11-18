@@ -31,6 +31,7 @@ public class TitaniumApplication
 {
 	public static final String LCAT = "TiApp";
 	private static boolean DBG = TitaniumConfig.LOGD;
+	private static final long STATS_WAIT = 300000;
 
 	public static final String APP_ASSET_KEY = "tiapp";
 	public static final String APP_CONTENT_KEY = "ticontent";
@@ -47,6 +48,7 @@ public class TitaniumApplication
 	protected Intent analyticsIntent;
 
 	private static TitaniumApplication me;
+	private static long lastAnalyticsTriggered = 0;
 
 	public TitaniumApplication() {
 		needsEnrollEvent = false; // test is after DB is available
@@ -235,19 +237,26 @@ public class TitaniumApplication
 				sendAnalytics();
 				analyticsModel.markEnrolled();
 			}
-			return;
 		} else if (event.getEventType() == TitaniumAnalyticsEventFactory.EVENT_APP_START) {
 			if (needsStartEvent) {
 				analyticsModel.addEvent(event);
 				needsStartEvent = false;
 				sendAnalytics();
+				lastAnalyticsTriggered = System.currentTimeMillis();
 			}
 			return;
 		} else if (event.getEventType() == TitaniumAnalyticsEventFactory.EVENT_APP_END) {
 			needsStartEvent = true;
+			analyticsModel.addEvent(event);
+			sendAnalytics();
+		} else {
+			analyticsModel.addEvent(event);
+			long now = System.currentTimeMillis();
+			if (now - lastAnalyticsTriggered >= STATS_WAIT) {
+				sendAnalytics();
+				lastAnalyticsTriggered = now;
+			}
 		}
-		analyticsModel.addEvent(event);
-		sendAnalytics();
 	}
 
 	public String getSessionId() {

@@ -5,7 +5,7 @@
 #
 
 import os, sys, subprocess, re, types
-import poorjson, run
+import poorjson, run, tempfile, codecs
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
@@ -109,7 +109,13 @@ def check_certs(props):
 	props['iphone_dev']=False
 	props['iphone_dist_message'] = 'Missing iPhone Distribution Certificate'
 	props['iphone_dev_message'] = 'Missing iPhone Developer Certificate'
-	output = run.run(['security','dump-keychain']).decode("utf-8")
+
+	# attempt to work around python subprocess UTF-8 encoding issues by
+	# letting the shell write it to file and then read from that file
+	f = tempfile.mkstemp('appc')
+	os.system("security dump-keychain > \"%s\"" % f[1])
+	output = codecs.open(f[1],'r','utf-8','replace').read()
+	os.remove(f[1])
 	for i in output.split('\n'):
 		check_for_wwdr(props,i)
 		check_for_iphone_dev(props,i)
