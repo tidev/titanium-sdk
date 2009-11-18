@@ -20,40 +20,41 @@ public class TitaniumColorHelper
 
 	public static int parseColor(String value) {
 		int color = Color.YELLOW; // Something noticeable
-		String lowval = value.toLowerCase();
+		if (value != null) {
+			String lowval = value.trim().toLowerCase();
 
-		Matcher m = null;
-		if ((m = shortHexPattern.matcher(lowval)).matches()) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("#");
-			for(int i = 1; i <= m.groupCount(); i++) {
-				String s = m.group(i);
-				sb.append(s).append(s);
-			}
-			String newColor = sb.toString();
-			color = Color.parseColor(newColor);
-		} else if ((m = rgbPattern.matcher(lowval)).matches()) {
-			color = Color.rgb(
-				Integer.valueOf(m.group(1)),
-				Integer.valueOf(m.group(2)),
-				Integer.valueOf(m.group(3))
-				);
-		} else if ((m = argbPattern.matcher(lowval)).matches()) {
-			color = Color.argb(
-					Integer.valueOf(m.group(4)),
+			Matcher m = null;
+			if ((m = shortHexPattern.matcher(lowval)).matches()) {
+				StringBuilder sb = new StringBuilder();
+				sb.append("#");
+				for(int i = 1; i <= m.groupCount(); i++) {
+					String s = m.group(i);
+					sb.append(s).append(s);
+				}
+				String newColor = sb.toString();
+				color = Color.parseColor(newColor);
+			} else if ((m = rgbPattern.matcher(lowval)).matches()) {
+				color = Color.rgb(
 					Integer.valueOf(m.group(1)),
 					Integer.valueOf(m.group(2)),
 					Integer.valueOf(m.group(3))
 					);
-		} else {
-			// Try the parser, will throw illegalArgument if it can't parse it.
-			try {
-				color = Color.parseColor(lowval);
-			} catch (IllegalArgumentException e) {
-				Log.w("TiColorHelper", "Unknown color: " + value);
+			} else if ((m = argbPattern.matcher(lowval)).matches()) {
+				color = Color.argb(
+						Integer.valueOf(m.group(4)),
+						Integer.valueOf(m.group(1)),
+						Integer.valueOf(m.group(2)),
+						Integer.valueOf(m.group(3))
+						);
+			} else {
+				// Try the parser, will throw illegalArgument if it can't parse it.
+				try {
+					color = Color.parseColor(lowval);
+				} catch (IllegalArgumentException e) {
+					Log.w("TiColorHelper", "Unknown color: " + value);
+				}
 			}
 		}
-
 		return color;
 	}
 }
