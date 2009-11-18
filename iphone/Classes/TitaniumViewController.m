@@ -202,19 +202,6 @@ int nextWindowToken = 0;
 	
 	UIBarButtonItem * backButton = nil;
 	
-	if ([self navBarImage]!=nil)
-	{
-		/*
-		UIButton *backButton2 = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 63, 30)];
-		[backButton2 setImage:[UIImage imageNamed:@"closebox.png"] forState:UIControlStateNormal];
-		[backButton2 setBackgroundImage:[UIImage imageNamed:@"woodgrain.png"] forState:UIControlStateNormal];
-		UIBarButtonItem *backButtonItem = [[UIBarButtonItem alloc] initWithCustomView:backButton2];
-		[[self navigationItem] setLeftBarButtonItem:backButtonItem];
-		self.navigationItem.hidesBackButton = YES;
-		[backButtonItem release];
-		[backButton2 release];*/
-	}
-
 	UIImage * backTitleImage = [theTiHost imageForResource:[inputState objectForKey:@"backButtonTitleImage"]];
 	if (backTitleImage != nil){
 		backButton = [[[UIBarButtonItem alloc] initWithImage:backTitleImage style:UIBarButtonItemStyleBordered target:nil action:nil] autorelease];
@@ -527,7 +514,7 @@ int nextWindowToken = 0;
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void) loadView;
 {
-	UIView * ourRootView = [[UIView alloc] init];
+	UIView * ourRootView = [[UIView alloc] initWithFrame:CGRectZero];
 	[ourRootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 	[self setView:ourRootView];
 	[ourRootView release];
@@ -653,6 +640,7 @@ typedef int UIEventSubtype;
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
 {
+	[super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 	TitaniumContentViewController * ourVC = [self viewControllerForIndex:selectedContentIndex];
 	if ([ourVC respondsToSelector:@selector(setInterfaceOrientation:duration:)]){
 		[(TitaniumContentViewController<TitaniumWindowDelegate> *)ourVC setInterfaceOrientation:currentOrientation duration:duration];
@@ -662,6 +650,7 @@ typedef int UIEventSubtype;
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
 {
+	[super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 	TitaniumContentViewController * ourVC = [self viewControllerForIndex:selectedContentIndex];
 	[self refreshBackground];
 	[ourVC updateLayout:YES];
@@ -800,13 +789,6 @@ typedef int UIEventSubtype;
 			tabBarBackground = [[UIImageView alloc]initWithImage:navBarImage];
 			tabBarBackground.frame = CGRectMake(0,0,theNB.frame.size.width,theNB.frame.size.height);
 			[theNB addSubview:tabBarBackground];
-			
-//			UILabel * replacementTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0,0,theNB.frame.size.width,theNB.frame.size.height)];
-//			[replacementTitleLabel setTextAlignment:UITextAlignmentLeft];
-//			[replacementTitleLabel setText:@"WootWoot Woot Woot Woot Woot Woot Woot Woot Woot Woot Woot Woot Woot Woot Woot Woot Woot Woot "];
-//			[replacementTitleLabel setBackgroundColor:[UIColor clearColor]];
-//			[tabBarBackground addSubview:replacementTitleLabel];
-			
 		}
 	}
 
