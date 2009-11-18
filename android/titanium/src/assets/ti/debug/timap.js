@@ -77,8 +77,3 @@ Ti.Map.createView = function(options) {
 	mv.processOptions(options);
 	return mv;
 };
-
-Ti.Geolocation.reverseGeocoder = function(coordinate, location) {
-	return Ti.Method.dispatch("TitaniumMap", "reverseGeocoder", coordinate, registerOneShot(this, location));
-};
-

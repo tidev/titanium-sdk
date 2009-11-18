@@ -11,7 +11,7 @@
 	<div style="height:20px" id="altitudeAccuracy">Fetching...</div>
 	<div style="height:20px" id="heading">Fetching...</div>
 	<div style="height:20px" id="speed">Fetching...</div>
-	
+
 	<div style="margin-top:10px;margin-bottom:10px;font-weight:bold;">Current Position</div>
 	<div style="height:20px" id="callcount2">Fetching...</div>
 	<div style="height:20px" id="timestamp2">Fetching...</div>
@@ -35,7 +35,7 @@
 	<div style="height:20px" id="x">Fetching...</div>
 	<div style="height:20px" id="y">Fetching...</div>
 	<div style="height:20px" id="z">Fetching...</div>
-	
+
 	<div style="margin-bottom:10px;font-weight:bold;margin-top:10px;">Current Heading</div>
 	<div style="height:20px" id="callcount4">Fetching...</div>
 	<div style="height:20px" id="timestamp4">Fetching...</div>
@@ -45,14 +45,14 @@
 	<div style="height:20px" id="x2">Fetching...</div>
 	<div style="height:20px" id="y2">Fetching...</div>
 	<div style="height:20px" id="z2">Fetching...</div>
-	
+
 	<div style="margin-top:10px;margin-bottom:10px;font-weight:bold;">Forward Geocode: 444 Castro Street</div>
 	<div id="fgc">Fetching...</div>
 
 	<div style="margin-bottom:10px;margin-top:10px;;font-weight:bold;">Reverse Geocode: 444 Castro Street</div>
 	<div id="rgc">Fetching...</div>
 
-	
+
 	<script>
 	var count = 0;
 	var count2 = 0;
@@ -71,7 +71,7 @@
 			var altitudeAccuracy = document.getElementById('altitudeAccuracy2');
 			var heading = document.getElementById('heading2');
 			var speed = document.getElementById('speed2');
-			
+
 			var coords = pos.coords;
 			timestamp.innerHTML = 'Timestamp: ' + pos.timestamp;
 			latitude.innerHTML = 'Latitude: ' + coords.latitude;
@@ -81,11 +81,11 @@
 			altitudeAccuracy.innerHTML = 'Altitude Accuracy: ' + coords.altitudeAccuracy;
 			heading.innerHTML = 'Heading: ' + coords.heading;
 			speed.innerHTML = 'Speed: ' + coords.speed;
-			
-		}, 
+
+		},
 		function()
 		{
-			
+
 		},
 		{enableHighAccuracy:true}
 	);
@@ -115,13 +115,13 @@
 			heading.innerHTML = 'Heading: ' + coords.heading;
 			speed.innerHTML = 'Speed: ' + coords.speed;
 
-		}, 
+		},
 		function()
 		{
 		},
 		{enableHighAccuracy:true}
 	);
-	
+
 	function noCompassAvailable()
 	{
 		document.getElementById("compass").innerHTML = "No compass reading available";
@@ -145,7 +145,7 @@
 		document.getElementById("y2").innerHTML = "y: Not available";
 		document.getElementById("z2").innerHTML = "z: Not available";
 	}
-	
+
 	if (Titanium.Platform.name == 'android')
 	{
 		noCompassAvailable();
@@ -153,17 +153,17 @@
 	else
 	{
 		//NOTE: compass is currently only available on iPhone in 0.8
-		
+
 		function magneticStrength(heading)
 		{
 		    // Compute and display the magnitude (size or strength) of the vector.
 			//  magnitude = sqrt(x^2 + y^2 + z^2)
-			
+
 			var magnitude = Math.sqrt(heading.x*heading.x + heading.y*heading.y + heading.z*heading.z);
-			
+
 			document.getElementById("magneticfield").innerHTML = Math.round(magnitude);
 		}
-		
+
 		if (Titanium.Geolocation.hasCompass)
 		{
 			Titanium.Geolocation.watchHeading(
@@ -212,36 +212,36 @@
 		{
 			noCompassAvailable();
 		}
-		
-		Titanium.Geolocation.forwardGeocoder("444 Castro Street, Mountain View, CA 94041",function(evt)
-		{
-			document.getElementById("fgc").innerHTML = "latitude: "+evt.latitude + ", longitude: " + evt.longitude;
 
-			Titanium.Geolocation.reverseGeocoder(evt.latitude,evt.longitude,function(evt)
-			{
-				if (!evt.success)
-				{
-					document.getElementById("rgc").innerHTML = "Failed";
-				}
-				else
-				{
-					var html = '<UL>';
-					var places = evt.places;
-					for (var c=0;c<places.length;c++)
-					{
-						html+='<LI>'+Titanium._JSON(places[c])+'</LI>';
-					}
-					html+='</UL>';
-					document.getElementById("rgc").innerHTML = html;
-				}
-			});
-		});
-
-		document.getElementById("compass").innerHTML = Titanium.Geolocation.hasCompass 
+		document.getElementById("compass").innerHTML = Titanium.Geolocation.hasCompass
 				? "Compass present" : "No compass present";
 	}
-	
-	
+
+	Titanium.Geolocation.forwardGeocoder("444 Castro Street, Mountain View, CA 94041",function(evt)
+	{
+		document.getElementById("fgc").innerHTML = "latitude: "+evt.latitude + ", longitude: " + evt.longitude;
+
+		Titanium.Geolocation.reverseGeocoder(evt.latitude,evt.longitude,function(evt)
+		{
+			if (!evt.success)
+			{
+				document.getElementById("rgc").innerHTML = "Failed";
+			}
+			else
+			{
+				var html = '<UL>';
+				var places = evt.places;
+				for (var c=0;c<places.length;c++)
+				{
+					html+='<LI>'+Titanium._JSON(places[c])+'</LI>';
+				}
+				html+='</UL>';
+				document.getElementById("rgc").innerHTML = html;
+			}
+		});
+	});
+
+
 	</script>
 </body>
 </html>
