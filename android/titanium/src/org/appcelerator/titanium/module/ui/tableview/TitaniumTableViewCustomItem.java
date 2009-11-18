@@ -154,8 +154,6 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 						JSONObject row = rowLayout.getJSONObject(i);
 						String name = row.getString("name");
 						names.add(name);
-
-
 					}
 				}
 

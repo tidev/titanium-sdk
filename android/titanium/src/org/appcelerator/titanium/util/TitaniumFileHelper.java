@@ -194,14 +194,21 @@ public class TitaniumFileHelper
 								Log.d(LCAT, "path not found: " + apath);
 							}
 							// Let's see if there is a 9.png in the android folder.
-							int i = path.lastIndexOf("/");
-							if (i > 0) {
-								apath = path.substring(i) +
-									"android" +
-									path.substring(i, path.lastIndexOf(".")) +
-									".9.png";
+// Not sure what I was doing. Leaving for now.
+//							int i = path.lastIndexOf("/");
+//							if (i > 0) {
+//								apath = path.substring(i) +
+//									"android" +
+//									path.substring(i, path.lastIndexOf(".")) +
+//									".9.png";
+//							} else {
+//								apath = "android/" + path.substring(0, path.lastIndexOf(".")) + ".9.png";
+//							}
+
+							if (apath.startsWith("/")) {
+								apath = "android" + apath;
 							} else {
-								apath = "android/" + path.substring(0, path.lastIndexOf(".")) + ".9.png";
+								apath = "android/" + apath;
 							}
 
 							try {

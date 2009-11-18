@@ -69,6 +69,7 @@ public class TitaniumTableView extends TitaniumBaseView
 	private ListView view;
 	private JSONObject rowTemplate;
 	private TitaniumTableViewItemOptions defaults;
+	private boolean customTable;
 
 	private Runnable dataSetChanged = new Runnable() {
 
@@ -206,6 +207,7 @@ public class TitaniumTableView extends TitaniumBaseView
 
 		this.viewModel = new TableViewModel();
 		this.hasBeenOpened = false;
+		this.customTable = false;
 	}
 
 	public void processLocalOptions(JSONObject o) throws JSONException
@@ -260,6 +262,7 @@ public class TitaniumTableView extends TitaniumBaseView
 	}
 
 	public void doSetData(String data) {
+		customTable = false; // reset
 		viewModel.setData(data);
 		handler.post(dataSetChanged);
 	}
@@ -485,8 +488,9 @@ public class TitaniumTableView extends TitaniumBaseView
 			public void draw(Canvas canvas) {
 				TitaniumBaseTableViewItem v = (TitaniumBaseTableViewItem) view.getSelectedView();
 
-				if (v != null) {
-					if (v.providesOwnSelector()) {
+				if (customTable || v != null) {
+					if (customTable || v.providesOwnSelector()) {
+						customTable = true;
 						super.draw(canvas);
 					} else {
 						Rect r = getBounds();
