@@ -4,6 +4,10 @@
 
 </head>
 <body  style="font-family:'Helvetica Neue';">
+
+	<div style="margin-bottom:5px">
+		<input type="button" value="set search bar" id="button_search" style="font-size:18px"/>
+	</div>
 	
 	<div style="margin-bottom:5px">
 		<input type="button" value="set title" id="button_title" style="font-size:18px"/>
@@ -34,6 +38,21 @@
 	</div>
 	
 	<script>
+	document.getElementById('button_search').onclick = function()
+	{
+		// add a native search bar to HTML
+		var search = Titanium.UI.createSearchBar({width:200, showCancel:false});
+		search.addEventListener('change', function(e)
+		{
+		   	e.value // search string as user types
+		});
+		search.addEventListener('return', function(e)
+		{
+			Titanium.UI.createAlertDialog({title:'Search Bar', message:'You typed ' + e.value }).show();
+		   	search.blur();
+		});
+		Titanium.UI.currentWindow.setTitleControl(search);
+	};
 	document.getElementById('button_title').onclick = function()
 	{
 		Titanium.UI.currentWindow.setTitleImage(null);

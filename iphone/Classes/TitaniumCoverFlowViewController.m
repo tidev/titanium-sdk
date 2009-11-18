@@ -102,7 +102,7 @@
 	}
 	// push the load on the main event UI thread
 	NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:image,@"image",index,@"index",nil];
-	[self performSelectorOnMainThread:@selector(setImage:) withObject:args waitUntilDone:NO];
+	[self performSelectorOnMainThread:@selector(setImageData:) withObject:args waitUntilDone:NO];
 }
 
 -(void)setSelected:(NSNumber*)index
