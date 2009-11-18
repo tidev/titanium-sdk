@@ -50,9 +50,9 @@ void FreeAddresses()
 	int i;
 	for (i=0; i<MAXADDRS; ++i)
 	{
-		if (if_names[i] != 0) free(if_names[i]);
-		if (ip_names[i] != 0) free(ip_names[i]);
-		if (hw_addrs[i] != 0) free(hw_addrs[i]);
+		if (if_names[i] != 0) { free(if_names[i]); if_names[i] = NULL; }
+		if (ip_names[i] != 0) { free(ip_names[i]); ip_names[i] = NULL; }
+		if (hw_addrs[i] != 0) { free(hw_addrs[i]); hw_addrs[i] = NULL; }
 		ip_addrs[i] = 0;
 	}
 	InitAddresses();
