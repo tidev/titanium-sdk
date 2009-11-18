@@ -26,25 +26,25 @@
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
 {
-	NSLog(@"[DEBUG] Scrollview touchesBegan: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+	VERBOSE_LOG(@"[DEBUG] Scrollview touchesBegan: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
 	[super touchesBegan:touches withEvent:event];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
 {
-	NSLog(@"[DEBUG] Scrollview touchesMoved: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+	VERBOSE_LOG(@"[DEBUG] Scrollview touchesMoved: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
 	[super touchesMoved:touches withEvent:event];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
 {
-	NSLog(@"[DEBUG] Scrollview touchesEnded: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+	VERBOSE_LOG(@"[DEBUG] Scrollview touchesEnded: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
 	[super touchesEnded:touches withEvent:event];
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event;
 {
-	NSLog(@"[DEBUG] Scrollview touchesCancelled: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+	VERBOSE_LOG(@"[DEBUG] Scrollview touchesCancelled: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
 	[super touchesCancelled:touches withEvent:event];
 }
 
@@ -66,14 +66,14 @@
 ////		[view touchesBegan:touches withEvent:event];
 ////		return NO;
 ////	}
-	NSLog(@"[DEBUG] Scrollview touchesShouldBegin: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+	VERBOSE_LOG(@"[DEBUG] Scrollview touchesShouldBegin: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
 
 	return result;
 }
 
 - (BOOL)touchesShouldCancelInContentView:(UIView *)view;
 {
-	NSLog(@"[DEBUG] Scrollview touchesShouldCancelInContentView: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
+	VERBOSE_LOG(@"[DEBUG] Scrollview touchesShouldCancelInContentView: We're in mode: %@",[[NSRunLoop currentRunLoop] currentMode]);
 
 	UIView * superview = [view superview];
 	if([superview isKindOfClass:[UIPickerView class]]){
