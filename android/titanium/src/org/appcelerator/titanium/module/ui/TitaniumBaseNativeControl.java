@@ -207,6 +207,15 @@ public abstract class TitaniumBaseNativeControl
 		}
 	}
 
+	// Added for controls using TitaniumMethod, because of bridge issues w/
+	// polymorphism
+
+	public void setControlOptions(JSONObject o)
+		throws JSONException
+	{
+		setLocalOptions(o);
+	}
+
 	public void open()
 	{
 		handler.obtainMessage(MSG_OPEN).sendToTarget();

@@ -20,7 +20,7 @@
 		   	search.blur();
 		});
 
-		
+
 		// data for tableview
 		var data = [
 			{title:'Row 1', hasChild:true},
@@ -39,25 +39,25 @@
 			data:data,
 		}, function(e)
 		{
-			
+
 		});
 		var views = Titanium.UI.currentWindow.getViews();
-		
+
 		// create composite view of table view + search bar
 		var compositeView = Titanium.UI.createCompositeView();
 		compositeView.addView(views[0],{left:0,top:0,height:52});
 		compositeView.addView(body,{top:53,left:0});
-		
+
 		// add and show the view
 		Titanium.UI.currentWindow.addView(compositeView);
 		Titanium.UI.currentWindow.showView(compositeView);
-		
+
 	};
 	</script>
 
 </head>
 <body  style="font-family:'Helvetica Neue';padding:0;margin:0">
-	<div id="textfield" style="height:50px"></div>
+	<div id="textfield" style="height:50px;width:100%"></div>
 
 </body>
 </html>

@@ -2,6 +2,7 @@ ti.js
 tijson.js
 tiapp.js
 tiui.js
+tisearchbar.js
 tifs.js
 timedia.js
 tinetwork.js
