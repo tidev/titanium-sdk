@@ -1158,6 +1158,14 @@ var UserWindowBuilder = function(proxy) {
 		this.proxy.setBackgroundImage(backgroundImage);
 	};
 
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.setActivityIndicator,since=0.8) Set background image
+	 * @tiarg[string,backgroundImage] path to background image
+	 */
+	this.setActivityIndicator = function(showActivity) {
+		this.proxy.setActivityIndicator(showActivity);
+	}
+
 	// IPhone only methods
 	this.setNavBarColor = function (color) {
 
@@ -1523,6 +1531,7 @@ Ti.UI = {
 			var backgroundColor = options.backgroundColor;
 			var orientation = options.orientation;
 			var backgroundImage = options.backgroundImage;
+			var activityIndicator = options.activityIndicator;
 
 			if (!Ti.isUndefined(url)) {
 				w.setURL(url);
@@ -1544,6 +1553,9 @@ Ti.UI = {
 			}
 			if (!Ti.isUndefined(backgroundImage)) {
 				w.setBackgroundImage(backgroundImage);
+			}
+			if (!Ti.isUndefined(activityIndicator)) {
+				w.setActivityIndicator(activityIndicator);
 			}
 		}
 

@@ -31,6 +31,7 @@ public class TitaniumIntentWrapper implements Serializable
 	public static final String EXTRA_BACKGROUND_COLOR = "backgroundColor";
 	public static final String EXTRA_ORIENTATION = "orientation";
 	public static final String EXTRA_BACKGROUND_IMAGE = "backgroundImage";
+	public static final String EXTRA_SHOW_ACTIVITY_ON_LOAD = "showActivityOnLoad";
 
 	private Intent intent;
 
@@ -50,6 +51,7 @@ public class TitaniumIntentWrapper implements Serializable
 		// Set defaults. Can be overwritten after finished.
 		result.setFullscreen(false);
 		result.setActivityType("single");
+		result.setShowActivityOnLoad(true);
 
 		return result;
 	}
@@ -68,6 +70,7 @@ public class TitaniumIntentWrapper implements Serializable
 		setBackgroundColor(window.getBackgroundColor());
 		setOrientation(window.getWindowOrientation());
 		setBackgroundImage(window.getWindowBackgroundImage());
+		setShowActivityOnLoad(window.isWindowShowActivityOnLoad());
 		//TODO windowsize
 	}
 
@@ -101,6 +104,19 @@ public class TitaniumIntentWrapper implements Serializable
 
 	public void setFullscreen(boolean fullscreen) {
 		intent.putExtra(EXTRA_IS_FULLSCREEN, fullscreen);
+	}
+
+	public boolean isShowActivityOnLoad() {
+		Bundle b = intent.getExtras();
+		if (b != null && b.get(EXTRA_SHOW_ACTIVITY_ON_LOAD) != null) {
+			return b.getBoolean(EXTRA_SHOW_ACTIVITY_ON_LOAD);
+		} else {
+			return true; // default
+		}
+	}
+
+	public void setShowActivityOnLoad(boolean showActivityOnLoad) {
+		intent.putExtra(EXTRA_SHOW_ACTIVITY_ON_LOAD, showActivityOnLoad);
 	}
 
 	public String getIconUrl() {

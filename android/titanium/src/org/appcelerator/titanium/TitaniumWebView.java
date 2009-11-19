@@ -111,7 +111,7 @@ public class TitaniumWebView extends WebView
 		public void configurationChanged(Configuration config);
 	}
 
-	public TitaniumWebView(TitaniumModuleManager tmm, boolean isWindow)
+	public TitaniumWebView(TitaniumModuleManager tmm, boolean isWindow, boolean showProgress)
 	{
 		super(tmm.getActivity());
 		this.tmm = tmm;
@@ -125,7 +125,7 @@ public class TitaniumWebView extends WebView
 
 //?
         setWebViewClient(new TiWebViewClient(tmm.getActivity()));
-        setWebChromeClient(new TiWebChromeClient(tmm.getActivity(), isWindow)); //TODO: Fix
+        setWebChromeClient(new TiWebChromeClient(tmm.getActivity(), isWindow, showProgress)); //TODO: Fix
 
 		WebSettings settings = getSettings();
 

@@ -21,4 +21,7 @@ public interface ITitaniumUserWindowBuilder
 
 	// Added in 0.7.1
 	public void setBackgroundImage(String backgroundImage);
+
+	// Added in 0.8.0
+	public void setActivityIndicator(boolean showActivity);
 }

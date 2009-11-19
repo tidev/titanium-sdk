@@ -60,6 +60,7 @@ public class TiAppXmlHandler extends DefaultHandler
 					"type".compareTo(localName) == 0 || "size".compareTo(localName) == 0 ||
 					"backgroundColor".compareTo(localName) == 0 || "orientation".compareTo(localName) == 0 ||
 					"fullscreen".compareTo(localName) == 0 || "backgroundImage".compareTo(localName) == 0 ||
+					"activityIndicator".compareTo(localName) == 0 ||
 					/* iPhone settings not supported on Android */
 					"barColor".compareTo(localName) == 0
 					)
@@ -155,6 +156,8 @@ public class TiAppXmlHandler extends DefaultHandler
 				currentWindow = null;
 			} else if ("windows".compareTo(localName) == 0) {
 				inWindows = false;
+			} else if ("activityIndicator".compareTo(localName) == 0) {
+				currentWindow.setWindowShowActivityOnLoad(Boolean.parseBoolean(getTextAndClear()));
 			} else if ("barColor".compareTo(localName) == 0) {
 				/* Unsupported elements on Android */
 				clearText();

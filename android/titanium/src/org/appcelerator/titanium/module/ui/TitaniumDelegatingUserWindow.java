@@ -111,6 +111,10 @@ public class TitaniumDelegatingUserWindow implements ITitaniumUserWindow
 		userWindow.setBackgroundImage(backgroundImage);
 	}
 
+	public void setActivityIndicator(boolean showActivity) {
+		userWindow.setActivityIndicator(showActivity);
+	}
+
 	public void setOrientation(String orientation) {
 		userWindow.setOrientation(orientation);
 	}

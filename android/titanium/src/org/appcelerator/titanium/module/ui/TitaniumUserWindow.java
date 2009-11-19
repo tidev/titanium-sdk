@@ -76,7 +76,7 @@ public class TitaniumUserWindow extends ViewAnimator
 	protected boolean needsDelayedFocusedEvent;
 	protected boolean isOpen;
 
-	public TitaniumUserWindow(TitaniumActivity activity)
+	public TitaniumUserWindow(TitaniumActivity activity, boolean showProgress)
 	{
 		super(activity);
 		this.activity = activity;
@@ -84,7 +84,7 @@ public class TitaniumUserWindow extends ViewAnimator
 
 		this.handler = new Handler(this);
 
-		this.tmm = new TitaniumModuleManager(activity, true);
+		this.tmm = new TitaniumModuleManager(activity, true, showProgress);
 
 		registeredViews = new HashMap<String,WeakReference<ITitaniumView>>(5);
 		views = new ArrayList<ITitaniumView>(5);
@@ -281,6 +281,10 @@ public class TitaniumUserWindow extends ViewAnimator
 
 	public void setFullscreen(boolean fullscreen) {
 		Log.w(LCAT, "fullscreen cannot be changed on currentWindow");
+	}
+
+	public void setActivityIndicator(boolean showActivity) {
+		Log.w(LCAT, "activityIndicator cannot be changed on currentWindow");
 	}
 
 	public void setTitle(String title) {
