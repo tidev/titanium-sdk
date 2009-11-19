@@ -522,15 +522,15 @@ Ti.Filesystem = {
 	},
 
 	/**
-	 * @tiapi(property=true,name=Filesystem.MODE_READ,since=0.7.0) Flag for opening in read mode.
+	 * @tiapi(property=true,name=Filesystem.MODE_READ,since=0.7) Flag for opening in read mode.
 	 */
 	MODE_READ : 0,
 	/**
-	 * @tiapi(property=true,name=Filesystem.MODE_WRITE,since=0.7.0) Flag for opening in write mode.
+	 * @tiapi(property=true,name=Filesystem.MODE_WRITE,since=0.7) Flag for opening in write mode.
 	 */
 	MODE_WRITE : 1,
 	/**
-	 * @tiapi(property=true,name=Filesystem.MODE_APPEND,since=0.7.0) Flag for opening in append mode.
+	 * @tiapi(property=true,name=Filesystem.MODE_APPEND,since=0.7) Flag for opening in append mode.
 	 */
 	MODE_APPEND : 2
 };

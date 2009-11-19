@@ -103,7 +103,7 @@ Ti.App =
 		return transformObjectValueAsString(Ti.appProxy.getStreamURL(stream),null);
 	},
 	/**
-	 * @tiapi(method=True,name=App.getArguments,since=0.8.0) Not implemented yet
+	 * @tiapi(method=True,name=App.getArguments,since=0.8) Not implemented yet
 	 * @tiresult[object] empty object
 	 */
 	getArguments: function()
@@ -276,13 +276,13 @@ Properties = function(proxy) {
 		return this.proxy.setDouble(name,value);
 	};
 	/**
-	 * @tiapi(method=True,name=App.Properties.getList,since=0.7.0) Retrieve a list
+	 * @tiapi(method=True,name=App.Properties.getList,since=0.7) Retrieve a list
 	 * @tiarg[string,name] property name
 	 * @tiarg[list,def] default value if no value set for key in name
 	 * @tiresult[list] property value or default
 	 */
 	/**
-	 * @tiapi(method=True,name=App.SystemProperties.getList,since=0.7.0) Retrieve a list
+	 * @tiapi(method=True,name=App.SystemProperties.getList,since=0.7) Retrieve a list
 	 * @tiarg[string,name] property name
 	 * @tiarg[list,def] default value if no value set for key in name
 	 * @tiresult[list] property value or default
@@ -297,12 +297,12 @@ Properties = function(proxy) {
 	};
 
 	/**
-	 * @tiapi(method=True,name=App.Properties.setList,since=0.7.0) Store a list of JSON'able objects
+	 * @tiapi(method=True,name=App.Properties.setList,since=0.7) Store a list of JSON'able objects
 	 * @tiarg[string,name] property name
 	 * @tiarg[list,value] value to store
 	 */
 	/**
-	 * @tiapi(method=True,name=App.SystemProperties.setList,since=0.7.0) Store a list of JSON'able objects
+	 * @tiapi(method=True,name=App.SystemProperties.setList,since=0.7) Store a list of JSON'able objects
 	 * @tiarg[string,name] property name
 	 * @tiarg[list,def] value to store
 	 */
@@ -318,12 +318,12 @@ Properties = function(proxy) {
 		this.proxy.setList(name, Ti.JSON.stringify(value));
 	};
 	/**
-	 * @tiapi(method=True,name=App.Properties.hasProperty,since=0.7.0) Detect existence of a property
+	 * @tiapi(method=True,name=App.Properties.hasProperty,since=0.7) Detect existence of a property
 	 * @tiarg[string,name] property name
 	 * @tiresult[boolean] true if property with 'name' exists.
 	 */
 	/**
-	 * @tiapi(method=True,name=App.SystemProperties.hasProperty,since=0.7.0) Detect existence of a property
+	 * @tiapi(method=True,name=App.SystemProperties.hasProperty,since=0.7) Detect existence of a property
 	 * @tiarg[string,name] property name
 	 * @tiresult[boolean] true if property with 'name' exists.
 	 */
@@ -331,22 +331,22 @@ Properties = function(proxy) {
 		return this.proxy.hasProperty(name);
 	};
 	/**
-	 * @tiapi(method=True,name=App.Properties.listProperties,since=0.7.0) Retrieve a list of property names
+	 * @tiapi(method=True,name=App.Properties.listProperties,since=0.7) Retrieve a list of property names
 	 * @tiresult[list] list of property names
 	 */
 	/**
-	 * @tiapi(method=True,name=App.SystemProperties.listProperties,since=0.7.0) Retrieve a list of property names
+	 * @tiapi(method=True,name=App.SystemProperties.listProperties,since=0.7) Retrieve a list of property names
 	 * @tiresult[list] list of property names
 	 */
 	this.listProperties = function() {
 		return eval("(" + this.proxy.listProperties() + ")");
 	};
 	/**
-	 * @tiapi(method=True,name=App.Properties.removeProperty,since=0.7.0) Remove a property
+	 * @tiapi(method=True,name=App.Properties.removeProperty,since=0.7) Remove a property
 	 * @tiarg[string,name] property name
 	 */
 	/**
-	 * @tiapi(method=True,name=App.SystemProperties.getList,since=0.7.0) Remove a property
+	 * @tiapi(method=True,name=App.SystemProperties.getList,since=0.7) Remove a property
 	 * @tiarg[string,name] property name
 	 */
 	this.removeProperty = function(name) {
