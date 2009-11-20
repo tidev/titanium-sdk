@@ -21,6 +21,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Message;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -176,7 +177,11 @@ public class TitaniumImageView extends TitaniumBaseView
 
 		if (canScaleImage) {
 			view.setAdjustViewBounds(true);
-			view.setScaleType(ScaleType.CENTER);
+			if (Integer.parseInt(Build.VERSION.SDK) > 3) {
+				view.setScaleType(ScaleType.MATRIX);
+			} else {
+				view.setScaleType(ScaleType.CENTER);
+			}
 		} else {
 			view.setScaleType(ScaleType.CENTER);
 		}
