@@ -196,8 +196,47 @@
 			}
 			case 5:
 			{
-				Titanium.Analytics.featureEvent('phone.photo_gallery');
-				openPhotoGallery();
+				if(Titanium.Platform.name=="android")
+				{
+					Titanium.Analytics.featureEvent('phone.photo_gallery');
+					openPhotoGallery();
+				}
+				else
+				{
+					var dialog = Titanium.UI.createOptionDialog();
+
+					// set button titles
+					dialog.setOptions(["Open Photo Gallery","Take Screenshot","Cancel"]);
+
+					// set index for cancel (IPHONE ONLY)
+					dialog.setCancel(2);
+
+					// set title
+					dialog.setTitle('Photo Gallery Options');
+
+					// add event listener
+					dialog.addEventListener('click',function(e)
+					{
+						switch(e.index)
+						{
+							case 0:
+							{
+								Titanium.Analytics.featureEvent('phone.photo_gallery');
+								openPhotoGallery();
+								break;
+							}
+							case 1:
+							{
+								Titanium.Analytics.featureEvent('phone.take_screenshot');
+								takeScreenshot();
+								break;
+							}
+						}
+					});
+
+					//show dialog
+					dialog.show();
+				}
 				break;
 			}
 			case 6:
@@ -525,6 +564,28 @@
 				a.show();
 			},
 			allowImageEditing:true
+		});
+	};
+	
+	function takeScreenshot()
+	{
+		Titanium.Media.takeScreenshot(function(media)
+		{
+			Titanium.Media.saveToPhotoGallery(media);
+			
+			var a = Titanium.UI.createAlertDialog();
+
+			// set title
+			a.setTitle('Screenshot');
+
+			// set message
+			a.setMessage('Screenshot taken and saved to your photo gallery.');
+
+			// set button names
+			a.setButtonNames(['OK']);
+
+			// show alert
+			a.show();
 		});
 	};
 
