@@ -120,7 +120,7 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 				if (!item.isNull(key)) {
 					value = item.getInt(key);
 				}
-			} else if (template.has(key)) {
+			} else if (template != null && template.has(key)) {
 				if (!template.isNull(key)) {
 					value = template.getInt(key);
 				}

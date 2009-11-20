@@ -569,7 +569,7 @@ public class TitaniumWebView extends WebView
 
 		handler.removeMessages(MSG_REQUEST_NATIVE_LAYOUT);
 		Message msg = handler.obtainMessage(MSG_REQUEST_NATIVE_LAYOUT, sb.toString());
-		handler.sendMessageDelayed(msg, 100);
+		handler.sendMessageDelayed(msg, 50);
 		sb.setLength(0);
 	}
 
@@ -579,7 +579,7 @@ public class TitaniumWebView extends WebView
 
 	public void invalidateLayout() {
 		handler.removeMessages(MSG_INVALIDATE_LAYOUT);
-		handler.sendEmptyMessageDelayed(MSG_INVALIDATE_LAYOUT, 250);
+		handler.sendEmptyMessageDelayed(MSG_INVALIDATE_LAYOUT, 50);
 	}
 
 	public void addControl(View control) {
