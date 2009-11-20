@@ -283,13 +283,14 @@
 		var lnData = {width:100,hintText:'last name'};
 		var eData = {width:100,hintText:'email'};
 
-		if (Titanium.Platform.name != 'android')
-		{
-			fnData = {id:'first',width:200,hintText:'first name'};
-			lnData = {id:'last',width:200,hintText:'last name'};
-			eData = {id:'email',width:200,hintText:'email'};
-			
-		}
+		// if (Titanium.Platform.name != 'android')
+		// {
+		// 	fnData = {id:'first',width:200,hintText:'first name'};
+		// 	lnData = {id:'last',width:200,hintText:'last name'};
+		// 	eData = {id:'email',width:200,hintText:'email'};
+		// 	
+		// }
+
 		var firstName = Titanium.UI.createTextField(fnData);
 		firstName.addEventListener('return',function(e)
 		{
@@ -415,39 +416,10 @@
 			Titanium.UI.createAlertDialog({title:'Contacts',message:'Contact Added.'}).show();
 		};
 		
-		if (Titanium.Platform.name == 'android')
-		{
-			document.getElementById('save').onclick = function()
-			{
-				if (mode == 'UPDATE')
-				{
-					updateContact();
-				}
-				else
-				{
-					addContact();
-				}
-			};
-			document.getElementById('back').onclick = function()
-			{
-				Titanium.UI.currentWindow.showView(mainView,{
-					animated:true,
-					animationStyle:Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT,
-					animationDuration:1000
-				});
-			};
-			
-		}
 	};
 	</script>
 </head>
 <body  style="font-family:'Helvetica Neue'">
-	<div id="first" style="height:50px;width:200px"></div>
-	<div id="last" style="height:50px;width:200px"></div>
-	<div id="email" style="height:50px;width:200px"></div>
-	<button id="save" style="height:30px;width:200px;font-size:20px">Save Contact</button>
-	<div>
-	<button id="back" style="height:30px;width:200px;font-size:20px">Go Back</button>
-	</div>
+Add/Update Contacts not supported for Android 
 </body>
 </html>
