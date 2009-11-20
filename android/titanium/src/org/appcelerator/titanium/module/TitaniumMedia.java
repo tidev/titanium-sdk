@@ -291,8 +291,13 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 
 						Uri imageUri = activity.getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
 
-						String result = fillBlob(activity, blob, imageUri.toString());
-						invokeUserCallback(successCallback, result);
+						try {
+							String result = fillBlob(activity, blob, imageUri.toString());
+							invokeUserCallback(successCallback, result);
+						} catch (OutOfMemoryError e) {
+							Log.e(LCAT, "Not enough memory to get image: " + e.getMessage());
+							invokeUserCallback(errorCallback, createJSONError(0, e.getMessage()));
+						}
 					}
 				}
 
@@ -335,9 +340,13 @@ public class TitaniumMedia extends TitaniumBaseModule implements ITitaniumMedia
 						invokeUserCallback(cancelCallback, null);
 					} else {
 						String path = data.getDataString();
-						String result = fillBlob(activity, blob, path);
-
-						invokeUserCallback(successCallback, result);
+						try {
+							String result = fillBlob(activity, blob, path);
+							invokeUserCallback(successCallback, result);
+						} catch (OutOfMemoryError e) {
+							Log.e(LCAT, "Not enough memory: " + e.getMessage());
+							invokeUserCallback(errorCallback, createJSONError(0, e.getMessage()));
+						}
 					}
 				}
 
