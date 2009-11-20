@@ -30,23 +30,21 @@
     		android:configChanges="keyboardHidden|orientation"
             android:launchMode="singleTask"
     	/>
-    	<activity
-    		android:name="org.appcelerator.titanium.module.map.TitaniumMapActivity"
-    		android:configChanges="keyboardHidden|orientation"
-    		android:launchMode="singleTask"
-    	/>
-    	<uses-library android:name="com.google.android.maps" />
-
-<!--
+		<activity
+	        android:name="org.appcelerator.titanium.module.map.TitaniumMapActivity"
+	        android:configChanges="keyboardHidden|orientation"
+	        android:launchMode="singleTask"
+	     />
+	    <uses-library android:name="com.google.android.maps" />
 		<provider
 			android:authorities="com.nolanwright.kitchensink.titanium"
 			android:name="org.appcelerator.titanium.TitaniumContentProvider"
 		/>
--->
 		<service
 			android:name="org.appcelerator.titanium.TitaniumAnalyticsService"
 			android:exported="false"
 		/>
+		
 	</application>
 	<!-- required when using net -->
   	<uses-permission android:name="android.permission.INTERNET"/>
@@ -63,6 +61,4 @@
 	<uses-permission android:name="android.permission.VIBRATE"/>
 	<!-- required for using the camera -->
 	<uses-permission android:name="android.permission.CAMERA" />
-	<!-- required for reading contact data -->
-	<uses-permission android:name="android.permission.READ_CONTACTS"/>
 </manifest>
