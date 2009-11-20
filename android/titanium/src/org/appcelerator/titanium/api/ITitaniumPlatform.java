@@ -25,6 +25,8 @@ public interface ITitaniumPlatform
 	public boolean openApplication(String app);
 	public boolean openUrl(String url);
 
+	public String getDisplayCaps();
+
 	// A method used to list app names that can be fed to openApplication
 	public void logInstalledApplicationNames();
 

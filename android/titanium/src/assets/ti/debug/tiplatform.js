@@ -119,3 +119,10 @@ Ti.Platform.__defineGetter__("username", function(){
 Ti.Platform.__defineGetter__("availableMemory", function(){
 	return Ti.platformProxy.getAvailableMemory();
 });
+/**
+ * @tiapi(method=False,property=True,name=Platform.displayCaps,since=0.8) display metrics. [read-only]
+ * @tireturn[object] Capabilities/Dimensions of the display.
+ */
+Ti.Platform.__defineGetter__("displayCaps", function(){
+	return eval ( '(' + Ti.platformProxy.getDisplayCaps() + ')' );
+});

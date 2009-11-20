@@ -17,6 +17,8 @@ import org.appcelerator.titanium.api.ITitaniumPlatform;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumPlatformHelper;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.Manifest;
 import android.content.ActivityNotFoundException;
@@ -230,5 +232,19 @@ public class TitaniumPlatform extends TitaniumBaseModule implements ITitaniumPla
         		Log.d(LCAT, "Application Name: " + r.activityInfo.name);
         	}
         }
+	}
+
+	public String getDisplayCaps() {
+		String result = "{}";
+		try {
+			JSONObject caps = TitaniumPlatformHelper.getDisplayCaps(tmm.getActivity());
+			if (caps != null) {
+				result = caps.toString();
+			}
+		} catch (JSONException e) {
+			Log.e(LCAT, "Error while creating display caps: " + e.getMessage());
+		}
+
+		return result;
 	}
 }
