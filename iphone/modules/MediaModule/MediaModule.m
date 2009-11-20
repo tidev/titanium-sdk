@@ -157,16 +157,9 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 - (id) runFunctionNamed: (NSString *) functionName withObject: (id) objectValue error: (NSError **) error;
 {
 	if ([functionName isEqualToString:@"play"]){ //Resume is mapped to play.
-		
-		
-		//TODO: this code will ensure that the SILENCE switch is respected when audio plays
-		
-		// Choose a category identifier for audio sessions
+		//NOTE: this code will ensure that the SILENCE switch is respected when audio plays
 		UInt32 sessionCategory = kAudioSessionCategory_SoloAmbientSound;
-		
-		// Set the session property
-		AudioSessionSetProperty(kAudioSessionProperty_AudioCategory,
-								sizeof(sessionCategory), &sessionCategory);
+		AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(sessionCategory), &sessionCategory);
 		[nativePlayer play];
 		if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventAudioPlayerPlay:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL([self nativePlayer]),@"player",nil]];
 	} else if ([functionName isEqualToString:@"pause"]) {
