@@ -46,6 +46,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	NSTimeInterval resumeTime;
 	CGFloat volume;
 	BOOL isLooping;
+	
 }
 
 @property(nonatomic,readonly,retain) AVAudioPlayer * nativePlayer;
@@ -210,6 +211,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	MPMovieScalingMode scalingMode;
 	MPMovieControlMode movieControlMode;
 	NSTimeInterval initialPlaybackTime;
+	MediaModule * module;
 }
 
 @property(nonatomic, readwrite, retain) NSURL *contentURL;
@@ -234,16 +236,18 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	return result;
 }
 
-- (id) initWithDict: (NSDictionary *) arguments;
+- (id) initWithDict: (NSDictionary *) arguments module:(MediaModule*)module_
 {
+	self = [super init];
+	if (self == nil) return nil;
+	
 	NSString * movieUrlString = [arguments objectForKey:@"contentURL"];	
 	NSURL * ourUrl = [[TitaniumHost sharedHost] resolveUrlFromString:movieUrlString useFilePath:YES];
 	if (ourUrl == nil) {
 		[self release]; return nil;
 	}
-
-	self = [super init];
-	if (self == nil) return nil;
+	
+	module = [module_ retain];
 	
 	contentURL = [ourUrl retain];
 	
@@ -267,14 +271,18 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 - (void) handlePlayerFinished: (NSDictionary *) userInfo;
 {
 	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventMoviePlayerFinished:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(userInfo),@"userInfo",nil]];
+	[module moviePlayerCallback:YES];
 	NSString * commandString = [[NSString alloc] initWithFormat:@"Ti.Media._MEDIA.%@.doEvent('complete',{type:'complete'})",token];
 	[self sendJavascript:commandString];
 	[commandString release];
+	[module moviePlayerCallback:YES];
 }
 
 - (void) dealloc
 {
-	[contentURL release]; [backgroundColor release];
+	[contentURL release]; 
+	[backgroundColor release];
+	[module release];
 	[super dealloc];
 }
 
@@ -308,6 +316,10 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	[mediaDictionary removeObjectForKey:token]; //If a sound, deallocing will stop it.
 }
 
+- (void) moviePlayerCallback: (BOOL)yn
+{
+	isMediaCallback = yn;
+}
 
 - (TitaniumJSCode *) createSound: (id) soundResource;
 {
@@ -344,13 +356,19 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	if (![arguments isKindOfClass:[NSDictionary class]])return nil;
 
 	NSString * movieUrlString = [arguments objectForKey:@"contentURL"];
+	
+	[movieURL release];
+	//TODO:dealloc
+	movieURL = [movieUrlString retain];
+	
 	if (![movieUrlString isKindOfClass:[NSString class]]) return nil;
 
-	MovieWrapper * result = [[MovieWrapper alloc] initWithDict:arguments];
+//	MovieWrapper * result = [[MovieWrapper alloc] initWithDict:arguments module:self];
 	NSString * videoToken = [NSString stringWithFormat:@"MOV%X",nextMediaToken++];
-	[result setToken:videoToken];
-	[mediaDictionary setObject:result forKey:videoToken];
-	[result release];
+//	[result setToken:videoToken];
+	
+//	[mediaDictionary setObject:result forKey:videoToken];
+//	[result release];
 	[self passivelyPreloadMovie:videoToken];
 	
 	return videoToken;
@@ -366,23 +384,44 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 		return;
 	}
 	
-	[self setCurrentMovieWrapper:[mediaDictionary objectForKey:token]];
+	[self setCurrentMovieToken:token];
 	
+
+	/*
+	 [self setCurrentMovieWrapper:[mediaDictionary objectForKey:token]];
 	currentMovie = [currentMovieWrapper newMoviePlayerController];
 	if (currentMovie == nil) return;
 	
 	[self setCurrentMovieToken:token];
 	if (currentMovieIsPlaying) [currentMovie play];
+	 */
+}
+
+- (void)backgroundPlayMovie
+{
+	if (![NSThread isMainThread])
+	{
+		sleep(2);
+		[self performSelectorOnMainThread:@selector(backgroundPlayMovie) withObject:nil waitUntilDone:NO];
+		return;
+	}
+	
+	NSURL * contentURL = [[TitaniumHost sharedHost] resolveUrlFromString:movieURL useFilePath:YES]; //FIXME
+	MPMoviePlayerController * result = [[MPMoviePlayerController alloc] initWithContentURL:contentURL];
+	[result play];
 }
 
 - (void) playMovie: (NSString *) token;
 {
+	NSLog(@"in callback = %d", isMediaCallback);
+	
 	if (![token isKindOfClass:[NSString class]]) return;
 	if (![NSThread isMainThread]){
 		[self performSelectorOnMainThread:@selector(playMovie:) withObject:token waitUntilDone:NO];
 		return;
 	}
 	
+
 	if (![token isEqualToString:currentMovieToken] || currentMovieIsPlaying){ //We're not preloaded.
 		//Kill the old movie, and install a new regieme.
 		
@@ -395,8 +434,10 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 		[self setCurrentMovieToken:token];
 	}
 	
+	
 	currentMovieIsPlaying = YES;
-	[currentMovie play];
+	
+	[NSThread detachNewThreadSelector:@selector(backgroundPlayMovie) toTarget:self withObject:nil];
 }
 
 - (void) stopMovie: (NSString *) token;
@@ -415,7 +456,8 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	if ([theNotification object] != currentMovie) return;
 	NSString * notificationType = [theNotification name];
 	
-	VERBOSE_LOG(@"[DEBUG] HandlePlayer: %@ = %@",theNotification,[theNotification userInfo]);
+//	VERBOSE_LOG(@"[DEBUG] HandlePlayer: %@ = %@",theNotification,[theNotification userInfo]);
+	NSLog(@"[DEBUG] HandlePlayer: %@ = %@",theNotification,[theNotification userInfo]);
 	
 	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventMoviePlayerNotification:properties:) source:self properties:[NSDictionary dictionaryWithObjectsAndKeys:VAL_OR_NSNULL(theNotification),@"notification",VAL_OR_NSNULL(mediaDictionary),"dictionary",nil]];
 
@@ -590,7 +632,6 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	
 	TitaniumBlobWrapper *media = nil;
 	
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 300000
 	NSString *mediaType = [editingInfo objectForKey:UIImagePickerControllerMediaType];
 	[dictionary setObject:mediaType forKey:@"mediaType"];
 
@@ -605,7 +646,6 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 			UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
 		}
 	}
-#endif
 	
 	if (media==nil)
 	{
@@ -638,7 +678,8 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	[currentImagePicker release];
 	currentImagePicker = nil;
 
-	NSString * resultString = [NSString stringWithFormat:@"Ti.Media._PIC.success(%@,%@);",[media stringValue],[SBJSON stringify:dictionary]];
+//	NSString * resultString = [NSString stringWithFormat:@"Ti.Media._PIC.success(%@,%@);",[media stringValue],[SBJSON stringify:dictionary]];
+	NSString * resultString = [NSString stringWithFormat:@"Ti.Media._PIC.success('%@',%@);",[mediaURL absoluteString],[SBJSON stringify:dictionary]];
 	[[TitaniumHost sharedHost] sendJavascript:resultString toPageWithToken:imagePickerCallbackParentPageString];
 	
 	

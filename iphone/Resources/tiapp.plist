@@ -25,6 +25,19 @@
 	<key>startup</key>
 	<array>
 		<dict>
+			<key>title</key>
+			<string>Coverflow</string>
+			<key>orientation</key>
+			<string>either</string>
+			<key>views</key>
+			<array>
+				<dict>
+					<key>url</key>
+					<string>coverflow.html</string>
+				</dict>
+			</array>
+		</dict>
+		<dict>
 			<key>orientation</key>
 			<string>either</string>
 			<key>url</key>
@@ -144,14 +157,14 @@
 		</dict>
 		<dict>
 			<key>title</key>
-			<string>Coverflow</string>
+			<string>Video</string>
 			<key>orientation</key>
 			<string>either</string>
 			<key>views</key>
 			<array>
 				<dict>
 					<key>url</key>
-					<string>coverflow.html</string>
+					<string>video.html</string>
 				</dict>
 			</array>
 		</dict>
