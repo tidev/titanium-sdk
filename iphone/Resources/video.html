@@ -1,0 +1,68 @@
+<html>
+<head>
+<script>
+	window.onload = function()
+	{
+		document.getElementById("s").addEventListener('click',function()
+		{
+			var sound = Titanium.Media.createSound("song.mp3");
+			sound.play();
+		});
+		
+		document.getElementById("ss").addEventListener('click',function()
+		{
+			Titanium.Media.takeScreenshot(function(media)
+			{
+				document.getElementById('i').src = media.url;
+				Titanium.Media.saveToPhotoGallery(media);
+			});
+		});
+		
+		document.getElementById("b").addEventListener('click',function()
+		{
+			Titanium.Media.showCamera({
+				success:function(media,details,image)
+				{
+					document.getElementById("mediatype").innerHTML = details.mediaType;
+					
+					document.getElementById('i').src = media.url;
+					
+					Titanium.Media.saveToPhotoGallery(media);
+					
+					/*
+					var activeMovie = Titanium.Media.createVideoPlayer({
+											contentURL:"movie.m4v",
+											backgroundColor:'#111',
+											movieControlMode:Titanium.Media.VIDEO_CONTROL_DEFAULT,
+											scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
+					});
+										
+					activeMovie.addEventListener('complete',function()
+					{
+							Ti.API.info("video completed");
+					});
+					activeMovie.play();	*/
+				},
+				cancel:function()
+				{
+				},
+				error:function()
+				{
+				},
+				allowImageEditing:false,
+				mediaTypes: [Titanium.Media.MEDIA_TYPE_VIDEO, Titanium.Media.MEDIA_TYPE_PHOTO],
+				videoMaximumDuration:10000,
+				videoQuality:Titanium.Media.QUALITY_LOW
+			});
+		});
+	};
+</script>
+</head>
+<body>
+<div style="margin-top:100px;width:300px;margin:auto;"><button id="b" style="font-size:24px;">Make video</button></div>
+<div style="margin-top:100px;width:300px;margin:auto;"><button id="s" style="font-size:24px;">Play sound</button></div>
+<div style="margin-top:100px;width:300px;margin:auto;"><button id="ss" style="font-size:24px;">Take Screenshot</button></div>
+<div id="mediatype"></div>
+<div><img id="i" width="100" height="100"/></div>
+</body>
+</html>

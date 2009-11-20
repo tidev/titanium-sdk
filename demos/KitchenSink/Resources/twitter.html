@@ -81,7 +81,7 @@
 			// hide the keyboards if they're showing
 			tf1.blur();
 			tf2.blur();
-			
+
 			var un = tf1.value;
 			var pw = tf2.value;
 			var activityIndicator = Titanium.UI.createActivityIndicator();
@@ -95,18 +95,24 @@
 				for (var c=0;c<json.length;c++)
 				{
 					var row = json[c];
-					var bgcolor = (c % 2) == 0 ? '' : 'background-color:#eee';
+
+					var bgcolor = "";
+					if (Titanium.Platform.name == 'android') {
+						bgcolor = (c % 2) == 0 ? 'background-color:#333;color:white' : 'background-color:#eee';
+					} else {
+						bgcolor = (c % 2) == 0 ? '' : 'background-color:#eee';
+					}
 					var html = "<div style='position:relative;padding:0;height:80px;"+bgcolor+"'>";
 					html += "<div style='position:absolute;left:0;top:5px;border:2px solid #999;'><img src='"+row.user.profile_image_url+"'/></div>";
 					html+='<div style="position:absolute;top:6px;left:60px;height:70px;font-size:11px;">'+row.text+'</div>';
 					html+="</div>";
-					
+
 					data[c] = {html:html};
 				}
 				var tableView = Titanium.UI.createTableView({data:data,rowHeight:80},function(){});
 				Titanium.UI.currentWindow.addView(tableView);
 				Titanium.UI.currentWindow.showView(tableView);
-				
+
 				var close = Titanium.UI.createButton({title:'Logout'});
 				Titanium.UI.currentWindow.setRightNavButton(close);
 				close.addEventListener('click',function()
@@ -117,7 +123,7 @@
 			xhr.open("GET",url);
 			xhr.send();
 		});
-		
+
 		</script>
 	</body>
 </html>

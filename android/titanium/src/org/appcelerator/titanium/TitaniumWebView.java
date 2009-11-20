@@ -36,6 +36,7 @@ import org.appcelerator.titanium.module.contacts.TitaniumContacts;
 import org.appcelerator.titanium.module.geo.TitaniumGeolocation2;
 import org.appcelerator.titanium.module.map.TitaniumMap;
 import org.appcelerator.titanium.module.ui.TitaniumMenuItem;
+import org.appcelerator.titanium.module.ui.searchbar.TitaniumSearchBarModule;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.appcelerator.titanium.util.TitaniumUrlHelper;
@@ -111,7 +112,7 @@ public class TitaniumWebView extends WebView
 		public void configurationChanged(Configuration config);
 	}
 
-	public TitaniumWebView(TitaniumModuleManager tmm, boolean isWindow)
+	public TitaniumWebView(TitaniumModuleManager tmm, boolean isWindow, boolean showProgress)
 	{
 		super(tmm.getActivity());
 		this.tmm = tmm;
@@ -125,7 +126,7 @@ public class TitaniumWebView extends WebView
 
 //?
         setWebViewClient(new TiWebViewClient(tmm.getActivity()));
-        setWebChromeClient(new TiWebChromeClient(tmm.getActivity(), isWindow)); //TODO: Fix
+        setWebChromeClient(new TiWebChromeClient(tmm.getActivity(), isWindow, showProgress)); //TODO: Fix
 
 		WebSettings settings = getSettings();
 
@@ -235,6 +236,7 @@ public class TitaniumWebView extends WebView
 		new TitaniumContacts(tmm, "TitaniumContacts");
 		new TitaniumMap(tmm, "TitaniumMap");
 		new TitaniumGeolocation2(tmm, "TitaniumGeo2"); // forward/reverse geo
+		new TitaniumSearchBarModule(tmm, "TitaniumSearchBarModule");
 
 		// Add Modules from Applications
 		TitaniumApplication app = tmm.getApplication();
@@ -567,7 +569,7 @@ public class TitaniumWebView extends WebView
 
 		handler.removeMessages(MSG_REQUEST_NATIVE_LAYOUT);
 		Message msg = handler.obtainMessage(MSG_REQUEST_NATIVE_LAYOUT, sb.toString());
-		handler.sendMessageDelayed(msg, 100);
+		handler.sendMessageDelayed(msg, 50);
 		sb.setLength(0);
 	}
 
@@ -577,7 +579,7 @@ public class TitaniumWebView extends WebView
 
 	public void invalidateLayout() {
 		handler.removeMessages(MSG_INVALIDATE_LAYOUT);
-		handler.sendEmptyMessageDelayed(MSG_INVALIDATE_LAYOUT, 250);
+		handler.sendEmptyMessageDelayed(MSG_INVALIDATE_LAYOUT, 50);
 	}
 
 	public void addControl(View control) {

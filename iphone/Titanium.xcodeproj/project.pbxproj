@@ -21,6 +21,7 @@
 		2418F4670FCB6A2100BFE545 /* sound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4660FCB6A2100BFE545 /* sound.wav */; };
 		241939EC10B28BFC002EF673 /* coverflow.html in Resources */ = {isa = PBXBuildFile; fileRef = 241939EB10B28BFC002EF673 /* coverflow.html */; };
 		241939FB10B28F3B002EF673 /* 1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 241939FA10B28F3B002EF673 /* 1.jpg */; };
+		24193B3010B4AB44002EF673 /* video.html in Resources */ = {isa = PBXBuildFile; fileRef = 24193B2F10B4AB44002EF673 /* video.html */; };
 		24440B9B0FC9DFA0000A025D /* iPhone_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 24440B9A0FC9DFA0000A025D /* iPhone_icon.png */; };
 		2444F98B0FCA417C00063972 /* tiapp.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2444F98A0FCA417C00063972 /* tiapp.plist */; };
 		2444FA550FCA4E2E00063972 /* IPAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 2444FA540FCA4E2E00063972 /* IPAddress.c */; };
@@ -405,6 +406,7 @@
 		2418F4660FCB6A2100BFE545 /* sound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound.wav; sourceTree = "<group>"; };
 		241939EB10B28BFC002EF673 /* coverflow.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = coverflow.html; sourceTree = "<group>"; };
 		241939FA10B28F3B002EF673 /* 1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 1.jpg; sourceTree = "<group>"; };
+		24193B2F10B4AB44002EF673 /* video.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = video.html; sourceTree = "<group>"; };
 		24440B9A0FC9DFA0000A025D /* iPhone_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iPhone_icon.png; sourceTree = "<group>"; };
 		2444F8080FC9FCA400063972 /* ApiModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ApiModule.h; sourceTree = "<group>"; };
 		2444F8090FC9FCA400063972 /* ApiModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ApiModule.m; sourceTree = "<group>"; };
@@ -1122,6 +1124,7 @@
 				B40C00231031ECC4009DEFF9 /* docs.html */,
 				2402FA5310ABEE900060E89D /* unitTest.js */,
 				241939EB10B28BFC002EF673 /* coverflow.html */,
+				24193B2F10B4AB44002EF673 /* video.html */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1933,6 +1936,7 @@
 				B4BF789D10B1F19900C7D46E /* facebook.html in Resources */,
 				241939EC10B28BFC002EF673 /* coverflow.html in Resources */,
 				241939FB10B28F3B002EF673 /* 1.jpg in Resources */,
+				24193B3010B4AB44002EF673 /* video.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

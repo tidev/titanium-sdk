@@ -42,6 +42,7 @@ public class TitaniumUserWindowBuilder
 	protected String backgroundColor;
 	protected String orientation;
 	protected String backgroundImage;
+	protected boolean showActivityOnLoad;
 
 	protected WeakReference<TitaniumActivity> weakActivity;
 	protected static AtomicInteger activityCounter;
@@ -53,6 +54,7 @@ public class TitaniumUserWindowBuilder
 	{
 		this.weakActivity = new WeakReference<TitaniumActivity>(activity);
 		isOpen = false;
+		showActivityOnLoad = true;
 		handler = new Handler(this);
 
 		if (activityCounter == null) {
@@ -106,6 +108,7 @@ public class TitaniumUserWindowBuilder
 							TitaniumWindowInfo windowInfo = appInfo.findWindowInfo(windowId);
 							intent.updateUsing(windowInfo);
 						}
+						intent.setShowActivityOnLoad(showActivityOnLoad);
 
 						activity.launchTitaniumActivity(intent);
 						isOpen = true;
@@ -127,6 +130,10 @@ public class TitaniumUserWindowBuilder
 
 	public void setFullscreen(boolean fullscreen) {
 		this.fullscreen = fullscreen;
+	}
+
+	public void setActivityIndicator(boolean showActivity) {
+		this.showActivityOnLoad = showActivity;
 	}
 
 	public void setTitle(String title) {

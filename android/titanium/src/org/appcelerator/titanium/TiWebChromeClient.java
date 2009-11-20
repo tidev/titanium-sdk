@@ -24,21 +24,23 @@ public class TiWebChromeClient extends WebChromeClient {
 
 	private SoftReference<Activity> softActivity;
 	private boolean isWindow;
+	private boolean showProgress;
 
 	public TiWebChromeClient(TitaniumActivity activity) {
-		this(activity, false);
+		this(activity, false, true);
 	}
 
-	public TiWebChromeClient(TitaniumActivity activity, boolean isWindow) {
+	public TiWebChromeClient(TitaniumActivity activity, boolean isWindow, boolean showProgress) {
 		super();
 		this.softActivity = new SoftReference<Activity>(TitaniumActivityHelper.getRootActivity(activity));
 		this.isWindow = isWindow;
+		this.showProgress = showProgress;
 	}
 
     @Override
 	public void onProgressChanged(WebView view, final int newProgress)
     {
-    	if (isWindow) {
+    	if (isWindow && showProgress) {
 			//super.onProgressChanged(view, newProgress);
     		final Activity activity = softActivity.get();
     		if (activity != null) {

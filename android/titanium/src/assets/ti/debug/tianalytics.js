@@ -25,7 +25,7 @@ Ti.Analytics =
 	},
 
 	/**
-	 * @tiapi(method=True,name=Analytics.navEvent,since=0.7.0) send an application nav event
+	 * @tiapi(method=True,name=Analytics.navEvent,since=0.7) send an application nav event
 	 * @tiarg(for=Analytics.navEvent,type=string,name=from) The from string
 	 * @tiarg(for=Analytics.navEvent,type=string,name=to) The to string
 	 * @tiarg(for=Analytics.navEvent,type=string,name=event,optional=True) name of the event
@@ -48,7 +48,7 @@ Ti.Analytics =
 		}
 	},
 	/**
-	 * @tiapi(method=True,name=Analytics.timedEvent,since=0.7.0) send an application timed event.
+	 * @tiapi(method=True,name=Analytics.timedEvent,since=0.7) send an application timed event.
 	 * @tiarg(for=Analytics.timedEvent,type=string,name=event) name of the event
 	 * @tiarg(for=Analytics.timedEvent,type=Date,name=start,optional=True) Start date, a Javascript Date
 	 * @tiarg(for=Analytics.timedEvent,type=Date,name=stop,optional=True) End date, a Javascript Date
@@ -74,7 +74,7 @@ Ti.Analytics =
 		}
 	},
 	/**
-	 * @tiapi(method=True,name=Analytics.featureEvent,since=0.7.0) send an application feature event.
+	 * @tiapi(method=True,name=Analytics.featureEvent,since=0.7) send an application feature event.
 	 * @tiarg(for=Analytics.featureEvent,type=string,name=event) name of the event
 	 * @tiarg(for=Analytics.featureEvent,type=Object,name=data,optional=True) data to send with the event
 	 */
@@ -88,7 +88,7 @@ Ti.Analytics =
 		}
 	},
 	/**
-	 * @tiapi(method=True,name=Analytics.settingsEvent,since=0.7.0) send an application settings event.
+	 * @tiapi(method=True,name=Analytics.settingsEvent,since=0.7) send an application settings event.
 	 * @tiarg(for=Analytics.settingsEvent,type=string,name=event) name of the event
 	 * @tiarg(for=Analytics.settingsEvent,type=Object,name=data,optional=True) data to send with the event
 	 */
@@ -102,7 +102,7 @@ Ti.Analytics =
 		}
 	},
 	/**
-	 * @tiapi(method=True,name=Analytics.userEvent,since=0.7.0) send an application user event.
+	 * @tiapi(method=True,name=Analytics.userEvent,since=0.7) send an application user event.
 	 * @tiarg(for=Analytics.userEvent,type=string,name=event) name of the event
 	 * @tiarg(for=Analytics.userEvent,type=Object,name=data,optional=True) data to send with the event
 	 */

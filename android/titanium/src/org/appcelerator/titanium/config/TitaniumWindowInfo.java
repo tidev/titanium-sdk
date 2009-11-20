@@ -30,6 +30,7 @@ public class TitaniumWindowInfo implements Comparable<TitaniumWindowInfo>
 	protected String windowIconUrl;
 	protected String windowSize;
 	protected boolean windowIsFullscreen;
+	protected boolean windowShowActivityOnLoad;
 
 	TitaniumWindowInfo(int appearanceOrder) {
 		this.appearanceOrder = appearanceOrder;
@@ -39,6 +40,7 @@ public class TitaniumWindowInfo implements Comparable<TitaniumWindowInfo>
 		windowOrientation = "either";
 		windowType = "single";
 		windowIsFullscreen = false;
+		windowShowActivityOnLoad = true;
 	}
 
 	public String getWindowId() {
@@ -156,6 +158,14 @@ public class TitaniumWindowInfo implements Comparable<TitaniumWindowInfo>
 
 	public void setWindowFullscreen(boolean windowIsFullscreen) {
 		this.windowIsFullscreen = windowIsFullscreen;
+	}
+
+	public boolean isWindowShowActivityOnLoad() {
+		return windowShowActivityOnLoad;
+	}
+
+	public void setWindowShowActivityOnLoad(boolean windowShowActivityOnLoad) {
+		this.windowShowActivityOnLoad = windowShowActivityOnLoad;
 	}
 
 	public int compareTo(TitaniumWindowInfo o) {

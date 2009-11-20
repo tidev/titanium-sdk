@@ -209,12 +209,15 @@ public class TitaniumActivity extends Activity
 
         ts("After Window Configuration");
 
+        boolean showProgress = true;
+
         if (windowInfo != null) {
         	orientation = windowInfo.getWindowOrientation();
         	setOrientation(orientation);
         	if(windowInfo.getWindowTitle() != null) {
         		root.setTitle(windowInfo.getWindowTitle());
         	}
+        	showProgress = windowInfo.isWindowShowActivityOnLoad();
         } else {
         	if (intent.getTitle() != null) {
         		root.setTitle(intent.getTitle());
@@ -223,6 +226,7 @@ public class TitaniumActivity extends Activity
         		orientation = intent.getOrientation();
         		setOrientation(orientation);
         	}
+        	showProgress = intent.isShowActivityOnLoad();
         }
 
 		if (backgroundDrawableThread != null) {
@@ -243,7 +247,7 @@ public class TitaniumActivity extends Activity
 	    		tag.addTabChangeListener(this);
 	    	}
 		}
-		this.userWindow = new TitaniumUserWindow(this);
+		this.userWindow = new TitaniumUserWindow(this, showProgress);
 		userWindow.attachWebView(url);
 
 		setContentView(userWindow);

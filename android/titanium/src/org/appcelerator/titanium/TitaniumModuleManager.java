@@ -48,13 +48,13 @@ public class TitaniumModuleManager
 	private boolean isWindow;
 
 	public TitaniumModuleManager(TitaniumActivity activity) {
-		this(activity, false);
+		this(activity, false, true);
 	}
-	public TitaniumModuleManager(TitaniumActivity activity, boolean isWindow)
+	public TitaniumModuleManager(TitaniumActivity activity, boolean isWindow, boolean showProgress)
 	{
 		this.isWindow = isWindow;
 		this.softActivity = new SoftReference<TitaniumActivity>(activity);
-		this.webView = new TitaniumWebView(this, isWindow);
+		this.webView = new TitaniumWebView(this, isWindow, showProgress);
 		this.modules = new ArrayList<ITitaniumModule>();
 		this.registeredInvocables = new HashMap<String, Object>();
 		this.appContext = activity.getApplicationContext();

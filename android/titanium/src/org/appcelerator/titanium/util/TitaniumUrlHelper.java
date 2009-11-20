@@ -62,7 +62,7 @@ public class TitaniumUrlHelper
 				ArrayList<String> names = new ArrayList<String>();
 				BufferedReader isr = null;
 				try {
-					isr = new BufferedReader(new InputStreamReader(context.getAssets().open("ti/debug/tilist.txt")));
+					isr = new BufferedReader(new InputStreamReader(context.getAssets().open("ti/debug/tilist.txt")),8096);
 					String line;
 
 					while((line = isr.readLine()) != null) {

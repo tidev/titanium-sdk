@@ -78,7 +78,7 @@ var Ti = new function() {
 			if (r.exception !== undefined) {
 				throw r.exception;
 			}
-			Ti.apiProxy.log(6, "Result Type: " + r.resultType + " Result: " + r.result);
+			//Ti.apiProxy.log(2, "Name: " + name + " Method: " + method + "Result Type: " + r.resultType + " Result: " + r.result);
 			switch(r.resultType) {
 			case 'null' : return null;
 			case 'string' : return r.result;

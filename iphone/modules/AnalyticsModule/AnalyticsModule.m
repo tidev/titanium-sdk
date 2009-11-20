@@ -263,7 +263,6 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 		NSDictionary * appPropertiesDict = [[TitaniumHost sharedHost] appProperties];
 		
 		NSString * mac_addr = [platformDict objectForKey:@"macaddress"];
-		NSString * phonenumber = [platformDict objectForKey:@"phoneNumber"];
 		NSString * model = [platformDict objectForKey:@"model"];
 		NSString * app_name = [appPropertiesDict objectForKey:@"name"];
 		NSString * app_id = [appPropertiesDict objectForKey:@"id"];
@@ -277,7 +276,6 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 							   VAL_OR_NSNULL(app_id),@"app_id",
 							   @"32bit",@"ostype",
 							   @"arm",@"osarch",
-							   VAL_OR_NSNULL(phonenumber),@"phonenumber",
 							   VAL_OR_NSNULL(model),@"model",
 							   nil
 							   ];

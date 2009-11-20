@@ -26,8 +26,6 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -42,7 +40,6 @@ import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
 
 public class TitaniumTableView extends TitaniumBaseView
 	implements ITitaniumTableView, Handler.Callback
@@ -69,7 +66,6 @@ public class TitaniumTableView extends TitaniumBaseView
 	private ListView view;
 	private JSONObject rowTemplate;
 	private TitaniumTableViewItemOptions defaults;
-	private boolean customTable;
 
 	private Runnable dataSetChanged = new Runnable() {
 
@@ -207,7 +203,6 @@ public class TitaniumTableView extends TitaniumBaseView
 
 		this.viewModel = new TableViewModel();
 		this.hasBeenOpened = false;
-		this.customTable = false;
 	}
 
 	public void processLocalOptions(JSONObject o) throws JSONException
@@ -262,7 +257,6 @@ public class TitaniumTableView extends TitaniumBaseView
 	}
 
 	public void doSetData(String data) {
-		customTable = false; // reset
 		viewModel.setData(data);
 		handler.post(dataSetChanged);
 	}
@@ -487,10 +481,10 @@ public class TitaniumTableView extends TitaniumBaseView
 			@Override
 			public void draw(Canvas canvas) {
 				TitaniumBaseTableViewItem v = (TitaniumBaseTableViewItem) view.getSelectedView();
+				boolean customTable = rowTemplate != null;
 
 				if (customTable || v != null) {
 					if (customTable || v.providesOwnSelector()) {
-						customTable = true;
 						super.draw(canvas);
 					} else {
 						Rect r = getBounds();

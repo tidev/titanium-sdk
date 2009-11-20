@@ -120,7 +120,7 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 				if (!item.isNull(key)) {
 					value = item.getInt(key);
 				}
-			} else if (template.has(key)) {
+			} else if (template != null && template.has(key)) {
 				if (!template.isNull(key)) {
 					value = template.getInt(key);
 				}
@@ -190,8 +190,6 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 
 		public void setRowData(TitaniumTableViewItemOptions defaults, JSONObject template, JSONObject data)
 		{
-			Log.w(LCAT,"Set Row Data Begin");
-
 			lastTouchedViewName = null;
 			setTag(null);
 			removeAllViews(); // consider detaching and reusing, versus dumping.
@@ -322,7 +320,6 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 				setBackgroundDrawable(defaultBackground);
 				providesSelector = false;
 			}
-			Log.w(LCAT, "Set Row Data Done");
 		}
 
 		@Override

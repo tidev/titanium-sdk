@@ -32,7 +32,7 @@ var HTTPClient = function() {
 	};
 
 	/**
-	 * @tiapi(method=true,name=Network.HTTPClient.getResponseData,since=0.7.0) The response of an HTTP request as blob
+	 * @tiapi(method=true,name=Network.HTTPClient.getResponseData,since=0.7) The response of an HTTP request as blob
 	 * @tiresult[Blob] the response text
 	 */
 	this.getResponseData = function() {
@@ -145,7 +145,7 @@ HTTPClient.prototype.__defineSetter__("onreadystatechange", function(f) {
 	this.setOnReadyStateChange(f);
 });
 /**
- * @tiapi(property=true,name=Network.HTTPClient.onload,since=0.7.0) Set or get the onload handler.
+ * @tiapi(property=true,name=Network.HTTPClient.onload,since=0.7) Set or get the onload handler.
  */
 HTTPClient.prototype.__defineGetter__("onload", function(){
 	return this._onload;
@@ -155,7 +155,7 @@ HTTPClient.prototype.__defineSetter__("onload", function(f) {
 	this.obj.setOnLoadCallback(registerCallback(this, f));
 });
 /**
- * @tiapi(property=true,name=Network.HTTPClient.onerror,since=0.8.0) Set or get the error handler.
+ * @tiapi(property=true,name=Network.HTTPClient.onerror,since=0.8) Set or get the error handler.
  */
 HTTPClient.prototype.__defineGetter__("onerror", function(){
 	return this._error;
@@ -165,7 +165,7 @@ HTTPClient.prototype.__defineSetter__("onerror", function(f) {
 	this.obj.setOnErrorCallback(registerCallback(this, f));
 });
 /**
- * @tiapi(property=true,name=Network.HTTPClient.ondatastream,since=0.7.0) receive data as a blob a chunk at a time.
+ * @tiapi(property=true,name=Network.HTTPClient.ondatastream,since=0.7) receive data as a blob a chunk at a time.
  */
 HTTPClient.prototype.__defineGetter__("ondatastream", function(){
 	return this._ondatastream;
@@ -193,7 +193,7 @@ HTTPClient.prototype.__defineGetter__("responseText", function(){
 	return this.getResponseText();
 });
 /**
- * @tiapi(property=true,name=Network.HTTPClient.responseText,since=0.7.0) Get the response as XML from the operation
+ * @tiapi(property=true,name=Network.HTTPClient.responseText,since=0.7) Get the response as XML from the operation
  * @tiresult[object] the response
  */
 HTTPClient.prototype.__defineGetter__('responseXML',function(){
@@ -201,7 +201,7 @@ HTTPClient.prototype.__defineGetter__('responseXML',function(){
 });
 
 /**
- * @tiapi(property=true,name=Network.HTTPClient.responseXML,since=0.7.0) Get the response as blob
+ * @tiapi(property=true,name=Network.HTTPClient.responseXML,since=0.7) Get the response as blob
  * @tiresult[Blob] the response
  */
 HTTPClient.prototype.__defineGetter__('responseData',function(){

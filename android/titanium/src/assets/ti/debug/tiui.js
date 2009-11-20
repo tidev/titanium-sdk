@@ -462,7 +462,7 @@ var CompositeView = function(proxy) {
 	this._views = [];
 
 	/**
-	 * @tiapi(method=true,name=UI.CompositeView.addView,since=0.7.0) add a view
+	 * @tiapi(method=true,name=UI.CompositeView.addView,since=0.7) add a view
 	 * @tiarg[View,view] A Titanium view
 	 * @tiarg[Object,layout] layout parameters for the view
 	 */
@@ -477,7 +477,7 @@ var CompositeView = function(proxy) {
 	};
 
 	/**
-	 * @tiapi(method=true,name=UI.CompositeView.addEventListener,since=0.7.0) Add a listener for to this view. Support 'focused' and 'unfocused'
+	 * @tiapi(method=true,name=UI.CompositeView.addEventListener,since=0.7) Add a listener for to this view. Support 'focused' and 'unfocused'
 	 * @tiarg[string,eventName] The event name
 	 * @tiarg[function,listener] The event listener
 	 * @tiresult[int] id used when removing the listener
@@ -486,7 +486,7 @@ var CompositeView = function(proxy) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
 	/**
-	 * @tiapi(method=true,name=UI.CompositeView.removeEventListener,since=0.7.0) Remove a previously added listener
+	 * @tiapi(method=true,name=UI.CompositeView.removeEventListener,since=0.7) Remove a previously added listener
 	 * @tiarg[string,eventName] The event name
 	 * @tiarg[int,listenerId] id returned from addEventListener
 	 */
@@ -511,7 +511,7 @@ var ImageView = function(proxy) {
 	};
 
 	/**
-	 * @tiapi(method=true,name=UI.ImageView.addEventListener,since=0.7.0) Add a listener for to this view. Support 'focused' and 'unfocused'
+	 * @tiapi(method=true,name=UI.ImageView.addEventListener,since=0.7) Add a listener for to this view. Support 'focused' and 'unfocused'
 	 * @tiarg[string,eventName] The event name
 	 * @tiarg[function,listener] The event listener
 	 * @tiresult[int] id used when removing the listener
@@ -520,7 +520,7 @@ var ImageView = function(proxy) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
 	/**
-	 * @tiapi(method=true,name=UI.ImageView.removeEventListener,since=0.7.0) Remove a previously added listener
+	 * @tiapi(method=true,name=UI.ImageView.removeEventListener,since=0.7) Remove a previously added listener
 	 * @tiarg[string,eventName] The event name
 	 * @tiarg[int,listenerId] id returned from addEventListener
 	 */
@@ -533,7 +533,7 @@ var MapView = function(proxy) {
 	this.proxy = proxy; // reference to Java object
 
 	/**
-	 * @tiapi(method=true,name=UI.MapView.setCenterCoordinate,since=0.8.0) center map view at coordinate
+	 * @tiapi(method=true,name=UI.MapView.setCenterCoordinate,since=0.8) center map view at coordinate
 	 * @tiarg[object,coordinate] An object with longitude and latitude members
 	 */
 	this.setCenterCoordinate = function(coordinate) {
@@ -542,7 +542,7 @@ var MapView = function(proxy) {
 		}
 	};
 	/**
-	 * @tiapi(method=true,name=UI.MapView.setRegion,since=0.8.0) set the region to view
+	 * @tiapi(method=true,name=UI.MapView.setRegion,since=0.8) set the region to view
 	 * @tiarg[object,coordinate] An object with coordinate and span
 	 */
 	this.setRegion = function(region) {
@@ -551,7 +551,7 @@ var MapView = function(proxy) {
 		}
 	};
 	/**
-	 * @tiapi(method=true,name=UI.MapView.setType,since=0.8.0) set the type of map to view
+	 * @tiapi(method=true,name=UI.MapView.setType,since=0.8) set the type of map to view
 	 * @tiarg[int,type] Titanium.UI.MAP_VIEW_STANDARD | Titanium.UI.MAP_VIEW_SATELLITE | Titanium.UI.MAP_VIEW_HYBRID
 	 */
 	this.setType = function(type) {
@@ -560,7 +560,7 @@ var MapView = function(proxy) {
 		}
 	};
 	/**
-	 * @tiapi(method=true,name=UI.MapView.addEventListener,since=0.8.0) Add a listener for to this view. Support 'focused' and 'unfocused'
+	 * @tiapi(method=true,name=UI.MapView.addEventListener,since=0.8) Add a listener for to this view. Support 'focused' and 'unfocused'
 	 * @tiarg[string,eventName] The event name
 	 * @tiarg[function,listener] The event listener
 	 * @tiresult[int] id used when removing the listener
@@ -569,7 +569,7 @@ var MapView = function(proxy) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
 	/**
-	 * @tiapi(method=true,name=UI.MapView.removeEventListener,since=0.8.0) Remove a previously added listener
+	 * @tiapi(method=true,name=UI.MapView.removeEventListener,since=0.8) Remove a previously added listener
 	 * @tiarg[string,eventName] The event name
 	 * @tiarg[int,listenerId] id returned from addEventListener
 	 */
@@ -593,7 +593,7 @@ var ScrollableView = function(proxy) {
 	this._callback = null;
 
 	/**
-	 * @tiapi(method=true,name=UI.ScrollableView.setViews,since=0.7.0) set views in scrollable
+	 * @tiapi(method=true,name=UI.ScrollableView.setViews,since=0.7) set views in scrollable
 	 * @tiarg[array,views] Array of Titanium views
 	 */
 	this.setViews = function(views) {
@@ -615,7 +615,7 @@ var ScrollableView = function(proxy) {
 	};
 
 	/**
-	 * @tiapi(method=true,name=UI.ScrollableView.scrollToView,since=0.7.0) scroll to a particular view
+	 * @tiapi(method=true,name=UI.ScrollableView.scrollToView,since=0.7) scroll to a particular view
 	 * @tiarg[Object,view] A view or index
 	 */
 	this.scrollToView = function(view) {
@@ -638,14 +638,14 @@ var ScrollableView = function(proxy) {
 	};
 
 	/**
-	 * @tiapi(method=true,name=UI.ScrollableView.setShowPagingControl,since=0.7.0) turn paging on and off.
+	 * @tiapi(method=true,name=UI.ScrollableView.setShowPagingControl,since=0.7) turn paging on and off.
 	 * @tiarg[boolean,view] true if you want paging controls.
 	 */
 	this.setShowPagingControl = function(show) {
 		this.proxy.setShowPagingControl(show);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.ScrollableView.addEventListener,since=0.7.0) Add a listener for to this view. Support 'focused' and 'unfocused'
+	 * @tiapi(method=true,name=UI.ScrollableView.addEventListener,since=0.7) Add a listener for to this view. Support 'focused' and 'unfocused'
 	 * @tiarg[string,eventName] The event name
 	 * @tiarg[function,listener] The event listener
 	 * @tiresult[int] id used when removing the listener
@@ -658,7 +658,7 @@ var ScrollableView = function(proxy) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, f));
 	};
 	/**
-	 * @tiapi(method=true,name=UI.ScrollableView.removeEventListener,since=0.7.0) Remove a previously added listener
+	 * @tiapi(method=true,name=UI.ScrollableView.removeEventListener,since=0.7) Remove a previously added listener
 	 * @tiarg[string,eventName] The event name
 	 * @tiarg[int,listenerId] id returned from addEventListener
 	 */
@@ -751,7 +751,7 @@ var TableView = function(proxy) {
 		this.proxy.updateRow(index, Ti.JSON.stringify(options));
 	};
 	/**
-	 * @tiapi(method=true,name=UI.TableView.appendRow,since=0.7.0) append a row at the end of the table.
+	 * @tiapi(method=true,name=UI.TableView.appendRow,since=0.7) append a row at the end of the table.
 	 * @tiarg[object,rowData] JSON compatible data
 	 * @tiarg[object,options] options for append
 	 */
@@ -794,7 +794,7 @@ var TableView = function(proxy) {
 		}
 	};
 	/**
-	 * @tiapi(method=true,name=UI.TableView.scrollToIndex,since=0.8.0) scroll to the item referenced by index.
+	 * @tiapi(method=true,name=UI.TableView.scrollToIndex,since=0.8) scroll to the item referenced by index.
 	 * @tiarg[int,index] row index
 	 */
 	this.scrollToIndex = function(index, options) {
@@ -877,7 +877,7 @@ var UserWindow = function(proxy) {
 		this.proxy.setTitleImage(imageUrl);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.UserWindow.setBackgroundColor,since=0.7.0) Set background color
+	 * @tiapi(method=true,name=UI.UserWindow.setBackgroundColor,since=0.7) Set background color
 	 * @tiarg[string,backgroundColor] backgroundColor
 	 */
 	this.setBackgroundColor = function(backgroundColor) {
@@ -1037,7 +1037,7 @@ var UserWindow = function(proxy) {
 	};
 
 	/**
-	 * @tiapi(method=true,name=UI.UserWindow.fireEvent,since=0.7.0) fire a custom event
+	 * @tiapi(method=true,name=UI.UserWindow.fireEvent,since=0.7) fire a custom event
 	 * @tiarg[String, eventName] the event name
 	 * @tiarg[Object, eventData] A JSON compatible object.
 	 */
@@ -1117,7 +1117,7 @@ var UserWindowBuilder = function(proxy) {
 		this.proxy.setTitleImage(imageUrl);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.UserWindow.setBackgroundColor,since=0.7.0) Set background color
+	 * @tiapi(method=true,name=UI.UserWindow.setBackgroundColor,since=0.7) Set background color
 	 * @tiarg[string,backgroundColor] backgroundColor
 	 */
 	this.setBackgroundColor = function(backgroundColor) {
@@ -1157,6 +1157,14 @@ var UserWindowBuilder = function(proxy) {
 	this.setBackgroundImage = function(backgroundImage) {
 		this.proxy.setBackgroundImage(backgroundImage);
 	};
+
+	/**
+	 * @tiapi(method=true,name=UI.UserWindow.setActivityIndicator,since=0.8) Set background image
+	 * @tiarg[string,backgroundImage] path to background image
+	 */
+	this.setActivityIndicator = function(showActivity) {
+		this.proxy.setActivityIndicator(showActivity);
+	}
 
 	// IPhone only methods
 	this.setNavBarColor = function (color) {
@@ -1223,7 +1231,7 @@ var DatePicker = function(proxy) {
 	};
 
 	/**
-	 * @tiapi(method=true,name=UI.DatePicker.addEventListener,since=0.7.0) Add a listener.
+	 * @tiapi(method=true,name=UI.DatePicker.addEventListener,since=0.7) Add a listener.
 	 * @tiarg[string,eventName] The name of the event. Supports:
 	 * @tiarg[function,listener] The event listener
 	 * @tiresult[int] listenerId used to unregister the event.
@@ -1237,7 +1245,7 @@ var DatePicker = function(proxy) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, l));
 	};
 	/**
-	 * @tiapi(method=true,name=UI.DatePicker.removeEventListener,since=0.7.0) Add a listener.
+	 * @tiapi(method=true,name=UI.DatePicker.removeEventListener,since=0.7) Add a listener.
 	 * @tiarg[string,eventName] The name of the event. Supports:
 	 * @tiarg[function,listenerId] The event listener id returned by addEventListener
 	 */
@@ -1253,7 +1261,7 @@ var Picker = function(proxy) {
 	};
 
 	/**
-	 * @tiapi(method=true,name=UI.Picker.addEventListener,since=0.7.0) Add a listener.
+	 * @tiapi(method=true,name=UI.Picker.addEventListener,since=0.7) Add a listener.
 	 * @tiarg[string,eventName] The name of the event. Supports:
 	 * @tiarg[function,listener] The event listener
 	 * @tiresult[int] listenerId used to unregister the event.
@@ -1262,7 +1270,7 @@ var Picker = function(proxy) {
 		return this.proxy.addEventListener(eventName, registerCallback(this, listener));
 	};
 	/**
-	 * @tiapi(method=true,name=UI.Picker.removeEventListener,since=0.7.0) Add a listener.
+	 * @tiapi(method=true,name=UI.Picker.removeEventListener,since=0.7) Add a listener.
 	 * @tiarg[string,eventName] The name of the event. Supports:
 	 * @tiarg[function,listenerId] The event listener id returned by addEventListener
 	 */
@@ -1311,7 +1319,7 @@ var Switch = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.Switch.setValue,since=0.7.0) set the value.
+	 * @tiapi(method=true,name=UI.Switch.setValue,since=0.7) set the value.
 	 * @tiarg[boolean,value] value to set the switch too
 	 */
 	this.setValue = function(value) {
@@ -1320,7 +1328,7 @@ var Switch = function(proxy) {
 		}
 	};
 	/**
-	 * @tiapi(method=true,name=UI.Switch.getValue,since=0.7.0) get the value.
+	 * @tiapi(method=true,name=UI.Switch.getValue,since=0.7) get the value.
 	 * @tiresult[boolean] value of the switch
 	 */
 	this.getValue = function() {
@@ -1329,7 +1337,7 @@ var Switch = function(proxy) {
 };
 
 /**
- * @tiapi(property=true,name=UI.Switch.value,since=0.7.0) get/set the switch value
+ * @tiapi(property=true,name=UI.Switch.value,since=0.7) get/set the switch value
  */
 Switch.prototype.__defineGetter__("value", function() {
 	return this.getValue();
@@ -1359,7 +1367,7 @@ var Slider = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.Slider.setValue,since=0.7.0) set the value.
+	 * @tiapi(method=true,name=UI.Slider.setValue,since=0.7) set the value.
 	 * @tiarg[int,value] value to set the slider too
 	 */
 	this.setValue = function(value) {
@@ -1368,7 +1376,7 @@ var Slider = function(proxy) {
 		}
 	};
 	/**
-	 * @tiapi(method=true,name=UI.Slider.getValue,since=0.7.0) get the value.
+	 * @tiapi(method=true,name=UI.Slider.getValue,since=0.7) get the value.
 	 * @tiresult[int] value of the slider
 	 */
 	this.getValue = function() {
@@ -1377,7 +1385,7 @@ var Slider = function(proxy) {
 };
 
 /**
- * @tiapi(property=true,name=UI.Slider.value,since=0.7.0) get/set the slider value
+ * @tiapi(property=true,name=UI.Slider.value,since=0.7) get/set the slider value
  */
 Slider.prototype.__defineGetter__("value", function() {
 	return this.getValue();
@@ -1419,7 +1427,7 @@ var TextArea = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.TextArea.setValue,since=0.7.0) set the value.
+	 * @tiapi(method=true,name=UI.TextArea.setValue,since=0.7) set the value.
 	 * @tiarg[string,value] value to set the slider too
 	 */
 	this.setValue = function(value) {
@@ -1428,7 +1436,7 @@ var TextArea = function(proxy) {
 		}
 	};
 	/**
-	 * @tiapi(method=true,name=UI.TextArea.getValue,since=0.7.0) get the value.
+	 * @tiapi(method=true,name=UI.TextArea.getValue,since=0.7) get the value.
 	 * @tiresult[string] value of the slider
 	 */
 	this.getValue = function() {
@@ -1437,7 +1445,7 @@ var TextArea = function(proxy) {
 };
 
 /**
- * @tiapi(property=true,name=UI.TextField.value,since=0.7.0) get/set the text field value
+ * @tiapi(property=true,name=UI.TextField.value,since=0.7) get/set the text field value
  */
 TextArea.prototype.__defineGetter__("value", function() {
 	return this.getValue();
@@ -1479,7 +1487,7 @@ var TextField = function(proxy) {
 		this.proxy.removeEventListener(eventName, listenerId);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.TextField.setValue,since=0.7.0) set the value.
+	 * @tiapi(method=true,name=UI.TextField.setValue,since=0.7) set the value.
 	 * @tiarg[string,value] value to set the slider too
 	 */
 	this.setValue = function(value) {
@@ -1488,7 +1496,7 @@ var TextField = function(proxy) {
 		}
 	};
 	/**
-	 * @tiapi(method=true,name=UI.TextField.getValue,since=0.7.0) get the value.
+	 * @tiapi(method=true,name=UI.TextField.getValue,since=0.7) get the value.
 	 * @tiresult[string] value of the slider
 	 */
 	this.getValue = function() {
@@ -1497,7 +1505,7 @@ var TextField = function(proxy) {
 };
 
 /**
- * @tiapi(property=true,name=UI.TextField.value,since=0.7.0) get/set the text field value
+ * @tiapi(property=true,name=UI.TextField.value,since=0.7) get/set the text field value
  */
 TextField.prototype.__defineGetter__("value", function() {
 	return this.getValue();
@@ -1523,6 +1531,7 @@ Ti.UI = {
 			var backgroundColor = options.backgroundColor;
 			var orientation = options.orientation;
 			var backgroundImage = options.backgroundImage;
+			var activityIndicator = options.activityIndicator;
 
 			if (!Ti.isUndefined(url)) {
 				w.setURL(url);
@@ -1544,6 +1553,9 @@ Ti.UI = {
 			}
 			if (!Ti.isUndefined(backgroundImage)) {
 				w.setBackgroundImage(backgroundImage);
+			}
+			if (!Ti.isUndefined(activityIndicator)) {
+				w.setActivityIndicator(activityIndicator);
 			}
 		}
 
@@ -1707,7 +1719,7 @@ Ti.UI = {
 		return ind;
 	},
 	/**
-	 * @tiapi(method=true,name=UI.createCompositeView,since=0.7.0) Create a composite view
+	 * @tiapi(method=true,name=UI.createCompositeView,since=0.7) Create a composite view
 	 * @tiarg[object, options] a dictionary/hash of options
 	 * @tiresult[CompositeView] the composite view.
 	 */
@@ -1722,7 +1734,7 @@ Ti.UI = {
 		return cv;
 	},
 	/**
-	 * @tiapi(method=true,name=UI.createImageView,since=0.7.0) Create an image view
+	 * @tiapi(method=true,name=UI.createImageView,since=0.7) Create an image view
 	 * @tiarg[object, options] a dictionary/hash of options
 	 * @tiresult[ImageView] the image view.
 	 */
@@ -1735,7 +1747,7 @@ Ti.UI = {
 		return iv;
 	},
 	/**
-	 * @tiapi(method=true,name=UI.createScrollableView,since=0.7.0) Create a scrollable view
+	 * @tiapi(method=true,name=UI.createScrollableView,since=0.7) Create a scrollable view
 	 * @tiarg[object, options] a dictionary/hash of options
 	 * @tiresult[ScrollableView] the scrollable view.
 	 */
@@ -1760,7 +1772,7 @@ Ti.UI = {
 		return sv;
 	},
 	/**
-	 * @tiapi(method=true,name=UI.createMapView,since=0.8.0) Create a map view
+	 * @tiapi(method=true,name=UI.createMapView,since=0.8) Create a map view
 	 * @tiarg[object, options] a dictionary/hash of options
 	 * @tiresult[MapView] the map view.
 	 */
@@ -1953,32 +1965,32 @@ Ti.UI = {
 	INPUT_BUTTONMODE_NEVER : 2,
 
 	/**
-	 * @tiapi(property=true,name=UI.MAP_VIEW_STANDARD,since=0.8.0) Standard map view
+	 * @tiapi(property=true,name=UI.MAP_VIEW_STANDARD,since=0.8) Standard map view
 	 */
 	MAP_VIEW_STANDARD : 1,
 	/**
-	 * @tiapi(property=true,name=UI.MAP_VIEW_SATELLITE,since=0.8.0) Satellite map view
+	 * @tiapi(property=true,name=UI.MAP_VIEW_SATELLITE,since=0.8) Satellite map view
 	 */
 	MAP_VIEW_SATELLITE : 2,
 	/**
-	 * @tiapi(property=true,name=UI.MAP_VIEW_HYBRID,since=0.8.0) Hybrid map view
+	 * @tiapi(property=true,name=UI.MAP_VIEW_HYBRID,since=0.8) Hybrid map view
 	 */
 	MAP_VIEW_HYBRID : 3,
 	/**
-	 * @tiapi(property=true,name=UI.TABLEVIEW_POSITION_ANY,since=0.8.0) Position the row at top if currently above the tableview.
+	 * @tiapi(property=true,name=UI.TABLEVIEW_POSITION_ANY,since=0.8) Position the row at top if currently above the tableview.
 	 * @tiapi Position the row at bottom if currently below the tableview. Don't change if already visible in the tableview.
 	 */
 	TABLEVIEW_POSITION_ANY : 0,
 	/**
-	 * @tiapi(property=true,name=UI.TABLEVIEW_POSITION_TOP,since=0.8.0) Position the row at the top of the tableview.
+	 * @tiapi(property=true,name=UI.TABLEVIEW_POSITION_TOP,since=0.8) Position the row at the top of the tableview.
 	 */
 	TABLEVIEW_POSITION_TOP : 1,
 	/**
-	 * @tiapi(property=true,name=UI.TABLEVIEW_POSITION_MIDDLE,since=0.8.0) Position the row in the middle of the tableview
+	 * @tiapi(property=true,name=UI.TABLEVIEW_POSITION_MIDDLE,since=0.8) Position the row in the middle of the tableview
 	 */
 	TABLEVIEW_POSITION_MIDDLE : 2,
 	/**
-	 * @tiapi(property=true,name=UI.TABLEVIEW_POSITION_BOTTOM,since=0.8.0) Position the row at the top of the tableview.
+	 * @tiapi(property=true,name=UI.TABLEVIEW_POSITION_BOTTOM,since=0.8) Position the row at the top of the tableview.
 	 */
 	TABLEVIEW_POSITION_BOTTOM : 3,
 	/**
@@ -2343,15 +2355,15 @@ Ti.UI.Android.SystemIcon = {
 
 Ti.UI.DatePicker = {
 	/**
-	 * @tiapi(property=true,name=UI.DatePicker.MODE_DATE,since=0.7.0) Date
+	 * @tiapi(property=true,name=UI.DatePicker.MODE_DATE,since=0.7) Date
 	 */
 	MODE_DATE : 0,
 	/**
-	 * @tiapi(property=true,name=UI.DatePicker.MODE_TIME,since=0.7.0) Time
+	 * @tiapi(property=true,name=UI.DatePicker.MODE_TIME,since=0.7) Time
 	 */
 	MODE_TIME : 1,
 	/**
-	 * @tiapi(property=true,name=UI.DatePicker.MODE_DATE,since=0.7.0) Date and Time
+	 * @tiapi(property=true,name=UI.DatePicker.MODE_DATE,since=0.7) Date and Time
 	 */
 	MODE_DATE_AND_TIME : 2
 };

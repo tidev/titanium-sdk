@@ -33,6 +33,8 @@ typedef enum {
 	MovieWrapper * currentMovieWrapper; //To avoid releasing while playing causing crashes.
 	NSString * currentMovieToken;
 	BOOL currentMovieIsPlaying;
+	
+	NSString * pageToken;
 }
 
 @property(nonatomic,readwrite,copy)	NSString * imagePickerCallbackParentPageString;
