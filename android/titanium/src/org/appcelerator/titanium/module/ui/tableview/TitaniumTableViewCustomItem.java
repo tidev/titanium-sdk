@@ -85,10 +85,12 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 				if (rowLayout != null) {
 					for(int i = 0; i < rowLayout.length(); i++) {
 						JSONObject row = rowLayout.getJSONObject(i);
-						String n = row.getString("name");
-						if (n.equals(name)) {
-							layout = row;
-							break;
+						if (row.has("name")) {
+							String n = row.getString("name");
+							if (n.equals(name)) {
+								layout = row;
+								break;
+							}
 						}
 					}
 				}
@@ -142,8 +144,10 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 					if (rowLayout != null) {
 						for(int i = 0; i < rowLayout.length(); i++) {
 							JSONObject row = rowLayout.getJSONObject(i);
-							String name = row.getString("name");
-							names.add(name);
+							if (row.has("name")) {
+								String name = row.getString("name");
+								names.add(name);
+							}
 						}
 					}
 				}
@@ -152,8 +156,10 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 				if (rowLayout != null) {
 					for(int i = 0; i < rowLayout.length(); i++) {
 						JSONObject row = rowLayout.getJSONObject(i);
-						String name = row.getString("name");
-						names.add(name);
+						if (row.has("name")) {
+							String name = row.getString("name");
+							names.add(name);
+						}
 					}
 				}
 
