@@ -172,12 +172,22 @@
 				}
 				case 3:
 				{
-					// show add contact view
-					Titanium.UI.currentWindow.showView(groupedView,{
-						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
-						animationDuration:1000
-					});
+					if (Titanium.Platform.name == 'android')
+					{
+						Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViews()[0],{
+							animated:true,
+							animationStyle:Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT,
+							animationDuration:1000
+						});
+					}
+					else
+					{
+						Titanium.UI.currentWindow.showView(groupedView,{
+							animated:true,
+							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+							animationDuration:1000
+						});
+					}
 					mode = 'ADD'
 					break;
 				}
@@ -214,11 +224,22 @@
 					   	success:function(e)
 					   	{
 							contactToUpdate = e.contact;
-							Titanium.UI.currentWindow.showView(groupedView,{
-								animated:true,
-								animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
-								animationDuration:1000
-							});
+							if (Titanium.Platform.name == 'android')
+							{
+								Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViews()[0],{
+									animated:true,
+									animationStyle:Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT,
+									animationDuration:1000
+								});
+							}
+							else
+							{
+								Titanium.UI.currentWindow.showView(groupedView,{
+									animated:true,
+									animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+									animationDuration:1000
+								});
+							}
 							mode = 'UPDATE'
 							firstName.setValue(e.contact.firstName);
 							lastName.setValue(e.contact.lastName);
@@ -258,19 +279,30 @@
 		//
 		
 		// firstname
-		var firstName = Titanium.UI.createTextField({width:100,hintText:'first name'});
+		var fnData = {width:100,hintText:'first name'};
+		var lnData = {width:100,hintText:'last name'};
+		var eData = {width:100,hintText:'email'};
+
+		if (Titanium.Platform.name != 'android')
+		{
+			fnData = {id:'first',width:200,hintText:'first name'};
+			lnData = {id:'last',width:200,hintText:'last name'};
+			eData = {id:'email',width:200,hintText:'email'};
+			
+		}
+		var firstName = Titanium.UI.createTextField(fnData);
 		firstName.addEventListener('return',function(e)
 		{
 			lastName.focus();
 		});
 		// lastname
-		var lastName = Titanium.UI.createTextField({width:100,hintText:'last name'});
+		var lastName = Titanium.UI.createTextField(lnData);
 		lastName.addEventListener('return',function(e)
 		{
 			email.focus();
 		});
 		// email
-		var email = Titanium.UI.createTextField({width:100,hintText:'email'});
+		var email = Titanium.UI.createTextField(eData);
 		email.addEventListener('return',function(e)
 		{
 			email.blur();
@@ -283,86 +315,139 @@
 			{title:'Email', input:email,fontSize:16}
 		];
 
-		// input grouped section
-		var inputSection = Titanium.UI.iPhone.createGroupedSection({
-			header:'Manage Contact',
-			type:'input',
-			data:inputData
-		});
-		
-		// data for button section
-		var buttonData = [
-			{title:'Save Contact'},
-			{title:'Go Back'}
-		];
-		// button grouped section
-		var buttonSection = Titanium.UI.iPhone.createGroupedSection({
-			type:'button',
-			data:buttonData,
-			fontSize:14
-		});
-		buttonSection.addEventListener('click', function(e)
+		if (Titanium.Platform.name != 'android')
 		{
-			if (e.row==1)
-			{
-				// go back to main view
-				Titanium.UI.currentWindow.showView(mainView,{
-					animated:true,
-					animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
-					animationDuration:1000
-				});
-			}
-			else
-			{
-				// update or create contact
-				if (mode == 'UPDATE')
-				{
-					// update contact
-					contactToUpdate.firstName = firstName.value;
-					contactToUpdate.lastName = lastName.value;
-					contactToUpdate.email = [{label:'home', value:email.value}]
-					Titanium.Contacts.saveContact(contactToUpdate);
+			// input grouped section
+			var inputSection = Titanium.UI.iPhone.createGroupedSection({
+				header:'Manage Contact',
+				type:'input',
+				data:inputData
+			});
 
-					// show main view
-					Titanium.UI.currentWindow.showView(mainView,{
-						animated:true,
-						animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
-						animationDuration:1000
-					});
-					
-					
+			// data for button section
+			var buttonData = [
+				{title:'Save Contact'},
+				{title:'Go Back'}
+			];
+			// button grouped section
+			var buttonSection = Titanium.UI.iPhone.createGroupedSection({
+				type:'button',
+				data:buttonData,
+				fontSize:14
+			});
+			buttonSection.addEventListener('click', function(e)
+			{
+				if (e.row==1)
+				{
+					showMainView();
 				}
 				else
 				{
-					// add contact
-					var c = Titanium.Contacts.createContact({
-					    firstName:firstName.value,
-					    lastName:lastName.value,
-						email:[{label:'home', value:email.value}]
-					});
-					Titanium.Contacts.addContact(c);
-					Titanium.UI.createAlertDialog({title:'Contacts',message:'Contact Added.'}).show();
-					
+					// update or create contact
+					if (mode == 'UPDATE')
+					{
+						updateContact();
+					}
+					else
+					{
+						addContact();
+					}
 				}
-				
-			}
-		});
-		
-		// create grouped view
-		var groupedView = Titanium.UI.iPhone.createGroupedView();
-		groupedView.addSection(inputSection);
-		groupedView.addSection(buttonSection);	
+			});
+
+			// create grouped view
+			var groupedView = Titanium.UI.iPhone.createGroupedView();
+			groupedView.addSection(inputSection);
+			groupedView.addSection(buttonSection);	
+			Titanium.UI.currentWindow.addView(groupedView);
+			
+		}
 		
 		// add views
-		Titanium.UI.currentWindow.addView(groupedView);
 		Titanium.UI.currentWindow.addView(tableView);
 		Titanium.UI.currentWindow.addView(detailTableView);
 		Titanium.UI.currentWindow.addView(mainView);
 
 		Titanium.UI.currentWindow.showView(mainView);
+		function showMainView()
+		{
+			var style = (Titanium.Platform.name == 'android')
+				?Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT
+				: Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT;
+				
+			// go back to main view
+			Titanium.UI.currentWindow.showView(mainView,{
+				animated:true,
+				animationStyle:style,
+				animationDuration:1000
+			});
+		};
+		function updateContact()
+		{
+			// update contact
+			contactToUpdate.firstName = firstName.value;
+			contactToUpdate.lastName = lastName.value;
+			contactToUpdate.email = [{label:'home', value:email.value}]
+			Titanium.Contacts.saveContact(contactToUpdate);
+
+			// show main view
+			Titanium.UI.currentWindow.showView(mainView,{
+				animated:true,
+				animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+				animationDuration:1000
+			});
+			
+		};
+		function addContact()
+		{
+			
+			// add contact
+			var c = Titanium.Contacts.createContact({
+			    firstName:firstName.value,
+			    lastName:lastName.value,
+				email:[{label:'home', value:email.value}]
+			});
+			Titanium.API.info('after create');
+
+			Titanium.Contacts.addContact(c);
+			Titanium.API.info('after add');
+
+			Titanium.UI.createAlertDialog({title:'Contacts',message:'Contact Added.'}).show();
+		};
+		
+		if (Titanium.Platform.name == 'android')
+		{
+			document.getElementById('save').onclick = function()
+			{
+				if (mode == 'UPDATE')
+				{
+					updateContact();
+				}
+				else
+				{
+					addContact();
+				}
+			};
+			document.getElementById('back').onclick = function()
+			{
+				Titanium.UI.currentWindow.showView(mainView,{
+					animated:true,
+					animationStyle:Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT,
+					animationDuration:1000
+				});
+			};
+			
+		}
 	};
 	</script>
 </head>
 <body  style="font-family:'Helvetica Neue'">
+	<div id="first" style="height:50px;width:200px"></div>
+	<div id="last" style="height:50px;width:200px"></div>
+	<div id="email" style="height:50px;width:200px"></div>
+	<button id="save" style="height:30px;width:200px;font-size:20px">Save Contact</button>
+	<div>
+	<button id="back" style="height:30px;width:200px;font-size:20px">Go Back</button>
+	</div>
 </body>
 </html>
