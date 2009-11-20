@@ -14,16 +14,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import "TitaniumBlobWrapper.h"
 #import "Logging.h"
-
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < 310000
-
-enum {
-    UIImagePickerControllerQualityTypeHigh,
-    UIImagePickerControllerQualityTypeMedium,
-    UIImagePickerControllerQualityTypeLow
-};
-
-#endif
+                                       
 
 NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	"var result={"
@@ -504,7 +495,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 		if([imageEditingObject respondsToSelector:@selector(boolValue)])
 		{
 			[currentImagePicker setAllowsImageEditing:[imageEditingObject boolValue]];
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 310000			
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 31000			
 			if ([currentImagePicker respondsToSelector:@selector(setAllowsEditing:)])
 			{
 				// introduced in 3.1
@@ -561,7 +552,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 			return [TitaniumJSCode codeWithString:@"{code:Ti.Media.NO_VIDEO}"];
 		}
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 310000
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 31000
 		// introduced in 3.1
 		id videoMaximumDuration = [arguments objectForKey:@"videoMaximumDuration"];
 		if ([videoMaximumDuration respondsToSelector:@selector(doubleValue)] && [currentImagePicker respondsToSelector:@selector(setVideoMaximumDuration:)])
@@ -673,10 +664,10 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 			
 		if (saveMediaToRoll)
 		{
-			NSString *tempFilePath = [mediaURL absoluteString];
 			if (isVideo)
 			{
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 310000
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 31000
+				NSString *tempFilePath = [mediaURL absoluteString];
 				UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
 #endif
 			}
@@ -770,7 +761,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 		if (savedImage == nil) return;
 		UIImageWriteToSavedPhotosAlbum(savedImage, nil, nil, NULL);
 	}
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 310000
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 31000
 	else if ([mime hasPrefix:@"video/"])
 	{
 		NSString * tempFilePath = [savedBlob filePath];
@@ -945,9 +936,9 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 			kUTTypeMovie,@"MEDIA_TYPE_VIDEO",
 			kUTTypeImage,@"MEDIA_TYPE_PHOTO",
 
-			[NSNumber numberWithInt:UIImagePickerControllerQualityTypeHigh], @"QUALITY_HIGH",					
-			[NSNumber numberWithInt:UIImagePickerControllerQualityTypeMedium], @"QUALITY_MEDIUM",					
-			[NSNumber numberWithInt:UIImagePickerControllerQualityTypeLow], @"QUALITY_LOW",					
+			[NSNumber numberWithInt:0], @"QUALITY_HIGH",				//UIImagePickerControllerQualityTypeHigh
+			[NSNumber numberWithInt:1], @"QUALITY_MEDIUM",				//UIImagePickerControllerQualityTypeMedium	
+			[NSNumber numberWithInt:2], @"QUALITY_LOW",					//UIImagePickerControllerQualityTypeLow
 								
 			mediaSourceTypes,@"availableCameraMediaTypes",					
 			photoSourceTypes,@"availablePhotoMediaTypes",					

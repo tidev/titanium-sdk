@@ -8,6 +8,7 @@
 #import <TitaniumBasicModule.h>
 #import "FacebookModule.h"
 #import "FBConnect.h"
+#import <TitaniumBlobWrapper.h>
 
 
 @implementation FBDialogCallback
@@ -331,7 +332,7 @@
 
 - (void)login
 {
-	if (session!=nil && [session resume]==NO)
+	if (session!=nil && ([session expirationDate]==nil || [session resume]==NO))
 	{
 		[self performSelectorOnMainThread:@selector(showDialog) withObject:nil waitUntilDone:NO];
 	}
@@ -475,13 +476,22 @@
 	dialog = nil;
 	[session release];
 	session = [[FBSession sessionForApplication:key secret:secret delegate:self] retain];
-	[session resume];
+	if ([session resume]==NO)
+	{
+		[self logout];
+	}
 }
 
-- (void)execute:(NSString*)method params:(NSDictionary*)params queryId:(NSString*)queryId
+- (void)execute:(NSString*)method params:(NSDictionary*)params data:(id)data queryId:(NSString*)queryId
 {
+	NSData *dataParam = nil;
+	if (data!=nil && [data isKindOfClass:[TitaniumBlobWrapper class]])
+	{
+		dataParam = [(TitaniumBlobWrapper*)data dataBlob];
+	}
+	
 	FBRequestCallback *cb = [[FBRequestCallback alloc] initWithToken:queryId pageToken:[self getPageToken] module:self prefix:@"ECB"];
-  	[[FBRequest requestWithDelegate:cb] call:method params:params];
+  	[[FBRequest requestWithDelegate:cb] call:method params:params dataParam:dataParam];
 }
 
 - (NSString*)makeDialogJS:(NSString*)prefix
@@ -567,7 +577,7 @@
 	[self bindFunction:@"_QRY" method:@selector(query:queryId:)];
 	[self bindFunction:@"_PERM" method:@selector(permission:queryId:)];
 	[self bindFunction:@"_FEED" method:@selector(feed:data:body:queryId:)];
-	[self bindFunction:@"_EXEC" method:@selector(execute:params:queryId:)];
+	[self bindFunction:@"_EXEC" method:@selector(execute:params:data:queryId:)];
 	[self bindFunction:@"_STREAM" method:@selector(stream:data:target:queryId:)];
 	
 	// external methods (public)
@@ -580,7 +590,7 @@
 	[self bindCode:@"login" code:@"function(c){ Ti.Facebook._CB = c; Ti.Facebook._LOGIN(); }"];
 	[self bindCode:@"logout" code:@"function(c){ Ti.Facebook._CB = c; Ti.Facebook._LOGOUT(); }"];
 	[self bindCode:@"query" code:[NSString stringWithFormat:@"function(q,c){ %@;Ti.Facebook._QRY(q,i); }",[self makeDialogJS:@"QCB"]]];
-	[self bindCode:@"execute" code:[NSString stringWithFormat:@"function(m,d,c){ %@;Ti.Facebook._EXEC(m,d||{},i); }",[self makeDialogJS:@"ECB"]]];
+	[self bindCode:@"execute" code:[NSString stringWithFormat:@"function(m,d,c,data){ %@;Ti.Facebook._EXEC(m,d||{},data,i); }",[self makeDialogJS:@"ECB"]]];
 	[self bindCode:@"createLoginButton" code:@"function(p){var t=document.getElementById(p.id);var s=p.style||'normal';var b=(s=='normal')?'':'2';var l=(Ti.Facebook.isLoggedIn()?'logout':'login');var d=document.createElement('button');d.style.border='none';var i=document.createElement('image');d.appendChild(i);i.src='app://modules/facebook/images/'+l+b+'.png';t.appendChild(d);var c=this;this._EVT={};d.onclick=function(){if(Ti.Facebook.isLoggedIn()){Ti.Facebook.logout(function(){Ti._ONEVT.apply(c,['logout'])})}else{Ti.Facebook.login(function(a){Ti._ONEVT.apply(c,['login',{success:a}])})}};if(typeof(Ti.Facebook._LIS)=='undefined'){Ti.Facebook._LIS=[]}Ti.Facebook._LIS.push(function(a){Ti._ONEVT.apply(c,[a.event,{success:true}]);Ti.API.debug('facebook js state changed -- event = '+a.event);if((a.event=='logout'||!a.success)&&!Ti.Facebook.isLoggedIn()){i.src='app://modules/facebook/images/login'+b+'.png'}else{i.src='app://modules/facebook/images/logout.png'}});Ti.Facebook.setup(p.apikey,p.secret);return{addEventListener:function(a,b){Ti._ADDEVT.apply(c,[a,b])},removeEventListener:function(a,b){Ti._REMEVT.apply(c,[a,b])}}}"];
 	[self bindCode:@"requestPermission" code:[NSString stringWithFormat:@"function(p,c){ %@;Ti.Facebook._PERM(p,i); }",[self makeDialogJS:@"PCB"]]];
 	[self bindCode:@"publishFeed" code:[NSString stringWithFormat:@"function(id,data,body,c){ %@;Ti.Facebook._FEED(id,data?Ti._JSON(data):null,body,i); }",[self makeDialogJS:@"FCB"]]];
