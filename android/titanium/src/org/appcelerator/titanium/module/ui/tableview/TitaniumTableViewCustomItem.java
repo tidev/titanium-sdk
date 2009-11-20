@@ -317,7 +317,12 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 					hasMoreDrawable = createHasChildDrawable();
 				}
 			} else {
-				setBackgroundDrawable(defaultBackground);
+				String backgroundImage = defaults.resolveOption("backgroundImage", data, template);
+				if (backgroundImage != null) {
+					setBackgroundDrawable(tfh.loadDrawable(backgroundImage, false));
+				} else {
+					setBackgroundDrawable(defaultBackground);
+				}
 				providesSelector = false;
 			}
 		}
