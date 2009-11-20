@@ -1,13 +1,13 @@
 <html>
 <head>
 	<title>Views API</title>
-	
+
 	<script>
 	Titanium.UI.addEventListener('tabchange',function(e)
 	{
 		Titanium.API.info('tabchange index ' + e.index  + ' name ' + e.name + ' prevIndex ' + e.prevIndex + ' prevName ' + e.prevName);
 	});
-	
+
 	// data for tableview
 	var data = [
 		{title:'Scroll Views', hasChild:true},
@@ -17,19 +17,19 @@
 		{title:'Composite View 2 (iPhone)', hasChild:true},
 		{title:'Custom Events', hasChild:true},
 		{title:'Custom Table View', hasChild:true},
-		{title:'Maps View (iPhone)', hasChild:true},
+		{title:'Maps View', hasChild:true},
 		{title:'CoverFlow View (iPhone)', hasChild:true},
 		{title:'YQL + CoverFlow View (iPhone)', hasChild:true},
 		{title:'Custom Grouped View (iPhone)', hasChild:true},
-		
-		
+
+
 	];
-	
+
 	// tableview object
 	var tableView = Titanium.UI.createTableView({
 		data:data,
 		title:'Views',
-	}, function(eventObject) 
+	}, function(eventObject)
 	{
 		// handle tableview click events
 		var idx = eventObject.index;
@@ -62,7 +62,7 @@
 					backgroundColor:'#000000'
 				});
 				win.setBarColor('#000000');
-				
+
 				win.open({animated:true});
 				break;
 			}
@@ -100,7 +100,7 @@
 				win.open({animated:true});
 				break;
 			}
-			
+
 			case 7:
 			{
 				Titanium.Analytics.featureEvent('views.maps');
@@ -134,10 +134,10 @@
 	});
 	Titanium.UI.currentWindow.addView(tableView);
 	Titanium.UI.currentWindow.showView(tableView);
-	
+
 	</script>
 </head>
 <body>
-	
+
 </body>
 </html>
