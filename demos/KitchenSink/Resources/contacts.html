@@ -86,11 +86,11 @@
 		//
 		function reloadContacts()
 		{
-			var data = [{title:'Go Back - Showing 10 (or less)', layout:[{color:'blue',fontSize:14}]}];
+			var data = [{title:'Go Back - Showing 10 (or less)', layout:[{color:'blue',fontSize:14, name:'title'}]}];
 			var contacts = Titanium.Contacts.getAllContacts();
 			for (var i=0;i<Math.min(10, contacts.length);i++)
 			{
-				data.push({title:contacts[i].displayName});
+				data.push({title:contacts[i].displayLabel});
 			}
 			tableView.setData(data);
 		};
