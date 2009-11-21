@@ -180,7 +180,7 @@ return notifier;};Ti.UI.iPhone={BORDERED:-1,StatusBar:{OPAQUE_BLACK:-1},setStatu
 Ti.UI.SearchBar=function(proxy)
 {this._proxy=proxy;this.setValue=function(value){Ti.Method.dispatch(this._proxy,"setValue",value);}
 this.getValue=function(){return Ti.Method.dispatch(this._proxy,"getValue");}
-this.addEventListener=function(event,listener){return Ti.Method.dispatch(this._proxy,"addEventListener",event,registerCallback(this,listener));};this.removeEventListener=function(event,listenerId){Ti.Method.dispatch(this._proxy,"removeEventListener",event,listenerId);};};Ti.UI.createSearchBar=function(options){if(Ti.isUndefined(options)){options={};}
+this.focus=function(){Ti.Method.dispatch(this._proxy,"focus");};this.blur=function(){Ti.Method.dispatch(this._proxy,"blur");};this.addEventListener=function(event,listener){return Ti.Method.dispatch(this._proxy,"addEventListener",event,registerCallback(this,listener));};this.removeEventListener=function(event,listenerId){Ti.Method.dispatch(this._proxy,"removeEventListener",event,listenerId);};};Ti.UI.createSearchBar=function(options){if(Ti.isUndefined(options)){options={};}
 var sbar=new Ti.UI.SearchBar(Ti.Method.dispatch("TitaniumSearchBarModule","createSearchBar"));Ti.Method.dispatch(sbar._proxy,"setControlOptions",options);Ti.Method.dispatch(sbar._proxy,"open");return sbar;};
 Ti.fileSystemProxy=window.TitaniumFilesystem;TitaniumFile=function(f)
 {this.proxy=f;};TitaniumFile.prototype.isFile=function()

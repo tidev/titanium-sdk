@@ -6,12 +6,14 @@
  */
 package org.appcelerator.titanium.module.ui;
 
+import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumTableView;
 import org.appcelerator.titanium.module.ui.searchbar.TitaniumSearchBar;
+import org.appcelerator.titanium.module.ui.searchbar.TitaniumSearchBar.OnSearchChangeListener;
 import org.appcelerator.titanium.module.ui.tableview.TableViewModel;
 import org.appcelerator.titanium.module.ui.tableview.TitaniumBaseTableViewItem;
 import org.appcelerator.titanium.module.ui.tableview.TitaniumTableViewCustomItem;
@@ -21,6 +23,7 @@ import org.appcelerator.titanium.module.ui.tableview.TitaniumTableViewItemOption
 import org.appcelerator.titanium.module.ui.tableview.TitaniumTableViewNormalItem;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumUIHelper;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -71,6 +74,7 @@ public class TitaniumTableView extends TitaniumBaseView
 	private String searchBarName;
 	private TitaniumSearchBar searchBar;
 	private String filterAttribute;
+	private String filterText;
 	private RelativeLayout view;
 
 	private Runnable dataSetChanged = new Runnable() {
@@ -83,22 +87,70 @@ public class TitaniumTableView extends TitaniumBaseView
 
 	};
 
+	class IndexedItem {
+		int position;
+		JSONObject item;
+	}
+
 	class TTVListAdapter extends BaseAdapter
 	{
 		TableViewModel viewModel;
+		ArrayList<Integer> index;
+		private boolean filtered;
 
 		TTVListAdapter(TableViewModel viewModel) {
 			this.viewModel = viewModel;
+			this.index = new ArrayList<Integer>(viewModel.getRowCount());
+			applyFilter();
+		}
+
+		public void applyFilter() {
+
+			JSONArray items = viewModel.getViewModel();
+			int count = items.length();
+
+			index.clear();
+			filtered = false;
+
+			if (filterAttribute != null && filterText != null && filterAttribute.length() > 0 && filterText.length() > 0) {
+				filtered = true;
+
+				String lfilter = filterText.toLowerCase();
+				for(int i = 0; i < count; i++) {
+					boolean keep = true;
+
+					try {
+						JSONObject item = items.getJSONObject(i);
+						if (item.has(filterAttribute)) {
+							String t = item.getString(filterAttribute).toLowerCase();
+							if(t.indexOf(lfilter) < 0) {
+								keep = false;
+							}
+						}
+					} catch (JSONException e) {
+						Log.w(LCAT, "Error filtering item at position " + i + " keeping it: " + e.getMessage());
+					}
+
+					if (keep) {
+						index.add(i);
+					}
+				}
+			} else {
+				for(int i = 0; i < count; i++) {
+					index.add(i);
+				}
+			}
 		}
 
 		public int getCount() {
-			return viewModel.getViewModel().length();
+			//return viewModel.getViewModel().length();
+			return index.size();
 		}
 
 		public Object getItem(int position) {
 			JSONObject o = null;
 			try {
-				o = viewModel.getViewModel().getJSONObject(position);
+				o = viewModel.getViewModel().getJSONObject(index.get(position));
 			} catch (JSONException e) {
 				Log.w(LCAT, "Error while getting JSON object at " + position, e);
 			}
@@ -182,6 +234,17 @@ public class TitaniumTableView extends TitaniumBaseView
 		@Override
 		public boolean hasStableIds() {
 			return false;
+		}
+
+		@Override
+		public void notifyDataSetChanged() {
+			super.notifyDataSetChanged();
+
+			applyFilter();
+		}
+
+		public boolean isFiltered() {
+			return filtered;
 		}
 	}
 
@@ -484,6 +547,13 @@ public class TitaniumTableView extends TitaniumBaseView
 			if (o != null && o instanceof TitaniumSearchBar) {
 				searchBar = (TitaniumSearchBar) o;
 				searchBar.control.setId(100);
+				searchBar.setOnSearchChangeListener(new OnSearchChangeListener(){
+
+					public void filterBy(String s) {
+						filterText = s;
+						adapter.applyFilter();
+						handler.post(dataSetChanged);
+					}});
 			}
 		}
 
@@ -551,7 +621,7 @@ public class TitaniumTableView extends TitaniumBaseView
 				String viewClicked = v.getLastClickedViewName();
 
 				try {
-					JSONObject item = viewModel.getViewModel().getJSONObject(position);
+					JSONObject item = viewModel.getViewModel().getJSONObject(adapter.index.get(position));
 					JSONObject event = new JSONObject();
 
 					event.put("rowData", item);
@@ -566,6 +636,8 @@ public class TitaniumTableView extends TitaniumBaseView
 					if (viewClicked != null) {
 						event.put("layoutName", viewClicked);
 					}
+
+					event.put("searchMode", adapter.isFiltered());
 
 					if (callback != null) {
 						tmm.getWebView().evalJS(callback, event);
