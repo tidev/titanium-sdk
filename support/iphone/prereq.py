@@ -78,6 +78,7 @@ def check_for_iphone_dev(props,line):
 	m = re.search(r'\"iPhone Developer: (.*)\"',line)
 	if not m == None:
 		name = m.group(1).strip()
+		name = name.decode('string_escape').decode('utf-8')
 		props['iphone_dev']=True
 		if props.has_key('iphone_dev_name'):
 			try:
@@ -92,6 +93,7 @@ def check_for_iphone_dist(props,line):
 	m = re.search(r'\"iPhone Distribution: (.*)\"',line)
 	if not m == None:
 		name = m.group(1).strip()
+		name = name.decode('string_escape').decode('utf-8')
 		props['iphone_dist']=True
 		if props.has_key('iphone_dist_name'):
 			try:
@@ -109,13 +111,7 @@ def check_certs(props):
 	props['iphone_dev']=False
 	props['iphone_dist_message'] = 'Missing iPhone Distribution Certificate'
 	props['iphone_dev_message'] = 'Missing iPhone Developer Certificate'
-
-	# attempt to work around python subprocess UTF-8 encoding issues by
-	# letting the shell write it to file and then read from that file
-	f = tempfile.mkstemp('appc')
-	os.system("security dump-keychain > \"%s\"" % f[1])
-	output = codecs.open(f[1],'r','utf-8','replace').read()
-	os.remove(f[1])
+	output = run.run(['security','dump-keychain'])
 	for i in output.split('\n'):
 		check_for_wwdr(props,i)
 		check_for_iphone_dev(props,i)
@@ -127,7 +123,7 @@ def check_for_package():
 	check_itunes_version(props)
 	check_certs(props)
 	props['sdks']=get_sdks()
-	print poorjson.PoorJSON().dump(props)
+	print poorjson.PoorJSON().dump(props).encode("utf-8")
 			
 def main(args):
 	if len(args)!=2:

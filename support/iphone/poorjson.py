@@ -62,6 +62,6 @@ class PoorJSON(object):
 	def dump(self,prop):
 		return self.get(prop)
 
-#print PoorJSON().dump({u'Très 漢字':[1,2]})
+#print PoorJSON().dump({u'Très 漢字':[1,2]}).encode("utf-8")
 # print PoorJSON().dump([1,2])
 # print PoorJSON().dump({'a':True})
