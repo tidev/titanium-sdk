@@ -147,6 +147,7 @@ iv.proxy.processOptions(Ti.JSON.stringify(options));return iv;},createScrollable
 var opts={};if(!Ti.isUndefined(options.views)){for(key in options){if(key=="views"){var keys=sv.internalSetViews(options.views);opts.views=keys;}else{opts[key]=options[key];}}}
 sv.proxy.processOptions(Ti.JSON.stringify(opts));return sv;},createMapView:function(options){var mv=new MapView(Ti.uiProxy.createMapView());if(Ti.isUndefined(options)){options={}}
 mv.proxy.processOptions(Ti.JSON.stringify(options));return mv;},createTableView:function(options,callback){var tv=new TableView(Ti.uiProxy.createTableView());if(Ti.isUndefined(options)){options={};}
+if(!Ti.isUndefined(options.search)){options.searchInstance=options.search._proxy;}
 tv.setCallback(callback);tv.proxy.processOptions(Ti.JSON.stringify(options));return tv;},createWebView:function(options){var wv=new WebView(Ti.uiProxy.createWebView());if(Ti.isUndefined(options)){options={};}
 wv.proxy.processOptions(Ti.JSON.stringify(options));return wv;},createEmailDialog:function(options){var dlg=new EmailDialog(Ti.uiProxy.createEmailDialog());if(!Ti.isUndefined(options)){var subject=options.subject;var to=options.toRecipients;var cc=options.ccRecipients;var bcc=options.bccRecipients;var msg=options.messageBody;var attachment=options.attachment;if(!Ti.isUndefined(subject)){dlg.setSubject(subject);}
 if(!Ti.isUndefined(to)){dlg.setToRecipients(to);}

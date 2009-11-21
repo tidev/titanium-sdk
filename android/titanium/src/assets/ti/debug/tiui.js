@@ -1795,6 +1795,9 @@ Ti.UI = {
 		 if (Ti.isUndefined(options)) {
 			 options = {};
 		 }
+		 if (!Ti.isUndefined(options.search)) {
+			 options.searchInstance = options.search._proxy;
+		 }
 		 tv.setCallback(callback);
 		 tv.proxy.processOptions(Ti.JSON.stringify(options));
 		 return tv;

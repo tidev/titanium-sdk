@@ -11,6 +11,7 @@ import java.util.concurrent.Semaphore;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumTableView;
+import org.appcelerator.titanium.module.ui.searchbar.TitaniumSearchBar;
 import org.appcelerator.titanium.module.ui.tableview.TableViewModel;
 import org.appcelerator.titanium.module.ui.tableview.TitaniumBaseTableViewItem;
 import org.appcelerator.titanium.module.ui.tableview.TitaniumTableViewCustomItem;
@@ -39,6 +40,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class TitaniumTableView extends TitaniumBaseView
@@ -63,9 +65,13 @@ public class TitaniumTableView extends TitaniumBaseView
 	private String callback;
 	private TableViewModel viewModel;
 	private TTVListAdapter adapter;
-	private ListView view;
+	private ListView listView;
 	private JSONObject rowTemplate;
 	private TitaniumTableViewItemOptions defaults;
+	private String searchBarName;
+	private TitaniumSearchBar searchBar;
+	private String filterAttribute;
+	private RelativeLayout view;
 
 	private Runnable dataSetChanged = new Runnable() {
 
@@ -237,6 +243,12 @@ public class TitaniumTableView extends TitaniumBaseView
 		if (o.has("scrollBar")) {
 			setOption("scrollBar", o.getString("scrollBar"));
 		}
+		if (o.has("searchInstance")) {
+			searchBarName = o.getString("searchInstance");
+		}
+		if (o.has("filterAttribute")) {
+			filterAttribute = o.getString("filterAttribute");
+		}
 	}
 
 	public void setTemplate(String template) {
@@ -375,9 +387,9 @@ public class TitaniumTableView extends TitaniumBaseView
 			}
 
 			if (viewpos == 0) {
-				if (position < view.getFirstVisiblePosition()) {
+				if (position < listView.getFirstVisiblePosition()) {
 					viewpos = 1;
-				} else if (position > view.getLastVisiblePosition()) {
+				} else if (position > listView.getLastVisiblePosition()) {
 					viewpos = 3;
 				}
 			}
@@ -400,7 +412,7 @@ public class TitaniumTableView extends TitaniumBaseView
 			}
 		}
 		if (offset != -1) {
-			view.setSelectionFromTop(position, offset);
+			listView.setSelectionFromTop(position, offset);
 		}
 	}
 
@@ -467,7 +479,15 @@ public class TitaniumTableView extends TitaniumBaseView
 		setFocusableInTouchMode(false);
 		final String callback = this.callback;
 
-		this.view = new ListView(getContext()) {
+		if (searchBarName != null) {
+			Object o = tmm.getInstanceForName(searchBarName);
+			if (o != null && o instanceof TitaniumSearchBar) {
+				searchBar = (TitaniumSearchBar) o;
+				searchBar.control.setId(100);
+			}
+		}
+
+		this.listView = new ListView(getContext()) {
 
 			@Override
 			public boolean dispatchKeyEvent(KeyEvent event) {
@@ -475,12 +495,14 @@ public class TitaniumTableView extends TitaniumBaseView
 			}
 		};
 
-		final Drawable defaultSelector = view.getSelector();
+		listView.setId(101);
+
+		final Drawable defaultSelector = listView.getSelector();
 		final Drawable adaptableSelector = new ColorDrawable(Color.TRANSPARENT) {
 
 			@Override
 			public void draw(Canvas canvas) {
-				TitaniumBaseTableViewItem v = (TitaniumBaseTableViewItem) view.getSelectedView();
+				TitaniumBaseTableViewItem v = (TitaniumBaseTableViewItem) listView.getSelectedView();
 				boolean customTable = rowTemplate != null;
 
 				if (customTable || v != null) {
@@ -489,39 +511,39 @@ public class TitaniumTableView extends TitaniumBaseView
 					} else {
 						Rect r = getBounds();
 						defaultSelector.setBounds(r);
-						defaultSelector.setState(view.getDrawableState());
+						defaultSelector.setState(listView.getDrawableState());
 						defaultSelector.draw(canvas);
 					}
 				} else {
 					Rect r = getBounds();
 					defaultSelector.setBounds(r);
-					defaultSelector.setState(view.getDrawableState());
+					defaultSelector.setState(listView.getDrawableState());
 					defaultSelector.draw(canvas);
 				}
 			}
 
 		};
-		view.setSelector(adaptableSelector);
+		listView.setSelector(adaptableSelector);
 
-		view.setFocusable(true);
-		view.setFocusableInTouchMode(true);
-		view.setBackgroundColor(Color.TRANSPARENT);
-		view.setCacheColorHint(Color.TRANSPARENT);
+		listView.setFocusable(true);
+		listView.setFocusableInTouchMode(true);
+		listView.setBackgroundColor(Color.TRANSPARENT);
+		listView.setCacheColorHint(Color.TRANSPARENT);
 		adapter = new TTVListAdapter(viewModel);
-		view.setAdapter(adapter);
+		listView.setAdapter(adapter);
 
 		String scrollBar = defaults.get("scrollBar");
 		if (scrollBar.equals("true")) {
-			view.setVerticalScrollBarEnabled(true);
+			listView.setVerticalScrollBarEnabled(true);
 		} else if (scrollBar.equals("false")) {
-			view.setVerticalScrollBarEnabled(false);
+			listView.setVerticalScrollBarEnabled(false);
 		} else {
 			int margin = defaults.getIntOption("marginLeft") + defaults.getIntOption("marginTop") +
 			defaults.getIntOption("marginRight") + defaults.getIntOption("marginBottom");
-			view.setVerticalScrollBarEnabled(margin > 0 ? false : true);
+			listView.setVerticalScrollBarEnabled(margin > 0 ? false : true);
 		}
 
-		view.setOnItemClickListener(new OnItemClickListener() {
+		listView.setOnItemClickListener(new OnItemClickListener() {
 
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 			{
@@ -553,20 +575,44 @@ public class TitaniumTableView extends TitaniumBaseView
 					Log.e(LCAT, "Error handling event at position: " + position);
 				}
 			}});
+
+
+		if (searchBar != null) {
+			view = new RelativeLayout(getContext());
+			view.setPadding(4,2,4,2);
+			view.setGravity(Gravity.NO_GRAVITY);
+
+			RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+			p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+			p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			p.height = 52;
+
+			view.addView(searchBar.control, p);
+
+			p = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+			p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			p.addRule(RelativeLayout.BELOW, 100);
+
+			view.addView(listView, p);
+		}
 	}
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		boolean handled = super.onKeyDown(keyCode, event);
 		if (! handled) {
-			handled = view.onKeyDown(keyCode, event);
+			handled = listView.onKeyDown(keyCode, event);
 		}
 		return handled;
 	}
 
 	@Override
 	protected View getContentView() {
-		return view;
+
+		return (searchBar != null) ? view : listView;
 	}
 
 	@Override
