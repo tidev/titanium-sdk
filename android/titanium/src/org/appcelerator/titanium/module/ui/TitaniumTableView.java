@@ -706,6 +706,16 @@ public class TitaniumTableView extends TitaniumBaseView
 		defaults.put("fontWeight", fontWeight);
 	}
 
+	public void filterView(String filterText) {
+		this.filterText = filterText;
+		handler.post(dataSetChanged);
+	}
+
+	public void setFilterAttribute(String attribute) {
+		this.filterAttribute = attribute;
+		handler.post(dataSetChanged);
+	}
+
 	public void setOption(String key, String value) {
 		defaults.put(key, value);
 	}

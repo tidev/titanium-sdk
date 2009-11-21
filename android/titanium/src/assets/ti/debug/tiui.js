@@ -815,6 +815,16 @@ var TableView = function(proxy) {
 			this.proxy.setFontSize(fontSize);
 		}
 	};
+	this.setFilterAttribute = function(attribute) {
+		if (!Ti.isUndefined(attribute)) {
+			this.proxy.setFilterAttribute(attribute);
+		}
+	};
+	this.filterView = function(filterText) {
+		if (!Ti.isUndefined(filterText)) {
+			this.proxy.filterView(filterText);
+		}
+	};
 	this.setCallback = function(callback) {
 		this._callback = callback;
 		this.proxy.setCallback(registerCallback(this, this._callback));
