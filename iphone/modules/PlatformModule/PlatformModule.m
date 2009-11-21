@@ -142,8 +142,7 @@
 									 [NSNumber numberWithInt:320],@"width",
 									 [NSNumber numberWithInt:480],@"height",
 									 @"low",@"density",
-									 [NSNumber numberWithInt:160],@"dpi",
-						,nil]];
+									 [NSNumber numberWithInt:160],@"dpi",nil]];
 	[self bindCode:@"displayCaps" code:jscode];
 }
 
