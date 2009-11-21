@@ -3,6 +3,8 @@
 <script>
 	window.onload = function()
 	{
+		Titanium.API.info("Très 漢字");
+		
 		document.getElementById("s").addEventListener('click',function()
 		{
 			var sound = Titanium.Media.createSound("song.mp3");
@@ -25,13 +27,14 @@
 				{
 					document.getElementById("mediatype").innerHTML = details.mediaType;
 					
-					document.getElementById('i').src = media.url;
 					
-					Titanium.Media.saveToPhotoGallery(media);
+					document.getElementById('i').src = image.url;
 					
-					/*
+					Titanium.Media.saveToPhotoGallery(image.url);
+					
+					
 					var activeMovie = Titanium.Media.createVideoPlayer({
-											contentURL:"movie.m4v",
+											contentURL:media.url,
 											backgroundColor:'#111',
 											movieControlMode:Titanium.Media.VIDEO_CONTROL_DEFAULT,
 											scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
@@ -41,7 +44,7 @@
 					{
 							Ti.API.info("video completed");
 					});
-					activeMovie.play();	*/
+					activeMovie.play();	
 				},
 				cancel:function()
 				{
@@ -50,9 +53,9 @@
 				{
 				},
 				allowImageEditing:false,
-				mediaTypes: [Titanium.Media.MEDIA_TYPE_VIDEO, Titanium.Media.MEDIA_TYPE_PHOTO],
+				mediaTypes: [Titanium.Media.MEDIA_TYPE_VIDEO],
 				videoMaximumDuration:10000,
-				videoQuality:Titanium.Media.QUALITY_LOW
+				videoQuality:Titanium.Media.QUALITY_HIGH
 			});
 		});
 	};
