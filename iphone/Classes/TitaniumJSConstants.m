@@ -57,7 +57,7 @@ NSString * const titaniumJavascriptInjection =
 			"argString+=seperatorString+value;"
 			"seperatorString=',';"
 		"}"
-		"var nextURL='/_TICMD/%@/'+objectName+'/'+functionName+'?'+encodeURIComponent(argString);"
+		"var nextURL='/_TICMD/%@/'+objectName+'/'+functionName+'?'+argString;"  //NOTE: ! do not use encodeURIComponent or encodeURI on argString!
 		"while(nextURL!=null){"
 			"result=null;"
 			"thisURL=nextURL;"

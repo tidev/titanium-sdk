@@ -226,7 +226,8 @@ id<TitaniumAppAssetResolver> resolver = nil;
 				}
 				mime = textMimeType;
 				caching = NSURLCacheStorageNotAllowed;
-				break;}
+				break;
+			}
 			case TitaniumAppResourceCommandType:
 			case TitaniumAppResourceContinueType:
 				dataString = [theHost performFunction:url];
