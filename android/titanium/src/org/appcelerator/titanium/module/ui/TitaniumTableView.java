@@ -6,11 +6,14 @@
  */
 package org.appcelerator.titanium.module.ui;
 
+import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.api.ITitaniumTableView;
+import org.appcelerator.titanium.module.ui.searchbar.TitaniumSearchBar;
+import org.appcelerator.titanium.module.ui.searchbar.TitaniumSearchBar.OnSearchChangeListener;
 import org.appcelerator.titanium.module.ui.tableview.TableViewModel;
 import org.appcelerator.titanium.module.ui.tableview.TitaniumBaseTableViewItem;
 import org.appcelerator.titanium.module.ui.tableview.TitaniumTableViewCustomItem;
@@ -20,6 +23,7 @@ import org.appcelerator.titanium.module.ui.tableview.TitaniumTableViewItemOption
 import org.appcelerator.titanium.module.ui.tableview.TitaniumTableViewNormalItem;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumUIHelper;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,6 +43,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class TitaniumTableView extends TitaniumBaseView
@@ -63,9 +68,14 @@ public class TitaniumTableView extends TitaniumBaseView
 	private String callback;
 	private TableViewModel viewModel;
 	private TTVListAdapter adapter;
-	private ListView view;
+	private ListView listView;
 	private JSONObject rowTemplate;
 	private TitaniumTableViewItemOptions defaults;
+	private String searchBarName;
+	private TitaniumSearchBar searchBar;
+	private String filterAttribute;
+	private String filterText;
+	private RelativeLayout view;
 
 	private Runnable dataSetChanged = new Runnable() {
 
@@ -77,22 +87,70 @@ public class TitaniumTableView extends TitaniumBaseView
 
 	};
 
+	class IndexedItem {
+		int position;
+		JSONObject item;
+	}
+
 	class TTVListAdapter extends BaseAdapter
 	{
 		TableViewModel viewModel;
+		ArrayList<Integer> index;
+		private boolean filtered;
 
 		TTVListAdapter(TableViewModel viewModel) {
 			this.viewModel = viewModel;
+			this.index = new ArrayList<Integer>(viewModel.getRowCount());
+			applyFilter();
+		}
+
+		public void applyFilter() {
+
+			JSONArray items = viewModel.getViewModel();
+			int count = items.length();
+
+			index.clear();
+			filtered = false;
+
+			if (filterAttribute != null && filterText != null && filterAttribute.length() > 0 && filterText.length() > 0) {
+				filtered = true;
+
+				String lfilter = filterText.toLowerCase();
+				for(int i = 0; i < count; i++) {
+					boolean keep = true;
+
+					try {
+						JSONObject item = items.getJSONObject(i);
+						if (item.has(filterAttribute)) {
+							String t = item.getString(filterAttribute).toLowerCase();
+							if(t.indexOf(lfilter) < 0) {
+								keep = false;
+							}
+						}
+					} catch (JSONException e) {
+						Log.w(LCAT, "Error filtering item at position " + i + " keeping it: " + e.getMessage());
+					}
+
+					if (keep) {
+						index.add(i);
+					}
+				}
+			} else {
+				for(int i = 0; i < count; i++) {
+					index.add(i);
+				}
+			}
 		}
 
 		public int getCount() {
-			return viewModel.getViewModel().length();
+			//return viewModel.getViewModel().length();
+			return index.size();
 		}
 
 		public Object getItem(int position) {
 			JSONObject o = null;
 			try {
-				o = viewModel.getViewModel().getJSONObject(position);
+				o = viewModel.getViewModel().getJSONObject(index.get(position));
 			} catch (JSONException e) {
 				Log.w(LCAT, "Error while getting JSON object at " + position, e);
 			}
@@ -177,6 +235,17 @@ public class TitaniumTableView extends TitaniumBaseView
 		public boolean hasStableIds() {
 			return false;
 		}
+
+		@Override
+		public void notifyDataSetChanged() {
+			super.notifyDataSetChanged();
+
+			applyFilter();
+		}
+
+		public boolean isFiltered() {
+			return filtered;
+		}
 	}
 
 	class IndexHolder extends Semaphore {
@@ -236,6 +305,12 @@ public class TitaniumTableView extends TitaniumBaseView
 		}
 		if (o.has("scrollBar")) {
 			setOption("scrollBar", o.getString("scrollBar"));
+		}
+		if (o.has("searchInstance")) {
+			searchBarName = o.getString("searchInstance");
+		}
+		if (o.has("filterAttribute")) {
+			filterAttribute = o.getString("filterAttribute");
 		}
 	}
 
@@ -375,9 +450,9 @@ public class TitaniumTableView extends TitaniumBaseView
 			}
 
 			if (viewpos == 0) {
-				if (position < view.getFirstVisiblePosition()) {
+				if (position < listView.getFirstVisiblePosition()) {
 					viewpos = 1;
-				} else if (position > view.getLastVisiblePosition()) {
+				} else if (position > listView.getLastVisiblePosition()) {
 					viewpos = 3;
 				}
 			}
@@ -400,7 +475,7 @@ public class TitaniumTableView extends TitaniumBaseView
 			}
 		}
 		if (offset != -1) {
-			view.setSelectionFromTop(position, offset);
+			listView.setSelectionFromTop(position, offset);
 		}
 	}
 
@@ -467,7 +542,22 @@ public class TitaniumTableView extends TitaniumBaseView
 		setFocusableInTouchMode(false);
 		final String callback = this.callback;
 
-		this.view = new ListView(getContext()) {
+		if (searchBarName != null) {
+			Object o = tmm.getInstanceForName(searchBarName);
+			if (o != null && o instanceof TitaniumSearchBar) {
+				searchBar = (TitaniumSearchBar) o;
+				searchBar.control.setId(100);
+				searchBar.setOnSearchChangeListener(new OnSearchChangeListener(){
+
+					public void filterBy(String s) {
+						filterText = s;
+						adapter.applyFilter();
+						handler.post(dataSetChanged);
+					}});
+			}
+		}
+
+		this.listView = new ListView(getContext()) {
 
 			@Override
 			public boolean dispatchKeyEvent(KeyEvent event) {
@@ -475,12 +565,14 @@ public class TitaniumTableView extends TitaniumBaseView
 			}
 		};
 
-		final Drawable defaultSelector = view.getSelector();
+		listView.setId(101);
+
+		final Drawable defaultSelector = listView.getSelector();
 		final Drawable adaptableSelector = new ColorDrawable(Color.TRANSPARENT) {
 
 			@Override
 			public void draw(Canvas canvas) {
-				TitaniumBaseTableViewItem v = (TitaniumBaseTableViewItem) view.getSelectedView();
+				TitaniumBaseTableViewItem v = (TitaniumBaseTableViewItem) listView.getSelectedView();
 				boolean customTable = rowTemplate != null;
 
 				if (customTable || v != null) {
@@ -489,39 +581,39 @@ public class TitaniumTableView extends TitaniumBaseView
 					} else {
 						Rect r = getBounds();
 						defaultSelector.setBounds(r);
-						defaultSelector.setState(view.getDrawableState());
+						defaultSelector.setState(listView.getDrawableState());
 						defaultSelector.draw(canvas);
 					}
 				} else {
 					Rect r = getBounds();
 					defaultSelector.setBounds(r);
-					defaultSelector.setState(view.getDrawableState());
+					defaultSelector.setState(listView.getDrawableState());
 					defaultSelector.draw(canvas);
 				}
 			}
 
 		};
-		view.setSelector(adaptableSelector);
+		listView.setSelector(adaptableSelector);
 
-		view.setFocusable(true);
-		view.setFocusableInTouchMode(true);
-		view.setBackgroundColor(Color.TRANSPARENT);
-		view.setCacheColorHint(Color.TRANSPARENT);
+		listView.setFocusable(true);
+		listView.setFocusableInTouchMode(true);
+		listView.setBackgroundColor(Color.TRANSPARENT);
+		listView.setCacheColorHint(Color.TRANSPARENT);
 		adapter = new TTVListAdapter(viewModel);
-		view.setAdapter(adapter);
+		listView.setAdapter(adapter);
 
 		String scrollBar = defaults.get("scrollBar");
 		if (scrollBar.equals("true")) {
-			view.setVerticalScrollBarEnabled(true);
+			listView.setVerticalScrollBarEnabled(true);
 		} else if (scrollBar.equals("false")) {
-			view.setVerticalScrollBarEnabled(false);
+			listView.setVerticalScrollBarEnabled(false);
 		} else {
 			int margin = defaults.getIntOption("marginLeft") + defaults.getIntOption("marginTop") +
 			defaults.getIntOption("marginRight") + defaults.getIntOption("marginBottom");
-			view.setVerticalScrollBarEnabled(margin > 0 ? false : true);
+			listView.setVerticalScrollBarEnabled(margin > 0 ? false : true);
 		}
 
-		view.setOnItemClickListener(new OnItemClickListener() {
+		listView.setOnItemClickListener(new OnItemClickListener() {
 
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 			{
@@ -529,7 +621,7 @@ public class TitaniumTableView extends TitaniumBaseView
 				String viewClicked = v.getLastClickedViewName();
 
 				try {
-					JSONObject item = viewModel.getViewModel().getJSONObject(position);
+					JSONObject item = viewModel.getViewModel().getJSONObject(adapter.index.get(position));
 					JSONObject event = new JSONObject();
 
 					event.put("rowData", item);
@@ -545,6 +637,8 @@ public class TitaniumTableView extends TitaniumBaseView
 						event.put("layoutName", viewClicked);
 					}
 
+					event.put("searchMode", adapter.isFiltered());
+
 					if (callback != null) {
 						tmm.getWebView().evalJS(callback, event);
 					}
@@ -553,20 +647,44 @@ public class TitaniumTableView extends TitaniumBaseView
 					Log.e(LCAT, "Error handling event at position: " + position);
 				}
 			}});
+
+
+		if (searchBar != null) {
+			view = new RelativeLayout(getContext());
+			view.setPadding(4,2,4,2);
+			view.setGravity(Gravity.NO_GRAVITY);
+
+			RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+			p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+			p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			p.height = 52;
+
+			view.addView(searchBar.control, p);
+
+			p = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+			p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			p.addRule(RelativeLayout.BELOW, 100);
+
+			view.addView(listView, p);
+		}
 	}
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		boolean handled = super.onKeyDown(keyCode, event);
 		if (! handled) {
-			handled = view.onKeyDown(keyCode, event);
+			handled = listView.onKeyDown(keyCode, event);
 		}
 		return handled;
 	}
 
 	@Override
 	protected View getContentView() {
-		return view;
+
+		return (searchBar != null) ? view : listView;
 	}
 
 	@Override
@@ -586,6 +704,16 @@ public class TitaniumTableView extends TitaniumBaseView
 
 	public void setFontWeight(String fontWeight) {
 		defaults.put("fontWeight", fontWeight);
+	}
+
+	public void filterView(String filterText) {
+		this.filterText = filterText;
+		handler.post(dataSetChanged);
+	}
+
+	public void setFilterAttribute(String attribute) {
+		this.filterAttribute = attribute;
+		handler.post(dataSetChanged);
 	}
 
 	public void setOption(String key, String value) {

@@ -9,6 +9,9 @@
 		search.addEventListener('change', function(e)
 		{
 		   	e.value // search string as user types
+			if (Titanium.Platform.name == 'android') {
+			   	body.filterView(e.value);
+			}
 		});
 		search.addEventListener('cancel', function(e)
 		{
@@ -42,6 +45,9 @@
 
 		});
 		var views = Titanium.UI.currentWindow.getViews();
+		if (Titanium.Platform.name == 'android') {
+			body.setFilterAttribute("title");
+		}
 
 		// create composite view of table view + search bar
 		var compositeView = Titanium.UI.createCompositeView();

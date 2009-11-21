@@ -51,6 +51,12 @@ public class TitaniumSearchBar extends TitaniumBaseNativeControl
 	EditText tv;
 	ImageButton cancelBtn;
 
+	public interface OnSearchChangeListener {
+		public void filterBy(String s);
+	}
+
+	private OnSearchChangeListener searchChangeListener;
+
 	public TitaniumSearchBar(TitaniumModuleManager tmm)
 	{
 		super(tmm);
@@ -160,6 +166,9 @@ public class TitaniumSearchBar extends TitaniumBaseNativeControl
 	{
 		if (msg.what == MSG_CHANGE) {
 			value = tv.getText().toString();
+			if (searchChangeListener != null) {
+				searchChangeListener.filterBy(value.toString());
+			}
 			JSONObject o = new JSONObject();
 			try {
 				o.put("value", value);
@@ -218,5 +227,9 @@ public class TitaniumSearchBar extends TitaniumBaseNativeControl
 			return true;
 		}
 		return false;
+	}
+
+	public void setOnSearchChangeListener(OnSearchChangeListener listener) {
+		searchChangeListener = listener;
 	}
 }
