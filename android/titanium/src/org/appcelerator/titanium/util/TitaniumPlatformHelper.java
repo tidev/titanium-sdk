@@ -9,8 +9,14 @@ package org.appcelerator.titanium.util;
 
 import java.util.UUID;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.Activity;
 import android.content.Context;
 import android.provider.Settings;
+import android.util.DisplayMetrics;
+import android.view.Display;
 
 public class TitaniumPlatformHelper
 {
@@ -55,5 +61,32 @@ public class TitaniumPlatformHelper
 			sb.setLength(0); // reuse.
 		}
 		return s;
+	}
+
+	public static JSONObject getDisplayCaps(Activity activity)
+		throws JSONException
+	{
+		JSONObject caps = new JSONObject();
+		Display d = activity.getWindowManager().getDefaultDisplay();
+		caps.put("width", d.getWidth());
+		caps.put("height", d.getHeight());
+		DisplayMetrics dm = new DisplayMetrics();
+		d.getMetrics(dm);
+		// Level 3 SDK, doesn't have Low, Medium, or High, so guess.
+		int dpi = (int) (dm.xdpi + dm.ydpi) / 2;
+		caps.put("dpi", dpi);
+
+		String density = "medium";
+		if (dpi < 140) {
+			density = "low";
+		} else if (dpi > 200) {
+			density = "high";
+		}
+		caps.put("density", density);
+
+		caps.put("xdpi", dm.xdpi);
+		caps.put("ydpi", dm.ydpi);
+		caps.put("logicalDensityFactor", dm.density); // 1.0 ~ 160dpi
+		return caps;
 	}
 }
