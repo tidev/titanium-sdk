@@ -25,7 +25,6 @@ def get_avds(sdk):
 			version = line[9:]
 			version = version[0:version.find('(')-1]
 			name = "%s %s" % (name,version)
-			name = None
 		elif line.find("Skins: ")!=-1:
 			skins = line[8:].replace(' (default)','').split(", ")
 			avds.append({'name':name,'id':theid,'skins':skins})
