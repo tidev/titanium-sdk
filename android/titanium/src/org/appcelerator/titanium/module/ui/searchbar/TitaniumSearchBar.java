@@ -151,7 +151,7 @@ public class TitaniumSearchBar extends TitaniumBaseNativeControl
 		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 		params.addRule(RelativeLayout.CENTER_VERTICAL);
 		params.addRule(RelativeLayout.LEFT_OF, 101);
-		params.setMargins(4, 4, 0, 4);
+		params.setMargins(4, 4, 4, 4);
 		layout.addView(tv, params);
 
 		params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
