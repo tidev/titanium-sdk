@@ -154,11 +154,13 @@ public class TitaniumTableViewNormalItem extends TitaniumBaseTableViewItem
 				}
 			}
 
+			String backgroundColor = defaults.resolveOption("backgroundColor", data);
+			String backgroundSelectedColor = defaults.resolveOption("backgroundSelectedColor", data);
 			String backgroundImage = defaults.resolveOption("backgroundImage", data);
 			String backgroundSelectedImage = defaults.resolveOption("selectedBackgroundImage", data);
 			String backgroundFocusedImage = defaults.resolveOption("focusedBackgroundImage", data);
 
-			StateListDrawable sld = TitaniumUIHelper.buildBackgroundDrawable(getContext(), backgroundImage, backgroundSelectedImage, backgroundFocusedImage);
+			StateListDrawable sld = TitaniumUIHelper.buildBackgroundDrawable(getContext(), backgroundColor, backgroundSelectedColor, backgroundImage, backgroundSelectedImage, backgroundFocusedImage);
 			if (sld != null) {
 				setBackgroundDrawable(sld);
 				providesSelector = true;
