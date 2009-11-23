@@ -27,7 +27,6 @@ import org.appcelerator.titanium.module.facebook.FBActivity;
 import org.appcelerator.titanium.module.facebook.FBActivityDelegate;
 import org.appcelerator.titanium.module.facebook.FBDialog;
 import org.appcelerator.titanium.module.facebook.FBFeedDialog;
-import org.appcelerator.titanium.module.facebook.FBLoginButton;
 import org.appcelerator.titanium.module.facebook.FBLoginDialog;
 import org.appcelerator.titanium.module.facebook.FBPermissionDialog;
 import org.appcelerator.titanium.module.facebook.FBRequest;
