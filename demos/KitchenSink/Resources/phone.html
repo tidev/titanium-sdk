@@ -373,7 +373,7 @@
 
 		Titanium.Media.showCamera({
 
-			success:function(image,details)
+			success:function(media,details,image)
 			{
 				var win = Titanium.UI.createWindow({url:'image.html'});
 				Titanium.App.Properties.setString('photo',image.url);
