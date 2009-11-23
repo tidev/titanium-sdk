@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="com.nolanwright.kitchensink"
+      package="com.appcelerator.titanium2"
       android:versionCode="1"
       android:versionName="1"
 >
+	<uses-sdk android:minSdkVersion="3" />
 	<application
     	android:icon="@drawable/appicon"
       	android:label="KitchenSink"
@@ -30,21 +31,27 @@
     		android:configChanges="keyboardHidden|orientation"
             android:launchMode="singleTask"
     	/>
-		<activity
-	        android:name="org.appcelerator.titanium.module.map.TitaniumMapActivity"
-	        android:configChanges="keyboardHidden|orientation"
-	        android:launchMode="singleTask"
-	     />
-	    <uses-library android:name="com.google.android.maps" />
+    	<activity
+    		android:name="org.appcelerator.titanium.module.map.TitaniumMapActivity"
+    		android:configChanges="keyboardHidden|orientation"
+    		android:launchMode="singleTask"
+    	/>
+        <activity 
+			android:name="org.appcelerator.titanium.module.facebook.FBActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+        />
+
+    	<uses-library android:name="com.google.android.maps" />
+<!--
 		<provider
-			android:authorities="com.nolanwright.kitchensink.titanium"
+			android:authorities="com.appcelerator.titanium2.titanium"
 			android:name="org.appcelerator.titanium.TitaniumContentProvider"
 		/>
+-->
 		<service
 			android:name="org.appcelerator.titanium.TitaniumAnalyticsService"
 			android:exported="false"
 		/>
-		
 	</application>
 	<!-- required when using net -->
   	<uses-permission android:name="android.permission.INTERNET"/>
@@ -61,7 +68,6 @@
 	<uses-permission android:name="android.permission.VIBRATE"/>
 	<!-- required for using the camera -->
 	<uses-permission android:name="android.permission.CAMERA" />
-	<!-- required for reading contacts -->
+	<!-- required for reading contact data -->
 	<uses-permission android:name="android.permission.READ_CONTACTS"/>
-	
 </manifest>

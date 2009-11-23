@@ -15,3 +15,4 @@ tigeo.js
 yahoo.js
 ticontacts.js
 timap.js
+tifacebook.js

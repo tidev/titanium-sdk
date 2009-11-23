@@ -58,11 +58,12 @@ class Android(object):
 		finally:
 			f.close
 
-	def create(self, dir):
+	def create(self, dir, build_time=False):
 		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
 
 		# Build up output directory tree
 		project_dir = self.newdir(dir, self.name)
+				
 		# Paths to Titanium assets that need to be linked into eclipse structure
 		self.config['ti_tiapp_xml'] = os.path.join(project_dir, 'tiapp.xml')
 		resource_dir = os.path.join(project_dir, 'Resources')
@@ -98,35 +99,36 @@ class Android(object):
 
 		self.copyfile('titanium.jar', os.path.join(template_dir), app_lib_dir)
 		
-		# create the AVD and SDCard inside the users home
-		home_dir = os.path.join(os.path.expanduser('~'), '.titanium')
-		if not os.path.exists(home_dir):
-			os.makedirs(home_dir)
+		if build_time==False:
+			# create the AVD and SDCard inside the users home
+			home_dir = os.path.join(os.path.expanduser('~'), '.titanium')
+			if not os.path.exists(home_dir):
+				os.makedirs(home_dir)
 		
-		android = os.path.join(self.sdk,'tools','android')
-		if platform.system() == "Windows":
-			android += ".bat"
-		avd_output = run([android,'list','avd'])
-		
-		sdcard = os.path.join(home_dir,'android.sdcard')
-		
-		# only create the avd if we can't find it
-		if len(re.findall('titanium\.avd',avd_output))==0:
-			# create a special AVD for the project
-			inputgen = os.path.join(template_dir,'input.py')
-			pipe([sys.executable, inputgen], [android, '--verbose', 'create', 'avd', '--name', 'titanium', '--target', '2', '--force'])
-			
-		# create a 10M SDCard for the project
-		if not os.path.exists(sdcard):
-			mksdcard = os.path.join(self.sdk,'tools','mksdcard')
+			android = os.path.join(self.sdk,'tools','android')
 			if platform.system() == "Windows":
-				mksdcard += ".exe"
+				android += ".bat"
+			avd_output = run([android,'list','avd'])
+		
+			sdcard = os.path.join(home_dir,'android.sdcard')
+		
+			# only create the avd if we can't find it
+			if len(re.findall('titanium\.avd',avd_output))==0:
+				# create a special AVD for the project
+				inputgen = os.path.join(template_dir,'input.py')
+				pipe([sys.executable, inputgen], [android, '--verbose', 'create', 'avd', '--name', 'titanium', '--target', '2', '--force'])
 			
-			run([mksdcard, '10M', sdcard])
+			# create a 10M SDCard for the project
+			if not os.path.exists(sdcard):
+				mksdcard = os.path.join(self.sdk,'tools','mksdcard')
+				if platform.system() == "Windows":
+					mksdcard += ".exe"
 			
-			#cmd = "\"%s\" 10M \"%s\"" %(mksdcard,sdcard)
-			#print cmd
-			#os.system(cmd)
+				run([mksdcard, '10M', sdcard])
+			
+				#cmd = "\"%s\" 10M \"%s\"" %(mksdcard,sdcard)
+				#print cmd
+				#os.system(cmd)
 		
 
 if __name__ == '__main__':
