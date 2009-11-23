@@ -375,6 +375,10 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 		return;
 	}
 	
+	//NOTE: this code will ensure that the SILENCE switch is respected when movie plays
+	UInt32 sessionCategory = kAudioSessionCategory_SoloAmbientSound;
+	AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(sessionCategory), &sessionCategory);
+	
 	[self setCurrentMovieWrapper:[mediaDictionary objectForKey:token]];
 	currentMovie = [currentMovieWrapper newMoviePlayerController];
 	if (currentMovie == nil) return;
