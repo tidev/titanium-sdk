@@ -57,6 +57,8 @@ NSUInteger lastHeadingID = 0;
 
 - (void) takeDetails: (NSDictionary *) detailsDict;
 {
+	highAccuracy = YES;
+	
 	id highAccObj = [detailsDict objectForKey:@"enableHighAccuracy"];
 	if ([highAccObj respondsToSelector:@selector(boolValue)]){
 		highAccuracy = [highAccObj boolValue];
@@ -307,6 +309,7 @@ NSUInteger lastHeadingID = 0;
 }
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation;
 {	
+	NSLog(@"[DEBUG] GEO RECEIVED = %@", newLocation);
 
 	// only send location events every so often to the JS layer since they come very fast and often
 	if ((lastEvent != nil) && ((-[lastEvent timeIntervalSinceNow]) < MAX_DELAY_BEFORE_TRANSMIT_LOCATION_EVENT_IN_SEC))
