@@ -18,6 +18,19 @@ Ti.UI.SearchBar = function(proxy)
 		return Ti.Method.dispatch(this._proxy, "getValue");
 	}
 
+	/**
+	 * @tiapi(method=true,name=UI.SearchBar.focus,since=0.8) Bring focus to a control. Does not auto display soft-keyboard
+	 */
+	this.focus = function() {
+		Ti.Method.dispatch(this._proxy, "focus");
+	};
+	/**
+	 * @tiapi(method=true,name=UI.SearchBar.blur,since=0.8) Closed soft keyboard if it's display. Android doesn't seem to actually clear focus for Text controls.
+	 */
+	this.blur = function() {
+		Ti.Method.dispatch(this._proxy, "blur");
+	};
+
 	this.addEventListener = function(event, listener) {
 		return Ti.Method.dispatch(this._proxy, "addEventListener", event, registerCallback(this, listener));
 	};

@@ -27,4 +27,6 @@ public interface ITitaniumTableView
 
 	// New in 0.8.0
 	public void scrollToIndex(int index, String options);
+	public void setFilterAttribute(String attribute);
+	public void filterView(String filterText);
 }

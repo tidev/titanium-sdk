@@ -109,33 +109,7 @@ public class TitaniumButton extends TitaniumBaseNativeControl
 			TitaniumUIHelper.styleText(b, fontSize, fontWeight);
 
 			if (backgroundImage != null || backgroundSelectedImage != null || backgroundFocusedImage != null) {
-/*				TitaniumFileHelper tfh = new TitaniumFileHelper(context);
-				StateListDrawable bd = new StateListDrawable();
-				if (backgroundFocusedImage != null) {
-					Drawable d = tfh.loadDrawable(backgroundFocusedImage, false, true);
-					if (d != null) {
-						int[] ss = { android.R.attr.state_focused };
-						bd.addState(ss, d);
-					}
-				}
-
-				if (backgroundSelectedImage != null) {
-					Drawable d = tfh.loadDrawable(backgroundSelectedImage, false, true);
-					if (d != null) {
-						int[] ss = { android.R.attr.state_pressed };
-						bd.addState(ss, d);
-						int[] ss1 = {android.R.attr.state_focused, android.R.attr.state_pressed };
-						bd.addState(ss1, d);
-					}
-				}
-				if (backgroundImage != null) {
-					Drawable d = tfh.loadDrawable(backgroundImage, false, true);
-					if (d != null) {
-						int[] stateSet = { android.R.attr.state_enabled };
-						bd.addState(stateSet, d);
-					}
-				}
-*/				StateListDrawable bd = TitaniumUIHelper.buildBackgroundDrawable(context, backgroundImage, backgroundSelectedImage, backgroundFocusedImage);
+				StateListDrawable bd = TitaniumUIHelper.buildBackgroundDrawable(context, backgroundColor, null, backgroundImage, backgroundSelectedImage, backgroundFocusedImage);
 				b.setBackgroundDrawable(bd);
 			}
 			control = b;

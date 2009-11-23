@@ -815,6 +815,16 @@ var TableView = function(proxy) {
 			this.proxy.setFontSize(fontSize);
 		}
 	};
+	this.setFilterAttribute = function(attribute) {
+		if (!Ti.isUndefined(attribute)) {
+			this.proxy.setFilterAttribute(attribute);
+		}
+	};
+	this.filterView = function(filterText) {
+		if (!Ti.isUndefined(filterText)) {
+			this.proxy.filterView(filterText);
+		}
+	};
 	this.setCallback = function(callback) {
 		this._callback = callback;
 		this.proxy.setCallback(registerCallback(this, this._callback));
@@ -1794,6 +1804,9 @@ Ti.UI = {
 		 var tv = new TableView(Ti.uiProxy.createTableView());
 		 if (Ti.isUndefined(options)) {
 			 options = {};
+		 }
+		 if (!Ti.isUndefined(options.search)) {
+			 options.searchInstance = options.search._proxy;
 		 }
 		 tv.setCallback(callback);
 		 tv.proxy.processOptions(Ti.JSON.stringify(options));
