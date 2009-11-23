@@ -101,30 +101,56 @@
 		   		{type:'text', left:50,  name:'title', fontSize:18, fontWeight:'bold', color:'#0e0500 ', top:12}
 		]};
 
-		// main table view data
-		var mainData = [
+		if (Titanium.Platform.name == 'android')
+		{
+			// main table view data
+			var mainData = [
 
-			{rowHeight:10},	// create an empty row to give it space up top..
+				{rowHeight:10},	// create an empty row to give it space up top..
 
-			{title:'Show Picker',backgroundImage:'images/tableview/off_1.png', 
-					selectedBackgroundImage:'images/tableview/on_1.png'},
+				{title:'Show Picker',backgroundImage:'images/tableview/off_1.png', 
+						selectedBackgroundImage:'images/tableview/on_1.png'},
 
-			{title:'Show Picker (no detail)',backgroundImage:'images/tableview/off_2.png',
-					selectedBackgroundImage:'images/tableview/on_2.png'},
+				{title:'Show Picker (no detail)',backgroundImage:'images/tableview/off_2.png',
+						selectedBackgroundImage:'images/tableview/on_2.png'},
 
-			{title:'Add Contact',backgroundImage:'images/tableview/off_3.png',
-					selectedBackgroundImage:'images/tableview/on_3.png'},
+				{title:'Add Contact',backgroundImage:'images/tableview/off_3.png',
+						selectedBackgroundImage:'images/tableview/on_3.png'},
 
-			{title:'View Contacts',backgroundImage:'images/tableview/off_4.png',
-				selectedBackgroundImage:'images/tableview/on_4.png'},
+				{title:'View Contacts',backgroundImage:'images/tableview/off_4.png',
+					selectedBackgroundImage:'images/tableview/on_4.png'}
 
-			{title:'Remove Contact',backgroundImage:'images/tableview/off_1.png',
-					selectedBackgroundImage:'images/tableview/on_1.png'},
+			];
+			
+		}
+		else
+		{
+			// main table view data
+			var mainData = [
 
-			{title:'Update Contact',backgroundImage:'images/tableview/off_2.png',
-					selectedBackgroundImage:'images/tableview/on_2.png'},
+				{rowHeight:10},	// create an empty row to give it space up top..
 
-		];
+				{title:'Show Picker',backgroundImage:'images/tableview/off_1.png', 
+						selectedBackgroundImage:'images/tableview/on_1.png'},
+
+				{title:'Show Picker (no detail)',backgroundImage:'images/tableview/off_2.png',
+						selectedBackgroundImage:'images/tableview/on_2.png'},
+
+				{title:'Add Contact',backgroundImage:'images/tableview/off_3.png',
+						selectedBackgroundImage:'images/tableview/on_3.png'},
+
+				{title:'View Contacts',backgroundImage:'images/tableview/off_4.png',
+					selectedBackgroundImage:'images/tableview/on_4.png'},
+
+				{title:'Remove Contact',backgroundImage:'images/tableview/off_1.png',
+						selectedBackgroundImage:'images/tableview/on_1.png'},
+
+				{title:'Update Contact',backgroundImage:'images/tableview/off_2.png',
+						selectedBackgroundImage:'images/tableview/on_2.png'},
+
+			];
+			
+		}
 
 		// main table view
 		var mainView = Titanium.UI.createTableView({

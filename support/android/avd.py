@@ -5,6 +5,10 @@
 #
 import os, subprocess, sys, run
 import run
+def dequote(s):
+    if s[0:1] == '"':
+        return s[1:-1]
+    return s
 
 def get_avds(sdk):
 	avds = []
@@ -37,5 +41,5 @@ if __name__ == '__main__':
 		print "Usage: %s <directory>" % os.path.basename(sys.argv[0])
 		sys.exit(1)
 
-	print get_avds(os.path.expanduser(sys.argv[1]))
+	print get_avds(os.path.expanduser(dequote(sys.argv[1])))
 
