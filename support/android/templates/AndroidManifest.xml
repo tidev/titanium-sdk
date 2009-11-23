@@ -36,6 +36,11 @@
     		android:configChanges="keyboardHidden|orientation"
     		android:launchMode="singleTask"
     	/>
+        <activity 
+			android:name="org.appcelerator.titanium.module.facebook.FBActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+        />
+
     	<uses-library android:name="com.google.android.maps" />
 <!--
 		<provider

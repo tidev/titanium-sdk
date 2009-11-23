@@ -65,6 +65,11 @@ for f in Glob('src/org/appcelerator/titanium/res/drawable/*',strings=True):
 	t = env.Command(os.path.join('bin/classes/org/appcelerator/titanium/res/drawable', fname), f, Copy("bin/classes/org/appcelerator/titanium/res/drawable", "$SOURCE"))
 	targets.append(t)
 
+for f in Glob('src/org/appcelerator/titanium/module/facebook/resources/*',strings=True):
+	fname = os.path.basename(str(f))
+	t = env.Command(os.path.join('bin/classes/org/appcelerator/titanium/module/facebook/resources', fname), f, Copy("bin/classes/org/appcelerator/titanium/module/facebook/resources", "$SOURCE"))
+	targets.append(t)
+
 android_sdk = '/opt/android-sdk'
 if platform.system() == 'Windows':
 	android_sdk = 'C:\\android-sdk'

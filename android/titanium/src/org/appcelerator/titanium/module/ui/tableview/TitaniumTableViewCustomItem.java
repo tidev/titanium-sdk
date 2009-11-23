@@ -209,13 +209,6 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 			int rowHeight = defaults.resolveIntOption("rowHeight", data, template);
 			setMinimumHeight(rowHeight);
 
-			String rowValue = null;
-
-			rowValue = defaults.resolveOption("selectedBackgroundColor", data, template);
-			if (rowValue != null) {
-
-			}
-
 			providesSelector = false;
 
 			int displayedItems = 0;
@@ -309,11 +302,13 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 				}
 			}
 			if (displayedItems > 0) {
+				String backgroundColor = defaults.resolveOption("backgroundColor", data, template);
+				String backgroundSelectedColor = defaults.resolveOption("selectedBackgroundColor", data, template);
 				String backgroundImage = defaults.resolveOption("backgroundImage", data, template);
 				String backgroundSelectedImage = defaults.resolveOption("selectedBackgroundImage", data, template);
 				String backgroundFocusedImage = defaults.resolveOption("focusedBackgroundImage", data, template);
 
-				StateListDrawable sld = TitaniumUIHelper.buildBackgroundDrawable(getContext(), backgroundImage, backgroundSelectedImage, backgroundFocusedImage);
+				StateListDrawable sld = TitaniumUIHelper.buildBackgroundDrawable(getContext(), backgroundColor, backgroundSelectedColor, backgroundImage, backgroundSelectedImage, backgroundFocusedImage);
 				if (sld != null) {
 					setBackgroundDrawable(sld);
 					providesSelector = true;

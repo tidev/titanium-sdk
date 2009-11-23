@@ -270,3 +270,39 @@ Ti.Map={STANDARD_TYPE:1,SATELLITE_TYPE:2,HYBRID_TYPE:2,ANNOTATION_RED:1,ANNOTATI
 {this._proxy=proxy;this.getKey=function(){return Ti.Method.dispatch(this._proxy,"getKey");};this.processOptions=function(options){Ti.Method.dispatch(this._proxy,"processOptions",Ti.JSON.stringify(options));};this.setLocation=function(region){if(!Ti.isUndefined(region)){Ti.Method.dispatch(this._proxy,"setLocation",region);}};this.setMapType=function(type){if(!Ti.isUndefined(type)){Ti.Method.dispatch(this._proxy,"setMapType",type);}};this.setZoomEnabled=function(enabled){if(!Ti.isUndefined(enabled)){Ti.Method.dipatch(this._proxy,"setZoomEnabled",enabled);}};this.setScrollEnabled=function(enabled){if(!Ti.isUndefined(enabled)){Ti.Method.dipatch(this._proxy,"setScrollEnabled",enabled);}};this.zoom=function(delta){if(!Ti.isUndefined(delta)){Ti.Method.dispatch(this._proxy,"changeZoomLevel",delta);}}
 this.addEventListener=function(event,listener){return Ti.Method.dispatch(this._proxy,"addEventListener",event,registerCallback(this,listener));};this.removeEventListener=function(event,listenerId){Ti.Method.dispatch(this._proxy,"removeEventListener",event,listenerId);};};Ti.Map.createView=function(options){if(Ti.isUndefined(options)){options={};}
 var mv=new Ti.Map.MapView(Ti.Method.dispatch("TitaniumMap","createMapView"));mv.processOptions(options);return mv;};
+Ti.facebookProxy=window.TitaniumFacebook;Ti.Facebook={setup:function(key,secret,callback)
+{Ti.facebookProxy.setup(key,secret,registerCallback(this,callback));},isLoggedIn:function()
+{return Ti.facebookProxy.isLoggedIn();},getUserId:function()
+{return Ti.facebookProxy.getUserId();},query:function(fql,callback)
+{Ti.facebookProxy.query(fql,registerOneShot(this,callback));},execute:function(method,params,data,callback)
+{Ti.facebookProxy.execute(method,params,data,registerOneShot(this,callback));},login:function(callback)
+{Ti.facebookProxy.login(callback?registerOneShot(this,callback):null);},logout:function(callback)
+{Ti.facebookProxy.logout(callback?registerOneShot(this,callback):null);},hasPermission:function(permission)
+{return Ti.facebookProxy.hasPermission(permission);},requestPermission:function(permission,callback)
+{Ti.facebookProxy.requestPermission(permission,registerOneShot(this,callback));},publishStream:function(title,data,target,callback)
+{var o=transformObjectValue(data,null);var json=o?Ti.JSON.stringify(o):null;Ti.facebookProxy.publishStream(title,json,target,callback?registerOneShot(this,callback):null);},publishFeed:function(templateBundleId,data,body,callback)
+{var o=transformObjectValue(data,null);var json=o?Ti.JSON.stringify(o):null;var tid=typeof(templateBundleId)=='string'?parseLong(templateBundleId):templateBundleId;Ti.facebookProxy.publishFeed(tid,json,body,callback?registerOneShot(this,callback):null);},createLoginButton:function(props)
+{var el=document.getElementById(props.id);el.id="ti_fbconnect_button";var btn=document.createElement('button');var self=this;var listeners={};function updateButton(state)
+{if(state)
+{btn.innerHTML=state?'Logout':'Login';}
+else
+{btn.innerHTML=self.isLoggedIn()?'Logout':'Login';}};function fire(name,evt)
+{var l=listeners[name];if(l&&l.length>0)
+{for(var c=0;c<l.length;c++)
+{l[c].call(self,evt);}}};function stateChange(evt)
+{if(self.isLoggedIn())
+{updateButton(true);fire('login',evt);}
+else
+{updateButton(false);fire('logout',evt);}};btn.onclick=function()
+{if(self.isLoggedIn())
+{self.logout(stateChange);}
+else
+{self.login(stateChange);}};updateButton();var style=props.style;el.appendChild(btn);this.setup(props.apikey,props.secret,stateChange);var obj={addEventListener:function(name,cb)
+{var l=listeners[name];if(l==null)
+{listeners[name]=[cb];}
+else
+{l.push(cb);}},removeEventListener:function(name,cb)
+{var l=listeners[name];if(l)
+{for(var c=0;c<l.length;c++)
+{if(cb==l[c])
+{l.splice(1,c);break;}}}}};return obj;}};

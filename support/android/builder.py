@@ -10,6 +10,8 @@ from os.path import splitext
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'..'))
 from tiapp import *
+from mako.template import Template
+from android import Android
 
 def dequote(s):
     if s[0:1] == '"':
@@ -60,6 +62,7 @@ class Builder(object):
 
 	def wait_for_device(self,type):
 		print "[DEBUG] Waiting for device..."
+		print "\"%s\" -%s wait-for-device" % (self.adb,type)
 		os.system("\"%s\" -%s wait-for-device" % (self.adb,type))
 		print "[DEBUG] Device connected..."
 	
@@ -220,6 +223,10 @@ class Builder(object):
 			if os.path.exists(iconpath):
 				shutil.copy(iconpath,existingicon)
 			
+			# we re-run the create each time through in case any of our key files
+			# have changed
+			android = Android(self.name,self.app_id,self.sdk)
+			android.create(os.path.abspath(os.path.join(self.top_dir,'..')),True)
 
 			src_dir = os.path.join(self.project_dir, 'src')
 			android_manifest = os.path.join(self.project_dir, 'AndroidManifest.xml')

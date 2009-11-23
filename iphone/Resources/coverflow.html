@@ -10,6 +10,13 @@ window.onload = function()
 	
 	Titanium.UI.currentWindow.addView(view);
 	Titanium.UI.currentWindow.showView(view);
+	
+	Titanium.Geolocation.watchPosition(
+		function(pos)
+		{
+			Titanium.API.info("watch geo received = "+Ti._JSON(pos));
+		}
+	);
 };
 </script>
 </head>

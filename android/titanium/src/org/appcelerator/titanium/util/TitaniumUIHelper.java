@@ -17,7 +17,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Process;
@@ -179,55 +181,80 @@ public class TitaniumUIHelper
 	}
 
 	public static StateListDrawable buildBackgroundDrawable(Context context,
+			String color,
+			String selectedColor,
 			String image,
 			String selectedImage,
 			String focusedImage)
 	{
 		StateListDrawable sld = null;
 
-		if (image != null || selectedImage != null || focusedImage != null) {
-			sld = new StateListDrawable();
-			TitaniumFileHelper tfh = new TitaniumFileHelper(context);
+		Drawable bgDrawable = null;
+		Drawable bgSelectedDrawable = null;
+		Drawable bgFocusedDrawable = null;
 
-			if (focusedImage == null) {
-				focusedImage = selectedImage;
+		TitaniumFileHelper tfh = new TitaniumFileHelper(context);
+
+		if (image != null) {
+			bgDrawable = tfh.loadDrawable(image, false, true);
+		} else if (color != null) {
+			Bitmap b = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+			int c = TitaniumColorHelper.parseColor(color);
+			b.eraseColor(c);
+			bgDrawable = new BitmapDrawable(b);
+		}
+
+		if (selectedImage != null) {
+			bgSelectedDrawable = tfh.loadDrawable(selectedImage, false, true);
+		} else if (selectedColor != null) {
+			Bitmap b = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+			int c = TitaniumColorHelper.parseColor(selectedColor);
+			b.eraseColor(c);
+			bgSelectedDrawable = new BitmapDrawable(b);
+		}
+
+		if (focusedImage != null) {
+			bgFocusedDrawable = tfh.loadDrawable(focusedImage, false, true);
+		} else {
+			if (selectedImage != null) {
+				bgFocusedDrawable = tfh.loadDrawable(selectedImage, false, true);
+			} else if (selectedColor != null) {
+				Bitmap b = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+				int c = TitaniumColorHelper.parseColor(selectedColor);
+				b.eraseColor(c);
+				bgFocusedDrawable = new BitmapDrawable(b);
+			}
+		}
+
+		if (bgDrawable != null || bgSelectedDrawable != null || bgFocusedDrawable != null) {
+			sld = new StateListDrawable();
+
+			if (bgFocusedDrawable != null) {
+				int[] ss = {
+					android.R.attr.state_focused,
+					android.R.attr.state_window_focused,
+					android.R.attr.state_enabled
+				};
+				sld.addState(ss, bgFocusedDrawable);
 			}
 
-			if (focusedImage != null) {
-				Drawable d = tfh.loadDrawable(focusedImage, false, true);
-				if (d != null) {
-					int[] ss = {
+			if (bgSelectedDrawable != null) {
+				int[] ss = { android.R.attr.state_pressed };
+				sld.addState(ss, bgSelectedDrawable);
+				int[] ss1 = {
 						android.R.attr.state_focused,
 						android.R.attr.state_window_focused,
-						android.R.attr.state_enabled
-					};
-					sld.addState(ss, d);
-				}
+						android.R.attr.state_enabled,
+						android.R.attr.state_pressed
+				};
+				sld.addState(ss1, bgSelectedDrawable);
+				int[] ss2 = { android.R.attr.state_selected };
+				sld.addState(ss2, bgSelectedDrawable);
 			}
 
-			if (selectedImage != null) {
-				Drawable d = tfh.loadDrawable(selectedImage, false, true);
-				if (d != null) {
-					int[] ss = { android.R.attr.state_pressed };
-					sld.addState(ss, d);
-					int[] ss1 = {
-							android.R.attr.state_focused,
-							android.R.attr.state_window_focused,
-							android.R.attr.state_enabled,
-							android.R.attr.state_pressed
-					};
-					sld.addState(ss1, d);
-					int[] ss2 = { android.R.attr.state_selected };
-					sld.addState(ss2, d);
-				}
-			}
-
-			if (image != null) {
-				Drawable d = tfh.loadDrawable(image, false, true);
-				if (d != null) {
-					int[] stateSet = { android.R.attr.state_enabled };
-					sld.addState(stateSet, d);
-				}
+			if (bgDrawable != null) {
+				int[] stateSet = { android.R.attr.state_enabled };
+				sld.addState(stateSet, bgDrawable);
 			}
 		}
 

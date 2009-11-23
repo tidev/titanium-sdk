@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package com.nolanwright.kitchensink;
+package com.appcelerator.titanium2;
 
 public final class R {
     public static final class attr {
