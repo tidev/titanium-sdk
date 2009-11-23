@@ -174,11 +174,7 @@
 				{
 					if (Titanium.Platform.name == 'android')
 					{
-						Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViews()[0],{
-							animated:true,
-							animationStyle:Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT,
-							animationDuration:1000
-						});
+						Titanium.UI.createAlertDialog({title:'Contacts',message:'Add not supported on Android'}).show();
 					}
 					else
 					{
@@ -283,13 +279,13 @@
 		var lnData = {width:100,hintText:'last name'};
 		var eData = {width:100,hintText:'email'};
 
-		// if (Titanium.Platform.name != 'android')
-		// {
-		// 	fnData = {id:'first',width:200,hintText:'first name'};
-		// 	lnData = {id:'last',width:200,hintText:'last name'};
-		// 	eData = {id:'email',width:200,hintText:'email'};
-		// 	
-		// }
+		if (Titanium.Platform.name == 'android')
+		{
+			fnData = {id:'first',width:200,hintText:'first name'};
+			lnData = {id:'last',width:200,hintText:'last name'};
+			eData = {id:'email',width:200,hintText:'email'};
+			
+		}
 
 		var firstName = Titanium.UI.createTextField(fnData);
 		firstName.addEventListener('return',function(e)
@@ -416,10 +412,33 @@
 			Titanium.UI.createAlertDialog({title:'Contacts',message:'Contact Added.'}).show();
 		};
 		
+		// handlers for android buttons
+		document.getElementById('save').onclick = function()
+		{
+			updateContact();
+		};
+		document.getElementById('back').onclick = function()
+		{
+			// go back to main view
+			Titanium.UI.currentWindow.showView(mainView,{
+				animated:true,
+				animationStyle:Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT,
+				animationDuration:1000
+			});
+			
+		};
+		
 	};
 	</script>
 </head>
 <body  style="font-family:'Helvetica Neue'">
-Add/Update Contacts not supported for Android 
+<div style="height:50px;width:200px" id="first"></div>
+<div style="height:50px;width:200px" id="last"></div>
+<div style="height:50px;width:200px" id="email"></div>
+<button style="font-size:18px" id="save">Save Contact</button>
+<button style="font-size:18px" id="back">Go Back</button>
+
+
+
 </body>
 </html>

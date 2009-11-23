@@ -5,10 +5,10 @@
 		var composite = Titanium.UI.createCompositeView();
 
 		var template = {
+			selectedBackgroundColor:'#ffffff',
 		 layout:[
-		   {type:'text', top:-15, left:20,  name:'title', fontSize:16, fontFamily:'Marker Felt'},
-		   {type:'text', top:0, left:20,  name:'title2', fontSize:16, fontFamily:'Marker Felt'},
-		   {type:'text', top:20, left:20,  name:'description', fontSize:12, fontFamily:'Marker Felt', xcolor:'#999', xselectedColor:'#111'},
+		   {type:'text', top:5, left:20,  name:'title', fontSize:16, fontFamily:'Marker Felt', color:'#111'},
+		   {type:'text', top:25, left:20,  name:'description', fontSize:12, fontFamily:'Marker Felt', color:'#999', selectedColor:'#111'},
 		   {type:'image', right:15, name:'image', width: 26, height: 28 }
 		]};
 		
@@ -24,18 +24,18 @@
 				hasChild:false
 			},
 			{
-				title2:'Tomatoes',
+				title:'Tomatoes',
 				image:'images/rightbtn.png',
 				hasChild:false,
 			},
 			{
 				header:'Dairy',
-				title2:'Milk',
+				title:'Milk',
 				image:'images/rightbtn.png',
 				hasChild:false
 			},
 			{
-				title2:'Mozzarella Cheese',
+				title:'Mozzarella Cheese',
 				image:'images/rightbtn.png',
 				hasChild:false
 			},

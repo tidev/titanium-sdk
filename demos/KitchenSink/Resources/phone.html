@@ -135,45 +135,48 @@
 			}
 			case 2:
 			{
-				var dialog = Titanium.UI.createOptionDialog();
-
-				// set button titles
-				dialog.setOptions(["Record Video","Take Picture","Test Both","Cancel"]);
-
-				// set index for cancel (IPHONE ONLY)
-				dialog.setCancel(3);
-
-				// set title
-				dialog.setTitle('Camera Options');
-
-				// add event listener
-				dialog.addEventListener('click',function(e)
+				if(Titanium.Platform.name=="android")
 				{
-					Titanium.API.info("clicked ="+e.index);
+					Titanium.Analytics.featureEvent('phone.camera.show_camera');
+					showCamera();
+				}
+				else
+				{
+					
+					var dialog = Titanium.UI.createOptionDialog();
 
-					switch(e.index)
+					// set button titles
+					dialog.setOptions(["Record Video","Take Picture","Cancel"]);
+
+					// set index for cancel (IPHONE ONLY)
+					dialog.setCancel(3);
+
+					// set title
+					dialog.setTitle('Camera Options');
+
+					// add event listener
+					dialog.addEventListener('click',function(e)
 					{
-						case 0:
+						switch(e.index)
 						{
-							Titanium.Analytics.featureEvent('phone.camera.record_video');
-							recordVideo();
-							break;
+							case 0:
+							{
+								Titanium.Analytics.featureEvent('phone.camera.record_video');
+								recordVideo();
+								break;
+							}
+							case 1:
+							{
+								Titanium.Analytics.featureEvent('phone.camera.show_camera');
+								showCamera();
+								break;
+							}
 						}
-						case 1:
-						{
-							Titanium.Analytics.featureEvent('phone.camera.show_camera');
-							showCamera();
-							break;
-						}
-						case 2:
-						{
-							//FIXME
-						}
-					}
-				});
+					});
 
-				//show dialog
-				dialog.show();
+					//show dialog
+					dialog.show();
+				}
 
 				break;
 			}
