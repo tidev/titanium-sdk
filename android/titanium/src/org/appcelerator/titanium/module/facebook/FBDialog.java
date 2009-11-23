@@ -135,26 +135,6 @@ public class FBDialog extends FrameLayout
         return new URL(sb.toString());
     }
 
-    /*
-    private String generatePostBody(Map<String, String> params)
-    {
-        StringBuilder body = new StringBuilder();
-        StringBuilder endLine = new StringBuilder("\r\n--").append(
-                kStringBoundary).append("\r\n");
-
-        body.append("--").append(kStringBoundary).append("\r\n");
-
-        for (Entry<String, String> entry : params.entrySet())
-        {
-            body.append("Content-Disposition: form-data; name=\"").append(
-                    entry.getKey()).append("\"\r\n\r\n");
-            body.append(CcUtil.encode(entry.getValue()));
-            body.append(endLine);
-        }
-
-        return body.toString();
-    }*/
-
     private void postDismissCleanup()
     {
         progressDialog.dismiss();
