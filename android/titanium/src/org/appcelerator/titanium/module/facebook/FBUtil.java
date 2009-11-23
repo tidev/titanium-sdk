@@ -48,7 +48,7 @@ public class FBUtil
         String result = target.toString();
         try 
         {
-            result = URLEncoder.encode(result, "UTF8");
+            result = URLEncoder.encode(result, "UTF-8");
         } 
         catch (UnsupportedEncodingException ex) 
         {
@@ -58,11 +58,12 @@ public class FBUtil
     }
     public static StringBuilder getResponse(InputStream data) throws IOException 
     {
-        Reader in = new BufferedReader(new InputStreamReader(data, "UTF-8"));
+        Reader in = new BufferedReader(new InputStreamReader(data, "UTF-8"),8000);
         StringBuilder buffer = new StringBuilder();
         char[] buf = new char[4000];
         int l = 0;
-        while (l >= 0) {
+        while (l >= 0) 
+		  {
             buffer.append(buf, 0, l);
             l = in.read(buf);
         }

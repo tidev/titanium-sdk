@@ -98,16 +98,19 @@ public class FBLoginDialog extends FBDialog
     {
         try
         {
-            String jquery = FBUtil.getContent(getClass(), "org/appcelerator/titanium/module/facebook/resources/jquery.js");
-            String patch = FBUtil.getContent(getClass(), "org/appcelerator/titanium/module/facebook/resources/loginpatch.js");
-            
-            return content + "<script>" + jquery + "\n" + patch + "</script>";
+				if (contentType!=null && contentType.indexOf("html")!=-1)
+				{
+	            String jquery = FBUtil.getContent(getClass(), "org/appcelerator/titanium/module/facebook/resources/jquery.js");
+	            String patch = FBUtil.getContent(getClass(), "org/appcelerator/titanium/module/facebook/resources/loginpatch.js");
+
+	            return content + "<script>" + jquery + "\n" + patch + "</script>";
+				}
         }
         catch (IOException e)
         {   
             Log.e(LOG,"Error loading resources",e); 
-            return content;
         }
+        return content;
     }
 
     @Override

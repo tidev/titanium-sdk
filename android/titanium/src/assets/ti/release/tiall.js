@@ -283,17 +283,17 @@ Ti.facebookProxy=window.TitaniumFacebook;Ti.Facebook={setup:function(key,secret,
 {var o=transformObjectValue(data,null);var json=o?Ti.JSON.stringify(o):null;Ti.facebookProxy.publishStream(title,json,target,callback?registerOneShot(this,callback):null);},publishFeed:function(templateBundleId,data,body,callback)
 {var o=transformObjectValue(data,null);var json=o?Ti.JSON.stringify(o):null;var tid=typeof(templateBundleId)=='string'?parseLong(templateBundleId):templateBundleId;Ti.facebookProxy.publishFeed(tid,json,body,callback?registerOneShot(this,callback):null);},createLoginButton:function(props)
 {var el=document.getElementById(props.id);el.id="ti_fbconnect_button";var btn=document.createElement('button');var self=this;var listeners={};function updateButton(state)
-{if(state)
+{Ti.API.debug("Facebook updateButton called with "+state);if(state)
 {btn.innerHTML=state?'Logout':'Login';}
 else
 {btn.innerHTML=self.isLoggedIn()?'Logout':'Login';}};function fire(name,evt)
-{var l=listeners[name];if(l&&l.length>0)
+{Ti.API.debug("Facebook fire called with "+name);var l=listeners[name];if(l&&l.length>0)
 {for(var c=0;c<l.length;c++)
 {l[c].call(self,evt);}}};function stateChange(evt)
 {if(self.isLoggedIn())
-{updateButton(true);fire('login',evt);}
+{Ti.API.debug("Facebook state changed - logged in");updateButton(true);fire('login',evt);}
 else
-{updateButton(false);fire('logout',evt);}};btn.onclick=function()
+{Ti.API.debug("Facebook state changed - logged out");updateButton(false);fire('logout',evt);}};btn.onclick=function()
 {if(self.isLoggedIn())
 {self.logout(stateChange);}
 else

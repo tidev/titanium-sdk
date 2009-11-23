@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.appcelerator.titanium.config.TitaniumAppInfo;
+
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,7 +39,7 @@ public class FBRequest
         
     public static String API_VERSION = "1.0";
     public static String API_FORMAT = "JSON";
-    public static String USER_AGENT = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_1_2 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7D11 Safari/528.16 (FacebookConnect for Appcelerator Titanium)";
+    public static String USER_AGENT = TitaniumAppInfo.PROP_NETWORK_USER_AGENT;
     public static String STRING_BOUNDARY = "3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
     public static String ENCODING = "UTF-8"; 
     public static final long TIMEOUT_INTERVAL_IN_SEC = 180;
@@ -287,7 +289,7 @@ public class FBRequest
         {
             Object result = null;
             
-            if (contentType.indexOf("/json")!=-1)
+            if (contentType!=null && contentType.indexOf("/json")!=-1)
             {
                 result = parseJSONResponse(data);
                 // check whether the result is an error
@@ -324,6 +326,11 @@ public class FBRequest
 
     public void connect() throws IOException 
     {
+	     if (connection!=null)
+		  {
+				this.cancel();
+		  }
+		
         delegate.requestLoading(this);
 
         String url = (method != null ? this.url : generateGetURL());
@@ -434,7 +441,7 @@ public class FBRequest
         }
 
         connectionDidFinishLoading(returnedContentType);
-
+		  connection = null;
         timestamp = new Date();
     }
 
@@ -563,6 +570,8 @@ public class FBRequest
     {
         if (connection != null) 
         {
+			   Log.d(LOG,"cancelling");
+			
             try
             {
                 connection.disconnect();

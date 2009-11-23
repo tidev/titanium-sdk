@@ -156,7 +156,7 @@ public class TitaniumActivity extends Activity
          }
 
 		resultHandlers = new HashMap<Integer, TitaniumResultHandler>();
-		uniqueResultCodeAllocator = new AtomicInteger();
+		uniqueResultCodeAllocator = new AtomicInteger(1); // start with non-zero
 
         loadOnPageEnd = true;
 

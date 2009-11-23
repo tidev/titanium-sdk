@@ -78,6 +78,7 @@ Ti.Facebook = {
 		var listeners = {};
 		function updateButton(state)
 		{
+			Ti.API.debug("Facebook updateButton called with "+state);
 			if (state)
 			{
 				btn.innerHTML = state ? 'Logout' : 'Login';
@@ -89,6 +90,7 @@ Ti.Facebook = {
 		};
 		function fire(name,evt)
 		{
+			Ti.API.debug("Facebook fire called with "+name);
 			var l = listeners[name];
 			if (l && l.length > 0)
 			{
@@ -102,11 +104,13 @@ Ti.Facebook = {
 		{
 			if (self.isLoggedIn())
 			{
+				Ti.API.debug("Facebook state changed - logged in");
 				updateButton(true);
 				fire('login',evt);
 			}
 			else
 			{
+				Ti.API.debug("Facebook state changed - logged out");
 				updateButton(false);
 				fire('logout',evt);
 			}

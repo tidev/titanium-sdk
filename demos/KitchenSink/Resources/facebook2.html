@@ -1,0 +1,88 @@
+<html>
+<head>
+	<title>Facebook Connect</title>
+	<script>
+		window.onload = function()
+		{
+			function loggedIn()
+			{
+				document.getElementById('loggedin').style.display='none';
+				document.getElementById('loggedout').style.display='block';
+				
+				Titanium.Facebook.query("SELECT uid, name, pic_square, status FROM user where uid IN (SELECT uid2 FROM friend WHERE uid1 = " + Titanium.Facebook.getUserId() + ") order by last_name",function(r)
+				{
+					Titanium.API.info("query returned "+Titanium._JSON(r));
+				});
+
+				// if (!Titanium.Facebook.hasPermission("read_stream"))
+				// {
+				// 	Titanium.Facebook.requestPermission("read_stream",function(evt)
+				// 	{
+				// 		if (evt.success)
+				// 		{
+				// 			fetchStream();
+				// 		}
+				// 	});
+				// }
+				// else
+				// {
+				// 	fetchStream();
+				// }
+			}
+
+			function loggedOut()
+			{
+				document.getElementById('loggedin').style.display='block';
+				document.getElementById('loggedout').style.display='none';
+			}
+			
+			var button = Titanium.Facebook.createLoginButton({
+				'id':'fb',
+				'style':'wide',
+				'apikey':'6d6537bbec4526347a6af5d4510e5091',
+				'secret':'f5069ee17cbf7bd11feb38e5317a388b'
+			});
+			button.addEventListener('login',loggedIn);
+			button.addEventListener('logout',loggedOut);
+
+			if (Titanium.Facebook.isLoggedIn())
+			{
+				loggedIn();
+			}
+			else
+			{
+				loggedOut();
+			}
+		};
+	</script>
+	<style>
+		body
+		{
+			background-color:#aaa;
+			font-family:"Helvetica Neue";
+		}
+		#loggedin, #loggedout
+		{
+			margin-top:80px;
+			text-align:center;
+			font-weight:bold;
+			font-size:15px;
+		}
+		#fb
+		{
+			margin-top:80px;
+			text-align:center;
+		}
+	</style>
+</head>
+<body>
+	<div id="loggedin" style="display:none">
+		This is a demo that uses Facebook Connect. Click the button to login using your 
+		facebook credentials.
+	</div>
+	<div id="loggedout" style="display:none">
+		This is a demo that uses Facebook Connect. Click the button to logout of Facebook.
+	</div>
+	<div id="fb"></div>
+</body>
+</html>

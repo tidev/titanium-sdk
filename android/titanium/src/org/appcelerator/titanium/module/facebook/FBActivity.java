@@ -19,6 +19,8 @@ public class FBActivity extends Activity
 {
     private static final Map<String,FBActivityDelegate> activities = new HashMap<String,FBActivityDelegate>();
     
+	 private FBDialog dialog;
+	
     public static void registerActivity(String identifier, FBActivityDelegate activity)
     {
         activities.put(identifier, activity);
@@ -31,9 +33,51 @@ public class FBActivity extends Activity
         
         String action = getIntent().getAction();
         FBActivityDelegate delegate = activities.get(action);
-        delegate.forward(action,this);
-        
+        dialog = delegate.onCreate(action,this,savedInstanceState);
     }
+
+    @Override
+ 	 protected void onStart()
+	 {
+			super.onStart();
+			dialog.onStart();
+    }
+
+ 	 @Override
+	 protected void onRestart()
+ 	 {
+			super.onRestart();
+			dialog.onRestart();
+ 	 }
+
+ 	 @Override
+	 protected void onResume()
+ 	 {
+			super.onResume();
+			dialog.onResume();
+ 	 }
+
+	 @Override
+    protected void onPause()
+ 	 {
+			super.onPause();
+			dialog.onPause();
+ 	 }
+
+	 @Override
+    protected void onStop()
+ 	 {
+			super.onStop();
+			dialog.onStop();
+ 	 }
+
+	 @Override
+    protected void onDestroy()
+ 	 {
+			super.onDestroy();
+			dialog.onDestroy();
+			dialog = null;
+ 	 }
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)

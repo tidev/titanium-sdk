@@ -7,11 +7,12 @@
 package org.appcelerator.titanium.module.facebook;
 
 import android.app.Activity;
+import android.os.Bundle;
 
 /**
  * Generic activity handler
  */
 public interface FBActivityDelegate
 {
-    public void forward(String action, Activity activity);
+    public FBDialog onCreate(String action, Activity activity, Bundle savedInstanceState);
 }

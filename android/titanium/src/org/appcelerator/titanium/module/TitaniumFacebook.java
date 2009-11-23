@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.appcelerator.titanium.TitaniumActivity;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumFacebook;
 import org.appcelerator.titanium.config.TitaniumConfig;
@@ -39,6 +40,7 @@ import org.appcelerator.titanium.module.facebook.FBSession.FBSessionDelegate;
 import android.webkit.WebView;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 
 /**
  * Titanium Facebook Module implementation
@@ -153,11 +155,15 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 		else
 		{
 			this.loginCallback = callback;
-			Activity activity = getActivity();
+			TitaniumActivity activity = getActivity();
+			int resultCode = activity.getUniqueResultCode();
 			Intent intent = new Intent(activity, FBActivity.class);
          intent.setAction("login_dialog");
 			intent.putExtra("callback",callback);
-         activity.startActivityForResult(intent, 1);
+			intent.putExtra("uid",resultCode);
+			
+			Log.d(LCAT,"CREATED LOGIN UID = "+resultCode);
+         activity.startActivityForResult(intent, resultCode);
 		}
 	}
 	
@@ -211,18 +217,21 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 		}
 		else
 		{
-			Activity activity = getActivity();
+			TitaniumActivity activity = getActivity();
+			int resultCode = activity.getUniqueResultCode();
 			Intent intent = new Intent(activity, FBActivity.class);
          intent.setAction("permission_dialog");
 			intent.putExtra("permission",permission);
 			intent.putExtra("callback",callback);
-         activity.startActivityForResult(intent, 1);
+			intent.putExtra("uid",resultCode);
+         activity.startActivityForResult(intent, resultCode);
 		}
 	}
 	
 	public void publishStream(String title, String data, String target, String callback)
 	{
-		Activity activity = getActivity();
+		TitaniumActivity activity = getActivity();
+		int resultCode = activity.getUniqueResultCode();
 		Intent intent = new Intent(activity, FBActivity.class);
       intent.setAction("stream_dialog");
 		intent.putExtra("callback",callback);
@@ -230,12 +239,14 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 		intent.putExtra("targetId",target);
 		intent.putExtra("attachment",data);
 		//intent.putExtra("actionLinks",actionLinks);
-      activity.startActivityForResult(intent, 1);
+		intent.putExtra("uid",resultCode);
+      activity.startActivityForResult(intent, resultCode);
 	}
 	
 	public void publishFeed(long templateBundleId, String data, String body, String callback)
 	{
-		Activity activity = getActivity();
+		TitaniumActivity activity = getActivity();
+		int resultCode = activity.getUniqueResultCode();
 		Intent intent = new Intent(activity, FBActivity.class);
       intent.setAction("feed_dialog");
 		intent.putExtra("callback",callback);
@@ -243,7 +254,8 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 		intent.putExtra("templateData",data);
 		intent.putExtra("bodyGeneral",body);
 //		intent.putExtra("userMessagePrompt",userMessagePrompt);
-      activity.startActivityForResult(intent, 1);
+		intent.putExtra("uid",resultCode);
+		activity.startActivityForResult(intent, resultCode);
 	}
 
 	//-------------------------------------------------------------------------------------------------------------//
@@ -269,7 +281,7 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 		 if (setupCallback!=null) invokeUserCallback(setupCallback,event.toString());
 	}
 	
-   public void forward(String action, Activity activity)
+   public FBDialog onCreate(String action, Activity activity, Bundle state)
    {
        Intent data = activity.getIntent();
        FBDialog dialog = null;
@@ -302,11 +314,12 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
        if (dialog!=null)
        {
            activity.setContentView(dialog);
-           dialog.show();
+			  return dialog;
        }
 		 else
 		 {
-			Log.e(LCAT,"Error finding action: "+action);
+			  Log.e(LCAT,"Error finding action: "+action);
+			  return null;
 		 }
    }
 
