@@ -17,8 +17,11 @@ import java.util.Map.Entry;
 
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.TitaniumFacebook;
 import org.appcelerator.titanium.module.facebook.FBRequest.FBRequestDelegate;
 import org.appcelerator.titanium.util.Log;
+
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -63,10 +66,8 @@ public abstract class FBDialog extends FrameLayout
     private static final int PADDING = 10;
     private static final int BORDER_WIDTH = 10;
 
-    public static final int DIALOG_CANCEL = 0;
-    public static final int DIALOG_SUCCESS = 1;
-    public static final int DIALOG_FAILED = -1;
 
+    private TitaniumFacebook facebookModule;
     private FBDialogDelegate delegate;
     private URL loadingURL;
     private TextView titleLabel;
@@ -168,7 +169,6 @@ public abstract class FBDialog extends FrameLayout
 	 protected void onStop()
 	 {
 		  Log.d(LOG,"FBDialog onStop");
-		  //postDismissCleanup();
 	 }
 
 	 protected void onDestroy()
@@ -187,7 +187,6 @@ public abstract class FBDialog extends FrameLayout
 		  {
 	  		  int uid = context.getIntent().getIntExtra("uid",0);
 			  Log.d(LOG,"postDismissCleanup UID == "+uid);
-			  context.setResult(Activity.RESULT_OK);
 			  session = null;
 			  this.weakContext = null;
 			  context.finish();
@@ -213,12 +212,13 @@ public abstract class FBDialog extends FrameLayout
         }
     }
 
-    public FBDialog(Activity context, FBSession session)
+    public FBDialog(Activity context, FBSession session, TitaniumFacebook facebookModule)
     {
         super(context);
 
         this.weakContext = new WeakReference<Activity>(context);
         this.session = session;
+		  this.facebookModule = facebookModule;
 
         // http://groups.google.com/group/android-developers/browse_thread/thread/a0b71c59fb33b94a/5d996451f43f507b?lnk=gst&q=ondraw#5d996451f43f507b
         setWillNotDraw(false);
@@ -477,8 +477,9 @@ public abstract class FBDialog extends FrameLayout
 		  if (context!=null)
 		  {
 	        Intent data = new Intent();
-	        data.setAction(error.getMessage());
-	        context.setResult(DIALOG_FAILED, data);
+		 	  data.putExtra("message",error.getMessage());
+		 	  data.putExtra("error",true);
+	        context.setResult(Activity.RESULT_CANCELED, data);
 
 	        Log.w(LOG, "Facebook Dialog received error",error);
 	        if (delegate!=null)
@@ -603,7 +604,7 @@ public abstract class FBDialog extends FrameLayout
     {
 		  if (weakContext==null) return;
     	  Activity context = weakContext.get();
-        if (context!=null) context.setResult(DIALOG_SUCCESS);
+        if (context!=null) context.setResult(Activity.RESULT_OK);
         dismissWithSuccess(true, true);
     }
 
@@ -611,7 +612,7 @@ public abstract class FBDialog extends FrameLayout
     {
 		  if (weakContext==null) return;
     	  Activity context = weakContext.get();
-    	  if (context!=null) context.setResult(DIALOG_CANCEL);
+    	  if (context!=null) context.setResult(Activity.RESULT_CANCELED);
         dismissWithSuccess(false, true);
     }
 

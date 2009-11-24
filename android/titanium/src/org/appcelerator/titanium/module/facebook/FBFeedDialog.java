@@ -9,6 +9,7 @@ package org.appcelerator.titanium.module.facebook;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.appcelerator.titanium.module.TitaniumFacebook;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
 import org.json.JSONObject;
@@ -34,9 +35,9 @@ public class FBFeedDialog extends FBDialog
      * @param context
      * @param session
      */
-    public FBFeedDialog(Activity context, FBSession session, String templateId, String templateData, String bodyGeneral, String userMessagePrompt)
+    public FBFeedDialog(Activity context, FBSession session, TitaniumFacebook tb, String templateId, String templateData, String bodyGeneral, String userMessagePrompt)
     {
-        super(context, session);
+        super(context, session, tb);
         this.templateId = templateId;
         this.templateData = templateData;
         this.bodyGeneral = bodyGeneral;

@@ -25,6 +25,8 @@ import java.util.Map.Entry;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.fs.TitaniumBlob;
+import org.appcelerator.titanium.api.ITitaniumFile;
 import org.appcelerator.titanium.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -257,7 +259,26 @@ public class FBRequest
                 os.write(ct.getBytes(ENCODING));
                 os.write(thedata);
                 os.write(endLine.getBytes(ENCODING));
-            }
+ 				} else if (data instanceof TitaniumBlob) {
+					TitaniumBlob blob = (TitaniumBlob)data;
+               String cd = "Content-Disposition: form-data; filename=\"data\"\r\n";
+               String ct = "Content-Type: "+ blob.getContentType() + "\r\n\r\n";
+
+               os.write(cd.getBytes(ENCODING));
+               os.write(ct.getBytes(ENCODING));
+					FBUtil.copy(blob.getInputStream(),os);
+               os.write(endLine.getBytes(ENCODING));
+
+				} else if (data instanceof ITitaniumFile) {
+					ITitaniumFile file = (ITitaniumFile)data;
+               String cd = "Content-Disposition: form-data; filename=\"data\"\r\n";
+               String ct = "Content-Type: content/unknown\r\n\r\n";
+
+               os.write(cd.getBytes(ENCODING));
+               os.write(ct.getBytes(ENCODING));
+					FBUtil.copy(file.getInputStream(),os);
+               os.write(endLine.getBytes(ENCODING));
+				}
         }
         return os.toByteArray();
     }
@@ -286,7 +307,7 @@ public class FBRequest
 
     private void handleResponseData(String contentType, String data)
     {
-    	Log.w("FBRequest","Data: " + data);
+    	  if (DBG) Log.d("FBRequest: "+this,"Data: " + data);
         try
         {
             Object result = null;
@@ -521,7 +542,7 @@ public class FBRequest
      *
      * The delegate will be called for each stage of the loading process.
      */
-    private void callWithAnyData(String method_, Map<String, String> params_, Object data_) {
+    public void callWithAnyData(String method_, Map<String, String> params_, Object data_) {
         this.url = urlForMethod(method_);
         this.method = method_;
         this.params = params_ != null ? new HashMap<String, String>(params_) : new HashMap<String, String>();

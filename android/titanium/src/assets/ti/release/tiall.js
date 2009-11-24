@@ -282,22 +282,27 @@ Ti.facebookProxy=window.TitaniumFacebook;Ti.Facebook={setup:function(key,secret,
 {Ti.facebookProxy.requestPermission(permission,registerOneShot(this,callback));},publishStream:function(title,data,target,callback)
 {var o=transformObjectValue(data,null);var json=o?Ti.JSON.stringify(o):null;Ti.facebookProxy.publishStream(title,json,target,callback?registerOneShot(this,callback):null);},publishFeed:function(templateBundleId,data,body,callback)
 {var o=transformObjectValue(data,null);var json=o?Ti.JSON.stringify(o):null;var tid=typeof(templateBundleId)=='string'?parseLong(templateBundleId):templateBundleId;Ti.facebookProxy.publishFeed(tid,json,body,callback?registerOneShot(this,callback):null);},createLoginButton:function(props)
-{var el=document.getElementById(props.id);el.id="ti_fbconnect_button";var btn=document.createElement('button');var self=this;var listeners={};function updateButton(state)
-{Ti.API.debug("Facebook updateButton called with "+state);if(state)
-{btn.innerHTML=state?'Logout':'Login';}
-else
-{btn.innerHTML=self.isLoggedIn()?'Logout':'Login';}};function fire(name,evt)
+{var el=document.getElementById(props.id);var s=props.style||'normal';var b=(s=='normal')?'':'2';var logged_in=this.isLoggedIn();var l=(logged_in?'logout':'login');var imgsrc='modules/facebook/images/'+l+b+'.png';var btnhtml="<button id='ti_fbconnect_button' style='border:none;margin:0;padding:0;background:none;-webkit-tap-highlight-color: rgba(0,0,0,0.0);'><img id='ti_fbconnect_button_img' style='margin:0;padding:0;-webkit-tap-highlight-color: rgba(0,0,0,0.0);' src='"+imgsrc+"'/></button>";el.innerHTML=btnhtml;var img=document.getElementById('ti_fbconnect_button_img');var self=this;var listeners={};function updateButton(state)
+{var lo=typeof(state)!='undefined'?state:logged_in;var part=lo?'logout':'login'+b;img.src='modules/facebook/images/'+part+'.png';img.ontouchstart=function()
+{img.src='modules/facebook/images/'+part+'_down.png';};img.ontouchend=function()
+{img.src='modules/facebook/images/'+part+'.png';};};function fire(name,evt)
 {Ti.API.debug("Facebook fire called with "+name);var l=listeners[name];if(l&&l.length>0)
 {for(var c=0;c<l.length;c++)
 {l[c].call(self,evt);}}};function stateChange(evt)
-{if(self.isLoggedIn())
-{Ti.API.debug("Facebook state changed - logged in");updateButton(true);fire('login',evt);}
+{var cur_login=logged_in;if(evt.state=='login'||evt.loggedin)
+{logged_in=evt.success;}
 else
-{Ti.API.debug("Facebook state changed - logged out");updateButton(false);fire('logout',evt);}};btn.onclick=function()
-{if(self.isLoggedIn())
+{logged_in=false;}
+if(logged_in)
+{Ti.API.debug(">>>> Facebook state changed - logged in");updateButton(true);if(cur_login!=logged_in)
+{fire('login',evt);}}
+else
+{Ti.API.debug(">>>> Facebook state changed - logged out");updateButton(false);if(cur_login!=logged_in)
+{fire('logout',evt);}}};img.onclick=function()
+{if(logged_in)
 {self.logout(stateChange);}
 else
-{self.login(stateChange);}};updateButton();var style=props.style;el.appendChild(btn);this.setup(props.apikey,props.secret,stateChange);var obj={addEventListener:function(name,cb)
+{self.login(stateChange);}};updateButton();this.setup(props.apikey,props.secret,stateChange);var obj={addEventListener:function(name,cb)
 {var l=listeners[name];if(l==null)
 {listeners[name]=[cb];}
 else

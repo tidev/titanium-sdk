@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.appcelerator.titanium.module.TitaniumFacebook;
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.facebook.FBRequest.FBRequestDelegate;
 import org.appcelerator.titanium.util.Log;
@@ -36,9 +37,9 @@ public class FBLoginDialog extends FBDialog
     private FBRequest sessionRequest;
     private FBRequestDelegate requestDelegate;
 
-    public FBLoginDialog(Activity context, FBSession session)
+    public FBLoginDialog(Activity context, FBSession session, TitaniumFacebook tb)
     {
-        super(context, session);
+        super(context, session, tb);
         requestDelegate = new FBRequestDelegateImpl();
 
 //        context.getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND | WindowManager.LayoutParams.TYPE_INPUT_METHOD_DIALOG,

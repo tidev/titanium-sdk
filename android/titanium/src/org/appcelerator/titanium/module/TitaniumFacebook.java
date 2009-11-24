@@ -13,9 +13,12 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.appcelerator.titanium.TitaniumActivity;
+import org.appcelerator.titanium.TitaniumResultHandler;
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumFacebook;
+import org.appcelerator.titanium.api.ITitaniumInvoker;
 import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.fs.TitaniumBlob;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 
@@ -47,7 +50,7 @@ import android.os.Bundle;
  *
  * @author Jeff Haynie
  */
-public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFacebook, FBActivityDelegate
+public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFacebook, FBActivityDelegate, TitaniumResultHandler
 {
 	private static final String LCAT = "TiFacebook";
 	private static final boolean DBG = TitaniumConfig.LOGD;
@@ -131,13 +134,43 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
               "facebook.fql.query", params);
 	}
 	
-	public void execute(String method, String params, String data, String callback)
+	void jsonToMap (JSONObject obj, Map<String,String> map) throws JSONException
 	{
+		Iterator iter = obj.keys();
+		while(iter.hasNext())
+		{
+			String key = (String)iter.next();
+			Object value = obj.get(key);
+			map.put(key,value.toString());
+		}
 	}
-
+	
+	public void execute(String method, String jsonParams, ITitaniumInvoker data, String callback)
+	{
+		Map<String,String> params = new HashMap<String,String>();
+		if (jsonParams!=null)
+		{
+			try
+			{
+				JSONObject json = new JSONObject(jsonParams);
+				jsonToMap(json,params);
+			}
+			catch(JSONException ex)
+			{
+				Log.e(LCAT,"Error in execute with JSON parameter",ex);
+			}
+		}
+		Object dataObj = null;
+		if (data!=null)
+		{
+			dataObj = data.getObject();
+		}
+      FBRequest.requestWithDelegate(new FBQueryRequestDelegateImpl(callback)).callWithAnyData(method, params, dataObj);
+	}
+	
 	public void login(String callback)
 	{
-		this.logoutCallback = callback;
+		this.loginCallback = callback;
 		if (isLoggedIn())
 		{
 			try
@@ -154,15 +187,14 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 		}
 		else
 		{
-			this.loginCallback = callback;
 			TitaniumActivity activity = getActivity();
 			int resultCode = activity.getUniqueResultCode();
 			Intent intent = new Intent(activity, FBActivity.class);
          intent.setAction("login_dialog");
-			intent.putExtra("callback",callback);
 			intent.putExtra("uid",resultCode);
 			
 			Log.d(LCAT,"CREATED LOGIN UID = "+resultCode);
+			getActivity().registerResultHandler(resultCode,this);
          activity.startActivityForResult(intent, resultCode);
 		}
 	}
@@ -224,6 +256,7 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 			intent.putExtra("permission",permission);
 			intent.putExtra("callback",callback);
 			intent.putExtra("uid",resultCode);
+			getActivity().registerResultHandler(resultCode,this);
          activity.startActivityForResult(intent, resultCode);
 		}
 	}
@@ -240,6 +273,7 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 		intent.putExtra("attachment",data);
 		//intent.putExtra("actionLinks",actionLinks);
 		intent.putExtra("uid",resultCode);
+		getActivity().registerResultHandler(resultCode,this);
       activity.startActivityForResult(intent, resultCode);
 	}
 	
@@ -255,7 +289,38 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 		intent.putExtra("bodyGeneral",body);
 //		intent.putExtra("userMessagePrompt",userMessagePrompt);
 		intent.putExtra("uid",resultCode);
+		getActivity().registerResultHandler(resultCode,this);
 		activity.startActivityForResult(intent, resultCode);
+	}
+	
+	public void onError(TitaniumActivity activity, int requestCode, Exception e)
+	{
+		  Log.e(LCAT,"onError = "+requestCode,e);
+		  getActivity().removeResultHandler(requestCode);
+	}
+
+	public void onResult(TitaniumActivity activity, int requestCode, int resultCode, Intent data)
+	{
+		  Log.d(LCAT,"onResult = "+requestCode+", resultCode="+resultCode);
+		  if (data!=null)
+		  {
+			  String callback = data.getStringExtra("callback");
+			  if (callback!=null)
+			  {
+					JSONObject event = new JSONObject();
+					try
+					{
+						event.put("success", resultCode == Activity.RESULT_OK);
+					}
+					catch(Exception ex)
+					{
+						ex.printStackTrace();
+					}
+					invokeUserCallback(callback,event.toString());
+					Log.d(LCAT,"Calling post activity event = "+event+" to "+callback);
+			  }
+		  }
+		  getActivity().removeResultHandler(requestCode);
 	}
 
 	//-------------------------------------------------------------------------------------------------------------//
@@ -263,6 +328,8 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 	
 	private void loggedIn(JSONObject event)
 	{
+		 Log.d(LCAT,"loggedIn => "+event);
+		
 		 if (loginCallback!=null)
 		 {
 			 invokeUserCallback(loginCallback,event.toString());
@@ -273,6 +340,8 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 	
 	private void loggedOut(JSONObject event)
 	{
+		 Log.d(LCAT,"loggedOut => "+event);
+
 		 if (logoutCallback!=null)
 		 {
 			 invokeUserCallback(logoutCallback,event.toString());
@@ -289,11 +358,11 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
        if (action.equals("permission_dialog"))
        {
            String permission = data.getStringExtra("permission");
-           dialog = new FBPermissionDialog(activity, session, permission);
+           dialog = new FBPermissionDialog(activity, session, this, permission);
        }
        else if (action.equals("login_dialog"))
        {
-           dialog = new FBLoginDialog(activity, session);
+           dialog = new FBLoginDialog(activity, session, this);
        }
        else if (action.equals("feed_dialog"))
        {
@@ -301,7 +370,7 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
            String templateData = data.getStringExtra("templateData");
            String bodyGeneral = data.getStringExtra("bodyGeneral");
            String userMessagePrompt = data.getStringExtra("userMessagePrompt");
-           dialog = new FBFeedDialog(activity, session, templateId, templateData, bodyGeneral, userMessagePrompt);
+           dialog = new FBFeedDialog(activity, session, this, templateId, templateData, bodyGeneral, userMessagePrompt);
        }
        else if (action.equals("stream_dialog"))
        {
@@ -309,7 +378,7 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
            String actionLinks = data.getStringExtra("actionLinks");
            String targetId = data.getStringExtra("targetId");
            String userMessagePrompt = data.getStringExtra("userMessagePrompt");
-           dialog = new FBStreamDialog(activity, session, attachment, actionLinks, targetId, userMessagePrompt);
+           dialog = new FBStreamDialog(activity, session, this, attachment, actionLinks, targetId, userMessagePrompt);
        }
        if (dialog!=null)
        {
@@ -412,6 +481,10 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 						e.printStackTrace();
                }
            }
+			  else
+			  {
+					Log.w(LCAT,"FB Login response was not JSON. Result was "+result);
+			  }
        }
 
        public void request_didFailWithError(FBRequest request, Throwable error)

@@ -199,7 +199,7 @@ public class FBSession
     private boolean performRequest(FBRequest request, boolean enqueue)
     {
     	if (DBG) {
-    		Log.d(LOG, "Performing Request");
+    		Log.d(LOG, "Performing Request "+request);
     	}
 
         // Stagger requests that happen in short bursts to prevent the server from rejecting
@@ -210,6 +210,7 @@ public class FBSession
         if (DBG) {
         	Log.d(LOG, "t: " + t);
         	Log.d(LOG, "Burst: " + burst);
+        	Log.d(LOG, "Enqueue: " + enqueue);
         }
         if (burst && ++requestBurstCount > MAX_BURST_REQUESTS)
         {
@@ -224,9 +225,9 @@ public class FBSession
         }
         else
         {
-        	if (DBG) {
-        		Log.d(LOG, "Requesting.");
-        	}
+        		if (DBG) {
+        			Log.d(LOG, "Requesting.");
+        		}
             try
             {
                 request.connect();

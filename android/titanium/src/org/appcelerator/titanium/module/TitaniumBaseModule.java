@@ -139,7 +139,7 @@ public abstract class TitaniumBaseModule implements ITitaniumModule, Handler.Cal
 
 	}
 
-	protected void invokeUserCallback(String method, String data) {
+	public void invokeUserCallback(String method, String data) {
 		TitaniumWebView webView = tmm.getWebView();
 		if (webView != null) {
 			webView.evalJS(method, data);

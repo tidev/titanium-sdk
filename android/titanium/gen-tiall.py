@@ -22,7 +22,7 @@ if __name__ == '__main__':
     l.close()
 
     print "Dest: %s" % (tiall_js)
-    outf = open(tiall_js, "w")
+    outf = open(tiall_js, "w+")
 
     for f in sources:
         inf = open(f,"r")

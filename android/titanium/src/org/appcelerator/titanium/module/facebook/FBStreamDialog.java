@@ -9,6 +9,7 @@ package org.appcelerator.titanium.module.facebook;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.appcelerator.titanium.module.TitaniumFacebook;
 import org.appcelerator.titanium.util.Log;
 
 import android.app.Activity;
@@ -32,9 +33,9 @@ public class FBStreamDialog extends FBDialog
      * @param context
      * @param session
      */
-    public FBStreamDialog(Activity context, FBSession session, String attachment, String actionLinks, String targetId, String userMessagePrompt)
+    public FBStreamDialog(Activity context, FBSession session, TitaniumFacebook tb, String attachment, String actionLinks, String targetId, String userMessagePrompt)
     {
-        super(context, session);
+        super(context, session, tb);
         this.attachment = attachment;
         this.actionLinks = actionLinks;
         this.targetId = targetId;

@@ -4,14 +4,19 @@
 	<script>
 		window.onload = function()
 		{
+			var logged_in = false;
+			
 			function loggedIn()
 			{
+				if (logged_in) return;
+				
+				logged_in = true;
 				document.getElementById('loggedin').style.display='none';
 				document.getElementById('loggedout').style.display='block';
 				
 				Titanium.Facebook.query("SELECT uid, name, pic_square, status FROM user where uid IN (SELECT uid2 FROM friend WHERE uid1 = " + Titanium.Facebook.getUserId() + ") order by last_name",function(r)
 				{
-					Titanium.API.info("query returned "+Titanium._JSON(r));
+					Titanium.API.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> query returned "+r);
 				});
 
 				// if (!Titanium.Facebook.hasPermission("read_stream"))
@@ -32,6 +37,7 @@
 
 			function loggedOut()
 			{
+				logged_in=false;
 				document.getElementById('loggedin').style.display='block';
 				document.getElementById('loggedout').style.display='none';
 			}
@@ -60,6 +66,9 @@
 		{
 			background-color:#aaa;
 			font-family:"Helvetica Neue";
+		}
+		foo {
+		-webkit-tap-highlight-color: rgba(0,0,0,0.0);
 		}
 		#loggedin, #loggedout
 		{

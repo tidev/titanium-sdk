@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.appcelerator.titanium.module.TitaniumFacebook;
 import org.appcelerator.titanium.util.Log;
 
 import android.app.Activity;
@@ -31,9 +32,9 @@ public class FBPermissionDialog extends FBDialog
      * @param context
      * @param session
      */
-    public FBPermissionDialog(Activity context, FBSession session, String permission)
+    public FBPermissionDialog(Activity context, FBSession session, TitaniumFacebook tb, String permission)
     {
-        super(context, session);
+        super(context, session, tb);
         this.permission = permission;
     }
 
