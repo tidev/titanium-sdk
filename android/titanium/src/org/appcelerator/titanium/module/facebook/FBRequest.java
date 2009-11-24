@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.appcelerator.titanium.config.TitaniumAppInfo;
+import org.appcelerator.titanium.util.Log;
 
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.json.JSONArray;
@@ -30,7 +31,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.webkit.CookieManager;
 
 public class FBRequest 

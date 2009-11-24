@@ -12,7 +12,8 @@ import java.util.Map;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.util.Log;
+
+import org.appcelerator.titanium.util.Log;
 
 /**
  * Facebook Feed Dialog

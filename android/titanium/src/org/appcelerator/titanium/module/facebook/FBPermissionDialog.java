@@ -10,8 +10,9 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.appcelerator.titanium.util.Log;
+
 import android.app.Activity;
-import android.util.Log;
 
 /**
  * Dialog for handling permissions

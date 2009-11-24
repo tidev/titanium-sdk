@@ -15,11 +15,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.appcelerator.titanium.module.facebook.FBRequest.FBRequestDelegate;
+import org.appcelerator.titanium.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.util.Log;
 
 /**
  * Dialog for managing the Login
@@ -136,30 +137,44 @@ public class FBLoginDialog extends FBDialog
         @Override
         protected void request_didLoad(FBRequest request, String contentType, Object result) 
         {
-            try 
-            {
-                JSONObject jsonObject = (JSONObject) result;
-                Long uid = jsonObject.getLong("uid"); 
-                String sessionKey = jsonObject.getString("session_key");
-                String sessionSecret = jsonObject.getString("secret");
-                Long expires = jsonObject.getLong("expires");
-                Date expiration = null;
-                if (expires != null) 
-                {
-                    expiration = new Date(expires);
-                }
-                sessionRequest = null;
-                
-                session.begin(context, uid, sessionKey, sessionSecret, expiration);
-                session.resume(context);
-                            
-                dismissWithSuccess(true, true);
-            }
-            catch (JSONException e) 
-            {
-                Log.e(LOG,"JSON parsing exception",e);
-            }
-            
+				if (contentType!=null && contentType.indexOf("json")!=-1)
+				{
+	            try 
+	            {
+	                JSONObject jsonObject = null;
+						 if (result instanceof JSONObject)
+						 {
+								jsonObject = (JSONObject) result;
+						 }
+						 else
+						 {
+							   Log.e(LOG,"Received invalid response from FBRequest. Expected JSONObject, received ("+result.getClass().getSimpleName()+"): "+result);
+						 }
+	                Long uid = jsonObject.getLong("uid"); 
+	                String sessionKey = jsonObject.getString("session_key");
+	                String sessionSecret = jsonObject.getString("secret");
+	                Long expires = jsonObject.getLong("expires");
+	                Date expiration = null;
+	                if (expires != null) 
+	                {
+	                    expiration = new Date(expires);
+	                }
+	                sessionRequest = null;
+
+	                session.begin(context, uid, sessionKey, sessionSecret, expiration);
+	                session.resume(context);
+
+	                dismissWithSuccess(true, true);
+	            }
+	            catch (JSONException e) 
+	            {
+	                Log.e(LOG,"JSON parsing exception",e);
+	            }
+				}
+				else
+				{
+					Log.e(LOG,"Received invalid response from FBRequest. Expected JSON response, received: "+result);
+				}
         }
 
         @Override

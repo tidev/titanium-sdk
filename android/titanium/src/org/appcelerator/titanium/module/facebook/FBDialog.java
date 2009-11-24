@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.appcelerator.titanium.module.facebook.FBRequest.FBRequestDelegate;
+import org.appcelerator.titanium.util.Log;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -27,7 +28,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -475,8 +475,8 @@ public abstract class FBDialog extends FrameLayout
         webView.loadDataWithBaseURL(loadingURL.toExternalForm(), content, contentType, "utf-8", null);
     }
 
-    protected void loadURL(String url, String method,
-            Map<String, String> getParams, Map<String, String> postParams)
+    protected void loadURL(String url, final String method,
+            Map<String, String> getParams, final Map<String, String> postParams)
             throws MalformedURLException
     {
         loadingURL = generateURL(url, getParams);
@@ -487,58 +487,70 @@ public abstract class FBDialog extends FrameLayout
 		  }
 
 		  Log.d(LOG,"Loading URL: "+loadingURL+" ("+method+")");
-        
-        if (method.equalsIgnoreCase("get"))
-        {
-            // we have to load GET requests over HTTP client and then inject in to 
-            // the webview
-            request = FBRequest.requestWithDelegate(new FBRequestDelegate()
-            {
-                protected void request_didFailWithError(FBRequest request, Throwable error) 
-                {
-                    FBDialog.this.dismissWithError(error, true);
-                }
-                protected void request_didLoad(FBRequest request, String contentType, Object result) 
-                {
-						  Log.d(LOG,"GET URL response received: "+contentType);
-						
-                    // give it to subclass in case they want to transform content
-                    result = FBDialog.this.beforeLoad(loadingURL, contentType, result);
+		
+		  Thread t = new Thread("FBDialog-LoadURL")
+		  {
+				public void run ()
+				{
+		        if (method.equalsIgnoreCase("get"))
+		        {
+		            // we have to load GET requests over HTTP client and then inject in to 
+		            // the webview
+		            request = FBRequest.requestWithDelegate(new FBRequestDelegate()
+		            {
+		                protected void request_didFailWithError(FBRequest request, Throwable error) 
+		                {
+		                    FBDialog.this.dismissWithError(error, true);
+		                }
+		                protected void request_didLoad(FBRequest request, String contentType, Object result) 
+		                {
+								  Log.d(LOG,"GET URL response received: "+contentType+" for url: "+loadingURL);
 
-                    // we hard code content type since it appears that the result of contentType doesn't jive
-                    // and we'd have to parse out to encoding ... however, we know what it is...
-                    webView.loadDataWithBaseURL(loadingURL.toExternalForm(), result.toString(), "text/html", "utf-8", null);
-                    
-                    FBDialog.this.afterLoad(loadingURL, contentType, result);
-                }
-            });
-            request.get(loadingURL.toExternalForm());
-        }
-        else
-        {
-            // we have to load POST requests over HTTP client and then inject in to 
-            // the webview
-            request = FBRequest.requestWithDelegate(new FBRequestDelegate()
-            {
-                protected void request_didFailWithError(FBRequest request, Throwable error) 
-                {
-                    FBDialog.this.dismissWithError(error, true);
-                }
-                protected void request_didLoad(FBRequest request, String contentType, Object result) 
-                {
-						  Log.d(LOG,"POST URL response received: "+contentType);
-						
-                    result = FBDialog.this.beforeLoad(loadingURL, contentType, result);
-                    
-                    // we hard code content type since it appears that the result of contentType doesn't jive
-                    // and we'd have to parse out to encoding ... however, we know what it is...
-                    webView.loadDataWithBaseURL(loadingURL.toExternalForm(), result.toString(), "text/html", "utf-8", null);
-                    
-                    FBDialog.this.afterLoad(loadingURL, contentType, result);
-                }
-            });
-            request.post(loadingURL.toExternalForm(), postParams);
-        }
+								  if (contentType==null)
+								  {
+									  Log.d(LOG,"GET URL response was null for url: "+loadingURL+", content was: "+result);
+								  }
+									
+		                    // give it to subclass in case they want to transform content
+		                    result = FBDialog.this.beforeLoad(loadingURL, contentType, result);
+
+		                    // we hard code content type since it appears that the result of contentType doesn't jive
+		                    // and we'd have to parse out to encoding ... however, we know what it is...
+		                    webView.loadDataWithBaseURL(loadingURL.toExternalForm(), result.toString(), "text/html", "utf-8", null);
+
+		                    FBDialog.this.afterLoad(loadingURL, contentType, result);
+		                }
+		            });
+		            request.get(loadingURL.toExternalForm());
+		        }
+		        else
+		        {
+		            // we have to load POST requests over HTTP client and then inject in to 
+		            // the webview
+		            request = FBRequest.requestWithDelegate(new FBRequestDelegate()
+		            {
+		                protected void request_didFailWithError(FBRequest request, Throwable error) 
+		                {
+		                    FBDialog.this.dismissWithError(error, true);
+		                }
+		                protected void request_didLoad(FBRequest request, String contentType, Object result) 
+		                {
+								  Log.d(LOG,"POST URL response received: "+contentType+" for url: "+loadingURL);
+
+		                    result = FBDialog.this.beforeLoad(loadingURL, contentType, result);
+
+		                    // we hard code content type since it appears that the result of contentType doesn't jive
+		                    // and we'd have to parse out to encoding ... however, we know what it is...
+		                    webView.loadDataWithBaseURL(loadingURL.toExternalForm(), result.toString(), "text/html", "utf-8", null);
+
+		                    FBDialog.this.afterLoad(loadingURL, contentType, result);
+		                }
+		            });
+		            request.post(loadingURL.toExternalForm(), postParams);
+		        }
+				}
+		  };
+		  t.start();
     }
 
     protected void dialogWillAppear()

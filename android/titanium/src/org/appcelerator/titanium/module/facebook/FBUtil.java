@@ -25,12 +25,16 @@ import android.graphics.Picture;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
+import org.appcelerator.titanium.util.Log;
+
 /**
  * Generic collection of ported functions used by FBConnect library
  * 
  */
 public class FBUtil
 {
+	 private static final String LOG = FBUtil.class.getSimpleName();
+	
     public static int rgbFloatToInt(float red, float green, float blue, float alpha) 
     {
         int r = (int) (red * 255 + 0.5);
@@ -58,16 +62,31 @@ public class FBUtil
     }
     public static StringBuilder getResponse(InputStream data) throws IOException 
     {
-        Reader in = new BufferedReader(new InputStreamReader(data, "UTF-8"),8000);
-        StringBuilder buffer = new StringBuilder();
-        char[] buf = new char[4000];
-        int l = 0;
-        while (l >= 0) 
+	     InputStreamReader reader = null;
+	     Reader in = null;
+	     try
+	     {
+			  reader = new InputStreamReader(data,"UTF-8");
+		     in = new BufferedReader(reader,8000);
+	        StringBuilder buffer = new StringBuilder();
+	        char[] buf = new char[4000];
+	        int l = 0;
+	        int count = 0;
+			  while (l >= 0) 
+			  {
+				   count+=l;
+			 	   buffer.append(buf, 0, l);
+			 	   l = in.read(buf);
+			   }
+			  Log.d(LOG,"read "+count+" bytes");
+	        return buffer;
+		  }
+		  finally
 		  {
-            buffer.append(buf, 0, l);
-            l = in.read(buf);
-        }
-        return buffer;
+			  close(reader);
+			  close(in);
+			  close(data);
+		  }
     }
     public static void disconnect(HttpURLConnection conn) 
     {
@@ -116,6 +135,7 @@ public class FBUtil
 
     public static String getContent(Class<?> clazz, String path) throws IOException
     {
+		  Log.d(LOG,"getContent called with "+path);
         InputStream is = clazz.getClassLoader().getResourceAsStream(path);
         StringBuilder string = getResponse(is);
         return string.toString();

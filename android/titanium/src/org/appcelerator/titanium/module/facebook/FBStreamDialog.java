@@ -10,7 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.app.Activity;
-import android.util.Log;
+
+import org.appcelerator.titanium.util.Log;
 
 /**
  * Dialog for handling stream posts
