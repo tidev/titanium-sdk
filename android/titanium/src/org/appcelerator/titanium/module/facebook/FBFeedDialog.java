@@ -9,10 +9,12 @@ package org.appcelerator.titanium.module.facebook;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.Log;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.util.Log;
+
 
 /**
  * Facebook Feed Dialog
@@ -20,13 +22,15 @@ import android.util.Log;
 public class FBFeedDialog extends FBDialog
 {
     private static final String LOG = FBFeedDialog.class.getSimpleName();
+    private static final boolean DBG = TitaniumConfig.LOGD;
+
     private static final String FB_FEED_URL = "http://www.facebook.com/connect/prompt_feed.php";
 
     private final String templateId;
     private final String templateData;
     private final String bodyGeneral;
     private final String userMessagePrompt;
-    
+
     /**
      * @param context
      * @param session
@@ -39,14 +43,14 @@ public class FBFeedDialog extends FBDialog
         this.bodyGeneral = bodyGeneral;
         this.userMessagePrompt = userMessagePrompt;
     }
-    
+
     @Override
-    protected void load() 
+    protected void load()
     {
         Map<String, String> params = new HashMap<String, String>(1);
         params.put("display", "touch");
-        
-        try 
+
+        try
         {
             JSONObject obj = new JSONObject();
             if (templateId!=null)
@@ -62,7 +66,7 @@ public class FBFeedDialog extends FBDialog
             {
                 obj.put("body_general", bodyGeneral);
             }
-             
+
             Map<String,String> postParams = new HashMap<String,String>(8);
             postParams.put("api_key",session.getApiKey());
             postParams.put("session_key",session.getSessionKey());
@@ -72,10 +76,10 @@ public class FBFeedDialog extends FBDialog
             postParams.put("feed_info",obj.toString());
             postParams.put("feed_target_type","self_feed");
             postParams.put("user_message_prompt",userMessagePrompt);
-            
+
             this.loadURL(FB_FEED_URL, "post", params, postParams);
-        } 
-        catch (Exception e) 
+        }
+        catch (Exception e)
         {
             Log.e(LOG,"Error loading URL: "+FB_FEED_URL,e);
         }

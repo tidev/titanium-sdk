@@ -10,8 +10,10 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.appcelerator.titanium.util.Log;
+
 import android.app.Activity;
-import android.util.Log;
+
 
 /**
  * Dialog for handling permissions
@@ -21,7 +23,7 @@ public class FBPermissionDialog extends FBDialog
 {
     private static final String LOG = FBPermissionDialog.class.getSimpleName();
     private static final String FB_PERMISSION_URL = "http://www.facebook.com/connect/prompt_permission.php";
-    
+
 
     private final String permission;
 
@@ -37,7 +39,7 @@ public class FBPermissionDialog extends FBDialog
     }
 
     @Override
-    protected void load() 
+    protected void load()
     {
         Map<String, String> params = new HashMap<String, String>();
         params.put("display", "touch");
@@ -46,12 +48,12 @@ public class FBPermissionDialog extends FBDialog
         params.put("next", "fbconnect:success");
         params.put("cancel", "fbconnect:cancel");
         params.put("ext_perm", permission);
-        
-        try 
+
+        try
         {
             loadURL(FB_PERMISSION_URL, "GET", params, null);
-        } 
-        catch (MalformedURLException e) 
+        }
+        catch (MalformedURLException e)
         {
             Log.e(LOG,"Error loading URL: "+FB_PERMISSION_URL,e);
         }

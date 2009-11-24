@@ -22,26 +22,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.appcelerator.titanium.config.TitaniumAppInfo;
-
 import org.apache.http.impl.cookie.BasicClientCookie;
+import org.appcelerator.titanium.config.TitaniumAppInfo;
+import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.webkit.CookieManager;
 
-public class FBRequest 
+public class FBRequest
 {
     private static final String LOG = FBRequest.class.getSimpleName();
-        
+    private static final boolean DBG = TitaniumConfig.LOGD;
+
     public static String API_VERSION = "1.0";
     public static String API_FORMAT = "JSON";
     public static String USER_AGENT = TitaniumAppInfo.PROP_NETWORK_USER_AGENT;
     public static String STRING_BOUNDARY = "3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
-    public static String ENCODING = "UTF-8"; 
+    public static String ENCODING = "UTF-8";
     public static final long TIMEOUT_INTERVAL_IN_SEC = 180;
 
     private FBSession session;
@@ -53,7 +54,7 @@ public class FBRequest
     private Object data;
     private Date timestamp;
     private HttpURLConnection connection;
-    private StringBuilder responseText;
+    private String responseText;
 
     private FBRequest() {
     }
@@ -85,7 +86,7 @@ public class FBRequest
 
     /**
      * The dictionary of parameters to pass to the method.
-     * 
+     *
      * These values in the dictionary will be converted to strings using the standard Objective-C object-to-string
      * conversion facilities.
      */
@@ -136,24 +137,24 @@ public class FBRequest
     // /////////////////////////////////////////////////////////////////////////////////////////////////
     // private
 
-    private String md5HexDigest(String input) 
+    private String md5HexDigest(String input)
     {
         return FBUtil.generateMD5(input);
     }
 
-    private boolean isSpecialMethod() 
+    private boolean isSpecialMethod()
     {
         return method.equals("facebook.auth.getSession") || method.equals("facebook.auth.createToken");
     }
 
-    private String urlForMethod(String method) 
+    private String urlForMethod(String method)
     {
         return session.getApiURL();
     }
 
-    private String generateGetURL() 
+    private String generateGetURL()
     {
-        try 
+        try
         {
             URL parsedURL = new URL(url);
             String queryPrefix = parsedURL.getPath().contains("?") ? "&" : "?";
@@ -165,20 +166,20 @@ public class FBRequest
             String params = FBUtil.componentsJoinedByString(pairs, "&");
 
             return url + queryPrefix + params;
-        } 
-        catch (MalformedURLException e) 
+        }
+        catch (MalformedURLException e)
         {
             e.printStackTrace();
         }
         return null;
     }
 
-    private String generateCallId() 
+    private String generateCallId()
     {
         return String.format(Long.toString(System.currentTimeMillis()));
     }
 
-    private String generateSig() 
+    private String generateSig()
     {
         StringBuilder joined = new StringBuilder();
 
@@ -193,18 +194,18 @@ public class FBRequest
             }
         }
 
-        if (isSpecialMethod()) 
+        if (isSpecialMethod())
         {
-            if (session.getApiSecret() != null) 
+            if (session.getApiSecret() != null)
             {
                 joined.append(session.getApiSecret());
             }
-        } 
-        else if (session.getSessionSecret() != null) 
+        }
+        else if (session.getSessionSecret() != null)
         {
             joined.append(session.getSessionSecret());
-        } 
-        else if (session.getApiSecret() != null) 
+        }
+        else if (session.getApiSecret() != null)
         {
             joined.append(session.getApiSecret());
         }
@@ -212,46 +213,46 @@ public class FBRequest
         return md5HexDigest(joined.toString());
     }
 
-    private byte[] generatePostBody() throws UnsupportedEncodingException, IOException 
+    private byte[] generatePostBody() throws UnsupportedEncodingException, IOException
     {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        
+
         String bodyString = "--" + STRING_BOUNDARY + "\r\n";
         String endLine = "\r\n--" + STRING_BOUNDARY + "\r\n";
-  
+
         os.write(bodyString.getBytes(ENCODING));
-        
+
         // write all string parameters from the parameter map
         for (Entry<String, String> entry : params.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-            
+
             if (value==null) value = "";
-            
+
             String cd = "Content-Disposition: form-data; name=\"" + key + "\"\r\n\r\n";
-            
+
             os.write(cd.getBytes(ENCODING));
             os.write(value.getBytes(ENCODING));
             os.write(endLine.getBytes(ENCODING));
         }
-  
+
         // write a bitmap value, if one exists
         if (data != null) {
             if (data instanceof Bitmap) {
                 String cd = "Content-Disposition: form-data; filename=\"photo\"\r\n";
                 String ct = "Content-Type: image/png\r\n\r\n";
                 Bitmap image = (Bitmap)data;
-  
+
                 os.write(cd.getBytes(ENCODING));
                 os.write(ct.getBytes(ENCODING));
                 image.compress(Bitmap.CompressFormat.PNG, 0, os);
                 os.write(endLine.getBytes(ENCODING));
-                
+
             } else if (data instanceof byte[]) {
                 String cd = "Content-Disposition: form-data; filename=\"data\"\r\n";
                 String ct = "Content-Type: content/unknown\r\n\r\n";
                 byte[] thedata = (byte[])this.data;
-  
+
                 os.write(cd.getBytes(ENCODING));
                 os.write(ct.getBytes(ENCODING));
                 os.write(thedata);
@@ -276,19 +277,20 @@ public class FBRequest
             delegate.request_didLoad(this, contentType, result);
         }
     }
-    
+
     private void failWithError(Throwable error) {
         if (delegate != null) {
             delegate.request_didFailWithError(this, error);
         }
     }
 
-    private void handleResponseData(String contentType, String data) 
+    private void handleResponseData(String contentType, String data)
     {
-        try 
+    	Log.w("FBRequest","Data: " + data);
+        try
         {
             Object result = null;
-            
+
             if (contentType!=null && contentType.indexOf("/json")!=-1)
             {
                 result = parseJSONResponse(data);
@@ -313,40 +315,41 @@ public class FBRequest
             {
                 result = data;
             }
-  
+
             // not an error, so call delegate
             succeedWithResult(contentType,result);
-            
-        } 
-        catch (JSONException e) 
+
+        }
+        catch (JSONException e)
         {
             failWithError(e);
         }
     }
 
-    public void connect() throws IOException 
+    public void connect() throws IOException
     {
 	     if (connection!=null)
 		  {
 				this.cancel();
 		  }
-		
+
         delegate.requestLoading(this);
 
         String url = (method != null ? this.url : generateGetURL());
 
         URL serverUrl = new URL(url);
-        
+
         Log.d(LOG,"sending url request "+serverUrl);
-        
+
         OutputStream out = null;
         InputStream in = null;
-        String returnedContentType = null; 
-        
+        String returnedContentType = null;
+
         try {
             connection = (HttpURLConnection) serverUrl.openConnection();
+            connection.setConnectTimeout(10000);
             connection.setRequestProperty("User-Agent", USER_AGENT);
-            
+
             String cookie = CookieManager.getInstance().getCookie(url);
             if (cookie!=null)
             {
@@ -358,7 +361,7 @@ public class FBRequest
             }
 
 				Log.d(LOG,"cookie = "+cookie);
-            
+
             connection.setRequestProperty("Cookie", cookie);
 
             byte[] body = null;
@@ -379,18 +382,20 @@ public class FBRequest
             }
 
             in = connection.getInputStream();
-            responseText = FBUtil.getResponse(in);
-            
+            StringBuilder sb = new StringBuilder(4096);
+            FBUtil.getResponse(sb, in);
+            responseText = sb.toString();
+
             returnedContentType = connection.getHeaderField("Content-Type");
 
-				for (int i = 0; true; i++) 
+				for (int i = 0; true; i++)
 				{
                 String hdrKey = connection.getHeaderFieldKey(i);
                 String hdrVal = connection.getHeaderField(i);
                 if (hdrKey == null) break; // no more headers
                 if (hdrVal == null) continue; // in some implementations, first header has no value
                 Log.i(LOG, "url header: " + hdrKey + "=" + hdrVal);
-                if (hdrKey.equalsIgnoreCase("set-cookie")) 
+                if (hdrKey.equalsIgnoreCase("set-cookie"))
 					 {
                     // Parse cookie
                     String[] fields = hdrVal.split(";\\s*");
@@ -406,12 +411,12 @@ public class FBRequest
                     String val = keyAndVal[1];
 
                     // Parse each field
-                    for (int j = 1; j < fields.length; j++) 
+                    for (int j = 1; j < fields.length; j++)
 						  {
                         if ("secure".equalsIgnoreCase(fields[j])) {
                             secure = true;
-                        } 
-								else if (fields[j].indexOf('=') > 0) 
+                        }
+								else if (fields[j].indexOf('=') > 0)
 								{
                             String[] f = fields[j].split("=");
                             if ("expires".equalsIgnoreCase(f[0])) {
@@ -432,8 +437,8 @@ public class FBRequest
                     CookieManager.getInstance().setCookie(url, _cookie.toString());
                 }
 				}
-        } 
-        finally 
+        }
+        finally
         {
             FBUtil.close(in);
             FBUtil.close(out);
@@ -469,7 +474,7 @@ public class FBRequest
     }
 
     private void connectionDidFinishLoading(String contentType) {
-        handleResponseData(contentType,responseText.toString());
+        handleResponseData(contentType,responseText);
         responseText = null;
         connection = null;
     }
@@ -483,7 +488,7 @@ public class FBRequest
 
     /**
      * Calls a method on the server asynchronously.
-     * 
+     *
      * Use this form for API calls with no data parameter.
      * The delegate will be called for each stage of the loading process.
      */
@@ -493,27 +498,27 @@ public class FBRequest
 
     /**
      * Calls a method on the server asynchronously.
-     * 
+     *
      * This version include an arbitrary byte array of data.
      * The delegate will be called for each stage of the loading process.
      */
     public void call(String method_, Map<String, String> params_, byte[] data_) {
         callWithAnyData(method_, params_, data_);
     }
-    
+
     /**
      * Calls a method on the server asynchronously.
-     * 
+     *
      * Include a Bitmap as a data parameter for photo uploads.
      * The delegate will be called for each stage of the loading process.
      */
     public void call(String method_, Map<String, String> params_, Bitmap data_) {
         callWithAnyData(method_, params_, data_);
     }
-    
+
     /**
      * Calls a method on the server asynchronously.
-     * 
+     *
      * The delegate will be called for each stage of the loading process.
      */
     private void callWithAnyData(String method_, Map<String, String> params_, Object data_) {
@@ -527,7 +532,7 @@ public class FBRequest
         params.put("v", API_VERSION);
         params.put("format", API_FORMAT);
 
-        if (!isSpecialMethod()) 
+        if (!isSpecialMethod())
         {
             params.put("session_key", session.getSessionKey());
             params.put("call_id", generateCallId());
@@ -544,7 +549,7 @@ public class FBRequest
 
     /**
      * Calls a URL on the server asynchronously.
-     * 
+     *
      * The delegate will be called for each stage of the loading process.
      */
     public void post(String url, Map<String, String> params_) {
@@ -554,7 +559,7 @@ public class FBRequest
         session.send(this);
     }
 
-    public void get(String url) 
+    public void get(String url)
     {
         this.url = url;
         this.method = "get";
@@ -566,17 +571,17 @@ public class FBRequest
     /**
      * Stops an active request before the response has returned.
      */
-    public void cancel() 
+    public void cancel()
     {
-        if (connection != null) 
+        if (connection != null)
         {
 			   Log.d(LOG,"cancelling");
-			
+
             try
             {
                 connection.disconnect();
             }
-            catch(Exception ig) 
+            catch(Exception ig)
             {
             }
             connection = null;
@@ -601,7 +606,7 @@ public class FBRequest
 
         /**
          * Called when a request returns and its response has been parsed into an object.
-         * 
+         *
          * The resulting object may be a dictionary, an array, a string, or a number, depending on the format of the
          * API response.
          */

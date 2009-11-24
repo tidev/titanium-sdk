@@ -8,6 +8,7 @@ package org.appcelerator.titanium.module.facebook;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -16,28 +17,31 @@ import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.Log;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
 /**
  * An FBSession represents a single user's authenticated session for a Facebook application.
- * 
+ *
  * To create a session, you must use the session key of your application (which can be found on the Facebook developer
  * website). You may then use the login dialog to ask the user to enter their email address and password. If successful,
  * you will get back a session key which can be used to make requests to the Facebook API.
- * 
+ *
  * Session keys are cached and stored on the disk of the device so that you do not need to ask the user to login every
  * time they launch the app. To restore the last active session, call the resume method after instantiating your
  * session.
  */
-public class FBSession 
+public class FBSession
 {
     private static final String LOG = FBSession.class.getSimpleName();
-    
+    private static final boolean DBG = TitaniumConfig.LOGD;
+
     private static final String PREFS_NAME = "FBSessionPreferences";
     private static final String FACEBOOK_REST_URL = "http://api.facebook.com/restserver.php";
     private static final String FACEBOOK_REST_SECURE_URL = "https://api.facebook.com/restserver.php";
@@ -59,20 +63,20 @@ public class FBSession
     private Timer requestTimer;
     private Map<String,String> permissions;
 
-    private FBSession(String key, String secret, String sessionProxy) 
+    private FBSession(String key, String secret, String sessionProxy)
     {
         this.delegates = new ArrayList<FBSessionDelegate>();
         this.apiKey = key;
         this.apiSecret = secret;
         this.sessionProxy = sessionProxy;
         this.uid = Long.valueOf(0);
-        this.requestQueue = new ArrayList<FBRequest>();
+        this.requestQueue = Collections.synchronizedList(new ArrayList<FBRequest>());
         this.requestBurstCount = 0;
     }
 
     /**
      * Constructs a session for an application.
-     * 
+     *
      * @param secret
      *            the application secret (optional)
      * @param getSessionProxy a url to that proxies auth.getSession (optional)
@@ -95,7 +99,7 @@ public class FBSession
 
     /**
      * Sets the globally shared session instance.
-     * 
+     *
      * This session is not retained, so you are still responsible for retaining it yourself. The first session that is
      * created is automatically stored here.
      */
@@ -105,11 +109,11 @@ public class FBSession
 
     /**
      * Constructs a session and stores it as the globally shared session instance.
-     * 
+     *
      * @param secret
      *            the application secret (optional)
      */
-    public static FBSession getSessionForApplication_secret(String key, String secret, FBSessionDelegate delegate) 
+    public static FBSession getSessionForApplication_secret(String key, String secret, FBSessionDelegate delegate)
     {
         FBSession session = initWithKey(key, secret, null);
         session.getDelegates().add(delegate);
@@ -118,18 +122,18 @@ public class FBSession
 
     /**
      * Constructs a session and stores it as the global singleton.
-     * 
+     *
      * @param getSessionProxy
      *            a url to that proxies auth.getSession (optional)
      */
-    public static FBSession getSessionForApplication_getSessionProxy(String key, String sessionProxy, FBSessionDelegate delegate) 
+    public static FBSession getSessionForApplication_getSessionProxy(String key, String sessionProxy, FBSessionDelegate delegate)
     {
         FBSession session = initWithKey(key, null, sessionProxy);
         session.getDelegates().add(delegate);
         return session;
     }
 
-    private void save(Context context) 
+    private void save(Context context)
     {
         SharedPreferences defaults = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         Editor editor = defaults.edit();
@@ -160,10 +164,10 @@ public class FBSession
         editor.commit();
     }
 
-    private void unsave(Context context) 
+    private void unsave(Context context)
     {
         Editor defaults = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
-        
+
         defaults.remove("FBUserId");
         defaults.remove("FBSessionKey");
         defaults.remove("FBSessionSecret");
@@ -176,7 +180,7 @@ public class FBSession
         }
     }
 
-    private void startFlushTimer() 
+    private void startFlushTimer()
     {
         if (requestTimer == null) {
             long timeIntervalSinceNow = FBUtil.timeIntervalSinceNow(lastRequestTime);
@@ -186,56 +190,78 @@ public class FBSession
         }
     }
 
-    private void enqueueRequest(FBRequest request) 
+    private void enqueueRequest(FBRequest request)
     {
         requestQueue.add(request);
         startFlushTimer();
     }
 
-    private boolean performRequest(FBRequest request, boolean enqueue) 
+    private boolean performRequest(FBRequest request, boolean enqueue)
     {
+    	if (DBG) {
+    		Log.d(LOG, "Performing Request");
+    	}
+
         // Stagger requests that happen in short bursts to prevent the server from rejecting
         // them for making too many requests in a short time
         long t = FBUtil.timeIntervalSinceNow(lastRequestTime);
-        boolean burst = t > -BURST_DURATION_IN_SEC;
-        if (burst && ++requestBurstCount > MAX_BURST_REQUESTS) 
+        boolean burst = t < BURST_DURATION_IN_SEC;
+
+        if (DBG) {
+        	Log.d(LOG, "t: " + t);
+        	Log.d(LOG, "Burst: " + burst);
+        }
+        if (burst && ++requestBurstCount > MAX_BURST_REQUESTS)
         {
-            if (enqueue) 
+            if (enqueue)
             {
+            	if (DBG) {
+            		Log.d(LOG, "Queuing, burst exceeded");
+            	}
                 enqueueRequest(request);
             }
             return false;
-        } 
-        else 
+        }
+        else
         {
-            try 
+        	if (DBG) {
+        		Log.d(LOG, "Requesting.");
+        	}
+            try
             {
                 request.connect();
-            } 
-            catch (IOException e) 
+            }
+            catch (IOException e)
             {
                 e.printStackTrace();
             }
 
-            if (!burst) 
+            if (!burst)
             {
+            	if (DBG) {
+            		Log.d(LOG, "Setting burst count.");
+            	}
+
                 requestBurstCount = 1;
-                lastRequestTime = request.getTimestamp();
             }
+            lastRequestTime = request.getTimestamp();
         }
         return true;
     }
 
-    private void flushRequestQueue() 
+    private void flushRequestQueue()
     {
-        while (requestQueue.size() > 0) 
+    	if (DBG) {
+    		Log.d(LOG, "flushRequestQueue: " + requestQueue.size());
+    	}
+        while (requestQueue.size() > 0)
         {
             FBRequest request = requestQueue.get(0);
-            if (performRequest(request, false)) 
+            if (performRequest(request, false))
             {
                 requestQueue.remove(0);
-            } 
-            else 
+            }
+            else
             {
                 startFlushTimer();
                 break;
@@ -243,9 +269,12 @@ public class FBSession
         }
     }
 
-    private final TimerTask requestTimerReady = new TimerTask() 
+    private final TimerTask requestTimerReady = new TimerTask()
     {
         public void run() {
+        	if (DBG) {
+        		Log.d(LOG, "Timer Task Fired");
+        	}
             requestTimer = null;
             flushRequestQueue();
         }
@@ -268,7 +297,7 @@ public class FBSession
     /**
      * Determines if the session is active and connected to a user.
      */
-    public boolean isConnected() 
+    public boolean isConnected()
     {
         return sessionKey != null;
     }
@@ -289,7 +318,7 @@ public class FBSession
      */
     public boolean resume(Context context) {
         SharedPreferences defaults = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        CookieSyncManager.createInstance(context); 
+        CookieSyncManager.createInstance(context);
         Long uid = defaults.getLong("FBUserId", 0);
         if (uid != 0) {
             Date expirationDate = new Date(defaults.getLong("FBSessionExpires", 0));
@@ -311,14 +340,14 @@ public class FBSession
     /**
      * Ends the current session and deletes the uid, session key, and secret from disk.
      */
-    public void logout(Context context) 
+    public void logout(Context context)
     {
-        if (sessionKey != null) 
+        if (sessionKey != null)
         {
             for (FBSessionDelegate delegate : delegates) {
                 delegate.session_willLogout(this, uid);
             }
-            
+
             // attempt to remove any facebook login cookies
             try
             {
@@ -349,12 +378,12 @@ public class FBSession
             expirationDate = null;
             unsave(context);
 
-            for (FBSessionDelegate delegate : delegates) 
+            for (FBSessionDelegate delegate : delegates)
             {
                 delegate.sessionDidLogout(this);
             }
-        } 
-        else 
+        }
+        else
         {
             unsave(context);
         }
@@ -390,7 +419,7 @@ public class FBSession
 
     /**
      * The URL to call to create a session key after login.
-     * 
+     *
      * This is an alternative to calling auth.getSession directly using the secret key.
      */
     public String getGetSessionProxy() {
@@ -424,13 +453,13 @@ public class FBSession
     public Date getExpirationDate() {
         return expirationDate;
     }
-    
+
     public void setPermissions (Map<String,String> perm)
     {
         this.permissions = perm;
         Log.d(LOG,"set permission to "+perm);
     }
-    
+
     public boolean hasPermission (String name)
     {
         if (this.permissions!=null)
@@ -439,7 +468,7 @@ public class FBSession
         }
         return false;
     }
-    
+
     public void addPermissions (String name, String value)
     {
         if (this.permissions==null)
