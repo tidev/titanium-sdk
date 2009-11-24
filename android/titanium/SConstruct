@@ -2,6 +2,7 @@
 import os,sys,shutil,platform,subprocess
 import SCons.Variables
 import SCons.Environment
+from jsmin import JavascriptMinify
 
 cwd = os.path.dirname(os.path.abspath(sys._getframe(0).f_code.co_filename))
 
@@ -65,10 +66,27 @@ for f in Glob('src/org/appcelerator/titanium/res/drawable/*',strings=True):
 	t = env.Command(os.path.join('bin/classes/org/appcelerator/titanium/res/drawable', fname), f, Copy("bin/classes/org/appcelerator/titanium/res/drawable", "$SOURCE"))
 	targets.append(t)
 
+bin_tmp = 'bin/tmp'
+if os.path.exists(bin_tmp):
+	shutil.rmtree(bin_tmp)
+os.makedirs(bin_tmp)
+	
+jsm = JavascriptMinify()
+
 for f in Glob('src/org/appcelerator/titanium/module/facebook/resources/*',strings=True):
 	fname = os.path.basename(str(f))
-	if os.path.splitext(fname)[1]=='.png':
+	ext = os.path.splitext(fname)[1]
+	if ext =='.png':
 		if fname[0:3]=='log': continue
+	elif ext == '.js':
+		# minify Javascript files
+		inf = open(f,"r")
+		tf = os.path.join(bin_tmp,os.path.basename(f))
+		outf = open(tf,"w")
+		jsm.minify(inf, outf)
+		outf.close()
+		inf.close()
+		f = tf
 	t = env.Command(os.path.join('bin/classes/org/appcelerator/titanium/module/facebook/resources', fname), f, Copy("bin/classes/org/appcelerator/titanium/module/facebook/resources", "$SOURCE"))
 	targets.append(t)
 

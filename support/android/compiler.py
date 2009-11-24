@@ -17,7 +17,6 @@ class Compiler(object):
 		self.template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 		self.appid = appid
 		self.project_dir = os.path.abspath(os.path.expanduser(project_dir))
-		self.temp_build_dir = os.path.join(tempfile.gettempdir(),appid)
 		# these modules are always required 
 		self.modules = ['App','API','Platform','Analytics']
 		self.module_methods = []
@@ -64,84 +63,46 @@ class Compiler(object):
 			self.extract_and_combine_modules('Titanium',line)
 			self.extract_and_combine_modules('Ti',line)
 		
-	def make_function_from_file(self,path,file):
+	def make_function_from_file(self,file):
 	
-		fp = os.path.splitext(path)
-		basename = fp[0].replace(' ','_').replace('/','_').replace('-','_').replace('.','_').replace('+','_')
+		fp = os.path.splitext(file)
 		ext = fp[1][1:]
 
-		url = 'app://%s/%s' % (self.appid,path)
-
-		filetype = ''
-		contents = ''
-	
-		if ext=='html':
-			filetype = 'page'
-		elif ext=='css':
-			filetype = 'style'
-		elif ext=='js':
-			filetype = 'script'	
-	
-		file_contents = open(os.path.expanduser(file)).read()
-		_file_contents = file_contents
+		thefile = os.path.expanduser(file)
+		file_contents = open(thefile).read()
+		save_off = False
+		parse_modules = True
 
 		# minimize javascript, css files
 		if ext == 'js':
 			file_contents = jspacker.jsmin(file_contents)
+			save_off = True
 		elif ext == 'css':
-			# packer = CSSPacker(file_contents)
-			# file_contents = packer.pack()
-			# FIXME: we need to compress these
-			return {}
+			packer = CSSPacker(file_contents)
+			file_contents = packer.pack()
+			save_off = True
+			parse_modules = False
+
+		if save_off:
+				of = open(thefile,'w')
+				of.write(file_contents)
+				of.close()
+				print "[DEBUG] compressing: %s" % thefile
 		
-		# determine which modules this file is using
-		self.extract_modules(file_contents)
+		if parse_modules:
+			# determine which modules this file is using
+			self.extract_modules(file_contents)
 		
-		# TODO: for now we're just returning empty for android
-		return {}
 
 	def compile(self):
 		
-		c = 0
-		
-		# transform resources
-		def strip_slash(s):
-			if s[0:1]=='/': return s[1:]
-			return s
-		def recursive_cp(dir,dest):
-			for root, dirs, files in os.walk(dir):
-				relative = strip_slash(root.replace(dir,''))
-				relative_dest = os.path.join(dest,relative)
-				if not os.path.exists(relative_dest):
-					os.makedirs(relative_dest)
-				for f in files:
-					fullpath = os.path.join(root,f)
-					relativedest = os.path.join(dest,relative,f)
-					shutil.copy(fullpath,relativedest)
-				
-		if os.path.exists(self.temp_build_dir):
-			shutil.rmtree(self.temp_build_dir)
-		os.makedirs(self.temp_build_dir)
-		recursive_cp(self.project_dir,self.temp_build_dir)
-		
-		if os.path.exists(os.path.join(self.temp_build_dir,'iphone')):
-			shutil.rmtree(os.path.join(self.temp_build_dir,'iphone'))
-		if os.path.exists(os.path.join(self.temp_build_dir,'android')):
-			recursive_cp(os.path.join(self.resources_dir,'android'),self.temp_build_dir)		
-			shutil.rmtree(os.path.join(self.temp_build_dir,'iphone'))
-
-		for root, dirs, files in os.walk(self.temp_build_dir):
+		for root, dirs, files in os.walk(self.project_dir):
 			if len(files) > 0:
-				prefix = root[len(self.temp_build_dir):]
+				prefix = root[len(self.project_dir):]
 				for f in files:
 					fp = os.path.splitext(f)
 					if len(fp)!=2: continue
 					if not fp[1] in ['.html','.js','.css']: continue
-					path = prefix + os.sep + f
-					path = path[1:]
-					fullpath = os.path.join(self.temp_build_dir,path)
-					metadata = self.make_function_from_file(path,fullpath)
-					c = c+1
+					fullpath = os.path.join(self.project_dir,f)
+					metadata = self.make_function_from_file(fullpath)
 					
-		# cleanup			
-		shutil.rmtree(self.temp_build_dir)			

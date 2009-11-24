@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.facebook.FBRequest.FBRequestDelegate;
 import org.appcelerator.titanium.util.Log;
 
@@ -25,46 +26,47 @@ import android.app.Activity;
 /**
  * Dialog for managing the Login
  */
-public class FBLoginDialog extends FBDialog 
+public class FBLoginDialog extends FBDialog
 {
     private static final String LOG = FBLoginDialog.class.getSimpleName();
-    
+    private static final boolean DBG = TitaniumConfig.LOGD;
+
     private static final String FB_LOGIN_URL = "http://www.facebook.com/login.php";
 
     private FBRequest sessionRequest;
     private FBRequestDelegate requestDelegate;
 
-    public FBLoginDialog(Activity context, FBSession session) 
+    public FBLoginDialog(Activity context, FBSession session)
     {
         super(context, session);
         requestDelegate = new FBRequestDelegateImpl();
-        
-//        context.getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND | WindowManager.LayoutParams.TYPE_INPUT_METHOD_DIALOG,  
+
+//        context.getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND | WindowManager.LayoutParams.TYPE_INPUT_METHOD_DIALOG,
 //                WindowManager.LayoutParams.FLAG_BLUR_BEHIND | WindowManager.LayoutParams.TYPE_INPUT_METHOD_DIALOG);
 
     }
 
-    private void connectToGetSession(String token) 
+    private void connectToGetSession(String token)
     {
         sessionRequest = FBRequest.requestWithSession(session, requestDelegate);
         Map<String, String> params = new HashMap<String, String>();
         params.put("auth_token", token);
-        if (session.getApiSecret() != null) 
+        if (session.getApiSecret() != null)
         {
             params.put("generate_session_secret", "1");
         }
 
-        if (session.getGetSessionProxy() != null) 
+        if (session.getGetSessionProxy() != null)
         {
             sessionRequest.post(session.getGetSessionProxy(), params);
-        } 
-        else 
+        }
+        else
         {
             sessionRequest.call("facebook.auth.getSession", params);
         }
     }
 
-    private void loadLoginPage() 
+    private void loadLoginPage()
     {
         Map<String, String> params = new HashMap<String, String>();
         params.put("fbconnect", "1");
@@ -73,23 +75,23 @@ public class FBLoginDialog extends FBDialog
         params.put("session_key", session.getSessionKey());
         params.put("next", "fbconnect://success");
 
-        try 
+        try
         {
             loadURL(FB_LOGIN_URL, "GET", params, null);
-        } 
-        catch (MalformedURLException e) 
+        }
+        catch (MalformedURLException e)
         {
             Log.e(LOG,"Error loading URL: "+FB_LOGIN_URL,e);
         }
     }
 
     @Override
-    protected void load() 
+    protected void load()
     {
         loadLoginPage();
     }
-    
-    
+
+
 
     /* (non-Javadoc)
      * @see org.appcelerator.titanium.module.facebook.FBDialog#afterLoad(java.net.URL, java.lang.String, java.lang.Object)
@@ -99,23 +101,27 @@ public class FBLoginDialog extends FBDialog
     {
         try
         {
-				if (contentType!=null && contentType.indexOf("html")!=-1)
-				{
-	            String jquery = FBUtil.getContent(getClass(), "org/appcelerator/titanium/module/facebook/resources/jquery.js");
-	            String patch = FBUtil.getContent(getClass(), "org/appcelerator/titanium/module/facebook/resources/loginpatch.js");
-
-	            return content + "<script>" + jquery + "\n" + patch + "</script>";
-				}
+			 if (contentType!=null && contentType.indexOf("html")!=-1)
+			 {
+			 		StringBuilder sb = new StringBuilder(80000);
+				 	sb.append(content);
+				 	sb.append("<script>");
+		       	FBUtil.getContent(sb, getClass(), "org/appcelerator/titanium/module/facebook/resources/jquery.js");
+		       	sb.append("\n");
+		       	FBUtil.getContent(sb, getClass(), "org/appcelerator/titanium/module/facebook/resources/loginpatch.js");
+		       	sb.append("</script>");
+	          	return sb;
+			  }
         }
         catch (IOException e)
-        {   
-            Log.e(LOG,"Error loading resources",e); 
+        {
+            Log.e(LOG,"Error loading resources",e);
         }
         return content;
     }
 
     @Override
-    protected void dialogDidSucceed(URI url) 
+    protected void dialogDidSucceed(URI url)
     {
         String q = url.getQuery();
         int start = q.indexOf("auth_token=");
@@ -131,11 +137,11 @@ public class FBLoginDialog extends FBDialog
         super.dialogDidSucceed(url);
     }
 
-    private final class FBRequestDelegateImpl extends FBRequestDelegate 
+    private final class FBRequestDelegateImpl extends FBRequestDelegate
     {
 
         @Override
-        protected void request_didLoad(FBRequest request, String contentType, Object result) 
+        protected void request_didLoad(FBRequest request, String contentType, Object result)
         {
 				if (contentType!=null && contentType.indexOf("json")!=-1)
 				{
@@ -161,8 +167,12 @@ public class FBLoginDialog extends FBDialog
 	                }
 	                sessionRequest = null;
 
-	                session.begin(context, uid, sessionKey, sessionSecret, expiration);
-	                session.resume(context);
+	                Activity context = weakContext.get();
+						 if (context != null) 
+						 {
+		                session.begin(context, uid, sessionKey, sessionSecret, expiration);
+		                session.resume(context);
+	            	 }
 
 	                dismissWithSuccess(true, true);
 	            }
@@ -178,7 +188,7 @@ public class FBLoginDialog extends FBDialog
         }
 
         @Override
-        protected void request_didFailWithError(FBRequest request, Throwable error) 
+        protected void request_didFailWithError(FBRequest request, Throwable error)
         {
             sessionRequest = null;
             dismissWithError(error, true);

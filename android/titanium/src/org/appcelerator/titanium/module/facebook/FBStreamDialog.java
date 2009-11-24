@@ -9,9 +9,9 @@ package org.appcelerator.titanium.module.facebook;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.app.Activity;
-
 import org.appcelerator.titanium.util.Log;
+
+import android.app.Activity;
 
 /**
  * Dialog for handling stream posts
@@ -21,7 +21,7 @@ public class FBStreamDialog extends FBDialog
 {
     private static final String LOG = FBPermissionDialog.class.getSimpleName();
     private static final String FB_STREAM_URL = "http://www.facebook.com/connect/prompt_feed.php";
-    
+
 
     private final String attachment;
     private final String actionLinks;
@@ -42,12 +42,12 @@ public class FBStreamDialog extends FBDialog
     }
 
     @Override
-    protected void load() 
+    protected void load()
     {
         Map<String, String> params = new HashMap<String, String>(1);
         params.put("display", "touch");
-        
-        try 
+
+        try
         {
             Map<String,String> postParams = new HashMap<String,String>(8);
             postParams.put("api_key",session.getApiKey());
@@ -59,10 +59,10 @@ public class FBStreamDialog extends FBDialog
             postParams.put("action_links",actionLinks);
             postParams.put("target_id",targetId);
             postParams.put("user_message_prompt",userMessagePrompt);
-            
+
             this.loadURL(FB_STREAM_URL, "post", params, postParams);
-        } 
-        catch (Exception e) 
+        }
+        catch (Exception e)
         {
             Log.e(LOG,"Error loading URL: "+FB_STREAM_URL,e);
         }
