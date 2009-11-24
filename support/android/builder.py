@@ -6,12 +6,18 @@
 #
 import os, sys, subprocess, shutil, time, signal, string, platform, re, run
 from os.path import splitext
+from compiler import Compiler
+from os.path import join, splitext, split, exists
+from shutil import copyfile
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'..'))
 from tiapp import *
 from mako.template import Template
 from android import Android
+
+ignoreFiles = ['.gitignore', '.cvsignore'];
+ignoreDirs = ['.git','.svn','_svn', 'CVS'];
 
 def dequote(s):
     if s[0:1] == '"':
@@ -33,6 +39,25 @@ def read_properties(propFile):
 	    propDict[name]= value
 	propFile.close()
 	return propDict
+
+def copy_resources(source, target):
+	 if not os.path.exists(os.path.expanduser(target)):
+		  os.mkdir(os.path.expanduser(target))
+	 for root, dirs, files in os.walk(source):
+		  for name in ignoreDirs:
+		  	    if name in dirs:
+				    dirs.remove(name)	# don't visit ignored directories			  
+		  for file in files:
+				if splitext(file)[-1] in ('.html', '.js', '.css', '.a', '.m', '.c', '.cpp', '.h', '.mm'):
+					 continue
+				if file in ignoreFiles:
+					 continue
+				from_ = join(root, file)			  
+				to_ = os.path.expanduser(from_.replace(source, target, 1))
+				to_directory = os.path.expanduser(split(to_)[0])
+				if not exists(to_directory):
+					 os.makedirs(to_directory)
+				copyfile(from_, to_)
 
 
 class Builder(object):
@@ -142,8 +167,6 @@ class Builder(object):
 		
 		try:
 			#Files to ignore during build tree operations
-			ignoreFiles = ['.gitignore', '.cvsignore'];
-			ignoreDirs = ['.git','.svn','_svn', 'CVS'];
 			
 			os.chdir(self.project_dir)
 			
@@ -203,6 +226,114 @@ class Builder(object):
 			if not os.path.exists(assets_dir):
 				os.makedirs(assets_dir)
 
+			# compile resources
+			full_resource_dir = os.path.join(self.project_dir,asset_resource_dir)
+			compiler = Compiler(self.app_id,full_resource_dir,False)
+			compiler.compile()
+			
+			# Android SDK version --- FIXME: this is hardcoded until i hook in Nolan's code from Developer
+			android_sdk_version = '3'
+			
+			# NOTE: these are built-in permissions we need -- we probably need to refine when these are needed too
+			permissions_required = ['INTERNET','ACCESS_WIFI_STATE','ACCESS_NETWORK_STATE']
+			
+			GEO_PERMISSION = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION', 'ACCESS_MOCK_LOCATION']
+			CONTACTS_PERMISSION = ['READ_CONTACTS']
+			VIBRATE_PERMISSION = ['VIBRATE']
+			CAMERA_PERMISSION = ['CAMERA']
+			
+			# this is our module method to permission(s) trigger - for each method on the left, require the permission(s) on the right
+			permission_mapping = {
+				# GEO
+				'Geolocation.watchPosition' : GEO_PERMISSION,
+				'Geolocation.getCurrentPosition' : GEO_PERMISSION,
+				'Geolocation.watchHeading' : GEO_PERMISSION,
+				'Geolocation.getCurrentHeading' : GEO_PERMISSION,
+				
+				# MEDIA
+				'Media.vibrate' : VIBRATE_PERMISSION,
+				'Media.createVideoPlayer' : CAMERA_PERMISSION,
+				
+				# CONTACTS
+				'Contacts.createContact' : CONTACTS_PERMISSION,
+				'Contacts.saveContact' : CONTACTS_PERMISSION,
+				'Contacts.removeContact' : CONTACTS_PERMISSION,
+				'Contacts.addContact' : CONTACTS_PERMISSION,
+				'Contacts.getAllContacts' : CONTACTS_PERMISSION,
+				'Contacts.showContactPicker' : CONTACTS_PERMISSION,
+			}
+			
+			VIDEO_ACTIVITY = """<activity
+			android:name="org.appcelerator.titanium.TitaniumVideoActivity"
+			android:configChanges="keyboardHidden|orientation"
+			android:launchMode="singleTask"
+	    	/>"""
+	
+			MAP_ACTIVITY = """<activity
+	    		android:name="org.appcelerator.titanium.module.map.TitaniumMapActivity"
+	    		android:configChanges="keyboardHidden|orientation"
+	    		android:launchMode="singleTask"
+	    	/>
+		<uses-library android:name="com.google.android.maps" />"""
+	
+			FACEBOOK_ACTIVITY = """<activity 
+			android:name="org.appcelerator.titanium.module.facebook.FBActivity"
+			android:theme="@android:style/Theme.Translucent.NoTitleBar"
+        />"""
+			
+			activity_mapping = {
+			
+				# MEDIA
+				'Media.createVideoPlayer' : VIDEO_ACTIVITY,
+				
+				# MAPS
+				'Map.createView' : MAP_ACTIVITY,
+		    	
+				# FACEBOOK
+				'Facebook.setup' : FACEBOOK_ACTIVITY,
+				'Facebook.login' : FACEBOOK_ACTIVITY,
+				'Facebook.createLoginButton' : FACEBOOK_ACTIVITY,
+			}
+			
+			activities = []
+			
+			# figure out which permissions we need based on the used module methods
+			for mn in compiler.module_methods:
+				try:
+					perms = permission_mapping[mn]
+					if perms:
+						for perm in perms: 
+							try:
+								permissions_required.index(perm)
+							except:
+								permissions_required.append(perm)
+				except:
+					pass
+				try:
+					mappings = activity_mapping[mn]
+					try:
+						activities.index(mappings)
+					except:
+						activities.append(mappings)
+				except:
+					pass
+			
+			# build the permissions XML based on the permissions detected
+			permissions_required_xml = ""
+			for p in permissions_required:
+				permissions_required_xml+="<uses-permission android:name=\"android.permission.%s\"/>\n\t" % p				
+			
+			# copy any module image directories
+			for module in compiler.modules:
+				img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
+				if os.path.exists(img_dir):
+					dest_img_dir = os.path.join(full_resource_dir,'modules',module.lower(),'images')
+					if os.path.exists(dest_img_dir):
+						shutil.rmtree(dest_img_dir)
+					os.makedirs(dest_img_dir)
+					copy_resources(img_dir,dest_img_dir)
+				
+
 			shutil.copy(os.path.join(self.top_dir,'tiapp.xml'), assets_dir)
 			
 			tiapp = open(os.path.join(assets_dir, 'tiapp.xml')).read()
@@ -230,6 +361,28 @@ class Builder(object):
 
 			src_dir = os.path.join(self.project_dir, 'src')
 			android_manifest = os.path.join(self.project_dir, 'AndroidManifest.xml')
+			
+			android_manifest_to_read = android_manifest
+
+			# NOTE: allow the user to use their own custom AndroidManifest if they put a file named
+			# AndroidManifest.custom.xml in their android project directory in which case all bets are
+			# off
+			android_custom_manifest = os.path.join(self.project_dir, 'AndroidManifest.custom.xml')
+			if os.path.exists(android_custom_manifest):
+				android_manifest_to_read = android_custom_manifest
+				print "[INFO] Detected custom ApplicationManifest.xml -- no Titanium version migration supported"
+			
+			# we need to write out the new manifest
+			manifest_contents = open(android_manifest_to_read,'r').read()
+			manifest_contents = manifest_contents.replace('<!-- TI_ACTIVITIES -->',"\n\n\t\t".join(activities))
+			manifest_contents = manifest_contents.replace('<!-- TI_PERMISSIONS -->',permissions_required_xml)
+			manifest_contents = manifest_contents.replace('<uses-sdk android:minSdkVersion="3" />', '<uses-sdk android:minSdkVersion="%s" />' % android_sdk_version)
+
+			# write out the new manifest
+			amf = open(android_manifest,'w')
+			amf.write(manifest_contents)
+			amf.close()
+			
 			res_dir = os.path.join(self.project_dir, 'res')
 			output = run.run([aapt, 'package', '-m', '-J', src_dir, '-M', android_manifest, '-S', res_dir, '-I', jar])
 			success = re.findall(r'ERROR (.*)',output)

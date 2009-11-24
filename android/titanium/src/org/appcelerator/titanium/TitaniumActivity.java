@@ -450,14 +450,14 @@ public class TitaniumActivity extends Activity
 		return uniqueResultCodeAllocator.getAndIncrement();
 	}
 
-	protected void registerResultHandler(int code, TitaniumResultHandler handler) {
+	public void registerResultHandler(int code, TitaniumResultHandler handler) {
 		if (handler == null) {
 			Log.w(LCAT, "Received a null result handler");
 		}
 		resultHandlers.put(code, handler);
 	}
 
-	protected void removeResultHandler(int code) {
+	public void removeResultHandler(int code) {
 		resultHandlers.remove(code);
 	}
 

@@ -72,21 +72,29 @@ Ti.Facebook = {
 	createLoginButton: function(props)
 	{
 		var el = document.getElementById(props.id);
-		el.id = "ti_fbconnect_button";
-		var btn = document.createElement('button');
+		var s = props.style || 'normal';
+		var b = (s == 'normal') ? '' : '2';
+		var logged_in = this.isLoggedIn();
+		var l = (logged_in ? 'logout' : 'login');
+    	var imgsrc = 'modules/facebook/images/' + l + b + '.png';
+		var btnhtml = "<button id='ti_fbconnect_button' style='border:none;margin:0;padding:0;background:none;-webkit-tap-highlight-color: rgba(0,0,0,0.0);'><img id='ti_fbconnect_button_img' style='margin:0;padding:0;-webkit-tap-highlight-color: rgba(0,0,0,0.0);' src='"+imgsrc+"'/></button>";
+		el.innerHTML = btnhtml;
+		var img = document.getElementById('ti_fbconnect_button_img');
 		var self = this;
 		var listeners = {};
 		function updateButton(state)
 		{
-			Ti.API.debug("Facebook updateButton called with "+state);
-			if (state)
+			var lo = typeof(state)!='undefined' ? state : logged_in;
+			var part = lo ? 'logout' : 'login' + b;
+			img.src = 'modules/facebook/images/' + part + '.png';
+			img.ontouchstart = function()
 			{
-				btn.innerHTML = state ? 'Logout' : 'Login';
-			}
-			else
+				img.src = 'modules/facebook/images/' + part + '_down.png';
+			};
+			img.ontouchend = function()
 			{
-				btn.innerHTML = self.isLoggedIn() ? 'Logout' : 'Login';
-			}
+				img.src = 'modules/facebook/images/' + part + '.png';
+			};
 		};
 		function fire(name,evt)
 		{
@@ -102,22 +110,37 @@ Ti.Facebook = {
 		};
 		function stateChange(evt)
 		{
-			if (self.isLoggedIn())
+			var cur_login = logged_in;
+			if (evt.state == 'login' || evt.loggedin)
 			{
-				Ti.API.debug("Facebook state changed - logged in");
-				updateButton(true);
-				fire('login',evt);
+				logged_in = evt.success;
 			}
 			else
 			{
-				Ti.API.debug("Facebook state changed - logged out");
+				logged_in = false;
+			}
+			if (logged_in)
+			{
+				Ti.API.debug(">>>> Facebook state changed - logged in");
+				updateButton(true);
+				if (cur_login!=logged_in) 
+				{
+					fire('login',evt);
+				}
+			}
+			else
+			{
+				Ti.API.debug(">>>> Facebook state changed - logged out");
 				updateButton(false);
-				fire('logout',evt);
+				if (cur_login!=logged_in) 
+				{
+					fire('logout',evt);
+				}
 			}
 		};
-		btn.onclick = function()
+		img.onclick = function()
 		{
-			if (self.isLoggedIn())
+			if (logged_in)
 			{
 				self.logout(stateChange);
 			}
@@ -127,8 +150,6 @@ Ti.Facebook = {
 			}
 		};
 		updateButton();
-		var style = props.style;
-		el.appendChild(btn);
 		this.setup(props.apikey,props.secret,stateChange);
 		var obj = 
 		{

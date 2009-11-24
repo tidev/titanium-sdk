@@ -49,7 +49,16 @@ def zip_it(dist_dir,osname,version):
 	 
 	 android_jar = os.path.join(cur_dir,'android','titanium','bin','titanium.jar')
 	 if os.path.exists(android_jar):
-	 	zf.write(android_jar,'%s/android/titanium.jar' % basepath)
+		zf.write(android_jar,'%s/android/titanium.jar' % basepath)
+	 
+	 # right now we have to manually do these per module
+	 android_modules_dir = os.path.join(cur_dir,'android','titanium','src','org','appcelerator','titanium','module')
+	 android_modules = ['facebook']
+	 for module_name in android_modules:
+		 android_res_dir = os.path.join(android_modules_dir,module_name,'resources')
+	 	 for f in os.listdir(android_res_dir):
+	 	 	 if os.path.splitext(f)[1]=='.png':
+	 	 	 	 zf.write(os.path.join(android_res_dir,f),'%s/android/modules/%s/images/%s' % (basepath,module_name,f))
 	 
 	 if osname == "osx":
 		  sys.path.append(iphone_dir)
@@ -63,6 +72,7 @@ def zip_it(dist_dir,osname,version):
 		  
 		  for apiversion in prereq.get_sdks():
 				iphone_lib = os.path.join(cur_dir,'iphone','build')
+				if not os.path.exists(iphone_lib): continue
 				for f in os.listdir(iphone_lib):
 					 v = "%s.a" % apiversion
 					 if os.path.isfile(os.path.join(iphone_lib,f)) and f.find(v)!=-1:

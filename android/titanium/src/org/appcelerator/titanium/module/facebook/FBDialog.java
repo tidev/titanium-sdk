@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.module.facebook;
 
+import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -15,7 +16,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.http.impl.cookie.BasicClientCookie;
+import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.module.TitaniumFacebook;
 import org.appcelerator.titanium.module.facebook.FBRequest.FBRequestDelegate;
+import org.appcelerator.titanium.util.Log;
+
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -27,13 +33,13 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -48,20 +54,20 @@ import android.widget.TextView;
 public abstract class FBDialog extends FrameLayout
 {
     private static final String LOG = FBDialog.class.getSimpleName();
+    private static final boolean DBG = TitaniumConfig.LOGD;
+
     private static final String DEFAULT_TITLE = "Connect to Facebook";
     private static final int FACEBOOK_COLOR_BLUE = FBUtil.rgbFloatToInt(0.42578125f, 0.515625f, 0.703125f, 1.0f);
     private static final int FACEBOOK_COLOR_GRAY = FBUtil.rgbFloatToInt(0.3f, 0.3f, 0.3f, 0.8f);
 
-    private static final int TRANSITION_DURATION_IN_MS = 200; 
+    private static final int TRANSITION_DURATION_IN_MS = 200;
     private static final int TITLE_MARGIN_X = 8;
     private static final int TITLE_MARGIN_Y = 4;
     private static final int PADDING = 10;
     private static final int BORDER_WIDTH = 10;
 
-    public static final int DIALOG_CANCEL = 0;
-    public static final int DIALOG_SUCCESS = 1;
-    public static final int DIALOG_FAILED = -1;
 
+    private TitaniumFacebook facebookModule;
     private FBDialogDelegate delegate;
     private URL loadingURL;
     private TextView titleLabel;
@@ -72,7 +78,7 @@ public abstract class FBDialog extends FrameLayout
 
     protected FBSession session;
     protected WebView webView;
-    protected Activity context;
+    protected WeakReference<Activity> weakContext;
 
     public FBSession getSession()
     {
@@ -93,7 +99,7 @@ public abstract class FBDialog extends FrameLayout
     {
         this.delegate = delegate;
     }
-    
+
     public URL getURL()
     {
         return this.loadingURL;
@@ -163,21 +169,27 @@ public abstract class FBDialog extends FrameLayout
 	 protected void onStop()
 	 {
 		  Log.d(LOG,"FBDialog onStop");
-		  postDismissCleanup();
 	 }
 
 	 protected void onDestroy()
 	 {
 		  Log.d(LOG,"FBDialog onDestroy");
+		  if (webView != null) {
+			  webView.destroy();
+		  }
 	 }
 
     private void postDismissCleanup()
     {
+	     if (weakContext==null) return;
+    	  final Activity context = weakContext.get();
 	  	  if (context!=null)
 		  {
-			  Log.d(LOG,"postDismissCleanup UID == "+context.getIntent().getIntExtra("uid",0));
+	  		  int uid = context.getIntent().getIntExtra("uid",0);
+			  Log.d(LOG,"postDismissCleanup UID == "+uid);
+			  session = null;
+			  this.weakContext = null;
 			  context.finish();
-	        context = null;
 		  }
     }
 
@@ -200,13 +212,14 @@ public abstract class FBDialog extends FrameLayout
         }
     }
 
-    public FBDialog(Activity context, FBSession session)
+    public FBDialog(Activity context, FBSession session, TitaniumFacebook facebookModule)
     {
         super(context);
 
-        this.context = context;
+        this.weakContext = new WeakReference<Activity>(context);
         this.session = session;
-        
+		  this.facebookModule = facebookModule;
+
         // http://groups.google.com/group/android-developers/browse_thread/thread/a0b71c59fb33b94a/5d996451f43f507b?lnk=gst&q=ondraw#5d996451f43f507b
         setWillNotDraw(false);
 
@@ -225,7 +238,7 @@ public abstract class FBDialog extends FrameLayout
         title.setLayoutParams(new LayoutParams(
                 ViewGroup.LayoutParams.FILL_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
-        
+
 
         titleLabel = new TextView(context);
         titleLabel.setText(DEFAULT_TITLE);
@@ -233,19 +246,19 @@ public abstract class FBDialog extends FrameLayout
         titleLabel.setTextColor(Color.WHITE);
         titleLabel.setTypeface(Typeface.DEFAULT_BOLD);
         titleLabel.setPadding(TITLE_MARGIN_X, TITLE_MARGIN_Y, TITLE_MARGIN_X, TITLE_MARGIN_Y);
-  
-        
+
+
         titleLabel.setLayoutParams(new LayoutParams(
                 ViewGroup.LayoutParams.FILL_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
-        
+
         Drawable iconDrawable = FBUtil.getDrawable(getClass(),
                 "org/appcelerator/titanium/module/facebook/resources/fbicon.png");
 
         Drawable closeDrawable = FBUtil.getDrawable(getClass(),
                 "org/appcelerator/titanium/module/facebook/resources/close.png");
 
-        titleLabel.setCompoundDrawablePadding(5); 
+        titleLabel.setCompoundDrawablePadding(5);
         titleLabel.setCompoundDrawablesWithIntrinsicBounds(iconDrawable, null, null, null);
         title.addView(titleLabel);
 
@@ -275,9 +288,9 @@ public abstract class FBDialog extends FrameLayout
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
         lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         title.addView(closeButton, lp);
- 
+
         content.addView(title);
-        
+
         progressDialog = new ProgressDialog(context);
         progressDialog.setMessage("Loading...One moment");
         progressDialog.setIndeterminate(true);
@@ -288,6 +301,16 @@ public abstract class FBDialog extends FrameLayout
                 ViewGroup.LayoutParams.FILL_PARENT,
                 ViewGroup.LayoutParams.FILL_PARENT));
         webView.setWebViewClient(new WebViewClientImpl());
+        webView.setWebChromeClient(new WebChromeClient(){
+
+			@Override
+			public void onProgressChanged(WebView view, int newProgress) {
+				super.onProgressChanged(view, newProgress);
+				Log.i("FBDialog","Progress: " + newProgress);
+			}
+
+        });
+
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setSavePassword(false);
 
@@ -328,7 +351,7 @@ public abstract class FBDialog extends FrameLayout
                 uri = new URI(url);
 
 					 Log.d(LOG,"shouldOverrideUrlLoad for "+url);
-                
+
                 if (!uri.isAbsolute())
                 {
                     //FIXME: what to do?
@@ -356,9 +379,9 @@ public abstract class FBDialog extends FrameLayout
                     if (delegate!=null && !delegate.shouldOpenURLInExternalBrowser(
                             FBDialog.this, uri.toURL()))
                     {
-                        return true; 
+                        return true;
                     }
-                    
+
 //                    // open in external browser
 //                    Intent i = new Intent( Intent.ACTION_VIEW, Uri.parse(url));
 //                    i.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -381,16 +404,25 @@ public abstract class FBDialog extends FrameLayout
         public void onPageFinished(WebView view, String url)
         {
             Log.d(LOG,"LOADED WEBVIEW = "+url);
-            
+
             super.onPageFinished(view, url);
-            
+
             if (progressDialog!=null)
             {
                 progressDialog.dismiss();
             }
-            
+
             FBDialog.this.setVisibility(VISIBLE);
         }
+
+		@Override
+		public void onReceivedError(WebView view, int errorCode,
+				String description, String failingUrl)
+		{
+			Log.e("FBDialog", "Received Error: " + errorCode + " msg=" + description);
+			super.onReceivedError(view, errorCode, description, failingUrl);
+
+		}
 
     }
 
@@ -410,7 +442,7 @@ public abstract class FBDialog extends FrameLayout
         progressDialog.show();
         load();
     }
-    
+
     protected void dismissWithSuccess(boolean success, boolean animated)
     {
 	     if (request!=null)
@@ -419,8 +451,8 @@ public abstract class FBDialog extends FrameLayout
 			  {
 					request.cancel();
 			  }
-			  catch(Exception ig) 
-			  { 
+			  catch(Exception ig)
+			  {
 			  }
 			  request = null;
 		  }
@@ -440,11 +472,14 @@ public abstract class FBDialog extends FrameLayout
 
     protected void dismissWithError(Throwable error, boolean animated)
     {
+	     if (weakContext==null) return;
+    	  Activity context = weakContext.get();
 		  if (context!=null)
 		  {
 	        Intent data = new Intent();
-	        data.setAction(error.getMessage());
-	        context.setResult(DIALOG_FAILED, data);
+		 	  data.putExtra("message",error.getMessage());
+		 	  data.putExtra("error",true);
+	        context.setResult(Activity.RESULT_CANCELED, data);
 
 	        Log.w(LOG, "Facebook Dialog received error",error);
 	        if (delegate!=null)
@@ -457,87 +492,103 @@ public abstract class FBDialog extends FrameLayout
 
     protected void load()
     {
-    } 
-    
+    }
+
     protected Object beforeLoad(URL url, String contentType, Object content)
     {
         // for sublasses
         return content;
     }
-    
+
     protected void afterLoad(URL url, String contentType, Object content)
     {
         // for subclasses
     }
-    
+
     protected void injectData(String contentType, String content)
     {
         webView.loadDataWithBaseURL(loadingURL.toExternalForm(), content, contentType, "utf-8", null);
     }
 
     protected void loadURL(String url, String method,
-            Map<String, String> getParams, Map<String, String> postParams)
+            Map<String, String> getParams, final Map<String, String> postParams)
             throws MalformedURLException
     {
         loadingURL = generateURL(url, getParams);
-		
+
 		  if (request!=null)
 		  {
 				request.cancel();
 		  }
 
 		  Log.d(LOG,"Loading URL: "+loadingURL+" ("+method+")");
-        
+
         if (method.equalsIgnoreCase("get"))
         {
-            // we have to load GET requests over HTTP client and then inject in to 
+            // we have to load GET requests over HTTP client and then inject in to
             // the webview
             request = FBRequest.requestWithDelegate(new FBRequestDelegate()
             {
-                protected void request_didFailWithError(FBRequest request, Throwable error) 
+                protected void request_didFailWithError(FBRequest request, Throwable error)
                 {
                     FBDialog.this.dismissWithError(error, true);
                 }
-                protected void request_didLoad(FBRequest request, String contentType, Object result) 
+                protected void request_didLoad(FBRequest request, String contentType, Object result)
                 {
 						  Log.d(LOG,"GET URL response received: "+contentType);
-						
+
                     // give it to subclass in case they want to transform content
                     result = FBDialog.this.beforeLoad(loadingURL, contentType, result);
 
                     // we hard code content type since it appears that the result of contentType doesn't jive
                     // and we'd have to parse out to encoding ... however, we know what it is...
                     webView.loadDataWithBaseURL(loadingURL.toExternalForm(), result.toString(), "text/html", "utf-8", null);
-                    
+
                     FBDialog.this.afterLoad(loadingURL, contentType, result);
                 }
             });
-            request.get(loadingURL.toExternalForm());
+            new Thread() {
+
+				@Override
+				public void run() {
+					super.run();
+		            request.get(loadingURL.toExternalForm());
+				}
+            }.start();
         }
         else
         {
-            // we have to load POST requests over HTTP client and then inject in to 
+            // we have to load POST requests over HTTP client and then inject in to
             // the webview
             request = FBRequest.requestWithDelegate(new FBRequestDelegate()
             {
-                protected void request_didFailWithError(FBRequest request, Throwable error) 
+                protected void request_didFailWithError(FBRequest request, Throwable error)
                 {
                     FBDialog.this.dismissWithError(error, true);
                 }
-                protected void request_didLoad(FBRequest request, String contentType, Object result) 
+                protected void request_didLoad(FBRequest request, String contentType, Object result)
                 {
 						  Log.d(LOG,"POST URL response received: "+contentType);
-						
+
                     result = FBDialog.this.beforeLoad(loadingURL, contentType, result);
-                    
+
                     // we hard code content type since it appears that the result of contentType doesn't jive
                     // and we'd have to parse out to encoding ... however, we know what it is...
                     webView.loadDataWithBaseURL(loadingURL.toExternalForm(), result.toString(), "text/html", "utf-8", null);
-                    
+
                     FBDialog.this.afterLoad(loadingURL, contentType, result);
                 }
             });
-            request.post(loadingURL.toExternalForm(), postParams);
+
+            new Thread() {
+
+				@Override
+				public void run() {
+					super.run();
+		            request.post(loadingURL.toExternalForm(), postParams);
+				}
+            }.start();
+
         }
     }
 
@@ -551,13 +602,17 @@ public abstract class FBDialog extends FrameLayout
 
     protected void dialogDidSucceed(URI uri)
     {
-        if (context!=null) context.setResult(DIALOG_SUCCESS);
+		  if (weakContext==null) return;
+    	  Activity context = weakContext.get();
+        if (context!=null) context.setResult(Activity.RESULT_OK);
         dismissWithSuccess(true, true);
     }
-    
+
     protected void dialogDidCancel(URI uri)
     {
-        if (context!=null) context.setResult(DIALOG_CANCEL);
+		  if (weakContext==null) return;
+    	  Activity context = weakContext.get();
+    	  if (context!=null) context.setResult(Activity.RESULT_CANCELED);
         dismissWithSuccess(false, true);
     }
 
@@ -588,7 +643,7 @@ public abstract class FBDialog extends FrameLayout
         /**
          * Asks if a link touched by a user should be opened in an external
          * browser.
-         * 
+         *
          * If a user touches a link, the default behavior is to open the link in
          * the Safari browser, which will cause your app to quit. You may want
          * to prevent this from happening, open the link in your own internal

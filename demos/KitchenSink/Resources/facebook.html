@@ -5,11 +5,11 @@
 	
 	window.onload = function()
 	{
-		if (Titanium.Platform.name == 'android')
-		{
-			document.getElementById("fb").innerHTML = "Facebook Connect is not yet available on Android."
-			return;
-		}
+		// if (Titanium.Platform.name == 'android')
+		// {
+		// 	document.getElementById("fb").innerHTML = "Facebook Connect is not yet available on Android."
+		// 	return;
+		// }
 		
 		var tableView;
 		var refreshButton = Titanium.UI.createButton({
@@ -33,8 +33,9 @@
 		});
 
 		var sound = null;
+		var isAndroid = Titanium.Platform.name == 'android';
 		
-		if (Titanium.Platform.name != 'android')
+		if (!isAndroid)
 		{
 			// CAF is a specific iphone sound format
 			sound = Titanium.Media.createSound('pop.caf');
@@ -49,7 +50,7 @@
 		
 		function fetchStream()
 		{
-			Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
+			if (!isAndroid) Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
 			
 			Titanium.Facebook.query("SELECT uid, name, pic_square, status FROM user where uid IN (SELECT uid2 FROM friend WHERE uid1 = " + Titanium.Facebook.getUserId() + ") order by last_name",function(r)
 			{
@@ -150,28 +151,30 @@
 						});
 					}
 
-					Titanium.UI.currentWindow.setRightNavButton(refreshButton);
-					
-					var flexSpace = Titanium.UI.createButton({
-						systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
-					});
-					var b = Titanium.UI.createButton({
-						title:'Logout',
-						style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
-					});
-					b.addEventListener('click',function()
+					if (!isAndroid)
 					{
-						Titanium.Facebook.logout();
-						var views = Titanium.UI.currentWindow.getViews();
-						Titanium.UI.currentWindow.showView(views[0],{
-							animated:true,
-							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,
-							animationDuration:1000
-						});
-						Titanium.UI.currentWindow.setToolbar(null);
-					});
-					Titanium.UI.currentWindow.setToolbar([flexSpace,b,statusButton,feedButton,streamButton,flexSpace]);
+						Titanium.UI.currentWindow.setRightNavButton(refreshButton);
 					
+						var flexSpace = Titanium.UI.createButton({
+							systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+						});
+						var b = Titanium.UI.createButton({
+							title:'Logout',
+							style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+						});
+						b.addEventListener('click',function()
+						{
+							Titanium.Facebook.logout();
+							var views = Titanium.UI.currentWindow.getViews();
+							Titanium.UI.currentWindow.showView(views[0],{
+								animated:true,
+								animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,
+								animationDuration:1000
+							});
+							Titanium.UI.currentWindow.setToolbar(null);
+						});
+						Titanium.UI.currentWindow.setToolbar([flexSpace,b,statusButton,feedButton,streamButton,flexSpace]);
+					}
 				}
 				catch(EX)
 				{
@@ -282,7 +285,7 @@
 		
 		function showFriends()
 		{
-			Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
+			if (!isAndroid) Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
 		}
 		
 		feedButton.addEventListener('click',postActivity);

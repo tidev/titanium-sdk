@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
@@ -21,17 +22,27 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import org.appcelerator.titanium.config.TitaniumConfig;
+import org.appcelerator.titanium.util.Log;
+
 import android.graphics.Picture;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
+import org.appcelerator.titanium.util.Log;
+
 /**
  * Generic collection of ported functions used by FBConnect library
- * 
+ *
  */
 public class FBUtil
 {
-    public static int rgbFloatToInt(float red, float green, float blue, float alpha) 
+	private static final String LOG = FBUtil.class.getSimpleName();
+	private static final boolean DBG = TitaniumConfig.LOGD;
+
+	public static StringBuilder buffer;
+
+    public static int rgbFloatToInt(float red, float green, float blue, float alpha)
     {
         int r = (int) (red * 255 + 0.5);
         int g = (int) (green * 255 + 0.5);
@@ -40,63 +51,81 @@ public class FBUtil
         int value = ((a & 0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | ((b & 0xFF) << 0);
         return value;
     }
-    public static String encode(CharSequence target) 
+    public static String encode(CharSequence target)
     {
         if (target == null) {
             return "";
         }
         String result = target.toString();
-        try 
+        try
         {
             result = URLEncoder.encode(result, "UTF-8");
-        } 
-        catch (UnsupportedEncodingException ex) 
+        }
+        catch (UnsupportedEncodingException ex)
         {
             ex.printStackTrace();
         }
         return result;
     }
-    public static StringBuilder getResponse(InputStream data) throws IOException 
+
+    public static void getResponse(StringBuilder buffer, InputStream data) throws IOException
     {
-        Reader in = new BufferedReader(new InputStreamReader(data, "UTF-8"),8000);
-        StringBuilder buffer = new StringBuilder();
-        char[] buf = new char[4000];
-        int l = 0;
-        while (l >= 0) 
+	     InputStreamReader reader = null;
+	     Reader in = null;
+	     try
+	     {
+			  reader = new InputStreamReader(data,"UTF-8");
+		     in = new BufferedReader(reader,8000);
+	        char[] buf = new char[4000];
+	        int l = 0;
+	        int count = 0;
+			  while (l >= 0) 
+			  {
+				   count+=l;
+			 	   buffer.append(buf, 0, l);
+			 	   l = in.read(buf);
+			   }
+		    	if (DBG) {
+		    		Log.d(LOG, "Buffer Size: " + buffer.capacity() + " len: " + buffer.length());
+		    	}
+		  }
+		  finally
 		  {
-            buffer.append(buf, 0, l);
-            l = in.read(buf);
-        }
-        return buffer;
+			  close(reader);
+			  close(in);
+			  close(data);
+		  }
     }
-    public static void disconnect(HttpURLConnection conn) 
+
+    public static void disconnect(HttpURLConnection conn)
     {
         if (conn != null) {
             try
             {
                 conn.disconnect();
             }
-            catch(Exception ig) 
+            catch(Exception ig)
             {
+            	ig.printStackTrace();
             }
         }
     }
-    public static void close(Closeable c) 
+    public static void close(Closeable c)
     {
-        if (c != null) 
+        if (c != null)
         {
-            try 
+            try
             {
                 c.close();
-            } 
-            catch (IOException ex) 
+            }
+            catch (IOException ex)
             {
                 ex.printStackTrace();
             }
         }
     }
-    
-    public static String componentsJoinedByString(List<String> list, String separator) 
+
+    public static String componentsJoinedByString(List<String> list, String separator)
     {
         StringBuilder sb = new StringBuilder();
         sb.append(list.get(0));
@@ -107,73 +136,83 @@ public class FBUtil
         return sb.toString();
     }
 
-    public static final Comparator<String> CASE_INSENSITIVE_COMPARATOR = new Comparator<String>() 
+    public static final Comparator<String> CASE_INSENSITIVE_COMPARATOR = new Comparator<String>()
     {
         public int compare(String s1, String s2) {
             return s1.compareToIgnoreCase(s2);
         }
     };
 
-    public static String getContent(Class<?> clazz, String path) throws IOException
+    public static void getContent(StringBuilder sb, Class<?> clazz, String path) throws IOException
     {
+    	if (DBG) {
+    		Log.d(LOG, "Path: " + path);
+    	}
         InputStream is = clazz.getClassLoader().getResourceAsStream(path);
-        StringBuilder string = getResponse(is);
-        return string.toString();
+        getResponse(sb, is);
     }
 
-    public static Drawable getDrawable(Class<?> clazz, String path) 
+    public static Drawable getDrawable(Class<?> clazz, String path)
     {
         InputStream is = clazz.getClassLoader().getResourceAsStream(path);
         return Drawable.createFromStream(is, path);
     }
-    
-    public static BitmapDrawable getBitmapDrawable(Class<?> clazz, String path) 
+
+    public static BitmapDrawable getBitmapDrawable(Class<?> clazz, String path)
     {
         InputStream is = clazz.getClassLoader().getResourceAsStream(path);
         return (BitmapDrawable) BitmapDrawable.createFromStream(is, path);
     }
-    
-    public static Picture getPicture(Class<?> clazz, String path) 
+
+    public static Picture getPicture(Class<?> clazz, String path)
     {
         InputStream is = clazz.getClassLoader().getResourceAsStream(path);
         return Picture.createFromStream(is);
     }
 
-    public static long timeIntervalSinceNow(Date date) 
+    public static long timeIntervalSinceNow(Date date)
     {
-        if (date == null) 
+        if (date == null)
         {
             return 0;
         }
         return (System.currentTimeMillis() - date.getTime()) / 1000;
     }
-    
-    public static String generateMD5(String value) 
+
+    public static String generateMD5(String value)
     {
-        try 
+        try
         {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] bytes;
-            try 
+            try
             {
                 bytes = value.getBytes("UTF-8");
-            } 
-            catch (UnsupportedEncodingException e1) 
+            }
+            catch (UnsupportedEncodingException e1)
             {
                 bytes = value.getBytes();
             }
             StringBuilder result = new StringBuilder();
-            for (byte b : md.digest(bytes)) 
+            for (byte b : md.digest(bytes))
             {
                 result.append(Integer.toHexString((b & 0xf0) >>> 4));
                 result.append(Integer.toHexString(b & 0x0f));
             }
             return result.toString();
-        } 
-        catch (NoSuchAlgorithmException ex) 
+        }
+        catch (NoSuchAlgorithmException ex)
         {
             throw new RuntimeException(ex);
         }
     }
-    
+
+	 public static void copy(InputStream is, OutputStream os) throws IOException
+	 {
+		byte[] buf = new byte[8096];
+		int count = 0;
+		while((count = is.read(buf)) != -1) {
+			os.write(buf, 0, count);
+		}
+	 } 
 }

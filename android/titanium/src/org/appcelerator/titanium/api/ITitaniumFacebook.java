@@ -17,7 +17,7 @@ public interface ITitaniumFacebook
 
 	void query(String fql, String callback);
 	
-	void execute(String method, String params, String data, String callback);
+	void execute(String method, String params, ITitaniumInvoker data, String callback);
 
 	void login(String callback);
 	

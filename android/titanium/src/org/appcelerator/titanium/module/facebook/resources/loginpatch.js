@@ -62,6 +62,11 @@ $("#email,#pass").blur(function()
    $(".connect_logo").css("display",""); 
 });
 
+$('#login').click(function()
+{
+   $(".connect_logo").css("display",""); 
+});
+
 // replace our HREFs to the mobile version
 $("a").each(function()
 {

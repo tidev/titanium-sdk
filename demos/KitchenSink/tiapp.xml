@@ -7,6 +7,7 @@
 <copyright>2009 by nwright</copyright>
 <description>Mobile Unit Test App</description>
 <icon>appicon.png</icon>
+<analytics>true</analytics>
     <windows>
         <window>
             <id>Phone</id>
@@ -32,7 +33,6 @@
  			<icon>KS_nav_views.png</icon>
 			<orientation>either</orientation>
         </window>
-
         <window>
             <id>Mashups</id>
             <url>mashups.html</url>
@@ -40,7 +40,6 @@
  			<icon>KS_nav_mashup.png</icon>
 			<orientation>either</orientation>
         </window>
-
         <window>
             <id>Platform</id>
             <url>platform.html</url>
@@ -51,7 +50,7 @@
 			<backgroundImage>images/tableview/bg2_482.png</backgroundImage>
 			<barColor>#111</barColor>
         </window>
-
     </windows>
-<guid>6fe33f33fd1f4e95a06d2d217170866d</guid>
+    <property name="ti.android.debug" type="bool">true</property>
+	<guid>6fe33f33fd1f4e95a06d2d217170866d</guid>
 </ti:app>
