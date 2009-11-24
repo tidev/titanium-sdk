@@ -67,6 +67,8 @@ for f in Glob('src/org/appcelerator/titanium/res/drawable/*',strings=True):
 
 for f in Glob('src/org/appcelerator/titanium/module/facebook/resources/*',strings=True):
 	fname = os.path.basename(str(f))
+	if os.path.splitext(fname)[1]=='.png':
+		if fname[0:3]=='log': continue
 	t = env.Command(os.path.join('bin/classes/org/appcelerator/titanium/module/facebook/resources', fname), f, Copy("bin/classes/org/appcelerator/titanium/module/facebook/resources", "$SOURCE"))
 	targets.append(t)
 

@@ -26,22 +26,9 @@
         	android:name="org.appcelerator.titanium.TitaniumActivity"
         	android:configChanges="keyboardHidden|orientation"
       	/>
-    	<activity
-    		android:name="org.appcelerator.titanium.TitaniumVideoActivity"
-    		android:configChanges="keyboardHidden|orientation"
-            android:launchMode="singleTask"
-    	/>
-    	<activity
-    		android:name="org.appcelerator.titanium.module.map.TitaniumMapActivity"
-    		android:configChanges="keyboardHidden|orientation"
-    		android:launchMode="singleTask"
-    	/>
-        <activity 
-			android:name="org.appcelerator.titanium.module.facebook.FBActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-        />
 
-    	<uses-library android:name="com.google.android.maps" />
+		<!-- TI_ACTIVITIES -->
+		
 <!--
 		<provider
 			android:authorities="${config['appid']}.titanium"
@@ -53,21 +40,7 @@
 			android:exported="false"
 		/>
 	</application>
-	<!-- required when using net -->
-  	<uses-permission android:name="android.permission.INTERNET"/>
-  	<!-- required to check network connectivity -->
-  	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-  	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-  	<!-- required for geolocation -->
-	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-	<uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
-	<!-- required for getting phone information -->
-	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
-	<!-- required for using vibrator -->
-	<uses-permission android:name="android.permission.VIBRATE"/>
-	<!-- required for using the camera -->
-	<uses-permission android:name="android.permission.CAMERA" />
-	<!-- required for reading contact data -->
-	<uses-permission android:name="android.permission.READ_CONTACTS"/>
+	
+	<!-- TI_PERMISSIONS -->
+	
 </manifest>
