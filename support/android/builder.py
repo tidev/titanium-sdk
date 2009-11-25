@@ -95,7 +95,6 @@ class Builder(object):
 			if output.find("offline")==-1 or (time.time()-t > 5):
 				break
 			os.sleep(1)
-		#os.system("\"%s\" -%s wait-for-device" % (self.adb,type))
 		print "[DEBUG] Device connected..."
 		sys.stdout.flush()
 	
@@ -365,6 +364,30 @@ class Builder(object):
 				os.remove(existingicon)
 			if os.path.exists(iconpath):
 				shutil.copy(iconpath,existingicon)
+
+			# make our Titanium theme for our icon
+			resfiledir = os.path.join('res','values')
+			if not os.path.exists(resfiledir):
+				os.makedirs(resfiledir)
+			resfilepath = os.path.join(resfiledir,'theme.xml')
+			if not os.path.exists(resfilepath):
+				resfile = open(resfilepath,'w')
+				TITANIUM_THEME="""<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Titanium" parent="android:Theme">
+        <item name="android:windowBackground">@drawable/background</item>
+    </style>
+</resources>
+	"""
+				resfile.write(TITANIUM_THEME)
+				resfile.close()
+			
+			# create our background image which acts as splash screen during load	
+			splashimage = os.path.join(asset_resource_dir,'default.png')
+			if os.path.exists(splashimage):
+				print "[DEBUG] found splash screen at %s" % os.path.abspath(splashimage)
+				shutil.copy(splashimage,os.path.join('res','drawable','background.png'))
+			
 			
 			# we re-run the create each time through in case any of our key files
 			# have changed
