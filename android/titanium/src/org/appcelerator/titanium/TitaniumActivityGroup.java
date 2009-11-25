@@ -147,9 +147,9 @@ public class TitaniumActivityGroup extends ActivityGroup
     		Drawable backgroundDrawable = null;
 
     		String backgroundImage = "default.png";
-	    	if(info != null && info.hasWindowBackgroundImage()) {
-	    		backgroundImage = info.getWindowBackgroundImage();
-	    	}
+//	    	if(info != null && info.hasWindowBackgroundImage()) {
+//	    		backgroundImage = info.getWindowBackgroundImage();
+//	    	}
 
 	    	backgroundDrawable = tfh.loadDrawable(backgroundImage, false); // Ok to not have background
 			if (backgroundDrawable != null) {
