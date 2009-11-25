@@ -28,13 +28,13 @@
 					document.getElementById("mediatype").innerHTML = details.mediaType;
 					
 					
-					document.getElementById('i').src = image.url;
+					//document.getElementById('i').src = image.url;
 					
-					Titanium.Media.saveToPhotoGallery(image.url);
+					//Titanium.Media.saveToPhotoGallery(image.url);
 					
 					
 					var activeMovie = Titanium.Media.createVideoPlayer({
-											contentURL:media.url,
+											contentURL:media.filePath,
 											backgroundColor:'#111',
 											movieControlMode:Titanium.Media.VIDEO_CONTROL_DEFAULT,
 											scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL

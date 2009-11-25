@@ -52,8 +52,8 @@
 		var picker = Titanium.UI.createPicker({id:'picker',data:data,selectionIndicator:true});
 		picker.addEventListener('change', function(e)
 		{
-			var inputData = {title:'Subject',value:col1.data[e.row].title}
-			inputSection.updateRow(0,inputData);
+			var inputData = [{title:'Subject',value:col1.data[e.row].title}]
+			inputSection.setData(inputData);
 		});
 		
 	};
