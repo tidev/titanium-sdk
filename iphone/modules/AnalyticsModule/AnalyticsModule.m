@@ -294,6 +294,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	NSString * version = [NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding];
 	NSString * os = [NSString stringWithCString:u.release encoding:NSUTF8StringEncoding];
 	NSString * username = [platformDict objectForKey:@"username"];
+	NSString * mmodel = [platformDict objectForKey:@"model"];
 	
 #ifdef MODULE_TI_NETWORK
 	NSString * nettype = [((NetworkModule *)[[TitaniumHost sharedHost] moduleNamed:@"NetworkModule"]) networkTypeName];
@@ -310,6 +311,7 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 						   VAL_OR_NSNULL(app_ver),@"app_version",
 						   os,@"osver",
 						   VAL_OR_NSNULL(nettype),@"nettype",
+						   VAL_OR_NSNULL(mmodel),@"model",
 						   nil
 						   ];
 	[self enqueuePlatformEvent:@"ti.start" evtname: @"ti.start" data:data];
