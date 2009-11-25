@@ -86,10 +86,17 @@ class Builder(object):
 		
 
 	def wait_for_device(self,type):
-		print "[DEBUG] Waiting for device..."
-		print "\"%s\" -%s wait-for-device" % (self.adb,type)
-		os.system("\"%s\" -%s wait-for-device" % (self.adb,type))
+		print "[DEBUG] Waiting for emulator to be ready ..."
+		sys.stdout.flush()
+		t = time.time()
+		while True:
+			output = run.run([self.adb,"-%s" % type, 'devices'])
+			print "[DEBUG] %s" % output
+			if output.find("offline")==-1 or (time.time()-t > 5):
+				break
+			os.sleep(1)
 		print "[DEBUG] Device connected..."
+		sys.stdout.flush()
 	
 	def run_emulator(self):
 		
@@ -164,6 +171,7 @@ class Builder(object):
 		
 		curdir = os.getcwd()
 		tijar = os.path.join(self.support_dir,'titanium.jar')
+		timapjar = os.path.join(self.support_dir,'titanium-map.jar')
 		
 		try:
 			#Files to ignore during build tree operations
@@ -325,6 +333,9 @@ class Builder(object):
 			
 			# copy any module image directories
 			for module in compiler.modules:
+				if module.lower() == 'map':
+					tijar = timapjar
+					print "[INFO] Detected Google Maps dependency. Using Titanium + Maps"
 				img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
 				if os.path.exists(img_dir):
 					dest_img_dir = os.path.join(full_resource_dir,'modules',module.lower(),'images')
@@ -353,6 +364,30 @@ class Builder(object):
 				os.remove(existingicon)
 			if os.path.exists(iconpath):
 				shutil.copy(iconpath,existingicon)
+
+			# make our Titanium theme for our icon
+			resfiledir = os.path.join('res','values')
+			if not os.path.exists(resfiledir):
+				os.makedirs(resfiledir)
+			resfilepath = os.path.join(resfiledir,'theme.xml')
+			if not os.path.exists(resfilepath):
+				resfile = open(resfilepath,'w')
+				TITANIUM_THEME="""<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Titanium" parent="android:Theme">
+        <item name="android:windowBackground">@drawable/background</item>
+    </style>
+</resources>
+	"""
+				resfile.write(TITANIUM_THEME)
+				resfile.close()
+			
+			# create our background image which acts as splash screen during load	
+			splashimage = os.path.join(asset_resource_dir,'default.png')
+			if os.path.exists(splashimage):
+				print "[DEBUG] found splash screen at %s" % os.path.abspath(splashimage)
+				shutil.copy(splashimage,os.path.join('res','drawable','background.png'))
+			
 			
 			# we re-run the create each time through in case any of our key files
 			# have changed

@@ -14,11 +14,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.lang.ref.WeakReference;
 
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
+
+import org.json.JSONObject;
+import org.json.JSONException;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -37,7 +40,7 @@ import android.webkit.CookieSyncManager;
  * time they launch the app. To restore the last active session, call the resume method after instantiating your
  * session.
  */
-public class FBSession
+public class FBSession implements Runnable
 {
     private static final String LOG = FBSession.class.getSimpleName();
     private static final boolean DBG = TitaniumConfig.LOGD;
@@ -50,6 +53,7 @@ public class FBSession
     private static FBSession sharedSession;
 
     private List<FBSessionDelegate> delegates;
+	 private LinkedBlockingQueue<FBRequest> requests;
     private String apiKey;
     private String apiSecret;
     private String sessionProxy;
@@ -57,11 +61,10 @@ public class FBSession
     private String sessionKey;
     private String sessionSecret;
     private Date expirationDate;
-    private List<FBRequest> requestQueue;
-    private Date lastRequestTime;
-    private int requestBurstCount;
-    private Timer requestTimer;
+    private List<FBRequest> pendingSessionRequestQueue;
     private Map<String,String> permissions;
+	 private Thread requestThread;
+	 private WeakReference<Context> context;
 
     private FBSession(String key, String secret, String sessionProxy)
     {
@@ -70,8 +73,8 @@ public class FBSession
         this.apiSecret = secret;
         this.sessionProxy = sessionProxy;
         this.uid = Long.valueOf(0);
-        this.requestQueue = Collections.synchronizedList(new ArrayList<FBRequest>());
-        this.requestBurstCount = 0;
+        this.pendingSessionRequestQueue = Collections.synchronizedList(new ArrayList<FBRequest>());
+        this.requests = new LinkedBlockingQueue<FBRequest>();
     }
 
     /**
@@ -135,6 +138,10 @@ public class FBSession
 
     private void save(Context context)
     {
+		  if (context==null) return;
+		
+		  Log.d(LOG,"save called");
+		
         SharedPreferences defaults = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         Editor editor = defaults.edit();
         if (uid != null) {
@@ -161,17 +168,35 @@ public class FBSession
             editor.remove("FBSessionExpires");
         }
 
+		  if (permissions != null) {
+			   try
+				{
+					String perms = new JSONObject(permissions).toString();
+					if (DBG) Log.d(LOG,"saving permissions = "+perms);
+					editor.putString("FBPermissions", perms);
+				}
+				catch(Exception ex)
+				{
+					Log.e(LOG,"Error saving permissions",ex);
+				}
+		  } else {
+				editor.remove("FBPermissions");
+		  }
+
         editor.commit();
     }
 
     private void unsave(Context context)
     {
+		  Log.d(LOG,"unsave called with context="+context);
+		
         Editor defaults = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
 
         defaults.remove("FBUserId");
         defaults.remove("FBSessionKey");
         defaults.remove("FBSessionSecret");
         defaults.remove("FBSessionExpires");
+		  defaults.remove("FBPermissions");
         defaults.commit();
 
         if (permissions!=null)
@@ -180,107 +205,83 @@ public class FBSession
         }
     }
 
-    private void startFlushTimer()
-    {
-        if (requestTimer == null) {
-            long timeIntervalSinceNow = FBUtil.timeIntervalSinceNow(lastRequestTime);
-            long t = BURST_DURATION_IN_SEC + timeIntervalSinceNow;
-            requestTimer = new Timer();
-            requestTimer.schedule(requestTimerReady , t * 1000);
-        }
-    }
+	 public void run ()
+	 {
+			// this is the request thread that will run one op at a time
+			while (true)
+			{
+				try
+				{
+					// blocks until we have a request that's read to rock n roll
+					FBRequest req = requests.take();
+		    		if (DBG) Log.d(LOG, "Executing Request "+req);
+					req.connect();
+		    		if (DBG) Log.d(LOG, "Executed Request "+req);
+				}
+				catch(Exception ex)
+				{
+					Log.e(LOG,"Error executing request",ex);
+				}
+				synchronized(FBSession.this)
+				{
+					while (pendingSessionRequestQueue.size() > 0)
+					{
+						try
+						{
+							FBRequest req = pendingSessionRequestQueue.remove(0);
+				    		if (DBG) Log.d(LOG, "Executing Queued Request "+req);
+							req.connect();
+				    		if (DBG) Log.d(LOG, "Executed Queued Request "+req);
+						}
+						catch(Exception ex)
+						{
+							Log.e(LOG,"Error executing request",ex);
+						}
+					}
+				}
+			}
+	 }
 
-    private void enqueueRequest(FBRequest request)
-    {
-        requestQueue.add(request);
-        startFlushTimer();
-    }
+	 private synchronized boolean enqueueRequest(FBRequest request) throws InterruptedException
+	 {
+			if (!isConnected() && !request.isLoggingInRequest())
+			{
+	    		if (DBG) Log.d(LOG, "Queued Pending Session Request "+request);
+				pendingSessionRequestQueue.add(request);
+				return false;
+			}
+			else
+			{
+	    		if (DBG) Log.d(LOG, "Queued Active Request "+request);
+				requests.put(request);
+				return true;
+			}
+	 }
 
     private boolean performRequest(FBRequest request, boolean enqueue)
-    {
-    	if (DBG) {
-    		Log.d(LOG, "Performing Request "+request);
-    	}
+	 {
+	    	if (DBG) {
+	    		Log.d(LOG, "Performing Request "+request);
+	    	}
+			if (requestThread==null)
+			{
+				Log.d(LOG, "Starting FB Session Request Thread");
+				requestThread = new Thread(this,"FBSessionRequestor");
+				requestThread.start();
+			}
+			
+			try
+			{
+				enqueueRequest(request);
+			}
+			catch (InterruptedException ig)
+			{
+				ig.printStackTrace();
+			}
 
-        // Stagger requests that happen in short bursts to prevent the server from rejecting
-        // them for making too many requests in a short time
-        long t = FBUtil.timeIntervalSinceNow(lastRequestTime);
-        boolean burst = t < BURST_DURATION_IN_SEC;
-
-        if (DBG) {
-        	Log.d(LOG, "t: " + t);
-        	Log.d(LOG, "Burst: " + burst);
-        	Log.d(LOG, "Enqueue: " + enqueue);
-        }
-        if (burst && ++requestBurstCount > MAX_BURST_REQUESTS)
-        {
-            if (enqueue)
-            {
-            	if (DBG) {
-            		Log.d(LOG, "Queuing, burst exceeded");
-            	}
-                enqueueRequest(request);
-            }
-            return false;
-        }
-        else
-        {
-        		if (DBG) {
-        			Log.d(LOG, "Requesting.");
-        		}
-            try
-            {
-                request.connect();
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-
-            if (!burst)
-            {
-            	if (DBG) {
-            		Log.d(LOG, "Setting burst count.");
-            	}
-
-                requestBurstCount = 1;
-            }
-            lastRequestTime = request.getTimestamp();
-        }
-        return true;
-    }
-
-    private void flushRequestQueue()
-    {
-    	if (DBG) {
-    		Log.d(LOG, "flushRequestQueue: " + requestQueue.size());
-    	}
-        while (requestQueue.size() > 0)
-        {
-            FBRequest request = requestQueue.get(0);
-            if (performRequest(request, false))
-            {
-                requestQueue.remove(0);
-            }
-            else
-            {
-                startFlushTimer();
-                break;
-            }
-        }
-    }
-
-    private final TimerTask requestTimerReady = new TimerTask()
-    {
-        public void run() {
-        	if (DBG) {
-        		Log.d(LOG, "Timer Task Fired");
-        	}
-            requestTimer = null;
-            flushRequestQueue();
-        }
-    };
-
+			return true;
+	 }
+	
     /**
      * The URL used for API HTTP requests.
      */
@@ -298,7 +299,7 @@ public class FBSession
     /**
      * Determines if the session is active and connected to a user.
      */
-    public boolean isConnected()
+    public synchronized boolean isConnected()
     {
         return sessionKey != null;
     }
@@ -306,18 +307,27 @@ public class FBSession
     /**
      * Begins a session for a user with a given key and secret.
      */
-    public void begin(Context context, Long uid, String sessionKey, String sessionSecret, Date expires) {
+    public synchronized void begin(Context context, Long uid, String sessionKey, String sessionSecret, Date expires) 
+	 {
+		  this.context = new WeakReference<Context>(context);
         this.uid = uid;
         this.sessionKey = sessionKey;
         this.sessionSecret = sessionSecret;
         this.expirationDate = (Date) expires.clone();
+        this.permissions = null;
+
+		  Log.d(LOG,"SESSION BEGIN - uid="+uid+",sessionKey="+sessionKey+",sessionSecret="+sessionSecret+",expires="+expires);
+
         save(context);
     }
 
     /**
      * Resumes a previous session whose uid, session key, and secret are cached on disk.
      */
-    public boolean resume(Context context) {
+    public synchronized boolean resume(Context context) 
+	 {
+		  Log.d(LOG,"SESSION resume called with context="+context);
+		
         SharedPreferences defaults = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         CookieSyncManager.createInstance(context);
         Long uid = defaults.getLong("FBUserId", 0);
@@ -328,6 +338,21 @@ public class FBSession
                 this.uid = uid;
                 sessionKey = defaults.getString("FBSessionKey", null);
                 sessionSecret = defaults.getString("FBSessionSecret", null);
+
+					 String fbPerms = defaults.getString("FBPermissions", null);
+					 if (DBG) Log.d(LOG,"restoring permissions = "+fbPerms);
+					 if (fbPerms!=null)
+					 {
+			            this.permissions = Collections.synchronizedMap(new HashMap<String,String>());
+							try
+							{
+							  	FBUtil.jsonToMap(new JSONObject(fbPerms),this.permissions);
+							}
+							catch(JSONException ex)
+							{
+								ex.printStackTrace();
+							}
+					 }
 
                 for (FBSessionDelegate delegate : delegates) {
                     delegate.session_didLogin(this, uid);
@@ -341,8 +366,10 @@ public class FBSession
     /**
      * Ends the current session and deletes the uid, session key, and secret from disk.
      */
-    public void logout(Context context)
+    public synchronized void logout(Context context)
     {
+		  Log.d(LOG,"session logout called with context="+context);
+		
         if (sessionKey != null)
         {
             for (FBSessionDelegate delegate : delegates) {
@@ -457,15 +484,21 @@ public class FBSession
 
     public void setPermissions (Map<String,String> perm)
     {
-        this.permissions = perm;
-        Log.d(LOG,"set permission to "+perm);
+        this.permissions = Collections.synchronizedMap(perm);
+        this.save(context.get());
+        if (DBG) Log.d(LOG,"set permission to "+perm);
     }
 
     public boolean hasPermission (String name)
     {
         if (this.permissions!=null)
         {
-            return this.permissions.containsKey(name);
+				String value = (String)this.permissions.get(name);
+				if (DBG) Log.d(LOG,"hasPermission called for "+name+", returned: "+value);
+				if (value!=null && value.equals("1"))
+				{
+					return true;
+				}
         }
         return false;
     }
@@ -474,9 +507,10 @@ public class FBSession
     {
         if (this.permissions==null)
         {
-            this.permissions = new HashMap<String,String>();
+            this.permissions = Collections.synchronizedMap(new HashMap<String,String>());
         }
         this.permissions.put(name, value);
+        this.save(context.get());
     }
 
     public static abstract class FBSessionDelegate {

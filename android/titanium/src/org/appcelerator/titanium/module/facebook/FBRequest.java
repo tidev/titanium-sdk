@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.appcelerator.titanium.config.TitaniumAppInfo;
@@ -28,6 +29,7 @@ import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.module.fs.TitaniumBlob;
 import org.appcelerator.titanium.api.ITitaniumFile;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.TitaniumApplication;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,7 +44,6 @@ public class FBRequest
 
     public static String API_VERSION = "1.0";
     public static String API_FORMAT = "JSON";
-    public static String USER_AGENT = TitaniumAppInfo.PROP_NETWORK_USER_AGENT;
     public static String STRING_BOUNDARY = "3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
     public static String ENCODING = "UTF-8";
     public static final long TIMEOUT_INTERVAL_IN_SEC = 180;
@@ -136,18 +137,20 @@ public class FBRequest
         return request;
     }
 
-    // /////////////////////////////////////////////////////////////////////////////////////////////////
-    // private
-
     private String md5HexDigest(String input)
     {
         return FBUtil.generateMD5(input);
     }
 
-    private boolean isSpecialMethod()
+    public boolean isSpecialMethod()
     {
         return method.equals("facebook.auth.getSession") || method.equals("facebook.auth.createToken");
     }
+
+	 public boolean isLoggingInRequest()
+	 {
+		return isSpecialMethod() || url.indexOf(FBLoginDialog.FB_LOGIN_URL)!=-1;
+	 }
 
     private String urlForMethod(String method)
     {
@@ -294,7 +297,12 @@ public class FBRequest
     }
 
     private void succeedWithResult(String contentType, Object result) {
+		
+		 Log.d(LOG,"succeedWithResult - contentType = "+contentType+", delegate = "+delegate);
+		 if (DBG) Log.d(LOG,"succeedWithResult - result = "+result);
+		
         if (delegate != null) {
+			 Log.d(LOG,"succeedWithResult - calling "+delegate);
             delegate.request_didLoad(this, contentType, result);
         }
     }
@@ -307,7 +315,7 @@ public class FBRequest
 
     private void handleResponseData(String contentType, String data)
     {
-    	  if (DBG) Log.d("FBRequest: "+this,"Data: " + data);
+    	  if (DBG) Log.d(LOG,"FBRequest: "+this+", Data: " + data+", content-type: "+contentType);
         try
         {
             Object result = null;
@@ -361,6 +369,7 @@ public class FBRequest
         URL serverUrl = new URL(url);
 
         Log.d(LOG,"sending url request "+serverUrl);
+		  if (DBG) Log.d(LOG,"sending User Agent = "+TitaniumApplication.getInstance().getAppInfo().getSystemProperties().getString(TitaniumAppInfo.PROP_NETWORK_USER_AGENT,null));
 
         OutputStream out = null;
         InputStream in = null;
@@ -368,9 +377,10 @@ public class FBRequest
 
         try {
             connection = (HttpURLConnection) serverUrl.openConnection();
-            connection.setConnectTimeout(10000);
-            connection.setRequestProperty("User-Agent", USER_AGENT);
-
+            connection.setConnectTimeout(30000);
+            connection.setRequestProperty("User-Agent", TitaniumApplication.getInstance().getAppInfo().getSystemProperties().getString(TitaniumAppInfo.PROP_NETWORK_USER_AGENT,null));
+				
+				
             String cookie = CookieManager.getInstance().getCookie(url);
             if (cookie!=null)
             {
@@ -386,7 +396,8 @@ public class FBRequest
             connection.setRequestProperty("Cookie", cookie);
 
             byte[] body = null;
-            if (method != null) {
+            if (method != null) // not HTTP method but API method 
+				{
                 connection.setRequestMethod("POST");
 
                 String contentType = "multipart/form-data; boundary=" + STRING_BOUNDARY;
@@ -395,19 +406,31 @@ public class FBRequest
                 body = generatePostBody();
             }
 
+				connection.setInstanceFollowRedirects(true);
             connection.setDoOutput(true);
             connection.connect();
-            if (body != null) {
+            if (body != null) 
+            {
                 out = connection.getOutputStream();
                 out.write(body);
+					 out.flush();
             }
 
             in = connection.getInputStream();
-            StringBuilder sb = new StringBuilder(4096);
-            FBUtil.getResponse(sb, in);
-            responseText = sb.toString();
-
-            returnedContentType = connection.getHeaderField("Content-Type");
+         	StringBuilder sb = new StringBuilder(4096);
+         	FBUtil.getResponse(sb, in);
+				if (connection.getResponseCode() == 302)
+				{
+						String location = connection.getHeaderField("Location");
+						Log.d(LOG,"REDIRECT FOUND TO: "+location);
+						responseText = "<script>document.location.href = '"+location+"';</script>";
+						returnedContentType = "text/html";
+				}
+				else
+				{
+	         		responseText = sb.toString();
+	            	returnedContentType = connection.getHeaderField("Content-Type");
+				}
 
 				for (int i = 0; true; i++)
 				{
@@ -415,7 +438,7 @@ public class FBRequest
                 String hdrVal = connection.getHeaderField(i);
                 if (hdrKey == null) break; // no more headers
                 if (hdrVal == null) continue; // in some implementations, first header has no value
-                Log.i(LOG, "url header: " + hdrKey + "=" + hdrVal);
+                if (DBG) Log.d(LOG, "url header: " + hdrKey + "=" + hdrVal);
                 if (hdrKey.equalsIgnoreCase("set-cookie"))
 					 {
                     // Parse cookie
@@ -457,6 +480,7 @@ public class FBRequest
                     _cookie.setSecure(secure);
                     CookieManager.getInstance().setCookie(url, _cookie.toString());
                 }
+
 				}
         }
         finally
@@ -470,9 +494,6 @@ public class FBRequest
 		  connection = null;
         timestamp = new Date();
     }
-
-    // /////////////////////////////////////////////////////////////////////////////////////////////////
-    // NSObject
 
     /**
      * Creates a new request paired to a session.
@@ -491,7 +512,7 @@ public class FBRequest
     }
 
     public String toString() {
-        return "<FBRequest " + (method != null ? method : url) + ">";
+        return "<FBRequest " + (method != null ? method : url) + "," + this.hashCode() + ">";
     }
 
     private void connectionDidFinishLoading(String contentType) {
@@ -577,6 +598,9 @@ public class FBRequest
         this.url = url;
         this.method = "post";
         this.params = params_ != null ? new HashMap<String, String>(params_) : new HashMap<String, String>();
+
+        Log.d(LOG,"sending post request to "+url+" with "+this.params);
+
         session.send(this);
     }
 
@@ -585,6 +609,9 @@ public class FBRequest
         this.url = url;
         this.method = "get";
         this.params = new HashMap<String, String>();
+
+        Log.d(LOG,"sending get request to "+url);
+
         session.send(this);
     }
 

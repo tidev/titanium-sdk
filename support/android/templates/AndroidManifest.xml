@@ -16,6 +16,7 @@
             android:label="${config['appname']}"
             android:configChanges="keyboardHidden|orientation"
             android:launchMode="singleTask"
+			android:theme="@style/Theme.Titanium"
         >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -50,6 +50,10 @@ def zip_it(dist_dir,osname,version):
 	 android_jar = os.path.join(cur_dir,'android','titanium','bin','titanium.jar')
 	 if os.path.exists(android_jar):
 		zf.write(android_jar,'%s/android/titanium.jar' % basepath)
+	
+	 android_map_jar = os.path.join(cur_dir,'android','titanium','bin','titanium-map.jar')
+	 if os.path.exists(android_map_jar):
+		zf.write(android_map_jar,'%s/android/titanium-map.jar' % basepath)
 	 
 	 # right now we have to manually do these per module
 	 android_modules_dir = os.path.join(cur_dir,'android','titanium','src','org','appcelerator','titanium','module')

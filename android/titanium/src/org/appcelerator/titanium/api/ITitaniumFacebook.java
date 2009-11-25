@@ -9,7 +9,7 @@ package org.appcelerator.titanium.api;
 
 public interface ITitaniumFacebook
 {
-	void setup(String key, String secret, String callback);
+	boolean setup(String key, String secret, String callback);
 
 	boolean isLoggedIn();
 	

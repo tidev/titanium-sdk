@@ -98,6 +98,7 @@ class Android(object):
 		shutil.copytree(os.path.join(template_dir,'resources'),android_project_resources)
 
 		self.copyfile('titanium.jar', os.path.join(template_dir), app_lib_dir)
+		self.copyfile('titanium-map.jar', os.path.join(template_dir), app_lib_dir)
 		
 		if build_time==False:
 			# create the AVD and SDCard inside the users home

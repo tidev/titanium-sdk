@@ -21,6 +21,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.appcelerator.titanium.config.TitaniumConfig;
 import org.appcelerator.titanium.util.Log;
@@ -29,7 +31,8 @@ import android.graphics.Picture;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
-import org.appcelerator.titanium.util.Log;
+import org.json.JSONObject;
+import org.json.JSONException;
 
 /**
  * Generic collection of ported functions used by FBConnect library
@@ -93,7 +96,6 @@ public class FBUtil
 		  {
 			  close(reader);
 			  close(in);
-			  close(data);
 		  }
     }
 
@@ -215,4 +217,16 @@ public class FBUtil
 			os.write(buf, 0, count);
 		}
 	 } 
+	
+	 public static void jsonToMap (JSONObject obj, Map<String,String> map) throws JSONException
+	 {
+		Iterator iter = obj.keys();
+		while(iter.hasNext())
+		{
+			String key = (String)iter.next();
+			Object value = obj.get(key);
+			map.put(key,value.toString());
+		}
+	 }
+	
 }

@@ -11,7 +11,7 @@ Ti.Facebook = {
 	
 	setup: function(key,secret,callback)
 	{
-		Ti.facebookProxy.setup(key,secret,registerCallback(this,callback));
+		return Ti.facebookProxy.setup(key,secret,registerCallback(this,callback));
 	},
 	
 	isLoggedIn: function()
@@ -121,7 +121,6 @@ Ti.Facebook = {
 			}
 			if (logged_in)
 			{
-				Ti.API.debug(">>>> Facebook state changed - logged in");
 				updateButton(true);
 				if (cur_login!=logged_in) 
 				{
@@ -130,7 +129,6 @@ Ti.Facebook = {
 			}
 			else
 			{
-				Ti.API.debug(">>>> Facebook state changed - logged out");
 				updateButton(false);
 				if (cur_login!=logged_in) 
 				{
@@ -149,8 +147,8 @@ Ti.Facebook = {
 				self.login(stateChange);
 			}
 		};
-		updateButton();
-		this.setup(props.apikey,props.secret,stateChange);
+		logged_in = this.setup(props.apikey,props.secret,stateChange);
+		updateButton(logged_in);
 		var obj = 
 		{
 			addEventListener: function(name,cb)

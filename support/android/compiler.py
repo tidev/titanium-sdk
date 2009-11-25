@@ -18,7 +18,7 @@ class Compiler(object):
 		self.appid = appid
 		self.project_dir = os.path.abspath(os.path.expanduser(project_dir))
 		# these modules are always required 
-		self.modules = ['App','API','Platform','Analytics']
+		self.modules = ['App','API','Platform','Analytics','Network']
 		self.module_methods = []
 
 	def extract_from_namespace(self,name,line):

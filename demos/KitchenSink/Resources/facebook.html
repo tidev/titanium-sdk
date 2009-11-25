@@ -5,17 +5,10 @@
 	
 	window.onload = function()
 	{
-		// if (Titanium.Platform.name == 'android')
-		// {
-		// 	document.getElementById("fb").innerHTML = "Facebook Connect is not yet available on Android."
-		// 	return;
-		// }
-		
 		var tableView;
 		var refreshButton = Titanium.UI.createButton({
 			systemButton:Titanium.UI.iPhone.SystemButton.REFRESH
 		});
-		var activityIndicator = Titanium.UI.createActivityIndicator();
 
 		var feedButton = Titanium.UI.createButton({
 			title:'Story',
@@ -33,13 +26,24 @@
 		});
 
 		var sound = null;
+		var activityIndicator = Titanium.UI.createActivityIndicator();
 		var isAndroid = Titanium.Platform.name == 'android';
+		var cancelDelay;
 		
 		if (!isAndroid)
 		{
-			// CAF is a specific iphone sound format
+			// CAF is a specific iphone sound format - ignore for android for now
 			sound = Titanium.Media.createSound('pop.caf');
+			cancelDelay = 750;
 		}
+		else
+		{
+	      	activityIndicator.setMessage('Loading Stream...');
+	        activityIndicator.setLocation(Titanium.UI.ActivityIndicator.DIALOG);
+	        activityIndicator.setType(Titanium.UI.ActivityIndicator.INDETERMINANT);
+			cancelDelay = 5;
+		}
+
 		
 		// just play the facebook earcon -- nice little example of combining sounds
 		function playEarcon()
@@ -50,7 +54,14 @@
 		
 		function fetchStream()
 		{
-			if (!isAndroid) Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
+			if (!isAndroid)
+			{
+				Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
+			}
+			else
+			{
+				activityIndicator.show();
+			}
 			
 			Titanium.Facebook.query("SELECT uid, name, pic_square, status FROM user where uid IN (SELECT uid2 FROM friend WHERE uid1 = " + Titanium.Facebook.getUserId() + ") order by last_name",function(r)
 			{
@@ -109,6 +120,8 @@
 								
 								Titanium.Facebook.publishStream("What to say?",null,rowData.uid,function(pr)
 								{
+									Ti.API.info("received publish stream response = "+Titanium._JSON(pr));
+									
 									if (pr.success)
 									{
 										playEarcon();
@@ -127,7 +140,7 @@
 												fontWeight:'bold', 
 												fontSize:20,
 												top:40,
-												height:25,
+												height:27,
 												left:50
 											}]
 									};
@@ -139,14 +152,14 @@
 										tableView.updateRow(eventObject.index,rowData,{
 												animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT
 										});
-									},750);
+									},cancelDelay);
 								});
 							}
 						);
 						Titanium.UI.currentWindow.addView(tableView);
 						Titanium.UI.currentWindow.showView(tableView,{
 							animated:true,
-							animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+							animationStyle:isAndroid ? Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT : Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
 							animationDuration:1000
 						});
 					}
@@ -175,6 +188,16 @@
 						});
 						Titanium.UI.currentWindow.setToolbar([flexSpace,b,statusButton,feedButton,streamButton,flexSpace]);
 					}
+					else
+					{
+						var menu = Titanium.UI.createMenu();
+						menu.addItem('Update Status',pushStatus,Titanium.UI.Android.SystemIcon.ADD);
+						menu.addItem('Post Feed',postActivity,Titanium.UI.Android.SystemIcon.SHARE);
+						menu.addItem('Post Stream',postStream,Titanium.UI.Android.SystemIcon.SEND);
+						Titanium.UI.setMenu(menu);
+						
+						activityIndicator.hide();
+					}
 				}
 				catch(EX)
 				{
@@ -192,7 +215,7 @@
 			
 			if (!Titanium.Facebook.hasPermission("read_stream"))
 			{
-				Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
+				if (!isAndroid) Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
 				
 				Titanium.Facebook.requestPermission("read_stream",function(evt)
 				{
