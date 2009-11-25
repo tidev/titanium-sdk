@@ -86,10 +86,18 @@ class Builder(object):
 		
 
 	def wait_for_device(self,type):
-		print "[DEBUG] Waiting for device..."
-		print "\"%s\" -%s wait-for-device" % (self.adb,type)
-		os.system("\"%s\" -%s wait-for-device" % (self.adb,type))
+		print "[DEBUG] Waiting for emulator to be ready ..."
+		sys.stdout.flush()
+		t = time.time()
+		while True:
+			output = run.run([self.adb,"-%s" % type, 'devices'])
+			print "[DEBUG] %s" % output
+			if output.find("offline")==-1 or (time.time()-t > 5):
+				break
+			os.sleep(1)
+		#os.system("\"%s\" -%s wait-for-device" % (self.adb,type))
 		print "[DEBUG] Device connected..."
+		sys.stdout.flush()
 	
 	def run_emulator(self):
 		
@@ -164,6 +172,7 @@ class Builder(object):
 		
 		curdir = os.getcwd()
 		tijar = os.path.join(self.support_dir,'titanium.jar')
+		timapjar = os.path.join(self.support_dir,'titanium-map.jar')
 		
 		try:
 			#Files to ignore during build tree operations
@@ -325,6 +334,9 @@ class Builder(object):
 			
 			# copy any module image directories
 			for module in compiler.modules:
+				if module.lower() == 'map':
+					tijar = timapjar
+					print "[INFO] Detected Google Maps dependency. Using Titanium + Maps"
 				img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
 				if os.path.exists(img_dir):
 					dest_img_dir = os.path.join(full_resource_dir,'modules',module.lower(),'images')
