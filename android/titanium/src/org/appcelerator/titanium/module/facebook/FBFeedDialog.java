@@ -26,7 +26,7 @@ public class FBFeedDialog extends FBDialog
 
     private static final String FB_FEED_URL = "http://www.facebook.com/connect/prompt_feed.php";
 
-    private final String templateId;
+    private final Long templateId;
     private final String templateData;
     private final String bodyGeneral;
     private final String userMessagePrompt;
@@ -35,7 +35,7 @@ public class FBFeedDialog extends FBDialog
      * @param context
      * @param session
      */
-    public FBFeedDialog(Activity context, FBSession session, TitaniumFacebook tb, String templateId, String templateData, String bodyGeneral, String userMessagePrompt)
+    public FBFeedDialog(Activity context, FBSession session, TitaniumFacebook tb, Long templateId, String templateData, String bodyGeneral, String userMessagePrompt)
     {
         super(context, session, tb);
         this.templateId = templateId;
@@ -55,7 +55,7 @@ public class FBFeedDialog extends FBDialog
             JSONObject obj = new JSONObject();
             if (templateId!=null)
             {
-                obj.put("template_id", Long.valueOf(templateId).longValue());
+                obj.put("template_id", templateId);
             }
             if (templateData!=null)
             {

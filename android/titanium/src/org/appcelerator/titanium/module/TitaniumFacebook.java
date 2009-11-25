@@ -34,6 +34,7 @@ import org.appcelerator.titanium.module.facebook.FBFeedDialog;
 import org.appcelerator.titanium.module.facebook.FBLoginDialog;
 import org.appcelerator.titanium.module.facebook.FBPermissionDialog;
 import org.appcelerator.titanium.module.facebook.FBRequest;
+import org.appcelerator.titanium.module.facebook.FBUtil;
 import org.appcelerator.titanium.module.facebook.FBSession;
 import org.appcelerator.titanium.module.facebook.FBStreamDialog;
 import org.appcelerator.titanium.module.facebook.FBDialog.FBDialogDelegate;
@@ -42,6 +43,7 @@ import org.appcelerator.titanium.module.facebook.FBSession.FBSessionDelegate;
 
 import android.webkit.WebView;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -55,10 +57,8 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 	private static final String LCAT = "TiFacebook";
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
-	//public static final String EVENT_SETUP = "setup";
-
-	//protected TitaniumJSEventManager eventManager;
    private FBSession session;
+   private ProgressDialog progressDialog;
 
    private String setupCallback;
 	private String loginCallback;
@@ -68,8 +68,6 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 	public TitaniumFacebook(TitaniumModuleManager manager, String moduleName)
 	{
 		super(manager, moduleName);
-		//eventManager = new TitaniumJSEventManager(manager);
-		//eventManager.supportEvent(EVENT_SETUP);
 		
       FBActivity.registerActivity("login_dialog", this);
       FBActivity.registerActivity("permission_dialog", this);
@@ -88,25 +86,17 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 		webView.addJavascriptInterface((ITitaniumFacebook) this, name);
 	}
 
-	public void setup(String key, String secret, String callback)
+	public boolean setup(String key, String secret, String callback)
 	{
 		Log.d(LCAT,"setup called with key: "+key+", secret: "+secret+", callback: "+callback);
 
 		this.setupCallback = callback;
-
-      session = FBSession.getSessionForApplication_secret(key, secret, new FBSessionDelegateImpl());
-		boolean logged_in = session.resume(getContext());
-		try
-		{
-			JSONObject event = new JSONObject();
-			event.put("success", true);
-			event.put("loggedin",logged_in);
-			invokeUserCallback(callback,event.toString());
-		}
-		catch(JSONException ex)
-		{
-			ex.printStackTrace();
-		}
+      this.session = FBSession.getSessionForApplication_secret(key, secret, new FBSessionDelegateImpl());
+		boolean loggedIn = session.resume(getContext());
+		
+		Log.d(LCAT,"setup returned "+loggedIn+" from resume");
+		
+		return loggedIn;
 	}
 
 	public boolean isLoggedIn()
@@ -134,17 +124,6 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
               "facebook.fql.query", params);
 	}
 	
-	void jsonToMap (JSONObject obj, Map<String,String> map) throws JSONException
-	{
-		Iterator iter = obj.keys();
-		while(iter.hasNext())
-		{
-			String key = (String)iter.next();
-			Object value = obj.get(key);
-			map.put(key,value.toString());
-		}
-	}
-	
 	public void execute(String method, String jsonParams, ITitaniumInvoker data, String callback)
 	{
 		Map<String,String> params = new HashMap<String,String>();
@@ -153,7 +132,7 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 			try
 			{
 				JSONObject json = new JSONObject(jsonParams);
-				jsonToMap(json,params);
+				FBUtil.jsonToMap(json,params);
 			}
 			catch(JSONException ex)
 			{
@@ -233,8 +212,10 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 	
 	public void requestPermission(String permission, String callback)
 	{
+		Log.d(LCAT,"request permission called for permission: "+permission);
 		if (hasPermission(permission))
 		{
+			Log.d(LCAT,"found cached permission: "+permission);
 			try
 			{
 				JSONObject event = new JSONObject();
@@ -249,6 +230,7 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 		}
 		else
 		{
+			Log.d(LCAT,"making remote permission call for: "+permission);
 			TitaniumActivity activity = getActivity();
 			int resultCode = activity.getUniqueResultCode();
 			Intent intent = new Intent(activity, FBActivity.class);
@@ -301,16 +283,18 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 
 	public void onResult(TitaniumActivity activity, int requestCode, int resultCode, Intent data)
 	{
-		  Log.d(LCAT,"onResult = "+requestCode+", resultCode="+resultCode);
+		  Log.d(LCAT,"onResult = "+requestCode+", resultCode="+resultCode+", data = "+data);
 		  if (data!=null)
 		  {
 			  String callback = data.getStringExtra("callback");
+			  if (DBG) Log.d(LCAT,"onResult callback = "+callback);
 			  if (callback!=null)
 			  {
 					JSONObject event = new JSONObject();
 					try
 					{
 						event.put("success", resultCode == Activity.RESULT_OK);
+						event.put("cancel", resultCode == Activity.RESULT_CANCELED);
 					}
 					catch(Exception ex)
 					{
@@ -366,7 +350,7 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
        }
        else if (action.equals("feed_dialog"))
        {
-           String templateId = data.getStringExtra("templateId");
+           Long templateId = data.getLongExtra("templateId",0L);
            String templateData = data.getStringExtra("templateData");
            String bodyGeneral = data.getStringExtra("bodyGeneral");
            String userMessagePrompt = data.getStringExtra("userMessagePrompt");
@@ -392,30 +376,51 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 		 }
    }
 
+	// this is a special method called by the dialog when a login is successful or when our session is first loaded
+	// to get the user information and their permissions so we can cache them
+   public void triggerLoginChange()  
+	{
+			Log.d(LCAT,"triggerLoginChange called with UID = "+session.getUid());
+			
+			handler.post(new Runnable()
+			{
+					public void run ()
+					{
+						progressDialog = new ProgressDialog(getContext());
+			         progressDialog.setMessage("Loading...One moment");
+			         progressDialog.setIndeterminate(true);
+			         progressDialog.setCancelable(false);
+						progressDialog.show();
+					}
+			});
+			
+	      String fql = "select uid,name from user where uid == " + session.getUid();
+	      String fql2 = "select status_update,photo_upload,sms,create_listing,email,create_event,rsvp_event,publish_stream,read_stream,share_item,create_note from permissions where uid == " + session.getUid();
+
+	      String json=null;
+	      try
+	      {
+	          json = new JSONStringer().object().key("session").value(fql).key("permissions").value(fql2).endObject().toString();
+	      }
+	      catch (JSONException e)
+	      {
+	          e.printStackTrace();
+	      }
+
+	      Map<String, String> params = Collections.singletonMap("queries", json);
+	      FBRequest.requestWithDelegate(new FBLoginRequestDelegateImpl()).call("facebook.fql.multiquery", params);
+	}
+
 
    private final class FBSessionDelegateImpl extends FBSessionDelegate
    {
+       @Override
        public void session_didLogin(FBSession session, Long uid)
        {
            Log.i(LCAT, "Facebook session login for " + uid);
-
-           String fql = "select uid,name from user where uid == " + session.getUid();
-           String fql2 = "select status_update,photo_upload,sms,create_listing,email,create_event,rsvp_event,publish_stream,read_stream,share_item,create_note from permissions where uid == " + session.getUid();
-           
-           String json=null;
-           try
-           {
-               json = new JSONStringer().object().key("session").value(fql).key("permissions").value(fql2).endObject().toString();
-           }
-           catch (JSONException e)
-           {
-               e.printStackTrace();
-           }
-           
-           Map<String, String> params = Collections.singletonMap("queries", json);
-           FBRequest.requestWithDelegate(new FBLoginRequestDelegateImpl()).call("facebook.fql.multiquery", params);
        }
 
+       @Override
        public void sessionDidLogout(FBSession session)
        {
 				try
@@ -435,8 +440,11 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
    private final class FBLoginRequestDelegateImpl extends FBRequestDelegate
    {
        @SuppressWarnings("unchecked")
-       public void request_didLoad(FBRequest request, Object result)
+       @Override
+    	 protected void request_didLoad(FBRequest request, String contentType, Object result) 
        {
+			  Log.d(LCAT,"FBLoginRequest finished with result="+result);
+			
            String name = null;
 			  long uid = 0;
 
@@ -485,10 +493,18 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 			  {
 					Log.w(LCAT,"FB Login response was not JSON. Result was "+result);
 			  }
+			
+				if (progressDialog!=null)
+				{
+					progressDialog.dismiss();
+					progressDialog = null;
+				}
        }
 
+       @Override
        public void request_didFailWithError(FBRequest request, Throwable error)
        {
+			   Log.e(LCAT,"FBLoginRequest failed",error);
 				try
 				{
 					JSONObject event = new JSONObject();
@@ -500,6 +516,12 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 				catch(JSONException e)
 				{
 					 e.printStackTrace();
+				}
+				
+				if (progressDialog!=null)
+				{
+					progressDialog.dismiss();
+					progressDialog = null;
 				}
        }
    }
@@ -513,7 +535,8 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 				this.callback = callback;
 		 }
        @SuppressWarnings("unchecked")
-       public void request_didLoad(FBRequest request, Object result)
+       @Override
+       public void request_didLoad(FBRequest request, String contentType, Object result)
        {
 				try
 				{
@@ -528,6 +551,7 @@ public class TitaniumFacebook extends TitaniumBaseModule implements ITitaniumFac
 				}
        }
 
+       @Override
        public void request_didFailWithError(FBRequest request, Throwable error)
        {
 				try

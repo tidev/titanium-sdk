@@ -51,6 +51,6 @@
 			<barColor>#111</barColor>
         </window>
     </windows>
-    <property name="ti.android.debug" type="bool">true</property>
+    <property name="ti.android.debug" type="bool">false</property>
 	<guid>6fe33f33fd1f4e95a06d2d217170866d</guid>
 </ti:app>

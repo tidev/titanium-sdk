@@ -68,4 +68,5 @@ public class FBStreamDialog extends FBDialog
             Log.e(LOG,"Error loading URL: "+FB_STREAM_URL,e);
         }
     }
+
 }

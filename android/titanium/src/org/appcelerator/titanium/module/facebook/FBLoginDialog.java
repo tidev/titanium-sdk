@@ -23,6 +23,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
 
 /**
  * Dialog for managing the Login
@@ -32,7 +34,7 @@ public class FBLoginDialog extends FBDialog
     private static final String LOG = FBLoginDialog.class.getSimpleName();
     private static final boolean DBG = TitaniumConfig.LOGD;
 
-    private static final String FB_LOGIN_URL = "http://www.facebook.com/login.php";
+    public static final String FB_LOGIN_URL = "http://www.facebook.com/login.php";
 
     private FBRequest sessionRequest;
     private FBRequestDelegate requestDelegate;
@@ -40,15 +42,13 @@ public class FBLoginDialog extends FBDialog
     public FBLoginDialog(Activity context, FBSession session, TitaniumFacebook tb)
     {
         super(context, session, tb);
-        requestDelegate = new FBRequestDelegateImpl();
-
-//        context.getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND | WindowManager.LayoutParams.TYPE_INPUT_METHOD_DIALOG,
-//                WindowManager.LayoutParams.FLAG_BLUR_BEHIND | WindowManager.LayoutParams.TYPE_INPUT_METHOD_DIALOG);
-
+        requestDelegate = new FBRequestDelegateImpl(context,session);
+//        context.getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND, WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
     }
 
     private void connectToGetSession(String token)
-    {
+    {		
+		  Log.d(LOG,"connectToGetSession called with token="+token);
         sessionRequest = FBRequest.requestWithSession(session, requestDelegate);
         Map<String, String> params = new HashMap<String, String>();
         params.put("auth_token", token);
@@ -74,7 +74,7 @@ public class FBLoginDialog extends FBDialog
         params.put("connect_display", "touch");
         params.put("api_key", session.getApiKey());
         params.put("session_key", session.getSessionKey());
-        params.put("next", "fbconnect://success");
+        params.put("next", "fbconnect:success");
 
         try
         {
@@ -92,11 +92,6 @@ public class FBLoginDialog extends FBDialog
         loadLoginPage();
     }
 
-
-
-    /* (non-Javadoc)
-     * @see org.appcelerator.titanium.module.facebook.FBDialog#afterLoad(java.net.URL, java.lang.String, java.lang.Object)
-     */
     @Override
     protected Object beforeLoad(URL url, String contentType, Object content)
     {
@@ -104,7 +99,12 @@ public class FBLoginDialog extends FBDialog
         {
 			 if (contentType!=null && contentType.indexOf("html")!=-1)
 			 {
-			 		StringBuilder sb = new StringBuilder(80000);
+				   String html = content.toString();
+				   if (html.length()==0)
+					{
+						return "<html><body>Facebook is currently experiencing technical difficulties. Please try again soon.</body></html>";
+					}
+			 		StringBuilder sb = new StringBuilder(64000);
 				 	sb.append(content);
 				 	sb.append("<script>");
 		       	FBUtil.getContent(sb, getClass(), "org/appcelerator/titanium/module/facebook/resources/jquery.js");
@@ -123,8 +123,10 @@ public class FBLoginDialog extends FBDialog
 
     @Override
     protected void dialogDidSucceed(URI url)
-    {
-        String q = url.getQuery();
+    {  
+	     Log.d(LOG,"dialogDidSucceed called with "+url);
+	
+        String q = url.toString();
         int start = q.indexOf("auth_token=");
         if (start != -1) {
             int end = q.indexOf("&");
@@ -140,6 +142,14 @@ public class FBLoginDialog extends FBDialog
 
     private final class FBRequestDelegateImpl extends FBRequestDelegate
     {
+		  private final Activity activity;
+		  private final FBSession session;
+		
+		  FBRequestDelegateImpl(Activity activity, FBSession session)
+		  {
+				this.activity = activity;
+				this.session = session;
+		  }
 
         @Override
         protected void request_didLoad(FBRequest request, String contentType, Object result)
@@ -167,14 +177,20 @@ public class FBLoginDialog extends FBDialog
 	                    expiration = new Date(expires);
 	                }
 	                sessionRequest = null;
-
-	                Activity context = weakContext.get();
-						 if (context != null) 
+	
+						 if (DBG)
 						 {
-		                session.begin(context, uid, sessionKey, sessionSecret, expiration);
-		                session.resume(context);
-	            	 }
+							 Log.d(LOG,"request_didLoad - uid = "+uid);
+							 Log.d(LOG,"request_didLoad - sessionKey = "+sessionKey);
+							 Log.d(LOG,"request_didLoad - sessionSecret = "+sessionSecret);
+						 }
 
+						 // change the session data
+	                this.session.begin(this.activity, uid, sessionKey, sessionSecret, expiration);
+
+						 // let our module know we have a new successful login so he can do his magic
+						 facebookModule.triggerLoginChange();
+						
 	                dismissWithSuccess(true, true);
 	            }
 	            catch (JSONException e) 

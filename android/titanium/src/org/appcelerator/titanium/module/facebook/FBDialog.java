@@ -67,7 +67,7 @@ public abstract class FBDialog extends FrameLayout
     private static final int BORDER_WIDTH = 10;
 
 
-    private TitaniumFacebook facebookModule;
+    protected TitaniumFacebook facebookModule;
     private FBDialogDelegate delegate;
     private URL loadingURL;
     private TextView titleLabel;
@@ -181,12 +181,12 @@ public abstract class FBDialog extends FrameLayout
 
     private void postDismissCleanup()
     {
+		  if (DBG) Log.w(LOG,"postDimissCleanup");
 	     if (weakContext==null) return;
     	  final Activity context = weakContext.get();
 	  	  if (context!=null)
 		  {
 	  		  int uid = context.getIntent().getIntExtra("uid",0);
-			  Log.d(LOG,"postDismissCleanup UID == "+uid);
 			  session = null;
 			  this.weakContext = null;
 			  context.finish();
@@ -199,7 +199,6 @@ public abstract class FBDialog extends FrameLayout
         loadingURL = null;
         if (animated)
         {
-
             AlphaAnimation animation = new AlphaAnimation(1, 0);
             animation.setDuration(TRANSITION_DURATION_IN_MS);
 
@@ -306,7 +305,13 @@ public abstract class FBDialog extends FrameLayout
 			@Override
 			public void onProgressChanged(WebView view, int newProgress) {
 				super.onProgressChanged(view, newProgress);
-				Log.i("FBDialog","Progress: " + newProgress);
+				Log.i(LOG,"Progress: " + newProgress);
+				if (newProgress>0 && progressDialog.isIndeterminate())
+				{
+					progressDialog.setIndeterminate(false);
+					progressDialog.setMax(100);
+				}
+				progressDialog.setProgress(newProgress);
 			}
 
         });
@@ -412,7 +417,10 @@ public abstract class FBDialog extends FrameLayout
                 progressDialog.dismiss();
             }
 
-            FBDialog.this.setVisibility(VISIBLE);
+				if (url.indexOf("fbconnect:success")==-1)
+				{
+	            FBDialog.this.setVisibility(VISIBLE);
+				}
         }
 
 		@Override
@@ -445,6 +453,17 @@ public abstract class FBDialog extends FrameLayout
 
     protected void dismissWithSuccess(boolean success, boolean animated)
     {
+		  Log.d(LOG,"dismissWithSuccess - success="+success+",animated="+animated);
+
+		  // make sure this is set here since this can be called from within adapters as well
+		  if (weakContext!=null)
+		  {
+	    	  Activity context = weakContext.get();		
+	        if (context!=null)
+			  {
+					context.setResult( success ? Activity.RESULT_OK : Activity.RESULT_CANCELED, context.getIntent());
+			  }
+		  }
 	     if (request!=null)
 		  {
 			  try
@@ -472,6 +491,7 @@ public abstract class FBDialog extends FrameLayout
 
     protected void dismissWithError(Throwable error, boolean animated)
     {
+		  Log.w(LOG,"dismissWithError",error);
 	     if (weakContext==null) return;
     	  Activity context = weakContext.get();
 		  if (context!=null)
@@ -496,7 +516,26 @@ public abstract class FBDialog extends FrameLayout
 
     protected Object beforeLoad(URL url, String contentType, Object content)
     {
-        // for sublasses
+        try
+        {
+			 if (contentType!=null && contentType.indexOf("html")!=-1)
+			 {
+				   String html = content.toString();
+				   if (html.length()!=0)
+					{
+				 		StringBuilder sb = new StringBuilder(64000);
+					 	sb.append(content);
+					 	sb.append("<script>");
+			       	sb.append("document.getElementById('cancel').ontouchstart = function() { window.location.href='fbconnect:cancel'; return false; };");
+						sb.append("</script>");
+		          	return sb;
+					}
+			  }
+        }
+        catch (Exception e)
+        {
+            Log.e(LOG,"Error loading resources",e);
+        }
         return content;
     }
 
@@ -602,17 +641,13 @@ public abstract class FBDialog extends FrameLayout
 
     protected void dialogDidSucceed(URI uri)
     {
-		  if (weakContext==null) return;
-    	  Activity context = weakContext.get();
-        if (context!=null) context.setResult(Activity.RESULT_OK);
+		  Log.d(LOG,"dialogDidSucceed="+uri);
         dismissWithSuccess(true, true);
     }
 
     protected void dialogDidCancel(URI uri)
     {
-		  if (weakContext==null) return;
-    	  Activity context = weakContext.get();
-    	  if (context!=null) context.setResult(Activity.RESULT_CANCELED);
+		  Log.d(LOG,"dialogDidCancel="+uri);
         dismissWithSuccess(false, true);
     }
 

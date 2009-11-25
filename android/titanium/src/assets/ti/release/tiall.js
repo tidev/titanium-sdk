@@ -271,7 +271,7 @@ Ti.Map={STANDARD_TYPE:1,SATELLITE_TYPE:2,HYBRID_TYPE:2,ANNOTATION_RED:1,ANNOTATI
 this.addEventListener=function(event,listener){return Ti.Method.dispatch(this._proxy,"addEventListener",event,registerCallback(this,listener));};this.removeEventListener=function(event,listenerId){Ti.Method.dispatch(this._proxy,"removeEventListener",event,listenerId);};};Ti.Map.createView=function(options){if(Ti.isUndefined(options)){options={};}
 var mv=new Ti.Map.MapView(Ti.Method.dispatch("TitaniumMap","createMapView"));mv.processOptions(options);return mv;};
 Ti.facebookProxy=window.TitaniumFacebook;Ti.Facebook={setup:function(key,secret,callback)
-{Ti.facebookProxy.setup(key,secret,registerCallback(this,callback));},isLoggedIn:function()
+{return Ti.facebookProxy.setup(key,secret,registerCallback(this,callback));},isLoggedIn:function()
 {return Ti.facebookProxy.isLoggedIn();},getUserId:function()
 {return Ti.facebookProxy.getUserId();},query:function(fql,callback)
 {Ti.facebookProxy.query(fql,registerOneShot(this,callback));},execute:function(method,params,data,callback)
@@ -294,15 +294,15 @@ Ti.facebookProxy=window.TitaniumFacebook;Ti.Facebook={setup:function(key,secret,
 else
 {logged_in=false;}
 if(logged_in)
-{Ti.API.debug(">>>> Facebook state changed - logged in");updateButton(true);if(cur_login!=logged_in)
+{updateButton(true);if(cur_login!=logged_in)
 {fire('login',evt);}}
 else
-{Ti.API.debug(">>>> Facebook state changed - logged out");updateButton(false);if(cur_login!=logged_in)
+{updateButton(false);if(cur_login!=logged_in)
 {fire('logout',evt);}}};img.onclick=function()
 {if(logged_in)
 {self.logout(stateChange);}
 else
-{self.login(stateChange);}};updateButton();this.setup(props.apikey,props.secret,stateChange);var obj={addEventListener:function(name,cb)
+{self.login(stateChange);}};logged_in=this.setup(props.apikey,props.secret,stateChange);updateButton(logged_in);var obj={addEventListener:function(name,cb)
 {var l=listeners[name];if(l==null)
 {listeners[name]=[cb];}
 else
