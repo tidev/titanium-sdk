@@ -29,18 +29,35 @@ def KReplaceVarsStr(target, replacements):
 ReplaceVarsAction = SCons.Action.ActionFactory(KReplaceVars, KReplaceVarsStr)
 
 def KJar():
-    template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
-    cwd = os.getcwd()
-    try:
-        target = os.path.join(template_dir,'bin','titanium.jar')
-        print os.path.join(template_dir,'bin','classes')
-        os.chdir(os.path.join(template_dir,'bin','classes'))
-        os.system("jar cvf \"%s\" *" % (target))
-    finally:
-        os.chdir(cwd)
+	# this is a HACK to get maps compiled with a empty module stub in the case the
+	# app doesn't use maps to get around dalvik verification errors on the bytecode
+	# and to not produce an unnecessary google maps dependency since some phones don't have it
+	template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
+	map_classes = os.path.join(template_dir,'bin','map_classes')
+	map_gen_classes = os.path.join(template_dir,'bin','map_gen_classes')
+	classes_dir = os.path.join(template_dir,'bin','classes')
+	print os.path.abspath(map_classes)
+	if os.path.exists(map_classes):
+		shutil.rmtree(map_classes)
+	shutil.copytree(classes_dir,map_classes)
+	map_dir = os.path.abspath('bin/classes/org/appcelerator/titanium/module/map')
+	shutil.rmtree(map_dir)
+	os.makedirs(map_dir)
+	shutil.copyfile(os.path.join(map_gen_classes,'org/appcelerator/titanium/module/map/TitaniumMap.class'),os.path.join(classes_dir,'org/appcelerator/titanium/module/map/TitaniumMap.class'))
+	cwd = os.getcwd()
+	try:
+		target = os.path.join(template_dir,'bin','titanium.jar')
+		target2 = os.path.join(template_dir,'bin','titanium-map.jar')
+		print classes_dir
+		os.chdir(classes_dir)
+		os.system("jar cvf \"%s\" *" % (target))
+		os.chdir(map_classes)
+		os.system("jar cvf \"%s\" *" % (target2))
+	finally:
+		os.chdir(cwd)
 
 def KJarStr():
-    return 'KJar()'
+	 return 'KJar()'
 JarAction = SCons.Action.ActionFactory(KJar,KJarStr)
 
 replacements = {'TI_VERSION':version}
@@ -70,6 +87,7 @@ bin_tmp = 'bin/tmp'
 if os.path.exists(bin_tmp):
 	shutil.rmtree(bin_tmp)
 os.makedirs(bin_tmp)
+
 	
 jsm = JavascriptMinify()
 
@@ -112,6 +130,8 @@ if not os.path.exists(maps_jar):
 
 
 j = env.Java('bin/classes', 'src', JAVACFLAGS="-target 1.5 -classpath "+android_jar+os.pathsep+commons_logging_jar+os.pathsep+maps_jar)
-env.AddPostAction(j,JarAction())
+pj = env.Java('bin/map_gen_classes', 'stubs', JAVACFLAGS="-target 1.5 -classpath "+android_jar+os.pathsep+commons_logging_jar+os.pathsep+maps_jar+os.pathsep+'bin/classes')
+env.AddPostAction(pj,JarAction())
 env.Depends(j, tiall)
 env.Depends(tiall, targets)
+env.Depends(pj, j)

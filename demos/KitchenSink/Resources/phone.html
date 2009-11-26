@@ -6,6 +6,7 @@
 	<script>
 	
 	Titanium.API.info("Welcome  餵 こんにちは 안녕하세요 Привет Γειά हैलो สวัสดี שלום");
+ 	var filePath = null;
 
 	// currently, push notifications are only supported for iphone
 	if (Titanium.Platform.name != 'android')
@@ -340,8 +341,9 @@
 
 	function playMovie()
 	{
+		Titanium.UI.createAlertDialog({title:filePath}).show();
 		var activeMovie = Titanium.Media.createVideoPlayer({
-			contentURL:'movie.mp4',
+			contentURL:filePath,
 			backgroundColor:'#111',
 			movieControlMode:Titanium.Media.VIDEO_CONTROL_DEFAULT,
 			scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
@@ -373,19 +375,13 @@
 
 		Titanium.Media.showCamera({
 
-			success:function(media,details,image)
+			success:function(media,details)
 			{
+				filePath = media.filePath;
 				var win = Titanium.UI.createWindow({url:'image.html'});
-				Titanium.App.Properties.setString('photo',image.url);
-				if (details)
-				{
-					Titanium.App.Properties.setString('x',details.cropRect.x);
-					Titanium.App.Properties.setString('y',details.cropRect.y);
-					Titanium.App.Properties.setString('height',details.cropRect.height);
-					Titanium.App.Properties.setString('width',details.cropRect.width);
-				}
+				Titanium.App.Properties.setString('video',media.filePath);
+				Titanium.App.Properties.setBool('movie',true);
 				win.open({animated:true});
-
 			},
 			cancel:function()
 			{
@@ -436,12 +432,15 @@
 			{
 				var win = Titanium.UI.createWindow({url:'image.html'});
 				Titanium.App.Properties.setString('photo',image.url);
+				Titanium.App.Properties.setBool('movie',false);
+
 				if (details)
 				{
 					Titanium.App.Properties.setString('x',details.cropRect.x);
 					Titanium.App.Properties.setString('y',details.cropRect.y);
 					Titanium.App.Properties.setString('height',details.cropRect.height);
 					Titanium.App.Properties.setString('width',details.cropRect.width);
+					
 				}
 				else
 				{

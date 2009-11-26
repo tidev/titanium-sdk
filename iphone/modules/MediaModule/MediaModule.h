@@ -35,6 +35,8 @@ typedef enum {
 	BOOL currentMovieIsPlaying;
 	
 	NSString * pageToken;
+	
+	NSString *_contentURL;
 }
 
 @property(nonatomic,readwrite,copy)	NSString * imagePickerCallbackParentPageString;

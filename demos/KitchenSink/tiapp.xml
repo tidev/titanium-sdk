@@ -6,7 +6,7 @@
 <url>appcelerator.com</url>
 <copyright>2009 by nwright</copyright>
 <description>Mobile Unit Test App</description>
-<icon>appicon.png</icon>
+<icon>default_app_logo.png</icon>
 <analytics>true</analytics>
     <windows>
         <window>
@@ -22,6 +22,8 @@
         <window>
             <id>UI</id>
             <url>ui.html</url>
+			<preload>true</preload> 
+
  			<title>UI</title>
  			<icon>KS_nav_ui.png</icon>
 			<orientation>either</orientation>
@@ -52,5 +54,7 @@
         </window>
     </windows>
     <property name="ti.android.debug" type="bool">false</property>
+	<!-- this will only work with our dev keystore and not on a production device! -->
+    <property name="ti.android.google.map.api.key">0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg</property>
 	<guid>6fe33f33fd1f4e95a06d2d217170866d</guid>
 </ti:app>

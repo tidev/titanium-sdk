@@ -22,24 +22,48 @@
 			};
 			
 			// load image from properties
-			document.getElementById('image').src = Titanium.App.Properties.getString('photo');
+			var image  =Titanium.App.Properties.getString('photo');
+			document.getElementById('image').src = image;
 			
-			if (Titanium.Platform.name.indexOf('iPhone')  != -1) {
-				// create buttton
-				var button = Titanium.UI.createButton({
-					title:'Details',
-					style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
-				});
-			
-				// set button on right nav
-				Titanium.UI.currentWindow.setRightNavButton(button);
-			
-				// add event listneer
-				button.addEventListener('click', listener);
-			} else {
-				var button = document.getElementById('btn');
-				button.style.visibility = 'visible';
-				button.onclick = listener;
+			var isMovie = Titanium.App.Properties.getBool('movie');
+			if (isMovie)
+			{
+				var url = Titanium.App.Properties.getString('video');		
+				document.getElementById('image').onclick = function()
+				{
+					Titanium.UI.createAlertDialog({title:url}).show();
+					var activeMovie = Titanium.Media.createVideoPlayer({
+						contentURL:url,
+						backgroundColor:'#111',
+						movieControlMode:Titanium.Media.VIDEO_CONTROL_DEFAULT,
+						scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
+					});
+					activeMovie.play();
+					
+				}		
+			}
+			else
+			{
+				if (Titanium.Platform.name.indexOf('iPhone')  != -1) {
+					// create buttton
+					var button = Titanium.UI.createButton({
+						title:'Details',
+						style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+					});
+
+					// set button on right nav
+					Titanium.UI.currentWindow.setRightNavButton(button);
+
+					// add event listneer
+					button.addEventListener('click', listener);
+				} 
+				else 
+				{
+					var button = document.getElementById('btn');
+					button.style.visibility = 'visible';
+					button.onclick = listener;
+				}
+				
 			}
 		</script>
 
