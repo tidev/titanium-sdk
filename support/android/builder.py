@@ -24,6 +24,11 @@ def dequote(s):
 	return s[1:-1]
     return s
 
+def pipe(args1,args2):
+	p1 = subprocess.Popen(args1, stdout=subprocess.PIPE)
+	p2 = subprocess.Popen(args2, stdin=p1.stdout, stdout=subprocess.PIPE)
+	return p2.communicate()[0]
+
 def read_properties(propFile):
 	propDict = dict()
 	for propLine in propFile:
@@ -72,7 +77,9 @@ class Builder(object):
 		self.platform_dir = os.path.join(sdk,'platforms','android-1.5')
 		self.tools_dir = os.path.join(self.platform_dir,'tools')
 		self.emulator = os.path.join(self.sdk,'tools','emulator')
+		self.android = os.path.join(self.sdk,'tools','android')
 		if platform.system() == "Windows":
+			self.android += ".bat"
 			self.emulator += ".exe"
 		self.adb = os.path.join(self.sdk,'tools','adb')
 		if platform.system() == "Windows":
@@ -98,19 +105,41 @@ class Builder(object):
 		print "[DEBUG] Device connected..."
 		sys.stdout.flush()
 	
-	def run_emulator(self):
+	def create_avd(self,avd_id,avd_skin):
+		name = "titanium_%s_%s" % (avd_id,avd_skin)
+		avd_path = os.path.expanduser("~/.android/avd")
+		my_avd = os.path.join(avd_path,"%s.avd" % name)
+		if not os.path.exists(my_avd):
+			print "[DEBUG] created new AVD %s %s" % (avd_id,avd_skin)
+			inputgen = os.path.join(template_dir,'input.py')
+			pipe([sys.executable, inputgen], [self.android, '--verbose', 'create', 'avd', '--name', name, '--target', avd_id, '-s', avd_skin, '--force'])
+			inifile = os.path.join(my_avd,'config.ini')
+			inifilec = open(inifile,'r').read()
+			inifiledata = open(inifile,'w')
+			inifiledata.write(inifilec)
+			inifiledata.write("hw.camera=yes\n")
+			inifiledata.close()
+		return name
+	
+	def run_emulator(self,avd_id,avd_skin):
 		
 		print "[INFO] Launching Android emulator...one moment"
 		print "[DEBUG] From: " + self.emulator
 		print "[DEBUG] SDCard: " + self.sdcard
+		print "[DEBUG] AVD ID: " + avd_id
+		print "[DEBUG] AVD Skin: " + avd_skin
+		print "[DEBUG] SDK: " + sdk_dir
 		
+		# this will create an AVD on demand or re-use existing one if already created
+		avd_name = self.create_avd(avd_id,avd_skin)
+
 		sys.stdout.flush()
 
 		# start the emulator
 		p = subprocess.Popen([
 			self.emulator,
 			'-avd',
-			'titanium',
+			avd_name,
 			'-port',
 			'5560',
 			'-sdcard',
@@ -149,7 +178,7 @@ class Builder(object):
 
 		sys.exit(rc)
 		
-	def build_and_run(self, install, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None):
+	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None):
 		deploy_type = 'development'
 		if install:
 			if keystore == None:
@@ -579,8 +608,8 @@ class Builder(object):
 
 if __name__ == "__main__":
 	
-	if len(sys.argv)<6 or sys.argv[1] == '--help' or (sys.argv[1]=='distribute' and len(sys.argv)!=10):
-		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir]" % os.path.basename(sys.argv[0])
+	if len(sys.argv)<6 or sys.argv[1] == '--help' or (sys.argv[1]=='distribute' and len(sys.argv)<10):
+		print "%s <command> <project_name> <sdk_dir> <project_dir> <app_id> [key] [password] [alias] [dir] [avdid] [avdsdk]" % os.path.basename(sys.argv[0])
 		print
 		print "available commands: "
 		print
@@ -600,18 +629,23 @@ if __name__ == "__main__":
 	s = Builder(project_name,sdk_dir,project_dir,template_dir,app_id)
 	
 	if sys.argv[1] == 'emulator':
-		s.run_emulator()
+		avd_id = dequote(sys.argv[6])
+		avd_skin = dequote(sys.argv[7])
+		s.run_emulator(avd_id,avd_skin)
 	elif sys.argv[1] == 'simulator':
 		print "[INFO] Building %s for Android ... one moment" % project_name
-		s.build_and_run(False)
+		avd_id = dequote(sys.argv[6])
+		s.build_and_run(False,avd_id)
 	elif sys.argv[1] == 'install':
-		s.build_and_run(True)
+		avd_id = dequote(sys.argv[6])
+		s.build_and_run(True,avd_id)
 	elif sys.argv[1] == 'distribute':
 		key = os.path.abspath(os.path.expanduser(dequote(sys.argv[6])))
 		password = dequote(sys.argv[7])
 		alias = dequote(sys.argv[8])
 		output_dir = dequote(sys.argv[9])
-		s.build_and_run(True,key,password,alias, output_dir)
+		avd_id = dequote(sys.argv[10])
+		s.build_and_run(True,avd_id,key,password,alias,output_dir)
 	else:
 		print "[ERROR] Unknown command"
 		sys.exit(1)		
