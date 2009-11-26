@@ -8,7 +8,8 @@
 	var worked = true;
 	window.onload = function()
 	{
-		Titanium.UI.createAlertDialog({title:'Preload',message:'this is a preload test').show();
+		Titanium.API.info("preloaded UI page");
+		Titanium.UI.createAlertDialog({title:'Codestrong with Appcelerator',message:'Welcome to Titanium Mobile '+Titanium.version+'!'}).show();
 	};
 	
 	Titanium.UI.addEventListener('tabchange',function(e)

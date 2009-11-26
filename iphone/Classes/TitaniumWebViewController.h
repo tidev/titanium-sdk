@@ -24,6 +24,7 @@
 	BOOL isNonTitaniumPage;
 	BOOL loading;
 	BOOL showActivity;
+	BOOL preloaded;
 }
 
 //For WebView
