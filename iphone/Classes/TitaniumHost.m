@@ -945,7 +945,20 @@ TitaniumHost * lastSharedHost = nil;
 		result = [NSURL URLWithString:urlString relativeToURL:appBaseUrl];
 	}
 	if (useFilePath && [[result scheme] isEqualToString:@"app"] && [[result host] isEqualToString:appID]){
-		result = [NSURL fileURLWithPath:[appResourcesPath stringByAppendingPathComponent:[result path]]];
+		NSString * pathPortion = [result path];
+		switch ([self appResourceTypeForUrl:result]) {
+			case TitaniumAppResourceBlobType:{
+				TitaniumBlobWrapper * ourBlob = [self blobForToken:[pathPortion lastPathComponent]];
+				result = [NSURL fileURLWithPath:[ourBlob filePath]];
+				break;}
+			case TitaniumAppResourceRandomFileType:{
+				NSString * encodedFilePath = [pathPortion substringFromIndex:8];
+				result = [NSURL fileURLWithPath:encodedFilePath];
+				break;}
+			default:{
+				result = [NSURL fileURLWithPath:[appResourcesPath stringByAppendingPathComponent:pathPortion]];
+				break;}
+		}
 	}
 	
 	return result;
