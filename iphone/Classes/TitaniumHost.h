@@ -73,7 +73,7 @@ typedef enum {
 	TitaniumAppResourceFunctionType = TitaniumAppResourceCommandType | TitaniumAppResourceContinueType,
 } TitaniumAppResourceType;
 
-@class TitaniumAppProtocol, TitaniumCmdThread, TitaniumViewController, TitaniumBlobWrapper, TitaniumModule, TitaniumContentViewController;
+@class TitaniumAppProtocol, TitaniumCmdThread, TitaniumViewController, TitaniumBlobWrapper, TitaniumModule, TitaniumContentViewController, MPMoviePlayerController;
 
 #define MAXTHREADDEPTH	5
 
@@ -180,6 +180,7 @@ typedef enum {
 
 #pragma mark Modal view handling
 
+- (void) navigationController: (UINavigationController *) navController playMoviePlayerController: (MPMoviePlayerController *) movieController;
 - (void) navigationController: (UINavigationController *) navController presentModalView: (UIViewController *)newModalView animated:(BOOL) animated;
 
 #pragma mark Useful Toys

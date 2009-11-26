@@ -397,7 +397,8 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 	
 	if (currentMovie!=nil && currentMovieIsPlaying)
 	{
-		[currentMovie play];
+		TitaniumHost * theHost = [TitaniumHost sharedHost];
+		[theHost navigationController:[[theHost currentTitaniumViewController] navigationController] playMoviePlayerController:currentMovie];
 	}
 }
 

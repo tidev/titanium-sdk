@@ -55,13 +55,14 @@
 			Titanium.Media.showCamera({
 //			Titanium.Media.openPhotoGallery({
 				success:function(media,details,image){movieUrl=media.url;
-					window.setTimeout(doMediaThing,400,media,details,image);},
+					window.setTimeout(doMediaThing,100,media,details,image);},
 				cancel:function()
 				{
 				},
 				error:function()
 				{
 				},
+				animated:false,
 				allowImageEditing:true,
 				mediaTypes: [Titanium.Media.MEDIA_TYPE_VIDEO],
 				videoMaximumDuration:10000,

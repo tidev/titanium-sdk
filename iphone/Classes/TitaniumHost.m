@@ -24,6 +24,8 @@
 #import "TweakedNavController.h"
 #import "Logging.h"
 
+#import <MediaPlayer/MediaPlayer.h>
+
 #define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
 
 NSString * CleanJSEnd(NSString * inputString)
@@ -122,21 +124,23 @@ int extremeDebugLineNumber;
 
 @end
 
-
 @interface modalActionWrapper : NSObject
 {
 	BOOL animated;
 	UIViewController * modalView;
+	MPMoviePlayerController * playerController;
 }
 @property(nonatomic,readwrite,assign)	BOOL animated;
 @property(nonatomic,readwrite,retain)	UIViewController * modalView;
+@property(nonatomic,readwrite,retain)	MPMoviePlayerController * playerController;
 @end
 
 @implementation modalActionWrapper
-@synthesize animated,modalView;
+@synthesize animated,modalView,playerController;
 - (void) dealloc
 {
 	[modalView release];
+	[playerController release];
 	[super dealloc];
 }
 @end
@@ -791,6 +795,48 @@ TitaniumHost * lastSharedHost = nil;
 }
 #pragma mark Modal view handling
 
+- (void) navigationController: (UINavigationController *) navController playMoviePlayerController: (MPMoviePlayerController *) movieController;
+{
+	[modalActionLock lock];
+	BOOL isMainThread = [NSThread isMainThread];
+	BOOL isFree = ![[navController modalViewController] isKindOfClass:[UIImagePickerController class]];
+	
+	NSNumber * navControllerProxy = [NSNumber numberWithInteger:(int)navController];
+	NSMutableArray * ourModalQueue = [modalActionDict objectForKey:navControllerProxy];
+	
+	if(isMainThread && isFree && (ourModalQueue==nil)){
+		[movieController play];
+		[modalActionLock unlock];
+		return;
+	}
+	
+	modalActionWrapper * ourWrapper = [[modalActionWrapper alloc] init];
+	[ourWrapper setPlayerController:movieController];
+	if(ourModalQueue == nil){
+		ourModalQueue = [NSMutableArray arrayWithObject:ourWrapper];
+		
+		if(modalActionDict == nil){
+			modalActionDict = [[NSMutableDictionary alloc] initWithObjectsAndKeys:ourModalQueue,navControllerProxy,nil];
+		} else {
+			[modalActionDict setObject:ourModalQueue forKey:navControllerProxy];
+		}
+		
+	} else {
+		[ourModalQueue addObject:ourWrapper];
+	}
+	[ourWrapper release];
+	
+	if(!isFree){
+	} else if(!isMainThread){
+		[self performSelectorOnMainThread:@selector(handleModalForNavigationController:) withObject:navController waitUntilDone:NO];
+	} else {
+		[self performSelector:@selector(handleModalForNavigationController:) withObject:navController afterDelay:0];
+	}
+	
+	[modalActionLock unlock];	
+}
+
+
 - (void) navigationController: (UINavigationController *) navController presentModalView: (UIViewController *)newModalView animated:(BOOL) animated;
 {
 	[modalActionLock lock];
@@ -836,8 +882,11 @@ TitaniumHost * lastSharedHost = nil;
 - (void) handleModalForNavigationController: (UINavigationController *) navController;
 {
 	[modalActionLock lock];
-	BOOL isFree = ([navController modalViewController] == nil); //Just checking.
-	if(!isFree){
+	UIViewController * modalViewController = [navController modalViewController];
+	BOOL isFree = (modalViewController == nil); //Just checking.
+	BOOL isMovieFree = ![modalViewController isKindOfClass:[UIImagePickerController class]];
+
+	if(!isMovieFree){
 		[modalActionLock unlock];
 		return;
 	}
@@ -845,12 +894,29 @@ TitaniumHost * lastSharedHost = nil;
 	NSNumber * navControllerProxy = [NSNumber numberWithInteger:(int)navController];
 	NSMutableArray * ourModalQueue = [modalActionDict objectForKey:navControllerProxy];
 	int ourModalQueueCount = [ourModalQueue count];
-	
-	if(ourModalQueueCount > 0){
-		modalActionWrapper * ourWrapper = [ourModalQueue objectAtIndex:0];
-		[navController presentModalViewController:[ourWrapper modalView] animated:[ourWrapper animated]];
-		if ([self hasListeners]) [self fireListenerAction:@selector(eventModalViewControllerShown:properties:) source:[ourWrapper modalView] properties:[NSDictionary dictionaryWithObject:VAL_OR_NSNULL(navController) forKey:@"controller"]];
+
+	if(ourModalQueueCount<=0){
+		[modalActionLock unlock];
+		return;
 	}
+	
+	modalActionWrapper * ourWrapper = [ourModalQueue objectAtIndex:0];
+
+	UIViewController * modalView = [ourWrapper modalView];
+	if(modalView != nil){
+		if(isFree){
+			[navController presentModalViewController:modalView animated:[ourWrapper animated]];
+		} else {
+			[modalActionLock unlock];
+			return;
+		}
+	} else {
+		MPMoviePlayerController * playerController = [ourWrapper playerController];
+		if(playerController != nil){
+			[playerController play];
+		}
+	}
+	if ([self hasListeners]) [self fireListenerAction:@selector(eventModalViewControllerShown:properties:) source:[ourWrapper modalView] properties:[NSDictionary dictionaryWithObject:VAL_OR_NSNULL(navController) forKey:@"controller"]];
 	
 	if(ourModalQueueCount > 1){
 		[ourModalQueue removeObjectAtIndex:0];
