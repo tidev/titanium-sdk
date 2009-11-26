@@ -448,7 +448,7 @@ NSString * const iPhoneSoundGeneratorFunction = @"function(token){"
 
 	if ([notificationType isEqualToString:MPMoviePlayerPlaybackDidFinishNotification]){
 		MovieWrapper * cmw = [mediaDictionary objectForKey:currentMovieToken];
-		[mediaDictionary removeObjectForKey:currentMovieToken];
+	//	[mediaDictionary removeObjectForKey:currentMovieToken]; //TODO: Should we remove the object? We should probably wait until it goes out of scope.
 		[cmw handlePlayerFinished:[theNotification userInfo]];
 		[currentMovie release]; currentMovie = nil;
 		[currentMovieToken release]; currentMovieToken = nil;

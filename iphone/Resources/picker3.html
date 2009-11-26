@@ -1,36 +1,39 @@
 <html>
 <head>
-<title>foo</title>
-<script>
-window.onload = function()
-{
-	Titanium.Gesture.addEventListener('orientationchange',function(e)
-	{
-		var o = '';
-		if (Titanium.Gesture.isLandscape(e.to))
-		{	
-			o = 'I am landscape';
-		}
-		else if (Titanium.Gesture.isPortrait(e.to))
-		{
-			o = 'I am portrait';
-		}
-	 	document.getElementById('orientation').innerHTML = o;
-		document.getElementById('win_orientation').innerHTML = 'window.orientation = ' + window.orientation;
-		Ti.UI.currentWindow.repaint();
+
+
+</head>
+<body  style="font-family:'Helvetica Neue';font-size:11px">
+	
+	<div style="margin-bottom:5px">Switch (default true)</div>
+	<div id="s1" style="height:30px"></div>
+	<div id="s1_value" style="margin-top:5px;margin-bottom:20px;color:#999;height:10px"></div>
+	<div style="margin-bottom:5px;height:10px">Switch (default false)</div>
+	<div id="s2" style="height:30px"></div>
+	<div id="s2_value" style="margin-top:5px;margin-bottom:10px;color:#999;height:10px"></div>
+	
+	
+	<script>
+	var s1 = Titanium.UI.createSwitch({
+		id:'s1',
+		value:true
 	});
 	
-	document.getElementById('win_orientation').innerHTML = 'window.orientation = ' + window.orientation;
-};
+	s1.addEventListener('change',function(e)
+	{
+		document.getElementById('s1_value').innerHTML = 'SWITCH 1 VALUE = ' + e.value;
+	});
 
+	var s2 = Titanium.UI.createSwitch({
+		id:'s2',
+		value:false
+	});
+	
+	s2.addEventListener('change',function(e)
+	{
+		document.getElementById('s2_value').innerHTML = 'SWITCH 2 VALUE = ' +e.value;
+	});
 
-</script>
-<meta name = "viewport" content = "user-scalable=no, width=device-width">
-</head>
-<body  style="font-family:'Helvetica Neue';background-color:white">
-	<div id="orientation">I am portrait</div>
-	<div id="win_orientation">window.orienation = </div>
-Hello, world, should I be scaling here? asdlfkajsdf asdfl;asdjfalsdf asdfkljasdrouewrtosdiuj adgpoadcugaopxiutqw erqweopuadfoiua asdofuopweur
+	</script>
 </body>
 </html>
-<p>&nbsp;</p>

@@ -20,39 +20,49 @@
 			});
 		});
 		
+		var movieUrl = 'movie.m4v';
+		
+		var doMediaThing = function(media,details,image){
+			var activeMovie = Titanium.Media.createVideoPlayer({
+							contentURL:movieUrl, //media.url,
+							backgroundColor:'#111',
+							movieControlMode:Titanium.Media.VIDEO_CONTROL_DEFAULT,
+							scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
+			});
+			activeMovie.addEventListener('complete',function()
+			{
+					Ti.API.info("video completed");
+			});
+
+			document.getElementById("mediatype").innerHTML = details.mediaType;
+			
+			if(image){
+				document.getElementById('i').src = image.url;
+				
+				Titanium.Media.saveToPhotoGallery(image.url);
+			}
+			activeMovie.stop();
+			activeMovie.play();	
+		};
+		
+		document.getElementById("pl").addEventListener('click',function()
+		{
+			doMediaThing(null,{mediaType:'fake'},null);
+		});
+
 		document.getElementById("b").addEventListener('click',function()
 		{
 			Titanium.Media.showCamera({
-				success:function(media,details,image)
-				{
-					document.getElementById("mediatype").innerHTML = details.mediaType;
-					
-					
-					document.getElementById('i').src = image.url;
-					
-					Titanium.Media.saveToPhotoGallery(image.url);
-					
-					
-					var activeMovie = Titanium.Media.createVideoPlayer({
-											contentURL:media.url,
-											backgroundColor:'#111',
-											movieControlMode:Titanium.Media.VIDEO_CONTROL_DEFAULT,
-											scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
-					});
-										
-					activeMovie.addEventListener('complete',function()
-					{
-							Ti.API.info("video completed");
-					});
-					activeMovie.play();	
-				},
+//			Titanium.Media.openPhotoGallery({
+				success:function(media,details,image){movieUrl=media.url;
+					window.setTimeout(doMediaThing,400,media,details,image);},
 				cancel:function()
 				{
 				},
 				error:function()
 				{
 				},
-				allowImageEditing:false,
+				allowImageEditing:true,
 				mediaTypes: [Titanium.Media.MEDIA_TYPE_VIDEO],
 				videoMaximumDuration:10000,
 				videoQuality:Titanium.Media.QUALITY_HIGH
@@ -65,6 +75,7 @@
 <div style="margin-top:100px;width:300px;margin:auto;"><button id="b" style="font-size:24px;">Make video</button></div>
 <div style="margin-top:100px;width:300px;margin:auto;"><button id="s" style="font-size:24px;">Play sound</button></div>
 <div style="margin-top:100px;width:300px;margin:auto;"><button id="ss" style="font-size:24px;">Take Screenshot</button></div>
+<div style="margin-top:100px;width:300px;margin:auto;"><button id="pl" style="font-size:24px;">Play video</button></div>
 <div id="mediatype"></div>
 <div><img id="i" width="100" height="100"/></div>
 </body>
