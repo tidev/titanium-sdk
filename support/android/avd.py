@@ -5,6 +5,7 @@
 #
 import os, subprocess, sys, run
 import run
+
 def dequote(s):
     if s[0:1] == '"':
         return s[1:-1]
@@ -30,7 +31,7 @@ def get_avds(sdk):
 			version = version[0:version.find('(')-1]
 			name = "%s %s" % (name,version)
 		elif line.find("Skins: ")!=-1:
-			skins = line[8:].replace(' (default)','').split(", ")
+			skins = line[7:].replace(' (default)','').strip().split(", ")
 			avds.append({'name':name,'id':theid,'skins':skins})
 			
 	return avds

@@ -13,4 +13,5 @@ def run(args,ignore_error=False,debug=True):
 			else:
 				sys.stderr.write("[ERROR] %s %s" % (args[0],str(se)))
 				sys.stderr.flush()
+				return None
 	return so
