@@ -4,14 +4,14 @@
 <version>1.0</version>
 <publisher>nwright</publisher>
 <url>appcelerator.com</url>
-<copyright>2009 by nwright</copyright>
+<copyright>2009 by Appcelerator</copyright>
 <description>Mobile Unit Test App</description>
 <icon>default_app_logo.png</icon>
 <analytics>true</analytics>
     <windows>
         <window>
             <id>Phone</id>
-           <url>phone.html</url>
+            <url>phone.html</url>
  			<title>Phone</title>
  			<icon>KS_nav_phone.png</icon>
 			<orientation>either</orientation>

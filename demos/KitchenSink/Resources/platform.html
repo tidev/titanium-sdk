@@ -117,7 +117,8 @@
 				var win = Titanium.UI.createWindow({
 					url:'platform_data.html',
 					title:'Platform Data',
-					backgroundColor:'#fff'
+					backgroundColor:'#fff',
+					orientation:'either'
 				});
 				Titanium.Analytics.featureEvent('platform.platform_data');
 				win.open({animated:true});
