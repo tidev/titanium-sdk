@@ -88,7 +88,10 @@
 
 -(void)preload
 {
-	[self webView];
+	showActivity = NO;
+	preloaded = YES;
+	[self webView]; 
+	[self reloadWebView];
 }
 
 - (void)dealloc {
@@ -179,9 +182,11 @@
 		[spinner setHidesWhenStopped:YES];
 		spinner.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
 	}
+	CGRect rect = CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height);
+	
 	if (parentView==nil)
 	{
-		parentView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height)];
+		parentView = [[UIView alloc] initWithFrame:rect];
 		[parentView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 		if (showActivity)
 		{
@@ -197,12 +202,11 @@
 	//effect of setting scrollview's alpha to 0.
 	if (scrollView == nil)
 	{
-		CGRect quikframe = CGRectMake(0, 0, preferredViewSize.width, preferredViewSize.height);
 		UIViewAutoresizing stretchy = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
 		
 		scrollView = [[TweakedScrollView alloc] init];
 		[scrollView setDelaysContentTouches:NO];
-		[scrollView setFrame:quikframe];
+		[scrollView setFrame:rect];
 		[scrollView setAutoresizingMask:stretchy];
 		[scrollView setDelegate:self];
 		
@@ -210,7 +214,7 @@
 
 		if([[self webView] superview] != scrollView){
 			[scrollView insertSubview:webView atIndex:0];
-			[self reloadWebView];
+			if (preloaded==NO) [self reloadWebView];
 		}
 		
 	}
@@ -231,7 +235,7 @@
 		{
 			webView.hidden = YES;
 		}
-		[scrollView setAlpha:0.0];
+		if (scrollView!=nil)[scrollView setAlpha:0.0];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tabChange:) name:TitaniumTabChangeNotification object:nil];
 	}
 	return webView;
@@ -356,6 +360,7 @@
 - (BOOL)webView:(UIWebView *)inputWebView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType;
 {
 	NSURL * requestURL = [request URL];
+	
 	if ([[TitaniumAppDelegate sharedDelegate] shouldTakeCareOfUrl:requestURL useSystemBrowser:NO]) return NO;
 	CLOCKSTAMP("Should load request %@ for %@",requestURL,self);
 
@@ -423,16 +428,36 @@
 
 	if(!isNonTitaniumPage)
 	{
-		[self probeWebViewForTokenInContext:@"window"];
+		NSMutableString *js = [[NSMutableString alloc] init];
 		
-		if([[webView stringByEvaluatingJavaScriptFromString:@"typeof(Titanium)"] isEqualToString:@"undefined"])[self investigateTitaniumCrashSite];
+		[js appendString:@"(function(){ if (typeof(Titanium) != 'undefined') {"];
+
+		[js appendFormat:@"Ti._ONEVT.call(Ti.UI.currentWindow,'load',{type:'load',url:'%@'});",currentContentURL];
+		[js appendFormat:@"Ti._ONEVT.call(Ti.UI.currentView,'load',{type:'load',url:'%@'});",currentContentURL];
 		
-		[webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"Ti._ONEVT.call(Ti.UI.currentView,'load',{type:'load',url:'%@'});",currentContentURL]];
-		if ([titaniumWindowToken isEqualToString:[visibleVC titaniumWindowToken]]){
-			[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentWindow,'focused',{type:'focused'});"];
-			if(isVisible){
-				[webView stringByEvaluatingJavaScriptFromString:@"Ti._ONEVT.call(Ti.UI.currentView,'focused',{type:'focused'});"];
+		if ([titaniumWindowToken isEqualToString:[visibleVC titaniumWindowToken]])
+		{
+			[js appendString:@"Ti._ONEVT.call(Ti.UI.currentWindow,'focused',{type:'focused'});"];
+			if(isVisible)
+			{
+				[js appendString:@"Ti._ONEVT.call(Ti.UI.currentView,'focused',{type:'focused'});"];
 			}
+		}
+		if (preloaded)
+		{
+			// we need to do this to give the doc a min size when preloaded otherwise the view size is really tiny 
+			[js appendString:@"document.body.style.minWidth='320px';"]; 
+		}
+		[js appendString:@"return window.Titanium._TOKEN; } else { return '0'; } })()"];
+		id result = [webView stringByEvaluatingJavaScriptFromString:js];
+		[js release];
+		if ([result isEqualToString:@"0"])
+		{
+			[self investigateTitaniumCrashSite];
+		}
+		else 
+		{
+			[self acceptToken:result forContext:@"window"];
 		}
 	}
 	
@@ -448,14 +473,16 @@
 		[spinner stopAnimating];
 	}
 
-	[UIView beginAnimations:@"webView" context:nil];
-	[UIView setAnimationDuration:0.1];
-	[self updateLayout:NO];
-	webView.hidden = NO;
-	[scrollView setAlpha:1.0];
-	[UIView commitAnimations];
+	if (preloaded==NO)
+	{
+		[UIView beginAnimations:@"webView" context:nil];
+		[UIView setAnimationDuration:0.1];
+		[self updateLayout:NO];
+		webView.hidden = NO;
+		[scrollView setAlpha:1.0];
+		[UIView commitAnimations];
+	}	
 	
-
 	[[TitaniumAppDelegate sharedDelegate] hideLoadingView];
 
 	if (isNonTitaniumPage)
@@ -495,6 +522,7 @@
 - (void)updateLayout: (BOOL)animated;
 {
 	if ([scrollView superview]==nil) return;
+	
 	CGRect webFrame;
 	if(isNonTitaniumPage){
 		VERBOSE_LOG(@"[DEBUG] Was not titanium page!");
@@ -548,7 +576,7 @@
 #ifdef USEHORIZSCROLLING
 	BOOL allowsHorizScrolling = (webFrame.size.width < docWidth);
 	if(allowsHorizScrolling){
-		webFrame.size.width = docHeight;
+		webFrame.size.width = docWidth;
 	}
 #else
 	BOOL allowsHorizScrolling = NO;
@@ -564,10 +592,10 @@
 	if(firstResponder != nil){
 		[scrollView scrollRectToVisible:[firstResponder frame] animated:animated];
 	}
-	[webView stringByEvaluatingJavaScriptFromString:@"Ti.UI._ISRESIZING=false;"];
+
+	VERBOSE_LOG(@"webview %@ update layout = %f x %f ==> %f x %f",currentContentURL, webFrame.size.width, webFrame.size.height,webView.frame.size.width,webView.frame.size.height);
 	
-	
-	
+	[webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"Ti.UI._ISRESIZING=false;document.body.style.width='%fpx';",webFrame.size.width-5]];
 }
 
 - (void)reloadWebView;
@@ -657,8 +685,6 @@ typedef int UIEventSubtype;
 
 -(void) sendJavascriptAndGetResult:(NSMutableDictionary*)dict
 {
-	NSLog(@"[INFO] sendJavascriptAndGetResult %@",dict);
-	
 	if (webView==nil)
 	{
 		NSLog(@"[WARN] sendJavascriptAndGetResult but webView is nil");

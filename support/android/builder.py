@@ -565,6 +565,16 @@ class Builder(object):
 			if len(success) > 0:
 				print "[ERROR] %s " %success[0]
 				sys.exit(1)
+				
+			# attempt to zipalign -- this only exists in 1.6 and above so be nice
+			zipalign = os.path.join(self.tools_dir,'zipalign')
+			if platform.system() == "Windows":
+				zipalign+=".exe"
+				
+			if os.path.exists(zipalign):
+				#zipalign -v 4 source.apk destination.apk
+				run.run([zipalign, '-v', '4', app_apk, app_apk+'z'])
+				os.rename(app_apk+'z',app_apk)
 
 			if dist_dir:
 				sys.exit(0)			

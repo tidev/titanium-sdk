@@ -23,7 +23,12 @@
 	});
 	Titanium.UI.currentView.addEventListener('load',function()
 	{
-		Titanium.UI.createAlertDialog({title:'Load event called'}).show();
+		Titanium.UI.createAlertDialog({title:'Load event called from currentView'}).show();
+
+	});
+	Titanium.UI.currentWindow.addEventListener('load',function()
+	{
+		Titanium.UI.createAlertDialog({title:'Load event called from currentWindow'}).show();
 
 	});
 

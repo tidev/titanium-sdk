@@ -7,7 +7,7 @@
 	// test preload feature
 	window.onload = function()
 	{
-		Titanium.UI.createAlertDialog({title:'Preload',message:'this is a preload test'}).show();
+		Titanium.API.info("preloaded UI page");
 	};
 	
 	Titanium.UI.addEventListener('tabchange',function(e)
