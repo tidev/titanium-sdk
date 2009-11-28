@@ -16,6 +16,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -62,37 +63,47 @@ public class TitaniumOverlayItemView extends FrameLayout
 		leftImage.setTag("leftButton");
 		params = createBaseParams();
 		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-		params.addRule(RelativeLayout.CENTER_VERTICAL);
+		if (Integer.parseInt(Build.VERSION.SDK) > 3) {
+			params.addRule(RelativeLayout.CENTER_VERTICAL);
+		}
 		params.setMargins(0, 0, 5, 0);
 		layout.addView(leftImage, params);
 
+		RelativeLayout textLayout = new RelativeLayout(getContext());
+		textLayout.setGravity(Gravity.NO_GRAVITY);
+		textLayout.setId(101);
+
 		title = new TextView(context);
-		title.setId(101);
+		title.setId(200);
 		title.setTextColor(Color.argb(255, 216,216,216));
 		title.setTag("title");
 		TitaniumUIHelper.styleText(title, "15sip", "bold");
 		params = createBaseParams();
-		params.addRule(RelativeLayout.RIGHT_OF, 100);
 		params.addRule(RelativeLayout.ALIGN_TOP);
-		layout.addView(title, params);
+		textLayout.addView(title, params);
 
 		snippet = new TextView(context);
-		snippet.setId(102);
+		snippet.setId(201);
 		snippet.setTextColor(Color.argb(255, 192,192,192));
 		snippet.setTag("subtitle");
 		TitaniumUIHelper.styleText(snippet, "10sip", "bold");
 		params = createBaseParams();
+		params.addRule(RelativeLayout.BELOW, 200);
+		textLayout.addView(snippet, params);
+
+		params = createBaseParams();
 		params.addRule(RelativeLayout.RIGHT_OF, 100);
-		params.addRule(RelativeLayout.BELOW, 101);
-		layout.addView(snippet, params);
+		params.addRule(RelativeLayout.ALIGN_TOP);
+		layout.addView(textLayout, params);
 
 		rightImage = new ImageView(context);
 		rightImage.setId(103);
 		rightImage.setTag("rightButton");
 		params = createBaseParams();
-		params.addRule(RelativeLayout.CENTER_VERTICAL);
+		if (Integer.parseInt(Build.VERSION.SDK) > 3) {
+			params.addRule(RelativeLayout.CENTER_VERTICAL);
+		}
 		params.addRule(RelativeLayout.RIGHT_OF, 101);
-		params.addRule(RelativeLayout.RIGHT_OF, 102);
 		params.setMargins(5, 0, 0, 0);
 		layout.addView(rightImage, params);
 
