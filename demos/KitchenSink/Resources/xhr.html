@@ -9,6 +9,7 @@
 	<div id="button4" style="height:47px"></div>
 	<div id="button5" style="height:47px"></div>
 	<div id="button6" style="height:47px"></div>
+	<div id="button7" style="height:47px"></div>
 
 	<div id="html"></div>
 
@@ -161,8 +162,38 @@
 
 		// send the data
 		c.send();
-	})
-
+	});
+	var button7 = Titanium.UI.createButton({
+		id:'button7',
+		backgroundImage:'blue.png',
+		backgroundSelectedImage:'blue_pressed.png',
+		backgroundFocusedImage:'blue_focused.png',
+		title:'XHR UTF-8 Encoding',
+		color:'#ffffff',
+		height:47,
+	});
+	button7.addEventListener('click',function(e)
+	{
+		var xhr = Titanium.Network.createHTTPClient();
+		xhr.onload = function()
+		{
+			if (this.responseText.indexOf("€漢字")==-1)
+			{
+				document.getElementById('html').innerHTML="Error: Didn't receive expected response from UTF-8 XHR";
+			}
+			else
+			{
+				
+				document.getElementById('html').innerHTML = "received correct XHR UTF-8 encoded value: <PRE>"+this.responseText+"</PRE>";
+			}
+		};
+		xhr.onerror = function(error)
+		{
+			document.getElementById('html').innerHTML = "Error: " + error;
+		};
+		xhr.open("GET","http://api.appcelerator.net/p/v1/echo?a=€漢字");
+		xhr.send();
+	});
 	</script>
 
 </body>

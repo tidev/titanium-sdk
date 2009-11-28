@@ -150,8 +150,7 @@ id<TitaniumAppAssetResolver> resolver = nil;
 		{
 			NSString *path=[[NSBundle mainBundle] bundlePath];
 			NSString *fullpath = [NSString stringWithFormat:@"%@/%@",path,[[url absoluteString] lastPathComponent]];
-			NSString *pathdata = [NSString stringWithContentsOfFile:fullpath encoding:NSUTF8StringEncoding error:nil];		
-			fileData = [pathdata dataUsingEncoding:NSUTF8StringEncoding];					  
+			fileData = [NSData dataWithContentsOfFile:fullpath options:NSMappedRead error:&error];
 		}
 		if (fileData!=nil)
 		{
@@ -159,6 +158,8 @@ id<TitaniumAppAssetResolver> resolver = nil;
 			if ([mime isEqualToString:(NSString*)htmlMimeType])
 			{
 				data = [NSMutableData dataWithCapacity:[fileData length] + 4000];
+				// INJECT content type at the top of the document so that webkit will detect it correctly
+				[(NSMutableData *)data appendData:[@"<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\">" dataUsingEncoding:NSUTF8StringEncoding]];
 				// we can just be lazy here and inject the titanium JS before the HTML...it works. thanks to forgiving HTML parser
 				[(NSMutableData *)data appendData:[[theHost javaScriptForResource:url] dataUsingEncoding:NSUTF8StringEncoding]];
 				// now just inject the real data
@@ -186,6 +187,8 @@ id<TitaniumAppAssetResolver> resolver = nil;
 				{
 					NSData *fileData = [NSData dataWithContentsOfFile:resourcePath options:NSMappedRead error:&error];
 					data = [NSMutableData dataWithCapacity:[fileData length] + 4000];
+					// INJECT content type at the top of the document so that webkit will detect it correctly
+					[(NSMutableData *)data appendData:[@"<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\">" dataUsingEncoding:NSUTF8StringEncoding]];
 					// we can just be lazy here and inject the titanium JS before the HTML...it works. thanks to forgiving HTML parser
 					[(NSMutableData *)data appendData:[[theHost javaScriptForResource:url] dataUsingEncoding:NSUTF8StringEncoding]];
 					// now just inject the real data

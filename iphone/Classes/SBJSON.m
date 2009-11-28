@@ -107,13 +107,13 @@ static char ctrl[0x24];
 {
 	NSString * queryString = [inputUrl query];
 	if([queryString length]>0){
-		id result;
+		id result;  
 		NSString *urlString = [inputUrl absoluteString];
 		// we need to manually pull out the query string since the way we're encoding from JS
 		// makes some cases not pull our query part correctly but this seems to work at all times
 		NSRange range = [urlString rangeOfString:@"?"];
-		NSString *query = [urlString substringFromIndex:range.location+1];
-		query = [query stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+		NSString *prequery = [urlString substringFromIndex:range.location+1];
+		NSString *query = [prequery stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 		queryString = [NSString stringWithFormat:@"[%@]",query];
 		SBJSON * jsonDecoder = [[SBJSON alloc] init];
 		NSError * error = nil;
@@ -122,6 +122,7 @@ static char ctrl[0x24];
 			// ATTEMPT TO FIGURE OUT WHAT WENT WRONG
 			NSLog(@"[DEBUG] QUERY URL = %@",inputUrl);
 			NSLog(@"[DEBUG] QUERY STRING = %@",queryString);
+			NSLog(@"[DEBUG] QUERY STRING PRE-ESCAPED = %@",prequery);
 			NSLog(@"[DEBUG] QUERY STRING ESCAPED = %@",query);
 			NSLog(@"[ERROR] Error in decodeUrlQuery(%@): %@",queryString,error);
 		}
