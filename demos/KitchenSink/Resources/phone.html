@@ -6,7 +6,6 @@
 	<script>
 	
 	Titanium.API.info("Welcome  餵 こんにちは 안녕하세요 Привет Γειά हैलो สวัสดี שלום");
- 	var filePath = null;
 
 	// currently, push notifications are only supported for iphone
 	if (Titanium.Platform.name != 'android')
@@ -341,9 +340,8 @@
 
 	function playMovie()
 	{
-		Titanium.UI.createAlertDialog({title:filePath}).show();
 		var activeMovie = Titanium.Media.createVideoPlayer({
-			contentURL:filePath,
+			contentURL:'movie.mp4',
 			backgroundColor:'#111',
 			movieControlMode:Titanium.Media.VIDEO_CONTROL_DEFAULT,
 			scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
@@ -377,7 +375,6 @@
 
 			success:function(media,details)
 			{
-				filePath = media.filePath;
 				var win = Titanium.UI.createWindow({url:'image.html'});
 				Titanium.App.Properties.setString('video',media.filePath);
 				Titanium.App.Properties.setBool('movie',true);
