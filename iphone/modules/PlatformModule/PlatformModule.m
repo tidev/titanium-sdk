@@ -47,6 +47,38 @@
 	return [NSNumber numberWithBool:result];
 }
 
+- (BOOL)isDevicePortrait
+{
+	UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
+	return  (orientation == UIDeviceOrientationPortrait || 
+			 orientation == UIDeviceOrientationPortraitUpsideDown || 
+			 orientation == UIDeviceOrientationUnknown);
+}
+
+- (NSNumber*) platformWidth
+{
+	if ([self isDevicePortrait])
+	{
+		return [NSNumber numberWithFloat:[[UIScreen mainScreen] bounds].size.width];	
+	}
+	else
+	{
+		return [NSNumber numberWithFloat:[[UIScreen mainScreen] bounds].size.height];	
+	}
+}
+
+- (NSNumber*) platformHeight
+{
+	if ([self isDevicePortrait] == NO)
+	{
+		return [NSNumber numberWithFloat:[[UIScreen mainScreen] bounds].size.width];	
+	}
+	else
+	{
+		return [NSNumber numberWithFloat:[[UIScreen mainScreen] bounds].size.height];	
+	}
+}
+
 - (void)configure
 {
 	NSString *deviceMac = nil; 
@@ -120,7 +152,6 @@
 		arch = @"i386";
 	}
 	
-	
 	[self bindProperty:@"name" value:[theDevice systemName]];
 	[self bindProperty:@"model" value:model];
 	[self bindProperty:@"version" value:[theDevice systemVersion]];
@@ -135,15 +166,27 @@
 	[self bindFunction:@"createUUID" method:@selector(createUUID)];
 	[self bindFunction:@"openURL" method:@selector(openURL:)];
 
+
+	// needed for platform displayCaps orientation to be correct
+	[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+	
+	TitaniumAccessorTuple * widthAccessor = [[[TitaniumAccessorTuple alloc] init] autorelease];
+	[widthAccessor setGetterTarget:self];
+	[widthAccessor setGetterSelector:@selector(platformWidth)];
+
+	TitaniumAccessorTuple * heightAccessor = [[[TitaniumAccessorTuple alloc] init] autorelease];
+	[heightAccessor setGetterTarget:self];
+	[heightAccessor setGetterSelector:@selector(platformHeight)];
+
 	
 	// device capabilities currently are hardcoded since all current iphone
 	// devices are the same (until the iTablet!)
-	NSString *jscode = [self toJSON:[NSDictionary dictionaryWithObjectsAndKeys:
-									 [NSNumber numberWithInt:320],@"width",
-									 [NSNumber numberWithInt:480],@"height",
+    id jscode = [NSDictionary dictionaryWithObjectsAndKeys:
+									 widthAccessor,@"width",
+									 heightAccessor,@"height",
 									 @"low",@"density",
-									 [NSNumber numberWithInt:160],@"dpi",nil]];
-	[self bindCode:@"displayCaps" code:jscode];
+									 [NSNumber numberWithInt:160],@"dpi",nil];
+	[self bindProperty:@"displayCaps" value:jscode];
 }
 
 @end

@@ -4,7 +4,7 @@
 # Android Simulator for building a project and launching
 # the Android Emulator or on the device
 #
-import os, sys, subprocess, shutil, time, signal, string, platform, re, run
+import os, sys, subprocess, shutil, time, signal, string, platform, re, run, avd
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -93,32 +93,50 @@ class Builder(object):
 		
 
 	def wait_for_device(self,type):
-		print "[DEBUG] Waiting for emulator to be ready ..."
+		print "[DEBUG] Waiting for device to be ready ..."
 		sys.stdout.flush()
 		t = time.time()
 		while True:
-			output = run.run([self.adb,"-%s" % type, 'devices'])
-			print "[DEBUG] %s" % output
-			if output.find("offline")==-1 or (time.time()-t > 5):
-				break
-			os.sleep(1)
+			output = run.run([self.adb,"-%s" % type, 'devices'],True)
+			print "[TRACE] wait_for_device returned: %s" % output
+			if output != None: 
+				if output.find("emulator-")!=None or (time.time()-t > 0.2):
+					break
+			time.sleep(1)
 		print "[DEBUG] Device connected..."
 		sys.stdout.flush()
+		duration = time.time() - t
+		print "[DEBUG] waited %f seconds on emulator to get ready" % duration
+		if duration > 0.15:
+			print "[INFO] Waiting for the Android Emulator to become available"
+			time.sleep(10) # give it a little more time to get installed
 	
 	def create_avd(self,avd_id,avd_skin):
 		name = "titanium_%s_%s" % (avd_id,avd_skin)
+		home_dir = os.path.join(os.path.expanduser('~'), '.titanium')
+		if not os.path.exists(home_dir):
+			os.makedirs(home_dir)
+		sdcard = os.path.abspath(os.path.join(home_dir,'android.sdcard'))
+		if not os.path.exists(sdcard):
+			mksdcard = os.path.join(self.sdk,'tools','mksdcard')
+			if platform.system() == "Windows":
+				mksdcard += ".exe"
+			print "[INFO] Created shared 10M SD card for use in Android emulator(s)"
+			run.run([mksdcard, '10M', sdcard])
+
 		avd_path = os.path.expanduser("~/.android/avd")
 		my_avd = os.path.join(avd_path,"%s.avd" % name)
 		if not os.path.exists(my_avd):
-			print "[DEBUG] created new AVD %s %s" % (avd_id,avd_skin)
+			print "[INFO] creating new AVD %s %s" % (avd_id,avd_skin)
 			inputgen = os.path.join(template_dir,'input.py')
-			pipe([sys.executable, inputgen], [self.android, '--verbose', 'create', 'avd', '--name', name, '--target', avd_id, '-s', avd_skin, '--force'])
+			pipe([sys.executable, inputgen], [self.android, '--verbose', 'create', 'avd', '--name', name, '--target', avd_id, '-s', avd_skin, '--force', '--sdcard', sdcard])
 			inifile = os.path.join(my_avd,'config.ini')
 			inifilec = open(inifile,'r').read()
 			inifiledata = open(inifile,'w')
 			inifiledata.write(inifilec)
 			inifiledata.write("hw.camera=yes\n")
 			inifiledata.close()
+			
 		return name
 	
 	def run_emulator(self,avd_id,avd_skin):
@@ -129,6 +147,9 @@ class Builder(object):
 		print "[DEBUG] AVD ID: " + avd_id
 		print "[DEBUG] AVD Skin: " + avd_skin
 		print "[DEBUG] SDK: " + sdk_dir
+		
+		# flush before a long IO operation
+		sys.stdout.flush()
 		
 		# this will create an AVD on demand or re-use existing one if already created
 		avd_name = self.create_avd(avd_id,avd_skin)
@@ -176,6 +197,7 @@ class Builder(object):
 		except OSError:
 			handler(3,None)
 
+		print "[INFO] Android Emulator has exited"
 		sys.exit(rc)
 		
 	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None):
@@ -262,6 +284,16 @@ class Builder(object):
 
 			if not os.path.exists(assets_dir):
 				os.makedirs(assets_dir)
+				
+			my_avd = None	
+			google_apis_supported = False
+				
+			# find the AVD we've selected and determine if we support Google APIs
+			for avd_props in avd.get_avds(self.sdk):
+				if avd_props['id'] == avd_id:
+					my_avd = avd_props
+					google_apis_supported = (my_avd['name'].find('Google')!=-1)
+					break
 
 			# compile resources
 			full_resource_dir = os.path.join(self.project_dir,asset_resource_dir)
@@ -332,6 +364,11 @@ class Builder(object):
 				'Facebook.createLoginButton' : FACEBOOK_ACTIVITY,
 			}
 			
+			# this is a map of our APIs to ones that require Google APIs to be available on the device
+			google_apis = {
+				"Map.createView" : True
+			}
+			
 			activities = []
 			
 			# figure out which permissions we need based on the used module methods
@@ -349,6 +386,13 @@ class Builder(object):
 				try:
 					mappings = activity_mapping[mn]
 					try:
+						if google_apis[mn] and not google_apis_supported:
+							print "[WARN] Google APIs detected but a device has been selected that doesn't support them. The API call to Titanium.%s will fail using '%s'" % (mn,my_avd['name'])
+							sys.stdout.flush()
+							continue
+					except:
+						pass
+					try:
 						activities.index(mappings)
 					except:
 						activities.append(mappings)
@@ -362,7 +406,7 @@ class Builder(object):
 			
 			# copy any module image directories
 			for module in compiler.modules:
-				if module.lower() == 'map':
+				if module.lower() == 'map' and google_apis_supported:
 					tijar = timapjar
 					print "[INFO] Detected Google Maps dependency. Using Titanium + Maps"
 				img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
@@ -449,6 +493,8 @@ class Builder(object):
 			
 			res_dir = os.path.join(self.project_dir, 'res')
 			output = run.run([aapt, 'package', '-m', '-J', src_dir, '-M', android_manifest, '-S', res_dir, '-I', jar])
+			if output == None:
+				sys.exit(1)
 			success = re.findall(r'ERROR (.*)',output)
 			if len(success) > 0:
 				print "[ERROR] %s" % success[0]
@@ -566,15 +612,16 @@ class Builder(object):
 				print "[ERROR] %s " %success[0]
 				sys.exit(1)
 				
-			# attempt to zipalign -- this only exists in 1.6 and above so be nice
-			zipalign = os.path.join(self.tools_dir,'zipalign')
-			if platform.system() == "Windows":
-				zipalign+=".exe"
-				
-			if os.path.exists(zipalign):
-				#zipalign -v 4 source.apk destination.apk
-				run.run([zipalign, '-v', '4', app_apk, app_apk+'z'])
-				os.rename(app_apk+'z',app_apk)
+			# NOTE: we can't zipalign until we officially support 1.6+
+			# # attempt to zipalign -- this only exists in 1.6 and above so be nice
+			# zipalign = os.path.join(self.tools_dir,'zipalign')
+			# if platform.system() == "Windows":
+			# 	zipalign+=".exe"
+			# 	
+			# if os.path.exists(zipalign):
+			# 	#zipalign -v 4 source.apk destination.apk
+			# 	run.run([zipalign, '-v', '4', app_apk, app_apk+'z'])
+			# 	os.rename(app_apk+'z',app_apk)
 
 			if dist_dir:
 				sys.exit(0)			
@@ -585,6 +632,7 @@ class Builder(object):
 			# try a few times as sometimes it fails waiting on boot
 			attempts = 0
 			launched = False
+			launch_failed = False
 			while attempts < 5:
 				try:
 					cmd = [self.adb]
@@ -596,7 +644,10 @@ class Builder(object):
 						self.wait_for_device('e')
 						print "[INFO] Installing application on device"
 						cmd += ['-e', 'install', '-r', app_apk]
-					run.run(cmd)
+					if run.run(cmd)==None:
+						launch_failed = True
+					elif not install:
+						launched = True
 					break
 				except:
 					time.sleep(3)
@@ -605,10 +656,9 @@ class Builder(object):
 			if launched:
 				print "[INFO] Launching application ... %s" % self.name
 				sys.stdout.flush()
-				time.sleep(3)
-				run.run([self.adb, 'shell', 'am', 'start', '-a', 'android.intent.action.MAIN', '-n', '%s/%s.%s' % (self.app_id, self.app_id , self.classname)])
-				print "[DEBUG] Deployed %s ... " % self.name
-			else :
+				run.run([self.adb, 'shell', 'am', 'start', '-a', 'android.intent.action.MAIN', '-c','android.intent.category.LAUNCHER', '-n', '%s/.%sActivity' % (self.app_id , self.classname)])
+				print "[INFO] Deployed %s ... Application should be running." % self.name
+			elif launch_failed==False:
 				print "[INFO] Application installed. Launch from drawer on Home Screen"
 
 		finally:
