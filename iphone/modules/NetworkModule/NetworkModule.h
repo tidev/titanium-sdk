@@ -29,6 +29,7 @@ typedef enum {
 	SCNetworkReachabilityRef defaultRouteReachability;
 	BOOL isListening;
 	NSString *remoteDeviceUUID;
+	NSString *userAgent;
 }
 
 - (NSString *) networkTypeName;

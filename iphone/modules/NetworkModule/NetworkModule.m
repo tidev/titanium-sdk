@@ -36,7 +36,7 @@ typedef enum {
 
 NSString * const netHTTPClientGeneratorFormat = @"Ti.%@ = {"
 "abort:function(){return Ti._TICMD('%@','abort',arguments);},"
-"open:function(){return Ti._TICMD('%@','open',arguments);},"
+"open:function(){if(!Ti.Net._UAS){Ti.Net._UA(navigator.userAgent);Ti.Net._UAS=1;} return Ti._TICMD('%@','open',arguments);},"
 "setRequestHeader:function(){return Ti._TICMD('%@','setRequestHeader',arguments);},"
 "send:function(){return Ti._TICMD('%@','send',arguments);},"
 "getResponseHeader:function(){return Ti._TICMD('%@','responseHeader',arguments);},"
@@ -76,7 +76,7 @@ NSString *encodeURIParameters(NSString *unencodedString)
 	    NULL,
 	    (CFStringRef)unencodedString,
 	    NULL,
-	    (CFStringRef)@"!*'();:@&=+$,/?%#[]",
+	    (CFStringRef)@"!*'();:@+$,/?%#[]",
 	    kCFStringEncodingUTF8 );
 }
 void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
@@ -175,6 +175,7 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 	NSInteger currentStatus;
 	BOOL connected;
 	NSRecursiveLock *stateLock;
+	NSString *userAgent;
 }
 
 @property(nonatomic,readwrite,retain)	NSMutableURLRequest * urlRequest;
@@ -194,10 +195,11 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 @synthesize urlRequest, urlConnection, urlResponse, loadedData;
 @synthesize readyState, currentStatus, connected;
 
--(id) init; 
+-(id) initWithUserAgent:(NSString*)ua
 {
 	if ((self = [super init])){
 		stateLock = [[NSRecursiveLock alloc] init];
+		userAgent = [ua retain];
 	}
 	return self;
 }
@@ -208,6 +210,7 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 	[urlResponse release];
 	[loadedData release];
 	[stateLock release];
+	[userAgent release];
 	[super dealloc];
 }
 
@@ -279,22 +282,34 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 		
 		NSString * destString = [objectValue objectAtIndex:1];
 		if (![destString isKindOfClass:[NSString class]])return nil;
-		NSURL * destUrl = [NSURL URLWithString:[destString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 		
+		NSURL *destUrl;
+		
+		NSRange range = [destString rangeOfString:@"?"];
+		if (range.location == NSNotFound)
+		{
+			destUrl = [NSURL URLWithString:destString];
+		}
+		else 
+		{
+			NSString *uri = [destString substringToIndex:range.location];
+			NSString *qs = [destString substringFromIndex:range.location+1];
+			NSString *newqs = encodeURIParameters(qs);
+			destUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@",uri,newqs]];
+		}
+
 		[self setUrlRequest:[NSMutableURLRequest requestWithURL:destUrl]];
 		[urlRequest setHTTPMethod:[objectValue objectAtIndex:0]];
 		[urlRequest setValue:@"Accept-Charset" forHTTPHeaderField:@"utf-8"];
 		
 		// set the titanium user agent
-		NSString *userAgent;
 		NSString *webkit = [urlRequest valueForHTTPHeaderField:@"User-Agent"];
-		if (webkit==nil) {
-			// sometimes the above returns nil, in which case we need to fake it
-			NSString * sysVersion = [[UIDevice currentDevice] systemVersion];
-			userAgent = [NSString stringWithFormat:@"Mozilla/5.0 (iPhone; U; CPU iPhone OS %@ like Mac OS X; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/%@ Titanium/%s",
-						 sysVersion,([sysVersion hasPrefix:@"2."]?@"3.1.1":@"4.0"),STRING(TI_VERSION)];
-		} else {
+		if (webkit!=nil) 
+		{
+			[userAgent release];
+			// we have a custom one coming in, allow it to be overriden and just throw our UA on the end
 			userAgent = [webkit stringByAppendingFormat:@" Titanium/%s",STRING(TI_VERSION)];
+			[userAgent retain];
 		}
 		
 		[urlRequest setValue:userAgent forHTTPHeaderField:@"User-Agent"];
@@ -502,7 +517,7 @@ NetworkModuleConnectionState stateForReachabilityFlags(SCNetworkReachabilityFlag
 	
 	//FIXME - set the user agent header
 
-	NetHTTPClient * nativeClient = [[NetHTTPClient alloc] init];
+	NetHTTPClient * nativeClient = [[NetHTTPClient alloc] initWithUserAgent:userAgent];
 	[nativeClient setToken:clientToken];
 	[nativeClient setJavaScriptPath:jsPath];
 
@@ -746,6 +761,11 @@ typedef enum {
 	[[TitaniumHost sharedHost] sendJavascript:commandString toPagesWithTokens:pushListeners update:YES];	
 }
 
+- (void)setUserAgent:(NSString*)userAgent_
+{
+	userAgent = [[NSString stringWithFormat:@"%@ Titanium/%s",userAgent_,STRING(TI_VERSION)] retain];
+}
+
 
 - (BOOL) startModule;
 {
@@ -768,6 +788,10 @@ typedef enum {
 
 	[(NetworkModule *)ourInvocGen removeConnectivityListenerToken:nil];
 	NSInvocation * removeListenerInvoc = [ourInvocGen invocation];
+	
+	[(NetworkModule *)ourInvocGen setUserAgent:nil];
+	NSInvocation * userAgentInvoc = [ourInvocGen invocation];
+	
 
 	TitaniumAccessorTuple * deviceIdAccessor = [TitaniumAccessorTuple tupleForObject:self Key:@"remoteDeviceUUID"];
 	[deviceIdAccessor setSetterSelector:NULL];
@@ -785,13 +809,7 @@ typedef enum {
 	NSString * removeListenerString = @"function(tok){if(tok){delete Ti.Network._LISTEN[tok];Ti.Network._REML(tok);}}";
 	TitaniumJSCode * addListenerCode = [TitaniumJSCode codeWithString:addListenerString];
 	
-	[addListenerCode setEpilogueCode:@"window.XMLHttpRequest = function(){return new Titanium.Network.createHTTPClient()};"];
-	
-	// FIXME: map Titanium.Network.addConnectivityListener and removeConnectivityListener
-	// should also map to Titanium.Network.addEventListener('connectivity')
-	// (we can deprecate the other but leave it in place until GA)
-	
-	
+	[addListenerCode setEpilogueCode:@"window.XMLHttpRequest = function(){return new Titanium.Network.createHTTPClient()}; Ti.Net=Ti.Network;"];
 	
 	
 	NSDictionary * moduleDict = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -805,6 +823,7 @@ typedef enum {
 			connectivityListeners, @"_LISTEN",
 			newListenerInvoc,@"_ADDL",
 			removeListenerInvoc,@"_REML",
+			userAgentInvoc,	@"_UA",				 
 
 			[TitaniumJSCode codeWithString:@"[]"],@"_PUSH",
 			[TitaniumJSCode codeWithString:@"function(typ,dat){var P=Ti.Network._PUSH;var len=P.length;"
@@ -837,7 +856,6 @@ typedef enum {
 	NSMutableDictionary * titaniumObject = [[TitaniumHost sharedHost] titaniumObject];
 	
 	[titaniumObject setObject:moduleDict forKey:@"Network"];
-	[titaniumObject setObject:[TitaniumJSCode codeWithString:@"Ti.Network"] forKey:@"Net"];
 	
 	return YES;	
 }
@@ -847,6 +865,7 @@ typedef enum {
 	[remoteDeviceUUID release];
 	[pendingConnnections release];
 	[connectivityListeners release];
+	[userAgent release];
 	[super dealloc];
 }
 

@@ -26,6 +26,19 @@
 	<array>
 		<dict>
 			<key>title</key>
+			<string>Video</string>
+			<key>orientation</key>
+			<string>either</string>
+			<key>views</key>
+			<array>
+				<dict>
+					<key>url</key>
+					<string>video.html</string>
+				</dict>
+			</array>
+		</dict>
+		<dict>
+			<key>title</key>
 			<string>Coverflow</string>
 			<key>orientation</key>
 			<string>either</string>
@@ -157,14 +170,14 @@
 		</dict>
 		<dict>
 			<key>title</key>
-			<string>Video</string>
+			<string>Yahoo YQL</string>
 			<key>orientation</key>
 			<string>either</string>
 			<key>views</key>
 			<array>
 				<dict>
 					<key>url</key>
-					<string>video.html</string>
+					<string>yahoo.html</string>
 				</dict>
 			</array>
 		</dict>
@@ -179,6 +192,7 @@
 	<string>0.1</string>
 	<key>modules</key>
 	<array>
+		<string>yahoo</string>
 		<string>facebook</string>
 		<string>notification</string>
 		<string>analytics</string>
