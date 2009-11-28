@@ -7,6 +7,12 @@
 import os,sys,shutil,platform
 import string,subprocess,re
 from mako.template import Template
+from os.path import join, splitext, split, exists
+from shutil import copyfile
+
+
+ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
+ignoreDirs = ['.git','.svn','_svn', 'CVS'];
 
 def run(args):
 	return subprocess.Popen(args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()[0]
@@ -15,6 +21,24 @@ def pipe(args1,args2):
 	p1 = subprocess.Popen(args1, stdout=subprocess.PIPE)
 	p2 = subprocess.Popen(args2, stdin=p1.stdout, stdout=subprocess.PIPE)
 	return p2.communicate()[0]
+
+def copy_resources(source, target):
+	 if not os.path.exists(os.path.expanduser(target)):
+		  os.mkdir(os.path.expanduser(target))
+	 for root, dirs, files in os.walk(source):
+		  for name in ignoreDirs:
+		  	    if name in dirs:
+				    dirs.remove(name)	# don't visit ignored directories			  
+		  for file in files:
+				if file in ignoreFiles:
+					 continue
+				from_ = join(root, file)			  
+				to_ = os.path.expanduser(from_.replace(source, target, 1))
+				to_directory = os.path.expanduser(split(to_)[0])
+				if not exists(to_directory):
+					 os.makedirs(to_directory)
+				print "[TRACE] copying: %s to: %s" % (from_,to_)
+				copyfile(from_, to_)
 	
 class Android(object):
 
@@ -36,7 +60,6 @@ class Android(object):
 			'apiversion' : '3', #Android 1.5
 		}
 		self.config['classname'] = "".join(string.capwords(self.name).split(' '))
-
 
 	def newdir(self, *segments):
 		path = os.path.join(*segments)
@@ -93,9 +116,12 @@ class Android(object):
 		android_resources = os.path.join(resource_dir,'android')
 		
 		android_project_resources = os.path.join(project_dir,'Resources','android')
-		if os.path.exists(android_project_resources):
+		if build_time==False and os.path.exists(android_project_resources):
 			shutil.rmtree(android_project_resources)
-		shutil.copytree(os.path.join(template_dir,'resources'),android_project_resources)
+		
+		if build_time==False:		
+			copy_resources(os.path.join(template_dir,'resources'),android_project_resources)
+		
 
 		self.copyfile('titanium.jar', os.path.join(template_dir), app_lib_dir)
 		self.copyfile('titanium-map.jar', os.path.join(template_dir), app_lib_dir)

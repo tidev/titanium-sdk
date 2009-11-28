@@ -16,7 +16,7 @@ from tiapp import *
 from mako.template import Template
 from android import Android
 
-ignoreFiles = ['.gitignore', '.cvsignore'];
+ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
 
 def dequote(s):
@@ -225,28 +225,23 @@ class Builder(object):
 		timapjar = os.path.join(self.support_dir,'titanium-map.jar')
 		
 		try:
-			#Files to ignore during build tree operations
-			
 			os.chdir(self.project_dir)
 			
 			if os.path.exists('bin'):
-				#shutil.rmtree('bin')
-				for root, dirs, files in os.walk('bin', topdown=False):
-					for name in ignoreFiles:
-						if name in files:
-							files.remove(name)
-					#delete everything else
-					for name in files:
-						os.remove(os.path.join(root, name))
-					for name in dirs:
-						os.rmdir(os.path.join(root, name))
-				
+				shutil.rmtree('bin')
+			os.makedirs('bin')
+			
 			if os.path.exists('lib'):
 				shutil.copy(tijar,'lib')
 
 			resources_dir = os.path.join(self.top_dir,'Resources')
 			assets_dir = os.path.join('bin','assets')
 			asset_resource_dir = os.path.join(assets_dir,'Resources')
+
+			# we re-run the create each time through in case any of our key files
+			# have changed
+			android = Android(self.name,self.app_id,self.sdk)
+			android.create(os.path.abspath(os.path.join(self.top_dir,'..')),True)
 
 			# transform resources
 			def strip_slash(s):
@@ -270,6 +265,7 @@ class Builder(object):
 					for f in files:
 						fullpath = os.path.join(root,f)
 						relativedest = os.path.join(dest,relative,f)
+						print "[TRACE] COPYING: %s => %s" %(fullpath,relativedest)
 						shutil.copy(fullpath,relativedest)
 
 			if os.path.exists(asset_resource_dir):
@@ -278,9 +274,13 @@ class Builder(object):
 			recursive_cp(resources_dir,asset_resource_dir)
 			if os.path.exists(os.path.join(asset_resource_dir,'iphone')):
 				shutil.rmtree(os.path.join(asset_resource_dir,'iphone'))
-			if os.path.exists(os.path.join(asset_resource_dir,'android')):
+			if os.path.exists(os.path.join(resources_dir,'android')):
 				recursive_cp(os.path.join(resources_dir,'android'),asset_resource_dir)		
 				shutil.rmtree(os.path.join(asset_resource_dir,'android'))
+				
+
+
+			sys.stdout.flush()
 
 			if not os.path.exists(assets_dir):
 				os.makedirs(assets_dir)
@@ -462,10 +462,6 @@ class Builder(object):
 				shutil.copy(splashimage,os.path.join('res','drawable','background.png'))
 			
 			
-			# we re-run the create each time through in case any of our key files
-			# have changed
-			android = Android(self.name,self.app_id,self.sdk)
-			android.create(os.path.abspath(os.path.join(self.top_dir,'..')),True)
 
 			src_dir = os.path.join(self.project_dir, 'src')
 			android_manifest = os.path.join(self.project_dir, 'AndroidManifest.xml')
@@ -511,7 +507,7 @@ class Builder(object):
 						
 				if len(files) > 0:
 					for f in files:
-						if f == '.DS_Store' or f in ignoreFiles : continue
+						if f in ignoreFiles : continue
 						path = root + os.sep + f
 						srclist.append(path)
 		
