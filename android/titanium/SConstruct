@@ -78,6 +78,12 @@ for f in Glob('src/org/appcelerator/titanium/*.properties'):
 	env.AddPostAction(target, ReplaceVarsAction(target[0], replacements))
 	targets.append(target)
 
+for f in Glob('src/org/appcelerator/titanium/module/ui/searchbar/*.png'):
+	fname = os.path.basename(str(f))
+	target = env.Command(os.path.join('bin/classes/org/appcelerator/titanium/module/ui/searchbar', fname), f, Copy("bin/classes/org/appcelerator/titanium/module/ui/searchbar", "$SOURCE"))
+	env.AddPostAction(target, ReplaceVarsAction(target[0], replacements))
+	targets.append(target)
+	
 for f in Glob('src/org/appcelerator/titanium/res/drawable/*',strings=True):
 	fname = os.path.basename(str(f))
 	t = env.Command(os.path.join('bin/classes/org/appcelerator/titanium/res/drawable', fname), f, Copy("bin/classes/org/appcelerator/titanium/res/drawable", "$SOURCE"))
