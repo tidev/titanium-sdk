@@ -76,6 +76,7 @@ public class TitaniumTableView extends TitaniumBaseView
 	private String filterAttribute;
 	private String filterText;
 	private RelativeLayout view;
+	private Semaphore modifySemaphore;
 
 	private Runnable dataSetChanged = new Runnable() {
 
@@ -174,15 +175,17 @@ public class TitaniumTableView extends TitaniumBaseView
 		}
 
 		private int typeForItem(JSONObject o) {
-			if (o.optBoolean("isDisplayHeader", false)) {
-				return TYPE_HEADER;
-			} else if ((o.has("layout") && !o.isNull("layout")) || (rowTemplate != null && !o.has("layout"))) {
-				return TYPE_CUSTOM;
-			} else if (o.has("html")) {
-				return TYPE_HTML;
-			} else {
-				return TYPE_NORMAL;
+			int type = TYPE_NORMAL;
+			if (o != null) {
+				if (o.optBoolean("isDisplayHeader", false)) {
+					type = TYPE_HEADER;
+				} else if ((o.has("layout") && !o.isNull("layout")) || (rowTemplate != null && !o.has("layout"))) {
+					type = TYPE_CUSTOM;
+				} else if (o.has("html")) {
+					type = TYPE_HTML;
+				}
 			}
+			return type;
 		}
 
 		public View getView(int position, View convertView, ViewGroup parent)
@@ -270,6 +273,7 @@ public class TitaniumTableView extends TitaniumBaseView
 		defaults.put("marginBottom", "0");
 		defaults.put("scrollBar", "auto");
 
+		this.modifySemaphore = new Semaphore(0);
 		this.viewModel = new TableViewModel();
 		this.hasBeenOpened = false;
 	}
@@ -318,6 +322,7 @@ public class TitaniumTableView extends TitaniumBaseView
 		try {
 			JSONObject t = new JSONObject(template);
 			handler.obtainMessage(MSG_SET_TEMPLATE, t).sendToTarget();
+			acquireModifySemaphore();
 		} catch (JSONException e) {
 			Log.e(LCAT, "Unable to load template: " + e.getMessage(), e);
 		}
@@ -329,6 +334,7 @@ public class TitaniumTableView extends TitaniumBaseView
 
 	public void setData(String data) {
 		handler.obtainMessage(MSG_SETDATA, data).sendToTarget();
+		acquireModifySemaphore();
 	}
 
 	public void doSetData(String data) {
@@ -338,6 +344,7 @@ public class TitaniumTableView extends TitaniumBaseView
 
 	public void deleteRow(int index) {
 		handler.obtainMessage(MSG_DELETEROW, index, -1).sendToTarget();
+		acquireModifySemaphore();
 	}
 
 	public void doDeleteRow(int index) {
@@ -347,6 +354,7 @@ public class TitaniumTableView extends TitaniumBaseView
 
 	public void insertRowAfter(int index, String json) {
 		handler.obtainMessage(MSG_INSERTAFTER, index, -1, json).sendToTarget();
+		acquireModifySemaphore();
 	}
 
 	public void doInsertRowAfter(int index, String json) {
@@ -360,7 +368,8 @@ public class TitaniumTableView extends TitaniumBaseView
 
 	public void insertRowBefore(int index, String json) {
 		handler.obtainMessage(MSG_INSERTBEFORE, index, -1, json).sendToTarget();
-	}
+		acquireModifySemaphore();
+}
 
 	public void doInsertRowBefore(int index, String json) {
 		try {
@@ -373,7 +382,8 @@ public class TitaniumTableView extends TitaniumBaseView
 
 	public void updateRow(int index, String json) {
 		handler.obtainMessage(MSG_UPDATEROW, index, -1, json).sendToTarget();
-	}
+		acquireModifySemaphore();
+}
 
 	public void doUpdateRow(int index, String json) {
 		try {
@@ -492,18 +502,23 @@ public class TitaniumTableView extends TitaniumBaseView
 			switch(msg.what) {
 			case MSG_SETDATA:
 				doSetData((String) msg.obj);
+				releaseModifySemaphore();
 				return true;
 			case MSG_DELETEROW:
 				doDeleteRow(msg.arg1);
+				releaseModifySemaphore();
 				return true;
 			case MSG_INSERTAFTER:
 				doInsertRowAfter(msg.arg1, (String) msg.obj);
+				releaseModifySemaphore();
 				return true;
 			case MSG_INSERTBEFORE:
 				doInsertRowBefore(msg.arg1, (String) msg.obj);
+				releaseModifySemaphore();
 				return true;
 			case MSG_UPDATEROW:
 				doUpdateRow(msg.arg1, (String) msg.obj);
+				releaseModifySemaphore();
 				return true;
 			case MSG_INDEXBYNAME :
 				IndexHolder h = (IndexHolder) msg.obj;
@@ -522,10 +537,22 @@ public class TitaniumTableView extends TitaniumBaseView
 				return true;
 			case MSG_SET_TEMPLATE :
 				doSetTemplate((JSONObject) msg.obj);
+				releaseModifySemaphore();
 				return true;
 			}
 		}
 		return false;
+	}
+
+	private void acquireModifySemaphore() {
+		try {
+			modifySemaphore.acquire();
+		} catch (InterruptedException ig) {
+			// Ignore;
+		}
+	}
+	private void releaseModifySemaphore() {
+		modifySemaphore.release();
 	}
 
 	public void setCallback(final String callback)

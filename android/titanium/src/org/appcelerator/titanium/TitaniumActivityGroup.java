@@ -143,22 +143,23 @@ public class TitaniumActivityGroup extends ActivityGroup
 			return;
 		}
 
-        if (app.needsSplashScreen()) {
-    		Drawable backgroundDrawable = null;
-
-    		String backgroundImage = "default.png";
+		// Handled in the build
+//        if (app.needsSplashScreen()) {
+//    		Drawable backgroundDrawable = null;
+//
+//    		String backgroundImage = "default.png";
 //	    	if(info != null && info.hasWindowBackgroundImage()) {
 //	    		backgroundImage = info.getWindowBackgroundImage();
 //	    	}
-
-	    	backgroundDrawable = tfh.loadDrawable(backgroundImage, false); // Ok to not have background
-			if (backgroundDrawable != null) {
-				((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
-				getWindow().setBackgroundDrawable(backgroundDrawable);
-			} else {
-				getWindow().setBackgroundDrawable(new ColorDrawable(Color.argb(255,46,46,46)));
-			}
-        }
+//
+//	    	backgroundDrawable = tfh.loadDrawable(backgroundImage, false); // Ok to not have background
+//			if (backgroundDrawable != null) {
+//				((BitmapDrawable) backgroundDrawable).setGravity(Gravity.TOP);
+//				getWindow().setBackgroundDrawable(backgroundDrawable);
+//			} else {
+//				getWindow().setBackgroundDrawable(new ColorDrawable(Color.argb(255,46,46,46)));
+//			}
+//        }
 
 		if (numWindows > 1) {
 			appStrategy = new TitaniumTabbedAppStrategy();
