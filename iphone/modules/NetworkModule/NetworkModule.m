@@ -43,13 +43,16 @@ NSString * const netHTTPClientGeneratorFormat = @"Ti.%@ = {"
 "getAllResponseHeaders:function(){return Ti._TICMD('%@','responseHeaders',arguments);},"
 "UNSENT:0,OPENED:1,HEADERS_RECEIVED:2,LOADING:3,DONE:4,"
 "setOnReadyStateChange:function(newFun){this.onreadystatechange=newFun;},"
-"onreadystatechange:null,ondatastream:null,onsendstream:null,onload:null,readyState:-1,"
-"_changestate:function(newstate){this.readyState = newstate;"
+"onreadystatechange:null,ondatastream:null,onsendstream:null,onload:null,onerror:null,readyState:-1,"
+"_changestate:function(newstate,extra){this.readyState = newstate;"
 " if(this.onreadystatechange){"
 "  this.onreadystatechange();"
 " }"
-" if(this.onload && newstate==4){"
+" if(this.onload && newstate==4 && typeof(extra)=='undefined'){"
 "  this.onload();"
+" }"
+" else if(this.onerror && newstate==4 && typeof(extra)!='undefined'){"
+"  this.onerror(extra);"
 " }"
 "}"
 "};"
@@ -235,7 +238,7 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 	
 }
 
-- (void) setReadyState: (NetHTTPClientState) newState;
+- (void) setReadyState: (NetHTTPClientState) newState data:(NSString*)data
 {
 	[stateLock lock];
 	VERBOSE_LOG(@"%@ changing state to %@. Message will be sent to %@ to page with token %@",self,[NetHTTPClient stringForState:newState],javaScriptPath,parentPageToken);
@@ -251,14 +254,14 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 	// we call a change state method which sets the local object's readyState to prevent a race condition
 	// since the callback usually calls back on readyState to get the state which calls back into this (and it's 
 	// not efficient either anyway). this is faster and safer.
-	NSString *jscode = [NSString stringWithFormat:@"._changestate(%d)",readyState];
+	NSString *jscode = data == nil ? [NSString stringWithFormat:@"._changestate(%d)",readyState] : [NSString stringWithFormat:@"._changestate(%d,%@)",readyState,[SBJSON stringify:data]];
 	[self sendJavascript:[javaScriptPath stringByAppendingString:jscode]];
 }
 
 - (void) runSend;
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	[self setReadyState:clientStateOpened]; // set state before we call open to prevent out of order state
+	[self setReadyState:clientStateOpened data:nil]; // set state before we call open to prevent out of order state
 	[self setUrlConnection:[NSURLConnection connectionWithRequest:urlRequest delegate:self]];
 	[pool release];
 }
@@ -276,7 +279,7 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 		
 		NSString * destString = [objectValue objectAtIndex:1];
 		if (![destString isKindOfClass:[NSString class]])return nil;
-		NSURL * destUrl = [NSURL URLWithString:destString];
+		NSURL * destUrl = [NSURL URLWithString:[destString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 		
 		[self setUrlRequest:[NSMutableURLRequest requestWithURL:destUrl]];
 		[urlRequest setHTTPMethod:[objectValue objectAtIndex:0]];
@@ -301,7 +304,7 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 	} else if ([functionName isEqualToString:@"abort"]) { //Drops information if running, or 
 		[urlConnection cancel];
 		[self setConnected:NO];
-		[self setReadyState:clientStateDone];
+		[self setReadyState:clientStateDone data:nil];
 		[[TitaniumHost sharedHost] decrementActivityIndicator];
 		//TODO: cleanup
 
@@ -443,7 +446,7 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 	} else {
 		[loadedData setLength:0];
 	}
-	[self setReadyState:clientStateHeadersReceived];
+	[self setReadyState:clientStateHeadersReceived data:nil];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data;
@@ -454,15 +457,21 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection;
 {
 	[self setConnected:NO];
-	[self setReadyState:clientStateDone];
+	[self setReadyState:clientStateDone data:nil];
 	[self sendJavascript:[javaScriptPath stringByAppendingString:@".ondatastream()"]];
 	[[TitaniumHost sharedHost] decrementActivityIndicator];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error;
 {
+	NSString *reason = [[error userInfo] objectForKey:@"NSLocalizedDescription"];
+	if (reason == nil)
+	{
+		reason = [error description];
+	}
+	NSLog(@"[WARN] XHR request failed with '%@'", reason);
 	[self setConnected:NO];
-	[self setReadyState:clientStateDone];
+	[self setReadyState:clientStateDone data:reason];
 	[[TitaniumHost sharedHost] decrementActivityIndicator];
 
 }
