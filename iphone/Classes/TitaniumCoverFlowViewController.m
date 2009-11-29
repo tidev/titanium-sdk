@@ -96,6 +96,7 @@
 			[backgrouders addObject:wrapper];
 			// queue it
 			[index retain]; // addObserver doesn't retain so we need to
+			[self retain];
 			[wrapper addObserver:self forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:index];
 			return;
 		}
@@ -107,13 +108,19 @@
 
 -(void)setSelected:(NSNumber*)index
 {
-	if(![NSThread isMainThread]){
+	if(![NSThread isMainThread])
+	{
 		[self performSelectorOnMainThread:@selector(setSelected:) withObject:index waitUntilDone:NO];
-	} else {
-		[view setSelectedCover:[index intValue]];
-		[view centerOnSelectedCover:YES];
-		// trigger callback event
-		[self openFlowView:view selectionDidChange:[index intValue]];
+	} 
+	else 
+	{
+		if (view!=nil)
+		{
+			[view setSelectedCover:[index intValue]];
+			[view centerOnSelectedCover:YES];
+			// trigger callback event
+			[self openFlowView:view selectionDidChange:[index intValue]];
+		}
 	}
 }
 
@@ -124,13 +131,16 @@
 	if ([keyPath isEqualToString:@"imageBlob"]) 
 	{
 		[object removeObserver:self forKeyPath:keyPath];
-		
 		NSNumber *index = (NSNumber*)context;
-		UIImage *image = [(TitaniumBlobWrapper*)object imageBlob];
-		// callback is always on the UI thread
-		[view setImage:image forIndex:[index intValue]];
+		if (view!=nil)
+		{
+			UIImage *image = [(TitaniumBlobWrapper*)object imageBlob];
+			// callback is always on the UI thread
+			[view setImage:image forIndex:[index intValue]];
+		}
 		[index release];
 		[backgrouders removeObject:object];
+		[self release];
 	}
 }
 
@@ -159,6 +169,7 @@
 		{
 			if (backgrouders==nil) backgrouders = [[NSMutableArray alloc]init];
 			[index retain]; // addObserver doesn't retain so we need to
+			[self retain];
 			[backgrouders addObject:wrapper];
 			[wrapper addObserver:self forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:index];
 			return nil;
@@ -169,7 +180,7 @@
 
 - (void)setImageData:(NSDictionary*)args
 {
-	if (args!=nil)
+	if (args!=nil && view!=nil)
 	{
 		[view setImage:[args objectForKey:@"image"] forIndex:[[args objectForKey:@"index"] intValue]];
 	}
@@ -221,8 +232,9 @@
 			if (backgrouders==nil) backgrouders = [[NSMutableArray alloc]init];
 			[backgrouders addObject:wrapper];
 			NSNumber *i = [NSNumber numberWithInt:index];
+			// addObserver doesn't retain so we need to
 			[i retain];
-			 // addObserver doesn't retain so we need to
+			[self retain];
 			[wrapper addObserver:self forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:i];
 			return;
 		}
