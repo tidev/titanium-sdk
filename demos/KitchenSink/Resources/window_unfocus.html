@@ -21,9 +21,12 @@
 		document.getElementById('focused').innerHTML = Titanium.App.Properties.getString('focused');
 
 	});
-	
-	Titanium.UI.currentView.addEventListener('load',function()
+
+	Titanium.UI.currentView.addEventListener('load',function(e)
 	{
+		if (e) {
+			Titanium.API.info("Load event of url " + e.url);
+		}
 		Titanium.UI.createAlertDialog({title:'Load event called from currentView'}).show();
 
 	});

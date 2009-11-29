@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.TitaniumUIHelper;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -68,6 +69,11 @@ public class TiWebViewClient extends WebViewClient
 						}
 					}
 				}
+			}
+
+			Bundle b = (Bundle) view.getTag();
+			if (b != null) {
+				activity.getCurrentWindow().dispatchLoad(b.getString("displayUrl"));
 			}
 
 			activity.handler.postDelayed(new Runnable(){

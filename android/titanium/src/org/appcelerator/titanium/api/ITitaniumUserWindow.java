@@ -41,4 +41,5 @@ public interface ITitaniumUserWindow extends ITitaniumUserWindowBuilder
 
 	// In 0.8.0
 	void addView(String key);
+	void dispatchLoad(String url);
 }

@@ -26,6 +26,7 @@ import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumIntentWrapper;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONStringer;
 
 import android.content.res.Configuration;
 import android.graphics.drawable.BitmapDrawable;
@@ -473,6 +474,31 @@ public class TitaniumUserWindow extends ViewAnimator
 		}
 
 		return result;
+	}
+
+	public void dispatchLoad(String url)
+	{
+		try {
+			if (url.startsWith("file:///android_asset/Resources/")) {
+				url = "app://" + url.substring(32);
+			}
+			JSONStringer json = new JSONStringer();
+			json.object().key("url").value(url).endObject();
+			String data = json.toString();
+
+			TitaniumUIWebView uiWebView = (TitaniumUIWebView) views.get(0);
+			uiWebView.dispatchWindowEvent("load", data);
+
+			for(ITitaniumView view : views) {
+				if (view instanceof TitaniumUIWebView) {
+					TitaniumUIWebView wv = (TitaniumUIWebView) view;
+					wv.eventManager.invokeSuccessListeners("load", data);
+				}
+			}
+
+		} catch (JSONException e) {
+			Log.w(LCAT, "Error construction load event payload, event not fired");
+		}
 	}
 
 	/**
