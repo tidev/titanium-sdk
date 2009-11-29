@@ -98,6 +98,7 @@
 			[index retain]; // addObserver doesn't retain so we need to
 			[self retain];
 			[wrapper addObserver:self forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:index];
+			[wrapper retain];
 			return;
 		}
 	}
@@ -141,6 +142,7 @@
 		[index release];
 		[backgrouders removeObject:object];
 		[self release];
+		[object release];
 	}
 }
 
@@ -172,6 +174,7 @@
 			[self retain];
 			[backgrouders addObject:wrapper];
 			[wrapper addObserver:self forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:index];
+			[wrapper retain];
 			return nil;
 		}
 	}
@@ -236,6 +239,7 @@
 			[i retain];
 			[self retain];
 			[wrapper addObserver:self forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:i];
+			[wrapper retain];
 			return;
 		}
 	}
