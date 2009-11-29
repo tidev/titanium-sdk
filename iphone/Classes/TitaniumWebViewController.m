@@ -443,11 +443,6 @@
 				[js appendString:@"Ti._ONEVT.call(Ti.UI.currentView,'focused',{type:'focused'});"];
 			}
 		}
-		if (preloaded)
-		{
-			// we need to do this to give the doc a min size when preloaded otherwise the view size is really tiny 
-			[js appendString:@"document.body.style.minWidth='320px';"]; 
-		}
 		[js appendString:@"return window.Titanium._TOKEN; } else { return '0'; } })()"];
 		id result = [webView stringByEvaluatingJavaScriptFromString:js];
 		[js release];
@@ -595,7 +590,14 @@
 
 	VERBOSE_LOG(@"webview %@ update layout = %f x %f ==> %f x %f",currentContentURL, webFrame.size.width, webFrame.size.height,webView.frame.size.width,webView.frame.size.height);
 	
-	[webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"Ti.UI._ISRESIZING=false;document.body.style.width='%fpx';",webFrame.size.width-5]];
+	if (preloaded)
+	{
+		[webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"Ti.UI._ISRESIZING=false;document.body.style.minWidth='%fpx';",webFrame.size.width-10]];
+	}
+	else 
+	{
+		[webView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"Ti.UI._ISRESIZING=false;"]];
+	}
 }
 
 - (void)reloadWebView;
