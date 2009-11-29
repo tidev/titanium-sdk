@@ -68,7 +68,8 @@
 		{title:'Picker', hasChild:false},
 		{title:'Custom Table Views',hasChild:true},
 		{title:'Set App Badge (iPhone)'},
-		{title:'Reset App Badge (iPhone)'}
+		{title:'Reset App Badge (iPhone)'},
+		{title:'Keyboard Toolbar (iPhone)'},
 		
 	];
 	
@@ -563,6 +564,7 @@
 			}
 			case 48:
 			{
+				Titanium.Analytics.featureEvent('ui.tableview_woodgrain');
 				var win = Titanium.UI.createWindow({
 					url:'tableview_woodgrain.html',
 					title:'Custom TableView',
@@ -575,16 +577,27 @@
 			}
 			case 49:
 			{
+				Titanium.Analytics.featureEvent('ui.appbadge');
 				Titanium.UI.setAppBadge(2);
 				break;
 			}
 			case 50:
 			{
+				Titanium.Analytics.featureEvent('ui.resetappbadge');
 				Titanium.UI.setAppBadge(null);
 				break;
 			}
-	
-
+			case 51:
+			{
+				Titanium.Analytics.featureEvent('ui.keyboard_toolbar');
+				var win = Titanium.UI.createWindow({
+					url:'keyboard_toolbar.html',
+					title:'Custom Keyboard Toolbar',
+					barColor:'#800080'
+				});
+				win.open({animated:true});		
+				break;
+			}
 		}
 	});
 

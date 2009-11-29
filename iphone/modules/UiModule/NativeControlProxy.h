@@ -103,6 +103,11 @@ BOOL TitaniumPrepareAnimationsForView(NSDictionary * optionObject, UIView * view
 	BOOL	showSelectionIndicator;
 	NSMutableArray * pickerColumnsArray;
 	NSURL * baseURL;
+	
+	// Keyboard toolbar proxies
+	NSMutableArray *keyboardToolbarProxies;
+	int keyboardToolbarHeight;
+	UIColor *keyboardToolbarColor;
 }
 
 //Class methods. Do not override.

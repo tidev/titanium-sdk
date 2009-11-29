@@ -174,6 +174,7 @@
 		24C5ACF31061FDD70063594B /* NativeControlProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A6D3AF103C9EFD00131CD4 /* NativeControlProxy.h */; };
 		24C5ACF41061FDDC0063594B /* UiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2444F8360FC9FCA400063972 /* UiModule.m */; };
 		24EDDE7F10C1CC3500CBA8F3 /* yahoo.html in Resources */ = {isa = PBXBuildFile; fileRef = 24EDDE7E10C1CC3500CBA8F3 /* yahoo.html */; };
+		24EDDF2810C1F67E00CBA8F3 /* keyboard.html in Resources */ = {isa = PBXBuildFile; fileRef = 24EDDF2710C1F67E00CBA8F3 /* keyboard.html */; };
 		24FD2052106C9198004D4127 /* TitaniumBasicModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD204C106C9198004D4127 /* TitaniumBasicModule.m */; };
 		24FD2059106C9198004D4127 /* TitaniumBasicModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD204B106C9198004D4127 /* TitaniumBasicModule.h */; };
 		24FD205A106C9198004D4127 /* TitaniumBasicModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FD204C106C9198004D4127 /* TitaniumBasicModule.m */; };
@@ -489,6 +490,7 @@
 		24C5AC3F1061FB2E0063594B /* libPlatform.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPlatform.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		24C5AC581061FB4C0063594B /* libUI.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libUI.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		24EDDE7E10C1CC3500CBA8F3 /* yahoo.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = yahoo.html; sourceTree = "<group>"; };
+		24EDDF2710C1F67E00CBA8F3 /* keyboard.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = keyboard.html; sourceTree = "<group>"; };
 		24F02E440FD482D2007894DA /* AnalyticsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnalyticsModule.h; sourceTree = "<group>"; };
 		24F02E450FD482D2007894DA /* AnalyticsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnalyticsModule.m; sourceTree = "<group>"; };
 		24FD204B106C9198004D4127 /* TitaniumBasicModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumBasicModule.h; sourceTree = "<group>"; };
@@ -1128,6 +1130,7 @@
 				241939EB10B28BFC002EF673 /* coverflow.html */,
 				24193B2F10B4AB44002EF673 /* video.html */,
 				24EDDE7E10C1CC3500CBA8F3 /* yahoo.html */,
+				24EDDF2710C1F67E00CBA8F3 /* keyboard.html */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1941,6 +1944,7 @@
 				241939FB10B28F3B002EF673 /* 1.jpg in Resources */,
 				24193B3010B4AB44002EF673 /* video.html in Resources */,
 				24EDDE7F10C1CC3500CBA8F3 /* yahoo.html in Resources */,
+				24EDDF2810C1F67E00CBA8F3 /* keyboard.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

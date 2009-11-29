@@ -37,6 +37,7 @@
 }
 
 extern NSString * const TitaniumTabChangeNotification;
+extern NSString * const TitaniumKeyboardChangeNotification;
 extern NSString * const TitaniumJsonKey;
 
 NSString * CleanJSEnd(NSString * inputString);

@@ -7,11 +7,10 @@
 
 
 #import "NativeControlProxy.h"
-
-
 #import "TitaniumCellWrapper.h"
 #import "PickerImageTextCell.h"
 #import "Logging.h"
+#import "UiModule.h"
 
 @interface PickerColumnWrapper : NSObject
 {
@@ -207,6 +206,12 @@ TitaniumFontDescription* defaultControlFontDesc;
 	[titleString release];
 	[iconPath release];
 	[barButton release];
+	if (keyboardToolbarProxies!=nil)
+	{
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:TitaniumKeyboardChangeNotification object:nil];
+	}
+	[keyboardToolbarProxies release];
+	[keyboardToolbarColor release];
 	[super dealloc];
 }
 
@@ -411,10 +416,6 @@ needsLayout = YES;	\
 	}
 
 
-//	NSArray * selections = [
-
-//	if([nativeView isKindOfClass:[UIPickerView class]])[(UIPickerView *)nativeView reloadAllComponents];
-	
 	if(UpdateFontDescriptionFromDict(inputState, fontDesc, defaultControlFontDesc)){
 		needsLayout = YES;
 	}
@@ -436,6 +437,151 @@ needsLayout = YES;	\
 		[self reportEvent:@"click" value:nil index:segmentSelectedIndex init:nil arguments:nil];
 	}
 	
+	id keyboardToolbar_ = [inputState objectForKey:@"keyboardToolbar"];
+	if ([keyboardToolbar_ isKindOfClass:[NSArray class]] && [keyboardToolbar_ count]>0)
+	{
+		NSMutableArray *result = [NSMutableArray arrayWithCapacity:[keyboardToolbar_ count]];
+		UiModule * theUiModule = (UiModule *)[[TitaniumHost sharedHost] moduleNamed:@"UiModule"];
+		for (NSDictionary * thisButtonDict in keyboardToolbar_){
+			NativeControlProxy * thisProxy = [theUiModule proxyForObject:thisButtonDict scan:YES recurse:YES];
+			if (thisProxy == nil) continue;
+			[result addObject:thisProxy];
+		}
+		keyboardToolbarProxies = [result retain];
+		
+		// allow height to be changed
+		keyboardToolbarHeight = 40;
+		id height = [inputState objectForKey:@"keyboardToolbarHeight"];
+		if ([height respondsToSelector:@selector(intValue)])
+		{
+			keyboardToolbarHeight = [height intValue];
+		}
+		
+		id color = [inputState objectForKey:@"keyboardToolbarColor"];
+		if ([color isKindOfClass:[NSString class]])
+		{
+			keyboardToolbarColor = [UIColorWebColorNamed(color) retain];
+		}
+		
+		// add our keyboard notification listener
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardStateChanged:) name:TitaniumKeyboardChangeNotification object:nil];
+	}
+	
+}
+
+#pragma mark Keyboard Toolbar handling
+-(void)keyboardStateChanged:(NSNotification*)notification
+{
+	NSDictionary *userInfo = [notification userInfo];
+	
+	if ([[userInfo objectForKey:@"state"] isEqualToString:@"showing"])
+	{
+		BOOL focused = [self isFirstResponder];
+		
+		for (UIWindow *keyboardWindow in [[UIApplication sharedApplication] windows]) 
+		{
+			// Now iterating over each subview of the available windows
+			for (UIView *keyboard in [keyboardWindow subviews]) 
+			{
+				// Check to see if the description of the view we have referenced is UIKeyboard.
+				// If so then we found the keyboard view that we were looking for.
+				if([[keyboard description] hasPrefix:@"<UIKeyboard"] == YES) 
+				{
+					NSValue *v = [userInfo valueForKey:UIKeyboardBoundsUserInfoKey];
+					CGRect kbBounds = [v CGRectValue];
+
+					int height = keyboardToolbarHeight;
+					
+					UIToolbar * keyboardToolbar;
+					NSMutableArray *items;
+					
+					if (focused)
+					{
+						keyboard.bounds = CGRectMake(kbBounds.origin.x, kbBounds.origin.y, kbBounds.size.width, kbBounds.size.height + (height*2));
+						keyboardToolbar = [[UIToolbar alloc] initWithFrame:CGRectZero];
+						keyboardToolbar.frame = CGRectMake(0, 0, kbBounds.size.width, 0);
+						
+						if (keyboardToolbarColor == nil) 
+						{
+							[keyboardToolbar setTintColor:nil];
+							[keyboardToolbar setBarStyle:UIBarStyleDefault];
+						} 
+						else if (keyboardToolbarColor == [UIColor clearColor])
+						{
+							[keyboardToolbar setTintColor:nil];
+							[keyboardToolbar setBarStyle:UIBarStyleBlackTranslucent];
+						} 
+						else 
+						{
+							[keyboardToolbar setTintColor:keyboardToolbarColor];
+							[keyboardToolbar setBarStyle:UIBarStyleBlackOpaque];
+						}
+						
+						items = [[NSMutableArray alloc] initWithCapacity:[keyboardToolbarProxies count]];
+						for (id item in keyboardToolbarProxies)
+						{
+							UIBarButtonItem* button = [item barButton];
+							[items addObject:button];
+						}
+						[keyboardToolbar setItems:items animated:NO];
+						
+						keyboardToolbar.frame = CGRectMake(0, 0, kbBounds.size.width, height);
+						[keyboard addSubview:keyboardToolbar];
+					
+					}
+					
+					for(UIView* subKeyboard in [keyboard subviews]) {
+						if([[subKeyboard description] hasPrefix:@"<UIKeyboardImpl"] == YES) {
+							subKeyboard.bounds = CGRectMake(kbBounds.origin.x, kbBounds.origin.y - height, kbBounds.size.width, kbBounds.size.height);	
+						}						
+					}
+					
+					if (focused)
+					{
+						[keyboardToolbar release];
+						[items release];
+					}
+					
+					break;
+				}
+			}
+		}
+	}
+	else 
+	{
+		// keyboard toolbar hidden - now we want to remove our toolbar from the keyboard subview
+		for (UIWindow *keyboardWindow in [[UIApplication sharedApplication] windows]) 
+		{
+			for (UIView *keyboard in [keyboardWindow subviews]) 
+			{
+				if([[keyboard description] hasPrefix:@"<UIKeyboard"] == YES) 
+				{
+					for (UIView* subview in [keyboard subviews])
+					{
+						if ([subview isKindOfClass:[UIToolbar class]])
+						{
+							double animationDuration = [[userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+							UIViewAnimationCurve animationCurve = [[userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey] intValue];
+
+							// indicate that the control will need to be re-drawn in the case this same
+							// button instance is attached to multiple toolbars
+							for (NativeControlProxy* item in keyboardToolbarProxies)
+							{
+								[item setNeedsLayout:YES];
+							}
+							
+							[UIView beginAnimations:@"hideKeyboardAnimation" context:nil];
+							[UIView setAnimationCurve:animationCurve];
+							[UIView setAnimationDuration:animationDuration];
+							[subview removeFromSuperview];
+							[UIView commitAnimations];
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 #pragma mark Generating views
@@ -462,7 +608,7 @@ needsLayout = YES;	\
 
 - (BOOL) updateView: (BOOL) animated;
 {
-	UIView * resultView=nil;
+	UIView * resultView=nil; 
 	BOOL customPlacement = NO;
 	
 	if(view == nil){
@@ -1309,6 +1455,7 @@ NSString * const createButtonString = @"function(args,btnType,conTyp){var res={"
 	"if(btnType)res.systemButton=btnType;"
 	"if(conTyp)res._TYPE=conTyp;"
 	"if(res.id){res.setId(res.id);}"
+    "res.ensureToken();"
 	"return res;}";
 
 

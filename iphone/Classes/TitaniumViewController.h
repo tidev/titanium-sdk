@@ -158,6 +158,7 @@ typedef enum {
 
 - (void) handleJavascriptEvent: (TitaniumJSEvent *) event;
 
+
 @end
 
 @protocol TitaniumWindowDelegate

@@ -86,6 +86,7 @@ int barButtonSystemItemForString(NSString * inputString){
 
 
 NSString * const TitaniumTabChangeNotification = @"tabChange";
+NSString * const TitaniumKeyboardChangeNotification = @"keyboardChange";
 NSString * const TitaniumJsonKey = @"json";
 
 int extremeDebugLineNumber;
@@ -226,6 +227,8 @@ TitaniumHost * lastSharedHost = nil;
 	return appResourcesPath;
 }
 
+#pragma mark keyboard
+
 - (void)handleKeyboardShowing: (NSNotification *) notification;
 {
 	NSDictionary * userInfo = [notification userInfo];
@@ -240,6 +243,12 @@ TitaniumHost * lastSharedHost = nil;
 
 	keyboardTop = keyboardCenter.y - keyboardBounds.size.height/2;
 
+	// post notification
+	NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
+	NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:userInfo];
+	[params setObject:@"showing" forKey:@"state"];
+	[theNC postNotificationName:TitaniumKeyboardChangeNotification object:self userInfo:params];
+
 	TitaniumViewController * ourVC = [self visibleTitaniumViewController];
 	[ourVC needsUpdate:TitaniumViewControllerVisibleAreaChanged | TitaniumViewControllerRefreshIsAnimated];
 	
@@ -249,8 +258,17 @@ TitaniumHost * lastSharedHost = nil;
 - (void)handleKeyboardHiding: (NSNotification *) notification;
 {
 	keyboardTop = 0;
+
+	// post notification
+	NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
+	NSDictionary * userInfo = [notification userInfo];
+	NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:userInfo];
+	[params setObject:@"hiding" forKey:@"state"];
+	
+	[theNC postNotificationName:TitaniumKeyboardChangeNotification object:self userInfo:params];
+	
 	TitaniumViewController * ourVC = [self visibleTitaniumViewController];
-	[ourVC needsUpdate:TitaniumViewControllerVisibleAreaChanged]; // | TitaniumViewControllerRefreshIsAnimated];
+	[ourVC needsUpdate:TitaniumViewControllerVisibleAreaChanged]; 
 	
 	if ([self hasListeners]) [self fireListenerAction:@selector(eventKeyboardHiding:properties:) source:ourVC properties:[notification userInfo]];
 }
@@ -1543,6 +1561,7 @@ TitaniumHost * lastSharedHost = nil;
 - (BOOL) sendJavascript: (NSString *) inputString;
 {
 	TitaniumContentViewController * currentVC = [self currentTitaniumContentViewController];
+	
 	if ([currentVC isKindOfClass:[TitaniumWebViewController class]]){ return NO; }
 	
 	if ([NSThread isMainThread]){
@@ -1574,7 +1593,7 @@ TitaniumHost * lastSharedHost = nil;
 {
 	NSMutableSet * tokensToUpdate=nil;
 	BOOL isMainThread = [NSThread isMainThread];
-
+	
 	[TitaniumHostContentViewLock lock];	
 	for(NSString * thisToken in tokenArray){
 		TitaniumWebViewController * currentVC = (id)CFDictionaryGetValue(contentViewControllerRegistry, thisToken);
