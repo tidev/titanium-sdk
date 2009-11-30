@@ -84,7 +84,12 @@ public class TitaniumDatePicker extends TitaniumBaseNativeControl
 
 				if (mode == MODE_DATE) {
 					DatePicker dp = (DatePicker) control;
-					dp.updateDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+					int year = cal.get(Calendar.YEAR);
+					int monthOfYear = cal.get(Calendar.MONTH);
+					int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
+					dp.updateDate(year, monthOfYear, dayOfMonth);
+					// Fire by hand because DatePicker isn't calling it's on change, when set.
+					helper.onDateChanged(dp, year, monthOfYear, dayOfMonth);
 				} else if (mode == MODE_TIME) {
 					TimePicker tp = (TimePicker) control;
 					tp.setCurrentHour(cal.get(Calendar.HOUR_OF_DAY));
