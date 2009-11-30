@@ -376,7 +376,7 @@
 			success:function(media,details)
 			{
 				var win = Titanium.UI.createWindow({url:'image.html'});
-				Titanium.App.Properties.setString('video',media.filePath);
+				Titanium.App.Properties.setString('video',media.url);
 				Titanium.App.Properties.setBool('movie',true);
 				win.open({animated:true});
 			},
