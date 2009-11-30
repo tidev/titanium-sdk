@@ -3,7 +3,7 @@
 #
 # Android AVD Listing Script
 #
-import os, subprocess, sys, run
+import os, platform, subprocess, sys, run
 import run
 
 def dequote(s):
@@ -18,6 +18,8 @@ def get_avds(sdk):
 	theid = None
 	
 	android = os.path.join(sdk,'tools','android')
+	if platform.system() == "Windows":
+		android += ".bat"
 	
 	for line in run.run([android,'list','target'],debug=False).split("\n"):
 		line = line.strip()
