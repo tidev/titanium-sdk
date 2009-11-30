@@ -242,6 +242,7 @@ const static CGFloat kReflectionFraction = 0.85;
 }
 
 - (void)setImage:(UIImage *)image forIndex:(int)index {
+	if (image==nil) return;
 	// Create a reflection for this image.
 	UIImage *imageWithReflection = AddImageReflection(image,kReflectionFraction);
 	NSNumber *coverNumber = [NSNumber numberWithInt:index];

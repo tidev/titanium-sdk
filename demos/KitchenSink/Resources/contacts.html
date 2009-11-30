@@ -20,6 +20,9 @@
 				
 			]
 		}
+		if (Titanium.Platform.name == 'android') {
+			detailTemplate.backgroundColor = '#80000000';
+		}
 		// table view for contact detail
 		var detailTableView = Titanium.UI.createTableView({template:detailTemplate}, function(e)
 		{
@@ -49,7 +52,7 @@
 			data.push({title: 'phoneticFirstName', value:((c.phoneticFirstName)?c.phoneticFirstName:'not specified')});
 			data.push({title: 'phoneticLastName', value:((c.phoneticLastName)?c.phoneticLastName:'not specified')});
 			data.push({title: 'phoneticMiddleName', value:((c.phoneticMiddleName)?c.phoneticMiddleName:'not specified')});
-			data.push({title: 'organization', value:((c.organization)?c.organization[0].value.company:'not specified')});
+			data.push({title: 'organization', value:((c.organization) && (c.organization[0])?c.organization[0].value.company:'not specified')});
 			data.push({title: 'email', value:((c.email[0])?c.email[0].value:'not specified')});			
 			data.push({title: 'birthday', value:((c.birthday)?c.birthday:'not specified')});
 			data.push({title: 'note', value:((c.note[0])?c.note[0].value:'not specified')});

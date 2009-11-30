@@ -47,6 +47,10 @@ public class TitaniumDelegatingUserWindow implements ITitaniumUserWindow
 		userWindow.dispatchTabChange(data);
 	}
 
+	public void dispatchLoad(String url) {
+		userWindow.dispatchLoad(url);
+	}
+
 	public void fireEvent(String eventName, String eventData) {
 		userWindow.fireEvent(eventName, eventData);
 	}

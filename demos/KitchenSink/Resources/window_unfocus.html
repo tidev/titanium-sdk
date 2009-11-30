@@ -23,15 +23,14 @@
 		document.getElementById('focused').innerHTML = Titanium.App.Properties.getString('focused');
 
 	});
-	
-	Titanium.UI.currentView.addEventListener('load',function()
+
+	Titanium.UI.currentView.addEventListener('load',function(e)
 	{
 		document.getElementById('view_load').innerHTML = 'View load event received at ' + new Date();
 	});
 	Titanium.UI.currentWindow.addEventListener('load',function()
 	{
 		document.getElementById('win_load').innerHTML = 'Window load event received at ' + new Date();
-
 	});
 
 		document.getElementById('unfocused').innerHTML = Titanium.App.Properties.getString('unfocused')

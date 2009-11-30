@@ -21,9 +21,11 @@ import org.appcelerator.titanium.util.TitaniumFileHelper;
 import org.appcelerator.titanium.util.TitaniumJSEventManager;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONStringer;
 
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
@@ -45,6 +47,10 @@ public class TitaniumUIWebView extends TitaniumBaseView
 
 	// App/UI level events
 	public static final String EVENT_UI_TABCHANGED = "ui.tabchange";
+
+	// View events.
+	public static final String EVENT_LOAD = "load";
+	public static final String EVENT_PRELOAD = "preload";
 
 	private static final int MSG_SHOWING = 300;
 	private static final int MSG_DISPATCH_WINDOW_EVENT = 301;
@@ -71,6 +77,8 @@ public class TitaniumUIWebView extends TitaniumBaseView
 		this.configurationChangeListeners = new HashSet<OnConfigChange>();
 
 		eventManager.supportEvent(EVENT_UI_TABCHANGED);
+		eventManager.supportEvent(EVENT_LOAD);
+		eventManager.supportEvent(EVENT_PRELOAD);
 
 		this.windowEventManager = new TitaniumJSEventManager(tmm);
 		this.windowEventManager.setEnforceEventNames(false); // Allow custom user events.
@@ -131,8 +139,20 @@ public class TitaniumUIWebView extends TitaniumBaseView
 			if (!URLUtil.isAssetUrl(url)) {
 				u = tfh.getResourceUrl(url);
 			}
+
+			try {
+				JSONStringer json = new JSONStringer();
+				json.object().key("url").value(url).endObject();
+				dispatchWindowEvent(EVENT_PRELOAD, json.toString());
+			} catch (JSONException e) {
+				Log.e(LCAT, "Error constructing preload event. Not sending.");
+			}
+
 			TitaniumWebView tv = tmm.getWebView();
 			tv.setUrl(u);
+			Bundle b = new Bundle();
+			b.putString("displayUrl", url);
+			tv.setTag(b);
 	        tv.initializeModules();
 	    	tv.buildWebView(); //TODO Performance?
 	    	view = tv;
