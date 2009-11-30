@@ -30,6 +30,7 @@
 		247DCBE4107C83AB009CD0D1 /* YahooModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 247DCBD0107C8366009CD0D1 /* YahooModule.h */; };
 		247DCBE5107C83AF009CD0D1 /* YahooModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 247DCBD1107C8366009CD0D1 /* YahooModule.m */; };
 		247DCBE8107C83D2009CD0D1 /* TitaniumBasicModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FD204B106C9198004D4127 /* TitaniumBasicModule.h */; };
+		248FD09910C4380E00176DAC /* image.html in Resources */ = {isa = PBXBuildFile; fileRef = 248FD09810C4380E00176DAC /* image.html */; };
 		24B4B9A310622B9D00C859D4 /* NativeControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A6D3B0103C9EFD00131CD4 /* NativeControlProxy.m */; };
 		24B51D78109EDC2B00B87D18 /* TitaniumCoverFlowViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24B51D77109EDC2B00B87D18 /* TitaniumCoverFlowViewController.m */; };
 		24B51DBE109EE59000B87D18 /* TitaniumCoverFlowViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24B51D77109EDC2B00B87D18 /* TitaniumCoverFlowViewController.m */; };
@@ -449,6 +450,7 @@
 		247DCBD0107C8366009CD0D1 /* YahooModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YahooModule.h; path = YahooModule/YahooModule.h; sourceTree = "<group>"; };
 		247DCBD1107C8366009CD0D1 /* YahooModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YahooModule.m; path = YahooModule/YahooModule.m; sourceTree = "<group>"; };
 		247DCBE1107C837F009CD0D1 /* libYahoo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libYahoo.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		248FD09810C4380E00176DAC /* image.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = image.html; sourceTree = "<group>"; };
 		249075290FC9D55B00D38073 /* TitaniumModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumModule.h; sourceTree = "<group>"; };
 		24B51D76109EDC2B00B87D18 /* TitaniumCoverFlowViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TitaniumCoverFlowViewController.h; sourceTree = "<group>"; };
 		24B51D77109EDC2B00B87D18 /* TitaniumCoverFlowViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TitaniumCoverFlowViewController.m; sourceTree = "<group>"; };
@@ -1091,6 +1093,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				248FD09810C4380E00176DAC /* image.html */,
 				241939FA10B28F3B002EF673 /* 1.jpg */,
 				B4BF789C10B1F19900C7D46E /* facebook.html */,
 				2402FF3B10AD6C4D0060E89D /* woodgrain.png */,
@@ -1945,6 +1948,7 @@
 				24193B3010B4AB44002EF673 /* video.html in Resources */,
 				24EDDE7F10C1CC3500CBA8F3 /* yahoo.html in Resources */,
 				24EDDF2810C1F67E00CBA8F3 /* keyboard.html in Resources */,
+				248FD09910C4380E00176DAC /* image.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2839,8 +2843,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CODE_SIGN_IDENTITY = "iPhone Developer: Nolan Wright (M9SCBZ3344)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Nolan Wright (M9SCBZ3344)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Jeff Haynie (S5B34FCTFE)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Jeff Haynie (S5B34FCTFE)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
