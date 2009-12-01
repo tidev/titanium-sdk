@@ -8,6 +8,7 @@ package org.appcelerator.titanium.module.ui;
 
 import org.appcelerator.titanium.TitaniumModuleManager;
 import org.appcelerator.titanium.api.ITitaniumImageView;
+import org.appcelerator.titanium.api.ITitaniumLifecycle;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TitaniumColorHelper;
 import org.appcelerator.titanium.util.TitaniumFileHelper;
@@ -34,7 +35,7 @@ import android.widget.ZoomControls;
 import android.widget.ImageView.ScaleType;
 
 public class TitaniumImageView extends TitaniumBaseView
-	implements ITitaniumImageView
+	implements ITitaniumImageView, ITitaniumLifecycle
 {
 	private static final String LCAT = "TiImageView";
 
@@ -257,9 +258,13 @@ public class TitaniumImageView extends TitaniumBaseView
 
 		Log.i(LCAT, "Loading image: " + url);
 		if (URLUtil.isNetworkUrl(url)) {
-			Drawable ld = new BitmapDrawable(getClass().getResourceAsStream("/org/appcelerator/titanium/res/drawable/photoDefault.png"));
-			if (ld != null) {
-				view.setImageDrawable(ld);
+			try {
+				Drawable ld = new BitmapDrawable(getClass().getResourceAsStream("/org/appcelerator/titanium/res/drawable/photoDefault.png"));
+				if (ld != null) {
+					view.setImageDrawable(ld);
+				}
+			} catch (OutOfMemoryError e) {
+				Log.e(LCAT, "Not enough memory to load image: " + e.getMessage());
 			}
 		}
 
@@ -268,34 +273,46 @@ public class TitaniumImageView extends TitaniumBaseView
 
 			@Override
 			protected Drawable doInBackground(String... arg) {
-				TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getAppContext());
-				Drawable d = tfh.loadDrawable(arg[0], false);
-				if (d != null) {
-					BitmapDrawable bd = (BitmapDrawable) d;
-					int w = bd.getBitmap().getWidth();
-					int h = bd.getBitmap().getHeight();
 
-					if (height != null || width != null) {
-						if (width != null) {
-							w = width;
+				Drawable d = null;
+				try {
+					TitaniumFileHelper tfh = new TitaniumFileHelper(tmm.getAppContext());
+					d = tfh.loadDrawable(arg[0], false);
+					if (d != null) {
+						BitmapDrawable bd = (BitmapDrawable) d;
+						int w = bd.getBitmap().getWidth();
+						int h = bd.getBitmap().getHeight();
+
+						if (height != null || width != null) {
+							if (width != null) {
+								w = width;
+							}
+							if (height != null) {
+								h = height;
+							}
+							Bitmap b = Bitmap.createScaledBitmap(bd.getBitmap(), w, h, true);
+							bd.getBitmap().recycle();
+							d = new BitmapDrawable(b);
 						}
-						if (height != null) {
-							h = height;
-						}
-						Bitmap b = Bitmap.createScaledBitmap(bd.getBitmap(), w, h, true);
-						d = new BitmapDrawable(b);
+
+					} else {
+						Log.w(LCAT, "Unable to load image from " + url);
 					}
-
-				} else {
-					Log.w(LCAT, "Unable to load image from " + url);
+				} catch (OutOfMemoryError e) {
+					Log.e(LCAT, "Not enough memory left to load image: " + arg[0] + " : " + e.getMessage());
 				}
+
 				return d;
 			}
 
 			@Override
 			protected void onPostExecute(Drawable d) {
 				if (d != null) {
+					Drawable od = view.getDrawable();
 					view.setImageDrawable(d);
+					if (od != null) {
+						od.setCallback(null);
+					}
 					scaleFactor = originalScaleFactor;
 					updateChangeMatrix(0);
 				}
@@ -432,5 +449,27 @@ public class TitaniumImageView extends TitaniumBaseView
 		if (hasBeenOpened) {
 			handler.sendEmptyMessage(MSG_LOAD_URL);
 		}
+	}
+
+	@Override
+	public ITitaniumLifecycle getLifecycle() {
+		super.getLifecycle();
+
+		return this;
+	}
+
+	public void onDestroy() {
+		if (view != null) {
+			Drawable d = view.getDrawable();
+			if (d != null) {
+				d.setCallback(null);
+			}
+		}
+	}
+
+	public void onPause() {
+	}
+
+	public void onResume() {
 	}
 }
