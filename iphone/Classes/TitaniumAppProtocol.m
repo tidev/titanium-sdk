@@ -149,7 +149,12 @@ id<TitaniumAppAssetResolver> resolver = nil;
 		if (fileData==nil && resolver==nil)
 		{
 			NSString *path=[[NSBundle mainBundle] bundlePath];
-			NSString *fullpath = [NSString stringWithFormat:@"%@/%@",path,[[url absoluteString] lastPathComponent]];
+			NSString *urlpath = [url path];
+			if ([urlpath hasPrefix:@"/"])
+			{
+				urlpath = [urlpath substringFromIndex:1];
+			}
+			NSString *fullpath = [NSString stringWithFormat:@"%@/%@",path,urlpath];
 			fileData = [NSData dataWithContentsOfFile:fullpath options:NSMappedRead error:&error];
 		}
 		if (fileData!=nil)

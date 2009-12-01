@@ -39,7 +39,8 @@
 		{title:'External URLs'},
 		{title:'Open URL (http)'},
 		{title:'Open URL (tel)'},
-		{title:'Open URL (sms)'}
+		{title:'Open URL (sms)'},
+		{title:'Load JS Subdirs'}
 	];
 
 	// tableview object
@@ -163,6 +164,13 @@
 			{
 				Titanium.Analytics.featureEvent('platform.open_url.sms');
 				Titanium.Platform.openURL('sms:4043334444/foo');
+				break;
+			}
+			case 12:
+			{
+				Titanium.Analytics.featureEvent('platform.test_subdirs');
+				var w = Titanium.UI.createWindow({url:'subfolder/subtest.html'});
+				w.open();
 				break;
 			}
 		}

@@ -103,6 +103,6 @@ class Compiler(object):
 					fp = os.path.splitext(f)
 					if len(fp)!=2: continue
 					if not fp[1] in ['.html','.js','.css']: continue
-					fullpath = os.path.join(self.project_dir,f)
+					fullpath = os.path.join(root,f)
 					metadata = self.make_function_from_file(fullpath)
 					

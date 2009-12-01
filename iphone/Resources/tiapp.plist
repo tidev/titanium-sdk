@@ -194,6 +194,19 @@
 				</dict>
 			</array>
 		</dict>
+		<dict>
+			<key>title</key>
+			<string>Subfolder JS</string>
+			<key>orientation</key>
+			<string>either</string>
+			<key>views</key>
+			<array>
+				<dict>
+					<key>url</key>
+					<string>subfolder/subtest.html</string>
+				</dict>
+			</array>
+		</dict>
 	</array>
 	<key>verboseDebugging</key>
 	<true/>
