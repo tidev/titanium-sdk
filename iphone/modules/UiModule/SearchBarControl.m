@@ -61,6 +61,11 @@ NSString * const createSearchBarString = @"function(args){var res=Ti.UI.createBu
 	}
 }
 
+- (void) updateView:(BOOL)animated
+{
+	[self setNeedsLayout:YES];
+}
+
 - (UIView *) view;
 {
 	if (![self needsLayout] && (searchView != nil)) {
