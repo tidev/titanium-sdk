@@ -75,11 +75,12 @@ class Android(object):
 
 	def render(self, template_dir, template_file, dest, dest_file):
 		tmpl = self.load_template(os.path.join(template_dir, 'templates', template_file))
+		f = None
 		try:
 			f = open(os.path.join(dest, dest_file), "w")
 			f.write(tmpl.render(config = self.config))
 		finally:
-			f.close
+			if f!=None: f.close
 
 	def create(self, dir, build_time=False):
 		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
