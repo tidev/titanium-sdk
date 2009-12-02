@@ -483,12 +483,14 @@ public class TitaniumMapView extends TitaniumBaseView
 				myLocation.enableMyLocation();
 
 			} else {
-				List<Overlay> overlays = view.getOverlays();
-				synchronized(overlays) {
-					if (overlays.contains(myLocation)) {
-						overlays.remove(myLocation);
+				if (myLocation != null) {
+					List<Overlay> overlays = view.getOverlays();
+					synchronized(overlays) {
+						if (overlays.contains(myLocation)) {
+							overlays.remove(myLocation);
+						}
+						myLocation.disableMyLocation();
 					}
-					myLocation.disableMyLocation();
 				}
 			}
 		}
