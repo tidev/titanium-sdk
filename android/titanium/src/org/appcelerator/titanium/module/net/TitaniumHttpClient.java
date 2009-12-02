@@ -574,6 +574,9 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 						credentials = null;
 					}
 
+					HttpProtocolParams.setUseExpectContinue(client.getParams(), false);
+					HttpProtocolParams.setVersion(client.getParams(), HttpVersion.HTTP_1_1);
+
 					if(request instanceof BasicHttpEntityEnclosingRequest) {
 
 						UrlEncodedFormEntity form = null;
