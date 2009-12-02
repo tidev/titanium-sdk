@@ -29,6 +29,8 @@ public class TitaniumCompositeView extends TitaniumBaseView
 	private static final String LCAT = "TiCompositeView";
 	private static final boolean DBG = TitaniumConfig.LOGD;
 
+	private static final int MSG_ADD_VIEW = 500;
+
 	ArrayList<ViewHolder> views;
 	TitaniumCompositeLayout tiLayout;
 
@@ -77,10 +79,24 @@ public class TitaniumCompositeView extends TitaniumBaseView
 	public boolean handleMessage(Message msg)
 	{
 		boolean handled = super.handleMessage(msg);
+		if (!handled) {
+			switch(msg.what) {
+			case MSG_ADD_VIEW :
+				doAddView((String) msg.obj, msg.getData().getString("layout"));
+				handled = true;
+				break;
+			}
+		}
 		return handled;
 	}
 
-	public void addView(String key, String layout)
+	public void addView(String key, String layout) {
+		Message msg = handler.obtainMessage(MSG_ADD_VIEW, key);
+		msg.getData().putString("layout", layout);
+		msg.sendToTarget();
+	}
+
+	public void doAddView(String key, String layout)
 	{
 		ITitaniumView tv = findViewByKey(key);
 		if (tv != null) {
