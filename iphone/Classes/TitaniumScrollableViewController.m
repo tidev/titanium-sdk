@@ -154,6 +154,15 @@ typedef int UIEventSubtype;
 	}
 }
 
+- (void)setInterfaceOrientation:(TitaniumViewControllerOrientationsAllowed)interfaceOrientation duration:(NSTimeInterval)duration;
+{
+	for (TitaniumContentViewController * ourVC in contentViewControllers) {
+		if ([ourVC respondsToSelector:@selector(setInterfaceOrientation:duration:)]){
+			[(TitaniumContentViewController<TitaniumWindowDelegate> *)ourVC setInterfaceOrientation:interfaceOrientation duration:duration];
+		}
+	}	
+}
+
 - (BOOL) isShowingView: (TitaniumContentViewController *) contentView;
 {
 	if(self==contentView)return YES;
