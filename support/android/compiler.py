@@ -10,6 +10,9 @@ import os, sys, re, shutil, tempfile
 import jspacker 
 from csspacker import CSSPacker
 
+ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
+ignoreDirs = ['.git','.svn','_svn', 'CVS'];
+
 class Compiler(object):
 	
 	def __init__(self,appid,project_dir,debug):
@@ -97,12 +100,16 @@ class Compiler(object):
 	def compile(self):
 		
 		for root, dirs, files in os.walk(self.project_dir):
+			for dir in dirs:
+				if dir in ignoreDirs:
+					dirs.remove(dir)
 			if len(files) > 0:
 				prefix = root[len(self.project_dir):]
 				for f in files:
 					fp = os.path.splitext(f)
 					if len(fp)!=2: continue
 					if not fp[1] in ['.html','.js','.css']: continue
+					if f in ignoreFiles: continue
 					fullpath = os.path.join(root,f)
 					metadata = self.make_function_from_file(fullpath)
 					

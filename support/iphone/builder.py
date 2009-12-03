@@ -26,22 +26,22 @@ def kill_simulator():
 	run.run(['/usr/bin/killall',"iPhone Simulator"],True)
 
 def copy_resources(source, target):
-	 if not os.path.exists(os.path.expanduser(target)):
-		  os.mkdir(os.path.expanduser(target))
-	 for root, dirs, files in os.walk(source):
-		  for name in ignoreDirs:
-		  	    if name in dirs:
-				    dirs.remove(name)	# don't visit ignored directories			  
-		  for file in files:
+	if not os.path.exists(os.path.expanduser(target)):
+		os.mkdir(os.path.expanduser(target))
+	for root, dirs, files in os.walk(source):
+		for name in ignoreDirs:
+			if name in dirs:
+				dirs.remove(name)	# don't visit ignored directories			  
+			for file in files:
 				if splitext(file)[-1] in ('.html', '.js', '.css', '.a', '.m', '.c', '.cpp', '.h', '.mm'):
-					 continue
+					continue
 				if file in ignoreFiles:
-					 continue
+					continue
 				from_ = join(root, file)			  
 				to_ = os.path.expanduser(from_.replace(source, target, 1))
 				to_directory = os.path.expanduser(split(to_)[0])
 				if not exists(to_directory):
-					 os.makedirs(to_directory)
+					os.makedirs(to_directory)
 				copyfile(from_, to_)
 
 def read_properties(propFile):
@@ -131,7 +131,7 @@ def main(args):
 	# compile resources
 	compiler = Compiler(appid,project_dir,encrypt,debug)
 	compiler.compile()
-	
+
 	# copy over main since it can change with each release
 	main_template = codecs.open(os.path.join(template_dir,'main.m'),'r','utf-8','replace').read()
 	main_template = main_template.replace('__PROJECT_NAME__',name)
@@ -271,7 +271,7 @@ def main(args):
 	os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo libTitanium-i386.a libTitanium-armv6.a -create -output \"%s\"" % os.path.join(iphone_resources_dir,'libTitanium.a'))
 	
 	shutil.rmtree(iphone_tmp_module_dir)
-	
+
 	# must copy the XIBs each time since they can change per SDK
 	os.chdir(template_dir)
 	for xib in glob.glob('*.xib'):
@@ -330,6 +330,7 @@ def main(args):
 	
 	try:
 		os.chdir(iphone_dir)
+
 		
 		# write out plist
 		add_plist(os.path.join(iphone_dir,'Resources'))
@@ -347,14 +348,17 @@ def main(args):
 			# make sure it's clean
 			if os.path.exists(app_dir):
 				shutil.rmtree(app_dir)
-	
+				
+			# command line escape the space
+			websrc = os.path.abspath(iphone_tmp_dir).replace(' ','\ ')
+
 			output = run.run([
     			"xcodebuild",
     			"-configuration",
     			"Debug",
     			"-sdk",
     			"iphonesimulator%s" % iphone_version,
-    			"WEB_SRC_ROOT=%s" % iphone_tmp_dir,
+    			"WEB_SRC_ROOT=%s" % websrc,
     			"GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development DEBUG=1" % log_id
 			])
 	    	
