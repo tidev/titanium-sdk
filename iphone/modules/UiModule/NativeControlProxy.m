@@ -417,15 +417,10 @@ needsLayout = YES;	\
 		needsLayout = YES;
 	}
 
-	NSLog(@"[INFO] BEFORE IF ");
-	fflush(stderr);
-
 	if(UpdateFontDescriptionFromDict(inputState, fontDesc, defaultControlFontDesc)){
 		needsLayout = YES;
 	}
 	
-	NSLog(@"[INFO] AFTER IF");
-	fflush(stderr);
 	
 
 	
