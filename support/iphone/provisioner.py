@@ -55,11 +55,9 @@ def main(args):
 	try:
 		xml = os.path.abspath(os.path.expanduser(dequote(args[1].decode("utf-8"))))
 		
-		f = codecs.open(xml,'rb','utf-8','replace').read()
-		
+		f = open(xml,'rb').read()
 		b = f.index('<?xml')
 		e = f.index('</plist>')
-		
 		xml_content = f[b:e+8]
 		dom = parseString(xml_content)
 
@@ -75,6 +73,7 @@ def main(args):
 		
 		
 		name = props['Name']
+		name = name.decode('string_escape').decode('utf-8')
 		entitlements = props['Entitlements']
 		appid = entitlements['application-identifier']
 		appid_prefix = props['ApplicationIdentifierPrefix']
