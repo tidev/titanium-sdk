@@ -90,6 +90,7 @@
 		{
 			document.getElementById('html').innerHTML = this.responseText;
 			Titanium.UI.currentWindow.repaint();
+			Titanium.API.info('respone ' + this.getResponseHeader('Set-Cookie'));
 		};
 		// open the client
 		c.open('GET','http://www.google.com');
@@ -116,6 +117,7 @@
 			var f= Titanium.Filesystem.getFile("xhr.png");
 			f.write(this.responseData);
 			document.getElementById('html').innerHTML = '<img src="'+f.url+'"/>';
+			
 			Titanium.UI.currentWindow.repaint();
 		};
 		// open the client
