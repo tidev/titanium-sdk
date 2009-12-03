@@ -178,10 +178,12 @@ NSMutableDictionary * controlProxyClassRegistry = nil;
 @synthesize backgroundImagePath, backgroundDisabledImagePath, backgroundSelectedImagePath;
 @synthesize dateValue, minDate, maxDate, datePickerMode, minuteInterval;
 
-TitaniumFontDescription* defaultControlFontDesc;
+
+TitaniumFontDescription* defaultControlFontDesc = nil;
 
 + (void) initialize;
 {
+	if (self != [NativeControlProxy class])return;
 	defaultControlFontDesc = [[TitaniumFontDescription alloc] init];
 	defaultControlFontDesc.isBoldWeight=NO;
 	defaultControlFontDesc.size = [UIFont systemFontSize];
@@ -234,8 +236,6 @@ needsLayout = YES;	\
 
 - (void) readState: (id) inputState relativeToUrl: (NSURL *) baseUrl;
 {
-	NSLog(@"[INFO] INPUT STATE = %@",inputState);
-	
 	BOOL handleChange = NO;
 	NSString * changeEvent = nil;
 	
@@ -324,18 +324,8 @@ needsLayout = YES;	\
 	if (borderColorObject != nil)[self setElementBorderColor:UIColorWebColorNamed(borderColorObject)];
 	
 	//Sizes
-	fflush(stderr);
-	NSLog(@"[INFO] BEFORE SIZE.WIDTH, FRAME = %d", frame.size);
-	fflush(stderr);
 	GRAB_IF_SELECTOR(@"width",floatValue,frame.size.width);
-
-	NSLog(@"[INFO] AFTER SIZE.WIDTH AND BEFORE SIZE.HEIGHT");
-
 	GRAB_IF_SELECTOR(@"height",floatValue,frame.size.height);
-
-	NSLog(@"[INFO] AFTER SIZE.HEIGHT");
-	fflush(stderr);
-	
 	GRAB_IF_SELECTOR(@"x",floatValue,frame.origin.x);
 	GRAB_IF_SELECTOR(@"y",floatValue,frame.origin.y);
 		
@@ -427,10 +417,17 @@ needsLayout = YES;	\
 		needsLayout = YES;
 	}
 
+	NSLog(@"[INFO] BEFORE IF ");
+	fflush(stderr);
 
 	if(UpdateFontDescriptionFromDict(inputState, fontDesc, defaultControlFontDesc)){
 		needsLayout = YES;
 	}
+	
+	NSLog(@"[INFO] AFTER IF");
+	fflush(stderr);
+	
+
 	
 	//System button	
 	id newTemplate = [inputState objectForKey:@"systemButton"];
