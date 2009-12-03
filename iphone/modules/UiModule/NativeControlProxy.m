@@ -474,9 +474,6 @@ needsLayout = YES;	\
 		{
 			keyboardToolbarColor = [UIColorWebColorNamed(color) retain];
 		}
-		
-		// add our keyboard notification listener
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardStateChanged:) name:TitaniumKeyboardChangeNotification object:nil];
 	}
 	
 }
@@ -508,7 +505,7 @@ needsLayout = YES;	\
 					NSMutableArray *items;
 					
 					if (focused)
-					{
+					{					
 						keyboard.bounds = CGRectMake(kbBounds.origin.x, kbBounds.origin.y, kbBounds.size.width, kbBounds.size.height + (height*2));
 						keyboardToolbar = [[UIToolbar alloc] initWithFrame:CGRectZero];
 						keyboardToolbar.frame = CGRectMake(0, 0, kbBounds.size.width, 0);
@@ -564,33 +561,52 @@ needsLayout = YES;	\
 		// keyboard toolbar hidden - now we want to remove our toolbar from the keyboard subview
 		for (UIWindow *keyboardWindow in [[UIApplication sharedApplication] windows]) 
 		{
-			for (UIView *keyboard in [keyboardWindow subviews]) 
+			for (UIView *keyboard in [keyboardWindow subviews])
 			{
-				if([[keyboard description] hasPrefix:@"<UIKeyboard"] == YES) 
+				if(![[keyboard description] hasPrefix:@"<UIKeyboard"]) continue;
+				BOOL resizeKeyboard = NO;
+				UIView * subKeyboard = nil;
+				UIToolbar * toolBar = nil;
+				
+				for (UIView* subview in [keyboard subviews])
 				{
-					for (UIView* subview in [keyboard subviews])
+					if ([subview isKindOfClass:[UIToolbar class]])
 					{
-						if ([subview isKindOfClass:[UIToolbar class]])
-						{
-							double animationDuration = [[userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-							UIViewAnimationCurve animationCurve = [[userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey] intValue];
-
-							// indicate that the control will need to be re-drawn in the case this same
-							// button instance is attached to multiple toolbars
-							for (NativeControlProxy* item in keyboardToolbarProxies)
-							{
-								[item setNeedsLayout:YES];
-							}
-							
-							[UIView beginAnimations:@"hideKeyboardAnimation" context:nil];
-							[UIView setAnimationCurve:animationCurve];
-							[UIView setAnimationDuration:animationDuration];
-							[subview removeFromSuperview];
-							[UIView commitAnimations];
-							break;
-						}
+						toolBar = (UIToolbar *)subview;
+						resizeKeyboard = YES;
 					}
+					if([[subview description] hasPrefix:@"<UIKeyboardImpl"] == YES) {
+						subKeyboard = subview;
+					}					
 				}
+
+				if(resizeKeyboard){
+
+
+					double animationDuration = [[userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+					UIViewAnimationCurve animationCurve = [[userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey] intValue];
+					
+					// indicate that the control will need to be re-drawn in the case this same
+					// button instance is attached to multiple toolbars
+					for (NativeControlProxy* item in keyboardToolbarProxies)
+					{
+						[item setNeedsLayout:YES];
+					}
+					
+					[UIView beginAnimations:@"hideKeyboardAnimation" context:nil];
+					[UIView setAnimationCurve:animationCurve];
+					[UIView setAnimationDuration:animationDuration];
+					[toolBar removeFromSuperview];
+
+					NSValue *v = [userInfo valueForKey:UIKeyboardBoundsUserInfoKey];
+					CGRect kbBounds = [v CGRectValue];
+					[keyboard setBounds:kbBounds];
+					[subKeyboard setBounds:kbBounds];
+					
+					[UIView commitAnimations];
+
+				}
+
 			}
 		}
 	}
@@ -1316,13 +1332,33 @@ needsLayout = YES;	\
 - (void)textFieldDidEndEditing:(UITextField *)textField;
 {
 	[self setStringValue:[textField text]];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:TitaniumKeyboardChangeNotification object:nil];
 	[self reportEvent:@"blur" value:[SBJSON stringify:stringValue] index:-1 init:nil arguments:nil];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView;
 {
 	[self setStringValue:[textView text]];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:TitaniumKeyboardChangeNotification object:nil];
 	[self reportEvent:@"blur" value:[SBJSON stringify:stringValue] index:-1 init:nil arguments:nil];
+}
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField;        // return NO to disallow editing.
+{
+	// add our keyboard notification listener
+	if([keyboardToolbarProxies count]>0){
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardStateChanged:) name:TitaniumKeyboardChangeNotification object:nil];
+	}
+	return YES;
+}
+
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView;
+{
+	// add our keyboard notification listener
+	if([keyboardToolbarProxies count]>0){
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardStateChanged:) name:TitaniumKeyboardChangeNotification object:nil];
+	}
+	return YES;
 }
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField;           // became first responder

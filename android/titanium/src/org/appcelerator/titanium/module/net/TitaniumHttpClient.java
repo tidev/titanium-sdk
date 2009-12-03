@@ -24,6 +24,7 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
@@ -43,6 +44,7 @@ import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.appcelerator.titanium.TitaniumModuleManager;
@@ -141,6 +143,7 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 
 				StatusLine statusLine = response.getStatusLine();
 		        if (statusLine.getStatusCode() >= 300) {
+	        		setResponseText(response.getEntity());
 		        	throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
 		        }
 
@@ -213,6 +216,14 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 			if (entity != null) {
 				responseData = EntityUtils.toByteArray(entity);
 				charset = EntityUtils.getContentCharSet(entity);
+			}
+		}
+
+		private void setResponseText(HttpEntity entity)
+			throws IOException, ParseException
+		{
+			if (entity != null) {
+				responseText = EntityUtils.toString(entity);
 			}
 		}
 	}
@@ -563,6 +574,8 @@ public class TitaniumHttpClient implements ITitaniumHttpClient
 						credentials = null;
 					}
 
+					HttpProtocolParams.setUseExpectContinue(client.getParams(), false);
+					HttpProtocolParams.setVersion(client.getParams(), HttpVersion.HTTP_1_1);
 
 					if(request instanceof BasicHttpEntityEnclosingRequest) {
 

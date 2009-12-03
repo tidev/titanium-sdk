@@ -10,6 +10,9 @@ import os, sys, base64, subprocess, random, time, re, shutil
 import jspacker 
 from csspacker import CSSPacker
 
+ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
+ignoreDirs = ['.git','.svn','_svn', 'CVS'];
+
 HEADER = """/**
  * Appcelerator Titanium Mobile
  * This is generated code. Do not modify. Your changes will be lost.
@@ -198,17 +201,26 @@ catch(__ex__)
 		def strip_slash(s):
 			if s[0:1]=='/': return s[1:]
 			return s
-		def recursive_cp(dir,dest):
-			for root, dirs, files in os.walk(dir):
-				relative = strip_slash(root.replace(dir,''))
-				relative_dest = os.path.join(dest,relative)
-				if not os.path.exists(relative_dest):
-					os.makedirs(relative_dest)
-				for f in files:
-					fullpath = os.path.join(root,f)
-					relativedest = os.path.join(dest,relative,f)
-					shutil.copy(fullpath,relativedest)
-				
+		
+		def recursive_cp(source, target):
+			print "[DEBUG] copy resources from %s to %s" % (source,target)
+			if not os.path.exists(os.path.expanduser(target)):
+				os.mkdir(os.path.expanduser(target))
+			for root, dirs, files in os.walk(source):
+				for name in ignoreDirs:
+					if name in dirs:
+						dirs.remove(name)	# don't visit ignored directories			  
+					for file in files:
+						if file in ignoreFiles:
+							continue
+						from_ = os.path.join(root, file)			  
+						to_ = os.path.expanduser(from_.replace(source, target, 1))
+						to_directory = os.path.expanduser(os.path.split(to_)[0])
+						print "[DEBUG] copying: %s to %s" % (from_,to_)
+						if not os.path.exists(to_directory):
+							os.makedirs(to_directory)
+						shutil.copyfile(from_, to_)
+	
 		if os.path.exists(self.temp_build_dir):
 			shutil.rmtree(self.temp_build_dir)
 		os.makedirs(self.temp_build_dir)
