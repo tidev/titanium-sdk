@@ -23,6 +23,7 @@ typedef enum {
 	UIColor * textColor;
 	UIColor * selectedTextColor;
 	NSString * nameString;
+	UITextAlignment textAlign;
 }
 
 - (id) initWithDictionary: (NSDictionary *) inputDict inheriting: (LayoutEntry *) inheritance;
@@ -36,6 +37,7 @@ typedef enum {
 
 @property(nonatomic,readonly)	TitaniumFontDescription * labelFontPointer;
 @property(nonatomic,readonly)	LayoutConstraint * constraintPointer;
+@property(nonatomic,readwrite,assign)	UITextAlignment textAlign;
 
 @end
 

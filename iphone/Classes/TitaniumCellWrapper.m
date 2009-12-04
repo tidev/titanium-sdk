@@ -11,7 +11,7 @@
 #import "UiModule.h"
 
 @implementation LayoutEntry
-@synthesize type,constraint,labelFont,textColor,nameString,selectedTextColor;
+@synthesize type,constraint,labelFont,textColor,nameString,selectedTextColor, textAlign;
 
 - (id) initWithDictionary: (NSDictionary *) inputDict inheriting: (LayoutEntry *) inheritance;
 {
@@ -35,6 +35,13 @@
 		
 		labelFont = [[TitaniumFontDescription alloc]init];
 	
+		NSString * alignmentString = [inputDict objectForKey:@"textAlign"];
+		if([alignmentString isKindOfClass:[NSString class]]){
+			alignmentString = [alignmentString lowercaseString];
+			if ([alignmentString isEqualToString:@"left"])textAlign=UITextAlignmentLeft;
+			else if ([alignmentString isEqualToString:@"center"])textAlign=UITextAlignmentCenter;
+			else if ([alignmentString isEqualToString:@"right"])textAlign=UITextAlignmentRight;
+		} else if(alignmentString == nil) textAlign=[inheritance textAlign];
 	
 		NSString * possibleName = [inputDict objectForKey:@"name"];
 		if([possibleName isKindOfClass:[NSString class]])[self setNameString:possibleName];

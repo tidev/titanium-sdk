@@ -18,6 +18,7 @@
 	UIColor * highlightedTextColor;
 	BOOL highlighted;
 	NSString * text;
+	UITextAlignment textAlignment;
 }
 
 @property(nonatomic,readwrite,retain)	UIFont * font;
@@ -26,11 +27,12 @@
 
 @property(nonatomic,retain)               UIColor *highlightedTextColor; // default is nil
 @property(nonatomic,getter=isHighlighted) BOOL     highlighted;          // default is NO
+@property(nonatomic)        UITextAlignment textAlignment;   // default is UITextAlignmentLeft
 
 @end
 
 @implementation TitaniumTextLabel
-@synthesize font,textColor,text,highlightedTextColor,highlighted;
+@synthesize font,textColor,text,highlightedTextColor,highlighted,textAlignment;
 
 - (id)initWithFrame:(CGRect)frame;          // default initializer
 {
@@ -49,7 +51,7 @@
 		[textColor set];
 	}
 	
-	[text drawInRect:[self bounds] withFont:font lineBreakMode:UILineBreakModeTailTruncation alignment:UITextAlignmentLeft];
+	[text drawInRect:[self bounds] withFont:font lineBreakMode:UILineBreakModeTailTruncation alignment:textAlignment];
 }
 
 - (void) dealloc
@@ -243,10 +245,12 @@ typedef enum {
 
 				[(TitaniumTextLabel *)thisEntryView setText:[dataWrapper stringForKey:name]];
 				[(TitaniumTextLabel *)thisEntryView setHighlighted:useHilightColors];
+				[(TitaniumTextLabel *)thisEntryView setTextAlignment:[thisEntry textAlign]];
 
 				UIColor * thisTextColor = [thisEntry textColor];
 				UIColor * thisHighlightedTextColor = [thisEntry selectedTextColor];
 				if(thisHighlightedTextColor == nil) thisHighlightedTextColor = thisTextColor;
+
 
 				if(thisHighlightedTextColor == nil) thisHighlightedTextColor = [dataWrapper colorForKey:@"selectedColor"];
 
