@@ -25,13 +25,7 @@
 		}
 
 		// do the YQL query against flickr finding the most recent 7 photos
-		Titanium.Yahoo.yql("select * from html where url=\"http://finance.yahoo.com/q?s=yhoo\" and xpath='//div[@id=\"yfi_headlines\"]/div[2]/ul/li/a' ",function(data)
-		{
-			Ti.API.info("data received = "+data);
-		});
-		
-		Titanium.Yahoo.yql("select * from flickr.photos.search where text='Barcelona'",function(data)
-//		Titanium.Yahoo.yql("select * from flickr.photos.interestingness(20)",function(data)
+		Titanium.Yahoo.yql("select * from flickr.photos.recent(7)",function(data)
 		{
 			try
 			{
@@ -83,7 +77,6 @@
 				Titanium.API.error("error = "+E);
 			}
 		});
-		
 	}
 	
 	window.onload = function()

@@ -361,7 +361,7 @@
 {
 	NSURL * requestURL = [request URL];
 	
-	if ([[TitaniumAppDelegate sharedDelegate] shouldTakeCareOfUrl:requestURL useSystemBrowser:NO]) return NO;
+	if ([[TitaniumAppDelegate sharedDelegate] shouldTakeCareOfUrl:requestURL useSystemBrowser:NO prompt:YES]) return NO;
 	CLOCKSTAMP("Should load request %@ for %@",requestURL,self);
 
 	[currentContentURL release];

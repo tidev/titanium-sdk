@@ -41,7 +41,7 @@
 	NSURL * newUrl = [NSURL URLWithString:newUrlString];
 	BOOL result = NO;
 	if (newUrl != nil){
-		result = [[TitaniumAppDelegate sharedDelegate] shouldTakeCareOfUrl:newUrl useSystemBrowser:YES];
+		result = [[TitaniumAppDelegate sharedDelegate] shouldTakeCareOfUrl:newUrl useSystemBrowser:YES prompt:NO];
 	}
 	
 	return [NSNumber numberWithBool:result];

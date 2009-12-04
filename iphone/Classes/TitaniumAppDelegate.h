@@ -51,7 +51,7 @@ static BOOL L0AccelerationIsShaking(UIAcceleration* last, UIAcceleration* curren
 + (TitaniumAppDelegate *) sharedDelegate;
 
 - (void)launchTitaniumApp: (NSString *) appPath;
-- (BOOL)shouldTakeCareOfUrl:(NSURL *)requestURL useSystemBrowser: (BOOL) useSystemBrowser;
+- (BOOL)shouldTakeCareOfUrl:(NSURL *)requestURL useSystemBrowser: (BOOL) useSystemBrowser prompt:(BOOL)prompt;
 
 - (void)showLoadingView;
 - (void)hideLoadingView;

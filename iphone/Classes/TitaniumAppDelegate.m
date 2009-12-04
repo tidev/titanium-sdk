@@ -53,7 +53,7 @@
 	[window addSubview:view];
 }
 
-- (BOOL)shouldTakeCareOfUrl:(NSURL *)requestURL useSystemBrowser: (BOOL) useSystemBrowser;
+- (BOOL)shouldTakeCareOfUrl:(NSURL *)requestURL useSystemBrowser: (BOOL) useSystemBrowser prompt:(BOOL)prompt
 {
 	NSString * scheme = [requestURL scheme];
 	NSString * title = nil;
@@ -108,14 +108,14 @@
 		}
 	}
 
-	if (title != nil){
+	if (title != nil && prompt == YES){
 		NSInvocation * browseInvoc = [TitaniumInvocationGenerator invocationWithTarget:[UIApplication sharedApplication] selector:@selector(openURL:) object:requestURL];
 		[browseInvoc retainArguments];
 		
 		if (resultHelper==nil) resultHelper = [[TitaniumActionSheetHelper alloc] init];
 		[resultHelper addButton:browseInvoc title:title];
 	}
-	else if (!http && [[UIApplication sharedApplication] canOpenURL:requestURL])
+	else if ((http==NO || prompt==NO && http==YES) && [[UIApplication sharedApplication] canOpenURL:requestURL])
 	{
 		// just delegate it to our app if we can open it
 		[[UIApplication sharedApplication] openURL:requestURL];
