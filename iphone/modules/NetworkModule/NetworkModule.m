@@ -70,14 +70,42 @@ const char MultiPartBlobGlue[] = "\"\r\nContent-Type: %@\r\n\r\n";
 const char MultiPartEntryEpilogue[] = "\r\n";
 const char MultiPartFormEpilogue[] = "--XxX~Titanium~HTTPClient~Boundary~XxX--\r\n";
 
-NSString *encodeURIParameters(NSString *unencodedString)
+NSString *encodeQueryPart(NSString *unencodedString)
 {
 	return (NSString *)CFURLCreateStringByAddingPercentEscapes(
-	    NULL,
-	    (CFStringRef)unencodedString,
-	    NULL,
-	    (CFStringRef)@"!*'();:@+$,/?%#[]",
-	    kCFStringEncodingUTF8 );
+															   NULL,
+															   (CFStringRef)unencodedString,
+															   NULL,
+															   (CFStringRef)@"!*'();:@+$,/?%#[]=", 
+															   kCFStringEncodingUTF8 );
+}
+
+NSString *encodeURIParameters(NSString *unencodedString)
+{
+	// NOTE: we must encode each individual part for the to successfully work
+	
+	NSMutableString *result = [[[NSMutableString alloc]init] autorelease];
+	
+	NSArray *parts = [unencodedString componentsSeparatedByString:@"&"];
+	for (int c=0;c<[parts count];c++)
+	{
+		NSString *part = [parts objectAtIndex:c];
+		NSRange range = [part rangeOfString:@"="];
+		
+		[result appendString:encodeQueryPart([part substringToIndex:range.location])];
+		[result appendString:@"="];
+		if (range.location > 0)
+		{
+			[result appendString:encodeQueryPart([part substringFromIndex:range.location+1])];
+		}
+		
+		if (c + 1 < [parts count])
+		{
+			[result appendString:@"&"];
+		}
+	}
+
+	return result;
 }
 void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 {
@@ -297,6 +325,9 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 			NSString *newqs = encodeURIParameters(qs);
 			destUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@",uri,newqs]];
 		}
+		
+		
+		NSLog(@"[DEBUG] sending XHR: %@",destUrl);
 
 		[self setUrlRequest:[NSMutableURLRequest requestWithURL:destUrl]];
 		[urlRequest setHTTPMethod:[objectValue objectAtIndex:0]];

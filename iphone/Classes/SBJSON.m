@@ -118,7 +118,33 @@ static char ctrl[0x24];
 		SBJSON * jsonDecoder = [[SBJSON alloc] init];
 		NSError * error = nil;
 		result = [jsonDecoder fragmentWithString:queryString error:&error];
-		if (error != nil){
+		if (error != nil)
+		{
+			// we have to check for the interior values of the JSON object which can have " in them and the 
+			// above decoding will also decode them, which we need to rescape before we evaluate as JSON! 
+			range = [query rangeOfString:@","];
+			if (range.location!=NSNotFound)
+			{
+				NSString *before = [query substringToIndex:range.location];
+				NSString *after = [query substringFromIndex:range.location+1];
+				if ([after hasPrefix:@"\""])
+				{
+					NSString *contents = [after substringFromIndex:1];
+					contents = [contents substringToIndex:[contents length]-1];
+					// replace them " which got decoded above
+					contents = [contents stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""];
+					queryString = [NSString stringWithFormat:@"[%@,\"%@\"]",before,contents];
+					
+					result = [jsonDecoder fragmentWithString:queryString error:&error];
+					if (result!=nil && error!=nil)
+					{
+						[jsonDecoder release];
+						return result;
+					}
+				}
+			}
+			
+			
 			// ATTEMPT TO FIGURE OUT WHAT WENT WRONG
 			NSLog(@"[DEBUG] QUERY URL = %@",inputUrl);
 			NSLog(@"[DEBUG] QUERY STRING = %@",queryString);

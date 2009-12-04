@@ -25,7 +25,7 @@ def dequote(s):
 def kill_simulator():
 	run.run(['/usr/bin/killall',"iPhone Simulator"],True)
 
-def copy_resources(source, target):
+def copy_module_resources(source, target):
 	if not os.path.exists(os.path.expanduser(target)):
 		os.mkdir(os.path.expanduser(target))
 	for root, dirs, files in os.walk(source):
@@ -171,7 +171,7 @@ def main(args):
 	
 	# copy in any resources in our module like icons
 	if os.path.exists(project_module_dir):
-		copy_resources(project_module_dir,iphone_tmp_dir)
+		copy_module_resources(project_module_dir,iphone_tmp_dir)
 	
 	# see if the user has app data and if so, compile in the user data
 	# such that it can be accessed automatically using Titanium.App.Properties.getString
@@ -235,7 +235,7 @@ def main(args):
 			if os.path.exists(dest_img_dir):
 				shutil.rmtree(dest_img_dir)
 			os.makedirs(dest_img_dir)
-			copy_resources(img_dir,dest_img_dir)
+			copy_module_resources(img_dir,dest_img_dir)
 			
 	
 	for arch in ['i386','armv6']:
@@ -348,9 +348,6 @@ def main(args):
 			# make sure it's clean
 			if os.path.exists(app_dir):
 				shutil.rmtree(app_dir)
-				
-			# command line escape the space
-			websrc = os.path.abspath(iphone_tmp_dir).replace(' ','\ ')
 
 			output = run.run([
     			"xcodebuild",
@@ -358,7 +355,7 @@ def main(args):
     			"Debug",
     			"-sdk",
     			"iphonesimulator%s" % iphone_version,
-    			"WEB_SRC_ROOT=%s" % websrc,
+    			"WEB_SRC_ROOT=%s" % iphone_tmp_dir,
     			"GCC_PREPROCESSOR_DEFINITIONS=__LOG__ID__=%s DEPLOYTYPE=development DEBUG=1" % log_id
 			])
 	    	
