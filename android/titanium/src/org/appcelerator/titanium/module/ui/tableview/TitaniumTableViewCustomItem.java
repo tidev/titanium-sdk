@@ -249,6 +249,22 @@ public class TitaniumTableViewCustomItem extends TitaniumBaseTableViewItem
 
 							String value = null;
 
+							int halign = Gravity.LEFT;
+							int valign = Gravity.CENTER_VERTICAL;
+
+							value = defaults.resolveOption("textAlign", rLayout, tLayout);
+							if (value != null) {
+								if (value.equals("left")) {
+									halign = Gravity.LEFT;
+								} else if (value.equals("center")) {
+									halign = Gravity.CENTER_HORIZONTAL;
+								} else if (value.equals("right")) {
+									halign = Gravity.RIGHT;
+								}
+							}
+
+							tv.setGravity(halign | valign);
+
 							value = defaults.resolveOption("backgroundColor", rLayout, tLayout);
 							if (value != null) {
 								tv.setBackgroundColor(TitaniumColorHelper.parseColor(value));

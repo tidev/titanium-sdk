@@ -272,6 +272,7 @@ public class TitaniumTableView extends TitaniumBaseView
 		defaults.put("marginRight", "0");
 		defaults.put("marginBottom", "0");
 		defaults.put("scrollBar", "auto");
+		defaults.put("textAlign", "left");
 
 		this.modifySemaphore = new Semaphore(0);
 		this.viewModel = new TableViewModel();
@@ -315,6 +316,9 @@ public class TitaniumTableView extends TitaniumBaseView
 		}
 		if (o.has("filterAttribute")) {
 			filterAttribute = o.getString("filterAttribute");
+		}
+		if (o.has("textAlign")) {
+			setOption("textAlign", o.getString("textAlign"));
 		}
 	}
 
