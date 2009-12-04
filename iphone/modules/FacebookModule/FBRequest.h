@@ -30,6 +30,7 @@
   NSDate*               _timestamp;
   NSURLConnection*      _connection;
   NSMutableData*        _responseText;
+  NSString*				_filename;
 }
 
 /**
@@ -96,6 +97,11 @@
 @property(nonatomic,readonly) BOOL loading;
 
 /**
+ * set the data filename -- JGH
+ */
+@property(nonatomic,readonly) NSString *filename;
+
+/**
  * Creates a new request paired to a session.
  */
 - (id)initWithSession:(FBSession*)session;
@@ -112,7 +118,7 @@
  *
  * The delegate will be called for each stage of the loading process.
  */ 
-- (void)call:(NSString*)method params:(NSDictionary*)params dataParam:(NSData*)dataParam;
+- (void)call:(NSString*)method params:(NSDictionary*)params dataParam:(NSData*)dataParam filename:(NSString*)filename;
 
 /**
  * Calls a URL on the server asynchronously.

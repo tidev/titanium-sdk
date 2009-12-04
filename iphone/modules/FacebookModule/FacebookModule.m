@@ -485,13 +485,36 @@
 - (void)execute:(NSString*)method params:(NSDictionary*)params data:(id)data queryId:(NSString*)queryId
 {
 	NSData *dataParam = nil;
-	if (data!=nil && [data isKindOfClass:[TitaniumBlobWrapper class]])
+	NSString *filename = nil;
+	
+	if ([data isKindOfClass:[NSString class]])
+	{
+		NSURL *url = [[NSURL alloc] initWithString:data relativeToURL:[[TitaniumHost sharedHost] appBaseUrl]];
+		dataParam = [NSData dataWithContentsOfURL:url];
+		[url release];
+	}
+	else if ([data isKindOfClass:[TitaniumBlobWrapper class]])
 	{
 		dataParam = [(TitaniumBlobWrapper*)data dataBlob];
 	}
+	else if ([data isKindOfClass:[NSDictionary class]])
+	{
+		NSDictionary *d = (NSDictionary*)data;
+		NSString *f = [d objectForKey:@"path"];
+		if (f!=nil)
+		{
+			filename = [f lastPathComponent];
+			NSError *error = nil;
+			dataParam = [NSData dataWithContentsOfFile:f options:0 error:&error];
+			if (error!=nil)
+			{
+				NSLog(@"error = %@",error);
+			}
+		}
+	}
 	
 	FBRequestCallback *cb = [[FBRequestCallback alloc] initWithToken:queryId pageToken:[self getPageToken] module:self prefix:@"ECB"];
-  	[[FBRequest requestWithDelegate:cb] call:method params:params dataParam:dataParam];
+  	[[FBRequest requestWithDelegate:cb] call:method params:params dataParam:dataParam filename:filename];
 }
 
 - (NSString*)makeDialogJS:(NSString*)prefix

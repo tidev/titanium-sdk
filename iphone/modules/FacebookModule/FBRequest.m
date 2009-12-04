@@ -39,7 +39,8 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
             params    = _params,
             dataParam = _dataParam,
             userInfo  = _userInfo,
-            timestamp = _timestamp;
+            timestamp = _timestamp,
+			filename  = _filename;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // class public
@@ -161,8 +162,9 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
       [body appendData:imageData];
     } else {
       NSAssert([_dataParam isKindOfClass:[NSData class]], @"dataParam must be a UIImage or NSData");
+	  NSString *fn = _filename==nil ? @"data" : _filename;
       [self utfAppendBody:body
-                     data:[NSString stringWithFormat:@"Content-Disposition: form-data; filename=\"data\"\r\n"]];
+                     data:[NSString stringWithFormat:[NSString stringWithFormat:@"Content-Disposition: form-data; filename=\"%@\"\r\n",fn]]];
       [self utfAppendBody:body
                      data:[NSString stringWithString:@"Content-Type: content/unknown\r\n\r\n"]];
       [body appendData:(NSData*)_dataParam];
@@ -175,6 +177,9 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
 }
 
 - (id)parseXMLResponse:(NSData*)data error:(NSError**)error {
+	
+	NSLog(@"RESPONSE = %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+	
   FBXMLHandler* handler = [[[FBXMLHandler alloc] init] autorelease];
   NSXMLParser* parser = [[[NSXMLParser alloc] initWithData:data] autorelease];
   parser.delegate = handler;
@@ -258,6 +263,7 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
   _timestamp = nil;
   _connection = nil;
   _responseText = nil;
+  _filename = nil;
   return self;
 }
 
@@ -270,6 +276,7 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
   [_params release];
   [_userInfo release];
   [_timestamp release];
+  [_filename release];
   [super dealloc];
 }
 
@@ -327,13 +334,14 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
   [self call:method params:params dataParam:nil];
 }
 
-- (void)call:(NSString*)method params:(NSDictionary*)params dataParam:(NSData*)dataParam {
+- (void)call:(NSString*)method params:(NSDictionary*)params dataParam:(NSData*)dataParam filename:(NSString*)filename {
   _url = [[self urlForMethod:method] retain];
   _method = [method copy];
   _params = params
     ? [[NSMutableDictionary alloc] initWithDictionary:params]
     : [[NSMutableDictionary alloc] init];
   _dataParam = dataParam;
+  _filename = filename;
 
   [_params setObject:_method forKey:@"method"];
   [_params setObject:_session.apiKey forKey:@"api_key"];

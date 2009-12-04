@@ -17,6 +17,11 @@
 		2402F7A410AB55ED0060E89D /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2402F7A310AB55ED0060E89D /* MobileCoreServices.framework */; };
 		2402FAF210ABF51A0060E89D /* unitTest.js in Resources */ = {isa = PBXBuildFile; fileRef = 2402FA5310ABEE900060E89D /* unitTest.js */; };
 		2402FF3C10AD6C4D0060E89D /* woodgrain.png in Resources */ = {isa = PBXBuildFile; fileRef = 2402FF3B10AD6C4D0060E89D /* woodgrain.png */; };
+		2415796F10C907A400E212F2 /* blah.avi in Resources */ = {isa = PBXBuildFile; fileRef = 2415796E10C907A400E212F2 /* blah.avi */; };
+		241579A310C97D5900E212F2 /* soap_header.html in Resources */ = {isa = PBXBuildFile; fileRef = 241579A010C97D5900E212F2 /* soap_header.html */; };
+		241579A410C97D5900E212F2 /* soap.html in Resources */ = {isa = PBXBuildFile; fileRef = 241579A110C97D5900E212F2 /* soap.html */; };
+		241579A510C97D5900E212F2 /* soapclient.js in Sources */ = {isa = PBXBuildFile; fileRef = 241579A210C97D5900E212F2 /* soapclient.js */; };
+		241579C510C97FBB00E212F2 /* soapclient.js in Resources */ = {isa = PBXBuildFile; fileRef = 241579A210C97D5900E212F2 /* soapclient.js */; };
 		2418F4220FCB629A00BFE545 /* sound.html in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4210FCB629A00BFE545 /* sound.html */; };
 		2418F4670FCB6A2100BFE545 /* sound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4660FCB6A2100BFE545 /* sound.wav */; };
 		241939EC10B28BFC002EF673 /* coverflow.html in Resources */ = {isa = PBXBuildFile; fileRef = 241939EB10B28BFC002EF673 /* coverflow.html */; };
@@ -405,6 +410,10 @@
 		2402F7A310AB55ED0060E89D /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		2402FA5310ABEE900060E89D /* unitTest.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = unitTest.js; sourceTree = "<group>"; };
 		2402FF3B10AD6C4D0060E89D /* woodgrain.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = woodgrain.png; sourceTree = "<group>"; };
+		2415796E10C907A400E212F2 /* blah.avi */ = {isa = PBXFileReference; lastKnownFileType = video.avi; name = blah.avi; path = ../demos/KitchenSink/Resources/blah.avi; sourceTree = SOURCE_ROOT; };
+		241579A010C97D5900E212F2 /* soap_header.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = soap_header.html; sourceTree = "<group>"; };
+		241579A110C97D5900E212F2 /* soap.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = soap.html; sourceTree = "<group>"; };
+		241579A210C97D5900E212F2 /* soapclient.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = soapclient.js; sourceTree = "<group>"; };
 		2418F4210FCB629A00BFE545 /* sound.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = sound.html; sourceTree = "<group>"; };
 		2418F4660FCB6A2100BFE545 /* sound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound.wav; sourceTree = "<group>"; };
 		241939EB10B28BFC002EF673 /* coverflow.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = coverflow.html; sourceTree = "<group>"; };
@@ -1093,6 +1102,10 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				241579A210C97D5900E212F2 /* soapclient.js */,
+				241579A010C97D5900E212F2 /* soap_header.html */,
+				241579A110C97D5900E212F2 /* soap.html */,
+				2415796E10C907A400E212F2 /* blah.avi */,
 				248FD09810C4380E00176DAC /* image.html */,
 				241939FA10B28F3B002EF673 /* 1.jpg */,
 				B4BF789C10B1F19900C7D46E /* facebook.html */,
@@ -1911,6 +1924,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				241579C510C97FBB00E212F2 /* soapclient.js in Resources */,
 				2402FAF210ABF51A0060E89D /* unitTest.js in Resources */,
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
 				B4A10F3E0F86BC490040D850 /* AppDownloadView.xib in Resources */,
@@ -1949,6 +1963,9 @@
 				24EDDE7F10C1CC3500CBA8F3 /* yahoo.html in Resources */,
 				24EDDF2810C1F67E00CBA8F3 /* keyboard.html in Resources */,
 				248FD09910C4380E00176DAC /* image.html in Resources */,
+				2415796F10C907A400E212F2 /* blah.avi in Resources */,
+				241579A310C97D5900E212F2 /* soap_header.html in Resources */,
+				241579A410C97D5900E212F2 /* soap.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2058,6 +2075,7 @@
 				B4C579C510A27F1E00198B82 /* ComplexTableViewCell.m in Sources */,
 				B4C57BB810A54D3900198B82 /* LayoutConstraint.m in Sources */,
 				2402F6C810AB1CFD0060E89D /* OperationQueue.m in Sources */,
+				241579A510C97D5900E212F2 /* soapclient.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

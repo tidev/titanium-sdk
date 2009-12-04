@@ -92,12 +92,17 @@ NSString *encodeURIParameters(NSString *unencodedString)
 		NSString *part = [parts objectAtIndex:c];
 		NSRange range = [part rangeOfString:@"="];
 		
-		[result appendString:encodeQueryPart([part substringToIndex:range.location])];
-		[result appendString:@"="];
-		if (range.location > 0)
+		if (range.location != NSNotFound)
 		{
+			[result appendString:encodeQueryPart([part substringToIndex:range.location])];
+			[result appendString:@"="];
 			[result appendString:encodeQueryPart([part substringFromIndex:range.location+1])];
 		}
+		else 
+		{
+			[result appendString:encodeQueryPart(part)];
+		}
+
 		
 		if (c + 1 < [parts count])
 		{
@@ -321,7 +326,7 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 		else 
 		{
 			NSString *uri = [destString substringToIndex:range.location];
-			NSString *qs = [destString substringFromIndex:range.location+1];
+			NSString *qs = [destString length] > range.location+1 ? [destString substringFromIndex:range.location+1] : @"";
 			NSString *newqs = encodeURIParameters(qs);
 			destUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@",uri,newqs]];
 		}
