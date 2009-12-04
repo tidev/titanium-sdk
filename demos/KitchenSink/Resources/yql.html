@@ -8,7 +8,8 @@
 	var data = [
 		{title:'Flickr Most Recent',image:'KS_share_Yahoo.png'},
 		{title:'Flickr Search',image:'KS_share_Yahoo.png'},
-		{title:'Y! Finance Search',image:'KS_share_Yahoo.png'}
+		{title:'Y! Finance Search',image:'KS_share_Yahoo.png'},
+		{title:'Y! News',image:'KS_share_Yahoo.png'}
 	];
 	
 	// tableview object
@@ -38,6 +39,13 @@
 			{
 				Titanium.Analytics.featureEvent('mashups.yql.finance');
 				var w = Titanium.UI.createWindow({url:'yql_finance.html',barColor:'#004e8c',orientation:'either'});
+				w.open({animated:true});
+				break;
+			}
+			case 3:
+			{
+				Titanium.Analytics.featureEvent('mashups.yql.news');
+				var w = Titanium.UI.createWindow({url:'yql_news.html',barColor:'#004e8c',orientation:'either',title:'Y! News'});
 				w.open({animated:true});
 				break;
 			}
