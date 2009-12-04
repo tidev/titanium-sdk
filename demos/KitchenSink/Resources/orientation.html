@@ -20,6 +20,17 @@ window.onload = function()
 	});
 	
 	document.getElementById('win_orientation').innerHTML = 'window.orientation = ' + window.orientation;
+
+	// add view to make sure orientation change fires with other views present
+	var compositeView = Titanium.UI.createCompositeView();
+	var views = Titanium.UI.currentWindow.getViews();
+	compositeView.addView(views[0],{left:0,top:0});
+	var view = Titanium.UI.createWebView({url:'orientation_view.html'});
+	compositeView.addView(view,{bottom:0, left:0, height:50});
+	Titanium.UI.currentWindow.addView(compositeView);
+	Titanium.UI.currentWindow.showView(compositeView);
+	
+	
 };
 
 
