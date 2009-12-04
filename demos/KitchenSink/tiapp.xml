@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><ti:app xmlns:ti="http://ti.appcelerator.org">
 <id>com.nolanwright.kitchensink</id>
 <name>KitchenSink</name>
-<version>1.1</version>
+<version>1.0</version>
 <publisher>nwright</publisher>
 <url>appcelerator.com</url>
 <copyright>2009 by nwright</copyright>
@@ -56,7 +56,7 @@
         </window>
     </windows>
     <guid>6fe33f33fd1f4e95a06d2d217170866d</guid>
-   <property name="ti.android.debug" type="bool">false</property>
+<name>KitchenSink</name>
     <!-- this will only work with our dev keystore and not on a production device! -->
-    <property name="ti.android.google.map.api.key">0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg</property>
+<name>KitchenSink</name>
 </ti:app>

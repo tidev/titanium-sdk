@@ -21,6 +21,7 @@
 		{title:'CoverFlow View (iPhone)', hasChild:true},
 		{title:'YQL + CoverFlow View (iPhone)', hasChild:true},
 		{title:'Custom Grouped View (iPhone)', hasChild:true},
+		{title:'Custom Table View (Align)', hasChild:true}
 
 
 	];
@@ -126,6 +127,13 @@
 			{
 				Titanium.Analytics.featureEvent('views.custom_grouped_view');
 				var win = Titanium.UI.createWindow({url:'custom_grouped_view.html',title:'Custom Grouped View',barColor:'#340f00', backgroundImage:'images/chip.jpg'});
+				win.open({animated:true});
+				break;
+			}
+			case 11:
+			{
+				Titanium.Analytics.featureEvent('views.custom_table_view_text_align');
+				var win = Titanium.UI.createWindow({url:'custom_table_view_text_align.html',title:'Align Test'});
 				win.open({animated:true});
 				break;
 			}
