@@ -310,7 +310,7 @@ def main(args):
 		plist_template = tip.generate(module_str,appid,deploytype)
 	
 		# write out the generated tiapp.plist
-		plist.write(plist_template.encode("utf-8"))
+		plist.write(plist_template)
 		plist.close()
 		
 		

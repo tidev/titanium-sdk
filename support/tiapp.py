@@ -41,7 +41,7 @@ def get_window_properties(node):
 class TiAppXML(object):
 	def __init__(self,file):
 		self.file = file
-		self.dom = parseString(codecs.open(self.file,'r','utf-8','replace').read())
+		self.dom = parseString(codecs.open(self.file,'r','utf-8','replace').read().encode('utf-8'))
 		
 		self.properties = {
 			'id':None,
