@@ -1,0 +1,31 @@
+<html>
+<head>
+<script>
+window.onload = function()
+{
+		Titanium.Geolocation.watchPosition(
+		function(pos)
+		{
+			try
+			{
+				document.getElementById('geo').innerHTML = "geo is "+Titanium.JSON.stringify(pos);
+			}
+			catch(E)
+			{
+				Titanium.API.error("Error in geo = "+E);
+			}
+		},
+		function()
+		{
+
+		},
+		{enableHighAccuracy:true}
+	);
+
+};
+</script>
+</head>
+<body>
+<div id="geo">Fetching GEO</div>
+</body>
+</html>

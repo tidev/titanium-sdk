@@ -205,7 +205,7 @@ NSUInteger lastHeadingID = 0;
 
 @implementation GeolocationModule
 
-- (void) updateLocManagerAccuracy:(BOOL)startPolling;
+- (void) updateLocManagerAccuracy:(NSNumber*)startPolling;
 {
 	[proxyLock lock];
 	for (GeolocationProxy * thisProxy in [proxyDictionary objectEnumerator]){

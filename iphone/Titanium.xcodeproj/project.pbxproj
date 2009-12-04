@@ -22,6 +22,7 @@
 		241579A410C97D5900E212F2 /* soap.html in Resources */ = {isa = PBXBuildFile; fileRef = 241579A110C97D5900E212F2 /* soap.html */; };
 		241579A510C97D5900E212F2 /* soapclient.js in Sources */ = {isa = PBXBuildFile; fileRef = 241579A210C97D5900E212F2 /* soapclient.js */; };
 		241579C510C97FBB00E212F2 /* soapclient.js in Resources */ = {isa = PBXBuildFile; fileRef = 241579A210C97D5900E212F2 /* soapclient.js */; };
+		241579EC10C9CFFB00E212F2 /* geo.html in Resources */ = {isa = PBXBuildFile; fileRef = 241579EB10C9CFFB00E212F2 /* geo.html */; };
 		2418F4220FCB629A00BFE545 /* sound.html in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4210FCB629A00BFE545 /* sound.html */; };
 		2418F4670FCB6A2100BFE545 /* sound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4660FCB6A2100BFE545 /* sound.wav */; };
 		241939EC10B28BFC002EF673 /* coverflow.html in Resources */ = {isa = PBXBuildFile; fileRef = 241939EB10B28BFC002EF673 /* coverflow.html */; };
@@ -414,6 +415,7 @@
 		241579A010C97D5900E212F2 /* soap_header.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = soap_header.html; sourceTree = "<group>"; };
 		241579A110C97D5900E212F2 /* soap.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = soap.html; sourceTree = "<group>"; };
 		241579A210C97D5900E212F2 /* soapclient.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = soapclient.js; sourceTree = "<group>"; };
+		241579EB10C9CFFB00E212F2 /* geo.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = geo.html; sourceTree = "<group>"; };
 		2418F4210FCB629A00BFE545 /* sound.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = sound.html; sourceTree = "<group>"; };
 		2418F4660FCB6A2100BFE545 /* sound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound.wav; sourceTree = "<group>"; };
 		241939EB10B28BFC002EF673 /* coverflow.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = coverflow.html; sourceTree = "<group>"; };
@@ -1147,6 +1149,7 @@
 				24193B2F10B4AB44002EF673 /* video.html */,
 				24EDDE7E10C1CC3500CBA8F3 /* yahoo.html */,
 				24EDDF2710C1F67E00CBA8F3 /* keyboard.html */,
+				241579EB10C9CFFB00E212F2 /* geo.html */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1966,6 +1969,7 @@
 				2415796F10C907A400E212F2 /* blah.avi in Resources */,
 				241579A310C97D5900E212F2 /* soap_header.html in Resources */,
 				241579A410C97D5900E212F2 /* soap.html in Resources */,
+				241579EC10C9CFFB00E212F2 /* geo.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
