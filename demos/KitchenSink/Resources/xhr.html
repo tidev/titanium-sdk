@@ -35,6 +35,8 @@
 		{
 			Titanium.API.info('STATUS = ' + this.status)
 			document.getElementById('html').innerHTML = this.responseText;
+			Titanium.UI.currentWindow.repaint();
+			
 		};
 		// open the client
 		c.open('POST','http://api.appcelerator.net/p/v1/echo');
@@ -59,9 +61,10 @@
 
 		c.onload = function()
 		{
-			Titanium.API.info('STATUS = ' + this.status)
-			
+			Titanium.API.info('STATUS = ' + this.status)		
 			document.getElementById('html').innerHTML = this.responseText;
+			Titanium.UI.currentWindow.repaint();
+			
 		};
 		// open the client
 		c.open('GET','http://www.liturgiadashoras.org/Horas/1terca_laudes.htm');
@@ -86,6 +89,8 @@
 		c.onload = function()
 		{
 			document.getElementById('html').innerHTML = this.responseText;
+			Titanium.UI.currentWindow.repaint();
+			Titanium.API.info('respone ' + this.getResponseHeader('Set-Cookie'));
 		};
 		// open the client
 		c.open('GET','http://www.google.com');
@@ -112,6 +117,8 @@
 			var f= Titanium.Filesystem.getFile("xhr.png");
 			f.write(this.responseData);
 			document.getElementById('html').innerHTML = '<img src="'+f.url+'"/>';
+			
+			Titanium.UI.currentWindow.repaint();
 		};
 		// open the client
 		c.open('GET','http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png');
@@ -150,6 +157,7 @@
 		c.onload = function()
 		{
 			document.getElementById('html').innerHTML = this.responseText;
+			Titanium.UI.currentWindow.repaint();
 		};
 
 		c.onerror = function(error)
@@ -180,16 +188,21 @@
 			if (this.responseText.indexOf("€漢字")==-1)
 			{
 				document.getElementById('html').innerHTML="Error: Didn't receive expected response from UTF-8 XHR";
+				Titanium.UI.currentWindow.repaint();
 			}
 			else
 			{
 				
 				document.getElementById('html').innerHTML = "received correct XHR UTF-8 encoded value: <PRE>"+this.responseText+"</PRE>";
+				Titanium.UI.currentWindow.repaint();
+				
 			}
 		};
 		xhr.onerror = function(error)
 		{
 			document.getElementById('html').innerHTML = "Error: " + error;
+			Titanium.UI.currentWindow.repaint();
+			
 		};
 		xhr.open("GET","http://api.appcelerator.net/p/v1/echo?a=€漢字");
 		xhr.send();

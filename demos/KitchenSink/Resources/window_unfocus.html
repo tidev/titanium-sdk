@@ -7,6 +7,8 @@
 
 	<div id="focused" style="margin-top:20px">Focused event not received</div>
 	<div id="unfocused" style="margin-top:20px">Unfocused event not received</div>
+	<div id="win_load" style="margin-top:20px">Window load event not received</div>
+	<div id="view_load" style="margin-top:20px">View load event not received</div>
 
 	<script>
 	Titanium.UI.currentWindow.addEventListener('unfocused',function()
@@ -24,11 +26,11 @@
 
 	Titanium.UI.currentView.addEventListener('load',function(e)
 	{
-		if (e) {
-			Titanium.API.info("Load event of url " + e.url);
-		}
-		Titanium.UI.createAlertDialog({title:'Load event called from currentView'}).show();
-
+		document.getElementById('view_load').innerHTML = 'View load event received at ' + new Date();
+	});
+	Titanium.UI.currentWindow.addEventListener('load',function()
+	{
+		document.getElementById('win_load').innerHTML = 'Window load event received at ' + new Date();
 	});
 
 		document.getElementById('unfocused').innerHTML = Titanium.App.Properties.getString('unfocused')

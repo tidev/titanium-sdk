@@ -643,9 +643,10 @@ typedef int UIEventSubtype;
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
 {
 	[super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-	TitaniumContentViewController * ourVC = [self viewControllerForIndex:selectedContentIndex];
-	if ([ourVC respondsToSelector:@selector(setInterfaceOrientation:duration:)]){
-		[(TitaniumContentViewController<TitaniumWindowDelegate> *)ourVC setInterfaceOrientation:currentOrientation duration:duration];
+	for (TitaniumContentViewController * ourVC in contentViewControllers) {
+		if ([ourVC respondsToSelector:@selector(setInterfaceOrientation:duration:)]){
+			[(TitaniumContentViewController<TitaniumWindowDelegate> *)ourVC setInterfaceOrientation:currentOrientation duration:duration];
+		}
 	}
 	if ([[TitaniumHost sharedHost] hasListeners]) [[TitaniumHost sharedHost] fireListenerAction:@selector(eventViewControllerViewWillRotateToInterfaceOrientation:properties:) source:self properties:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:toInterfaceOrientation] forKey:@"orientation"]];
 }

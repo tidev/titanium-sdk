@@ -194,7 +194,8 @@
 					title:'Orientation Change',
 					barColor:'#000',
 					backgroundColor:'#fff',
-					backgroundImage:null
+					backgroundImage:null,
+					title:'Invitatório'
 				});
 				win.orientation ='either';
 				win.open({animated:true});
@@ -376,7 +377,7 @@
 			success:function(media,details)
 			{
 				var win = Titanium.UI.createWindow({url:'image.html'});
-				Titanium.App.Properties.setString('video',media.filePath);
+				Titanium.App.Properties.setString('video',media.url);
 				Titanium.App.Properties.setBool('movie',true);
 				win.open({animated:true});
 			},
@@ -493,6 +494,8 @@
 			{
 				var win = Titanium.UI.createWindow({url:'image.html',title:'Image'});
 				Titanium.App.Properties.setString('photo',image.url);
+				Titanium.App.Properties.setBool('movie',false);
+				
 				if (details)
 				{
 					Titanium.App.Properties.setString('x',details.cropRect.x);

@@ -11,7 +11,7 @@
 #import "PickerImageTextCell.h"
 #import "Logging.h"
 #import "UiModule.h"
-
+#include <unistd.h>
 @interface PickerColumnWrapper : NSObject
 {
 	CGFloat	width;
@@ -178,10 +178,12 @@ NSMutableDictionary * controlProxyClassRegistry = nil;
 @synthesize backgroundImagePath, backgroundDisabledImagePath, backgroundSelectedImagePath;
 @synthesize dateValue, minDate, maxDate, datePickerMode, minuteInterval;
 
-TitaniumFontDescription* defaultControlFontDesc;
+
+TitaniumFontDescription* defaultControlFontDesc = nil;
 
 + (void) initialize;
 {
+	if (self != [NativeControlProxy class])return;
 	defaultControlFontDesc = [[TitaniumFontDescription alloc] init];
 	defaultControlFontDesc.isBoldWeight=NO;
 	defaultControlFontDesc.size = [UIFont systemFontSize];
@@ -415,10 +417,12 @@ needsLayout = YES;	\
 		needsLayout = YES;
 	}
 
-
 	if(UpdateFontDescriptionFromDict(inputState, fontDesc, defaultControlFontDesc)){
 		needsLayout = YES;
 	}
+	
+	
+
 	
 	//System button	
 	id newTemplate = [inputState objectForKey:@"systemButton"];

@@ -4,6 +4,8 @@
 	</head>
 	<body style="margin:0;background-color:#111;text-align:center">
 		<img id="image" border="0" height="360" width="320" />
+		<div id="button" style="height:50px"></div>
+
 		<input id="btn" style="visibility:hidden" type="button" value="OK" />
 		<script>
 			var listener = function(e)
@@ -28,10 +30,23 @@
 			var isMovie = Titanium.App.Properties.getBool('movie');
 			if (isMovie)
 			{
-				var url = Titanium.App.Properties.getString('video');		
-				document.getElementById('image').onclick = function()
+				document.getElementById('button').style.display = 'block';
+				document.getElementById('image').style.display = 'none';
+				
+				var url = Titanium.App.Properties.getString('video');
+				var button1 = Titanium.UI.createButton({
+					id:'button',
+					backgroundImage:'images/BUTT_grn_off.png',
+					backgroundSelectedImage:'images/BUTT_grn_on.png',
+					backgroundFocusedImage:'images/BUTT_grn_on.png',
+					title:'Play Video',
+					color:'#ffffff',
+					height:57,
+					fontSize:20,
+					fontWeight:'bold'
+				});
+				button1.addEventListener('click',function(e)
 				{
-					Titanium.UI.createAlertDialog({title:url}).show();
 					var activeMovie = Titanium.Media.createVideoPlayer({
 						contentURL:url,
 						backgroundColor:'#111',
@@ -39,8 +54,7 @@
 						scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
 					});
 					activeMovie.play();
-					
-				}		
+				})		
 			}
 			else
 			{
@@ -63,6 +77,9 @@
 					button.style.visibility = 'visible';
 					button.onclick = listener;
 				}
+				document.getElementById('button').style.display = 'none';
+				document.getElementById('image').style.display = 'block';
+				
 				
 			}
 		</script>

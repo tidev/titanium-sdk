@@ -1,42 +1,255 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta name="viewport" content="width=device-width" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="initial-scale = 1.0, user-scalable = no">
+	<title></title>
+	<meta name="generator" content="TextMate http://macromates.com/">
+	<meta name="author" content="Zhuguo Shi">
 
 
+	<script  src="javascript/iscroll_fulltest.js" type="text/javascript"></script>
+<style type="text/css" media="screen">
+	body
+	{
+	/*	overflow:hidden;*/
+		padding:0;
+		margin:0;
+		background:#91A1B7;
+		-webkit-user-select:none !important;
+/*		-webkit-mask-size: 0 0;*/
+/*		-webkit-user-drag: none;*/
+		position:absolute;
+		top:0;
+		left:0;
+		-webkit-tap-highlight-color:rgba(0,0,0,0);
+/*		-webkit-touch-callout:none;*/
+	}
+
+	#mainScreen
+	{
+		position:relative;
+		width:320px;
+		height:372px;
+		background:#EBEAE8 url(../images/loadingMap.png);
+		overflow:hidden;
+		-webkit-user-select:none !important;
+		-webkit-user-drag: none;
+		-webkit-mask-size: 0 0;
+	/*	z-index:1;*/
+	}
+</style>
+	<!-- Date: 2009-10-20 -->
 </head>
-<body  style="font-family:'Helvetica Neue';font-size:11px">
-	
-	<div style="margin-bottom:5px">Switch (default true)</div>
-	<div id="s1" style="height:30px"></div>
-	<div id="s1_value" style="margin-top:5px;margin-bottom:20px;color:#999;height:10px"></div>
-	<div style="margin-bottom:5px;height:10px">Switch (default false)</div>
-	<div id="s2" style="height:30px"></div>
-	<div id="s2_value" style="margin-top:5px;margin-bottom:10px;color:#999;height:10px"></div>
-	
-	
-	<script>
-	var s1 = Titanium.UI.createSwitch({
-		id:'s1',
-		value:true
-	});
-	
-	s1.addEventListener('change',function(e)
-	{
-		document.getElementById('s1_value').innerHTML = 'SWITCH 1 VALUE = ' + e.value;
-	});
+<body onload="initMap();">
+	<!-- <div> -->
+	    <!-- <div id="mainScreen" style="background:#000000;"> -->
+			
+			<!-- <div id="scroller"> -->
+	        <!-- <div id="MapContainerMy" style="width:960px;height:1440px;position:absolute;top:-480px;left:-320px;background: url(../images/loadingMap.png);"></div> -->
+			<div id="MapContainerMy" style="background:#EBEAE8;width:300px;height:300px;font-size:40px">
+				drag me
+			</div>
+			<!-- </div> -->
+			
+		<!-- </div> -->
+	<!-- </div> -->
+	<!-- <div id="temp"></div> -->
+	<div id="debug_info" style="position:absolute;top:300px;">
+		<span id="tstart"></span>
+		<span id="tmove"></span>
+		<span id="tend"></span>
+	</div>
+<script type="text/javascript" charset="utf-8">
+	//initialize MapBar map
+	var maplet = null;
+	var myScroll = null;
+	var mapContainer = document.getElementById('MapContainerMy');
+	var myMap = {
+		positionY:0,
+		positionX:0,
+		originalPositionY:0,
+		originalPositionX:0,
+		acceleration : 0.009
+	};
+	var tstart=1,tmove=1,tend=1;
+	function initMap() {
+		
+		/*
+		setTimeout( function() {
+			document.ontouchmove = function(e) { e.preventDefault(); return false; }
+			myScroll = new iScroll( document.getElementById('scroller') );
+		}, 100);
+		*/
 
-	var s2 = Titanium.UI.createSwitch({
-		id:'s2',
-		value:false
-	});
-	
-	s2.addEventListener('change',function(e)
-	{
-		document.getElementById('s2_value').innerHTML = 'SWITCH 2 VALUE = ' +e.value;
-	});
+		
+		// mapContainer.style.webkitTransitionTimingFunction = 'cubic-bezier(0, 0, 0.2, 1)';
+		var theTransformObj = window.getComputedStyle(mapContainer).webkitTransform;
+		myMap.originalPositionY = new WebKitCSSMatrix(theTransformObj).m42;
+		myMap.originalPositionX = new WebKitCSSMatrix(theTransformObj).m41;
 
-	</script>
-<hr>
-<p>&nbsp;</p>
+		mapContainer.addEventListener('touchstart', myHandleEvent, false);
+		// mapContainer.style.webkitTransitionDuration = '0';
+		Titanium.UI.currentWindow.repaint();
+
+	}
+	
+	
+	function myHandleEvent(e) {
+		Ti.API.debug('Handle event '+e.type);
+		switch(e.type) {
+			case 'touchstart': myOnTouchStart(e); break;
+			case 'touchmove': myOnTouchMove(e); break;
+			case 'touchend': myOnTouchEnd(e); break;
+			case 'webkitTransitionEnd': myOnTransitionEnd(e); break;
+		}
+	}
+	function moveMapTo(x,y) {
+		mapContainer.style.webkitTransform = 'translate3d('+x+'px, ' + y + 'px, 0)';
+
+	}
+	function info(str) {
+		document.getElementById('debug_info').innerHTML=str;
+	}
+	function myOnTouchStart(e) {
+	
+		// Titanium.UI.currentWindow.repaint();
+		document.getElementById('tstart').innerHTML=tstart++;
+		e.preventDefault();
+		mapContainer.style.webkitTransitionDuration = '0';	// Remove any transition
+		var theTransformObj = window.getComputedStyle(mapContainer).webkitTransform;
+		var theTransformY = new WebKitCSSMatrix(theTransformObj).m42;
+		var theTransformX = new WebKitCSSMatrix(theTransformObj).m41;
+		if( theTransformY!=myMap.positionY || theTransformX!=myMap.positionX ) {
+			myMap.positionY = theTransformY;
+			myMap.positionX = theTransformX;
+			//this.moveMapTo(this.positionX,this.positionY);
+		}
+
+		myMap.mapStartX = e.targetTouches[0].screenX;
+		myMap.mapStartY = e.targetTouches[0].screenY;
+
+
+		myMap.startY = e.targetTouches[0].clientY;
+		myMap.startX = e.targetTouches[0].clientX;
+
+		myMap.scrollStartY = myMap.positionY;
+		myMap.scrollStartX = myMap.positionX;
+
+		myMap.scrollStartTime = e.timeStamp;
+		myMap.moved = false;
+
+		mapContainer.addEventListener('touchmove', myHandleEvent, false);
+		mapContainer.addEventListener('touchend', myHandleEvent, false);
+
+		return false;
+	}
+	
+	function myOnTouchMove(e) {
+		document.getElementById('tmove').innerHTML=tmove++;
+		e.preventDefault();
+		if( e.targetTouches.length != 1 )
+			return false;
+
+		var deltaY = e.targetTouches[0].clientY - myMap.startY;
+		var deltaX = e.targetTouches[0].clientX - myMap.startX;
+
+		myMap.positionY = myMap.positionY + deltaY;
+		myMap.positionX = myMap.positionX + deltaX;
+		// Titanium.API.info('Current XY:  '+this.positionX+','+this.positionY);
+		myMap.mapEndX = e.targetTouches[0].screenX;
+		myMap.mapEndY = e.targetTouches[0].screenY;
+
+		moveMapTo(myMap.positionX,myMap.positionY);
+		myMap.startY = e.targetTouches[0].clientY;
+		myMap.startX = e.targetTouches[0].clientX;
+		myMap.moved = true;
+
+		// Prevent slingshot effect
+		if( e.timeStamp-myMap.scrollStartTime>100 ) {
+			myMap.scrollStartY = myMap.positionY;
+			myMap.scrollStartX = myMap.positionX;
+			myMap.scrollStartTime = e.timeStamp;
+		}
+
+		return false;
+	}
+	function myOnTouchEnd(e) {
+		document.getElementById('tend').innerHTML=tend++;
+		mapContainer.removeEventListener('touchmove', myHandleEvent, false);
+		mapContainer.removeEventListener('touchend', myHandleEvent, false);
+
+		if( !myMap.moved ) {
+			var theTarget = e.target;
+			if(theTarget.nodeType == 3) theTarget = theTarget.parentNode;
+			var theEvent = document.createEvent("MouseEvents");
+			theEvent.initEvent('click', true, true);
+			theTarget.dispatchEvent(theEvent);
+			return false
+		}
+
+
+		var deltaY = myMap.positionY - myMap.scrollStartY;
+		var deltaX = myMap.positionX - myMap.scrollStartX;
+		var scrollDistance = Math.sqrt(deltaY*deltaY+deltaX*deltaX);
+		// scrollDistance = scrollDistance<200?scrollDistance:200;
+
+
+		if(scrollDistance>200) {
+			var newRatio = 200/scrollDistance;
+			scrollDistance =200;
+			deltaY *= newRatio;
+			deltaX *= newRatio;
+		}
+		var scrollDuration = e.timeStamp - myMap.scrollStartTime;
+
+
+		var newDuration = (2 * scrollDistance / scrollDuration) / myMap.acceleration;
+		var newScrollDistance = (myMap.acceleration / 2) * (newDuration * newDuration);
+		newScrollDistance = newScrollDistance <90 ? newScrollDistance : 90;
+		var ratio = newScrollDistance / scrollDistance;
+
+		var newPositionY = parseInt(myMap.positionY+deltaY*ratio);
+		var newPositionX = parseInt(myMap.positionX+deltaX*ratio);
+		var mapDeltaX=0;
+		var mapDeltaY=0;
+		// var oldMapXY = maplet.toScreenCoordinate(maplet.getCenter());
+		var newMapXY = [];
+
+		if((isNaN(newPositionX)||isNaN(newPositionY)) || ((newPositionX==myMap.positionX)&&(newPositionY==myMap.positionY)) ) {
+
+
+		} else {
+			mapDeltaX=parseInt(deltaX*ratio);
+			mapDeltaY=parseInt(deltaY*ratio);
+
+
+			myMap.mapEndX+=mapDeltaX;
+			myMap.mapEndY+=mapDeltaY;
+			// document.getElementById('MapContainerMyClone').style.webkitTransform = 'translate3d('+newPositionX+'px, ' + newPositionY + 'px, 0)';
+			myScrollTo(newPositionX, newPositionY);
+		}
+
+		return false;
+	}
+	
+	function myOnTransitionEnd() {
+		mapContainer.removeEventListener('webkitTransitionEnd', myHandleEvent, false);
+
+	}
+
+	function myScrollTo(destX, destY, runtime) {
+		mapContainer.style.webkitTransitionDuration = runtime ? runtime : '300ms';
+		myMap.positionY = destY;// destY : 0;
+		myMap.positionX = destX;// ? destX : 0;
+
+		moveMapTo(myMap.positionX,myMap.positionY);
+		// If we are outside of the boundaries at the end of the transition go back to the sheepfold
+		// if( this.position>0 || this.position<this.maxScroll )
+		mapContainer.addEventListener('webkitTransitionEnd', myHandleEvent, false);
+	}
+
+</script>
 </body>
 </html>
