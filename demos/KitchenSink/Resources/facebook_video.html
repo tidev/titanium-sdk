@@ -1,0 +1,126 @@
+<html>
+<head>
+	<title>Facebook Video</title>
+	<script>
+	
+	window.onload = function()
+	{
+		var activityIndicator = Titanium.UI.createActivityIndicator();
+		
+		if (Titanium.Platform.name == "android")
+		{
+			var a = Titanium.UI.createAlertDialog();
+			a.setTitle('Facebook Video');
+			a.setMessage('This video has currently only been tested on iPhone');
+			a.show();
+			return;
+		}
+		function loggedIn()
+		{
+			document.getElementById('loggedin').style.display='none';
+			document.getElementById('loggedout').style.display='block';
+			
+			if (!Titanium.Facebook.hasPermission("video_upload"))
+			{
+				Titanium.Facebook.requestPermission("video_upload",function(evt)
+				{
+					if (evt.success)
+					{
+						document.getElementById('fbpost').disabled = false;
+					}
+				});
+			}
+			else
+			{
+				document.getElementById('fbpost').disabled = false;
+			}
+		}
+		
+		function loggedOut()
+		{
+			document.getElementById('loggedin').style.display='block';
+			document.getElementById('loggedout').style.display='none';
+			document.getElementById('fbpost').disabled = true;
+		}
+		
+		var videoButton = document.getElementById('post');
+		
+		videoButton.addEventListener('click',function()
+		{
+			Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
+			document.getElementById('fbpost').disabled = true;
+			
+			var url = 'movie.3gp';
+			var f = Titanium.Filesystem.getFile(Titanium.Filesystem.getResourcesDirectory(),'movie',url);
+			
+			Titanium.Facebook.execute("facebook.video.upload",{title:'Appcelerator Rocks!',
+				description:'Video was uploaded using Appcelerator Titanium Mobile'},function(e)
+			{
+				Titanium.API.info('video uploaded = '+e.success);
+				document.getElementById("msg").innerHTML = 'video uploaded = '+e.success;
+				Titanium.UI.currentWindow.setRightNavButton(null);
+				document.getElementById('fbpost').disabled = false;
+			},f);
+		});
+		
+		var button = Titanium.Facebook.createLoginButton({
+			'id':'fb',
+			'style':'wide',
+			'apikey':'6d6537bbec4526347a6af5d4510e5091',
+			'secret':'f5069ee17cbf7bd11feb38e5317a388b'
+		});
+		button.addEventListener('login',loggedIn);
+		button.addEventListener('logout',loggedOut);
+
+		if (Titanium.Facebook.isLoggedIn())
+		{
+			loggedIn();
+		}
+		else
+		{
+			loggedOut();
+		}
+
+	};
+	</script>
+	<style>
+		body
+		{
+			background-color:#aaa;
+			font-family:"Helvetica Neue";
+		}
+		#loggedin, #loggedout
+		{
+			margin-top:5px;
+			text-align:center;
+			font-weight:bold;
+			font-size:15px;
+		}
+		#fb
+		{
+			margin-top:5px;
+			text-align:center;
+		}
+		#msg {
+			margin-top:10px;
+		}
+	</style>
+</head>
+<body>
+	<div id="loggedin" style="display:none">
+		This is a demo that uses Facebook Connect. Click the button to login using your 
+		facebook credentials.
+	</div>
+	<div id="loggedout" style="display:none">
+		This is a demo that uses Facebook Connect. Click the button to logout of Facebook.
+	</div>
+	<div id="fb"></div>
+	<div id="fbpost">
+		<div>Upload the following example video by clicking button below</div>
+		<div><img src="movie/movie.jpg" style="width:200px;" align="center"/></div>
+		<div style="margin-top:20px;"></div>
+		<button id="post">Upload</button>
+		<div id="msg"></div>
+	</div>
+</body>
+</html>

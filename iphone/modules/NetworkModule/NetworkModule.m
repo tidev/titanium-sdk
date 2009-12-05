@@ -312,7 +312,17 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 		if (![destString isKindOfClass:[NSString class]])return nil;
 		
 		NSURL *destUrl = [NSURL URLWithString:destString];
-		[destUrl retain];
+		if (destUrl==nil)
+		{
+			//encoding problem - fail fast and make sure we re-escape
+			NSRange range = [destString rangeOfString:@"?"];
+			if (range.location != NSNotFound)
+			{
+				NSString *qs = encodeURIParameters([destString substringFromIndex:range.location+1]);
+				NSString *newurl = [NSString stringWithFormat:@"%@?%@",[destString substringToIndex:range.location],qs];
+				destUrl = [NSURL URLWithString:newurl];
+			}
+		}
 
 		NSLog(@"[DEBUG] sending XHR: %@",destUrl);
 
