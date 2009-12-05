@@ -682,13 +682,13 @@ static char ctrl[0x24];
 	
     do {
 		thisChar = *c++;
-
+		
 		BOOL isEnd = thisChar=='>';
-
+		
 		if((isEnd && (len>0)) || (len>=BUFFY_SIZE))
 		{
 			NSString * nextSegment = [[NSString alloc] initWithBytesNoCopy:buffy
-					length:len encoding:NSUTF8StringEncoding freeWhenDone:NO];
+																	length:len encoding:NSUTF8StringEncoding freeWhenDone:NO];
 			if(nextSegment != nil){
 				[*o appendString:nextSegment];
 				[nextSegment release];
@@ -702,7 +702,29 @@ static char ctrl[0x24];
 		if(isEnd){
 			return YES;
 		}
-
+		
+		// we need to compensate for unicode encoded for higher order characters like Ⴔ
+		if (thisChar == '\\')
+		{
+            unichar uc = *++c;
+			if (![self scanUnicodeChar:&uc error:error]) {
+				*error = errWithUnderlier(EUNICODE, error, @"Broken unicode character");
+				return NO;
+			}
+			if (len>0)
+			{
+				NSString * nextSegment = [[NSString alloc] initWithBytesNoCopy:buffy length:len encoding:NSUTF8StringEncoding freeWhenDone:NO];
+				if (nextSegment!=nil)
+				{
+					[*o appendString:nextSegment];
+					len=0;
+				}
+			}
+			[*o appendString:[NSString stringWithFormat:@"%C",uc]];
+			len = 0;
+			continue;
+		}
+		
 		if((thisChar >= '0') && (thisChar <= '9')){
 			buffy[len] = (thisChar - '0') << 4;
 		} else if ((thisChar >= 'a') && (thisChar <= 'f')){
@@ -713,9 +735,9 @@ static char ctrl[0x24];
 			*error = err(EEOF, @"[ERROR] Non-hexcode while parsing encoded string");
 			return NO;
 		}
-
+		
 		thisChar = *c++;
-
+		
 		if((thisChar >= '0') && (thisChar <= '9')){
 			buffy[len] += (thisChar - '0');
 		} else if ((thisChar >= 'a') && (thisChar <= 'f')){
@@ -732,6 +754,7 @@ static char ctrl[0x24];
     *error = err(EEOF, @"[ERROR] Unexpected EOF while parsing encoded string");
     return NO;
 }
+
 
 - (BOOL)scanRestOfString:(NSMutableString **)o error:(NSError **)error
 {

@@ -27,7 +27,9 @@
 	NSString *pageToken;
 	FacebookModule *module;
 	NSString *prefix;
+	NSData *data;
 }
+@property (nonatomic,retain) NSData *data;
 @end
 
 @interface FBPermissionPrefetch : NSObject<FBRequestDelegate>{

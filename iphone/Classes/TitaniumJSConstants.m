@@ -13,9 +13,9 @@
 NSString * const titaniumJavascriptInjection =
 @"<script>"
 "Ti={_TOKEN:'%@',"		//Note to self. Store top._TOKENS[token] = window in order to redirect to subviews.
-    "_utf8:function(string){string=string.replace(/\\r\\n/g,'\\n');var utftext='';for(var n=0;n<string.length;n++){var c=string.charCodeAt(n);if(c<128){utftext+=String.fromCharCode(c)}else if((c>127)&&(c<2048)){utftext+=String.fromCharCode((c>>6)|192);utftext+=String.fromCharCode((c&63)|128)}else{utftext+=String.fromCharCode((c>>12)|224);utftext+=String.fromCharCode(((c>>6)&63)|128);utftext+=String.fromCharCode((c&63)|128)}}return utftext},"
-	"_hex:function(a){var r='';var e=a.length;var c=0;while(c<e){r+=a.charCodeAt(c++).toString(16)}return r},"
-	"_bridgeEnc:function(o){return '<'+this._hex(this._utf8(o))+'>';},"
+	// hexish will hex-encode values unless they're in the higher unicode range in which we'll simply send them in our special unicode escaped format
+	"_hexish:function(a){var r='';var e=a.length;var c=0;var h;while(c<e){h=a.charCodeAt(c++).toString(16);if(h.length<3){r+=h}else if(h.length<4){r+='\\\\u0'+h}else{r+='\\\\u'+h}}return r;},"
+	"_bridgeEnc:function(o){return '<'+this._hexish(o)+'>';},"
 	"_JSON:function(object,bridge){"
 		"var type = typeof object;"
 		"switch (type) {"

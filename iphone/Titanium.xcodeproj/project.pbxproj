@@ -23,6 +23,10 @@
 		241579A510C97D5900E212F2 /* soapclient.js in Sources */ = {isa = PBXBuildFile; fileRef = 241579A210C97D5900E212F2 /* soapclient.js */; };
 		241579C510C97FBB00E212F2 /* soapclient.js in Resources */ = {isa = PBXBuildFile; fileRef = 241579A210C97D5900E212F2 /* soapclient.js */; };
 		241579EC10C9CFFB00E212F2 /* geo.html in Resources */ = {isa = PBXBuildFile; fileRef = 241579EB10C9CFFB00E212F2 /* geo.html */; };
+		24157F9E10CADA9A00E212F2 /* fbvideo.html in Resources */ = {isa = PBXBuildFile; fileRef = 24157F9D10CADA9A00E212F2 /* fbvideo.html */; };
+		24157FCF10CADDAB00E212F2 /* blah.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 24157FCE10CADDAB00E212F2 /* blah.mp4 */; };
+		2415812510CAFA8700E212F2 /* movie.3gp in Resources */ = {isa = PBXBuildFile; fileRef = 2415812310CAFA8700E212F2 /* movie.3gp */; };
+		2415812610CAFA8700E212F2 /* movie.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 2415812410CAFA8700E212F2 /* movie.jpg */; };
 		2418F4220FCB629A00BFE545 /* sound.html in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4210FCB629A00BFE545 /* sound.html */; };
 		2418F4670FCB6A2100BFE545 /* sound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 2418F4660FCB6A2100BFE545 /* sound.wav */; };
 		241939EC10B28BFC002EF673 /* coverflow.html in Resources */ = {isa = PBXBuildFile; fileRef = 241939EB10B28BFC002EF673 /* coverflow.html */; };
@@ -416,6 +420,10 @@
 		241579A110C97D5900E212F2 /* soap.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = soap.html; sourceTree = "<group>"; };
 		241579A210C97D5900E212F2 /* soapclient.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = soapclient.js; sourceTree = "<group>"; };
 		241579EB10C9CFFB00E212F2 /* geo.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = geo.html; sourceTree = "<group>"; };
+		24157F9D10CADA9A00E212F2 /* fbvideo.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = fbvideo.html; sourceTree = "<group>"; };
+		24157FCE10CADDAB00E212F2 /* blah.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = blah.mp4; sourceTree = "<group>"; };
+		2415812310CAFA8700E212F2 /* movie.3gp */ = {isa = PBXFileReference; lastKnownFileType = file; path = movie.3gp; sourceTree = "<group>"; };
+		2415812410CAFA8700E212F2 /* movie.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = movie.jpg; sourceTree = "<group>"; };
 		2418F4210FCB629A00BFE545 /* sound.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = sound.html; sourceTree = "<group>"; };
 		2418F4660FCB6A2100BFE545 /* sound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = sound.wav; sourceTree = "<group>"; };
 		241939EB10B28BFC002EF673 /* coverflow.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = coverflow.html; sourceTree = "<group>"; };
@@ -1104,6 +1112,9 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2415812310CAFA8700E212F2 /* movie.3gp */,
+				2415812410CAFA8700E212F2 /* movie.jpg */,
+				24157FCE10CADDAB00E212F2 /* blah.mp4 */,
 				241579A210C97D5900E212F2 /* soapclient.js */,
 				241579A010C97D5900E212F2 /* soap_header.html */,
 				241579A110C97D5900E212F2 /* soap.html */,
@@ -1150,6 +1161,7 @@
 				24EDDE7E10C1CC3500CBA8F3 /* yahoo.html */,
 				24EDDF2710C1F67E00CBA8F3 /* keyboard.html */,
 				241579EB10C9CFFB00E212F2 /* geo.html */,
+				24157F9D10CADA9A00E212F2 /* fbvideo.html */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1970,6 +1982,10 @@
 				241579A310C97D5900E212F2 /* soap_header.html in Resources */,
 				241579A410C97D5900E212F2 /* soap.html in Resources */,
 				241579EC10C9CFFB00E212F2 /* geo.html in Resources */,
+				24157F9E10CADA9A00E212F2 /* fbvideo.html in Resources */,
+				24157FCF10CADDAB00E212F2 /* blah.mp4 in Resources */,
+				2415812510CAFA8700E212F2 /* movie.3gp in Resources */,
+				2415812610CAFA8700E212F2 /* movie.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

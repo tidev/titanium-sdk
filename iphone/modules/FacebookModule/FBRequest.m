@@ -332,14 +332,14 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
 	[self call:method params:params dataParam:nil filename:nil];
 }
 
-- (void)call:(NSString*)method params:(NSDictionary*)params dataParam:(NSData*)dataParam filename:(NSString*)filename {
+- (void)call:(NSString*)method params:(NSDictionary*)params dataParam:(NSData*)dataParam filename:(NSString*)filename_ {
   _url = [[self urlForMethod:method] retain];
   _method = [method copy];
   _params = params
     ? [[NSMutableDictionary alloc] initWithDictionary:params]
     : [[NSMutableDictionary alloc] init];
   _dataParam = dataParam;
-  _filename = filename;
+  _filename = [filename_ retain];
 
   [_params setObject:_method forKey:@"method"];
   [_params setObject:_session.apiKey forKey:@"api_key"];

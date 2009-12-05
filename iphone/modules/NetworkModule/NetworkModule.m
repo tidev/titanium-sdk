@@ -178,14 +178,9 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 		remainingSize -= 8;
 
 		TRYENCODING("windows-1252",12,NSWindowsCP1252StringEncoding);
+		TRYENCODING("iso-8859-1",11,NSISOLatin1StringEncoding);
 		TRYENCODING("shift_jis",9,NSShiftJISStringEncoding);
 		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
-//		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
-//		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
-//		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
-//		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
-//		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
-//		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
 		//TODO: Proper encoding translation here.
 	}	
 	return NSUTF8StringEncoding;
@@ -316,27 +311,19 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData){
 		NSString * destString = [objectValue objectAtIndex:1];
 		if (![destString isKindOfClass:[NSString class]])return nil;
 		
-		NSURL *destUrl;
-		
-		NSRange range = [destString rangeOfString:@"?"];
-		if (range.location == NSNotFound)
-		{
-			destUrl = [NSURL URLWithString:destString];
-		}
-		else 
-		{
-			NSString *uri = [destString substringToIndex:range.location];
-			NSString *qs = [destString length] > range.location+1 ? [destString substringFromIndex:range.location+1] : @"";
-			NSString *newqs = encodeURIParameters(qs);
-			destUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@",uri,newqs]];
-		}
-		
-		
+		NSURL *destUrl = [NSURL URLWithString:destString];
+		[destUrl retain];
+
 		NSLog(@"[DEBUG] sending XHR: %@",destUrl);
 
 		[self setUrlRequest:[NSMutableURLRequest requestWithURL:destUrl]];
 		[urlRequest setHTTPMethod:[objectValue objectAtIndex:0]];
-		[urlRequest setValue:@"Accept-Charset" forHTTPHeaderField:@"utf-8"];
+		
+		// set the accepted charset encodings
+		[urlRequest setValue:@"utf-8,windows-1252,shift_jis,iso-8859-1" forHTTPHeaderField:@"Accept-Charset"];
+		
+		// some servers require to know that we're doing XHR
+		[urlRequest setValue:@"XMLHttpRequest"  forHTTPHeaderField:@"X-Requested-With"];
 		
 		// set the titanium user agent
 		NSString *webkit = [urlRequest valueForHTTPHeaderField:@"User-Agent"];
