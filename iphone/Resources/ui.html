@@ -97,7 +97,7 @@ function test3(){
 	 rowHeight:100,
 	 layout:[
 	   {type:'image', left:10, top:5, width:32, height:33, name:'image1'},
-	   {type:'text', fontSize:20, fontWeight:'bold', left:50, top:10, width:100, height:20, color:'#336699', name:'title1'},
+	   {type:'text', textAlign:'right', fontSize:20, fontWeight:'bold', left:50, top:10, width:100, height:20, color:'#336699', name:'title1'},
 	   {type:'text', fontSize:13, left:50, top:40, width:150, color:'#000',height:50, name:'detail_text'},
 	]};
 
@@ -156,41 +156,41 @@ function test3(){
 function test1()
 {
 try{
-	var template = {
+	var templaty = {
 	 selectedBackgroundImage:'table_view_bg.png', 
 	 selectedColor:'white',
 	 color:'brown',
 	rowHeight:80,
 	 layout:[
-	   {type:'text', left:50, color:'#336699', name:'title', fontWeight:'bold', top:20,fontFamily:'Marker Felt'}
+	   {type:'text', left:50, color:'#336699', name:'title', textAlign:'right', fontWeight:'bold', top:20,fontFamily:'Marker Felt'}
 	]};
 	// data for tableview
-//	var data = [
-//		{title:'Play Movie\rNew line',backgroundImage:'images/tableview/off_1.png', 
-//				selectedBackgroundImage:'images/tableview/on_1.png'},
-//		{title:'Camera adsfasdf AWDSF ASDF ASDFsadfgdfh adfgasdfas asdfasd asdrftawdr asdrzxzxcf asdfraweraw axrew',backgroundImage:'images/tableview/off_2.png',
-//				selectedBackgroundImage:'images/tableview/on_2.png'},
-//		{title:'Vibrate oiweroiqoewr qweroqweiroipoiqwer qwre',backgroundImage:'images/tableview/off_3.png',
-//				selectedBackgroundImage:'images/tableview/on_3.png'},
-//		{title:'Orientation',backgroundImage:'images/tableview/off_4.png',
-//			selectedBackgroundImage:'images/tableview/on_4.png'},
-//		{title:'Photo Gallery',backgroundImage:'images/tableview/off_1.png',
-//				selectedBackgroundImage:'images/tableview/on_1.png'},
-//		{title:'Geo Location',backgroundImage:'images/tableview/off_2.png',
-//				selectedBackgroundImage:'images/tableview/on_2.png'},
-//		{title:'Accelerometer',backgroundImage:'images/tableview/off_3.png',
-//				selectedBackgroundImage:'images/tableview/on_3.png'},
-//		{title:'Sound',backgroundImage:'images/tableview/off_4.png',
-//				selectedBackgroundImage:'images/tableview/on_4.png'},
-//		{title:'Shake',backgroundImage:'images/tableview/off_1.png',
-//				selectedBackgroundImage:'images/tableview/on_1.png'},
-//		{title:'Email Client',backgroundImage:'images/tableview/off_2.png',
-//				selectedBackgroundImage:'images/tableview/on_2.png'},
-//		{title:'Save to Gallery',backgroundImage:'images/tableview/off_3.png',
-//				selectedBackgroundImage:'images/tableview/on_3.png'},
-//		{title:'Contacts',backgroundImage:'images/tableview/off_4.png',
-//				 selectedBackgroundImage:'images/tableview/on_4.png'}
-//	];
+	var data = [
+		{title:'Play Movie\rNew line',backgroundImage:'images/tableview/off_1.png', 
+				selectedBackgroundImage:'images/tableview/on_1.png'},
+		{title:'Camera adsfasdf AWDSF ASDF ASDFsadfgdfh adfgasdfas asdfasd asdrftawdr asdrzxzxcf asdfraweraw axrew',backgroundImage:'images/tableview/off_2.png',
+				selectedBackgroundImage:'images/tableview/on_2.png'},
+		{title:'Vibrate oiweroiqoewr qweroqweiroipoiqwer qwre',backgroundImage:'images/tableview/off_3.png',
+				selectedBackgroundImage:'images/tableview/on_3.png'},
+		{title:'Orientation',backgroundImage:'images/tableview/off_4.png',
+			selectedBackgroundImage:'images/tableview/on_4.png'},
+		{title:'Photo Gallery',backgroundImage:'images/tableview/off_1.png',
+				selectedBackgroundImage:'images/tableview/on_1.png'},
+		{title:'Geo Location',backgroundImage:'images/tableview/off_2.png',
+				selectedBackgroundImage:'images/tableview/on_2.png'},
+		{title:'Accelerometer',backgroundImage:'images/tableview/off_3.png',
+				selectedBackgroundImage:'images/tableview/on_3.png'},
+		{title:'Sound',backgroundImage:'images/tableview/off_4.png',
+				selectedBackgroundImage:'images/tableview/on_4.png'},
+		{title:'Shake',backgroundImage:'images/tableview/off_1.png',
+				selectedBackgroundImage:'images/tableview/on_1.png'},
+		{title:'Email Client',backgroundImage:'images/tableview/off_2.png',
+				selectedBackgroundImage:'images/tableview/on_2.png'},
+		{title:'Save to Gallery',backgroundImage:'images/tableview/off_3.png',
+				selectedBackgroundImage:'images/tableview/on_3.png'},
+		{title:'Contacts',backgroundImage:'images/tableview/off_4.png',
+				 selectedBackgroundImage:'images/tableview/on_4.png'}
+	];
 	
 
 
@@ -198,48 +198,48 @@ try{
 
 
 
-	var data = [
-		{title:'row 1', hasChild:true,fontWeight:'bold',fontSize:'36px',backgroundColor:'#00FFFF'},
-		{title:'row 2', hasDetail:true,fontWeight:'normal',fontSize:'6px'},
-		{title:'row 3',backgroundColor:'#00FFFF',selectionStyle:'none'},
-		{html:'<b>row</b> 4 has <i>html?</i>',selected:true},
-
-		{rowHeight:50,title:'Layout test1',image:'Phone.png',layout:[{top:0,height:30,bottom:null,fontSize:'20px'},{type:'image',name:'image',top:0,height:40,left:5,width:40}]},
-
-		{title:'row 1', hasChild:true, image:'Mail.png',backgroundColor:'#00FFFF'},
-		{title:'row 2', hasDetail:true, image:'Safari.png',selectionStyle:'gray'},
-		{title:'row 3', image:'Phone.png',selectionStyle:'blue'},
-		{title:'row 4', image:'iTunes.png',backgroundColor:'#00FFFF'},
-
-		{title:'row 1', hasChild:true, image:'Mail.png'},
-		{title:'row 2', hasDetail:true, image:'Safari.png'},
-		{title:'row 3', image:'Phone.png'},
-		{title:'row 4', image:'iTunes.png'},
-
-		{title:'row 1', header:'Header 1', hasChild:true, },
-		{title:'row 2', hasDetail:true},
-		{title:'row 3'},
-		{title:'row 4'},
-		{title:'row 5', header:'Header 2', hasChild:true, },
-		{title:'row 6', hasDetail:true},
-		{title:'row 7'},
-		{title:'row 8'},
-		{title:'row 9', header:'Header 3', hasChild:true, },
-		{title:'row 10', hasDetail:true},
-		{title:'row 11',selected:true},
-		{title:'row 12'},
-
-		{html:'<div><div style="font-weight:bold;font-size:18px">Row 1</div><div style="font-size:11px;margin-top:5px;>row 1 detail...</div></div>"',hasChild:true},
-		{html:'<div><div style="font-weight:bold;font-size:18px">Row 2</div><div style="font-size:11px;margin-top:5px;>row 2 detail...</div></div>"',hasChild:true},
-		{html:'<div><div style="font-weight:bold;font-size:18px">Row 3</div><div style="font-size:11px;margin-top:5px;>row 3 detail...</div></div>"',selected:true},
-		{html:'<div><div style="font-weight:bold;font-size:18px">Row 4</div><div style="font-size:11px;margin-top:5px;>row 4 detail...</div></div>"'},
-		{html:'<div><div style="font-weight:bold;font-size:18px">Row 5</div><div style="font-size:11px;margin-top:5px;>row 5 detail...</div></div>"'}		
-
-
-	];
+//	var data = [
+//		{title:'row 1', hasChild:true,fontWeight:'bold',fontSize:'36px',backgroundColor:'#00FFFF'},
+//		{title:'row 2', hasDetail:true,fontWeight:'normal',fontSize:'6px'},
+//		{title:'row 3',backgroundColor:'#00FFFF',selectionStyle:'none'},
+//		{html:'<b>row</b> 4 has <i>html?</i>',selected:true},
+//
+//		{rowHeight:50,title:'Layout test1',image:'Phone.png',layout:[{top:0,height:30,bottom:null,fontSize:'20px'},{type:'image',name:'image',top:0,height:40,left:5,width:40}]},
+//
+//		{title:'row 1', hasChild:true, image:'Mail.png',backgroundColor:'#00FFFF'},
+//		{title:'row 2', hasDetail:true, image:'Safari.png',selectionStyle:'gray'},
+//		{title:'row 3', image:'Phone.png',selectionStyle:'blue'},
+//		{title:'row 4', image:'iTunes.png',backgroundColor:'#00FFFF'},
+//
+//		{title:'row 1', hasChild:true, image:'Mail.png'},
+//		{title:'row 2', hasDetail:true, image:'Safari.png'},
+//		{title:'row 3', image:'Phone.png'},
+//		{title:'row 4', image:'iTunes.png'},
+//
+//		{title:'row 1', header:'Header 1', hasChild:true, },
+//		{title:'row 2', hasDetail:true},
+//		{title:'row 3'},
+//		{title:'row 4'},
+//		{title:'row 5', header:'Header 2', hasChild:true, },
+//		{title:'row 6', hasDetail:true},
+//		{title:'row 7'},
+//		{title:'row 8'},
+//		{title:'row 9', header:'Header 3', hasChild:true, },
+//		{title:'row 10', hasDetail:true},
+//		{title:'row 11',selected:true},
+//		{title:'row 12'},
+//
+//		{html:'<div><div style="font-weight:bold;font-size:18px">Row 1</div><div style="font-size:11px;margin-top:5px;>row 1 detail...</div></div>"',hasChild:true},
+//		{html:'<div><div style="font-weight:bold;font-size:18px">Row 2</div><div style="font-size:11px;margin-top:5px;>row 2 detail...</div></div>"',hasChild:true},
+//		{html:'<div><div style="font-weight:bold;font-size:18px">Row 3</div><div style="font-size:11px;margin-top:5px;>row 3 detail...</div></div>"',selected:true},
+//		{html:'<div><div style="font-weight:bold;font-size:18px">Row 4</div><div style="font-size:11px;margin-top:5px;>row 4 detail...</div></div>"'},
+//		{html:'<div><div style="font-weight:bold;font-size:18px">Row 5</div><div style="font-size:11px;margin-top:5px;>row 5 detail...</div></div>"'}		
+//
+//
+//	];
 	var searchy = Ti.UI.createSearchBar({showCancel:true,barColor:'#990000'});
 	tableView = Titanium.UI.createTableView({search:searchy,data:data,
-			template:template
+			template:templaty
 //			{title:'Button?',backgroundColor:'#FFFF00',layout:[{top:5,bottom:5,left:45,name:'title',type:'text',fontSize:'10px'},{type:'image',name:'image',top:0,height:40,left:5,width:40}]}
 			}, function(eventObject) {
 		var rowData = eventObject.rowData;

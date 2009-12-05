@@ -178,8 +178,6 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
 
 - (id)parseXMLResponse:(NSData*)data error:(NSError**)error {
 	
-	NSLog(@"RESPONSE = %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-	
   FBXMLHandler* handler = [[[FBXMLHandler alloc] init] autorelease];
   NSXMLParser* parser = [[[NSXMLParser alloc] initWithData:data] autorelease];
   parser.delegate = handler;
@@ -331,7 +329,7 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
 }
 
 - (void)call:(NSString*)method params:(NSDictionary*)params {
-  [self call:method params:params dataParam:nil];
+	[self call:method params:params dataParam:nil filename:nil];
 }
 
 - (void)call:(NSString*)method params:(NSDictionary*)params dataParam:(NSData*)dataParam filename:(NSString*)filename {
