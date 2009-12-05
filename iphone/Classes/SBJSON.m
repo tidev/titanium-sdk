@@ -685,11 +685,13 @@ static char ctrl[0x24];
 
 		BOOL isEnd = thisChar=='>';
 
-		if((isEnd && (len>0)) || (len>=BUFFY_SIZE)){
+		if((isEnd && (len>0)) || (len>=BUFFY_SIZE))
+		{
 			NSString * nextSegment = [[NSString alloc] initWithBytesNoCopy:buffy
 					length:len encoding:NSUTF8StringEncoding freeWhenDone:NO];
 			[*o appendString:nextSegment];
 			[nextSegment release];
+			len = 0;
 		}
 		
 		if(isEnd){
@@ -719,6 +721,7 @@ static char ctrl[0x24];
 			*error = err(EEOF, @"[ERROR] Non-hexcode while parsing encoded string");
 			return NO;
 		}
+		len++;
     } while (*c);
     
     *error = err(EEOF, @"[ERROR] Unexpected EOF while parsing encoded string");
