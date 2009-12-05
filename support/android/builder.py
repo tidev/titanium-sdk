@@ -652,7 +652,7 @@ class Builder(object):
 			if launched:
 				print "[INFO] Launching application ... %s" % self.name
 				sys.stdout.flush()
-				run.run([self.adb, 'shell', 'am', 'start', '-a', 'android.intent.action.MAIN', '-c','android.intent.category.LAUNCHER', '-n', '%s/.%sActivity' % (self.app_id , self.classname)])
+				run.run([self.adb, '-e' , 'shell', 'am', 'start', '-a', 'android.intent.action.MAIN', '-c','android.intent.category.LAUNCHER', '-n', '%s/.%sActivity' % (self.app_id , self.classname)])
 				print "[INFO] Deployed %s ... Application should be running." % self.name
 			elif launch_failed==False:
 				print "[INFO] Application installed. Launch from drawer on Home Screen"
