@@ -55,6 +55,7 @@ NSString * SBJSONErrorDomain = @"org.brautaset.JSON.ErrorDomain";
 - (BOOL)scanRestOfFalse:(NSNumber **)o error:(NSError **)error;
 - (BOOL)scanRestOfTrue:(NSNumber **)o error:(NSError **)error;
 - (BOOL)scanRestOfString:(NSMutableString **)o error:(NSError **)error;
+- (BOOL)scanRestOfEncodedString:(NSMutableString **)o error:(NSError **)error;
 
 // Cannot manage without looking at the first digit
 - (BOOL)scanNumber:(NSNumber **)o error:(NSError **)error;
@@ -483,6 +484,9 @@ static char ctrl[0x24];
         case '[':
             return [self scanRestOfArray:(NSMutableArray **)o error:error];
             break;
+        case '<':
+            return [self scanRestOfEncodedString:(NSMutableString **)o error:error];
+            break;			
         case '"':
             return [self scanRestOfString:(NSMutableString **)o error:error];
             break;
@@ -628,7 +632,12 @@ static char ctrl[0x24];
             return YES;
         }    
         
-        if (!(*c == '\"' && c++ && [self scanRestOfString:&k error:error])) {
+		if(*c=='<'){
+			c++;
+			if(![self scanRestOfEncodedString:&k error:error]){
+				return NO;
+			}
+		} else if (!(*c == '\"' && c++ && [self scanRestOfString:&k error:error])) {
             *error = errWithUnderlier(EPARSE, error, @"Object key string expected");
             return NO;
         }
@@ -659,6 +668,60 @@ static char ctrl[0x24];
     }
     
     *error = err(EEOF, @"End of input while parsing object");
+    return NO;
+}
+
+- (BOOL)scanRestOfEncodedString:(NSMutableString **)o error:(NSError **)error;
+{
+	*o = [NSMutableString stringWithCapacity:16];
+	
+#define BUFFY_SIZE 16
+	char buffy[BUFFY_SIZE];
+	int len=0;
+	char thisChar;
+	
+    do {
+		thisChar = *c++;
+
+		BOOL isEnd = thisChar=='>';
+
+		if((isEnd && (len>0)) || (len>=BUFFY_SIZE)){
+			NSString * nextSegment = [[NSString alloc] initWithBytesNoCopy:buffy
+					length:len encoding:NSUTF8StringEncoding freeWhenDone:NO];
+			[*o appendString:nextSegment];
+			[nextSegment release];
+		}
+		
+		if(isEnd){
+			return YES;
+		}
+
+		if((thisChar >= '0') && (thisChar <= '9')){
+			buffy[len] = (thisChar - '0') << 4;
+		} else if ((thisChar >= 'A') && (thisChar <= 'F')){
+			buffy[len] = (thisChar - 'A' + 10) << 4;
+		} else if ((thisChar >= 'a') && (thisChar <= 'f')){
+			buffy[len] = (thisChar - 'a' + 10) << 4;
+		} else {
+			*error = err(EEOF, @"[ERROR] Non-hexcode while parsing encoded string");
+			return NO;
+		}
+
+		thisChar = *c++;
+
+		if((thisChar >= '0') && (thisChar <= '9')){
+			buffy[len] += (thisChar - '0');
+		} else if ((thisChar >= 'A') && (thisChar <= 'F')){
+			buffy[len] += (thisChar - 'A' + 10);
+		} else if ((thisChar >= 'a') && (thisChar <= 'f')){
+			buffy[len] += (thisChar - 'a' + 10);
+		} else {
+			*error = err(EEOF, @"[ERROR] Non-hexcode while parsing encoded string");
+			return NO;
+		}
+    } while (*c);
+    
+    *error = err(EEOF, @"[ERROR] Unexpected EOF while parsing encoded string");
     return NO;
 }
 
