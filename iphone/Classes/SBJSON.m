@@ -689,8 +689,13 @@ static char ctrl[0x24];
 		{
 			NSString * nextSegment = [[NSString alloc] initWithBytesNoCopy:buffy
 					length:len encoding:NSUTF8StringEncoding freeWhenDone:NO];
-			[*o appendString:nextSegment];
-			[nextSegment release];
+			if(nextSegment != nil){
+				[*o appendString:nextSegment];
+				[nextSegment release];
+			} else {
+				*error = err(EEOF, @"[ERROR] Invalid UTF-8 while parsing encoded string");
+				return NO;
+			}
 			len = 0;
 		}
 		
@@ -700,10 +705,10 @@ static char ctrl[0x24];
 
 		if((thisChar >= '0') && (thisChar <= '9')){
 			buffy[len] = (thisChar - '0') << 4;
-		} else if ((thisChar >= 'A') && (thisChar <= 'F')){
-			buffy[len] = (thisChar - 'A' + 10) << 4;
 		} else if ((thisChar >= 'a') && (thisChar <= 'f')){
 			buffy[len] = (thisChar - 'a' + 10) << 4;
+		} else if ((thisChar >= 'A') && (thisChar <= 'F')){
+			buffy[len] = (thisChar - 'A' + 10) << 4;
 		} else {
 			*error = err(EEOF, @"[ERROR] Non-hexcode while parsing encoded string");
 			return NO;
@@ -713,10 +718,10 @@ static char ctrl[0x24];
 
 		if((thisChar >= '0') && (thisChar <= '9')){
 			buffy[len] += (thisChar - '0');
-		} else if ((thisChar >= 'A') && (thisChar <= 'F')){
-			buffy[len] += (thisChar - 'A' + 10);
 		} else if ((thisChar >= 'a') && (thisChar <= 'f')){
 			buffy[len] += (thisChar - 'a' + 10);
+		} else if ((thisChar >= 'A') && (thisChar <= 'F')){
+			buffy[len] += (thisChar - 'A' + 10);
 		} else {
 			*error = err(EEOF, @"[ERROR] Non-hexcode while parsing encoded string");
 			return NO;
