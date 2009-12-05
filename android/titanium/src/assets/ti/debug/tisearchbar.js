@@ -40,6 +40,8 @@ Ti.UI.SearchBar = function(proxy)
 	};
 };
 
+Ti.UI.SearchBar.prototype.__defineGetter__("value", function() { return this.getValue(); });
+
 Ti.UI.createSearchBar = function(options) {
 	if (Ti.isUndefined(options)) {
 		options = {};
