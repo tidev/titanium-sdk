@@ -7,7 +7,7 @@ Ti.Yahoo.b64_hmac_sha1 = function(k,d,_p,_z)
 
 Ti.Yahoo.percentEscape = function(r)
 {
-   return encodeURIComponent(r).replace('!','%21','g').replace('*','%2A','g').replace('\'','%27','g').replace('(','%28','g').replace(')','%29','g');
+   return encodeURIComponent(r).replace(/!/g,'%21').replace(/\*/g,'%2A').replace(/'/g,'%27').replace(/\(/,'%28').replace(/\)/,'%29');
 };
 
 Ti.Yahoo.oauthRequest = function(key,secret,apiEndpoint,apiQuery)
@@ -42,6 +42,14 @@ Ti.Yahoo.yql = function(apiQuery,callback)
    	var apiEndpoint = 'http://query.yahooapis.com/v1/yql?format=json';
    	var url = Ti.Yahoo.oauthRequest(Ti.Yahoo._consumerKey, Ti.Yahoo._sharedSecret, apiEndpoint, apiQuery);
    	var xhr = Ti.Network.createHTTPClient();
+   	xhr.onerror = function() {
+   		callback(null);
+   		var msg = this.responseText;
+   		if (msg === null) {
+   			msg = this.statusText;
+   		}
+   		Titanium.API.error("Error during query (" + apiQuery + "): " + msg);
+   	};
 	xhr.onload = function()
 	{
 		callback(eval('('+this.responseText+')').query.results);
