@@ -9,18 +9,34 @@
 	var android = Titanium.Platform.name == 'android';
 	var compositeView = Titanium.UI.createCompositeView();
 
+	function showActivity(showing) {
+		if (showing) {
+			// while loading, show the activity indicator
+			if (android)
+			{
+				activityIndicator.setMessage('Fetching...');
+				activityIndicator.show();
+			}
+			else
+			{
+				Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
+			}
+		} else {
+			if (android)
+			{
+				activityIndicator.hide();
+			}
+			else
+			{
+				Titanium.UI.currentWindow.setRightNavButton(null);
+			}
+		}
+	}
+
 	function loadPhotos(search)
 	{
 		// while loading, show the activity indicator
-		if (android)
-		{
-			activityIndicator.setMessage('Loading images');
-			activityIndicator.show();
-		}
-		else
-		{
-			Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
-		}
+		showActivity(true);
 
 		// do the YQL query against flickr finding the pictures with this text
 		Titanium.Yahoo.yql("select * from flickr.photos.search where text='"+search+"' limit 10",function(data)
@@ -60,22 +76,16 @@
 				}
 
 				// change the right nav back from an activity indicator to a refresh button
-				if (android)
-				{
-					activityIndicator.hide();
-				}
-				else
-				{
-					Titanium.UI.currentWindow.setRightNavButton(null);
-				}
+				showActivity(false);
 			}
 			catch(E)
 			{
+				showActivity(false);
 				Titanium.API.error("error = "+E);
 			}
 		});
 	}
-	
+
 	window.onload = function()
 	{
 		try
@@ -86,7 +96,7 @@
 				search.blur();
 				loadPhotos(search.value);
 			});
-			
+
 			// set our application oauth configuration
 		   	var consumerKey = 'dj0yJmk9VWFyZkNSWktpY3h3JmQ9WVdrOVNqWk5Nazl2TXpBbWNHbzlNVGc0TWpNNE9ERXhOZy0tJnM9Y29uc3VtZXJzZWNyZXQmeD04MQ--';
 		   	var sharedSecret = '13631ad61af05628c28fc38e7226442398d0a4c2';

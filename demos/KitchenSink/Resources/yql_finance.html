@@ -8,14 +8,14 @@
 	var activityIndicator = Titanium.UI.createActivityIndicator();
 	var android = Titanium.Platform.name == 'android';
 	var compositeView = Titanium.UI.createCompositeView();
-	
+
 	var template = {
 		layout:[
 		{
 			name:'content', type:'text', left: 10, right: 10, top: 5, bottom: 5
 		}
 	]};
-	
+
 	var tableView = Titanium.UI.createTableView({
 		template:template
 	},function(ev)
@@ -41,18 +41,34 @@
 		webview.setRightNavButton(safari);
 	});
 
+	function showActivity(showing) {
+		if (showing) {
+			// while loading, show the activity indicator
+			if (android)
+			{
+				activityIndicator.setMessage('Fetching...');
+				activityIndicator.show();
+			}
+			else
+			{
+				Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
+			}
+		} else {
+			if (android)
+			{
+				activityIndicator.hide();
+			}
+			else
+			{
+				Titanium.UI.currentWindow.setRightNavButton(null);
+			}
+		}
+	}
+
 	function loadData(search)
 	{
 		// while loading, show the activity indicator
-		if (android)
-		{
-			activityIndicator.setMessage('Searching...');
-			activityIndicator.show();
-		}
-		else
-		{
-			Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
-		}
+		showActivity(true);
 
 		// do the YQL query against yahoo finance, screen scrap HTML and display the links in new window
 		Titanium.Yahoo.yql('select * from html where url="http://finance.yahoo.com/q?s='+search+
@@ -78,23 +94,17 @@
 					}
 					tableView.setData(data);
 				}
-				
-				if (android)
-				{
-					activityIndicator.hide();
-				}
-				else
-				{
-					Titanium.UI.currentWindow.setRightNavButton(null);
-				}
+
+				showActivity(false);
 			}
 			catch(E)
 			{
 				Titanium.API.error("error = "+E);
+				showActivity(false);
 			}
 		});
 	}
-	
+
 	window.onload = function()
 	{
 		try
@@ -103,9 +113,10 @@
 			search.addEventListener('return', function(e)
 			{
 				search.blur();
+				Titanium.API.info("Searching Finance for: " + search.value);
 				loadData(search.value);
 			});
-			
+
 			// set our application oauth configuration
 		   	var consumerKey = 'dj0yJmk9VWFyZkNSWktpY3h3JmQ9WVdrOVNqWk5Nazl2TXpBbWNHbzlNVGc0TWpNNE9ERXhOZy0tJnM9Y29uc3VtZXJzZWNyZXQmeD04MQ--';
 		   	var sharedSecret = '13631ad61af05628c28fc38e7226442398d0a4c2';

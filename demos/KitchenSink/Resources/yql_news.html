@@ -3,7 +3,7 @@
 	<script>
 	var activityIndicator = Titanium.UI.createActivityIndicator();
 	var android = Titanium.Platform.name == 'android';
-	
+
 	var template = {
 		layout:[
 		{
@@ -13,9 +13,9 @@
 			name:'image', type:'image', left:5, top:5, width:50, height:50
 		}
 	]};
-	
+
 	var category = null;
-	
+
 	var tableView = Titanium.UI.createTableView({
 		template:template,
 		rowHeight: 60,
@@ -42,7 +42,7 @@
 		});
 		webview.setRightNavButton(safari);
 	});
-	
+
 	function formatCategory(cat)
 	{
 		switch(cat)
@@ -59,19 +59,33 @@
 		return cat;
 	}
 
+	function showActivity(showing) {
+		if (showing) {
+			// while loading, show the activity indicator
+			if (android)
+			{
+				activityIndicator.setMessage('Fetching...');
+				activityIndicator.show();
+			}
+			else
+			{
+				Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
+			}
+		} else {
+			if (android)
+			{
+				activityIndicator.hide();
+			}
+			else
+			{
+				Titanium.UI.currentWindow.setRightNavButton(null);
+			}
+		}
+	}
+
 	function loadData()
 	{
-		// while loading, show the activity indicator
-		if (android)
-		{
-			activityIndicator.setMessage('Fetching...');
-			activityIndicator.show();
-		}
-		else
-		{
-			Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
-		}
-
+		showActivity(true);
 		// do the YQL query against RSS for yahoo news
 		Titanium.Yahoo.yql("select * from rss where url='http://rss.news.yahoo.com/rss/topstories' | sort(field='category')",function(result)
 		{
@@ -106,23 +120,17 @@
 					}
 					tableView.setData(data);
 				}
-				
-				if (android)
-				{
-					activityIndicator.hide();
-				}
-				else
-				{
-					Titanium.UI.currentWindow.setRightNavButton(null);
-				}
+
+				showActivity(false);
 			}
 			catch(E)
 			{
 				Titanium.API.error("error = "+E);
+				showActivity(false);
 			}
 		});
 	}
-	
+
 	window.onload = function()
 	{
 		try
@@ -134,7 +142,7 @@
 
 			Titanium.UI.currentWindow.addView(tableView);
 			Titanium.UI.currentWindow.showView(tableView);
-			
+
 			loadData();
 		}
 		catch(E)

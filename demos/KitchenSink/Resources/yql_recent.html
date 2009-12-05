@@ -11,18 +11,34 @@
 	var activityIndicator = Titanium.UI.createActivityIndicator();
 	var android = Titanium.Platform.name == 'android';
 
+	function showActivity(showing) {
+		if (showing) {
+			// while loading, show the activity indicator
+			if (android)
+			{
+				activityIndicator.setMessage('Fetching...');
+				activityIndicator.show();
+			}
+			else
+			{
+				Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
+			}
+		} else {
+			if (android)
+			{
+				activityIndicator.hide();
+			}
+			else
+			{
+				Titanium.UI.currentWindow.setRightNavButton(null);
+			}
+		}
+	}
+
 	function loadPhotos()
 	{
 		// while loading, show the activity indicator
-		if (android)
-		{
-			activityIndicator.setMessage('Loading images');
-			activityIndicator.show();
-		}
-		else
-		{
-			Titanium.UI.currentWindow.setRightNavButton(activityIndicator);
-		}
+		showActivity(true);
 
 		// do the YQL query against flickr finding the most recent 7 photos
 		Titanium.Yahoo.yql("select * from flickr.photos.recent(7)",function(data)
@@ -63,22 +79,16 @@
 				}
 
 				// change the right nav back from an activity indicator to a refresh button
-				if (android)
-				{
-					activityIndicator.hide();
-				}
-				else
-				{
-					Titanium.UI.currentWindow.setRightNavButton(refreshButton);
-				}
+				showActivity(false);
 			}
 			catch(E)
 			{
+				showActivity(false);
 				Titanium.API.error("error = "+E);
 			}
 		});
 	}
-	
+
 	window.onload = function()
 	{
 		try
@@ -91,7 +101,7 @@
 			//NOTE: this is a temporary hack since focused events on the window fire *before* the animation
 			//finishes, we need to let the animation finish before we set the right nav button .. otherwise you
 			//get a paint issue.  we're going to fix in 0.8 to make sure focused events fire once animation is complete
-			
+
 			setTimeout(function()
 			{
 				if (android)
