@@ -73,16 +73,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
 #ifndef __IPHONE_3_0
 typedef enum {
     UITableViewCellStyleDefault,	// Simple cell with text label and optional image view (behavior of UITableViewCell in iPhoneOS 2.x)
