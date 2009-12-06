@@ -55,6 +55,9 @@ public class TitaniumMethod implements ITitaniumMethod
 						} else if ("double".equals(type)) {
 							types[i] = double.class;
 							args[i] = argList.getDouble(i);
+						} else if ("boolean".equals(type)) {
+							types[i] = boolean.class;
+							args[i] = argList.getBoolean(i);
 						} else if ("object".equals(type)) {
 							types[i] = JSONObject.class;
 							args[i] = argList.getJSONObject(i);

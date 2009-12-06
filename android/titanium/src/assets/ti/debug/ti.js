@@ -109,6 +109,8 @@ var Ti = new function() {
 					} else {
 						types.push("double");
 					}
+				} else if (typeof a == 'boolean') {
+					types.push("boolean");
 				} else if (typeof a == "object") {
 					if (a.constructor.name == "Array") {
 						types.push("array");
