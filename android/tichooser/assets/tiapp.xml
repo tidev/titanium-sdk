@@ -137,13 +137,13 @@
             <backgroundColor>argb(0,255,255,255)</backgroundColor>
             <barColor>#000</barColor>
         </window>
--->
+
         <window>
             <id>TableView Custom</id>
             <title>TableView Custom</title>
             <url>tableview-custom.html</url>
         </window>
-<!--
+
         <window>
             <id>TableView</id>
             <title>Table View</title>
@@ -389,12 +389,12 @@
 			<id>map1</id>
 			<url>map1.html</url>
 		</window>
-
+-->
 		<window>
 			<id>map</id>
 			<url>map.html</url>
 		</window>
--->
+
     </windows>
     <property name="ti.android.debug" type="bool">true</property>
     <property name="ti.android.watchlog" type="bool">false</property>
