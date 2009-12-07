@@ -2,6 +2,33 @@
 <head>
 <title>Map View</title>
 <script>
+var annHQ =	{
+	latitude:37.390749,
+	longitude:-122.081651,
+	title:"Appcelerator Headquarters",
+	subtitle:'Mountain View, CA',
+	pincolor:Titanium.Map.ANNOTATION_RED,
+	animate:true,
+	leftButton: 'appcelerator_small.png'
+};
+
+var annAppleHQ = {
+	latitude:37.33168900,
+	longitude:-122.03073100,
+	title:"Apple, Inc.",
+	subtitle:'Cupertino, CA',
+	pincolor:Titanium.Map.ANNOTATION_GREEN,
+	animate:true,
+	rightButton: 'apple_logo.jpg'
+};
+
+var annTX = {
+	latitude : 32.941238, longitude : -97.130447,
+	title:"Southlake, TX",
+	pincolor:Titanium.Map.ANNOTATION_PURPLE,
+	animate:true
+};
+
 var mv = Titanium.Map.createView({
 	mapType: Titanium.Map.STANDARD_TYPE,
 	animate:true,
@@ -9,7 +36,8 @@ var mv = Titanium.Map.createView({
 	userLocation:true,
 	region : {
 		latitude : 37.390756, longitude : -122.081132, latitudeDelta : 1 , longitudeDelta : 1
-	}
+	},
+	annotations : [annHQ, annAppleHQ, annTX]
 });
 
 Titanium.API.error("Proxy: " + mv._proxy);
@@ -17,8 +45,8 @@ Titanium.API.error("Map View Key: " + mv.getKey());
 
 var cv = Titanium.UI.createCompositeView();
 
-cv.addView(Titanium.UI.currentWindow.getViews()[0], { left:0, top: 0, right: 0, height : 48 });
-cv.addView(mv, { left : 0, bottom : 5 , right: 0, top : 50});
+cv.addView(Titanium.UI.currentWindow.getViews()[0], { left:0, top: 0, right: 0, height : 98 });
+cv.addView(mv, { left : 0, bottom : 5 , right: 0, top : 100});
 Titanium.UI.currentWindow.addView(cv);
 Titanium.UI.currentWindow.showView(cv);
 
@@ -44,9 +72,21 @@ var satBtn = Titanium.UI.createButton({id:'sat', title : 'SAT'});
 satBtn.addEventListener('click',function() {
 	mv.setMapType(Titanium.Map.SATELLITE_TYPE);
 });
-var hybridBtn = Titanium.UI.createButton({id:'hybrid', title : 'HYB'});
-hybridBtn.addEventListener('click',function() {
-	mv.setMapType(Titanium.Map.HYBRID_TYPE);
+var addBtn = Titanium.UI.createButton({id:'add', title : 'ADD'});
+addBtn.addEventListener('click', function() {
+	mv.addAnnotation(annAppleHQ);
+});
+var remBtn = Titanium.UI.createButton({id:'rem', title : 'REM'});
+remBtn.addEventListener('click', function() {
+	mv.removeAnnotation(annAppleHQ.title);
+});
+var selBtn = Titanium.UI.createButton({id:'sel', title : 'SEL'});
+selBtn.addEventListener('click', function() {
+	mv.selectAnnotation(annAppleHQ.title);
+});
+var deselBtn = Titanium.UI.createButton({id:'desel', title : 'DSEL'});
+deselBtn.addEventListener('click', function() {
+	mv.deselectAnnotation(annAppleHQ.title);
 });
 
 window.onload = function() {
@@ -59,6 +99,9 @@ window.onload = function() {
 <div id="tx" style="width:40px;height:40px;float:left">&nbsp;</div>
 <div id="std" style="width:70px;height:40px;float:left">&nbsp;</div>
 <div id="sat" style="width:70px;height:40px;float:left">&nbsp;</div>
-<div id="hybrid" style="width:70px;height:40px;float:left">&nbsp;</div>
+<div id="add" style="width:70px;height:40px;float:left">&nbsp;</div>
+<div id="rem" style="width:70px;height:40px;float:left">&nbsp;</div>
+<div id="sel" style="width:70px;height:40px;float:left">&nbsp;</div>
+<div id="desel" style="width:70px;height:40px;float:left">&nbsp;</div>
 </body>
 </html>

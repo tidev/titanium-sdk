@@ -65,6 +65,9 @@ public class TitaniumMapView extends TitaniumBaseView
 	private static final int MSG_SET_USERLOCATION = 304;
 	private static final int MSG_SET_SCROLLENABLED = 305;
 	private static final int MSG_CHANGE_ZOOM = 306;
+	private static final int MSG_ADD_ANNOTATION = 307;
+	private static final int MSG_REMOVE_ANNOTATION = 308;
+	private static final int MSG_SELECT_ANNOTATION = 309;
 
 	//private MapView view;
 	private int type;
@@ -248,10 +251,48 @@ public class TitaniumMapView extends TitaniumBaseView
 						mc.setZoom(view.getZoomLevel() + msg.arg1);
 					}
 					break;
+
+				case MSG_ADD_ANNOTATION :
+					doAddAnnotation((JSONObject) msg.obj);
+					handled = true;
+					break;
+
+				case MSG_REMOVE_ANNOTATION :
+					doRemoveAnnotation((String) msg.obj);
+					handled = true;
+					break;
+				case MSG_SELECT_ANNOTATION :
+					boolean select = msg.arg1 == 1 ? true : false;
+					boolean animate = msg.arg2 == 1 ? true : false;
+					String title = (String) msg.obj;
+					doSelectAnnotation(select, title, animate);
+					handled = true;
+					break;
 			}
 		}
 
 		return handled;
+	}
+
+	private void hideAnnotation()
+	{
+		if (view != null && itemView != null) {
+			view.removeView(itemView);
+			itemView.clearLastIndex();
+		}
+	}
+
+	private void showAnnotation(int index, TitaniumOverlayItem item)
+	{
+		if (view != null && itemView != null && item != null) {
+			itemView.setItem(index, item);
+
+			MapView.LayoutParams params = new MapView.LayoutParams(LayoutParams.WRAP_CONTENT,
+					LayoutParams.WRAP_CONTENT, item.getPoint(), MapView.LayoutParams.BOTTOM_CENTER);
+			params.mode = MapView.LayoutParams.MODE_MAP;
+
+			view.addView(itemView, params);
+		}
 	}
 
 	public void onTap(int index)
@@ -261,44 +302,14 @@ public class TitaniumMapView extends TitaniumBaseView
 				TitaniumOverlayItem item = overlay.getItem(index);
 
 				if (itemView != null && index == itemView.getLastIndex() && itemView.getVisibility() == View.VISIBLE) {
-					view.removeView(itemView);
-					itemView.clearLastIndex();
+					hideAnnotation();
 					return;
 				}
 
 				if (item.hasData())
 				{
-					if (itemView == null) {
-						itemView = new TitaniumOverlayItemView(getContext());
-						itemView.setOnOverlayClickedListener(new TitaniumOverlayItemView.OnOverlayClicked(){
-							public void onClick(int lastIndex, String clickedItem) {
-								TitaniumOverlayItem item = overlay.getItem(lastIndex);
-								if (item != null) {
-									try {
-										JSONObject o = new JSONObject();
-										o.put("source", clickedItem);
-										o.put("title", item.getTitle());
-										o.put("subtitle", item.getSnippet());
-										o.put("latitude", scaleFromGoogle(item.getPoint().getLatitudeE6()));
-										o.put("longitude", scaleFromGoogle(item.getPoint().getLongitudeE6()));
-
-										eventManager.invokeSuccessListeners(EVENT_CLICK, o.toString());
-									} catch (JSONException e) {
-										Log.e(LCAT, "Error building click event: " + e.getMessage());
-									}
-								}
-							}});
-					} else {
-						view.removeView(itemView);
-					}
-
-					itemView.setItem(index, item);
-
-					MapView.LayoutParams params = new MapView.LayoutParams(LayoutParams.WRAP_CONTENT,
-							LayoutParams.WRAP_CONTENT, item.getPoint(), MapView.LayoutParams.BOTTOM_CENTER);
-					params.mode = MapView.LayoutParams.MODE_MAP;
-
-					view.addView(itemView, params);
+					hideAnnotation();
+					showAnnotation(index, item);
 				} else {
 					Toast.makeText(getContext(), "No information for location", Toast.LENGTH_SHORT).show();
 				}
@@ -385,6 +396,26 @@ public class TitaniumMapView extends TitaniumBaseView
 			Log.e(LCAT, "Missing API Key: " + e.getMessage());
 			Toast.makeText(getContext(), "Missing MAP API Key", Toast.LENGTH_LONG).show();
 		}
+
+		itemView = new TitaniumOverlayItemView(getContext());
+		itemView.setOnOverlayClickedListener(new TitaniumOverlayItemView.OnOverlayClicked(){
+			public void onClick(int lastIndex, String clickedItem) {
+				TitaniumOverlayItem item = overlay.getItem(lastIndex);
+				if (item != null) {
+					try {
+						JSONObject o = new JSONObject();
+						o.put("source", clickedItem);
+						o.put("title", item.getTitle());
+						o.put("subtitle", item.getSnippet());
+						o.put("latitude", scaleFromGoogle(item.getPoint().getLatitudeE6()));
+						o.put("longitude", scaleFromGoogle(item.getPoint().getLongitudeE6()));
+
+						eventManager.invokeSuccessListeners(EVENT_CLICK, o.toString());
+					} catch (JSONException e) {
+						Log.e(LCAT, "Error building click event: " + e.getMessage());
+					}
+				}
+			}});
 	}
 
 	@Override
@@ -460,6 +491,115 @@ public class TitaniumMapView extends TitaniumBaseView
 					overlay = new TitaniumOverlay(makeMarker(Color.BLUE), this);
 					overlay.setAnnotations(annotations);
 					overlays.add(overlay);
+					view.invalidate();
+				}
+			}
+		}
+	}
+
+	public void addAnnotation(JSONObject annotation) {
+		handler.obtainMessage(MSG_ADD_ANNOTATION, annotation).sendToTarget();
+	};
+
+	public void doAddAnnotation(JSONObject annotation)
+	{
+		if (annotation != null && view != null) {
+			if (annotations == null) {
+				annotations = new JSONArray();
+			}
+
+			annotations.put(annotation);
+			doSetAnnotations(annotations);
+		}
+	};
+
+	public void removeAnnotation(String title) {
+		handler.obtainMessage(MSG_REMOVE_ANNOTATION, title).sendToTarget();
+	};
+
+	private int findAnnotation(String title)
+	{
+		int existsIndex = -1;
+		try {
+			// Check for existence
+			for(int i = 0; i < annotations.length(); i++) {
+				JSONObject o = annotations.getJSONObject(i);
+				String t = o.optString("title", null);
+				if (t != null) {
+					if (title.equals(t)) {
+						if (DBG) {
+							Log.d(LCAT, "Annotatoin found at index: " + " with title: " + title);
+						}
+						existsIndex = i;
+						break;
+					}
+				}
+			}
+		} catch (JSONException e) {
+			Log.e(LCAT, "Unable to find item: " + e.getMessage());
+		}
+
+		return existsIndex;
+	}
+
+	public void doRemoveAnnotation(String title)
+	{
+		if (title != null && view != null && annotations != null) {
+			int existsIndex = findAnnotation(title);
+			try {
+				// If found, build a new annotation list
+				if (existsIndex > -1) {
+					JSONArray a = new JSONArray();
+					for(int i = 0; i < annotations.length(); i++) {
+						if (i != existsIndex) {
+							a.put(annotations.getJSONObject(i));
+						}
+					}
+					annotations = a;
+
+					doSetAnnotations(annotations);
+				}
+			} catch (JSONException e) {
+				Log.e(LCAT, "Unable to remove item: " + e.getMessage());
+			}
+		}
+	};
+
+	public void selectAnnotation(boolean select, String title, boolean animate)
+	{
+		if (title != null) {
+			handler.obtainMessage(MSG_SELECT_ANNOTATION, select ? 1 : 0, animate ? 1 : 0, title).sendToTarget();
+		}
+	}
+
+	public void doSelectAnnotation(boolean select, String title, boolean animate)
+	{
+		if (title != null && view != null && annotations != null && overlay != null) {
+			int index = findAnnotation(title);
+			if (index > -1) {
+				if (overlay != null) {
+					synchronized(overlay) {
+						TitaniumOverlayItem item = overlay.getItem(index);
+
+						if (select) {
+							if (itemView != null && index == itemView.getLastIndex() && itemView.getVisibility() != View.VISIBLE) {
+								showAnnotation(index, item);
+								return;
+							}
+
+							hideAnnotation();
+
+							MapController controller = view.getController();
+							if (animate) {
+								controller.animateTo(item.getPoint());
+							} else {
+								controller.setCenter(item.getPoint());
+							}
+							showAnnotation(index, item);
+						} else {
+							hideAnnotation();
+						}
+					}
 				}
 			}
 		}

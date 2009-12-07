@@ -111,6 +111,8 @@
 
 @implementation FBRequestCallback
 
+@synthesize data;
+
 - (id)initWithToken:(NSString*)token_ pageToken:(NSString*)pageToken_ module:(FacebookModule*)module_ prefix:(NSString*)prefix_
 {
 	if (self = [super init])
@@ -129,7 +131,8 @@
 	[pageToken release];
 	[module release];
 	[prefix release];
-	[super dealloc];
+	[data release];
+	[super dealloc]; 
 }
 
 - (void)request:(FBRequest*)request didLoad:(id)result
@@ -158,7 +161,7 @@
 
 - (void)request:(FBRequest*)request didFailWithError:(NSError*)error
 {
-	NSLog(@"[ERROR] Facebook request failed. %@",[error description]);
+	NSLog(@"[ERROR] Facebook request failed. %@",error);
 	NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:[error description],@"error",[NSNumber numberWithBool:false],@"success",nil];
 	[module evaluateJavascript:[NSString stringWithFormat:@"try{Ti.Facebook._%@['%@'](%@);}catch(X){}; delete Ti.Facebook._%@['%@'];",prefix,token,[module toJSON:dictionary],prefix,token] token:pageToken];
 	[self autorelease];
@@ -300,6 +303,7 @@
 
 - (void)dialog:(FBDialog*)dialog_ didFailWithError:(NSError*)error
 {
+	NSLog(@"[ERROR] dialog did fail with error = %@",error);
 	NSDictionary *dictionary_ = [NSDictionary dictionaryWithObjectsAndKeys:[error description],@"error",[NSNumber numberWithBool:false],@"success",[NSNumber numberWithBool:false],@"cancel",@"login",@"event",nil];
 	[self evaluateJavascript:[NSString stringWithFormat:@"Ti.Facebook._LSC(%@)",[self toJSON:dictionary_]] token:nil];
 	[dialog release];
@@ -491,6 +495,7 @@
 	{
 		NSURL *url = [[NSURL alloc] initWithString:data relativeToURL:[[TitaniumHost sharedHost] appBaseUrl]];
 		dataParam = [NSData dataWithContentsOfURL:url];
+		filename = [[url absoluteString] lastPathComponent];
 		[url release];
 	}
 	else if ([data isKindOfClass:[TitaniumBlobWrapper class]])
@@ -514,6 +519,7 @@
 	}
 	
 	FBRequestCallback *cb = [[FBRequestCallback alloc] initWithToken:queryId pageToken:[self getPageToken] module:self prefix:@"ECB"];
+	cb.data = dataParam;
   	[[FBRequest requestWithDelegate:cb] call:method params:params dataParam:dataParam filename:filename];
 }
 
