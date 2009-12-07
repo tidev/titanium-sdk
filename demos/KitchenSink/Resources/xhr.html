@@ -120,6 +120,14 @@
 			
 			Titanium.UI.currentWindow.repaint();
 		};
+		c.ondatastream = function()
+		{
+			Titanium.API.info('on data stream called ');
+			for (v in arguments)
+			{
+				Titanium.API.info('v ' + v + ' value ' + arguments[v]);
+			}
+		};
 		// open the client
 		c.open('GET','http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png');
 

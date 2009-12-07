@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><ti:app xmlns:ti="http://ti.appcelerator.org">
 <id>com.nolanwright.kitchensink</id>
 <name>KitchenSink</name>
-<version>1.1</version>
+<version>1.0</version>
 <publisher>nwright</publisher>
 <url>appcelerator.com</url>
 <copyright>2009 by nwright</copyright>
-<description>Mobile Unit Test App</description>
+<description>demo app for mobile</description>
 <icon>default_app_logo.png</icon>
 <analytics>true</analytics>
     <windows>
