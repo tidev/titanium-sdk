@@ -20,6 +20,7 @@
 	NSTimer * timer;
 	NSLock * mutex;
 	
+	BOOL endingModule;
 	BOOL disabled;
 }
 

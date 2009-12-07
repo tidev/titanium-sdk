@@ -24,7 +24,6 @@
 		241579C510C97FBB00E212F2 /* soapclient.js in Resources */ = {isa = PBXBuildFile; fileRef = 241579A210C97D5900E212F2 /* soapclient.js */; };
 		241579EC10C9CFFB00E212F2 /* geo.html in Resources */ = {isa = PBXBuildFile; fileRef = 241579EB10C9CFFB00E212F2 /* geo.html */; };
 		24157F9E10CADA9A00E212F2 /* fbvideo.html in Resources */ = {isa = PBXBuildFile; fileRef = 24157F9D10CADA9A00E212F2 /* fbvideo.html */; };
-		24157FCF10CADDAB00E212F2 /* blah.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 24157FCE10CADDAB00E212F2 /* blah.mp4 */; };
 		2415812510CAFA8700E212F2 /* movie.3gp in Resources */ = {isa = PBXBuildFile; fileRef = 2415812310CAFA8700E212F2 /* movie.3gp */; };
 		2415812610CAFA8700E212F2 /* movie.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 2415812410CAFA8700E212F2 /* movie.jpg */; };
 		241581A410CB06E800E212F2 /* xhr.html in Resources */ = {isa = PBXBuildFile; fileRef = 241581A310CB06E800E212F2 /* xhr.html */; };
@@ -422,7 +421,6 @@
 		241579A210C97D5900E212F2 /* soapclient.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = soapclient.js; sourceTree = "<group>"; };
 		241579EB10C9CFFB00E212F2 /* geo.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = geo.html; sourceTree = "<group>"; };
 		24157F9D10CADA9A00E212F2 /* fbvideo.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = fbvideo.html; sourceTree = "<group>"; };
-		24157FCE10CADDAB00E212F2 /* blah.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = blah.mp4; sourceTree = "<group>"; };
 		2415812310CAFA8700E212F2 /* movie.3gp */ = {isa = PBXFileReference; lastKnownFileType = file; path = movie.3gp; sourceTree = "<group>"; };
 		2415812410CAFA8700E212F2 /* movie.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = movie.jpg; sourceTree = "<group>"; };
 		241581A310CB06E800E212F2 /* xhr.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = xhr.html; sourceTree = "<group>"; };
@@ -1116,7 +1114,6 @@
 			children = (
 				2415812310CAFA8700E212F2 /* movie.3gp */,
 				2415812410CAFA8700E212F2 /* movie.jpg */,
-				24157FCE10CADDAB00E212F2 /* blah.mp4 */,
 				241579A210C97D5900E212F2 /* soapclient.js */,
 				241579A010C97D5900E212F2 /* soap_header.html */,
 				241579A110C97D5900E212F2 /* soap.html */,
@@ -1986,7 +1983,6 @@
 				241579A410C97D5900E212F2 /* soap.html in Resources */,
 				241579EC10C9CFFB00E212F2 /* geo.html in Resources */,
 				24157F9E10CADA9A00E212F2 /* fbvideo.html in Resources */,
-				24157FCF10CADDAB00E212F2 /* blah.mp4 in Resources */,
 				2415812510CAFA8700E212F2 /* movie.3gp in Resources */,
 				2415812610CAFA8700E212F2 /* movie.jpg in Resources */,
 				241581A410CB06E800E212F2 /* xhr.html in Resources */,

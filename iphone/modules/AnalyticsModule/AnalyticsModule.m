@@ -24,28 +24,39 @@ NSURL * AnalyticsModuleURL = nil;
 	AnalyticsModule * module;
 	NSMutableArray * eventArray;
 	NSURLConnection * connection;
+	NSTimeInterval timeout;
 }
+- (NSURLRequest *) urlRequest;
+- (void)performAsynchronousData;
+- (void)performSynchronousData;
+
 @end
 
 @implementation AnalyticsPacket
 
-- (id) initWithModule: (AnalyticsModule *) newModule sendEvents: (NSMutableArray *) newEventArray timeout: (NSTimeInterval) timeout;
+- (id) initWithModule: (AnalyticsModule *) newModule sendEvents: (NSMutableArray *) newEventArray timeout: (NSTimeInterval) newTimeout;
 {
 	self = [super init];
 	if(self == nil)return nil;
 	
-	[[TitaniumHost sharedHost] pauseTermination];
-	module = newModule; eventArray = newEventArray;
+	module = newModule; eventArray = newEventArray; timeout=newTimeout;
 	if(AnalyticsModuleURL == nil){
 		AnalyticsModuleURL = [[NSURL URLWithString:@"https://api.appcelerator.net/p/v2/mobile-track"] retain];
 	}
-	NSMutableURLRequest * ourRequest = [NSMutableURLRequest requestWithURL:AnalyticsModuleURL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:timeout];
-	[ourRequest setHTTPMethod: @"POST"];[ourRequest setHTTPShouldHandleCookies:YES];
-	[ourRequest setValue:@"text/json" forHTTPHeaderField:@"Content-Type"];
+	
+	VERBOSE_LOG(@"[INFO] Analytics %@ will send %@",self,eventArray);
+	return self;
+}
 
+- (NSURLRequest *) urlRequest;
+{
+	NSMutableURLRequest * result = [NSMutableURLRequest requestWithURL:AnalyticsModuleURL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:timeout];
+	[result setHTTPMethod: @"POST"];[result setHTTPShouldHandleCookies:YES];
+	[result setValue:@"text/json" forHTTPHeaderField:@"Content-Type"];
+	
 	NSMutableData * data = [[NSMutableData alloc] initWithData:[@"[" dataUsingEncoding:NSUTF8StringEncoding]];
 	BOOL firstItem = YES;
-	for (NSData *eventdata in newEventArray)
+	for (NSData *eventdata in eventArray)
 	{
 		if(firstItem){
 			firstItem = NO;
@@ -55,19 +66,36 @@ NSURL * AnalyticsModuleURL = nil;
 		[data appendData:eventdata];
 	}
 	[data appendData:[@"]" dataUsingEncoding:NSUTF8StringEncoding]];
-	[ourRequest setHTTPBody:data];
+	[result setHTTPBody:data];
 	[data release];
-
-	connection = [[NSURLConnection alloc] initWithRequest:ourRequest delegate:self startImmediately:YES];
 	
-	VERBOSE_LOG(@"[INFO] Analytics %@ will send %@",self,eventArray);
-	return self;
+	return result;
 }
+
+- (void)performAsynchronousData;
+{
+	[[TitaniumHost sharedHost] pauseTermination];
+	connection = [[NSURLConnection alloc] initWithRequest:[self urlRequest] delegate:self startImmediately:YES];
+}
+
+- (void)performSynchronousData;
+{
+	NSURLResponse * response = nil;
+	NSError * error = nil;
+	
+	VERBOSE_LOG(@"[INFO] Analytics %@ will send synchronous",self);
+
+	NSData * result = [NSURLConnection sendSynchronousRequest:[self urlRequest] returningResponse:&response error:&error];
+	
+	VERBOSE_LOG(@"[INFO] Analytics %@ did synchronous:%@ response:%@ error:%@",self,result,response,error);
+}
+
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)URLConnection;
 {
 	VERBOSE_LOG(@"[INFO] Analytics %@ successful!",self);
 	[eventArray release];
+	[[TitaniumHost sharedHost] resumeTermination];
 	[self autorelease];
 }
 
@@ -75,13 +103,13 @@ NSURL * AnalyticsModuleURL = nil;
 {
 	VERBOSE_LOG(@"[INFO] Analytics %@ failed with %@",self,error);
 	[module keepEvents:eventArray];
+	[[TitaniumHost sharedHost] resumeTermination];
 	[self autorelease];
 }
 
 - (void) dealloc
 {
 	VERBOSE_LOG(@"[INFO] Analytics %@ deallocing",self);
-	[[TitaniumHost sharedHost] resumeTermination];
 	[connection release];
 	[super dealloc];
 }
@@ -176,12 +204,14 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 {
 	if(events==nil || disabled)return;
 
-	if(packetDueDate==nil){
-		packetDueDate = [[NSDate alloc] initWithTimeIntervalSinceNow:TI_ANALYTICS_TIMER_DELAY_IN_SEC];
-		[self performSelector:@selector(sendEvents) withObject:nil afterDelay:TI_ANALYTICS_TIMER_DELAY_IN_SEC];
-		return;
-	} else if ([packetDueDate timeIntervalSinceNow]>0){
-		return;
+	if (!endingModule) { //If we're ending, it's ALL DUE.
+		if(packetDueDate==nil){
+			packetDueDate = [[NSDate alloc] initWithTimeIntervalSinceNow:TI_ANALYTICS_TIMER_DELAY_IN_SEC];
+			[self performSelector:@selector(sendEvents) withObject:nil afterDelay:TI_ANALYTICS_TIMER_DELAY_IN_SEC];
+			return;
+		} else if ([packetDueDate timeIntervalSinceNow]>0){
+			return;
+		}
 	}
 
 	if(connectionState == NetworkModuleConnectionStateUnknown){
@@ -190,16 +220,26 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 		//TODO: Refactor the network connection to be independant of things.
 	}
 
-	if(connectionState == NetworkModuleConnectionStateNone)return;
+	if(connectionState == NetworkModuleConnectionStateNone){
+		if(!endingModule) return;
+		//Else we should save this away for another time.
+	}
 
 	[mutex lock];
 
 	if(events!=nil){ //Yes, we already checked before, but that was BEFORE the mutex!
 		AnalyticsPacket * packet = [[AnalyticsPacket alloc] initWithModule:self sendEvents:events timeout:TI_ANALYTICS_NETWORK_TIMEOUT_IN_SEC];
 		if(packet != nil){
-			[[TitaniumHost sharedHost] resumeTermination];
+			if(endingModule){
+				[packet performSynchronousData];
+			} else {
+				[packet performAsynchronousData];
+			}
+			[[TitaniumHost sharedHost] resumeTermination];				
 			events=nil; //Releasing is handled through sleight of hand.
 			[packetDueDate release];packetDueDate=nil;
+		} else if(endingModule) {
+			//Failed to make packet. Panic or save away?
 		} else {
 			[self performSelector:@selector(sendEvents) withObject:nil afterDelay:TI_ANALYTICS_TIMER_DELAY_IN_SEC];
 		}
@@ -232,7 +272,9 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	if(events==nil){
 		[[TitaniumHost sharedHost] pauseTermination];
 		events = [[NSMutableArray alloc] initWithObjects:newEvent,nil];
-		[self performSelectorOnMainThread:@selector(sendEvents) withObject:nil waitUntilDone:NO];
+		if (!endingModule) {
+			[self performSelectorOnMainThread:@selector(sendEvents) withObject:nil waitUntilDone:NO];
+		}
 	} else {
 		[events	addObject:newEvent];
 	}
@@ -455,15 +497,34 @@ extern NSString * APPLICATION_DEPLOYTYPE;
 	return YES;
 }
 
+- (void) testConnection;
+{
+	NSURL * analyticsEchoUrl = [NSURL URLWithString:@"https://api.appcelerator.net/p/v1/echo"];
+
+	NSMutableURLRequest * ourRequest = [NSMutableURLRequest requestWithURL:analyticsEchoUrl cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:300];
+	NSURLResponse * response = nil;
+	NSError * error = nil;
+
+	NSData * result = [NSURLConnection sendSynchronousRequest:ourRequest returningResponse:&response error:&error];
+	
+	VERBOSE_LOG(@"[INFO] Analytics forced a request:%@ response:%@ error:%@",result,response,error);	
+}
+
+
+
 - (BOOL) endModule;
 {
 	if (disabled) return YES;
 	
 	// first add to our queue (so we can flush)
-	[packetDueDate release];
-	packetDueDate = [[NSDate alloc] init];
+	endingModule = YES;
+
 	[self enqueuePlatformEvent:@"ti.end" evtname:@"ti.end" data:nil];
 	[self sendEvents];
+	
+//	[self testConnection];
+	
+	
 	return YES;
 }
 @end

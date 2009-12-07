@@ -153,7 +153,6 @@
 
 - (BOOL) endModule;
 {
-	[[NSUserDefaults standardUserDefaults] synchronize];
 	return YES;
 }
 
