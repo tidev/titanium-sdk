@@ -5,10 +5,17 @@
 	<script>
 	
 	// data for tableview
+	// var data = [
+	// 	{title:'Yahoo YQL',image:'KS_share_Yahoo.png'},
+	// 	{title:'Facebook Connect',image:'KS_share_FB.png'},
+	// 	{title:'Facebook Video',image:'KS_share_FB.png'},
+	// 	{title:'Twitter',image:'KS_share_TW.png'},
+	// 	{title:'SOAP Web Services',image:'KS_share_soap2.png'}
+	// ];
+
 	var data = [
 		{title:'Yahoo YQL',image:'KS_share_Yahoo.png'},
 		{title:'Facebook Connect',image:'KS_share_FB.png'},
-		{title:'Facebook Video',image:'KS_share_FB.png'},
 		{title:'Twitter',image:'KS_share_TW.png'},
 		{title:'SOAP Web Services',image:'KS_share_soap2.png'}
 	];
@@ -37,14 +44,14 @@
 				w.open({animated:true});
 				break;
 			}
+			// case 2:
+			// {
+			// 	Titanium.Analytics.featureEvent('mashups.facebook.video');
+			// 	var w = Titanium.UI.createWindow({url:'facebook_video.html',barColor:'#3b5998',titleImage:'images/facebook_logo.png',orientation:'either'});
+			// 	w.open({animated:true});
+			// 	break;
+			// }
 			case 2:
-			{
-				Titanium.Analytics.featureEvent('mashups.facebook.video');
-				var w = Titanium.UI.createWindow({url:'facebook_video.html',barColor:'#3b5998',titleImage:'images/facebook_logo.png',orientation:'either'});
-				w.open({animated:true});
-				break;
-			}
-			case 3:
 			{
 				Titanium.Analytics.featureEvent('mashups.twitter');
 				var w = Titanium.UI.createWindow({url:'twitter.html',barColor:'#33ccff',titleImage:'images/twitter_logo.png'});
@@ -52,7 +59,7 @@
 				break;
 				break;
 			}
-			case 4:
+			case 3:
 			{
 				Titanium.Analytics.featureEvent('mashups.soap');
 				var w = Titanium.UI.createWindow({url:'soap.html',barColor:'#990000'});
