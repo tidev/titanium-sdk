@@ -1,0 +1,40 @@
+<html>
+<head>
+<script>
+window.onload = function()
+{
+
+	var button1 = Titanium.UI.createButton({
+		id:'button1',
+		title:'Open ScrollView With Anchors',
+		height:47,
+	});
+	button1.addEventListener('click',function(e)
+	{
+		var wv1 = Titanium.UI.createWebView({url:'anchorsaway.html#a'});
+		var wv2 = Titanium.UI.createWebView({url:'anchorsaway.html#b'});
+		var wv3 = Titanium.UI.createWebView({url:'anchorsaway.html#c'});
+		var wv4 = Titanium.UI.createWebView({url:'anchorsaway.html#d'});
+		var wv5 = Titanium.UI.createWebView({url:'anchorsaway.html#e'});
+		var scrollView = Titanium.UI.createScrollableView({views:[wv1,wv2,wv3,wv4,wv5],showPagingControl:true});
+		Titanium.UI.currentWindow.addView(scrollView);
+		Titanium.UI.currentWindow.showView(scrollView);
+	});
+	var button2 = Titanium.UI.createButton({
+		id:'button2',
+		title:'Open to Anchor C',
+		height:47,
+	});
+	button2.addEventListener('click',function(e)
+	{
+		var w = Titanium.UI.createWindow({url:'anchorsaway.html#c'});
+		w.open();
+	});
+};
+</script>
+</head>
+<body>
+	<div id="button1" style="height:47px"></div>
+	<div id="button2" style="height:47px;margin-top:50px"></div>
+</body>
+</html>
