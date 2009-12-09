@@ -1,9 +1,9 @@
 <html>
 <body style="background-color:white">
 
-	<div id="button"></div>
+	<div id="button" style="height:47px"></div>
 
-	<div id="html"></div>
+	<div id="html" style="top:180px"></div>
 
 	<script>
 
@@ -37,8 +37,8 @@
 			Titanium.UI.currentWindow.repaint();
 			
 		};
-		xhr.open("GET","http://api.appcelerator.net/p/v1/echo?a=€漢字");
-		xhr.send();
+		xhr.open("POST","http://api.appcelerator.net/p/v1/echo");
+		xhr.send({"a":"€漢字"});
 	});
 	</script>
 
