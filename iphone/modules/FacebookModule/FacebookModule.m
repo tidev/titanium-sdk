@@ -195,6 +195,7 @@
 
 - (void)dialogDidSucceed:(FBDialog*)dialog_
 {
+	NSLog(@"[DEBUG] we received a permission grant for %@",permission);
 	[module addPermission:permission value:[NSNumber numberWithBool:true]];
 	[super dialogDidSucceed:dialog_];
 }
@@ -295,6 +296,7 @@
 
 - (void)dialogDidCancel:(FBDialog*)dialog_
 {
+	NSLog(@"[DEBUG] Facebook dialog did cancel");
 	NSDictionary *dictionary_ = [NSDictionary dictionaryWithObjectsAndKeys:[NSNull null],@"error",[NSNumber numberWithBool:false],@"success",[NSNumber numberWithBool:true],@"cancel",@"login",@"event",nil];
 	[self evaluateJavascript:[NSString stringWithFormat:@"Ti.Facebook._LSC(%@)",[self toJSON:dictionary_]] token:nil];
 	[dialog release];
@@ -303,7 +305,7 @@
 
 - (void)dialog:(FBDialog*)dialog_ didFailWithError:(NSError*)error
 {
-	NSLog(@"[ERROR] dialog did fail with error = %@",error);
+	NSLog(@"[ERROR] Facebook dialog did fail with error = %@",error);
 	NSDictionary *dictionary_ = [NSDictionary dictionaryWithObjectsAndKeys:[error description],@"error",[NSNumber numberWithBool:false],@"success",[NSNumber numberWithBool:false],@"cancel",@"login",@"event",nil];
 	[self evaluateJavascript:[NSString stringWithFormat:@"Ti.Facebook._LSC(%@)",[self toJSON:dictionary_]] token:nil];
 	[dialog release];
@@ -312,6 +314,7 @@
 
 - (void)session:(FBSession*)session didLogin:(FBUID)uid 
 {
+	NSLog(@"[DEBUG] Facebook session login");
 	[self fetchPermissions];
 	NSDictionary *dictionary_ = [NSDictionary dictionaryWithObjectsAndKeys:[NSNull null],@"error",[NSNumber numberWithBool:true],@"success",[NSNumber numberWithBool:false],@"cancel",@"login",@"event",nil];
 	[self evaluateJavascript:[NSString stringWithFormat:@"Ti.Facebook._LSC(%@)",[self toJSON:dictionary_]] token:nil];
@@ -321,6 +324,7 @@
 
 - (void)sessionDidLogout:(FBSession*)session_ 
 {
+	NSLog(@"[DEBUG] Facebook session logout");
 	NSDictionary *dictionary_ = [NSDictionary dictionaryWithObjectsAndKeys:[NSNull null],@"error",[NSNumber numberWithBool:true],@"success",[NSNumber numberWithBool:false],@"cancel",@"logout",@"event",nil];
 	[self evaluateJavascript:[NSString stringWithFormat:@"Ti.Facebook._LSC(%@)",[self toJSON:dictionary_]] token:nil];
 	[permissions release];
@@ -421,9 +425,9 @@
 		return;
 	}
 	NSNumber *value = [permissions objectForKey:perm];
-	if (value!=nil && [value respondsToSelector:@selector(boolValue)])
+	if (value!=nil && [value respondsToSelector:@selector(boolValue)] && [value boolValue]==YES)
 	{
-		NSDictionary *dictionary_ = [NSDictionary dictionaryWithObjectsAndKeys:[NSNull null],@"error",[NSNumber numberWithBool:[value boolValue]],@"success",[NSNumber numberWithBool:false],@"cancel",@"permission",@"event",nil];
+		NSDictionary *dictionary_ = [NSDictionary dictionaryWithObjectsAndKeys:[NSNull null],@"error",[NSNumber numberWithBool:YES],@"success",[NSNumber numberWithBool:false],@"cancel",@"permission",@"event",perm,@"name",nil];
 		[self evaluateJavascript:[NSString stringWithFormat:@"Ti.Facebook._%@['%@'](%@); delete Ti.Facebook._%@['%@'];",@"PCB",queryId,[self toJSON:dictionary_],@"PCB",queryId] token:nil];
 	}
 	else
