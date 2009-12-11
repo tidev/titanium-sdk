@@ -8,6 +8,7 @@
 		var move = 1;
 		document.body.ontouchstart = function(e)
 		{
+			e.preventDefault()
 			document.getElementById('start').innerHTML = start;
 			start++;
 		};

@@ -20,6 +20,8 @@
 	NSDate *lastHeadingEvent;
 	NSLock *proxyLock;
 	NSString *pageToken;
+	BOOL locationStarted;
+	BOOL headingStarted;
 }
 - (void)transmitGeoEvent:(CLLocation*)location fromLocation:(CLLocation*)fromLocation;
 - (void) setPageToken: (NSString *)token;

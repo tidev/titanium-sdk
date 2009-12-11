@@ -1,7 +1,7 @@
 <html>
  <head>
  </head>
-<body style="background-color:white">
+<body style="background-color:white;height:600px">
 
 	<div id="button1" style="height:47px"></div>
 	<div id="button2" style="height:47px"></div>
@@ -10,6 +10,8 @@
 	<div id="button5" style="height:47px"></div>
 	<div id="button6" style="height:47px"></div>
 	<div id="button7" style="height:47px"></div>
+	<div id="button8" style="height:47px"></div>
+	<div id="button9" style="height:47px"></div>
 
 	<div id="html"></div>
 
@@ -206,6 +208,78 @@
 		};
 		xhr.open("GET","http://api.appcelerator.net/p/v1/echo?a=€漢字");
 		xhr.send();
+	});
+	var button8 = Titanium.UI.createButton({
+		id:'button8',
+		backgroundImage:'blue.png',
+		backgroundSelectedImage:'blue_pressed.png',
+		backgroundFocusedImage:'blue_focused.png',
+		title:'XHR UTF-8 Encoding POST string',
+		color:'#ffffff',
+		height:47,
+	});
+	button7.addEventListener('click',function(e)
+	{
+		var xhr = Titanium.Network.createHTTPClient();
+		xhr.onload = function()
+		{
+			if (this.responseText.indexOf("€漢字")==-1)
+			{
+				document.getElementById('html').innerHTML="Error: Didn't receive expected response from UTF-8 XHR";
+				Titanium.UI.currentWindow.repaint();
+			}
+			else
+			{
+				
+				document.getElementById('html').innerHTML = "received correct XHR UTF-8 encoded value: <PRE>"+this.responseText+"</PRE>";
+				Titanium.UI.currentWindow.repaint();
+				
+			}
+		};
+		xhr.onerror = function(error)
+		{
+			document.getElementById('html').innerHTML = "Error: " + error;
+			Titanium.UI.currentWindow.repaint();
+			
+		};
+		xhr.open("POST","http://api.appcelerator.net/p/v1/echo");
+		xhr.send("a=€漢字");
+	});
+	var button8 = Titanium.UI.createButton({
+		id:'button8',
+		backgroundImage:'blue.png',
+		backgroundSelectedImage:'blue_pressed.png',
+		backgroundFocusedImage:'blue_focused.png',
+		title:'XHR UTF-8 Encoding POST json',
+		color:'#ffffff',
+		height:47,
+	});
+	button8.addEventListener('click',function(e)
+	{
+		var xhr = Titanium.Network.createHTTPClient();
+		xhr.onload = function()
+		{
+			if (this.responseText.indexOf("€漢字")==-1)
+			{
+				document.getElementById('html').innerHTML="Error: Didn't receive expected response from UTF-8 XHR";
+				Titanium.UI.currentWindow.repaint();
+			}
+			else
+			{
+				
+				document.getElementById('html').innerHTML = "received correct XHR UTF-8 encoded value: <PRE>"+this.responseText+"</PRE>";
+				Titanium.UI.currentWindow.repaint();
+				
+			}
+		};
+		xhr.onerror = function(error)
+		{
+			document.getElementById('html').innerHTML = "Error: " + error;
+			Titanium.UI.currentWindow.repaint();
+			
+		};
+		xhr.open("GET","http://api.appcelerator.net/p/v1/echo");
+		xhr.send({"a":"€漢字"});
 	});
 	</script>
 

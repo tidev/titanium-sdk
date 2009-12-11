@@ -20,6 +20,7 @@
 	NSTimer * timer;
 	NSLock * mutex;
 	
+	BOOL endingModule;
 	BOOL disabled;
 }
 
@@ -33,7 +34,6 @@
  * @tiarg(for=Analytics.addEvent,type=string,name=evttype) event type
  * @tiarg(for=Analytics.addEvent,type=string,name=evtname) event name
  * @tiarg(for=Analytics.addEvent,type=string,name=data,optional=True) event data
- * @tidepends(for=Analytics.addEvent,uses=Network.createHTTPClient)
  */
 - (void) addEvent: (NSString *) eventtype evtname: (NSString*) eventname value: (id) value;
 - (void) keepEvents: (NSMutableArray *)newEvents;

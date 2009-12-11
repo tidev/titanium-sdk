@@ -626,6 +626,8 @@ TitaniumHost * lastSharedHost = nil;
 {
 	closingLock = [[NSLock alloc] init];
 
+	[[NSUserDefaults standardUserDefaults] synchronize];
+
 	for (id thisModule in [nativeModules objectEnumerator]) {
 		if ([thisModule respondsToSelector:@selector(endModule)]) [thisModule endModule];
 	}
@@ -637,6 +639,9 @@ TitaniumHost * lastSharedHost = nil;
 		[NSThread sleepForTimeInterval:0.25];
 		i++;
 	}
+	VERBOSE_LOG(@"Modules closed, shutting down.");
+
+	[[NSUserDefaults standardUserDefaults] synchronize];
 	
 	[closingLock release];
 	closingLock = nil;
