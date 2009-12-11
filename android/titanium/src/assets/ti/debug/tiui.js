@@ -905,7 +905,7 @@ var UserWindow = function(proxy) {
 		this.proxy.setFullscreen(fullscreen);
 	};
 	/**
-	 * @tiapi(method=true,name=UI.UserWindow,since=0.4) open the window
+	 * @tiapi(method=true,name=UI.UserWindow.open,since=0.4) open the window
 	 * @tiarg[hash,options,optional=true] Options used to configure window before opening.
 	 */
 	this.open = function(options) {
