@@ -406,7 +406,7 @@ public class FBRequest
                 body = generatePostBody();
             }
 
-				connection.setInstanceFollowRedirects(true);
+			connection.setInstanceFollowRedirects(false);
             connection.setDoOutput(true);
             connection.connect();
             if (body != null) 
@@ -419,9 +419,17 @@ public class FBRequest
             in = connection.getInputStream();
          	StringBuilder sb = new StringBuilder(4096);
          	FBUtil.getResponse(sb, in);
-				if (connection.getResponseCode() == 302)
+			int responseCode = connection.getResponseCode();
+				if (responseCode == 301 || responseCode == 302)
 				{
 						String location = connection.getHeaderField("Location");
+						int i = location.indexOf("fbconnect:");
+						if (i!=-1)
+						{
+							// this happens since Facebook will append your base domain in cases where
+							// you're using both Facebook Connect for web and desktop
+							location = location.substring(i);
+						}
 						Log.d(LOG,"REDIRECT FOUND TO: "+location);
 						responseText = "<script>document.location.href = '"+location+"';</script>";
 						returnedContentType = "text/html";
@@ -595,6 +603,11 @@ public class FBRequest
      * The delegate will be called for each stage of the loading process.
      */
     public void post(String url, Map<String, String> params_) {
+	
+		if (url == null) 
+		{
+			throw new IllegalArgumentException("invalid url passed to POST");
+		}
         this.url = url;
         this.method = "post";
         this.params = params_ != null ? new HashMap<String, String>(params_) : new HashMap<String, String>();
@@ -606,6 +619,10 @@ public class FBRequest
 
     public void get(String url)
     {
+		if (url == null) 
+		{
+			throw new IllegalArgumentException("invalid url passed to GET");
+		}
         this.url = url;
         this.method = "get";
         this.params = new HashMap<String, String>();

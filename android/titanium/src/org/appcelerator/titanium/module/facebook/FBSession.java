@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.lang.ref.WeakReference;
 
 import org.appcelerator.titanium.config.TitaniumConfig;
@@ -53,7 +52,7 @@ public class FBSession implements Runnable
     private static FBSession sharedSession;
 
     private List<FBSessionDelegate> delegates;
-	 private LinkedBlockingQueue<FBRequest> requests;
+	private List<FBRequest> requests;
     private String apiKey;
     private String apiSecret;
     private String sessionProxy;
@@ -63,8 +62,9 @@ public class FBSession implements Runnable
     private Date expirationDate;
     private List<FBRequest> pendingSessionRequestQueue;
     private Map<String,String> permissions;
-	 private Thread requestThread;
-	 private WeakReference<Context> context;
+	private Thread requestThread;
+	private WeakReference<Context> context;
+	private final Object lock = new Object();
 
     private FBSession(String key, String secret, String sessionProxy)
     {
@@ -73,8 +73,9 @@ public class FBSession implements Runnable
         this.apiSecret = secret;
         this.sessionProxy = sessionProxy;
         this.uid = Long.valueOf(0);
-        this.pendingSessionRequestQueue = Collections.synchronizedList(new ArrayList<FBRequest>());
-        this.requests = new LinkedBlockingQueue<FBRequest>();
+		// we keep 2 different queues since we want certain requests to happen after logged in
+        this.pendingSessionRequestQueue = new ArrayList<FBRequest>();
+        this.requests = new ArrayList<FBRequest>();
     }
 
     /**
@@ -118,6 +119,7 @@ public class FBSession implements Runnable
      */
     public static FBSession getSessionForApplication_secret(String key, String secret, FBSessionDelegate delegate)
     {
+		Log.d(LOG,"FB session created without sessionProxy");
         FBSession session = initWithKey(key, secret, null);
         session.getDelegates().add(delegate);
         return session;
@@ -131,6 +133,7 @@ public class FBSession implements Runnable
      */
     public static FBSession getSessionForApplication_getSessionProxy(String key, String sessionProxy, FBSessionDelegate delegate)
     {
+		Log.d(LOG,"FB session created with sessionProxy = "+sessionProxy);
         FBSession session = initWithKey(key, null, sessionProxy);
         session.getDelegates().add(delegate);
         return session;
@@ -212,11 +215,29 @@ public class FBSession implements Runnable
 			{
 				try
 				{
-					// blocks until we have a request that's read to rock n roll
-					FBRequest req = requests.take();
-		    		if (DBG) Log.d(LOG, "Executing Request "+req);
-					req.connect();
-		    		if (DBG) Log.d(LOG, "Executed Request "+req);
+					boolean pending = false;
+					
+					synchronized(FBSession.this)
+					{
+						pending = !requests.isEmpty(); 
+					}
+					if (pending)
+					{
+						// blocks until we have a request that's read to rock n roll
+						FBRequest req = requests.remove(0);
+			    		if (DBG) Log.d(LOG, "Executing Request "+req);
+						req.connect();
+			    		if (DBG) Log.d(LOG, "Executed Request "+req);
+					}
+					else
+					{
+						synchronized(lock)
+						{
+				    		if (DBG) Log.d(LOG, "Request queue empty, waiting...");
+							lock.wait();
+				    		if (DBG) Log.d(LOG, "Request queue got notification...");
+						}
+					}
 				}
 				catch(Exception ex)
 				{
@@ -248,12 +269,20 @@ public class FBSession implements Runnable
 			{
 	    		if (DBG) Log.d(LOG, "Queued Pending Session Request "+request);
 				pendingSessionRequestQueue.add(request);
+				synchronized(lock)
+				{
+					lock.notify();
+				}
 				return false;
 			}
 			else
 			{
 	    		if (DBG) Log.d(LOG, "Queued Active Request "+request);
-				requests.put(request);
+				requests.add(request);
+				synchronized(lock)
+				{
+					lock.notify();
+				}
 				return true;
 			}
 	 }

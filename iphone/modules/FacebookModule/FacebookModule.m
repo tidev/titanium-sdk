@@ -461,12 +461,12 @@
 	[self performSelectorOnMainThread:@selector(showDialog:) withObject:cb waitUntilDone:NO];
 }
 
-- (void)setup:(NSString*)key secret:(NSString*)secret
+- (void)setup:(NSString*)key secret:(NSString*)secret proxy:(NSString*)proxy
 {
 	Class stringClass = [NSString class];
-	if(![key isKindOfClass:stringClass] || ![secret isKindOfClass:stringClass]){
+	if(![key isKindOfClass:stringClass]){
 		//TODO: throw exceptions here
-		NSLog(@"[ERROR] Facebook setup had invalid values. Key: %@ secret: %@",key,secret);
+		NSLog(@"[ERROR] Facebook setup had invalid values. Key: %@ secret: %@ proxy: %@",key,secret,proxy);
 		return;
 	}
 	
@@ -483,7 +483,16 @@
 	[dialog release];
 	dialog = nil;
 	[session release];
-	session = [[FBSession sessionForApplication:key secret:secret delegate:self] retain];
+	
+	if (proxy!=nil)
+	{
+		session = [[FBSession sessionForApplication:key getSessionProxy:proxy delegate:self] retain];
+	}
+	else 
+	{
+		session = [[FBSession sessionForApplication:key secret:secret delegate:self] retain];
+	}
+	
 	if ([session resume]==NO)
 	{
 		[self logout];
@@ -616,7 +625,7 @@
 	// external methods (public)
 	[self bindFunction:@"isLoggedIn" method:@selector(loggedIn)];
 	[self bindFunction:@"getUserId" method:@selector(userId)];
-	[self bindFunction:@"setup" method:@selector(setup:secret:)];
+	[self bindFunction:@"setup" method:@selector(setup:secret:proxy:)];
 	[self bindFunction:@"hasPermission" method:@selector(hasPermission:)];
 	[self bindFunction:@"getPermissions" method:@selector(getPermissions)];
 		
@@ -624,7 +633,7 @@
 	[self bindCode:@"logout" code:@"function(c){ Ti.Facebook._CB = c; Ti.Facebook._LOGOUT(); }"];
 	[self bindCode:@"query" code:[NSString stringWithFormat:@"function(q,c){ %@;Ti.Facebook._QRY(q,i); }",[self makeDialogJS:@"QCB"]]];
 	[self bindCode:@"execute" code:[NSString stringWithFormat:@"function(m,d,c,data){ %@;Ti.Facebook._EXEC(m,d||{},data,i); }",[self makeDialogJS:@"ECB"]]];
-	[self bindCode:@"createLoginButton" code:@"function(p){var t=document.getElementById(p.id);var s=p.style||'normal';var b=(s=='normal')?'':'2';var l=(Ti.Facebook.isLoggedIn()?'logout':'login');var d=document.createElement('button');d.style.border='none';var i=document.createElement('image');d.appendChild(i);i.src='app://modules/facebook/images/'+l+b+'.png';t.appendChild(d);var c=this;this._EVT={};d.onclick=function(){if(Ti.Facebook.isLoggedIn()){Ti.Facebook.logout(function(){Ti._ONEVT.apply(c,['logout'])})}else{Ti.Facebook.login(function(a){Ti._ONEVT.apply(c,['login',{success:a}])})}};if(typeof(Ti.Facebook._LIS)=='undefined'){Ti.Facebook._LIS=[]}Ti.Facebook._LIS.push(function(a){Ti._ONEVT.apply(c,[a.event,{success:true}]);Ti.API.debug('facebook js state changed -- event = '+a.event);if((a.event=='logout'||!a.success)&&!Ti.Facebook.isLoggedIn()){i.src='app://modules/facebook/images/login'+b+'.png'}else{i.src='app://modules/facebook/images/logout.png'}});Ti.Facebook.setup(p.apikey,p.secret);return{addEventListener:function(a,b){Ti._ADDEVT.apply(c,[a,b])},removeEventListener:function(a,b){Ti._REMEVT.apply(c,[a,b])}}}"];
+	[self bindCode:@"createLoginButton" code:@"function(p){var t=document.getElementById(p.id);var s=p.style||'normal';var b=(s=='normal')?'':'2';var l=(Ti.Facebook.isLoggedIn()?'logout':'login');var d=document.createElement('button');d.style.border='none';var i=document.createElement('image');d.appendChild(i);i.src='app://modules/facebook/images/'+l+b+'.png';t.appendChild(d);var c=this;this._EVT={};d.onclick=function(){if(Ti.Facebook.isLoggedIn()){Ti.Facebook.logout(function(){Ti._ONEVT.apply(c,['logout'])})}else{Ti.Facebook.login(function(a){Ti._ONEVT.apply(c,['login',{success:a}])})}};if(typeof(Ti.Facebook._LIS)=='undefined'){Ti.Facebook._LIS=[]}Ti.Facebook._LIS.push(function(a){Ti._ONEVT.apply(c,[a.event,{success:true}]);Ti.API.debug('facebook js state changed -- event = '+a.event);if((a.event=='logout'||!a.success)&&!Ti.Facebook.isLoggedIn()){i.src='app://modules/facebook/images/login'+b+'.png'}else{i.src='app://modules/facebook/images/logout.png'}});Ti.Facebook.setup(p.apikey,p.secret,p.sessionProxy);return{addEventListener:function(a,b){Ti._ADDEVT.apply(c,[a,b])},removeEventListener:function(a,b){Ti._REMEVT.apply(c,[a,b])}}}"];
 	[self bindCode:@"requestPermission" code:[NSString stringWithFormat:@"function(p,c){ %@;Ti.Facebook._PERM(p,i); }",[self makeDialogJS:@"PCB"]]];
 	[self bindCode:@"publishFeed" code:[NSString stringWithFormat:@"function(id,data,body,c){ %@;Ti.Facebook._FEED(id,data?Ti._JSON(data):null,body,i); }",[self makeDialogJS:@"FCB"]]];
 	[self bindCode:@"publishStream" code:[NSString stringWithFormat:@"function(title,data,target,c){ %@;Ti.Facebook._STREAM(title,Ti._JSON(data),target,i); }",[self makeDialogJS:@"STM"]]];

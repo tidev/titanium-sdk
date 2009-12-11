@@ -355,7 +355,7 @@ public abstract class FBDialog extends FrameLayout
             {
                 uri = new URI(url);
 
-					 Log.d(LOG,"shouldOverrideUrlLoad for "+url);
+				Log.d(LOG,"shouldOverrideUrlLoad for "+url);
 
                 if (!uri.isAbsolute())
                 {

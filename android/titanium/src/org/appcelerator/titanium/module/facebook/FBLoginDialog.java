@@ -48,21 +48,21 @@ public class FBLoginDialog extends FBDialog
 
     private void connectToGetSession(String token)
     {		
-		  Log.d(LOG,"connectToGetSession called with token="+token);
+		Log.d(LOG,"connectToGetSession called with token="+token+", api secret: "+session.getApiSecret());
         sessionRequest = FBRequest.requestWithSession(session, requestDelegate);
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("auth_token", token);
-        if (session.getApiSecret() != null)
-        {
-            params.put("generate_session_secret", "1");
-        }
 
         if (session.getGetSessionProxy() != null)
         {
-            sessionRequest.post(session.getGetSessionProxy(), params);
+            sessionRequest.get(session.getGetSessionProxy()+"?generate_session_secret=1&auth_token="+token+"&format=json");
         }
         else
         {
+	        Map<String, String> params = new HashMap<String, String>();
+	        params.put("auth_token", token);
+	        if (session.getApiSecret() != null)
+	        {
+	            params.put("generate_session_secret", "1");
+	        }
             sessionRequest.call("facebook.auth.getSession", params);
         }
     }
@@ -154,6 +154,7 @@ public class FBLoginDialog extends FBDialog
         @Override
         protected void request_didLoad(FBRequest request, String contentType, Object result)
         {
+				Log.d(LOG,"request_didLoad with contentType="+contentType);
 				if (contentType!=null && contentType.indexOf("json")!=-1)
 				{
 	            try 
@@ -178,18 +179,18 @@ public class FBLoginDialog extends FBDialog
 	                }
 	                sessionRequest = null;
 	
-						 if (DBG)
-						 {
-							 Log.d(LOG,"request_didLoad - uid = "+uid);
-							 Log.d(LOG,"request_didLoad - sessionKey = "+sessionKey);
-							 Log.d(LOG,"request_didLoad - sessionSecret = "+sessionSecret);
-						 }
+					 if (DBG)
+					 {
+						 Log.d(LOG,"request_didLoad - uid = "+uid);
+						 Log.d(LOG,"request_didLoad - sessionKey = "+sessionKey);
+						 Log.d(LOG,"request_didLoad - sessionSecret = "+sessionSecret);
+					 }
 
-						 // change the session data
+					// change the session data
 	                this.session.begin(this.activity, uid, sessionKey, sessionSecret, expiration);
 
-						 // let our module know we have a new successful login so he can do his magic
-						 facebookModule.triggerLoginChange();
+					// let our module know we have a new successful login so he can do his magic
+					facebookModule.triggerLoginChange();
 						
 	                dismissWithSuccess(true, true);
 	            }
