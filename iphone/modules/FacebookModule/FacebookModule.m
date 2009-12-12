@@ -484,7 +484,7 @@
 	dialog = nil;
 	[session release];
 	
-	if (proxy!=nil)
+	if ([proxy isKindOfClass:[NSString class]])
 	{
 		session = [[FBSession sessionForApplication:key getSessionProxy:proxy delegate:self] retain];
 	}
