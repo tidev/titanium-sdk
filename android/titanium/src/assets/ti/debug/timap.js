@@ -87,7 +87,7 @@ Ti.Map.MapView = function(proxy)
 	 * @tiapi(method=True,name=Map.MapView.addEventListener,version=0.8) add event listener
 	 * @tiarg(for=Map.MapView.addEventListener,type=string,name=event) function
 	 * @tiarg(for=Map.MapView.addEventListener,type=function,name=listener) function
-	 * @tiresult(for=Map.MapView,type=int) listener id.
+	 * @tiresult(for=Map.MapView.addEventListener,type=int) listener id.
 	 */
 	this.addEventListener = function(event, listener) {
 		return Ti.Method.dispatch(this._proxy, "addEventListener", event, registerCallback(this, listener));

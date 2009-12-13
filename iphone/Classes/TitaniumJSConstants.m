@@ -14,7 +14,7 @@ NSString * const titaniumJavascriptInjection =
 @"<script>"
 "Ti={_TOKEN:'%@',"		//Note to self. Store top._TOKENS[token] = window in order to redirect to subviews.
 	// hexish will hex-encode values unless they're in the higher unicode range in which we'll simply send them in our special unicode escaped format
-	"_hexish:function(a){var r='';var e=a.length;var c=0;var h;while(c<e){h=a.charCodeAt(c++).toString(16);r+='\\\\u';if(h.length<3){r+='00'+h}else if(h.length<4){r+='0'+h}else{r+=h}}return r;},"
+	"_hexish:function(a){var r='';var e=a.length;var c=0;var h;while(c<e){h=a.charCodeAt(c++).toString(16);r+='\\\\u';var l=4-h.length;while(l-->0){r+='0'};r+=h;}return r;},"
 	"_bridgeEnc:function(o){return '<'+this._hexish(o)+'>';},"
 	"_JSON:function(object,bridge){"
 		"var type = typeof object;"

@@ -9,9 +9,9 @@ Ti.facebookProxy = window.TitaniumFacebook;
 
 Ti.Facebook = {
 	
-	setup: function(key,secret,callback)
+	setup: function(key,secret,sessionProxy,callback)
 	{
-		return Ti.facebookProxy.setup(key,secret,registerCallback(this,callback));
+		return Ti.facebookProxy.setup(key,transformObjectValue(secret,null),transformObjectValue(sessionProxy,null),registerCallback(this,callback));
 	},
 	
 	isLoggedIn: function()
@@ -31,7 +31,7 @@ Ti.Facebook = {
 	
 	execute: function(method,params,data,callback)
 	{
-		Ti.facebookProxy.execute(method,params,data,registerOneShot(this, callback));
+		Ti.facebookProxy.execute(method,transformObjectValue(params,null),transformObjectValue(data,null),registerOneShot(this, callback));
 	},
 	
 	login: function(callback)
@@ -147,7 +147,7 @@ Ti.Facebook = {
 				self.login(stateChange);
 			}
 		};
-		logged_in = this.setup(props.apikey,props.secret,stateChange);
+		logged_in = this.setup(props.apikey,props.secret,props.sessionProxy,stateChange);
 		updateButton(logged_in);
 		var obj = 
 		{

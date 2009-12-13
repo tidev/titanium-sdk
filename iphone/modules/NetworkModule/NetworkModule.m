@@ -132,7 +132,7 @@ void appendDictToData(NSDictionary * keyValueDict, NSMutableData * destData)
 			[destData appendData:[valueObject dataBlob]];
 		} else if ([valueObject isKindOfClass:[NSString class]]){
 			[destData appendBytes:MultiPartKeyValueGlue length:sizeof(MultiPartKeyValueGlue)-1];
-			[destData appendData:[valueObject dataUsingEncoding:[valueObject fastestEncoding]]];
+			[destData appendData:[valueObject dataUsingEncoding:NSUTF8StringEncoding]];
 		} else if ([valueObject respondsToSelector:@selector(stringValue)]){
 			[destData appendBytes:MultiPartKeyValueGlue length:sizeof(MultiPartKeyValueGlue)-1];
 			[destData appendData:[[valueObject stringValue] dataUsingEncoding:NSUTF8StringEncoding]];

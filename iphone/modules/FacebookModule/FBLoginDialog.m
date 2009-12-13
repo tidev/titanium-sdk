@@ -32,14 +32,14 @@ static NSString* kLoginURL = @"http://www.facebook.com/login.php";
 
 - (void)connectToGetSession:(NSString*)token {
   _getSessionRequest = [[FBRequest requestWithSession:_session delegate:self] retain];
-  NSMutableDictionary* params = [NSMutableDictionary dictionaryWithObject:token forKey:@"auth_token"];
-  if (!_session.apiSecret) {
-    [params setObject:@"1" forKey:@"generate_session_secret"];
-  }
-  
   if (_session.getSessionProxy) {
-    [_getSessionRequest post:_session.getSessionProxy params:params];
+	NSString *url = [NSString stringWithFormat:@"%@?generate_session_secret=1&auth_token=%@&format=xml",_session.getSessionProxy,token];
+    [_getSessionRequest post:url params:nil];
   } else {
+	  NSMutableDictionary* params = [NSMutableDictionary dictionaryWithObject:token forKey:@"auth_token"];
+	  if (!_session.apiSecret) {
+	    [params setObject:@"1" forKey:@"generate_session_secret"];
+	  }
     [_getSessionRequest call:@"facebook.auth.getSession" params:params];
   }
 }

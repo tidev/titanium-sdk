@@ -50,6 +50,17 @@
 		{
 			if (sound) sound.play();
 		}
+		
+		function logout()
+		{
+			Titanium.Facebook.logout(loggedOut);
+			var views = Titanium.UI.currentWindow.getViews();
+			Titanium.UI.currentWindow.showView(views[0],{
+				animated:true,
+				animationStyle:isAndroid ? Titanium.UI.Android.AnimationStyle.SLIDE_FROM_RIGHT : Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,
+				animationDuration:1000
+			});
+		}
 
 		
 		function fetchStream()
@@ -157,12 +168,13 @@
 							}
 						);
 						Titanium.UI.currentWindow.addView(tableView);
-						Titanium.UI.currentWindow.showView(tableView,{
-							animated:true,
-							animationStyle:isAndroid ? Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT : Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
-							animationDuration:1000
-						});
 					}
+					
+					Titanium.UI.currentWindow.showView(tableView,{
+						animated:true,
+						animationStyle:isAndroid ? Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT : Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+						animationDuration:1000
+					});
 
 					if (!isAndroid)
 					{
@@ -177,13 +189,7 @@
 						});
 						b.addEventListener('click',function()
 						{
-							Titanium.Facebook.logout();
-							var views = Titanium.UI.currentWindow.getViews();
-							Titanium.UI.currentWindow.showView(views[0],{
-								animated:true,
-								animationStyle:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT,
-								animationDuration:1000
-							});
+							logout();
 							Titanium.UI.currentWindow.setToolbar(null);
 						});
 						Titanium.UI.currentWindow.setToolbar([flexSpace,b,statusButton,feedButton,streamButton,flexSpace]);
@@ -194,6 +200,7 @@
 						menu.addItem('Update Status',pushStatus,Titanium.UI.Android.SystemIcon.ADD);
 						menu.addItem('Post Feed',postActivity,Titanium.UI.Android.SystemIcon.SHARE);
 						menu.addItem('Post Stream',postStream,Titanium.UI.Android.SystemIcon.SEND);
+						menu.addItem('Logout',logout,Titanium.UI.Android.SystemIcon.STOP);
 						Titanium.UI.setMenu(menu);
 						
 						activityIndicator.hide();
@@ -318,8 +325,8 @@
 		var button = Titanium.Facebook.createLoginButton({
 			'id':'fb',
 			'style':'wide',
-			'apikey':'6d6537bbec4526347a6af5d4510e5091',
-			'secret':'f5069ee17cbf7bd11feb38e5317a388b'
+			'apikey':'9494e611f2a93b8d7bfcdfa8cefdaf9f',
+			'sessionProxy':'http://api.appcelerator.net/p/fbconnect/'
 		});
 		button.addEventListener('login',loggedIn);
 		button.addEventListener('logout',loggedOut);

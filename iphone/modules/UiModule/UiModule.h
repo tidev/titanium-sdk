@@ -798,6 +798,55 @@
  
  
  
+ 
+ @tiapi(property=true,name=UI.TableView.marginTop,since=0.8,type=Number) (dimension)
+ @tiapi  The size of the space placed above the UI.TableView.
+ @tiapi(property=true,name=UI.TableView.marginLeft,since=0.8,type=Number) (dimension)
+ @tiapi  The size of the space placed to the left of the UI.TableView.
+ @tiapi(property=true,name=UI.TableView.marginRight,since=0.8,type=Number) (dimension)
+ @tiapi  The size of the space placed to the right of the UI.TableView.
+ @tiapi(property=true,name=UI.TableView.marginBottom,since=0.8,type=Number) (dimension)
+ @tiapi  The size of the space placed below the UI.TableView.
+ @tiapi(property=true,name=UI.TableView.search,since=0.8,type=Object) (UI.SearchBar)
+ @tiapi  The UI.SearchBar placed above the first row of the UI.TableView to enable searching.
+ @tiapi(property=true,name=UI.TableView.filterAttribute,since=0.8,type=String) (string)
+ @tiapi  The key of the UI.TableDataCell containing the values that the search will use in filtering.
+ @tiapi(property=true,name=UI.TableView.template,since=0.8,type=Object) (UI.TableDataCell)
+ @tiapi  When set, UI.TableDataCells will defer to this when a requested property is undefined, but not null.
+ @tiapi(property=true,name=UI.TableView.borderColor,since=0.8,type=String) (webColor)
+ @tiapi  Specifies the color of the lines between rows.
+ 
+ @tiapi(method=true,name=UI.createSearchBar,since=0.8)
+ @tiapi has a side effect that if the id property is set in this manner, the setId side effect happens.
+ @tiarg[args,Object,optional=true] (optional object)
+ @tiarg  can contain various properties that will be copied into the new object on initialization.
+ @tiresult[Object] The created UI.SearchBar.
+ @tiapi(property=true,name=UI.SearchBar.value,since=0.8,type=String) (string)
+ @tiapi  The contents of the SearchBar text area. Default is "".
+ @tiapi(property=true,name=UI.SearchBar.barColor,since=0.8,type=String) (webColor)
+ @tiapi  The tint of the gradient behind the SearchBar text area. Use null to indicate the default blue, 'transparent' for the translucent black gradient. Otherwise, provide a color. Default is null.
+ @tiapi(property=true,name=UI.SearchBar.showCancel,since=0.8,type=Boolean) (boolean)
+ @tiapi  If true, a cancel button will be displayed to the right of the SearchBar text area. Default is false.
+ @tiapi(property=true,name=UI.SearchBar.id,since=0.8,type=String) (string)
+ @tiapi  the name of the element to bind the button to in a web view.
+ @tiapi(method=true,name=UI.SearchBar.setId,since=0.8)
+ @tiapi saves the UI.SearchBar.id property
+ @tiarg[String,newId] The new string.
+ @tiapi(property=true,name=UI.SearchBar.x,since=0.8,type=Number) (dimension)
+ @tiapi  Used only when embedded in a web view. As a float, the horizontal position of the Switch. Overrides the Id's x property.
+ @tiapi(property=true,name=UI.SearchBar.y,since=0.8,type=Number) (dimension)
+ @tiapi  Used only when embedded in a web view. As a float, the vertical position of the Switch. Overrides the Id's y property.
+ @tiapi(property=true,name=UI.SearchBar.width,since=0.8,type=Number) (dimension)
+ @tiapi  As a float, the width in pixels of the slider's rectangle. Overrides the Id's width property.
+ @tiapi(method=true,name=UI.SearchBar.hide,since=0.8)
+ @tiarg[options,Object,optional=true] (optional animation object.)
+ @tiapi(method=true,name=UI.SearchBar.show,since=0.8)
+ @tiarg[options,Object,optional=true] (optional animation object.)
+ @tiapi(method=true,name=UI.SearchBar.focus,since=0.8)
+ @tiapi(method=true,name=UI.SearchBar.blur,since=0.8)
+ 
+ 
+ 
  */
 
 #endif
