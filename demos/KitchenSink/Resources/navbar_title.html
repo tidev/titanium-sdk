@@ -51,7 +51,10 @@
 			Titanium.UI.createAlertDialog({title:'Search Bar', message:'You typed ' + e.value }).show();
 		   	search.blur();
 		});
+		search.setValue('first value')	
 		Titanium.UI.currentWindow.setTitleControl(search);
+		search.setValue('second value')
+		
 	};
 	document.getElementById('button_title').onclick = function()
 	{

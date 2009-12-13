@@ -23,6 +23,8 @@
 	//
 	var tableView = Titanium.UI.createTableView({data:data},function(e)
 	{
+		Titanium.UI.createAlertDialog({title:'Row Click', message:'You clicked ' + e.rowData.title}).show();
+
 		if (e.index ==  4)
 		{
 			var data = {title:'New Row ' + newRowCount};

@@ -32,6 +32,8 @@
 	//
 	var tableView = Titanium.UI.createTableView({data:data},function(e)
 	{
+		Titanium.UI.createAlertDialog({title:'Row Click', message:'You clicked ' + e.rowData.title}).show();
+		
 		switch(e.rowData.title)
 		{
 			case 'Insert Row Above - 1':

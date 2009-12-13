@@ -182,14 +182,15 @@
 		value:'I am a textarea',
 		height:200,
 		width:300,
+		keyboardType:Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
+		returnKeyType:Titanium.UI.RETURNKEY_EMERGENCY_CALL,
 		
 	});
-	ta1.addEventListener('return',function(e)
-	{
-		document.getElementById('textarea1_value').innerHTML = ' You hit the return key, current value is ' + e.value;
-		ta1.blur();
 
-	})
+	ta1.addEventListener('change',function(e)
+	{
+		Titanium.API.info('textfield changed ' + e.value)
+	});
 
 	</script>
 </body>
