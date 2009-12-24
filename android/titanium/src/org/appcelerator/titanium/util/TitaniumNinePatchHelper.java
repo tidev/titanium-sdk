@@ -49,15 +49,22 @@ public class TitaniumNinePatchHelper
 
 		int width = b.getWidth();
 		int height = b.getHeight();
+		
+		int topSum = 0;
+		int leftSum = 0;
+		int rightSum = 0;
+		int bottomSum = 0;
 
 		if (width >= 3 && height >= 3) {
 			for (int i = 0; i < width; i++) {
 				int c = b.getPixel(i, 0);
+				topSum += (c == 0 ? 0 : 1);
 				if (!isValidColor(c)) {
 					result = false;
 					break;
 				}
 				c = b.getPixel(i, height-1);
+				bottomSum += (c == 0 ? 0 : 1);
 				if (!isValidColor(c)) {
 					result = false;
 					break;
@@ -67,11 +74,13 @@ public class TitaniumNinePatchHelper
 			if (result) {
 				for (int i = 0; i < height; i++) {
 					int c = b.getPixel(0, i);
+					leftSum += (c == 0 ? 0 : 1);
 					if (!isValidColor(c)) {
 						result = false;
 						break;
 					}
 					c = b.getPixel(width-1, i);
+					rightSum += (c == 0 ? 0 : 1);
 					if (!isValidColor(c)) {
 						result = false;
 						break;
@@ -82,8 +91,9 @@ public class TitaniumNinePatchHelper
 			result = false;
 		}
 
-		if (DBG) {
-			Log.d(LCAT, "Does not appear to be a nine-patch");
+		// Don't consider a transparent border a ninepatch
+		if (leftSum + topSum + rightSum + bottomSum == 0) {
+			result = false;
 		}
 
 		return result;
