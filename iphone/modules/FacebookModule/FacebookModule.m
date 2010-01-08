@@ -9,6 +9,7 @@
 #import "FacebookModule.h"
 #import "FBConnect.h"
 #import <TitaniumBlobWrapper.h>
+#import "AnalyticsModule.h"
 
 
 @implementation FBDialogCallback
@@ -320,6 +321,11 @@
 	[self evaluateJavascript:[NSString stringWithFormat:@"Ti.Facebook._LSC(%@)",[self toJSON:dictionary_]] token:nil];
 	[dialog release];
 	dialog = nil;
+
+	AnalyticsModule *module = (AnalyticsModule*)[[TitaniumHost sharedHost] moduleNamed:@"AnalyticsModule"];
+	if (module!=nil){
+		[module enqueuePlatformEvent:@"app.feature" evtname:@"tiSocial.Facebook.login" data:nil];
+	}
 }
 
 - (void)sessionDidLogout:(FBSession*)session_ 
@@ -329,6 +335,11 @@
 	[self evaluateJavascript:[NSString stringWithFormat:@"Ti.Facebook._LSC(%@)",[self toJSON:dictionary_]] token:nil];
 	[permissions release];
 	permissions = nil;
+
+	AnalyticsModule *module = (AnalyticsModule*)[[TitaniumHost sharedHost] moduleNamed:@"AnalyticsModule"];
+	if (module!=nil){
+		[module enqueuePlatformEvent:@"app.feature" evtname:@"tiSocial.Facebook.logout" data:nil];
+	}
 }
 
 - (void)showDialog
@@ -453,12 +464,24 @@
 	
 	FBFeedCallback *cb = [[FBFeedCallback alloc] initWithToken:queryId pageToken:[self getPageToken] module:self templateBundleId:templateBundleId templateData:templateData body:body_ session:session];
 	[self performSelectorOnMainThread:@selector(showDialog:) withObject:cb waitUntilDone:NO];
+	
+	AnalyticsModule *module = (AnalyticsModule*)[[TitaniumHost sharedHost] moduleNamed:@"AnalyticsModule"];
+	if (module!=nil)
+	{
+		[module enqueuePlatformEvent:@"app.feature" evtname:@"tiSocial.Facebook.publishFeed" data:nil];
+	}
 }
 
 - (void)stream:(NSString*)title data:(NSString*)data target:(NSString*)target queryId:(NSString*)queryId
 {
 	FBStreamCallback *cb = [[FBStreamCallback alloc] initWithToken:queryId pageToken:[self getPageToken] module:self title:title data:data target:target session:session];
 	[self performSelectorOnMainThread:@selector(showDialog:) withObject:cb waitUntilDone:NO];
+	
+	AnalyticsModule *module = (AnalyticsModule*)[[TitaniumHost sharedHost] moduleNamed:@"AnalyticsModule"];
+	if (module!=nil)
+	{
+		[module enqueuePlatformEvent:@"app.feature" evtname:@"tiSocial.Facebook.publishStream" data:nil];
+	}
 }
 
 - (void)setup:(NSString*)key secret:(NSString*)secret proxy:(NSString*)proxy
@@ -534,6 +557,33 @@
 	FBRequestCallback *cb = [[FBRequestCallback alloc] initWithToken:queryId pageToken:[self getPageToken] module:self prefix:@"ECB"];
 	cb.data = dataParam;
   	[[FBRequest requestWithDelegate:cb] call:method params:params dataParam:dataParam filename:filename];
+
+	AnalyticsModule *module = (AnalyticsModule*)[[TitaniumHost sharedHost] moduleNamed:@"AnalyticsModule"];
+	if (module!=nil)
+	{
+		if ([method isEqualToString:@"comments.add"])
+		{[module enqueuePlatformEvent:@"app.feature" evtname:@"tiSocial.Facebook.commentsAdd" data:nil];}
+		else if ([method isEqualToString:@"links.post"])
+		{[module enqueuePlatformEvent:@"app.feature" evtname:@"tiSocial.Facebook.linksPost" data:nil];}
+		else if ([method isEqualToString:@"notes.create"])
+		{[module enqueuePlatformEvent:@"app.feature" evtname:@"tiSocial.Facebook.notesCreate" data:nil];}
+		else if ([method isEqualToString:@"status.set"])
+		{[module enqueuePlatformEvent:@"app.feature" evtname:@"tiSocial.Facebook.setStatus" data:nil];}
+		else if ([method isEqualToString:@"users.setStatus"])
+		{[module enqueuePlatformEvent:@"app.feature" evtname:@"tiSocial.Facebook.setStatus" data:nil];}
+		else if ([method isEqualToString:@"stream.publish"])
+		{[module enqueuePlatformEvent:@"app.feature" evtname:@"tiSocial.Facebook.streamPublish" data:nil];}
+		else if ([method isEqualToString:@"video.upload"])
+		{[module enqueuePlatformEvent:@"app.feature" evtname:@"tiSocial.Facebook.videoUpload" data:nil];}
+		else if ([method isEqualToString:@"sms.send"])
+		{[module enqueuePlatformEvent:@"app.feature" evtname:@"tiSocial.Facebook.smsSend" data:nil];}
+		else if ([method isEqualToString:@"photos.addTag"])
+		{[module enqueuePlatformEvent:@"app.feature" evtname:@"tiSocial.Facebook.photosAddTag" data:nil];}
+		else if ([method isEqualToString:@"photos.createAlbum"])
+		{[module enqueuePlatformEvent:@"app.feature" evtname:@"tiSocial.Facebook.photosCreateAlbum" data:nil];}
+		else if ([method isEqualToString:@"photos.upload"])
+		{[module enqueuePlatformEvent:@"app.feature" evtname:@"tiSocial.Facebook.photosUpload" data:nil];}
+	}
 }
 
 - (NSString*)makeDialogJS:(NSString*)prefix
