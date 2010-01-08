@@ -13,11 +13,14 @@ import android.graphics.drawable.Drawable;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -48,8 +51,10 @@ public class TitaniumSearchBar extends TitaniumBaseNativeControl
 	private boolean showCancel;
 	private String barColor;
 
-	EditText tv;
-	ImageButton cancelBtn;
+	protected EditText tv;
+	protected ImageButton cancelBtn;
+	protected boolean focusState;
+
 
 	public interface OnSearchChangeListener {
 		public void filterBy(String s);
@@ -66,6 +71,7 @@ public class TitaniumSearchBar extends TitaniumBaseNativeControl
 		eventManager.supportEvent(RETURN_EVENT);
 		value = "";
 		showCancel = true;
+		focusState = false;
 	}
 
 
@@ -159,6 +165,40 @@ public class TitaniumSearchBar extends TitaniumBaseNativeControl
 		params.addRule(RelativeLayout.CENTER_VERTICAL);
 		params.setMargins(0, 4, 4, 4);
 		layout.addView(cancelBtn, params);
+
+		final TitaniumSearchBar me = this;
+
+		tv.setOnFocusChangeListener(new OnFocusChangeListener(){
+
+			public void onFocusChange(View view, boolean hasFocus) {
+				boolean newFocus = checkFocused();
+				if (focusState != newFocus) {
+					me.onFocusChange(view, newFocus);
+					focusState = newFocus;
+				}
+			}
+		});
+
+		cancelBtn.setOnFocusChangeListener(new OnFocusChangeListener(){
+
+			public void onFocusChange(View view, boolean hasFocus) {
+				boolean newFocus = checkFocused();
+				if (focusState != newFocus) {
+					me.onFocusChange(view, newFocus);
+					focusState = newFocus;
+				}
+			}
+		});
+	}
+
+	private boolean checkFocused() {
+		boolean focused = tv.hasFocus();
+
+		if (!tv.hasFocus() && showCancel) {
+			focused = cancelBtn.hasFocus();
+		}
+
+		return focused;
 	}
 
 	@Override

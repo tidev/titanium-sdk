@@ -171,7 +171,7 @@ public abstract class TitaniumBaseNativeControl
 		handler.obtainMessage(MSG_BLUR).sendToTarget();
 	}
 
-	private InputMethodManager getIMM() {
+	protected InputMethodManager getIMM() {
 		InputMethodManager imm = null;
 		TitaniumModuleManager tmm = softModuleMgr.get();
 		if (tmm != null) {
