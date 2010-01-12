@@ -129,13 +129,14 @@
 
 			case 6:
 			{
+				Titanium.Analytics.featureEvent('ui.buttons');
 				var win = Titanium.UI.createWindow({url:'buttons.html',title:'Content Buttons',backgroundColor:'#fff'});
 				win.open({animated:true});		
 				break;
 			}
 			case 7:
 			{
-				Titanium.Analytics.featureEvent('ui.buttons');
+				Titanium.Analytics.featureEvent('ui.switch');
 				var win = Titanium.UI.createWindow({url:'switch.html',title:'Switch',backgroundColor:'#fff'});
 				if (Titanium.Platform.name != 'android')
 				{
