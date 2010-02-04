@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Date;
 
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
@@ -493,6 +494,9 @@ public class KrollObject extends ScriptableObject
 				o = toArray(svalue);
 			} else if (value instanceof KrollObject) {
 				o = ((KrollObject) value).target;
+			} else if (svalue.getClassName().equals("Date")) {
+				double time = (Double) ScriptableObject.callMethod(svalue, "getTime", new Object[0]);
+				o = new Date((long)time);
 			} else {
 				TiDict args = new TiDict();
 				o = args;
@@ -606,6 +610,9 @@ public class KrollObject extends ScriptableObject
 				so.put(key, so, fromNative(d.get(key), kroll));
 			}
 			o = so;
+		} else if (value instanceof Date) {
+			Date date = (Date) value;
+			o = Context.getCurrentContext().newObject(kroll.getScope(), "Date", new Object[] { date.getTime() });
 		} else {
 			o = new KrollObject(kroll, value);
 		}
