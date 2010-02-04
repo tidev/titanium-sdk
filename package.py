@@ -75,15 +75,19 @@ def zip_it(dist_dir,osname,version):
 				if os.path.isfile(os.path.join(headers_dir,f)) and os.path.splitext(f)[1]=='.h':
 					 zf.write(os.path.join(headers_dir,f),'%s/iphone/include/%s' % (basepath,f))
 		  
-		  for apiversion in prereq.get_sdks():
-				iphone_lib = os.path.join(cur_dir,'iphone','iphone','build')
-				if not os.path.exists(iphone_lib): continue
-				for f in os.listdir(iphone_lib):
-					 v = "%s.a" % apiversion
-					 if os.path.isfile(os.path.join(iphone_lib,f)) and f.find(v)!=-1:
-						  zf.write(os.path.join(iphone_lib,f),'%s/iphone/%s' % (basepath,f))
 		  
-		  modules_dir=os.path.join(cur_dir,'iphone','modules')
+		  iphone_lib = os.path.join(cur_dir,'iphone','iphone','build')
+		  zf.write(os.path.join(iphone_lib,'libTitanium.a'),'%s/iphone/libTitanium.a'%basepath)
+
+		# for apiversion in prereq.get_sdks():
+		#		iphone_lib = os.path.join(cur_dir,'iphone','iphone','build')
+		#		if not os.path.exists(iphone_lib): continue
+		#		for f in os.listdir(iphone_lib):
+		#			 v = "%s.a" % apiversion
+		#			 if os.path.isfile(os.path.join(iphone_lib,f)) and f.find(v)!=-1:
+		#				  zf.write(os.path.join(iphone_lib,f),'%s/iphone/%s' % (basepath,f))
+		# 
+		#  modules_dir=os.path.join(cur_dir,'iphone','modules')
 		# for f in os.listdir(modules_dir):
 		#		if os.path.isdir(os.path.join(modules_dir,f)):
 		#			 module_images = os.path.join(modules_dir,f,'images')

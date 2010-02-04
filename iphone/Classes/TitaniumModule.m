@@ -7,23 +7,18 @@
 
 #import "TitaniumModule.h"
 #import "KrollBridge.h"
+#import "TitaniumApp.h"
 
 @implementation TitaniumModule
 
 -(id)version
 {
-	//FIXME
-	return @"0.9";
+	return [NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding];
 }
 
 -(id)userAgent
 {
-	//FIXME
-#ifdef IPAD	
-	return [NSString stringWithFormat:@"Mozilla/5.0 (iPad; U; CPU iPhone OS 3_2_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7D11 Safari/528.16 Titanium/%@",[self version]];
-#else
-	return [NSString stringWithFormat:@"Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_1_2 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7D11 Safari/528.16 Titanium/%@",[self version]];
-#endif
+	return [[TitaniumApp app] userAgent];
 }
 
 -(void)include:(NSArray*)jsfiles

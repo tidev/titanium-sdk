@@ -14,7 +14,7 @@
 
 TitaniumApp* sharedApp;
 
-const NSString *kTitaniumUserAgentPrefix = @"Appcelerator Titanium/0.9";   //FIXME: replace on build
+const NSString *kTitaniumUserAgentPrefix = [NSString stringWithFormat:@"Appcelerator Titanium/%s",TI_VERSION_STR];  
 
 //
 // thanks to: http://www.restoroot.com/Blog/2008/10/18/crash-reporter-for-iphone-applications/

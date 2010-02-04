@@ -51,7 +51,7 @@ def build(dir,name,apiversion):
 	
 
     # build the merged library using lipo
-    os.system("lipo build/%s-iphonesimulator/lib%s.a build/%s-iphoneos/lib%s.a -create -output build/lib%s-%s.a" %(config,name,config,name,name,apiversion))
+    os.system("lipo build/%s-iphonesimulator/lib%s.a build/%s-iphoneos/lib%s.a -create -output build/lib%s.a" %(config,name,config,name,name))
    
     os.chdir(curdir)
 

@@ -73,7 +73,7 @@ def main(args,argc):
 		shutil.copy(os.path.join(all_dir,file),os.path.join(project_dir,file))
 	
 	# copy RESOURCES
-	for file in ['index.html','index.js','index.css','about.html']:
+	for file in ['app.js']:
 		shutil.copy(os.path.join(all_dir,file),os.path.join(resources_dir,file))
 
 	sys.exit(0)

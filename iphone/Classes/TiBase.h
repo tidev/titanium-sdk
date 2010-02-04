@@ -330,4 +330,34 @@ return value;\
 #define DEFINE_DEF_NULL_PROP(name) DEFINE_DEF_PROP(name,[NSNull null])
 #define DEFINE_DEF_INT_PROP(name,val) DEFINE_DEF_PROP(name,NUMINT(val))
 
+// TI_VERSION will be set via an external source if not set
+// display a warning and set it to 0.0.0
+ 
+#ifndef TI_VERSION
+#define TI_VERSION 0.0.0
+#endif
+ 
+#define _QUOTEME(x) #x
+#define STRING(x) _QUOTEME(x)
+ 
+#define TI_VERSION_STR STRING(TI_VERSION)
+ 
+// in simulator we redefine to format for Titanium Developer console
+ 
+#define NSLog(...) {\
+	const char *__s = [[NSString stringWithFormat:__VA_ARGS__] UTF8String];\
+	if (__s[0]=='[')\
+	{\
+	    fprintf(stderr,"%s\n", __s);\
+	}\
+	else\
+	{\
+	    fprintf(stderr,"[DEBUG] %s\n", __s);\
+	}\
+}
+
+NSData * dataWithHexString (NSString * hexString);
+NSString * hexString (NSData * thedata);
+
+
 extern const NSString * kKrollShutdownNotification;
