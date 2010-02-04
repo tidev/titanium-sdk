@@ -4,6 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#include <Foundation/Foundation.h>
+#include <UIKit/UIKit.h>
 
 #define MEMORY_DEBUG 0
 
@@ -328,4 +330,4 @@ return value;\
 #define DEFINE_DEF_NULL_PROP(name) DEFINE_DEF_PROP(name,[NSNull null])
 #define DEFINE_DEF_INT_PROP(name,val) DEFINE_DEF_PROP(name,NUMINT(val))
 
-extern NSString * const kKrollShutdownNotification;
+extern const NSString * kKrollShutdownNotification;

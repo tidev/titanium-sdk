@@ -4,25 +4,7 @@
 #
 import os,platform,sys
 
-# add your module here for it to get compiled into
-# the library
-modules = [	'api',
-		'app',
-		'ui',
-		'database',
-		'accelerometer',
-		'geolocation',
-		'media',
-		'filesystem',
-		'network',
-		'platform',
-      		'analytics',
-		'gesture',
-		'notification',
-		'facebook',
-		'yahoo',
-		'contacts',
-		'map']
+
 
 try:
 	# pull in the version from the top-level SConstruct
@@ -34,10 +16,6 @@ except:
 		version = '0.0.0'
 
 defines='TI_VERSION=%s ' % version
-
-for api in modules:
-	defines+="MODULE_TI_%s=1 " % (api.upper())
-
 
 config = 'Release'
 
@@ -52,19 +30,21 @@ sys.path.append(iphone_dir)
 
 import run,prereq
 
-quick_build = ARGUMENTS.get('BUILD_TYPE',0) == 'iphone'
 
-
-def build(name):
+def build(dir,name,apiversion):
     # execute the phone and simulator release builds
 
+    curdir = os.path.abspath(os.curdir)
+    os.chdir(dir)
+
+
     if os.path.exists('/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%s.sdk' % apiversion):
-    	output = os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target lib%s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s %s' clean build" % (apiversion,name,config,defines,flags))
+    	output = os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target %s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s %s' clean build" % (apiversion,name,config,defines,flags))
 	if output!=0:
 		sys.exit(output)
 
     if os.path.exists('/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator%s.sdk' % apiversion):
-    	output = os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target lib%s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='DEBUG=1 %s %s' clean build" % (apiversion,name,config,defines,flags))
+    	output = os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target %s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='DEBUG=1 %s %s' clean build" % (apiversion,name,config,defines,flags))
 
 	if output!=0:
 		sys.exit(-1)
@@ -72,24 +52,10 @@ def build(name):
 
     # build the merged library using lipo
     os.system("lipo build/%s-iphonesimulator/lib%s.a build/%s-iphoneos/lib%s.a -create -output build/lib%s-%s.a" %(config,name,config,name,name,apiversion))
-
-def forversion():
-    build('Titanium')
-    # build each of the modules
-    for module in modules:
-    	module_name = module[0:1].capitalize()+module[1:]
-      	if len(module)==2:
-        	module_name = module.upper()
-      	build(module_name)
+   
+    os.chdir(curdir)
 
 
-if quick_build:
-	apiversion = '3.0'
-	forversion()
-else:
-	for apiversion in prereq.get_sdks():
-		forversion()
+build('iphone','Titanium','3.1.2')
 
-	
-    
 sys.exit(0)
