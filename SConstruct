@@ -42,14 +42,21 @@ if platform.system() == "Darwin" and not ARGUMENTS.get('android',0):
 	build_dirs.append('iphone')
 
 flags = ''
-build_type = 'full'
+
+#build_type = 'full'
+
+# TEMP until android is merged
+build_type = 'iphone'
+build_dirs = ['iphone']
 
 
 if ARGUMENTS.get('iphone',0):
 	build_type='iphone'
+	build_dirs=['iphone']
 
 if ARGUMENTS.get('android',0):
 	build_type='android'
+	build_dirs=['android']
 
 if ARGUMENTS.get('COMPILER_FLAGS', 0):
 	flags = ARGUMENTS.get('COMPILER_FLAGS')

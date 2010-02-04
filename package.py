@@ -60,6 +60,7 @@ def zip_it(dist_dir,osname,version):
 	 android_modules = ['facebook']
 	 for module_name in android_modules:
 		 android_res_dir = os.path.join(android_modules_dir,module_name,'resources')
+		 if not os.path.exists(android_res_dir): continue
 	 	 for f in os.listdir(android_res_dir):
 	 	 	 if os.path.splitext(f)[1]=='.png':
 	 	 	 	 zf.write(os.path.join(android_res_dir,f),'%s/android/modules/%s/images/%s' % (basepath,module_name,f))
@@ -75,7 +76,7 @@ def zip_it(dist_dir,osname,version):
 					 zf.write(os.path.join(headers_dir,f),'%s/iphone/include/%s' % (basepath,f))
 		  
 		  for apiversion in prereq.get_sdks():
-				iphone_lib = os.path.join(cur_dir,'iphone','build')
+				iphone_lib = os.path.join(cur_dir,'iphone','iphone','build')
 				if not os.path.exists(iphone_lib): continue
 				for f in os.listdir(iphone_lib):
 					 v = "%s.a" % apiversion
@@ -83,13 +84,13 @@ def zip_it(dist_dir,osname,version):
 						  zf.write(os.path.join(iphone_lib,f),'%s/iphone/%s' % (basepath,f))
 		  
 		  modules_dir=os.path.join(cur_dir,'iphone','modules')
-		  for f in os.listdir(modules_dir):
-				if os.path.isdir(os.path.join(modules_dir,f)):
-					 module_images = os.path.join(modules_dir,f,'images')
-					 if os.path.exists(module_images):
-						module_name = f.replace('Module','').lower()
-						for img in os.listdir(module_images):
-						  zf.write(os.path.join(module_images,img),'%s/iphone/modules/%s/images/%s' % (basepath,module_name,img))
+		# for f in os.listdir(modules_dir):
+		#		if os.path.isdir(os.path.join(modules_dir,f)):
+		#			 module_images = os.path.join(modules_dir,f,'images')
+		#			 if os.path.exists(module_images):
+		#				module_name = f.replace('Module','').lower()
+		#				for img in os.listdir(module_images):
+		#				  zf.write(os.path.join(module_images,img),'%s/iphone/modules/%s/images/%s' % (basepath,module_name,img))
 	 
 	 zf.close()
 
