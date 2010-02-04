@@ -274,11 +274,11 @@ Ti.Method.dispatch(this._proxy,"selectAnnotation",true,title,animate);}};this.de
 Ti.Method.dispatch(this._proxy,"selectAnnotation",false,title,animate);}};};Ti.Map.createView=function(options){if(Ti.isUndefined(options)){options={};}
 var mv=new Ti.Map.MapView(Ti.Method.dispatch("TitaniumMap","createMapView"));mv.processOptions(options);return mv;};
 Ti.facebookProxy=window.TitaniumFacebook;Ti.Facebook={setup:function(key,secret,sessionProxy,callback)
-{return Ti.facebookProxy.setup(key,secret,sessionProxy,registerCallback(this,callback));},isLoggedIn:function()
+{return Ti.facebookProxy.setup(key,transformObjectValue(secret,null),transformObjectValue(sessionProxy,null),registerCallback(this,callback));},isLoggedIn:function()
 {return Ti.facebookProxy.isLoggedIn();},getUserId:function()
 {return Ti.facebookProxy.getUserId();},query:function(fql,callback)
 {Ti.facebookProxy.query(fql,registerOneShot(this,callback));},execute:function(method,params,data,callback)
-{Ti.facebookProxy.execute(method,params,data,registerOneShot(this,callback));},login:function(callback)
+{Ti.facebookProxy.execute(method,transformObjectValue(params,null),transformObjectValue(data,null),registerOneShot(this,callback));},login:function(callback)
 {Ti.facebookProxy.login(callback?registerOneShot(this,callback):null);},logout:function(callback)
 {Ti.facebookProxy.logout(callback?registerOneShot(this,callback):null);},hasPermission:function(permission)
 {return Ti.facebookProxy.hasPermission(permission);},requestPermission:function(permission,callback)

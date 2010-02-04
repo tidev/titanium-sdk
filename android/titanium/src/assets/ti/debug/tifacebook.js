@@ -32,16 +32,32 @@ Ti.Facebook = {
 	execute: function(method,params,data,callback)
 	{
 		Ti.facebookProxy.execute(method,transformObjectValue(params,null),transformObjectValue(data,null),registerOneShot(this, callback));
+		switch (method)
+		{
+			case "comments.add": { Ti.Analytics.featureEvent("tiSocial.Facebook.commentsAdd"); break; }
+			case "links.post": { Ti.Analytics.featureEvent("tiSocial.Facebook.linksPost"); break; }
+			case "notes.create": { Ti.Analytics.featureEvent("tiSocial.Facebook.notesCreate"); break; }
+			case "status.set": // fall through to following case
+			case "users.setStatus": { Ti.Analytics.featureEvent("tiSocial.Facebook.setStatus"); break; }
+			case "stream.publish": { Ti.Analytics.featureEvent("tiSocial.Facebook.streamPublish"); break; }
+			case "video.upload": { Ti.Analytics.featureEvent("tiSocial.Facebook.videoUpload"); break; }
+			case "sms.send": { Ti.Analytics.featureEvent("tiSocial.Facebook.smsSend"); break; }
+			case "photos.addTag": { Ti.Analytics.featureEvent("tiSocial.Facebook.photosAddTag"); break; }
+			case "photos.createAlbum": { Ti.Analytics.featureEvent("tiSocial.Facebook.photosCreateAlbum"); break; }
+			case "photos.upload": { Ti.Analytics.featureEvent("tiSocial.Facebook.photosUpload"); break; }
+		}
 	},
 	
 	login: function(callback)
 	{
 		Ti.facebookProxy.login(callback ? registerOneShot(this, callback) : null);
+		Ti.Analytics.featureEvent("tiSocial.Facebook.login");
 	},
 	
 	logout: function(callback)
 	{
 		Ti.facebookProxy.logout(callback ? registerOneShot(this, callback) : null);
+		Ti.Analytics.featureEvent("tiSocial.Facebook.logout");
 	},
 
 	hasPermission: function(permission)
@@ -59,6 +75,7 @@ Ti.Facebook = {
 		var o = transformObjectValue(data, null);
 		var json = o ? Ti.JSON.stringify(o) : null;
 		Ti.facebookProxy.publishStream(title, json, target, callback ? registerOneShot(this, callback) : null);
+		Ti.Analytics.featureEvent("tiSocial.Facebook.publishStream");
 	},
 	
 	publishFeed: function(templateBundleId, data, body, callback)
@@ -67,6 +84,7 @@ Ti.Facebook = {
 		var json = o ? Ti.JSON.stringify(o) : null;
 		var tid = typeof(templateBundleId)=='string' ? parseLong(templateBundleId) : templateBundleId;
 		Ti.facebookProxy.publishFeed(tid, json, body, callback ? registerOneShot(this, callback) : null);
+		Ti.Analytics.featureEvent("tiSocial.Facebook.publishFeed");
 	},
 	
 	createLoginButton: function(props)
