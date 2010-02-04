@@ -1,0 +1,52 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+#import "TiUIView.h"
+
+
+@interface TiTextField : UITextField
+{
+	CGFloat paddingLeft;
+	CGFloat paddingRight;
+	CGFloat leftButtonPadding;
+	CGFloat rightButtonPadding;
+	UITextFieldViewMode leftMode;
+	UITextFieldViewMode rightMode;
+	UIView *left;
+	UIView *right;
+	UIView *leftView;
+	UIView *rightView;
+	BOOL focused;
+}
+
+@property(nonatomic,readwrite,assign) CGFloat paddingLeft;
+@property(nonatomic,readwrite,assign) CGFloat paddingRight;
+@property(nonatomic,readwrite,assign) CGFloat leftButtonPadding;
+@property(nonatomic,readwrite,assign) CGFloat rightButtonPadding;
+@property(nonatomic,readonly) BOOL focused;
+
+@end
+
+@interface TiUITextField : TiUIView <UITextFieldDelegate>
+{
+@private
+	TiTextField *textField;
+	UIToolbar *toolbar;
+	CGFloat toolbarHeight;
+	NSArray *toolbarItems;
+	BOOL toolbarVisible;
+}
+
+#pragma mark Public APIs
+
+-(BOOL)hasText;
+-(void)blur;
+-(void)focus;
+
+
+@end
+
