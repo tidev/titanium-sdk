@@ -4,7 +4,10 @@
 	window.onload = function()
 	{
 		var isAndroid = Titanium.Platform.name == 'android';
-
+		var webView = Titanium.UI.createWebView({
+			url:'buttons.html'
+		});
+		Titanium.UI.currentWindow.addView(webView);
 		var mapview = Titanium.Map.createView({
 			mapType: Titanium.Map.HYBRID_TYPE,
 			region: {latitude:37.33168900, longitude:-122.03073100, latitudeDelta:0.01, longitudeDelta:0.01},
@@ -42,7 +45,6 @@
 				}
 			]
 		});
-
 		mapview.addEventListener('click',function(evt)
 		{
 			Ti.API.info('you clicked on '+evt.title+' with click source = '+evt.source);
@@ -87,6 +89,9 @@
 			std.addEventListener('click',function()
 			{
 				mapview.setMapType(Titanium.Map.STANDARD_TYPE);
+				mapview.selectAnnotation("Apple, Inc.",true);
+				Titanium.UI.currentWindow.showView(webView);
+				
 			});
 
 			var hyb = Titanium.UI.createButton({
@@ -96,6 +101,8 @@
 			hyb.addEventListener('click',function()
 			{
 				mapview.setMapType(Titanium.Map.HYBRID_TYPE);
+				Titanium.UI.currentWindow.showView(mapview);
+				
 			});
 
 			var atl = Titanium.UI.createButton({

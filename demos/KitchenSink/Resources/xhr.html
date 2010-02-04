@@ -218,7 +218,7 @@
 		color:'#ffffff',
 		height:47,
 	});
-	button7.addEventListener('click',function(e)
+	button8.addEventListener('click',function(e)
 	{
 		var xhr = Titanium.Network.createHTTPClient();
 		xhr.onload = function()
@@ -243,18 +243,18 @@
 			
 		};
 		xhr.open("POST","http://api.appcelerator.net/p/v1/echo");
-		xhr.send("a=€漢字");
+		xhr.send({"a":"€漢字", "b":"aöbäcüd"});
 	});
-	var button8 = Titanium.UI.createButton({
-		id:'button8',
+	var button9 = Titanium.UI.createButton({
+		id:'button9',
 		backgroundImage:'blue.png',
 		backgroundSelectedImage:'blue_pressed.png',
 		backgroundFocusedImage:'blue_focused.png',
-		title:'XHR UTF-8 Encoding POST json',
+		title:'XHR UTF-8 Encoding GET json',
 		color:'#ffffff',
 		height:47,
 	});
-	button8.addEventListener('click',function(e)
+	button9.addEventListener('click',function(e)
 	{
 		var xhr = Titanium.Network.createHTTPClient();
 		xhr.onload = function()

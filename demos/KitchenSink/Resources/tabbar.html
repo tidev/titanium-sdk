@@ -21,7 +21,10 @@
 		backgroundColor:'#C11B17',
 		style:Titanium.UI.iPhone.SystemButtonStyle.BAR
 	});
-
+	tabbar2.addEventListener('click', function(e)
+	{
+		Titanium.API.info('tabbed ' + e.index)
+	})
 	</script>
 </body>
 </html>

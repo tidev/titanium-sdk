@@ -23,6 +23,14 @@
 			Titanium.UI.createAlertDialog({title:'Search Bar', message:'You typed ' + e.value }).show();
 		   	search.blur();
 		});
+		search.addEventListener('focus', function(e)
+		{
+		   	Titanium.API.info('focus received')
+		});
+		search.addEventListener('blur', function(e)
+		{
+		   	Titanium.API.info('blur received')
+		});
 
 
 		// data for tableview
