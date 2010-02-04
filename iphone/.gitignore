@@ -1,4 +1,5 @@
 build
+*.pyc
 .sconsign.dblite
 tmp
 lib
