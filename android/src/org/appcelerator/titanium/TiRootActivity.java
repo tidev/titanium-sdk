@@ -27,8 +27,6 @@ public class TiRootActivity extends ActivityGroup
 {
 
 	protected TiContext tiContext;
-	protected KrollContext kroll;
-	protected KrollBridge krollBridge;
 	protected TiActivitySupportHelper supportHelper;
 
 	public static class TiActivityRef
@@ -49,18 +47,19 @@ public class TiRootActivity extends ActivityGroup
 		TiApplication host = getTiApp();
 		host.setRootActivity(this);
 
-		host.getStartUrl();
-		tiContext = new TiContext(this);
-		kroll = KrollContext.createContext(tiContext);
-		krollBridge = new KrollBridge(kroll);
-		tiContext.setJSContext(krollBridge); // TODO double check cleanup
+//		tiContext = new TiContext(this);
+//		kroll = KrollContext.createContext(tiContext);
+//		krollBridge = new KrollBridge(kroll);
+//		tiContext.setJSContext(krollBridge); // TODO double check cleanup
+
+		tiContext = TiContext.createTiContext(this);
 
 		runOnUiThread(new Runnable(){
 
 			public void run() {
 				try {
 					//krollBridge.evalFile(host.getStartUrl());
-					krollBridge.evalFile("app.js");
+					tiContext.evalFile("app.js");
 				} catch (IOException e) {
 					// TODO be more helpful
 					e.printStackTrace();
