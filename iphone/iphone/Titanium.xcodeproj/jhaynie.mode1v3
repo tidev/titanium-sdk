@@ -336,7 +336,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>24EE73B1111A7D69004342FB</string>
+										<string>24CB0C56111A82F600A813AD</string>
 										<key>history</key>
 										<array>
 											<string>24CA8C1D111164C80084E2DE</string>
@@ -470,7 +470,7 @@
 											<string>24EE73A3111A7CFE004342FB</string>
 											<string>24EE73A4111A7CFE004342FB</string>
 											<string>24EE73AD111A7D55004342FB</string>
-											<string>24EE73AE111A7D55004342FB</string>
+											<string>24EE73B1111A7D69004342FB</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -528,9 +528,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>24EE7245111A5174004342FB</string>
+				<string>24CB0C57111A82F600A813AD</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>24EE7246111A5174004342FB</string>
+				<string>24CB0C58111A82F600A813AD</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -668,13 +668,8 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>24EE72B3111A70DD004342FB</string>
-		<string>24EE72B4111A70DD004342FB</string>
-		<string>1CD10A99069EF8BA00B06720</string>
-		<string>1C530D57069F1CE1000CFCEE</string>
 		<string>24CA88F211115A7E0084E2DE</string>
-		<string>1C78EAAD065D492600B07095</string>
-		<string>/Users/jhaynie/work/timobile9/iphone/Titanium.xcodeproj</string>
+		<string>/Users/jhaynie/work/titanium_mobile/iphone/iphone/Titanium.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
 	<string>0 59 1440 819 0 0 1440 878 </string>
@@ -693,14 +688,12 @@
 					<key>Dock</key>
 					<array>
 						<dict>
-							<key>BecomeActive</key>
-							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
 								<string>1CD0528F0623707200166675</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>TiUIWindowProxy.m</string>
+								<string></string>
 								<key>StatusBarVisibility</key>
 								<true/>
 							</dict>
@@ -756,7 +749,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>24CA88F211115A7E0084E2DE</string>
-				<string>24EE7247111A5174004342FB</string>
+				<string>24CB0C59111A82F600A813AD</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>

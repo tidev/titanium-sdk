@@ -1,0 +1,41 @@
+var win = Titanium.UI.currentWindow;
+
+var activeMovie = Titanium.Media.createVideoPlayer({
+	contentURL:'../movie.mp4',
+	backgroundColor:'#111',
+	movieControlMode:Titanium.Media.VIDEO_CONTROL_DEFAULT,
+	scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
+});
+
+// label 
+var movieLabel = Titanium.UI.createLabel({
+	text:'Do not try this at home',
+	width:'auto',
+	height:25,
+	color:'white',
+	font:{fontSize:24,fontFamily:'Helvetica Neue'}
+});
+
+// add label to view
+activeMovie.add(movieLabel);
+
+// label click
+movieLabel.addEventListener('click',function()
+{
+	movieLabel.text = "You clicked the video label. Sweet!";
+});
+
+activeMovie.addEventListener('load',function()
+{
+	// animate label
+	var t = Titanium.UI.create2DMatrix();
+	t = t.scale(3);
+	movieLabel.animate({trasform:t, duration:1000});
+});
+activeMovie.addEventListener('complete',function()
+{
+	Titanium.UI.createAlertDialog({title:'Movie', message:'Completed!'}).show();
+	win.close();
+});
+
+activeMovie.play();
