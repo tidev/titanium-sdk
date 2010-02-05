@@ -178,8 +178,10 @@ public class KrollObject extends ScriptableObject
 
 		Method getMethod = (Method) loadMethod(target.getClass(), buildMethodName("get", pname));
 		Method setMethod = (Method) loadMethod(target.getClass(), buildMethodName("set", pname));
-
-		if (getMethod != null || setMethod != null) {
+		boolean isGetter = getMethod != null && getMethod.getParameterTypes().length == 0;
+		boolean isSetter = setMethod != null && setMethod.getParameterTypes().length == 1;
+		
+		if (isGetter || isSetter) {
 			Log.i(LCAT, "Treating as property: " + pname);
 			if (getMethod != null) {
 				// add getter

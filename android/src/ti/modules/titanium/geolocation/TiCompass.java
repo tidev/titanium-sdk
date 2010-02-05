@@ -117,7 +117,7 @@ public class TiCompass
 
 				if (type == Sensor.TYPE_ORIENTATION) {
 					long ts = event.timestamp / 1000000; // nanos to millis
-					listener.call(eventToTiDict(event, ts));
+					listener.callWithProperties(eventToTiDict(event, ts));
 
 					sensorHelper.unregisterListener(SENSORS, this);
 					if (funregister) {

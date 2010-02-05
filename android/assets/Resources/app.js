@@ -33,6 +33,7 @@ try {
 	//files.push('ui-label.js');
 	//files.push('test.js');
 	//files.push('picker.js');
+	//files.push('timer.js');
 
 	Ti.include(files);
 

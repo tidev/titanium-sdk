@@ -16,6 +16,7 @@
 	TiProxy *progressBarStyle;
 	TiProxy *activityIndicatorStyle;
 	TiProxy *systemIcon;
+	TiProxy *scrollIndicatorStyle;
 }
 
 @property(nonatomic,readonly) TiProxy* AnimationStyle;
@@ -26,6 +27,7 @@
 @property(nonatomic,readonly) TiProxy* ProgressBarStyle;
 @property(nonatomic,readonly) TiProxy* ActivityIndicatorStyle;
 @property(nonatomic,readonly) TiProxy* SystemIcon;
+@property(nonatomic,readonly) TiProxy* ScrollIndicatorStyle;
 
 
 @property(nonatomic,readwrite,assign)	NSNumber *statusBarHidden;

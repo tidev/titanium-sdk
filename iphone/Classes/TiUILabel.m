@@ -7,7 +7,6 @@
 
 #import "TiUILabel.h"
 #import "TiUtils.h"
-#import <QuartzCore/QuartzCore.h>
 
 @implementation TiUILabel
 
@@ -17,7 +16,7 @@
 {
 	NSString *value = [label text];
 	UIFont *font = [label font];
-	CGSize maxSize = CGSizeMake(suggestedWidth, CGFLOAT_MAX);
+	CGSize maxSize = CGSizeMake(suggestedWidth, 1000);
 	return [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
 }
 
@@ -33,6 +32,10 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
+	// CoreGraphics renders fonts anti-aliased by drawing text on the 0.5 offset of the 
+	// origin. If your origin is on a fraction vs whole number, you'll get blurry text
+	// the CGRectIntegral method ensures that the origin is not on the half pixel
+	self.frame = CGRectIntegral(self.frame);
 	[TiUtils setView:label positionRect:bounds];
 }
 
@@ -42,6 +45,7 @@
 	{
 		label = [[UILabel alloc] initWithFrame:CGRectZero];
 		label.backgroundColor = [UIColor clearColor];
+		label.numberOfLines = 0;
 		[self addSubview:label];
 	}
 	return label;
@@ -74,5 +78,24 @@
 	[[self label] setTextAlignment:[TiUtils textAlignmentValue:alignment]];
 }
 
+-(void)setShadowColor_:(id)color
+{
+	if (color==nil)
+	{
+		[[self label] setShadowColor:nil];
+	}
+	else
+	{
+		color = [TiUtils colorValue:color];
+		[[self label] setShadowColor:[color _color]];
+	}
+}
+
+-(void)setShadowOffset_:(id)value
+{
+	CGPoint p = [TiUtils pointValue:value];
+	CGSize size = {p.x,p.y};
+	[[self label] setShadowOffset:size];
+}
 
 @end

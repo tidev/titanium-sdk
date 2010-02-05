@@ -233,7 +233,7 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 			if (data == null) {
 				data = new TiDict();
 			}
-			callback.call(data);
+			callback.callWithProperties(data);
 		}
 	}
 

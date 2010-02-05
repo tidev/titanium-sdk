@@ -12,6 +12,18 @@
 
 @implementation TiUIScrollViewProxy
 
+-(void)add:(id)arg
+{
+	ENSURE_ARG_COUNT(arg,1);
+	ENSURE_UI_THREAD_1_ARG(arg);
+	
+	[super add:arg];
+	
+	if ([self viewAttached])
+	{
+		[(TiUIScrollView *)[self view] setNeedsHandleContentSize];
+	}
+}
 
 -(void)layoutChild:(TiViewProxy*)child bounds:(CGRect)bounds
 {
@@ -19,20 +31,10 @@
 	{
 		return;
 	}
+	TiUIView *childView = [child view];
 
-	// layout out ourself
-	UIView *childView = [child view];
+	[(TiUIScrollView *)[self view] layoutChild:childView];
 
-//	if ([childView superview]!=view)
-//	{
-//		[view addSubview:childView];
-//	}
-	
-	LayoutConstraint layout;
-	ReadConstraintFromDictionary(&layout,[child allProperties],NULL);
-	[[child view] updateLayout:&layout withBounds:bounds];
-	
-	// tell our children to also layout
 	[child layoutChildren:childView.bounds];
 }
 

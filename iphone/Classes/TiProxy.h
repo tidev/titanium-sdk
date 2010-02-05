@@ -54,7 +54,7 @@ typedef enum {
 	BOOL destroyed;
 	id<TiProxyDelegate> modelDelegate;
 	NSURL *baseURL;
-	NSString *description;
+	NSString *krollDescription;
 	NSMutableDictionary *contextListeners;
 	NSRecursiveLock *destroyLock;
 @protected

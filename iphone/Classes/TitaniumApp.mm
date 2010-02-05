@@ -14,7 +14,7 @@
 
 TitaniumApp* sharedApp;
 
-const NSString *kTitaniumUserAgentPrefix = [NSString stringWithFormat:@"Appcelerator Titanium/%s",TI_VERSION_STR];  
+NSString * const kTitaniumUserAgentPrefix = @"Appcelerator Titanium"; 
 
 //
 // thanks to: http://www.restoroot.com/Blog/2008/10/18/crash-reporter-for-iphone-applications/
@@ -105,6 +105,21 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[networkActivity unlock];
 }
 
+- (UIView*)attachSplash
+{
+	CGFloat splashY = -TI_STATUSBAR_HEIGHT;
+	if ([[UIApplication sharedApplication] isStatusBarHidden])
+	{
+		splashY = 0;
+	}
+	RELEASE_TO_NIL(loadView);
+	UIScreen *screen = [UIScreen mainScreen];
+	loadView = [[UIImageView alloc] initWithFrame:CGRectMake(0, splashY, screen.bounds.size.width, screen.bounds.size.height)];
+	loadView.image = [UIImage imageNamed:@"Default.png"];
+	[controller.view addSubview:loadView];
+	return loadView;
+}
+
 - (void)loadSplash
 {
 	sharedApp = self;
@@ -114,25 +129,23 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	// attach our main view controller
 	controller = [[TitaniumViewController alloc] init];
 	[window addSubview:controller.view];
+	controller.view.backgroundColor = [UIColor blueColor];
+	
 	
 	// create our loading view
-	loadView = [[UIImageView alloc] initWithFrame:window.bounds];
-	loadView.image = [UIImage imageNamed:@"Default.png"];
-	[window addSubview:loadView];
-	[window bringSubviewToFront:loadView];
+	[self attachSplash];
 	
     [window makeKeyAndVisible];
-}
-
-- (void)destroySplash:(id)event finished:(id)finished context:(void*)context
-{
-	[loadView removeFromSuperview];
-	RELEASE_TO_NIL(loadView);
 }
 
 - (BOOL)isSplashVisible
 {
 	return splashDone==NO;
+}
+
+-(UIView*)splash
+{
+	return loadView;
 }
 
 - (void)hideSplash:(id)event
@@ -144,11 +157,8 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	if (loadView!=nil && splashDone==NO)
 	{
 		splashDone = YES;
-		[UIView setAnimationDuration:0.5];
-		[UIView setAnimationDelegate:self];
-		[UIView setAnimationDidStopSelector:@selector(destroySplash:finished:context:)];
-		[UIView setAnimationBeginsFromCurrentState:YES];
-		[loadView setAlpha:0.0];
+		[loadView removeFromSuperview];
+		RELEASE_TO_NIL(loadView);
 	}
 }
 
@@ -299,7 +309,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 		UIDevice *currentDevice = [UIDevice currentDevice];
 		NSString *currentLocaleIdentifier = [[NSLocale currentLocale] localeIdentifier];
 		NSString *currentDeviceInfo = [NSString stringWithFormat:@"%@/%@; %@; %@;",[currentDevice model],[currentDevice systemVersion],[currentDevice systemName],currentLocaleIdentifier];
-		userAgent = [[NSString stringWithFormat:@"%@ (%@)",kTitaniumUserAgentPrefix,currentDeviceInfo] retain];
+		userAgent = [[NSString stringWithFormat:@"%@/%s (%@)",kTitaniumUserAgentPrefix,TI_VERSION_STR,currentDeviceInfo] retain];
 	}
 	return userAgent;
 }

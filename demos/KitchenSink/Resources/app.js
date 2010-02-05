@@ -79,8 +79,10 @@ tabGroup.addTab(tab3);
 tabGroup.addTab(tab4);
 tabGroup.addTab(tab5);
 
-// open tab group
-tabGroup.open();
+// open tab group with a transition animation
+tabGroup.open({
+	transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
+});
 
 //
 //  TAB GROUP EVENTS
@@ -89,7 +91,7 @@ var messageWin = Titanium.UI.createWindow({
 	height:30,
 	width:250,
 	bottom:70,
-	borderRadius:10,
+	borderRadius:10
 });
 var messageView = Titanium.UI.createView({
 	height:30,
@@ -107,7 +109,7 @@ var messageLabel = Titanium.UI.createLabel({
 		fontFamily:'Helvetica Neue',
 		fontSize:13
 	},
-	textAlign:'center',
+	textAlign:'center'
 });
 messageWin.add(messageView);
 messageWin.add(messageLabel);
@@ -200,7 +202,7 @@ function showIndicator()
 	// window container
 	indWin = Titanium.UI.createWindow({
 		height:150,
-		width:150,
+		width:150
 	});
 	
 	// black view
@@ -245,11 +247,12 @@ function hideIndicator()
 //
 Titanium.App.addEventListener('show_indicator', function(e)
 {
-	Ti.API.info("IN SHOW INDICATOR")
+	Ti.API.info("IN SHOW INDICATOR");
 	showIndicator();
 });
 Titanium.App.addEventListener('hide_indicator', function(e)
 {
-	Ti.API.info("IN HIDE INDICATOR")
+	Ti.API.info("IN HIDE INDICATOR");
 	hideIndicator();
 });
+

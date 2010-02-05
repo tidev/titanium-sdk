@@ -4,22 +4,16 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiWindowProxy.h"
-#import "KrollBridge.h"
+#import "TiUIView.h"
 
-@interface TiUIDialogProxy : TiWindowProxy {
+@interface TiUIWebView : TiUIView<UIWebViewDelegate> {
 @private
-	UIView *mask;
-//	NSURL *url;
-//	KrollBridge *context;
-//	BOOL closed;
+	UIWebView *webview;
+	UIActivityIndicatorView *spinner;
+	NSURL *url;
+
 }
 
-
-#pragma mark Public
-
-//-(void)open:(id)args;
-//-(void)close:(id)args;
-
+-(void)evalJS:(NSString*)code;
 
 @end

@@ -103,8 +103,6 @@
 
 +(TiDimension)dimensionValue:(NSString*)name properties:(NSDictionary*)properties;
 
-
-
 +(NSDictionary*)pointToDictionary:(CGPoint)point;
 
 +(NSDictionary*)rectToDictionary:(CGRect)rect;

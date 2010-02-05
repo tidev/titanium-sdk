@@ -9,7 +9,11 @@
 #import "TiDimension.h"
 
 @protocol LayoutAutosizing
+
 @optional
+
+-(CGFloat)minimumParentWidthForWidth:(CGFloat)suggestedWidth;
+-(CGFloat)minimumParentHeightForWidth:(CGFloat)suggestedWidth;
 
 -(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth;
 -(CGFloat)autoHeightForWidth:(CGFloat)width;

@@ -43,10 +43,7 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 
 #define CODELOCATION	[NSString stringWithFormat:@" in %s (%@:%d)",__FUNCTION__,[[NSString stringWithFormat:@"%s",__FILE__] lastPathComponent],__LINE__]
 
-TI_INLINE id NULL_IF_NIL(id x)	//This is to avoid a function being evaluated multiple times.
-{
-	return (x==nil)?[NSNull null]:x;
-}
+#define NULL_IF_NIL(x)	({ id xx = (x); (xx==nil)?[NSNull null]:xx; })
 
 #define ENSURE_UI_THREAD_1_ARG(x)	\
 if (![NSThread isMainThread]) { \
@@ -290,7 +287,7 @@ enum {
 };
 
 
-// common sizes for iPhone (will these change for iSlate?)
+// common sizes for iPhone (will these change for iPad?)
 
 #define TI_STATUSBAR_HEIGHT				20
 
@@ -360,4 +357,4 @@ NSData * dataWithHexString (NSString * hexString);
 NSString * hexString (NSData * thedata);
 
 
-extern const NSString * kKrollShutdownNotification;
+extern NSString * const kKrollShutdownNotification;

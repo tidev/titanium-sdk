@@ -6,11 +6,183 @@
  */
 
 #import "TiUIScrollView.h"
-
+#import "TiUIScrollViewProxy.h"
 #import "TiUtils.h"
 
 @implementation TiUIScrollView
 
+- (void) dealloc
+{
+	RELEASE_TO_NIL(scrollView);
+	[super dealloc];
+}
 
+-(UIView *)wrapperView
+{
+	if (wrapperView == nil)
+	{
+		CGRect wrapperFrame;
+		wrapperFrame.size = [[self scrollView] contentSize];
+		wrapperFrame.origin = CGPointZero;
+		wrapperView = [[UIView alloc] initWithFrame:wrapperFrame];
+		[scrollView addSubview:wrapperView];
+	}
+	return wrapperView;
+}
+
+-(UIScrollView *)scrollView
+{
+	if(scrollView == nil)
+	{
+		scrollView = [[UIScrollView alloc] initWithFrame:[self bounds]];
+		[scrollView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+		[scrollView setBackgroundColor:[UIColor clearColor]];
+		[scrollView setShowsHorizontalScrollIndicator:NO];
+		[scrollView setShowsVerticalScrollIndicator:NO];
+		[scrollView setDelegate:self];
+		[self addSubview:scrollView];
+	}
+	return scrollView;
+}
+
+-(void)setNeedsHandleContentSize
+{
+	if (!needsHandleContentSize)
+	{
+		needsHandleContentSize = YES;
+		[self performSelectorOnMainThread:@selector(handleContentSize) withObject:nil waitUntilDone:NO];
+	}
+}
+
+-(void)handleContentSize
+{
+	CGSize newContentSize = [self bounds].size;
+	
+	NSArray * subViews = [[self wrapperView] subviews];
+	
+	switch (contentWidth.type)
+	{
+		case TiDimensionTypePixels:
+			newContentSize.width = MAX(newContentSize.width,contentWidth.value);
+			break;
+		case TiDimensionTypeAuto:
+			for (TiUIView * thisChildView in subViews)
+			{
+				newContentSize.width = MAX(newContentSize.width,[thisChildView minimumParentWidthForWidth:newContentSize.width]);
+			}
+			break;
+	}
+
+	switch (contentHeight.type)
+	{
+		case TiDimensionTypePixels:
+			newContentSize.height = MAX(newContentSize.height,contentHeight.value);
+			break;
+		case TiDimensionTypeAuto:
+			for (TiUIView * thisChildView in subViews)
+			{
+				newContentSize.height = MAX(newContentSize.height,[thisChildView minimumParentHeightForWidth:newContentSize.width]);
+			}
+			break;
+	}
+
+	[scrollView setContentSize:newContentSize];
+	CGRect wrapperBounds;
+	wrapperBounds.origin = CGPointZero;
+	wrapperBounds.size = newContentSize;
+	[wrapperView setBounds:wrapperBounds];
+	[wrapperView setCenter:CGPointMake(newContentSize.width/2, newContentSize.height/2)];
+	for (TiUIView * thisChildView in subViews)
+	{
+		if ([thisChildView respondsToSelector:@selector(reposition)])
+		{
+			[thisChildView reposition];
+		}
+	}
+
+	needsHandleContentSize = NO;
+}
+
+-(void)layoutChild:(TiUIView *)childView
+{
+	// layout out ourself
+	if ([childView superview]!=[self wrapperView])
+	{
+		[wrapperView addSubview:childView];
+	}
+	[childView reposition];
+}
+
+-(void)setContentWidth_:(id)value
+{
+	contentWidth = [TiUtils dimensionValue:value];
+	[self setNeedsHandleContentSize];
+}
+
+-(void)setContentHeight_:(id)value
+{
+	contentHeight = [TiUtils dimensionValue:value];
+	[self setNeedsHandleContentSize];
+}
+
+-(void)setShowHorizontalScrollIndicator_:(id)value
+{
+	[[self scrollView] setShowsHorizontalScrollIndicator:[TiUtils boolValue:value]];
+}
+
+-(void)setShowVerticalScrollIndicator_:(id)value
+{
+	[[self scrollView] setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
+}
+
+-(void)setScrollIndicatorStyle_:(id)value
+{
+	[[self scrollView] setIndicatorStyle:[TiUtils intValue:value def:UIScrollViewIndicatorStyleDefault]];
+}
+
+-(void)setDisableBounce_:(id)value
+{
+	[[self scrollView] setBounces:![TiUtils boolValue:value]];
+}
+
+-(void)setHorizontalBounce_:(id)value
+{
+	[[self scrollView] setAlwaysBounceHorizontal:[TiUtils boolValue:value]];
+}
+
+-(void)setVerticalBounce_:(id)value
+{
+	[[self scrollView] setAlwaysBounceHorizontal:[TiUtils boolValue:value]];
+}
+
+#pragma mark scrollView delegate stuff
+
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView               // any offset changes
+{
+
+}
+
+/*
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView;                              // called on start of dragging (may require some time and or distance to move)
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate; // called on finger up if user dragged. decelerate is true if it will continue moving afterwards
+
+- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView;   // called on finger up as we are moving
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView;      // called when scroll view grinds to a halt
+
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView; // called when setContentOffset/scrollRectVisible:animated: finishes. not called if not animating
+*/
+
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
+{
+	return [self wrapperView];
+}
+
+/*
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(float)scale; // scale between minimum and maximum. called after any 'bounce' animations
+
+- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView;   // return a yes if you want to scroll to the top. if not defined, assumes YES
+- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView;      // called when scrolling animation finished. may be called immediately if already at top
+*/
 
 @end

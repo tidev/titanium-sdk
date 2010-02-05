@@ -4,17 +4,16 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import "TiProxy.h"
 
-#import "TiMapViewProxy.h"
+@interface TiUIScrollIndicatorStyleProxy : TiProxy {
 
-@implementation TiMapViewProxy
+@private
 
--(void)zoom:(id)args
-{
-	if ([self viewAttached])
-	{
-		[[self view] performSelectorOnMainThread:@selector(zoom:) withObject:args waitUntilDone:NO];
-	}
 }
+
+@property(nonatomic,readonly) NSNumber *DEFAULT;
+@property(nonatomic,readonly) NSNumber *BLACK;
+@property(nonatomic,readonly) NSNumber *WHITE;
 
 @end

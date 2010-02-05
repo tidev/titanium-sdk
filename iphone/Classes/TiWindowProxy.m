@@ -38,56 +38,15 @@
 @end
 
 
-
-// since we can have multiple top level window animations that attempt to
-// occur at the same time, we need to make sure we queue them at the top
-// level (views already queue within themselves).  this should only apply
-// at windows, tabgroups, etc. 
-static BOOL windowAnimationActive;
-static NSMutableArray *windowAnimationQueue;
-
-// check to make sure we don't have a top level animation happening
-// if we do, we need to queue this pending action unless the previous one completes
-#define UI_ENSURE_AFTER_WINDOW_ANIMATION(method,args) \
-if ([self windowAnimationActive])\
-{\
-if (windowAnimationQueue==nil)\
-{\
-windowAnimationQueue = [[NSMutableArray alloc] init];\
-}\
-TiAction *action = [[TiAction alloc] initWithTarget:self selector:@selector(method:) arg:args];\
-[windowAnimationQueue addObject:action];\
-[action release];\
-return;\
-}\
-[self setWindowAnimationActive:YES];\
-[self performSelector:@selector(method:) withObject:args];\
-
-#define UI_ENSURE_AFTER_WINDOW_ANIMATION_NOARG(method) \
-if ([self windowAnimationActive])\
-{\
-if (windowAnimationQueue==nil)\
-{\
-windowAnimationQueue = [[NSMutableArray alloc] init];\
-}\
-TiAction *action = [[TiAction alloc] initWithTarget:self selector:@selector(method) arg:nil];\
-[windowAnimationQueue addObject:action];\
-[action release];\
-return;\
-}\
-[self setWindowAnimationActive:YES];\
-[self performSelector:@selector(method) withObject:nil];\
-
-
 @implementation TiWindowProxy
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(tempView);
-	RELEASE_TO_NIL(tempColor);
 	RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(navbar);
 	RELEASE_TO_NIL(tab);
+	RELEASE_TO_NIL(reattachWindows);
+	RELEASE_TO_NIL(closeView);
 	[super dealloc];
 }
 
@@ -104,51 +63,13 @@ return;\
 -(TiUIView*)newView
 {
 	TiUIWindow * win = [[TiUIWindow alloc] initWithFrame:[self appFrame]];
-	win.hidden = YES;
 	return win;
-}
-
--(void)setWindowAnimationActive:(BOOL)yn
-{
-	@synchronized(self)
-	{
-		windowAnimationActive = yn;
-	}
-}
-
--(BOOL)windowAnimationActive
-{
-	BOOL active = NO;
-	
-	@synchronized(self)
-	{
-		active = windowAnimationActive;
-	}
-	
-	return active;
 }
 
 BEGIN_UI_THREAD_PROTECTED_VALUE(opened,NSNumber)
 	result = [NSNumber numberWithBool:opened];
 END_UI_THREAD_PROTECTED_VALUE(opened)
 
--(void)_processPendingWindowAnimations
-{
-	ENSURE_UI_THREAD(_processPendingWindowAnimations,nil);
-	[self setWindowAnimationActive:NO];
-	if (windowAnimationQueue!=nil && [windowAnimationQueue count] > 0)
-	{
-		TiAction *action = [[windowAnimationQueue objectAtIndex:0] retain];
-		[windowAnimationQueue removeObjectAtIndex:0];
-		[action execute];
-		[action release];
-		
-		if ([windowAnimationQueue count]==0)
-		{
-			RELEASE_TO_NIL(windowAnimationQueue);
-		}
-	}
-}
 
 -(BOOL)_handleOpen:(id)args
 {
@@ -161,54 +82,31 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	return [[TitaniumApp app] window];
 }
 
--(TiViewProxy*)_findFirstTiViewOnTopLevelWindow
-{
-	TiUIView *view = [self view];
-	
-	for (id child in [[self _window] subviews])
-	{
-		if (child == view)
-		{
-			continue;
-		}
-		if ([child isKindOfClass:[TiUIView class]])
-		{
-			return [(TiUIView*)child proxy];
-		}
-	}
-	return nil;
-}
-
--(int)_topLevelWindowChildCountExcludingSelf
-{
-	int count = [[[self _window] subviews] count];
-	if ([[self view] superview] == [self _window])
-	{
-		count--;
-	}
-	return count;
-}
-
--(BOOL)_topLevelWindowHasChildren
-{
-	return ([[[self _window] subviews] count] > 0);
-}
-
--(void)_windowReady
+-(void)windowReady
 {
 	opened = YES;
+	opening = NO;
 	
-	[self _attachViewToTopLevelWindow];
+	[self attachViewToTopLevelWindow];
 	
 	if ([self _hasListeners:@"open"])
 	{
 		[self fireEvent:@"open" withObject:nil];
 	}
 	
-	[self _processPendingWindowAnimations];
+	if (reattachWindows!=nil)
+	{
+		UIView *rootView = [[TitaniumApp app] controller].view;
+		for (UIView *aview in reattachWindows)
+		{
+			[rootView addSubview:aview];
+			[rootView sendSubviewToBack:aview];
+		}
+		RELEASE_TO_NIL(reattachWindows);
+	}
 }
 
--(void)_windowClosed
+-(void)windowClosed
 {
 	if (opened==NO)
 	{
@@ -217,9 +115,9 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	
 	opened = NO;
 	attached = NO;
+	opening = NO;
 	
 	[self detachView];
-	[self _processPendingWindowAnimations];
 	
 	// notify our child that his window is closing
 	for (TiViewProxy *child in self.children)
@@ -231,52 +129,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 	RELEASE_TO_NIL(navbar);
 	RELEASE_TO_NIL(controller);
-}
-
--(void)_makeSplashScreenBackgroundView
-{
-	if (tempColor==nil)
-	{
-		tempColor = [[self _window].backgroundColor retain];
-	}
-	if (tempView==nil)
-	{
-		tempView = [[TiViewProxy alloc] init];
-		[tempView setValue:@"Default.png" forKey:@"backgroundImage"];
-		[TiUtils setView:[tempView view] positionRect:[self _window].bounds];
-		[[self _window] addSubview:[tempView view]];
-	}
-}
-
--(void)_performCloseTransition:(TiAnimation*)animation
-{
-	BOOL animate = YES;
-	[animation setDelegate:self selector:@selector(_windowClosed) withObject:nil];
-	
-	//TODO: REWORK ALL OF THIS
-	/*
-	if ([animation isTransitionAnimation] && [self _topLevelWindowHasChildren])
-	{
-		TiViewProxy *target = [self _findFirstTiViewOnTopLevelWindow];
-		if (target == nil && [self _topLevelWindowChildCountExcludingSelf] == 0)
-		{
-			// we need to add a temporary view to transition back to
-			[self _makeSplashScreenBackgroundView];
-			target = tempView;
-			closeTempView = NO;
-		}
-		if (target!=nil)
-		{
-			// if we're hanging off the top level window, we will need to do a transition
-			[animation animateTransition:[self _window] oldView:self newView:target];
-			animate = NO;
-		}
-	}*/
-	
-	if (animate)
-	{
-		[animation animate:self];
-	}
 }
 
 -(BOOL)_handleClose:(id)args
@@ -365,44 +217,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}
 }
 
-
--(void)_performOpenTransition:(TiAnimation*)animation
-{
-	BOOL animate = YES;
-	[animation setDelegate:self selector:@selector(_windowReady) withObject:nil];
-	if ([animation isTransitionAnimation])
-	{
-		// potentially open with animation against the top level window 
-		// if he has no attached views yet
-		if (![self _topLevelWindowHasChildren])
-		{
-			[self _performTopLevelWindowAnimation:animation view:self];
-			animate = NO;
-		}
-		// check to see if there are at least 1 other window we can transition from (as as sibling)
-		else if ([self _topLevelWindowHasChildren])
-		{
-			/*FIXME: rework all of this
-			TiViewProxy *target = [self _findFirstTiViewOnTopLevelWindow];
-			if (target!=nil)
-			{
-				tempView = [target retain];
-				readdTempView = YES;
-				closeTempView = YES;
-				// if we're hanging off the top level window, we will need to do a transition
-				[animation animateTransition:[self _window] oldView:target newView:self];
-				animate = NO; 
-			}*/
-		}
-	}
-	if (animate)
-	{
-		// else just perform the animation as-is
-		[self _attachViewToTopLevelWindow];
-		[animation animate:[self view]];
-	}
-}
-
 -(BOOL)argOrWindowProperty:(NSString*)key args:(id)args
 {
 	if ([TiUtils boolValue:[self valueForUndefinedKey:key]])
@@ -431,37 +245,16 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	ENSURE_UI_THREAD(open,args);
 	
 	// opening a window more than once does nothing
-	if (opened==YES && [self windowAnimationActive]==NO)
+	if (opened==YES)
 	{
 		return;
 	}
 	
 	modal = NO;
 	fullscreen = NO;
+	opening = YES;
 	
-	if ([self isFullscreen:args])
-	{
-		fullscreen = YES;
-		restoreFullscreen = [UIApplication sharedApplication].statusBarHidden;
-		[[UIApplication sharedApplication] setStatusBarHidden:YES];
-		[[[TitaniumApp app] controller] resizeView];
-	}
-	
-	if ([self isModal:args])
-	{
-		modal = YES;
-		attached = YES;
-		WindowViewController *wc = [[[WindowViewController alloc] initWithWindow:self] autorelease];
-		UINavigationController *navController = [[[UINavigationController alloc] initWithRootViewController:wc] autorelease];
-		[self setController:wc];
-		[self setNavController:navController];
-		[self view].hidden=NO;
-		BOOL animated = args!=nil && [args isKindOfClass:[NSDictionary class]] ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
-		[self setupWindowDecorations];
-		[[[TitaniumApp app] controller] presentModalViewController:navController animated:animated];
-	}
-	
-	// FIXME: for now this will ensure on open that we've created our view before we start to use it
+	// ensure on open that we've created our view before we start to use it
 	[self view];
 	
 	// give it to our subclass. he'll either return true to continue with open state and animation or 
@@ -469,14 +262,38 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	if ([self _handleOpen:args])
 	{
 		TiAnimation *animation = [TiAnimation animationFromArg:args context:[self pageContext] create:NO];
-		
 		if (animation!=nil)
 		{
-			UI_ENSURE_AFTER_WINDOW_ANIMATION(_performOpenTransition,animation);
+			if ([animation isTransitionAnimation])
+			{
+				transitionAnimation = [[animation transition] intValue];
+				splashTransitionAnimation = [[TitaniumApp app] isSplashVisible];
+			}
+			animation.delegate = self;
+			[animation animate:self];
 		}
-		else 
+		if ([self isFullscreen:args])
 		{
-			UI_ENSURE_AFTER_WINDOW_ANIMATION_NOARG(_windowReady);
+			fullscreen = YES;
+			restoreFullscreen = [UIApplication sharedApplication].statusBarHidden;
+			[[UIApplication sharedApplication] setStatusBarHidden:YES];
+			[self view].frame = [[[TitaniumApp app] controller] resizeView];
+		}
+		else if ([self isModal:args])
+		{
+			modal = YES;
+			attached = YES;
+			WindowViewController *wc = [[[WindowViewController alloc] initWithWindow:self] autorelease];
+			UINavigationController *navController = [[[UINavigationController alloc] initWithRootViewController:wc] autorelease];
+			[self setController:wc];
+			[self setNavController:navController];
+			BOOL animated = args!=nil && [args isKindOfClass:[NSDictionary class]] ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
+			[self setupWindowDecorations];
+			[[[TitaniumApp app] controller] presentModalViewController:navController animated:animated];
+		}
+		if (animation==nil)
+		{
+			[self windowReady];
 		}
 	}
 }
@@ -485,15 +302,11 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 {
 	ENSURE_UI_THREAD(close,args);
 	
-	
 	// closing more than once does nothing
-	if (opened==NO && [self windowAnimationActive]==NO)
+	if (opened==NO)
 	{
 		return;
 	}
-	
-	// hold ourself during close
-	[[self retain] autorelease];
 	
 	if (modal)
 	{
@@ -510,6 +323,14 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			return;
 		}
 	}
+	
+	
+	opening = NO;
+	UIView *myview = [self view];
+	[[myview retain] autorelease];
+	
+	// hold ourself during close
+	[[self retain] autorelease];
 	
 	if ([self _hasListeners:@"close"])
 	{
@@ -533,119 +354,169 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	if ([self _handleClose:args])
 	{
 		TiAnimation *animation = [TiAnimation animationFromArg:args context:[self pageContext] create:NO];
-		
 		if (animation!=nil)
 		{
-			UI_ENSURE_AFTER_WINDOW_ANIMATION(_performCloseTransition,animation);
+			if ([animation isTransitionAnimation])
+			{
+				UIView *rootView = [[TitaniumApp app] controller].view;
+				transitionAnimation = [[animation transition] intValue];
+				splashTransitionAnimation = [[rootView subviews] count]<=1 && modal==NO;
+				if (splashTransitionAnimation)
+				{
+					[[TitaniumApp app] attachSplash];
+				}
+				else
+				{
+					RELEASE_TO_NIL(reattachWindows);
+					if ([[rootView subviews] count] > 0)
+					{
+						reattachWindows = [[NSMutableArray array] retain];
+						for (UIView *aview in [rootView subviews])
+						{
+							if (aview!=[self view])
+							{
+								[reattachWindows addObject:aview];
+								[aview removeFromSuperview];
+							}
+						}
+					}
+				}
+			}
+			animation.delegate = self;
+			// we need to hold a reference during close
+			closeView = [myview retain];
+			[animation animate:self];
 		}
-		else 
+		
+		if (fullscreen)
 		{
-			UI_ENSURE_AFTER_WINDOW_ANIMATION_NOARG(_windowClosed);
+			[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen];
+			self.view.frame = [[[TitaniumApp app] controller] resizeView];
+		}
+		
+		if (animation==nil)
+		{
+			[self windowClosed];
 		}
 	}	 
-
-	if (fullscreen)
-	{
-		[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen];
-		[[[TitaniumApp app] controller] resizeView];
-	}
 }
 
--(void)_attachViewToTopLevelWindow
+-(void)attachViewToTopLevelWindow
 {
-	BOOL splashAnimation = [[TitaniumApp app] isSplashVisible];
-	if (splashAnimation)
+	if (attached)
 	{
-		[UIView beginAnimations:@"splash" context:nil];
+		return;
 	}
-	UIView *rootView = [[TitaniumApp app] controller].view;
-
-	if (readdTempView && tempView!=nil)
-	{
-		[rootView addSubview:[tempView view]];
-		RELEASE_TO_NIL(tempView);
-		readdTempView=NO;
-	}
-	
-	if (attached==NO)
-	{
-		attached = YES;
-		TiUIView *view = [self view];
-		if (![self _isChildOfTab])
-		{
-			[rootView addSubview:view];
-			[[[TitaniumApp app] controller] windowFocused:self];
-		}
-		[self layoutChildren:view.bounds];
-		[rootView bringSubviewToFront:view];
-		view.hidden = NO;
-	}
-	
-	[[TitaniumApp app] hideSplash:nil];
-	
-	if (splashAnimation)
-	{
-		[UIView commitAnimations];
-	}
-}
-
--(void)_windowAnimationCompleted
-{
-	// after the initial window animation completes we can
-	// safely remove our tempView to save memory
-	
-	if (tempView!=nil && closeTempView)
-	{
-		[tempView destroy];
-		RELEASE_TO_NIL(tempView);
-		[[self _window] setBackgroundColor:tempColor];
-		RELEASE_TO_NIL(tempColor);
-	}
-	
-	// we need to fire our events
-	[self _windowReady];
-}
-
--(void)_startWindowAnimation:(NSArray*)args
-{
-	//FIXME - rework all of this
-	
-	/*
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	attached = YES;
-	// start the window animation back on the main UI thread
-	TiAnimation *animation = [args objectAtIndex:0];
-	TiViewProxy *oldView = [args objectAtIndex:1];
-	TiViewProxy *newView = [args objectAtIndex:2];
 	
-	if (newView==self)
+	UIView *rootView = [[TitaniumApp app] controller].view;
+	TiUIView *view = [self view];
+	
+	if (![self _isChildOfTab])
 	{
-		TiUIView *view = [self view];
-		[TiUtils setView:view positionRect:[TiUtils contentFrame:YES]];
-		[self layoutChildren:view.bounds];
+		[rootView addSubview:view];
+		[[[TitaniumApp app] controller] windowFocused:self];
 	}
-	[animation setDelegate:self selector:@selector(_windowAnimationCompleted) withObject:nil];
-	[animation animateTransition:[self _window] oldView:oldView newView:newView];
-	[pool release];
-	 */
-}
 
--(void)_performTopLevelWindowAnimation:(TiAnimation*)animation view:(TiViewProxy*)newView
-{
-	// this method will temporarily attach the splashscreen (loading screen) at a child
-	// so that we can do a transition against it
-	opened = YES;
-	[self _makeSplashScreenBackgroundView];
-	// remember the background color of the window so we can reset after the animation
-	// this little guy is required to be done on a separate thread or the animation won't happen
-	// given the current state of the load.
-	NSArray *args = [NSArray arrayWithObjects:animation,tempView,newView,nil];
-	[NSThread detachNewThreadSelector:@selector(_startWindowAnimation:) toTarget:self withObject:args];
+	[self layoutChildren:view.bounds];
+
+	[rootView bringSubviewToFront:view];
+
+	// make sure the splash is gone
+	[[TitaniumApp app] hideSplash:nil];
 }
 
 -(NSNumber*)focused
 {
 	return NUMBOOL(focused);
 }
+
+#pragma mark Animation Delegates
+
+-(BOOL)animationShouldTransition:(id)sender
+{
+	UIView *rootView = [[TitaniumApp app] controller].view;
+	[UIView setAnimationTransition:transitionAnimation
+						   forView:rootView
+							 cache:NO];
+	
+	if (opening)
+	{
+		if (splashTransitionAnimation)
+		{
+			splashTransitionAnimation=NO;
+			UIView *splashView = [[TitaniumApp app] splash];
+			[splashView removeFromSuperview];
+		}
+		else
+		{
+			RELEASE_TO_NIL(reattachWindows);
+			if ([[rootView subviews] count] > 0)
+			{
+				reattachWindows = [[NSMutableArray array] retain];
+				for (UIView *aview in [rootView subviews])
+				{
+					if (aview!=[self view])
+					{
+						[reattachWindows addObject:aview];
+						[aview removeFromSuperview];
+					}
+				}
+			}
+		}
+		[self attachViewToTopLevelWindow];
+	}
+	else 
+	{
+		if (reattachWindows!=nil)
+		{
+			for (UIView *aview in reattachWindows)
+			{
+				[rootView addSubview:aview];
+			}
+			RELEASE_TO_NIL(reattachWindows);
+			[self detachView];
+		}
+	}
+
+	return NO;
+}
+
+-(void)animationWillStart:(id)sender
+{
+	if (opening)
+	{
+		if (splashTransitionAnimation==NO)
+		{
+			if ([[TitaniumApp app] isSplashVisible])
+			{
+				[[TitaniumApp app] splash].alpha = 0;
+			}	
+			[self attachViewToTopLevelWindow];
+		}
+	}
+	else
+	{
+		if (splashTransitionAnimation)
+		{
+			[self detachView];
+		}
+	}
+}
+
+-(void)animationDidComplete:(id)sender
+{
+	if (opening)
+	{
+		[self windowReady];
+	}
+	else
+	{
+		[self windowClosed];
+		[closeView autorelease];
+		closeView=nil;
+	}
+}
+
 
 @end

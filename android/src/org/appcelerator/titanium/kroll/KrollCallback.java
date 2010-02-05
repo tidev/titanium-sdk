@@ -25,20 +25,29 @@ public class KrollCallback
 		this.method = method;
 	}
 
-	public void call(final TiDict data) {
+	public void callWithProperties(TiDict data) {
+		if (data == null) {
+			data = new TiDict();
+		}
+		
+		call(new Object[] { data });
+	}
+	
+	public void call(Object[] args) {
+		if (args == null) args = new Object[0];
+		final Object[] fArgs = args;
+		
 		kroll.post(new Runnable(){
-
 			public void run() {
 				Context ctx = kroll.enter();
 
 				try {
-					TiDict dataArg = data;
-					if (data == null) {
-						dataArg = new TiDict();
+					Object[] jsArgs = new Object[fArgs.length];
+					for (int i = 0; i < fArgs.length; i++) {
+						Object jsArg = KrollObject.fromNative(fArgs[i], kroll);
+						jsArgs[i] = jsArg;
 					}
-					Object event = KrollObject.fromNative(dataArg, kroll);
-					Object[] args = { event };
-					method.call(ctx, thisObj, thisObj.getPrototype(), args);
+					method.call(ctx, thisObj, thisObj.getPrototype(), jsArgs);
 				} catch (Throwable e) {
 					Log.e(LCAT, "ERROR: " + e.getMessage(), e);
 					//Context.throwAsScriptRuntimeEx(e);
