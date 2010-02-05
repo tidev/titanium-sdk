@@ -418,11 +418,11 @@ public class TiContext implements TiEvaluator
 		}
 	}
 
-	public static TiContext createTiContext(Activity activity)
+	public static TiContext createTiContext(Activity activity, TiDict preload)
 	{
 		TiContext tic = new TiContext(activity);
 		KrollContext kroll = KrollContext.createContext(tic);
-		KrollBridge krollBridge = new KrollBridge(kroll);
+		KrollBridge krollBridge = new KrollBridge(kroll, preload);
 		tic.setJSContext(krollBridge);
 		return tic;
 	}

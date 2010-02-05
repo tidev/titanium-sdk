@@ -36,6 +36,8 @@ public class TiUITabGroup extends TiUIView
                   LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
 		tabHost.setup(proxy.getTiContext().getRootActivity().getLocalActivityManager());
+
+		setNativeView(tabHost);
 	}
 
 	public TabSpec newTab(String id)

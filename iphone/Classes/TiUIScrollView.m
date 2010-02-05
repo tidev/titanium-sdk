@@ -25,7 +25,6 @@
 		wrapperFrame.size = [[self scrollView] contentSize];
 		wrapperFrame.origin = CGPointZero;
 		wrapperView = [[UIView alloc] initWithFrame:wrapperFrame];
-		[wrapperView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		[scrollView addSubview:wrapperView];
 	}
 	return wrapperView;
@@ -88,6 +87,11 @@
 	}
 
 	[scrollView setContentSize:newContentSize];
+	CGRect wrapperBounds;
+	wrapperBounds.origin = CGPointZero;
+	wrapperBounds.size = newContentSize;
+	[wrapperView setBounds:wrapperBounds];
+	[wrapperView setCenter:CGPointMake(newContentSize.width/2, newContentSize.height/2)];
 	for (TiUIView * thisChildView in subViews)
 	{
 		if ([thisChildView respondsToSelector:@selector(reposition)])

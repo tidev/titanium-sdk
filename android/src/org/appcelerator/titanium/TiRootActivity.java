@@ -8,8 +8,6 @@ package org.appcelerator.titanium;
 
 import java.io.IOException;
 
-import org.appcelerator.titanium.kroll.KrollBridge;
-import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -47,12 +45,7 @@ public class TiRootActivity extends ActivityGroup
 		TiApplication host = getTiApp();
 		host.setRootActivity(this);
 
-//		tiContext = new TiContext(this);
-//		kroll = KrollContext.createContext(tiContext);
-//		krollBridge = new KrollBridge(kroll);
-//		tiContext.setJSContext(krollBridge); // TODO double check cleanup
-
-		tiContext = TiContext.createTiContext(this);
+		tiContext = TiContext.createTiContext(this, null);
 
 		runOnUiThread(new Runnable(){
 
@@ -84,7 +77,7 @@ public class TiRootActivity extends ActivityGroup
 			Intent intent = new Intent(this, TiActivity.class);
 			Window w = lam.startActivity(key, intent);
 			activity = lam.getActivity(key);
-			this.setContentView(w.getDecorView());
+			//this.setContentView(w.getDecorView());
 		}
 		ref.activity = activity;
 		ref.key = key;
