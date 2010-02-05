@@ -12,6 +12,20 @@
 #import <QuartzCore/QuartzCore.h>
 
 @class TiViewProxy;
+@class TiAnimation;
+
+@protocol TiAnimationDelegate
+
+@optional
+
+-(BOOL)animationShouldTransition:(id)sender;
+-(void)animationWillStart:(id)sender;
+-(void)animationDidStart:(id)sender;
+-(void)animationWillComplete:(id)sender;
+-(void)animationDidComplete:(id)sender;
+
+@end
+
 
 @interface TiAnimation : TiProxy {
 @private
@@ -39,11 +53,10 @@
 	// this is a temporary function passed in
 	KrollCallback		*callback;
 	
-	// programatic callback used by making special animations internally
-	id delegate;
-	SEL selector;
-	id delegateContext;
+	NSObject<TiAnimationDelegate> *delegate;
 }
+
+@property(nonatomic,assign,readwrite) NSObject<TiAnimationDelegate> *delegate;
 
 // animatable properties against what is being animated
 @property(nonatomic,retain,readwrite) NSNumber	*zIndex;
@@ -76,8 +89,6 @@
 -(id)initWithDictionary:(NSDictionary*)properties context:(id<TiEvaluator>)context callback:(KrollCallback*)callback;
 
 -(void)animate:(id)args;
-
--(void)setDelegate:(id)target selector:(SEL)selector withObject:(id)object;
 
 -(BOOL)isTransitionAnimation;
 

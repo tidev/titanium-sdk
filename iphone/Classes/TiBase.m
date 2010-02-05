@@ -31,7 +31,8 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b)
 }
 
 
-const NSString *kKrollShutdownNotification = @"KrollShutdown";
+NSString * const kKrollShutdownNotification = @"KrollShutdown";
+
 
 #pragma mark Hex
 

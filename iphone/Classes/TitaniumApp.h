@@ -37,8 +37,9 @@
 
 +(TitaniumApp*)app;
 
-- (BOOL)isSplashVisible;
+-(BOOL)isSplashVisible;
 -(void)hideSplash:(id)event;
+-(UIView*)splash;
 
 -(void)startNetwork;
 -(void)stopNetwork;

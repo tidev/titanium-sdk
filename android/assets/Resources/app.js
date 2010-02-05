@@ -32,6 +32,7 @@ try {
 	//files.push('ui-imageview.js');
 	//files.push('ui-label.js');
 	//files.push('test.js');
+	//files.push('picker.js');
 
 	Ti.include(files);
 
