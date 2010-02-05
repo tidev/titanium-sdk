@@ -46,6 +46,7 @@
 	RELEASE_TO_NIL(navbar);
 	RELEASE_TO_NIL(tab);
 	RELEASE_TO_NIL(reattachWindows);
+	RELEASE_TO_NIL(closeView);
 	[super dealloc];
 }
 
@@ -84,6 +85,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(void)windowReady
 {
 	opened = YES;
+	opening = NO;
 	
 	[self attachViewToTopLevelWindow];
 	
@@ -113,6 +115,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	
 	opened = NO;
 	attached = NO;
+	opening = NO;
 	
 	[self detachView];
 	
@@ -214,7 +217,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}
 }
 
-
 -(BOOL)argOrWindowProperty:(NSString*)key args:(id)args
 {
 	if ([TiUtils boolValue:[self valueForUndefinedKey:key]])
@@ -238,10 +240,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	return [self argOrWindowProperty:@"fullscreen" args:args];
 }
 
--(void)openAnimationCompleted:(id)sender
-{
-}
-
 -(void)open:(id)args
 {
 	ENSURE_UI_THREAD(open,args);
@@ -254,6 +252,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	
 	modal = NO;
 	fullscreen = NO;
+	opening = YES;
 	
 	// ensure on open that we've created our view before we start to use it
 	[self view];
@@ -309,9 +308,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		return;
 	}
 	
-	// hold ourself during close
-	[[self retain] autorelease];
-	
 	if (modal)
 	{
 		UIViewController *vc = [self controller];
@@ -327,6 +323,14 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			return;
 		}
 	}
+	
+	
+	opening = NO;
+	UIView *myview = [self view];
+	[[myview retain] autorelease];
+	
+	// hold ourself during close
+	[[self retain] autorelease];
 	
 	if ([self _hasListeners:@"close"])
 	{
@@ -349,14 +353,52 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	
 	if ([self _handleClose:args])
 	{
+		TiAnimation *animation = [TiAnimation animationFromArg:args context:[self pageContext] create:NO];
+		if (animation!=nil)
+		{
+			if ([animation isTransitionAnimation])
+			{
+				UIView *rootView = [[TitaniumApp app] controller].view;
+				transitionAnimation = [[animation transition] intValue];
+				splashTransitionAnimation = [[rootView subviews] count]<=1 && modal==NO;
+				if (splashTransitionAnimation)
+				{
+					[[TitaniumApp app] attachSplash];
+				}
+				else
+				{
+					RELEASE_TO_NIL(reattachWindows);
+					if ([[rootView subviews] count] > 0)
+					{
+						reattachWindows = [[NSMutableArray array] retain];
+						for (UIView *aview in [rootView subviews])
+						{
+							if (aview!=[self view])
+							{
+								[reattachWindows addObject:aview];
+								[aview removeFromSuperview];
+							}
+						}
+					}
+				}
+			}
+			animation.delegate = self;
+			// we need to hold a reference during close
+			closeView = [myview retain];
+			[animation animate:self];
+		}
+		
 		if (fullscreen)
 		{
 			[[UIApplication sharedApplication] setStatusBarHidden:restoreFullscreen];
-			[[[TitaniumApp app] controller] resizeView];
+			self.view.frame = [[[TitaniumApp app] controller] resizeView];
+		}
+		
+		if (animation==nil)
+		{
+			[self windowClosed];
 		}
 	}	 
-	
-	[self windowClosed];
 }
 
 -(void)attachViewToTopLevelWindow
@@ -397,48 +439,83 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	[UIView setAnimationTransition:transitionAnimation
 						   forView:rootView
 							 cache:NO];
-	// if we have a splash animation, we handle that ourselves
-	if (splashTransitionAnimation)
+	
+	if (opening)
 	{
-		splashTransitionAnimation=NO;
-		UIView *splashView = [[TitaniumApp app] splash];
-		[splashView removeFromSuperview];
-	}
-	else
-	{
-		RELEASE_TO_NIL(reattachWindows);
-		if ([[rootView subviews] count] > 0)
+		if (splashTransitionAnimation)
 		{
-			reattachWindows = [[NSMutableArray array] retain];
-			for (UIView *aview in [rootView subviews])
+			splashTransitionAnimation=NO;
+			UIView *splashView = [[TitaniumApp app] splash];
+			[splashView removeFromSuperview];
+		}
+		else
+		{
+			RELEASE_TO_NIL(reattachWindows);
+			if ([[rootView subviews] count] > 0)
 			{
-				if (aview!=[self view])
+				reattachWindows = [[NSMutableArray array] retain];
+				for (UIView *aview in [rootView subviews])
 				{
-					[reattachWindows addObject:aview];
-					[aview removeFromSuperview];
+					if (aview!=[self view])
+					{
+						[reattachWindows addObject:aview];
+						[aview removeFromSuperview];
+					}
 				}
 			}
 		}
+		[self attachViewToTopLevelWindow];
 	}
-	[self attachViewToTopLevelWindow];
+	else 
+	{
+		if (reattachWindows!=nil)
+		{
+			for (UIView *aview in reattachWindows)
+			{
+				[rootView addSubview:aview];
+			}
+			RELEASE_TO_NIL(reattachWindows);
+			[self detachView];
+		}
+	}
+
 	return NO;
 }
 
 -(void)animationWillStart:(id)sender
 {
-	if (splashTransitionAnimation==NO)
+	if (opening)
 	{
-		if ([[TitaniumApp app] isSplashVisible])
+		if (splashTransitionAnimation==NO)
 		{
-			[[TitaniumApp app] splash].alpha = 0;
-		}	
-		[self attachViewToTopLevelWindow];
+			if ([[TitaniumApp app] isSplashVisible])
+			{
+				[[TitaniumApp app] splash].alpha = 0;
+			}	
+			[self attachViewToTopLevelWindow];
+		}
+	}
+	else
+	{
+		if (splashTransitionAnimation)
+		{
+			[self detachView];
+		}
 	}
 }
 
 -(void)animationDidComplete:(id)sender
 {
-	[self windowReady];
+	if (opening)
+	{
+		[self windowReady];
+	}
+	else
+	{
+		[self windowClosed];
+		[closeView autorelease];
+		closeView=nil;
+	}
 }
 
 
