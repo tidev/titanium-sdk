@@ -8,7 +8,6 @@ var data = [
 	{title:'Table Views', hasChild:true, test:'../examples/table_views.js'},
 	{title:'Grouped Views', hasChild:true, test:'../examples/grouped_views.js'},
 	{title:'Web Views', hasChild:true, test:'../examples/web_views.js'},
-	{title:'Dialog Views', hasChild:true, test:'../examples/dialog_views.js'},
 	{title:'Alert Dialog', hasChild:true, test:'../examples/alert.js'},
 	{title:'Options Dialog', hasChild:true, test:'../examples/options_dialog.js'},
 	{title:'Email Dialog', hasChild:true, test:'../examples/email_dialog.js'},
