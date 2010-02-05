@@ -4,7 +4,7 @@ var search = Titanium.UI.createSearchBar({
 	barColor:'#000', 
 	showCancel:true,
 	height:43,
-	top:0
+	top:0,
 });
 
 win.add(search);
