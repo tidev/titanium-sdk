@@ -13,7 +13,6 @@ var data = [
 	{title:'Email Dialog', hasChild:true, test:'../examples/email_dialog.js'},
 	{title:'Canvas Views', hasChild:true, test:'../examples/canvas_views.js'},
 	{title:'Mixing Views', hasChild:true, test:'../examples/mixing_views.js'},
-	{title:'Add/Show Views', hasChild:true, test:'../examples/add_show_views.js'},
 
 ];
 
