@@ -1,0 +1,28 @@
+import os, sys, platform, glob
+
+version = ARGUMENTS.get('PRODUCT_VERSION', '0.1')
+
+print "Building Titanium Mobile (Android) version " + version + "..."
+
+if platform.platform() == 'Windows':
+    default_android_sdk = 'C:\\android-sdk'
+else:
+    default_android_sdk = '/opt/android-sdk'
+
+android_sdk = ARGUMENTS.get("android_sdk", default_android_sdk)
+
+env = Environment()
+classpath = [ os.path.join('lib', 'js.jar'),
+             os.path.join(android_sdk, 'platforms', 'android-1.5', 'android.jar') ]
+
+modules = ['api', 'app', 'database', 'filesystem', 'geolocation', 'media', 'test', 'ui']
+sources = [os.path.join('src', 'com'), os.path.join('src', 'org')]
+
+sources += glob.glob(os.path.join('src', 'ti', 'modules', 'titanium', '*.java'))
+
+for module in modules:
+    sources.append(os.path.join('src', 'ti', 'modules', 'titanium', module))
+
+classes = env.Java(target = 'bin', source = sources, JAVASOURCEPATH="src", JAVACLASSPATH=classpath)
+
+env.Jar(target = 'bin/titanium-android-%s.jar' % version, source = classes)
