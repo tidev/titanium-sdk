@@ -1,9 +1,15 @@
 package ti.modules.titanium.ui;
 
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.appcelerator.titanium.TiActivity;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiRootActivity.TiActivityRef;
+import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
@@ -13,19 +19,45 @@ import android.view.Window;
 
 public class TiUIWindow extends TiUIView
 {
+	private static final String LCAT = "TiUIWindow";
+	private static final boolean DBG = TiConfig.LOGD;
 
-	protected String key;
+	protected String activityKey;
 	protected Activity activity;
+
+	private static AtomicInteger idGenerator;
 
 	public TiUIWindow(TiViewProxy proxy)
 	{
 		super(proxy);
+		if (idGenerator == null) {
+			idGenerator = new AtomicInteger(0);
+		}
+
 		//TODO unique key per window, params for intent
-		TiActivityRef ref = proxy.getTiContext().getRootActivity().launchActivity("FIXME");
+		activityKey = "window$" + idGenerator.incrementAndGet();
+
+		TiActivityRef ref = proxy.getTiContext().getRootActivity().launchActivity(activityKey);
 		this.activity = ref.activity;
-//		this.layout.addView(activity.getWindow().getDecorView());
 		TiActivity tia = (TiActivity) activity;
 		setNativeView(tia.getLayout());
+
+		// if url, create a new context.
+		TiDict props = proxy.getDynamicProperties();
+		if (props.containsKey("url")) {
+			String url = props.getString("url");
+			if (DBG) {
+				Log.i(LCAT, "Window has URL: " + url);
+			}
+
+			TiContext tiContext = TiContext.createTiContext(activity);
+			try {
+				tiContext.evalFile(url);
+			} catch (IOException e) {
+				Log.e(LCAT, "Error opening URL: " + url, e);
+				activity.finish();
+			}
+		}
 	}
 
 	@Override

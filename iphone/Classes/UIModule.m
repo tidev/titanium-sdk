@@ -85,6 +85,7 @@ MAKE_SYSTEM_PROP(INPUT_BORDERSTYLE_ROUNDED,UITextBorderStyleRoundedRect);
 	ENSURE_UI_THREAD(setBackgroundColor,color);
 	UIViewController *controller = [[TitaniumApp app] controller];
 	controller.view.backgroundColor = UIColorWebColorNamed(color);
+	[controller.view superview].backgroundColor = controller.view.backgroundColor;
 }
 
 -(void)setBackgroundImage:(id)image

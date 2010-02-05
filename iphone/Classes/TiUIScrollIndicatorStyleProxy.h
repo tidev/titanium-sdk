@@ -4,12 +4,16 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <UIKit/UIKit.h>
+#import "TiProxy.h"
 
-int main(int argc, char *argv[]) {
-    
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-    int retVal = UIApplicationMain(argc, argv, nil, nil);
-    [pool release];
-    return retVal;
+@interface TiUIScrollIndicatorStyleProxy : TiProxy {
+
+@private
+
 }
+
+@property(nonatomic,readonly) NSNumber *DEFAULT;
+@property(nonatomic,readonly) NSNumber *BLACK;
+@property(nonatomic,readonly) NSNumber *WHITE;
+
+@end

@@ -16,7 +16,7 @@
 
 -(void)windowFocused:(TiProxy*)window;
 -(void)windowUnfocused:(TiProxy*)window;
--(void)resizeView;
+-(CGRect)resizeView;
 
 -(UINavigationController*)currentNavController;
 
