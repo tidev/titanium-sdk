@@ -24,7 +24,9 @@ var ta1 = Titanium.UI.createTextArea({
 	appearance:Titanium.UI.KEYBOARD_APPEARANCE_ALERT,	
 	keyboardType:Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
 	returnKeyType:Titanium.UI.RETURNKEY_EMERGENCY_CALL,
-	
+	borderWidth:2,
+	borderColor:'#bbb',
+	borderRadius:5,
 });
 win.add(ta1);
 ta1.addEventListener('change',function(e)
@@ -42,7 +44,6 @@ ta1.addEventListener('focus',function(e)
 });
 ta1.addEventListener('return',function(e)
 {
-	ta.blur();
 	l.text = 'return fired, value = ' + e.value;
 });
 
