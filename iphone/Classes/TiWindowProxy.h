@@ -27,6 +27,7 @@
 	BOOL attached;
 	BOOL splashTransitionAnimation;
 	int transitionAnimation;
+	NSMutableArray *reattachWindows;
 }
 
 #pragma mark Public APIs
