@@ -4,11 +4,16 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import "TiUIView.h"
 
-#import "TiViewProxy.h"
-#import "TiEvaluator.h"
+@interface TiUIWebView : TiUIView<UIWebViewDelegate> {
+@private
+	UIWebView *webview;
+	UIActivityIndicatorView *spinner;
+	NSURL *url;
 
-@interface TiUIWebViewProxy : TiViewProxy<TiEvaluator> {
 }
+
+-(void)evalJS:(NSString*)code;
 
 @end
