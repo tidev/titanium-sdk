@@ -16,6 +16,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.bridge.OnEventListenerChange;
+import org.appcelerator.titanium.kroll.KrollBridge;
+import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiFileHelper;
 
@@ -414,5 +416,14 @@ public class TiContext implements TiEvaluator
 				Log.w(LCAT, "lifecycleListener has been garbage collected");
 			}
 		}
+	}
+
+	public static TiContext createTiContext(Activity activity)
+	{
+		TiContext tic = new TiContext(activity);
+		KrollContext kroll = KrollContext.createContext(tic);
+		KrollBridge krollBridge = new KrollBridge(kroll);
+		tic.setJSContext(krollBridge);
+		return tic;
 	}
 }
