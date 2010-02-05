@@ -13,7 +13,7 @@
 // specialization for TiViews that act like top level 
 // windows when opened, closed, etc.
 //
-@interface TiWindowProxy : TiViewProxy {
+@interface TiWindowProxy : TiViewProxy<TiAnimationDelegate> {
 @protected
 	BOOL opened;
 	BOOL focused;
@@ -25,11 +25,8 @@
 	UINavigationController *navbar;
 @private
 	BOOL attached;
-	BOOL readdTempView;
-	BOOL closeTempView;
-	UIColor *tempColor;
-	TiViewProxy *tempView; //used during initial temp animation
-
+	BOOL splashTransitionAnimation;
+	int transitionAnimation;
 }
 
 #pragma mark Public APIs
@@ -43,11 +40,9 @@
 -(TiProxy<TiTab>*)tab;
 
 #pragma mark Internal
--(void)_attachViewToTopLevelWindow;
--(void)_windowReady;
--(BOOL)_topLevelWindowHasChildren;
+-(void)attachViewToTopLevelWindow;
+-(void)windowReady;
 -(BOOL)_isChildOfTab;
--(void)_performTopLevelWindowAnimation:(TiAnimation*)animation view:(TiViewProxy*)newView;
 -(void)_associateTab:(UIViewController*)controller_ navBar:(UINavigationController*)navbar_ tab:(TiProxy<TiTab>*)tab_;
 -(UIViewController*)controller;
 -(void)setController:(UIViewController *)controller;

@@ -41,9 +41,11 @@
 	[super dealloc];
 }
 
--(void)resizeView
+-(CGRect)resizeView
 {
-	[TiUtils setView:[self view] positionRect:[[UIScreen mainScreen] applicationFrame]];
+	CGRect rect = [[UIScreen mainScreen] applicationFrame];
+	[TiUtils setView:[self view] positionRect:rect];
+	return rect;
 }
 
 -(void)loadView
