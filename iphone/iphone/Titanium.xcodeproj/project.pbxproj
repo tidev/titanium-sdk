@@ -64,7 +64,6 @@
 		245E7654111A9A7800A18644 /* TiUITabProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A3B111161FD0084E2DE /* TiUITabProxy.h */; };
 		245E7655111A9A7800A18644 /* TiUITabGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A4D111161FD0084E2DE /* TiUITabGroup.h */; };
 		245E7656111A9A7800A18644 /* TiUITabController.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A4F111161FD0084E2DE /* TiUITabController.h */; };
-		245E7657111A9A7800A18644 /* TiUIDialogProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A85111161FD0084E2DE /* TiUIDialogProxy.h */; };
 		245E7658111A9A7800A18644 /* TiUIAlertDialogProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A99111161FD0084E2DE /* TiUIAlertDialogProxy.h */; };
 		245E7659111A9A7800A18644 /* TiUIOptionDialogProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A6F111161FD0084E2DE /* TiUIOptionDialogProxy.h */; };
 		245E765A111A9A7800A18644 /* TiUIStatusBarProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A5D111161FD0084E2DE /* TiUIStatusBarProxy.h */; };
@@ -249,7 +248,6 @@
 		24CA8B9F111161FE0084E2DE /* TiUIGroupedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7E111161FD0084E2DE /* TiUIGroupedView.m */; };
 		24CA8BA0111161FE0084E2DE /* TiUIGroupedSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A80111161FD0084E2DE /* TiUIGroupedSectionProxy.m */; };
 		24CA8BA1111161FE0084E2DE /* TiUIEmailDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */; };
-		24CA8BA2111161FE0084E2DE /* TiUIDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A84111161FD0084E2DE /* TiUIDialogProxy.m */; };
 		24CA8BA3111161FE0084E2DE /* TiUICoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */; };
 		24CA8BA4111161FE0084E2DE /* TiUICoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */; };
 		24CA8BA5111161FE0084E2DE /* TiUICanvasViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8A111161FD0084E2DE /* TiUICanvasViewProxy.m */; };
@@ -440,7 +438,6 @@
 		24CA8FDB11116C490084E2DE /* TiUIGroupedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7E111161FD0084E2DE /* TiUIGroupedView.m */; };
 		24CA8FDC11116C490084E2DE /* TiUIGroupedSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A80111161FD0084E2DE /* TiUIGroupedSectionProxy.m */; };
 		24CA8FDD11116C490084E2DE /* TiUIEmailDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */; };
-		24CA8FDE11116C490084E2DE /* TiUIDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A84111161FD0084E2DE /* TiUIDialogProxy.m */; };
 		24CA8FDF11116C490084E2DE /* TiUICoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */; };
 		24CA8FE011116C490084E2DE /* TiUICoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */; };
 		24CA8FE111116C490084E2DE /* TiUICanvasViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8A111161FD0084E2DE /* TiUICanvasViewProxy.m */; };
@@ -634,7 +631,6 @@
 		24CB0E3A111A971B00A813AD /* TiUIGroupedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7E111161FD0084E2DE /* TiUIGroupedView.m */; };
 		24CB0E3B111A971B00A813AD /* TiUIGroupedSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A80111161FD0084E2DE /* TiUIGroupedSectionProxy.m */; };
 		24CB0E3C111A971B00A813AD /* TiUIEmailDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */; };
-		24CB0E3D111A971B00A813AD /* TiUIDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A84111161FD0084E2DE /* TiUIDialogProxy.m */; };
 		24CB0E3E111A971B00A813AD /* TiUICoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */; };
 		24CB0E3F111A971B00A813AD /* TiUICoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */; };
 		24CB0E40111A971B00A813AD /* TiUICanvasViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A8A111161FD0084E2DE /* TiUICanvasViewProxy.m */; };
@@ -968,8 +964,6 @@
 		24CA8A81111161FD0084E2DE /* TiUIGroupedSectionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIGroupedSectionProxy.h; path = ../Classes/TiUIGroupedSectionProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIEmailDialogProxy.m; path = ../Classes/TiUIEmailDialogProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8A83111161FD0084E2DE /* TiUIEmailDialogProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIEmailDialogProxy.h; path = ../Classes/TiUIEmailDialogProxy.h; sourceTree = SOURCE_ROOT; };
-		24CA8A84111161FD0084E2DE /* TiUIDialogProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIDialogProxy.m; path = ../Classes/TiUIDialogProxy.m; sourceTree = SOURCE_ROOT; };
-		24CA8A85111161FD0084E2DE /* TiUIDialogProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIDialogProxy.h; path = ../Classes/TiUIDialogProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUICoverFlowViewProxy.m; path = ../Classes/TiUICoverFlowViewProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8A87111161FD0084E2DE /* TiUICoverFlowViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUICoverFlowViewProxy.h; path = ../Classes/TiUICoverFlowViewProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUICoverFlowView.m; path = ../Classes/TiUICoverFlowView.m; sourceTree = SOURCE_ROOT; };
@@ -1621,7 +1615,6 @@
 				24CA8C64111165B60084E2DE /* Email Dialog */,
 				24CA8C63111165890084E2DE /* Tableview & Groupview */,
 				24CA8C62111165840084E2DE /* Tabgroup */,
-				24CA8C611111657C0084E2DE /* Dialog */,
 				24CA8C60111165780084E2DE /* Alert */,
 				24CA8C5F111165720084E2DE /* Option Dialog */,
 				24CA8C5E1111655E0084E2DE /* iPhone */,
@@ -1858,15 +1851,6 @@
 				24CA8A99111161FD0084E2DE /* TiUIAlertDialogProxy.h */,
 			);
 			name = Alert;
-			sourceTree = "<group>";
-		};
-		24CA8C611111657C0084E2DE /* Dialog */ = {
-			isa = PBXGroup;
-			children = (
-				24CA8A84111161FD0084E2DE /* TiUIDialogProxy.m */,
-				24CA8A85111161FD0084E2DE /* TiUIDialogProxy.h */,
-			);
-			name = Dialog;
 			sourceTree = "<group>";
 		};
 		24CA8C62111165840084E2DE /* Tabgroup */ = {
@@ -2210,7 +2194,6 @@
 				245E7654111A9A7800A18644 /* TiUITabProxy.h in Headers */,
 				245E7655111A9A7800A18644 /* TiUITabGroup.h in Headers */,
 				245E7656111A9A7800A18644 /* TiUITabController.h in Headers */,
-				245E7657111A9A7800A18644 /* TiUIDialogProxy.h in Headers */,
 				245E7658111A9A7800A18644 /* TiUIAlertDialogProxy.h in Headers */,
 				245E7659111A9A7800A18644 /* TiUIOptionDialogProxy.h in Headers */,
 				245E765A111A9A7800A18644 /* TiUIStatusBarProxy.h in Headers */,
@@ -2531,7 +2514,6 @@
 				24CA8B9F111161FE0084E2DE /* TiUIGroupedView.m in Sources */,
 				24CA8BA0111161FE0084E2DE /* TiUIGroupedSectionProxy.m in Sources */,
 				24CA8BA1111161FE0084E2DE /* TiUIEmailDialogProxy.m in Sources */,
-				24CA8BA2111161FE0084E2DE /* TiUIDialogProxy.m in Sources */,
 				24CA8BA3111161FE0084E2DE /* TiUICoverFlowViewProxy.m in Sources */,
 				24CA8BA4111161FE0084E2DE /* TiUICoverFlowView.m in Sources */,
 				24CA8BA5111161FE0084E2DE /* TiUICanvasViewProxy.m in Sources */,
@@ -2717,7 +2699,6 @@
 				24CA8FDB11116C490084E2DE /* TiUIGroupedView.m in Sources */,
 				24CA8FDC11116C490084E2DE /* TiUIGroupedSectionProxy.m in Sources */,
 				24CA8FDD11116C490084E2DE /* TiUIEmailDialogProxy.m in Sources */,
-				24CA8FDE11116C490084E2DE /* TiUIDialogProxy.m in Sources */,
 				24CA8FDF11116C490084E2DE /* TiUICoverFlowViewProxy.m in Sources */,
 				24CA8FE011116C490084E2DE /* TiUICoverFlowView.m in Sources */,
 				24CA8FE111116C490084E2DE /* TiUICanvasViewProxy.m in Sources */,
@@ -2902,7 +2883,6 @@
 				24CB0E3A111A971B00A813AD /* TiUIGroupedView.m in Sources */,
 				24CB0E3B111A971B00A813AD /* TiUIGroupedSectionProxy.m in Sources */,
 				24CB0E3C111A971B00A813AD /* TiUIEmailDialogProxy.m in Sources */,
-				24CB0E3D111A971B00A813AD /* TiUIDialogProxy.m in Sources */,
 				24CB0E3E111A971B00A813AD /* TiUICoverFlowViewProxy.m in Sources */,
 				24CB0E3F111A971B00A813AD /* TiUICoverFlowView.m in Sources */,
 				24CB0E40111A971B00A813AD /* TiUICanvasViewProxy.m in Sources */,

@@ -249,10 +249,10 @@ DEFINE_EXCEPTIONS
 {
 	CGFloat result = TiDimensionCalculateValue(layout.top, 0)
 			+ TiDimensionCalculateValue(layout.bottom, 0);
-	switch (layout.width.type)
+	switch (layout.height.type)
 	{
 		case TiDimensionTypePixels:
-			result += layout.width.value;
+			result += layout.height.value;
 			break;
 		case TiDimensionTypeAuto:
 			if ([self respondsToSelector:@selector(autoWidthForWidth:)])

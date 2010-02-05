@@ -39,14 +39,17 @@ var l = Titanium.UI.createLabel({
 	width:300,
 	color:'#777',
 	font:{fontSize:13},
-	text:'do something...'
+	text:'do something like click a button...'
 });
 win.add(l);
 
+//
+// FOCUS
+//
 var focus = Titanium.UI.createButton({
 	top:70,
 	height:40,
-	width:300,
+	width:200,
 	title:'Focus'
 });
 win.add(focus);
@@ -55,15 +58,43 @@ focus.addEventListener('click', function()
 	tf1.focus();
 });
 
+//
+// BLUR
+//
 var blur = Titanium.UI.createButton({
 	top:120,
 	height:40,
-	width:300,
+	width:200,
 	title:'Blur'
 });
 win.add(blur);
 blur.addEventListener('click', function()
 {
 	tf1.blur();
+});
+
+//
+// HIDE/SHOW
+//
+var showHide = Titanium.UI.createButton({
+	top:170,
+	height:40,
+	width:200,
+	title:'Hide/Show'
+});
+win.add(showHide);
+var visible = true;
+showHide.addEventListener('click', function()
+{
+	if (!visible)
+	{
+		tf1.show();
+		visible = true;
+	}
+	else
+	{
+		tf1.hide();
+		visible = false;
+	}
 });
 
