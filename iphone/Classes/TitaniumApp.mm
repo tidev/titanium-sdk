@@ -105,6 +105,21 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[networkActivity unlock];
 }
 
+- (UIView*)attachSplash
+{
+	CGFloat splashY = -TI_STATUSBAR_HEIGHT;
+	if ([[UIApplication sharedApplication] isStatusBarHidden])
+	{
+		splashY = 0;
+	}
+	RELEASE_TO_NIL(loadView);
+	UIScreen *screen = [UIScreen mainScreen];
+	loadView = [[UIImageView alloc] initWithFrame:CGRectMake(0, splashY, screen.bounds.size.width, screen.bounds.size.height)];
+	loadView.image = [UIImage imageNamed:@"Default.png"];
+	[controller.view addSubview:loadView];
+	return loadView;
+}
+
 - (void)loadSplash
 {
 	sharedApp = self;
@@ -116,17 +131,9 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[window addSubview:controller.view];
 	controller.view.backgroundColor = [UIColor blueColor];
 	
-	CGFloat splashY = -TI_STATUSBAR_HEIGHT;
-	if ([[UIApplication sharedApplication] isStatusBarHidden])
-	{
-		splashY = 0;
-	}
 	
 	// create our loading view
-	UIScreen *screen = [UIScreen mainScreen];
-	loadView = [[UIImageView alloc] initWithFrame:CGRectMake(0, splashY, screen.bounds.size.width, screen.bounds.size.height)];
-	loadView.image = [UIImage imageNamed:@"Default.png"];
-	[controller.view addSubview:loadView];
+	[self attachSplash];
 	
     [window makeKeyAndVisible];
 }

@@ -112,12 +112,12 @@ public class TiLocation
 			String provider = locationManager.getBestProvider(criteria, true);
 			Location location = locationManager.getLastKnownLocation(provider);
 			if (location != null) {
-				listener.call(locationToTiDict(location, locationManager.getProvider(provider)));
+				listener.callWithProperties(locationToTiDict(location, locationManager.getProvider(provider)));
 			} else {
-				listener.call(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
+				listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
 			}
 		} else {
-			listener.call(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
+			listener.callWithProperties(TiConvert.toErrorObject(ERR_POSITION_UNAVAILABLE, "location is currently unavailable."));
 		}
 	}
 

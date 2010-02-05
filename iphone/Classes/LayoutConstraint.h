@@ -10,10 +10,10 @@
 
 @protocol LayoutAutosizing
 
+@optional
+
 -(CGFloat)minimumParentWidthForWidth:(CGFloat)suggestedWidth;
 -(CGFloat)minimumParentHeightForWidth:(CGFloat)suggestedWidth;
-
-@optional
 
 -(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth;
 -(CGFloat)autoHeightForWidth:(CGFloat)width;

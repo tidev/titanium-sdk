@@ -5,19 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiView.h"
+#import "TiViewProxy.h"
 #import "TiEvaluator.h"
 
-@interface TiUIWebViewProxy : TiView<UIWebViewDelegate,TiEvaluator> {
-	NSURL *url;
-	UIWebView *webview;
-	NSString *pageToken;
+@interface TiUIWebViewProxy : TiViewProxy<TiEvaluator> {
 }
-
-@property(nonatomic,copy) NSURL *url;
-
--(void)open:(id)args;
--(void)close:(id)args;
-
 
 @end

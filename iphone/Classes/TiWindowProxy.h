@@ -24,10 +24,12 @@
 	UIViewController *controller;
 	UINavigationController *navbar;
 @private
+	BOOL opening;
 	BOOL attached;
 	BOOL splashTransitionAnimation;
 	int transitionAnimation;
 	NSMutableArray *reattachWindows;
+	UIView *closeView;
 }
 
 #pragma mark Public APIs

@@ -15,14 +15,16 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[TiUtils setView:textView positionRect:bounds];
+	[textView sizeToFit];
 }
 
 -(UITextView*)textview
 {
 	if (textView==nil)
 	{
-		textView = [[UITextView alloc] initWithFrame:CGRectZero];
+		textView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
 		textView.delegate = self;
+		textView.contentInset = UIEdgeInsetsMake(2, 2, 2, 2);
 		[self addSubview:textView];
 	}
 	return textView;
@@ -128,7 +130,7 @@
 {
 	if ([self.proxy _hasListeners:@"focus"])
 	{
-		[self.proxy fireEvent:@"focus" withObject:nil];
+		[self.proxy fireEvent:@"focus" withObject:[NSDictionary dictionaryWithObject:[textView text] forKey:@"value"]];
 	}
 }
 
@@ -143,7 +145,7 @@
 
 	if ([self.proxy _hasListeners:@"blur"])
 	{
-		[self.proxy fireEvent:@"blur" withObject:nil];
+		[self.proxy fireEvent:@"blur" withObject:[NSDictionary dictionaryWithObject:[textView text] forKey:@"value"]];
 	}
 }
 
