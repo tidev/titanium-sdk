@@ -1,11 +1,9 @@
-//
-//  main.m
-//  Titanium
-//
-//  Created by Jeff Haynie on 1/27/10.
-//  Copyright Apple Inc 2010. All rights reserved.
-//
-
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 #import <UIKit/UIKit.h>
 
 int main(int argc, char *argv[]) {

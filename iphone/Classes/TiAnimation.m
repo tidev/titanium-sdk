@@ -19,6 +19,7 @@
 
 @implementation TiAnimation
 
+@synthesize delegate;
 @synthesize zIndex, left, right, top, bottom, width, height;
 @synthesize duration, center, backgroundColor, opacity, opaque, view;
 @synthesize visible, curve, repeat, autoreverse, delay, transform, transition;
@@ -141,12 +142,11 @@ self.p = v;\
 	RELEASE_TO_NIL(transform);
 	RELEASE_TO_NIL(transition);
 	RELEASE_TO_NIL(callback);
-	RELEASE_TO_NIL(delegate);
-	RELEASE_TO_NIL(delegateContext);
 	RELEASE_TO_NIL(view);
 	[super dealloc];
 }
 
+/*
 -(void)setDelegate:(id)target selector:(SEL)selector_ withObject:(id)object
 {
 	RELEASE_TO_NIL(delegate);
@@ -154,7 +154,7 @@ self.p = v;\
 	delegate = [target retain];
 	selector = selector_;
 	delegateContext = [object retain];
-}
+}*/
 
 +(TiAnimation*)animationFromArg:(id)args context:(id<TiEvaluator>)context create:(BOOL)yn
 {
@@ -222,6 +222,11 @@ self.p = v;\
 	NSLog(@"ANIMATION: STARTING %@, %@",self,(id)context);
 #endif
 	
+	if (delegate!=nil && [delegate respondsToSelector:@selector(animationDidStart:)])
+	{
+		[delegate performSelector:@selector(animationDidStart:) withObject:self];
+	}
+	
 	// fire the event to any listeners on the animation object
 	if ([self _hasListeners:@"start"])
 	{
@@ -234,6 +239,10 @@ self.p = v;\
 #if ANIMATION_DEBUG==1	
 	NSLog(@"ANIMATION: COMPLETED %@, %@",self,(id)context);
 #endif
+	if (delegate!=nil && [delegate respondsToSelector:@selector(animationWillComplete:)])
+	{
+		[delegate animationWillComplete:self];
+	}	
 	
 	// fire the event and call the callback
 	if ([self _hasListeners:@"complete"])
@@ -253,11 +262,10 @@ self.p = v;\
 		[(TiViewProxy*)v.proxy animationCompleted:self];
 	}
 	
-	// we can also have a special delegate we need to invoke
-	if (delegate!=nil)
+	if (delegate!=nil && [delegate respondsToSelector:@selector(animationDidComplete:)])
 	{
-		[delegate performSelectorOnMainThread:selector withObject:delegateContext waitUntilDone:NO];
-	}
+		[delegate animationDidComplete:self];
+	}	
 	
 	[self release];
 	[(id)context release];
@@ -265,7 +273,7 @@ self.p = v;\
 
 -(BOOL)isTransitionAnimation
 {
-	if (transition!=nil && view!=nil)
+	if (transition!=nil)
 	{
 		UIViewAnimationTransition t = [transition intValue];
 		if (t!=0 && t!=UIViewAnimationTransitionNone)
@@ -317,7 +325,7 @@ self.p = v;\
 	
 	BOOL transitionAnimation = [self isTransitionAnimation];
 	
-	UIView *view_ = transitionAnimation ? [view view] : [theview isKindOfClass:[TiViewProxy class]] ? [(TiViewProxy*)theview view] : theview;
+	UIView *view_ = transitionAnimation && view!=nil ? [view view] : [theview isKindOfClass:[TiViewProxy class]] ? [(TiViewProxy*)theview view] : theview;
 	TiUIView *transitionView = transitionAnimation ? [theview isKindOfClass:[TiViewProxy class]] ? (TiUIView*)[(TiViewProxy*)theview view] : (TiUIView*)theview : nil;
 	
 	if (transitionView!=nil)
@@ -347,7 +355,7 @@ self.p = v;\
 	{
 		// set a reasonable small default if the developer doesn't specify one such that
 		// you can do animations quickly such as during drag and drop
-		[UIView setAnimationDuration:0.2];
+		[UIView setAnimationDuration: (transitionAnimation ? 1 : 0.2)];
 	}
 	
 	if (curve!=nil)
@@ -368,6 +376,13 @@ self.p = v;\
 	if (delay!=nil)
 	{
 		[UIView setAnimationDelay:[delay doubleValue]/1000];
+	}
+	
+	// NOTE: this *must* be called after the animation is setup, otherwise,
+	// the attributes above won't be set in anything you do in the start
+	if (delegate!=nil && [delegate respondsToSelector:@selector(animationWillStart:)])
+	{
+		[delegate animationWillStart:self];
 	}
 	
 	if (transform!=nil)
@@ -440,19 +455,29 @@ self.p = v;\
 	// check to see if this is a transition
 	if (transitionAnimation)
 	{
-		[UIView setAnimationTransition:[transition intValue]
-							   forView:transitionView
-								 cache:NO]; //TODO: might need to make cache configurable
+		BOOL perform = YES;
 		
-		// transitions are between 2 views so we need to remove existing views (normally only one)
-		// and then we need to add our new view
-		for (UIView *subview in [transitionView subviews])
+		// allow a delegate to control transitioning
+		if (delegate!=nil && [delegate respondsToSelector:@selector(animationShouldTransition:)])
 		{
-			[subview removeFromSuperview];
+			perform = [delegate animationShouldTransition:self];
 		}
-		[transitionView addSubview:view_];
+		if (perform)
+		{
+			[UIView setAnimationTransition:[transition intValue]
+								   forView:transitionView
+									 cache:NO]; //TODO: might need to make cache configurable
+			
+			// transitions are between 2 views so we need to remove existing views (normally only one)
+			// and then we need to add our new view
+			for (UIView *subview in [transitionView subviews])
+			{
+				[subview removeFromSuperview];
+			}
+			[transitionView addSubview:view_];
+		}
 	}
-
+	
 	[UIView commitAnimations];
 	
 #if ANIMATION_DEBUG==1	

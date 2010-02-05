@@ -287,7 +287,7 @@ enum {
 };
 
 
-// common sizes for iPhone (will these change for iSlate?)
+// common sizes for iPhone (will these change for iPad?)
 
 #define TI_STATUSBAR_HEIGHT				20
 
@@ -357,4 +357,4 @@ NSData * dataWithHexString (NSString * hexString);
 NSString * hexString (NSData * thedata);
 
 
-extern const NSString * kKrollShutdownNotification;
+extern NSString * const kKrollShutdownNotification;

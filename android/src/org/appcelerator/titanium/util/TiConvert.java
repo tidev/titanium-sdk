@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium.util;
 
+import java.util.Date;
+
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiProxy;
@@ -25,7 +27,7 @@ public class TiConvert
 
 	public static Object putInTiDict(TiDict d, String key, Object value)
 	{
-		if (value instanceof String || value instanceof Number || value instanceof Boolean) {
+		if (value instanceof String || value instanceof Number || value instanceof Boolean || value instanceof Date) {
 			d.put(key, value);
 		} else if (value instanceof TiDict) {
 			TiDict nd = new TiDict();
