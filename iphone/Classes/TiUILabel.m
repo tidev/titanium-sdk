@@ -98,6 +98,4 @@
 	[[self label] setShadowOffset:size];
 }
 
-//TODO: support UILineBreakMode
-
 @end
