@@ -114,7 +114,7 @@ public class MediaModule extends TiModule
 				camera.release();
 			}
 			if (errorCallback != null) {
-				errorCallback.call(createErrorResponse(NO_CAMERA, "Camera not available."));
+				errorCallback.callWithProperties(createErrorResponse(NO_CAMERA, "Camera not available."));
 			}
 			return;
 		}
@@ -160,7 +160,7 @@ public class MediaModule extends TiModule
 		} catch (IOException e) {
 			Log.e(LCAT, "Unable to create temp file", e);
 			if (errorCallback != null) {
-				errorCallback.call(createErrorResponse(UNKNOWN_ERROR, e.getMessage()));
+				errorCallback.callWithProperties(createErrorResponse(UNKNOWN_ERROR, e.getMessage()));
 			}
 			return;
 		}
@@ -208,13 +208,13 @@ public class MediaModule extends TiModule
 
 						try {
 							if (fSuccessCallback != null) {
-								fSuccessCallback.call(createDictForImage(imageUri.toString(), "image/jpeg"));
+								fSuccessCallback.callWithProperties(createDictForImage(imageUri.toString(), "image/jpeg"));
 							}
 						} catch (OutOfMemoryError e) {
 							String msg = "Not enough memory to get image: " + e.getMessage();
 							Log.e(LCAT, msg);
 							if (fErrorCallback != null) {
-								fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
+								fErrorCallback.callWithProperties(createErrorResponse(UNKNOWN_ERROR, msg));
 							}
 						}
 					}
@@ -227,7 +227,7 @@ public class MediaModule extends TiModule
 					String msg = "Camera problem: " + e.getMessage();
 					Log.e(LCAT, msg, e);
 					if (fErrorCallback != null) {
-						fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
+						fErrorCallback.callWithProperties(createErrorResponse(UNKNOWN_ERROR, msg));
 					}
 				}
 			});
@@ -283,13 +283,13 @@ public class MediaModule extends TiModule
 						String path = data.getDataString();
 						try {
 							if (fSuccessCallback != null) {
-								fSuccessCallback.call(createDictForImage(path, "image/jpeg"));
+								fSuccessCallback.callWithProperties(createDictForImage(path, "image/jpeg"));
 							}
 						} catch (OutOfMemoryError e) {
 							String msg = "Not enough memory to get image: " + e.getMessage();
 							Log.e(LCAT, msg);
 							if (fErrorCallback != null) {
-								fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
+								fErrorCallback.callWithProperties(createErrorResponse(UNKNOWN_ERROR, msg));
 							}
 						}
 					}
@@ -300,7 +300,7 @@ public class MediaModule extends TiModule
 					String msg = "Gallery problem: " + e.getMessage();
 					Log.e(LCAT, msg, e);
 					if (fErrorCallback != null) {
-						fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
+						fErrorCallback.callWithProperties(createErrorResponse(UNKNOWN_ERROR, msg));
 					}
 				}
 			});
@@ -366,7 +366,7 @@ public class MediaModule extends TiModule
 
 		if (image == null) {
 			if (errorCallback != null) {
-				errorCallback.call(createErrorResponse(UNKNOWN_ERROR, "Missing image property"));
+				errorCallback.callWithProperties(createErrorResponse(UNKNOWN_ERROR, "Missing image property"));
 			}
 		}
 
@@ -405,7 +405,7 @@ public class MediaModule extends TiModule
 					String msg = "Gallery problem: " + e.getMessage();
 					Log.e(LCAT, msg, e);
 					if (fErrorCallback != null) {
-						fErrorCallback.call(createErrorResponse(UNKNOWN_ERROR, msg));
+						fErrorCallback.callWithProperties(createErrorResponse(UNKNOWN_ERROR, msg));
 					}
 				}
 			});

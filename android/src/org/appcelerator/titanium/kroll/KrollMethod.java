@@ -54,8 +54,7 @@ public class KrollMethod extends KrollObject implements Function
 
 
 	public Object call(Context ctx, Scriptable scope, Scriptable thisObj, Object[] args) {
-		KrollObject pObj = (KrollObject) thisObj;
-		Object result = pObj;
+		Object result = null;
 		Object[] newArgs = null;
 
 		if (type == KrollMethodType.KrollMethodFactory) {

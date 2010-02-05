@@ -227,6 +227,45 @@ DEFINE_EXCEPTIONS
 	[self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:bounds];
 }
 
+-(CGFloat)minimumParentWidthForWidth:(CGFloat)suggestedWidth
+{
+	CGFloat result = TiDimensionCalculateValue(layout.left, 0)
+			+ TiDimensionCalculateValue(layout.right, 0);
+	switch (layout.width.type)
+	{
+		case TiDimensionTypePixels:
+			result += layout.width.value;
+			break;
+		case TiDimensionTypeAuto:
+			if ([self respondsToSelector:@selector(autoWidthForWidth:)])
+			{
+				result += [self autoWidthForWidth:suggestedWidth - result];
+			}
+	}
+	return result;
+}
+
+-(CGFloat)minimumParentHeightForWidth:(CGFloat)suggestedWidth
+{
+	CGFloat result = TiDimensionCalculateValue(layout.top, 0)
+			+ TiDimensionCalculateValue(layout.bottom, 0);
+	switch (layout.width.type)
+	{
+		case TiDimensionTypePixels:
+			result += layout.width.value;
+			break;
+		case TiDimensionTypeAuto:
+			if ([self respondsToSelector:@selector(autoWidthForWidth:)])
+			{
+				suggestedWidth -= TiDimensionCalculateValue(layout.left, 0)
+						+ TiDimensionCalculateValue(layout.right, 0);
+				result += [self autoHeightForWidth:suggestedWidth];
+			}
+	}
+	return result;
+}
+
+
 #pragma mark Public APIs
 
 -(void)setBorderColor_:(id)color

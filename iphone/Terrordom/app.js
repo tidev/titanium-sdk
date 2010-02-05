@@ -87,9 +87,9 @@ try
 	tabGroup.addTab(tab1);
 	tabGroup.addTab(tab2);
 	tabGroup.addTab(tab3);
+	tabGroup.addTab(tab6);
 	tabGroup.addTab(tab4);
 	tabGroup.addTab(tabX);
-	tabGroup.addTab(tab6);
 
 	tabX.open(Ti.UI.createWindow({url:'rawtest.js',backgroundColor:'669933'}),{animated:true});
 
