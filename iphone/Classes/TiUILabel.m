@@ -7,7 +7,6 @@
 
 #import "TiUILabel.h"
 #import "TiUtils.h"
-#import <QuartzCore/QuartzCore.h>
 
 @implementation TiUILabel
 
@@ -79,5 +78,26 @@
 	[[self label] setTextAlignment:[TiUtils textAlignmentValue:alignment]];
 }
 
+-(void)setShadowColor_:(id)color
+{
+	if (color==nil)
+	{
+		[[self label] setShadowColor:nil];
+	}
+	else
+	{
+		color = [TiUtils colorValue:color];
+		[[self label] setShadowColor:[color _color]];
+	}
+}
+
+-(void)setShadowOffset_:(id)value
+{
+	CGPoint p = [TiUtils pointValue:value];
+	CGSize size = {p.x,p.y};
+	[[self label] setShadowOffset:size];
+}
+
+//TODO: support UILineBreakMode
 
 @end
