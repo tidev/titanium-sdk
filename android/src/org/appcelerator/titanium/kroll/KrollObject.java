@@ -332,6 +332,10 @@ public class KrollObject extends ScriptableObject
 		Log.w(LCAT, "Put[]");
 	}
 
+	public void superPut(String name, Scriptable start, Object value) {
+		super.put(name, start, value);
+	}
+
 	@Override
 	public void put(String name, Scriptable start, Object value) {
 		if (has(name, start) || (value != null && value instanceof KrollObject)) {

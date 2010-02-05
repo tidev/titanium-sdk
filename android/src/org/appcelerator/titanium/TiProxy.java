@@ -92,6 +92,9 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 		}
 	}
 
+	public void switchContext(TiContext tiContext) {
+		this.tiContext = tiContext;
+	}
 	protected Handler getUIHandler() {
 		try {
 			waitForHandler.await();

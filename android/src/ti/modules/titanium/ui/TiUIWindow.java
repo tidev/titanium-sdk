@@ -15,6 +15,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
 
 import android.app.Activity;
+import android.view.View;
 import android.view.Window;
 
 public class TiUIWindow extends TiUIView
@@ -40,18 +41,24 @@ public class TiUIWindow extends TiUIView
 		TiActivityRef ref = proxy.getTiContext().getRootActivity().launchActivity(activityKey);
 		this.activity = ref.activity;
 		TiActivity tia = (TiActivity) activity;
-		setNativeView(tia.getLayout());
-
+		setNativeView(ref.activity.getWindow().getDecorView());
+		//setNativeView(tia.getLayout());
 		// if url, create a new context.
+
 		TiDict props = proxy.getDynamicProperties();
 		if (props.containsKey("url")) {
+
 			String url = props.getString("url");
 			if (DBG) {
 				Log.i(LCAT, "Window has URL: " + url);
 			}
 
-			TiContext tiContext = TiContext.createTiContext(activity);
+			TiDict preload = new TiDict();
+			preload.put("currentWindow", proxy);
+
+			TiContext tiContext = TiContext.createTiContext(activity, preload);
 			try {
+				this.proxy.switchContext(tiContext);
 				tiContext.evalFile(url);
 			} catch (IOException e) {
 				Log.e(LCAT, "Error opening URL: " + url, e);
@@ -82,8 +89,10 @@ public class TiUIWindow extends TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
 	{
 		if (key.equals("backgroundColor")) {
-			Window w = activity.getWindow();
-			w.setBackgroundDrawable(TiConvert.toColorDrawable((String) newValue));
+//			Window w = activity.getWindow();
+//			w.setBackgroundDrawable(TiConvert.toColorDrawable((String) newValue));
+			View v = getNativeView();
+			v.setBackgroundDrawable(TiConvert.toColorDrawable((String) newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
