@@ -48,28 +48,39 @@ public class TitaniumModule
 	private HashMap<Integer, Timer> timers = new HashMap<Integer, Timer>();
 	private int currentTimerId;
 	
-	public int setTimeout(Object fn, long timeout, final Object[] args)
+	private int createTimer(Object fn, long timeout, final Object[] args, boolean interval)
 		throws IllegalArgumentException
 	{
 		// TODO: we should handle evaluatable code eventually too..
-		Log.d(LCAT, "got setTimeout @" + new Date().getTime());
 		if (fn instanceof KrollCallback) {
 			final KrollCallback callback = (KrollCallback) fn;
 			Timer timer = new Timer();
 			final int timerId = currentTimerId++;
-
+	
 			timers.put(timerId, timer);
-			timer.schedule(new TimerTask(){
+			TimerTask task = new TimerTask() {
 				@Override
 				public void run() {
-					Log.d(LCAT, "calling timer " + timerId + " @" + new Date().getTime());
+					Log.d(LCAT, "calling interval timer " + timerId + " @" + new Date().getTime());
 					callback.call(args);
-					timers.remove(timerId);
 				}
-			}, timeout);
+			};
+			
+			if (interval) {
+				timer.schedule(task, timeout, timeout);
+			} else {
+				timer.schedule(task, timeout);
+			}
+			
 			return timerId;
 		}
 		else throw new IllegalArgumentException("Don't know how to call callback of type: " + fn.getClass().getName());
+	}
+	
+	public int setTimeout(Object fn, long timeout, final Object[] args)
+		throws IllegalArgumentException
+	{
+		return createTimer(fn, timeout, args, false);
 	}
 	
 	public void clearTimeout(int timerId) {
@@ -82,24 +93,7 @@ public class TitaniumModule
 	public int setInterval(Object fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
-		// TODO: we should handle evaluatable code eventually too..
-		Log.d(LCAT, "got setInterval @" + new Date().getTime());
-		if (fn instanceof KrollCallback) {
-			final KrollCallback callback = (KrollCallback) fn;
-			Timer timer = new Timer();
-			final int timerId = currentTimerId++;
-	
-			timers.put(timerId, timer);
-			timer.schedule(new TimerTask(){
-				@Override
-				public void run() {
-					Log.d(LCAT, "calling interval timer " + timerId + " @" + new Date().getTime());
-					callback.call(args);
-				}
-			}, timeout, timeout);
-			return timerId;
-		}
-		else throw new IllegalArgumentException("Don't know how to call callback of type: " + fn.getClass().getName());
+		return createTimer(fn, timeout, args, true);
 	}
 	
 	public void clearInterval(int timerId) {
