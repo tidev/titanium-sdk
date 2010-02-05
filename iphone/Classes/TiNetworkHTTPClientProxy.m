@@ -10,6 +10,56 @@
 #import "TiUtils.h"
 #import "TitaniumApp.h"
 
+int CaselessCompare(const char * firstString, const char * secondString, int size)
+{
+	int index = 0;
+	while(index < size)
+	{
+		char firstChar = tolower(firstString[index]);
+		char secondChar = secondString[index]; //Second string is always lowercase.
+		index++;
+		if(firstChar!=secondChar)return index; //Yes, this is one after the failure.
+	}
+	return 0;
+}
+
+
+#define TRYENCODING( encodingName, nameSize, returnValue )	\
+if((remainingSize > nameSize) && (0==CaselessCompare(data, encodingName, nameSize))) return returnValue;
+
+NSStringEncoding ExtractEncodingFromData(NSData * inputData)
+{
+	int remainingSize = [inputData length];
+	int unsearchableSize;
+	if(remainingSize > 2008) unsearchableSize = remainingSize - 2000;
+	else unsearchableSize = 8; // So that there's no chance of overrunning the buffer with 'charset='
+	const char * data = [inputData bytes];
+	
+	while(remainingSize > unsearchableSize)
+	{
+		int compareOffset = CaselessCompare(data, "charset=", 8);
+		if (compareOffset != 0)
+		{
+			data += compareOffset;
+			remainingSize -= compareOffset;
+			continue;
+		}
+		data += 8;
+		remainingSize -= 8;
+		
+		TRYENCODING("windows-1252",12,NSWindowsCP1252StringEncoding);
+		TRYENCODING("iso-8859-1",10,NSISOLatin1StringEncoding);
+		TRYENCODING("utf-8",5,NSUTF8StringEncoding);
+		TRYENCODING("shift-jis",9,NSShiftJISStringEncoding);
+		TRYENCODING("x-euc",5,NSJapaneseEUCStringEncoding);
+		TRYENCODING("windows-1250",12,NSWindowsCP1251StringEncoding);
+		TRYENCODING("windows-1251",12,NSWindowsCP1252StringEncoding);
+		TRYENCODING("windows-1253",12,NSWindowsCP1253StringEncoding);
+		TRYENCODING("windows-1254",12,NSWindowsCP1254StringEncoding);
+	}	
+	return NSUTF8StringEncoding;
+}
+
 @implementation TiNetworkHTTPClientProxy
 
 @synthesize onload, onerror, onreadystatechange, ondatastream, onsendstream;
@@ -70,7 +120,23 @@
 {
 	if (request!=nil && [request error]==nil)
 	{
-		return [request responseString];
+		NSData *data = [request responseData];
+		if (data==nil) 
+		{
+			return nil;
+		}
+		NSString * result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:[request responseEncoding]] autorelease];
+		if (result==nil)
+		{
+			// encoding failed, probably a bad webserver or content we have to deal
+			// with in a _special_ way
+			NSStringEncoding encoding = ExtractEncodingFromData(data);
+			result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:encoding] autorelease];
+			if (result!=nil)
+			{
+				return result;
+			}
+		}
 	}
 	return nil;
 }
