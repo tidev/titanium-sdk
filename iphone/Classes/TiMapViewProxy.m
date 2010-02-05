@@ -9,5 +9,12 @@
 
 @implementation TiMapViewProxy
 
+-(void)zoom:(id)args
+{
+	if ([self viewAttached])
+	{
+		[[self view] performSelectorOnMainThread:@selector(zoom:) withObject:args waitUntilDone:NO];
+	}
+}
 
 @end
