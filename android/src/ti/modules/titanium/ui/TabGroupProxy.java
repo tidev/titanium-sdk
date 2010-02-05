@@ -3,20 +3,19 @@ package ti.modules.titanium.ui;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.TiUIView;
-import org.appcelerator.titanium.view.TiViewProxy;
 import org.appcelerator.titanium.view.TiWindowProxy;
 
 import ti.modules.titanium.ui.widget.TiUITabGroup;
-import android.graphics.Color;
+import android.app.Activity;
 import android.os.Message;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.TabHost.TabContentFactory;
 import android.widget.TabHost.TabSpec;
@@ -99,21 +98,22 @@ public class TabGroupProxy extends TiWindowProxy
 	{
 		String title = (String) tab.getDynamicValue("title");
 		String icon = (String) tab.getDynamicValue("icon");
-		TiViewProxy vp = (TiViewProxy) tab.getDynamicValue("window");
+		final TiWindowProxy vp = (TiWindowProxy) tab.getDynamicValue("window");
 
 		if (title != null && vp != null) {
 			TabSpec tspec = tg.newTab(title);
 			tspec.setIndicator(title);
 
-			TiUIView tv = vp.getView();
-			final View v = tv.getNativeView();
-			if (v.getId() == View.NO_ID) {
-				v.setId(idGenerator.incrementAndGet());
-			}
-
 			TabContentFactory factory = new TabContentFactory(){
 
 				public View createTabContent(String id) {
+					TiUIView tv = vp.getView();
+					View v = tv.getNativeView();
+
+					if (v.getId() == View.NO_ID) {
+						v.setId(idGenerator.incrementAndGet());
+					}
+
 					return v;
 				}
 			};
@@ -140,12 +140,18 @@ public class TabGroupProxy extends TiWindowProxy
 		//TODO skip multiple opens?
 		Log.i(LCAT, "handleOpen");
 		TiUITabGroup tg = (TiUITabGroup) getView();
+		Activity a = getTiContext().getActivity();
+		if (a instanceof TiActivity) {
+			TiActivity tia = (TiActivity) a;
+			tia.getLayout().addView(tg.getNativeView());
+		} else {
+			a.addContentView(tg.getNativeView(), new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		}
 
 		for(TabProxy tab : tabs) {
 			addTabToGroup(tg, tab);
 		}
 
-		getTiContext().getActivity().addContentView(tg.getNativeView(), new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
 	}
 
