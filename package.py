@@ -45,26 +45,18 @@ def zip_it(dist_dir,osname,version):
 		  e = os.path.splitext(f)
 		  if len(e)==2 and e[1]=='.pyc':continue
 		  zf.write(os.path.join(template_dir,f), basepath + '/' + f)
+
+	 android_jar = os.path.join(cur_dir, 'android', 'bin', 'titanium.jar')
+	 zf.write(android_jar, '%s/android/titanium.jar' % basepath)	
 	 
-	 
-	 android_jar = os.path.join(cur_dir,'android','titanium','bin','titanium.jar')
-	 if os.path.exists(android_jar):
-		zf.write(android_jar,'%s/android/titanium.jar' % basepath)
-	
-	 android_map_jar = os.path.join(cur_dir,'android','titanium','bin','titanium-map.jar')
-	 if os.path.exists(android_map_jar):
-		zf.write(android_map_jar,'%s/android/titanium-map.jar' % basepath)
-	 
-	 # right now we have to manually do these per module
-	 android_modules_dir = os.path.join(cur_dir,'android','titanium','src','org','appcelerator','titanium','module')
-	 android_modules = ['facebook']
-	 for module_name in android_modules:
-		 android_res_dir = os.path.join(android_modules_dir,module_name,'resources')
-		 if not os.path.exists(android_res_dir): continue
-	 	 for f in os.listdir(android_res_dir):
-	 	 	 if os.path.splitext(f)[1]=='.png':
-	 	 	 	 zf.write(os.path.join(android_res_dir,f),'%s/android/modules/%s/images/%s' % (basepath,module_name,f))
-	 
+	 rhino_jar = os.path.join(cur_dir, 'android', 'lib', 'js.jar')
+	 zf.write(rhino_jar, '%s/android/js.jar' % basepath)
+
+	 android_module_jars = glob.glob(os.path.join(cur_dir, 'android', 'bin', 'titanium-*.jar'))
+	 for android_module_jar in android_module_jars:
+		 jarname = os.path.split(android_module_jar)[1] 
+		 zf.write(android_module_jar, '%s/android/modules/%s' % (basepath, jarname)) 
+
 	 if osname == "osx":
 		  sys.path.append(iphone_dir)
 		  import run,prereq

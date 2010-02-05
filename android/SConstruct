@@ -2,7 +2,7 @@ import os, sys, platform, glob
 
 version = ARGUMENTS.get('PRODUCT_VERSION', '0.1')
 
-print "Building Titanium Mobile (Android) version " + version + "..."
+print "Building Titanium Mobile (Android) %s..." % version
 
 if platform.platform() == 'Windows':
     default_android_sdk = 'C:\\android-sdk'
@@ -23,7 +23,7 @@ env.Append(JAVASOURCEPATH='src')
 env.Append(JAVACLASSPATH=classpath)
 
 classes = env.Java(target = 'bin', source = sources)
-env.Jar(target = 'bin/titanium-core.jar', source = classes)
+env.Jar(target = 'bin/titanium.jar', source = classes)
 
 for module in modules:
     module_sources = os.path.join('src', 'ti', 'modules', 'titanium', module)
