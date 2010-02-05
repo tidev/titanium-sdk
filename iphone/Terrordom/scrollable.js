@@ -1,12 +1,13 @@
 try{
-	var scrollable=Titanium.UI.createScrollableView({views:[
-		Ti.UI.createView({backgroundColor:'red'}),
-		Ti.UI.createView({backgroundColor:'green'}),
-		Ti.UI.createView({backgroundColor:'blue'}),
-		Ti.UI.createView({backgroundColor:'yellow'}),
-		Ti.UI.createView({backgroundColor:'purple'})	
-	], showPagingControl:true});
+	var scrollable=Titanium.UI.createScrollView({contentHeight:'auto',contentWidth:'auto'
+//	,showHorizontalScrollIndicator:false,showVerticalScrollIndicator:false
+	});
+
+	scrollable.add(Titanium.UI.createView({backgroundColor:'red',top:250,height:250,left:250,width:250}));
+
 	Ti.UI.currentWindow.add(scrollable);
+	
+	
 	
 	scrollable.addEventListener('scroll',function(e){
 			Ti.API.debug("Scrolled to " + e.view.backgroundColor);

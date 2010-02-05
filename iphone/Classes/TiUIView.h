@@ -10,7 +10,7 @@
 
 @class TiViewProxy;
 
-@interface TiUIView : UIView<TiProxyDelegate> 
+@interface TiUIView : UIView<TiProxyDelegate,LayoutAutosizing> 
 {
 @private
 	TiViewProxy *proxy;

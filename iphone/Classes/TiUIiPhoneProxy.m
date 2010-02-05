@@ -16,6 +16,7 @@
 #import "TiUIProgressBarStyleProxy.h"
 #import "TiUIActivityIndicatorStyleProxy.h"
 #import "TiUISystemIconProxy.h"
+#import "TiUIScrollIndicatorStyleProxy.h"
 
 @implementation TiUIiPhoneProxy
 
@@ -29,6 +30,7 @@
 	RELEASE_TO_NIL(progressBarStyle);
 	RELEASE_TO_NIL(activityIndicatorStyle);
 	RELEASE_TO_NIL(systemIcon);
+	RELEASE_TO_NIL(scrollIndicatorStyle);
 	[super dealloc];
 }
 
@@ -50,6 +52,7 @@ DEFINE_SUBPROXY(SystemButton,systemButton)
 DEFINE_SUBPROXY(ProgressBarStyle,progressBarStyle)
 DEFINE_SUBPROXY(ActivityIndicatorStyle,activityIndicatorStyle)
 DEFINE_SUBPROXY(SystemIcon,systemIcon)
+DEFINE_SUBPROXY(ScrollIndicatorStyle,scrollIndicatorStyle)
 
 
 -(void)hideStatusBar:(id)args
@@ -127,6 +130,7 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 	RELEASE_TO_NIL(progressBarStyle);
 	RELEASE_TO_NIL(activityIndicatorStyle);
 	RELEASE_TO_NIL(systemIcon);
+	RELEASE_TO_NIL(scrollIndicatorStyle);
 	[super didReceiveMemoryWarning:notification];
 }
 
