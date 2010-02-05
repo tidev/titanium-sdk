@@ -46,6 +46,7 @@
 	{
 		label = [[UILabel alloc] initWithFrame:CGRectZero];
 		label.backgroundColor = [UIColor clearColor];
+		label.numberOfLines = 0;
 		[self addSubview:label];
 	}
 	return label;
