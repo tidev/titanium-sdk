@@ -26,7 +26,6 @@
 -(TiUIView*)newView
 {
 	TiUITabGroup *group = [[TiUITabGroup alloc] initWithFrame:[self appFrame]];
-	group.hidden = YES;
 	return group;
 }
 

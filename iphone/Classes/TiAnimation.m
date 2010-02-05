@@ -355,7 +355,7 @@ self.p = v;\
 	{
 		// set a reasonable small default if the developer doesn't specify one such that
 		// you can do animations quickly such as during drag and drop
-		[UIView setAnimationDuration:0.2];
+		[UIView setAnimationDuration: (transitionAnimation ? 1 : 0.2)];
 	}
 	
 	if (curve!=nil)

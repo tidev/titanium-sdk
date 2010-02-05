@@ -45,6 +45,7 @@
 	RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(navbar);
 	RELEASE_TO_NIL(tab);
+	RELEASE_TO_NIL(reattachWindows);
 	[super dealloc];
 }
 
@@ -89,6 +90,17 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	if ([self _hasListeners:@"open"])
 	{
 		[self fireEvent:@"open" withObject:nil];
+	}
+	
+	if (reattachWindows!=nil)
+	{
+		UIView *rootView = [[TitaniumApp app] controller].view;
+		for (UIView *aview in reattachWindows)
+		{
+			[rootView addSubview:aview];
+			[rootView sendSubviewToBack:aview];
+		}
+		RELEASE_TO_NIL(reattachWindows);
 	}
 }
 
@@ -255,15 +267,11 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		{
 			if ([animation isTransitionAnimation])
 			{
-				if ([[TitaniumApp app] isSplashVisible])
-				{
-					splashTransitionAnimation = YES;
-					transitionAnimation = [[animation transition] intValue];
-				}
+				transitionAnimation = [[animation transition] intValue];
+				splashTransitionAnimation = [[TitaniumApp app] isSplashVisible];
 			}
 			animation.delegate = self;
 			[animation animate:self];
-			//return;
 		}
 		if ([self isFullscreen:args])
 		{
@@ -280,7 +288,6 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			UINavigationController *navController = [[[UINavigationController alloc] initWithRootViewController:wc] autorelease];
 			[self setController:wc];
 			[self setNavController:navController];
-			[self view].hidden=NO;
 			BOOL animated = args!=nil && [args isKindOfClass:[NSDictionary class]] ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
 			[self setupWindowDecorations];
 			[[[TitaniumApp app] controller] presentModalViewController:navController animated:animated];
@@ -348,6 +355,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			[[[TitaniumApp app] controller] resizeView];
 		}
 	}	 
+	
+	[self windowClosed];
 }
 
 -(void)attachViewToTopLevelWindow
@@ -368,6 +377,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	}
 
 	[self layoutChildren:view.bounds];
+
 	[rootView bringSubviewToFront:view];
 
 	// make sure the splash is gone
@@ -383,18 +393,34 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 
 -(BOOL)animationShouldTransition:(id)sender
 {
+	UIView *rootView = [[TitaniumApp app] controller].view;
+	[UIView setAnimationTransition:transitionAnimation
+						   forView:rootView
+							 cache:NO];
 	// if we have a splash animation, we handle that ourselves
 	if (splashTransitionAnimation)
 	{
 		splashTransitionAnimation=NO;
-		UIView *rootView = [[TitaniumApp app] controller].view;
-		[UIView setAnimationTransition:transitionAnimation
-							   forView:rootView
-								 cache:NO];
 		UIView *splashView = [[TitaniumApp app] splash];
 		[splashView removeFromSuperview];
-		[self attachViewToTopLevelWindow];
 	}
+	else
+	{
+		RELEASE_TO_NIL(reattachWindows);
+		if ([[rootView subviews] count] > 0)
+		{
+			reattachWindows = [[NSMutableArray array] retain];
+			for (UIView *aview in [rootView subviews])
+			{
+				if (aview!=[self view])
+				{
+					[reattachWindows addObject:aview];
+					[aview removeFromSuperview];
+				}
+			}
+		}
+	}
+	[self attachViewToTopLevelWindow];
 	return NO;
 }
 

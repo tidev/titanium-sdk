@@ -266,7 +266,7 @@ static int tiProxyId = 0;
 	RELEASE_TO_NIL(dynprops);
 	RELEASE_TO_NIL(listeners);
 	RELEASE_TO_NIL(baseURL);
-	RELEASE_TO_NIL(description);
+	RELEASE_TO_NIL(krollDescription);
 	RELEASE_TO_NIL(contextListeners);
 	pageContext=nil;
 	modelDelegate=nil;
@@ -692,14 +692,20 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Description for nice toString in JS
 
--(id)description
+-(id)toString
 {
-	if (description==nil)
+	if (krollDescription==nil)
 	{
 		NSString *cn = [[self class] description];
-		description = [[NSString stringWithFormat:@"[object %@]",[cn stringByReplacingOccurrencesOfString:@"Proxy" withString:@""]] retain];
+		krollDescription = [[NSString stringWithFormat:@"[object %@]",[cn stringByReplacingOccurrencesOfString:@"Proxy" withString:@""]] retain];
 	}
-	return description;
+
+	return krollDescription;
+}
+
+-(id)description
+{
+	return [self toString];
 }
 
 -(id)toJSON
