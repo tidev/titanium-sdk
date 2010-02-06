@@ -150,7 +150,7 @@
 
 -(void)setVerticalBounce_:(id)value
 {
-	[[self scrollView] setAlwaysBounceHorizontal:[TiUtils boolValue:value]];
+	[[self scrollView] setAlwaysBounceVertical:[TiUtils boolValue:value]];
 }
 
 -(void)setContentOffset_:(id)value

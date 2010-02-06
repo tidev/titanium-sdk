@@ -50,21 +50,51 @@ var activeView = view1;
 
 scrollView.addEventListener('scroll', function(e)
 {
-	Ti.API.info('IN SCROLL...');
     var activeView = e.view  // the object handle to the view that is about to become visible
 	var i = e.currentPage;
 	Titanium.API.info("scroll called - current index " + i + ' active view ' + activeView);
 });
 
 
-// change button to dynamically change the image
+// add button to dynamically add a view
+var add = Titanium.UI.createButton({
+	title:'Add View',
+	style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+});
+add.addEventListener('click',function()
+{
+	var newView = Ti.UI.createView({
+		backgroundColor:'yellow'
+	});
+	scrollView.addView(newView);
+	
+});
+// change button to dynamically change a view
 var change = Titanium.UI.createButton({
 	title:'Change View',
 	style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
 });
 change.addEventListener('click',function()
 {
-	
+	var newView = Ti.UI.createView({
+		backgroundColor:'#ff9900'
+	});
+	var ar = [];
+	for (var x=0;x<scrollView.views.length;x++)
+	{
+		if (x==i)
+		{
+			Ti.API.info('SETTING TO NEW VIEW ' + x)
+			ar[x] = newView
+		}
+		else
+		{
+			Ti.API.info('SETTING TO OLD VIEW ' + x)
+
+			ar[x] = scrollView.views[x];
+		}
+	}
+	scrollView.views = ar;
 });
 
 // move scroll view left
@@ -74,11 +104,7 @@ var left = Titanium.UI.createButton({
 left.addEventListener('click', function(e)
 {
 	if (i == 0) return;
-	
-	i--;		
-	activeView = (i==0)?view1:view2;
-	
-	// change view using index
+	i--;
 	scrollView.scrollToView(i)
 });
 
@@ -88,28 +114,13 @@ var right = Titanium.UI.createButton({
 });
 right.addEventListener('click', function(e)
 {
-	if (i == 2) return;
-
+	if (i == (scrollView.views.length-1)) return;
 	i++;
-	activeView = (i==2)?view4:view3;
-	
-	// change view using instance var
-	switch(i)
-	{
-		case 1:
-		{
-			scrollView.scrollToView(view3);
-			break;
-		}
-		case 2:
-		{
-			scrollView.scrollToView(view4);
-			break;
-		}
-	}
-	
+	scrollView.scrollToView(scrollView.views[i]);
 });
 var flexSpace = Titanium.UI.createButton({
 	systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 });
-win.setToolbar([flexSpace,left,change,right,flexSpace]);
+
+// set toolbar
+win.setToolbar([flexSpace,left,change,add,right,flexSpace]);
