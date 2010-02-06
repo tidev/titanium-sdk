@@ -155,7 +155,7 @@
 
 -(void)setContentOffset_:(id)value
 {
-	CGPoint newOffset = [TiUtils pointValue:value]
+	CGPoint newOffset = [TiUtils pointValue:value];
 	BOOL animated = scrollView != nil;
 	[[self scrollView] setContentOffset:newOffset animated:animated];
 }
