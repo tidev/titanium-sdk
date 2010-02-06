@@ -1,5 +1,17 @@
 <html>
 <body>
-	Hello from local webview
+	Hello from local webview. You should see an indicator in the middle.
+	<script>
+		Ti.App.addEventListener('show_indicator',function(e)
+		{
+			Ti.App.removeEventListener('show_indicator',this);
+			setTimeout(function()
+			{
+				Ti.App.fireEvent('hide_indicator');
+			},1000);
+		});
+		Ti.App.fireEvent('show_indicator',{a:1});
+		Ti.API.debug('log statement here');
+	</script>
 </body>
 </html>

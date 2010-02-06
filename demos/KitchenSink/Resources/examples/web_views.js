@@ -26,7 +26,7 @@ tableview.addEventListener('click', function(e)
 	})
 	w.add(webview);
 	win.tab.open(w);
-	webview.evalJS('alert("hello")');
+	//webview.evalJS('alert("hello")');
 });
 
 // add table view to the window
