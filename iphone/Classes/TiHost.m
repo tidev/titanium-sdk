@@ -64,6 +64,11 @@
 	[super dealloc];
 }
 
+-(id<TiEvaluator>)contextForToken:(NSString*)token
+{
+	return [contexts objectForKey:token];
+}
+
 -(void)registerContext:(id<TiEvaluator>)context forToken:(NSString*)token
 {
 	[contexts setValue:context forKey:token];

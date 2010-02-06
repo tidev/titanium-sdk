@@ -247,7 +247,7 @@ function hideIndicator()
 //
 Titanium.App.addEventListener('show_indicator', function(e)
 {
-	Ti.API.info("IN SHOW INDICATOR");
+	Ti.API.info("IN SHOW INDICATOR = "+JSON.stringify(e));
 	showIndicator();
 });
 Titanium.App.addEventListener('hide_indicator', function(e)

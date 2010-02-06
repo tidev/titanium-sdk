@@ -115,7 +115,12 @@
 		// unfortunately we need to scan
 		for (entry in [NSArray arrayWithArray:l])
 		{
-			if (listener == [entry listener])
+			if (listener == [entry listener] || (
+				//XHR bridge users NSNumber for listeners
+				 [listener isKindOfClass:[NSNumber class]] && 
+				 [[entry listener] isKindOfClass:[NSNumber class]] && 
+				 [listener intValue]==[[entry listener] intValue]
+				))
 			{
 				[l removeObject:entry];
 				break;
