@@ -156,7 +156,8 @@ var label = Titanium.UI.createLabel({
 		fontSize:15
 	},
 	textAlign:'center',
-	top:260
+	top:260,
+	width:300
 });
 
 Titanium.UI.currentWindow.add(label);

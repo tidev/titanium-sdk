@@ -288,7 +288,6 @@ b6.addEventListener('click', function()
 	
 	var w = Titanium.UI.createWindow({
 		backgroundColor:'#336699',
-		fullscreen:true,
 	});
 	close.addEventListener('click', function()
 	{

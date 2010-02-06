@@ -47,8 +47,8 @@ buttonWidthHeight.addEventListener('click', function()
 	Ti.API.info('in width height')
 	if (full)
 	{
-		win.height = 200;
-		win.width = 100;
+		win.height = 300;
+		win.width = 300;
 		win.backgroundColor = 'black';
 		full=false;
 	}

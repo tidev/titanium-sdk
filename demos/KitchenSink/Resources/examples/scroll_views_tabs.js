@@ -5,15 +5,16 @@ var leftImage = Ti.UI.createView({
 	backgroundImage:'../images/icon_arrow_left.png',
 	height:30,
 	width:30,
-	top:16,
-	left:5
+	top:18,
+	left:5,
+	visible:false
 });
 win.add(leftImage);
 var rightImage = Ti.UI.createView({
 	backgroundImage:'../images/icon_arrow_right.png',
 	height:30,
 	width:30,
-	top:16,
+	top:18,
 	right:5
 });
 win.add(rightImage);
@@ -22,7 +23,7 @@ win.add(rightImage);
 // HORIZONTAL SCROLLING TABS
 //
 var scrollView = Titanium.UI.createScrollView({
-	contentWidth:600,
+	contentWidth:500,
 	contentHeight:50,
 	top:10,
 	height:50,
@@ -35,16 +36,23 @@ scrollView.addEventListener('scroll', function(e)
 {
 	Ti.API.info('x ' + e.x + ' y ' + e.y);
 	
-	if (e.x < 200)
+	if (e.x > 50)
 	{
-		rightImage.hide();
 		leftImage.show();
 	}
 	else
 	{
-		rightImage.show();
 		leftImage.hide();
 	}
+	if (e.x < 130)
+	{
+		rightImage.show();
+	}
+	else
+	{
+		rightImage.hide();
+	}
+
 });
 
 win.add(scrollView);
