@@ -1,4 +1,5 @@
-Titanium.UI.setBackgroundColor('#000');
+// this sets the background color of the master UIView (when there are no windows/tab groups on it)
+Titanium.UI.setBackgroundColor('#fff');
 
 // create tab group
 var tabGroup = Titanium.UI.createTabGroup();
@@ -247,7 +248,7 @@ function hideIndicator()
 //
 Titanium.App.addEventListener('show_indicator', function(e)
 {
-	Ti.API.info("IN SHOW INDICATOR = "+JSON.stringify(e));
+	Ti.API.info("IN SHOW INDICATOR");
 	showIndicator();
 });
 Titanium.App.addEventListener('hide_indicator', function(e)
