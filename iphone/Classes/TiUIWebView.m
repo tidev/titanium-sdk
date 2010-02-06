@@ -92,6 +92,35 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 #pragma mark Public APIs
 
+-(id)url
+{
+	return url;
+}
+
+-(void)setHtml_:(NSString*)content
+{
+	RELEASE_TO_NIL(url);
+	[self unregister];
+	pageToken = [[NSString stringWithFormat:@"%d",[self hash]] retain];
+	[[self.proxy _host] registerContext:self forToken:pageToken];
+	NSMutableString *html = [[NSMutableString alloc] init];
+	[html appendString:@"<script>"];
+	[html appendFormat:@"Titanium={};Ti=Titanium;Ti.pageToken=%@;",pageToken];
+	[html appendString:kTitaniumJavascript];
+	[html appendString:@"</script>"];
+	[html appendString:content];
+	if (url!=nil)
+	{
+		[[self webview] loadHTMLString:html baseURL:url];
+	}
+	else
+	{
+		[[self webview] loadData:[html dataUsingEncoding:NSUTF8StringEncoding] MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:nil];
+	}
+	[[self webview] setScalesPageToFit:NO];
+	[html release];
+}
+
 -(void)setUrl_:(id)args
 {
 	RELEASE_TO_NIL(url);
@@ -107,16 +136,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	}
 	else
 	{
-		pageToken = [[NSString stringWithFormat:@"%d",[self hash]] retain];
-		[[self.proxy _host] registerContext:self forToken:pageToken];
-		NSMutableString *html = [[NSMutableString alloc] init];
-		[html appendString:@"<script>"];
-		[html appendFormat:@"Titanium={};Ti=Titanium;Ti.pageToken=%@;",pageToken];
-		[html appendString:kTitaniumJavascript];
-		[html appendString:@"</script>"];
-		[html appendString:[NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:nil]];	
-		[[self webview] loadHTMLString:html baseURL:url];
-		[html release];
+		[self setHtml_:[NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:nil]];	
 	}
 }
 
@@ -136,7 +156,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 {
 	if ([self.proxy _hasListeners:@"beforeload"])
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[url absoluteString] forKey:@"url"];
+		NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[url absoluteString] forKey:@"url"];
 		[self.proxy fireEvent:@"beforeload" withObject:event];
 	}
 }
@@ -154,7 +174,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	}
 	if ([self.proxy _hasListeners:@"load"])
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[url absoluteString] forKey:@"url"];
+		NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[url absoluteString] forKey:@"url"];
 		[self.proxy fireEvent:@"load" withObject:event];
 	}
 }

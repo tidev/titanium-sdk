@@ -18,6 +18,8 @@
 	NSString *pageToken;
 }
 
+@property(nonatomic,readonly) id url;
+
 -(void)evalJS:(NSString*)code;
 
 @end

@@ -6,7 +6,8 @@ var data = [
 	{title:'Local URL', hasChild:true, url:'local_webview.html'},
 	{title:'PDF URL', hasChild:true, url:'http://www.appcelerator.com/assets/The_iPad_App_Wave.pdf'},
 	{title:'Image URL', hasChild:true, url:'http://www.appcelerator.com/wp-content/uploads/2010/01/TABWAVE_graph1.png'},
-	{title:'SVG URL', hasChild:true, url:'http://upload.wikimedia.org/wikipedia/commons/5/55/1st_Cavalry_Division_-_Shoulder_Sleeve_Insignia.svg'}
+	{title:'SVG URL', hasChild:true, url:'http://upload.wikimedia.org/wikipedia/commons/5/55/1st_Cavalry_Division_-_Shoulder_Sleeve_Insignia.svg'},
+	{title:'Inline HTML', hasChild:true, text:'<html><body>Hello from inline HTML.</body></html>'}
 ];
 
 // create table view
@@ -19,7 +20,15 @@ tableview.addEventListener('click', function(e)
 {
 	var rowdata = e.rowData;
 	var w = Ti.UI.createWindow();
-	var webview = Ti.UI.createWebView({url:rowdata.url});
+	var webview = Ti.UI.createWebView();
+	if (rowdata.url)
+	{
+		webview.url = rowdata.url;
+	}
+	else
+	{
+		webview.html = rowdata.text;
+	}
 	webview.addEventListener('load',function(e)
 	{
 		Ti.API.debug("webview loaded: "+e.url);
