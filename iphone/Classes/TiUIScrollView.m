@@ -94,10 +94,8 @@
 	[wrapperView setCenter:CGPointMake(newContentSize.width/2, newContentSize.height/2)];
 	for (TiUIView * thisChildView in subViews)
 	{
-		if ([thisChildView respondsToSelector:@selector(reposition)])
-		{
-			[thisChildView reposition];
-		}
+		[thisChildView reposition];
+		[[thisChildView proxy] layoutChildren:[thisChildView bounds]];
 	}
 
 	needsHandleContentSize = NO;
@@ -155,12 +153,19 @@
 	[[self scrollView] setAlwaysBounceVertical:[TiUtils boolValue:value]];
 }
 
+-(void)setContentOffset_:(id)value
+{
+	CGPoint newOffset = [TiUtils pointValue:value]
+	BOOL animated = scrollView != nil;
+	[[self scrollView] setContentOffset:newOffset animated:animated];
+}
+
 #pragma mark scrollView delegate stuff
 
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView               // any offset changes
 {
-
+	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidScroll:scrollView];
 }
 
 /*

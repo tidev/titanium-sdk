@@ -71,6 +71,7 @@
 		TiUIView * thisPageView = [thisPageProxy view];
 		[thisPageWrapper addSubview:thisPageView];
 		[thisPageView reposition];
+		[thisPageProxy layoutChildren:[thisPageView bounds]];
 
 		[scrollingView addSubview:thisPageWrapper];
 		
