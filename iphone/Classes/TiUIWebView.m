@@ -10,6 +10,7 @@
 #import "TiProxy.h"
 #import "SBJSON.h"
 #import "TiHost.h"
+#import "Webcolor.h"
 
 NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={};Ti.App._listener_id=1;Ti._broker=function(module,method,data){var url='ti://'+Ti.pageToken+'/'+module+'/'+method+'/'+Ti.App._JSON(data);var xhr=new XMLHttpRequest();xhr.open('GET',url,false);xhr.send()};Ti.App._JSON=function(object,bridge){var type=typeof object;switch(type){case'undefined':case'function':case'unknown':return undefined;case'number':case'boolean':return object;case'string':return'\"'+object.replace(/\"/g,'\\\\\"').replace(/\\n/g,'\\\\n').replace(/\\r/g,'\\\\r')+'\"'}if((object===null)||(object.nodeType==1))return'null';if(object.constructor.toString().indexOf('Date')!=-1){return'new Date('+object.getTime()+')'}if(object.constructor.toString().indexOf('Array')!=-1){var res='[';var pre='';var len=object.length;for(var i=0;i<len;i++){var value=object[i];if(value!==undefined)value=Ti.App._JSON(value,bridge);if(value!==undefined){res+=pre+value;pre=', '}}return res+']'}var objects=[];for(var prop in object){var value=object[prop];if(value!==undefined){value=Ti.App._JSON(value,bridge)}if(value!==undefined){objects.push(Ti.App._JSON(prop,bridge)+': '+value)}}return'{'+objects.join(',')+'}'};Ti.App._dispatchEvent=function(type,evtid,evt){var listeners=Ti.App._listeners[type];if(listeners){for(var c=0;c<listeners.length;c++){var entry=listeners[c];if(entry.id==evtid){entry.callback.call(entry.callback,evt)}}}};Ti.App.fireEvent=function(name,evt){Ti._broker('App','fireEvent',{name:name,event:evt})};Ti.API.debug=function(e){Ti._broker('API','log',{level:'debug',message:e})};Ti.API.error=function(e){Ti._broker('API','log',{level:'error',message:e})};Ti.API.info=function(e){Ti._broker('API','log',{level:'info',message:e})};Ti.API.fatal=function(e){Ti._broker('API','log',{level:'fatal',message:e})};Ti.API.warn=function(e){Ti._broker('API','log',{level:'warn',message:e})};Ti.App.addEventListener=function(name,fn){var listeners=Ti.App._listeners[name];if(typeof(listeners)=='undefined'){listeners=[];Ti.App._listeners[name]=listeners}var newid=Ti.pageToken+Ti.App._listener_id++;listeners.push({callback:fn,id:newid});Ti._broker('App','addEventListener',{name:name,id:newid})};Ti.App.removeEventListener=function(name,fn){var listeners=Ti.App._listeners[name];if(listeners){for(var c=0;c<listeners.length;c++){var entry=listeners[c];if(entry.callback==fn){listeners.splice(c,1);Ti._broker('App','removeEventListener',{name:name,id:entry.id});break}}}};";
 
@@ -58,7 +59,8 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	{
 		webview = [[UIWebView alloc] initWithFrame:CGRectZero];
 		webview.delegate = self;
-		webview.backgroundColor = [UIColor clearColor];
+		webview.opaque = NO;
+		webview.backgroundColor = [UIColor whiteColor];
 		[self addSubview:webview];
 		
 		// only show the loading indicator if it's a remote URL
@@ -97,18 +99,49 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	return url;
 }
 
+-(void)setBackgroundColor_:(id)color
+{
+	UIColor *c = UIColorWebColorNamed(color);
+	[self setBackgroundColor:c];
+	[[self webview] setBackgroundColor:c];
+}
+
 -(void)setHtml_:(NSString*)content
 {
-	RELEASE_TO_NIL(url);
 	[self unregister];
 	pageToken = [[NSString stringWithFormat:@"%d",[self hash]] retain];
 	[[self.proxy _host] registerContext:self forToken:pageToken];
 	NSMutableString *html = [[NSMutableString alloc] init];
-	[html appendString:@"<script>"];
-	[html appendFormat:@"Titanium={};Ti=Titanium;Ti.pageToken=%@;",pageToken];
-	[html appendString:kTitaniumJavascript];
-	[html appendString:@"</script>"];
-	[html appendString:content];
+	
+	BOOL found = NO;
+	
+	// attempt to make well-formed HTML
+	NSRange range = [content rangeOfString:@"<html"];
+	if (range.location!=NSNotFound)
+	{
+		NSRange nextRange = [content rangeOfString:@">" options:0 range:NSMakeRange(range.location, [content length]) locale:nil];
+		if (nextRange.location!=NSNotFound)
+		{
+			[html appendString:[content substringToIndex:nextRange.location+1]];
+			[html appendString:@"<script>"];
+			[html appendFormat:@"Titanium={};Ti=Titanium;Ti.pageToken=%@;",pageToken];
+			[html appendString:kTitaniumJavascript];
+			[html appendString:@"</script>"];
+			[html appendString:[content substringFromIndex:nextRange.location+1]];
+			found = YES;
+		}
+	}
+	
+	if (found==NO)
+	{
+		// oh well, just jack it in
+		[html appendString:@"<script>"];
+		[html appendFormat:@"Titanium={};Ti=Titanium;Ti.pageToken=%@;",pageToken];
+		[html appendString:kTitaniumJavascript];
+		[html appendString:@"</script>"];
+		[html appendString:content];
+	}
+	
 	if (url!=nil)
 	{
 		[[self webview] loadHTMLString:html baseURL:url];

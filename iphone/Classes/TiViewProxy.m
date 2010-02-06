@@ -7,7 +7,6 @@
 
 #import "TiViewProxy.h"
 #import "LayoutConstraint.h"
-#import "TiView.h"
 #import "TitaniumApp.h"
 #import "TiBlob.h"
 #import <QuartzCore/QuartzCore.h>
@@ -75,10 +74,6 @@
 		{
 			UIView *childView = [arg view];
 			[childView removeFromSuperview];
-		}
-		else 
-		{
-			[(TiView*)arg _destroy];
 		}
 	}
 }
