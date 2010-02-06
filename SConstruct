@@ -43,12 +43,10 @@ if platform.system() == "Darwin" and not ARGUMENTS.get('android',0):
 
 flags = ''
 
-#build_type = 'full'
 
 # TEMP until android is merged
-build_type = 'iphone'
-build_dirs = ['iphone']
-
+build_type = 'full'
+build_dirs = ['iphone', 'android']
 
 if ARGUMENTS.get('iphone',0):
 	build_type='iphone'
@@ -78,4 +76,5 @@ for dir in build_dirs:
 	finally:
 		os.chdir(d)
 
+print "Packaging MobileSDK (%s)..." % version
 package.Packager().build('dist',version)

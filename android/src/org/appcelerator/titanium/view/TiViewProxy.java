@@ -167,6 +167,10 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 			modelListener.processProperties(dynprops != null ? new TiDict(dynprops) : new TiDict());
 
 			View nativeView = view.getNativeView();
+			if (view.getParent() != null) {
+				Log.e(LCAT, "parent native view type: " + nativeView.getParent().getClass().getSimpleName());
+			}
+			Log.e(LCAT, "native view type: " + nativeView.getClass().getSimpleName());
 			if (nativeView instanceof ViewGroup) {
 				ViewGroup vg = (ViewGroup) nativeView;
 				if (children != null) {

@@ -170,7 +170,7 @@
 	[self setNeedsLayout];
 }
 
--(void)setPageControlHeight_:(id)value
+-(void)setPagingControlHeight_:(id)value
 {
 	pageControlHeight = [TiUtils floatValue:value def:20.0];
 	[self removePageControl];	//Just for ease of coding, we'll wipe and re-make it.

@@ -20,3 +20,5 @@ var view = Ti.UI.createView({
 scrollView.add(view);
 
 win.add(scrollView);
+
+

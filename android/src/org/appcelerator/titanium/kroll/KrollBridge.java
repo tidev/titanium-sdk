@@ -8,7 +8,9 @@ package org.appcelerator.titanium.kroll;
 
 import java.io.IOException;
 
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiEvaluator;
+import org.mozilla.javascript.Scriptable;
 
 public class KrollBridge
 	implements TiEvaluator
@@ -17,10 +19,25 @@ public class KrollBridge
 	private KrollContext kroll;
 	private TitaniumObject titanium;
 
-	public KrollBridge(KrollContext kroll)
+	public KrollBridge(KrollContext kroll, TiDict preload)
 	{
 		this.kroll = kroll;
-		initializeTitanium();
+
+		titanium = new TitaniumObject(kroll);
+		kroll.put("Titanium", titanium);
+		kroll.put("Ti", titanium);
+
+		if (preload != null) {
+			titanium.loadModule("UI");
+			Scriptable root = kroll.getScope();
+			Scriptable ti = (Scriptable) root.get("Ti", root);
+			KrollObject ui = (KrollObject) ti.get("UI", ti);
+
+			for(String key : preload.keySet()) {
+				KrollObject ko = new KrollObject(ui, preload.get(key));
+				ui.superPut(key, ui, ko);
+			}
+		}
 	}
 
 	public Object evalFile(String filename)
@@ -34,12 +51,5 @@ public class KrollBridge
 	}
 
 	public void fireEvent() {
-	}
-
-	private void initializeTitanium()
-	{
-		titanium = new TitaniumObject(kroll);
-		kroll.put("Titanium", titanium);
-		kroll.put("Ti", titanium);
 	}
 }
