@@ -94,12 +94,13 @@
 
 	CGRect contentBounds = [self bounds];
 	
-	contentBounds.origin.y += contentBounds.size.width * currentPage;
+	contentBounds.origin.x += contentBounds.size.width * currentPage;
 	contentBounds.size.width *= pageCount;
 	[scrollingView setContentSize:contentBounds.size];
 	[scrollingView setContentOffset:contentBounds.origin];
 
 	[self preloadPages:[ourProxy pageIndex]];
+	[self updatePageControl];
 }
 
 -(void)setBounds:(CGRect)bounds
