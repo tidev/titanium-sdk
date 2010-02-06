@@ -59,7 +59,7 @@
 		if (templateCellDict!=nil)
 		{
 			ENSURE_DICT(templateCellDict);
-			[section setTemplateCell:[CellDataWrapper cellDataWithProperties:templateCellDict proxy:self font:[WebFont tableRowFont] template:nil]];
+			[section setTemplateCell:[TiUITableViewCellProxy cellDataWithProperties:templateCellDict proxy:self font:[WebFont tableRowFont] template:nil]];
 		}		
 		
 		NSArray * thisDataArray = [self valueForKey:@"data"];
@@ -70,7 +70,7 @@
 			{
 				ENSURE_DICT(thisEntry);
 				
-				CellDataWrapper * thisRow = [CellDataWrapper cellDataWithProperties:thisEntry proxy:self font:[WebFont tableRowFont] template:nil];
+				TiUITableViewCellProxy * thisRow = [TiUITableViewCellProxy cellDataWithProperties:thisEntry proxy:self font:[WebFont tableRowFont] template:nil];
 				if (isButtonGroup) 
 				{
 					[thisRow setIsButton:YES];

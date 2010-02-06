@@ -51,16 +51,16 @@
 
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-	CGPoint * offset = [scrollView contentOffset];
+	CGPoint offset = [scrollView contentOffset];
 	TiPoint * offsetPoint = [[TiPoint alloc] initWithPoint:offset];
-	[self replaceValue:offset forKey:@"contentOffset" notification:NO];
+	[self replaceValue:offsetPoint forKey:@"contentOffset" notification:NO];
 
 	[self fireEvent:@"scroll" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
 			[NSNumber numberWithFloat:offset.x],@"x",
 			[NSNumber numberWithFloat:offset.y],@"y",
 			[NSNumber numberWithBool:[scrollView isDecelerating]],@"decelerating",
 			[NSNumber numberWithBool:[scrollView isDragging]],@"dragging",
-			,nil]];
+			nil]];
 
 }
 

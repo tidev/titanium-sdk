@@ -11,7 +11,7 @@
 
 @class WebFont, TiProxy;
 
-@interface CellDataWrapper : NSObject {
+@interface TiUITableViewCellProxy : NSObject {
 	WebFont * fontDesc;
 	
 	NSMutableDictionary * jsonValues;
@@ -22,7 +22,7 @@
 	
 //	NativeControlProxy * inputProxy;
 	
-	CellDataWrapper * templateCell;
+	TiUITableViewCellProxy * templateCell;
 	
 	TiDimension  rowHeight;
 	TiDimension  minRowHeight;
@@ -41,7 +41,7 @@
 
 @property(nonatomic,readonly,copy)	UIImage * image;
 //@property(nonatomic,readwrite,retain)	NativeControlProxy * inputProxy;
-@property(nonatomic,readwrite,retain)	CellDataWrapper * templateCell;
+@property(nonatomic,readwrite,retain)	TiUITableViewCellProxy * templateCell;
 
 @property(nonatomic,readwrite,assign)	UITableViewCellAccessoryType accessoryType;
 @property(nonatomic,readwrite,assign)	BOOL isButton;
@@ -66,7 +66,7 @@
 
 - (BOOL) stringForKey:(NSString *)key containsString: (NSString *)matchString;
 
-+ cellDataWithProperties:(NSDictionary *)properties proxy:(TiProxy *)proxy font:(WebFont *)defaultFont template:(CellDataWrapper *)templateCell;
++ cellDataWithProperties:(NSDictionary *)properties proxy:(TiProxy *)proxy font:(WebFont *)defaultFont template:(TiUITableViewCellProxy *)templateCell;
 - (float) computedAutoHeightForTable:(UITableView *)tableView;
 
 @end
