@@ -7,7 +7,10 @@ var data = [
 	{title:'PDF URL', hasChild:true, url:'http://www.appcelerator.com/assets/The_iPad_App_Wave.pdf'},
 	{title:'Image URL', hasChild:true, url:'http://www.appcelerator.com/wp-content/uploads/2010/01/TABWAVE_graph1.png'},
 	{title:'SVG URL', hasChild:true, url:'http://upload.wikimedia.org/wikipedia/commons/5/55/1st_Cavalry_Division_-_Shoulder_Sleeve_Insignia.svg'},
-	{title:'Inline HTML', hasChild:true, text:'<html><body>Hello from inline HTML.</body></html>'}
+	{title:'Inline HTML', hasChild:true, text:'<html><body>Hello from inline HTML.</body></html>'},
+	{title:'Inline HTML w/ Trans Bg', hasChild:true, text:'<html><body><div style="color:white;">Hello from inline HTML. You should see white text and black background</div></body></html>', bgcolor:'transparent'},
+	{title:'Inline HTML w/ Color Bg', hasChild:true, text:'<html><body><div style="color:red;">Hello from inline HTML. You should see red text and yellow background</div></body></html>', bgcolor:'yellow'},
+	{title:'Inline HTML w/ Border', hasChild:true, text:'<html><body><div>Hello from inline HTML. You should see red border</div></body></html>', border: true}
 ];
 
 // create table view
@@ -32,7 +35,17 @@ tableview.addEventListener('click', function(e)
 	webview.addEventListener('load',function(e)
 	{
 		Ti.API.debug("webview loaded: "+e.url);
-	})
+	});
+	if (rowdata.bgcolor)
+	{
+		webview.backgroundColor = rowdata.bgcolor;
+	}
+	if (rowdata.border)
+	{
+		webview.borderRadius=15;
+		webview.borderWidth=5;
+		webview.borderColor = 'red';
+	}
 	w.add(webview);
 	win.tab.open(w);
 	//webview.evalJS('alert("hello")');
