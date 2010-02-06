@@ -713,6 +713,34 @@
 		24EB02C4111BF827001DC2D1 /* TiUIWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB02C0111BF827001DC2D1 /* TiUIWebView.m */; };
 		24EB06ED111D03F9001DC2D1 /* bridge.txt in Resources */ = {isa = PBXBuildFile; fileRef = 24EB06EC111D03F9001DC2D1 /* bridge.txt */; };
 		24EB06EE111D03F9001DC2D1 /* bridge.txt in Resources */ = {isa = PBXBuildFile; fileRef = 24EB06EC111D03F9001DC2D1 /* bridge.txt */; };
+		24EB07D4111D4264001DC2D1 /* TiDOMDocumentProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB07D3111D4264001DC2D1 /* TiDOMDocumentProxy.m */; };
+		24EB07D5111D4264001DC2D1 /* TiDOMDocumentProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB07D3111D4264001DC2D1 /* TiDOMDocumentProxy.m */; };
+		24EB07D6111D4264001DC2D1 /* TiDOMDocumentProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24EB07D2111D4264001DC2D1 /* TiDOMDocumentProxy.h */; };
+		24EB07D7111D4264001DC2D1 /* TiDOMDocumentProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB07D3111D4264001DC2D1 /* TiDOMDocumentProxy.m */; };
+		24EB07E0111D43AE001DC2D1 /* GDataXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB07DF111D43AE001DC2D1 /* GDataXMLNode.m */; };
+		24EB07E1111D43AE001DC2D1 /* GDataXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB07DF111D43AE001DC2D1 /* GDataXMLNode.m */; };
+		24EB07E2111D43AE001DC2D1 /* GDataXMLNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 24EB07DE111D43AE001DC2D1 /* GDataXMLNode.h */; };
+		24EB07E3111D43AE001DC2D1 /* GDataXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB07DF111D43AE001DC2D1 /* GDataXMLNode.m */; };
+		24EB0809111D4654001DC2D1 /* TiDOMNodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0808111D4654001DC2D1 /* TiDOMNodeProxy.m */; };
+		24EB080A111D4654001DC2D1 /* TiDOMNodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0808111D4654001DC2D1 /* TiDOMNodeProxy.m */; };
+		24EB080B111D4654001DC2D1 /* TiDOMNodeProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24EB0807111D4654001DC2D1 /* TiDOMNodeProxy.h */; };
+		24EB080C111D4654001DC2D1 /* TiDOMNodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0808111D4654001DC2D1 /* TiDOMNodeProxy.m */; };
+		24EB080F111D46C0001DC2D1 /* TiDOMElementProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB080E111D46C0001DC2D1 /* TiDOMElementProxy.m */; };
+		24EB0810111D46C0001DC2D1 /* TiDOMElementProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB080E111D46C0001DC2D1 /* TiDOMElementProxy.m */; };
+		24EB0811111D46C0001DC2D1 /* TiDOMElementProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24EB080D111D46C0001DC2D1 /* TiDOMElementProxy.h */; };
+		24EB0812111D46C0001DC2D1 /* TiDOMElementProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB080E111D46C0001DC2D1 /* TiDOMElementProxy.m */; };
+		24EB0829111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0828111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m */; };
+		24EB082A111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0828111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m */; };
+		24EB082B111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24EB0827111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.h */; };
+		24EB082C111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0828111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m */; };
+		24EB0843111D500E001DC2D1 /* TiDOMNodeListProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0842111D500E001DC2D1 /* TiDOMNodeListProxy.m */; };
+		24EB0844111D500E001DC2D1 /* TiDOMNodeListProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0842111D500E001DC2D1 /* TiDOMNodeListProxy.m */; };
+		24EB0845111D500E001DC2D1 /* TiDOMNodeListProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24EB0841111D500E001DC2D1 /* TiDOMNodeListProxy.h */; };
+		24EB0846111D500E001DC2D1 /* TiDOMNodeListProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0842111D500E001DC2D1 /* TiDOMNodeListProxy.m */; };
+		24EB085D111D51D9001DC2D1 /* TiDOMAttrProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB085C111D51D9001DC2D1 /* TiDOMAttrProxy.m */; };
+		24EB085E111D51D9001DC2D1 /* TiDOMAttrProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB085C111D51D9001DC2D1 /* TiDOMAttrProxy.m */; };
+		24EB085F111D51D9001DC2D1 /* TiDOMAttrProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24EB085B111D51D9001DC2D1 /* TiDOMAttrProxy.h */; };
+		24EB0860111D51D9001DC2D1 /* TiDOMAttrProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB085C111D51D9001DC2D1 /* TiDOMAttrProxy.m */; };
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		B421C4121113AA9300DBCB42 /* TiUIScrollableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4111113AA9300DBCB42 /* TiUIScrollableViewProxy.m */; };
@@ -1139,6 +1167,20 @@
 		24EB02BF111BF827001DC2D1 /* TiUIWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIWebView.h; sourceTree = "<group>"; };
 		24EB02C0111BF827001DC2D1 /* TiUIWebView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIWebView.m; sourceTree = "<group>"; };
 		24EB06EC111D03F9001DC2D1 /* bridge.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bridge.txt; sourceTree = "<group>"; };
+		24EB07D2111D4264001DC2D1 /* TiDOMDocumentProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMDocumentProxy.h; sourceTree = "<group>"; };
+		24EB07D3111D4264001DC2D1 /* TiDOMDocumentProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMDocumentProxy.m; sourceTree = "<group>"; };
+		24EB07DE111D43AE001DC2D1 /* GDataXMLNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDataXMLNode.h; sourceTree = "<group>"; };
+		24EB07DF111D43AE001DC2D1 /* GDataXMLNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDataXMLNode.m; sourceTree = "<group>"; };
+		24EB0807111D4654001DC2D1 /* TiDOMNodeProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMNodeProxy.h; sourceTree = "<group>"; };
+		24EB0808111D4654001DC2D1 /* TiDOMNodeProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMNodeProxy.m; sourceTree = "<group>"; };
+		24EB080D111D46C0001DC2D1 /* TiDOMElementProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMElementProxy.h; sourceTree = "<group>"; };
+		24EB080E111D46C0001DC2D1 /* TiDOMElementProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMElementProxy.m; sourceTree = "<group>"; };
+		24EB0827111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMNamedNodeMapProxy.h; sourceTree = "<group>"; };
+		24EB0828111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMNamedNodeMapProxy.m; sourceTree = "<group>"; };
+		24EB0841111D500E001DC2D1 /* TiDOMNodeListProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMNodeListProxy.h; sourceTree = "<group>"; };
+		24EB0842111D500E001DC2D1 /* TiDOMNodeListProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMNodeListProxy.m; sourceTree = "<group>"; };
+		24EB085B111D51D9001DC2D1 /* TiDOMAttrProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMAttrProxy.h; sourceTree = "<group>"; };
+		24EB085C111D51D9001DC2D1 /* TiDOMAttrProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMAttrProxy.m; sourceTree = "<group>"; };
 		288765FC0DF74451002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		28AD733E0D9D9553002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -1233,6 +1275,7 @@
 		24CA8902111160BE0084E2DE /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				24EB07D1111D420D001DC2D1 /* DOM */,
 				24CA8A09111161D60084E2DE /* Modules */,
 				24CA8A0A111161DC0084E2DE /* Utils */,
 				24CA8A0B111161E10084E2DE /* API */,
@@ -2055,6 +2098,27 @@
 			name = Label;
 			sourceTree = "<group>";
 		};
+		24EB07D1111D420D001DC2D1 /* DOM */ = {
+			isa = PBXGroup;
+			children = (
+				24EB07DE111D43AE001DC2D1 /* GDataXMLNode.h */,
+				24EB07DF111D43AE001DC2D1 /* GDataXMLNode.m */,
+				24EB07D2111D4264001DC2D1 /* TiDOMDocumentProxy.h */,
+				24EB07D3111D4264001DC2D1 /* TiDOMDocumentProxy.m */,
+				24EB0807111D4654001DC2D1 /* TiDOMNodeProxy.h */,
+				24EB0808111D4654001DC2D1 /* TiDOMNodeProxy.m */,
+				24EB080D111D46C0001DC2D1 /* TiDOMElementProxy.h */,
+				24EB080E111D46C0001DC2D1 /* TiDOMElementProxy.m */,
+				24EB0827111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.h */,
+				24EB0828111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m */,
+				24EB0841111D500E001DC2D1 /* TiDOMNodeListProxy.h */,
+				24EB0842111D500E001DC2D1 /* TiDOMNodeListProxy.m */,
+				24EB085B111D51D9001DC2D1 /* TiDOMAttrProxy.h */,
+				24EB085C111D51D9001DC2D1 /* TiDOMAttrProxy.m */,
+			);
+			name = DOM;
+			sourceTree = "<group>";
+		};
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
@@ -2285,6 +2349,13 @@
 				245E76AC111A9A7800A18644 /* KrollBridge.h in Headers */,
 				B4F97C58111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.h in Headers */,
 				24EB02C3111BF827001DC2D1 /* TiUIWebView.h in Headers */,
+				24EB07D6111D4264001DC2D1 /* TiDOMDocumentProxy.h in Headers */,
+				24EB07E2111D43AE001DC2D1 /* GDataXMLNode.h in Headers */,
+				24EB080B111D4654001DC2D1 /* TiDOMNodeProxy.h in Headers */,
+				24EB0811111D46C0001DC2D1 /* TiDOMElementProxy.h in Headers */,
+				24EB082B111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.h in Headers */,
+				24EB0845111D500E001DC2D1 /* TiDOMNodeListProxy.h in Headers */,
+				24EB085F111D51D9001DC2D1 /* TiDOMAttrProxy.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2598,6 +2669,13 @@
 				B4F97B73111A41C800E2F72C /* TiUIScrollView.m in Sources */,
 				B4F97C5B111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.m in Sources */,
 				24EB02C2111BF827001DC2D1 /* TiUIWebView.m in Sources */,
+				24EB07D4111D4264001DC2D1 /* TiDOMDocumentProxy.m in Sources */,
+				24EB07E0111D43AE001DC2D1 /* GDataXMLNode.m in Sources */,
+				24EB0809111D4654001DC2D1 /* TiDOMNodeProxy.m in Sources */,
+				24EB080F111D46C0001DC2D1 /* TiDOMElementProxy.m in Sources */,
+				24EB0829111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m in Sources */,
+				24EB0843111D500E001DC2D1 /* TiDOMNodeListProxy.m in Sources */,
+				24EB085D111D51D9001DC2D1 /* TiDOMAttrProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2783,6 +2861,13 @@
 				B4F97B74111A41C800E2F72C /* TiUIScrollView.m in Sources */,
 				B4F97C5A111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.m in Sources */,
 				24EB02C1111BF827001DC2D1 /* TiUIWebView.m in Sources */,
+				24EB07D5111D4264001DC2D1 /* TiDOMDocumentProxy.m in Sources */,
+				24EB07E1111D43AE001DC2D1 /* GDataXMLNode.m in Sources */,
+				24EB080A111D4654001DC2D1 /* TiDOMNodeProxy.m in Sources */,
+				24EB0810111D46C0001DC2D1 /* TiDOMElementProxy.m in Sources */,
+				24EB082A111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m in Sources */,
+				24EB0844111D500E001DC2D1 /* TiDOMNodeListProxy.m in Sources */,
+				24EB085E111D51D9001DC2D1 /* TiDOMAttrProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2967,6 +3052,13 @@
 				24CB0E89111A971B00A813AD /* TiUIScrollView.m in Sources */,
 				B4F97C59111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.m in Sources */,
 				24EB02C4111BF827001DC2D1 /* TiUIWebView.m in Sources */,
+				24EB07D7111D4264001DC2D1 /* TiDOMDocumentProxy.m in Sources */,
+				24EB07E3111D43AE001DC2D1 /* GDataXMLNode.m in Sources */,
+				24EB080C111D4654001DC2D1 /* TiDOMNodeProxy.m in Sources */,
+				24EB0812111D46C0001DC2D1 /* TiDOMElementProxy.m in Sources */,
+				24EB082C111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m in Sources */,
+				24EB0846111D500E001DC2D1 /* TiDOMNodeListProxy.m in Sources */,
+				24EB0860111D51D9001DC2D1 /* TiDOMAttrProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3088,9 +3180,12 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = ../headers;
+				HEADER_SEARCH_PATHS = (
+					/usr/include/libxml2,
+					../headers,
+				);
 				OTHER_CFLAGS = "-DDEBUG=1";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "-lxml2";
 				PREBINDING = NO;
 				SDKROOT = iphoneos3.1.2;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -3105,8 +3200,11 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = ../headers;
-				OTHER_LDFLAGS = "";
+				HEADER_SEARCH_PATHS = (
+					/usr/include/libxml2,
+					../headers,
+				);
+				OTHER_LDFLAGS = "-lxml2";
 				PREBINDING = NO;
 				SDKROOT = iphoneos3.1.2;
 				USER_HEADER_SEARCH_PATHS = "";

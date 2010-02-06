@@ -35,8 +35,8 @@
 		[buttonNames addObject:NSLocalizedString(@"OK",@"Alert OK Button")];
 	}
 	
-	UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:[self valueForKey:@"title"]
-											message:[self valueForKey:@"message"] 
+	UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
+											message:[TiUtils stringValue:[self valueForKey:@"message"]] 
 											delegate:self cancelButtonTitle:nil otherButtonTitles:nil] autorelease];
 	for (id btn in buttonNames)
 	{

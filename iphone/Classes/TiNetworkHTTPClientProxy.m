@@ -9,6 +9,7 @@
 #import "TiNetworkHTTPClientResultProxy.h"
 #import "TiUtils.h"
 #import "TitaniumApp.h"
+#import "TiDOMDocumentProxy.h"
 
 int CaselessCompare(const char * firstString, const char * secondString, int size)
 {
@@ -137,15 +138,19 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 				return result;
 			}
 		}
+		return result;
 	}
 	return nil;
 }
 
--(NSString*)responseXML
+-(TiProxy*)responseXML
 {
-	if (request!=nil && [request error]==nil)
+	NSString *responseText = [self responseText];
+	if (responseText!=nil)
 	{
-		//TODO
+		TiDOMDocumentProxy *dom = [[[TiDOMDocumentProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+		[dom parseString:responseText];
+		return dom;
 	}
 	return nil;
 }
