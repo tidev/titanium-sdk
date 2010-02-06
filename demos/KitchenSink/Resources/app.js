@@ -1,5 +1,5 @@
 // this sets the background color of the master UIView (when there are no windows/tab groups on it)
-Titanium.UI.setBackgroundColor('#fff');
+Titanium.UI.setBackgroundColor('#000');
 
 // create tab group
 var tabGroup = Titanium.UI.createTabGroup();
@@ -85,6 +85,11 @@ tabGroup.open({
 	transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
 });
 
+// set background color back to white after tab group transition
+setTimeout(function()
+{
+	Titanium.UI.setBackgroundColor('#fff');
+},1000)
 //
 //  TAB GROUP EVENTS
 //
