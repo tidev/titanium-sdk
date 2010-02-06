@@ -55,6 +55,7 @@ var label = Titanium.UI.createLabel({
 	},
 	textAlign:'center',
 	top:110,
+	width:300
 });
 
 win.add(button1);

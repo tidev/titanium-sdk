@@ -5,7 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiBase.h"
-#import "CellDataWrapper.h"
 #import "LayoutEntry.h"
 #import "Webcolor.h"
 #import "WebFont.h"

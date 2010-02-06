@@ -71,6 +71,7 @@
 		TiUIView * thisPageView = [thisPageProxy view];
 		[thisPageWrapper addSubview:thisPageView];
 		[thisPageView reposition];
+		[thisPageProxy layoutChildren:[thisPageView bounds]];
 
 		[scrollingView addSubview:thisPageWrapper];
 		
@@ -93,12 +94,13 @@
 
 	CGRect contentBounds = [self bounds];
 	
-	contentBounds.origin.y += contentBounds.size.width * currentPage;
+	contentBounds.origin.x += contentBounds.size.width * currentPage;
 	contentBounds.size.width *= pageCount;
 	[scrollingView setContentSize:contentBounds.size];
 	[scrollingView setContentOffset:contentBounds.origin];
 
 	[self preloadPages:[ourProxy pageIndex]];
+	[self updatePageControl];
 }
 
 -(void)setBounds:(CGRect)bounds
@@ -169,7 +171,7 @@
 	[self setNeedsLayout];
 }
 
--(void)setPageControlHeight_:(id)value
+-(void)setPagingControlHeight_:(id)value
 {
 	pageControlHeight = [TiUtils floatValue:value def:20.0];
 	[self removePageControl];	//Just for ease of coding, we'll wipe and re-make it.
