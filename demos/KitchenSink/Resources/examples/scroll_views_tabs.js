@@ -1,4 +1,22 @@
 var win = Titanium.UI.currentWindow
+win.backgroundColor = '#000';
+
+var leftImage = Ti.UI.createView({
+	backgroundImage:'../images/icon_arrow_left.png',
+	height:30,
+	width:30,
+	top:16,
+	left:5
+});
+win.add(leftImage);
+var rightImage = Ti.UI.createView({
+	backgroundImage:'../images/icon_arrow_right.png',
+	height:30,
+	width:30,
+	top:16,
+	right:5
+});
+win.add(rightImage);
 
 //
 // HORIZONTAL SCROLLING TABS
@@ -8,16 +26,24 @@ var scrollView = Titanium.UI.createScrollView({
 	contentHeight:50,
 	top:10,
 	height:50,
-	width:300,
+	width:230,
 	borderRadius:10,
 	backgroundColor:'#13386c'
 });
 
-scrollView1.addEventListener('scroll', function(e)
+scrollView.addEventListener('scroll', function(e)
 {
-	for(v in e)
+	Ti.API.info('x ' + e.x + ' y ' + e.y);
+	
+	if (e.x < 200)
 	{
-		Ti.API.info('v ' + v + ' e[v] ' + e[v]);
+		rightImage.hide();
+		leftImage.show();
+	}
+	else
+	{
+		rightImage.show();
+		leftImage.hide();
 	}
 });
 
