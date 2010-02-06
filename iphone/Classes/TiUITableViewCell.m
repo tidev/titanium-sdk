@@ -6,7 +6,7 @@
  */
 #import "TiBase.h"
 #import "TiUITableViewCell.h"
-#import "CellDataWrapper.h"
+#import "TiUITableViewCellProxy.h"
 #import "TiTextLabel.h"
 #import "LayoutEntry.h"
 #import "Webcolor.h"
@@ -155,7 +155,7 @@
 
 #pragma mark Accessors
 
-- (void)setDataWrapper:(CellDataWrapper *)newWrapper
+- (void)setDataWrapper:(TiUITableViewCellProxy *)newWrapper
 {
 	if(newWrapper == dataWrapper)
 	{

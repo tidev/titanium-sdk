@@ -188,7 +188,7 @@ DEFINE_EXCEPTIONS
 	return [rowArray count];
 }
 
-- (void) addRow: (CellDataWrapper *) newRow
+- (void) addRow: (TiUITableViewCellProxy *) newRow
 {
 	if (rowArray == nil){
 		rowArray = [[NSMutableArray alloc] initWithObjects:newRow,nil];
@@ -197,7 +197,7 @@ DEFINE_EXCEPTIONS
 	}
 }
 
-- (void) insertRow: (CellDataWrapper *) newRow atIndex: (int) index
+- (void) insertRow: (TiUITableViewCellProxy *) newRow atIndex: (int) index
 {
 	if (rowArray == nil){
 		rowArray = [[NSMutableArray alloc] initWithObjects:newRow,nil];
@@ -235,10 +235,10 @@ DEFINE_EXCEPTIONS
 	[rowArray removeObjectAtIndex:rowIndex];
 }
 
-- (CellDataWrapper *) rowForIndex: (NSUInteger) rowIndex
+- (TiUITableViewCellProxy *) rowForIndex: (NSUInteger) rowIndex
 {
 	if (rowIndex >= [rowArray count]) return nil;
-	CellDataWrapper * result = [rowArray objectAtIndex:rowIndex];
+	TiUITableViewCellProxy * result = [rowArray objectAtIndex:rowIndex];
 	return result;
 }
 
@@ -264,7 +264,7 @@ DEFINE_EXCEPTIONS
 	ENSURE_TYPE(newRowData,NSDictionary);
 	ENSURE_VALUE_RANGE(index,0,[self countOfData]);
 	
-	CellDataWrapper * newRow = [CellDataWrapper cellDataWithProperties:newRowData proxy:delegate font:[WebFont tableRowFont] template:templateCell];
+	TiUITableViewCellProxy * newRow = [TiUITableViewCellProxy cellDataWithProperties:newRowData proxy:delegate font:[WebFont tableRowFont] template:templateCell];
 	[self insertRow:newRow atIndex:index];
 }
 
@@ -280,7 +280,7 @@ DEFINE_EXCEPTIONS
 	ENSURE_TYPE(newRowData,NSDictionary);
 	ENSURE_VALUE_RANGE(index,0,[self countOfData]-1);
 	
-	CellDataWrapper * newRow = [CellDataWrapper cellDataWithProperties:newRowData proxy:delegate font:[WebFont tableRowFont] template:templateCell];
+	TiUITableViewCellProxy * newRow = [TiUITableViewCellProxy cellDataWithProperties:newRowData proxy:delegate font:[WebFont tableRowFont] template:templateCell];
 	[rowArray replaceObjectAtIndex:index withObject:newRow];
 }
 
@@ -300,7 +300,7 @@ DEFINE_EXCEPTIONS
 	for (NSDictionary * thisRowData in newData) 
 	{
 		ENSURE_DICT(thisRowData);
-		CellDataWrapper * thisRow = [CellDataWrapper cellDataWithProperties:thisRowData proxy:delegate font:[WebFont tableRowFont] template:templateCell];
+		TiUITableViewCellProxy * thisRow = [TiUITableViewCellProxy cellDataWithProperties:thisRowData proxy:delegate font:[WebFont tableRowFont] template:templateCell];
 		[rowArray addObject:thisRow];
 	}
 }

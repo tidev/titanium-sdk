@@ -6,7 +6,7 @@
  */
 
 #import "TiDimension.h"
-#import "CellDataWrapper.h"
+#import "TiUITableViewCellProxy.h"
 #import "TiProxy.h"
 
 @interface TiUITableViewGroupSection : NSObject<NSFastEnumeration,NSCopying> {
@@ -27,7 +27,7 @@
 	UIColor * footerColor;
 	UIFont * footerFont;
 	
-	CellDataWrapper * templateCell;
+	TiUITableViewCellProxy * templateCell;
 	TiProxy *delegate;
 	
 	NSInteger sectionNumber;
@@ -49,15 +49,15 @@
 @property(nonatomic,readwrite,assign)	TiDimension maxRowHeight;
 
 @property(nonatomic,readwrite,retain)	NSMutableArray * rowArray;
-@property(nonatomic,readwrite,retain)	CellDataWrapper * templateCell;
+@property(nonatomic,readwrite,retain)	TiUITableViewCellProxy * templateCell;
 
 @property(nonatomic,readwrite,assign)	TiProxy *delegate;
 @property(nonatomic,readwrite)			NSInteger sectionNumber;
 
 - (id) initWithHeader: (NSString *) headerString footer: (NSString *) footerString withProperties:(NSDictionary*)properties;
-- (void) addRow: (CellDataWrapper *) newRow;
-- (CellDataWrapper *) rowForIndex: (NSUInteger) rowIndex;
-- (void) insertRow:(CellDataWrapper*)newRow atIndex:(NSInteger)rowIndex;
+- (void) addRow: (TiUITableViewCellProxy *) newRow;
+- (TiUITableViewCellProxy *) rowForIndex: (NSUInteger) rowIndex;
+- (void) insertRow:(TiUITableViewCellProxy*)newRow atIndex:(NSInteger)rowIndex;
 - (void) removeObjectFromDataAtIndex:(int)index;
 - (BOOL) accceptsHeader: (id) newHeader footer: (id) newFooter;
 - (void) forceHeader: (NSString *) headerString footer: (NSString *)footerString;

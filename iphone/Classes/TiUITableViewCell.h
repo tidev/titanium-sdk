@@ -7,11 +7,11 @@
 
 #import <UIKit/UIKit.h>
 
-@class CellDataWrapper;
+@class TiUITableViewCellProxy;
 
 @interface TiUITableViewCell : UITableViewCell 
 {
-	CellDataWrapper * dataWrapper;
+	TiUITableViewCellProxy * dataWrapper;
 	NSMutableArray * layoutViewsArray;
 	id lastLayoutArray;	//Is not retained, and kept only as a memory value, NOT to be used as an object.
 	NSString * clickedName;
@@ -22,7 +22,7 @@
 	NSString * htmlString;
 }
 
-@property(nonatomic,readwrite,retain) CellDataWrapper * dataWrapper;
+@property(nonatomic,readwrite,retain) TiUITableViewCellProxy * dataWrapper;
 @property(nonatomic,readwrite,copy) NSString * clickedName;
 @property(nonatomic,readonly)	UILabel * valueLabel;
 
