@@ -118,7 +118,7 @@ public class KrollObject extends ScriptableObject
 		Object o = NOT_FOUND;
 
 		// If starts with Capital letter see if there is a module for it.
-		if (name.matches("^[A-Z].*")) {
+		if (name.matches("^[A-Z].*") || name.matches("iPhone")) {
 			Object p = loadModule(name);
 			if (p != null) {
 				o = new KrollObject(this, p);
