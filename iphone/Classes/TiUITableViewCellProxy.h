@@ -5,13 +5,15 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import "TiDimension.h"
+#import "TiViewProxy.h"
 
-@class WebFont, TiProxy;
 
-@interface TiUITableViewCellProxy : NSObject {
+@class TiUITableViewCell;
+@class WebFont;
+
+@interface TiUITableViewCellProxy : TiProxy {
+
+#pragma mark BUG BARRIER
 	WebFont * fontDesc;
 	
 	NSMutableDictionary * jsonValues;
@@ -20,7 +22,7 @@
 	NSMutableSet * imageKeys;
 	NSMutableArray * layoutArray;
 	
-//	NativeControlProxy * inputProxy;
+//	TiViewProxy * inputProxy;
 	
 	TiUITableViewCellProxy * templateCell;
 	
@@ -32,6 +34,13 @@
 	BOOL isButton;
 	
 }
+
+-(TiUITableViewCell *)cellForTableView:(UITableView *)tableView;
+
+
+#pragma mark BUG BARRIER
+
+
 @property(nonatomic,readwrite,copy)	NSMutableDictionary * jsonValues;
 
 @property(nonatomic,readonly)	NSString * title;
@@ -68,5 +77,6 @@
 
 + cellDataWithProperties:(NSDictionary *)properties proxy:(TiProxy *)proxy font:(WebFont *)defaultFont template:(TiUITableViewCellProxy *)templateCell;
 - (float) computedAutoHeightForTable:(UITableView *)tableView;
+
 
 @end

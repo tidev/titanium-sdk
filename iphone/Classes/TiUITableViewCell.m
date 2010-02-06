@@ -14,10 +14,7 @@
 
 @implementation TiUITableViewCell
 
-@synthesize dataWrapper, clickedName, valueLabel;
-
-#pragma mark Initialization
-
+@synthesize proxy;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier 
 {
@@ -28,12 +25,43 @@
     return self;
 }
 
+-(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys
+{
+	DoProxyDelegateReadValuesWithKeysFromProxy(self, keys, proxy);
+}
+
+-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy
+{
+	DoProxyDelegateChangedValuesWithProxy(self, key, oldValue, newValue, proxy);
+}
+
+-(BOOL)isRepositionProperty:(NSString*)key
+{
+	return NO;
+}
+
+
+
+
+
+
+
+
+
+
+#pragma mark BUG BARRIER
+
+
+@synthesize clickedName, valueLabel;
+
+#pragma mark Initialization
+
 - (void) dealloc
 {
-	[dataWrapper removeObserver:self forKeyPath:@"jsonValues"];
+	[proxy removeObserver:self forKeyPath:@"jsonValues"];
 	[self flushBlobWatching];
 
-	RELEASE_TO_NIL(dataWrapper);
+	RELEASE_TO_NIL(proxy);
 	RELEASE_TO_NIL(layoutViewsArray);
 	RELEASE_TO_NIL(clickedName);
 	RELEASE_TO_NIL(watchedBlobs);
@@ -124,7 +152,7 @@
 
 - (void) applyImageNamed: (NSString *) name toView: (UIImageView *) view
 {
-	UIImage * entryImage = [dataWrapper imageForKey:name];
+	UIImage * entryImage = [proxy imageForKey:name];
 	[view setImage:entryImage];
 	if (entryImage==nil) {
 //		TitaniumBlobWrapper * ourBlob = [dataWrapper blobWrapperForKey:name];
@@ -155,23 +183,23 @@
 
 #pragma mark Accessors
 
-- (void)setDataWrapper:(TiUITableViewCellProxy *)newWrapper
+- (void)setProxy:(TiUITableViewCellProxy *)newWrapper
 {
-	if(newWrapper == dataWrapper)
+	if(newWrapper == proxy)
 	{
 		return;
 	}
-	[dataWrapper removeObserver:self forKeyPath:@"jsonValues"];
+	[proxy removeObserver:self forKeyPath:@"jsonValues"];
 	[newWrapper retain];
-	[dataWrapper release];
-	dataWrapper=newWrapper;
-	[dataWrapper addObserver:self forKeyPath:@"jsonValues" options:NSKeyValueObservingOptionNew context:nil];
+	[proxy release];
+	proxy=newWrapper;
+	[proxy addObserver:self forKeyPath:@"jsonValues" options:NSKeyValueObservingOptionNew context:nil];
 	[self refreshFromDataWrapper];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-	if(object==dataWrapper)
+	if(object==proxy)
 	{
 		[self refreshFromDataWrapper];
 	}
@@ -207,7 +235,7 @@
 - (void) updateDefaultLayoutViews:(BOOL) hilighted
 {
 	UILabel * ourTextLabel = [self textLabel];
-	NSString * ourHTML = [dataWrapper html];
+	NSString * ourHTML = [proxy html];
 	NSString * ourTitle;
 
 	UIView * ourContentView = [self contentView];
@@ -261,7 +289,7 @@
 		htmlView = nil;
 		[htmlString release];
 		htmlString = nil;
-		ourTitle = [dataWrapper title];
+		ourTitle = [proxy title];
 	}
 	
 	if([ourTitle length]>0)
@@ -279,9 +307,9 @@
 		[ourTextLabel setHighlighted:hilighted];
 		[ourTextLabel setTextColor:ourTextColor];
 		[ourTextLabel setBackgroundColor:[UIColor clearColor]];
-		[ourTextLabel setFont:[dataWrapper font]];
+		[ourTextLabel setFont:[proxy font]];
 		[ourTextLabel setText:ourTitle];
-		[ourTextLabel setTextAlignment:[dataWrapper isButton]?UITextAlignmentCenter:UITextAlignmentLeft];
+		[ourTextLabel setTextAlignment:[proxy isButton]?UITextAlignmentCenter:UITextAlignmentLeft];
 		[ourTextLabel setHidden:NO];
 	} 
 	else 
@@ -293,9 +321,9 @@
 
 - (void)refreshFromDataWrapper
 {
-	[self setAccessoryType:[dataWrapper accessoryType]];
+	[self setAccessoryType:[proxy accessoryType]];
 	
-	if([dataWrapper layoutArray] == nil)
+	if([proxy layoutArray] == nil)
 	{
 		[self updateDefaultLayoutViews:[self shouldUseHilightColors]];
 	} 
@@ -324,7 +352,7 @@
 		}
 		if([thisEntryView isKindOfClass:[TiTextLabel class]])
 		{
-			[(TiTextLabel *)thisEntryView setText:[dataWrapper stringForKey:name]];
+			[(TiTextLabel *)thisEntryView setText:[proxy stringForKey:name]];
 			[(TiTextLabel *)thisEntryView setHighlighted:hilighted];
 			[thisEntryView setNeedsDisplay];
 			continue;
@@ -336,7 +364,7 @@
 {
 	[super layoutSubviews];
 	
-	NSArray * layoutArray = [dataWrapper layoutArray];
+	NSArray * layoutArray = [proxy layoutArray];
 	[self flushBlobWatching];
 	
 	if(layoutArray == nil)
@@ -381,7 +409,7 @@
 			{
 				thisEntryView = [[[TiTextLabel alloc] initWithFrame:CGRectZero] autorelease];
 				
-				[(TiTextLabel *)thisEntryView setText:[dataWrapper stringForKey:name]];
+				[(TiTextLabel *)thisEntryView setText:[proxy stringForKey:name]];
 				[(TiTextLabel *)thisEntryView setHighlighted:useHilightColors];
 				[(TiTextLabel *)thisEntryView setTextAlignment:[thisEntry textAlign]];
 				
@@ -393,11 +421,11 @@
 				}
 				if (thisHighlightedTextColor == nil) 
 				{
-					thisHighlightedTextColor = [dataWrapper colorForKey:@"selectedColor"];
+					thisHighlightedTextColor = [proxy colorForKey:@"selectedColor"];
 				}
 				if (thisTextColor == nil) 
 				{
-					thisTextColor = [dataWrapper colorForKey:@"color"];
+					thisTextColor = [proxy colorForKey:@"color"];
 				}
 				if (thisHighlightedTextColor == nil) 
 				{
@@ -452,7 +480,7 @@
 		CGPoint thisPoint;
 		thisPoint = [anyTouch locationInView:thisView];
 		if ([thisView pointInside:thisPoint withEvent:nil]) {
-			LayoutEntry * thisEntry = [[dataWrapper layoutArray] objectAtIndex:currentViewIndex];
+			LayoutEntry * thisEntry = [[proxy layoutArray] objectAtIndex:currentViewIndex];
 			[self setClickedName:[thisEntry nameString]];
 			[super touchesEnded:touches withEvent:event];
 			return;

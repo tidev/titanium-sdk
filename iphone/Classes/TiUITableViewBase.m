@@ -411,86 +411,12 @@
 
 #pragma mark UITableView Datasource configuration
 
--(TiUITableViewCell*)cellForIndexPath:(NSIndexPath *)path section:(TiUITableViewGroupSection*)sectionWrapper cell:(TiUITableViewCellProxy*)rowWrapper
-{
-	TiUITableViewCell *result = (TiUITableViewCell *)[tableview dequeueReusableCellWithIdentifier:@"complex"];
-	if (result == nil) 
-	{
-		result = [[[TiUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"complex"] autorelease];
-	}		
-	return result;
-}
-
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	TiUITableViewGroupSection *sectionWrapper = [self sectionForIndex:[indexPath section]];
-	TiUITableViewCellProxy *rowWrapper = [sectionWrapper rowForIndex:[indexPath row]];
-	TiUITableViewCell *result = [self cellForIndexPath:indexPath section:sectionWrapper cell:rowWrapper];
-	[result setDataWrapper:rowWrapper];	
-	
-	NSString * selectionStyleString = [rowWrapper stringForKey:@"selectionStyle"];
-	if([selectionStyleString isEqualToString:@"none"])
-	{
-		[result setSelectionStyle:UITableViewCellSelectionStyleNone];
-	} 
-	else if ([selectionStyleString isEqualToString:@"gray"])
-	{
-		[result setSelectionStyle:UITableViewCellSelectionStyleGray];
-	} 
-	else 
-	{
-		[result setSelectionStyle:UITableViewCellSelectionStyleBlue];
-	}
-	
-	
-	UIColor * backgroundColor = [rowWrapper colorForKey:@"backgroundColor"];
-	UIColor * selectedBgColor = [rowWrapper colorForKey:@"selectedBackgroundColor"];
-	
-	UIImage * bgImage = [rowWrapper stretchableImageForKey:@"backgroundImage"];
-	UIImage	* selectedBgImage = [rowWrapper stretchableImageForKey:@"selectedBackgroundImage"];
-	
-	
-	if (([tableView style] == UITableViewStyleGrouped) && (bgImage == nil))
-	{
-		if (backgroundColor != nil)
-		{
-			[result setBackgroundColor:backgroundColor];
-		}
-		else 
-		{
-			[result setBackgroundColor:[UIColor whiteColor]];
-		}
-	} 
-	else 
-	{
-		UIImageView * bgView = (UIImageView *)[result backgroundView];
-		if (![bgView isKindOfClass:[UIImageView class]])
-		{
-			bgView = [[[UIImageView alloc] initWithFrame:[result bounds]] autorelease];
-			[bgView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-			[result setBackgroundView:bgView];
-		}
-		[bgView setImage:bgImage];
-		[bgView setBackgroundColor:(backgroundColor==nil)?[UIColor clearColor]:backgroundColor];
-	}
-	
-	if ((selectedBgColor == nil) && (selectedBgImage == nil))
-	{
-		[result setSelectedBackgroundView:nil];
-	} 
-	else 
-	{
-		UIImageView * selectedBgView = (UIImageView *)[result selectedBackgroundView];
-		if (![selectedBgView isKindOfClass:[UIImageView class]])
-		{
-			selectedBgView = [[[UIImageView alloc] initWithFrame:[result bounds]] autorelease];
-			[selectedBgView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-			[result setSelectedBackgroundView:selectedBgView];
-		}
-		
-		[selectedBgView setImage:selectedBgImage];
-		[selectedBgView setBackgroundColor:(selectedBgColor==nil)?[UIColor clearColor]:selectedBgColor];
-	}
+	TiUITableViewCellProxy *rowProxy = [sectionWrapper rowForIndex:[indexPath row]];
+
+	TiUITableViewCell *result = [rowProxy cellForTableView:tableView];
 	
 	return result;
 }

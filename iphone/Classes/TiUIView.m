@@ -439,68 +439,81 @@ return;\
 	READ_CONSTRAINT(bottom);
 }
 
+-(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys
+{
+	DoProxyDelegateReadValuesWithKeysFromProxy(self, keys, proxy);
+}
+
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy
 {
-	// default implementation will simply invoke the setter property for this object
-	// on the main UI thread
-	SEL sel = [self selectorForProperty:key];
-	if ([self respondsToSelector:sel])
-	{
-		if ([NSThread isMainThread])
-		{
-			[self performSelector:sel withObject:newValue];
-		}
-		else
-		{
-			[self performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO];
-		}
-	}
-
-	if ([self isRepositionProperty:key] && [self superview]!=nil)
-	{
-		[self repositionChange:key value:newValue];
-	}
+	DoProxyDelegateChangedValuesWithProxy(self, key, oldValue, newValue, proxy);
 }
+
+//
+//
+//
+//-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy
+//{
+//	// default implementation will simply invoke the setter property for this object
+//	// on the main UI thread
+//	SEL sel = [self selectorForProperty:key];
+//	if ([self respondsToSelector:sel])
+//	{
+//		if ([NSThread isMainThread])
+//		{
+//			[self performSelector:sel withObject:newValue];
+//		}
+//		else
+//		{
+//			[self performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO];
+//		}
+//	}
+//
+//	if ([self isRepositionProperty:key] && [self superview]!=nil)
+//	{
+//		[self repositionChange:key value:newValue];
+//	}
+//}
 
 -(id)proxyValueForKey:(NSString *)key
 {
 	return [proxy valueForKey:key];
 }
 
--(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys
-{
-	BOOL isMainThread = [NSThread isMainThread];
-	NSNull * nullObject = [NSNull null];
-
-	for (NSString * thisKey in keys)
-	{
-		SEL sel = [self selectorForProperty:thisKey];
-		if (![self respondsToSelector:sel])
-		{
-			continue;
-		}
-		
-		id newValue = [proxy valueForKey:thisKey];
-		if (newValue == nil)
-		{
-			continue;
-		}
-		if (newValue == nullObject)
-		{
-			newValue = nil;
-		}
-		
-		if (isMainThread)
-		{
-			[self performSelector:sel withObject:newValue];
-		}
-		else
-		{
-			[self performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO];
-		}
-
-	}
-}
+//-(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys
+//{
+//	BOOL isMainThread = [NSThread isMainThread];
+//	NSNull * nullObject = [NSNull null];
+//
+//	for (NSString * thisKey in keys)
+//	{
+//		SEL sel = [self selectorForProperty:thisKey];
+//		if (![self respondsToSelector:sel])
+//		{
+//			continue;
+//		}
+//		
+//		id newValue = [proxy valueForKey:thisKey];
+//		if (newValue == nil)
+//		{
+//			continue;
+//		}
+//		if (newValue == nullObject)
+//		{
+//			newValue = nil;
+//		}
+//		
+//		if (isMainThread)
+//		{
+//			[self performSelector:sel withObject:newValue];
+//		}
+//		else
+//		{
+//			[self performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO];
+//		}
+//
+//	}
+//}
 
 #pragma mark First Responder delegation
 

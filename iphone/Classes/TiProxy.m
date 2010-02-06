@@ -25,6 +25,73 @@ NSString * const TiExceptionInternalInconsistency = @"Value was not the value ex
 NSString * const TiExceptionUnimplementedFunction = @"Subclass did not implement required method";
 
 
+
+SEL SetterForKrollProperty(NSString * key)
+{
+	NSString *method = [NSString stringWithFormat:@"set%@%@_:", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
+	return NSSelectorFromString(method);
+}
+
+void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> * target, NSString * key, id oldValue, id newValue, TiProxy * proxy)
+{
+	// default implementation will simply invoke the setter property for this object
+	// on the main UI thread
+	SEL sel = SetterForKrollProperty(key);
+	if ([target respondsToSelector:sel])
+	{
+		if ([NSThread isMainThread])
+		{
+			[target performSelector:sel withObject:newValue];
+		}
+		else
+		{
+			[target performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO];
+		}
+	}
+
+	if (([target superview]!=nil) && [target isRepositionProperty:key])
+	{
+		[target repositionChange:key value:newValue];
+	}
+}
+
+void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target, id<NSFastEnumeration> keys, TiProxy * proxy)
+{
+	BOOL isMainThread = [NSThread isMainThread];
+	NSNull * nullObject = [NSNull null];
+
+	for (NSString * thisKey in keys)
+	{
+		SEL sel = SetterForKrollProperty(thisKey);
+		if (![target respondsToSelector:sel])
+		{
+			continue;
+		}
+		
+		id newValue = [proxy valueForKey:thisKey];
+		if (newValue == nil)
+		{
+			continue;
+		}
+		if (newValue == nullObject)
+		{
+			newValue = nil;
+		}
+		
+		if (isMainThread)
+		{
+			[target performSelector:sel withObject:newValue];
+		}
+		else
+		{
+			[target performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO];
+		}
+
+	}
+}
+
+
+
 static int tiProxyId = 0;
 
 

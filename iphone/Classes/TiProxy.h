@@ -40,12 +40,23 @@ typedef enum {
 @required
 
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy;
+-(BOOL)isRepositionProperty:(NSString*)key;
 
 @optional
+
+-(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys;
+
+-(void)repositionChange:(NSString*)key value:(id)inputVal;
+
 -(void)listenerAdded:(NSString*)type count:(int)count;
 -(void)listenerRemoved:(NSString*)type count:(int)count;
 
 @end
+
+SEL SetterForKrollProperty(NSString * key);
+void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> * target, NSString * key, id oldValue, id newValue, TiProxy * proxy);
+void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target, id<NSFastEnumeration> keys, TiProxy * proxy);
+//Why are these here? Because they can be commonly used between TiUIView and TiUITableViewCell.
 
 
 @interface TiProxy : NSObject<KrollDynamicMethodProxy,KrollTargetable> {
