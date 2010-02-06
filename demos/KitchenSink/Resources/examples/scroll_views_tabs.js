@@ -13,6 +13,15 @@ var scrollView = Titanium.UI.createScrollView({
 	backgroundColor:'#13386c'
 });
 
+scrollView1.addEventListener('scroll', function(e)
+{
+	for(v in e)
+	{
+		Ti.API.info('v ' + v + ' e[v] ' + e[v]);
+	}
+});
+
+win.add(scrollView);
 
 var view1 = Ti.UI.createView({
 	backgroundColor:'#336699',
@@ -141,7 +150,6 @@ var l8 = Ti.UI.createLabel({
 view8.add(l8);
 
 
-win.add(scrollView);
 
 //
 // VERTICAL SCROLLING TABS
@@ -156,6 +164,13 @@ var scrollView2 = Titanium.UI.createScrollView({
 	backgroundColor:'#13386c'
 });
 win.add(scrollView2);
+scrollView2.addEventListener('scroll', function(e)
+{
+	for(v in e)
+	{
+		Ti.API.info('v ' + v + ' e[v] ' + e[v]);
+	}
+});
 
 var view9 = Ti.UI.createView({
 	backgroundColor:'#336699',

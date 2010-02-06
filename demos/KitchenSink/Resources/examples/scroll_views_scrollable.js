@@ -64,8 +64,13 @@ var add = Titanium.UI.createButton({
 add.addEventListener('click',function()
 {
 	var newView = Ti.UI.createView({
-		backgroundColor:'yellow'
+		backgroundColor:'purple'
 	});
+	var l = Ti.UI.createLabel({
+		text:'View ' + (scrollView.views.length+1),
+		color:'#fff',
+	});
+	newView.add(l);
 	scrollView.addView(newView);
 	
 });
@@ -79,6 +84,11 @@ change.addEventListener('click',function()
 	var newView = Ti.UI.createView({
 		backgroundColor:'#ff9900'
 	});
+	var l = Ti.UI.createLabel({
+		text:'View (Changed) ' + (i+1),
+		color:'#fff',
+	});
+	newView.add(l);
 	var ar = [];
 	for (var x=0;x<scrollView.views.length;x++)
 	{
