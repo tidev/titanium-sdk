@@ -1,3 +1,4 @@
+// this sets the background color of the master UIView (when there are no windows/tab groups on it)
 Titanium.UI.setBackgroundColor('#000');
 
 // create tab group
@@ -84,6 +85,11 @@ tabGroup.open({
 	transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
 });
 
+// set background color back to white after tab group transition
+setTimeout(function()
+{
+	Titanium.UI.setBackgroundColor('#fff');
+},1000)
 //
 //  TAB GROUP EVENTS
 //
@@ -247,7 +253,7 @@ function hideIndicator()
 //
 Titanium.App.addEventListener('show_indicator', function(e)
 {
-	Ti.API.info("IN SHOW INDICATOR = "+JSON.stringify(e));
+	Ti.API.info("IN SHOW INDICATOR");
 	showIndicator();
 });
 Titanium.App.addEventListener('hide_indicator', function(e)
