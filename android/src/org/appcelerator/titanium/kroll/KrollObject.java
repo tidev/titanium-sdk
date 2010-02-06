@@ -180,7 +180,7 @@ public class KrollObject extends ScriptableObject
 		Method setMethod = (Method) loadMethod(target.getClass(), buildMethodName("set", pname));
 		boolean isGetter = getMethod != null && getMethod.getParameterTypes().length == 0;
 		boolean isSetter = setMethod != null && setMethod.getParameterTypes().length == 1;
-		
+
 		if (isGetter || isSetter) {
 			Log.i(LCAT, "Treating as property: " + pname);
 			if (getMethod != null) {
@@ -490,7 +490,9 @@ public class KrollObject extends ScriptableObject
 		} else if (value instanceof Boolean) {
 			o = Context.jsToJava(value, target);
 		} else if (value instanceof Function) {
-			Log.i(LCAT, "Is a Function");
+			if (DBG) {
+				Log.i(LCAT, "Is a Function");
+			}
 			o = new KrollCallback(weakKrollContext.get(), this, (Function) value);
 		} else if (value == null) {
 			o = null;
@@ -514,7 +516,9 @@ public class KrollObject extends ScriptableObject
 //					if (v instanceof Scriptable && isArrayLike((Scriptable) v)) {
 //						v = toArray((Scriptable) v);
 //					}
-					Log.i(LCAT, "Key: " + key + " value: " + v + " type: " + v.getClass().getName());
+					if (DBG) {
+						Log.i(LCAT, "Key: " + key + " value: " + v + " type: " + v.getClass().getName());
+					}
 					args.put((String) key, v);
 				}
 				//Log.w(LCAT, "Unhandled type conversion of Scriptable: value: " + value.toString() + " type: " + value.getClass().getName());

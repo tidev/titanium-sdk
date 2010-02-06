@@ -136,7 +136,6 @@ public class TabGroupProxy extends TiWindowProxy
 	@Override
 	protected void handleOpen()
 	{
-		//TODO, need an Activity for this like Window.
 		//TODO skip multiple opens?
 		Log.i(LCAT, "handleOpen");
 		TiUITabGroup tg = (TiUITabGroup) getView();
