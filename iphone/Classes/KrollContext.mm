@@ -390,18 +390,33 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 -(void)evalJS:(NSString*)code
 {
 	KrollEval *eval = [[[KrollEval alloc] initWithCode:code] autorelease];
+	if ([self isKJSThread])
+	{
+		[eval invoke:self];
+		return;
+	}
 	[self enqueue:eval];
 }
 
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition*)condition_
 {
 	KrollInvocation *invocation = [[[KrollInvocation alloc] initWithTarget:callback_ method:method_ withObject:obj condition:condition_] autorelease];
+	if ([self isKJSThread])
+	{
+		[invocation invoke:self];
+		return;
+	}
 	[self enqueue:invocation];
 }
 
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj callback:(id)callback selector:(SEL)selector_
 {
 	KrollInvocation *invocation = [[[KrollInvocation alloc] initWithTarget:callback_ method:method_ withObject:obj callback:callback selector:selector_] autorelease];
+	if ([self isKJSThread])
+	{
+		[invocation invoke:self];
+		return;
+	}
 	[self enqueue:invocation];
 }
 

@@ -8,7 +8,7 @@ var data = [
 	{title:'Database', hasChild:true, test:'../examples/database.js'},
 	{title:'Platform Data', hasChild:true, test:'../examples/platform.js'},
 	{title:'Filesystem', hasChild:true, test:'../examples/filesystem.js'},
-	{title:'JS Includes', hasChild:true, test:'../examples/js_includes.js'},
+	{title:'JS Includes', hasChild:true, test:'../examples/js_include.js'},
 
 ];
 
