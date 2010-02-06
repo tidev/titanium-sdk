@@ -20,7 +20,16 @@ var c = Titanium.Network.createHTTPClient();
 
 c.onload = function()
 {
-	Ti.API.info('IN ONLOAD')
+	Ti.API.info('IN ONLOAD');
+	// var f = Titanium.Filesystem.getFile('test.pdf');
+	// f.write(this.responseData);
+	// var wv = Ti.UI.createWebView({
+	// 	url:f.nativePath,
+	// 	height:250,
+	// 	top:70
+	// });
+	// win.add(wv);
+	// 
 };
 c.ondatastream = function(e)
 {

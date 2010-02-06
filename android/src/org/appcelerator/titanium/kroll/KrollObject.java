@@ -550,7 +550,7 @@ public class KrollObject extends ScriptableObject
 		for(int i = 0; i < len; i++) {
 			Object v = svalue.get(i, svalue);
 			Log.i(LCAT, "Index: " + i + " value: " + v + " type: " + v.getClass().getName());
-			a[i] = v;
+			a[i] = toNative(v, Object.class);
 		}
 		return a;
 	}
