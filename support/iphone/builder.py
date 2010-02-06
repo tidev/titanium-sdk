@@ -94,11 +94,12 @@ def main(args):
 		target = 'Release'
 		deploytype = 'production'
 	elif command == 'simulator':
-		deploytype = 'test'
+		deploytype = 'development'
 		debug = True
 	elif command == 'install':
 		appuuid = dequote(args[6].decode("utf-8"))
 		dist_name = dequote(args[7].decode("utf-8"))
+		deploytype = 'test'
 		
 	
 	iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
@@ -136,6 +137,17 @@ def main(args):
 	main_template = codecs.open(os.path.join(template_dir,'main.m'),'r','utf-8','replace').read()
 	main_template = main_template.replace('__PROJECT_NAME__',name)
 	main_template = main_template.replace('__PROJECT_ID__',appid)
+	main_template = main_template.replace('__DEPLOYTYPE__',deploytype)
+	main_template = main_template.replace('__APP_ID__',appid)
+	main_template = main_template.replace('__APP_PUBLISHER__',ti.properties['publisher'])
+	main_template = main_template.replace('__APP_URL__',ti.properties['url'])
+	main_template = main_template.replace('__APP_NAME__',ti.properties['name'])
+	main_template = main_template.replace('__APP_VERSION__',ti.properties['version'])
+	main_template = main_template.replace('__APP_DESCRIPTION__',ti.properties['description'])
+	main_template = main_template.replace('__APP_COPYRIGHT__',ti.properties['copyright'])
+	main_template = main_template.replace('__APP_GUID__',ti.properties['guid'])
+	
+	
 	main_dest = codecs.open(os.path.join(iphone_dir,'main.m'),'w','utf-8','replace')
 	main_dest.write(main_template.encode("utf-8"))
 	main_dest.close()

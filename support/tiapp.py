@@ -46,13 +46,14 @@ class TiAppXML(object):
 		self.properties = {
 			'id':None,
 			'name':None,
-			'version':None,
-			'copyright':None,
-			'publisher':None,
-			'url':None,
+			'version':'1.0',
+			'copyright':'not specified',
+			'publisher':'not specified',
+			'description':'not specified',
+			'url':'not specified',
 			'icon':None
 		}
-		
+				
 		root = self.dom.getElementsByTagName("ti:app")
 		children = root[0].childNodes
 		self.windows = []

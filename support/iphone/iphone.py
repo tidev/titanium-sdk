@@ -80,7 +80,7 @@ class IPhone(object):
 
 		# NOTE, by default we just copy in iphone 3.0 since thats what
 		# the default project is setup for b
-		shutil.copy(os.path.join(template_dir,'libTitanium-3.0.a'),os.path.join(iphone_resources_dir,'libTitanium.a'))
+		shutil.copy(os.path.join(template_dir,'libTitanium.a'),os.path.join(iphone_resources_dir,'libTitanium.a'))
 			
 		# copy project.pch to iphone directory		
 		shutil.copy(os.path.join(template_dir,'project.pch'),os.path.join(iphone_dir,self.name+'_Prefix.pch'))
