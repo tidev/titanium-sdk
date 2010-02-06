@@ -48,7 +48,7 @@
 	NSLog(@"Setting views %@",views);
 	if ([self viewAttached])
 	{
-		[(TiUIScrollableView *)[self view] performSelectorOnMainThread:@selector(setNeedsLayout) withObject:nil waitUntilDone:NO];
+		[(TiUIScrollableView *)[self view] performSelectorOnMainThread:@selector(resetSubViews) withObject:nil waitUntilDone:NO];
 	}
 }
 
@@ -69,7 +69,7 @@
 
 	if ([self viewAttached])
 	{
-		[(TiUIScrollableView *)[self view] performSelectorOnMainThread:@selector(setNeedsLayout) withObject:nil waitUntilDone:NO];
+		[(TiUIScrollableView *)[self view] performSelectorOnMainThread:@selector(resetSubViews) withObject:nil waitUntilDone:NO];
 	}
 }
 
