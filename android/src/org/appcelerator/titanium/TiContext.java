@@ -31,7 +31,7 @@ public class TiContext implements TiEvaluator
 	private long mainThreadId;
 
 	private WeakReference<Activity> weakActivity;
-	private WeakReference<TiEvaluator>	weakTiEvaluator;
+	private SoftReference<TiEvaluator>	softTiEvaluator;
 	private HashMap<String, HashMap<Integer, TiListener>> eventListeners;
 	private AtomicInteger listenerIdGenerator;
 
@@ -92,11 +92,11 @@ public class TiContext implements TiEvaluator
 	}
 
 	private TiEvaluator getJSContext() {
-		return weakTiEvaluator.get();
+		return softTiEvaluator.get();
 	}
 
 	public void setJSContext(TiEvaluator evaluator) {
-		this.weakTiEvaluator = new WeakReference<TiEvaluator>(evaluator);
+		this.softTiEvaluator = new SoftReference<TiEvaluator>(evaluator);
 	}
 
 	public Activity getActivity() {

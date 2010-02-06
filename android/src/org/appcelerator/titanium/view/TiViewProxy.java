@@ -18,6 +18,8 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
 
+import ti.modules.titanium.ui.TiUIWindow;
+
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
@@ -167,10 +169,12 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 			modelListener.processProperties(dynprops != null ? new TiDict(dynprops) : new TiDict());
 
 			View nativeView = view.getNativeView();
-			if (view.getParent() != null) {
-				Log.e(LCAT, "parent native view type: " + nativeView.getParent().getClass().getSimpleName());
+			if (nativeView != null) {
+				Log.e(LCAT, "native view type: " + nativeView.getClass().getSimpleName());
 			}
-			Log.e(LCAT, "native view type: " + nativeView.getClass().getSimpleName());
+			if (view instanceof TiUIWindow) {
+				nativeView = ((TiUIWindow) view).getLayout();
+			}
 			if (nativeView instanceof ViewGroup) {
 				ViewGroup vg = (ViewGroup) nativeView;
 				if (children != null) {
@@ -218,6 +222,9 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 
 	public void handleAdd(TiViewProxy child) {
 		View nativeView = view.getNativeView();
+		if (view instanceof TiUIWindow) {
+			nativeView = ((TiUIWindow) view).getLayout();
+		}
 		if (nativeView instanceof ViewGroup) {
 			ViewGroup vg = (ViewGroup) nativeView;
 			TiUIView v = child.getView();

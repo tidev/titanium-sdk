@@ -6,14 +6,23 @@
  */
 package org.appcelerator.titanium.view;
 
+import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.AsyncResult;
+import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConfig;
 
+import android.app.Activity;
 import android.os.Message;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.FrameLayout.LayoutParams;
 
 public abstract class TiWindowProxy extends TiViewProxy
 {
+	private static final String LCAT = "TiWindowProxy";
+	private static final boolean DBG = TiConfig.LOGD;
 
 	private static final int MSG_FIRST_ID = TiProxy.MSG_LAST_ID + 1;
 
@@ -94,5 +103,4 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	protected abstract void handleOpen();
 	protected abstract void handleClose();
-
 }

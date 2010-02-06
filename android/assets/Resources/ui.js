@@ -1,4 +1,6 @@
 // Right now it's returning a TiView while I flesh it out.
+Ti.API.error("MARK");
+
 var win = Ti.UI.createWindow({
 	backgroundColor : '#081d35'
 });
@@ -96,7 +98,7 @@ win.add(slider2);
 win.add(btnNotify);
 win.add(tf);
 
-win.open();
+
 
 tf.backgroundColor= "blue";
 tf.color = "white";
@@ -167,3 +169,5 @@ progressBtn.addEventListener('click', function(e) {
 	}
 	ai.hide();
 });
+
+win.open();
