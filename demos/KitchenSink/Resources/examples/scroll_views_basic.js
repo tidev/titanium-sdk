@@ -19,4 +19,18 @@ var view = Ti.UI.createView({
 
 scrollView.add(view);
 
+var button = Titanium.UI.createButton({
+	title:'Scroll to Top',
+	height:40,
+	width:200,
+	bottom:10
+});
+scrollView.add(button);
+button.addEventListener('click', function()
+{
+	scrollView.scrollTo(0,0);
+});
+
 win.add(scrollView);
+
+

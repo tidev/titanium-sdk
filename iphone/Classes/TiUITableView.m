@@ -141,7 +141,7 @@
 			[thisIndexSet removeAllIndexes];
 		}
 		int cellIndex = 0;
-		for (CellDataWrapper * thisCell in thisSection) 
+		for (TiUITableViewCellProxy * thisCell in thisSection) 
 		{
 			if([thisCell stringForKey:ourSearchAttribute containsString:searchString])
 			{
@@ -227,7 +227,7 @@
 		{
 			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"search"] autorelease];
 		}
-		CellDataWrapper * rowWrapper = [self cellForIndexPath:[self indexPathFromSearchIndex:[indexPath row]]];
+		TiUITableViewCellProxy * rowWrapper = [self cellForIndexPath:[self indexPathFromSearchIndex:[indexPath row]]];
 		[(id)result setText:[rowWrapper title]];
 		return result;
 	}
@@ -260,7 +260,7 @@
 		return [ourTableView rowHeight];
 	}
 	
-	CellDataWrapper * ourTableCell = [self cellForIndexPath:indexPath];
+	TiUITableViewCellProxy * ourTableCell = [self cellForIndexPath:indexPath];
 	
 	TiDimension result = [ourTableCell rowHeight];
 	CHECK_ROW_HEIGHT(result,ourTableCell,ourTableView);
@@ -288,7 +288,7 @@
 	{
 		for (int row=0;row<[sectionWrapper rowCount];row++) 
 		{
-			CellDataWrapper * rowWrapper = [sectionWrapper rowForIndex:row];
+			TiUITableViewCellProxy * rowWrapper = [sectionWrapper rowForIndex:row];
 			UITableViewCellAccessoryType rowType = [rowWrapper accessoryType];
 			BOOL isBlessed = (row == blessedRow);
 			

@@ -38,5 +38,30 @@
 	[child layoutChildren:childView.bounds];
 }
 
+-(void)scrollTo:(id)args
+{
+	ENSURE_ARG_COUNT(args,2);
+	TiPoint * offset = [[TiPoint alloc] initWithPoint:CGPointMake(
+			[TiUtils floatValue:[args objectAtIndex:0]],
+			[TiUtils floatValue:[args objectAtIndex:1]])];
+
+	[self replaceValue:offset forKey:@"contentOffset" notification:YES];
+}
+
+
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+	CGPoint offset = [scrollView contentOffset];
+	TiPoint * offsetPoint = [[TiPoint alloc] initWithPoint:offset];
+	[self replaceValue:offsetPoint forKey:@"contentOffset" notification:NO];
+
+	[self fireEvent:@"scroll" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
+			[NSNumber numberWithFloat:offset.x],@"x",
+			[NSNumber numberWithFloat:offset.y],@"y",
+			[NSNumber numberWithBool:[scrollView isDecelerating]],@"decelerating",
+			[NSNumber numberWithBool:[scrollView isDragging]],@"dragging",
+			nil]];
+
+}
 
 @end

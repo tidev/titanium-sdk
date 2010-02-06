@@ -5,14 +5,14 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "CellDataWrapper.h"
+#import "TiUITableViewCellProxy.h"
 #import "Webcolor.h"
 #import "WebFont.h"
 #import "ImageLoader.h"
 #import "TiUtils.h"
 #import "LayoutEntry.h"	
 
-@implementation CellDataWrapper
+@implementation TiUITableViewCellProxy
 @synthesize jsonValues, templateCell, fontDesc;
 //@synthesize inputProxy;
 @synthesize isButton;
@@ -381,13 +381,13 @@
 	return matchLocation.location != NSNotFound;
 }
 
-+ cellDataWithProperties:(NSDictionary *)properties proxy:(TiProxy *)proxy font:(WebFont *)defaultFont template:(CellDataWrapper *)templateCell
++ cellDataWithProperties:(NSDictionary *)properties proxy:(TiProxy *)proxy font:(WebFont *)defaultFont template:(TiUITableViewCellProxy *)templateCell
 {
 	if(properties==nil)
 	{
 		return nil;
 	}
-	CellDataWrapper * result = [[CellDataWrapper alloc] init];
+	TiUITableViewCellProxy * result = [[TiUITableViewCellProxy alloc] init];
 	[result setFontDesc:defaultFont];
 	[result setTemplateCell:templateCell];
 	[result useProperties:properties withProxy:proxy];
