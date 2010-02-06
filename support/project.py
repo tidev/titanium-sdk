@@ -76,6 +76,10 @@ def main(args,argc):
 	for file in ['app.js']:
 		shutil.copy(os.path.join(all_dir,file),os.path.join(resources_dir,file))
 
+	# copy IMAGES
+	for file in ['KS_nav_ui.png', 'KS_nav_views.png']:
+		shutil.copy(os.path.join(all_dir,file),os.path.join(resources_dir,file))
+
 	sys.exit(0)
 
 if __name__ == '__main__':
