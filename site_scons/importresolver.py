@@ -27,6 +27,12 @@ def import_path(path,filename):
 	if idx == -1: return ''
 	return "%s/" % filename[0:idx]
 	
+def strip_path(fn):
+	idx = fn.find('/')
+	if idx!=-1:
+		fn=fn[idx+1:]
+	return fn
+	
 def extract_imports(file,filename):
 	file_contents = open(file).read()
 	f = re.findall(r'#import (.*)',file_contents)
@@ -34,7 +40,8 @@ def extract_imports(file,filename):
 	if len(f) > 0:
 		for name in f:
 			append_to = import_path(name,filename)
-			imports.append("%s%s" % (append_to,dequote(name.strip())))
+			fn = strip_path(dequote(name.strip()))
+			imports.append(fn)
 	return imports
 
 def merge_arrays(a,b):
@@ -53,11 +60,12 @@ def parse_files(the_dir):
 				# 	continue
 				if file in ignoreFiles:
 					continue
-				full_path = join(root, file)			  
+				full_path = join(root, file)
 				relative_path = full_path.replace(the_dir+'/','')
 				if splitext(file)[-1] in ('.h','.m','.c','.mm','.cpp'):
 					file_name = splitext(relative_path)[0]
 					imports = extract_imports(full_path,file_name)
+					relative_path = strip_path(relative_path)
 					if depends.has_key(relative_path):
 						depends[relative_path] = merge_arrays(depends[relative_path],imports)
 					else:
@@ -69,21 +77,13 @@ def resolve_source_imports(dir):
 	flat={}
 	root_dir = os.path.expanduser(dir)
 	parse_files(root_dir)
-
-	for entry in depends:
-		collapsed = {}
-		for imports in depends[entry]:
-			if depends.has_key(imports):
-				found = depends[imports]
-				for k in depends[imports]:
-					collapsed[k]=True
-			else:
-				collapsed[imports]=True
-		flat[entry]=collapsed				
-					
-	return json.dumps(flat,sort_keys=True, indent=4)
+	return json.dumps(depends,sort_keys=True,indent=4)
 
 if __name__ == '__main__':
-	print resolve_source_imports("~/work/titanium_mobile/iphone/Classes")
+	out = resolve_source_imports("~/work/titanium_mobile/iphone/Classes")
+	f = open("/Library/Application Support/Titanium/mobilesdk/osx/0.9.0/iphone/imports.json","w")
+	f.write(out)
+	f.close()
+	
 	
 	

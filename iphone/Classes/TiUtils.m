@@ -4,13 +4,16 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import <QuartzCore/QuartzCore.h>
 
 #import "TiUtils.h"
 #import "TiHost.h"
 #import "TiPoint.h"
 #import "TiProxy.h"
 #import "ImageLoader.h"
-#import <QuartzCore/QuartzCore.h>
+#import "WebFont.h"
+#import "TiDimension.h"
+#import "TiColor.h"
 
 
 @implementation TiUtils
