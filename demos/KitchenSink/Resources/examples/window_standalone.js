@@ -171,8 +171,7 @@ b4.addEventListener('click', function()
 		w.close({transform:t3,duration:300});
 	});
 	
-	w.open();
-	w.animate(a);
+	w.open(a);
 	
 	
 });
