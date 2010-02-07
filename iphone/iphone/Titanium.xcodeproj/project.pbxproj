@@ -734,6 +734,10 @@
 		24EB085F111D51D9001DC2D1 /* TiDOMAttrProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24EB085B111D51D9001DC2D1 /* TiDOMAttrProxy.h */; };
 		24EB0860111D51D9001DC2D1 /* TiDOMAttrProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB085C111D51D9001DC2D1 /* TiDOMAttrProxy.m */; };
 		24EB0A58111E1BAE001DC2D1 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */; };
+		24EB0B74111E7EE8001DC2D1 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */; };
+		24EB0B75111E7EE8001DC2D1 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */; };
+		24EB0B76111E7EE8001DC2D1 /* NSData+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 24EB0B72111E7EE8001DC2D1 /* NSData+Additions.h */; };
+		24EB0B77111E7EE8001DC2D1 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */; };
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		B421C4121113AA9300DBCB42 /* TiUIScrollableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4111113AA9300DBCB42 /* TiUIScrollableViewProxy.m */; };
@@ -1171,6 +1175,8 @@
 		24EB085B111D51D9001DC2D1 /* TiDOMAttrProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMAttrProxy.h; sourceTree = "<group>"; };
 		24EB085C111D51D9001DC2D1 /* TiDOMAttrProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMAttrProxy.m; sourceTree = "<group>"; };
 		24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
+		24EB0B72111E7EE8001DC2D1 /* NSData+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSData+Additions.h"; path = "../Classes/NSData+Additions.h"; sourceTree = SOURCE_ROOT; };
+		24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+Additions.m"; path = "../Classes/NSData+Additions.m"; sourceTree = SOURCE_ROOT; };
 		288765FC0DF74451002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		28AD733E0D9D9553002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -1411,6 +1417,8 @@
 		24CA89A6111161230084E2DE /* Misc */ = {
 			isa = PBXGroup;
 			children = (
+				24EB0B72111E7EE8001DC2D1 /* NSData+Additions.h */,
+				24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */,
 				24CA892A111161050084E2DE /* Base64Transcoder.c */,
 				24CA892B111161050084E2DE /* Base64Transcoder.h */,
 				24CA894B111161050084E2DE /* IPAddress.c */,
@@ -2342,6 +2350,7 @@
 				24EB082B111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.h in Headers */,
 				24EB0845111D500E001DC2D1 /* TiDOMNodeListProxy.h in Headers */,
 				24EB085F111D51D9001DC2D1 /* TiDOMAttrProxy.h in Headers */,
+				24EB0B76111E7EE8001DC2D1 /* NSData+Additions.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2660,6 +2669,7 @@
 				24EB0829111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m in Sources */,
 				24EB0843111D500E001DC2D1 /* TiDOMNodeListProxy.m in Sources */,
 				24EB085D111D51D9001DC2D1 /* TiDOMAttrProxy.m in Sources */,
+				24EB0B74111E7EE8001DC2D1 /* NSData+Additions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2850,6 +2860,7 @@
 				24EB082A111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m in Sources */,
 				24EB0844111D500E001DC2D1 /* TiDOMNodeListProxy.m in Sources */,
 				24EB085E111D51D9001DC2D1 /* TiDOMAttrProxy.m in Sources */,
+				24EB0B75111E7EE8001DC2D1 /* NSData+Additions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3039,6 +3050,7 @@
 				24EB082C111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m in Sources */,
 				24EB0846111D500E001DC2D1 /* TiDOMNodeListProxy.m in Sources */,
 				24EB0860111D51D9001DC2D1 /* TiDOMAttrProxy.m in Sources */,
+				24EB0B77111E7EE8001DC2D1 /* NSData+Additions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

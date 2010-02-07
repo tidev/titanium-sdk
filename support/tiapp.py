@@ -51,7 +51,8 @@ class TiAppXML(object):
 			'publisher':'not specified',
 			'description':'not specified',
 			'url':'not specified',
-			'icon':None
+			'icon':None,
+			'analytics':'true'
 		}
 				
 		root = self.dom.getElementsByTagName("ti:app")
@@ -101,42 +102,34 @@ class TiAppXML(object):
 			
 		self.dom.writexml(codecs.open(self.file, 'w+','utf-8','replace'), encoding="UTF-8")
 
-
-#
-# class for turning tiapp.xml into tiapp.plist
-#
-class TiPlist(object):
-	def __init__(self,tiapp):
-		self.tiapp = tiapp
-		
-	def make_window(self,window,index,status_bar_style):
-		out = ' <dict>\n'
-		for i in window.properties:
-			value = window.properties[i]
-			# these are special types mapping
-			if index == 0 and i == 'fullscreen' and value == 'true':
-				self.infoplist_properties['UIStatusBarHidden']='<true/>'
-			if i=='orientation' and value == 'landscape':
-				self.infoplist_properties['UIInterfaceOrientation']='<string>UIInterfaceOrientationLandscapeRight</string>'
-			out+='  <key>UIStatusBarStyle</key>\n  %s\n' % status_bar_style
-			if type(value)==types.StringType or type(value)==types.UnicodeType:
-				out+="  <key>%s</key>\n  <string>%s</string>\n" %(i,window.properties[i])
-			elif type(value)==types.ListType:
-				out+="  <key>%s</key>\n" % i
-				out+="  <array>\n"
-				for v in window.properties[i]:
-					out+="   <string>%s</string>\n" % v
-				out+="  </array>\n"
-		return out + ' </dict>\n'
-		
 	def generate_infoplist(self,file,template,appid):
 		icon = 'appicon.png'
-		if self.tiapp.properties.has_key('icon'):
-			icon = self.tiapp.properties['icon']
+		if self.properties.has_key('icon'):
+			icon = self.properties['icon']
+			
+		self.infoplist_properties = {}	
+		for p in self.properties:
+			value = self.properties[p]
+			if p=='persistent-wifi' and value=='true':
+				self.infoplist_properties['UIRequiresPersistentWiFi']='<true/>'
+			if p=='prerendered-icon' and value=='true':
+				self.infoplist_properties['UIPrerenderedIcon']='<true/>'
+			if p=='statusbar-hidden' and value=='true':
+				self.infoplist_properties['UIStatusBarHidden']='<true/>'
+			if p=='statusbar-style':
+				if value == 'default' or value=='grey':
+					status_bar_style = '<string>UIStatusBarStyleDefault</string>'
+				elif value == 'opaque_black' or value == 'opaque':
+					status_bar_style = '<string>UIStatusBarStyleBlackOpaque</string>'
+				elif value == 'translucent_black':
+					status_bar_style = '<string>UIStatusBarStyleBlackTranslucent</string>'
+				else:	
+					status_bar_style = '<string>UIStatusBarStyleDefault</string>'
+				self.infoplist_properties['UIStatusBarStyle']=status_bar_style
 
 		plist = codecs.open(template,'r','utf-8','replace').read()
 		plist = plist.replace('appicon.png',icon)
-		
+
 		# replace the bundle id with the app id 
 		# in case it's changed
 		i = plist.index('CFBundleIdentifier')
@@ -155,9 +148,9 @@ class TiPlist(object):
 			e = plist.index('</string>',i+1)
 			st = plist[0:i+8]
 			fn = plist[e:]
-			version = self.tiapp.properties['version']
+			version = self.properties['version']
 			plist = st + version + fn
-			
+
 		i = plist.rindex('</dict>')	
 		if i:
 			before = plist[0:i]
@@ -165,67 +158,15 @@ class TiPlist(object):
 			newcontent = ''
 			for p in self.infoplist_properties:
 				v = self.infoplist_properties[p]
-				newcontent += '     <key>%s</key>\n     %s\n' %(p,v)
+				newcontent += '        <key>%s</key>\n        %s\n' %(p,v)
 			plist = before + newcontent + after
-			
+
 		f = codecs.open(file,'w+','utf-8','replace')
 		f.write(plist)
 		f.close()
-		
+
 		return icon
-		
-	def generate(self,modules,appid,deploytype):
-		
-		self.infoplist_properties = {}
-		self.tiapp.properties['id']=appid
-		self.tiapp.properties['deploytype']=deploytype
-		
-		out = """<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-"""
 
-		status_bar_style = '<string>UIStatusBarStyleDefault</string>'
 
-		for p in self.tiapp.properties:
-			value = self.tiapp.properties[p]
-			if not value == None:
-				out+="  <key>%s</key>\n  <string>%s</string>\n" %(p,value)
 
-			if p=='persistent-wifi' and value=='true':
-				self.infoplist_properties['UIRequiresPersistentWiFi']='<true/>'
-			if p=='prerendered-icon' and value=='true':
-				self.infoplist_properties['UIPrerenderedIcon']='<true/>'
-			if p=='statusbar-style':
-				if value == 'default' or value=='grey':
-					status_bar_style = '<string>UIStatusBarStyleDefault</string>'
-				elif value == 'opaque_black':
-					status_bar_style = '<string>UIStatusBarStyleBlackOpaque</string>'
-				elif value == 'translucent_black':
-					status_bar_style = '<string>UIStatusBarStyleBlackTranslucent</string>'
-				else:	
-					status_bar_style = '<string>UIStatusBarStyleDefault</string>'
-				self.infoplist_properties['UIStatusBarStyle']=status_bar_style
-			
-		out+=" <key>startup</key>\n"
-		
-		if len(self.tiapp.windows) == 1:
-			out+=self.make_window(self.tiapp.windows[0],0,status_bar_style)
-		else:
-			out+=" <array>\n"
-			count=0
-			for window in self.tiapp.windows:
-				out+=self.make_window(window,count,status_bar_style)
-				count+=1
-			out+=" </array>\n"
-				
-		out+=""" <key>modules</key>
- <dict>
-    %s
- </dict>
-</dict>
-</plist>""" % modules
-
-		return out.encode("utf-8")
 

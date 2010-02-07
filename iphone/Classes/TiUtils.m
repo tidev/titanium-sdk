@@ -4,14 +4,17 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import <QuartzCore/QuartzCore.h>
 
 #import "TiUtils.h"
 #import "TiHost.h"
 #import "TiPoint.h"
 #import "TiProxy.h"
 #import "ImageLoader.h"
+#import "WebFont.h"
+#import "TiDimension.h"
+#import "TiColor.h"
 
-#import <QuartzCore/QuartzCore.h>
 
 @implementation TiUtils
 
@@ -709,6 +712,27 @@
 	return CGRectMake(center.x - (anchorPoint.x * bounds.size.width),
 			center.y - (anchorPoint.y * bounds.size.height),
 			bounds.size.width, bounds.size.height);
+}
+
++(NSData *)loadAppResource:(NSURL*)url
+{
+	if ([url isFileURL])
+	{
+		static id AppRouter;
+		if (AppRouter==nil)
+		{
+			AppRouter = NSClassFromString(@"ApplicationRouting");
+		}
+		if (AppRouter!=nil)
+		{
+			NSString *urlstring = [url path];
+			NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
+			NSString *appurlstr = [NSString stringWithFormat:@"%@",[urlstring stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"%@/",resourceurl] withString:@""]];
+			appurlstr = [appurlstr stringByReplacingOccurrencesOfString:@"." withString:@"_"];
+			return [AppRouter performSelector:@selector(resolveAppAsset:) withObject:appurlstr];
+		}
+	}
+	return nil;
 }
 
 @end
