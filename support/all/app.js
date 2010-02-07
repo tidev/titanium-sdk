@@ -54,5 +54,5 @@ tabGroup.addTab(tab1);
 tabGroup.addTab(tab2);  
 
 
-// open tab group with a transition animation
+// open tab group
 tabGroup.open();
