@@ -213,17 +213,7 @@ public class TableViewModel
 		}
 	}
 
-	// This method just brute forces the data into the table.
-	// TODO fix
-	public void setData(String json) {
-//			if (json != null && json.length() > 0) {
-//				setData(new JSONArray(json));
-//			} else {
-//				setData((JSONArray) null);
-//			}
-	}
-
-	public void setData(TiDict[] rows) {
+	public void setData(Object[] rows) {
 		if (model != null) {
 			model.clear();
 		}
@@ -234,7 +224,7 @@ public class TableViewModel
 		if (rows != null) {
 			for(int i = 0; i < rows.length; i++) {
 				Item item = new Item(i);
-				TiDict row = rows[i];
+				TiDict row = (TiDict) rows[i];
 				if (row.containsKey("name")) {
 					item.name = row.getString("name");
 				}

@@ -197,6 +197,7 @@ public class TiTableView extends ViewGroup
 	public TiTableView(Context context)
 	{
 		super(context);
+		setBackgroundColor(Color.BLUE);
 //TODO bookmark
 		this.defaults = new TiTableViewItemOptions();
 		defaults.put("rowHeight", "43");
@@ -218,7 +219,6 @@ public class TiTableView extends ViewGroup
 				return super.dispatchKeyEvent(event);
 			}
 		};
-
 		listView.setId(101);
 
 		final Drawable defaultSelector = listView.getSelector();
@@ -286,10 +286,26 @@ public class TiTableView extends ViewGroup
 //					}
 			}});
 
+		listView.setBackgroundColor(Color.RED);
+		addView(listView);
 	}
 
+	public void setTemplate(TiDict rowTemplate) {
+		this.rowTemplate = rowTemplate;
+	}
+
+	public void setData(Object[] rows) {
+		viewModel.setData(rows);
+	}
+
+	public void setRowHeight(String rowHeight) {
+//TODO
+	}
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 	{
+		if (changed) {
+			listView.layout(left, top, right, bottom);
+		}
 	}
 }

@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import java.util.concurrent.Semaphore;
 
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
 import org.json.JSONObject;
@@ -60,6 +61,58 @@ public class TiUITableView extends TiUIView
 		this.modifySemaphore = new Semaphore(0);
 		setNativeView(new TiTableView(proxy.getContext()));
 		//this.hasBeenOpened = false;
+	}
+
+	private TiTableView getView() {
+		return (TiTableView) getNativeView();
+	}
+
+	@Override
+	public void processProperties(TiDict d)
+	{
+		TiTableView tv = getView();
+
+		if (d.containsKey("template")) {
+			tv.setTemplate(d.getTiDict("template"));
+		}
+		if (d.containsKey("data")) {
+			tv.setData((Object[]) d.get("data"));
+		}
+		if (d.containsKey("rowHeight")) {
+			tv.setRowHeight(d.getString("rowHeight"));
+		}
+//		if (d.containsKey("fontSize")) {
+//			tv.setFontSize(d.get("fontSize"));
+//		}
+//		if (d.containsKey("fontWeight")) {
+//			tv.setFontWeight(d.get("fontWeight"));
+//		}
+//		if (d.containsKey("marginLeft")) {
+//			tv.setOption("marginLeft", d.get("marginLeft"));
+//		}
+//		if (d.containsKey("marginTop")) {
+//			tv.setOption("marginTop", d.get("marginTop"));
+//		}
+//		if (d.containsKey("marginRight")) {
+//			tv.setOption("marginRight", d.get("marginRight"));
+//		}
+//		if (d.containsKey("marginBottom")) {
+//			tv.setOption("marginBottom", d.get("marginBottom"));
+//		}
+//		if (d.containsKey("scrollBar")) {
+//			tv.setOption("scrollBar", d.get("scrollBar"));
+//		}
+//		if (d.containsKey("searchInstance")) {
+//			tv.searchBarName = d.get("searchInstance");
+//		}
+//		if (d.containsKey("filterAttribute")) {
+//			tv.filterAttribute = d.get("filterAttribute");
+//		}
+//		if (d.containsKey("textAlign")) {
+//			tv.setOption("textAlign", d.get("textAlign"));
+//		}
+
+		super.processProperties(d);
 	}
 
 //	public void processLocalOptions(JSONObject o) throws JSONException
