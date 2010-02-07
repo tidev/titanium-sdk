@@ -4,14 +4,7 @@
  */
 #import <Foundation/Foundation.h>
 
-@protocol TitaniumAppAssetResolver
-- (NSData*) resolveAppAsset:(NSURL*)url;
-- (oneway void)release;
-- (id)retain;
-@end
-
-@interface ApplicationRouting : NSObject<TitaniumAppAssetResolver> {
+@interface ApplicationRouting : NSObject {
 }
-- (NSData*) resolveAppAsset:(NSURL*)url;
-
++ (NSData*) resolveAppAsset:(NSString*)path;
 @end

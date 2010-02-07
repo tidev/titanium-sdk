@@ -9,6 +9,17 @@
 #import "TiHost.h"
 #import "SBJSON.h"
 
+extern NSString * const TI_APPLICATION_DEPLOYTYPE;
+extern NSString * const TI_APPLICATION_ID;
+extern NSString * const TI_APPLICATION_PUBLISHER;
+extern NSString * const TI_APPLICATION_URL;
+extern NSString * const TI_APPLICATION_NAME;
+extern NSString * const TI_APPLICATION_VERSION;
+extern NSString * const TI_APPLICATION_DESCRIPTION;
+extern NSString * const TI_APPLICATION_COPYRIGHT;
+extern NSString * const TI_APPLICATION_GUID;
+
+
 @interface ListenerEntry : NSObject
 {
 	id<TiEvaluator> context;
@@ -277,50 +288,42 @@
 
 -(id)id:(id)args
 {
-	//FIXME - this will be compiled in
-	return nil;
+	return TI_APPLICATION_ID;
 }
 
 -(id)name:(id)args
 {
-	//FIXME - this will be compiled in
-	return nil;
+	return TI_APPLICATION_NAME;
 }
 
 -(id)version:(id)args
 {
-	//FIXME - this will be compiled in
-	return nil;
+	return TI_APPLICATION_VERSION;
 }
 
 -(id)publisher:(id)args
 {
-	//FIXME - this will be compiled in
-	return nil;
+	return TI_APPLICATION_PUBLISHER;
 }
 
 -(id)description:(id)args
 {
-	//FIXME - this will be compiled in
-	return nil;
+	return TI_APPLICATION_DESCRIPTION;
 }
 
 -(id)copyright:(id)args
 {
-	//FIXME - this will be compiled in
-	return nil;
+	return TI_APPLICATION_COPYRIGHT;
 }
 
 -(id)url:(id)args
 {
-	//FIXME - this will be compiled in
-	return nil;
+	return TI_APPLICATION_URL;
 }
 
 -(id)guid:(id)args
 {
-	//FIXME - this will be compiled in
-	return nil;
+	return TI_APPLICATION_GUID;
 }
 
 @end

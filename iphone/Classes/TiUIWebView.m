@@ -113,12 +113,12 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	[[self.proxy _host] registerContext:self forToken:pageToken];
 	NSMutableString *html = [[NSMutableString alloc] init];
 	
-	BOOL found = NO;
-	
-	// attempt to make well-formed HTML
+	// attempt to make well-formed HTML and inject in our Titanium bridge code
+	// However, we only do this if the content looks like HTML
 	NSRange range = [content rangeOfString:@"<html"];
 	if (range.location!=NSNotFound)
 	{
+		BOOL found = NO;
 		NSRange nextRange = [content rangeOfString:@">" options:0 range:NSMakeRange(range.location, [content length]) locale:nil];
 		if (nextRange.location!=NSNotFound)
 		{
@@ -130,16 +130,15 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 			[html appendString:[content substringFromIndex:nextRange.location+1]];
 			found = YES;
 		}
-	}
-	
-	if (found==NO)
-	{
-		// oh well, just jack it in
-		[html appendString:@"<script>"];
-		[html appendFormat:@"Titanium={};Ti=Titanium;Ti.pageToken=%@;",pageToken];
-		[html appendString:kTitaniumJavascript];
-		[html appendString:@"</script>"];
-		[html appendString:content];
+		if (found==NO)
+		{
+			// oh well, just jack it in
+			[html appendString:@"<script>"];
+			[html appendFormat:@"Titanium={};Ti=Titanium;Ti.pageToken=%@;",pageToken];
+			[html appendString:kTitaniumJavascript];
+			[html appendString:@"</script>"];
+			[html appendString:content];
+		}
 	}
 	
 	if (url!=nil)
@@ -169,7 +168,17 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	}
 	else
 	{
-		[self setHtml_:[NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:nil]];	
+		NSString *html = nil;
+		NSData *data = [TiUtils loadAppResource:url];
+		if (data==nil)
+		{
+			html = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:nil];
+		}
+		else
+		{
+			html = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+		}
+		[self setHtml_:html];	
 	}
 }
 
