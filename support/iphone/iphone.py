@@ -27,14 +27,6 @@ class IPhone(object):
 		if not os.path.exists(iphone_dir):
 			os.makedirs(iphone_dir)
 		
-		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
-		all_dir = os.path.join(template_dir,'../all')
-		if not os.path.exists(all_dir):
-			all_dir = os.path.join(template_dir)
-		
-		if not os.path.exists(all_dir):
-			raise Exception("couldn't find required directory: %s" % all_dir)	
-		
 		iphone_project_resources = os.path.join(project_dir,'Resources','iphone')
 		if os.path.exists(iphone_project_resources):
 			shutil.rmtree(iphone_project_resources)
@@ -87,8 +79,6 @@ class IPhone(object):
 
 		# copy main.m to iphone directory		
 		main_template = open(os.path.join(template_dir,'main.m'),'r').read()
-		main_template = main_template.replace('__PROJECT_NAME__',self.name)
-		main_template = main_template.replace('__PROJECT_ID__',self.id)
 
 		main_dest = open(os.path.join(iphone_dir,'main.m'),'w')
 		main_dest.write(main_template)
@@ -97,7 +87,6 @@ class IPhone(object):
 		# copy over the entitlements for distribution
 		shutil.copy(os.path.join(template_dir,'Entitlements.plist'),iphone_resources_dir)
 					
-
 		# copy README to iphone directory		
 		shutil.copy(os.path.join(template_dir,'README'),os.path.join(iphone_dir,'README'))
 		
@@ -109,20 +98,6 @@ class IPhone(object):
 		# copy in our application routing logic
 		for file in ['ApplicationRouting.h','ApplicationRouting.m']:
 			shutil.copy(os.path.join(template_dir,file),os.path.join(classes_dir,file))
-
-		# write out the initial plist which is empty until you build
-		tiapp_xml = os.path.join(project_dir,'tiapp.xml')
-		if not os.path.exists(tiapp_xml):
-			print "Missing tiapp.xml at %s" % tiapp_xml
-			sys.exit(3)
-		plist = open(os.path.join(iphone_resources_dir,'tiapp.plist'),'w+')
-		ti = TiAppXML(tiapp_xml)
-		initial_module_list = ''
-		# just include some of the initial modules
-		for m in ['app','api','filesystem','media','database','geolocation','network','mobile','ui','platform','gesture']:
-			initial_module_list += '<key>%s</key>\n<real>0.0</real>\n' % m
-		plist_template = TiPlist(ti).generate(initial_module_list,self.id,'development')
-		plist.write(plist_template)
 
 
 if __name__ == '__main__':

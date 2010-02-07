@@ -60,6 +60,7 @@ def zip_iphone(zf,basepath):
 	zf.write(os.path.join(ticore_lib,'libTiCore.a'),'%s/iphone/libTiCore.a'%basepath)
 	
 	zip_dir(zf,iphone_dir,basepath+'/iphone')
+	zip_dir(zf,os.path.join(iphone_dir,'resources'),basepath+'/iphone/resources')
 	zip_dir(zf,osx_dir,basepath)
 		
 def zip_it(dist_dir,osname,version):
