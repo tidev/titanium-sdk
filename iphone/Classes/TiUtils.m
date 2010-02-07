@@ -726,11 +726,6 @@
 			NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
 			NSString *appurlstr = [NSString stringWithFormat:@"%@",[urlstring stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"%@/",resourceurl] withString:@""]];
 			appurlstr = [appurlstr stringByReplacingOccurrencesOfString:@"." withString:@"_"];
-			NSLog(@"[DEBUG] Attempting to load %@",appurlstr);
-			fflush(stderr);
-			fflush(stdout);
-			static NSMutableDictionary *dict = [[NSMutableDictionary alloc]init];
-			[dict setObject:@selector(foo) forKey:@"a"];
 			return [AppRouter performSelector:@selector(resolveAppAsset:) withObject:appurlstr];
 		}
 	}
