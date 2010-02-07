@@ -27,6 +27,11 @@ public class KrollBridge
 		kroll.put("Titanium", titanium);
 		kroll.put("Ti", titanium);
 
+		kroll.put("setTimeout", (Scriptable) titanium.get("setTimeout", titanium));
+		kroll.put("clearTimeout", (Scriptable) titanium.get("clearTimeout", titanium));
+		kroll.put("setInterval", (Scriptable) titanium.get("setInterval", titanium));
+		kroll.put("clearInterval", (Scriptable) titanium.get("clearInterval", titanium));
+
 		if (preload != null) {
 			titanium.loadModule("UI");
 			Scriptable root = kroll.getScope();

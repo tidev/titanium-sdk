@@ -34,6 +34,15 @@ public class TiDict
 		return TiConvert.toBoolean(get(key));
 	}
 
+	public boolean optBoolean(String key, boolean defaultValue) {
+		boolean result = defaultValue;
+
+		if (containsKey(key)) {
+			result = getBoolean(key);
+		}
+		return result;
+	}
+
 	public String getString(String key) {
 		return (String) get(key);
 	}
@@ -59,5 +68,9 @@ public class TiDict
 
 	public TiDict getTiDict(String key) {
 		return (TiDict) get(key);
+	}
+
+	public boolean isNull(String key) {
+		return (get(key) == null);
 	}
 }

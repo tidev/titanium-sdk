@@ -5,9 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#include "TiColor.h"
-#include "WebFont.h"
-#include "TiDimension.h"
+#import "TiColor.h"
+#import "TiDimension.h"
+#import "WebFont.h"
 
 @interface TiUtils : NSObject {
 

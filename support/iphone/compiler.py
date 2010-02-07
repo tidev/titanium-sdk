@@ -60,29 +60,6 @@ class Compiler(object):
 		self.resources_dir = os.path.join(project_dir,'Resources')
 		self.classes_dir = os.path.join(self.project_dir,'build','iphone','Classes')
 		self.temp_build_dir = os.path.join(self.project_dir,'build','iphone','tmp')
-		# these modules are always required 
-		# TODO: review these for 0.9 -JGH
-		self.modules = ['API','Analytics']
-		self.required_modules = []
-
-	def extract_module_with_token(self,token,line):
-		f = re.findall(r'%s\.(\w+)'%token,line)
-		if len(f) > 0:
-			for sym in f:
-				# skip Titanium.version, Titanium.userAgent and Titanium.name since these
-				# properties are not modules
-				if sym in ['version','userAgent','name','_JSON','include']:
-					continue
-				try:
-					self.modules.index(sym)
-				except:	
-					self.modules.append(sym)
-					self.required_modules.append(sym)
-		
-	def extract_modules(self,out):
-		for line in out.split(';'):
-			self.extract_module_with_token('Titanium',line)
-			self.extract_module_with_token('Ti',line)
 		
 	def make_function_from_file(self,path,file):
 	
@@ -109,9 +86,6 @@ class Compiler(object):
 			packer = CSSPacker(file_contents)
 			file_contents = packer.pack()
 		
-		# determine which modules this file is using
-		self.extract_modules(file_contents)
-
 		data = str(file_contents).encode("hex")
 		method = "dataWithHexString(@\"%s\")" % data
 		return {'method':method,'path':path}
