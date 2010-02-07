@@ -63,6 +63,7 @@ for dir in build_dirs:
 	d = os.getcwd()
 	os.chdir(dir)
 	try:
+		#output = 0
 		output = os.system("scons PRODUCT_VERSION=%s COMPILER_FLAGS='%s' BUILD_TYPE='%s'" % (version,flags,build_type))	
 		if output!=0:
 			sys.stderr.write("BUILD FAILED!!!!\n")
