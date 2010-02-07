@@ -139,6 +139,7 @@ def main(args):
 	main_template = main_template.replace('__PROJECT_ID__',appid)
 	main_template = main_template.replace('__DEPLOYTYPE__',deploytype)
 	main_template = main_template.replace('__APP_ID__',appid)
+	main_template = main_template.replace('__APP_ANALYTICS__',ti.properties['analytics'])
 	main_template = main_template.replace('__APP_PUBLISHER__',ti.properties['publisher'])
 	main_template = main_template.replace('__APP_URL__',ti.properties['url'])
 	main_template = main_template.replace('__APP_NAME__',ti.properties['name'])
@@ -306,42 +307,27 @@ def main(args):
 		if not os.path.exists(dir):		
 			os.makedirs(dir)
 	
-		plist_f = os.path.join(dir,'tiapp.plist')
-		plist = open(plist_f,'w+')
-	
-		module_str = ''
 		# write out the modules we're using in the APP
-		for m in compiler.modules:
-			module_str += '   <key>%s</key>\n   <real>0.0</real>\n' % (m.lower())
+		for m in compiler.required_modules:
+			print "[INFO] Detected required module: Titanium.%s" % (m)
 	
-		tip = TiPlist(ti)
-
 		if command == 'install':
-			version = tip.tiapp.properties['version']
+			version = ti.properties['version']
 			# we want to make sure in debug mode the version always changes
 			version = "%s.%d" % (version,time.time())
-			tip.tiapp.properties['version']=version
+			ti.properties['version']=version
 
-		plist_template = tip.generate(module_str,appid,deploytype)
-	
-		# write out the generated tiapp.plist
-		plist.write(plist_template)
-		plist.close()
-		
 		
 		# write out the updated Info.plist
 		infoplist_tmpl = os.path.join(iphone_dir,'Info.plist.template')
 		infoplist = os.path.join(iphone_dir,'Info.plist')
-		appicon = tip.generate_infoplist(infoplist,infoplist_tmpl,appid)
+		appicon = ti.generate_infoplist(infoplist,infoplist_tmpl,appid)
 		
 		# copy the app icon to the build resources
 		iconf = os.path.join(iphone_tmp_dir,appicon)
 		iconf_dest = os.path.join(dir,appicon)
 		if os.path.exists(iconf):
 			shutil.copy(iconf, iconf_dest)
-	
-		# compile to binary plist
-		os.system("/usr/bin/plutil -convert binary1 \"%s\"" % plist_f)
 	
 	try:
 		os.chdir(iphone_dir)

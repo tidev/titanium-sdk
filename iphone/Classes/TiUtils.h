@@ -13,6 +13,8 @@
 
 }
 
++(NSData *)loadAppResource:(NSURL*)url;
+
 +(NSString *)encodeQueryPart:(NSString *)unencodedString;
 
 +(NSString *)encodeURIParameters:(NSString *)unencodedString;

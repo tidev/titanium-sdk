@@ -10,8 +10,8 @@
 #import "TiPoint.h"
 #import "TiProxy.h"
 #import "ImageLoader.h"
-
 #import <QuartzCore/QuartzCore.h>
+
 
 @implementation TiUtils
 
@@ -709,6 +709,32 @@
 	return CGRectMake(center.x - (anchorPoint.x * bounds.size.width),
 			center.y - (anchorPoint.y * bounds.size.height),
 			bounds.size.width, bounds.size.height);
+}
+
++(NSData *)loadAppResource:(NSURL*)url
+{
+	if ([url isFileURL])
+	{
+		static id AppRouter;
+		if (AppRouter==nil)
+		{
+			AppRouter = NSClassFromString(@"ApplicationRouting");
+		}
+		if (AppRouter!=nil)
+		{
+			NSString *urlstring = [url path];
+			NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
+			NSString *appurlstr = [NSString stringWithFormat:@"%@",[urlstring stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"%@/",resourceurl] withString:@""]];
+			appurlstr = [appurlstr stringByReplacingOccurrencesOfString:@"." withString:@"_"];
+			NSLog(@"[DEBUG] Attempting to load %@",appurlstr);
+			fflush(stderr);
+			fflush(stdout);
+			static NSMutableDictionary *dict = [[NSMutableDictionary alloc]init];
+			[dict setObject:@selector(foo) forKey:@"a"];
+			return [AppRouter performSelector:@selector(resolveAppAsset:) withObject:appurlstr];
+		}
+	}
+	return nil;
 }
 
 @end

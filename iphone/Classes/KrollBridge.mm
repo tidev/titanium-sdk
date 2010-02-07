@@ -187,7 +187,15 @@
 	
 	if ([url_ isFileURL])
 	{
-		jcode = [NSString stringWithContentsOfFile:[url_ path] encoding:NSUTF8StringEncoding error:&error];
+		NSData *data = [TiUtils loadAppResource:url_];
+		if (data==nil)
+		{
+			jcode = [NSString stringWithContentsOfFile:[url_ path] encoding:NSUTF8StringEncoding error:&error];
+		}
+		else
+		{
+			jcode = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+		}
 	}
 	else
 	{
