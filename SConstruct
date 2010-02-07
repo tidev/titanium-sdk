@@ -77,4 +77,4 @@ for dir in build_dirs:
 		os.chdir(d)
 
 print "Packaging MobileSDK (%s)..." % version
-package.Packager().build('dist',version)
+package.Packager().build(os.path.abspath('dist'),version)
