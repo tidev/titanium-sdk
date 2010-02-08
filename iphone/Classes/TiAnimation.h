@@ -54,6 +54,10 @@
 	KrollCallback		*callback;
 	
 	NSObject<TiAnimationDelegate> *delegate;
+	
+	// for autoreverse
+	UIView *autoreverseView;
+	id transformMatrix;
 }
 
 @property(nonatomic,assign,readwrite) NSObject<TiAnimationDelegate> *delegate;

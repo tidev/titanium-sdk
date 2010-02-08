@@ -10,6 +10,10 @@
 #import "TiViewProxy.h"
 #import "TitaniumApp.h"
 
+// we need to track our active textfield so we can
+// use it to determine if a textfield in the toolbar is being focused (below)
+static TiTextField* focusedTextField;
+
 @implementation TiTextField
 
 @synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight, focused;
@@ -166,6 +170,7 @@
 -(BOOL)resignFirstResponder
 {
 	focused = NO;
+	focusedTextField = nil;
 	if ([super resignFirstResponder])
 	{
 		[self repaintMode];
@@ -177,6 +182,7 @@
 -(BOOL)becomeFirstResponder
 {
 	focused = YES;
+	focusedTextField = self;
 	if ([super becomeFirstResponder])
 	{
 		[self repaintMode];
@@ -598,7 +604,7 @@
 
 - (void)keyboardWillShow:(NSNotification*)notification 
 {
-	if (toolbar!=nil && textField.focused)
+	if (toolbar!=nil && textField.focused && toolbarVisible==NO)
 	{
 		NSDictionary *userInfo = notification.userInfo;
 		NSValue *v = [userInfo valueForKey:UIKeyboardBoundsUserInfoKey];
@@ -631,6 +637,7 @@
 		}
 
 		[window addSubview:toolbar];
+		[toolbar setHidden:NO];
 		
 		if ([[TitaniumApp app] isKeyboardShowing])
 		{
@@ -658,7 +665,7 @@
 {
 	if (toolbar!=nil)
 	{
-		[toolbar removeFromSuperview];
+		[toolbar setHidden:YES];
 	}
 }
 
@@ -666,28 +673,26 @@
 {
 	if (toolbarVisible)
 	{
-		// if the keyboard is hiding but the keyboard is still showing
-		// this means we're cycling through fields ... just remove and don't animate
-		if ([[TitaniumApp app] isKeyboardShowing])
+		// we have to check to make sure that our toolbar doesn't contain
+		// a textfield that is focused
+		if (focusedTextField!=nil)
 		{
-			[toolbar removeFromSuperview];
+			for (UIView *view in [toolbar subviews])
+			{
+				if ([view isKindOfClass:[TiUITextField class]])
+				{
+					TiUITextField *tf = (TiUITextField*)view;
+					if ([tf textfield]==focusedTextField)
+					{
+						[tf setNeedsDisplay];
+						[tf setNeedsLayout];
+						return;
+					}
+				}
+			}
 		}
-		else
-		{
-			// animate smoothly as the keyboard hides and then after the animation 
-			// completes we can remove our toolbar from the window
-			NSDictionary *userInfo = notification.userInfo;
-			NSValue *v2 = [userInfo valueForKey:UIKeyboardCenterEndUserInfoKey];
-			CGPoint kbEndPoint = [v2 CGPointValue];
-			
-			[UIView beginAnimations:nil context:nil];
-			[UIView setAnimationCurve:[[userInfo valueForKey:UIKeyboardAnimationCurveUserInfoKey] intValue]];
-			[UIView setAnimationDuration:[[userInfo valueForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue]];
-			[UIView setAnimationDidStopSelector:@selector(keyboardHiddenAnimationComplete:)];
-			[UIView setAnimationDelegate:self];
-			[toolbar setFrame:CGRectMake(toolbar.frame.origin.x, kbEndPoint.y, toolbar.frame.size.width, toolbar.frame.size.height)];
-			[UIView commitAnimations];
-		}
+		[toolbar removeFromSuperview];
+		toolbarVisible = NO;
 	}
 }
 	

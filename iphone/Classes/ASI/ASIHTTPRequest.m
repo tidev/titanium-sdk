@@ -1488,8 +1488,6 @@ static BOOL isiPhoneOS2;
 					//JGH: if we get a Location change, we must force a GET instead of a 
 					//POST/PUT/etc per HTTP spec
 					[self setRequestMethod:@"GET"];
-					
-					//JGH: clear out any previous request headers, post, etc.
 					[self setPostBody:nil];
 					[self setPostLength:0];
 					[self setRequestHeaders:nil];
@@ -1501,6 +1499,15 @@ static BOOL isiPhoneOS2;
 						// This means manually added cookies will not be added to the redirect request - only those stored in the global persistent store
 						// But, this is probably the safest option - we might be redirecting to a different domain
 						[self setRequestCookies:[NSMutableArray array]];
+					}
+					else
+					{
+						// JGH: take the new cookie from response during a Location
+						NSString *freshCookie = [responseHeaders valueForKey:@"Set-Cookie"];
+						if (freshCookie!=nil)
+						{
+							[self addRequestHeader:@"Cookie" value:freshCookie];
+						}
 					}
 				}
 			}

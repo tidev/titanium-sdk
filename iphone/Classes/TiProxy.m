@@ -12,6 +12,7 @@
 #import "KrollCallback.h"
 #import "KrollBridge.h"
 #import "TiModule.h"
+#import "ListenerEntry.h"
 
 //Common exceptions to throw when the function call was improper
 NSString * const TiExceptionInvalidType = @"Invalid type passed to function";
@@ -410,7 +411,7 @@ static int tiProxyId = 0;
 	
 	if (listeners==nil)
 	{
-		listeners = [[NSMutableDictionary alloc]init];
+		listeners = [[NSMutableDictionary alloc] init];
 	}
 
 	NSMutableArray *l = [listeners objectForKey:type];
@@ -421,6 +422,7 @@ static int tiProxyId = 0;
 		[l release];
 	}
 	
+	/*
 	// we need to listener for the execution context shutdown in the case it's not the 
 	// same as our pageContext. we basically will then remove the listener
 	if (pageContext!=executionContext)
@@ -438,6 +440,11 @@ static int tiProxyId = 0;
 	}
 	
 	[l addObject:listener];
+	 */
+
+	ListenerEntry *entry = [[[ListenerEntry alloc] initWithListener:listener context:[self executionContext] proxy:self type:type] autorelease];
+	[l addObject:entry];
+	
 	[self _listenerAdded:type count:[l count]];
 }
 	  
@@ -445,14 +452,28 @@ static int tiProxyId = 0;
 {
 	NSString *type = [args objectAtIndex:0];
 	KrollCallback *listener = [args objectAtIndex:1];
+	
+	// hold during event
+	[[listener retain] autorelease];
 
+	int count = 0;
+	
 	NSMutableArray *l = [listeners objectForKey:type];
 	if (l!=nil && [l count]>0)
 	{
-		[l removeObject:listener];
+		for (ListenerEntry *entry in [NSArray arrayWithArray:l])
+		{
+			if ([entry listener] == listener)
+			{
+				[l removeObject:entry];
+				break;
+			}
+		}
+		
+		count = [l count];
 		
 		// once empty, remove the object
-		if ([l count]==0)
+		if (count==0)
 		{
 			[listeners removeObjectForKey:type];
 		}
@@ -466,7 +487,7 @@ static int tiProxyId = 0;
 	}
 	id<TiEvaluator> ctx = (id<TiEvaluator>)[listener context];
 	[[self _host] removeListener:listener context:ctx];
-	[self _listenerRemoved:type count:[l count]];
+	[self _listenerRemoved:type count:count];
 }
 	  
 -(void)fireEvent:(NSString*)type withObject:(id)obj
@@ -496,8 +517,9 @@ static int tiProxyId = 0;
 			
 			// unfortunately we have to make a copy to be able to mutate and still iterate
 			NSMutableArray *_listeners = [NSMutableArray arrayWithArray:l];
-			for (KrollCallback* listener in _listeners)
+			for (ListenerEntry *entry in _listeners)
 			{
+				KrollCallback* listener = [entry listener];
 				id<TiEvaluator> evaluator = (id<TiEvaluator>)[listener context].delegate;
 				if ([[listener context] running])
 				{
@@ -508,7 +530,7 @@ static int tiProxyId = 0;
 					// this happens when we have stored an event callback for a context that has
 					// been shutdown... in this case, we go ahead and remove the listener and clean
 					// up the listener
-					[l removeObject:listener];
+					[l removeObject:entry];
 					[[self _host] removeListener:listener context:pageContext];
 					[self _listenerRemoved:type count:[l count]];
 				}
