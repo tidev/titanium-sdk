@@ -1,34 +1,29 @@
-Titanium.Media.showCamera({
+// create table view data object
+var data = [
+	{title:'From File', hasChild:true, test:'../examples/photo_gallery_file.js'},
+	{title:'From Camera', hasChild:true, test:'../examples/photo_gallery_camera.js'},
+	{title:'From Video', hasChild:true, test:'../examples/photo_gallery_video.js'},
+	{title:'From XHR', hasChild:true, test:'../examples/photo_gallery_xhr.js'},
 
-	success:function(event)
-	{
-		var cropRect = event.cropRect;
-		var image = event.media;
-		var thumbnail = event.thumbnail;
-		
-		Titanium.Media.saveToPhotoGallery(image);
-	},
-	cancel:function()
-	{
+];
 
-	},
-	error:function(error)
-	{
-		// create alert
-		var a = Titanium.UI.createAlertDialog({title:'Camera'});
-
-		// set message
-		if (error.code == Titanium.Media.NO_CAMERA)
-		{
-			a.setMessage('Device does not have video recording capabilities');
-		}
-		else
-		{
-			a.setMessage('Unexpected error: ' + error.code);
-		}
-
-		// show alert
-		a.show();
-	},
-	allowImageEditing:true,
+// create table view
+var tableview = Titanium.UI.createTableView({
+	data:data
 });
+
+// create table view event listener
+tableview.addEventListener('click', function(e)
+{
+	if (e.rowData.test)
+	{
+		var win = Titanium.UI.createWindow({
+			url:e.rowData.test,
+			title:e.rowData.title
+		});
+		Titanium.UI.currentTab.open(win,{animated:true})
+	}
+});
+
+// add table view to the window
+Titanium.UI.currentWindow.add(tableview);
