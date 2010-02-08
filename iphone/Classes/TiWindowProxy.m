@@ -264,6 +264,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		TiAnimation *animation = [TiAnimation animationFromArg:args context:[self pageContext] create:NO];
 		if (animation!=nil)
 		{
+			[self attachViewToTopLevelWindow];
 			if ([animation isTransitionAnimation])
 			{
 				transitionAnimation = [[animation transition] intValue];

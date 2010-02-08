@@ -548,9 +548,11 @@ static TiTextField* focusedTextField;
 
 - (BOOL)textField:(UITextField *)tf shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
+	NSString *value = [NSString stringWithFormat:@"%@%@",[tf text],string];
+	[self.proxy replaceValue:value forKey:@"value" notification:NO];
 	if ([self.proxy _hasListeners:@"change"])
 	{
-		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"%@%@",[tf text],string] forKey:@"value"]];
+		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"]];
 	}
 	return YES;
 }

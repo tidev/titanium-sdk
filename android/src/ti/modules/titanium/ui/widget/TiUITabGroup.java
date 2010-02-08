@@ -1,33 +1,41 @@
 package ti.modules.titanium.ui.widget;
 
+import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
 
-import android.R;
-import android.content.res.TypedArray;
-import android.graphics.Color;
+import ti.modules.titanium.ui.TabGroupProxy;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TabWidget;
+import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
 
 public class TiUITabGroup extends TiUIView
+	implements OnTabChangeListener
 {
+	private static final String LCAT = "TiUITabGroup";
+	private static final boolean DBG = TiConfig.LOGD;
 
-	TabHost tabHost;
-	TabWidget tabWidget;
-	FrameLayout tabContent;
+	private TabHost tabHost;
+	private TabWidget tabWidget;
+	private FrameLayout tabContent;
+
+	private String lastTabId;
+	private TiDict tabChangeEventData;
 
 	public TiUITabGroup(TiViewProxy proxy)
 	{
 		super(proxy);
 
 		tabHost = new TabHost(proxy.getContext());
+		tabHost.setOnTabChangedListener(this);
 
 		tabWidget = new TabWidget(proxy.getContext());
 		tabWidget.setId(android.R.id.tabs); // Required by contract w/ host
@@ -46,6 +54,8 @@ public class TiUITabGroup extends TiUIView
         tabHost.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor("#ff1a1a1a")));
 
 		setNativeView(tabHost);
+
+  		lastTabId = null;
 	}
 
 	public TabSpec newTab(String id)
@@ -55,5 +65,30 @@ public class TiUITabGroup extends TiUIView
 
 	public void addTab(TabSpec tab) {
 		tabHost.addTab(tab);
+	}
+
+
+	@Override
+	protected TiDict getFocusEventObject(boolean hasFocus) {
+		if (tabChangeEventData == null) {
+			TabHost th = (TabHost) getNativeView();
+			return ((TabGroupProxy) proxy).buildFocusEvent(th.getCurrentTabTag(), lastTabId);
+		} else {
+			return tabChangeEventData;
+		}
+	}
+
+	@Override
+	public void onTabChanged(String id)
+	{
+		if (DBG) {
+			Log.i(LCAT,"Tab change from " + lastTabId + " to " + id);
+		}
+		TabHost th = (TabHost) getNativeView();
+		tabChangeEventData = ((TabGroupProxy) proxy).buildFocusEvent(id, lastTabId);
+		lastTabId = id;
+
+		onFocusChange(getNativeView(), false);
+		onFocusChange(getNativeView(), true);
 	}
 }

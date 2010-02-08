@@ -47,7 +47,7 @@ Titanium.Media.showCamera({
 		// set message
 		if (error.code == Titanium.Media.NO_CAMERA)
 		{
-			a.setMessage('Device does not have video recording capabilities');
+			a.setMessage('Please run this test on device');
 		}
 		else
 		{

@@ -188,6 +188,9 @@
 
 - (BOOL)textView:(UITextView *)tv shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
+	NSString *value = [NSString stringWithFormat:@"%@%@",[tv text],text];
+	[self.proxy replaceValue:value forKey:@"value" notification:NO];
+
 	if ([text isEqualToString:@"\n"]) 
 	{
 		returnActive = YES;

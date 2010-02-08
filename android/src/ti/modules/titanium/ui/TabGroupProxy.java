@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -156,5 +157,46 @@ public class TabGroupProxy extends TiWindowProxy
 
 	@Override
 	protected void handleClose() {
+	}
+
+	public TiDict buildFocusEvent(String to, String from)
+	{
+		int toIndex = indexForId(to);
+		int fromIndex = indexForId(from);
+
+		TiDict e = new TiDict();
+
+		e.put("index", toIndex);
+		e.put("previousIndex", fromIndex);
+
+		if (fromIndex != -1) {
+			e.put("previousTab", tabs.get(fromIndex));
+		} else {
+			TiDict fakeTab = new TiDict();
+			fakeTab.put("title", "no tab");
+			e.put("previousTab", fakeTab);
+		}
+
+		if (toIndex != -1) {
+			e.put("tab", tabs.get(toIndex));
+		}
+
+		return e;
+	}
+
+	private int indexForId(String id) {
+		int index = -1;
+
+		int i = 0;
+		for(TabProxy t : tabs) {
+			String title = (String) t.getDynamicValue("title");
+			if (title.equals(id)) {
+				index = i;
+				break;
+			}
+			i += 1;
+		}
+
+		return index;
 	}
 }

@@ -150,7 +150,7 @@ static int tiProxyId = 0;
 		{
 			value = nil;
 		}
-		[self setValue:value forKey:key];
+		[self replaceValue:value forKey:key notification:NO];
 	}	
 }
 
