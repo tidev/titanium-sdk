@@ -28,4 +28,5 @@ env.Jar(target = 'bin/titanium.jar', source = classes)
 for module in modules:
     module_sources = os.path.join('src', 'ti', 'modules', 'titanium', module)
     env.Java(target = 'bin', source = module_sources)
-    env.Jar(target = 'bin/titanium-%s.jar' % module, source = os.path.join('bin', 'ti', 'modules', 'titanium', module))
+    env.Jar(target = 'bin/titanium-%s.jar' % module,
+        source = os.path.join('bin', 'ti', 'modules', 'titanium', module), JARCHDIR='bin')
