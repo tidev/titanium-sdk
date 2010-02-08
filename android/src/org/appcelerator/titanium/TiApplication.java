@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -30,7 +31,8 @@ public class TiApplication extends Application
 	private String startUrl;
 	private HashMap<Class<?>, HashMap<String, Method>> methodMap;
 	private TiRootActivity rootActivity;
-
+	private TiProperties appProperties;
+	
 	public TiApplication() {
 		Log.checkpoint("checkpoint, app created.");
 	}
@@ -59,6 +61,7 @@ public class TiApplication extends Application
 		baseUrl = fullPath.getParent();
 
 		methodMap = new HashMap<Class<?>, HashMap<String,Method>>(25);
+		appProperties = new TiProperties(getApplicationContext(), "titanium", false);	
 	}
 
 	public void setRootActivity(TiRootActivity rootActivity) {
@@ -141,6 +144,11 @@ public class TiApplication extends Application
 		{
 			appEventProxy.getTiContext().dispatchEvent(eventName, data);
 		}
+	}
+	
+	public TiProperties getAppProperties()
+	{
+		return appProperties;
 	}
 	
 	@Override
