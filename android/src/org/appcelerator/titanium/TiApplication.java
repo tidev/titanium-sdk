@@ -9,7 +9,13 @@ package org.appcelerator.titanium;
 import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
 
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -25,7 +31,8 @@ public class TiApplication extends Application
 	private String startUrl;
 	private HashMap<Class<?>, HashMap<String, Method>> methodMap;
 	private TiRootActivity rootActivity;
-
+	private TiProperties appProperties;
+	
 	public TiApplication() {
 		Log.checkpoint("checkpoint, app created.");
 	}
@@ -54,6 +61,7 @@ public class TiApplication extends Application
 		baseUrl = fullPath.getParent();
 
 		methodMap = new HashMap<Class<?>, HashMap<String,Method>>(25);
+		appProperties = new TiProperties(getApplicationContext(), "titanium", false);	
 	}
 
 	public void setRootActivity(TiRootActivity rootActivity) {
@@ -85,7 +93,31 @@ public class TiApplication extends Application
 			classMethods = new HashMap<String, Method>(methods.length);
 			methodMap.put(source, classMethods);
 
-			for(Method method : methods) {
+			// we need to sort methods by their implementation order
+			// i.e. subClass > superClass precedence
+			final HashMap<Class<?>, Integer> hierarchy = new HashMap<Class<?>, Integer>();
+			int i = 0;
+			hierarchy.put(source, 0);
+			for (Class<?> superClass = source.getSuperclass(); superClass != null;
+				superClass = superClass.getSuperclass())
+			{
+				hierarchy.put(superClass, ++i);
+			}
+			
+			Comparator<Method> comparator = new Comparator<Method>()
+			{
+				public int compare(Method o1, Method o2) {
+					int h1 = hierarchy.get(o1.getDeclaringClass());
+					int h2 = hierarchy.get(o2.getDeclaringClass());
+					return h1-h2;
+				}
+			};
+			
+			List<Method> methodList = Arrays.asList(methods);
+			Collections.sort(methodList, comparator);
+			Collections.reverse(methodList);
+			
+			for(Method method : methodList) {
 				// TODO filter?
 				//Log.e(LCAT, "Obj: " + source.getSimpleName() + " Method: " + method.getName());
 				classMethods.put(method.getName(), method);
@@ -94,7 +126,31 @@ public class TiApplication extends Application
 
 		return classMethods.get(name);
 	}
-
+	
+	private ArrayList<TiProxy> appEventProxies = new ArrayList<TiProxy>();
+	public void addAppEventProxy(TiProxy appEventProxy)
+	{
+		appEventProxies.add(appEventProxy);
+	}
+	
+	public void removeAppEventProxy(TiProxy appEventProxy)
+	{
+		appEventProxies.remove(appEventProxy);
+	}
+	
+	public void fireAppEvent(String eventName, TiDict data)
+	{
+		for (TiProxy appEventProxy : appEventProxies)
+		{
+			appEventProxy.getTiContext().dispatchEvent(eventName, data);
+		}
+	}
+	
+	public TiProperties getAppProperties()
+	{
+		return appProperties;
+	}
+	
 	@Override
 	public void onLowMemory()
 	{
