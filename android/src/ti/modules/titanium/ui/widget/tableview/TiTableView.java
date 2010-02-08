@@ -39,18 +39,14 @@ public class TiTableView extends FrameLayout
 	private TiTableViewItemOptions defaults;
 	private TTVListAdapter adapter;
 	private TiDict rowTemplate;
+	private OnItemClickedListener itemClickListener;
 
 	private String filterAttribute;
 	private String filterText;
 
-	private Runnable dataSetChanged = new Runnable() {
-
-		public void run() {
-			if (adapter != null) {
-				adapter.notifyDataSetChanged();
-			}
-		}
-	};
+	public interface OnItemClickedListener {
+		public void onClick(TiDict item);
+	}
 
 	class TTVListAdapter extends BaseAdapter
 	{
@@ -262,30 +258,29 @@ public class TiTableView extends FrameLayout
 
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 			{
-				TiBaseTableViewItem v = (TiBaseTableViewItem) view;
-				String viewClicked = v.getLastClickedViewName();
-				TiDict item = viewModel.getViewModel().get(adapter.index.get(position));
-				TiDict event = new TiDict();
+				if (itemClickListener != null) {
+					TiBaseTableViewItem v = (TiBaseTableViewItem) view;
+					String viewClicked = v.getLastClickedViewName();
+					TiDict item = viewModel.getViewModel().get(adapter.index.get(position));
+					TiDict event = new TiDict();
 
-				event.put("rowData", item);
-				event.put("section", item.getInt("section"));
-				event.put("row", item.getInt("sectionIndex"));
-				event.put("index", item.getInt("index"));
-				event.put("detail", false);
-				if (item.containsKey("name")) {
-					event.put("name", item.getString("name"));
+					event.put("rowData", item);
+					event.put("section", item.getInt("section"));
+					event.put("row", item.getInt("sectionIndex"));
+					event.put("index", item.getInt("index"));
+					event.put("detail", false);
+					if (item.containsKey("name")) {
+						event.put("name", item.getString("name"));
+					}
+
+					if (viewClicked != null) {
+						event.put("layoutName", viewClicked);
+					}
+
+					event.put("searchMode", adapter.isFiltered());
+
+					itemClickListener.onClick(event);
 				}
-
-				if (viewClicked != null) {
-					event.put("layoutName", viewClicked);
-				}
-
-				event.put("searchMode", adapter.isFiltered());
-
-//					if (callback != null) {
-//						//TODO callback
-//						//proxy.getWebView().evalJS(callback, event);
-//					}
 			}});
 
 		addView(listView);
@@ -296,6 +291,10 @@ public class TiTableView extends FrameLayout
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
 		}
+	}
+
+	public void setOnItemClickListener(OnItemClickedListener listener) {
+		this.itemClickListener = listener;
 	}
 
 	public void setTemplate(TiDict rowTemplate) {
