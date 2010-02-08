@@ -8,7 +8,9 @@
 #import "MediaModule.h"
 #import "TiUtils.h"
 #import "TiBlob.h"
+#import "TiFile.h"
 #import "TitaniumApp.h"
+#import "Mimetypes.h"
 
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVAudioPlayer.h>
@@ -293,24 +295,44 @@ MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 -(void)saveToPhotoGallery:(id)arg
 {
 	ENSURE_UI_THREAD(saveToPhotoGallery,arg);
-	ENSURE_TYPE(arg,TiBlob);
 	
-	NSString *mime = [arg mimeType];
-	
-	if (mime==nil || [mime hasPrefix:@"image/"])
+	if ([arg isKindOfClass:[TiBlob class]])
 	{
-		UIImage * savedImage = [arg image];
-		if (savedImage == nil) return;
-		UIImageWriteToSavedPhotosAlbum(savedImage, nil, nil, NULL);
+		TiBlob *blob = (TiBlob*)arg;
+		NSString *mime = [blob mimeType];
+		
+		if (mime==nil || [mime hasPrefix:@"image/"])
+		{
+			UIImage * savedImage = [blob image];
+			if (savedImage == nil) return;
+			UIImageWriteToSavedPhotosAlbum(savedImage, nil, nil, NULL);
+		}
+		else if ([mime hasPrefix:@"video/"])
+		{
+			NSString * tempFilePath = [blob path];
+			if (tempFilePath == nil) return;
+			UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
+		}
 	}
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 31000
-	else if ([mime hasPrefix:@"video/"])
+	else if ([arg isKindOfClass:[TiFile class]])
 	{
-		NSString * tempFilePath = [arg path];
-		if (tempFilePath == nil) return;
-		UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
+		TiFile *file = (TiFile*)arg;
+		NSString *mime = [Mimetypes mimeTypeForExtension:[file path]];
+		if (mime == nil || [mime hasPrefix:@"image/"])
+		{
+			NSData *data = [NSData dataWithContentsOfFile:[file path]];
+			UIImage *image = [[[UIImage alloc] initWithData:data] autorelease];
+			UIImageWriteToSavedPhotosAlbum(image, nil, nil, NULL);
+		}
+		else if ([mime hasPrefix:@"video/"])
+		{
+			UISaveVideoAtPathToSavedPhotosAlbum([file path], nil, nil, NULL);
+		}
 	}
-#endif
+	else
+	{
+		[self throwException:@"invalid media type" subreason:[NSString stringWithFormat:@"expected either TiBlob or TiFile, was: %@",[arg class]] location:CODELOCATION];
+	}
 }
 
 -(void)beep:(id)args
@@ -366,10 +388,8 @@ MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 		{
 			if (isVideo)
 			{
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 31000
 				NSString *tempFilePath = [mediaURL absoluteString];
 				UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
-#endif
 			}
 			else 
 			{
