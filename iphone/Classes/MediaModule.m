@@ -72,7 +72,10 @@ enum
 	{
 		[self _fireEventToListener:@"success" withObject:event listener:pickerSuccessCallback thisObject:nil];
 	}
-	[self destroyPicker];
+	if (autoHidePicker)
+	{
+		[self destroyPicker];
+	}
 }
 
 -(void)showPicker:(NSDictionary*)args isCamera:(BOOL)isCamera
@@ -103,8 +106,13 @@ enum
 		ENSURE_TYPE_OR_NIL(pickerCancelCallback,KrollCallback);
 		[pickerCancelCallback retain];
 		
-		
+		// we use this to determine if we should hide the camera after taking 
+		// a picture/video -- you can programmatically take multiple pictures
+		// and use your own controls so this allows you to control that
+		autoHidePicker = [TiUtils boolValue:@"autohide" properties:args def:YES];
+
 		animatedPicker = [TiUtils boolValue:@"animated" properties:args def:YES];
+		
 		NSNumber * imageEditingObject = [args objectForKey:@"allowImageEditing"];  //backwards compatible
 		saveToRoll = [TiUtils boolValue:@"saveToPhotoGallery" properties:args def:NO];
 		
@@ -345,6 +353,26 @@ MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 {
 	ENSURE_UI_THREAD(beep,args);
 	AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
+}
+
+-(void)takePicture:(id)args
+{
+	// must have a picker, doh
+	if (picker==nil)
+	{
+		[self throwException:@"invalid state" subreason:nil location:CODELOCATION];
+	}
+	ENSURE_UI_THREAD(takePicture,args);
+	[picker takePicture];
+}
+
+-(void)hideCamera:(id)args
+{
+	ENSURE_UI_THREAD(hideCamera,args);
+	if (picker!=nil)
+	{
+		[self destroyPicker];
+	}
 }
 
 #pragma mark Delegates
