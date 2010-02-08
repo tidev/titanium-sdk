@@ -13,7 +13,7 @@
 #import <sys/utsname.h>
 
 const NSString *kGeolocationURL = @"http://api.appcelerator.net/p/v1/geo";
-
+extern NSString * const TI_APPLICATION_GUID;
 
 @interface GeolocationCallback : NSObject
 {
@@ -379,7 +379,7 @@ const NSString *kGeolocationURL = @"http://api.appcelerator.net/p/v1/geo";
 {
 	[[TitaniumApp app] startNetwork];
 	
-	id aguid = @"";	//FIXME	-- application GUID
+	id aguid = TI_APPLICATION_GUID;
 	id sid = @"";	//FIXME -- session id
 	
 	NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
