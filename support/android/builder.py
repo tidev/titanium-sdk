@@ -4,7 +4,7 @@
 # Android Simulator for building a project and launching
 # the Android Emulator or on the device
 #
-import os, sys, subprocess, shutil, time, signal, string, platform, re, run, avd
+import os, sys, subprocess, shutil, time, signal, string, platform, re, run, avd, glob
 from os.path import splitext
 from compiler import Compiler
 from os.path import join, splitext, split, exists
@@ -221,6 +221,7 @@ class Builder(object):
 		
 		curdir = os.getcwd()
 		tijar = os.path.join(self.support_dir,'titanium.jar')
+		rhino_jar = os.path.join(self.support_dir, 'js.jar')
 		timapjar = os.path.join(self.support_dir, 'modules', 'titanium-map.jar')
 		ti_resources_dir = os.path.join(self.support_dir, 'resources')
 		
@@ -233,6 +234,7 @@ class Builder(object):
 			
 			if os.path.exists('lib'):
 				shutil.copy(tijar,'lib')
+				shutil.copy(rhino_jar, 'lib')
 
 			resources_dir = os.path.join(self.top_dir,'Resources')
 			assets_dir = os.path.join('bin','assets')
@@ -592,13 +594,15 @@ class Builder(object):
 			sys.stdout.flush()
 			out = run.run(javac_command)
 			
-		
-			classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')	
-			if platform.system() == "Windows":
-				run.run([dx, '--dex', '--output='+classes_dex, classes_dir, tijar])
-			else:
-				run.run([dx, '-JXmx512M', '--dex', '--output='+classes_dex, classes_dir, tijar])
-										
+			classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')
+			android_module_jars = glob.glob(os.path.join(self.support_dir, 'modules', 'titanium-*.jar'))
+			dex_args = [dx, '-JXmx512M', '--dex', '--output='+classes_dex, classes_dir, tijar, rhino_jar]
+			#if platform.system() == "Windows":
+			#	dex_args.insert(1, '-JXmx512M')
+			dex_args += android_module_jars
+			
+			run.run(dex_args)
+			
 			ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')	
 			run.run([aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', assets_dir, '-S', 'res', '-I', jar, '-I', tijar, '-F', ap_])
 		
