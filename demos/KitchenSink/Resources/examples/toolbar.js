@@ -43,7 +43,43 @@ var toolbar1 = Titanium.UI.createToolbar({
 	borderBottom:false,
 	translucent:true,
 	barColor:'#999',
-	height:20
 });	
 win.add(toolbar1);
 
+//
+//  Toolbar 2
+//
+var change = Titanium.UI.createButton({
+	title:'Change Toolbar',
+	style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED		
+});
+change.addEventListener('click', function()
+{
+	toolbar2.borderTop = false;
+	toolbar2.borderBottom = false;
+	toolbar2.translucent = true;
+	toolbar2.barColor = '#000';
+	toolbar2.width = 300;
+	
+});
+var revert = Titanium.UI.createButton({
+	title:'Revert Toolbar',
+	style:Titanium.UI.iPhone.SystemButtonStyle.DONE		
+});
+revert.addEventListener('click', function()
+{
+	toolbar2.borderTop = true;
+	toolbar2.borderBottom = true;
+	toolbar2.barColor = '#336699';
+	toolbar2.width = null;
+	
+});
+
+var toolbar2 = Titanium.UI.createToolbar({
+	items:[change,flexSpace,revert],
+	top:130,
+	borderTop:true,
+	borderBottom:true,
+	barColor:'#336699',
+});
+win.add(toolbar2)
