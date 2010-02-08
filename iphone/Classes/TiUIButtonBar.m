@@ -202,17 +202,14 @@
 
 	[self updateNullStyle];
 
-//	CGSize ourBoundsSize = [self bounds].size;
-//	CGSize wantedSize = [segmentedControl sizeThatFits:ourBoundsSize];
-//	NSLog(@"%f,%f vs %f,%f",wantedSize.width,wantedSize.height,ourBoundsSize.width,ourBoundsSize.height);
 }
-
-
-
 
 -(IBAction)onSegmentChange:(id)sender
 {
 	int newIndex = [(UISegmentedControl *)sender selectedSegmentIndex];
+	
+	[self.proxy replaceValue:NUMINT(newIndex) forKey:@"index" notification:NO];
+	
 	if (newIndex == selectedIndex)
 	{
 		return;
@@ -225,9 +222,11 @@
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:selectedIndex] forKey:@"index"];
 		[self.proxy fireEvent:@"click" withObject:event];
 	}
+	
 	if ([(UISegmentedControl *)sender isMomentary])
 	{
 		selectedIndex = -1;
+		[self.proxy replaceValue:NUMINT(-1) forKey:@"index" notification:NO];
 	}
 }
 
@@ -240,9 +239,5 @@
 {
 	return [[self segmentedControl] sizeThatFits:CGSizeZero].height;
 }
-
-
-//-(CGFloat)verifyWidth:(CGFloat)suggestedWidth;
-//-(CGFloat)verifyHeight:(CGFloat)suggestedHeight;
 
 @end

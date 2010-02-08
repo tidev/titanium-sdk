@@ -10,6 +10,8 @@ import org.appcelerator.titanium.view.TiWindowProxy;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.view.View;
+import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 
@@ -61,7 +63,17 @@ public class WindowProxy extends TiWindowProxy
 	@Override
 	protected void handleClose()
 	{
-
+		if (peekView() != null) {
+			TiUIView v = getView();
+			ViewParent p =v.getNativeView().getParent();
+			Activity a= getTiContext().getActivity();
+			if (a instanceof TiActivity) {
+				TiActivity tia = (TiActivity) a;
+				tia.getLayout().removeViewInLayout(v.getNativeView());
+			} else {
+//				a.finish();
+			}
+		}
 	}
 
 	@Override

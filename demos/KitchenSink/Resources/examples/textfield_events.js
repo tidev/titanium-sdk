@@ -27,7 +27,7 @@ tf1.addEventListener('blur',function(e)
 });
 tf1.addEventListener('change', function(e)
 {
-	l.text = 'change received, event val = ' + e.value + ' act val ' + tf1.value;	
+	l.text = 'change received, event val = ' + e.value + '\nfield val = ' + tf1.value;	
 })
 
 win.add(tf1);
@@ -47,7 +47,7 @@ win.add(l);
 // FOCUS
 //
 var focus = Titanium.UI.createButton({
-	top:70,
+	top:100,
 	height:40,
 	width:200,
 	title:'Focus'
@@ -62,7 +62,7 @@ focus.addEventListener('click', function()
 // BLUR
 //
 var blur = Titanium.UI.createButton({
-	top:120,
+	top:150,
 	height:40,
 	width:200,
 	title:'Blur'
@@ -77,7 +77,7 @@ blur.addEventListener('click', function()
 // HIDE/SHOW
 //
 var showHide = Titanium.UI.createButton({
-	top:170,
+	top:200,
 	height:40,
 	width:200,
 	title:'Hide/Show'
