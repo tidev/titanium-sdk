@@ -1,61 +1,37 @@
 var win = Titanium.UI.currentWindow;
 
+// path variables
 Titanium.API.info('Resouces Direction :' + Titanium.Filesystem.resourcesDirectory);
 Titanium.API.info('Application Direction :' + Titanium.Filesystem.applicationDirectory);
 Titanium.API.info('Application Data Direction :' + Titanium.Filesystem.applicationDataDirectory);
 Titanium.API.info('External Storage Available :' + Titanium.Filesystem.isExteralStoragePresent);
+Titanium.API.info('Separator :' + Titanium.Filesystem.separator);
+Titanium.API.info('Line Ending :' + Titanium.Filesystem.lineEnding);
 
 
-var b1 = Titanium.UI.createButton({
-	title:'Read File',
-	width:200,
-	height:40,
-	top:10
-});
-win.add(b1);
-b1.addEventListener('click', function()
-{
-	var dir = Titanium.Filesystem.resourcesDirectory + '/images/atlanta.jpg';
+var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'images/atlanta.jpg');
+Ti.API.info('nativePath ' + f.nativePath);
+Ti.API.info('exists ' + f.exists());
+Ti.API.info('size ' + f.size());
+Ti.API.info('isReadonly ' + f.isReadonly);
+Ti.API.info('isSymbolicLink ' + f.isSymbolicLink);
+Ti.API.info('isExecutable ' + f.isExecutable);
+Ti.API.info('isHidden ' + f.isHidden);
+Ti.API.info('isWritable ' + f.isWritable);
+Ti.API.info('name ' + f.name);
+Ti.API.info('extension ' + f.extension());
+Ti.API.info('resolve ' + f.resolve());
 
-	var f = Titanium.Filesystem.getFile(dir);
-	Ti.API.info('f ' + f + ' exists ' + f.exists() + ' f.size ' + f.size);
-
-	for (v in f)
-	{
-		Ti.API.info('v ' + v + ' f[v] ' + f[v])
-	}
+var dir = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory);
+Ti.API.info('directoryListing ' + dir.getDirectoryListing());
+Ti.API.info('getParent ' + dir.getParent());
+Ti.API.info('spaceAvailable ' + dir.spaceAvailable());
 	
-});
+var l = Titanium.UI.createLabel({text:'Check Log for details', width:300,textAlign:'center'});
+Ti.UI.currentWindow.add(l)
 
-// -(id)nativePath
-// -(id)exists:(id)args
-// -(id)isReadonly
-// -(id)isSymbolicLink
-// -(id)isWritable
-// 
-// @property(nonatomic,readonly) NSString *resourcesDirectory;
-// @property(nonatomic,readonly) NSString *applicationDirectory;
-// @property(nonatomic,readonly) NSString *applicationDataDirectory;
-// @property(nonatomic,readonly) NSString *separator;
-// @property(nonatomic,readonly) NSString *lineEnding;
-// 
-// @property(nonatomic,readonly) NSNumber *MODE_APPEND;
-// @property(nonatomic,readonly) NSNumber *MODE_WRITE;
-// @property(nonatomic,readonly) NSNumber *MODE_READ;
-// 
-// FILENOOP(isExecutable);
-// FILENOOP(isHidden);
-// FILENOOP(setReadonly:(id)x);
-// FILENOOP(setExecutable:(id)x);
-// FILENOOP(setHidden:(id)x);
-// 
-// -(id)createTimestamp:(id)args
-// -(id)modificationTimestamp:(id)args
-// 
-// -(id)getDirectoryListing:(id)args
-// -(id)size:(id)args
-// -(id)spaceAvailable:(id)args
-// getFile
+// TODO:WRITE TESTS FOR THESE
+//
 // -(id)createDirectory:(id)args
 // -(id)createFile:(id)args
 // -(id)deleteDirectory:(id)args
@@ -64,12 +40,5 @@ b1.addEventListener('click', function()
 // -(id)rename:(id)args
 // -(id)read:(id)args
 // -(id)write:(id)args
-// -(id)extension:(id)args
-// -(id)getParent:(id)args
-// -(id)name
-// 
-// -(id)resolve:(id)args
 // -(id)description
 // +(id)makeTemp:(BOOL)isDirectory
-// 
-// @end
