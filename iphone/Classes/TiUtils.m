@@ -20,12 +20,14 @@
 
 +(NSString *)encodeQueryPart:(NSString *)unencodedString
 {
-	return (NSString *)CFURLCreateStringByAddingPercentEscapes(
+	NSString * result = (NSString *)CFURLCreateStringByAddingPercentEscapes(
 															   NULL,
 															   (CFStringRef)unencodedString,
 															   NULL,
 															   (CFStringRef)@"!*'();:@+$,/?%#[]=", 
 															   kCFStringEncodingUTF8 );
+	[result autorelease];
+	return result;
 }
 
 +(NSString *)encodeURIParameters:(NSString *)unencodedString
@@ -185,17 +187,9 @@
 	
 	if ([object isKindOfClass:[NSString class]])
 	{
-		if ([object hasPrefix:@"app://"])
+		if ([object hasPrefix:@"/"])
 		{
-			url = [NSURL URLWithString:object];
-		}
-		else if ([object hasPrefix:@"http://"])
-		{
-			url = [NSURL URLWithString:object];
-		}
-		else if ([object hasPrefix:@"https://"])
-		{
-			url = [NSURL URLWithString:object];
+			return [NSURL fileURLWithPath:object];
 		}
 		url = [NSURL URLWithString:object relativeToURL:[proxy _baseURL]];
 		if (url==nil)
@@ -206,7 +200,7 @@
 			{
 				NSString *qs = [TiUtils encodeURIParameters:[object substringFromIndex:range.location+1]];
 				NSString *newurl = [NSString stringWithFormat:@"%@?%@",[object substringToIndex:range.location],qs];
-				url = [NSURL URLWithString:newurl];
+				return [NSURL URLWithString:newurl];
 			}
 		}
 	}

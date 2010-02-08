@@ -8,7 +8,9 @@
 #import "MediaModule.h"
 #import "TiUtils.h"
 #import "TiBlob.h"
+#import "TiFile.h"
 #import "TitaniumApp.h"
+#import "Mimetypes.h"
 
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVAudioPlayer.h>
@@ -70,7 +72,10 @@ enum
 	{
 		[self _fireEventToListener:@"success" withObject:event listener:pickerSuccessCallback thisObject:nil];
 	}
-	[self destroyPicker];
+	if (autoHidePicker)
+	{
+		[self destroyPicker];
+	}
 }
 
 -(void)showPicker:(NSDictionary*)args isCamera:(BOOL)isCamera
@@ -101,8 +106,13 @@ enum
 		ENSURE_TYPE_OR_NIL(pickerCancelCallback,KrollCallback);
 		[pickerCancelCallback retain];
 		
-		
+		// we use this to determine if we should hide the camera after taking 
+		// a picture/video -- you can programmatically take multiple pictures
+		// and use your own controls so this allows you to control that
+		autoHidePicker = [TiUtils boolValue:@"autohide" properties:args def:YES];
+
 		animatedPicker = [TiUtils boolValue:@"animated" properties:args def:YES];
+		
 		NSNumber * imageEditingObject = [args objectForKey:@"allowImageEditing"];  //backwards compatible
 		saveToRoll = [TiUtils boolValue:@"saveToPhotoGallery" properties:args def:NO];
 		
@@ -293,24 +303,44 @@ MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 -(void)saveToPhotoGallery:(id)arg
 {
 	ENSURE_UI_THREAD(saveToPhotoGallery,arg);
-	ENSURE_TYPE(arg,TiBlob);
 	
-	NSString *mime = [arg mimeType];
-	
-	if (mime==nil || [mime hasPrefix:@"image/"])
+	if ([arg isKindOfClass:[TiBlob class]])
 	{
-		UIImage * savedImage = [arg image];
-		if (savedImage == nil) return;
-		UIImageWriteToSavedPhotosAlbum(savedImage, nil, nil, NULL);
+		TiBlob *blob = (TiBlob*)arg;
+		NSString *mime = [blob mimeType];
+		
+		if (mime==nil || [mime hasPrefix:@"image/"])
+		{
+			UIImage * savedImage = [blob image];
+			if (savedImage == nil) return;
+			UIImageWriteToSavedPhotosAlbum(savedImage, nil, nil, NULL);
+		}
+		else if ([mime hasPrefix:@"video/"])
+		{
+			NSString * tempFilePath = [blob path];
+			if (tempFilePath == nil) return;
+			UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
+		}
 	}
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 31000
-	else if ([mime hasPrefix:@"video/"])
+	else if ([arg isKindOfClass:[TiFile class]])
 	{
-		NSString * tempFilePath = [arg path];
-		if (tempFilePath == nil) return;
-		UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
+		TiFile *file = (TiFile*)arg;
+		NSString *mime = [Mimetypes mimeTypeForExtension:[file path]];
+		if (mime == nil || [mime hasPrefix:@"image/"])
+		{
+			NSData *data = [NSData dataWithContentsOfFile:[file path]];
+			UIImage *image = [[[UIImage alloc] initWithData:data] autorelease];
+			UIImageWriteToSavedPhotosAlbum(image, nil, nil, NULL);
+		}
+		else if ([mime hasPrefix:@"video/"])
+		{
+			UISaveVideoAtPathToSavedPhotosAlbum([file path], nil, nil, NULL);
+		}
 	}
-#endif
+	else
+	{
+		[self throwException:@"invalid media type" subreason:[NSString stringWithFormat:@"expected either TiBlob or TiFile, was: %@",[arg class]] location:CODELOCATION];
+	}
 }
 
 -(void)beep:(id)args
@@ -323,6 +353,26 @@ MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 {
 	ENSURE_UI_THREAD(beep,args);
 	AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
+}
+
+-(void)takePicture:(id)args
+{
+	// must have a picker, doh
+	if (picker==nil)
+	{
+		[self throwException:@"invalid state" subreason:nil location:CODELOCATION];
+	}
+	ENSURE_UI_THREAD(takePicture,args);
+	[picker takePicture];
+}
+
+-(void)hideCamera:(id)args
+{
+	ENSURE_UI_THREAD(hideCamera,args);
+	if (picker!=nil)
+	{
+		[self destroyPicker];
+	}
 }
 
 #pragma mark Delegates
@@ -366,10 +416,8 @@ MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 		{
 			if (isVideo)
 			{
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 31000
 				NSString *tempFilePath = [mediaURL absoluteString];
 				UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
-#endif
 			}
 			else 
 			{

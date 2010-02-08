@@ -69,7 +69,6 @@
 
 -(void)setBackgroundColor_:(id)color;
 {
-	[super setBackgroundColor_:color];
 	UIColor * newBGColor;
 	if (([self tableStyle] == UITableViewStyleGrouped) && IS_NULL_OR_NIL(color))
 	{

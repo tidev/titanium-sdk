@@ -30,7 +30,6 @@
 	CGPoint touchLocation;		 // Need for swipe detection
 	BOOL handlesSwipes;
 	UIView *touchDelegate;		 // used for touch delegate forwarding
-	BOOL transformReset;
 	BOOL animating;
 	BOOL repositioning;
 }

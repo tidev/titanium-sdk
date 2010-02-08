@@ -10,8 +10,6 @@ import java.util.ArrayList;
 
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.Log;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 public class TableViewModel
 {

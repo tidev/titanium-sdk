@@ -67,6 +67,7 @@
 - (void)setSelectedCover:(int)newSelectedCover;
 - (void)centerOnSelectedCover:(BOOL)animated;
 - (void)setImage:(UIImage *)image forIndex:(int)index;
+- (void)updateLayout;
 
 @end
 

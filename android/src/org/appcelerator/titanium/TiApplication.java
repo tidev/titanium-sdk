@@ -119,13 +119,6 @@ public class TiApplication extends Application
 				//Log.e(LCAT, "Obj: " + source.getSimpleName() + " Method: " + method.getName());
 				classMethods.put(method.getName(), method);
 			}
-			
-			
-			// we should prefer overridden methods
-			for (Method method : source.getDeclaredMethods())
-			{
-				
-			}
 		}
 
 		return classMethods.get(name);

@@ -12,15 +12,17 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class TiTableView extends ViewGroup
+public class TiTableView extends FrameLayout
 {
 
 	private static final String LCAT = "TiTableView";
@@ -31,6 +33,7 @@ public class TiTableView extends ViewGroup
 	public static final int TYPE_HTML = 2;
 	public static final int TYPE_CUSTOM = 3;
 
+	private Handler handler;
 	private TableViewModel viewModel;
 	private ListView listView;
 	private TiTableViewItemOptions defaults;
@@ -47,7 +50,6 @@ public class TiTableView extends ViewGroup
 				adapter.notifyDataSetChanged();
 			}
 		}
-
 	};
 
 	class TTVListAdapter extends BaseAdapter
@@ -184,9 +186,8 @@ public class TiTableView extends ViewGroup
 
 		@Override
 		public void notifyDataSetChanged() {
-			super.notifyDataSetChanged();
-
 			applyFilter();
+			super.notifyDataSetChanged();
 		}
 
 		public boolean isFiltered() {
@@ -197,7 +198,8 @@ public class TiTableView extends ViewGroup
 	public TiTableView(Context context)
 	{
 		super(context);
-		setBackgroundColor(Color.BLUE);
+		this.handler = new Handler();
+
 //TODO bookmark
 		this.defaults = new TiTableViewItemOptions();
 		defaults.put("rowHeight", "43");
@@ -286,26 +288,34 @@ public class TiTableView extends ViewGroup
 //					}
 			}});
 
-		listView.setBackgroundColor(Color.RED);
 		addView(listView);
+	}
+
+	private void dataSetChanged() {
+		//handler.post(dataSetChanged);
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
 	}
 
 	public void setTemplate(TiDict rowTemplate) {
 		this.rowTemplate = rowTemplate;
+		dataSetChanged();
 	}
 
 	public void setData(Object[] rows) {
 		viewModel.setData(rows);
+		dataSetChanged();
 	}
 
 	public void setRowHeight(String rowHeight) {
 //TODO
 	}
-	@Override
-	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
-	{
-		if (changed) {
-			listView.layout(left, top, right, bottom);
-		}
-	}
+//	@Override
+//	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+//	{
+//		if (changed) {
+//			listView.layout(left, top, right, bottom);
+//		}
+//	}
 }

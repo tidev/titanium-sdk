@@ -1,8 +1,14 @@
 package ti.modules.titanium.ui.widget;
 
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
 
+import android.R;
+import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -36,6 +42,8 @@ public class TiUITabGroup extends TiUIView
                   LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
 		tabHost.setup(proxy.getTiContext().getRootActivity().getLocalActivityManager());
+
+        tabHost.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor("#ff1a1a1a")));
 
 		setNativeView(tabHost);
 	}

@@ -3,7 +3,7 @@ var data = [
 	{title:'Basic', hasChild:true, test:'../examples/image_view_basic.js'},
 	{title:'Animated', hasChild:true, test:'../examples/image_view_animated.js'},
 	{title:'Image Blob', hasChild:true, test:'../examples/image_view_blob.js'},
-
+	{title:'Image File', hasChild:true, test:'../examples/image_view_file.js'},
 ];
 
 // create table view

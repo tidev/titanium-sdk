@@ -420,7 +420,7 @@ NSString *PLSqliteException = @"PLSqliteException";
  * @param description A localized description of the error message.
  * @param queryString The optional SQL query which caused the error.
  */
-- (void) populateError: (NSError **) error withErrorCode: (PLDatabaseError) errorCode
+- (BOOL) populateError: (NSError **) error withErrorCode: (PLDatabaseError) errorCode
            description: (NSString *) localizedDescription queryString: (NSString *) queryString
 {
     NSString *vendorString = [self lastErrorMessage];
@@ -438,15 +438,12 @@ NSString *PLSqliteException = @"PLSqliteException";
     NSLog(@"[ERROR] A SQLite database error occurred on database '%@': %@ (SQLite #%@: %@) (query: '%@')", 
           _path, result, vendorError, vendorString, queryString != nil ? queryString : @"<none>");
     
-    if (error != nil)
+	if (error!=NULL)
 	{
-        *error = result;
+		*error = result;
+		return YES;
 	}
-	else 
-	{
-		*error = nil;
-	}
-
+	return NO;
 }
 
 @end

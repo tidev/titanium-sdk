@@ -135,7 +135,7 @@ public class TiTableViewNormalItem extends TiBaseTableViewItem
 	 			textView.setTextColor(defaultTextColor);
 				textView.setText(data.getString("title"), TextView.BufferType.NORMAL);
 				//TODO font
-				TiUIHelper.styleText(textView, "", defaults.resolveOption("fontSize", data), defaults.resolveOption("fontWeight", data));
+				TiUIHelper.styleText(textView, null, defaults.resolveOption("fontSize", data), defaults.resolveOption("fontWeight", data));
 			}
 
 			String backgroundColor = defaults.resolveOption("backgroundColor", data);

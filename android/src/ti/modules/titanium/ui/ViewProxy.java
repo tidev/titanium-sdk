@@ -4,6 +4,8 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
 
+import ti.modules.titanium.ui.widget.TiView;
+
 public class ViewProxy extends TiViewProxy
 {
 	public ViewProxy(TiContext tiContext, Object[] args) {
@@ -12,7 +14,6 @@ public class ViewProxy extends TiViewProxy
 
 	@Override
 	public TiUIView createView() {
-		//TODO return view
-		return null;
+		return new TiView(this);
 	}
 }

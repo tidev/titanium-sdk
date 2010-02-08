@@ -9,6 +9,7 @@
 @interface TiUILabel : TiUIView<LayoutAutosizing> {
 @private
 	UILabel *label;
+	BOOL requiresLayout;
 }
 
 @end

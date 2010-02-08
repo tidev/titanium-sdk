@@ -163,9 +163,9 @@
 #pragma mark scrollView delegate stuff
 
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView               // any offset changes
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView_               // any offset changes
 {
-	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidScroll:scrollView];
+	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidScroll:scrollView_];
 }
 
 /*
