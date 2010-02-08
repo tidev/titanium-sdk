@@ -8,6 +8,7 @@
 #import "AppModule.h"
 #import "TiHost.h"
 #import "SBJSON.h"
+#import "ListenerEntry.h"
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_ID;
@@ -18,60 +19,6 @@ extern NSString * const TI_APPLICATION_VERSION;
 extern NSString * const TI_APPLICATION_DESCRIPTION;
 extern NSString * const TI_APPLICATION_COPYRIGHT;
 extern NSString * const TI_APPLICATION_GUID;
-
-
-@interface ListenerEntry : NSObject
-{
-	id<TiEvaluator> context;
-	id listener;
-	AppModule *module;
-	NSString *type;
-}
--(id)initWithListener:(id)listener_ context:(id<TiEvaluator>)context_ module:(AppModule*)module type:(NSString*)type;
--(id<TiEvaluator>)context;
--(id)listener;
-@end
-
-@implementation ListenerEntry
-
--(void)contextShutdown:(NSNotification*)note
-{
-	[[self retain] autorelease];
-	[module removeEventListener:[NSArray arrayWithObjects:type,listener,nil]];
-}
-
--(id)initWithListener:(id)listener_ context:(id<TiEvaluator>)context_ module:(AppModule*)module_ type:(NSString*)type_
-{
-	if (self = [super init])
-	{
-		assert(context_);
-		listener = [listener_ retain];
-		context = context_;// don't retain
-		module = module_; // don't retain
-		type = [type_ retain];
-		// since a context can get shutdown while we're holding him.. we listener for shutdown events so we can automatically remove ourselves
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contextShutdown:) name:kKrollShutdownNotification object:context];
-	}
-	return self;
-}
--(void)dealloc
-{
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kKrollShutdownNotification object:context];
-	RELEASE_TO_NIL(listener);
-	RELEASE_TO_NIL(type);
-	[super dealloc];
-}
--(id<TiEvaluator>)context
-{
-	return context;
-}
--(id)listener
-{
-	return listener;
-}
-
-@end
-
 
 @implementation AppModule
 
@@ -108,7 +55,7 @@ extern NSString * const TI_APPLICATION_GUID;
 		[appListeners setObject:l forKey:type];
 		[l release];
 	}
-	ListenerEntry *entry = [[ListenerEntry alloc] initWithListener:listener context:[self executionContext] module:self type:type];
+	ListenerEntry *entry = [[ListenerEntry alloc] initWithListener:listener context:[self executionContext] proxy:self type:type];
 	[l addObject:entry];
 	[entry release];
 }
