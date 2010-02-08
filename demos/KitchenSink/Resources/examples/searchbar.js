@@ -88,12 +88,12 @@ b5.addEventListener('click', function()
 	if (!visible)
 	{
 		search.show();
-		visible=false;
+		visible=true;		
 	}
 	else
 	{
 		search.hide();
-		visible=true;
+		visible=false;
 	}
 });
 

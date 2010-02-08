@@ -1,58 +1,100 @@
 var win = Titanium.UI.currentWindow;
 
 var b1 = Titanium.UI.createButton({
+	title:'I am a Button',
+	height:40,
+	width:200,
+	top:10
+});
+
+win.add(b1);
+
+var b2 = Titanium.UI.createButton({
+	title:'I am a Button',
+	image:'../images/chat.png',
+	width:200,
+	height:40,
+	top:60
+});
+
+win.add(b2);
+
+
+var b3 = Titanium.UI.createButton({
 	color:'#fff',
-	backgroundImage:'../images/BUTT_drk_off.png',
-	backgroundSelectedImage:'../images/BUTT_drk_on.png',
-	backgroundDisabledImage: '../images/BUTT_gry_on.png',
-	top:10,
+	backgroundImage:'../images/BUTT_grn_off.png',
+	backgroundSelectedImage:'../images/BUTT_grn_on.png',
+	backgroundDisabledImage: '../images/BUTT_drk_off.png',
+	top:110,
 	width:301,
 	height:57,
 	font:{fontSize:20,fontWeight:'bold',fontFamily:'Helvetica Neue'},
 	title:'Click Me'
 });
 
-win.add(b1);
-var one = false;
+win.add(b3);
 
-b1.addEventListener('click', function()
+var state = 0;
+b3.addEventListener('click', function()
 {
-	if (!one)
+	switch (state)
 	{
-		b1.title = 'It worked';
-		b1.color = '#111';
-		b1.backgroundImage = '../images/BUTT_grn_on.png';
-		one=true;
-	}
-	else
-	{
-		b1.title = 'Click Me';
-		b1.color = '#fff';
-		b1.backgroundImage = '../images/BUTT_drk_off.png';	
-		one=false;
+		case 0:
+		{
+			b3.enabled=false;
+			b3.title = 'I am Disabled';
+			state++;
+			
+			setTimeout(function()
+			{
+				b3.enabled=true;
+				b3.title = 'I am Enabled';
+			},1000);
+			
+			break;
+		}
+		case 1:
+		{
+			b3.font = {fontSize:25,fontFamily:'Marker Felt', fontWeight:'bold'};
+			b3.title = 'I am red';
+			b3.backgroundImage = '../images/BUTT_red_off.png';
+			b3.color = '#222';
+			state++;
+			break;
+		}
+		case 2:
+		{
+			b3.width = 200;
+			b3.color = '#fff';
+			b3.title = 'White text';
+			state=0;
+			break;
+		}
+
 	}
 });
 
-var b2 = Titanium.UI.createButton({
-	title:'Disable Button 1',
-	height:40,
+var b4 = Titanium.UI.createButton({
+	title:'Hide/Show Button 3',
 	width:200,
-	top:80
+	height:40,
+	top:175
 });
 
-win.add(b2);
+win.add(b4);
 
-b2.addEventListener('click', function()
+var visible = true;
+b4.addEventListener('click', function()
 {
-	Ti.API.info('b1 enabled ' + b1.enabled)
-	if (b1.enabled==true)
+	if (!visible)
 	{
-		b1.enabled = false;
-		b2.title = 'Enable Button 1';
+		b3.show();
+		visible=true;
 	}
 	else
 	{
-		b1.enabled = true;
-		b2.title = 'Disable Button 1';
+		b3.hide();
+		visible=false;
 	}
 });
+
