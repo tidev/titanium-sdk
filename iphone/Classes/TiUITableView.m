@@ -255,18 +255,18 @@
 
 - (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {	
-	if(ourTableView==searchTableView)
-	{
-		return [ourTableView rowHeight];
-	}
-	
-	TiUITableViewCellProxy * ourTableCell = [self cellForIndexPath:indexPath];
-	
-	TiDimension result = [ourTableCell rowHeight];
-	CHECK_ROW_HEIGHT(result,ourTableCell,ourTableView);
-	
-	result = [templateCell rowHeight];
-	CHECK_ROW_HEIGHT(result,ourTableCell,ourTableView);
+//	if(ourTableView==searchTableView)
+//	{
+//		return [ourTableView rowHeight];
+//	}
+//	
+//	TiUITableViewCellProxy * ourTableCell = [self cellForIndexPath:indexPath];
+//	
+//	TiDimension result = [ourTableCell rowHeight];
+//	CHECK_ROW_HEIGHT(result,ourTableCell,ourTableView);
+//	
+//	result = [templateCell rowHeight];
+//	CHECK_ROW_HEIGHT(result,ourTableCell,ourTableView);
 	
 	return [super tableView:ourTableView heightForRowAtIndexPath:indexPath];
 }
@@ -284,36 +284,36 @@
 	int blessedRow = [indexPath row];
 	TiUITableViewGroupSection * sectionWrapper = [self sectionForIndex:section];
 	
-	if ([sectionWrapper isOptionList] && ![[sectionWrapper rowForIndex:blessedRow] isButton])
-	{
-		for (int row=0;row<[sectionWrapper rowCount];row++) 
-		{
-			TiUITableViewCellProxy * rowWrapper = [sectionWrapper rowForIndex:row];
-			UITableViewCellAccessoryType rowType = [rowWrapper accessoryType];
-			BOOL isBlessed = (row == blessedRow);
-			
-			UITableViewCell * thisCell = [ourTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:section]];
-			
-			if (!isBlessed && (rowType == UITableViewCellAccessoryCheckmark)) 
-			{
-				[rowWrapper setAccessoryType:UITableViewCellAccessoryNone];
-				if (thisCell != nil)
-				{
-					[thisCell setAccessoryType:UITableViewCellAccessoryNone];
-					[(id)thisCell setTextColor:[UIColor blackColor]];
-				}
-			} 
-			else if (isBlessed && (rowType == UITableViewCellAccessoryNone))
-			{
-				[rowWrapper setAccessoryType:UITableViewCellAccessoryCheckmark];
-				if (thisCell != nil)
-				{
-					[thisCell setAccessoryType:UITableViewCellAccessoryCheckmark];
-					[(id)thisCell setTextColor:UIColorCheckmarkColor()];
-				}
-			}
-		}
-	}
+//	if ([sectionWrapper isOptionList] && ![[sectionWrapper rowForIndex:blessedRow] isButton])
+//	{
+//		for (int row=0;row<[sectionWrapper rowCount];row++) 
+//		{
+//			TiUITableViewCellProxy * rowWrapper = [sectionWrapper rowForIndex:row];
+////			UITableViewCellAccessoryType rowType = [rowWrapper accessoryType];
+//			BOOL isBlessed = (row == blessedRow);
+//			
+//			UITableViewCell * thisCell = [ourTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:section]];
+//			
+//			if (!isBlessed && (rowType == UITableViewCellAccessoryCheckmark)) 
+//			{
+//				[rowWrapper setAccessoryType:UITableViewCellAccessoryNone];
+//				if (thisCell != nil)
+//				{
+//					[thisCell setAccessoryType:UITableViewCellAccessoryNone];
+//					[(id)thisCell setTextColor:[UIColor blackColor]];
+//				}
+//			} 
+//			else if (isBlessed && (rowType == UITableViewCellAccessoryNone))
+//			{
+//				[rowWrapper setAccessoryType:UITableViewCellAccessoryCheckmark];
+//				if (thisCell != nil)
+//				{
+//					[thisCell setAccessoryType:UITableViewCellAccessoryCheckmark];
+//					[(id)thisCell setTextColor:UIColorCheckmarkColor()];
+//				}
+//			}
+//		}
+//	}
 	[ourTableView deselectRowAtIndexPath:indexPath animated:YES];
 	
 	[self triggerActionForIndexPath:indexPath fromPath:nil wasAccessory:NO search:(ourTableView == searchTableView) name:@"click"];

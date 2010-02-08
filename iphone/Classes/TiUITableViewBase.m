@@ -14,7 +14,6 @@
 #import "TiUITableViewCell.h"
 #import "TiUITableViewTitle.h"
 #import "TiUIGroupedSectionProxy.h"
-#import "TiUITableViewValueCell.h"
 
 #import "TiViewProxy.h"
 
@@ -254,7 +253,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	CHECK_ROW_HEIGHT(rowHeight,[self cellForIndexPath:indexPath],tableview);
+//	CHECK_ROW_HEIGHT(rowHeight,[self cellForIndexPath:indexPath],tableview);
 	return [tableview rowHeight];
 }
 

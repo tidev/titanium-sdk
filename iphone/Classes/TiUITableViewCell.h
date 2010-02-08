@@ -13,18 +13,6 @@
 {
 	TiUITableViewCellProxy * proxy;
 
-
-
-
-#pragma mark BUG BARRIER
-	NSMutableArray * layoutViewsArray;
-	id lastLayoutArray;	//Is not retained, and kept only as a memory value, NOT to be used as an object.
-	NSString * clickedName;
-	NSMutableSet * watchedBlobs;
-	
-	UILabel * valueLabel;
-	UIWebView * htmlView;
-	NSString * htmlString;
 }
 
 
