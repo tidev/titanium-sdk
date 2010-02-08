@@ -47,6 +47,9 @@
 -(void)blur;
 -(void)focus;
 
+#pragma mark Internal 
+
+-(TiTextField*)textfield;
 
 @end
 
