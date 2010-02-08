@@ -5,11 +5,13 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiMediaSoundProxy.h"
-#import "TiUtils.h"
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVAudioPlayer.h>
 
+#import "TiMediaSoundProxy.h"
+#import "TiUtils.h"
+#import "TiBlob.h"
+#import "TiFile.h"
 
 @implementation TiMediaSoundProxy
 
@@ -24,15 +26,46 @@
 		{
 			if ([arg isKindOfClass:[NSDictionary class]])
 			{
-				arg = [TiUtils stringValue:@"url" properties:arg];
-			}
-			if (arg!=nil)
-			{
-				url = [[TiUtils toURL:arg proxy:self] retain];
+				NSString *urlStr = [TiUtils stringValue:@"url" properties:arg];
+				if (urlStr!=nil)
+				{
+					url = [[TiUtils toURL:urlStr proxy:self] retain];
+					
+					if ([url isFileURL]==NO)
+					{
+						// we need to download it and save it off into temp file
+						NSData *data = [NSData dataWithContentsOfURL:url];
+						NSString *ext = [[[url path] lastPathComponent] pathExtension];
+						tempFile = [[TiFile createTempFile:ext] retain]; // file auto-deleted on release
+						[data writeToFile:[tempFile path] atomically:YES];
+						RELEASE_TO_NIL(url);
+						url = [[NSURL fileURLWithPath:[tempFile path]] retain];
+					}
+				}
 				if (url==nil)
 				{
-					[self throwException:@"invalid url" subreason:nil location:CODELOCATION];
+					id obj = [arg objectForKey:@"sound"];
+					if (obj!=nil)
+					{
+						if ([obj isKindOfClass:[TiBlob class]])
+						{
+							TiBlob *blob = (TiBlob*)obj;
+							//TODO: for now we're only supporting File-type blobs
+							if ([blob type]==TiBlobTypeFile)
+							{
+								url = [[NSURL fileURLWithPath:[blob path]] retain];
+							}
+						}
+						else if ([obj isKindOfClass:[TiFile class]])
+						{
+							url = [[NSURL fileURLWithPath:[(TiFile*)obj path]] retain];
+						}
+					}
 				}
+			}
+			if (url==nil)
+			{
+				[self throwException:@"no 'url' or 'sound' specified or invalid value" subreason:nil location:CODELOCATION];
 			}
 		}
 		volume = 1.0;
@@ -49,6 +82,7 @@
 	}
 	RELEASE_TO_NIL(player);
 	RELEASE_TO_NIL(url);
+	RELEASE_TO_NIL(tempFile);
 }
 
 
@@ -60,7 +94,8 @@
 		player = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:(NSError **)&error];
 		if (error != nil)
 		{
-			//TODO:
+			[self throwException:[error description] subreason:[NSString stringWithFormat:@"error loading sound url: %@",url] location:CODELOCATION];
+			return nil;
 		}
 		[player setDelegate:self];
 		[player prepareToPlay];

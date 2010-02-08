@@ -187,6 +187,10 @@
 	
 	if ([object isKindOfClass:[NSString class]])
 	{
+		if ([object hasPrefix:@"/"])
+		{
+			return [NSURL fileURLWithPath:object];
+		}
 		url = [NSURL URLWithString:object relativeToURL:[proxy _baseURL]];
 		if (url==nil)
 		{
