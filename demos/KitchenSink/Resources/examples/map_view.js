@@ -51,8 +51,6 @@ var mapview = Titanium.Map.createView({
 
 win.add(mapview);
 
-var backview = Titanium.UI.createView({backgroundColor:'red'});
-
 //
 // PRE-DEFINED REGIONS
 //
@@ -63,10 +61,6 @@ var regionSV = {latitude:37.337681,longitude:-122.038193,animate:true,latitudeDe
 // TOOLBAR BUTTONS
 //
 
-var rotate = 1;
-var animate = Ti.UI.createAnimation();
-animate.duration = 1000;
-
 // button to change to ATL
 var atl = Titanium.UI.createButton({
 	style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED,
@@ -74,28 +68,11 @@ var atl = Titanium.UI.createButton({
 });
 atl.addEventListener('click', function()
 {
-	if ((++rotate%2)==0)
-	{
-		animate.view = backview;
-		animate.transition = Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT;
-		win.animate(animate);
-		//win.animate({view:backview,duration:1000,transition:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT});
-	}
-	else
-	{
-		animate.view = mapview;
-		animate.transition = Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT;
-		win.animate(animate);
-		//win.animate({view:mapview,duration:1000,transition:Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT});
-	}
-	
-	/*
 	// set location to atlanta
 	mapview.setLocation(regionAtlanta);
 	
 	// activate annotation
 	mapview.selectAnnotation(mapview.annotations[2].title,true);
-	*/
 });
 
 // button to change to SV

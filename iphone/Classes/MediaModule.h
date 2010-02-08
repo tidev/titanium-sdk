@@ -13,6 +13,7 @@
 	UIImagePickerController *picker;
 	BOOL animatedPicker;
 	BOOL saveToRoll;
+	BOOL autoHidePicker;
 	KrollCallback *pickerSuccessCallback;
 	KrollCallback *pickerErrorCallback;
 	KrollCallback *pickerCancelCallback;

@@ -33,7 +33,7 @@
 
 	TiUIScrollableViewProxy * ourProxy = (TiUIScrollableViewProxy *)[self proxy];
 	int pageCount = [ourProxy countOfViews];
-	int currentPage = [ourProxy pageIndex];
+//	int currentPage = [ourProxy pageIndex];
 
 	[pageControl setNumberOfPages:pageCount];
 //	[pageControl setCurrentPage:currentPage];

@@ -142,7 +142,7 @@
 	}
 	if (writeData!=nil)
 	{
-		[writeData writeToFile:destination atomically:NO];
+		[writeData writeToFile:destination atomically:YES];
 	}
 	return NO;
 }

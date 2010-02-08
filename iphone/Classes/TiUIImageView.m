@@ -12,6 +12,7 @@
 #import "TiViewProxy.h"
 #import "TiProxy.h"
 #import "TiBlob.h"
+#import "TiFile.h"
 
 #define IMAGEVIEW_DEBUG 0
 
@@ -259,8 +260,6 @@ DEFINE_EXCEPTIONS
 
 -(void)setImage_:(id)arg
 {
-	//TODO: support more than just an image blob
-	
 	if ([arg isKindOfClass:[TiBlob class]])
 	{
 		TiBlob *blob = (TiBlob*)arg;
@@ -268,6 +267,19 @@ DEFINE_EXCEPTIONS
 		UIImageView *view = [[UIImageView alloc] initWithImage:image];
 		[self addSubview:view];
 		[view release];
+	}
+	else if ([arg isKindOfClass:[TiFile class]])
+	{
+		TiFile *file = (TiFile*)arg;
+		NSData *data = [NSData dataWithContentsOfFile:[file path]];
+		UIImage *image = [[[UIImage alloc] initWithData:data] autorelease];
+		UIImageView *view = [[UIImageView alloc] initWithImage:image];
+		[self addSubview:view];
+		[view release];
+	}
+	else
+	{
+		[self throwException:@"invalid image type" subreason:[NSString stringWithFormat:@"expected either TiBlob or TiFile, was: %@",[arg class]] location:CODELOCATION];
 	}
 }
 

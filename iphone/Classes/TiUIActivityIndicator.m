@@ -124,7 +124,6 @@
 	{
 		[indicatorView stopAnimating];
 	}
-	[super setVisible_:visible];
 }
 
 -(void)setFont_:(id)value

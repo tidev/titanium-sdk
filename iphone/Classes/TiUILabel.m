@@ -17,6 +17,7 @@
 	NSString *value = [label text];
 	UIFont *font = [label font];
 	CGSize maxSize = CGSizeMake(suggestedWidth, 1000);
+	requiresLayout = YES;
 	return [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
 }
 
@@ -56,6 +57,10 @@
 -(void)setText_:(id)text
 {
 	[[self label] setText:[TiUtils stringValue:text]];
+	if (requiresLayout)
+	{
+		[self reposition];
+	}
 }
 
 -(void)setColor_:(id)color
@@ -71,6 +76,10 @@
 -(void)setFont_:(id)font
 {
 	[[self label] setFont:[[TiUtils fontValue:font] font]];
+	if (requiresLayout)
+	{
+		[self reposition];
+	}
 }
 
 -(void)setTextAlign_:(id)alignment
