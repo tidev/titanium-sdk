@@ -48,7 +48,7 @@ public class TitaniumModule
 	private HashMap<Integer, Timer> timers = new HashMap<Integer, Timer>();
 	private int currentTimerId;
 	
-	private int createTimer(Object fn, long timeout, final Object[] args, boolean interval)
+	private int createTimer(Object fn, long timeout, final Object[] args, final boolean interval)
 		throws IllegalArgumentException
 	{
 		// TODO: we should handle evaluatable code eventually too..
@@ -61,7 +61,7 @@ public class TitaniumModule
 			TimerTask task = new TimerTask() {
 				@Override
 				public void run() {
-					Log.d(LCAT, "calling interval timer " + timerId + " @" + new Date().getTime());
+					Log.d(LCAT, "calling " + (interval?"interval":"timeout") + " timer " + timerId + " @" + new Date().getTime());
 					callback.call(args);
 				}
 			};
