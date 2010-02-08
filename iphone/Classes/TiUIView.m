@@ -148,7 +148,6 @@ DEFINE_EXCEPTIONS
 {
 	if ([NSThread isMainThread])
 	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?
-		NSLog(@"Repositioning...");
 		[self relayout:[self superview].bounds];
 	}
 	else 

@@ -11,12 +11,19 @@
 #import "TiFile.h"
 #import "TitaniumApp.h"
 #import "Mimetypes.h"
+#import "TiViewProxy.h"
+#import "Ti2DMatrix.h"
 
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVAudioPlayer.h>
 #import <MediaPlayer/MediaPlayer.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <QuartzCore/QuartzCore.h>
+
+// by default, we want to make the camera fullscreen and 
+// these transform values will scale it when we have our own overlay
+#define CAMERA_TRANSFORM_X 1
+#define CAMERA_TRANSFORM_Y 1.12412
 
 enum  
 {
@@ -187,6 +194,39 @@ enum
 		return;
 	}
 	[picker setSourceType:ourSource];
+
+	// this must be done after we set the source type or you'll get an exception
+	if (isCamera && ourSource == UIImagePickerControllerSourceTypeCamera)
+	{
+		// turn on/off camera controls - nice to turn off when you want to have your own UI
+		[picker setShowsCameraControls:[TiUtils boolValue:@"showControls" properties:args def:YES]];
+		
+		// allow an overlay view
+		TiViewProxy *cameraView = [args objectForKey:@"overlay"]; 
+		if (cameraView!=nil)
+		{
+			ENSURE_TYPE(cameraView,TiViewProxy);
+			UIView *view = [cameraView view];
+			[TiUtils setView:view positionRect:[picker view].bounds];
+			[cameraView layoutChildren:view.bounds];
+			[picker setCameraOverlayView:view];
+			[picker setWantsFullScreenLayout:YES];
+		}
+		
+		// allow a transform on the preview image
+		id transform = [args objectForKey:@"transform"];
+		if (transform!=nil)
+		{
+			ENSURE_TYPE(transform,Ti2DMatrix);
+			[picker setCameraViewTransform:[transform matrix]];
+		}
+		else
+		{
+			// we use our own fullscreen transform if the developer didn't supply one
+			picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y);
+		}
+	}
+	
 	
 	[[TitaniumApp app] showModalController:picker animated:animatedPicker];
 }
@@ -371,6 +411,7 @@ MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 	ENSURE_UI_THREAD(hideCamera,args);
 	if (picker!=nil)
 	{
+		[[picker parentViewController] dismissModalViewControllerAnimated:animatedPicker];
 		[self destroyPicker];
 	}
 }
@@ -379,7 +420,10 @@ MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 
 - (void)imagePickerController:(UIImagePickerController *)picker_ didFinishPickingMediaWithInfo:(NSDictionary *)editingInfo
 {
-	[[picker parentViewController] dismissModalViewControllerAnimated:animatedPicker];
+	if (autoHidePicker)
+	{
+		[[picker parentViewController] dismissModalViewControllerAnimated:animatedPicker];
+	}
 	
 	NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
 	

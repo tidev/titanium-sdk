@@ -8,6 +8,8 @@
 #import "AppModule.h"
 #import "TiHost.h"
 #import "SBJSON.h"
+#import "ListenerEntry.h"
+#import "TitaniumApp.h"
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_ID;
@@ -18,60 +20,6 @@ extern NSString * const TI_APPLICATION_VERSION;
 extern NSString * const TI_APPLICATION_DESCRIPTION;
 extern NSString * const TI_APPLICATION_COPYRIGHT;
 extern NSString * const TI_APPLICATION_GUID;
-
-
-@interface ListenerEntry : NSObject
-{
-	id<TiEvaluator> context;
-	id listener;
-	AppModule *module;
-	NSString *type;
-}
--(id)initWithListener:(id)listener_ context:(id<TiEvaluator>)context_ module:(AppModule*)module type:(NSString*)type;
--(id<TiEvaluator>)context;
--(id)listener;
-@end
-
-@implementation ListenerEntry
-
--(void)contextShutdown:(NSNotification*)note
-{
-	[[self retain] autorelease];
-	[module removeEventListener:[NSArray arrayWithObjects:type,listener,nil]];
-}
-
--(id)initWithListener:(id)listener_ context:(id<TiEvaluator>)context_ module:(AppModule*)module_ type:(NSString*)type_
-{
-	if (self = [super init])
-	{
-		assert(context_);
-		listener = [listener_ retain];
-		context = context_;// don't retain
-		module = module_; // don't retain
-		type = [type_ retain];
-		// since a context can get shutdown while we're holding him.. we listener for shutdown events so we can automatically remove ourselves
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contextShutdown:) name:kKrollShutdownNotification object:context];
-	}
-	return self;
-}
--(void)dealloc
-{
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kKrollShutdownNotification object:context];
-	RELEASE_TO_NIL(listener);
-	RELEASE_TO_NIL(type);
-	[super dealloc];
-}
--(id<TiEvaluator>)context
-{
-	return context;
-}
--(id)listener
-{
-	return listener;
-}
-
-@end
-
 
 @implementation AppModule
 
@@ -108,7 +56,7 @@ extern NSString * const TI_APPLICATION_GUID;
 		[appListeners setObject:l forKey:type];
 		[l release];
 	}
-	ListenerEntry *entry = [[ListenerEntry alloc] initWithListener:listener context:[self executionContext] module:self type:type];
+	ListenerEntry *entry = [[ListenerEntry alloc] initWithListener:listener context:[self executionContext] proxy:self type:type];
 	[l addObject:entry];
 	[entry release];
 }
@@ -276,52 +224,71 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(id)appURLToPath:(id)args
 {
-	//FIXME
-	return nil;
+	ENSURE_SINGLE_ARG(args,NSString);
+	if ([args hasPrefix:@"app://"])
+	{
+		args = [args stringByReplacingOccurrencesOfString:@"app://" withString:@""];
+	}
+	NSString *path = [[NSBundle mainBundle] resourcePath];
+	return [NSString stringWithFormat:@"%@/%@",path,args];
 }
 
 -(id)arguments:(id)args
 {
-	//FIXME
-	return nil;
+	return [[TitaniumApp app] launchOptions];
 }
 
--(id)id:(id)args
+-(id)iD
 {
 	return TI_APPLICATION_ID;
 }
 
--(id)name:(id)args
+-(id)id
+{
+	return TI_APPLICATION_ID;
+}
+
+-(id)name
 {
 	return TI_APPLICATION_NAME;
 }
 
--(id)version:(id)args
+-(id)version
 {
 	return TI_APPLICATION_VERSION;
 }
 
--(id)publisher:(id)args
+-(id)publisher
 {
 	return TI_APPLICATION_PUBLISHER;
 }
 
--(id)description:(id)args
+-(id)description
 {
 	return TI_APPLICATION_DESCRIPTION;
 }
 
--(id)copyright:(id)args
+-(id)copyright
 {
 	return TI_APPLICATION_COPYRIGHT;
 }
 
--(id)url:(id)args
+-(id)uRL
 {
 	return TI_APPLICATION_URL;
 }
 
--(id)guid:(id)args
+-(id)url
+{
+	return TI_APPLICATION_URL;
+}
+
+-(id)gUID
+{
+	return TI_APPLICATION_GUID;
+}
+
+-(id)guid
 {
 	return TI_APPLICATION_GUID;
 }

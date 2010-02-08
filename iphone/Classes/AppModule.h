@@ -17,6 +17,19 @@
 -(void)removeEventListener:(NSArray*)args;
 -(void)fireEvent:(NSArray*)args;
 
+@property(nonatomic,readonly) NSString *id;
+@property(nonatomic,readonly) NSString *url;
+@property(nonatomic,readonly) NSString *guid;
+@property(nonatomic,readonly) NSString *name;
+@property(nonatomic,readonly) NSString *version;
+@property(nonatomic,readonly) NSString *publisher;
+@property(nonatomic,readonly) NSString *description;
+@property(nonatomic,readonly) NSString *copyright;
+// for backwards compat
+@property(nonatomic,readonly) NSString *iD;
+@property(nonatomic,readonly) NSString *uRL;
+@property(nonatomic,readonly) NSString *gUID;
+
 @property(nonatomic,readonly) TiAppPropertiesProxy *Properties;
 @property(nonatomic,readwrite,assign) NSNumber *idleTimerDisabled;
 @property(nonatomic,readonly) NSNumber *proximityState;

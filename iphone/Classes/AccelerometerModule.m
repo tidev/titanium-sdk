@@ -28,7 +28,7 @@
 
 #pragma mark Accelerometer Delegate
 
-- (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration;
+- (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration
 {
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
 						   NUMFLOAT([acceleration x]), @"x",

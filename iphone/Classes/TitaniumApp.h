@@ -41,6 +41,7 @@
 -(void)hideSplash:(id)event;
 -(UIView*)splash;
 -(UIView*)attachSplash;
+-(NSDictionary*)launchOptions;
 
 -(void)startNetwork;
 -(void)stopNetwork;

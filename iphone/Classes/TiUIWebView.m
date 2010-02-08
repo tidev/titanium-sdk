@@ -33,6 +33,12 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	if (webview!=nil)
 	{
 		webview.delegate = nil;
+		
+		// per doc, must stop webview load before releasing
+		if (webview.loading)
+		{
+			[webview stopLoading];
+		}
 	}
 	if (listeners!=nil)
 	{
