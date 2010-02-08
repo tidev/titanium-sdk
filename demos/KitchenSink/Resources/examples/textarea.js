@@ -14,7 +14,7 @@ var ta1 = Titanium.UI.createTextArea({
 	value:'I am a textarea',
 	height:70,
 	width:300,
-	top:40,
+	top:60,
 	font:{fontSize:20,fontFamily:'Marker Felt', fontWeight:'bold'},
 	color:'#888',
 	textAlign:'left',
@@ -36,7 +36,7 @@ var b1 = Titanium.UI.createButton({
 	title:'Focus',
 	height:40,
 	width:200,
-	top:120
+	top:140
 });
 win.add(b1);
 b1.addEventListener('click', function()
@@ -51,7 +51,7 @@ var b2 = Titanium.UI.createButton({
 	title:'Blur',
 	height:40,
 	width:200,
-	top:170
+	top:190
 });
 win.add(b2);
 b2.addEventListener('click', function()
@@ -67,7 +67,7 @@ var b3 = Titanium.UI.createButton({
 	title:'Hide/Show',
 	height:40,
 	width:200,
-	top:220
+	top:240
 });
 win.add(b3);
 var visible=true;
@@ -90,7 +90,7 @@ b3.addEventListener('click', function()
 //
 var b4 = Titanium.UI.createButton({
 	title:'Toggle Properties',
-	top:270,
+	top:290,
 	height:40,
 	width:200
 });
@@ -122,7 +122,7 @@ b4.addEventListener('click', function()
 //
 ta1.addEventListener('change',function(e)
 {
-	l.text = 'change fired, value = ' + e.value + ' act val ' + ta1.value;
+	l.text = 'change fired, value = ' + e.value + '\nfield value = ' + ta1.value;
 });
 
 ta1.addEventListener('blur',function(e)
