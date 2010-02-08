@@ -192,6 +192,14 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 			ctx.removeEventListener(eventName, listenerId);
 		}
 	}
+	
+	public void removeEventListener(String eventName, Object listener)
+	{
+		TiContext ctx = getTiContext();
+		if (ctx != null) {
+			ctx.removeEventListener(eventName, listener);
+		}
+	}
 
 	protected void setProperties(TiDict options)
 	{
@@ -226,7 +234,7 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 		}
 	}
 
-	public void fireEvent(String eventName, Object listener, TiDict data)
+	public void fireSingleEvent(String eventName, Object listener, TiDict data)
 	{
 		if (listener != null) {
 			KrollCallback callback = (KrollCallback) listener;

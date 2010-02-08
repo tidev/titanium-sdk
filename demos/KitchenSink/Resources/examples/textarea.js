@@ -9,26 +9,117 @@ var l = Titanium.UI.createLabel({
 });
 win.add(l);
 
+
 var ta1 = Titanium.UI.createTextArea({
 	value:'I am a textarea',
-	height:100,
+	height:70,
 	width:300,
 	top:40,
-	autocorrect:true,
 	font:{fontSize:20,fontFamily:'Marker Felt', fontWeight:'bold'},
 	color:'#888',
 	textAlign:'left',
-	editable:true,
-	enabled:false,
-	passwordMask:false,
 	appearance:Titanium.UI.KEYBOARD_APPEARANCE_ALERT,	
 	keyboardType:Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
 	returnKeyType:Titanium.UI.RETURNKEY_EMERGENCY_CALL,
 	borderWidth:2,
 	borderColor:'#bbb',
-	borderRadius:5,
+	borderRadius:5
+
+	
 });
 win.add(ta1);
+
+//
+// Focus text area
+//
+var b1 = Titanium.UI.createButton({
+	title:'Focus',
+	height:40,
+	width:200,
+	top:120
+});
+win.add(b1);
+b1.addEventListener('click', function()
+{
+	ta1.focus();
+});
+
+//
+// Blur text area
+//
+var b2 = Titanium.UI.createButton({
+	title:'Blur',
+	height:40,
+	width:200,
+	top:170
+});
+win.add(b2);
+b2.addEventListener('click', function()
+{
+	ta1.blur();
+});
+
+
+//
+// Hide/Shw text area
+//
+var b3 = Titanium.UI.createButton({
+	title:'Hide/Show',
+	height:40,
+	width:200,
+	top:220
+});
+win.add(b3);
+var visible=true;
+b3.addEventListener('click', function()
+{
+	if (visible)
+	{
+		ta1.hide();
+		visible=false;
+	}
+	else
+	{
+		ta1.show();
+		visible=true;
+	}
+});
+
+//
+// Toggle Text area properties
+//
+var b4 = Titanium.UI.createButton({
+	title:'Toggle Properties',
+	top:270,
+	height:40,
+	width:200
+});
+win.add(b4);
+var changed=false;
+b4.addEventListener('click', function()
+{
+	if (!changed)
+	{
+		ta1.backgroundColor = '#336699';
+		ta1.color = '#fff';
+		ta1.textAlign = 'center';
+		ta1.autocapitalization = Titanium.UI.TEXT_AUTOCAPITALIZATION_ALL;
+		changed=true;
+	}
+	else
+	{
+		ta1.backgroundColor = '#fff';
+		ta1.color = '#888';
+		ta1.textAlign = 'left';
+		ta1.autocapitalization = Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE;
+		changed=false;
+	}
+});
+
+
+//
+// Text area events
+//
 ta1.addEventListener('change',function(e)
 {
 	l.text = 'change fired, value = ' + e.value;

@@ -13,6 +13,7 @@
 	UIImagePickerController *picker;
 	BOOL animatedPicker;
 	BOOL saveToRoll;
+	BOOL autoHidePicker;
 	KrollCallback *pickerSuccessCallback;
 	KrollCallback *pickerErrorCallback;
 	KrollCallback *pickerCancelCallback;
@@ -37,10 +38,11 @@
 @property(nonatomic,readonly) NSNumber* QUALITY_MEDIUM;
 @property(nonatomic,readonly) NSNumber* QUALITY_LOW;
 
-
 @property(nonatomic,readonly) NSArray* availableCameraMediaTypes;
 @property(nonatomic,readonly) NSArray* availablePhotoMediaTypes;
 @property(nonatomic,readonly) NSArray* availablePhotoGalleryMediaTypes;
 
+@property(nonatomic,readonly) NSString* MEDIA_TYPE_VIDEO;
+@property(nonatomic,readonly) NSString* MEDIA_TYPE_PHOTO;
 
 @end

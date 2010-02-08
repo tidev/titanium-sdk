@@ -1,5 +1,5 @@
 // get tab group object
-var tabGroup = Titanium.UI.currentWindow.tabGroup;
+var tabGroup = Titanium.UI.currentTabGroup;
 
 // get current tab object
 var tab = Titanium.UI.currentTab;

@@ -11,12 +11,19 @@
 #import "TiFile.h"
 #import "TitaniumApp.h"
 #import "Mimetypes.h"
+#import "TiViewProxy.h"
+#import "Ti2DMatrix.h"
 
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVAudioPlayer.h>
 #import <MediaPlayer/MediaPlayer.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <QuartzCore/QuartzCore.h>
+
+// by default, we want to make the camera fullscreen and 
+// these transform values will scale it when we have our own overlay
+#define CAMERA_TRANSFORM_X 1
+#define CAMERA_TRANSFORM_Y 1.12412
 
 enum  
 {
@@ -72,7 +79,10 @@ enum
 	{
 		[self _fireEventToListener:@"success" withObject:event listener:pickerSuccessCallback thisObject:nil];
 	}
-	[self destroyPicker];
+	if (autoHidePicker)
+	{
+		[self destroyPicker];
+	}
 }
 
 -(void)showPicker:(NSDictionary*)args isCamera:(BOOL)isCamera
@@ -103,8 +113,13 @@ enum
 		ENSURE_TYPE_OR_NIL(pickerCancelCallback,KrollCallback);
 		[pickerCancelCallback retain];
 		
-		
+		// we use this to determine if we should hide the camera after taking 
+		// a picture/video -- you can programmatically take multiple pictures
+		// and use your own controls so this allows you to control that
+		autoHidePicker = [TiUtils boolValue:@"autohide" properties:args def:YES];
+
 		animatedPicker = [TiUtils boolValue:@"animated" properties:args def:YES];
+		
 		NSNumber * imageEditingObject = [args objectForKey:@"allowImageEditing"];  //backwards compatible
 		saveToRoll = [TiUtils boolValue:@"saveToPhotoGallery" properties:args def:NO];
 		
@@ -179,6 +194,39 @@ enum
 		return;
 	}
 	[picker setSourceType:ourSource];
+
+	// this must be done after we set the source type or you'll get an exception
+	if (isCamera && ourSource == UIImagePickerControllerSourceTypeCamera)
+	{
+		// turn on/off camera controls - nice to turn off when you want to have your own UI
+		[picker setShowsCameraControls:[TiUtils boolValue:@"showControls" properties:args def:YES]];
+		
+		// allow an overlay view
+		TiViewProxy *cameraView = [args objectForKey:@"overlay"]; 
+		if (cameraView!=nil)
+		{
+			ENSURE_TYPE(cameraView,TiViewProxy);
+			UIView *view = [cameraView view];
+			[TiUtils setView:view positionRect:[picker view].bounds];
+			[cameraView layoutChildren:view.bounds];
+			[picker setCameraOverlayView:view];
+			[picker setWantsFullScreenLayout:YES];
+		}
+		
+		// allow a transform on the preview image
+		id transform = [args objectForKey:@"transform"];
+		if (transform!=nil)
+		{
+			ENSURE_TYPE(transform,Ti2DMatrix);
+			[picker setCameraViewTransform:[transform matrix]];
+		}
+		else
+		{
+			// we use our own fullscreen transform if the developer didn't supply one
+			picker.cameraViewTransform = CGAffineTransformScale(picker.cameraViewTransform, CAMERA_TRANSFORM_X, CAMERA_TRANSFORM_Y);
+		}
+	}
+	
 	
 	[[TitaniumApp app] showModalController:picker animated:animatedPicker];
 }
@@ -347,11 +395,35 @@ MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 	AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
 }
 
+-(void)takePicture:(id)args
+{
+	// must have a picker, doh
+	if (picker==nil)
+	{
+		[self throwException:@"invalid state" subreason:nil location:CODELOCATION];
+	}
+	ENSURE_UI_THREAD(takePicture,args);
+	[picker takePicture];
+}
+
+-(void)hideCamera:(id)args
+{
+	ENSURE_UI_THREAD(hideCamera,args);
+	if (picker!=nil)
+	{
+		[[picker parentViewController] dismissModalViewControllerAnimated:animatedPicker];
+		[self destroyPicker];
+	}
+}
+
 #pragma mark Delegates
 
 - (void)imagePickerController:(UIImagePickerController *)picker_ didFinishPickingMediaWithInfo:(NSDictionary *)editingInfo
 {
-	[[picker parentViewController] dismissModalViewControllerAnimated:animatedPicker];
+	if (autoHidePicker)
+	{
+		[[picker parentViewController] dismissModalViewControllerAnimated:animatedPicker];
+	}
 	
 	NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
 	
