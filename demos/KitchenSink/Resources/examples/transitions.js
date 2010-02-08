@@ -60,7 +60,6 @@ view.add(b2);
 
 b2.addEventListener('click', function()
 {
-
 	// create close button for our window
 	var b = Ti.UI.createButton({title:'Close Me',width:200,height:40});
 	b.addEventListener('click',function()
@@ -72,7 +71,7 @@ b2.addEventListener('click', function()
 	// transition to view
 	win.animate({view:view2, transition:Ti.UI.iPhone.AnimationStyle.CURL_DOWN});
 });
-
+// 
 //
 // SUB VIEWS
 //

@@ -80,16 +80,17 @@ tabGroup.addTab(tab3);
 tabGroup.addTab(tab4);
 tabGroup.addTab(tab5);
 
-// open tab group with a transition animation
-tabGroup.open({
-	transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
+tabGroup.addEventListener('open',function()
+{
+	// set background color back to white after tab group transition
+	Titanium.UI.setBackgroundColor('#fff');
 });
 
-// set background color back to white after tab group transition
-setTimeout(function()
-{
-	Titanium.UI.setBackgroundColor('#fff');
-},1000)
+// open tab group with a transition animation
+tabGroup.open({
+	transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+});
+
 //
 //  TAB GROUP EVENTS
 //
