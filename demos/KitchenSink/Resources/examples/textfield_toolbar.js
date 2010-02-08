@@ -37,8 +37,9 @@ send.addEventListener('click', function()
 
 
 var textfield = Titanium.UI.createTextField({
-	value:'Click me to see a keyboard w/ toolbar',
-	height:30,
+	color:'#336699',
+	value:'Focus to see keyboard w/ toolbar',
+	height:35,
 	width:300,
 	top:10,
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
@@ -48,12 +49,15 @@ var textfield = Titanium.UI.createTextField({
 });
 
 var textfield2 = Titanium.UI.createTextField({
-	value:'Click me to see a keyboard w/o toolbar',
-	height:30,
+	color:'#336699',
+	value:'Focus to see keyboard w/o toolbar',
+	height:35,
 	width:300,
-	top:50,
+	top:70,
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
 });
+
+
 
 win.add(textfield);
 win.add(textfield2);
