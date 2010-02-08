@@ -4,9 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiFileProxy.h"
+#import "TiFile.h"
 
-@interface TiFilesystemFileProxy : TiFileProxy {
+@interface TiFilesystemFileProxy : TiFile {
 @private
 	NSFileManager *fm;
 }

@@ -5,10 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiFileProxy.h"
+#import "TiFile.h"
 
 
-@implementation TiFileProxy
+@implementation TiFile
 
 -(void)dealloc
 {

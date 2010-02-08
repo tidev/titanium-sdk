@@ -20,11 +20,12 @@ var c = Titanium.Network.createHTTPClient();
 
 c.onload = function()
 {
-	// var f = Titanium.Filesystem.getFile('test.pdf');
-	// f.write(this.responseData);
+	var f = Titanium.Filesystem.getFile('test.pdf');
+	f.write(this.responseData);
 	var wv = Ti.UI.createWebView({
 		//url:f.nativePath,
-		data:this.responseData,
+		//data:this.responseData,
+		data:f,
 		height:300,
 		left:0,
 		right:0,

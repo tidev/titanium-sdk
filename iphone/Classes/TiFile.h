@@ -12,7 +12,7 @@
 // modules be able to cast to it transparently (such as database)
 // but without causing a compile-time dependency on Filesystem module
 
-@interface TiFileProxy : TiProxy {
+@interface TiFile : TiProxy {
 @protected 
 	NSString *path;
 }
