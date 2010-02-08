@@ -61,7 +61,7 @@ extern NSString *PLSqliteException;
 - (int) lastErrorCode;
 - (NSString *) lastErrorMessage;
 
-- (void) populateError: (NSError **) result withErrorCode: (PLDatabaseError) errorCode
+- (BOOL) populateError: (NSError **) result withErrorCode: (PLDatabaseError) errorCode
            description: (NSString *) localizedDescription queryString: (NSString *) queryString;
 
 @end

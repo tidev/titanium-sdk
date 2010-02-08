@@ -1483,6 +1483,10 @@ static BOOL isiPhoneOS2;
 					[self setURL:[[NSURL URLWithString:urlString relativeToURL:[self url]] absoluteURL]];
 					[self setNeedsRedirect:YES];
 					
+					//JGH: if we get a Location change, we must force a GET instead of a 
+					//POST per HTTP spec
+					[self setRequestMethod:@"GET"];
+					
 					// Clear the request cookies
 					// This means manually added cookies will not be added to the redirect request - only those stored in the global persistent store
 					// But, this is probably the safest option - we might be redirecting to a different domain

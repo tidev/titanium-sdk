@@ -15,6 +15,7 @@ var l2 = Titanium.UI.createLabel({
 	top:40,
 	left:10,
 	width:300,
+	height:55,
 	color:'#888'
 });
 win.add(l2);
@@ -22,7 +23,7 @@ win.add(l2);
 var l3 = Titanium.UI.createLabel({
 	text:'UTF-8 POST',
 	font:{fontSize:16,fontWeight:'bold'},
-	top:70,
+	top:120,
 	width:300,
 	left:10
 });
@@ -31,9 +32,10 @@ win.add(l3);
 var l4 = Titanium.UI.createLabel({
 	text:'Waiting for response...',
 	font:{fontSize:13},
-	top:100,
+	top:150,
 	left:10,
 	width:300,
+	height:55,
 	color:'#888'
 });
 win.add(l4);
@@ -41,7 +43,7 @@ win.add(l4);
 var l5 = Titanium.UI.createLabel({
 	text:'UTF-8 GET w/Query String',
 	font:{fontSize:16,fontWeight:'bold'},
-	top:130,
+	top:230,
 	width:300,
 	left:10
 });
@@ -50,9 +52,10 @@ win.add(l5);
 var l6 = Titanium.UI.createLabel({
 	text:'Waiting for response...',
 	font:{fontSize:13},
-	top:160,
+	top:260,
 	left:10,
 	width:300,
+	height:55,
 	color:'#888'
 });
 win.add(l6);

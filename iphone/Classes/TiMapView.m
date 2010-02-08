@@ -8,10 +8,21 @@
 #import "TiMapView.h"
 #import "TiUtils.h"
 #import "TiMapAnnotationProxy.h"
+#import "TiMapPinAnnotationView.h"
 
 @implementation TiMapView
 
 #pragma mark Internal
+
+-(void)dealloc
+{
+	if (map!=nil)
+	{
+		map.delegate = nil;
+		RELEASE_TO_NIL(map);
+	}
+	[super dealloc];
+}
 
 -(void)render
 {
@@ -88,12 +99,14 @@
 
 -(void)addAnnotation:(id)args
 {
+	ENSURE_UI_THREAD(addAnnotation,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
 	[[self map] addAnnotation:[self annotationFromArg:args]];
 }
 
 -(void)removeAnnotation:(id)args
 {
+	ENSURE_UI_THREAD(removeAnnotation,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
 	if ([args isKindOfClass:[NSString class]])
 	{
@@ -116,6 +129,7 @@
 
 -(void)selectAnnotation:(id)args
 {
+	ENSURE_UI_THREAD(selectAnnotation,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
 	if ([args isKindOfClass:[NSString class]])
 	{
@@ -138,6 +152,7 @@
 
 -(void)deselectAnnotation:(id)args
 {
+	ENSURE_UI_THREAD(deselectAnnotation,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
 	if ([args isKindOfClass:[NSString class]])
 	{
@@ -160,6 +175,7 @@
 
 -(void)zoom:(id)args
 {
+	ENSURE_UI_THREAD(zoom,args);
 	ENSURE_SINGLE_ARG(args,NSObject);
 	double v = [TiUtils doubleValue:args];
 	MKCoordinateRegion _region = [[self map] region];
@@ -317,6 +333,7 @@
 
 - (void)mapView:(MKMapView *)mapView regionWillChangeAnimated:(BOOL)animated
 {
+	[self retain];
 }
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
@@ -332,6 +349,7 @@
 								[NSNumber numberWithDouble:region.span.longitudeDelta],@"longitudeDelta",nil];
 		[self.proxy fireEvent:@"regionChanged" withObject:props];
 	}
+	[self autorelease];
 }
 
 - (void)mapViewWillStartLoadingMap:(MKMapView *)mapView
@@ -359,7 +377,8 @@
 	}
 }
 
-- (void)reverseGeocoder:(MKReverseGeocoder *)geocoder didFindPlacemark:(MKPlacemark *)placemark{
+- (void)reverseGeocoder:(MKReverseGeocoder *)geocoder didFindPlacemark:(MKPlacemark *)placemark
+{
 	[map addAnnotation:placemark];
 }
 
@@ -464,12 +483,7 @@
 		MKPinAnnotationView *annView =(MKPinAnnotationView*) [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
 		if (annView==nil)
 		{
-			annView=[[MKPinAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier];
-			[annView addObserver:self
-					  forKeyPath:@"selected"
-						 options:NSKeyValueObservingOptionNew
-						 context:@"ANSELECTED"];
-			[annView autorelease];
+			annView=[[[TiMapPinAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self] autorelease];
 		}
 		annView.pinColor = [ann pinColor];
 		annView.animatesDrop = [ann animatesDrop];

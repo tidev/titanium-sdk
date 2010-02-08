@@ -27,7 +27,7 @@
 
 -(NSArray *)attachments
 {
-	return [attachments copy];
+	return [[attachments copy] autorelease];
 }
 
 -(void)setAttachments:(NSArray *)newAttachments

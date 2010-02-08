@@ -53,14 +53,15 @@
 	[self autorelease];
 }
 
-- (FBDialog*)create
+- (FBDialog*)newDialog
 {
 	return nil;
 }
 
 - (void)show
 {
-	dialog = [self create];
+	RELEASE_TO_NIL(dialog);
+	dialog = [self newDialog];
 	dialog.delegate = self;
 	[dialog show];
 }
@@ -170,7 +171,7 @@
 	[super dealloc];
 }
 
-- (FBDialog*)create
+- (FBDialog*)newDialog
 {
 	FBPermissionDialog *dialog_ = [[FBPermissionDialog alloc] init];
 	dialog_.permission = permission;
@@ -215,7 +216,7 @@
 	[super dealloc];
 }
 
-- (FBDialog*)create
+- (FBDialog*)newDialog
 {
 	FBStreamDialog* dialog_ = [[FBStreamDialog alloc] init];
 	dialog_.userMessagePrompt = title;
