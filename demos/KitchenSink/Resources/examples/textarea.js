@@ -122,7 +122,7 @@ b4.addEventListener('click', function()
 //
 ta1.addEventListener('change',function(e)
 {
-	l.text = 'change fired, value = ' + e.value;
+	l.text = 'change fired, value = ' + e.value + ' act val ' + ta1.value;
 });
 
 ta1.addEventListener('blur',function(e)

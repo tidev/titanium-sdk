@@ -9,6 +9,7 @@ var data = [
 	{title:'Platform Data', hasChild:true, test:'../examples/platform.js'},
 	{title:'Filesystem', hasChild:true, test:'../examples/filesystem.js'},
 	{title:'JS Includes', hasChild:true, test:'../examples/js_include.js'},
+	{title:'Passing Data (windows)', hasChild:true, test:'../examples/custom_properties.js'},
 
 ];
 

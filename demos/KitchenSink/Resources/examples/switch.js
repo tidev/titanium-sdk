@@ -21,7 +21,7 @@ var basicSwitch = Titanium.UI.createSwitch({
 
 basicSwitch.addEventListener('change',function(e)
 {
-	basicSwitchLabel.text = 'Basic Switch value = ' + e.value;
+	basicSwitchLabel.text = 'Basic Switch value = ' + e.value + ' act val ' + basicSwitch.value;
 });
 
 win.add(basicSwitchLabel);
