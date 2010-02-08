@@ -119,10 +119,14 @@ public abstract class TiUIView
 	public void onFocusChange(View v, boolean hasFocus)
 	{
 		if (hasFocus) {
-			proxy.fireEvent("focus", null);
+			proxy.fireEvent("focus", getFocusEventObject(hasFocus));
 		} else {
-			proxy.fireEvent("blur", null);
+			proxy.fireEvent("blur", getFocusEventObject(hasFocus));
 		}
+	}
+
+	protected TiDict getFocusEventObject(boolean hasFocus) {
+		return null;
 	}
 
 	protected InputMethodManager getIMM() {
