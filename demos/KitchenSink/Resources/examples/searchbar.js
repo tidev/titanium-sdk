@@ -102,7 +102,7 @@ b5.addEventListener('click', function()
 //
 search.addEventListener('change', function(e)
 {
-	Titanium.API.info('search bar: you type ' + e.value);
+	Titanium.API.info('search bar: you type ' + e.value + ' act val ' + search.value);
 	
 });
 search.addEventListener('cancel', function(e)

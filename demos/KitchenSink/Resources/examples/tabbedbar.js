@@ -64,7 +64,7 @@ tb1.addEventListener('click', function(e)
 		tb1.labels = ['One','Two', 'Three'];
 		odd=true;
 	}
-	l.text = 'You clicked index = ' + e.index;
+	l.text = 'You clicked index = ' + e.index + ' act val ' + tb1.index;
 });
 
 //
