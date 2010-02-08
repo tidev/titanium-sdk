@@ -39,7 +39,10 @@ def zip_android(zf,basepath):
 		 jarname = os.path.split(android_module_jar)[1] 
 		 zf.write(android_module_jar, '%s/android/modules/%s' % (basepath, jarname)) 
 	
-	zip_dir(zf,android_dir,basepath+'/android')
+	zip_dir(zf, android_dir, basepath+'/android')
+	zip_dir(zf, os.path.join(android_dir, 'resources'), basepath+'/android/resources')
+	zip_dir(zf, os.path.join(android_dir, 'templates'), basepath+'/android/templates')
+	zip_dir(zf, os.path.join(android_dir, 'mako'), basepath+'/android/mako')
 
 def zip_iphone(zf,basepath):
 	sys.path.append(iphone_dir)

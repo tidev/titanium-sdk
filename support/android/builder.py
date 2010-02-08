@@ -13,16 +13,15 @@ from shutil import copyfile
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'..'))
 from tiapp import *
-from mako.template import Template
 from android import Android
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
 
 def dequote(s):
-    if s[0:1] == '"':
-	return s[1:-1]
-    return s
+	if s[0:1] == '"':
+		return s[1:-1]
+	return s
 
 def pipe(args1,args2):
 	p1 = subprocess.Popen(args1, stdout=subprocess.PIPE)
@@ -32,32 +31,32 @@ def pipe(args1,args2):
 def read_properties(propFile):
 	propDict = dict()
 	for propLine in propFile:
-	    propDef = propLine.strip()
-	    if len(propDef) == 0:
-	        continue
-	    if propDef[0] in ( '!', '#' ):
-	        continue
-	    punctuation= [ propDef.find(c) for c in ':= ' ] + [ len(propDef) ]
-	    found= min( [ pos for pos in punctuation if pos != -1 ] )
-	    name= propDef[:found].rstrip()
-	    value= propDef[found:].lstrip(":= ").rstrip()
-	    propDict[name]= value
+		propDef = propLine.strip()
+		if len(propDef) == 0:
+			continue
+		if propDef[0] in ( '!', '#' ):
+			continue
+		punctuation= [ propDef.find(c) for c in ':= ' ] + [ len(propDef) ]
+		found= min( [ pos for pos in punctuation if pos != -1 ] )
+		name= propDef[:found].rstrip()
+		value= propDef[found:].lstrip(":= ").rstrip()
+		propDict[name]= value
 	propFile.close()
 	return propDict
 
 def copy_resources(source, target):
-	 if not os.path.exists(os.path.expanduser(target)):
-		  os.mkdir(os.path.expanduser(target))
-	 for root, dirs, files in os.walk(source):
-		  for name in ignoreDirs:
-		  	    if name in dirs:
-				    dirs.remove(name)	# don't visit ignored directories			  
-		  for file in files:
+	if not os.path.exists(os.path.expanduser(target)):
+		os.mkdir(os.path.expanduser(target))
+	for root, dirs, files in os.walk(source):
+		for name in ignoreDirs:
+			if name in dirs:
+				dirs.remove(name)	# don't visit ignored directories
+		for file in files:
 				if splitext(file)[-1] in ('.html', '.js', '.css', '.a', '.m', '.c', '.cpp', '.h', '.mm'):
 					 continue
 				if file in ignoreFiles:
 					 continue
-				from_ = join(root, file)			  
+				from_ = join(root, file)
 				to_ = os.path.expanduser(from_.replace(source, target, 1))
 				to_directory = os.path.expanduser(split(to_)[0])
 				if not exists(to_directory):
@@ -222,7 +221,8 @@ class Builder(object):
 		
 		curdir = os.getcwd()
 		tijar = os.path.join(self.support_dir,'titanium.jar')
-		timapjar = os.path.join(self.support_dir,'titanium-map.jar')
+		timapjar = os.path.join(self.support_dir, 'modules', 'titanium-map.jar')
+		ti_resources_dir = os.path.join(self.support_dir, 'resources')
 		
 		try:
 			os.chdir(self.project_dir)
@@ -405,10 +405,11 @@ class Builder(object):
 			for p in permissions_required:
 				permissions_required_xml+="<uses-permission android:name=\"android.permission.%s\"/>\n\t" % p				
 			
+			use_maps = False
 			# copy any module image directories
 			for module in compiler.modules:
 				if module.lower() == 'map' and google_apis_supported:
-					tijar = timapjar
+					use_maps = True
 					print "[INFO] Detected Google Maps dependency. Using Titanium + Maps"
 				img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
 				if os.path.exists(img_dir):
@@ -438,6 +439,8 @@ class Builder(object):
 				os.remove(existingicon)
 			if os.path.exists(iconpath):
 				shutil.copy(iconpath,existingicon)
+			else:
+				shutil.copy(os.path.join(ti_resources_dir, 'default.png'), existingicon)
 
 			# make our Titanium theme for our icon
 			resfiledir = os.path.join('res','values')
@@ -458,10 +461,12 @@ class Builder(object):
 			
 			# create our background image which acts as splash screen during load	
 			splashimage = os.path.join(asset_resource_dir,'default.png')
+			background_png = os.path.join('res','drawable','background.png')
 			if os.path.exists(splashimage):
 				print "[DEBUG] found splash screen at %s" % os.path.abspath(splashimage)
-				shutil.copy(splashimage,os.path.join('res','drawable','background.png'))
-			
+				shutil.copy(splashimage, background_png)
+			else:
+				shutil.copy(os.path.join(ti_resources_dir, 'default.png'), background_png)
 			
 
 			src_dir = os.path.join(self.project_dir, 'src')
@@ -578,6 +583,8 @@ class Builder(object):
 					srclist.append(dtf)
 						
 			classpath = jar + os.pathsep + tijar + os.pathsep.join(jarlist)
+			if use_maps:
+				classpath += os.pathsep + timapjar
 			
 			javac_command = [javac, '-classpath', classpath, '-d', classes_dir, '-sourcepath', src_dir]
 			javac_command += srclist
