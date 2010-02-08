@@ -156,7 +156,16 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 -(void)setUrl_:(id)args
 {
 	RELEASE_TO_NIL(url);
-	url = [[TiUtils toURL:args proxy:(TiProxy*)self.proxy] retain];
+	
+	// see if this looks like a file path
+	if ([args hasPrefix:@"/"])
+	{
+		url = [[NSURL fileURLWithPath:args] retain];
+	}
+	else
+	{
+		url = [[TiUtils toURL:args proxy:(TiProxy*)self.proxy] retain];
+	}
 	
 	[self unregister];
 	
@@ -178,7 +187,15 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 		{
 			html = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
 		}
-		[self setHtml_:html];	
+		if (html!=nil)
+		{
+			[self setHtml_:html];	
+		}
+		else 
+		{
+			[[self webview] setScalesPageToFit:YES];
+			[[self webview] loadRequest:[NSURLRequest requestWithURL:url]];
+		}
 	}
 }
 
