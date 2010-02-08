@@ -105,6 +105,11 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[networkActivity unlock];
 }
 
+-(NSDictionary*)launchOptions
+{
+	return launchOptions;
+}
+
 - (UIView*)attachSplash
 {
 	CGFloat splashY = -TI_STATUSBAR_HEIGHT;

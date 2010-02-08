@@ -9,6 +9,7 @@
 #import "TiHost.h"
 #import "SBJSON.h"
 #import "ListenerEntry.h"
+#import "TitaniumApp.h"
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_ID;
@@ -223,52 +224,71 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(id)appURLToPath:(id)args
 {
-	//FIXME
-	return nil;
+	ENSURE_SINGLE_ARG(args,NSString);
+	if ([args hasPrefix:@"app://"])
+	{
+		args = [args stringByReplacingOccurrencesOfString:@"app://" withString:@""];
+	}
+	NSString *path = [[NSBundle mainBundle] resourcePath];
+	return [NSString stringWithFormat:@"%@/%@",path,args];
 }
 
 -(id)arguments:(id)args
 {
-	//FIXME
-	return nil;
+	return [[TitaniumApp app] launchOptions];
 }
 
--(id)id:(id)args
+-(id)iD
 {
 	return TI_APPLICATION_ID;
 }
 
--(id)name:(id)args
+-(id)id
+{
+	return TI_APPLICATION_ID;
+}
+
+-(id)name
 {
 	return TI_APPLICATION_NAME;
 }
 
--(id)version:(id)args
+-(id)version
 {
 	return TI_APPLICATION_VERSION;
 }
 
--(id)publisher:(id)args
+-(id)publisher
 {
 	return TI_APPLICATION_PUBLISHER;
 }
 
--(id)description:(id)args
+-(id)description
 {
 	return TI_APPLICATION_DESCRIPTION;
 }
 
--(id)copyright:(id)args
+-(id)copyright
 {
 	return TI_APPLICATION_COPYRIGHT;
 }
 
--(id)url:(id)args
+-(id)uRL
 {
 	return TI_APPLICATION_URL;
 }
 
--(id)guid:(id)args
+-(id)url
+{
+	return TI_APPLICATION_URL;
+}
+
+-(id)gUID
+{
+	return TI_APPLICATION_GUID;
+}
+
+-(id)guid
 {
 	return TI_APPLICATION_GUID;
 }

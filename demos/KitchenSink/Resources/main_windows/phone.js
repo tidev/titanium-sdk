@@ -11,9 +11,9 @@ var data = [
 	{title:'Accelerometer', hasChild:true, test:'../examples/accelerometer.js'},
 	{title:'Sound', hasChild:true, test:'../examples/sound.js'},
 	{title:'Shake', hasChild:true, test:'../examples/shake.js'},
-	// {title:'Save to Gallery', hasChild:true, test:'../examples/tab_groups.js'},
-	// {title:'Contacts', hasChild:true, test:'../examples/contacts.js'},
-	// {title:'Proximity Events', hasChild:true, test:'../examples/tab_groups.js'},
+	{title:'Save to Gallery', hasChild:true, test:'../todo.js'},
+	{title:'Contacts', hasChild:true, test:'../todo.js'},
+	{title:'Proximity Events', hasChild:true, test:'../todo.js'},
 	{title:'App Badge', hasChild:true, test:'../examples/app_badge.js'},
 	{title:'Status Bar', hasChild:true, test:'../examples/statusbar.js'},
 ];
