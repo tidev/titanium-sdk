@@ -15,8 +15,14 @@
 @interface TiFile : TiProxy {
 @protected 
 	NSString *path;
+	BOOL deleteOnExit;
 }
 
 @property(nonatomic,readonly) NSString *path;
+
+-(id)initWithPath:(NSString*)path;
+-(id)initWithTempFilePath:(NSString*)path;
+
++(TiFile*)createTempFile:(NSString*)extension;
 
 @end
