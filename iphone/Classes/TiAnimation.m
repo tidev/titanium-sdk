@@ -143,6 +143,8 @@ self.p = v;\
 	RELEASE_TO_NIL(transition);
 	RELEASE_TO_NIL(callback);
 	RELEASE_TO_NIL(view);
+	RELEASE_TO_NIL(autoreverseView);
+	RELEASE_TO_NIL(transformMatrix);
 	[super dealloc];
 }
 
@@ -239,6 +241,18 @@ self.p = v;\
 #if ANIMATION_DEBUG==1	
 	NSLog(@"ANIMATION: COMPLETED %@, %@",self,(id)context);
 #endif
+	
+	if (autoreverseView!=nil)
+	{
+		if (transformMatrix==nil)
+		{
+			transformMatrix = [[Ti2DMatrix alloc] init];
+		}
+		[autoreverseView performSelector:@selector(setTransform_:) withObject:transformMatrix];
+		RELEASE_TO_NIL(transformMatrix);
+		RELEASE_TO_NIL(autoreverseView);
+	}
+	
 	if (delegate!=nil && [delegate respondsToSelector:@selector(animationWillComplete:)])
 	{
 		[delegate animationWillComplete:self];
@@ -358,6 +372,8 @@ self.p = v;\
 		[UIView setAnimationDuration: (transitionAnimation ? 1 : 0.2)];
 	}
 	
+	BOOL autoreverses = NO;
+	
 	if (curve!=nil)
 	{
 		[UIView setAnimationCurve:[curve intValue]];
@@ -370,7 +386,8 @@ self.p = v;\
 	
 	if (autoreverse!=nil)
 	{	
-		[UIView setAnimationRepeatAutoreverses:[autoreverse boolValue]];
+		autoreverses = [autoreverse boolValue];
+		[UIView setAnimationRepeatAutoreverses:autoreverses];
 	}
 	
 	if (delay!=nil)
@@ -387,6 +404,15 @@ self.p = v;\
 	
 	if (transform!=nil)
 	{
+		if (autoreverses)
+		{
+			if (autoreverseView==nil)
+			{
+				autoreverseView = [view_ retain];
+			}
+			transformMatrix = [[(TiUIView*)view_ transformMatrix] retain];
+		}
+		
 		if ([transform isKindOfClass:[Ti2DMatrix class]])
 		{
 			view_.transform = [(Ti2DMatrix*)transform matrix];

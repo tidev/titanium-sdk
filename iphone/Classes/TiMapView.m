@@ -88,6 +88,7 @@
 	{
 		[map removeAnnotation:proxy];
 		[map addAnnotation:proxy];
+		[map setNeedsLayout];
 	}
 	if (wasSelected)
 	{

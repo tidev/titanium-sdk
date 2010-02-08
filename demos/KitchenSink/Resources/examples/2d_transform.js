@@ -52,13 +52,6 @@ button.addEventListener('click', function()
 	a.repeat = 3;
 	cloud1.animate(a);
 
-	a.addEventListener('complete', function()
-	{
-		// reset transform 
-		var t = Ti.UI.create2DMatrix();
-		cloud1.animate({transform:t, duration:1500});
-	})
-
 	// cloud 2 animation/transform
 	var t4 = Ti.UI.create2DMatrix();
 	t4 = t4.rotate(-30);
@@ -71,13 +64,6 @@ button.addEventListener('click', function()
 	a2.repeat = 3;
 	a2.delay = 1500;
 	cloud2.animate(a2);
-
-	a2.addEventListener('complete', function()
-	{
-		// reset transform 
-		var t = Ti.UI.create2DMatrix();
-		cloud2.animate({transform:t, duration:1500});
-	})
 });
 
 win.add(button);
