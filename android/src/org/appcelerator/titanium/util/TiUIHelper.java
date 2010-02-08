@@ -17,7 +17,11 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Process;
 import android.util.TypedValue;
 import android.widget.TextView;
@@ -206,7 +210,7 @@ public class TiUIHelper
 
 		return style;
 	}
-/*
+
 	public static StateListDrawable buildBackgroundDrawable(Context context,
 			String color,
 			String selectedColor,
@@ -220,13 +224,13 @@ public class TiUIHelper
 		Drawable bgSelectedDrawable = null;
 		Drawable bgFocusedDrawable = null;
 
-		TitaniumFileHelper tfh = new TitaniumFileHelper(context);
+		TiFileHelper tfh = new TiFileHelper(context);
 
 		if (image != null) {
 			bgDrawable = tfh.loadDrawable(image, false, true);
 		} else if (color != null) {
 			Bitmap b = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
-			int c = TitaniumColorHelper.parseColor(color);
+			int c = TiConvert.toColor(color);
 			b.eraseColor(c);
 			bgDrawable = new BitmapDrawable(b);
 		}
@@ -235,7 +239,7 @@ public class TiUIHelper
 			bgSelectedDrawable = tfh.loadDrawable(selectedImage, false, true);
 		} else if (selectedColor != null) {
 			Bitmap b = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
-			int c = TitaniumColorHelper.parseColor(selectedColor);
+			int c = TiConvert.toColor(selectedColor);
 			b.eraseColor(c);
 			bgSelectedDrawable = new BitmapDrawable(b);
 		}
@@ -247,7 +251,7 @@ public class TiUIHelper
 				bgFocusedDrawable = tfh.loadDrawable(selectedImage, false, true);
 			} else if (selectedColor != null) {
 				Bitmap b = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
-				int c = TitaniumColorHelper.parseColor(selectedColor);
+				int c = TiConvert.toColor(selectedColor);
 				b.eraseColor(c);
 				bgFocusedDrawable = new BitmapDrawable(b);
 			}
@@ -287,5 +291,4 @@ public class TiUIHelper
 
 		return sld;
 	}
-	*/
 }

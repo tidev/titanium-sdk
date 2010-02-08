@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="lib/js.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/opt/android-sdk-mac/platforms/android-1.5/android.jar"/>
-	<classpathentry kind="lib" path="/opt/android-sdk-mac/add-ons/google_apis-3-r03/libs/maps.jar"/>
+	<classpathentry kind="var" path="ANDROID_1_5/android.jar"/>
+	<classpathentry kind="var" path="GOOGLE_APIS_R3/libs/maps.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
