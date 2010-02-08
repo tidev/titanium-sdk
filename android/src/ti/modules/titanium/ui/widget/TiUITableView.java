@@ -14,13 +14,17 @@ import org.appcelerator.titanium.view.TiViewProxy;
 import org.json.JSONObject;
 
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
+import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemClickedListener;
 import android.os.Handler;
 import android.widget.RelativeLayout;
 
 public class TiUITableView extends TiUIView
+	implements OnItemClickedListener
 //	implements  Handler.Callback
 {
 	private static final String LCAT = "TitaniumTableView";
+
+	private static final String EVENT_CLICK = "click";
 
 	private static final int MSG_SETDATA = 302;
 	private static final int MSG_DELETEROW = 303;
@@ -59,8 +63,15 @@ public class TiUITableView extends TiUIView
 
 
 		this.modifySemaphore = new Semaphore(0);
-		setNativeView(new TiTableView(proxy.getContext()));
+		TiTableView tv = new TiTableView(proxy.getContext());
+		tv.setOnItemClickListener(this);
+		setNativeView(tv);
 		//this.hasBeenOpened = false;
+	}
+
+	@Override
+	public void onClick(TiDict data) {
+		proxy.fireEvent(EVENT_CLICK, data);
 	}
 
 	private TiTableView getView() {
@@ -381,7 +392,6 @@ public class TiUITableView extends TiUIView
 	private void releaseModifySemaphore() {
 		modifySemaphore.release();
 	}
-
 
 //	protected void doOpen()
 //	{
