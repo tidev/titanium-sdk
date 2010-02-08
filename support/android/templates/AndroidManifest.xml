@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
 		<activity
-        	android:name="org.appcelerator.titanium.TitaniumActivity"
+        	android:name="org.appcelerator.titanium.TiActivity"
         	android:configChanges="keyboardHidden|orientation"
       	/>
 
@@ -36,10 +36,12 @@
 			android:name="org.appcelerator.titanium.TitaniumContentProvider"
 		/>
 -->
+		<!-- TODO: re-enable analytics when it's implemented
 		<service
 			android:name="org.appcelerator.titanium.TitaniumAnalyticsService"
 			android:exported="false"
 		/>
+		-->
 	</application>
 	
 	<!-- TI_PERMISSIONS -->

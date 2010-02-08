@@ -343,7 +343,7 @@ MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 -(void)saveToPhotoGallery:(id)arg
 {
 	ENSURE_UI_THREAD(saveToPhotoGallery,arg);
-	
+	ENSURE_SINGLE_ARG(arg,NSObject);
 	if ([arg isKindOfClass:[TiBlob class]])
 	{
 		TiBlob *blob = (TiBlob*)arg;
