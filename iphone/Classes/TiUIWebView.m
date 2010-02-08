@@ -202,15 +202,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 {
 	RELEASE_TO_NIL(url);
 	
-	// see if this looks like a file path
-	if ([args hasPrefix:@"/"])
-	{
-		url = [[NSURL fileURLWithPath:args] retain];
-	}
-	else
-	{
-		url = [[TiUtils toURL:args proxy:(TiProxy*)self.proxy] retain];
-	}
+	url = [[TiUtils toURL:args proxy:(TiProxy*)self.proxy] retain];
 	
 	[self unregister];
 	
