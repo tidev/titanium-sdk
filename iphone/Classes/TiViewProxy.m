@@ -251,12 +251,8 @@
 		
 		for (id child in self.children)
 		{
-			//TODO: temporary cast until we port fully
-			if ([child isKindOfClass:[TiViewProxy class]])
-			{
-				TiUIView *childView = [(TiViewProxy*)child view];
-				[childView setParent:self];
-			}
+			TiUIView *childView = [(TiViewProxy*)child view];
+			[childView setParent:self];
 		}
 		
 		[self viewDidAttach];
@@ -312,12 +308,6 @@
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
-	//FIXME - not sure this is the right thing to do but testing remove the view on demand
-	if (view!=nil)
-	{
-		[view removeFromSuperview];
-		RELEASE_TO_NIL(view);
-	}
 	[super didReceiveMemoryWarning:notification];
 }
 
