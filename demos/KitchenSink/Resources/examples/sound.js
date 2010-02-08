@@ -1,6 +1,9 @@
 // create table view data object
 var data = [
 	{title:'Local', hasChild:true, test:'../examples/sound_local.js'},
+	{title:'Local with File', hasChild:true, test:'../examples/sound_file.js'},
+	{title:'Local with File URL', hasChild:true, test:'../examples/sound_file_url.js'},
+	{title:'Remote URL', hasChild:true, test:'../examples/sound_remote_url.js'},
 	{title:'Remote Streaming', hasChild:true, test:'../examples/sound_remote.js'},
 ];
 

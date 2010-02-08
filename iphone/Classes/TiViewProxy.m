@@ -7,7 +7,6 @@
 
 #import "TiViewProxy.h"
 #import "LayoutConstraint.h"
-#import "TiView.h"
 #import "TitaniumApp.h"
 #import "TiBlob.h"
 #import <QuartzCore/QuartzCore.h>
@@ -75,10 +74,6 @@
 		{
 			UIView *childView = [arg view];
 			[childView removeFromSuperview];
-		}
-		else 
-		{
-			[(TiView*)arg _destroy];
 		}
 	}
 }
@@ -256,12 +251,8 @@
 		
 		for (id child in self.children)
 		{
-			//TODO: temporary cast until we port fully
-			if ([child isKindOfClass:[TiViewProxy class]])
-			{
-				TiUIView *childView = [(TiViewProxy*)child view];
-				[childView setParent:self];
-			}
+			TiUIView *childView = [(TiViewProxy*)child view];
+			[childView setParent:self];
 		}
 		
 		[self viewDidAttach];
@@ -317,12 +308,6 @@
 
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
-	//FIXME - not sure this is the right thing to do but testing remove the view on demand
-	if (view!=nil)
-	{
-		[view removeFromSuperview];
-		RELEASE_TO_NIL(view);
-	}
 	[super didReceiveMemoryWarning:notification];
 }
 

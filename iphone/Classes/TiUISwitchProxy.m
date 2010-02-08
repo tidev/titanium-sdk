@@ -9,16 +9,4 @@
 
 @implementation TiUISwitchProxy
 
-- (IBAction)switchChanged:(id)sender
-{
-	NSNumber * newValue = [NSNumber numberWithBool:[(UISwitch *)sender isOn]];
-	[self replaceValue:newValue forKey:@"value" notification:NO];
-
-	//No need to setValue, because it's already been set.
-	if ([self _hasListeners:@"change"])
-	{
-		[self fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
-	}
-}
-
 @end

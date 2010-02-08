@@ -2,11 +2,16 @@ package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
 
+import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
 import org.appcelerator.titanium.view.TiWindowProxy;
 import org.json.JSONObject;
+
+import android.app.Activity;
+import android.widget.FrameLayout;
+import android.widget.FrameLayout.LayoutParams;
 
 /*
  * @interface TiUIWindowProxy : TiWindowProxy
@@ -42,8 +47,15 @@ public class WindowProxy extends TiWindowProxy
 	{
 		//TODO ignore multiple opens
 		TiUIView v = getView();
-//		TiContext ctx = getTiContext();
-//		ctx.getActivity().addContentView(v.getNativeView(), v.getLayoutParams());
+		Activity a = getTiContext().getActivity();
+		if (a instanceof TiActivity) {
+			TiActivity tia = (TiActivity) a;
+			tia.getLayout().addView(v.getNativeView());
+		} else {
+			a.addContentView(v.getNativeView(), new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		}
+
+
 	}
 
 	@Override

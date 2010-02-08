@@ -1480,13 +1480,35 @@ static BOOL isiPhoneOS2;
 						}
 					}
 					
+					NSURL *existingURL = [[[self url] retain] autorelease];
+					
 					[self setURL:[[NSURL URLWithString:urlString relativeToURL:[self url]] absoluteURL]];
 					[self setNeedsRedirect:YES];
 					
-					// Clear the request cookies
-					// This means manually added cookies will not be added to the redirect request - only those stored in the global persistent store
-					// But, this is probably the safest option - we might be redirecting to a different domain
-					[self setRequestCookies:[NSMutableArray array]];
+					//JGH: if we get a Location change, we must force a GET instead of a 
+					//POST/PUT/etc per HTTP spec
+					[self setRequestMethod:@"GET"];
+					[self setPostBody:nil];
+					[self setPostLength:0];
+					[self setRequestHeaders:nil];
+					
+					//JGH: only clear cookies off if different domain
+					if ([[existingURL host] isEqualToString:[[self url] host]]==NO)
+					{
+						// Clear the request cookies
+						// This means manually added cookies will not be added to the redirect request - only those stored in the global persistent store
+						// But, this is probably the safest option - we might be redirecting to a different domain
+						[self setRequestCookies:[NSMutableArray array]];
+					}
+					else
+					{
+						// JGH: take the new cookie from response during a Location
+						NSString *freshCookie = [responseHeaders valueForKey:@"Set-Cookie"];
+						if (freshCookie!=nil)
+						{
+							[self addRequestHeader:@"Cookie" value:freshCookie];
+						}
+					}
 				}
 			}
 			

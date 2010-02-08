@@ -119,12 +119,13 @@
 	if ([TiUtils boolValue:visible])
 	{
 		[[self indicatorView] startAnimating];
+		[self setHidden:NO];
 	}
 	else
 	{
 		[indicatorView stopAnimating];
+		[self setHidden:YES];
 	}
-	[super setVisible_:visible];
 }
 
 -(void)setFont_:(id)value
@@ -217,12 +218,6 @@
 {
 	return [self sizeThatFits:CGSizeZero].height;
 }
-
-
-//-(CGFloat)verifyWidth:(CGFloat)suggestedWidth;
-//-(CGFloat)verifyHeight:(CGFloat)suggestedHeight;
-
-
 
 @end
 

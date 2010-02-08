@@ -1,5 +1,5 @@
 // get tab group object
-var tabGroup = Titanium.UI.currentWindow.tabGroup;
+var tabGroup = Titanium.UI.currentTabGroup;
 
 // get current tab object
 var tab = Titanium.UI.currentTab;
@@ -156,7 +156,8 @@ var label = Titanium.UI.createLabel({
 		fontSize:15
 	},
 	textAlign:'center',
-	top:260
+	top:260,
+	width:300
 });
 
 Titanium.UI.currentWindow.add(label);

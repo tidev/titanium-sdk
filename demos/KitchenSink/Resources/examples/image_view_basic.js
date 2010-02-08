@@ -13,7 +13,9 @@ var l = Titanium.UI.createLabel({
 	text:'Click Image',
 	bottom:30,
 	color:'#999',
-	height:20
+	height:20,
+	width:300,
+	textAlign:'center'
 });
 win.add(l);
 

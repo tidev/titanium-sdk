@@ -3,6 +3,11 @@ package ti.modules.titanium.ui;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
+import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.titanium.util.TiConvert;
+
+import android.graphics.drawable.ColorDrawable;
+import android.view.Window;
 
 public class UIModule extends TiModule
 {
@@ -60,5 +65,18 @@ public class UIModule extends TiModule
 		}
 
 		return constants;
+	}
+
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	{
+		if ("backgroundColor".equals(key)) {
+			Window w = getTiContext().getRootActivity().getWindow();
+			if (w != null) {
+				w.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor((String)newValue)));
+			}
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
 	}
 }

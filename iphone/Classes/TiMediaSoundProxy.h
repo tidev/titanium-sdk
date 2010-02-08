@@ -5,12 +5,14 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiProxy.h"
+#import "TiFile.h"
 #import <AVFoundation/AVAudioPlayer.h>
 
 @interface TiMediaSoundProxy : TiProxy<AVAudioPlayerDelegate> 
 {
 @private
 	NSURL *url;
+	TiFile *tempFile;
 	AVAudioPlayer * player;
 	BOOL paused;
 	BOOL looping;

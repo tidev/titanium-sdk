@@ -23,7 +23,7 @@
 
 -(NSArray *)views
 {
-	return [views copy];
+	return [[views copy] autorelease];
 }
 
 -(int)countOfViews

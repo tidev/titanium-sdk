@@ -180,11 +180,28 @@
 	
 	if (![path hasPrefix:@"/"] && ![path hasPrefix:@"file:"])
 	{
-		NSURL *root = [host baseURL];
-		url_ = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@",root,path]];
+		url_ = [NSURL URLWithString:path relativeToURL:url];
 	}
 
-	NSString *jcode = [NSString stringWithContentsOfURL:url_ encoding:NSUTF8StringEncoding error:&error];
+	NSString *jcode = nil;
+	
+	if ([url_ isFileURL])
+	{
+		NSData *data = [TiUtils loadAppResource:url_];
+		if (data==nil)
+		{
+			jcode = [NSString stringWithContentsOfFile:[url_ path] encoding:NSUTF8StringEncoding error:&error];
+		}
+		else
+		{
+			jcode = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+		}
+	}
+	else
+	{
+		jcode = [NSString stringWithContentsOfURL:url_ encoding:NSUTF8StringEncoding error:&error];
+	}
+
 	if (error!=nil)
 	{
 		NSLog(@"[ERROR] error loading path: %@, %@",path,error);

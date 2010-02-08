@@ -6,9 +6,8 @@
  */
 
 #import "TiViewProxy.h"
-#import "TiEvaluator.h"
 
-@interface TiUIWebViewProxy : TiViewProxy<TiEvaluator> {
+@interface TiUIWebViewProxy : TiViewProxy {
 }
 
 @end

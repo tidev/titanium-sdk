@@ -5,14 +5,20 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiUIView.h"
+#import "AppModule.h"
+#import "TiEvaluator.h"
 
-@interface TiUIWebView : TiUIView<UIWebViewDelegate> {
+@interface TiUIWebView : TiUIView<UIWebViewDelegate,TiEvaluator> {
 @private
 	UIWebView *webview;
 	UIActivityIndicatorView *spinner;
 	NSURL *url;
-
+	NSMutableDictionary *listeners;
+	AppModule *appModule;
+	NSString *pageToken;
 }
+
+@property(nonatomic,readonly) id url;
 
 -(void)evalJS:(NSString*)code;
 

@@ -31,7 +31,7 @@ public class TiContext implements TiEvaluator
 	private long mainThreadId;
 
 	private WeakReference<Activity> weakActivity;
-	private WeakReference<TiEvaluator>	weakTiEvaluator;
+	private SoftReference<TiEvaluator>	softTiEvaluator;
 	private HashMap<String, HashMap<Integer, TiListener>> eventListeners;
 	private AtomicInteger listenerIdGenerator;
 
@@ -61,7 +61,7 @@ public class TiContext implements TiEvaluator
 			boolean invoked = false;
 			TiProxy p = weakTiProxy.get();
 			if (p != null && listener != null) {
-				p.fireEvent(eventName, listener, data);
+				p.fireSingleEvent(eventName, listener, data);
 				invoked = true;
 			} else {
 				Log.w(LCAT, "Unable to fire event with eventName '" + eventName + "' references were garbage collected.");
@@ -92,11 +92,11 @@ public class TiContext implements TiEvaluator
 	}
 
 	private TiEvaluator getJSContext() {
-		return weakTiEvaluator.get();
+		return softTiEvaluator.get();
 	}
 
 	public void setJSContext(TiEvaluator evaluator) {
-		this.weakTiEvaluator = new WeakReference<TiEvaluator>(evaluator);
+		this.softTiEvaluator = new SoftReference<TiEvaluator>(evaluator);
 	}
 
 	public Activity getActivity() {
@@ -207,6 +207,34 @@ public class TiContext implements TiEvaluator
 				} else {
 					dispatchOnEventChange(false, eventName, listeners.size(), listener.weakTiProxy.get());
 					Log.i(LCAT, "listener with id " + listenerId + " with eventName '" + eventName + "' was removed.");
+				}
+			}
+		} else {
+			throw new IllegalStateException("removeEventListener expects a non-null eventName");
+		}
+	}
+	
+	public void removeEventListener(String eventName, Object listener)
+	{
+		if (listener instanceof Number) {
+			removeEventListener(eventName, ((Number)listener).intValue());
+			return;
+		}
+	
+		if (eventName != null) {
+			HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
+			if (listeners != null) {
+				boolean removed = false;
+				for (Entry<Integer, TiListener> entry : listeners.entrySet())
+				{
+					if (entry.getValue().listener == listener)
+					{
+						dispatchOnEventChange(false, eventName, listeners.size(), entry.getValue().weakTiProxy.get());
+						removed = true;
+					}
+				}
+				if (!removed) {
+					Log.w(LCAT, "listener not found for eventName '" + eventName + "'");
 				}
 			}
 		} else {

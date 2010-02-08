@@ -171,8 +171,7 @@ b4.addEventListener('click', function()
 		w.close({transform:t3,duration:300});
 	});
 	
-	w.open();
-	w.animate(a);
+	w.open(a);
 	
 	
 });
@@ -288,7 +287,6 @@ b6.addEventListener('click', function()
 	
 	var w = Titanium.UI.createWindow({
 		backgroundColor:'#336699',
-		fullscreen:true,
 	});
 	close.addEventListener('click', function()
 	{

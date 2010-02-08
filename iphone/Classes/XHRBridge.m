@@ -9,6 +9,7 @@
 #import "TiHost.h"
 #import "TiProxy.h"
 #import "SBJSON.h"
+#import "TiModule.h"
 
 static XHRBridge *xhrBridge = nil;
 
@@ -50,23 +51,51 @@ static XHRBridge *xhrBridge = nil;
 	id<NSURLProtocolClient> client = [self client];
     NSURLRequest *request = [self request];
 	NSURL *url = [request URL];
-	
+
 	NSString *pageToken = [url host];
 	NSArray *parts = [[[url path] substringFromIndex:1] componentsSeparatedByString:@"/"];
-	NSString *operation = [parts objectAtIndex:0];
-	NSString *moduleName = [parts objectAtIndex:1];
-	NSString *property = [parts objectAtIndex:2];
-	NSString *exception = nil;
+	NSString *module = [parts objectAtIndex:0];
+	NSString *method = [parts objectAtIndex:1];
+	NSString *prearg = [parts objectAtIndex:2];
+	NSString *arguments = prearg==nil ? @"" : [prearg stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	
-	NSString *prequery = [url query];
-	NSString *arguments = prequery==nil ? @"" : [prequery stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	
-	NSLog(@"OP = %@",operation);
-	NSLog(@"MODULE = %@",moduleName);
-	NSLog(@"PROP = %@",property);
-	NSLog(@"ARGS = %@",arguments);
+	SBJSON *decoder = [[[SBJSON alloc] init] autorelease];
+	NSError *error = nil;
+	NSDictionary *event = [decoder fragmentWithString:arguments error:&error];
 	
-	NSData *data = [xhrBridge invoke:pageToken operation:operation module:moduleName property:property arguments:arguments exception:&exception];
+	TiModule *tiModule = (TiModule*)[[xhrBridge host] moduleNamed:module];
+	[tiModule setExecutionContext:[[xhrBridge host] contextForToken:pageToken]];
+	
+	BOOL executed = YES;
+	
+	NSString *name = [event objectForKey:@"name"];
+	if ([method isEqualToString:@"fireEvent"])
+	{
+		[tiModule fireEvent:name withObject:[event objectForKey:@"event"]];  
+	}
+	else if ([method isEqualToString:@"addEventListener"])
+	{
+		id listenerid = [event objectForKey:@"id"];
+		[tiModule addEventListener:[NSArray arrayWithObjects:name,listenerid,nil]];
+	}
+	else if ([method isEqualToString:@"removeEventListener"])
+	{
+		id listenerid = [event objectForKey:@"id"];
+		[tiModule removeEventListener:[NSArray arrayWithObjects:name,listenerid,nil]];
+	}
+	else if ([method isEqualToString:@"log"])
+	{
+		NSString *level = [event objectForKey:@"level"];
+		NSString *message = [event objectForKey:@"message"];
+		[tiModule performSelector:@selector(log:) withObject:[NSArray arrayWithObjects:level,message,nil]];
+	}
+	else
+	{
+		executed = NO;
+	}
+	
+	NSData *data = executed ? [[NSString stringWithFormat:@"{'success':true}"] dataUsingEncoding:NSUTF8StringEncoding] : nil;
 	
 	if (data!=nil)
 	{
@@ -79,7 +108,7 @@ static XHRBridge *xhrBridge = nil;
 	}
 	else 
 	{
-		NSLog(@"Error loading %@",url);
+		NSLog(@"[ERROR] Error loading %@",url);
 		[client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorResourceUnavailable userInfo:nil]];
 		[client URLProtocolDidFinishLoading:self];
 	}

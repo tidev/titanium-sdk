@@ -15,42 +15,26 @@ ignoreDirs = ['.git','.svn','_svn', 'CVS'];
 
 HEADER = """/**
  * Appcelerator Titanium Mobile
- * This is generated code. Do not modify. Your changes will be lost.
- * Generated code is Copyright (c) 2009 by Appcelerator, Inc.
+ * This is generated code. Do not modify. Your changes *will* be lost.
+ * Generated code is Copyright (c) 2009-2010 by Appcelerator, Inc.
  * All Rights Reserved.
  */
 #import <Foundation/Foundation.h>
 """
 
 INTERFACE_HEADER= """
-@protocol TitaniumAppAssetResolver
-- (NSData*) resolveAppAsset:(NSURL*)url;
-- (oneway void)release;
-- (id)retain;
-@end
-
-@interface ApplicationRouting : NSObject<TitaniumAppAssetResolver> {
+@interface ApplicationRouting : NSObject {
 }
-- (NSData*) resolveAppAsset:(NSURL*)url;
++ (NSData*) resolveAppAsset:(NSString*)path;
 """
 
 IMPL_HEADER= """#import "ApplicationRouting.h"
 
-extern NSData * decode64(NSData * data);
-extern NSData * dataWithHexString(NSString * hexString);
-extern NSData * AES128DecryptWithKey(NSData * data, NSString * key);
+extern NSData * decode64 (NSData * thedata); 
+extern NSData * dataWithHexString (NSString * hexString);
+extern NSData * decodeDataWithKey (NSData * thedata, NSString * key);
 
 @implementation ApplicationRouting
-
--(oneway void)release
-{
-	[super release];
-}
-
--(id)retain
-{
-	return [super retain];
-}
 
 """
 
@@ -76,30 +60,12 @@ class Compiler(object):
 		self.resources_dir = os.path.join(project_dir,'Resources')
 		self.classes_dir = os.path.join(self.project_dir,'build','iphone','Classes')
 		self.temp_build_dir = os.path.join(self.project_dir,'build','iphone','tmp')
-		# these modules are always required 
-		self.modules = ['App','API','Network','Platform','Analytics']
-
-	def extract_modules(self,out):
-		for line in out.split(';'):
-			f = re.findall(r'Titanium\.(\w+)',line)
-			if len(f) > 0:
-				for sym in f:
-					# skip Titanium.version, Titanium.userAgent and Titanium.name since these
-					# properties are not modules
-					if sym == 'version' or sym == 'userAgent' or sym == 'name' or sym == '_JSON':
-						continue
-					try:
-						self.modules.index(sym)
-					except:	
-						self.modules.append(sym)
 		
 	def make_function_from_file(self,path,file):
 	
 		fp = os.path.splitext(path)
 		basename = fp[0].replace(' ','_').replace('/','_').replace('-','_').replace('.','_').replace('+','_')
 		ext = fp[1][1:]
-
-		url = 'app://%s/%s' % (self.appid,path)
 
 		filetype = ''
 		contents = ''
@@ -111,14 +77,7 @@ class Compiler(object):
 		elif ext=='js':
 			filetype = 'script'	
 	
-		methodname = "%sNamed%s%s" % (filetype,basename[0:1].upper(),basename[1:])
-		method_define = "- (NSData*) %s;" % methodname
-	
-		seed = random.randint(1,9)
-		key = "%s%d%s" % (self.appid,seed,methodname)
-	
 		file_contents = open(os.path.expanduser(file)).read()
-		_file_contents = file_contents
 
 		# minimize javascript, css files
 		if ext == 'js':
@@ -127,58 +86,9 @@ class Compiler(object):
 			packer = CSSPacker(file_contents)
 			file_contents = packer.pack()
 		
-		# determine which modules this file is using
-		self.extract_modules(file_contents)
-
-		if self.debug and ext == 'js':
-			file_contents = """
-try
-{
-%s
-}
-catch(__ex__)
-{
-  if (typeof __ex__ == 'string')
-  {
-     var msg = __ex__
-     __ex__ = {line:3,sourceURL:'%s',message:msg};
-  }
-  var _sur = __ex__.sourceURL;
-  if (_sur)
-  {
-    _sur = _sur.substring(%d);
-  }
-  Titanium.API.reportUnhandledException(__ex__.line-3,_sur,__ex__.message);
-}
-""" % (_file_contents,url.encode("utf-8"),len('app://%s/'%self.appid))
-
-		if self.encrypt:		
-			out = subprocess.Popen([self.encryptor,file,key], stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
-			data = str(out).strip()
-			method = """
-	%s
-	{
-	   NSString *k1 = @"%s";
-	   int seed = %d;
-	   NSString *k2 = @"%s";
-	   NSData *d = AES128DecryptWithKey(dataWithHexString(@"%s"), [NSString stringWithFormat:@"%%@%%d%%@",k1,seed,k2]);
-	   if ([d length] == 0) return nil;
-	   return decode64(d);
-	}
-			""" % (method_define,self.appid,seed,methodname,data)
-		else:
-			sys.stdout.flush()
-			data = str(file_contents).encode("hex")
-			method = """
-	%s
-	{
-		NSData *d = dataWithHexString(@"%s");
-	   	if ([d length] == 0) return nil;
-		return d;
-	}
-			""" % (method_define,data)
-			
-		return {'name':methodname,'method':method,'define':method_define,'url':url,'path':path}
+		data = str(file_contents).encode("hex")
+		method = "dataWithHexString(@\"%s\")" % data
+		return {'method':method,'path':path}
 
 	def compile(self):
 		
@@ -191,8 +101,11 @@ catch(__ex__)
 		impf.write(HEADER)
 		impf.write(IMPL_HEADER)
 
-		impf.write("- (NSData*) resolveAppAsset:(NSURL*)url;\n{\n")
-		impf.write("   NSString *urlStr = [url absoluteString];\n\n")
+		impf.write("+ (NSData*) resolveAppAsset:(NSString*)path;\n{\n")
+		impf.write("     static NSMutableDictionary *map;\n")
+		impf.write("     if (map==nil)\n")
+		impf.write("     {\n")
+		impf.write("         map = [[NSMutableDictionary alloc] init];\n")
 
 		impf_buffer = ''
 		c = 0
@@ -242,20 +155,14 @@ catch(__ex__)
 					path = path[1:]
 					fullpath = os.path.join(self.temp_build_dir,path)
 					metadata = self.make_function_from_file(path,fullpath)
-					intf.write(metadata['define'])
-					intf.write('\n')
-					impf_buffer+=metadata['method']
-			
-					eq = '[NSString stringWithFormat:@"app%%s//%%@/%%@",":",@"%s",@"%s"]' % (self.appid,metadata['path'])
-					if c > 0:
-						impf.write('   else if ([urlStr isEqualToString:%s]){\n     return [self %s];\n   }\n' % (eq,metadata['name']))
-					else:
-						impf.write('   if ([urlStr isEqualToString:%s]){\n     return [self %s];\n   }\n' % (eq,metadata['name']))
-
+					method = metadata['method']
+					eq = path.replace('.','_')
+					impf.write('         [map setObject:%s forKey:@"%s"];\n' % (method,eq))
 					c = c+1
 
 				
-		impf.write('   else {\n     return nil;\n   }\n')
+		impf.write("     }\n")
+		impf.write("     return [map objectForKey:path];\n")
 		impf.write('}\n')
 		impf.write(impf_buffer)
 

@@ -17,6 +17,7 @@
 	TiViewProxy *parent;
 	TiAnimation *animation;
 	LayoutConstraint layout;
+	id transformMatrix;
 	
 	unsigned int zIndex;
 	unsigned int animationDelayGuard;
@@ -30,7 +31,6 @@
 	CGPoint touchLocation;		 // Need for swipe detection
 	BOOL handlesSwipes;
 	UIView *touchDelegate;		 // used for touch delegate forwarding
-	BOOL transformReset;
 	BOOL animating;
 	BOOL repositioning;
 }
@@ -40,6 +40,7 @@
 @property(nonatomic,readonly)			unsigned	int zIndex;
 @property(nonatomic,readonly)			LayoutConstraint *layout;
 @property(nonatomic,readwrite,assign)	UIView *touchDelegate;
+@property(nonatomic,readonly)			id transformMatrix;
 
 		  
 #pragma mark Public API 
@@ -48,7 +49,6 @@
 #pragma mark Framework
 -(void)performZIndexRepositioning;
 -(void)repositionZIndex;
-//-(void)updateFrameSize:(CGRect)frame;
 -(UIImage*)loadImage:(id)image;
 
 -(id)proxyValueForKey:(NSString *)key;

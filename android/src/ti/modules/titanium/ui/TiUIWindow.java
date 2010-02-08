@@ -42,9 +42,8 @@ public class TiUIWindow extends TiUIView
 		this.activity = ref.activity;
 		TiActivity tia = (TiActivity) activity;
 		setNativeView(ref.activity.getWindow().getDecorView());
-		//setNativeView(tia.getLayout());
-		// if url, create a new context.
 
+		// if url, create a new context.
 		TiDict props = proxy.getDynamicProperties();
 		if (props.containsKey("url")) {
 
@@ -65,6 +64,11 @@ public class TiUIWindow extends TiUIView
 				activity.finish();
 			}
 		}
+	}
+
+	public View getLayout() {
+		TiActivity tia = (TiActivity) activity;
+		return tia.getLayout();
 	}
 
 	@Override

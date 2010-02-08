@@ -63,7 +63,13 @@ public class TiConvert
 					}
 					d.put(key, pa);
 				} else {
-					throw new IllegalArgumentException("Unsupported array property type " + v.getClass().getSimpleName());
+
+					Object[] oa = new Object[len];
+					for(int i = 0; i < len; i++) {
+						oa[i] = a[i];
+					}
+					d.put(key, oa);
+					//throw new IllegalArgumentException("Unsupported array property type " + v.getClass().getSimpleName());
 				}
 			} else {
 				d.put(key, (String[]) value);

@@ -26,7 +26,6 @@
 
 -(void)gc;
 
-//TODO: refactor this into XHRBridge since the other bridge no longer uses it
--(NSData*)invoke:(NSString*)pageToken operation:(NSString*)operation module:(NSString*)module property:(NSString*)property arguments:(NSString*)arguments exception:(NSString**)exception;
+-(TiHost*)host;
 
 @end

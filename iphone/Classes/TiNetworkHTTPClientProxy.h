@@ -49,7 +49,7 @@ typedef enum {
 @property(nonatomic,readonly) NSNumber* connected;
 @property(nonatomic,readonly) NSNumber* readyState;
 @property(nonatomic,readonly) NSString* responseText;
-@property(nonatomic,readonly) NSString* responseXML;	
+@property(nonatomic,readonly) TiProxy* responseXML;	
 @property(nonatomic,readonly) TiBlob* responseData;	
 @property(nonatomic,readonly) NSString* connectionType;
 @property(nonatomic,readonly) NSString* location;

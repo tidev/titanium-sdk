@@ -4,25 +4,30 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import <QuartzCore/QuartzCore.h>
 
 #import "TiUtils.h"
 #import "TiHost.h"
 #import "TiPoint.h"
 #import "TiProxy.h"
 #import "ImageLoader.h"
+#import "WebFont.h"
+#import "TiDimension.h"
+#import "TiColor.h"
 
-#import <QuartzCore/QuartzCore.h>
 
 @implementation TiUtils
 
 +(NSString *)encodeQueryPart:(NSString *)unencodedString
 {
-	return (NSString *)CFURLCreateStringByAddingPercentEscapes(
+	NSString * result = (NSString *)CFURLCreateStringByAddingPercentEscapes(
 															   NULL,
 															   (CFStringRef)unencodedString,
 															   NULL,
 															   (CFStringRef)@"!*'();:@+$,/?%#[]=", 
 															   kCFStringEncodingUTF8 );
+	[result autorelease];
+	return result;
 }
 
 +(NSString *)encodeURIParameters:(NSString *)unencodedString
@@ -182,17 +187,9 @@
 	
 	if ([object isKindOfClass:[NSString class]])
 	{
-		if ([object hasPrefix:@"app://"])
+		if ([object hasPrefix:@"/"])
 		{
-			url = [NSURL URLWithString:object];
-		}
-		else if ([object hasPrefix:@"http://"])
-		{
-			url = [NSURL URLWithString:object];
-		}
-		else if ([object hasPrefix:@"https://"])
-		{
-			url = [NSURL URLWithString:object];
+			return [NSURL fileURLWithPath:object];
 		}
 		url = [NSURL URLWithString:object relativeToURL:[proxy _baseURL]];
 		if (url==nil)
@@ -203,7 +200,7 @@
 			{
 				NSString *qs = [TiUtils encodeURIParameters:[object substringFromIndex:range.location+1]];
 				NSString *newurl = [NSString stringWithFormat:@"%@?%@",[object substringToIndex:range.location],qs];
-				url = [NSURL URLWithString:newurl];
+				return [NSURL URLWithString:newurl];
 			}
 		}
 	}
@@ -709,6 +706,27 @@
 	return CGRectMake(center.x - (anchorPoint.x * bounds.size.width),
 			center.y - (anchorPoint.y * bounds.size.height),
 			bounds.size.width, bounds.size.height);
+}
+
++(NSData *)loadAppResource:(NSURL*)url
+{
+	if ([url isFileURL])
+	{
+		static id AppRouter;
+		if (AppRouter==nil)
+		{
+			AppRouter = NSClassFromString(@"ApplicationRouting");
+		}
+		if (AppRouter!=nil)
+		{
+			NSString *urlstring = [url path];
+			NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
+			NSString *appurlstr = [NSString stringWithFormat:@"%@",[urlstring stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"%@/",resourceurl] withString:@""]];
+			appurlstr = [appurlstr stringByReplacingOccurrencesOfString:@"." withString:@"_"];
+			return [AppRouter performSelector:@selector(resolveAppAsset:) withObject:appurlstr];
+		}
+	}
+	return nil;
 }
 
 @end

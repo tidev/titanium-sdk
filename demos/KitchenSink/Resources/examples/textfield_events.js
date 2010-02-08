@@ -27,7 +27,7 @@ tf1.addEventListener('blur',function(e)
 });
 tf1.addEventListener('change', function(e)
 {
-	l.text = 'change received, val = ' + e.value;	
+	l.text = 'change received, event val = ' + e.value + ' act val ' + tf1.value;	
 })
 
 win.add(tf1);

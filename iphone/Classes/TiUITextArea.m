@@ -7,6 +7,7 @@
 #import "TiUITextArea.h"
 #import "TiUtils.h"
 #import "TiRange.h"
+#import "Webcolor.h"
 
 @implementation TiUITextArea
 
@@ -102,6 +103,11 @@
 -(void)setAutocapitalization_:(id)value
 {
 	[[self textview] setAutocapitalizationType:[TiUtils intValue:value]];
+}
+
+-(void)setBackgroundColor_:(id)color
+{
+	[[self textview] setBackgroundColor:UIColorWebColorNamed(color)];
 }
 
 #pragma mark Public Method

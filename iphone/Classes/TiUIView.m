@@ -49,6 +49,7 @@ DEFINE_EXCEPTIONS
 
 -(void)dealloc
 {
+	RELEASE_TO_NIL(transformMatrix);
 	RELEASE_TO_NIL(animation);
 	[super dealloc];
 }
@@ -117,6 +118,11 @@ DEFINE_EXCEPTIONS
 	return [[ImageLoader sharedLoader] loadImmediateStretchableImage:url];
 }
 
+-(id)transformMatrix
+{
+	return transformMatrix;
+}
+
 #pragma mark Layout 
 
 -(LayoutConstraint*)layout
@@ -148,7 +154,6 @@ DEFINE_EXCEPTIONS
 {
 	if ([NSThread isMainThread])
 	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?
-		NSLog(@"Repositioning...");
 		[self relayout:[self superview].bounds];
 	}
 	else 
@@ -314,7 +319,7 @@ DEFINE_EXCEPTIONS
 -(void)setBorderRadius_:(id)radius
 {
 	self.layer.cornerRadius = [TiUtils floatValue:radius];
-	self.clipsToBounds =YES;
+	self.clipsToBounds = YES;
 }
 
 -(void)setAnchorPoint_:(id)point
@@ -322,15 +327,17 @@ DEFINE_EXCEPTIONS
 	self.layer.anchorPoint = [TiUtils pointValue:point];
 }
 
--(void)setTransform_:(id)transform
+-(void)setTransform_:(id)transform_
 {
-	if ([transform isKindOfClass:[Ti2DMatrix class]])
+	RELEASE_TO_NIL(transformMatrix);
+	transformMatrix = [transform_ retain];
+	if ([transformMatrix isKindOfClass:[Ti2DMatrix class]])
 	{
-		self.transform = [(Ti2DMatrix*)transform matrix];
+		self.transform = [(Ti2DMatrix*)transformMatrix matrix];
 	}
-	else if ([transform isKindOfClass:[Ti3DMatrix class]])
+	else if ([transformMatrix isKindOfClass:[Ti3DMatrix class]])
 	{
-		self.transform = CGAffineTransformIdentity;
+		self.layer.transform = [(Ti3DMatrix*)transformMatrix matrix];
 	}
 }
 

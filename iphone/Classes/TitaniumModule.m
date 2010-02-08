@@ -8,6 +8,7 @@
 #import "TitaniumModule.h"
 #import "KrollBridge.h"
 #import "TitaniumApp.h"
+#import "TiUtils.h"
 
 @implementation TitaniumModule
 
@@ -25,7 +26,7 @@
 {
 	for (id file in jsfiles)
 	{
-		[pageContext evalFile:file];
+		[[self executionContext] evalFile:file];
 	}
 }
 

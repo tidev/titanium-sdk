@@ -118,7 +118,7 @@ public class KrollObject extends ScriptableObject
 		Object o = NOT_FOUND;
 
 		// If starts with Capital letter see if there is a module for it.
-		if (name.matches("^[A-Z].*")) {
+		if (name.matches("^[A-Z].*") || name.matches("iPhone")) {
 			Object p = loadModule(name);
 			if (p != null) {
 				o = new KrollObject(this, p);
@@ -180,7 +180,7 @@ public class KrollObject extends ScriptableObject
 		Method setMethod = (Method) loadMethod(target.getClass(), buildMethodName("set", pname));
 		boolean isGetter = getMethod != null && getMethod.getParameterTypes().length == 0;
 		boolean isSetter = setMethod != null && setMethod.getParameterTypes().length == 1;
-		
+
 		if (isGetter || isSetter) {
 			Log.i(LCAT, "Treating as property: " + pname);
 			if (getMethod != null) {
@@ -490,7 +490,9 @@ public class KrollObject extends ScriptableObject
 		} else if (value instanceof Boolean) {
 			o = Context.jsToJava(value, target);
 		} else if (value instanceof Function) {
-			Log.i(LCAT, "Is a Function");
+			if (DBG) {
+				Log.i(LCAT, "Is a Function");
+			}
 			o = new KrollCallback(weakKrollContext.get(), this, (Function) value);
 		} else if (value == null) {
 			o = null;
@@ -514,7 +516,9 @@ public class KrollObject extends ScriptableObject
 //					if (v instanceof Scriptable && isArrayLike((Scriptable) v)) {
 //						v = toArray((Scriptable) v);
 //					}
-					Log.i(LCAT, "Key: " + key + " value: " + v + " type: " + v.getClass().getName());
+					if (DBG) {
+						Log.i(LCAT, "Key: " + key + " value: " + v + " type: " + v.getClass().getName());
+					}
 					args.put((String) key, v);
 				}
 				//Log.w(LCAT, "Unhandled type conversion of Scriptable: value: " + value.toString() + " type: " + value.getClass().getName());
@@ -546,7 +550,7 @@ public class KrollObject extends ScriptableObject
 		for(int i = 0; i < len; i++) {
 			Object v = svalue.get(i, svalue);
 			Log.i(LCAT, "Index: " + i + " value: " + v + " type: " + v.getClass().getName());
-			a[i] = v;
+			a[i] = toNative(v, Object.class);
 		}
 		return a;
 	}
@@ -619,6 +623,14 @@ public class KrollObject extends ScriptableObject
 		} else if (value instanceof Date) {
 			Date date = (Date) value;
 			o = Context.getCurrentContext().newObject(kroll.getScope(), "Date", new Object[] { date.getTime() });
+		} else if (value instanceof Object[]) {
+			Object[] array = (Object[]) value;
+			Object[] jsArray = new Object[array.length];
+			for (int i = 0; i < array.length; i++) {
+				jsArray[i] = fromNative(array[i], kroll);
+			}
+			
+			o = Context.getCurrentContext().newObject(kroll.getScope(), "Array", jsArray);
 		} else {
 			o = new KrollObject(kroll, value);
 		}

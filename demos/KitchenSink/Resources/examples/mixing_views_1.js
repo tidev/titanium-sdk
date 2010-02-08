@@ -1,5 +1,37 @@
 var win = Titanium.UI.currentWindow;
 
+// simple inline web view that triggers an event
+var html = '<html><body style=";color:#bbb;font-family:Helvetica Neue;text-align:center">';
+html += '<div style="font-size:20;font-weight:bold;">I am a web view</div>';
+html += '<div id="foo" style="font-size:14;font-weight:bold;">click me</div>';
+html += '<script>document.getElementById("foo").onclick = function()';
+html += '{Ti.App.fireEvent("webview_click")};</script>';
+html += '</body></html>'
+
+var webView = Ti.UI.createWebView({
+	top:10,
+	height:70,
+	width:300,
+	borderRadius:10,
+	backgroundColor:'#13386c',
+	html:html
+});
+win.add(webView);
+
+var l1 = Titanium.UI.createLabel({
+	text:'You clicked the web view',
+	color:'#13386c',
+	font:{fontSize:20},
+	top:90,
+	visible:false,
+	width:300
+});
+
+win.add(l1);
+Ti.App.addEventListener('webview_click', function()
+{
+	l1.visible = true;
+});
 //
 // CREATE ANNOTATIONS
 //
@@ -46,39 +78,10 @@ var mapview = Titanium.Map.createView({
 	animate:true,
 	regionFit:true,
 	userLocation:true,
-	bottom:10,
+	bottom:0,
 	height:200,
-	left:10,
-	right:10,
-	borderWidth:3,
-	borderRadius:10,
-	borderColor:'#999',
 	annotations:[mountainView, apple, atlanta]
 });
 
 win.add(mapview);
 
-//
-//  grouped view
-//
-var buttonData = [
-	{title:'Button 1'},
-	{title:'Button 2'},
-	{title:'Button 3'}
-
-];
-
-var buttonSection = Titanium.UI.iPhone.createGroupedSection({
-	footer:'Button Footer',
-	header:'Button Header',
-	type:'button',
-	data:buttonData
-});
-
-// var groupedView = Titanium.UI.createGroupedView({
-// 	top:0,
-// 	height:100
-// });
-// groupedView.addSection(buttonSection);
-
-//win.add(groupedView);

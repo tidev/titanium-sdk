@@ -82,7 +82,7 @@
 	id first = [args objectAtIndex:0];
 	if ([first characterAtIndex:0]!='/')
 	{
-		[newpath appendFormat:@"%@/%@",[self applicationDataDirectory],[self resolveFile:first]];
+		[newpath appendFormat:@"%@/%@",[self resourcesDirectory],[self resolveFile:first]];
 	}
 	else 
 	{

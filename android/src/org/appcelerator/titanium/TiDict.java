@@ -7,9 +7,12 @@
 package org.appcelerator.titanium;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.appcelerator.titanium.util.TiConvert;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class TiDict
@@ -22,6 +25,20 @@ public class TiDict
 		this(INITIAL_SIZE);
 	}
 
+	public TiDict(JSONObject object) throws JSONException {
+		for (Iterator<String> iter = object.keys(); iter.hasNext();) {
+			String key = iter.next();
+			Object value = object.get(key);
+			
+			if (value instanceof JSONObject) {
+				put(key, new TiDict((JSONObject)value));
+			}
+			else {
+				put(key, value);
+			}
+		}
+	}
+	
 	public TiDict(Map<? extends String, ? extends Object> map) {
 		super(map);
 	}
@@ -32,6 +49,15 @@ public class TiDict
 
 	public boolean getBoolean(String key) {
 		return TiConvert.toBoolean(get(key));
+	}
+
+	public boolean optBoolean(String key, boolean defaultValue) {
+		boolean result = defaultValue;
+
+		if (containsKey(key)) {
+			result = getBoolean(key);
+		}
+		return result;
 	}
 
 	public String getString(String key) {
@@ -59,5 +85,14 @@ public class TiDict
 
 	public TiDict getTiDict(String key) {
 		return (TiDict) get(key);
+	}
+
+	public boolean isNull(String key) {
+		return (get(key) == null);
+	}
+	
+	@Override
+	public String toString() {
+		return new JSONObject(this).toString();
 	}
 }
