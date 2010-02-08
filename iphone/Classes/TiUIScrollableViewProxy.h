@@ -18,6 +18,7 @@
 
 -(int)countOfViews;
 -(TiViewProxy *)objectInViewsAtIndex:(int)index;
+-(void)fireScrollEvent:(int)newIndex;
 
 #pragma mark Javascript-facing values
 @property(readwrite,nonatomic,copy) NSArray * views;	//Normally we'd let dynamic take care of this, but we need to control the mutability.

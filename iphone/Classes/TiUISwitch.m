@@ -11,31 +11,6 @@
 
 @implementation TiUISwitch
 
-//-(void)relayout:(CGRect)bounds
-//{
-////TODO: Move this further up, because auto can be very very useful.
-//	[super relayout:bounds];
-//
-//	BOOL inBar = [(TiUIWidgetProxy *)[self proxy] isUsingBarButtonItem];
-//	
-//	CGRect ourFrame = [TiUtils viewPositionRect:self];
-//	CGSize wantedSize = [switchView sizeThatFits:CGSizeZero];
-//	
-//	ourFrame.origin.x += (ourFrame.size.width - wantedSize.width)/2;
-//	ourFrame.size.width = wantedSize.width;
-//
-//	ourFrame.origin.y += (ourFrame.size.height - wantedSize.height)/2;
-//	ourFrame.size.height = wantedSize.height;
-//
-//	if (inBar)
-//	{
-//		ourFrame.origin = CGPointZero;
-//	}
-//	
-//	[TiUtils setView:self positionRect:ourFrame];
-//}
-
-
 -(void)dealloc
 {
 	[switchView removeTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
@@ -71,7 +46,14 @@
 
 - (IBAction)switchChanged:(id)sender
 {
-	[[self proxy] switchChanged:sender];
+	NSNumber * newValue = [NSNumber numberWithBool:[(UISwitch *)sender isOn]];
+	[self.proxy replaceValue:newValue forKey:@"value" notification:NO];
+	
+	//No need to setValue, because it's already been set.
+	if ([self.proxy _hasListeners:@"change"])
+	{
+		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+	}
 }
 
 -(CGFloat)verifyWidth:(CGFloat)suggestedWidth
