@@ -12,7 +12,7 @@
 
 @implementation TiUITableViewGroupSection
 
-@synthesize header,footer,isOptionList,nullHeader,rowArray,name,templateCell,headerColor,headerFont,footerColor,footerFont;
+@synthesize header,footer,isOptionList,nullHeader,rowArray,name,headerColor,headerFont,footerColor,footerFont;
 @synthesize rowHeight, minRowHeight, maxRowHeight, delegate, sectionNumber;
 
 
@@ -61,7 +61,6 @@
 	RELEASE_TO_NIL(rowArray);
 	RELEASE_TO_NIL(headerColor);
 	RELEASE_TO_NIL(headerFont);
-	RELEASE_TO_NIL(templateCell);
 	[super dealloc];
 }
 
@@ -78,7 +77,6 @@ DEFINE_EXCEPTIONS
 	[result setName:name];
 	[result setIsOptionList:isOptionList];
 	[result setNullHeader:nullHeader];
-	[result setTemplateCell:templateCell];
 	return result;
 }
 
@@ -188,7 +186,7 @@ DEFINE_EXCEPTIONS
 	return [rowArray count];
 }
 
-- (void) addRow: (TiUITableViewCellProxy *) newRow
+- (void) addRow: (TiUITableViewRowProxy *) newRow
 {
 	if (rowArray == nil){
 		rowArray = [[NSMutableArray alloc] initWithObjects:newRow,nil];
@@ -197,7 +195,7 @@ DEFINE_EXCEPTIONS
 	}
 }
 
-- (void) insertRow: (TiUITableViewCellProxy *) newRow atIndex: (int) index
+- (void) insertRow: (TiUITableViewRowProxy *) newRow atIndex: (int) index
 {
 	if (rowArray == nil){
 		rowArray = [[NSMutableArray alloc] initWithObjects:newRow,nil];
@@ -235,10 +233,10 @@ DEFINE_EXCEPTIONS
 	[rowArray removeObjectAtIndex:rowIndex];
 }
 
-- (TiUITableViewCellProxy *) rowForIndex: (NSUInteger) rowIndex
+- (TiUITableViewRowProxy *) rowForIndex: (NSUInteger) rowIndex
 {
 	if (rowIndex >= [rowArray count]) return nil;
-	TiUITableViewCellProxy * result = [rowArray objectAtIndex:rowIndex];
+	TiUITableViewRowProxy * result = [rowArray objectAtIndex:rowIndex];
 	return result;
 }
 
@@ -256,7 +254,7 @@ DEFINE_EXCEPTIONS
 
 - (NSDictionary *) objectInDataAtIndex: (int)index
 {
-	return [[self rowForIndex:index] jsonValues];
+	return [[self rowForIndex:index] allProperties];
 }
 
 - (void) insertObject:(NSDictionary *)newRowData inDataAtIndex:(int)index
@@ -264,8 +262,8 @@ DEFINE_EXCEPTIONS
 	ENSURE_TYPE(newRowData,NSDictionary);
 	ENSURE_VALUE_RANGE(index,0,[self countOfData]);
 	
-	TiUITableViewCellProxy * newRow = [TiUITableViewCellProxy cellDataWithProperties:newRowData proxy:delegate font:[WebFont tableRowFont] template:templateCell];
-	[self insertRow:newRow atIndex:index];
+//	TiUITableViewCellProxy * newRow = [TiUITableViewCellProxy cellDataWithProperties:newRowData proxy:delegate font:[WebFont tableRowFont] template:templateCell];
+//	[self insertRow:newRow atIndex:index];
 }
 
 - (void) removeObjectFromDataAtIndex:(int)index
@@ -280,8 +278,8 @@ DEFINE_EXCEPTIONS
 	ENSURE_TYPE(newRowData,NSDictionary);
 	ENSURE_VALUE_RANGE(index,0,[self countOfData]-1);
 	
-	TiUITableViewCellProxy * newRow = [TiUITableViewCellProxy cellDataWithProperties:newRowData proxy:delegate font:[WebFont tableRowFont] template:templateCell];
-	[rowArray replaceObjectAtIndex:index withObject:newRow];
+//	TiUITableViewCellProxy * newRow = [TiUITableViewCellProxy cellDataWithProperties:newRowData proxy:delegate font:[WebFont tableRowFont] template:templateCell];
+//	[rowArray replaceObjectAtIndex:index withObject:newRow];
 }
 
 - (void) setData:(id)newData
@@ -300,8 +298,8 @@ DEFINE_EXCEPTIONS
 	for (NSDictionary * thisRowData in newData) 
 	{
 		ENSURE_DICT(thisRowData);
-		TiUITableViewCellProxy * thisRow = [TiUITableViewCellProxy cellDataWithProperties:thisRowData proxy:delegate font:[WebFont tableRowFont] template:templateCell];
-		[rowArray addObject:thisRow];
+//		TiUITableViewCellProxy * thisRow = [TiUITableViewCellProxy cellDataWithProperties:thisRowData proxy:delegate font:[WebFont tableRowFont] template:templateCell];
+//		[rowArray addObject:thisRow];
 	}
 }
 

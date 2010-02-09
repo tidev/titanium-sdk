@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiUIView.h"
-#import "TiUITableViewCellProxy.h"
+#import "TiUITableViewRowProxy.h"
 #import "TiUITableViewGroupSection.h"
 
 #define CHECK_ROW_HEIGHT(rowHeightDimension,tableCell,tableViewObject)	\
@@ -49,7 +49,6 @@ typedef enum
 @protected
 	UITableView* tableview;
 	NSMutableArray *sectionArray;
-	TiUITableViewCellProxy *templateCell;
 	
 	TiDimension rowHeight;
 	TiDimension minRowHeight;
@@ -64,7 +63,7 @@ typedef enum
 -(void)dispatchAction:(NSArray*)args withType:(TiUITableViewDispatchType)type;
 -(void)replaceData:(id)args reload:(BOOL)reload;
 - (TiUITableViewGroupSection *) sectionForIndex: (NSInteger) section;
-- (TiUITableViewCellProxy *) cellForIndexPath: (NSIndexPath *) path;
+- (TiUITableViewRowProxy *) cellForIndexPath: (NSIndexPath *) path;
 - (NSInteger) sectionIndexForIndex:(NSInteger)theindex;
 - (void)triggerActionForIndexPath: (NSIndexPath *)indexPath fromPath:(NSIndexPath*)fromPath wasAccessory: (BOOL) accessoryTapped search: (BOOL) viaSearch name:(NSString*)name;
 

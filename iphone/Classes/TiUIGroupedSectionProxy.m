@@ -54,14 +54,7 @@
 		{
 			[section setHeaderColor:[color _color]];
 		}
-		
-		NSDictionary * templateCellDict = [self valueForKey:@"template"];
-		if (templateCellDict!=nil)
-		{
-			ENSURE_DICT(templateCellDict);
-			[section setTemplateCell:[TiUITableViewCellProxy cellDataWithProperties:templateCellDict proxy:self font:[WebFont tableRowFont] template:nil]];
-		}		
-		
+				
 		NSArray * thisDataArray = [self valueForKey:@"data"];
 		if (thisDataArray!=nil)
 		{
@@ -70,7 +63,7 @@
 			{
 				ENSURE_DICT(thisEntry);
 				
-				TiUITableViewCellProxy * thisRow = [TiUITableViewCellProxy cellDataWithProperties:thisEntry proxy:self font:[WebFont tableRowFont] template:nil];
+				TiUITableViewRowProxy * thisRow = [TiUITableViewRowProxy cellDataWithProperties:thisEntry proxy:self font:[WebFont tableRowFont] template:nil];
 				if (isButtonGroup) 
 				{
 					[thisRow setIsButton:YES];

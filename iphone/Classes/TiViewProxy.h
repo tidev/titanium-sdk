@@ -7,7 +7,8 @@
 #import "TiProxy.h"
 #import "TiUIView.h"
 
-@interface TiViewProxy : TiProxy 
+//For TableRows, we need to have minimumParentHeightForWidth:
+@interface TiViewProxy : TiProxy<LayoutAutosizing> 
 {
 @private
 	NSMutableArray *children;

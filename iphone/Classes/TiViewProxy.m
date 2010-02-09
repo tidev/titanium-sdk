@@ -392,5 +392,39 @@
 	// called to remove
 }
 
+#pragma mark For autosizing of table views
+
+
+-(CGFloat)minimumParentHeightForWidth:(CGFloat)suggestedWidth
+{
+	if ([self viewAttached])
+	{
+		//Since it's expensive to extract from properties, let's cheat if the view already is there.
+		return [view minimumParentHeightForWidth:suggestedWidth];
+	}
+
+	TiDimension topDimension = TiDimensionFromObject([self valueForKey:@"top"]);
+	TiDimension botDimension = TiDimensionFromObject([self valueForKey:@"bottom"]);
+	TiDimension heightDimension = TiDimensionFromObject([self valueForKey:@"height"]);	
+
+	CGFloat result = TiDimensionCalculateValue(topDimension, 0)
+			+ TiDimensionCalculateValue(botDimension, 0);
+	switch (heightDimension.type)
+	{
+		case TiDimensionTypePixels:
+			result += heightDimension.value;
+			break;
+		case TiDimensionTypeAuto:
+			if ([self respondsToSelector:@selector(autoHeightForWidth:)])
+			{
+				TiDimension leftDimension = TiDimensionFromObject([self valueForKey:@"left"]);
+				TiDimension rightDimension = TiDimensionFromObject([self valueForKey:@"right"]);
+				suggestedWidth -= TiDimensionCalculateValue(leftDimension, 0)
+						+ TiDimensionCalculateValue(rightDimension, 0);
+				result += [self autoHeightForWidth:suggestedWidth];
+			}
+	}
+	return result;
+}
 
 @end

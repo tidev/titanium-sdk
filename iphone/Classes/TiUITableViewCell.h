@@ -7,27 +7,17 @@
 
 #import "TiProxy.h"
 
-@class TiUITableViewCellProxy;
+@class TiUITableViewRowProxy;
 
 @interface TiUITableViewCell : UITableViewCell<TiProxyDelegate>
 {
-	TiUITableViewCellProxy * proxy;
+@private
+	UITableViewStyle tableStyle;
+	TiUITableViewRowProxy * proxy;
 
 }
 
-
-
-#pragma mark BUG BARRIER
-@property(nonatomic,readwrite,retain) TiUITableViewCellProxy * proxy;
-@property(nonatomic,readwrite,copy) NSString * clickedName;
-@property(nonatomic,readonly)	UILabel * valueLabel;
-
-#pragma mark Internal
-
-- (void)flushBlobWatching;
-- (void)updateDefaultLayoutViews:(BOOL) hilighted;
-- (void)refreshFromDataWrapper;
-- (void)updateDataInSubviews:(BOOL)hilighted;
-
+@property(nonatomic,readwrite,retain) TiUITableViewRowProxy * proxy;
+@property(nonatomic,readwrite,assign) UITableViewStyle tableStyle; //Needed for some handling of styles.
 
 @end

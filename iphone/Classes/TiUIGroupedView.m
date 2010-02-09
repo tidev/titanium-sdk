@@ -7,7 +7,7 @@
 
 #import "TiUIGroupedView.h"
 #import "TiUITableViewGroupSection.h"
-#import "TiUITableViewCellProxy.h"
+#import "TiUITableViewRowProxy.h"
 #import "TiUITableViewCell.h"
 #import "Webcolor.h"
 
@@ -22,7 +22,7 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {	
 	TiUITableViewGroupSection * ourTableSection = [self sectionForIndex:[indexPath section]];
-	TiUITableViewCellProxy * ourTableCell = [ourTableSection rowForIndex:[indexPath row]];
+	TiUITableViewRowProxy * ourTableCell = [ourTableSection rowForIndex:[indexPath row]];
 	
 //	TiDimension result = [ourTableCell rowHeight];
 //	CHECK_ROW_HEIGHT(result,ourTableCell,tableView);
@@ -36,7 +36,7 @@
 	return [super tableView:tableView heightForRowAtIndexPath:indexPath];
 }
 
--(TiUITableViewCell*)cellForIndexPath:(NSIndexPath *)path section:(TiUITableViewGroupSection*)sectionWrapper cell:(TiUITableViewCellProxy*)rowWrapper
+-(TiUITableViewCell*)cellForIndexPath:(NSIndexPath *)path section:(TiUITableViewGroupSection*)sectionWrapper cell:(TiUITableViewRowProxy*)rowWrapper
 {
 	TiUITableViewCell *result = nil;
 //	NSString * valueString = [rowWrapper value];

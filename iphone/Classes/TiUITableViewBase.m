@@ -6,7 +6,7 @@
  */
 
 #import "TiUITableViewBase.h"
-#import "TiUITableViewCellProxy.h"
+#import "TiUITableViewRowProxy.h"
 #import "TiUITableViewGroupSection.h"
 #import "WebFont.h"
 #import "Webcolor.h"
@@ -26,7 +26,6 @@
 -(void)dealloc
 {
 	RELEASE_TO_NIL(tableview);
-	RELEASE_TO_NIL(templateCell);
 	RELEASE_TO_NIL(sectionArray);
 	RELEASE_TO_NIL(borderColor);
 	[super dealloc];
@@ -173,10 +172,10 @@
 	return nil;
 }
 
-- (TiUITableViewCellProxy *) cellForIndexPath: (NSIndexPath *) path
+- (TiUITableViewRowProxy *) cellForIndexPath: (NSIndexPath *) path
 {
 	TiUITableViewGroupSection * thisSectionWrapper = [self sectionForIndex:[path section]];
-	TiUITableViewCellProxy * result = [thisSectionWrapper rowForIndex:[path row]];
+	TiUITableViewRowProxy * result = [thisSectionWrapper rowForIndex:[path row]];
 	return result;	
 }
 
@@ -398,7 +397,7 @@
 		return NO;
 	}
 	TiUITableViewGroupSection *sectionWrapper = [self sectionForIndex:[indexPath section]];
-	TiUITableViewCellProxy *rowWrapper = [sectionWrapper rowForIndex:[indexPath row]];
+	TiUITableViewRowProxy *rowWrapper = [sectionWrapper rowForIndex:[indexPath row]];
 	id value = [rowWrapper stringForKey:@"indentOnEdit"];
 	if (value!=nil)
 	{
@@ -412,7 +411,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	TiUITableViewGroupSection *sectionWrapper = [self sectionForIndex:[indexPath section]];
-	TiUITableViewCellProxy *rowProxy = [sectionWrapper rowForIndex:[indexPath row]];
+	TiUITableViewRowProxy *rowProxy = [sectionWrapper rowForIndex:[indexPath row]];
 
 	TiUITableViewCell *result = [rowProxy cellForTableView:tableView];
 	
@@ -464,7 +463,7 @@
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	TiUITableViewGroupSection *sectionWrapper = [self sectionForIndex:[indexPath section]];
-	TiUITableViewCellProxy *rowWrapper = [sectionWrapper rowForIndex:[indexPath row]];
+	TiUITableViewRowProxy *rowWrapper = [sectionWrapper rowForIndex:[indexPath row]];
 	id editable_ = [rowWrapper stringForKey:@"editable"];
 	
 	if (editable_!=nil && !moving)
@@ -480,7 +479,7 @@
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	TiUITableViewGroupSection *sectionWrapper = [self sectionForIndex:[indexPath section]];
-	TiUITableViewCellProxy *rowWrapper = [sectionWrapper rowForIndex:[indexPath row]];
+	TiUITableViewRowProxy *rowWrapper = [sectionWrapper rowForIndex:[indexPath row]];
 	id amoveable = [rowWrapper stringForKey:@"moveable"];
 	return amoveable==nil ? moving : [TiUtils boolValue:amoveable];
 }
@@ -493,7 +492,7 @@
 	TiUITableViewGroupSection *fromSection = [self sectionForIndex:fromSectionIndex];
 	TiUITableViewGroupSection *toSection = [self sectionForIndex:toSectionIndex];
 
-	TiUITableViewCellProxy *rowWrapper = [fromSection rowForIndex:[fromIndexPath row]];
+	TiUITableViewRowProxy *rowWrapper = [fromSection rowForIndex:[fromIndexPath row]];
 	[fromSection removeObjectFromDataAtIndex:[fromIndexPath row]];
 	[toSection insertRow:rowWrapper atIndex:[toIndexPath row]];
 	
@@ -543,21 +542,6 @@
 			{
 				[tableview setSeparatorColor:borderColor];
 			}
-		}
-	}
-}
-
--(void)setTemplate_:(id)cell
-{
-	ENSURE_DICT(cell);
-	RELEASE_TO_NIL(templateCell);
-	templateCell = [[TiUITableViewCellProxy cellDataWithProperties:cell proxy:[self proxy] font:[WebFont tableRowFont] template:nil] retain];
-	if (TiDimensionIsUndefined(rowHeight))
-	{
-		id value = [templateCell stringForKey:@"rowHeight"];
-		if (value!=nil)
-		{
-			[self setRowHeight_:value];
 		}
 	}
 }
@@ -642,27 +626,22 @@
 	
 	sectionArray = [[NSMutableArray alloc] init];
 	
-	TiUITableViewGroupSection * thisSectionWrapper = nil;
+	TiUIGroupedSectionProxy * thisSectionWrapper = nil;
 	
 	for (id thisEntry in dataArray)
 	{
-		ENSURE_DICT(thisEntry);
-		TiUITableViewCellProxy * thisRow = [TiUITableViewCellProxy cellDataWithProperties:thisEntry proxy:[self proxy] font:[WebFont tableRowFont] template:templateCell];
+		ENSURE_TABLE_VIEW_ROW(thisEntry);
 		
-		NSString * headerString = [TiUtils stringValue:@"header" properties:thisEntry];
-		NSString * footerString = [TiUtils stringValue:@"footer" properties:thisEntry];
-		
-		if ([thisSectionWrapper accceptsHeader:headerString footer:footerString])
+		NSString * headerString = [TiUtils stringValue:[thisEntry valueForKey:@"header"]];
+
+		if ((thisSectionWrapper == nil) || (headerString != nil))
 		{
-			[thisSectionWrapper addRow:thisRow];
-		} 
-		else 
-		{
-			thisSectionWrapper = [[TiUITableViewGroupSection alloc] initWithHeader:headerString footer:footerString withProperties:thisEntry];
-			[thisSectionWrapper addRow:thisRow];
+			thisSectionWrapper = [[TiUIGroupedSectionProxy alloc] _initWithPageContext:[self pageContext]];
+			[thisSectionWrapper _initWithProperties:[thisEntry allProperties]];
 			[sectionArray addObject:thisSectionWrapper];
-			[thisSectionWrapper release];
+			[thisSectionWrapper autorelease];
 		}
+		[thisSectionWrapper insertObject:thisEntry inDataAtIndex:[thisSectionWrapper countOfData]];
 	}	
 	
 	if (reload)

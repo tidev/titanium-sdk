@@ -260,7 +260,7 @@ DEFINE_EXCEPTIONS
 			result += layout.height.value;
 			break;
 		case TiDimensionTypeAuto:
-			if ([self respondsToSelector:@selector(autoWidthForWidth:)])
+			if ([self respondsToSelector:@selector(autoHeightForWidth:)])
 			{
 				suggestedWidth -= TiDimensionCalculateValue(layout.left, 0)
 						+ TiDimensionCalculateValue(layout.right, 0);

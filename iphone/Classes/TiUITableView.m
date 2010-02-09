@@ -141,7 +141,7 @@
 			[thisIndexSet removeAllIndexes];
 		}
 		int cellIndex = 0;
-		for (TiUITableViewCellProxy * thisCell in thisSection) 
+		for (TiUITableViewRowProxy * thisCell in thisSection) 
 		{
 			if([thisCell stringForKey:ourSearchAttribute containsString:searchString])
 			{
@@ -227,7 +227,7 @@
 		{
 			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"search"] autorelease];
 		}
-		TiUITableViewCellProxy * rowWrapper = [self cellForIndexPath:[self indexPathFromSearchIndex:[indexPath row]]];
+		TiUITableViewRowProxy * rowWrapper = [self cellForIndexPath:[self indexPathFromSearchIndex:[indexPath row]]];
 		[(id)result setText:[rowWrapper title]];
 		return result;
 	}
