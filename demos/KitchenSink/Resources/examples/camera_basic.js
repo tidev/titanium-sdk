@@ -1,25 +1,5 @@
 var win = Titanium.UI.currentWindow;
 
-var imageView = Titanium.UI.createImageView({
-	height:200,
-	width:200,
-	top:20,
-	left:10,
-	backgroundColor:'#999'
-});
-
-win.add(imageView);
-
-var thumbnailView = Titanium.UI.createImageView({
-	height:50,
-	width:50,
-	top:240,
-	left:10,
-	backgroundColor:'#999'
-});
-
-win.add(thumbnailView);
-
 Titanium.Media.showCamera({
 
 	success:function(event)
@@ -29,8 +9,8 @@ Titanium.Media.showCamera({
 		var thumbnail = event.thumbnail;
 		
 		// set image view
-		imageView.image = image;
-		thumbnailView.image = thumbnail;
+		var imageView = Ti.UI.createImageView({image:event.media});
+		win.add(imageView);
 		
 		Titanium.API.info('CAMERA SUCCESS cropRect.x ' + cropRect.x + ' cropRect.y ' + cropRect.y  + ' cropRect.height ' + cropRect.height + ' cropRect.width ' + cropRect.width);
 		
