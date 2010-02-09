@@ -9,7 +9,7 @@ var data = [
 	{title:'Button Bar', hasChild:true, test:'../examples/buttonbar.js'},
 	{title:'Tabbed Bar', hasChild:true, test:'../examples/tabbedbar.js'},
 	{title:'Search Bar', hasChild:true, test:'../examples/searchbar.js'},
-	{title:'Picker', hasChild:true, test:'../examples/picker.js'},
+	{title:'Picker', hasChild:true, test:'../todo.js'},
 	{title:'Text Field', hasChild:true, test:'../examples/textfield.js'},
 	{title:'Text Area', hasChild:true, test:'../examples/textarea.js'},
 	{title:'System Buttons', hasChild:true, test:'../examples/system_buttons.js'},

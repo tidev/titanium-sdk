@@ -30,11 +30,10 @@ b1.addEventListener('click', function()
 
 	c.onload = function()
 	{
-		var f = Titanium.Filesystem.getFile('test.pdf');
+		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'test.pdf');
 		f.write(this.responseData);
 		var wv = Ti.UI.createWebView({
 			url:f.nativePath,
-			data:f,
 			height:300,
 			left:0,
 			right:0,

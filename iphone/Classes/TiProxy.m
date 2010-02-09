@@ -211,6 +211,15 @@ static int tiProxyId = 0;
 -(void)_initWithProperties:(NSDictionary*)properties
 {
 	[self setValuesForKeysWithDictionary:properties];
+//	for (id key in properties)
+//	{
+//		id value = [properties objectForKey:key];
+//		if (value == [NSNull null])
+//		{
+//			value = nil;
+//		}
+//		[self replaceValue:value forKey:key notification:NO];
+//	}	
 }
 
 -(void)_initWithCallback:(KrollCallback*)callback

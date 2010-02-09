@@ -1,5 +1,3 @@
-var win = Titanium.UI.currentWindow;
-
 Titanium.Media.showCamera({
 
 	success:function(event)
@@ -8,12 +6,9 @@ Titanium.Media.showCamera({
 		var image = event.media;
 		var thumbnail = event.thumbnail;
 		
-		// set image view
-		var imageView = Ti.UI.createImageView({image:event.media});
-		win.add(imageView);
+		Titanium.Media.saveToPhotoGallery(image);
 		
-		Titanium.API.info('CAMERA SUCCESS cropRect.x ' + cropRect.x + ' cropRect.y ' + cropRect.y  + ' cropRect.height ' + cropRect.height + ' cropRect.width ' + cropRect.width);
-		
+		Titanium.UI.createAlertDialog({title:'Photo Gallery',message:'Check your photo gallery'}).show();		
 	},
 	cancel:function()
 	{
@@ -27,7 +22,7 @@ Titanium.Media.showCamera({
 		// set message
 		if (error.code == Titanium.Media.NO_CAMERA)
 		{
-			a.setMessage('Please run this test on device');
+			a.setMessage('Device does not have video recording capabilities');
 		}
 		else
 		{

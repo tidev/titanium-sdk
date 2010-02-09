@@ -234,7 +234,6 @@ b6.addEventListener('click', function()
 {
 	var w = Titanium.UI.createWindow({
 		backgroundColor:'#336699',
-		fullscreen:true
 	});
 	
 	// create a button to close window
@@ -249,7 +248,7 @@ b6.addEventListener('click', function()
 		w.close();
 	});
 	
-	w.open();
+	w.open({fullscreen:true});
 });
 
 win.add(b6);

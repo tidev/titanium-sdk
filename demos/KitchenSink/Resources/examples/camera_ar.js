@@ -97,7 +97,14 @@ Titanium.Media.showCamera({
 	error:function(error)
 	{
 		var a = Titanium.UI.createAlertDialog({title:'Camera'});
-		a.setMessage('Unexpected error: ' + error.code);
+		if (error.code == Titanium.Media.NO_CAMERA)
+		{
+			a.setMessage('Please run this test on device');
+		}
+		else
+		{
+			a.setMessage('Unexpected error: ' + error.code);
+		}
 		a.show();
 	},
 	overlay:overlay,

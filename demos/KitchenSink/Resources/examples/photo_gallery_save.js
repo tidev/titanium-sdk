@@ -1,10 +1,9 @@
 // create table view data object
 var data = [
-	{title:'Camera Basic', hasChild:true, test:'../examples/camera_basic.js'},
-	{title:'Camera Custom Overlay', hasChild:true, test:'../examples/camera_overlay.js'},
-	{title:'Camera Augmented Reality', hasChild:true, test:'../examples/camera_ar.js'},
-	{title:'Save to Gallery (Auto)', hasChild:true, test:'../examples/camera_gallery.js'},
-	{title:'Save to File', hasChild:true, test:'../examples/camera_file.js'},
+	{title:'From File', hasChild:true, test:'../examples/photo_gallery_file.js'},
+	{title:'From Camera', hasChild:true, test:'../examples/photo_gallery_camera.js'},
+	{title:'From Video', hasChild:true, test:'../examples/photo_gallery_video.js'},
+	{title:'From XHR', hasChild:true, test:'../examples/photo_gallery_xhr.js'},
 
 ];
 
@@ -28,4 +27,3 @@ tableview.addEventListener('click', function(e)
 
 // add table view to the window
 Titanium.UI.currentWindow.add(tableview);
-

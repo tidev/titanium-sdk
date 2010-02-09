@@ -1,7 +1,7 @@
 package ${config['appid']};
 
-import org.appcelerator.titanium.TitaniumApplication;
+import org.appcelerator.titanium.TiApplication;
 
-public class ${config['classname']}Application extends TitaniumApplication {
+public class ${config['classname']}Application extends TiApplication {
 
 }
