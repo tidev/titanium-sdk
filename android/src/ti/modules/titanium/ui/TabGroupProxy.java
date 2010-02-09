@@ -9,11 +9,13 @@ import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiWindowProxy;
 
 import ti.modules.titanium.ui.widget.TiUITabGroup;
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.os.Message;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -103,7 +105,14 @@ public class TabGroupProxy extends TiWindowProxy
 
 		if (title != null && vp != null) {
 			TabSpec tspec = tg.newTab(title);
-			tspec.setIndicator(title);
+			if (icon == null) {
+				tspec.setIndicator(title);
+			} else {
+				String path = getTiContext().resolveUrl(icon);
+				TiFileHelper tfh = new TiFileHelper(getTiContext().getRootActivity());
+				Drawable d = tfh.loadDrawable(path, false);
+				tspec.setIndicator(title, d);
+			}
 
 			TabContentFactory factory = new TabContentFactory(){
 

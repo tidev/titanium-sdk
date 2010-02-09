@@ -45,7 +45,7 @@ public class TiRootActivity extends ActivityGroup
 		TiApplication host = getTiApp();
 		host.setRootActivity(this);
 
-		tiContext = TiContext.createTiContext(this, null);
+		tiContext = TiContext.createTiContext(this, null, null);
 
 		runOnUiThread(new Runnable(){
 
