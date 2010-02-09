@@ -81,10 +81,14 @@ class Builder(object):
 			self.android += ".bat"
 			self.emulator += ".exe"
 		self.adb = os.path.join(self.sdk,'tools','adb')
+		
+		# we place some files in the users home
 		if platform.system() == "Windows":
 			self.adb += ".exe"
-		# we place some files in the users home
-		self.home_dir = os.path.join(os.path.expanduser('~'), '.titanium')
+			self.home_dir = os.path.join(os.environ['USERPROFILE'], '.titanium')
+		else:
+			self.home_dir = os.path.join(os.path.expanduser('~'), '.titanium')
+		
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
 		self.sdcard = os.path.join(self.home_dir,'android.sdcard')
@@ -112,10 +116,9 @@ class Builder(object):
 	
 	def create_avd(self,avd_id,avd_skin):
 		name = "titanium_%s_%s" % (avd_id,avd_skin)
-		home_dir = os.path.join(os.path.expanduser('~'), '.titanium')
-		if not os.path.exists(home_dir):
-			os.makedirs(home_dir)
-		sdcard = os.path.abspath(os.path.join(home_dir,'android.sdcard'))
+		if not os.path.exists(self.home_dir):
+			os.makedirs(self.home_dir)
+		sdcard = os.path.abspath(os.path.join(self.home_dir,'android.sdcard'))
 		if not os.path.exists(sdcard):
 			mksdcard = os.path.join(self.sdk,'tools','mksdcard')
 			if platform.system() == "Windows":
