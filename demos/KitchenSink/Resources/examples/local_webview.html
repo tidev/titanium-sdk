@@ -1,6 +1,10 @@
 <html>
+<head>
+	<link rel="stylesheet" type="text/css" href="../test.css" />
+
+</head>
 <body>
-	Hello from local webview. You should see an indicator in the middle.
+	Hello from local webview. You should see an indicator in the middle and my text should be blue
 	<script>
 		Ti.App.addEventListener('show_indicator',function(e)
 		{
@@ -13,5 +17,7 @@
 		Ti.App.fireEvent('show_indicator',{a:1});
 		Ti.API.debug('log statement here');
 	</script>
+	
+	
 </body>
 </html>
