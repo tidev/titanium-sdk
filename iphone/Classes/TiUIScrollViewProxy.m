@@ -12,13 +12,16 @@
 
 @implementation TiUIScrollViewProxy
 
--(void)add:(id)arg
+-(void)childAdded:(id)child
 {
-	ENSURE_ARG_COUNT(arg,1);
-	ENSURE_UI_THREAD_1_ARG(arg);
-	
-	[super add:arg];
-	
+	if ([self viewAttached])
+	{
+		[(TiUIScrollView *)[self view] setNeedsHandleContentSize];
+	}
+}
+
+-(void)childRemoved:(id)child
+{
 	if ([self viewAttached])
 	{
 		[(TiUIScrollView *)[self view] setNeedsHandleContentSize];
