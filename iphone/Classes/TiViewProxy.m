@@ -41,12 +41,13 @@
 {
 	ENSURE_UI_THREAD(add,arg); 
 	ENSURE_ARG_COUNT(arg,1);
-	ENSURE_SINGLE_ARG(arg,TiProxy);
+	ENSURE_SINGLE_ARG(arg,TiViewProxy);
 	if (children==nil)
 	{
 		children = [[NSMutableArray alloc] init];
 	}
 	[children addObject:arg];
+	[arg setParent:self];
 	[self layoutChild:arg bounds:view.bounds]; 
 	[self childAdded:arg];
 }
@@ -56,11 +57,12 @@
 {
 	ENSURE_UI_THREAD(remove,arg);
 	ENSURE_ARG_COUNT(arg,1);
-	ENSURE_SINGLE_ARG(arg,TiProxy);
+	ENSURE_SINGLE_ARG(arg,TiViewProxy);
 	if (children!=nil)
 	{
 		[self childRemoved:arg];
 		[children removeObject:arg];
+		[arg setParent:nil];
 		
 		if ([children count]==0)
 		{
@@ -115,6 +117,11 @@
 }
 
 #pragma mark View
+
+-(void)setParent:(TiViewProxy*)parent_
+{
+	parent = parent_;
+}
 
 -(void)animationCompleted:(TiAnimation*)animation
 {
@@ -333,6 +340,34 @@
 }
 
 #pragma mark Listener Management
+
+-(BOOL)_hasListeners:(NSString *)type
+{
+	if ([super _hasListeners:type])
+	{
+		return YES;
+	}
+	// check our parent since we optimize the fire with
+	// the check
+	if (parent!=nil && [parent _hasListeners:type])
+	{
+		return YES;
+	}
+	return NO;
+}
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source
+{
+	[super fireEvent:type withObject:obj withSource:source];
+	
+	// views support event propagation. we need to check our
+	// parent and if he has the same named listener, we fire
+	// an event and set the source of the event to ourself
+	if (parent!=nil && [parent _hasListeners:type])
+	{
+		[parent fireEvent:type withObject:obj withSource:source];
+	}
+}
 
 -(void)_listenerAdded:(NSString*)type count:(int)count
 {
