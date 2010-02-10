@@ -121,7 +121,6 @@
 		return;
 	}
 
-	[[self toolBar] setTranslucent:NO];
 	[toolBar setBarStyle:UIBarStyleBlack];
 	[toolBar setTintColor:newBarColor];
 }

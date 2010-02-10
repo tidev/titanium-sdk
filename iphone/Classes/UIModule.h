@@ -7,6 +7,11 @@
 
 #import "TiModule.h"
 
+// because alert is linked in Kroll and the user can use that
+// in their code instead of the full API, we need to create
+// an explicit compile time dependency to UI
+#import "TiUIAlertDialogProxy.h"
+
 @interface UIModule : TiModule {
 
 @private

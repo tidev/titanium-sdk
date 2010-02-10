@@ -12,6 +12,7 @@
 @private
 	NSMutableArray *children;
 	TiUIView *view;
+	TiViewProxy *parent;
 	BOOL viewInitialized;
 }
 
@@ -32,6 +33,7 @@
 -(void)animationCompleted:(TiAnimation*)animation;
 -(void)detachView;
 -(void)destroy;
+-(void)setParent:(TiViewProxy*)parent;
 -(BOOL)supportsNavBarPositioning;
 -(UIBarButtonItem*)barButtonItem;
 -(void)removeNavBarButtonView;

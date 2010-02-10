@@ -4,12 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#include <stdio.h>
+#include <execinfo.h>
 
 #import "TitaniumApp.h"
 #import "Webcolor.h"
+#import "TiBase.h"
 #import "TitaniumErrorController.h"
-#include <stdio.h>
-#include <execinfo.h>
 #import <QuartzCore/QuartzCore.h>
 
 TitaniumApp* sharedApp;

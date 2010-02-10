@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
+#import "TiBase.h"
 #import "TiUIImageView.h"
 #import "TiUtils.h"
 #import "ImageLoader.h"
@@ -51,9 +51,20 @@ DEFINE_EXCEPTIONS
 
 -(void)timerFired:(id)arg
 {
-	NSInteger position = index % loadTotal;
-	NSInteger nextIndex = ++index;
+	// if paused, just ignore this timer loop until restared/stoped
+	if (paused)
+	{
+		return;
+	}
 	
+	NSInteger position = index % loadTotal;
+	NSInteger nextIndex = (reverse) ? --index : ++index;
+	
+	if (position<0)
+	{
+		position=loadTotal-1;
+		index=position-1;
+	}
 	UIView *view = [[container subviews] objectAtIndex:position];
 
 	// see if we have an activity indicator... if we do, that means the image hasn't yet loaded
@@ -85,7 +96,7 @@ DEFINE_EXCEPTIONS
 		[self.proxy fireEvent:@"change" withObject:evt];
 	}
 	
-	if (repeatCount > 0 && nextIndex == loadTotal)
+	if (repeatCount > 0 && ((reverse==NO && nextIndex == loadTotal) || (reverse && nextIndex==0)))
 	{
 		iterations++;
 		if (iterations == repeatCount)
@@ -209,9 +220,8 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Public APIs
 
--(void)stop:(id)args
+-(void)stop
 {
-	ENSURE_UI_THREAD(stop,args);
 	stopped = YES;
 	if (timer!=nil)
 	{
@@ -222,14 +232,14 @@ DEFINE_EXCEPTIONS
 			[self.proxy fireEvent:@"stop" withObject:nil];
 		}
 	}
+	paused = NO;
 	ready = NO;
-	[self.proxy replaceValue:[NSNumber numberWithBool:NO] forKey:@"animating" notification:NO];
+	index = -1;
+	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
 }
 
--(void)start:(id)args
+-(void)start
 {
-	[self stop:nil];
-	
 	stopped = NO;
 	
 	if (interval <= 0)
@@ -240,14 +250,33 @@ DEFINE_EXCEPTIONS
 		// of guessing
 		interval = (1.0/30.0)*(30.0/loadTotal);
 	}
-	iterations = 0;
-	index = 0;
+	
+	paused = NO;
+	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
+	
+	if (iterations<0)
+	{
+		iterations = 0;
+	}
+	
+	if (index<0)
+	{
+		if (reverse)
+		{
+			index = loadTotal-1;
+		}
+		else
+		{
+			index = 0;
+		}
+	}
+	
 	
 	// refuse to start animation if you don't have any images
 	if (loadTotal > 0)
 	{
 		ready = YES;
-		[self.proxy replaceValue:[NSNumber numberWithBool:YES] forKey:@"animating" notification:NO];
+		[self.proxy replaceValue:NUMBOOL(YES) forKey:@"animating" notification:NO];
 		
 		if (timer==nil)
 		{
@@ -255,6 +284,17 @@ DEFINE_EXCEPTIONS
 			ready = NO;
 			[self startTimer];
 		}
+	}
+}
+
+-(void)pause
+{
+	paused = YES;
+	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"paused" notification:NO];
+	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
+	if ([self.proxy _hasListeners:@"pause"])
+	{
+		[self.proxy fireEvent:@"pause" withObject:nil];
 	}
 }
 
@@ -287,7 +327,7 @@ DEFINE_EXCEPTIONS
 {
 	BOOL running = (timer!=nil);
 	
-	[self stop:nil];
+	[self stop];
 	
 	// remove any existing images
 	if (container!=nil)
@@ -325,7 +365,7 @@ DEFINE_EXCEPTIONS
 	// if we were running, re-start it
 	if (running)
 	{
-		[self start:nil];
+		[self start];
 	}
 }
 
@@ -366,6 +406,11 @@ DEFINE_EXCEPTIONS
 -(void)setRepeatCount_:(id)count
 {
 	repeatCount = [TiUtils intValue:count];
+}
+
+-(void)setReverse_:(id)value
+{
+	reverse = [TiUtils boolValue:value];
 }
 
 @end

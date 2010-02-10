@@ -346,10 +346,12 @@ return value;\
 	if (__s[0]=='[')\
 	{\
 	    fprintf(stderr,"%s\n", __s);\
+		fflush(stderr);\
 	}\
 	else\
 	{\
 	    fprintf(stderr,"[DEBUG] %s\n", __s);\
+		fflush(stderr);\
 	}\
 }
 

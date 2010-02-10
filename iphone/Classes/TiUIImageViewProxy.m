@@ -14,21 +14,30 @@
 
 -(void)_configure
 {
-	[self replaceValue:[NSNumber numberWithBool:NO] forKey:@"animating" notification:NO];
+	[self replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
+	[self replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
+	[self replaceValue:NUMBOOL(NO) forKey:@"reverse" notification:NO];
 }
 
 -(void)start:(id)args
 {
 	ENSURE_UI_THREAD(start,args);
 	TiUIImageView *iv= (TiUIImageView*)[self view];
-	[iv start:args];
+	[iv start];
 }
 
 -(void)stop:(id)args
 {
 	ENSURE_UI_THREAD(stop,args);
 	TiUIImageView *iv= (TiUIImageView*)[self view];
-	[iv stop:args];
+	[iv stop];
+}
+
+-(void)pause:(id)args
+{
+	ENSURE_UI_THREAD(pause,args);
+	TiUIImageView *iv= (TiUIImageView*)[self view];
+	[iv pause];
 }
 
 -(void)viewWillDetach
