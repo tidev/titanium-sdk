@@ -173,8 +173,7 @@
 		[self pagecontrol];
 	}
 }
-
--(void)setPageControlHeight_:(id)args
+-(void)setPagingControlHeight_:(id)args
 {
 	showPageControl=YES;
 	pageControlHeight = [TiUtils floatValue:args def:20.0];
@@ -185,7 +184,13 @@
 	[[self pagecontrol] setFrame:[self pageControlRect]];
 }
 
--(void)setPageControlColor_:(id)args
+-(void)setPageControlHeight_:(id)arg
+{
+	// for 0.8 backwards compat, renamed all for consistency
+	[self setPagingControlHeight_:arg];
+}
+
+-(void)setPagingControlColor_:(id)args
 {
 	[[self pagecontrol] setBackgroundColor:[[TiUtils colorValue:args] _color]];
 }

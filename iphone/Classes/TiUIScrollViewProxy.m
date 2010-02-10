@@ -71,11 +71,11 @@
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(float)scale
 {
-	[self replaceValue:NUMFLOAT(scale) forKey:@"zoomScale" notification:NO];
+	[self replaceValue:NUMFLOAT(scale) forKey:@"scale" notification:NO];
 	
-	if ([self _hasListeners:@"zoom"])
+	if ([self _hasListeners:@"scale"])
 	{
-		[self fireEvent:@"zoom" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
+		[self fireEvent:@"scale" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
 											  NUMFLOAT(scale),@"scale",
 											  nil]];
 	}

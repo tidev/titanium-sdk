@@ -50,7 +50,7 @@ messageView.add(message);
 win.add(scrollView);
 win.add(messageView);
 
-scrollView.addEventListener('zoom',function(e)
+scrollView.addEventListener('scale',function(e)
 {
 	message.text = "Zoomed to scale: "+e.scale;
 });
@@ -75,12 +75,12 @@ bb.addEventListener('click',function(e)
 {
 	if (e.index == 0)
 	{
-		scrollView.zoomScale = scrollView.zoomScale+0.1;
+		scrollView.zoomScale = scrollView.scale+0.1;
 	}
 	else
 	{
-		scrollView.zoomScale = scrollView.zoomScale-0.1;
+		scrollView.zoomScale = scrollView.scale-0.1;
 	}
-	label.text = "Scale: "+scrollView.zoomScale;
+	label.text = "Scale: "+scrollView.scale;
 });
 
