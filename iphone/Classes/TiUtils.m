@@ -719,7 +719,7 @@
 		}
 		if (AppRouter!=nil)
 		{
-			NSString *urlstring = [url path];
+			NSString *urlstring = [[url standardizedURL] path];
 			NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
 			NSString *appurlstr = [NSString stringWithFormat:@"%@",[urlstring stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"%@/",resourceurl] withString:@""]];
 			appurlstr = [appurlstr stringByReplacingOccurrencesOfString:@"." withString:@"_"];

@@ -1,6 +1,8 @@
 package ti.modules.titanium.ui;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TiActivity;
@@ -48,6 +50,32 @@ public class TiUIWindow extends TiUIView
 		if (props.containsKey("url")) {
 
 			String url = props.getString("url");
+			String baseUrl = null;
+
+			try {
+				URI uri = new URI(url);
+				String scheme = uri.getScheme();
+				if (scheme == null) {
+					String path = uri.getPath();
+					int lastIndex = path.lastIndexOf("/");
+					if (lastIndex > 0) {
+						path = path.substring(0, lastIndex);
+					}
+
+					if (url.startsWith("/")) {
+						baseUrl = "app:/" + path;
+					} else {
+						baseUrl = "app://" + path;
+					}
+				} else if (scheme == "app") {
+					baseUrl = url;
+				} else {
+					throw new IllegalArgumentException("Scheme not implemented for " + url);
+				}
+			} catch (URISyntaxException e) {
+				Log.w(LCAT, "Error parsing url: " + e.getMessage(), e);
+			}
+
 			if (DBG) {
 				Log.i(LCAT, "Window has URL: " + url);
 			}
@@ -55,7 +83,7 @@ public class TiUIWindow extends TiUIView
 			TiDict preload = new TiDict();
 			preload.put("currentWindow", proxy);
 
-			TiContext tiContext = TiContext.createTiContext(activity, preload);
+			TiContext tiContext = TiContext.createTiContext(activity, preload, baseUrl);
 			try {
 				this.proxy.switchContext(tiContext);
 				tiContext.evalFile(url);
