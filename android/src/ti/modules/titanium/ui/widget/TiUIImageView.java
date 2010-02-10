@@ -1,5 +1,8 @@
 package ti.modules.titanium.ui.widget;
 
+import java.io.ByteArrayInputStream;
+
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
@@ -69,6 +72,13 @@ public class TiUIImageView extends TiUIView
 		if (d.containsKey("canScale")) {
 			view.setCanScaleImage(TiConvert.toBoolean(d, "canScale"));
 		}
+		if (d.containsKey("image")) {
+			TiBlob blob = TiConvert.toBlob(d, "image");
+			view.setImageDrawable(Drawable.createFromStream(
+				new ByteArrayInputStream(blob.getBytes()), "blob"));
+		} else {
+			getProxy().internalSetDynamicValue("image", null, false);
+		}
 
 		super.processProperties(d);
 	}
@@ -82,6 +92,12 @@ public class TiUIImageView extends TiUIView
 			view.setCanScaleImage(TiConvert.toBoolean(newValue));
 		} else if (key.equals("url")) {
 			new BgImageLoader(getProxy().getTiContext(), null, null).load(TiConvert.toString(newValue));
+		} else if (key.equals("image")) {
+			if (newValue instanceof TiBlob) {
+				TiBlob blob = (TiBlob) newValue;
+				view.setImageDrawable(Drawable.createFromStream(
+					new ByteArrayInputStream(blob.getBytes()), "blob"));
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

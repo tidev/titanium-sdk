@@ -205,7 +205,7 @@ public class KrollObject extends ScriptableObject
 				if(retrieveValue && pname.equals(name)) {
 					try {
 						// get value from native
-						o = getMethod.invoke(target, new Object[0]);
+						o = KrollObject.fromNative(getMethod.invoke(target, new Object[0]), getKrollContext());
 					} catch (InvocationTargetException e) {
 						Log.e(LCAT, "Error getting property: " + e.getMessage(), e);
 						Context.throwAsScriptRuntimeEx(e);
@@ -283,8 +283,8 @@ public class KrollObject extends ScriptableObject
 				// get value from native
 				Object[] args = new Object[1];
 				args[0] = name;
-
-				o = getMethod.invoke(target, args);
+				
+				o = KrollObject.fromNative(getMethod.invoke(target, args), getKrollContext());
 			} catch (InvocationTargetException e) {
 				Log.e(LCAT, "Error getting property: " + e.getMessage(), e);
 				Context.throwAsScriptRuntimeEx(e);
@@ -340,7 +340,18 @@ public class KrollObject extends ScriptableObject
 
 	@Override
 	public void put(String name, Scriptable start, Object value) {
-		if (has(name, start) || (value != null && value instanceof KrollObject)) {
+		boolean isDynamic = false;
+		if (start instanceof KrollObject) {
+			KrollObject object = (KrollObject)start;
+			if (object.target instanceof TiProxy) {
+				TiProxy proxy = (TiProxy)object.target;
+				if (proxy.getDynamicProperties() != null) {
+					isDynamic = proxy.getDynamicProperties().containsKey(name);
+				}
+			}
+		}
+		
+		if (has(name, start) || (value != null && value instanceof KrollObject) && !isDynamic) {
 			super.put(name, start, value);
 		} else {
 			handleMethodOrProperty(name, start, false, value);
@@ -566,11 +577,8 @@ public class KrollObject extends ScriptableObject
 			}
 		}
 		if (value == null || value instanceof String ||
-				value instanceof Double ||
+				value instanceof Number ||
 				value instanceof Boolean ||
-				value instanceof Integer ||
-				value instanceof Long ||
-				value instanceof Float ||
 				value instanceof Scriptable || value instanceof Function)
 		{
 			o = Context.javaToJS(value, kroll.getScope());
