@@ -27,6 +27,7 @@
 {
 	RELEASE_TO_NIL(tableview);
 	RELEASE_TO_NIL(sectionArray);
+	RELEASE_TO_NIL(transactionArray);
 	RELEASE_TO_NIL(borderColor);
 	[super dealloc];
 }
@@ -49,7 +50,8 @@
 
 -(UITableViewStyle)tableStyle
 {
-	return UITableViewStylePlain;
+	[self throwException:TiExceptionInternalInconsistency subreason:@"tableStyle was not overridden" location:CODELOCATION];
+	return -1;
 }
 
 -(UITableView*)tableview
@@ -186,7 +188,7 @@
 {
 	int sectionIndex = [indexPath section];
 	TiUITableViewGroupSection * section = [self sectionForIndex:sectionIndex];
-	TiProxy * target = (section.delegate!=nil) && [section.delegate _hasListeners:name] ? section.delegate : (TiProxy*)self.proxy;
+	TiProxy * target = (section.proxy!=nil) && [section.proxy _hasListeners:name] ? section.proxy : (TiProxy*)self.proxy;
 	
 	// optimization, if we don't have a click listener, don't do anything
 	if (![target _hasListeners:name])

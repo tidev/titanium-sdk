@@ -8,6 +8,7 @@
 #import "TiUITableViewRowProxy.h"
 #import "TiUITableViewGroupSection.h"
 
+
 #define CHECK_ROW_HEIGHT(rowHeightDimension,tableCell,tableViewObject)	\
 if(TiDimensionIsPixels(rowHeightDimension)) \
 { \
@@ -38,6 +39,24 @@ typedef enum
 	
 } TiUITableViewDispatchType ;
 
+//@class TiUITableViewRowProxy, TiUITableViewGroupSection;
+//@interface TiUITableViewTransaction : NSObject
+//{
+//	int	sectionIndex;
+//	int rowIndex;
+//	//There is no TiUITableView-style index; this is all calculated beforehand.
+//	TiUITableViewRowProxy * rowProxy;
+//	TiUITableViewGroupSection * sectionProxy;
+//	NSArray * sectionArray;
+//	
+//	UITableViewRowAnimation animation;
+//	TiUITableViewDispatchType	type;
+//}
+//
+//@end
+
+
+
 @interface TiUITableViewBase : TiUIView <UITableViewDelegate,UITableViewDataSource> 
 {
 @private
@@ -49,11 +68,12 @@ typedef enum
 @protected
 	UITableView* tableview;
 	NSMutableArray *sectionArray;
+//	NSMutableArray *transactionArray;
 	
 	TiDimension rowHeight;
 	TiDimension minRowHeight;
 	TiDimension maxRowHeight;
-	UIColor *borderColor;	
+	UIColor *borderColor;
 }
 
 @property(nonatomic,readonly) BOOL editing;

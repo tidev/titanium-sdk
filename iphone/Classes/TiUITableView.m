@@ -194,6 +194,11 @@
 
 #pragma mark UITableView methods
 
+-(UITableViewStyle)tableStyle
+{
+	return UITableViewStylePlain;
+}
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)ourTableView
 {
 	if(ourTableView == searchTableView)

@@ -15,13 +15,14 @@
 #import "LayoutEntry.h"	
 
 @implementation TiUITableViewRowProxy
+@synthesize children;
 
 -(TiUITableViewCell *)cellForTableView:(UITableView *)tableView
 {
 	NSString * indentifier = [TiUtils stringValue:[self valueForKey:@"rowClass"]];
 	if (indentifier==nil)
 	{
-		indentifier = @"NOCLASS";
+		indentifier = [NSString stringWithFormat:@"%X",self];
 	}
 
 	TiUITableViewCell *result = (TiUITableViewCell *)[tableView dequeueReusableCellWithIdentifier:indentifier];

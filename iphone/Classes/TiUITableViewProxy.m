@@ -16,6 +16,45 @@ NSArray * tableKeys = nil;
 
 @implementation TiUITableViewProxy
 
+-(void)setData:(NSArray *)newData withObject:(NSDictionary *)options
+{
+	ENSURE_TYPE_OR_NIL(newData,NSArray);
+	ENSURE_TYPE_OR_NIL(options,NSDictionary);
+
+	[data autorelease];
+	data = [[NSMutableArray alloc] initWithCapacity:[newData count]];
+	
+	for (TiUITableViewRowProxy * thisEntry in newData)
+	{
+		ENSURE_TABLE_VIEW_ROW(thisEntry);
+		[data addObject:thisEntry];
+	}
+	
+	NSArray * dataCopy = [data copy];
+	[self enqueueAction:[NSArray arrayWithObjects:dataCopy,options,nil] withType:TiUITableViewDispatchSetDataWithAnimation];
+	[dataCopy release];
+}
+
+-(void)setData:(NSArray *)newData
+{
+	[self setData:newData withObject:nil];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #pragma mark Internal
 
 -(id<NSFastEnumeration>)validKeys
@@ -73,29 +112,6 @@ NSArray * tableKeys = nil;
 
 #pragma mark Public APIs
 
--(void)setData:(NSArray *)newData withObject:(NSDictionary *)options
-{
-	ENSURE_TYPE_OR_NIL(options,NSDictionary);
-	ENSURE_TYPE_OR_NIL(newData,NSArray);
-
-	[data autorelease];
-	data = [[NSMutableArray alloc] initWithCapacity:[newData count]];
-	
-	for (TiUITableViewRowProxy * thisEntry in newData)
-	{
-		ENSURE_TABLE_VIEW_ROW(thisEntry);
-		[data addObject:thisEntry];
-	}
-	
-	NSArray * dataCopy = [data copy];
-	[self enqueueAction:[NSArray arrayWithObjects:dataCopy,obj,nil] withType:TiUITableViewDispatchSetDataWithAnimation];
-	[dataCopy release];
-}
-
--(void)setData:(NSArray *)newData
-{
-	[self setData:newData withObject:nil];
-}
 
 - (NSNumber *) indexByName:(id)name
 {
@@ -125,7 +141,7 @@ NSArray * tableKeys = nil;
 
 	TiUITableViewRowProxy *newrow = [args objectAtIndex:1];
 	ENSURE_TABLE_VIEW_ROW(newrow);
-	[data insertObject:newrow atIndex:row+1];
+	[data insertObject:newrow atIndex:rowIndex+1];
 	
 	NSDictionary * options=nil;
 	if ([args count]>2)

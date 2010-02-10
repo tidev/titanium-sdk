@@ -21,7 +21,7 @@
 	if (section == nil)
 	{
 		section = [[TiUITableViewGroupSection alloc] initWithHeader:[self valueForKey:@"header"] footer:[self valueForKey:@"footer"] withProperties:dynprops];
-		section.delegate = self;
+		section.proxy = self;
 		
 		NSString* name = [self valueForKey:@"name"];
 		if (name!=nil)

@@ -9,7 +9,7 @@
 
 @class WebFont, TiUITableViewCell;
 
-@interface TiUITableViewRowProxy : TiProxy {
+@interface TiUITableViewRowProxy : TiProxy<LayoutAutosizing> {
 
 @private
 	NSMutableArray * children; //Like TiViewProxy.
@@ -19,6 +19,8 @@
 }
 
 #pragma mark Internal stuff
+
+@property(nonatomic,readwrite,retain)	NSMutableArray * children;
 -(TiUITableViewCell *)cellForTableView:(UITableView *)tableView;
 
 -(CGFloat)rowHeightForWidth:(CGFloat)rowWidth;

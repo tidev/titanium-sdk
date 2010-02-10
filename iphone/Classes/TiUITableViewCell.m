@@ -101,8 +101,12 @@
 }
 
 
--(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy
+-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)thisProxy
 {
+	if (thisProxy != proxy)
+	{
+		return;
+	}
 	DoProxyDelegateChangedValuesWithProxy(self, key, oldValue, newValue, proxy);
 }
 

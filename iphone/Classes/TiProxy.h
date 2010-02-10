@@ -54,8 +54,8 @@ typedef enum {
 @end
 
 SEL SetterForKrollProperty(NSString * key);
-void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> * target, NSString * key, id oldValue, id newValue, TiProxy * proxy);
-void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target, id<NSFastEnumeration> keys, TiProxy * proxy);
+void DoProxyDelegateChangedValuesWithProxy(NSObject<TiProxyDelegate> * target, NSString * key, id oldValue, id newValue, TiProxy * proxy);
+void DoProxyDelegateReadValuesWithKeysFromProxy(NSObject<TiProxyDelegate> * target, id<NSFastEnumeration> keys, TiProxy * proxy);
 //Why are these here? Because they can be commonly used between TiUIView and TiUITableViewCell.
 
 
