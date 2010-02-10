@@ -44,7 +44,7 @@
 		[self addSubview:scrollView];
 		
 		// set the initial scale to 1.0 which is the default
-		[self.proxy replaceValue:NUMFLOAT(1.0) forKey:@"zoomScale" notification:NO];
+		[self.proxy replaceValue:NUMFLOAT(1.0) forKey:@"scale" notification:NO];
 	}
 	return scrollView;
 }
@@ -175,10 +175,10 @@
 -(void)setZoomScale_:(id)args
 {
 	CGFloat scale = [TiUtils floatValue:args];
-	[[self scrollView] setZoomScale:scale];
-	if ([self.proxy _hasListeners:@"zoom"])
+	[[self scrollView] setZoomScale:scale==0 ? 1.0 : scale];
+	if ([self.proxy _hasListeners:@"scale"])
 	{
-		[self.proxy fireEvent:@"zoom" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
+		[self.proxy fireEvent:@"scale" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
 											NUMFLOAT(scale),@"scale",
 											nil]];
 	}
