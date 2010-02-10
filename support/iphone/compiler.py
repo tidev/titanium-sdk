@@ -123,16 +123,18 @@ class Compiler(object):
 				for name in ignoreDirs:
 					if name in dirs:
 						dirs.remove(name)	# don't visit ignored directories			  
-					for file in files:
-						if file in ignoreFiles:
-							continue
-						from_ = os.path.join(root, file)			  
-						to_ = os.path.expanduser(from_.replace(source, target, 1))
-						to_directory = os.path.expanduser(os.path.split(to_)[0])
+				for file in files:
+					if file in ignoreFiles:
+						continue
+					from_ = os.path.join(root, file)			  
+					to_ = os.path.expanduser(from_.replace(source, target, 1))
+					to_directory = os.path.expanduser(os.path.split(to_)[0])
+					if not os.path.exists(to_directory):
+						os.makedirs(to_directory)
+					# only copy if different filesize or doesn't exist
+					if not os.path.exists(to_) or os.path.getsize(from_)!=os.path.getsize(to_):
 						print "[DEBUG] copying: %s to %s" % (from_,to_)
-						if not os.path.exists(to_directory):
-							os.makedirs(to_directory)
-						shutil.copyfile(from_, to_)
+						shutil.copyfile(from_, to_)	
 	
 		if os.path.exists(self.temp_build_dir):
 			shutil.rmtree(self.temp_build_dir)

@@ -5,33 +5,20 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <UIKit/UIKit.h>
+#import "TiProxy.h"
 
-@class TiUITableViewCellProxy;
+@class TiUITableViewRowProxy;
 
-@interface TiUITableViewCell : UITableViewCell 
+@interface TiUITableViewCell : UITableViewCell<TiProxyDelegate>
 {
-	TiUITableViewCellProxy * dataWrapper;
-	NSMutableArray * layoutViewsArray;
-	id lastLayoutArray;	//Is not retained, and kept only as a memory value, NOT to be used as an object.
-	NSString * clickedName;
-	NSMutableSet * watchedBlobs;
-	
-	UILabel * valueLabel;
-	UIWebView * htmlView;
-	NSString * htmlString;
+@private
+	NSMutableArray * childrenViews;
+	UITableViewStyle tableStyle;
+	TiUITableViewRowProxy * proxy;
+
 }
 
-@property(nonatomic,readwrite,retain) TiUITableViewCellProxy * dataWrapper;
-@property(nonatomic,readwrite,copy) NSString * clickedName;
-@property(nonatomic,readonly)	UILabel * valueLabel;
-
-#pragma mark Internal
-
-- (void)flushBlobWatching;
-- (void)updateDefaultLayoutViews:(BOOL) hilighted;
-- (void)refreshFromDataWrapper;
-- (void)updateDataInSubviews:(BOOL)hilighted;
-
+@property(nonatomic,readwrite,retain) TiUITableViewRowProxy * proxy;
+@property(nonatomic,readwrite,assign) UITableViewStyle tableStyle; //Needed for some handling of styles.
 
 @end

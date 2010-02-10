@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 	NSString *documentsDirectory = [paths objectAtIndex:0];
 	NSString *logPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%s.log",STRING(__LOG__ID__)]];
-	freopen([logPath cStringUsingEncoding:NSASCIIStringEncoding],"w+",stderr);
+	freopen([logPath cStringUsingEncoding:NSUTF8StringEncoding],"w+",stderr);
 	fprintf(stderr,"[INFO] Application started\n");
 #endif
 

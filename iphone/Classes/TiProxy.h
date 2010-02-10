@@ -35,17 +35,42 @@ typedef enum {
 //
 // delegate for receiving property changes
 //
+@interface TiAnimatedSelector : NSObject
+{
+	SEL selector;
+	id	firstObject;
+	id	secondObject;
+}
+
+@property(nonatomic,readwrite,assign)	SEL selector;
+@property(nonatomic,readwrite,retain)	id firstObject;
+@property(nonatomic,readwrite,retain)	id secondObject;
+
+@end
+
+
 @protocol TiProxyDelegate
 
 @required
 
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy;
+-(BOOL)isRepositionProperty:(NSString*)key;
 
 @optional
+
+-(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys;
+
+-(void)repositionChange:(NSString*)key value:(id)inputVal;
+
 -(void)listenerAdded:(NSString*)type count:(int)count;
 -(void)listenerRemoved:(NSString*)type count:(int)count;
 
 @end
+
+SEL SetterForKrollProperty(NSString * key);
+void DoProxyDelegateChangedValuesWithProxy(NSObject<TiProxyDelegate> * target, NSString * key, id oldValue, id newValue, TiProxy * proxy);
+void DoProxyDelegateReadValuesWithKeysFromProxy(NSObject<TiProxyDelegate> * target, id<NSFastEnumeration> keys, TiProxy * proxy);
+//Why are these here? Because they can be commonly used between TiUIView and TiUITableViewCell.
 
 
 @interface TiProxy : NSObject<KrollDynamicMethodProxy,KrollTargetable> {
