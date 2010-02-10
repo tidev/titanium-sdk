@@ -41,7 +41,6 @@
 {
 	ENSURE_SINGLE_ARG(arg,TiViewProxy);
 	ENSURE_UI_THREAD(add,arg); 
-	ENSURE_ARG_COUNT(arg,1);
 	if (children==nil)
 	{
 		children = [[NSMutableArray alloc] init];
@@ -57,7 +56,6 @@
 {
 	ENSURE_SINGLE_ARG(arg,TiViewProxy);
 	ENSURE_UI_THREAD(remove,arg);
-	ENSURE_ARG_COUNT(arg,1);
 	if (children!=nil)
 	{
 		[self childRemoved:arg];
