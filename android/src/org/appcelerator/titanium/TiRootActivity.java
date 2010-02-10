@@ -14,13 +14,12 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 
 import android.app.Activity;
-import android.app.ActivityGroup;
 import android.app.LocalActivityManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Window;
 
-public class TiRootActivity extends ActivityGroup
+public class TiRootActivity extends Activity
 	implements TiActivitySupport
 {
 
@@ -34,7 +33,7 @@ public class TiRootActivity extends ActivityGroup
 	}
 
 	public TiRootActivity() {
-		super(true); // Allow multiple activities
+		//super(true); // Allow multiple activities
 	}
 
 	@Override
@@ -71,16 +70,16 @@ public class TiRootActivity extends ActivityGroup
 	{
 		TiActivityRef ref = new TiActivityRef();
 
-		LocalActivityManager lam = getLocalActivityManager();
-		Activity activity = lam.getActivity(key);
-		if (activity == null) {
-			Intent intent = new Intent(this, TiActivity.class);
-			Window w = lam.startActivity(key, intent);
-			activity = lam.getActivity(key);
-			//this.setContentView(w.getDecorView());
-		}
-		ref.activity = activity;
-		ref.key = key;
+//		LocalActivityManager lam = getLocalActivityManager();
+//		Activity activity = lam.getActivity(key);
+//		if (activity == null) {
+//			Intent intent = new Intent(this, TiActivity.class);
+//			Window w = lam.startActivity(key, intent);
+//			activity = lam.getActivity(key);
+//			//this.setContentView(w.getDecorView());
+//		}
+//		ref.activity = activity;
+//		ref.key = key;
 
 		return ref;
 	}
@@ -107,6 +106,20 @@ public class TiRootActivity extends ActivityGroup
 		super.onActivityResult(requestCode, resultCode, data);
 
 		supportHelper.onActivityResult(requestCode, resultCode, data);
+	}
+
+
+
+	@Override
+	public void finish() {
+		// TODO Auto-generated method stub
+		super.finish();
+	}
+
+	@Override
+	public void finishFromChild(Activity child) {
+		//super.finishFromChild(child);
+		finish();
 	}
 
 	// Lifecyle

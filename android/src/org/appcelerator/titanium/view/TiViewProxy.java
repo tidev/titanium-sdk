@@ -19,7 +19,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
 
 import ti.modules.titanium.ui.TiUIWindow;
-
+import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
@@ -77,7 +77,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		switch(msg.what) {
 			case MSG_GETVIEW : {
 				AsyncResult result = (AsyncResult) msg.obj;
-				result.setResult(handleGetView());
+				result.setResult(handleGetView((Activity) result.getArg()));
 				return true;
 			}
 			case MSG_FIRE_PROPERTY_CHANGES : {
@@ -141,26 +141,29 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		return view;
 	}
 
-	public TiUIView getView()
+	public TiUIView getView(Activity activity)
 	{
+		if (activity == null) {
+			activity = getTiContext().getActivity();
+		}
 		if(getTiContext().isUIThread()) {
-			return handleGetView();
+			return handleGetView(activity);
 		}
 
-		AsyncResult result = new AsyncResult();
+		AsyncResult result = new AsyncResult(activity);
 		Message msg = getUIHandler().obtainMessage(MSG_GETVIEW, result);
 		msg.sendToTarget();
 		return (TiUIView) result.getResult();
 	}
 
-	protected TiUIView handleGetView()
+	protected TiUIView handleGetView(Activity activity)
 	{
 		if (view == null) {
 			if (DBG) {
 				Log.i(LCAT, "getView: " + getClass().getSimpleName());
 			}
 
-			view = createView();
+			view = createView(activity);
 			modelListener = view;
 
 			// Use a copy so bundle can be modified as it passes up the inheritance
@@ -180,7 +183,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 				if (children != null) {
 					int i = 0;
 					for(TiViewProxy p : children) {
-						TiUIView v = p.getView();
+						TiUIView v = p.getView(activity);
 						v.setParent(this);
 						TitaniumCompositeLayout.TitaniumCompositeLayoutParams params = v.getLayoutParams();
 						// the index needs to be set. It's consulted as a last resort when considering
@@ -198,7 +201,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		return view;
 	}
 
-	public abstract TiUIView createView();
+	public abstract TiUIView createView(Activity activity);
 
 	public void add(TiViewProxy child) {
 		if (children == null) {
@@ -227,7 +230,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		}
 		if (nativeView instanceof ViewGroup) {
 			ViewGroup vg = (ViewGroup) nativeView;
-			TiUIView v = child.getView();
+			TiUIView v = child.getView(getTiContext().getActivity());
 			v.setParent(this);
 			TitaniumCompositeLayoutParams params = v.getLayoutParams();
 			int pos = children.size();
@@ -263,11 +266,13 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		View nativeView = view.getNativeView();
 		if (nativeView instanceof ViewGroup) {
 			ViewGroup vg = (ViewGroup) nativeView;
-			TiUIView v = child.getView();
-			v.setParent(null);
-			vg.removeView(v.nativeView);
-			if (children != null) {
-				children.remove(child);
+			TiUIView v = child.peekView();
+			if (v != null) {
+				v.setParent(null);
+				vg.removeView(v.nativeView);
+				if (children != null) {
+					children.remove(child);
+				}
 			}
 		} else {
 			Log.w(LCAT, "This view is not a ViewGroup, ignoring request to add");

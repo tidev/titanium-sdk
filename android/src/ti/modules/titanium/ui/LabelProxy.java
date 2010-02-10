@@ -5,6 +5,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
 
 import ti.modules.titanium.ui.widget.TiUILabel;
+import android.app.Activity;
 
 public class LabelProxy extends TiViewProxy
 {
@@ -14,7 +15,7 @@ public class LabelProxy extends TiViewProxy
 	}
 
 	@Override
-	public TiUIView createView()
+	public TiUIView createView(Activity activity)
 	{
 		return new TiUILabel(this);
 	}

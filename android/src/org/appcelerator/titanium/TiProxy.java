@@ -7,6 +7,7 @@
 package org.appcelerator.titanium;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.bridge.OnEventListenerChange;
 import org.appcelerator.titanium.kroll.KrollCallback;
@@ -66,15 +67,21 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 	}
 
 	protected TiDict dynprops; // Dynamic properties
+	protected static AtomicInteger proxyCounter;
 	protected String proxyId; //TODO implement
 	protected TiProxyListener modelListener;
 
 	public TiProxy(TiContext tiContext)
 	{
+		if (proxyCounter == null) {
+			proxyCounter = new AtomicInteger();
+		}
 		if (DBG) {
 			Log.d(LCAT, "New: " + getClass().getSimpleName());
 		}
 		this.tiContext = tiContext;
+		this.proxyId = "proxy$" + proxyCounter.incrementAndGet();
+
 		final TiProxy me = this;
 		waitForHandler = new CountDownLatch(1);
 
@@ -106,6 +113,10 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 
 	public TiContext getTiContext() {
 		return tiContext;
+	}
+
+	public String getProxyId() {
+		return proxyId;
 	}
 
 	public boolean handleMessage(Message msg) {
@@ -192,7 +203,7 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 			ctx.removeEventListener(eventName, listenerId);
 		}
 	}
-	
+
 	public void removeEventListener(String eventName, Object listener)
 	{
 		TiContext ctx = getTiContext();

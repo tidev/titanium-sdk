@@ -6,6 +6,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
 
 import ti.modules.titanium.ui.widget.TiUIDialog;
+import android.app.Activity;
 
 public class OptionDialogProxy extends TiViewProxy
 {
@@ -15,7 +16,7 @@ public class OptionDialogProxy extends TiViewProxy
 	}
 
 	@Override
-	public TiUIView createView()
+	public TiUIView createView(Activity activity)
 	{
 		return new TiUIDialog(this);
 	}
@@ -24,7 +25,7 @@ public class OptionDialogProxy extends TiViewProxy
 	protected void handleShow(TiDict options) {
 		super.handleShow(options);
 
-		TiUIDialog d = (TiUIDialog) getView();
+		TiUIDialog d = (TiUIDialog) getView(getTiContext().getActivity());
 		d.show(options);
 	}
 
@@ -32,7 +33,7 @@ public class OptionDialogProxy extends TiViewProxy
 	protected void handleHide(TiDict options) {
 		super.handleHide(options);
 
-		TiUIDialog d = (TiUIDialog) getView();
+		TiUIDialog d = (TiUIDialog) getView(getTiContext().getActivity());
 		d.hide(options);
 	}
 }
