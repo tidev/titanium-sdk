@@ -12,6 +12,7 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollObject;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
 
@@ -78,6 +79,8 @@ public class TiConvert
 		} else if (value == null) {
 			d.put(key, null);
 		} else if (value instanceof TiProxy) {
+			d.put(key, value);
+		} else if (value instanceof KrollCallback) {
 			d.put(key, value);
 		} else {
 			throw new IllegalArgumentException("Unsupported property type " + value.getClass().getName());
