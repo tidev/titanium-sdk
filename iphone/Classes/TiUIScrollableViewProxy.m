@@ -6,6 +6,7 @@
  */
 
 #import "TiUIScrollableViewProxy.h"
+#import "TiUIScrollableView.h"
 
 @implementation TiUIScrollableViewProxy
 

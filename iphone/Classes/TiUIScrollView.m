@@ -175,7 +175,7 @@
 -(void)setZoomScale_:(id)args
 {
 	CGFloat scale = [TiUtils floatValue:args];
-	[[self scrollView] setZoomScale:scale==0 ? 1.0 : scale];
+	[[self scrollView] setZoomScale:scale];
 	if ([self.proxy _hasListeners:@"scale"])
 	{
 		[self.proxy fireEvent:@"scale" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
