@@ -26,12 +26,15 @@
 	UIView *container;
 	BOOL ready;
 	BOOL stopped;
+	BOOL reverse;
+	BOOL paused;
 	NSInteger loadCount;
 	NSInteger readyCount;
 	NSInteger loadTotal;
 }
 
--(void)start:(id)args;
--(void)stop:(id)args;
+-(void)start;
+-(void)stop;
+-(void)pause;
 
 @end

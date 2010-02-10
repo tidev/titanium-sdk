@@ -40,7 +40,7 @@ view4.add(l4);
 var scrollView = Titanium.UI.createScrollableView({
 	views:[view1,view2,view3,view4],
 	showPagingControl:true,
-	pageControlHeight:30
+	pagingControlHeight:30
 });
 
 win.add(scrollView);

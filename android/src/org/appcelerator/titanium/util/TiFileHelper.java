@@ -30,6 +30,7 @@ import java.util.zip.ZipInputStream;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.webkit.URLUtil;
 
@@ -157,7 +158,11 @@ public class TiFileHelper
 						}
 					}
 				}
-			}	else {
+			} else if (path.startsWith(RESOURCE_ROOT_ASSETS)) {
+				int len = "file:///android_asset/".length();
+				path = path.substring(len);
+				is = context.getAssets().open(path);
+			} else {
 				path = joinPaths("Resources", path);
 				is = context.getAssets().open(path);
 			}
@@ -259,7 +264,7 @@ public class TiFileHelper
 
 		return result;
 	}
-/*
+
 	public Drawable getTitaniumResource(Context context, String s) {
 		Drawable d = null;
 
@@ -276,7 +281,7 @@ public class TiFileHelper
 			if (TI_RESOURCE_PREFIX.equals(section)) {
 				InputStream is = null;
 				try {
-					is = TitaniumFileHelper.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/" + resid + ".png");
+					is = TiFileHelper.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/" + resid + ".png");
 					d = new BitmapDrawable(is);
 				} finally {
 					if (is != null) {
@@ -304,7 +309,7 @@ public class TiFileHelper
 
 		return d;
 	}
-*/
+
 	public String getResourceUrl(String path)
 	{
         return joinPaths(RESOURCE_ROOT_ASSETS, path);

@@ -114,6 +114,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(NSObject<TiProxyDelegate> * targ
 -(void)addEventListener:(NSArray*)args;
 -(void)removeEventListener:(NSArray*)args;
 -(void)fireEvent:(NSString*)type withObject:(id)obj;
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source;
 -(NSDictionary*)allProperties;
 -(void)replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify;
 -(void)setExecutionContext:(id<TiEvaluator>)context;

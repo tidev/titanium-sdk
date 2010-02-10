@@ -557,8 +557,13 @@ static int tiProxyId = 0;
 	[[self _host] removeListener:listener context:ctx];
 	[self _listenerRemoved:type count:count];
 }
-	  
+
 -(void)fireEvent:(NSString*)type withObject:(id)obj
+{
+	[self fireEvent:type withObject:obj withSource:self];
+}
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source
 {
 	[destroyLock lock];
 	
@@ -581,7 +586,7 @@ static int tiProxyId = 0;
 			
 			// common event properties for all events we fire
 			[eventObject setObject:type forKey:@"type"];
-			[eventObject setObject:self forKey:@"source"];
+			[eventObject setObject:source forKey:@"source"];
 			
 			// unfortunately we have to make a copy to be able to mutate and still iterate
 			NSMutableArray *_listeners = [NSMutableArray arrayWithArray:l];

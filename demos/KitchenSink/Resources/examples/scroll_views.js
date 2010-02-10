@@ -2,11 +2,9 @@
 var data = [
 	{title:'Basic', hasChild:true, test:'../examples/scroll_views_basic.js'},
 	{title:'Scrolling Tabs', hasChild:true, test:'../examples/scroll_views_tabs.js'},
-//	{title:'Scrollable View', hasChild:true, test:'../examples/scroll_views_scrollable.js'},
-	{title:'Scrollable View', hasChild:true, test:'../todo.js'},
-
+	{title:'Scrollable View', hasChild:true, test:'../examples/scroll_views_scrollable.js'},
 	{title:'Many on a Screen', hasChild:true, test:'../examples/scroll_views_many.js'},
-
+	{title:'Scrolling Zoom+Pinch', hasChild:true, test:'../examples/scroll_views_scaling.js'},
 ];
 
 // create table view

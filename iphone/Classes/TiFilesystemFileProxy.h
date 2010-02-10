@@ -14,7 +14,7 @@
 -(id)initWithFile:(NSString*)path;
 
 +(id)makeTemp:(BOOL)isDirectory;
-;
+
 @property(nonatomic,readonly) id name;
 @property(nonatomic,readonly) id nativePath;
 @property(nonatomic,readonly,getter=isReadonly) id readonly;

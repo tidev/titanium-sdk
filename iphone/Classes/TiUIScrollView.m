@@ -13,6 +13,7 @@
 
 - (void) dealloc
 {
+	RELEASE_TO_NIL(wrapperView);
 	RELEASE_TO_NIL(scrollView);
 	[super dealloc];
 }
@@ -41,6 +42,9 @@
 		[scrollView setShowsVerticalScrollIndicator:NO];
 		[scrollView setDelegate:self];
 		[self addSubview:scrollView];
+		
+		// set the initial scale to 1.0 which is the default
+		[self.proxy replaceValue:NUMFLOAT(1.0) forKey:@"scale" notification:NO];
 	}
 	return scrollView;
 }
@@ -63,27 +67,35 @@
 	switch (contentWidth.type)
 	{
 		case TiDimensionTypePixels:
+		{
 			newContentSize.width = MAX(newContentSize.width,contentWidth.value);
 			break;
+		}
 		case TiDimensionTypeAuto:
+		{
 			for (TiUIView * thisChildView in subViews)
 			{
 				newContentSize.width = MAX(newContentSize.width,[thisChildView minimumParentWidthForWidth:newContentSize.width]);
 			}
 			break;
+		}
 	}
 
 	switch (contentHeight.type)
 	{
 		case TiDimensionTypePixels:
+		{
 			newContentSize.height = MAX(newContentSize.height,contentHeight.value);
 			break;
+		}
 		case TiDimensionTypeAuto:
+		{
 			for (TiUIView * thisChildView in subViews)
 			{
 				newContentSize.height = MAX(newContentSize.height,[thisChildView minimumParentHeightForWidth:newContentSize.width]);
 			}
 			break;
+		}
 	}
 
 	[scrollView setContentSize:newContentSize];
@@ -160,12 +172,46 @@
 	[[self scrollView] setContentOffset:newOffset animated:animated];
 }
 
+-(void)setZoomScale_:(id)args
+{
+	CGFloat scale = [TiUtils floatValue:args];
+	[[self scrollView] setZoomScale:scale==0 ? 1.0 : scale];
+	if ([self.proxy _hasListeners:@"scale"])
+	{
+		[self.proxy fireEvent:@"scale" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
+											NUMFLOAT(scale),@"scale",
+											nil]];
+	}
+}
+
+-(void)setMaxZoomScale_:(id)args
+{
+	[[self scrollView] setMaximumZoomScale:[TiUtils floatValue:args]];
+}
+
+-(void)setMinZoomScale_:(id)args
+{
+	[[self scrollView] setMinimumZoomScale:[TiUtils floatValue:args]];
+}
+
+
 #pragma mark scrollView delegate stuff
 
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView_               // any offset changes
 {
 	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidScroll:scrollView_];
+}
+
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
+{
+	return [self wrapperView];
+}
+
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView_ withView:(UIView *)view atScale:(float)scale 
+{
+	// scale between minimum and maximum. called after any 'bounce' animations
+	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidEndZooming:scrollView withView:(UIView*)view atScale:scale];
 }
 
 /*
@@ -176,17 +222,8 @@
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView;      // called when scroll view grinds to a halt
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView; // called when setContentOffset/scrollRectVisible:animated: finishes. not called if not animating
-*/
 
-- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
-{
-	return [self wrapperView];
-}
-
-/*
-- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(float)scale; // scale between minimum and maximum. called after any 'bounce' animations
-
-- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView;   // return a yes if you want to scroll to the top. if not defined, assumes YES
+ - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView;   // return a yes if you want to scroll to the top. if not defined, assumes YES
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView;      // called when scrolling animation finished. may be called immediately if already at top
 */
 

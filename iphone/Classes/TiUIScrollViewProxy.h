@@ -6,10 +6,8 @@
  */
 #import "TiViewProxy.h"
 
-@interface TiUIScrollViewProxy : TiViewProxy<UIScrollViewDelegate> {
-
-@private
-
+@interface TiUIScrollViewProxy : TiViewProxy<UIScrollViewDelegate> 
+{
 }
 
 @end

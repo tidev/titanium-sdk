@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import <QuartzCore/QuartzCore.h>
-
+#import "TiBase.h"
 #import "TiUIView.h"
 #import "TiColor.h"
 #import "TiUtils.h"
