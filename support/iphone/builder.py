@@ -10,6 +10,7 @@ from compiler import Compiler
 from dependscompiler import DependencyCompiler
 from os.path import join, splitext, split, exists
 from shutil import copyfile
+import prereq
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../'))
@@ -73,28 +74,36 @@ def main(args):
 		print "  install       install the app to itunes for testing on iphone"
 		print "  simulator     build and run on the iphone simulator"
 		print "  distribute    build final distribution bundle"
-
+	
 		sys.exit(1)
 
 	print "[INFO] One moment, building ..."
 	sys.stdout.flush()
-	
 	start_time = time.time()
+
+	iphone_version = dequote(args[2].decode("utf-8"))
+	
+	#FIXME: for 0.9, we're going to hard code to latest 3.1+ compile since we
+	#require 3.1+ but Titanium Developer hasn't yet rev'd to fix it
+	if iphone_version=="3.0":
+		iphone_version = "3.1"
+		sdks = prereq.get_sdks()
+		if sdks.index('3.1.3')!=-1:
+			iphone_version = "3.1.3"
+		elif sdks.index('3.1.2')!=-1:
+			iphone_version = "3.1.2"
+	
+		print "[INFO] Detected iPhone SDK: %s (forcing this version)" % iphone_version
 	
 	simulator = os.path.abspath(os.path.join(template_dir,'iphonesim'))
 	
 	command = args[1].decode("utf-8")
-	iphone_version = dequote(args[2].decode("utf-8"))
 	project_dir = os.path.expanduser(dequote(args[3].decode("utf-8")))
 	appid = dequote(args[4].decode("utf-8"))
 	name = dequote(args[5].decode("utf-8"))
 	target = 'Debug'
 	deploytype = 'development'
 	debug = False
-	
-	#FIXME: for 0.9, we're going to hard code to 3.1 compile since we
-	#require 3.1+ but Titanium Developer hasn't yet rev'd to fix it
-	iphone_version = "3.1"
 	
 	if command == 'distribute':
 		appuuid = dequote(args[6].decode("utf-8"))
