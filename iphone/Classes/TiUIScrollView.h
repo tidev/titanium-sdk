@@ -13,10 +13,6 @@
 	UIView * wrapperView;
 	TiDimension contentWidth;
 	TiDimension contentHeight;
-
-	//TiDimension minimumZoom;
-	//TiDimension maximumZoom;
-	
 	BOOL needsHandleContentSize;
 }
 

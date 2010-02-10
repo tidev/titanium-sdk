@@ -19,6 +19,13 @@ var imageView = Titanium.UI.createImageView({
 	repeatCount:0  // 0 means animation repeats indefinitely, use > 1 to control repeat count
 });
 
+var frame = Ti.UI.createLabel({
+	text:'',
+	color:'white',
+	font:{fontSize:48,fontFamily:'Helvetica Neue'}
+});
+
+
 //
 // IMAGE VIEW EVENTS
 //
@@ -49,6 +56,7 @@ imageView.addEventListener('stop', function()
 imageView.addEventListener('change', function(e)
 {
 	Titanium.API.info('ImageView animation frame has changed, index ' + e.index);
+	frame.text = e.index;
 });
 
 win.add(imageView)
@@ -72,9 +80,23 @@ start.addEventListener('click', function()
 	{
 		imageView.start();
 	}
-	
 });
 win.add(start);
+
+// reverse animation
+var reverse = Titanium.UI.createButton({
+	title:'Reverse Animation',
+	height:30,
+	width:120,
+	font:{fontSize:13, fontFamily:'Helvetica Neue'},
+	top:90,
+	left:10
+});
+reverse.addEventListener('click', function()
+{
+	imageView.reverse = !imageView.reverse;
+});
+win.add(reverse);
 
 // stop animation
 var stop = Titanium.UI.createButton({
@@ -93,6 +115,24 @@ stop.addEventListener('click', function()
 	}
 });
 win.add(stop);
+
+// pause animation
+var pause = Titanium.UI.createButton({
+	title:'Pause Animation',
+	height:30,
+	width:120,
+	font:{fontSize:13, fontFamily:'Helvetica Neue'},
+	top:90,
+	right:10
+});
+pause.addEventListener('click', function()
+{
+	if (imageView.animating)
+	{
+		imageView.pause();
+	}
+});
+win.add(pause);
 
 // increase duration
 var durationUp = Titanium.UI.createButton({
@@ -142,3 +182,5 @@ var l = Titanium.UI.createLabel({
 	color:'white'
 });
 win.add(l);
+
+win.add(frame);

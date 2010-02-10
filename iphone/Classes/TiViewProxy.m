@@ -39,9 +39,8 @@
 
 -(void)add:(id)arg
 {
-	ENSURE_UI_THREAD(add,arg); 
-	ENSURE_ARG_COUNT(arg,1);
 	ENSURE_SINGLE_ARG(arg,TiViewProxy);
+	ENSURE_UI_THREAD(add,arg); 
 	if (children==nil)
 	{
 		children = [[NSMutableArray alloc] init];
@@ -55,9 +54,8 @@
 
 -(void)remove:(id)arg
 {
-	ENSURE_UI_THREAD(remove,arg);
-	ENSURE_ARG_COUNT(arg,1);
 	ENSURE_SINGLE_ARG(arg,TiViewProxy);
+	ENSURE_UI_THREAD(remove,arg);
 	if (children!=nil)
 	{
 		[self childRemoved:arg];
