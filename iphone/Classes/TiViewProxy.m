@@ -349,9 +349,10 @@
 	}
 	// check our parent since we optimize the fire with
 	// the check
-	if (parent!=nil && [parent _hasListeners:type])
+	if (parent!=nil)
 	{
-		return YES;
+		// walk up the chain
+		return [parent _hasListeners:type];
 	}
 	return NO;
 }
@@ -363,7 +364,7 @@
 	// views support event propagation. we need to check our
 	// parent and if he has the same named listener, we fire
 	// an event and set the source of the event to ourself
-	if (parent!=nil && [parent _hasListeners:type])
+	if (parent!=nil)
 	{
 		[parent fireEvent:type withObject:obj withSource:source];
 	}
