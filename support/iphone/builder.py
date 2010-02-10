@@ -33,16 +33,18 @@ def copy_module_resources(source, target):
 		for name in ignoreDirs:
 			if name in dirs:
 				dirs.remove(name)	# don't visit ignored directories			  
-			for file in files:
-				if splitext(file)[-1] in ('.html', '.js', '.css', '.a', '.m', '.c', '.cpp', '.h', '.mm'):
-					continue
-				if file in ignoreFiles:
-					continue
-				from_ = join(root, file)			  
-				to_ = os.path.expanduser(from_.replace(source, target, 1))
-				to_directory = os.path.expanduser(split(to_)[0])
-				if not exists(to_directory):
-					os.makedirs(to_directory)
+		for file in files:
+			if splitext(file)[-1] in ('.html', '.js', '.css', '.a', '.m', '.c', '.cpp', '.h', '.mm'):
+				continue
+			if file in ignoreFiles:
+				continue
+			from_ = join(root, file)			  
+			to_ = os.path.expanduser(from_.replace(source, target, 1))
+			to_directory = os.path.expanduser(split(to_)[0])
+			if not exists(to_directory):
+				os.makedirs(to_directory)
+			# only copy if different filesize or doesn't exist
+			if not os.path.exists(to_) or os.path.getsize(from_)!=os.path.getsize(to_):
 				copyfile(from_, to_)
 
 def read_properties(propFile):
@@ -76,6 +78,8 @@ def main(args):
 
 	print "[INFO] One moment, building ..."
 	sys.stdout.flush()
+	
+	start_time = time.time()
 	
 	simulator = os.path.abspath(os.path.join(template_dir,'iphonesim'))
 	
@@ -162,11 +166,13 @@ def main(args):
 	main_dest.write(main_template.encode("utf-8"))
 	main_dest.close()
 	
-	# migrate the xcode project given that it can change per release of sdk
-	if iphone_version == '2.2.1':
-		xcodeproj = codecs.open(os.path.join(template_dir,'project_221.pbxproj'),'r','utf-8','replace').read()
+	# attempt to use a slightly faster xcodeproject template when simulator which avoids
+	# optimizing PNGs etc
+	if deploytype == 'simulator':
+		xcodeproj = codecs.open(os.path.join(template_dir,'project_simulator.pbxproj'),'r','utf-8','replace').read()
 	else:
 		xcodeproj = codecs.open(os.path.join(template_dir,'project.pbxproj'),'r','utf-8','replace').read()
+		
 	xcodeproj = xcodeproj.replace('__PROJECT_NAME__',name)
 	xcodeproj = xcodeproj.replace('__PROJECT_ID__',appid)
 	xcode_dir = os.path.join(iphone_dir,name+'.xcodeproj')
@@ -195,15 +201,22 @@ def main(args):
 	if os.path.exists(project_module_dir):
 		copy_module_resources(project_module_dir,iphone_tmp_dir)
 	
-
 	sys.stdout.flush()
 	
-	shutil.copy(os.path.join(template_dir,'libTiCore.a'),os.path.join(iphone_resources_dir,'libTiCore.a'))
+	source_lib=os.path.join(template_dir,'libTiCore.a')
+	target_lib=os.path.join(iphone_resources_dir,'libTiCore.a')
+	
+	# attempt to only copy (this takes ~7sec) if its changed
+	if not os.path.exists(target_lib) or os.path.getsize(source_lib)!=os.path.getsize(target_lib):
+		shutil.copy(os.path.join(template_dir,'libTiCore.a'),os.path.join(iphone_resources_dir,'libTiCore.a'))
 
 	# must copy the XIBs each time since they can change per SDK
 	os.chdir(template_dir)
 	for xib in glob.glob('*.xib'):
-		shutil.copy(os.path.join(template_dir,xib),os.path.join(iphone_resources_dir,xib))
+		s = os.path.join(template_dir,xib)
+		t = os.path.join(iphone_resources_dir,xib)
+		if not os.path.exists(t) or os.path.getsize(s)!=os.path.getsize(t): 	
+			shutil.copy(s,)
 	os.chdir(cwd)		
 		
 	def is_adhoc(uuid):
@@ -247,6 +260,8 @@ def main(args):
 		
 		# write out plist
 		add_plist(os.path.join(iphone_dir,'Resources'))
+
+		print "[DEBUG] compile checkpoint: %0.2f seconds" % (time.time()-start_time)
 
 		print "[INFO] Executing XCode build..."
 		print "[BEGIN_VERBOSE] Executing XCode Compiler  <span>[toggle output]</span>"
@@ -331,7 +346,9 @@ def main(args):
 			cmd = "osascript \"%s\"" % ass
 			os.system(cmd)
 			
-			print "[INFO] Launched application in Simulator"
+			end_time = time.time()-start_time
+			
+			print "[INFO] Launched application in Simulator (%0.2f seconds)" % end_time
 			sys.stdout.flush()
 			sys.stderr.flush()
 			

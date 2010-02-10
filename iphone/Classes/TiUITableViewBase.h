@@ -5,8 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiUIView.h"
-#import "TiUITableViewCellProxy.h"
+#import "TiUITableViewRowProxy.h"
 #import "TiUITableViewGroupSection.h"
+
 
 #define CHECK_ROW_HEIGHT(rowHeightDimension,tableCell,tableViewObject)	\
 if(TiDimensionIsPixels(rowHeightDimension)) \
@@ -38,10 +39,27 @@ typedef enum
 	
 } TiUITableViewDispatchType ;
 
+//@class TiUITableViewRowProxy, TiUITableViewGroupSection;
+//@interface TiUITableViewTransaction : NSObject
+//{
+//	int	sectionIndex;
+//	int rowIndex;
+//	//There is no TiUITableView-style index; this is all calculated beforehand.
+//	TiUITableViewRowProxy * rowProxy;
+//	TiUITableViewGroupSection * sectionProxy;
+//	NSArray * sectionArray;
+//	
+//	UITableViewRowAnimation animation;
+//	TiUITableViewDispatchType	type;
+//}
+//
+//@end
+
+
+
 @interface TiUITableViewBase : TiUIView <UITableViewDelegate,UITableViewDataSource> 
 {
 @private
-	BOOL needsReload;
 	BOOL moving;
 	BOOL editing;
 	BOOL editable; //swipe-to-delete
@@ -49,22 +67,29 @@ typedef enum
 @protected
 	UITableView* tableview;
 	NSMutableArray *sectionArray;
-	TiUITableViewCellProxy *templateCell;
+//	NSMutableArray *transactionArray;
 	
 	TiDimension rowHeight;
 	TiDimension minRowHeight;
 	TiDimension maxRowHeight;
-	UIColor *borderColor;	
+	UIColor *borderColor;
 }
 
 @property(nonatomic,readonly) BOOL editing;
 @property(nonatomic,readonly) BOOL moving;
 
+
+
+
+
+
+
+
+
 #pragma mark Framework
 -(void)dispatchAction:(NSArray*)args withType:(TiUITableViewDispatchType)type;
--(void)replaceData:(id)args reload:(BOOL)reload;
 - (TiUITableViewGroupSection *) sectionForIndex: (NSInteger) section;
-- (TiUITableViewCellProxy *) cellForIndexPath: (NSIndexPath *) path;
+- (TiUITableViewRowProxy *) cellForIndexPath: (NSIndexPath *) path;
 - (NSInteger) sectionIndexForIndex:(NSInteger)theindex;
 - (void)triggerActionForIndexPath: (NSIndexPath *)indexPath fromPath:(NSIndexPath*)fromPath wasAccessory: (BOOL) accessoryTapped search: (BOOL) viaSearch name:(NSString*)name;
 

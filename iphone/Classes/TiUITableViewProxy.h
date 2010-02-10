@@ -9,13 +9,18 @@
 
 @interface TiUITableViewProxy : TiViewProxy 
 {
+	NSMutableArray * data;
 }
+
+//Because the proxy is divorced from the view, we can update this synchronously, and queue up the proper response.
 
 #pragma mark Internal
 
 -(void)enqueueAction:(id)args withType:(TiUITableViewDispatchType)type;
 
 #pragma mark Public APIs
+
+@property(nonatomic,readwrite,copy)	NSArray * data;
 
 - (void) insertRowAfter:(NSArray *)args;
 - (void) insertRowBefore:(NSArray *)args;

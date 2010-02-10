@@ -13,4 +13,12 @@
 
 -(TiUITableViewGroupSection*)section;
 
+#pragma mark public delegate 
+
+- (void)insertRowAfter:(NSArray *)args;
+- (void)insertRowBefore:(NSArray *)args;
+- (void)deleteRow:(NSArray *)args;
+- (void)updateRow:(NSArray *)args;
+- (void)appendRow:(NSArray *)args;
+
 @end

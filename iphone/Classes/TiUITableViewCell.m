@@ -6,7 +6,7 @@
  */
 #import "TiBase.h"
 #import "TiUITableViewCell.h"
-#import "TiUITableViewCellProxy.h"
+#import "TiUITableViewRowProxy.h"
 #import "TiTextLabel.h"
 #import "LayoutEntry.h"
 #import "Webcolor.h"
@@ -14,10 +14,7 @@
 
 @implementation TiUITableViewCell
 
-@synthesize dataWrapper, clickedName, valueLabel;
-
-#pragma mark Initialization
-
+@synthesize proxy, tableStyle;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier 
 {
@@ -28,47 +25,184 @@
     return self;
 }
 
-- (void) dealloc
+-(void)setProxy:(TiUITableViewRowProxy *)newProxy
 {
-	[dataWrapper removeObserver:self forKeyPath:@"jsonValues"];
-	[self flushBlobWatching];
+	if (newProxy == proxy)
+	{
+		return;
+	}
+	
+	[self retain];
+	[proxy setModelDelegate:nil];
 
-	RELEASE_TO_NIL(dataWrapper);
-	RELEASE_TO_NIL(layoutViewsArray);
-	RELEASE_TO_NIL(clickedName);
-	RELEASE_TO_NIL(watchedBlobs);
-	RELEASE_TO_NIL(valueLabel);
+	NSMutableSet * oldKeys = nil;
+	NSMutableSet * unchangedKeys = nil;
+	NSDictionary * oldProperties = [proxy allProperties];
+	NSDictionary * newProperties = [newProxy allProperties];
 
-	[super dealloc];
+	for (NSString * thisKey in oldProperties)
+	{
+		id oldValue = [oldProperties objectForKey:thisKey];
+		id newValue = [oldProperties objectForKey:thisKey];
+		if (newValue == nil)
+		{
+			if (oldKeys == nil)
+			{
+				oldKeys = [[NSMutableSet alloc] initWithObjects:thisKey,nil];
+			}
+			else
+			{
+				[oldKeys addObject:thisKey];
+			}
+			continue;
+		}
+
+		if ([oldValue isEqual:newValue])
+		{
+			if (unchangedKeys == nil)
+			{
+				unchangedKeys = [[NSMutableSet alloc] initWithObjects:thisKey,nil];
+			}
+			else
+			{
+				[unchangedKeys addObject:thisKey];
+			}
+		}
+	}
+	
+	for (NSString * thisKey in oldKeys)
+	{
+		SEL thisSelector = SetterForKrollProperty(thisKey);
+		if ([self respondsToSelector:thisSelector])
+		{
+			[self performSelector:thisSelector withObject:nil];
+		}
+	}
+
+	for (NSString * thisKey in newProperties)
+	{
+		if ([unchangedKeys containsObject:thisKey])
+		{
+			continue;
+		}
+
+		SEL thisSelector = SetterForKrollProperty(thisKey);
+		if ([self respondsToSelector:thisSelector])
+		{
+			[self performSelector:thisSelector withObject:[newProperties objectForKey:thisKey]];
+		}
+	}
+
+	[newProxy setModelDelegate:self];
+	[self release];
+	
+	[proxy release];
+	proxy = [newProxy retain];
 }
 
-#pragma mark HTML handling
 
--(UIWebView*) webViewForString:(NSString*) htmlString_
+-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)thisProxy
 {
-	UIWebView * result = [[UIWebView alloc] init];
-	[result setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-	[result setExclusiveTouch:NO];
-	[result setUserInteractionEnabled:NO];
-	[result setBackgroundColor:[UIColor clearColor]];
-	[result setScalesPageToFit:NO];
-	[result setOpaque:NO];
-	NSString * injection = [NSString stringWithFormat:@"document.write('<body>%@</body>');",htmlString_];
-	[result stringByEvaluatingJavaScriptFromString:injection];
-	return [result autorelease];	
+	if (thisProxy != proxy)
+	{
+		return;
+	}
+	DoProxyDelegateChangedValuesWithProxy(self, key, oldValue, newValue, proxy);
 }
 
--(void)setWebViewForString:(UIWebView*) webView html:(NSString*) htmlString
+-(BOOL)isRepositionProperty:(NSString*)key
 {
-	//Do nothing for now.
+	return NO;
 }
+
+#pragma mark JS inpoints
+
+-(void)setTitle_:(id)value
+{
+	NSString * newTitle = [TiUtils stringValue:value];
+	UILabel * ourTextLabel = [self textLabel];
+	[ourTextLabel setText:newTitle];
+	[ourTextLabel setBackgroundColor:[UIColor clearColor]];
+}
+
+-(void)setImage_:(id)value
+{
+	UIImage * newImage = [TiUtils image:value proxy:[self proxy]];
+	[[self imageView] setImage:newImage];
+}
+
+
+#pragma mark BUG BARRIER
+//	NSString * selectionStyleString = [self stringForKey:@"selectionStyle"];
+//	if([selectionStyleString isEqualToString:@"none"])
+//	{
+//		[result setSelectionStyle:UITableViewCellSelectionStyleNone];
+//	} 
+//	else if ([selectionStyleString isEqualToString:@"gray"])
+//	{
+//		[result setSelectionStyle:UITableViewCellSelectionStyleGray];
+//	} 
+//	else 
+//	{
+//		[result setSelectionStyle:UITableViewCellSelectionStyleBlue];
+//	}
+//	
+//	
+//	UIColor * backgroundColor = [self colorForKey:@"backgroundColor"];
+//	UIColor * selectedBgColor = [self colorForKey:@"selectedBackgroundColor"];
+//	
+//	UIImage * bgImage = [self stretchableImageForKey:@"backgroundImage"];
+//	UIImage	* selectedBgImage = [self stretchableImageForKey:@"selectedBackgroundImage"];
+//	
+//	
+//	if (([tableView style] == UITableViewStyleGrouped) && (bgImage == nil))
+//	{
+//		if (backgroundColor != nil)
+//		{
+//			[result setBackgroundColor:backgroundColor];
+//		}
+//		else 
+//		{
+//			[result setBackgroundColor:[UIColor whiteColor]];
+//		}
+//	} 
+//	else 
+//	{
+//		UIImageView * bgView = (UIImageView *)[result backgroundView];
+//		if (![bgView isKindOfClass:[UIImageView class]])
+//		{
+//			bgView = [[[UIImageView alloc] initWithFrame:[result bounds]] autorelease];
+//			[bgView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+//			[result setBackgroundView:bgView];
+//		}
+//		[bgView setImage:bgImage];
+//		[bgView setBackgroundColor:(backgroundColor==nil)?[UIColor clearColor]:backgroundColor];
+//	}
+//	
+//	if ((selectedBgColor == nil) && (selectedBgImage == nil))
+//	{
+//		[result setSelectedBackgroundView:nil];
+//	} 
+//	else 
+//	{
+//		UIImageView * selectedBgView = (UIImageView *)[result selectedBackgroundView];
+//		if (![selectedBgView isKindOfClass:[UIImageView class]])
+//		{
+//			selectedBgView = [[[UIImageView alloc] initWithFrame:[result bounds]] autorelease];
+//			[selectedBgView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+//			[result setSelectedBackgroundView:selectedBgView];
+//		}
+//		
+//		[selectedBgView setImage:selectedBgImage];
+//		[selectedBgView setBackgroundColor:(selectedBgColor==nil)?[UIColor clearColor]:selectedBgColor];
+//	}
+
 
 #pragma mark TableCellView obligations
 
 - (void)prepareForReuse;
 {
 	[super prepareForReuse];
-	lastLayoutArray = nil;
 	[self setUserInteractionEnabled:YES];
 }
 
@@ -82,386 +216,6 @@
 {
 	[super setSelected:selected animated:animated];
 //	[self updateState:selected animated:animated];
-}
-
-
-#pragma mark Internal utilities
-
-- (BOOL) shouldUseHilightColors
-{
-	if([self respondsToSelector:@selector(isHighlighted)] && [self isHighlighted])
-	{
-		return YES;
-	}
-	return [self isSelected];
-}
-
-- (void)flushBlobWatching
-{
-	if([watchedBlobs count]==0)
-	{
-		return;
-	}
-	for (id thisBlob in watchedBlobs) 
-	{
-		[thisBlob removeObserver:self forKeyPath:@"imageBlob"];
-	}
-	[watchedBlobs removeAllObjects];
-}
-
-- (void) flushLayoutViews
-{
-	if([layoutViewsArray count]==0)
-	{
-		return;
-	}
-	for (UIView * doomedView in layoutViewsArray) 
-	{
-		[doomedView removeFromSuperview];
-	}
-	[layoutViewsArray removeAllObjects];	
-}
-
-- (void) applyImageNamed: (NSString *) name toView: (UIImageView *) view
-{
-	UIImage * entryImage = [dataWrapper imageForKey:name];
-	[view setImage:entryImage];
-	if (entryImage==nil) {
-//		TitaniumBlobWrapper * ourBlob = [dataWrapper blobWrapperForKey:name];
-//		if (ourBlob != nil) {
-//
-//			if (watchedBlobs == nil) {
-//				watchedBlobs = [[NSMutableSet alloc] initWithObjects:ourBlob,nil];
-//			} else {
-//				[watchedBlobs addObject:ourBlob];
-//			}
-//			[ourBlob addObserver:self forKeyPath:@"imageBlob" options:NSKeyValueObservingOptionNew context:view];
-//		}
-	}
-}
-
-- (void)updateState:(BOOL)hilighted animated: (BOOL) animated
-{
-	NSLog(@"Updating state %d %d",hilighted,animated);
-	if (lastLayoutArray == nil) 
-	{
-		[self updateDefaultLayoutViews:hilighted];
-	} 
-	else 
-	{
-		[self updateDataInSubviews:hilighted];
-	}
-}
-
-#pragma mark Accessors
-
-- (void)setDataWrapper:(TiUITableViewCellProxy *)newWrapper
-{
-	if(newWrapper == dataWrapper)
-	{
-		return;
-	}
-	[dataWrapper removeObserver:self forKeyPath:@"jsonValues"];
-	[newWrapper retain];
-	[dataWrapper release];
-	dataWrapper=newWrapper;
-	[dataWrapper addObserver:self forKeyPath:@"jsonValues" options:NSKeyValueObservingOptionNew context:nil];
-	[self refreshFromDataWrapper];
-}
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
-{
-	if(object==dataWrapper)
-	{
-		[self refreshFromDataWrapper];
-	}
-	
-	if ([keyPath isEqualToString:@"imageBlob"]) 
-	{
-		[object removeObserver:self forKeyPath:keyPath];
-		
-		[watchedBlobs removeObject:object];
-		for (UIView * changedView in layoutViewsArray) 
-		{
-			if (changedView == context) 
-			{
-//				[(UIImageView *)changedView setImage:[(TitaniumBlobWrapper *)object imageBlob]];
-				return;
-			}
-		}
-		NSLog(@"[WARN] Shouldn't happen. %@ notified us, but we didn't care.",object);
-	}
-}
-
-
-#pragma mark Default Layout Actions
-
-- (void) hideDefaultLayoutViews
-{
-	[[self textLabel] setHidden:YES];
-	[[self imageView] setHidden:YES];
-	[valueLabel setHidden:YES];
-	[htmlView setHidden:YES];
-}
-
-- (void) updateDefaultLayoutViews:(BOOL) hilighted
-{
-	UILabel * ourTextLabel = [self textLabel];
-	NSString * ourHTML = [dataWrapper html];
-	NSString * ourTitle;
-
-	UIView * ourContentView = [self contentView];
-
-	if([ourHTML length]>0)
-	{
-		NSString * actionString;
-		if (hilighted) 
-		{
-			actionString = @"document.body.style['color']='white';";
-		} 
-		else if ([self accessoryType] == UITableViewCellAccessoryCheckmark)
-		{
-			actionString = @"document.body.style['color']='#374F82';";
-		} 
-		else 
-		{
-			actionString = @"document.body.style['color']='black';";
-		}		
-	
-		if (![ourHTML isEqualToString:htmlString])
-		{ 
-			//No good. Get a new one!
-			NSLog(@"New html view");
-			if(htmlView != nil)
-			{
-				[self setWebViewForString:htmlView html:htmlString];
-				[htmlView removeFromSuperview];
-				[htmlView release];
-			}
-			htmlView = [[self webViewForString:ourHTML] retain];
-			[TiUtils setView:htmlView positionRect:[ourContentView bounds]];
-			[htmlView stringByEvaluatingJavaScriptFromString:actionString];
-			[ourContentView addSubview:htmlView];
-			[htmlString release];
-			htmlString = [ourHTML copy];
-		} 
-		else 
-		{
-			[htmlView stringByEvaluatingJavaScriptFromString:actionString];
-			[htmlView setNeedsDisplay];
-		}
-
-		ourTitle = nil;
-	} 
-	else 
-	{
-		[self setWebViewForString:htmlView html:htmlString];
-		[htmlView removeFromSuperview];
-		[htmlView release];
-		htmlView = nil;
-		[htmlString release];
-		htmlString = nil;
-		ourTitle = [dataWrapper title];
-	}
-	
-	if([ourTitle length]>0)
-	{
-		UIColor * ourTextColor;
-		if([self accessoryType]==UITableViewCellAccessoryCheckmark)
-		{
-			ourTextColor = UIColorCheckmarkColor();
-		} 
-		else 
-		{
-			ourTextColor = [UIColor blackColor];
-		}
-		
-		[ourTextLabel setHighlighted:hilighted];
-		[ourTextLabel setTextColor:ourTextColor];
-		[ourTextLabel setBackgroundColor:[UIColor clearColor]];
-		[ourTextLabel setFont:[dataWrapper font]];
-		[ourTextLabel setText:ourTitle];
-		[ourTextLabel setTextAlignment:[dataWrapper isButton]?UITextAlignmentCenter:UITextAlignmentLeft];
-		[ourTextLabel setHidden:NO];
-	} 
-	else 
-	{
-		[ourTextLabel setHidden:YES];
-		[ourTextLabel setText:nil];
-	}
-}
-
-- (void)refreshFromDataWrapper
-{
-	[self setAccessoryType:[dataWrapper accessoryType]];
-	
-	if([dataWrapper layoutArray] == nil)
-	{
-		[self updateDefaultLayoutViews:[self shouldUseHilightColors]];
-	} 
-	else 
-	{
-		[self hideDefaultLayoutViews];
-		[self setNeedsLayout];
-	}
-}
-
-#pragma mark Layout-based actions
-
-- (void) updateDataInSubviews:(BOOL)hilighted
-{
-	NSEnumerator * viewEnumerator = [layoutViewsArray objectEnumerator];
-	
-	for (LayoutEntry * thisEntry in lastLayoutArray) 
-	{
-		UIView * thisEntryView = [viewEnumerator nextObject];
-		NSString * name = [thisEntry nameString];
-		
-		if([thisEntryView isKindOfClass:[UIImageView class]])
-		{
-			[self applyImageNamed:name toView:(UIImageView *)thisEntryView];
-			continue;
-		}
-		if([thisEntryView isKindOfClass:[TiTextLabel class]])
-		{
-			[(TiTextLabel *)thisEntryView setText:[dataWrapper stringForKey:name]];
-			[(TiTextLabel *)thisEntryView setHighlighted:hilighted];
-			[thisEntryView setNeedsDisplay];
-			continue;
-		}
-	}
-}
-
-- (void)layoutSubviews
-{
-	[super layoutSubviews];
-	
-	NSArray * layoutArray = [dataWrapper layoutArray];
-	[self flushBlobWatching];
-	
-	if(layoutArray == nil)
-	{	
-		//This has already been set in setDataWrapper.
-		lastLayoutArray = nil;
-		[self flushLayoutViews];
-		[self updateDefaultLayoutViews:[self shouldUseHilightColors]];
-		return;
-	}
-	
-	if(layoutArray == lastLayoutArray)
-	{ 
-		//Okay, everyone's still in position!
-		[self updateDataInSubviews:[self shouldUseHilightColors]];
-		return;
-	}
-	
-	lastLayoutArray = layoutArray;
-	
-	if(layoutViewsArray == nil)
-	{
-		layoutViewsArray = [[NSMutableArray alloc] initWithCapacity:[layoutArray count]];
-	} 
-	else 
-	{
-		[self flushLayoutViews];
-	}
-	
-	CGRect boundRect;
-	boundRect = [[self contentView] bounds];
-	BOOL useHilightColors = [self shouldUseHilightColors];
- 
-	for (LayoutEntry * thisEntry in layoutArray) 
-	{
-		UIView * thisEntryView;
-		NSString * name = [thisEntry nameString];
-		
-		switch ([thisEntry type]) 
-		{
-			case LayoutEntryText:
-			{
-				thisEntryView = [[[TiTextLabel alloc] initWithFrame:CGRectZero] autorelease];
-				
-				[(TiTextLabel *)thisEntryView setText:[dataWrapper stringForKey:name]];
-				[(TiTextLabel *)thisEntryView setHighlighted:useHilightColors];
-				[(TiTextLabel *)thisEntryView setTextAlignment:[thisEntry textAlign]];
-				
-				UIColor * thisTextColor = [thisEntry textColor];
-				UIColor * thisHighlightedTextColor = [thisEntry selectedTextColor];
-				if (thisHighlightedTextColor == nil) 
-				{
-					thisHighlightedTextColor = thisTextColor;
-				}
-				if (thisHighlightedTextColor == nil) 
-				{
-					thisHighlightedTextColor = [dataWrapper colorForKey:@"selectedColor"];
-				}
-				if (thisTextColor == nil) 
-				{
-					thisTextColor = [dataWrapper colorForKey:@"color"];
-				}
-				if (thisHighlightedTextColor == nil) 
-				{
-					thisHighlightedTextColor = thisTextColor;
-				}
-				if (thisTextColor == nil) 
-				{
-					thisTextColor = [UIColor blackColor];
-				}
-				if (thisHighlightedTextColor == nil) 
-				{
-					thisHighlightedTextColor = [UIColor whiteColor];
-				}
-				[(TiTextLabel *)thisEntryView setTextColor:thisTextColor];
-				[(TiTextLabel *)thisEntryView setHighlightedTextColor:thisHighlightedTextColor];
-				[(TiTextLabel *)thisEntryView setFont:[[thisEntry labelFont] font]];
-				
-				break;
-			}
-			case LayoutEntryImage:
-			{
-				thisEntryView = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
-				[self applyImageNamed:name toView:(UIImageView *)thisEntryView];				
-				break;
-			}
-			case LayoutEntryButton:
-			{
-				thisEntryView = nil;
-				break;
-			}
-			default:
-			{
-				continue;
-			}
-		}
-		
-		[thisEntryView setBackgroundColor:[UIColor clearColor]];
-		LayoutConstraint thisConstraint = [thisEntry constraint];
-		
-		ApplyConstraintToViewWithinViewWithBounds(&thisConstraint, thisEntryView, self, boundRect,YES);
-		[layoutViewsArray addObject:thisEntryView];
-	}
-	
-}
-
-
-- (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
-{
-	UITouch * anyTouch = [touches anyObject];
-	int currentViewIndex = 0;
-	for (UIView * thisView in layoutViewsArray) {
-		CGPoint thisPoint;
-		thisPoint = [anyTouch locationInView:thisView];
-		if ([thisView pointInside:thisPoint withEvent:nil]) {
-			LayoutEntry * thisEntry = [[dataWrapper layoutArray] objectAtIndex:currentViewIndex];
-			[self setClickedName:[thisEntry nameString]];
-			[super touchesEnded:touches withEvent:event];
-			return;
-		}
-		currentViewIndex ++;
-	}
-	
-	[self setClickedName:nil];
-	[super touchesEnded:touches withEvent:event];
 }
 
 
