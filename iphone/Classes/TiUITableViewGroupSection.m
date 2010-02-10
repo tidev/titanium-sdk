@@ -6,338 +6,138 @@
  */
 #import "TiUITableViewGroupSection.h"
 #import "TiUtils.h"
-#import "Webcolor.h"
-#import "TiDimension.h"
+#import "TiColor.h"
 
+#import "TiUITableViewRowProxy.h"
+#import "TiUIGroupedSectionProxy.h"
 
 @implementation TiUITableViewGroupSection
 
-@synthesize header,footer,isOptionList,nullHeader,rowArray,name,templateCell,headerColor,headerFont,footerColor,footerFont;
-@synthesize rowHeight, minRowHeight, maxRowHeight, delegate, sectionNumber;
+@synthesize header,headerColor,headerFont;
+@synthesize footer,footerColor,footerFont;
+@synthesize rowHeight, minRowHeight, maxRowHeight;
+@synthesize isOptionList,data;
+@synthesize proxy, parentView;
 
 
-- (id) initWithHeader: (NSString *) headerString footer: (NSString *) footerString withProperties:(NSDictionary*)properties
+-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)thisProxy
 {
-	self = [super init];
-	if (self != nil) 
+	if (thisProxy != proxy)
 	{
-		[self forceHeader:headerString footer:footerString];
-
-		TiColor *hc = [TiUtils colorValue:@"headerColor" properties:properties def:nil];
-		TiColor *fc = [TiUtils colorValue:@"footerColor" properties:properties def:nil];
-		 
-		if (hc!=nil)
-		{
-			[self setHeaderColor:[hc _color]];
-		}
-		if (fc!=nil)
-		{
-			[self setFooterColor:[fc _color]];
-		}
-		
-		WebFont *font = [TiUtils fontValue:[properties objectForKey:@"headerFont"] def:nil];
-		
-		if (font!=nil && [font font]!=nil)
-		{
-			[self setHeaderFont:[font font]];
-		}
-
-		font = [TiUtils fontValue:[properties objectForKey:@"footerFont"] def:nil];
-		
-		if (font!=nil && [font font]!=nil)
-		{
-			[self setFooterFont:[font font]];
-		}
-		
+		return;
 	}
-	return self;
+	DoProxyDelegateChangedValuesWithProxy(self, key, oldValue, newValue, proxy);
+}
+
+-(BOOL)isRepositionProperty:(NSString*)key
+{
+	return NO;
+}
+
+-(void)setParentNeedsRefreshing;
+{
+	if (parentView == nil)
+	{
+		return;
+	}
+
+	[parentView performSelectorOnMainThread:@selector(refreshSection:) withObject:self waitUntilDone:NO];
 }
 
 - (void) dealloc
 {
-	RELEASE_TO_NIL(name);
 	RELEASE_TO_NIL(header);
-	RELEASE_TO_NIL(footer);
-	RELEASE_TO_NIL(rowArray);
 	RELEASE_TO_NIL(headerColor);
 	RELEASE_TO_NIL(headerFont);
-	RELEASE_TO_NIL(templateCell);
+
+	RELEASE_TO_NIL(footer);
+	RELEASE_TO_NIL(footerColor);
+	RELEASE_TO_NIL(footerFont);
+
+	proxy = nil; //NOT RETAINED\
+	parentView = nil; //NOT RETAINED
+
+	RELEASE_TO_NIL(data);
 	[super dealloc];
 }
 
+#define DECLARE_GROUP_SETTER(funct,extraction)	\
+-(void)funct##_:(id)value	\
+{	\
+	[self funct:extraction];	\
+	[self setParentNeedsRefreshing];	\
+}
+
+DECLARE_GROUP_SETTER(setHeader,[TiUtils stringValue:value])
+DECLARE_GROUP_SETTER(setFooter,[TiUtils stringValue:value])
+
+DECLARE_GROUP_SETTER(setHeaderColor,[[TiUtils colorValue:value] _color])
+DECLARE_GROUP_SETTER(setFooterColor,[[TiUtils colorValue:value] _color])
+
+DECLARE_GROUP_SETTER(setHeaderFont,[[TiUtils fontValue:value] font])
+DECLARE_GROUP_SETTER(setFooterFont,[[TiUtils fontValue:value] font])
+
+DECLARE_GROUP_SETTER(setRowHeight,[TiUtils dimensionValue:value])
+DECLARE_GROUP_SETTER(setMinRowHeight,[TiUtils dimensionValue:value])
+DECLARE_GROUP_SETTER(setMaxRowHeight,[TiUtils dimensionValue:value])
+
 DEFINE_EXCEPTIONS
-
-
-- (TiUITableViewGroupSection *) copyWithZone:(NSZone *)zone
-{
-	TiUITableViewGroupSection * result = [[TiUITableViewGroupSection allocWithZone:zone] initWithHeader:header footer:footer withProperties:[NSDictionary dictionary]];
-	[result addRowsFromArray:rowArray];
-	[result setRowHeight:rowHeight];
-	[result setHeaderColor:headerColor];
-	[result setHeaderFont:headerFont];
-	[result setName:name];
-	[result setIsOptionList:isOptionList];
-	[result setNullHeader:nullHeader];
-	[result setTemplateCell:templateCell];
-	return result;
-}
-
-- (TiUITableViewGroupSection *) subSectionFromIndex: (int) rowIndex header: (NSString *)newHeader footer: (NSString *)newFooter;
-{
-	TiUITableViewGroupSection * result = [[TiUITableViewGroupSection alloc] initWithHeader:newHeader footer:newFooter withProperties:[NSDictionary dictionary]];
-	int rowCount = [rowArray count];
-	if(rowIndex < rowCount) {
-		[result addRowsFromArray:[rowArray subarrayWithRange:NSMakeRange(rowIndex,rowCount-rowIndex)]];
-	}
-	[result setRowHeight:rowHeight];
-	[result setHeaderColor:headerColor];
-	[result setHeaderFont:headerFont];
-	return [result autorelease];
-}
-
-- (TiUITableViewGroupSection *) subSectionFromIndex: (int) rowIndex;
-{
-	TiUITableViewGroupSection * result = [self subSectionFromIndex:rowIndex header:header footer:footer];
-	[result setNullHeader:nullHeader];
-	[result setRowHeight:rowHeight];
-	[result setHeaderColor:headerColor];
-	[result setHeaderFont:headerFont];
-	return result;
-}
-
-#pragma mark Headers and footerString
-
-- (void) forceHeader: (NSString *) headerString footer: (NSString *)footerString
-{
-	Class stringClass = [NSString class];
-	
-	if ([headerString respondsToSelector:@selector(stringValue)])
-	{
-		headerString=[(id)headerString stringValue];
-	}
-	if ([headerString isKindOfClass:stringClass])
-	{
-		[self setHeader:headerString];
-	}
-	else
-	{
-		[self setHeader:nil];
-	}
-	
-	if ([footerString respondsToSelector:@selector(stringValue)])
-	{
-		footerString=[(id)footerString stringValue];
-	}
-	if ([footerString isKindOfClass:stringClass])
-	{
-		[self setFooter:footerString];
-	}
-	else
-	{
-		[self setFooter:nil];
-	}
-	
-	nullHeader = (id)headerString == [NSNull null];	
-}
-
-- (BOOL) accceptsHeader: (id) newHeader footer: (id) newFooter
-{
-	Class stringClass = [NSString class];
-	BOOL result;
-	
-	if ((newHeader == nil) || ([rowArray count]==0))
-	{
-		result = YES;
-	} 
-	else if (![newHeader isKindOfClass:stringClass])
-	{
-		result = NO;
-	} 
-	else 
-	{
-		result = ([newHeader length] == 0);
-	}
-	if (result) 
-	{
-		if ([newHeader isKindOfClass:stringClass])
-		{
-			[self setHeader:newHeader];
-		} 
-		else if (newHeader == [NSNull null])
-		{
-			nullHeader = YES;
-		}
-		if ([newFooter isKindOfClass:stringClass])
-		{
-			[self setFooter:newFooter];
-		} 
-		else if (newFooter == [NSNull null]) 
-		{
-			[self setFooter:nil];
-		}
-	}
-	return result;
-}
-
-
-
-#pragma mark Advanced row array workings.
-
-- (NSUInteger) rowCount;
-{
-	return [rowArray count];
-}
-
-- (void) addRow: (TiUITableViewCellProxy *) newRow
-{
-	if (rowArray == nil){
-		rowArray = [[NSMutableArray alloc] initWithObjects:newRow,nil];
-	} else {
-		[rowArray addObject:newRow];
-	}
-}
-
-- (void) insertRow: (TiUITableViewCellProxy *) newRow atIndex: (int) index
-{
-	if (rowArray == nil){
-		rowArray = [[NSMutableArray alloc] initWithObjects:newRow,nil];
-	} else {
-		[rowArray insertObject:newRow atIndex:index];
-	}
-}
-
-- (void) addRowsFromArray: (NSArray *) otherArray
-{
-	if(otherArray == nil)return;
-	if (rowArray == nil){
-		rowArray = [otherArray mutableCopy];
-	} else {
-		[rowArray addObjectsFromArray:otherArray];
-	}
-}
-
-- (void) addRowsFromSection: (TiUITableViewGroupSection *) otherSection
-{
-	[self addRowsFromArray:[otherSection rowArray]];
-}
-
-- (void) trimToIndex: (int) rowIndex;
-{
-	int rowCount = [rowArray count];
-	if(rowIndex < rowCount) {
-		[rowArray removeObjectsInRange:NSMakeRange(rowIndex, rowCount-rowIndex)];
-	}
-}
-
-- (void) removeRowAtIndex: (int) rowIndex
-{
-	if((rowIndex < 0) || (rowIndex >= [rowArray count]))return;
-	[rowArray removeObjectAtIndex:rowIndex];
-}
-
-- (TiUITableViewCellProxy *) rowForIndex: (NSUInteger) rowIndex
-{
-	if (rowIndex >= [rowArray count]) return nil;
-	TiUITableViewCellProxy * result = [rowArray objectAtIndex:rowIndex];
-	return result;
-}
-
-- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state objects:(id *)stackbuf count:(NSUInteger)len
-{
-	return [rowArray countByEnumeratingWithState:state objects:stackbuf count:len];
-}
 
 #pragma mark Javascript-facing data accessors
 
 - (int) countOfData
 {
-	return [self rowCount];
+	return [data count];
 }
 
-- (NSDictionary *) objectInDataAtIndex: (int)index
+- (TiUITableViewRowProxy *) objectInDataAtIndex: (int)index
 {
-	return [[self rowForIndex:index] jsonValues];
+	if ((index<0) || (index >= [data count]))
+	{
+		return nil;
+	}
+	return [data objectAtIndex:index];
 }
 
-- (void) insertObject:(NSDictionary *)newRowData inDataAtIndex:(int)index
+-(void) addObjectToData:(TiUITableViewRowProxy *)newRowData
 {
-	ENSURE_TYPE(newRowData,NSDictionary);
-	ENSURE_VALUE_RANGE(index,0,[self countOfData]);
-	
-	TiUITableViewCellProxy * newRow = [TiUITableViewCellProxy cellDataWithProperties:newRowData proxy:delegate font:[WebFont tableRowFont] template:templateCell];
-	[self insertRow:newRow atIndex:index];
+	if (data == nil)
+	{
+		data = [[NSMutableArray alloc] initWithObjects:newRowData,nil];
+	}
+	else
+	{
+		[data addObject:newRowData];
+	}
+}
+
+- (void) insertObject:(TiUITableViewRowProxy *)newRowData inDataAtIndex:(int)index
+{
+	if ((index < 0) || (index > [data count]))
+	{
+		//Todo: Throw exception?
+		return;
+	}
+	if (data == nil)
+	{
+		data = [[NSMutableArray alloc] initWithObjects:newRowData,nil];
+	}
+	else
+	{
+		[data insertObject:newRowData atIndex:index];
+	}
 }
 
 - (void) removeObjectFromDataAtIndex:(int)index
 {
-	ENSURE_VALUE_RANGE(index,0,[self countOfData]-1);
-	
-	[self removeRowAtIndex:index];
 }
 
 - (void)replaceObjectInDataAtIndex:(int)index withObject:(NSDictionary *)newRowData
 {
-	ENSURE_TYPE(newRowData,NSDictionary);
-	ENSURE_VALUE_RANGE(index,0,[self countOfData]-1);
-	
-	TiUITableViewCellProxy * newRow = [TiUITableViewCellProxy cellDataWithProperties:newRowData proxy:delegate font:[WebFont tableRowFont] template:templateCell];
-	[rowArray replaceObjectAtIndex:index withObject:newRow];
 }
 
 - (void) setData:(id)newData
 {
-	ENSURE_TYPE_OR_NIL(newData,NSArray);
-	
-	if (rowArray == nil)
-	{
-		rowArray = [[NSMutableArray alloc] initWithCapacity:[newData count]];
-	} 
-	else 
-	{
-		[rowArray removeAllObjects];
-	}	
-	
-	for (NSDictionary * thisRowData in newData) 
-	{
-		ENSURE_DICT(thisRowData);
-		TiUITableViewCellProxy * thisRow = [TiUITableViewCellProxy cellDataWithProperties:thisRowData proxy:delegate font:[WebFont tableRowFont] template:templateCell];
-		[rowArray addObject:thisRow];
-	}
-}
-
-#pragma mark Javascript exposed area
-
-- (void)insertRowAfter:(NSArray *)args
-{
-	NSNumber * rowNumber = [args objectAtIndex:0];
-	NSDictionary * newRowData = [args objectAtIndex:1];
-	[self insertObject:newRowData inDataAtIndex:[rowNumber intValue]+1];
-}
-
-- (void)insertRowBefore:(NSArray *)args
-{
-	NSNumber * rowNumber = [args objectAtIndex:0];
-	NSDictionary * newRowData = [args objectAtIndex:1];
-	[self insertObject:newRowData inDataAtIndex:[rowNumber intValue]];	
-}
-
-- (void)deleteRow:(NSArray *)args
-{
-	NSNumber * rowNumber = [args objectAtIndex:0];
-	[self removeObjectFromDataAtIndex:[rowNumber intValue]];	
-}
-
-- (void)updateRow:(NSArray *)args
-{
-	NSNumber * rowNumber = [args objectAtIndex:0];
-	NSDictionary * newRowData = [args objectAtIndex:1];
-	[self replaceObjectInDataAtIndex:[rowNumber intValue] withObject:newRowData];
-}
-
-- (void)appendRow:(NSArray *)args
-{
-	NSDictionary * newRowData = [args objectAtIndex:0];
-	[self insertObject:newRowData inDataAtIndex:[self countOfData]];
 }
 
 @end

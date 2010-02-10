@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
+#import "TiBase.h"
 #import "TitaniumModule.h"
 #import "KrollBridge.h"
 #import "TitaniumApp.h"
@@ -26,7 +26,12 @@
 {
 	for (id file in jsfiles)
 	{
-		[[self executionContext] evalFile:file];
+		// only allow includes that are local to our execution context url
+		// for security, refuse to load non-compiled in Javascript code
+		NSString *rootPath = [[self _baseURL] path];
+		NSURL *url = [[NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@",rootPath,file]] standardizedURL];
+		NSLog(@"[DEBUG] include url: %@",[url absoluteString]);
+		[[self executionContext] evalFile:[url absoluteString]];
 	}
 }
 

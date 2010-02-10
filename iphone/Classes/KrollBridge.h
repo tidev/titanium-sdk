@@ -19,7 +19,7 @@
 	NSMutableDictionary *modules;
 	TiHost *host;
 }
--(id)initWithContext:(KrollContext*)context host:(TiHost*)host_;
+-(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_ context:(id<TiEvaluator>)context baseURL:(NSURL*)baseURL_;
 -(KrollObject*)addModule:(NSString*)name module:(TiModule*)module;
 -(TiModule*)moduleNamed:(NSString*)name;
 @end

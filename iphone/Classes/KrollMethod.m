@@ -7,6 +7,7 @@
 #import "KrollMethod.h"
 #import "KrollObject.h"
 #import "KrollContext.h"
+#import "TiBase.h"
 
 TiClassRef KrollMethodClassRef = NULL;
 

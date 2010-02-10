@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="lib/js.jar"/>
+	<classpathentry kind="src" path="thirdparty"/>
+	<classpathentry kind="lib" path="lib/js.jar" sourcepath="/Users/marshall/Source/rhino1_7R2/src"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="ANDROID_1_5/android.jar"/>
-	<classpathentry kind="var" path="GOOGLE_APIS_R3/libs/maps.jar"/>
+	<classpathentry kind="var" path="ANDROID_PLATFORM/android.jar"/>
+	<classpathentry kind="var" path="GOOGLE_APIS/libs/maps.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

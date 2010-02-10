@@ -255,6 +255,11 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 			callback.callWithProperties(data);
 		}
 	}
+	
+	public boolean hasListeners(String eventName)
+	{
+		return getTiContext().hasAnyEventListener(eventName);
+	}
 
 	public Object resultForUndefinedMethod(String name, Object[] args) {
 		throw new UnsupportedOperationException("Method: " + name + " not supported by " + getClass().getSimpleName());
