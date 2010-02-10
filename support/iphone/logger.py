@@ -4,7 +4,7 @@
 # Tail an application log file running in the iPhone Simulator
 #
 
-import os, sys, subprocess, time, signal
+import os, sys, subprocess, time, signal, run
 
 def find_file(folder, fname):
     for root, dirs, files in os.walk(folder):
@@ -15,12 +15,32 @@ def find_file(folder, fname):
     return None
 
 def main(args):
-	if len(args)!=2:
-		print "%s <logname>" % os.path.basename(args[0])
+	if len(args)!=3:
+		print "%s <logname> <version>" % os.path.basename(args[0])
 		sys.exit(1)
-
+		
 	logname = args[1]
-	logfile_dir = os.path.expanduser("~/Library/Application Support/iPhone Simulator/User/Applications")
+	iphone_version = args[2]
+	
+	# starting in SDK 3.2 they changed the directory on us where logs 
+	# go so we have to compensate for that by looking at the version
+	# of xcode the user has
+	xoutput = run.run(["xcodebuild","-version"])
+	idx = xoutput.find("Xcode ")
+	version = xoutput[idx+6:idx+11]
+	version_split = version.split('.')
+	major = int(version_split[0])
+	minor = int(version_split[1])
+	build = int(version_split[2])
+	
+	# this was the default up until 3.2.2 release
+	path = "~/Library/Application Support/iPhone Simulator/User/Applications"
+	
+	# check for >= Xcode 3.2.2 which is when the new log directory started for the simulator
+	if major > 3 or major == 3 and minor > 2 or major == 3 and minor == 2 and build >= 2:
+		path = "~/Library/Application Support/iPhone Simulator/%s/Applications" % iphone_version
+
+	logfile_dir = os.path.expanduser(path)
 
 	logfile = None
 

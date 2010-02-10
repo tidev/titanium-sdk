@@ -45,13 +45,13 @@ var scrollView = Titanium.UI.createScrollableView({
 
 win.add(scrollView);
 
-var i =0;
+var i=0;
 var activeView = view1;
 
 scrollView.addEventListener('scroll', function(e)
 {
-    var activeView = e.view  // the object handle to the view that is about to become visible
-	var i = e.currentPage;
+    activeView = e.view  // the object handle to the view that is about to become visible
+	i = e.currentPage;
 	Titanium.API.info("scroll called - current index " + i + ' active view ' + activeView);
 });
 

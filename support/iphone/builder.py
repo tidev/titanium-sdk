@@ -290,7 +290,8 @@ def main(args):
 			# start the logger
 			log = subprocess.Popen([
 			  	logger,
-				str(log_id)+'.log'
+				str(log_id)+'.log',
+				iphone_version
 			])	
 			
 			sim = None
