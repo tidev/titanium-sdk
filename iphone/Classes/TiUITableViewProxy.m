@@ -15,6 +15,48 @@
 NSArray * tableKeys = nil;
 
 @implementation TiUITableViewProxy
+@synthesize data;
+
+-(void)setData:(NSArray *)newData withObject:(NSDictionary *)options
+{
+	ENSURE_TYPE_OR_NIL(newData,NSArray);
+	ENSURE_TYPE_OR_NIL(options,NSDictionary);
+
+	NSArray * oldData = [data autorelease];
+	data = [[NSMutableArray alloc] initWithCapacity:[newData count]];
+	
+	for (TiUITableViewRowProxy * thisEntry in newData)
+	{
+		ENSURE_TABLE_VIEW_ROW(thisEntry);
+		[data addObject:thisEntry];
+	}
+	
+	NSArray * dataCopy = [data copy];
+	[self.modelDelegate propertyChanged:@"data" oldValue:oldData newValue:dataCopy proxy:self];
+//
+//	[self enqueueAction:[NSArray arrayWithObjects:dataCopy,options,nil] withType:TiUITableViewDispatchSetDataWithAnimation];
+	[dataCopy release];
+}
+
+-(void)setData:(NSArray *)newData
+{
+	[self setData:newData withObject:nil];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #pragma mark Internal
 
@@ -41,11 +83,6 @@ NSArray * tableKeys = nil;
 -(void)_initWithCallback:(KrollCallback*)callback_
 {
 	[self addEventListener:[NSArray arrayWithObjects:@"click",callback_,nil]];
-}
-
--(TiUIView*)newView
-{
-	return [[TiUITableView alloc] initWithFrame:CGRectZero];
 }
 
 -(void)enqueueActionOnMainThread:(id)args
@@ -78,52 +115,44 @@ NSArray * tableKeys = nil;
 
 #pragma mark Public APIs
 
--(void)setData:(id)data withObject:(id)obj
-{
-	// replace our internal data value but don't notify the modelDelegate, we'll do that ourselves below
-	[self replaceValue:data forKey:@"data" notification:NO];
-	[self enqueueAction:[NSArray arrayWithObjects:data,obj,nil] withType:TiUITableViewDispatchSetDataWithAnimation];
-}
 
 - (NSNumber *) indexByName:(id)name
 {
 	ENSURE_SINGLE_ARG(name,NSString);
-	NSMutableArray *data = [self valueForKey:@"data"];
-	if (data!=nil)
+	unsigned int index = 0;
+	for (NSDictionary* row in data)
 	{
-		unsigned int index = 0;
-		for (NSDictionary* row in data)
+		id value = [row objectForKey:@"name"];
+		if ([name isEqual:value])
 		{
-			id value = [row objectForKey:@"name"];
-			if ([name isEqualToString:value])
-			{
-				return [NSNumber numberWithInt:index];
-			}				
-			index++;
+			return [NSNumber numberWithInt:index];
 		}
+		index++;
 	}
 	return [NSNumber numberWithInt:-1];
 }
 
 - (void) insertRowAfter:(NSArray *)args
 {
-	if ([args count] < 2) 
-	{
-		[self throwException:TiExceptionNotEnoughArguments subreason:nil location:CODELOCATION];
-	}
+	ENSURE_ARG_COUNT(args,2);
 	
-	int row = [[args objectAtIndex:0] intValue];
-	NSDictionary *newdata = [args objectAtIndex:1];
-	NSMutableArray *data = [self valueForKey:@"data"];
+	NSNumber * rowNumber = [args objectAtIndex:0];
+	ENSURE_METHOD(rowNumber,intValue);
+	int rowIndex=[rowNumber intValue];
 	
-	if (row < 0 || row >= [data count])
-	{
-		[self throwException:TiExceptionRangeError subreason:nil location:CODELOCATION];
-	}
+	ENSURE_VALUE_RANGE(rowIndex,0,[data count]-1);
 
-	[data insertObject:newdata atIndex:row+1];
+	TiUITableViewRowProxy *newrow = [args objectAtIndex:1];
+	ENSURE_TABLE_VIEW_ROW(newrow);
+	[data insertObject:newrow atIndex:rowIndex+1];
 	
-	[self enqueueAction:args withType:TiUITableViewDispatchInsertRowAfter];
+	NSDictionary * options=nil;
+	if ([args count]>2)
+	{
+		options = [args objectAtIndex:2];
+	}
+	
+	[self enqueueAction:[NSArray arrayWithObjects:rowNumber,newrow,options,nil] withType:TiUITableViewDispatchInsertRowAfter];
 }
 
 - (void) insertRowBefore:(NSArray *)args

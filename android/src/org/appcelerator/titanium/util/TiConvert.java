@@ -8,6 +8,7 @@ package org.appcelerator.titanium.util;
 
 import java.util.Date;
 
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiProxy;
@@ -251,5 +252,13 @@ public class TiConvert
 
 		d.put("error", e);
 		return d;
+	}
+	
+	public static TiBlob toBlob(Object value) {
+		return (TiBlob) value;
+	}
+	
+	public static TiBlob toBlob(TiDict object, String property) {
+		return toBlob(object.get(property));
 	}
 }
