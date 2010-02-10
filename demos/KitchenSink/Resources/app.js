@@ -1,3 +1,5 @@
+//Titanium.include('my_js_include.js', 'my_js_include_2.js', 'local_include.js');
+
 // this sets the background color of the master UIView (when there are no windows/tab groups on it)
 Titanium.UI.setBackgroundColor('#000');
 
