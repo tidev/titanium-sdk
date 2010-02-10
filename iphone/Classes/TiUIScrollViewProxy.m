@@ -55,13 +55,27 @@
 	TiPoint * offsetPoint = [[TiPoint alloc] initWithPoint:offset];
 	[self replaceValue:offsetPoint forKey:@"contentOffset" notification:NO];
 
-	[self fireEvent:@"scroll" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
-			[NSNumber numberWithFloat:offset.x],@"x",
-			[NSNumber numberWithFloat:offset.y],@"y",
-			[NSNumber numberWithBool:[scrollView isDecelerating]],@"decelerating",
-			[NSNumber numberWithBool:[scrollView isDragging]],@"dragging",
-			nil]];
+	if ([self _hasListeners:@"scroll"])
+	{
+		[self fireEvent:@"scroll" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
+				NUMFLOAT(offset.x),@"x",
+				NUMFLOAT(offset.y),@"y",
+				NUMBOOL([scrollView isDecelerating]),@"decelerating",
+				NUMBOOL([scrollView isDragging]),@"dragging",
+				nil]];
+	}
+}
 
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(float)scale
+{
+	[self replaceValue:NUMFLOAT(scale) forKey:@"zoomScale" notification:NO];
+	
+	if ([self _hasListeners:@"zoom"])
+	{
+		[self fireEvent:@"zoom" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
+											  NUMFLOAT(scale),@"scale",
+											  nil]];
+	}
 }
 
 @end
