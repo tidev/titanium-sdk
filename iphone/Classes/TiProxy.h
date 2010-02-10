@@ -35,6 +35,20 @@ typedef enum {
 //
 // delegate for receiving property changes
 //
+@interface TiAnimatedSelector : NSObject
+{
+	SEL selector;
+	id	firstObject;
+	id	secondObject;
+}
+
+@property(nonatomic,readwrite,assign)	SEL selector;
+@property(nonatomic,readwrite,retain)	id firstObject;
+@property(nonatomic,readwrite,retain)	id secondObject;
+
+@end
+
+
 @protocol TiProxyDelegate
 
 @required

@@ -370,6 +370,41 @@
 	}
 }
 
+#pragma mark Data handling -- Already checked for validity.
+
+-(void)setData_:(id)dataArray
+{
+	int oldCount = [sectionArray count];
+	RELEASE_TO_NIL(sectionArray);
+	sectionArray = [[NSMutableArray alloc] init];
+	
+	TiUITableViewGroupSection * thisSectionWrapper = nil;
+	
+	int newCount = 0;
+	for (TiUITableViewRowProxy * thisEntry in dataArray)
+	{
+		NSString * headerString = [TiUtils stringValue:[thisEntry valueForKey:@"header"]];
+
+		if ((thisSectionWrapper == nil) || (headerString != nil))
+		{
+			thisSectionWrapper = [[TiUITableViewGroupSection alloc] init];
+			DoProxyDelegateReadValuesWithKeysFromProxy(thisSectionWrapper,[thisEntry allProperties],thisEntry);
+
+			[sectionArray addObject:thisSectionWrapper];
+			[thisSectionWrapper autorelease];
+			newCount ++;
+		}
+		[thisSectionWrapper addObjectToData:thisEntry];
+	}
+	
+	[tableview beginUpdates];
+	[tableview deleteSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, oldCount)] withRowAnimation:UITableViewRowAnimationFade];
+	[tableview insertSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newCount)] withRowAnimation:UITableViewRowAnimationFade];
+	[tableview endUpdates];
+}
+
+
+
 #pragma mark Collation
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView

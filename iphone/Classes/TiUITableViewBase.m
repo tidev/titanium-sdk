@@ -27,7 +27,7 @@
 {
 	RELEASE_TO_NIL(tableview);
 	RELEASE_TO_NIL(sectionArray);
-	RELEASE_TO_NIL(transactionArray);
+//	RELEASE_TO_NIL(transactionArray);
 	RELEASE_TO_NIL(borderColor);
 	[super dealloc];
 }
@@ -39,11 +39,6 @@
 		if (!CGRectEqualToRect(bounds,[TiUtils viewPositionRect:tableview]))
 		{
 			[TiUtils setView:tableview positionRect:bounds];
-		}
-		if (needsReload)
-		{
-			needsReload = NO;
-			[tableview reloadData];
 		}
 	}
 }
@@ -177,7 +172,7 @@
 - (TiUITableViewRowProxy *) cellForIndexPath: (NSIndexPath *) path
 {
 	TiUITableViewGroupSection * thisSectionWrapper = [self sectionForIndex:[path section]];
-	TiUITableViewRowProxy * result = [thisSectionWrapper rowForIndex:[path row]];
+	TiUITableViewRowProxy * result = [thisSectionWrapper objectInDataAtIndex:[path row]];
 	return result;	
 }
 
@@ -204,9 +199,9 @@
 	
 	for (TiUITableViewGroupSection * thisSection in sectionArray)
 	{
-		if (thisSectionIndex == thisSectionIndex)
+		if (thisSectionIndex == sectionIndex)
 		{
-			thisDataCellDict = [[[thisSection rowForIndex:row] jsonValues] copy];
+			thisDataCellDict = [[[thisSection objectInDataAtIndex:row] allProperties] copy];
 			break;
 		}
 		index += [thisSection rowCount];
@@ -230,16 +225,7 @@
 	}
 	
 	UITableViewCell * triggeredCell = [tableview cellForRowAtIndexPath:indexPath];
-	
-	if ([triggeredCell isKindOfClass:[TiUITableViewCell class]])
-	{
-		NSString * newItemName = [(TiUITableViewCell *)triggeredCell clickedName];
-		if (newItemName != nil) 
-		{
-			[eventObject setObject:newItemName forKey:@"layoutName"];
-		}
-	}
-	
+
 	if (thisDataCellDict != nil) 
 	{
 		[eventObject setObject:thisDataCellDict forKey:@"rowData"];
@@ -399,7 +385,7 @@
 		return NO;
 	}
 	TiUITableViewGroupSection *sectionWrapper = [self sectionForIndex:[indexPath section]];
-	TiUITableViewRowProxy *rowWrapper = [sectionWrapper rowForIndex:[indexPath row]];
+	TiUITableViewRowProxy *rowWrapper = [sectionWrapper objectInDataAtIndex:[indexPath row]];
 	id value = [rowWrapper stringForKey:@"indentOnEdit"];
 	if (value!=nil)
 	{
@@ -413,7 +399,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	TiUITableViewGroupSection *sectionWrapper = [self sectionForIndex:[indexPath section]];
-	TiUITableViewRowProxy *rowProxy = [sectionWrapper rowForIndex:[indexPath row]];
+	TiUITableViewRowProxy *rowProxy = [sectionWrapper objectInDataAtIndex:[indexPath row]];
 
 	TiUITableViewCell *result = [rowProxy cellForTableView:tableView];
 	
@@ -427,7 +413,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-	return [[self sectionForIndex:section] rowCount];
+	return [[self sectionForIndex:section] countOfData];
 }
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
@@ -465,8 +451,8 @@
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	TiUITableViewGroupSection *sectionWrapper = [self sectionForIndex:[indexPath section]];
-	TiUITableViewRowProxy *rowWrapper = [sectionWrapper rowForIndex:[indexPath row]];
-	id editable_ = [rowWrapper stringForKey:@"editable"];
+	TiUITableViewRowProxy *rowWrapper = [sectionWrapper objectInDataAtIndex:[indexPath row]];
+	id editable_ = [rowWrapper valueForKey:@"editable"];
 	
 	if (editable_!=nil && !moving)
 	{
@@ -481,7 +467,7 @@
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	TiUITableViewGroupSection *sectionWrapper = [self sectionForIndex:[indexPath section]];
-	TiUITableViewRowProxy *rowWrapper = [sectionWrapper rowForIndex:[indexPath row]];
+	TiUITableViewRowProxy *rowWrapper = [sectionWrapper objectInDataAtIndex:[indexPath row]];
 	id amoveable = [rowWrapper stringForKey:@"moveable"];
 	return amoveable==nil ? moving : [TiUtils boolValue:amoveable];
 }
@@ -494,7 +480,7 @@
 	TiUITableViewGroupSection *fromSection = [self sectionForIndex:fromSectionIndex];
 	TiUITableViewGroupSection *toSection = [self sectionForIndex:toSectionIndex];
 
-	TiUITableViewRowProxy *rowWrapper = [fromSection rowForIndex:[fromIndexPath row]];
+	TiUITableViewRowProxy *rowWrapper = [fromSection objectInDataAtIndex:[fromIndexPath row]];
 	[fromSection removeObjectFromDataAtIndex:[fromIndexPath row]];
 	[toSection insertRow:rowWrapper atIndex:[toIndexPath row]];
 	
@@ -546,11 +532,6 @@
 			}
 		}
 	}
-}
-
--(void)setData_:(id)dataArray
-{
-	[self replaceData:dataArray reload:YES];
 }
 
 -(void)setSections_:(id)sections
@@ -621,43 +602,6 @@
 	return UITableViewRowAnimationNone;
 }
 
--(void)replaceData:(id)dataArray reload:(BOOL)reload
-{
-	ENSURE_ARRAY(dataArray);
-	RELEASE_TO_NIL(sectionArray);
-	
-	sectionArray = [[NSMutableArray alloc] init];
-	
-	TiUIGroupedSectionProxy * thisSectionWrapper = nil;
-	
-	for (id thisEntry in dataArray)
-	{
-		ENSURE_TABLE_VIEW_ROW(thisEntry);
-		
-		NSString * headerString = [TiUtils stringValue:[thisEntry valueForKey:@"header"]];
-
-		if ((thisSectionWrapper == nil) || (headerString != nil))
-		{
-			thisSectionWrapper = [[TiUIGroupedSectionProxy alloc] _initWithPageContext:[self pageContext]];
-			[thisSectionWrapper _initWithProperties:[thisEntry allProperties]];
-			[sectionArray addObject:thisSectionWrapper];
-			[thisSectionWrapper autorelease];
-		}
-		[thisSectionWrapper insertObject:thisEntry inDataAtIndex:[thisSectionWrapper countOfData]];
-	}	
-	
-	if (reload)
-	{
-		if (CGRectIsEmpty(tableview.bounds))
-		{
-			needsReload = YES;
-		}
-		else 
-		{
-			[tableview reloadData];
-		}	
-	}
-}
 
 -(void)changeEditing:(BOOL)yn
 {
@@ -736,7 +680,7 @@
 		{
 			int oldCount=[sectionArray count];
 			NSIndexSet * oldRange = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, oldCount)];
-			[self replaceData:[args objectAtIndex:0] reload:YES];
+			[self setData_:[args objectAtIndex:0]];
 			int newCount=[sectionArray count];
 			NSIndexSet * newRange = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newCount)];
 			UITableViewRowAnimation animation = [self animationFromArgument:args atIndex:1];

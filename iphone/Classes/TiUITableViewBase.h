@@ -60,7 +60,6 @@ typedef enum
 @interface TiUITableViewBase : TiUIView <UITableViewDelegate,UITableViewDataSource> 
 {
 @private
-	BOOL needsReload;
 	BOOL moving;
 	BOOL editing;
 	BOOL editable; //swipe-to-delete
@@ -79,9 +78,16 @@ typedef enum
 @property(nonatomic,readonly) BOOL editing;
 @property(nonatomic,readonly) BOOL moving;
 
+
+
+
+
+
+
+
+
 #pragma mark Framework
 -(void)dispatchAction:(NSArray*)args withType:(TiUITableViewDispatchType)type;
--(void)replaceData:(id)args reload:(BOOL)reload;
 - (TiUITableViewGroupSection *) sectionForIndex: (NSInteger) section;
 - (TiUITableViewRowProxy *) cellForIndexPath: (NSIndexPath *) path;
 - (NSInteger) sectionIndexForIndex:(NSInteger)theindex;

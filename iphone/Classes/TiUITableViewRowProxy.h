@@ -54,7 +54,7 @@ else	\
 {	\
 ENSURE_TYPE(x,NSDictionary);	\
 NSDictionary * oldProperties = (NSDictionary *)x;	\
-x = [[[TiUITableViewRowProxy alloc] _initWithPageContext:[self pageContext]] autoRelease];	\
+x = [[[TiUITableViewRowProxy alloc] _initWithPageContext:[self pageContext]] autorelease];	\
 [x _initWithProperties:oldProperties];	\
 }	\
 }

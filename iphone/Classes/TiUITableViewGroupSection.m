@@ -92,11 +92,40 @@ DEFINE_EXCEPTIONS
 
 - (TiUITableViewRowProxy *) objectInDataAtIndex: (int)index
 {
-	return nil;
+	if ((index<0) || (index >= [data count]))
+	{
+		return nil;
+	}
+	return [data objectAtIndex:index];
+}
+
+-(void) addObjectToData:(TiUITableViewRowProxy *)newRowData
+{
+	if (data == nil)
+	{
+		data = [[NSMutableArray alloc] initWithObjects:newRowData,nil];
+	}
+	else
+	{
+		[data addObject:newRowData];
+	}
 }
 
 - (void) insertObject:(TiUITableViewRowProxy *)newRowData inDataAtIndex:(int)index
 {
+	if ((index < 0) || (index > [data count]))
+	{
+		//Todo: Throw exception?
+		return;
+	}
+	if (data == nil)
+	{
+		data = [[NSMutableArray alloc] initWithObjects:newRowData,nil];
+	}
+	else
+	{
+		[data insertObject:newRowData atIndex:index];
+	}
 }
 
 - (void) removeObjectFromDataAtIndex:(int)index

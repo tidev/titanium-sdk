@@ -15,13 +15,14 @@
 NSArray * tableKeys = nil;
 
 @implementation TiUITableViewProxy
+@synthesize data;
 
 -(void)setData:(NSArray *)newData withObject:(NSDictionary *)options
 {
 	ENSURE_TYPE_OR_NIL(newData,NSArray);
 	ENSURE_TYPE_OR_NIL(options,NSDictionary);
 
-	[data autorelease];
+	NSArray * oldData = [data autorelease];
 	data = [[NSMutableArray alloc] initWithCapacity:[newData count]];
 	
 	for (TiUITableViewRowProxy * thisEntry in newData)
@@ -31,7 +32,9 @@ NSArray * tableKeys = nil;
 	}
 	
 	NSArray * dataCopy = [data copy];
-	[self enqueueAction:[NSArray arrayWithObjects:dataCopy,options,nil] withType:TiUITableViewDispatchSetDataWithAnimation];
+	[self.modelDelegate propertyChanged:@"data" oldValue:oldData newValue:dataCopy proxy:self];
+//
+//	[self enqueueAction:[NSArray arrayWithObjects:dataCopy,options,nil] withType:TiUITableViewDispatchSetDataWithAnimation];
 	[dataCopy release];
 }
 

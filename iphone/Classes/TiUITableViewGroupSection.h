@@ -88,6 +88,7 @@
 @property(nonatomic,readwrite,retain)	NSMutableArray * data;
 -(int)countOfData;
 -(TiUITableViewRowProxy *)objectInDataAtIndex:(int)index;
+-(void)addObjectToData:(TiUITableViewRowProxy *)newRowData;
 -(void)insertObject:(TiUITableViewRowProxy *)newRow inDataAtIndex:(int)index;
 -(void)removeObjectFromDataAtIndex:(int)index;
 
