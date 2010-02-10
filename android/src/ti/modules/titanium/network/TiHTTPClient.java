@@ -48,7 +48,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiModule;
+import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
@@ -56,23 +56,24 @@ import org.appcelerator.titanium.util.TiConfig;
 
 import android.net.Uri;
  
-public class TiHttpClient
+public class TiHTTPClient
 {
 	private static final String LCAT = "TiHttpClient";
 	private static final boolean DBG = TiConfig.LOGD;
  
 	private static AtomicInteger httpClientThreadCounter;
-	public static final int READY_STATE_UNINITIALIZED = 0; // Uninitialized, open() has not yet been called
-    public static final int READY_STATE_LOADING = 1; // Loading, send() has not yet been called
-    public static final int READY_STATE_LOADED = 2; // Loaded, headers have returned and the status is available
-    public static final int READY_STATE_INTERACTIVE = 3; // Interactive, responseText is being loaded with data
-    public static final int READY_STATE_COMPLETE = 4; // Complete, all operations have finished
+	public static final int READY_STATE_UNSENT = 0; // Unsent, open() has not yet been called
+    public static final int READY_STATE_OPENED = 1; // Opened, send() has not yet been called
+    public static final int READY_STATE_HEADERS_RECEIVED = 2; // Headers received, headers have returned and the status is available
+    public static final int READY_STATE_LOADING = 3; // Loading, responseText is being loaded with data
+    public static final int READY_STATE_DONE = 4; // Done, all operations have finished
     
-    private TiModule proxy;
-    private KrollCallback onLoadCallback;
-	private KrollCallback onReadyStateChangeCallback;
-	private KrollCallback onErrorCallback;
-	private KrollCallback onDataStreamCallback;
+    private static final String ON_READY_STATE_CHANGE = "onreadystatechange";
+    private static final String ON_LOAD = "onload";
+    private static final String ON_ERROR = "onerror";
+    private static final String ON_DATA_STREAM = "ondatastream";
+    
+    private TiProxy proxy;
 	private int readyState;
 	private String responseText;
 	private int status;
@@ -97,12 +98,12 @@ public class TiHttpClient
  
 	class LocalResponseHandler implements ResponseHandler<String>
 	{
-		public WeakReference<TiHttpClient> client;
+		public WeakReference<TiHTTPClient> client;
 		public InputStream is;
 		public HttpEntity entity;
  
-		public LocalResponseHandler(TiHttpClient client) {
-			this.client = new WeakReference<TiHttpClient>(client);
+		public LocalResponseHandler(TiHTTPClient client) {
+			this.client = new WeakReference<TiHTTPClient>(client);
 		}
  
 		public String handleResponse(HttpResponse response)
@@ -111,13 +112,13 @@ public class TiHttpClient
 	        String clientResponse = null;
  
 			if (client != null) {
-				TiHttpClient c = client.get();
+				TiHTTPClient c = client.get();
 				if (c != null) {
 					c.response = response;
-					c.setReadyState(READY_STATE_LOADED);
+					c.setReadyState(READY_STATE_HEADERS_RECEIVED);
 					c.setStatus(response.getStatusLine().getStatusCode());
 					c.setStatusText(response.getStatusLine().getReasonPhrase());
-					c.setReadyState(READY_STATE_INTERACTIVE);
+					c.setReadyState(READY_STATE_LOADING);
 				}
  
 				if (DBG) {
@@ -138,12 +139,13 @@ public class TiHttpClient
 		        }
  
 		        entity = response.getEntity();
- 
-		        if (c.onDataStreamCallback != null) {
+		        
+		        KrollCallback onDataStreamCallback = c.getCallback(ON_DATA_STREAM);
+		        if (onDataStreamCallback != null) {
 		        	is = entity.getContent();
  
 		        	if (is != null) {
-	    				final KrollCallback cb = c.onDataStreamCallback;
+	    				final KrollCallback cb = onDataStreamCallback;
 		        		long contentLength = entity.getContentLength();
 		        		if (DBG) {
 		        			Log.d(LCAT, "Content length: " + contentLength);
@@ -209,14 +211,13 @@ public class TiHttpClient
 		}
 	}
  
-	public TiHttpClient(TiModule proxy)
+	public TiHTTPClient(TiProxy proxy)
 	{
 		this.proxy = proxy;
 		
 		if (httpClientThreadCounter == null) {
 			httpClientThreadCounter = new AtomicInteger();
 		}
-		onReadyStateChangeCallback = null;
 		readyState = 0;
 		responseText = "";
 		credentials = null;
@@ -224,46 +225,54 @@ public class TiHttpClient
 		this.parts = new HashMap<String,ContentBody>();
 	}
 
-	public KrollCallback getOnReadyStateChangeCallback() {
-		return onReadyStateChangeCallback;
-	}
-
-	public  void setOnReadyStateChangeCallback(KrollCallback onReadyStateChangeCallback) {
-		if (DBG) {
-			Log.d(LCAT, "Setting callback to " + onReadyStateChangeCallback);
-		}
-		this.onReadyStateChangeCallback = onReadyStateChangeCallback;
-	}
-
-	public  int getReadyState() {
+	public int getReadyState() {
 		synchronized(this) {
 			this.notify();
 		}
 		return readyState;
 	}
 
+	public KrollCallback getCallback(String name)
+	{
+		Object value = proxy.getDynamicValue(name);
+		if (value != null && value instanceof KrollCallback)
+		{
+			return (KrollCallback) value;
+		}
+		return null;
+	}
+	
+	public void fireCallback(String name)
+	{
+		fireCallback(name, new Object[0]);
+	}
+	
+	public void fireCallback(String name, Object[] args)
+	{
+		KrollCallback cb = getCallback(name);
+		if (cb != null)
+		{
+			cb.call(args);
+		}
+	}
+	
 	public void setReadyState(int readyState) {
 		Log.d(LCAT, "Setting ready state to " + readyState);
 		this.readyState = readyState;
-		if (onReadyStateChangeCallback != null) {
-			onReadyStateChangeCallback.call();
-		}
-		if (readyState == READY_STATE_COMPLETE) {
+		
+		fireCallback(ON_READY_STATE_CHANGE);
+		if (readyState == READY_STATE_DONE) {
 			// Fire onload callback
-			if (onLoadCallback != null) {
-				onLoadCallback.call();
-			}
+			fireCallback(ON_LOAD);
 		}
 	}
  
-	public void sendError(final String error) {
+	public void sendError(String error) {
 		Log.i(LCAT, "Sending error " + error);
-		if (onErrorCallback != null) {
-			onErrorCallback.call(new Object[] {"\"" + error + "\""});
-		}
+		fireCallback(ON_ERROR, new Object[] {"\"" + error + "\""});
 	}
 
-	public  String getResponseText()
+	public String getResponseText()
 	{
 		if (responseData != null && responseText == null) {
 			if (charset == null) {
@@ -305,20 +314,8 @@ public class TiHttpClient
 		this.statusText = statusText;
 	}
  
-	public void setOnload(KrollCallback callback) {
-		this.onLoadCallback = callback;
-	}
- 
-	public void setOnerror(KrollCallback callback) {
-		this.onErrorCallback = callback;
-	}
- 
-	public void setOndatastream(KrollCallback callback) {
-		this.onDataStreamCallback = callback;
-	}
-
 	public void abort() {
-		if (readyState > READY_STATE_UNINITIALIZED && readyState < READY_STATE_COMPLETE) {
+		if (readyState > READY_STATE_UNSENT && readyState < READY_STATE_DONE) {
 			if (client != null) {
 				if (DBG) {
 					Log.d(LCAT, "Calling shutdown on clientConnectionManager");
@@ -349,7 +346,7 @@ public class TiHttpClient
 
 	public String getAllResponseHeaders() {
 		String result = "";
-		if (readyState >= READY_STATE_LOADED)
+		if (readyState >= READY_STATE_HEADERS_RECEIVED)
 		{
 			StringBuilder sb = new StringBuilder(1024);
  
@@ -369,7 +366,7 @@ public class TiHttpClient
 
 	public void setRequestHeader(String header, String value)
 	{
-		if (readyState == READY_STATE_LOADING) {
+		if (readyState == READY_STATE_OPENED) {
 			request.addHeader(header, value);
 		} else {
 			throw new IllegalStateException("setRequestHeader can only be called before invoking send.");
@@ -379,7 +376,7 @@ public class TiHttpClient
 	public String getResponseHeader(String header) {
 		String result = "";
  
-		if (readyState > READY_STATE_LOADING) {
+		if (readyState > READY_STATE_OPENED) {
 			Header h = response.getFirstHeader(header);
 			if (h != null) {
 				result = h.getValue();
@@ -407,7 +404,7 @@ public class TiHttpClient
 		if (uri.getUserInfo() != null) {
 			credentials = new UsernamePasswordCredentials(uri.getUserInfo());
 		}
-		setReadyState(READY_STATE_LOADING);
+		setReadyState(READY_STATE_OPENED);
 		setRequestHeader("User-Agent", (String) proxy.getDynamicValue("userAgent"));
 		setRequestHeader("X-Requested-With","XMLHttpRequest");
 	}
@@ -453,7 +450,7 @@ public class TiHttpClient
 	{
  
 		// TODO consider using task manager
-		final TiHttpClient me = this;
+		final TiHTTPClient me = this;
 		clientThread = new Thread(new Runnable(){
  
 			public void run() {
@@ -549,7 +546,7 @@ public class TiHttpClient
 						Log.d(LCAT, "Have result back from request len=" + result.length());
 					}
 					me.setResponseText(result);
-					me.setReadyState(READY_STATE_COMPLETE);
+					me.setReadyState(READY_STATE_DONE);
 				} catch(Exception e) {
 					Log.e(LCAT, "HTTP Error: " + e.getMessage(), e);
 					me.sendError(e.getMessage());
