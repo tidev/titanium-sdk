@@ -19,6 +19,7 @@
 		context = context_; //don't retain
 		onetime = onetime_;
 		duration = duration_;
+		stopped = YES;
 		timerId = timerId_;
 		jsThis = TiValueToObject(context,jsThis_,NULL);
 		function = TiValueToObject(context,function_,NULL);
@@ -39,8 +40,11 @@
 
 -(void)start
 {
-	stopped = NO;
-	[NSThread detachNewThreadSelector:@selector(main) toTarget:self withObject:nil];
+	if (stopped)
+	{
+		stopped = NO;
+		[NSThread detachNewThreadSelector:@selector(main) toTarget:self withObject:nil];
+	}
 }
 
 -(void)cancel
@@ -66,12 +70,22 @@
 	}
 }
 
+-(NSString*)description
+{
+	return [NSString stringWithFormat:@"KrollTimer<%d>",[self hash]];
+}
+
 -(void)main
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
-	NSCondition *invokeCond = [[NSCondition alloc] init];
+	// we need to retain a reference to ourselves while the timer is 
+	// active otherwise we'll get garbage collected by context and 
+	// timer will stop
+	[self retain];
 	
+	NSCondition *invokeCond = [[NSCondition alloc] init];
+
 	NSDate *date = [NSDate dateWithTimeIntervalSinceNow:duration/1000];
 	
 	while(1)
@@ -80,7 +94,7 @@
 		[condition lock];
 		[condition waitUntilDate:date];
 		[condition unlock];
-		
+
 		// calculate the next interval before execution so we exclude it's time
 		date = [NSDate dateWithTimeIntervalSinceNow:duration/1000];
 		
@@ -103,6 +117,9 @@
 	TiValueUnprotect(context, jsThis);
 	
 	[self cancel];
+	
+	// release our own reference
+	[self autorelease];
 	
 	[pool release];
 }
