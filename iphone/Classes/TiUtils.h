@@ -8,10 +8,13 @@
 #import "TiColor.h"
 #import "TiDimension.h"
 #import "WebFont.h"
+#import "TiFile.h"
 
 @interface TiUtils : NSObject {
 
 }
+
++(TiFile*)createTempFile:(NSString*)extension;
 
 +(NSData *)loadAppResource:(NSURL*)url;
 

@@ -283,6 +283,10 @@ void MyUncaughtExceptionHandler(NSException *exception)
 -(void)dismissModalController:(BOOL)animated
 {
 	UINavigationController *navController = [controller navigationController];
+	if (navController==nil)
+	{
+		navController = [controller currentNavController];
+	}
 	if (navController!=nil)
 	{
 		[navController dismissModalViewControllerAnimated:animated];

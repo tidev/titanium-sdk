@@ -27,7 +27,11 @@ const NSString * jpegMimeType = @"image/jpeg";
 									 @"text/json",@"json",					 
 									 @"text/javascript",@"js",
 									 @"text/css",@"css",
-									 @"text/xml",@"xml",nil];
+									 @"text/xml",@"xml",
+									 @"audio/x-wav",@"wav",
+									 @"video/mpeg",@"mov",
+									 @"video/mpeg",@"m4v",
+									 nil];
 	}
 	
 	NSString *result=[mimeTypeFromExtensionDict objectForKey:[ext pathExtension]];

@@ -7,6 +7,7 @@
 #import <MediaPlayer/MediaPlayer.h>
 #import "TiProxy.h"
 #import "TiColor.h"
+#import "TiFile.h"
 
 @interface TiMediaVideoPlayerProxy : TiProxy {
 @private
@@ -18,6 +19,7 @@
 	NSTimeInterval initialPlaybackTime;
 	BOOL playing;
 	NSMutableArray *views;
+	TiFile *tempFile;
 }
 
 @property(nonatomic,readwrite,assign) id url;
