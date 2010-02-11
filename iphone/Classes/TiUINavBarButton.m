@@ -86,6 +86,10 @@
 	self.width = [TiUtils floatValue:[proxy_ valueForKey:@"width"]];
 	//A width of 0 is treated as Auto by the iPhone OS, so this is safe.
 
+	// we need to listen manually to proxy change events if we want to be
+	// able to change them dynamically
+	proxy.modelDelegate = self;
+	
 	return self;
 }
 
@@ -95,6 +99,35 @@
 	{
 		[proxy fireEvent:@"click" withObject:nil];
 	}
+}
+
+-(void)setWidth_:(id)obj
+{
+	CGFloat width = [TiUtils floatValue:obj];
+	[self setWidth:width];
+}
+
+-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy_
+{
+	if ([key isEqualToString:@"title"])
+	{
+		[self performSelectorOnMainThread:@selector(setTitle:) withObject:newValue waitUntilDone:NO];
+	}
+	else if ([key isEqualToString:@"image"])
+	{
+		NSURL *url = [TiUtils toURL:newValue proxy:proxy_];
+		UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url];
+		[self performSelectorOnMainThread:@selector(setImage:) withObject:theimage waitUntilDone:NO];
+	}
+	else if ([key isEqualToString:@"width"])
+	{
+		[self performSelectorOnMainThread:@selector(setWidth_:) withObject:newValue waitUntilDone:NO];
+	}
+}
+
+-(BOOL)isRepositionProperty:(NSString*)key
+{
+	return NO;
 }
 
 @end
