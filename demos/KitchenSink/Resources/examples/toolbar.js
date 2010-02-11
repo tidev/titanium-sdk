@@ -75,7 +75,7 @@ revert.addEventListener('click', function()
 	toolbar2.barColor = '#336699';
 	toolbar2.width = null;
 	
-	change.width = 0; // use means auto
+	change.width = 0; // 0 means auto
 	change.title = "Change Toolbar";
 });
 
