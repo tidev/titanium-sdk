@@ -6,9 +6,12 @@
  */
 #import "TiProxy.h"
 #import "TiUITableViewGroupSection.h"
+#import "TiUITableViewRowProxy.h"
 
-@interface TiUIGroupedSectionProxy : TiProxy {
+@class TiUIGroupedViewProxy;
+@interface TiUIGroupedSectionProxy : TiProxy<TiUITableViewRowParent> {
 	TiUITableViewGroupSection *section;
+	TiUIGroupedViewProxy * parent; //This is what added the section.
 }
 
 -(TiUITableViewGroupSection*)section;

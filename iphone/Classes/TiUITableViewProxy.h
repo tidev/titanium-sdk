@@ -4,10 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiViewProxy.h"
 #import "TiUITableViewBase.h"
+#import "TiUITableViewRowProxy.h"
 
-@interface TiUITableViewProxy : TiViewProxy 
+@interface TiUITableViewProxy : TiViewProxy<TiUITableViewRowParent> 
 {
 	NSMutableArray * data;
 }
