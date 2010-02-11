@@ -58,7 +58,7 @@ scrollView.addEventListener('scroll', function(e)
 
 // add button to dynamically add a view
 var add = Titanium.UI.createButton({
-	title:'Add View',
+	title:'Add',
 	style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
 });
 add.addEventListener('click',function()
@@ -72,11 +72,22 @@ add.addEventListener('click',function()
 	});
 	newView.add(l);
 	scrollView.addView(newView);
-	
 });
+
+// jump button to dynamically change go directly to a page (non-animated)
+var jump = Titanium.UI.createButton({
+	title:'Jump',
+	style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+});
+jump.addEventListener('click',function()
+{
+	i = (scrollView.currentPage + 1) % scrollView.views.length;
+	scrollView.currentPage = i;
+});
+
 // change button to dynamically change a view
 var change = Titanium.UI.createButton({
-	title:'Change View',
+	title:'Change',
 	style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
 });
 change.addEventListener('click',function()
@@ -133,4 +144,4 @@ var flexSpace = Titanium.UI.createButton({
 });
 
 // set toolbar
-win.setToolbar([flexSpace,left,change,add,right,flexSpace]);
+win.setToolbar([flexSpace,left,change,add,jump,right,flexSpace]);

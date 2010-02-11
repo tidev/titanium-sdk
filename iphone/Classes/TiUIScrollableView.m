@@ -344,6 +344,29 @@
 	return floor(offset.x/scrollFrame.width);
 }
 
+-(void)setCurrentPage_:(id)page
+{
+	int newPage = [TiUtils intValue:page];
+	if (newPage >=0 && newPage < [views count])
+	{
+		[scrollview setContentOffset:CGPointMake([self bounds].size.width * newPage, 0) animated:NO];
+		int existingPage = currentPage;
+		currentPage = newPage;
+		pageControl.currentPage = newPage;
+		
+		if (newPage > existingPage)
+		{
+			[self loadNextFrames:true];
+		}
+		else
+		{
+			[self loadNextFrames:false];
+		}
+		
+		[self.proxy replaceValue:NUMINT(newPage) forKey:@"currentPage" notification:NO];
+	}
+}
+
 #pragma mark Delegate calls
 
 -(void)pageControlTouched:(id)sender
