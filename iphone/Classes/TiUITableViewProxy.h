@@ -26,7 +26,7 @@
 - (void) insertRowBefore:(NSArray *)args;
 - (void) deleteRow:(NSArray *)args;
 - (void) updateRow:(NSArray *)args;
-- (void) appendRow:(NSArray *)args;
+- (void) addRow:(NSArray *)args;
 - (void) scrollToIndex:(NSArray *)args;
 
 - (void) setEditing:(NSNumber*)edit withObject:(id)obj;

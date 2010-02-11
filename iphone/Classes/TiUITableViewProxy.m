@@ -213,14 +213,26 @@ NSArray * tableKeys = nil;
 
 - (void) appendRow:(NSArray *)args
 {
+	[self addRow:args];
+}
+
+- (void) addRow:(NSArray *)args
+{
 	ENSURE_ARG_COUNT(args,1);
 
 	TiUITableViewRowProxy *newRow = [args objectAtIndex:0];
 	ENSURE_TABLE_VIEW_ROW(newRow);
 
 	[data addObject:newRow];
-	[self enqueueAction:[NSArray arrayWithObjects:newRow,VALUE_AT_INDEX_OR_NIL(args,1),nil]
-			withType:TiUITableViewDispatchAppendRow];
+
+	if ([self viewAttached])
+	{
+		TiUITableViewTransaction * transaction = [[TiUITableViewTransaction alloc] init];
+		[transaction setValue:newRow];
+		[transaction setAnimationToIndex:1 ofArguments:args];
+		[(TiUITableView *)[self view] performSelectorOnMainThread:@selector(addRowWithTransaction:) withObject:transaction waitUntilDone:NO];
+		[transaction release];
+	}
 }
 
 - (void) scrollToIndex:(NSArray *)args
@@ -262,11 +274,12 @@ NSArray * tableKeys = nil;
 			nil];
 }
 
--(void)row:(TiUITableViewRowProxy *)row changedValue:(id)newValue forKey:(NSString *)key
+-(void)row:(TiUITableViewRowProxy *)row changedValue:(id)newValue oldValue:(id)oldValue forKey:(NSString *)key;
 {
-	
-
-
+	if([key isEqualToString:@"header"])
+	{
+		
+	}
 }
 
 @end 

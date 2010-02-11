@@ -446,11 +446,6 @@ return;\
 	READ_CONSTRAINT(bottom);
 }
 
--(void)performAnimatedSelector:(TiAnimatedSelector *)animatedSelector
-{
-	[self performSelector:[animatedSelector selector] withObject:[animatedSelector firstObject] withObject:[animatedSelector secondObject]];
-}
-
 -(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys
 {
 	DoProxyDelegateReadValuesWithKeysFromProxy(self, keys, proxy);
