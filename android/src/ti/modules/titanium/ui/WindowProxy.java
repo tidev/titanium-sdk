@@ -1,5 +1,6 @@
 package ti.modules.titanium.ui;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import org.appcelerator.titanium.TiActivity;
@@ -15,9 +16,9 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.view.ViewParent;
-import android.widget.FrameLayout;
-import android.widget.FrameLayout.LayoutParams;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 
 /*
  * @interface TiUIWindowProxy : TiWindowProxy
@@ -45,6 +46,7 @@ public class WindowProxy extends TiWindowProxy
 	private String url;
 	ArrayList<TiViewProxy> views;
 	TiViewProxy activeView;
+	WeakReference<Activity> weakActivity;
 
 	public WindowProxy(TiContext tiContext, Object[] args)
 	{
@@ -56,46 +58,56 @@ public class WindowProxy extends TiWindowProxy
 	{
 		Log.i(LCAT, "handleOpen");
 
+		// Check for type of Window
+		TiDict props = getDynamicProperties();
 		Activity activity = getTiContext().getActivity();
-		Intent intent = new Intent(activity, TiActivity.class);
-		if (options != null) {
 
-			if (options.containsKey("fullscreen")) {
-				intent.putExtra("fullscreen", TiConvert.toBoolean(options, "fullscreen"));
+		if (requiresActivity(props))
+		{
+			Intent intent = new Intent(activity, TiActivity.class);
+
+			if (props.containsKey("fullscreen")) {
+				intent.putExtra("fullscreen", TiConvert.toBoolean(props, "fullscreen"));
 			}
-			if (options.containsKey("navBarHidden")) {
-				intent.putExtra("navBarHidden", TiConvert.toBoolean(options, "navBarHidden"));
+			if (props.containsKey("navBarHidden")) {
+				intent.putExtra("navBarHidden", TiConvert.toBoolean(props, "navBarHidden"));
 			}
-			if (options.containsKey("url")) {
-				intent.putExtra("url", TiConvert.toString(options, "url"));
+			if (props.containsKey("url")) {
+				intent.putExtra("url", TiConvert.toString(props, "url"));
+			}
+
+			intent.putExtra("finishRoot", activity.isTaskRoot());
+			intent.putExtra("proxyId", proxyId);
+			getTiContext().getTiApp().registerProxy(this);
+
+			getTiContext().getActivity().startActivity(intent);
+		} else {
+			TiUIView v = getView(getTiContext().getActivity());
+			getTiContext().getActivity().addContentView(v.getNativeView(),
+					new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		}
+	}
+
+	private boolean requiresActivity(TiDict options)
+	{
+		boolean activityRequired = false;
+
+		if (options != null) {
+			if (options.containsKey("fullscreen") ||
+					options.containsKey("navBarHidden"))
+			{
+				activityRequired = true;
 			}
 		}
 
-		intent.putExtra("finishRoot", activity.isTaskRoot());
-		intent.putExtra("proxyId", proxyId);
-		getTiContext().getTiApp().registerProxy(this);
-
-		getTiContext().getActivity().startActivity(intent);
-
-
-		//TODO ignore multiple opens
-//		TiUIView v = getView();
-//		Activity a = getTiContext().getActivity();
-//		if (a instanceof TiActivity) {
-//			TiActivity tia = (TiActivity) a;
-//			tia.getLayout().addView(v.getNativeView());
-//		} else {
-//			a.addContentView(v.getNativeView(), new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-//		}
-
+		return activityRequired;
 	}
 
 	public void handlePostOpen(Activity activity)
 	{
 		TiActivity tia = (TiActivity) activity;
-		if (tia == null) {
-			//TiUIView v = getView();
-		} else {
+		if (tia != null) {
+			weakActivity = new WeakReference<Activity>(activity);
 			getView(activity);
 		}
 	}
@@ -103,23 +115,38 @@ public class WindowProxy extends TiWindowProxy
 	@Override
 	protected void handleClose(TiDict options)
 	{
-//		if (peekView() != null) {
-//			TiUIView v = getView();
-//			ViewParent p =v.getNativeView().getParent();
-//			Activity a= getTiContext().getActivity();
-//			if (a instanceof TiActivity) {
-//				TiActivity tia = (TiActivity) a;
-//				tia.getLayout().removeViewInLayout(v.getNativeView());
-//			} else {
-//				a.finish();
-//			}
-//		}
+		Activity activity = null;
+		if (weakActivity != null) {
+			activity = weakActivity.get();
+		}
+		if (activity != null) {
+			activity.finish();
+			weakActivity = null;
+			this.clearView();
+		} else {
+			TiUIView tiv = peekView();
+			if (tiv != null) {
+				View v = tiv.getNativeView();
+				if (v != null) {
+					int vid = v.getId();
+
+					View mv = getTiContext().getActivity().findViewById(vid);
+					if (mv != null) {
+						Log.i(LCAT, "WE HERE");
+					}
+				}
+			}
+		}
 	}
 
 	@Override
 	public TiUIView createView(Activity activity)
 	{
-		return new TiUIWindow(this, (TiActivity) activity);
+		if (activity instanceof TiActivity) {
+			return new TiUIWindow(this, (TiActivity) activity);
+		} else {
+			return new TiUIWindow(this, null);
+		}
 	}
 
 	public void addView(TiViewProxy view)

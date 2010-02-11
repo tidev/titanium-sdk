@@ -28,29 +28,28 @@ public class TiUIWindow extends TiUIView
 
 	protected String activityKey;
 	protected Activity activity;
+	protected boolean lightWeight;
 
 	private static AtomicInteger idGenerator;
 
 	public TiUIWindow(TiViewProxy proxy, TiActivity activity)
 	{
 		super(proxy);
+
 		if (idGenerator == null) {
 			idGenerator = new AtomicInteger(0);
 		}
 
 		if (activity != null) {
 			this.activity = activity;
+			lightWeight = false;
 		} else {
 			this.activity = proxy.getTiContext().getActivity();
+			lightWeight = true;
 		}
 
 		//TODO unique key per window, params for intent
 		activityKey = "window$" + idGenerator.incrementAndGet();
-
-//		TiActivityRef ref = proxy.getTiContext().getRootActivity().launchActivity(activityKey);
-//		this.activity = ref.activity;
-//		TiActivity tia = (TiActivity) activity;
-//		setNativeView(ref.activity.getWindow().getDecorView());
 
 		// if url, create a new context.
 		TiDict props = proxy.getDynamicProperties();
@@ -107,10 +106,13 @@ public class TiUIWindow extends TiUIView
 
 	@Override
 	public View getNativeView() {
-		View v = getLayout();
-		if (v == null) {
-			v = super.getNativeView();
+
+		View v = super.getNativeView();
+
+		if (!lightWeight) {
+			v = getLayout();
 		}
+
 		return v;
 	}
 

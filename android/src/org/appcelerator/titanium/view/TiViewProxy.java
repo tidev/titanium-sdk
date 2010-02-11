@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -61,7 +62,6 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	private String bgColor; // We've spelled out background in other places.
 
 	private TiUIView view;
-	private TiViewProxy window; // TODO, weakReference?
 
 	public TiViewProxy(TiContext tiContext, Object[] args)
 	{
@@ -136,6 +136,10 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		}
 	}
 
+	public void clearView() {
+		view = null;
+	}
+
 	public TiUIView peekView()
 	{
 		return view;
@@ -175,9 +179,9 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 			if (nativeView != null) {
 				Log.e(LCAT, "native view type: " + nativeView.getClass().getSimpleName());
 			}
-			if (view instanceof TiUIWindow) {
-				nativeView = ((TiUIWindow) view).getLayout();
-			}
+//			if (view instanceof TiUIWindow) {
+//				nativeView = ((TiUIWindow) view).getLayout();
+//			}
 			if (nativeView instanceof ViewGroup) {
 				ViewGroup vg = (ViewGroup) nativeView;
 				if (children != null) {
@@ -225,9 +229,6 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 
 	public void handleAdd(TiViewProxy child) {
 		View nativeView = view.getNativeView();
-		if (view instanceof TiUIWindow) {
-			nativeView = ((TiUIWindow) view).getLayout();
-		}
 		if (nativeView instanceof ViewGroup) {
 			ViewGroup vg = (ViewGroup) nativeView;
 			TiUIView v = child.getView(getTiContext().getActivity());
@@ -304,9 +305,10 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 
 	}
 
-	public void animate(TiViewProxy view) {
+	public void animate(TiDict options, KrollCallback callback) {
 
 	}
+
 	public void blur()
 	{
 		if (getTiContext().isUIThread()) {
