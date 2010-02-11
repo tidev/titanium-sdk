@@ -50,7 +50,7 @@ def zip_iphone(zf,basepath):
 	  
 	zf.writestr('%s/iphone/imports.json'%basepath,importresolver.resolve_source_imports(os.path.join(top_dir,'iphone','Classes')))
 	
-	#include our headers such that 3rd party modules can be compiled
+	# include our headers such that 3rd party modules can be compiled
 	headers_dir=os.path.join(top_dir,'iphone','Classes')
 	for f in os.listdir(headers_dir):
 		if os.path.isfile(os.path.join(headers_dir,f)) and os.path.splitext(f)[1]=='.h':
@@ -58,13 +58,22 @@ def zip_iphone(zf,basepath):
 	  
 	iphone_lib = os.path.join(top_dir,'iphone','iphone','build')
 	zf.write(os.path.join(iphone_lib,'libTitanium.a'),'%s/iphone/libTitanium.a'%basepath)
-
+	
 	ticore_lib = os.path.join(top_dir,'iphone','lib')
 	zf.write(os.path.join(ticore_lib,'libTiCore.a'),'%s/iphone/libTiCore.a'%basepath)
 	
 	zip_dir(zf,iphone_dir,basepath+'/iphone')
 	zip_dir(zf,os.path.join(iphone_dir,'resources'),basepath+'/iphone/resources')
 	zip_dir(zf,osx_dir,basepath)
+	
+	modules_dir = os.path.join(top_dir,'iphone','Resources','modules')
+	for f in os.listdir(modules_dir):
+		if os.path.isdir(os.path.join(modules_dir,f)):
+			module_images = os.path.join(modules_dir,f)
+			if os.path.exists(module_images):
+				module_name = f.replace('Module','').lower()
+				zip_dir(zf,module_images,'%s/iphone/modules/%s/images' % (basepath,module_name))
+	
 		
 def zip_it(dist_dir,osname,version):
 	if not os.path.exists(dist_dir):
@@ -91,4 +100,5 @@ class Packager(object):
 		zip_it(dist_dir,os_names[platform.system()],version)
 
 
-
+if __name__ == '__main__':
+	Packager().build(os.path.abspath('../dist'),"0.9.0")

@@ -142,9 +142,7 @@
 
 - (UIImage *)defaultImage
 {
-	//FIXME
-	return nil;
-	//return [[TitaniumHost sharedHost] imageForResource:@"modules/ui/images/photoDefault.png"];
+	return [UIImage imageNamed:@"modules/ui/images/photoDefault.png"];
 }
 
 @end
