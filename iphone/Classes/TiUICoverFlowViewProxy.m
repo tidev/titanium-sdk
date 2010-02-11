@@ -8,80 +8,23 @@
 #import "TiUICoverFlowViewProxy.h"
 #import "TiUtils.h"
 #import "ImageLoader.h"
+#import "TiUICoverFlowView.h"
 
 @implementation TiUICoverFlowViewProxy
 
--(void)setImages:(NSArray *)newImages
+-(void)setSelected:(id)arg
 {
-	ENSURE_TYPE_OR_NIL(newImages,NSArray);
-	[imageUrls release];
-	imageUrls = [newImages mutableCopy];
-	//Trigger update.
+	ENSURE_SINGLE_ARG_OR_NIL(arg,NSObject);
+	[self replaceValue:arg forKey:@"selected" notification:YES];
 }
 
--(NSArray *)images
+-(void)setURL:(id)args
 {
-	return [[imageUrls copy] autorelease];
+	ENSURE_ARG_COUNT(args,2);
+	ENSURE_UI_THREAD(setURL,args);
+	int index = [TiUtils intValue:[args objectAtIndex:0]];
+	NSString *url = [TiUtils stringValue:[args objectAtIndex:1]];
+	[(TiUICoverFlowView*)[self view] setURL:url forIndex:index];
 }
-
--(void)setURL:(int)index withObject:(id)newUrl
-{
-	
-
-
-}
-
-- (void)openFlowView:(AFOpenFlowView *)openFlowView event:(int)index eventType:(NSString *)eventType
-{
-	NSNumber * newIndex = [NSNumber numberWithInt:index];
-	if (![self _hasListeners:eventType])
-	{
-		[self replaceValue:newIndex forKey:@"selected" notification:NO];
-		return;
-	}
-
-	NSNumber * oldIndex = [self valueForKey:@"selected"];
-	if (IS_NULL_OR_NIL(oldIndex)) {
-		oldIndex = [NSNumber numberWithInt:-1];
-	}
-
-	[self replaceValue:newIndex forKey:@"selected" notification:NO];
-
-	NSDictionary * eventDict = [NSDictionary dictionaryWithObjectsAndKeys:newIndex,@"index",oldIndex,@"previous",nil];
-	[self fireEvent:eventType withObject:eventDict];
-}
-
-- (void)openFlowView:(AFOpenFlowView *)openFlowView selectionDidChange:(int)index
-{
-	[self openFlowView:openFlowView event:index eventType:@"change"];
-}
-
-- (void)openFlowView:(AFOpenFlowView *)openFlowView click:(int)index
-{
-	[self openFlowView:openFlowView event:index eventType:@"click"];
-}
-
-- (UIImage *)defaultImage
-{
-	return nil;
-}
-
-- (void)openFlowView:(AFOpenFlowView *)openFlowView requestImageForIndex:(int)index
-{
-	NSURL * imageUrl = [TiUtils toURL:[imageUrls objectAtIndex:index] proxy:self];	
-	ImageLoader * theLoader = [ImageLoader sharedLoader];
-
-	UIImage *image = [theLoader loadImmediateImage:imageUrl];
-	if (image==nil)
-	{
-		if (imageUrl != nil)
-		{
-//			[theLoader loadImage:imageUrl callback:self selector:<#(SEL)selector#>
-		}
-		image = [self defaultImage];
-	}
-	[openFlowView setImage:image forIndex:index];
-}
-
 
 @end

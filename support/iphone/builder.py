@@ -159,6 +159,17 @@ def main(args):
 	# compiler dependencies
 	dependscompiler = DependencyCompiler()
 	dependscompiler.compile(template_dir,project_dir)
+	
+	# copy any module image directories
+	for module in dependscompiler.modules:
+		img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
+		if os.path.exists(img_dir):
+			dest_img_dir = os.path.join(iphone_tmp_dir,'modules',module.lower(),'images')
+			if os.path.exists(dest_img_dir):
+				shutil.rmtree(dest_img_dir)
+			os.makedirs(dest_img_dir)
+			copy_module_resources(img_dir,dest_img_dir)
+	
 
 	# copy over main since it can change with each release
 	main_template = codecs.open(os.path.join(template_dir,'main.m'),'r','utf-8','replace').read()

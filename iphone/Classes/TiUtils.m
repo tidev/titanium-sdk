@@ -14,9 +14,45 @@
 #import "WebFont.h"
 #import "TiDimension.h"
 #import "TiColor.h"
+#import "TiFile.h"
 
 
 @implementation TiUtils
+
++(TiFile*)createTempFile:(NSString*)extension
+{
+	NSString * tempDir = NSTemporaryDirectory();
+	NSError * error=nil;
+	
+	NSFileManager *fm = [NSFileManager defaultManager];
+	if(![fm fileExistsAtPath:tempDir])
+	{
+		[fm createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:&error];
+		if(error != nil)
+		{
+			//TODO: ?
+			return nil;
+		}
+	}
+	
+	int timestamp = (int)(time(NULL) & 0xFFFFL);
+	NSString * resultPath;
+	do 
+	{
+		resultPath = [tempDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%X.%@",timestamp,extension]];
+		timestamp ++;
+	} while ([fm fileExistsAtPath:resultPath]);
+	
+	[[NSData data] writeToFile:resultPath options:0 error:&error];
+	
+	if (error != nil)
+	{
+		//TODO: ?
+		return nil;
+	}
+	
+	return [TiFile createTempFile:resultPath];
+}
 
 +(NSString *)encodeQueryPart:(NSString *)unencodedString
 {
