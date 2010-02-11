@@ -92,7 +92,7 @@
 	{
 		if (thisSection == section)
 		{
-			return [NSIndexPath indexPathForRow:[section rowCount]-1 inSection:sectionIndex];
+			return [NSIndexPath indexPathForRow:[section countOfData]-1 inSection:sectionIndex];
 		}
 		sectionIndex++;
 	}
@@ -111,7 +111,7 @@
 			return index + [path row];
 		}
 		section++;
-		index+=[thisSection rowCount];
+		index+=[thisSection countOfData];
 	}
 	
 	return 0;
@@ -124,7 +124,7 @@
 	
 	for (TiUITableViewGroupSection * thisSection in sectionArray)
 	{
-		index+=[thisSection rowCount];
+		index+=[thisSection countOfData];
 		if (theindex < index)
 		{
 			return section;
@@ -157,7 +157,7 @@
 	
 	for (TiUITableViewGroupSection * thisSection in sectionArray)
 	{
-		int rowCount = [thisSection rowCount];
+		int rowCount = [thisSection countOfData];
 		if (rowCount + current > index)
 		{
 			return [NSIndexPath indexPathForRow:row inSection:section];
@@ -204,7 +204,7 @@
 			thisDataCellDict = [[[thisSection objectInDataAtIndex:row] allProperties] copy];
 			break;
 		}
-		index += [thisSection rowCount];
+		index += [thisSection countOfData];
 		thisSectionIndex ++;
 	}
 	
@@ -245,11 +245,9 @@
 
 - (NSInteger)tableView:(UITableView *)tableView indentationLevelForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	return 0;
-	/*
-	CellDataWrapper *cell = [self cellForIndexPath:indexPath];
-	id indent = [cell stringForKey:@"indentionLevel"];
-	return indent == nil ? 0 : [TiUtils intValue:indent];*/
+	TiUITableViewRowProxy *cell = [self cellForIndexPath:indexPath];
+	id indent = [cell valueForKey:@"indentionLevel"];
+	return indent == nil ? 0 : [TiUtils intValue:indent];
 }
 
 #pragma mark UITableView Delegate accessory
@@ -386,7 +384,7 @@
 	}
 	TiUITableViewGroupSection *sectionWrapper = [self sectionForIndex:[indexPath section]];
 	TiUITableViewRowProxy *rowWrapper = [sectionWrapper objectInDataAtIndex:[indexPath row]];
-	id value = [rowWrapper stringForKey:@"indentOnEdit"];
+	id value = [rowWrapper valueForKey:@"indentOnEdit"];
 	if (value!=nil)
 	{
 		return [TiUtils boolValue:value];
@@ -468,7 +466,7 @@
 {
 	TiUITableViewGroupSection *sectionWrapper = [self sectionForIndex:[indexPath section]];
 	TiUITableViewRowProxy *rowWrapper = [sectionWrapper objectInDataAtIndex:[indexPath row]];
-	id amoveable = [rowWrapper stringForKey:@"moveable"];
+	id amoveable = [rowWrapper valueForKey:@"moveable"];
 	return amoveable==nil ? moving : [TiUtils boolValue:amoveable];
 }
 
@@ -482,7 +480,7 @@
 
 	TiUITableViewRowProxy *rowWrapper = [fromSection objectInDataAtIndex:[fromIndexPath row]];
 	[fromSection removeObjectFromDataAtIndex:[fromIndexPath row]];
-	[toSection insertRow:rowWrapper atIndex:[toIndexPath row]];
+	[toSection insertObject:rowWrapper inDataAtIndex:[toIndexPath row]];
 	
 	[self triggerActionForIndexPath:toIndexPath fromPath:fromIndexPath wasAccessory:NO search:NO name:@"move"];
 }
@@ -618,7 +616,7 @@
 -(void)dispatchAction:(NSArray*)args withType:(TiUITableViewDispatchType)type
 {
 	// this method is on the UI thread so we're safe
-	[tableview beginUpdates];
+
 	switch(type)
 	{
 		case TiUITableViewDispatchInsertRowAfter:
@@ -678,20 +676,18 @@
 		}
 		case TiUITableViewDispatchSetDataWithAnimation:
 		{
-			int oldCount=[sectionArray count];
-			NSIndexSet * oldRange = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, oldCount)];
 			[self setData_:[args objectAtIndex:0]];
-			int newCount=[sectionArray count];
-			NSIndexSet * newRange = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newCount)];
-			UITableViewRowAnimation animation = [self animationFromArgument:args atIndex:1];
-			if(oldRange > 0)
-			{
-				[tableview deleteSections:oldRange withRowAnimation:animation];
-			}
-			if(newRange > 0)
-			{
-				[tableview insertSections:newRange withRowAnimation:animation];
-			}
+//			int newCount=[sectionArray count];
+//			NSIndexSet * newRange = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newCount)];
+//			UITableViewRowAnimation animation = [self animationFromArgument:args atIndex:1];
+//			if(oldRange > 0)
+//			{
+//				[tableview deleteSections:oldRange withRowAnimation:animation];
+//			}
+//			if(newRange > 0)
+//			{
+//				[tableview insertSections:newRange withRowAnimation:animation];
+//			}
 			break;
 		}
 		case TiUITableViewDispatchAddSection:
@@ -750,6 +746,7 @@
 			int newCount=[sectionArray count];
 			NSIndexSet * newRange = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newCount)];
 			UITableViewRowAnimation animation = [self animationFromArgument:args atIndex:1];
+			[tableview beginUpdates];
 			if(oldRange > 0)
 			{
 				[tableview deleteSections:oldRange withRowAnimation:animation];
@@ -758,6 +755,8 @@
 			{
 				[tableview insertSections:newRange withRowAnimation:animation];
 			}
+			[tableview endUpdates];
+
 			break;
 		}
 		case TiUITableViewDispatchSetEditing:
@@ -779,7 +778,6 @@
 			break;
 		}
 	}
-	[tableview endUpdates];
 }
 
 @end

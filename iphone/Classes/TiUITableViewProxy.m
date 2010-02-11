@@ -120,9 +120,9 @@ NSArray * tableKeys = nil;
 {
 	ENSURE_SINGLE_ARG(name,NSString);
 	unsigned int index = 0;
-	for (NSDictionary* row in data)
+	for (id row in data)
 	{
-		id value = [row objectForKey:@"name"];
+		id value = [row valueForKey:@"name"];
 		if ([name isEqual:value])
 		{
 			return [NSNumber numberWithInt:index];
@@ -135,101 +135,92 @@ NSArray * tableKeys = nil;
 - (void) insertRowAfter:(NSArray *)args
 {
 	ENSURE_ARG_COUNT(args,2);
-	
-	NSNumber * rowNumber = [args objectAtIndex:0];
-	ENSURE_METHOD(rowNumber,intValue);
-	int rowIndex=[rowNumber intValue];
-	
+
+	int rowIndex = [[args objectAtIndex:0] intValue];
 	ENSURE_VALUE_RANGE(rowIndex,0,[data count]-1);
 
-	TiUITableViewRowProxy *newrow = [args objectAtIndex:1];
-	ENSURE_TABLE_VIEW_ROW(newrow);
-	[data insertObject:newrow atIndex:rowIndex+1];
+	TiUITableViewRowProxy *newRow = [args objectAtIndex:1];
+	ENSURE_TABLE_VIEW_ROW(newRow);
+
+	[data insertObject:newRow atIndex:rowIndex+1];
 	
-	NSDictionary * options=nil;
-	if ([args count]>2)
-	{
-		options = [args objectAtIndex:2];
-	}
-	
-	[self enqueueAction:[NSArray arrayWithObjects:rowNumber,newrow,options,nil] withType:TiUITableViewDispatchInsertRowAfter];
+	[self enqueueAction:[NSArray arrayWithObjects:[NSNumber numberWithInt:rowIndex],newRow,VALUE_AT_INDEX_OR_NIL(args,2),nil]
+			withType:TiUITableViewDispatchInsertRowAfter];
 }
 
 - (void) insertRowBefore:(NSArray *)args
 {
-	if ([args count] < 2) 
-	{
-		[self throwException:TiExceptionNotEnoughArguments subreason:nil location:CODELOCATION];
+	ENSURE_ARG_COUNT(args,2);
+
+	int rowIndex = [[args objectAtIndex:0] intValue];
+	ENSURE_VALUE_RANGE(rowIndex,0,[data count]);
+
+	TiUITableViewRowProxy *newRow = [args objectAtIndex:1];
+	ENSURE_TABLE_VIEW_ROW(newRow);
+
+	if (([newRow valueForKey:@"header"]==nil) && (rowIndex < [data count]))
+	{	//We are inserting before first, but keeping the same header. Thus, we have to transfer the header.
+		TiUITableViewRowProxy *oldRow = [data objectAtIndex:rowIndex];
+		[newRow setValue:[oldRow valueForKey:@"header"] forKey:@"header"];
+		[oldRow setValue:nil forKey:@"header"];
 	}
 	
-	int row = [[args objectAtIndex:0] intValue];
-	NSDictionary *newdata = [args objectAtIndex:1];
-	NSMutableArray *data = [self valueForKey:@"data"];
-	
-	if (row < 0 || row >= [data count])
-	{
-		[self throwException:TiExceptionRangeError subreason:nil location:CODELOCATION];
-	}
-	
-	[data insertObject:newdata atIndex:row-1];
-	
-	[self enqueueAction:args withType:TiUITableViewDispatchInsertRowBefore];
+	//TODO: Am what I'm doing 100% safe? We're changing some data immediately and some in the main thread.
+	//Namely, by the time insertRow is realized, the headers are already swapped.
+	//--Blain.
+	[data insertObject:newRow atIndex:rowIndex];
+	[self enqueueAction:[NSArray arrayWithObjects:[NSNumber numberWithInt:rowIndex],newRow,VALUE_AT_INDEX_OR_NIL(args,2),nil]
+			withType:TiUITableViewDispatchInsertRowBefore];
 }
 
 - (void) deleteRow:(NSArray *)args
 {
-	if ([args count] < 1) 
+	ENSURE_ARG_COUNT(args,1);
+
+	int rowIndex = [[args objectAtIndex:0] intValue];
+	ENSURE_VALUE_RANGE(rowIndex,0,[data count]-1);
+	
+	if (rowIndex < ([data count]-1))
 	{
-		[self throwException:TiExceptionNotEnoughArguments subreason:nil location:CODELOCATION];
+		TiUITableViewRowProxy * doomedRow = [data objectAtIndex:rowIndex];
+		TiUITableViewRowProxy * nextRow = [data objectAtIndex:rowIndex+1];
+		id transferredHeader = [doomedRow valueForKey:@"header"];
+		if((transferredHeader != nil) && ([nextRow valueForKey:@"header"]==nil))
+		{
+			[nextRow setValue:transferredHeader forKey:@"header"];
+		}
 	}
 	
-	int row = [[args objectAtIndex:0] intValue];
-	NSMutableArray *data = [self valueForKey:@"data"];
-	
-	if (row < 0 || row >= [data count])
-	{
-		[self throwException:TiExceptionRangeError subreason:nil location:CODELOCATION];
-	}
-	
-	[data removeObjectAtIndex:row];
-	
-	[self enqueueAction:args withType:TiUITableViewDispatchDeleteRow];
+	[data removeObjectAtIndex:rowIndex];
+	[self enqueueAction:[NSArray arrayWithObjects:[NSNumber numberWithInt:rowIndex],VALUE_AT_INDEX_OR_NIL(args,1),nil]
+			withType:TiUITableViewDispatchDeleteRow];
 }
 
 - (void) updateRow:(NSArray *)args
 {
-	if ([args count] < 2) 
-	{
-		[self throwException:TiExceptionNotEnoughArguments subreason:nil location:CODELOCATION];
-	}
-	
-	int row = [[args objectAtIndex:0] intValue];
-	NSDictionary *newdata = [args objectAtIndex:1];
-	NSMutableArray *data = [self valueForKey:@"data"];
-	
-	if (row < 0 || row >= [data count])
-	{
-		[self throwException:TiExceptionRangeError subreason:nil location:CODELOCATION];
-	}
-	
-	[data replaceObjectAtIndex:row withObject:newdata];
+	ENSURE_ARG_COUNT(args,2);
 
-	[self enqueueAction:args withType:TiUITableViewDispatchUpdateRow];
+	int rowIndex = [[args objectAtIndex:0] intValue];
+	ENSURE_VALUE_RANGE(rowIndex,0,[data count]-1);
+
+	TiUITableViewRowProxy *newRow = [args objectAtIndex:1];
+	ENSURE_TABLE_VIEW_ROW(newRow);
+	
+	[data replaceObjectAtIndex:rowIndex withObject:newRow];
+	[self enqueueAction:[NSArray arrayWithObjects:[NSNumber numberWithInt:rowIndex],VALUE_AT_INDEX_OR_NIL(args,2),nil]
+			withType:TiUITableViewDispatchUpdateRow];
 }
 
 - (void) appendRow:(NSArray *)args
 {
-	if ([args count] < 1) 
-	{
-		[self throwException:TiExceptionNotEnoughArguments subreason:nil location:CODELOCATION];
-	}
-	
-	NSDictionary *newdata = [args objectAtIndex:0];
-	NSMutableArray *data = [self valueForKey:@"data"];
-	
-	[data addObject:newdata];
-	
-	[self enqueueAction:args withType:TiUITableViewDispatchAppendRow];
+	ENSURE_ARG_COUNT(args,1);
+
+	TiUITableViewRowProxy *newRow = [args objectAtIndex:0];
+	ENSURE_TABLE_VIEW_ROW(newRow);
+
+	[data addObject:newRow];
+	[self enqueueAction:[NSArray arrayWithObjects:newRow,VALUE_AT_INDEX_OR_NIL(args,1),nil]
+			withType:TiUITableViewDispatchAppendRow];
 }
 
 - (void) scrollToIndex:(NSArray *)args
@@ -260,6 +251,22 @@ NSArray * tableKeys = nil;
 	{
 		[self enqueueAction:[NSArray arrayWithObjects:move,obj,nil] withType:TiUITableViewDispatchSetMoving];
 	}
+}
+
+-(NSDictionary *)locationOfRow:(TiUITableViewRowProxy *)row
+{
+	int listIndex = [data indexOfObject:row];
+	
+	return [NSDictionary dictionaryWithObjectsAndKeys:
+			[NSNumber numberWithInt:listIndex],@"index",
+			nil];
+}
+
+-(void)row:(TiUITableViewRowProxy *)row changedValue:(id)newValue forKey:(NSString *)key
+{
+	
+
+
 }
 
 @end 

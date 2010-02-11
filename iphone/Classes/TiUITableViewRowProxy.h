@@ -7,12 +7,24 @@
 
 #import "TiViewProxy.h"
 
-@class WebFont, TiUITableViewCell;
+@class TiUITableViewRowProxy;
+@protocol TiUITableViewRowParent
+-(NSDictionary *)locationOfRow:(TiUITableViewRowProxy *)row;
+-(void)row:(TiUITableViewRowProxy *)row changedValue:(id)newValue forKey:(NSString *)key;
 
+@end
+
+
+
+@class WebFont, TiUITableViewCell;
 @interface TiUITableViewRowProxy : TiProxy<LayoutAutosizing> {
 
 @private
 	NSMutableArray * children; //Like TiViewProxy.
+	TiProxy<TiUITableViewRowParent> * parent; //This is what added the row.
+		//It can be either groupedSection proxy or a tableView proxy.
+		//This is not retained to avoid retain loops.
+	
 	TiDimension  rowHeight;
 	TiDimension  minRowHeight;
 	TiDimension  maxRowHeight;
@@ -21,6 +33,8 @@
 #pragma mark Internal stuff
 
 @property(nonatomic,readwrite,retain)	NSMutableArray * children;
+@property(nonatomic,readwrite,assign)	TiProxy<TiUITableViewRowParent> * parent;
+
 -(TiUITableViewCell *)cellForTableView:(UITableView *)tableView;
 
 -(CGFloat)rowHeightForWidth:(CGFloat)rowWidth;
@@ -40,6 +54,9 @@
 
 //Everything else is done by TiProxy.
 
+-(void)add:(id)args;
+-(void)remove:(id)args;
+
 
 @end
 
@@ -58,3 +75,5 @@ x = [[[TiUITableViewRowProxy alloc] _initWithPageContext:[self pageContext]] aut
 [x _initWithProperties:oldProperties];	\
 }	\
 }
+
+#define ENSURE_NIL_PARENT(x)	ENSURE_VALUE_CONSISTENCY([x parent],nil)
