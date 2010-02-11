@@ -1,4 +1,5 @@
 var win = Titanium.UI.currentWindow;
+win.backgroundColor = 'black';
 
 var view1 = Ti.UI.createView({
 	backgroundColor:'red'
@@ -40,7 +41,8 @@ view4.add(l4);
 var scrollView = Titanium.UI.createScrollableView({
 	views:[view1,view2,view3,view4],
 	showPagingControl:true,
-	pagingControlHeight:30
+	pagingControlHeight:30,
+	maxZoomScale:2.0
 });
 
 win.add(scrollView);

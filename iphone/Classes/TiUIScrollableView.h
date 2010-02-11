@@ -15,6 +15,8 @@
 	BOOL showPageControl;
 	CGFloat pageControlHeight;
 	BOOL handlingPageControlEvent;
+	CGFloat maxScale;
+	CGFloat minScale;
 }
 
 @end
