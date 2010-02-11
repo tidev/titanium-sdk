@@ -8,6 +8,7 @@ package org.appcelerator.titanium;
 
 import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +16,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -30,9 +30,10 @@ public class TiApplication extends Application
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<Class<?>, HashMap<String, Method>> methodMap;
+	private HashMap<String, SoftReference<TiProxy>> proxyMap;
 	private TiRootActivity rootActivity;
 	private TiProperties appProperties;
-	
+
 	public TiApplication() {
 		Log.checkpoint("checkpoint, app created.");
 	}
@@ -61,7 +62,9 @@ public class TiApplication extends Application
 		baseUrl = fullPath.getParent();
 
 		methodMap = new HashMap<Class<?>, HashMap<String,Method>>(25);
-		appProperties = new TiProperties(getApplicationContext(), "titanium", false);	
+		proxyMap = new HashMap<String, SoftReference<TiProxy>>(5);
+
+		appProperties = new TiProperties(getApplicationContext(), "titanium", false);
 	}
 
 	public void setRootActivity(TiRootActivity rootActivity) {
@@ -103,7 +106,7 @@ public class TiApplication extends Application
 			{
 				hierarchy.put(superClass, ++i);
 			}
-			
+
 			Comparator<Method> comparator = new Comparator<Method>()
 			{
 				public int compare(Method o1, Method o2) {
@@ -112,11 +115,11 @@ public class TiApplication extends Application
 					return h1-h2;
 				}
 			};
-			
+
 			List<Method> methodList = Arrays.asList(methods);
 			Collections.sort(methodList, comparator);
 			Collections.reverse(methodList);
-			
+
 			for(Method method : methodList) {
 				// TODO filter?
 				//Log.e(LCAT, "Obj: " + source.getSimpleName() + " Method: " + method.getName());
@@ -126,18 +129,18 @@ public class TiApplication extends Application
 
 		return classMethods.get(name);
 	}
-	
+
 	private ArrayList<TiProxy> appEventProxies = new ArrayList<TiProxy>();
 	public void addAppEventProxy(TiProxy appEventProxy)
 	{
 		appEventProxies.add(appEventProxy);
 	}
-	
+
 	public void removeAppEventProxy(TiProxy appEventProxy)
 	{
 		appEventProxies.remove(appEventProxy);
 	}
-	
+
 	public void fireAppEvent(String eventName, TiDict data)
 	{
 		for (TiProxy appEventProxy : appEventProxies)
@@ -145,12 +148,30 @@ public class TiApplication extends Application
 			appEventProxy.getTiContext().dispatchEvent(eventName, data);
 		}
 	}
-	
+
 	public TiProperties getAppProperties()
 	{
 		return appProperties;
 	}
-	
+
+	public void registerProxy(TiProxy proxy) {
+		String proxyId = proxy.proxyId;
+		if (!proxyMap.containsKey(proxyId)) {
+			proxyMap.put(proxyId, new SoftReference<TiProxy>(proxy));
+		}
+	}
+
+	public TiProxy unregisterProxy(String proxyId) {
+		TiProxy proxy = null;
+
+		SoftReference<TiProxy> ref = proxyMap.remove(proxyId);
+		if (ref != null) {
+			proxy = ref.get();
+		}
+
+		return proxy;
+	}
+
 	@Override
 	public void onLowMemory()
 	{

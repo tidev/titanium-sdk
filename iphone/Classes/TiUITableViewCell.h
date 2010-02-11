@@ -12,6 +12,7 @@
 @interface TiUITableViewCell : UITableViewCell<TiProxyDelegate>
 {
 @private
+	NSMutableArray * childrenViews;
 	UITableViewStyle tableStyle;
 	TiUITableViewRowProxy * proxy;
 

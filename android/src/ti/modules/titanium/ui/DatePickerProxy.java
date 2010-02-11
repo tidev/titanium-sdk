@@ -5,6 +5,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
 
 import ti.modules.titanium.ui.widget.TiUIDatePicker;
+import android.app.Activity;
 
 public class DatePickerProxy extends TiViewProxy
 {
@@ -14,7 +15,7 @@ public class DatePickerProxy extends TiViewProxy
 	}
 
 	@Override
-	public TiUIView createView()
+	public TiUIView createView(Activity activity)
 	{
 		return new TiUIDatePicker(this);
 	}

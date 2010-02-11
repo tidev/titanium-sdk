@@ -145,6 +145,11 @@
 	}
 	RELEASE_TO_NIL(views);
 	views = [args retain];
+	// set the parent so we can propagate events
+	for (TiViewProxy *viewproxy in views)
+	{
+		[viewproxy setParent:self.parent];
+	}
 	if (refresh)
 	{
 		[self refreshScrollView:[self frame] readd:YES];
@@ -229,6 +234,8 @@
 
 -(void)addView:(id)viewproxy
 {
+	ENSURE_SINGLE_ARG(viewproxy,TiProxy);
+	[viewproxy setParent:self.parent];
 	[views addObject:viewproxy];
 	[self refreshScrollView:[self frame] readd:YES];
 }
@@ -243,6 +250,8 @@
 			currentPage = [views count]-1;
 			[self.proxy replaceValue:NUMINT(pageNum) forKey:@"currentPage" notification:NO];
 		}
+		TiViewProxy *viewproxy = [views objectAtIndex:pageNum];
+		[viewproxy setParent:nil];
 		[views removeObjectAtIndex:pageNum];
 		[self refreshScrollView:[self frame] readd:YES];
 	}

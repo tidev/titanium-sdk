@@ -118,24 +118,6 @@ public class NetworkModule extends TiModule {
 		//TODO set titanium version
 		setDynamicValue("userAgent", NETWORK_USER_AGENT + " Titanium/0.9.0");
 	}
-
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			TiProxy proxy) {
-		
-		if (key.equals("onload"))
-		{
-			proxy.setDynamicValue("onLoad", newValue);
-		}
-		else super.propertyChanged(key, oldValue, newValue, proxy);
-	}
-	
-	public TiHttpClient createHTTPClient() {
-		if (DBG) {
-			Log.d(LCAT, "Returning new TiHttpClient");
-		}
-		return new TiHttpClient(this);
-	}
  
 	public int addEventListener(String eventName, KrollCallback eventListener) {
 		int listenerId = super.addEventListener(eventName, eventListener);

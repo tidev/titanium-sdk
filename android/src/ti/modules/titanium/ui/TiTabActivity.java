@@ -1,52 +1,40 @@
-/**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
- * Licensed under the terms of the Apache Public License
- * Please see the LICENSE included with this distribution for details.
- */
-package org.appcelerator.titanium;
+package ti.modules.titanium.ui;
 
-import org.appcelerator.titanium.util.TiActivityResultHandler;
-import org.appcelerator.titanium.util.TiActivitySupport;
-import org.appcelerator.titanium.util.TiActivitySupportHelper;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.view.TiWindowProxy;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout;
 
-import android.app.Activity;
+import ti.modules.titanium.ui.widget.TiUITabGroup;
+import android.app.ActivityGroup;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
-public class TiActivity extends Activity
-	implements TiActivitySupport
+public class TiTabActivity extends ActivityGroup
 {
-	private static final String LCAT = "TiActivity";
+	private static final String LCAT = "TiTabActivity";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	protected TiContext tiContext;
 	protected TitaniumCompositeLayout layout;
-	protected TiActivitySupportHelper supportHelper;
+	protected TabGroupProxy proxy;
+	protected TiUITabGroup tg;
 
-	public TiActivity() {
-		super();
+	public TiTabActivity() {
 	}
 
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        final TiActivity me = this;
+	@Override
+	protected void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		final TiTabActivity me = this;
 
-        layout = new TitaniumCompositeLayout(this);
+       layout = new TitaniumCompositeLayout(this);
 
         Intent intent = getIntent();
 
         boolean fullscreen = true;
         boolean navbar = true;
-        TiWindowProxy proxy = null;
 
         if (intent != null) {
         	if (intent.hasExtra("fullscreen")) {
@@ -57,7 +45,7 @@ public class TiActivity extends Activity
         	}
         	if (intent.hasExtra("proxyId")) {
         		String proxyId = intent.getStringExtra("proxyId");
-        		proxy = (TiWindowProxy) ((TiApplication) getApplication()).unregisterProxy(proxyId);
+        		proxy = (TabGroupProxy) ((TiApplication) getApplication()).unregisterProxy(proxyId);
         	}
         }
 
@@ -78,15 +66,19 @@ public class TiActivity extends Activity
         setContentView(layout);
 
         if (proxy != null) {
-        	final TiWindowProxy fproxy = proxy;
+
+        	tg = new TiUITabGroup(proxy, this);
+
         	runOnUiThread(new Runnable(){
 
 				@Override
 				public void run() {
-		        	fproxy.handlePostOpen(me);
-				}});
+		        	proxy.handlePostOpen(me);
+				}
+			});
+        	layout.addView(tg.getNativeView());
         }
-    }
+	}
 
     public TiApplication getTiApp() {
     	return (TiApplication) getApplication();
@@ -96,28 +88,9 @@ public class TiActivity extends Activity
     	return layout;
     }
 
-	// Activity Support
-	public int getUniqueResultCode() {
-		if (supportHelper == null) {
-			this.supportHelper = new TiActivitySupportHelper(this);
-		}
-		return supportHelper.getUniqueResultCode();
-	}
-
-	public void launchActivityForResult(Intent intent, int code, TiActivityResultHandler resultHandler)
-	{
-		if (supportHelper == null) {
-			this.supportHelper = new TiActivitySupportHelper(this);
-		}
-		supportHelper.launchActivityForResult(intent, code, resultHandler);
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-
-		supportHelper.onActivityResult(requestCode, resultCode, data);
-	}
+    public TiUITabGroup getTabGroup() {
+    	return tg;
+    }
 
 	@Override
 	public void finish()
@@ -130,4 +103,5 @@ public class TiActivity extends Activity
 		}
 		super.finish();
 	}
+
 }

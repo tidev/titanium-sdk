@@ -59,10 +59,18 @@ public abstract class TiModule
 	// Proxy Object Support
 	private String buildProxyName(String name)
 	{
+		String newName = name.substring(6);
+
+		// The TitaniumAPI has proxies that have names that start with Digits. The convention
+		// is to simply prepend an _ to the classname
+
+		if (newName.matches("^[0-9].*")) {
+			newName = "_" + newName;
+		}
 		StringBuilder sb = new StringBuilder(128);
 		sb.append(getClass().getPackage().getName())
 			.append(".")
-			.append(name.substring(6))
+			.append(newName)
 			.append("Proxy");
 		;
 

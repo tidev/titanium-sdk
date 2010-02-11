@@ -93,6 +93,31 @@
 		}
 	}
 
+	//TODO: View swapping.
+	for(UIView * doomedView in childrenViews)
+	{
+		[doomedView removeFromSuperview];
+	}
+	
+	NSArray * newProxyChildren = [proxy children]; //TODO: This should be thread-protected against adding while rendering.
+
+	[childrenViews release];
+	if ([newProxyChildren count]==0)
+	{
+		childrenViews = nil;
+	}
+	else
+	{
+		UIView * contentView = [self contentView];
+		childrenViews = [[NSMutableArray alloc] initWithCapacity:[newProxyChildren count]];
+		for (TiViewProxy * thisViewProxy in newProxyChildren)
+		{
+			TiUIView * newView = [thisViewProxy view];
+			[contentView addSubview:newView];
+			[newView reposition];
+		}
+	}
+
 	[newProxy setModelDelegate:self];
 	[self release];
 	

@@ -4,16 +4,11 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiProxy.h"
 
-@class TiUIView;
+#import "TiModule.h"
 
-@interface TiUINavBarButton : UIBarButtonItem<TiProxyDelegate> {
-@private
-	TiProxy *proxy;
-	TiUIView *activityDelegate;
+@interface XMLModule : TiModule {
+
 }
-
--(id)initWithProxy:(TiProxy*)proxy;
 
 @end
