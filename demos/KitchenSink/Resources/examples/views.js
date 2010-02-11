@@ -1,4 +1,4 @@
-// create table view data object
+//create table view data object
 var data = [
 	{title:'Events', hasChild:true, test:'../examples/view_events.js'},
 	{title:'Events Propagation', hasChild:true, test:'../examples/view_event_propagation.js'},
@@ -35,5 +35,21 @@ tableview.addEventListener('click', function(e)
 	}
 });
 
+
+// // create table view 
+// var tableview = Titanium.UI.createTableView();
+// 
+// // create table view event listener 
+// tableview.addEventListener('click', function(e) 
+// {
+// 
+// });
+
 // add table view to the window
 Titanium.UI.currentWindow.add(tableview);
+
+/// / It will crash because the table probably have no index 0 
+// var data = {title:'New Row'}; 
+// tableview.appendRow(data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT}); 
+
+

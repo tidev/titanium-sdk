@@ -6,6 +6,7 @@
  */
 
 #import "TiMapViewProxy.h"
+#import "TiMapView.h"
 
 @implementation TiMapViewProxy
 
