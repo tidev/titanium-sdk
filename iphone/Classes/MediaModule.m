@@ -54,34 +54,52 @@ enum
 	RELEASE_TO_NIL(pickerCancelCallback);
 }
 
+-(void)dispatchCallback:(NSArray*)args
+{
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	NSString *type = [args objectAtIndex:0];
+	id object = [args objectAtIndex:1];
+	id listener = [args objectAtIndex:2];
+	// we have to give our modal picker view time to 
+	// dismiss with animation or if you do anything in a callback that 
+	// attempt to also touch a modal controller, you'll get into deep doodoo
+	// wait for the picker to dismiss with animation
+	[NSThread sleepForTimeInterval:0.5];
+	[self _fireEventToListener:type withObject:object listener:listener thisObject:nil];
+	[pool release];
+}
+
 -(void)sendPickerError:(int)code
 {
-	if (pickerErrorCallback!=nil)
+	id listener = [[pickerErrorCallback retain] autorelease];
+	[self destroyPicker];
+	if (listener!=nil)
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(false),@"success",NUMINT(code),@"code",nil];
-		[self _fireEventToListener:@"error" withObject:event listener:pickerErrorCallback thisObject:nil];
+		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
 	}
-	[self destroyPicker];
 }
 
 -(void)sendPickerCancel
 {
-	if (pickerCancelCallback!=nil)
-	{
-		[self _fireEventToListener:@"cancel" withObject:nil listener:pickerCancelCallback thisObject:nil];
-	}
+	id listener = [[pickerCancelCallback retain] autorelease];
 	[self destroyPicker];
+	if (listener!=nil)
+	{
+		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"cancel",[NSDictionary dictionary],listener,nil]];
+	}
 }
 
 -(void)sendPickerSuccess:(id)event
 {
-	if (pickerSuccessCallback!=nil)
-	{
-		[self _fireEventToListener:@"success" withObject:event listener:pickerSuccessCallback thisObject:nil];
-	}
+	id listener = [[pickerSuccessCallback retain] autorelease];
 	if (autoHidePicker)
 	{
 		[self destroyPicker];
+	}
+	if (listener!=nil)
+	{
+		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,listener,nil]];
 	}
 }
 
@@ -176,7 +194,7 @@ enum
 		id videoMaximumDuration = [args objectForKey:@"videoMaximumDuration"];
 		if ([videoMaximumDuration respondsToSelector:@selector(doubleValue)] && [picker respondsToSelector:@selector(setVideoMaximumDuration:)])
 		{
-			[picker setVideoMaximumDuration:[videoMaximumDuration doubleValue]];
+			[picker setVideoMaximumDuration:[videoMaximumDuration doubleValue]/1000];
 		}
 		id videoQuality = [args objectForKey:@"videoQuality"];
 		if ([videoQuality respondsToSelector:@selector(doubleValue)] && [picker respondsToSelector:@selector(setVideoQuality:)])

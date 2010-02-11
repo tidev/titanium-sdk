@@ -6,18 +6,14 @@
  */
 package org.appcelerator.titanium.view;
 
-import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.AsyncResult;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
 import android.app.Activity;
 import android.os.Message;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.FrameLayout.LayoutParams;
 
 public abstract class TiWindowProxy extends TiViewProxy
 {
@@ -39,15 +35,17 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	protected TiWindowProxy tabGroup;
 	protected TiViewProxy tab;
+	protected boolean inTab;
 
 	public TiWindowProxy(TiContext tiContext, Object[] args)
 	{
 		super(tiContext, args);
+		inTab = false;
 	}
 
 
 	@Override
-	public TiUIView createView() {
+	public TiUIView createView(Activity activity) {
 		return null;
 	}
 
@@ -58,13 +56,13 @@ public abstract class TiWindowProxy extends TiViewProxy
 		switch(msg.what) {
 			case MSG_OPEN : {
 				AsyncResult result = (AsyncResult) msg.obj;
-				handleOpen();
+				handleOpen((TiDict) result.getArg());
 				result.setResult(null); // signal opened
 				return true;
 			}
 			case MSG_CLOSE : {
 				AsyncResult result = (AsyncResult) msg.obj;
-				handleClose();
+				handleClose((TiDict) result.getArg());
 				result.setResult(null); // signal closed
 				return true;
 			}
@@ -74,33 +72,40 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-
-	public void open()
+	public void open(TiDict options)
 	{
 		if (getTiContext().isUIThread()) {
-			handleOpen();
+			handleOpen(options);
 			return;
 		}
 
-		AsyncResult result = new AsyncResult();
+		AsyncResult result = new AsyncResult(options);
 		Message msg = getUIHandler().obtainMessage(MSG_OPEN, result);
 		msg.sendToTarget();
 		result.getResult(); // Don't care about result, just synchronizing.
 	}
 
-	public void close()
+	public void close(TiDict options)
 	{
 		if (getTiContext().isUIThread()) {
-			handleClose();
+			handleClose(options);
 			return;
 		}
 
-		AsyncResult result = new AsyncResult();
+		AsyncResult result = new AsyncResult(options);
 		Message msg = getUIHandler().obtainMessage(MSG_CLOSE, result);
 		msg.sendToTarget();
 		result.getResult(); // Don't care about result, just synchronizing.
 	}
 
-	protected abstract void handleOpen();
-	protected abstract void handleClose();
+	public void setTabProxy(TiViewProxy tabProxy) {
+		this.tab = tabProxy;
+	}
+
+	public TiViewProxy getTabProxy() {
+		return this.tab;
+	}
+	protected abstract void handleOpen(TiDict options);
+	public abstract void handlePostOpen(Activity activity);
+	protected abstract void handleClose(TiDict options);
 }

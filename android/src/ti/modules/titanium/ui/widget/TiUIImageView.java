@@ -1,6 +1,7 @@
 package ti.modules.titanium.ui.widget;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
@@ -13,6 +14,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
 
+import ti.modules.titanium.filesystem.FileProxy;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -73,9 +75,20 @@ public class TiUIImageView extends TiUIView
 			view.setCanScaleImage(TiConvert.toBoolean(d, "canScale"));
 		}
 		if (d.containsKey("image")) {
-			TiBlob blob = TiConvert.toBlob(d, "image");
-			view.setImageDrawable(Drawable.createFromStream(
-				new ByteArrayInputStream(blob.getBytes()), "blob"));
+			Object value = d.get("image");
+			if (value instanceof TiBlob) {
+				TiBlob blob = (TiBlob)value;
+				view.setImageDrawable(Drawable.createFromStream(
+					new ByteArrayInputStream(blob.getBytes()), "blob"));
+			} else if (value instanceof FileProxy) {
+				FileProxy file = (FileProxy)value;
+				try {
+					view.setImageDrawable(Drawable.createFromStream(
+						file.getBaseFile().getInputStream(), file.getBaseFile().getNativeFile().getName()));
+				} catch (IOException e) {
+					Log.e(LCAT, "Error setting drawable from file: " + file.getBaseFile().getNativeFile().getName(), e);
+				}
+			}
 		} else {
 			getProxy().internalSetDynamicValue("image", null, false);
 		}

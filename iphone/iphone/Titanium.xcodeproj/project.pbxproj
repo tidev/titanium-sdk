@@ -691,6 +691,11 @@
 		24CB0E87111A971B00A813AD /* TiUIScrollableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4151113AAA900DBCB42 /* TiUIScrollableView.m */; };
 		24CB0E88111A971B00A813AD /* TiUIScrollViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */; };
 		24CB0E89111A971B00A813AD /* TiUIScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B72111A41C800E2F72C /* TiUIScrollView.m */; };
+		24DEDA6311236F0C00398D86 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */; };
+		24DEDAC5112371A500398D86 /* XMLModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DEDAC3112371A500398D86 /* XMLModule.h */; };
+		24DEDAC6112371A500398D86 /* XMLModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DEDAC4112371A500398D86 /* XMLModule.m */; };
+		24DEDAC7112371A500398D86 /* XMLModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DEDAC4112371A500398D86 /* XMLModule.m */; };
+		24DEDAC8112371A500398D86 /* XMLModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DEDAC4112371A500398D86 /* XMLModule.m */; };
 		24EB02C1111BF827001DC2D1 /* TiUIWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB02C0111BF827001DC2D1 /* TiUIWebView.m */; };
 		24EB02C2111BF827001DC2D1 /* TiUIWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB02C0111BF827001DC2D1 /* TiUIWebView.m */; };
 		24EB02C3111BF827001DC2D1 /* TiUIWebView.h in Headers */ = {isa = PBXBuildFile; fileRef = 24EB02BF111BF827001DC2D1 /* TiUIWebView.h */; };
@@ -1159,6 +1164,8 @@
 		24CA916411116F870084E2DE /* Titanium.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Titanium.plist; sourceTree = "<group>"; };
 		24CA9182111170820084E2DE /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = ../Resources/Default.png; sourceTree = SOURCE_ROOT; };
 		24CB0C9A111A96EE00A813AD /* libTitanium.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libTitanium.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		24DEDAC3112371A500398D86 /* XMLModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLModule.h; sourceTree = "<group>"; };
+		24DEDAC4112371A500398D86 /* XMLModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLModule.m; sourceTree = "<group>"; };
 		24EB02BF111BF827001DC2D1 /* TiUIWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIWebView.h; sourceTree = "<group>"; };
 		24EB02C0111BF827001DC2D1 /* TiUIWebView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIWebView.m; sourceTree = "<group>"; };
 		24EB06EC111D03F9001DC2D1 /* bridge.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bridge.txt; sourceTree = "<group>"; };
@@ -1234,6 +1241,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24DEDA6311236F0C00398D86 /* libxml2.dylib in Frameworks */,
 				24CA902811116C490084E2DE /* Foundation.framework in Frameworks */,
 				24CA902911116C490084E2DE /* UIKit.framework in Frameworks */,
 				24CA902A11116C490084E2DE /* CoreGraphics.framework in Frameworks */,
@@ -1490,6 +1498,7 @@
 		24CA8A09111161D60084E2DE /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				24DEDAC21123719700398D86 /* XML */,
 				24CA8AA4111161FD0084E2DE /* TitaniumModule.m */,
 				24CA8AA5111161FD0084E2DE /* TitaniumModule.h */,
 				24CA8C58111165180084E2DE /* Accelerometer */,
@@ -2103,6 +2112,15 @@
 			name = Label;
 			sourceTree = "<group>";
 		};
+		24DEDAC21123719700398D86 /* XML */ = {
+			isa = PBXGroup;
+			children = (
+				24DEDAC3112371A500398D86 /* XMLModule.h */,
+				24DEDAC4112371A500398D86 /* XMLModule.m */,
+			);
+			name = XML;
+			sourceTree = "<group>";
+		};
 		24EB07D1111D420D001DC2D1 /* DOM */ = {
 			isa = PBXGroup;
 			children = (
@@ -2362,6 +2380,7 @@
 				24EB0BAC111F7959001DC2D1 /* TiMapPinAnnotationView.h in Headers */,
 				24F5AEB6111F9DE9005C9199 /* TiFile.h in Headers */,
 				24F5B148111FDFE8005C9199 /* ListenerEntry.h in Headers */,
+				24DEDAC5112371A500398D86 /* XMLModule.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2477,7 +2496,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Classes/FBConnect/images/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\n";
+			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n\n";
 		};
 		24CA903D11116C490084E2DE /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2490,7 +2509,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "rm -rf \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Terrordom\" \ncp -Rf \"$PROJECT_DIR/../Terrordom/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Classes/FBConnect/images/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\n";
+			shellScript = "rm -rf \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Terrordom\" \ncp -Rf \"$PROJECT_DIR/../Terrordom/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2684,6 +2703,7 @@
 				24EB0B74111E7EE8001DC2D1 /* NSData+Additions.m in Sources */,
 				24F5AEB4111F9DE9005C9199 /* TiFile.m in Sources */,
 				24F5B146111FDFE8005C9199 /* ListenerEntry.m in Sources */,
+				24DEDAC7112371A500398D86 /* XMLModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2876,6 +2896,7 @@
 				24EB0B75111E7EE8001DC2D1 /* NSData+Additions.m in Sources */,
 				24F5AEB5111F9DE9005C9199 /* TiFile.m in Sources */,
 				24F5B147111FDFE8005C9199 /* ListenerEntry.m in Sources */,
+				24DEDAC8112371A500398D86 /* XMLModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3067,6 +3088,7 @@
 				24EB0B77111E7EE8001DC2D1 /* NSData+Additions.m in Sources */,
 				24F5AEB7111F9DE9005C9199 /* TiFile.m in Sources */,
 				24F5B149111FDFE8005C9199 /* ListenerEntry.m in Sources */,
+				24DEDAC6112371A500398D86 /* XMLModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

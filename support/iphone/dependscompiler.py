@@ -11,6 +11,7 @@ import os, sys, uuid, subprocess, shutil, signal, time, re, glob, codecs, json, 
 from os.path import join, splitext, split, exists
 from shutil import copyfile
 import jspacker
+import hashlib
 
 ignoreFiles = ['.gitignore', '.cvsignore','.DS_Store'];
 ignoreDirs = ['.git','.svn', 'CVS'];
@@ -77,6 +78,8 @@ class DependencyCompiler(object):
 		self.required_modules = []
 		
 	def compile(self,iphone_dir,app_dir):
+		
+		start_time = time.time()
 		import_depends.append('TitaniumModule')
 		import_depends.append('AnalyticsModule')
 		# these are needed for app routing and aren't imported in code
@@ -84,13 +87,15 @@ class DependencyCompiler(object):
 		import_depends.append('NSData+Additions')
 		
 		resources_dir = os.path.join(app_dir,'Resources')
-		build_dir = os.path.join(app_dir,'build','iphone','Resources')
+		iphone_build_dir = os.path.join(app_dir,'build','iphone')
+		build_dir = os.path.join(iphone_build_dir,'Resources')
+		build_tmp_dir = os.path.join(iphone_build_dir,'tmp')
 		finallibfile = os.path.join(build_dir,'libTitanium.a')
 		
 		# read in the imports map
 		import_path = os.path.join(iphone_dir,'imports.json')
 		import_json = open(import_path).read();
-		imports_map = json.loads(import_json)
+		imports_map = json.read(import_json)
 
 
 		def extract_api_path(line):
@@ -215,86 +220,121 @@ class DependencyCompiler(object):
 				dependencies.index(fn)
 			except:
 				dependencies.append(fn)
-		
+
 		compilezone = os.path.join(iphone_dir,'compilezone')
-		i386_dir = os.path.join(compilezone,'i386')
-		arm_dir = os.path.join(compilezone,'arm')
 		
-		if not os.path.exists(compilezone):
-			os.makedirs(compilezone)
+		skip = False
+		if not os.path.exists(build_tmp_dir):
+			os.makedirs(build_tmp_dir)
 			
-		toplibfile = os.path.join(iphone_dir,'libTitanium.a')
-		i386libfile = os.path.join(i386_dir,'libTitanium.a')
-		armlibfile = os.path.join(arm_dir,'libTitanium.a')
-		curdir = os.path.abspath(os.curdir)
-			
-		if not os.path.exists(i386_dir):
-			os.makedirs(i386_dir)
-			os.system("\"/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo\" \"%s\" -thin i386 -output \"%s\"" % (toplibfile,i386libfile))
-			os.chdir(i386_dir)
-			os.system("/usr/bin/ar x \"%s\"" % i386libfile)
-			
-		if not os.path.exists(arm_dir):
-			os.makedirs(arm_dir)
-			os.system("\"/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo\" \"%s\" -thin armv6 -output \"%s\"" % (toplibfile,armlibfile))
-			os.chdir(arm_dir)
-			os.system("/usr/bin/ar x \"%s\"" % armlibfile)
-			
-		os.chdir(curdir)
+		de = json.encode(dependencies)
 		
-		symbols = []
-		symbol_path = i386_dir  # for resolving, we can just use one of the two
-			
-		for depend in dependencies:
-			symbol_file = os.path.join(symbol_path,depend)
-			if os.path.exists(symbol_file):
-				sym = os.path.basename(symbol_file)
-				symbols.append(sym)
-				print "[DEBUG] found symbol: %s" % sym
-			else:
-				pass
-				#print "[TRACE] couldn't find %s" % depend
+		# as an optimization, we look to see if our dependencies 
+		# between compiles are the same - if so, they should have
+		# generated the same static library. in this case, we can
+		# skip re-generating it again and instead just use the existing lib
+		# a simple hash of the JSON of the depedency map should suffice 
+		# in determining this...
+		depends_file = os.path.join(build_tmp_dir,'dependencies.map')
+		if os.path.exists(depends_file):
+			current_depends = open(depends_file).read()
+			m1 = hashlib.md5()
+			m2 = hashlib.md5()
+			m1.update(current_depends)
+			m2.update(de)
+			skip = m2.hexdigest()==m1.hexdigest()
 		
-		for include in always_include:				
-			for f in glob.glob(symbol_path+'/%s*'%include):
-				sym = os.path.basename(f)
-				try:
-					symbols.index(sym)
-				except:
+		if skip:
+			print "[DEBUG] skipping dependency compile, dependencies are the same"
+		else:
+			
+			# write out our depedency map
+			df = open(depends_file,'w+')
+			df.write(de)
+			df.close()
+			
+			i386_dir = os.path.join(compilezone,'i386')
+			arm_dir = os.path.join(compilezone,'arm')
+		
+			if not os.path.exists(compilezone):
+				os.makedirs(compilezone)
+			
+			toplibfile = os.path.join(iphone_dir,'libTitanium.a')
+			i386libfile = os.path.join(i386_dir,'libTitanium.a')
+			armlibfile = os.path.join(arm_dir,'libTitanium.a')
+			curdir = os.path.abspath(os.curdir)
+			
+			if not os.path.exists(i386_dir):
+				os.makedirs(i386_dir)
+				os.system("\"/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo\" \"%s\" -thin i386 -output \"%s\"" % (toplibfile,i386libfile))
+				os.chdir(i386_dir)
+				os.system("/usr/bin/ar x \"%s\"" % i386libfile)
+			
+			if not os.path.exists(arm_dir):
+				os.makedirs(arm_dir)
+				os.system("\"/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo\" \"%s\" -thin armv6 -output \"%s\"" % (toplibfile,armlibfile))
+				os.chdir(arm_dir)
+				os.system("/usr/bin/ar x \"%s\"" % armlibfile)
+			
+			os.chdir(curdir)
+		
+			symbols = []
+			symbol_path = i386_dir  # for resolving, we can just use one of the two
+			
+			for depend in dependencies:
+				symbol_file = os.path.join(symbol_path,depend)
+				if os.path.exists(symbol_file):
+					sym = os.path.basename(symbol_file)
 					symbols.append(sym)
 					print "[DEBUG] found symbol: %s" % sym
+				else:
+					pass
+					#print "[TRACE] couldn't find %s" % depend
 		
-		sys.stdout.flush()
+			for include in always_include:				
+				for f in glob.glob(symbol_path+'/%s*'%include):
+					sym = os.path.basename(f)
+					try:
+						symbols.index(sym)
+					except:
+						symbols.append(sym)
+						print "[DEBUG] found symbol: %s" % sym
 		
-		tmpdir = tempfile.gettempdir()
+			sys.stdout.flush()
 		
-		i386libfile = None
-		armlibfile = None
-		dirs_to_delete = []
+			tmpdir = tempfile.gettempdir()
 		
-		# create a new archive just using the symbols that have been detected
-		# for each platform
-		for libdir in [i386_dir,arm_dir]:
-			libfiles = ""
-			for sym in symbols:
-				libfiles+="\"%s\" " % os.path.join(libdir,sym)
-			thedir = os.path.join(tmpdir,os.path.basename(libdir))
-			if not os.path.exists(thedir): os.makedirs(thedir)
-			libfile = os.path.join(thedir,'libTitanium.a')
-			if i386libfile==None: 
-				i386libfile = libfile 
-			else:
-				armlibfile = libfile
-			dirs_to_delete.append(thedir)
-			cmd = "ar -cr \"%s\" %s" % (libfile,libfiles)
-			os.system(cmd)
+			i386libfile = None
+			armlibfile = None
+			dirs_to_delete = []
 		
-		# create a combined lipo of both architectures
-		os.system("\"/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo\" \"%s\" \"%s\" -create -output \"%s\"" % (i386libfile,armlibfile,finallibfile))
+			# create a new archive just using the symbols that have been detected
+			# for each platform
+			for libdir in [i386_dir,arm_dir]:
+				libfiles = ""
+				for sym in symbols:
+					libfiles+="\"%s\" " % os.path.join(libdir,sym)
+				thedir = os.path.join(tmpdir,os.path.basename(libdir))
+				if not os.path.exists(thedir): os.makedirs(thedir)
+				libfile = os.path.join(thedir,'libTitanium.a')
+				if i386libfile==None: 
+					i386libfile = libfile 
+				else:
+					armlibfile = libfile
+				dirs_to_delete.append(thedir)
+				cmd = "ar -cr \"%s\" %s" % (libfile,libfiles)
+				os.system(cmd)
 		
-		# cleanup our temp directories
-		for adir in dirs_to_delete:	
-			shutil.rmtree(adir)
+			# create a combined lipo of both architectures
+			os.system("\"/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo\" \"%s\" \"%s\" -create -output \"%s\"" % (i386libfile,armlibfile,finallibfile))
+		
+			# cleanup our temp directories
+			for adir in dirs_to_delete:	
+				shutil.rmtree(adir)
+			
+		end_time = time.time()
+		
+		print "[DEBUG] depedency compiler took: %.2f seconds" % (end_time-start_time)
 
 if __name__ == '__main__':
 	compiler = DependencyCompiler()

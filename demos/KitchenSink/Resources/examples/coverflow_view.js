@@ -33,7 +33,7 @@ var change = Titanium.UI.createButton({
 change.addEventListener('click',function()
 {
 	Titanium.API.info("selected is = "+view.selected);
-	view.setURL(view.selected,'images/28.jpg');
+	view.setURL(view.selected,'../images/imageview/28.jpg');
 });
 
 // move scroll view left
@@ -60,4 +60,4 @@ right.addEventListener('click', function(e)
 var flexSpace = Titanium.UI.createButton({
 	systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 });
-Twin.setToolbar([flexSpace,left,change,right,flexSpace]);
+win.setToolbar([flexSpace,left,change,right,flexSpace]);

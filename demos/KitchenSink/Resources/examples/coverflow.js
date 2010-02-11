@@ -1,9 +1,6 @@
 // create table view data object
 var data = [
-	{title:'Facebook', hasChild:true, test:'../examples/facebook.js'},
-	{title:'YQL', hasChild:true, test:'../todo.js'},
-	{title:'Twitter', hasChild:true, test:'../todo.js'},
-	{title:'SOAP', hasChild:true, test:'../todo.js'},
+	{title:'Coverflow Local Files', hasChild:true, test:'../examples/coverflow_view.js'},
 
 ];
 

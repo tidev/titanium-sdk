@@ -4,6 +4,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIImageView;
+import android.app.Activity;
 
 public class ImageViewProxy extends ViewProxy {
 
@@ -12,7 +13,7 @@ public class ImageViewProxy extends ViewProxy {
 	}
 
 	@Override
-	public TiUIView createView() {
+	public TiUIView createView(Activity activity) {
 		return new TiUIImageView(this);
 	}
 }

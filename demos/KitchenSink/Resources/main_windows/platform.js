@@ -10,6 +10,9 @@ var data = [
 	{title:'Filesystem', hasChild:true, test:'../examples/filesystem.js'},
 	{title:'JS Includes', hasChild:true, test:'../examples/js_include.js'},
 	{title:'Passing Data (windows)', hasChild:true, test:'../examples/custom_properties.js'},
+	{title:'Set Timeout (timer)', hasChild:true, test:'../examples/set_timeout.js'},
+	{title:'Set Interval (timer)', hasChild:true, test:'../examples/set_interval.js'},
+	{title:'XML DOM', hasChild:true, test:'../examples/xml_dom.js'},
 
 ];
 

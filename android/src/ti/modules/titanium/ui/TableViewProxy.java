@@ -5,6 +5,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
 
 import ti.modules.titanium.ui.widget.TiUITableView;
+import android.app.Activity;
 
 public class TableViewProxy extends TiViewProxy {
 
@@ -13,7 +14,7 @@ public class TableViewProxy extends TiViewProxy {
 	}
 
 	@Override
-	public TiUIView createView() {
+	public TiUIView createView(Activity activity) {
 		return new TiUITableView(this);
 	}
 }

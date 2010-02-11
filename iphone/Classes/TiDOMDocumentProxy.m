@@ -49,7 +49,7 @@
 {
 	ENSURE_SINGLE_ARG(args,NSString);
 	NSError *error = nil;
-	NSArray *nodes = [document nodesForXPath:[NSString stringWithFormat:@"//%@",args] error:&error];
+	NSArray *nodes = [document nodesForXPath:[NSString stringWithFormat:@"//*[local-name()='%@']",args] error:&error];
 	if (error==nil && nodes!=nil && [nodes count]>0)
 	{
 		TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:[self pageContext]] autorelease];

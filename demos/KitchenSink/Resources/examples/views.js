@@ -3,7 +3,7 @@ var data = [
 	{title:'Events', hasChild:true, test:'../examples/view_events.js'},
 	{title:'Events Propagation', hasChild:true, test:'../examples/view_event_propagation.js'},
 	{title:'Map View', hasChild:true, test:'../examples/map_view.js'},
-	{title:'Coverflow View', hasChild:true, test:'../examples/coverflow_view.js'},
+	{title:'Coverflow View', hasChild:true, test:'../examples/coverflow.js'},
 	{title:'Image Views', hasChild:true, test:'../examples/image_views.js'},
 	{title:'Scroll Views', hasChild:true, test:'../examples/scroll_views.js'},
 	{title:'Table Views', hasChild:true, test:'../examples/table_views.js'},

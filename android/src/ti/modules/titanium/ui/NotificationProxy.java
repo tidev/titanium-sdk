@@ -6,6 +6,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
 
 import ti.modules.titanium.ui.widget.TiUINotification;
+import android.app.Activity;
 
 public class NotificationProxy extends TiViewProxy
 {
@@ -15,7 +16,7 @@ public class NotificationProxy extends TiViewProxy
 	}
 
 	@Override
-	public TiUIView createView()
+	public TiUIView createView(Activity activity)
 	{
 		return new TiUINotification(this);
 	}
@@ -24,7 +25,7 @@ public class NotificationProxy extends TiViewProxy
 	protected void handleShow(TiDict options) {
 		super.handleShow(options);
 
-		TiUINotification n = (TiUINotification) getView();
+		TiUINotification n = (TiUINotification) getView(getTiContext().getActivity());
 		n.show(options);
 	}
 }
