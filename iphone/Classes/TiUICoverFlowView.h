@@ -5,11 +5,17 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <Foundation/Foundation.h>
+#import "TiUIView.h"
+#import "AFOpenFlow/AFOpenFlowView.h"
 
-@class AFOpenFlowView;
-@interface TiUICoverFlowView : NSObject {
-	AFOpenFlowView * flowView;
+@interface TiUICoverFlowView : TiUIView <AFOpenFlowViewDataSource,AFOpenFlowViewDelegate>
+{
+@private
+	AFOpenFlowView *view;
+	NSMutableArray *images;
+	int previous;
 }
+
+-(void)setURL:(id)urlstr forIndex:(NSInteger)index;
 
 @end
