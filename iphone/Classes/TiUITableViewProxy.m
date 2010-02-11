@@ -44,7 +44,10 @@ NSArray * tableKeys = nil;
 }
 
 
-
+-(NSArray *)data
+{
+	return [[data copy] autorelease];
+}
 
 
 
@@ -223,7 +226,15 @@ NSArray * tableKeys = nil;
 	TiUITableViewRowProxy *newRow = [args objectAtIndex:0];
 	ENSURE_TABLE_VIEW_ROW(newRow);
 
-	[data addObject:newRow];
+	if (data == nil)
+	{
+		data = [[NSMutableArray alloc] initWithObjects:newRow,nil];
+	}
+	else
+	{
+		[data addObject:newRow];
+	}
+
 
 	if ([self viewAttached])
 	{
