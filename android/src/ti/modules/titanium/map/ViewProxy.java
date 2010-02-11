@@ -6,6 +6,7 @@ import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
 
+import android.app.Activity;
 import android.app.LocalActivityManager;
 import android.content.Intent;
 import android.view.Window;
@@ -24,7 +25,7 @@ public class ViewProxy extends TiViewProxy
 	}
 
 	@Override
-	public TiUIView createView()
+	public TiUIView createView(Activity activity)
 	{
 		if (lam == null) {
 			lam = new LocalActivityManager(getTiContext().getRootActivity(), true);

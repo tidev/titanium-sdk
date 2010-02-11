@@ -79,6 +79,7 @@ public class KrollMethod extends KrollObject implements Function
 
 				if (method.getReturnType() == java.lang.Void.TYPE) {
 					method.invoke(target, newArgs);
+					result = getParentScope();
 				} else {
 					result = KrollObject.fromNative(method.invoke(target, newArgs), getKrollContext());
 				}
