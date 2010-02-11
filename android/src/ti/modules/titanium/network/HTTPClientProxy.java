@@ -64,12 +64,14 @@ public class HTTPClientProxy extends TiProxy {
 	}
 
 	public void open(String method, String url)
-			throws MethodNotSupportedException {
+	{
 		client.open(method, url);
 	}
 
-	public void send() {
-		client.send();
+	public void send(Object data) 
+		throws MethodNotSupportedException
+	{
+		client.send(data);
 	}
 
 	public void setRequestHeader(String header, String value) {

@@ -5,6 +5,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
 
 import ti.modules.titanium.ui.widget.TiUISlider;
+import android.app.Activity;
 
 public class SliderProxy extends TiViewProxy
 {
@@ -14,7 +15,7 @@ public class SliderProxy extends TiViewProxy
 	}
 
 	@Override
-	public TiUIView createView()
+	public TiUIView createView(Activity activity)
 	{
 		return new TiUISlider(this);
 	}

@@ -15,6 +15,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
+import org.appcelerator.titanium.view.TiWindowProxy;
 
 import android.app.Activity;
 import android.view.View;
@@ -27,23 +28,28 @@ public class TiUIWindow extends TiUIView
 
 	protected String activityKey;
 	protected Activity activity;
+	protected boolean lightWeight;
 
 	private static AtomicInteger idGenerator;
 
-	public TiUIWindow(TiViewProxy proxy)
+	public TiUIWindow(TiViewProxy proxy, TiActivity activity)
 	{
 		super(proxy);
+
 		if (idGenerator == null) {
 			idGenerator = new AtomicInteger(0);
 		}
 
+		if (activity != null) {
+			this.activity = activity;
+			lightWeight = false;
+		} else {
+			this.activity = proxy.getTiContext().getActivity();
+			lightWeight = true;
+		}
+
 		//TODO unique key per window, params for intent
 		activityKey = "window$" + idGenerator.incrementAndGet();
-
-		TiActivityRef ref = proxy.getTiContext().getRootActivity().launchActivity(activityKey);
-		this.activity = ref.activity;
-		TiActivity tia = (TiActivity) activity;
-		setNativeView(ref.activity.getWindow().getDecorView());
 
 		// if url, create a new context.
 		TiDict props = proxy.getDynamicProperties();
@@ -83,7 +89,11 @@ public class TiUIWindow extends TiUIView
 			TiDict preload = new TiDict();
 			preload.put("currentWindow", proxy);
 
-			TiContext tiContext = TiContext.createTiContext(activity, preload, baseUrl);
+			if (proxy instanceof TiWindowProxy && ((TiWindowProxy) proxy).getTabProxy() != null) {
+				preload.put("currentTab", ((TiWindowProxy) proxy).getTabProxy());
+			}
+
+			TiContext tiContext = TiContext.createTiContext(this.activity, preload, baseUrl);
 			try {
 				this.proxy.switchContext(tiContext);
 				tiContext.evalFile(url);
@@ -92,6 +102,18 @@ public class TiUIWindow extends TiUIView
 				activity.finish();
 			}
 		}
+	}
+
+	@Override
+	public View getNativeView() {
+
+		View v = super.getNativeView();
+
+		if (!lightWeight) {
+			v = getLayout();
+		}
+
+		return v;
 	}
 
 	public View getLayout() {

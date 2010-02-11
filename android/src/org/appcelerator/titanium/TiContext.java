@@ -119,7 +119,8 @@ public class TiContext implements TiEvaluator
 	}
 
 	public Activity getActivity() {
-		return weakActivity.get();
+		Activity activity = weakActivity.get();
+		return activity;
 	}
 
 	public TiApplication getTiApp() {

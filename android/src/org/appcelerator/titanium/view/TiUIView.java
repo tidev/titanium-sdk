@@ -7,6 +7,8 @@
 package org.appcelerator.titanium.view;
 
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiProxyListener;
@@ -24,6 +26,8 @@ public abstract class TiUIView
 {
 	private static final String LCAT = "TiUIView";
 
+	private static AtomicInteger idGenerator;
+
 	protected View nativeView; // Native View object
 
 	protected TiViewProxy proxy;
@@ -34,6 +38,10 @@ public abstract class TiUIView
 
 	public TiUIView(TiViewProxy proxy)
 	{
+		if (idGenerator == null) {
+			idGenerator = new AtomicInteger(0);
+		}
+
 		this.proxy = proxy;
 		this.layoutParams = new TitaniumCompositeLayout.TitaniumCompositeLayoutParams();
 	}
@@ -60,6 +68,9 @@ public abstract class TiUIView
 		return nativeView;
 	}
 	public void setNativeView(View view) {
+		if (view.getId() == View.NO_ID) {
+			view.setId(idGenerator.incrementAndGet());
+		}
 		this.nativeView = view;
 		nativeView.setOnFocusChangeListener(this);
 	}
@@ -104,7 +115,9 @@ public abstract class TiUIView
 	public void processProperties(TiDict d)
 	{
 		if (TiConvert.fillLayout(d, layoutParams)) {
-			nativeView.requestLayout();
+			if (nativeView != null) {
+				nativeView.requestLayout();
+			}
 		}
 
 		// Default background processing.
