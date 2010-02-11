@@ -53,6 +53,7 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.net.Uri;
  
@@ -81,6 +82,7 @@ public class TiHTTPClient
  
 	private HttpRequest request;
 	private HttpResponse response;
+	private String method;
 	private HttpHost host;
 	private DefaultHttpClient client;
 	private LocalResponseHandler handler;
@@ -364,10 +366,12 @@ public class TiHTTPClient
 		return result;
 	}
 
+	protected HashMap<String,String> headers = new HashMap<String,String>();
+	private Uri uri;
 	public void setRequestHeader(String header, String value)
 	{
 		if (readyState == READY_STATE_OPENED) {
-			request.addHeader(header, value);
+			headers.put(header, value);
 		} else {
 			throw new IllegalStateException("setRequestHeader can only be called before invoking send.");
 		}
@@ -392,14 +396,14 @@ public class TiHTTPClient
 		return result;
 	}
 
-	public void open(String method, String url) throws MethodNotSupportedException
+	public void open(String method, String url)
 	{
 		if (DBG) {
 			Log.d(LCAT, "open request method=" + method + " url=" + url);
 		}
  
-		request = new DefaultHttpRequestFactory().newHttpRequest(method, url);
-		Uri uri = Uri.parse(url);
+		this.method = method;
+		uri = Uri.parse(url);
 		host = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
 		if (uri.getUserInfo() != null) {
 			credentials = new UsernamePasswordCredentials(uri.getUserInfo());
@@ -446,13 +450,38 @@ public class TiHTTPClient
 		}
 	}
  
-	public void send()
+	public void send(Object userData)
+		throws MethodNotSupportedException
 	{
- 
 		// TODO consider using task manager
 		final TiHTTPClient me = this;
+		if (userData != null)
+		{
+			if (userData instanceof TiDict) {
+				TiDict data = (TiDict)userData;
+				
+				for (String key : data.keySet()) {
+					Object value = data.get(key);
+
+					if (method.equals("POST")) {
+						if (value instanceof TiBaseFile) {
+							addTitaniumFileAsPostData(key, value);
+						} else {
+							addPostData(key, TiConvert.toString(value));
+						}
+					} else if (method.equals("GET")) {
+						uri = uri.buildUpon().appendQueryParameter(
+							key, TiConvert.toString(value)).build();
+					}
+				}
+			} else {
+				addStringData(TiConvert.toString(userData));
+			}
+		}
+		
+		request = new DefaultHttpRequestFactory().newHttpRequest(method, uri.toString());
+		
 		clientThread = new Thread(new Runnable(){
- 
 			public void run() {
 				try {
  
