@@ -40,7 +40,7 @@ import run,prereq
 
 def fetch():
 	print "You don't seem to have the appropriate thirdparty files. I'll fetch them."
-	print "This could take awhile.. Might want to grab a cup of Joe or make fun on Nolan."
+	print "This could take awhile.. Might want to grab a cup of Joe or make fun of Nolan."
 	print "Downloading %s" % url
  
 	pbar = ProgressBar().start()
