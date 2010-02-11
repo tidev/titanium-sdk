@@ -15,7 +15,7 @@
 #import "LayoutEntry.h"	
 
 @implementation TiUITableViewRowProxy
-@synthesize children;
+@synthesize children, parent;
 
 - (void) dealloc
 {
@@ -26,11 +26,13 @@
 
 - (void) replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify
 {
+	id oldValue = [[self valueForKey:key] retain];
 	[super replaceValue:value forKey:key notification:notify];
 	if(notify && (parent != nil))
 	{
-		[parent row:self changedValue:value forKey:key];
+		[parent row:self changedValue:value oldValue:oldValue forKey:key];
 	}
+	[oldValue release];
 }
 
 

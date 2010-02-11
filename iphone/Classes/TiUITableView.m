@@ -372,6 +372,41 @@
 
 #pragma mark Data handling -- Already checked for validity.
 
+-(TiUITableViewGroupSection *) addSectionAtIndex:(int)index
+{
+	TiUITableViewGroupSection * newSection = [[TiUITableViewGroupSection alloc] init];
+	if (sectionArray == nil)
+	{
+		sectionArray = [[NSMutableArray alloc] init];
+	}
+	[sectionArray insertObject:newSection atIndex:index];
+	return [newSection autorelease];
+}
+
+-(void)addRowWithTransaction:(TiUITableViewTransaction *)transaction
+{
+	TiUITableViewRowProxy * row = [transaction value];
+	NSString * headerString = [TiUtils stringValue:[row valueForKey:@"header"]];
+
+	TiUITableViewGroupSection * section = [sectionArray lastObject];
+	int sectionCount = [sectionArray count];
+	
+	if ((section != nil) && (headerString == nil))
+	{
+		[section addObjectToData:row];
+		NSIndexPath * ourPath = [NSIndexPath indexPathForRow:[section countOfData]-1 inSection:sectionCount-1];
+		[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:ourPath] withRowAnimation:[transaction animation]];
+	}
+	else
+	{
+		section = [self addSectionAtIndex:sectionCount];
+		[section addObjectToData:row];
+		[section setHeader:headerString];
+		NSIndexSet * ourSet = [NSIndexSet indexSetWithIndex:sectionCount];
+		[tableview insertSections:ourSet withRowAnimation:[transaction animation]];
+	}
+}
+
 -(void)setData_:(id)dataArray
 {
 	int oldCount = [sectionArray count];

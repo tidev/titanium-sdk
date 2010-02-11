@@ -17,6 +17,28 @@
 
 #import "TiViewProxy.h"
 
+@implementation TiUITableViewTransaction
+@synthesize sectionIndex,rowIndex,value,animation;
+
+- (void) dealloc
+{
+	RELEASE_TO_NIL(value);
+	[super dealloc];
+}
+
+-(void)setAnimationToIndex:(int)index ofArguments:(NSArray *)args
+{
+	if ([args count]<index)
+	{
+		return;
+	}
+	NSDictionary * animationArgs = [args objectAtIndex:index];
+	animation = [TiUtils intValue:@"animationStyle" properties:animationArgs];	
+}
+
+@end
+
+
 @implementation TiUITableViewBase
 
 @synthesize editing, moving;
