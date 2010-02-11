@@ -9,6 +9,27 @@
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 
+
+@interface InnerScrollView : UIScrollView<UIScrollViewDelegate>
+{
+}
+@end
+
+@implementation InnerScrollView
+
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
+{
+	return [[self subviews] objectAtIndex:0];
+}
+
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView_ withView:(UIView *)view atScale:(float)scale 
+{
+}
+
+@end
+
+
+
 @implementation TiUIScrollableView
 
 #pragma mark Internal 
@@ -19,6 +40,12 @@
 	RELEASE_TO_NIL(scrollview);
 	RELEASE_TO_NIL(pageControl);
 	[super dealloc];
+}
+
+-(void)initializerState
+{
+	maxScale = 1.0;
+	minScale = 1.0;
 }
 
 -(CGRect)pageControlRect
@@ -151,12 +178,21 @@
 	
 	for (int c=0;c<[views count];c++)
 	{
-		//TiViewProxy *viewproxy = [views objectAtIndex:c];
 		viewBounds.origin.x = c*visibleBounds.size.width;
 		
 		if (readd)
 		{
-			UIView *view = [[UIView alloc] initWithFrame:viewBounds];
+			//TODO: optimize for non-scaled?
+			InnerScrollView *view = [[InnerScrollView alloc] initWithFrame:viewBounds];
+			[view setMaximumZoomScale:maxScale];
+			[view setMinimumZoomScale:minScale];
+			[view setShowsVerticalScrollIndicator:NO];
+			[view setShowsHorizontalScrollIndicator:NO];
+			[view setDelegate:view];
+			[view setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+			[view setPagingEnabled:NO];
+			[view setBackgroundColor:[UIColor clearColor]];
+			[view setDelaysContentTouches:NO];
 			[sv addSubview:view];
 			[view release];
 		}
@@ -365,6 +401,16 @@
 		
 		[self.proxy replaceValue:NUMINT(newPage) forKey:@"currentPage" notification:NO];
 	}
+}
+
+-(void)setMaxZoomScale_:(id)scale
+{
+	maxScale = [TiUtils floatValue:scale];
+}
+
+-(void)setMinZoomScale_:(id)scale
+{
+	minScale = [TiUtils floatValue:scale];
 }
 
 #pragma mark Delegate calls

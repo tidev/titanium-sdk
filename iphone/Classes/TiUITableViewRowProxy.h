@@ -10,8 +10,7 @@
 @class TiUITableViewRowProxy;
 @protocol TiUITableViewRowParent
 -(NSDictionary *)locationOfRow:(TiUITableViewRowProxy *)row;
--(void)row:(TiUITableViewRowProxy *)row changedValue:(id)newValue forKey:(NSString *)key;
-
+-(void)row:(TiUITableViewRowProxy *)row changedValue:(id)newValue oldValue:(id)oldValue forKey:(NSString *)key;
 @end
 
 

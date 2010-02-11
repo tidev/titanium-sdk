@@ -39,24 +39,36 @@ typedef enum
 	
 } TiUITableViewDispatchType ;
 
-//@class TiUITableViewRowProxy, TiUITableViewGroupSection;
-//@interface TiUITableViewTransaction : NSObject
-//{
-//	int	sectionIndex;
-//	int rowIndex;
-//	//There is no TiUITableView-style index; this is all calculated beforehand.
-//	TiUITableViewRowProxy * rowProxy;
-//	TiUITableViewGroupSection * sectionProxy;
-//	NSArray * sectionArray;
-//	
-//	UITableViewRowAnimation animation;
-//	TiUITableViewDispatchType	type;
-//}
-//
-//@end
+@interface TiUITableViewTransaction : NSObject
+{
+	int	sectionIndex;	//On TableView, this is ignored.
+	int rowIndex;
+
+	id value;
+//TableView:
+//This can be a single row if doing an insert or update row
+//This can be an array if doing a 'setData'
+//This can be an NSString if a 'changeHeader'
+
+//GroupedView:
+//This can be a single row if doing an insert or update row
+//This can be a groupSection if doing an insert or update section
+//This can be an array if a setData of a section is done
+//This can be an array if a setSections is done
+	
+	UITableViewRowAnimation animation;
+}
+@property(nonatomic,readwrite,assign)	int	sectionIndex;
+@property(nonatomic,readwrite,assign)	int rowIndex;
+@property(nonatomic,readwrite,retain)	id value;
+@property(nonatomic,readwrite,assign)	UITableViewRowAnimation animation;
+
+-(void)setAnimationToIndex:(int)index ofArguments:(NSArray *)args;
+
+@end
 
 
-
+@class TiUITableViewRowProxy, TiUITableViewGroupSection;
 @interface TiUITableViewBase : TiUIView <UITableViewDelegate,UITableViewDataSource> 
 {
 @private

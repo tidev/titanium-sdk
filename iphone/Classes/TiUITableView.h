@@ -23,4 +23,7 @@
 	NSMutableDictionary * sectionIndexMap;
 }
 
+-(void)addRowWithTransaction:(TiUITableViewTransaction *)transaction;
+
+
 @end
