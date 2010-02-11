@@ -88,10 +88,15 @@ def main(args):
 	if iphone_version=="3.0":
 		iphone_version = "3.1"
 		sdks = prereq.get_sdks()
-		if sdks.index('3.1.3')!=-1:
+		try:
+			sdk.index('3.1.3')
 			iphone_version = "3.1.3"
-		elif sdks.index('3.1.2')!=-1:
-			iphone_version = "3.1.2"
+		except:
+			try:
+				sdk.index('3.1.2')
+				iphone_version = "3.1.2"
+			except:
+				pass
 	
 		print "[INFO] Detected iPhone SDK: %s (forcing this version)" % iphone_version
 	
