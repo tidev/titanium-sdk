@@ -17,6 +17,9 @@ extern NSString * const TiExceptionInvalidType;
 extern NSString * const TiExceptionNotEnoughArguments;
 extern NSString * const TiExceptionRangeError;
 
+//This is when a normally allowed command is not allowed (Say, adding a row to a table when it already is added elsewhere)
+extern NSString * const TiExceptionInternalInconsistency;
+
 //Should be rare, but also useful if arguments are used improperly.
 extern NSString * const TiExceptionInternalInconsistency;
 

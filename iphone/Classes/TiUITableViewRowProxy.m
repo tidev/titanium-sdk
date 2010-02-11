@@ -17,6 +17,23 @@
 @implementation TiUITableViewRowProxy
 @synthesize children;
 
+- (void) dealloc
+{
+	RELEASE_TO_NIL(children);
+	parent = nil; //NOT RETAINED BY ROW
+	[super dealloc];
+}
+
+- (void) replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify
+{
+	[super replaceValue:value forKey:key notification:notify];
+	if(notify && (parent != nil))
+	{
+		[parent row:self changedValue:value forKey:key];
+	}
+}
+
+
 -(TiUITableViewCell *)cellForTableView:(UITableView *)tableView
 {
 	NSString * indentifier = [TiUtils stringValue:[self valueForKey:@"rowClass"]];
@@ -77,8 +94,11 @@
 	return result;
 }
 
--(void)add:(TiViewProxy *)newChild
+-(void)add:(id)args
 {
+	ENSURE_ARG_COUNT(args,1);
+	TiViewProxy * newChild = [args objectAtIndex:0];
+
 	ENSURE_TYPE(newChild,TiViewProxy);
 	if (children==nil)
 	{
@@ -95,8 +115,11 @@
 	}
 }
 
--(void)remove:(TiViewProxy *)doomedChild
+-(void)remove:(id)args
 {
+	ENSURE_ARG_COUNT(args,1);
+	TiViewProxy * doomedChild = [args objectAtIndex:0];
+
 //TODO: If this isn't a tiviewproxy, do we care?
 	if (![children containsObject:doomedChild])
 	{
