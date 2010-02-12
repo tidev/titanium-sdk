@@ -98,10 +98,12 @@
 
 -(void)add:(id)args
 {
+	NSLog(@"added: %@",args);
 	ENSURE_ARG_COUNT(args,1);
 	TiViewProxy * newChild = [args objectAtIndex:0];
 
 	ENSURE_TYPE(newChild,TiViewProxy);
+
 	if (children==nil)
 	{
 		children = [[NSMutableArray alloc] initWithObjects:newChild,nil];
@@ -113,7 +115,8 @@
 
 	if ([self modelDelegate] != nil)
 	{
-		//TODO: propagate the change onscreen.
+		[(TiUITableViewCell *)[self modelDelegate] performSelectorOnMainThread:@selector(addChild:)
+				withObject:[newChild view] waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 	}
 }
 
@@ -128,12 +131,13 @@
 		return;
 	}
 	
-	[children removeObject:doomedChild];
-
-	if ([self modelDelegate] != nil)
+	if (([self modelDelegate] != nil) && [doomedChild viewAttached])
 	{
-		//TODO: propagate the change onscreen.
+		[(TiUITableViewCell *)[self modelDelegate] performSelectorOnMainThread:@selector(removeChild:)
+				withObject:[doomedChild view] waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 	}
+
+	[children removeObject:doomedChild];
 }
 
 
