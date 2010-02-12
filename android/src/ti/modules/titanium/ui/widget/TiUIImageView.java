@@ -2,11 +2,16 @@ package ti.modules.titanium.ui.widget;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
 import org.appcelerator.titanium.util.TiConfig;
@@ -15,7 +20,12 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiViewProxy;
 
 import ti.modules.titanium.filesystem.FileProxy;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.View.OnClickListener;
 
@@ -27,6 +37,12 @@ public class TiUIImageView extends TiUIView
 
 	private static final String EVENT_CLICK = "click";
 
+	private Timer timer;
+	private AnimationTask animationTask;
+	private Drawable[] drawables;
+	private boolean animating = false;
+	private boolean reverse = false;
+	
 	private class BgImageLoader extends TiBackgroundImageLoadTask
 	{
 
@@ -63,6 +79,198 @@ public class TiUIImageView extends TiUIView
 		return (TiImageView) nativeView;
 	}
 
+	public Bitmap createBitmap(InputStream stream)
+	{
+		Rect pad = new Rect();
+		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inScreenDensity = DisplayMetrics.DENSITY_HIGH;
+		return BitmapFactory.decodeResourceStream(null, null, stream, pad, opts);	
+	}
+	
+	public Drawable createImage(Object image)
+	{
+		if (image instanceof TiBlob) {
+			TiBlob blob = (TiBlob)image;
+			return new BitmapDrawable(createBitmap(new ByteArrayInputStream(blob.getBytes())));
+		} else if (image instanceof FileProxy) {
+			FileProxy file = (FileProxy)image;
+			try {
+				return new BitmapDrawable(createBitmap(file.getBaseFile().getInputStream()));
+			} catch (IOException e) {
+				Log.e(LCAT, "Error creating drawable from file: " + file.getBaseFile().getNativeFile().getName(), e);
+			}
+		} else if (image instanceof String) {
+			String url = proxy.getTiContext().resolveUrl((String)image);
+			TiBaseFile file = TiFileFactory.createTitaniumFile(proxy.getTiContext(), new String[] { url }, false);
+			try {
+				return new BitmapDrawable(createBitmap(file.getInputStream()));
+			} catch (IOException e) {
+				Log.e(LCAT, "Error creating drawable from path: " + image.toString(), e);
+			}
+		}
+		return null;
+	}
+	
+	public void setImage(final Drawable drawable)
+	{
+		if (drawable != null) {
+			if (!proxy.getTiContext().isUIThread()) {
+				proxy.getTiContext().getActivity().runOnUiThread(new Runnable(){
+					public void run() {
+						getView().setImageDrawable(drawable, false);
+					}
+				});
+			} else {
+				getView().setImageDrawable(drawable, false);
+			}
+		}
+	}
+	
+	public void setImages(final Object[] images)
+	{
+		proxy.getTiContext().getActivity().runOnUiThread(new Runnable(){
+			public void run() {
+				if (images == null) return;
+				
+				TiUIImageView.this.drawables = new Drawable[images.length];
+				for (int i = 0; i < images.length; i++) {
+					Drawable drawable = createImage(images[i]);
+					if (drawable != null) {
+						TiUIImageView.this.drawables[i] = drawable;
+					}
+				}
+				
+				if (images.length > 0) {
+					getView().setImageDrawable(drawables[0], false);
+					fireLoad("images");
+				}
+			}
+		});
+	}
+	
+	public double getDuration()
+	{
+		if (proxy.getDynamicValue("duration") != null) {
+			return TiConvert.toDouble(proxy.getDynamicValue("duration"));
+		}
+		
+		if (drawables != null) {
+			return drawables.length * 33;
+		}
+		return 100;
+	}
+	
+	private void fireLoad(String state)
+	{
+		TiDict data = new TiDict();
+		data.put("state", state);
+		proxy.fireEvent("load", data);
+	}
+	
+	private void fireStart()
+	{
+		TiDict data = new TiDict();
+		proxy.fireEvent("start", data);
+	}
+	
+	private void fireChange(int index)
+	{
+		TiDict data = new TiDict();
+		data.put("index", index);
+		proxy.fireEvent("change", data);
+	}
+	
+	private void fireStop()
+	{
+		TiDict data = new TiDict();
+		proxy.fireEvent("stop", data);
+	}
+	
+	private class AnimationTask extends TimerTask
+	{
+		public boolean started = false;
+		public boolean paused = false;
+		public int index = 0;
+		
+		@Override
+		public void run() {
+			animating = true;
+			if (!started) {
+				fireStart();
+				started = true;
+			}
+			
+			synchronized(this) {
+				if (!paused) {
+					if (index < drawables.length && index >= 0) {
+						setImage(drawables[index]);
+						if (!reverse) {
+							index++;
+						} else {
+							index--;
+						}
+					} else {
+						if (index < 0) {
+							index = drawables.length-1;
+						} else if (index >= drawables.length) {
+							index = 0;
+						}
+						setImage(drawables[index]);
+					}
+					fireChange(index);
+				}
+			}
+		}
+	}
+	
+	public void start()
+	{
+		if (!proxy.getTiContext().isUIThread()) {
+			proxy.getTiContext().getActivity().runOnUiThread(new Runnable() {
+				public void run() {
+					handleStart();
+				}
+			});
+		} else {
+			handleStart();
+		}
+	}
+	
+	//private AnimationDrawable animation;
+	public void handleStart()
+	{
+		int duration = (int) getDuration();
+		
+		timer = new Timer();
+		animationTask = new AnimationTask();
+		timer.schedule(animationTask, duration, duration);
+	}
+	
+	public void pause()
+	{
+		if (animationTask != null) {
+			synchronized(animationTask) {
+				if (animationTask != null) {
+					animationTask.paused = true;
+					animating = false;
+				}
+			}
+		}
+	}
+	
+	public void stop()
+	{
+		if (timer != null) {
+			timer.cancel();
+		}
+		timer = null;
+		animationTask = null;
+		animating = false;
+		
+		//animation.stop();
+		fireStop();
+	}
+	
 	@Override
 	public void processProperties(TiDict d)
 	{
@@ -75,22 +283,15 @@ public class TiUIImageView extends TiUIView
 			view.setCanScaleImage(TiConvert.toBoolean(d, "canScale"));
 		}
 		if (d.containsKey("image")) {
-			Object value = d.get("image");
-			if (value instanceof TiBlob) {
-				TiBlob blob = (TiBlob)value;
-				view.setImageDrawable(Drawable.createFromStream(
-					new ByteArrayInputStream(blob.getBytes()), "blob"));
-			} else if (value instanceof FileProxy) {
-				FileProxy file = (FileProxy)value;
-				try {
-					view.setImageDrawable(Drawable.createFromStream(
-						file.getBaseFile().getInputStream(), file.getBaseFile().getNativeFile().getName()));
-				} catch (IOException e) {
-					Log.e(LCAT, "Error setting drawable from file: " + file.getBaseFile().getNativeFile().getName(), e);
-				}
-			}
+			setImage(createImage(d.get("image")));
 		} else {
 			getProxy().internalSetDynamicValue("image", null, false);
+		}
+		if (d.containsKey("images")) {
+			Object o = d.get("images");
+			if (o instanceof Object[]) {
+				setImages((Object[])o);
+			}
 		}
 
 		super.processProperties(d);
@@ -106,10 +307,10 @@ public class TiUIImageView extends TiUIView
 		} else if (key.equals("url")) {
 			new BgImageLoader(getProxy().getTiContext(), null, null).load(TiConvert.toString(newValue));
 		} else if (key.equals("image")) {
-			if (newValue instanceof TiBlob) {
-				TiBlob blob = (TiBlob) newValue;
-				view.setImageDrawable(Drawable.createFromStream(
-					new ByteArrayInputStream(blob.getBytes()), "blob"));
+			setImage(createImage(newValue));
+		} else if (key.equals("images")) {
+			if (newValue instanceof Object[]) {
+				setImages((Object[])newValue);	
 			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
@@ -118,5 +319,23 @@ public class TiUIImageView extends TiUIView
 
 	public void onClick(View view) {
 		proxy.fireEvent(EVENT_CLICK, null);
+	}
+	
+	public boolean isAnimating() {
+		return animating;
+	}
+	
+	public boolean isReverse() {
+		return reverse;
+	}
+	
+	public void setReverse(boolean reverse) {
+		/*if (animationTask != null) {
+			synchronized(animationTask) {
+				this.reverse = reverse;
+			}
+		} else {
+			this.reverse = reverse;
+		}*/
 	}
 }

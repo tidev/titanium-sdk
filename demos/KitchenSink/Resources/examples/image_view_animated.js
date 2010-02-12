@@ -179,6 +179,7 @@ win.add(durationDown);
 var l = Titanium.UI.createLabel({
 	text:'Duration = 110 ms (re-start to apply)',
 	bottom:10,
+	backgroundColor: 'blue',
 	color:'white'
 });
 win.add(l);
