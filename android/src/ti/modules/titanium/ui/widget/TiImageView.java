@@ -147,10 +147,14 @@ public class TiImageView extends ViewGroup
 	}
 
 	public void setImageDrawable(Drawable d) {
+		setImageDrawable(d, true);
+	}
+	
+	public void setImageDrawable(Drawable d, boolean recycle) {
 		Drawable od = imageView.getDrawable();
 		if (od != null) {
 			od.setCallback(null);
-			if (od instanceof BitmapDrawable) {
+			if (od instanceof BitmapDrawable && recycle) {
 				((BitmapDrawable) od).getBitmap().recycle();
 			}
 		}

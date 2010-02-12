@@ -16,4 +16,32 @@ public class ImageViewProxy extends ViewProxy {
 	public TiUIView createView(Activity activity) {
 		return new TiUIImageView(this);
 	}
+	
+	private TiUIImageView getImageView() {
+		return (TiUIImageView)getView();
+	}
+	
+	public void start() {
+		getImageView().start();
+	}
+	
+	public void stop() {
+		getImageView().stop();
+	}
+	
+	public void pause() {
+		getImageView().pause();
+	}
+	
+	public boolean getAnimating() {
+		return getImageView().isAnimating();
+	}
+	
+	public boolean getReverse() {
+		return getImageView().isReverse();
+	}
+	
+	public void setReverse(boolean reverse) {
+		getImageView().setReverse(reverse);
+	}
 }
