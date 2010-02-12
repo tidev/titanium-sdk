@@ -28,7 +28,7 @@
 
 -(void)setAnimationToIndex:(int)index ofArguments:(NSArray *)args
 {
-	if ([args count]<index)
+	if ([args count]<=index)
 	{
 		return;
 	}

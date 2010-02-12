@@ -181,7 +181,7 @@ var tableViewProps =
 
 try
 {
-//	var tableView = tableview; //Titanium.UI.createTableView(tableViewProps);
+//	var tableView = Titanium.UI.createTableView();
 	
 
 	var tabGroup = Titanium.UI.createTabGroup();
@@ -193,17 +193,16 @@ try
 
 	var tab6 = Titanium.UI.createTab({icon:'images/KS_nav_phone.png',title:'Tab 6',badge:null});
 
+	tabX.open(Ti.UI.createWindow({url:'rawtest.js',backgroundColor:'669933'}),{animated:true});
+	tab6.open(Ti.UI.createWindow({url:'scrollable.js',backgroundColor:'669933'}));
 
+	tabGroup.addTab(tabX);
 	tabGroup.addTab(tab1);
 	tabGroup.addTab(tab2);
 	tabGroup.addTab(tab3);
-	tabGroup.addTab(tab6);
 	tabGroup.addTab(tab4);
-	tabGroup.addTab(tabX);
+	tabGroup.addTab(tab6);
 
-	tabX.open(Ti.UI.createWindow({url:'rawtest.js',backgroundColor:'669933'}),{animated:true});
-
-	tab6.open(Ti.UI.createWindow({url:'scrollable.js',backgroundColor:'669933'}));
 	
 	var tab1win = Ti.UI.createWindow({url:'subapp.js'});
 	var tab2win = Ti.UI.createWindow({url:'audio.js'});

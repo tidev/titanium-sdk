@@ -1,62 +1,52 @@
-try{
-	var corkDiv = Titanium.UI.createView({backgroundColor:'#000',opacity:1,borderRadius:9,height:30,width:200,bottom:20});
-	var corkLabel = Titanium.UI.createLabel({text:'Drag the photos',color:'white',font:{fontFamily:'marker felt',fontSize:15},textAlignment:'center'});
-	corkDiv.add(corkLabel);
-	
-var messagy = function(event){
-	corkLabel.setText('Value is now '+event.value);
-}
+var win = Titanium.UI.currentWindow;
 
+var tableview = Titanium.UI.createTableView();
 
-	Ti.UI.currentWindow.add(corkDiv);
-	
-	var controlly = Ti.UI.createSlider({top:50,left:5,width:200,height:50,min:0,max:10});
-//	controlly.setMin(0);
-//	controlly.setMax(10);
-	controlly.setThumbImage("images/KS_nav_platform.png");
-	controlly.setLeftTrackImage("images/BUTT_grn_off.png");
-	controlly.setRightTrackImage("images/BUTT_red_off.png");
-	controlly.addEventListener('change',messagy);
-	Ti.UI.currentWindow.add(controlly);
+win.add(tableview);
 
-	var optional = Ti.UI.createOptionDialog({title:'Thingy!'});
-	optional.show();
-
-	var spinny = Ti.UI.createActivityIndicator({width:50,height:50});
-	Ti.UI.currentWindow.add(spinny);
-
-	var a = Titanium.UI.createButton({
-		title:'Left',
-		width:75,
-		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED		
-	});
-	a.addEventListener('click',function(e){
-			var compy = Ti.UI.createEmailDialog();
-			compy.setSubject('The subject!');
-			compy.setToRecipients(['bhamon@appcelerator.com']);
-			compy.setCcRecipients(['blainhamon@mac.com']);
-			compy.setBarColor('red');
-			compy.open();
-		});
-	var b = Titanium.UI.createButton({
-		title:'Right',
-		width:75,
-		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED		
-	});
-	var flexSpace = Titanium.UI.createButton({
-		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
-	});
-	var fixedSpace = Titanium.UI.createButton({
-		systemButton:Titanium.UI.iPhone.SystemButton.FIXED_SPACE,
-		width:50
-	});
-	var tooly = Ti.UI.createToolbar({height:50,bottom:5,items:[flexSpace,a,fixedSpace,b,flexSpace]});
-	Ti.UI.currentWindow.add(tooly);
-
-
-
-}
-catch(EX)
+// loop through rows that use the same layout
+for (var i=0;i<20;i++)
 {
-	Ti.API.error("Error = "+EX);
+	// create a table view row object
+	var row = Titanium.UI.createTableViewRow();
+
+	Ti.API.info('row ' + row)
+	// custom row property
+	row.foo = '123';
+	row.title = 'Row #'+i;
+    
+	// create a button
+	var button = Titanium.UI.createButton({
+		right:5,
+		height:50,
+		width:100,
+		title:'Foo ' + i
+	});
+	row.add(button);
+	
+	// create an image 
+	var image = Titanium.UI.createView({
+		backgroundImage:'images/chat.png',
+		height:32,
+		width:32,
+		left:5
+	});
+//	row.add(image);
+	
+	var text = Titanium.UI.createLabel({
+		text:'This is a title',
+//		top:10,
+		left:10,
+//		height:20,
+		width:100,
+		color:'#700'
+	});
+	row.add(text);
+	
+	// create a row level event listener (support view events)
+//	row.addEventListener('swipe', swipeHandler);
+	
+	// add row
+	tableview.addRow(row);
 }
+
