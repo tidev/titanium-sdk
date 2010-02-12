@@ -63,6 +63,19 @@ NSArray * tableKeys = nil;
 
 #pragma mark Internal
 
+-(id<NSFastEnumeration>)validKeys
+{
+	if (tableKeys == nil) {
+		tableKeys = [[NSArray alloc] initWithObjects:@"template",
+					  @"rowHeight",@"backgroundColor",@"borderColor",
+					  @"marginTop",@"marginLeft",@"marginRight",@"marginBottom",
+					  @"sections",@"editing",@"moving",@"editable",
+					  @"search",@"filterAttribute",@"index",
+					  @"data",nil];
+	}
+	return tableKeys;
+}
+
 -(void)_configure
 {	
 	// initialize to FALSE values so you can access their values before invoking the first state change
@@ -105,17 +118,6 @@ NSArray * tableKeys = nil;
 
 #pragma mark Public APIs
 
--(TiUITableViewRowProxy *)prepareRow:(TiUITableViewRowProxy *)row
-{
-	ENSURE_TABLE_VIEW_ROW(row);
-	ENSURE_NIL_PARENT(row);
-	[row setParent:self];
-
-	if(data==nil)
-	{
-		data = [[NSMutableArray alloc] init];
-	}
-}
 
 - (NSNumber *) indexByName:(id)name
 {
@@ -133,33 +135,6 @@ NSArray * tableKeys = nil;
 	return [NSNumber numberWithInt:-1];
 }
 
-- (void) appendRow:(NSArray *)args
-{
-	[self addRow:args];
-}
-
-- (void) addRow:(NSArray *)args
-{
-	ENSURE_ARG_COUNT(args,1);
-
-	TiUITableViewRowProxy *newRow = [self prepareRow:[args objectAtIndex:0]];
-
-	[data addObject:newRow];
-
-	if ([self viewAttached])
-	{
-		TiUITableViewTransaction * transaction = [[TiUITableViewTransaction alloc] init];
-		[transaction setValue:newRow];
-		[transaction setAnimationToIndex:1 ofArguments:args];
-		[(TiUITableView *)[self view] performSelectorOnMainThread:@selector(addRowWithTransaction:) withObject:transaction waitUntilDone:NO];
-		[transaction release];
-	}
-}
-
-
-
-
-
 - (void) insertRowAfter:(NSArray *)args
 {
 	ENSURE_ARG_COUNT(args,2);
@@ -167,18 +142,10 @@ NSArray * tableKeys = nil;
 	int rowIndex = [[args objectAtIndex:0] intValue];
 	ENSURE_VALUE_RANGE(rowIndex,0,[data count]-1);
 
-	TiUITableViewRowProxy *newRow = [self prepareRow:[args objectAtIndex:1]];
+	TiUITableViewRowProxy *newRow = [args objectAtIndex:1];
+	ENSURE_TABLE_VIEW_ROW(newRow);
+
 	[data insertObject:newRow atIndex:rowIndex+1];
-
-	if ([self viewAttached])
-	{
-		TiUITableViewTransaction * transaction = [[TiUITableViewTransaction alloc] init];
-		[transaction setValue:newRow];
-		[transaction setAnimationToIndex:1 ofArguments:args];
-		[(TiUITableView *)[self view] performSelectorOnMainThread:@selector(addRowWithTransaction:) withObject:transaction waitUntilDone:NO];
-		[transaction release];
-	}
-
 	
 	[self enqueueAction:[NSArray arrayWithObjects:[NSNumber numberWithInt:rowIndex],newRow,VALUE_AT_INDEX_OR_NIL(args,2),nil]
 			withType:TiUITableViewDispatchInsertRowAfter];
@@ -245,6 +212,38 @@ NSArray * tableKeys = nil;
 	[data replaceObjectAtIndex:rowIndex withObject:newRow];
 	[self enqueueAction:[NSArray arrayWithObjects:[NSNumber numberWithInt:rowIndex],VALUE_AT_INDEX_OR_NIL(args,2),nil]
 			withType:TiUITableViewDispatchUpdateRow];
+}
+
+- (void) appendRow:(NSArray *)args
+{
+	[self addRow:args];
+}
+
+- (void) addRow:(NSArray *)args
+{
+	ENSURE_ARG_COUNT(args,1);
+
+	TiUITableViewRowProxy *newRow = [args objectAtIndex:0];
+	ENSURE_TABLE_VIEW_ROW(newRow);
+
+	if (data == nil)
+	{
+		data = [[NSMutableArray alloc] initWithObjects:newRow,nil];
+	}
+	else
+	{
+		[data addObject:newRow];
+	}
+
+
+	if ([self viewAttached])
+	{
+		TiUITableViewTransaction * transaction = [[TiUITableViewTransaction alloc] init];
+		[transaction setValue:newRow];
+		[transaction setAnimationToIndex:1 ofArguments:args];
+		[(TiUITableView *)[self view] performSelectorOnMainThread:@selector(addRowWithTransaction:) withObject:transaction waitUntilDone:NO];
+		[transaction release];
+	}
 }
 
 - (void) scrollToIndex:(NSArray *)args
