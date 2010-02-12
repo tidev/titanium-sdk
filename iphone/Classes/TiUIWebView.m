@@ -155,7 +155,8 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	}
 	else
 	{
-		[[self webview] loadData:[html dataUsingEncoding:NSUTF8StringEncoding] MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:nil];
+		NSURL *baseurl = [[[self.proxy executionContext] host] baseURL];
+		[[self webview] loadData:[html dataUsingEncoding:NSUTF8StringEncoding] MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:baseurl];
 	}
 	[[self webview] setScalesPageToFit:NO];
 	[html release];
