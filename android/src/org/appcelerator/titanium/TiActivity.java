@@ -6,16 +6,17 @@
  */
 package org.appcelerator.titanium;
 
+import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.view.TiWindowProxy;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -29,6 +30,8 @@ public class TiActivity extends Activity
 	protected TitaniumCompositeLayout layout;
 	protected TiActivitySupportHelper supportHelper;
 
+	protected Handler handler;
+
 	public TiActivity() {
 		super();
 	}
@@ -39,6 +42,7 @@ public class TiActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         final TiActivity me = this;
+        handler = new Handler();
 
         layout = new TitaniumCompositeLayout(this);
 
@@ -79,13 +83,13 @@ public class TiActivity extends Activity
 
         if (proxy != null) {
         	final TiWindowProxy fproxy = proxy;
-        	runOnUiThread(new Runnable(){
+	       handler.post(new Runnable(){
 
-				@Override
-				public void run() {
-		        	fproxy.handlePostOpen(me);
-				}});
-        }
+					@Override
+					public void run() {
+			        	fproxy.handlePostOpen(me);
+					}});
+         }
     }
 
     public TiApplication getTiApp() {
@@ -119,15 +123,15 @@ public class TiActivity extends Activity
 		supportHelper.onActivityResult(requestCode, resultCode, data);
 	}
 
-	@Override
-	public void finish()
-	{
-		Intent intent = getIntent();
-		if (intent != null) {
-			if (intent.getBooleanExtra("finishRoot", false)) {
-				((TiApplication) getApplication()).getRootActivity().finish();
-			}
-		}
-		super.finish();
-	}
+//	@Override
+//	public void finish()
+//	{
+//		Intent intent = getIntent();
+//		if (intent != null) {
+//			if (intent.getBooleanExtra("finishRoot", false)) {
+//				((TiApplication) getApplication()).getRootActivity().finish();
+//			}
+//		}
+//		super.finish();
+//	}
 }
