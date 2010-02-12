@@ -49,7 +49,12 @@ public class WindowProxy extends TiWindowProxy
 		Intent intent = new Intent(activity, TiActivity.class);
 		fillIntent(intent);
 
-		if (requiresNewActivity(props))
+		boolean newActivity = requiresNewActivity(props);
+		if (!newActivity && options != null && options.containsKey("tabOpen")) {
+			newActivity = TiConvert.toBoolean(options,"tabOpen");
+		}
+
+		if (newActivity)
 		{
 			intent.putExtra("finishRoot", activity.isTaskRoot());
 			getTiContext().getTiApp().registerProxy(this);

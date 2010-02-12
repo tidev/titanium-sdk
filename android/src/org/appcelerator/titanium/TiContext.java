@@ -159,6 +159,10 @@ public class TiContext implements TiEvaluator
 		return result;
 	}
 
+	public String getBaseUrl() {
+		return baseUrl;
+	}
+
 	// Javascript Support
 
 	public Object evalFile(String filename) throws IOException {

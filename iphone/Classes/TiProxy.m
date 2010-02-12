@@ -33,7 +33,7 @@ SEL SetterForKrollProperty(NSString * key)
 	return NSSelectorFromString(method);
 }
 
-void DoProxyDelegateChangedValuesWithProxy(NSObject<TiProxyDelegate> * target, NSString * key, id oldValue, id newValue, TiProxy * proxy)
+void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> * target, NSString * key, id oldValue, id newValue, TiProxy * proxy)
 {
 	// default implementation will simply invoke the setter property for this object
 	// on the main UI thread
@@ -56,7 +56,7 @@ void DoProxyDelegateChangedValuesWithProxy(NSObject<TiProxyDelegate> * target, N
 	}
 }
 
-void DoProxyDelegateReadValuesWithKeysFromProxy(NSObject<TiProxyDelegate> * target, id<NSFastEnumeration> keys, TiProxy * proxy)
+void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target, id<NSFastEnumeration> keys, TiProxy * proxy)
 {
 	BOOL isMainThread = [NSThread isMainThread];
 	NSNull * nullObject = [NSNull null];
