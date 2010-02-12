@@ -12,12 +12,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiProxyListener;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
 
 import android.content.Context;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnFocusChangeListener;
 import android.view.inputmethod.InputMethodManager;
 
@@ -46,6 +48,32 @@ public abstract class TiUIView
 		this.layoutParams = new TitaniumCompositeLayout.TitaniumCompositeLayoutParams();
 	}
 
+	public void add(TiUIView child)
+	{
+		if (child != null) {
+			View cv = child.getNativeView();
+			if (cv != null) {
+				View nv = getNativeView();
+				if (nv instanceof ViewGroup) {
+					((ViewGroup) nv).addView(cv, child.getLayoutParams());
+				}
+			}
+		}
+	}
+
+	public void remove(TiUIView child)
+	{
+		if (child != null) {
+			View cv = child.getNativeView();
+			if (cv != null) {
+				View nv = getNativeView();
+				if (nv instanceof ViewGroup) {
+					((ViewGroup) nv).removeView(cv);
+				}
+			}
+		}
+	}
+
 	public TiViewProxy getProxy() {
 		return proxy;
 	}
@@ -64,10 +92,10 @@ public abstract class TiUIView
 	public int getZIndex() {
 		return zIndex;
 	}
-	public View getNativeView() {
+	protected View getNativeView() {
 		return nativeView;
 	}
-	public void setNativeView(View view) {
+	protected void setNativeView(View view) {
 		if (view.getId() == View.NO_ID) {
 			view.setId(idGenerator.incrementAndGet());
 		}
@@ -161,6 +189,19 @@ public abstract class TiUIView
 	        	imm.hideSoftInputFromWindow(nativeView.getWindowToken(), 0);
 	        }
 			nativeView.clearFocus();
+		}
+	}
+
+	public void release()
+	{
+		Log.i(LCAT, "Release: " + getClass().getSimpleName());
+		View nv = getNativeView();
+		if (nv != null) {
+			if (nv instanceof ViewGroup) {
+				ViewGroup vg = (ViewGroup) nv;
+				Log.d(LCAT, "Group has: " + vg.getChildCount());
+				vg.removeAllViews();
+			}
 		}
 	}
 }

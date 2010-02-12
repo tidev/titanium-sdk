@@ -4,13 +4,14 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package org.appcelerator.titanium.view;
+package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.os.Message;
@@ -43,12 +44,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 		inTab = false;
 	}
 
-
 	@Override
 	public TiUIView createView(Activity activity) {
-		return null;
+		throw new IllegalStateException("Windows are created during open");
 	}
-
 
 	@Override
 	public boolean handleMessage(Message msg)
@@ -74,6 +73,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	public void open(TiDict options)
 	{
+		if (opened) {
+			return;
+		}
+
 		if (getTiContext().isUIThread()) {
 			handleOpen(options);
 			return;
@@ -87,6 +90,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	public void close(TiDict options)
 	{
+		if (!opened) {
+			return;
+		}
 		if (getTiContext().isUIThread()) {
 			handleClose(options);
 			return;

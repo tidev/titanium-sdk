@@ -6,13 +6,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.view.TiUIView;
-import org.appcelerator.titanium.view.TiWindowProxy;
 
 import ti.modules.titanium.ui.widget.TiUITabGroup;
 import android.app.Activity;

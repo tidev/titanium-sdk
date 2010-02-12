@@ -76,7 +76,8 @@ public class TiTabActivity extends ActivityGroup
 		        	proxy.handlePostOpen(me);
 				}
 			});
-        	layout.addView(tg.getNativeView());
+        	//TODO Address
+        	//layout.addView(tg.getNativeView());
         }
 	}
 

@@ -6,19 +6,16 @@ import java.util.ArrayList;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
-import org.appcelerator.titanium.view.TiViewProxy;
-import org.appcelerator.titanium.view.TiWindowProxy;
 import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 
 /*
  * @interface TiUIWindowProxy : TiWindowProxy
@@ -47,11 +44,19 @@ public class WindowProxy extends TiWindowProxy
 	ArrayList<TiViewProxy> views;
 	TiViewProxy activeView;
 	WeakReference<Activity> weakActivity;
+	String windowId;
 
 	public WindowProxy(TiContext tiContext, Object[] args)
 	{
 		super(tiContext, args);
 	}
+
+
+	@Override
+	public TiUIView getView(Activity activity) {
+		throw new IllegalStateException("call to getView on a Window");
+	}
+
 
 	@Override
 	protected void handleOpen(TiDict options)
@@ -62,7 +67,7 @@ public class WindowProxy extends TiWindowProxy
 		TiDict props = getDynamicProperties();
 		Activity activity = getTiContext().getActivity();
 
-		if (requiresActivity(props))
+		if (requiresNewActivity(props))
 		{
 			Intent intent = new Intent(activity, TiActivity.class);
 
@@ -82,13 +87,21 @@ public class WindowProxy extends TiWindowProxy
 
 			getTiContext().getActivity().startActivity(intent);
 		} else {
-			TiUIView v = getView(getTiContext().getActivity());
-			getTiContext().getActivity().addContentView(v.getNativeView(),
-					new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+			Intent intent = new Intent(activity, TiActivity.class);
+
+			if (props.containsKey("url")) {
+				intent.putExtra("url", TiConvert.toString(props, "url"));
+			}
+
+			//intent.putExtra("finishRoot", activity.isTaskRoot());
+			intent.putExtra("proxyId", proxyId);
+			getTiContext().getTiApp().registerProxy(this);
+
+			windowId = getTiContext().getRootActivity().openWindow(intent);
 		}
 	}
 
-	private boolean requiresActivity(TiDict options)
+	private boolean requiresNewActivity(TiDict options)
 	{
 		boolean activityRequired = false;
 
@@ -108,45 +121,32 @@ public class WindowProxy extends TiWindowProxy
 		TiActivity tia = (TiActivity) activity;
 		if (tia != null) {
 			weakActivity = new WeakReference<Activity>(activity);
-			getView(activity);
+			view = new TiUIWindow(this, (TiActivity) activity);
+			realizeViews(activity, view);
+			getTiContext().getRootActivity().addWindow(windowId, view.getLayoutParams());
 		}
+		opened = true;
 	}
 
 	@Override
 	protected void handleClose(TiDict options)
 	{
+		Log.i(LCAT, "handleClose");
 		Activity activity = null;
 		if (weakActivity != null) {
 			activity = weakActivity.get();
 		}
-		if (activity != null) {
+		if (windowId == null) {
 			activity.finish();
 			weakActivity = null;
 			this.clearView();
 		} else {
-			TiUIView tiv = peekView();
-			if (tiv != null) {
-				View v = tiv.getNativeView();
-				if (v != null) {
-					int vid = v.getId();
-
-					View mv = getTiContext().getActivity().findViewById(vid);
-					if (mv != null) {
-						Log.i(LCAT, "WE HERE");
-					}
-				}
-			}
+			getTiContext().getRootActivity().closeWindow(windowId);
+			releaseViews();
+			windowId = null;
+			view = null;
 		}
-	}
-
-	@Override
-	public TiUIView createView(Activity activity)
-	{
-		if (activity instanceof TiActivity) {
-			return new TiUIWindow(this, (TiActivity) activity);
-		} else {
-			return new TiUIWindow(this, null);
-		}
+		opened = false;
 	}
 
 	public void addView(TiViewProxy view)

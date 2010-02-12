@@ -180,7 +180,7 @@ public class TiTableViewCustomItem extends TiBaseTableViewItem
 					d.params.optionWidth = resolveInteger("width", rLayout, tLayout);
 					d.params.optionHeight = resolveInteger("height", rLayout, tLayout);
 					d.params.optionZIndex = resolveInteger("zIndex", rLayout, tLayout);
-					d.params.index = i++;
+					//d.params.index = i++;
 
 					items.add(d);
 				}
