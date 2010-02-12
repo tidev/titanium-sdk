@@ -23,4 +23,8 @@ public class _2DMatrixProxy extends TiProxy
 	public void scale(double scaleFactor) {
 
 	}
+
+	public void rotate(double amount) {
+
+	}
 }

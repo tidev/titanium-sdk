@@ -121,7 +121,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		if (options != null) {
 			if (options.containsKey("fullscreen") ||
-					options.containsKey("navBarHidden"))
+					options.containsKey("navBarHidden") ||
+					options.containsKey("tabOben"))
 			{
 				activityRequired = true;
 			}

@@ -14,6 +14,7 @@ import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiProxyListener;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
 
@@ -27,6 +28,7 @@ public abstract class TiUIView
 	implements TiProxyListener, OnFocusChangeListener
 {
 	private static final String LCAT = "TiUIView";
+	private static final boolean DBG = TiConfig.LOGD;
 
 	private static AtomicInteger idGenerator;
 
@@ -151,7 +153,11 @@ public abstract class TiUIView
 		// Default background processing.
 		// Prefer image to color.
 		if (d.containsKey("backgroundImage")) {
-			throw new IllegalArgumentException("Please Implement.");
+			String path = TiConvert.toString(d, "backgroundImage");
+			if (DBG) {
+				Log.d(LCAT, "backgroundImage: " + path);
+			}
+			//throw new IllegalArgumentException("Please Implement.");
 		} else if (d.containsKey("backgroundColor")) {
 			nativeView.setBackgroundDrawable(TiConvert.toColorDrawable(d, "backgroundColor"));
 		}
