@@ -34,6 +34,7 @@
 	// link our window to the tab
 	[window _associateTab:self navBar:self.navigationController tab:tab];
 	self.view = [window view];
+//	[window _tabBeforeFocus];
 }
 
 -(void)viewDidUnload

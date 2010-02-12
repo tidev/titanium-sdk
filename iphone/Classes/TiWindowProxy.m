@@ -179,6 +179,16 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	[[[TitaniumApp app] controller] windowUnfocused:self];
 }
 
+-(void)_tabBeforeFocus
+{
+	[[[TitaniumApp app] controller] windowBeforeFocused:self];
+}
+
+-(void)_tabBeforeBlur
+{
+	[[[TitaniumApp app] controller] windowBeforeUnfocused:self];
+}
+
 -(void)setController:(UIViewController*)controller_
 {
 	RELEASE_TO_NIL(controller);
