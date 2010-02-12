@@ -1,7 +1,7 @@
 package ti.modules.titanium.ui.widget;
 
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
-import org.appcelerator.titanium.view.TiViewProxy;
 
 public class TiUITab extends TiUIView {
 

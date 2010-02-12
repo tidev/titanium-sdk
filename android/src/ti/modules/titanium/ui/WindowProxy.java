@@ -6,52 +6,36 @@ import java.util.ArrayList;
 import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
-import org.appcelerator.titanium.view.TiViewProxy;
-import org.appcelerator.titanium.view.TiWindowProxy;
 import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 
-/*
- * @interface TiUIWindowProxy : TiWindowProxy
-{
-@private
-	NSURL *url;
-	NSMutableArray *views;
-	TiViewProxy *activeView;
-	KrollBridge *context;
-	BOOL hasToolbar;
-	BOOL focused;
-}
-
--(void)addView:(id)args;
--(void)removeView:(id)args;
--(void)showView:(id)args;
-
-
- */
 public class WindowProxy extends TiWindowProxy
 {
 	private static final String LCAT = "WindowProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	private String url;
 	ArrayList<TiViewProxy> views;
-	TiViewProxy activeView;
 	WeakReference<Activity> weakActivity;
+	String windowId;
 
 	public WindowProxy(TiContext tiContext, Object[] args)
 	{
 		super(tiContext, args);
 	}
+
+	@Override
+	public TiUIView getView(Activity activity) {
+		throw new IllegalStateException("call to getView on a Window");
+	}
+
 
 	@Override
 	protected void handleOpen(TiDict options)
@@ -62,45 +46,19 @@ public class WindowProxy extends TiWindowProxy
 		TiDict props = getDynamicProperties();
 		Activity activity = getTiContext().getActivity();
 
-		if (requiresActivity(props))
+		Intent intent = new Intent(activity, TiActivity.class);
+		fillIntent(intent);
+
+		if (requiresNewActivity(props))
 		{
-			Intent intent = new Intent(activity, TiActivity.class);
-
-			if (props.containsKey("fullscreen")) {
-				intent.putExtra("fullscreen", TiConvert.toBoolean(props, "fullscreen"));
-			}
-			if (props.containsKey("navBarHidden")) {
-				intent.putExtra("navBarHidden", TiConvert.toBoolean(props, "navBarHidden"));
-			}
-			if (props.containsKey("url")) {
-				intent.putExtra("url", TiConvert.toString(props, "url"));
-			}
-
 			intent.putExtra("finishRoot", activity.isTaskRoot());
-			intent.putExtra("proxyId", proxyId);
 			getTiContext().getTiApp().registerProxy(this);
 
 			getTiContext().getActivity().startActivity(intent);
 		} else {
-			TiUIView v = getView(getTiContext().getActivity());
-			getTiContext().getActivity().addContentView(v.getNativeView(),
-					new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+			getTiContext().getTiApp().registerProxy(this);
+			windowId = getTiContext().getRootActivity().openWindow(intent);
 		}
-	}
-
-	private boolean requiresActivity(TiDict options)
-	{
-		boolean activityRequired = false;
-
-		if (options != null) {
-			if (options.containsKey("fullscreen") ||
-					options.containsKey("navBarHidden"))
-			{
-				activityRequired = true;
-			}
-		}
-
-		return activityRequired;
 	}
 
 	public void handlePostOpen(Activity activity)
@@ -108,45 +66,32 @@ public class WindowProxy extends TiWindowProxy
 		TiActivity tia = (TiActivity) activity;
 		if (tia != null) {
 			weakActivity = new WeakReference<Activity>(activity);
-			getView(activity);
+			view = new TiUIWindow(this, (TiActivity) activity);
+			realizeViews(activity, view);
+			getTiContext().getRootActivity().addWindow(windowId, view.getLayoutParams());
 		}
+		opened = true;
 	}
 
 	@Override
 	protected void handleClose(TiDict options)
 	{
+		Log.i(LCAT, "handleClose");
 		Activity activity = null;
 		if (weakActivity != null) {
 			activity = weakActivity.get();
 		}
-		if (activity != null) {
+		if (windowId == null) {
 			activity.finish();
 			weakActivity = null;
 			this.clearView();
 		} else {
-			TiUIView tiv = peekView();
-			if (tiv != null) {
-				View v = tiv.getNativeView();
-				if (v != null) {
-					int vid = v.getId();
-
-					View mv = getTiContext().getActivity().findViewById(vid);
-					if (mv != null) {
-						Log.i(LCAT, "WE HERE");
-					}
-				}
-			}
+			getTiContext().getRootActivity().closeWindow(windowId);
+			releaseViews();
+			windowId = null;
+			view = null;
 		}
-	}
-
-	@Override
-	public TiUIView createView(Activity activity)
-	{
-		if (activity instanceof TiActivity) {
-			return new TiUIWindow(this, (TiActivity) activity);
-		} else {
-			return new TiUIWindow(this, null);
-		}
+		opened = false;
 	}
 
 	public void addView(TiViewProxy view)

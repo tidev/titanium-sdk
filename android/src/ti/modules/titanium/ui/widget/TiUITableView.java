@@ -9,8 +9,8 @@ package ti.modules.titanium.ui.widget;
 import java.util.concurrent.Semaphore;
 
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
-import org.appcelerator.titanium.view.TiViewProxy;
 import org.json.JSONObject;
 
 import ti.modules.titanium.ui.widget.tableview.TiTableView;

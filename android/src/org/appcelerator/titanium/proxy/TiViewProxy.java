@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package org.appcelerator.titanium.view;
+package org.appcelerator.titanium.proxy;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -17,15 +17,14 @@ import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.view.TitaniumCompositeLayout;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
 
-import ti.modules.titanium.ui.TiUIWindow;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-import android.view.View;
-import android.view.ViewGroup;
 
 public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 {
@@ -61,7 +60,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	private int opacity;
 	private String bgColor; // We've spelled out background in other places.
 
-	private TiUIView view;
+	protected TiUIView view;
 
 	public TiViewProxy(TiContext tiContext, Object[] args)
 	{
@@ -137,6 +136,9 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	}
 
 	public void clearView() {
+		if (view != null) {
+			view.release();
+		}
 		view = null;
 	}
 
@@ -168,41 +170,65 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 			}
 
 			view = createView(activity);
-			modelListener = view;
-
-			// Use a copy so bundle can be modified as it passes up the inheritance
-			// tree. Allows defaults to be added and keys removed.
-
-			modelListener.processProperties(dynprops != null ? new TiDict(dynprops) : new TiDict());
-
-			View nativeView = view.getNativeView();
-			if (nativeView != null) {
-				Log.e(LCAT, "native view type: " + nativeView.getClass().getSimpleName());
-			}
-//			if (view instanceof TiUIWindow) {
-//				nativeView = ((TiUIWindow) view).getLayout();
-//			}
-			if (nativeView instanceof ViewGroup) {
-				ViewGroup vg = (ViewGroup) nativeView;
-				if (children != null) {
-					int i = 0;
-					for(TiViewProxy p : children) {
-						TiUIView v = p.getView(activity);
-						v.setParent(this);
-						TitaniumCompositeLayout.TitaniumCompositeLayoutParams params = v.getLayoutParams();
-						// the index needs to be set. It's consulted as a last resort when considering
-						// zIndex
-						params.index = i++;
-						vg.addView(v.getNativeView(), params);
-					}
-				}
-			} else {
-				if (children != null && children.size() > 0) {
-					Log.w(LCAT, "Children added to non ViewGroup parent ignored.");
-				}
-			}
+			realizeViews(activity, view);
 		}
 		return view;
+	}
+
+	public void realizeViews(Activity activity, TiUIView view)
+	{
+
+		modelListener = view;
+		modelListener.processProperties(dynprops != null ? new TiDict(dynprops) : new TiDict());
+
+		// Use a copy so bundle can be modified as it passes up the inheritance
+		// tree. Allows defaults to be added and keys removed.
+
+
+		if (children != null) {
+			for (TiViewProxy p : children) {
+				TiUIView cv = p.getView(activity);
+				view.add(cv);
+			}
+		}
+
+//		View nativeView = view.getNativeView();
+//		if (nativeView != null) {
+//			Log.e(LCAT, "native view type: " + nativeView.getClass().getSimpleName());
+//		}
+//		if (nativeView instanceof ViewGroup) {
+//			ViewGroup vg = (ViewGroup) nativeView;
+//			if (children != null) {
+//				int i = 0;
+//				for(TiViewProxy p : children) {
+//					TiUIView v = p.getView(activity);
+//					Log.e(LCAT, "attaching: " + v.getClass().getSimpleName());
+//
+//					v.setParent(this);
+//					TitaniumCompositeLayout.TitaniumCompositeLayoutParams params = v.getLayoutParams();
+//					// the index needs to be set. It's consulted as a last resort when considering
+//					// zIndex
+//					params.index = i++;
+//					Log.w(LCAT, "native view for: " + v.getNativeView().getId());
+//					vg.addView(v.getNativeView(), params);
+//				}
+//			}
+//		} else {
+//			if (children != null && children.size() > 0) {
+//				Log.w(LCAT, "Children added to non ViewGroup parent ignored.");
+//			}
+//		}
+	}
+
+	public void releaseViews() {
+		if (view != null) {
+			if  (children != null) {
+				for(TiViewProxy p : children) {
+					p.releaseViews();
+				}
+			}
+			view.release();
+		}
 	}
 
 	public abstract TiUIView createView(Activity activity);
@@ -227,20 +253,26 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		//TODO zOrder
 	}
 
-	public void handleAdd(TiViewProxy child) {
-		View nativeView = view.getNativeView();
-		if (nativeView instanceof ViewGroup) {
-			ViewGroup vg = (ViewGroup) nativeView;
-			TiUIView v = child.getView(getTiContext().getActivity());
-			v.setParent(this);
-			TitaniumCompositeLayoutParams params = v.getLayoutParams();
-			int pos = children.size();
-			params.index = pos;
-			vg.addView(v.nativeView, params);
-			children.add(child);
-		} else {
-			Log.w(LCAT, "This view is not a ViewGroup, ignoring request to add");
+	public void handleAdd(TiViewProxy child)
+	{
+		children.add(child);
+		if (view != null) {
+			TiUIView cv = child.getView(getTiContext().getActivity());
+			view.add(cv);
 		}
+//		View nativeView = view.getNativeView();
+//		if (nativeView instanceof ViewGroup) {
+//			ViewGroup vg = (ViewGroup) nativeView;
+//			TiUIView v = child.getView(getTiContext().getActivity());
+//			v.setParent(this);
+//			TitaniumCompositeLayoutParams params = v.getLayoutParams();
+//			int pos = children.size();
+//			params.index = pos;
+//			vg.addView(v.nativeView, params);
+//			children.add(child);
+//		} else {
+//			Log.w(LCAT, "This view is not a ViewGroup, ignoring request to add");
+//		}
 	}
 
 	public void remove(TiViewProxy child)
@@ -264,20 +296,26 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 
 	public void handleRemove(TiViewProxy child)
 	{
-		View nativeView = view.getNativeView();
-		if (nativeView instanceof ViewGroup) {
-			ViewGroup vg = (ViewGroup) nativeView;
-			TiUIView v = child.peekView();
-			if (v != null) {
-				v.setParent(null);
-				vg.removeView(v.nativeView);
-				if (children != null) {
-					children.remove(child);
-				}
+		if (children != null) {
+			children.remove(child);
+			if (view != null) {
+				view.remove(child.peekView());
 			}
-		} else {
-			Log.w(LCAT, "This view is not a ViewGroup, ignoring request to add");
 		}
+//		View nativeView = view.getNativeView();
+//		if (nativeView instanceof ViewGroup) {
+//			ViewGroup vg = (ViewGroup) nativeView;
+//			TiUIView v = child.peekView();
+//			if (v != null) {
+//				v.setParent(null);
+//				vg.removeView(v.nativeView);
+//				if (children != null) {
+//					children.remove(child);
+//				}
+//			}
+//		} else {
+//			Log.w(LCAT, "This view is not a ViewGroup, ignoring request to add");
+//		}
 
 	}
 

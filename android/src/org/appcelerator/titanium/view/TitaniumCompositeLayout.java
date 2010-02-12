@@ -9,6 +9,8 @@ package org.appcelerator.titanium.view;
 import java.util.Comparator;
 import java.util.TreeSet;
 
+import org.appcelerator.titanium.util.Log;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -60,6 +62,8 @@ public class TitaniumCompositeLayout extends ViewGroup
 						result = -1;
 					} else if (p1.index > p2.index) {
 						result = 1;
+					} else {
+						throw new IllegalStateException("Ambiguous Z-Order");
 					}
 				}
 
@@ -79,12 +83,24 @@ public class TitaniumCompositeLayout extends ViewGroup
 		super(context, attrs, defStyle);
 	}
 
-	public void onChildViewAdded(View arg0, View arg1) {
+	public void onChildViewAdded(View parent, View child) {
 		needsSort = true;
+		if (parent != null && child != null) {
+			Log.i("LAYOUT", "Attaching: " + child.getClass().getSimpleName() + " to " + parent.getClass().getSimpleName());
+		}
+		TitaniumCompositeLayoutParams params = (TitaniumCompositeLayoutParams)child.getLayoutParams();
+		if (params.index == Integer.MIN_VALUE) {
+			params.index = getChildCount()-1;
+		}
 	}
 
-	public void onChildViewRemoved(View arg0, View arg1) {
+	public void onChildViewRemoved(View parent, View child) {
 		needsSort = true;
+		Log.i("LAYOUT", "Removing: " + child.getClass().getSimpleName() + " from " + parent.getClass().getSimpleName());
+		TitaniumCompositeLayoutParams params = (TitaniumCompositeLayoutParams)child.getLayoutParams();
+		if (params.index == Integer.MIN_VALUE) {
+			params.index = Integer.MIN_VALUE;
+		}
 	}
 
 	@Override
@@ -252,7 +268,7 @@ public class TitaniumCompositeLayout extends ViewGroup
 
 	public static class TitaniumCompositeLayoutParams extends LayoutParams
 	{
-		public int index;
+		protected int index;
 
 		public Integer optionZIndex;
 		public Integer optionLeft;
@@ -270,6 +286,8 @@ public class TitaniumCompositeLayout extends ViewGroup
 
 		public TitaniumCompositeLayoutParams() {
 			super(WRAP_CONTENT, WRAP_CONTENT);
+
+			index = Integer.MIN_VALUE;
 		}
 	}
 }
