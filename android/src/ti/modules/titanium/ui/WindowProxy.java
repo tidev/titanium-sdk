@@ -68,7 +68,9 @@ public class WindowProxy extends TiWindowProxy
 			weakActivity = new WeakReference<Activity>(activity);
 			view = new TiUIWindow(this, (TiActivity) activity);
 			realizeViews(activity, view);
-			getTiContext().getRootActivity().addWindow(windowId, view.getLayoutParams());
+			if (tab == null) {
+				getTiContext().getRootActivity().addWindow(windowId, view.getLayoutParams());
+			}
 		}
 		opened = true;
 	}

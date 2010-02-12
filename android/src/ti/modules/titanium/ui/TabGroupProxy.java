@@ -11,7 +11,6 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -20,9 +19,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Message;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.TabHost.TabContentFactory;
 import android.widget.TabHost.TabSpec;
 
 public class TabGroupProxy extends TiWindowProxy

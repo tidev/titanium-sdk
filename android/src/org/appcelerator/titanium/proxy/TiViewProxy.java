@@ -18,8 +18,6 @@ import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.TiUIView;
-import org.appcelerator.titanium.view.TitaniumCompositeLayout;
-import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
 
 import android.app.Activity;
 import android.content.Context;
@@ -260,19 +258,6 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 			TiUIView cv = child.getView(getTiContext().getActivity());
 			view.add(cv);
 		}
-//		View nativeView = view.getNativeView();
-//		if (nativeView instanceof ViewGroup) {
-//			ViewGroup vg = (ViewGroup) nativeView;
-//			TiUIView v = child.getView(getTiContext().getActivity());
-//			v.setParent(this);
-//			TitaniumCompositeLayoutParams params = v.getLayoutParams();
-//			int pos = children.size();
-//			params.index = pos;
-//			vg.addView(v.nativeView, params);
-//			children.add(child);
-//		} else {
-//			Log.w(LCAT, "This view is not a ViewGroup, ignoring request to add");
-//		}
 	}
 
 	public void remove(TiViewProxy child)
@@ -302,21 +287,6 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 				view.remove(child.peekView());
 			}
 		}
-//		View nativeView = view.getNativeView();
-//		if (nativeView instanceof ViewGroup) {
-//			ViewGroup vg = (ViewGroup) nativeView;
-//			TiUIView v = child.peekView();
-//			if (v != null) {
-//				v.setParent(null);
-//				vg.removeView(v.nativeView);
-//				if (children != null) {
-//					children.remove(child);
-//				}
-//			}
-//		} else {
-//			Log.w(LCAT, "This view is not a ViewGroup, ignoring request to add");
-//		}
-
 	}
 
 	public void show(TiDict options)

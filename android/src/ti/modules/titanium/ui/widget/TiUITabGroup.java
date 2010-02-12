@@ -91,8 +91,5 @@ public class TiUITabGroup extends TiUIView
 
 		tabChangeEventData = ((TabGroupProxy) proxy).buildFocusEvent(id, lastTabId);
 		lastTabId = id;
-
-		onFocusChange(getNativeView(), false);
-		onFocusChange(getNativeView(), true);
 	}
 }
