@@ -57,6 +57,7 @@ public class TiUITabGroup extends TiUIView
         tabHost.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor("#ff1a1a1a")));
 
 		setNativeView(tabHost);
+		activity.getLayout().addView(tabHost);
 
   		lastTabId = null;
 	}

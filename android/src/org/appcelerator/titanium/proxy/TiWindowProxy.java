@@ -6,14 +6,17 @@
  */
 package org.appcelerator.titanium.proxy;
 
+import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Message;
 
 public abstract class TiWindowProxy extends TiViewProxy
@@ -111,6 +114,47 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public TiViewProxy getTabProxy() {
 		return this.tab;
 	}
+
+	protected boolean requiresNewActivity(TiDict options)
+	{
+		boolean activityRequired = false;
+
+		if (options != null) {
+			if (options.containsKey("fullscreen") ||
+					options.containsKey("navBarHidden"))
+			{
+				activityRequired = true;
+			}
+		}
+
+		return activityRequired;
+	}
+
+	protected void fillIntent(Intent intent)
+	{
+		TiDict props = getDynamicProperties();
+
+		if (requiresNewActivity(props))
+		{
+			if (props.containsKey("fullscreen")) {
+				intent.putExtra("fullscreen", TiConvert.toBoolean(props, "fullscreen"));
+			}
+			if (props.containsKey("navBarHidden")) {
+				intent.putExtra("navBarHidden", TiConvert.toBoolean(props, "navBarHidden"));
+			}
+			if (props.containsKey("url")) {
+				intent.putExtra("url", TiConvert.toString(props, "url"));
+			}
+		} else {
+			if (props != null) {
+				if (props.containsKey("url")) {
+					intent.putExtra("url", TiConvert.toString(props, "url"));
+				}
+			}
+		}
+		intent.putExtra("proxyId", proxyId);
+	}
+
 	protected abstract void handleOpen(TiDict options);
 	public abstract void handlePostOpen(Activity activity);
 	protected abstract void handleClose(TiDict options);

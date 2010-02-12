@@ -17,32 +17,12 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Intent;
 
-/*
- * @interface TiUIWindowProxy : TiWindowProxy
-{
-@private
-	NSURL *url;
-	NSMutableArray *views;
-	TiViewProxy *activeView;
-	KrollBridge *context;
-	BOOL hasToolbar;
-	BOOL focused;
-}
-
--(void)addView:(id)args;
--(void)removeView:(id)args;
--(void)showView:(id)args;
-
-
- */
 public class WindowProxy extends TiWindowProxy
 {
 	private static final String LCAT = "WindowProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	private String url;
 	ArrayList<TiViewProxy> views;
-	TiViewProxy activeView;
 	WeakReference<Activity> weakActivity;
 	String windowId;
 
@@ -50,7 +30,6 @@ public class WindowProxy extends TiWindowProxy
 	{
 		super(tiContext, args);
 	}
-
 
 	@Override
 	public TiUIView getView(Activity activity) {
@@ -67,53 +46,19 @@ public class WindowProxy extends TiWindowProxy
 		TiDict props = getDynamicProperties();
 		Activity activity = getTiContext().getActivity();
 
+		Intent intent = new Intent(activity, TiActivity.class);
+		fillIntent(intent);
+
 		if (requiresNewActivity(props))
 		{
-			Intent intent = new Intent(activity, TiActivity.class);
-
-			if (props.containsKey("fullscreen")) {
-				intent.putExtra("fullscreen", TiConvert.toBoolean(props, "fullscreen"));
-			}
-			if (props.containsKey("navBarHidden")) {
-				intent.putExtra("navBarHidden", TiConvert.toBoolean(props, "navBarHidden"));
-			}
-			if (props.containsKey("url")) {
-				intent.putExtra("url", TiConvert.toString(props, "url"));
-			}
-
 			intent.putExtra("finishRoot", activity.isTaskRoot());
-			intent.putExtra("proxyId", proxyId);
 			getTiContext().getTiApp().registerProxy(this);
 
 			getTiContext().getActivity().startActivity(intent);
 		} else {
-			Intent intent = new Intent(activity, TiActivity.class);
-
-			if (props.containsKey("url")) {
-				intent.putExtra("url", TiConvert.toString(props, "url"));
-			}
-
-			//intent.putExtra("finishRoot", activity.isTaskRoot());
-			intent.putExtra("proxyId", proxyId);
 			getTiContext().getTiApp().registerProxy(this);
-
 			windowId = getTiContext().getRootActivity().openWindow(intent);
 		}
-	}
-
-	private boolean requiresNewActivity(TiDict options)
-	{
-		boolean activityRequired = false;
-
-		if (options != null) {
-			if (options.containsKey("fullscreen") ||
-					options.containsKey("navBarHidden"))
-			{
-				activityRequired = true;
-			}
-		}
-
-		return activityRequired;
 	}
 
 	public void handlePostOpen(Activity activity)

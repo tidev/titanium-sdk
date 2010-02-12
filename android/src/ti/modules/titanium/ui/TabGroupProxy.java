@@ -1,5 +1,6 @@
 package ti.modules.titanium.ui;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,10 +40,17 @@ public class TabGroupProxy extends TiWindowProxy
 	private ArrayList<TabProxy> tabs;
 	private AtomicInteger idGenerator;
 	private TiTabActivity tta;
+	WeakReference<Activity> weakActivity;
+	String windowId;
 
 	public TabGroupProxy(TiContext tiContext, Object[] args) {
 		super(tiContext, args);
 		idGenerator = new AtomicInteger(0);
+	}
+
+	@Override
+	public TiUIView getView(Activity activity) {
+		throw new IllegalStateException("call to getView on a Window");
 	}
 
 	@Override
@@ -65,11 +73,6 @@ public class TabGroupProxy extends TiWindowProxy
 				return super.handleMessage(msg);
 			}
 		}
-	}
-
-	@Override
-	public TiUIView createView(Activity activity) {
-		return null;
 	}
 
 	public void addTab(TabProxy tab)
@@ -144,40 +147,55 @@ public class TabGroupProxy extends TiWindowProxy
 		//TODO skip multiple opens?
 		Log.i(LCAT, "handleOpen");
 
+		TiDict props = getDynamicProperties();
 		Activity activity = getTiContext().getActivity();
 		Intent intent = new Intent(activity, TiTabActivity.class);
-		if (options != null) {
+		fillIntent(intent);
 
-			if (options.containsKey("fullscreen")) {
-				intent.putExtra("fullscreen", TiConvert.toBoolean(options, "fullscreen"));
-			}
-			if (options.containsKey("navBarHidden")) {
-				intent.putExtra("navBarHidden", TiConvert.toBoolean(options, "navBarHidden"));
-			}
-			if (options.containsKey("url")) {
-				intent.putExtra("url", TiConvert.toString(options, "url"));
-			}
+		if (requiresNewActivity(props))
+		{
+			intent.putExtra("finishRoot", activity.isTaskRoot());
+			getTiContext().getTiApp().registerProxy(this);
+			getTiContext().getActivity().startActivity(intent);
+		} else {
+			getTiContext().getTiApp().registerProxy(this);
+			windowId = getTiContext().getRootActivity().openWindow(intent);
+			Log.d(LCAT, "WindowID: " + windowId);
 		}
-
-		intent.putExtra("finishRoot", activity.isTaskRoot());
-		intent.putExtra("proxyId", proxyId);
-		getTiContext().getTiApp().registerProxy(this);
-
-		getTiContext().getActivity().startActivity(intent);
-
 	}
 
 	public void handlePostOpen(Activity activity)
 	{
 		this.tta = (TiTabActivity) activity; //TODO leak?
 		TiUITabGroup tg = tta.getTabGroup();
-		for(TabProxy tab : tabs) {
-			addTabToGroup(tg, tab);
+		view = tg;
+		if (tabs != null) {
+			for(TabProxy tab : tabs) {
+				addTabToGroup(tg, tab);
+			}
 		}
+		getTiContext().getRootActivity().addWindow(windowId, view.getLayoutParams());
+		opened = true;
 	}
 
 	@Override
 	protected void handleClose(TiDict options) {
+		Log.i(LCAT, "handleClose");
+		Activity activity = null;
+		if (weakActivity != null) {
+			activity = weakActivity.get();
+		}
+		if (windowId == null) {
+			activity.finish();
+			weakActivity = null;
+			this.clearView();
+		} else {
+			getTiContext().getRootActivity().closeWindow(windowId);
+			releaseViews();
+			windowId = null;
+			view = null;
+		}
+		opened = false;
 	}
 
 	public TiDict buildFocusEvent(String to, String from)

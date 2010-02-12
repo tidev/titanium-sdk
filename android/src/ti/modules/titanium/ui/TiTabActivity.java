@@ -8,6 +8,7 @@ import ti.modules.titanium.ui.widget.TiUITabGroup;
 import android.app.ActivityGroup;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -19,6 +20,7 @@ public class TiTabActivity extends ActivityGroup
 	protected TitaniumCompositeLayout layout;
 	protected TabGroupProxy proxy;
 	protected TiUITabGroup tg;
+	protected Handler handler;
 
 	public TiTabActivity() {
 	}
@@ -27,6 +29,8 @@ public class TiTabActivity extends ActivityGroup
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		handler = new Handler();
+
 		final TiTabActivity me = this;
 
        layout = new TitaniumCompositeLayout(this);
@@ -69,15 +73,13 @@ public class TiTabActivity extends ActivityGroup
 
         	tg = new TiUITabGroup(proxy, this);
 
-        	runOnUiThread(new Runnable(){
+        	handler.post(new Runnable(){
 
 				@Override
 				public void run() {
 		        	proxy.handlePostOpen(me);
 				}
 			});
-        	//TODO Address
-        	//layout.addView(tg.getNativeView());
         }
 	}
 
