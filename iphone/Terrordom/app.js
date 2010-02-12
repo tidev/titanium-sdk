@@ -44,15 +44,15 @@ for (var i=0;i<20;i++)
 	});
 	button.addEventListener('click', buttonHandler);
 	row.add(button);
-	/*
 	// create an image 
 	var image = Titanium.UI.createView({
-		backgroundImage:'path to image',
-		height:'auto',
-		width:'auto',
+		backgroundImage:'images/atlanta.jpg',
+		height:'30',
+		width:'40',
 		left:5
 	});
 	row.add(image);
+	/*
 	
 	var text = Titanium.UI.createLabel({
 		title:'This is a title'

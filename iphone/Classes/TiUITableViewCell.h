@@ -7,7 +7,7 @@
 
 #import "TiProxy.h"
 
-@class TiUITableViewRowProxy;
+@class TiUITableViewRowProxy,TiUIView;
 
 @interface TiUITableViewCell : UITableViewCell<TiProxyDelegate>
 {
@@ -20,5 +20,8 @@
 
 @property(nonatomic,readwrite,retain) TiUITableViewRowProxy * proxy;
 @property(nonatomic,readwrite,assign) UITableViewStyle tableStyle; //Needed for some handling of styles.
+
+-(void)addChild:(TiUIView *)newChild;
+-(void)removeChild:(TiUIView *)doomedChild;
 
 @end

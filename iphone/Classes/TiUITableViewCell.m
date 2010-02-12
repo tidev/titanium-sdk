@@ -25,6 +25,24 @@
     return self;
 }
 
+-(void)layoutSubviews
+{
+	[super layoutSubviews];
+	UIView * ourContentView = [self contentView];
+
+	NSLog(@"Layout subviews %@ -> %@",childrenViews,ourContentView);
+	int viewIndex = 0;
+	for (TiUIView * thisChild in childrenViews)
+	{
+		if ([thisChild superview] != ourContentView)
+		{
+			[ourContentView insertSubview:thisChild atIndex:viewIndex];
+		}
+		[thisChild reposition];
+		viewIndex ++;
+	}
+}
+
 -(void)setProxy:(TiUITableViewRowProxy *)newProxy
 {
 	if (newProxy == proxy)
@@ -99,7 +117,7 @@
 		[doomedView removeFromSuperview];
 	}
 	
-	NSArray * newProxyChildren = [proxy children]; //TODO: This should be thread-protected against adding while rendering.
+	NSArray * newProxyChildren = [newProxy children]; //TODO: This should be thread-protected against adding while rendering.
 
 	[childrenViews release];
 	if ([newProxyChildren count]==0)
@@ -108,13 +126,10 @@
 	}
 	else
 	{
-		UIView * contentView = [self contentView];
 		childrenViews = [[NSMutableArray alloc] initWithCapacity:[newProxyChildren count]];
 		for (TiViewProxy * thisViewProxy in newProxyChildren)
 		{
-			TiUIView * newView = [thisViewProxy view];
-			[contentView addSubview:newView];
-			[newView reposition];
+			[self addChild:[thisViewProxy view]];
 		}
 	}
 
@@ -156,6 +171,20 @@
 	[[self imageView] setImage:newImage];
 }
 
+-(void)addChild:(TiUIView *)newChild
+{
+	NSLog(@"Layout subviews %@ -> %@ (%@)",newChild,childrenViews,[self contentView]);
+
+	[[self contentView] addSubview:newChild];
+	[newChild reposition];
+	[childrenViews addObject:newChild];
+}
+
+-(void)removeChild:(TiUIView *)doomedChild
+{
+	[childrenViews removeObject:doomedChild];
+	[doomedChild removeFromSuperview];
+}
 
 #pragma mark BUG BARRIER
 //	NSString * selectionStyleString = [self stringForKey:@"selectionStyle"];

@@ -47,7 +47,7 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 
 #define ENSURE_UI_THREAD_1_ARG(x)	\
 if (![NSThread isMainThread]) { \
-[self performSelectorOnMainThread:_cmd withObject:x waitUntilDone:NO]; \
+[self performSelectorOnMainThread:_cmd withObject:x waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]]; \
 return; \
 } \
 
