@@ -5,18 +5,20 @@ version = ARGUMENTS.get('PRODUCT_VERSION', '0.1')
 print "Building Titanium Mobile (Android) %s..." % version
 
 if platform.platform() == 'Windows':
-    default_android_sdk = 'C:\\android-sdk'
+	default_android_sdk = 'C:\\android-sdk'
 else:
-    default_android_sdk = '/opt/android-sdk'
+	default_android_sdk = '/opt/android-sdk'
 
 android_sdk = ARGUMENTS.get("android_sdk", default_android_sdk)
 
 env = Environment()
 classpath = [ os.path.join('lib', 'js.jar'),
-             os.path.join(android_sdk, 'platforms', 'android-1.5', 'android.jar') ]
+	os.path.join(android_sdk, 'platforms', 'android-1.6', 'android.jar'),
+	os.path.join('lib', 'commons-codec-1.3.jar'),
+	os.path.join('lib', 'commons-logging-1.1.1.jar')]
 
 modules = ['api', 'app', 'database', 'filesystem', 'geolocation', 'media', 'ui']
-sources = [os.path.join('src', 'com'), os.path.join('src', 'org')]
+sources = [os.path.join('src', 'com'), os.path.join('src', 'org'), 'thirdparty']
 sources += glob.glob(os.path.join('src', 'ti', 'modules', 'titanium', '*.java'))
 
 env.Append(JAVASOURCEPATH='src')
@@ -26,7 +28,7 @@ classes = env.Java(target = 'bin', source = sources)
 env.Jar(target = 'bin/titanium.jar', source = classes)
 
 for module in modules:
-    module_sources = os.path.join('src', 'ti', 'modules', 'titanium', module)
-    env.Java(target = 'bin', source = module_sources)
-    env.Jar(target = 'bin/titanium-%s.jar' % module,
-        source = os.path.join('bin', 'ti', 'modules', 'titanium', module), JARCHDIR='bin')
+	module_sources = os.path.join('src', 'ti', 'modules', 'titanium', module)
+	env.Java(target = 'bin', source = module_sources)
+	env.Jar(target = 'bin/titanium-%s.jar' % module,
+		source = os.path.join('bin', 'ti', 'modules', 'titanium', module), JARCHDIR='bin')

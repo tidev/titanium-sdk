@@ -18,7 +18,7 @@ public class ImageViewProxy extends ViewProxy {
 	}
 	
 	private TiUIImageView getImageView() {
-		return (TiUIImageView)getView();
+		return (TiUIImageView)getView(getTiContext().getActivity());
 	}
 	
 	public void start() {
