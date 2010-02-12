@@ -63,19 +63,6 @@ NSArray * tableKeys = nil;
 
 #pragma mark Internal
 
--(id<NSFastEnumeration>)validKeys
-{
-	if (tableKeys == nil) {
-		tableKeys = [[NSArray alloc] initWithObjects:@"template",
-					  @"rowHeight",@"backgroundColor",@"borderColor",
-					  @"marginTop",@"marginLeft",@"marginRight",@"marginBottom",
-					  @"sections",@"editing",@"moving",@"editable",
-					  @"search",@"filterAttribute",@"index",
-					  @"data",nil];
-	}
-	return tableKeys;
-}
-
 -(void)_configure
 {	
 	// initialize to FALSE values so you can access their values before invoking the first state change
@@ -117,10 +104,17 @@ NSArray * tableKeys = nil;
 
 
 #pragma mark Public APIs
-#define ENSURE_DATA_ARRAY	\
-if(data==nil)	\
-{	\
-data = [[NSMutableArray alloc] init];	\
+
+-(TiUITableViewRowProxy *)prepareRow:(TiUITableViewRowProxy *)row
+{
+	ENSURE_TABLE_VIEW_ROW(row);
+	ENSURE_NIL_PARENT(row);
+	[row setParent:self];
+
+	if(data==nil)
+	{
+		data = [[NSMutableArray alloc] init];
+	}
 }
 
 - (NSNumber *) indexByName:(id)name
@@ -148,10 +142,8 @@ data = [[NSMutableArray alloc] init];	\
 {
 	ENSURE_ARG_COUNT(args,1);
 
-	TiUITableViewRowProxy *newRow = [args objectAtIndex:0];
-	ENSURE_TABLE_VIEW_ROW(newRow);
+	TiUITableViewRowProxy *newRow = [self prepareRow:[args objectAtIndex:0]];
 
-	ENSURE_DATA_ARRAY;
 	[data addObject:newRow];
 
 	if ([self viewAttached])
@@ -175,10 +167,7 @@ data = [[NSMutableArray alloc] init];	\
 	int rowIndex = [[args objectAtIndex:0] intValue];
 	ENSURE_VALUE_RANGE(rowIndex,0,[data count]-1);
 
-	TiUITableViewRowProxy *newRow = [args objectAtIndex:1];
-	ENSURE_TABLE_VIEW_ROW(newRow);
-
-	ENSURE_DATA_ARRAY;
+	TiUITableViewRowProxy *newRow = [self prepareRow:[args objectAtIndex:1]];
 	[data insertObject:newRow atIndex:rowIndex+1];
 
 	if ([self viewAttached])

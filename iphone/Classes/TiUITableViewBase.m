@@ -49,7 +49,6 @@
 {
 	RELEASE_TO_NIL(tableview);
 	RELEASE_TO_NIL(sectionArray);
-//	RELEASE_TO_NIL(transactionArray);
 	RELEASE_TO_NIL(borderColor);
 	[super dealloc];
 }
@@ -75,7 +74,7 @@
 {
 	if (tableview==nil)
 	{
-		tableview = [[UITableView alloc] initWithFrame:CGRectZero style:[self tableStyle]];
+		tableview = [[UITableView alloc] initWithFrame:[self bounds] style:[self tableStyle]];
 		tableview.delegate = self;
 		tableview.dataSource = self;
 		tableview.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;

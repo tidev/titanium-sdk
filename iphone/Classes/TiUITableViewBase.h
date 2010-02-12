@@ -79,7 +79,6 @@ typedef enum
 @protected
 	UITableView* tableview;
 	NSMutableArray *sectionArray;
-//	NSMutableArray *transactionArray;
 	
 	TiDimension rowHeight;
 	TiDimension minRowHeight;
