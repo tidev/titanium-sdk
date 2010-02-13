@@ -16,6 +16,7 @@ import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollObject;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
 
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 
@@ -95,11 +96,22 @@ public class TiConvert
 	public static int toColor(TiDict d, String key) {
 		return toColor(d.getString(key));
 	}
+	public static int toColor(TiDict d, String colorKey, String opacityKey) {
+		int color = toColor(d, colorKey);
+		int alpha = 255;
+		if (d.containsKey(opacityKey)) {
+			alpha = (int) Math.round(255 * TiConvert.toDouble(d, opacityKey));
+		}
+		return Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
+	}
 	public static ColorDrawable toColorDrawable(String value) {
 		return new ColorDrawable(toColor(value));
 	}
 	public static ColorDrawable toColorDrawable(TiDict d, String key) {
 		return toColorDrawable(d.getString(key));
+	}
+	public static ColorDrawable toColorDrawable(TiDict d, String colorKey, String opacityKey) {
+		return new ColorDrawable(toColor(d, colorKey, opacityKey));
 	}
 
 	// Layout
