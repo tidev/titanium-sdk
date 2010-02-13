@@ -21,6 +21,8 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiFileHelper2;
 
 import android.content.Context;
 
@@ -51,7 +53,8 @@ public class TiResourceFile extends TiBaseFile
 
 		Context context = getTiContext().getActivity();
 		if (context != null) {
-			in = context.getAssets().open("Resources/"+path);
+			String p = TiFileHelper2.joinSegments("Resources", path);
+			in = context.getAssets().open(p);
 		}
 		return in;
 	}

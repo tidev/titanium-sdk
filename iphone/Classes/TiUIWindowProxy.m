@@ -243,6 +243,82 @@
 	}
 }
 
+-(void)setTabBarHidden:(id)value
+{
+	ENSURE_UI_THREAD_1_ARG(value);
+	[self replaceValue:value forKey:@"tabBarHidden" notification:NO];
+	if (controller!=nil)
+	{
+		[controller setHidesBottomBarWhenPushed:[TiUtils boolValue:value]];
+	}
+}
+
+-(void)hideTabBar:(id)value
+{
+	[self setTabBarHidden:[NSNumber numberWithBool:YES]];	
+}
+
+-(void)showTabBar:(id)value
+{
+	[self setTabBarHidden:[NSNumber numberWithBool:NO]];
+}
+
+-(void)_refreshBackButton
+{
+	ENSURE_UI_THREAD_0_ARGS;
+	NSArray * controllerArray = [[controller navigationController] viewControllers];
+	int controllerPosition = [controllerArray indexOfObject:controller];
+	if ((controllerPosition == 0) || (controllerPosition == NSNotFound))
+	{
+		return;
+	}
+
+	UIViewController * parentController = [controllerArray objectAtIndex:controllerPosition-1];
+	UIBarButtonItem * backButton;
+
+	UIImage * backImage = [TiUtils image:[self valueForKey:@"backButtonTitleImage"] proxy:self];
+	if (backImage != nil)
+	{
+		backButton = [[UIBarButtonItem alloc] initWithImage:backImage style:UIBarButtonItemStylePlain target:nil action:nil];
+	}
+	else
+	{
+		NSString * backTitle = [TiUtils stringValue:[self valueForKey:@"backButtonTitle"]];
+		if (backTitle != nil)
+		{
+			backButton = [[UIBarButtonItem alloc] initWithTitle:backTitle style:UIBarButtonItemStylePlain target:nil action:nil];
+		}
+		else
+		{
+			backButton = nil;
+		}
+	}
+
+	[[parentController navigationItem] setBackBarButtonItem:backButton];
+	[backButton release];
+}
+
+-(void)setBackButtonTitle:(id)proxy
+{
+	ENSURE_UI_THREAD_1_ARG(proxy);
+	[self replaceValue:proxy forKey:@"backButtonTitle" notification:NO];
+	if (controller!=nil)
+	{
+		[self _refreshBackButton];	//Because this is actually a property of a DIFFERENT view controller, we can't attach this until 
+	}
+}
+
+-(void)setBackButtonTitleImage:(id)proxy
+{
+	ENSURE_UI_THREAD_1_ARG(proxy);
+	[self replaceValue:proxy forKey:@"backButtonTitleImage" notification:NO];
+	if (controller!=nil)
+	{
+		[self _refreshBackButton];	//Because this is actually a property of a DIFFERENT view controller, we can't attach this until 
+	}
+}
+
+
 -(void)setTitleControl:(id)proxy
 {
 	ENSURE_UI_THREAD(setTitleControl,proxy);
@@ -428,9 +504,13 @@ else{\
 	SETPROP(@"titleControl",setTitleControl);
 	SETPROP(@"barColor",setBarColor);
 	SETPROP(@"translucent",setTranslucent);
+
+	SETPROP(@"tabBarHidden",setTabBarHidden);
+
 	SETPROPOBJ(@"leftNavButton",setLeftNavButton);
 	SETPROPOBJ(@"rightNavButton",setRightNavButton);
 	SETPROPOBJ(@"toolbar",setToolbar);
+	[self _refreshBackButton];
 	
 	id navBarHidden = [self valueForKey:@"navBarHidden"];
 	if (navBarHidden!=nil)
@@ -445,6 +525,19 @@ else{\
 			[self showNavBar:properties];
 		}
 	}
+}
+
+-(void)_tabBeforeFocus
+{
+	if (focused==NO)
+	{
+		[self setupWindowDecorations];
+	}
+}
+
+-(void)_tabBeforeBlur
+{
+
 }
 
 -(void)_tabFocus
@@ -472,5 +565,10 @@ else{\
 	[super _tabBlur];
 }
 
+-(void)_associateTab:(UIViewController*)controller_ navBar:(UINavigationController*)navbar_ tab:(TiProxy<TiTab>*)tab_ 
+{
+	[super _associateTab:controller_ navBar:navbar_ tab:tab_];
+	SETPROP(@"tabBarHidden",setTabBarHidden);
+}
 
 @end

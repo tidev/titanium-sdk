@@ -25,6 +25,7 @@
 	{
 		window = [window_ retain];
 		tab = [tab_ retain];
+		[window _associateTab:self navBar:self.navigationController tab:tab];		
 	}
 	return self;
 }

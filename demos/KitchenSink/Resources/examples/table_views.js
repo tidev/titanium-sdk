@@ -26,8 +26,8 @@ var tableview = Titanium.UI.createTableView({
 	style:Titanium.UI.iPhone.TableViewStyle.GROUPED,
 	headerTitle:'Table Tests',
 	footerTitle:'End of tests',
-	_backgroundColor: 'black',
-	backgroundImage:'../images/bg.png'
+	backgroundColor: '#aebcad',
+	_backgroundImage:'../images/bg.png'
 });
 
 // create table view event listener

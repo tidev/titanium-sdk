@@ -14,8 +14,22 @@
 
 @implementation TiUINavBarButton
 
+-(id)retain
+{
+	NSLog(@"Retaining %X (%d)",self,[self retainCount]);
+	return [super retain];
+}
+
+-(void)release
+{
+	NSLog(@"Releasing %X (%d)",self,[self retainCount]);
+	[super release];
+}
+
+
 -(void)dealloc
 {
+	NSLog(@"Deallocing %X (%d) (%X also released)",self,[self retainCount]);
 	RELEASE_TO_NIL(activityDelegate);
 	[super dealloc];
 }

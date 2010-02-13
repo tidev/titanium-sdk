@@ -9,6 +9,8 @@ package org.appcelerator.titanium;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -135,19 +137,78 @@ public class TiContext implements TiEvaluator
 		return new TiFileHelper(getTiApp());
 	}
 
+	public String absoluteUrl(String url)
+	{
+		try {
+			URI uri = new URI(url);
+			String scheme = uri.getScheme();
+			if (scheme == null) {
+				String path = uri.getPath();
+				String fname = null;
+				int lastIndex = path.lastIndexOf("/");
+				if (lastIndex > 0) {
+					fname = path.substring(lastIndex+1);
+					path = path.substring(0, lastIndex);
+				}
+
+				if (path.startsWith("../")) {
+					String[] right = path.split("/");
+					String[] left = null;
+					if (baseUrl.contains("://")) {
+						String[] tmp = baseUrl.split("://");
+						left = tmp[1].split("/");
+					} else {
+						left = baseUrl.split("/");
+					}
+
+					int rIndex = 0;
+					int lIndex = left.length;
+
+					while(right[rIndex].equals("..")) {
+						lIndex--;
+						rIndex++;
+					}
+					String sep = "";
+					StringBuilder sb = new StringBuilder();
+					for (int i = 0; i < lIndex; i++) {
+						sb.append(sep).append(left[i]);
+						sep = "/";
+					}
+					for (int i = rIndex; i < right.length; i++) {
+						sb.append(sep).append(right[i]);
+						sep = "/";
+					}
+					String bUrl = sb.toString();
+					if (!bUrl.endsWith("/")) {
+						bUrl = bUrl + "/";
+					}
+					url = "app://" + bUrl + fname;
+				}
+			}
+		} catch (URISyntaxException e) {
+			Log.w(LCAT, "Error parsing url: " + e.getMessage(), e);
+		}
+
+		return url;
+	}
+
 	public String resolveUrl(String path)
 	{
 		String result = null;
 
-		if (!path.startsWith("/")) {
-			result = baseUrl + path;
-		} else {
-			Uri uri = Uri.parse(path);
-			if (uri.getScheme() == null) {
-				result = "app:/" + path;
+		if (path.startsWith("../")) {
+			path = absoluteUrl(path);
+		}
+
+		Uri uri = Uri.parse(path);
+		if (uri.getScheme() == null) {
+			if (!path.startsWith("/")) {
+				result = baseUrl + path;
 			} else {
-				result = path;
+				result = "app:/" + path;
 			}
+		} else {
+			result = path;
 		}
 
 		if (!result.startsWith("file:")) {

@@ -69,6 +69,16 @@
 }
 
 #pragma mark Delegates
+- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
+{
+	if (current!=nil)
+	{
+		TiWindowProxy *currentWindow = [current window];
+		[currentWindow _tabBeforeBlur];
+	}
+	
+	[[(TiUITabController*)viewController window] _tabBeforeFocus];
+}
 
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {

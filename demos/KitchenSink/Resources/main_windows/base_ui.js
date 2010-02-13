@@ -30,6 +30,10 @@ tableview.addEventListener('click', function(e)
 			title:e.rowData.title,
 			backgroundColor:'#fff'
 		});
+		if (e.index == 3)
+		{
+			win.hideTabBar();
+		}
 		Titanium.UI.currentTab.open(win,{animated:true})
 	}
 });

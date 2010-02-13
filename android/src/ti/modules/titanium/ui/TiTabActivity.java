@@ -37,8 +37,8 @@ public class TiTabActivity extends ActivityGroup
 
         Intent intent = getIntent();
 
-        boolean fullscreen = true;
-        boolean navbar = true;
+        boolean fullscreen = false;
+        boolean navbar = false;
 
         if (intent != null) {
         	if (intent.hasExtra("fullscreen")) {

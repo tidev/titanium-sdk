@@ -236,11 +236,13 @@ b9.addEventListener('click', function()
 {
 	if (!backtitle)
 	{
+		win.backButtonTitleImage = null;	
 		win.backButtonTitle = 'It Worked!';
 		backtitle = true;
 	}
 	else
 	{
+		win.backButtonTitleImage = null;	
 		win.backButtonTitle = 'Base UI';
 		backtitle = false;
 	}

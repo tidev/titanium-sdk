@@ -57,6 +57,10 @@
 -(void)_tabDetached;
 -(void)_tabFocus;
 -(void)_tabBlur;
+
+-(void)_tabBeforeFocus;
+-(void)_tabBeforeBlur;
+
 -(void)setupWindowDecorations;
 
 @end

@@ -58,12 +58,7 @@ var tableView = Titanium.UI.createTableView({
 	template:template,
 	backgroundColor:'transparent',
 	borderColor:'transparent',
-	data:data,
-	top:100,
-	left:10,
-	right:10,
-	borderWidth:2,
-	borderColor:'red'
+	data:data
 });
 
 win.add(tableView);
