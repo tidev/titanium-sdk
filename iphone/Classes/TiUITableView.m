@@ -229,7 +229,7 @@
 	[[self tableView] setTableFooterView:[self titleViewForText:[TiUtils stringValue:args] footer:YES]];
 }
 
--(void)setData_:(id)args
+-(void)setData_:(id)args withObject:(id)properties
 {
 	ENSURE_ARRAY(args);
 	
@@ -262,8 +262,12 @@
 	UITableView *table = [self tableView];
 	if (hasData)
 	{
+		UITableViewRowAnimation animation = [TiUITableViewAction animationStyleForProperties:properties];
+		NSIndexSet *oldSectionSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[oldSections count])];
+		NSIndexSet *newSectionSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[sections count])];
 		[table beginUpdates];
-		[table reloadData];
+		[table deleteSections:oldSectionSet withRowAnimation:UITableViewRowAnimationNone];
+		[table insertSections:newSectionSet withRowAnimation:animation];
 		[table endUpdates];
 		[oldSections release];
 	}

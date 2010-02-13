@@ -257,7 +257,6 @@
 		
 		// on open we need to create a new view
 		view = [self newView];
-		view.hidden = YES;
 		view.proxy = self;
 		view.parent = self;
 		view.layer.transform = CATransform3DIdentity;
@@ -314,7 +313,6 @@
 	{
 		[self layoutChild:child bounds:bounds];
 	}
-	[view setHidden:NO];
 }
 
 -(CGRect)appFrame
@@ -394,6 +392,7 @@
 
 #pragma mark Invocation
 
+//FIXME: review this, i think it can be removed -JGH
 -(id)resultForUndefinedMethod:(NSString*)name args:(NSArray*)args
 {
 	// support dynamic forwarding to model delegate methods if attached

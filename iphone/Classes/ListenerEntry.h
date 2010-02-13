@@ -13,6 +13,7 @@
 	id listener;
 	TiProxy *proxy;
 	NSString *type;	
+	BOOL removed;
 }
 -(id)initWithListener:(id)listener_ context:(id<TiEvaluator>)context_ proxy:(TiProxy*)proxy type:(NSString*)type;
 -(id<TiEvaluator>)context;

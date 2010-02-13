@@ -21,7 +21,7 @@
 
 #pragma mark Public APIs
 
-@property(nonatomic,readonly) NSString *className;
+@property(nonatomic,readonly)	NSString *className;
 
 #pragma mark Framework
 

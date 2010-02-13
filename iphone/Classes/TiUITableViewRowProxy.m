@@ -10,6 +10,7 @@
 #import "TiUITableViewSectionProxy.h"
 #import "TiUITableView.h"
 #import "TiUtils.h"
+#import "Webcolor.h"
 #import "ImageLoader.h"
 
 @implementation TiUITableViewRowProxy
@@ -19,6 +20,7 @@
 -(void)_destroy
 {
 	RELEASE_TO_NIL(className);
+	[super _destroy];
 }
 
 -(void)_initWithProperties:(NSDictionary *)properties
@@ -109,6 +111,16 @@
 		cell.backgroundView = nil;
 	}
 	
+	id bgColor = [self valueForKey:@"backgroundColor"];
+	if (bgColor!=nil)
+	{
+		cell.backgroundView.backgroundColor = UIColorWebColorNamed(bgColor);
+	}
+	else
+	{
+		cell.backgroundView.backgroundColor = [UIColor clearColor];
+	}
+	
 	id selBgImage = [self valueForKey:@"selectedBackgroundImage"];
 	if (selBgImage!=nil)
 	{
@@ -129,7 +141,7 @@
 
 -(void)configureLeftSide:(UITableViewCell*)cell
 {
-	id image = [self valueForKey:@"image"];
+	id image = [self valueForKey:@"leftImage"];
 	if (image!=nil)
 	{
 		NSURL *url = [TiUtils toURL:image proxy:(TiProxy*)table.proxy];
@@ -142,12 +154,18 @@
 	}
 }
 
+-(void)configureIndentionLevel:(UITableViewCell*)cell
+{
+	cell.indentationLevel = [TiUtils intValue:[self valueForKey:@"indentionLevel"] def:0];
+}
+
 -(void)initializeTableViewCell:(UITableViewCell*)cell
 {
 	[self configureTitle:cell];
 	[self configureLeftSide:cell];
 	[self configureRightSide:cell];
 	[self configureBackground:cell];
+	[self configureIndentionLevel:cell];
 }
 
 -(void)renderTableViewCell:(UITableViewCell*)cell
@@ -156,6 +174,7 @@
 	[self configureLeftSide:cell];
 	[self configureRightSide:cell];
 	[self configureBackground:cell];
+	[self configureIndentionLevel:cell];
 }
 
 @end

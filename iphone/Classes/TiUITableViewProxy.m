@@ -13,6 +13,7 @@
 #import "TiUtils.h"
 #import "WebFont.h"
 #import "TiViewProxy.h"
+#import "TiComplexValue.h"
 
 @implementation TiUITableViewProxy
 
@@ -139,7 +140,7 @@
 	}
 }
 
--(void)setData:(id)args 
+-(void)setData:(id)args withObject:(id)properties
 {
 	ENSURE_ARRAY(args);
 	
@@ -147,7 +148,7 @@
 	// it over to the view which will be on the UI thread
 	
 	NSMutableArray *data = [NSMutableArray arrayWithCapacity:[args count]];
-
+	
 	Class dictionaryClass = [NSDictionary class];
 	Class sectionClass = [TiUITableViewSectionProxy class];
 	Class rowClass = [TiUITableViewRowProxy class];
@@ -190,7 +191,13 @@
 		}
 	}
 	
-	[self replaceValue:data forKey:@"data" notification:YES];
+	TiComplexValue *value = [[[TiComplexValue alloc] initWithValue:data properties:properties] autorelease];
+	[self replaceValue:value forKey:@"data" notification:YES];
+}
+
+-(void)setData:(id)args
+{
+	[self setData:args withObject:nil];
 }
 
 @end 

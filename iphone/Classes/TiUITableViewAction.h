@@ -32,5 +32,6 @@ typedef enum
 @property(nonatomic,readonly) TiUITableViewRowProxy *row;
 
 -(id)initWithRow:(TiUITableViewRowProxy*)row animation:(NSDictionary*)animation section:(NSInteger)section type:(TiUITableViewActionType)type;
++(UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties;
 
 @end
