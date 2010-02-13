@@ -565,5 +565,10 @@ else{\
 	[super _tabBlur];
 }
 
+-(void)_associateTab:(UIViewController*)controller_ navBar:(UINavigationController*)navbar_ tab:(TiProxy<TiTab>*)tab_ 
+{
+	[super _associateTab:controller_ navBar:navbar_ tab:tab_];
+	SETPROP(@"tabBarHidden",setTabBarHidden);
+}
 
 @end
