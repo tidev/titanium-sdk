@@ -26,6 +26,7 @@
 		wrapperFrame.size = [[self scrollView] contentSize];
 		wrapperFrame.origin = CGPointZero;
 		wrapperView = [[UIView alloc] initWithFrame:wrapperFrame];
+		[wrapperView setUserInteractionEnabled:YES];
 		[scrollView addSubview:wrapperView];
 	}
 	return wrapperView;
@@ -47,6 +48,14 @@
 		[self.proxy replaceValue:NUMFLOAT(1.0) forKey:@"scale" notification:NO];
 	}
 	return scrollView;
+}
+
+-(void)setNeedsHandleContentSizeIfAutosizing
+{
+	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAuto(contentHeight))
+	{
+		[self setNeedsHandleContentSize];
+	}
 }
 
 -(void)setNeedsHandleContentSize
@@ -119,6 +128,7 @@
 	if ([childView superview]!=[self wrapperView])
 	{
 		[wrapperView addSubview:childView];
+		[self setNeedsHandleContentSizeIfAutosizing];
 	}
 	[childView reposition];
 }
