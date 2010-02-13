@@ -18,7 +18,7 @@
 	[super dealloc];
 }
 
--(UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties
++(UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties
 {
 	BOOL found;
 	UITableViewRowAnimation animationStyle = [TiUtils intValue:@"animationStyle" properties:properties def:UITableViewRowAnimationNone exists:&found];
@@ -34,7 +34,7 @@
 {
 	if ([self init])
 	{
-		animation = [self animationStyleForProperties:animation_];
+		animation = [TiUITableViewAction animationStyleForProperties:animation_];
 		section = section_;
 		type = type_;
 		row = [row_ retain];

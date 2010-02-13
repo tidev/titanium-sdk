@@ -50,8 +50,6 @@
 	
 	NSURL *url = [TiUtils toURL:[self valueForKey:@"url"] proxy:self];
 	
-	//TODO: modal, etc
-	
 	if (url!=nil)
 	{
 		// Window based JS can only be loaded from local filesystem within app resources
@@ -73,15 +71,7 @@
 		}
 		else 
 		{
-			id firstarg = args!=nil && [args count] > 0 ? [args objectAtIndex:0] : nil;
-			NSMutableDictionary *args_ = [firstarg isKindOfClass:[NSDictionary class]] ? [NSMutableDictionary dictionaryWithDictionary:firstarg] : [NSMutableDictionary dictionary];
-			[args_ setObject:url forKey:@"url"];
-			
-			// we need to create a webview implicitly if a url is passed to a window
-			/*TiUIWebViewProxy *webview = [[TiUIWebViewProxy alloc] _initWithPageContext:[self pageContext] args:[NSArray arrayWithObject:args_]];
-			[self add:[NSArray arrayWithObject:webview]];
-			[webview open:args];
-			[webview release];*/
+			NSLog(@"[ERROR] url not supported in a window. %@",url);
 		}
 	}
 	

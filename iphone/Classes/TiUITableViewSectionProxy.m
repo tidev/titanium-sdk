@@ -20,6 +20,7 @@
 -(void)_destroy
 {
 	RELEASE_TO_NIL(rows);
+	[super _destroy];
 }
 
 #pragma mark Public APIs
