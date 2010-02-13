@@ -5,74 +5,33 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiViewProxy.h"
+#import "TiProxy.h"
 
-@class TiUITableViewRowProxy;
-@protocol TiUITableViewRowParent
--(NSDictionary *)locationOfRow:(TiUITableViewRowProxy *)row;
--(void)row:(TiUITableViewRowProxy *)row changedValue:(id)newValue oldValue:(id)oldValue forKey:(NSString *)key;
-@end
+@class TiUITableView;
+@class TiUITableViewSectionProxy;
 
-
-
-@class WebFont, TiUITableViewCell;
-@interface TiUITableViewRowProxy : TiProxy<LayoutAutosizing> {
-
+@interface TiUITableViewRowProxy : TiProxy 
+{
 @private
-	NSMutableArray * children; //Like TiViewProxy.
-	TiProxy<TiUITableViewRowParent> * parent; //This is what added the row.
-		//It can be either groupedSection proxy or a tableView proxy.
-		//This is not retained to avoid retain loops.
-	
-	TiDimension  rowHeight;
-	TiDimension  minRowHeight;
-	TiDimension  maxRowHeight;
+	NSString *className;
+	TiUITableView *table;
+	TiUITableViewSectionProxy *section;
+	NSInteger row;
 }
 
-#pragma mark Internal stuff
+#pragma mark Public APIs
 
-@property(nonatomic,readwrite,retain)	NSMutableArray * children;
-@property(nonatomic,readwrite,assign)	TiProxy<TiUITableViewRowParent> * parent;
+@property(nonatomic,readonly) NSString *className;
 
--(TiUITableViewCell *)cellForTableView:(UITableView *)tableView;
+#pragma mark Framework
 
--(CGFloat)rowHeightForWidth:(CGFloat)rowWidth;
-//This is called either internally or if the rowHeight of a table/section is 'auto'.
--(CGFloat)autoRowHeightForWidth:(CGFloat) rowWidth;
+@property(nonatomic,readwrite,assign) TiUITableView *table;
+@property(nonatomic,readwrite,assign) TiUITableViewSectionProxy *section;
+@property(nonatomic,readwrite,assign) NSInteger row;
 
-#pragma mark JS-exposed properties
+-(void)initializeTableViewCell:(UITableViewCell*)cell;
+-(void)renderTableViewCell:(UITableViewCell*)cell;
 
-//Accessors use the default stuff. Setters grab the dimension version just for caching.
-
-//@property(nonatomic,readwrite,copy)	id	rowHeight;
--(void)setRowHeight:(id)newValue;
-//@property(nonatomic,readwrite,copy)	id	minRowHeight;
--(void)setMinRowHeight:(id)newValue;
-//@property(nonatomic,readwrite,copy)	id	maxRowHeight;
--(void)setMaxRowHeight:(id)newValue;
-
-//Everything else is done by TiProxy.
-
--(void)add:(id)args;
--(void)remove:(id)args;
-
+-(void)updateRow:(NSDictionary*)data withObject:(NSDictionary*)properties;
 
 @end
-
-#define ENSURE_TABLE_VIEW_ROW(x)	\
-if(![x isKindOfClass:[TiUITableViewRowProxy class]])	\
-{	\
-if(IS_NULL_OR_NIL(x))	\
-{	\
-x=nil;	\
-}	\
-else	\
-{	\
-ENSURE_TYPE(x,NSDictionary);	\
-NSDictionary * oldProperties = (NSDictionary *)x;	\
-x = [[[TiUITableViewRowProxy alloc] _initWithPageContext:[self pageContext]] autorelease];	\
-[x _initWithProperties:oldProperties];	\
-}	\
-}
-
-#define ENSURE_NIL_PARENT(x)	ENSURE_VALUE_CONSISTENCY([x parent],nil)

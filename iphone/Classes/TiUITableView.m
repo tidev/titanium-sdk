@@ -8,511 +8,476 @@
 #import "TiUITableView.h"
 #import "TiUtils.h"
 #import "Webcolor.h"
+#import "WebFont.h"
+#import "ImageLoader.h"
+#import "TiProxy.h"
 
 @implementation TiUITableView
 
-#pragma mark Internal
+#pragma mark Internal 
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(searchField);
-	RELEASE_TO_NIL(tableHeaderView);
-	RELEASE_TO_NIL(searchTableView);
-	RELEASE_TO_NIL(searchScreenView);
-	RELEASE_TO_NIL(filterAttribute);
-	RELEASE_TO_NIL(searchResultIndexes);
-	RELEASE_TO_NIL(sectionIndex);
-	RELEASE_TO_NIL(sectionIndexMap);
+	RELEASE_TO_NIL(sections);
+	RELEASE_TO_NIL(tableview);
 	[super dealloc];
 }
 
--(void)updateSearchView
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	if (searchField == nil)
+	if (tableview!=nil)
 	{
-		[tableview setTableHeaderView:nil];
-		RELEASE_TO_NIL(tableHeaderView);
-		RELEASE_TO_NIL(searchTableView);
-		RELEASE_TO_NIL(searchScreenView);
-		RELEASE_TO_NIL(searchResultIndexes);
-		return;
+		[TiUtils setView:tableview positionRect:bounds];
 	}
+}
+
+-(UITableView*)tableView
+{
+	if (tableview==nil)
+	{
+		UITableViewStyle style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:UITableViewStylePlain];
+		tableview = [[UITableView alloc] initWithFrame:[self frame] style:style];
+		tableview.delegate = self;
+		tableview.dataSource = self;
+		tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+		tableview.backgroundColor = style == UITableViewStylePlain ? [UIColor whiteColor] : [UIColor groupTableViewBackgroundColor];
+		tableview.opaque = YES;
+		[self addSubview:tableview];
+	}
+	return tableview;
+}
+
+-(TiUITableViewRowProxy*)rowForIndex:(NSInteger)index section:(NSInteger*)section
+{
+	int current = 0;
+	int row = index;
+	int sectionIndex = 0;
 	
-	UIView * searchView = [searchField view];
-
-	if (tableHeaderView == nil)
+	for (TiUITableViewSectionProxy *sectionProxy in sections)
 	{
-		CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, TI_NAVBAR_HEIGHT);
-		tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
-		[TiUtils setView:searchView positionRect:wrapperFrame];
-		[tableHeaderView addSubview:searchView];
-	}
-
-	if ([tableview tableHeaderView] != tableHeaderView)
-	{
-		[tableview setTableHeaderView:tableHeaderView];
-	}
-}
-
-#pragma mark Searchbar-related accessors
-
-- (UIButton *) searchScreenView
-{
-	if (searchScreenView == nil) 
-	{
-		searchScreenView = [[UIButton alloc] init];
-		[searchScreenView addTarget:self action:@selector(hideSearchScreen:) forControlEvents:UIControlEventTouchUpInside];
-		[searchScreenView setShowsTouchWhenHighlighted:NO];
-		[searchScreenView setAdjustsImageWhenDisabled:NO];
-		[searchScreenView setOpaque:NO];
-		[searchScreenView setBackgroundColor:[UIColor blackColor]];
-	}
-	return searchScreenView;
-}
-
-
-- (UITableView *) searchTableView
-{
-	if(searchTableView == nil)
-	{
-		CGRect searchFrame = [TiUtils viewPositionRect:[self searchScreenView]];
-		//Todo: make sure we account for the keyboard.
-		searchTableView = [[UITableView alloc] initWithFrame:searchFrame style:UITableViewStylePlain];
-		[searchTableView setDelegate:self];
-		[searchTableView setDataSource:self];
-	}
-	return searchTableView;
-}
-
-
-#pragma mark Searchbar helper methods
-
-- (NSIndexPath *) indexPathFromSearchIndex: (int) index
-{
-	int asectionIndex = 0;
-	for (NSIndexSet * thisSet in searchResultIndexes) 
-	{
-		int thisSetCount = [thisSet count];
-		if(index < thisSetCount)
+		int rowCount = [sectionProxy rowCount];
+		if (rowCount + current > index)
 		{
-			int rowIndex = [thisSet firstIndex];
-			while (index > 0) 
+			if (section!=nil)
 			{
-				rowIndex = [thisSet indexGreaterThanIndex:rowIndex];
-				index --;
+				*section = sectionIndex;
 			}
-			return [NSIndexPath indexPathForRow:rowIndex inSection:asectionIndex];
+			return [sectionProxy rowAtIndex:row];
 		}
-		asectionIndex++;
-		index -= thisSetCount;
+		row -= rowCount;
+		current += rowCount;
+		sectionIndex++;
 	}
+
 	return nil;
 }
 
-- (void)updateSearchResultIndexesForString:(NSString *) searchString
+-(void)insertRow:(TiUITableViewRowProxy*)row before:(TiUITableViewRowProxy*)before animation:(NSDictionary*)animation
 {
-	NSEnumerator * searchResultIndexEnumerator;
-	if(searchResultIndexes == nil)
+	row.table = self;
+	row.section = before.section;
+	row.row = before.row;
+	before.row = row.row + 1;
+	NSMutableArray *rows = [row.section rows];
+	[rows insertObject:row atIndex:row.row];
+	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:animation section:row.section.section type:TiUITableViewActionInsertRowBefore] autorelease];
+	[self dispatchAction:action];
+}
+
+-(void)insertRow:(TiUITableViewRowProxy*)row after:(TiUITableViewRowProxy*)after animation:(NSDictionary*)animation
+{
+	row.table = self;
+	row.section = after.section;
+	row.row = after.row + 1;
+	NSMutableArray *rows = [row.section rows];
+	if (row.row >= [rows count])
 	{
-		searchResultIndexes = [[NSMutableArray alloc] initWithCapacity:[sectionArray count]];
-		searchResultIndexEnumerator = nil;
-	} 
-	else 
-	{
-		searchResultIndexEnumerator = [searchResultIndexes objectEnumerator];
+		[rows addObject:row];
 	}
-	
-	//TODO: If the search is adding letters to the previous search string, do it by elimination instead of adding.
-	
-	NSString * ourSearchAttribute = filterAttribute;
-	if(ourSearchAttribute == nil)ourSearchAttribute = @"title";
-	
-	for (TiUITableViewGroupSection * thisSection in sectionArray) 
+	else
 	{
-		NSMutableIndexSet * thisIndexSet = [searchResultIndexEnumerator nextObject];
-		if (thisIndexSet == nil)
+		[rows insertObject:row atIndex:row.row];
+	}
+	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:animation section:row.section.section type:TiUITableViewActionInsertRowAfter] autorelease];
+	[self dispatchAction:action];
+}
+
+-(void)deleteRow:(TiUITableViewRowProxy*)row animation:(NSDictionary*)animation
+{
+	[[row retain] autorelease];
+	NSMutableArray *rows = [row.section rows];
+	[rows removeObject:row];
+	int c=0;
+	for (TiUITableViewRowProxy *child in rows)
+	{
+		child.row = c;
+		c++;
+	}
+	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:animation section:row.section.section type:TiUITableViewActionDeleteRow] autorelease];
+	[self dispatchAction:action];
+}
+
+-(void)appendRow:(TiUITableViewRowProxy*)row animation:(NSDictionary*)animation
+{
+	row.table = self;
+	TiUITableViewSectionProxy *section = [sections objectAtIndex:[sections count]-1];
+	row.section = section;
+	NSMutableArray *rows = [row.section rows];
+	row.row = [rows count];
+	[rows addObject:row];
+	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:animation section:row.section.section type:TiUITableViewActionInsertRowAfter] autorelease];
+	[self dispatchAction:action];
+}
+
+-(void)dispatchAction:(TiUITableViewAction*)action
+{
+	ENSURE_UI_THREAD(dispatchAction,action);
+	
+	UITableView *table = [self tableView];
+
+	[table beginUpdates];
+	
+	switch (action.type)
+	{
+		case TiUITableViewActionUpdateRow:
 		{
-			searchResultIndexEnumerator = nil; //Make sure we don't use the enumerator anymore. 
-			thisIndexSet = [NSMutableIndexSet indexSet];
-			[searchResultIndexes addObject:thisIndexSet];
-		} 
-		else 
-		{
-			[thisIndexSet removeAllIndexes];
+			NSIndexPath *path = [NSIndexPath indexPathForRow:action.row.row inSection:action.row.section.section];
+			[tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+			break;
 		}
-		int cellIndex = 0;
-		for (TiUITableViewRowProxy * thisCell in thisSection) 
+		case TiUITableViewActionSectionReload:
 		{
-			if([thisCell stringForKey:ourSearchAttribute containsString:searchString])
-			{
-				[thisIndexSet addIndex:cellIndex];
-			}
-			cellIndex ++;
+			NSIndexSet *path = [NSIndexSet indexSetWithIndex:action.section];
+			[tableview reloadSections:path withRowAnimation:action.animation];
+			break;
+		}
+		case TiUITableViewActionInsertRowBefore:
+		case TiUITableViewActionInsertRowAfter:
+		{
+			NSIndexPath *path = [NSIndexPath indexPathForRow:action.row.row inSection:action.row.section.section];
+			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+			break;
+		}
+		case TiUITableViewActionDeleteRow:
+		{
+			NSIndexPath *path = [NSIndexPath indexPathForRow:action.row.row inSection:action.row.section.section];
+			[tableview deleteRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+			break;
 		}
 	}
+	
+	[table endUpdates];
 }
 
-#pragma mark Searchbar-related IBActions
-
-- (IBAction) hideSearchScreen: (id) sender
+-(UIView*)titleViewForText:(NSString*)text footer:(BOOL)footer
 {
-	[UIView beginAnimations:@"searchy" context:nil];
-	//TODO: port search field to new view
-	[[searchField view] resignFirstResponder];
-	[self makeRootViewFirstResponder];
-	[searchTableView removeFromSuperview];
-	[searchScreenView setEnabled:NO];
-	[searchScreenView setAlpha:0.0];
-	[UIView commitAnimations];
-}
-
-
-- (IBAction) showSearchScreen: (id) sender
-{
-	[tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
-					 atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+	CGSize maxSize = CGSizeMake(320, 1000);
+	UIFont *font = [[WebFont defaultBoldFont] font];
+	CGSize size = [text sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
 	
-	CGRect screenRect = [TiUtils viewPositionRect:tableview];
-	CGFloat searchHeight = [[tableview tableHeaderView] bounds].size.height;
-	
-	screenRect.origin.y += searchHeight;
-	screenRect.size.height -= searchHeight;
-	
-	UIView * wrapperView = [tableview superview];
-	if ([[self searchScreenView] superview] != wrapperView) 
-	{
-		[searchScreenView setAlpha:0.0];
-		[wrapperView insertSubview:searchScreenView aboveSubview:tableview];
-	}
-	[TiUtils setView:searchScreenView positionRect:screenRect];
-	
-	[UIView beginAnimations:@"searchy" context:nil];
-	[searchScreenView setEnabled:YES];
-	[searchScreenView setAlpha:0.85];
-	[UIView commitAnimations];
-}
+	UITableViewStyle style = [[self tableView] style];
+	int x = (style==UITableViewStyleGrouped) ? 15 : 10;
+	int y = 10;
+	int y2 = (footer) ? 0 : 10;
+	UIView *containerView = [[[UIView alloc] initWithFrame:CGRectMake(0, y, size.width, size.height+10)] autorelease];
+    UILabel *headerLabel = [[[UILabel alloc] initWithFrame:CGRectMake(x, y2, size.width, size.height)] autorelease];
 
-#pragma mark UITableView methods
-
--(UITableViewStyle)tableStyle
-{
-	return UITableViewStylePlain;
-}
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)ourTableView
-{
-	if(ourTableView == searchTableView)
-	{
-		return 1;
-	}
-	return [super numberOfSectionsInTableView:ourTableView];
-}
-
-- (NSInteger)tableView:(UITableView *)ourTableView numberOfRowsInSection:(NSInteger)section
-{
-	if(ourTableView == searchTableView)
-	{
-		int rowCount = 0;
-		for (NSIndexSet * thisSet in searchResultIndexes) 
-		{
-			rowCount += [thisSet count];
-		}
-		return rowCount;
-	}
+    headerLabel.text = text;
+    headerLabel.textColor = [UIColor blackColor];
+    headerLabel.shadowColor = [UIColor whiteColor];
+    headerLabel.shadowOffset = CGSizeMake(0, 1);
+	headerLabel.font = font;
+    headerLabel.backgroundColor = [UIColor clearColor];
+    [containerView addSubview:headerLabel];
 	
-	return [super tableView:ourTableView numberOfRowsInSection:section];
-}
-
-- (UITableViewCell *)tableView:(UITableView *)ourTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-	if(ourTableView == searchTableView)
-	{
-		UITableViewCell * result = [ourTableView dequeueReusableCellWithIdentifier:@"search"];
-		if(result==nil)
-		{
-			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"search"] autorelease];
-		}
-		TiUITableViewRowProxy * rowWrapper = [self cellForIndexPath:[self indexPathFromSearchIndex:[indexPath row]]];
-		[(id)result setText:[rowWrapper title]];
-		return result;
-	}
-	
-	return [super tableView:ourTableView cellForRowAtIndexPath:indexPath];
-}
-
-- (NSString *)tableView:(UITableView *)ourTableView titleForHeaderInSection:(NSInteger)section    
-{
-	if(ourTableView==searchTableView)
-	{
-		return nil;
-	}
-	return [super tableView:ourTableView titleForHeaderInSection:section];
-}
-
-- (NSString *)tableView:(UITableView *)ourTableView titleForFooterInSection:(NSInteger)section
-{
-	if(ourTableView==searchTableView)
-	{
-		return nil;
-	}
-	return [super tableView:ourTableView titleForFooterInSection:section];
-}
-
-- (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{	
-//	if(ourTableView==searchTableView)
-//	{
-//		return [ourTableView rowHeight];
-//	}
-//	
-//	TiUITableViewCellProxy * ourTableCell = [self cellForIndexPath:indexPath];
-//	
-//	TiDimension result = [ourTableCell rowHeight];
-//	CHECK_ROW_HEIGHT(result,ourTableCell,ourTableView);
-//	
-//	result = [templateCell rowHeight];
-//	CHECK_ROW_HEIGHT(result,ourTableCell,ourTableView);
-	
-	return [super tableView:ourTableView heightForRowAtIndexPath:indexPath];
-}
-
-- (void)tableView:(UITableView *)ourTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{	
-	if(ourTableView == searchTableView)
-	{
-		[ourTableView deselectRowAtIndexPath:indexPath animated:YES];
-		[self hideSearchScreen:nil];
-		indexPath = [self indexPathFromSearchIndex:[indexPath row]];
-	}
-	
-	int section = [indexPath section];
-	int blessedRow = [indexPath row];
-	TiUITableViewGroupSection * sectionWrapper = [self sectionForIndex:section];
-	
-//	if ([sectionWrapper isOptionList] && ![[sectionWrapper rowForIndex:blessedRow] isButton])
-//	{
-//		for (int row=0;row<[sectionWrapper rowCount];row++) 
-//		{
-//			TiUITableViewCellProxy * rowWrapper = [sectionWrapper rowForIndex:row];
-////			UITableViewCellAccessoryType rowType = [rowWrapper accessoryType];
-//			BOOL isBlessed = (row == blessedRow);
-//			
-//			UITableViewCell * thisCell = [ourTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:section]];
-//			
-//			if (!isBlessed && (rowType == UITableViewCellAccessoryCheckmark)) 
-//			{
-//				[rowWrapper setAccessoryType:UITableViewCellAccessoryNone];
-//				if (thisCell != nil)
-//				{
-//					[thisCell setAccessoryType:UITableViewCellAccessoryNone];
-//					[(id)thisCell setTextColor:[UIColor blackColor]];
-//				}
-//			} 
-//			else if (isBlessed && (rowType == UITableViewCellAccessoryNone))
-//			{
-//				[rowWrapper setAccessoryType:UITableViewCellAccessoryCheckmark];
-//				if (thisCell != nil)
-//				{
-//					[thisCell setAccessoryType:UITableViewCellAccessoryCheckmark];
-//					[(id)thisCell setTextColor:UIColorCheckmarkColor()];
-//				}
-//			}
-//		}
-//	}
-	[ourTableView deselectRowAtIndexPath:indexPath animated:YES];
-	
-	[self triggerActionForIndexPath:indexPath fromPath:nil wasAccessory:NO search:(ourTableView == searchTableView) name:@"click"];
+	return containerView;
 }
 
 #pragma mark Public APIs
 
-- (void) setFilterAttribute_:(id)newFilterAttribute
+-(void)setBackgroundColor_:(id)arg
 {
-	ENSURE_STRING_OR_NIL(newFilterAttribute);
-	if (newFilterAttribute == filterAttribute) 
-	{
-		return;
-	}
-	RELEASE_TO_NIL(filterAttribute);
-	filterAttribute = [newFilterAttribute copy];
+	TiColor *color = [TiUtils colorValue:arg];
+	[[self tableView] setBackgroundColor:[color _color]];
 }
 
--(void)setSearch_:(id)search
+-(void)setBackgroundImage_:(id)arg
 {
-	ENSURE_TYPE_OR_NIL(search,TiUISearchBarProxy);
-	RELEASE_TO_NIL(searchField);
-	
-	if (search!=nil)
-	{
-		searchField = [search retain];
-		searchField.delegate = self;
-	}
-	
-	[self updateSearchView];
+	NSURL *url = [TiUtils toURL:arg proxy:(TiProxy*)self.proxy];
+	UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+	[[self tableView] setBackgroundColor:[UIColor colorWithPatternImage:image]];
 }
 
--(void)setIndex_:(NSArray*)index_
+-(void)setSeparatorStyle_:(id)arg
 {
-	RELEASE_TO_NIL(sectionIndex);
-	RELEASE_TO_NIL(sectionIndex);
-	
-	sectionIndex = [[NSMutableArray alloc] initWithCapacity:[index_ count]];
-	sectionIndexMap = [[NSMutableDictionary alloc] init];
-	
-	for (NSDictionary *entry in index_)
-	{
-		ENSURE_DICT(entry);
-		
-		NSString *title = [entry objectForKey:@"title"];
-		id theindex = [entry objectForKey:@"index"];
-		[sectionIndex addObject:title];
-		[sectionIndexMap setObject:[NSNumber numberWithInt:[TiUtils intValue:theindex]] forKey:title];
-	}
+	[[self tableView] setSeparatorStyle:[TiUtils intValue:arg]];
 }
 
-#pragma mark Data handling -- Already checked for validity.
-
--(TiUITableViewGroupSection *) addSectionAtIndex:(int)index
+-(void)setSeparatorColor_:(id)arg
 {
-	TiUITableViewGroupSection * newSection = [[TiUITableViewGroupSection alloc] init];
-	if (sectionArray == nil)
-	{
-		sectionArray = [[NSMutableArray alloc] init];
-	}
-	[sectionArray insertObject:newSection atIndex:index];
-	return [newSection autorelease];
+	TiColor *color = [TiUtils colorValue:arg];
+	[[self tableView] setSeparatorColor:[color _color]];
 }
 
--(void)addRowWithTransaction:(TiUITableViewTransaction *)transaction
+-(void)setHeaderTitle_:(id)args
 {
-	TiUITableViewRowProxy * row = [transaction value];
-	NSString * headerString = [TiUtils stringValue:[row valueForKey:@"header"]];
-
-	TiUITableViewGroupSection * section = [sectionArray lastObject];
-	int sectionCount = [sectionArray count];
-	
-	if ((section != nil) && (headerString == nil))
-	{
-		[section addObjectToData:row];
-		NSIndexPath * ourPath = [NSIndexPath indexPathForRow:[section countOfData]-1 inSection:sectionCount-1];
-		[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:ourPath] withRowAnimation:[transaction animation]];
-	}
-	else
-	{
-		section = [self addSectionAtIndex:sectionCount];
-		[section addObjectToData:row];
-		[section setHeader:headerString];
-		NSIndexSet * ourSet = [NSIndexSet indexSetWithIndex:sectionCount];
-		[tableview insertSections:ourSet withRowAnimation:[transaction animation]];
-	}
+	[[self tableView] setTableHeaderView:[self titleViewForText:[TiUtils stringValue:args] footer:NO]];
 }
 
--(void)setData_:(id)dataArray
+-(void)setFooterTitle_:(id)args
 {
-	int oldCount = [sectionArray count];
-	RELEASE_TO_NIL(sectionArray);
-	sectionArray = [[NSMutableArray alloc] init];
-	
-	TiUITableViewGroupSection * thisSectionWrapper = nil;
-	
-	int newCount = 0;
-	for (TiUITableViewRowProxy * thisEntry in dataArray)
-	{
-		NSString * headerString = [TiUtils stringValue:[thisEntry valueForKey:@"header"]];
+	[[self tableView] setTableFooterView:[self titleViewForText:[TiUtils stringValue:args] footer:YES]];
+}
 
-		if ((thisSectionWrapper == nil) || (headerString != nil))
+-(void)setData_:(id)args
+{
+	ENSURE_ARRAY(args);
+	
+	NSArray *oldSections = nil;
+	BOOL hasData = sections!=nil && [sections count] > 0;
+	if (hasData)
+	{
+		oldSections = [sections retain];
+	}
+	RELEASE_TO_NIL(sections);
+	
+	// create new sections array
+	sections = [[NSMutableArray arrayWithArray:args] retain];
+	
+	// wire up the relationships
+	for (int c=0;c<[sections count];c++)
+	{
+		TiUITableViewSectionProxy *section = [sections objectAtIndex:c];
+		section.section = c;
+		section.table = self;
+		for (int x=0;x<[section rowCount];x++)
 		{
-			thisSectionWrapper = [[TiUITableViewGroupSection alloc] init];
-			DoProxyDelegateReadValuesWithKeysFromProxy(thisSectionWrapper,[thisEntry allProperties],thisEntry);
-
-			[sectionArray addObject:thisSectionWrapper];
-			[thisSectionWrapper autorelease];
-			newCount ++;
+			TiUITableViewRowProxy *row = [section rowAtIndex:x];
+			row.table = self;
+			row.section = section;
+			row.row = x;
 		}
-		[thisSectionWrapper addObjectToData:thisEntry];
 	}
 	
-	[tableview beginUpdates];
-	[tableview deleteSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, oldCount)] withRowAnimation:UITableViewRowAnimationFade];
-	[tableview insertSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newCount)] withRowAnimation:UITableViewRowAnimationFade];
-	[tableview endUpdates];
-}
-
-
-
-#pragma mark Collation
-
-- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
-{
-	if (sectionIndex!=nil && self.editing==NO)
+	UITableView *table = [self tableView];
+	if (hasData)
 	{
-		return sectionIndex;
+		[table beginUpdates];
+		[table reloadData];
+		[table endUpdates];
+		[oldSections release];
 	}
-	return nil;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index
+#pragma mark Datasource 
+
+- (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section
 {
-	if (sectionIndexMap!=nil)
+	if (sections!=nil)
 	{
-		// get the section for the row index
-		int index = [[sectionIndexMap objectForKey:title] intValue];
-		return [self sectionIndexForIndex:index];
+		TiUITableViewSectionProxy *sectionProxy = [sections objectAtIndex:section];
+		return sectionProxy.rowCount;
 	}
 	return 0;
 }
 
-#pragma mark Search Bar Delegate
+// Row display. Implementers should *always* try to reuse cells by setting each cell's reuseIdentifier and querying for available reusable cells with dequeueReusableCellWithIdentifier:
+// Cell gets various attributes set automatically based on table (separators) and data source (accessory views, editing controls)
 
-- (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	// called when text starts editing
-	[self showSearchScreen:nil];
-}
-
-- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
-{
-	// called when text changes (including clear)
-	if([searchText length]==0)
-	{
-		[searchTableView removeFromSuperview];
-		return;
-	}
-	[self updateSearchResultIndexesForString:searchText];
+	TiUITableViewSectionProxy *section = [sections objectAtIndex:[indexPath section]];
+	TiUITableViewRowProxy *row = [section rowAtIndex:[indexPath row]];
 	
-	UIView * wrapperView = [searchScreenView superview];	
-	if([searchTableView superview] != wrapperView)
+	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:row.className];
+	if (cell == nil)
 	{
-		if(searchTableView == nil)
+		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.className] autorelease];
+		[row initializeTableViewCell:cell];
+	}
+	else
+	{
+		[row renderTableViewCell:cell];
+	}
+	
+	return cell;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+	return sections!=nil ? [sections count] : 0;
+}
+
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+	TiUITableViewSectionProxy *sectionProxy = [sections objectAtIndex:section];
+	return [sectionProxy headerTitle];
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
+{
+	TiUITableViewSectionProxy *sectionProxy = [sections objectAtIndex:section];
+	return [sectionProxy footerTitle];
+}
+
+//
+//// Editing
+//
+//// Individual rows can opt out of having the -editing property set for them. If not implemented, all rows are assumed to be editable.
+//- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath;
+//
+//// Moving/reordering
+//
+//// Allows the reorder accessory view to optionally be shown for a particular row. By default, the reorder control will be shown only if the datasource implements -tableView:moveRowAtIndexPath:toIndexPath:
+//- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath;
+//
+//// Index
+//
+//- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView;                                                    // return list of section titles to display in section index view (e.g. "ABCD...Z#")
+//- (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index 
+//{
+//	// tell table which section corresponds to section title/index (e.g. "B",1))
+//}
+//
+//// Data manipulation - insert and delete support
+//
+//// After a row has the minus or plus button invoked (based on the UITableViewCellEditingStyle for the cell), the dataSource must commit the change
+//- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+//{
+//}
+//
+//// Data manipulation - reorder / moving support
+//
+//- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
+//{
+//}
+
+
+#pragma mark Delegate
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+	[tableView deselectRowAtIndexPath:indexPath animated:YES];
+	
+	int sectionIndex = [indexPath section];
+	int rowIndex = [indexPath row];
+	int index = 0;
+	int c = 0;
+	TiUITableViewSectionProxy *section = [sections objectAtIndex:sectionIndex];
+	TiUITableViewRowProxy *row = [section rowAtIndex:rowIndex];
+	
+	// unfortunately, we have to scan to determine our row index
+	for (TiUITableViewSectionProxy *section in sections)
+	{
+		if (c == sectionIndex)
 		{
-			[self searchTableView];
-		} 
-		else 
-		{
-			[searchTableView reloadSections:[NSIndexSet indexSetWithIndex:0]
-						   withRowAnimation:UITableViewRowAnimationFade];
+			index += rowIndex;
+			break;
 		}
-		[wrapperView insertSubview:searchTableView aboveSubview:searchScreenView];
-	} 
-	else 
+		index += [section rowCount];
+		c++;
+	}
+	
+	
+	BOOL accessoryTapped = NO; //TODO
+	BOOL viaSearch = NO; //TODO
+	
+	NSMutableDictionary * eventObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+										 section,@"section",
+										 NUMINT(index),@"index",
+										 row,@"row",
+										 NUMBOOL(accessoryTapped),@"detail",
+										 NUMBOOL(viaSearch),@"searchMode",
+										 row,@"rowData",
+										 nil];
+	
+	if ([self.proxy _hasListeners:@"click"])
 	{
-		[searchTableView reloadSections:[NSIndexSet indexSetWithIndex:0]
-					   withRowAnimation:UITableViewRowAnimationFade];
+		[self.proxy fireEvent:@"click" withObject:eventObject];
+	}
+	if ([section _hasListeners:@"click"])
+	{
+		[section fireEvent:@"click" withObject:eventObject];
+	}
+	if ([row _hasListeners:@"click"])
+	{
+		[row fireEvent:@"click" withObject:eventObject];
 	}
 }
 
-- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar                    
-{
-	// called when keyboard search button pressed
-	[searchBar resignFirstResponder];
-	[self makeRootViewFirstResponder];
-}
 
-- (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar
-{
-	// called when cancel button pressed
-	[searchBar setText:nil];
-	[self hideSearchScreen:nil];
-}
+// Display customization
+//
+//- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath;
+//
+// Variable height support
+//
+//- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
+//- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section;
+//- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section;
+//
+// Section header & footer information. Views are preferred over title should you decide to provide both
+//
+//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section;   // custom view for header. will be adjusted to default or specified header height
+//- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section;   // custom view for footer. will be adjusted to default or specified footer height
+//
+// Accessories (disclosures). 
+//
+//- (UITableViewCellAccessoryType)tableView:(UITableView *)tableView accessoryTypeForRowWithIndexPath:(NSIndexPath *)indexPath __OSX_AVAILABLE_BUT_DEPRECATED(__MAC_NA,__MAC_NA,__IPHONE_2_0,__IPHONE_3_0);
+//- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath;
+//
+// Selection
+//
+// Called before the user changes the selection. Return a new indexPath, or nil, to change the proposed selection.
+//- (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath;
+//- (NSIndexPath *)tableView:(UITableView *)tableView willDeselectRowAtIndexPath:(NSIndexPath *)indexPath __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+// Called after the user changes the selection.
+
+//- (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+//
+// Editing
+//
+// Allows customization of the editingStyle for a particular cell located at 'indexPath'. If not implemented, all editable cells will have UITableViewCellEditingStyleDelete set for them when the table has editing property set to YES.
+//- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+//{
+//	return 
+//}
+//
+//- (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
+//{
+//	return NSLocalizedString(@"Delete",@"Delete Confirm");
+//}
+//
+// Controls whether the background is indented while editing.  If not implemented, the default is YES.  This is unrelated to the indentation level below.  This method only applies to grouped style table views.
+//- (BOOL)tableView:(UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath
+//{
+//	return YES;
+//}
+//
+// The willBegin/didEnd methods are called whenever the 'editing' property is automatically changed by the table (allowing insert/delete/move). This is done by a swipe activating a single row
+//- (void)tableView:(UITableView*)tableView willBeginEditingRowAtIndexPath:(NSIndexPath *)indexPath
+//{
+//}
+//
+//- (void)tableView:(UITableView*)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath
+//{
+//}
+//
+// Moving/reordering
+//
+// Allows customization of the target row for a particular row as it is being moved/reordered
+//- (NSIndexPath *)tableView:(UITableView *)tableView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath
+//{
+//	return proposedDestinationIndexPath;
+//}
+//
+// Indentation
+//
+//- (NSInteger)tableView:(UITableView *)tableView indentationLevelForRowAtIndexPath:(NSIndexPath *)indexPath
+//{
+//	// return 'depth' of row for hierarchies
+//	return 0;
+//}
 
 @end

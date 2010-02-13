@@ -4,13 +4,12 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import "TiProxy.h"
 
-#import "TiUITextWidget.h"
-
-@interface TiUITextArea : TiUITextWidget <UITextViewDelegate>
-{
-@private
-	BOOL returnActive;
+@interface TiUITableViewStyleProxy : TiProxy {
 }
+
+@property(nonatomic,readonly) NSNumber *PLAIN;
+@property(nonatomic,readonly) NSNumber *GROUPED;
 
 @end

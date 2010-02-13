@@ -4,26 +4,23 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiUITableViewBase.h"
-#import "TiViewProxy.h"
-#import "TiUISearchBarProxy.h"
+#import "TiUIView.h"
+#import "TiUITableViewRowProxy.h"
+#import "TiUITableViewSectionProxy.h"
+#import "TiUITableViewAction.h"
 
-@interface TiUITableView : TiUITableViewBase<UISearchBarDelegate> {
-
-	TiUISearchBarProxy * searchField;
-	UIView * tableHeaderView;
-	
-	UIButton * searchScreenView;
-	UITableView *searchTableView;
-	
-	NSString * filterAttribute;
-	NSMutableArray * searchResultIndexes;
-	
-	NSMutableArray * sectionIndex;
-	NSMutableDictionary * sectionIndexMap;
+@interface TiUITableView : TiUIView<UITableViewDelegate,UITableViewDataSource> {
+@private
+	UITableView *tableview;
+	NSMutableArray *sections;
 }
 
--(void)addRowWithTransaction:(TiUITableViewTransaction *)transaction;
-
+#pragma mark Framework
+-(TiUITableViewRowProxy*)rowForIndex:(NSInteger)index section:(NSInteger*)section;
+-(void)dispatchAction:(TiUITableViewAction*)action;
+-(void)insertRow:(TiUITableViewRowProxy*)row before:(TiUITableViewRowProxy*)before animation:(NSDictionary*)animation;
+-(void)insertRow:(TiUITableViewRowProxy*)row after:(TiUITableViewRowProxy*)after animation:(NSDictionary*)animation;
+-(void)deleteRow:(TiUITableViewRowProxy*)row animation:(NSDictionary*)animation;
+-(void)appendRow:(TiUITableViewRowProxy*)row animation:(NSDictionary*)animation;
 
 @end

@@ -1,3 +1,5 @@
+//FIXME: JGH redo
+
 var win = Titanium.UI.currentWindow;
 win.barColor = '#385292';
 

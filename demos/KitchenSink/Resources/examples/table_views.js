@@ -22,7 +22,12 @@ var data = [
 
 // create table view
 var tableview = Titanium.UI.createTableView({
-	data:data
+	data:data,
+	style:Titanium.UI.iPhone.TableViewStyle.GROUPED,
+	headerTitle:'Table Tests',
+	footerTitle:'End of tests',
+	backgroundColor: '#aebcad',
+	_backgroundImage:'../images/bg.png'
 });
 
 // create table view event listener

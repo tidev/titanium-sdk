@@ -1,3 +1,5 @@
+//JGH: FIXME - remove HTML
+
 var win = Titanium.UI.currentWindow;
 
 var data = [

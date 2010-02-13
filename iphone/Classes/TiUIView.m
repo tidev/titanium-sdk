@@ -451,9 +451,9 @@ return;\
 	DoProxyDelegateReadValuesWithKeysFromProxy(self, keys, proxy);
 }
 
--(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy
+-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy_
 {
-	DoProxyDelegateChangedValuesWithProxy(self, key, oldValue, newValue, proxy);
+	DoProxyDelegateChangedValuesWithProxy(self, key, oldValue, newValue, proxy_);
 }
 
 //

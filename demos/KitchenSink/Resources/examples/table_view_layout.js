@@ -1,3 +1,5 @@
+//FIXME: JGH redo
+
 var win = Titanium.UI.currentWindow;
 win.backgroundImage = '../images/tableview/brown_bg_482.png';
 
@@ -57,7 +59,6 @@ var tableView = Titanium.UI.createTableView({
 	backgroundColor:'transparent',
 	borderColor:'transparent',
 	data:data
-
 });
 
 win.add(tableView);

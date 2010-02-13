@@ -6,152 +6,156 @@
  */
 
 #import "TiUITableViewRowProxy.h"
-#import "TiUITableViewCell.h"
-
-#import "Webcolor.h"
-#import "WebFont.h"
-#import "ImageLoader.h"
+#import "TiUITableViewAction.h"
+#import "TiUITableViewSectionProxy.h"
+#import "TiUITableView.h"
 #import "TiUtils.h"
-#import "LayoutEntry.h"	
+#import "ImageLoader.h"
 
 @implementation TiUITableViewRowProxy
-@synthesize children, parent;
 
-- (void) dealloc
+@synthesize className, table, section, row;
+
+-(void)_destroy
 {
-	RELEASE_TO_NIL(children);
-	parent = nil; //NOT RETAINED BY ROW
-	[super dealloc];
+	RELEASE_TO_NIL(className);
 }
 
-- (void) replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify
+-(void)_initWithProperties:(NSDictionary *)properties
 {
-	id oldValue = [[self valueForKey:key] retain];
-	[super replaceValue:value forKey:key notification:notify];
-	if(notify && (parent != nil))
-	{
-		[parent row:self changedValue:value oldValue:oldValue forKey:key];
-	}
-	[oldValue release];
+	[super _initWithProperties:properties];
+	className = [[TiUtils stringValue:@"class" properties:properties def:@"_default_"] retain];
 }
 
-
--(TiUITableViewCell *)cellForTableView:(UITableView *)tableView
+-(void)updateRow:(NSDictionary *)data withObject:(NSDictionary *)properties
 {
-	NSString * indentifier = [TiUtils stringValue:[self valueForKey:@"rowClass"]];
-	if (indentifier==nil)
-	{
-		indentifier = [NSString stringWithFormat:@"%X",self];
-	}
-
-	TiUITableViewCell *result = (TiUITableViewCell *)[tableView dequeueReusableCellWithIdentifier:indentifier];
-	if (result == nil)
-	{
-		int cellStyle = [TiUtils intValue:[self valueForKey:@"style"]];
-		result = [[[TiUITableViewCell alloc] initWithStyle:cellStyle reuseIdentifier:indentifier] autorelease];
-		[result setTableStyle:[tableView style]];
-	}
-	[result setProxy:self];	//This will read all the proxy values and set it alllllll up.
-	return result;
-}
-
--(CGFloat)rowHeightForWidth:(CGFloat)rowWidth
-{
-	CGFloat result;
-	switch (rowHeight.type)
-	{
-		case TiDimensionTypePixels:
-			result = rowHeight.value;
-			break;
-		case TiDimensionTypeAuto:
-			result = [self autoHeightForWidth:rowWidth];
-			break;
-		default:
-			return 0;	//Even if there's a minRowHeight or maxRowHeight, we don't want to honor it if we have no height?
-			break;
-	}
+	[super _initWithProperties:data];
 	
-	return MAX(TiDimensionCalculateValue(minRowHeight, 0),
-			MIN(TiDimensionCalculateValue(maxRowHeight, 0),result));
-}
-
-//This is called either internally or if the rowHeight of a table/section is 'auto'.
--(CGFloat)autoHeightForWidth:(CGFloat) rowWidth
-{
-	CGFloat result = 0;
-	SEL autoHeightSelector = @selector(minimumParentHeightForWidth:);
-	for (TiViewProxy * thisProxy in children)
+	// check to see if we have a section header change, too...
+	if ([data objectForKey:@"header"])
 	{
-		if (![thisProxy respondsToSelector:autoHeightSelector])
-		{
-			continue;
-		}
-
-		CGFloat newResult = [thisProxy minimumParentHeightForWidth:rowWidth];
-		if (newResult > result)
-		{
-			result = newResult;
-		}
+		[section setHeaderTitle:[data objectForKey:@"header"]];
+		// we can return since we're reloading the section, will cause the 
+		// row to be repainted at the same time
 	}
-	return result;
+	if ([data objectForKey:@"footer"])
+	{
+		[section setFooterTitle:[data objectForKey:@"footer"]];
+		// we can return since we're reloading the section, will cause the 
+		// row to be repainted at the same time
+	}
+	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:self animation:properties section:section.section type:TiUITableViewActionUpdateRow] autorelease];
+	[table dispatchAction:action];
 }
 
--(void)add:(id)args
+-(void)configureTitle:(UITableViewCell*)cell
 {
-	NSLog(@"added: %@",args);
-	ENSURE_ARG_COUNT(args,1);
-	TiViewProxy * newChild = [args objectAtIndex:0];
-
-	ENSURE_TYPE(newChild,TiViewProxy);
-
-	if (children==nil)
+	NSString *title = [self valueForKey:@"title"];
+	if (title!=nil)
 	{
-		children = [[NSMutableArray alloc] initWithObjects:newChild,nil];
+		[cell.textLabel setText:title];
+	}
+	else 
+	{
+		[cell.textLabel setText:nil];
+	}
+}
+
+-(void)configureRightSide:(UITableViewCell*)cell
+{
+	BOOL hasChild = [TiUtils boolValue:[self valueForKey:@"hasChild"] def:NO];
+	if (hasChild)
+	{
+		cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 	}
 	else
 	{
-		[children addObject:newChild];
-	}
-
-	if ([self modelDelegate] != nil)
-	{
-		[(TiUITableViewCell *)[self modelDelegate] performSelectorOnMainThread:@selector(addChild:)
-				withObject:[newChild view] waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+		BOOL hasDetail = [TiUtils boolValue:[self valueForKey:@"hasDetail"] def:NO];
+		if (hasDetail)
+		{
+			cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+		}
+		else
+		{
+			BOOL hasCheck = [TiUtils boolValue:[self valueForKey:@"hasCheck"] def:NO];
+			if (hasCheck)
+			{
+				cell.accessoryType = UITableViewCellAccessoryCheckmark;
+			}
+			else
+			{
+				cell.accessoryType = UITableViewCellAccessoryNone;
+			}
+		}
 	}
 }
 
--(void)remove:(id)args
+-(void)configureBackground:(UITableViewCell*)cell
 {
-	ENSURE_ARG_COUNT(args,1);
-	TiViewProxy * doomedChild = [args objectAtIndex:0];
-
-//TODO: If this isn't a tiviewproxy, do we care?
-	if (![children containsObject:doomedChild])
+	id bgImage = [self valueForKey:@"backgroundImage"];
+	if (bgImage!=nil)
 	{
-		return;
+		NSURL *url = [TiUtils toURL:bgImage proxy:(TiProxy*)table.proxy];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+		if ([cell.backgroundView isKindOfClass:[UIImageView class]]==NO)
+		{
+			UIImageView *view = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+			cell.backgroundView = view;
+		}
+		((UIImageView*)cell.backgroundView).image = image;
+	}
+	else if (cell.backgroundView!=nil && [cell.backgroundView isKindOfClass:[UIImageView class]] && ((UIImageView*)cell.backgroundView).image!=nil)
+	{
+		cell.backgroundView = nil;
 	}
 	
-	if (([self modelDelegate] != nil) && [doomedChild viewAttached])
+	id selBgImage = [self valueForKey:@"selectedBackgroundImage"];
+	if (selBgImage!=nil)
 	{
-		[(TiUITableViewCell *)[self modelDelegate] performSelectorOnMainThread:@selector(removeChild:)
-				withObject:[doomedChild view] waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+		NSURL *url = [TiUtils toURL:selBgImage proxy:(TiProxy*)table.proxy];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+		if ([cell.selectedBackgroundView isKindOfClass:[UIImageView class]]==NO)
+		{
+			UIImageView *view = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+			cell.selectedBackgroundView = view;
+		}
+		((UIImageView*)cell.selectedBackgroundView).image = image;
 	}
-
-	[children removeObject:doomedChild];
+	else if (cell.selectedBackgroundView!=nil && [cell.selectedBackgroundView isKindOfClass:[UIImageView class]] && ((UIImageView*)cell.selectedBackgroundView).image!=nil)
+	{
+		cell.selectedBackgroundView = nil;
+	}
 }
 
-
-#pragma mark JS-exposed properties
-
-#define DECLARE_TIDIMENSION_SETTER(setter,prop)	\
--(void)setter:(id)newValue	\
-{	\
-prop = TiDimensionFromObject(newValue);	\
-[self setValue:newValue forUndefinedKey:@"" #prop];	\
+-(void)configureLeftSide:(UITableViewCell*)cell
+{
+	id image = [self valueForKey:@"image"];
+	if (image!=nil)
+	{
+		NSURL *url = [TiUtils toURL:image proxy:(TiProxy*)table.proxy];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+		cell.imageView.image = image;
+	}
+	else if (cell.imageView!=nil && cell.imageView.image!=nil)
+	{
+		cell.imageView.image = nil;
+	}
 }
 
-DECLARE_TIDIMENSION_SETTER(setRowHeight,rowHeight)
-DECLARE_TIDIMENSION_SETTER(setMinRowHeight,minRowHeight)
-DECLARE_TIDIMENSION_SETTER(setMaxRowHeight,maxRowHeight)
+-(void)initializeTableViewCell:(UITableViewCell*)cell
+{
+	[self configureTitle:cell];
+	[self configureLeftSide:cell];
+	[self configureRightSide:cell];
+	[self configureBackground:cell];
+}
+
+-(void)renderTableViewCell:(UITableViewCell*)cell
+{
+	[self configureTitle:cell];
+	[self configureLeftSide:cell];
+	[self configureRightSide:cell];
+	[self configureBackground:cell];
+}
 
 @end

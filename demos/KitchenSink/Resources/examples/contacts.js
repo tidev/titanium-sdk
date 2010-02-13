@@ -155,7 +155,7 @@ tableview.addEventListener('click', function(e)
 		var region1 = Titanium.UI.createTextField({
 			width:200,
 			hintText:'Region 1',
-			top:720,
+			top:730,
 			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 			autocapitalization:Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
 			height:35
@@ -163,7 +163,7 @@ tableview.addEventListener('click', function(e)
 		var region2 = Titanium.UI.createTextField({
 			width:200,
 			hintText:'Region 2',
-			top:765,
+			top:775,
 			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 			autocapitalization:Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
 			height:35
@@ -171,7 +171,7 @@ tableview.addEventListener('click', function(e)
 		var postalCode = Titanium.UI.createTextField({
 			width:200,
 			hintText:'Postal Code',
-			top:810,
+			top:820,
 			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 			autocapitalization:Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
 			height:35
@@ -179,7 +179,7 @@ tableview.addEventListener('click', function(e)
 		var country = Titanium.UI.createTextField({
 			width:200,
 			hintText:'Country',
-			top:855,
+			top:865,
 			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 			autocapitalization:Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
 			height:35
@@ -187,7 +187,7 @@ tableview.addEventListener('click', function(e)
 		var countryCode = Titanium.UI.createTextField({
 			width:200,
 			hintText:'Country Code',
-			top:900,
+			top:910,
 			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 			autocapitalization:Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
 			height:35
@@ -195,7 +195,7 @@ tableview.addEventListener('click', function(e)
 		var phone = Titanium.UI.createTextField({
 			width:200,
 			hintText:'Phone Number',
-			top:945,
+			top:955,
 			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 			autocapitalization:Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
 			height:35
@@ -203,7 +203,7 @@ tableview.addEventListener('click', function(e)
 		var instantMessenger = Titanium.UI.createTextField({
 			width:200,
 			hintText:'IM',
-			top:990,
+			top:1000,
 			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 			autocapitalization:Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
 			height:35
@@ -211,7 +211,7 @@ tableview.addEventListener('click', function(e)
 		var url = Titanium.UI.createTextField({
 			width:200,
 			hintText:'URL',
-			top:1035,
+			top:1045,
 			borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
 			autocapitalization:Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
 			height:35
