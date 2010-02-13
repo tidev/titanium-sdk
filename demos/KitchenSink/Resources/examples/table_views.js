@@ -4,6 +4,7 @@ var data = [
 	{title:'Custom Row Data', hasChild:true, test:'../examples/table_view_custom_rowdata.js'},
 	{title:'Headers', hasChild:true, test:'../examples/table_view_headers.js'},
 	{title:'Headers with Filter', hasChild:true, test:'../examples/table_view_headers_filter.js'},
+	{title:'Footers', hasChild:true, test:'../examples/table_view_footers.js'},
 	{title:'Delete Mode', hasChild:true, test:'../examples/table_view_delete.js'},
 	{title:'Delete Mode (2)', hasChild:true, test:'../examples/table_view_delete_2.js'},
 	{title:'Move Mode', hasChild:true, test:'../examples/table_view_move.js'},

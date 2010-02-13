@@ -166,12 +166,12 @@
 			{
 				section = [[[TiUITableViewSectionProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
 				[section setValue:header forUndefinedKey:@"headerTitle"];
-				NSString *footer = [dict objectForKey:@"footer"];
-				if (footer!=nil)
-				{
-					[section setValue:footer forUndefinedKey:@"footerTitle"];
-				}
 				[data addObject:section];
+			}
+			NSString *footer = [dict objectForKey:@"footer"];
+			if (footer!=nil)
+			{
+				[section setValue:footer forUndefinedKey:@"footerTitle"];
 			}
 			[section add:rowProxy];
 		}

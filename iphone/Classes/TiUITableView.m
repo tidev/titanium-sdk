@@ -410,10 +410,17 @@
 	}
 }
 
+-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+	TiUITableViewSectionProxy *section = [sections objectAtIndex:[indexPath section]];
+	TiUITableViewRowProxy *row = [section rowAtIndex:[indexPath row]];
+	NSString *color = [row valueForKey:@"backgroundColor"];
+	if (color!=nil)
+	{
+		cell.backgroundColor = UIColorWebColorNamed(color);
+	}
+}
 
-// Display customization
-//
-//- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath;
 //
 // Variable height support
 //

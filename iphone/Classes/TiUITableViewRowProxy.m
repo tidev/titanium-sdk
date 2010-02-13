@@ -111,16 +111,6 @@
 		cell.backgroundView = nil;
 	}
 	
-	id bgColor = [self valueForKey:@"backgroundColor"];
-	if (bgColor!=nil)
-	{
-		cell.backgroundView.backgroundColor = UIColorWebColorNamed(bgColor);
-	}
-	else
-	{
-		cell.backgroundView.backgroundColor = [UIColor clearColor];
-	}
-	
 	id selBgImage = [self valueForKey:@"selectedBackgroundImage"];
 	if (selBgImage!=nil)
 	{
