@@ -6,7 +6,31 @@
  */
 #import "TiUIView.h"
 
-@interface TiUITextWidget : TiUIView {
+@protocol TiUITextWidget
+
+#pragma mark Factory methods
+
+-(UIView<UITextInputTraits>*)textWidgetView;
+
+#pragma mark Public APIs
+
+-(BOOL)hasText;
+-(void)blur;
+-(void)focus;
+
+@end
+
+
+@interface TiUITextWidget : TiUIView<TiUITextWidget> {
+
+@protected
+
+	UIView<UITextInputTraits>*	textWidgetView;
+
+	UIToolbar *toolbar;
+	CGFloat toolbarHeight;
+	NSArray *toolbarItems;
+	BOOL toolbarVisible;
 
 @private
 

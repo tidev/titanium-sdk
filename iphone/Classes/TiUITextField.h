@@ -34,22 +34,11 @@
 @interface TiUITextField : TiUITextWidget <UITextFieldDelegate>
 {
 @private
-	TiTextField *textField;
-	UIToolbar *toolbar;
-	CGFloat toolbarHeight;
-	NSArray *toolbarItems;
-	BOOL toolbarVisible;
 }
-
-#pragma mark Public APIs
-
--(BOOL)hasText;
--(void)blur;
--(void)focus;
 
 #pragma mark Internal 
 
--(TiTextField*)textfield;
+-(TiTextField*)textWidgetView;
 
 @end
 

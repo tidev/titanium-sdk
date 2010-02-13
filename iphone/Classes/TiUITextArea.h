@@ -10,14 +10,7 @@
 @interface TiUITextArea : TiUITextWidget <UITextViewDelegate>
 {
 @private
-	UITextView *textView;
 	BOOL returnActive;
 }
-
-#pragma mark Public APIs
-
--(BOOL)hasText;
--(void)blur;
--(void)focus;
 
 @end
