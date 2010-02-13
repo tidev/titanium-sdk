@@ -10,6 +10,22 @@
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
+		243EC5EB112617F900639DF4 /* TiUITableViewSectionProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 243EC5E9112617F900639DF4 /* TiUITableViewSectionProxy.h */; };
+		243EC5EC112617F900639DF4 /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
+		243EC5ED112617F900639DF4 /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
+		243EC5EE112617F900639DF4 /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
+		243EC7D7112634AF00639DF4 /* TiUITableViewAction.h in Headers */ = {isa = PBXBuildFile; fileRef = 243EC7D5112634AF00639DF4 /* TiUITableViewAction.h */; };
+		243EC7D8112634AF00639DF4 /* TiUITableViewAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC7D6112634AF00639DF4 /* TiUITableViewAction.m */; };
+		243EC7D9112634AF00639DF4 /* TiUITableViewAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC7D6112634AF00639DF4 /* TiUITableViewAction.m */; };
+		243EC7DA112634AF00639DF4 /* TiUITableViewAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC7D6112634AF00639DF4 /* TiUITableViewAction.m */; };
+		243EC96A1126632700639DF4 /* TiUITableViewStyleProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 243EC9681126632700639DF4 /* TiUITableViewStyleProxy.h */; };
+		243EC96B1126632700639DF4 /* TiUITableViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC9691126632700639DF4 /* TiUITableViewStyleProxy.m */; };
+		243EC96C1126632700639DF4 /* TiUITableViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC9691126632700639DF4 /* TiUITableViewStyleProxy.m */; };
+		243EC96D1126632700639DF4 /* TiUITableViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC9691126632700639DF4 /* TiUITableViewStyleProxy.m */; };
+		243ECB2511267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 243ECB2311267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.h */; };
+		243ECB2611267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */; };
+		243ECB2711267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */; };
+		243ECB2811267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */; };
 		245E7621111A9A7700A18644 /* TitaniumModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8AA5111161FD0084E2DE /* TitaniumModule.h */; };
 		245E7622111A9A7800A18644 /* AccelerometerModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8B65111161FE0084E2DE /* AccelerometerModule.h */; };
 		245E7623111A9A7800A18644 /* APIModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8B59111161FE0084E2DE /* APIModule.h */; };
@@ -50,15 +66,8 @@
 		245E7646111A9A7800A18644 /* TiUICanvasViewProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A8B111161FD0084E2DE /* TiUICanvasViewProxy.h */; };
 		245E7647111A9A7800A18644 /* TiUICanvasView.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A8D111161FD0084E2DE /* TiUICanvasView.h */; };
 		245E7648111A9A7800A18644 /* TiUIEmailDialogProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A83111161FD0084E2DE /* TiUIEmailDialogProxy.h */; };
-		245E764A111A9A7800A18644 /* TiUITableViewTitle.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A3F111161FD0084E2DE /* TiUITableViewTitle.h */; };
 		245E764B111A9A7800A18644 /* TiUITableViewProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A41111161FD0084E2DE /* TiUITableViewProxy.h */; };
-		245E764C111A9A7800A18644 /* TiUITableViewGroupSection.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A43111161FD0084E2DE /* TiUITableViewGroupSection.h */; };
 		245E764D111A9A7800A18644 /* TiUITableView.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A49111161FD0084E2DE /* TiUITableView.h */; };
-		245E764E111A9A7800A18644 /* TiUITableViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A45111161FD0084E2DE /* TiUITableViewCell.h */; };
-		245E764F111A9A7800A18644 /* TiUITableViewBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A47111161FD0084E2DE /* TiUITableViewBase.h */; };
-		245E7650111A9A7800A18644 /* TiUIGroupedViewProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A7D111161FD0084E2DE /* TiUIGroupedViewProxy.h */; };
-		245E7651111A9A7800A18644 /* TiUIGroupedView.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A7F111161FD0084E2DE /* TiUIGroupedView.h */; };
-		245E7652111A9A7800A18644 /* TiUIGroupedSectionProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A81111161FD0084E2DE /* TiUIGroupedSectionProxy.h */; };
 		245E7653111A9A7800A18644 /* TiUITabGroupProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A4B111161FD0084E2DE /* TiUITabGroupProxy.h */; };
 		245E7654111A9A7800A18644 /* TiUITabProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A3B111161FD0084E2DE /* TiUITabProxy.h */; };
 		245E7655111A9A7800A18644 /* TiUITabGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8A4D111161FD0084E2DE /* TiUITabGroup.h */; };
@@ -206,11 +215,7 @@
 		24CA8B7B111161FE0084E2DE /* TiUITextAreaProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A36111161FD0084E2DE /* TiUITextAreaProxy.m */; };
 		24CA8B7C111161FE0084E2DE /* TiUITextArea.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A38111161FD0084E2DE /* TiUITextArea.m */; };
 		24CA8B7D111161FE0084E2DE /* TiUITabProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A3A111161FD0084E2DE /* TiUITabProxy.m */; };
-		24CA8B7F111161FE0084E2DE /* TiUITableViewTitle.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A3E111161FD0084E2DE /* TiUITableViewTitle.m */; };
 		24CA8B80111161FE0084E2DE /* TiUITableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A40111161FD0084E2DE /* TiUITableViewProxy.m */; };
-		24CA8B81111161FE0084E2DE /* TiUITableViewGroupSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A42111161FD0084E2DE /* TiUITableViewGroupSection.m */; };
-		24CA8B82111161FE0084E2DE /* TiUITableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A44111161FD0084E2DE /* TiUITableViewCell.m */; };
-		24CA8B83111161FE0084E2DE /* TiUITableViewBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A46111161FD0084E2DE /* TiUITableViewBase.m */; };
 		24CA8B84111161FE0084E2DE /* TiUITableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A48111161FD0084E2DE /* TiUITableView.m */; };
 		24CA8B85111161FE0084E2DE /* TiUITabGroupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4A111161FD0084E2DE /* TiUITabGroupProxy.m */; };
 		24CA8B86111161FE0084E2DE /* TiUITabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4C111161FD0084E2DE /* TiUITabGroup.m */; };
@@ -237,9 +242,6 @@
 		24CA8B9B111161FE0084E2DE /* TiUIiPhoneProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A76111161FD0084E2DE /* TiUIiPhoneProxy.m */; };
 		24CA8B9C111161FE0084E2DE /* TiUIImageViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A78111161FD0084E2DE /* TiUIImageViewProxy.m */; };
 		24CA8B9D111161FE0084E2DE /* TiUIImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7A111161FD0084E2DE /* TiUIImageView.m */; };
-		24CA8B9E111161FE0084E2DE /* TiUIGroupedViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7C111161FD0084E2DE /* TiUIGroupedViewProxy.m */; };
-		24CA8B9F111161FE0084E2DE /* TiUIGroupedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7E111161FD0084E2DE /* TiUIGroupedView.m */; };
-		24CA8BA0111161FE0084E2DE /* TiUIGroupedSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A80111161FD0084E2DE /* TiUIGroupedSectionProxy.m */; };
 		24CA8BA1111161FE0084E2DE /* TiUIEmailDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */; };
 		24CA8BA3111161FE0084E2DE /* TiUICoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */; };
 		24CA8BA4111161FE0084E2DE /* TiUICoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */; };
@@ -392,11 +394,7 @@
 		24CA8FB711116C490084E2DE /* TiUITextAreaProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A36111161FD0084E2DE /* TiUITextAreaProxy.m */; };
 		24CA8FB811116C490084E2DE /* TiUITextArea.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A38111161FD0084E2DE /* TiUITextArea.m */; };
 		24CA8FB911116C490084E2DE /* TiUITabProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A3A111161FD0084E2DE /* TiUITabProxy.m */; };
-		24CA8FBB11116C490084E2DE /* TiUITableViewTitle.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A3E111161FD0084E2DE /* TiUITableViewTitle.m */; };
 		24CA8FBC11116C490084E2DE /* TiUITableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A40111161FD0084E2DE /* TiUITableViewProxy.m */; };
-		24CA8FBD11116C490084E2DE /* TiUITableViewGroupSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A42111161FD0084E2DE /* TiUITableViewGroupSection.m */; };
-		24CA8FBE11116C490084E2DE /* TiUITableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A44111161FD0084E2DE /* TiUITableViewCell.m */; };
-		24CA8FBF11116C490084E2DE /* TiUITableViewBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A46111161FD0084E2DE /* TiUITableViewBase.m */; };
 		24CA8FC011116C490084E2DE /* TiUITableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A48111161FD0084E2DE /* TiUITableView.m */; };
 		24CA8FC111116C490084E2DE /* TiUITabGroupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4A111161FD0084E2DE /* TiUITabGroupProxy.m */; };
 		24CA8FC211116C490084E2DE /* TiUITabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4C111161FD0084E2DE /* TiUITabGroup.m */; };
@@ -423,9 +421,6 @@
 		24CA8FD711116C490084E2DE /* TiUIiPhoneProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A76111161FD0084E2DE /* TiUIiPhoneProxy.m */; };
 		24CA8FD811116C490084E2DE /* TiUIImageViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A78111161FD0084E2DE /* TiUIImageViewProxy.m */; };
 		24CA8FD911116C490084E2DE /* TiUIImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7A111161FD0084E2DE /* TiUIImageView.m */; };
-		24CA8FDA11116C490084E2DE /* TiUIGroupedViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7C111161FD0084E2DE /* TiUIGroupedViewProxy.m */; };
-		24CA8FDB11116C490084E2DE /* TiUIGroupedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7E111161FD0084E2DE /* TiUIGroupedView.m */; };
-		24CA8FDC11116C490084E2DE /* TiUIGroupedSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A80111161FD0084E2DE /* TiUIGroupedSectionProxy.m */; };
 		24CA8FDD11116C490084E2DE /* TiUIEmailDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */; };
 		24CA8FDF11116C490084E2DE /* TiUICoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */; };
 		24CA8FE011116C490084E2DE /* TiUICoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */; };
@@ -581,11 +576,7 @@
 		24CB0E16111A971B00A813AD /* TiUITextAreaProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A36111161FD0084E2DE /* TiUITextAreaProxy.m */; };
 		24CB0E17111A971B00A813AD /* TiUITextArea.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A38111161FD0084E2DE /* TiUITextArea.m */; };
 		24CB0E18111A971B00A813AD /* TiUITabProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A3A111161FD0084E2DE /* TiUITabProxy.m */; };
-		24CB0E1A111A971B00A813AD /* TiUITableViewTitle.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A3E111161FD0084E2DE /* TiUITableViewTitle.m */; };
 		24CB0E1B111A971B00A813AD /* TiUITableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A40111161FD0084E2DE /* TiUITableViewProxy.m */; };
-		24CB0E1C111A971B00A813AD /* TiUITableViewGroupSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A42111161FD0084E2DE /* TiUITableViewGroupSection.m */; };
-		24CB0E1D111A971B00A813AD /* TiUITableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A44111161FD0084E2DE /* TiUITableViewCell.m */; };
-		24CB0E1E111A971B00A813AD /* TiUITableViewBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A46111161FD0084E2DE /* TiUITableViewBase.m */; };
 		24CB0E1F111A971B00A813AD /* TiUITableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A48111161FD0084E2DE /* TiUITableView.m */; };
 		24CB0E20111A971B00A813AD /* TiUITabGroupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4A111161FD0084E2DE /* TiUITabGroupProxy.m */; };
 		24CB0E21111A971B00A813AD /* TiUITabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4C111161FD0084E2DE /* TiUITabGroup.m */; };
@@ -612,9 +603,6 @@
 		24CB0E36111A971B00A813AD /* TiUIiPhoneProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A76111161FD0084E2DE /* TiUIiPhoneProxy.m */; };
 		24CB0E37111A971B00A813AD /* TiUIImageViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A78111161FD0084E2DE /* TiUIImageViewProxy.m */; };
 		24CB0E38111A971B00A813AD /* TiUIImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7A111161FD0084E2DE /* TiUIImageView.m */; };
-		24CB0E39111A971B00A813AD /* TiUIGroupedViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7C111161FD0084E2DE /* TiUIGroupedViewProxy.m */; };
-		24CB0E3A111A971B00A813AD /* TiUIGroupedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A7E111161FD0084E2DE /* TiUIGroupedView.m */; };
-		24CB0E3B111A971B00A813AD /* TiUIGroupedSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A80111161FD0084E2DE /* TiUIGroupedSectionProxy.m */; };
 		24CB0E3C111A971B00A813AD /* TiUIEmailDialogProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */; };
 		24CB0E3E111A971B00A813AD /* TiUICoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */; };
 		24CB0E3F111A971B00A813AD /* TiUICoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A88111161FD0084E2DE /* TiUICoverFlowView.m */; };
@@ -769,6 +757,14 @@
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D6058910D05DD3D006BFB54 /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		243EC5E9112617F900639DF4 /* TiUITableViewSectionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewSectionProxy.h; sourceTree = "<group>"; };
+		243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewSectionProxy.m; sourceTree = "<group>"; };
+		243EC7D5112634AF00639DF4 /* TiUITableViewAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewAction.h; sourceTree = "<group>"; };
+		243EC7D6112634AF00639DF4 /* TiUITableViewAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewAction.m; sourceTree = "<group>"; };
+		243EC9681126632700639DF4 /* TiUITableViewStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewStyleProxy.h; sourceTree = "<group>"; };
+		243EC9691126632700639DF4 /* TiUITableViewStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewStyleProxy.m; sourceTree = "<group>"; };
+		243ECB2311267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewSeparatorStyleProxy.h; sourceTree = "<group>"; };
+		243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewSeparatorStyleProxy.m; sourceTree = "<group>"; };
 		24CA890A111161050084E2DE /* AFItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFItemView.h; sourceTree = "<group>"; };
 		24CA890B111161050084E2DE /* AFItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFItemView.m; sourceTree = "<group>"; };
 		24CA890C111161050084E2DE /* AFOpenFlowConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFOpenFlowConstants.h; sourceTree = "<group>"; };
@@ -926,16 +922,8 @@
 		24CA8A39111161FD0084E2DE /* TiUITextArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUITextArea.h; path = ../Classes/TiUITextArea.h; sourceTree = SOURCE_ROOT; };
 		24CA8A3A111161FD0084E2DE /* TiUITabProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUITabProxy.m; path = ../Classes/TiUITabProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8A3B111161FD0084E2DE /* TiUITabProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUITabProxy.h; path = ../Classes/TiUITabProxy.h; sourceTree = SOURCE_ROOT; };
-		24CA8A3E111161FD0084E2DE /* TiUITableViewTitle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUITableViewTitle.m; path = ../Classes/TiUITableViewTitle.m; sourceTree = SOURCE_ROOT; };
-		24CA8A3F111161FD0084E2DE /* TiUITableViewTitle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUITableViewTitle.h; path = ../Classes/TiUITableViewTitle.h; sourceTree = SOURCE_ROOT; };
 		24CA8A40111161FD0084E2DE /* TiUITableViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUITableViewProxy.m; path = ../Classes/TiUITableViewProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8A41111161FD0084E2DE /* TiUITableViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUITableViewProxy.h; path = ../Classes/TiUITableViewProxy.h; sourceTree = SOURCE_ROOT; };
-		24CA8A42111161FD0084E2DE /* TiUITableViewGroupSection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUITableViewGroupSection.m; path = ../Classes/TiUITableViewGroupSection.m; sourceTree = SOURCE_ROOT; };
-		24CA8A43111161FD0084E2DE /* TiUITableViewGroupSection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUITableViewGroupSection.h; path = ../Classes/TiUITableViewGroupSection.h; sourceTree = SOURCE_ROOT; };
-		24CA8A44111161FD0084E2DE /* TiUITableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUITableViewCell.m; path = ../Classes/TiUITableViewCell.m; sourceTree = SOURCE_ROOT; };
-		24CA8A45111161FD0084E2DE /* TiUITableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUITableViewCell.h; path = ../Classes/TiUITableViewCell.h; sourceTree = SOURCE_ROOT; };
-		24CA8A46111161FD0084E2DE /* TiUITableViewBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUITableViewBase.m; path = ../Classes/TiUITableViewBase.m; sourceTree = SOURCE_ROOT; };
-		24CA8A47111161FD0084E2DE /* TiUITableViewBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUITableViewBase.h; path = ../Classes/TiUITableViewBase.h; sourceTree = SOURCE_ROOT; };
 		24CA8A48111161FD0084E2DE /* TiUITableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUITableView.m; path = ../Classes/TiUITableView.m; sourceTree = SOURCE_ROOT; };
 		24CA8A49111161FD0084E2DE /* TiUITableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUITableView.h; path = ../Classes/TiUITableView.h; sourceTree = SOURCE_ROOT; };
 		24CA8A4A111161FD0084E2DE /* TiUITabGroupProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUITabGroupProxy.m; path = ../Classes/TiUITabGroupProxy.m; sourceTree = SOURCE_ROOT; };
@@ -988,12 +976,6 @@
 		24CA8A79111161FD0084E2DE /* TiUIImageViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIImageViewProxy.h; path = ../Classes/TiUIImageViewProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A7A111161FD0084E2DE /* TiUIImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIImageView.m; path = ../Classes/TiUIImageView.m; sourceTree = SOURCE_ROOT; };
 		24CA8A7B111161FD0084E2DE /* TiUIImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIImageView.h; path = ../Classes/TiUIImageView.h; sourceTree = SOURCE_ROOT; };
-		24CA8A7C111161FD0084E2DE /* TiUIGroupedViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIGroupedViewProxy.m; path = ../Classes/TiUIGroupedViewProxy.m; sourceTree = SOURCE_ROOT; };
-		24CA8A7D111161FD0084E2DE /* TiUIGroupedViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIGroupedViewProxy.h; path = ../Classes/TiUIGroupedViewProxy.h; sourceTree = SOURCE_ROOT; };
-		24CA8A7E111161FD0084E2DE /* TiUIGroupedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIGroupedView.m; path = ../Classes/TiUIGroupedView.m; sourceTree = SOURCE_ROOT; };
-		24CA8A7F111161FD0084E2DE /* TiUIGroupedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIGroupedView.h; path = ../Classes/TiUIGroupedView.h; sourceTree = SOURCE_ROOT; };
-		24CA8A80111161FD0084E2DE /* TiUIGroupedSectionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIGroupedSectionProxy.m; path = ../Classes/TiUIGroupedSectionProxy.m; sourceTree = SOURCE_ROOT; };
-		24CA8A81111161FD0084E2DE /* TiUIGroupedSectionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIGroupedSectionProxy.h; path = ../Classes/TiUIGroupedSectionProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A82111161FD0084E2DE /* TiUIEmailDialogProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIEmailDialogProxy.m; path = ../Classes/TiUIEmailDialogProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8A83111161FD0084E2DE /* TiUIEmailDialogProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIEmailDialogProxy.h; path = ../Classes/TiUIEmailDialogProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A86111161FD0084E2DE /* TiUICoverFlowViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUICoverFlowViewProxy.m; path = ../Classes/TiUICoverFlowViewProxy.m; sourceTree = SOURCE_ROOT; };
@@ -1891,6 +1873,10 @@
 				24CA8A69111161FD0084E2DE /* TiUIProgressBarStyleProxy.h */,
 				B4F97C56111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.h */,
 				B4F97C57111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.m */,
+				243EC9681126632700639DF4 /* TiUITableViewStyleProxy.h */,
+				243EC9691126632700639DF4 /* TiUITableViewStyleProxy.m */,
+				243ECB2311267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.h */,
+				243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */,
 			);
 			name = iPhone;
 			sourceTree = "<group>";
@@ -1931,26 +1917,16 @@
 		24CA8C63111165890084E2DE /* Tableview & Groupview */ = {
 			isa = PBXGroup;
 			children = (
-				24CA8A3E111161FD0084E2DE /* TiUITableViewTitle.m */,
-				24CA8A3F111161FD0084E2DE /* TiUITableViewTitle.h */,
 				24CA8A40111161FD0084E2DE /* TiUITableViewProxy.m */,
 				24CA8A41111161FD0084E2DE /* TiUITableViewProxy.h */,
-				24CA8A42111161FD0084E2DE /* TiUITableViewGroupSection.m */,
-				24CA8A43111161FD0084E2DE /* TiUITableViewGroupSection.h */,
 				24CA8A48111161FD0084E2DE /* TiUITableView.m */,
 				24CA8A49111161FD0084E2DE /* TiUITableView.h */,
-				24CA8A44111161FD0084E2DE /* TiUITableViewCell.m */,
-				24CA8A45111161FD0084E2DE /* TiUITableViewCell.h */,
 				24CA8B39111161FE0084E2DE /* TiUITableViewRowProxy.m */,
 				24CA8B3A111161FE0084E2DE /* TiUITableViewRowProxy.h */,
-				24CA8A46111161FD0084E2DE /* TiUITableViewBase.m */,
-				24CA8A47111161FD0084E2DE /* TiUITableViewBase.h */,
-				24CA8A7C111161FD0084E2DE /* TiUIGroupedViewProxy.m */,
-				24CA8A7D111161FD0084E2DE /* TiUIGroupedViewProxy.h */,
-				24CA8A7E111161FD0084E2DE /* TiUIGroupedView.m */,
-				24CA8A7F111161FD0084E2DE /* TiUIGroupedView.h */,
-				24CA8A80111161FD0084E2DE /* TiUIGroupedSectionProxy.m */,
-				24CA8A81111161FD0084E2DE /* TiUIGroupedSectionProxy.h */,
+				243EC5E9112617F900639DF4 /* TiUITableViewSectionProxy.h */,
+				243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */,
+				243EC7D5112634AF00639DF4 /* TiUITableViewAction.h */,
+				243EC7D6112634AF00639DF4 /* TiUITableViewAction.m */,
 			);
 			name = "Tableview & Groupview";
 			sourceTree = "<group>";
@@ -2272,15 +2248,8 @@
 				245E7646111A9A7800A18644 /* TiUICanvasViewProxy.h in Headers */,
 				245E7647111A9A7800A18644 /* TiUICanvasView.h in Headers */,
 				245E7648111A9A7800A18644 /* TiUIEmailDialogProxy.h in Headers */,
-				245E764A111A9A7800A18644 /* TiUITableViewTitle.h in Headers */,
 				245E764B111A9A7800A18644 /* TiUITableViewProxy.h in Headers */,
-				245E764C111A9A7800A18644 /* TiUITableViewGroupSection.h in Headers */,
 				245E764D111A9A7800A18644 /* TiUITableView.h in Headers */,
-				245E764E111A9A7800A18644 /* TiUITableViewCell.h in Headers */,
-				245E764F111A9A7800A18644 /* TiUITableViewBase.h in Headers */,
-				245E7650111A9A7800A18644 /* TiUIGroupedViewProxy.h in Headers */,
-				245E7651111A9A7800A18644 /* TiUIGroupedView.h in Headers */,
-				245E7652111A9A7800A18644 /* TiUIGroupedSectionProxy.h in Headers */,
 				245E7653111A9A7800A18644 /* TiUITabGroupProxy.h in Headers */,
 				245E7654111A9A7800A18644 /* TiUITabProxy.h in Headers */,
 				245E7655111A9A7800A18644 /* TiUITabGroup.h in Headers */,
@@ -2381,6 +2350,10 @@
 				24F5AEB6111F9DE9005C9199 /* TiFile.h in Headers */,
 				24F5B148111FDFE8005C9199 /* ListenerEntry.h in Headers */,
 				24DEDAC5112371A500398D86 /* XMLModule.h in Headers */,
+				243EC5EB112617F900639DF4 /* TiUITableViewSectionProxy.h in Headers */,
+				243EC7D7112634AF00639DF4 /* TiUITableViewAction.h in Headers */,
+				243EC96A1126632700639DF4 /* TiUITableViewStyleProxy.h in Headers */,
+				243ECB2511267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2581,11 +2554,7 @@
 				24CA8B7B111161FE0084E2DE /* TiUITextAreaProxy.m in Sources */,
 				24CA8B7C111161FE0084E2DE /* TiUITextArea.m in Sources */,
 				24CA8B7D111161FE0084E2DE /* TiUITabProxy.m in Sources */,
-				24CA8B7F111161FE0084E2DE /* TiUITableViewTitle.m in Sources */,
 				24CA8B80111161FE0084E2DE /* TiUITableViewProxy.m in Sources */,
-				24CA8B81111161FE0084E2DE /* TiUITableViewGroupSection.m in Sources */,
-				24CA8B82111161FE0084E2DE /* TiUITableViewCell.m in Sources */,
-				24CA8B83111161FE0084E2DE /* TiUITableViewBase.m in Sources */,
 				24CA8B84111161FE0084E2DE /* TiUITableView.m in Sources */,
 				24CA8B85111161FE0084E2DE /* TiUITabGroupProxy.m in Sources */,
 				24CA8B86111161FE0084E2DE /* TiUITabGroup.m in Sources */,
@@ -2612,9 +2581,6 @@
 				24CA8B9B111161FE0084E2DE /* TiUIiPhoneProxy.m in Sources */,
 				24CA8B9C111161FE0084E2DE /* TiUIImageViewProxy.m in Sources */,
 				24CA8B9D111161FE0084E2DE /* TiUIImageView.m in Sources */,
-				24CA8B9E111161FE0084E2DE /* TiUIGroupedViewProxy.m in Sources */,
-				24CA8B9F111161FE0084E2DE /* TiUIGroupedView.m in Sources */,
-				24CA8BA0111161FE0084E2DE /* TiUIGroupedSectionProxy.m in Sources */,
 				24CA8BA1111161FE0084E2DE /* TiUIEmailDialogProxy.m in Sources */,
 				24CA8BA3111161FE0084E2DE /* TiUICoverFlowViewProxy.m in Sources */,
 				24CA8BA4111161FE0084E2DE /* TiUICoverFlowView.m in Sources */,
@@ -2704,6 +2670,10 @@
 				24F5AEB4111F9DE9005C9199 /* TiFile.m in Sources */,
 				24F5B146111FDFE8005C9199 /* ListenerEntry.m in Sources */,
 				24DEDAC7112371A500398D86 /* XMLModule.m in Sources */,
+				243EC5ED112617F900639DF4 /* TiUITableViewSectionProxy.m in Sources */,
+				243EC7D9112634AF00639DF4 /* TiUITableViewAction.m in Sources */,
+				243EC96C1126632700639DF4 /* TiUITableViewStyleProxy.m in Sources */,
+				243ECB2711267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2774,11 +2744,7 @@
 				24CA8FB711116C490084E2DE /* TiUITextAreaProxy.m in Sources */,
 				24CA8FB811116C490084E2DE /* TiUITextArea.m in Sources */,
 				24CA8FB911116C490084E2DE /* TiUITabProxy.m in Sources */,
-				24CA8FBB11116C490084E2DE /* TiUITableViewTitle.m in Sources */,
 				24CA8FBC11116C490084E2DE /* TiUITableViewProxy.m in Sources */,
-				24CA8FBD11116C490084E2DE /* TiUITableViewGroupSection.m in Sources */,
-				24CA8FBE11116C490084E2DE /* TiUITableViewCell.m in Sources */,
-				24CA8FBF11116C490084E2DE /* TiUITableViewBase.m in Sources */,
 				24CA8FC011116C490084E2DE /* TiUITableView.m in Sources */,
 				24CA8FC111116C490084E2DE /* TiUITabGroupProxy.m in Sources */,
 				24CA8FC211116C490084E2DE /* TiUITabGroup.m in Sources */,
@@ -2805,9 +2771,6 @@
 				24CA8FD711116C490084E2DE /* TiUIiPhoneProxy.m in Sources */,
 				24CA8FD811116C490084E2DE /* TiUIImageViewProxy.m in Sources */,
 				24CA8FD911116C490084E2DE /* TiUIImageView.m in Sources */,
-				24CA8FDA11116C490084E2DE /* TiUIGroupedViewProxy.m in Sources */,
-				24CA8FDB11116C490084E2DE /* TiUIGroupedView.m in Sources */,
-				24CA8FDC11116C490084E2DE /* TiUIGroupedSectionProxy.m in Sources */,
 				24CA8FDD11116C490084E2DE /* TiUIEmailDialogProxy.m in Sources */,
 				24CA8FDF11116C490084E2DE /* TiUICoverFlowViewProxy.m in Sources */,
 				24CA8FE011116C490084E2DE /* TiUICoverFlowView.m in Sources */,
@@ -2897,6 +2860,10 @@
 				24F5AEB5111F9DE9005C9199 /* TiFile.m in Sources */,
 				24F5B147111FDFE8005C9199 /* ListenerEntry.m in Sources */,
 				24DEDAC8112371A500398D86 /* XMLModule.m in Sources */,
+				243EC5EE112617F900639DF4 /* TiUITableViewSectionProxy.m in Sources */,
+				243EC7DA112634AF00639DF4 /* TiUITableViewAction.m in Sources */,
+				243EC96D1126632700639DF4 /* TiUITableViewStyleProxy.m in Sources */,
+				243ECB2811267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2966,11 +2933,7 @@
 				24CB0E16111A971B00A813AD /* TiUITextAreaProxy.m in Sources */,
 				24CB0E17111A971B00A813AD /* TiUITextArea.m in Sources */,
 				24CB0E18111A971B00A813AD /* TiUITabProxy.m in Sources */,
-				24CB0E1A111A971B00A813AD /* TiUITableViewTitle.m in Sources */,
 				24CB0E1B111A971B00A813AD /* TiUITableViewProxy.m in Sources */,
-				24CB0E1C111A971B00A813AD /* TiUITableViewGroupSection.m in Sources */,
-				24CB0E1D111A971B00A813AD /* TiUITableViewCell.m in Sources */,
-				24CB0E1E111A971B00A813AD /* TiUITableViewBase.m in Sources */,
 				24CB0E1F111A971B00A813AD /* TiUITableView.m in Sources */,
 				24CB0E20111A971B00A813AD /* TiUITabGroupProxy.m in Sources */,
 				24CB0E21111A971B00A813AD /* TiUITabGroup.m in Sources */,
@@ -2997,9 +2960,6 @@
 				24CB0E36111A971B00A813AD /* TiUIiPhoneProxy.m in Sources */,
 				24CB0E37111A971B00A813AD /* TiUIImageViewProxy.m in Sources */,
 				24CB0E38111A971B00A813AD /* TiUIImageView.m in Sources */,
-				24CB0E39111A971B00A813AD /* TiUIGroupedViewProxy.m in Sources */,
-				24CB0E3A111A971B00A813AD /* TiUIGroupedView.m in Sources */,
-				24CB0E3B111A971B00A813AD /* TiUIGroupedSectionProxy.m in Sources */,
 				24CB0E3C111A971B00A813AD /* TiUIEmailDialogProxy.m in Sources */,
 				24CB0E3E111A971B00A813AD /* TiUICoverFlowViewProxy.m in Sources */,
 				24CB0E3F111A971B00A813AD /* TiUICoverFlowView.m in Sources */,
@@ -3089,6 +3049,10 @@
 				24F5AEB7111F9DE9005C9199 /* TiFile.m in Sources */,
 				24F5B149111FDFE8005C9199 /* ListenerEntry.m in Sources */,
 				24DEDAC6112371A500398D86 /* XMLModule.m in Sources */,
+				243EC5EC112617F900639DF4 /* TiUITableViewSectionProxy.m in Sources */,
+				243EC7D8112634AF00639DF4 /* TiUITableViewAction.m in Sources */,
+				243EC96B1126632700639DF4 /* TiUITableViewStyleProxy.m in Sources */,
+				243ECB2611267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

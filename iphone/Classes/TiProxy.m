@@ -211,15 +211,6 @@ static int tiProxyId = 0;
 -(void)_initWithProperties:(NSDictionary*)properties
 {
 	[self setValuesForKeysWithDictionary:properties];
-//	for (id key in properties)
-//	{
-//		id value = [properties objectForKey:key];
-//		if (value == [NSNull null])
-//		{
-//			value = nil;
-//		}
-//		[self replaceValue:value forKey:key notification:NO];
-//	}	
 }
 
 -(void)_initWithCallback:(KrollCallback*)callback
@@ -279,9 +270,6 @@ static int tiProxyId = 0;
 #if PROXY_MEMORY_TRACK == 1
 	NSLog(@"DESTROY: %@ (%d)",self,[self hash]);
 #endif
-	[[NSNotificationCenter defaultCenter] removeObserver:self
-													name:UIApplicationDidReceiveMemoryWarningNotification  
-												  object:nil];  
 	
 	if (executionContext!=nil)
 	{
@@ -347,6 +335,9 @@ static int tiProxyId = 0;
 #if PROXY_MEMORY_TRACK == 1
 	NSLog(@"DEALLOC: %@ (%d)",self,[self hash]);
 #endif
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:UIApplicationDidReceiveMemoryWarningNotification  
+												  object:nil];  
 	[self _destroy];
 	RELEASE_TO_NIL(destroyLock);
 	[super dealloc];
@@ -489,30 +480,8 @@ static int tiProxyId = 0;
 		[listeners setObject:l forKey:type];
 		[l release];
 	}
-	
-	/*
-	// we need to listener for the execution context shutdown in the case it's not the 
-	// same as our pageContext. we basically will then remove the listener
-	if (pageContext!=executionContext)
-	{
-		id key = [executionContext description];
-		id found = [contextListeners objectForKey:key];
-		if (found==nil)
-		{
-			[[NSNotificationCenter defaultCenter] addObserver:self 
-													 selector:@selector(contextShutdown:) 
-														 name:kKrollShutdownNotification 
-													   object:executionContext];	
-			[contextListeners setObject:executionContext forKey:key];
-		}
-	}
-	
-	[l addObject:listener];
-	 */
-
 	ListenerEntry *entry = [[[ListenerEntry alloc] initWithListener:listener context:[self executionContext] proxy:self type:type] autorelease];
 	[l addObject:entry];
-	
 	[self _listenerAdded:type count:[l count]];
 }
 	  
@@ -759,6 +728,7 @@ DEFINE_EXCEPTIONS
 }
 
 #pragma mark Memory Management
+
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
 	//FOR NOW, we're not dropping anything but we'll want to do before release

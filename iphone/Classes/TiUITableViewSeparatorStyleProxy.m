@@ -4,11 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#include "TiViewProxy.h"
 
-@interface TiUITableViewProxy : TiViewProxy
-{
-@private
-}
+#import "TiUITableViewSeparatorStyleProxy.h"
+
+@implementation TiUITableViewSeparatorStyleProxy
+
+MAKE_SYSTEM_PROP(NONE,UITableViewCellSeparatorStyleNone);
+MAKE_SYSTEM_PROP(SINGLE_LINE,UITableViewCellSeparatorStyleSingleLine);
+
 
 @end

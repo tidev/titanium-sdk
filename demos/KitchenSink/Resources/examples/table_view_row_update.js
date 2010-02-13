@@ -57,6 +57,7 @@ tableView.addEventListener('click',function(e)
 
 		case 4:
 		{
+			//FIXME: this should no longer be supported
 			data = {html:'<div>I am div</div>'};
 			tableView.updateRow(4,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
 			break;
@@ -64,7 +65,7 @@ tableView.addEventListener('click',function(e)
 		case 5:
 		{
 			data = {title:'I am a title'};
-			tableView.updateRow(4,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+			tableView.updateRow(5,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
 			break;
 		}
 		

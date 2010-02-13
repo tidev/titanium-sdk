@@ -697,23 +697,20 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 		value = nil;
 	}
 	NSString *name = [self propercase:key index:0];
-	SEL selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:",name]);
+	SEL selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:withObject:",name]);
+	if ([target respondsToSelector:selector])
+	{
+		[target performSelector:selector withObject:value withObject:nil];
+		return;
+	}
+	selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:",name]);
 	if ([target respondsToSelector:selector])
 	{
 		[target performSelector:selector withObject:value];
 	}
 	else 
 	{
-		// see if we support a with object
-		selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:withObject:",name]);
-		if ([target respondsToSelector:selector])
-		{
-			[target performSelector:selector withObject:value withObject:nil];
-		}
-		else
-		{
-			[target setValue:value forKey:key];
-		}
+		[target setValue:value forKey:key];
 	}
 }
 

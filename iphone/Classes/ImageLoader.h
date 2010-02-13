@@ -8,7 +8,8 @@
 #import <UIKit/UIKit.h>
 
 @interface ImageLoader : NSObject {
-
+@private
+	NSMutableDictionary *cache;
 }
 
 +(ImageLoader*)sharedLoader;

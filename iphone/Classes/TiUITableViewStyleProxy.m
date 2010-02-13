@@ -5,10 +5,11 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiUITableViewBase.h"
+#import "TiUITableViewStyleProxy.h"
 
-@interface TiUIGroupedView : TiUITableViewBase {
+@implementation TiUITableViewStyleProxy
 
-}
+MAKE_SYSTEM_PROP(PLAIN,UITableViewStylePlain);
+MAKE_SYSTEM_PROP(GROUPED,UITableViewStyleGrouped);
 
 @end

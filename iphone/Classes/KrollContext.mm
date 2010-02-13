@@ -626,9 +626,9 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 	
 	[timerLock lock];
 	// stop any running timers
-	if (timers!=nil)
+	if (timers!=nil && [timers count]>0)
 	{
-		for (id timerId in timers)
+		for (id timerId in [NSDictionary dictionaryWithDictionary:timers])
 		{
 			KrollTimer *t = [timers objectForKey:timerId];
 			[t cancel];

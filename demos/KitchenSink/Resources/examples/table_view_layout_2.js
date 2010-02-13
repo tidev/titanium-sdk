@@ -1,3 +1,6 @@
+//FIXME: JGH redo
+
+
 // concepts to demonstrate/test
 // 1. use template-level values
 // 2. use layout

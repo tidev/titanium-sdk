@@ -4,11 +4,12 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#include "TiViewProxy.h"
+#import "TiProxy.h"
 
-@interface TiUITableViewProxy : TiViewProxy
-{
-@private
+@interface TiUITableViewStyleProxy : TiProxy {
 }
+
+@property(nonatomic,readonly) NSNumber *PLAIN;
+@property(nonatomic,readonly) NSNumber *GROUPED;
 
 @end
