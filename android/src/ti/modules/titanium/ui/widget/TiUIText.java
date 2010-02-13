@@ -89,9 +89,9 @@ public class TiUIText extends TiUIView
 		if (d.containsKey("color")) {
 			tv.setTextColor(TiConvert.toColor(d, "color"));
 		}
-		if (d.containsKey("backgroundColor")) {
-			tv.setBackgroundColor(TiConvert.toColor(d, "backgroundColor"));
-		}
+//		if (d.containsKey("backgroundColor")) {
+//			tv.setBackgroundColor(TiConvert.toColor(d, "backgroundColor", "opacity"));
+//		}
 		if (d.containsKey("passwordMask")) {
 			if (d.getBoolean("passwordMask")) {
 				tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
@@ -190,8 +190,8 @@ public class TiUIText extends TiUIView
 			tv.setText((String) newValue);
 		} else if (key.equals("color")) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
-		} else if (key.equals("backgroundColor")) {
-			tv.setBackgroundColor(TiConvert.toColor((String) newValue));
+//		} else if (key.equals("backgroundColor")) {
+//			tv.setBackgroundColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals("hintText")) {
 			tv.setHint((String) newValue);
 		} else {

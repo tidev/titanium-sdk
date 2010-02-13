@@ -253,6 +253,12 @@ public class TitaniumCompositeLayout extends ViewGroup
 		maxWidth += getPaddingLeft() + getPaddingRight();
 		maxHeight += getPaddingTop() + getPaddingBottom();
 
+		// Account for border
+
+		int padding = Math.round(borderHelper.calculatePadding());
+		maxWidth += padding;
+		maxHeight += padding;
+
 		// check minimums
 		maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
 		maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());

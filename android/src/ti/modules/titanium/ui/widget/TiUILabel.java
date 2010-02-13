@@ -44,17 +44,17 @@ public class TiUILabel extends TiUIView
 		if (d.containsKey("color")) {
 			tv.setTextColor(TiConvert.toColor(d, "color"));
 		}
-		if (d.containsKey("backgroundColor")) {
-			tv.setBackgroundColor(TiConvert.toColor(d, "backgroundColor"));
-		}
+//		if (d.containsKey("backgroundColor")) {
+//			tv.setBackgroundColor(TiConvert.toColor(d, "backgroundColor"));
+//		}
 		if (d.containsKey("highlightedColor")) {
 			tv.setHighlightColor(TiConvert.toColor(d, "highlightedColor"));
 		}
 		if (d.containsKey("font")) {
 			TiUIHelper.styleText(tv, d.getTiDict("font"));
 		}
-		if (d.containsKey("textAlignment")) {
-			String textAlign = d.getString("textAlignment");
+		if (d.containsKey("textAlign")) {
+			String textAlign = d.getString("textAlign");
 			setAlignment(tv, textAlign);
 		}
 	}
@@ -82,8 +82,8 @@ public class TiUILabel extends TiUIView
 			tv.setText(TiConvert.toString(newValue));
 		} else if (key.equals("color")) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
-		} else if (key.equals("backgroundColor")) {
-			tv.setBackgroundColor(TiConvert.toColor((String) newValue));
+//		} else if (key.equals("backgroundColor")) {
+//			tv.setBackgroundColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals("highlightedColor")) {
 			tv.setHighlightColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals("textAlignment")) {
