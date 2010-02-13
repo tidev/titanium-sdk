@@ -19,4 +19,6 @@
 	BOOL contextReady;
 }
 
+-(void)_refreshBackButton;
+
 @end
