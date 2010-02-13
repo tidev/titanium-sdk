@@ -27,7 +27,7 @@ public class TabProxy extends TiViewProxy
 	}
 
 	public void open(TiWindowProxy win, TiDict options) {
-		if (win != null && this.win == null) {
+		if (win != null) {
 			this.win = win;
 			this.win.setTabProxy(this);
 			options.put("tabOpen", true);
