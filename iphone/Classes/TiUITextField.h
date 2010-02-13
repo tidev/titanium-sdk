@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiUIView.h"
+#import "TiUITextWidget.h"
 
 
 @interface TiTextField : UITextField
@@ -31,7 +31,7 @@
 
 @end
 
-@interface TiUITextField : TiUIView <UITextFieldDelegate>
+@interface TiUITextField : TiUITextWidget <UITextFieldDelegate>
 {
 @private
 	TiTextField *textField;

@@ -4,10 +4,12 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiUITextWidgetProxy.h"
+#import "TiUIWidgetProxy.h"
 
-@interface TiUITextAreaProxy : TiUITextWidgetProxy {
-	
+@interface TiUITextWidgetProxy : TiUIWidgetProxy {
+
+@private
+
 }
 
 @end

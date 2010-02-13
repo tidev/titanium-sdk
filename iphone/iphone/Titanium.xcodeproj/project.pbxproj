@@ -755,6 +755,14 @@
 		B421C4131113AA9300DBCB42 /* TiUIScrollableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4111113AA9300DBCB42 /* TiUIScrollableViewProxy.m */; };
 		B421C4161113AAA900DBCB42 /* TiUIScrollableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4151113AAA900DBCB42 /* TiUIScrollableView.m */; };
 		B421C4171113AAA900DBCB42 /* TiUIScrollableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4151113AAA900DBCB42 /* TiUIScrollableView.m */; };
+		B4D5829111264FD000A6B66C /* TiUITextWidgetProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B4D5828F11264FD000A6B66C /* TiUITextWidgetProxy.h */; };
+		B4D5829211264FD000A6B66C /* TiUITextWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */; };
+		B4D5829311264FD000A6B66C /* TiUITextWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */; };
+		B4D5829411264FD000A6B66C /* TiUITextWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */; };
+		B4D5829711264FF500A6B66C /* TiUITextWidget.h in Headers */ = {isa = PBXBuildFile; fileRef = B4D5829511264FF500A6B66C /* TiUITextWidget.h */; };
+		B4D5829811264FF500A6B66C /* TiUITextWidget.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829611264FF500A6B66C /* TiUITextWidget.m */; };
+		B4D5829911264FF500A6B66C /* TiUITextWidget.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829611264FF500A6B66C /* TiUITextWidget.m */; };
+		B4D5829A11264FF500A6B66C /* TiUITextWidget.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829611264FF500A6B66C /* TiUITextWidget.m */; };
 		B4F97B6F111A41B600E2F72C /* TiUIScrollViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */; };
 		B4F97B70111A41B600E2F72C /* TiUIScrollViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */; };
 		B4F97B73111A41C800E2F72C /* TiUIScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B72111A41C800E2F72C /* TiUIScrollView.m */; };
@@ -920,10 +928,10 @@
 		24CA8A33111161FD0084E2DE /* TiUITextFieldProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUITextFieldProxy.h; path = ../Classes/TiUITextFieldProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A34111161FD0084E2DE /* TiUITextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUITextField.m; path = ../Classes/TiUITextField.m; sourceTree = SOURCE_ROOT; };
 		24CA8A35111161FD0084E2DE /* TiUITextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUITextField.h; path = ../Classes/TiUITextField.h; sourceTree = SOURCE_ROOT; };
-		24CA8A36111161FD0084E2DE /* TiUITextAreaProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUITextAreaProxy.m; path = ../Classes/TiUITextAreaProxy.m; sourceTree = SOURCE_ROOT; };
-		24CA8A37111161FD0084E2DE /* TiUITextAreaProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUITextAreaProxy.h; path = ../Classes/TiUITextAreaProxy.h; sourceTree = SOURCE_ROOT; };
-		24CA8A38111161FD0084E2DE /* TiUITextArea.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUITextArea.m; path = ../Classes/TiUITextArea.m; sourceTree = SOURCE_ROOT; };
-		24CA8A39111161FD0084E2DE /* TiUITextArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUITextArea.h; path = ../Classes/TiUITextArea.h; sourceTree = SOURCE_ROOT; };
+		24CA8A36111161FD0084E2DE /* TiUITextAreaProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITextAreaProxy.m; sourceTree = "<group>"; };
+		24CA8A37111161FD0084E2DE /* TiUITextAreaProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITextAreaProxy.h; sourceTree = "<group>"; };
+		24CA8A38111161FD0084E2DE /* TiUITextArea.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITextArea.m; sourceTree = "<group>"; };
+		24CA8A39111161FD0084E2DE /* TiUITextArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITextArea.h; sourceTree = "<group>"; };
 		24CA8A3A111161FD0084E2DE /* TiUITabProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUITabProxy.m; path = ../Classes/TiUITabProxy.m; sourceTree = SOURCE_ROOT; };
 		24CA8A3B111161FD0084E2DE /* TiUITabProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUITabProxy.h; path = ../Classes/TiUITabProxy.h; sourceTree = SOURCE_ROOT; };
 		24CA8A3E111161FD0084E2DE /* TiUITableViewTitle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUITableViewTitle.m; path = ../Classes/TiUITableViewTitle.m; sourceTree = SOURCE_ROOT; };
@@ -1200,6 +1208,10 @@
 		B421C4111113AA9300DBCB42 /* TiUIScrollableViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIScrollableViewProxy.m; sourceTree = "<group>"; };
 		B421C4141113AAA900DBCB42 /* TiUIScrollableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIScrollableView.h; sourceTree = "<group>"; };
 		B421C4151113AAA900DBCB42 /* TiUIScrollableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIScrollableView.m; sourceTree = "<group>"; };
+		B4D5828F11264FD000A6B66C /* TiUITextWidgetProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITextWidgetProxy.h; sourceTree = "<group>"; };
+		B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITextWidgetProxy.m; sourceTree = "<group>"; };
+		B4D5829511264FF500A6B66C /* TiUITextWidget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITextWidget.h; sourceTree = "<group>"; };
+		B4D5829611264FF500A6B66C /* TiUITextWidget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITextWidget.m; sourceTree = "<group>"; };
 		B4F97B6D111A41B600E2F72C /* TiUIScrollViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIScrollViewProxy.h; sourceTree = "<group>"; };
 		B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIScrollViewProxy.m; sourceTree = "<group>"; };
 		B4F97B71111A41C800E2F72C /* TiUIScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIScrollView.h; sourceTree = "<group>"; };
@@ -1819,8 +1831,7 @@
 				24CA8C6C111166BA0084E2DE /* Activity Indicator */,
 				24CA8C6B111166B60084E2DE /* Switch */,
 				24CA8C6A111166B20084E2DE /* Slider */,
-				24CA8C69111166AB0084E2DE /* Textarea */,
-				24CA8C68111166A60084E2DE /* Textfield */,
+				24CA8C69111166AB0084E2DE /* Text widgets */,
 				24CA8C67111166A10084E2DE /* Toolbar */,
 			);
 			name = Widgets;
@@ -2009,15 +2020,17 @@
 			name = Textfield;
 			sourceTree = "<group>";
 		};
-		24CA8C69111166AB0084E2DE /* Textarea */ = {
+		24CA8C69111166AB0084E2DE /* Text widgets */ = {
 			isa = PBXGroup;
 			children = (
-				24CA8A36111161FD0084E2DE /* TiUITextAreaProxy.m */,
-				24CA8A37111161FD0084E2DE /* TiUITextAreaProxy.h */,
-				24CA8A38111161FD0084E2DE /* TiUITextArea.m */,
-				24CA8A39111161FD0084E2DE /* TiUITextArea.h */,
+				24CA8C68111166A60084E2DE /* Textfield */,
+				B4D5828E11264F8600A6B66C /* Textarea */,
+				B4D5828F11264FD000A6B66C /* TiUITextWidgetProxy.h */,
+				B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */,
+				B4D5829511264FF500A6B66C /* TiUITextWidget.h */,
+				B4D5829611264FF500A6B66C /* TiUITextWidget.m */,
 			);
-			name = Textarea;
+			name = "Text widgets";
 			sourceTree = "<group>";
 		};
 		24CA8C6A111166B20084E2DE /* Slider */ = {
@@ -2214,6 +2227,17 @@
 			name = "Scrollable View";
 			sourceTree = "<group>";
 		};
+		B4D5828E11264F8600A6B66C /* Textarea */ = {
+			isa = PBXGroup;
+			children = (
+				24CA8A36111161FD0084E2DE /* TiUITextAreaProxy.m */,
+				24CA8A37111161FD0084E2DE /* TiUITextAreaProxy.h */,
+				24CA8A38111161FD0084E2DE /* TiUITextArea.m */,
+				24CA8A39111161FD0084E2DE /* TiUITextArea.h */,
+			);
+			name = Textarea;
+			sourceTree = "<group>";
+		};
 		B4F97B6C111A418700E2F72C /* Scroll View */ = {
 			isa = PBXGroup;
 			children = (
@@ -2381,6 +2405,8 @@
 				24F5AEB6111F9DE9005C9199 /* TiFile.h in Headers */,
 				24F5B148111FDFE8005C9199 /* ListenerEntry.h in Headers */,
 				24DEDAC5112371A500398D86 /* XMLModule.h in Headers */,
+				B4D5829111264FD000A6B66C /* TiUITextWidgetProxy.h in Headers */,
+				B4D5829711264FF500A6B66C /* TiUITextWidget.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2704,6 +2730,8 @@
 				24F5AEB4111F9DE9005C9199 /* TiFile.m in Sources */,
 				24F5B146111FDFE8005C9199 /* ListenerEntry.m in Sources */,
 				24DEDAC7112371A500398D86 /* XMLModule.m in Sources */,
+				B4D5829411264FD000A6B66C /* TiUITextWidgetProxy.m in Sources */,
+				B4D5829A11264FF500A6B66C /* TiUITextWidget.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2897,6 +2925,8 @@
 				24F5AEB5111F9DE9005C9199 /* TiFile.m in Sources */,
 				24F5B147111FDFE8005C9199 /* ListenerEntry.m in Sources */,
 				24DEDAC8112371A500398D86 /* XMLModule.m in Sources */,
+				B4D5829311264FD000A6B66C /* TiUITextWidgetProxy.m in Sources */,
+				B4D5829911264FF500A6B66C /* TiUITextWidget.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3089,6 +3119,8 @@
 				24F5AEB7111F9DE9005C9199 /* TiFile.m in Sources */,
 				24F5B149111FDFE8005C9199 /* ListenerEntry.m in Sources */,
 				24DEDAC6112371A500398D86 /* XMLModule.m in Sources */,
+				B4D5829211264FD000A6B66C /* TiUITextWidgetProxy.m in Sources */,
+				B4D5829811264FF500A6B66C /* TiUITextWidget.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
