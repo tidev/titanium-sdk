@@ -13,6 +13,10 @@
 @private
 	UITableView *tableview;
 	NSMutableArray *sections;
+	BOOL moving;
+	BOOL editing;
+	NSMutableArray * sectionIndex;
+	NSMutableDictionary * sectionIndexMap;
 }
 
 #pragma mark Framework
