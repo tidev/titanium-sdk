@@ -205,6 +205,7 @@ public class TiConvert
 	public static String[] toStringArray(Object[] parts) {
 		String[] sparts = new String[parts.length];
 		for (int i = 0; i < parts.length; i++) {
+			Object p = parts[i];
 			sparts[i] = (String) parts[i];
 		}
 		return sparts;
@@ -256,11 +257,11 @@ public class TiConvert
 		d.put("error", e);
 		return d;
 	}
-	
+
 	public static TiBlob toBlob(Object value) {
 		return (TiBlob) value;
 	}
-	
+
 	public static TiBlob toBlob(TiDict object, String property) {
 		return toBlob(object.get(property));
 	}

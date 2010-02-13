@@ -15,6 +15,7 @@ public class FilesystemModule extends TiModule
 	public static int MODE_WRITE = 1;
 	public static int MODE_APPEND = 2;
 
+	private static String[] RESOURCES_DIR = { "app://" };
 	private static TiDict constants;
 
 	public FilesystemModule(TiContext tiContext) {
@@ -65,8 +66,8 @@ public class FilesystemModule extends TiModule
 		return null;
 	}
 
-	public FileProxy getResourcesDirectory()
+	public String getResourcesDirectory()
 	{
-		return null;
+		return "app://";
 	}
 }
