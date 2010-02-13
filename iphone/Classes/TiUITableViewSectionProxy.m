@@ -35,8 +35,9 @@
 	return rows!=nil ? [rows objectAtIndex:index] : nil;
 }
 
--(void)add:(TiUITableViewRowProxy*)proxy
+-(void)add:(id)proxy
 {
+	ENSURE_SINGLE_ARG(proxy,TiUITableViewRowProxy);
 	if (rows==nil)
 	{
 		rows = [[NSMutableArray array] retain];
@@ -44,8 +45,9 @@
 	[rows addObject:proxy];
 }
 
--(void)remove:(TiUITableViewRowProxy*)proxy
+-(void)remove:(id)proxy
 {
+	ENSURE_SINGLE_ARG(proxy,TiUITableViewRowProxy);
 	if (rows!=nil)
 	{
 		[rows removeObject:proxy];

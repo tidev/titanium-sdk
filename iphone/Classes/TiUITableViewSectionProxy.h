@@ -21,8 +21,8 @@
 @property(nonatomic,readwrite,assign) NSString *headerTitle;
 @property(nonatomic,readwrite,assign) NSString *footerTitle;
 
--(void)add:(TiUITableViewRowProxy*)proxy;
--(void)remove:(TiUITableViewRowProxy*)proxy;
+-(void)add:(id)proxy;
+-(void)remove:(id)proxy;
 -(TiUITableViewRowProxy*)rowAtIndex:(NSInteger)index;
 
 #pragma mark Framework
