@@ -151,6 +151,16 @@
 //	}
 }
 
+-(void)windowBeforeFocused:(TiProxy*)window_
+{
+
+}
+
+-(void)windowBeforeUnfocused:(TiProxy*)window_
+{
+
+}
+
 -(UINavigationController*)currentNavController
 {
 	if (currentWindow!=nil)

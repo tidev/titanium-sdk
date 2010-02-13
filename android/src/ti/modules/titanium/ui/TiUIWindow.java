@@ -56,20 +56,60 @@ public class TiUIWindow extends TiUIView
 		if (props.containsKey("url")) {
 
 			String url = props.getString("url");
-			String baseUrl = null;
+			String baseUrl = proxy.getTiContext().getBaseUrl();
+
+			Log.e(LCAT, "BASEURL: " + baseUrl);
+			if (url != null) {
+				Log.e(LCAT, "RELURL: " + url);
+			}
 
 			try {
 				URI uri = new URI(url);
 				String scheme = uri.getScheme();
 				if (scheme == null) {
 					String path = uri.getPath();
+					String fname = null;
 					int lastIndex = path.lastIndexOf("/");
 					if (lastIndex > 0) {
+						fname = path.substring(lastIndex+1);
 						path = path.substring(0, lastIndex);
 					}
 
 					if (url.startsWith("/")) {
 						baseUrl = "app:/" + path;
+					} else if (path.startsWith("../")) {
+						String[] right = path.split("/");
+						String[] left = null;
+						if (baseUrl.contains("://")) {
+							String[] tmp = baseUrl.split("://");
+							left = tmp[1].split("/");
+						} else {
+							left = baseUrl.split("/");
+						}
+
+						int rIndex = 0;
+						int lIndex = left.length;
+
+						while(right[rIndex].equals("..")) {
+							lIndex--;
+							rIndex++;
+						}
+						String sep = "";
+						StringBuilder sb = new StringBuilder();
+						for (int i = 0; i < lIndex; i++) {
+							sb.append(sep).append(left[i]);
+							sep = "/";
+						}
+						for (int i = rIndex; i < right.length; i++) {
+							sb.append(sep).append(right[i]);
+							sep = "/";
+						}
+						baseUrl = sb.toString();
+						if (!baseUrl.endsWith("/")) {
+							baseUrl = baseUrl + "/";
+						}
+						url = baseUrl + fname;
+						baseUrl = "app://" + baseUrl;
 					} else {
 						baseUrl = "app://" + path;
 					}
