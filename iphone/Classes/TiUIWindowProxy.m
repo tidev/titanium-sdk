@@ -544,7 +544,7 @@ else{\
 {
 	if (focused==NO)
 	{
-//		[self setupWindowDecorations];
+		[self setupWindowDecorations];
 		if ([self _hasListeners:@"focus"])
 		{
 			[self fireEvent:@"focus" withObject:nil];
