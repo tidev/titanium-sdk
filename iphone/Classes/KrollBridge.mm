@@ -279,13 +279,10 @@
 	// called to inject any Titanium patches in JS before a context is loaded... nice for 
 	// setting up backwards compat type APIs
 	
-	NSMutableString *js = [[[NSMutableString alloc] init] autorelease];
-	
-	[js appendString:@"Ti.UI.iPhone.createGroupedSection = function(a,b,c){ return Ti.UI.createGroupedSection(a,b,c); };"];
-	[js appendString:@"Ti.UI.iPhone.createGroupedView = function(a,b,c) { return Ti.UI.createGroupedView(a,b,c); };"];
+	NSMutableString *js = [[NSMutableString alloc] init];
 	[js appendString:@"function alert(msg) { Ti.UI.createAlertDialog({title:'Alert',message:msg}).show(); };"];
-	
 	[self evalJS:js];
+	[js release];
 }
 
 -(void)shutdown
