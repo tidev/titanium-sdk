@@ -16,9 +16,12 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.TiBorderHelper.BorderSupport;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnFocusChangeListener;
@@ -150,6 +153,8 @@ public abstract class TiUIView
 			}
 		}
 
+		Integer bgColor = null;
+
 		// Default background processing.
 		// Prefer image to color.
 		if (d.containsKey("backgroundImage")) {
@@ -159,7 +164,30 @@ public abstract class TiUIView
 			}
 			//throw new IllegalArgumentException("Please Implement.");
 		} else if (d.containsKey("backgroundColor")) {
-			nativeView.setBackgroundDrawable(TiConvert.toColorDrawable(d, "backgroundColor"));
+			bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
+			nativeView.setBackgroundDrawable(new ColorDrawable(bgColor));
+		}
+
+		if (nativeView instanceof BorderSupport) {
+			TiBorderHelper borderHelper = ((BorderSupport) nativeView).getBorderHelper();
+			if (borderHelper != null) {
+				if (d.containsKey("borderColor") || d.containsKey("borderRadius")) {
+					if (d.containsKey("borderRadius")) {
+						borderHelper.setBorderRadius(TiConvert.toFloat(d, "borderRadius"));
+					}
+					if (d.containsKey("borderColor")) {
+						borderHelper.setBorderColor(TiConvert.toColor(d, "borderColor", "opacity"));
+					} else {
+						borderHelper.setBorderColor(bgColor);
+					}
+
+					if (d.containsKey("borderWidth")) {
+						borderHelper.setBorderWidth(TiConvert.toFloat("borderWidth"));
+					}
+				}
+			} else {
+				throw new IllegalStateException("Views providing BorderSupport, must return a non-null TiBorderHelper");
+			}
 		}
 	}
 

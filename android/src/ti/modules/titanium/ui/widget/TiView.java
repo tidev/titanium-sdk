@@ -5,7 +5,8 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout;
 
-public class TiView extends TiUIView {
+public class TiView extends TiUIView
+{
 
 	public TiView(TiViewProxy proxy) {
 		super(proxy);
@@ -14,7 +15,9 @@ public class TiView extends TiUIView {
 	}
 
 	@Override
-	public void processProperties(TiDict d) {
+	public void processProperties(TiDict d)
+	{
+
 		super.processProperties(d);
 	}
 
