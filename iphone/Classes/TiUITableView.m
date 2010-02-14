@@ -834,10 +834,10 @@
 	
 	// the classname for all rows that have the same substainal layout will be the same
 	// we reuse them for speed
-	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:row.className];
+	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:row.tableClass];
 	if (cell == nil)
 	{
-		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.className] autorelease];
+		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.tableClass] autorelease];
 		[row initializeTableViewCell:cell];
 	}
 	else
