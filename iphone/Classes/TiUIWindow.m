@@ -6,7 +6,6 @@
  */
 #import "TiUIWindow.h"
 
-
 @implementation TiUIWindow
 
 @end

@@ -13,6 +13,7 @@
 #import "KrollBridge.h"
 #import "TiModule.h"
 #import "ListenerEntry.h"
+#import "TiComplexValue.h"
 
 //Common exceptions to throw when the function call was improper
 NSString * const TiExceptionInvalidType = @"Invalid type passed to function";
@@ -33,11 +34,47 @@ SEL SetterForKrollProperty(NSString * key)
 	return NSSelectorFromString(method);
 }
 
+SEL SetterWithObjectForKrollProperty(NSString * key)
+{
+	NSString *method = [NSString stringWithFormat:@"set%@%@_:withObject:", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
+	return NSSelectorFromString(method);
+}
+
 void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> * target, NSString * key, id oldValue, id newValue, TiProxy * proxy)
 {
 	// default implementation will simply invoke the setter property for this object
 	// on the main UI thread
-	SEL sel = SetterForKrollProperty(key);
+	
+	// first check to see if the property is defined by a <key>:withObject: signature
+	SEL sel = SetterWithObjectForKrollProperty(key);
+	if ([target respondsToSelector:sel])
+	{
+		id firstarg = newValue;
+		id secondarg = [NSDictionary dictionary];
+		
+		if ([firstarg isKindOfClass:[TiComplexValue class]])
+		{
+			firstarg = [(TiComplexValue*)newValue value];
+			secondarg = [(TiComplexValue*)newValue properties];
+		}
+		
+		if ([NSThread isMainThread])
+		{
+			[target performSelector:sel withObject:firstarg withObject:secondarg];
+		}
+		else
+		{
+			if (![key hasPrefix:@"set"])
+			{
+				key = [NSString stringWithFormat:@"set%@%@_", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
+			}
+			NSArray *arg = [NSArray arrayWithObjects:key,firstarg,secondarg,target,nil];
+			[proxy performSelectorOnMainThread:@selector(_dispatchWithObjectOnUIThread:) withObject:arg waitUntilDone:NO];
+		}
+		return;
+	}
+	
+	sel = SetterForKrollProperty(key);
 	if ([target respondsToSelector:sel])
 	{
 		if ([NSThread isMainThread])
@@ -49,10 +86,36 @@ void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> * target, NSS
 			[target performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO];
 		}
 	}
-
+	
 	if (([target superview]!=nil) && [target isRepositionProperty:key])
 	{
 		[target repositionChange:key value:newValue];
+	}
+}
+
+void DoProxyDispatchToSecondaryArg(UIView<TiProxyDelegate> * target, SEL sel, NSString *key, id newValue, TiProxy * proxy)
+{
+	id firstarg = newValue;
+	id secondarg = [NSDictionary dictionary];
+	
+	if ([firstarg isKindOfClass:[TiComplexValue class]])
+	{
+		firstarg = [(TiComplexValue*)newValue value];
+		secondarg = [(TiComplexValue*)newValue properties];
+	}
+	
+	if ([NSThread isMainThread])
+	{
+		[target performSelector:sel withObject:firstarg withObject:secondarg];
+	}
+	else
+	{
+		if (![key hasPrefix:@"set"])
+		{
+			key = [NSString stringWithFormat:@"set%@%@_", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
+		}
+		NSArray *arg = [NSArray arrayWithObjects:key,firstarg,secondarg,target,nil];
+		[proxy performSelectorOnMainThread:@selector(_dispatchWithObjectOnUIThread:) withObject:arg waitUntilDone:NO];
 	}
 }
 
@@ -63,12 +126,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 	for (NSString * thisKey in keys)
 	{
-		SEL sel = SetterForKrollProperty(thisKey);
-		if (![target respondsToSelector:sel])
-		{
-			continue;
-		}
-		
 		id newValue = [proxy valueForKey:thisKey];
 		if (newValue == nil)
 		{
@@ -78,7 +135,17 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		{
 			newValue = nil;
 		}
-		
+		SEL sel = SetterWithObjectForKrollProperty(thisKey);
+		if ([target respondsToSelector:sel])
+		{
+			DoProxyDispatchToSecondaryArg(target,sel,thisKey,newValue,proxy);
+			continue;
+		}
+		sel = SetterForKrollProperty(thisKey);
+		if (![target respondsToSelector:sel])
+		{
+			continue;
+		}
 		if (isMainThread)
 		{
 			[target performSelector:sel withObject:newValue];
@@ -158,6 +225,7 @@ static int tiProxyId = 0;
 -(void)contextShutdown:(NSNotification*)sender
 {
 	KrollBridge *bridge = (KrollBridge*)[sender object];
+	[[bridge retain] autorelease];
 	if (contextListeners!=nil)
 	{
 		id key = [bridge description];
@@ -211,15 +279,6 @@ static int tiProxyId = 0;
 -(void)_initWithProperties:(NSDictionary*)properties
 {
 	[self setValuesForKeysWithDictionary:properties];
-//	for (id key in properties)
-//	{
-//		id value = [properties objectForKey:key];
-//		if (value == [NSNull null])
-//		{
-//			value = nil;
-//		}
-//		[self replaceValue:value forKey:key notification:NO];
-//	}	
 }
 
 -(void)_initWithCallback:(KrollCallback*)callback
@@ -279,9 +338,6 @@ static int tiProxyId = 0;
 #if PROXY_MEMORY_TRACK == 1
 	NSLog(@"DESTROY: %@ (%d)",self,[self hash]);
 #endif
-	[[NSNotificationCenter defaultCenter] removeObserver:self
-													name:UIApplicationDidReceiveMemoryWarningNotification  
-												  object:nil];  
 	
 	if (executionContext!=nil)
 	{
@@ -347,6 +403,9 @@ static int tiProxyId = 0;
 #if PROXY_MEMORY_TRACK == 1
 	NSLog(@"DEALLOC: %@ (%d)",self,[self hash]);
 #endif
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:UIApplicationDidReceiveMemoryWarningNotification  
+												  object:nil];  
 	[self _destroy];
 	RELEASE_TO_NIL(destroyLock);
 	[super dealloc];
@@ -489,30 +548,8 @@ static int tiProxyId = 0;
 		[listeners setObject:l forKey:type];
 		[l release];
 	}
-	
-	/*
-	// we need to listener for the execution context shutdown in the case it's not the 
-	// same as our pageContext. we basically will then remove the listener
-	if (pageContext!=executionContext)
-	{
-		id key = [executionContext description];
-		id found = [contextListeners objectForKey:key];
-		if (found==nil)
-		{
-			[[NSNotificationCenter defaultCenter] addObserver:self 
-													 selector:@selector(contextShutdown:) 
-														 name:kKrollShutdownNotification 
-													   object:executionContext];	
-			[contextListeners setObject:executionContext forKey:key];
-		}
-	}
-	
-	[l addObject:listener];
-	 */
-
 	ListenerEntry *entry = [[[ListenerEntry alloc] initWithListener:listener context:[self executionContext] proxy:self type:type] autorelease];
 	[l addObject:entry];
-	
 	[self _listenerAdded:type count:[l count]];
 }
 	  
@@ -653,7 +690,15 @@ DEFINE_EXCEPTIONS
 	}
 	if (dynprops != nil)
 	{
-		return [dynprops objectForKey:key];
+		id result = [dynprops objectForKey:key];
+		// if we have a stored value as complex, just unwrap 
+		// it and return the internal value
+		if ([result isKindOfClass:[TiComplexValue class]])
+		{
+			TiComplexValue *value = (TiComplexValue*)result;
+			return [value value];
+		}
+		return result;
 	}
 	//NOTE: we need to return nil here since in JS you can ask for properties
 	//that don't exist and it should return undefined, not an exception
@@ -759,6 +804,7 @@ DEFINE_EXCEPTIONS
 }
 
 #pragma mark Memory Management
+
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
 	//FOR NOW, we're not dropping anything but we'll want to do before release
@@ -773,6 +819,7 @@ DEFINE_EXCEPTIONS
 	id method = [args objectAtIndex:0];
 	id firstobj = [args count] > 1 ? [args objectAtIndex:1] : nil;
 	id secondobj = [args count] > 2 ? [args objectAtIndex:2] : nil;
+	id target = [args count] > 3 ? [args objectAtIndex:3] : self;
 	if (firstobj == [NSNull null])
 	{
 		firstobj = nil;
@@ -782,7 +829,7 @@ DEFINE_EXCEPTIONS
 		secondobj = nil;
 	}
 	SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@:withObject:",method]);
-	[self performSelector:selector withObject:firstobj withObject:secondobj];
+	[target performSelector:selector withObject:firstobj withObject:secondobj];
 }
 
 #pragma mark Description for nice toString in JS

@@ -179,11 +179,22 @@ var l16 = Titanium.UI.createLabel({
 
 win.add(l16);
 
+var l17 = Titanium.UI.createLabel({
+	text:'available memory:' + Titanium.Platform.availableMemory,
+	top:310,
+	left:10,
+	width:300,
+	font:{fontSize:14},
+	color:'#777'
+	
+});
+
+win.add(l17);
 var b = Titanium.UI.createButton({
 	title:'Open URL',
 	height:30,
 	width:200,
-	top:320
+	top:330
 });
 win.add(b);
 var openURL=0;
@@ -219,27 +230,27 @@ b.addEventListener('click', function()
 //
 // BATTERY STATE CHANGE EVENT
 //
-Titanium.Network.addEventListener('battery', function(e)
+Titanium.Platform.addEventListener('battery', function(e)
 {
 	var message = 'Level: ' + e.level;
 	switch (e.state)
 	{
-		case Titanium.Network.BATTERY_STATE_UNKNOWN:
+		case Titanium.Platform.BATTERY_STATE_UNKNOWN:
 		{
 			message += ' state:unknown';
 			break;
 		}
-		case Titanium.Network.BATTERY_STATE_UNPLUGGED:
+		case Titanium.Platform.BATTERY_STATE_UNPLUGGED:
 		{
 			message += ' state:unplugged';
 			break;
 		}
-		case Titanium.Network.BATTERY_STATE_CHARGING:
+		case Titanium.Platform.BATTERY_STATE_CHARGING:
 		{
 			message += ' state:charging';
 			break;
 		}
-		case Titanium.Network.BATTERY_STATE_FULL:
+		case Titanium.Platform.BATTERY_STATE_FULL:
 		{
 			message += ' state:full';
 			break;

@@ -48,7 +48,7 @@ public class TiActivity extends Activity
 
         Intent intent = getIntent();
 
-        boolean fullscreen = true;
+        boolean fullscreen = false;
         boolean navbar = true;
         TiWindowProxy proxy = null;
 

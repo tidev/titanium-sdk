@@ -4,26 +4,45 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiUITableViewBase.h"
-#import "TiViewProxy.h"
+#import "TiUIView.h"
+#import "TiUITableViewRowProxy.h"
+#import "TiUITableViewSectionProxy.h"
+#import "TiUITableViewAction.h"
 #import "TiUISearchBarProxy.h"
+#import "TiDimension.h"
 
-@interface TiUITableView : TiUITableViewBase<UISearchBarDelegate> {
-
-	TiUISearchBarProxy * searchField;
-	UIView * tableHeaderView;
-	
-	UIButton * searchScreenView;
-	UITableView *searchTableView;
-	
-	NSString * filterAttribute;
-	NSMutableArray * searchResultIndexes;
-	
+@interface TiUITableView : TiUIView<UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate> {
+@private
+	UITableView *tableview;
+	NSMutableArray *sections;
+	BOOL moving;
+	BOOL editing;
+	BOOL autohideSearch;
+	BOOL searchHidden;
 	NSMutableArray * sectionIndex;
 	NSMutableDictionary * sectionIndexMap;
+	TiDimension rowHeight;
+	TiDimension minRowHeight;
+	TiDimension maxRowHeight;
+	TiUISearchBarProxy * searchField;
+	UIView * tableHeaderView;
+	UIButton * searchScreenView;
+	UITableView *searchTableView;
+	NSString * filterAttribute;
+	NSMutableArray * searchResultIndexes;
 }
 
--(void)addRowWithTransaction:(TiUITableViewTransaction *)transaction;
+#pragma mark Framework
+-(CGFloat)tableRowHeight:(CGFloat)height;
+-(NSInteger)indexForRow:(TiUITableViewRowProxy*)row;
+-(TiUITableViewRowProxy*)rowForIndex:(NSInteger)index section:(NSInteger*)section;
+-(void)updateSearchView;
 
+-(void)dispatchAction:(TiUITableViewAction*)action;
+-(void)insertRow:(TiUITableViewRowProxy*)row before:(TiUITableViewRowProxy*)before animation:(NSDictionary*)animation;
+-(void)insertRow:(TiUITableViewRowProxy*)row after:(TiUITableViewRowProxy*)after animation:(NSDictionary*)animation;
+-(void)deleteRow:(TiUITableViewRowProxy*)row animation:(NSDictionary*)animation;
+-(void)appendRow:(TiUITableViewRowProxy*)row animation:(NSDictionary*)animation;
+-(void)scrollToIndex:(NSInteger)index position:(UITableViewScrollPosition)position animated:(BOOL)animated;
 
 @end

@@ -6,152 +6,371 @@
  */
 
 #import "TiUITableViewRowProxy.h"
-#import "TiUITableViewCell.h"
-
-#import "Webcolor.h"
-#import "WebFont.h"
-#import "ImageLoader.h"
+#import "TiUITableViewAction.h"
+#import "TiUITableViewSectionProxy.h"
+#import "TiUITableView.h"
+#import "TiViewProxy.h"
 #import "TiUtils.h"
-#import "LayoutEntry.h"	
+#import "Webcolor.h"
+#import "ImageLoader.h"
 
 @implementation TiUITableViewRowProxy
-@synthesize children, parent;
 
-- (void) dealloc
+@synthesize tableClass, table, section, row;
+
+-(void)_destroy
 {
-	RELEASE_TO_NIL(children);
-	parent = nil; //NOT RETAINED BY ROW
-	[super dealloc];
+	RELEASE_TO_NIL(tableClass);
+	[super _destroy];
 }
 
-- (void) replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify
+-(void)_initWithProperties:(NSDictionary *)properties
 {
-	id oldValue = [[self valueForKey:key] retain];
-	[super replaceValue:value forKey:key notification:notify];
-	if(notify && (parent != nil))
-	{
-		[parent row:self changedValue:value oldValue:oldValue forKey:key];
-	}
-	[oldValue release];
+	[super _initWithProperties:properties];
+	self.modelDelegate = self;
 }
 
-
--(TiUITableViewCell *)cellForTableView:(UITableView *)tableView
+-(NSString*)tableClass
 {
-	NSString * indentifier = [TiUtils stringValue:[self valueForKey:@"rowClass"]];
-	if (indentifier==nil)
+	if (tableClass==nil)
 	{
-		indentifier = [NSString stringWithFormat:@"%X",self];
+		// must use undefined key since class is a special 
+		// property on the NSObject class
+		id value = [self valueForUndefinedKey:@"className"];
+		if (value==nil)
+		{
+			value = @"_default_";
+		}
+		tableClass = [value retain];
 	}
-
-	TiUITableViewCell *result = (TiUITableViewCell *)[tableView dequeueReusableCellWithIdentifier:indentifier];
-	if (result == nil)
-	{
-		int cellStyle = [TiUtils intValue:[self valueForKey:@"style"]];
-		result = [[[TiUITableViewCell alloc] initWithStyle:cellStyle reuseIdentifier:indentifier] autorelease];
-		[result setTableStyle:[tableView style]];
-	}
-	[result setProxy:self];	//This will read all the proxy values and set it alllllll up.
-	return result;
+	return tableClass;
 }
 
--(CGFloat)rowHeightForWidth:(CGFloat)rowWidth
+-(void)setHeight:(id)value
 {
-	CGFloat result;
-	switch (rowHeight.type)
-	{
-		case TiDimensionTypePixels:
-			result = rowHeight.value;
-			break;
-		case TiDimensionTypeAuto:
-			result = [self autoHeightForWidth:rowWidth];
-			break;
-		default:
-			return 0;	//Even if there's a minRowHeight or maxRowHeight, we don't want to honor it if we have no height?
-			break;
-	}
-	
-	return MAX(TiDimensionCalculateValue(minRowHeight, 0),
-			MIN(TiDimensionCalculateValue(maxRowHeight, 0),result));
+	height = [TiUtils dimensionValue:value];
 }
 
-//This is called either internally or if the rowHeight of a table/section is 'auto'.
--(CGFloat)autoHeightForWidth:(CGFloat) rowWidth
+-(CGFloat)rowHeight:(CGRect)bounds
 {
+	if (TiDimensionIsPixels(height))
+	{
+		return height.value;
+	}
 	CGFloat result = 0;
-	SEL autoHeightSelector = @selector(minimumParentHeightForWidth:);
-	for (TiViewProxy * thisProxy in children)
+	if (TiDimensionIsAuto(height))
 	{
-		if (![thisProxy respondsToSelector:autoHeightSelector])
+		SEL autoHeightSelector = @selector(minimumParentHeightForWidth:);
+		for (TiViewProxy * proxy in self.children)
 		{
-			continue;
-		}
-
-		CGFloat newResult = [thisProxy minimumParentHeightForWidth:rowWidth];
-		if (newResult > result)
-		{
-			result = newResult;
+			if (![proxy respondsToSelector:autoHeightSelector])
+			{
+				continue;
+			}
+			
+			CGFloat newResult = [proxy minimumParentHeightForWidth:bounds.size.width];
+			if (newResult > result)
+			{
+				result = newResult;
+			}
 		}
 	}
-	return result;
+	return result == 0 ? [table tableRowHeight:0] : result;
 }
 
--(void)add:(id)args
+-(void)updateRow:(NSDictionary *)data withObject:(NSDictionary *)properties
 {
-	NSLog(@"added: %@",args);
-	ENSURE_ARG_COUNT(args,1);
-	TiViewProxy * newChild = [args objectAtIndex:0];
-
-	ENSURE_TYPE(newChild,TiViewProxy);
-
-	if (children==nil)
+	[super _initWithProperties:data];
+	
+	// check to see if we have a section header change, too...
+	if ([data objectForKey:@"header"])
 	{
-		children = [[NSMutableArray alloc] initWithObjects:newChild,nil];
+		[section setValue:[data objectForKey:@"header"] forUndefinedKey:@"headerTitle"];
+		// we can return since we're reloading the section, will cause the 
+		// row to be repainted at the same time
+	}
+	if ([data objectForKey:@"footer"])
+	{
+		[section setValue:[data objectForKey:@"footer"] forUndefinedKey:@"footerTitle"];
+		// we can return since we're reloading the section, will cause the 
+		// row to be repainted at the same time
+	}
+	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:self animation:properties section:section.section type:TiUITableViewActionUpdateRow] autorelease];
+	[table dispatchAction:action];
+}
+
+-(void)configureTitle:(UITableViewCell*)cell
+{
+	NSString *title = [self valueForKey:@"title"];
+	if (title!=nil)
+	{
+		if ([cell.textLabel.text isEqualToString:title]==NO)
+		{
+			[cell.textLabel setText:title];
+		}
+	}
+	else 
+	{
+		[cell.textLabel setText:nil];
+	}
+}
+
+-(void)configureRightSide:(UITableViewCell*)cell
+{
+	BOOL hasChild = [TiUtils boolValue:[self valueForKey:@"hasChild"] def:NO];
+	if (hasChild)
+	{
+		cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 	}
 	else
 	{
-		[children addObject:newChild];
-	}
-
-	if ([self modelDelegate] != nil)
-	{
-		[(TiUITableViewCell *)[self modelDelegate] performSelectorOnMainThread:@selector(addChild:)
-				withObject:[newChild view] waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+		BOOL hasDetail = [TiUtils boolValue:[self valueForKey:@"hasDetail"] def:NO];
+		if (hasDetail)
+		{
+			cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+		}
+		else
+		{
+			BOOL hasCheck = [TiUtils boolValue:[self valueForKey:@"hasCheck"] def:NO];
+			if (hasCheck)
+			{
+				cell.accessoryType = UITableViewCellAccessoryCheckmark;
+			}
+			else
+			{
+				cell.accessoryType = UITableViewCellAccessoryNone;
+			}
+		}
 	}
 }
 
--(void)remove:(id)args
+-(void)configureBackground:(UITableViewCell*)cell
 {
-	ENSURE_ARG_COUNT(args,1);
-	TiViewProxy * doomedChild = [args objectAtIndex:0];
-
-//TODO: If this isn't a tiviewproxy, do we care?
-	if (![children containsObject:doomedChild])
+	id bgImage = [self valueForKey:@"backgroundImage"];
+	if (bgImage!=nil)
 	{
-		return;
+		NSURL *url = [TiUtils toURL:bgImage proxy:(TiProxy*)table.proxy];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+		if ([cell.backgroundView isKindOfClass:[UIImageView class]]==NO)
+		{
+			UIImageView *view = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+			cell.backgroundView = view;
+		}
+		if (image!=((UIImageView*)cell.backgroundView).image)
+		{
+			((UIImageView*)cell.backgroundView).image = image;
+		}
+	}
+	else if (cell.backgroundView!=nil && [cell.backgroundView isKindOfClass:[UIImageView class]] && ((UIImageView*)cell.backgroundView).image!=nil)
+	{
+		cell.backgroundView = nil;
 	}
 	
-	if (([self modelDelegate] != nil) && [doomedChild viewAttached])
+	id selBgImage = [self valueForKey:@"selectedBackgroundImage"];
+	if (selBgImage!=nil)
 	{
-		[(TiUITableViewCell *)[self modelDelegate] performSelectorOnMainThread:@selector(removeChild:)
-				withObject:[doomedChild view] waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+		NSURL *url = [TiUtils toURL:selBgImage proxy:(TiProxy*)table.proxy];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+		if ([cell.selectedBackgroundView isKindOfClass:[UIImageView class]]==NO)
+		{
+			UIImageView *view = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+			cell.selectedBackgroundView = view;
+		}
+		if (image!=((UIImageView*)cell.selectedBackgroundView).image)
+		{
+			((UIImageView*)cell.selectedBackgroundView).image = image;
+		}
 	}
+	else if (cell.selectedBackgroundView!=nil && [cell.selectedBackgroundView isKindOfClass:[UIImageView class]] && ((UIImageView*)cell.selectedBackgroundView).image!=nil)
+	{
+		cell.selectedBackgroundView = nil;
+	}
+}
 
-	[children removeObject:doomedChild];
+-(void)configureLeftSide:(UITableViewCell*)cell
+{
+	id image = [self valueForKey:@"leftImage"];
+	if (image!=nil)
+	{
+		NSURL *url = [TiUtils toURL:image proxy:(TiProxy*)table.proxy];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+		if (cell.imageView.image!=image)
+		{
+			cell.imageView.image = image;
+		}
+	}
+	else if (cell.imageView!=nil && cell.imageView.image!=nil)
+	{
+		cell.imageView.image = nil;
+	}
+}
+
+-(void)configureIndentionLevel:(UITableViewCell*)cell
+{
+	cell.indentationLevel = [TiUtils intValue:[self valueForKey:@"indentionLevel"] def:0];
+}
+
+-(void)configureChildren:(UITableViewCell*)cell
+{
+	// this method is called when the cell is initially created
+	// to be initialized. on subsequent repaints of a re-used
+	// table cell, the updateChildren below will be called instead
+	if (self.children!=nil)
+	{
+		UIView *contentView = cell.contentView;
+		CGRect rect = [contentView bounds];
+		CGFloat rowHeight = [self rowHeight:rect];
+		if (rect.size.height < rowHeight)
+		{
+			rect.size.height = rowHeight;
+			contentView.bounds = rect;
+		}
+		for (TiViewProxy *proxy in self.children)
+		{
+			TiUIView *view = [proxy view];
+			[view insertIntoView:contentView bounds:rect];
+			view.parent = self;
+		}
+	}
+}
+
+-(void)updateChildren:(UITableViewCell*)cell
+{
+	// this method is called with a cached table cell and we need
+	// to cause the existing cell to be updated with any values 
+	// that are different from the previous cached use of the cell.  
+	// we simply do this by sending property change events to the 
+	// cached cell view and then switching it's active proxy.
+	// this will cause any property changes to be reflected in the 
+	// cached cell (and resulting underlying UI component changes)
+	// and the proxy change ensures that the new row proxy gets the
+	// events now
+	if (self.children!=nil)
+	{
+		UIView *contentView = cell.contentView;
+		NSArray *subviews = [contentView subviews];
+		for (size_t c=0;c<[subviews count];c++)
+		{
+			TiViewProxy *proxy = [self.children objectAtIndex:c];
+			TiUIView *view = [subviews objectAtIndex:c];
+			for (NSString *key in [proxy allProperties])
+			{
+				id oldValue = [view.proxy valueForKey:key];
+				id newValue = [proxy valueForKey:key];
+				if ([oldValue isEqual:newValue]==NO)
+				{
+					// fire any property changes that are different from the old
+					// proxy to our new proxy
+					[view propertyChanged:key oldValue:oldValue newValue:newValue proxy:proxy];
+				}
+			}
+			// re-assign the view to the new proxy so the right listeners get 
+			// any child view events that are fired
+			view.proxy = proxy;
+			// we assign ourselves as the new parent so we can be in the 
+			// event propagation chain to insert row level event properties
+			view.parent = self;
+		} 
+	}
+}
+
+-(void)initializeTableViewCell:(UITableViewCell*)cell
+{
+	[self configureTitle:cell];
+	[self configureLeftSide:cell];
+	[self configureRightSide:cell];
+	[self configureBackground:cell];
+	[self configureIndentionLevel:cell];
+	[self configureChildren:cell];
+}
+
+-(void)renderTableViewCell:(UITableViewCell*)cell
+{
+	[self configureTitle:cell];
+	[self configureLeftSide:cell];
+	[self configureRightSide:cell];
+	[self configureBackground:cell];
+	[self configureIndentionLevel:cell];
+	[self updateChildren:cell];
+}
+
+-(BOOL)isAttached
+{
+	return table!=nil;
+}
+
+-(void)triggerRowUpdate
+{
+	if ([self isAttached])
+	{
+		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:self animation:nil section:section.section type:TiUITableViewActionUpdateRow] autorelease];
+		[table dispatchAction:action];
+	}
+}
+
+-(void)childAdded:(id)child
+{
+	[self triggerRowUpdate];
+}
+
+-(void)childRemoved:(id)child
+{
+	[self triggerRowUpdate];
+}
+
+-(void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source
+{
+	// merge in any row level properties for the event
+	if (source!=self)
+	{
+		NSMutableDictionary *dict = nil;
+		if (obj == nil)
+		{
+			dict = [NSMutableDictionary dictionary];
+		}
+		else
+		{
+			dict = [NSMutableDictionary dictionaryWithDictionary:obj];
+		}
+		NSInteger index = [table indexForRow:self];
+		[dict setObject:NUMINT(index) forKey:@"index"];
+		[dict setObject:section forKey:@"section"];
+		[dict setObject:self forKey:@"row"];
+		[dict setObject:self forKey:@"rowData"];
+		[dict setObject:NUMBOOL(NO) forKey:@"detail"];
+		[dict setObject:NUMBOOL(NO) forKey:@"searchMode"];
+		obj = dict;
+	}
+	[super fireEvent:type withObject:obj withSource:source];
 }
 
 
-#pragma mark JS-exposed properties
+#pragma mark Delegate 
 
-#define DECLARE_TIDIMENSION_SETTER(setter,prop)	\
--(void)setter:(id)newValue	\
-{	\
-prop = TiDimensionFromObject(newValue);	\
-[self setValue:newValue forUndefinedKey:@"" #prop];	\
+-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy
+{
+	// these properties should trigger a re-paint for the row
+	static NSSet * TableViewRowProperties = nil;
+	if (TableViewRowProperties==nil)
+	{
+		TableViewRowProperties = [[NSSet alloc] initWithObjects:
+					@"title", @"backgroundColor",@"backgroundImage",
+					@"leftImage",@"hasDetail",@"hasCheck",@"hasChild",	
+					@"indentionLevel",
+					nil];
+	}
+	
+	
+	if ([TableViewRowProperties member:key]!=nil)
+	{
+		[self triggerRowUpdate];
+	}
 }
 
-DECLARE_TIDIMENSION_SETTER(setRowHeight,rowHeight)
-DECLARE_TIDIMENSION_SETTER(setMinRowHeight,minRowHeight)
-DECLARE_TIDIMENSION_SETTER(setMaxRowHeight,maxRowHeight)
+-(BOOL)isRepositionProperty:(NSString*)key
+{
+	return NO;
+}
+
 
 @end

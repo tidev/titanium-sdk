@@ -16,16 +16,15 @@
 
 -(void)dealloc
 {
+	[button removeTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
 	RELEASE_TO_NIL(button);
 	[super dealloc];
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	if (!CGRectIsEmpty(bounds) && !CGRectEqualToRect(bounds, self.frame))
-	{
-		[TiUtils setView:button positionRect:bounds];
-	}
+	self.frame = CGRectIntegral(self.frame);
+	[TiUtils setView:button positionRect:bounds];
 }
 
 -(BOOL)viewSupportsBaseTouchEvents
@@ -53,6 +52,7 @@
 		int type = style!=nil ? [TiUtils intValue:style] : defaultType;
 		UIView *btn = [TiButtonUtil buttonWithType:type];
 		button = (UIButton*)[btn retain];
+		[self addSubview:button];
 		if (style==nil)
 		{
 			[TiUtils setView:button positionRect:self.bounds];
@@ -65,9 +65,19 @@
 			{
 				[button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
 			}
-			[TiUtils setView:button positionRect:btn.frame];
+			LayoutConstraint *layout = [self layout];
+			// attempt to set the size if a system button and auto
+			if (TiDimensionIsAuto(layout->width) ||
+				TiDimensionIsUndefined(layout->width))
+			{
+				[self.proxy replaceValue:NUMFLOAT(btn.frame.size.width) forKey:@"width" notification:YES];
+			}
+			if (TiDimensionIsAuto(layout->height) ||
+				TiDimensionIsUndefined(layout->height))
+			{
+				[self.proxy replaceValue:NUMFLOAT(btn.frame.size.height) forKey:@"height" notification:YES];
+			}
 		}
-		[self addSubview:button];
 		[button addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
 	}
 	return button;

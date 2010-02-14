@@ -17,8 +17,31 @@ ImageLoader *sharedLoader = nil;
 {
 	if (self = [super init])
 	{
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(didReceiveMemoryWarning:)
+													 name:UIApplicationDidReceiveMemoryWarningNotification  
+												   object:nil]; 
 	}
 	return self;
+}
+
+-(void)dealloc
+{
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:UIApplicationDidReceiveMemoryWarningNotification  
+												  object:nil];  
+	RELEASE_TO_NIL(cache);
+	[super dealloc];
+}
+
+-(void)didReceiveMemoryWarning:(id)sender
+{
+	if (cache!=nil)
+	{
+		NSLog(@"[DEBUG] low memory, removing %d cached image objects",[cache count]);
+		[cache autorelease];
+		cache = nil;
+	}
 }
 
 +(ImageLoader*)sharedLoader
@@ -30,22 +53,46 @@ ImageLoader *sharedLoader = nil;
 	return sharedLoader;
 }
 
--(id)loadRemote:(NSURL*)url
+-(id)cache:(UIImage*)image forURL:(NSURL*)url
 {
-	NSData* imageData = [[[NSData alloc]initWithContentsOfURL:url] autorelease];	
-	return [[[UIImage alloc] initWithData:imageData] autorelease];
+	if (image==nil) 
+	{
+		return nil;
+	}
+	if (cache==nil)
+	{
+		cache = [[NSMutableDictionary alloc] init];
+	}
+	[cache setObject:image forKey:[url absoluteString]];
+	return image;
 }
 
--(UIImage *)loadImmediateImage:(NSURL *)url;
+-(id)loadRemote:(NSURL*)url
 {
+	UIImage *image = [cache objectForKey:[url absoluteString]];
+	if (image!=nil)
+	{
+		return image;
+	}
+	NSData* imageData = [[[NSData alloc]initWithContentsOfURL:url] autorelease];	
+	return [self cache:[[[UIImage alloc] initWithData:imageData] autorelease] forURL:url];
+}
+
+-(UIImage *)loadImmediateImage:(NSURL *)url
+{
+	UIImage *image = [cache objectForKey:[url absoluteString]];
+	if (image!=nil)
+	{
+		return image;
+	}
 	if ([url isFileURL])
 	{
-		return [UIImage imageWithContentsOfFile:[url path]];
+		return [self cache:[UIImage imageWithContentsOfFile:[url path]] forURL:url];
 	}
 	return nil;
 }
 
--(UIImage *)loadImmediateStretchableImage:(NSURL *)url;
+-(UIImage *)loadImmediateStretchableImage:(NSURL *)url
 {
 	UIImage * result = [self loadImmediateImage:url];
 	if (result != nil){
@@ -57,9 +104,15 @@ ImageLoader *sharedLoader = nil;
 
 -(void)loadImage:(NSURL*)url callback:(id)callback selector:(SEL)selector
 {
+	UIImage *image = [cache objectForKey:[url absoluteString]];
+	if (image!=nil)
+	{
+		[callback performSelectorOnMainThread:selector withObject:image waitUntilDone:NO];
+	}
 	if ([url isFileURL])
 	{
 		UIImage *image = [UIImage imageWithContentsOfFile:[url path]];
+		[self cache:image forURL:url];
 		[callback performSelectorOnMainThread:selector withObject:image waitUntilDone:NO];
 		//This ensures that it always happens after the method returns. Otherwise we run a risk of some
 		//callbacks happening before returning, and some happening afterwards.

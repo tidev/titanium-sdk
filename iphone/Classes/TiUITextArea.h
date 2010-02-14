@@ -5,19 +5,12 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiUIView.h"
+#import "TiUITextWidget.h"
 
-@interface TiUITextArea : TiUIView <UITextViewDelegate>
+@interface TiUITextArea : TiUITextWidget <UITextViewDelegate>
 {
 @private
-	UITextView *textView;
 	BOOL returnActive;
 }
-
-#pragma mark Public APIs
-
--(BOOL)hasText;
--(void)blur;
--(void)focus;
 
 @end

@@ -44,7 +44,7 @@ function clear(o)
 		{
 			o.text = "";
 		}
-	},5000);
+	},1000);
 }
 
 win.addEventListener('click',function(ev)

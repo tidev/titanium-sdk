@@ -35,7 +35,7 @@ imageView.addEventListener('load', function()
 {
 	// hide indicator from app.js
 	Titanium.App.fireEvent('hide_indicator',{foo:'bar'});
-	
+
 	// start animation
 	imageView.start();
 });
@@ -147,7 +147,7 @@ durationUp.addEventListener('click', function()
 {
 	imageView.duration += 100;
 	l.text = 'Duration = ' + imageView.duration + ' ms (re-start to apply)';
- 	
+
 });
 win.add(durationUp);
 
@@ -171,7 +171,7 @@ durationDown.addEventListener('click', function()
 		imageView.duration -= 10;
 	}
 	l.text = 'Duration = ' + imageView.duration + ' ms (re-start to apply)';
-	
+
 });
 win.add(durationDown);
 
@@ -179,7 +179,6 @@ win.add(durationDown);
 var l = Titanium.UI.createLabel({
 	text:'Duration = 110 ms (re-start to apply)',
 	bottom:10,
-	backgroundColor: 'blue',
 	color:'white'
 });
 win.add(l);
