@@ -948,9 +948,27 @@
 	TiUITableViewSectionProxy *fromSection = [sections objectAtIndex:fromSectionIndex];
 	TiUITableViewSectionProxy *toSection = fromSectionIndex!=toSectionIndex ? [sections objectAtIndex:toSectionIndex] : fromSection;
 	
-	[[toSection rows] replaceObjectsInRange:NSMakeRange([sourceIndexPath row], 1) withObjectsFromArray:[toSection rows] range:NSMakeRange([destinationIndexPath row],1)];
+	TiUITableViewRowProxy *fromRow = [fromSection rowAtIndex:[sourceIndexPath row]];
+	TiUITableViewRowProxy *toRow = [toSection rowAtIndex:[destinationIndexPath row]];
+	
+	// hold during the move in case the array is the last guy holding the retain count
+	[fromRow retain];
+	[toRow retain];
+	
 	[[fromSection rows] removeObjectAtIndex:[sourceIndexPath row]];
-	 
+	[[toSection rows] insertObject:fromRow atIndex:[destinationIndexPath row]];
+	
+	// rewire our properties
+	fromRow.section = toSection;
+	toRow.section = fromSection;
+	
+	fromRow.row = [destinationIndexPath row];
+	toRow.row = [sourceIndexPath row];
+	
+	// now we can release from our retain above
+	[fromRow autorelease];
+	[toRow autorelease];
+
 	[self triggerActionForIndexPath:destinationIndexPath fromPath:sourceIndexPath wasAccessory:NO search:NO name:@"move"];
 }
 
