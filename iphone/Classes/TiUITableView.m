@@ -22,6 +22,11 @@
 	RELEASE_TO_NIL(tableview);
 	RELEASE_TO_NIL(sectionIndex);
 	RELEASE_TO_NIL(sectionIndexMap);
+	RELEASE_TO_NIL(tableHeaderView);
+	RELEASE_TO_NIL(searchScreenView);
+	RELEASE_TO_NIL(searchTableView);
+	RELEASE_TO_NIL(filterAttribute);
+	RELEASE_TO_NIL(searchResultIndexes);
 	[super dealloc];
 }
 
@@ -65,6 +70,7 @@
 		tableview.backgroundColor = style == UITableViewStylePlain ? [UIColor whiteColor] : [UIColor groupTableViewBackgroundColor];
 		tableview.opaque = YES;
 		[self addSubview:tableview];
+		[self updateSearchView];
 	}
 	return tableview;
 }
@@ -355,6 +361,240 @@
 	}	
 }
 
+#pragma mark Searchbar-related accessors
+
+- (UIButton *) searchScreenView
+{
+	if (searchScreenView == nil) 
+	{
+		searchScreenView = [[UIButton alloc] init];
+		[searchScreenView addTarget:self action:@selector(hideSearchScreen:) forControlEvents:UIControlEventTouchUpInside];
+		[searchScreenView setShowsTouchWhenHighlighted:NO];
+		[searchScreenView setAdjustsImageWhenDisabled:NO];
+		[searchScreenView setOpaque:NO];
+		[searchScreenView setBackgroundColor:[UIColor blackColor]];
+	}
+	return searchScreenView;
+}
+
+
+- (UITableView *) searchTableView
+{
+	if(searchTableView == nil)
+	{
+		CGRect searchFrame = [TiUtils viewPositionRect:[self searchScreenView]];
+		//Todo: make sure we account for the keyboard.
+		searchTableView = [[UITableView alloc] initWithFrame:searchFrame style:UITableViewStylePlain];
+		[searchTableView setDelegate:self];
+		[searchTableView setDataSource:self];
+	}
+	return searchTableView;
+}
+
+
+#pragma mark Searchbar helper methods
+
+- (NSIndexPath *) indexPathFromSearchIndex: (int) index
+{
+	int asectionIndex = 0;
+	for (NSIndexSet * thisSet in searchResultIndexes) 
+	{
+		int thisSetCount = [thisSet count];
+		if(index < thisSetCount)
+		{
+			int rowIndex = [thisSet firstIndex];
+			while (index > 0) 
+			{
+				rowIndex = [thisSet indexGreaterThanIndex:rowIndex];
+				index --;
+			}
+			return [NSIndexPath indexPathForRow:rowIndex inSection:asectionIndex];
+		}
+		asectionIndex++;
+		index -= thisSetCount;
+	}
+	return nil;
+}
+
+- (void)updateSearchResultIndexesForString:(NSString *) searchString
+{
+	NSEnumerator * searchResultIndexEnumerator;
+	if(searchResultIndexes == nil)
+	{
+		searchResultIndexes = [[NSMutableArray alloc] initWithCapacity:[sections count]];
+		searchResultIndexEnumerator = nil;
+	} 
+	else 
+	{
+		searchResultIndexEnumerator = [searchResultIndexes objectEnumerator];
+	}
+	
+	//TODO: If the search is adding letters to the previous search string, do it by elimination instead of adding.
+	
+	NSString * ourSearchAttribute = filterAttribute;
+	if(ourSearchAttribute == nil)
+	{
+		ourSearchAttribute = @"title";
+	}
+	
+	for (TiUITableViewSectionProxy * thisSection in sections) 
+	{
+		NSMutableIndexSet * thisIndexSet = [searchResultIndexEnumerator nextObject];
+		if (thisIndexSet == nil)
+		{
+			searchResultIndexEnumerator = nil; //Make sure we don't use the enumerator anymore. 
+			thisIndexSet = [NSMutableIndexSet indexSet];
+			[searchResultIndexes addObject:thisIndexSet];
+		} 
+		else 
+		{
+			[thisIndexSet removeAllIndexes];
+		}
+		int cellIndex = 0;
+		for (TiUITableViewRowProxy *row in [thisSection rows]) 
+		{
+			id value = [row valueForKey:ourSearchAttribute];
+			if (value!=nil && [[TiUtils stringValue:value] rangeOfString:searchString].location!=NSNotFound)
+			{
+				[thisIndexSet addIndex:cellIndex];
+			}
+			cellIndex ++;
+		}
+	}
+}
+
+#pragma mark Searchbar-related IBActions
+
+- (IBAction) hideSearchScreen: (id) sender
+{
+	[UIView beginAnimations:@"searchy" context:nil];
+	[[searchField view] resignFirstResponder];
+	[self makeRootViewFirstResponder];
+	[searchTableView removeFromSuperview];
+	[searchScreenView setEnabled:NO];
+	[searchScreenView setAlpha:0.0];
+	if (autohideSearch || searchHidden)
+	{
+		searchHidden = YES;
+		[self.proxy replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
+		[tableview setContentOffset:CGPointMake(0,searchField.view.frame.size.height)];
+	}
+	[UIView commitAnimations];
+}
+
+
+- (IBAction) showSearchScreen: (id) sender
+{
+	[tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
+					 atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+	
+	CGRect screenRect = [TiUtils viewPositionRect:tableview];
+	CGFloat searchHeight = [[tableview tableHeaderView] bounds].size.height;
+	
+	screenRect.origin.y += searchHeight;
+	screenRect.size.height -= searchHeight;
+	
+	UIView * wrapperView = [tableview superview];
+	if ([[self searchScreenView] superview] != wrapperView) 
+	{
+		[searchScreenView setAlpha:0.0];
+		[wrapperView insertSubview:searchScreenView aboveSubview:tableview];
+	}
+	[TiUtils setView:searchScreenView positionRect:screenRect];
+	
+	[UIView beginAnimations:@"searchy" context:nil];
+	[searchScreenView setEnabled:YES];
+	[searchScreenView setAlpha:0.85];
+	[tableview setContentOffset:CGPointMake(0,0)];
+	[UIView commitAnimations];
+}
+
+-(void)updateSearchView
+{
+	if (tableview == nil)
+	{
+		return;
+	}
+	
+	if (searchField == nil)
+	{
+		[tableview setTableHeaderView:nil];
+		RELEASE_TO_NIL(tableHeaderView);
+		RELEASE_TO_NIL(searchTableView);
+		RELEASE_TO_NIL(searchScreenView);
+		RELEASE_TO_NIL(searchResultIndexes);
+		return;
+	}
+	
+	UIView * searchView = [searchField view];
+	
+	if (tableHeaderView == nil)
+	{
+		CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, TI_NAVBAR_HEIGHT);
+		tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
+		[TiUtils setView:searchView positionRect:wrapperFrame];
+		[tableHeaderView addSubview:searchView];
+	}
+	
+	if ([tableview tableHeaderView] != tableHeaderView)
+	{
+		[tableview setTableHeaderView:tableHeaderView];
+	}
+}
+
+#pragma mark Search Bar Delegate
+
+- (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
+{
+	// called when text starts editing
+	[self showSearchScreen:nil];
+}
+
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
+{
+	// called when text changes (including clear)
+	if([searchText length]==0)
+	{
+		[searchTableView removeFromSuperview];
+		return;
+	}
+	[self updateSearchResultIndexesForString:searchText];
+	
+	UIView * wrapperView = [searchScreenView superview];	
+	if([searchTableView superview] != wrapperView)
+	{
+		if(searchTableView == nil)
+		{
+			[self searchTableView];
+		} 
+		else 
+		{
+			[searchTableView reloadSections:[NSIndexSet indexSetWithIndex:0]
+						   withRowAnimation:UITableViewRowAnimationFade];
+		}
+		[wrapperView insertSubview:searchTableView aboveSubview:searchScreenView];
+	} 
+	else 
+	{
+		[searchTableView reloadSections:[NSIndexSet indexSetWithIndex:0]
+					   withRowAnimation:UITableViewRowAnimationFade];
+	}
+}
+
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar                    
+{
+	// called when keyboard search button pressed
+	[searchBar resignFirstResponder];
+	[self makeRootViewFirstResponder];
+}
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar
+{
+	// called when cancel button pressed
+	[searchBar setText:nil];
+	[self hideSearchScreen:nil];
+}
+
 #pragma mark Public APIs
 
 -(void)setBackgroundColor_:(id)arg
@@ -389,6 +629,56 @@
 -(void)setFooterTitle_:(id)args
 {
 	[[self tableView] setTableFooterView:[self titleViewForText:[TiUtils stringValue:args] footer:YES]];
+}
+
+-(void)setSearch_:(id)search
+{
+	ENSURE_TYPE_OR_NIL(search,TiUISearchBarProxy);
+	RELEASE_TO_NIL(searchField);
+	
+	if (search!=nil)
+	{
+		searchField = [search retain];
+		searchField.delegate = self;
+	}
+
+	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"searchHidden" notification:NO];
+}
+
+-(void)setAutoHideSearch_:(id)autohide
+{
+	autohideSearch = [TiUtils boolValue:autohide];
+}
+
+-(void)setSearchHidden_:(id)hide
+{
+	if ([TiUtils boolValue:hide])
+	{
+		searchHidden=YES;
+		if (searchField)
+		{
+			[self hideSearchScreen:nil];
+		}
+	}
+	else 
+	{
+		searchHidden=NO;
+		if (searchField)
+		{
+			[self showSearchScreen:nil];
+		}
+	}
+}
+
+- (void)setFilterAttribute_:(id)newFilterAttribute
+{
+	ENSURE_STRING_OR_NIL(newFilterAttribute);
+	if (newFilterAttribute == filterAttribute) 
+	{
+		return;
+	}
+	RELEASE_TO_NIL(filterAttribute);
+	filterAttribute = [newFilterAttribute copy];
 }
 
 -(void)setIndex_:(NSArray*)index_
@@ -499,6 +789,16 @@
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section
 {
+	if(table == searchTableView)
+	{
+		int rowCount = 0;
+		for (NSIndexSet * thisSet in searchResultIndexes) 
+		{
+			rowCount += [thisSet count];
+		}
+		return rowCount;
+	}
+	
 	if (sections!=nil)
 	{
 		TiUITableViewSectionProxy *sectionProxy = [sections objectAtIndex:section];
@@ -512,6 +812,24 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+	if(tableView == searchTableView)
+	{
+		UITableViewCell * result = [tableView dequeueReusableCellWithIdentifier:@"__search__"];
+		if(result==nil)
+		{
+			result = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"__search__"] autorelease];
+		}
+		TiUITableViewRowProxy *row = [self rowForIndexPath:[self indexPathFromSearchIndex:[indexPath row]]];
+		NSString *searchFilterField = filterAttribute;
+		if (searchFilterField==nil)
+		{
+			searchFilterField = @"title";
+		}
+		NSString* value = [TiUtils stringValue:[row valueForKey:searchFilterField]];
+		[(id)result setText:value];
+		return result;
+	}
+	
 	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
 	
 	// the classname for all rows that have the same substainal layout will be the same
@@ -534,17 +852,29 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
+	if(tableView == searchTableView)
+	{
+		return 1;
+	}
 	return sections!=nil ? [sections count] : 0;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
+	if(tableView==searchTableView)
+	{
+		return nil;
+	}	
 	TiUITableViewSectionProxy *sectionProxy = [sections objectAtIndex:section];
 	return [sectionProxy headerTitle];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
 {
+	if(tableView==searchTableView)
+	{
+		return nil;
+	}	
 	TiUITableViewSectionProxy *sectionProxy = [sections objectAtIndex:section];
 	return [sectionProxy footerTitle];
 }
@@ -651,6 +981,11 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
+	if(tableView == searchTableView)
+	{
+		[self hideSearchScreen:nil];
+		indexPath = [self indexPathFromSearchIndex:[indexPath row]];
+	}
 	[self triggerActionForIndexPath:indexPath fromPath:nil wasAccessory:NO search:NO name:@"click"];
 }
 

@@ -24,6 +24,7 @@ var data = [
 	{title:'Table Grouped View', hasChild:true, test:'../examples/table_view_api_grouped.js'},
 	{title:'Table with Controls', hasChild:true, test:'../examples/table_view_api_controls.js'},
 	{title:'Table Auto Height', hasChild:true, test:'../examples/table_view_api_auto_height.js'},
+	{title:'Table Search', hasChild:true, test:'../examples/table_view_api_search.js'},
 
 ];
 
