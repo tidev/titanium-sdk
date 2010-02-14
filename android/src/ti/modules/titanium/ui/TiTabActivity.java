@@ -1,25 +1,31 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout;
+import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
 
-import ti.modules.titanium.ui.widget.TiUITabGroup;
 import android.app.ActivityGroup;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
 public class TiTabActivity extends ActivityGroup
+	implements ITiWindowHandler
 {
 	private static final String LCAT = "TiTabActivity";
 	private static final boolean DBG = TiConfig.LOGD;
 
 	protected TitaniumCompositeLayout layout;
 	protected TabGroupProxy proxy;
-	protected TiUITabGroup tg;
 	protected Handler handler;
 
 	public TiTabActivity() {
@@ -31,14 +37,14 @@ public class TiTabActivity extends ActivityGroup
 		super.onCreate(savedInstanceState);
 		handler = new Handler();
 
-		final TiTabActivity me = this;
-
-       layout = new TitaniumCompositeLayout(this);
+		layout = new TitaniumCompositeLayout(this);
 
         Intent intent = getIntent();
 
         boolean fullscreen = false;
         boolean navbar = false;
+        Messenger messenger = null;
+        Integer messageId = null;
 
         if (intent != null) {
         	if (intent.hasExtra("fullscreen")) {
@@ -47,9 +53,9 @@ public class TiTabActivity extends ActivityGroup
         	if (intent.hasExtra("navBarHidden")) {
         		navbar = intent.getBooleanExtra("navBarHidden", navbar);
         	}
-        	if (intent.hasExtra("proxyId")) {
-        		String proxyId = intent.getStringExtra("proxyId");
-        		proxy = (TabGroupProxy) ((TiApplication) getApplication()).unregisterProxy(proxyId);
+        	if (intent.hasExtra("messenger")) {
+        		messenger = (Messenger) intent.getParcelableExtra("messenger");
+        		messageId = intent.getIntExtra("messageId", -1);
         	}
         }
 
@@ -69,18 +75,28 @@ public class TiTabActivity extends ActivityGroup
 
         setContentView(layout);
 
-        if (proxy != null) {
-
-        	tg = new TiUITabGroup(proxy, this);
-
-        	handler.post(new Runnable(){
-
-				@Override
-				public void run() {
-		        	proxy.handlePostOpen(me);
-				}
-			});
-        }
+        //Notify caller that onCreate is done. Use post
+        // to prevent deadlock.
+        final TiTabActivity me = this;
+        final Messenger fMessenger = messenger;
+        final int fMessageId = messageId;
+        handler.post(new Runnable(){
+			@Override
+			public void run() {
+		        if (fMessenger != null) {
+		        	try {
+			        	Message msg = Message.obtain();
+			        	msg.what = fMessageId;
+			        	msg.obj = me;
+			        	fMessenger.send(msg);
+			        	Log.w(LCAT, "Notifying TiTabGroup, activity is created");
+		        	} catch (RemoteException e) {
+		        		Log.e(LCAT, "Unable to message creator. finishing.");
+		        		me.finish();
+		        	}
+		        }
+			}
+		});
 	}
 
     public TiApplication getTiApp() {
@@ -91,9 +107,16 @@ public class TiTabActivity extends ActivityGroup
     	return layout;
     }
 
-    public TiUITabGroup getTabGroup() {
-    	return tg;
-    }
+
+	@Override
+	public void addWindow(View v, TitaniumCompositeLayoutParams params) {
+		layout.addView(v, params);
+	}
+
+	@Override
+	public void removeWindow(View v) {
+		layout.removeView(v);
+	}
 
 	@Override
 	public void finish()
@@ -105,6 +128,19 @@ public class TiTabActivity extends ActivityGroup
 			}
 		}
 		super.finish();
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+		((TiApplication) getApplication()).setWindowHandler(null);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		((TiApplication) getApplication()).setWindowHandler(this);
 	}
 
 }

@@ -6,7 +6,7 @@
  */
 package org.appcelerator.titanium;
 
-import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
@@ -17,6 +17,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -41,7 +44,6 @@ public class TiActivity extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        final TiActivity me = this;
         handler = new Handler();
 
         layout = new TitaniumCompositeLayout(this);
@@ -50,7 +52,8 @@ public class TiActivity extends Activity
 
         boolean fullscreen = false;
         boolean navbar = true;
-        TiWindowProxy proxy = null;
+        Messenger messenger = null;
+        Integer messageId = null;
 
         if (intent != null) {
         	if (intent.hasExtra("fullscreen")) {
@@ -59,9 +62,9 @@ public class TiActivity extends Activity
         	if (intent.hasExtra("navBarHidden")) {
         		navbar = intent.getBooleanExtra("navBarHidden", navbar);
         	}
-        	if (intent.hasExtra("proxyId")) {
-        		String proxyId = intent.getStringExtra("proxyId");
-        		proxy = (TiWindowProxy) ((TiApplication) getApplication()).unregisterProxy(proxyId);
+        	if (intent.hasExtra("messenger")) {
+        		messenger = (Messenger) intent.getParcelableExtra("messenger");
+        		messageId = intent.getIntExtra("messageId", -1);
         	}
         }
 
@@ -81,15 +84,30 @@ public class TiActivity extends Activity
 
         setContentView(layout);
 
-        if (proxy != null) {
-        	final TiWindowProxy fproxy = proxy;
-	       handler.post(new Runnable(){
-
-					@Override
-					public void run() {
-			        	fproxy.handlePostOpen(me);
-					}});
-         }
+        //Notify caller that onCreate is done. Use post
+        // to prevent deadlock.
+        final TiActivity me = this;
+        final Messenger fMessenger = messenger;
+        if (messenger != null) {
+	        final int fMessageId = messageId;
+	        handler.post(new Runnable(){
+				@Override
+				public void run() {
+			        if (fMessenger != null) {
+			        	try {
+				        	Message msg = Message.obtain();
+				        	msg.what = fMessageId;
+				        	msg.obj = me;
+				        	fMessenger.send(msg);
+				        	Log.w(LCAT, "Notifying TiUIWindow, activity is created");
+			        	} catch (RemoteException e) {
+			        		Log.e(LCAT, "Unable to message creator. finishing.");
+			        		me.finish();
+			        	}
+			        }
+				}
+			});
+        }
     }
 
     public TiApplication getTiApp() {

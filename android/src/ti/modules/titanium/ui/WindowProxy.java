@@ -3,24 +3,31 @@ package ti.modules.titanium.ui;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Message;
+import android.os.Messenger;
 
 public class WindowProxy extends TiWindowProxy
 {
 	private static final String LCAT = "WindowProxy";
 	private static final boolean DBG = TiConfig.LOGD;
+
+	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
+
+	private static final int MSG_FINISH_OPEN = MSG_FIRST_ID + 100;
+	private static final int MSG_TAB_OPEN = MSG_FIRST_ID + 101;
+
+	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	ArrayList<TiViewProxy> views;
 	WeakReference<Activity> weakActivity;
@@ -36,67 +43,51 @@ public class WindowProxy extends TiWindowProxy
 		throw new IllegalStateException("call to getView on a Window");
 	}
 
+	@Override
+	public boolean handleMessage(Message msg)
+	{
+		switch(msg.what) {
+			case MSG_FINISH_OPEN: {
+				realizeViews(null, view);
+				if (tab == null) {
+					//TODO attach window
+				}
+				opened = true;
+				return true;
+			}
+			case MSG_TAB_OPEN : {
+				view = new TiUIWindow(this, (Activity) msg.obj);
+				realizeViews(null, view);
+				opened = true;
+				return true;
+			}
+			default : {
+				return super.handleMessage(msg);
+			}
+		}
+	}
 
 	@Override
 	protected void handleOpen(TiDict options)
 	{
 		Log.i(LCAT, "handleOpen");
 
-		// Check for type of Window
-		TiDict props = getDynamicProperties();
-		Activity activity = getTiContext().getActivity();
-
-		Intent intent = new Intent(activity, TiActivity.class);
-		fillIntent(intent);
-
-		boolean newActivity = requiresNewActivity(props);
-		if (!newActivity && options != null && options.containsKey("tabOpen")) {
-			newActivity = TiConvert.toBoolean(options,"tabOpen");
-		}
-
-		if (newActivity)
-		{
-			intent.putExtra("finishRoot", activity.isTaskRoot());
-			getTiContext().getTiApp().registerProxy(this);
-
-			getTiContext().getActivity().startActivity(intent);
-		} else {
-			getTiContext().getTiApp().registerProxy(this);
-			windowId = getTiContext().getRootActivity().openWindow(intent);
-		}
+		Messenger messenger = new Messenger(getUIHandler());
+		view = new TiUIWindow(this, options, messenger, MSG_FINISH_OPEN);
 	}
 
-	public void handlePostOpen(Activity activity)
-	{
-		TiActivity tia = (TiActivity) activity;
-		if (tia != null) {
-			weakActivity = new WeakReference<Activity>(activity);
-			view = new TiUIWindow(this, (TiActivity) activity);
-			realizeViews(activity, view);
-			if (tab == null) {
-				getTiContext().getRootActivity().addWindow(windowId, view.getLayoutParams());
-			}
-		}
-		opened = true;
+	public void fillIntentForTab(Intent intent) {
+		Messenger messenger = new Messenger(getUIHandler());
+		intent.putExtra("messenger", messenger);
+		intent.putExtra("messageId", MSG_TAB_OPEN);
 	}
 
 	@Override
 	protected void handleClose(TiDict options)
 	{
 		Log.i(LCAT, "handleClose");
-		Activity activity = null;
-		if (weakActivity != null) {
-			activity = weakActivity.get();
-		}
-		if (windowId == null) {
-			activity.finish();
-			weakActivity = null;
-			this.clearView();
-		} else {
-			getTiContext().getRootActivity().closeWindow(windowId);
-			releaseViews();
-			windowId = null;
-			view = null;
+		if (view != null) {
+			((TiUIWindow) view).close();
 		}
 		opened = false;
 	}
