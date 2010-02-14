@@ -15,8 +15,6 @@
 #pragma mark Public APIs
 
 -(BOOL)hasText;
--(void)blur;
--(void)focus;
 
 @end
 

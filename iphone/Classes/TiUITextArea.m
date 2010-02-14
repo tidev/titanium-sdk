@@ -26,6 +26,8 @@
 		((UITextView *)textWidgetView).delegate = self;
 		((UITextView *)textWidgetView).contentInset = UIEdgeInsetsMake(2, 2, 2, 2);
 		[self addSubview:textWidgetView];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
 	}
 	return textWidgetView;
 }
@@ -34,17 +36,12 @@
 
 -(void)setEnabled_:(id)value
 {
-	[[self textWidgetView] setEditable:[TiUtils boolValue:value]];
-}
-
--(void)setValue_:(id)text
-{
-	[[self textWidgetView] setText:[TiUtils stringValue:text]];
+	[(UITextView *)[self textWidgetView] setEditable:[TiUtils boolValue:value]];
 }
 
 -(void)setEditable_:(id)editable
 {
-	[[self textWidgetView] setEditable:[TiUtils boolValue:editable]];
+	[(UITextView *)[self textWidgetView] setEditable:[TiUtils boolValue:editable]];
 }
 
 -(void)setBorderStyle_:(id)value
@@ -52,21 +49,6 @@
 	//TODO
 }
 
-
--(void)setPasswordMask_:(id)value
-{
-	[[self textWidgetView] setSecureTextEntry:[TiUtils boolValue:value]];
-}
-
--(void)setAppearance_:(id)value
-{
-	[[self textWidgetView] setKeyboardAppearance:[TiUtils intValue:value]];
-}
-
--(void)setAutocapitalization_:(id)value
-{
-	[[self textWidgetView] setAutocapitalizationType:[TiUtils intValue:value]];
-}
 
 -(void)setBackgroundColor_:(id)color
 {
@@ -77,18 +59,14 @@
 
 -(BOOL)hasText
 {
-	return [[self textWidgetView] hasText];
+	return [(UITextView *)[self textWidgetView] hasText];
 }
 
--(void)blur
+-(BOOL)becomeFirstResponder
 {
-	[[self textWidgetView] resignFirstResponder];
+	BOOL result = [super becomeFirstResponder];
 	[self makeRootViewFirstResponder];
-}
-
--(void)focus
-{
-	[[self textWidgetView] becomeFirstResponder];
+	return result;
 }
 
 //TODO: scrollRangeToVisible
@@ -99,7 +77,7 @@
 {
 	if ([self.proxy _hasListeners:@"focus"])
 	{
-		[self.proxy fireEvent:@"focus" withObject:[NSDictionary dictionaryWithObject:[textWidgetView text] forKey:@"value"]];
+		[self.proxy fireEvent:@"focus" withObject:[NSDictionary dictionaryWithObject:[(UITextView *)textWidgetView text] forKey:@"value"]];
 	}
 }
 
@@ -107,14 +85,14 @@
 {
 	if (returnActive && [self.proxy _hasListeners:@"return"])
 	{
-		[self.proxy fireEvent:@"return" withObject:[NSDictionary dictionaryWithObject:[textWidgetView text] forKey:@"value"]];
+		[self.proxy fireEvent:@"return" withObject:[NSDictionary dictionaryWithObject:[(UITextView *)textWidgetView text] forKey:@"value"]];
 	}	
 
 	returnActive = NO;
 
 	if ([self.proxy _hasListeners:@"blur"])
 	{
-		[self.proxy fireEvent:@"blur" withObject:[NSDictionary dictionaryWithObject:[textWidgetView text] forKey:@"value"]];
+		[self.proxy fireEvent:@"blur" withObject:[NSDictionary dictionaryWithObject:[(UITextView *)textWidgetView text] forKey:@"value"]];
 	}
 }
 
@@ -122,7 +100,7 @@
 {
 	if ([self.proxy _hasListeners:@"change"])
 	{
-		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:[textWidgetView text] forKey:@"value"]];
+		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:[(UITextView *)textWidgetView text] forKey:@"value"]];
 	}
 }
 
