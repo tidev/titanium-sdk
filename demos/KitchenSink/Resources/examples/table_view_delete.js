@@ -42,7 +42,7 @@ var tableView = Titanium.UI.createTableView({
 // add delete event listener
 tableView.addEventListener('delete',function(e)
 {
-	Titanium.API.info("deleted - row="+e.row+", index="+e.index+", section="+e.section + ' table view row length = ' + tableView.data.length);
+	Titanium.API.info("deleted - row="+e.row+", index="+e.index+", section="+e.section + ' table view row length = ' + tableView.section.data.length);
 });
 
 win.add(tableView);
