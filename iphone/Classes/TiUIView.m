@@ -94,7 +94,7 @@ DEFINE_EXCEPTIONS
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 }
 
--(void)setProxy:(TiViewProxy *)p
+-(void)setProxy:(TiProxy *)p
 {
 	proxy = p;
 	proxy.modelDelegate = self;
@@ -368,7 +368,7 @@ DEFINE_EXCEPTIONS
 	ENSURE_UI_THREAD(animate,arg);
 	RELEASE_TO_NIL(animation);
 	
-	if ([self.proxy viewReady]==NO)
+	if ([self.proxy isKindOfClass:[TiViewProxy class]] && [(TiViewProxy*)self.proxy viewReady]==NO)
 	{
 #ifdef DEBUG
 		NSLog(@"[DEBUG] animated called and we're not ready ... (will try again)");
@@ -451,76 +451,15 @@ return;\
 	DoProxyDelegateReadValuesWithKeysFromProxy(self, keys, proxy);
 }
 
--(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy
+-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy_
 {
-	DoProxyDelegateChangedValuesWithProxy(self, key, oldValue, newValue, proxy);
+	DoProxyDelegateChangedValuesWithProxy(self, key, oldValue, newValue, proxy_);
 }
-
-//
-//
-//
-//-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy
-//{
-//	// default implementation will simply invoke the setter property for this object
-//	// on the main UI thread
-//	SEL sel = [self selectorForProperty:key];
-//	if ([self respondsToSelector:sel])
-//	{
-//		if ([NSThread isMainThread])
-//		{
-//			[self performSelector:sel withObject:newValue];
-//		}
-//		else
-//		{
-//			[self performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO];
-//		}
-//	}
-//
-//	if ([self isRepositionProperty:key] && [self superview]!=nil)
-//	{
-//		[self repositionChange:key value:newValue];
-//	}
-//}
 
 -(id)proxyValueForKey:(NSString *)key
 {
 	return [proxy valueForKey:key];
 }
-
-//-(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys
-//{
-//	BOOL isMainThread = [NSThread isMainThread];
-//	NSNull * nullObject = [NSNull null];
-//
-//	for (NSString * thisKey in keys)
-//	{
-//		SEL sel = [self selectorForProperty:thisKey];
-//		if (![self respondsToSelector:sel])
-//		{
-//			continue;
-//		}
-//		
-//		id newValue = [proxy valueForKey:thisKey];
-//		if (newValue == nil)
-//		{
-//			continue;
-//		}
-//		if (newValue == nullObject)
-//		{
-//			newValue = nil;
-//		}
-//		
-//		if (isMainThread)
-//		{
-//			[self performSelector:sel withObject:newValue];
-//		}
-//		else
-//		{
-//			[self performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO];
-//		}
-//
-//	}
-//}
 
 #pragma mark First Responder delegation
 

@@ -35,19 +35,28 @@
 {
 }
 
+-(void)layoutChildOnMainThread:(id)arg
+{
+	ENSURE_UI_THREAD(layoutChildOnMainThread,arg);
+	[self layoutChild:arg bounds:view.bounds]; 
+}
+
 #pragma mark Public
 
 -(void)add:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,TiViewProxy);
-	ENSURE_UI_THREAD(add,arg); 
 	if (children==nil)
 	{
 		children = [[NSMutableArray alloc] init];
 	}
 	[children addObject:arg];
 	[arg setParent:self];
-	[self layoutChild:arg bounds:view.bounds]; 
+	// only call layout if the view is attached
+	if ([self viewAttached])
+	{
+		[self layoutChildOnMainThread:arg];
+	}
 	[self childAdded:arg];
 }
 
@@ -55,7 +64,6 @@
 -(void)remove:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,TiViewProxy);
-	ENSURE_UI_THREAD(remove,arg);
 	if (children!=nil)
 	{
 		[self childRemoved:arg];
@@ -69,11 +77,14 @@
 	}
 	if (view!=nil)
 	{
-		//TODO: this is temporarily backwards compat with old TiView until everything is ported
-		if ([arg isKindOfClass:[TiViewProxy class]])
+		UIView *childView = [arg view];
+		if ([NSThread isMainThread])
 		{
-			UIView *childView = [arg view];
 			[childView removeFromSuperview];
+		}
+		else
+		{
+			[self performSelectorOnMainThread:@selector(removeFromSuperview) withObject:childView waitUntilDone:NO];
 		}
 	}
 }
@@ -116,7 +127,7 @@
 
 #pragma mark View
 
--(void)setParent:(TiViewProxy*)parent_
+-(void)setParent:(TiProxy*)parent_
 {
 	parent = parent_;
 }
@@ -311,11 +322,6 @@
 
 #pragma mark Memory Management
 
--(void)didReceiveMemoryWarning:(NSNotification*)notification
-{
-	[super didReceiveMemoryWarning:notification];
-}
-
 -(void)_destroy
 {
 	if (view!=nil)
@@ -386,6 +392,7 @@
 
 #pragma mark Invocation
 
+//FIXME: review this, i think it can be removed -JGH
 -(id)resultForUndefinedMethod:(NSString*)name args:(NSArray*)args
 {
 	// support dynamic forwarding to model delegate methods if attached

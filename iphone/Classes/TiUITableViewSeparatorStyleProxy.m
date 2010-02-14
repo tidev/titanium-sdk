@@ -5,12 +5,12 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiUITextWidget.h"
+#import "TiUITableViewSeparatorStyleProxy.h"
 
-@interface TiUITextArea : TiUITextWidget <UITextViewDelegate>
-{
-@private
-	BOOL returnActive;
-}
+@implementation TiUITableViewSeparatorStyleProxy
+
+MAKE_SYSTEM_PROP(NONE,UITableViewCellSeparatorStyleNone);
+MAKE_SYSTEM_PROP(SINGLE_LINE,UITableViewCellSeparatorStyleSingleLine);
+
 
 @end

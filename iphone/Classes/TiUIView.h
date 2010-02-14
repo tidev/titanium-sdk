@@ -13,7 +13,7 @@
 @interface TiUIView : UIView<TiProxyDelegate,LayoutAutosizing> 
 {
 @private
-	TiViewProxy *proxy;
+	TiProxy *proxy;
 	TiViewProxy *parent;
 	TiAnimation *animation;
 	LayoutConstraint layout;
@@ -35,7 +35,7 @@
 	BOOL repositioning;
 }
 
-@property(nonatomic,readwrite,assign)	TiViewProxy *proxy;
+@property(nonatomic,readwrite,assign)	TiProxy *proxy;
 @property(nonatomic,readwrite,assign)	TiViewProxy *parent;
 @property(nonatomic,readonly)			unsigned	int zIndex;
 @property(nonatomic,readonly)			LayoutConstraint *layout;

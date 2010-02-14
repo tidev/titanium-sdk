@@ -1,3 +1,4 @@
+//FIXME: JGH redo
 var win = Titanium.UI.currentWindow;
 
 // simple two element template layout

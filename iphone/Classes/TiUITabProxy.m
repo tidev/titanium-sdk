@@ -77,7 +77,7 @@
 		[currentWindow _tabBeforeBlur];
 	}
 	
-	[[viewController window] _tabBeforeFocus];
+	[[(TiUITabController*)viewController window] _tabBeforeFocus];
 }
 
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated

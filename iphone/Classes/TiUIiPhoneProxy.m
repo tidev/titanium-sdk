@@ -17,6 +17,8 @@
 #import "TiUIActivityIndicatorStyleProxy.h"
 #import "TiUISystemIconProxy.h"
 #import "TiUIScrollIndicatorStyleProxy.h"
+#import "TiUITableViewStyleProxy.h"
+#import "TiUITableViewSeparatorStyleProxy.h"
 
 @implementation TiUIiPhoneProxy
 
@@ -31,6 +33,8 @@
 	RELEASE_TO_NIL(activityIndicatorStyle);
 	RELEASE_TO_NIL(systemIcon);
 	RELEASE_TO_NIL(scrollIndicatorStyle);
+	RELEASE_TO_NIL(tableViewStyle);
+	RELEASE_TO_NIL(tableViewSeparatorStyle);
 	[super dealloc];
 }
 
@@ -44,16 +48,17 @@
 	return ivarName;	\
 }	\
 
-DEFINE_SUBPROXY(AnimationStyle,animationStyle)
-DEFINE_SUBPROXY(StatusBar,statusBar)
-DEFINE_SUBPROXY(RowAnimationStyle,rowAnimationStyle)
-DEFINE_SUBPROXY(SystemButtonStyle,systemButtonStyle)
-DEFINE_SUBPROXY(SystemButton,systemButton)
-DEFINE_SUBPROXY(ProgressBarStyle,progressBarStyle)
-DEFINE_SUBPROXY(ActivityIndicatorStyle,activityIndicatorStyle)
-DEFINE_SUBPROXY(SystemIcon,systemIcon)
-DEFINE_SUBPROXY(ScrollIndicatorStyle,scrollIndicatorStyle)
-
+DEFINE_SUBPROXY(AnimationStyle,animationStyle);
+DEFINE_SUBPROXY(StatusBar,statusBar);
+DEFINE_SUBPROXY(RowAnimationStyle,rowAnimationStyle);
+DEFINE_SUBPROXY(SystemButtonStyle,systemButtonStyle);
+DEFINE_SUBPROXY(SystemButton,systemButton);
+DEFINE_SUBPROXY(ProgressBarStyle,progressBarStyle);
+DEFINE_SUBPROXY(ActivityIndicatorStyle,activityIndicatorStyle);
+DEFINE_SUBPROXY(SystemIcon,systemIcon);
+DEFINE_SUBPROXY(ScrollIndicatorStyle,scrollIndicatorStyle);
+DEFINE_SUBPROXY(TableViewStyle,tableViewStyle);
+DEFINE_SUBPROXY(TableViewSeparatorStyle,tableViewSeparatorStyle);
 
 -(void)hideStatusBar:(id)args
 {
@@ -131,6 +136,8 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 	RELEASE_TO_NIL(activityIndicatorStyle);
 	RELEASE_TO_NIL(systemIcon);
 	RELEASE_TO_NIL(scrollIndicatorStyle);
+	RELEASE_TO_NIL(tableViewStyle);
+	RELEASE_TO_NIL(tableViewSeparatorStyle);
 	[super didReceiveMemoryWarning:notification];
 }
 

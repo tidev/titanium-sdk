@@ -12,20 +12,24 @@ import java.util.TreeSet;
 import org.appcelerator.titanium.util.Log;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.OnHierarchyChangeListener;
 
 public class TitaniumCompositeLayout extends ViewGroup
-	implements OnHierarchyChangeListener
+	implements OnHierarchyChangeListener, TiBorderHelper.BorderSupport
 {
 	private TreeSet<View> viewSorter;
 	private boolean needsSort;
+	private TiBorderHelper borderHelper;
 
 	public TitaniumCompositeLayout(Context context)
 	{
 		super(context);
+		this.borderHelper = new TiBorderHelper();
+
 		this.viewSorter = new TreeSet<View>(new Comparator<View>(){
 
 			public int compare(View o1, View o2)
@@ -81,6 +85,10 @@ public class TitaniumCompositeLayout extends ViewGroup
 	public TitaniumCompositeLayout(Context context, AttributeSet attrs,
 			int defStyle) {
 		super(context, attrs, defStyle);
+	}
+
+	public TiBorderHelper getBorderHelper() {
+		return borderHelper;
 	}
 
 	public void onChildViewAdded(View parent, View child) {
@@ -245,6 +253,12 @@ public class TitaniumCompositeLayout extends ViewGroup
 		maxWidth += getPaddingLeft() + getPaddingRight();
 		maxHeight += getPaddingTop() + getPaddingBottom();
 
+		// Account for border
+
+		int padding = Math.round(borderHelper.calculatePadding());
+		maxWidth += padding;
+		maxHeight += padding;
+
 		// check minimums
 		maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
 		maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
@@ -265,6 +279,15 @@ public class TitaniumCompositeLayout extends ViewGroup
 			}
 		}
 	}
+
+	@Override
+	public void draw(Canvas canvas)
+	{
+		borderHelper.preDraw(canvas, getMeasuredWidth(), getMeasuredHeight());
+		super.draw(canvas);
+		borderHelper.postDraw(canvas, getMeasuredWidth(), getMeasuredHeight());
+	}
+
 
 	public static class TitaniumCompositeLayoutParams extends LayoutParams
 	{
