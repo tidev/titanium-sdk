@@ -36,7 +36,7 @@
 	{
 		// must use undefined key since class is a special 
 		// property on the NSObject class
-		id value = [self valueForUndefinedKey:@"class"];
+		id value = [self valueForUndefinedKey:@"className"];
 		if (value==nil)
 		{
 			value = @"_default_";

@@ -43,5 +43,6 @@
 -(void)insertRow:(TiUITableViewRowProxy*)row after:(TiUITableViewRowProxy*)after animation:(NSDictionary*)animation;
 -(void)deleteRow:(TiUITableViewRowProxy*)row animation:(NSDictionary*)animation;
 -(void)appendRow:(TiUITableViewRowProxy*)row animation:(NSDictionary*)animation;
+-(void)scrollToIndex:(NSInteger)index position:(UITableViewScrollPosition)position animated:(BOOL)animated;
 
 @end
