@@ -12,4 +12,6 @@
 
 }
 
+-(BOOL)focused;
+
 @end

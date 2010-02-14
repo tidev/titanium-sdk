@@ -18,7 +18,7 @@
 	{
 		return [(TiUITextWidget*)[self view] hasText];
 	}
-	NSString *value = [self valueForKey:@"text"];
+	NSString *value = [self valueForKey:@"value"];
 	return value!=nil && [value length] > 0;
 }
 
@@ -26,7 +26,7 @@
 {
 	if ([self viewAttached])
 	{
-		[[self view] performSelectorOnMainThread:@selector(blur) withObject:nil waitUntilDone:NO];
+		[[self view] performSelectorOnMainThread:@selector(resignFirstResponder) withObject:nil waitUntilDone:NO];
 	}
 }
 
@@ -34,9 +34,19 @@
 {
 	if ([self viewAttached])
 	{
-		[[self view] performSelectorOnMainThread:@selector(focus) withObject:nil waitUntilDone:NO];
+		[[self view] performSelectorOnMainThread:@selector(becomeFirstResponder) withObject:nil waitUntilDone:NO];
 	}
 }
 
+-(BOOL)focused
+{
+	BOOL result=NO;
+	if ([self viewAttached])
+	{
+		result = [(TiUITextWidget*)[self view] isFirstResponder];
+	}
+
+	return result;
+}
 
 @end
