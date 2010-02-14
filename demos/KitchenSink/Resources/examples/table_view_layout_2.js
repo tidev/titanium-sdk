@@ -34,7 +34,7 @@ var clickLabel = Titanium.UI.createLabel({
 	color:'#fff',
 	font:{fontSize:14}
 });
-row['class'] = 'header';
+row.className = 'header';
 row.add(clickLabel);
 data.push(row);
 
@@ -62,7 +62,7 @@ for (var c=1;c<50;c++)
 	var row = Ti.UI.createTableViewRow();
 	row.selectedBackgroundColor = '#fff';
 	row.height  =100;
-	row['class'] = 'datarow';
+	row.className = 'datarow';
 	
 	var photo = Ti.UI.createView({
 		backgroundImage:'../images/custom_tableview/user.png',
