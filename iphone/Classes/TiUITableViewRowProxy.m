@@ -26,6 +26,7 @@
 -(void)_initWithProperties:(NSDictionary *)properties
 {
 	[super _initWithProperties:properties];
+	self.modelDelegate = self;
 	className = [[TiUtils stringValue:@"class" properties:properties def:@"_default_"] retain];
 }
 
@@ -166,5 +167,40 @@
 	[self configureBackground:cell];
 	[self configureIndentionLevel:cell];
 }
+
+-(void)triggerRowUpdate
+{
+	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:self animation:nil section:section.section type:TiUITableViewActionUpdateRow] autorelease];
+	[table dispatchAction:action];
+}
+
+
+#pragma mark Delegate 
+
+-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy
+{
+	// these properties should trigger a re-paint for the row
+	static NSSet * TableViewRowProperties = nil;
+	if (TableViewRowProperties==nil)
+	{
+		TableViewRowProperties = [[NSSet alloc] initWithObjects:
+					@"title", @"backgroundColor",@"backgroundImage",
+					@"leftImage",@"hasDetail",@"hasCheck",@"hasChild",	
+					@"indentionLevel",
+					nil];
+	}
+	
+	
+	if ([TableViewRowProperties member:key]!=nil)
+	{
+		[self triggerRowUpdate];
+	}
+}
+
+-(BOOL)isRepositionProperty:(NSString*)key
+{
+	return NO;
+}
+
 
 @end

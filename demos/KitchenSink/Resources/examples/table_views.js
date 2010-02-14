@@ -18,6 +18,7 @@ var data = [
 	{title:'Insert Row', hasChild:true, test:'../examples/table_view_row_insert.js'},
 	{title:'Update Row', hasChild:true, test:'../examples/table_view_row_update.js'},
 	{title:'Set Row Data', hasChild:true, test:'../examples/table_view_set.js'},
+	{title:'Composite (Partial Size)', hasChild:true, test:'../examples/table_view_composite.js'},
 
 	{title:'Table API Basic', hasChild:true, test:'../examples/table_view_api_basic.js', header:'New Programmatic API'},
 	{title:'Table Grouped View', hasChild:true, test:'../examples/table_view_api_grouped.js'},

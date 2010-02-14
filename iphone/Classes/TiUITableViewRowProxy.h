@@ -10,13 +10,14 @@
 @class TiUITableView;
 @class TiUITableViewSectionProxy;
 
-@interface TiUITableViewRowProxy : TiProxy 
+@interface TiUITableViewRowProxy : TiProxy <TiProxyDelegate>
 {
 @private
 	NSString *className;
 	TiUITableView *table;
 	TiUITableViewSectionProxy *section;
 	NSInteger row;
+	BOOL initializing;
 }
 
 #pragma mark Public APIs
