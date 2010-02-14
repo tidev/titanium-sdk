@@ -23,6 +23,18 @@
 	[super _destroy];
 }
 
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+	[super _initWithProperties:properties];
+	self.modelDelegate = self;
+}	
+
+-(void)triggerSectionUpdate
+{
+	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:nil animation:nil section:self.section type:TiUITableViewActionSectionReload] autorelease];
+	[table dispatchAction:action];
+}
+
 #pragma mark Public APIs
 
 -(NSInteger)rowCount
@@ -64,18 +76,29 @@
 	return [super valueForUndefinedKey:@"footerTitle"];
 }
 
--(void)setHeaderTitle:(NSString *)title
+#pragma mark Delegate 
+
+-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy
 {
-	[super replaceValue:title forKey:@"headerTitle" notification:NO];
-	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:nil animation:nil section:self.section type:TiUITableViewActionSectionReload] autorelease];
-	[table dispatchAction:action];
+	// these properties should trigger a re-paint for the row
+	static NSSet * TableViewSectionProperties = nil;
+	if (TableViewSectionProperties==nil)
+	{
+		TableViewSectionProperties = [[NSSet alloc] initWithObjects:
+								  @"headerTitle", @"footerTitle",
+								  nil];
+	}
+	
+	
+	if ([TableViewSectionProperties member:key]!=nil)
+	{
+		[self triggerSectionUpdate];
+	}
 }
 
--(void)setFooterTitle:(NSString*)title
+-(BOOL)isRepositionProperty:(NSString*)key
 {
-	[super replaceValue:title forKey:@"footerTitle" notification:NO];
-	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:nil animation:nil section:self.section type:TiUITableViewActionSectionReload] autorelease];
-	[table dispatchAction:action];
+	return NO;
 }
 
 @end

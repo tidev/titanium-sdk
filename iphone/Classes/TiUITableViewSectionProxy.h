@@ -9,7 +9,8 @@
 @class TiUITableViewRowProxy;
 @class TiUITableView;
 
-@interface TiUITableViewSectionProxy : TiProxy {
+@interface TiUITableViewSectionProxy : TiProxy <TiProxyDelegate> 
+{
 @private
 	NSMutableArray *rows;
 	TiUITableView *table;
@@ -18,8 +19,8 @@
 
 @property(nonatomic,readonly) NSMutableArray *rows;
 @property(nonatomic,readonly) NSInteger rowCount;
-@property(nonatomic,readwrite,assign) NSString *headerTitle;
-@property(nonatomic,readwrite,assign) NSString *footerTitle;
+@property(nonatomic,readonly,assign) NSString *headerTitle;
+@property(nonatomic,readonly,assign) NSString *footerTitle;
 
 -(void)add:(id)proxy;
 -(void)remove:(id)proxy;
