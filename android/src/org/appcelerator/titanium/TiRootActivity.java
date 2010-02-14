@@ -13,6 +13,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
+import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
 
@@ -22,10 +23,9 @@ import android.app.LocalActivityManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
 
 public class TiRootActivity extends ActivityGroup
-	implements TiActivitySupport
+	implements TiActivitySupport, ITiWindowHandler
 {
 	private static AtomicInteger windowIdGenerator;
 
@@ -79,20 +79,7 @@ public class TiRootActivity extends ActivityGroup
 		LocalActivityManager lam = getLocalActivityManager();
 
 		String windowId = "window$$" + windowIdGenerator.incrementAndGet();
-
-		Window w = lam.startActivity(windowId, intent);
-//		Activity activity = lam.getActivity(windowId);
-//		if (activity != null) {
-//			if (activity instanceof TiActivity) {
-//				TitaniumCompositeLayout layout = ((TiActivity) activity).getLayout();
-//				rootLayout.addView(layout, layout.getLayoutParams());
-//			} else {
-//				rootLayout.addView(w.getDecorView());
-//			}
-//		} else {
-//			windowId = null;
-//		}
-
+		lam.startActivity(windowId, intent);
 		return windowId;
 	}
 
@@ -106,6 +93,10 @@ public class TiRootActivity extends ActivityGroup
 		}
 	}
 
+	public void addWindow(View v, TitaniumCompositeLayoutParams params) {
+		rootLayout.addView(v, params);
+	}
+
 	public void closeWindow(String windowId) {
 		LocalActivityManager lam = getLocalActivityManager();
 		Activity activity = lam.getActivity(windowId);
@@ -114,6 +105,10 @@ public class TiRootActivity extends ActivityGroup
 			rootLayout.removeView(decor);
 		}
 		lam.destroyActivity(windowId, true);
+	}
+
+	public void removeWindow(View v) {
+		rootLayout.removeView(v);
 	}
 
 	// Activity Support
