@@ -14,7 +14,7 @@
 
 @implementation TiViewProxy
 
-@synthesize children;
+@synthesize children, parent;
 
 #pragma mark Internal
 
@@ -127,7 +127,7 @@
 
 #pragma mark View
 
--(void)setParent:(TiViewProxy*)parent_
+-(void)setParent:(TiProxy*)parent_
 {
 	parent = parent_;
 }
@@ -376,7 +376,7 @@
 
 -(void)_listenerAdded:(NSString*)type count:(int)count
 {
-	if (self.modelDelegate!=nil)
+	if (self.modelDelegate!=nil && [(NSObject*)self.modelDelegate respondsToSelector:@selector(listenerAdded:count:)])
 	{
 		[self.modelDelegate listenerAdded:type count:count];
 	}
@@ -384,7 +384,7 @@
 
 -(void)_listenerRemoved:(NSString*)type count:(int)count
 {
-	if (self.modelDelegate!=nil)
+	if (self.modelDelegate!=nil && [(NSObject*)self.modelDelegate respondsToSelector:@selector(listenerRemoved:count:)])
 	{
 		[self.modelDelegate listenerRemoved:type count:count];
 	}

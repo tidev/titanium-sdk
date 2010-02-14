@@ -1,12 +1,10 @@
 // create table view data object
-var data = [
-	{title:'Row 1', hasChild:true},
-	{title:'Row 2', hasDetail:true},
-	{title:'Row 3', hasCheck:true},
-	{title:'Row 4'}
-	
+var data = [];
 
-];
+data[0] = Ti.UI.createTableViewRow({hasChild:true,title:'Row 1'});
+data[1] = Ti.UI.createTableViewRow({hasDetail:true,title:'Row 2'});
+data[2] = Ti.UI.createTableViewRow({hasCheck:true,title:'Row 3'});
+data[3] = Ti.UI.createTableViewRow({title:'Row 4'});
 
 // create table view
 var tableview = Titanium.UI.createTableView({

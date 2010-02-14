@@ -9,12 +9,10 @@
 
 @implementation TiUITextFieldProxy
 
-
 #pragma mark Defaults
 
 DEFINE_DEF_PROP(value,@"");
 DEFINE_DEF_BOOL_PROP(enabled,YES);
-DEFINE_DEF_BOOL_PROP(focused,NO);
 DEFINE_DEF_BOOL_PROP(enableReturnKey,NO);
 DEFINE_DEF_BOOL_PROP(autocorrect,NO);
 DEFINE_DEF_BOOL_PROP(clearOnEdit,NO);
@@ -40,33 +38,4 @@ DEFINE_DEF_INT_PROP(rightButtonMode,UITextFieldViewModeNever);
 DEFINE_DEF_INT_PROP(appearance,UIKeyboardAppearanceDefault);
 DEFINE_DEF_INT_PROP(autocapitalization,UITextAutocapitalizationTypeNone);
 					
-#pragma mark Public APIs
-
--(BOOL)hasText
-{
-	if ([self viewAttached])
-	{
-		return [(TiUITextField*)[self view] hasText];
-	}
-	NSString *value = [self valueForKey:@"value"];
-	return value!=nil && [value length] > 0;
-}
-
--(void)blur:(id)args
-{
-	if ([self viewAttached])
-	{
-		[[self view] performSelectorOnMainThread:@selector(blur) withObject:nil waitUntilDone:NO];
-	}
-}
-
--(void)focus:(id)args
-{
-	if ([self viewAttached])
-	{
-		[[self view] performSelectorOnMainThread:@selector(focus) withObject:nil waitUntilDone:NO];
-	}
-}
-
-
 @end

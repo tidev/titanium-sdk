@@ -12,8 +12,11 @@
 #import "TiButtonUtil.h"
 #import "TiUIView.h"
 
+#define NAVBAR_MEMORY_DEBUG 0
+
 @implementation TiUINavBarButton
 
+#if NAVBAR_MEMORY_DEBUG==1
 -(id)retain
 {
 	NSLog(@"Retaining %X (%d)",self,[self retainCount]);
@@ -25,11 +28,13 @@
 	NSLog(@"Releasing %X (%d)",self,[self retainCount]);
 	[super release];
 }
-
+#endif
 
 -(void)dealloc
 {
-	NSLog(@"Deallocing %X (%d) (%X also released)",self,[self retainCount]);
+#if NAVBAR_MEMORY_DEBUG==1
+	NSLog(@"Deallocing %X (%d)",self,[self retainCount]);
+#endif
 	RELEASE_TO_NIL(activityDelegate);
 	[super dealloc];
 }
@@ -63,7 +68,7 @@
 			{
 				// we need to wrap our activity indicator view into a UIView that will delegate
 				// to our proxy
-				activityDelegate = [[[TiUIView alloc] initWithFrame:button.frame] autorelease];
+				activityDelegate = [[TiUIView alloc] initWithFrame:button.frame];
 				[activityDelegate addSubview:button];
 				activityDelegate.proxy = (TiViewProxy*)proxy_;
 				button = activityDelegate;

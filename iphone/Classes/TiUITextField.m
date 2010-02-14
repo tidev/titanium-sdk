@@ -10,13 +10,9 @@
 #import "TiViewProxy.h"
 #import "TitaniumApp.h"
 
-// we need to track our active textfield so we can
-// use it to determine if a textfield in the toolbar is being focused (below)
-static TiTextField* focusedTextField;
-
 @implementation TiTextField
 
-@synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight, focused;
+@synthesize leftButtonPadding, rightButtonPadding, paddingLeft, paddingRight;
 
 -(void)configure
 {
@@ -27,7 +23,6 @@ static TiTextField* focusedTextField;
 	rightButtonPadding = 0;
 	paddingLeft = 0;
 	paddingRight = 0;
-	focused = NO;
 	[super setLeftViewMode:UITextFieldViewModeAlways];
 	[super setRightViewMode:UITextFieldViewModeAlways];	
 }
@@ -169,8 +164,6 @@ static TiTextField* focusedTextField;
 
 -(BOOL)resignFirstResponder
 {
-	focused = NO;
-	focusedTextField = nil;
 	if ([super resignFirstResponder])
 	{
 		[self repaintMode];
@@ -181,8 +174,6 @@ static TiTextField* focusedTextField;
 
 -(BOOL)becomeFirstResponder
 {
-	focused = YES;
-	focusedTextField = self;
 	if ([super becomeFirstResponder])
 	{
 		[self repaintMode];
@@ -235,16 +226,6 @@ static TiTextField* focusedTextField;
 @implementation TiUITextField
 
 #pragma mark Internal
-
--(void)dealloc
-{
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
-	RELEASE_TO_NIL(textWidgetView);
-	RELEASE_TO_NIL(toolbar);
-	RELEASE_TO_NIL(toolbarItems);
-	[super dealloc];
-}
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
@@ -313,11 +294,6 @@ static TiTextField* focusedTextField;
 	[[self textWidgetView] setDisabledBackground:[self loadImage:image]];
 }
 
--(void)setValue_:(id)text
-{
-	[[self textWidgetView] setText:[TiUtils stringValue:text]];
-}
-
 -(void)setHintText_:(id)value
 {
 	[[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
@@ -377,21 +353,6 @@ static TiTextField* focusedTextField;
 	[[self textWidgetView] setRightViewMode:[TiUtils intValue:value]];
 }
 
--(void)setPasswordMask_:(id)value
-{
-	[[self textWidgetView] setSecureTextEntry:[TiUtils boolValue:value]];
-}
-
--(void)setAppearance_:(id)value
-{
-	[[self textWidgetView] setKeyboardAppearance:[TiUtils intValue:value]];
-}
-
--(void)setAutocapitalization_:(id)value
-{
-	[[self textWidgetView] setAutocapitalizationType:[TiUtils intValue:value]];
-}
-
 -(void)setVerticalAlign_:(id)value
 {
 	if ([value isKindOfClass:[NSString class]])
@@ -415,101 +376,28 @@ static TiTextField* focusedTextField;
 	}
 }
 
--(UIToolbar*)keyboardToolbar
-{
-	if (toolbar==nil)
-	{
-		toolbar = [[UIToolbar alloc] initWithFrame:CGRectZero];
-	}
-	return toolbar;
-}
-
--(void)attachKeyboardToolbar
-{
-	if (toolbar!=nil)
-	{
-		if (toolbarItems!=nil)
-		{
-			NSMutableArray *items = [NSMutableArray arrayWithCapacity:[toolbarItems count]];
-			for (TiViewProxy *proxy in toolbarItems)
-			{
-				if ([proxy supportsNavBarPositioning])
-				{
-					UIBarButtonItem* button = [proxy barButtonItem];
-					[items addObject:button];
-				}
-			}
-			toolbar.items = items;
-		}
-	}
-}
-
--(void)setKeyboardToolbar_:(id)value
-{
-	if (value == nil)
-	{
-		RELEASE_TO_NIL(toolbar);
-	}
-	else
-	{
-		//TODO: make this more efficient
-		if ([value isKindOfClass:[NSArray class]])
-		{
-			[self keyboardToolbar];
-			toolbarItems = [value retain];
-		}
-		else if ([value isKindOfClass:[TiViewProxy class]])
-		{
-			UIColor *color = (toolbar!=nil) ? [toolbar tintColor] : nil;
-			RELEASE_TO_NIL(toolbar);
-			RELEASE_TO_NIL(toolbarItems);
-			toolbar = (UIToolbar*)[value view];
-			if (color!=nil)
-			{
-				toolbar.tintColor = color;
-			}
-		}
-	}
-}
-
--(void)setKeyboardToolbarColor_:(id)value
-{
-	[[self keyboardToolbar] setTintColor:[[TiUtils colorValue:value] _color]];
-}
-
--(void)setKeyboardToolbarHeight_:(id)value
-{
-	toolbarHeight = [TiUtils floatValue:value];
-}
-
 #pragma mark Public Method
 
 -(BOOL)hasText
 {
 	UITextField *f = [self textWidgetView];
-	return ![[f text] isEqualToString:@""];
-}
-
--(void)blur
-{
-	[[self textWidgetView] resignFirstResponder];
-}
-
--(void)focus
-{
-	[[self textWidgetView] becomeFirstResponder];
+	return [[f text] length] > 0;
 }
 
 #pragma mark UITextFieldDelegate
 
 - (void)textFieldDidBeginEditing:(UITextField *)tf
 {
-	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"focused" notification:NO];
 	if ([self.proxy _hasListeners:@"focus"])
 	{
 		[self.proxy fireEvent:@"focus" withObject:[NSDictionary dictionaryWithObject:[tf text] forKey:@"value"]];
 	}
 }
+
+
+#pragma mark Keyboard Delegates
+
+
 
 - (BOOL)textField:(UITextField *)tf shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
@@ -524,7 +412,6 @@ static TiTextField* focusedTextField;
 
 - (void)textFieldDidEndEditing:(UITextField *)tf
 {
-	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"focused" notification:NO];
 	if ([self.proxy _hasListeners:@"blur"])
 	{
 		[self.proxy fireEvent:@"blur" withObject:[NSDictionary dictionaryWithObject:[tf text] forKey:@"value"]];
@@ -565,102 +452,6 @@ static TiTextField* focusedTextField;
 	}
 	[self makeRootViewFirstResponder];
 	return YES;
-}
-
-#pragma mark Keyboard Delegates
-
-- (void)keyboardWillShow:(NSNotification*)notification 
-{
-	if (toolbar!=nil && ((TiTextField *)textWidgetView).focused && toolbarVisible==NO)
-	{
-		NSDictionary *userInfo = notification.userInfo;
-		NSValue *v = [userInfo valueForKey:UIKeyboardBoundsUserInfoKey];
-		CGRect kbBounds = [v CGRectValue];
-		
-		NSValue *v2 = [userInfo valueForKey:UIKeyboardCenterEndUserInfoKey];
-		CGPoint kbEndPoint = [v2 CGPointValue];
-		
-		NSValue *v3 = [userInfo valueForKey:UIKeyboardCenterBeginUserInfoKey];
-		CGPoint kbStartPoint = [v3 CGPointValue];
-		
-		CGFloat kbStartTop = kbStartPoint.y - (kbBounds.size.height / 2);
-		CGFloat kbEndTop = kbEndPoint.y - (kbBounds.size.height / 2);
-
-		CGFloat height = MAX(toolbarHeight,40);
-
-		NSArray *windows = [[UIApplication sharedApplication] windows];
-		UIWindow *window = nil;
-		
-		// in a keyboard situation, a new UIWindow is insert into the heirarchy
-		// temporarily and we need to find that view.  in testing, it seems to 
-		// be on the 2nd index from our window
-		if ([windows count] > 1)
-		{
-			window = [windows objectAtIndex:1];
-		}
-		else
-		{
-			window = [windows objectAtIndex:0];
-		}
-
-		[window addSubview:toolbar];
-		[toolbar setHidden:NO];
-		
-		if ([[TitaniumApp app] isKeyboardShowing])
-		{
-			toolbar.frame = CGRectMake(0, kbEndTop-height, kbBounds.size.width, height);
-			[self attachKeyboardToolbar];
-		}
-		else
-		{
-			// start at the top
-			toolbar.frame = CGRectMake(0, kbStartTop-height, kbBounds.size.width , height);
-			[self attachKeyboardToolbar];
-			
-			// now animate with the keyboard as it moves up
-			[UIView beginAnimations:nil context:nil];
-			[UIView setAnimationCurve:[[userInfo valueForKey:UIKeyboardAnimationCurveUserInfoKey] intValue]];
-			[UIView setAnimationDuration:[[userInfo valueForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue]];
-			toolbar.frame = CGRectMake(0, kbEndTop-height, kbBounds.size.width, height);
-			[UIView commitAnimations];
-		}
-		toolbarVisible = YES;
-	}
-}
-
-- (void)keyboardHiddenAnimationComplete:(id)note
-{
-	if (toolbar!=nil)
-	{
-		[toolbar setHidden:YES];
-	}
-}
-
-- (void)keyboardWillHide:(NSNotification*)notification 
-{
-	if (toolbarVisible)
-	{
-		// we have to check to make sure that our toolbar doesn't contain
-		// a textfield that is focused
-		if (focusedTextField!=nil)
-		{
-			for (UIView *view in [toolbar subviews])
-			{
-				if ([view isKindOfClass:[TiUITextField class]])
-				{
-					TiUITextField *tf = (TiUITextField*)view;
-					if ([tf textWidgetView]==focusedTextField)
-					{
-						[tf setNeedsDisplay];
-						[tf setNeedsLayout];
-						return;
-					}
-				}
-			}
-		}
-		[toolbar removeFromSuperview];
-		toolbarVisible = NO;
-	}
 }
 	
 @end

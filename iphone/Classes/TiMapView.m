@@ -71,6 +71,7 @@
 	}
 	ENSURE_TYPE(arg,NSDictionary);
 	TiMapAnnotationProxy *proxy = [[[TiMapAnnotationProxy alloc] _initWithPageContext:[self.proxy pageContext] args:[NSArray arrayWithObject:arg]] autorelease];
+
 	[proxy setDelegate:self];
 	return proxy;
 }
@@ -350,7 +351,6 @@
 								[NSNumber numberWithDouble:region.span.longitudeDelta],@"longitudeDelta",nil];
 		[self.proxy fireEvent:@"regionChanged" withObject:props];
 	}
-	[self autorelease];
 }
 
 - (void)mapViewWillStartLoadingMap:(MKMapView *)mapView

@@ -4,12 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiProxy.h"
+#import "TiViewProxy.h"
 
 @class TiUITableViewRowProxy;
 @class TiUITableView;
 
-@interface TiUITableViewSectionProxy : TiProxy {
+@interface TiUITableViewSectionProxy : TiViewProxy <TiProxyDelegate> 
+{
 @private
 	NSMutableArray *rows;
 	TiUITableView *table;
@@ -18,11 +19,11 @@
 
 @property(nonatomic,readonly) NSMutableArray *rows;
 @property(nonatomic,readonly) NSInteger rowCount;
-@property(nonatomic,readwrite,assign) NSString *headerTitle;
-@property(nonatomic,readwrite,assign) NSString *footerTitle;
+@property(nonatomic,readonly,assign) NSString *headerTitle;
+@property(nonatomic,readonly,assign) NSString *footerTitle;
 
--(void)add:(TiUITableViewRowProxy*)proxy;
--(void)remove:(TiUITableViewRowProxy*)proxy;
+-(void)add:(id)proxy;
+-(void)remove:(id)proxy;
 -(TiUITableViewRowProxy*)rowAtIndex:(NSInteger)index;
 
 #pragma mark Framework
