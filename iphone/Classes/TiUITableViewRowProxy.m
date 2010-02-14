@@ -16,11 +16,11 @@
 
 @implementation TiUITableViewRowProxy
 
-@synthesize className, table, section, row;
+@synthesize tableClass, table, section, row;
 
 -(void)_destroy
 {
-	RELEASE_TO_NIL(className);
+	RELEASE_TO_NIL(tableClass);
 	[super _destroy];
 }
 
@@ -28,7 +28,22 @@
 {
 	[super _initWithProperties:properties];
 	self.modelDelegate = self;
-	className = [[TiUtils stringValue:@"class" properties:properties def:@"_default_"] retain];
+}
+
+-(NSString*)tableClass
+{
+	if (tableClass==nil)
+	{
+		// must use undefined key since class is a special 
+		// property on the NSObject class
+		id value = [self valueForUndefinedKey:@"class"];
+		if (value==nil)
+		{
+			value = @"_default_";
+		}
+		tableClass = [value retain];
+	}
+	return tableClass;
 }
 
 -(void)setHeight:(id)value

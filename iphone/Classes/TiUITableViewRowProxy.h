@@ -14,7 +14,7 @@
 @interface TiUITableViewRowProxy : TiViewProxy <TiProxyDelegate>
 {
 @private
-	NSString *className;
+	NSString *tableClass;
 	TiUITableView *table;
 	TiUITableViewSectionProxy *section;
 	TiDimension height;
@@ -23,7 +23,7 @@
 
 #pragma mark Public APIs
 
-@property(nonatomic,readonly)	NSString *className;
+@property(nonatomic,readonly)	NSString *tableClass;
 
 #pragma mark Framework
 
