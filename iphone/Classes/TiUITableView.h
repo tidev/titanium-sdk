@@ -24,6 +24,7 @@
 }
 
 #pragma mark Framework
+-(CGFloat)tableRowHeight:(CGFloat)height;
 -(NSInteger)indexForRow:(TiUITableViewRowProxy*)row;
 -(TiUITableViewRowProxy*)rowForIndex:(NSInteger)index section:(NSInteger*)section;
 -(void)dispatchAction:(TiUITableViewAction*)action;

@@ -33,6 +33,26 @@
 	}
 }
 
+-(CGFloat)tableRowHeight:(CGFloat)height
+{
+	if (TiDimensionIsPixels(rowHeight))
+	{
+		if (rowHeight.value > height)
+		{
+			height = rowHeight.value;
+		}
+	}
+	if (TiDimensionIsPixels(minRowHeight))
+	{
+		height = MAX(minRowHeight.value,height);
+	}
+	if (TiDimensionIsPixels(maxRowHeight))
+	{
+		height = MIN(maxRowHeight.value,height);
+	}
+	return height < 1 ? tableview.rowHeight : height;
+}
+
 -(UITableView*)tableView
 {
 	if (tableview==nil)
@@ -680,19 +700,8 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
-	CGFloat height = [row rowHeight];
-	if (height == 0 && TiDimensionIsPixels(rowHeight))
-	{
-		height = rowHeight.value;
-	}
-	if (TiDimensionIsPixels(minRowHeight))
-	{
-		height = MAX(minRowHeight.value,height);
-	}
-	if (TiDimensionIsPixels(maxRowHeight))
-	{
-		height = MIN(maxRowHeight.value,height);
-	}
+	CGFloat height = [row rowHeight:tableView.bounds];
+	height = [self tableRowHeight:height];
 	return height < 1 ? tableView.rowHeight : height;
 }
 

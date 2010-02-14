@@ -36,14 +36,31 @@
 	height = [TiUtils dimensionValue:value];
 }
 
--(NSInteger)rowHeight
+-(CGFloat)rowHeight:(CGRect)bounds
 {
 	if (TiDimensionIsPixels(height))
 	{
 		return height.value;
 	}
-	//TODO: auto-calculate
-	return 0;
+	CGFloat result = 0;
+	if (TiDimensionIsAuto(height))
+	{
+		SEL autoHeightSelector = @selector(minimumParentHeightForWidth:);
+		for (TiViewProxy * proxy in self.children)
+		{
+			if (![proxy respondsToSelector:autoHeightSelector])
+			{
+				continue;
+			}
+			
+			CGFloat newResult = [proxy minimumParentHeightForWidth:bounds.size.width];
+			if (newResult > result)
+			{
+				result = newResult;
+			}
+		}
+	}
+	return result == 0 ? [table tableRowHeight:0] : result;
 }
 
 -(void)updateRow:(NSDictionary *)data withObject:(NSDictionary *)properties
@@ -187,10 +204,15 @@
 	{
 		UIView *contentView = cell.contentView;
 		CGRect rect = [contentView bounds];
+		CGFloat rowHeight = [self rowHeight:rect];
+		if (rect.size.height < rowHeight)
+		{
+			rect.size.height = rowHeight;
+			contentView.bounds = rect;
+		}
 		for (TiViewProxy *proxy in self.children)
 		{
 			TiUIView *view = [proxy view];
-			[contentView addSubview:view];
 			[view insertIntoView:contentView bounds:rect];
 			view.parent = self;
 		}

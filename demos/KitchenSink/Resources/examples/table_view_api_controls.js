@@ -7,23 +7,21 @@ for (var c=0;c<10;c++)
 	for (var x=0;x<40;x++)
 	{
 		var label = Ti.UI.createLabel({
-			text:'Group '+(c+1)+', Row '+(x+1),
+			text:'Group '+(c+1)+', Row '+(x+1)+"\nThis is another line.\nCool",
 			height:'auto',
 			left:10
 		});
 		var rightButton = Titanium.UI.createButton({
 			style:Titanium.UI.iPhone.SystemButton.INFO_DARK,
 			right:10,
-			width:50,
-			height:50,
-			_row:x,
-			_section:c
+			row:x,
+			section:c
 		});
 		rightButton.addEventListener('click',function(e)
 		{
-			Ti.API.info("button click on row. index = "+e.index+", row = "+e.source._row+", section = "+e.source._section+",rightButton = "+rightButton);
+			Ti.API.info("button click on row. index = "+e.index+", row = "+e.source.row+", section = "+e.source.section+",rightButton = "+rightButton);
 		});
-		var row = Ti.UI.createTableViewRow({height:40});
+		var row = Ti.UI.createTableViewRow({height:'auto'});
 		row.add(label);
 		row.add(rightButton);
 		data[c].add(row);
@@ -42,9 +40,9 @@ for (var c=0;c<10;c++)
 var tableview = Titanium.UI.createTableView({
 	data:data,
 	style: Titanium.UI.iPhone.TableViewStyle.GROUPED,
-	rowHeight:80,
-	_minRowHeight:60,
-	_maxRowHeight:500,
+	//rowHeight:80,
+	minRowHeight:80,
+	//maxRowHeight:500,
 });
 
 // create table view event listener
