@@ -31,6 +31,21 @@
 	className = [[TiUtils stringValue:@"class" properties:properties def:@"_default_"] retain];
 }
 
+-(void)setHeight:(id)value
+{
+	height = [TiUtils dimensionValue:value];
+}
+
+-(NSInteger)rowHeight
+{
+	if (TiDimensionIsPixels(height))
+	{
+		return height.value;
+	}
+	//TODO: auto-calculate
+	return 0;
+}
+
 -(void)updateRow:(NSDictionary *)data withObject:(NSDictionary *)properties
 {
 	[super _initWithProperties:data];

@@ -6,6 +6,7 @@
  */
 
 #import "TiViewProxy.h"
+#import "TiDimension.h"
 
 @class TiUITableView;
 @class TiUITableViewSectionProxy;
@@ -16,6 +17,7 @@
 	NSString *className;
 	TiUITableView *table;
 	TiUITableViewSectionProxy *section;
+	TiDimension height;
 	NSInteger row;
 }
 
@@ -28,6 +30,7 @@
 @property(nonatomic,readwrite,assign) TiUITableView *table;
 @property(nonatomic,readwrite,assign) TiUITableViewSectionProxy *section;
 @property(nonatomic,readwrite,assign) NSInteger row;
+@property(nonatomic,readonly) NSInteger rowHeight;
 
 -(void)initializeTableViewCell:(UITableViewCell*)cell;
 -(void)renderTableViewCell:(UITableViewCell*)cell;

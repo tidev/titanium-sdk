@@ -23,7 +23,7 @@ for (var c=0;c<10;c++)
 		{
 			Ti.API.info("button click on row. index = "+e.index+", row = "+e.source._row+", section = "+e.source._section+",rightButton = "+rightButton);
 		});
-		var row = Ti.UI.createTableViewRow();
+		var row = Ti.UI.createTableViewRow({height:40});
 		row.add(label);
 		row.add(rightButton);
 		data[c].add(row);
@@ -41,7 +41,10 @@ for (var c=0;c<10;c++)
 // create table view
 var tableview = Titanium.UI.createTableView({
 	data:data,
-	style: Titanium.UI.iPhone.TableViewStyle.GROUPED
+	style: Titanium.UI.iPhone.TableViewStyle.GROUPED,
+	rowHeight:80,
+	_minRowHeight:60,
+	_maxRowHeight:500,
 });
 
 // create table view event listener

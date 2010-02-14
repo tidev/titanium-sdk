@@ -371,15 +371,6 @@
 	[[self tableView] setTableFooterView:[self titleViewForText:[TiUtils stringValue:args] footer:YES]];
 }
 
--(void)setRowHeight_:(id)height
-{
-	TiDimension rowHeight = [TiUtils dimensionValue:height];
-	if (TiDimensionIsPixels(rowHeight))
-	{
-		[tableview setRowHeight:rowHeight.value];
-	}
-}
-
 -(void)setIndex_:(NSArray*)index_
 {
 	RELEASE_TO_NIL(sectionIndex);
@@ -417,6 +408,25 @@
 	[table beginUpdates];
 	[table setEditing:moving||editing animated:animated];
 	[table endUpdates];
+}
+
+-(void)setRowHeight_:(id)height
+{
+	rowHeight = [TiUtils dimensionValue:height];
+	if (TiDimensionIsPixels(rowHeight))
+	{
+		[tableview setRowHeight:rowHeight.value];
+	}	
+}
+
+-(void)setMinRowHeight_:(id)height
+{
+	minRowHeight = [TiUtils dimensionValue:height];
+}
+
+-(void)setMaxRowHeight_:(id)height
+{
+	maxRowHeight = [TiUtils dimensionValue:height];
 }
 
 -(void)setData_:(id)args withObject:(id)properties
@@ -667,10 +677,28 @@
 	return indent == nil ? 0 : [TiUtils intValue:indent];
 }
 
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
+	CGFloat height = [row rowHeight];
+	if (height == 0 && TiDimensionIsPixels(rowHeight))
+	{
+		height = rowHeight.value;
+	}
+	if (TiDimensionIsPixels(minRowHeight))
+	{
+		height = MAX(minRowHeight.value,height);
+	}
+	if (TiDimensionIsPixels(maxRowHeight))
+	{
+		height = MIN(maxRowHeight.value,height);
+	}
+	return height < 1 ? tableView.rowHeight : height;
+}
+
 //
 // Variable height support
 //
-//- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
 //- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section;
 //- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section;
 //
