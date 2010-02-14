@@ -6,6 +6,7 @@ var data = [
 	{title:'Error Callback', hasChild:true, test:'../examples/xhr_error.js'},
 	{title:'Binary Data', hasChild:true, test:'../examples/xhr_binarydata.js'},
 	{title:'XML Data', hasChild:true, test:'../examples/xhr_xml.js'},
+	{title:'XML Properties', hasChild:true, test:'../examples/xhr_properties.js'},
 
 ];
 
