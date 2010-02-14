@@ -4,12 +4,12 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiProxy.h"
+#import "TiViewProxy.h"
 
 @class TiUITableViewRowProxy;
 @class TiUITableView;
 
-@interface TiUITableViewSectionProxy : TiProxy <TiProxyDelegate> 
+@interface TiUITableViewSectionProxy : TiViewProxy <TiProxyDelegate> 
 {
 @private
 	NSMutableArray *rows;
