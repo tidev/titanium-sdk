@@ -19,6 +19,13 @@
 
 #pragma mark Internal 
 
+-(void)_configure
+{
+	[super _configure];
+	[self replaceValue:NUMBOOL(YES) forKey:@"searchHidden" notification:NO];
+	[self replaceValue:NUMBOOL(NO) forKey:@"autoHideSearch" notification:NO];
+}
+
 -(TiUITableViewRowProxy*)newTableViewRowFromDict:(NSDictionary*)data
 {
 	TiUITableViewRowProxy *proxy = [[[TiUITableViewRowProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
@@ -28,6 +35,15 @@
 
 
 #pragma mark Public APIs
+
+-(void)setSearchHidden:(id)args
+{
+	// we implement here to force it regardless of the current state 
+	// since the user can manually change the search field by pulling 
+	// down the row
+	ENSURE_SINGLE_ARG(args,NSObject);
+	[self replaceValue:args forKey:@"searchHidden" notification:YES];
+}
 
 -(NSNumber*)getIndexByName:(id)args
 {

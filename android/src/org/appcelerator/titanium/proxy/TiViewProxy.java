@@ -17,12 +17,19 @@ import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui._2DMatrixProxy;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.RotateAnimation;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 
 public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 {
@@ -313,8 +320,79 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 
 	}
 
-	public void animate(TiDict options, KrollCallback callback) {
+	public void animate(TiDict options, KrollCallback callback)
+	{
+		_2DMatrixProxy tdm = null;
+		Double delay = null;
+		Double duration = null;
+		Double opacity = null;
 
+		if (options.containsKey("transform")) {
+			tdm = (_2DMatrixProxy) options.get("transform");
+		}
+		if (options.containsKey("delay")) {
+			delay = TiConvert.toDouble(options, "delay");
+		}
+		if (options.containsKey("duration")) {
+			duration = TiConvert.toDouble(options, "duration");
+		}
+		if (options.containsKey("opacity")) {
+			opacity = TiConvert.toDouble(options, "opacity");
+		}
+
+		if (tdm != null) {
+			AnimationSet as = new AnimationSet(false);
+			as.setFillAfter(true);
+			if (tdm.hasTranslation()) {
+				Animation a = new TranslateAnimation(0.0f, tdm.getXTranslation(),0.0f, tdm.getYTranslation());
+				as.addAnimation(a);
+			}
+			if (tdm.hasScaleFactor()) {
+				Animation a = new ScaleAnimation(1,tdm.getScaleFactor(), 1, tdm.getScaleFactor());
+				as.addAnimation(a);
+			}
+			if (tdm.hasRotation()) {
+				Animation a = new RotateAnimation(0,tdm.getRotation());
+				as.addAnimation(a);
+			}
+			// Set duration after adding children.
+			if (duration != null) {
+				as.setDuration(duration.longValue());
+			}
+			if (delay != null) {
+				as.setStartTime(delay.longValue());
+			}
+
+			if (callback != null) {
+				final KrollCallback kb = callback;
+				as.setAnimationListener(new Animation.AnimationListener(){
+
+					@Override
+					public void onAnimationEnd(Animation a) {
+						if (kb != null) {
+							kb.call();
+						}
+					}
+
+					@Override
+					public void onAnimationRepeat(Animation a) {
+					}
+
+					@Override
+					public void onAnimationStart(Animation a) {
+					}
+
+				});
+			}
+			TiUIView tiv = peekView();
+			if (tiv != null) {
+				tiv.animate(as);
+			}
+		} else {
+			if (callback != null) {
+				callback.call();
+			}
+		}
 	}
 
 	public void blur()

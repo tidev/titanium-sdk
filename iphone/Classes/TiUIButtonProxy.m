@@ -8,14 +8,9 @@
 #import "TiUIButtonProxy.h"
 #import "TiUIButton.h"
 #import "TiUINavBarButton.h"
+#import "TiUtils.h"
 
 @implementation TiUIButtonProxy
-
--(void)dealloc
-{
-	RELEASE_TO_NIL(button);
-	[super dealloc];
-}
 
 -(void)_destroy
 {
@@ -27,6 +22,28 @@
 {	
 	[self replaceValue:NUMBOOL(YES) forKey:@"enabled" notification:NO];
 	[super _configure];
+}
+
+-(CGFloat)autoHeightForWidth:(CGFloat)suggestedWidth
+{
+	id style = [self valueForKey:@"style"];
+	int type = style!=nil ? [TiUtils intValue:style] : UIButtonTypeCustom;
+	switch(type)
+	{
+		case UITitaniumNativeItemInfoLight:
+		case UITitaniumNativeItemInfoDark:
+		case UITitaniumNativeItemDisclosure:
+		{
+			return 20;
+		}
+	}
+	TiDimension size = [TiUtils dimensionValue:[self valueForKey:@"height"]];
+	if (TiDimensionIsPixels(size))
+	{
+		return size.value;
+	}
+	// reasonable default?
+	return 50;
 }
 
 -(UIBarButtonItem*)barButtonItem

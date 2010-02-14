@@ -8,19 +8,36 @@
 #import "TiUITableViewRowProxy.h"
 #import "TiUITableViewSectionProxy.h"
 #import "TiUITableViewAction.h"
+#import "TiUISearchBarProxy.h"
+#import "TiDimension.h"
 
-@interface TiUITableView : TiUIView<UITableViewDelegate,UITableViewDataSource> {
+@interface TiUITableView : TiUIView<UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate> {
 @private
 	UITableView *tableview;
 	NSMutableArray *sections;
 	BOOL moving;
 	BOOL editing;
+	BOOL autohideSearch;
+	BOOL searchHidden;
 	NSMutableArray * sectionIndex;
 	NSMutableDictionary * sectionIndexMap;
+	TiDimension rowHeight;
+	TiDimension minRowHeight;
+	TiDimension maxRowHeight;
+	TiUISearchBarProxy * searchField;
+	UIView * tableHeaderView;
+	UIButton * searchScreenView;
+	UITableView *searchTableView;
+	NSString * filterAttribute;
+	NSMutableArray * searchResultIndexes;
 }
 
 #pragma mark Framework
+-(CGFloat)tableRowHeight:(CGFloat)height;
+-(NSInteger)indexForRow:(TiUITableViewRowProxy*)row;
 -(TiUITableViewRowProxy*)rowForIndex:(NSInteger)index section:(NSInteger*)section;
+-(void)updateSearchView;
+
 -(void)dispatchAction:(TiUITableViewAction*)action;
 -(void)insertRow:(TiUITableViewRowProxy*)row before:(TiUITableViewRowProxy*)before animation:(NSDictionary*)animation;
 -(void)insertRow:(TiUITableViewRowProxy*)row after:(TiUITableViewRowProxy*)after animation:(NSDictionary*)animation;

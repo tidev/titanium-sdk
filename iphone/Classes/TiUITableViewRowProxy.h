@@ -6,6 +6,7 @@
  */
 
 #import "TiViewProxy.h"
+#import "TiDimension.h"
 
 @class TiUITableView;
 @class TiUITableViewSectionProxy;
@@ -16,8 +17,8 @@
 	NSString *className;
 	TiUITableView *table;
 	TiUITableViewSectionProxy *section;
+	TiDimension height;
 	NSInteger row;
-	BOOL initializing;
 }
 
 #pragma mark Public APIs
@@ -32,6 +33,7 @@
 
 -(void)initializeTableViewCell:(UITableViewCell*)cell;
 -(void)renderTableViewCell:(UITableViewCell*)cell;
+-(CGFloat)rowHeight:(CGRect)bounds;
 
 -(void)updateRow:(NSDictionary*)data withObject:(NSDictionary*)properties;
 
