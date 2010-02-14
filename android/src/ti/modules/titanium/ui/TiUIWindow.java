@@ -142,6 +142,10 @@ public class TiUIWindow extends TiUIView
 				activity.finish();
 			}
 		}
+		if (anim != null) {
+			activity.getWindow().getDecorView().startAnimation(anim);
+			anim = null;
+		}
 	}
 
 	@Override

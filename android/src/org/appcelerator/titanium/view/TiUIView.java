@@ -20,11 +20,12 @@ import org.appcelerator.titanium.view.TiBorderHelper.BorderSupport;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnFocusChangeListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 
 public abstract class TiUIView
@@ -39,6 +40,7 @@ public abstract class TiUIView
 
 	protected TiViewProxy proxy;
 	protected TiViewProxy parent;
+	protected Animation anim;
 
 	protected TitaniumCompositeLayoutParams layoutParams;
 	protected int zIndex;
@@ -113,7 +115,23 @@ public abstract class TiUIView
 	protected void setZIndex(int index) {
 		zIndex = index;
 	}
+	public void animate(final AnimationSet as) {
+		if (as != null) {
+			final View nv = getNativeView();
+			if (nv != null) {
+				getProxy().getTiContext().getActivity().runOnUiThread(new Runnable(){
 
+					@Override
+					public void run() {
+						nv.startAnimation(as);
+					}
+
+				});
+			} else {
+				anim = as;
+			}
+		}
+	}
 	public void listenerAdded(String type, int count, TiProxy proxy) {
 	}
 
