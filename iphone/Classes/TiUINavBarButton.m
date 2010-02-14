@@ -68,7 +68,7 @@
 			{
 				// we need to wrap our activity indicator view into a UIView that will delegate
 				// to our proxy
-				activityDelegate = [[[TiUIView alloc] initWithFrame:button.frame] autorelease];
+				activityDelegate = [[TiUIView alloc] initWithFrame:button.frame];
 				[activityDelegate addSubview:button];
 				activityDelegate.proxy = (TiViewProxy*)proxy_;
 				button = activityDelegate;
