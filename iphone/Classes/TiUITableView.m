@@ -597,6 +597,15 @@
 
 #pragma mark Public APIs
 
+-(void)scrollToIndex:(NSInteger)index position:(UITableViewScrollPosition)position animated:(BOOL)animated
+{
+	UITableView *table = [self tableView];
+	NSIndexPath *path = [self indexPathFromInt:index];
+	[table beginUpdates];
+	[table scrollToRowAtIndexPath:path atScrollPosition:position animated:animated];
+	[table endUpdates];
+}
+
 -(void)setBackgroundColor_:(id)arg
 {
 	TiColor *color = [TiUtils colorValue:arg];

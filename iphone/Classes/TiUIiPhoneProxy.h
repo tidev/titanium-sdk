@@ -19,6 +19,7 @@
 	TiProxy *scrollIndicatorStyle;
 	TiProxy *tableViewStyle;
 	TiProxy *tableViewSeparatorStyle;
+	TiProxy *tableViewScrollPosition;
 }
 
 @property(nonatomic,readonly) TiProxy* AnimationStyle;
@@ -32,6 +33,7 @@
 @property(nonatomic,readonly) TiProxy* ScrollIndicatorStyle;
 @property(nonatomic,readonly) TiProxy* TableViewStyle;
 @property(nonatomic,readonly) TiProxy* TableViewSeparatorStyle;
+@property(nonatomic,readonly) TiProxy* TableViewScrollPosition;
 
 
 @property(nonatomic,readwrite,assign)	NSNumber *statusBarHidden;

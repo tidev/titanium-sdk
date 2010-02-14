@@ -45,6 +45,19 @@
 	[self replaceValue:args forKey:@"searchHidden" notification:YES];
 }
 
+-(void)scrollToIndex:(id)args
+{
+	ENSURE_UI_THREAD(scrollToIndex,args);
+	
+	NSInteger index = [TiUtils intValue:[args objectAtIndex:0]];
+	NSDictionary *options = [args count] > 1 ? [args objectAtIndex:1] : nil;
+
+	UITableViewScrollPosition scrollPosition = [TiUtils intValue:@"position" properties:options def:UITableViewScrollPositionNone];
+	BOOL animated = [TiUtils boolValue:@"animated" properties:options def:YES];
+	
+	[(TiUITableView*)[self view] scrollToIndex:index position:scrollPosition animated:animated];
+}
+
 -(NSNumber*)getIndexByName:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSString);

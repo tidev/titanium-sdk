@@ -23,6 +23,7 @@ search.addEventListener('cancel', function(e)
 
 
 var data = [];
+var tableView;
 
 // create first row
 var row = Ti.UI.createTableViewRow();
@@ -37,6 +38,13 @@ var clickLabel = Titanium.UI.createLabel({
 row['class'] = 'header';
 row.add(clickLabel);
 data.push(row);
+
+// when you click on the row header, scroll to near the bottom
+row.addEventListener('click',function()
+{
+	tableView.scrollToIndex(40,{animated:true,position:Ti.UI.iPhone.TableViewScrollPosition.TOP})
+});
+
 
 // create the rest of the rows
 for (var c=0;c<50;c++)
@@ -120,7 +128,7 @@ var currentSelectedRow = null;
 //
 // create table view (
 //
-var tableView = Titanium.UI.createTableView({
+tableView = Titanium.UI.createTableView({
 	data:data,
 	rowHeight:100,
 	search:search
