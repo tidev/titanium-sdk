@@ -312,14 +312,9 @@
 		[eventObject setObject:[NSNumber numberWithInt:[fromPath section]] forKey:@"fromSection"];
 	}
 	
-	if ([self.proxy _hasListeners:name])
-	{
-		[self.proxy fireEvent:name withObject:eventObject];
-	}
-	if ([section _hasListeners:name])
-	{
-		[section fireEvent:name withObject:eventObject];
-	}
+	// fire it to our row since the row, section and table are
+	// in a hierarchy and it will bubble up from there...
+	
 	if ([row _hasListeners:name])
 	{
 		[row fireEvent:name withObject:eventObject];
@@ -437,7 +432,9 @@
 			row.table = self;
 			row.section = section;
 			row.row = x;
+			row.parent = section;
 		}
+		section.parent = self.proxy;
 	}
 	
 	UITableView *table = [self tableView];

@@ -94,7 +94,7 @@ DEFINE_EXCEPTIONS
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 }
 
--(void)setProxy:(TiViewProxy *)p
+-(void)setProxy:(TiProxy *)p
 {
 	proxy = p;
 	proxy.modelDelegate = self;
@@ -368,7 +368,7 @@ DEFINE_EXCEPTIONS
 	ENSURE_UI_THREAD(animate,arg);
 	RELEASE_TO_NIL(animation);
 	
-	if ([self.proxy viewReady]==NO)
+	if ([self.proxy isKindOfClass:[TiViewProxy class]] && [(TiViewProxy*)self.proxy viewReady]==NO)
 	{
 #ifdef DEBUG
 		NSLog(@"[DEBUG] animated called and we're not ready ... (will try again)");

@@ -9,6 +9,7 @@
 #import "TiUITableViewAction.h"
 #import "TiUITableViewSectionProxy.h"
 #import "TiUITableView.h"
+#import "TiViewProxy.h"
 #import "TiUtils.h"
 #import "Webcolor.h"
 #import "ImageLoader.h"
@@ -37,13 +38,13 @@
 	// check to see if we have a section header change, too...
 	if ([data objectForKey:@"header"])
 	{
-		[section setHeaderTitle:[data objectForKey:@"header"]];
+		[section setValue:[data objectForKey:@"header"] forUndefinedKey:@"headerTitle"];
 		// we can return since we're reloading the section, will cause the 
 		// row to be repainted at the same time
 	}
 	if ([data objectForKey:@"footer"])
 	{
-		[section setFooterTitle:[data objectForKey:@"footer"]];
+		[section setValue:[data objectForKey:@"footer"] forUndefinedKey:@"footerTitle"];
 		// we can return since we're reloading the section, will cause the 
 		// row to be repainted at the same time
 	}
@@ -150,6 +151,45 @@
 	cell.indentationLevel = [TiUtils intValue:[self valueForKey:@"indentionLevel"] def:0];
 }
 
+-(void)configureChildren:(UITableViewCell*)cell
+{
+	if (self.children!=nil)
+	{
+		UIView *contentView = cell.contentView;
+		CGRect rect = [contentView bounds];
+		for (TiViewProxy *proxy in self.children)
+		{
+			TiUIView *view = [proxy view];
+			[contentView addSubview:view];
+			[view insertIntoView:contentView bounds:rect];
+		}
+	}
+}
+
+-(void)updateChildren:(UITableViewCell*)cell
+{
+	if (self.children!=nil)
+	{
+		UIView *contentView = cell.contentView;
+		NSArray *subviews = [contentView subviews];
+		for (size_t c=0;c<[subviews count];c++)
+		{
+			TiViewProxy *proxy = [self.children objectAtIndex:c];
+			TiUIView *view = [subviews objectAtIndex:c];
+			for (NSString *key in [proxy allProperties])
+			{
+				id oldValue = [view.proxy valueForKey:key];
+				id newValue = [proxy valueForKey:key];
+				if ([oldValue isEqual:newValue]==NO)
+				{
+					DoProxyDelegateChangedValuesWithProxy(view,key,oldValue,newValue,proxy);
+				}
+			}
+			view.parent = self;
+		} 
+	}
+}
+
 -(void)initializeTableViewCell:(UITableViewCell*)cell
 {
 	[self configureTitle:cell];
@@ -157,6 +197,7 @@
 	[self configureRightSide:cell];
 	[self configureBackground:cell];
 	[self configureIndentionLevel:cell];
+	[self configureChildren:cell];
 }
 
 -(void)renderTableViewCell:(UITableViewCell*)cell
@@ -166,13 +207,34 @@
 	[self configureRightSide:cell];
 	[self configureBackground:cell];
 	[self configureIndentionLevel:cell];
+	[self updateChildren:cell];
+}
+
+-(BOOL)isAttached
+{
+	return table!=nil;
 }
 
 -(void)triggerRowUpdate
 {
-	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:self animation:nil section:section.section type:TiUITableViewActionUpdateRow] autorelease];
-	[table dispatchAction:action];
+	if ([self isAttached])
+	{
+		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:self animation:nil section:section.section type:TiUITableViewActionUpdateRow] autorelease];
+		[table dispatchAction:action];
+	}
 }
+
+-(void)childAdded:(id)child
+{
+	[self triggerRowUpdate];
+}
+
+-(void)childRemoved:(id)child
+{
+	[self triggerRowUpdate];
+}
+
+#pragma mark Public APIs 
 
 
 #pragma mark Delegate 

@@ -5,12 +5,12 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiProxy.h"
+#import "TiViewProxy.h"
 
 @class TiUITableView;
 @class TiUITableViewSectionProxy;
 
-@interface TiUITableViewRowProxy : TiProxy <TiProxyDelegate>
+@interface TiUITableViewRowProxy : TiViewProxy <TiProxyDelegate>
 {
 @private
 	NSString *className;

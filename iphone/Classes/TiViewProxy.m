@@ -127,7 +127,7 @@
 
 #pragma mark View
 
--(void)setParent:(TiViewProxy*)parent_
+-(void)setParent:(TiProxy*)parent_
 {
 	parent = parent_;
 }

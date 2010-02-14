@@ -22,6 +22,7 @@ var data = [
 
 	{title:'Table API Basic', hasChild:true, test:'../examples/table_view_api_basic.js', header:'New Programmatic API'},
 	{title:'Table Grouped View', hasChild:true, test:'../examples/table_view_api_grouped.js'},
+	{title:'Table with Controls', hasChild:true, test:'../examples/table_view_api_controls.js'},
 
 ];
 
