@@ -26,7 +26,7 @@ var data = [];
 
 // create first row
 var row = Ti.UI.createTableViewRow();
-row.backgroundColor = '#d4d9e8';
+row.backgroundColor = '#576996';
 row.selectedBackgroundColor = '#385292';
 row.height = 40;
 var clickLabel = Titanium.UI.createLabel({
@@ -38,10 +38,29 @@ row['class'] = 'header';
 row.add(clickLabel);
 data.push(row);
 
+// create update row (used when the user clicks on the row)
+var updateRow = Ti.UI.createTableViewRow();
+updateRow.backgroundColor = '#13386c';
+updateRow.selectedBackgroundColor = '#13386c';
+
+// add custom property to identify this row
+updateRow.isUpdateRow = true;
+var updateRowText = Ti.UI.createLabel({
+	color:'#fff',
+	font:{fontSize:20, fontWeight:'bold'},
+	text:'You clicked on...'
+});
+updateRow.add(updateRowText);
+
+// create a var to track the active row
+var currentRow = null;
+var currentRowIndex = null;
+
 // create the rest of the rows
-for (var c=0;c<50;c++)
+for (var c=1;c<50;c++)
 {
 	var row = Ti.UI.createTableViewRow();
+	row.selectedBackgroundColor = '#fff';
 	row.height  =100;
 	row['class'] = 'datarow';
 	
@@ -52,8 +71,19 @@ for (var c=0;c<50;c++)
 		width:50,
 		height:50
 	});
+	photo.addEventListener('click', function(e)
+	{
+		Ti.API.info('photo click ' + e.source.rowNum + ' new row ' + updateRow);
+
+		// use rowNum property on object to get row number
+		var rowNum = e.source.rowNum;
+		updateRowText.text = 'You clicked on the photo';
+		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});	
+		
+	});
 	photo.rowNum = c;
 	row.add(photo);
+	
 	
 	var user = Ti.UI.createLabel({
 		color:'#576996',
@@ -64,6 +94,14 @@ for (var c=0;c<50;c++)
 		width:200,
 		text:'Fred Smith'
 	});
+	user.addEventListener('click', function(e)
+	{
+		// use rowNum property on object to get row number
+		var rowNum = e.source.rowNum;
+		updateRowText.text = 'You clicked on the user';
+		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
+	});
+	
 	user.rowNum = c;
 	row.add(user);
 
@@ -76,16 +114,32 @@ for (var c=0;c<50;c++)
 		width:200,
 		text:'Got some fresh fruit, conducted some business, took a nap'
 	});
+	comment.addEventListener('click', function(e)
+	{
+		// use rowNum property on object to get row number
+		var rowNum = e.source.rowNum;
+		updateRowText.text = 'You clicked on the comment';
+		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
+	});
+	
 	comment.rowNum = c;
 	row.add(comment);
 
 	var calendar = Ti.UI.createView({
 		backgroundImage:'../images/custom_tableview/eventsButton.png',
-		bottom:5,
+		bottom:2,
 		left:70,
 		width:32,
 		height:32
 	});
+	calendar.addEventListener('click', function(e)
+	{
+		// use rowNum property on object to get row number
+		var rowNum = e.source.rowNum;
+		updateRowText.text = 'You clicked on the calendar';
+		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
+	});
+	
 	calendar.rowNum = c;
 	row.add(calendar);
 
@@ -96,6 +150,14 @@ for (var c=0;c<50;c++)
 		width:36,
 		height:34
 	});
+	button.addEventListener('click', function(e)
+	{
+		// use rowNum property on object to get row number
+		var rowNum = e.source.rowNum;
+		updateRowText.text = 'You clicked on the comment button';
+		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
+	});
+
 	button.rowNum = c;
 	row.add(button);
 	
@@ -108,6 +170,14 @@ for (var c=0;c<50;c++)
 		width:100,
 		text:'posted on 3/11'
 	});
+	date.addEventListener('click', function(e)
+	{
+		// use rowNum property on object to get row number
+		var rowNum = e.source.rowNum;
+		updateRowText.text = 'You clicked on the date text';
+		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
+	});
+	
 	date.rowNum = c;
 	row.add(date);
 	
@@ -115,91 +185,24 @@ for (var c=0;c<50;c++)
 }
 
 
-var currentSelectedData = null;
-var currentSelectedRow = null;
 //
 // create table view (
 //
 var tableView = Titanium.UI.createTableView({
 	data:data,
-	rowHeight:100,
 	search:search
 });
 
-// tableView.addEventListener('click', function(eventObject)
-// {
-// 	var title = eventObject.rowData.title;
-// 
-// 	// see if we are in search mode
-// 	if (eventObject.searchMode==true)
-// 	{
-// 		search.blur();
-// 		Titanium.UI.createAlertDialog({
-// 			title:'Search Results',
-// 			message:'You clicked ' + title
-// 		}).show();
-// 	}
-// 	// row data
-// 	var rowData = eventObject.rowData;
-// 
-// 	// section index
-// 	var section = eventObject.section;
-// 
-// 	// row index clicked within section
-// 	var row = eventObject.row;
-// 
-// 	// index of row clicked
-// 	var index = eventObject.index;
-// 
-// 	// was hasDetail button clicked
-// 	var detail = eventObject.detail;
-// 
-// 	// layout object that was clicked
-// 	var name = eventObject.layoutName;
-// 
-// 	Titanium.API.debug('the name was: '+name);
-// 
-// 	if (name && name != 'message')
-// 	{
-// 		// create new row layout
-// 		var data = {
-// 				backgroundColor:'#385292',
-// 				selectedBackgroundColor:'#385292',
-// 				message:'You clicked the '+name,
-// 				layout:[{
-// 					name:'message',
-// 					type:'text',
-// 					color:'#fff',
-// 					fontWeight:'bold',
-// 					fontSize:20,
-// 					top:35,
-// 					height:30,
-// 					left:50
-// 				}]
-// 			};
-// 
-// 			// if we have an selected row, then reset
-// 			if (currentSelectedRow !=null)
-// 			{
-// 				tableView.updateRow(currentSelectedRow,currentSelectedData,{
-// 					animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT
-// 				});
-// 			}
-// 			// update our row
-// 			tableView.updateRow(index,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});
-// 			currentSelectedData = rowData;
-// 			currentSelectedRow = index;
-// 
-// 	}
-// 	else if (name == 'message')
-// 	{
-// 		// if you clicked on the updated row, reset it back to its original value
-// 		tableView.updateRow(index,currentSelectedData,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});
-// 		currentSelectedRow = null;
-// 		currentSelectedData = null;
-// 	}
-// 	
-// });
+tableView.addEventListener('click', function(e)
+{
+	if (currentRow != null && e.row.isUpdateRow == false)
+	{
+		tableView.updateRow(currentRowIndex, currentRow, {animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
+	}
+	currentRow = e.row;
+	currentRowIndex = e.index;
+	
+})
 
 
 win.add(tableView);
