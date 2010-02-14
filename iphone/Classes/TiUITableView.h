@@ -8,6 +8,7 @@
 #import "TiUITableViewRowProxy.h"
 #import "TiUITableViewSectionProxy.h"
 #import "TiUITableViewAction.h"
+#import "TiDimension.h"
 
 @interface TiUITableView : TiUIView<UITableViewDelegate,UITableViewDataSource> {
 @private
@@ -17,9 +18,13 @@
 	BOOL editing;
 	NSMutableArray * sectionIndex;
 	NSMutableDictionary * sectionIndexMap;
+	TiDimension rowHeight;
+	TiDimension minRowHeight;
+	TiDimension maxRowHeight;
 }
 
 #pragma mark Framework
+-(NSInteger)indexForRow:(TiUITableViewRowProxy*)row;
 -(TiUITableViewRowProxy*)rowForIndex:(NSInteger)index section:(NSInteger*)section;
 -(void)dispatchAction:(TiUITableViewAction*)action;
 -(void)insertRow:(TiUITableViewRowProxy*)row before:(TiUITableViewRowProxy*)before animation:(NSDictionary*)animation;

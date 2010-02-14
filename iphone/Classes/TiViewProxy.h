@@ -18,6 +18,7 @@
 }
 
 @property(nonatomic,readonly) NSArray *children;
+@property(nonatomic,readonly) TiProxy *parent;
 
 #pragma mark Public
 -(void)add:(id)arg;

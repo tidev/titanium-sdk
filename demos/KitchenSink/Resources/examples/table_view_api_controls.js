@@ -8,25 +8,43 @@ for (var c=0;c<10;c++)
 	{
 		var label = Ti.UI.createLabel({
 			text:'Group '+(c+1)+', Row '+(x+1),
+			height:'auto',
 			left:10
 		});
 		var rightButton = Titanium.UI.createButton({
 			style:Titanium.UI.iPhone.SystemButton.INFO_DARK,
 			right:10,
 			width:50,
-			height:50
+			height:50,
+			_row:x,
+			_section:c
 		});
-		var row = Ti.UI.createTableViewRow();
+		rightButton.addEventListener('click',function(e)
+		{
+			Ti.API.info("button click on row. index = "+e.index+", row = "+e.source._row+", section = "+e.source._section+",rightButton = "+rightButton);
+		});
+		var row = Ti.UI.createTableViewRow({height:40});
 		row.add(label);
 		row.add(rightButton);
 		data[c].add(row);
+		row.addEventListener('click',function(e)
+		{
+			Ti.API.info("row click on row. index = "+e.index+", row = "+e.row+", section = "+e.section+", source="+e.source);
+		});
 	}
+	data[c].addEventListener('click',function(e)
+	{
+		Ti.API.info("row click on section. index = "+e.index+", row = "+e.row+", section = "+e.section+", source="+e.source);
+	});
 }
 
 // create table view
 var tableview = Titanium.UI.createTableView({
 	data:data,
-	style: Titanium.UI.iPhone.TableViewStyle.GROUPED
+	style: Titanium.UI.iPhone.TableViewStyle.GROUPED,
+	rowHeight:80,
+	_minRowHeight:60,
+	_maxRowHeight:500,
 });
 
 // create table view event listener

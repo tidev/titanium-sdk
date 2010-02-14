@@ -31,6 +31,21 @@
 	className = [[TiUtils stringValue:@"class" properties:properties def:@"_default_"] retain];
 }
 
+-(void)setHeight:(id)value
+{
+	height = [TiUtils dimensionValue:value];
+}
+
+-(NSInteger)rowHeight
+{
+	if (TiDimensionIsPixels(height))
+	{
+		return height.value;
+	}
+	//TODO: auto-calculate
+	return 0;
+}
+
 -(void)updateRow:(NSDictionary *)data withObject:(NSDictionary *)properties
 {
 	[super _initWithProperties:data];
@@ -57,7 +72,10 @@
 	NSString *title = [self valueForKey:@"title"];
 	if (title!=nil)
 	{
-		[cell.textLabel setText:title];
+		if ([cell.textLabel.text isEqualToString:title]==NO)
+		{
+			[cell.textLabel setText:title];
+		}
 	}
 	else 
 	{
@@ -106,7 +124,10 @@
 			UIImageView *view = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
 			cell.backgroundView = view;
 		}
-		((UIImageView*)cell.backgroundView).image = image;
+		if (image!=((UIImageView*)cell.backgroundView).image)
+		{
+			((UIImageView*)cell.backgroundView).image = image;
+		}
 	}
 	else if (cell.backgroundView!=nil && [cell.backgroundView isKindOfClass:[UIImageView class]] && ((UIImageView*)cell.backgroundView).image!=nil)
 	{
@@ -123,7 +144,10 @@
 			UIImageView *view = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
 			cell.selectedBackgroundView = view;
 		}
-		((UIImageView*)cell.selectedBackgroundView).image = image;
+		if (image!=((UIImageView*)cell.selectedBackgroundView).image)
+		{
+			((UIImageView*)cell.selectedBackgroundView).image = image;
+		}
 	}
 	else if (cell.selectedBackgroundView!=nil && [cell.selectedBackgroundView isKindOfClass:[UIImageView class]] && ((UIImageView*)cell.selectedBackgroundView).image!=nil)
 	{
@@ -138,7 +162,10 @@
 	{
 		NSURL *url = [TiUtils toURL:image proxy:(TiProxy*)table.proxy];
 		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
-		cell.imageView.image = image;
+		if (cell.imageView.image!=image)
+		{
+			cell.imageView.image = image;
+		}
 	}
 	else if (cell.imageView!=nil && cell.imageView.image!=nil)
 	{
@@ -153,6 +180,9 @@
 
 -(void)configureChildren:(UITableViewCell*)cell
 {
+	// this method is called when the cell is initially created
+	// to be initialized. on subsequent repaints of a re-used
+	// table cell, the updateChildren below will be called instead
 	if (self.children!=nil)
 	{
 		UIView *contentView = cell.contentView;
@@ -162,12 +192,22 @@
 			TiUIView *view = [proxy view];
 			[contentView addSubview:view];
 			[view insertIntoView:contentView bounds:rect];
+			view.parent = self;
 		}
 	}
 }
 
 -(void)updateChildren:(UITableViewCell*)cell
 {
+	// this method is called with a cached table cell and we need
+	// to cause the existing cell to be updated with any values 
+	// that are different from the previous cached use of the cell.  
+	// we simply do this by sending property change events to the 
+	// cached cell view and then switching it's active proxy.
+	// this will cause any property changes to be reflected in the 
+	// cached cell (and resulting underlying UI component changes)
+	// and the proxy change ensures that the new row proxy gets the
+	// events now
 	if (self.children!=nil)
 	{
 		UIView *contentView = cell.contentView;
@@ -182,9 +222,16 @@
 				id newValue = [proxy valueForKey:key];
 				if ([oldValue isEqual:newValue]==NO)
 				{
-					DoProxyDelegateChangedValuesWithProxy(view,key,oldValue,newValue,proxy);
+					// fire any property changes that are different from the old
+					// proxy to our new proxy
+					[view propertyChanged:key oldValue:oldValue newValue:newValue proxy:proxy];
 				}
 			}
+			// re-assign the view to the new proxy so the right listeners get 
+			// any child view events that are fired
+			view.proxy = proxy;
+			// we assign ourselves as the new parent so we can be in the 
+			// event propagation chain to insert row level event properties
 			view.parent = self;
 		} 
 	}
@@ -234,7 +281,31 @@
 	[self triggerRowUpdate];
 }
 
-#pragma mark Public APIs 
+-(void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source
+{
+	// merge in any row level properties for the event
+	if (source!=self)
+	{
+		NSMutableDictionary *dict = nil;
+		if (obj == nil)
+		{
+			dict = [NSMutableDictionary dictionary];
+		}
+		else
+		{
+			dict = [NSMutableDictionary dictionaryWithDictionary:obj];
+		}
+		NSInteger index = [table indexForRow:self];
+		[dict setObject:NUMINT(index) forKey:@"index"];
+		[dict setObject:section forKey:@"section"];
+		[dict setObject:self forKey:@"row"];
+		[dict setObject:self forKey:@"rowData"];
+		[dict setObject:NUMBOOL(NO) forKey:@"detail"];
+		[dict setObject:NUMBOOL(NO) forKey:@"searchMode"];
+		obj = dict;
+	}
+	[super fireEvent:type withObject:obj withSource:source];
+}
 
 
 #pragma mark Delegate 
