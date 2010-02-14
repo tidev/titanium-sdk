@@ -15,6 +15,7 @@
 	{
 		[self removeObserver:map forKeyPath:@"selected"];
 		observing = NO;
+		map = nil;
 	}
 	[super removeFromSuperview];
 }
