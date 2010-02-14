@@ -20,6 +20,7 @@
 }
 
 #pragma mark Framework
+-(NSInteger)indexForRow:(TiUITableViewRowProxy*)row;
 -(TiUITableViewRowProxy*)rowForIndex:(NSInteger)index section:(NSInteger*)section;
 -(void)dispatchAction:(TiUITableViewAction*)action;
 -(void)insertRow:(TiUITableViewRowProxy*)row before:(TiUITableViewRowProxy*)before animation:(NSDictionary*)animation;

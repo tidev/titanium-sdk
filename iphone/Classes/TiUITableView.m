@@ -49,7 +49,21 @@
 	return tableview;
 }
 
-- (NSInteger) sectionIndexForIndex:(NSInteger)theindex
+-(NSInteger)indexForRow:(TiUITableViewRowProxy*)row
+{
+	int index = 0;
+	for (TiUITableViewSectionProxy * thisSection in sections)
+	{
+		if (thisSection == row.section)
+		{
+			return index + row.row;
+		}
+		index+=[thisSection rowCount];
+	}
+	return index;
+}
+
+-(NSInteger)sectionIndexForIndex:(NSInteger)theindex
 {
 	int index = 0;
 	int section = 0;
@@ -470,6 +484,8 @@
 {
 	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
 	
+	// the classname for all rows that have the same substainal layout will be the same
+	// we reuse them for speed
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:row.className];
 	if (cell == nil)
 	{
@@ -478,6 +494,8 @@
 	}
 	else
 	{
+		// in the case of a reuse, we need to tell the row proxy to update the data
+		// in the re-used cell with this proxy's contents
 		[row renderTableViewCell:cell];
 	}
 	
@@ -488,7 +506,6 @@
 {
 	return sections!=nil ? [sections count] : 0;
 }
-
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
@@ -598,17 +615,6 @@
 	}
 	return 0;
 }
-
-//- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
-//{
-//	// return list of section titles to display in section index view (e.g. "ABCD...Z#")
-//}
-//
-//- (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index 
-//{
-//	// tell table which section corresponds to section title/index (e.g. "B",1))
-//}
-
 
 #pragma mark Delegate
 

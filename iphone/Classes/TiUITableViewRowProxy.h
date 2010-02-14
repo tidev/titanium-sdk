@@ -17,7 +17,6 @@
 	TiUITableView *table;
 	TiUITableViewSectionProxy *section;
 	NSInteger row;
-	BOOL initializing;
 }
 
 #pragma mark Public APIs
