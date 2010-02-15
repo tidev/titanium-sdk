@@ -185,6 +185,17 @@
 	{
 		cell.selectedBackgroundView = nil;
 	}
+	
+	id selBgColor = [self valueForKey:@"selectedBackgroundColor"];
+	if (selBgColor!=nil)
+	{
+		cell.selectedBackgroundView = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+		cell.selectedBackgroundView.backgroundColor = UIColorWebColorNamed(selBgColor);
+	}
+	else if (cell.selectedBackgroundView!=nil)
+	{
+		cell.selectedBackgroundView.backgroundColor = nil;
+	}
 }
 
 -(void)configureLeftSide:(UITableViewCell*)cell
