@@ -12,6 +12,8 @@
 #import "ImageLoader.h"
 #import "TiProxy.h"
 
+#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 60
+
 @implementation TiUITableView
 
 #pragma mark Internal 
@@ -48,31 +50,6 @@
 			TiViewProxy *proxy = (TiViewProxy*)view.proxy;
 			[view reposition];
 			[proxy layoutChildren:[view bounds]];
-		}
-		if (sections!=nil)
-		{
-			// we need to relayout our views (if we have any) for 
-			// the sections since when they're initially created
-			// they don't have the correct bounds..
-			for (TiUITableViewSectionProxy *section in sections)
-			{
-				TiViewProxy *headerProxy = [section valueForKey:@"headerView"];
-				if (headerProxy!=nil)
-				{
-					TiUIView *view = [headerProxy view];
-					LayoutConstraint *layout = [view layout];
-					ApplyConstraintToViewWithinViewWithBounds(layout, view, nil, [tableview bounds], NO);
-					[headerProxy layoutChildren:[view bounds]];
-				}
-				TiViewProxy *footerProxy = [section valueForKey:@"footerView"];
-				if (footerProxy!=nil)
-				{
-					TiUIView *view = [footerProxy view];
-					LayoutConstraint *layout = [view layout];
-					ApplyConstraintToViewWithinViewWithBounds(layout, view, nil, [tableview bounds], NO);
-					[footerProxy layoutChildren:[view bounds]];
-				}
-			}
 		}
 	}
 }
@@ -634,6 +611,19 @@
 	[self hideSearchScreen:nil];
 }
 
+#pragma mark Section Header / Footer
+
+-(TiUIView*)sectionView:(NSInteger)section forLocation:(NSString*)location
+{
+	TiUITableViewSectionProxy *proxy = [sections objectAtIndex:section];
+	TiViewProxy* viewproxy = [proxy valueForKey:location];
+	if (viewproxy!=nil && [viewproxy isKindOfClass:[TiViewProxy class]])
+	{
+		return [viewproxy view];
+	}
+	return nil;
+}
+
 #pragma mark Public APIs
 
 -(void)scrollToIndex:(NSInteger)index position:(UITableViewScrollPosition)position animated:(BOOL)animated
@@ -1137,33 +1127,43 @@
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-	TiUITableViewSectionProxy *proxy = [sections objectAtIndex:section];
-	TiViewProxy* viewproxy = [proxy valueForKey:@"headerView"];
-	if (viewproxy!=nil && [viewproxy isKindOfClass:[TiViewProxy class]])
-	{
-		return [viewproxy view];
-	}
-	return nil;
+	return [self sectionView:section forLocation:@"headerView"];
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 {
-	TiUITableViewSectionProxy *proxy = [sections objectAtIndex:section];
-	TiViewProxy* viewproxy = [proxy valueForKey:@"footerView"];
-	if (viewproxy!=nil && [viewproxy isKindOfClass:[TiViewProxy class]])
-	{
-		return [viewproxy view];
-	}
-	return nil;
+	return [self sectionView:section forLocation:@"footerView"];
 }
 
-//
-// Variable height support
-//
-//- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section;
-//- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section;
-//
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+	TiUIView *view = [self sectionView:section forLocation:@"headerView"];
+	if (view!=nil)
+	{
+		LayoutConstraint *layout = [view layout];
+		if (TiDimensionIsPixels(layout->height))
+		{
+			return layout->height.value;
+		}
+		return 20;
+	}
+	return 0;
+}
 
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+	TiUIView *view = [self sectionView:section forLocation:@"footerView"];
+	if (view!=nil)
+	{
+		LayoutConstraint *layout = [view layout];
+		if (TiDimensionIsPixels(layout->height))
+		{
+			return layout->height.value;
+		}
+		return 20;
+	}
+	return 0;
+}
 
 
 @end

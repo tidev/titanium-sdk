@@ -1,10 +1,9 @@
 // create table view data object
 var data = [];
 
-//NOTE: in a table header, footer, the width/height is fixed and 
-//can't be changed
 var header = Ti.UI.createView({
-	backgroundColor:'#111'
+	backgroundColor:'#111',
+	header:20
 });
 
 var headerLabel = Ti.UI.createLabel({
