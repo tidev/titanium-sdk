@@ -32,9 +32,23 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	if (tableview!=nil)
+	if (tableview!=nil && CGRectIsEmpty(bounds)==NO)
 	{
 		[TiUtils setView:tableview positionRect:bounds];
+		if (tableview.tableHeaderView!=nil && [tableview.tableHeaderView isKindOfClass:[TiUIView class]])
+		{
+			TiUIView *view = (TiUIView*)tableview.tableHeaderView;
+			TiViewProxy *proxy = (TiViewProxy*)view.proxy;
+			[view reposition];
+			[proxy layoutChildren:[view bounds]];
+		}
+		if (tableview.tableFooterView!=nil && [tableview.tableFooterView isKindOfClass:[TiUIView class]])
+		{
+			TiUIView *view = (TiUIView*)tableview.tableFooterView;
+			TiViewProxy *proxy = (TiViewProxy*)view.proxy;
+			[view reposition];
+			[proxy layoutChildren:[view bounds]];
+		}
 	}
 }
 
@@ -638,6 +652,35 @@
 -(void)setFooterTitle_:(id)args
 {
 	[[self tableView] setTableFooterView:[self titleViewForText:[TiUtils stringValue:args] footer:YES]];
+}
+
+-(void)setHeaderView_:(id)args
+{
+	ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
+	if (args!=nil)
+	{
+		TiUIView *view = (TiUIView*) [args view];
+		UITableView *table = [self tableView];
+		[table setTableHeaderView:view];
+	}
+	else
+	{
+		[[self tableView] setTableHeaderView:nil];
+	}
+}
+
+-(void)setFooterView_:(id)args
+{
+	ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
+	if (args!=nil)
+	{
+		UIView *view = [args view];
+		[[self tableView] setTableFooterView:view];
+	}
+	else
+	{
+		[[self tableView] setTableFooterView:nil];
+	}
 }
 
 -(void)setSearch_:(id)search
