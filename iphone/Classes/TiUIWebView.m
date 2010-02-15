@@ -222,6 +222,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 -(void)setUrl_:(id)args
 {
 	RELEASE_TO_NIL(url);
+	ENSURE_SINGLE_ARG(args,NSString);
 	
 	url = [TiUtils toURL:args proxy:(TiProxy*)self.proxy];
 	
@@ -236,25 +237,49 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	}
 	else
 	{
-		url = [[self fileURLToAppURL:url] retain];
 		NSString *html = nil;
-		NSData *data = [TiUtils loadAppResource:url];
-		if (data==nil)
+		
+		// first check to see if we're attempting to load a file from the 
+		// filesystem and if so, and it exists, use that 
+		if ([[NSFileManager defaultManager] fileExistsAtPath:[url path]])
 		{
-			html = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:nil];
+			NSString *path = [url path];
+			NSError *error = nil;
+			html = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
+			if (error!=nil && [error code]==261)
+			{
+				// this is a different encoding than specified, just send it to the webview to load
+				[url retain];
+				NSURLRequest *request = [NSURLRequest requestWithURL:url];
+				[[self webview] loadRequest:request];
+				[[self webview] setScalesPageToFit:YES];
+				return;
+			}
+			else if (error!=nil)
+			{
+				NSLog(@"[ERROR] error loading file: %@. Message was: %@",path,error);
+			}
 		}
 		else
 		{
-			html = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+			// convert it into a app:// relative path to load the resource
+			// from our application
+			url = [self fileURLToAppURL:url];
+			NSData *data = [TiUtils loadAppResource:url];
+			if (data!=nil)
+			{
+				html = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+			}
 		}
 		if (html!=nil)
 		{
 			[self setHtml_:html];	
+			[url retain];
 		}
 		else 
 		{
-			[[self webview] setScalesPageToFit:YES];
-			[[self webview] loadRequest:[NSURLRequest requestWithURL:url]];
+			NSLog(@"[WARN] couldn't load URL: %@",url);
+			url = nil; // not retained at this point so just release it
 		}
 	}
 }
