@@ -671,6 +671,12 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 					[invoker getReturnValue:&result];
 					return [NSNumber numberWithLong:result];
 				}
+				else if ([attributes hasPrefix:@"Tc,"])
+				{
+					char result;
+					[invoker getReturnValue:&result];
+					return [NSNumber numberWithChar:result];
+				}
 				else 
 				{
 					// let it fall through and return undefined

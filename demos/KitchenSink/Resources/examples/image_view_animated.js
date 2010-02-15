@@ -1,7 +1,7 @@
 var win = Titanium.UI.currentWindow;
 
 // show indicator from app.js
-Titanium.App.fireEvent('show_indicator',{foo:'bar'});
+Titanium.App.fireEvent('show_indicator');
 
 // load images
 var images = [];
@@ -13,6 +13,7 @@ for (var i=1;i<18;i++)
 //
 // CREATE IMAGE VIEW
 //
+
 var imageView = Titanium.UI.createImageView({
 	images:images,
 	duration:100, // in miliseconds, the time before next frame is shown
@@ -31,10 +32,10 @@ var frame = Ti.UI.createLabel({
 //
 
 // listen for load event (when all images are loaded)
-imageView.addEventListener('load', function()
+imageView.addEventListener('load', function(e)
 {
 	// hide indicator from app.js
-	Titanium.App.fireEvent('hide_indicator',{foo:'bar'});
+	Titanium.App.fireEvent('hide_indicator');
 
 	// start animation
 	imageView.start();

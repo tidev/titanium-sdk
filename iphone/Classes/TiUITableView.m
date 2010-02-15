@@ -12,6 +12,8 @@
 #import "ImageLoader.h"
 #import "TiProxy.h"
 
+#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20
+
 @implementation TiUITableView
 
 #pragma mark Internal 
@@ -32,9 +34,23 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	if (tableview!=nil)
+	if (tableview!=nil && CGRectIsEmpty(bounds)==NO)
 	{
 		[TiUtils setView:tableview positionRect:bounds];
+		if (tableview.tableHeaderView!=nil && [tableview.tableHeaderView isKindOfClass:[TiUIView class]])
+		{
+			TiUIView *view = (TiUIView*)tableview.tableHeaderView;
+			TiViewProxy *proxy = (TiViewProxy*)view.proxy;
+			[view reposition];
+			[proxy layoutChildren:[view bounds]];
+		}
+		if (tableview.tableFooterView!=nil && [tableview.tableFooterView isKindOfClass:[TiUIView class]])
+		{
+			TiUIView *view = (TiUIView*)tableview.tableFooterView;
+			TiViewProxy *proxy = (TiViewProxy*)view.proxy;
+			[view reposition];
+			[proxy layoutChildren:[view bounds]];
+		}
 	}
 }
 
@@ -595,6 +611,19 @@
 	[self hideSearchScreen:nil];
 }
 
+#pragma mark Section Header / Footer
+
+-(TiUIView*)sectionView:(NSInteger)section forLocation:(NSString*)location
+{
+	TiUITableViewSectionProxy *proxy = [sections objectAtIndex:section];
+	TiViewProxy* viewproxy = [proxy valueForKey:location];
+	if (viewproxy!=nil && [viewproxy isKindOfClass:[TiViewProxy class]])
+	{
+		return [viewproxy view];
+	}
+	return nil;
+}
+
 #pragma mark Public APIs
 
 -(void)scrollToIndex:(NSInteger)index position:(UITableViewScrollPosition)position animated:(BOOL)animated
@@ -638,6 +667,35 @@
 -(void)setFooterTitle_:(id)args
 {
 	[[self tableView] setTableFooterView:[self titleViewForText:[TiUtils stringValue:args] footer:YES]];
+}
+
+-(void)setHeaderView_:(id)args
+{
+	ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
+	if (args!=nil)
+	{
+		TiUIView *view = (TiUIView*) [args view];
+		UITableView *table = [self tableView];
+		[table setTableHeaderView:view];
+	}
+	else
+	{
+		[[self tableView] setTableHeaderView:nil];
+	}
+}
+
+-(void)setFooterView_:(id)args
+{
+	ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
+	if (args!=nil)
+	{
+		UIView *view = [args view];
+		[[self tableView] setTableFooterView:view];
+	}
+	else
+	{
+		[[self tableView] setTableFooterView:nil];
+	}
 }
 
 -(void)setSearch_:(id)search
@@ -1067,17 +1125,45 @@
 	return height < 1 ? tableView.rowHeight : height;
 }
 
-//
-// Variable height support
-//
-//- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section;
-//- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section;
-//
-// Section header & footer information. Views are preferred over title should you decide to provide both
-//
-//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section;   // custom view for header. will be adjusted to default or specified header height
-//- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section;   // custom view for footer. will be adjusted to default or specified footer height
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+	return [self sectionView:section forLocation:@"headerView"];
+}
 
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
+{
+	return [self sectionView:section forLocation:@"footerView"];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+	TiUIView *view = [self sectionView:section forLocation:@"headerView"];
+	if (view!=nil)
+	{
+		LayoutConstraint *layout = [view layout];
+		if (TiDimensionIsPixels(layout->height))
+		{
+			return layout->height.value;
+		}
+		return DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+	}
+	return 0;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+	TiUIView *view = [self sectionView:section forLocation:@"footerView"];
+	if (view!=nil)
+	{
+		LayoutConstraint *layout = [view layout];
+		if (TiDimensionIsPixels(layout->height))
+		{
+			return layout->height.value;
+		}
+		return DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+	}
+	return 0;
+}
 
 
 @end

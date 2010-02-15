@@ -283,6 +283,7 @@
 		{
 			TiUIView *childView = [(TiViewProxy*)child view];
 			[childView setParent:self];
+			[view addSubview:childView];
 		}
 		
 		[self viewDidAttach];

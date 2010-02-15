@@ -7,11 +7,14 @@
 package org.appcelerator.titanium.view;
 
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiProxyListener;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy.PendingAnimation;
@@ -22,9 +25,9 @@ import org.appcelerator.titanium.view.TiBorderHelper.BorderSupport;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
 
 import ti.modules.titanium.ui._2DMatrixProxy;
-
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnFocusChangeListener;
@@ -266,6 +269,8 @@ public abstract class TiUIView
 		} else if (key.equals("width")) {
 			layoutParams.optionWidth = TiConvert.toTiDimension((String) newValue).getIntValue();
 			nativeView.requestLayout();
+		} else if (key.equals("visible")) {
+			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else {
 			Log.i(LCAT, "Unhandled property key: " + key);
 		}
@@ -285,13 +290,20 @@ public abstract class TiUIView
 		// Prefer image to color.
 		if (d.containsKey("backgroundImage")) {
 			String path = TiConvert.toString(d, "backgroundImage");
-			if (DBG) {
-				Log.d(LCAT, "backgroundImage: " + path);
+			String url = getProxy().getTiContext().resolveUrl(path);
+			TiBaseFile file = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), new String[] { url }, false);
+			try {
+				nativeView.setBackgroundDrawable(Drawable.createFromStream(
+					file.getInputStream(), file.getNativeFile().getName()));
+			} catch (IOException e) {
+				Log.e(LCAT, "Error creating background image from path: " + path.toString(), e);
 			}
-			//throw new IllegalArgumentException("Please Implement.");
 		} else if (d.containsKey("backgroundColor")) {
 			bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
 			nativeView.setBackgroundDrawable(new ColorDrawable(bgColor));
+		}
+		if (d.containsKey("visible")) {
+			nativeView.setVisibility(TiConvert.toBoolean(d, "visible") ? View.VISIBLE : View.INVISIBLE);
 		}
 
 		if (nativeView instanceof BorderSupport) {
@@ -308,7 +320,7 @@ public abstract class TiUIView
 					}
 
 					if (d.containsKey("borderWidth")) {
-						borderHelper.setBorderWidth(TiConvert.toFloat("borderWidth"));
+						borderHelper.setBorderWidth(TiConvert.toFloat(d, "borderWidth"));
 					}
 				}
 			} else {
@@ -363,5 +375,15 @@ public abstract class TiUIView
 				vg.removeAllViews();
 			}
 		}
+	}
+	
+	public void show()
+	{
+		nativeView.setVisibility(View.VISIBLE);
+	}
+	
+	public void hide()
+	{
+		nativeView.setVisibility(View.INVISIBLE);
 	}
 }

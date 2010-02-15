@@ -226,6 +226,22 @@ DEFINE_EXCEPTIONS
 	// for subclasses to do crap
 }
 
+-(void)setFrame:(CGRect)frame
+{
+	[super setFrame:frame];
+	
+	// this happens when a view is added to another view but not
+	// through the framework (such as a tableview header) and it
+	// means we need to force the layout of our children
+	if (childrenInitialized==NO && 
+		CGRectIsEmpty(frame)==NO &&
+		[self.proxy isKindOfClass:[TiViewProxy class]])
+	{
+		childrenInitialized=YES;
+		[(TiViewProxy*)self.proxy layoutChildren:frame];
+	}
+}
+
 -(void)setBounds:(CGRect)bounds
 {
 	[super setBounds:bounds];
