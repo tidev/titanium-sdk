@@ -746,7 +746,7 @@
 
 +(NSData *)loadAppResource:(NSURL*)url
 {
-	if ([url isFileURL])
+	if ([url isFileURL] || [[url scheme] hasPrefix:@"app"])
 	{
 		static id AppRouter;
 		if (AppRouter==nil)
@@ -759,6 +759,13 @@
 			NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
 			NSString *appurlstr = [NSString stringWithFormat:@"%@",[urlstring stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"%@/",resourceurl] withString:@""]];
 			appurlstr = [appurlstr stringByReplacingOccurrencesOfString:@"." withString:@"_"];
+			if ([appurlstr hasPrefix:@"/"])
+			{
+				appurlstr = [appurlstr substringFromIndex:1];
+			}
+#ifdef DEBUG			
+			NSLog(@"[DEBUG] loading: %@, resource: %@",urlstring,appurlstr);
+#endif			
 			return [AppRouter performSelector:@selector(resolveAppAsset:) withObject:appurlstr];
 		}
 	}
