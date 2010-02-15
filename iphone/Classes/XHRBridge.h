@@ -16,6 +16,12 @@
 + (void) registerSpecialProtocol;
 @end
 
+@interface AppProtocolHandler : NSURLProtocol
+{
+}
++ (void) registerSpecialProtocol;
+@end
+
 @interface XHRBridge : Bridge
 {
 

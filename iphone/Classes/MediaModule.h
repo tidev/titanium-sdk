@@ -19,6 +19,8 @@
 	KrollCallback *pickerCancelCallback;
 }
 
+@property(nonatomic,readonly) CGFloat peakMicrophonePower;
+@property(nonatomic,readonly) CGFloat averageMicrophonePower;
 
 @property(nonatomic,readonly) NSNumber* UNKNOWN_ERROR;
 @property(nonatomic,readonly) NSNumber* DEVICE_BUSY;

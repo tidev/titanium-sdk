@@ -21,37 +21,7 @@
 
 +(TiFile*)createTempFile:(NSString*)extension
 {
-	NSString * tempDir = NSTemporaryDirectory();
-	NSError * error=nil;
-	
-	NSFileManager *fm = [NSFileManager defaultManager];
-	if(![fm fileExistsAtPath:tempDir])
-	{
-		[fm createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:&error];
-		if(error != nil)
-		{
-			//TODO: ?
-			return nil;
-		}
-	}
-	
-	int timestamp = (int)(time(NULL) & 0xFFFFL);
-	NSString * resultPath;
-	do 
-	{
-		resultPath = [tempDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%X.%@",timestamp,extension]];
-		timestamp ++;
-	} while ([fm fileExistsAtPath:resultPath]);
-	
-	[[NSData data] writeToFile:resultPath options:0 error:&error];
-	
-	if (error != nil)
-	{
-		//TODO: ?
-		return nil;
-	}
-	
-	return [TiFile createTempFile:resultPath];
+	return [TiFile createTempFile:extension];
 }
 
 +(NSString *)encodeQueryPart:(NSString *)unencodedString
@@ -746,7 +716,7 @@
 
 +(NSData *)loadAppResource:(NSURL*)url
 {
-	if ([url isFileURL])
+	if ([url isFileURL] || [[url scheme] hasPrefix:@"app"])
 	{
 		static id AppRouter;
 		if (AppRouter==nil)
@@ -759,6 +729,13 @@
 			NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
 			NSString *appurlstr = [NSString stringWithFormat:@"%@",[urlstring stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"%@/",resourceurl] withString:@""]];
 			appurlstr = [appurlstr stringByReplacingOccurrencesOfString:@"." withString:@"_"];
+			if ([appurlstr hasPrefix:@"/"])
+			{
+				appurlstr = [appurlstr substringFromIndex:1];
+			}
+#ifdef DEBUG			
+			NSLog(@"[DEBUG] loading: %@, resource: %@",urlstring,appurlstr);
+#endif			
 			return [AppRouter performSelector:@selector(resolveAppAsset:) withObject:appurlstr];
 		}
 	}

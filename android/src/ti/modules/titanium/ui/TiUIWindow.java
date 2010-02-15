@@ -35,6 +35,7 @@ public class TiUIWindow extends TiUIView
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private static final int MSG_ACTIVITY_CREATED = 1000;
+	private static final int MSG_ANIMATE = 100;
 
 	protected String activityKey;
 	protected Activity windowActivity;
@@ -209,10 +210,7 @@ public class TiUIWindow extends TiUIView
 			if (windowHandler != null) {
 				windowHandler.addWindow(liteWindow, getLayoutParams());
 			}
-			if (anim != null) {
-				nativeView.startAnimation(anim);
-				anim = null;
-			}
+			handler.obtainMessage(MSG_ANIMATE).sendToTarget();
 		}
 	}
 
@@ -237,11 +235,15 @@ public class TiUIWindow extends TiUIView
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
-		case MSG_ACTIVITY_CREATED :
-			Log.w(LCAT, "Received Activity creation message");
-			windowActivity = (Activity) msg.obj;
-			handlePostOpen();
-			return true;
+			case MSG_ACTIVITY_CREATED :
+				Log.w(LCAT, "Received Activity creation message");
+				windowActivity = (Activity) msg.obj;
+				handlePostOpen();
+				return true;
+			case MSG_ANIMATE : {
+				animate();
+				return true;
+			}
 		}
 		return false;
 	}

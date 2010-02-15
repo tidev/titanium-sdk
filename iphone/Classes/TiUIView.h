@@ -29,6 +29,8 @@
 	TiAnimation *animation;
 	LayoutConstraint layout;
 	id transformMatrix;
+	BOOL childrenInitialized;
+
 	
 	unsigned int zIndex;
 	unsigned int animationDelayGuard;
