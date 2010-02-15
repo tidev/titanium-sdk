@@ -240,6 +240,16 @@ public class TiUIScrollView extends TiUIView {
 				android.view.ViewGroup.LayoutParams params) {
 			layout.addView(child, params);
 		}
+		
+		@Override
+		protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+			super.onScrollChanged(l, t, oldl, oldt);
+			
+			TiDict data = new TiDict();
+			data.put("x", l);
+			data.put("y", t);
+			getProxy().fireEvent("scroll", data);
+		}
 	}
 	
 	private class TiHorizontalScrollView extends HorizontalScrollView
@@ -265,6 +275,16 @@ public class TiUIScrollView extends TiUIView {
 		public void addView(View child,
 				android.view.ViewGroup.LayoutParams params) {
 			layout.addView(child, params);
+		}
+
+		@Override
+		protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+			super.onScrollChanged(l, t, oldl, oldt);
+			
+			TiDict data = new TiDict();
+			data.put("x", l);
+			data.put("y", t);
+			getProxy().fireEvent("scroll", data);
 		}
 	}
 	

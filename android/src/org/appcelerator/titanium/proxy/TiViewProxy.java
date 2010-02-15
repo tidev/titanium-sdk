@@ -324,8 +324,9 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 			getUIHandler().obtainMessage(MSG_SHOW, options).sendToTarget();
 		}
 	}
+	
 	protected void handleShow(TiDict options) {
-
+		view.show();
 	}
 
 	public void hide(TiDict options) {
@@ -336,8 +337,9 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		}
 
 	}
+	
 	protected void handleHide(TiDict options) {
-
+		view.hide();
 	}
 
 	public void animate(TiDict options, KrollCallback callback)
