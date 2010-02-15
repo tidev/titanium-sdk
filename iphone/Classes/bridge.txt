@@ -2,12 +2,20 @@ Ti.App = {};
 Ti.API = {};
 Ti.App._listeners = {};
 Ti.App._listener_id = 1;
+Ti.App.id = Ti.appId;
+Ti.App._xhr = XMLHttpRequest;
 Ti._broker = function(module,method,data)
 {
-	var url = 'ti://'+Ti.pageToken+'/'+module+'/'+method+'/'+Ti.App._JSON(data);
-	var xhr = new XMLHttpRequest();
-	xhr.open('GET',url,false);
-	xhr.send();
+	try
+	{
+		var url = 'app://'+Ti.appId+'/_TiA0_'+Ti.pageToken+'/'+module+'/'+method+'/'+Ti.App._JSON(data);
+		var xhr = new Ti.App._xhr();
+		xhr.open('GET',url,false);
+		xhr.send();
+	}
+	catch(X)
+	{
+	}	
 };
 Ti.App._JSON = function(object,bridge)
 {

@@ -30,7 +30,10 @@
 	NSArray *toolbarItems;
 	BOOL toolbarVisible;
 
+	TiUIView<TiUIScrollView> *	parentScrollView;
 @private
+
+
 
 }
 
