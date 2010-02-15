@@ -1,79 +1,48 @@
-//FIXME: JGH redo
 var win = Titanium.UI.currentWindow;
 
-// simple two element template layout
-var template = {
- 	selectedBackgroundColor:'#fff',
- 	backgroundColor:'#ffffff',
- 	rowHeight:100,
- 	layout:[
-		{
-			type:'text', 
-			name:'from', 
-			font:{fontSize:'16',fontWeight:'bold', fontFamily:'Helvetica Neue'},
-			fontSize:19,
-			fontFamily:'Helvetica Neue',
-			fontWeight:'bold',
-			top:5,
-			color:'#111',
-			left:20,
-		},
-		{
-			type:'text', 
-			name:'subject', 
-			font:{fontSize:'13', fontFamily:'Helvetica Neue'},
-			fontSize:14,
-			fontFamily:'Helvetica Neue',
-			top:27,
-			color:'#333',
-			left:20,
-			width:200
-		},
+var data = []
+// create the rest of the rows
+for (var c=0;c<50;c++)
+{
+	var row = Ti.UI.createTableViewRow();
+	row.height  =100;
+	
+	var user = Ti.UI.createLabel({
+		color:'#576996',
+		font:{fontSize:16,fontWeight:'bold', fontFamily:'Arial'},
+		left:20,
+		top:2,
+		height:30,
+		width:200,
+		text:'Fred Smith'
+	});
+	user.rowNum = c;
+	row.add(user);
 
-		{
-			type:'text', 
-			name:'message', 
-			font:{fontSize:'13', fontFamily:'Helvetica Neue'},
-			fontSize:14,
-			fontFamily:'Helvetica Neue',
-			top:43,
-			color:'#888',
-			left:20,
-		},
-		{
-			type:'text',
-			name:'date',
-			font:{fontSize:'14',fontWeight:'bold', fontFamily:'Helvetica Neue'},
-			fontSize:14,
-			fontFamily:'Helvetica Neue',
-			fontWeight:'bold',
-			top:9,
-			color:'#3366999',
-			right:10,
-			textAlign:'right',
-			width:100
-		}
-	]
-};
+	var comment = Ti.UI.createLabel({
+		color:'#222',
+		font:{fontSize:16,fontWeight:'normal', fontFamily:'Arial'},
+		left:20,
+		top:21,
+		height:50,
+		width:200,
+		text:'Got some fresh fruit, conducted some business, took a nap'
+	});
+	comment.rowNum = c;
+	row.add(comment);
 
-// table view data 
-var data = [
-	{from:'Simpson, Homer J.', subject:'beer', message:'did you get my message', date:'2:46 PM'},
-	{from:'Simpson, Homer J.', subject:'beer', message:'mmm...  beer...', date:'1:40 PM'}
-
-];
-
-// table view
+	
+    data.push(row);
+}
 var tableView = Titanium.UI.createTableView({
-	data:data,
-	template:template,
-	editable:true
+	data:data
 });
+
 
 // add delete event listener
 tableView.addEventListener('delete',function(e)
 {
-	Titanium.API.info("deleted - row="+e.row+", index="+e.index+", section="+e.section + ' table view row length = ' + tableView.data.length);
+	Titanium.API.info("deleted - row="+e.row+", index="+e.index+", section="+e.section + ' table view row length = ' + tableView.section.data.length);
 });
 
 win.add(tableView);

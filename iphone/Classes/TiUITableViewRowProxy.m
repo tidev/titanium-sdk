@@ -16,11 +16,11 @@
 
 @implementation TiUITableViewRowProxy
 
-@synthesize className, table, section, row;
+@synthesize tableClass, table, section, row;
 
 -(void)_destroy
 {
-	RELEASE_TO_NIL(className);
+	RELEASE_TO_NIL(tableClass);
 	[super _destroy];
 }
 
@@ -28,7 +28,22 @@
 {
 	[super _initWithProperties:properties];
 	self.modelDelegate = self;
-	className = [[TiUtils stringValue:@"class" properties:properties def:@"_default_"] retain];
+}
+
+-(NSString*)tableClass
+{
+	if (tableClass==nil)
+	{
+		// must use undefined key since class is a special 
+		// property on the NSObject class
+		id value = [self valueForUndefinedKey:@"className"];
+		if (value==nil)
+		{
+			value = @"_default_";
+		}
+		tableClass = [value retain];
+	}
+	return tableClass;
 }
 
 -(void)setHeight:(id)value
@@ -36,14 +51,31 @@
 	height = [TiUtils dimensionValue:value];
 }
 
--(NSInteger)rowHeight
+-(CGFloat)rowHeight:(CGRect)bounds
 {
 	if (TiDimensionIsPixels(height))
 	{
 		return height.value;
 	}
-	//TODO: auto-calculate
-	return 0;
+	CGFloat result = 0;
+	if (TiDimensionIsAuto(height))
+	{
+		SEL autoHeightSelector = @selector(minimumParentHeightForWidth:);
+		for (TiViewProxy * proxy in self.children)
+		{
+			if (![proxy respondsToSelector:autoHeightSelector])
+			{
+				continue;
+			}
+			
+			CGFloat newResult = [proxy minimumParentHeightForWidth:bounds.size.width];
+			if (newResult > result)
+			{
+				result = newResult;
+			}
+		}
+	}
+	return result == 0 ? [table tableRowHeight:0] : result;
 }
 
 -(void)updateRow:(NSDictionary *)data withObject:(NSDictionary *)properties
@@ -153,6 +185,17 @@
 	{
 		cell.selectedBackgroundView = nil;
 	}
+	
+	id selBgColor = [self valueForKey:@"selectedBackgroundColor"];
+	if (selBgColor!=nil)
+	{
+		cell.selectedBackgroundView = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+		cell.selectedBackgroundView.backgroundColor = UIColorWebColorNamed(selBgColor);
+	}
+	else if (cell.selectedBackgroundView!=nil)
+	{
+		cell.selectedBackgroundView.backgroundColor = nil;
+	}
 }
 
 -(void)configureLeftSide:(UITableViewCell*)cell
@@ -187,10 +230,15 @@
 	{
 		UIView *contentView = cell.contentView;
 		CGRect rect = [contentView bounds];
+		CGFloat rowHeight = [self rowHeight:rect];
+		if (rect.size.height < rowHeight)
+		{
+			rect.size.height = rowHeight;
+			contentView.bounds = rect;
+		}
 		for (TiViewProxy *proxy in self.children)
 		{
 			TiUIView *view = [proxy view];
-			[contentView addSubview:view];
 			[view insertIntoView:contentView bounds:rect];
 			view.parent = self;
 		}
@@ -212,6 +260,14 @@
 	{
 		UIView *contentView = cell.contentView;
 		NSArray *subviews = [contentView subviews];
+		if (subviews == nil || [subviews count]==0)
+		{
+			// this can happen if we're giving a reused table cell
+			// but he's removed the children from it... in this 
+			// case we just re-add like it was brand new
+			[self configureChildren:cell];
+			return;
+		}
 		for (size_t c=0;c<[subviews count];c++)
 		{
 			TiViewProxy *proxy = [self.children objectAtIndex:c];
@@ -229,9 +285,9 @@
 			}
 			// re-assign the view to the new proxy so the right listeners get 
 			// any child view events that are fired
-			view.proxy = proxy;
 			// we assign ourselves as the new parent so we can be in the 
 			// event propagation chain to insert row level event properties
+			[proxy exchangeView:view];
 			view.parent = self;
 		} 
 	}

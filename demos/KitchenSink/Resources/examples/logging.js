@@ -6,12 +6,15 @@ var l = Titanium.UI.createLabel({
 
 win.add(l);
 
-Titanium.API.log('ERROR','ERROR MESSAGE FROM FUNCTION');
-Titanium.API.debug('DEBUG MESSAGE FROM FUNCTION');
-Titanium.API.error('ERROR MESSAGE FROM FUNCTION');
-Titanium.API.warn('WARN MESSAGE FROM FUNCTION');
-Titanium.API.info('INFO MESSAGE FROM FUNCTION');
-Titanium.API.trace('TRACE MESSAGE FROM FUNCTION');
-Titanium.API.notice('NOTICE MESSAGE FROM FUNCTION');
-Titanium.API.critical('CRITICAL MESSAGE FROM FUNCTION');
-alert('ALERT LOG FROM FUNCTION');
+// define an object
+var obj = {name:'foo', value:'bar'};
+
+Titanium.API.log('ERROR','ERROR MESSAGE FROM FUNCTION - name: ' + obj.name + ' value: ' + obj.value);
+Titanium.API.debug('DEBUG MESSAGE FROM FUNCTION - name: ' + obj.name + ' value: ' + obj.value);
+Titanium.API.error('ERROR MESSAGE FROM FUNCTION - name: ' + obj.name + ' value: ' + obj.value);
+Titanium.API.warn('WARN MESSAGE FROM FUNCTION - name: ' + obj.name + ' value: ' + obj.value);
+Titanium.API.info('INFO MESSAGE FROM FUNCTION - name: ' + obj.name + ' value: ' + obj.value);
+Titanium.API.trace('TRACE MESSAGE FROM FUNCTION - name: ' + obj.name + ' value: ' + obj.value);
+Titanium.API.notice('NOTICE MESSAGE FROM FUNCTION - name: ' + obj.name + ' value: ' + obj.value);
+Titanium.API.critical('CRITICAL MESSAGE FROM FUNCTION - name: ' + obj.name + ' value: ' + obj.value);
+alert('ALERT LOG FROM FUNCTION - name: ' + obj.name + ' value: ' + obj.value);

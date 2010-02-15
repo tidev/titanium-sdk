@@ -6,7 +6,6 @@ var data = [
 	{title:'Change Me', name:'row2'},
 	{title:'Change Me'},
 	{title:'Change Me'},
-	{title:'Click to go HTML'},
 	{title:'Click to go title (above)'},
 	{title:'Row7'},
 	{title:'Row8',header:'Section 1'},
@@ -57,15 +56,8 @@ tableView.addEventListener('click',function(e)
 
 		case 4:
 		{
-			//FIXME: this should no longer be supported
-			data = {html:'<div>I am div</div>'};
-			tableView.updateRow(4,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
-			break;
-		}
-		case 5:
-		{
 			data = {title:'I am a title'};
-			tableView.updateRow(5,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
+			tableView.updateRow(4,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
 			break;
 		}
 		

@@ -9,30 +9,77 @@ import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
-import org.appcelerator.titanium.TiRootActivity.TiActivityRef;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.view.TitaniumCompositeLayout;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.view.View;
 import android.view.Window;
 
 public class TiUIWindow extends TiUIView
+	implements Handler.Callback
 {
 	private static final String LCAT = "TiUIWindow";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	private static final int MSG_ACTIVITY_CREATED = 1000;
+
 	protected String activityKey;
-	protected Activity activity;
+	protected Activity windowActivity;
+	protected TitaniumCompositeLayout liteWindow;
+
 	protected boolean lightWeight;
+	protected Handler handler;
+
+	protected Messenger messenger;
+	protected int messageId;
 
 	private static AtomicInteger idGenerator;
 
-	public TiUIWindow(TiViewProxy proxy, TiActivity activity)
+	public TiUIWindow(TiViewProxy proxy, TiDict options, Messenger messenger, int messageId)
+	{
+		super(proxy);
+
+		if (idGenerator == null) {
+			idGenerator = new AtomicInteger(0);
+		}
+		this.messenger = messenger;
+		this.messageId = messageId;
+		this.handler = new Handler(this);
+
+		TiDict props = proxy.getDynamicProperties();
+		boolean newActivity = requiresNewActivity(props);
+		if (!newActivity && options != null && options.containsKey("tabOpen")) {
+			newActivity = TiConvert.toBoolean(options,"tabOpen");
+		}
+
+		if (newActivity)
+		{
+			lightWeight = false;
+			Activity activity = proxy.getTiContext().getActivity();
+			Intent intent = createIntent(activity);
+			activity.startActivity(intent);
+		} else {
+			lightWeight = true;
+			liteWindow = new TitaniumCompositeLayout(proxy.getContext());
+			setNativeView(liteWindow);
+			handlePostOpen();
+		}
+	}
+
+	public TiUIWindow(TiViewProxy proxy, Activity activity)
 	{
 		super(proxy);
 
@@ -40,19 +87,20 @@ public class TiUIWindow extends TiUIView
 			idGenerator = new AtomicInteger(0);
 		}
 
-		if (activity != null) {
-			this.activity = activity;
-			lightWeight = false;
-		} else {
-			this.activity = proxy.getTiContext().getActivity();
-			lightWeight = true;
-		}
+		windowActivity = activity;
+		lightWeight = false;
 
+		this.handler = new Handler(this);
+
+		handlePostOpen();
+	}
+
+	protected void handlePostOpen() {
 		//TODO unique key per window, params for intent
 		activityKey = "window$" + idGenerator.incrementAndGet();
+		TiDict props = proxy.getDynamicProperties();
 
 		// if url, create a new context.
-		TiDict props = proxy.getDynamicProperties();
 		if (props.containsKey("url")) {
 
 			String url = props.getString("url");
@@ -133,15 +181,69 @@ public class TiUIWindow extends TiUIView
 				preload.put("currentTab", ((TiWindowProxy) proxy).getTabProxy());
 			}
 
-			TiContext tiContext = TiContext.createTiContext(this.activity, preload, baseUrl);
+			TiContext tiContext = null;
+			if (lightWeight) {
+				tiContext = TiContext.createTiContext(proxy.getTiContext().getActivity(), preload, baseUrl);
+			} else {
+				tiContext = TiContext.createTiContext(windowActivity, preload, baseUrl);
+			}
+
 			try {
 				this.proxy.switchContext(tiContext);
 				tiContext.evalFile(url);
 			} catch (IOException e) {
 				Log.e(LCAT, "Error opening URL: " + url, e);
-				activity.finish();
 			}
 		}
+		if (messenger != null) {
+			Message msg = Message.obtain();
+			msg.what = messageId;
+			try {
+				messenger.send(msg);
+			} catch (RemoteException e) {
+				Log.e(LCAT, "Unable to send message: " + e.getMessage(), e);
+			}
+		}
+		if (lightWeight) {
+			ITiWindowHandler windowHandler = proxy.getTiContext().getTiApp().getWindowHandler();
+			if (windowHandler != null) {
+				windowHandler.addWindow(liteWindow, getLayoutParams());
+			}
+			if (anim != null) {
+				nativeView.startAnimation(anim);
+				anim = null;
+			}
+		}
+	}
+
+	public void close() {
+		if (!lightWeight) {
+			if (windowActivity != null) {
+				windowActivity.finish();
+				windowActivity = null;
+			}
+		} else {
+			if (liteWindow != null) {
+				ITiWindowHandler windowHandler = proxy.getTiContext().getTiApp().getWindowHandler();
+				if (windowHandler != null) {
+					windowHandler.removeWindow(liteWindow);
+				}
+				liteWindow.removeAllViews();
+				liteWindow = null;
+			}
+		}
+	}
+	@Override
+	public boolean handleMessage(Message msg)
+	{
+		switch (msg.what) {
+		case MSG_ACTIVITY_CREATED :
+			Log.w(LCAT, "Received Activity creation message");
+			windowActivity = (Activity) msg.obj;
+			handlePostOpen();
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -157,8 +259,12 @@ public class TiUIWindow extends TiUIView
 	}
 
 	public View getLayout() {
-		TiActivity tia = (TiActivity) activity;
-		return tia.getLayout();
+		View layout = nativeView;
+		if (!lightWeight) {
+			TiActivity tia = (TiActivity) windowActivity;
+			layout = tia.getLayout();
+		}
+		return layout;
 	}
 
 	@Override
@@ -168,8 +274,13 @@ public class TiUIWindow extends TiUIView
 		if (d.containsKey("backgroundImage")) {
 			throw new IllegalArgumentException("Please Implement.");
 		} else if (d.containsKey("backgroundColor")) {
-			Window w = activity.getWindow();
-			w.setBackgroundDrawable(TiConvert.toColorDrawable(d, "backgroundColor"));
+			ColorDrawable bgColor = TiConvert.toColorDrawable(d, "backgroundColor");
+			if (!lightWeight) {
+				Window w = windowActivity.getWindow();
+				w.setBackgroundDrawable(bgColor);
+			} else {
+				nativeView.setBackgroundDrawable(bgColor);
+			}
 		}
 
 		// Don't allow default processing.
@@ -191,4 +302,43 @@ public class TiUIWindow extends TiUIView
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
+
+	protected boolean requiresNewActivity(TiDict options)
+	{
+		boolean activityRequired = false;
+
+		if (options != null) {
+			if (options.containsKey("fullscreen") ||
+					options.containsKey("navBarHidden") ||
+					options.containsKey("tabOben"))
+			{
+				activityRequired = true;
+			}
+		}
+
+		return activityRequired;
+	}
+
+	protected Intent createIntent(Activity activity)
+	{
+		TiDict props = proxy.getDynamicProperties();
+		Intent intent = new Intent(activity, TiActivity.class);
+
+		if (props.containsKey("fullscreen")) {
+			intent.putExtra("fullscreen", TiConvert.toBoolean(props, "fullscreen"));
+		}
+		if (props.containsKey("navBarHidden")) {
+			intent.putExtra("navBarHidden", TiConvert.toBoolean(props, "navBarHidden"));
+		}
+		if (props.containsKey("url")) {
+			intent.putExtra("url", TiConvert.toString(props, "url"));
+		}
+		intent.putExtra("finishRoot", activity.isTaskRoot());
+		Messenger messenger = new Messenger(handler);
+		intent.putExtra("messenger", messenger);
+		intent.putExtra("messageId", MSG_ACTIVITY_CREATED);
+
+		return intent;
+	}
+
 }

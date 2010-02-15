@@ -27,9 +27,9 @@
 	});
 	welcomeWindow.add(message);
 	welcomeWindow.open();
-	
+
 	var t = Ti.UI.create2DMatrix().translate(-200,200).scale(0);
-	welcomeWindow.animate({transform:t,delay:1000,duration:1400,opacity:0.1},function()
+	welcomeWindow.animate({transform:t,delay:1500,duration:1000,opacity:0.1},function()
 	{
 		welcomeWindow.close();
 	});

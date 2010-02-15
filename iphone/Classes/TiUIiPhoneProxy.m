@@ -19,6 +19,7 @@
 #import "TiUIScrollIndicatorStyleProxy.h"
 #import "TiUITableViewStyleProxy.h"
 #import "TiUITableViewSeparatorStyleProxy.h"
+#import "TiUITableViewScrollPositionProxy.h"
 
 @implementation TiUIiPhoneProxy
 
@@ -35,6 +36,7 @@
 	RELEASE_TO_NIL(scrollIndicatorStyle);
 	RELEASE_TO_NIL(tableViewStyle);
 	RELEASE_TO_NIL(tableViewSeparatorStyle);
+	RELEASE_TO_NIL(tableViewScrollPosition);
 	[super dealloc];
 }
 
@@ -59,6 +61,7 @@ DEFINE_SUBPROXY(SystemIcon,systemIcon);
 DEFINE_SUBPROXY(ScrollIndicatorStyle,scrollIndicatorStyle);
 DEFINE_SUBPROXY(TableViewStyle,tableViewStyle);
 DEFINE_SUBPROXY(TableViewSeparatorStyle,tableViewSeparatorStyle);
+DEFINE_SUBPROXY(TableViewScrollPosition,tableViewScrollPosition);
 
 -(void)hideStatusBar:(id)args
 {
@@ -138,6 +141,7 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 	RELEASE_TO_NIL(scrollIndicatorStyle);
 	RELEASE_TO_NIL(tableViewStyle);
 	RELEASE_TO_NIL(tableViewSeparatorStyle);
+	RELEASE_TO_NIL(tableViewScrollPosition);
 	[super didReceiveMemoryWarning:notification];
 }
 

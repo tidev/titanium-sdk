@@ -1,11 +1,3 @@
-//FIXME: JGH redo
-
-
-// concepts to demonstrate/test
-// 1. use template-level values
-// 2. use layout
-// 3. override layout and template at row level
-
 var win = Titanium.UI.currentWindow;
 win.barColor = '#385292';
 
@@ -29,139 +21,196 @@ search.addEventListener('cancel', function(e)
    search.blur();
 });
 
+var tableView;
+var data = [];
 
-var template = {
- 	selectedBackgroundColor:'#fff',
- 	backgroundColor:'#ffffff',
- 	rowHeight:100,
- 	layout:[
-   		{type:'image', left:10, top:5, width:50, height:50, name:'photo'},
-   		{type:'text', fontSize:16, fontWeight:'bold', fontFamily:'Arial', left:70, top:2, width:200, height:30, color:'#576996', name:'user'},
-   		{type:'text', fontSize:13, fontWeight:'normal', left:70, top:21, height:50,width:200, color: '#222', name:'comment'},
-   		{type:'image', right:5, top:35, width:36, height:34, name:'button'},
-   		{type:'image', left:70, bottom:5, height:32, width:32, name:'calendar'},
-   		{type:'text', left:105, bottom:-3, width:100,height:32, name:'date', color:'#999999', fontSize:13, fontWeight:'normal'}
-]};
+// create first row
+var row = Ti.UI.createTableViewRow();
+row.backgroundColor = '#576996';
+row.selectedBackgroundColor = '#385292';
+row.height = 40;
+var clickLabel = Titanium.UI.createLabel({
+	text:'Click different parts of the row',
+	color:'#fff',
+	font:{fontSize:14}
+});
+row.className = 'header';
+row.add(clickLabel);
+data.push(row);
 
-var data = [
-	{welcome:'Click different parts of the row', backgroundColor:'#d4d9e8', selectedBackgroundColor:'#385292', rowHeight:40,  layout:[{name:'welcome', type:'text', fontSize:14, fontWeight:'bold', left:60, top:10, color:'#385292',selectedColor:'#ffffff'}]},
-	{photo:'../images/custom_tableview/user.png', user:'Fred Smith',comment:'I just went to the store', button:'../images/custom_tableview/commentButton.png', calendar:'../images/custom_tableview/eventsButton.png', date:'3 hours ago', title:'Fred Smith'},
-	{photo:'../images/custom_tableview/user.png', user:'Lucy Smith',comment:'I just hired a PI to follow Fred, then off to the store', button:'../images/custom_tableview/commentButton.png', calendar:'../images/custom_tableview/eventsButton.png', date:'4 hours ago', title:'Lucy Smith'},
-	{photo:'../images/custom_tableview/user.png', user:'Don Corelone',comment:'Got some fresh fruit, conducted some business, took a nap', button:'../images/custom_tableview/commentButton.png', calendar:'../images/custom_tableview/eventsButton.png', date:'5 hours ago', title:'Don Corelone'},
-	{photo:'../images/custom_tableview/user.png', user:'Joe Bobby',comment:'Ate pizza.  Found a dollar.', button:'../images/custom_tableview/commentButton.png', calendar:'../images/custom_tableview/eventsButton.png', date:'6 hours ago', title:'Joe Bobby'},
-	{photo:'../images/custom_tableview/user.png', user:'Don Corelone',comment:'Got some fresh fruit, conducted some business, took a nap', button:'../images/custom_tableview/commentButton.png', calendar:'../images/custom_tableview/eventsButton.png', date:'7 hours ago', title:'Don Corelone'},
-	{photo:'../images/custom_tableview/user.png', user:'Frankie',comment:'Trip over a cord, broke my neck.', button:'../images/custom_tableview/commentButton.png', calendar:'../images/custom_tableview/eventsButton.png', date:'8 hours ago', title:'Frankie'},
-	{photo:'../images/custom_tableview/user.png', user:'Lou Thompson',comment:'Singing in the rain.', button:'../images/custom_tableview/commentButton.png', calendar:'../images/custom_tableview/eventsButton.png', date:'9 hours ago'},
-	{photo:'../images/custom_tableview/user.png', user:'Gary Coleman',comment:'Whatchou talkin bout Willis?', button:'../images/custom_tableview/commentButton.png', calendar:'../images/custom_tableview/eventsButton.png', date:'10 hours ago'},
-	{photo:'../images/custom_tableview/user.png', user:'Willis',comment:'Hey Gary - shut your piehole.', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Fred Smith',comment:'I just went to the store', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Lucy Smith',comment:'I just hired a PI to follow Fred, then off to the store', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Don Corelone',comment:'Got some fresh fruit, conducted some business, took a nap', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Joe Bobby',comment:'Ate pizza.  Found a dollar.', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Don Corelone',comment:'Got some fresh fruit, conducted some business, took a nap', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Frankie',comment:'Trip over a cord, broke my neck.', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Lou Thompson',comment:'Singing in the rain.', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Gary Coleman',comment:'Whatchou talkin bout Willis?', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Willis',comment:'Hey Gary - shut your piehole.', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Fred Smith',comment:'I just went to the store', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Lucy Smith',comment:'I just hired a PI to follow Fred, then off to the store', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Don Corelone',comment:'Got some fresh fruit, conducted some business, took a nap', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Joe Bobby',comment:'Ate pizza.  Found a dollar.', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Don Corelone',comment:'Got some fresh fruit, conducted some business, took a nap', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Frankie',comment:'Trip over a cord, broke my neck.', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Lou Thompson',comment:'Singing in the rain.', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Gary Coleman',comment:'Whatchou talkin bout Willis?', button:'../images/custom_tableview/commentButton.png'},
-	{photo:'../images/custom_tableview/user.png', user:'Willis',comment:'Hey Gary - shut your piehole.', button:'../images/custom_tableview/commentButton.png'},
+// when you click the header, scroll to the bottom
+row.addEventListener('click',function()
+{
+	tableView.scrollToIndex(40,{animated:true,position:Ti.UI.iPhone.TableViewScrollPosition.TOP})
+});
 
-];
+// create update row (used when the user clicks on the row)
+var updateRow = Ti.UI.createTableViewRow();
+updateRow.backgroundColor = '#13386c';
+updateRow.selectedBackgroundColor = '#13386c';
 
-var currentSelectedData = null;
-var currentSelectedRow = null;
+// add custom property to identify this row
+updateRow.isUpdateRow = true;
+var updateRowText = Ti.UI.createLabel({
+	color:'#fff',
+	font:{fontSize:20, fontWeight:'bold'},
+	text:'You clicked on...'
+});
+updateRow.add(updateRowText);
+
+// create a var to track the active row
+var currentRow = null;
+var currentRowIndex = null;
+
+// create the rest of the rows
+for (var c=1;c<50;c++)
+{
+	var row = Ti.UI.createTableViewRow();
+	row.selectedBackgroundColor = '#fff';
+	row.height  =100;
+	row.className = 'datarow';
+	
+	var photo = Ti.UI.createView({
+		backgroundImage:'../images/custom_tableview/user.png',
+		top:5,
+		left:10,
+		width:50,
+		height:50
+	});
+	photo.addEventListener('click', function(e)
+	{
+		Ti.API.info('photo click ' + e.source.rowNum + ' new row ' + updateRow);
+
+		// use rowNum property on object to get row number
+		var rowNum = e.source.rowNum;
+		updateRowText.text = 'You clicked on the photo';
+		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});	
+		
+	});
+	photo.rowNum = c;
+	row.add(photo);
+	
+	
+	var user = Ti.UI.createLabel({
+		color:'#576996',
+		font:{fontSize:16,fontWeight:'bold', fontFamily:'Arial'},
+		left:70,
+		top:2,
+		height:30,
+		width:200,
+		text:'Fred Smith'
+	});
+	user.addEventListener('click', function(e)
+	{
+		// use rowNum property on object to get row number
+		var rowNum = e.source.rowNum;
+		updateRowText.text = 'You clicked on the user';
+		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
+	});
+	
+	user.rowNum = c;
+	row.add(user);
+
+	var comment = Ti.UI.createLabel({
+		color:'#222',
+		font:{fontSize:16,fontWeight:'normal', fontFamily:'Arial'},
+		left:70,
+		top:21,
+		height:50,
+		width:200,
+		text:'Got some fresh fruit, conducted some business, took a nap'
+	});
+	comment.addEventListener('click', function(e)
+	{
+		// use rowNum property on object to get row number
+		var rowNum = e.source.rowNum;
+		updateRowText.text = 'You clicked on the comment';
+		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
+	});
+	
+	comment.rowNum = c;
+	row.add(comment);
+
+	var calendar = Ti.UI.createView({
+		backgroundImage:'../images/custom_tableview/eventsButton.png',
+		bottom:2,
+		left:70,
+		width:32,
+		height:32
+	});
+	calendar.addEventListener('click', function(e)
+	{
+		// use rowNum property on object to get row number
+		var rowNum = e.source.rowNum;
+		updateRowText.text = 'You clicked on the calendar';
+		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
+	});
+	
+	calendar.rowNum = c;
+	row.add(calendar);
+
+	var button = Ti.UI.createView({
+		backgroundImage:'../images/custom_tableview/commentButton.png',
+		top:35,
+		right:5,
+		width:36,
+		height:34
+	});
+	button.addEventListener('click', function(e)
+	{
+		// use rowNum property on object to get row number
+		var rowNum = e.source.rowNum;
+		updateRowText.text = 'You clicked on the comment button';
+		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
+	});
+
+	button.rowNum = c;
+	row.add(button);
+	
+	var date = Ti.UI.createLabel({
+		color:'#999',
+		font:{fontSize:13,fontWeight:'normal', fontFamily:'Arial'},
+		left:105,
+		bottom:5,
+		height:20,
+		width:100,
+		text:'posted on 3/11'
+	});
+	date.addEventListener('click', function(e)
+	{
+		// use rowNum property on object to get row number
+		var rowNum = e.source.rowNum;
+		updateRowText.text = 'You clicked on the date text';
+		tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
+	});
+	
+	date.rowNum = c;
+	row.add(date);
+	
+    data.push(row);
+}
+
+
 //
 // create table view (
 //
-var tableView = Titanium.UI.createTableView({
-	template:template,
+tableView = Titanium.UI.createTableView({
 	data:data,
-	search:search,
-	filterAttribute:'user'
+	search:search
 });
 
-tableView.addEventListener('click', function(eventObject)
+tableView.addEventListener('click', function(e)
 {
-	var title = eventObject.rowData.title;
-
-	// see if we are in search mode
-	if (eventObject.searchMode==true)
+	if (currentRow != null && e.row.isUpdateRow == false)
 	{
-		search.blur();
-		Titanium.UI.createAlertDialog({
-			title:'Search Results',
-			message:'You clicked ' + title
-		}).show();
+		tableView.updateRow(currentRowIndex, currentRow, {animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
 	}
-	// row data
-	var rowData = eventObject.rowData;
-
-	// section index
-	var section = eventObject.section;
-
-	// row index clicked within section
-	var row = eventObject.row;
-
-	// index of row clicked
-	var index = eventObject.index;
-
-	// was hasDetail button clicked
-	var detail = eventObject.detail;
-
-	// layout object that was clicked
-	var name = eventObject.layoutName;
-
-	Titanium.API.debug('the name was: '+name);
-
-	if (name && name != 'message')
-	{
-		// create new row layout
-		var data = {
-				backgroundColor:'#385292',
-				selectedBackgroundColor:'#385292',
-				message:'You clicked the '+name,
-				layout:[{
-					name:'message',
-					type:'text',
-					color:'#fff',
-					fontWeight:'bold',
-					fontSize:20,
-					top:35,
-					height:30,
-					left:50
-				}]
-			};
-
-			// if we have an selected row, then reset
-			if (currentSelectedRow !=null)
-			{
-				tableView.updateRow(currentSelectedRow,currentSelectedData,{
-					animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT
-				});
-			}
-			// update our row
-			tableView.updateRow(index,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});
-			currentSelectedData = rowData;
-			currentSelectedRow = index;
-
-	}
-	else if (name == 'message')
-	{
-		// if you clicked on the updated row, reset it back to its original value
-		tableView.updateRow(index,currentSelectedData,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});
-		currentSelectedRow = null;
-		currentSelectedData = null;
-	}
+	currentRow = e.row;
+	currentRowIndex = e.index;
 	
-});
+})
 
 
 win.add(tableView);
+
 

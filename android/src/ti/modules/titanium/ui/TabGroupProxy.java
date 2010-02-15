@@ -11,6 +11,7 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -19,6 +20,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Message;
+import android.os.Messenger;
 import android.widget.TabHost.TabSpec;
 
 public class TabGroupProxy extends TiWindowProxy
@@ -30,6 +32,7 @@ public class TabGroupProxy extends TiWindowProxy
 
 	private static final int MSG_ADD_TAB = MSG_FIRST_ID + 100;
 	private static final int MSG_REMOVE_TAB = MSG_FIRST_ID + 101;
+	private static final int MSG_FINISH_OPEN = MSG_FIRST_ID + 102;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
@@ -63,6 +66,12 @@ public class TabGroupProxy extends TiWindowProxy
 				AsyncResult result = (AsyncResult) msg.obj;
 				handleRemoveTab((TabProxy) result.getArg());
 				result.setResult(null); // signal added
+				return true;
+			}
+			case MSG_FINISH_OPEN: {
+				TiTabActivity activity = (TiTabActivity) msg.obj;
+				view = new TiUITabGroup(this, activity);
+				handlePostOpen(activity);
 				return true;
 			}
 			default : {
@@ -102,7 +111,7 @@ public class TabGroupProxy extends TiWindowProxy
 	{
 		String title = (String) tab.getDynamicValue("title");
 		String icon = (String) tab.getDynamicValue("icon");
-		final TiWindowProxy vp = (TiWindowProxy) tab.getDynamicValue("window");
+		final WindowProxy vp = (WindowProxy) tab.getDynamicValue("window");
 		vp.setTabProxy(tab);
 
 		if (title != null && vp != null) {
@@ -116,10 +125,9 @@ public class TabGroupProxy extends TiWindowProxy
 				tspec.setIndicator(title, d);
 			}
 
+
 			Intent intent = new Intent(tta, TiActivity.class);
-			//intent.putExtra("finishRoot", activity.isTaskRoot());
-			intent.putExtra("proxyId", vp.getProxyId());
-			getTiContext().getTiApp().registerProxy(vp);
+			vp.fillIntentForTab(intent);
 
 			tspec.setContent(intent);
 
@@ -143,28 +151,16 @@ public class TabGroupProxy extends TiWindowProxy
 		//TODO skip multiple opens?
 		Log.i(LCAT, "handleOpen");
 
-		TiDict props = getDynamicProperties();
 		Activity activity = getTiContext().getActivity();
 		Intent intent = new Intent(activity, TiTabActivity.class);
-		fillIntent(intent);
-
-		if (requiresNewActivity(props))
-		{
-			intent.putExtra("finishRoot", activity.isTaskRoot());
-			getTiContext().getTiApp().registerProxy(this);
-			getTiContext().getActivity().startActivity(intent);
-		} else {
-			getTiContext().getTiApp().registerProxy(this);
-			windowId = getTiContext().getRootActivity().openWindow(intent);
-			Log.d(LCAT, "WindowID: " + windowId);
-		}
+		fillIntent(activity, intent);
+		activity.startActivity(intent);
 	}
 
 	public void handlePostOpen(Activity activity)
 	{
 		this.tta = (TiTabActivity) activity; //TODO leak?
-		TiUITabGroup tg = tta.getTabGroup();
-		view = tg;
+		TiUITabGroup tg = (TiUITabGroup) view;
 		if (tabs != null) {
 			for(TabProxy tab : tabs) {
 				addTabToGroup(tg, tab);
@@ -177,20 +173,11 @@ public class TabGroupProxy extends TiWindowProxy
 	@Override
 	protected void handleClose(TiDict options) {
 		Log.i(LCAT, "handleClose");
-		Activity activity = null;
-		if (weakActivity != null) {
-			activity = weakActivity.get();
-		}
-		if (windowId == null) {
-			activity.finish();
-			weakActivity = null;
-			this.clearView();
-		} else {
-			getTiContext().getRootActivity().closeWindow(windowId);
-			releaseViews();
-			windowId = null;
-			view = null;
-		}
+		getTiContext().getRootActivity().closeWindow(windowId);
+		releaseViews();
+		windowId = null;
+		view = null;
+
 		opened = false;
 	}
 
@@ -233,5 +220,23 @@ public class TabGroupProxy extends TiWindowProxy
 		}
 
 		return index;
+	}
+
+	private void fillIntent(Activity activity, Intent intent)
+	{
+		TiDict props = getDynamicProperties();
+
+		if (props != null) {
+			if (props.containsKey("fullscreen")) {
+				intent.putExtra("fullscreen", TiConvert.toBoolean(props, "fullscreen"));
+			}
+			if (props.containsKey("navBarHidden")) {
+				intent.putExtra("navBarHidden", TiConvert.toBoolean(props, "navBarHidden"));
+			}
+		}
+		intent.putExtra("finishRoot", activity.isTaskRoot());
+		Messenger messenger = new Messenger(getUIHandler());
+		intent.putExtra("messenger", messenger);
+		intent.putExtra("messageId", MSG_FINISH_OPEN);
 	}
 }

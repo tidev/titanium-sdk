@@ -14,7 +14,7 @@
 @interface TiUITableViewRowProxy : TiViewProxy <TiProxyDelegate>
 {
 @private
-	NSString *className;
+	NSString *tableClass;
 	TiUITableView *table;
 	TiUITableViewSectionProxy *section;
 	TiDimension height;
@@ -23,17 +23,17 @@
 
 #pragma mark Public APIs
 
-@property(nonatomic,readonly)	NSString *className;
+@property(nonatomic,readonly)	NSString *tableClass;
 
 #pragma mark Framework
 
 @property(nonatomic,readwrite,assign) TiUITableView *table;
 @property(nonatomic,readwrite,assign) TiUITableViewSectionProxy *section;
 @property(nonatomic,readwrite,assign) NSInteger row;
-@property(nonatomic,readonly) NSInteger rowHeight;
 
 -(void)initializeTableViewCell:(UITableViewCell*)cell;
 -(void)renderTableViewCell:(UITableViewCell*)cell;
+-(CGFloat)rowHeight:(CGRect)bounds;
 
 -(void)updateRow:(NSDictionary*)data withObject:(NSDictionary*)properties;
 

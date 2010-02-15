@@ -26,6 +26,7 @@ tableview.addEventListener('click', function(e)
 	var section = e.section;
 	var row = e.row;
 	var rowdata = e.rowData;
+	Titanium.API.info("row - row index = "+row+", row section = "+row);
 	Titanium.UI.createAlertDialog({title:'Table View',message:'row ' + row + ' index ' + index + ' section ' + section  + ' row data ' + rowdata}).show();
 });
 

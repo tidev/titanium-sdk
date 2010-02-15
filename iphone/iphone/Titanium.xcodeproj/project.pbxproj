@@ -43,6 +43,10 @@
 		243ECD041126991000639DF4 /* TiUIScrollIndicatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97C57111BAD4700E2F72C /* TiUIScrollIndicatorStyleProxy.m */; };
 		243ECD051126991000639DF4 /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
 		243ECD061126991000639DF4 /* ListenerEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5B145111FDFE8005C9199 /* ListenerEntry.m */; };
+		243ED8ED11288B4300639DF4 /* TiUITableViewScrollPositionProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 243ED8EB11288B4300639DF4 /* TiUITableViewScrollPositionProxy.h */; };
+		243ED8EE11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ED8EC11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m */; };
+		243ED8EF11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ED8EC11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m */; };
+		243ED8F011288B4300639DF4 /* TiUITableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ED8EC11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m */; };
 		245E7621111A9A7700A18644 /* TitaniumModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8AA5111161FD0084E2DE /* TitaniumModule.h */; };
 		245E7622111A9A7800A18644 /* AccelerometerModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8B65111161FE0084E2DE /* AccelerometerModule.h */; };
 		245E7623111A9A7800A18644 /* APIModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8B59111161FE0084E2DE /* APIModule.h */; };
@@ -772,6 +776,8 @@
 		243EC9691126632700639DF4 /* TiUITableViewStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewStyleProxy.m; sourceTree = "<group>"; };
 		243ECB2311267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewSeparatorStyleProxy.h; sourceTree = "<group>"; };
 		243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewSeparatorStyleProxy.m; sourceTree = "<group>"; };
+		243ED8EB11288B4300639DF4 /* TiUITableViewScrollPositionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewScrollPositionProxy.h; sourceTree = "<group>"; };
+		243ED8EC11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewScrollPositionProxy.m; sourceTree = "<group>"; };
 		24CA890A111161050084E2DE /* AFItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFItemView.h; sourceTree = "<group>"; };
 		24CA890B111161050084E2DE /* AFItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFItemView.m; sourceTree = "<group>"; };
 		24CA890C111161050084E2DE /* AFOpenFlowConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFOpenFlowConstants.h; sourceTree = "<group>"; };
@@ -1887,6 +1893,8 @@
 				243EC9691126632700639DF4 /* TiUITableViewStyleProxy.m */,
 				243ECB2311267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.h */,
 				243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */,
+				243ED8EB11288B4300639DF4 /* TiUITableViewScrollPositionProxy.h */,
+				243ED8EC11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m */,
 			);
 			name = iPhone;
 			sourceTree = "<group>";
@@ -2379,6 +2387,7 @@
 				243ECB2511267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.h in Headers */,
 				B4D5829111264FD000A6B66C /* TiUITextWidgetProxy.h in Headers */,
 				B4D5829711264FF500A6B66C /* TiUITextWidget.h in Headers */,
+				243ED8ED11288B4300639DF4 /* TiUITableViewScrollPositionProxy.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2699,6 +2708,7 @@
 				24EB0B74111E7EE8001DC2D1 /* NSData+Additions.m in Sources */,
 				24F5B146111FDFE8005C9199 /* ListenerEntry.m in Sources */,
 				24DEDAC7112371A500398D86 /* XMLModule.m in Sources */,
+				243ED8EF11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2891,6 +2901,7 @@
 				24EB0B75111E7EE8001DC2D1 /* NSData+Additions.m in Sources */,
 				243ECCDB112698D600639DF4 /* ListenerEntry.m in Sources */,
 				24DEDAC8112371A500398D86 /* XMLModule.m in Sources */,
+				243ED8F011288B4300639DF4 /* TiUITableViewScrollPositionProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3083,6 +3094,7 @@
 				24EB0B77111E7EE8001DC2D1 /* NSData+Additions.m in Sources */,
 				243ECD061126991000639DF4 /* ListenerEntry.m in Sources */,
 				24DEDAC6112371A500398D86 /* XMLModule.m in Sources */,
+				243ED8EE11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
