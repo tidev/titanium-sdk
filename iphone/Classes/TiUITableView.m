@@ -12,7 +12,7 @@
 #import "ImageLoader.h"
 #import "TiProxy.h"
 
-#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20
+#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
 
 @implementation TiUITableView
 
@@ -613,9 +613,13 @@
 
 #pragma mark Section Header / Footer
 
--(TiUIView*)sectionView:(NSInteger)section forLocation:(NSString*)location
+-(TiUIView*)sectionView:(NSInteger)section forLocation:(NSString*)location section:(TiUITableViewSectionProxy**)sectionResult
 {
 	TiUITableViewSectionProxy *proxy = [sections objectAtIndex:section];
+	if (sectionResult!=nil)
+	{
+		*sectionResult = proxy;
+	}
 	TiViewProxy* viewproxy = [proxy valueForKey:location];
 	if (viewproxy!=nil && [viewproxy isKindOfClass:[TiViewProxy class]])
 	{
@@ -1127,42 +1131,68 @@
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-	return [self sectionView:section forLocation:@"headerView"];
+	return [self sectionView:section forLocation:@"headerView" section:nil];
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 {
-	return [self sectionView:section forLocation:@"footerView"];
+	return [self sectionView:section forLocation:@"footerView" section:nil];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-	TiUIView *view = [self sectionView:section forLocation:@"headerView"];
+	TiUITableViewSectionProxy *sectionProxy = nil;
+	TiUIView *view = [self sectionView:section forLocation:@"headerView" section:&sectionProxy];
+	CGFloat size = 0;
 	if (view!=nil)
 	{
 		LayoutConstraint *layout = [view layout];
 		if (TiDimensionIsPixels(layout->height))
 		{
-			return layout->height.value;
+			size+=layout->height.value;
 		}
-		return DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+		else 
+		{
+			size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+		}
 	}
-	return 0;
+	else if ([sectionProxy headerTitle]!=nil)
+	{
+		size+=[tableView sectionHeaderHeight];
+	}
+	if ([tableView tableHeaderView]!=nil)
+	{
+		size+=[tableView tableHeaderView].frame.size.height;
+	}
+	return size;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
-	TiUIView *view = [self sectionView:section forLocation:@"footerView"];
+	TiUITableViewSectionProxy *sectionProxy = nil;
+	TiUIView *view = [self sectionView:section forLocation:@"footerView" section:&sectionProxy];
+	CGFloat size = 0;
 	if (view!=nil)
 	{
 		LayoutConstraint *layout = [view layout];
 		if (TiDimensionIsPixels(layout->height))
 		{
-			return layout->height.value;
+			size+=layout->height.value;
 		}
-		return DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+		else 
+		{
+			size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+		}
 	}
-	return 0;
+	else if ([sectionProxy footerTitle]!=nil)
+	{
+		size+=[tableView sectionFooterHeight];
+	}
+	if ([tableView tableFooterView]!=nil)
+	{
+		size+=[tableView tableFooterView].frame.size.height;
+	}
+	return size;
 }
 
 
