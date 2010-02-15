@@ -10,12 +10,6 @@
 
 @class XHRBridge;
 
-@interface TiProtocolHandler : NSURLProtocol
-{
-}
-+ (void) registerSpecialProtocol;
-@end
-
 @interface AppProtocolHandler : NSURLProtocol
 {
 }
