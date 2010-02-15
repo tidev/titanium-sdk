@@ -12,7 +12,7 @@
 #import "ImageLoader.h"
 #import "TiProxy.h"
 
-#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 60
+#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20
 
 @implementation TiUITableView
 
@@ -1145,7 +1145,7 @@
 		{
 			return layout->height.value;
 		}
-		return 20;
+		return DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
 	}
 	return 0;
 }
@@ -1160,7 +1160,7 @@
 		{
 			return layout->height.value;
 		}
-		return 20;
+		return DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
 	}
 	return 0;
 }
