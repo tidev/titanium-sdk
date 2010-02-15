@@ -47,6 +47,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	private static final int MSG_FOCUS = MSG_FIRST_ID + 106;
 	private static final int MSG_SHOW = MSG_FIRST_ID + 107;
 	private static final int MSG_HIDE = MSG_FIRST_ID + 108;
+	private static final int MSG_ANIMATE = MSG_FIRST_ID + 109;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
@@ -59,19 +60,34 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		public Object[] args;
 	}
 
+	public static class PendingAnimation
+	{
+		public TiDict options;
+		public KrollCallback callback;
+	}
+
 	// Ti Properties force using accessors.
 	private Double zIndex;
-	private int opaque;
-	private int opacity;
-	private String bgColor; // We've spelled out background in other places.
 
 	protected TiUIView view;
+	protected PendingAnimation pendingAnimation;
 
 	public TiViewProxy(TiContext tiContext, Object[] args)
 	{
 		super(tiContext);
 		if (args.length > 0) {
 			setProperties((TiDict) args[0]);
+		}
+	}
+
+	public PendingAnimation getPendingAnimation() {
+		return pendingAnimation;
+	}
+
+	public void clearAnimation() {
+		if (pendingAnimation != null) {
+			pendingAnimation.callback = null;
+			pendingAnimation.options = null;
 		}
 	}
 
@@ -119,6 +135,10 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 			}
 			case MSG_HIDE : {
 				handleHide((TiDict) msg.obj);
+				return true;
+			}
+			case MSG_ANIMATE : {
+				handleAnimate();
 				return true;
 			}
 		}
@@ -322,77 +342,25 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 
 	public void animate(TiDict options, KrollCallback callback)
 	{
-		_2DMatrixProxy tdm = null;
-		Double delay = null;
-		Double duration = null;
-		Double opacity = null;
-
-		if (options.containsKey("transform")) {
-			tdm = (_2DMatrixProxy) options.get("transform");
+		if (pendingAnimation == null) {
+			pendingAnimation = new PendingAnimation();
 		}
-		if (options.containsKey("delay")) {
-			delay = TiConvert.toDouble(options, "delay");
-		}
-		if (options.containsKey("duration")) {
-			duration = TiConvert.toDouble(options, "duration");
-		}
-		if (options.containsKey("opacity")) {
-			opacity = TiConvert.toDouble(options, "opacity");
-		}
+		pendingAnimation.options = new TiDict(options);
+		pendingAnimation.callback = callback;
 
-		if (tdm != null) {
-			AnimationSet as = new AnimationSet(false);
-			as.setFillAfter(true);
-			if (tdm.hasTranslation()) {
-				Animation a = new TranslateAnimation(0.0f, tdm.getXTranslation(),0.0f, tdm.getYTranslation());
-				as.addAnimation(a);
-			}
-			if (tdm.hasScaleFactor()) {
-				Animation a = new ScaleAnimation(1,tdm.getScaleFactor(), 1, tdm.getScaleFactor());
-				as.addAnimation(a);
-			}
-			if (tdm.hasRotation()) {
-				Animation a = new RotateAnimation(0,tdm.getRotation());
-				as.addAnimation(a);
-			}
-			// Set duration after adding children.
-			if (duration != null) {
-				as.setDuration(duration.longValue());
-			}
-			if (delay != null) {
-				as.setStartTime(delay.longValue());
-			}
-
-			if (callback != null) {
-				final KrollCallback kb = callback;
-				as.setAnimationListener(new Animation.AnimationListener(){
-
-					@Override
-					public void onAnimationEnd(Animation a) {
-						if (kb != null) {
-							kb.call();
-						}
-					}
-
-					@Override
-					public void onAnimationRepeat(Animation a) {
-					}
-
-					@Override
-					public void onAnimationStart(Animation a) {
-					}
-
-				});
-			}
-			TiUIView tiv = peekView();
-			if (tiv != null) {
-				tiv.animate(as);
-			}
+		if (getTiContext().isUIThread()) {
+			handleAnimate();
 		} else {
-			if (callback != null) {
-				callback.call();
-			}
+			getUIHandler().obtainMessage(MSG_ANIMATE).sendToTarget();
 		}
+	}
+
+	protected void handleAnimate() {
+		TiUIView tiv = peekView();
+
+//		if (tiv != null) {
+//			tiv.animate();
+//		}
 	}
 
 	public void blur()

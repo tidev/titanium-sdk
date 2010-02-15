@@ -12,12 +12,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiProxyListener;
+import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.proxy.TiViewProxy.PendingAnimation;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiBorderHelper.BorderSupport;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
+
+import ti.modules.titanium.ui._2DMatrixProxy;
 
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
@@ -26,6 +30,9 @@ import android.view.ViewGroup;
 import android.view.View.OnFocusChangeListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
+import android.view.animation.RotateAnimation;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 
 public abstract class TiUIView
@@ -40,7 +47,6 @@ public abstract class TiUIView
 
 	protected TiViewProxy proxy;
 	protected TiViewProxy parent;
-	protected Animation anim;
 
 	protected TitaniumCompositeLayoutParams layoutParams;
 	protected int zIndex;
@@ -115,23 +121,123 @@ public abstract class TiUIView
 	protected void setZIndex(int index) {
 		zIndex = index;
 	}
-	public void animate(final AnimationSet as) {
-		if (as != null) {
-			final View nv = getNativeView();
-			if (nv != null) {
-				getProxy().getTiContext().getActivity().runOnUiThread(new Runnable(){
 
-					@Override
-					public void run() {
-						nv.startAnimation(as);
-					}
+	public void animate()
+	{
+		PendingAnimation pa = proxy.getPendingAnimation();
+		if (pa != null && pa.options != null && nativeView != null) {
 
-				});
-			} else {
-				anim = as;
+			// Default anchor point
+			double anchorX = 0.5;
+			double anchorY = 0.5;
+
+			// Capture location
+//			int left = nativeView.getLeft();
+//			int top = nativeView.getTop();
+//			int w = nativeView.getWidth();
+//			int h = nativeView.getHeight();
+
+			int left = 0;
+			int top = 0;
+			int w = 200;
+			int h = 80;
+
+			TiDict props = proxy.getDynamicProperties();
+			if (props.containsKey("anchorPoint")) {
+				TiDict point = (TiDict) props.get("anchorPoint");
+				anchorX = TiConvert.toDouble(point, "x");
+				anchorY = TiConvert.toDouble(point, "y");
+			}
+
+			// Calculate anchor coordinate
+
+			float anchorPointX = (float)((w * anchorX));
+			float anchorPointY = (float)((h * anchorY));
+
+			_2DMatrixProxy tdm = null;
+			Double delay = null;
+			Double duration = null;
+			Double opacity = null;
+
+			if (pa.options.containsKey("transform")) {
+				tdm = (_2DMatrixProxy) pa.options.get("transform");
+			}
+			if (pa.options.containsKey("delay")) {
+				delay = TiConvert.toDouble(pa.options, "delay");
+			}
+			if (pa.options.containsKey("duration")) {
+				duration = TiConvert.toDouble(pa.options, "duration");
+			}
+			if (pa.options.containsKey("opacity")) {
+				opacity = TiConvert.toDouble(pa.options, "opacity");
+			}
+
+			if (tdm != null) {
+				AnimationSet as = new AnimationSet(false);
+				as.setFillAfter(true);
+				if (tdm.hasScaleFactor()) {
+					Animation a = new ScaleAnimation(1, tdm.getScaleFactor(), 1, tdm.getScaleFactor(), anchorPointX, anchorPointY);
+					as.addAnimation(a);
+				}
+				if (tdm.hasRotation()) {
+					Animation a = new RotateAnimation(0,tdm.getRotation());
+					as.addAnimation(a);
+				}
+				if (tdm.hasTranslation()) {
+
+//					Animation a = new TranslateAnimation(
+//							Animation.RELATIVE_TO_PARENT, anchorPointX,
+//							Animation.RELATIVE_TO_PARENT, anchorPointX + tdm.getXTranslation(),
+//							Animation.RELATIVE_TO_PARENT, anchorPointY,
+//							Animation.RELATIVE_TO_PARENT, anchorPointY + tdm.getYTranslation()
+//							);
+					Animation a = new TranslateAnimation(
+						0,
+						anchorPointX + tdm.getXTranslation(),
+						0,
+						anchorPointY + tdm.getYTranslation()
+						);
+					as.addAnimation(a);
+				}
+				// Set duration after adding children.
+				if (duration != null) {
+					as.setDuration(duration.longValue());
+				}
+				if (delay != null) {
+					as.setStartTime(delay.longValue());
+				}
+
+				if (pa.callback != null) {
+					final KrollCallback kb = pa.callback;
+					as.setAnimationListener(new Animation.AnimationListener(){
+
+						@Override
+						public void onAnimationEnd(Animation a) {
+							if (kb != null) {
+								kb.call();
+							}
+						}
+
+						@Override
+						public void onAnimationRepeat(Animation a) {
+						}
+
+						@Override
+						public void onAnimationStart(Animation a) {
+						}
+
+					});
+				}
+
+				//TODO launch
+				nativeView.startAnimation(as);
+
+				// Clean up proxy
+				proxy.clearAnimation();
 			}
 		}
 	}
+
 	public void listenerAdded(String type, int count, TiProxy proxy) {
 	}
 
