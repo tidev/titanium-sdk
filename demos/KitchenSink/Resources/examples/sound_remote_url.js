@@ -131,8 +131,8 @@ var looping = Titanium.UI.createButton({
 });
 looping.addEventListener('click', function()
 {
-	sound.looping = (sound.isLooping==false)?true:false;
-	looping.title = 'Looping (' + sound.isLooping + ')';
+	sound.looping = (sound.isLooping()==false)?true:false;
+	looping.title = 'Looping (' + sound.isLooping() + ')';
 });
 win.add(looping);
 
@@ -168,7 +168,7 @@ pb.show();
 // 
 var i = setInterval(function()
 {
-	if (sound.isPlaying)
+	if (sound.isPlaying())
 	{
 		Ti.API.info('time ' + sound.time)
 		pb.value = sound.time;

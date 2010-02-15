@@ -4,6 +4,8 @@ var data = [
 	{title:'Animated', hasChild:true, test:'../examples/image_view_animated.js'},
 	{title:'Image Blob', hasChild:true, test:'../examples/image_view_blob.js'},
 	{title:'Image File', hasChild:true, test:'../examples/image_view_file.js'},
+	{title:'Remote Image ', hasChild:true, test:'../examples/image_view_remote.js'},
+
 ];
 
 // create table view
