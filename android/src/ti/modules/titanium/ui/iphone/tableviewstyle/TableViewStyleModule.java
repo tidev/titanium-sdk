@@ -1,14 +1,15 @@
-package ti.modules.titanium.ui.iphone.systembuttonstyle;
+package ti.modules.titanium.ui.iphone.tableviewstyle;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
 
-public class SystemButtonStyleModule extends TiModule
+public class TableViewStyleModule extends TiModule
 {
 	private static TiDict constants;
 
-	public SystemButtonStyleModule(TiContext tiContext) {
+	public TableViewStyleModule(TiContext tiContext)
+	{
 		super(tiContext);
 	}
 
@@ -17,14 +18,10 @@ public class SystemButtonStyleModule extends TiModule
 		if (constants == null) {
 			constants = new TiDict();
 
-			constants.put("BORDERED", "iphone only");
-			constants.put("BAR", "iphone only");
-			constants.put("DONE", "iphone only");
+			constants.put("GROUPED", "iphone only");
 			constants.put("PLAIN", "iphone only");
-			constants.put("FLEXIBLE_SPACE", "iphone only");
 		}
 
 		return constants;
 	}
-
 }
