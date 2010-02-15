@@ -8,6 +8,17 @@
 #import "TiAnimation.h"
 #import "LayoutConstraint.h"
 
+//By declaring a scrollView protocol, TiUITextWidget can access 
+@class TiUIView;
+@protocol TiUIScrollView
+
+-(void)keyboardDidShowInRect:(CGRect)obscuredRect forView:(TiUIView *)firstResponderView;
+-(void)keyboardDidHide;
+
+@end
+
+
+
 @class TiViewProxy;
 
 @interface TiUIView : UIView<TiProxyDelegate,LayoutAutosizing> 

@@ -237,4 +237,30 @@
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView;      // called when scrolling animation finished. may be called immediately if already at top
 */
 
+
+
+-(void)keyboardDidShowInRect:(CGRect)obscuredRect forView:(TiUIView *)firstResponderView
+{
+	CGRect scrollVisibleRect;
+	scrollVisibleRect = [self convertRect:[self bounds] toView:nil];
+	//First, find out how much we have to compensate.
+	CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - obscuredRect.origin.y;
+	[scrollView setContentInset:UIEdgeInsetsMake(0, 0, obscuredHeight, 0)];
+	
+	CGPoint scrollOffset = [scrollView contentOffset];
+	CGRect responderRect = [firstResponderView convertRect:[firstResponderView bounds] toView:self];
+	
+}
+
+-(void)keyboardDidHide
+{
+	CGSize scrollContentSize = [scrollView contentSize];
+	CGPoint scrollOffset = [scrollView contentOffset];
+	
+	[scrollView setContentInset:UIEdgeInsetsZero];
+
+	//Reposition the scroll to handle the covered area.
+	
+}
+
 @end
