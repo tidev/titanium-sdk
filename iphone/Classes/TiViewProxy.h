@@ -49,5 +49,6 @@
 -(void)viewDidAttach;
 -(void)viewWillDetach;
 -(void)viewDidDetach;
+-(void)exchangeView:(TiUIView*)newview;
 
 @end
