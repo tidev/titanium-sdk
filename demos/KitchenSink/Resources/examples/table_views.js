@@ -8,7 +8,6 @@ var data = [
 	{title:'Delete Mode', hasChild:true, test:'../examples/table_view_delete.js'},
 	{title:'Delete Mode (2)', hasChild:true, test:'../examples/table_view_delete_2.js'},
 	{title:'Move Mode', hasChild:true, test:'../examples/table_view_move.js'},
-	{title:'Row Min/Auto Height', hasChild:true, test:'../examples/table_view_auto_height.js'},
 	{title:'Table View (Layout)', hasChild:true, test:'../examples/table_view_layout.js'},
 	{title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'},
 	{title:'Table View (Layout 3)', hasChild:true, test:'../examples/table_view_layout_3.js'},
