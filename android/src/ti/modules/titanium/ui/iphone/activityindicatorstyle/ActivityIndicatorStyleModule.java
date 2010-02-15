@@ -1,14 +1,16 @@
-package ti.modules.titanium.ui.iphone.systembuttonstyle;
+package ti.modules.titanium.ui.iphone.activityindicatorstyle;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
 
-public class SystemButtonStyleModule extends TiModule
+public class ActivityIndicatorStyleModule extends TiModule
 {
+
 	private static TiDict constants;
 
-	public SystemButtonStyleModule(TiContext tiContext) {
+	public ActivityIndicatorStyleModule(TiContext tiContext)
+	{
 		super(tiContext);
 	}
 
@@ -17,11 +19,9 @@ public class SystemButtonStyleModule extends TiModule
 		if (constants == null) {
 			constants = new TiDict();
 
-			constants.put("BORDERED", "iphone only");
-			constants.put("BAR", "iphone only");
-			constants.put("DONE", "iphone only");
+			constants.put("BIG", "iphone only");
+			constants.put("DARK", "iphone only");
 			constants.put("PLAIN", "iphone only");
-			constants.put("FLEXIBLE_SPACE", "iphone only");
 		}
 
 		return constants;

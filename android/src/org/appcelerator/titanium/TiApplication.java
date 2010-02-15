@@ -53,8 +53,8 @@ public class TiApplication extends Application
 			public void uncaughtException(Thread t, Throwable e) {
 				Log.e("TiUncaughtHandler", "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString(), e);
 				//postAnalyticsEvent(TitaniumAnalyticsEventFactory.createErrorEvent(t, e));
-				//defaultHandler.uncaughtException(t, e);
-				Process.killProcess(Process.myPid());
+				defaultHandler.uncaughtException(t, e);
+				//Process.killProcess(Process.myPid());
 			}
 		});
 
