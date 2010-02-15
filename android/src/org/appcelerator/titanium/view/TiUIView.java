@@ -252,22 +252,22 @@ public abstract class TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
 	{
 		if (key.equals("left")) {
-			layoutParams.optionLeft = TiConvert.toTiDimension((String) newValue).getIntValue();
+			layoutParams.optionLeft = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
 			nativeView.requestLayout();
 		} else if (key.equals("top")) {
-			layoutParams.optionTop = TiConvert.toTiDimension((String) newValue).getIntValue();
+			layoutParams.optionTop = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
 			nativeView.requestLayout();
 		} else if (key.equals("right")) {
-			layoutParams.optionRight = TiConvert.toTiDimension((String) newValue).getIntValue();
+			layoutParams.optionRight = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
 			nativeView.requestLayout();
 		} else if (key.equals("bottom")) {
-			layoutParams.optionBottom = TiConvert.toTiDimension((String) newValue).getIntValue();
+			layoutParams.optionBottom = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
 			nativeView.requestLayout();
 		} else if (key.equals("height")) {
-			layoutParams.optionHeight = TiConvert.toTiDimension((String) newValue).getIntValue();
+			layoutParams.optionHeight = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
 			nativeView.requestLayout();
 		} else if (key.equals("width")) {
-			layoutParams.optionWidth = TiConvert.toTiDimension((String) newValue).getIntValue();
+			layoutParams.optionWidth = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
 			nativeView.requestLayout();
 		} else if (key.equals("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
@@ -376,14 +376,26 @@ public abstract class TiUIView
 			}
 		}
 	}
-	
+
 	public void show()
 	{
-		nativeView.setVisibility(View.VISIBLE);
+		if (nativeView != null) {
+			nativeView.setVisibility(View.VISIBLE);
+		} else {
+			if (DBG) {
+				Log.w(LCAT, "Attempt to show null native control");
+			}
+		}
 	}
-	
+
 	public void hide()
 	{
-		nativeView.setVisibility(View.INVISIBLE);
+		if (nativeView != null) {
+			nativeView.setVisibility(View.INVISIBLE);
+		} else {
+			if (DBG) {
+				Log.w(LCAT, "Attempt to hide null native control");
+			}
+		}
 	}
 }

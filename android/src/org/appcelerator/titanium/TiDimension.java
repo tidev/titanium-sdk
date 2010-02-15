@@ -78,7 +78,7 @@ public class TiDimension
 	}
 
 	public int getIntValue() {
-		return (int) value;
+		return Double.valueOf(value).intValue();
 	}
 
 	public void setValue(double value) {
