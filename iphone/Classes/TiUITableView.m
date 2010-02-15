@@ -49,6 +49,31 @@
 			[view reposition];
 			[proxy layoutChildren:[view bounds]];
 		}
+		if (sections!=nil)
+		{
+			// we need to relayout our views (if we have any) for 
+			// the sections since when they're initially created
+			// they don't have the correct bounds..
+			for (TiUITableViewSectionProxy *section in sections)
+			{
+				TiViewProxy *headerProxy = [section valueForKey:@"headerView"];
+				if (headerProxy!=nil)
+				{
+					TiUIView *view = [headerProxy view];
+					LayoutConstraint *layout = [view layout];
+					ApplyConstraintToViewWithinViewWithBounds(layout, view, nil, [tableview bounds], NO);
+					[headerProxy layoutChildren:[view bounds]];
+				}
+				TiViewProxy *footerProxy = [section valueForKey:@"footerView"];
+				if (footerProxy!=nil)
+				{
+					TiUIView *view = [footerProxy view];
+					LayoutConstraint *layout = [view layout];
+					ApplyConstraintToViewWithinViewWithBounds(layout, view, nil, [tableview bounds], NO);
+					[footerProxy layoutChildren:[view bounds]];
+				}
+			}
+		}
 	}
 }
 
@@ -1110,16 +1135,34 @@
 	return height < 1 ? tableView.rowHeight : height;
 }
 
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+	TiUITableViewSectionProxy *proxy = [sections objectAtIndex:section];
+	TiViewProxy* viewproxy = [proxy valueForKey:@"headerView"];
+	if (viewproxy!=nil && [viewproxy isKindOfClass:[TiViewProxy class]])
+	{
+		return [viewproxy view];
+	}
+	return nil;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
+{
+	TiUITableViewSectionProxy *proxy = [sections objectAtIndex:section];
+	TiViewProxy* viewproxy = [proxy valueForKey:@"footerView"];
+	if (viewproxy!=nil && [viewproxy isKindOfClass:[TiViewProxy class]])
+	{
+		return [viewproxy view];
+	}
+	return nil;
+}
+
 //
 // Variable height support
 //
 //- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section;
 //- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section;
 //
-// Section header & footer information. Views are preferred over title should you decide to provide both
-//
-//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section;   // custom view for header. will be adjusted to default or specified header height
-//- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section;   // custom view for footer. will be adjusted to default or specified footer height
 
 
 
