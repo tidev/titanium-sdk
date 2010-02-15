@@ -28,6 +28,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnFocusChangeListener;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.RotateAnimation;
@@ -157,7 +158,8 @@ public abstract class TiUIView
 			_2DMatrixProxy tdm = null;
 			Double delay = null;
 			Double duration = null;
-			Double opacity = null;
+			Double toOpacity = null;
+			Double fromOpacity = 1.0;
 
 			if (pa.options.containsKey("transform")) {
 				tdm = (_2DMatrixProxy) pa.options.get("transform");
@@ -169,28 +171,24 @@ public abstract class TiUIView
 				duration = TiConvert.toDouble(pa.options, "duration");
 			}
 			if (pa.options.containsKey("opacity")) {
-				opacity = TiConvert.toDouble(pa.options, "opacity");
+				toOpacity = TiConvert.toDouble(pa.options, "opacity");
+				if (props.containsKey("opacity")) {
+					fromOpacity = TiConvert.toDouble(props, "opacity");
+				}
 			}
 
+			AnimationSet as = new AnimationSet(false);
 			if (tdm != null) {
-				AnimationSet as = new AnimationSet(false);
 				as.setFillAfter(true);
+				if (tdm.hasRotation()) {
+					Animation a = new RotateAnimation(0,tdm.getRotation(), anchorPointX, anchorPointY);
+					as.addAnimation(a);
+				}
 				if (tdm.hasScaleFactor()) {
 					Animation a = new ScaleAnimation(1, tdm.getScaleFactor(), 1, tdm.getScaleFactor(), anchorPointX, anchorPointY);
 					as.addAnimation(a);
 				}
-				if (tdm.hasRotation()) {
-					Animation a = new RotateAnimation(0,tdm.getRotation());
-					as.addAnimation(a);
-				}
 				if (tdm.hasTranslation()) {
-
-//					Animation a = new TranslateAnimation(
-//							Animation.RELATIVE_TO_PARENT, anchorPointX,
-//							Animation.RELATIVE_TO_PARENT, anchorPointX + tdm.getXTranslation(),
-//							Animation.RELATIVE_TO_PARENT, anchorPointY,
-//							Animation.RELATIVE_TO_PARENT, anchorPointY + tdm.getYTranslation()
-//							);
 					Animation a = new TranslateAnimation(
 						0,
 						anchorPointX + tdm.getXTranslation(),
@@ -228,13 +226,17 @@ public abstract class TiUIView
 
 					});
 				}
-
-				//TODO launch
-				nativeView.startAnimation(as);
-
-				// Clean up proxy
-				proxy.clearAnimation();
 			}
+			if (toOpacity != null) {
+				Animation a = new AlphaAnimation(fromOpacity.floatValue(), toOpacity.floatValue());
+				as.addAnimation(a);
+			}
+
+			//TODO launch
+			nativeView.startAnimation(as);
+
+			// Clean up proxy
+			proxy.clearAnimation();
 		}
 	}
 
