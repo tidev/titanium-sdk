@@ -629,28 +629,53 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 				}
 				return result;
 			}
-			/***
-			// check if a static property
-			result = [target valueForKey:key];
-			if (result!=nil)
-			{
-				return result;
-			}
-			// check and see if our target responds to the special method named selectorForUndefinedMethod and if
-			// so, call it to determine the right method selector
-			if ([target conformsToProtocol:@protocol(KrollDynamicMethodProxy)])
-			{
-				// we'll dispatch against this method for the dynamic proxy to answer the invocations as if this 
-				// method existed directly on the object.
-				return [[[KrollMethod alloc] initWithTarget:target selector:@selector(resultForUndefinedMethod:args:) argcount:1 type:KrollMethodDynamicProxy name:key context:[self context]] autorelease];
-			}***/
 		}
 		else 
 		{
-		    SEL selector = NSSelectorFromString([NSString stringWithCString:property_getName(p) encoding:NSUTF8StringEncoding]);
-			if ([target respondsToSelector:selector])
+			NSString *attributes = [NSString stringWithCString:property_getAttributes(p) encoding:NSUTF8StringEncoding];
+			SEL selector = NSSelectorFromString([NSString stringWithCString:property_getName(p) encoding:NSUTF8StringEncoding]);
+			if ([attributes hasPrefix:@"T@"])
 			{
+				// this means its a return type of id
 				return [target performSelector:selector];
+			}
+			else
+			{
+				// it's probably a primitive type - check for them
+				NSMethodSignature *methodSignature = [target methodSignatureForSelector:selector];
+				NSInvocation *invoker = [NSInvocation invocationWithMethodSignature:methodSignature];
+				[invoker setSelector:selector];
+				[invoker setTarget:target];
+				[invoker invoke];
+				if ([attributes hasPrefix:@"Td,"])
+				{
+					double result;
+					[invoker getReturnValue:&result];
+					return [NSNumber numberWithDouble:result];
+				}
+				else if ([attributes hasPrefix:@"Tf,"])
+				{
+					float result;
+					[invoker getReturnValue:&result];
+					return [NSNumber numberWithFloat:result];
+				}
+				else if ([attributes hasPrefix:@"Ti,"])
+				{
+					int result;
+					[invoker getReturnValue:&result];
+					return [NSNumber numberWithInt:result];
+				}
+				else if ([attributes hasPrefix:@"Tl,"])
+				{
+					long result;
+					[invoker getReturnValue:&result];
+					return [NSNumber numberWithLong:result];
+				}
+				else 
+				{
+					// let it fall through and return undefined
+					NSLog(@"[WARN] unsupported property: %@ for %@, attributes = %@",key,target,attributes);
+				}
 			}
 		}
 	}

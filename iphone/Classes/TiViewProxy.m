@@ -249,6 +249,20 @@
 	[self didFirePropertyChanges];
 }
 
+-(void)exchangeView:(TiUIView*)newview
+{
+	//NOTE: this is dangerous and should only be called
+	//when you know what the heck you intend to do.
+	//used by tableview currently for view swapping
+	if (view!=nil)
+	{
+		view.proxy = nil;
+		RELEASE_TO_NIL(view);
+	}
+	view = [newview retain];
+	view.proxy = self;
+}
+
 -(TiUIView*)view
 {
 	if (view == nil)

@@ -185,6 +185,17 @@
 	{
 		cell.selectedBackgroundView = nil;
 	}
+	
+	id selBgColor = [self valueForKey:@"selectedBackgroundColor"];
+	if (selBgColor!=nil)
+	{
+		cell.selectedBackgroundView = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
+		cell.selectedBackgroundView.backgroundColor = UIColorWebColorNamed(selBgColor);
+	}
+	else if (cell.selectedBackgroundView!=nil)
+	{
+		cell.selectedBackgroundView.backgroundColor = nil;
+	}
 }
 
 -(void)configureLeftSide:(UITableViewCell*)cell
@@ -249,6 +260,14 @@
 	{
 		UIView *contentView = cell.contentView;
 		NSArray *subviews = [contentView subviews];
+		if (subviews == nil || [subviews count]==0)
+		{
+			// this can happen if we're giving a reused table cell
+			// but he's removed the children from it... in this 
+			// case we just re-add like it was brand new
+			[self configureChildren:cell];
+			return;
+		}
 		for (size_t c=0;c<[subviews count];c++)
 		{
 			TiViewProxy *proxy = [self.children objectAtIndex:c];
@@ -266,9 +285,9 @@
 			}
 			// re-assign the view to the new proxy so the right listeners get 
 			// any child view events that are fired
-			view.proxy = proxy;
 			// we assign ourselves as the new parent so we can be in the 
 			// event propagation chain to insert row level event properties
+			[proxy exchangeView:view];
 			view.parent = self;
 		} 
 	}
