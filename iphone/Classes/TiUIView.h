@@ -12,7 +12,7 @@
 @class TiUIView;
 @protocol TiUIScrollView
 
--(void)keyboardDidShowInRect:(CGRect)obscuredRect forView:(TiUIView *)firstResponderView;
+-(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView;
 -(void)keyboardDidHide;
 
 @end

@@ -13,6 +13,9 @@
 	UIView * wrapperView;
 	TiDimension contentWidth;
 	TiDimension contentHeight;
+	
+	CGFloat minimumContentHeight;
+	
 	BOOL needsHandleContentSize;
 }
 

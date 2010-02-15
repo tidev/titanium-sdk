@@ -185,21 +185,26 @@
 
 - (void)keyboardWillShow:(NSNotification*)notification 
 {
-	if (toolbar!=nil && [textWidgetView isFirstResponder] && toolbarVisible==NO)
+	if (![textWidgetView isFirstResponder])
 	{
-		NSDictionary *userInfo = notification.userInfo;
-		NSValue *v = [userInfo valueForKey:UIKeyboardBoundsUserInfoKey];
-		CGRect kbBounds = [v CGRectValue];
-		
-		NSValue *v2 = [userInfo valueForKey:UIKeyboardCenterEndUserInfoKey];
-		CGPoint kbEndPoint = [v2 CGPointValue];
-		
-		NSValue *v3 = [userInfo valueForKey:UIKeyboardCenterBeginUserInfoKey];
-		CGPoint kbStartPoint = [v3 CGPointValue];
-		
-		CGFloat kbStartTop = kbStartPoint.y - (kbBounds.size.height / 2);
-		CGFloat kbEndTop = kbEndPoint.y - (kbBounds.size.height / 2);
+		return;
+	}
 
+	NSDictionary *userInfo = notification.userInfo;
+	NSValue *v = [userInfo valueForKey:UIKeyboardBoundsUserInfoKey];
+	CGRect kbBounds = [v CGRectValue];
+
+	NSValue *v2 = [userInfo valueForKey:UIKeyboardCenterEndUserInfoKey];
+	CGPoint kbEndPoint = [v2 CGPointValue];
+	
+	NSValue *v3 = [userInfo valueForKey:UIKeyboardCenterBeginUserInfoKey];
+	CGPoint kbStartPoint = [v3 CGPointValue];
+	
+	CGFloat kbStartTop = kbStartPoint.y - (kbBounds.size.height / 2);
+	CGFloat kbEndTop = kbEndPoint.y - (kbBounds.size.height / 2);
+
+	if ((toolbar!=nil) && !toolbarVisible)
+	{
 		CGFloat height = MAX(toolbarHeight,40);
 
 		NSArray *windows = [[UIApplication sharedApplication] windows];
@@ -219,10 +224,12 @@
 
 		[window addSubview:toolbar];
 		[toolbar setHidden:NO];
+
+		kbEndTop -= height;	//This also affects tweaking the scroll view.
 		
 		if ([[TitaniumApp app] isKeyboardShowing])
 		{
-			toolbar.frame = CGRectMake(0, kbEndTop-height, kbBounds.size.width, height);
+			toolbar.frame = CGRectMake(0, kbEndTop, kbBounds.size.width, height);
 			[self attachKeyboardToolbar];
 		}
 		else
@@ -235,10 +242,27 @@
 			[UIView beginAnimations:nil context:nil];
 			[UIView setAnimationCurve:[[userInfo valueForKey:UIKeyboardAnimationCurveUserInfoKey] intValue]];
 			[UIView setAnimationDuration:[[userInfo valueForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue]];
-			toolbar.frame = CGRectMake(0, kbEndTop-height, kbBounds.size.width, height);
+			toolbar.frame = CGRectMake(0, kbEndTop, kbBounds.size.width, height);
 			[UIView commitAnimations];
 		}
 		toolbarVisible = YES;
+		
+	}
+
+	if (parentScrollView == nil)
+	{
+		UIView * possibleScrollView = [self superview];
+		while (possibleScrollView != nil)
+		{
+			if ([possibleScrollView conformsToProtocol:@protocol(TiUIScrollView)])
+			{
+				parentScrollView = [possibleScrollView retain];
+				break;
+			}
+			possibleScrollView = [possibleScrollView superview];
+		}
+		
+		[parentScrollView keyboardDidShowAtHeight:kbEndTop forView:self];
 	}
 }
 
@@ -266,6 +290,9 @@
 		[toolbar removeFromSuperview];
 		toolbarVisible = NO;
 	}
+
+	[parentScrollView keyboardDidHide];
+	RELEASE_TO_NIL(parentScrollView);
 }
 
 
