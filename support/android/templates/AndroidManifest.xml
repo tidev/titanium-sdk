@@ -4,7 +4,14 @@
       android:versionCode="${config['appversion']}"
       android:versionName="${config['appversion']}"
 >
-	<uses-sdk android:minSdkVersion="3" />
+	<uses-sdk android:minSdkVersion="4" />
+	
+	<supports-screens android:smallScreens="false"
+                android:normalScreens="true"
+                android:largeScreens="true"
+                android:anyDensity="false"
+    />
+    
 	<application
     	android:icon="@drawable/appicon"
       	android:label="${config['appname']}"
@@ -23,19 +30,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+		<!-- TI_ACTIVITIES -->
 		<activity
         	android:name="org.appcelerator.titanium.TiActivity"
         	android:configChanges="keyboardHidden|orientation"
       	/>
-
-		<!-- TI_ACTIVITIES -->
-		
-<!--
-		<provider
-			android:authorities="${config['appid']}.titanium"
-			android:name="org.appcelerator.titanium.TitaniumContentProvider"
+		<activity android:name="ti.modules.titanium.ui.TiTabActivity"
+			android:configChanges="keyboardHidden|orientation"
 		/>
--->
+		
 		<!-- TODO: re-enable analytics when it's implemented
 		<service
 			android:name="org.appcelerator.titanium.TitaniumAnalyticsService"
