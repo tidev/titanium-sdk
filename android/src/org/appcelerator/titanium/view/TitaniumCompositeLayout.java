@@ -86,6 +86,10 @@ public class TitaniumCompositeLayout extends ViewGroup
 			int defStyle) {
 		super(context, attrs, defStyle);
 	}
+	
+	private String viewToString(View view) {
+		return view.getClass().getSimpleName() + "@" + Integer.toHexString(view.hashCode());
+	}
 
 	public TiBorderHelper getBorderHelper() {
 		return borderHelper;
@@ -94,7 +98,7 @@ public class TitaniumCompositeLayout extends ViewGroup
 	public void onChildViewAdded(View parent, View child) {
 		needsSort = true;
 		if (parent != null && child != null) {
-			Log.i("LAYOUT", "Attaching: " + child.getClass().getSimpleName() + " to " + parent.getClass().getSimpleName());
+			Log.i("LAYOUT", "Attaching: " + viewToString(child) + " to " + viewToString(parent));
 		}
 		TitaniumCompositeLayoutParams params = (TitaniumCompositeLayoutParams)child.getLayoutParams();
 		if (params.index == Integer.MIN_VALUE) {
@@ -104,7 +108,7 @@ public class TitaniumCompositeLayout extends ViewGroup
 
 	public void onChildViewRemoved(View parent, View child) {
 		needsSort = true;
-		Log.i("LAYOUT", "Removing: " + child.getClass().getSimpleName() + " from " + parent.getClass().getSimpleName());
+		Log.i("LAYOUT", "Removing: " + viewToString(child) + " from " + viewToString(parent));
 		TitaniumCompositeLayoutParams params = (TitaniumCompositeLayoutParams)child.getLayoutParams();
 		if (params.index == Integer.MIN_VALUE) {
 			params.index = Integer.MIN_VALUE;
@@ -129,6 +133,7 @@ public class TitaniumCompositeLayout extends ViewGroup
 		return params;
 	}
 
+	
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 	{
@@ -161,90 +166,7 @@ public class TitaniumCompositeLayout extends ViewGroup
 		for(int i = 0; i < getChildCount(); i++) {
 			View child = getChildAt(i);
 			if (child.getVisibility() != View.GONE) {
-
-				// Ask the child how big it would naturally like to be.
-				child.measure(MeasureSpec.makeMeasureSpec(maxWidth, MeasureSpec.AT_MOST),
-						MeasureSpec.makeMeasureSpec(maxHeight, MeasureSpec.AT_MOST));
-
-
-				TitaniumCompositeLayout.TitaniumCompositeLayoutParams p =
-					(TitaniumCompositeLayout.TitaniumCompositeLayoutParams) child.getLayoutParams();
-
-				if (p.optionLeft != null) {
-					p.mLeft = Math.min(p.optionLeft.intValue(), w);
-					if (p.optionRight != null) {
-						p.mRight = Math.max(p.mLeft, w - p.optionRight.intValue());
-					} else if (p.optionWidth != null) {
-						p.mRight = Math.min(p.mLeft + p.optionWidth.intValue(), w);
-					} else {
-						p.mRight = w;
-					}
-				} else if (p.optionRight != null) {
-					p.mRight = Math.max(w-p.optionRight.intValue(), 0);
-					if (p.optionLeft != null) {
-						p.mLeft = Math.max(p.optionLeft.intValue(), p.mRight);
-					} else if (p.optionWidth != null) {
-						p.mLeft = Math.max(0, p.mRight - p.optionWidth.intValue());
-					} else {
-						p.mLeft = 0;
-					}
-				} else if (p.optionWidth != null) {
-					p.mLeft = 0;
-					p.mRight = w;
-					int space = (w - p.optionWidth.intValue())/2;
-					if (space > 0) {
-						p.mLeft = space;
-						p.mRight = w - space;
-					}
-				} else {
-					p.mLeft = 0;
-					p.mRight = w;
-					int space = (w - child.getMeasuredWidth())/2;
-					if (space > 0) {
-						p.mLeft = space;
-						p.mRight = w - space;
-					}
-				}
-
-				if (p.optionTop != null) {
-					p.mTop = Math.min(p.optionTop.intValue(), h);
-					if (p.optionBottom != null) {
-						p.mBottom = Math.max(p.mTop, h - p.optionBottom.intValue());
-					} else if (p.optionHeight != null) {
-						p.mBottom = Math.min(p.mTop + p.optionHeight.intValue(), h);
-					} else {
-						p.mBottom = h;
-					}
-				} else if (p.optionBottom != null) {
-					p.mBottom = Math.max(h-p.optionBottom.intValue(), 0);
-					if (p.optionTop != null) {
-						p.mTop = Math.max(p.optionTop.intValue(), p.mBottom);
-					} else if (p.optionHeight != null) {
-						p.mTop = Math.max(0, p.mBottom - p.optionHeight.intValue());
-					} else {
-						p.mTop = 0;
-					}
-				} else if (p.optionHeight != null) {
-					p.mTop = 0;
-					p.mBottom = h;
-					int space = (h - p.optionHeight.intValue())/2;
-					if (space > 0) {
-						p.mTop = space;
-						p.mBottom = h - space;
-					}
-				} else {
-					p.mTop = 0;
-					p.mBottom = h;
-					int space = (h - child.getMeasuredHeight())/2;
-					if (space > 0) {
-						p.mTop = space;
-						p.mBottom = h - space;
-					}
-				}
-
-				child.measure(MeasureSpec.makeMeasureSpec(p.mRight-p.mLeft, wMode /*MeasureSpec.EXACTLY*/),
-						MeasureSpec.makeMeasureSpec(p.mBottom-p.mTop, hMode /*MeasureSpec.EXACTLY*/));
-
+				constrainChild(child, w, wMode, h, hMode);
 			}
 		}
 
@@ -263,8 +185,113 @@ public class TitaniumCompositeLayout extends ViewGroup
 		maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
 		maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
 
-		setMeasuredDimension(resolveSize(maxWidth, widthMeasureSpec),
-				resolveSize(maxHeight, heightMeasureSpec));
+		int measuredWidth = getMeasuredWidth(maxWidth, widthMeasureSpec);
+		int measuredHeight = getMeasuredHeight(maxHeight, heightMeasureSpec);
+		setMeasuredDimension(measuredWidth, measuredHeight);
+	}
+	
+	protected void constrainChild(View child, int width, int wMode, int height, int hMode)
+	{
+		int maxWidth = width;
+		int maxHeight = height;
+		
+		TitaniumCompositeLayoutParams p =
+			(TitaniumCompositeLayoutParams) child.getLayoutParams();
+		
+		int widthSpec = getWidthMeasureSpec(child);
+		int heightSpec = getHeightMeasureSpec(child);
+		
+		// Ask the child how big it would naturally like to be.
+		child.measure(MeasureSpec.makeMeasureSpec(maxWidth, widthSpec),
+				MeasureSpec.makeMeasureSpec(maxHeight, heightSpec));
+		
+		if (p.optionLeft != null) {
+			p.mLeft = Math.min(p.optionLeft.intValue(), width);
+			if (p.optionRight != null) {
+				p.mRight = Math.max(p.mLeft, width - p.optionRight.intValue());
+			} else if (p.optionWidth != null) {
+				p.mRight = Math.min(p.mLeft + p.optionWidth.intValue(), width);
+			} else {
+				p.mRight = width;
+			}
+		} else if (p.optionRight != null) {
+			p.mRight = Math.max(width-p.optionRight.intValue(), 0);
+			if (p.optionWidth != null) {
+				p.mLeft = Math.max(0, p.mRight - p.optionWidth.intValue());
+			} else {
+				p.mLeft = 0;
+			}
+		} else {
+			p.mLeft = 0;
+			p.mRight = width;
+			int w = p.optionWidth != null ? p.optionWidth.intValue() : child.getMeasuredWidth();
+			int space = (width - w)/2;
+			if (space > 0) {
+				p.mLeft = space;
+				p.mRight -= space;
+			}
+		}
+
+		if (p.optionTop != null) {
+			p.mTop = Math.min(p.optionTop.intValue(), height);
+			if (p.optionBottom != null) {
+				p.mBottom = Math.max(p.mTop, height - p.optionBottom.intValue());
+			} else if (p.optionHeight != null) {
+				p.mBottom = Math.min(p.mTop + p.optionHeight.intValue(), height);
+			} else {
+				p.mBottom = height;
+			}
+		} else if (p.optionBottom != null) {
+			p.mBottom = Math.max(height-p.optionBottom.intValue(), 0);
+			if (p.optionHeight != null) {
+				p.mTop = Math.max(0, p.mBottom - p.optionHeight.intValue());
+			} else {
+				p.mTop = 0;
+			}
+		} else if (p.optionHeight != null) {
+			p.mTop = 0;
+			p.mBottom = height;
+			int space = (height - p.optionHeight.intValue())/2;
+			if (space > 0) {
+				p.mTop = space;
+				p.mBottom = height - space;
+			}
+		} else {
+			p.mTop = 0;
+			p.mBottom = height;
+			int space = (height - child.getMeasuredHeight())/2;
+			if (space > 0) {
+				p.mTop = space;
+				p.mBottom = height - space;
+			}
+		}
+
+		int childWidthSpec = MeasureSpec.makeMeasureSpec(
+				p.mRight-p.mLeft, wMode /*MeasureSpec.EXACTLY*/);
+		int childHeightSpec = MeasureSpec.makeMeasureSpec(
+				p.mBottom-p.mTop, hMode /*MeasureSpec.EXACTLY*/);
+		
+		child.measure(childWidthSpec, childHeightSpec);
+	}
+	
+	protected int getWidthMeasureSpec(View child)
+	{
+		return MeasureSpec.AT_MOST;
+	}
+	
+	protected int getHeightMeasureSpec(View child)
+	{
+		return MeasureSpec.AT_MOST;
+	}
+	
+	protected int getMeasuredWidth(int maxWidth, int widthSpec)
+	{
+		return resolveSize(maxWidth, widthSpec);
+	}
+	
+	protected int getMeasuredHeight(int maxHeight, int heightSpec)
+	{
+		return resolveSize(maxHeight, heightSpec);
 	}
 
 	@Override
@@ -307,6 +334,9 @@ public class TitaniumCompositeLayout extends ViewGroup
 		public int mRight;
 		public int mBottom;
 
+		public boolean autoWidth;
+		public boolean autoHeight;
+		
 		public TitaniumCompositeLayoutParams() {
 			super(WRAP_CONTENT, WRAP_CONTENT);
 
