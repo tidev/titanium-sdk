@@ -23,9 +23,9 @@
 @property (nonatomic,readwrite,assign) NSNumber *volume;
 @property (nonatomic,readonly) NSURL *url;
 
-@property (nonatomic,readwrite,assign,getter=isLooping) NSNumber *looping;
-@property (nonatomic,readwrite,assign,getter=isPaused)  NSNumber *paused;
-@property (nonatomic,readonly,getter=isPlaying) NSNumber *playing;
+@property (nonatomic,readwrite,assign) NSNumber *looping;
+@property (nonatomic,readwrite,assign)  NSNumber *paused;
+@property (nonatomic,readonly) NSNumber *playing;
 
 @property (nonatomic,readonly) NSNumber *duration;
 @property (nonatomic,readwrite,assign) NSNumber *time;

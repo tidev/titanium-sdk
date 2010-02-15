@@ -204,7 +204,7 @@
 	}
 }
 
--(NSNumber*)isPaused
+-(NSNumber*)isPaused:(id)args
 {
 	return NUMBOOL(paused);
 }
@@ -233,7 +233,7 @@
 	}
 }
 
--(NSNumber*)isLooping
+-(NSNumber*)isLooping:(id)args
 {
 	if (player!=nil)
 	{
@@ -251,13 +251,28 @@
 	}
 }
 
--(NSNumber*)isPlaying
+-(NSNumber*)isPlaying:(id)args
 {
 	if (player!=nil)
 	{
 		return NUMBOOL([player isPlaying]);
 	}
 	return NUMBOOL(NO);
+}
+
+-(NSNumber*)playing
+{
+	return [self isPlaying:nil];
+}
+
+-(NSNumber*)paused
+{
+	return [self isPaused:nil];
+}
+
+-(NSNumber*)looping
+{
+	return [self isLooping:nil];
 }
 
 -(NSURL*)url

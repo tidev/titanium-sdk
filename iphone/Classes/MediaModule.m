@@ -13,6 +13,7 @@
 #import "Mimetypes.h"
 #import "TiViewProxy.h"
 #import "Ti2DMatrix.h"
+#import "SCListener.h"
 
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVAudioPlayer.h>
@@ -541,6 +542,36 @@ MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 {
 	[[picker parentViewController] dismissModalViewControllerAnimated:animatedPicker];
 	[self sendPickerCancel];
+}
+
+#pragma mark Microphone support
+
+-(void)startMicrophoneMonitor:(id)args
+{
+	[[SCListener sharedListener] listen];
+}
+
+-(void)stopMicrophoneMonitor:(id)args
+{
+	[[SCListener sharedListener] stop];
+}
+
+-(CGFloat)peakMicrophonePower
+{
+	if ([[SCListener sharedListener] isListening])
+	{
+		return [[SCListener sharedListener] peakPower];
+	}
+	return -1;
+}
+
+-(CGFloat)averageMicrophonePower
+{
+	if ([[SCListener sharedListener] isListening])
+	{
+		return [[SCListener sharedListener] averagePower];
+	}
+	return -1;
 }
 
 
