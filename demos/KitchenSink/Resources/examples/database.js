@@ -72,7 +72,12 @@ db.execute('INSERT INTO DATABASETEST (ID, NAME ) VALUES(?,?)',2,'Name 2');
 db.execute('INSERT INTO DATABASETEST (ID, NAME ) VALUES(?,?)',3,'Name 3');
 db.execute('INSERT INTO DATABASETEST (ID, NAME ) VALUES(?,?)',4,'Name 4');
 
-db.execute('UPDATE DATABASETEST SET NAME = ? WHERE ID = ?', 'I was updated', 4);
+var updateName = 'I was updated';
+var updateId = 4;
+db.execute('UPDATE DATABASETEST SET NAME = ? WHERE ID = ?', updateName, updateId);
+
+db.execute('UPDATE DATABASETEST SET NAME = "I was updated too" WHERE ID = 2');
+
 db.execute('DELETE FROM DATABASETEST WHERE ID = ?',1);
 
 Titanium.API.info('JUST INSERTED, rowsAffected = ' + db.rowsAffected);
