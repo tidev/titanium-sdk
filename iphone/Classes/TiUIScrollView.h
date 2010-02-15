@@ -6,13 +6,16 @@
  */
 #import "TiUIView.h"
 
-@interface TiUIScrollView : TiUIView<UIScrollViewDelegate> {
+@interface TiUIScrollView : TiUIView<TiUIScrollView,UIScrollViewDelegate> {
 
 @private
 	UIScrollView * scrollView;
 	UIView * wrapperView;
 	TiDimension contentWidth;
 	TiDimension contentHeight;
+	
+	CGFloat minimumContentHeight;
+	
 	BOOL needsHandleContentSize;
 }
 

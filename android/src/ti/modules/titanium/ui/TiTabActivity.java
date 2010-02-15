@@ -93,6 +93,8 @@ public class TiTabActivity extends ActivityGroup
 		        	} catch (RemoteException e) {
 		        		Log.e(LCAT, "Unable to message creator. finishing.");
 		        		me.finish();
+		        	} catch (RuntimeException e) {
+		        		Log.w(LCAT, "Run-time exception: " + e.getMessage(), e);
 		        	}
 		        }
 			}
