@@ -14,6 +14,14 @@
 #import "Webcolor.h"
 #import "ImageLoader.h"
 
+@interface TiUITableViewRowView : UIView
+{
+	UIImageView *background;
+}
+
+@end
+
+
 @implementation TiUITableViewRowProxy
 
 @synthesize tableClass, table, section, row;
@@ -142,6 +150,13 @@
 			}
 		}
 	}
+	id rightImage = [self valueForKey:@"rightImage"];
+	if (rightImage!=nil)
+	{
+		NSURL *url = [TiUtils toURL:rightImage proxy:self];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+		cell.accessoryView = [[[UIImageView alloc] initWithImage:image] autorelease];
+	}
 }
 
 -(void)configureBackground:(UITableViewCell*)cell
@@ -268,27 +283,35 @@
 			[self configureChildren:cell];
 			return;
 		}
+		int x = 0;
 		for (size_t c=0;c<[subviews count];c++)
 		{
-			TiViewProxy *proxy = [self.children objectAtIndex:c];
-			TiUIView *view = [subviews objectAtIndex:c];
-			for (NSString *key in [proxy allProperties])
+			// since the table will insert the accessory view and 
+			// other stuff in our contentView we need to check and
+			// and skip non TiUIViews
+			UIView *aview = [subviews objectAtIndex:c];
+			if ([aview isKindOfClass:[TiUIView class]])
 			{
-				id oldValue = [view.proxy valueForKey:key];
-				id newValue = [proxy valueForKey:key];
-				if ([oldValue isEqual:newValue]==NO)
+				TiUIView* view = (TiUIView*)aview;
+				TiViewProxy *proxy = [self.children objectAtIndex:x++];
+				for (NSString *key in [proxy allProperties])
 				{
-					// fire any property changes that are different from the old
-					// proxy to our new proxy
-					[view propertyChanged:key oldValue:oldValue newValue:newValue proxy:proxy];
+					id oldValue = [view.proxy valueForKey:key];
+					id newValue = [proxy valueForKey:key];
+					if ([oldValue isEqual:newValue]==NO)
+					{
+						// fire any property changes that are different from the old
+						// proxy to our new proxy
+						[view propertyChanged:key oldValue:oldValue newValue:newValue proxy:proxy];
+					}
 				}
+				// re-assign the view to the new proxy so the right listeners get 
+				// any child view events that are fired
+				// we assign ourselves as the new parent so we can be in the 
+				// event propagation chain to insert row level event properties
+				[proxy exchangeView:view];
+				view.parent = self;
 			}
-			// re-assign the view to the new proxy so the right listeners get 
-			// any child view events that are fired
-			// we assign ourselves as the new parent so we can be in the 
-			// event propagation chain to insert row level event properties
-			[proxy exchangeView:view];
-			view.parent = self;
 		} 
 	}
 }
