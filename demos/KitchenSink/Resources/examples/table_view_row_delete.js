@@ -4,8 +4,8 @@ var win = Titanium.UI.currentWindow;
 var data = [
 	{title:'Row 1', hasChild:true},
 	{title:'Row 2', hasDetail:true},
-	{title:'Row 3', name:'foo'},
-	{title:'Row 4', name:'bar'},
+	{title:'Row 3 (no animation)', name:'foo'},
+	{title:'Row 4 (no animation)', name:'bar'},
 	{title:'Row 5'}
 	
 
@@ -50,7 +50,7 @@ button.addEventListener('click', function()
 	if (row.name)
 	{
 		var row = tableview.getIndexByName(row.name);
-		tableview.deleteRow(row,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
+		tableview.deleteRow(row);
 	}
 	// otherwise delete last row
 	else

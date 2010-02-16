@@ -2,7 +2,7 @@ var win = Titanium.UI.currentWindow;
 
 // create table view data
 var data = [
-	{title:'Insert Row Above - 1', header:'Section 0'},
+	{title:'Insert Row Above (no anim)', header:'Section 0'},
 	{title:'Row2'},
 	{title:'Insert Row Below - 1', name:'3'},
 	{title:'Row4'},
@@ -34,7 +34,7 @@ tableView.addEventListener('click', function(e)
 		case 'Insert Row Above - 1':
 		{
 			var data = {title:'New First Row'};
-			tableView.insertRowBefore(0,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
+			tableView.insertRowBefore(0,data);				
 			break;
 		}
 		case 'Insert Row Below - 1':

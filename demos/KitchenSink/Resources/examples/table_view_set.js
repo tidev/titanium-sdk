@@ -3,9 +3,9 @@
 var win = Titanium.UI.currentWindow;
 
 var data = [
-	{title:'Set TableView 1', header:'Section 0'},
-	{title:'Set TableView 2'},
-	{title:'Set TableView 3'},
+	{title:'Set 1 (no animation)', header:'Section 0'},
+	{title:'Set 2'},
+	{title:'Set 3'},
 	{title:'Row4'},
 	{title:'Row5'},
 	{title:'Row6'},
@@ -42,7 +42,7 @@ tableView.addEventListener('click',function(e)
 				data[c]=row;
 			}
 			tableView.separatorStyle = Ti.UI.iPhone.TableViewSeparatorStyle.NONE;
-			tableView.setData(data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});				
+			tableView.setData(data);				
 			break;
 		}
 		case 1:

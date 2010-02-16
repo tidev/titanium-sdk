@@ -3,7 +3,7 @@ var data = [
 	{title:'Row 1', hasChild:true},
 	{title:'Row 2', hasDetail:true},
 	{title:'Row 3'},
-	{title:'Append Row'}
+	{title:'Append Row (first no anim)'}
 	
 
 ];
@@ -12,6 +12,7 @@ var data = [
 var tableview = Titanium.UI.createTableView({
 	data:data
 });
+
 
 var newRowCount = 1;
 // create table view event listener
@@ -26,7 +27,14 @@ tableview.addEventListener('click', function(e)
 	if (index == 3)
 	{
 		var data = {title:'New Row ' + newRowCount};
-		tableview.appendRow(data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});
+		if (newRowCount == 1)
+		{
+			tableview.appendRow(data);
+		}
+		else
+		{
+			tableview.appendRow(data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});
+		}
 		newRowCount++;				
 	}
 	else

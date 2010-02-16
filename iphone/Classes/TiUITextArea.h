@@ -9,6 +9,11 @@
 
 @interface TiUITextArea : TiUITextWidget <UITextViewDelegate>
 {
+@protected
+	UIToolbar *toolbar;
+	CGFloat toolbarHeight;
+	NSArray *toolbarItems;
+	
 @private
 	BOOL returnActive;
 }
