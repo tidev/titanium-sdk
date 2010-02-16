@@ -181,6 +181,9 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 	}
 
 	public TiDict getDynamicProperties() {
+		if (dynprops == null) {
+			dynprops = new TiDict();
+		}
 		return dynprops;
 	}
 

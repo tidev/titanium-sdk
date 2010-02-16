@@ -17,7 +17,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.view.TitaniumCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.json.JSONException;
 
 import android.content.Context;
@@ -39,7 +39,7 @@ public class TiTableViewCustomItem extends TiBaseTableViewItem
 	private static final boolean DBG = TiConfig.LOGD;
 	private RowView rowView;
 
-	class RowView extends TitaniumCompositeLayout
+	class RowView extends TiCompositeLayout
 	{
 		private String lastTouchedViewName;
 		private Drawable hasMoreDrawable;
@@ -47,11 +47,11 @@ public class TiTableViewCustomItem extends TiBaseTableViewItem
 		class DisplayItem
 		{
 			public String name;
-			public TitaniumCompositeLayout.TitaniumCompositeLayoutParams params;
+			public TiCompositeLayout.LayoutParams params;
 			public String type;
 
 			public DisplayItem() {
-				params = new TitaniumCompositeLayoutParams();
+				params = new LayoutParams();
 			}
 		}
 
@@ -65,7 +65,7 @@ public class TiTableViewCustomItem extends TiBaseTableViewItem
 		{
 			super(context);
 
-			TitaniumCompositeLayoutParams p = (TitaniumCompositeLayoutParams) generateDefaultLayoutParams();
+			LayoutParams p = (LayoutParams) generateDefaultLayoutParams();
 			p.optionZIndex = Integer.MIN_VALUE;
 			setLayoutParams(p);
 			setPadding(0, 0, 0, 0);

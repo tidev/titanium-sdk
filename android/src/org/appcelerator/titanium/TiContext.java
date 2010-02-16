@@ -25,6 +25,7 @@ import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiFileHelper2;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -151,7 +152,7 @@ public class TiContext implements TiEvaluator
 					path = path.substring(0, lastIndex);
 				}
 
-				if (path.startsWith("../")) {
+				if (path.startsWith("../") || path.equals("..")) {
 					String[] right = path.split("/");
 					String[] left = null;
 					if (baseUrl.contains("://")) {
@@ -164,7 +165,7 @@ public class TiContext implements TiEvaluator
 					int rIndex = 0;
 					int lIndex = left.length;
 
-					while(right[rIndex].equals("..")) {
+					while(rIndex < right.length && right[rIndex].equals("..")) {
 						lIndex--;
 						rIndex++;
 					}
@@ -182,7 +183,7 @@ public class TiContext implements TiEvaluator
 					if (!bUrl.endsWith("/")) {
 						bUrl = bUrl + "/";
 					}
-					url = "app://" + bUrl + fname;
+					url = TiFileHelper2.joinSegments("app://",bUrl, fname);
 				}
 			}
 		} catch (URISyntaxException e) {

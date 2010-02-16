@@ -14,13 +14,15 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiFileHelper2;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiUIView;
-import org.appcelerator.titanium.view.TitaniumCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
@@ -39,7 +41,7 @@ public class TiUIWindow extends TiUIView
 
 	protected String activityKey;
 	protected Activity windowActivity;
-	protected TitaniumCompositeLayout liteWindow;
+	protected TiCompositeLayout liteWindow;
 
 	protected boolean lightWeight;
 	protected Handler handler;
@@ -74,7 +76,7 @@ public class TiUIWindow extends TiUIView
 			activity.startActivity(intent);
 		} else {
 			lightWeight = true;
-			liteWindow = new TitaniumCompositeLayout(proxy.getContext());
+			liteWindow = new TiCompositeLayout(proxy.getContext());
 			setNativeView(liteWindow);
 			handlePostOpen();
 		}
@@ -126,6 +128,7 @@ public class TiUIWindow extends TiUIView
 
 					if (url.startsWith("/")) {
 						baseUrl = "app:/" + path;
+						url = TiFileHelper2.joinSegments(baseUrl,fname);
 					} else if (path.startsWith("../")) {
 						String[] right = path.split("/");
 						String[] left = null;
@@ -157,10 +160,11 @@ public class TiUIWindow extends TiUIView
 						if (!baseUrl.endsWith("/")) {
 							baseUrl = baseUrl + "/";
 						}
-						url = baseUrl + fname;
 						baseUrl = "app://" + baseUrl;
+						url = TiFileHelper2.joinSegments(baseUrl,fname);
 					} else {
 						baseUrl = "app://" + path;
+						url = TiFileHelper2.joinSegments(baseUrl,fname);
 					}
 				} else if (scheme == "app") {
 					baseUrl = url;
@@ -179,6 +183,7 @@ public class TiUIWindow extends TiUIView
 			preload.put("currentWindow", proxy);
 
 			if (proxy instanceof TiWindowProxy && ((TiWindowProxy) proxy).getTabProxy() != null) {
+				preload.put("currentTabGroup", ((TiWindowProxy) proxy).getTabGroupProxy());
 				preload.put("currentTab", ((TiWindowProxy) proxy).getTabProxy());
 			}
 
@@ -276,7 +281,7 @@ public class TiUIWindow extends TiUIView
 		if (d.containsKey("backgroundImage")) {
 			throw new IllegalArgumentException("Please Implement.");
 		} else if (d.containsKey("backgroundColor")) {
-			ColorDrawable bgColor = TiConvert.toColorDrawable(d, "backgroundColor");
+			ColorDrawable bgColor = TiConvert.toColorDrawable(d, "backgroundColor", "opacity");
 			if (!lightWeight) {
 				Window w = windowActivity.getWindow();
 				w.setBackgroundDrawable(bgColor);
@@ -295,11 +300,22 @@ public class TiUIWindow extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
 	{
-		if (key.equals("backgroundColor")) {
-//			Window w = activity.getWindow();
-//			w.setBackgroundDrawable(TiConvert.toColorDrawable((String) newValue));
-			View v = getNativeView();
-			v.setBackgroundDrawable(TiConvert.toColorDrawable((String) newValue));
+		if (key.equals("backgroundImage")) {
+			Log.w(LCAT, "Implement background image");
+		} else if (key.equals("opacity") || key.equals("backgroundColor")) {
+			TiDict d = proxy.getDynamicProperties();
+			if (proxy.getDynamicValue("backgroundColor") != null) {
+				Integer bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
+				Drawable cd = new ColorDrawable(bgColor);
+				if (lightWeight) {
+					nativeView.setBackgroundDrawable(cd);
+				} else {
+					Window w = windowActivity.getWindow();
+					w.setBackgroundDrawable(cd);
+				}
+			} else {
+				Log.w(LCAT, "Unable to set opacity w/o a backgroundColor");
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

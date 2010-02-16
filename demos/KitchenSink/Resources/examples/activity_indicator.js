@@ -10,7 +10,6 @@ var actInd = Titanium.UI.createActivityIndicator({
 	width:10,
 	style:Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN
 });
-win.add(actInd);
 
 var button0 = Titanium.UI.createButton({
 	title:'Hide',
@@ -26,7 +25,6 @@ button0.addEventListener('click', function()
 	actInd.hide();
 });
 
-win.add(button0);
 
 //
 // BASIC ACTIVITY INDICATOR
@@ -44,7 +42,6 @@ button1.addEventListener('click', function()
 	actInd.show();
 });
 
-win.add(button1);
 
 //
 // ACTIVITY INDICATOR (BIG)
@@ -61,7 +58,6 @@ button2.addEventListener('click', function()
 	actInd.style = Titanium.UI.iPhone.ActivityIndicatorStyle.BIG
 	actInd.show();
 });
-win.add(button2);
 
 //
 // ACTIVITY INDICATOR (DARK)
@@ -78,7 +74,6 @@ button3.addEventListener('click', function()
 	actInd.style = Titanium.UI.iPhone.ActivityIndicatorStyle.DARK;
 	actInd.show();
 });
-win.add(button3);
 
 //
 // ACTIVITY INDICATOR (MESSAGE)
@@ -99,7 +94,6 @@ button4.addEventListener('click', function()
 	actInd.width = 210;
 	actInd.show();
 });
-win.add(button4);
 
 //
 // ACTIVITY INDICATOR (TOOLBAR)
@@ -128,7 +122,6 @@ button5.addEventListener('click', function()
 	},3000);
 
 });
-win.add(button5);
 
 //
 // ACTIVITY INDICATOR (NAVBAR)
@@ -155,7 +148,6 @@ button6.addEventListener('click', function()
 	},3000)
 
 });
-win.add(button6);
 
 //
 // ACTIVITY INDICATOR (TITLE CONTROL)
@@ -180,4 +172,26 @@ button7.addEventListener('click', function()
 
 	},3000)
 });
-win.add(button7);
+
+win.add(actInd);
+
+// add iphone elements
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	win.add(button1);
+	win.add(button0);
+	win.add(button2);
+	win.add(button3);
+	win.add(button4);
+	win.add(button5);
+	win.add(button6);
+	win.add(button7);
+}
+else
+{
+	actInd.show();
+	setTimeout(function()
+	{
+		actInd.hide();
+	},2000);
+}

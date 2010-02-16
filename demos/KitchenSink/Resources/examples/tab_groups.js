@@ -13,9 +13,6 @@ var addTabButton = Titanium.UI.createButton({
 	width:200
 });
 
-// add button to window
-win.add(addTabButton);
-
 // create button event listener
 addTabButton.addEventListener('click', function(e)
 {
@@ -43,9 +40,6 @@ var animateTabButton = Titanium.UI.createButton({
 	height:40,
 	width:200
 });
-
-// add button to window
-win.add(animateTabButton);
 
 var transformed = false;
 
@@ -80,7 +74,6 @@ var closeTabGroupButton = Titanium.UI.createButton({
 	height:40,
 	width:200
 });
-win.add(closeTabGroupButton);
 
 closeTabGroupButton.addEventListener('click', function(e)
 {
@@ -100,7 +93,6 @@ var setActiveTabButton = Titanium.UI.createButton({
 	height:40,
 	width:200
 });
-win.add(setActiveTabButton);
 
 setActiveTabButton.addEventListener('click', function(e)
 {
@@ -116,8 +108,6 @@ var setActiveTabObjectButton = Titanium.UI.createButton({
 	height:40,
 	width:200
 });
-win.add(setActiveTabObjectButton);
-
 setActiveTabObjectButton.addEventListener('click', function(e)
 {
 	tabGroup.setActiveTab(tabGroup.tabs[1]);
@@ -138,5 +128,14 @@ var openLabel = Titanium.UI.createLabel({
 	top:260
 });
 
-win.add(openLabel);
+// add views based on platform
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	win.add(addTabButton);
+	win.add(animateTabButton);
+	win.add(closeTabGroupButton);
+}
 
+win.add(setActiveTabButton);
+win.add(setActiveTabObjectButton);
+win.add(openLabel);

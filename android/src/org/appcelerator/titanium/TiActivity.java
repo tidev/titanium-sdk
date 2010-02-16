@@ -11,7 +11,8 @@ import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.view.TitaniumCompositeLayout;
+import org.appcelerator.titanium.view.ITiWindowHandler;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -20,17 +21,18 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
 public class TiActivity extends Activity
-	implements TiActivitySupport
+	implements TiActivitySupport, ITiWindowHandler
 {
 	private static final String LCAT = "TiActivity";
 	private static final boolean DBG = TiConfig.LOGD;
 
 	protected TiContext tiContext;
-	protected TitaniumCompositeLayout layout;
+	protected TiCompositeLayout layout;
 	protected TiActivitySupportHelper supportHelper;
 
 	protected Handler handler;
@@ -46,7 +48,7 @@ public class TiActivity extends Activity
         super.onCreate(savedInstanceState);
         handler = new Handler();
 
-        layout = new TitaniumCompositeLayout(this);
+        layout = new TiCompositeLayout(this);
 
         Intent intent = getIntent();
 
@@ -114,7 +116,7 @@ public class TiActivity extends Activity
     	return (TiApplication) getApplication();
     }
 
-    public TitaniumCompositeLayout getLayout() {
+    public TiCompositeLayout getLayout() {
     	return layout;
     }
 
@@ -139,6 +141,29 @@ public class TiActivity extends Activity
 		super.onActivityResult(requestCode, resultCode, data);
 
 		supportHelper.onActivityResult(requestCode, resultCode, data);
+	}
+
+	@Override
+	public void addWindow(View v, TiCompositeLayout.LayoutParams params) {
+		layout.addView(v, params);
+	}
+
+	@Override
+	public void removeWindow(View v) {
+		layout.removeView(v);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+		((TiApplication) getApplication()).setWindowHandler(null);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		((TiApplication) getApplication()).setWindowHandler(this);
 	}
 
 //	@Override

@@ -4,8 +4,8 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.ITiWindowHandler;
-import org.appcelerator.titanium.view.TitaniumCompositeLayout;
-import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
+import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.app.ActivityGroup;
 import android.content.Intent;
@@ -24,7 +24,7 @@ public class TiTabActivity extends ActivityGroup
 	private static final String LCAT = "TiTabActivity";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	protected TitaniumCompositeLayout layout;
+	protected TiCompositeLayout layout;
 	protected TabGroupProxy proxy;
 	protected Handler handler;
 
@@ -37,7 +37,7 @@ public class TiTabActivity extends ActivityGroup
 		super.onCreate(savedInstanceState);
 		handler = new Handler();
 
-		layout = new TitaniumCompositeLayout(this);
+		layout = new TiCompositeLayout(this);
 
         Intent intent = getIntent();
 
@@ -105,13 +105,13 @@ public class TiTabActivity extends ActivityGroup
     	return (TiApplication) getApplication();
     }
 
-    public TitaniumCompositeLayout getLayout() {
+    public TiCompositeLayout getLayout() {
     	return layout;
     }
 
 
 	@Override
-	public void addWindow(View v, TitaniumCompositeLayoutParams params) {
+	public void addWindow(View v, LayoutParams params) {
 		layout.addView(v, params);
 	}
 

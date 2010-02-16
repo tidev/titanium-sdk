@@ -14,7 +14,7 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollObject;
-import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -115,7 +115,7 @@ public class TiConvert
 	}
 
 	// Layout
-	public static boolean fillLayout(TiDict d, TitaniumCompositeLayoutParams layoutParams) {
+	public static boolean fillLayout(TiDict d, LayoutParams layoutParams) {
 		boolean dirty = false;
 
 		if (d.containsKey("left")) {
@@ -134,12 +134,14 @@ public class TiConvert
 			layoutParams.optionBottom = toTiDimension(d, "bottom").getIntValue();
 			dirty = true;
 		}
-		if (d.containsKey("width")) {
+		if (d.containsKey("width") && !d.get("width").equals("auto")) {
 			layoutParams.optionWidth = toTiDimension(d, "width").getIntValue();
+			layoutParams.autoWidth = false;
 			dirty = true;
 		}
-		if (d.containsKey("height")) {
+		if (d.containsKey("height") && !d.get("height").equals("auto")) {
 			layoutParams.optionHeight = toTiDimension(d, "height").getIntValue();
+			layoutParams.autoHeight = false;
 			dirty = true;
 		}
 
