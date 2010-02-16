@@ -14,6 +14,7 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiFileHelper2;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TitaniumCompositeLayout;
@@ -126,6 +127,7 @@ public class TiUIWindow extends TiUIView
 
 					if (url.startsWith("/")) {
 						baseUrl = "app:/" + path;
+						url = TiFileHelper2.joinSegments(baseUrl,fname);
 					} else if (path.startsWith("../")) {
 						String[] right = path.split("/");
 						String[] left = null;
@@ -157,10 +159,11 @@ public class TiUIWindow extends TiUIView
 						if (!baseUrl.endsWith("/")) {
 							baseUrl = baseUrl + "/";
 						}
-						url = baseUrl + fname;
 						baseUrl = "app://" + baseUrl;
+						url = TiFileHelper2.joinSegments(baseUrl,fname);
 					} else {
 						baseUrl = "app://" + path;
+						url = TiFileHelper2.joinSegments(baseUrl,fname);
 					}
 				} else if (scheme == "app") {
 					baseUrl = url;

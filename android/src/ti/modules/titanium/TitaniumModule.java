@@ -11,6 +11,7 @@ import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConvert;
 
 public class TitaniumModule
 	extends TiModule
@@ -38,7 +39,7 @@ public class TitaniumModule
 	public void include(Object[] files) {
 		for(Object filename : files) {
 			try {
-				getTiContext().evalFile((String)filename);
+				getTiContext().evalFile(getTiContext().resolveUrl(TiConvert.toString(filename)));
 			} catch (IOException e) {
 				Log.e(LCAT, "Error while evaluating: " + filename, e);
 			}

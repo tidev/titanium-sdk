@@ -60,7 +60,7 @@ public class TiRootActivity extends ActivityGroup
 
 			public void run() {
 				try {
-					tiContext.evalFile("app.js");
+					tiContext.evalFile("app://app.js");
 				} catch (IOException e) {
 					// TODO be more helpful
 					e.printStackTrace();

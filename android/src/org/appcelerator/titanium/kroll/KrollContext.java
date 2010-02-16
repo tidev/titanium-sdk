@@ -14,6 +14,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiFileHelper2;
@@ -133,7 +135,9 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 
 		Context ctx = enter();
 		try {
-			br = new BufferedReader(new InputStreamReader(getResourcesInputStream(filename)));
+			String[] parts = { filename };
+			TiBaseFile tbf = TiFileFactory.createTitaniumFile(tiContext, parts, false);
+			br = new BufferedReader(new InputStreamReader(tbf.getInputStream()));
 			result = ctx.evaluateReader(jsScope, br, filename, 0, null);
 		} catch (Exception e) {
 			Log.e(LCAT, "Error evaluating source: " + e.getMessage(), e);
