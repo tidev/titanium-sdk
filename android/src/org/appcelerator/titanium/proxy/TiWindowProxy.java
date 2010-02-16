@@ -34,7 +34,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected boolean modal;
 	protected boolean restoreFullscreen;
 
-	protected TiWindowProxy tabGroup;
+	protected TiViewProxy tabGroup;
 	protected TiViewProxy tab;
 	protected boolean inTab;
 
@@ -110,6 +110,13 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	public TiViewProxy getTabProxy() {
 		return this.tab;
+	}
+
+	public void setTabGroupProxy(TiViewProxy tabGroupProxy) {
+		this.tabGroup = tabGroupProxy;
+	}
+	public TiViewProxy getTabGroupProxy() {
+		return this.tabGroup;
 	}
 
 	protected abstract void handleOpen(TiDict options);
