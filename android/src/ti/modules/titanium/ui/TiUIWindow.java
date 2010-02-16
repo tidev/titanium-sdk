@@ -22,6 +22,7 @@ import org.appcelerator.titanium.view.TitaniumCompositeLayout;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
@@ -280,7 +281,7 @@ public class TiUIWindow extends TiUIView
 		if (d.containsKey("backgroundImage")) {
 			throw new IllegalArgumentException("Please Implement.");
 		} else if (d.containsKey("backgroundColor")) {
-			ColorDrawable bgColor = TiConvert.toColorDrawable(d, "backgroundColor");
+			ColorDrawable bgColor = TiConvert.toColorDrawable(d, "backgroundColor", "opacity");
 			if (!lightWeight) {
 				Window w = windowActivity.getWindow();
 				w.setBackgroundDrawable(bgColor);
@@ -299,11 +300,22 @@ public class TiUIWindow extends TiUIView
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
 	{
-		if (key.equals("backgroundColor")) {
-//			Window w = activity.getWindow();
-//			w.setBackgroundDrawable(TiConvert.toColorDrawable((String) newValue));
-			View v = getNativeView();
-			v.setBackgroundDrawable(TiConvert.toColorDrawable((String) newValue));
+		if (key.equals("backgroundImage")) {
+			Log.w(LCAT, "Implement background image");
+		} else if (key.equals("opacity") || key.equals("backgroundColor")) {
+			TiDict d = proxy.getDynamicProperties();
+			if (proxy.getDynamicValue("backgroundColor") != null) {
+				Integer bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
+				Drawable cd = new ColorDrawable(bgColor);
+				if (lightWeight) {
+					nativeView.setBackgroundDrawable(cd);
+				} else {
+					Window w = windowActivity.getWindow();
+					w.setBackgroundDrawable(cd);
+				}
+			} else {
+				Log.w(LCAT, "Unable to set opacity w/o a backgroundColor");
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

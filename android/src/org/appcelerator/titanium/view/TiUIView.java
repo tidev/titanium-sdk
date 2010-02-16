@@ -271,6 +271,14 @@ public abstract class TiUIView
 			nativeView.requestLayout();
 		} else if (key.equals("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
+		} else if (key.equals("opacity") || key.equals("backgroundColor")) {
+			TiDict d = proxy.getDynamicProperties();
+			if (proxy.getDynamicValue("backgroundColor") != null) {
+				Integer bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
+				nativeView.setBackgroundDrawable(new ColorDrawable(bgColor));
+			} else {
+				Log.w(LCAT, "Unable to set opacity w/o background color");
+			}
 		} else {
 			Log.i(LCAT, "Unhandled property key: " + key);
 		}

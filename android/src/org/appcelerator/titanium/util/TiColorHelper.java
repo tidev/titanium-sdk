@@ -7,6 +7,7 @@
 
 package org.appcelerator.titanium.util;
 
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,6 +18,8 @@ public class TiColorHelper
 	static Pattern shortHexPattern = Pattern.compile("#([0-9a-f])([0-9a-f])([0-9a-f])([0-9a-f]?)");
 	static Pattern rgbPattern = Pattern.compile("rgb\\(([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3})\\)");
 	static Pattern argbPattern = Pattern.compile("rgba\\(([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3})\\)");
+
+	private static HashMap<String, Integer> colorTable;
 
 	public static int parseColor(String value) {
 		int color = Color.YELLOW; // Something noticeable
@@ -51,10 +54,41 @@ public class TiColorHelper
 				try {
 					color = Color.parseColor(lowval);
 				} catch (IllegalArgumentException e) {
-					Log.w("TiColorHelper", "Unknown color: " + value);
+					if (colorTable == null) {
+						buildColorTable();
+					}
+
+					if (colorTable.containsKey(value)) {
+						color = colorTable.get(value);
+					} else {
+						Log.w("TiColorHelper", "Unknown color: " + value);
+					}
 				}
 			}
 		}
 		return color;
+	}
+
+	private static void buildColorTable() {
+		synchronized(TiColorHelper.class) {
+			colorTable = new HashMap<String, Integer>(16);
+
+			colorTable.put("black", Color.BLACK);
+			colorTable.put("gray", Color.GRAY);
+			colorTable.put("darkgray", Color.DKGRAY);
+			colorTable.put("lightgray", Color.LTGRAY);
+			colorTable.put("cyan", Color.CYAN);
+			colorTable.put("magenta",Color.MAGENTA);
+			colorTable.put("transparent", Color.TRANSPARENT);
+			colorTable.put("aqua", Color.rgb(0, 0xff, 0xff));
+			colorTable.put("fuchsia", Color.rgb(0xff, 0, 0xff));
+			colorTable.put("lime", Color.rgb(0, 0xff, 0));
+			colorTable.put("maroon", Color.rgb(0x88,0 ,0x88));
+			colorTable.put("pink", Color.rgb(0xff,0xc0, 0xcb));
+			colorTable.put("navy", Color.rgb(0, 0, 0x80));
+			colorTable.put("silver", Color.rgb(0xc0, 0xc0, 0xc0));
+			colorTable.put("olive", Color.rgb(0x80, 0x80, 0));
+			colorTable.put("teal", Color.rgb(0x0, 0x80, 0x80));
+		}
 	}
 }
