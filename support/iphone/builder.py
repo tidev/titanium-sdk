@@ -241,7 +241,7 @@ def main(args):
 		s = os.path.join(template_dir,xib)
 		t = os.path.join(iphone_resources_dir,xib)
 		if not os.path.exists(t) or os.path.getsize(s)!=os.path.getsize(t): 	
-			shutil.copy(s,)
+			shutil.copy(s,t)
 	os.chdir(cwd)		
 		
 	def is_adhoc(uuid):
