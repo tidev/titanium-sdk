@@ -182,6 +182,7 @@ public class TiUIWindow extends TiUIView
 			preload.put("currentWindow", proxy);
 
 			if (proxy instanceof TiWindowProxy && ((TiWindowProxy) proxy).getTabProxy() != null) {
+				preload.put("currentTabGroup", ((TiWindowProxy) proxy).getTabGroupProxy());
 				preload.put("currentTab", ((TiWindowProxy) proxy).getTabProxy());
 			}
 

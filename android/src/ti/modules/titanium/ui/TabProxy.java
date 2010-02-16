@@ -16,6 +16,7 @@ public class TabProxy extends TiViewProxy
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private TiWindowProxy win;
+	private TabGroupProxy tabGroupProxy;
 
 	public TabProxy(TiContext tiContext, Object[] args) {
 		super(tiContext, args);
@@ -31,9 +32,10 @@ public class TabProxy extends TiViewProxy
 			if (options == null) {
 				options = new TiDict();
 			}
-			
+
 			this.win = win;
 			this.win.setTabProxy(this);
+			this.win.setTabGroupProxy(tabGroupProxy);
 			options.put("tabOpen", true);
 			win.open(options);
 		}
@@ -44,5 +46,9 @@ public class TabProxy extends TiViewProxy
 			win.close(options);
 			win = null;
 		}
+	}
+
+	public void setTabGroup(TabGroupProxy tabGroupProxy) {
+		this.tabGroupProxy = tabGroupProxy;
 	}
 }
