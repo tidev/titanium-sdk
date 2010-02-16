@@ -80,6 +80,15 @@ public class TabGroupProxy extends TiWindowProxy
 		}
 	}
 
+	public TabProxy[] getTabs() {
+		TabProxy[] tps = null;
+
+		if (tabs != null) {
+			tps = tabs.toArray(new TabProxy[tabs.size()]);
+		}
+
+		return tps;
+	}
 	public void addTab(TabProxy tab)
 	{
 		if (tabs == null) {
@@ -111,7 +120,9 @@ public class TabGroupProxy extends TiWindowProxy
 	{
 		String title = (String) tab.getDynamicValue("title");
 		String icon = (String) tab.getDynamicValue("icon");
+		tab.setTabGroup(this);
 		final WindowProxy vp = (WindowProxy) tab.getDynamicValue("window");
+		vp.setTabGroupProxy(this);
 		vp.setTabProxy(tab);
 
 		if (title != null && vp != null) {

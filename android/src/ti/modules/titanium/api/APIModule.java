@@ -76,7 +76,35 @@ public class APIModule extends TiModule
 		Log.e(LCAT, msg);
 	}
 
-	public void log(int severity, String msg)
+	public void log(String level, String msg)
+	{
+		String ulevel = level.toUpperCase();
+		int severity = INFO;
+
+		if ("TRACE".equals(ulevel)) {
+			severity = TRACE;
+		} else if ("DEBUG".equals(ulevel)) {
+			severity = DEBUG;
+		} else if ("INFO".equals(ulevel)) {
+			severity = INFO;
+		} else if ("NOTICE".equals(ulevel)) {
+			severity = NOTICE;
+		} else if ("WARN".equals(ulevel)) {
+			severity = WARN;
+		} else if ("ERROR".equals(ulevel)) {
+			severity = ERROR;
+		} else if ("CRITICAL".equals(ulevel)) {
+			severity = CRITICAL;
+		} else if ("FATAL".equals(ulevel)) {
+			severity = FATAL;
+		} else {
+			msg = "[" + level + "] " + msg;
+		}
+
+		internalLog(severity, msg);
+	}
+
+	public void internalLog(int severity, String msg)
 	{
 		if (severity == TRACE)
 		{
