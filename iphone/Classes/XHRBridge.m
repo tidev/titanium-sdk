@@ -14,11 +14,11 @@
 
 static XHRBridge *xhrBridge = nil;
 
-@implementation TiProtocolHandler
+@implementation AppProtocolHandler
 
 + (NSString*) specialProtocolScheme 
 {
-	return @"ti";
+	return @"app";
 }
 
 + (void) registerSpecialProtocol 
@@ -26,7 +26,7 @@ static XHRBridge *xhrBridge = nil;
 	static BOOL inited = NO;
 	if ( ! inited ) 
 	{
-		[NSURLProtocol registerClass:[TiProtocolHandler class]];
+		[NSURLProtocol registerClass:[AppProtocolHandler class]];
 		inited = YES;
 	}
 }
@@ -47,17 +47,17 @@ static XHRBridge *xhrBridge = nil;
     return request;
 }
 
-- (void)startLoading
+-(void)handleAppToTiRequest
 {
 	id<NSURLProtocolClient> client = [self client];
     NSURLRequest *request = [self request];
 	NSURL *url = [request URL];
 
-	NSString *pageToken = [url host];
 	NSArray *parts = [[[url path] substringFromIndex:1] componentsSeparatedByString:@"/"];
-	NSString *module = [parts objectAtIndex:0];
-	NSString *method = [parts objectAtIndex:1];
-	NSString *prearg = [parts objectAtIndex:2];
+	NSString *pageToken = [[parts objectAtIndex:0] stringByReplacingOccurrencesOfString:@"_TiA0_" withString:@""];
+	NSString *module = [parts objectAtIndex:1];
+	NSString *method = [parts objectAtIndex:2];
+	NSString *prearg = [parts objectAtIndex:3];
 	NSString *arguments = prearg==nil ? @"" : [prearg stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	
 	
@@ -96,12 +96,12 @@ static XHRBridge *xhrBridge = nil;
 		executed = NO;
 	}
 	
-	NSData *data = executed ? [[NSString stringWithFormat:@"{'success':true}"] dataUsingEncoding:NSUTF8StringEncoding] : nil;
+	NSData *data = executed ? [NSData data] : nil;
 	
 	if (data!=nil)
 	{
 		NSURLCacheStoragePolicy caching = NSURLCacheStorageNotAllowed;
-		NSURLResponse *response = [[NSURLResponse alloc] initWithURL:url MIMEType:@"text/javascript" expectedContentLength:[data length] textEncodingName:@"utf-8"];
+		NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:url MIMEType:@"text/plain" expectedContentLength:[data length] textEncodingName:@"utf-8"];
 		[client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:caching];
 		[client URLProtocol:self didLoadData:data];
 		[client URLProtocolDidFinishLoading:self];
@@ -115,56 +115,23 @@ static XHRBridge *xhrBridge = nil;
 	}
 }
 
-- (void)stopLoading 
-{
-}
-
-@end
-
-
-@implementation AppProtocolHandler
-
-+ (NSString*) specialProtocolScheme 
-{
-	return @"app";
-}
-
-+ (void) registerSpecialProtocol 
-{
-	static BOOL inited = NO;
-	if ( ! inited ) 
-	{
-		[NSURLProtocol registerClass:[AppProtocolHandler class]];
-		inited = YES;
-	}
-}
-
-+ (BOOL)canInitWithRequest:(NSURLRequest *)theRequest 
-{
-	NSString *theScheme = [[theRequest URL] scheme];
-	return [theScheme isEqual:[self specialProtocolScheme]];
-}
-
-+ (BOOL)requestIsCacheEquivalent:(NSURLRequest *)a toRequest:(NSURLRequest *)b;
-{
-	return [super requestIsCacheEquivalent:a toRequest:b];
-}
-
-+(NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request 
-{
-    return request;
-}
-
 - (void)startLoading
 {
 	id<NSURLProtocolClient> client = [self client];
     NSURLRequest *request = [self request];
 	NSURL *url = [request URL];
 	
+	// check to see if this is a bridge request through a webview
+	if ([[url path] hasPrefix:@"/_TiA0_"])
+	{
+		[self handleAppToTiRequest];
+		return;
+	}
+
 #ifdef DEBUG	
 	NSLog(@"[DEBUG] app protocol, loading: %@",url);
 #endif
-	
+		
 	// see if it's a compiled resource
 	NSData *data = [TiUtils loadAppResource:url];
 	if (data==nil)
@@ -213,7 +180,6 @@ static XHRBridge *xhrBridge = nil;
 
 -(void)boot:(id)callback url:(NSURL*)url preload:(NSDictionary*)preload
 {
-	[TiProtocolHandler registerSpecialProtocol];
 	[AppProtocolHandler registerSpecialProtocol];
 }
 

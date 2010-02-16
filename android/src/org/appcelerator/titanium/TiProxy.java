@@ -166,7 +166,7 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 		Object current = dynprops.get(key);
 		value = TiConvert.putInTiDict(dynprops, key, value);
 
-		if (fireChange) {
+		if (fireChange && !(current == null && value == null)) {
 			if ((current == null && value != null) || (value == null && current != null) || (!current.equals(value))) {
 				if (modelListener != null) {
 					if (tiContext.isUIThread()) {
@@ -181,6 +181,9 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 	}
 
 	public TiDict getDynamicProperties() {
+		if (dynprops == null) {
+			dynprops = new TiDict();
+		}
 		return dynprops;
 	}
 
@@ -255,7 +258,7 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 			callback.callWithProperties(data);
 		}
 	}
-	
+
 	public boolean hasListeners(String eventName)
 	{
 		return getTiContext().hasAnyEventListener(eventName);

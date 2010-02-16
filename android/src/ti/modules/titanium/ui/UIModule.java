@@ -34,6 +34,11 @@ public class UIModule extends TiModule
 			constants.put("RETURNKEY_YAHOO", 6);
 			constants.put("RETURNKEY_DONE", 7);
 			constants.put("RETURNKEY_EMERGENCY_CALL", 8);
+			constants.put("RETURNKEY_DEFAULT", 9);
+			constants.put("RETURNKEY_SEND", 10);
+
+			constants.put("KEYBOARD_APPEARANCE_DEFAULT", -1); // Not supported
+			constants.put("KEYBOARD_APPEARANCE_ALERT", -1); // Not supported
 
 			constants.put("KEYBOARD_ASCII", 0);
 			constants.put("KEYBOARD_NUMBERS_PUNCTUATION", 1);
@@ -41,6 +46,7 @@ public class UIModule extends TiModule
 			constants.put("KEYBOARD_NUMBER_PAD", 3);
 			constants.put("KEYBOARD_PHONE_PAD", 4);
 			constants.put("KEYBOARD_EMAIL_ADDRESS", 5);
+			constants.put("KEYBOARD_DEFAULT", 6);
 
 			constants.put("INPUT_BORDERSTYLE_NONE", 0);
 			constants.put("INPUT_BORDERSTYLE_ROUNDED", 1);

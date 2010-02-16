@@ -18,7 +18,7 @@
 				Ti.App.fireEvent('hide_indicator');
 			},1000);
 		});
-		Ti.App.fireEvent('show_indicator',{a:1});
+		Ti.App.fireEvent('show_indicator',{'a':1});
 		Ti.API.debug('log statement here');
 		$('#foo').html("I was changed by jQuery");
 	</script>

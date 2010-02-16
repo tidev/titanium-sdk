@@ -53,16 +53,12 @@ win.add(lastNameField);
 //
 // CREATE BUTTON
 //
-var buttonObjects = [
-	{title:'Save my Information', width:250}
-];
-var save = Titanium.UI.createButtonBar({
-	labels:buttonObjects,
-	backgroundColor:'#13386c',
-	top:150,
+var save = Titanium.UI.createButton({
+	title:'Save my Information',
+	top:170,
 	left:30,
-	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
 	height:30,
+	width:250
 });
 win.add(save);
 

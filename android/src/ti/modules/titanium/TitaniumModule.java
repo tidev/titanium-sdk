@@ -11,6 +11,7 @@ import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConvert;
 
 public class TitaniumModule
 	extends TiModule
@@ -38,16 +39,16 @@ public class TitaniumModule
 	public void include(Object[] files) {
 		for(Object filename : files) {
 			try {
-				getTiContext().evalFile((String)filename);
+				getTiContext().evalFile(getTiContext().resolveUrl(TiConvert.toString(filename)));
 			} catch (IOException e) {
 				Log.e(LCAT, "Error while evaluating: " + filename, e);
 			}
 		}
 	}
-	
+
 	private HashMap<Integer, Timer> timers = new HashMap<Integer, Timer>();
 	private int currentTimerId;
-	
+
 	private int createTimer(Object fn, long timeout, final Object[] args, final boolean interval)
 		throws IllegalArgumentException
 	{
@@ -56,7 +57,7 @@ public class TitaniumModule
 			final KrollCallback callback = (KrollCallback) fn;
 			Timer timer = new Timer();
 			final int timerId = currentTimerId++;
-	
+
 			timers.put(timerId, timer);
 			TimerTask task = new TimerTask() {
 				@Override
@@ -65,38 +66,42 @@ public class TitaniumModule
 					callback.call(args);
 				}
 			};
-			
+
 			if (interval) {
 				timer.schedule(task, timeout, timeout);
 			} else {
 				timer.schedule(task, timeout);
 			}
-			
+
 			return timerId;
 		}
 		else throw new IllegalArgumentException("Don't know how to call callback of type: " + fn.getClass().getName());
 	}
-	
+
 	public int setTimeout(Object fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
 		return createTimer(fn, timeout, args, false);
 	}
-	
+
 	public void clearTimeout(int timerId) {
 		if (timers.containsKey(timerId)) {
 			Timer timer = timers.remove(timerId);
 			timer.cancel();
 		}
 	}
-	
+
 	public int setInterval(Object fn, long timeout, final Object[] args)
 		throws IllegalArgumentException
 	{
 		return createTimer(fn, timeout, args, true);
 	}
-	
+
 	public void clearInterval(int timerId) {
 		clearTimeout(timerId);
+	}
+
+	public void alert(String message) {
+		Log.i("ALERT", message);
 	}
 }

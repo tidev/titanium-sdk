@@ -12,19 +12,28 @@ public class TiFileHelper2
 		return joinSegments("Resources", path);
 	}
 
-	public static String joinSegments(String s1, String s2) {
-		if (s1.endsWith("/")) {
-			if (s2.startsWith("/")) {
-				return s1 + s2.substring(1);
+	public static String joinSegments(String... segments)
+	{
+		String s1 = segments[0];
+
+		for(int i = 1; i < segments.length; i++)
+		{
+			String s2 = segments[i];
+			if (s1.endsWith("/")) {
+				if (s2.startsWith("/")) {
+					s1 = s1 + s2.substring(1);
+				} else {
+					s1 = s1 + s2;
+				}
 			} else {
-				return s1 + s2;
-			}
-		} else {
-			if (s2.startsWith("/")) {
-				return s1 + s2;
-			} else {
-				return s1 + "/" + s2;
+				if (s2.startsWith("/")) {
+					s1 = s1 + s2;
+				} else {
+					s1 = s1 + "/" + s2;
+				}
 			}
 		}
+
+		return s1;
 	}
 }

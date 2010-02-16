@@ -22,7 +22,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiBorderHelper.BorderSupport;
-import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import ti.modules.titanium.ui._2DMatrixProxy;
 import android.content.Context;
@@ -52,7 +52,7 @@ public abstract class TiUIView
 	protected TiViewProxy proxy;
 	protected TiViewProxy parent;
 
-	protected TitaniumCompositeLayoutParams layoutParams;
+	protected LayoutParams layoutParams;
 	protected int zIndex;
 
 	public TiUIView(TiViewProxy proxy)
@@ -62,7 +62,7 @@ public abstract class TiUIView
 		}
 
 		this.proxy = proxy;
-		this.layoutParams = new TitaniumCompositeLayout.TitaniumCompositeLayoutParams();
+		this.layoutParams = new TiCompositeLayout.LayoutParams();
 	}
 
 	public void add(TiUIView child)
@@ -103,7 +103,7 @@ public abstract class TiUIView
 	public void setParent(TiViewProxy parent) {
 		this.parent = parent;
 	}
-	public TitaniumCompositeLayoutParams getLayoutParams() {
+	public LayoutParams getLayoutParams() {
 		return layoutParams;
 	}
 	public int getZIndex() {
@@ -119,7 +119,7 @@ public abstract class TiUIView
 		this.nativeView = view;
 		nativeView.setOnFocusChangeListener(this);
 	}
-	protected void setLayoutParams(TitaniumCompositeLayoutParams layoutParams) {
+	protected void setLayoutParams(LayoutParams layoutParams) {
 		this.layoutParams = layoutParams;
 	}
 	protected void setZIndex(int index) {
@@ -252,25 +252,39 @@ public abstract class TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
 	{
 		if (key.equals("left")) {
-			layoutParams.optionLeft = TiConvert.toTiDimension((String) newValue).getIntValue();
+			layoutParams.optionLeft = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
 			nativeView.requestLayout();
 		} else if (key.equals("top")) {
-			layoutParams.optionTop = TiConvert.toTiDimension((String) newValue).getIntValue();
+			layoutParams.optionTop = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
 			nativeView.requestLayout();
 		} else if (key.equals("right")) {
-			layoutParams.optionRight = TiConvert.toTiDimension((String) newValue).getIntValue();
+			layoutParams.optionRight = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
 			nativeView.requestLayout();
 		} else if (key.equals("bottom")) {
-			layoutParams.optionBottom = TiConvert.toTiDimension((String) newValue).getIntValue();
+			layoutParams.optionBottom = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
 			nativeView.requestLayout();
 		} else if (key.equals("height")) {
-			layoutParams.optionHeight = TiConvert.toTiDimension((String) newValue).getIntValue();
-			nativeView.requestLayout();
+			if (!newValue.equals("auto")) {
+				layoutParams.optionHeight = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
+				layoutParams.autoHeight = false;
+				nativeView.requestLayout();
+			}
 		} else if (key.equals("width")) {
-			layoutParams.optionWidth = TiConvert.toTiDimension((String) newValue).getIntValue();
-			nativeView.requestLayout();
+			if (!newValue.equals("auto")) {
+				layoutParams.optionWidth = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
+				layoutParams.autoWidth = false;
+				nativeView.requestLayout();
+			}
 		} else if (key.equals("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
+		} else if (key.equals("opacity") || key.equals("backgroundColor")) {
+			TiDict d = proxy.getDynamicProperties();
+			if (proxy.getDynamicValue("backgroundColor") != null) {
+				Integer bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
+				nativeView.setBackgroundDrawable(new ColorDrawable(bgColor));
+			} else {
+				Log.w(LCAT, "Unable to set opacity w/o background color");
+			}
 		} else {
 			Log.i(LCAT, "Unhandled property key: " + key);
 		}
@@ -376,14 +390,26 @@ public abstract class TiUIView
 			}
 		}
 	}
-	
+
 	public void show()
 	{
-		nativeView.setVisibility(View.VISIBLE);
+		if (nativeView != null) {
+			nativeView.setVisibility(View.VISIBLE);
+		} else {
+			if (DBG) {
+				Log.w(LCAT, "Attempt to show null native control");
+			}
+		}
 	}
-	
+
 	public void hide()
 	{
-		nativeView.setVisibility(View.INVISIBLE);
+		if (nativeView != null) {
+			nativeView.setVisibility(View.INVISIBLE);
+		} else {
+			if (DBG) {
+				Log.w(LCAT, "Attempt to hide null native control");
+			}
+		}
 	}
 }

@@ -6,16 +6,21 @@ var data = [
 	{title:'Progress Bar', hasChild:true, test:'../examples/progress_bar.js'},
 	{title:'Button', hasChild:true, test:'../examples/button.js'},
 	{title:'Label', hasChild:true, test:'../examples/label.js'},
-	{title:'Button Bar', hasChild:true, test:'../examples/buttonbar.js'},
-	{title:'Tabbed Bar', hasChild:true, test:'../examples/tabbedbar.js'},
 	{title:'Search Bar', hasChild:true, test:'../examples/searchbar.js'},
 	{title:'Picker', hasChild:true, test:'../todo.js'},
 	{title:'Text Field', hasChild:true, test:'../examples/textfield.js'},
 	{title:'Text Area', hasChild:true, test:'../examples/textarea.js'},
-	{title:'System Buttons', hasChild:true, test:'../examples/system_buttons.js'},
-	{title:'Toolbar', hasChild:true, test:'../examples/toolbar.js'},
 
 ];
+
+// add iphone specific tests
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	data.push({title:'Button Bar', hasChild:true, test:'../examples/buttonbar.js'});
+	data.push({title:'Tabbed Bar', hasChild:true, test:'../examples/tabbedbar.js'});
+	data.push({title:'System Buttons', hasChild:true, test:'../examples/system_buttons.js'});
+	data.push({title:'Toolbar', hasChild:true, test:'../examples/toolbar.js'});
+}
 
 // create table view
 var tableview = Titanium.UI.createTableView({

@@ -18,7 +18,10 @@ public class AnimationStyleModule extends TiModule
 		if (constants == null) {
 			constants = new TiDict();
 
+			constants.put("CURL_DOWN", "iphone only");
+			constants.put("CURL_UP", "iphone only");
 			constants.put("FLIP_FROM_LEFT", "iphone only");
+			constants.put("FLIP_FROM_RIGHT", "iphone only");
 		}
 
 		return constants;

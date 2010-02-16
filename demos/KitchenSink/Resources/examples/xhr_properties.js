@@ -11,7 +11,6 @@ win.add(label);
 
 var xhr = Titanium.Network.createHTTPClient();
 
-var updateCount = 0;
 
 label.text = 'status ' + xhr.status + '\n';
 label.text += 'connected ' + xhr.connected + '\n';
@@ -22,9 +21,9 @@ label.text += 'responseData ' + xhr.responseData + '\n';
 label.text += 'connectionType ' + xhr.connectionType + '\n';
 label.text += 'location ' + xhr.location + '\n';
 
+var readyState = -1;
 xhr.onload = function()
 {
-	updateCount++;
 	label.text = 'status ' + xhr.status + '\n';
 	label.text += 'connected ' + xhr.connected + '\n';
 	label.text += 'readyState ' + xhr.readyState + '\n';
@@ -33,20 +32,23 @@ xhr.onload = function()
 	label.text += 'responseData ' + xhr.responseData + '\n';
 	label.text += 'connectionType ' + xhr.connectionType + '\n';
 	label.text += 'location ' + xhr.location + '\n';
-	label.text += 'updateCount ' + updateCount;
 };
 xhr.ondatastream = function(e)
 {
-	updateCount++;
-	label.text = 'status ' + xhr.status + '\n';
-	label.text += 'connected ' + xhr.connected + '\n';
-	label.text += 'readyState ' + xhr.readyState + '\n';
-	label.text += 'responseText ' + xhr.responseText + '\n';
-	label.text += 'responseXML ' + xhr.responseXML + '\n';
-	label.text += 'responseData ' + xhr.responseData + '\n';
-	label.text += 'connectionType ' + xhr.connectionType + '\n';
-	label.text += 'location ' + xhr.location + '\n';
-	label.text += 'updateCount ' + updateCount;
+	if (xhr.readyState > readyState)
+	{
+		readyState = xhr.readyState;
+		label.text = 'status ' + xhr.status + '\n';
+		label.text += 'connected ' + xhr.connected + '\n';
+		label.text += 'readyState ' + xhr.readyState + '\n';
+		label.text += 'responseText ' + xhr.responseText + '\n';
+		label.text += 'responseXML ' + xhr.responseXML + '\n';
+		label.text += 'responseData ' + xhr.responseData + '\n';
+		label.text += 'connectionType ' + xhr.connectionType + '\n';
+		label.text += 'location ' + xhr.location + '\n';
+		label.text += 'updateCount ' + updateCount;
+		
+	}
 
 };
 
