@@ -22,7 +22,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiBorderHelper.BorderSupport;
-import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import ti.modules.titanium.ui._2DMatrixProxy;
 import android.content.Context;
@@ -52,7 +52,7 @@ public abstract class TiUIView
 	protected TiViewProxy proxy;
 	protected TiViewProxy parent;
 
-	protected TitaniumCompositeLayoutParams layoutParams;
+	protected LayoutParams layoutParams;
 	protected int zIndex;
 
 	public TiUIView(TiViewProxy proxy)
@@ -62,7 +62,7 @@ public abstract class TiUIView
 		}
 
 		this.proxy = proxy;
-		this.layoutParams = new TitaniumCompositeLayout.TitaniumCompositeLayoutParams();
+		this.layoutParams = new TiCompositeLayout.LayoutParams();
 	}
 
 	public void add(TiUIView child)
@@ -103,7 +103,7 @@ public abstract class TiUIView
 	public void setParent(TiViewProxy parent) {
 		this.parent = parent;
 	}
-	public TitaniumCompositeLayoutParams getLayoutParams() {
+	public LayoutParams getLayoutParams() {
 		return layoutParams;
 	}
 	public int getZIndex() {
@@ -119,7 +119,7 @@ public abstract class TiUIView
 		this.nativeView = view;
 		nativeView.setOnFocusChangeListener(this);
 	}
-	protected void setLayoutParams(TitaniumCompositeLayoutParams layoutParams) {
+	protected void setLayoutParams(LayoutParams layoutParams) {
 		this.layoutParams = layoutParams;
 	}
 	protected void setZIndex(int index) {
@@ -264,11 +264,17 @@ public abstract class TiUIView
 			layoutParams.optionBottom = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
 			nativeView.requestLayout();
 		} else if (key.equals("height")) {
-			layoutParams.optionHeight = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
-			nativeView.requestLayout();
+			if (!newValue.equals("auto")) {
+				layoutParams.optionHeight = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
+				layoutParams.autoHeight = false;
+				nativeView.requestLayout();
+			}
 		} else if (key.equals("width")) {
-			layoutParams.optionWidth = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
-			nativeView.requestLayout();
+			if (!newValue.equals("auto")) {
+				layoutParams.optionWidth = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
+				layoutParams.autoWidth = false;
+				nativeView.requestLayout();
+			}
 		} else if (key.equals("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else {

@@ -10,7 +10,7 @@ import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.view.TiUIView;
-import org.appcelerator.titanium.view.TitaniumCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.content.Context;
 import android.view.View;
@@ -30,7 +30,7 @@ public class TiUIScrollView extends TiUIView {
 	private static final String SHOW_HORIZONTAL_SCROLL_INDICATOR = "showHorizontalScrollIndicator";
 	private static final String LCAT = "TiUIScrollView";
 	
-	private class TiScrollViewLayout extends TitaniumCompositeLayout
+	private class TiScrollViewLayout extends TiCompositeLayout
 	{
 		private static final int AUTO = Integer.MAX_VALUE;
 		protected int measuredWidth = 0, measuredHeight = 0;
@@ -39,8 +39,8 @@ public class TiUIScrollView extends TiUIView {
 			super(context);
 		}
 		
-		private TitaniumCompositeLayoutParams getParams(View child) {
-			return (TitaniumCompositeLayoutParams)child.getLayoutParams();
+		private LayoutParams getParams(View child) {
+			return (LayoutParams)child.getLayoutParams();
 		}
 		
 		@Override
@@ -63,17 +63,17 @@ public class TiUIScrollView extends TiUIView {
 		
 		private int calculateAbsoluteRight(View child)
 		{
-			TitaniumCompositeLayoutParams p = getParams(child);
+			LayoutParams p = getParams(child);
 			int contentWidth = getContentProperty("contentWidth");
 			if (contentWidth == AUTO) {
 				int childMeasuredWidth = child.getMeasuredWidth();
-				if (p.optionWidth != null) {
-					childMeasuredWidth = p.optionWidth.intValue();
+				if (!p.autoHeight) {
+					childMeasuredWidth = p.optionWidth;
 				}
-				if (p.optionLeft != null) {
+				if (p.optionLeft != NOT_SET) {
 					childMeasuredWidth += p.optionLeft;
 				}
-				if (p.optionRight != null) {
+				if (p.optionRight != NOT_SET) {
 					childMeasuredWidth += p.optionRight;
 				}
 				
@@ -86,17 +86,17 @@ public class TiUIScrollView extends TiUIView {
 		
 		private int calculateAbsoluteBottom(View child)
 		{
-			TitaniumCompositeLayoutParams p = (TitaniumCompositeLayoutParams)child.getLayoutParams();
+			LayoutParams p = (LayoutParams)child.getLayoutParams();
 			int contentHeight = getContentProperty("contentHeight");
 			if (contentHeight == AUTO) {
 				int childMeasuredHeight = child.getMeasuredHeight();
-				if (p.optionHeight != null) {
-					childMeasuredHeight = p.optionHeight.intValue();
+				if (!p.autoHeight) {
+					childMeasuredHeight = p.optionHeight;
 				}
-				if (p.optionTop != null) {
+				if (p.optionTop != NOT_SET) {
 					childMeasuredHeight += p.optionTop;
 				}
-				if (p.optionBottom != null) {
+				if (p.optionBottom != NOT_SET) {
 					childMeasuredHeight += p.optionBottom;
 				}
 				
@@ -112,32 +112,32 @@ public class TiUIScrollView extends TiUIView {
 				int height, int hMode) {
 			
 			// We need to support an automatically growing contentArea, so this code is 
-			TitaniumCompositeLayoutParams p = (TitaniumCompositeLayoutParams)child.getLayoutParams();
+			LayoutParams p = (LayoutParams)child.getLayoutParams();
 			int absoluteRight = calculateAbsoluteRight(child);
 			int absoluteBottom = calculateAbsoluteBottom(child);
 			int contentWidth = getContentProperty("contentWidth");
 			int contentHeight = getContentProperty("contentHeight");
 			
-			if (p.optionLeft != null) {
-				p.mLeft = Math.min(p.optionLeft.intValue(), contentWidth);
-				if (p.optionRight != null) {
-					p.mRight = Math.max(p.mLeft, absoluteRight - p.optionRight.intValue());
-				} else if (p.optionWidth != null) {
-					p.mRight = Math.min(p.mLeft + p.optionWidth.intValue(), contentWidth);
+			if (p.optionLeft != NOT_SET) {
+				p.mLeft = Math.min(p.optionLeft, contentWidth);
+				if (p.optionRight != NOT_SET) {
+					p.mRight = Math.max(p.mLeft, absoluteRight - p.optionRight);
+				} else if (!p.autoWidth) {
+					p.mRight = Math.min(p.mLeft + p.optionWidth, contentWidth);
 				} else {
 					p.mRight = absoluteRight;
 				}
-			} else if (p.optionRight != null) {
-				p.mRight = Math.max(absoluteRight - p.optionRight.intValue(), 0);
-				if (p.optionWidth != null) {
-					p.mLeft = Math.max(0, p.mRight - p.optionWidth.intValue());
+			} else if (p.optionRight != NOT_SET) {
+				p.mRight = Math.max(absoluteRight - p.optionRight, 0);
+				if (!p.autoWidth) {
+					p.mLeft = Math.max(0, p.mRight - p.optionWidth);
 				} else {
 					p.mLeft = 0;
 				}
 			} else {
 				p.mLeft = 0;
 				p.mRight = absoluteRight;
-				int w = p.optionWidth != null ? p.optionWidth.intValue() : child.getMeasuredWidth();
+				int w = !p.autoWidth ? p.optionWidth : child.getMeasuredWidth();
 				int space = (p.mRight - w)/2;
 				if (space > 0) {
 					p.mLeft = space;
@@ -145,26 +145,26 @@ public class TiUIScrollView extends TiUIView {
 				}
 			}
 			
-			if (p.optionTop != null) {
-				p.mTop = Math.min(p.optionTop.intValue(), contentHeight);
-				if (p.optionBottom != null) {
-					p.mBottom = Math.max(p.mTop, absoluteBottom - p.optionBottom.intValue());
-				} else if (p.optionHeight != null) {
-					p.mBottom = Math.min(p.mTop + p.optionHeight.intValue(), contentHeight);
+			if (p.optionTop != NOT_SET) {
+				p.mTop = Math.min(p.optionTop, contentHeight);
+				if (p.optionBottom != NOT_SET) {
+					p.mBottom = Math.max(p.mTop, absoluteBottom - p.optionBottom);
+				} else if (!p.autoHeight) {
+					p.mBottom = Math.min(p.mTop + p.optionHeight, contentHeight);
 				} else {
 					p.mBottom = absoluteBottom;
 				}
-			} else if (p.optionBottom != null) {
-				p.mBottom = Math.max(absoluteBottom - p.optionBottom.intValue(), 0);
-				if (p.optionHeight != null) {
-					p.mTop = Math.max(0, p.mBottom - p.optionHeight.intValue());
+			} else if (p.optionBottom != NOT_SET) {
+				p.mBottom = Math.max(absoluteBottom - p.optionBottom, 0);
+				if (!p.autoHeight) {
+					p.mTop = Math.max(0, p.mBottom - p.optionHeight);
 				} else {
 					p.mTop = 0;
 				}
 			} else {
 				p.mTop = 0;
 				p.mBottom = absoluteBottom;
-				int h = p.optionHeight != null ? p.optionHeight.intValue() : child.getMeasuredHeight();
+				int h = !p.autoHeight ? p.optionHeight : child.getMeasuredHeight();
 				int space = (p.mBottom - h)/2;
 				if (space > 0) {
 					p.mTop = space;

@@ -14,8 +14,8 @@ import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
-import org.appcelerator.titanium.view.TitaniumCompositeLayout;
-import org.appcelerator.titanium.view.TitaniumCompositeLayout.TitaniumCompositeLayoutParams;
+import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.app.Activity;
 import android.app.ActivityGroup;
@@ -31,7 +31,7 @@ public class TiRootActivity extends ActivityGroup
 
 	protected TiContext tiContext;
 	protected TiActivitySupportHelper supportHelper;
-	protected TitaniumCompositeLayout rootLayout;
+	protected TiCompositeLayout rootLayout;
 
 	public static class TiActivityRef
 	{
@@ -53,7 +53,7 @@ public class TiRootActivity extends ActivityGroup
 		host.setRootActivity(this);
 		tiContext = TiContext.createTiContext(this, null, null);
 
-		rootLayout = new TitaniumCompositeLayout(this);
+		rootLayout = new TiCompositeLayout(this);
 		setContentView(rootLayout);
 
 		runOnUiThread(new Runnable(){
@@ -83,7 +83,7 @@ public class TiRootActivity extends ActivityGroup
 		return windowId;
 	}
 
-	public void addWindow(String windowId, TitaniumCompositeLayoutParams params)
+	public void addWindow(String windowId, LayoutParams params)
 	{
 		LocalActivityManager lam = getLocalActivityManager();
 		Activity activity = lam.getActivity(windowId);
@@ -93,7 +93,7 @@ public class TiRootActivity extends ActivityGroup
 		}
 	}
 
-	public void addWindow(View v, TitaniumCompositeLayoutParams params) {
+	public void addWindow(View v, LayoutParams params) {
 		rootLayout.addView(v, params);
 	}
 

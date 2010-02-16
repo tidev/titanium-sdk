@@ -18,14 +18,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.OnHierarchyChangeListener;
 
-public class TitaniumCompositeLayout extends ViewGroup
+public class TiCompositeLayout extends ViewGroup
 	implements OnHierarchyChangeListener, TiBorderHelper.BorderSupport
 {
+	public static final int NOT_SET = Integer.MIN_VALUE;
+	
 	private TreeSet<View> viewSorter;
 	private boolean needsSort;
 	private TiBorderHelper borderHelper;
 
-	public TitaniumCompositeLayout(Context context)
+	public TiCompositeLayout(Context context)
 	{
 		super(context);
 		this.borderHelper = new TiBorderHelper();
@@ -34,29 +36,29 @@ public class TitaniumCompositeLayout extends ViewGroup
 
 			public int compare(View o1, View o2)
 			{
-				TitaniumCompositeLayout.TitaniumCompositeLayoutParams p1 =
-					(TitaniumCompositeLayout.TitaniumCompositeLayoutParams) o1.getLayoutParams();
-				TitaniumCompositeLayout.TitaniumCompositeLayoutParams p2 =
-					(TitaniumCompositeLayout.TitaniumCompositeLayoutParams) o2.getLayoutParams();
+				TiCompositeLayout.LayoutParams p1 =
+					(TiCompositeLayout.LayoutParams) o1.getLayoutParams();
+				TiCompositeLayout.LayoutParams p2 =
+					(TiCompositeLayout.LayoutParams) o2.getLayoutParams();
 
 				int result = 0;
 
-				if (p1.optionZIndex != null && p2.optionZIndex != null) {
-					if (p1.optionZIndex.intValue() < p2.optionZIndex.intValue()) {
+				if (p1.optionZIndex != NOT_SET && p2.optionZIndex != NOT_SET) {
+					if (p1.optionZIndex < p2.optionZIndex) {
 						result = -1;
-					} else if (p1.optionZIndex.intValue() > p2.optionZIndex.intValue()) {
+					} else if (p1.optionZIndex > p2.optionZIndex) {
 						result = 1;
 					}
-				} else if (p1.optionZIndex != null) {
-					if (p1.optionZIndex.intValue() < 0) {
+				} else if (p1.optionZIndex != NOT_SET) {
+					if (p1.optionZIndex < 0) {
 						result = -1;
-					} if (p1.optionZIndex.intValue() > 0) {
+					} if (p1.optionZIndex > 0) {
 						result = 1;
 					}
-				} else if (p2.optionZIndex != null) {
-					if (p2.optionZIndex.intValue() < 0) {
+				} else if (p2.optionZIndex != NOT_SET) {
+					if (p2.optionZIndex < 0) {
 						result = -1;
-					} if (p2.optionZIndex.intValue() > 0) {
+					} if (p2.optionZIndex > 0) {
 						result = 1;
 					}
 				}
@@ -78,11 +80,11 @@ public class TitaniumCompositeLayout extends ViewGroup
 		setOnHierarchyChangeListener(this);
 	}
 
-	public TitaniumCompositeLayout(Context context, AttributeSet attrs) {
+	public TiCompositeLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
 
-	public TitaniumCompositeLayout(Context context, AttributeSet attrs,
+	public TiCompositeLayout(Context context, AttributeSet attrs,
 			int defStyle) {
 		super(context, attrs, defStyle);
 	}
@@ -100,7 +102,7 @@ public class TitaniumCompositeLayout extends ViewGroup
 		if (parent != null && child != null) {
 			Log.i("LAYOUT", "Attaching: " + viewToString(child) + " to " + viewToString(parent));
 		}
-		TitaniumCompositeLayoutParams params = (TitaniumCompositeLayoutParams)child.getLayoutParams();
+		LayoutParams params = (LayoutParams)child.getLayoutParams();
 		if (params.index == Integer.MIN_VALUE) {
 			params.index = getChildCount()-1;
 		}
@@ -109,27 +111,29 @@ public class TitaniumCompositeLayout extends ViewGroup
 	public void onChildViewRemoved(View parent, View child) {
 		needsSort = true;
 		Log.i("LAYOUT", "Removing: " + viewToString(child) + " from " + viewToString(parent));
-		TitaniumCompositeLayoutParams params = (TitaniumCompositeLayoutParams)child.getLayoutParams();
+		LayoutParams params = (LayoutParams)child.getLayoutParams();
 		if (params.index == Integer.MIN_VALUE) {
 			params.index = Integer.MIN_VALUE;
 		}
 	}
 
 	@Override
-	protected boolean checkLayoutParams(LayoutParams p) {
-		return p instanceof TitaniumCompositeLayoutParams;
+	protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
+		return p instanceof TiCompositeLayout.LayoutParams;
 	}
 
 	@Override
 	protected LayoutParams generateDefaultLayoutParams()
 	{
 		// Default is fill view
-		TitaniumCompositeLayoutParams params = new TitaniumCompositeLayoutParams();
-		params.optionLeft = 0;
-		params.optionRight = 0;
-		params.optionTop = 0;
-		params.optionBottom = 0;
-		params.optionZIndex = 0;
+		LayoutParams params = new LayoutParams();
+		params.optionLeft = NOT_SET;
+		params.optionRight = NOT_SET;
+		params.optionTop = NOT_SET;
+		params.optionBottom = NOT_SET;
+		params.optionZIndex = NOT_SET;
+		params.autoHeight = true;
+		params.autoWidth = true;
 		return params;
 	}
 
@@ -195,8 +199,8 @@ public class TitaniumCompositeLayout extends ViewGroup
 		int maxWidth = width;
 		int maxHeight = height;
 		
-		TitaniumCompositeLayoutParams p =
-			(TitaniumCompositeLayoutParams) child.getLayoutParams();
+		LayoutParams p =
+			(LayoutParams) child.getLayoutParams();
 		
 		int widthSpec = getWidthMeasureSpec(child);
 		int heightSpec = getHeightMeasureSpec(child);
@@ -205,26 +209,27 @@ public class TitaniumCompositeLayout extends ViewGroup
 		child.measure(MeasureSpec.makeMeasureSpec(maxWidth, widthSpec),
 				MeasureSpec.makeMeasureSpec(maxHeight, heightSpec));
 		
-		if (p.optionLeft != null) {
-			p.mLeft = Math.min(p.optionLeft.intValue(), width);
-			if (p.optionRight != null) {
-				p.mRight = Math.max(p.mLeft, width - p.optionRight.intValue());
-			} else if (p.optionWidth != null) {
-				p.mRight = Math.min(p.mLeft + p.optionWidth.intValue(), width);
+		if (p.optionLeft != NOT_SET) {
+			p.mLeft = Math.min(p.optionLeft, width);
+			if (p.optionRight != NOT_SET) {
+				p.mRight = Math.max(p.mLeft, width - p.optionRight);
+			} else if (!p.autoWidth) {
+				p.mRight = Math.min(p.mLeft + p.optionWidth, width);
 			} else {
 				p.mRight = width;
 			}
-		} else if (p.optionRight != null) {
-			p.mRight = Math.max(width-p.optionRight.intValue(), 0);
-			if (p.optionWidth != null) {
-				p.mLeft = Math.max(0, p.mRight - p.optionWidth.intValue());
+		} else if (p.optionRight != NOT_SET) {
+			p.mRight = Math.max(width-p.optionRight, 0);
+			if (!p.autoWidth) {
+				p.mLeft = Math.max(0, p.mRight - p.optionWidth);
 			} else {
 				p.mLeft = 0;
 			}
 		} else {
 			p.mLeft = 0;
 			p.mRight = width;
-			int w = p.optionWidth != null ? p.optionWidth.intValue() : child.getMeasuredWidth();
+			int max = Math.max(child.getMeasuredWidth(), width);
+			int w = !p.autoWidth ? p.optionWidth : max;
 			int space = (width - w)/2;
 			if (space > 0) {
 				p.mLeft = space;
@@ -232,37 +237,31 @@ public class TitaniumCompositeLayout extends ViewGroup
 			}
 		}
 
-		if (p.optionTop != null) {
-			p.mTop = Math.min(p.optionTop.intValue(), height);
-			if (p.optionBottom != null) {
-				p.mBottom = Math.max(p.mTop, height - p.optionBottom.intValue());
-			} else if (p.optionHeight != null) {
-				p.mBottom = Math.min(p.mTop + p.optionHeight.intValue(), height);
+		if (p.optionTop != NOT_SET) {
+			p.mTop = Math.min(p.optionTop, height);
+			if (p.optionBottom != NOT_SET) {
+				p.mBottom = Math.max(p.mTop, height - p.optionBottom);
+			} else if (!p.autoHeight) {
+				p.mBottom = Math.min(p.mTop + p.optionHeight, height);
 			} else {
 				p.mBottom = height;
 			}
-		} else if (p.optionBottom != null) {
-			p.mBottom = Math.max(height-p.optionBottom.intValue(), 0);
-			if (p.optionHeight != null) {
-				p.mTop = Math.max(0, p.mBottom - p.optionHeight.intValue());
+		} else if (p.optionBottom != NOT_SET) {
+			p.mBottom = Math.max(height-p.optionBottom, 0);
+			if (!p.autoHeight) {
+				p.mTop = Math.max(0, p.mBottom - p.optionHeight);
 			} else {
 				p.mTop = 0;
-			}
-		} else if (p.optionHeight != null) {
-			p.mTop = 0;
-			p.mBottom = height;
-			int space = (height - p.optionHeight.intValue())/2;
-			if (space > 0) {
-				p.mTop = space;
-				p.mBottom = height - space;
 			}
 		} else {
 			p.mTop = 0;
 			p.mBottom = height;
-			int space = (height - child.getMeasuredHeight())/2;
+			int max = Math.max(child.getMeasuredHeight(), height);
+			int h = !p.autoHeight ? p.optionHeight : max;
+			int space = (height - h)/2;
 			if (space > 0) {
 				p.mTop = space;
-				p.mBottom = height - space;
+				p.mBottom -= space;
 			}
 		}
 
@@ -296,11 +295,11 @@ public class TitaniumCompositeLayout extends ViewGroup
 
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b)
-	{
+	{	
 		for (int i = 0; i < getChildCount(); i++) {
 			View child = getChildAt(i);
-			TitaniumCompositeLayout.TitaniumCompositeLayoutParams params =
-				(TitaniumCompositeLayout.TitaniumCompositeLayoutParams) child.getLayoutParams();
+			TiCompositeLayout.LayoutParams params =
+				(TiCompositeLayout.LayoutParams) child.getLayoutParams();
 			if (child.getVisibility() != View.GONE) {
 				child.layout(params.mLeft, params.mTop, params.mRight, params.mBottom);
 			}
@@ -316,28 +315,27 @@ public class TitaniumCompositeLayout extends ViewGroup
 	}
 
 
-	public static class TitaniumCompositeLayoutParams extends LayoutParams
+	public static class LayoutParams extends ViewGroup.LayoutParams
 	{
 		protected int index;
 
-		public Integer optionZIndex;
-		public Integer optionLeft;
-		public Integer optionTop;
-		public Integer optionRight;
-		public Integer optionBottom;
-		public Integer optionWidth;
-		public Integer optionHeight;
-
+		public int optionZIndex = NOT_SET;
+		public int optionLeft = NOT_SET;
+		public int optionTop = NOT_SET;
+		public int optionRight = NOT_SET;
+		public int optionBottom = NOT_SET;
+		public int optionWidth = NOT_SET;
+		public int optionHeight = NOT_SET;
+		
+		public boolean autoHeight = true;
+		public boolean autoWidth = true;
 		// Used in onMeasure to assign size for onLayout
 		public int mLeft;
 		public int mTop;
 		public int mRight;
 		public int mBottom;
-
-		public boolean autoWidth;
-		public boolean autoHeight;
 		
-		public TitaniumCompositeLayoutParams() {
+		public LayoutParams() {
 			super(WRAP_CONTENT, WRAP_CONTENT);
 
 			index = Integer.MIN_VALUE;

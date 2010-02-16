@@ -17,7 +17,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper2;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiUIView;
-import org.appcelerator.titanium.view.TitaniumCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -40,7 +40,7 @@ public class TiUIWindow extends TiUIView
 
 	protected String activityKey;
 	protected Activity windowActivity;
-	protected TitaniumCompositeLayout liteWindow;
+	protected TiCompositeLayout liteWindow;
 
 	protected boolean lightWeight;
 	protected Handler handler;
@@ -75,7 +75,7 @@ public class TiUIWindow extends TiUIView
 			activity.startActivity(intent);
 		} else {
 			lightWeight = true;
-			liteWindow = new TitaniumCompositeLayout(proxy.getContext());
+			liteWindow = new TiCompositeLayout(proxy.getContext());
 			setNativeView(liteWindow);
 			handlePostOpen();
 		}

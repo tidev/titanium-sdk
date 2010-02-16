@@ -11,7 +11,7 @@ import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.view.TitaniumCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -30,7 +30,7 @@ public class TiActivity extends Activity
 	private static final boolean DBG = TiConfig.LOGD;
 
 	protected TiContext tiContext;
-	protected TitaniumCompositeLayout layout;
+	protected TiCompositeLayout layout;
 	protected TiActivitySupportHelper supportHelper;
 
 	protected Handler handler;
@@ -46,7 +46,7 @@ public class TiActivity extends Activity
         super.onCreate(savedInstanceState);
         handler = new Handler();
 
-        layout = new TitaniumCompositeLayout(this);
+        layout = new TiCompositeLayout(this);
 
         Intent intent = getIntent();
 
@@ -114,7 +114,7 @@ public class TiActivity extends Activity
     	return (TiApplication) getApplication();
     }
 
-    public TitaniumCompositeLayout getLayout() {
+    public TiCompositeLayout getLayout() {
     	return layout;
     }
 
