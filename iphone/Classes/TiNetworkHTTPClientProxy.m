@@ -122,10 +122,11 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	if (request!=nil && [request error]==nil)
 	{
 		NSData *data = [request responseData];
-		if (data==nil) 
+		if (data==nil || [data length]==0) 
 		{
 			return nil;
 		}
+		[[data retain] autorelease];
 		NSString * result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:[request responseEncoding]] autorelease];
 		if (result==nil)
 		{

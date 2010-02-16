@@ -21,6 +21,7 @@ public class SystemButtonStyleModule extends TiModule
 			constants.put("BAR", "iphone only");
 			constants.put("DONE", "iphone only");
 			constants.put("PLAIN", "iphone only");
+			constants.put("FLEXIBLE_SPACE", "iphone only");
 		}
 
 		return constants;

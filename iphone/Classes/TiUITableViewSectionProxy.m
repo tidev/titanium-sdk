@@ -86,6 +86,7 @@
 	{
 		TableViewSectionProperties = [[NSSet alloc] initWithObjects:
 								  @"headerTitle", @"footerTitle",
+								  @"headerView", @"footerView",
 								  nil];
 	}
 	

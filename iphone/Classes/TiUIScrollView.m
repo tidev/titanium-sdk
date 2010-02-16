@@ -94,18 +94,23 @@
 	{
 		case TiDimensionTypePixels:
 		{
-			newContentSize.height = MAX(newContentSize.height,contentHeight.value);
+			minimumContentHeight = contentHeight.value;
 			break;
 		}
 		case TiDimensionTypeAuto:
 		{
+			minimumContentHeight = 0.0;
 			for (TiUIView * thisChildView in subViews)
 			{
-				newContentSize.height = MAX(newContentSize.height,[thisChildView minimumParentHeightForWidth:newContentSize.width]);
+				minimumContentHeight = MAX(minimumContentHeight,[thisChildView minimumParentHeightForWidth:newContentSize.width]);
 			}
 			break;
 		}
+		default:
+			minimumContentHeight = newContentSize.height;
+			break;
 	}
+	newContentSize.height = MAX(newContentSize.height,minimumContentHeight);
 
 	[scrollView setContentSize:newContentSize];
 	CGRect wrapperBounds;
@@ -236,5 +241,52 @@
  - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView;   // return a yes if you want to scroll to the top. if not defined, assumes YES
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView;      // called when scrolling animation finished. may be called immediately if already at top
 */
+
+
+
+-(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView
+{
+	CGRect scrollVisibleRect;
+	scrollVisibleRect = [self convertRect:[self bounds] toView:nil];
+	//First, find out how much we have to compensate.
+
+	CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;	
+	//ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
+
+	CGFloat unimportantArea = MAX(scrollVisibleRect.size.height - minimumContentHeight,0);
+	//It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
+		
+	CGRect responderRect = [firstResponderView convertRect:[firstResponderView bounds] toView:self];
+
+	if(obscuredHeight > unimportantArea)	//If the covered area is an acceptable loss, then we're fine and don't need to add insets.
+	{
+		[scrollView setContentInset:UIEdgeInsetsMake(0, 0, obscuredHeight - unimportantArea, 0)];
+
+		//To ensure that the obscuredHeight is compensated for, we treat the responder as larger.		
+		responderRect.size.height += obscuredHeight;
+	}
+
+	//However, we're not done, because it's possible a scrollview was not covered by the keyboard, but still needs to scroll
+	//To the firstResponder.
+
+	[scrollView scrollRectToVisible:responderRect animated:YES];
+}
+
+-(void)keyboardDidHide
+{
+	CGSize scrollContentSize = [scrollView contentSize];
+	CGPoint scrollOffset = [scrollView contentOffset];
+	
+	[scrollView setContentInset:UIEdgeInsetsZero];
+
+	//Reposition the scroll to handle the uncovered area.
+	CGRect scrollVisibleRect = [self bounds];
+	CGFloat maxYScrollOffset = scrollContentSize.height - scrollVisibleRect.size.height;
+	if (maxYScrollOffset < scrollOffset.y)
+	{
+		scrollOffset.y = maxYScrollOffset;
+		[scrollView setContentOffset:scrollOffset animated:YES];
+	}
+}
 
 @end

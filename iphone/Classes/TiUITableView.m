@@ -12,6 +12,8 @@
 #import "ImageLoader.h"
 #import "TiProxy.h"
 
+#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
+
 @implementation TiUITableView
 
 #pragma mark Internal 
@@ -609,6 +611,23 @@
 	[self hideSearchScreen:nil];
 }
 
+#pragma mark Section Header / Footer
+
+-(TiUIView*)sectionView:(NSInteger)section forLocation:(NSString*)location section:(TiUITableViewSectionProxy**)sectionResult
+{
+	TiUITableViewSectionProxy *proxy = [sections objectAtIndex:section];
+	if (sectionResult!=nil)
+	{
+		*sectionResult = proxy;
+	}
+	TiViewProxy* viewproxy = [proxy valueForKey:location];
+	if (viewproxy!=nil && [viewproxy isKindOfClass:[TiViewProxy class]])
+	{
+		return [viewproxy view];
+	}
+	return nil;
+}
+
 #pragma mark Public APIs
 
 -(void)scrollToIndex:(NSInteger)index position:(UITableViewScrollPosition)position animated:(BOOL)animated
@@ -1110,17 +1129,71 @@
 	return height < 1 ? tableView.rowHeight : height;
 }
 
-//
-// Variable height support
-//
-//- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section;
-//- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section;
-//
-// Section header & footer information. Views are preferred over title should you decide to provide both
-//
-//- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section;   // custom view for header. will be adjusted to default or specified header height
-//- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section;   // custom view for footer. will be adjusted to default or specified footer height
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+	return [self sectionView:section forLocation:@"headerView" section:nil];
+}
 
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
+{
+	return [self sectionView:section forLocation:@"footerView" section:nil];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+	TiUITableViewSectionProxy *sectionProxy = nil;
+	TiUIView *view = [self sectionView:section forLocation:@"headerView" section:&sectionProxy];
+	CGFloat size = 0;
+	if (view!=nil)
+	{
+		LayoutConstraint *layout = [view layout];
+		if (TiDimensionIsPixels(layout->height))
+		{
+			size+=layout->height.value;
+		}
+		else 
+		{
+			size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+		}
+	}
+	else if ([sectionProxy headerTitle]!=nil)
+	{
+		size+=[tableView sectionHeaderHeight];
+	}
+	if ([tableView tableHeaderView]!=nil)
+	{
+		size+=[tableView tableHeaderView].frame.size.height;
+	}
+	return size;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+	TiUITableViewSectionProxy *sectionProxy = nil;
+	TiUIView *view = [self sectionView:section forLocation:@"footerView" section:&sectionProxy];
+	CGFloat size = 0;
+	if (view!=nil)
+	{
+		LayoutConstraint *layout = [view layout];
+		if (TiDimensionIsPixels(layout->height))
+		{
+			size+=layout->height.value;
+		}
+		else 
+		{
+			size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+		}
+	}
+	else if ([sectionProxy footerTitle]!=nil)
+	{
+		size+=[tableView sectionFooterHeight];
+	}
+	if ([tableView tableFooterView]!=nil)
+	{
+		size+=[tableView tableFooterView].frame.size.height;
+	}
+	return size;
+}
 
 
 @end
