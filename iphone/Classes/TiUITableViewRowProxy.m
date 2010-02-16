@@ -294,6 +294,12 @@
 			{
 				TiUIView* view = (TiUIView*)aview;
 				TiViewProxy *proxy = [self.children objectAtIndex:x++];
+				// change the proxy/view relationship before firing 
+				// events since certain properties (such as backgroundImage)
+				// rely on certain aspects of the proxy to be set (like baseURL)
+				// for them to work correctly
+				view.parent = self;
+				view.proxy = self;
 				for (NSString *key in [proxy allProperties])
 				{
 					id oldValue = [view.proxy valueForKey:key];
@@ -310,7 +316,6 @@
 				// we assign ourselves as the new parent so we can be in the 
 				// event propagation chain to insert row level event properties
 				[proxy exchangeView:view];
-				view.parent = self;
 			}
 		} 
 	}

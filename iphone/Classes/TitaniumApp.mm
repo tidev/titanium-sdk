@@ -135,7 +135,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	// attach our main view controller
 	controller = [[TitaniumViewController alloc] init];
 	[window addSubview:controller.view];
-	controller.view.backgroundColor = [UIColor blueColor];
+	controller.view.backgroundColor = [UIColor clearColor];
 	
 	
 	// create our loading view

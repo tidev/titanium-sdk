@@ -455,8 +455,11 @@ static int tiProxyId = 0;
 
 -(void)_setBaseURL:(NSURL*)url
 {
-	RELEASE_TO_NIL(baseURL);
-	baseURL = [[url absoluteURL] retain];
+	if (url!=baseURL)
+	{
+		RELEASE_TO_NIL(baseURL);
+		baseURL = [[url absoluteURL] retain];
+	}
 }
 
 -(BOOL)_hasListeners:(NSString*)type

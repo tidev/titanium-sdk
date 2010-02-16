@@ -246,8 +246,7 @@ enum
 		}
 	}
 	
-	
-	[[TitaniumApp app] showModalController:picker animated:animatedPicker];
+	[[[TitaniumApp app] controller] presentModalViewController:picker animated:animatedPicker];
 }
 
 #pragma mark Public APIs

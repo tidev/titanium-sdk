@@ -69,6 +69,7 @@ ImageLoader *sharedLoader = nil;
 
 -(id)loadRemote:(NSURL*)url
 {
+	if (url==nil) return nil;
 	UIImage *image = [cache objectForKey:[url absoluteString]];
 	if (image!=nil)
 	{
@@ -80,6 +81,7 @@ ImageLoader *sharedLoader = nil;
 
 -(UIImage *)loadImmediateImage:(NSURL *)url
 {
+	if (url==nil) return nil;
 	UIImage *image = [cache objectForKey:[url absoluteString]];
 	if (image!=nil)
 	{
