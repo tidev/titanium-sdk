@@ -33,6 +33,10 @@ public class ImageViewProxy extends ViewProxy {
 		getImageView().pause();
 	}
 	
+	public void resume() {
+		getImageView().resume();
+	}
+	
 	public boolean getAnimating() {
 		return getImageView().isAnimating();
 	}

@@ -27,6 +27,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiFileHelper2;
 
+import ti.modules.titanium.ui.TiTabActivity;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Looper;
@@ -104,6 +105,10 @@ public class TiContext implements TiEvaluator
 			}
 		}
 
+		if (activity instanceof TiActivity) {
+			((TiActivity)activity).addTiContext(this);
+		}
+		
 		if (DBG) {
 			Log.e(LCAT, "BaseURL for context is " + baseUrl);
 		}
