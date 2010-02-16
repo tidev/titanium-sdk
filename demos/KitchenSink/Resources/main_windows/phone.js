@@ -15,10 +15,14 @@ var data = [
 	// {title:'Contacts', hasChild:true, test:'../examples/contacts.js'},
 	{title:'Contacts', hasChild:true, test:'../todo.js'},
 	{title:'Proximity Events', hasChild:true, test:'../todo.js'},
-	{title:'App Badge', hasChild:true, test:'../examples/app_badge.js'},
-	{title:'Status Bar', hasChild:true, test:'../examples/statusbar.js'},
 ];
 
+// add iphone specific tests
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	data.push({title:'App Badge', hasChild:true, test:'../examples/app_badge.js'});
+	data.push({title:'Status Bar', hasChild:true, test:'../examples/statusbar.js'});
+}
 
 // create table view
 var tableview = Titanium.UI.createTableView({

@@ -47,7 +47,6 @@ b.addEventListener('click', function()
 	},1000)
 });
 
-win.add(b);
 
 //
 // PLAIN STYLE INDICATOR
@@ -65,7 +64,6 @@ var ind=Titanium.UI.createProgressBar({
 	top:60	
 });
 
-win.add(ind);
 
 //
 // BAR STYLE INDICATOR
@@ -83,7 +81,6 @@ var ind2=Titanium.UI.createProgressBar({
 	top:120	
 });
 
-win.add(ind2);
 
 //
 // PLACE INDICATOR IN NAV BAR
@@ -98,7 +95,6 @@ var ind3=Titanium.UI.createProgressBar({
 	font:{fontSize:14, fontWeight:'bold'},
 	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN,
 });
-win.setTitleControl(ind3);
 
 //
 // PLACE INDICATOR IN TOOLBAR
@@ -113,5 +109,42 @@ var ind4=Titanium.UI.createProgressBar({
 	font:{fontSize:14, fontWeight:'bold'},
 	style:Titanium.UI.iPhone.ProgressBarStyle.PLAIN,
 });
-win.setToolbar([ind4]);
 
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	win.add(b);
+	win.add(ind);
+	win.add(ind2);
+	win.setTitleControl(ind3);
+	win.setToolbar([ind4]);
+}
+
+// create Android Progress Indicator
+else
+{
+	var value = 0;
+	
+	// create indicator
+	var ind = Titanium.UI.createActivityIndicator({
+		location:Titanium.UI.ActivityIndicator.DIALOG,
+		type:Titanium.UI.ActivityIndicator.DETERMINANT,
+		message:'Downloading 0 of 10',
+		min:0,
+		max:10,
+		value:0
+	});
+	
+	ind.show();
+	
+    var interval = setInterval(function()
+    {
+		value += 2;
+		ind.setValue(value);
+		ind.setMessage('Downloading ' + value + ' of 10');
+		if (value == 10)
+		{
+			clearInterval(interval);
+			ind.hide();
+		}
+     },1000);
+}

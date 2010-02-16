@@ -38,8 +38,6 @@ b1.addEventListener('click', function()
 	w.open();
 });
 
-win.add(b1);
-
 //
 //  OPEN (ANIMATE FROM BOTTOM RIGHT)
 //
@@ -81,8 +79,6 @@ b2.addEventListener('click', function()
 	w.open(a)
 });
 
-win.add(b2);
-
 //
 //  TRADITIONAL MODAL (FROM 0.8.x)
 //
@@ -111,8 +107,6 @@ b3.addEventListener('click', function()
 	})
 	w.open({modal:true})
 });
-
-win.add(b3);
 
 //
 //  OPEN (WITH ANIMATED WOBBLE)
@@ -176,8 +170,6 @@ b4.addEventListener('click', function()
 	
 });
 
-win.add(b4);
-
 //
 // OPEN (ANIMATE FROM BOTTOM)
 //
@@ -217,8 +209,6 @@ b5.addEventListener('click', function()
 	w.open(a)
 });
 
-win.add(b5);
-
 
 //
 //  OPEN (FULLSCREEN)
@@ -251,19 +241,18 @@ b6.addEventListener('click', function()
 	w.open({fullscreen:true});
 });
 
-win.add(b6);
 
 //
 //  OPEN (CUSTOM TOOLBAR)
 //
-var b6 = Titanium.UI.createButton({
+var b7 = Titanium.UI.createButton({
 	title:'Open (Toolbar)',
 	width:200,
 	height:40,
 	top:310
 });
 
-b6.addEventListener('click', function()
+b7.addEventListener('click', function()
 {
 	var label = Titanium.UI.createButton({
 		title:'Custom Toolbar',
@@ -317,7 +306,6 @@ b6.addEventListener('click', function()
 	w.open();
 });
 
-win.add(b6);
 
 
 //
@@ -361,7 +349,27 @@ navButton.addEventListener('click', function()
 		visible=false;
 	}
 });
-win.setRightNavButton(navButton);
 
+
+win.add(b1);
+win.add(b2);
+win.add(b3);
+win.add(b4);
+win.add(b5);
+win.add(b6);
+
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	win.setRightNavButton(navButton);
+	win.add(b7);
+
+}
+else
+{
+	navButton.top = 310;
+	navButton.width = 200;
+	navButton.height = 40;
+	win.add(navButton);
+}
 
 

@@ -29,9 +29,6 @@ basicSlider.addEventListener('change',function(e)
 	basicSliderLabel.text = 'Basic Slider - value = ' + e.value + ' act val ' + basicSlider.value;
 });
 
-win.add(basicSliderLabel);
-win.add(basicSlider);
-
 //
 // CUSTOM SLIDER
 //
@@ -65,8 +62,6 @@ customSlider.addEventListener('change',function(e)
 	customSliderLabel.text = 'Custom Slider - value = ' + e.value;
 });
 
-win.add(customSliderLabel);
-win.add(customSlider);
 
 //
 // CHANGE SLIDER
@@ -87,39 +82,35 @@ changeButton.addEventListener('click', function()
 	basicSlider.thumbImage = '../images/slider_thumb.png';
 	basicSlider.highlightedThumbImage = '../images/slider_thumb.png';	
 });
-win.add(changeButton);
-
 
 //
-// SLIDER TOOLBAR
+// TOGGLE SLIDER VISIBILITY
 //
-var toolbarButton = Titanium.UI.createButton({
-	title:'Toggle Slider in Toolbar',
+var toggleButton = Titanium.UI.createButton({
+	title:'Hide/Show Slider',
 	height:40,
 	width:200,
-	top:170
+	top:170,
 });
-var inToolbar = false;
-toolbarButton.addEventListener('click', function()
+
+var visible = true;
+toggleButton.addEventListener('click', function()
 {
-	if (!inToolbar)
+	if (visible)
 	{
-		var toolbarSlider = Titanium.UI.createSlider({
-			min:0,
-			max:10,
-			value:5,
-			width:200
-		});
-		win.setToolbar([toolbarSlider],{animated:true})
-		inToolbar = true;
+		basicSlider.hide();
+		customSlider.hide();
+		visible=false;
 	}
 	else
 	{
-		win.setToolbar(null,{animated:true})
-		inToolbar = false;
+		basicSlider.show();
+		customSlider.show();
+		visible=true;
 	}
+	
 });
-win.add(toolbarButton);
+
 
 //
 // SLIDER NAVBAR
@@ -150,36 +141,37 @@ navbarButton.addEventListener('click', function()
 		inNavbar = false;
 	}
 });
-win.add(navbarButton);
 
 //
-// TOGGLE SLIDER VISIBILITY
+// SLIDER TOOLBAR
 //
-var toggleButton = Titanium.UI.createButton({
-	title:'Hide/Show Slider',
+var toolbarButton = Titanium.UI.createButton({
+	title:'Toggle Slider in Toolbar',
 	height:40,
 	width:200,
 	top:270
+	
 });
-
-var visible = true;
-toggleButton.addEventListener('click', function()
+var inToolbar = false;
+toolbarButton.addEventListener('click', function()
 {
-	if (visible)
+	if (!inToolbar)
 	{
-		basicSlider.hide();
-		customSlider.hide();
-		visible=false;
+		var toolbarSlider = Titanium.UI.createSlider({
+			min:0,
+			max:10,
+			value:5,
+			width:200
+		});
+		win.setToolbar([toolbarSlider],{animated:true})
+		inToolbar = true;
 	}
 	else
 	{
-		basicSlider.show();
-		customSlider.show();
-		visible=true;
+		win.setToolbar(null,{animated:true})
+		inToolbar = false;
 	}
-	
 });
-win.add(toggleButton);
 
 //
 // SLIDER TO TITLE CONTROL 
@@ -213,4 +205,17 @@ titleButton.addEventListener('click', function()
 		inTitle=true;
 	}
 });
-win.add(titleButton);
+
+win.add(basicSliderLabel);
+win.add(basicSlider);
+win.add(customSliderLabel);
+win.add(customSlider);
+win.add(changeButton);
+win.add(toggleButton);
+
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	win.add(navbarButton);
+	win.add(toolbarButton);
+	win.add(titleButton);
+}
