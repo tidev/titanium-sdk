@@ -705,6 +705,14 @@
 		24DEDAC6112371A500398D86 /* XMLModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DEDAC4112371A500398D86 /* XMLModule.m */; };
 		24DEDAC7112371A500398D86 /* XMLModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DEDAC4112371A500398D86 /* XMLModule.m */; };
 		24DEDAC8112371A500398D86 /* XMLModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DEDAC4112371A500398D86 /* XMLModule.m */; };
+		24E25CC3112A698C0083D43D /* AQRecorder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24E25CC0112A698C0083D43D /* AQRecorder.mm */; };
+		24E25CC4112A698C0083D43D /* SCListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E25CC2112A698C0083D43D /* SCListener.m */; };
+		24E25CC5112A698C0083D43D /* AQRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = 24E25CBF112A698C0083D43D /* AQRecorder.h */; };
+		24E25CC6112A698C0083D43D /* AQRecorder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24E25CC0112A698C0083D43D /* AQRecorder.mm */; };
+		24E25CC7112A698C0083D43D /* SCListener.h in Headers */ = {isa = PBXBuildFile; fileRef = 24E25CC1112A698C0083D43D /* SCListener.h */; };
+		24E25CC8112A698C0083D43D /* SCListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E25CC2112A698C0083D43D /* SCListener.m */; };
+		24E25CC9112A698C0083D43D /* AQRecorder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24E25CC0112A698C0083D43D /* AQRecorder.mm */; };
+		24E25CCA112A698C0083D43D /* SCListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E25CC2112A698C0083D43D /* SCListener.m */; };
 		24EB02C1111BF827001DC2D1 /* TiUIWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB02C0111BF827001DC2D1 /* TiUIWebView.m */; };
 		24EB02C2111BF827001DC2D1 /* TiUIWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB02C0111BF827001DC2D1 /* TiUIWebView.m */; };
 		24EB02C3111BF827001DC2D1 /* TiUIWebView.h in Headers */ = {isa = PBXBuildFile; fileRef = 24EB02BF111BF827001DC2D1 /* TiUIWebView.h */; };
@@ -745,10 +753,6 @@
 		24EB0B76111E7EE8001DC2D1 /* NSData+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 24EB0B72111E7EE8001DC2D1 /* NSData+Additions.h */; };
 		24EB0B77111E7EE8001DC2D1 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */; };
 		24EB0BAC111F7959001DC2D1 /* TiMapPinAnnotationView.h in Headers */ = {isa = PBXBuildFile; fileRef = 24EB0BA8111F7959001DC2D1 /* TiMapPinAnnotationView.h */; };
-		24EE20DA11294B3D00E29517 /* SCListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EE20D911294B3D00E29517 /* SCListener.m */; };
-		24EE20DB11294B3D00E29517 /* SCListener.h in Headers */ = {isa = PBXBuildFile; fileRef = 24EE20D811294B3D00E29517 /* SCListener.h */; };
-		24EE20DC11294B3D00E29517 /* SCListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EE20D911294B3D00E29517 /* SCListener.m */; };
-		24EE20DD11294B3D00E29517 /* SCListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EE20D911294B3D00E29517 /* SCListener.m */; };
 		24F5ACF9111F7B8A005C9199 /* TiMapPinAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0BA9111F7959001DC2D1 /* TiMapPinAnnotationView.m */; };
 		24F5AEB5111F9DE9005C9199 /* TiFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5AEB3111F9DE9005C9199 /* TiFile.m */; };
 		24F5AEB6111F9DE9005C9199 /* TiFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 24F5AEB2111F9DE9005C9199 /* TiFile.h */; };
@@ -758,10 +762,6 @@
 		24FBE58411293D06005C8D48 /* TiMediaAudioRecorderProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FBE58111293D06005C8D48 /* TiMediaAudioRecorderProxy.h */; };
 		24FBE58511293D06005C8D48 /* TiMediaAudioRecorderProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE58211293D06005C8D48 /* TiMediaAudioRecorderProxy.mm */; };
 		24FBE58611293D06005C8D48 /* TiMediaAudioRecorderProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE58211293D06005C8D48 /* TiMediaAudioRecorderProxy.mm */; };
-		24FBE58D11293D54005C8D48 /* AQRecorder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE58C11293D54005C8D48 /* AQRecorder.mm */; };
-		24FBE58E11293D54005C8D48 /* AQRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FBE58B11293D54005C8D48 /* AQRecorder.h */; };
-		24FBE58F11293D54005C8D48 /* AQRecorder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE58C11293D54005C8D48 /* AQRecorder.mm */; };
-		24FBE59011293D54005C8D48 /* AQRecorder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE58C11293D54005C8D48 /* AQRecorder.mm */; };
 		24FBE5AE11293DD1005C8D48 /* CADebugMacros.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE5A711293DD1005C8D48 /* CADebugMacros.cpp */; };
 		24FBE5AF11293DD1005C8D48 /* CAStreamBasicDescription.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE5AA11293DD1005C8D48 /* CAStreamBasicDescription.cpp */; };
 		24FBE5B011293DD1005C8D48 /* CAXException.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE5AC11293DD1005C8D48 /* CAXException.cpp */; };
@@ -1186,6 +1186,10 @@
 		24CB0C9A111A96EE00A813AD /* libTitanium.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libTitanium.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		24DEDAC3112371A500398D86 /* XMLModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLModule.h; sourceTree = "<group>"; };
 		24DEDAC4112371A500398D86 /* XMLModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLModule.m; sourceTree = "<group>"; };
+		24E25CBF112A698C0083D43D /* AQRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AQRecorder.h; path = ../Classes/AQRecorder.h; sourceTree = SOURCE_ROOT; };
+		24E25CC0112A698C0083D43D /* AQRecorder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AQRecorder.mm; path = ../Classes/AQRecorder.mm; sourceTree = SOURCE_ROOT; };
+		24E25CC1112A698C0083D43D /* SCListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SCListener.h; path = ../Classes/SCListener.h; sourceTree = SOURCE_ROOT; };
+		24E25CC2112A698C0083D43D /* SCListener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SCListener.m; path = ../Classes/SCListener.m; sourceTree = SOURCE_ROOT; };
 		24EB02BF111BF827001DC2D1 /* TiUIWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIWebView.h; sourceTree = "<group>"; };
 		24EB02C0111BF827001DC2D1 /* TiUIWebView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIWebView.m; sourceTree = "<group>"; };
 		24EB06EC111D03F9001DC2D1 /* bridge.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bridge.txt; sourceTree = "<group>"; };
@@ -1208,16 +1212,12 @@
 		24EB0B73111E7EE8001DC2D1 /* NSData+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+Additions.m"; path = "../Classes/NSData+Additions.m"; sourceTree = SOURCE_ROOT; };
 		24EB0BA8111F7959001DC2D1 /* TiMapPinAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMapPinAnnotationView.h; sourceTree = "<group>"; };
 		24EB0BA9111F7959001DC2D1 /* TiMapPinAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMapPinAnnotationView.m; sourceTree = "<group>"; };
-		24EE20D811294B3D00E29517 /* SCListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCListener.h; sourceTree = "<group>"; };
-		24EE20D911294B3D00E29517 /* SCListener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCListener.m; sourceTree = "<group>"; };
 		24F5AEB2111F9DE9005C9199 /* TiFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiFile.h; sourceTree = "<group>"; };
 		24F5AEB3111F9DE9005C9199 /* TiFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiFile.m; sourceTree = "<group>"; };
 		24F5B144111FDFE8005C9199 /* ListenerEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListenerEntry.h; sourceTree = "<group>"; };
 		24F5B145111FDFE8005C9199 /* ListenerEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListenerEntry.m; sourceTree = "<group>"; };
 		24FBE58111293D06005C8D48 /* TiMediaAudioRecorderProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMediaAudioRecorderProxy.h; sourceTree = "<group>"; };
 		24FBE58211293D06005C8D48 /* TiMediaAudioRecorderProxy.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TiMediaAudioRecorderProxy.mm; sourceTree = "<group>"; };
-		24FBE58B11293D54005C8D48 /* AQRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AQRecorder.h; sourceTree = "<group>"; };
-		24FBE58C11293D54005C8D48 /* AQRecorder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AQRecorder.mm; sourceTree = "<group>"; };
 		24FBE5A711293DD1005C8D48 /* CADebugMacros.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CADebugMacros.cpp; path = ../Classes/CADebugMacros.cpp; sourceTree = SOURCE_ROOT; };
 		24FBE5A811293DD1005C8D48 /* CADebugMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CADebugMacros.h; path = ../Classes/CADebugMacros.h; sourceTree = SOURCE_ROOT; };
 		24FBE5A911293DD1005C8D48 /* CAMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CAMath.h; path = ../Classes/CAMath.h; sourceTree = SOURCE_ROOT; };
@@ -1470,6 +1470,10 @@
 		24CA89A6111161230084E2DE /* Misc */ = {
 			isa = PBXGroup;
 			children = (
+				24E25CBF112A698C0083D43D /* AQRecorder.h */,
+				24E25CC0112A698C0083D43D /* AQRecorder.mm */,
+				24E25CC1112A698C0083D43D /* SCListener.h */,
+				24E25CC2112A698C0083D43D /* SCListener.m */,
 				24FBE5A711293DD1005C8D48 /* CADebugMacros.cpp */,
 				24FBE5A811293DD1005C8D48 /* CADebugMacros.h */,
 				24FBE5A911293DD1005C8D48 /* CAMath.h */,
@@ -1485,10 +1489,6 @@
 				24CA894C111161050084E2DE /* IPAddress.h */,
 				24CA8959111161050084E2DE /* SBJSON.h */,
 				24CA895A111161050084E2DE /* SBJSON.m */,
-				24FBE58B11293D54005C8D48 /* AQRecorder.h */,
-				24FBE58C11293D54005C8D48 /* AQRecorder.mm */,
-				24EE20D811294B3D00E29517 /* SCListener.h */,
-				24EE20D911294B3D00E29517 /* SCListener.m */,
 			);
 			name = Misc;
 			sourceTree = "<group>";
@@ -2440,12 +2440,12 @@
 				B4D5829711264FF500A6B66C /* TiUITextWidget.h in Headers */,
 				243ED8ED11288B4300639DF4 /* TiUITableViewScrollPositionProxy.h in Headers */,
 				24FBE58411293D06005C8D48 /* TiMediaAudioRecorderProxy.h in Headers */,
-				24FBE58E11293D54005C8D48 /* AQRecorder.h in Headers */,
 				24FBE5B211293DD1005C8D48 /* CADebugMacros.h in Headers */,
 				24FBE5B311293DD1005C8D48 /* CAMath.h in Headers */,
 				24FBE5B511293DD1005C8D48 /* CAStreamBasicDescription.h in Headers */,
 				24FBE5B711293DD1005C8D48 /* CAXException.h in Headers */,
-				24EE20DB11294B3D00E29517 /* SCListener.h in Headers */,
+				24E25CC5112A698C0083D43D /* AQRecorder.h in Headers */,
+				24E25CC7112A698C0083D43D /* SCListener.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2768,11 +2768,11 @@
 				24DEDAC7112371A500398D86 /* XMLModule.m in Sources */,
 				243ED8EF11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m in Sources */,
 				24FBE58311293D06005C8D48 /* TiMediaAudioRecorderProxy.mm in Sources */,
-				24FBE58D11293D54005C8D48 /* AQRecorder.mm in Sources */,
 				24FBE5AE11293DD1005C8D48 /* CADebugMacros.cpp in Sources */,
 				24FBE5AF11293DD1005C8D48 /* CAStreamBasicDescription.cpp in Sources */,
 				24FBE5B011293DD1005C8D48 /* CAXException.cpp in Sources */,
-				24EE20DA11294B3D00E29517 /* SCListener.m in Sources */,
+				24E25CC3112A698C0083D43D /* AQRecorder.mm in Sources */,
+				24E25CC4112A698C0083D43D /* SCListener.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2967,11 +2967,11 @@
 				24DEDAC8112371A500398D86 /* XMLModule.m in Sources */,
 				243ED8F011288B4300639DF4 /* TiUITableViewScrollPositionProxy.m in Sources */,
 				24FBE58611293D06005C8D48 /* TiMediaAudioRecorderProxy.mm in Sources */,
-				24FBE59011293D54005C8D48 /* AQRecorder.mm in Sources */,
 				24FBE5B811293DD1005C8D48 /* CADebugMacros.cpp in Sources */,
 				24FBE5B911293DD1005C8D48 /* CAStreamBasicDescription.cpp in Sources */,
 				24FBE5BA11293DD1005C8D48 /* CAXException.cpp in Sources */,
-				24EE20DD11294B3D00E29517 /* SCListener.m in Sources */,
+				24E25CC9112A698C0083D43D /* AQRecorder.mm in Sources */,
+				24E25CCA112A698C0083D43D /* SCListener.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3166,11 +3166,11 @@
 				24DEDAC6112371A500398D86 /* XMLModule.m in Sources */,
 				243ED8EE11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m in Sources */,
 				24FBE58511293D06005C8D48 /* TiMediaAudioRecorderProxy.mm in Sources */,
-				24FBE58F11293D54005C8D48 /* AQRecorder.mm in Sources */,
 				24FBE5B111293DD1005C8D48 /* CADebugMacros.cpp in Sources */,
 				24FBE5B411293DD1005C8D48 /* CAStreamBasicDescription.cpp in Sources */,
 				24FBE5B611293DD1005C8D48 /* CAXException.cpp in Sources */,
-				24EE20DC11294B3D00E29517 /* SCListener.m in Sources */,
+				24E25CC6112A698C0083D43D /* AQRecorder.mm in Sources */,
+				24E25CC8112A698C0083D43D /* SCListener.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
