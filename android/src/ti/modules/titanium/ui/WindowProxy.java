@@ -120,4 +120,9 @@ public class WindowProxy extends TiWindowProxy
 	{
 
 	}
+	
+	public TiViewProxy getTab()
+	{
+		return tab;
+	}
 }
