@@ -100,7 +100,7 @@ public class TiUIImageView extends TiUIView
 				Log.e(LCAT, "Error creating drawable from file: " + file.getBaseFile().getNativeFile().getName(), e);
 			}
 		} else if (image instanceof String) {
-			String url = proxy.getTiContext().resolveUrl((String)image);
+			String url = proxy.getTiContext().resolveUrl(null, (String)image);
 			TiBaseFile file = TiFileFactory.createTitaniumFile(proxy.getTiContext(), new String[] { url }, false);
 			try {
 				return new BitmapDrawable(createBitmap(file.getInputStream()));

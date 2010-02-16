@@ -304,7 +304,7 @@ public abstract class TiUIView
 		// Prefer image to color.
 		if (d.containsKey("backgroundImage")) {
 			String path = TiConvert.toString(d, "backgroundImage");
-			String url = getProxy().getTiContext().resolveUrl(path);
+			String url = getProxy().getTiContext().resolveUrl(null, path);
 			TiBaseFile file = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), new String[] { url }, false);
 			try {
 				nativeView.setBackgroundDrawable(Drawable.createFromStream(
