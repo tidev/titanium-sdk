@@ -132,12 +132,7 @@ DEFINE_EXCEPTIONS
 
 -(void)setLayout:(LayoutConstraint *)layout_
 {
-	layout.left = layout_->left;
-	layout.right = layout_->right;
-	layout.width = layout_->width;
-	layout.top = layout_->top;
-	layout.bottom = layout_->bottom;
-	layout.height = layout_->height;
+	layout = *layout_;
 }
 
 -(void)insertIntoView:(UIView*)newSuperview bounds:(CGRect)bounds
