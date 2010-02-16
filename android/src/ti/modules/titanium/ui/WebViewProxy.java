@@ -60,7 +60,6 @@ public class WebViewProxy extends ViewProxy
 			Message msg = getUIHandler().obtainMessage(MSG_SET_HTML, result);
 			msg.obj = html;
 			msg.sendToTarget();
-			result.getResult();
 		}
 	}
 	
