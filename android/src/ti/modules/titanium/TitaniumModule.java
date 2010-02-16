@@ -39,7 +39,7 @@ public class TitaniumModule
 	public void include(Object[] files) {
 		for(Object filename : files) {
 			try {
-				getTiContext().evalFile(getTiContext().resolveUrl(TiConvert.toString(filename)));
+				getTiContext().evalFile(getTiContext().resolveUrl(null, TiConvert.toString(filename)));
 			} catch (IOException e) {
 				Log.e(LCAT, "Error while evaluating: " + filename, e);
 			}

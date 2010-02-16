@@ -130,7 +130,7 @@ public class TabGroupProxy extends TiWindowProxy
 			if (icon == null) {
 				tspec.setIndicator(title);
 			} else {
-				String path = getTiContext().resolveUrl(icon);
+				String path = getTiContext().resolveUrl(null, icon);
 				TiFileHelper tfh = new TiFileHelper(getTiContext().getRootActivity());
 				Drawable d = tfh.loadDrawable(path, false);
 				tspec.setIndicator(title, d);

@@ -143,7 +143,7 @@ public class TiContext implements TiEvaluator
 		return new TiFileHelper(getTiApp());
 	}
 
-	public String absoluteUrl(String url)
+	public String absoluteUrl(String defaultScheme, String url)
 	{
 		try {
 			URI uri = new URI(url);
@@ -188,7 +188,7 @@ public class TiContext implements TiEvaluator
 					if (!bUrl.endsWith("/")) {
 						bUrl = bUrl + "/";
 					}
-					url = TiFileHelper2.joinSegments("app://",bUrl, fname);
+					url = TiFileHelper2.joinSegments(defaultScheme + "//",bUrl, fname);
 				}
 			}
 		} catch (URISyntaxException e) {
@@ -198,12 +198,15 @@ public class TiContext implements TiEvaluator
 		return url;
 	}
 
-	public String resolveUrl(String path)
+	public String resolveUrl(String scheme, String path)
 	{
 		String result = null;
+		if (scheme == null) {
+			scheme = "app:";
+		}
 
 		if (path.startsWith("../")) {
-			path = absoluteUrl(path);
+			path = absoluteUrl(scheme, path);
 		}
 
 		Uri uri = Uri.parse(path);
@@ -211,7 +214,7 @@ public class TiContext implements TiEvaluator
 			if (!path.startsWith("/")) {
 				result = baseUrl + path;
 			} else {
-				result = "app:/" + path;
+				result = scheme + "/" + path;
 			}
 		} else {
 			result = path;

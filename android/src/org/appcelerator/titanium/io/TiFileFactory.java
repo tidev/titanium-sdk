@@ -18,6 +18,12 @@ public class TiFileFactory
 	private static final String LCAT = "TiFileFactory";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	public static TiBaseFile createTitaniumFile(TiContext tiContext, String path, boolean stream)
+	{
+		String[] parts = { path };
+		return createTitaniumFile(tiContext, parts, stream);
+	}
+
 	public static TiBaseFile createTitaniumFile(
 		TiContext tiContext, String[] parts, boolean stream)
 	{
