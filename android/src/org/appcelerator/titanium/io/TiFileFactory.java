@@ -13,6 +13,8 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
 
+import android.net.Uri;
+
 public class TiFileFactory
 {
 	private static final String LCAT = "TiFileFactory";
@@ -112,5 +114,23 @@ public class TiFileFactory
 		return tfh.getDataDirectory(privateStorage);
 	}
 
+	public static boolean isLocalScheme(String url)
+	{
+		Uri uri = Uri.parse(url);
+		String scheme = uri.getScheme();
+
+		if (scheme == null) {
+			return true;
+		}
+
+		scheme = scheme.toLowerCase();
+		if ("app".equals(scheme) || "appdata".equals(scheme) || "appdata-private".equals(scheme) ||
+			"file".equals(scheme) || "content".equals(scheme))
+		{
+			return true;
+		}
+
+		return false;
+	}
 
 }

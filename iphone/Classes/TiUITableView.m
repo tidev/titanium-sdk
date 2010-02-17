@@ -148,6 +148,11 @@
 	return nil;
 }
 
+-(NSArray*)sections
+{
+	return sections;
+}
+
 -(NSIndexPath *)indexPathFromInt:(NSInteger)index
 {
 	if(index < 0)
@@ -176,10 +181,9 @@
 {
 	row.table = self;
 	row.section = before.section;
-	row.row = before.row;
-	before.row = row.row + 1;
 	NSMutableArray *rows = [row.section rows];
 	[rows insertObject:row atIndex:row.row];
+	[row.section reorderRows];
 	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:animation section:row.section.section type:TiUITableViewActionInsertRowBefore] autorelease];
 	[self dispatchAction:action];
 }
@@ -188,16 +192,16 @@
 {
 	row.table = self;
 	row.section = after.section;
-	row.row = after.row + 1;
 	NSMutableArray *rows = [row.section rows];
-	if (row.row >= [rows count])
+	if (after.row + 1 == [rows count])
 	{
 		[rows addObject:row];
 	}
 	else
 	{
-		[rows insertObject:row atIndex:row.row];
+		[rows insertObject:row atIndex:after.row+1];
 	}
+	[row.section reorderRows];
 	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:animation section:row.section.section type:TiUITableViewActionInsertRowAfter] autorelease];
 	[self dispatchAction:action];
 }
@@ -207,12 +211,7 @@
 	[[row retain] autorelease];
 	NSMutableArray *rows = [row.section rows];
 	[rows removeObject:row];
-	int c=0;
-	for (TiUITableViewRowProxy *child in rows)
-	{
-		child.row = c;
-		c++;
-	}
+	[row.section reorderRows];
 	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:animation section:row.section.section type:TiUITableViewActionDeleteRow] autorelease];
 	[self dispatchAction:action];
 }
@@ -223,8 +222,8 @@
 	TiUITableViewSectionProxy *section = [sections objectAtIndex:[sections count]-1];
 	row.section = section;
 	NSMutableArray *rows = [row.section rows];
-	row.row = [rows count];
 	[rows addObject:row];
+	[row.section reorderRows];
 	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:animation section:row.section.section type:TiUITableViewActionInsertRowAfter] autorelease];
 	[self dispatchAction:action];
 }
@@ -254,6 +253,7 @@
 		case TiUITableViewActionInsertRowBefore:
 		case TiUITableViewActionInsertRowAfter:
 		{
+			NSLog(@"insert at %d",action.row.row);
 			NSIndexPath *path = [NSIndexPath indexPathForRow:action.row.row inSection:action.row.section.section];
 			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
 			break;

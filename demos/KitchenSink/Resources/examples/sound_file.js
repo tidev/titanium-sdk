@@ -16,9 +16,9 @@ var play = Titanium.UI.createButton({
 	top:10
 });
 play.addEventListener('click', function()
-{	
+{
 	sound.play();
-	pb.max = sound.duration,
+	pb.max = sound.duration;
 });
 win.add(play);
 
@@ -35,7 +35,7 @@ var pause = Titanium.UI.createButton({
 pause.addEventListener('click', function()
 {
 	sound.pause();
-})
+});
 win.add(pause);
 
 //
@@ -52,8 +52,8 @@ reset.addEventListener('click', function()
 {
 	sound.reset();
 	pb.value = 0;
-	
-})
+
+});
 win.add(reset);
 
 //
@@ -70,7 +70,7 @@ stop.addEventListener('click', function()
 {
 	sound.stop();
 	pb.value = 0;
-})
+});
 win.add(stop);
 
 //
@@ -108,14 +108,14 @@ volumeDown.addEventListener('click', function()
 {
 	if (sound.volume > 0)
 	{
-		if (sound.volume < 0.1) 
+		if (sound.volume < 0.1)
 			sound.volume = 0;
-		else	
+		else
 			sound.volume -= 0.1;
 		volumeDown.title = 'Volume-- (' + String(sound.volume).substring(0,3) + ')';
 		volumeUp.title = 'Volume++';
 	}
-		
+
 });
 win.add(volumeDown);
 
@@ -157,7 +157,7 @@ var flexSpace = Titanium.UI.createButton({
 var pb = Titanium.UI.createProgressBar({
 	min:0,
 	value:0,
-	width:200,
+	width:200
 });
 
 win.setToolbar([flexSpace,pb,flexSpace]);
@@ -165,14 +165,14 @@ pb.show();
 
 //
 // INTERVAL TO UPDATE PB
-// 
+//
 var i = setInterval(function()
 {
 	if (sound.isPlaying())
 	{
 		Ti.API.info('time ' + sound.time)
 		pb.value = sound.time;
-		
+
 	}
 },500);
 

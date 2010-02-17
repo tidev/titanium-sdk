@@ -10,6 +10,7 @@
 #import "TiUIViewProxy.h"
 #import "ImageLoader.h"
 #import "TiComplexValue.h"
+#import "TitaniumApp.h"
 
 @implementation TiUIWindowProxy
 
@@ -106,7 +107,7 @@
 	{
 		id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
 		BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-		[navbar setNavigationBarHidden:NO animated:animated];
+		[navController setNavigationBarHidden:NO animated:animated];
 	}
 }
 
@@ -118,7 +119,7 @@
 	{
 		id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
 		BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-		[navbar setNavigationBarHidden:YES animated:animated];
+		[navController setNavigationBarHidden:YES animated:animated];
 		//TODO: need to fix height
 	}
 }
@@ -134,15 +135,15 @@
 		
 		if ([color isEqualToString:@"transparent"])
 		{
-			navbar.navigationBar.barStyle = UIBarStyleBlackTranslucent;
-			navbar.navigationBar.translucent = YES;
+			navController.navigationBar.barStyle = UIBarStyleBlackTranslucent;
+			navController.navigationBar.translucent = YES;
 		}
 		else 
 		{
 			UIColor *acolor = UIColorWebColorNamed(color);
-			navbar.navigationBar.tintColor = acolor;
-			navbar.toolbar.tintColor = acolor;
-			navbar.navigationBar.barStyle = UIBarStyleDefault;
+			navController.navigationBar.tintColor = acolor;
+			navController.toolbar.tintColor = acolor;
+			navController.navigationBar.barStyle = UIBarStyleDefault;
 		}
 	}
 }
@@ -153,8 +154,14 @@
 	[self replaceValue:value forKey:@"translucent" notification:NO];
 	if (controller!=nil)
 	{
-		navbar.navigationBar.translucent = [TiUtils boolValue:value];
+		navController.navigationBar.translucent = [TiUtils boolValue:value];
 	}
+}
+
+-(void)setOrientationModes:(id)value
+{
+	[self replaceValue:value forKey:@"orientationModes" notification:YES];
+	[[[TitaniumApp app] controller] performSelectorOnMainThread:@selector(refreshOrientationModesIfNeeded:) withObject:self waitUntilDone:NO];
 }
 
 -(void)setRightNavButton:(id)proxy withObject:(id)properties
@@ -421,8 +428,8 @@
 			}
 			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
 			[controller setToolbarItems:array animated:animated];
-			[navbar setToolbarHidden:NO animated:animated];
-			[navbar.toolbar setTranslucent:translucent];
+			[navController setToolbarHidden:NO animated:animated];
+			[navController.toolbar setTranslucent:translucent];
 			[array release];
 			hasToolbar=YES;
 		}
@@ -430,8 +437,8 @@
 		{
 			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
 			[controller setToolbarItems:nil animated:animated];
-			[navbar setToolbarHidden:YES animated:animated];
-			[navbar.toolbar setTranslucent:translucent];
+			[navController setToolbarHidden:YES animated:animated];
+			[navController.toolbar setTranslucent:translucent];
 			hasToolbar=NO;
 		}
 	}
@@ -483,9 +490,9 @@ else{\
 
 -(void)setupWindowDecorations
 {
-	if (navbar!=nil)
+	if (navController!=nil)
 	{
-		[navbar setToolbarHidden:!hasToolbar animated:YES];
+		[navController setToolbarHidden:!hasToolbar animated:YES];
 	}
 	
 	SETPROP(@"title",setTitle);
