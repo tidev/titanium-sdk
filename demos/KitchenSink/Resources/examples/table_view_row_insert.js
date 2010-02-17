@@ -17,7 +17,6 @@ var data = [
 	{title:'Row13'},
 	{title:'Row14'},
 	{title:'Row15'},
-	{title:'Insert Row w/o animation'},
 	{title:'Insert Row w/o animation (below)'}
 ];
 
@@ -32,17 +31,10 @@ tableView.addEventListener('click', function(e)
 	
 	switch(e.rowData.title)
 	{
-		case 'Insert Row Above - 1':
+		case 'Insert Row Above (no anim)':
 		{
 			var data = {title:'New First Row'};
 			tableView.insertRowBefore(0,data);				
-			break;
-		}
-		case 'Insert Row w/o animation':
-		{
-			var data = {title:'New First Row w/o animation'};
-			tableView.insertRowBefore(0,data);
-			tableView.scrollToIndex(0);
 			break;
 		}
 		case 'Insert Row Below - 1':
