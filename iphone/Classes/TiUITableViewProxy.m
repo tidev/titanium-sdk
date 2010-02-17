@@ -157,15 +157,72 @@
 {
 	// this is for backwards compat
 	
-	NSDictionary *data = [args objectAtIndex:0];
+	id data = [args objectAtIndex:0];
 	NSDictionary *anim = [args count] > 1 ? [args objectAtIndex:1] : nil;
 	
-	NSArray *existingData = [self valueForKey:@"data"];
-	if (existingData!=nil)
+	NSMutableArray *existingData = [self valueForKey:@"data"];
+	if (existingData==nil)
+	{
+		// setting will retain
+		existingData = [NSMutableArray array];
+		[self replaceValue:existingData forKey:@"data" notification:YES];
+	}
+	TiUITableViewRowProxy *newrow = nil;
+	
+	if ([data isKindOfClass:[NSDictionary class]])
+	{
+		newrow = [self newTableViewRowFromDict:data];
+	}
+	else if ([data isKindOfClass:[TiUITableViewRowProxy class]])
+	{
+		newrow = (TiUITableViewRowProxy*)data;
+	}
+	else if ([data isKindOfClass:[TiUITableViewSectionProxy class]])
+	{
+		[existingData addObject:data];
+		[(TiUITableViewSectionProxy*)data triggerSectionUpdate];
+		return;
+	}
+	else
+	{
+		NSLog(@"[ERROR] not sure what: %@ is to tableview appendRow",data);
+		return;
+	}
+	if ([self viewAttached])
 	{
 		TiUITableView *table = (TiUITableView*) [self view];
-		TiUITableViewRowProxy *newrow = [self newTableViewRowFromDict:data];
 		[table appendRow:newrow animation:anim];
+	}
+	else
+	{
+		TiUITableViewSectionProxy *section = [newrow section];
+		if (section==nil)
+		{
+			if ([existingData count]==0)
+			{
+				section = [[[TiUITableViewSectionProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
+				[existingData addObject:section];
+			}
+			else
+			{
+				section = [existingData lastObject];
+			}
+		}
+		if ([data isKindOfClass:[NSDictionary class]])
+		{
+			NSString *header = [(NSDictionary*)data objectForKey:@"header"];
+			if (header!=nil)
+			{
+				[section setValue:header forUndefinedKey:@"headerTitle"];
+			}
+			NSString *footer = [(NSDictionary*)data objectForKey:@"footer"];
+			if (footer!=nil)
+			{
+				[section setValue:footer forUndefinedKey:@"footerTitle"];
+			}
+		}
+		newrow.section = section;
+		[section add:newrow];
 	}
 }
 
