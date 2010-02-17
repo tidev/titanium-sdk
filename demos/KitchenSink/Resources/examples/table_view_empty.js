@@ -40,3 +40,4 @@ b2.addEventListener('click',function()
 	
 });
 win.add(tableView);
+

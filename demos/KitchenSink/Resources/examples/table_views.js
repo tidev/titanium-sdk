@@ -29,6 +29,8 @@ var data = [
 	{title:'Table Search', hasChild:true, test:'../examples/table_view_api_search.js'},
 	{title:'Table Custom Header', hasChild:true, test:'../examples/table_view_api_custom_header.js'},
 	{title:'Table Custom Footer', hasChild:true, test:'../examples/table_view_api_custom_footer.js'},
+	{title:'Table Section Header', hasChild:true, test:'../examples/table_view_section_header.js'},
+	{title:'Table View Options', hasChild:true, test:'../examples/table_view_options.js'},
 
 ];
 
