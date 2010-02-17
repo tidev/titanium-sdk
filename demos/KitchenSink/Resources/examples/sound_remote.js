@@ -11,7 +11,7 @@ var url = Titanium.UI.createTextField({
 	height:35,
 	top:10,
 	width:300,
-	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
+	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
 });
 
 var streamButton = Titanium.UI.createButton({
@@ -36,7 +36,7 @@ var stateLabel = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	height:40,
-	color:'#555',
+	color:'#555'
 });
 
 Ti.UI.currentWindow.add(url);
