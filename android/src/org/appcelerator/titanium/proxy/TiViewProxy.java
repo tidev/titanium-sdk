@@ -216,33 +216,6 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 				view.add(cv);
 			}
 		}
-
-//		View nativeView = view.getNativeView();
-//		if (nativeView != null) {
-//			Log.e(LCAT, "native view type: " + nativeView.getClass().getSimpleName());
-//		}
-//		if (nativeView instanceof ViewGroup) {
-//			ViewGroup vg = (ViewGroup) nativeView;
-//			if (children != null) {
-//				int i = 0;
-//				for(TiViewProxy p : children) {
-//					TiUIView v = p.getView(activity);
-//					Log.e(LCAT, "attaching: " + v.getClass().getSimpleName());
-//
-//					v.setParent(this);
-//					TitaniumCompositeLayout.TitaniumCompositeLayoutParams params = v.getLayoutParams();
-//					// the index needs to be set. It's consulted as a last resort when considering
-//					// zIndex
-//					params.index = i++;
-//					Log.w(LCAT, "native view for: " + v.getNativeView().getId());
-//					vg.addView(v.getNativeView(), params);
-//				}
-//			}
-//		} else {
-//			if (children != null && children.size() > 0) {
-//				Log.w(LCAT, "Children added to non ViewGroup parent ignored.");
-//			}
-//		}
 	}
 
 	public void releaseViews() {
@@ -364,9 +337,9 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	protected void handleAnimate() {
 		TiUIView tiv = peekView();
 
-//		if (tiv != null) {
-//			tiv.animate();
-//		}
+		if (tiv != null) {
+			tiv.animate();
+		}
 	}
 
 	public void blur()
