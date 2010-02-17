@@ -10,6 +10,7 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
+import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -30,7 +31,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 public class TiUIImageView extends TiUIView
-	implements OnClickListener
+	implements OnClickListener, OnLifecycleEvent
 {
 	private static final String LCAT = "TiUIImageView";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -72,6 +73,7 @@ public class TiUIImageView extends TiUIView
 
 		TiImageView view = new TiImageView(proxy.getContext());
 		setNativeView(view);
+		proxy.getTiContext().addOnLifecycleEventListener(this);
 		view.setOnClickListener(this);
 	}
 
@@ -100,7 +102,7 @@ public class TiUIImageView extends TiUIView
 				Log.e(LCAT, "Error creating drawable from file: " + file.getBaseFile().getNativeFile().getName(), e);
 			}
 		} else if (image instanceof String) {
-			String url = proxy.getTiContext().resolveUrl((String)image);
+			String url = proxy.getTiContext().resolveUrl(null, (String)image);
 			TiBaseFile file = TiFileFactory.createTitaniumFile(proxy.getTiContext(), new String[] { url }, false);
 			try {
 				return new BitmapDrawable(createBitmap(file.getInputStream()));
@@ -236,7 +238,6 @@ public class TiUIImageView extends TiUIView
 		}
 	}
 
-	//private AnimationDrawable animation;
 	public void handleStart()
 	{
 		int duration = (int) getDuration();
@@ -250,10 +251,18 @@ public class TiUIImageView extends TiUIView
 	{
 		if (animationTask != null) {
 			synchronized(animationTask) {
-				if (animationTask != null) {
-					animationTask.paused = true;
-					animating = false;
-				}
+				animationTask.paused = true;
+				animating = false;
+			}
+		}
+	}
+	
+	public void resume()
+	{
+		if (animationTask != null) {
+			synchronized(animationTask) {
+				animationTask.paused = false;
+				animating = true;
 			}
 		}
 	}
@@ -267,7 +276,6 @@ public class TiUIImageView extends TiUIView
 		animationTask = null;
 		animating = false;
 
-		//animation.stop();
 		fireStop();
 	}
 
@@ -317,6 +325,32 @@ public class TiUIImageView extends TiUIView
 		}
 	}
 
+
+	public void onDestroy() {
+		if (drawables != null) {
+			for (int i = 0; i < drawables.length; i++) {
+				BitmapDrawable d = (BitmapDrawable) drawables[i];
+				d.getBitmap().recycle();
+			}
+			drawables = new Drawable[0];
+		}
+	}
+
+	public void onPause() {
+		pause();
+	}
+
+	public void onResume() {
+		resume();
+	}
+
+	public void onStart() {
+	}
+
+	public void onStop() {
+		stop();
+	}
+	
 	public void onClick(View view) {
 		proxy.fireEvent(EVENT_CLICK, null);
 	}

@@ -31,6 +31,8 @@ var data = [
 	{title:'Table Custom Footer', hasChild:true, test:'../examples/table_view_api_custom_footer.js'},
 	{title:'Table Section Header', hasChild:true, test:'../examples/table_view_section_header.js'},
 	{title:'Table View Options', hasChild:true, test:'../examples/table_view_options.js'},
+	{title:'Table Empty Dataset (Create)', hasChild:true, test:'../examples/table_view_api_emptydata.js'},
+	{title:'Table Empty AppendRow', hasChild:true, test:'../examples/table_view_api_empty_append.js'},
 
 ];
 

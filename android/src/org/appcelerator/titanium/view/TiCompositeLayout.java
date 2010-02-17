@@ -16,13 +16,14 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.OnHierarchyChangeListener;
 
 public class TiCompositeLayout extends ViewGroup
 	implements OnHierarchyChangeListener, TiBorderHelper.BorderSupport
 {
 	public static final int NOT_SET = Integer.MIN_VALUE;
-	
+
 	private TreeSet<View> viewSorter;
 	private boolean needsSort;
 	private TiBorderHelper borderHelper;
@@ -88,7 +89,7 @@ public class TiCompositeLayout extends ViewGroup
 			int defStyle) {
 		super(context, attrs, defStyle);
 	}
-	
+
 	private String viewToString(View view) {
 		return view.getClass().getSimpleName() + "@" + Integer.toHexString(view.hashCode());
 	}
@@ -137,7 +138,7 @@ public class TiCompositeLayout extends ViewGroup
 		return params;
 	}
 
-	
+
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 	{
@@ -152,6 +153,7 @@ public class TiCompositeLayout extends ViewGroup
 		int maxHeight = h;
 
 		if (needsSort) {
+			Log.e("SORTING", "Sorting.....");
 			viewSorter.clear();
 
 			for(int i = 0; i < count; i++) {
@@ -193,22 +195,22 @@ public class TiCompositeLayout extends ViewGroup
 		int measuredHeight = getMeasuredHeight(maxHeight, heightMeasureSpec);
 		setMeasuredDimension(measuredWidth, measuredHeight);
 	}
-	
+
 	protected void constrainChild(View child, int width, int wMode, int height, int hMode)
 	{
 		int maxWidth = width;
 		int maxHeight = height;
-		
+
 		LayoutParams p =
 			(LayoutParams) child.getLayoutParams();
-		
+
 		int widthSpec = getWidthMeasureSpec(child);
 		int heightSpec = getHeightMeasureSpec(child);
-		
+
 		// Ask the child how big it would naturally like to be.
 		child.measure(MeasureSpec.makeMeasureSpec(maxWidth, widthSpec),
 				MeasureSpec.makeMeasureSpec(maxHeight, heightSpec));
-		
+
 		if (p.optionLeft != NOT_SET) {
 			p.mLeft = Math.min(p.optionLeft, width);
 			if (p.optionRight != NOT_SET) {
@@ -269,25 +271,25 @@ public class TiCompositeLayout extends ViewGroup
 				p.mRight-p.mLeft, wMode /*MeasureSpec.EXACTLY*/);
 		int childHeightSpec = MeasureSpec.makeMeasureSpec(
 				p.mBottom-p.mTop, hMode /*MeasureSpec.EXACTLY*/);
-		
+
 		child.measure(childWidthSpec, childHeightSpec);
 	}
-	
+
 	protected int getWidthMeasureSpec(View child)
 	{
 		return MeasureSpec.AT_MOST;
 	}
-	
+
 	protected int getHeightMeasureSpec(View child)
 	{
 		return MeasureSpec.AT_MOST;
 	}
-	
+
 	protected int getMeasuredWidth(int maxWidth, int widthSpec)
 	{
 		return resolveSize(maxWidth, widthSpec);
 	}
-	
+
 	protected int getMeasuredHeight(int maxHeight, int heightSpec)
 	{
 		return resolveSize(maxHeight, heightSpec);
@@ -295,7 +297,7 @@ public class TiCompositeLayout extends ViewGroup
 
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b)
-	{	
+	{
 		for (int i = 0; i < getChildCount(); i++) {
 			View child = getChildAt(i);
 			TiCompositeLayout.LayoutParams params =
@@ -326,7 +328,7 @@ public class TiCompositeLayout extends ViewGroup
 		public int optionBottom = NOT_SET;
 		public int optionWidth = NOT_SET;
 		public int optionHeight = NOT_SET;
-		
+
 		public boolean autoHeight = true;
 		public boolean autoWidth = true;
 		// Used in onMeasure to assign size for onLayout
@@ -334,7 +336,7 @@ public class TiCompositeLayout extends ViewGroup
 		public int mTop;
 		public int mRight;
 		public int mBottom;
-		
+
 		public LayoutParams() {
 			super(WRAP_CONTENT, WRAP_CONTENT);
 

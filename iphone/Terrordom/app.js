@@ -3,89 +3,6 @@ var tableView = Titanium.UI.createTableView({
 	borderColor:'transparent'
 });
 
-var headerRow = Titanium.UI.createTableViewRow({
-	height:20,
-	rowClass:'header'
-});
-
-var header = Titanium.UI.createLabel({
-	text:'Click Me'
-});
-headerRow.add(header);
-
-tableView.addRow(headerRow);
-
-// loop through rows that use the same layout
-for (var i=0;i<20;i++)
-{
-	// create a table view row object
-	var row = Titanium.UI.createTableViewRow({
-		height:'auto',
-		backgroundImage:'path to image',
-		selectedBackgroundImage:'path to image',
-		rowClass:'foo', // this is a template identifier
-		title:'Foo',
-		image:'Bar',
-		hasChild:true,
-		hasDetail:false,
-		value:'My Value',
-//		style:Ti.UI.iPhone.TableRowStyle.FOO
-	});
-
-	// custom row property
-	row.foo = '123';
-	
-	// create a button
-	var button = Titanium.UI.createButton({
-		right:5,
-		height:50,
-		width:100,
-		title:'Foo ' + i
-	});
-	button.addEventListener('click', buttonHandler);
-	row.add(button);
-	// create an image 
-	var image = Titanium.UI.createView({
-		backgroundImage:'images/atlanta.jpg',
-		height:'30',
-		width:'40',
-		left:5
-	});
-	row.add(image);
-	/*
-	
-	var text = Titanium.UI.createLabel({
-		title:'This is a title'
-	});
-	row.add(text);
-*/	
-	// create a row level event listener (support view events)
-	row.addEventListener('swipe', swipeHandler);
-	
-	// add row
-	tableView.addRow(row);
-}
-
-// retrieve views within a row dynamically
-tableView.data[0].title = 'new button title';
-
-//
-// row-level event handler
-//
-function swipeHandler(e)
-{
-	// events would contain their standard properties
-	var direction = e.direction
-	
-	// row object
-	var row = e.row;
-	
-	// properties on row object
-	var index = row.index;
-	var section = row.section;
-	var rowNum = row.row;
-	var customProp = row.foo;	
-};
 
 //
 // view-level event handler
@@ -194,14 +111,14 @@ try
 	var tab6 = Titanium.UI.createTab({icon:'images/KS_nav_phone.png',title:'Tab 6',badge:null});
 
 
-//	tabGroup.addTab(tabX);
+	tabGroup.addTab(tabX);
 	tabGroup.addTab(tab1);
 	tabGroup.addTab(tab2);
 	tabGroup.addTab(tab3);
 	tabGroup.addTab(tab4);
 	tabGroup.addTab(tab6);
 
-//	tabX.open(Ti.UI.createWindow({url:'rawtest.js',backgroundColor:'669933'}),{animated:true});
+	tabX.open(Ti.UI.createWindow({url:'rawtest.js',backgroundColor:'669933'}),{animated:true});
 	tab6.open(Ti.UI.createWindow({url:'scrollable.js',backgroundColor:'669933'}));
 
 	

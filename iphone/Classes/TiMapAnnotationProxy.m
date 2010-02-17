@@ -15,6 +15,7 @@
 @implementation TiMapAnnotationProxy
 
 @synthesize delegate;
+@synthesize needsRefreshingWithSelection;
 
 #define LEFT_BUTTON  1
 #define RIGHT_BUTTON 2
@@ -56,12 +57,44 @@
 	return view;
 }
 
--(void)refresh:(NSNumber*)readd
+-(void)setNeedsRefreshingWithSelection: (BOOL)shouldReselect
 {
-	ENSURE_UI_THREAD(refresh,readd);
-	if (delegate!=nil)
+	if (delegate == nil)
 	{
-		[delegate refreshAnnotation:self readd:[TiUtils boolValue:readd]];
+		return; //Nobody to refresh!
+	}
+	@synchronized(self)
+	{
+		BOOL invokeMethod = !needsRefreshing;
+		needsRefreshing = YES;
+		needsRefreshingWithSelection |= shouldReselect;
+
+		if (invokeMethod)
+		{
+			[self performSelectorOnMainThread:@selector(refreshAfterDelay) withObject:nil waitUntilDone:NO];
+		}
+	}
+}
+
+-(void)refreshAfterDelay
+{
+	[self performSelector:@selector(refreshIfNeeded) withObject:nil afterDelay:0.1];
+}
+
+-(void)refreshIfNeeded
+{
+	@synchronized(self)
+	{
+		if (!needsRefreshing)
+		{
+			return; //Already done.
+		}
+		if (delegate!=nil)
+		{
+			[delegate refreshAnnotation:self readd:needsRefreshingWithSelection];
+		}
+		needsRefreshing = NO;
+		needsRefreshingWithSelection = NO;
 	}
 }
 
@@ -87,7 +120,7 @@
 	[self replaceValue:title forKey:@"title" notification:NO];
 	if (![title isEqualToString:current])
 	{
-		[self refresh:NUMBOOL(NO)];
+		[self setNeedsRefreshingWithSelection:NO];
 	}
 }
 
@@ -102,7 +135,7 @@
 	[self replaceValue:subtitle forKey:@"subtitle" notification:NO];
 	if (![subtitle isEqualToString:current])
 	{
-		[self refresh:NUMBOOL(NO)];
+		[self setNeedsRefreshingWithSelection:NO];
 	}
 }
 
@@ -117,7 +150,7 @@
 	[self replaceValue:color forKey:@"pincolor" notification:NO];
 	if (current!=color)
 	{
-		[self refresh:NUMBOOL(YES)];
+		[self setNeedsRefreshingWithSelection:YES];
 	}
 }
 
@@ -168,7 +201,7 @@
 	[self replaceValue:button forKey:@"leftButton" notification:NO];
 	if (current!=button)
 	{
-		[self refresh:NUMBOOL(YES)];
+		[self setNeedsRefreshingWithSelection:YES];
 	}
 }
 
@@ -178,7 +211,7 @@
 	[self replaceValue:button forKey:@"rightButton" notification:NO];
 	if (current!=button)
 	{
-		[self refresh:NUMBOOL(YES)];
+		[self setNeedsRefreshingWithSelection:YES];
 	}
 }
 
@@ -188,7 +221,7 @@
 	[self replaceValue:view forKey:@"rightView" notification:NO];
 	if (current!=view)
 	{
-		[self refresh:NUMBOOL(YES)];
+		[self setNeedsRefreshingWithSelection:YES];
 	}
 }
 
@@ -198,7 +231,7 @@
 	[self replaceValue:view forKey:@"leftView" notification:NO];
 	if (current!=view)
 	{
-		[self refresh:NUMBOOL(YES)];
+		[self setNeedsRefreshingWithSelection:YES];
 	}
 }
 
