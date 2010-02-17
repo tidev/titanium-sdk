@@ -1,7 +1,7 @@
 package ti.modules.titanium.filesystem;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -11,13 +11,16 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.util.TiFileHelper2;
+
+import android.net.Uri;
 
 public class FileProxy extends TiProxy
 {
 
 	String path;
 	TiBaseFile tbf; // The base file object.
-	
+
 	public static <T>
 	String join(final Collection<T> objs, final String delimiter) {
 	    if (objs == null || objs.isEmpty())
@@ -31,11 +34,34 @@ public class FileProxy extends TiProxy
 	        buffer.append(delimiter).append(String.valueOf(iter.next()));
 	    return buffer.toString();
 	}
-	
+
 	public FileProxy(TiContext tiContext, String[] parts) {
 		super(tiContext);
-		
-		String path = getTiContext().resolveUrl(join(Arrays.asList(parts), "/"));
+
+		//String path = getTiContext().resolveUrl(join(Arrays.asList(parts), "/"));
+		String scheme = "appdata-private://";
+		String path = null;
+		Uri uri = Uri.parse(parts[0]);
+		if (uri.getScheme() != null) {
+			scheme = uri.getScheme() + ":";
+			ArrayList<String> pb = new ArrayList<String>();
+			String s = parts[0].substring(scheme.length() + 2);
+			if (s != null && s.length() > 0) {
+				pb.add(s);
+			}
+			for (int i = 1; i < parts.length; i++) {
+				pb.add(parts[i]);
+			}
+			String[] newParts = pb.toArray(new String[pb.size()]);
+			path = TiFileHelper2.joinSegments(newParts);
+			if (!path.startsWith("..") || !path.startsWith("/")) {
+				path = "/" + path;
+			}
+			pb.clear();
+		} else {
+			path = TiFileHelper2.joinSegments(parts);
+		}
+		path = getTiContext().resolveUrl(scheme, path);
 		tbf = TiFileFactory.createTitaniumFile(tiContext, new String[] { path }, false);
 	}
 
@@ -43,7 +69,7 @@ public class FileProxy extends TiProxy
 		super(tiContext);
 		this.tbf = tbf;
 	}
-	
+
 	public TiBaseFile getBaseFile() {
 		return tbf;
 	}
@@ -106,11 +132,11 @@ public class FileProxy extends TiProxy
 		return tbf.move(destination);
 	}
 
-	public String name() {
+	public String getName() {
 		return tbf.name();
 	}
 
-	public String nativePath() {
+	public String getNativePath() {
 		return tbf.nativePath();
 	}
 
@@ -131,8 +157,16 @@ public class FileProxy extends TiProxy
 		return tbf.rename(destination);
 	}
 
+	public TiBaseFile resolve() {
+		return tbf.resolve();
+	}
+
 	public double size() {
 		return tbf.size();
+	}
+
+	public double spaceAvailable() {
+		return tbf.spaceAvailable();
 	}
 
 	public void write(TiBlob blob, boolean append)

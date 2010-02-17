@@ -27,6 +27,8 @@ var data = [
 	{title:'Table Search', hasChild:true, test:'../examples/table_view_api_search.js'},
 	{title:'Table Custom Header', hasChild:true, test:'../examples/table_view_api_custom_header.js'},
 	{title:'Table Custom Footer', hasChild:true, test:'../examples/table_view_api_custom_footer.js'},
+	{title:'Table Empty Dataset (Create)', hasChild:true, test:'../examples/table_view_api_emptydata.js'},
+	{title:'Table Empty AppendRow', hasChild:true, test:'../examples/table_view_api_empty_append.js'},
 
 ];
 

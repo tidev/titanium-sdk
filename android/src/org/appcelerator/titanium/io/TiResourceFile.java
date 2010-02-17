@@ -197,6 +197,11 @@ public class TiResourceFile extends TiBaseFile
 		return toURL();
 	}
 
+	@Override
+	public double spaceAvailable() {
+		return 0;
+	}
+
 	public String toURL() {
 		return "file:///android_asset/Resources/" + path;
 	}

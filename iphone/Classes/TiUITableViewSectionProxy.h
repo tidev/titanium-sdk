@@ -30,4 +30,6 @@
 @property(nonatomic,readwrite,assign) TiUITableView *table;
 @property(nonatomic,readwrite,assign) NSInteger section;
 
+-(void)triggerSectionUpdate;
+
 @end

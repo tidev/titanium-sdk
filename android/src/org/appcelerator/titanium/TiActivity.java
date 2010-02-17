@@ -6,6 +6,9 @@
  */
 package org.appcelerator.titanium;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -36,9 +39,11 @@ public class TiActivity extends Activity
 	protected TiActivitySupportHelper supportHelper;
 
 	protected Handler handler;
-
+	protected ArrayList<WeakReference<TiContext>> contexts;
+	
 	public TiActivity() {
 		super();
+		contexts = new ArrayList<WeakReference<TiContext>>();
 	}
 
     /** Called when the activity is first created. */
@@ -152,20 +157,72 @@ public class TiActivity extends Activity
 	public void removeWindow(View v) {
 		layout.removeView(v);
 	}
+	
+	public void addTiContext(TiContext context) {
+		if (!contexts.contains(context)) {
+			contexts.add(new WeakReference<TiContext>(context));
+		}
+	}
+	
+	public void removeTiContext(TiContext context) {
+		if (contexts.contains(context)) {
+			contexts.remove(context);
+		}
+	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-
 		((TiApplication) getApplication()).setWindowHandler(null);
+		
+		for (WeakReference<TiContext> contextRef : contexts) {
+			if (contextRef.get() != null) {
+				contextRef.get().dispatchOnPause();
+			}
+		}
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		((TiApplication) getApplication()).setWindowHandler(this);
+		for (WeakReference<TiContext> contextRef : contexts) {
+			if (contextRef.get() != null) {
+				contextRef.get().dispatchOnResume();
+			}
+		}
+	}
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		for (WeakReference<TiContext> contextRef : contexts) {
+			if (contextRef.get() != null) {
+				contextRef.get().dispatchOnStart();
+			}
+		}
+	}
+	
+	@Override
+	protected void onStop() {
+		super.onStop();
+		for (WeakReference<TiContext> contextRef : contexts) {
+			if (contextRef.get() != null) {
+				contextRef.get().dispatchOnStop();
+			}
+		}
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		for (WeakReference<TiContext> contextRef : contexts) {
+			if (contextRef.get() != null) {
+				contextRef.get().dispatchOnDestroy();
+			}
+		}
+	}
+	
 //	@Override
 //	public void finish()
 //	{

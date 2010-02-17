@@ -1,11 +1,14 @@
 package ti.modules.titanium.media;
 
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 
+import ti.modules.titanium.filesystem.FileProxy;
 import android.net.Uri;
 
 public class SoundProxy extends TiProxy
@@ -17,14 +20,65 @@ public class SoundProxy extends TiProxy
 	protected String url;
 	protected TiSound snd;
 
-	public SoundProxy(TiContext tiContext, Object[] args) {
+	public SoundProxy(TiContext tiContext, Object[] args)
+	{
 		super(tiContext);
 
-		url = (String) args[0];
-		tiContext.addOnLifecycleEventListener(this);
+		TiDict options = (TiDict) args[0];
+		if (options != null) {
+			if (options.containsKey("url")) {
+				this.url = tiContext.resolveUrl(null, TiConvert.toString(options, "url"));
+			} else if (options.containsKey("sound")) {
+				FileProxy fp = (FileProxy) options.get("sound");
+				if (fp != null) {
+					url = fp.getNativePath();
+				}
+			}
 
-		if (DBG) {
-			Log.i(LCAT, "Creating sound proxy for url: " + url);
+			tiContext.addOnLifecycleEventListener(this);
+
+			if (DBG) {
+				Log.i(LCAT, "Creating sound proxy for url: " + url);
+			}
+		}
+	}
+
+	public boolean isPlaying() {
+		TiSound s = getSound();
+		if (s != null) {
+			return s.isPlaying();
+		}
+		return false;
+	}
+
+	public boolean isPaused() {
+		TiSound s = getSound();
+		if (s != null) {
+			return s.isPaused();
+		}
+		return false;
+	}
+
+	public boolean isLooping() {
+		TiSound s = getSound();
+		if (s != null) {
+			return s.isLooping();
+		}
+		return false;
+	}
+
+	public boolean getLooping() {
+		TiSound s = getSound();
+		if (s != null) {
+			return s.isLooping();
+		}
+		return false;
+	}
+
+	public void setLooping(boolean looping) {
+		TiSound s = getSound();
+		if (s != null) {
+			s.setLooping(looping);
 		}
 	}
 
@@ -64,9 +118,12 @@ public class SoundProxy extends TiProxy
 		}
 	}
 
-	protected TiSound getSound() {
+	protected TiSound getSound()
+	{
 		if (snd == null) {
-			snd = new TiSound(this, Uri.parse(url));
+			if (url != null) {
+				snd = new TiSound(this, Uri.parse(url));
+			}
 		}
 		return snd;
 	}

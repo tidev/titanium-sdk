@@ -1,8 +1,12 @@
 package ti.modules.titanium.filesystem;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -39,16 +43,28 @@ public class FilesystemModule extends TiModule
 	// Methods
 	public FileProxy createTempFile()
 	{
-		return null;
+		try {
+			File f = File.createTempFile("ti", "tmp");
+			String[] parts = { f.getAbsolutePath() };
+			return new FileProxy(getTiContext(), parts);
+		} catch (IOException e) {
+			Log.e(LCAT, "Unable to create tmp file: " + e.getMessage(), e);
+			return null;
+		}
 	}
 
 	public FileProxy createTempDirectory()
 	{
-		return null;
+		String dir = String.valueOf(System.currentTimeMillis());
+		File tmpdir = new File(System.getProperty("java.io.tmpdir"));
+		File f = new File(tmpdir,dir);
+		f.mkdirs();
+		String[] parts = { f.getAbsolutePath() };
+		return new FileProxy(getTiContext(), parts);
 	}
 
-	public boolean isExternalStoragePresent() {
-		return false;
+	public boolean getIsExternalStoragePresent() {
+		return android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
 	}
 
 	public FileProxy getFile(Object[] parts)
@@ -62,12 +78,24 @@ public class FilesystemModule extends TiModule
 		return null;
 	}
 
-	public FileProxy getApplicationDataDirectory(boolean privateStorage) {
-		return null;
+	public String getApplicationDataDirectory() {
+		return "appdata-private://";
 	}
 
 	public String getResourcesDirectory()
 	{
 		return "app://";
+	}
+
+	public String getExternalStorageDirectory() {
+		return "appdata://";
+	}
+
+	public String getSeparator() {
+		return File.separator;
+	}
+
+	public String getLineEnding() {
+		return System.getProperty("line.separator");
 	}
 }
