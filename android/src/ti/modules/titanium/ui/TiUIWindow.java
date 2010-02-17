@@ -40,6 +40,8 @@ public class TiUIWindow extends TiUIView
 
 	private static final int MSG_ACTIVITY_CREATED = 1000;
 	private static final int MSG_POST_OPEN = 1001;
+	private static final int MSG_BOOTED = 1002;
+
 	private static final int MSG_ANIMATE = 100;
 
 	private static final String[] NEW_ACTIVITY_REQUIRED_KEYS = { "fullscreen", "navBarHidden"};
@@ -208,13 +210,27 @@ public class TiUIWindow extends TiUIView
 				tiContext = TiContext.createTiContext(windowActivity, preload, baseUrl);
 			}
 
-			try {
-				this.proxy.switchContext(tiContext);
-				tiContext.evalFile(url);
-			} catch (IOException e) {
-				Log.e(LCAT, "Error opening URL: " + url, e);
-			}
+			final TiContext ftiContext = tiContext;
+			final String furl = url;
+
+			new Thread(new Runnable(){
+
+				@Override
+				public void run() {
+					try {
+						proxy.switchContext(ftiContext);
+						Messenger m = new Messenger(handler);
+						ftiContext.evalFile(furl, m, MSG_BOOTED);
+					} catch (IOException e) {
+						Log.e(LCAT, "Error opening URL: " + furl, e);
+					}
+				}}).start();
+		} else {
+			handleBooted();
 		}
+	}
+
+	protected void handleBooted() {
 		if (messenger != null) {
 			Message msg = Message.obtain();
 			msg.what = messageId;
@@ -222,6 +238,8 @@ public class TiUIWindow extends TiUIView
 				messenger.send(msg);
 			} catch (RemoteException e) {
 				Log.e(LCAT, "Unable to send message: " + e.getMessage(), e);
+			} finally {
+				messenger = null;
 			}
 		}
 		if (lightWeight) {
@@ -232,7 +250,6 @@ public class TiUIWindow extends TiUIView
 			handler.obtainMessage(MSG_ANIMATE).sendToTarget();
 		}
 	}
-
 	public void close() {
 		if (!lightWeight) {
 			if (windowActivity != null) {
@@ -265,6 +282,14 @@ public class TiUIWindow extends TiUIView
 			}
 			case MSG_POST_OPEN : {
 				handlePostOpen();
+				return true;
+			}
+			case MSG_BOOTED :
+			{
+				if (DBG) {
+					Log.i(LCAT, "Received booted notification");
+				}
+				handleBooted();
 				return true;
 			}
 		}
