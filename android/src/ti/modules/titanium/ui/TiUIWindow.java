@@ -14,7 +14,9 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiFileHelper2;
+import org.appcelerator.titanium.util.TiPropertyResolver;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -37,7 +39,10 @@ public class TiUIWindow extends TiUIView
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private static final int MSG_ACTIVITY_CREATED = 1000;
+	private static final int MSG_POST_OPEN = 1001;
 	private static final int MSG_ANIMATE = 100;
+
+	private static final String[] NEW_ACTIVITY_REQUIRED_KEYS = { "fullscreen", "navBarHidden"};
 
 	protected String activityKey;
 	protected Activity windowActivity;
@@ -63,16 +68,20 @@ public class TiUIWindow extends TiUIView
 		this.handler = new Handler(this);
 
 		TiDict props = proxy.getDynamicProperties();
-		boolean newActivity = requiresNewActivity(props);
+		TiPropertyResolver resolver = new TiPropertyResolver(options, props);
+		boolean newActivity = requiresNewActivity(resolver);
 		if (!newActivity && options != null && options.containsKey("tabOpen")) {
 			newActivity = TiConvert.toBoolean(options,"tabOpen");
 		}
+
+		resolver.release();
+		resolver = null;
 
 		if (newActivity)
 		{
 			lightWeight = false;
 			Activity activity = proxy.getTiContext().getActivity();
-			Intent intent = createIntent(activity);
+			Intent intent = createIntent(activity, options);
 			activity.startActivity(intent);
 		} else {
 			lightWeight = true;
@@ -243,10 +252,14 @@ public class TiUIWindow extends TiUIView
 			case MSG_ACTIVITY_CREATED :
 				Log.w(LCAT, "Received Activity creation message");
 				windowActivity = (Activity) msg.obj;
-				handlePostOpen();
+				handler.sendEmptyMessage(MSG_POST_OPEN);
 				return true;
 			case MSG_ANIMATE : {
 				animate();
+				return true;
+			}
+			case MSG_POST_OPEN : {
+				handlePostOpen();
 				return true;
 			}
 		}
@@ -279,12 +292,20 @@ public class TiUIWindow extends TiUIView
 	{
 		// Prefer image to color.
 		if (d.containsKey("backgroundImage")) {
-			throw new IllegalArgumentException("Please Implement.");
+			String path = proxy.getTiContext().resolveUrl(null, TiConvert.toString(d, "backgroundImage"));
+			TiFileHelper tfh = new TiFileHelper(proxy.getContext().getApplicationContext());
+			Drawable bd = tfh.loadDrawable(path, false);
+			if (bd != null) {
+				if (!lightWeight) {
+					windowActivity.getWindow().setBackgroundDrawable(bd);
+				} else {
+					nativeView.setBackgroundDrawable(bd);
+				}
+			}
 		} else if (d.containsKey("backgroundColor")) {
 			ColorDrawable bgColor = TiConvert.toColorDrawable(d, "backgroundColor", "opacity");
 			if (!lightWeight) {
-				Window w = windowActivity.getWindow();
-				w.setBackgroundDrawable(bgColor);
+				windowActivity.getWindow().setBackgroundDrawable(bgColor);
 			} else {
 				nativeView.setBackgroundDrawable(bgColor);
 			}
@@ -321,36 +342,32 @@ public class TiUIWindow extends TiUIView
 		}
 	}
 
-	protected boolean requiresNewActivity(TiDict options)
+	protected boolean requiresNewActivity(TiPropertyResolver resolver)
 	{
-		boolean activityRequired = false;
-
-		if (options != null) {
-			if (options.containsKey("fullscreen") ||
-					options.containsKey("navBarHidden") ||
-					options.containsKey("tabOben"))
-			{
-				activityRequired = true;
-			}
-		}
-
-		return activityRequired;
+		return resolver.hasAnyOf(NEW_ACTIVITY_REQUIRED_KEYS);
 	}
 
-	protected Intent createIntent(Activity activity)
+	protected Intent createIntent(Activity activity, TiDict options)
 	{
-		TiDict props = proxy.getDynamicProperties();
+		TiPropertyResolver resolver = new TiPropertyResolver(options, proxy.getDynamicProperties());
+
 		Intent intent = new Intent(activity, TiActivity.class);
 
-		if (props.containsKey("fullscreen")) {
+		TiDict props = resolver.findProperty("fullscreen");
+		if (props != null && props.containsKey("fullscreen")) {
 			intent.putExtra("fullscreen", TiConvert.toBoolean(props, "fullscreen"));
 		}
-		if (props.containsKey("navBarHidden")) {
+		props = resolver.findProperty("navBarHidden");
+		if (props != null && props.containsKey("navBarHidden")) {
 			intent.putExtra("navBarHidden", TiConvert.toBoolean(props, "navBarHidden"));
 		}
-		if (props.containsKey("url")) {
+		props = resolver.findProperty("url");
+		if (props != null && props.containsKey("url")) {
 			intent.putExtra("url", TiConvert.toString(props, "url"));
 		}
+		resolver.release();
+		resolver = null;
+
 		intent.putExtra("finishRoot", activity.isTaskRoot());
 		Messenger messenger = new Messenger(handler);
 		intent.putExtra("messenger", messenger);
@@ -358,5 +375,4 @@ public class TiUIWindow extends TiUIView
 
 		return intent;
 	}
-
 }

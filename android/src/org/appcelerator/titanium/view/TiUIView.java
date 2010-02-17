@@ -135,16 +135,9 @@ public abstract class TiUIView
 			double anchorX = 0.5;
 			double anchorY = 0.5;
 
-			// Capture location
-//			int left = nativeView.getLeft();
-//			int top = nativeView.getTop();
-//			int w = nativeView.getWidth();
-//			int h = nativeView.getHeight();
-
-			int left = 0;
-			int top = 0;
-			int w = 200;
-			int h = 80;
+			// Capture dimension
+			int w = nativeView.getMeasuredWidth();
+			int h = nativeView.getMeasuredHeight();
 
 			TiDict props = proxy.getDynamicProperties();
 			if (props.containsKey("anchorPoint")) {
@@ -162,7 +155,7 @@ public abstract class TiUIView
 			Double delay = null;
 			Double duration = null;
 			Double toOpacity = null;
-			Double fromOpacity = 1.0;
+			Double fromOpacity = null;
 
 			if (pa.options.containsKey("transform")) {
 				tdm = (_2DMatrixProxy) pa.options.get("transform");
@@ -175,12 +168,15 @@ public abstract class TiUIView
 			}
 			if (pa.options.containsKey("opacity")) {
 				toOpacity = TiConvert.toDouble(pa.options, "opacity");
-				if (props.containsKey("opacity")) {
-					fromOpacity = TiConvert.toDouble(props, "opacity");
-				}
+				fromOpacity = 1.0 - toOpacity;
 			}
 
 			AnimationSet as = new AnimationSet(false);
+			if (toOpacity != null) {
+				Animation a = new AlphaAnimation(fromOpacity.floatValue(), toOpacity.floatValue());
+				as.addAnimation(a);
+			}
+
 			if (tdm != null) {
 				as.setFillAfter(true);
 				if (tdm.hasRotation()) {
@@ -200,39 +196,36 @@ public abstract class TiUIView
 						);
 					as.addAnimation(a);
 				}
-				// Set duration after adding children.
-				if (duration != null) {
-					as.setDuration(duration.longValue());
-				}
-				if (delay != null) {
-					as.setStartTime(delay.longValue());
-				}
-
-				if (pa.callback != null) {
-					final KrollCallback kb = pa.callback;
-					as.setAnimationListener(new Animation.AnimationListener(){
-
-						@Override
-						public void onAnimationEnd(Animation a) {
-							if (kb != null) {
-								kb.call();
-							}
-						}
-
-						@Override
-						public void onAnimationRepeat(Animation a) {
-						}
-
-						@Override
-						public void onAnimationStart(Animation a) {
-						}
-
-					});
-				}
 			}
-			if (toOpacity != null) {
-				Animation a = new AlphaAnimation(fromOpacity.floatValue(), toOpacity.floatValue());
-				as.addAnimation(a);
+
+			// Set duration after adding children.
+			if (duration != null) {
+				as.setDuration(duration.longValue());
+			}
+			if (delay != null) {
+				as.setStartTime(delay.longValue());
+			}
+
+			if (pa.callback != null) {
+				final KrollCallback kb = pa.callback;
+				as.setAnimationListener(new Animation.AnimationListener(){
+
+					@Override
+					public void onAnimationEnd(Animation a) {
+						if (kb != null) {
+							kb.call();
+						}
+					}
+
+					@Override
+					public void onAnimationRepeat(Animation a) {
+					}
+
+					@Override
+					public void onAnimationStart(Animation a) {
+					}
+
+				});
 			}
 
 			//TODO launch
