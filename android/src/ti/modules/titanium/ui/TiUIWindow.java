@@ -322,7 +322,16 @@ public class TiUIWindow extends TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
 	{
 		if (key.equals("backgroundImage")) {
-			Log.w(LCAT, "Implement background image");
+			String path = proxy.getTiContext().resolveUrl(null, TiConvert.toString(newValue));
+			TiFileHelper tfh = new TiFileHelper(proxy.getTiContext().getTiApp());
+			Drawable bd = tfh.loadDrawable(path, false);
+			if (bd != null) {
+				if (!lightWeight) {
+					windowActivity.getWindow().setBackgroundDrawable(bd);
+				} else {
+					nativeView.setBackgroundDrawable(bd);
+				}
+			}
 		} else if (key.equals("opacity") || key.equals("backgroundColor")) {
 			TiDict d = proxy.getDynamicProperties();
 			if (proxy.getDynamicValue("backgroundColor") != null) {
