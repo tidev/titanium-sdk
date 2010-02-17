@@ -13,11 +13,12 @@
 #import "Webcolor.h"
 #import "TiBlob.h"
 #import "TiFile.h"
+#import "Mimetypes.h"
 
 extern NSString * const TI_APPLICATION_ID;
-NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={};Ti.App._listener_id=1;Ti.App.id=Ti.appId;Ti.App._xhr = XMLHttpRequest;Ti._broker=function(module,method,data){var url='app://'+Ti.appId+'/_TiA0_'+Ti.pageToken+'/'+module+'/'+method+'/'+Ti.App._JSON(data);try{var xhr=new Ti.App._xhr();xhr.open('GET',url,false);xhr.send();}catch(X){}};Ti.App._JSON=function(object,bridge){var type=typeof object;switch(type){case'undefined':case'function':case'unknown':return undefined;case'number':case'boolean':return object;case'string':return'\"'+object.replace(/\"/g,'\\\\\"').replace(/\\n/g,'\\\\n').replace(/\\r/g,'\\\\r')+'\"'}if((object===null)||(object.nodeType==1))return'null';if(object.constructor.toString().indexOf('Date')!=-1){return'new Date('+object.getTime()+')'}if(object.constructor.toString().indexOf('Array')!=-1){var res='[';var pre='';var len=object.length;for(var i=0;i<len;i++){var value=object[i];if(value!==undefined)value=Ti.App._JSON(value,bridge);if(value!==undefined){res+=pre+value;pre=', '}}return res+']'}var objects=[];for(var prop in object){var value=object[prop];if(value!==undefined){value=Ti.App._JSON(value,bridge)}if(value!==undefined){objects.push(Ti.App._JSON(prop,bridge)+': '+value)}}return'{'+objects.join(',')+'}'};Ti.App._dispatchEvent=function(type,evtid,evt){var listeners=Ti.App._listeners[type];if(listeners){for(var c=0;c<listeners.length;c++){var entry=listeners[c];if(entry.id==evtid){entry.callback.call(entry.callback,evt)}}}};Ti.App.fireEvent=function(name,evt){Ti._broker('App','fireEvent',{name:name,event:evt})};Ti.API.debug=function(e){Ti._broker('API','log',{level:'debug',message:e})};Ti.API.error=function(e){Ti._broker('API','log',{level:'error',message:e})};Ti.API.info=function(e){Ti._broker('API','log',{level:'info',message:e})};Ti.API.fatal=function(e){Ti._broker('API','log',{level:'fatal',message:e})};Ti.API.warn=function(e){Ti._broker('API','log',{level:'warn',message:e})};Ti.App.addEventListener=function(name,fn){var listeners=Ti.App._listeners[name];if(typeof(listeners)=='undefined'){listeners=[];Ti.App._listeners[name]=listeners}var newid=Ti.pageToken+Ti.App._listener_id++;listeners.push({callback:fn,id:newid});Ti._broker('App','addEventListener',{name:name,id:newid})};Ti.App.removeEventListener=function(name,fn){var listeners=Ti.App._listeners[name];if(listeners){for(var c=0;c<listeners.length;c++){var entry=listeners[c];if(entry.callback==fn){listeners.splice(c,1);Ti._broker('App','removeEventListener',{name:name,id:entry.id});break}}}};";
+NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={};Ti.App._listener_id=1;Ti.App.id=Ti.appId;Ti.App._xhr=XMLHttpRequest;Ti._broker=function(module,method,data){try{var url='app://'+Ti.appId+'/_TiA0_'+Ti.pageToken+'/'+module+'/'+method+'?'+Ti.App._JSON(data,1);var xhr=new Ti.App._xhr();xhr.open('GET',url,false);xhr.send()}catch(X){}};Ti._hexish=function(a){var r='';var e=a.length;var c=0;var h;while(c<e){h=a.charCodeAt(c++).toString(16);r+='\\\\u';var l=4-h.length;while(l-->0){r+='0'};r+=h}return r};Ti._bridgeEnc=function(o){return'<'+Ti._hexish(o)+'>'};Ti.App._JSON=function(object,bridge){var type=typeof object;switch(type){case'undefined':case'function':case'unknown':return undefined;case'number':case'boolean':return object;case'string':if(bridge===1)return Ti._bridgeEnc(object);return'\"'+object.replace(/\"/g,'\\\\\"').replace(/\\n/g,'\\\\n').replace(/\\r/g,'\\\\r')+'\"'}if((object===null)||(object.nodeType==1))return'null';if(object.constructor.toString().indexOf('Date')!=-1){return'new Date('+object.getTime()+')'}if(object.constructor.toString().indexOf('Array')!=-1){var res='[';var pre='';var len=object.length;for(var i=0;i<len;i++){var value=object[i];if(value!==undefined)value=Ti.App._JSON(value,bridge);if(value!==undefined){res+=pre+value;pre=', '}}return res+']'}var objects=[];for(var prop in object){var value=object[prop];if(value!==undefined){value=Ti.App._JSON(value,bridge)}if(value!==undefined){objects.push(Ti.App._JSON(prop,bridge)+': '+value)}}return'{'+objects.join(',')+'}'};Ti.App._dispatchEvent=function(type,evtid,evt){var listeners=Ti.App._listeners[type];if(listeners){for(var c=0;c<listeners.length;c++){var entry=listeners[c];if(entry.id==evtid){entry.callback.call(entry.callback,evt)}}}};Ti.App.fireEvent=function(name,evt){Ti._broker('App','fireEvent',{name:name,event:evt})};Ti.API.log=function(a,b){Ti._broker('API','log',{level:a,message:b})};Ti.API.debug=function(e){Ti._broker('API','log',{level:'debug',message:e})};Ti.API.error=function(e){Ti._broker('API','log',{level:'error',message:e})};Ti.API.info=function(e){Ti._broker('API','log',{level:'info',message:e})};Ti.API.fatal=function(e){Ti._broker('API','log',{level:'fatal',message:e})};Ti.API.warn=function(e){Ti._broker('API','log',{level:'warn',message:e})};Ti.App.addEventListener=function(name,fn){var listeners=Ti.App._listeners[name];if(typeof(listeners)=='undefined'){listeners=[];Ti.App._listeners[name]=listeners}var newid=Ti.pageToken+Ti.App._listener_id++;listeners.push({callback:fn,id:newid});Ti._broker('App','addEventListener',{name:name,id:newid})};Ti.App.removeEventListener=function(name,fn){var listeners=Ti.App._listeners[name];if(listeners){for(var c=0;c<listeners.length;c++){var entry=listeners[c];if(entry.callback==fn){listeners.splice(c,1);Ti._broker('App','removeEventListener',{name:name,id:entry.id});break}}}};";
 
-
+ 
 @implementation TiUIWebView
 
 -(void)unregister
@@ -113,6 +114,69 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	return [NSURL URLWithString:[NSString stringWithFormat:@"app://%@/%@",TI_APPLICATION_ID,path]];
 }
 
+-(NSString*)titaniumInjection
+{
+	NSMutableString *html = [[[NSMutableString alloc] init] autorelease];
+	[html appendString:@"<script>"];
+	[html appendFormat:@"window.Titanium={};window.Ti=Titanium;Ti.pageToken=%@;Ti.appId='%@';",pageToken,TI_APPLICATION_ID];
+	[html appendString:kTitaniumJavascript];
+	[html appendString:@"</script>"];
+	return html;
+}
+
+-(void)prepareInjection
+{
+	RELEASE_TO_NIL(pageToken);
+	[self unregister];
+	pageToken = [[NSString stringWithFormat:@"%d",[self hash]] retain];
+	[[self.proxy _host] registerContext:self forToken:pageToken];
+}
+
+-(void)loadHTML:(NSString*)content 
+	   encoding:(NSStringEncoding)encoding 
+	   textEncodingName:(NSString*)textEncodingName
+	   mimeType:(NSString*)mimeType
+{
+	[self prepareInjection];
+	NSMutableString *html = [[NSMutableString alloc] initWithCapacity:[content length]+2000];
+	
+	// attempt to make well-formed HTML and inject in our Titanium bridge code
+	// However, we only do this if the content looks like HTML
+	NSRange range = [content rangeOfString:@"<html"];
+	if (range.location!=NSNotFound)
+	{
+		BOOL found = NO;
+		NSRange nextRange = [content rangeOfString:@">" options:0 range:NSMakeRange(range.location, [content length]) locale:nil];
+		if (nextRange.location!=NSNotFound)
+		{
+			[html appendString:[content substringToIndex:nextRange.location+1]];
+			[html appendString:[self titaniumInjection]];
+			[html appendString:[content substringFromIndex:nextRange.location+1]];
+			found = YES;
+		}
+		if (found==NO)
+		{
+			// oh well, just jack it in
+			[html appendString:[self titaniumInjection]];
+			[html appendString:content];
+		}
+	}
+	
+	NSURL *relativeURL = [self fileURLToAppURL:url];
+	
+	if (url!=nil)
+	{
+		[[self webview] loadHTMLString:html baseURL:relativeURL];
+	}
+	else
+	{
+		[[self webview] loadData:[html dataUsingEncoding:encoding] MIMEType:mimeType textEncodingName:textEncodingName baseURL:relativeURL];
+	}
+	[[self webview] setScalesPageToFit:NO];
+	[html release];
+}
+
+
 #pragma mark Public APIs
 
 -(id)url
@@ -129,51 +193,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 
 -(void)setHtml_:(NSString*)content
 {
-	[self unregister];
-	pageToken = [[NSString stringWithFormat:@"%d",[self hash]] retain];
-	[[self.proxy _host] registerContext:self forToken:pageToken];
-	NSMutableString *html = [[NSMutableString alloc] init];
-	
-	// attempt to make well-formed HTML and inject in our Titanium bridge code
-	// However, we only do this if the content looks like HTML
-	NSRange range = [content rangeOfString:@"<html"];
-	if (range.location!=NSNotFound)
-	{
-		BOOL found = NO;
-		NSRange nextRange = [content rangeOfString:@">" options:0 range:NSMakeRange(range.location, [content length]) locale:nil];
-		if (nextRange.location!=NSNotFound)
-		{
-			[html appendString:[content substringToIndex:nextRange.location+1]];
-			[html appendString:@"<script>"];
-			[html appendFormat:@"window.Titanium={};window.Ti=Titanium;Ti.pageToken=%@;Ti.appId='%@';",pageToken,TI_APPLICATION_ID];
-			[html appendString:kTitaniumJavascript];
-			[html appendString:@"</script>"];
-			[html appendString:[content substringFromIndex:nextRange.location+1]];
-			found = YES;
-		}
-		if (found==NO)
-		{
-			// oh well, just jack it in
-			[html appendString:@"<script>"];
-			[html appendFormat:@"window.Titanium={};window.Ti=Titanium;Ti.pageToken=%@;Ti.appId='%@';",pageToken,TI_APPLICATION_ID];
-			[html appendString:kTitaniumJavascript];
-			[html appendString:@"</script>"];
-			[html appendString:content];
-		}
-	}
-	
-	NSURL *relativeURL = [self fileURLToAppURL:url];
-	
-	if (url!=nil)
-	{
-		[[self webview] loadHTMLString:html baseURL:relativeURL];
-	}
-	else
-	{
-		[[self webview] loadData:[html dataUsingEncoding:NSUTF8StringEncoding] MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:relativeURL];
-	}
-	[[self webview] setScalesPageToFit:NO];
-	[html release];
+	[self loadHTML:content encoding:NSUTF8StringEncoding textEncodingName:@"utf-8" mimeType:@"text/html"];
 }
 
 -(void)setData_:(id)args
@@ -238,14 +258,70 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	else
 	{
 		NSString *html = nil;
+		NSStringEncoding encoding = NSUTF8StringEncoding;
+		NSString *mimeType = [Mimetypes mimeTypeForExtension:[url path]];
+		NSString *textEncodingName = @"utf-8";
+		NSString *path = [url path];
+		NSError *error = nil;
 		
 		// first check to see if we're attempting to load a file from the 
 		// filesystem and if so, and it exists, use that 
-		if ([[NSFileManager defaultManager] fileExistsAtPath:[url path]])
+		if ([[NSFileManager defaultManager] fileExistsAtPath:path])
 		{
-			NSString *path = [url path];
-			NSError *error = nil;
-			html = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
+			// per the Apple docs on what to do when you don't know the encoding ahead of a 
+			// file read:
+			// step 1: read and attempt to have system determine
+			html = [NSString stringWithContentsOfFile:path usedEncoding:&encoding error:&error];
+			if (html==nil && error!=nil)
+			{
+				//step 2: if unknown encoding, try UTF-8
+				error = nil;
+				html = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
+				if (html==nil && error!=nil)
+				{
+					//step 3: try an appropriate legacy encoding (if one) -- what's that? Latin-1?
+					//at this point we're just going to fail
+					NSLog(@"[ERROR] Couldn't determine the proper encoding. Make sure this file: %@ is UTF-8 encoded.",[path lastPathComponent]);
+				}
+				else
+				{
+					// if we get here, it succeeded using UTF8
+					encoding = NSUTF8StringEncoding;
+					textEncodingName = @"utf-8";
+				}
+			}
+			else
+			{
+				error = nil;
+				if (encoding == NSUTF8StringEncoding)
+				{
+					textEncodingName = @"utf-8";
+				}
+				else if (encoding == NSUTF16StringEncoding)
+				{
+					textEncodingName = @"utf-16";
+				}
+				else if (encoding == NSASCIIStringEncoding)
+				{
+					textEncodingName = @"us-ascii";
+				}
+				else if (encoding == NSISOLatin1StringEncoding)
+				{
+					textEncodingName = @"latin1";
+				}
+				else if (encoding == NSShiftJISStringEncoding)
+				{
+					textEncodingName = @"shift_jis";
+				}
+				else if (encoding == NSWindowsCP1252StringEncoding)
+				{
+					textEncodingName = @"windows-1251";
+				}
+				else 
+				{
+					NSLog(@"[WARN] I have no idea what the appropriate text encoding is for: %@. Please report this to Appcelerator support.",url);
+				}
+			}
 			if (error!=nil && [error code]==261)
 			{
 				// this is a different encoding than specified, just send it to the webview to load
@@ -268,12 +344,12 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 			NSData *data = [TiUtils loadAppResource:url];
 			if (data!=nil)
 			{
-				html = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+				html = [[[NSString alloc] initWithData:data encoding:encoding] autorelease];
 			}
 		}
 		if (html!=nil)
 		{
-			[self setHtml_:html];	
+			[self loadHTML:html encoding:encoding textEncodingName:textEncodingName mimeType:mimeType];
 			[url retain];
 		}
 		else 

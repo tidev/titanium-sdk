@@ -8,7 +8,7 @@ Ti._broker = function(module,method,data)
 {
 	try
 	{
-		var url = 'app://'+Ti.appId+'/_TiA0_'+Ti.pageToken+'/'+module+'/'+method+'/'+Ti.App._JSON(data);
+		var url = 'app://'+Ti.appId+'/_TiA0_'+Ti.pageToken+'/'+module+'/'+method+'?'+Ti.App._JSON(data,1);
 		var xhr = new Ti.App._xhr();
 		xhr.open('GET',url,false);
 		xhr.send();
@@ -17,6 +17,8 @@ Ti._broker = function(module,method,data)
 	{
 	}	
 };
+Ti._hexish = function(a){var r='';var e=a.length;var c=0;var h;while(c<e){h=a.charCodeAt(c++).toString(16);r+='\\\\u';var l=4-h.length;while(l-->0){r+='0'};r+=h;}return r;};
+Ti._bridgeEnc = function(o){return '<'+Ti._hexish(o)+'>';};
 Ti.App._JSON = function(object,bridge)
 {
 		var type = typeof object;
@@ -24,7 +26,7 @@ Ti.App._JSON = function(object,bridge)
 		{
 			case 'undefined': case 'function': case 'unknown': return undefined;
 			case 'number': case 'boolean': return object;
-			case 'string': return '\"'+object.replace(/\"/g,'\\\\\"').replace(/\\n/g,'\\\\n').replace(/\\r/g,'\\\\r')+'\"';
+			case 'string': if (bridge===1) return Ti._bridgeEnc(object); return '\"'+object.replace(/\"/g,'\\\\\"').replace(/\\n/g,'\\\\n').replace(/\\r/g,'\\\\r')+'\"';
 		}
 		if((object===null) || (object.nodeType==1)) return 'null';
 		if(object.constructor.toString().indexOf('Date') != -1) 
@@ -68,6 +70,10 @@ Ti.App.fireEvent = function(name,evt)
 {
 	Ti._broker('App','fireEvent',{name:name,event:evt});
 };	
+Ti.API.log = function(a,b)
+{
+    Ti._broker('API','log',{level:a,message:b});
+};
 Ti.API.debug = function(e)
 {
 	Ti._broker('API','log',{level:'debug',message:e});

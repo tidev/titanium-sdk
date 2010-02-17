@@ -57,7 +57,7 @@ static XHRBridge *xhrBridge = nil;
 	NSString *pageToken = [[parts objectAtIndex:0] stringByReplacingOccurrencesOfString:@"_TiA0_" withString:@""];
 	NSString *module = [parts objectAtIndex:1];
 	NSString *method = [parts objectAtIndex:2];
-	NSString *prearg = [parts objectAtIndex:3];
+	NSString *prearg = [url query];
 	NSString *arguments = prearg==nil ? @"" : [prearg stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	
 	

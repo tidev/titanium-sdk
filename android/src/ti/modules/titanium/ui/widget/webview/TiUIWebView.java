@@ -10,7 +10,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.WebViewProxy;
-import android.graphics.Color;
+import android.net.Uri;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -44,8 +44,14 @@ public class TiUIWebView extends TiUIView {
 	
 	public void setUrl(String url)
 	{
-		String resolvedUrl = getProxy().getTiContext().resolveUrl(null, url);
-		getWebView().loadUrl(resolvedUrl);
+		Uri uri = Uri.parse(url);
+		if (uri.getScheme() != null) {
+			//TODO bind our variables
+			getWebView().loadUrl(url);
+		} else {
+			String resolvedUrl = getProxy().getTiContext().resolveUrl(null, url);
+			getWebView().loadUrl(resolvedUrl);
+		}	
 	}
 	
 	public void setHtml(String html)
