@@ -72,23 +72,36 @@
 
 -(void)setOrientationModes:(NSArray *)newOrientationModes
 {
-	allowedOrientations[0] = NO;
-	allowedOrientations[1] = NO;
-	allowedOrientations[2] = NO;
-	allowedOrientations[3] = NO;
+	for (int i=0; i<MAX_ORIENTATIONS; i++)
+	{
+		allowedOrientations[i] = NO;
+	}
 
 	for (id mode in newOrientationModes)
 	{
 		UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:-1];
-		if ((orientation >= 0) && (orientation < 4))
+		if ((orientation >= 0) && (orientation < MAX_ORIENTATIONS))
 		{
 			allowedOrientations[orientation] = YES;
 		}
 	}
 }
 
--(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow;
+-(void)refreshOrientationModesIfNeeded:(TiWindowProxy *)oldCurrentWindow
 {
+	if (currentWindow != oldCurrentWindow)
+	{
+		return;
+	}
+
+	[self enforceOrientationModesFromWindow:currentWindow];
+}
+
+
+-(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow
+{
+	currentWindow = newCurrentWindow;
+
 	Class arrayClass = [NSArray class];
 	Class windowClass = [TiWindowProxy class];
 	SEL proxySel = @selector(proxy);
@@ -134,55 +147,6 @@
 	}
 	
 	return allowedOrientations[interfaceOrientation];
-	
-//	// otherwise, we need to check the current window and make sure he supports to
-//	// requested orientation
-//	if (stack!=nil && [stack count]>0)
-//	{
-//		TiProxy *window = nil;
-//		
-//		for (size_t c = [stack count]-1; c>=0; c--)
-//		{
-//			TiViewProxy *w = [stack objectAtIndex:c];
-//			if ([w isKindOfClass:[TiWindowProxy class]])
-//			{
-//				//TODO: note, for small windows or other windows, how can we tell if this window
-//				//is the appropriate one to handle the orientationMode? we can have layers, etc.
-//				//for now we depend on focus and not hidden
-//				
-//				if ([w viewAttached] && [w view].hidden==NO && [TiUtils boolValue:((TiWindowProxy*)w).focused])
-//				{
-//					window = w;
-//					break;
-//				}
-//			}
-//		}
-//		
-//		if (window!=nil)
-//		{
-//			NSArray *array = [window valueForUndefinedKey:@"orientationModes"];
-//			if (array!=nil && (id)array!=[NSNull null] && [array count] > 0)
-//			{
-//				allowedOrientations[0] = NO;
-//				allowedOrientations[1] = NO;
-//				allowedOrientations[2] = NO;
-//				allowedOrientations[3] = NO;
-//				
-//				for (id mode in array)
-//				{
-//					UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:-1];
-//					if ((orientation >= 0) && (orientation < 4))
-//					{
-//						allowedOrientations[orientation] = YES;
-//					}
-//				}
-//			}
-//		}
-//	}
-//
-//	
-//	// otherwise, we only support portrait as default orientation
-//	return interfaceOrientation == UIInterfaceOrientationPortrait;
 }
 
 

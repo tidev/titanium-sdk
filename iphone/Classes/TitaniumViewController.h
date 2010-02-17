@@ -8,12 +8,14 @@
 @class TiProxy;
 @class TiWindowProxy;
 
+#define MAX_ORIENTATIONS	7
+
 @interface TitaniumViewController : UIViewController<UIApplicationDelegate> {
 @private
 	NSMutableArray *stack;	
-	TiWindowProxy *currentWindow;
+	TiWindowProxy *currentWindow;	//NOT RETAINED
 	
-	BOOL	allowedOrientations[4];
+	BOOL	allowedOrientations[MAX_ORIENTATIONS];
 }
 
 -(void)windowFocused:(TiProxy*)window;
@@ -23,6 +25,7 @@
 
 -(CGRect)resizeView;
 
+-(void)refreshOrientationModesIfNeeded:(TiWindowProxy *)oldCurrentWindow;
 -(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow;
 
 -(void)setOrientationModes:(NSArray *)newOrientationModes;
