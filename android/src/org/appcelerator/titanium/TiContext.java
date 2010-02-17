@@ -108,7 +108,7 @@ public class TiContext implements TiEvaluator
 		if (activity instanceof TiActivity) {
 			((TiActivity)activity).addTiContext(this);
 		}
-		
+
 		if (DBG) {
 			Log.e(LCAT, "BaseURL for context is " + baseUrl);
 		}
@@ -200,6 +200,10 @@ public class TiContext implements TiEvaluator
 
 	public String resolveUrl(String scheme, String path)
 	{
+		if (!TiFileFactory.isLocalScheme(path)) {
+			return path;
+		}
+
 		String result = null;
 		if (scheme == null) {
 			scheme = "app:";

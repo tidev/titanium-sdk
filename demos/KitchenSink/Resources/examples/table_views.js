@@ -18,6 +18,8 @@ var data = [
 	{title:'Insert Row', hasChild:true, test:'../examples/table_view_row_insert.js'},
 	{title:'Update Row', hasChild:true, test:'../examples/table_view_row_update.js'},
 	{title:'Set Row Data', hasChild:true, test:'../examples/table_view_set.js'},
+	{title:'Empty Table View', hasChild:true, test:'../examples/table_view_empty.js'},
+
 	{title:'Composite (Partial Size)', hasChild:true, test:'../examples/table_view_composite.js'},
 
 	{title:'Table API Basic', hasChild:true, test:'../examples/table_view_api_basic.js', header:'New Programmatic API'},
@@ -27,6 +29,8 @@ var data = [
 	{title:'Table Search', hasChild:true, test:'../examples/table_view_api_search.js'},
 	{title:'Table Custom Header', hasChild:true, test:'../examples/table_view_api_custom_header.js'},
 	{title:'Table Custom Footer', hasChild:true, test:'../examples/table_view_api_custom_footer.js'},
+	{title:'Table Section Header', hasChild:true, test:'../examples/table_view_section_header.js'},
+	{title:'Table View Options', hasChild:true, test:'../examples/table_view_options.js'},
 	{title:'Table Empty Dataset (Create)', hasChild:true, test:'../examples/table_view_api_emptydata.js'},
 	{title:'Table Empty AppendRow', hasChild:true, test:'../examples/table_view_api_empty_append.js'},
 

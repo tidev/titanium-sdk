@@ -12,6 +12,8 @@
 @private
 	NSMutableArray *stack;	
 	TiWindowProxy *currentWindow;
+	
+	BOOL	allowedOrientations[4];
 }
 
 -(void)windowFocused:(TiProxy*)window;
@@ -21,6 +23,8 @@
 
 -(CGRect)resizeView;
 
--(UINavigationController*)currentNavController;
+-(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow;
+
+-(void)setOrientationModes:(NSArray *)newOrientationModes;
 
 @end

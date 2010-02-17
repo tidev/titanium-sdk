@@ -87,7 +87,10 @@
 	}
 	else
 	{
+//		MKAnnotationView * doomedView = [map viewForAnnotation:proxy];
+//		[map deselectAnnotation:proxy animated:NO];
 		[map removeAnnotation:proxy];
+//		[doomedView prepareForReuse];
 		[map addAnnotation:proxy];
 		[map setNeedsLayout];
 	}
@@ -391,6 +394,10 @@
 		{
 			if ([annotation tag] == pinview.tag)
 			{
+				if ([annotation needsRefreshingWithSelection])
+				{
+//					return nil;
+				}
 				return annotation;
 			}
 		}
@@ -481,13 +488,18 @@
 	{
 		TiMapAnnotationProxy *ann = (TiMapAnnotationProxy*)annotation;
 		static NSString *identifier = @"timap";
-		MKPinAnnotationView *annView =(MKPinAnnotationView*) [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
+		MKPinAnnotationView *annView = nil;
+		
+		if (![(TiMapAnnotationProxy *)annotation needsRefreshingWithSelection])
+		{
+			annView = (MKPinAnnotationView*) [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
+		}
 		if (annView==nil)
 		{
 			annView=[[[TiMapPinAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self] autorelease];
 		}
 		annView.pinColor = [ann pinColor];
-		annView.animatesDrop = [ann animatesDrop];
+		annView.animatesDrop = [ann animatesDrop] && ![(TiMapAnnotationProxy *)annotation needsRefreshingWithSelection];
 		annView.canShowCallout = YES;
 		annView.calloutOffset = CGPointMake(-5, 5);
 		annView.enabled = YES;

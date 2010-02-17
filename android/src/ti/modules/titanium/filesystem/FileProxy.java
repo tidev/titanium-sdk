@@ -132,11 +132,11 @@ public class FileProxy extends TiProxy
 		return tbf.move(destination);
 	}
 
-	public String name() {
+	public String getName() {
 		return tbf.name();
 	}
 
-	public String nativePath() {
+	public String getNativePath() {
 		return tbf.nativePath();
 	}
 

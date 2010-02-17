@@ -18,4 +18,12 @@
 	}
 }
 
+-(void)selectAnnotation:(id)args
+{
+	if ([self viewAttached])
+	{
+		[[self view] performSelectorOnMainThread:@selector(selectAnnotation:) withObject:args waitUntilDone:NO];
+	}
+}
+
 @end

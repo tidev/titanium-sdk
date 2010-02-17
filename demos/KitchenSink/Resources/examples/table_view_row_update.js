@@ -2,7 +2,7 @@ var win = Titanium.UI.currentWindow;
 
 // create table view data
 var data = [
-	{title:'Change Me', header:'Section 0'},
+	{title:'Change Me (No Anim)', header:'Section 0'},
 	{title:'Change Me', name:'row2'},
 	{title:'Change Me'},
 	{title:'Change Me'},
@@ -30,7 +30,7 @@ tableView.addEventListener('click',function(e)
 		case 0:
 		{
 			var data = {title:'New Row 1 Title', header:'New Section Header'};
-			tableView.updateRow(0,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});				
+			tableView.updateRow(0,data);				
 			break;
 		}
 		case 1:

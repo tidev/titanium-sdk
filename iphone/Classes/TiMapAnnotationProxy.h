@@ -13,11 +13,14 @@
 @private
 	int tag;
 	TiMapView *delegate;
+	BOOL needsRefreshing;
+	BOOL needsRefreshingWithSelection;
 }
 
 // Center latitude and longitude of the annotion view.
 @property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
 @property (nonatomic, readwrite, assign) TiMapView *delegate;
+@property (nonatomic,readonly)	BOOL needsRefreshingWithSelection;
 
 // Title and subtitle for use by selection UI.
 - (NSString *)title;
