@@ -44,7 +44,7 @@ public class TiUIWebView extends TiUIView {
 	
 	public void setUrl(String url)
 	{
-		String resolvedUrl = getProxy().getTiContext().resolveUrl(url);
+		String resolvedUrl = getProxy().getTiContext().resolveUrl(null, url);
 		getWebView().loadUrl(resolvedUrl);
 	}
 	
