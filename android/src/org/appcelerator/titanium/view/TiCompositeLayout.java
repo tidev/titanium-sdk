@@ -225,12 +225,20 @@ public class TiCompositeLayout extends ViewGroup
 			if (!p.autoWidth) {
 				p.mLeft = Math.max(0, p.mRight - p.optionWidth);
 			} else {
-				p.mLeft = 0;
+				if (p.autoFillsWidth) {
+					p.mLeft = 0;
+				} else {
+					p.mLeft = Math.max(p.mRight - child.getMeasuredWidth(), 0);
+				}
 			}
 		} else {
 			p.mLeft = 0;
 			p.mRight = width;
-			int max = Math.max(child.getMeasuredWidth(), width);
+			
+			int max = child.getMeasuredWidth();
+			if (p.autoFillsWidth) {
+				max = Math.max(child.getMeasuredWidth(), width);
+			}
 			int w = !p.autoWidth ? p.optionWidth : max;
 			int space = (width - w)/2;
 			if (space > 0) {
@@ -253,12 +261,20 @@ public class TiCompositeLayout extends ViewGroup
 			if (!p.autoHeight) {
 				p.mTop = Math.max(0, p.mBottom - p.optionHeight);
 			} else {
-				p.mTop = 0;
+				if (p.autoFillsHeight) {
+					p.mTop = 0;
+				} else {
+					p.mTop = Math.max(p.mBottom - child.getMeasuredHeight(), 0);
+				}
 			}
 		} else {
 			p.mTop = 0;
 			p.mBottom = height;
-			int max = Math.max(child.getMeasuredHeight(), height);
+			
+			int max = child.getMeasuredHeight();
+			if (p.autoFillsHeight) {
+				max = Math.max(child.getMeasuredHeight(), height);
+			}
 			int h = !p.autoHeight ? p.optionHeight : max;
 			int space = (height - h)/2;
 			if (space > 0) {
@@ -331,6 +347,9 @@ public class TiCompositeLayout extends ViewGroup
 
 		public boolean autoHeight = true;
 		public boolean autoWidth = true;
+		public boolean autoFillsWidth = false;
+		public boolean autoFillsHeight = false;
+		
 		// Used in onMeasure to assign size for onLayout
 		public int mLeft;
 		public int mTop;
