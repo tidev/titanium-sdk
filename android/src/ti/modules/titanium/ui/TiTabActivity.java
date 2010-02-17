@@ -1,6 +1,10 @@
 package ti.modules.titanium.ui;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.ITiWindowHandler;
@@ -27,7 +31,7 @@ public class TiTabActivity extends ActivityGroup
 	protected TiCompositeLayout layout;
 	protected TabGroupProxy proxy;
 	protected Handler handler;
-
+	
 	public TiTabActivity() {
 	}
 
@@ -135,7 +139,6 @@ public class TiTabActivity extends ActivityGroup
 	@Override
 	protected void onPause() {
 		super.onPause();
-
 		((TiApplication) getApplication()).setWindowHandler(null);
 	}
 
