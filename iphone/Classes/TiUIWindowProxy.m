@@ -10,6 +10,7 @@
 #import "TiUIViewProxy.h"
 #import "ImageLoader.h"
 #import "TiComplexValue.h"
+#import "TitaniumApp.h"
 
 @implementation TiUIWindowProxy
 
@@ -155,6 +156,12 @@
 	{
 		navController.navigationBar.translucent = [TiUtils boolValue:value];
 	}
+}
+
+-(void)setOrientationModes:(id)value
+{
+	[self replaceValue:value forKey:@"orientationModes" notification:YES];
+	[[[TitaniumApp app] controller] performSelectorOnMainThread:@selector(refreshOrientationModesIfNeeded:) withObject:self waitUntilDone:NO];
 }
 
 -(void)setRightNavButton:(id)proxy withObject:(id)properties
