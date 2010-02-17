@@ -70,6 +70,74 @@
     [super viewDidDisappear:animated];
 }
 
+-(void)setOrientationModes:(NSArray *)newOrientationModes
+{
+	for (int i=0; i<MAX_ORIENTATIONS; i++)
+	{
+		allowedOrientations[i] = NO;
+	}
+
+	for (id mode in newOrientationModes)
+	{
+		UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:-1];
+		if ((orientation >= 0) && (orientation < MAX_ORIENTATIONS))
+		{
+			allowedOrientations[orientation] = YES;
+		}
+	}
+}
+
+-(void)refreshOrientationModesIfNeeded:(TiWindowProxy *)oldCurrentWindow
+{
+	if (currentWindow != oldCurrentWindow)
+	{
+		return;
+	}
+
+	[self enforceOrientationModesFromWindow:currentWindow];
+}
+
+
+-(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow
+{
+	currentWindow = newCurrentWindow;
+
+	Class arrayClass = [NSArray class];
+	Class windowClass = [TiWindowProxy class];
+	SEL proxySel = @selector(proxy);
+	
+	NSArray * candidateOrientationModes = [newCurrentWindow valueForKey:@"orientationModes"];
+	if (![candidateOrientationModes isKindOfClass:arrayClass])
+	{
+		UINavigationController * navCon = [newCurrentWindow navController];
+		NSEnumerator * viewControllerEnum = [[navCon viewControllers] reverseObjectEnumerator];
+
+		for (UIViewController * thisViewController in viewControllerEnum)
+		{
+			if (![thisViewController respondsToSelector:proxySel])
+			{
+				continue;
+			}
+			TiWindowProxy * thisProxy = (TiWindowProxy *)[(id)thisViewController proxy];
+			if (![thisProxy isKindOfClass:windowClass])
+			{
+				continue;
+			}
+			candidateOrientationModes = [thisProxy valueForKey:@"orientationModes"];
+			if ([candidateOrientationModes isKindOfClass:arrayClass])
+			{
+				break;
+			}
+		}
+	}
+
+	if ([candidateOrientationModes isKindOfClass:arrayClass])
+	{
+		[self setOrientationModes:candidateOrientationModes];
+	}
+}
+
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
 {
 	// NOTE: this compensates for the programmatic UI.orientation by developer
@@ -78,49 +146,7 @@
 		return YES;
 	}
 	
-	// otherwise, we need to check the current window and make sure he supports to
-	// requested orientation
-	if (stack!=nil && [stack count]>0)
-	{
-		TiProxy *window = nil;
-		
-		for (size_t c = [stack count]-1; c>=0; c--)
-		{
-			TiViewProxy *w = [stack objectAtIndex:c];
-			if ([w isKindOfClass:[TiWindowProxy class]])
-			{
-				//TODO: note, for small windows or other windows, how can we tell if this window
-				//is the appropriate one to handle the orientationMode? we can have layers, etc.
-				//for now we depend on focus and not hidden
-				
-				if ([w viewAttached] && [w view].hidden==NO && [TiUtils boolValue:((TiWindowProxy*)w).focused])
-				{
-					window = w;
-					break;
-				}
-			}
-		}
-		
-		if (window!=nil)
-		{
-			NSArray *array = [window valueForUndefinedKey:@"orientationModes"];
-			if (array!=nil && (id)array!=[NSNull null] && [array count] > 0)
-			{
-				for (id mode in array)
-				{
-					UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:-1];
-					if (orientation == interfaceOrientation)
-					{
-						return YES;
-					}
-				}
-			}
-		}
-	}
-
-	
-	// otherwise, we only support portrait as default orientation
-	return interfaceOrientation == UIInterfaceOrientationPortrait;
+	return allowedOrientations[interfaceOrientation];
 }
 
 
@@ -128,27 +154,12 @@
 {
 	if ([window_ isKindOfClass:[TiWindowProxy class]])
 	{
-		if ([(TiWindowProxy*)window_ tab]!=nil)
-		{
-			currentWindow = (TiWindowProxy*)window_;
-		}
+		[self enforceOrientationModesFromWindow:(id)window_];
 	}
-	
-//	// maintain a stack of windows opened in order
-//	if (stack==nil)
-//	{
-//		// don't worry about retaining
-//		stack = TiCreateNonRetainingArray();
-//	}
-//	[stack addObject:window_];
 }
 
 -(void)windowUnfocused:(TiProxy*)window_
 {
-//	if (stack!=nil)
-//	{
-//		[stack removeObject:window_];
-//	}
 }
 
 -(void)windowBeforeFocused:(TiProxy*)window_
@@ -159,19 +170,6 @@
 -(void)windowBeforeUnfocused:(TiProxy*)window_
 {
 
-}
-
--(UINavigationController*)currentNavController
-{
-	if (currentWindow!=nil)
-	{
-		TiProxy<TiTab> *tab = [currentWindow tab];
-		if (tab!=nil)
-		{
-			return [tab controller];
-		}
-	}
-	return nil;
 }
 
 @end
