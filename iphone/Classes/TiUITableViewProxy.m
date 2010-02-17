@@ -64,11 +64,11 @@
 	
 	int c = 0;
 	
-	for (TiUITableViewSectionProxy *section in [self valueForKey:@"data"])
+	for (TiUITableViewSectionProxy *section in [(TiUITableView*)[self view] sections])
 	{
 		for (TiUITableViewRowProxy *row in [section rows])
 		{
-			if ([args isEqualToString:[row valueForKey:@"name"]])
+			if ([args isEqualToString:[row valueForUndefinedKey:@"name"]])
 			{
 				return NUMINT(c);
 			}

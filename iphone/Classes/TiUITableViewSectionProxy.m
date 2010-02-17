@@ -29,6 +29,15 @@
 	self.modelDelegate = self;
 }	
 
+-(void)reorderRows
+{
+	NSInteger index = 0;
+	for (TiUITableViewRowProxy *row in rows)
+	{
+		row.row = index++;
+	}
+}
+
 -(void)triggerSectionUpdate
 {
 	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:nil animation:nil section:self.section type:TiUITableViewActionSectionReload] autorelease];
