@@ -22,7 +22,7 @@
 	BOOL restoreFullscreen;
 	TiViewProxy<TiTab> *tab;
 	UIViewController *controller;
-	UINavigationController *navbar;
+	UINavigationController *navController;
 @private
 	BOOL opening;
 	BOOL attached;
@@ -47,9 +47,10 @@
 -(void)windowReady;
 -(BOOL)_isChildOfTab;
 -(void)_associateTab:(UIViewController*)controller_ navBar:(UINavigationController*)navbar_ tab:(TiProxy<TiTab>*)tab_;
--(UIViewController*)controller;
--(void)setController:(UIViewController *)controller;
--(void)setNavController:(UINavigationController*)navController;
+
+@property(nonatomic,readwrite,retain)	UIViewController *controller;
+@property(nonatomic,readwrite,retain)	UINavigationController *navController;
+
 -(UIWindow*)_window;
 -(BOOL)_handleOpen:(id)args;
 -(BOOL)_handleClose:(id)args;
