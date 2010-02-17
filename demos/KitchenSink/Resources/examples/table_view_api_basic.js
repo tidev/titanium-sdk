@@ -24,3 +24,5 @@ tableview.addEventListener('click', function(e)
 
 // add table view to the window
 Titanium.UI.currentWindow.add(tableview);
+
+
