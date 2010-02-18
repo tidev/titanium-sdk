@@ -60,7 +60,8 @@ public class TiUITableView extends TiUIView
 	public TiUITableView(TiViewProxy proxy/*, int themeId*/)
 	{
 		super(proxy);
-
+		getLayoutParams().autoFillsHeight = true;
+		getLayoutParams().autoFillsWidth = true;
 
 		this.modifySemaphore = new Semaphore(0);
 		TiTableView tv = new TiTableView(proxy.getContext());
