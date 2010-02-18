@@ -172,7 +172,10 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	{
 		[[self webview] loadData:[html dataUsingEncoding:encoding] MIMEType:mimeType textEncodingName:textEncodingName baseURL:relativeURL];
 	}
-	[[self webview] setScalesPageToFit:NO];
+	if (scalingOverride==NO)
+	{
+		[[self webview] setScalesPageToFit:NO];
+	}
 	[html release];
 }
 
@@ -203,7 +206,10 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	ENSURE_SINGLE_ARG(args,NSObject);
 	if ([args isKindOfClass:[TiBlob class]])
 	{
-		[[self webview] setScalesPageToFit:YES];
+		if (scalingOverride==NO)
+		{
+			[[self webview] setScalesPageToFit:YES];
+		}
 		
 		TiBlob *blob = (TiBlob*)args;
 		TiBlobType type = [blob type];
@@ -230,13 +236,24 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	{
 		TiFile *file = (TiFile*)args;
 		url = [[NSURL fileURLWithPath:[file path]] retain];
-		[[self webview] setScalesPageToFit:YES];
+		if (scalingOverride==NO)
+		{
+			[[self webview] setScalesPageToFit:YES];
+		}
 		[[self webview] loadRequest:[NSURLRequest requestWithURL:url]];
 	}
 	else
 	{
 		[self.proxy throwException:@"invalid datatype" subreason:[NSString stringWithFormat:@"expected a TiBlob, was: %@",[args class]] location:CODELOCATION];
 	}
+}
+
+-(void)setScalesPageToFit_:(id)args
+{
+	// allow the user to overwrite the scale (usually if local)
+	BOOL scaling = [TiUtils boolValue:args];
+	scalingOverride = YES;
+	[[self webview] setScalesPageToFit:scaling];
 }
 
 -(void)setUrl_:(id)args
@@ -253,7 +270,10 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 		[url retain];
 		NSURLRequest *request = [NSURLRequest requestWithURL:url];
 		[[self webview] loadRequest:request];
-		[[self webview] setScalesPageToFit:YES];
+		if (scalingOverride==NO)
+		{
+			[[self webview] setScalesPageToFit:YES];
+		}
 	}
 	else
 	{
@@ -328,7 +348,10 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 				[url retain];
 				NSURLRequest *request = [NSURLRequest requestWithURL:url];
 				[[self webview] loadRequest:request];
-				[[self webview] setScalesPageToFit:YES];
+				if (scalingOverride==NO)
+				{
+					[[self webview] setScalesPageToFit:YES];
+				}
 				return;
 			}
 			else if (error!=nil)
