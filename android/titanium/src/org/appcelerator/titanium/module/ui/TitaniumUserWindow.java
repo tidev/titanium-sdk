@@ -152,7 +152,7 @@ public class TitaniumUserWindow extends ViewAnimator
 			case MSG_TABCHANGE : {
 				String data = (String) msg.obj;
 				for (ITitaniumView tiView : views) {
-					tiView.dispatchApplicationEvent("ui.tabchange", data);
+					tiView.dispatchWindowEvent("ui.tabchange", data);
 				}
 				return true;
 			}

@@ -410,11 +410,11 @@ public class TitaniumUI extends TitaniumBaseModule implements ITitaniumUI, Handl
 	}
 
 	public int addEventListener(String eventName, String eventListener) {
-		return tmm.getCurrentView().addEventListener("ui." + eventName, eventListener);
+		return tmm.getCurrentUIWebView().addWindowEventListener("ui." + eventName, eventListener);
 	}
 
 	public void removeEventListener(String eventName, int listenerId) {
-		tmm.getCurrentView().removeEventListener("ui." + eventName, listenerId);
+		tmm.getCurrentUIWebView().removeWindowEventListener("ui." + eventName, listenerId);
 	}
 
 	//Created in 0.7.0
