@@ -197,6 +197,12 @@
 		{
 			return [NSURL fileURLWithPath:object];
 		}
+		if ([object hasPrefix:@"sms:"] || 
+			[object hasPrefix:@"tel:"] ||
+			[object hasPrefix:@"mailto:"])
+		{
+			return [NSURL URLWithString:object];
+		}
 		url = [NSURL URLWithString:object relativeToURL:[proxy _baseURL]];
 		if (url==nil)
 		{
