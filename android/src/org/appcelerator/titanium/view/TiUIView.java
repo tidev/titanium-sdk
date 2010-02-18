@@ -24,12 +24,12 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiBorderHelper.BorderSupport;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
-import ti.modules.titanium.ui._2DMatrixProxy;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -40,7 +40,7 @@ import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 
 public abstract class TiUIView
-	implements TiProxyListener, OnFocusChangeListener
+	implements TiProxyListener, OnFocusChangeListener, OnClickListener
 {
 	private static final String LCAT = "TiUIView";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -153,14 +153,14 @@ public abstract class TiUIView
 			float anchorPointX = (float)((w * anchorX));
 			float anchorPointY = (float)((h * anchorY));
 
-			_2DMatrixProxy tdm = null;
+			Ti2DMatrix tdm = null;
 			Double delay = null;
 			Double duration = null;
 			Double toOpacity = null;
 			Double fromOpacity = null;
 
 			if (pa.options.containsKey("transform")) {
-				tdm = (_2DMatrixProxy) pa.options.get("transform");
+				tdm = (Ti2DMatrix) pa.options.get("transform");
 			}
 			if (pa.options.containsKey("delay")) {
 				delay = TiConvert.toDouble(pa.options, "delay");
@@ -290,6 +290,7 @@ public abstract class TiUIView
 		if (TiConvert.fillLayout(d, layoutParams)) {
 			if (nativeView != null) {
 				nativeView.requestLayout();
+				nativeView.setOnClickListener(this);
 			}
 		}
 
@@ -406,5 +407,13 @@ public abstract class TiUIView
 				Log.w(LCAT, "Attempt to hide null native control");
 			}
 		}
+	}
+	
+	@Override
+	public void onClick(View view) {
+		TiDict data = new TiDict();
+		data.put("source", getProxy());
+		
+		getProxy().fireEvent("click", data);
 	}
 }

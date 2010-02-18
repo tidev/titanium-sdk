@@ -8,96 +8,24 @@
 #import "TiMediaAudioRecorderProxy.h"
 #import "TiUtils.h"
 #import "TiFile.h"
-
-#pragma mark AudioSession listeners
-
-void TiAudioSessionInterruptionListener(void * inClientData,
-						  UInt32 inInterruptionState)
-{
-	TiMediaAudioRecorderProxy *proxy = (TiMediaAudioRecorderProxy*)inClientData;
-	if (inInterruptionState == kAudioSessionBeginInterruption)
-	{
-		if ([proxy recording]) 
-		{
-			[proxy pause:nil];
-		}
-	}
-	else if (inInterruptionState == kAudioSessionEndInterruption)
-	{
-		if ([proxy paused])
-		{
-			[proxy resume:nil];
-		}
-	}
-}
-
-void TiAudioSessionPropertyChangeLisetner( void * inClientData,
-				  AudioSessionPropertyID	inID,
-				  UInt32                  inDataSize,
-				  const void *            inData)
-{
-//	SpeakHereController *THIS = (SpeakHereController*)inClientData;
-//	if (inID == kAudioSessionProperty_AudioRouteChange)
-//	{
-//		CFDictionaryRef routeDictionary = (CFDictionaryRef)inData;			
-//		//CFShow(routeDictionary);
-//		CFNumberRef reason = (CFNumberRef)CFDictionaryGetValue(routeDictionary, CFSTR(kAudioSession_AudioRouteChangeKey_Reason));
-//		SInt32 reasonVal;
-//		CFNumberGetValue(reason, kCFNumberSInt32Type, &reasonVal);
-//		if (reasonVal != kAudioSessionRouteChangeReason_CategoryChange)
-//		{
-//			/*CFStringRef oldRoute = (CFStringRef)CFDictionaryGetValue(routeDictionary, CFSTR(kAudioSession_AudioRouteChangeKey_OldRoute));
-//			 if (oldRoute)	
-//			 {
-//			 printf("old route:\n");
-//			 CFShow(oldRoute);
-//			 }
-//			 else 
-//			 printf("ERROR GETTING OLD AUDIO ROUTE!\n");
-//			 
-//			 CFStringRef newRoute;
-//			 UInt32 size; size = sizeof(CFStringRef);
-//			 OSStatus error = AudioSessionGetProperty(kAudioSessionProperty_AudioRoute, &size, &newRoute);
-//			 if (error) printf("ERROR GETTING NEW AUDIO ROUTE! %d\n", error);
-//			 else
-//			 {
-//			 printf("new route:\n");
-//			 CFShow(newRoute);
-//			 }*/
-//			
-//			if (reasonVal == kAudioSessionRouteChangeReason_OldDeviceUnavailable)
-//			{			
-//				if (THIS->player->IsRunning()) {
-//					[THIS pausePlayQueue];
-//					[[NSNotificationCenter defaultCenter] postNotificationName:@"playbackQueueStopped" object:THIS];
-//				}		
-//			}
-//			
-//			// stop the queue if we had a non-policy route change
-//			if (THIS->recorder->IsRunning()) {
-//				[THIS stopRecord];
-//			}
-//		}	
-//	}
-//	else if (inID == kAudioSessionProperty_AudioInputAvailable)
-//	{
-//		if (inDataSize == sizeof(UInt32)) {
-//			UInt32 isAvailable = *(UInt32*)inData;
-//			// disable recording if input is not available
-//			THIS->btn_record.enabled = (isAvailable > 0) ? YES : NO;
-//		}
-//	}
-}
-
-
+#import "TiMediaAudioSession.h"
 
 @implementation TiMediaAudioRecorderProxy
 
 #pragma mark Internal 
 
+-(void)dealloc
+{
+	[[TiMediaAudioSession sharedSession] stopAudioSession];
+	[super dealloc];
+}
+
 -(void)_configure
 {
 	recorder = NULL;
+	[[TiMediaAudioSession sharedSession] startAudioSession];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionBegin:) name:kTiMediaAudioSessionInterruptionBegin object:[TiMediaAudioSession sharedSession]];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionEnd:) name:kTiMediaAudioSessionInterruptionEnd object:[TiMediaAudioSession sharedSession]];
 	[super _configure];
 }
 
@@ -113,6 +41,8 @@ void TiAudioSessionPropertyChangeLisetner( void * inClientData,
 		recorder = NULL;
 	}
 	RELEASE_TO_NIL(file);
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionInterruptionBegin object:[TiMediaAudioSession sharedSession]];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionInterruptionEnd object:[TiMediaAudioSession sharedSession]];
 	[super _destroy];
 }
 
@@ -121,30 +51,6 @@ void TiAudioSessionPropertyChangeLisetner( void * inClientData,
 	if (recorder==NULL)
 	{
 		recorder = new AQRecorder();
-		OSStatus error = AudioSessionInitialize(NULL, NULL, TiAudioSessionInterruptionListener, self);
-		if (error)
-		{
-			//TODO:
-		}
-		else 
-		{
-			//TODO: check error return codes
-			
-			UInt32 category = kAudioSessionCategory_PlayAndRecord;	
-			error = AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(category), &category);
-			
-			error = AudioSessionAddPropertyListener(kAudioSessionProperty_AudioRouteChange, TiAudioSessionPropertyChangeLisetner, self);
-			UInt32 inputAvailable = 0;
-			UInt32 size = sizeof(inputAvailable);
-			
-			// we do not want to allow recording if input is not available
-			error = AudioSessionGetProperty(kAudioSessionProperty_AudioInputAvailable, &size, &inputAvailable);
-			
-			// we also need to listen to see if input availability changes
-			error = AudioSessionAddPropertyListener(kAudioSessionProperty_AudioInputAvailable, TiAudioSessionPropertyChangeLisetner, self);
-			
-			error = AudioSessionSetActive(true); 
-		}
 	}
 	return recorder;
 }
@@ -168,6 +74,9 @@ void TiAudioSessionPropertyChangeLisetner( void * inClientData,
 		// create a temporary file
 		file = [[TiUtils createTempFile:@"caf"] retain];
 		
+		// indicate we're going to start recording
+		[[TiMediaAudioSession sharedSession] record];
+		
 		// Start the recorder
 		recorder->StartRecord((CFStringRef)[file path]);
 	}
@@ -178,6 +87,9 @@ void TiAudioSessionPropertyChangeLisetner( void * inClientData,
 	if (recorder!=NULL)
 	{
 		recorder->StopRecord();
+		
+		// place the session back in playback mode
+		[[TiMediaAudioSession sharedSession] playback];
 		
 		return file;
 	}
@@ -226,6 +138,24 @@ void TiAudioSessionPropertyChangeLisetner( void * inClientData,
 		return !recorder->IsRunning();
 	}
 	return YES;
+}
+
+#pragma mark Delegates 
+
+-(void)audioInterruptionBegin:(NSNotification*)note
+{
+	if ([self recording]) 
+	{
+		[self pause:nil];
+	}
+}
+
+-(void)audioInterruptionEnd:(NSNotification*)note
+{
+	if ([self paused])
+	{
+		[self resume:nil];
+	}
 }
 
 @end

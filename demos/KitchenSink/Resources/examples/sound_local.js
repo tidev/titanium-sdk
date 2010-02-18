@@ -180,4 +180,6 @@ var i = setInterval(function()
 win.addEventListener('close', function()
 {
 	clearInterval(i);
+	sound.destroy();
 });
+

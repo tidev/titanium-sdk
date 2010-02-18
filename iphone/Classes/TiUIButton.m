@@ -48,12 +48,12 @@
 	{
 		id backgroundImage = [self.proxy valueForKey:@"backgroundImage"];
 		UIButtonType defaultType = backgroundImage!=nil ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
-		id style = [self.proxy valueForKey:@"style"];
-		int type = style!=nil ? [TiUtils intValue:style] : defaultType;
-		UIView *btn = [TiButtonUtil buttonWithType:type];
+		id style_ = [[self.proxy valueForKey:@"style"] retain];
+		style = style_!=nil ? [TiUtils intValue:style_] : defaultType;
+		UIView *btn = [TiButtonUtil buttonWithType:style];
 		button = (UIButton*)[btn retain];
 		[self addSubview:button];
-		if (style==nil)
+		if (style_==nil)
 		{
 			[TiUtils setView:button positionRect:self.bounds];
 		}
@@ -85,8 +85,19 @@
 
 #pragma mark Public APIs
 
--(void)setStyle_:(id)style
+-(void)setStyle_:(id)style_
 {
+	// since this is destructive, make sure the 
+	// style change is *actually* different
+	if (button!=nil && style_!=nil)
+	{
+		int s = [TiUtils intValue:style_];
+		if (s == style)
+		{
+			return;
+		}
+		style = s;
+	}
 	if (button!=nil)
 	{
 		RELEASE_TO_NIL(button);

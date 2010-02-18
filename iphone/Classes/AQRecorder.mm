@@ -129,9 +129,21 @@ AQRecorder::AQRecorder()
 
 AQRecorder::~AQRecorder()
 {
-	AudioQueueDispose(mQueue, TRUE);
-	AudioFileClose(mRecordFile);
-	if (mFileName) CFRelease(mFileName);
+	if (mQueue!=NULL)
+	{
+		AudioQueueDispose(mQueue, TRUE);
+		mQueue = NULL;
+	}
+	if (mRecordFile!=NULL)
+	{
+		AudioFileClose(mRecordFile);
+		mRecordFile = NULL;
+	}
+	if (mFileName) 
+	{
+		CFRelease(mFileName);
+		mFileName = NULL;
+	}
 }
 
 // ____________________________________________________________________________________
@@ -276,5 +288,7 @@ void AQRecorder::StopRecord()
 		mFileName = NULL;
 	}
 	AudioQueueDispose(mQueue, true);
+	mQueue = NULL;
 	AudioFileClose(mRecordFile);
+	mRecordFile = NULL;
 }

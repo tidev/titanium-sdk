@@ -15,6 +15,60 @@ var label = Titanium.UI.createLabel({
 
 win.add(label);
 
+function lineTypeToStr()
+{
+	var type = Ti.Media.audioLineType;
+	switch(type)
+	{
+		case Ti.Media.AUDIO_HEADSET_INOUT:
+			return "headset";
+		case Ti.Media.AUDIO_RECEIVER_AND_MIC:
+			return "receiver/mic";
+		case Ti.Media.AUDIO_HEADPHONES_AND_MIC:
+			return "headphones/mic";
+		case Ti.Media.AUDIO_LINEOUT:
+			return "lineout";
+		case Ti.Media.AUDIO_SPEAKER:
+			return "speaker";
+		case Ti.Media.AUDIO_MICROPHONE:
+			return "microphone";
+		case Ti.Media.AUDIO_MUTED:
+			return "silence switch on";
+		case Ti.Media.AUDIO_UNAVAILABLE:
+			return "unavailable";
+		case Ti.Media.AUDIO_UNKNOWN:
+			return "unknown";
+	}
+}
+
+var linetype = Titanium.UI.createLabel({
+	text: "audio line type: "+lineTypeToStr(),
+	bottom:20,
+	color:'#999',
+	textAlign:'center'
+});
+
+win.add(linetype);
+
+var volume = Titanium.UI.createLabel({
+	text: "volume: "+Ti.Media.volume,
+	bottom:50,
+	color:'#999',
+	textAlign:'center'
+});
+
+win.add(volume);
+
+Ti.Media.addEventListener('linechange',function(e)
+{
+	linetype.text = "audio line type: "+lineTypeToStr();
+});
+
+Ti.Media.addEventListener('volume',function(e)
+{
+	volume.text = "volume: "+e.volume;
+});
+
 var duration = 0;
 
 function showLevels()

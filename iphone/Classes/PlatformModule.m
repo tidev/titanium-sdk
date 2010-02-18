@@ -127,6 +127,7 @@
 	RELEASE_TO_NIL(address);
 	RELEASE_TO_NIL(ostype);
 	RELEASE_TO_NIL(availableMemory);
+	RELEASE_TO_NIL(capabilities);
 	[super dealloc];
 }
 
@@ -134,9 +135,15 @@
 {
 	if (count == 1 && [type isEqualToString:@"battery"])
 	{
-		[[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryStateDidChangeNotification object:nil];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryLevelDidChangeNotification object:nil];
+		UIDevice *device = [UIDevice currentDevice];
+		// set a flag to temporarily turn on battery enablement
+		if (batteryEnabled==NO && device.batteryMonitoringEnabled==NO)
+		{
+			batteryEnabled = YES;
+			[device setBatteryMonitoringEnabled:YES];
+		}
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryStateDidChangeNotification object:device];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryLevelDidChangeNotification object:device];
 	}
 }
 
@@ -144,9 +151,13 @@
 {
 	if (count == 0 && [type isEqualToString:@"battery"])
 	{
-		[[UIDevice currentDevice] setBatteryMonitoringEnabled:NO];
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceBatteryStateDidChangeNotification object:nil];
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceBatteryLevelDidChangeNotification object:nil];
+		UIDevice *device = [UIDevice currentDevice];
+		if (batteryEnabled)
+		{
+			[device setBatteryMonitoringEnabled:NO];
+		}
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceBatteryStateDidChangeNotification object:device];
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceBatteryLevelDidChangeNotification object:device];
 	}
 }
 
@@ -193,8 +204,21 @@
 
 -(PlatformModuleDisplayCapsProxy*)displayCaps
 {
-	//TODO: cache
-	return [[[PlatformModuleDisplayCapsProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
+	if (capabilities == nil)
+	{
+		return [[[PlatformModuleDisplayCapsProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+	}
+	return capabilities;
+}
+
+-(void)setBatteryMonitoring:(NSNumber *)yn
+{
+	[[UIDevice currentDevice] setBatteryMonitoringEnabled:[TiUtils boolValue:yn]];
+}
+
+-(NSNumber*)batteryMonitoring
+{
+	return NUMBOOL([UIDevice currentDevice].batteryMonitoringEnabled);
 }
 
 -(NSNumber*)batteryState
@@ -218,6 +242,12 @@ MAKE_SYSTEM_PROP(BATTERY_STATE_FULL,UIDeviceBatteryStateFull);
 {
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[self batteryState],@"state",[self batteryLevel],@"level",nil];
 	[self fireEvent:@"battery" withObject:event];
+}
+
+-(void)didReceiveMemoryWarning:(NSNotification*)notification
+{
+	RELEASE_TO_NIL(capabilities);
+	[super didReceiveMemoryWarning:notification];
 }
 
 @end

@@ -94,7 +94,8 @@ b3.addEventListener('click', function()
 	var w = Titanium.UI.createWindow({
 		backgroundColor:'#336699',
 		title:'Modal Window',
-		barColor:'black'
+		barColor:'black',
+		url:'vibrate.js'
 	});
 	var b = Titanium.UI.createButton({
 		title:'Close',

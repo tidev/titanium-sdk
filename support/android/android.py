@@ -57,7 +57,7 @@ class Android(object):
 			'appid': self.id,
 			'appname' : self.name,
 			'appversion' : '1',
-			'apiversion' : '3', #Android 1.5
+			'apiversion' : '4', #Android 1.6
 		}
 		self.config['classname'] = "".join(string.capwords(self.name).split(' '))
 
