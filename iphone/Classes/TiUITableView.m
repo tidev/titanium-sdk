@@ -46,20 +46,6 @@
 	if (tableview!=nil && CGRectIsEmpty(bounds)==NO)
 	{
 		[TiUtils setView:tableview positionRect:bounds];
-		if (tableview.tableHeaderView!=nil && [tableview.tableHeaderView isKindOfClass:[TiUIView class]])
-		{
-			TiUIView *view = (TiUIView*)tableview.tableHeaderView;
-			TiViewProxy *proxy = (TiViewProxy*)view.proxy;
-			[view reposition];
-			[proxy layoutChildren:[view bounds]];
-		}
-		if (tableview.tableFooterView!=nil && [tableview.tableFooterView isKindOfClass:[TiUIView class]])
-		{
-			TiUIView *view = (TiUIView*)tableview.tableFooterView;
-			TiViewProxy *proxy = (TiViewProxy*)view.proxy;
-			[view reposition];
-			[proxy layoutChildren:[view bounds]];
-		}
 	}
 }
 
