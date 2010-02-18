@@ -30,6 +30,9 @@ import org.appcelerator.titanium.util.TiFileHelper2;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Looper;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 
 public class TiContext implements TiEvaluator
 {
@@ -238,8 +241,25 @@ public class TiContext implements TiEvaluator
 
 	// Javascript Support
 
+	public Object evalFile(String filename, Messenger messenger, int messageId) throws IOException {
+		Object result = null;
+
+		result = getJSContext().evalFile(filename);
+		if (messenger != null) {
+			try {
+				Message msg = Message.obtain();
+				msg.what = messageId;
+				messenger.send(msg);
+				Log.e(LCAT, "Notifying caller that evalFile has completed");
+			} catch(RemoteException e) {
+				Log.w(LCAT, "Failed to notify caller that eval completed");
+			}
+		}
+		return result;
+	}
+
 	public Object evalFile(String filename) throws IOException {
-		return getJSContext().evalFile(filename);
+		return evalFile(filename, null, -1);
 	}
 
 	public Object evalJS(String src) {

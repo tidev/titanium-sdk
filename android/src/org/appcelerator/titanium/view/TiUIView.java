@@ -72,7 +72,9 @@ public abstract class TiUIView
 			if (cv != null) {
 				View nv = getNativeView();
 				if (nv instanceof ViewGroup) {
-					((ViewGroup) nv).addView(cv, child.getLayoutParams());
+					if (cv.getParent() == null) {
+						((ViewGroup) nv).addView(cv, child.getLayoutParams());
+					}
 				}
 			}
 		}

@@ -92,6 +92,9 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 			tiContext.getActivity().runOnUiThread(new Runnable()
 			{
 				public void run() {
+					if (DBG) {
+						Log.i(LCAT, "Creating handler on UI thread for Proxy");
+					}
 					uiHandler = new Handler(me);
 					waitForHandler.countDown();
 				}

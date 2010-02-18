@@ -124,7 +124,7 @@ public class KrollContext extends HandlerThread implements Handler.Callback
 		msg.getData().putString("filename", filename);
 		msg.sendToTarget();
 
-		return null /*result.getResult()*/;
+		return result.getResult();
 	}
 
 	public Object handleEvalFile(String filename)

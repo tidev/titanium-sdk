@@ -56,18 +56,19 @@ public class TiRootActivity extends ActivityGroup
 		rootLayout = new TiCompositeLayout(this);
 		setContentView(rootLayout);
 
-		runOnUiThread(new Runnable(){
+		new Thread(new Runnable(){
 
+			@Override
 			public void run() {
 				try {
 					tiContext.evalFile("app://app.js");
 				} catch (IOException e) {
-					// TODO be more helpful
 					e.printStackTrace();
 					finish();
 				}
-			}
-		});
+			}}).start();
+
+		Log.e("ROOT", "Leaving TiRootActivity.onCreate");
 	}
 
 	protected TiApplication getTiApp() {
