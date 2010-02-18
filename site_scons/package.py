@@ -32,9 +32,12 @@ def zip_android(zf,basepath):
 	android_jar = os.path.join(android_dist_dir, 'titanium.jar')
 	zf.write(android_jar, '%s/android/titanium.jar' % basepath)	
 	
-	for thirdparty_jar in os.listdir(os.path.join(top_dir, 'android', 'lib')):
+	titanium_lib_dir = os.path.join(top_dir, 'android', 'titanium', 'lib')
+	for thirdparty_jar in os.listdir(titanium_lib_dir):
 		if thirdparty_jar == "smalljs.jar": continue
-		jar_path = os.path.join(top_dir, 'android', 'lib', thirdparty_jar)
+		elif thirdparty_jar == "commons-codec-1.3.jar": continue
+		elif thirdparty_jar == "commons-logging-1.1.1.jar": continue
+		jar_path = os.path.join(top_dir, 'android', 'titanium', 'lib', thirdparty_jar)
 		zf.write(jar_path, '%s/android/%s' % (basepath, thirdparty_jar))
 	
 	android_module_jars = glob.glob(os.path.join(android_dist_dir, 'titanium-*.jar'))

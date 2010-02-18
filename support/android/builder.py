@@ -606,11 +606,12 @@ class Builder(object):
 			
 			run.run(dex_args)
 			
-			ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')	
+			ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')
+			rhino_jar = os.path.join(self.support_dir, 'js.jar')
 			run.run([aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', assets_dir, '-S', 'res', '-I', android_jar, '-I', titanium_jar, '-F', ap_])
 		
 			unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')	
-			run.run([apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', classes_dex, '-rf', src_dir, '-rj', titanium_jar])
+			run.run([apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', classes_dex, '-rf', src_dir, '-rj', titanium_jar, '-rj', rhino_jar])
 	
 			if dist_dir:
 				app_apk = os.path.join(dist_dir, project_name + '.apk')	
