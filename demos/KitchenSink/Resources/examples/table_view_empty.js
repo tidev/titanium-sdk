@@ -1,6 +1,6 @@
 var win = Titanium.UI.currentWindow;
 
-var tableView = Ti.UI.createTableView({top:110,height:200});
+var tableView = Ti.UI.createTableView({top:110,backgroundColor:'yellow'});
 
 
 var b1 = Ti.UI.createButton({
@@ -14,11 +14,13 @@ b1.addEventListener('click',function()
 {
 	tableView.appendRow({title:'Foo'},{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT} )
 
-	var row = Ti.UI.createTableViewRow({height:50});
+	//NOTE: since we're appending 2 different row layouts, we need to give one of them
+	//a table className otherwise the tableview will assume they're the same layout and
+	//you'll get warnings and bad performance on lots of rows - this shows you how to do that
+	var row = Ti.UI.createTableViewRow({height:50,className:'row'});
 	var label = Ti.UI.createLabel({text:'row 1', color:'#111'});
 	row.add(label);
 	tableView.appendRow(row,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});
-	
 });
 
 var b2 = Ti.UI.createButton({

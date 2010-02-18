@@ -12,6 +12,7 @@
 #import "TiUtils.h"
 #import "TiBlob.h"
 #import "TiFile.h"
+#import "TiMediaAudioSession.h"
 
 @implementation TiMediaSoundProxy
 
@@ -21,6 +22,8 @@
 {
 	if (self = [super _initWithPageContext:context_ args:args])
 	{
+		[[TiMediaAudioSession sharedSession] startAudioSession];
+		
 		id arg = args!=nil && [args count] > 0 ? [args objectAtIndex:0] : nil;
 		if (arg!=nil)
 		{
@@ -62,6 +65,16 @@
 						}
 					}
 				}
+				if (url!=nil)
+				{
+					// attempt to preload if set so that the audio file
+					// is ready to play and doesn't cause any delays
+					id preload = [arg objectForKey:@"preload"];
+					if ([TiUtils boolValue:preload])
+					{
+						[self performSelector:@selector(player)];
+					}
+				}
 			}
 			if (url==nil)
 			{
@@ -70,8 +83,15 @@
 		}
 		volume = 1.0;
 		resumeTime = 0;
+	
 	}
 	return self;
+}
+
+-(void)dealloc
+{
+	[[TiMediaAudioSession sharedSession] stopAudioSession];
+	[super dealloc];
 }
 
 -(void)_destroy
@@ -79,12 +99,14 @@
 	if (player!=nil)
 	{
 		[player stop];
+		[player setDelegate:nil];
 	}
 	RELEASE_TO_NIL(player);
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(tempFile);
+	
+	[super _destroy];
 }
-
 
 -(AVAudioPlayer*)player
 {
@@ -110,9 +132,9 @@
 
 -(void)play:(id)args
 {
-	//NOTE: this code will ensure that the SILENCE switch is respected when movie plays
-	UInt32 sessionCategory = kAudioSessionCategory_SoloAmbientSound;
-	AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(sessionCategory), &sessionCategory);
+	// indicate we're going to start playing
+	[[TiMediaAudioSession sharedSession] playback];
+	
 	[[self player] play];
 }
 

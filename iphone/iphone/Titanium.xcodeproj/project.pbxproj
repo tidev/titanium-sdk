@@ -175,6 +175,10 @@
 		245E76AA111A9A7800A18644 /* TiAction.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8AE9111161FE0084E2DE /* TiAction.h */; };
 		245E76AB111A9A7800A18644 /* Bridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8B3C111161FE0084E2DE /* Bridge.h */; };
 		245E76AC111A9A7800A18644 /* KrollBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA89A81111615D0084E2DE /* KrollBridge.h */; };
+		24A1E517112D33AF003DA834 /* TiMediaAudioSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 24A1E515112D33AF003DA834 /* TiMediaAudioSession.h */; };
+		24A1E518112D33AF003DA834 /* TiMediaAudioSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E516112D33AF003DA834 /* TiMediaAudioSession.m */; };
+		24A1E519112D33AF003DA834 /* TiMediaAudioSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E516112D33AF003DA834 /* TiMediaAudioSession.m */; };
+		24A1E51A112D33AF003DA834 /* TiMediaAudioSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1E516112D33AF003DA834 /* TiMediaAudioSession.m */; };
 		24CA895B111161050084E2DE /* AFItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA890B111161050084E2DE /* AFItemView.m */; };
 		24CA895C111161050084E2DE /* AFOpenFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA890E111161050084E2DE /* AFOpenFlowView.m */; };
 		24CA895D111161050084E2DE /* AFUIImageReflection.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8910111161050084E2DE /* AFUIImageReflection.m */; };
@@ -803,6 +807,8 @@
 		243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewSeparatorStyleProxy.m; sourceTree = "<group>"; };
 		243ED8EB11288B4300639DF4 /* TiUITableViewScrollPositionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewScrollPositionProxy.h; sourceTree = "<group>"; };
 		243ED8EC11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewScrollPositionProxy.m; sourceTree = "<group>"; };
+		24A1E515112D33AF003DA834 /* TiMediaAudioSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMediaAudioSession.h; sourceTree = "<group>"; };
+		24A1E516112D33AF003DA834 /* TiMediaAudioSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMediaAudioSession.m; sourceTree = "<group>"; };
 		24CA890A111161050084E2DE /* AFItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFItemView.h; sourceTree = "<group>"; };
 		24CA890B111161050084E2DE /* AFItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFItemView.m; sourceTree = "<group>"; };
 		24CA890C111161050084E2DE /* AFOpenFlowConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFOpenFlowConstants.h; sourceTree = "<group>"; };
@@ -1782,6 +1788,8 @@
 				24CA8ABD111161FD0084E2DE /* TiMediaSoundProxy.h */,
 				24FBE58111293D06005C8D48 /* TiMediaAudioRecorderProxy.h */,
 				24FBE58211293D06005C8D48 /* TiMediaAudioRecorderProxy.mm */,
+				24A1E515112D33AF003DA834 /* TiMediaAudioSession.h */,
+				24A1E516112D33AF003DA834 /* TiMediaAudioSession.m */,
 			);
 			name = Media;
 			sourceTree = "<group>";
@@ -2446,6 +2454,7 @@
 				24FBE5B711293DD1005C8D48 /* CAXException.h in Headers */,
 				24E25CC5112A698C0083D43D /* AQRecorder.h in Headers */,
 				24E25CC7112A698C0083D43D /* SCListener.h in Headers */,
+				24A1E517112D33AF003DA834 /* TiMediaAudioSession.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2773,6 +2782,7 @@
 				24FBE5B011293DD1005C8D48 /* CAXException.cpp in Sources */,
 				24E25CC3112A698C0083D43D /* AQRecorder.mm in Sources */,
 				24E25CC4112A698C0083D43D /* SCListener.m in Sources */,
+				24A1E519112D33AF003DA834 /* TiMediaAudioSession.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2972,6 +2982,7 @@
 				24FBE5BA11293DD1005C8D48 /* CAXException.cpp in Sources */,
 				24E25CC9112A698C0083D43D /* AQRecorder.mm in Sources */,
 				24E25CCA112A698C0083D43D /* SCListener.m in Sources */,
+				24A1E51A112D33AF003DA834 /* TiMediaAudioSession.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3171,6 +3182,7 @@
 				24FBE5B611293DD1005C8D48 /* CAXException.cpp in Sources */,
 				24E25CC6112A698C0083D43D /* AQRecorder.mm in Sources */,
 				24E25CC8112A698C0083D43D /* SCListener.m in Sources */,
+				24A1E518112D33AF003DA834 /* TiMediaAudioSession.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

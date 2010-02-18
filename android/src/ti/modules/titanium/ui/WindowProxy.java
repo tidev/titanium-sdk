@@ -53,12 +53,14 @@ public class WindowProxy extends TiWindowProxy
 					//TODO attach window
 				}
 				opened = true;
+				fireEvent("open", null);
 				return true;
 			}
 			case MSG_TAB_OPEN : {
 				view = new TiUIWindow(this, (Activity) msg.obj);
 				realizeViews(null, view);
 				opened = true;
+				fireEvent("open", null);
 				return true;
 			}
 			default : {
@@ -86,6 +88,8 @@ public class WindowProxy extends TiWindowProxy
 	protected void handleClose(TiDict options)
 	{
 		Log.i(LCAT, "handleClose");
+		fireEvent("close", null);
+
 		if (view != null) {
 			((TiUIWindow) view).close();
 		}

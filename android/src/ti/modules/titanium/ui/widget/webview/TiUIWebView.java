@@ -19,6 +19,8 @@ public class TiUIWebView extends TiUIView {
 	public TiUIWebView(TiViewProxy proxy)
 	{
 		super(proxy);
+		getLayoutParams().autoFillsHeight = true;
+		getLayoutParams().autoFillsWidth = true;
 		
 		WebView webView = new WebView(proxy.getContext());
 		webView.setVerticalScrollbarOverlay(true);

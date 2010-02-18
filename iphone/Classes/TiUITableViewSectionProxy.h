@@ -31,5 +31,6 @@
 @property(nonatomic,readwrite,assign) NSInteger section;
 
 -(void)triggerSectionUpdate;
+-(void)reorderRows;
 
 @end

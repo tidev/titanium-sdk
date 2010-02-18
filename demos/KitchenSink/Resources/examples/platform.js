@@ -1,5 +1,41 @@
 var win = Titanium.UI.currentWindow;
 
+// for battery level to work, you have to turn it 
+// on first otherwise it will report -1.  if you 
+// add a battery listener, it will turn it on for you
+// automagically
+Titanium.Platform.batteryMonitoring = true;
+
+win.addEventListener('close',function()
+{
+	// turn it off, no need to waste the battery
+	Titanium.Platform.batteryMonitoring = false;
+});
+
+function batteryStateToString(state)
+{
+	switch (state)
+	{
+		case Titanium.Platform.BATTERY_STATE_UNKNOWN:
+		{
+			return 'unknown';
+		}
+		case Titanium.Platform.BATTERY_STATE_UNPLUGGED:
+		{
+			return 'unplugged';
+		}
+		case Titanium.Platform.BATTERY_STATE_CHARGING:
+		{
+			return 'charging';
+		}
+		case Titanium.Platform.BATTERY_STATE_FULL:
+		{
+			return 'full';
+		}
+	}
+	return '???';
+}
+
 var l1 = Titanium.UI.createLabel({
 	text:'name:' + Titanium.Platform.name,
 	top:10,
@@ -109,7 +145,7 @@ var l9 = Titanium.UI.createLabel({
 win.add(l9);
 
 var l11 = Titanium.UI.createLabel({
-	text:'battery state:' + Titanium.Platform.batteryState,
+	text:'battery state:' + batteryStateToString(Titanium.Platform.batteryState),
 	top:190,
 	left:10,
 	width:300,
@@ -197,7 +233,7 @@ var b = Titanium.UI.createButton({
 	top:330
 });
 win.add(b);
-var openURL=0;
+var openURL=1;
 b.addEventListener('click', function()
 {
 	switch(openURL)
@@ -211,7 +247,7 @@ b.addEventListener('click', function()
 		}
 		case 1:
 		{
-			Titanium.Platform.openURL('tel:4043334444');
+			Titanium.Platform.openURL('tel:6504509671');
 			b.title='Open URL (tel)';
 			openURL++;
 			break;
@@ -232,30 +268,8 @@ b.addEventListener('click', function()
 //
 Titanium.Platform.addEventListener('battery', function(e)
 {
-	var message = 'Level: ' + e.level;
-	switch (e.state)
-	{
-		case Titanium.Platform.BATTERY_STATE_UNKNOWN:
-		{
-			message += ' state:unknown';
-			break;
-		}
-		case Titanium.Platform.BATTERY_STATE_UNPLUGGED:
-		{
-			message += ' state:unplugged';
-			break;
-		}
-		case Titanium.Platform.BATTERY_STATE_CHARGING:
-		{
-			message += ' state:charging';
-			break;
-		}
-		case Titanium.Platform.BATTERY_STATE_FULL:
-		{
-			message += ' state:full';
-			break;
-		}
-
-	}
+	//TODO: based on various reports from the google, you only get battery state changes
+	//at 5% intervals.... to test this, you gotta unplug and leave your phone sitting for awhile
+	var message = 'Battery Notification\n\nLevel: ' + e.level + ', State: '+batteryStateToString(e.state);
 	Titanium.UI.createAlertDialog({title:'Platform', message:message}).show();
 });

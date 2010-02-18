@@ -109,6 +109,13 @@
 	// able to change them dynamically
 	proxy.modelDelegate = self;
 	
+	// we need to manually check for this property on init
+	id enabled = [proxy valueForKey:@"enabled"];
+	if (enabled!=nil)
+	{
+		[self performSelector:@selector(setEnabled_:) withObject:enabled];
+	}
+	
 	return self;
 }
 
@@ -126,6 +133,12 @@
 	[self setWidth:width];
 }
 
+-(void)setEnabled_:(id)value
+{
+	BOOL enabled = [TiUtils boolValue:value];
+	[self setEnabled:enabled];
+}
+
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy_
 {
 	if ([key isEqualToString:@"title"])
@@ -141,6 +154,10 @@
 	else if ([key isEqualToString:@"width"])
 	{
 		[self performSelectorOnMainThread:@selector(setWidth_:) withObject:newValue waitUntilDone:NO];
+	}
+	else if ([key isEqualToString:@"enabled"])
+	{
+		[self performSelectorOnMainThread:@selector(setEnabled_:) withObject:newValue waitUntilDone:NO];
 	}
 }
 

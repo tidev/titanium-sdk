@@ -144,59 +144,29 @@ MAKE_SYSTEM_PROP(INPUT_BORDERSTYLE_ROUNDED,UITextBorderStyleRoundedRect);
 
 -(void)setOrientation:(id)mode
 {
+//	return;
+
 	ENSURE_UI_THREAD(setOrientation,mode);
-	UIDeviceOrientation orientation = [TiUtils orientationValue:mode def:UIDeviceOrientationPortrait];
-	UIWindow *win = [[UIApplication sharedApplication] keyWindow];
-	[UIView beginAnimations:@"orientation" context:nil];
-	[UIView setAnimationDuration:[UIApplication sharedApplication].statusBarOrientationAnimationDuration];
-	CGAffineTransform transform = CGAffineTransformIdentity;
-	CGRect rect;
-	switch (orientation)
-	{
-		case UIDeviceOrientationPortrait:
-		case UIDeviceOrientationUnknown:
-		case UIDeviceOrientationPortraitUpsideDown:
-		{
-			rect = CGRectMake(0, 0, 320, 480);
-			break;
-		}
-		case UIDeviceOrientationLandscapeRight:
-		{
-			transform = CGAffineTransformMakeRotation( -90 * M_PI / 180 );
-			transform = CGAffineTransformTranslate( transform, -90.0, -90.0 );
-			rect = CGRectMake(10, -10, 480, 320);
-			break;
-		}
-		case UIDeviceOrientationLandscapeLeft:
-		{
-			transform = CGAffineTransformMakeRotation( 90 * M_PI / 180 );
-			transform = CGAffineTransformTranslate( transform, 90.0, 90.0 );
-			rect = CGRectMake(10, -10, 480, 320);
-			break;
-		}
-	}
-	[win setTransform:transform];	
-	[TiUtils setView:win positionRect:rect];
-	[UIApplication sharedApplication].statusBarOrientation = orientation;	
-	[UIView commitAnimations];	
+	UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:UIInterfaceOrientationPortrait];
+	[[[TitaniumApp app] controller] manuallyRotateToOrientation:orientation];
 }
 
-MAKE_SYSTEM_PROP(PORTRAIT,UIDeviceOrientationPortrait);
-MAKE_SYSTEM_PROP(LANDSCAPE_LEFT,UIDeviceOrientationLandscapeLeft);
-MAKE_SYSTEM_PROP(LANDSCAPE_RIGHT,UIDeviceOrientationLandscapeRight);
-MAKE_SYSTEM_PROP(UPSIDE_PORTRAIT,UIDeviceOrientationPortraitUpsideDown);
+MAKE_SYSTEM_PROP(PORTRAIT,UIInterfaceOrientationPortrait);
+MAKE_SYSTEM_PROP(LANDSCAPE_LEFT,UIInterfaceOrientationLandscapeLeft);
+MAKE_SYSTEM_PROP(LANDSCAPE_RIGHT,UIInterfaceOrientationLandscapeRight);
+MAKE_SYSTEM_PROP(UPSIDE_PORTRAIT,UIInterfaceOrientationPortraitUpsideDown);
 MAKE_SYSTEM_PROP(UNKNOWN,UIDeviceOrientationUnknown);
 MAKE_SYSTEM_PROP(FACE_UP,UIDeviceOrientationFaceUp);
 MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 
 -(NSNumber*)isLandscape:(id)args
 {
-	return NUMBOOL([UIApplication sharedApplication].statusBarOrientation!=UIDeviceOrientationPortrait);
+	return NUMBOOL([UIApplication sharedApplication].statusBarOrientation!=UIInterfaceOrientationPortrait);
 }
 
 -(NSNumber*)isPortrait:(id)args
 {
-	return NUMBOOL([UIApplication sharedApplication].statusBarOrientation==UIDeviceOrientationPortrait);
+	return NUMBOOL([UIApplication sharedApplication].statusBarOrientation==UIInterfaceOrientationPortrait);
 }
 
 -(NSNumber*)orientation

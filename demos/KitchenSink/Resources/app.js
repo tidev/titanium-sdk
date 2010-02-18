@@ -158,8 +158,8 @@ tabGroup.addEventListener('focus', function(e)
 	messageWin.open();
 	setTimeout(function()
 	{
-		Ti.API.info('tab ' + e.tab.title  + ' prevTab = ' + e.previousTab.title);
-		messageLabel.text = 'active title ' + e.tab.title + ' old title ' + e.previousTab.title;
+		Ti.API.info('tab ' + e.tab.title  + ' prevTab = ' + (e.previousTab ? e.previousTab.title : null));
+		messageLabel.text = 'active title ' + e.tab.title + ' old title ' + (e.previousTab ? e.previousTab.title : null);
 	},1000);
 	
 	setTimeout(function()

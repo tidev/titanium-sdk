@@ -8,7 +8,7 @@
 
 @interface TiUITableViewProxy : TiViewProxy
 {
-@private
 }
+-(void)setData:(id)args withObject:(id)properties;
 
 @end

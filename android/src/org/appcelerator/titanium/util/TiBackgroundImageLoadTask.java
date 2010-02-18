@@ -41,7 +41,7 @@ public abstract class TiBackgroundImageLoadTask
 	protected Drawable doInBackground(String... arg) {
 
 		Drawable d = null;
-		String url = arg[0];
+		String url = softTiContext.get().resolveUrl(null, arg[0]);
 
 		boolean retry = true;
 		int retryCount = 3;

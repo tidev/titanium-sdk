@@ -14,7 +14,10 @@ typedef enum
 	TiUITableViewActionDeleteRow,
 	TiUITableViewActionInsertRowBefore,
 	TiUITableViewActionInsertRowAfter,
-	TiUITableViewActionSectionReload
+	TiUITableViewActionAppendRow,
+	TiUITableViewActionSectionReload,
+	TiUITableViewActionRowReload,
+	TiUITableViewActionSetData
 } TiUITableViewActionType;
 
 

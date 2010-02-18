@@ -13,7 +13,7 @@
 #import "TiFile.h"
 #import "TiViewProxy.h"
 #import "TiBlob.h"
-
+#import "TiMediaAudioSession.h"
 
 @implementation TiMediaVideoPlayerProxy
 
@@ -221,9 +221,8 @@
 {
 	ENSURE_UI_THREAD(play,args);
 	
-	//NOTE: this code will ensure that the SILENCE switch is respected when movie plays
-	UInt32 sessionCategory = kAudioSessionCategory_SoloAmbientSound;
-	AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(sessionCategory), &sessionCategory);
+	// indicate we're going to start recording
+	[[TiMediaAudioSession sharedSession] playback];
 	
 	if (playing)
 	{
@@ -321,11 +320,12 @@
 			// get the window background view and place it on there - it's already rotated
 			// and will give us better positioning on the right surface area
 			UIView *subview = [[window subviews] objectAtIndex:0];
+			
 			for (TiViewProxy *proxy in views)
 			{
 				TiUIView *view = [proxy view];
+				[view setVirtualParentTransform:CGAffineTransformMakeRotation(M_PI/2.0)];
 				[view insertIntoView:subview bounds:subview.bounds];
-				view.transform = CGAffineTransformMakeRotation(M_PI/2.0);
 			}
 		}
 	}

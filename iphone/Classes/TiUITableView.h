@@ -37,12 +37,9 @@
 -(NSInteger)indexForRow:(TiUITableViewRowProxy*)row;
 -(TiUITableViewRowProxy*)rowForIndex:(NSInteger)index section:(NSInteger*)section;
 -(void)updateSearchView;
+-(NSMutableArray*)sections;
 
 -(void)dispatchAction:(TiUITableViewAction*)action;
--(void)insertRow:(TiUITableViewRowProxy*)row before:(TiUITableViewRowProxy*)before animation:(NSDictionary*)animation;
--(void)insertRow:(TiUITableViewRowProxy*)row after:(TiUITableViewRowProxy*)after animation:(NSDictionary*)animation;
--(void)deleteRow:(TiUITableViewRowProxy*)row animation:(NSDictionary*)animation;
--(void)appendRow:(TiUITableViewRowProxy*)row animation:(NSDictionary*)animation;
 -(void)scrollToIndex:(NSInteger)index position:(UITableViewScrollPosition)position animated:(BOOL)animated;
 
 @end
