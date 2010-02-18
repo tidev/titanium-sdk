@@ -35,7 +35,7 @@
 
 - (BOOL)isEqual:(id)anObject
 {
-	if ([anObject isKindOfClass:[KrollCallback class]])
+	if (function!=NULL && [anObject isKindOfClass:[KrollCallback class]])
 	{
 		TiObjectRef ref1 = function;
 		TiObjectRef ref2 = [(KrollCallback*)anObject function];

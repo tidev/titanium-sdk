@@ -14,6 +14,7 @@
 #import "TiViewProxy.h"
 #import "Ti2DMatrix.h"
 #import "SCListener.h"
+#import "TiMediaAudioSession.h"
 
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVAudioPlayer.h>
@@ -270,6 +271,26 @@ MAKE_SYSTEM_STR(MEDIA_TYPE_PHOTO,kUTTypeImage);
 MAKE_SYSTEM_PROP(QUALITY_HIGH,UIImagePickerControllerQualityTypeHigh);
 MAKE_SYSTEM_PROP(QUALITY_MEDIUM,UIImagePickerControllerQualityTypeMedium);
 MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
+
+MAKE_SYSTEM_PROP(AUDIO_HEADSET_INOUT,TiMediaAudioSessionInputHeadsetInOut);
+MAKE_SYSTEM_PROP(AUDIO_RECEIVER_AND_MIC,TiMediaAudioSessionInputReceiverAndMicrophone);
+MAKE_SYSTEM_PROP(AUDIO_HEADPHONES_AND_MIC,TiMediaAudioSessionInputHeadphonesAndMicrophone);
+MAKE_SYSTEM_PROP(AUDIO_LINEOUT,TiMediaAudioSessionInputLineOut);
+MAKE_SYSTEM_PROP(AUDIO_SPEAKER,TiMediaAudioSessionInputSpeaker);
+MAKE_SYSTEM_PROP(AUDIO_MICROPHONE,TiMediaAudioSessionInputMicrophoneBuiltin);
+MAKE_SYSTEM_PROP(AUDIO_MUTED,TiMediaAudioSessionInputMuted);
+MAKE_SYSTEM_PROP(AUDIO_UNAVAILABLE,TiMediaAudioSessionInputUnavailable);
+MAKE_SYSTEM_PROP(AUDIO_UNKNOWN,TiMediaAudioSessionInputUnknown);
+		
+-(CGFloat)volume
+{
+	return [[TiMediaAudioSession sharedSession] volume];
+}
+
+-(NSInteger)audioLineType
+{
+	return [[TiMediaAudioSession sharedSession] inputType];
+}
 
 -(NSArray*)availableCameraMediaTypes
 {
@@ -574,5 +595,49 @@ MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 	return -1;
 }
 
+#pragma mark Delegates
+
+-(void)audioRouteChanged:(NSNotification*)note
+{
+	NSDictionary *event = [note userInfo];
+	[self fireEvent:@"linechange" withObject:event];
+}
+
+-(void)audioVolumeChanged:(NSNotification*)note
+{
+	NSMutableDictionary *event = [NSMutableDictionary dictionary];
+	[event setObject:NUMFLOAT([self volume]) forKey:@"volume"];
+	[self fireEvent:@"volume" withObject:event];
+}
+
+#pragma mark Listener Management
+
+-(void)_listenerAdded:(NSString *)type count:(int)count
+{
+	if (count == 1 && [type isEqualToString:@"linechange"])
+	{
+		[[TiMediaAudioSession sharedSession] startAudioSession];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioRouteChanged:) name:kTiMediaAudioSessionRouteChange object:[TiMediaAudioSession sharedSession]];
+	}
+	else if (count == 1 && [type isEqualToString:@"volume"])
+	{
+		[[TiMediaAudioSession sharedSession] startAudioSession];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioVolumeChanged:) name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
+	}
+}
+
+-(void)_listenerRemoved:(NSString *)type count:(int)count
+{
+	if (count == 0 && [type isEqualToString:@"linechange"])
+	{
+		[[TiMediaAudioSession sharedSession] stopAudioSession];
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionRouteChange object:[TiMediaAudioSession sharedSession]];
+	}
+	else if (count == 0 && [type isEqualToString:@"volume"])
+	{
+		[[TiMediaAudioSession sharedSession] stopAudioSession];
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
+	}
+}
 
 @end
