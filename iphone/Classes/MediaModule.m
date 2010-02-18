@@ -355,7 +355,8 @@ MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 	UIGraphicsEndImageContext();
 	
 	TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
-	[self _fireEventToListener:@"screenshot" withObject:blob listener:arg thisObject:nil];
+	NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"media"];
+	[self _fireEventToListener:@"screenshot" withObject:event listener:arg thisObject:nil];
 }
 
 -(void)saveToPhotoGallery:(id)arg
