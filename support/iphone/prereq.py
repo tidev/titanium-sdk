@@ -123,7 +123,7 @@ def check_for_package():
 	check_itunes_version(props)
 	check_certs(props)
 	props['sdks']=get_sdks()
-	print poorjson.PoorJSON().dump(props).encode("utf-8")
+	print poorjson.PoorJSON().dump(props)
 			
 def main(args):
 	if len(args)!=2:
