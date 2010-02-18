@@ -80,6 +80,7 @@ DEFINE_EXCEPTIONS
 
 -(void)initializerState
 {
+	virtualParentTransform = CGAffineTransformIdentity;
 	multipleTouches = NO;
 	twoFingerTapIsPossible = NO;
 	BOOL touchEventsSupported = [self viewSupportsBaseTouchEvents];
@@ -281,6 +282,24 @@ DEFINE_EXCEPTIONS
 	return result;
 }
 
+-(void)updateTransform
+{
+	if ([transformMatrix isKindOfClass:[Ti2DMatrix class]])
+	{
+		self.transform = CGAffineTransformConcat(virtualParentTransform, [(Ti2DMatrix*)transformMatrix matrix]);
+	}
+	else if ([transformMatrix isKindOfClass:[Ti3DMatrix class]])
+	{
+		self.layer.transform = [(Ti3DMatrix*)transformMatrix matrix];
+	}
+}
+
+
+-(void)setVirtualParentTransform:(CGAffineTransform)newTransform
+{
+	virtualParentTransform = newTransform;
+	[self updateTransform];
+}
 
 #pragma mark Public APIs
 
@@ -342,14 +361,7 @@ DEFINE_EXCEPTIONS
 {
 	RELEASE_TO_NIL(transformMatrix);
 	transformMatrix = [transform_ retain];
-	if ([transformMatrix isKindOfClass:[Ti2DMatrix class]])
-	{
-		self.transform = [(Ti2DMatrix*)transformMatrix matrix];
-	}
-	else if ([transformMatrix isKindOfClass:[Ti3DMatrix class]])
-	{
-		self.layer.transform = [(Ti3DMatrix*)transformMatrix matrix];
-	}
+	[self updateTransform];
 }
 
 -(void)setCenter_:(id)point

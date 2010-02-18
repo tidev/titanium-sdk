@@ -74,6 +74,9 @@ public class TiColorHelper
 			colorTable = new HashMap<String, Integer>(16);
 
 			colorTable.put("black", Color.BLACK);
+			colorTable.put("red", Color.RED);
+			colorTable.put("purple", Color.rgb(0x80, 0, 0x80));
+			colorTable.put("orange", Color.rgb(0xff, 0x80, 0));
 			colorTable.put("gray", Color.GRAY);
 			colorTable.put("darkgray", Color.DKGRAY);
 			colorTable.put("lightgray", Color.LTGRAY);

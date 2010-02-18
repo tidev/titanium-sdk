@@ -1,5 +1,6 @@
 package ti.modules.titanium.database;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,6 +10,8 @@ import java.io.OutputStream;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiModule;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
@@ -63,11 +66,8 @@ public class DatabaseModule extends TiModule
 				Log.d(LCAT,"db url is = "+url);
 			}
 
-			String[] parts = { url };
-			//TODO Implement File!
-
-			//ITitaniumFile srcDb = TitaniumFileFactory.createTitaniumFile(tmm, parts, false);
-			// now copy our installable db into the same location and re-open
+			String path = getTiContext().resolveUrl(null, url);
+			TiBaseFile srcDb = TiFileFactory.createTitaniumFile(getTiContext(), path, false);
 
 			if (DBG) {
 				Log.d(LCAT,"new url is = "+url);
@@ -80,7 +80,7 @@ public class DatabaseModule extends TiModule
 			int count = 0;
 			try
 			{
-//				is = new BufferedInputStream(srcDb.getInputStream());
+				is = new BufferedInputStream(srcDb.getInputStream());
 				os = new BufferedOutputStream(new FileOutputStream(dbPath));
 
 				while((count = is.read(buf)) != -1) {

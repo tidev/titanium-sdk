@@ -321,11 +321,13 @@
 			// get the window background view and place it on there - it's already rotated
 			// and will give us better positioning on the right surface area
 			UIView *subview = [[window subviews] objectAtIndex:0];
+			CGRect ourBounds = [subview bounds];
+			
 			for (TiViewProxy *proxy in views)
 			{
 				TiUIView *view = [proxy view];
+				[view setVirtualParentTransform:CGAffineTransformMakeRotation(M_PI/2.0)];
 				[view insertIntoView:subview bounds:subview.bounds];
-				view.transform = CGAffineTransformMakeRotation(M_PI/2.0);
 			}
 		}
 	}

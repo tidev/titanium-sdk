@@ -133,11 +133,16 @@ public class TiUIWindow extends TiUIView
 					if (lastIndex > 0) {
 						fname = path.substring(lastIndex+1);
 						path = path.substring(0, lastIndex);
+					} else {
+						fname = path;
+						path = null;
 					}
 
 					if (url.startsWith("/")) {
 						baseUrl = "app:/" + path;
 						url = TiFileHelper2.joinSegments(baseUrl,fname);
+					} else if (path == null && fname != null) {
+						url = TiFileHelper2.joinSegments(baseUrl, fname);
 					} else if (path.startsWith("../")) {
 						String[] right = path.split("/");
 						String[] left = null;

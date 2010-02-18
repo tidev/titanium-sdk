@@ -70,6 +70,42 @@
     [super viewDidDisappear:animated];
 }
 
+-(void) manuallyRotateToOrientation:(UIInterfaceOrientation)orientation;
+{
+	UIWindow *win = [[UIApplication sharedApplication] keyWindow];
+	[UIView beginAnimations:@"orientation" context:nil];
+	[UIView setAnimationDuration:[UIApplication sharedApplication].statusBarOrientationAnimationDuration];
+	CGAffineTransform transform = CGAffineTransformIdentity;
+	int sign = 1;
+	CGRect rect;
+	switch (orientation)
+	{
+		case UIInterfaceOrientationPortraitUpsideDown:
+			transform = CGAffineTransformMakeRotation(M_PI); //180 degrees
+			//Flow into portrait.
+		case UIInterfaceOrientationPortrait:
+		{
+			rect = CGRectMake(0, 0, 320, 480);
+			break;
+		}
+		case UIInterfaceOrientationLandscapeLeft:
+			sign = -1;
+			//Flow into landscape.
+		case UIInterfaceOrientationLandscapeRight:
+		{
+			transform = CGAffineTransformMakeRotation( sign * M_PI_2 );
+			transform = CGAffineTransformTranslate( transform, sign * 90.0, sign * 90.0 );
+			rect = CGRectMake(10, -10, 480, 320);
+			break;
+		}
+	}
+	[win setTransform:transform];	
+	[TiUtils setView:win positionRect:rect];
+	[UIApplication sharedApplication].statusBarOrientation = orientation;	
+	[UIView commitAnimations];
+	lastOrientation = orientation;
+}
+
 -(void)setOrientationModes:(NSArray *)newOrientationModes
 {
 	for (int i=0; i<MAX_ORIENTATIONS; i++)
@@ -77,13 +113,21 @@
 		allowedOrientations[i] = NO;
 	}
 
+	BOOL noOrientations = YES;
+
 	for (id mode in newOrientationModes)
 	{
 		UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:-1];
 		if ((orientation >= 0) && (orientation < MAX_ORIENTATIONS))
 		{
 			allowedOrientations[orientation] = YES;
+			noOrientations = NO;
 		}
+	}
+	
+	if (noOrientations)
+	{
+		allowedOrientations[UIInterfaceOrientationPortrait] = YES;
 	}
 }
 
@@ -105,12 +149,16 @@
 	Class arrayClass = [NSArray class];
 	Class windowClass = [TiWindowProxy class];
 	SEL proxySel = @selector(proxy);
+
+	BOOL noPrefrenceTab = NO;
 	
 	NSArray * candidateOrientationModes = [newCurrentWindow valueForKey:@"orientationModes"];
 	if (![candidateOrientationModes isKindOfClass:arrayClass])
 	{
 		UINavigationController * navCon = [newCurrentWindow navController];
 		NSEnumerator * viewControllerEnum = [[navCon viewControllers] reverseObjectEnumerator];
+
+		noPrefrenceTab = (viewControllerEnum != nil);
 
 		for (UIViewController * thisViewController in viewControllerEnum)
 		{
@@ -126,6 +174,7 @@
 			candidateOrientationModes = [thisProxy valueForKey:@"orientationModes"];
 			if ([candidateOrientationModes isKindOfClass:arrayClass])
 			{
+				noPrefrenceTab = NO;
 				break;
 			}
 		}
@@ -135,18 +184,45 @@
 	{
 		[self setOrientationModes:candidateOrientationModes];
 	}
+	else if(noPrefrenceTab)
+	{
+		[self setOrientationModes:nil];
+	}
+
+	if(allowedOrientations[lastOrientation])
+	{
+		return; //Nothing to enforce.
+	}
+
+	UIInterfaceOrientation requestedOrientation = UIInterfaceOrientationPortrait;
+	NSTimeInterval latestRequest = 0.0;
+	for (int i=0; i<MAX_ORIENTATIONS; i++)
+	{
+		if (allowedOrientations[i] && (orientationRequestTimes[i]>latestRequest))
+		{
+			requestedOrientation = i;
+			latestRequest = orientationRequestTimes[i];
+		}
+	}
+	
+	[self manuallyRotateToOrientation:requestedOrientation];
 }
 
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation 
 {
-	// NOTE: this compensates for the programmatic UI.orientation by developer
-	if (interfaceOrientation == [UIApplication sharedApplication].statusBarOrientation)
+	orientationRequestTimes[interfaceOrientation] = [NSDate timeIntervalSinceReferenceDate];
+
+	BOOL result;
+
+	result = allowedOrientations[interfaceOrientation];
+
+	if (result)
 	{
-		return YES;
+		[self manuallyRotateToOrientation:interfaceOrientation];
 	}
 	
-	return allowedOrientations[interfaceOrientation];
+	return NO;
 }
 
 

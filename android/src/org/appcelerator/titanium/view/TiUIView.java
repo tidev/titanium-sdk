@@ -30,6 +30,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -40,7 +41,7 @@ import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 
 public abstract class TiUIView
-	implements TiProxyListener, OnFocusChangeListener
+	implements TiProxyListener, OnFocusChangeListener, OnClickListener
 {
 	private static final String LCAT = "TiUIView";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -288,6 +289,7 @@ public abstract class TiUIView
 		if (TiConvert.fillLayout(d, layoutParams)) {
 			if (nativeView != null) {
 				nativeView.requestLayout();
+				nativeView.setOnClickListener(this);
 			}
 		}
 
@@ -404,5 +406,13 @@ public abstract class TiUIView
 				Log.w(LCAT, "Attempt to hide null native control");
 			}
 		}
+	}
+	
+	@Override
+	public void onClick(View view) {
+		TiDict data = new TiDict();
+		data.put("source", getProxy());
+		
+		getProxy().fireEvent("click", data);
 	}
 }
