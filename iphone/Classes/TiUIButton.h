@@ -10,6 +10,7 @@
 @interface TiUIButton : TiUIView {
 @private
 	UIButton *button;
+	int style;
 }
 
 @end

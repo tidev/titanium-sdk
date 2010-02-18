@@ -310,6 +310,7 @@
 				{
 					TiViewProxy *proxy = [self.children objectAtIndex:x];
 					TiUIView *uiview = [subviews objectAtIndex:x];
+					TiProxy *oldProxy = uiview.proxy;
 					// change the proxy/view relationship before firing 
 					// events since certain properties (such as backgroundImage)
 					// rely on certain aspects of the proxy to be set (like baseURL)
@@ -318,7 +319,7 @@
 					uiview.proxy = self;
 					for (NSString *key in [proxy allProperties])
 					{
-						id oldValue = [uiview.proxy valueForKey:key];
+						id oldValue = [oldProxy valueForKey:key];
 						id newValue = [proxy valueForKey:key];
 						if ([oldValue isEqual:newValue]==NO)
 						{
