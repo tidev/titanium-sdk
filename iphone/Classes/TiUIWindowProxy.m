@@ -369,7 +369,7 @@
 		if (path!=nil)
 		{
 			UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:path];
-			if (path!=nil)
+			if (image!=nil)
 			{
 				UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
 				controller.navigationItem.titleView = imageView;
