@@ -30,7 +30,7 @@ public class TitaniumModule
 		if (constants == null) {
 			constants = new TiDict();
 
-			constants.put("version", "0.9.0");
+			constants.put("version", "0.9.1");
 		}
 
 		return constants;

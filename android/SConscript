@@ -1,8 +1,8 @@
 import os, sys, platform, glob, shutil
 Import("env cwd version")
 
-#TODO enable map
-modules = ['api', 'app', 'database', 'filesystem', 'geolocation', 'media', 'ui']
+#TODO enable map - eventually detect these
+modules = ['accelerometer', 'api', 'app', 'database', 'filesystem', 'geolocation', 'media', 'network', 'platform', 'ui']
 
 print "Building Titanium Mobile (Android) %s..." % version
 
@@ -13,22 +13,36 @@ else:
 
 android_sdk = ARGUMENTS.get("android_sdk", default_android_sdk)
 
-classpath = [ os.path.join(cwd, 'android', 'lib', 'js.jar'),
+classpath = [ os.path.join(cwd, 'android', 'titanium', 'lib', 'js.jar'),
 	os.path.join(android_sdk, 'platforms', 'android-1.6', 'android.jar'),
-	os.path.join(cwd, 'android', 'lib', 'commons-codec-1.3.jar'),
-	os.path.join(cwd, 'android', 'lib', 'commons-logging-1.1.1.jar')]
+	os.path.join(cwd, 'android', 'titanium', 'lib', 'commons-codec-1.3.jar'),
+	os.path.join(cwd, 'android', 'titanium', 'lib', 'commons-logging-1.1.1.jar')]
 
-sources = [os.path.join('src', 'com'), os.path.join('src', 'org'), 'thirdparty']
-sources += glob.glob(os.path.join('src', 'ti', 'modules', 'titanium', '*.java'))
+sources = [os.path.join('titanium', 'src'), os.path.join('titanium', 'thirdparty')]
 
-env.Append(JAVASOURCEPATH='src')
+env.Append(JAVASOURCEPATH=os.path.join('titanium','src'))
 env.Append(JAVACLASSPATH=classpath)
 
+#copy non-Java files into classes
+titanium_src_dir = os.path.join(cwd, 'android', 'titanium', 'src')
+non_java_resources = []
+for root, dirs, files in os.walk(titanium_src_dir):
+	for file in files:
+		if not file.endswith(".java"):
+			relative_path = os.path.join(root[len(titanium_src_dir)+1:], file)
+			file_path = os.path.join(root, file)
+			dest_path = os.path.join(cwd, 'dist', 'android', 'classes', os.path.dirname(relative_path))
+			if not os.path.exists(dest_path):
+				os.makedirs(dest_path)
+			dest_file = os.path.join(cwd, 'dist', 'android', 'classes', relative_path)
+			shutil.copy(file_path, dest_file)
+			non_java_resources.append(dest_file)
+
 classes = env.Java(target = 'classes', source = sources)
-env.Jar(target = 'titanium.jar', source = classes)
+env.Jar(target = 'titanium.jar', source = classes + non_java_resources)
 
 for module in modules:
-	module_sources = os.path.join('src', 'ti', 'modules', 'titanium', module)
+	module_sources = os.path.join('modules', module, 'src')
 	env.Java(target = 'classes', source = module_sources, JAVACLASSPATH = classpath + [os.path.join(cwd, 'dist', 'android', 'classes')])
 	env.Jar(target = 'titanium-%s.jar' % module,
 		source = os.path.join('classes', 'ti', 'modules', 'titanium', module), JARCHDIR=os.path.join(cwd, 'dist', 'android', 'classes'))

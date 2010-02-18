@@ -45,6 +45,6 @@ public abstract class TiBaseTableViewItem extends FrameLayout implements Handler
 	}
 
 	public BitmapDrawable createHasChildDrawable() {
-		return new BitmapDrawable(getClass().getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));
+		return new BitmapDrawable(TiDict.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));
 	}
 }
