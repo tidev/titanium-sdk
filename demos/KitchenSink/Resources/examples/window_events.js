@@ -187,32 +187,49 @@ var l10 = Titanium.UI.createLabel({
 
 win.add(l10);
 
+function pad (x)
+{
+	if (x < 10)
+	{
+		return '0' + x;
+	}
+	return x;
+}
+function formatTime()
+{
+	var date = new Date();
+	var h = date.getHours();
+	var m = date.getMinutes();
+	var s = date.getSeconds();
+	return pad(h) + ':' + pad(m) + ':' + pad(s);
+}
+
 //
 //  EVENT LISTENERS
 //
 win.addEventListener('open', function()
 {
-	var date = new Date();
-	Titanium.App.Properties.setString('window_open_event', date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds());
-	openLabel.text = 'Open fired ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+	var date = formatTime();
+	Titanium.App.Properties.setString('window_open_event', date);
+	openLabel.text = 'Open fired ' + date;
 });
 win.addEventListener('close', function()
 {
-	var date = new Date();
-	Titanium.App.Properties.setString('window_close_event', date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds());
-	closeLabel.text = 'Close fired ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+	var date = formatTime();
+	Titanium.App.Properties.setString('window_close_event', date);
+	closeLabel.text = 'Close fired ' + date;
 });
 win.addEventListener('focus', function()
 {
-	var date = new Date();
-	Titanium.App.Properties.setString('window_focus_event', date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds());
-	focusLabel.text = 'Focus fired ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+	var date = formatTime();
+	Titanium.App.Properties.setString('window_focus_event', date);
+	focusLabel.text = 'Focus fired ' + date;
 });
 win.addEventListener('blur', function()
 {
-	var date = new Date();
-	Titanium.App.Properties.setString('window_blur_event',  date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds());
-	blurLabel.text = 'Blur fired ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+	var date = formatTime();
+	Titanium.App.Properties.setString('window_blur_event',  date);
+	blurLabel.text = 'Blur fired ' + date;
 });
 win.addEventListener('click', function()
 {

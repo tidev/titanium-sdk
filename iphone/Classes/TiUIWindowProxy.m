@@ -41,6 +41,11 @@
 	// happen after the JS context is fully up and ready
 	if (contextReady && context!=nil)
 	{
+		focused = YES;
+		if ([self _hasListeners:@"focus"])
+		{
+			[self fireEvent:@"focus" withObject:nil];
+		}
 		return YES;
 	}
 	
@@ -95,6 +100,16 @@
 	{
 		BOOL animate = args!=nil && [args count]>0 ? [TiUtils boolValue:@"animate" properties:[args objectAtIndex:0] def:YES] : YES;
 		[tab windowClosing:self animated:animate];
+	}
+	else
+	{
+		// if we don't have a tab, we need to fire blur
+		// events ourselves
+		focused = NO;
+		if ([self _hasListeners:@"blur"])
+		{
+			[self fireEvent:@"blur" withObject:nil];
+		}
 	}
 	return YES;
 }
@@ -541,11 +556,18 @@ else{\
 {
 	if (focused==NO)
 	{
-		[self setupWindowDecorations];
-		if ([self _hasListeners:@"focus"])
+		// we can't fire focus here since we 
+		// haven't yet wired up the JS context at this point
+		// and listeners wouldn't be ready
+		if (contextReady==YES)
 		{
-			[self fireEvent:@"focus" withObject:nil];
+			focused = YES;
+			if ([self _hasListeners:@"focus"])
+			{
+				[self fireEvent:@"focus" withObject:nil];
+			}
 		}
+		[self setupWindowDecorations];
 	}
 	[super _tabFocus];
 }
@@ -554,6 +576,7 @@ else{\
 {
 	if (focused)
 	{
+		focused = NO;
 		if ([self _hasListeners:@"blur"])
 		{
 			[self fireEvent:@"blur" withObject:nil];

@@ -101,6 +101,17 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		[self fireEvent:@"open" withObject:nil];
 	}
 	
+	// we do it here in case we have a window that
+	// neither has tabs nor JS
+	if (focused==NO)
+	{
+		focused = YES;
+		if ([self _hasListeners:@"focus"])
+		{
+			[self fireEvent:@"focus" withObject:nil];
+		}
+	}
+	
 	if (reattachWindows!=nil)
 	{
 		UIView *rootView = [[TitaniumApp app] controller].view;
