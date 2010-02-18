@@ -73,7 +73,7 @@ class Builder(object):
 		self.name = name
 		self.app_id = app_id
 		self.support_dir = support_dir
-		self.platform_dir = os.path.join(sdk,'platforms','android-1.5')
+		self.platform_dir = os.path.join(sdk,'platforms','android-1.6')
 		self.tools_dir = os.path.join(self.platform_dir,'tools')
 		self.emulator = os.path.join(self.sdk,'tools','emulator')
 		self.android = os.path.join(self.sdk,'tools','android')
@@ -211,7 +211,8 @@ class Builder(object):
 				deploy_type = 'production'
 				
 		aapt = os.path.join(self.tools_dir,'aapt')
-		jar = os.path.join(self.platform_dir,'android.jar')
+		android_jar = os.path.join(self.platform_dir,'android.jar')
+		titanium_jar = os.path.join(self.support_dir,'titanium.jar')
 		dx = os.path.join(self.tools_dir,'dx')
 		apkbuilder = os.path.join(self.sdk,'tools','apkbuilder')
 		if platform.system() == "Windows":
@@ -223,8 +224,7 @@ class Builder(object):
 			keystore = os.path.join(self.support_dir,'dev_keystore')
 		
 		curdir = os.getcwd()
-		tijar = os.path.join(self.support_dir,'titanium.jar')
-		rhino_jar = os.path.join(self.support_dir, 'js.jar')
+		android_jars = glob.glob(os.path.join(self.support_dir, '*.jar'))
 		timapjar = os.path.join(self.support_dir, 'modules', 'titanium-map.jar')
 		ti_resources_dir = os.path.join(self.support_dir, 'resources')
 		
@@ -236,8 +236,8 @@ class Builder(object):
 			os.makedirs('bin')
 			
 			if os.path.exists('lib'):
-				shutil.copy(tijar,'lib')
-				shutil.copy(rhino_jar, 'lib')
+				for jar in android_jars:
+					shutil.copy(jar, 'lib')
 
 			resources_dir = os.path.join(self.top_dir,'Resources')
 			assets_dir = os.path.join('bin','assets')
@@ -306,7 +306,7 @@ class Builder(object):
 			compiler.compile()
 			
 			# Android SDK version --- FIXME: this is hardcoded until i hook in Nolan's code from Developer
-			android_sdk_version = '3'
+			android_sdk_version = '4'
 			
 			# NOTE: these are built-in permissions we need -- we probably need to refine when these are needed too
 			permissions_required = ['INTERNET','ACCESS_WIFI_STATE','ACCESS_NETWORK_STATE']
@@ -491,7 +491,7 @@ class Builder(object):
 			manifest_contents = open(android_manifest_to_read,'r').read()
 			manifest_contents = manifest_contents.replace('<!-- TI_ACTIVITIES -->',"\n\n\t\t".join(activities))
 			manifest_contents = manifest_contents.replace('<!-- TI_PERMISSIONS -->',permissions_required_xml)
-			manifest_contents = manifest_contents.replace('<uses-sdk android:minSdkVersion="3" />', '<uses-sdk android:minSdkVersion="%s" />' % android_sdk_version)
+			manifest_contents = manifest_contents.replace('<uses-sdk android:minSdkVersion="4" />', '<uses-sdk android:minSdkVersion="%s" />' % android_sdk_version)
 
 			# write out the new manifest
 			amf = open(android_manifest,'w')
@@ -499,7 +499,7 @@ class Builder(object):
 			amf.close()
 			
 			res_dir = os.path.join(self.project_dir, 'res')
-			output = run.run([aapt, 'package', '-m', '-J', src_dir, '-M', android_manifest, '-S', res_dir, '-I', jar])
+			output = run.run([aapt, 'package', '-m', '-J', src_dir, '-M', android_manifest, '-S', res_dir, '-I', android_jar])
 			if output == None:
 				sys.exit(1)
 			success = re.findall(r'ERROR (.*)',output)
@@ -587,9 +587,10 @@ class Builder(object):
 					ctf.close()
 					srclist.append(dtf)
 						
-			classpath = jar + os.pathsep + tijar + os.pathsep.join(jarlist)
-			if use_maps:
-				classpath += os.pathsep + timapjar
+			classpath = android_jar + os.pathsep + titanium_jar + os.pathsep.join(jarlist)
+			# TODO re-enable me
+			#if use_maps:
+			#	classpath += os.pathsep + timapjar
 			
 			javac_command = [javac, '-classpath', classpath, '-d', classes_dir, '-sourcepath', src_dir]
 			javac_command += srclist
@@ -599,18 +600,17 @@ class Builder(object):
 			
 			classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')
 			android_module_jars = glob.glob(os.path.join(self.support_dir, 'modules', 'titanium-*.jar'))
-			dex_args = [dx, '-JXmx512M', '--dex', '--output='+classes_dex, classes_dir, tijar, rhino_jar]
-			#if platform.system() == "Windows":
-			#	dex_args.insert(1, '-JXmx512M')
+			dex_args = [dx, '-JXmx512M', '--dex', '--output='+classes_dex, classes_dir]
+			dex_args += android_jars
 			dex_args += android_module_jars
 			
 			run.run(dex_args)
 			
 			ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')	
-			run.run([aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', assets_dir, '-S', 'res', '-I', jar, '-I', tijar, '-F', ap_])
+			run.run([aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', assets_dir, '-S', 'res', '-I', android_jar, '-I', titanium_jar, '-F', ap_])
 		
 			unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')	
-			run.run([apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', classes_dex, '-rf', src_dir, '-rj', tijar])
+			run.run([apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', classes_dex, '-rf', src_dir, '-rj', titanium_jar])
 	
 			if dist_dir:
 				app_apk = os.path.join(dist_dir, project_name + '.apk')	
