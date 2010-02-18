@@ -9,7 +9,6 @@ win.backgroundImage = '../images/tableview/easycustom/gradientBackground.png';
 var data = [];
 
 var headerView = Ti.UI.createView({
-	width:300,
 	height:60
 });
 
@@ -33,7 +32,6 @@ var footerLabel = Ti.UI.createLabel({
 });
 
 var footerView = Ti.UI.createView({
-	width:300,
 	height:60
 });
 
