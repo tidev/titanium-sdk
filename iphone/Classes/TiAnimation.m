@@ -413,15 +413,7 @@ self.p = v;\
 			transformMatrix = [[(TiUIView*)view_ transformMatrix] retain];
 		}
 		
-		if ([transform isKindOfClass:[Ti2DMatrix class]])
-		{
-			view_.transform = [(Ti2DMatrix*)transform matrix];
-		}
-		else
-		{
-			//3D transformation goes against the CALayer
-			view_.layer.transform = [(Ti3DMatrix*)transform matrix];
-		}
+		[(TiUIView *)view_ setTransform_:transform];
 	}
 	else 
 	{

@@ -28,6 +28,8 @@
 	TiViewProxy *parent;
 	TiAnimation *animation;
 	LayoutConstraint layout;
+	
+	CGAffineTransform virtualParentTransform;
 	id transformMatrix;
 	BOOL childrenInitialized;
 
@@ -59,6 +61,9 @@
 -(void)animate:(id)arg;
 
 #pragma mark Framework
+
+-(void)setVirtualParentTransform:(CGAffineTransform)newTransform;
+
 -(void)performZIndexRepositioning;
 -(void)repositionZIndex;
 -(UIImage*)loadImage:(id)image;

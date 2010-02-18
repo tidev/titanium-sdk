@@ -16,6 +16,8 @@
 	TiWindowProxy *currentWindow;	//NOT RETAINED
 	
 	BOOL	allowedOrientations[MAX_ORIENTATIONS];
+	NSTimeInterval	orientationRequestTimes[MAX_ORIENTATIONS];
+	UIInterfaceOrientation lastOrientation;
 }
 
 -(void)windowFocused:(TiProxy*)window;
@@ -24,6 +26,8 @@
 -(void)windowBeforeUnfocused:(TiProxy*)window;
 
 -(CGRect)resizeView;
+
+-(void) manuallyRotateToOrientation:(UIInterfaceOrientation)orientation;
 
 -(void)refreshOrientationModesIfNeeded:(TiWindowProxy *)oldCurrentWindow;
 -(void)enforceOrientationModesFromWindow:(TiWindowProxy *) newCurrentWindow;
