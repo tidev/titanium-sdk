@@ -559,13 +559,10 @@ else{\
 		// we can't fire focus here since we 
 		// haven't yet wired up the JS context at this point
 		// and listeners wouldn't be ready
-		if (contextReady==YES)
+		focused = YES;
+		if ([self _hasListeners:@"focus"])
 		{
-			focused = YES;
-			if ([self _hasListeners:@"focus"])
-			{
-				[self fireEvent:@"focus" withObject:nil];
-			}
+			[self fireEvent:@"focus" withObject:nil];
 		}
 		[self setupWindowDecorations];
 	}

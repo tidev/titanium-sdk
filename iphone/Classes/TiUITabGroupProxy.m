@@ -66,6 +66,11 @@
 	}
 }
 
+-(BOOL)handleFocusEvents
+{
+	return NO;
+}
+
 #pragma mark Window Management
 
 -(BOOL)_handleOpen:(id)args

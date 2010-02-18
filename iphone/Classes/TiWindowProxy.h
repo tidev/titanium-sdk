@@ -45,6 +45,7 @@
 #pragma mark Internal
 -(void)attachViewToTopLevelWindow;
 -(void)windowReady;
+-(BOOL)handleFocusEvents;
 -(BOOL)_isChildOfTab;
 -(void)_associateTab:(UIViewController*)controller_ navBar:(UINavigationController*)navbar_ tab:(TiProxy<TiTab>*)tab_;
 

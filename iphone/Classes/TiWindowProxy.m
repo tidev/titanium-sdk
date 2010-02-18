@@ -78,6 +78,11 @@ BEGIN_UI_THREAD_PROTECTED_VALUE(opened,NSNumber)
 END_UI_THREAD_PROTECTED_VALUE(opened)
 
 
+-(BOOL)handleFocusEvents
+{
+	return YES;
+}
+
 -(BOOL)_handleOpen:(id)args
 {
 	//subclasses can override
@@ -103,7 +108,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	
 	// we do it here in case we have a window that
 	// neither has tabs nor JS
-	if (focused==NO)
+	if (focused==NO && [self handleFocusEvents])
 	{
 		focused = YES;
 		if ([self _hasListeners:@"focus"])
