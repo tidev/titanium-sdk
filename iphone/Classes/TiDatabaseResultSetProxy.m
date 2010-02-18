@@ -109,12 +109,14 @@
 			[results reset];
 			reset = YES;
 		}
+		if (reset == NO)
+		{
+			return NUMINT(rowCount);
+		}
 		// we cache it
 		rowCount = [results fullCount];
-		if (reset)
-		{
-			[results next];
-		}
+		reset = NO;
+		[results next];
 		return NUMINT(rowCount); 
 	}
 	return NUMINT(0);
