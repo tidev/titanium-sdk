@@ -24,6 +24,7 @@
 @property(nonatomic,readonly) CGFloat peakMicrophonePower;
 @property(nonatomic,readonly) CGFloat averageMicrophonePower;
 @property(nonatomic,readonly) NSInteger audioLineType;
+@property(nonatomic,readonly) BOOL audioPlaying;
 
 
 @property(nonatomic,readonly) NSNumber* UNKNOWN_ERROR;

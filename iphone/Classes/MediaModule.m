@@ -287,6 +287,11 @@ MAKE_SYSTEM_PROP(AUDIO_UNKNOWN,TiMediaAudioSessionInputUnknown);
 	return [[TiMediaAudioSession sharedSession] volume];
 }
 
+-(BOOL)audioPlaying
+{
+	return [[TiMediaAudioSession sharedSession] isAudioPlaying];
+}
+
 -(NSInteger)audioLineType
 {
 	return [[TiMediaAudioSession sharedSession] inputType];

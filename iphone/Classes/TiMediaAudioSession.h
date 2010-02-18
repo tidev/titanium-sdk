@@ -40,5 +40,6 @@ TiMediaAudioSessionInputType;
 -(BOOL)isActive;
 -(TiMediaAudioSessionInputType)inputType;
 -(CGFloat)volume;
+-(BOOL)isAudioPlaying;
 
 @end
