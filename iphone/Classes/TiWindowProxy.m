@@ -266,9 +266,12 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		return;
 	}
 	
-	modal = NO;
-	fullscreen = NO;
-	opening = YES;
+	if (opening==NO)
+	{
+		modal = [self isModal:args];
+		fullscreen = [self isFullscreen:args];
+		opening = YES;
+	}
 	
 	// ensure on open that we've created our view before we start to use it
 	[self view];
@@ -289,14 +292,14 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			animation.delegate = self;
 			[animation animate:self];
 		}
-		if ([self isFullscreen:args])
+		if (fullscreen)
 		{
 			fullscreen = YES;
 			restoreFullscreen = [UIApplication sharedApplication].statusBarHidden;
 			[[UIApplication sharedApplication] setStatusBarHidden:YES];
 			[self view].frame = [[[TitaniumApp app] controller] resizeView];
 		}
-		else if ([self isModal:args])
+		else if (modal)
 		{
 			modal = YES;
 			attached = YES;
