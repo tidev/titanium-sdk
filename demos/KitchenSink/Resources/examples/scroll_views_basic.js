@@ -31,6 +31,26 @@ button.addEventListener('click', function()
 	scrollView.scrollTo(0,0);
 });
 
+var button2 = Titanium.UI.createButton({
+	title:'Add to Scroll View',
+	height:40,
+	width:200,
+	top:20
+});
+scrollView.add(button2);
+button2.addEventListener('click', function()
+{
+	var view = Ti.UI.createView({
+		backgroundColor:'red',
+		borderRadius:10,
+		width:300,
+		height:300,
+		top:2020
+	});
+	scrollView.add(view);
+	
+});
+
 win.add(scrollView);
 
 
