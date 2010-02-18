@@ -17,6 +17,7 @@ b1.addEventListener('click', function()
 		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED,
 		enabled:false
 	});
+	b.enabled = false;
 	win.setToolbar([b]);
 })
 win.add(b1);
