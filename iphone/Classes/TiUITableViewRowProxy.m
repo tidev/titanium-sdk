@@ -14,11 +14,14 @@
 #import "Webcolor.h"
 #import "ImageLoader.h"
 
-@interface TiUITableViewRowView : UIView
-{
-	UIImageView *background;
-}
+// used as a marker interface
 
+@interface TiUITableViewRowContainer : UIView
+{
+}
+@end
+
+@implementation TiUITableViewRowContainer
 @end
 
 
@@ -103,8 +106,6 @@
 		// we can return since we're reloading the section, will cause the 
 		// row to be repainted at the same time
 	}
-	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:self animation:properties section:section.section type:TiUITableViewActionUpdateRow] autorelease];
-	[table dispatchAction:action];
 }
 
 -(void)configureTitle:(UITableViewCell*)cell
@@ -251,12 +252,17 @@
 			rect.size.height = rowHeight;
 			contentView.bounds = rect;
 		}
+		TiUITableViewRowContainer *view = [[TiUITableViewRowContainer alloc] initWithFrame:rect];
+		[view setBackgroundColor:[UIColor clearColor]];
+		[view setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+		CGRect viewrect = [view bounds];
 		for (TiViewProxy *proxy in self.children)
 		{
-			TiUIView *view = [proxy view];
-			[view insertIntoView:contentView bounds:rect];
-			view.parent = self;
+			TiUIView *uiview = [proxy view];
+			[uiview insertIntoView:view bounds:viewrect];
+			uiview.parent = self;
 		}
+		[contentView addSubview:view];
 	}
 }
 
@@ -275,7 +281,7 @@
 	{
 		UIView *contentView = cell.contentView;
 		NSArray *subviews = [contentView subviews];
-		if (subviews == nil || [subviews count]==0)
+		if (contentView==nil || [subviews count]==0)
 		{
 			// this can happen if we're giving a reused table cell
 			// but he's removed the children from it... in this 
@@ -283,41 +289,79 @@
 			[self configureChildren:cell];
 			return;
 		}
-		int x = 0;
+		BOOL found = NO;
 		for (size_t c=0;c<[subviews count];c++)
 		{
 			// since the table will insert the accessory view and 
 			// other stuff in our contentView we need to check and
 			// and skip non TiUIViews
 			UIView *aview = [subviews objectAtIndex:c];
-			if ([aview isKindOfClass:[TiUIView class]])
+			if ([aview isKindOfClass:[TiUITableViewRowContainer class]])
 			{
-				TiUIView* view = (TiUIView*)aview;
-				TiViewProxy *proxy = [self.children objectAtIndex:x++];
-				// change the proxy/view relationship before firing 
-				// events since certain properties (such as backgroundImage)
-				// rely on certain aspects of the proxy to be set (like baseURL)
-				// for them to work correctly
-				view.parent = self;
-				view.proxy = self;
-				for (NSString *key in [proxy allProperties])
+				NSArray *subviews = [aview subviews];
+				// this can happen because the cell dropped our views
+				if ([subviews count]==0)
 				{
-					id oldValue = [view.proxy valueForKey:key];
-					id newValue = [proxy valueForKey:key];
-					if ([oldValue isEqual:newValue]==NO)
-					{
-						// fire any property changes that are different from the old
-						// proxy to our new proxy
-						[view propertyChanged:key oldValue:oldValue newValue:newValue proxy:proxy];
-					}
+					[aview removeFromSuperview];
+					[self configureChildren:cell];
+					return;
 				}
-				// re-assign the view to the new proxy so the right listeners get 
-				// any child view events that are fired
-				// we assign ourselves as the new parent so we can be in the 
-				// event propagation chain to insert row level event properties
-				[proxy exchangeView:view];
+				for (size_t x=0;x<[subviews count];x++)
+				{
+					TiViewProxy *proxy = [self.children objectAtIndex:x];
+					TiUIView *uiview = [subviews objectAtIndex:x];
+					// change the proxy/view relationship before firing 
+					// events since certain properties (such as backgroundImage)
+					// rely on certain aspects of the proxy to be set (like baseURL)
+					// for them to work correctly
+					uiview.parent = self;
+					uiview.proxy = self;
+					for (NSString *key in [proxy allProperties])
+					{
+						id oldValue = [uiview.proxy valueForKey:key];
+						id newValue = [proxy valueForKey:key];
+						if ([oldValue isEqual:newValue]==NO)
+						{
+							// fire any property changes that are different from the old
+							// proxy to our new proxy
+							[uiview propertyChanged:key oldValue:oldValue newValue:newValue proxy:proxy];
+						}
+					}
+					// re-assign the view to the new proxy so the right listeners get 
+					// any child view events that are fired
+					// we assign ourselves as the new parent so we can be in the 
+					// event propagation chain to insert row level event properties
+					[proxy exchangeView:uiview];
+				}
+				found = YES;
+				// once we find the container we can break
+				break;
 			}
 		} 
+		if (found==NO)
+		{
+			// this probably happens if a developer specified the same
+			// row but the layout is different and they're trying to reuse
+			// it -- in this case, we're just going to reconfig
+			
+			// at least warn the user
+			NSLog(@"[WARN] looks like we have a different table cell layout than expected.  Make sure you set the 'className' property of the table row when you have different cell layouts");
+			NSLog(@"[WARN] if you don't fix this, your tableview will suffer performance issues");
+			
+			// change the classname so at least we don't too much of a performance
+			// hit on subsequent repaints
+			RELEASE_TO_NIL(tableClass);
+			tableClass = [[NSString stringWithFormat:@"%d",[self hash]] retain];
+			
+			// now force a repaint by reconfiguring this cell
+			for (UIView *v in subviews)
+			{
+				[v removeFromSuperview];
+			}
+			
+			[self configureChildren:cell];
+			return;
+		}
 	}
 }
 
@@ -350,7 +394,7 @@
 {
 	if ([self isAttached])
 	{
-		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:self animation:nil section:section.section type:TiUITableViewActionUpdateRow] autorelease];
+		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:self animation:nil section:section.section type:TiUITableViewActionRowReload] autorelease];
 		[table dispatchAction:action];
 	}
 }

@@ -18,6 +18,15 @@
 
 #pragma mark Internal 
 
+-(id)init
+{
+	if (self = [super init])
+	{
+		sections = [[NSMutableArray array] retain];
+	}
+	return self;
+}
+
 -(void)dealloc
 {
 	RELEASE_TO_NIL(sections);
@@ -177,19 +186,70 @@
 	return nil;
 }
 
--(void)insertRow:(TiUITableViewRowProxy*)row before:(TiUITableViewRowProxy*)before animation:(NSDictionary*)animation
+-(void)replaceData:(UITableViewRowAnimation)animation
 {
+	NSAssert(sections!=nil,@"sections was nil");
+	
+	UITableView *table = [self tableView];
+	
+	if ([sections count] > 0)
+	{
+		NSIndexSet *oldSectionSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[sections count])];
+		[table deleteSections:oldSectionSet withRowAnimation:UITableViewRowAnimationNone];
+		[sections removeAllObjects];
+	}
+	
+	// get new data array from the proxy
+	NSArray *newsections = [self.proxy valueForKey:@"data"];
+	
+	// if nil, means we're removing
+	if (newsections!=nil)
+	{
+		// wire up the relationships
+		for (int c=0;c<[newsections count];c++)
+		{
+			TiUITableViewSectionProxy *section = [newsections objectAtIndex:c];
+			section.section = c;
+			section.table = self;
+			for (int x=0;x<[section rowCount];x++)
+			{
+				TiUITableViewRowProxy *row = [section rowAtIndex:x];
+				row.table = self;
+				row.section = section;
+				row.row = x;
+				row.parent = section;
+			}
+			section.parent = self.proxy;
+			[sections addObject:section];
+		}
+		
+		NSIndexSet *newSectionSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[sections count])];
+		[table insertSections:newSectionSet withRowAnimation:animation];
+	}
+}
+
+-(void)updateRow:(TiUITableViewRowProxy*)row
+{
+	NSAssert(sections!=nil,@"sections was nil");
+	row.table = self;
+	NSMutableArray *rows = [row.section rows];
+	[rows replaceObjectAtIndex:row.row withObject:row];
+	[row.section reorderRows];
+}
+
+-(void)insertRow:(TiUITableViewRowProxy*)row before:(TiUITableViewRowProxy*)before 
+{
+	NSAssert(sections!=nil,@"sections was nil");
 	row.table = self;
 	row.section = before.section;
 	NSMutableArray *rows = [row.section rows];
 	[rows insertObject:row atIndex:row.row];
 	[row.section reorderRows];
-	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:animation section:row.section.section type:TiUITableViewActionInsertRowBefore] autorelease];
-	[self dispatchAction:action];
 }
 
--(void)insertRow:(TiUITableViewRowProxy*)row after:(TiUITableViewRowProxy*)after animation:(NSDictionary*)animation
+-(void)insertRow:(TiUITableViewRowProxy*)row after:(TiUITableViewRowProxy*)after 
 {
+	NSAssert(sections!=nil,@"sections was nil");
 	row.table = self;
 	row.section = after.section;
 	NSMutableArray *rows = [row.section rows];
@@ -202,30 +262,26 @@
 		[rows insertObject:row atIndex:after.row+1];
 	}
 	[row.section reorderRows];
-	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:animation section:row.section.section type:TiUITableViewActionInsertRowAfter] autorelease];
-	[self dispatchAction:action];
 }
 
--(void)deleteRow:(TiUITableViewRowProxy*)row animation:(NSDictionary*)animation
+-(void)deleteRow:(TiUITableViewRowProxy*)row
 {
+	NSAssert(sections!=nil,@"sections was nil");
 	[[row retain] autorelease];
 	NSMutableArray *rows = [row.section rows];
 	[rows removeObject:row];
 	[row.section reorderRows];
-	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:animation section:row.section.section type:TiUITableViewActionDeleteRow] autorelease];
-	[self dispatchAction:action];
 }
 
--(void)appendRow:(TiUITableViewRowProxy*)row animation:(NSDictionary*)animation
+-(void)appendRow:(TiUITableViewRowProxy*)row 
 {
+	NSAssert(sections!=nil,@"sections was nil");
 	row.table = self;
 	TiUITableViewSectionProxy *section = [sections objectAtIndex:[sections count]-1];
 	row.section = section;
 	NSMutableArray *rows = [row.section rows];
 	[rows addObject:row];
 	[row.section reorderRows];
-	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:animation section:row.section.section type:TiUITableViewActionInsertRowAfter] autorelease];
-	[self dispatchAction:action];
 }
 
 -(void)dispatchAction:(TiUITableViewAction*)action
@@ -238,8 +294,15 @@
 	
 	switch (action.type)
 	{
+		case TiUITableViewActionRowReload:
+		{
+			NSIndexPath *path = [NSIndexPath indexPathForRow:action.row.row inSection:action.row.section.section];
+			[tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+			break;
+		}
 		case TiUITableViewActionUpdateRow:
 		{
+			[self updateRow:action.row];
 			NSIndexPath *path = [NSIndexPath indexPathForRow:action.row.row inSection:action.row.section.section];
 			[tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
 			break;
@@ -251,17 +314,44 @@
 			break;
 		}
 		case TiUITableViewActionInsertRowBefore:
+		{
+			int index = action.row.row;
+			TiUITableViewRowProxy *oldrow = [[action.row.section rows] objectAtIndex:index];
+			[self insertRow:action.row before:oldrow];
+			NSIndexPath *path = [NSIndexPath indexPathForRow:action.row.row inSection:action.row.section.section];
+			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+			break;
+		}
 		case TiUITableViewActionInsertRowAfter:
 		{
-			NSLog(@"insert at %d",action.row.row);
+			int index = action.row.row-1;
+			TiUITableViewRowProxy *oldrow = nil;
+			if (index < [[action.row.section rows] count])
+			{
+				oldrow = [[action.row.section rows] objectAtIndex:index];
+			}
+			[self insertRow:action.row after:oldrow];
 			NSIndexPath *path = [NSIndexPath indexPathForRow:action.row.row inSection:action.row.section.section];
 			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
 			break;
 		}
 		case TiUITableViewActionDeleteRow:
 		{
+			[self deleteRow:action.row];
 			NSIndexPath *path = [NSIndexPath indexPathForRow:action.row.row inSection:action.row.section.section];
 			[tableview deleteRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+			break;
+		}
+		case TiUITableViewActionSetData:
+		{
+			[self replaceData:action.animation];
+			break;
+		}
+		case TiUITableViewActionAppendRow:
+		{
+			[self appendRow:action.row];
+			NSIndexPath *path = [NSIndexPath indexPathForRow:action.row.row inSection:action.row.section.section];
+			[tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
 			break;
 		}
 	}
@@ -634,9 +724,7 @@
 {
 	UITableView *table = [self tableView];
 	NSIndexPath *path = [self indexPathFromInt:index];
-	[table beginUpdates];
 	[table scrollToRowAtIndexPath:path atScrollPosition:position animated:animated];
-	[table endUpdates];
 }
 
 -(void)setBackgroundColor_:(id)arg
@@ -808,52 +896,6 @@
 -(void)setMaxRowHeight_:(id)height
 {
 	maxRowHeight = [TiUtils dimensionValue:height];
-}
-
--(void)setData_:(id)args withObject:(id)properties
-{
-	ENSURE_ARRAY(args);
-	
-	NSArray *oldSections = nil;
-	BOOL hasData = sections!=nil && [sections count] > 0;
-	if (hasData)
-	{
-		oldSections = [sections retain];
-	}
-	RELEASE_TO_NIL(sections);
-	
-	// create new sections array
-	sections = [[NSMutableArray arrayWithArray:args] retain];
-	
-	// wire up the relationships
-	for (int c=0;c<[sections count];c++)
-	{
-		TiUITableViewSectionProxy *section = [sections objectAtIndex:c];
-		section.section = c;
-		section.table = self;
-		for (int x=0;x<[section rowCount];x++)
-		{
-			TiUITableViewRowProxy *row = [section rowAtIndex:x];
-			row.table = self;
-			row.section = section;
-			row.row = x;
-			row.parent = section;
-		}
-		section.parent = self.proxy;
-	}
-	
-	UITableView *table = [self tableView];
-	if (hasData)
-	{
-		UITableViewRowAnimation animation = [TiUITableViewAction animationStyleForProperties:properties];
-		NSIndexSet *oldSectionSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[oldSections count])];
-		NSIndexSet *newSectionSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[sections count])];
-		[table beginUpdates];
-		[table deleteSections:oldSectionSet withRowAnimation:UITableViewRowAnimationNone];
-		[table insertSections:newSectionSet withRowAnimation:animation];
-		[table endUpdates];
-		[oldSections release];
-	}
 }
 
 #pragma mark Datasource 
@@ -1039,7 +1081,7 @@
 	// now we can release from our retain above
 	[fromRow autorelease];
 	[toRow autorelease];
-
+	
 	[self triggerActionForIndexPath:destinationIndexPath fromPath:sourceIndexPath wasAccessory:NO search:NO name:@"move"];
 }
 
@@ -1144,6 +1186,7 @@
 	TiUITableViewSectionProxy *sectionProxy = nil;
 	TiUIView *view = [self sectionView:section forLocation:@"headerView" section:&sectionProxy];
 	CGFloat size = 0;
+	BOOL hasTitle = NO;
 	if (view!=nil)
 	{
 		LayoutConstraint *layout = [view layout];
@@ -1158,11 +1201,16 @@
 	}
 	else if ([sectionProxy headerTitle]!=nil)
 	{
+		hasTitle = YES;
 		size+=[tableView sectionHeaderHeight];
 	}
 	if ([tableView tableHeaderView]!=nil)
 	{
 		size+=[tableView tableHeaderView].frame.size.height;
+	}
+	if (hasTitle && size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT)
+	{
+		size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
 	}
 	return size;
 }
@@ -1172,6 +1220,7 @@
 	TiUITableViewSectionProxy *sectionProxy = nil;
 	TiUIView *view = [self sectionView:section forLocation:@"footerView" section:&sectionProxy];
 	CGFloat size = 0;
+	BOOL hasTitle = NO;
 	if (view!=nil)
 	{
 		LayoutConstraint *layout = [view layout];
@@ -1186,11 +1235,16 @@
 	}
 	else if ([sectionProxy footerTitle]!=nil)
 	{
+		hasTitle = YES;
 		size+=[tableView sectionFooterHeight];
 	}
 	if ([tableView tableFooterView]!=nil)
 	{
 		size+=[tableView tableFooterView].frame.size.height;
+	}
+	if (hasTitle && size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT)
+	{
+		size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
 	}
 	return size;
 }

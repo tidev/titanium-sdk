@@ -58,7 +58,7 @@ tableView.addEventListener('click', function(e)
 			var row = tableView.getIndexByName('3');
 			data = {title:'New Row After Row3 w/o animation', header:'New Header'};
 			tableView.insertRowAfter(row,data);
-			tableView.scrollToIndex(3);
+			tableView.scrollToIndex(3,{position:Titanium.UI.iPhone.TableViewScrollPosition.MIDDLE,animated:false});
 			break;
 		}
 	}
