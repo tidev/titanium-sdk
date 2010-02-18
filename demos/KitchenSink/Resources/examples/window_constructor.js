@@ -30,7 +30,8 @@ button.addEventListener('click', function(e)
 		rightNavButton:bb,
 		backgroundColor:'#13386c',
 		barColor:'#000',
-		translucent:true
+		translucent:true,
+		titleImage:'../images/slider_thumb.png'
 	});
 	
 	var winview = Ti.UI.createView({backgroundColor:'yellow'});
