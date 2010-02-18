@@ -33,6 +33,7 @@ var data = [
 	{title:'Table View Options', hasChild:true, test:'../examples/table_view_options.js'},
 	{title:'Table Empty Dataset (Create)', hasChild:true, test:'../examples/table_view_api_emptydata.js'},
 	{title:'Table Empty AppendRow', hasChild:true, test:'../examples/table_view_api_empty_append.js'},
+	{title:'Table with Remote Images', hasChild:true, test:'../examples/table_view_api_remote_images.js'},
 
 ];
 

@@ -28,9 +28,12 @@
 
 -(void)stop:(id)args
 {
-	ENSURE_UI_THREAD(stop,args);
-	TiUIImageView *iv= (TiUIImageView*)[self view];
-	[iv stop];
+	if ([self viewAttached])
+	{
+		ENSURE_UI_THREAD(stop,args);
+		TiUIImageView *iv= (TiUIImageView*)[self view];
+		[iv stop];
+	}
 }
 
 -(void)pause:(id)args
