@@ -47,8 +47,9 @@ public class UIModule extends TiModule
 			constants.put("KEYBOARD_URL", 2);
 			constants.put("KEYBOARD_NUMBER_PAD", 3);
 			constants.put("KEYBOARD_PHONE_PAD", 4);
-			constants.put("KEYBOARD_EMAIL_ADDRESS", 5);
-			constants.put("KEYBOARD_DEFAULT", 6);
+			constants.put("KEYBOARD_EMAIL", 5);
+			constants.put("KEYBOARD_NAMEPHONE_PAD", 6);
+			constants.put("KEYBOARD_DEFAULT", 7);
 
 			constants.put("INPUT_BORDERSTYLE_NONE", 0);
 			constants.put("INPUT_BORDERSTYLE_ROUNDED", 1);
