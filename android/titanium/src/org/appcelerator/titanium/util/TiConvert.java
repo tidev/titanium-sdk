@@ -217,10 +217,12 @@ public class TiConvert
 	}
 
 	public static String[] toStringArray(Object[] parts) {
-		String[] sparts = new String[parts.length];
-		for (int i = 0; i < parts.length; i++) {
-			Object p = parts[i];
-			sparts[i] = (String) parts[i];
+		String[] sparts = (parts != null ? new String[parts.length] : new String[0]);
+
+		if (parts != null) {
+			for (int i = 0; i < parts.length; i++) {
+				sparts[i] = (String) parts[i];
+			}
 		}
 		return sparts;
 	}

@@ -71,6 +71,7 @@ public class TabGroupProxy extends TiWindowProxy
 			case MSG_FINISH_OPEN: {
 				TiTabActivity activity = (TiTabActivity) msg.obj;
 				view = new TiUITabGroup(this, activity);
+				modelListener = view;
 				handlePostOpen(activity);
 				return true;
 			}
@@ -89,6 +90,7 @@ public class TabGroupProxy extends TiWindowProxy
 
 		return tps;
 	}
+
 	public void addTab(TabProxy tab)
 	{
 		if (tabs == null) {
@@ -184,6 +186,7 @@ public class TabGroupProxy extends TiWindowProxy
 	@Override
 	protected void handleClose(TiDict options) {
 		Log.i(LCAT, "handleClose");
+		modelListener = null;
 		getTiContext().getRootActivity().closeWindow(windowId);
 		releaseViews();
 		windowId = null;
@@ -250,4 +253,5 @@ public class TabGroupProxy extends TiWindowProxy
 		intent.putExtra("messenger", messenger);
 		intent.putExtra("messageId", MSG_FINISH_OPEN);
 	}
+
 }

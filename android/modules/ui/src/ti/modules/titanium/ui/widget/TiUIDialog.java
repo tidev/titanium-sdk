@@ -5,6 +5,7 @@ import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.AlertDialog;
@@ -51,9 +52,9 @@ public class TiUIDialog extends TiUIView
 		if (d.containsKey("message")) {
 			builder.setMessage(d.getString("message"));
 		}
-		if (d.containsKey("buttons"))
+		if (d.containsKey("buttonNames"))
 		{
-			String[] buttonText = d.getStringArray("buttons");
+			String[] buttonText = d.getStringArray("buttonNames");
 			processButtons(buttonText);
 		}
 		if (d.containsKey("options")) {
@@ -109,29 +110,25 @@ public class TiUIDialog extends TiUIView
 		if (key.equals("title")) {
 			if (dialog != null) {
 				dialog.setTitle((String) newValue);
-			} else {
-				builder.setTitle((String) newValue);
 			}
 		} else if (key.equals("message")) {
 			if (dialog != null) {
 				dialog.setMessage((String) newValue);
-			} else {
-				builder.setMessage((String) newValue);
 			}
-		} else if (key.equals("buttons")) {
+		} else if (key.equals("buttonNames")) {
 			if (dialog != null) {
 				dialog.dismiss();
 				dialog = null;
 			}
 
-			processButtons((String[]) newValue);
+			processButtons(TiConvert.toStringArray((Object[]) newValue));
 		} else if (key.equals("options")) {
 			if (dialog != null) {
 				dialog.dismiss();
 				dialog = null;
 			}
 
-			processOptions((String[]) newValue);
+			processOptions(TiConvert.toStringArray((Object[]) newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -140,6 +137,7 @@ public class TiUIDialog extends TiUIView
 	public void show(TiDict options)
 	{
 		if (dialog == null) {
+			processProperties(proxy.getDynamicProperties());
 			dialog = builder.create();
 		}
 		dialog.show();
@@ -149,6 +147,7 @@ public class TiUIDialog extends TiUIView
 	{
 		if (dialog != null) {
 			dialog.dismiss();
+			dialog = null;
 		}
 	}
 
