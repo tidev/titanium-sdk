@@ -536,15 +536,15 @@ return;\
 
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
 {
-    UIView* subview = [super hitTest:point withEvent:event];
+	BOOL notHandled = (!handlesSwipes && !handlesTaps && !handlesTouches);
 	
 	// delegate to our touch delegate if we're hit but it's not for us
-	if (subview==nil && touchDelegate!=nil)
+	if (notHandled && touchDelegate!=nil)
 	{
 		return touchDelegate;
 	}
 	
-    return subview;
+    return [super hitTest:point withEvent:event];
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 

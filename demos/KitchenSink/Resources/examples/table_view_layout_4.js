@@ -80,6 +80,11 @@ for (var c=0;c<30;c++)
 		font:{fontWeight:'bold',fontSize:18}
 	});
 	row.add(label);
+	
+	label.addEventListener('click',function(e)
+	{
+		Ti.API.info("clicked on label "+e.source);
+	});
 
 	var label2 = Ti.UI.createLabel({
 		text: "Other information could go here if you'd like",
@@ -105,6 +110,11 @@ var tableview = Titanium.UI.createTableView({
 	maxRowHeight:100,
 	minRowHeight:100,
 	separatorStyle: Ti.UI.iPhone.TableViewSeparatorStyle.NONE
+});
+
+tableview.addEventListener('click',function(e)
+{
+	Ti.API.info("clicked on table view = "+e.source);
 });
 
 

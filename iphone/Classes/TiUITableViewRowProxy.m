@@ -261,6 +261,7 @@
 			TiUIView *uiview = [proxy view];
 			[uiview insertIntoView:view bounds:viewrect];
 			uiview.parent = self;
+			uiview.touchDelegate = contentView;
 		}
 		[contentView addSubview:view];
 	}
@@ -317,6 +318,7 @@
 					// for them to work correctly
 					uiview.parent = self;
 					uiview.proxy = self;
+					uiview.touchDelegate = contentView;
 					for (NSString *key in [proxy allProperties])
 					{
 						id oldValue = [oldProxy valueForKey:key];
