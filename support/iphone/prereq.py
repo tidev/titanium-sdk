@@ -75,6 +75,7 @@ def check_for_wwdr(props,line):
 		props['wwdr_message']=None
 	
 def check_for_iphone_dev(props,line):
+	if props.has_key('iphone_dev') and props['iphone_dev']==True: return
 	m = re.search(r'\"iPhone Developer: (.*)\"',line)
 	if not m == None:
 		name = m.group(1).strip()
@@ -90,6 +91,7 @@ def check_for_iphone_dev(props,line):
 		props['iphone_dev_message']=None
 
 def check_for_iphone_dist(props,line):
+	if props.has_key('iphone_dist') and props['iphone_dist']==True: return
 	m = re.search(r'\"iPhone Distribution: (.*)\"',line)
 	if not m == None:
 		name = m.group(1).strip()
@@ -112,6 +114,8 @@ def check_certs(props):
 	props['iphone_dist_message'] = 'Missing iPhone Distribution Certificate'
 	props['iphone_dev_message'] = 'Missing iPhone Developer Certificate'
 	output = run.run(['security','dump-keychain'])
+# FOR TESTING ONLY
+#	output = open(os.path.expanduser("~/Downloads/distribution_only_out.txt")).read()
 	for i in output.split('\n'):
 		check_for_wwdr(props,i)
 		check_for_iphone_dev(props,i)
@@ -123,7 +127,7 @@ def check_for_package():
 	check_itunes_version(props)
 	check_certs(props)
 	props['sdks']=get_sdks()
-	print poorjson.PoorJSON().dump(props).encode("utf-8")
+	print poorjson.PoorJSON().dump(props)
 			
 def main(args):
 	if len(args)!=2:
@@ -139,4 +143,7 @@ def main(args):
 
 if __name__ == "__main__":
     main(sys.argv)
+
+# FOR TESTING
+#	check_for_package()
 

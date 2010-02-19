@@ -74,7 +74,7 @@ extern NSString * const TI_APPLICATION_GUID;
 		// unfortunately we need to scan
 		for (entry in [NSArray arrayWithArray:l])
 		{
-			if (listener == [entry listener] || (
+			if ([listener isEqual:[entry listener]] || (
 				//XHR bridge users NSNumber for listeners
 				 [listener isKindOfClass:[NSNumber class]] && 
 				 [[entry listener] isKindOfClass:[NSNumber class]] && 

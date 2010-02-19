@@ -16,6 +16,7 @@
 	NSMutableDictionary *listeners;
 	AppModule *appModule;
 	NSString *pageToken;
+	BOOL scalingOverride;
 }
 
 @property(nonatomic,readonly) id url;

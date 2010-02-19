@@ -80,6 +80,12 @@
 @property(nonatomic,readonly) NSNumber *FACE_UP;
 @property(nonatomic,readonly) NSNumber *FACE_DOWN;
 
+@property(nonatomic,readonly) NSNumber *PICKER_TYPE_PLAIN;
+@property(nonatomic,readonly) NSNumber *PICKER_TYPE_DATE_AND_TIME;
+@property(nonatomic,readonly) NSNumber *PICKER_TYPE_DATE;
+@property(nonatomic,readonly) NSNumber *PICKER_TYPE_TIME;
+@property(nonatomic,readonly) NSNumber *PICKER_TYPE_COUNT_DOWN_TIMER;
+
 -(id)create2DMatrix:(id)args;
 -(id)create3DMatrix:(id)args;
 -(id)createAnimation:(id)args;

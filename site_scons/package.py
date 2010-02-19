@@ -28,13 +28,19 @@ def zip_dir(zf,dir,basepath):
 		  zf.write(os.path.join(dir,f), basepath + '/' +f)
 
 def zip_android(zf,basepath):
-	android_jar = os.path.join(top_dir, 'android', 'bin', 'titanium.jar')
+	android_dist_dir = os.path.join(top_dir, 'dist', 'android')
+	android_jar = os.path.join(android_dist_dir, 'titanium.jar')
 	zf.write(android_jar, '%s/android/titanium.jar' % basepath)	
-	 
-	rhino_jar = os.path.join(top_dir, 'android', 'lib', 'js.jar')
-	zf.write(rhino_jar, '%s/android/js.jar' % basepath)
-
-	android_module_jars = glob.glob(os.path.join(top_dir, 'android', 'bin', 'titanium-*.jar'))
+	
+	titanium_lib_dir = os.path.join(top_dir, 'android', 'titanium', 'lib')
+	for thirdparty_jar in os.listdir(titanium_lib_dir):
+		if thirdparty_jar == "smalljs.jar": continue
+		elif thirdparty_jar == "commons-codec-1.3.jar": continue
+		elif thirdparty_jar == "commons-logging-1.1.1.jar": continue
+		jar_path = os.path.join(top_dir, 'android', 'titanium', 'lib', thirdparty_jar)
+		zf.write(jar_path, '%s/android/%s' % (basepath, thirdparty_jar))
+	
+	android_module_jars = glob.glob(os.path.join(android_dist_dir, 'titanium-*.jar'))
 	for android_module_jar in android_module_jars:
 		 jarname = os.path.split(android_module_jar)[1] 
 		 zf.write(android_module_jar, '%s/android/modules/%s' % (basepath, jarname)) 

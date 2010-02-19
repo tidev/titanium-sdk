@@ -7,6 +7,7 @@
 
 #import "TiModule.h"
 #import "KrollCallback.h"
+#import "TiMediaAudioSession.h"
 
 @interface MediaModule : TiModule<UINavigationControllerDelegate,UIImagePickerControllerDelegate> {
 @private
@@ -19,8 +20,12 @@
 	KrollCallback *pickerCancelCallback;
 }
 
+@property(nonatomic,readonly) CGFloat volume;
 @property(nonatomic,readonly) CGFloat peakMicrophonePower;
 @property(nonatomic,readonly) CGFloat averageMicrophonePower;
+@property(nonatomic,readonly) NSInteger audioLineType;
+@property(nonatomic,readonly) BOOL audioPlaying;
+
 
 @property(nonatomic,readonly) NSNumber* UNKNOWN_ERROR;
 @property(nonatomic,readonly) NSNumber* DEVICE_BUSY;
@@ -46,5 +51,16 @@
 
 @property(nonatomic,readonly) NSString* MEDIA_TYPE_VIDEO;
 @property(nonatomic,readonly) NSString* MEDIA_TYPE_PHOTO;
+
+@property(nonatomic,readonly) NSNumber* AUDIO_HEADSET_INOUT;
+@property(nonatomic,readonly) NSNumber* AUDIO_RECEIVER_AND_MIC;
+@property(nonatomic,readonly) NSNumber* AUDIO_HEADPHONES_AND_MIC;
+@property(nonatomic,readonly) NSNumber* AUDIO_LINEOUT;
+@property(nonatomic,readonly) NSNumber* AUDIO_SPEAKER;
+@property(nonatomic,readonly) NSNumber* AUDIO_MICROPHONE;
+@property(nonatomic,readonly) NSNumber* AUDIO_MUTED;
+@property(nonatomic,readonly) NSNumber* AUDIO_UNAVAILABLE;
+@property(nonatomic,readonly) NSNumber* AUDIO_UNKNOWN;
+
 
 @end

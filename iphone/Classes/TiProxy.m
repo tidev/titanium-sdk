@@ -571,7 +571,7 @@ static int tiProxyId = 0;
 	{
 		for (ListenerEntry *entry in [NSArray arrayWithArray:l])
 		{
-			if ([entry listener] == listener)
+			if ([[entry listener] isEqual:listener])
 			{
 				[l removeObject:entry];
 				break;

@@ -742,27 +742,27 @@ void ASReadStreamCallBack
 		}
 		
 	#ifdef TARGET_OS_IPHONE			
-		//
-		// Set the audio session category so that we continue to play if the
-		// iPhone/iPod auto-locks.
-		//
-		AudioSessionInitialize (
-			NULL,                          // 'NULL' to use the default (main) run loop
-			NULL,                          // 'NULL' to use the default run loop mode
-			MyAudioSessionInterruptionListener,  // a reference to your interruption callback
-			self                       // data to pass to your interruption listener callback
-		);
-		UInt32 sessionCategory = kAudioSessionCategory_MediaPlayback;
-		AudioSessionSetProperty (
-			kAudioSessionProperty_AudioCategory,
-			sizeof (sessionCategory),
-			&sessionCategory
-		);
-		//NOTE: this code will ensure that the SILENCE switch is respected when movie plays
-		sessionCategory = kAudioSessionCategory_SoloAmbientSound;
-		AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, 
-								sizeof(sessionCategory), &sessionCategory);
-		AudioSessionSetActive(true);
+//		//
+//		// Set the audio session category so that we continue to play if the
+//		// iPhone/iPod auto-locks.
+//		//
+//		AudioSessionInitialize (
+//			NULL,                          // 'NULL' to use the default (main) run loop
+//			NULL,                          // 'NULL' to use the default run loop mode
+//			MyAudioSessionInterruptionListener,  // a reference to your interruption callback
+//			self                       // data to pass to your interruption listener callback
+//		);
+//		UInt32 sessionCategory = kAudioSessionCategory_MediaPlayback;
+//		AudioSessionSetProperty (
+//			kAudioSessionProperty_AudioCategory,
+//			sizeof (sessionCategory),
+//			&sessionCategory
+//		);
+//		//NOTE: this code will ensure that the SILENCE switch is respected when movie plays
+//		sessionCategory = kAudioSessionCategory_SoloAmbientSound;
+//		AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, 
+//								sizeof(sessionCategory), &sessionCategory);
+//		AudioSessionSetActive(true);
 	#endif
 			
 		self.state = AS_WAITING_FOR_DATA;

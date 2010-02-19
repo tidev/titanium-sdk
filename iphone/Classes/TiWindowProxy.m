@@ -78,6 +78,11 @@ BEGIN_UI_THREAD_PROTECTED_VALUE(opened,NSNumber)
 END_UI_THREAD_PROTECTED_VALUE(opened)
 
 
+-(BOOL)handleFocusEvents
+{
+	return YES;
+}
+
 -(BOOL)_handleOpen:(id)args
 {
 	//subclasses can override
@@ -99,6 +104,17 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	if ([self _hasListeners:@"open"])
 	{
 		[self fireEvent:@"open" withObject:nil];
+	}
+	
+	// we do it here in case we have a window that
+	// neither has tabs nor JS
+	if (focused==NO && [self handleFocusEvents])
+	{
+		focused = YES;
+		if ([self _hasListeners:@"focus"])
+		{
+			[self fireEvent:@"focus" withObject:nil];
+		}
 	}
 	
 	if (reattachWindows!=nil)
@@ -250,9 +266,12 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		return;
 	}
 	
-	modal = NO;
-	fullscreen = NO;
-	opening = YES;
+	if (opening==NO)
+	{
+		modal = [self isModal:args];
+		fullscreen = [self isFullscreen:args];
+		opening = YES;
+	}
 	
 	// ensure on open that we've created our view before we start to use it
 	[self view];
@@ -273,14 +292,14 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			animation.delegate = self;
 			[animation animate:self];
 		}
-		if ([self isFullscreen:args])
+		if (fullscreen)
 		{
 			fullscreen = YES;
 			restoreFullscreen = [UIApplication sharedApplication].statusBarHidden;
 			[[UIApplication sharedApplication] setStatusBarHidden:YES];
 			[self view].frame = [[[TitaniumApp app] controller] resizeView];
 		}
-		else if ([self isModal:args])
+		else if (modal)
 		{
 			modal = YES;
 			attached = YES;

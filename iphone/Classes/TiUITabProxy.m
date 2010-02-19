@@ -106,12 +106,13 @@
 	current = [viewController retain];
 	
 	TiWindowProxy *newWindow = [current window];
-	[newWindow _tabFocus];
 	
 	if (![TiUtils boolValue:newWindow.opened])
 	{
 		[newWindow open:nil];
 	}
+	
+	[newWindow _tabFocus];
 
 	opening = NO;
 }
