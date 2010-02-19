@@ -11,6 +11,7 @@ import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -71,10 +72,22 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 
-	public void open(TiDict options)
+	public void open(Object arg)
 	{
 		if (opened) {
 			return;
+		}
+
+		TiDict options = null;
+		TiAnimation animation = null;
+
+		if (arg != null) {
+			if (arg instanceof TiDict) {
+				options = (TiDict) arg;
+			} else if (arg instanceof TiAnimation) {
+				options = new TiDict();
+				options.put("_anim", animation);
+			}
 		}
 
 		if (getTiContext().isUIThread()) {
@@ -88,11 +101,24 @@ public abstract class TiWindowProxy extends TiViewProxy
 		result.getResult(); // Don't care about result, just synchronizing.
 	}
 
-	public void close(TiDict options)
+	public void close(Object arg)
 	{
 		if (!opened) {
 			return;
 		}
+
+		TiDict options = null;
+		TiAnimation animation = null;
+
+		if (arg != null) {
+			if (arg instanceof TiDict) {
+				options = (TiDict) arg;
+			} else if (arg instanceof TiAnimation) {
+				options = new TiDict();
+				options.put("_anim", animation);
+			}
+		}
+
 		if (getTiContext().isUIThread()) {
 			handleClose(options);
 			return;
@@ -117,6 +143,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 	}
 	public TiViewProxy getTabGroupProxy() {
 		return this.tabGroup;
+	}
+
+	public void hideTabBar() {
+		// iPhone only right now.
 	}
 
 	protected abstract void handleOpen(TiDict options);

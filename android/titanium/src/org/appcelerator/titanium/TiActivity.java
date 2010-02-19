@@ -40,7 +40,7 @@ public class TiActivity extends Activity
 
 	protected Handler handler;
 	protected ArrayList<WeakReference<TiContext>> contexts;
-	
+
 	public TiActivity() {
 		super();
 		contexts = new ArrayList<WeakReference<TiContext>>();
@@ -67,7 +67,7 @@ public class TiActivity extends Activity
         		fullscreen = intent.getBooleanExtra("fullscreen", fullscreen);
         	}
         	if (intent.hasExtra("navBarHidden")) {
-        		navbar = intent.getBooleanExtra("navBarHidden", navbar);
+        		navbar = !intent.getBooleanExtra("navBarHidden", navbar);
         	}
         	if (intent.hasExtra("messenger")) {
         		messenger = (Messenger) intent.getParcelableExtra("messenger");
@@ -157,13 +157,13 @@ public class TiActivity extends Activity
 	public void removeWindow(View v) {
 		layout.removeView(v);
 	}
-	
+
 	public void addTiContext(TiContext context) {
 		if (!contexts.contains(context)) {
 			contexts.add(new WeakReference<TiContext>(context));
 		}
 	}
-	
+
 	public void removeTiContext(TiContext context) {
 		if (contexts.contains(context)) {
 			contexts.remove(context);
@@ -174,7 +174,7 @@ public class TiActivity extends Activity
 	protected void onPause() {
 		super.onPause();
 		((TiApplication) getApplication()).setWindowHandler(null);
-		
+
 		for (WeakReference<TiContext> contextRef : contexts) {
 			if (contextRef.get() != null) {
 				contextRef.get().dispatchOnPause();
@@ -192,7 +192,7 @@ public class TiActivity extends Activity
 			}
 		}
 	}
-	
+
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -202,7 +202,7 @@ public class TiActivity extends Activity
 			}
 		}
 	}
-	
+
 	@Override
 	protected void onStop() {
 		super.onStop();
@@ -222,7 +222,7 @@ public class TiActivity extends Activity
 			}
 		}
 	}
-	
+
 //	@Override
 //	public void finish()
 //	{
