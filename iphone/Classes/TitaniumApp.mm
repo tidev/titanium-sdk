@@ -267,7 +267,8 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	UINavigationController *navController = [controller navigationController];
 	if (navController==nil)
 	{
-		navController = [controller currentNavController];
+//TODO: Fix me!
+//		navController = [controller currentNavController];
 	}
 	// if we have a nav controller, use him, otherwise use our root controller
 	if (navController!=nil)
@@ -285,7 +286,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	UINavigationController *navController = [controller navigationController];
 	if (navController==nil)
 	{
-		navController = [controller currentNavController];
+//		navController = [controller currentNavController];
 	}
 	if (navController!=nil)
 	{

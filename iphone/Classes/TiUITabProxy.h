@@ -14,6 +14,8 @@
 @interface TiUITabProxy : TiViewProxy<TiTab,UINavigationControllerDelegate> {
 @private
 	UINavigationController *controller;
+	TiUITabController *rootController;
+	
 	TiUITabGroupProxy *tabGroup;
 	TiUITabController *current;
 	BOOL opening;
@@ -34,5 +36,7 @@
 -(void)setIcon:(id)title;
 -(void)setBadge:(id)title;
 
+- (void)handleWillShowViewController:(UIViewController *)viewController;
+- (void)handleDidShowViewController:(UIViewController *)viewController;
 
 @end
