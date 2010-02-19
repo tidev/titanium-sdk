@@ -119,6 +119,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return this.tabGroup;
 	}
 
+	public void hideTabBar() {
+		// iPhone only right now.
+	}
+
 	protected abstract void handleOpen(TiDict options);
 	//public abstract void handlePostOpen(Activity activity);
 	protected abstract void handleClose(TiDict options);
