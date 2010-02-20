@@ -269,6 +269,10 @@ public class TiContext implements TiEvaluator
 	public void fireEvent() {
 		// TODO Auto-generated method stub
 	}
+	
+	public void bindToToplevel(String topLevelName, String[] objectName) {
+		getJSContext().bindToToplevel(topLevelName, objectName);
+	}
 
 	// Event Management
 

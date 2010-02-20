@@ -38,7 +38,7 @@ public class KrollBridge
 			Scriptable root = kroll.getScope();
 			Scriptable ti = (Scriptable) root.get("Ti", root);
 			KrollObject ui = (KrollObject) ti.get("UI", ti);
-
+			
 			for(String key : preload.keySet()) {
 				KrollObject ko = new KrollObject(ui, preload.get(key));
 				ui.superPut(key, ui, ko);
@@ -46,6 +46,21 @@ public class KrollBridge
 		}
 	}
 
+	// objectName should be relative to "Titanium"
+	public void bindToToplevel(String topLevelName, String[] objectName)
+	{
+		Scriptable o = titanium;
+		for (int i = 0; i < objectName.length; i++) {
+			o = (Scriptable) o.get(objectName[i], o);
+			if (o == Scriptable.NOT_FOUND) {
+				// this object doesn't exist
+				return;
+			}
+		}
+		
+		kroll.put(topLevelName, o);
+	}
+	
 	public Object evalFile(String filename)
 		throws IOException
 	{

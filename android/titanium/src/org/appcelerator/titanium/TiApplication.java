@@ -36,6 +36,7 @@ public class TiApplication extends Application
 	private TiRootActivity rootActivity;
 	private TiProperties appProperties;
 	private ITiWindowHandler windowHandler;
+	protected ITiAppInfo appInfo;
 
 	public TiApplication() {
 		Log.checkpoint("checkpoint, app created.");
@@ -172,6 +173,10 @@ public class TiApplication extends Application
 		return appProperties;
 	}
 
+	public ITiAppInfo getAppInfo() {
+		return appInfo;
+	}
+	
 	public void registerProxy(TiProxy proxy) {
 		String proxyId = proxy.proxyId;
 		if (!proxyMap.containsKey(proxyId)) {
