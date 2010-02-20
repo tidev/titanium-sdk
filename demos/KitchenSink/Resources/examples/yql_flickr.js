@@ -1,6 +1,8 @@
 // create table view
 var tableview = Titanium.UI.createTableView();
 
+Ti.App.fireEvent("show_indicator");
+
 // create table view event listener
 tableview.addEventListener('click', function(e)
 {
@@ -24,11 +26,11 @@ var consumerKey = 'dj0yJmk9VWFyZkNSWktpY3h3JmQ9WVdrOVNqWk5Nazl2TXpBbWNHbzlNVGc0T
 var sharedSecret = '13631ad61af05628c28fc38e7226442398d0a4c2';
 Titanium.Yahoo.setOAuthParameters(consumerKey,sharedSecret);
 			
-Titanium.Yahoo.yql("select * from flickr.photos.interestingness(50)",function(e)
+Titanium.Yahoo.yql("select * from flickr.photos.interestingness(75)",function(e)
 {
 	var images = [];
 	var data = e.data;
-	Ti.API.info("data = "+JSON.stringify(data));
+//	Ti.API.info("data = "+JSON.stringify(data));
 	for (var c=0;c<data.photo.length;c++)
 	{
 		var photo = data.photo[c];
@@ -56,5 +58,6 @@ Titanium.Yahoo.yql("select * from flickr.photos.interestingness(50)",function(e)
 	}
 	tableview.setData(images);
 	navActInd.hide();
+	Ti.App.fireEvent("hide_indicator");
 });
 				
