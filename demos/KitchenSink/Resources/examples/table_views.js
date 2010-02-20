@@ -34,6 +34,7 @@ var data = [
 	{title:'Table Empty Dataset (Create)', hasChild:true, test:'../examples/table_view_api_emptydata.js'},
 	{title:'Table Empty AppendRow', hasChild:true, test:'../examples/table_view_api_empty_append.js'},
 	{title:'Table with Remote Images', hasChild:true, test:'../examples/table_view_api_remote_images.js'},
+	{title:'Table with Remote Images 2', hasChild:true, test:'../examples/table_view_remote_images_2.js'},
 
 ];
 
