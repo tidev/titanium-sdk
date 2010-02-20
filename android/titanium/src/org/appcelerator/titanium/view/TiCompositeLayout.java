@@ -103,19 +103,11 @@ public class TiCompositeLayout extends ViewGroup
 		if (parent != null && child != null) {
 			Log.i("LAYOUT", "Attaching: " + viewToString(child) + " to " + viewToString(parent));
 		}
-		LayoutParams params = (LayoutParams)child.getLayoutParams();
-		if (params.index == Integer.MIN_VALUE) {
-			params.index = getChildCount()-1;
-		}
 	}
 
 	public void onChildViewRemoved(View parent, View child) {
 		needsSort = true;
 		Log.i("LAYOUT", "Removing: " + viewToString(child) + " from " + viewToString(parent));
-		LayoutParams params = (LayoutParams)child.getLayoutParams();
-		if (params.index == Integer.MIN_VALUE) {
-			params.index = Integer.MIN_VALUE;
-		}
 	}
 
 	@Override
@@ -158,6 +150,9 @@ public class TiCompositeLayout extends ViewGroup
 
 			for(int i = 0; i < count; i++) {
 				View child = getChildAt(i);
+				TiCompositeLayout.LayoutParams params =
+					(TiCompositeLayout.LayoutParams) child.getLayoutParams();
+				params.index = i;
 				viewSorter.add(child);
 			}
 
@@ -234,7 +229,7 @@ public class TiCompositeLayout extends ViewGroup
 		} else {
 			p.mLeft = 0;
 			p.mRight = width;
-			
+
 			int max = child.getMeasuredWidth();
 			if (p.autoFillsWidth) {
 				max = Math.max(child.getMeasuredWidth(), width);
@@ -270,7 +265,7 @@ public class TiCompositeLayout extends ViewGroup
 		} else {
 			p.mTop = 0;
 			p.mBottom = height;
-			
+
 			int max = child.getMeasuredHeight();
 			if (p.autoFillsHeight) {
 				max = Math.max(child.getMeasuredHeight(), height);
@@ -349,7 +344,7 @@ public class TiCompositeLayout extends ViewGroup
 		public boolean autoWidth = true;
 		public boolean autoFillsWidth = false;
 		public boolean autoFillsHeight = false;
-		
+
 		// Used in onMeasure to assign size for onLayout
 		public int mLeft;
 		public int mTop;
