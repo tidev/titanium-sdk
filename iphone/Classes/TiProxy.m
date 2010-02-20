@@ -473,7 +473,7 @@ static int tiProxyId = 0;
 	// the value is the old value before the change
 }
 
--(void)_diChangeValue:(id)property value:(id)value
+-(void)_didChangeValue:(id)property value:(id)value
 {
 	// called after a dynamic property is set againt this instance
 	// the value is the new value after the change

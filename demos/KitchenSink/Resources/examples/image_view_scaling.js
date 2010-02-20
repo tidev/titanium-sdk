@@ -1,16 +1,13 @@
 var win = Titanium.UI.currentWindow;
 
 var imageView = Titanium.UI.createImageView({
-	url:'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png',
-	top:20,
-	width:100,
-	height:100
+	url:'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png'
 });
 
 win.add(imageView);
 
 var l = Titanium.UI.createLabel({
-	text:'This is a remote image URL',
+	text:'',
 	bottom:30,
 	color:'#999',
 	height:20,
@@ -18,4 +15,8 @@ var l = Titanium.UI.createLabel({
 	textAlign:'center'
 });
 win.add(l);
+
+var blob = imageView.toBlob();
+l.text = blob.width + "x" + blob.height;
+
 

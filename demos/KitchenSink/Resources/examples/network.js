@@ -5,7 +5,9 @@ var label = Titanium.UI.createLabel({
 	font:{fontSize:14},
 	color:'#777',
 	top:10,
-	left:10
+	left:10,
+	width:'auto',
+	height:'auto'
 });
 win.add(label);
 
@@ -14,7 +16,9 @@ var label2 = Titanium.UI.createLabel({
 	font:{fontSize:14},
 	color:'#777',
 	top:30,
-	left:10
+	left:10,
+	width:'auto',
+	height:'auto'
 });
 win.add(label2);
 Titanium.Network.addEventListener('change', function(e)

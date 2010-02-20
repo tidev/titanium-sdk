@@ -96,11 +96,6 @@ FILENOOP(setHidden:(id)x);
 	return resultArray;
 }
 
--(id)size:(id)args
-{
-	FILEATTR(NSFileSize,YES,NUMLONG);
-}
-
 -(id)spaceAvailable:(id)args
 {
 	NSError *error = nil; 

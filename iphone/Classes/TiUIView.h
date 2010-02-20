@@ -32,6 +32,7 @@
 	CGAffineTransform virtualParentTransform;
 	id transformMatrix;
 	BOOL childrenInitialized;
+	BOOL configured;
 
 	unsigned int zIndex;
 	unsigned int animationDelayGuard;
@@ -62,6 +63,11 @@
 
 #pragma mark Framework
 
+-(void)initializeState;
+-(void)willSendConfiguration;
+-(void)configurationSet;
+-(void)didSendConfiguration;
+-(BOOL)viewConfigured;
 -(void)setVirtualParentTransform:(CGAffineTransform)newTransform;
 
 -(void)performZIndexRepositioning;

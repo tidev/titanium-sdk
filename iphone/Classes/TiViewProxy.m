@@ -234,6 +234,11 @@
 			[view superview] != nil;
 }
 
+-(BOOL)viewInitialized
+{
+	return viewInitialized;
+}
+
 -(void)firePropertyChanges
 {
 	[self willFirePropertyChanges];
@@ -275,9 +280,17 @@
 		view.parent = self;
 		view.layer.transform = CATransform3DIdentity;
 		view.transform = CGAffineTransformIdentity;
-		
+
+		[view initializeState];
+
+		[view willSendConfiguration];
+
 		// fire property changes for all properties to our delegate
 		[self firePropertyChanges];
+
+		[view didSendConfiguration];
+
+		[view configurationSet];
 		
 		for (id child in self.children)
 		{
@@ -285,13 +298,14 @@
 			[childView setParent:self];
 			[view addSubview:childView];
 		}
-		
+
 		[self viewDidAttach];
 
 		// make sure we do a layout of ourselves
 		LayoutConstraint layout;
 		ReadConstraintFromDictionary(&layout,[self allProperties],NULL);
 		[view updateLayout:&layout withBounds:view.bounds];
+		
 		
 		viewInitialized = YES;
 	}

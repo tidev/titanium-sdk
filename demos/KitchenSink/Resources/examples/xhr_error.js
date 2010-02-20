@@ -5,7 +5,8 @@ var l1 = Titanium.UI.createLabel({
 	font:{fontSize:16,fontWeight:'bold'},
 	top:10,
 	width:300,
-	left:10
+	left:10,
+	height:'auto'
 });
 win.add(l1);
 
@@ -15,6 +16,7 @@ var l2 = Titanium.UI.createLabel({
 	top:40,
 	left:10,
 	width:300,
+	height:'auto',
 	color:'#888'
 });
 win.add(l2);

@@ -30,7 +30,9 @@ var l = Titanium.UI.createLabel({
 	color:'#999',
 	text:'Current Orientation: ' + getOrientation(Titanium.Gesture.orientation),
 	top:10,
-	width:300
+	width:300,
+	height:'auto',
+	textAlign:'center'
 });
 win.add(l);
 

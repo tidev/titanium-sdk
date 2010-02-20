@@ -202,7 +202,6 @@
 	NSValue *v3 = [userInfo valueForKey:UIKeyboardCenterBeginUserInfoKey];
 	CGPoint kbStartPoint = [v3 CGPointValue];
 	
-	CGFloat kbStartTop = kbStartPoint.y - (kbBounds.size.height / 2);
 	CGFloat kbEndTop = kbEndPoint.y - (kbBounds.size.height / 2);
 
 	if ((toolbar!=nil) && !toolbarVisible)

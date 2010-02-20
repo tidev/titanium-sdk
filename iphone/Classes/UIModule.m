@@ -148,8 +148,6 @@ MAKE_SYSTEM_PROP(PICKER_TYPE_COUNT_DOWN_TIMER,UIDatePickerModeCountDownTimer);
 
 -(void)setOrientation:(id)mode
 {
-//	return;
-
 	ENSURE_UI_THREAD(setOrientation,mode);
 	UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:UIInterfaceOrientationPortrait];
 	[[[TitaniumApp app] controller] manuallyRotateToOrientation:orientation];

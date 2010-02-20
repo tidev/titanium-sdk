@@ -154,9 +154,6 @@ DEFINE_EXCEPTIONS
 -(UIImage*)scaleImageIfRequired:(UIImage*)theimage
 {
 	// attempt to scale the image
-	CGFloat width = [TiUtils floatValue:[self.proxy valueForKey:@"width"] def:0];
-	CGFloat height = [TiUtils floatValue:[self.proxy valueForKey:@"height"] def:0];
-	
 	if (width > 0 || height > 0)
 	{
 		if (width==0)
@@ -248,11 +245,28 @@ DEFINE_EXCEPTIONS
 	if (placeholderLoading)
 	{
 		UIImageView *iv = [[UIImageView alloc] initWithImage:image];
+		iv.autoresizingMask = UIViewAutoresizingNone;
+		iv.contentMode = UIViewContentModeCenter;
+		iv.alpha = 0;
 		
+		if (width == 0 || height == 0)
+		{
+			width = image.size.width;
+			height = image.size.height;
+			[self.proxy replaceValue:NUMFLOAT(width) forKey:@"width" notification:NO];
+			[self.proxy replaceValue:NUMFLOAT(height) forKey:@"height" notification:NO];
+		}
+
+		[self addSubview:iv];
+		[TiUtils setView:iv positionRect:[self bounds]];
+		[self sendSubviewToBack:iv];
+		[iv release];
+		[self reposition];
+
 		// do a nice fade in animation to replace the new incoming image
 		// with our placeholder
 		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.8];
+		[UIView setAnimationDuration:0.5];
 		[UIView setAnimationDelegate:self];
 		[UIView setAnimationDidStopSelector:@selector(animationCompleted:finished:context:)];
 		
@@ -264,9 +278,7 @@ DEFINE_EXCEPTIONS
 			}
 		}
 		
-		[self addSubview:iv];
-		[self sendSubviewToBack:iv];
-		[iv release];
+		iv.alpha = 1;
 		
 		[UIView commitAnimations];
 	}
@@ -380,6 +392,16 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(void)setWidth_:(id)width_
+{
+	width = [TiUtils floatValue:width_];
+}
+
+-(void)setHeight_:(id)height_
+{
+	height = [TiUtils floatValue:height_];
+}
+
 -(void)setImage_:(id)arg
 {
 	if ([arg isKindOfClass:[TiBlob class]])
@@ -387,6 +409,7 @@ DEFINE_EXCEPTIONS
 		TiBlob *blob = (TiBlob*)arg;
 		UIImage *image = [self scaleImageIfRequired:[blob image]];
 		UIImageView *view = [[UIImageView alloc] initWithImage:image];
+		view.autoresizingMask = UIViewAutoresizingNone;
 		[self addSubview:view];
 		[view release];
 		[self.proxy replaceValue:arg forKey:@"image" notification:NO];
@@ -398,6 +421,7 @@ DEFINE_EXCEPTIONS
 		UIImage *image = [[[UIImage alloc] initWithData:data] autorelease];
 		image = [self scaleImageIfRequired:image];
 		UIImageView *view = [[UIImageView alloc] initWithImage:image];
+		view.autoresizingMask = UIViewAutoresizingNone;
 		[self addSubview:view];
 		[view release];
 		[self.proxy replaceValue:arg forKey:@"image" notification:NO];
@@ -456,6 +480,12 @@ DEFINE_EXCEPTIONS
 
 -(void)setUrl_:(id)img
 {
+	// wait until the view is completely sent properties before we do this
+	if ([self viewConfigured]==NO)
+	{
+		return;
+	}
+	
 	if (img!=nil)
 	{
 		// remove current subview
@@ -492,6 +522,8 @@ DEFINE_EXCEPTIONS
 			if (defImage!=nil)
 			{
 				UIImageView *iv = [[UIImageView alloc] initWithImage:[self scaleImageIfRequired:defImage]];
+				iv.autoresizingMask = UIViewAutoresizingNone;
+				iv.contentMode = UIViewContentModeCenter;
 				[self addSubview:iv];
 				[iv release];
 			}
@@ -503,8 +535,19 @@ DEFINE_EXCEPTIONS
 		{
 			image = [self scaleImageIfRequired:image];
 			UIImageView *view = [[UIImageView alloc] initWithImage:image];
+			view.autoresizingMask = UIViewAutoresizingNone;
 			[self addSubview:view];
 			[view release];
+			
+			if (width == 0 || height == 0)
+			{
+				width = image.size.width;
+				height = image.size.height;
+				[self.proxy replaceValue:NUMFLOAT(width) forKey:@"width" notification:NO];
+				[self.proxy replaceValue:NUMFLOAT(height) forKey:@"height" notification:NO];
+				[self reposition];
+			}
+			
 			if ([self.proxy _hasListeners:@"load"])
 			{
 				NSDictionary *event = [NSDictionary dictionaryWithObject:@"url" forKey:@"state"];
@@ -532,5 +575,13 @@ DEFINE_EXCEPTIONS
 {
 	reverse = [TiUtils boolValue:value];
 }
+
+#pragma mark Configuration 
+
+-(void)configurationSet
+{
+	[self setUrl_:[self.proxy valueForKey:@"url"]];
+}
+
 
 @end

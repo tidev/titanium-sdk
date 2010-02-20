@@ -78,7 +78,7 @@ DEFINE_EXCEPTIONS
 			[proxy _hasListeners:@"dblclick"];
 } 
 
--(void)initializerState
+-(void)initializeState
 {
 	virtualParentTransform = CGAffineTransformIdentity;
 	multipleTouches = NO;
@@ -95,11 +95,29 @@ DEFINE_EXCEPTIONS
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 }
 
+-(void)willSendConfiguration
+{
+}
+
+-(void)didSendConfiguration
+{
+	configured = YES;
+}
+
+-(void)configurationSet
+{
+	// can be used to trigger things after all properties are set
+}
+
+-(BOOL)viewConfigured
+{
+	return configured;
+}
+
 -(void)setProxy:(TiProxy *)p
 {
 	proxy = p;
 	proxy.modelDelegate = self;
-	[self initializerState];
 }
 
 -(void)setParent:(TiViewProxy *)p
