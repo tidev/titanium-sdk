@@ -32,6 +32,7 @@ row.height = 40;
 var clickLabel = Titanium.UI.createLabel({
 	text:'Click different parts of the row',
 	color:'#fff',
+	textAlign:'center',
 	font:{fontSize:14}
 });
 row.className = 'header';

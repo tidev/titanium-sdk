@@ -7,7 +7,7 @@ var data = [
 	{title:'Button', hasChild:true, test:'../examples/button.js'},
 	{title:'Label', hasChild:true, test:'../examples/label.js'},
 	{title:'Search Bar', hasChild:true, test:'../examples/searchbar.js'},
-	{title:'Picker', hasChild:true, test:'../todo.js'},
+	{title:'Picker', hasChild:true, test:'../examples/picker.js'},
 	{title:'Text Field', hasChild:true, test:'../examples/textfield.js'},
 	{title:'Text Area', hasChild:true, test:'../examples/textarea.js'},
 

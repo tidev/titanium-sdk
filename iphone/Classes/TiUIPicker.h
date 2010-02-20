@@ -4,17 +4,16 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 #import "TiUIView.h"
 
-//To handle the more tab, we're a delegate of it.
-@interface TiUITabGroup : TiUIView<UITabBarControllerDelegate,UINavigationControllerDelegate> {
+@class TiUIPickerItemProxy;
+
+@interface TiUIPicker : TiUIView<UIPickerViewDelegate, UIPickerViewDataSource> {
 @private
-	UITabBarController *controller;
-	TiProxy *focused;
+	UIControl *picker;
+	int type;
 }
 
--(void)open:(id)args;
--(void)close:(id)args;
+-(void)reloadColumn:(id)column;
 
 @end

@@ -2,7 +2,11 @@ var win = Titanium.UI.currentWindow;
 
 var imageView = Titanium.UI.createImageView({
 	url:'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png',
-	top:20
+	top:20,
+	width:100,
+	height:100,
+	borderWidth:1,
+	borderColor:'red'
 });
 
 win.add(imageView);

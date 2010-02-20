@@ -1,9 +1,6 @@
 // create table view data object
 var data = [
-	{title:'Facebook', hasChild:true, test:'../examples/facebook.js'},
-	{title:'YQL', hasChild:true, test:'../examples/yql.js'},
-	{title:'Twitter', hasChild:true, test:'../examples/twitter.js'},
-	{title:'SOAP', hasChild:true, test:'../examples/soap.js'},
+	{title:'Basic Picker', hasChild:true, test:'../examples/picker_basic.js'},
 
 ];
 
@@ -27,3 +24,4 @@ tableview.addEventListener('click', function(e)
 
 // add table view to the window
 Titanium.UI.currentWindow.add(tableview);
+

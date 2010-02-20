@@ -5,6 +5,7 @@ import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.view.View;
@@ -35,6 +36,8 @@ public class TiUIButton extends TiUIView
 		Button btn = (Button) getNativeView();
 		if (d.containsKey("title")) {
 			btn.setText(d.getString("title"));
+		} if (d.containsKey("color")) {
+			btn.setTextColor(TiConvert.toColor(d, "color"));
 		}
 	}
 
@@ -48,6 +51,8 @@ public class TiUIButton extends TiUIView
 		Button btn = (Button) getNativeView();
 		if (key.equals("title")) {
 			btn.setText((String) newValue);
+		} else if (key.equals("color")) {
+			btn.setTextColor(TiConvert.toColor(TiConvert.toString(newValue)));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

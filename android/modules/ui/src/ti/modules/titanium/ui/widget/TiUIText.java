@@ -51,7 +51,8 @@ public class TiUIText extends TiUIView
 	private static final int KEYBOARD_NUMBER_PAD = 3;
 	private static final int KEYBOARD_PHONE_PAD = 4;
 	private static final int KEYBOARD_EMAIL_ADDRESS = 5;
-	private static final int KEYBOARD_DEFAULT = 6;
+	private static final int KEYBOARD_NAMEPHONE_PAD = 6;
+	private static final int KEYBOARD_DEFAULT = 7;
 
 	private boolean field;
 
@@ -92,9 +93,6 @@ public class TiUIText extends TiUIView
 		if (d.containsKey("color")) {
 			tv.setTextColor(TiConvert.toColor(d, "color"));
 		}
-//		if (d.containsKey("backgroundColor")) {
-//			tv.setBackgroundColor(TiConvert.toColor(d, "backgroundColor", "opacity"));
-//		}
 		if (d.containsKey("passwordMask")) {
 			if (d.getBoolean("passwordMask")) {
 				tv.setTransformationMethod(PasswordTransformationMethod.getInstance());
@@ -103,57 +101,22 @@ public class TiUIText extends TiUIView
 		if (d.containsKey("hintText")) {
 			tv.setHint(d.getString("hintText"));
 		}
-		if (d.containsKey("fontSize") || d.containsKey("fontWeight") || d.containsKey("font")) {
-			TiUIHelper.styleText(tv, d);
+		if (d.containsKey("font")) {
+			TiUIHelper.styleText(tv, d.getTiDict("font"));
 		}
-		if (d.containsKey("textAlign")) {
-			String textAlign = d.getString("textAlign");
-			if ("left".equals(textAlign)) {
-				tv.setGravity(field ? Gravity.CENTER_VERTICAL : Gravity.TOP | Gravity.LEFT);
-			} else if ("center".equals(textAlign)) {
-				tv.setGravity(field ? Gravity.CENTER_VERTICAL : Gravity.TOP | Gravity.CENTER_HORIZONTAL);
-			} else if ("right".equals(textAlign)) {
-				tv.setGravity(field ? Gravity.CENTER_VERTICAL : Gravity.TOP | Gravity.RIGHT);
-			} else {
-				Log.w(LCAT, "Unsupported alignment: " + textAlign);
+		if (d.containsKey("textAlign") || d.containsKey("verticalAlign")) {
+			String textAlign = null;
+			String verticalAlign = null;
+			if (d.containsKey("textAlign")) {
+				textAlign = d.getString("textAlign");
 			}
+			if (d.containsKey("verticalAlign")) {
+				textAlign = d.getString("verticalAlign");
+			}
+			handleTextAlign(textAlign, verticalAlign);
 		}
 		if (d.containsKey("returnKeyType")) {
-			switch(d.getInt("returnKeyType")) {
-			case RETURNKEY_GO :
-				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
-				break;
-			case RETURNKEY_GOOGLE :
-				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
-				break;
-			case RETURNKEY_JOIN :
-				tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
-				break;
-			case RETURNKEY_NEXT :
-				tv.setImeOptions(EditorInfo.IME_ACTION_NEXT);
-				break;
-			case RETURNKEY_ROUTE :
-				tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
-				break;
-			case RETURNKEY_SEARCH :
-				tv.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
-				break;
-			case RETURNKEY_YAHOO :
-				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
-				break;
-			case RETURNKEY_DONE :
-				tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
-				break;
-			case RETURNKEY_EMERGENCY_CALL :
-				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
-				break;
-			case RETURNKEY_DEFAULT :
-				tv.setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED);
-				break;
-			case RETURNKEY_SEND :
-				tv.setImeOptions(EditorInfo.IME_ACTION_SEND);
-				break;
-			}
+			handleReturnKeyType(d.getInt("returnKeyType"));
 		}
 		if (d.containsKey("keyboardType"))
 		{
@@ -161,32 +124,7 @@ public class TiUIText extends TiUIView
 			if (d.containsKey("autocorrect")) {
 				autocorrect = d.getBoolean("autocorrect");
 			}
-			switch(d.getInt("keyboardType")) {
-				case KEYBOARD_ASCII :
-					tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
-					break;
-				case KEYBOARD_NUMBERS_PUNCTUATION :
-					tv.setKeyListener(DigitsKeyListener.getInstance());
-					break;
-				case KEYBOARD_URL :
-					tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
-					tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
-					break;
-				case KEYBOARD_NUMBER_PAD :
-					tv.setKeyListener(DigitsKeyListener.getInstance(true,true));
-					tv.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-					break;
-				case KEYBOARD_PHONE_PAD :
-					tv.setKeyListener(DialerKeyListener.getInstance());
-					break;
-				case KEYBOARD_EMAIL_ADDRESS :
-					tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
-					tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-					break;
-				case KEYBOARD_DEFAULT :
-					tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
-					break;
-			}
+			handleKeyboardType(d.getInt("keyboardType"), autocorrect);
 		}
 	}
 
@@ -202,10 +140,31 @@ public class TiUIText extends TiUIView
 			tv.setText((String) newValue);
 		} else if (key.equals("color")) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
-//		} else if (key.equals("backgroundColor")) {
-//			tv.setBackgroundColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals("hintText")) {
 			tv.setHint((String) newValue);
+		} else if (key.equals("textAlign") || key.equals("verticalAlign")) {
+			String textAlign = null;
+			String verticalAlign = null;
+			if (key.equals("textAlign")) {
+				textAlign = TiConvert.toString(newValue);
+			}
+			if (key.equals("verticalAlign")) {
+				verticalAlign = TiConvert.toString(newValue);
+			}
+			handleTextAlign(textAlign, verticalAlign);
+		} else if (key.equals("autocapitalization")) {
+		} else if (key.equals("keyboardType")) {
+			TiDict d = proxy.getDynamicProperties();
+			boolean autocorrect = true;
+			if (d.containsKey("autocorrect")) {
+				autocorrect = d.getBoolean("autocorrect");
+			}
+
+			handleKeyboardType(TiConvert.toInt(newValue), autocorrect);
+		} else if (key.equals("returnKeyType")) {
+			handleReturnKeyType(TiConvert.toInt(newValue));
+		} else if (key.equals("font")) {
+			TiUIHelper.styleText(tv, (TiDict) newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -263,5 +222,108 @@ public class TiUIText extends TiUIView
 		return false;
 	}
 
+	public void handleTextAlign(String textAlign, String verticalAlign)
+	{
+		EditText tv = (EditText) getNativeView();
+		int valign = field ? Gravity.CENTER_VERTICAL : Gravity.TOP;
+		int align = Gravity.LEFT;
 
+		if (textAlign != null) {
+			if ("left".equals(textAlign)) {
+				align = Gravity.LEFT;
+			} else if ("center".equals(textAlign)) {
+				align = Gravity.CENTER_HORIZONTAL;
+			} else if ("right".equals(textAlign)) {
+				align = Gravity.RIGHT;
+			} else {
+				Log.w(LCAT, "Unsupported alignment: " + textAlign);
+			}
+		}
+
+		if (verticalAlign != null) {
+			if ("top".equals(textAlign)) {
+				valign = Gravity.TOP;
+			} else if ("middle".equals(textAlign)) {
+				valign = Gravity.CENTER_VERTICAL;
+			} else if ("bottom".equals(textAlign)) {
+				valign = Gravity.BOTTOM;
+			} else {
+				Log.w(LCAT, "Unsupported alignment: " + verticalAlign);
+			}
+		}
+
+		tv.setGravity(valign | align);
+	}
+
+	public void handleKeyboardType(int type, boolean autocorrect)
+	{
+		EditText tv = (EditText) getNativeView();
+		switch(type) {
+			case KEYBOARD_ASCII :
+				tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
+				break;
+			case KEYBOARD_NUMBERS_PUNCTUATION :
+				tv.setKeyListener(DigitsKeyListener.getInstance());
+				break;
+			case KEYBOARD_URL :
+				tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
+				tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
+				break;
+			case KEYBOARD_NUMBER_PAD :
+				tv.setKeyListener(DigitsKeyListener.getInstance(true,true));
+				tv.setRawInputType(InputType.TYPE_CLASS_NUMBER);
+				break;
+			case KEYBOARD_PHONE_PAD :
+				tv.setKeyListener(DialerKeyListener.getInstance());
+				break;
+			case KEYBOARD_EMAIL_ADDRESS :
+				tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
+				tv.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+				break;
+			case KEYBOARD_DEFAULT :
+				tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
+				break;
+		}
+	}
+
+	public void handleReturnKeyType(int type)
+	{
+		EditText tv = (EditText) getNativeView();
+
+		switch(type) {
+			case RETURNKEY_GO :
+				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
+				break;
+			case RETURNKEY_GOOGLE :
+				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
+				break;
+			case RETURNKEY_JOIN :
+				tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
+				break;
+			case RETURNKEY_NEXT :
+				tv.setImeOptions(EditorInfo.IME_ACTION_NEXT);
+				break;
+			case RETURNKEY_ROUTE :
+				tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
+				break;
+			case RETURNKEY_SEARCH :
+				tv.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
+				break;
+			case RETURNKEY_YAHOO :
+				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
+				break;
+			case RETURNKEY_DONE :
+				tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
+				break;
+			case RETURNKEY_EMERGENCY_CALL :
+				tv.setImeOptions(EditorInfo.IME_ACTION_GO);
+				break;
+			case RETURNKEY_DEFAULT :
+				tv.setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED);
+				break;
+			case RETURNKEY_SEND :
+				tv.setImeOptions(EditorInfo.IME_ACTION_SEND);
+				break;
+		}
+	}
 }
