@@ -280,6 +280,8 @@ public abstract class TiUIView
 			} else {
 				Log.w(LCAT, "Unable to set opacity w/o background color");
 			}
+		} else if (key.equals("backgroundImage")) {
+			handleBackgroundImage(proxy.getDynamicProperties());
 		} else {
 			Log.i(LCAT, "Unhandled property key: " + key);
 		}
@@ -299,15 +301,7 @@ public abstract class TiUIView
 		// Default background processing.
 		// Prefer image to color.
 		if (d.containsKey("backgroundImage")) {
-			String path = TiConvert.toString(d, "backgroundImage");
-			String url = getProxy().getTiContext().resolveUrl(null, path);
-			TiBaseFile file = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), new String[] { url }, false);
-			try {
-				nativeView.setBackgroundDrawable(Drawable.createFromStream(
-					file.getInputStream(), file.getNativeFile().getName()));
-			} catch (IOException e) {
-				Log.e(LCAT, "Error creating background image from path: " + path.toString(), e);
-			}
+			handleBackgroundImage(d);
 		} else if (d.containsKey("backgroundColor")) {
 			bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
 			nativeView.setBackgroundDrawable(new ColorDrawable(bgColor));
@@ -408,12 +402,28 @@ public abstract class TiUIView
 			}
 		}
 	}
-	
+
+	// Initial implementation.
+	// TODO implement other background states.
+	private void handleBackgroundImage(TiDict d)
+	{
+		String path = TiConvert.toString(d, "backgroundImage");
+		String url = getProxy().getTiContext().resolveUrl(null, path);
+		TiBaseFile file = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), new String[] { url }, false);
+		try {
+			nativeView.setBackgroundDrawable(Drawable.createFromStream(
+				file.getInputStream(), file.getNativeFile().getName()));
+		} catch (IOException e) {
+			Log.e(LCAT, "Error creating background image from path: " + path.toString(), e);
+		}
+
+	}
+
 	@Override
 	public void onClick(View view) {
 		TiDict data = new TiDict();
 		data.put("source", getProxy());
-		
+
 		getProxy().fireEvent("click", data);
 	}
 }
