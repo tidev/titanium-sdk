@@ -1,7 +1,7 @@
 // create table view data object
 var data = [
 	{title:'Facebook', hasChild:true, test:'../examples/facebook.js'},
-	{title:'YQL', hasChild:true, test:'../todo.js'},
+	{title:'YQL', hasChild:true, test:'../examples/yql.js'},
 	{title:'Twitter', hasChild:true, test:'../examples/twitter.js'},
 	{title:'SOAP', hasChild:true, test:'../examples/soap.js'},
 
