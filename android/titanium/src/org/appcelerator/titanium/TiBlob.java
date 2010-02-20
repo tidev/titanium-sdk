@@ -13,6 +13,8 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 
+import android.graphics.Bitmap;
+
 
 public class TiBlob extends TiProxy
 {
@@ -52,8 +54,8 @@ public class TiBlob extends TiProxy
 		return new TiBlob(tiContext, TYPE_FILE, file, mimeType);
 	}
 
-	public static TiBlob blobFromImage(TiContext tiContext) {
-		return null; //TODO
+	public static TiBlob blobFromImage(TiContext tiContext, Bitmap image) {
+		return new TiBlob(tiContext, TYPE_IMAGE, image, "image/bitmap");
 	}
 
 	public static TiBlob blobFromData(TiContext tiContext, byte[] data) {

@@ -13,6 +13,7 @@ import org.appcelerator.titanium.util.Log;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.hardware.Camera.AutoFocusCallback;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -103,19 +104,11 @@ public class TiCompositeLayout extends ViewGroup
 		if (parent != null && child != null) {
 			Log.i("LAYOUT", "Attaching: " + viewToString(child) + " to " + viewToString(parent));
 		}
-		LayoutParams params = (LayoutParams)child.getLayoutParams();
-		if (params.index == Integer.MIN_VALUE) {
-			params.index = getChildCount()-1;
-		}
 	}
 
 	public void onChildViewRemoved(View parent, View child) {
 		needsSort = true;
 		Log.i("LAYOUT", "Removing: " + viewToString(child) + " from " + viewToString(parent));
-		LayoutParams params = (LayoutParams)child.getLayoutParams();
-		if (params.index == Integer.MIN_VALUE) {
-			params.index = Integer.MIN_VALUE;
-		}
 	}
 
 	@Override
@@ -158,6 +151,9 @@ public class TiCompositeLayout extends ViewGroup
 
 			for(int i = 0; i < count; i++) {
 				View child = getChildAt(i);
+				TiCompositeLayout.LayoutParams params =
+					(TiCompositeLayout.LayoutParams) child.getLayoutParams();
+				params.index = i;
 				viewSorter.add(child);
 			}
 
@@ -211,6 +207,9 @@ public class TiCompositeLayout extends ViewGroup
 		child.measure(MeasureSpec.makeMeasureSpec(maxWidth, widthSpec),
 				MeasureSpec.makeMeasureSpec(maxHeight, heightSpec));
 
+		int childWidth = child.getMeasuredWidth();
+		int childHeight = child.getMeasuredHeight();
+
 		if (p.optionLeft != NOT_SET) {
 			p.mLeft = Math.min(p.optionLeft, width);
 			if (p.optionRight != NOT_SET) {
@@ -218,7 +217,11 @@ public class TiCompositeLayout extends ViewGroup
 			} else if (!p.autoWidth) {
 				p.mRight = Math.min(p.mLeft + p.optionWidth, width);
 			} else {
-				p.mRight = width;
+				if (!p.autoFillsWidth) {
+					p.mRight = width;
+				} else {
+					p.mRight = Math.min(p.mLeft + childWidth, width);
+				}
 			}
 		} else if (p.optionRight != NOT_SET) {
 			p.mRight = Math.max(width-p.optionRight, 0);
@@ -228,18 +231,21 @@ public class TiCompositeLayout extends ViewGroup
 				if (p.autoFillsWidth) {
 					p.mLeft = 0;
 				} else {
-					p.mLeft = Math.max(p.mRight - child.getMeasuredWidth(), 0);
+					p.mLeft = Math.max(p.mRight - childWidth, 0);
 				}
 			}
 		} else {
 			p.mLeft = 0;
 			p.mRight = width;
-			
-			int max = child.getMeasuredWidth();
-			if (p.autoFillsWidth) {
-				max = Math.max(child.getMeasuredWidth(), width);
+
+			int w = width;
+
+			if (p.optionWidth != NOT_SET) {
+				w = Math.min(p.optionWidth, width);
+			} else if (p.autoWidth || !p.autoFillsWidth) {
+				w = Math.min(childWidth, width);
 			}
-			int w = !p.autoWidth ? p.optionWidth : max;
+
 			int space = (width - w)/2;
 			if (space > 0) {
 				p.mLeft = space;
@@ -254,7 +260,11 @@ public class TiCompositeLayout extends ViewGroup
 			} else if (!p.autoHeight) {
 				p.mBottom = Math.min(p.mTop + p.optionHeight, height);
 			} else {
-				p.mBottom = height;
+				if (p.autoFillsHeight) {
+					p.mBottom = height;
+				} else {
+					p.mBottom = Math.min(p.mTop + childHeight, height);
+				}
 			}
 		} else if (p.optionBottom != NOT_SET) {
 			p.mBottom = Math.max(height-p.optionBottom, 0);
@@ -264,18 +274,20 @@ public class TiCompositeLayout extends ViewGroup
 				if (p.autoFillsHeight) {
 					p.mTop = 0;
 				} else {
-					p.mTop = Math.max(p.mBottom - child.getMeasuredHeight(), 0);
+					p.mTop = Math.max(p.mBottom - childHeight, 0);
 				}
 			}
 		} else {
 			p.mTop = 0;
 			p.mBottom = height;
-			
-			int max = child.getMeasuredHeight();
-			if (p.autoFillsHeight) {
-				max = Math.max(child.getMeasuredHeight(), height);
+
+			int h = height;
+			if (p.optionHeight != NOT_SET) {
+				h = Math.min(p.optionHeight, height);
+			} else if (p.autoWidth || !p.autoFillsWidth) {
+				h = Math.min(childHeight, height);
 			}
-			int h = !p.autoHeight ? p.optionHeight : max;
+
 			int space = (height - h)/2;
 			if (space > 0) {
 				p.mTop = space;
@@ -349,7 +361,7 @@ public class TiCompositeLayout extends ViewGroup
 		public boolean autoWidth = true;
 		public boolean autoFillsWidth = false;
 		public boolean autoFillsHeight = false;
-		
+
 		// Used in onMeasure to assign size for onLayout
 		public int mLeft;
 		public int mTop;

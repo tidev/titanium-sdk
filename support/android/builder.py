@@ -201,7 +201,7 @@ class Builder(object):
 
 		print "[INFO] Android Emulator has exited"
 		sys.exit(rc)
-		
+	
 	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None):
 		deploy_type = 'development'
 		if install:

@@ -8,6 +8,8 @@
 #import "ImageLoader.h"
 #import "OperationQueue.h"
 #import "TiUtils.h"
+#import "ASIHTTPRequest.h"
+#import "TitaniumApp.h"
 
 ImageLoader *sharedLoader = nil;
 
@@ -75,8 +77,19 @@ ImageLoader *sharedLoader = nil;
 	{
 		return image;
 	}
-	NSData* imageData = [[[NSData alloc]initWithContentsOfURL:url] autorelease];	
-	return [self cache:[[[UIImage alloc] initWithData:imageData] autorelease] forURL:url];
+	
+	ASIHTTPRequest *req = [ASIHTTPRequest requestWithURL:url];
+	[req addRequestHeader:@"User-Agent" value:[[TitaniumApp app] userAgent]];
+	[[TitaniumApp app] startNetwork];
+	[req start];
+	[[TitaniumApp app] stopNetwork];
+	
+	if (req!=nil && [req error]==nil)
+	{
+		return [self cache:[[[UIImage alloc] initWithData:[req responseData]] autorelease] forURL:url];
+	}
+	
+	return nil;
 }
 
 -(UIImage *)loadImmediateImage:(NSURL *)url

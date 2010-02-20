@@ -30,6 +30,7 @@
 #pragma mark Framework
 -(TiUIView*)view;
 -(BOOL)viewAttached;
+-(BOOL)viewInitialized;
 -(void)layoutChildren:(CGRect)bounds;
 -(void)layoutChild:(TiViewProxy*)child bounds:(CGRect)bounds;
 -(void)animationCompleted:(TiAnimation*)animation;
@@ -41,6 +42,8 @@
 -(void)removeNavBarButtonView;
 -(CGRect)appFrame;
 -(void)firePropertyChanges;
+-(void)willFirePropertyChanges;
+-(void)didFirePropertyChanges;
 -(TiUIView*)newView;
 -(BOOL)viewReady;
 -(void)windowDidClose;

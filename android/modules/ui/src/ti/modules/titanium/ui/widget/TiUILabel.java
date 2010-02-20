@@ -44,9 +44,6 @@ public class TiUILabel extends TiUIView
 		if (d.containsKey("color")) {
 			tv.setTextColor(TiConvert.toColor(d, "color"));
 		}
-//		if (d.containsKey("backgroundColor")) {
-//			tv.setBackgroundColor(TiConvert.toColor(d, "backgroundColor"));
-//		}
 		if (d.containsKey("highlightedColor")) {
 			tv.setHighlightColor(TiConvert.toColor(d, "highlightedColor"));
 		}
@@ -57,6 +54,7 @@ public class TiUILabel extends TiUIView
 			String textAlign = d.getString("textAlign");
 			setAlignment(tv, textAlign);
 		}
+		tv.invalidate();
 	}
 
 	private void setAlignment(TextView tv, String textAlign) {
@@ -82,12 +80,12 @@ public class TiUILabel extends TiUIView
 			tv.setText(TiConvert.toString(newValue));
 		} else if (key.equals("color")) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
-//		} else if (key.equals("backgroundColor")) {
-//			tv.setBackgroundColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals("highlightedColor")) {
 			tv.setHighlightColor(TiConvert.toColor((String) newValue));
-		} else if (key.equals("textAlignment")) {
+		} else if (key.equals("textAlign")) {
 			setAlignment(tv, (String) newValue);
+		} else if (key.equals("font")) {
+			TiUIHelper.styleText(tv, (TiDict) newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

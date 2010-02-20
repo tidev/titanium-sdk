@@ -473,7 +473,7 @@ static int tiProxyId = 0;
 	// the value is the old value before the change
 }
 
--(void)_diChangeValue:(id)property value:(id)value
+-(void)_didChangeValue:(id)property value:(id)value
 {
 	// called after a dynamic property is set againt this instance
 	// the value is the new value after the change
@@ -604,6 +604,16 @@ static int tiProxyId = 0;
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source
+{
+	[self fireEvent:type withObject:obj withSource:source propagate:YES];
+}
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn
+{
+	[self fireEvent:type withObject:obj withSource:self propagate:yn];
+}
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {
 	[destroyLock lock];
 	

@@ -28,6 +28,9 @@
 	BOOL stopped;
 	BOOL reverse;
 	BOOL paused;
+	BOOL placeholderLoading;
+	CGFloat width;
+	CGFloat height;
 	NSInteger loadCount;
 	NSInteger readyCount;
 	NSInteger loadTotal;

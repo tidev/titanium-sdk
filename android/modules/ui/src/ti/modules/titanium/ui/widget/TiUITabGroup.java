@@ -1,13 +1,16 @@
 package ti.modules.titanium.ui.widget;
 
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TabGroupProxy;
+import ti.modules.titanium.ui.TabProxy;
 import ti.modules.titanium.ui.TiTabActivity;
 import android.graphics.drawable.ColorDrawable;
 import android.view.ViewGroup.LayoutParams;
@@ -57,7 +60,10 @@ public class TiUITabGroup extends TiUIView
         tabHost.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor("#ff1a1a1a")));
 
 		setNativeView(tabHost);
-		activity.getLayout().addView(tabHost);
+		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+		params.autoFillsHeight = true;
+		params.autoFillsWidth = true;
+		activity.getLayout().addView(tabHost, params);
 
   		lastTabId = null;
 	}
@@ -71,6 +77,11 @@ public class TiUITabGroup extends TiUIView
 		tabHost.addTab(tab);
 	}
 
+	public void setActiveTab(int index) {
+		if (tabHost != null) {
+			tabHost.setCurrentTab(index);
+		}
+	}
 
 	@Override
 	protected TiDict getFocusEventObject(boolean hasFocus) {
@@ -91,5 +102,42 @@ public class TiUITabGroup extends TiUIView
 
 		tabChangeEventData = ((TabGroupProxy) proxy).buildFocusEvent(id, lastTabId);
 		lastTabId = id;
+		proxy.internalSetDynamicValue("activeTab", tabHost.getCurrentTab(), false);
+	}
+
+	public void changeActiveTab(Object t) {
+		if (t != null) {
+			Integer index = null;
+			if (t instanceof Number) {
+				index = TiConvert.toInt(t);
+
+				int len = tabHost.getTabWidget().getTabCount();
+				if (index >= len) {
+					// TODO consider throwing an exception to JS.
+					Log.w(LCAT, "Index out of bounds. Attempt to set active tab to " + index + ". There are " + len + " tabs.");
+					index = null;
+				} else {
+					tabHost.setCurrentTab(index);
+				}
+			} else if (t instanceof TabProxy) {
+				TabProxy tab = (TabProxy) t;
+				String title = TiConvert.toString(tab.getDynamicValue("title"));
+				if (title != null) {
+					tabHost.setCurrentTabByTag(title);
+				}
+			} else {
+				Log.w(LCAT, "Attempt to set active tab using a non-supported argument. Ignoring");
+			}
+		}
+	}
+
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
+	{
+		if ("activeTab".equals(key)) {
+			changeActiveTab(newValue);
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
 	}
 }

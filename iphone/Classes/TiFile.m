@@ -6,6 +6,7 @@
  */
 
 #import "TiFile.h"
+#import "TiBlob.h"
 
 
 @implementation TiFile
@@ -41,6 +42,24 @@
 -(NSString*)path
 {
 	return path;
+}
+
+-(NSInteger)size
+{
+	NSFileManager *fm = [NSFileManager defaultManager];
+	NSError *error = nil; 
+	NSDictionary * resultDict = [fm attributesOfItemAtPath:path error:&error];
+	id result = [resultDict objectForKey:NSFileSize];
+	if (error!=NULL)
+	{
+		return 0;
+	}
+	return [result intValue];
+}
+
+-(id)toBlob
+{
+	return [[[TiBlob alloc] initWithFile:path] autorelease];
 }
 
 +(TiFile*)createTempFile:(NSString*)extension

@@ -1,5 +1,6 @@
 package ti.modules.titanium.media;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,11 +26,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.Bitmap.Config;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
+import android.view.View;
+import android.view.Window;
 
 public class MediaModule extends TiModule
 {
@@ -342,6 +348,26 @@ public class MediaModule extends TiModule
 		return d;
 	}
 
+	TiDict createDictForImage(int width, int height, byte[] data) {
+		TiDict d = new TiDict();
+
+		d.put("x", 0);
+		d.put("y", 0);
+		d.put("width", width);
+		d.put("height", height);
+
+		TiDict cropRect = new TiDict();
+		cropRect.put("x", 0);
+		cropRect.put("y", 0);
+		cropRect.put("width", width);
+		cropRect.put("height", height);
+		d.put("cropRect", cropRect);
+
+		d.put("media", TiBlob.blobFromData(getTiContext(), data, "image/png"));
+
+		return d;
+	}
+
 	public void previewImage(Object[] args)
 	{
 		if (DBG) {
@@ -409,6 +435,43 @@ public class MediaModule extends TiModule
 					}
 				}
 			});
+	}
+
+	public void takeScreenshot(KrollCallback callback)
+	{
+		Activity a = getTiContext().getActivity();
+		while (a.getParent() != null) {
+			a = a.getParent();
+		}
+
+		Window w = a.getWindow();
+
+		while (w.getContainer() != null) {
+			w = w.getContainer();
+		}
+
+		View decorView = w.getDecorView();
+
+		if (decorView != null) {
+			int width = decorView.getWidth();
+			int height = decorView.getHeight();
+			Bitmap bitmap = Bitmap.createBitmap(width, height, Config.RGB_565);
+			Canvas canvas = new Canvas(bitmap);
+			decorView.draw(canvas);
+
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			if (bitmap.compress(CompressFormat.PNG, 100, bos)) {
+
+				if (callback != null) {
+					TiDict event = createDictForImage(width, height, bos.toByteArray());
+					Object[] args = { event };
+					callback.call(args);
+				}
+			}
+
+			canvas = null;
+			bitmap.recycle();
+		}
 	}
 
 	@Override

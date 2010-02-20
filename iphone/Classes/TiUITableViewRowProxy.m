@@ -261,6 +261,7 @@
 			TiUIView *uiview = [proxy view];
 			[uiview insertIntoView:view bounds:viewrect];
 			uiview.parent = self;
+			uiview.touchDelegate = contentView;
 		}
 		[contentView addSubview:view];
 	}
@@ -316,7 +317,8 @@
 					// rely on certain aspects of the proxy to be set (like baseURL)
 					// for them to work correctly
 					uiview.parent = self;
-					uiview.proxy = self;
+					uiview.touchDelegate = contentView;
+					uiview.proxy = proxy;
 					for (NSString *key in [proxy allProperties])
 					{
 						id oldValue = [oldProxy valueForKey:key];
@@ -328,6 +330,7 @@
 							[uiview propertyChanged:key oldValue:oldValue newValue:newValue proxy:proxy];
 						}
 					}
+					uiview.proxy = self;
 					// re-assign the view to the new proxy so the right listeners get 
 					// any child view events that are fired
 					// we assign ourselves as the new parent so we can be in the 
@@ -410,7 +413,7 @@
 	[self triggerRowUpdate];
 }
 
--(void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source
+-(void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {
 	// merge in any row level properties for the event
 	if (source!=self)
@@ -433,7 +436,7 @@
 		[dict setObject:NUMBOOL(NO) forKey:@"searchMode"];
 		obj = dict;
 	}
-	[super fireEvent:type withObject:obj withSource:source];
+	[super fireEvent:type withObject:obj withSource:source propagate:propagate];
 }
 
 

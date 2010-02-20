@@ -7,7 +7,8 @@
 
 #import "TiUIView.h"
 
-@interface TiUITabGroup : TiUIView<UITabBarControllerDelegate> {
+//To handle the more tab, we're a delegate of it.
+@interface TiUITabGroup : TiUIView<UITabBarControllerDelegate,UINavigationControllerDelegate> {
 @private
 	UITabBarController *controller;
 	TiProxy *focused;

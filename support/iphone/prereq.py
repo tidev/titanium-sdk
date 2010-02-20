@@ -114,6 +114,8 @@ def check_certs(props):
 	props['iphone_dist_message'] = 'Missing iPhone Distribution Certificate'
 	props['iphone_dev_message'] = 'Missing iPhone Developer Certificate'
 	output = run.run(['security','dump-keychain'])
+# FOR TESTING ONLY
+#	output = open(os.path.expanduser("~/Downloads/distribution_only_out.txt")).read()
 	for i in output.split('\n'):
 		check_for_wwdr(props,i)
 		check_for_iphone_dev(props,i)
@@ -141,4 +143,7 @@ def main(args):
 
 if __name__ == "__main__":
     main(sys.argv)
+
+# FOR TESTING
+#	check_for_package()
 

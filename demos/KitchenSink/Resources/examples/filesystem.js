@@ -12,7 +12,7 @@ Titanium.API.info('Line Ending :' + Titanium.Filesystem.lineEnding);
 var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'images/atlanta.jpg');
 Ti.API.info('nativePath ' + f.nativePath);
 Ti.API.info('exists ' + f.exists());
-Ti.API.info('size ' + f.size());
+Ti.API.info('size ' + f.size);
 Ti.API.info('isReadonly ' + f.isReadonly);
 Ti.API.info('isSymbolicLink ' + f.isSymbolicLink);
 Ti.API.info('isExecutable ' + f.isExecutable);

@@ -31,7 +31,7 @@ public class TiTabActivity extends ActivityGroup
 	protected TiCompositeLayout layout;
 	protected TabGroupProxy proxy;
 	protected Handler handler;
-	
+
 	public TiTabActivity() {
 	}
 
@@ -55,7 +55,7 @@ public class TiTabActivity extends ActivityGroup
         		fullscreen = intent.getBooleanExtra("fullscreen", fullscreen);
         	}
         	if (intent.hasExtra("navBarHidden")) {
-        		navbar = intent.getBooleanExtra("navBarHidden", navbar);
+        		navbar = !intent.getBooleanExtra("navBarHidden", navbar);
         	}
         	if (intent.hasExtra("messenger")) {
         		messenger = (Messenger) intent.getParcelableExtra("messenger");

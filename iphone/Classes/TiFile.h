@@ -19,10 +19,13 @@
 }
 
 @property(nonatomic,readonly) NSString *path;
+@property(nonatomic,readonly) NSInteger size;
 
 -(id)initWithPath:(NSString*)path;
 -(id)initWithTempFilePath:(NSString*)path;
 
 +(TiFile*)createTempFile:(NSString*)extension;
+
+-(id)toBlob;
 
 @end

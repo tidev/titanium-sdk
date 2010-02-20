@@ -235,6 +235,8 @@ function showIndicator()
 	var message = Titanium.UI.createLabel({
 		text:'Loading',
 		color:'#fff',
+		width:'auto',
+		height:'auto',
 		font:{fontSize:20,fontWeight:'bold'},
 		bottom:20
 	});

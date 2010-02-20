@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.appcelerator.titanium.util.TiConvert;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -32,6 +33,13 @@ public class TiDict
 			
 			if (value instanceof JSONObject) {
 				put(key, new TiDict((JSONObject)value));
+			} else if (value instanceof JSONArray) {
+				JSONArray array = (JSONArray)value;
+				Object[] values = new Object[array.length()];
+				for (int i = 0; i < array.length(); i++) {
+					values[i] = new TiDict(array.getJSONObject(i));
+				}
+				put(key, values);
 			}
 			else {
 				put(key, value);

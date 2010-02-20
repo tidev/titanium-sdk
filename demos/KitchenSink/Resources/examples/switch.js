@@ -12,6 +12,7 @@ var basicSwitchLabel = Titanium.UI.createLabel({
 	},
 	textAlign:'center',
 	top:10,
+	height:'auto'
 });
 
 var basicSwitch = Titanium.UI.createSwitch({

@@ -16,7 +16,9 @@ win.add(imageView);
 var l = Titanium.UI.createLabel({
 	text:'Click Image of Tab Group',
 	bottom:20,
-	color:'#999'
+	color:'#999',
+	width:'auto',
+	height:'auto'
 });
 win.add(l);
 

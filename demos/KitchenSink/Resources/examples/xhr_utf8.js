@@ -5,7 +5,8 @@ var l1 = Titanium.UI.createLabel({
 	font:{fontSize:16,fontWeight:'bold'},
 	top:10,
 	width:300,
-	left:10
+	left:10,
+	height:'auto'
 });
 win.add(l1);
 
@@ -23,6 +24,7 @@ win.add(l2);
 var l3 = Titanium.UI.createLabel({
 	text:'UTF-8 POST',
 	font:{fontSize:16,fontWeight:'bold'},
+	height:'auto',
 	top:120,
 	width:300,
 	left:10
@@ -44,6 +46,7 @@ var l5 = Titanium.UI.createLabel({
 	text:'UTF-8 GET w/Query String',
 	font:{fontSize:16,fontWeight:'bold'},
 	top:230,
+	height:'auto',
 	width:300,
 	left:10
 });
