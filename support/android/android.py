@@ -7,9 +7,9 @@
 import os,sys,shutil,platform
 import string,subprocess,re
 from mako.template import Template
+from xml.etree.ElementTree import ElementTree
 from os.path import join, splitext, split, exists
 from shutil import copyfile
-
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
@@ -73,15 +73,35 @@ class Android(object):
 	def load_template(self, template):
 		return Template(filename=template, output_encoding='utf-8', encoding_errors='replace')
 
-	def render(self, template_dir, template_file, dest, dest_file):
+	def render(self, template_dir, template_file, dest, dest_file, **kwargs):
 		tmpl = self.load_template(os.path.join(template_dir, 'templates', template_file))
 		f = None
 		try:
 			f = open(os.path.join(dest, dest_file), "w")
-			f.write(tmpl.render(config = self.config))
+			f.write(tmpl.render(config = self.config, **kwargs))
 		finally:
 			if f!=None: f.close
 
+	def build_app_info(self, project_dir):
+		tiapp = ElementTree()
+		tiapp.parse(open(os.path.join(project_dir, 'tiapp.xml'), 'r'))
+		self.app_info = {}
+		self.app_properties = {}
+		for key in ['id', 'name', 'version', 'publisher', 'url', 'copyright',
+			'description', 'icon', 'analytics', 'guid']:
+			el = tiapp.find(key)
+			if el != None:
+				self.app_info[key] = el.text
+
+		for property_el in tiapp.findall("property"):
+			name = property_el.get("name")
+			type = property_el.get("type")
+			value = property_el.text
+			if name == None: continue
+			if type == None: type = "string"
+			if value == None: value = ""
+			self.app_properties[name] = {"type": type, "value": value}
+	
 	def create(self, dir, build_time=False):
 		template_dir = os.path.dirname(sys._getframe(0).f_code.co_filename)
 
@@ -105,7 +125,11 @@ class Android(object):
 		app_assets_dir = self.newdir(app_dir, 'assets')
 		app_package_dir = self.newdir(app_src_dir, *self.id.split('.'))
 
+		self.build_app_info(project_dir)
 		# Create android source
+		self.render(template_dir, 'AppInfo.java', app_package_dir, self.config['classname'] + 'AppInfo.java',
+			app_properties = self.app_properties, app_info = self.app_info)
+		
 		self.render(template_dir, 'AndroidManifest.xml', app_dir, 'AndroidManifest.xml')
 		self.render(template_dir, 'App.java', app_package_dir, self.config['classname'] + 'Application.java')
 		self.render(template_dir, 'Activity.java', app_package_dir, self.config['classname'] + 'Activity.java')

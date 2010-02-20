@@ -24,6 +24,8 @@ public abstract class TiModule
 		modelListener = this;
 	}
 
+	public void postCreate() {}
+	
 	public void fireEvent(String eventName, TiDict data) {
 		getTiContext().dispatchEvent(this, eventName, data);
 	}

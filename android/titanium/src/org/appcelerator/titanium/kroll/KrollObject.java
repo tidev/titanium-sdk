@@ -15,6 +15,7 @@ import java.util.Date;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.kroll.KrollMethod.KrollMethodType;
 import org.appcelerator.titanium.util.Log;
@@ -407,6 +408,10 @@ public class KrollObject extends ScriptableObject
 			Log.e(LCAT, "No Module for name " + name + " expected " + moduleName);
 		}
 
+		if (p != null && p instanceof TiModule) {
+			TiModule m = (TiModule)p;
+			m.postCreate();
+		}
 		return p;
 	}
 
@@ -595,13 +600,13 @@ public class KrollObject extends ScriptableObject
 					StringBuilder sb = new StringBuilder();
 					sb.append("{ ");
 
-					String [] ids = (String[]) getIds();
+					Object[] ids = (Object[]) getIds();
 					String sep = "";
 
 					if (ids != null) {
-						for(String id : ids) {
+						for(Object id : ids) {
 							sb.append(" '").append(id).append("' : ");
-							Object o = get(id, this);
+							Object o = get(id.toString(), this);
 							if (o == null) {
 								sb.append("null");
 							} else if (o instanceof String) {
