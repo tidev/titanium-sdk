@@ -52,7 +52,10 @@
 					for (NSString *name in [UIFont fontNamesForFamilyName:family])
 					{
 						// see if the font name has Bold in it (since the names aren't based on any pattern)
-						if ([name rangeOfString:@"Bold"].location!=NSNotFound)
+						// but filter out italic-style fonts
+						if ([name rangeOfString:@"Bold"].location!=NSNotFound &&
+							[name rangeOfString:@"Italic"].location==NSNotFound &&
+							[name rangeOfString:@"Oblique"].location==NSNotFound)
 						{
 							RELEASE_TO_NIL(family);
 							family = [name retain];
