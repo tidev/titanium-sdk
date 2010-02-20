@@ -376,14 +376,14 @@
 	return NO;
 }
 
--(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {
-	[super fireEvent:type withObject:obj withSource:source];
+	[super fireEvent:type withObject:obj withSource:source propagate:YES];
 	
 	// views support event propagation. we need to check our
 	// parent and if he has the same named listener, we fire
 	// an event and set the source of the event to ourself
-	if (parent!=nil)
+	if (parent!=nil && propagate==YES)
 	{
 		[parent fireEvent:type withObject:obj withSource:source];
 	}

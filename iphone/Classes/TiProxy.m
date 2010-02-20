@@ -605,6 +605,16 @@ static int tiProxyId = 0;
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source
 {
+	[self fireEvent:type withObject:obj withSource:source propagate:YES];
+}
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn
+{
+	[self fireEvent:type withObject:obj withSource:self propagate:yn];
+}
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
+{
 	[destroyLock lock];
 	
 	if (listeners!=nil)
