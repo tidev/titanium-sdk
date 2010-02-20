@@ -242,7 +242,7 @@ public class TiCompositeLayout extends ViewGroup
 
 			if (p.optionWidth != NOT_SET) {
 				w = Math.min(p.optionWidth, width);
-			} else if (p.autoWidth || !p.autoFillsWidth) {
+			} else if (p.autoWidth && !p.autoFillsWidth) {
 				w = Math.min(childWidth, width);
 			}
 
@@ -284,7 +284,7 @@ public class TiCompositeLayout extends ViewGroup
 			int h = height;
 			if (p.optionHeight != NOT_SET) {
 				h = Math.min(p.optionHeight, height);
-			} else if (p.autoWidth || !p.autoFillsWidth) {
+			} else if (p.autoHeight && !p.autoFillsHeight) {
 				h = Math.min(childHeight, height);
 			}
 
