@@ -13,6 +13,7 @@
 #import "TiProxy.h"
 #import "TiBlob.h"
 #import "TiFile.h"
+#import "UIImage+Resize.h"
 
 #define IMAGEVIEW_DEBUG 0
 
@@ -56,6 +57,9 @@ DEFINE_EXCEPTIONS
 	{
 		return;
 	}
+	
+	// don't let the placeholder stomp on our new images
+	placeholderLoading = NO;
 	
 	NSInteger position = index % loadTotal;
 	NSInteger nextIndex = (reverse) ? --index : ++index;
@@ -128,6 +132,11 @@ DEFINE_EXCEPTIONS
 	[[OperationQueue sharedQueue] queue:@selector(loadImageInBackground:) target:self arg:[NSNumber numberWithInt:index_] after:nil on:nil ui:NO];
 }
 
+-(void)queueURLImage:(NSURL*)url
+{
+	[[OperationQueue sharedQueue] queue:@selector(loadURLImageInBackground:) target:self arg:url after:nil on:nil ui:NO];
+}
+
 -(void)startTimer
 {
 	RELEASE_TO_NIL(timer);
@@ -142,9 +151,30 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(UIImage*)scaleImageIfRequired:(UIImage*)theimage
+{
+	// attempt to scale the image
+	CGFloat width = [TiUtils floatValue:[self.proxy valueForKey:@"width"] def:0];
+	CGFloat height = [TiUtils floatValue:[self.proxy valueForKey:@"height"] def:0];
+	
+	if (width > 0 || height > 0)
+	{
+		if (width==0)
+		{
+			width = theimage.size.width;
+		}
+		if (height==0)
+		{
+			height = theimage.size.height;
+		}
+		theimage = [theimage resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh];
+	}
+	return theimage;
+}
+
 -(void)setImageOnUIThread:(NSArray*)args
 {
-	UIImage *theimage = [args objectAtIndex:0];
+	UIImage *theimage = [self scaleImageIfRequired:[args objectAtIndex:0]];
 	NSNumber *pos = [args objectAtIndex:1];
 	int position = [TiUtils intValue:pos];
 	
@@ -197,6 +227,58 @@ DEFINE_EXCEPTIONS
 			[self startTimer];
 		}
 	}
+}
+
+-(void)animationCompleted:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context
+{
+	for (UIView *view in [self subviews])
+	{
+		// look for our alpha view which is the placeholder layer
+		if (view.alpha == 0)
+		{
+			[view removeFromSuperview];
+			break;
+		}
+	}
+}
+
+-(void)setURLImageOnUIThread:(UIImage*)image
+{
+	// don't stomp on the animations
+	if (placeholderLoading)
+	{
+		UIImageView *iv = [[UIImageView alloc] initWithImage:image];
+		
+		// do a nice fade in animation to replace the new incoming image
+		// with our placeholder
+		[UIView beginAnimations:nil context:nil];
+		[UIView setAnimationDuration:0.8];
+		[UIView setAnimationDelegate:self];
+		[UIView setAnimationDidStopSelector:@selector(animationCompleted:finished:context:)];
+		
+		for (UIView *view in [self subviews])
+		{
+			if (view!=iv)
+			{	
+				[view setAlpha:0];
+			}
+		}
+		
+		[self addSubview:iv];
+		[self sendSubviewToBack:iv];
+		[iv release];
+		
+		[UIView commitAnimations];
+	}
+	
+	placeholderLoading = NO;
+}
+
+-(void)loadURLImageInBackground:(NSURL*)url
+{
+	UIImage *image = [[ImageLoader sharedLoader] loadRemote:url];
+	image = [self scaleImageIfRequired:image];
+	[self performSelectorOnMainThread:@selector(setURLImageOnUIThread:) withObject:image waitUntilDone:NO];
 }
 
 -(void)loadImageInBackground:(NSNumber*)pos
@@ -303,19 +385,22 @@ DEFINE_EXCEPTIONS
 	if ([arg isKindOfClass:[TiBlob class]])
 	{
 		TiBlob *blob = (TiBlob*)arg;
-		UIImage *image = [blob image];
+		UIImage *image = [self scaleImageIfRequired:[blob image]];
 		UIImageView *view = [[UIImageView alloc] initWithImage:image];
 		[self addSubview:view];
 		[view release];
+		[self.proxy replaceValue:arg forKey:@"image" notification:NO];
 	}
 	else if ([arg isKindOfClass:[TiFile class]])
 	{
 		TiFile *file = (TiFile*)arg;
 		NSData *data = [NSData dataWithContentsOfFile:[file path]];
 		UIImage *image = [[[UIImage alloc] initWithData:data] autorelease];
+		image = [self scaleImageIfRequired:image];
 		UIImageView *view = [[UIImageView alloc] initWithImage:image];
 		[self addSubview:view];
 		[view release];
+		[self.proxy replaceValue:arg forKey:@"image" notification:NO];
 	}
 	else
 	{
@@ -373,15 +458,50 @@ DEFINE_EXCEPTIONS
 {
 	if (img!=nil)
 	{
-		NSURL *url = [TiUtils toURL:img proxy:self.proxy];
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+		// remove current subview
+		for (UIView *view in [self subviews])
+		{
+			if ([view isKindOfClass:[UIImageView class]])
+			{
+				[view removeFromSuperview];
+			}
+		}
+		
+		NSURL *url_ = [TiUtils toURL:img proxy:self.proxy];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_];
 		if (image==nil)
 		{
-			// this means it's not local, we need to load it from remote
-			image = [[ImageLoader sharedLoader] loadRemote:url];
+			// use a placeholder image - which the dev can specify with the
+			// defaultImage property or we'll provide the Titanium stock one
+			// if not specified
+			UIImage *defImage = nil;
+			id defaultImage = [self.proxy valueForKey:@"defaultImage"];
+			if (defaultImage!=nil)
+			{
+				NSURL *defURL = [TiUtils toURL:defaultImage proxy:self.proxy];
+				defImage = [[ImageLoader sharedLoader] loadImmediateImage:defURL];
+			}
+			else
+			{
+				id prev = [self.proxy valueForKey:@"preventDefaultImage"];
+				if ([TiUtils boolValue:prev def:NO]==NO)
+				{
+					defImage = [UIImage imageNamed:@"modules/ui/images/photoDefault.png"];
+				}
+			}
+			if (defImage!=nil)
+			{
+				UIImageView *iv = [[UIImageView alloc] initWithImage:[self scaleImageIfRequired:defImage]];
+				[self addSubview:iv];
+				[iv release];
+			}
+			placeholderLoading = YES;
+			[self queueURLImage:url_];
+			return;
 		}
 		if (image!=nil)
 		{
+			image = [self scaleImageIfRequired:image];
 			UIImageView *view = [[UIImageView alloc] initWithImage:image];
 			[self addSubview:view];
 			[view release];
@@ -393,7 +513,7 @@ DEFINE_EXCEPTIONS
 		}
 		else 
 		{
-			NSLog(@"[ERROR] couldn't find image for ImageView at: %@",url);
+			NSLog(@"[ERROR] couldn't find image for ImageView at: %@",img);
 		}
 	}
 }

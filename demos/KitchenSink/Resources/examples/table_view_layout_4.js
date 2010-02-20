@@ -77,6 +77,7 @@ for (var c=0;c<30;c++)
 		textAlign:'left',
 		top:20,
 		left:85,
+		height:'auto',
 		font:{fontWeight:'bold',fontSize:18}
 	});
 	row.add(label);
@@ -94,6 +95,7 @@ for (var c=0;c<30;c++)
 		shadowOffset:{x:0,y:1},
 		font:{fontWeight:'bold',fontSize:13},
 		bottom:22,
+		height:'auto',
 		left:85,
 		right:50
 	});

@@ -55,7 +55,8 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, U
 				CGFloat desiredLeft = TiDimensionCalculateValue(constraint->left,width);
 				CGFloat desiredRight = TiDimensionCalculateValue(constraint->right,width);
 				width -= desiredLeft + desiredRight;
-				if ([subView respondsToSelector:@selector(autoWidthForWidth:)])
+				if (TiDimensionIsAuto(constraint->width) && 
+					[subView respondsToSelector:@selector(autoWidthForWidth:)])
 				{
 					width = [(id<LayoutAutosizing>)subView autoWidthForWidth:width];
 				}
@@ -86,7 +87,8 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, U
 			{
 				CGFloat desiredTop = TiDimensionCalculateValue(constraint->top,height);
 				CGFloat desiredBottom = TiDimensionCalculateValue(constraint->bottom,height);
-				if ([subView respondsToSelector:@selector(autoHeightForWidth:)])
+				if (TiDimensionIsAuto(constraint->height) && 
+					[subView respondsToSelector:@selector(autoHeightForWidth:)])
 				{
 					height = [(id<LayoutAutosizing>)subView autoHeightForWidth:width];
 				}

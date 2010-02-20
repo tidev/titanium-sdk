@@ -536,10 +536,9 @@ return;\
 
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
 {
-	BOOL notHandled = (!handlesSwipes && !handlesTaps && !handlesTouches);
-	
 	// delegate to our touch delegate if we're hit but it's not for us
-	if (notHandled && touchDelegate!=nil)
+	if ((handlesSwipes|| handlesTaps || handlesTouches)==NO && 
+		touchDelegate!=nil)
 	{
 		return touchDelegate;
 	}
@@ -581,17 +580,22 @@ return;\
 		
 		if ([proxy _hasListeners:@"touchstart"])
 		{
-			[proxy fireEvent:@"touchstart" withObject:evt];
+			[proxy fireEvent:@"touchstart" withObject:evt propagate:(touchDelegate==nil)];
 		}
 		
 		if ([touch tapCount] == 1 && [proxy _hasListeners:@"click"])
 		{
-			[proxy fireEvent:@"click" withObject:evt];
+			[proxy fireEvent:@"click" withObject:evt propagate:(touchDelegate==nil)];
 		}
 		else if ([touch tapCount] == 2 && [proxy _hasListeners:@"dblclick"])
 		{
-			[proxy fireEvent:@"dblclick" withObject:evt];
+			[proxy fireEvent:@"dblclick" withObject:evt propagate:(touchDelegate==nil)];
 		}
+	}
+	
+	if (touchDelegate!=nil)
+	{
+		[touchDelegate touchesBegan:touches withEvent:event];
 	}
 }
 
@@ -604,7 +608,7 @@ return;\
 		NSDictionary *evt = [TiUtils pointToDictionary:point];
 		if ([proxy _hasListeners:@"touchmove"])
 		{
-			[proxy fireEvent:@"touchmove" withObject:evt];
+			[proxy fireEvent:@"touchmove" withObject:evt propagate:(touchDelegate==nil)];
 		}
 	}
 	if (handlesSwipes)
@@ -625,6 +629,11 @@ return;\
 			}
 		}
 	}
+	
+	if (touchDelegate!=nil)
+	{
+		[touchDelegate touchesMoved:touches withEvent:event];
+	}
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
@@ -634,7 +643,8 @@ return;\
 		BOOL allTouchesEnded = ([touches count] == [[event touchesForView:self] count]);
 		
 		// first check for plain single/double tap, which is only possible if we haven't seen multiple touches
-		if (!multipleTouches) {
+		if (!multipleTouches) 
+		{
 			UITouch *touch = [touches anyObject];
 			tapLocation = [touch locationInView:self];
 			
@@ -713,12 +723,17 @@ return;\
 		NSDictionary *evt = [TiUtils pointToDictionary:point];
 		if ([proxy _hasListeners:@"touchend"])
 		{
-			[proxy fireEvent:@"touchend" withObject:evt];
+			[proxy fireEvent:@"touchend" withObject:evt propagate:(touchDelegate==nil)];
 		}
 	}
 	if (handlesSwipes)
 	{
 		touchLocation = CGPointZero;
+	}
+	
+	if (touchDelegate!=nil)
+	{
+		[touchDelegate touchesEnded:touches withEvent:event];
 	}
 }
 
@@ -736,12 +751,17 @@ return;\
 		NSDictionary *evt = [TiUtils pointToDictionary:point];
 		if ([proxy _hasListeners:@"touchcancel"])
 		{
-			[proxy fireEvent:@"touchcancel" withObject:evt];
+			[proxy fireEvent:@"touchcancel" withObject:evt propagate:(touchDelegate==nil)];
 		}
 	}
 	if (handlesSwipes)
 	{
 		touchLocation = CGPointZero;
+	}
+	
+	if (touchDelegate!=nil)
+	{
+		[touchDelegate touchesCancelled:touches withEvent:event];
 	}
 }
 
