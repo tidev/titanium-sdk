@@ -54,6 +54,7 @@ public class TiUILabel extends TiUIView
 			String textAlign = d.getString("textAlign");
 			setAlignment(tv, textAlign);
 		}
+		tv.invalidate();
 	}
 
 	private void setAlignment(TextView tv, String textAlign) {

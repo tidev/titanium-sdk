@@ -88,6 +88,9 @@ public class TiUIWindow extends TiUIView
 		} else {
 			lightWeight = true;
 			liteWindow = new TiCompositeLayout(proxy.getContext());
+			layoutParams.autoFillsHeight = true;
+			layoutParams.autoFillsWidth = true;
+
 			setNativeView(liteWindow);
 			handlePostOpen();
 		}
