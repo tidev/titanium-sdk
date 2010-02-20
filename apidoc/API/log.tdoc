@@ -1,0 +1,40 @@
+- namespace
+
+Titanium.API.log
+
+- type
+
+function
+
+- returns
+
+void
+
+- parameters
+
+severity[string]: the severity string - for example, debug
+message[string]: the message to log
+
+
+- description
+
+Log a statement to the Titanium Developer console at the provided severity logging level.
+
+- since
+
+0.1
+
+- platforms
+
+android, iphone
+
+- example
+
+<code>
+	Titanium.API.log("debug","I love Titanium");
+</code>
+
+
+
+
+

@@ -1,0 +1,32 @@
+- namespace
+
+Titanium.version
+
+- type
+
+property
+
+- returns
+
+string
+
+- description
+
+The current version of the Titanium runtime that is being executed.
+
+- since
+
+0.1
+
+- platforms
+
+android, iphone
+
+- example
+
+<code>
+	Titanium.API.info("You are running Titanium version = " + Titanium.version);
+</code>
+
+
+

@@ -1,0 +1,43 @@
+- namespace
+
+Titanium.include
+
+- type
+
+function
+
+- returns
+
+void
+
+- description
+
+include one or more Javascript files in the current code at the point of execution
+
+- since
+
+0.9
+
+- platforms
+
+android, iphone
+
+- example
+
+Include the `foo.js` into the current context:
+
+<code>
+	Titanium.API.include("foo.js");
+</code>
+
+- example
+
+Include multiple files into the current context (in the order specified):
+
+<code>
+	Titanium.API.include("foo.js","bar.js");
+</code>
+
+
+
+

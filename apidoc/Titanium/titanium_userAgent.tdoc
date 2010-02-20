@@ -1,0 +1,32 @@
+- namespace
+
+Titanium.userAgent
+
+- type
+
+property
+
+- returns
+
+string
+
+- description
+
+The current userAgent string for the Titanium runtime that is being executed.
+
+- since
+
+0.1
+
+- platforms
+
+android, iphone
+
+- example
+
+<code>
+	Titanium.API.info("The Titanium user agent is = " + Titanium.userAgent);
+</code>
+
+
+
