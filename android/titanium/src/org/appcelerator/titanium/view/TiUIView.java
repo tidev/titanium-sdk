@@ -21,6 +21,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy.PendingAnimation;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBorderHelper.BorderSupport;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
@@ -425,5 +426,9 @@ public abstract class TiUIView
 		data.put("source", getProxy());
 
 		getProxy().fireEvent("click", data);
+	}
+	
+	public TiDict toImage() {
+		return TiUIHelper.viewToImage(proxy.getTiContext(), getNativeView());
 	}
 }

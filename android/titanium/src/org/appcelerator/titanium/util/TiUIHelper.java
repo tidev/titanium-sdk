@@ -7,9 +7,12 @@
 
 package org.appcelerator.titanium.util;
 
+import java.io.ByteArrayOutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 
 import android.app.Activity;
@@ -18,12 +21,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Typeface;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.Bitmap.Config;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Process;
 import android.util.TypedValue;
+import android.view.View;
+import android.view.Window;
 import android.widget.TextView;
 
 public class TiUIHelper
@@ -290,5 +298,62 @@ public class TiUIHelper
 		}
 
 		return sld;
+	}
+	
+	public static TiDict createDictForImage(TiContext context, int width, int height, byte[] data)
+	{
+		TiDict d = new TiDict();
+		d.put("x", 0);
+		d.put("y", 0);
+		d.put("width", width);
+		d.put("height", height);
+
+		TiDict cropRect = new TiDict();
+		cropRect.put("x", 0);
+		cropRect.put("y", 0);
+		cropRect.put("width", width);
+		cropRect.put("height", height);
+		d.put("cropRect", cropRect);
+		d.put("media", TiBlob.blobFromData(context, data, "image/png"));
+
+		return d;
+	}
+	
+	public static TiBlob getImageFromDict(TiDict dict)
+	{
+		if (dict != null) {
+			if (dict.containsKey("media")) {
+				Object media = dict.get("media");
+				if (media instanceof TiBlob) {
+					return (TiBlob) media;
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static TiDict viewToImage(TiContext context, View view)
+	{
+		Activity a = null;
+		TiDict image = new TiDict();
+
+		if (view != null) {
+			int width = view.getWidth();
+			int height = view.getHeight();
+			Bitmap bitmap = Bitmap.createBitmap(width, height, Config.RGB_565);
+			Canvas canvas = new Canvas(bitmap);
+			
+			view.draw(canvas);
+
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			if (bitmap.compress(CompressFormat.PNG, 100, bos)) {
+				image = createDictForImage(context, width, height, bos.toByteArray());
+			}
+
+			canvas = null;
+			bitmap.recycle();
+		}
+		
+		return image;
 	}
 }

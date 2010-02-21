@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiBackgroundImageLoadTask;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
@@ -108,6 +109,13 @@ public class TiUIImageView extends TiUIView
 				return new BitmapDrawable(createBitmap(file.getInputStream()));
 			} catch (IOException e) {
 				Log.e(LCAT, "Error creating drawable from path: " + image.toString(), e);
+			}
+		} else if (image instanceof TiDict) {
+			TiBlob blob = TiUIHelper.getImageFromDict((TiDict)image);
+			if (blob != null) {
+				return new BitmapDrawable(createBitmap(new ByteArrayInputStream(blob.getBytes())));
+			} else {
+				Log.e(LCAT, "Couldn't find valid image in object: " + image.toString());
 			}
 		}
 		return null;

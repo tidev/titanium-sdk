@@ -17,6 +17,7 @@ import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -41,6 +42,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 	private static final int MSG_SHOW = MSG_FIRST_ID + 107;
 	private static final int MSG_HIDE = MSG_FIRST_ID + 108;
 	private static final int MSG_ANIMATE = MSG_FIRST_ID + 109;
+	private static final int MSG_TOIMAGE = MSG_FIRST_ID + 110;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
@@ -132,6 +134,11 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 			}
 			case MSG_ANIMATE : {
 				handleAnimate();
+				return true;
+			}
+			case MSG_TOIMAGE: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				result.setResult(handleToImage());
 				return true;
 			}
 		}
@@ -362,6 +369,21 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		}
 	}
 
+	public TiDict toImage() {
+		if (getTiContext().isUIThread()) {
+			return handleToImage();
+		} else {
+			AsyncResult result = new AsyncResult(getTiContext().getActivity()); 
+			Message msg = getUIHandler().obtainMessage(MSG_TOIMAGE);
+			msg.obj = result;
+			msg.sendToTarget();
+			return (TiDict) result.getResult();
+		}
+	}
+	
+	protected TiDict handleToImage() {
+		return getView(getTiContext().getActivity()).toImage();
+	}
 
 	// Helper methods
 
