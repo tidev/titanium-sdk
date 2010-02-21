@@ -10,6 +10,7 @@ function addRow(idx,text)
 	data[idx].add(Ti.UI.createLabel({
 		text:text,
 		height:'auto',
+		width:'auto',
 		left:10,
 		right:50,
 		top:10,

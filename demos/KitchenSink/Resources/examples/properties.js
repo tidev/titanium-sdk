@@ -2,6 +2,8 @@ var win = Titanium.UI.currentWindow;
 
 var l = Titanium.UI.createLabel({
 	text:'See Log for output',
+	height:'auto',
+	width:'auto'
 });
 win.add(l);
 

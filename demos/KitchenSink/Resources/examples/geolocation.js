@@ -137,8 +137,11 @@ win.add(updatedLocationTime);
 var addr = "444 Castro Street, Mountain View, CA 94041";
 win.add(Titanium.UI.createLabel({
 	text: "Address: " + addr,
-	top: 250, left: 10,
-	height: 15, width: 300
+	top: 250, 
+	left: 10,
+	height: 15, 
+	width: 300,
+	font:{fontSize:11}
 }));
 var forwardGeoLabel = Titanium.UI.createLabel({
 	text:'Forward Geo (Addr->Coords)',

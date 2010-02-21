@@ -125,7 +125,9 @@ var openLabel = Titanium.UI.createLabel({
 		fontSize:15
 	},
 	textAlign:'center',
-	top:260
+	top:260,
+	width:'auto',
+	height:'auto'
 });
 
 // add views based on platform

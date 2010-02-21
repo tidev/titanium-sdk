@@ -66,7 +66,9 @@ var view = Titanium.UI.createView({
 var label = Titanium.UI.createLabel({
 	color:'#fff',
 	font:{fontSize:13},
-	textAlign:'center'
+	textAlign:'center',
+	width:'auto',
+	height:'auto'
 });
 win.add(view);
 win.add(label);

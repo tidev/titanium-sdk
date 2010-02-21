@@ -29,6 +29,8 @@ var label1 = Ti.UI.createLabel({
 	text:'SOAP Test.\nShould be true.\nResult was: ' + result,
 	color:'white',
 	textAlign:'center',
+	width:'auto',
+	height:'auto',
 	font:{fontFamily:'Helvetica Neue',fontSize:24}
 });
 
@@ -60,6 +62,8 @@ var label2 = Ti.UI.createLabel({
 	text:'XML Test.\nShould be true.\nResult was: ' + result,
 	color:'white',
 	textAlign:'center',
+	width:'auto',
+	height:'auto',
 	font:{fontFamily:'Helvetica Neue',fontSize:24}
 });
 

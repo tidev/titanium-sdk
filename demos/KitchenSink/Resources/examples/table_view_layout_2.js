@@ -33,7 +33,9 @@ var clickLabel = Titanium.UI.createLabel({
 	text:'Click different parts of the row',
 	color:'#fff',
 	textAlign:'center',
-	font:{fontSize:14}
+	font:{fontSize:14},
+	width:'auto',
+	height:'auto'
 });
 row.className = 'header';
 row.add(clickLabel);
@@ -55,7 +57,9 @@ updateRow.isUpdateRow = true;
 var updateRowText = Ti.UI.createLabel({
 	color:'#fff',
 	font:{fontSize:20, fontWeight:'bold'},
-	text:'You clicked on...'
+	text:'You clicked on...',
+	width:'auto',
+	height:'auto'
 });
 updateRow.add(updateRowText);
 

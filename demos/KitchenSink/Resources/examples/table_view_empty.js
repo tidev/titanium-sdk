@@ -18,7 +18,7 @@ b1.addEventListener('click',function()
 	//a table className otherwise the tableview will assume they're the same layout and
 	//you'll get warnings and bad performance on lots of rows - this shows you how to do that
 	var row = Ti.UI.createTableViewRow({height:50,className:'row'});
-	var label = Ti.UI.createLabel({text:'row 1', color:'#111'});
+	var label = Ti.UI.createLabel({text:'row 1', color:'#111', width:'auto', height:'auto'});
 	row.add(label);
 	tableView.appendRow(row,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});
 });

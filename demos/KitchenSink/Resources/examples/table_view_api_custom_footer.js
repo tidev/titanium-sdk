@@ -11,7 +11,9 @@ var footerLabel = Ti.UI.createLabel({
 	text:'Custom Footer',
 	color:'#191',
 	textAlign:'left',
-	left:10
+	left:10,
+	width:'auto',
+	height:'auto'
 });
 
 footer.add(footerLabel);

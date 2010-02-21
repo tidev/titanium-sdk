@@ -35,6 +35,11 @@ win.add(view1);
 
 view2.addEventListener('click',function()
 {
-	alert("You were able to click on me. Good!");
+	alert("You were able to click on the view. Good!");
+});
+
+label2.addEventListener('click',function()
+{
+	alert("You were able to click on the label. Good!");
 });
 

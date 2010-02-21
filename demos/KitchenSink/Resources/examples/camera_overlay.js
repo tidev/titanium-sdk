@@ -40,6 +40,8 @@ var message = Titanium.UI.createLabel({
 	text:'Picture Taken',
 	color:'#fff',
 	font:{fontSize:20,fontWeight:'bold',fontFamily:'Helvetica Neue'},
+	width:'auto',
+	height:'auto'
 });
 messageView.add(message);
 

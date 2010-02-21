@@ -27,7 +27,9 @@ var view1 = Ti.UI.createView({
 
 var l1 = Ti.UI.createLabel({
 	text:'Bounce:true, vertbar:false',
-	color:'#fff'
+	color:'#fff',
+	width:'auto',
+	height:'auto'
 });
 view1.add(l1)
 scrollView1.add(view1);
@@ -60,7 +62,9 @@ var view2 = Ti.UI.createView({
 
 var l2 = Ti.UI.createLabel({
 	text:'Bounce:true, horzbar:false',
-	color:'#fff'
+	color:'#fff',
+	width:'auto',
+	height:'auto'
 });
 view2.add(l2)
 scrollView2.add(view2);
@@ -95,7 +99,9 @@ var view3 = Ti.UI.createView({
 
 var l3 = Ti.UI.createLabel({
 	text:'bounce',
-	color:'#fff'
+	color:'#fff',
+	width:'auto',
+	height:'auto'
 });
 view3.add(l3)
 scrollView3.add(view3);
@@ -120,7 +126,7 @@ var scrollView4 = Titanium.UI.createScrollView({
 
 var view4 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:10,
+	borderRadius:150
 	width:150,
 	height:200,
 	top:10
@@ -128,7 +134,9 @@ var view4 = Ti.UI.createView({
 
 var l4 = Ti.UI.createLabel({
 	text:'bounce:false',
-	color:'#fff'
+	color:'#fff',
+	width:'auto',
+	height:'auto'
 });
 view4.add(l4)
 scrollView4.add(view4);

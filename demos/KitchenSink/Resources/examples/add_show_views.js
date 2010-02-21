@@ -60,7 +60,9 @@ var view2 = Titanium.UI.createView({
 });
 var l2 = Titanium.UI.createLabel({
 	color:'white',
-	text:'I am View 2'
+	text:'I am View 2',
+	width:'auto',
+	height:'auto'
 });
 win.addView(view2);
 view2.add(l2);
@@ -73,7 +75,9 @@ var view3 = Titanium.UI.createView({
 });
 var l3 = Titanium.UI.createLabel({
 	color:'white',
-	text:'I am View 3'
+	text:'I am View 3',
+	width:'auto',
+	height:'auto'
 });
 win.addView(view3);
 view3.add(l3);
@@ -86,7 +90,9 @@ var view4 = Titanium.UI.createView({
 });
 var l4 = Titanium.UI.createLabel({
 	color:'white',
-	text:'I am View 4'
+	text:'I am View 4',
+	width:'auto',
+	height:'auto'
 });
 win.addView(view4);
 view4.add(l4);

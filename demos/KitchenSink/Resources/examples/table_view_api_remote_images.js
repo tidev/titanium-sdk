@@ -12,7 +12,9 @@ for (c=0; c<10; c++)
 		shadowOffset:{x:0,y:1},
 		textAlign:'left',
 		left:130,
-		font:{fontWeight:'bold',fontSize:18}
+		font:{fontWeight:'bold',fontSize:18},
+		width:'auto',
+		height:'auto'
 	});
 	row.add(label);
 	

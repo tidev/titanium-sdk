@@ -46,7 +46,9 @@ var label = Titanium.UI.createLabel({
 	color:'#900',
 	shadowColor:'#555',
 	shadowOffset:{x:1,y:2},
-	textAlign:'center'
+	textAlign:'center',
+	width:'auto',
+	height:'auto'
 });
 
 
