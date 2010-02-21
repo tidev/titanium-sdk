@@ -10,7 +10,8 @@ var firstName = Titanium.UI.createLabel({
 	text:'First Name',
 	top:10,
 	left:30,
-	width:100
+	width:100,
+	height:'auto'
 });
 
 win.add(firstName);
@@ -34,7 +35,8 @@ var lastName = Titanium.UI.createLabel({
 	text:'Last Name',
 	top:75,
 	left:30,
-	width:100
+	width:100,
+	height:'auto'
 });
 
 win.add(lastName);
@@ -75,7 +77,9 @@ var messageView = Titanium.UI.createView({
 
 var messageLabel = Titanium.UI.createLabel({
 	color:'#fff',
-	text:'Register for a free toaster!'
+	text:'Register for a free toaster!',
+	height:'auto',
+	width:'auto'
 });
 
 messageView.add(messageLabel);

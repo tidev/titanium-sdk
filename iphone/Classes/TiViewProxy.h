@@ -11,6 +11,7 @@
 @interface TiViewProxy : TiProxy<LayoutAutosizing> 
 {
 @private
+	NSRecursiveLock *childLock;
 	NSMutableArray *children;
 	TiUIView *view;
 	TiProxy *parent;

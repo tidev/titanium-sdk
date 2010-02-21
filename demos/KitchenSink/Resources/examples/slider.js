@@ -12,7 +12,8 @@ var basicSliderLabel = Titanium.UI.createLabel({
 	},
 	textAlign:'center',
 	top:10,
-	width:300
+	width:300,
+	height:'auto'
 });
 
 var basicSlider = Titanium.UI.createSlider({
@@ -20,6 +21,7 @@ var basicSlider = Titanium.UI.createSlider({
 	max:10,
 	value:5,
 	width:100,
+	height:'auto',
 	top:30,
 	selectedThumbImage:'../images/slider_thumb.png',
 	highlightedThumbImage:'../images/chat.png'
@@ -41,7 +43,8 @@ var customSliderLabel = Titanium.UI.createLabel({
 	},
 	textAlign:'center',
 	top:70,
-	width:300
+	width:300,
+	height:'auto'
 });
 
 Titanium.UI.currentWindow.add(customSliderLabel);
@@ -199,7 +202,8 @@ titleButton.addEventListener('click', function()
 			min:0,
 			max:10,
 			value:5,
-			width:80
+			width:80,
+			height:'auto'
 		});
 		win.titleControl = titleSlider;
 		inTitle=true;
@@ -213,7 +217,7 @@ win.add(customSlider);
 win.add(changeButton);
 win.add(toggleButton);
 
-if (Titanium.Platform.name == 'iPhone OS')
+if (Titanium.Platform.osname == 'iphone')
 {
 	win.add(navbarButton);
 	win.add(toolbarButton);

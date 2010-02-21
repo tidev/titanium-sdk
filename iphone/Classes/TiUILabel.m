@@ -12,6 +12,13 @@
 
 #pragma mark Internal
 
+- (BOOL)interactionDefault
+{
+	// by default, labels don't have any interaction unless you explicitly add
+	// it via addEventListener
+	return NO;
+}
+
 -(CGSize)sizeForFont:(CGFloat)suggestedWidth
 {
 	NSString *value = [label text];

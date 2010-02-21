@@ -290,11 +290,16 @@
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 	NSLog(@"DESTROY: %@",self);
 #endif
-	// fire a notification event to our listeners
-	NSNotification *notification = [NSNotification notificationWithName:kKrollShutdownNotification object:self];
-	[[NSNotificationCenter defaultCenter] postNotification:notification];
-
-	[context stop];
+	
+	if (shutdown==NO)
+	{
+		shutdown = YES;
+		// fire a notification event to our listeners
+		NSNotification *notification = [NSNotification notificationWithName:kKrollShutdownNotification object:self];
+		[[NSNotificationCenter defaultCenter] postNotification:notification];
+		
+		[context stop];
+	}
 }
 
 -(void)gc
@@ -353,6 +358,13 @@
 
 -(void)willStopNewContext:(KrollContext*)kroll
 {
+	if (shutdown==NO)
+	{
+		shutdown = YES;
+		// fire a notification event to our listeners
+		NSNotification *notification = [NSNotification notificationWithName:kKrollShutdownNotification object:self];
+		[[NSNotificationCenter defaultCenter] postNotification:notification];
+	}
 	[titanium gc];
 	[host unregisterContext:self forToken:[kroll contextId]];
 }

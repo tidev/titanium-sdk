@@ -33,6 +33,7 @@
 	id transformMatrix;
 	BOOL childrenInitialized;
 	BOOL configured;
+	BOOL touchEnabled;
 
 	unsigned int zIndex;
 	unsigned int animationDelayGuard;
@@ -69,6 +70,7 @@
 -(void)didSendConfiguration;
 -(BOOL)viewConfigured;
 -(void)setVirtualParentTransform:(CGAffineTransform)newTransform;
+-(void)setTransform_:(id)matrix;
 
 -(void)performZIndexRepositioning;
 -(void)repositionZIndex;
@@ -86,5 +88,8 @@
 
 +(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
 -(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
+
+-(BOOL)interactionDefault;
+-(BOOL)hasTouchableListener;
 
 @end

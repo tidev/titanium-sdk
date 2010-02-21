@@ -83,6 +83,7 @@ DEFINE_EXCEPTIONS
 	virtualParentTransform = CGAffineTransformIdentity;
 	multipleTouches = NO;
 	twoFingerTapIsPossible = NO;
+	touchEnabled = YES;
 	BOOL touchEventsSupported = [self viewSupportsBaseTouchEvents];
 	handlesTaps = touchEventsSupported && [self proxyHasTapListener];
 	handlesTouches = touchEventsSupported && [self proxyHasTouchListener];
@@ -404,6 +405,11 @@ DEFINE_EXCEPTIONS
 	[self animate:arg];
 }
 
+-(void)setTouchEnabled_:(id)arg
+{
+	touchEnabled = [TiUtils boolValue:arg];
+}
+
 -(void)animate:(id)arg
 {
 	ENSURE_UI_THREAD(animate,arg);
@@ -552,13 +558,45 @@ return;\
 	}
 }
 
+- (BOOL)interactionDefault
+{
+	return YES;
+}
+
+- (BOOL)interactionEnabled
+{
+	if (touchEnabled)
+	{
+		// we allow the developer to turn off touch with this property but make the default the
+		// result of the internal method interactionDefault. some components (like labels) by default
+		// don't want or need interaction if not explicitly enabled through an addEventListener
+		return [self interactionDefault];
+	}
+	return NO;
+}
+
+- (BOOL)hasTouchableListener
+{
+	return (handlesSwipes|| handlesTaps || handlesTouches);
+}
+
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
 {
+	BOOL hasTouchListeners = [self hasTouchableListener];
+	
 	// delegate to our touch delegate if we're hit but it's not for us
-	if ((handlesSwipes|| handlesTaps || handlesTouches)==NO && 
-		touchDelegate!=nil)
+	if (hasTouchListeners==NO && touchDelegate!=nil)
 	{
 		return touchDelegate;
+	}
+	
+	// if we don't have any touch listeners, see if interaction should
+	// be handled at all.. NOTE: we don't turn off the views interactionEnabled
+	// property since we need special handling ourselves and if we turn it off
+	// on the view, we'd never get this event
+	if (hasTouchListeners == NO && [self interactionEnabled]==NO)
+	{
+		return nil;
 	}
 	
     return [super hitTest:point withEvent:event];

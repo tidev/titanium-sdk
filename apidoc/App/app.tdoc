@@ -37,11 +37,11 @@ fireEvent: fire an application-wide event
 id: the application's app id as specified in Titanium Developer
 url: the application url
 guid: the application's globally unique id (this is system generated and consistent through all versions)
-name: the appliation's name
+name: the application's name
 version: the application's version
 publisher: the application's publisher 
 description: the application's description
-copyright: the applicaiton's copyright
+copyright: the application's copyright
 
 Properties: the Titanium.App.Properties namespace.
 

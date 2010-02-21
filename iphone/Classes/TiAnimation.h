@@ -8,7 +8,7 @@
 #import "TiProxy.h"
 #import "TiPoint.h"
 #import "TiColor.h"
-#import "KrollCallback.h"
+#import "ListenerEntry.h"
 #import <QuartzCore/QuartzCore.h>
 
 @class TiViewProxy;
@@ -51,7 +51,7 @@
 	TiViewProxy	*view;
 
 	// this is a temporary function passed in
-	KrollCallback		*callback;
+	ListenerEntry *callback;
 	
 	NSObject<TiAnimationDelegate> *delegate;
 	

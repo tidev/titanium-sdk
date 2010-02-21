@@ -11,6 +11,7 @@
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 #import "LayoutConstraint.h"
+#import "KrollCallback.h"
 
 #ifdef DEBUG 
 	#define ANIMATION_DEBUG 0
@@ -106,7 +107,10 @@ self.p = v;\
 		SET_INT_PROP(transition,properties);
 		SET_PROXY_PROP(view,properties);
 		
-		callback = [callback_ retain];
+		if (context_!=nil)
+		{
+			callback = [[ListenerEntry alloc] initWithListener:callback_ context:context_ proxy:self type:nil];
+		}
 	}
 	return self;
 }
@@ -148,16 +152,6 @@ self.p = v;\
 	[super dealloc];
 }
 
-/*
--(void)setDelegate:(id)target selector:(SEL)selector_ withObject:(id)object
-{
-	RELEASE_TO_NIL(delegate);
-	RELEASE_TO_NIL(delegateContext);
-	delegate = [target retain];
-	selector = selector_;
-	delegateContext = [object retain];
-}*/
-
 +(TiAnimation*)animationFromArg:(id)args context:(id<TiEvaluator>)context create:(BOOL)yn
 {
 	id arg = nil;
@@ -184,12 +178,12 @@ self.p = v;\
 	if ([arg isKindOfClass:[NSDictionary class]])
 	{
 		NSDictionary *properties = arg;
-		KrollCallback *callback = nil;
+		KrollCallback *cb = nil;
 		
 		if (isArray && [args count] > 1)
 		{
-			callback = [args objectAtIndex:1];
-			ENSURE_TYPE(callback,KrollCallback);
+			cb = [[args objectAtIndex:1] retain];
+			ENSURE_TYPE(cb,KrollCallback);
 		}
 		
 		// old school animated type properties
@@ -197,13 +191,13 @@ self.p = v;\
 		{
 			float duration = [TiUtils floatValue:@"animationDuration" properties:properties def:1000];
 			UIViewAnimationTransition transition = [TiUtils intValue:@"animationStyle" properties:properties def:UIViewAnimationTransitionNone];
-			TiAnimation *animation = [[[TiAnimation alloc] initWithDictionary:properties context:context callback:callback] autorelease];
+			TiAnimation *animation = [[[TiAnimation alloc] initWithDictionary:properties context:context callback:cb] autorelease];
 			animation.duration = [NSNumber numberWithFloat:duration];
 			animation.transition = [NSNumber numberWithInt:transition];
 			return animation;
 		}
 		
-		return [[[TiAnimation alloc] initWithDictionary:properties context:context callback:callback] autorelease];
+		return [[[TiAnimation alloc] initWithDictionary:properties context:context callback:cb] autorelease];
 	}
 	
 	if (yn)
@@ -264,9 +258,9 @@ self.p = v;\
 		[self fireEvent:@"complete" withObject:nil];
 	}
 	
-	if (callback!=nil)
+	if (callback!=nil && [callback context]!=nil)
 	{
-		[self _fireEventToListener:@"animated" withObject:self listener:callback thisObject:nil];
+		[self _fireEventToListener:@"animated" withObject:self listener:[callback listener] thisObject:nil];
 	}
 	
 	// tell our view that we're done

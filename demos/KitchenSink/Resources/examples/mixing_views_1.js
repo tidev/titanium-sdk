@@ -4,7 +4,7 @@ var win = Titanium.UI.currentWindow;
 var html = '<html><body style=";color:#bbb;font-family:Helvetica Neue;text-align:center">';
 html += '<div style="font-size:20;font-weight:bold;">I am a web view</div>';
 html += '<div id="foo" style="font-size:14;font-weight:bold;">click me</div>';
-html += '<script>document.getElementById("foo").onclick = function()';
+html += '<script>document.getElementById("foo").ontouchstart = function()';
 html += '{Ti.App.fireEvent("webview_click")};</script>';
 html += '</body></html>'
 
@@ -24,7 +24,8 @@ var l1 = Titanium.UI.createLabel({
 	font:{fontSize:20},
 	top:90,
 	visible:false,
-	width:300
+	width:300,
+	height:'auto'
 });
 
 win.add(l1);

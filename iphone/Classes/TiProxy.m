@@ -385,7 +385,12 @@ static int tiProxyId = 0;
 		[[self _host] unregisterProxy:proxyId];
 		proxyId = nil;
 	}
-	[dynprops removeAllObjects];
+	if (dynprops!=nil)
+	{
+		[dynPropsLock lock];
+		[dynprops removeAllObjects];
+		[dynPropsLock unlock];
+	}
 	[listeners removeAllObjects];
 	RELEASE_TO_NIL(proxyId);
 	RELEASE_TO_NIL(dynprops);
@@ -393,6 +398,7 @@ static int tiProxyId = 0;
 	RELEASE_TO_NIL(baseURL);
 	RELEASE_TO_NIL(krollDescription);
 	RELEASE_TO_NIL(contextListeners);
+	RELEASE_TO_NIL(dynPropsLock);
 	pageContext=nil;
 	modelDelegate=nil;
 	[destroyLock unlock];
@@ -703,7 +709,9 @@ DEFINE_EXCEPTIONS
 	}
 	if (dynprops != nil)
 	{
+		[dynPropsLock lock];
 		id result = [dynprops objectForKey:key];
+		[dynPropsLock unlock];
 		// if we have a stored value as complex, just unwrap 
 		// it and return the internal value
 		if ([result isKindOfClass:[TiComplexValue class]])
@@ -726,6 +734,11 @@ DEFINE_EXCEPTIONS
 		value = [NSNull null];
 	}
 	id current = nil;
+	if (dynPropsLock==nil)
+	{
+		dynPropsLock = [[NSRecursiveLock alloc] init];
+	}
+	[dynPropsLock lock];
 	if (dynprops==nil)
 	{
 		dynprops = [[NSMutableDictionary alloc] init];
@@ -743,6 +756,7 @@ DEFINE_EXCEPTIONS
 	{
 		[dynprops setValue:value forKey:key];
 	}
+	[dynPropsLock unlock];
 	
 	if (notify && self.modelDelegate!=nil)
 	{
@@ -762,6 +776,11 @@ DEFINE_EXCEPTIONS
 	}
 	
 	id current = nil;
+	if (dynPropsLock==nil)
+	{
+		dynPropsLock = [[NSRecursiveLock alloc] init];
+	}
+	[dynPropsLock lock];
 	if (dynprops!=nil)
 	{
 		// hold it for this invocation since set may cause it to be deleted
@@ -773,7 +792,6 @@ DEFINE_EXCEPTIONS
 	}
 	else
 	{
-		//TODO: make this non-retaining?
 		dynprops = [[NSMutableDictionary alloc] init];
 	}
 
@@ -792,28 +810,20 @@ DEFINE_EXCEPTIONS
 	if (current!=value)
 	{
 		[dynprops setValue:propvalue forKey:key];
+		[dynPropsLock unlock];
 		if (self.modelDelegate!=nil)
 		{
 			[[(NSObject*)self.modelDelegate retain] autorelease];
 			[self.modelDelegate propertyChanged:key oldValue:current newValue:value proxy:self];
 		}
+		return; // so we don't unlock twice
 	}
+	[dynPropsLock unlock];
 }
 
 -(NSDictionary*)allProperties
 {
-	return dynprops;
-}
-
-#pragma mark KrollDynamicMethodProxy
-
--(id)resultForUndefinedMethod:(NSString*)name args:(NSArray*)args
-{
-	// by default, the base model class will just raise an exception
-	NSString *msg = [NSString stringWithFormat:@"method named '%@' not supported against %@",name,self];
-	NSLog(@"[WARN] %@",msg);
-	[self throwException:msg subreason:nil location:CODELOCATION];
-	return nil;
+	return [[dynprops copy] autorelease];
 }
 
 #pragma mark Memory Management
