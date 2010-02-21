@@ -21,7 +21,8 @@ var l = Titanium.UI.createLabel({
 	textAlign:'center',
 	bottom:100,
 	color:'#336699',
-	font:{fontSize:13}
+	font:{fontSize:13},
+	height:'auto'
 });
 win.add(l);
 

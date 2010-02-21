@@ -6,7 +6,8 @@ var x = Titanium.UI.createLabel({
 	left:10,
 	font:{fontSize:14},
 	color:'#555',
-	width:300
+	width:300,
+	height:'auto'
 });
 win.add(x);
 
@@ -16,7 +17,9 @@ var y = Titanium.UI.createLabel({
 	left:10,
 	font:{fontSize:14},
 	color:'#555',
-	width:300
+	width:300,
+	height:'auto'
+	
 });
 win.add(y);
 
@@ -26,7 +29,9 @@ var z = Titanium.UI.createLabel({
 	left:10,
 	font:{fontSize:14},
 	color:'#555',
-	width:300
+	width:300,
+	height:'auto'
+	
 });
 win.add(z);
 
@@ -36,7 +41,9 @@ var ts = Titanium.UI.createLabel({
 	left:10,
 	font:{fontSize:14},
 	color:'#555',
-	width:300
+	width:300,
+	height:'auto'
+	
 });
 win.add(ts);
 

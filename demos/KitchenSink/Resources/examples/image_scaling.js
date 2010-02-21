@@ -93,7 +93,9 @@ image3.addEventListener('click', function()
 var label = Titanium.UI.createLabel({
 	text:'Click images to toggle scale',
 	color:'#fff',
-	bottom:20
+	bottom:20,
+	height:20,
+	textAlign:'center'
 });
 
 win.add(label);

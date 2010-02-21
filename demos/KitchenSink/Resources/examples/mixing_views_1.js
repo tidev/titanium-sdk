@@ -24,7 +24,8 @@ var l1 = Titanium.UI.createLabel({
 	font:{fontSize:20},
 	top:90,
 	visible:false,
-	width:300
+	width:300,
+	height:'auto'
 });
 
 win.add(l1);

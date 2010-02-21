@@ -33,8 +33,10 @@ tableView.addEventListener('click', function(e)
 	{
 		case 'Insert Row Above (no anim)':
 		{
-			var data = {title:'New First Row'};
-			tableView.insertRowBefore(0,data);				
+			var row = Ti.UI.createTableViewRow();
+			var label = Ti.UI.createLabel({text:'New Row Object Row'});
+			row.add(label)
+			tableView.insertRowBefore(0,row);				
 			break;
 		}
 		case 'Insert Row Below - 1':

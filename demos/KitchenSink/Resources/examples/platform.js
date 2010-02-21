@@ -42,7 +42,8 @@ var l1 = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 	
 });
 
@@ -54,7 +55,8 @@ var l2 = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 	
 });
 
@@ -66,7 +68,8 @@ var l3 = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 	
 });
 
@@ -78,7 +81,8 @@ var l4 = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 	
 });
 
@@ -90,7 +94,8 @@ var l5 = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 });
 
 win.add(l5);
@@ -101,7 +106,8 @@ var l6 = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 	
 });
 
@@ -114,7 +120,8 @@ var l7 = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 	
 });
 
@@ -126,7 +133,8 @@ var l8 = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 	
 });
 
@@ -138,7 +146,8 @@ var l9 = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 	
 });
 
@@ -150,7 +159,8 @@ var l11 = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 	
 });
 
@@ -162,7 +172,8 @@ var l12 = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 });
 
 win.add(l12);
@@ -173,7 +184,8 @@ var l13 = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 	
 });
 
@@ -185,7 +197,8 @@ var l14 = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 	
 });
 
@@ -197,7 +210,8 @@ var l15 = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 	
 });
 
@@ -209,7 +223,8 @@ var l16 = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 	
 });
 
@@ -221,7 +236,8 @@ var l17 = Titanium.UI.createLabel({
 	left:10,
 	width:300,
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 	
 });
 

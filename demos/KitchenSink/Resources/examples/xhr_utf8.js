@@ -16,7 +16,7 @@ var l2 = Titanium.UI.createLabel({
 	top:40,
 	left:10,
 	width:300,
-	height:55,
+	height:'auto',
 	color:'#888'
 });
 win.add(l2);
@@ -37,7 +37,7 @@ var l4 = Titanium.UI.createLabel({
 	top:150,
 	left:10,
 	width:300,
-	height:55,
+	height:'auto',
 	color:'#888'
 });
 win.add(l4);
@@ -58,7 +58,7 @@ var l6 = Titanium.UI.createLabel({
 	top:260,
 	left:10,
 	width:300,
-	height:55,
+	height:'auto',
 	color:'#888'
 });
 win.add(l6);

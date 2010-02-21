@@ -12,7 +12,8 @@ var basicSliderLabel = Titanium.UI.createLabel({
 	},
 	textAlign:'center',
 	top:10,
-	width:300
+	width:300,
+	height:'auto'
 });
 
 var basicSlider = Titanium.UI.createSlider({
@@ -41,7 +42,8 @@ var customSliderLabel = Titanium.UI.createLabel({
 	},
 	textAlign:'center',
 	top:70,
-	width:300
+	width:300,
+	height:'auto'
 });
 
 Titanium.UI.currentWindow.add(customSliderLabel);

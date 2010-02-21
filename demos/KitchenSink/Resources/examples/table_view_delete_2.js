@@ -33,7 +33,7 @@ tableview.addEventListener('delete',function(e)
 	var s = e.section;
 	Ti.API.info('rows ' + s.rows + ' rowCount ' + s.rowCount + ' headerTitle ' + s.headerTitle);
 
-	Titanium.API.info("deleted - row="+e.row+", index="+e.index+", section="+e.section + ' table view row length = ' + tableview.data.length);
+	Titanium.API.info("deleted - row="+e.row+", index="+e.index+", section="+e.section);
 });
 
 // add table view to the window

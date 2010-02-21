@@ -1,14 +1,14 @@
 <html>
 <script>
 
-Ti.API.log("debug","1. webview: this should go to DEBUG log");
-Ti.API.debug("2. webview: this should not crash. double backslashes: \\\\");
-Ti.API.debug("3. webview: this should not crash. carriage returns \n\r");
-Ti.API.debug("4. webview: this should not crash. forward slashes: //");
-Ti.API.debug("5. webview: this should not crash. urls! http://www.appcelerator.com/?foo=bar&t=1^");
+Ti.API.debug("info","1. webview: this should go to DEBUG log");
+Ti.API.info("2. webview: this should not crash. double backslashes: \\\\");
+Ti.API.info("3. webview: this should not crash. carriage returns \n\r");
+Ti.API.info("4. webview: this should not crash. forward slashes: //");
+Ti.API.info("5. webview: this should not crash. urls! http://www.appcelerator.com/?foo=bar&t=1^");
 Titanium.API.info("6. webview:Welcome  餵 こんにちは 안녕하세요 Привет Γειά हैलो สวัสดี שלום");
 Titanium.API.info("7. webview:Testing various unicode encodings: ⓼ ⑆ ش Ⴔ € ぇ ⌘ ᚎ ᑺ ༀ Җ ℥ \"'\" ?");
-Ti.API.debug("8. webview: this should not crash. kanji: ド標準第5版の刊行を大いに");
+Ti.API.info("8. webview: this should not crash. kanji: ド標準第5版の刊行を大いに");
 
 // TEST for backslash encoding issue over the bridge
 Titanium.API.info("9. webview:Testing Backslash => {\\}");
