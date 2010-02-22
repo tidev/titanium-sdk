@@ -25,12 +25,12 @@ Titanium.UI.currentWindow.add(tableview);
 var consumerKey = 'dj0yJmk9VWFyZkNSWktpY3h3JmQ9WVdrOVNqWk5Nazl2TXpBbWNHbzlNVGc0TWpNNE9ERXhOZy0tJnM9Y29uc3VtZXJzZWNyZXQmeD04MQ--';
 var sharedSecret = '13631ad61af05628c28fc38e7226442398d0a4c2';
 Titanium.Yahoo.setOAuthParameters(consumerKey,sharedSecret);
-			
-Titanium.Yahoo.yql("select * from flickr.photos.interestingness(75)",function(e)
+//select * from flickr.photos.search where text="Cat" limit 10
+//			
+Titanium.Yahoo.yql('select * from flickr.photos.search where text="Cat" limit 10',function(e)
 {
 	var images = [];
 	var data = e.data;
-//	Ti.API.info("data = "+JSON.stringify(data));
 	for (var c=0;c<data.photo.length;c++)
 	{
 		var photo = data.photo[c];

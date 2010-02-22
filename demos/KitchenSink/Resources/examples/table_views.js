@@ -25,6 +25,8 @@ var data = [
 	{title:'Table API Basic', hasChild:true, test:'../examples/table_view_api_basic.js', header:'New Programmatic API'},
 	{title:'Table Grouped View', hasChild:true, test:'../examples/table_view_api_grouped.js'},
 	{title:'Table with Controls', hasChild:true, test:'../examples/table_view_api_controls.js'},
+	{title:'Table with Controls 2', hasChild:true, test:'../examples/table_view_controls_2.js'},
+
 	{title:'Table Auto Height', hasChild:true, test:'../examples/table_view_api_auto_height.js'},
 	{title:'Table Search', hasChild:true, test:'../examples/table_view_api_search.js'},
 	{title:'Table Custom Header', hasChild:true, test:'../examples/table_view_api_custom_header.js'},
