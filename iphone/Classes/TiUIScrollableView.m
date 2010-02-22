@@ -74,7 +74,7 @@
 {
 	if (scrollview==nil)
 	{
-		scrollview = [[UIScrollView alloc] initWithFrame:[self frame]];
+		scrollview = [[UIScrollView alloc] initWithFrame:[self bounds]];
 		[scrollview setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 		[scrollview setPagingEnabled:YES];
 		[scrollview setDelegate:self];
@@ -100,23 +100,33 @@
 -(void)renderViewForIndex:(int)index
 {
 	UIScrollView *sv = [self scrollview];
-	if ([[sv subviews] count] > 0)
+	NSArray * svSubviews = [sv subviews];
+	int svSubviewsCount = [svSubviews count];
+
+	if ((index < 0) || (index >= svSubviewsCount))
 	{
-		UIView *wrapper = [[sv subviews] objectAtIndex:index];
-		if ([[wrapper subviews] count]==0)
-		{
-			// we need to realize this view
-			TiViewProxy *viewproxy = [views objectAtIndex:index];
-			TiUIView *uiview = [viewproxy view];
-			[wrapper addSubview:uiview];
-			[uiview reposition];
-			[viewproxy layoutChildren:[uiview bounds]];
-		}
+		return;
+	}
+
+	UIView *wrapper = [[sv subviews] objectAtIndex:index];
+	if ([[wrapper subviews] count]==0)
+	{
+		// we need to realize this view
+		TiViewProxy *viewproxy = [views objectAtIndex:index];
+		TiUIView *uiview = [viewproxy view];
+		[wrapper addSubview:uiview];
+		[uiview reposition];
+		[viewproxy layoutChildren:[uiview bounds]];
 	}
 }
 
 -(void)loadNextFrames:(BOOL)forward
 {
+	[self renderViewForIndex:currentPage-1];
+	[self renderViewForIndex:currentPage];
+	[self renderViewForIndex:currentPage+1];
+	
+
 	// determine if we're going forward or reverse should determine
 	// the next set of frames we'll load
 	
@@ -168,7 +178,7 @@
 	
 	[self refreshPageControl];
 	
-	if (readd && [[sv subviews] count] > 0)
+	if (readd)
 	{
 		for (UIView *view in [sv subviews])
 		{
@@ -208,6 +218,11 @@
 		[self loadNextFrames:true];
 	}
 	
+	if (readd)
+	{
+		[self renderViewForIndex:currentPage];
+	}
+	
 	CGRect contentBounds;
 	contentBounds.origin.x = viewBounds.origin.x;
 	contentBounds.origin.y = viewBounds.origin.y;
@@ -243,21 +258,22 @@
 	}
 	RELEASE_TO_NIL(views);
 	views = [args retain];
-	// set the parent so we can propagate events
-	for (TiViewProxy *viewproxy in views)
-	{
-		[viewproxy setParent:self.parent];
-	}
+//	// set the parent so we can propagate events
+//	for (TiViewProxy *viewproxy in views)
+//	{
+//		[viewproxy setParent:self.parent];
+//	}
+//	if (showPageControl)
+//	{
+//		[[self pagecontrol] setCurrentPage:0];
+//	}
+//	currentPage = 0;
+//	[self.proxy replaceValue:NUMINT(0) forKey:@"currentPage" notification:NO];
+
 	if (refresh)
 	{
-		[self refreshScrollView:[self frame] readd:YES];
+		[self refreshScrollView:[self bounds] readd:YES];
 	}
-	if (showPageControl)
-	{
-		[[self pagecontrol] setCurrentPage:0];
-	}
-	currentPage = 0;
-	[self.proxy replaceValue:NUMINT(0) forKey:@"currentPage" notification:NO];
 	
 	for (int c=0;c<MIN(3,[views count]);c++)
 	{
@@ -353,7 +369,7 @@
 	ENSURE_SINGLE_ARG(viewproxy,TiProxy);
 	[viewproxy setParent:self.parent];
 	[views addObject:viewproxy];
-	[self refreshScrollView:[self frame] readd:YES];
+	[self refreshScrollView:[self bounds] readd:YES];
 }
 
 -(void)removeView:(id)args
@@ -369,7 +385,7 @@
 		TiViewProxy *viewproxy = [views objectAtIndex:pageNum];
 		[viewproxy setParent:nil];
 		[views removeObjectAtIndex:pageNum];
-		[self refreshScrollView:[self frame] readd:YES];
+		[self refreshScrollView:[self bounds] readd:YES];
 	}
 }
 
@@ -450,7 +466,7 @@
     CGFloat pageWidth = scrollview.frame.size.width;
     int page = floor((scrollview.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
     pageControl.currentPage = page;
-	[self renderViewForIndex:page];
+	[self loadNextFrames:YES];
 }
 
 -(void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
