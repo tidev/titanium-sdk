@@ -112,4 +112,10 @@ public class KrollMethod extends KrollObject implements Function
 	public Scriptable construct(Context cx, Scriptable scope, Object[] args) {
 		return null;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		KrollMethod km = (KrollMethod) obj;
+		return method.equals(km.method);
+	}
 }

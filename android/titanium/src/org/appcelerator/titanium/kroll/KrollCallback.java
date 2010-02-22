@@ -29,20 +29,20 @@ public class KrollCallback
 		if (data == null) {
 			data = new TiDict();
 		}
-		
+
 		call(new Object[] { data });
 	}
-	
+
 	public void call()
 	{
 		call(new Object[0]);
 	}
-	
+
 	public void call(Object[] args)
 	{
 		if (args == null) args = new Object[0];
 		final Object[] fArgs = args;
-		
+
 		kroll.post(new Runnable(){
 			public void run() {
 				Context ctx = kroll.enter();
@@ -62,5 +62,12 @@ public class KrollCallback
 				}
 			}
 		});
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		KrollCallback kb = (KrollCallback) obj;
+		return method.equals(kb.method);
 	}
 }

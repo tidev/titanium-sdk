@@ -35,6 +35,10 @@ public class TiSensorHelper
 		return sensorManager;
 	}
 
+	public boolean isEmpty() {
+		return listenerCount.get() == 0;
+	}
+
 	public boolean attach(Activity activity) {
 		if (! Build.MODEL.equals("sdk"))
 		{
