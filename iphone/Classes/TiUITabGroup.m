@@ -87,7 +87,6 @@ DEFINE_EXCEPTIONS
 	focused = [newFocus retain];
 	[self.proxy replaceValue:focused forKey:@"activeTab" notification:NO];
 
-
 	if ([self.proxy _hasListeners:@"focus"])
 	{
 		[self.proxy fireEvent:@"focus" withObject:event];
@@ -107,35 +106,44 @@ DEFINE_EXCEPTIONS
 	int stackHeight = [moreViewControllerStack count];
 	if (stackHeight > 1)
 	{
-		TiUITabProxy * newFocus = [[moreViewControllerStack objectAtIndex:1] tab];
-		[newFocus handleWillShowViewController:viewController];
+		UIViewController * rootController = [moreViewControllerStack objectAtIndex:1];
+		if ([rootController respondsToSelector:@selector(tab)])
+		{
+			[[rootController tab] handleWillShowViewController:viewController];
+		}
 	}
 }
 
 
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-//	if (navigationController == [[navigationController tabBarController] selectedViewController])
-//	{
-//		return;
-//	}
-
 	NSArray * moreViewControllerStack = [navigationController viewControllers];
 	int stackHeight = [moreViewControllerStack count];
+	if (stackHeight < 2) //No more faux roots.
+	{
+		if (focused != nil)
+		{
+			[self tabFocusChangeToProxy:nil];
+		}
+		return;
+	}
+
+	UIViewController * rootController = [moreViewControllerStack objectAtIndex:1];
+	if (![rootController respondsToSelector:@selector(tab)])
+	{
+		return;
+	}
+	
+	TiUITabProxy * tabProxy = [rootController tab];
 	if (stackHeight == 2)	//One for the picker, one for the faux root.
 	{
-		TiUITabProxy * newFocus = [[moreViewControllerStack objectAtIndex:1] tab];
-		if (newFocus != focused)
+		if (tabProxy != focused)
 		{
-			[self tabFocusChangeToProxy:newFocus];
+			[self tabFocusChangeToProxy:tabProxy];
 		}
 	}
 
-	if(stackHeight > 2)
-	{
-		TiUITabProxy * tabProxy = [[moreViewControllerStack objectAtIndex:1] tab];
-		[tabProxy handleDidShowViewController:viewController];
-	}
+	[tabProxy handleDidShowViewController:viewController];
 }
 
 #pragma mark TabBarController Delegates

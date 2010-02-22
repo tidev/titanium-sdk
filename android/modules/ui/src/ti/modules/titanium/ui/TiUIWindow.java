@@ -44,7 +44,7 @@ public class TiUIWindow extends TiUIView
 
 	private static final int MSG_ANIMATE = 100;
 
-	private static final String[] NEW_ACTIVITY_REQUIRED_KEYS = { "fullscreen", "navBarHidden"};
+	private static final String[] NEW_ACTIVITY_REQUIRED_KEYS = { "fullscreen", "navBarHidden", "modal"};
 
 	protected String activityKey;
 	protected Activity windowActivity;
@@ -402,6 +402,10 @@ public class TiUIWindow extends TiUIView
 		props = resolver.findProperty("navBarHidden");
 		if (props != null && props.containsKey("navBarHidden")) {
 			intent.putExtra("navBarHidden", TiConvert.toBoolean(props, "navBarHidden"));
+		}
+		props = resolver.findProperty("modal");
+		if (props != null && props.containsKey("modal")) {
+			intent.putExtra("modal", TiConvert.toBoolean(props, "modal"));
 		}
 		props = resolver.findProperty("url");
 		if (props != null && props.containsKey("url")) {

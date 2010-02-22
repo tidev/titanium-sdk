@@ -36,7 +36,7 @@ b2.addEventListener('click', function()
 
 	Titanium.Facebook.publishStream("Set your status",null,null,function(r)
 	{
-		Titanium.API.info("received status response = "+Titanium._JSON(r));
+		Titanium.API.info("received status response = "+JSON.stringify(r));
 		if (r.success)
 		{
 			Ti.UI.createAlertDialog({title:'Facebook', message:'Your status was published'}).show();
@@ -83,7 +83,7 @@ b1.addEventListener('click', function()
 	};
 	Titanium.Facebook.publishStream("Say something witty",data,null,function(r)
 	{
-		Titanium.API.info("received publish stream response = "+Titanium._JSON(r));
+		Titanium.API.info("received publish stream response = "+JSON.stringify(r));
 		if (r.success)
 		{
 			Ti.UI.createAlertDialog({title:'Facebook', message:'Your stream was published'}).show();

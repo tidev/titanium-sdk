@@ -27,13 +27,6 @@
 	[TiUtils setView:button positionRect:bounds];
 }
 
--(BOOL)viewSupportsBaseTouchEvents
-{
-	// since we need to control enabled events and click events, we turn off base
-	// class event handling
-	return NO;
-}
-
 -(void)clicked:(id)event
 {
 	if ([self.proxy _hasListeners:@"click"])

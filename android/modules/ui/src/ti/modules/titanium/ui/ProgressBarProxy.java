@@ -4,6 +4,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.widget.TiUIProgressBar;
 import android.app.Activity;
 
 public class ProgressBarProxy extends TiViewProxy {
@@ -14,6 +15,6 @@ public class ProgressBarProxy extends TiViewProxy {
 
 	@Override
 	public TiUIView createView(Activity activity) {
-		return null;
+		return new TiUIProgressBar(this);
 	}
 }

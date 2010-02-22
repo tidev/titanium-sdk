@@ -379,10 +379,11 @@ public class TiMapView extends TiUIView
 			doUserLocation(d.getBoolean("userLocation"));
 		}
 		if (d.containsKey("annotations")) {
-			TiProxy[] ps = (TiProxy[]) d.get("annotations");
-			TiDict[] anns = new TiDict[ps.length];
-			for(int i = 0; i < ps.length; i++) {
-				anns[i] = ps[i].getDynamicProperties();
+			Object[] annotations = (Object[]) d.get("annotations");
+			TiDict[] anns = new TiDict[annotations.length];
+			for(int i = 0; i < annotations.length; i++) {
+				AnnotationProxy ap = (AnnotationProxy) annotations[i];
+				anns[i] = ap.getDynamicProperties();
 			}
 			doSetAnnotations(anns);
 		}

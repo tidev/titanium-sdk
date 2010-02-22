@@ -22,6 +22,7 @@ public class ViewProxy extends TiViewProxy
 		super(tiContext, args);
 
 		tiContext.addOnEventChangeListener(this);
+		tiContext.addOnLifecycleEventListener(this);
 	}
 
 	@Override
@@ -46,6 +47,8 @@ public class ViewProxy extends TiViewProxy
 		if (lam != null) {
 			lam.dispatchDestroy(true);
 		}
+		lam.destroyActivity("TIMAP", true);
+		mapWindow = null;
 	}
 
 	public void onPause() {

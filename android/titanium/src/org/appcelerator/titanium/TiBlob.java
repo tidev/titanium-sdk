@@ -93,6 +93,36 @@ public class TiBlob extends TiProxy
 
 		return bytes;
 	}
+	
+	public void append(TiBlob blob) {
+		switch(type) {
+			case TYPE_STRING :
+				try {
+					String dataString = (String)data;
+					dataString += new String(blob.getBytes(), "utf-8");
+				} catch (UnsupportedEncodingException e) {
+					Log.w(LCAT, e.getMessage(), e);
+				}
+				break;
+			case TYPE_DATA :
+				byte[] dataBytes = (byte[]) data;
+				byte[] appendBytes = blob.getBytes();
+				byte[] newData = new byte[dataBytes.length + appendBytes.length];
+				System.arraycopy(dataBytes, 0, newData, 0, dataBytes.length);
+				System.arraycopy(appendBytes, 0, newData, dataBytes.length, appendBytes.length);
+				
+				data = newData;
+				break;
+			case TYPE_FILE :
+				throw new IllegalStateException("Not yet implemented. TYPE_FILE");
+				//break;
+			case TYPE_IMAGE :
+				throw new IllegalStateException("Not yet implemented TYPE_IMAGE");
+				// break;
+			default :
+				throw new IllegalArgumentException("Unknown Blob type id " + type);
+		}
+	}
 
 	public String getMimeType() {
 		return mimetype;

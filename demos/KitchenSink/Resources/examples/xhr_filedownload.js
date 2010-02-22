@@ -88,3 +88,20 @@ b2.addEventListener('click', function()
 	
 });
 win.add(b2);
+
+var abort = Titanium.UI.createButton({
+	title:'Abort',
+	height:40,
+	width:200,
+	top:170
+});
+win.add(abort);
+abort.addEventListener('click', function()
+{
+	c.abort();
+	
+	alert("request aborted");
+	
+	c = Titanium.Network.createHTTPClient();
+	ind.value = 0;
+});
