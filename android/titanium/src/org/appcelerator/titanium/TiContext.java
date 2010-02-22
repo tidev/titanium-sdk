@@ -269,7 +269,7 @@ public class TiContext implements TiEvaluator
 	public void fireEvent() {
 		// TODO Auto-generated method stub
 	}
-	
+
 	public void bindToToplevel(String topLevelName, String[] objectName) {
 		getJSContext().bindToToplevel(topLevelName, objectName);
 	}
@@ -372,10 +372,13 @@ public class TiContext implements TiEvaluator
 				boolean removed = false;
 				for (Entry<Integer, TiListener> entry : listeners.entrySet())
 				{
-					if (entry.getValue().listener == listener)
+					Object l = entry.getValue().listener;
+					if (l.equals(listener))
 					{
+						listeners.remove(entry.getKey());
 						dispatchOnEventChange(false, eventName, listeners.size(), entry.getValue().weakTiProxy.get());
 						removed = true;
+						break;
 					}
 				}
 				if (!removed) {
