@@ -22,7 +22,7 @@
 
 @synthesize delegate;
 @synthesize zIndex, left, right, top, bottom, width, height;
-@synthesize duration, center, backgroundColor, opacity, opaque, view;
+@synthesize duration, center, backgroundColor, color, opacity, opaque, view;
 @synthesize visible, curve, repeat, autoreverse, delay, transform, transition;
 
 -(id)initWithDictionary:(NSDictionary*)properties context:(id<TiEvaluator>)context_ callback:(KrollCallback*)callback_
@@ -103,6 +103,7 @@ self.p = v;\
 		SET_BOOL_PROP(autoreverse,properties);
 		SET_POINT_PROP(center,properties);
 		SET_COLOR_PROP(backgroundColor,properties);
+		SET_COLOR_PROP(color,properties);
 		SET_ID_PROP(transform,properties);
 		SET_INT_PROP(transition,properties);
 		SET_PROXY_PROP(view,properties);
@@ -135,6 +136,7 @@ self.p = v;\
 	RELEASE_TO_NIL(height);
 	RELEASE_TO_NIL(duration);
 	RELEASE_TO_NIL(center);
+	RELEASE_TO_NIL(color);
 	RELEASE_TO_NIL(backgroundColor);
 	RELEASE_TO_NIL(opacity);
 	RELEASE_TO_NIL(opaque);
@@ -445,8 +447,13 @@ self.p = v;\
 	
 	if (backgroundColor!=nil)
 	{
-		TiColor *color = [TiUtils colorValue:backgroundColor];
-		[view_ setBackgroundColor:[color _color]];
+		TiColor *color_ = [TiUtils colorValue:backgroundColor];
+		[view_ setBackgroundColor:[color_ _color]];
+	}
+	
+	if (color!=nil && [view_ respondsToSelector:@selector(setColor_:)])
+	{
+		[view_ performSelector:@selector(setColor_:) withObject:color];
 	}
 	
 	if (opacity!=nil)

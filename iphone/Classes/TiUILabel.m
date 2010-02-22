@@ -23,7 +23,7 @@
 {
 	NSString *value = [label text];
 	UIFont *font = [label font];
-	CGSize maxSize = CGSizeMake(suggestedWidth, 1000);
+	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 1000);
 	requiresLayout = YES;
 	return [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
 }

@@ -309,7 +309,11 @@ DEFINE_EXCEPTIONS
 	}
 	else if ([transformMatrix isKindOfClass:[Ti3DMatrix class]])
 	{
-		self.layer.transform = [(Ti3DMatrix*)transformMatrix matrix];
+		self.layer.transform = CATransform3DConcat(CATransform3DMakeAffineTransform(virtualParentTransform),[(Ti3DMatrix*)transformMatrix matrix]);
+	}
+	else
+	{
+		self.transform = virtualParentTransform;
 	}
 }
 
