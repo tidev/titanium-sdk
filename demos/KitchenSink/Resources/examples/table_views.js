@@ -39,14 +39,19 @@ var data = [
 ];
 
 // create table view
-var tableview = Titanium.UI.createTableView({
-	data:data,
-	style:Titanium.UI.iPhone.TableViewStyle.GROUPED,
-	headerTitle:'TableView examples and test cases',
-	footerTitle:"Wow. That was cool!",
-	backgroundColor: '#aebcad',
-	_backgroundImage:'../images/bg.png'
-});
+var tableViewOptions = {
+		data:data,
+		style:Titanium.UI.iPhone.TableViewStyle.GROUPED,
+		headerTitle:'TableView examples and test cases',
+		footerTitle:"Wow. That was cool!",
+		backgroundColor: '#aebcad',
+		_backgroundImage:'../images/bg.png'
+	};
+if (Ti.Platform.name == 'android') {
+	tableViewOptions.backgroundColor = '#4e5c4d';
+}
+
+var tableview = Titanium.UI.createTableView(tableViewOptions);
 
 // create table view event listener
 tableview.addEventListener('click', function(e)
