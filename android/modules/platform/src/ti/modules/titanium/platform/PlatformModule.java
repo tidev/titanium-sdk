@@ -336,10 +336,10 @@ public class PlatformModule extends TiModule
 	{
 		super.onResume();
 
-		if (DBG) {
-			Log.i(LCAT, "Reregistering battery changed receiver");
-		}
 		if (batteryStateReceiver != null) {
+			if (DBG) {
+				Log.i(LCAT, "Reregistering battery changed receiver");
+			}
 			registerBatteryReceiver(batteryStateReceiver);
 		}
 	}
