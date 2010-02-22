@@ -204,8 +204,18 @@ DEFINE_EXCEPTIONS
 
 -(void)performZIndexRepositioning
 {
+	if ([[self subviews] count] == 0)
+	{
+		return;
+	}
+	
+	if (![NSThread isMainThread])
+	{
+		[self performSelectorOnMainThread:@selector(performZIndexRepositioning) withObject:nil waitUntilDone:NO];
+		return;
+	}
+	
 	// sort by zindex
-	/*
 	NSArray *children = [[NSArray arrayWithArray:[self subviews]] sortedArrayUsingFunction:zindexSort context:NULL];
 						 
 	// re-configure all the views by zindex order
@@ -215,7 +225,7 @@ DEFINE_EXCEPTIONS
 		[child removeFromSuperview];
 		[self addSubview:child];
 		[child release];
-	}*/
+	}
 }
 
 -(unsigned int)zIndex
@@ -225,7 +235,11 @@ DEFINE_EXCEPTIONS
 
 -(void)repositionZIndex
 {
-	[[parent view] performZIndexRepositioning];
+	if (parent!=nil && [parent viewAttached])
+	{
+		TiUIView *parentView = [parent view];
+		[parentView performZIndexRepositioning];
+	}
 }
 
 -(BOOL)animationFromArgument:(id)args

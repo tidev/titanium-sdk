@@ -411,38 +411,41 @@ self.p = v;\
 		
 		[(TiUIView *)view_ setTransform_:transform];
 	}
-	else 
+	
+	if ([view_ isKindOfClass:[TiUIView class]])
 	{
-		if ([view_ isKindOfClass:[TiUIView class]])
-		{
-			TiUIView *uiview = (TiUIView*)view_;
-			LayoutConstraint *layout = [uiview layout];
-			BOOL doReposition = NO;
-			
-	#define CHECK_LAYOUT_CHANGE(a) \
-	if (a!=nil && layout!=NULL) \
-	{\
-			layout->a = TiDimensionFromObject(a); \
-			doReposition = YES;\
-	}\
+		TiUIView *uiview = (TiUIView*)view_;
+		LayoutConstraint *layout = [uiview layout];
+		BOOL doReposition = NO;
 		
-			CHECK_LAYOUT_CHANGE(left);
-			CHECK_LAYOUT_CHANGE(right);
-			CHECK_LAYOUT_CHANGE(width);
-			CHECK_LAYOUT_CHANGE(height);
-			CHECK_LAYOUT_CHANGE(top);
-			CHECK_LAYOUT_CHANGE(bottom);
-			
-			if (doReposition)
-			{
-				[uiview reposition];
-			}
+#define CHECK_LAYOUT_CHANGE(a) \
+if (a!=nil && layout!=NULL) \
+{\
+		layout->a = TiDimensionFromObject(a); \
+		doReposition = YES;\
+}\
+	
+		CHECK_LAYOUT_CHANGE(left);
+		CHECK_LAYOUT_CHANGE(right);
+		CHECK_LAYOUT_CHANGE(width);
+		CHECK_LAYOUT_CHANGE(height);
+		CHECK_LAYOUT_CHANGE(top);
+		CHECK_LAYOUT_CHANGE(bottom);
+
+		if (zIndex!=nil)
+		{
+			[uiview performSelector:@selector(setZIndex_:) withObject:zIndex];
 		}
 		
-		if (center!=nil)
+		if (doReposition)
 		{
-			view_.center = [center point];
+			[uiview reposition];
 		}
+	}
+		
+	if (center!=nil)
+	{
+		view_.center = [center point];
 	}
 	
 	if (backgroundColor!=nil)

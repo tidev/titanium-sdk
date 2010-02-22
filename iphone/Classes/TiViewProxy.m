@@ -100,6 +100,11 @@
 	}
 }
 
+-(TiPoint*)center
+{
+	return [[[TiPoint alloc] initWithPoint:[self view].center] autorelease];
+}
+
 -(void)show:(id)arg
 {
 	//TODO: animate
@@ -138,9 +143,13 @@
 
 #pragma mark View
 
--(void)setParent:(TiProxy*)parent_
+-(void)setParent:(TiViewProxy*)parent_
 {
 	parent = parent_;
+	if (view!=nil)
+	{
+		[view setParent:parent_];
+	}
 }
 
 -(void)animationCompleted:(TiAnimation*)animation
@@ -298,7 +307,7 @@
 		// on open we need to create a new view
 		view = [self newView];
 		view.proxy = self;
-		view.parent = self;
+		view.parent = parent;
 		view.layer.transform = CATransform3DIdentity;
 		view.transform = CGAffineTransformIdentity;
 
@@ -319,7 +328,7 @@
 			for (id child in self.children)
 			{
 				TiUIView *childView = [(TiViewProxy*)child view];
-				[childView setParent:self];
+				//[childView setParent:self];
 				[view addSubview:childView];
 			}
 			[childLock unlock];
