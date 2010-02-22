@@ -274,7 +274,9 @@ var l = Titanium.UI.createLabel({
 	text:'Click buttons to toggle properties',
 	left:10,
 	top:305,
-	color:'#777'
+	color:'#777',
+	width:'auto',
+	height:'auto'
 });
 
 win.add(l);

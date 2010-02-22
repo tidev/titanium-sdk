@@ -28,7 +28,8 @@ var focusLabel = Titanium.UI.createLabel({
 	},
 	left:10,
 	top:10,
-	height:'auto'
+	height:'auto',
+	width:'auto'
 });
 
 win.add(focusLabel);
@@ -44,7 +45,8 @@ var blurLabel = Titanium.UI.createLabel({
 	},
 	left:10,
 	top:30,
-	height:'auto'
+	height:'auto',
+	width:'auto'
 });
 
 win.add(blurLabel);
@@ -60,7 +62,8 @@ var openLabel = Titanium.UI.createLabel({
 	},
 	left:10,
 	top:50,
-	height:'auto'
+	height:'auto',
+	width:'auto'
 });
 
 win.add(openLabel);
@@ -76,7 +79,8 @@ var closeLabel = Titanium.UI.createLabel({
 	},
 	left:10,
 	top:70,
-	height:'auto'
+	height:'auto',
+	width:'auto'
 });
 
 win.add(closeLabel);
@@ -86,8 +90,8 @@ var l0 = Titanium.UI.createLabel({
 	text:'try to trigger each event',
 	bottom:50,
 	width:300,
-	textAlign:'center',
-	height:'auto'
+	height:'auto',
+	textAlign:'center'
 });
 
 win.add(l0);
@@ -96,8 +100,8 @@ var l1 = Titanium.UI.createLabel({
 	text:'touchstart not fired',
 	top:90,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:14,fontFamily:'Helvetica Neue'}
 });
 
 win.add(l1)
@@ -107,8 +111,8 @@ var l2 = Titanium.UI.createLabel({
 	top:110,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 win.add(l2);
@@ -118,8 +122,8 @@ var l3 = Titanium.UI.createLabel({
 	top:130,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 win.add(l3);
@@ -129,8 +133,8 @@ var l4 = Titanium.UI.createLabel({
 	top:270,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 win.add(l4);
@@ -140,8 +144,8 @@ var l5 = Titanium.UI.createLabel({
 	top:150,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 win.add(l5);
@@ -151,8 +155,8 @@ var l6 = Titanium.UI.createLabel({
 	top:170,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 win.add(l6);
@@ -162,8 +166,8 @@ var l7 = Titanium.UI.createLabel({
 	top:190,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 win.add(l7);
@@ -173,8 +177,8 @@ var l8 = Titanium.UI.createLabel({
 	top:210,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 win.add(l8);
@@ -184,8 +188,8 @@ var l9 = Titanium.UI.createLabel({
 	top:230,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 win.add(l9);
@@ -195,8 +199,8 @@ var l10 = Titanium.UI.createLabel({
 	top:250,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 win.add(l10);

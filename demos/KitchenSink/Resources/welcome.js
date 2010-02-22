@@ -4,7 +4,8 @@
 	// window container
 	var welcomeWindow = Titanium.UI.createWindow({
 		height:80,
-		width:200
+		width:200,
+		touchEnabled:false
 	});
 
 	// black view
@@ -13,7 +14,8 @@
 		width:200,
 		backgroundColor:'#000',
 		borderRadius:10,
-		opacity:0.8
+		opacity:0.8,
+		touchEnabled:false
 	});
 	welcomeWindow.add(indView);
 
@@ -23,7 +25,8 @@
 		color:'#fff',
 		textAlign:'center',
 		font:{fontSize:18,fontWeight:'bold'},
-		xbottom:20
+		height:'auto',
+		width:'auto'
 	});
 	welcomeWindow.add(message);
 	welcomeWindow.open();

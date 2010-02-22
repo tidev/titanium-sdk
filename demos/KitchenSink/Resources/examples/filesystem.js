@@ -27,7 +27,7 @@ Ti.API.info('directoryListing ' + dir.getDirectoryListing());
 Ti.API.info('getParent ' + dir.getParent());
 Ti.API.info('spaceAvailable ' + dir.spaceAvailable());
 	
-var l = Titanium.UI.createLabel({text:'Check Log for details', width:300,textAlign:'center'});
+var l = Titanium.UI.createLabel({text:'Check Log for details', width:300, height:'auto', textAlign:'center'});
 win.add(l)
 
 // TODO:WRITE TESTS FOR THESE

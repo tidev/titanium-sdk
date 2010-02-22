@@ -19,7 +19,6 @@ var y = Titanium.UI.createLabel({
 	color:'#555',
 	width:300,
 	height:'auto'
-	
 });
 win.add(y);
 
@@ -31,7 +30,6 @@ var z = Titanium.UI.createLabel({
 	color:'#555',
 	width:300,
 	height:'auto'
-	
 });
 win.add(z);
 
@@ -43,14 +41,13 @@ var ts = Titanium.UI.createLabel({
 	color:'#555',
 	width:300,
 	height:'auto'
-	
 });
 win.add(ts);
 
 
 Ti.Accelerometer.addEventListener('update',function(e)
 {
-	ts.text = new Date(e.timestamp);
+	ts.text = e.timestamp;
 	x.text = 'x: ' + e.x;
 	y.text = 'y:' + e.y;
 	z.text = 'z:' + e.z;

@@ -42,13 +42,15 @@
 		{
 			if (isBoldWeight)
 			{
+				// cache key must include size or .... yeah, you know what
+				NSString *cacheKey = [NSString stringWithFormat:@"%@-%f",family,self.size];
 				// optimize font caching for bold lookup
 				static NSMutableDictionary *cache;
 				if (cache == nil)
 				{
 					cache = [[NSMutableDictionary alloc] init];
 				}
-				id cn = [cache objectForKey:family];
+				id cn = [cache objectForKey:cacheKey];
 				if (cn!=nil)
 				{
 					return cn;
@@ -69,7 +71,7 @@
 							[name rangeOfString:@"Oblique"].location==NSNotFound)
 						{
 							result = [UIFont fontWithName:name size:self.size];
-							[cache setObject:result forKey:family];
+							[cache setObject:result forKey:cacheKey];
 							RELEASE_TO_NIL(family);
 							family = [name retain];
 							return result;

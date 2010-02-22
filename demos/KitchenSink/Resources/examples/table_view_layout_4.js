@@ -15,6 +15,8 @@ var headerView = Ti.UI.createView({
 var headerLabel = Ti.UI.createLabel({
 	top:10,
 	left:20,
+	width:'auto',
+	height:'auto',
 	text:'Cocoa with Love',
 	color:'white',
 	shadowColor:'black',
@@ -25,6 +27,8 @@ var headerLabel = Ti.UI.createLabel({
 var footerLabel = Ti.UI.createLabel({
 	text:'Thanks for Matt Gallagher for this awesome example (in Cocoa)',
 	color:'white',
+	width:'auto',
+	height:'auto',
 	textAlign:'center',
 	shadowColor:'black',
 	shadowOffset:{x:0,y:1},
@@ -77,6 +81,7 @@ for (var c=0;c<30;c++)
 		textAlign:'left',
 		top:20,
 		left:85,
+		width: 'auto',
 		height:'auto',
 		font:{fontWeight:'bold',fontSize:18}
 	});

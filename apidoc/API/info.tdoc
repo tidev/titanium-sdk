@@ -1,0 +1,36 @@
+- namespace
+
+Titanium.API.info
+
+- type
+
+function
+
+- returns
+
+void
+
+- parameters
+
+message[string]: the message to log
+
+- description
+
+Log a statement to the Titanium Developer console at INFO logging level.
+
+- since
+
+0.1
+
+- platforms
+
+android, iphone
+
+- example
+
+<code>
+	Titanium.API.info("I love Titanium");
+</code>
+
+
+

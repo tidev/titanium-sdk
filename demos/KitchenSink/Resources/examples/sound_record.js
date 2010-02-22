@@ -10,7 +10,9 @@ var label = Titanium.UI.createLabel({
 	text:'',
 	top:150,
 	color:'#999',
-	textAlign:'center'
+	textAlign:'center',
+	width:'auto',
+	height:'auto'
 });
 
 win.add(label);
@@ -45,7 +47,9 @@ var linetype = Titanium.UI.createLabel({
 	text: "audio line type: "+lineTypeToStr(),
 	bottom:20,
 	color:'#999',
-	textAlign:'center'
+	textAlign:'center',
+	width:'auto',
+	height:'auto'
 });
 
 win.add(linetype);
@@ -54,7 +58,9 @@ var volume = Titanium.UI.createLabel({
 	text: "volume: "+Ti.Media.volume,
 	bottom:50,
 	color:'#999',
-	textAlign:'center'
+	textAlign:'center',
+	width:'auto',
+	height:'auto'
 });
 
 win.add(volume);

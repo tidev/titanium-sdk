@@ -18,8 +18,8 @@ var l1 = Titanium.UI.createLabel({
 	text:'touchstart not fired',
 	top:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:14,fontFamily:'Helvetica Neue'}
 });
 
 view.add(l1)
@@ -29,8 +29,8 @@ var l2 = Titanium.UI.createLabel({
 	top:30,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 view.add(l2);
@@ -40,8 +40,8 @@ var l3 = Titanium.UI.createLabel({
 	top:50,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 view.add(l3);
@@ -51,8 +51,8 @@ var l4 = Titanium.UI.createLabel({
 	top:190,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 view.add(l4);
@@ -62,8 +62,8 @@ var l5 = Titanium.UI.createLabel({
 	top:90,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 view.add(l5);
@@ -73,8 +73,8 @@ var l6 = Titanium.UI.createLabel({
 	top:110,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 view.add(l6);
@@ -84,8 +84,8 @@ var l7 = Titanium.UI.createLabel({
 	top:130,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 view.add(l7);
@@ -95,8 +95,8 @@ var l8 = Titanium.UI.createLabel({
 	top:150,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 view.add(l8);
@@ -106,8 +106,8 @@ var l9 = Titanium.UI.createLabel({
 	top:170,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 view.add(l9);
@@ -117,8 +117,8 @@ var l10 = Titanium.UI.createLabel({
 	top:70,
 	left:10,
 	width:300,
-	font:{fontSize:13,fontFamily:'Helvetica Neue'},
-	height:'auto'
+	height:'auto',
+	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 view.add(l10);

@@ -30,6 +30,7 @@
 	KrollContext *context;
 	NSDictionary *preload;
 	TitaniumObject *titanium;
+	BOOL shutdown;
 }
 - (void)boot:(id)callback url:(NSURL*)url preload:(NSDictionary*)preload;
 - (void)evalJS:(NSString*)code;

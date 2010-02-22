@@ -32,7 +32,9 @@ var message = Titanium.UI.createLabel({
 	text:'Calculating...',
 	color:'#fff',
 	font:{fontSize:14,fontWeight:'bold',fontFamily:'Helvetica Neue'},
-	textAlign:'center'
+	textAlign:'center',
+	width:'auto',
+	height:'auto'
 });
 messageView.add(message);
 

@@ -3,7 +3,9 @@ var win = Titanium.UI.currentWindow;
 var l = Titanium.UI.createLabel({
 	text:'See Log for output',
 	top:10,
-	left:10
+	left:10,
+	height:'auto',
+	width:'auto'
 });
 win.add(l);
 
@@ -28,7 +30,9 @@ b1.addEventListener('click', function()
 	var l1 = Titanium.UI.createLabel({
 		text:'2nd context test - see log.',
 		color:'#fff',
-		font:{fontSize:14}
+		font:{fontSize:14},
+		width:'auto',
+		height:'auto'
 	});
 	win1.add(l1);
 	win1.open();
@@ -55,7 +59,9 @@ b2.addEventListener('click', function()
 	var l2= Titanium.UI.createLabel({
 		text:'Pre-packaged Db - see log.',
 		color:'#fff',
-		font:{fontSize:14}
+		font:{fontSize:14},
+		width:'auto',
+		height:'auto'
 	});
 	win2.add(l2);
 	win2.open();

@@ -8,7 +8,7 @@
 #import "TiProxy.h"
 #import "TiPoint.h"
 #import "TiColor.h"
-#import "KrollCallback.h"
+#import "ListenerEntry.h"
 #import <QuartzCore/QuartzCore.h>
 
 @class TiViewProxy;
@@ -39,6 +39,7 @@
 	NSNumber	*duration;
 	TiPoint		*center;
 	TiColor		*backgroundColor;
+	TiColor		*color;
 	NSNumber	*opacity;
 	NSNumber	*opaque;
 	NSNumber	*visible;
@@ -51,7 +52,7 @@
 	TiViewProxy	*view;
 
 	// this is a temporary function passed in
-	KrollCallback		*callback;
+	ListenerEntry *callback;
 	
 	NSObject<TiAnimationDelegate> *delegate;
 	
@@ -72,6 +73,7 @@
 @property(nonatomic,retain,readwrite) NSNumber	*height;
 @property(nonatomic,retain,readwrite) NSNumber	*duration;
 @property(nonatomic,retain,readwrite) TiPoint	*center;
+@property(nonatomic,retain,readwrite) TiColor	*color;
 @property(nonatomic,retain,readwrite) TiColor	*backgroundColor;
 @property(nonatomic,retain,readwrite) NSNumber	*opacity;
 @property(nonatomic,retain,readwrite) NSNumber	*opaque;

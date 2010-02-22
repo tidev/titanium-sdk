@@ -1,6 +1,8 @@
 var label = Titanium.UI.createLabel({
 	text:'This test decorates a window pre-open',
-	top:10
+	top:10,
+	width:'auto',
+	height:'auto'
 });
 Titanium.UI.currentWindow.add(label);
 

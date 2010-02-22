@@ -138,18 +138,22 @@ var bb1 = Titanium.UI.createButtonBar({
 	labels:['One', 'Two', 'Three', 'Four', 'Five'],
 	backgroundColor:'maroon',
 	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
+	width:'auto',
+	height:'auto'
 });
 var bb2 = Titanium.UI.createButtonBar({
 	labels:['Six', 'Seven', 'Eight'],
 	backgroundColor:'#336699',
 	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
-	
+	width:'auto',
+	height:'auto'
 });
 var bb3 = Titanium.UI.createButtonBar({
 	labels:['Nine', 'Ten', 'Eleven', 'Twelve'],
 	backgroundColor:'#ff9900',
 	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
-	
+	width:'auto',
+	height:'auto'
 });
 bb1.addEventListener('click', function()
 {
@@ -200,12 +204,16 @@ view.add(toolbarView)
 var toolbar = Titanium.UI.createToolbar({
 	items:[flexSpace,one,flexSpace],
 	bottom:0,
+	width:'auto',
+	height:'auto',
 	borderTop:true,
 	borderBottom:true
 });
 var toolbar2 = Titanium.UI.createToolbar({
 	items:[flexSpace,two,flexSpace],
 	bottom:0,
+	width:'auto',
+	height:'auto',
 	borderTop:true,
 	borderBottom:true,
 	barColor:'black'
@@ -213,6 +221,8 @@ var toolbar2 = Titanium.UI.createToolbar({
 var toolbar3 = Titanium.UI.createToolbar({
 	items:[flexSpace,three,flexSpace],
 	bottom:0,
+	width:'auto',
+	height:'auto',
 	borderTop:true,
 	borderBottom:true,
 	barColor:'maroon'
@@ -275,7 +285,9 @@ b2.addEventListener('click', function()
 })
 var bViewLabel = Titanium.UI.createLabel({
 	text:'Ouch!',
-	color:'#fff'
+	color:'#fff',
+	width:'auto',
+	height:'auto'
 });
 b2.add(bViewLabel);
 

@@ -9,6 +9,7 @@ for (var c=0;c<10;c++)
 		var label = Ti.UI.createLabel({
 			text:'Group '+(c+1)+', Row '+(x+1)+"\nThis is another line.\nCool",
 			height:'auto',
+			width:'auto',
 			left:10
 		});
 		var rightButton = Titanium.UI.createButton({

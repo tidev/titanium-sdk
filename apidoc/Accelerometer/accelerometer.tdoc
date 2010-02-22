@@ -1,0 +1,59 @@
+- namespace
+
+Titanium.Accelerometer
+
+- type
+
+module
+
+- returns
+
+object
+
+- description
+
+The top level Accelerometer module.  The Accelerometer modules contains
+methods and properties for using the device accelerometer.
+
+- since
+
+0.1
+
+- platforms
+
+android, iphone
+
+- properties
+
+
+- methods
+
+addEventListener: add an event listener
+removeEventListener: remove an event listener
+
+- events
+
+update: fired when the accelerometer changes
+
+- event : update
+
+x: the x axis of the device
+y: the y axis of the device
+z: the z axis of the device
+timestamp: reference timestamp since the previous change. this is not a valid timestamp and should simply be used to determine the time between events and not an exact timestamp.
+
+- example
+
+Adds an accelerometer update event listener which prints out the x, y and z axis as the 
+device is moved.  You should generally remove the event when not used to conserve device 
+resources.  If you do not have an active event listener, the accelerometer is turned off to 
+conserve device resources.
+
+<code>
+	Titanium.Accelerometer.addEventListener('update',function(e)
+	{
+		Ti.API.debug("accelerometer - x:"+e.x+",y:"+e.y+",z:"+e.z);
+	});
+</code>
+
+

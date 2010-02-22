@@ -104,7 +104,7 @@ FILENOOP(setHidden:(id)x);
 	return NUMBOOL([resultDict objectForKey:NSFileSystemFreeSize]!=nil);
 }
 
--(id)resultForUndefinedMethod:(NSString*)name args:(NSArray*)args
+/*-(id)resultForUndefinedMethod:(NSString*)name args:(NSArray*)args
 {
 	//NOTE: copy is already a built-in NSObject method and conflicts with ours so we 
 	//have to deal with it through the dynamic route
@@ -119,7 +119,7 @@ FILENOOP(setHidden:(id)x);
 		return NUMBOOL(result);	
 	}
 	return nil;
-}
+}*/
 
 -(id)createDirectory:(id)args
 {

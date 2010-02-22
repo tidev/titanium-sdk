@@ -1,0 +1,54 @@
+#
+# this is a titanium doc template
+#
+#
+
+- namespace
+
+Titanium.API.error
+
+- type
+
+function
+
+- returns
+
+void
+
+#- parameters
+#
+#message[string]: the message to log
+#
+
+- description
+
+Log a statement to the Titanium Developer console at ERROR logging level.
+
+- since
+
+0.1
+
+- platforms
+
+android, iphone
+
+#-deprecated
+#
+# 0.9 : use something better
+#
+
+- example
+
+<code>
+	Titanium.API.error("I love Titanium");
+</code>
+
+- example
+
+Here's another example:
+
+<code>
+	Titanium.API.error("I love Appcelerator");
+</code>
+
+
