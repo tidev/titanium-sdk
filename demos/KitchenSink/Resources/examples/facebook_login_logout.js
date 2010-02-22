@@ -14,46 +14,13 @@ win.add(label);
 
 
 //
-// API Login
-// 
-var login = Ti.UI.createButton({
-	title:'Login to Facebook',
-	width:200,
-	height:40,
-	top:40
-});
-
-login.addEventListener('click', function()
-{
-	Titanium.Facebook.login()
-});
-win.add(login);
-
-//
-// API Logout
-// 
-var logout = Ti.UI.createButton({
-	title:'Logout from Facebook',
-	width:200,
-	height:40,
-	top:90
-});
-
-logout.addEventListener('click', function()
-{
-	Titanium.Facebook.logout()
-});
-win.add(logout);
-
-
-//
 // Login Button
 //
 var fbButton = Titanium.Facebook.createLoginButton({
 	'style':'wide',
 	'apikey':'9494e611f2a93b8d7bfcdfa8cefdaf9f',
 	'sessionProxy':'http://api.appcelerator.net/p/fbconnect/',
-	top:140
+	top:30
 });
 win.add(fbButton);
 
