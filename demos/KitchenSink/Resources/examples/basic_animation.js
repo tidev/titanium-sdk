@@ -87,23 +87,23 @@ function secondAnimation()
 	var a = Titanium.UI.createAnimation();
 	a.backgroundColor = '#ff0000';
 	a.duration = 1000;
-	
+
 	var b = Titanium.UI.createAnimation();
 	b.backgroundColor = '#336699';
 	b.duration = 1000;
-	
+
 	circle.animate(a);
-	
-	// 
+
+	//
 	// ANIMATIONS SUPPORT A START EVENT
 	//
 	a.addEventListener('start', function()
 	{
 		Ti.API.info('IN START');
 		label.text = 'Animation started';
-		
+
 	})
-	
+
 	//
 	// ANIMATIONS SUPPORT A COMPLETE EVENT
 	//
@@ -112,10 +112,10 @@ function secondAnimation()
 		Ti.API.info('IN COMPLETE')
 		label.text = 'Animation completed';
 		circle.animate(b);
-		
+
 		setTimeout(function()
 		{
-			label.text = 'Click circle repeatedly to animate or drag window',
+			label.text = 'Click circle repeatedly to animate or drag window'
 		},2000)
 	});
 };
