@@ -145,6 +145,8 @@
 
 -(void)updateRow:(id)args
 {
+	ENSURE_UI_THREAD(updateRow,args);
+	
 	int index = [TiUtils intValue:[args objectAtIndex:0]];
 	NSDictionary *data = [args objectAtIndex:1];
 	NSDictionary *anim = [args count] > 2 ? [args objectAtIndex:2] : nil;
@@ -192,6 +194,8 @@
 
 -(void)deleteRow:(id)args
 {
+	ENSURE_UI_THREAD(deleteRow,args);
+	
 	int index = [TiUtils intValue:[args objectAtIndex:0]];
 	NSDictionary *anim = [args count] > 1 ? [args objectAtIndex:1] : nil;
 	
@@ -220,6 +224,8 @@
 
 -(void)insertRowBefore:(id)args
 {
+	ENSURE_UI_THREAD(insertRowBefore,args);
+	
 	int index = [TiUtils intValue:[args objectAtIndex:0]];
 	NSDictionary *data = [args objectAtIndex:1];
 	NSDictionary *anim = [args count] > 2 ? [args objectAtIndex:2] : nil;
@@ -252,6 +258,8 @@
 
 -(void)insertRowAfter:(id)args
 {
+	ENSURE_UI_THREAD(insertRowAfter,args);
+	
 	int index = [TiUtils intValue:[args objectAtIndex:0]];
 	NSDictionary *data = [args objectAtIndex:1];
 	NSDictionary *anim = [args count] > 2 ? [args objectAtIndex:2] : nil;
@@ -284,6 +292,8 @@
 
 -(void)appendRow:(id)args
 {
+	ENSURE_UI_THREAD(appendRow,args);
+	
 	id data = [args objectAtIndex:0];
 	NSDictionary *anim = [args count] > 1 ? [args objectAtIndex:1] : nil;
 	
@@ -310,6 +320,7 @@
 -(void)setData:(id)args withObject:(id)properties
 {
 	ENSURE_ARRAY(args);
+	ENSURE_UI_THREAD_WITH_OBJ(setData,args,properties);
 	
 	// this is on the non-UI thread. let's do the work here before we pass
 	// it over to the view which will be on the UI thread

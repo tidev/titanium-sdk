@@ -32,7 +32,7 @@
 
 -(id)initWithRow:(TiUITableViewRowProxy*)row_ animation:(NSDictionary*)animation_ section:(NSInteger)section_ type:(TiUITableViewActionType)type_
 {
-	if ([self init])
+	if (self = [self init])
 	{
 		animation = [TiUITableViewAction animationStyleForProperties:animation_];
 		section = section_;

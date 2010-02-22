@@ -20,6 +20,10 @@
 
 -(void)dealloc
 {
+	if (view!=nil)
+	{
+		view.proxy = nil;
+	}
 	RELEASE_TO_NIL(view);
 	RELEASE_TO_NIL(children);
 	RELEASE_TO_NIL(childLock);
@@ -184,6 +188,7 @@
 	if (view!=nil)
 	{
 		[self viewWillDetach];
+		view.proxy = nil;
 		[view removeFromSuperview];
 		[self viewDidDetach];
 		self.modelDelegate = nil;
@@ -394,6 +399,7 @@
 {
 	if (view!=nil)
 	{
+		view.proxy = nil;
 		[view removeFromSuperview];
 		RELEASE_TO_NIL(view);
 	}
