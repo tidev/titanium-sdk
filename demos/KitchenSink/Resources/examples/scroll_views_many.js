@@ -126,7 +126,7 @@ var scrollView4 = Titanium.UI.createScrollView({
 
 var view4 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:150
+	borderRadius:150,
 	width:150,
 	height:200,
 	top:10

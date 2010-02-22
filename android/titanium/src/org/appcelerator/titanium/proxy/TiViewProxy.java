@@ -17,7 +17,7 @@ import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -319,18 +319,34 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		}
 	}
 
-	public void animate(TiDict options, KrollCallback callback)
+	public void animate(Object[] args)
 	{
-		if (pendingAnimation == null) {
-			pendingAnimation = new PendingAnimation();
-		}
-		pendingAnimation.options = new TiDict(options);
-		pendingAnimation.callback = callback;
+		if (args != null) {
+			if (args[0] instanceof TiDict) {
+				TiDict options = (TiDict) args[0];
+				KrollCallback callback = null;
+				if (args.length > 1) {
+					callback = (KrollCallback) args[1];
+				}
 
-		if (getTiContext().isUIThread()) {
-			handleAnimate();
-		} else {
-			getUIHandler().obtainMessage(MSG_ANIMATE).sendToTarget();
+				if (pendingAnimation == null) {
+					pendingAnimation = new PendingAnimation();
+				}
+				pendingAnimation.options = new TiDict(options);
+				pendingAnimation.callback = callback;
+
+				if (getTiContext().isUIThread()) {
+					handleAnimate();
+				} else {
+					getUIHandler().obtainMessage(MSG_ANIMATE).sendToTarget();
+				}
+			} else if (args[0] instanceof TiAnimation) {
+				TiAnimation anim = (TiAnimation) args[0];
+
+				//TODO: deal with it.
+			} else {
+				throw new IllegalArgumentException("Unhandled argument to animate: " + args[0].getClass().getSimpleName());
+			}
 		}
 	}
 
@@ -373,14 +389,14 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		if (getTiContext().isUIThread()) {
 			return handleToImage();
 		} else {
-			AsyncResult result = new AsyncResult(getTiContext().getActivity()); 
+			AsyncResult result = new AsyncResult(getTiContext().getActivity());
 			Message msg = getUIHandler().obtainMessage(MSG_TOIMAGE);
 			msg.obj = result;
 			msg.sendToTarget();
 			return (TiDict) result.getResult();
 		}
 	}
-	
+
 	protected TiDict handleToImage() {
 		return getView(getTiContext().getActivity()).toImage();
 	}

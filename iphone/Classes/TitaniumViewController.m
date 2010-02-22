@@ -222,7 +222,7 @@
 		[self manuallyRotateToOrientation:interfaceOrientation];
 	}
 	
-	return NO;
+	return interfaceOrientation == UIInterfaceOrientationPortrait;
 }
 
 

@@ -12,6 +12,11 @@ var label = Ti.UI.createLabel({
 });
 win.add(label);
 
+// capture
+Titanium.Facebook.addEventListener('login', function()
+{
+	label.text = 'Logged In = ' + Titanium.Facebook.isLoggedIn();
+});
 
 //
 // Login Button

@@ -16,7 +16,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
- 
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -54,7 +54,7 @@ import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
- 
+
 import android.net.Uri;
  
 public class TiHTTPClient
@@ -88,7 +88,7 @@ public class TiHTTPClient
 	private LocalResponseHandler handler;
 	private Credentials credentials;
  
-	private byte[] responseData;
+	private TiBlob responseData;
 	private String charset;
  
 	private ArrayList<NameValuePair> nvPairs;
@@ -164,6 +164,8 @@ public class TiHTTPClient
 							}
 						} else {
 							while((count = is.read(buf)) != -1) {
+								Log.d(LCAT, "Read " + count + " of " + contentLength + " bytes from HTTP stream");
+								
 								totalSize += count;
 								TiDict o = new TiDict();
 								o.put("totalCount", contentLength);
@@ -176,15 +178,21 @@ public class TiHTTPClient
 								}
  
 								TiBlob blob = TiBlob.blobFromData(proxy.getTiContext(), newbuf);
+								Log.d(LCAT, "data: " + new String(newbuf));
 								o.put("blob", blob);
+								o.put("progress", (((double)count)/((double)totalSize))*100);
 								
 								cb.callWithProperties(o);
-								if(!entity.isStreaming()) {
-									break;
-								}
+								//if(!entity.isStreaming()) {
+								//	break;
+								//}
 							}
 							if (entity != null) {
-								entity.consumeContent();
+								try {
+									entity.consumeContent();
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
 							}
 						}
 					}
@@ -199,7 +207,7 @@ public class TiHTTPClient
 			throws IOException, ParseException
 		{
 			if (entity != null) {
-				responseData = EntityUtils.toByteArray(entity);
+				responseData = TiBlob.blobFromData(proxy.getTiContext(), EntityUtils.toByteArray(entity));
 				charset = EntityUtils.getContentCharSet(entity);
 			}
 		}
@@ -282,7 +290,7 @@ public class TiHTTPClient
 			}
  
 			try {
-				responseText = new String(responseData, charset);
+				responseText = new String(responseData.getBytes(), charset);
 			} catch (UnsupportedEncodingException e) {
 				Log.e(LCAT, "Unable to convert to String using charset: " + charset);
 			}
@@ -293,7 +301,7 @@ public class TiHTTPClient
  
 	public TiBlob getResponseData()
 	{
-		return TiBlob.blobFromData(proxy.getTiContext(), responseData);
+		return responseData;
 	}
  
 	public void setResponseText(String responseText) {
