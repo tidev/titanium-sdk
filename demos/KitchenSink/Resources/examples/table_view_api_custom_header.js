@@ -11,7 +11,9 @@ var headerLabel = Ti.UI.createLabel({
 	text:'Custom Header',
 	color:'#191',
 	textAlign:'left',
-	left:10
+	left:10,
+	width:'auto',
+	height:'auto'
 });
 
 header.add(headerLabel);

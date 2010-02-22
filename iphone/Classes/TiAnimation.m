@@ -11,6 +11,7 @@
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 #import "LayoutConstraint.h"
+#import "KrollCallback.h"
 
 #ifdef DEBUG 
 	#define ANIMATION_DEBUG 0
@@ -21,7 +22,7 @@
 
 @synthesize delegate;
 @synthesize zIndex, left, right, top, bottom, width, height;
-@synthesize duration, center, backgroundColor, opacity, opaque, view;
+@synthesize duration, center, backgroundColor, color, opacity, opaque, view;
 @synthesize visible, curve, repeat, autoreverse, delay, transform, transition;
 
 -(id)initWithDictionary:(NSDictionary*)properties context:(id<TiEvaluator>)context_ callback:(KrollCallback*)callback_
@@ -102,11 +103,15 @@ self.p = v;\
 		SET_BOOL_PROP(autoreverse,properties);
 		SET_POINT_PROP(center,properties);
 		SET_COLOR_PROP(backgroundColor,properties);
+		SET_COLOR_PROP(color,properties);
 		SET_ID_PROP(transform,properties);
 		SET_INT_PROP(transition,properties);
 		SET_PROXY_PROP(view,properties);
 		
-		callback = [callback_ retain];
+		if (context_!=nil)
+		{
+			callback = [[ListenerEntry alloc] initWithListener:callback_ context:context_ proxy:self type:nil];
+		}
 	}
 	return self;
 }
@@ -131,6 +136,7 @@ self.p = v;\
 	RELEASE_TO_NIL(height);
 	RELEASE_TO_NIL(duration);
 	RELEASE_TO_NIL(center);
+	RELEASE_TO_NIL(color);
 	RELEASE_TO_NIL(backgroundColor);
 	RELEASE_TO_NIL(opacity);
 	RELEASE_TO_NIL(opaque);
@@ -147,16 +153,6 @@ self.p = v;\
 	RELEASE_TO_NIL(transformMatrix);
 	[super dealloc];
 }
-
-/*
--(void)setDelegate:(id)target selector:(SEL)selector_ withObject:(id)object
-{
-	RELEASE_TO_NIL(delegate);
-	RELEASE_TO_NIL(delegateContext);
-	delegate = [target retain];
-	selector = selector_;
-	delegateContext = [object retain];
-}*/
 
 +(TiAnimation*)animationFromArg:(id)args context:(id<TiEvaluator>)context create:(BOOL)yn
 {
@@ -184,12 +180,12 @@ self.p = v;\
 	if ([arg isKindOfClass:[NSDictionary class]])
 	{
 		NSDictionary *properties = arg;
-		KrollCallback *callback = nil;
+		KrollCallback *cb = nil;
 		
 		if (isArray && [args count] > 1)
 		{
-			callback = [args objectAtIndex:1];
-			ENSURE_TYPE(callback,KrollCallback);
+			cb = [[args objectAtIndex:1] retain];
+			ENSURE_TYPE(cb,KrollCallback);
 		}
 		
 		// old school animated type properties
@@ -197,13 +193,13 @@ self.p = v;\
 		{
 			float duration = [TiUtils floatValue:@"animationDuration" properties:properties def:1000];
 			UIViewAnimationTransition transition = [TiUtils intValue:@"animationStyle" properties:properties def:UIViewAnimationTransitionNone];
-			TiAnimation *animation = [[[TiAnimation alloc] initWithDictionary:properties context:context callback:callback] autorelease];
+			TiAnimation *animation = [[[TiAnimation alloc] initWithDictionary:properties context:context callback:cb] autorelease];
 			animation.duration = [NSNumber numberWithFloat:duration];
 			animation.transition = [NSNumber numberWithInt:transition];
 			return animation;
 		}
 		
-		return [[[TiAnimation alloc] initWithDictionary:properties context:context callback:callback] autorelease];
+		return [[[TiAnimation alloc] initWithDictionary:properties context:context callback:cb] autorelease];
 	}
 	
 	if (yn)
@@ -264,9 +260,9 @@ self.p = v;\
 		[self fireEvent:@"complete" withObject:nil];
 	}
 	
-	if (callback!=nil)
+	if (callback!=nil && [callback context]!=nil)
 	{
-		[self _fireEventToListener:@"animated" withObject:self listener:callback thisObject:nil];
+		[self _fireEventToListener:@"animated" withObject:self listener:[callback listener] thisObject:nil];
 	}
 	
 	// tell our view that we're done
@@ -415,44 +411,52 @@ self.p = v;\
 		
 		[(TiUIView *)view_ setTransform_:transform];
 	}
-	else 
+	
+	if ([view_ isKindOfClass:[TiUIView class]])
 	{
-		if ([view_ isKindOfClass:[TiUIView class]])
-		{
-			TiUIView *uiview = (TiUIView*)view_;
-			LayoutConstraint *layout = [uiview layout];
-			BOOL doReposition = NO;
-			
-	#define CHECK_LAYOUT_CHANGE(a) \
-	if (a!=nil && layout!=NULL) \
-	{\
-			layout->a = TiDimensionFromObject(a); \
-			doReposition = YES;\
-	}\
+		TiUIView *uiview = (TiUIView*)view_;
+		LayoutConstraint *layout = [uiview layout];
+		BOOL doReposition = NO;
 		
-			CHECK_LAYOUT_CHANGE(left);
-			CHECK_LAYOUT_CHANGE(right);
-			CHECK_LAYOUT_CHANGE(width);
-			CHECK_LAYOUT_CHANGE(height);
-			CHECK_LAYOUT_CHANGE(top);
-			CHECK_LAYOUT_CHANGE(bottom);
-			
-			if (doReposition)
-			{
-				[uiview reposition];
-			}
+#define CHECK_LAYOUT_CHANGE(a) \
+if (a!=nil && layout!=NULL) \
+{\
+		layout->a = TiDimensionFromObject(a); \
+		doReposition = YES;\
+}\
+	
+		CHECK_LAYOUT_CHANGE(left);
+		CHECK_LAYOUT_CHANGE(right);
+		CHECK_LAYOUT_CHANGE(width);
+		CHECK_LAYOUT_CHANGE(height);
+		CHECK_LAYOUT_CHANGE(top);
+		CHECK_LAYOUT_CHANGE(bottom);
+
+		if (zIndex!=nil)
+		{
+			[uiview performSelector:@selector(setZIndex_:) withObject:zIndex];
 		}
 		
-		if (center!=nil)
+		if (doReposition)
 		{
-			view_.center = [center point];
+			[uiview reposition];
 		}
+	}
+		
+	if (center!=nil)
+	{
+		view_.center = [center point];
 	}
 	
 	if (backgroundColor!=nil)
 	{
-		TiColor *color = [TiUtils colorValue:backgroundColor];
-		[view_ setBackgroundColor:[color _color]];
+		TiColor *color_ = [TiUtils colorValue:backgroundColor];
+		[view_ setBackgroundColor:[color_ _color]];
+	}
+	
+	if (color!=nil && [view_ respondsToSelector:@selector(setColor_:)])
+	{
+		[view_ performSelector:@selector(setColor_:) withObject:color];
 	}
 	
 	if (opacity!=nil)

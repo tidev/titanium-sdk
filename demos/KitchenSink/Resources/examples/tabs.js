@@ -150,12 +150,13 @@ var label = Titanium.UI.createLabel({
 	},
 	textAlign:'center',
 	top:260,
-	width:300
+	width:300,
+	height:'auto'
 });
 
 
 // add views based on platform
-if (Titanium.Platform.name == 'iPhone OS')
+if (Titanium.Platform.osname == 'iphone')
 {
 	win.add(tabBadgeButton);
 	win.add(systemTabIconsButton);

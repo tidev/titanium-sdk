@@ -21,6 +21,7 @@ var basicSlider = Titanium.UI.createSlider({
 	max:10,
 	value:5,
 	width:100,
+	height:'auto',
 	top:30,
 	selectedThumbImage:'../images/slider_thumb.png',
 	highlightedThumbImage:'../images/chat.png'
@@ -201,7 +202,8 @@ titleButton.addEventListener('click', function()
 			min:0,
 			max:10,
 			value:5,
-			width:80
+			width:80,
+			height:'auto'
 		});
 		win.titleControl = titleSlider;
 		inTitle=true;
@@ -215,7 +217,7 @@ win.add(customSlider);
 win.add(changeButton);
 win.add(toggleButton);
 
-if (Titanium.Platform.name == 'iPhone OS')
+if (Titanium.Platform.osname == 'iphone')
 {
 	win.add(navbarButton);
 	win.add(toolbarButton);

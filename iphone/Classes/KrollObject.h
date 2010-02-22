@@ -22,15 +22,6 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef obj, TiStringRef prop,
 +(KrollUndefined*)undefined;
 @end
 
-//
-// defined by targets that want to dynamcially handle invocations
-// as if they were directly defined against the objects as functions
-//
-@protocol KrollDynamicMethodProxy
-@required
-	-(id)resultForUndefinedMethod:(NSString*)name args:(NSArray*)args;
-@end
-
 
 //
 // KrollObject is a generic native wrapper around a native object exposed as a JS object 

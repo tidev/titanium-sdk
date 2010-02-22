@@ -7,10 +7,10 @@ var b = Ti.UI.createView({borderColor:'#133899',borderWidth:6,borderRadius:2,bac
 var c = Ti.UI.createView({borderColor:'#133899',borderWidth:6,borderRadius:2,backgroundColor:'red',width:100,height:100,top:115,left:40,name:"view c"});
 var d = Ti.UI.createView({borderColor:'#133899',borderWidth:6,borderRadius:2,backgroundColor:'cyan',width:100,height:100,bottom:45,name:"view d"});
 
-a.add(Ti.UI.createLabel({name:"label a",color:'white',text:'A',font:{fontSize:28,fontWeight:'bold',fontFamily:'Helvetica Neue'},textAlign:'center',height:'auto'}));
-b.add(Ti.UI.createLabel({name:"label b",color:'white',text:'B',font:{fontSize:28,fontWeight:'bold',fontFamily:'Helvetica Neue'},textAlign:'center',height:'auto'}));
-c.add(Ti.UI.createLabel({name:"label c",color:'white',text:'C',font:{fontSize:28,fontWeight:'bold',fontFamily:'Helvetica Neue'},textAlign:'center',height:'auto'}));
-d.add(Ti.UI.createLabel({name:"label d",color:'white',text:'D',font:{fontSize:28,fontWeight:'bold',fontFamily:'Helvetica Neue'},textAlign:'center',height:'auto'}));
+a.add(Ti.UI.createLabel({name:"label a",color:'white',text:'A',height:'auto',width:'auto',font:{fontSize:48,fontWeight:'bold',fontFamily:'Helvetica Neue'}}));
+b.add(Ti.UI.createLabel({name:"label b",color:'white',text:'B',height:'auto',width:'auto',font:{fontSize:48,fontWeight:'bold',fontFamily:'Helvetica Neue'}}));
+c.add(Ti.UI.createLabel({name:"label c",color:'white',text:'C',height:'auto',width:'auto',font:{fontSize:48,fontWeight:'bold',fontFamily:'Helvetica Neue'}}));
+d.add(Ti.UI.createLabel({name:"label d",color:'white',text:'D',height:'auto',width:'auto',font:{fontSize:48,fontWeight:'bold',fontFamily:'Helvetica Neue'}}));
 
 var l = Ti.UI.createLabel({
 	color:'white',
@@ -18,8 +18,8 @@ var l = Ti.UI.createLabel({
 	bottom:5,
 	textAlign:'center',
 	text:'click anywhere',
-	height:'auto'
-	
+	height:'auto',
+	width:'auto'
 })
 
 var l2 = Ti.UI.createLabel({
@@ -28,7 +28,8 @@ var l2 = Ti.UI.createLabel({
 	bottom:25,
 	textAlign:'center',
 	text:'',
-	height:'auto'
+	height:'auto',
+	width:'auto'
 })
 
 win.add(a);

@@ -12,11 +12,18 @@
 
 #pragma mark Internal
 
+- (BOOL)interactionDefault
+{
+	// by default, labels don't have any interaction unless you explicitly add
+	// it via addEventListener
+	return NO;
+}
+
 -(CGSize)sizeForFont:(CGFloat)suggestedWidth
 {
 	NSString *value = [label text];
 	UIFont *font = [label font];
-	CGSize maxSize = CGSizeMake(suggestedWidth, 1000);
+	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 1000);
 	requiresLayout = YES;
 	return [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
 }

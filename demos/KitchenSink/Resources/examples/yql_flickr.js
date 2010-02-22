@@ -42,6 +42,7 @@ Titanium.Yahoo.yql("select * from flickr.photos.interestingness(75)",function(e)
 			left:70,
 			right:10,
 			textAlign:'left',
+			height:50,
 			text:photo.title ? photo.title : "Untitled",
 			font:{fontWeight:'bold',fontSize:18}
 		});

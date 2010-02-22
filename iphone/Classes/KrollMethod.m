@@ -97,6 +97,7 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 -(void)dealloc
 {
 	[name release];
+	name = nil;
 	[super dealloc];
 }
 

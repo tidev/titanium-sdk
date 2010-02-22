@@ -317,15 +317,18 @@
 		if (views!=nil && [views count]>0)
 		{
 			UIWindow *window = [note object];
-			// get the window background view and place it on there - it's already rotated
-			// and will give us better positioning on the right surface area
-			UIView *subview = [[window subviews] objectAtIndex:0];
+			
+			// get the window background views surface and place it on there
+			// it's already rotated and will give us better positioning 
+			// on the right surface area
+			UIView *subview = [[[[window subviews] objectAtIndex:0] subviews] objectAtIndex:0];
+			
+			CGRect bounds = [subview bounds];
 			
 			for (TiViewProxy *proxy in views)
 			{
 				TiUIView *view = [proxy view];
-				[view setVirtualParentTransform:CGAffineTransformMakeRotation(M_PI/2.0)];
-				[view insertIntoView:subview bounds:subview.bounds];
+				[view insertIntoView:subview bounds:bounds];
 			}
 		}
 	}

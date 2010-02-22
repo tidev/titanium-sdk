@@ -123,17 +123,22 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 	CGFloat centerX;
 
 	if(!flexibleSize)
-	{	//The width will be flexible if and only if it was undefined.
+	{	
+		//The width will be flexible if and only if it was undefined.
 		switch (constraint->centerX.type)
 		{
 			case TiDimensionTypePercent:
+			{
 				centerX = superViewSize.width * constraint->centerX.value;
 				useMargins = NO;
 				break;
+			}
 			case TiDimensionTypePixels:
+			{
 				centerX = constraint->centerX.value;
 				useMargins = NO;
 				break;
+			}
 			//Auto and undefined are treated the same, using margins instead.
 		}
 	}
@@ -145,37 +150,49 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 		switch (constraint->left.type)
 		{
 			case TiDimensionTypePercent:
+			{
 				frameLeft += constraint->left.value * superViewSize.width;
-				marginSuggestions ++;
+				marginSuggestions++;
 				break;
+			}
 			case TiDimensionTypePixels:
+			{
 				frameLeft += constraint->left.value;
-				marginSuggestions ++;
+				marginSuggestions++;
 				break;
+			}
 			default:
+			{
 				if (!flexibleSize)
 				{
 					*resultResizing |= UIViewAutoresizingFlexibleLeftMargin;
 				}
 				break;
+			}
 		}
 
 		switch (constraint->right.type)
 		{
 			case TiDimensionTypePercent:
+			{
 				frameLeft += (1.0-constraint->right.value) * superViewSize.width - viewSize.width;
-				marginSuggestions ++;
+				marginSuggestions++;
 				break;
+			}
 			case TiDimensionTypePixels:
+			{
 				frameLeft += (superViewSize.width - constraint->right.value) - viewSize.width;
-				marginSuggestions ++;
+				marginSuggestions++;
 				break;
+			}
 			default:
+			{
 				if (!flexibleSize)
 				{
 					*resultResizing |= UIViewAutoresizingFlexibleRightMargin;
 				}
 				break;
+			}
 		}
 		
 		if (marginSuggestions < 1)
@@ -195,17 +212,22 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 	CGFloat centerY;
 
 	if(!flexibleSize)
-	{	//The width will be flexible if and only if it was undefined.
+	{	
+		//The width will be flexible if and only if it was undefined.
 		switch (constraint->centerY.type)
 		{
 			case TiDimensionTypePercent:
+			{
 				centerY = superViewSize.width * constraint->centerY.value;
 				useMargins = NO;
 				break;
+			}
 			case TiDimensionTypePixels:
+			{
 				centerY = constraint->centerY.value;
 				useMargins = NO;
 				break;
+			}
 			//Auto and undefined are treated the same, using margins instead.
 		}
 	}
@@ -217,37 +239,49 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 		switch (constraint->top.type)
 		{
 			case TiDimensionTypePercent:
+			{
 				frameTop += constraint->top.value * superViewSize.height;
-				marginSuggestions ++;
+				marginSuggestions++;
 				break;
+			}
 			case TiDimensionTypePixels:
+			{
 				frameTop += constraint->top.value;
-				marginSuggestions ++;
+				marginSuggestions++;
 				break;
+			}
 			default:
+			{
 				if (!flexibleSize)
 				{
 					*resultResizing |= UIViewAutoresizingFlexibleTopMargin;
 				}
 				break;
+			}
 		}
 
 		switch (constraint->bottom.type)
 		{
 			case TiDimensionTypePercent:
+			{
 				frameTop += (1.0-constraint->bottom.value) * superViewSize.height - viewSize.height;
-				marginSuggestions ++;
+				marginSuggestions++;
 				break;
+			}
 			case TiDimensionTypePixels:
+			{
 				frameTop += (superViewSize.height - constraint->bottom.value) - viewSize.height;
-				marginSuggestions ++;
+				marginSuggestions++;
 				break;
+			}
 			default:
+			{
 				if (!flexibleSize)
 				{
 					*resultResizing |= UIViewAutoresizingFlexibleBottomMargin;
 				}
 				break;
+			}
 		}
 		
 		if (marginSuggestions < 1)
@@ -325,10 +359,13 @@ CGFloat WidthFromConstraintGivenWidth(LayoutConstraint * constraint, CGFloat vie
 	switch (constraint->width.type)
 	{
 		case TiDimensionTypePixels:
+		{
 			return constraint->width.value;
+		}
 		case TiDimensionTypePercent:
-		return constraint->width.value * viewWidth;
-
+		{
+			return constraint->width.value * viewWidth;
+		}
 	}
 
 	return viewWidth - (TiDimensionCalculateValue(constraint->left, viewWidth) + TiDimensionCalculateValue(constraint->right, viewWidth));

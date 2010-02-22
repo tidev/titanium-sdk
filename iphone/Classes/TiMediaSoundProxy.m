@@ -65,16 +65,6 @@
 						}
 					}
 				}
-				if (url!=nil)
-				{
-					// attempt to preload if set so that the audio file
-					// is ready to play and doesn't cause any delays
-					id preload = [arg objectForKey:@"preload"];
-					if ([TiUtils boolValue:preload])
-					{
-						[self performSelector:@selector(player)];
-					}
-				}
 			}
 			if (url==nil)
 			{
@@ -83,7 +73,6 @@
 		}
 		volume = 1.0;
 		resumeTime = 0;
-	
 	}
 	return self;
 }
@@ -92,6 +81,20 @@
 {
 	[[TiMediaAudioSession sharedSession] stopAudioSession];
 	[super dealloc];
+}
+
+-(void)configurationSet
+{
+	if (url!=nil)
+	{
+		// attempt to preload if set so that the audio file
+		// is ready to play and doesn't cause any delays
+		id preload = [self valueForKey:@"preload"];
+		if ([TiUtils boolValue:preload])
+		{
+			[self performSelectorOnMainThread:@selector(player) withObject:nil waitUntilDone:NO];
+		}
+	}
 }
 
 -(void)_destroy

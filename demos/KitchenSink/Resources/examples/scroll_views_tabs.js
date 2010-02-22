@@ -70,6 +70,7 @@ var l1 = Ti.UI.createLabel({
 	text:'1',
 	font:{fontSize:13},
 	color:'#fff',
+	width:'auto',
 	textAlign:'center',
 	height:'auto'
 });
@@ -87,6 +88,7 @@ var l2 = Ti.UI.createLabel({
 	text:'2',
 	font:{fontSize:13},
 	color:'#fff',
+	width:'auto',
 	textAlign:'center',
 	height:'auto'
 });
@@ -105,6 +107,7 @@ var l3 = Ti.UI.createLabel({
 	text:'3',
 	font:{fontSize:13},
 	color:'#fff',
+	width:'auto',
 	textAlign:'center',
 	height:'auto'
 });
@@ -123,6 +126,7 @@ var l4 = Ti.UI.createLabel({
 	text:'4',
 	font:{fontSize:13},
 	color:'#fff',
+	width:'auto',
 	textAlign:'center',
 	height:'auto'
 });
@@ -141,6 +145,7 @@ var l5 = Ti.UI.createLabel({
 	text:'5',
 	font:{fontSize:13},
 	color:'#fff',
+	width:'auto',
 	textAlign:'center',
 	height:'auto'
 });
@@ -159,6 +164,7 @@ var l6 = Ti.UI.createLabel({
 	text:'6',
 	font:{fontSize:13},
 	color:'#fff',
+	width:'auto',
 	textAlign:'center',
 	height:'auto'
 });
@@ -177,6 +183,7 @@ var l7 = Ti.UI.createLabel({
 	text:'7',
 	font:{fontSize:13},
 	color:'#fff',
+	width:'auto',
 	textAlign:'center',
 	height:'auto'
 });
@@ -195,6 +202,7 @@ var l8 = Ti.UI.createLabel({
 	text:'8',
 	font:{fontSize:13},
 	color:'#fff',
+	width:'auto',
 	textAlign:'center',
 	height:'auto'
 });
@@ -236,6 +244,7 @@ var l9 = Ti.UI.createLabel({
 	text:'9',
 	font:{fontSize:13},
 	color:'#fff',
+	width:'auto',
 	textAlign:'center',
 	height:'auto'
 });
@@ -254,6 +263,7 @@ var l10 = Ti.UI.createLabel({
 	text:'10',
 	font:{fontSize:13},
 	color:'#fff',
+	width:'auto',
 	textAlign:'center',
 	height:'auto'
 });
@@ -272,6 +282,7 @@ var l11 = Ti.UI.createLabel({
 	text:'11',
 	font:{fontSize:13},
 	color:'#fff',
+	width:'auto',
 	textAlign:'center',
 	height:'auto'
 });
@@ -290,6 +301,7 @@ var l12 = Ti.UI.createLabel({
 	text:'12',
 	font:{fontSize:13},
 	color:'#fff',
+	width:'auto',
 	textAlign:'center',
 	height:'auto'
 });
@@ -308,6 +320,7 @@ var l13 = Ti.UI.createLabel({
 	text:'13',
 	font:{fontSize:13},
 	color:'#fff',
+	width:'auto',
 	textAlign:'center',
 	height:'auto'
 });
@@ -326,6 +339,7 @@ var l14 = Ti.UI.createLabel({
 	text:'14',
 	font:{fontSize:13},
 	color:'#fff',
+	width:'auto',
 	textAlign:'center',
 	height:'auto'
 });
@@ -344,6 +358,7 @@ var l15 = Ti.UI.createLabel({
 	text:'15',
 	font:{fontSize:13},
 	color:'#fff',
+	width:'auto',
 	textAlign:'center',
 	height:'auto'
 });
@@ -362,6 +377,7 @@ var l16 = Ti.UI.createLabel({
 	text:'16',
 	font:{fontSize:13},
 	color:'#fff',
+	width:'auto',
 	textAlign:'center',
 	height:'auto'
 });

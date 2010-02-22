@@ -76,5 +76,6 @@ var status = Titanium.UI.createLabel({
 	width:250,
 	height:'auto',
 	top:20,
+	text:'',
 	textAlign:'center'
 });

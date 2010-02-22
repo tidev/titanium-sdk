@@ -27,7 +27,9 @@ def main(args):
 	# of xcode the user has
 	xoutput = run.run(["xcodebuild","-version"])
 	idx = xoutput.find("Xcode ")
-	version = xoutput[idx+6:idx+11]
+	version = xoutput[idx+6:]
+	idx = version.find("\n")
+	version = version[0:idx-1].strip()
 	version_split = version.split('.')
 	major = int(version_split[0])
 	minor = int(version_split[1])
@@ -35,6 +37,7 @@ def main(args):
 	# some versions are simply 3.1 (2 digits)
 	if len(version_split) > 2:
 		build = int(version_split[2])
+	
 	
 	# this was the default up until 3.2.2 release
 	path = "~/Library/Application Support/iPhone Simulator/User/Applications"

@@ -3,16 +3,27 @@
 // Free for personal or commercial use, with or without modification.
 // No warranty is expressed or implied.
 
-// Extends the UIImage class to support resizing/cropping
-@interface UIImage (Resize)
-- (UIImage *)croppedImage:(CGRect)bounds;
-- (UIImage *)thumbnailImage:(NSInteger)thumbnailSize
+// NOTE: Appcelerator modified to convert from Category to 
+// new Class name since iPhone seems to have some issues with Categories
+// of built in Classes
+
+@interface UIImageResize : NSObject
+{
+}
++ (UIImage *)croppedImage:(CGRect)bounds image:(UIImage*)image;
+
++ (UIImage *)thumbnailImage:(NSInteger)thumbnailSize
           transparentBorder:(NSUInteger)borderSize
                cornerRadius:(NSUInteger)cornerRadius
-       interpolationQuality:(CGInterpolationQuality)quality;
-- (UIImage *)resizedImage:(CGSize)newSize
-     interpolationQuality:(CGInterpolationQuality)quality;
-- (UIImage *)resizedImageWithContentMode:(UIViewContentMode)contentMode
+       interpolationQuality:(CGInterpolationQuality)quality
+					  image:(UIImage*)image;
+
++ (UIImage *)resizedImage:(CGSize)newSize
+     interpolationQuality:(CGInterpolationQuality)quality
+					image:(UIImage*)image;
+
++ (UIImage *)resizedImageWithContentMode:(UIViewContentMode)contentMode
                                   bounds:(CGSize)bounds
-                    interpolationQuality:(CGInterpolationQuality)quality;
+                    interpolationQuality:(CGInterpolationQuality)quality
+								   image:(UIImage*)image;
 @end

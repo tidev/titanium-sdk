@@ -10,23 +10,19 @@
 
 @implementation TiUIAlertDialogProxy
 
--(void)dealloc
+-(void)_destroy
 {
 	// we release our reteain in the show below but then
 	// set it to nil so that our subclass doesn't jack with it
-	[pageContext release];
-	pageContext = nil;
-	[super dealloc];
+	RELEASE_TO_NIL(alert);
+	[super _destroy];
 }
 
 -(void)show:(id)args
 {
-	ENSURE_UI_THREAD(show,args);
+	RELEASE_TO_NIL(alert);
 	
-	// we retain during our modal dialog and then release after its done.
-	// this prevents crash on cleaning up the proxy/context while modal is completing
-	[pageContext retain];
-	[self retain];
+	ENSURE_UI_THREAD(show,args);
 	
 	NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
 	if (buttonNames==nil || (id)buttonNames == [NSNull null])
@@ -35,9 +31,9 @@
 		[buttonNames addObject:NSLocalizedString(@"OK",@"Alert OK Button")];
 	}
 	
-	UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
+	alert = [[UIAlertView alloc] initWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
 											message:[TiUtils stringValue:[self valueForKey:@"message"]] 
-											delegate:self cancelButtonTitle:nil otherButtonTitles:nil] autorelease];
+											delegate:self cancelButtonTitle:nil otherButtonTitles:nil];
 	for (id btn in buttonNames)
 	{
 		NSString * thisButtonName = [TiUtils stringValue:btn];
@@ -46,6 +42,8 @@
 
 	[alert setCancelButtonIndex:[TiUtils intValue:[self valueForKey:@"cancel"] def:-1]];
 	
+	[self retain];
+	
 	[alert show];
 }
 
@@ -53,7 +51,6 @@
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-	// cause this proxy to be cleaned up from retain above
 	[self autorelease];
 }
 

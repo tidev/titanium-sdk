@@ -227,7 +227,7 @@
 	[self ensureImageLoaded];
 	if (image!=nil)
 	{
-		return [[[TiBlob alloc] initWithImage:[image imageWithAlpha]] autorelease];
+		return [[[TiBlob alloc] initWithImage:[UIImageAlpha imageWithAlpha:image]] autorelease];
 	}
 	return nil;
 }
@@ -239,7 +239,7 @@
 	{
 		ENSURE_SINGLE_ARG(args,NSObject);
 		NSUInteger size = [TiUtils intValue:args];
-		return [[[TiBlob alloc] initWithImage:[image transparentBorderImage:size]] autorelease];
+		return [[[TiBlob alloc] initWithImage:[UIImageAlpha transparentBorderImage:size image:image]] autorelease];
 	}
 	return nil;
 }
@@ -251,7 +251,7 @@
 	{
 		NSUInteger cornerSize = [TiUtils intValue:[args objectAtIndex:0]];
 		NSUInteger borderSize = [args count] > 1 ? [TiUtils intValue:[args objectAtIndex:1]] : 1;
-		return [[[TiBlob alloc] initWithImage:[image roundedCornerImage:cornerSize borderSize:borderSize]] autorelease];
+		return [[[TiBlob alloc] initWithImage:[UIImageRoundedCorner roundedCornerImage:cornerSize borderSize:borderSize image:image]] autorelease];
 	}
 	return nil;
 }
@@ -264,10 +264,11 @@
 		NSUInteger size = [TiUtils intValue:[args objectAtIndex:0]];
 		NSUInteger borderSize = [args count] > 1 ? [TiUtils intValue:[args objectAtIndex:1]] : 1;
 		NSUInteger cornerRadius = [args count] > 2 ? [TiUtils intValue:[args objectAtIndex:2]] : 0;
-		return [[[TiBlob alloc] initWithImage:[image thumbnailImage:size 
+		return [[[TiBlob alloc] initWithImage:[UIImageResize thumbnailImage:size 
 												  transparentBorder:borderSize
 													   cornerRadius:cornerRadius
-											   interpolationQuality:kCGInterpolationHigh]] 
+											   interpolationQuality:kCGInterpolationHigh
+															  image:image]] 
 				autorelease];
 	}
 	return nil;
@@ -281,7 +282,7 @@
 		ENSURE_ARG_COUNT(args,2);
 		NSUInteger width = [TiUtils intValue:[args objectAtIndex:0]];
 		NSUInteger height = [TiUtils intValue:[args objectAtIndex:1]];
-		return [[[TiBlob alloc] initWithImage:[image resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh]] autorelease];
+		return [[[TiBlob alloc] initWithImage:[UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh image:image]] autorelease];
 	}
 	return nil;
 }

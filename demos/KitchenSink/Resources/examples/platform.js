@@ -44,7 +44,6 @@ var l1 = Titanium.UI.createLabel({
 	font:{fontSize:14},
 	color:'#777',
 	height:'auto'
-	
 });
 
 win.add(l1);
@@ -54,10 +53,9 @@ var l2 = Titanium.UI.createLabel({
 	top:30,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:14},
-	color:'#777',
-	height:'auto'
-	
+	color:'#777'
 });
 
 win.add(l2);
@@ -67,10 +65,9 @@ var l3 = Titanium.UI.createLabel({
 	top:50,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:14},
-	color:'#777',
-	height:'auto'
-	
+	color:'#777'
 });
 
 win.add(l3);
@@ -80,10 +77,9 @@ var l4 = Titanium.UI.createLabel({
 	top:70,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:14},
-	color:'#777',
-	height:'auto'
-	
+	color:'#777'
 });
 
 win.add(l4);
@@ -93,6 +89,7 @@ var l5 = Titanium.UI.createLabel({
 	top:90,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:14},
 	color:'#777',
 	height:'auto'
@@ -105,10 +102,9 @@ var l6 = Titanium.UI.createLabel({
 	top:110,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:14},
-	color:'#777',
-	height:'auto'
-	
+	color:'#777'
 });
 
 win.add(l6);
@@ -119,10 +115,9 @@ var l7 = Titanium.UI.createLabel({
 	top:130,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:14},
-	color:'#777',
-	height:'auto'
-	
+	color:'#777'
 });
 
 win.add(l7);
@@ -132,10 +127,9 @@ var l8 = Titanium.UI.createLabel({
 	top:150,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:14},
-	color:'#777',
-	height:'auto'
-	
+	color:'#777'
 });
 
 win.add(l8);
@@ -145,10 +139,9 @@ var l9 = Titanium.UI.createLabel({
 	top:170,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:14},
-	color:'#777',
-	height:'auto'
-	
+	color:'#777'
 });
 
 win.add(l9);
@@ -158,10 +151,9 @@ var l11 = Titanium.UI.createLabel({
 	top:190,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:14},
-	color:'#777',
-	height:'auto'
-	
+	color:'#777'
 });
 
 win.add(l11);
@@ -171,6 +163,7 @@ var l12 = Titanium.UI.createLabel({
 	top:210,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:14},
 	color:'#777',
 	height:'auto'
@@ -183,10 +176,9 @@ var l13 = Titanium.UI.createLabel({
 	top:230,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:14},
-	color:'#777',
-	height:'auto'
-	
+	color:'#777'
 });
 
 win.add(l13);
@@ -196,10 +188,9 @@ var l14 = Titanium.UI.createLabel({
 	top:250,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:14},
-	color:'#777',
-	height:'auto'
-	
+	color:'#777'
 });
 
 win.add(l14);
@@ -209,10 +200,9 @@ var l15 = Titanium.UI.createLabel({
 	top:270,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:14},
-	color:'#777',
-	height:'auto'
-	
+	color:'#777'
 });
 
 win.add(l15);
@@ -222,10 +212,9 @@ var l16 = Titanium.UI.createLabel({
 	top:290,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:14},
-	color:'#777',
-	height:'auto'
-	
+	color:'#777'
 });
 
 win.add(l16);
@@ -235,10 +224,9 @@ var l17 = Titanium.UI.createLabel({
 	top:310,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:14},
-	color:'#777',
-	height:'auto'
-	
+	color:'#777'
 });
 
 win.add(l17);

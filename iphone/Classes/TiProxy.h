@@ -59,7 +59,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 //Why are these here? Because they can be commonly used between TiUIView and TiUITableViewCell.
 
 
-@interface TiProxy : NSObject<KrollDynamicMethodProxy,KrollTargetable> {
+@interface TiProxy : NSObject<KrollTargetable> {
 @private
 	NSMutableDictionary *listeners;
 	BOOL destroyed;
@@ -70,6 +70,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	NSRecursiveLock *destroyLock;
 @protected
 	NSMutableDictionary *dynprops;
+	NSRecursiveLock *dynPropsLock;
 	id<TiEvaluator> pageContext;
 	id<TiEvaluator> executionContext;
 	NSString *proxyId;
@@ -91,7 +92,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 -(void)_fireEventToListener:(NSString*)type withObject:(id)obj listener:(KrollCallback*)listener thisObject:(TiProxy*)thisObject_;
 -(id)_proxy:(TiProxyBridgeType)type;
 -(void)_willChangeValue:(id)property value:(id)value;
--(void)_diChangeValue:(id)property value:(id)value;
+-(void)_didChangeValue:(id)property value:(id)value;
 -(void)_contextDestroyed;
 -(void)contextWasShutdown:(KrollBridge*)bridge;
 -(TiHost*)_host;
@@ -107,7 +108,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 #pragma mark Public
 -(id<NSFastEnumeration>)validKeys;
--(id)resultForUndefinedMethod:(NSString*)name args:(NSArray*)args;
 -(void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues usingKeys:(id<NSFastEnumeration>)keys;
 +(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
 -(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;

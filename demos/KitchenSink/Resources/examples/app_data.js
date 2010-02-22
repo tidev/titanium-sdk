@@ -18,6 +18,8 @@ var label = Titanium.UI.createLabel({
 	text:data,
 	top:20,
 	font:{fontFamily:'Helvetica Neue',fontSize:16,fontWeight:'bold'},
-	textAlign:'left'
+	textAlign:'left',
+	width:'auto',
+	height:'auto'
 });
 win.add(label);

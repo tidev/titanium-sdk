@@ -248,27 +248,69 @@ public abstract class TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
 	{
 		if (key.equals("left")) {
-			layoutParams.optionLeft = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
-			nativeView.requestLayout();
+			if (newValue != null) {
+				layoutParams.optionLeft = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
+			} else {
+				layoutParams.optionLeft = TiCompositeLayout.NOT_SET;
+			}
+			if (nativeView != null) {
+				nativeView.requestLayout();
+			}
 		} else if (key.equals("top")) {
-			layoutParams.optionTop = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
-			nativeView.requestLayout();
+			if (newValue != null) {
+				layoutParams.optionTop = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
+			} else {
+				layoutParams.optionTop = TiCompositeLayout.NOT_SET;
+			}
+			if (nativeView != null) {
+				nativeView.requestLayout();
+			}
 		} else if (key.equals("right")) {
-			layoutParams.optionRight = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
-			nativeView.requestLayout();
+			if (newValue != null) {
+				layoutParams.optionRight = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
+			} else {
+				layoutParams.optionRight = TiCompositeLayout.NOT_SET;
+			}
+			if (nativeView != null) {
+				nativeView.requestLayout();
+			}
 		} else if (key.equals("bottom")) {
-			layoutParams.optionBottom = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
-			nativeView.requestLayout();
+			if (newValue != null) {
+				layoutParams.optionBottom = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
+			} else {
+				layoutParams.optionBottom = TiCompositeLayout.NOT_SET;
+			}
+			if (nativeView != null) {
+				nativeView.requestLayout();
+			}
 		} else if (key.equals("height")) {
-			if (!newValue.equals("auto")) {
-				layoutParams.optionHeight = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
-				layoutParams.autoHeight = false;
+			if (newValue != null) {
+				if (!newValue.equals("auto")) {
+					layoutParams.optionHeight = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
+					layoutParams.autoHeight = false;
+				} else {
+					layoutParams.optionHeight = TiCompositeLayout.NOT_SET;
+					layoutParams.autoHeight = true;
+				}
+			} else {
+				layoutParams.optionHeight = TiCompositeLayout.NOT_SET;
+			}
+			if (nativeView != null) {
 				nativeView.requestLayout();
 			}
 		} else if (key.equals("width")) {
-			if (!newValue.equals("auto")) {
-				layoutParams.optionWidth = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
-				layoutParams.autoWidth = false;
+			if (newValue != null) {
+				if (!newValue.equals("auto")) {
+					layoutParams.optionWidth = TiConvert.toTiDimension(TiConvert.toString(newValue)).getIntValue();
+					layoutParams.autoWidth = false;
+				} else {
+					layoutParams.optionWidth = TiCompositeLayout.NOT_SET;
+					layoutParams.autoWidth = true;
+				}
+			} else {
+				layoutParams.optionWidth = TiCompositeLayout.NOT_SET;
+			}
+			if (nativeView != null) {
 				nativeView.requestLayout();
 			}
 		} else if (key.equals("visible")) {
@@ -427,7 +469,7 @@ public abstract class TiUIView
 
 		getProxy().fireEvent("click", data);
 	}
-	
+
 	public TiDict toImage() {
 		return TiUIHelper.viewToImage(proxy.getTiContext(), getNativeView());
 	}

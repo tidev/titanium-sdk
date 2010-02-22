@@ -1,0 +1,38 @@
+- namespace
+
+Titanium.API.error
+
+- type
+
+function
+
+- returns
+
+void
+
+- parameters
+
+message[string]: the message to log
+
+- description
+
+Log a statement to the Titanium Developer console at ERROR logging level.
+
+- since
+
+0.1
+
+- platforms
+
+android, iphone
+
+- example
+
+<code>
+	Titanium.API.error("You're not using Titanium?");
+</code>
+
+
+
+
+

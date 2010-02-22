@@ -22,6 +22,7 @@
 {
 	RELEASE_TO_NIL(view);
 	RELEASE_TO_NIL(children);
+	RELEASE_TO_NIL(childLock);
 	[super dealloc];
 }
 
@@ -46,6 +47,13 @@
 -(void)add:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg,TiViewProxy);
+	if (childLock==nil)
+	{
+		// since we can have multiple threads (one for JS context, one for UI thread)
+		// we need to (unfortunately) lock
+		childLock = [[NSRecursiveLock alloc] init];
+	}
+	[childLock lock];
 	if (children==nil)
 	{
 		children = [[NSMutableArray alloc] init];
@@ -58,6 +66,7 @@
 		[self layoutChildOnMainThread:arg];
 	}
 	[self childAdded:arg];
+	[childLock unlock];
 }
 
 
@@ -66,6 +75,7 @@
 	ENSURE_SINGLE_ARG(arg,TiViewProxy);
 	if (children!=nil)
 	{
+		[childLock lock];
 		[self childRemoved:arg];
 		[children removeObject:arg];
 		[arg setParent:nil];
@@ -74,6 +84,7 @@
 		{
 			RELEASE_TO_NIL(children);
 		}
+		[childLock unlock];
 	}
 	if (view!=nil)
 	{
@@ -87,6 +98,11 @@
 			[self performSelectorOnMainThread:@selector(removeFromSuperview) withObject:childView waitUntilDone:NO];
 		}
 	}
+}
+
+-(TiPoint*)center
+{
+	return [[[TiPoint alloc] initWithPoint:[self view].center] autorelease];
 }
 
 -(void)show:(id)arg
@@ -127,9 +143,13 @@
 
 #pragma mark View
 
--(void)setParent:(TiProxy*)parent_
+-(void)setParent:(TiViewProxy*)parent_
 {
 	parent = parent_;
+	if (view!=nil)
+	{
+		[view setParent:parent_];
+	}
 }
 
 -(void)animationCompleted:(TiAnimation*)animation
@@ -173,17 +193,27 @@
 
 -(void)windowDidClose
 {
-	for (TiViewProxy *child in children)
+	if (children!=nil)
 	{
-		[child windowDidClose];
+		[childLock lock];
+		for (TiViewProxy *child in children)
+		{
+			[child windowDidClose];
+		}
+		[childLock unlock];
 	}
 }
 
 -(void)windowWillClose
 {
-	for (TiViewProxy *child in children)
+	if (children!=nil)
 	{
-		[child windowWillClose];
+		[childLock lock];
+		for (TiViewProxy *child in children)
+		{
+			[child windowWillClose];
+		}
+		[childLock unlock];
 	}
 	[self detachView];
 }
@@ -277,7 +307,7 @@
 		// on open we need to create a new view
 		view = [self newView];
 		view.proxy = self;
-		view.parent = self;
+		view.parent = parent;
 		view.layer.transform = CATransform3DIdentity;
 		view.transform = CGAffineTransformIdentity;
 
@@ -292,11 +322,16 @@
 
 		[view configurationSet];
 		
-		for (id child in self.children)
+		if (children!=nil)
 		{
-			TiUIView *childView = [(TiViewProxy*)child view];
-			[childView setParent:self];
-			[view addSubview:childView];
+			[childLock lock];
+			for (id child in self.children)
+			{
+				TiUIView *childView = [(TiViewProxy*)child view];
+				//[childView setParent:self];
+				[view addSubview:childView];
+			}
+			[childLock unlock];
 		}
 
 		[self viewDidAttach];
@@ -305,7 +340,6 @@
 		LayoutConstraint layout;
 		ReadConstraintFromDictionary(&layout,[self allProperties],NULL);
 		[view updateLayout:&layout withBounds:view.bounds];
-		
 		
 		viewInitialized = YES;
 	}
@@ -338,9 +372,14 @@
 -(void)layoutChildren:(CGRect)bounds
 {
 	// now ask each of our children for their view
-	for (id child in self.children)
+	if (self.children!=nil)
 	{
-		[self layoutChild:child bounds:bounds];
+		[childLock lock];
+		for (id child in self.children)
+		{
+			[self layoutChild:child bounds:bounds];
+		}
+		[childLock unlock];
 	}
 }
 
@@ -360,7 +399,9 @@
 	}
 	if (children!=nil)
 	{
+		[childLock lock];
 		[children removeAllObjects];
+		[childLock unlock];
 		RELEASE_TO_NIL(children);
 	}
 	[super _destroy];
@@ -419,32 +460,6 @@
 	}
 }
 
-#pragma mark Invocation
-
-//FIXME: review this, i think it can be removed -JGH
--(id)resultForUndefinedMethod:(NSString*)name args:(NSArray*)args
-{
-	// support dynamic forwarding to model delegate methods if attached
-	if (self.modelDelegate!=nil)
-	{
-		NSString *methodSelectorName = [NSString stringWithFormat:@"%@:",name];
-		SEL selector = NSSelectorFromString(methodSelectorName);
-		if ([(NSObject*)self.modelDelegate respondsToSelector:selector])
-		{
-			if ([NSThread isMainThread])
-			{
-				[(NSObject*)self.modelDelegate performSelector:selector withObject:args];
-			}
-			else 
-			{
-				[(NSObject*)self.modelDelegate performSelectorOnMainThread:selector withObject:args waitUntilDone:NO];
-			}
-			return nil;
-		}
-	}
-	return [super resultForUndefinedMethod:name args:args];
-}
-
 #pragma mark For Nav Bar Support
 
 -(BOOL)supportsNavBarPositioning
@@ -482,9 +497,12 @@
 	switch (heightDimension.type)
 	{
 		case TiDimensionTypePixels:
+		{
 			result += heightDimension.value;
 			break;
+		}
 		case TiDimensionTypeAuto:
+		{
 			if ([self respondsToSelector:@selector(autoHeightForWidth:)])
 			{
 				TiDimension leftDimension = TiDimensionFromObject([self valueForKey:@"left"]);
@@ -493,6 +511,7 @@
 						+ TiDimensionCalculateValue(rightDimension, 0);
 				result += [self autoHeightForWidth:suggestedWidth];
 			}
+		}
 	}
 	return result;
 }

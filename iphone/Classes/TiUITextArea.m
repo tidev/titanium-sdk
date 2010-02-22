@@ -130,10 +130,25 @@
 
 - (BOOL)textView:(UITextView *)tv shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
-	NSString *value = [NSString stringWithFormat:@"%@%@",[tv text],text];
-	[self.proxy replaceValue:value forKey:@"value" notification:NO];
+	NSString *curText = [tv text];
+	BOOL hitReturn = [text isEqualToString:@"\n"];
+	
+	if ([text isEqualToString:@""])
+	{
+		// this is delete
+		curText = [curText substringToIndex:[curText length]-range.length];
+	}
+	else
+	{
+		if (hitReturn==NO)
+		{
+			curText = [NSString stringWithFormat:@"%@%@",curText,text];
+		}
+	}
+	
+	[self.proxy replaceValue:curText forKey:@"value" notification:NO];
 
-	if ([text isEqualToString:@"\n"]) 
+	if (hitReturn) 
 	{
 		returnActive = YES;
 

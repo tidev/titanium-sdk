@@ -30,6 +30,14 @@
 		username = [theDevice name];
 		ostype = [@"32bit" retain];
 		
+#ifdef IPAD 	
+		// ipad is a constant for Ti.Platform.osname
+		[self replaceValue:@"ipad" forKey:@"osname" notification:NO];
+#else
+		// iphone is a constant for Ti.Platform.osname
+		[self replaceValue:@"iphone" forKey:@"osname" notification:NO];
+#endif
+		
 		//TODO: save CPU and RAM by moving these into dynamic properties
 		
 		NSString *deviceMac = nil; 

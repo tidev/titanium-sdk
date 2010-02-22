@@ -4,7 +4,6 @@ xhr.onload = function()
 {
 	Ti.API.info('twitter xml ' + this.responseXML + ' text ' + this.responseText);
 	Ti.API.info("user node = "+this.responseXML.documentElement.getElementsByTagName("screen_name").item(0).nodeValue);
-	
 	var screenname = Ti.UI.createLabel({
 		textAlign:'center',
 		height:'auto',

@@ -96,14 +96,6 @@ public class TiCompass
 
 	public void getCurrentHeading(final KrollCallback listener)
 	{
-		boolean unregister = false;
-
-		if (!sensorAttached) {
-			unregister = true;
-		}
-
-		final boolean funregister = unregister;
-
 		final SensorEventListener oneShotListener = new SensorEventListener()
 		{
 			public void onAccuracyChanged(Sensor sensor, int accuracy)
@@ -120,27 +112,23 @@ public class TiCompass
 					listener.callWithProperties(eventToTiDict(event, ts));
 
 					sensorHelper.unregisterListener(SENSORS, this);
-					if (funregister) {
-						manageUpdateListener(false, this, true);
-					}
+					manageUpdateListener(false, this);
 				}
 			}
 		};
 
-		if (unregister) {
-			manageUpdateListener(true, oneShotListener, true);
-		}
+		manageUpdateListener(true, oneShotListener);
 		sensorHelper.registerListener(SENSORS, oneShotListener, 5000);
 	}
 
 	protected void manageUpdateListener(boolean register) {
-		manageUpdateListener(register, updateListener, false);
+		manageUpdateListener(register, updateListener);
 	}
 
-	protected void manageUpdateListener(boolean register, SensorEventListener listener, boolean temporary)
+	protected void manageUpdateListener(boolean register, SensorEventListener listener)
 	{
 		if (register) {
-			if (temporary || !listeningForUpdate) {
+			if (!listeningForUpdate) {
 				sensorAttached = sensorHelper.attach(proxy.getTiContext().getActivity());
 
 				if(sensorAttached) {
@@ -157,17 +145,14 @@ public class TiCompass
 						}
 					}
 					sensorHelper.registerListener(SENSORS , listener, SensorManager.SENSOR_DELAY_UI);
-					if (!temporary) {
-						listeningForUpdate = true;
-					}
+					listeningForUpdate = true;
 				}
 			}
 		} else {
-			if (temporary || listeningForUpdate) {
+			if (listeningForUpdate) {
 				sensorHelper.unregisterListener(SENSORS, listener);
-				if (!temporary) {
+				if (sensorHelper.isEmpty()) {
 					listeningForUpdate = false;
-				} else {
 					sensorHelper.detach();
 				}
 			}
@@ -233,13 +218,13 @@ public class TiCompass
 	public void onResume() {
 
 		if (proxy.getTiContext().hasEventListener(EVENT_HEADING, proxy)) {
-			manageUpdateListener(true, updateListener, false);
+			manageUpdateListener(true, updateListener);
 		}
 	}
 
 	public void onPause() {
 		if (sensorAttached) {
-			manageUpdateListener(false, updateListener, false);
+			manageUpdateListener(false, updateListener);
 
 			sensorHelper.detach();
 			sensorAttached = false;

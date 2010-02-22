@@ -13,7 +13,11 @@
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:kKrollShutdownNotification object:context];
 	removed=YES;
-	[proxy removeEventListener:[NSArray arrayWithObjects:type,listener,nil]];
+	if (type!=nil)
+	{
+		[proxy removeEventListener:[NSArray arrayWithObjects:type,listener,nil]];
+	}
+	RELEASE_TO_NIL(context);
 }
 
 -(id)initWithListener:(id)listener_ context:(id<TiEvaluator>)context_ proxy:(TiProxy*)proxy_ type:(NSString*)type_

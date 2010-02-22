@@ -56,13 +56,15 @@ public class TiUIText extends TiUIView
 
 	private boolean field;
 
+	protected EditText tv;
+
 	public TiUIText(TiViewProxy proxy, boolean field) {
 		super(proxy);
 		if (DBG) {
 			Log.d(LCAT, "Creating a text field");
 		}
 		this.field = field;
-		EditText tv = new EditText(getProxy().getContext());
+		tv = new EditText(getProxy().getContext());
 		if (field) {
 			tv.setSingleLine();
 			tv.setMaxLines(1);
@@ -86,7 +88,6 @@ public class TiUIText extends TiUIView
 	{
 		super.processProperties(d);
 
-		EditText tv = (EditText) getNativeView();
 		if (d.containsKey("value")) {
 			tv.setText(d.getString("value"));
 		}
@@ -135,7 +136,6 @@ public class TiUIText extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "Property: " + key + " old: " + oldValue + " new: " + newValue);
 		}
-		EditText tv = (EditText) getNativeView();
 		if (key.equals("value")) {
 			tv.setText((String) newValue);
 		} else if (key.equals("color")) {
@@ -182,7 +182,6 @@ public class TiUIText extends TiUIView
 
 	public void onTextChanged(CharSequence s, int start, int before, int count)
 	{
-		EditText tv = (EditText) nativeView;
 		String value = tv.getText().toString();
 		TiDict data = new TiDict();
 		data.put("value", value);
@@ -207,7 +206,6 @@ public class TiUIText extends TiUIView
 
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
 	{
-		EditText tv = (EditText) nativeView;
 		String value = tv.getText().toString();
 		TiDict data = new TiDict();
 		data.put("value", value);
@@ -224,7 +222,6 @@ public class TiUIText extends TiUIView
 
 	public void handleTextAlign(String textAlign, String verticalAlign)
 	{
-		EditText tv = (EditText) getNativeView();
 		int valign = field ? Gravity.CENTER_VERTICAL : Gravity.TOP;
 		int align = Gravity.LEFT;
 
@@ -257,7 +254,6 @@ public class TiUIText extends TiUIView
 
 	public void handleKeyboardType(int type, boolean autocorrect)
 	{
-		EditText tv = (EditText) getNativeView();
 		switch(type) {
 			case KEYBOARD_ASCII :
 				tv.setKeyListener(TextKeyListener.getInstance(autocorrect, Capitalize.NONE));
@@ -288,8 +284,6 @@ public class TiUIText extends TiUIView
 
 	public void handleReturnKeyType(int type)
 	{
-		EditText tv = (EditText) getNativeView();
-
 		switch(type) {
 			case RETURNKEY_GO :
 				tv.setImeOptions(EditorInfo.IME_ACTION_GO);

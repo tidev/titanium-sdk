@@ -99,20 +99,23 @@ var messageWin = Titanium.UI.createWindow({
 	height:30,
 	width:250,
 	bottom:70,
-	borderRadius:10
+	borderRadius:10,
+	touchEnabled:false
 });
 var messageView = Titanium.UI.createView({
 	height:30,
 	width:250,
 	borderRadius:10,
 	backgroundColor:'#000',
-	opacity:0.7
+	opacity:0.7,
+	touchEnabled:false
 });
 
 var messageLabel = Titanium.UI.createLabel({
 	text:'',
 	color:'#fff',
 	width:250,
+	height:'auto',
 	font:{
 		fontFamily:'Helvetica Neue',
 		fontSize:13
