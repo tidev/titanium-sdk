@@ -3,7 +3,12 @@
 // Free for personal or commercial use, with or without modification.
 // No warranty is expressed or implied.
 
-// Extends the UIImage class to support making rounded corners
-@interface UIImage (RoundedCorner)
-- (UIImage *)roundedCornerImage:(NSInteger)cornerSize borderSize:(NSInteger)borderSize;
+// NOTE: Appcelerator modified to convert from Category to 
+// new Class name since iPhone seems to have some issues with Categories
+// of built in Classes
+
+@interface UIImageRoundedCorner : NSObject
+{
+}
++ (UIImage *)roundedCornerImage:(NSInteger)cornerSize borderSize:(NSInteger)borderSize image:(UIImage*)image;
 @end

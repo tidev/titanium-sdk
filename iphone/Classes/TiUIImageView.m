@@ -164,7 +164,7 @@ DEFINE_EXCEPTIONS
 		{
 			height = theimage.size.height;
 		}
-		theimage = [theimage resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh];
+		theimage = [UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh image:theimage];
 	}
 	return theimage;
 }
