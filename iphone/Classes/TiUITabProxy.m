@@ -45,15 +45,22 @@
 //I'm assuming that this happens automatically now that we base off of whatnot.
 }
 
--(UINavigationController*)controller
+-(TiUITabController *)rootController
 {
-	if (rootController==nil)
+	if (rootController == nil)
 	{
 		TiWindowProxy *window = [self valueForKey:@"window"];
 		rootController = [[TiUITabController alloc] initWithProxy:window tab:self];
-		controller = [[UINavigationController alloc] initWithRootViewController:rootController];
-		controller.delegate = self;
+	}
+	return rootController;
+}
 
+-(UINavigationController*)controller
+{
+	if (controller==nil)
+	{
+		controller = [[UINavigationController alloc] initWithRootViewController:[self rootController]];
+		controller.delegate = self;
 		[self setTitle:[self valueForKey:@"title"]];
 		[self setIcon:[self valueForKey:@"icon"]];
 		[self setBadge:[self valueForKey:@"badge"]];

@@ -122,7 +122,8 @@
 	{
 		id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
 		BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-		[navController setNavigationBarHidden:NO animated:animated];
+		[[controller navigationController] setNavigationBarHidden:NO animated:animated];
+//		[navController setNavigationBarHidden:NO animated:animated];
 	}
 }
 
@@ -134,7 +135,8 @@
 	{
 		id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
 		BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-		[navController setNavigationBarHidden:YES animated:animated];
+		[[controller navigationController] setNavigationBarHidden:YES animated:animated];
+//		[navController setNavigationBarHidden:YES animated:animated];
 		//TODO: need to fix height
 	}
 }
@@ -146,19 +148,20 @@
 	[self replaceValue:color forKey:@"barColor" notification:NO];
 	if (controller!=nil)
 	{
+		UINavigationController * ourNC = [controller navigationController];
 		//TODO: do we need to be more flexible in the bar styles?
 		
 		if ([color isEqualToString:@"transparent"])
 		{
-			navController.navigationBar.barStyle = UIBarStyleBlackTranslucent;
-			navController.navigationBar.translucent = YES;
+			ourNC.navigationBar.barStyle = UIBarStyleBlackTranslucent;
+			ourNC.navigationBar.translucent = YES;
 		}
 		else 
 		{
 			UIColor *acolor = UIColorWebColorNamed(color);
-			navController.navigationBar.tintColor = acolor;
-			navController.toolbar.tintColor = acolor;
-			navController.navigationBar.barStyle = UIBarStyleDefault;
+			ourNC.navigationBar.tintColor = acolor;
+			ourNC.toolbar.tintColor = acolor;
+			ourNC.navigationBar.barStyle = UIBarStyleDefault;
 		}
 	}
 }
@@ -169,7 +172,7 @@
 	[self replaceValue:value forKey:@"translucent" notification:NO];
 	if (controller!=nil)
 	{
-		navController.navigationBar.translucent = [TiUtils boolValue:value];
+		[controller navigationController].navigationBar.translucent = [TiUtils boolValue:value];
 	}
 }
 
@@ -413,6 +416,7 @@
 		
 		// detatch the current ones
 		NSArray *existing = [controller toolbarItems];
+		UINavigationController * ourNC = [controller navigationController];
 		if (existing!=nil)
 		{
 			for (id current in existing)
@@ -443,8 +447,8 @@
 			}
 			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
 			[controller setToolbarItems:array animated:animated];
-			[navController setToolbarHidden:NO animated:animated];
-			[navController.toolbar setTranslucent:translucent];
+			[ourNC setToolbarHidden:NO animated:animated];
+			[ourNC.toolbar setTranslucent:translucent];
 			[array release];
 			hasToolbar=YES;
 		}
@@ -452,8 +456,8 @@
 		{
 			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
 			[controller setToolbarItems:nil animated:animated];
-			[navController setToolbarHidden:YES animated:animated];
-			[navController.toolbar setTranslucent:translucent];
+			[ourNC setToolbarHidden:YES animated:animated];
+			[ourNC.toolbar setTranslucent:translucent];
 			hasToolbar=NO;
 		}
 	}
@@ -505,9 +509,10 @@ else{\
 
 -(void)setupWindowDecorations
 {
-	if (navController!=nil)
+	if (controller!=nil)
 	{
-		[navController setToolbarHidden:!hasToolbar animated:YES];
+		[[controller navigationController] setToolbarHidden:!hasToolbar animated:YES];
+//		[navController setToolbarHidden:!hasToolbar animated:YES];
 	}
 	
 	SETPROP(@"title",setTitle);
