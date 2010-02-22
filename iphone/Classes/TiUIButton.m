@@ -21,6 +21,13 @@
 	[super dealloc];
 }
 
+-(BOOL)hasTouchableListener
+{
+	// since this guy only works with touch events, we always want them
+	// just always return YES no matter what listeners we have registered
+	return YES;
+}
+
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	self.frame = CGRectIntegral(self.frame);

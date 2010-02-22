@@ -83,7 +83,7 @@ changeButton.addEventListener('click', function()
 	basicSlider.leftTrackImage = '../images/slider_orangebar.png';
 	basicSlider.rightTrackImage = '../images/slider_lightbar.png';
 	basicSlider.thumbImage = '../images/slider_thumb.png';
-	basicSlider.highlightedThumbImage = '../images/slider_thumb.png';	
+	basicSlider.highlightedThumbImage = '../images/slider_thumb.png';
 });
 
 //
