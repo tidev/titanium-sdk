@@ -210,13 +210,13 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	{
 		[self _fireEventToListener:@"readystatechange" withObject:nil listener:onreadystatechange thisObject:thisPointer];
 	}
-	if (onload!=nil && state==NetworkClientStateDone)
+	if (onload!=nil && state==NetworkClientStateDone && connected)
 	{
 		[self _fireEventToListener:@"load" withObject:nil listener:onload thisObject:thisPointer];
 	}
 }
 
--(void)abort
+-(void)abort:(id)args
 {
 	if (request!=nil && connected)
 	{
