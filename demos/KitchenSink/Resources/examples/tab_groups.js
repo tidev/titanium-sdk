@@ -18,9 +18,11 @@ addTabButton.addEventListener('click', function(e)
 {
 	if (tabGroup.tabs.length == 5)
 	{
+		var win = Ti.UI.createWindow({title:'New Tab Window',barColor:'#000'});
 		var newtab = Titanium.UI.createTab({  
 		    icon:'../images/tabs/KS_nav_mashup.png',
-		    title:'New Tab'
+		    title:'New Tab',
+			win:win
 		});
 		tabGroup.addTab(newtab);
 	}

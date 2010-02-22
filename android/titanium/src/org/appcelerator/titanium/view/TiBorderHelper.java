@@ -49,8 +49,10 @@ public class TiBorderHelper
 		if (borderColor != null) {
 			float pad = calculatePadding();
 			RectF rect = new RectF(pad, pad, width-pad, height - pad);
-			canvas.save();
-			canvas.clipRect(rect);
+			if (rect.height() > 0 && rect.width() > 0) {
+				canvas.save();
+				canvas.clipRect(rect);
+			}
 		}
 	}
 
@@ -58,7 +60,7 @@ public class TiBorderHelper
 	{
 		if (borderColor != null) {
 			float pad = calculatePadding();
-			RectF rect = new RectF(pad, pad, width-pad, height - pad);
+			RectF rect = new RectF(pad, pad, width-pad, height-pad);
 			canvas.restore();
 
 			if (borderRadius != null) {

@@ -17,8 +17,10 @@ for (var i=1;i<18;i++)
 var imageView = Titanium.UI.createImageView({
 	images:images,
 	duration:100, // in milliseconds, the time before next frame is shown
-	repeatCount:0  // 0 means animation repeats indefinitely, use > 1 to control repeat count
+	repeatCount:0,  // 0 means animation repeats indefinitely, use > 1 to control repeat count
+	top:0,
 });
+
 
 var frame = Ti.UI.createLabel({
 	text:'',
