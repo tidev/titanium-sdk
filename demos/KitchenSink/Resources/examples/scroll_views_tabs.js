@@ -29,7 +29,8 @@ var scrollView = Titanium.UI.createScrollView({
 	height:50,
 	width:230,
 	borderRadius:10,
-	backgroundColor:'#13386c'
+	backgroundColor:'#13386c',
+	showHorizontalScrollIndicator: true
 });
 
 scrollView.addEventListener('scroll', function(e)
