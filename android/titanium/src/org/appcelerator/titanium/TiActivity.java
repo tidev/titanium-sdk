@@ -59,10 +59,14 @@ public class TiActivity extends Activity
 
         boolean fullscreen = false;
         boolean navbar = true;
+        boolean modal = false;
         Messenger messenger = null;
         Integer messageId = null;
 
         if (intent != null) {
+        	if (intent.hasExtra("modal")) {
+        		modal = intent.getBooleanExtra("modal", modal);
+        	}
         	if (intent.hasExtra("fullscreen")) {
         		fullscreen = intent.getBooleanExtra("fullscreen", fullscreen);
         	}
@@ -75,18 +79,22 @@ public class TiActivity extends Activity
         	}
         }
 
-        if (fullscreen) {
-        	getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
-
-        if (navbar) {
-        	this.requestWindowFeature(Window.FEATURE_LEFT_ICON); // TODO Keep?
-	        this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
-	        this.requestWindowFeature(Window.FEATURE_PROGRESS);
-	        this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        if (modal) {
+        	setTheme(android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
         } else {
-           	this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+	        if (fullscreen) {
+	        	getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+	                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	        }
+
+	        if (navbar) {
+	        	this.requestWindowFeature(Window.FEATURE_LEFT_ICON); // TODO Keep?
+		        this.requestWindowFeature(Window.FEATURE_RIGHT_ICON);
+		        this.requestWindowFeature(Window.FEATURE_PROGRESS);
+		        this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+	        } else {
+	           	this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+	        }
         }
 
         setContentView(layout);

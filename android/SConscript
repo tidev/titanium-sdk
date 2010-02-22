@@ -23,27 +23,33 @@ sources = [os.path.join('titanium', 'src'), os.path.join('titanium', 'thirdparty
 env.Append(JAVASOURCEPATH=os.path.join('titanium','src'))
 env.Append(JAVACLASSPATH=classpath)
 
-#copy non-Java files into classes
 titanium_src_dir = os.path.join(cwd, 'android', 'titanium', 'src')
-non_java_resources = []
-for root, dirs, files in os.walk(titanium_src_dir):
-	for file in files:
-		if not file.endswith(".java"):
-			relative_path = os.path.join(root[len(titanium_src_dir)+1:], file)
-			file_path = os.path.join(root, file)
-			dest_path = os.path.join(cwd, 'dist', 'android', 'classes', os.path.dirname(relative_path))
-			if not os.path.exists(dest_path):
-				os.makedirs(dest_path)
-			dest_file = os.path.join(cwd, 'dist', 'android', 'classes', relative_path)
-			shutil.copy(file_path, dest_file)
-			non_java_resources.append(dest_file)
+classes_dir = os.path.join(cwd, 'dist', 'android', 'classes')
+
+#copy non-Java files into classes
+def copy_resources(src_dir, dest_dir):
+	resources = []
+	for root, dirs, files in os.walk(src_dir):
+		for file in files:
+			if not file.endswith(".java"):
+				relative_path = os.path.join(root[len(src_dir)+1:], file)
+				file_path = os.path.join(root, file)
+				dest_path = os.path.join(dest_dir, os.path.dirname(relative_path))
+				if not os.path.exists(dest_path):
+					os.makedirs(dest_path)
+				dest_file = os.path.join(dest_dir, relative_path)
+				shutil.copy(file_path, dest_file)
+				resources.append(dest_file)
+	return resources
 
 classes = env.Java(target = 'classes', source = sources)
-env.Jar(target = 'titanium.jar', source = classes + non_java_resources)
+env.Jar(target = 'titanium.jar', source = classes + copy_resources(titanium_src_dir, classes_dir))
 
 for module in modules:
 	module_sources = os.path.join('modules', module, 'src')
-	env.Java(target = 'classes', source = module_sources, JAVACLASSPATH = classpath + [os.path.join(cwd, 'dist', 'android', 'classes')])
+	env.Java(target = 'classes', source = module_sources, JAVACLASSPATH = classpath + [classes_dir])
+	module_classes = [ os.path.join('classes', 'ti', 'modules', 'titanium', module) ]
+	module_resources = copy_resources(os.path.join(cwd, 'android', 'modules', module, 'src'), classes_dir)
 	env.Jar(target = 'titanium-%s.jar' % module,
-		source = os.path.join('classes', 'ti', 'modules', 'titanium', module), JARCHDIR=os.path.join(cwd, 'dist', 'android', 'classes'))
+		source = module_classes + module_resources, JARCHDIR=classes_dir)
 

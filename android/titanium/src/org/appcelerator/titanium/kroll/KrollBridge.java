@@ -32,13 +32,14 @@ public class KrollBridge
 		kroll.put("setInterval", (Scriptable) titanium.get("setInterval", titanium));
 		kroll.put("clearInterval", (Scriptable) titanium.get("clearInterval", titanium));
 		kroll.put("alert", (Scriptable) titanium.get("alert", titanium));
+		kroll.put("JSON", (Scriptable) titanium.get("JSON", titanium));
 
 		if (preload != null) {
 			titanium.loadModule("UI");
 			Scriptable root = kroll.getScope();
 			Scriptable ti = (Scriptable) root.get("Ti", root);
 			KrollObject ui = (KrollObject) ti.get("UI", ti);
-			
+
 			for(String key : preload.keySet()) {
 				KrollObject ko = new KrollObject(ui, preload.get(key));
 				ui.superPut(key, ui, ko);
@@ -57,10 +58,10 @@ public class KrollBridge
 				return;
 			}
 		}
-		
+
 		kroll.put(topLevelName, o);
 	}
-	
+
 	public Object evalFile(String filename)
 		throws IOException
 	{
