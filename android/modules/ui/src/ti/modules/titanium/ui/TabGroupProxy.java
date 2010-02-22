@@ -13,6 +13,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUITabGroup;
@@ -253,5 +254,9 @@ public class TabGroupProxy extends TiWindowProxy
 		intent.putExtra("messenger", messenger);
 		intent.putExtra("messageId", MSG_FINISH_OPEN);
 	}
-
+	
+	@Override
+	public TiDict handleToImage() {
+		return TiUIHelper.viewToImage(getTiContext(), getTiContext().getActivity().getWindow().getDecorView());
+	}
 }

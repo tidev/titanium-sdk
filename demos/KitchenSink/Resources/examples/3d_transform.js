@@ -18,6 +18,7 @@ var label = Titanium.UI.createLabel({
 	font:{fontSize:60},
 	width:'auto',
 	height:'auto'
+	textAlign:'center'
 });
 view.add(label);
 

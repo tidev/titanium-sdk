@@ -202,14 +202,6 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 		return listenerId;
 	}
 
-	public void removeEventListener(String eventName, int listenerId)
-	{
-		TiContext ctx = getTiContext();
-		if (ctx != null) {
-			ctx.removeEventListener(eventName, listenerId);
-		}
-	}
-
 	public void removeEventListener(String eventName, Object listener)
 	{
 		TiContext ctx = getTiContext();

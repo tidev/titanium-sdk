@@ -38,7 +38,7 @@ view2.addEventListener('click',function()
 	alert("You were able to click on the view. Good!");
 });
 
-label2.addEventListener('click',function()
+label.addEventListener('click',function()
 {
 	alert("You were able to click on the label. Good!");
 });

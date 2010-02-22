@@ -22,7 +22,6 @@ var closeText = (Titanium.App.Properties.getString('window_close_event'))
 //
 var focusLabel = Titanium.UI.createLabel({
 	text:focusText,
-	color:'#333',
 	font:{
 		fontFamily:'Helvetica Neue',
 		fontSize:13

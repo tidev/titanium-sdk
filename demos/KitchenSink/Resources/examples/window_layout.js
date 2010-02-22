@@ -79,7 +79,8 @@ var messageLabel = Titanium.UI.createLabel({
 	color:'#fff',
 	text:'Register for a free toaster!',
 	height:'auto',
-	width:'auto'
+	width:'auto',
+	textAlign:'center'
 });
 
 messageView.add(messageLabel);

@@ -335,6 +335,7 @@ void KrollFinalizer(TiObjectRef ref)
 #endif
 	
 	[o release];
+	o = nil;
 }
 
 

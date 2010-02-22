@@ -6,6 +6,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TabGroupProxy;
@@ -59,7 +60,10 @@ public class TiUITabGroup extends TiUIView
         tabHost.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor("#ff1a1a1a")));
 
 		setNativeView(tabHost);
-		activity.getLayout().addView(tabHost);
+		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+		params.autoFillsHeight = true;
+		params.autoFillsWidth = true;
+		activity.getLayout().addView(tabHost, params);
 
   		lastTabId = null;
 	}

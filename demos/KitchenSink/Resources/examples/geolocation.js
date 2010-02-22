@@ -143,49 +143,29 @@ win.add(Titanium.UI.createLabel({
 	width: 300,
 	font:{fontSize:11}
 }));
+
 var forwardGeoLabel = Titanium.UI.createLabel({
 	text:'Forward Geo (Addr->Coords)',
 	font:{fontSize:12, fontWeight:'bold'},
 	color:'#111',
-	top:270,
+	top:250,
 	left:10,
 	height:15,
 	width:300
 });
 win.add(forwardGeoLabel);
 
-var forwardGeo = Titanium.UI.createLabel({
-	text:'',
-	font:{fontSize:11},
-	color:'#444',
-	top:290,
-	left:10,
-	height:15,
-	width:300
-});
-win.add(forwardGeo);
-
 var reverseGeoLabel = Titanium.UI.createLabel({
 	text:'Reverse Geo (Coords->Addr)',
 	font:{fontSize:12, fontWeight:'bold'},
 	color:'#111',
-	top:310,
+	top:290,
 	left:10,
 	height:15,
 	width:300
 });
 win.add(reverseGeoLabel);
 
-var reverseGeo = Titanium.UI.createLabel({
-	text:'',
-	font:{fontSize:11},
-	color:'#444',
-	top:330,
-	left:10,
-	height:50,
-	width:300
-});
-win.add(reverseGeo);
 
 //
 //  SHOW CUSTOM ALERT IF DEVICE HAS GEO TURNED OFF
@@ -368,6 +348,7 @@ else
 
 	
 }
+var addr = "444 Castro Street, Mountain View, CA 94041";
 
 Titanium.Geolocation.forwardGeocoder(addr,function(evt)
 {

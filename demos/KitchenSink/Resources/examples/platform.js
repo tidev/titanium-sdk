@@ -91,7 +91,8 @@ var l5 = Titanium.UI.createLabel({
 	width:300,
 	height:'auto',
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 });
 
 win.add(l5);
@@ -164,7 +165,8 @@ var l12 = Titanium.UI.createLabel({
 	width:300,
 	height:'auto',
 	font:{fontSize:14},
-	color:'#777'
+	color:'#777',
+	height:'auto'
 });
 
 win.add(l12);

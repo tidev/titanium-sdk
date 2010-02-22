@@ -96,6 +96,7 @@ var label = Titanium.UI.createLabel({
 	bottom:20,
 	width:'auto',
 	height:'auto'
+	textAlign:'center'
 });
 
 win.add(label);

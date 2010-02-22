@@ -11,6 +11,7 @@ import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -149,6 +150,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 		// iPhone only right now.
 	}
 
+	public TiDict handleToImage() {
+		return TiUIHelper.viewToImage(getTiContext(), getTiContext().getActivity().getWindow().getDecorView());
+	}
+	
 	protected abstract void handleOpen(TiDict options);
 	//public abstract void handlePostOpen(Activity activity);
 	protected abstract void handleClose(TiDict options);

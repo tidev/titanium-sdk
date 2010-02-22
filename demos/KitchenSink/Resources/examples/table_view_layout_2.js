@@ -74,6 +74,7 @@ for (var c=1;c<50;c++)
 	row.selectedBackgroundColor = '#fff';
 	row.height  =100;
 	row.className = 'datarow';
+
 	
 	var photo = Ti.UI.createView({
 		backgroundImage:'../images/custom_tableview/user.png',

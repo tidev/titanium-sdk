@@ -1,8 +1,8 @@
 //
 //  When you open windows outside of tab groups, they are appear on top of either
-// 	the current window or the current tab group.  These examples show you different ways 
+// 	the current window or the current tab group.  These examples show you different ways
 //  to open windows outside of tab groups.
-//  
+//
 
 var win = Titanium.UI.currentWindow;
 
@@ -22,7 +22,7 @@ b1.addEventListener('click', function()
 	var w = Titanium.UI.createWindow({
 		backgroundColor:'#336699',
 	});
-	
+
 	// create a button to close window
 	var b = Titanium.UI.createButton({
 		title:'Close',
@@ -34,7 +34,7 @@ b1.addEventListener('click', function()
 	{
 		w.close();
 	});
-	
+
 	w.open();
 });
 
@@ -50,18 +50,22 @@ var b2 = Titanium.UI.createButton({
 
 b2.addEventListener('click', function()
 {
-	var w = Titanium.UI.createWindow({
-		height:0,
-		width:0,
-		backgroundColor:'#336699',
-		bottom:0,
-		right:0,
-	});
+	var options = {
+			height:0,
+			width:0,
+			backgroundColor:'#336699',
+			bottom:0,
+			right:0,
+		};
+	if (Ti.Platform.name == 'android') {
+		options.navBarHidden = true;
+	}
+	var w = Titanium.UI.createWindow(options);
 	var a = Titanium.UI.createAnimation();
 	a.height = 460;
 	a.width = 320;
 	a.duration = 300;
-	
+
 	// create a button to close window
 	var b = Titanium.UI.createButton({
 		title:'Close',
@@ -75,7 +79,7 @@ b2.addEventListener('click', function()
 		a.width = 0;
 		w.close(a);
 	});
-	
+
 	w.open(a)
 });
 
@@ -134,14 +138,14 @@ b4.addEventListener('click', function()
 		opacity:0.92,
 		transform:t
 	});
-	
+
 	// create first transform to go beyond normal size
 	var t1 = Titanium.UI.create2DMatrix();
 	t1 = t1.scale(1.1);
 	var a = Titanium.UI.createAnimation();
 	a.transform = t1;
 	a.duration = 200;
-	
+
 	// when this animation completes, scale to normal size
 	a.addEventListener('complete', function()
 	{
@@ -149,9 +153,9 @@ b4.addEventListener('click', function()
 		var t2 = Titanium.UI.create2DMatrix();
 		t2 = t2.scale(1.0);
 		w.animate({transform:t2, duration:200});
-		
+
 	});
-		
+
 	// create a button to close window
 	var b = Titanium.UI.createButton({
 		title:'Close',
@@ -165,10 +169,10 @@ b4.addEventListener('click', function()
 		t3 = t3.scale(0);
 		w.close({transform:t3,duration:300});
 	});
-	
+
 	w.open(a);
-	
-	
+
+
 });
 
 //
@@ -189,7 +193,7 @@ b5.addEventListener('click', function()
 		bottom:0
 	});
 
-	// create window open animation	
+	// create window open animation
 	var a = Titanium.UI.createAnimation();
 	a.height = 420;
 	a.duration = 300;
@@ -206,7 +210,7 @@ b5.addEventListener('click', function()
 		a.height = 0;
 		w.close(a);
 	});
-	
+
 	w.open(a)
 });
 
@@ -226,7 +230,7 @@ b6.addEventListener('click', function()
 	var w = Titanium.UI.createWindow({
 		backgroundColor:'#336699',
 	});
-	
+
 	// create a button to close window
 	var b = Titanium.UI.createButton({
 		title:'Close',
@@ -238,7 +242,7 @@ b6.addEventListener('click', function()
 	{
 		w.close();
 	});
-	
+
 	w.open({fullscreen:true});
 });
 
@@ -258,22 +262,22 @@ b7.addEventListener('click', function()
 	var label = Titanium.UI.createButton({
 		title:'Custom Toolbar',
 		color:'#fff',
-		style:Titanium.UI.iPhone.SystemButtonStyle.PLAIN		
+		style:Titanium.UI.iPhone.SystemButtonStyle.PLAIN
 	});
-	
+
 	var flexSpace = Titanium.UI.createButton({
 		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 	});
 	var close = Titanium.UI.createButton({
 		title:'Close',
-		style:Titanium.UI.iPhone.SystemButtonStyle.DONE		
+		style:Titanium.UI.iPhone.SystemButtonStyle.DONE
 	});
 	var hello = Titanium.UI.createButton({
 		title:'Hello',
-		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED		
+		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
 	});
-	
-	
+
+
 	var w = Titanium.UI.createWindow({
 		backgroundColor:'#336699',
 	});
@@ -289,7 +293,7 @@ b7.addEventListener('click', function()
 		top:0,
 		borderTop:false,
 		borderBottom:true
-	})	
+	})
 	w.add(toolbar);
 
 	var move = Titanium.UI.createButton({
@@ -298,12 +302,12 @@ b7.addEventListener('click', function()
 		width:200
 	});
 	w.add(move);
-	
+
 	move.addEventListener('click', function()
 	{
 		toolbar.animate({top:20,duration:500});
 	})
-	
+
 	w.open();
 });
 
@@ -336,7 +340,7 @@ navButton.addEventListener('click', function()
 	if (!visible)
 	{
 		menuWin.open();
-		menuWin.animate({transform:t2,opacity:1,duration:800});	
+		menuWin.animate({transform:t2,opacity:1,duration:800});
 		visible=true;
 	}
 	else

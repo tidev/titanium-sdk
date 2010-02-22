@@ -46,7 +46,7 @@ var mapview = Titanium.Map.createView({
 	animate:true,
 	regionFit:true,
 	userLocation:true,
-	annotations:[mountainView, apple, atlanta]
+	annotations:[apple, atlanta]
 });
 
 win.add(mapview);
@@ -160,6 +160,8 @@ mapview.addEventListener('regionChanged',function(evt)
 	Titanium.API.info('maps region has updated to '+evt.longitude+','+evt.latitude);
 });
 
+var annotationAdded = false;
+
 // map view click event listener
 mapview.addEventListener('click',function(evt)
 {
@@ -184,6 +186,18 @@ mapview.addEventListener('click',function(evt)
 		evt.annotation.subtitle = 'Appcelerator used to be near here';
 		evt.annotation.leftButton = 'images/appcelerator_small.png';
 		
+	}
+	if (myid == 2 && annotationAdded==false)
+	{
+		Ti.API.info('adding mountain view annotation')
+		mapview.addAnnotation(mountainView);
+		annotationAdded=true;
+	}
+	else
+	{
+		Ti.API.info('removing mountain view annotation')
+		mapview.removeAnnotation(mountainView);
+		annotationAdded=false;
 	}
 });
 

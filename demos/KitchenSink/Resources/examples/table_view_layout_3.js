@@ -18,7 +18,7 @@ var item1 = Ti.UI.createLabel({
 	top:3,
 	left:10,
 	height:30,
-	width:150
+	width:100
 });	
 row1.add(item1);
 
@@ -87,7 +87,7 @@ var item2 = Ti.UI.createLabel({
 	top:3,
 	left:10,
 	height:30,
-	width:150
+	width:100
 });	
 row2.add(item2);
 

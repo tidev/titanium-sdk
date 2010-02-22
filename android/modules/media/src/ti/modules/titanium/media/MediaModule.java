@@ -19,6 +19,7 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiIntentWrapper;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.content.ContentValues;
@@ -450,27 +451,9 @@ public class MediaModule extends TiModule
 			w = w.getContainer();
 		}
 
-		View decorView = w.getDecorView();
-
-		if (decorView != null) {
-			int width = decorView.getWidth();
-			int height = decorView.getHeight();
-			Bitmap bitmap = Bitmap.createBitmap(width, height, Config.RGB_565);
-			Canvas canvas = new Canvas(bitmap);
-			decorView.draw(canvas);
-
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			if (bitmap.compress(CompressFormat.PNG, 100, bos)) {
-
-				if (callback != null) {
-					TiDict event = createDictForImage(width, height, bos.toByteArray());
-					Object[] args = { event };
-					callback.call(args);
-				}
-			}
-
-			canvas = null;
-			bitmap.recycle();
+		TiDict image = TiUIHelper.viewToImage(getTiContext(), w.getDecorView());
+		if (callback != null && image != null) {
+			callback.call(new Object[] { image });
 		}
 	}
 

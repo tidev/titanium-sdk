@@ -41,7 +41,7 @@ win.add(tableview);
 
 var label = Titanium.UI.createLabel({
 	top:20,
-	font:{fontFamily:'Helvetica Neue',fontSize:48,fontWeight:'bold'},
+	font:{fontFamily:'Helvetica Neue',fontSize:20},
 	text:'Tableviews are cool',
 	color:'#900',
 	shadowColor:'#555',

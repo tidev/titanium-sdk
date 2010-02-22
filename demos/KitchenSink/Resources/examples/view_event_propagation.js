@@ -14,22 +14,22 @@ d.add(Ti.UI.createLabel({name:"label d",color:'white',text:'D',height:'auto',wid
 
 var l = Ti.UI.createLabel({
 	color:'white',
-	font:{fontSize:12,fontWeight:'bold',fontFamily:'Helvetica Neue'},
+	font:{fontSize:14,fontWeight:'bold',fontFamily:'Helvetica Neue'},
 	bottom:5,
 	textAlign:'center',
 	text:'click anywhere',
 	height:'auto',
-	width:'auto',
+	width:'auto'
 })
 
 var l2 = Ti.UI.createLabel({
 	color:'white',
-	font:{fontSize:12,fontWeight:'bold',fontFamily:'Helvetica Neue'},
+	font:{fontSize:14,fontFamily:'Helvetica Neue'},
 	bottom:25,
 	textAlign:'center',
 	text:'',
 	height:'auto',
-	width:'auto',
+	width:'auto'
 })
 
 win.add(a);

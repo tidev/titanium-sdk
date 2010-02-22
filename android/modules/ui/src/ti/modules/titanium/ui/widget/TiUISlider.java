@@ -26,6 +26,9 @@ public class TiUISlider extends TiUIView
 		if (DBG) {
 			Log.d(LCAT, "Creating a seekBar");
 		}
+
+		layoutParams.autoFillsWidth = true;
+
 		this.min = 0;
 		this.max = 0;
 		this.pos = 0;
