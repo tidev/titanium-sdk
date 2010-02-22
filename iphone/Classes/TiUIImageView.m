@@ -32,6 +32,7 @@ DEFINE_EXCEPTIONS
 	RELEASE_TO_NIL(timer);
 	RELEASE_TO_NIL(images);
 	RELEASE_TO_NIL(container);
+	RELEASE_TO_NIL(previous);
 	[super dealloc];
 }
 
@@ -53,7 +54,7 @@ DEFINE_EXCEPTIONS
 -(void)timerFired:(id)arg
 {
 	// if paused, just ignore this timer loop until restared/stoped
-	if (paused)
+	if (paused||stopped)
 	{
 		return;
 	}
@@ -90,9 +91,10 @@ DEFINE_EXCEPTIONS
 	if (previous!=nil)
 	{
 		previous.hidden = YES;
+		RELEASE_TO_NIL(previous);
 	}
 	
-	previous = view;
+	previous = [view retain];
 
 	if ([self.proxy _hasListeners:@"change"])
 	{
