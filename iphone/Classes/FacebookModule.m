@@ -335,19 +335,7 @@
 
 #pragma mark Public APIs
 
-- (void)login:(id)args
-{
-	if (session!=nil && ([session expirationDate]==nil || [session resume]==NO))
-	{
-		[self performSelectorOnMainThread:@selector(showDialog) withObject:nil waitUntilDone:NO];
-	}
-	else if (session!=nil)
-	{
-		[self fetchPermissions:nil];
-	}
-}
-
-- (void)logout:(id)args 
+- (void)logout
 {
 	if (session!=nil)
 	{
@@ -480,7 +468,7 @@
 	
 	if ([session resume]==NO)
 	{
-		[self logout:nil];
+		[self logout];
 	}
 }
 
