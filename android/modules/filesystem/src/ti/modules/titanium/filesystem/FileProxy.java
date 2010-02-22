@@ -169,18 +169,22 @@ public class FileProxy extends TiProxy
 		return tbf.spaceAvailable();
 	}
 
-	public void write(TiBlob blob, boolean append)
+	public void write(Object[] args)
 		throws IOException
 	{
-		tbf.write(blob, append);
+		if (args != null && args.length > 0) {
+			boolean append = false;
+			if (args.length > 1 && args[1] instanceof Boolean) {
+				append = ((Boolean)args[1]).booleanValue();
+			}
+			if (args[0] instanceof TiBlob) {
+				tbf.write((TiBlob)args[0], append);
+			} else if (args[0] instanceof String) {
+				tbf.write((String)args[0], append);
+			}
+		}
 	}
-
-	public void write(String data, boolean append)
-		throws IOException
-	{
-		tbf.write(data, append);
-	}
-
+	
 	public void writeLine(String data)
 		throws IOException
 	{
