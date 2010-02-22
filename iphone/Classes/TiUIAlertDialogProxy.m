@@ -47,12 +47,6 @@
 
 #pragma mark AlertView Delegate
 
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-	// cause this proxy to be cleaned up from retain above
-	//	[self autorelease];
-}
-
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
 	if ([self _hasListeners:@"click"])
