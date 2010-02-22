@@ -1,7 +1,10 @@
 var win = Ti.UI.currentWindow;
 var clickLabel = Ti.UI.createLabel({
 	top:0,
-	height:'auto'
+	height:'auto',
+	textAlign:'center',
+	font:{fontSize:13},
+	color:'#777'
 });
 win.add(clickLabel);
 
@@ -43,7 +46,7 @@ var l = Ti.UI.createLabel({
 	text:'Append Row',
 	color:'#999',
 	textAlign:'center',
-	top:50
+
 });
 row.add(l);
 row.addEventListener('click', function()
@@ -59,6 +62,7 @@ for (var x=1;x<3;x++)
 
 var tableView = Ti.UI.createTableView({
 	data:data, 	
-	style: Titanium.UI.iPhone.TableViewStyle.GROUPED
+	style: Titanium.UI.iPhone.TableViewStyle.GROUPED,
+	top:50
 });
 win.add(tableView);	
