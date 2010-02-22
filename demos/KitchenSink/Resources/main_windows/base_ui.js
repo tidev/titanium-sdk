@@ -29,11 +29,21 @@ tableview.addEventListener('click', function(e)
 {
 	if (e.rowData.test)
 	{
-		var win = Titanium.UI.createWindow({
-			url:e.rowData.test,
-			title:e.rowData.title,
-			backgroundColor:'#fff'
-		});
+		var win = null;
+		if (Ti.Platform.name == "android") {
+			win = Titanium.UI.createWindow({
+				url:e.rowData.test,
+				title:e.rowData.title
+			});	
+		} else {
+			win = Titanium.UI.createWindow({
+				url:e.rowData.test,
+				title:e.rowData.title,
+				backgroundColor:'#fff'
+			});
+		}
+		
+		
 		if (e.index == 3)
 		{
 			win.hideTabBar();
