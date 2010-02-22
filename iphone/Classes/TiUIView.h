@@ -82,6 +82,7 @@
 -(void)updateLayout:(LayoutConstraint*)layout withBounds:(CGRect)bounds;
 -(void)relayout:(CGRect)bounds;
 -(void)reposition;
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds;
 -(void)insertIntoView:(UIView*)view bounds:(CGRect)bounds;
 -(void)makeRootViewFirstResponder;
 -(void)animationCompleted;

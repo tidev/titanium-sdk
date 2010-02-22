@@ -404,11 +404,21 @@ NSLog(@"Right view (%fx%f) %@",[value bounds].size.width,[value bounds].size.hei
 
 - (BOOL)textField:(UITextField *)tf shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-	NSString *value = [NSString stringWithFormat:@"%@%@",[tf text],string];
-	[self.proxy replaceValue:value forKey:@"value" notification:NO];
+	NSString *curText = [tf text];
+	
+	if ([string isEqualToString:@""])
+	{
+		curText = [curText substringToIndex:[curText length]-range.length];
+	}
+	else
+	{
+		curText = [NSString stringWithFormat:@"%@%@",curText,string];
+	}
+
+	[self.proxy replaceValue:curText forKey:@"value" notification:NO];
 	if ([self.proxy _hasListeners:@"change"])
 	{
-		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"]];
+		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:curText forKey:@"value"]];
 	}
 	return YES;
 }

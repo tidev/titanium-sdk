@@ -240,15 +240,9 @@
 		[UIView setAnimationCurve:[[userInfo valueForKey:UIKeyboardAnimationCurveUserInfoKey] intValue]];
 		[UIView setAnimationDuration:[[userInfo valueForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue]];
 		toolbar.center = CGPointMake(kbEndPoint.x, kbEndPoint.y - (kbBounds.size.height + height)/2);
-//			toolbar.frame = CGRectMake(0, kbEndTop, kbBounds.size.width, height);
 		[UIView commitAnimations];
 
-		
-
-//		[window addSubview:toolbar];
-
 		toolbarVisible = YES;
-		
 	}
 
 	if (parentScrollView == nil)
