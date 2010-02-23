@@ -1,35 +1,112 @@
 package ti.modules.titanium.media;
 
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiConvert;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
+import android.os.ResultReceiver;
 
 public class VideoPlayerProxy extends TiProxy
 {
 	private static final String LCAT = "VideoPlayerProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	private ArrayList<TiViewProxy> views;
+	protected static final int CONTROL_MSG_LOAD = 100;
+	protected static final int CONTROL_MSG_COMPLETE = 101;
 
-	public VideoPlayerProxy(TiContext tiContext, Object[] args)
+	private ArrayList<TiViewProxy> views;
+	private Handler controlHandler;
+	private Messenger activityMessenger;
+	private CountDownLatch activityLatch;
+
+	public VideoPlayerProxy(final TiContext tiContext, Object[] args)
 	{
 		super(tiContext);
 
+		//views = new ArrayList<TiViewProxy>();
+
 		TiDict options = (TiDict) args[0];
+		final Intent intent = new Intent(tiContext.getActivity(), TiVideoActivity.class);
 
 		if (options.containsKey("contentURL")) {
-			setDynamicValue("contentURL", options.getString("contentURL"));
+			intent.putExtra("contentURL", TiConvert.toString(options, "contentURL"));
 		}
 		if (options.containsKey("backgroundColor")) {
-			setDynamicValue("backgroundColor", options.getString("backgroundColor"));
+			intent.putExtra("backgroundColor", TiConvert.toColor(options, "backgroundColor"));
 		}
 
-		views = new ArrayList<TiViewProxy>();
+		controlHandler = createControlHandler();
+		intent.putExtra("messenger", new Messenger(controlHandler));
 
+		activityLatch = new CountDownLatch(1);
+
+		HandlerThread launchThread = new HandlerThread("TiVideoLaunchThread")
+		{
+			private Handler handler;
+
+			@Override
+			protected void onLooperPrepared()
+			{
+				super.onLooperPrepared();
+
+				handler = new Handler(getLooper());
+			}
+
+			@Override
+			public void run() {
+
+				if (DBG) {
+					Log.i(LCAT, "Launching TiVideoActivity");
+				}
+				ResultReceiver messengerReceiver = new ResultReceiver(handler){
+
+					@Override
+					protected void onReceiveResult(int resultCode, Bundle resultData) {
+						super.onReceiveResult(resultCode, resultData);
+
+						activityMessenger = resultData.getParcelable("messenger");
+						if (DBG) {
+							Log.d(LCAT, "TiVideoActivity messenger received. Releasing latch");
+						}
+						activityLatch.countDown();
+					}
+
+				};
+
+				intent.putExtra("messengerReceiver", messengerReceiver);
+				tiContext.getActivity().startActivity(intent);
+
+				super.run();
+			}
+		};
+
+		launchThread.start();
+
+		try {
+			activityLatch.await();
+		} catch (InterruptedException ig) {
+			// ignore
+		}
+
+		if (DBG) {
+			Log.d(LCAT, "after latch.");
+		}
+
+		launchThread.getLooper().quit();
 
 /*		String errorCallback = null;
 		try {
@@ -69,12 +146,59 @@ public class VideoPlayerProxy extends TiProxy
 */
 	}
 
+
 	public void add(TiViewProxy proxy)
 	{
-		views.add(proxy);
+		if (activityMessenger != null) {
+			Message msg = Message.obtain();
+			msg.what = TiVideoActivity.MSG_ADD_VIEW;
+			msg.obj = proxy;
+			try {
+				activityMessenger.send(msg);
+			} catch (RemoteException e) {
+				Log.w(LCAT, "Unable to add view, Activity is no longer available: " + e.getMessage());
+			}
+		}
 	}
 
 	public void play()
 	{
+		if (activityMessenger != null) {
+			try {
+				Message msg = Message.obtain();
+				msg.what = TiVideoActivity.MSG_PLAY;
+				activityMessenger.send(msg);
+			} catch (RemoteException e) {
+				Log.w(LCAT, "Unable to send play message: " + e.getMessage());
+			}
+		}
+	}
+
+	private Handler createControlHandler() {
+		return new Handler(new Handler.Callback(){
+
+			@Override
+			public boolean handleMessage(Message msg)
+			{
+				switch (msg.what) {
+					case CONTROL_MSG_LOAD : {
+						if (DBG) {
+							Log.i(LCAT, "Video Loaded message received from TiVideoActivity");
+						}
+
+						fireEvent("load", null);
+						return true;
+					}
+					case CONTROL_MSG_COMPLETE : {
+						if (DBG) {
+							Log.i(LCAT, "Video playback message received from TiVideoActivity");
+						}
+						fireEvent("complete", null);
+						return true;
+					}
+				}
+				return false;
+			}
+		});
 	}
 }
