@@ -88,19 +88,4 @@ public class UIModule extends TiModule
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
-
-	public TiAnimation createAnimation(Object[] args)
-	{
-		TiDict options = null;
-		KrollCallback callback = null;
-
-		if (args != null && args.length > 0) {
-			options = (TiDict) args[0];
-			if (args.length > 1) {
-				callback = (KrollCallback) args[1];
-			}
-		}
-
-		return new TiAnimation(getTiContext(), options, callback);
-	}
 }

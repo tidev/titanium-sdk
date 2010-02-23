@@ -329,18 +329,21 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 				if (callback != null) {
 					pendingAnimation.setStopCallback(callback);
 				}
+			} else if (args[0] instanceof TiAnimation) {
+				TiAnimation anim = (TiAnimation) args[0];
+				pendingAnimation = new TiAnimationBuilder();
+				pendingAnimation.applyOptions(getDynamicProperties());
+				pendingAnimation.applyAnimation(anim);
+			} else {
+				throw new IllegalArgumentException("Unhandled argument to animate: " + args[0].getClass().getSimpleName());
+			}
 
+			if (pendingAnimation != null) {
 				if (getTiContext().isUIThread()) {
 					handleAnimate();
 				} else {
 					getUIHandler().obtainMessage(MSG_ANIMATE).sendToTarget();
 				}
-			} else if (args[0] instanceof TiAnimation) {
-				TiAnimation anim = (TiAnimation) args[0];
-
-				//TODO: deal with it.
-			} else {
-				throw new IllegalArgumentException("Unhandled argument to animate: " + args[0].getClass().getSimpleName());
 			}
 		}
 	}
