@@ -20,11 +20,14 @@ function setData()
 }
 tv.addEventListener('click', function(e)
 {
+	Ti.API.info('FOO')
+
 	var label = e.row.children[0];
 	label.text = 'I was clicked';
-})
 
+})
 win.add(tv);
 setData();
+
 Ti.API.info('window ' + win);
 Ti.API.info('children ' + win.children + ' length ' + win.children.length);
