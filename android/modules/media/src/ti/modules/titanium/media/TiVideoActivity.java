@@ -10,6 +10,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnPreparedListener;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,6 +21,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.view.View;
+import android.widget.TiVideoView4;
 
 public class TiVideoActivity extends Activity
 	implements Handler.Callback
@@ -33,6 +38,9 @@ public class TiVideoActivity extends Activity
 	private ResultReceiver messengerReceiver;
 
 	private TiCompositeLayout layout;
+	private TiVideoView4 videoView;
+
+	private boolean started = false;
 
 	public TiVideoActivity() {
 	}
@@ -59,7 +67,33 @@ public class TiVideoActivity extends Activity
 		}
 
 		layout = new TiCompositeLayout(this);
+		videoView = new TiVideoView4(this);
+		videoView.setOnPreparedListener(new OnPreparedListener(){
+
+			@Override
+			public void onPrepared(MediaPlayer mp)
+			{
+				sendProxyMessage(VideoPlayerProxy.CONTROL_MSG_LOAD);
+			}
+		});
+		videoView.setOnCompletionListener(new OnCompletionListener(){
+
+			@Override
+			public void onCompletion(MediaPlayer mp) {
+				sendProxyMessage(VideoPlayerProxy.CONTROL_MSG_COMPLETE);
+				started = false;
+			}
+		});
+
+		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+//		params.autoFillsHeight = true;
+//		params.autoFillsWidth = true;
+		params.autoHeight = true;
+		params.autoWidth = true;
+		layout.addView(videoView, params);
+
 		setContentView(layout);
+
 	}
 
 	@Override
@@ -67,6 +101,11 @@ public class TiVideoActivity extends Activity
 	{
 		switch (msg.what) {
 			case MSG_PLAY : {
+
+				Uri uri = Uri.parse(contentUrl);
+				videoView.setVideoURI(uri);
+				videoView.start();
+				started = true;
 
 				return true;
 			}
@@ -103,28 +142,39 @@ public class TiVideoActivity extends Activity
 	@Override
 	protected void onResume() {
 		super.onResume();
+
+		if (started) {
+			videoView.start();
+		}
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
+		videoView.pause();
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		videoView.stopPlayback();
 		layout.removeAllViews();
 
 		if (proxyMessenger != null) {
+			sendProxyMessage(VideoPlayerProxy.CONTROL_MSG_COMPLETE);
+		}
+	}
+
+	private void sendProxyMessage(final int messageId)
+	{
+		if (proxyMessenger != null) {
 			Message msg = Message.obtain();
-			msg.what = VideoPlayerProxy.CONTROL_MSG_COMPLETE;
+			msg.what = messageId;
 			try {
 				proxyMessenger.send(msg);
 			} catch (RemoteException e) {
 				Log.w(LCAT, "VideoPlayerProxy no longer available: " + e.getMessage());
 			}
-			proxyMessenger = null;
 		}
-
 	}
 }

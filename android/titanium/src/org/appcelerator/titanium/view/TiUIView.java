@@ -15,10 +15,9 @@ import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiProxyListener;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.proxy.TiViewProxy.PendingAnimation;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -32,12 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
-import android.view.animation.RotateAnimation;
-import android.view.animation.ScaleAnimation;
-import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 
 public abstract class TiUIView
@@ -55,6 +49,7 @@ public abstract class TiUIView
 
 	protected LayoutParams layoutParams;
 	protected int zIndex;
+	protected TiAnimationBuilder animBuilder;
 
 	public TiUIView(TiViewProxy proxy)
 	{
@@ -131,107 +126,15 @@ public abstract class TiUIView
 
 	public void animate()
 	{
-		PendingAnimation pa = proxy.getPendingAnimation();
-		if (pa != null && pa.options != null && nativeView != null) {
-
-			// Default anchor point
-			double anchorX = 0.5;
-			double anchorY = 0.5;
+		TiAnimationBuilder builder = proxy.getPendingAnimation();
+		if (builder != null && nativeView != null) {
 
 			// Capture dimension
 			int w = nativeView.getMeasuredWidth();
 			int h = nativeView.getMeasuredHeight();
 
-			TiDict props = proxy.getDynamicProperties();
-			if (props.containsKey("anchorPoint")) {
-				TiDict point = (TiDict) props.get("anchorPoint");
-				anchorX = TiConvert.toDouble(point, "x");
-				anchorY = TiConvert.toDouble(point, "y");
-			}
+			AnimationSet as = builder.render(w, h);
 
-			// Calculate anchor coordinate
-
-			float anchorPointX = (float)((w * anchorX));
-			float anchorPointY = (float)((h * anchorY));
-
-			Ti2DMatrix tdm = null;
-			Double delay = null;
-			Double duration = null;
-			Double toOpacity = null;
-			Double fromOpacity = null;
-
-			if (pa.options.containsKey("transform")) {
-				tdm = (Ti2DMatrix) pa.options.get("transform");
-			}
-			if (pa.options.containsKey("delay")) {
-				delay = TiConvert.toDouble(pa.options, "delay");
-			}
-			if (pa.options.containsKey("duration")) {
-				duration = TiConvert.toDouble(pa.options, "duration");
-			}
-			if (pa.options.containsKey("opacity")) {
-				toOpacity = TiConvert.toDouble(pa.options, "opacity");
-				fromOpacity = 1.0 - toOpacity;
-			}
-
-			AnimationSet as = new AnimationSet(false);
-			if (toOpacity != null) {
-				Animation a = new AlphaAnimation(fromOpacity.floatValue(), toOpacity.floatValue());
-				as.addAnimation(a);
-			}
-
-			if (tdm != null) {
-				as.setFillAfter(true);
-				if (tdm.hasRotation()) {
-					Animation a = new RotateAnimation(0,tdm.getRotation(), anchorPointX, anchorPointY);
-					as.addAnimation(a);
-				}
-				if (tdm.hasScaleFactor()) {
-					Animation a = new ScaleAnimation(1, tdm.getScaleFactor(), 1, tdm.getScaleFactor(), anchorPointX, anchorPointY);
-					as.addAnimation(a);
-				}
-				if (tdm.hasTranslation()) {
-					Animation a = new TranslateAnimation(
-						0,
-						anchorPointX + tdm.getXTranslation(),
-						0,
-						anchorPointY + tdm.getYTranslation()
-						);
-					as.addAnimation(a);
-				}
-			}
-
-			// Set duration after adding children.
-			if (duration != null) {
-				as.setDuration(duration.longValue());
-			}
-			if (delay != null) {
-				as.setStartTime(delay.longValue());
-			}
-
-			if (pa.callback != null) {
-				final KrollCallback kb = pa.callback;
-				as.setAnimationListener(new Animation.AnimationListener(){
-
-					@Override
-					public void onAnimationEnd(Animation a) {
-						if (kb != null) {
-							kb.call();
-						}
-					}
-
-					@Override
-					public void onAnimationRepeat(Animation a) {
-					}
-
-					@Override
-					public void onAnimationStart(Animation a) {
-					}
-
-				});
-			}
-
-			//TODO launch
 			nativeView.startAnimation(as);
 
 			// Clean up proxy
@@ -373,6 +276,11 @@ public abstract class TiUIView
 			} else {
 				throw new IllegalStateException("Views providing BorderSupport, must return a non-null TiBorderHelper");
 			}
+		}
+
+		if (d.containsKey("transform")) {
+			animBuilder = new TiAnimationBuilder();
+			animBuilder.applyOptions(d);
 		}
 	}
 
