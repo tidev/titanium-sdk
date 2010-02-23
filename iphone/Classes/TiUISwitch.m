@@ -29,6 +29,13 @@
 	return switchView;
 }
 
+-(BOOL)hasTouchableListener
+{
+	// since this guy only works with touch events, we always want them
+	// just always return YES no matter what listeners we have registered
+	return YES;
+}
+
 #pragma mark View controller stuff
 
 -(void)setEnabled_:(id)value

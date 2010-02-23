@@ -22,6 +22,12 @@
 	return self;
 }
 
+-(BOOL)hasTouchableListener
+{
+	// since this guy only works with touch events, we always want them
+	// just always return YES no matter what listeners we have registered
+	return YES;
+}
 
 -(UISegmentedControl *)segmentedControl
 {
