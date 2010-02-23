@@ -133,6 +133,24 @@
 	return mimetype;
 }
 
+-(NSString*)text
+{
+	switch (type)
+	{
+		case TiBlobTypeFile:
+		{
+			NSData *fdata = [self data];
+			return [[[NSString alloc] initWithData:fdata encoding:NSUTF8StringEncoding] autorelease];
+		}
+		case TiBlobTypeData:
+		{
+			return [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+		}
+	}
+	// anything else we refuse to write out
+	return nil;
+}
+
 -(NSData*)data
 {
 	switch(type)
@@ -194,12 +212,12 @@
 
 -(BOOL)writeTo:(NSString*)destination error:(NSError**)error
 {
-	NSFileManager *fm = [NSFileManager defaultManager];
 	NSData *writeData = nil;
 	switch(type)
 	{
 		case TiBlobTypeFile:
 		{
+			NSFileManager *fm = [NSFileManager defaultManager];
 			return [fm copyItemAtPath:path toPath:destination error:error];
 		}
 		case TiBlobTypeImage:

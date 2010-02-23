@@ -26,6 +26,10 @@ typedef enum {
 @property(nonatomic,readonly) NSInteger width;
 @property(nonatomic,readonly) NSInteger height;
 
+// return a textual representation of the blob
+@property(nonatomic,readonly) NSString* text;
+
+
 // for file, data returns the size in bytes
 // for image, returns the width x height
 @property(nonatomic,readonly) NSInteger size;
