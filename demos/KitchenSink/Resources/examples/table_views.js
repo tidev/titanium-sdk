@@ -19,6 +19,8 @@ var data = [
 	{title:'Update Row', hasChild:true, test:'../examples/table_view_row_update.js'},
 	{title:'Set Row Data', hasChild:true, test:'../examples/table_view_set.js'},
 	{title:'Empty Table View', hasChild:true, test:'../examples/table_view_empty.js'},
+	{title:'Refresh Table View', hasChild:true, test:'../examples/table_view_refresh.js'},
+	{title:'Update Row Objects', hasChild:true, test:'../examples/table_view_update_row_objects.js'},
 
 	{title:'Composite (Partial Size)', hasChild:true, test:'../examples/table_view_composite.js'},
 
@@ -30,6 +32,7 @@ var data = [
 	{title:'Table Auto Height', hasChild:true, test:'../examples/table_view_api_auto_height.js'},
 	{title:'Table Search', hasChild:true, test:'../examples/table_view_api_search.js'},
 	{title:'Table Custom Header', hasChild:true, test:'../examples/table_view_api_custom_header.js'},
+	{title:'Table Custom Row Header', hasChild:true, test:'../examples/table_view_api_custom_rowheader.js'},
 	{title:'Table Custom Footer', hasChild:true, test:'../examples/table_view_api_custom_footer.js'},
 	{title:'Table Section Header', hasChild:true, test:'../examples/table_view_section_header.js'},
 	{title:'Table View Options', hasChild:true, test:'../examples/table_view_options.js'},

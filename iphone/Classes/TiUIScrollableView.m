@@ -108,6 +108,8 @@
 		return;
 	}
 
+	NSLog(@"Rendering for view %d.",index);
+
 	UIView *wrapper = [[sv subviews] objectAtIndex:index];
 	if ([[wrapper subviews] count]==0)
 	{
@@ -491,6 +493,7 @@
 	}
 	currentPage=pageNum;
 	[pageControl setCurrentPage:pageNum];
+	[self loadNextFrames:YES];
 }
 
 @end

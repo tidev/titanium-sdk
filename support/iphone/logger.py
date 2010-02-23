@@ -29,7 +29,7 @@ def main(args):
 	idx = xoutput.find("Xcode ")
 	version = xoutput[idx+6:]
 	idx = version.find("\n")
-	version = version[0:idx-1].strip()
+	version = version[0:idx].strip()
 	version_split = version.split('.')
 	major = int(version_split[0])
 	minor = int(version_split[1])

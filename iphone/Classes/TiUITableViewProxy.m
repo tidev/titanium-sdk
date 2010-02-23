@@ -367,10 +367,20 @@
 		}
 		else if ([row isKindOfClass:rowClass])
 		{
-			if (section == nil)
+			id rowHeader = [row valueForKey:@"header"];
+			id rowFooter = [row valueForKey:@"footer"];
+			if (section == nil || rowHeader!=nil)
 			{
 				section = [[[TiUITableViewSectionProxy alloc] _initWithPageContext:[self executionContext] args:nil] autorelease];
+				if (rowHeader!=nil)
+				{
+					[section setValue:rowHeader forUndefinedKey:@"headerTitle"];
+				}
 				[data addObject:section];
+			}
+			if (rowFooter!=nil)
+			{
+				[section setValue:rowFooter forUndefinedKey:@"footerTitle"];
 			}
 			[section add:row];
 		}
