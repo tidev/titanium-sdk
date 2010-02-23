@@ -234,7 +234,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"titanium.shutdown" object:self];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTitaniumShutdownNotification object:self];
 	
 	[kjsBridge shutdown];
 	[xhrBridge shutdown];

@@ -40,7 +40,7 @@
 
 -(void)startup
 {
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:@"titanium.shutdown" object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTitaniumShutdownNotification object:nil];
 }
 
 -(id)init

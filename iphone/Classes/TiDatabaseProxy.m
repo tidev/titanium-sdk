@@ -34,13 +34,13 @@
 
 -(void)_destroy
 {
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:@"titanium.shutdown" object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kTitaniumShutdownNotification object:nil];
 	[self shutdown:nil];
 }
 
 -(void)_configure
 {
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:@"titanium.shutdown" object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTitaniumShutdownNotification object:nil];
 }
 
 -(NSString*)dbDir
