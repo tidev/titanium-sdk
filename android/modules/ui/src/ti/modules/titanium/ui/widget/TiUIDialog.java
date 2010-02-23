@@ -140,7 +140,11 @@ public class TiUIDialog extends TiUIView
 			processProperties(proxy.getDynamicProperties());
 			dialog = builder.create();
 		}
-		dialog.show();
+		try {
+			dialog.show();
+		} catch (Throwable t) {
+			Log.w(LCAT, "Window must have gone away.");
+		}
 	}
 
 	public void hide(TiDict options)

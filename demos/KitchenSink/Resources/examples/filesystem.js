@@ -9,7 +9,10 @@ Titanium.API.info('Separator :' + Titanium.Filesystem.separator);
 Titanium.API.info('Line Ending :' + Titanium.Filesystem.lineEnding);
 
 
-var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'images/atlanta.jpg');
+var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'text.txt');
+Ti.API.info('file ' + f)
+var contents = f.read();
+Ti.API.info('contents = ' + contents.toString())
 Ti.API.info('nativePath ' + f.nativePath);
 Ti.API.info('exists ' + f.exists());
 Ti.API.info('size ' + f.size);

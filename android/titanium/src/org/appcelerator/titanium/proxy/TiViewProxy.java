@@ -16,6 +16,7 @@ import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.AsyncResult;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiUIView;
@@ -55,17 +56,11 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		public Object[] args;
 	}
 
-	public static class PendingAnimation
-	{
-		public TiDict options;
-		public KrollCallback callback;
-	}
-
 	// Ti Properties force using accessors.
 	private Double zIndex;
 
 	protected TiUIView view;
-	protected PendingAnimation pendingAnimation;
+	protected TiAnimationBuilder pendingAnimation;
 
 	public TiViewProxy(TiContext tiContext, Object[] args)
 	{
@@ -75,14 +70,13 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		}
 	}
 
-	public PendingAnimation getPendingAnimation() {
+	public TiAnimationBuilder getPendingAnimation() {
 		return pendingAnimation;
 	}
 
 	public void clearAnimation() {
 		if (pendingAnimation != null) {
-			pendingAnimation.callback = null;
-			pendingAnimation.options = null;
+			pendingAnimation = null;
 		}
 	}
 
@@ -329,11 +323,12 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 					callback = (KrollCallback) args[1];
 				}
 
-				if (pendingAnimation == null) {
-					pendingAnimation = new PendingAnimation();
+				pendingAnimation = new TiAnimationBuilder();
+				pendingAnimation.applyOptions(getDynamicProperties());
+				pendingAnimation.applyOptions(options);
+				if (callback != null) {
+					pendingAnimation.setStopCallback(callback);
 				}
-				pendingAnimation.options = new TiDict(options);
-				pendingAnimation.callback = callback;
 
 				if (getTiContext().isUIThread()) {
 					handleAnimate();

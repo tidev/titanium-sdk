@@ -4,10 +4,16 @@
 
 var win = Titanium.UI.currentWindow
 
-var inputData = [{title:'I should have a header', hasChild:true, test:'../examples/table_view_basic.js', header:'Simple Table API'}]; 
+var inputData = [
+{title:'row 1', header:'Header 1'},
+{title:'row 2'},
+{title:'row 3'},
+{title:'row 4', header:'Header 2'},
+{title:'row 5'}
+
+]; 
 var tableView = Titanium.UI.createTableView({ 
-data:inputData, 
-style:Titanium.UI.iPhone.TableViewStyle.GROUPED, 
+	data:inputData, 
+	style:Titanium.UI.iPhone.TableViewStyle.GROUPED, 
 }); 
 win.add(tableView);
-win.open();
