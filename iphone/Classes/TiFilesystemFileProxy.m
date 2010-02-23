@@ -48,19 +48,19 @@ NSDictionary * resultDict = [fm attributesOfItemAtPath:path error:&error];\
 if (error!=nil && x) return NUMBOOL(NO);\
 return w([resultDict objectForKey:attr]!=nil);\
 
--(id)isReadonly
+-(id)readonly
 {
 	FILEATTR(NSFileImmutable,NO,NUMBOOL);
 }
 
--(id)isSymbolicLink
+-(id)symbolicLink
 {
 	FILEATTR(NSFileTypeSymbolicLink,NO,NUMBOOL);
 }
 
--(id)isWritable
+-(id)writable
 {
-	return NUMBOOL(![self isReadonly]);
+	return NUMBOOL(![self readonly]);
 }
 
 #define FILENOOP(name) \
@@ -69,8 +69,8 @@ return w([resultDict objectForKey:attr]!=nil);\
 	return NUMBOOL(NO);\
 }\
 
-FILENOOP(isExecutable);
-FILENOOP(isHidden);
+FILENOOP(executable);
+FILENOOP(hidden);
 FILENOOP(setReadonly:(id)x);
 FILENOOP(setExecutable:(id)x);
 FILENOOP(setHidden:(id)x);

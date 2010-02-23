@@ -11,7 +11,7 @@ var tabGroup = Titanium.UI.createTabGroup();
 //
 var win1 = Titanium.UI.createWindow({  
     url:'main_windows/base_ui.js',
-    title:'Base UI'
+    titleImage:'images/slider_thumb.png'
 });
 var tab1 = Titanium.UI.createTab({  
     icon:'images/tabs/KS_nav_views.png',

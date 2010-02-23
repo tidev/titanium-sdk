@@ -105,6 +105,20 @@ tb3.addEventListener('click', function(e)
 });
 
 
+// title control
+var tb4 = Titanium.UI.createTabbedBar({
+	labels:['One', 'Two'],
+	index:0,
+	backgroundColor:'red'
+	
+});
+win.setTitleControl(tb4);
+
+tb4.addEventListener('click', function(e)
+{
+	l.text = 'You clicked index = ' + e.index;
+});
+
 //
 // CUSTOM TABBED BAR
 // 
