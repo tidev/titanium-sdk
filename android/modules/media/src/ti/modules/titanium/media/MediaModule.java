@@ -1,6 +1,5 @@
 package ti.modules.titanium.media;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -27,15 +26,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.Bitmap.Config;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
-import android.view.View;
 import android.view.Window;
 
 public class MediaModule extends TiModule
@@ -68,6 +63,11 @@ public class MediaModule extends TiModule
 			constants.put("DEVICE_BUSY", DEVICE_BUSY);
 			constants.put("NO_CAMERA", NO_CAMERA);
 			constants.put("NO_VIDEO", NO_VIDEO);
+
+			constants.put("VIDEO_SCALING_ASPECT_FILL", 0);
+			constants.put("VIDEO_SCALING_MODE_FILL", 1);
+
+			constants.put("VIDEO_CONTROL_DEFAULT", 0);
 		}
 
 		return constants;
