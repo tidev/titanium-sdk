@@ -34,10 +34,11 @@
 
 
 @implementation TitaniumViewController
+@synthesize backgroundColor, backgroundImage;
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(stack);
+	RELEASE_TO_NIL(windowProxies);
 	[super dealloc];
 }
 
@@ -48,13 +49,59 @@
 	return rect;
 }
 
+-(void)setBackgroundColor:(UIColor *)newColor
+{
+	if ((newColor == backgroundColor) || [backgroundColor isEqual:newColor])
+	{
+		return;
+	}
+
+	[backgroundColor release];
+	backgroundColor = [newColor retain];
+	
+	[self performSelectorOnMainThread:@selector(updateBackground) withObject:nil
+		waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+	//The runloopcommonmodes ensures that it'll happen even during tracking.
+}
+
+-(void)setBackgroundImage:(UIImage *)newImage
+{
+	if ((newImage == backgroundImage) || [backgroundImage isEqual:newImage])
+	{
+		return;
+	}
+
+	[backgroundImage release];
+	backgroundImage = [newImage retain];
+	
+	[self performSelectorOnMainThread:@selector(updateBackground) withObject:nil
+		waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+	//The runloopcommonmodes ensures that it'll happen even during tracking.
+}
+
+-(void)updateBackground
+{
+	UIView * ourView = [self view];
+	UIColor * chosenColor = (backgroundColor==nil)?[UIColor blackColor]:backgroundColor;
+	[ourView setBackgroundColor:chosenColor];
+	[[ourView superview] setBackgroundColor:chosenColor];
+	[[ourView layer] setContents:(id)backgroundImage.CGImage];
+}
+
 -(void)loadView
 {
 	TitaniumRootView *rootView = [[TitaniumRootView alloc] init];
 	[rootView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 	self.view = rootView;
-	rootView.backgroundColor = [UIColor blackColor];
+	[self updateBackground];
 	[self resizeView];
+	for (TiWindowProxy * thisWindowProxy in windowProxies)
+	{
+		TiUIView * thisView = [thisWindowProxy view];
+		[rootView addSubview:thisView];
+		[thisView reposition];
+	}
+
 	[rootView release];
 }
 
@@ -228,10 +275,31 @@
 
 -(void)windowFocused:(TiProxy*)window_
 {
-	if ([window_ isKindOfClass:[TiWindowProxy class]])
+	if (![window_ isKindOfClass:[TiWindowProxy class]])
 	{
-		[self enforceOrientationModesFromWindow:(id)window_];
+		return;
 	}
+
+	[self enforceOrientationModesFromWindow:(id)window_];
+	
+	[windowProxies removeObject:window_];
+	if (![(TiWindowProxy *)window_ _isChildOfTab] && ([(TiWindowProxy *)window_ parent]==nil))
+	{
+		if (windowProxies==nil)
+		{
+			windowProxies = [[NSMutableArray alloc] initWithObjects:window_,nil];
+		}
+		else
+		{
+			[windowProxies addObject:window_];
+		}
+
+	}
+}
+
+-(void)windowClosed:(TiProxy *)window_
+{
+	[windowProxies removeObject:window_];
 }
 
 -(void)windowUnfocused:(TiProxy*)window_
