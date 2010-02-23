@@ -12,18 +12,26 @@
 
 @interface TitaniumViewController : UIViewController<UIApplicationDelegate> {
 @private
-	NSMutableArray *stack;	
+	NSMutableArray *windowProxies;	
 	TiWindowProxy *currentWindow;	//NOT RETAINED
+	
+	UIColor * backgroundColor;
+	UIImage * backgroundImage;
 	
 	BOOL	allowedOrientations[MAX_ORIENTATIONS];
 	NSTimeInterval	orientationRequestTimes[MAX_ORIENTATIONS];
 	UIInterfaceOrientation lastOrientation;
 }
 
+@property(nonatomic,readwrite,retain)	UIColor * backgroundColor;
+@property(nonatomic,readwrite,retain)	UIImage * backgroundImage;
+
 -(void)windowFocused:(TiProxy*)window;
 -(void)windowUnfocused:(TiProxy*)window;
 -(void)windowBeforeFocused:(TiProxy*)window;
 -(void)windowBeforeUnfocused:(TiProxy*)window;
+
+-(void)windowClosed:(TiProxy *)window;
 
 -(CGRect)resizeView;
 

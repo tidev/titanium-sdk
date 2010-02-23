@@ -373,3 +373,4 @@ NSString * hexString (NSData * thedata);
 
 
 extern NSString * const kKrollShutdownNotification;
+extern NSString * const kTitaniumShutdownNotification;

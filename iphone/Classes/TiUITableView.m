@@ -568,6 +568,8 @@
 	[searchTableView removeFromSuperview];
 	[searchScreenView setEnabled:NO];
 	[searchScreenView setAlpha:0.0];
+
+	[tableview setScrollEnabled:YES];
 	if (autohideSearch || searchHidden)
 	{
 		searchHidden = YES;
@@ -582,6 +584,7 @@
 {
 	[tableview scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
 					 atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+	[tableview setScrollEnabled:NO];
 	
 	CGRect screenRect = [TiUtils viewPositionRect:tableview];
 	CGFloat searchHeight = [[tableview tableHeaderView] bounds].size.height;

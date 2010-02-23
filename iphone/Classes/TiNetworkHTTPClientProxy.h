@@ -62,7 +62,7 @@ typedef enum {
 @property(nonatomic,readonly) NSNumber* DONE;
 
 // public methods
--(void)abort;
+-(void)abort:(id)args;
 -(void)open:(id)args;
 -(void)setRequestHeader:(id)args;
 -(void)setTimeout:(id)args;

@@ -43,9 +43,6 @@
 		[scrollView setShowsVerticalScrollIndicator:NO];
 		[scrollView setDelegate:self];
 		[self addSubview:scrollView];
-		
-		// set the initial scale to 1.0 which is the default
-		[self.proxy replaceValue:NUMFLOAT(1.0) forKey:@"scale" notification:NO];
 	}
 	return scrollView;
 }
