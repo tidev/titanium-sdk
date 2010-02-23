@@ -112,7 +112,7 @@ public abstract class TiUIView
 	public int getZIndex() {
 		return zIndex;
 	}
-	protected View getNativeView() {
+	public View getNativeView() {
 		return nativeView;
 	}
 	protected void setNativeView(View view) {

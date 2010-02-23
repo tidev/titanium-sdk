@@ -39,7 +39,11 @@
 		<activity android:name="ti.modules.titanium.ui.TiTabActivity"
 			android:configChanges="keyboardHidden|orientation"
 		/>
-		
+		<activity android:name="ti.modules.titanium.media.TiVideoActivity"
+			android:configChanges="keyboardHidden|orientation"
+			android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+		/>
+
 		<!-- TODO: re-enable analytics when it's implemented
 		<service
 			android:name="org.appcelerator.titanium.TitaniumAnalyticsService"
