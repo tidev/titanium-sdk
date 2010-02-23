@@ -110,6 +110,8 @@ change.addEventListener('click',function()
 	var l = Ti.UI.createLabel({
 		text:'View (Changed) ' + (i+1),
 		color:'#fff',
+		height:'auto',
+		width:'auto'
 	});
 	newView.add(l);
 	var ar = [];
