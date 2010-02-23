@@ -1,34 +1,34 @@
 package ti.modules.titanium.media;
 
+import java.util.ArrayList;
+
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
-import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConfig;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class VideoPlayerProxy extends TiProxy
 {
 	private static final String LCAT = "VideoPlayerProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	private ArrayList<TiViewProxy> views;
+
 	public VideoPlayerProxy(TiContext tiContext, Object[] args)
 	{
 		super(tiContext);
 
-		JSONObject options = (JSONObject) args[0];
+		TiDict options = (TiDict) args[0];
 
-		try {
-			if (options.has("contentURL")) {
-				setDynamicValue("contentURL", options.getString("contentURL"));
-			}
-			if (options.has("backgroundColor")) {
-				setDynamicValue("backgroundColor", options.getString("backgroundColor"));
-			}
-		} catch (JSONException e) {
-			Log.e(LCAT, "Error accessing json object: " + e.getMessage(), e);
+		if (options.containsKey("contentURL")) {
+			setDynamicValue("contentURL", options.getString("contentURL"));
+		}
+		if (options.containsKey("backgroundColor")) {
+			setDynamicValue("backgroundColor", options.getString("backgroundColor"));
 		}
 
+		views = new ArrayList<TiViewProxy>();
 
 
 /*		String errorCallback = null;
@@ -67,5 +67,14 @@ public class VideoPlayerProxy extends TiProxy
 
 		return result;
 */
+	}
+
+	public void add(TiViewProxy proxy)
+	{
+		views.add(proxy);
+	}
+
+	public void play()
+	{
 	}
 }
