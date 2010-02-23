@@ -20,6 +20,7 @@ var data = [
 	{title:'Set Row Data', hasChild:true, test:'../examples/table_view_set.js'},
 	{title:'Empty Table View', hasChild:true, test:'../examples/table_view_empty.js'},
 	{title:'Refresh Table View', hasChild:true, test:'../examples/table_view_refresh.js'},
+	{title:'Update Row Objects', hasChild:true, test:'../examples/table_view_update_row_objects.js'},
 
 	{title:'Composite (Partial Size)', hasChild:true, test:'../examples/table_view_composite.js'},
 
