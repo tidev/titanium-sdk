@@ -222,7 +222,7 @@
 		[self manuallyRotateToOrientation:interfaceOrientation];
 	}
 	
-	return interfaceOrientation == UIInterfaceOrientationPortrait;
+	return interfaceOrientation == [[UIApplication sharedApplication] statusBarOrientation];
 }
 
 
