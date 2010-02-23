@@ -327,7 +327,7 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 				pendingAnimation.applyOptions(getDynamicProperties());
 				pendingAnimation.applyOptions(options);
 				if (callback != null) {
-					pendingAnimation.setStopCallback(callback);
+					pendingAnimation.setCallback(callback);
 				}
 			} else if (args[0] instanceof TiAnimation) {
 				TiAnimation anim = (TiAnimation) args[0];
