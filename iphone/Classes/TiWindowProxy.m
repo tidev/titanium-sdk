@@ -328,6 +328,8 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		return;
 	}
 	
+	[[[TitaniumApp app] controller] windowClosed:self];
+
 	if (modal)
 	{
 		UIViewController *vc = [self controller];

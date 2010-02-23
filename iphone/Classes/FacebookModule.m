@@ -433,9 +433,9 @@
 	{
 		dataParam = [(TiBlob*)data data];
 	}
-	else 
+	else if (data != nil && ![data isKindOfClass:[NSNull class]])
 	{
-		NSString *msg = [NSString stringWithFormat:@"data should either be a path or blob, was: %@",[data class]];
+		NSString *msg = [NSString stringWithFormat:@"data should either be a path, blob or null, was: %@",[data class]];
 		THROW_INVALID_ARG(msg);
 	}
 	

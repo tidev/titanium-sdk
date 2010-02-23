@@ -85,25 +85,21 @@ MAKE_SYSTEM_PROP(PICKER_TYPE_COUNT_DOWN_TIMER,UIDatePickerModeCountDownTimer);
 
 -(void)setBackgroundColor:(id)color
 {
-	// this sets it on the root level window
-	ENSURE_UI_THREAD(setBackgroundColor,color);
-	UIViewController *controller = [[TitaniumApp app] controller];
-	controller.view.backgroundColor = UIColorWebColorNamed(color);
-	[controller.view superview].backgroundColor = controller.view.backgroundColor;
+	TitaniumViewController *controller = [[TitaniumApp app] controller];
+	[controller setBackgroundColor:UIColorWebColorNamed(color)];
+//	[controller.view superview].backgroundColor = controller.view.backgroundColor;
 }
 
 -(void)setBackgroundImage:(id)image
 {
-	// this sets it on the root level window
-	ENSURE_UI_THREAD(setBackgroundImage,image);
-	UIViewController *controller = [[TitaniumApp app] controller];
+	TitaniumViewController *controller = [[TitaniumApp app] controller];
 	UIImage *resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:image proxy:self]];
 	if (resultImage==nil && [image isEqualToString:@"Default.png"])
 	{
 		// special case where we're asking for Default.png and it's in Bundle not path
 		resultImage = [UIImage imageNamed:image];
 	}
-	controller.view.layer.contents = (id)resultImage.CGImage;
+	[controller setBackgroundImage:resultImage];
 }
 
 #pragma mark Factory methods 
