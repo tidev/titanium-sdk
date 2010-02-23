@@ -1,6 +1,5 @@
 package ti.modules.titanium.media;
 
-import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 import org.appcelerator.titanium.TiContext;
@@ -28,7 +27,6 @@ public class VideoPlayerProxy extends TiProxy
 	protected static final int CONTROL_MSG_LOAD = 100;
 	protected static final int CONTROL_MSG_COMPLETE = 101;
 
-	private ArrayList<TiViewProxy> views;
 	private Handler controlHandler;
 	private Messenger activityMessenger;
 	private CountDownLatch activityLatch;
@@ -43,7 +41,11 @@ public class VideoPlayerProxy extends TiProxy
 		final Intent intent = new Intent(tiContext.getActivity(), TiVideoActivity.class);
 
 		if (options.containsKey("contentURL")) {
-			intent.putExtra("contentURL", TiConvert.toString(options, "contentURL"));
+			String url = tiContext.resolveUrl(null, TiConvert.toString(options, "contentURL"));
+			if (DBG) {
+				Log.d(LCAT, "Video source: " + url);
+			}
+			intent.putExtra("contentURL", url);
 		}
 		if (options.containsKey("backgroundColor")) {
 			intent.putExtra("backgroundColor", TiConvert.toColor(options, "backgroundColor"));
