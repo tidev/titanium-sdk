@@ -321,7 +321,7 @@
 					uiview.proxy = proxy;
 					for (NSString *key in [proxy allProperties])
 					{
-						id oldValue = [oldProxy valueForKey:key];
+						id oldValue = oldProxy==nil ? nil : [oldProxy valueForKey:key];
 						id newValue = [proxy valueForKey:key];
 						if ([oldValue isEqual:newValue]==NO)
 						{

@@ -16,15 +16,14 @@ var scrollView = Titanium.UI.createScrollView({
 	minZoomScale:0.1
 });
 
-var view = Ti.UI.createImageView({url:'../images/flook09_m_50.jpg'});
-/*
+
 var view = Ti.UI.createView({
 	backgroundColor:'#336699',
 	borderRadius:10,
 	width:300,
 	height:500,
 	top:10
-});*/
+});
 
 var label = Ti.UI.createLabel({
 	font:{fontSize:18,fontWeight:'bold',fontFamily:'Helvetica Neue'},

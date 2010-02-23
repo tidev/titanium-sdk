@@ -30,6 +30,13 @@
 	return sliderView;
 }
 
+-(BOOL)hasTouchableListener
+{
+	// since this guy only works with touch events, we always want them
+	// just always return YES no matter what listeners we have registered
+	return YES;
+}
+
 -(void)setThumb:(id)value forState:(UIControlState)state
 {
 	[[self sliderView] setThumbImage:[TiUtils image:value proxy:[self proxy]] forState:state];
@@ -110,9 +117,6 @@
 	[self setRightTrack:value forState:UIControlStateDisabled];
 }
 
-
-
-
 -(void)setMin_:(id)value
 {
 	[[self sliderView] setMinimumValue:[TiUtils floatValue:value]];
@@ -123,25 +127,23 @@
 	[[self sliderView] setMaximumValue:[TiUtils floatValue:value]];
 }
 
--(void)setValue_:(id)value
+-(void)setValue_:(id)value withObject:(id)properties
 {
 	CGFloat newValue = [TiUtils floatValue:value];
-	//BOOL animate = sliderView != nil;
-	//TODO: fix animation once supported in setter
+	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
 	UISlider * ourSlider = [self sliderView];
-	[ourSlider setValue:newValue];
-//	[ourSlider setValue:newValue animated:animate];
+	[ourSlider setValue:newValue animated:animated];
 	[self sliderChanged:ourSlider];
+}
+
+-(void)setValue_:(id)value
+{
+	[self setValue_:value withObject:nil];
 }
 
 -(void)setEnabled_:(id)value
 {
 	[[self sliderView] setEnabled:[TiUtils boolValue:value]];
-}
-
-- (IBAction)sliderChanged:(id)sender
-{
-	[(TiUISliderProxy *)[self proxy] sliderChanged:sender];
 }
 
 -(CGFloat)verifyHeight:(CGFloat)suggestedHeight
@@ -153,5 +155,19 @@
 {
 	return suggestedResizing & ~UIViewAutoresizingFlexibleHeight;
 }
+
+#pragma mark Delegates 
+
+- (IBAction)sliderChanged:(id)sender
+{
+	NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider *)sender value]];
+	[self.proxy replaceValue:newValue forKey:@"value" notification:NO];
+	
+	if ([self.proxy _hasListeners:@"change"])
+	{
+		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+	}
+}
+
 
 @end

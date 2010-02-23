@@ -182,8 +182,10 @@
 	{
 		NSIndexSet *oldSectionSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,[sections count])];
 		[table deleteSections:oldSectionSet withRowAnimation:UITableViewRowAnimationNone];
-		[sections removeAllObjects];
 	}
+	
+	RELEASE_TO_NIL(sections);
+	sections = [[NSMutableArray alloc] init];
 	
 	// get new data array from the proxy
 	NSArray *newsections = [self.proxy valueForKey:@"data"];
@@ -266,6 +268,7 @@
 	TiUITableViewSectionProxy *section = [sections objectAtIndex:[sections count]-1];
 	row.section = section;
 	NSMutableArray *rows = [row.section rows];
+	NSAssert(rows!=nil,@"rows was nil");
 	[rows addObject:row];
 	[row.section reorderRows];
 }

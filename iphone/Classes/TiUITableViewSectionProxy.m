@@ -19,6 +19,7 @@
 
 -(void)_destroy
 {
+	self.modelDelegate = nil;
 	RELEASE_TO_NIL(rows);
 	[super _destroy];
 }
