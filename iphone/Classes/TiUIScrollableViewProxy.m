@@ -10,6 +10,12 @@
 
 @implementation TiUIScrollableViewProxy
 
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+	[self replaceValue:NUMINT(0) forKey:@"currentPage" notification:NO];
+	[super _initWithProperties:properties];
+}
+
 -(void)scrollToView:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSObject);
