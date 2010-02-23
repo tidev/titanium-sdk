@@ -282,7 +282,6 @@ public abstract class TiUIView
 			animBuilder = new TiAnimationBuilder();
 			animBuilder.applyOptions(d);
 			AnimationSet as = animBuilder.render(nativeView);
-			as.setStartTime(3000);
 			nativeView.startAnimation(as);
 		}
 	}
