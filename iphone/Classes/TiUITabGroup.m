@@ -283,7 +283,7 @@ DEFINE_EXCEPTIONS
 	// on an open, make sure we send the focus event to initial tab
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focused,@"tab",NUMINT(0),@"index",NUMINT(-1),@"previousIndex",[NSNull null],@"previousTab",nil];
 	[self.proxy fireEvent:@"focus" withObject:event];
-	[focused handleWillFocus:event];
+	[focused handleDidFocus:event];
 }
 
 -(void)close:(id)args
