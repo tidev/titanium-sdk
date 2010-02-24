@@ -26,8 +26,9 @@ public class TiAnimationBuilder
 	protected Double repeat = null;
 	protected Boolean autoreverse = null;
 
-	protected KrollCallback startCallback;
-	protected KrollCallback stopCallback;
+	protected TiAnimation animationProxy;
+
+	protected KrollCallback callback;
 
 	public TiAnimationBuilder()
 	{
@@ -71,15 +72,12 @@ public class TiAnimationBuilder
 	}
 
 	public void applyAnimation(TiAnimation anim) {
+		this.animationProxy = anim;
 		applyOptions(anim.getDynamicProperties());
 	}
 
-	public void setStartCallback(KrollCallback startCallback) {
-		this.startCallback = startCallback;
-	}
-
-	public void setStopCallback(KrollCallback stopCallback) {
-		this.stopCallback = stopCallback;
+	public void setCallback(KrollCallback callback) {
+		this.callback = callback;
 	}
 
 	public AnimationSet render(View view)
@@ -145,14 +143,17 @@ public class TiAnimationBuilder
 			as.setStartOffset(delay.longValue());
 		}
 
-		if (startCallback != null || stopCallback != null) {
+		if (callback != null || animationProxy != null) {
 			as.setAnimationListener(new Animation.AnimationListener(){
 
 				@Override
 				public void onAnimationEnd(Animation a)
 				{
-					if (stopCallback != null) {
-						stopCallback.call();
+					if (callback != null) {
+						callback.call();
+					}
+					if (animationProxy != null) {
+						animationProxy.fireEvent("complete", null);
 					}
 				}
 
@@ -163,8 +164,8 @@ public class TiAnimationBuilder
 				@Override
 				public void onAnimationStart(Animation a)
 				{
-					if (startCallback != null) {
-						startCallback.call();
+					if (animationProxy != null) {
+						animationProxy.fireEvent("start", null);
 					}
 				}
 
