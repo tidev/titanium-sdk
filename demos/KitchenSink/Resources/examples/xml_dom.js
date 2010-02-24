@@ -21,7 +21,8 @@ var xmlstr = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"+
 var xml = Ti.XML.parseString(xmlstr);
 var fooBarList = xml.documentElement.getElementsByTagName("FooBar");
 
-var result = fooBarList!=null && fooBarList.length == 1 && fooBarList.item(0).nodeValue=="true";
+Ti.API.info("fooBarList="+fooBarList);
+var result = fooBarList!=null && fooBarList.length == 1 && fooBarList.item(0).text=="true";
 var result = result && fooBarList.item(0).nodeName=="FooBar";
 
 var label1 = Ti.UI.createLabel({
@@ -54,7 +55,7 @@ var xmlstr2 = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"+
 var xml2 = Ti.XML.parseString(xmlstr2);
 
 fooBarList = xml2.documentElement.getElementsByTagName("FooBar");
-result = fooBarList!=null && fooBarList.length == 1 && fooBarList.item(0).nodeValue=="true";
+result = fooBarList!=null && fooBarList.length == 1 && fooBarList.item(0).text=="true";
 result = result && fooBarList.item(0).nodeName=="FooBar";
 
 var label2 = Ti.UI.createLabel({
