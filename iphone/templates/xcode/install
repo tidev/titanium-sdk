@@ -1,6 +1,0 @@
-#!/bin/sh
-#
-# Simple script that installs the Titanium class templates to the default platform location
-# 
-
-cp -R "Titanium class" /Developer/Platforms/iPhoneOS.platform/Developer/Library/Xcode/File\ Templates/Cocoa\ Touch\ Class 
