@@ -25,7 +25,7 @@ var button = Titanium.UI.createButton({
 	width:200,
 	bottom:10
 });
-scrollView.add(button);
+view.add(button);
 button.addEventListener('click', function()
 {
 	scrollView.scrollTo(0,0);

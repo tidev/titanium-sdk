@@ -3,7 +3,7 @@ var win = Titanium.UI.currentWindow;
 // create table view data object
 var data = [
 	{title:'External URL', hasChild:true, url:'http://www.google.com'},
-	{title:'Local URL', hasChild:true, url:'local_webview.html'},
+	{title:'Local URL', hasChild:true, url:'local_webview.html', bgcolor:'#aaa'},
 	{title:'PDF URL', hasChild:true, url:'http://www.appcelerator.com/assets/The_iPad_App_Wave.pdf'},
 	{title:'Image URL', hasChild:true, url:'http://www.appcelerator.com/wp-content/uploads/2010/01/TABWAVE_graph1.png'},
 	{title:'SVG URL', hasChild:true, url:'http://upload.wikimedia.org/wikipedia/commons/5/55/1st_Cavalry_Division_-_Shoulder_Sleeve_Insignia.svg'},
@@ -55,8 +55,26 @@ tableview.addEventListener('click', function(e)
 		webview.borderColor = 'red';
 	}
 	w.add(webview);
+	
+	// create toolbar for local webiew
+	if (e.index==1)
+	{
+		var button = Titanium.UI.createButton({
+			title:'Click above to hide me'
+		});
+		w.setToolbar([button]);
+	}
+
+	// hide toolbar for local web view
+	Ti.App.addEventListener('webview_hidetoolbar', function()
+	{
+		w.setToolbar(null,{animated:true});
+	});
+	webview.addEventListener('click', function()
+	{
+		Ti.UI.createAlertDialog({title:'Webview', message:'Received Click'}).show();
+	})
 	win.tab.open(w);
-	//webview.evalJS('alert("hello")');
 });
 
 // add table view to the window

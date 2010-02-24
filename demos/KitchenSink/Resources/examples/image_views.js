@@ -7,6 +7,7 @@ var data = [
 	{title:'Remote Image', hasChild:true, test:'../examples/image_view_remote.js'},
 	{title:'Image Scaling', hasChild:true, test:'../examples/image_view_scaling.js'},
 	{title:'Image Rapid Update', hasChild:true, test:'../examples/image_view_updateimages.js'},
+	{title:'Image View Positioning', hasChild:true, test:'../examples/image_view_positioning.js'},
 
 ];
 

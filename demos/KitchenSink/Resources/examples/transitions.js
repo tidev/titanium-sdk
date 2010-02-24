@@ -64,7 +64,7 @@ b2.addEventListener('click', function()
 	var b = Ti.UI.createButton({title:'Close Me',width:200,height:40});
 	b.addEventListener('click',function()
 	{
-		win.animate({view:view,transition:Ti.UI.iPhone.AnimationStyle.CURL_UP})
+		win.animate({view:view,transition:Ti.UI.iPhone.AnimationStyle.CURL_UP});
 	})
 	view2.add(b);
 	
