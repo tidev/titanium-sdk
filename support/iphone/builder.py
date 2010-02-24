@@ -143,6 +143,13 @@ def main(args):
 	
 	cwd = os.getcwd()
 	
+	app_js = os.path.join(project_dir,'Resources','app.js')
+	if not os.path.exists(app_js):
+		print "[ERROR] This project looks to not be ported to 0.9+."
+		print "[ERROR] Your project is missing app.js.  Please make sure to port your application to 0.9+ API"
+		print "[ERROR] before continuing or choose a previous version of the SDK."
+		sys.exit(1)
+	
 	tiapp_xml = os.path.join(project_dir,'tiapp.xml')
 	if not os.path.exists(tiapp_xml):
 		print "Missing tiapp.xml at %s" % tiapp_xml
@@ -155,10 +162,37 @@ def main(args):
 	# compile resources
 	compiler = Compiler(appid,project_dir,encrypt,debug)
 	compiler.compile()
+
+	# find the module directory relative to the root of the SDK	
+	tp_module_dir = os.path.abspath(os.path.join(template_dir,'..','..','..','..','modules','iphone'))
+	
+	tp_modules = []
+	
+	for module in ti.properties['modules']:
+		tp_name = module['name'].lower()
+		tp_version = module['version']
+		tp_dir = os.path.join(tp_module_dir,tp_name,tp_version)
+		if not os.path.exists(tp_dir):
+			print "[ERROR] Third-party module: %s/%s detected in tiapp.xml but not found at %s" % (tp_name,tp_version,tp_dir)
+			#sys.exit(1)
+		tp_module = os.path.join(tp_dir,'lib%s.a' % tp_name)
+		if not os.path.exists(tp_module):
+			print "[ERROR] Third-party module: %s/%s missing library at %s" % (tp_name,tp_version,tp_module)
+			#sys.exit(1)
+		tp_modules.append(tp_module)	
+		print "[INFO] Detected third-party module: %s/%s" % (tp_name,tp_version)
+		# copy module resources
+		img_dir = os.path.join(tp_dir,'assets','images')
+		if os.path.exists(img_dir):
+			dest_img_dir = os.path.join(iphone_tmp_dir,'modules',tp_name,'images')
+			if os.path.exists(dest_img_dir):
+				shutil.rmtree(dest_img_dir)
+			os.makedirs(dest_img_dir)
+			copy_module_resources(img_dir,dest_img_dir)
 	
 	# compiler dependencies
 	dependscompiler = DependencyCompiler()
-	dependscompiler.compile(template_dir,project_dir)
+	dependscompiler.compile(template_dir,project_dir,tp_modules)
 	
 	# copy any module image directories
 	for module in dependscompiler.modules:
@@ -212,13 +246,9 @@ def main(args):
 		if os.path.exists(target_png):
 			os.remove(target_png)
 		shutil.copy(default_png,target_png)	
+		
 	
-	iphone_tmp_module_dir = os.path.join(iphone_dir,"_modules")
-	if os.path.exists(iphone_tmp_module_dir):
-		shutil.rmtree(iphone_tmp_module_dir)
-	
-	os.mkdir(iphone_tmp_module_dir)
-	
+	# TODO: review this with new module SDK
 	# in case the developer has their own modules we can pick them up
 	project_module_dir = os.path.join(project_dir,"modules","iphone")
 	

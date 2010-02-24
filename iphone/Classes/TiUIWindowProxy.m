@@ -365,10 +365,10 @@
 -(void)setTitleImage:(id)image
 {
 	ENSURE_UI_THREAD(setTitleImage,image);
-	[self replaceValue:image forKey:@"titleImage" notification:NO];
+	NSURL *path = [TiUtils toURL:image proxy:self];
+	[self replaceValue:[path absoluteString] forKey:@"titleImage" notification:NO];
 	if (controller!=nil)
 	{
-		NSURL *path = [TiUtils toURL:image proxy:self];
 		if (path!=nil)
 		{
 			UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:path];
@@ -470,7 +470,7 @@
 #define SETPROP(m,x) \
 {\
   id value = [self valueForKey:m]; \
-  if (value!=nil)\
+  if (!IS_NULL_OR_NIL(value))\
   {\
 	[self x:(value==[NSNull null]) ? nil : value];\
   }\
@@ -482,7 +482,7 @@
 #define SETPROPOBJ(m,x) \
 {\
 id value = [self valueForKey:m]; \
-if (value!=nil)\
+if (!IS_NULL_OR_NIL(value))\
 {\
 if ([value isKindOfClass:[TiComplexValue class]])\
 {\
