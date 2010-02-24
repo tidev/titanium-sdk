@@ -29,7 +29,7 @@
 {
 	ENSURE_SINGLE_ARG(args,NSString);
 	NSError *error = nil;
-	NSArray *nodes = [element nodesForXPath:[NSString stringWithFormat:@"%@",args] error:&error];
+	NSArray *nodes = [element nodesForXPath:[NSString stringWithFormat:@"//*[@id=%@]",args] error:&error];
 	if (error==nil && nodes!=nil && [nodes count]>0)
 	{
 		TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
@@ -39,10 +39,29 @@
 	return nil;
 }
 
+-(id)evaluate:(id)args
+{
+	ENSURE_SINGLE_ARG(args,NSString);
+	NSError *error = nil;
+	NSArray *nodes = [element nodesForXPath:args error:&error];
+	if (error==nil && nodes!=nil && [nodes count]>0)
+	{
+		TiDOMNodeListProxy *proxy = [[[TiDOMNodeListProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
+		[proxy setNodes:nodes];
+		return proxy;
+	}
+	return nil;
+}
 
 -(id)tagName
 {
 	return [element name];
+}
+
+-(id)nodeValue
+{
+	// DOM spec says nodeValue for element must return null
+	return nil;
 }
 
 -(id)getAttribute:(id)args
