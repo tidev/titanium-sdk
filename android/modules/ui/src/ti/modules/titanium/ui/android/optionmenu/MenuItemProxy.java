@@ -1,4 +1,4 @@
-package ti.modules.titanium.ui;
+package ti.modules.titanium.ui.android.optionmenu;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
