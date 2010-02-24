@@ -23,6 +23,7 @@ import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.kroll.KrollBridge;
 import org.appcelerator.titanium.kroll.KrollContext;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiFileHelper2;
@@ -33,8 +34,10 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.view.Menu;
+import android.view.MenuItem;
 
-public class TiContext implements TiEvaluator
+public class TiContext implements TiEvaluator, ITiMenuDispatcherListener
 {
 	private static final String LCAT = "TiContext";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -50,6 +53,7 @@ public class TiContext implements TiEvaluator
 
 	private ArrayList<WeakReference<OnEventListenerChange>> eventChangeListeners;
 	private ArrayList<WeakReference<OnLifecycleEvent>> lifecycleListeners;
+	private WeakReference<OnMenuEvent> weakMenuEvent;
 
 	public static interface OnLifecycleEvent
 	{
@@ -58,6 +62,13 @@ public class TiContext implements TiEvaluator
 		void onPause();
 		void onStop();
 		void onDestroy();
+	}
+
+	public static interface OnMenuEvent
+	{
+		public boolean hasMenu();
+		public boolean prepareMenu(Menu menu);
+		public boolean menuItemSelected(MenuItem item);
 	}
 
 	public static class TiListener
@@ -516,6 +527,58 @@ public class TiContext implements TiEvaluator
 				}
 			}
 		}
+	}
+
+	public void setOnMenuEventListener(OnMenuEvent listener) {
+		if (listener != null) {
+			weakMenuEvent = new WeakReference<OnMenuEvent>(listener);
+			TiActivitySupport tis = (TiActivitySupport) getActivity();
+			if (tis != null) {
+				tis.setMenuDispatchListener(this);
+			}
+		} else {
+			weakMenuEvent = null;
+			TiActivitySupport tis = (TiActivitySupport) getActivity();
+			if (tis != null) {
+				tis.setMenuDispatchListener(null);
+			}
+		}
+	}
+
+	public boolean dispatchHasMenu()
+	{
+		if (weakMenuEvent != null) {
+			OnMenuEvent listener = weakMenuEvent.get();
+			if (listener != null) {
+				return listener.hasMenu();
+			}
+		}
+
+		return false;
+	}
+
+	public boolean dispatchPrepareMenu(Menu menu)
+	{
+		if (weakMenuEvent != null) {
+			OnMenuEvent listener = weakMenuEvent.get();
+			if (listener != null) {
+				return listener.prepareMenu(menu);
+			}
+		}
+
+		return false;
+	}
+
+	public boolean dispatchMenuItemSelected(MenuItem item)
+	{
+		if (weakMenuEvent != null) {
+			OnMenuEvent listener = weakMenuEvent.get();
+			if (listener != null) {
+				return listener.menuItemSelected(item);
+			}
+		}
+
+		return false;
 	}
 
 	public void dispatchOnStart()

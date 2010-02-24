@@ -6,10 +6,13 @@
  */
 package org.appcelerator.titanium.util;
 
+import org.appcelerator.titanium.ITiMenuDispatcherListener;
+
 import android.content.Intent;
 
 public interface TiActivitySupport
 {
 	public void launchActivityForResult(Intent intent, int code, TiActivityResultHandler handler);
 	public int getUniqueResultCode();
+	public void setMenuDispatchListener(ITiMenuDispatcherListener listener);
 }

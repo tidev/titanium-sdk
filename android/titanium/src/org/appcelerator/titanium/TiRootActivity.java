@@ -7,6 +7,8 @@
 package org.appcelerator.titanium;
 
 import java.io.IOException;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.util.Log;
@@ -22,6 +24,8 @@ import android.app.ActivityGroup;
 import android.app.LocalActivityManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 public class TiRootActivity extends ActivityGroup
@@ -32,6 +36,7 @@ public class TiRootActivity extends ActivityGroup
 	protected TiContext tiContext;
 	protected TiActivitySupportHelper supportHelper;
 	protected TiCompositeLayout rootLayout;
+	protected SoftReference<ITiMenuDispatcherListener> softMenuDispatcher;
 
 	public static class TiActivityRef
 	{
@@ -139,6 +144,44 @@ public class TiRootActivity extends ActivityGroup
 	public void finish() {
 		// TODO Auto-generated method stub
 		super.finish();
+	}
+
+   public void setMenuDispatchListener(ITiMenuDispatcherListener dispatcher) {
+    	softMenuDispatcher = new SoftReference<ITiMenuDispatcherListener>(dispatcher);
+    }
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		if (softMenuDispatcher != null) {
+			ITiMenuDispatcherListener dispatcher = softMenuDispatcher.get();
+			if (dispatcher != null) {
+				return dispatcher.dispatchHasMenu();
+			}
+		}
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (softMenuDispatcher != null) {
+			ITiMenuDispatcherListener dispatcher = softMenuDispatcher.get();
+			if (dispatcher != null) {
+				return dispatcher.dispatchMenuItemSelected(item);
+			}
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		if (softMenuDispatcher != null) {
+			ITiMenuDispatcherListener dispatcher = softMenuDispatcher.get();
+			if (dispatcher != null) {
+				return dispatcher.dispatchPrepareMenu(menu);
+			}
+		}
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 //	@Override
