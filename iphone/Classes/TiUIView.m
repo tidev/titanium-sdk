@@ -255,6 +255,49 @@ DEFINE_EXCEPTIONS
 	// for subclasses to do crap
 }
 
+-(CGSize)sizeThatFits:(CGSize)testSize;
+{
+	CGSize result = testSize;
+
+	switch (layout.width.type)
+	{
+		case TiDimensionTypePixels:
+			result.width = layout.width.value;
+			break;
+		case TiDimensionTypeAuto:
+			if ([self respondsToSelector:@selector(autoWidthForWidth:)])
+			{
+				result.width = [self autoWidthForWidth:result.width];
+			}
+	}
+
+	if ([self respondsToSelector:@selector(verifyWidth:)])
+	{
+		result.width = [self verifyWidth:result.width];
+	}
+
+	switch (layout.height.type)
+	{
+		case TiDimensionTypePixels:
+			result.height = layout.height.value;
+			break;
+		case TiDimensionTypeAuto:
+			if ([self respondsToSelector:@selector(autoHeightForWidth:)])
+			{
+				result.height = [self autoHeightForWidth:result.width];
+			}
+	}
+
+	if ([self respondsToSelector:@selector(verifyHeight:)])
+	{
+		result.height = [self verifyHeight:result.height];
+	}
+
+	return result;
+}
+
+
+
 -(void)setFrame:(CGRect)frame
 {
 	[super setFrame:frame];
