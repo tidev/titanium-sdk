@@ -81,7 +81,7 @@ def zip_iphone(zf,basepath):
 			 zf.write(os.path.join(tp_headers_dir,f),'%s/iphone/include/TiCore/%s' % (basepath,f))
 	
 	xcode_templates_dir =  os.path.join(top_dir,'iphone','templates','xcode') 
-	zip_dir(zf,xcode_templates_dir,basepath+'/iphone/templates')
+	zip_dir(zf,xcode_templates_dir,basepath+'/iphone/xcode/templates')
 	
 	iphone_lib = os.path.join(top_dir,'iphone','iphone','build')
 	zf.write(os.path.join(iphone_lib,'libTitanium.a'),'%s/iphone/libTitanium.a'%basepath)
