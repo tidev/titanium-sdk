@@ -25,6 +25,7 @@ public class TiUILabel extends TiUIView
 		TextView tv = new TextView(getProxy().getContext());
 		tv.setGravity(Gravity.TOP | Gravity.LEFT);
 		tv.setPadding(0, 0, 0, 0);
+		tv.setSingleLine(false);
 		setNativeView(tv);
 	}
 
@@ -78,14 +79,17 @@ public class TiUILabel extends TiUIView
 		TextView tv = (TextView) getNativeView();
 		if (key.equals("text")) {
 			tv.setText(TiConvert.toString(newValue));
+			tv.requestLayout();
 		} else if (key.equals("color")) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals("highlightedColor")) {
 			tv.setHighlightColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals("textAlign")) {
 			setAlignment(tv, (String) newValue);
+			tv.requestLayout();
 		} else if (key.equals("font")) {
 			TiUIHelper.styleText(tv, (TiDict) newValue);
+			tv.requestLayout();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
