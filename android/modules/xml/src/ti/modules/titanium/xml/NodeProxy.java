@@ -31,7 +31,7 @@ public class NodeProxy extends TiProxy {
 	private static HashMap<Node, NodeProxy> proxyCache = new HashMap<Node, NodeProxy>();
 	
 	private Node node;
-	private TiDict constants = new TiDict();
+	private TiDict constants;
 	
 	public NodeProxy(TiContext context, Node node)
 	{
