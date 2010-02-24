@@ -550,11 +550,12 @@ else{\
 	{
 		[self setupWindowDecorations];
 	}
+	[super _tabBeforeFocus];
 }
 
 -(void)_tabBeforeBlur
 {
-
+	[super _tabBeforeBlur];
 }
 
 -(void)_tabFocus

@@ -36,6 +36,10 @@
 -(void)setIcon:(id)title;
 -(void)setBadge:(id)title;
 
+- (void)handleWillBlur;
+- (void)handleDidBlur:(NSDictionary *)event;
+- (void)handleWillFocus;
+- (void)handleDidFocus:(NSDictionary *)event;
 - (void)handleWillShowViewController:(UIViewController *)viewController;
 - (void)handleDidShowViewController:(UIViewController *)viewController;
 

@@ -50,7 +50,13 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Dispatching focus change
 
-- (void)tabFocusChangeToProxy:(TiUITabProxy *)newFocus;
+- (void)handleWillShowTab:(TiUITabProxy *)newFocus
+{
+	[focused handleWillBlur];
+	[newFocus handleWillFocus];
+}
+
+- (void)handleDidShowTab:(TiUITabProxy *)newFocus
 {
 	NSMutableDictionary * event = [NSMutableDictionary dictionaryWithCapacity:4];
 
@@ -78,10 +84,7 @@ DEFINE_EXCEPTIONS
 	{
 		[self.proxy fireEvent:@"blur" withObject:event];
 	}
-	if ([focused _hasListeners:@"blur"])
-	{
-		[focused fireEvent:@"blur" withObject:event];
-	}
+	[focused handleDidBlur:event];
 	
 	RELEASE_TO_NIL(focused);
 	focused = [newFocus retain];
@@ -91,10 +94,8 @@ DEFINE_EXCEPTIONS
 	{
 		[self.proxy fireEvent:@"focus" withObject:event];
 	}
-	if ([focused _hasListeners:@"focus"])
-	{
-		[focused fireEvent:@"focus" withObject:event];
-	}
+
+	[focused handleDidFocus:event];
 }
 
 
@@ -109,9 +110,14 @@ DEFINE_EXCEPTIONS
 		UIViewController * rootController = [moreViewControllerStack objectAtIndex:1];
 		if ([rootController respondsToSelector:@selector(tab)])
 		{
-			[[rootController tab] handleWillShowViewController:viewController];
+			[[(id)rootController tab] handleWillShowViewController:viewController];
 		}
 	}
+	else
+	{
+		[self handleWillShowTab:nil];
+	}
+
 }
 
 
@@ -123,7 +129,7 @@ DEFINE_EXCEPTIONS
 	{
 		if (focused != nil)
 		{
-			[self tabFocusChangeToProxy:nil];
+			[self handleDidShowTab:nil];
 		}
 		return;
 	}
@@ -139,7 +145,7 @@ DEFINE_EXCEPTIONS
 	{
 		if (tabProxy != focused)
 		{
-			[self tabFocusChangeToProxy:tabProxy];
+			[self handleDidShowTab:tabProxy];
 		}
 	}
 
@@ -147,6 +153,35 @@ DEFINE_EXCEPTIONS
 }
 
 #pragma mark TabBarController Delegates
+
+- (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController
+{
+	TiUITabProxy * target=nil;
+	if ([tabBarController moreNavigationController] == viewController)
+	{
+		if (self != [(UINavigationController *)viewController delegate])
+		{
+			[(UINavigationController *)viewController setDelegate:self];
+		}
+		NSArray * moreViewControllerStack = [(UINavigationController *)viewController viewControllers];
+		if ([moreViewControllerStack count]>1)
+		{
+			viewController = [moreViewControllerStack objectAtIndex:1];
+			if ([viewController respondsToSelector:@selector(tab)])
+			{
+				target = (TiUITabProxy *)[(id)viewController tab];
+			}
+		}
+	}
+	else
+	{
+		target = (TiUITabProxy *)[(UINavigationController *)viewController delegate];
+	}
+
+	[self handleWillShowTab:target];
+
+	return YES;
+}
 
 - (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController
 {
@@ -168,7 +203,7 @@ DEFINE_EXCEPTIONS
 
 	}
 
-	[self tabFocusChangeToProxy:(TiUITabProxy *)[(UINavigationController *)viewController delegate]];
+	[self handleDidShowTab:(TiUITabProxy *)[(UINavigationController *)viewController delegate]];
 }
 
 
@@ -248,7 +283,7 @@ DEFINE_EXCEPTIONS
 	// on an open, make sure we send the focus event to initial tab
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focused,@"tab",NUMINT(0),@"index",NUMINT(-1),@"previousIndex",[NSNull null],@"previousTab",nil];
 	[self.proxy fireEvent:@"focus" withObject:event];
-	[focused fireEvent:@"focus" withObject:event];
+	[focused handleWillFocus:event];
 }
 
 -(void)close:(id)args
