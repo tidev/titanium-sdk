@@ -1,6 +1,18 @@
 var win = Titanium.UI.currentWindow;
 
 var recording = Ti.Media.createAudioRecorder();
+
+// default compression is Ti.Media.AUDIO_FORMAT_LINEAR_PCM
+// default format is Ti.Media.AUDIO_FILEFORMAT_CAF
+
+// this will give us a wave file with µLaw compression which
+// is a generally small size and suitable for telephony recording
+// for high end quality, you'll want LINEAR PCM - however, that
+// will result in uncompressed audio and will be very large in size
+recording.compression = Ti.Media.AUDIO_FORMAT_ULAW;
+recording.format = Ti.Media.AUDIO_FILEFORMAT_WAVE;
+
+
 var file;
 var timer;
 var sound;
@@ -132,6 +144,7 @@ b2.addEventListener('click', function()
 	}
 	else
 	{
+		Ti.API.info("recording file size: "+file.size);
 		sound = Titanium.Media.createSound({sound:file});
 		sound.addEventListener('complete', function()
 		{

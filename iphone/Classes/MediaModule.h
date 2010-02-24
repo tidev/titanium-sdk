@@ -62,5 +62,21 @@
 @property(nonatomic,readonly) NSNumber* AUDIO_UNAVAILABLE;
 @property(nonatomic,readonly) NSNumber* AUDIO_UNKNOWN;
 
+@property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_LINEAR_PCM;
+@property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_ULAW;
+@property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_ALAW;
+@property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_IMA4;
+@property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_ILBC;
+@property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_APPLE_LOSSLESS;
+
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_WAVE;
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_AIFF;
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_MP3;
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_MP4;
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_MP4A;
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_CAF;
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_3GPP;
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_3GP2;
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_AMR;
 
 @end

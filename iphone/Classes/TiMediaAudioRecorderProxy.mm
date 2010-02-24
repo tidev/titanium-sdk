@@ -12,10 +12,14 @@
 
 @implementation TiMediaAudioRecorderProxy
 
+@synthesize format, compression;
+
 #pragma mark Internal 
 
 -(void)dealloc
 {
+	RELEASE_TO_NIL(format);
+	RELEASE_TO_NIL(compression);
 	[[TiMediaAudioSession sharedSession] stopAudioSession];
 	[super dealloc];
 }
@@ -23,6 +27,8 @@
 -(void)_configure
 {
 	recorder = NULL;
+	format = [[NSNumber numberWithUnsignedInt:kAudioFileCAFType] retain];
+	compression = [[NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM] retain];
 	[[TiMediaAudioSession sharedSession] startAudioSession];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionBegin:) name:kTiMediaAudioSessionInterruptionBegin object:[TiMediaAudioSession sharedSession]];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionEnd:) name:kTiMediaAudioSessionInterruptionEnd object:[TiMediaAudioSession sharedSession]];
@@ -71,14 +77,57 @@
 	{
 		RELEASE_TO_NIL(file);
 		
+		NSString *extension = nil;
+		
+		UInt32 fmt = [format unsignedIntValue];
+		UInt32 comp = [compression unsignedIntValue];
+		
+		switch(fmt)
+		{
+			case kAudioFileCAFType:
+				extension = @"caf";
+				break;
+			case kAudioFileWAVEType:
+				extension = @"wav";
+				break;
+			case kAudioFileAIFFType:
+				extension = @"aiff";
+				break;
+			case kAudioFileMP3Type:
+				extension = @"mp3";
+				break;
+			case kAudioFileMPEG4Type:
+				extension = @"mp4";
+				break;
+			case kAudioFileM4AType:
+				extension = @"m4a";
+				break;
+			case kAudioFile3GPType:
+				extension = @"3gpp";
+				break;
+			case kAudioFile3GP2Type:
+				extension = @"3gp2";
+				break;
+			case kAudioFileAMRType:
+				extension = @"amr";
+				break;
+			default:
+			{
+				NSLog(@"[WARN] unsupported recording audio format: %d",fmt);
+			}
+		}
+		
+		// set our audio file
+		recorder->SetupAudioFormat(comp);
+		
 		// create a temporary file
-		file = [[TiUtils createTempFile:@"caf"] retain];
+		file = [[TiUtils createTempFile:extension] retain];
 		
 		// indicate we're going to start recording
 		[[TiMediaAudioSession sharedSession] record];
 		
 		// Start the recorder
-		recorder->StartRecord((CFStringRef)[file path]);
+		recorder->StartRecord((CFStringRef)[file path], fmt);
 	}
 }
 

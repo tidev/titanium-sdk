@@ -68,12 +68,13 @@ public:
 	AudioQueueRef				Queue() const				{ return mQueue; }
 	CAStreamBasicDescription	DataFormat() const			{ return mRecordFormat; }
 	
-	void			StartRecord(CFStringRef inRecordFile);
+	void			StartRecord(CFStringRef inRecordFile,UInt32 fileFormatID);
 	void			PauseRecord(); //JGH: added
 	void			ResumeRecord(); //JGH: added
 	void			StopRecord();		
 	Boolean			IsRunning() const			{ return mIsRunning; }
 	Boolean			IsPaused() const { return mIsPaused; } //JGH: added
+	void			SetupAudioFormat(UInt32 inFormatID);
 	
 	UInt64			startTime;
 	
@@ -88,7 +89,6 @@ private:
 	Boolean						mIsPaused; //JGH: added
 	
 	void			CopyEncoderCookieToFile();
-	void			SetupAudioFormat(UInt32 inFormatID);
 	int				ComputeRecordBufferSize(const AudioStreamBasicDescription *format, float seconds);
 	
 	static void MyInputBufferHandler(	void *								inUserData,
