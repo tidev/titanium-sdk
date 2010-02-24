@@ -42,7 +42,7 @@ tableview.addEventListener('click', function(e)
 	}
 	webview.addEventListener('load',function(e)
 	{
-		Ti.API.debug("webview loaded: "+e.url);
+		Ti.API.debug("webview loaded: "+e.url + ' ' + webview.evalJS('document.body.innerHTML'));
 	});
 	if (rowdata.bgcolor)
 	{

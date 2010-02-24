@@ -6,6 +6,7 @@ var data = [
 	{title:'Many on a Screen', hasChild:true, test:'../examples/scroll_views_many.js'},
 	{title:'Scrolling Zoom+Pinch', hasChild:true, test:'../examples/scroll_views_scaling.js'},
 	{title:'Scroll Views Dynamic Height', hasChild:true, test:'../examples/scroll_views_dynamic_height.js'},
+	{title:'Scroll Views TextArea', hasChild:true, test:'../examples/scroll_views_textareas.js'},
 
 ];
 
