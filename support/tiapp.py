@@ -124,9 +124,9 @@ class TiAppXML(object):
 			if p=='statusbar-style':
 				if value == 'default' or value=='grey':
 					status_bar_style = '<string>UIStatusBarStyleDefault</string>'
-				elif value == 'opaque_black' or value == 'opaque':
+				elif value == 'opaque_black' or value == 'opaque' or value == 'black':
 					status_bar_style = '<string>UIStatusBarStyleBlackOpaque</string>'
-				elif value == 'translucent_black':
+				elif value == 'translucent_black' or value == 'transparent' or value == 'translucent':
 					status_bar_style = '<string>UIStatusBarStyleBlackTranslucent</string>'
 				else:	
 					status_bar_style = '<string>UIStatusBarStyleDefault</string>'

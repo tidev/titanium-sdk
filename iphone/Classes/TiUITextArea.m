@@ -121,17 +121,9 @@
 	return YES;
 }
 
-//- (BOOL)textFieldShouldClear:(UITextField *)textField;               // called when clear button pressed. return NO to ignore (no notifications)
-//{
-////	[self setStringValue:@""];
-////	[self reportEvent:@"change" value:@"''" index:-1 init:nil arguments:nil];
-//	return YES;
-//}
-
 - (BOOL)textView:(UITextView *)tv shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
 	NSString *curText = [tv text];
-	BOOL hitReturn = [text isEqualToString:@"\n"];
 	
 	if ([text isEqualToString:@""])
 	{
@@ -140,24 +132,11 @@
 	}
 	else
 	{
-		if (hitReturn==NO)
-		{
-			curText = [NSString stringWithFormat:@"%@%@",curText,text];
-		}
+		curText = [NSString stringWithFormat:@"%@%@",curText,text];
 	}
 	
 	[self.proxy replaceValue:curText forKey:@"value" notification:NO];
 
-	if (hitReturn) 
-	{
-		returnActive = YES;
-
-		[textWidgetView resignFirstResponder];
-		[self makeRootViewFirstResponder];
-
-		// Return FALSE so that the final '\n' character doesn't get added
-		return FALSE;
-	}
 	return TRUE;
 }
 

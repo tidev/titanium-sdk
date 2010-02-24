@@ -329,11 +329,7 @@ class DependencyCompiler(object):
 			for libdir in [i386_dir,arm_dir]:
 				libfiles = ""
 				for sym in symbols:
-					print "[INFO] symbol %s" % sym
-					if os.path.exists(sym):
-						libfiles+="\"%s\" " % sym
-					else:
-						libfiles+="\"%s\" " % os.path.join(libdir,sym)
+					libfiles+="\"%s\" " % os.path.join(libdir,sym)
 				thedir = os.path.join(tmpdir,os.path.basename(libdir))
 				if not os.path.exists(thedir): os.makedirs(thedir)
 				libfile = os.path.join(thedir,'libTitanium.a')
