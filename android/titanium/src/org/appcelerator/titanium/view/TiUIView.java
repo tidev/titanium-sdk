@@ -21,12 +21,10 @@ import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.view.TiBorderHelper.BorderSupport;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
@@ -46,11 +44,12 @@ public abstract class TiUIView
 
 	protected TiViewProxy proxy;
 	protected TiViewProxy parent;
-
+	
 	protected LayoutParams layoutParams;
 	protected int zIndex;
 	protected TiAnimationBuilder animBuilder;
-
+	protected TiBackgroundShape background;
+	
 	public TiUIView(TiViewProxy proxy)
 	{
 		if (idGenerator == null) {
@@ -59,6 +58,7 @@ public abstract class TiUIView
 
 		this.proxy = proxy;
 		this.layoutParams = new TiCompositeLayout.LayoutParams();
+		this.background = new TiBackgroundShape();
 	}
 
 	public void add(TiUIView child)
@@ -222,7 +222,8 @@ public abstract class TiUIView
 			TiDict d = proxy.getDynamicProperties();
 			if (proxy.getDynamicValue("backgroundColor") != null) {
 				Integer bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
-				nativeView.setBackgroundDrawable(new ColorDrawable(bgColor));
+				background.setBackgroundColor(bgColor);
+				//nativeView.setBackgroundDrawable(new ColorDrawable(bgColor));
 			} else {
 				Log.w(LCAT, "Unable to set opacity w/o background color");
 			}
@@ -239,6 +240,7 @@ public abstract class TiUIView
 			if (nativeView != null) {
 				nativeView.requestLayout();
 				nativeView.setOnClickListener(this);
+				nativeView.setBackgroundDrawable(new ShapeDrawable(background));
 			}
 		}
 
@@ -250,31 +252,32 @@ public abstract class TiUIView
 			handleBackgroundImage(d);
 		} else if (d.containsKey("backgroundColor")) {
 			bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
-			nativeView.setBackgroundDrawable(new ColorDrawable(bgColor));
+			background.setBackgroundColor(bgColor);
+			//nativeView.setBackgroundDrawable(new ColorDrawable(bgColor));
 		}
 		if (d.containsKey("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(d, "visible") ? View.VISIBLE : View.INVISIBLE);
 		}
 
-		if (nativeView instanceof BorderSupport) {
-			TiBorderHelper borderHelper = ((BorderSupport) nativeView).getBorderHelper();
-			if (borderHelper != null) {
-				if (d.containsKey("borderColor") || d.containsKey("borderRadius")) {
-					if (d.containsKey("borderRadius")) {
-						borderHelper.setBorderRadius(TiConvert.toFloat(d, "borderRadius"));
-					}
-					if (d.containsKey("borderColor")) {
-						borderHelper.setBorderColor(TiConvert.toColor(d, "borderColor", "opacity"));
-					} else {
-						borderHelper.setBorderColor(bgColor);
-					}
-
-					if (d.containsKey("borderWidth")) {
-						borderHelper.setBorderWidth(TiConvert.toFloat(d, "borderWidth"));
-					}
-				}
+		if (d.containsKey("borderColor") || d.containsKey("borderRadius")) {
+			if (background.getBorder() == null) {
+				background.setBorder(new TiBackgroundShape.Border());
+			}
+			TiBackgroundShape.Border border = background.getBorder();
+			
+			if (d.containsKey("borderRadius")) {
+				border.setRadius(TiConvert.toFloat(d, "borderRadius"));
+			}
+			if (d.containsKey("borderColor")) {
+				border.setColor(TiConvert.toColor(d, "borderColor", "opacity"));
 			} else {
-				throw new IllegalStateException("Views providing BorderSupport, must return a non-null TiBorderHelper");
+				if (bgColor != null) {
+					border.setColor(bgColor);
+				}
+			}
+
+			if (d.containsKey("borderWidth")) {
+				border.setWidth(TiConvert.toFloat(d, "borderWidth"));
 			}
 		}
 
@@ -364,8 +367,7 @@ public abstract class TiUIView
 		String url = getProxy().getTiContext().resolveUrl(null, path);
 		TiBaseFile file = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), new String[] { url }, false);
 		try {
-			nativeView.setBackgroundDrawable(Drawable.createFromStream(
-				file.getInputStream(), file.getNativeFile().getName()));
+			background.setBackgroundImage(TiUIHelper.createBitmap(file.getInputStream()));
 		} catch (IOException e) {
 			Log.e(LCAT, "Error creating background image from path: " + path.toString(), e);
 		}
