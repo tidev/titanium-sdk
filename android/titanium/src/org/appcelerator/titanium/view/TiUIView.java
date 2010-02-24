@@ -236,7 +236,7 @@ public abstract class TiUIView
 
 	public void processProperties(TiDict d)
 	{
-		if (TiConvert.fillLayout(d, layoutParams)) {
+   		if (TiConvert.fillLayout(d, layoutParams)) {
 			if (nativeView != null) {
 				nativeView.requestLayout();
 				nativeView.setOnClickListener(this);
