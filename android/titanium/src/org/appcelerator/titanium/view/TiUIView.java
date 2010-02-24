@@ -24,7 +24,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.content.Context;
-import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
@@ -44,12 +44,12 @@ public abstract class TiUIView
 
 	protected TiViewProxy proxy;
 	protected TiViewProxy parent;
-	
+
 	protected LayoutParams layoutParams;
 	protected int zIndex;
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundShape background;
-	
+
 	public TiUIView(TiViewProxy proxy)
 	{
 		if (idGenerator == null) {
@@ -239,8 +239,6 @@ public abstract class TiUIView
    		if (TiConvert.fillLayout(d, layoutParams)) {
 			if (nativeView != null) {
 				nativeView.requestLayout();
-				nativeView.setOnClickListener(this);
-				nativeView.setBackgroundDrawable(new ShapeDrawable(background));
 			}
 		}
 
@@ -252,8 +250,8 @@ public abstract class TiUIView
 			handleBackgroundImage(d);
 		} else if (d.containsKey("backgroundColor")) {
 			bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
-			background.setBackgroundColor(bgColor);
-			//nativeView.setBackgroundDrawable(new ColorDrawable(bgColor));
+			//background.setBackgroundColor(bgColor);
+			nativeView.setBackgroundDrawable(new ColorDrawable(bgColor));
 		}
 		if (d.containsKey("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(d, "visible") ? View.VISIBLE : View.INVISIBLE);
@@ -264,7 +262,7 @@ public abstract class TiUIView
 				background.setBorder(new TiBackgroundShape.Border());
 			}
 			TiBackgroundShape.Border border = background.getBorder();
-			
+
 			if (d.containsKey("borderRadius")) {
 				border.setRadius(TiConvert.toFloat(d, "borderRadius"));
 			}
@@ -279,6 +277,11 @@ public abstract class TiUIView
 			if (d.containsKey("borderWidth")) {
 				border.setWidth(TiConvert.toFloat(d, "borderWidth"));
 			}
+		}
+
+		if (nativeView != null) {
+			nativeView.setOnClickListener(this);
+			//nativeView.setBackgroundDrawable(new ShapeDrawable(background));
 		}
 
 		if (d.containsKey("transform")) {
