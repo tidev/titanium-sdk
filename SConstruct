@@ -83,7 +83,9 @@ if build_type in ['full', 'iphone']:
 
 def package_sdk(target, source, env):
 	print "Packaging MobileSDK (%s)..." % version
-	package.Packager().build(os.path.abspath('dist'), version)
+	android = build_type in ['full', 'android']
+	iphone = build_type in ['full', 'iphone']
+	package.Packager().build(os.path.abspath('dist'), version, android, iphone)
 
 package_builder = Builder(action = package_sdk)
 env.Append(BUILDERS = {'PackageMobileSDK': package_builder})

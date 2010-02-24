@@ -78,6 +78,11 @@
 
 - (void)handleWillShowViewController:(UIViewController *)viewController
 {
+	if (current==viewController)
+	{
+		return;
+	}
+
 	if (current!=nil)
 	{
 		TiWindowProxy *currentWindow = [current window];
@@ -95,6 +100,11 @@
 
 - (void)handleDidShowViewController:(UIViewController *)viewController
 {
+	if (current==viewController)
+	{
+		return;
+	}
+
 	if (current!=nil)
 	{
 		TiWindowProxy *currentWindow = [current window];
@@ -128,6 +138,39 @@
 {
 	[self handleDidShowViewController:viewController];
 }
+
+- (void)handleWillBlur
+{
+	TiWindowProxy *currentWindow = [current window];
+	[currentWindow _tabBeforeBlur];
+}
+
+- (void)handleDidBlur:(NSDictionary *)event
+{
+	if ([self _hasListeners:@"blur"])
+	{
+		[self fireEvent:@"blur" withObject:event];
+	}
+	TiWindowProxy *currentWindow = [current window];
+	[currentWindow _tabBlur];
+}
+
+- (void)handleWillFocus
+{
+	TiWindowProxy *currentWindow = [current window];
+	[currentWindow _tabBeforeFocus];
+}
+
+- (void)handleDidFocus:(NSDictionary *)event
+{
+	if ([self _hasListeners:@"focus"])
+	{
+		[self fireEvent:@"focus" withObject:event];
+	}
+	TiWindowProxy *currentWindow = [current window];
+	[currentWindow _tabFocus];
+}
+
 
 #pragma mark Public APIs
 
