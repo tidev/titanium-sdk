@@ -1196,7 +1196,7 @@
 		hasTitle = YES;
 		size+=[tableView sectionHeaderHeight];
 	}
-	if ([tableView tableHeaderView]!=nil)
+	if ([tableView tableHeaderView]!=nil && searchField == nil)
 	{
 		size+=[tableView tableHeaderView].frame.size.height;
 	}

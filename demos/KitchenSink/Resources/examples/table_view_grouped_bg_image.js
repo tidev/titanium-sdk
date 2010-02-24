@@ -1,5 +1,3 @@
-//FIXME: JGH redo
-
 var win = Titanium.UI.currentWindow;
 win.backgroundImage = '../images/tableview/brown_bg_482.png';
 
@@ -50,7 +48,10 @@ var tableView = Titanium.UI.createTableView({
 	backgroundColor:'transparent',
 	data:data,
 	separatorStyle:Ti.UI.iPhone.TableViewSeparatorStyle.NONE,
-	top:10
+	top:10,
+	style: Titanium.UI.iPhone.TableViewStyle.GROUPED
+	
+
 });
 
 win.add(tableView);

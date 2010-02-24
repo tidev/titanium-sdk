@@ -5,6 +5,10 @@
 //
 
 var win = Titanium.UI.currentWindow;
+win.addEventListener('focus', function()
+{
+	Ti.API.info('FOCUSED EVENT RECEIVED')
+});
 
 //
 //  OPEN WINDOW OUTSIDE OF TAB GROUP
@@ -175,7 +179,7 @@ b4.addEventListener('click', function()
 
 });
 
-//
+// 
 // OPEN (ANIMATE FROM BOTTOM)
 //
 var b5 = Titanium.UI.createButton({
@@ -376,5 +380,7 @@ else
 	navButton.height = 40;
 	win.add(navButton);
 }
+
+
 
 

@@ -102,7 +102,7 @@ def zip_iphone(zf,basepath):
 				zip_dir(zf,module_images,'%s/iphone/modules/%s/images' % (basepath,module_name))
 	
 		
-def zip_it(dist_dir,osname,version):
+def zip_it(dist_dir,osname,version,android,iphone):
 	if not os.path.exists(dist_dir):
 		os.makedirs(dist_dir)
 	basepath = 'mobilesdk/%s/%s' % (osname,version)
@@ -113,8 +113,8 @@ def zip_it(dist_dir,osname,version):
 	
 	zip_dir(zf,all_dir,basepath)
 	zip_dir(zf,template_dir,basepath)
-	zip_android(zf,basepath)
-	if osname == "osx": zip_iphone(zf,basepath)
+	if android: zip_android(zf,basepath)
+	if iphone and osname == "osx": zip_iphone(zf,basepath)
 
 	zf.close()
 
@@ -122,9 +122,9 @@ class Packager(object):
 	def __init__(self):
 		pass
 	 
-	def build(self,dist_dir,version):
+	def build(self,dist_dir,version,android=True,iphone=True):
 		os_names = { "Windows":"win32", "Linux":"linux", "Darwin":"osx" }
-		zip_it(dist_dir,os_names[platform.system()],version)
+		zip_it(dist_dir,os_names[platform.system()],version,android,iphone)
 
 
 if __name__ == '__main__':

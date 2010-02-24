@@ -12,8 +12,8 @@ var data = [
 	{title:'Sound', hasChild:true, test:'../examples/sound.js'},
 	{title:'Shake', hasChild:true, test:'../examples/shake.js'},
 	{title:'Save to Gallery', hasChild:true, test:'../examples/photo_gallery_save.js'},
-//	{title:'Contacts', hasChild:true, test:'../examples/contacts.js'},
-	{title:'Contacts', hasChild:true, test:'../todo.js'},
+	{title:'Contacts', hasChild:true, test:'../examples/contacts.js'},
+//	{title:'Contacts', hasChild:true, test:'../todo.js'},
 	{title:'Proximity Events', hasChild:true, test:'../todo.js'},
 ];
 

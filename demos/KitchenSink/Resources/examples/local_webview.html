@@ -8,7 +8,7 @@
 	
 	Hello from local webview. You should see an indicator in the middle and my text should be blue.
 	We are also including JQuery
-	<div id="foo" style="margin-top:20px">hello</div>
+	<div id="foo" style="margin-top:20px;font-weight:bold">hello</div>
 	<script>
 		Ti.App.addEventListener('show_indicator',function(e)
 		{
@@ -20,7 +20,12 @@
 		});
 		Ti.App.fireEvent('show_indicator',{'a':1});
 		Ti.API.debug('log statement here');
-		$('#foo').html("I was changed by jQuery");
+		$('#foo').html("Click Me to Hide the Toolbar");
+		
+		document.getElementById("foo").onclick = function()
+		{
+			Ti.App.fireEvent('webview_hidetoolbar');
+		};
 	</script>
 	
 	

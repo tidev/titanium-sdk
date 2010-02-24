@@ -34,7 +34,7 @@ function addRow()
 	{
 		clickLabel.text = 'Button clicked at ' + new Date();
 	});
-
+	row.className = 'control';
 	return row;
 }
 
@@ -49,6 +49,7 @@ var l = Ti.UI.createLabel({
 
 });
 row.add(l);
+row.className = 'header'
 row.addEventListener('click', function()
 {
 	tableView.appendRow(addRow());
@@ -64,5 +65,10 @@ var tableView = Ti.UI.createTableView({
 	data:data, 	
 	style: Titanium.UI.iPhone.TableViewStyle.GROUPED,
 	top:50
+});
+tableView.addEventListener('click', function()
+{
+	clickLabel.text = 'row clicked at ' + new Date();
+	
 });
 win.add(tableView);	
