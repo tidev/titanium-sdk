@@ -82,23 +82,15 @@ public class TiUIImageView extends TiUIView
 		return (TiImageView) nativeView;
 	}
 
-	public Bitmap createBitmap(InputStream stream)
-	{
-		Rect pad = new Rect();
-		BitmapFactory.Options opts = new BitmapFactory.Options();
-		opts.inScreenDensity = DisplayMetrics.DENSITY_HIGH;
-		return BitmapFactory.decodeResourceStream(null, null, stream, pad, opts);
-	}
-
 	public Drawable createImage(Object image)
 	{
 		if (image instanceof TiBlob) {
 			TiBlob blob = (TiBlob)image;
-			return new BitmapDrawable(createBitmap(new ByteArrayInputStream(blob.getBytes())));
+			return new BitmapDrawable(TiUIHelper.createBitmap(new ByteArrayInputStream(blob.getBytes())));
 		} else if (image instanceof FileProxy) {
 			FileProxy file = (FileProxy)image;
 			try {
-				return new BitmapDrawable(createBitmap(file.getBaseFile().getInputStream()));
+				return new BitmapDrawable(TiUIHelper.createBitmap(file.getBaseFile().getInputStream()));
 			} catch (IOException e) {
 				Log.e(LCAT, "Error creating drawable from file: " + file.getBaseFile().getNativeFile().getName(), e);
 			}
@@ -106,14 +98,14 @@ public class TiUIImageView extends TiUIView
 			String url = proxy.getTiContext().resolveUrl(null, (String)image);
 			TiBaseFile file = TiFileFactory.createTitaniumFile(proxy.getTiContext(), new String[] { url }, false);
 			try {
-				return new BitmapDrawable(createBitmap(file.getInputStream()));
+				return new BitmapDrawable(TiUIHelper.createBitmap(file.getInputStream()));
 			} catch (IOException e) {
 				Log.e(LCAT, "Error creating drawable from path: " + image.toString(), e);
 			}
 		} else if (image instanceof TiDict) {
 			TiBlob blob = TiUIHelper.getImageFromDict((TiDict)image);
 			if (blob != null) {
-				return new BitmapDrawable(createBitmap(new ByteArrayInputStream(blob.getBytes())));
+				return new BitmapDrawable(TiUIHelper.createBitmap(new ByteArrayInputStream(blob.getBytes())));
 			} else {
 				Log.e(LCAT, "Couldn't find valid image in object: " + image.toString());
 			}

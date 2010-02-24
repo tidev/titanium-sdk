@@ -21,18 +21,16 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.OnHierarchyChangeListener;
 
 public class TiCompositeLayout extends ViewGroup
-	implements OnHierarchyChangeListener, TiBorderHelper.BorderSupport
+	implements OnHierarchyChangeListener
 {
 	public static final int NOT_SET = Integer.MIN_VALUE;
 
 	private TreeSet<View> viewSorter;
 	private boolean needsSort;
-	private TiBorderHelper borderHelper;
 
 	public TiCompositeLayout(Context context)
 	{
 		super(context);
-		this.borderHelper = new TiBorderHelper();
 
 		this.viewSorter = new TreeSet<View>(new Comparator<View>(){
 
@@ -93,10 +91,6 @@ public class TiCompositeLayout extends ViewGroup
 
 	private String viewToString(View view) {
 		return view.getClass().getSimpleName() + "@" + Integer.toHexString(view.hashCode());
-	}
-
-	public TiBorderHelper getBorderHelper() {
-		return borderHelper;
 	}
 
 	public void onChildViewAdded(View parent, View child) {
@@ -179,9 +173,9 @@ public class TiCompositeLayout extends ViewGroup
 
 		// Account for border
 
-		int padding = Math.round(borderHelper.calculatePadding());
-		maxWidth += padding;
-		maxHeight += padding;
+		//int padding = Math.round(borderHelper.calculatePadding());
+		//maxWidth += padding;
+		//maxHeight += padding;
 
 		// check minimums
 		maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
@@ -335,15 +329,6 @@ public class TiCompositeLayout extends ViewGroup
 			}
 		}
 	}
-
-	@Override
-	public void draw(Canvas canvas)
-	{
-		borderHelper.preDraw(canvas, getMeasuredWidth(), getMeasuredHeight());
-		super.draw(canvas);
-		borderHelper.postDraw(canvas, getMeasuredWidth(), getMeasuredHeight());
-	}
-
 
 	public static class LayoutParams extends ViewGroup.LayoutParams
 	{

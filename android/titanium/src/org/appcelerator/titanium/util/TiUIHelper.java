@@ -8,6 +8,7 @@
 package org.appcelerator.titanium.util;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +22,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
@@ -29,6 +32,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Process;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
@@ -355,5 +359,13 @@ public class TiUIHelper
 		}
 		
 		return image;
+	}
+
+	public static Bitmap createBitmap(InputStream stream)
+	{
+		Rect pad = new Rect();
+		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inScreenDensity = DisplayMetrics.DENSITY_HIGH;
+		return BitmapFactory.decodeResourceStream(null, null, stream, pad, opts);
 	}
 }
