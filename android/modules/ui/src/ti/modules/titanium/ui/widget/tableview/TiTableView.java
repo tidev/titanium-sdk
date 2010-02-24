@@ -30,8 +30,6 @@ public class TiTableView extends FrameLayout
 
 	public static final int TYPE_HEADER = 0;
 	public static final int TYPE_NORMAL = 1;
-	public static final int TYPE_HTML = 2;
-	public static final int TYPE_CUSTOM = 3;
 
 	private Handler handler;
 	private TableViewModel viewModel;
@@ -124,10 +122,6 @@ public class TiTableView extends FrameLayout
 			if (o != null) {
 				if (o.optBoolean("isDisplayHeader", false)) {
 					type = TYPE_HEADER;
-				} else if ((o.containsKey("layout") && !o.isNull("layout")) || (rowTemplate != null && !o.containsKey("layout"))) {
-					type = TYPE_CUSTOM;
-				} else if (o.containsKey("html")) {
-					type = TYPE_HTML;
 				}
 			}
 			return type;
@@ -148,12 +142,6 @@ public class TiTableView extends FrameLayout
 					break;
 				case TYPE_NORMAL :
 					v = new TiTableViewNormalItem(ctx);
-					break;
-				case TYPE_HTML :
-					v = new TiTableViewHtmlItem(ctx);
-					break;
-				case TYPE_CUSTOM:
-					v = new TiTableViewCustomItem(ctx);
 					break;
 				}
 			}

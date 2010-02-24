@@ -253,6 +253,12 @@ return [NSNumber numberWithDouble:map];\
 return (NSString*)map;\
 }\
 
+#define MAKE_SYSTEM_UINT(name,map) \
+-(NSNumber*)name \
+{\
+return [NSNumber numberWithUnsignedInt:map];\
+}\
+
 #define NUMBOOL(x) \
 [NSNumber numberWithBool:x]\
 
@@ -373,3 +379,4 @@ NSString * hexString (NSData * thedata);
 
 
 extern NSString * const kKrollShutdownNotification;
+extern NSString * const kTitaniumShutdownNotification;

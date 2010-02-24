@@ -9,6 +9,8 @@ package org.appcelerator.titanium.util;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.titanium.ITiMenuDispatcherListener;
+
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -75,5 +77,10 @@ public class TiActivitySupportHelper
 			Log.w(LCAT, "Received a null result handler");
 		}
 		resultHandlers.put(code, resultHandler);
+	}
+
+	@Override
+	public void setMenuDispatchListener(ITiMenuDispatcherListener listener) {
+		//TODO consider refactoring from other activities
 	}
 }

@@ -2,7 +2,7 @@ import os, sys, platform, glob, shutil
 Import("env cwd version")
 
 #TODO enable map - eventually detect these
-modules = ['accelerometer', 'api', 'app', 'database', 'filesystem', 'geolocation', 'json', 'media', 'network', 'platform', 'ui']
+modules = ['accelerometer', 'api', 'app', 'database', 'filesystem', 'geolocation', 'json', 'media', 'xml', 'network', 'platform', 'ui' ]
 
 print "Building Titanium Mobile (Android) %s..." % version
 
@@ -20,7 +20,7 @@ classpath = [ os.path.join(cwd, 'android', 'titanium', 'lib', 'js.jar'),
 
 sources = [os.path.join('titanium', 'src'), os.path.join('titanium', 'thirdparty')]
 
-env.Append(JAVASOURCEPATH=os.path.join('titanium','src'))
+env.Append(JAVASOURCEPATH=os.path.join('titanium', 'src'))
 env.Append(JAVACLASSPATH=classpath)
 
 titanium_src_dir = os.path.join(cwd, 'android', 'titanium', 'src')
@@ -44,12 +44,22 @@ def copy_resources(src_dir, dest_dir):
 
 classes = env.Java(target = 'classes', source = sources)
 env.Jar(target = 'titanium.jar', source = classes + copy_resources(titanium_src_dir, classes_dir))
+titanium_jar = os.path.join(cwd, 'dist', 'android', 'titanium.jar')
 
+classpath.append(titanium_jar)
+for module in modules:
+	classpath.append(os.path.join(classes_dir, module))
+
+#ensure build order
+last_jar = titanium_jar
 for module in modules:
 	module_sources = os.path.join('modules', module, 'src')
-	env.Java(target = 'classes', source = module_sources, JAVACLASSPATH = classpath + [classes_dir])
-	module_classes = [ os.path.join('classes', 'ti', 'modules', 'titanium', module) ]
-	module_resources = copy_resources(os.path.join(cwd, 'android', 'modules', module, 'src'), classes_dir)
+	module_classes = env.Java(target = 'classes/%s' % module, source = module_sources, JAVACLASSPATH = classpath + [classes_dir])
+	module_classes_dir = os.path.join(classes_dir, module)
+	env.Depends(module_classes, last_jar)
+	module_classes = [ os.path.join('classes', module) ]
+	copy_resources(os.path.join(cwd, 'android', 'modules', module, 'src'), module_classes_dir)
 	env.Jar(target = 'titanium-%s.jar' % module,
-		source = module_classes + module_resources, JARCHDIR=classes_dir)
+		source = module_classes, JARCHDIR=module_classes_dir)
+	last_jar = os.path.join(cwd, 'dist', 'android', 'titanium-%s.jar' % module)
 

@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium;
 
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
@@ -24,6 +25,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -40,6 +43,7 @@ public class TiActivity extends Activity
 
 	protected Handler handler;
 	protected ArrayList<WeakReference<TiContext>> contexts;
+	protected SoftReference<ITiMenuDispatcherListener> softMenuDispatcher;
 
 	public TiActivity() {
 		super();
@@ -133,6 +137,10 @@ public class TiActivity extends Activity
     	return layout;
     }
 
+	public void setMenuDispatchListener(ITiMenuDispatcherListener dispatcher) {
+    	softMenuDispatcher = new SoftReference<ITiMenuDispatcherListener>(dispatcher);
+    }
+
 	// Activity Support
 	public int getUniqueResultCode() {
 		if (supportHelper == null) {
@@ -176,6 +184,40 @@ public class TiActivity extends Activity
 		if (contexts.contains(context)) {
 			contexts.remove(context);
 		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		if (softMenuDispatcher != null) {
+			ITiMenuDispatcherListener dispatcher = softMenuDispatcher.get();
+			if (dispatcher != null) {
+				return dispatcher.dispatchHasMenu();
+			}
+		}
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (softMenuDispatcher != null) {
+			ITiMenuDispatcherListener dispatcher = softMenuDispatcher.get();
+			if (dispatcher != null) {
+				return dispatcher.dispatchMenuItemSelected(item);
+			}
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		if (softMenuDispatcher != null) {
+			ITiMenuDispatcherListener dispatcher = softMenuDispatcher.get();
+			if (dispatcher != null) {
+				return dispatcher.dispatchPrepareMenu(menu);
+			}
+		}
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override

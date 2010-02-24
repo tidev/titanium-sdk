@@ -55,6 +55,8 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 
+import ti.modules.titanium.xml.DocumentProxy;
+import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
  
 public class TiHTTPClient
@@ -77,6 +79,7 @@ public class TiHTTPClient
 	private TiProxy proxy;
 	private int readyState;
 	private String responseText;
+	private DocumentProxy responseXml;
 	private int status;
 	private String statusText;
  
@@ -302,6 +305,19 @@ public class TiHTTPClient
 	public TiBlob getResponseData()
 	{
 		return responseData;
+	}
+	
+	public DocumentProxy getResponseXML()
+	{
+		if (responseXml == null && (responseData != null || responseText != null)) {
+			try {
+				responseXml = XMLModule.parse(proxy.getTiContext(), getResponseText());
+			} catch (Exception e) {
+				Log.e(LCAT, "Error parsing XML", e);
+			}
+		}
+		
+		return responseXml;
 	}
  
 	public void setResponseText(String responseText) {

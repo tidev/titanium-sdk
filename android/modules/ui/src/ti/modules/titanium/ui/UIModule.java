@@ -4,9 +4,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.TiProxy;
-import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.view.TiAnimation;
 
 import android.graphics.drawable.ColorDrawable;
 import android.view.Window;
@@ -89,18 +87,4 @@ public class UIModule extends TiModule
 		}
 	}
 
-	public TiAnimation createAnimation(Object[] args)
-	{
-		TiDict options = null;
-		KrollCallback callback = null;
-
-		if (args != null && args.length > 0) {
-			options = (TiDict) args[0];
-			if (args.length > 1) {
-				callback = (KrollCallback) args[1];
-			}
-		}
-
-		return new TiAnimation(getTiContext(), options, callback);
-	}
 }

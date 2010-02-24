@@ -4,7 +4,7 @@
 # tiapp parser
 # 
 import os, types, uuid
-import codecs, time
+import codecs, time, sys
 from xml.dom.minidom import parseString
 
 def getText(nodelist):
@@ -52,7 +52,8 @@ class TiAppXML(object):
 			'description':'not specified',
 			'url':'not specified',
 			'icon':None,
-			'analytics':'true'
+			'analytics':'true',
+			'modules' : []
 		}
 				
 		root = self.dom.getElementsByTagName("ti:app")
@@ -62,13 +63,17 @@ class TiAppXML(object):
 			if child.nodeType == 1:
 				# single window at the root <window>
 				if child.nodeName == 'window':
-					wp = get_window_properties(child)
-					if not wp == None: self.windows.append(TiWindow(wp))
+					print "[WARN] window in tiapp.xml no longer supported. this will be ignored"
 				# multiple windows rooted by <windows>
 				elif child.nodeName == 'windows':
-					for window in child.childNodes:
-						wp = get_window_properties(window)
-						if not wp == None: self.windows.append(TiWindow(wp))	
+					print "[WARN] windows in tiapp.xml no longer supported. this will be ignored"
+				# handle modules		
+				elif child.nodeName == 'modules':
+					for module in child.childNodes:
+						if module.nodeType == 1:
+							ver = module.getAttribute('version')
+							name = getText(module.childNodes)
+							self.properties['modules'].append({'name':name,'version':ver})
 				# properties of the app
 				else:
 					self.properties[child.nodeName]=getText(child.childNodes)
@@ -119,9 +124,9 @@ class TiAppXML(object):
 			if p=='statusbar-style':
 				if value == 'default' or value=='grey':
 					status_bar_style = '<string>UIStatusBarStyleDefault</string>'
-				elif value == 'opaque_black' or value == 'opaque':
+				elif value == 'opaque_black' or value == 'opaque' or value == 'black':
 					status_bar_style = '<string>UIStatusBarStyleBlackOpaque</string>'
-				elif value == 'translucent_black':
+				elif value == 'translucent_black' or value == 'transparent' or value == 'translucent':
 					status_bar_style = '<string>UIStatusBarStyleBlackTranslucent</string>'
 				else:	
 					status_bar_style = '<string>UIStatusBarStyleDefault</string>'

@@ -189,13 +189,26 @@ void AQRecorder::SetupAudioFormat(UInt32 inFormatID)
 										  &mRecordFormat.mChannelsPerFrame), "couldn't get input channel count");
 	
 	mRecordFormat.mFormatID = inFormatID;
-	if (inFormatID == kAudioFormatLinearPCM)
+	
+	switch(inFormatID)
 	{
-		// if we want pcm, default to signed 16-bit little-endian
-		mRecordFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
-		mRecordFormat.mBitsPerChannel = 16;
-		mRecordFormat.mBytesPerPacket = mRecordFormat.mBytesPerFrame = (mRecordFormat.mBitsPerChannel / 8) * mRecordFormat.mChannelsPerFrame;
-		mRecordFormat.mFramesPerPacket = 1;
+		case kAudioFormatLinearPCM:
+		{
+			// if we want pcm, default to signed 16-bit little-endian
+			mRecordFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
+			mRecordFormat.mBitsPerChannel = 16;
+			mRecordFormat.mBytesPerPacket = mRecordFormat.mBytesPerFrame = (mRecordFormat.mBitsPerChannel / 8) * mRecordFormat.mChannelsPerFrame;
+			mRecordFormat.mFramesPerPacket = 1;
+			break;
+		}
+		case kAudioFormatALaw:
+		case kAudioFormatULaw:
+		{
+			mRecordFormat.mSampleRate = 8000;
+			mRecordFormat.mChannelsPerFrame = 1;
+			mRecordFormat.mFramesPerPacket = 1;
+			break;
+		}
 	}
 }
 
@@ -209,7 +222,7 @@ void AQRecorder::ResumeRecord()
 	mIsPaused = false;
 }
 
-void AQRecorder::StartRecord(CFStringRef inRecordFile)
+void AQRecorder::StartRecord(CFStringRef inRecordFile, UInt32 fileFormatID)
 {
 	int i, bufferByteSize;
 	UInt32 size;
@@ -219,9 +232,6 @@ void AQRecorder::StartRecord(CFStringRef inRecordFile)
 	
 	try {		
 		mFileName = CFStringCreateCopy(kCFAllocatorDefault, inRecordFile);
-		
-		// specify the recording format
-		SetupAudioFormat(kAudioFormatLinearPCM);
 		
 		// create the queue
 		XThrowIfError(AudioQueueNewInput(
@@ -244,7 +254,7 @@ void AQRecorder::StartRecord(CFStringRef inRecordFile)
 		url = CFURLCreateWithString(kCFAllocatorDefault, (CFStringRef)mFileName, NULL);
 		
 		// create the audio file
-		XThrowIfError(AudioFileCreateWithURL(url, kAudioFileCAFType, &mRecordFormat, kAudioFileFlags_EraseFile,
+		XThrowIfError(AudioFileCreateWithURL(url, fileFormatID, &mRecordFormat, kAudioFileFlags_EraseFile,
 											 &mRecordFile), "AudioFileCreateWithURL failed");
 		CFRelease(url);
 		

@@ -12,6 +12,8 @@
 @private
 	AQRecorder *recorder;
 	TiFile *file;
+	NSNumber *compression;
+	NSNumber *format;
 }
 
 #pragma mark Public APIs
@@ -19,6 +21,8 @@
 @property(nonatomic,readonly) BOOL recording;
 @property(nonatomic,readonly) BOOL stopped;
 @property(nonatomic,readonly) BOOL paused;
+@property(nonatomic,readwrite,retain) NSNumber *compression;
+@property(nonatomic,readwrite,retain) NSNumber *format;
 
 -(void)pause:(id)args;
 -(void)resume:(id)args;

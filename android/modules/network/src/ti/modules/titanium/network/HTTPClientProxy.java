@@ -6,6 +6,8 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
 
+import ti.modules.titanium.xml.DocumentProxy;
+
 public class HTTPClientProxy extends TiProxy {
 	
 	public static TiDict constants;
@@ -53,6 +55,10 @@ public class HTTPClientProxy extends TiProxy {
 
 	public String getResponseText() {
 		return client.getResponseText();
+	}
+	
+	public DocumentProxy getResponseXML() {
+		return client.getResponseXML();
 	}
 
 	public int getStatus() {

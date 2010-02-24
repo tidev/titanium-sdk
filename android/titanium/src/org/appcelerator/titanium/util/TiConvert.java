@@ -14,6 +14,7 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollObject;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.graphics.Color;
@@ -134,14 +135,26 @@ public class TiConvert
 			layoutParams.optionBottom = toTiDimension(d, "bottom").getIntValue();
 			dirty = true;
 		}
-		if (d.containsKey("width") && !d.get("width").equals("auto")) {
-			layoutParams.optionWidth = toTiDimension(d, "width").getIntValue();
-			layoutParams.autoWidth = false;
+		if (d.containsKey("width")) {
+			Object width = d.get("width");
+			if (width == null || width.equals("auto")) {
+				layoutParams.optionWidth = TiCompositeLayout.NOT_SET;
+				layoutParams.autoWidth = true;
+			} else {
+				layoutParams.optionWidth = toTiDimension(d, "width").getIntValue();
+				layoutParams.autoWidth = false;
+			}
 			dirty = true;
 		}
-		if (d.containsKey("height") && !d.get("height").equals("auto")) {
-			layoutParams.optionHeight = toTiDimension(d, "height").getIntValue();
-			layoutParams.autoHeight = false;
+		if (d.containsKey("height")) {
+			Object height = d.get("height");
+			if (height == null || height.equals("auto")) {
+				layoutParams.optionHeight = TiCompositeLayout.NOT_SET;
+				layoutParams.autoHeight = true;
+			} else {
+				layoutParams.optionHeight = toTiDimension(d, "height").getIntValue();
+				layoutParams.autoHeight = false;
+			}
 			dirty = true;
 		}
 

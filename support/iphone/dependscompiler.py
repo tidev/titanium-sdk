@@ -77,7 +77,7 @@ class DependencyCompiler(object):
 		self.modules = []
 		self.required_modules = []
 		
-	def compile(self,iphone_dir,app_dir):
+	def compile(self,iphone_dir,app_dir,thirdparty_modules):
 		
 		start_time = time.time()
 		import_depends.append('TitaniumModule')
@@ -227,7 +227,7 @@ class DependencyCompiler(object):
 		if not os.path.exists(build_tmp_dir):
 			os.makedirs(build_tmp_dir)
 			
-		de = json.encode(dependencies)
+		de = json.encode(dependencies) + json.encode(thirdparty_modules)
 		
 		# as an optimization, we look to see if our dependencies 
 		# between compiles are the same - if so, they should have
@@ -252,6 +252,8 @@ class DependencyCompiler(object):
 			df = open(depends_file,'w+')
 			df.write(de)
 			df.close()
+
+			symbols = []
 			
 			i386_dir = os.path.join(compilezone,'i386')
 			arm_dir = os.path.join(compilezone,'arm')
@@ -263,7 +265,7 @@ class DependencyCompiler(object):
 			i386libfile = os.path.join(i386_dir,'libTitanium.a')
 			armlibfile = os.path.join(arm_dir,'libTitanium.a')
 			curdir = os.path.abspath(os.curdir)
-			
+						
 			if not os.path.exists(i386_dir):
 				os.makedirs(i386_dir)
 				os.system("\"/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo\" \"%s\" -thin i386 -output \"%s\"" % (toplibfile,i386libfile))
@@ -276,9 +278,23 @@ class DependencyCompiler(object):
 				os.chdir(arm_dir)
 				os.system("/usr/bin/ar x \"%s\"" % armlibfile)
 			
+			for tp_module in thirdparty_modules:
+				name = os.path.basename(tp_module).replace('.a','').replace('lib','')
+				tpi386file = os.path.join(i386_dir,name+'.a')
+				tparmfile = os.path.join(arm_dir,name+'.a')
+				os.system("\"/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo\" \"%s\" -thin i386 -output \"%s\"" % (tp_module,tpi386file))
+				os.system("\"/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo\" \"%s\" -thin armv6 -output \"%s\"" % (tp_module,tparmfile))
+				os.chdir(i386_dir)
+				os.system("/usr/bin/ar x \"%s\"" % tpi386file)
+				os.chdir(arm_dir)
+				os.system("/usr/bin/ar x \"%s\"" % tparmfile)
+				output = run.run(['ar','t',tpi386file])
+				for line in output.split("\n"):
+					if line.find('.o')==-1: continue
+					symbols.append(line)
+
 			os.chdir(curdir)
 		
-			symbols = []
 			symbol_path = i386_dir  # for resolving, we can just use one of the two
 			
 			for depend in dependencies:

@@ -3,7 +3,9 @@ package org.appcelerator.titanium.util;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.view.Ti2DMatrix;
+import org.appcelerator.titanium.view.TiAnimation;
 
+import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
@@ -21,9 +23,12 @@ public class TiAnimationBuilder
 	protected Double duration = null;
 	protected Double toOpacity = null;
 	protected Double fromOpacity = null;
+	protected Double repeat = null;
+	protected Boolean autoreverse = null;
 
-	protected KrollCallback startCallback;
-	protected KrollCallback stopCallback;
+	protected TiAnimation animationProxy;
+
+	protected KrollCallback callback;
 
 	public TiAnimationBuilder()
 	{
@@ -57,15 +62,43 @@ public class TiAnimationBuilder
 			toOpacity = TiConvert.toDouble(options, "opacity");
 			fromOpacity = 1.0 - toOpacity;
 		}
+		if (options.containsKey("repeat")) {
+			repeat = TiConvert.toDouble(options, "repeat");
+		}
+		if (options.containsKey("autoreverse")) {
+			autoreverse = TiConvert.toBoolean(options, "autoreverse");
+		}
 
 	}
 
-	public void setStartCallback(KrollCallback startCallback) {
-		this.startCallback = startCallback;
+	public void applyAnimation(TiAnimation anim) {
+		this.animationProxy = anim;
+		applyOptions(anim.getDynamicProperties());
 	}
 
-	public void setStopCallback(KrollCallback stopCallback) {
-		this.stopCallback = stopCallback;
+	public void setCallback(KrollCallback callback) {
+		this.callback = callback;
+	}
+
+	public AnimationSet render(View view)
+	{
+		return render(view.getMeasuredWidth(), view.getMeasuredHeight());
+	}
+
+	private void addAnimation(AnimationSet as, Animation a)
+	{
+		if (repeat != null) {
+			a.setRepeatCount(repeat.intValue());
+		}
+
+		if (autoreverse != null) {
+			if (autoreverse) {
+				a.setRepeatMode(Animation.REVERSE);
+			} else {
+				a.setRepeatMode(Animation.RESTART);
+			}
+		}
+		as.addAnimation(a);
 	}
 
 	public AnimationSet render(int w, int h)
@@ -77,18 +110,19 @@ public class TiAnimationBuilder
 
 		if (toOpacity != null) {
 			Animation a = new AlphaAnimation(fromOpacity.floatValue(), toOpacity.floatValue());
-			as.addAnimation(a);
+			addAnimation(as,a);
 		}
 
 		if (tdm != null) {
 			as.setFillAfter(true);
+			as.setFillEnabled(true);
 			if (tdm.hasRotation()) {
 				Animation a = new RotateAnimation(0,tdm.getRotation(), anchorPointX, anchorPointY);
-				as.addAnimation(a);
+				addAnimation(as, a);
 			}
 			if (tdm.hasScaleFactor()) {
 				Animation a = new ScaleAnimation(1, tdm.getScaleFactor(), 1, tdm.getScaleFactor(), anchorPointX, anchorPointY);
-				as.addAnimation(a);
+				addAnimation(as, a);
 			}
 			if (tdm.hasTranslation()) {
 				Animation a = new TranslateAnimation(
@@ -97,7 +131,7 @@ public class TiAnimationBuilder
 					0,
 					anchorPointY + tdm.getYTranslation()
 					);
-				as.addAnimation(a);
+				addAnimation(as, a);
 			}
 		}
 
@@ -106,17 +140,20 @@ public class TiAnimationBuilder
 			as.setDuration(duration.longValue());
 		}
 		if (delay != null) {
-			as.setStartTime(delay.longValue());
+			as.setStartOffset(delay.longValue());
 		}
 
-		if (startCallback != null || stopCallback != null) {
+		if (callback != null || animationProxy != null) {
 			as.setAnimationListener(new Animation.AnimationListener(){
 
 				@Override
 				public void onAnimationEnd(Animation a)
 				{
-					if (stopCallback != null) {
-						stopCallback.call();
+					if (callback != null) {
+						callback.call();
+					}
+					if (animationProxy != null) {
+						animationProxy.fireEvent("complete", null);
 					}
 				}
 
@@ -127,8 +164,8 @@ public class TiAnimationBuilder
 				@Override
 				public void onAnimationStart(Animation a)
 				{
-					if (startCallback != null) {
-						startCallback.call();
+					if (animationProxy != null) {
+						animationProxy.fireEvent("start", null);
 					}
 				}
 

@@ -12,6 +12,14 @@
 
 @implementation TiUIScrollViewProxy
 
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+	// set the initial scale to 1.0 which is the default
+	[self replaceValue:NUMFLOAT(1.0) forKey:@"scale" notification:NO];
+	[super _initWithProperties:properties];
+}
+
+
 -(void)childAdded:(id)child
 {
 	if ([self viewAttached])
