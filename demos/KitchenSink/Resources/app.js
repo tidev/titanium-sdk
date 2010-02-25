@@ -270,6 +270,12 @@ Titanium.App.addEventListener('hide_indicator', function(e)
 	hideIndicator();
 });
 
+// trap app shutdown event
+Titanium.App.addEventListener('close',function(e)
+{
+	Ti.API.info("The application is being shutdown");
+});
+
 // test for loading in a root-level include
 Ti.include("welcome.js");
 
