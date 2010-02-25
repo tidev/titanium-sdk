@@ -10,7 +10,9 @@ import java.util.ArrayList;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.TableViewSectionProxy;
@@ -19,6 +21,10 @@ public class TableViewModel
 {
     private static final String LCAT = "TableViewModel";
     private static final boolean DUMP = false;
+
+    public static final String CLASSNAME_DEFAULT = "__default__";
+    public static final String CLASSNAME_HEADER = "__header__";
+    public static final String CLASSNAME_NORMAL = "__normal__";
 
     // Flat view
 
@@ -35,8 +41,8 @@ public class TableViewModel
         public int indexInSection;
         public String headerText;
         public String name;
-        //public TiDict data;
-        public TableViewRowProxy rowProxy;
+        public String className;
+        public TiViewProxy proxy;
         public Object rowData;
     }
 
@@ -46,7 +52,7 @@ public class TableViewModel
     private ArrayList<TableViewSectionProxy> sections; // todo, use later
 
     private ArrayList<Item> model;
-    private ArrayList<TiDict> viewModel;
+    private ArrayList<Item> viewModel;
 
     // The unstructured set of data. Modifier operations are treated as edits to this
     // and the section structure.
@@ -55,7 +61,7 @@ public class TableViewModel
         this.tiContext = tiContext;
 
         model = new ArrayList<Item>();
-        viewModel = new ArrayList<TiDict>();
+        viewModel = new ArrayList<Item>();
         dirty = true;
     }
 
@@ -91,12 +97,18 @@ public class TableViewModel
         if (data instanceof TiDict) {
             Object[] args = { data };
             rowProxy = new TableViewRowProxy(tiContext, args);
-            newItem.rowProxy = rowProxy;
+            newItem.proxy = rowProxy;
             newItem.rowData = data;
+            newItem.className = CLASSNAME_NORMAL;
         } else if (data instanceof TableViewRowProxy) {
             rowProxy = (TableViewRowProxy) data;
-            newItem.rowProxy = rowProxy;
+            newItem.proxy = rowProxy;
             newItem.rowData = rowProxy;
+            String className = TiConvert.toString(rowProxy.getDynamicValue("className"));
+            if (className == null) {
+            	className = CLASSNAME_DEFAULT;
+            }
+            newItem.className = className;
         }
 
         return newItem;
@@ -112,7 +124,7 @@ public class TableViewModel
             Item item = model.get(index);
 
             Item newItem = itemForObject(index, data);
-            TiDict props = newItem.rowProxy.getDynamicProperties();
+            TiDict props = newItem.proxy.getDynamicProperties();
 
             if (props.containsKey("header")) {
                 newItem.headerText = props.getString("header");
@@ -162,7 +174,7 @@ public class TableViewModel
             Item item = model.get(index);
 
             Item newItem = itemForObject(index+1, data);
-            TiDict props = newItem.rowProxy.getDynamicProperties();
+            TiDict props = newItem.proxy.getDynamicProperties();
             if (props.containsKey("header")) {
                 newItem.headerText = props.getString("header");
             }
@@ -226,13 +238,13 @@ public class TableViewModel
         Item item = model.get(index);
         if (data instanceof TiDict) {
             Object[] args = { data };
-            item.rowProxy = new TableViewRowProxy(tiContext, args);
+            item.proxy = new TableViewRowProxy(tiContext, args);
             item.rowData = data;
         } else if (data instanceof TableViewRowProxy) {
-            item.rowProxy = (TableViewRowProxy) data;
+            item.proxy = (TableViewRowProxy) data;
             item.rowData = data;
         }
-        TiDict props = item.rowProxy.getDynamicProperties();
+        TiDict props = item.proxy.getDynamicProperties();
 
         if (props.containsKey("header")) {
             if (item.hasHeader()) {
@@ -264,7 +276,7 @@ public class TableViewModel
         if (rows != null) {
             for(int i = 0; i < rows.length; i++) {
                 Item item = itemForObject(i, rows[i]);
-                TiDict props = item.rowProxy.getDynamicProperties();
+                TiDict props = item.proxy.getDynamicProperties();
                 if (props.containsKey("name")) {
                     item.name = props.getString("name");
                 }
@@ -290,23 +302,24 @@ public class TableViewModel
         }
     }
 
-    public ArrayList<TiDict> getViewModel() {
+    public ArrayList<Item> getViewModel() {
         if (dirty) {
-            viewModel = new ArrayList<TiDict>(model.size());
+            viewModel = new ArrayList<Item>(model.size());
             TiDict o = null;
             for (Item item : model) {
-                if (item.hasHeader()) {
-                    o = item.rowProxy.getDynamicProperties();
-                    o.put("header", item.headerText);
-                    o.put("isDisplayHeader", true);
-                    viewModel.add(o);
-                }
-                o = item.rowProxy.getDynamicProperties();
-                o.put("section", item.sectionIndex);
-                o.put("sectionIndex", item.indexInSection);
-                o.put("index", item.index);
-                o.put("isDisplayHeader", false);
-                viewModel.add(o);
+//                if (item.hasHeader()) {
+//                    o = item.rowProxy.getDynamicProperties();
+//                    o.put("header", item.headerText);
+//                    o.put("isDisplayHeader", true);
+//                    viewModel.add(o);
+//                }
+            	viewModel.add(item);
+//                o = item.proxy.getDynamicProperties();
+//                o.put("section", item.sectionIndex);
+//                o.put("sectionIndex", item.indexInSection);
+//                o.put("index", item.index);
+//                o.put("isDisplayHeader", false);
+//                viewModel.add(o);
             }
             dirty = false;
         }
@@ -319,8 +332,8 @@ public class TableViewModel
         // the View index can be larger than model index if there are headers.
         if (viewModel != null && index <= viewModel.size()) {
             for(int i = 0; i < viewModel.size(); i++) {
-                TiDict o = viewModel.get(i);
-                if (o.containsKey("index") && index == o.getInt("index")) {
+                Item item = viewModel.get(i);
+                if (index == item.index) {
                     position = i;
                     break;
                 }
@@ -333,9 +346,10 @@ public class TableViewModel
     public int getRowHeight(int position, int defaultHeight) {
         int rowHeight = defaultHeight;
 
-        TiDict o = viewModel.get(position);
-        if (o.containsKey("rowHeight")) {
-            rowHeight = o.getInt("rowHeight");
+        Item item = viewModel.get(position);
+        Object rh = item.proxy.getDynamicValue("rowHeight");
+        if (rh != null) {
+        	rowHeight = TiConvert.toInt(rh);
         }
 
         return rowHeight;
@@ -344,14 +358,15 @@ public class TableViewModel
     private void insertFirstRow(Object data)
     {
         Item newItem = itemForObject(0, data);
-        TiDict props = newItem.rowProxy.getDynamicProperties();
+//        TiDict props = newItem.rowProxy.getDynamicProperties();
 
-        if (props.containsKey("header")) {
-            newItem.headerText = props.getString("header");
-        }
-        if (props.containsKey("name")) {
-            newItem.name = props.getString("name");
-        }
+        // TODO fix
+//        if (props.containsKey("header")) {
+//            newItem.headerText = props.getString("header");
+//        }
+//        if (props.containsKey("name")) {
+//            newItem.name = props.getString("name");
+//        }
         newItem.sectionIndex = 0;
         newItem.indexInSection = 0;
         newItem.index = 0;

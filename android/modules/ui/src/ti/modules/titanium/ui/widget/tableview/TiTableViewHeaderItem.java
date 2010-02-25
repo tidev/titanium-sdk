@@ -10,6 +10,8 @@ import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
@@ -67,7 +69,7 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		this.addView(rowView, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 	}
 
-	public void setRowData(TiTableViewItemOptions defaults, TiDict template, TiDict data) {
-		rowView.setRowData(data);
+	public void setRowData(TiTableViewItemOptions defaults, Item item) {
+		rowView.setRowData((TiDict) item.rowData);
 	}
 }

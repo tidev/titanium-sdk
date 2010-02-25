@@ -11,6 +11,7 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -160,8 +161,8 @@ public class TiTableViewNormalItem extends TiBaseTableViewItem
 		this.addView(rowView, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 	}
 
-	public void setRowData(TiTableViewItemOptions defaults, TiDict template, TiDict data) {
-		rowView.setRowData(defaults, data);
+	public void setRowData(TiTableViewItemOptions defaults, Item item) {
+		rowView.setRowData(defaults, (TiDict) item.rowData);
 	}
 
 	@Override

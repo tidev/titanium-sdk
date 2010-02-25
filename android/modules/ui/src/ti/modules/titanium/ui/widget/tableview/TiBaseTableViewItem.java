@@ -9,6 +9,8 @@ package ti.modules.titanium.ui.widget.tableview;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.TiConfig;
 
+import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
+
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
@@ -29,7 +31,7 @@ public abstract class TiBaseTableViewItem extends FrameLayout implements Handler
 		this.handler = new Handler(this);
 	}
 
-	public abstract void setRowData(TiTableViewItemOptions defaults, TiDict template, TiDict data);
+	public abstract void setRowData(TiTableViewItemOptions defaults, Item item);
 
 	public boolean handleMessage(Message msg)
 	{
