@@ -146,7 +146,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	if (range.location!=NSNotFound)
 	{
 		BOOL found = NO;
-		NSRange nextRange = [content rangeOfString:@">" options:0 range:NSMakeRange(range.location, [content length]) locale:nil];
+		NSRange nextRange = [content rangeOfString:@">" options:0 range:NSMakeRange(range.location, [content length]-range.location) locale:nil];
 		if (nextRange.location!=NSNotFound)
 		{
 			[html appendString:[content substringToIndex:nextRange.location+1]];
