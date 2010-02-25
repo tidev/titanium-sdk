@@ -26,13 +26,13 @@ tableview.addEventListener('click', function(e)
 	var rowdata = e.rowData;
 	var w = Ti.UI.createWindow();
 	var webview = Ti.UI.createWebView();
-	if (rowdata.url && index ==1)
+	/*if (rowdata.url && e.index == 1)
 	{
 		// test loading file using file system
 		var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory,rowdata.url);
 		webview.url = f.nativePath;
 	}
-	else if (rowdata.url)
+	else*/ if (rowdata.url)
 	{
 		webview.url = rowdata.url;
 	}

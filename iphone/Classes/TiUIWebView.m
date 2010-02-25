@@ -63,6 +63,63 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	return [scheme hasPrefix:@"http"];
 }
 
+-(UIView*)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+{
+	// webview is a little _special_ so we need to intercept
+	// his events and handle them as well as dispatch directly
+	// to the webview to handle inside HTML
+	UIView *view = [super hitTest:point withEvent:event];
+	id desc = [[view class] description];
+	if ([desc hasPrefix:@"UIWeb"])
+	{
+		delegateView = view;
+		return self;
+	}
+	else
+	{
+		delegateView = nil;
+	}
+	return view;
+}
+
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+	[super touchesBegan:touches withEvent:event];
+	if (delegateView!=nil)
+	{
+		[delegateView touchesBegan:touches withEvent:event];
+	}
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+	[super touchesMoved:touches withEvent:event];
+	if (delegateView!=nil)
+	{
+		[delegateView touchesMoved:touches withEvent:event];
+	}
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+	[super touchesEnded:touches withEvent:event];
+	if (delegateView!=nil)
+	{
+		[delegateView touchesEnded:touches withEvent:event];
+	}
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+	[super touchesCancelled:touches withEvent:event];
+	if (delegateView!=nil)
+	{
+		[delegateView touchesCancelled:touches withEvent:event];
+	}
+}
+
+
 -(UIWebView*)webview 
 {
 	if (webview==nil)
