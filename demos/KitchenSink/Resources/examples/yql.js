@@ -1,7 +1,6 @@
 // create table view data object
 var data = [
 	{title:'YQL + Flickr', hasChild:true, test:'../examples/yql_flickr.js'},
-	
 
 ];
 

@@ -21,12 +21,6 @@ Titanium.UI.currentWindow.setRightNavButton(navActInd);
 // add table view to the window
 Titanium.UI.currentWindow.add(tableview);
 
-// set our application oauth configuration
-var consumerKey = 'dj0yJmk9VWFyZkNSWktpY3h3JmQ9WVdrOVNqWk5Nazl2TXpBbWNHbzlNVGc0TWpNNE9ERXhOZy0tJnM9Y29uc3VtZXJzZWNyZXQmeD04MQ--';
-var sharedSecret = '13631ad61af05628c28fc38e7226442398d0a4c2';
-Titanium.Yahoo.setOAuthParameters(consumerKey,sharedSecret);
-//select * from flickr.photos.search where text="Cat" limit 10
-//			
 Titanium.Yahoo.yql('select * from flickr.photos.search where text="Cat" limit 10',function(e)
 {
 	var images = [];
