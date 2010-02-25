@@ -118,7 +118,7 @@
 	for (TiUIView * thisChildView in subViews)
 	{
 		[thisChildView reposition];
-		[[thisChildView proxy] layoutChildren:[thisChildView bounds]];
+		[[thisChildView proxy] layoutChildren];
 	}
 
 	needsHandleContentSize = NO;
@@ -243,6 +243,8 @@
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView
 {
+	lastFocusedView = firstResponderView;
+
 	CGRect scrollVisibleRect;
 	scrollVisibleRect = [self convertRect:[self bounds] toView:nil];
 	//First, find out how much we have to compensate.
@@ -252,25 +254,35 @@
 
 	CGFloat unimportantArea = MAX(scrollVisibleRect.size.height - minimumContentHeight,0);
 	//It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
-		
-	CGRect responderRect = [firstResponderView convertRect:[firstResponderView bounds] toView:self];
 
-	if(obscuredHeight > unimportantArea)	//If the covered area is an acceptable loss, then we're fine and don't need to add insets.
-	{
-		[scrollView setContentInset:UIEdgeInsetsMake(0, 0, obscuredHeight - unimportantArea, 0)];
+	//As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
 
-		//To ensure that the obscuredHeight is compensated for, we treat the responder as larger.		
-		responderRect.size.height += obscuredHeight;
-	}
+	[scrollView setContentInset:UIEdgeInsetsMake(0, 0, MAX(0,obscuredHeight-unimportantArea), 0)];
 
-	//However, we're not done, because it's possible a scrollview was not covered by the keyboard, but still needs to scroll
-	//To the firstResponder.
+	scrollVisibleRect.size.height -= MAX(0,obscuredHeight);
+	
+	//Okay, the scrollVisibleRect.size now represents the actually visible area.
+	
+	CGPoint offsetPoint = [scrollView contentOffset];
+	CGRect responderRect = [wrapperView convertRect:[firstResponderView bounds] fromView:firstResponderView];
 
-	[scrollView scrollRectToVisible:responderRect animated:YES];
+	CGPoint offsetForBottomRight;
+	offsetForBottomRight.x = responderRect.origin.x + responderRect.size.width - scrollVisibleRect.size.width;
+	offsetForBottomRight.y = responderRect.origin.y + responderRect.size.height - scrollVisibleRect.size.height;
+	
+	offsetPoint.x = MIN(responderRect.origin.x,MAX(offsetPoint.x,offsetForBottomRight.x));
+	offsetPoint.y = MIN(responderRect.origin.y,MAX(offsetPoint.y,offsetForBottomRight.y));
+
+	[scrollView setContentOffset:offsetPoint animated:YES];
 }
 
--(void)keyboardDidHide
+-(void)keyboardDidHideForView:(TiUIView *)hidingView
 {
+	if(hidingView != lastFocusedView)
+	{
+		return;
+	}
+
 	CGSize scrollContentSize = [scrollView contentSize];
 	CGPoint scrollOffset = [scrollView contentOffset];
 	

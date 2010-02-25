@@ -17,6 +17,8 @@
 	CGFloat minimumContentHeight;
 	
 	BOOL needsHandleContentSize;
+	
+	id	lastFocusedView; //DOES NOT RETAIN.
 }
 
 @property(nonatomic,retain,readonly) UIScrollView * scrollView;

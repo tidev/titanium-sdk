@@ -118,7 +118,7 @@
 		TiUIView *uiview = [viewproxy view];
 		[wrapper addSubview:uiview];
 		[uiview reposition];
-		[viewproxy layoutChildren:[uiview bounds]];
+		[viewproxy layoutChildren];
 	}
 }
 

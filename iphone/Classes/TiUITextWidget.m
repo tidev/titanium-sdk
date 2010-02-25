@@ -335,7 +335,7 @@
 
 	if (!stillIsResponder)
 	{
-		[parentScrollView keyboardDidHide];
+		[parentScrollView keyboardDidHideForView:self];
 		RELEASE_TO_NIL(parentScrollView);
 	}
 }

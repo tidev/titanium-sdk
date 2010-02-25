@@ -36,7 +36,7 @@
 	}
 }
 
--(void)layoutChild:(TiViewProxy*)child bounds:(CGRect)bounds
+-(void)layoutChild:(TiViewProxy*)child
 {
 	if (![self viewAttached])
 	{
@@ -46,7 +46,7 @@
 
 	[(TiUIScrollView *)[self view] layoutChild:childView];
 
-	[child layoutChildren:childView.bounds];
+	[child layoutChildren];
 }
 
 -(void)scrollTo:(id)args
