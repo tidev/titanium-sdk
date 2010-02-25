@@ -43,7 +43,7 @@
 -(void)layoutChildOnMainThread:(id)arg
 {
 	ENSURE_UI_THREAD(layoutChildOnMainThread,arg);
-	[self layoutChild:arg bounds:view.bounds]; 
+	[self layoutChild:arg]; 
 }
 
 #pragma mark Public
@@ -353,10 +353,12 @@
 
 #pragma mark Layout 
 
--(void)layoutChild:(TiViewProxy*)child bounds:(CGRect)bounds
+-(void)layoutChild:(TiViewProxy*)child;
 {
 	if (view!=nil)
 	{
+		CGRect bounds = [view bounds];
+
 		// layout out ourself
 		UIView *childView = [child view];
 	
@@ -377,14 +379,12 @@
 -(void)layoutChildren
 {
 	// now ask each of our children for their view
-	CGRect bounds = [view bounds];
-
 	if (self.children!=nil)
 	{
 		[childLock lock];
 		for (id child in self.children)
 		{
-			[self layoutChild:child bounds:bounds];
+			[self layoutChild:child];
 		}
 		[childLock unlock];
 	}

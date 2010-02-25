@@ -36,7 +36,7 @@
 	}
 }
 
--(void)layoutChild:(TiViewProxy*)child bounds:(CGRect)bounds
+-(void)layoutChild:(TiViewProxy*)child
 {
 	if (![self viewAttached])
 	{
