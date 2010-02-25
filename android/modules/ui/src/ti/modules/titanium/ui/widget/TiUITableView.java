@@ -65,7 +65,7 @@ public class TiUITableView extends TiUIView
 		getLayoutParams().autoFillsWidth = true;
 
 		this.modifySemaphore = new Semaphore(0);
-		TiTableView tv = new TiTableView(proxy.getContext());
+		TiTableView tv = new TiTableView(proxy.getTiContext());
 		tv.setOnItemClickListener(this);
 		setNativeView(tv);
 		//this.hasBeenOpened = false;

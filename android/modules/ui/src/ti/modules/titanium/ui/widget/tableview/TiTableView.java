@@ -2,6 +2,7 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
 
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -179,9 +180,9 @@ public class TiTableView extends FrameLayout
 		}
 	}
 
-	public TiTableView(Context context)
+	public TiTableView(TiContext tiContext)
 	{
-		super(context);
+		super(tiContext.getActivity());
 		this.handler = new Handler();
 
 //TODO bookmark
@@ -196,7 +197,7 @@ public class TiTableView extends FrameLayout
 		defaults.put("scrollBar", "auto");
 		defaults.put("textAlign", "left");
 
-		this.viewModel = new TableViewModel();
+		this.viewModel = new TableViewModel(tiContext);
 
 		this.listView = new ListView(getContext()) {
 
