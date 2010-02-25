@@ -9,6 +9,7 @@
 #import "LayoutConstraint.h"
 #import "TitaniumApp.h"
 #import "TiBlob.h"
+#import "TiRect.h"
 #import <QuartzCore/QuartzCore.h>
 
 
@@ -156,6 +157,41 @@
 }
 
 #pragma mark View
+
+-(TiRect*)bounds
+{
+	TiRect *rect = [[[TiRect alloc] init] autorelease];
+	[[self view] performSelectorOnMainThread:@selector(fillBoundsToRect:) withObject:rect waitUntilDone:YES];
+	return rect;
+}
+
+-(NSNumber*)height
+{
+	TiRect *rect = [[[TiRect alloc] init] autorelease];
+	[[self view] performSelectorOnMainThread:@selector(fillBoundsToRect:) withObject:rect waitUntilDone:YES];
+	return [rect height];
+}
+
+-(NSNumber*)width
+{
+	TiRect *rect = [[[TiRect alloc] init] autorelease];
+	[[self view] performSelectorOnMainThread:@selector(fillBoundsToRect:) withObject:rect waitUntilDone:YES];
+	return [rect width];
+}
+
+-(NSNumber*)x
+{
+	TiRect *rect = [[[TiRect alloc] init] autorelease];
+	[[self view] performSelectorOnMainThread:@selector(fillBoundsToRect:) withObject:rect waitUntilDone:YES];
+	return [rect x];
+}
+
+-(NSNumber*)y
+{
+	TiRect *rect = [[[TiRect alloc] init] autorelease];
+	[[self view] performSelectorOnMainThread:@selector(fillBoundsToRect:) withObject:rect waitUntilDone:YES];
+	return [rect y];
+}
 
 -(void)setParent:(TiViewProxy*)parent_
 {

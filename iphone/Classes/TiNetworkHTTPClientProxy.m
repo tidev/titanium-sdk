@@ -271,6 +271,10 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	
 	NSString *key = [TiUtils stringValue:[args objectAtIndex:0]];
 	NSString *value = [TiUtils stringValue:[args objectAtIndex:1]];
+	if ([key isEqualToString:@"User-Agent"])
+	{
+		value = [NSString stringWithFormat:@"%@ %@",value,[[TitaniumApp app] userAgent]];
+	}
 	[request addRequestHeader:key value:value];
 }
 

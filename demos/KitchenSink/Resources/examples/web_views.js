@@ -14,6 +14,8 @@ var data = [
 	{title:'Inline HTML w/ Border', hasChild:true, text:'<html><body><div>Hello from inline HTML. You should see red border</div></body></html>', border: true},
 	{title:'Logging and Unicode', hasChild:true, url:'webview_logging.html'},
 	{title:'Local Pinch/Zoom', hasChild:true, url:'local_webview_pinchzoom.html', scale:true},
+	{title:'Local Eval', hasChild:true, url:'local_webview.html', evaljs:true},
+	{title:'Local HTML', hasChild:true, url:'local_webview.html', evalhtml:true},
 ];
 
 // create table view
@@ -44,6 +46,10 @@ tableview.addEventListener('click', function(e)
 
 		// open the client
 		xhr.open('GET','http://www.google.com');
+		
+		// google will send back WAP if you make XHR request to it and he doesn't think it's really an HTML browser
+		// we're going to spoof him to think we're Safari on iPhone
+		xhr.setRequestHeader('User-Agent','Mozilla/5.0 (iPhone; U; CPU like Mac OS X; en) AppleWebKit/420+ (KHTML, like Gecko) Version/3.0 Mobile/1A537a Safari/419.3');
 
 		// send the data
 		xhr.send();   
@@ -70,6 +76,14 @@ tableview.addEventListener('click', function(e)
 		webview.addEventListener('load',function(e)
 		{
 			Ti.API.debug("webview loaded: "+e.url);
+			if (rowdata.evaljs)
+			{
+				alert("JS result was: "+webview.evalJS("my_global_variable")+". should be 10");
+			}
+			if (rowdata.evalhtml)
+			{
+				alert("HTML is: "+webview.html);
+			}
 		});
 		if (rowdata.bgcolor)
 		{
