@@ -22,6 +22,6 @@
 
 @property(nonatomic,readonly) id url;
 
--(void)evalJS:(NSString*)code;
+-(void)evalJS:(NSArray*)args;
 
 @end

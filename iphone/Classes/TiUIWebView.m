@@ -177,7 +177,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 -(NSString*)titaniumInjection
 {
 	NSMutableString *html = [[[NSMutableString alloc] init] autorelease];
-	[html appendString:@"<script>"];
+	[html appendString:@"<script id='titanium_injection'>"];
 	[html appendFormat:@"window.Titanium={};window.Ti=Titanium;Ti.pageToken=%@;Ti.appId='%@';",pageToken,TI_APPLICATION_ID];
 	[html appendString:kTitaniumJavascript];
 	[html appendString:@"</script>"];
@@ -443,9 +443,16 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	}
 }
 
--(void)evalJS:(NSString*)code
+-(void)evalJS:(NSArray*)args
 {
-	[[self webview] stringByEvaluatingJavaScriptFromString:code];
+	NSString *code = [args objectAtIndex:0];
+	NSString* result = [[self webview] stringByEvaluatingJavaScriptFromString:code];
+	// write the result into our blob
+	if ([args count] > 1 && result!=nil)
+	{
+		TiBlob *blob = [args objectAtIndex:1];
+		[blob setData:[result dataUsingEncoding:NSUTF8StringEncoding]];
+	}
 }
 
 #pragma mark WebView Delegate
@@ -511,7 +518,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	
 	NSString *code = [NSString stringWithContentsOfURL:url_ encoding:NSUTF8StringEncoding error:nil];
 	
-	[self evalJS:code];
+	[self evalJS:[NSArray arrayWithObject:code]];
 }
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
