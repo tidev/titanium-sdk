@@ -14,11 +14,10 @@ var tableview = Titanium.UI.createTableView({
 // create table view event listener
 tableview.addEventListener('click', function(e)
 {
-	
 	// event data
 	var index = e.index;
 	var section = e.section;
-	
+
 	// reset checks
 	for (var i=0;i<section.rows.length;i++)
 	{
@@ -26,6 +25,7 @@ tableview.addEventListener('click', function(e)
 	}
 	// set current check
 	section.rows[index].hasCheck = true;
+	
 });
 
 // add table view to the window

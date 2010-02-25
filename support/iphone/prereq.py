@@ -5,7 +5,7 @@
 #
 
 import os, sys, subprocess, re, types
-import poorjson, run, tempfile, codecs
+import json, run, tempfile, codecs
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
@@ -127,7 +127,7 @@ def check_for_package():
 	check_itunes_version(props)
 	check_certs(props)
 	props['sdks']=get_sdks()
-	print poorjson.PoorJSON().dump(props)
+	print json.encode(props)
 			
 def main(args):
 	if len(args)!=2:
