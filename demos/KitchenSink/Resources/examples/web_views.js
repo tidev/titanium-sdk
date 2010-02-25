@@ -44,6 +44,10 @@ tableview.addEventListener('click', function(e)
 
 		// open the client
 		xhr.open('GET','http://www.google.com');
+		
+		// google will send back WAP if you make XHR request to it and he doesn't think it's really an HTML browser
+		// we're going to spoof him to think we're Safari on iPhone
+		xhr.setRequestHeader('User-Agent','Mozilla/5.0 (iPhone; U; CPU like Mac OS X; en) AppleWebKit/420+ (KHTML, like Gecko) Version/3.0 Mobile/1A537a Safari/419.3');
 
 		// send the data
 		xhr.send();   
