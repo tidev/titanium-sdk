@@ -4,6 +4,7 @@ var win = Titanium.UI.currentWindow;
 var data = [
 	{title:'External URL', hasChild:true, url:'http://www.google.com'},
 	{title:'Local URL', hasChild:true, url:'local_webview.html'},
+	{title:'XHR to Filesystem', hasChild:true},
 	{title:'PDF URL', hasChild:true, url:'http://www.appcelerator.com/assets/The_iPad_App_Wave.pdf'},
 	{title:'Image URL', hasChild:true, url:'http://www.appcelerator.com/wp-content/uploads/2010/01/TABWAVE_graph1.png'},
 	{title:'SVG URL', hasChild:true, url:'http://upload.wikimedia.org/wikipedia/commons/5/55/1st_Cavalry_Division_-_Shoulder_Sleeve_Insignia.svg'},
@@ -26,57 +27,85 @@ tableview.addEventListener('click', function(e)
 	var rowdata = e.rowData;
 	var w = Ti.UI.createWindow();
 	var webview = Ti.UI.createWebView();
-	if (rowdata.url)
+
+	// handle xhr to filesystem case first
+	if (e.index == 2)
 	{
-		webview.url = rowdata.url;
+		var xhr = Titanium.Network.createHTTPClient();
+
+		xhr.onload = function()
+		{
+			var f = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'test.html');
+			f.write(this.responseText);
+			webview.url = f.nativePath;
+			w.add(webview);
+			win.tab.open(w);
+		};
+
+		// open the client
+		xhr.open('GET','http://www.google.com');
+
+		// send the data
+		xhr.send();   
 	}
 	else
 	{
-		webview.html = rowdata.text;
-	}
-	if (rowdata.scale)
-	{
-		// override the default pinch/zoom behavior of local (or remote) webpages
-		// and either allow pinch/zoom (set to true) or not (set to false)
-		webview.scalesPageToFit = true;
-	}
-	webview.addEventListener('load',function(e)
-	{
-		Ti.API.debug("webview loaded: "+e.url);
-	});
-	if (rowdata.bgcolor)
-	{
-		webview.backgroundColor = rowdata.bgcolor;
-	}
-	if (rowdata.border)
-	{
-		webview.borderRadius=15;
-		webview.borderWidth=5;
-		webview.borderColor = 'red';
-	}
-
-	// create toolbar for local webiew
-	if (e.index==1)
-	{
-		// test hiding/showing toolbar with web view
-		var button = Titanium.UI.createButton({
-			title:'Click above to hide me'
+		//
+		// handle other cases
+		//
+		if (rowdata.url)
+		{
+			webview.url = rowdata.url;
+		}
+		else
+		{
+			webview.html = rowdata.text;
+		}
+		if (rowdata.scale)
+		{
+			// override the default pinch/zoom behavior of local (or remote) webpages
+			// and either allow pinch/zoom (set to true) or not (set to false)
+			webview.scalesPageToFit = true;
+		}
+		webview.addEventListener('load',function(e)
+		{
+			Ti.API.debug("webview loaded: "+e.url);
 		});
-		w.setToolbar([button]);
-		
-	}
-	w.add(webview);
+		if (rowdata.bgcolor)
+		{
+			webview.backgroundColor = rowdata.bgcolor;
+		}
+		if (rowdata.border)
+		{
+			webview.borderRadius=15;
+			webview.borderWidth=5;
+			webview.borderColor = 'red';
+		}
 
-	// hide toolbar for local web view
-	Ti.App.addEventListener('webview_hidetoolbar', function()
-	{
-		w.setToolbar(null,{animated:true});
-	});
-	webview.addEventListener('click', function()
-	{
-		Ti.UI.createAlertDialog({title:'Webview', message:'Received Click'}).show();
-	})
-	win.tab.open(w);
+		// create toolbar for local webiew
+		if (e.index==1)
+		{
+			// test hiding/showing toolbar with web view
+			var button = Titanium.UI.createButton({
+				title:'Click above to hide me'
+			});
+			w.setToolbar([button]);
+
+		}
+		w.add(webview);
+
+		// hide toolbar for local web view
+		Ti.App.addEventListener('webview_hidetoolbar', function()
+		{
+			w.setToolbar(null,{animated:true});
+		});
+		webview.addEventListener('click', function()
+		{
+			Ti.UI.createAlertDialog({title:'Webview', message:'Received Click'}).show();
+		})
+		win.tab.open(w);		
+	}
+
 });
 
 // add table view to the window
