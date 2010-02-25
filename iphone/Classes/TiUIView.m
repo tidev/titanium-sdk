@@ -8,6 +8,7 @@
 #import "TiBase.h"
 #import "TiUIView.h"
 #import "TiColor.h"
+#import "TiRect.h"
 #import "TiUtils.h"
 #import "ImageLoader.h"
 #import "Ti2DMatrix.h"
@@ -379,6 +380,12 @@ DEFINE_EXCEPTIONS
 {
 	virtualParentTransform = newTransform;
 	[self updateTransform];
+}
+
+-(void)fillBoundsToRect:(TiRect*)rect
+{
+	CGRect r = [self bounds];
+	[rect setRect:r];
 }
 
 #pragma mark Public APIs
