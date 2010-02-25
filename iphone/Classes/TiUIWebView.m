@@ -70,6 +70,9 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	// to the webview to handle inside HTML
 	UIView *view = [super hitTest:point withEvent:event];
 	id desc = [[view class] description];
+	// we check the description since the actual class is a private
+	// class UIWebDocumentView and we can't worry about apple triggering
+	// their private apis sound alarm
 	if ([desc hasPrefix:@"UIWeb"])
 	{
 		delegateView = view;

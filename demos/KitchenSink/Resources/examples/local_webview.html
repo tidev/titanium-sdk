@@ -21,8 +21,14 @@
 		Ti.API.debug('log statement here');
 		$('#foo').html("Click Me to Hide the Toolbar");
 		
-		document.getElementById("foo").onclick = function()
+		// you can use either onclick or ontouchstart - if you use onclick
+		// and have a click on the webview instance you'll need to hold down the
+		// webview area for a 1/2 second to trigger it ... ontouchstart is immediate
+		// both work but ontouchstart makes it appear immediate and don't make you think the 
+		// test isn't working
+		document.getElementById("foo").ontouchstart = function()
 		{
+			Ti.API.info("clicked on local_webview link");
 			Ti.App.fireEvent('webview_hidetoolbar');
 		};
 	</script>
