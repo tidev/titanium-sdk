@@ -127,21 +127,31 @@
 	[[self view] animate:arg];
 }
 
--(void)addImageToBlob:(TiBlob*)blob
+-(void)addImageToBlob:(NSArray*)args
 {
+	TiBlob *blob = [args objectAtIndex:0];
 	UIView *myview = [self view];
 	UIGraphicsBeginImageContext(myview.bounds.size);
 	[myview.layer renderInContext:UIGraphicsGetCurrentContext()];
 	UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
 	[blob setImage:image];
 	UIGraphicsEndImageContext();
+	if ([args count] > 1)
+	{
+		KrollCallback *callback = [args objectAtIndex:1];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"blob"];
+		[self _fireEventToListener:@"blob" withObject:event listener:callback thisObject:nil];
+	}
 }
 
 -(TiBlob*)toImage:(id)args
 {
+	KrollCallback *callback = [args count] > 0 ? [args objectAtIndex:0] : nil;
 	TiBlob *blob = [[[TiBlob alloc] init] autorelease];
 	// we spin on the UI thread and have him convert and then add back to the blob
-	[self performSelectorOnMainThread:@selector(addImageToBlob:) withObject:blob waitUntilDone:NO];
+	// if you pass a callback function, we'll run the render asynchronously, if you
+	// don't, we'll do it synchronously
+	[self performSelectorOnMainThread:@selector(addImageToBlob:) withObject:[NSArray arrayWithObjects:blob,callback,nil] waitUntilDone:callback==nil ? YES : NO];
 	return blob;
 }
 
