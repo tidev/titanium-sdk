@@ -25,6 +25,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
@@ -48,8 +49,9 @@ public abstract class TiUIView
 	protected LayoutParams layoutParams;
 	protected int zIndex;
 	protected TiAnimationBuilder animBuilder;
-	protected TiBackgroundShape background;
-
+	protected TiBackgroundDrawable background;
+	protected boolean usingCustomBackground = false;
+	
 	public TiUIView(TiViewProxy proxy)
 	{
 		if (idGenerator == null) {
@@ -58,7 +60,7 @@ public abstract class TiUIView
 
 		this.proxy = proxy;
 		this.layoutParams = new TiCompositeLayout.LayoutParams();
-		this.background = new TiBackgroundShape();
+		this.background = new TiBackgroundDrawable();
 	}
 
 	public void add(TiUIView child)
@@ -229,6 +231,8 @@ public abstract class TiUIView
 			}
 		} else if (key.equals("backgroundImage")) {
 			handleBackgroundImage(proxy.getDynamicProperties());
+		} else if (key.startsWith("border")) {
+			handleBorderProperty(key, newValue);
 		} else {
 			Log.i(LCAT, "Unhandled property key: " + key);
 		}
@@ -257,38 +261,26 @@ public abstract class TiUIView
 			nativeView.setVisibility(TiConvert.toBoolean(d, "visible") ? View.VISIBLE : View.INVISIBLE);
 		}
 
-		if (d.containsKey("borderColor") || d.containsKey("borderRadius")) {
-			if (background.getBorder() == null) {
-				background.setBorder(new TiBackgroundShape.Border());
-			}
-			TiBackgroundShape.Border border = background.getBorder();
-
-			if (d.containsKey("borderRadius")) {
-				border.setRadius(TiConvert.toFloat(d, "borderRadius"));
-			}
-			if (d.containsKey("borderColor")) {
-				border.setColor(TiConvert.toColor(d, "borderColor", "opacity"));
-			} else {
-				if (bgColor != null) {
-					border.setColor(bgColor);
-				}
-			}
-
-			if (d.containsKey("borderWidth")) {
-				border.setWidth(TiConvert.toFloat(d, "borderWidth"));
-			}
-		}
-
-		if (nativeView != null) {
-			nativeView.setOnClickListener(this);
-			//nativeView.setBackgroundDrawable(new ShapeDrawable(background));
-		}
+		initializeBorder(d, bgColor);
 
 		if (d.containsKey("transform")) {
 			animBuilder = new TiAnimationBuilder();
 			animBuilder.applyOptions(d);
 			AnimationSet as = animBuilder.render(nativeView);
 			nativeView.startAnimation(as);
+		}
+	}
+	
+	private void applyCustomBackground() {
+		if (nativeView != null && !usingCustomBackground) {
+			nativeView.setOnClickListener(this);
+			
+			Drawable currentDrawable = nativeView.getBackground();
+			if (currentDrawable != null) {
+				background.setBackgroundDrawable(currentDrawable);
+			}
+			nativeView.setBackgroundDrawable(background);
+			usingCustomBackground = true;
 		}
 	}
 
@@ -371,10 +363,54 @@ public abstract class TiUIView
 		TiBaseFile file = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), new String[] { url }, false);
 		try {
 			background.setBackgroundImage(TiUIHelper.createBitmap(file.getInputStream()));
+			applyCustomBackground();
 		} catch (IOException e) {
 			Log.e(LCAT, "Error creating background image from path: " + path.toString(), e);
 		}
 
+	}
+	
+	private void initializeBorder(TiDict d, Integer bgColor)
+	{
+		if (d.containsKey("borderColor") || d.containsKey("borderRadius")) {
+			if (background.getBorder() == null) {
+				background.setBorder(new TiBackgroundDrawable.Border());
+			}
+			TiBackgroundDrawable.Border border = background.getBorder();
+
+			if (d.containsKey("borderRadius")) {
+				border.setRadius(TiConvert.toFloat(d, "borderRadius"));
+			}
+			if (d.containsKey("borderColor")) {
+				border.setColor(TiConvert.toColor(d, "borderColor", "opacity"));
+			} else {
+				if (bgColor != null) {
+					border.setColor(bgColor);
+				}
+			}
+
+			if (d.containsKey("borderWidth")) {
+				border.setWidth(TiConvert.toFloat(d, "borderWidth"));
+			}
+			applyCustomBackground();
+		}	
+	}
+	
+	private void handleBorderProperty(String property, Object value)
+	{
+		if (background.getBorder() == null) {
+			background.setBorder(new TiBackgroundDrawable.Border());
+		}
+		TiBackgroundDrawable.Border border = background.getBorder();
+		
+		if (property.equals("borderColor")) {
+			border.setColor(TiConvert.toColor(value.toString()));
+		} else if (property.equals("borderRadius")) {
+			border.setRadius(TiConvert.toFloat(value));
+		} else if (property.equals("borderWidth")) {
+			border.setWidth(TiConvert.toFloat(value));
+		}
+		applyCustomBackground();
 	}
 
 	@Override
