@@ -310,7 +310,7 @@ DEFINE_EXCEPTIONS
 		[self.proxy isKindOfClass:[TiViewProxy class]])
 	{
 		childrenInitialized=YES;
-		[(TiViewProxy*)self.proxy layoutChildren:frame];
+		[(TiViewProxy*)self.proxy layoutChildren];
 	}
 }
 

@@ -370,13 +370,15 @@
 		[[child view] updateLayout:&layout withBounds:bounds];
 		
 		// tell our children to also layout
-		[child layoutChildren:childView.bounds];
+		[child layoutChildren];
 	}
 }
 
--(void)layoutChildren:(CGRect)bounds
+-(void)layoutChildren
 {
 	// now ask each of our children for their view
+	CGRect bounds = [view bounds];
+
 	if (self.children!=nil)
 	{
 		[childLock lock];

@@ -34,6 +34,7 @@
 -(BOOL)viewAttached;
 -(BOOL)viewInitialized;
 -(void)layoutChildren:(CGRect)bounds;
+-(void)layoutChildren;
 -(void)layoutChild:(TiViewProxy*)child bounds:(CGRect)bounds;
 -(void)animationCompleted:(TiAnimation*)animation;
 -(void)detachView;

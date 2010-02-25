@@ -46,7 +46,7 @@
 
 	[(TiUIScrollView *)[self view] layoutChild:childView];
 
-	[child layoutChildren:childView.bounds];
+	[child layoutChildren];
 }
 
 -(void)scrollTo:(id)args

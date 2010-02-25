@@ -440,7 +440,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		[[[TitaniumApp app] controller] windowFocused:self];
 	}
 
-	[self layoutChildren:view.bounds];
+	[self layoutChildren];
 
 	[rootView bringSubviewToFront:view];
 
