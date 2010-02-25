@@ -277,3 +277,5 @@ Titanium.Platform.addEventListener('battery', function(e)
 	var message = 'Battery Notification\n\nLevel: ' + e.level + ', State: '+batteryStateToString(e.state);
 	Titanium.UI.createAlertDialog({title:'Platform', message:message}).show();
 });
+
+Titanium.API.info("Current Phone Locale is "+Titanium.Platform.locale);
