@@ -205,6 +205,12 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)shutdown:(id)sender
 {
+	// fire the application close event when shutting down
+	if ([self _hasListeners:@"close"])
+	{
+		[self fireEvent:@"close" withObject:nil];
+	}
+	
 	// make sure we force any changes made on shutdown
 	[[NSUserDefaults standardUserDefaults] synchronize];
 	[super shutdown:sender];

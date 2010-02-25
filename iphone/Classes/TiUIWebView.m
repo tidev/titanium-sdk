@@ -63,6 +63,66 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	return [scheme hasPrefix:@"http"];
 }
 
+-(UIView*)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+{
+	// webview is a little _special_ so we need to intercept
+	// his events and handle them as well as dispatch directly
+	// to the webview to handle inside HTML
+	UIView *view = [super hitTest:point withEvent:event];
+	id desc = [[view class] description];
+	// we check the description since the actual class is a private
+	// class UIWebDocumentView and we can't worry about apple triggering
+	// their private apis sound alarm
+	if ([desc hasPrefix:@"UIWeb"])
+	{
+		delegateView = view;
+		return self;
+	}
+	else
+	{
+		delegateView = nil;
+	}
+	return view;
+}
+
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+	[super touchesBegan:touches withEvent:event];
+	if (delegateView!=nil)
+	{
+		[delegateView touchesBegan:touches withEvent:event];
+	}
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+	[super touchesMoved:touches withEvent:event];
+	if (delegateView!=nil)
+	{
+		[delegateView touchesMoved:touches withEvent:event];
+	}
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+	[super touchesEnded:touches withEvent:event];
+	if (delegateView!=nil)
+	{
+		[delegateView touchesEnded:touches withEvent:event];
+	}
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+	[super touchesCancelled:touches withEvent:event];
+	if (delegateView!=nil)
+	{
+		[delegateView touchesCancelled:touches withEvent:event];
+	}
+}
+
+
 -(UIWebView*)webview 
 {
 	if (webview==nil)
@@ -117,7 +177,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 -(NSString*)titaniumInjection
 {
 	NSMutableString *html = [[[NSMutableString alloc] init] autorelease];
-	[html appendString:@"<script>"];
+	[html appendString:@"<script id='titanium_injection'>"];
 	[html appendFormat:@"window.Titanium={};window.Ti=Titanium;Ti.pageToken=%@;Ti.appId='%@';",pageToken,TI_APPLICATION_ID];
 	[html appendString:kTitaniumJavascript];
 	[html appendString:@"</script>"];
@@ -146,7 +206,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	if (range.location!=NSNotFound)
 	{
 		BOOL found = NO;
-		NSRange nextRange = [content rangeOfString:@">" options:0 range:NSMakeRange(range.location, [content length]) locale:nil];
+		NSRange nextRange = [content rangeOfString:@">" options:0 range:NSMakeRange(range.location, [content length]-range.location) locale:nil];
 		if (nextRange.location!=NSNotFound)
 		{
 			[html appendString:[content substringToIndex:nextRange.location+1]];
@@ -383,9 +443,16 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	}
 }
 
--(void)evalJS:(NSString*)code
+-(void)evalJS:(NSArray*)args
 {
-	[[self webview] stringByEvaluatingJavaScriptFromString:code];
+	NSString *code = [args objectAtIndex:0];
+	NSString* result = [[self webview] stringByEvaluatingJavaScriptFromString:code];
+	// write the result into our blob
+	if ([args count] > 1 && result!=nil)
+	{
+		TiBlob *blob = [args objectAtIndex:1];
+		[blob setData:[result dataUsingEncoding:NSUTF8StringEncoding]];
+	}
 }
 
 #pragma mark WebView Delegate
@@ -451,7 +518,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	
 	NSString *code = [NSString stringWithContentsOfURL:url_ encoding:NSUTF8StringEncoding error:nil];
 	
-	[self evalJS:code];
+	[self evalJS:[NSArray arrayWithObject:code]];
 }
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
