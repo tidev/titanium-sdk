@@ -26,7 +26,13 @@ tableview.addEventListener('click', function(e)
 	var rowdata = e.rowData;
 	var w = Ti.UI.createWindow();
 	var webview = Ti.UI.createWebView();
-	if (rowdata.url)
+	if (rowdata.url && index ==1)
+	{
+		// test loading file using file system
+		var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory,rowdata.url);
+		webview.url = f.nativePath;
+	}
+	else if (rowdata.url)
 	{
 		webview.url = rowdata.url;
 	}
@@ -58,6 +64,7 @@ tableview.addEventListener('click', function(e)
 	// create toolbar for local webiew
 	if (e.index==1)
 	{
+		// test hiding/showing toolbar with web view
 		var button = Titanium.UI.createButton({
 			title:'Click above to hide me'
 		});
