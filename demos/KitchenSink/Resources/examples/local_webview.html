@@ -23,7 +23,7 @@
 		
 		document.getElementById("foo").onclick = function()
 		{
-			Ti.App.fireEvent('webview_hidetoolbar');
+			Ti.App.fireEvent('webview_hidetoolbar',{foo:'bar'});
 		};
 	</script>
 	

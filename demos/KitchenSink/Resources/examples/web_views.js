@@ -95,8 +95,9 @@ tableview.addEventListener('click', function(e)
 		w.add(webview);
 
 		// hide toolbar for local web view
-		Ti.App.addEventListener('webview_hidetoolbar', function()
+		Ti.App.addEventListener('webview_hidetoolbar', function(e)
 		{
+			Ti.API.info('received hidetoolbar event, foo = ' + e.foo)
 			w.setToolbar(null,{animated:true});
 		});
 		webview.addEventListener('click', function()
