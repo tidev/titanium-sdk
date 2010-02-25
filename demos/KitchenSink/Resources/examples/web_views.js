@@ -3,7 +3,7 @@ var win = Titanium.UI.currentWindow;
 // create table view data object
 var data = [
 	{title:'External URL', hasChild:true, url:'http://www.google.com'},
-	{title:'Local URL', hasChild:true, url:'local_webview.html', bgcolor:'#aaa'},
+	{title:'Local URL', hasChild:true, url:'local_webview.html'},
 	{title:'PDF URL', hasChild:true, url:'http://www.appcelerator.com/assets/The_iPad_App_Wave.pdf'},
 	{title:'Image URL', hasChild:true, url:'http://www.appcelerator.com/wp-content/uploads/2010/01/TABWAVE_graph1.png'},
 	{title:'SVG URL', hasChild:true, url:'http://upload.wikimedia.org/wikipedia/commons/5/55/1st_Cavalry_Division_-_Shoulder_Sleeve_Insignia.svg'},
@@ -42,7 +42,7 @@ tableview.addEventListener('click', function(e)
 	}
 	webview.addEventListener('load',function(e)
 	{
-		Ti.API.debug("webview loaded: "+e.url + ' ' + webview.evalJS('document.body.innerHTML'));
+		Ti.API.debug("webview loaded: "+e.url);
 	});
 	if (rowdata.bgcolor)
 	{
@@ -54,8 +54,7 @@ tableview.addEventListener('click', function(e)
 		webview.borderWidth=5;
 		webview.borderColor = 'red';
 	}
-	w.add(webview);
-	
+
 	// create toolbar for local webiew
 	if (e.index==1)
 	{
@@ -63,7 +62,9 @@ tableview.addEventListener('click', function(e)
 			title:'Click above to hide me'
 		});
 		w.setToolbar([button]);
+		
 	}
+	w.add(webview);
 
 	// hide toolbar for local web view
 	Ti.App.addEventListener('webview_hidetoolbar', function()
