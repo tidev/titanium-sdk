@@ -12,12 +12,9 @@ import java.util.TreeSet;
 import org.appcelerator.titanium.util.Log;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.hardware.Camera.AutoFocusCallback;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.OnHierarchyChangeListener;
 
 public class TiCompositeLayout extends ViewGroup
