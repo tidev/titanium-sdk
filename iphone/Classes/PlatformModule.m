@@ -171,6 +171,15 @@
 
 #pragma mark Public APIs
 
+-(NSString*)locale
+{
+	// this will return the locale that the user has set the phone in
+	// not the region where the phone is
+	NSUserDefaults* defs = [NSUserDefaults standardUserDefaults];
+	NSArray* languages = [defs objectForKey:@"AppleLanguages"];
+	return [languages count] > 0 ? [languages objectAtIndex:0] : @"en";
+}
+
 -(id)id
 {
 	return [[UIDevice currentDevice] uniqueIdentifier];
