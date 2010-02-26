@@ -82,6 +82,7 @@
 		[scrollview setShowsVerticalScrollIndicator:NO];
 		[scrollview setShowsHorizontalScrollIndicator:NO];
 		[scrollview setDelaysContentTouches:NO];
+		[scrollview setClipsToBounds:[TiUtils boolValue:[self.proxy valueForKey:@"clipViews"] def:YES]];
 		[self addSubview:scrollview];
 	}
 	return scrollview;
@@ -174,6 +175,7 @@
 {
 	CGRect viewBounds;
 	viewBounds.size = visibleBounds.size;
+	viewBounds.size.height = viewBounds.size.height - (showPageControl ? pageControlHeight : 0);
 	viewBounds.origin.y = 0;
 	
 	UIScrollView *sv = [self scrollview];

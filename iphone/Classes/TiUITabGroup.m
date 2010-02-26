@@ -110,7 +110,7 @@ DEFINE_EXCEPTIONS
 		UIViewController * rootController = [moreViewControllerStack objectAtIndex:1];
 		if ([rootController respondsToSelector:@selector(tab)])
 		{
-			[[(id)rootController tab] handleWillShowViewController:viewController];
+			[(TiUITabProxy *)[(id)rootController tab] handleWillShowViewController:viewController];
 		}
 	}
 	else
@@ -140,7 +140,7 @@ DEFINE_EXCEPTIONS
 		return;
 	}
 	
-	TiUITabProxy * tabProxy = [rootController tab];
+	TiUITabProxy * tabProxy = (TiUITabProxy *)[(id)rootController tab];
 	if (stackHeight == 2)	//One for the picker, one for the faux root.
 	{
 		if (tabProxy != focused)
@@ -246,7 +246,7 @@ DEFINE_EXCEPTIONS
 {
 	UIViewController *active = nil;
 	
-	NSArray * tabViewControllers = [[self tabController] viewControllers];
+//	NSArray * tabViewControllers = [[self tabController] viewControllers];
 
 	if ([value isKindOfClass:[TiUITabProxy class]])
 	{

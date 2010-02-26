@@ -321,28 +321,15 @@ void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint, UI
 }
 
 #define READ_CONSTRAINT(key,value)	\
-inputVal = [inputDict objectForKey:key];	\
-if(inputVal != nil) \
-{ \
-constraint->value = TiDimensionFromObject(inputVal); \
-} \
-else if(inheritance!=NULL) \
-{ \
-constraint->value=inheritance->value; \
-} \
-else \
-{ \
-constraint->value = TiDimensionUndefined; \
-}
+constraint->value = TiDimensionFromObject([inputDict objectForKey:key]);
 
-void ReadConstraintFromDictionary(LayoutConstraint * constraint, NSDictionary * inputDict, LayoutConstraint * inheritance)
+void ReadConstraintFromDictionary(LayoutConstraint * constraint, NSDictionary * inputDict)
 {
 	if (constraint == NULL)
 	{
 		return;
 	}
-	//If the inputdict is null, this flows through properly, inheriting properly.
-	id inputVal;
+	//If the inputdict is null, this flows through properly.
 	READ_CONSTRAINT(@"left",left);
 	READ_CONSTRAINT(@"right",right);
 	READ_CONSTRAINT(@"width",width);
@@ -352,6 +339,8 @@ void ReadConstraintFromDictionary(LayoutConstraint * constraint, NSDictionary * 
 	inputDict = [inputDict objectForKey:@"center"];
 	READ_CONSTRAINT(@"x",centerY);
 	READ_CONSTRAINT(@"y",centerX);
+	
+	constraint->layout = TiLayoutRuleFromObject([inputDict objectForKey:@"layout"]);
 }
 
 CGFloat WidthFromConstraintGivenWidth(LayoutConstraint * constraint, CGFloat viewWidth)

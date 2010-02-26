@@ -118,7 +118,7 @@
 	for (TiUIView * thisChildView in subViews)
 	{
 		[thisChildView reposition];
-		[[thisChildView proxy] layoutChildren];
+		[(TiViewProxy *)[thisChildView proxy] layoutChildren];
 	}
 
 	needsHandleContentSize = NO;
