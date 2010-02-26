@@ -362,7 +362,7 @@
 
 		// make sure we do a layout of ourselves
 		LayoutConstraint layout;
-		ReadConstraintFromDictionary(&layout,[self allProperties],NULL);
+		ReadConstraintFromDictionary(&layout,[self allProperties]);
 		[view updateLayout:&layout withBounds:view.bounds];
 		
 		viewInitialized = YES;
@@ -387,7 +387,7 @@
 		}
 		
 		LayoutConstraint layout;
-		ReadConstraintFromDictionary(&layout,[child allProperties],NULL);
+		ReadConstraintFromDictionary(&layout,[child allProperties]);
 		[[child view] updateLayout:&layout withBounds:bounds];
 		
 		// tell our children to also layout
