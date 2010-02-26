@@ -80,7 +80,7 @@
 			[self setNameString:[inheritance nameString]];
 		}
 		
-		ReadConstraintFromDictionary(&constraint, inputDict, [inheritance constraintPointer]);
+		ReadConstraintFromDictionary(&constraint, inputDict);
 		[labelFont updateWithDict:inputDict inherits:[inheritance labelFont]];
 		
 		NSString * newTextColor = [inputDict objectForKey:@"color"];
