@@ -1241,5 +1241,26 @@
 	return size;
 }
 
+-(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView
+{
+	int lastSectionIndex = [sections count]-1;
+	ENSURE_CONSISTENCY(lastSectionIndex>=0);
+
+	lastFocusedView = firstResponderView;
+	CGRect responderRect = [self convertRect:[firstResponderView bounds] fromView:firstResponderView];
+
+	CGRect minimumContentRect = [tableview rectForSection:lastSectionIndex];
+	ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(tableview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y,responderRect);
+}
+
+-(void)keyboardDidHideForView:(TiUIView *)hidingView
+{
+	if(hidingView != lastFocusedView)
+	{
+		return;
+	}
+
+	RestoreScrollViewFromKeyboard(tableview);
+}
 
 @end
