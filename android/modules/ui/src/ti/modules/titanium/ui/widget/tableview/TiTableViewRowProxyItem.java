@@ -6,10 +6,14 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.TiUILabel;
@@ -25,7 +29,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	private static final boolean DBG = TiConfig.LOGD;
 
 	private Item item;
-	TiCompositeLayout layout;
+	private TiCompositeLayout layout;
+	private ArrayList<TiUIView> views;
 
 	public TiTableViewRowProxyItem(TiContext tiContext)
 	{
@@ -33,12 +38,16 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 		this.handler = new Handler(this);
 		this.layout = new TiCompositeLayout(tiContext.getActivity());
-		this.addView(layout, new LayoutParams(LayoutParams.FILL_PARENT,50));
+		layout.setMinimumHeight(48);
+		this.addView(layout, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
+		this.views = new ArrayList<TiUIView>();
 	}
 
 	public void setRowData(TiTableViewItemOptions defaults, Item item)
 	{
 		TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
+		layout.removeAllViews();
+
 		if (rp.hasControls()) {
 			//TODO deal with controls
 		} else {
@@ -47,16 +56,16 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				title = TiConvert.toString(rp.getDynamicValue("title"));
 			}
 
-			TiUILabel t = new TiUILabel(rp);
+			if (views.size() == 0) {
+				views.add(new TiUILabel(rp));
+			}
+			TiUILabel t = (TiUILabel) views.get(0);
+			t.setProxy(rp);
 			t.processProperties(rp.getDynamicProperties());
 			View v = t.getNativeView();
 			TextView tv = (TextView) v;
 			tv.setTextColor(Color.WHITE);
-			tv.setBackgroundColor(Color.RED);
 			TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) t.getLayoutParams();
-			params.autoFillsWidth = true;
-			params.autoHeight = false;
-			params.optionHeight = 50;
 			layout.addView(v, params);
 		}
 	}
