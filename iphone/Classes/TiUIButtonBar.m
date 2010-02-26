@@ -236,6 +236,12 @@
 	}
 }
 
+-(CGSize)sizeThatFits:(CGSize)oldSize
+{
+	return [[self segmentedControl] sizeThatFits:oldSize];
+}
+
+
 -(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
 {
 	return [[self segmentedControl] sizeThatFits:CGSizeZero].width;

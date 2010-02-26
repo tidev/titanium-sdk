@@ -40,9 +40,12 @@
 -(void)detachView;
 -(void)destroy;
 -(void)setParent:(TiProxy*)parent;
+
 -(BOOL)supportsNavBarPositioning;
 -(UIBarButtonItem*)barButtonItem;
--(void)removeNavBarButtonView;
+-(TiUIView*)barButtonView;
+-(void)removeBarButtonView;
+
 -(CGRect)appFrame;
 -(void)firePropertyChanges;
 -(void)willFirePropertyChanges;

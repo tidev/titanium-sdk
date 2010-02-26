@@ -499,7 +499,7 @@
 	return nil;
 }
 
--(void)removeNavBarButtonView
+-(void)removeBarButtonView
 {
 	// called to remove
 }
