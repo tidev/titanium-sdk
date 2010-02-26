@@ -62,6 +62,7 @@ tableView.addEventListener('click',function(e)
 		}
 		
 	}
+
 	
 });
 

@@ -9,30 +9,32 @@ var label = Ti.UI.createLabel({
 	height:'auto'
 });
 
-var act = Ti.UI.createActivityIndicator({
-	bottom:10,
-});
-act.style = Titanium.UI.iPhone.ActivityIndicatorStyle.DARK;
-act.font = {fontFamily:'Helvetica Neue', fontSize:15,fontWeight:'bold'};
-act.color = 'black';
-act.message = 'Waiting for next interval...';
-act.show();
+// var act = Ti.UI.createActivityIndicator({
+// 	bottom:10,
+// });
+// act.style = Titanium.UI.iPhone.ActivityIndicatorStyle.DARK;
+// act.font = {fontFamily:'Helvetica Neue', fontSize:15,fontWeight:'bold'};
+// act.color = 'black';
+// act.message = 'Waiting for next interval...';
+// act.show();
+//win.add(act);
 
 win.add(label);
-win.add(act);
 
 var started = new Date().getTime();
-
+var count = 0;
 setInterval(function()
 {
-	act.hide();
-	label.text = "3 sec interval fired in\n" + (new Date().getTime()-started)/1000 + " seconds";
-	started = new Date().getTime();
+	count++;
+	label.text = "Interval fired " + count;
+//	act.hide();
+//	label.text = "3 sec interval fired in\n" + (new Date().getTime()-started)/1000 + " seconds";
+//	started = new Date().getTime();
 	// just delay a bit on reshowing
-	setTimeout(function()
-	{
-		label.text="Running...";
-		act.show();
-	},500);
-},3000);
+	// setTimeout(function()
+	// {
+	// 	label.text="Running...";
+	// 	act.show();
+	// },500);
+},10);
 

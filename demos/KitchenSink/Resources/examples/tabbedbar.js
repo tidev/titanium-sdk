@@ -109,8 +109,8 @@ tb3.addEventListener('click', function(e)
 var tb4 = Titanium.UI.createTabbedBar({
 	labels:['One', 'Two'],
 	index:0,
-	backgroundColor:'red'
-	
+	backgroundColor:'red',
+	style:Titanium.UI.iPhone.SystemButtonStyle.BAR
 });
 win.setTitleControl(tb4);
 

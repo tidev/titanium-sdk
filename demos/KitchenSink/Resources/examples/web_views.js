@@ -1,5 +1,15 @@
 var win = Titanium.UI.currentWindow;
 
+// initialize to all modes
+win.orientationModes = [
+	Titanium.UI.PORTRAIT,
+	Titanium.UI.UPSIDE_PORTRAIT,
+	Titanium.UI.LANDSCAPE_LEFT,
+	Titanium.UI.LANDSCAPE_RIGHT,
+	Titanium.UI.FACE_UP,
+	Titanium.UI.FACE_DOWN,		
+]; 
+
 // create table view data object
 var data = [
 	{title:'External URL', hasChild:true, url:'http://www.google.com'},
