@@ -25,6 +25,12 @@
 
 @end
 
+typedef enum {
+	LayoutRuleAbsolute,
+	LayoutRuleVertical,
+} LayoutRule;
+
+
 
 typedef struct LayoutConstraint {
 
@@ -37,6 +43,9 @@ typedef struct LayoutConstraint {
 	TiDimension top;
 	TiDimension bottom;
 	TiDimension height;
+	
+	LayoutRule layout;
+	
 } LayoutConstraint;
 
 
