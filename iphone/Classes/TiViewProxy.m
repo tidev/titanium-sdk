@@ -494,6 +494,11 @@
 	return NO;
 }
 
+-(TiUIView *)barButtonView
+{
+	return nil;
+}
+
 -(UIBarButtonItem*)barButtonItem
 {
 	return nil;

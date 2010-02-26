@@ -343,10 +343,10 @@
 	UIView * oldView = [ourNavItem titleView];
 	if ([oldView isKindOfClass:[TiUIView class]])
 	{
-		TiViewProxy * oldProxy = [(TiUIView *)oldView proxy];
+		TiViewProxy * oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
 		if (oldProxy != titleControl)
 		{
-			[oldProxy removeNavBarButtonView];
+			[oldProxy removeBarButtonView];
 		}
 	}
 

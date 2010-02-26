@@ -38,6 +38,10 @@
 	return NO;
 }
 
+-(UIView *)textWidgetView
+{
+	return nil;
+}
 
 #pragma mark Common values
 
