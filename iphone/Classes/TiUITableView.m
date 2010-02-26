@@ -1030,12 +1030,15 @@
 		TiUITableViewSectionProxy *section = [sections objectAtIndex:[indexPath section]];
 		NSInteger index = [self indexForIndexPath:indexPath];
 		UITableView *table = [self tableView];
+		NSIndexPath *path = [self indexPathFromInt:index];
+		
+		// note, trigger action before the update since on the last delete it will be gone..
+		[self triggerActionForIndexPath:indexPath fromPath:nil wasAccessory:NO search:NO name:@"delete"];
+		
 		[[section rows] removeObjectAtIndex:[indexPath row]];
 		[table beginUpdates];
-		NSIndexPath *path = [self indexPathFromInt:index];
 		[table deleteRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:UITableViewRowAnimationFade];
 		[table endUpdates];
-		[self triggerActionForIndexPath:indexPath fromPath:nil wasAccessory:NO search:NO name:@"delete"];
 	}
 }
 
