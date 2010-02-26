@@ -158,55 +158,12 @@
 
 #pragma mark View
 
--(TiRect*)bounds
+
+-(TiRect*)size
 {
 	TiRect *rect = [[[TiRect alloc] init] autorelease];
 	[[self view] performSelectorOnMainThread:@selector(fillBoundsToRect:) withObject:rect waitUntilDone:YES];
 	return rect;
-}
-
--(NSNumber*)height
-{
-	if (![self viewAttached])
-	{
-		return NUMFLOAT([TiUtils floatValue:[self valueForUndefinedKey:@"height"]]);
-	}
-	TiRect *rect = [[[TiRect alloc] init] autorelease];
-	[[self view] performSelectorOnMainThread:@selector(fillBoundsToRect:) withObject:rect waitUntilDone:YES];
-	return [rect height];
-}
-
--(NSNumber*)width
-{
-	if (![self viewAttached])
-	{
-		return NUMFLOAT([TiUtils floatValue:[self valueForUndefinedKey:@"width"]]);
-	}
-	TiRect *rect = [[[TiRect alloc] init] autorelease];
-	[[self view] performSelectorOnMainThread:@selector(fillBoundsToRect:) withObject:rect waitUntilDone:YES];
-	return [rect width];
-}
-
--(NSNumber*)x
-{
-	if (![self viewAttached])
-	{
-		return NUMFLOAT([TiUtils floatValue:[self valueForUndefinedKey:@"x"]]);
-	}
-	TiRect *rect = [[[TiRect alloc] init] autorelease];
-	[[self view] performSelectorOnMainThread:@selector(fillBoundsToRect:) withObject:rect waitUntilDone:YES];
-	return [rect x];
-}
-
--(NSNumber*)y
-{
-	if (![self viewAttached])
-	{
-		return NUMFLOAT([TiUtils floatValue:[self valueForUndefinedKey:@"y"]]);
-	}
-	TiRect *rect = [[[TiRect alloc] init] autorelease];
-	[[self view] performSelectorOnMainThread:@selector(fillBoundsToRect:) withObject:rect waitUntilDone:YES];
-	return [rect y];
 }
 
 -(void)setParent:(TiViewProxy*)parent_
