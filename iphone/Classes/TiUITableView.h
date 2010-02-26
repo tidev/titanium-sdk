@@ -19,6 +19,7 @@
 	BOOL editing;
 	BOOL autohideSearch;
 	BOOL searchHidden;
+	BOOL editable;
 	NSMutableArray * sectionIndex;
 	NSMutableDictionary * sectionIndexMap;
 	TiDimension rowHeight;

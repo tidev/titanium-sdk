@@ -29,7 +29,7 @@ def get_sdks():
 			cmd = line[i+5:]
 			if cmd.find("iphoneos")==0:
 				ver = cmd[8:]
-				if ver[0]=='3':
+				if ver[0]=='3' and ver!='3.0':
 					found.append(ver)
 	return found
 	
@@ -127,7 +127,7 @@ def check_for_package():
 	check_itunes_version(props)
 	check_certs(props)
 	props['sdks']=get_sdks()
-	print json.encode(props)
+	print json.encode(props).decode('utf-8')
 			
 def main(args):
 	if len(args)!=2:
@@ -142,8 +142,9 @@ def main(args):
 	sys.exit(0)
 
 if __name__ == "__main__":
-    main(sys.argv)
+	main(sys.argv)
+
 
 # FOR TESTING
-#	check_for_package()
+#check_for_package()
 
