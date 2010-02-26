@@ -126,7 +126,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 	for (NSString * thisKey in keys)
 	{
-		id newValue = [proxy valueForKey:thisKey];
+		// use valueForUndefined since this should really come from dynprops
+		// not against the real implementation
+		id newValue = [proxy valueForUndefinedKey:thisKey];
 		if (newValue == nil)
 		{
 			continue;
