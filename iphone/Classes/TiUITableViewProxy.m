@@ -185,6 +185,7 @@
 	
 	newrow.section = rowProxy.section;
 	newrow.row = rowProxy.row;
+	newrow.parent = newrow.section;
 	
 	[newrow updateRow:data withObject:anim];
 	
@@ -251,6 +252,7 @@
 	TiUITableViewRowProxy *newrow = [self tableRowFromArg:data];
 	newrow.section = section;
 	newrow.row = row.row == 0 ? 0 : row.row - 1;
+	newrow.parent = section;
 	
 	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:newrow animation:anim section:section.section type:TiUITableViewActionInsertRowBefore] autorelease];
 	[table dispatchAction:action];
@@ -285,6 +287,7 @@
 	TiUITableViewRowProxy *newrow = [self tableRowFromArg:data];
 	newrow.section = section;
 	newrow.row = row.row+1;
+	newrow.parent = section;
 	
 	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:newrow animation:anim section:section.section type:TiUITableViewActionInsertRowAfter] autorelease];
 	[table dispatchAction:action];
@@ -311,6 +314,7 @@
 	{
 		TiUITableViewSectionProxy *section = [sections lastObject];
 		row.section = section;
+		row.parent = section;
 		
 		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:row animation:anim section:row.section.section type:TiUITableViewActionAppendRow] autorelease];
 		[table dispatchAction:action];
