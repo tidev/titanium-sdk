@@ -109,6 +109,8 @@ public class TableViewModel
             	className = CLASSNAME_DEFAULT;
             }
             newItem.className = className;
+        } else {
+        	throw new IllegalStateException("Un-implemented type: " + data.getClass().getSimpleName());
         }
 
         return newItem;

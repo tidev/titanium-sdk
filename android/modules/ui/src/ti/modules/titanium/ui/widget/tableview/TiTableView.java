@@ -45,6 +45,8 @@ public class TiTableView extends FrameLayout
 	private String filterAttribute;
 	private String filterText;
 
+	private TiContext tiContext;
+
 	public interface OnItemClickedListener {
 		public void onClick(TiDict item);
 	}
@@ -135,11 +137,11 @@ public class TiTableView extends FrameLayout
 			} else {
 				Context ctx = getContext();
 				if (item.className.equals(TableViewModel.CLASSNAME_HEADER)) {
-					v = new TiTableViewHeaderItem(ctx);
+					v = new TiTableViewHeaderItem(tiContext);
 				} else if (item.className.equals(TableViewModel.CLASSNAME_NORMAL)) {
-					v = new TiTableViewNormalItem(ctx);
+					v = new TiTableViewNormalItem(tiContext);
 				} else if (item.className.equals(TableViewModel.CLASSNAME_DEFAULT)) {
-					// TODO not sure what this means.
+					v = new TiTableViewRowProxyItem(tiContext);
 				} else {
 					// TODO Create a generic row?
 				}
@@ -185,6 +187,8 @@ public class TiTableView extends FrameLayout
 	public TiTableView(TiContext tiContext)
 	{
 		super(tiContext.getActivity());
+
+		this.tiContext = tiContext;
 
 		rowTypes = new HashMap<String, Integer>();
 		rowTypeCounter = new AtomicInteger(-1);

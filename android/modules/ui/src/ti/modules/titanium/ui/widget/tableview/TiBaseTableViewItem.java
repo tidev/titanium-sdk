@@ -6,11 +6,11 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.TiConfig;
 
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
-
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
@@ -23,11 +23,12 @@ public abstract class TiBaseTableViewItem extends FrameLayout implements Handler
 	private static final boolean DBG = TiConfig.LOGD;
 
 	protected Handler handler;
+	protected TiContext tiContext;
 
-	public TiBaseTableViewItem(Context context)
+	public TiBaseTableViewItem(TiContext tiContext)
 	{
-		super(context);
-
+		super(tiContext.getActivity());
+		this.tiContext = tiContext;
 		this.handler = new Handler(this);
 	}
 

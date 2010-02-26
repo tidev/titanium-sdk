@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiFileHelper;
@@ -153,11 +154,11 @@ public class TiTableViewNormalItem extends TiBaseTableViewItem
 		}
 	}
 
-	public TiTableViewNormalItem(Context context)
+	public TiTableViewNormalItem(TiContext tiContext)
 	{
-		super(context);
+		super(tiContext);
 
-		rowView = new RowView(context);
+		rowView = new RowView(tiContext.getActivity());
 		this.addView(rowView, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
 	}
 
