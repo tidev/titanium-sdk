@@ -851,6 +851,11 @@
 	}
 }
 
+-(void)setEditable_:(id)args
+{
+	editable = [TiUtils boolValue:args];
+}
+
 -(void)setEditing_:(id)args withObject:(id)properties
 {
 	[self changeEditing:[TiUtils boolValue:args]];
@@ -999,7 +1004,7 @@
 		
 		return editing || moving;
 	}
-	return NO;
+	return editable;
 }
 
 - (BOOL)tableView:(UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath
