@@ -61,7 +61,7 @@
 	return button;
 }
 
--(void)removeNavBarButtonView
+-(void)removeBarButtonView
 {
 	RELEASE_TO_NIL(button);
 }

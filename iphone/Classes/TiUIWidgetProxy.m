@@ -29,12 +29,17 @@
 	return [super view];
 }
 
-- (UIBarButtonItem *) barButtonItem
+- (TiUIView *)barButtonView
 {
 	isUsingBarButtonItem = YES;
+	return [self view];
+}
+
+- (UIBarButtonItem *) barButtonItem
+{
 	if (barButtonItem == nil)
 	{
-		UIView * buttonView = [self view];
+		UIView * buttonView = [self barButtonView];
 		if (CGRectIsEmpty([buttonView bounds]))
 		{
 			CGRect newBounds;
@@ -56,7 +61,7 @@
 	return YES;
 }
 
--(void)removeNavBarButtonView
+-(void)removeBarButtonView
 {
 	isUsingBarButtonItem = NO;
 	[self setBarButtonItem:nil];
