@@ -10,6 +10,12 @@ win.orientationModes = [
 	Titanium.UI.FACE_DOWN,		
 ]; 
 
+Ti.Gesture.addEventListener('orientationchange',function(e)
+{
+     Titanium.UI.orientation = e.orientation;
+});
+
+
 // create table view data object
 var data = [
 	{title:'External URL', hasChild:true, url:'http://www.google.com'},
@@ -126,7 +132,7 @@ tableview.addEventListener('click', function(e)
 		});
 		webview.addEventListener('click', function()
 		{
-			Ti.UI.createAlertDialog({title:'Webview', message:'Received Click'}).show();
+			Ti.API.info('RECEIVED CLICK ON WEBVIEW')
 		})
 		win.tab.open(w);		
 	}

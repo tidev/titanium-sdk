@@ -11,7 +11,8 @@ win.add(view);
 var label = Ti.UI.createLabel({
 	text:'Image should be at top 10 and left 10',
 	height:'auto',
-	bottom:20
+	bottom:20,
+	textAlign:'center'
 });
 
 win.add(label);

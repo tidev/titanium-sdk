@@ -285,3 +285,5 @@ Ti.include("welcome.js");
 // test out logging to developer console
 Ti.API.info("Welcome to Kitchen Sink for Titanium/"+Titanium.version);
 Ti.API.debug("user agent set to "+Titanium.userAgent);
+
+
