@@ -1122,6 +1122,11 @@
 
 -(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
+	if(tableView == searchTableView)
+	{
+		return;
+	}
+	
 	TiUITableViewSectionProxy *section = [sections objectAtIndex:[indexPath section]];
 	TiUITableViewRowProxy *row = [section rowAtIndex:[indexPath row]];
 	NSString *color = [row valueForKey:@"backgroundColor"];
@@ -1165,6 +1170,11 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+	if(tableView == searchTableView)
+	{
+		return tableView.rowHeight;
+	}
+	
 	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
 	CGFloat height = [row rowHeight:tableView.bounds];
 	height = [self tableRowHeight:height];
