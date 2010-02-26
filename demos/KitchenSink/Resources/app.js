@@ -56,6 +56,7 @@ var win4 = Titanium.UI.createWindow({
 var tab4 = Titanium.UI.createTab({  
     icon:'images/tabs/KS_nav_platform.png',
     title:'Platform',
+active:true,
     window:win4
 });
 
@@ -87,10 +88,13 @@ tabGroup.addEventListener('open',function()
 	Titanium.UI.setBackgroundColor('#fff');
 });
 
+tabGroup.setActiveTab(1);
 // open tab group with a transition animation
 tabGroup.open({
 	transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
 });
+
+
 
 //
 //  TAB GROUP EVENTS

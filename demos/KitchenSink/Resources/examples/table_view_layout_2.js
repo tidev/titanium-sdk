@@ -212,7 +212,7 @@ for (var c=1;c<50;c++)
 //
 tableView = Titanium.UI.createTableView({
 	data:data,
-	search:search
+	search:search	
 });
 
 tableView.addEventListener('click', function(e)
