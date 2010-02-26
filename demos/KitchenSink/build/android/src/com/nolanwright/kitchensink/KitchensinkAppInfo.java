@@ -30,7 +30,7 @@ public class KitchensinkAppInfo implements ITiAppInfo
 	}
 	
 	public String getVersion() {
-		return "1.0";
+		return "1.2.2";
 	}
 	
 	public String getPublisher() {
@@ -42,11 +42,11 @@ public class KitchensinkAppInfo implements ITiAppInfo
 	}
 	
 	public String getCopyright() {
-		return "2010 by nwright";
+		return "2009 by nwright";
 	}
 	
 	public String getDescription() {
-		return "No description provided";
+		return "demo app for mobile";
 	}
 	
 	public String getIcon() {
