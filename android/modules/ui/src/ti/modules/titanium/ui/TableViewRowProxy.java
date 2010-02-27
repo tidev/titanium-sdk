@@ -29,4 +29,10 @@ public class TableViewRowProxy extends TiViewProxy
 		return (controls != null && controls.size() > 0);
 	}
 
+	public void add(TiViewProxy control) {
+		if (controls == null) {
+			controls = new ArrayList<TiViewProxy>();
+		}
+		controls.add(control);
+	}
 }

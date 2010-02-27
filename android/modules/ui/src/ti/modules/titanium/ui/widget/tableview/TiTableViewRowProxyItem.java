@@ -7,9 +7,10 @@
 package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -30,7 +31,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 	private Item item;
 	private TiCompositeLayout layout;
-	private ArrayList<TiUIView> views;
+	private TiUIView[] views;
 
 	public TiTableViewRowProxyItem(TiContext tiContext)
 	{
@@ -40,33 +41,52 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		this.layout = new TiCompositeLayout(tiContext.getActivity());
 		layout.setMinimumHeight(48);
 		this.addView(layout, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
-		this.views = new ArrayList<TiUIView>();
 	}
 
 	public void setRowData(TiTableViewItemOptions defaults, Item item)
 	{
 		TableViewRowProxy rp = (TableViewRowProxy) item.proxy;
-		layout.removeAllViews();
 
 		if (rp.hasControls()) {
-			//TODO deal with controls
+			ArrayList<TiViewProxy> proxies = rp.getControls();
+			int len = proxies.size();
+			if (views == null) {
+				views = new TiUIView[len];
+			}
+			for (int i = 0; i < len; i++) {
+				TiUIView view = views[i];
+				TiViewProxy proxy = proxies.get(i);
+				if (view == null) {
+					view = proxy.getView(tiContext.getActivity());
+					views[i] = view;
+				} else {
+					view.setProxy(proxy);
+				}
+				view.processProperties(proxy.getDynamicProperties());
+				View v = view.getNativeView();
+				if (v.getParent() == null) {
+					layout.addView(v, view.getLayoutParams());
+				}
+			}
 		} else {
 			String title = "Missing title";
 			if (rp.getDynamicValue("title") != null) {
 				title = TiConvert.toString(rp.getDynamicValue("title"));
 			}
 
-			if (views.size() == 0) {
-				views.add(new TiUILabel(rp));
+			if (views == null) {
+				views = new TiUIView[1];
+				views[0] = new TiUILabel(rp);
 			}
-			TiUILabel t = (TiUILabel) views.get(0);
+			TiUILabel t = (TiUILabel) views[0];
 			t.setProxy(rp);
 			t.processProperties(rp.getDynamicProperties());
 			View v = t.getNativeView();
-			TextView tv = (TextView) v;
-			tv.setTextColor(Color.WHITE);
-			TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) t.getLayoutParams();
-			layout.addView(v, params);
+			if (v.getParent() == null) {
+				TextView tv = (TextView) v;
+				tv.setTextColor(Color.WHITE);
+				layout.addView(v, t.getLayoutParams());
+			}
 		}
 	}
 }
