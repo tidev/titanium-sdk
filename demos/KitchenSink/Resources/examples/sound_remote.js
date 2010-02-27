@@ -71,3 +71,18 @@ streamer.addEventListener('change',function(e)
 {
 	stateLabel.text = 'State: '+e.description +' ('+e.state+')';
 });
+
+// save off current idle timer state
+var idleTimer = Ti.App.idleTimerDisabled;
+
+// while we're in this window don't let the app shutdown
+// when the screen is idle
+Ti.App.idleTimerDisabled = true;
+
+win.addEventListener('close',function()
+{
+	Ti.API.info("window was closed, idleTimer reset to = "+idleTimer);
+	
+	// restore previous idle state when closed
+	Ti.App.idleTimerDisabled = idleTimer;
+});
