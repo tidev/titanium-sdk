@@ -1,180 +1,233 @@
-//iTunes store or Tweetdeck like scrollable view
+//
+// SETUP WINDOW STYLES
+//
+Titanium.UI.iPhone.statusBarStyle = Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK;
+var win = Ti.UI.currentWindow;
+win.title = 'All Friends';
 
-var win = Titanium.UI.currentWindow;
-win.backgroundColor = 'black';
+var cover = Titanium.UI.createView({
+	backgroundImage:'../images/scrollable_view/bg.png',
+	zIndex:5
+});
+win.add(cover);
+cover.animate({opacity:0,duration:2000});
 
-var view1 = Ti.UI.createView({
-	backgroundColor:'red',
-	width:260,
-	top:10,
-	bottom:10
-});
-var l1 = Ti.UI.createLabel({
-	text:'View 1',
-	color:'#fff',
-	width:'auto',
-	height:'auto'
-});
-view1.add(l1);
 
-var view2 = Ti.UI.createView({
-	backgroundColor:'blue',
-	width:260,
-	top:10,
-	bottom:10
+//
+// CREATE COMPOSE WINDOW/BUTTON
+//
+var composeWin = Ti.UI.createWindow({
+	top:5,
+	right:5,
+	height:39,
+	width:33
 });
-var l2 = Ti.UI.createLabel({
-	text:'View 2',
-	color:'#fff',
-	width:'auto',
-	height:'auto'
+var compose = Titanium.UI.createButton({
+	backgroundImage:'../images/scrollable_view/compose.png',
+	height:39,
+	width:33,
 });
-view2.add(l2);
+composeWin.add(compose);
+composeWin.open();
+compose.addEventListener('click', function()
+{
+	var win2 = Titanium.UI.createWindow({top:-400});
+	var ta1 = Titanium.UI.createTextArea({
+		value:'',
+		height:220,
+		width:320,
+		top:40,
+		font:{fontSize:18,fontFamily:'Helvetica Neue', fontWeight:'bold'},
+		color:'#333',
+		textAlign:'left',
+		appearance:Titanium.UI.KEYBOARD_APPEARANCE_ALERT,	
+		keyboardType:Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION,
+		returnKeyType:Titanium.UI.RETURNKEY_EMERGENCY_CALL,
 
-var view3 = Ti.UI.createView({
-	backgroundColor:'green',
-	width:260,
-	top:10,
-	bottom:10
-});
-var l3 = Ti.UI.createLabel({
-	text:'View 3',
-	color:'#fff',
-	width:'auto',
-	height:'auto'
-});
-view3.add(l3);
+	});
+	win2.add(ta1);
+	
+	var cancel = Titanium.UI.createButton({
+		title:'Cancel',
+		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED		
+	});
+	cancel.addEventListener('click', function()
+	{
+		win2.animate({top:-400,duration:500}, function()
+		{
+			win2.close();
+		});
+		setTimeout(function()
+		{
+			ta1.blur();	
+		},50)
+	});
+	var send = Titanium.UI.createButton({
+		title:'Send',
+		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED		
+	});
 
-var view4 = Ti.UI.createView({
-	backgroundColor:'black',
-	width:260,
-	top:10,
-	bottom:10
-});
-var l4 = Ti.UI.createLabel({
-	text:'View 4',
-	color:'#fff',
-	width:'auto',
-	height:'auto'
-});
-view4.add(l4);
+	send.addEventListener('click', function()
+	{
+	});
 
+	var title = Titanium.UI.createButton({
+		title:'New Tweet',
+		style:Titanium.UI.iPhone.SystemButtonStyle.PLAIN		
+	});
+	var flexSpace = Titanium.UI.createButton({
+		systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+	});
+
+	var toolbar= Titanium.UI.createToolbar({
+		items:[cancel,flexSpace,title,flexSpace,send],
+		top:0,
+		borderTop:true,
+		borderBottom:true,
+		barColor:'#111',
+	});
+	win2.add(toolbar)
+	
+	win2.open({top:0,duration:400});
+	setTimeout(function()
+	{
+		ta1.focus();
+			
+	}, 100);
+	
+
+
+});
+
+var data = [];
+for (var i=0;i<20;i++)
+{
+	var row = Titanium.UI.createTableViewRow();
+	row.height = 69;
+	row.backgroundImage = '../images/scrollable_view/table_view_row.png';
+	
+	var label = Titanium.UI.createLabel({
+		color:'#fff',
+		font:{fontSize:14},
+		text:'Hello World',
+		top:5,
+		left:10
+	});
+	
+	row.add(label);
+	data.push(row);
+}
+var t = Ti.UI.create2DMatrix().scale(0.75);
+var tableview = Titanium.UI.createTableView({
+	data:data,
+	backgroundColor:'transparent',
+	separatorStyle:0,
+	transform:t,
+	top:-7,
+	visible:true
+});
+
+var data2 = [];
+for (var i=0;i<20;i++)
+{
+	var row = Titanium.UI.createTableViewRow();
+	row.height = 69;
+	row.backgroundImage = '../images/scrollable_view/table_view_row.png';
+	
+	var label = Titanium.UI.createLabel({
+		color:'#fff',
+		font:{fontSize:14},
+		text:'Hello World',
+		top:5,
+		left:10
+	});
+	
+	row.add(label);
+	data2.push(row);
+}
+var t2 = Ti.UI.create2DMatrix().scale(0.75);
+var tableview2 = Titanium.UI.createTableView({
+	data:data2,
+	backgroundColor:'transparent',
+	separatorStyle:0,
+	transform:t2,
+	visible:true
+});
+
+var data3 = [];
+for (var i=0;i<20;i++)
+{
+	var row = Titanium.UI.createTableViewRow();
+	row.height = 69;
+	row.backgroundImage = '../images/scrollable_view/table_view_row.png';
+	
+	var label = Titanium.UI.createLabel({
+		color:'#fff',
+		font:{fontSize:14},
+		text:'Hello World',
+		top:5,
+		left:10
+	});
+	Ti.API.info('ROW ADDED')
+	row.add(label);
+	data3.push(row);
+}
+var t3 = Ti.UI.create2DMatrix().scale(0.75);
+
+var tableview3 = Titanium.UI.createTableView({
+	data:data3,
+	backgroundColor:'transparent',
+	separatorStyle:0,
+	transform:t3,
+	visible:true,
+
+});
+
+win.add(tableview);
+win.add(tableview2);
+win.add(tableview3);
+
+var image1 = tableview.toImage();
+var image2 = tableview2.toImage();
+var image3 = tableview3.toImage();
+
+var iv1 = Ti.UI.createImageView({image:image1,height:290, width:240});
+var iv2 = Ti.UI.createImageView({image:image2,height:290, width:240});
+var iv3 = Ti.UI.createImageView({image:image3,height:290, width:240});
+
+tableview.visible = false;
+tableview2.visible = false;
+tableview3.visible = false;
 
 var scrollView = Titanium.UI.createScrollableView({
-	views:[view1,view2,view3,view4],
+	views:[iv1,iv2,iv3],
 	showPagingControl:true,
-	pagingControlHeight:30,
-	maxZoomScale:2.0,
-	top:20,
-	left:20,
-	right:20,
-	bottom:10,
-	clipViews:false
+	clipViews:false,
+	top:65,
+	left:30,
+	right:30,
+	height:330,
 });
-
 win.add(scrollView);
 
-var i=0;
-var activeView = view1;
-
-scrollView.addEventListener('scroll', function(e)
+iv1.addEventListener('singletap', function()
 {
-    activeView = e.view  // the object handle to the view that is about to become visible
-	i = e.currentPage;
-	Titanium.API.info("scroll called - current index " + i + ' active view ' + activeView);
-});
+	header.hide();
+	tableview.visible=true;
+	scrollView.visible=false;
+	win.showNavBar();
+	var t = Ti.UI.create2DMatrix();
+	tableview.animate({transform:t,duration:100});
+	
+})
+var header = Ti.UI.createLabel({
+	text:'All Friends',
+	color:'#fff',
+	font:{fontSize:17,fontWeight:'bold'},
+	top:50,
+	height:'auto',
+	width:'auto'
+	
+})
+win.add(header);
 
-
-// add button to dynamically add a view
-var add = Titanium.UI.createButton({
-	title:'Add',
-	style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
-});
-add.addEventListener('click',function()
-{
-	var newView = Ti.UI.createView({
-		backgroundColor:'purple'
-	});
-	var l = Ti.UI.createLabel({
-		text:'View ' + (scrollView.views.length+1),
-		color:'#fff',
-		width:'auto',
-		height:'auto'
-	});
-	newView.add(l);
-	scrollView.addView(newView);
-});
-
-// jump button to dynamically change go directly to a page (non-animated)
-var jump = Titanium.UI.createButton({
-	title:'Jump',
-	style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
-});
-jump.addEventListener('click',function()
-{
-	i = (scrollView.currentPage + 1) % scrollView.views.length;
-	scrollView.currentPage = i;
-});
-
-// change button to dynamically change a view
-var change = Titanium.UI.createButton({
-	title:'Change',
-	style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
-});
-change.addEventListener('click',function()
-{
-	var newView = Ti.UI.createView({
-		backgroundColor:'#ff9900'
-	});
-	var l = Ti.UI.createLabel({
-		text:'View (Changed) ' + (i+1),
-		color:'#fff',
-		height:'auto',
-		width:'auto'
-	});
-	newView.add(l);
-	var ar = [];
-	for (var x=0;x<scrollView.views.length;x++)
-	{
-		if (x==i)
-		{
-			Ti.API.info('SETTING TO NEW VIEW ' + x)
-			ar[x] = newView
-		}
-		else
-		{
-			Ti.API.info('SETTING TO OLD VIEW ' + x)
-
-			ar[x] = scrollView.views[x];
-		}
-	}
-	scrollView.views = ar;
-});
-
-// move scroll view left
-var left = Titanium.UI.createButton({
-	image:'../images/icon_arrow_left.png'
-});
-left.addEventListener('click', function(e)
-{
-	if (i == 0) return;
-	i--;
-	scrollView.scrollToView(i)
-});
-
-// move scroll view right
-var right = Titanium.UI.createButton({
-	image:'../images/icon_arrow_right.png'
-});
-right.addEventListener('click', function(e)
-{
-	if (i == (scrollView.views.length-1)) return;
-	i++;
-	scrollView.scrollToView(scrollView.views[i]);
-});
-var flexSpace = Titanium.UI.createButton({
-	systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
-});
-
-// set toolbar
-win.setToolbar([flexSpace,left,change,add,jump,right,flexSpace]);

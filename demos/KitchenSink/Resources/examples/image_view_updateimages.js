@@ -29,15 +29,3 @@ cartoonGuy.addEventListener('touchstart', function(e)
 	cartoonGuy.start();
 });
 
-cartoonGuy.addEventListener('touchmove', function(e)
-{
-	cartoonGuy.animate({center:{x:e.x,y:e.y}, duration:1});
-});
-
-cartoonGuy.addEventListener('touchend', function(e)
-{
-	Ti.API.info("touch stop called");
-	cartoonGuy.stop();
-	cartoonGuy.images=_WhenStillImgs;
-	cartoonGuy.start();	
-});

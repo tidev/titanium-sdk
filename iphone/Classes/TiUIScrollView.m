@@ -80,10 +80,7 @@
 		}
 		case TiDimensionTypeAuto:
 		{
-			for (TiUIView * thisChildView in subViews)
-			{
-				newContentSize.width = MAX(newContentSize.width,[thisChildView minimumParentWidthForWidth:newContentSize.width]);
-			}
+			newContentSize.width = MAX(newContentSize.width,AutoWidthForView(wrapperView, newContentSize.width));
 			break;
 		}
 	}
@@ -97,21 +94,7 @@
 		}
 		case TiDimensionTypeAuto:
 		{
-			minimumContentHeight = 0.0;
-			float verticalContentHeight = 0.0;
-			for (TiUIView * thisChildView in subViews)
-			{
-				CGFloat thisHeight = [thisChildView minimumParentHeightForWidth:newContentSize.width];
-				if (TiLayoutRuleIsVertical([thisChildView layout]->layout))
-				{
-					verticalContentHeight += thisHeight;
-				}
-				else
-				{
-					minimumContentHeight = MAX(minimumContentHeight,thisHeight);
-				}
-			}
-			minimumContentHeight = MAX(verticalContentHeight,minimumContentHeight);
+			minimumContentHeight = AutoHeightForView(wrapperView, newContentSize.width);
 			break;
 		}
 		default:

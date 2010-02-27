@@ -149,19 +149,28 @@
 	if (controller!=nil)
 	{
 		UINavigationController * ourNC = [controller navigationController];
+		UINavigationBar * ourNCBar = [ourNC navigationBar];
 		//TODO: do we need to be more flexible in the bar styles?
 		
 		if ([color isEqualToString:@"transparent"])
 		{
-			ourNC.navigationBar.barStyle = UIBarStyleBlackTranslucent;
-			ourNC.navigationBar.translucent = YES;
+			ourNCBar.barStyle = UIBarStyleBlackTranslucent;
+			ourNCBar.translucent = YES;
 		}
 		else 
 		{
 			UIColor *acolor = UIColorWebColorNamed(color);
-			ourNC.navigationBar.tintColor = acolor;
+			UIBarStyle newStyle = UIBarStyleDefault;
+			if (acolor != nil)
+			{
+				if ([ourNCBar barStyle] == UIBarStyleDefault)
+				{
+					newStyle = UIBarStyleBlack;
+				}
+			}
+			ourNCBar.barStyle = newStyle;
+			ourNCBar.tintColor = acolor;
 			ourNC.toolbar.tintColor = acolor;
-			ourNC.navigationBar.barStyle = UIBarStyleDefault;
 		}
 	}
 }
