@@ -105,7 +105,7 @@ for (var c=1;c<50;c++)
 		top:2,
 		height:30,
 		width:200,
-		text:'Fred Smith'
+		text:'Fred Smith '+c
 	});
 	user.addEventListener('click', function(e)
 	{
@@ -115,6 +115,8 @@ for (var c=1;c<50;c++)
 		// TODO: FIX UPDATE ROW
 		//tableView.updateRow(rowNum,updateRow,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.LEFT});				
 	});
+	
+	row.filter = user.text;
 	
 	user.rowNum = c;
 	row.add(user);
@@ -212,7 +214,8 @@ for (var c=1;c<50;c++)
 //
 tableView = Titanium.UI.createTableView({
 	data:data,
-	search:search	
+	search:search,
+	filterAttribute:'filter'
 });
 
 tableView.addEventListener('click', function(e)

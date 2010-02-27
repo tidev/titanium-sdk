@@ -11,7 +11,7 @@
 #import "TiUISearchBarProxy.h"
 #import "TiDimension.h"
 
-@interface TiUITableView : TiUIView<UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate> {
+@interface TiUITableView : TiUIView<UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiUIScrollView> {
 @private
 	UITableView *tableview;
 	NSMutableArray *sections;
@@ -19,6 +19,7 @@
 	BOOL editing;
 	BOOL autohideSearch;
 	BOOL searchHidden;
+	BOOL editable;
 	NSMutableArray * sectionIndex;
 	NSMutableDictionary * sectionIndexMap;
 	TiDimension rowHeight;
@@ -30,6 +31,8 @@
 	UITableView *searchTableView;
 	NSString * filterAttribute;
 	NSMutableArray * searchResultIndexes;
+	
+	id	lastFocusedView; //DOES NOT RETAIN.	
 }
 
 #pragma mark Framework

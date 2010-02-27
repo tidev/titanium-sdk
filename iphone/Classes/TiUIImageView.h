@@ -31,6 +31,8 @@
 	BOOL placeholderLoading;
 	CGFloat width;
 	CGFloat height;
+	CGFloat autoHeight;
+	CGFloat autoWidth;
 	NSInteger loadCount;
 	NSInteger readyCount;
 	NSInteger loadTotal;

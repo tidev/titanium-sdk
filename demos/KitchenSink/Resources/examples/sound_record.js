@@ -148,9 +148,36 @@ b2.addEventListener('click', function()
 		sound = Titanium.Media.createSound({sound:file});
 		sound.addEventListener('complete', function()
 		{
-			b2.title = 'Playback Record';
+			b2.title = 'Playback Recording';
 		});
 		sound.play();
 		b2.title = 'Stop Playback';
 	}
 });
+
+var switchLabel = Titanium.UI.createLabel({
+	text:'Hi-fidelity:',
+	width:'auto',
+	height:'auto',
+	textAlign:'center',
+	color:'#999',
+	bottom:115
+});
+var switcher = Titanium.UI.createSwitch({
+	value:false,
+	bottom:80,
+});
+
+switcher.addEventListener('change',function(e)
+{
+	if (!switcher.value)
+	{
+		recording.compression = Ti.Media.AUDIO_FORMAT_ULAW;
+	}
+	else
+	{
+		recording.compression = Ti.Media.AUDIO_FORMAT_LINEAR_PCM;
+	}
+});
+win.add(switchLabel);
+win.add(switcher);

@@ -16,6 +16,8 @@
 	TiUIView *view;
 	TiViewProxy *parent;
 	BOOL viewInitialized;
+	
+	CGFloat verticalLayoutBoundary;
 }
 
 @property(nonatomic,readonly) NSArray *children;

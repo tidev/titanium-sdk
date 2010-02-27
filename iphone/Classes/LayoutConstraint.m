@@ -307,8 +307,8 @@ void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint, UI
 	CGPoint resultCenter = PositionConstraintGivenSizeBoundsAddingResizing(constraint, resultBounds.size,
 			[[subView layer] anchorPoint], viewBounds.size, &resultMask);
 	
-	resultCenter.x += resultBounds.origin.x;
-	resultCenter.y += resultBounds.origin.y;
+	resultCenter.x += resultBounds.origin.x + viewBounds.origin.x;
+	resultCenter.y += resultBounds.origin.y + viewBounds.origin.y;
 	
 	[subView setAutoresizingMask:resultMask];
 	[subView setCenter:resultCenter];
@@ -330,6 +330,8 @@ void ReadConstraintFromDictionary(LayoutConstraint * constraint, NSDictionary * 
 		return;
 	}
 	//If the inputdict is null, this flows through properly.
+	constraint->layout = TiLayoutRuleFromObject([inputDict objectForKey:@"layout"]);
+
 	READ_CONSTRAINT(@"left",left);
 	READ_CONSTRAINT(@"right",right);
 	READ_CONSTRAINT(@"width",width);
@@ -340,7 +342,6 @@ void ReadConstraintFromDictionary(LayoutConstraint * constraint, NSDictionary * 
 	READ_CONSTRAINT(@"x",centerY);
 	READ_CONSTRAINT(@"y",centerX);
 	
-	constraint->layout = TiLayoutRuleFromObject([inputDict objectForKey:@"layout"]);
 }
 
 CGFloat WidthFromConstraintGivenWidth(LayoutConstraint * constraint, CGFloat viewWidth)

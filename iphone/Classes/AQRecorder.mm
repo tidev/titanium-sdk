@@ -199,6 +199,8 @@ void AQRecorder::SetupAudioFormat(UInt32 inFormatID)
 			mRecordFormat.mBitsPerChannel = 16;
 			mRecordFormat.mBytesPerPacket = mRecordFormat.mBytesPerFrame = (mRecordFormat.mBitsPerChannel / 8) * mRecordFormat.mChannelsPerFrame;
 			mRecordFormat.mFramesPerPacket = 1;
+			mRecordFormat.mChannelsPerFrame = 2;
+			mRecordFormat.mSampleRate = 11025;
 			break;
 		}
 		case kAudioFormatALaw:
@@ -207,6 +209,7 @@ void AQRecorder::SetupAudioFormat(UInt32 inFormatID)
 			mRecordFormat.mSampleRate = 8000;
 			mRecordFormat.mChannelsPerFrame = 1;
 			mRecordFormat.mFramesPerPacket = 1;
+			mRecordFormat.mBitsPerChannel = 8;
 			break;
 		}
 	}

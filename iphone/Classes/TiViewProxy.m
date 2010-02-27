@@ -93,14 +93,23 @@
 	}
 	if (view!=nil)
 	{
-		UIView *childView = [arg view];
+		TiUIView *childView = [(TiViewProxy *)arg view];
+		BOOL verticalNeedsRearranging = TiLayoutRuleIsVertical([childView layout]->layout);
 		if ([NSThread isMainThread])
 		{
 			[childView removeFromSuperview];
+			if (verticalNeedsRearranging)
+			{
+				[self layoutChildren];
+			}
 		}
 		else
 		{
 			[self performSelectorOnMainThread:@selector(removeFromSuperview) withObject:childView waitUntilDone:NO];
+			if (verticalNeedsRearranging)
+			{
+				[self performSelectorOnMainThread:@selector(layout) withObject:nil waitUntilDone:NO];
+			}
 		}
 	}
 }
@@ -374,29 +383,39 @@
 
 -(void)layoutChild:(TiViewProxy*)child;
 {
-	if (view!=nil)
+	if (view==nil)
 	{
-		CGRect bounds = [view bounds];
-
-		// layout out ourself
-		UIView *childView = [child view];
-	
-		if ([childView superview]!=view)
-		{
-			[view addSubview:childView];
-		}
-		
-		LayoutConstraint layout;
-		ReadConstraintFromDictionary(&layout,[child allProperties]);
-		[[child view] updateLayout:&layout withBounds:bounds];
-		
-		// tell our children to also layout
-		[child layoutChildren];
+		return;
 	}
+
+	CGRect bounds = [view bounds];
+
+	// layout out ourself
+	UIView *childView = [child view];
+
+	if ([childView superview]!=view)
+	{
+		[view addSubview:childView];
+	}
+	
+	LayoutConstraint ourLayoutConstraint;
+	ReadConstraintFromDictionary(&ourLayoutConstraint,[child allProperties]);
+
+	if(TiLayoutRuleIsVertical(ourLayoutConstraint.layout)){
+		bounds.origin.y += verticalLayoutBoundary;
+		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
+		verticalLayoutBoundary += bounds.size.height;
+	}
+
+	[[child view] updateLayout:&ourLayoutConstraint withBounds:bounds];
+	
+	// tell our children to also layout
+	[child layoutChildren];
 }
 
 -(void)layoutChildren
 {
+	verticalLayoutBoundary = 0.0;
 	// now ask each of our children for their view
 	if (self.children!=nil)
 	{

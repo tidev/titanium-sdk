@@ -3,7 +3,9 @@ var win = Ti.UI.currentWindow;
 var view = Ti.UI.createImageView({
 	url:'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png',
 	top:10,
-	left:10
+	left:10,
+	height:'auto',
+	width:'auto'
 });
 
 win.add(view);
