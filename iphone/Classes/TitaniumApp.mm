@@ -16,6 +16,7 @@
 TitaniumApp* sharedApp;
 
 NSString * const kTitaniumUserAgentPrefix = @"Appcelerator Titanium"; 
+extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 //
 // thanks to: http://www.restoroot.com/Blog/2008/10/18/crash-reporter-for-iphone-applications/
@@ -240,6 +241,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[xhrBridge shutdown];
 	RELEASE_TO_NIL(kjsBridge);
 	RELEASE_TO_NIL(xhrBridge);
+	RELEASE_TO_NIL(remoteNotification);
 }
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
@@ -249,13 +251,20 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[xhrBridge gc];
 }
 
+-(id)remoteNotification
+{
+	return remoteNotification;
+}
+
 #pragma mark Push Notification Delegates
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
 {
+	// NOTE: this is called when the app is *started* after receiving a push notification
 	if (remoteNotificationDelegate!=nil)
 	{
-		[remoteNotificationDelegate performSelector:@selector(application:didReceiveRemoteNotification:) withObject:application withObject:userInfo];
+		remoteNotification = [[userInfo objectForKey:@"aps"] retain];
+		[remoteNotificationDelegate performSelector:@selector(application:didReceiveRemoteNotification:) withObject:application withObject:remoteNotification];
 	}
 }
 
@@ -298,6 +307,11 @@ void MyUncaughtExceptionHandler(NSException *exception)
 //TODO: this should be compiled out in production mode
 -(void)showModalError:(NSString*)message
 {
+	if ([TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"])
+	{
+		NSLog(@"[ERROR] application received error: %@",message);
+		return;
+	}
 	ENSURE_UI_THREAD(showModalError,message);
 	TitaniumErrorController *error = [[[TitaniumErrorController alloc] initWithError:message] autorelease];
 	[controller presentModalViewController:error animated:YES];
