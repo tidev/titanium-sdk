@@ -19,6 +19,39 @@
 
 @implementation TiUtils
 
++(void)queueAnalytics:(NSString*)type name:(NSString*)name data:(NSDictionary*)data
+{
+	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+						   VAL_OR_NSNULL(type),@"type",
+						   VAL_OR_NSNULL(name),@"name",
+						   VAL_OR_NSNULL(data),@"data",
+						   nil];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTitaniumAnalyticsNotification object:nil userInfo:event];
+}
+
++(NSString *)UTCDateForDate:(NSDate*)data
+{
+	NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
+	NSTimeZone *timeZone = [NSTimeZone timeZoneWithName:@"UTC"];
+	[dateFormatter setTimeZone:timeZone];
+	//Example UTC full format: 2009-06-15T21:46:28.685+0000
+	[dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000"];
+	return [dateFormatter stringFromDate:[NSDate date]];
+}
+
++(NSString *)UTCDate
+{
+	return [TiUtils UTCDateForDate:[NSDate date]];
+}
+
++(NSString*)createUUID
+{
+	CFUUIDRef resultID = CFUUIDCreate(NULL);
+	NSString * resultString = (NSString *) CFUUIDCreateString(NULL, resultID);
+	CFRelease(resultID);
+	return [resultString autorelease];
+}
+
 +(TiFile*)createTempFile:(NSString*)extension
 {
 	return [TiFile createTempFile:extension];

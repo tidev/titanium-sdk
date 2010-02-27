@@ -4,31 +4,545 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
+#import "TiBase.h"
 #import "AnalyticsModule.h"
+#import "TiHost.h"
+#import "TitaniumApp.h"
+#import "ASIHTTPRequest.h"
+#import "SBJSON.h"
+#import <sys/utsname.h>
+
+//TODO:
+//
+// 1. geo
+// 2. internal feature events
+// 3. KS 
+// 4. device reg for push
+
+
+extern BOOL const TI_APPLICATION_ANALYTICS;
+extern NSString * const TI_APPLICATION_NAME;
+extern NSString * const TI_APPLICATION_DEPLOYTYPE;
+extern NSString * const TI_APPLICATION_ID;
+extern NSString * const TI_APPLICATION_VERSION;
+extern NSString * const TI_APPLICATION_GUID;
+
+
+#define TI_DB_WARN_ON_ATTEMPT_COUNT 5
+#define TI_DB_RETRY_INTERVAL_IN_SEC 15
+#define TI_DB_FLUSH_INTERVAL_IN_SEC 5
+
+////#define TI_ANALYTICS_URL "https://api.appcelerator.net/p/v2/mobile-track"
+#define TI_ANALYTICS_URL "http://localhost/analytics"
+
+// version of our analytics DB
+NSString * const TI_DB_VERSION = @"1";
 
 @implementation AnalyticsModule
 
-//TODO: force the Analytics module to be loaded on startup
-//TODO: make it configurable
+-(void)_destroy
+{
+	RELEASE_TO_NIL(database);
+	RELEASE_TO_NIL(retryTimer);
+	RELEASE_TO_NIL(flushTimer);
+	RELEASE_TO_NIL(url);
+	[super _destroy];
+}
+
+
+-(id)platform
+{
+	return [[[self pageContext] host] moduleNamed:@"Platform" context:[self pageContext]];
+}
+
+-(id)network 
+{
+	return [[[self pageContext] host] moduleNamed:@"Network" context:[self pageContext]];
+}
+
+#pragma mark Work
+
+-(void)backgroundFlushEventQueue
+{
+	// place the flush on a background thread so it doesn't need to block the main UI thread
+	[NSThread detachNewThreadSelector:@selector(flushEventQueue) toTarget:self withObject:nil];
+}
+
+-(void)flushEventQueue
+{
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
+	id online = [[self network] valueForKey:@"online"];
+	
+	// when we can't reach the network, we need to log our attempt, 
+	// set a retry timer and just bail...
+	
+	if ([TiUtils boolValue:online]==NO)
+	{
+		NSError *error = nil;
+
+		[database beginTransaction];
+		
+		// get the number of attempts
+		PLSqliteResultSet *rs = (PLSqliteResultSet*)[database executeQuery:@"select attempts from last_attempt"];
+		BOOL found = [rs next];
+		int count = found ? [rs intForColumn:@"attempts"] : 0;
+		[rs close];
+		
+		if (count == TI_DB_WARN_ON_ATTEMPT_COUNT)
+		{
+			NSLog(@"[ERROR] %d analytics events attempted with no luck",count);
+		}
+		
+		NSString *sql = count == 0 ? @"insert into last_attempt VALUES (?,?)" : @"update last_attempt set date = ?, attempts = ?";
+		PLSqlitePreparedStatement * statement = (PLSqlitePreparedStatement *) [database prepareStatement:sql error:&error];
+		[statement bindParameters:[NSArray arrayWithObjects:[NSDate date],NUMINT(count+1),nil]];
+		[statement executeUpdate];
+		[database commitTransaction];
+		
+		[statement close];
+		
+		if (retryTimer==nil)
+		{
+			// start our re-attempt timer
+			NSLog(@"[DEBUG] attempt to send analytics event but no network. will try again in %d seconds",TI_DB_RETRY_INTERVAL_IN_SEC);
+			retryTimer = [[NSTimer timerWithTimeInterval:TI_DB_RETRY_INTERVAL_IN_SEC target:self selector:@selector(backgroundFlushEventQueue) userInfo:nil repeats:YES] retain];
+			[[NSRunLoop mainRunLoop] addTimer:retryTimer forMode:NSDefaultRunLoopMode];
+		}
+		
+		if (flushTimer!=nil)
+		{
+			[flushTimer invalidate];
+			RELEASE_TO_NIL(flushTimer);
+		}
+		
+		[pool release];
+		return;
+	}
+
+	// we can cancel our timers
+	if (retryTimer!=nil)
+	{
+		[retryTimer invalidate];
+		RELEASE_TO_NIL(retryTimer);
+	}
+	if (flushTimer!=nil)
+	{
+		[flushTimer invalidate];
+		RELEASE_TO_NIL(flushTimer);
+	}
+	
+	[database beginTransaction];
+	
+	NSMutableArray *data = [NSMutableArray array];
+	
+	SBJSON *json = [[SBJSON alloc] init];
+	
+	PLSqliteResultSet *rs = (PLSqliteResultSet*)[database executeQuery:@"SELECT data FROM pending_events"];
+	while ([rs next])
+	{
+		NSString *event = [rs stringForColumn:@"data"];
+		id frag = [json fragmentWithString:event error:nil];
+		[data addObject:frag];
+	}
+	[rs close];
+	
+	if (url == nil)
+	{
+		url = [[NSURL URLWithString:[NSString stringWithCString:TI_ANALYTICS_URL encoding:NSUTF8StringEncoding]] retain];
+	}
+	
+	ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
+	[request setRequestMethod:@"POST"];
+	[request addRequestHeader:@"text/json" value:@"Content-Type"];
+	[request addRequestHeader:[[TitaniumApp app] userAgent] value:@"User-Agent"];
+	//TODO: need to update backend to accept compressed bodies
+	//[request setShouldCompressRequestBody:YES];
+	[request setTimeOutSeconds:5];
+	[request setShouldPresentAuthenticationDialog:NO];
+	[request setUseSessionPersistance:NO];
+	[request appendPostData:[[SBJSON stringify:data] dataUsingEncoding:NSUTF8StringEncoding]];
+	[request setDelegate:self];
+	
+	@try 
+	{
+		// run synchronous ... we are either in a sync call or
+		// we're on a background timer thread
+		[request start];
+		
+		NSData *data = [request responseData];
+		if (data!=nil && [data length]>0) 
+		{
+			NSString * result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:[request responseEncoding]] autorelease];
+		
+			if (result!=nil)
+			{
+				NSLog(@"[DEBUG] analytics response %@",result);
+			}
+		}
+		
+		// if we get here, it succeeded and we can clean up records in DB
+		[database executeUpdate:@"delete from pending_events"];
+		[database executeUpdate:@"delete from last_attempt"];
+		
+		// only commit if we don't get an error
+		[database commitTransaction];
+	}
+	@catch (NSException * e) 
+	{
+		NSLog(@"[ERROR] error sending analytics. %@",e);
+		[database rollbackTransaction];
+	}
+	[pool release];
+}
+
+-(void)startFlushTimer
+{
+	if (flushTimer==nil)
+	{
+		flushTimer = [[NSTimer timerWithTimeInterval:TI_DB_FLUSH_INTERVAL_IN_SEC target:self selector:@selector(backgroundFlushEventQueue) userInfo:nil repeats:NO] retain];
+		[[NSRunLoop mainRunLoop] addTimer:flushTimer forMode:NSDefaultRunLoopMode];
+	}
+}
+
+-(void)queueEvent:(NSString*)type name:(NSString*)name data:(NSDictionary*)data immediate:(BOOL)immediate
+{
+	if (database==nil)
+	{
+		// doh, no database???
+		return;
+	}
+	
+	static int sequence = 0;
+	static NSString *sessionid;
+	if (sessionid==nil)
+	{
+		sessionid = [TiUtils createUUID];
+	}
+	
+	NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+	
+	[dict setObject:@"2" forKey:@"ver"];
+	[dict setObject:[TiUtils UTCDate] forKey:@"ts"];
+	[dict setObject:[TiUtils createUUID] forKey:@"id"];
+	[dict setObject:NUMINT(sequence++) forKey:@"seq"];
+	[dict setObject:[[UIDevice currentDevice] uniqueIdentifier] forKey:@"mid"];
+	[dict setObject:TI_APPLICATION_GUID forKey:@"aguid"];
+	[dict setObject:name forKey:@"event"];
+	[dict setObject:type forKey:@"type"];
+	[dict setObject:sessionid forKey:@"sid"];
+	if (data==nil)
+	{
+		[dict setObject:[NSNull null] forKey:@"data"];
+	}
+	else 
+	{
+		[dict setObject:data forKey:@"data"];
+	}
+	NSString *remoteDeviceUUID = [[TitaniumApp app] remoteDeviceUUID];
+	if (remoteDeviceUUID==nil)
+	{
+		[dict setObject:[NSNull null] forKey:@"rdu"];
+	}
+	else 
+	{
+		[dict setObject:remoteDeviceUUID forKey:@"rdu"];
+	}
+
+	
+	id value = [SBJSON stringify:dict];
+	
+	NSString *sql = [NSString stringWithFormat:@"INSERT INTO pending_events VALUES (?)"];
+	NSError *error = nil;
+	PLSqlitePreparedStatement * statement = (PLSqlitePreparedStatement *) [database prepareStatement:sql error:&error];
+	[statement bindParameters:[NSArray arrayWithObjects:value,nil]];
+	
+	[database beginTransaction];
+	[statement executeUpdate];
+	[database commitTransaction];
+	
+	[statement close];
+	
+	if (immediate)
+	{	
+		// if immediate we send right now
+		[self flushEventQueue];
+	}
+	else
+	{
+		// otherwise, we start our flush timer to send later
+		[self startFlushTimer];
+	}
+}
+
+-(NSString*)checkForEnrollment:(BOOL*)enrolled
+{
+	NSString * supportFolderPath = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+	NSString * folderPath = [supportFolderPath stringByAppendingPathComponent:@"analytics"];
+	NSFileManager * theFM = [NSFileManager defaultManager];
+	BOOL isDirectory;
+	BOOL exists = [theFM fileExistsAtPath:folderPath isDirectory:&isDirectory];
+	if (!exists) [theFM createDirectoryAtPath:folderPath withIntermediateDirectories:YES attributes:nil error:nil];
+	*enrolled = exists;
+	return folderPath;
+}
+
+-(void)loadDB:(NSString*)path create:(BOOL)create
+{
+	// make sure SQLite can run from multiple threads
+	sqlite3_enable_shared_cache(TRUE);
+
+	NSString *filepath = [NSString stringWithFormat:@"%@/analytics.db",path];
+	
+	database = [[PLSqliteDatabase alloc] initWithPath:filepath];
+	if (![database open])
+	{
+		NSLog(@"[ERROR] couldn't open analytics database");
+		RELEASE_TO_NIL(database);
+		return;
+	}
+	
+	[database beginTransaction];
+	[database executeUpdate:@"CREATE TABLE IF NOT EXISTS version (version INTEGER)"];
+
+	NSString *currentVersion = nil;
+	PLSqliteResultSet *rs = (PLSqliteResultSet*)[database executeQuery:@"SELECT version from version"];
+	currentVersion = [rs objectForColumn:@"version"];
+	[rs close];
+	
+	BOOL migrate = NO;
+	
+	if (currentVersion==nil||[currentVersion isKindOfClass:[NSNull class]])
+	{
+		migrate = YES;
+		[database executeUpdate:[NSString stringWithFormat:@"INSERT INTO version VALUES('%@')",TI_DB_VERSION]];
+	}
+	else if (currentVersion!=TI_DB_VERSION)
+	{
+		migrate = YES;
+	}
+
+	if (migrate)
+	{
+		[database executeUpdate:@"DROP TABLE IF EXISTS last_attempt"];
+		[database executeUpdate:@"DROP TABLE IF EXISTS pending_events"];
+		[database executeUpdate:@"CREATE TABLE IF NOT EXISTS last_attempt (date DATE, attempts INTEGER)"];
+		[database executeUpdate:@"CREATE TABLE IF NOT EXISTS pending_events (data TEXT)"];
+	}
+	
+	[database commitTransaction];
+}
+
+-(void)enroll
+{
+	id platform = [self platform];
+	
+	NSMutableDictionary *enrollment = [NSMutableDictionary dictionary];
+	
+	[enrollment setObject:[platform valueForKey:@"macaddress"] forKey:@"mac_addr"];
+	[enrollment setObject:[platform valueForKey:@"processorCount"] forKey:@"oscpu"];
+	[enrollment setObject:[platform valueForKey:@"ostype"] forKey:@"ostype"];
+	[enrollment setObject:[platform valueForKey:@"architecture"] forKey:@"osarch"];
+	[enrollment setObject:[platform valueForKey:@"model"] forKey:@"model"];
+	[enrollment setObject:TI_APPLICATION_NAME forKey:@"app_name"];
+	[enrollment setObject:TI_APPLICATION_DEPLOYTYPE forKey:@"deploytype"];
+	[enrollment setObject:TI_APPLICATION_ID forKey:@"app_id"];
+	[enrollment setObject:@"iphone" forKey:@"platform"];
+
+	[self queueEvent:@"ti.enroll" name:@"ti.enroll" data:enrollment immediate:NO];
+}
+
+-(void)begin
+{
+	BOOL enrolled = NO;
+	NSString *path = [self checkForEnrollment:&enrolled];
+	
+	[self loadDB:path create:enrolled==NO];
+	
+	if (enrolled==NO)
+	{
+		[self enroll];
+	}
+	
+	int tz = [[NSTimeZone systemTimeZone] secondsFromGMT] / 60; // get the timezone offset to UTC in minutes
+	struct utsname u;
+	uname(&u);
+	
+	id platform = [self platform];
+	id network = [self network];
+	
+	NSString * version = [NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding];
+	NSString * os = [platform valueForKey:@"version"];
+	NSString * username = [platform valueForKey:@"username"];
+	NSString * mmodel = [platform valueForKey:@"model"];
+	NSString * nettype = [network valueForKey:@"networkTypeName"];
+	
+	NSDictionary * data = [NSDictionary dictionaryWithObjectsAndKeys:
+						   NUMINT(tz),@"tz",
+						   TI_APPLICATION_DEPLOYTYPE,@"deploytype",
+						   @"iphone",@"os",
+						   version,@"version",
+						   VAL_OR_NSNULL(username),@"un",
+						   TI_APPLICATION_VERSION,@"app_version",
+						   os,@"osver",
+						   VAL_OR_NSNULL(nettype),@"nettype",
+						   VAL_OR_NSNULL(mmodel),@"model",
+						   nil
+						   ];
+	
+	[self queueEvent:@"ti.start" name:@"ti.start" data:data immediate:NO];
+}
+
+#pragma mark Lifecycle
 
 -(void)startup
 {
 	static bool AnalyticsStarted = NO;
 	
-	if (AnalyticsStarted)
+	NSLog(@"[DEBUG] Analytics is enabled = %@", (TI_APPLICATION_ANALYTICS==NO ? @"NO":@"YES"));
+	
+	if (AnalyticsStarted || TI_APPLICATION_ANALYTICS==NO)
 	{
 		return;
 	}
-	
+
 	AnalyticsStarted = YES;
 	
-	//TODO: schedule analytics
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(analyticsEvent:) name:kTitaniumAnalyticsNotification object:nil];
+	
+	[self begin];
+	[super startup];
 }
 
 -(void)shutdown:(id)sender
 {
-	//TODO: force sending of analytics
+	if (TI_APPLICATION_ANALYTICS)
+	{
+		[self queueEvent:@"ti.end" name:@"ti.end" data:nil immediate:YES];
+		[database close];
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTitaniumAnalyticsNotification object:nil];
+	}
+}
+
+#pragma mark Event Notification
+
+-(void)analyticsEvent:(NSNotification*)note
+{
+	id userInfo = [note userInfo];
+	if (userInfo!=nil && [userInfo isKindOfClass:[NSDictionary class]])
+	{
+		NSDictionary *event = (NSDictionary*)userInfo;
+		NSString *name = [event objectForKey:@"name"];
+		NSString *type = [event objectForKey:@"type"];
+		NSDictionary *data = [event objectForKey:@"data"];
+		[self queueEvent:type name:name data:data immediate:NO];
+	}
+	else
+	{
+		NSLog(@"[ERROR] invalid analytics event received. excepted dictionary. was: %@",[userInfo class]);
+	}
+}
+
+#pragma mark Helper methods
+
+-(NSDictionary*)dataToDictionary:(id)data
+{
+	if (data!=nil && [data isKindOfClass:[NSDictionary class]]==NO)
+	{
+		id value = [SBJSON stringify:data];
+		data = [NSDictionary dictionaryWithObject:value forKey:@"data"];
+	}
+	return data;
+}
+
+// internal event handler
+-(void)queueKeyValueEvent:(id)args type:(NSString*)type
+{
+	if ([args count] < 1)
+	{
+		[self throwException:@"invalid number of arguments, expected at least 1" subreason:nil location:CODELOCATION];
+		return;
+	}
+	NSString *event = [args objectAtIndex:0];
+	id data = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
+	NSDictionary *payload = [NSDictionary dictionaryWithObjectsAndKeys:[self dataToDictionary:data],@"data",nil];
+	
+	[self queueEvent:type name:event data:payload immediate:NO];
+}
+
+#pragma mark Public APIs
+
+-(void)addEvent:(id)args
+{
+	if ([args count] < 2)
+	{
+		[self throwException:@"invalid number of arguments, expected at least 2" subreason:nil location:CODELOCATION];
+		return;
+	}
+	NSString *type = [args objectAtIndex:0];
+	NSString *name = [args objectAtIndex:1];
+	id data = [args count] > 2 ? [args objectAtIndex:2] : [NSDictionary dictionary];
+	
+	[self queueEvent:type name:name data:[self dataToDictionary:data] immediate:NO];
+}
+
+-(void)navEvent:(id)args
+{
+	// from, to, event, data
+	if ([args count] < 2)
+	{
+		[self throwException:@"invalid number of arguments, expected at least 2" subreason:nil location:CODELOCATION];
+		return;
+	}
+	NSString *from = [args objectAtIndex:0];
+	NSString *to = [args objectAtIndex:1];
+	NSString *event = [args count] > 2 ? [args objectAtIndex:2] : @"";
+	id data = [args count] > 3 ? [args objectAtIndex:3] : [NSDictionary dictionary];
+	NSDictionary *payload = [NSDictionary dictionaryWithObjectsAndKeys:from,@"from",
+						   to,@"to",[self dataToDictionary:data],@"data",nil];
+	
+	[self queueEvent:@"app.nav" name:event data:payload immediate:NO];
+}
+
+-(void)timedEvent:(id)args
+{
+	// event, start, stop, duration, data
+	if ([args count] < 4)
+	{
+		[self throwException:@"invalid number of arguments, expected at least 4" subreason:nil location:CODELOCATION];
+		return;
+	}
+	NSString *event = [args objectAtIndex:0];
+	NSDate *start = [args objectAtIndex:1];	
+	NSDate *stop = [args objectAtIndex:2];
+	ENSURE_TYPE(start,NSDate);
+	ENSURE_TYPE(stop,NSDate);
+	
+	id duration = [args objectAtIndex:3];
+	id data = [args count] > 4 ? [args objectAtIndex:4] : [NSDictionary dictionary];
+	
+	NSDictionary *payload = [NSDictionary dictionaryWithObjectsAndKeys:
+							 [TiUtils UTCDateForDate:start],@"start",
+							 [TiUtils UTCDateForDate:stop],@"stop",
+							 duration,@"duration",
+							 [self dataToDictionary:data],@"data",nil];
+	
+	[self queueEvent:@"app.timed_event" name:event data:payload immediate:NO];
+}
+
+-(void)featureEvent:(id)args
+{
+	[self queueKeyValueEvent:args type:@"app.feature"];
+}
+
+-(void)settingsEvent:(id)args
+{
+	[self queueKeyValueEvent:args type:@"app.settings"];
+}
+
+-(void)userEvent:(id)args
+{
+	[self queueKeyValueEvent:args type:@"app.user"];
 }
 
 @end

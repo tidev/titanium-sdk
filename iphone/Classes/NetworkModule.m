@@ -7,58 +7,76 @@
 
 #import "NetworkModule.h"
 #import "Reachability.h"
+#import "TitaniumApp.h"
+#import "SBJSON.h"
 
 @implementation NetworkModule
 
--(id)init
+-(void)startReachability
 {
-	if (self = [super init])
-	{
-		[[Reachability reachabilityForInternetConnection] startNotifer];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:@"kNetworkReachabilityChangedNotification" object:nil];
-		[self updateReachabilityStatus];
-	}
-	return self;
+	NSAssert([NSThread currentThread],@"not on the main thread for startReachability");
+	// reachability runs on the current run loop so we need to make sure we're
+	// on the main UI thread
+	reachability = [[Reachability reachabilityForInternetConnection] retain];
+	[reachability startNotifer];
+	[self updateReachabilityStatus];
 }
 
--(void)dealloc
+-(void)stopReachability
 {
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:@"kNetworkReachabilityChangedNotification" object:nil];
-	RELEASE_TO_NIL(remoteDeviceUUID);
-	[super dealloc];
+	NSAssert([NSThread currentThread],@"not on the main thread for stopReachability");
+	[reachability stopNotifer];
+	RELEASE_TO_NIL(reachability);
+}
+
+-(void)_configure
+{
+	[super _configure];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
+	[self performSelectorOnMainThread:@selector(startReachability) withObject:nil waitUntilDone:NO];
+}
+
+-(void)_destroy
+{
+	[self performSelectorOnMainThread:@selector(stopReachability) withObject:nil waitUntilDone:NO];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kReachabilityChangedNotification object:nil];
+	RELEASE_TO_NIL(pushNotificationCallback);
+	RELEASE_TO_NIL(pushNotificationError);
+	RELEASE_TO_NIL(pushNotificationSuccess);
+	[super _destroy];
 }
 
 -(void)updateReachabilityStatus
 {
-	NetworkStatus status = [[Reachability reachabilityForInternetConnection] currentReachabilityStatus];
+	NetworkStatus status = [reachability currentReachabilityStatus];
 	switch(status)
 	{
 		case NotReachable:
 		{
-			state = NetworkModuleConnectionStateNone;
+			state = TiNetworkConnectionStateNone;
 			break;
 		}
 		case ReachableViaWiFi:
 		{
-			state = NetworkModuleConnectionStateWifi;
+			state = TiNetworkConnectionStateWifi;
 			break;
 		}
 		case ReachableViaWWAN:
 		{
-			state = NetworkModuleConnectionStateMobile;
+			state = TiNetworkConnectionStateMobile;
 			break;
 		}
 		default:
 		{
-			state = NetworkModuleConnectionStateUnknown;
+			state = TiNetworkConnectionStateUnknown;
 			break;
 		}
 	}
 	if ([self _hasListeners:@"change"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-							   [self networkType], @"networkType",
-							   [self online], @"online",
+							   NUMINT([self networkType]), @"networkType",
+							   NUMBOOL([self online]), @"online",
 							   [self networkTypeName], @"networkTypeName",
 							   nil];
 		[self fireEvent:@"change" withObject:event];
@@ -106,63 +124,131 @@
 
 - (NSString*) remoteDeviceUUID
 {
-	//TODO: notifications, send device uuid
-	return remoteDeviceUUID;
+	return [[TitaniumApp app] remoteDeviceUUID];
 }
 
--(NSNumber*)online
+-(BOOL)online
 {
-	if (state!=NetworkModuleConnectionStateNone && state!=NetworkModuleConnectionStateUnknown)
+	if (state!=TiNetworkConnectionStateNone && state!=TiNetworkConnectionStateUnknown)
 	{
-		return [NSNumber numberWithBool:YES];
+		return YES;
 	}
-	return [NSNumber numberWithBool:NO];
+	return NO;
 }
 
 -(NSString*)networkTypeName
 {
 	switch(state)
 	{
-		case NetworkModuleConnectionStateNone:
+		case TiNetworkConnectionStateNone:
 			return @"NONE";
-		case NetworkModuleConnectionStateWifi:
+		case TiNetworkConnectionStateWifi:
 			return @"WIFI";
-		case NetworkModuleConnectionStateLan:
+		case TiNetworkConnectionStateLan:
 			return @"LAN";
-		case NetworkModuleConnectionStateMobile:
+		case TiNetworkConnectionStateMobile:
 			return @"MOBILE";
 	}
 	return @"UNKNOWN";
 }
 
--(NSNumber*)networkType
+-(NSInteger)networkType
 {
-	return [NSNumber numberWithInt:state];
+	return state;
 }
 
--(NSNumber*)NETWORK_NONE
+MAKE_SYSTEM_PROP_INT(NETWORK_NONE,TiNetworkConnectionStateNone);
+MAKE_SYSTEM_PROP_INT(NETWORK_WIFI,TiNetworkConnectionStateWifi);
+MAKE_SYSTEM_PROP_INT(NETWORK_MOBILE,TiNetworkConnectionStateMobile);
+MAKE_SYSTEM_PROP_INT(NETWORK_LAN,TiNetworkConnectionStateLan);
+MAKE_SYSTEM_PROP_INT(NETWORK_UNKNOWN,TiNetworkConnectionStateUnknown);
+
+MAKE_SYSTEM_PROP_INT(NOTIFICATION_TYPE_BADGE,1);
+MAKE_SYSTEM_PROP_INT(NOTIFICATION_TYPE_ALERT,2);
+MAKE_SYSTEM_PROP_INT(NOTIFICATION_TYPE_SOUND,3);
+
+#pragma mark Push Notifications 
+
+-(void)registerForPushNotifications:(id)args
 {
-	return [NSNumber numberWithInt:NetworkModuleConnectionStateNone];
+	ENSURE_DICT(args);
+	
+	UIApplication * app = [UIApplication sharedApplication];
+	UIRemoteNotificationType ourNotifications = [app enabledRemoteNotificationTypes];
+	
+	NSArray *typesRequested = [args objectForKey:@"types"];
+	
+	RELEASE_TO_NIL(pushNotificationCallback);
+	RELEASE_TO_NIL(pushNotificationError);
+	RELEASE_TO_NIL(pushNotificationSuccess);
+	
+	pushNotificationSuccess = [[args objectForKey:@"success"] retain];
+	pushNotificationError = [[args objectForKey:@"error"] retain];
+	pushNotificationCallback = [[args objectForKey:@"callback"] retain];
+	
+	if (typesRequested!=nil)
+	{
+		for (id thisTypeRequested in typesRequested) 
+		{
+			NSInteger value = [TiUtils intValue:thisTypeRequested];
+			switch(value)
+			{
+				case 1: //NOTIFICATION_TYPE_BADGE
+				{
+					ourNotifications |= UIRemoteNotificationTypeBadge;
+					break;
+				}
+				case 2: //NOTIFICATION_TYPE_ALERT
+				{
+					ourNotifications |= UIRemoteNotificationTypeAlert;
+					break;
+				}
+				case 3: //NOTIFICATION_TYPE_SOUND
+				{
+					ourNotifications |= UIRemoteNotificationTypeSound;
+					break;
+				}
+			}
+		}
+	}
+	
+	[[TitaniumApp app] setRemoteNotificationDelegate:self];
+	[app registerForRemoteNotificationTypes:ourNotifications];
 }
 
--(NSNumber*)NETWORK_WIFI
+#pragma mark Push Notification Delegates
+
+-(void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 {
-	return [NSNumber numberWithInt:NetworkModuleConnectionStateWifi];
+	// called by TitaniumApp
+	if (pushNotificationSuccess!=nil)
+	{
+		NSString *token = [[TitaniumApp app] remoteDeviceUUID];
+		NSDictionary *event = [NSDictionary dictionaryWithObject:token forKey:@"deviceToken"];
+		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationSuccess thisObject:nil];
+	}
+	
+	//TODO: fire register
 }
 
--(NSNumber*)NETWORK_MOBILE
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
 {
-	return [NSNumber numberWithInt:NetworkModuleConnectionStateMobile];
+	// called by TitaniumApp
+	if (pushNotificationCallback!=nil)
+	{
+		id event = [SBJSON stringify:userInfo];
+		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
+	}
 }
 
--(NSNumber*)NETWORK_LAN
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
 {
-	return [NSNumber numberWithInt:NetworkModuleConnectionStateLan];
-}
-
--(NSNumber*)NETWORK_UNKNOWN
-{
-	return [NSNumber numberWithInt:NetworkModuleConnectionStateUnknown];
+	// called by TitaniumApp
+	if (pushNotificationError!=nil)
+	{
+		NSDictionary *event = [NSDictionary dictionaryWithObject:[error description] forKey:@"error"];
+		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationError thisObject:nil];
+	}
 }
 
 @end

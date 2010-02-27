@@ -45,9 +45,9 @@ typedef enum {
 @property(nonatomic,retain) KrollCallback* onsendstream;
 
 // state information
-@property(nonatomic,readonly) NSNumber* status;
-@property(nonatomic,readonly) NSNumber* connected;
-@property(nonatomic,readonly) NSNumber* readyState;
+@property(nonatomic,readonly) NSInteger status;
+@property(nonatomic,readonly) BOOL connected;
+@property(nonatomic,readonly) NSInteger readyState;
 @property(nonatomic,readonly) NSString* responseText;
 @property(nonatomic,readonly) TiProxy* responseXML;	
 @property(nonatomic,readonly) TiBlob* responseData;	
@@ -55,11 +55,11 @@ typedef enum {
 @property(nonatomic,readonly) NSString* location;
 
 // constants
-@property(nonatomic,readonly) NSNumber* UNSENT;
-@property(nonatomic,readonly) NSNumber* OPENED;
-@property(nonatomic,readonly) NSNumber* HEADERS_RECEIVED;
-@property(nonatomic,readonly) NSNumber* LOADING;
-@property(nonatomic,readonly) NSNumber* DONE;
+@property(nonatomic,readonly) NSInteger UNSENT;
+@property(nonatomic,readonly) NSInteger OPENED;
+@property(nonatomic,readonly) NSInteger HEADERS_RECEIVED;
+@property(nonatomic,readonly) NSInteger LOADING;
+@property(nonatomic,readonly) NSInteger DONE;
 
 // public methods
 -(void)abort:(id)args;

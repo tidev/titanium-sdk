@@ -4,6 +4,7 @@ var data = [
 	{title:'Network', hasChild:true, test:'../examples/network.js'},
 	{title:'Logging', hasChild:true, test:'../examples/logging.js'},
 	{title:'Application Data', hasChild:true, test:'../examples/app_data.js'},
+	{title:'Application Events', hasChild:true, test:'../examples/app_events.js'},
 	{title:'Properties API', hasChild:true, test:'../examples/properties.js'},
 	{title:'Database', hasChild:true, test:'../examples/database.js'},
 	{title:'Platform Data', hasChild:true, test:'../examples/platform.js'},

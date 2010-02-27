@@ -14,6 +14,12 @@
 
 }
 
++(NSString *)UTCDateForDate:(NSDate*)data;
+
++(NSString *)UTCDate;
+
++(NSString*)createUUID;
+
 +(TiFile*)createTempFile:(NSString*)extension;
 
 +(NSData *)loadAppResource:(NSURL*)url;
@@ -140,9 +146,10 @@
 
 +(CGRect)centerRect:(CGRect)smallerRect inRect:(CGRect)largerRect;
 
-
 +(void)setView:(UIView *)view positionRect:(CGRect)frameRect;
 
 +(CGRect)viewPositionRect:(UIView *)view;
+
++(void)queueAnalytics:(NSString*)type name:(NSString*)name data:(NSDictionary*)data;
 
 @end

@@ -56,6 +56,7 @@
 @property(nonatomic,readonly) NSNumber* AUDIO_RECEIVER_AND_MIC;
 @property(nonatomic,readonly) NSNumber* AUDIO_HEADPHONES_AND_MIC;
 @property(nonatomic,readonly) NSNumber* AUDIO_LINEOUT;
+@property(nonatomic,readonly) NSNumber* AUDIO_HEADPHONES;
 @property(nonatomic,readonly) NSNumber* AUDIO_SPEAKER;
 @property(nonatomic,readonly) NSNumber* AUDIO_MICROPHONE;
 @property(nonatomic,readonly) NSNumber* AUDIO_MUTED;

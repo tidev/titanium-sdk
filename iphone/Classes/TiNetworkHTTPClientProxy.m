@@ -95,26 +95,26 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	return @"[object TiNetworkClient]";
 }
 
--(NSNumber*)status
+-(NSInteger)status
 {
 	if (request!=nil)
 	{
-		return [NSNumber numberWithInt:[request responseStatusCode]];
+		return [request responseStatusCode];
 	}
 	else 
 	{
-		return [NSNumber numberWithInt:-1];
+		return -1;
 	}
 }
 
--(NSNumber*)readyState
+-(NSInteger)readyState
 {
-	return [NSNumber numberWithInt:readyState];
+	return readyState;
 }
 
--(NSNumber*)connected
+-(BOOL)connected
 {
-	return [NSNumber numberWithBool:connected];
+	return connected;
 }
 
 -(NSString*)responseText
@@ -177,29 +177,29 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	return [[request url] absoluteString];
 }
 
--(NSNumber*)UNSENT
+-(NSInteger)UNSENT
 {
-	return [NSNumber numberWithInt:NetworkClientStateUnsent];
+	return NetworkClientStateUnsent;
 }
 
--(NSNumber*)OPENED
+-(NSInteger)OPENED
 {
-	return [NSNumber numberWithInt:NetworkClientStateOpened];
+	return NetworkClientStateOpened;
 }
 
--(NSNumber*)HEADERS_RECEIVED
+-(NSInteger)HEADERS_RECEIVED
 {
-	return [NSNumber numberWithInt:NetworkClientStateHeaders];
+	return NetworkClientStateHeaders;
 }
 
--(NSNumber*)LOADING
+-(NSInteger)LOADING
 {
-	return [NSNumber numberWithInt:NetworkClientStateLoading];
+	return NetworkClientStateLoading;
 }
 
--(NSNumber*)DONE
+-(NSInteger)DONE
 {
-	return [NSNumber numberWithInt:NetworkClientStateDone];
+	return NetworkClientStateDone;
 }
 
 -(void)_fireReadyStateChange:(NetworkClientState) state

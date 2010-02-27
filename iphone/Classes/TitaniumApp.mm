@@ -71,7 +71,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 @implementation TitaniumApp
 
-@synthesize window;
+@synthesize window, remoteNotificationDelegate;
 
 + (TitaniumApp*)app
 {
@@ -249,6 +249,47 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[xhrBridge gc];
 }
 
+#pragma mark Push Notification Delegates
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
+{
+	if (remoteNotificationDelegate!=nil)
+	{
+		[remoteNotificationDelegate performSelector:@selector(application:didReceiveRemoteNotification:) withObject:application withObject:userInfo];
+	}
+}
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+	NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"withString:@""] 
+						stringByReplacingOccurrencesOfString:@">" withString:@""] 
+					   stringByReplacingOccurrencesOfString: @" " withString: @""];
+	remoteDeviceUUID = [token copy];
+	
+	NSString *curKey = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
+	if (curKey==nil || ![curKey isEqualToString:remoteDeviceUUID])
+	{
+		// this is the first time being registered, we need to indicate to our backend that we have a 
+		// new registered device to enable this device to receive notifications from the cloud
+		[[NSUserDefaults standardUserDefaults] setObject:remoteDeviceUUID forKey:@"APNSRemoteDeviceUUID"];
+		NSLog(@"[DEBUG] registered new device ready for remote push notifications: %@",remoteDeviceUUID);
+	}
+	
+	if (remoteNotificationDelegate!=nil)
+	{
+		[remoteNotificationDelegate performSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:) withObject:application withObject:deviceToken];
+	}
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
+{
+	if (remoteNotificationDelegate!=nil)
+	{
+		[remoteNotificationDelegate performSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:) withObject:application withObject:error];
+	}
+}
+
+
 -(TitaniumViewController*)controller
 {
 	return controller;
@@ -310,6 +351,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(networkActivity);
 	RELEASE_TO_NIL(userAgent);
+	RELEASE_TO_NIL(remoteDeviceUUID);
     [super dealloc];
 }
 
@@ -328,6 +370,11 @@ void MyUncaughtExceptionHandler(NSException *exception)
 -(BOOL)isKeyboardShowing
 {
 	return keyboardShowing;
+}
+
+-(NSString*)remoteDeviceUUID
+{
+	return remoteDeviceUUID;
 }
 
 #pragma mark Keyboard Delegates

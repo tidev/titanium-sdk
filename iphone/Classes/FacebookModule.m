@@ -314,7 +314,7 @@
 	if (permissions==nil)
 	{
 		pendingPermissions = YES;
-	  	NSDictionary* params = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"select status_update,photo_upload,sms,create_listing,email,create_event,rsvp_event,publish_stream,read_stream,share_item,create_note from permissions where uid = %@",[self userId]] forKey:@"query"];
+	  	NSDictionary* params = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"select status_update,photo_upload,sms,email,create_event,rsvp_event,publish_stream,read_stream,share_item,create_note from permissions where uid = %@",[self userId]] forKey:@"query"];
 		FBPermissionPrefetch *prefetch = [[FBPermissionPrefetch alloc] initWithModule:self];
 	  	[[FBRequest requestWithDelegate:prefetch] call:@"facebook.fql.query" params:params];
 	}
@@ -372,9 +372,9 @@
 {
 	if (session!=nil)
 	{
-		return NUMLONGLONG([session uid]);
+		return [NSNumber numberWithUnsignedLongLong:[session uid]];
 	}
-	return NUMINT(0);
+	return NUMLONG(0);
 }
 
 - (void)query:(id)args
@@ -402,7 +402,6 @@
 	NSString *target = [TiUtils stringValue:[args objectAtIndex:2]];
 	KrollCallback *callback = [args objectAtIndex:3];
 
-	
 	FBStreamCallback *cb = [[FBStreamCallback alloc] initWithCallback:callback module:self title:title data:data target:target session:session];
 	[self performSelectorOnMainThread:@selector(showDialog:) withObject:cb waitUntilDone:NO];
 }
@@ -571,18 +570,18 @@
 	}
 }
 
-- (NSNumber*)hasPermission:(id)permission
+- (BOOL)hasPermission:(id)permission
 {
 	ENSURE_SINGLE_ARG(permission,NSString);
 	
 	[lock lock];
-	NSNumber *result = [NSNumber numberWithBool:NO];
+	BOOL result = NO;
 	if (permissions!=nil)
 	{
 		NSNumber *value = [permissions objectForKey:permission];
 		if (value!=nil && [value respondsToSelector:@selector(boolValue)] && [value boolValue])
 		{
-			result = [NSNumber numberWithBool:YES];
+			result = YES;
 		}
 	}
 	[lock unlock];
@@ -614,8 +613,8 @@
 	[super startup];
 }
 
-MAKE_SYSTEM_PROP(LOGIN_BUTTON_STYLE_WIDE,FBLoginButtonStyleWide);
-MAKE_SYSTEM_PROP(LOGIN_BUTTON_STYLE_NORMAL,FBLoginButtonStyleNormal);
+MAKE_SYSTEM_PROP_INT(LOGIN_BUTTON_STYLE_WIDE,FBLoginButtonStyleWide);
+MAKE_SYSTEM_PROP_INT(LOGIN_BUTTON_STYLE_NORMAL,FBLoginButtonStyleNormal);
 				 
 
 

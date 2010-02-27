@@ -234,6 +234,11 @@ if (((x)<(minX)) || ((x)>(maxX))) \
 #define THROW_INVALID_ARG(m) \
 [self throwException:TiExceptionInvalidType subreason:m location:CODELOCATION]; \
 
+#define MAKE_SYSTEM_PROP_INT(name,map) \
+-(NSInteger)name \
+{\
+return map;\
+}\
 
 #define MAKE_SYSTEM_PROP(name,map) \
 -(NSNumber*)name \
@@ -374,9 +379,20 @@ return value;\
 	}\
 }
 
+#define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
+
 NSData * dataWithHexString (NSString * hexString);
 NSString * hexString (NSData * thedata);
+
+typedef enum {
+	TiNetworkConnectionStateNone = 0,
+	TiNetworkConnectionStateWifi = 1,
+	TiNetworkConnectionStateMobile = 2,
+	TiNetworkConnectionStateLan = 3,
+	TiNetworkConnectionStateUnknown = 4,	
+} TiNetworkConnectionState;
 
 
 extern NSString * const kKrollShutdownNotification;
 extern NSString * const kTitaniumShutdownNotification;
+extern NSString * const kTitaniumAnalyticsNotification;

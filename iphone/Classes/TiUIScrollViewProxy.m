@@ -40,7 +40,7 @@
 {
 	if ([self viewAttached])
 	{
-		[[self view] setVerticalLayoutBoundary:0.0];
+		[(TiUIScrollView*)[self view] setVerticalLayoutBoundary:0.0];
 	}
 	[super layoutChildren];
 }

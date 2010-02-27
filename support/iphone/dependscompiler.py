@@ -82,6 +82,8 @@ class DependencyCompiler(object):
 		start_time = time.time()
 		import_depends.append('TitaniumModule')
 		import_depends.append('AnalyticsModule')
+		import_depends.append('PlatformModule')
+		import_depends.append('NetworkModule')
 		# these are needed for app routing and aren't imported in code
 		import_depends.append('Base64Transcoder') 
 		import_depends.append('NSData+Additions')

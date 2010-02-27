@@ -6,8 +6,9 @@
  */
 
 #import "PlatformModule.h"
-
 #import "IPAddress.h"
+#import "TitaniumApp.h"
+
 #import <sys/sysctl.h>  
 #import <mach/mach.h>
 #import <sys/utsname.h>
@@ -187,10 +188,7 @@
 
 - (NSString *)createUUID:(id)args
 {
-	CFUUIDRef resultID = CFUUIDCreate(NULL);
-	NSString * resultString = (NSString *) CFUUIDCreateString(NULL, resultID);
-	CFRelease(resultID);
-	return [resultString autorelease];
+	return [TiUtils createUUID];
 }
 
 - (NSNumber*)availableMemory
@@ -253,6 +251,7 @@ MAKE_SYSTEM_PROP(BATTERY_STATE_UNPLUGGED,UIDeviceBatteryStateUnplugged);
 MAKE_SYSTEM_PROP(BATTERY_STATE_CHARGING,UIDeviceBatteryStateCharging);
 MAKE_SYSTEM_PROP(BATTERY_STATE_FULL,UIDeviceBatteryStateFull);
 
+
 #pragma mark Delegates
 
 -(void)batteryStateChanged:(NSNotification*)note
@@ -266,5 +265,6 @@ MAKE_SYSTEM_PROP(BATTERY_STATE_FULL,UIDeviceBatteryStateFull);
 	RELEASE_TO_NIL(capabilities);
 	[super didReceiveMemoryWarning:notification];
 }
+
 
 @end

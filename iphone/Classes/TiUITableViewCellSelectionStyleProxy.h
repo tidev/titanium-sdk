@@ -4,16 +4,16 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import "TiProxy.h"
 
-#import "TiModule.h"
-#import "PlausibleDatabase.h"
+@interface TiUITableViewCellSelectionStyleProxy : TiProxy {
 
-@interface AnalyticsModule : TiModule {
 @private
-	PLSqliteDatabase* database;
-	NSTimer *retryTimer;
-	NSTimer *flushTimer;
-	NSURL *url;
+
 }
+
+@property(nonatomic,readonly) NSNumber* NONE;
+@property(nonatomic,readonly) NSNumber* BLUE;
+@property(nonatomic,readonly) NSNumber* GRAY;
 
 @end
