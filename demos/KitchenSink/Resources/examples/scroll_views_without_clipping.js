@@ -6,24 +6,13 @@ var win = Ti.UI.currentWindow;
 win.title = 'All Friends';
 
 var cover = Titanium.UI.createView({
-	backgroundImage:'../images/scrollable_view/bg.png'
+	backgroundImage:'../images/scrollable_view/bg.png',
 	zIndex:5
 });
 win.add(cover);
-cover.animate({opacity:0,duration:500});
+cover.animate({opacity:0,duration:2000});
 
-if (e.rowData.barColor)
-{
-	win.barColor = e.rowData.barColor;
-}
-if (e.rowData.hideNavBar)
-{
-	win.hideNavBar();
-}	
-if (e.rowData.bgImage)
-{
-	win.backgroundImage = e.rowData.bgImage;
-}
+
 //
 // CREATE COMPOSE WINDOW/BUTTON
 //
