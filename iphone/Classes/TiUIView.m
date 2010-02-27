@@ -66,7 +66,35 @@ void RestoreScrollViewFromKeyboard(UIScrollView * scrollView)
 	}
 }
 
+CGFloat AutoWidthForView(UIView * superView,CGFloat suggestedWidth)
+{
+	CGFloat result = 0.0;
+	for (TiUIView * thisChildView in [superView subviews])
+	{
+		result = MAX(result,[thisChildView minimumParentWidthForWidth:suggestedWidth]);
+	}
+	return result;
+}
 
+CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth)
+{
+	CGFloat neededAbsoluteHeight=0.0;
+	CGFloat neededVerticalHeight=0.0;
+
+	for (TiUIView * thisChildView in [superView subviews])
+	{
+		CGFloat thisHeight = [thisChildView minimumParentHeightForWidth:suggestedWidth];
+		if (TiLayoutRuleIsVertical([thisChildView layout]->layout))
+		{
+			neededVerticalHeight += thisHeight;
+		}
+		else
+		{
+			neededAbsoluteHeight = MAX(neededAbsoluteHeight,thisHeight);
+		}
+	}
+	return MAX(neededVerticalHeight,neededAbsoluteHeight);
+}
 
 
 
@@ -385,10 +413,7 @@ DEFINE_EXCEPTIONS
 			result += layout.width.value;
 			break;
 		case TiDimensionTypeAuto:
-			if ([self respondsToSelector:@selector(autoWidthForWidth:)])
-			{
-				result += [self autoWidthForWidth:suggestedWidth - result];
-			}
+			result += [self autoWidthForWidth:suggestedWidth - result];
 	}
 	return result;
 }
@@ -403,14 +428,21 @@ DEFINE_EXCEPTIONS
 			result += layout.height.value;
 			break;
 		case TiDimensionTypeAuto:
-			if ([self respondsToSelector:@selector(autoHeightForWidth:)])
-			{
-				suggestedWidth -= TiDimensionCalculateValue(layout.left, 0)
-						+ TiDimensionCalculateValue(layout.right, 0);
-				result += [self autoHeightForWidth:suggestedWidth];
-			}
+			suggestedWidth -= TiDimensionCalculateValue(layout.left, 0)
+					+ TiDimensionCalculateValue(layout.right, 0);
+			result += [self autoHeightForWidth:suggestedWidth];
 	}
 	return result;
+}
+
+-(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
+{
+	return MIN(suggestedWidth,AutoWidthForView(self, suggestedWidth));
+}
+
+-(CGFloat)autoHeightForWidth:(CGFloat)width
+{
+	return AutoHeightForView(self, width);
 }
 
 -(void)updateTransform
