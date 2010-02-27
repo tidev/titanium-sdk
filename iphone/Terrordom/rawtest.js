@@ -10,8 +10,12 @@ var label = Titanium.UI.createLabel({
 	text:'Click the rectangle to animate its width to 50 pixels over 1 second.\n\nShould be anchorPoint top-left\n set using:\nanchorPoint:{x:0,y:0}',
 	top:20,
 	width:290,
-	color:'#999',
-	textAlign:'center'
+	borderWidth:1,
+	borderColor:'#444',
+	height:'auto',
+	color:'#000',
+	textAlign:'center',
+	layout:'vertical'
 });
 
 win.add(label);
@@ -24,9 +28,10 @@ var rectangle = Titanium.UI.createView({
 	borderWidth:1,
 	borderColor:'#444',
 	backgroundColor:'#FF0',
-	top:200,
+	top:20,
 //	center:{x:0,y:0},
-	anchorPoint:{x:0,y:0}
+	anchorPoint:{x:0,y:0},
+	layout:'vertical'
 });
 
 win.add(rectangle);

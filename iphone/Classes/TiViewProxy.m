@@ -403,7 +403,7 @@
 
 	if(TiLayoutRuleIsVertical(ourLayoutConstraint.layout)){
 		bounds.origin.y += verticalLayoutBoundary;
-		bounds.size.height = [view minimumParentHeightForWidth:bounds.size.width];
+		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
 		verticalLayoutBoundary += bounds.size.height;
 	}
 
