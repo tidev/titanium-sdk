@@ -162,12 +162,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 
 
-static int tiProxyId = 0;
-
-
 @implementation TiProxy
 
-@synthesize pageContext, executionContext, proxyId;
+@synthesize pageContext, executionContext;
 @synthesize modelDelegate;
 
 
@@ -198,7 +195,6 @@ static int tiProxyId = 0;
 	if (self = [self init])
 	{
 		pageContext = (id)context; // do not retain 
-		proxyId = [[NSString stringWithFormat:@"proxy$%d",tiProxyId++] retain];
 
 		contextListeners = [[NSMutableDictionary alloc] init];
 		if (context!=nil)
@@ -211,9 +207,6 @@ static int tiProxyId = 0;
 			[contextListeners setObject:pageContext forKey:[pageContext description]];
 		}
 		
-		// register our proxy
-		[[pageContext host] registerProxy:self];
-
 		// allow subclasses to configure themselves
 		[self _configure];
 	}
@@ -382,11 +375,6 @@ static int tiProxyId = 0;
 		}
 		[contextListeners removeAllObjects];
 	}
-	if (pageContext!=nil && proxyId!=nil)
-	{
-		[[self _host] unregisterProxy:proxyId];
-		proxyId = nil;
-	}
 	if (dynprops!=nil)
 	{
 		[dynPropsLock lock];
@@ -394,7 +382,6 @@ static int tiProxyId = 0;
 		[dynPropsLock unlock];
 	}
 	[listeners removeAllObjects];
-	RELEASE_TO_NIL(proxyId);
 	RELEASE_TO_NIL(dynprops);
 	RELEASE_TO_NIL(listeners);
 	RELEASE_TO_NIL(baseURL);

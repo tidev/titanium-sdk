@@ -18,7 +18,6 @@ typedef enum {
 @interface NetworkModule : TiModule {
 @private
 	NetworkModuleConnectionState state;
-	NSString *remoteDeviceUUID;
 }
 
 @property(nonatomic,readonly) NSNumber* online;
@@ -31,6 +30,10 @@ typedef enum {
 @property(nonatomic,readonly) NSNumber* NETWORK_MOBILE;
 @property(nonatomic,readonly) NSNumber* NETWORK_LAN;
 @property(nonatomic,readonly) NSNumber* NETWORK_UNKNOWN;
+
+@property(nonatomic,readonly) NSString* NOTIFICATION_TYPE_BADGE;
+@property(nonatomic,readonly) NSString* NOTIFICATION_TYPE_ALERT;
+@property(nonatomic,readonly) NSString* NOTIFICATION_TYPE_SOUND;
 
 
 -(id)encodeURIComponent:(id)args;

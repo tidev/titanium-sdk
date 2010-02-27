@@ -7,6 +7,7 @@
 
 #import "NetworkModule.h"
 #import "Reachability.h"
+#import "TitaniumApp.h"
 
 @implementation NetworkModule
 
@@ -24,7 +25,6 @@
 -(void)dealloc
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:@"kNetworkReachabilityChangedNotification" object:nil];
-	RELEASE_TO_NIL(remoteDeviceUUID);
 	[super dealloc];
 }
 
@@ -106,17 +106,16 @@
 
 - (NSString*) remoteDeviceUUID
 {
-	//TODO: notifications, send device uuid
-	return remoteDeviceUUID;
+	return [[TitaniumApp app] remoteDeviceUUID];
 }
 
 -(NSNumber*)online
 {
 	if (state!=NetworkModuleConnectionStateNone && state!=NetworkModuleConnectionStateUnknown)
 	{
-		return [NSNumber numberWithBool:YES];
+		return NUMBOOL(YES);
 	}
-	return [NSNumber numberWithBool:NO];
+	return NUMBOOL(NO);
 }
 
 -(NSString*)networkTypeName
@@ -137,32 +136,18 @@
 
 -(NSNumber*)networkType
 {
-	return [NSNumber numberWithInt:state];
+	return NUMINT(state);
 }
 
--(NSNumber*)NETWORK_NONE
-{
-	return [NSNumber numberWithInt:NetworkModuleConnectionStateNone];
-}
+MAKE_SYSTEM_PROP(NETWORK_NONE,NetworkModuleConnectionStateNone);
+MAKE_SYSTEM_PROP(NETWORK_WIFI,NetworkModuleConnectionStateWifi);
+MAKE_SYSTEM_PROP(NETWORK_MOBILE,NetworkModuleConnectionStateMobile);
+MAKE_SYSTEM_PROP(NETWORK_LAN,NetworkModuleConnectionStateLan);
+MAKE_SYSTEM_PROP(NETWORK_UNKNOWN,NetworkModuleConnectionStateUnknown);
 
--(NSNumber*)NETWORK_WIFI
-{
-	return [NSNumber numberWithInt:NetworkModuleConnectionStateWifi];
-}
+MAKE_SYSTEM_STR(NOTIFICATION_TYPE_BADGE,@"badge");
+MAKE_SYSTEM_STR(NOTIFICATION_TYPE_ALERT,@"alert");
+MAKE_SYSTEM_STR(NOTIFICATION_TYPE_SOUND,@"sound");
 
--(NSNumber*)NETWORK_MOBILE
-{
-	return [NSNumber numberWithInt:NetworkModuleConnectionStateMobile];
-}
-
--(NSNumber*)NETWORK_LAN
-{
-	return [NSNumber numberWithInt:NetworkModuleConnectionStateLan];
-}
-
--(NSNumber*)NETWORK_UNKNOWN
-{
-	return [NSNumber numberWithInt:NetworkModuleConnectionStateUnknown];
-}
 
 @end

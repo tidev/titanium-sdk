@@ -73,12 +73,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	NSRecursiveLock *dynPropsLock;
 	id<TiEvaluator> pageContext;
 	id<TiEvaluator> executionContext;
-	NSString *proxyId;
 }
 
 @property(readonly,nonatomic)			id<TiEvaluator> pageContext;
 @property(readonly,nonatomic)			id<TiEvaluator> executionContext;
-@property(readonly,nonatomic)			NSString *proxyId;
 
 @property(nonatomic,assign,readwrite)	id<TiProxyDelegate> modelDelegate;
 

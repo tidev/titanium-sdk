@@ -374,9 +374,12 @@ return value;\
 	}\
 }
 
+#define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
+
 NSData * dataWithHexString (NSString * hexString);
 NSString * hexString (NSData * thedata);
 
 
 extern NSString * const kKrollShutdownNotification;
 extern NSString * const kTitaniumShutdownNotification;
+extern NSString * const kTitaniumAnalyticsNotification;

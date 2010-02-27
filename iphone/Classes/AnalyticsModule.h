@@ -6,9 +6,14 @@
  */
 
 #import "TiModule.h"
+#import "PlausibleDatabase.h"
 
 @interface AnalyticsModule : TiModule {
-
+@private
+	PLSqliteDatabase* database;
+	NSTimer *retryTimer;
+	NSTimer *flushTimer;
+	NSURL *url;
 }
 
 @end
