@@ -159,6 +159,10 @@ void TiAudioSessionAudioRouteChangeCallback(void *inUserData, AudioSessionProper
 		{
 			return TiMediaAudioSessionInputSpeaker;	
 		}	
+		else if (CFStringCompare(newRoute, CFSTR("Headphone"), 0) == kCFCompareEqualTo) 
+		{
+			return TiMediaAudioSessionInputHeadphones;
+		}	
 		else if (CFStringCompare(newRoute, CFSTR("MicrophoneBuiltIn"), 0) == kCFCompareEqualTo) 
 		{
 			return TiMediaAudioSessionInputMicrophoneBuiltin;	

@@ -40,6 +40,8 @@ function lineTypeToStr()
 			return "receiver/mic";
 		case Ti.Media.AUDIO_HEADPHONES_AND_MIC:
 			return "headphones/mic";
+		case Ti.Media.AUDIO_HEADPHONES:
+			return "headphones";
 		case Ti.Media.AUDIO_LINEOUT:
 			return "lineout";
 		case Ti.Media.AUDIO_SPEAKER:

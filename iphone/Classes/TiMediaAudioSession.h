@@ -17,6 +17,7 @@ typedef enum
 	TiMediaAudioSessionInputHeadphonesAndMicrophone,
 	TiMediaAudioSessionInputLineOut,
 	TiMediaAudioSessionInputSpeaker,
+	TiMediaAudioSessionInputHeadphones,
 	TiMediaAudioSessionInputMicrophoneBuiltin,
 	TiMediaAudioSessionInputMuted,
 	TiMediaAudioSessionInputUnavailable,
