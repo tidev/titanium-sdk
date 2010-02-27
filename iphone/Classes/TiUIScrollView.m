@@ -10,6 +10,7 @@
 #import "TiUtils.h"
 
 @implementation TiUIScrollView
+@synthesize verticalLayoutBoundary;
 
 - (void) dealloc
 {
@@ -97,10 +98,20 @@
 		case TiDimensionTypeAuto:
 		{
 			minimumContentHeight = 0.0;
+			float verticalContentHeight = 0.0;
 			for (TiUIView * thisChildView in subViews)
 			{
-				minimumContentHeight = MAX(minimumContentHeight,[thisChildView minimumParentHeightForWidth:newContentSize.width]);
+				CGFloat thisHeight = [thisChildView minimumParentHeightForWidth:newContentSize.width];
+				if (TiLayoutRuleIsVertical([thisChildView layout]->layout))
+				{
+					verticalContentHeight += thisHeight;
+				}
+				else
+				{
+					minimumContentHeight = MAX(minimumContentHeight,thisHeight);
+				}
 			}
+			minimumContentHeight = MAX(verticalContentHeight,minimumContentHeight);
 			break;
 		}
 		default:
@@ -132,7 +143,18 @@
 		[wrapperView addSubview:childView];
 		[self setNeedsHandleContentSizeIfAutosizing];
 	}
-	[childView reposition];
+
+	CGRect bounds;
+	bounds.origin = CGPointZero;
+	bounds.size = [scrollView contentSize];
+	if (TiLayoutRuleIsVertical([childView layout]->layout))
+	{
+		bounds.origin.y += verticalLayoutBoundary;
+		bounds.size.height = [childView minimumParentHeightForWidth:bounds.size.width];
+		verticalLayoutBoundary += bounds.size.height;
+	}
+
+	[childView relayout:bounds];
 }
 
 -(void)setContentWidth_:(id)value
