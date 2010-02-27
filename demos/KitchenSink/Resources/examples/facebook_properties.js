@@ -57,6 +57,7 @@ b1.addEventListener('click', function()
 	}
 	loggedIn.text = "Logged In = " + Ti.Facebook.loggedIn;
 	userId.text = "User Id = " + Ti.Facebook.userId;
+	Ti.API.info('permissions = ' + Ti.Facebook.permissions);
 	for (v in Ti.Facebook.permissions)
 	{
 		permissions.text += v + ' value = ' +  Ti.Facebook.permissions[v] + '\n';
