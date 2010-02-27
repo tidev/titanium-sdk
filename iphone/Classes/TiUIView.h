@@ -17,7 +17,8 @@
 
 @end
 
-
+void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFloat minimumContentHeight,CGRect responderRect);
+void RestoreScrollViewFromKeyboard(UIScrollView * scrollView);
 
 @class TiViewProxy;
 
