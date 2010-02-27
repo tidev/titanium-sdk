@@ -42,7 +42,7 @@ tableView.addEventListener('click', function(e)
 		case 'Insert Row Below - 1':
 		{
 			var row = tableView.getIndexByName('3');
-			data = {title:'New Row After Row3', header:'New Header'};
+			data = {title:'New Row After Row3'};
 			tableView.insertRowAfter(row,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
 			break;
 		}
@@ -58,7 +58,7 @@ tableView.addEventListener('click', function(e)
 		case 'Insert Row w/o animation (below)':
 		{
 			var row = tableView.getIndexByName('3');
-			data = {title:'New Row After Row3 w/o animation', header:'New Header'};
+			data = {title:'New Row After Row3 w/o animation'};
 			tableView.insertRowAfter(row,data);
 			tableView.scrollToIndex(3,{position:Titanium.UI.iPhone.TableViewScrollPosition.MIDDLE,animated:false});
 			break;

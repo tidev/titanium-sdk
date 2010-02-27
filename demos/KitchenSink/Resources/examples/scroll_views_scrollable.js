@@ -2,9 +2,7 @@ var win = Titanium.UI.currentWindow;
 win.backgroundColor = 'black';
 
 var view1 = Ti.UI.createView({
-	backgroundColor:'red',
-	height:200,
-	width:200
+	backgroundColor:'red'
 });
 var l1 = Ti.UI.createLabel({
 	text:'View 1',
