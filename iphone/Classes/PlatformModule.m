@@ -8,7 +8,6 @@
 #import "PlatformModule.h"
 #import "IPAddress.h"
 #import "TitaniumApp.h"
-#import "SBJSON.h"
 
 #import <sys/sysctl.h>  
 #import <mach/mach.h>
@@ -138,9 +137,6 @@
 	RELEASE_TO_NIL(ostype);
 	RELEASE_TO_NIL(availableMemory);
 	RELEASE_TO_NIL(capabilities);
-	RELEASE_TO_NIL(pushNotificationCallback);
-	RELEASE_TO_NIL(pushNotificationError);
-	RELEASE_TO_NIL(pushNotificationSuccess);
 	[super dealloc];
 }
 
@@ -256,46 +252,6 @@ MAKE_SYSTEM_PROP(BATTERY_STATE_CHARGING,UIDeviceBatteryStateCharging);
 MAKE_SYSTEM_PROP(BATTERY_STATE_FULL,UIDeviceBatteryStateFull);
 
 
--(void)registerForPushNotifications:(id)args
-{
-	ENSURE_DICT(args);
-	
-	UIApplication * app = [UIApplication sharedApplication];
-	UIRemoteNotificationType ourNotifications = [app enabledRemoteNotificationTypes];
-	
-	NSArray *typesRequested = [args objectForKey:@"types"];
-
-	RELEASE_TO_NIL(pushNotificationCallback);
-	RELEASE_TO_NIL(pushNotificationError);
-	RELEASE_TO_NIL(pushNotificationSuccess);
-	
-	pushNotificationSuccess = [[args objectForKey:@"success"] retain];
-	pushNotificationError = [[args objectForKey:@"error"] retain];
-	pushNotificationCallback = [[args objectForKey:@"callback"] retain];
-	
-	if (typesRequested!=nil)
-	{
-		for (NSString * thisTypeRequested in typesRequested) 
-		{
-			if ([@"badge" isEqualToString:thisTypeRequested]) 
-			{
-				ourNotifications |= UIRemoteNotificationTypeBadge;
-			} 
-			else if ([@"sound" isEqualToString:thisTypeRequested]) 
-			{
-				ourNotifications |= UIRemoteNotificationTypeSound;
-			} 
-			else if ([@"alert" isEqualToString:thisTypeRequested]) 
-			{
-				ourNotifications |= UIRemoteNotificationTypeAlert;
-			}
-		}
-	}
-	
-	[[TitaniumApp app] setRemoteNotificationDelegate:self];
-	[app registerForRemoteNotificationTypes:ourNotifications];
-}
-
 #pragma mark Delegates
 
 -(void)batteryStateChanged:(NSNotification*)note
@@ -310,39 +266,5 @@ MAKE_SYSTEM_PROP(BATTERY_STATE_FULL,UIDeviceBatteryStateFull);
 	[super didReceiveMemoryWarning:notification];
 }
 
-#pragma mark Push Notification Delegates
-
--(void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
-{
-	// called by TitaniumApp
-	if (pushNotificationSuccess!=nil)
-	{
-		NSString *token = [[TitaniumApp app] remoteDeviceUUID];
-		NSDictionary *event = [NSDictionary dictionaryWithObject:token forKey:@"deviceToken"];
-		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationSuccess thisObject:nil];
-	}
-	
-	//TODO: fire register
-}
-
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
-{
-	// called by TitaniumApp
-	if (pushNotificationCallback!=nil)
-	{
-		id event = [SBJSON stringify:userInfo];
-		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
-	}
-}
-
-- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
-{
-	// called by TitaniumApp
-	if (pushNotificationError!=nil)
-	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:[error description] forKey:@"error"];
-		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationError thisObject:nil];
-	}
-}
 
 @end

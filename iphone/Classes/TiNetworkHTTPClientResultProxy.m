@@ -34,14 +34,14 @@
 		// back as a this pointer in JS land ... all others will be delegated directly
 		// to our delegate
 		dynprops = [[NSMutableDictionary alloc] init];
-		[dynprops setObject:[delegate readyState] forKey:@"readyState"];
-		[dynprops setObject:[delegate status] forKey:@"status"];
-		[dynprops setObject:[delegate connected] forKey:@"connected"];
-		[dynprops setObject:[delegate UNSENT] forKey:@"UNSENT"];
-		[dynprops setObject:[delegate OPENED] forKey:@"OPENED"];
-		[dynprops setObject:[delegate HEADERS_RECEIVED] forKey:@"HEADERS_RECEIVED"];
-		[dynprops setObject:[delegate LOADING] forKey:@"LOADING"];
-		[dynprops setObject:[delegate DONE] forKey:@"DONE"];
+		[dynprops setObject:NUMINT([delegate readyState]) forKey:@"readyState"];
+		[dynprops setObject:NUMINT([delegate status]) forKey:@"status"];
+		[dynprops setObject:NUMBOOL([delegate connected]) forKey:@"connected"];
+		[dynprops setObject:NUMINT([delegate UNSENT]) forKey:@"UNSENT"];
+		[dynprops setObject:NUMINT([delegate OPENED]) forKey:@"OPENED"];
+		[dynprops setObject:NUMINT([delegate HEADERS_RECEIVED]) forKey:@"HEADERS_RECEIVED"];
+		[dynprops setObject:NUMINT([delegate LOADING]) forKey:@"LOADING"];
+		[dynprops setObject:NUMINT([delegate DONE]) forKey:@"DONE"];
 		
 		[self makeMethod:@selector(abort) args:NO key:@"abort"];
 		[self makeMethod:@selector(open:) args:YES key:@"open"];

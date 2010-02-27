@@ -22,9 +22,6 @@
 	NSNumber *availableMemory;
 	PlatformModuleDisplayCapsProxy *capabilities;
 	BOOL batteryEnabled;
-	KrollCallback *pushNotificationCallback;
-	KrollCallback *pushNotificationError;
-	KrollCallback *pushNotificationSuccess;
 }
 
 @property(readonly,nonatomic) NSString *id;

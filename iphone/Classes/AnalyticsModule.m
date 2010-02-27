@@ -10,7 +10,6 @@
 #import "TitaniumApp.h"
 #import "ASIHTTPRequest.h"
 #import "SBJSON.h"
-#import "Reachability.h"
 #import <sys/utsname.h>
 
 //TODO:
@@ -50,6 +49,17 @@ NSString * const TI_DB_VERSION = @"1";
 	[super _destroy];
 }
 
+
+-(id)platform
+{
+	return [[[self pageContext] host] moduleNamed:@"Platform" context:[self pageContext]];
+}
+
+-(id)network 
+{
+	return [[[self pageContext] host] moduleNamed:@"Network" context:[self pageContext]];
+}
+
 #pragma mark Work
 
 -(void)backgroundFlushEventQueue
@@ -62,12 +72,12 @@ NSString * const TI_DB_VERSION = @"1";
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
-	NetworkStatus status = [[Reachability reachabilityForInternetConnection] currentReachabilityStatus];
+	id online = [[self network] valueForKey:@"online"];
 	
 	// when we can't reach the network, we need to log our attempt, 
 	// set a retry timer and just bail...
 	
-	if (status == NotReachable)
+	if ([TiUtils boolValue:online]==NO)
 	{
 		NSError *error = nil;
 
@@ -323,16 +333,6 @@ NSString * const TI_DB_VERSION = @"1";
 	[database commitTransaction];
 }
 
--(id)platform
-{
-	return [[[self pageContext] host] moduleNamed:@"Platform" context:[self pageContext]];
-}
-
--(id)network 
-{
-	return [[[self pageContext] host] moduleNamed:@"Network" context:[self pageContext]];
-}
-
 -(void)enroll
 {
 	id platform = [self platform];
@@ -410,9 +410,6 @@ NSString * const TI_DB_VERSION = @"1";
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(analyticsEvent:) name:kTitaniumAnalyticsNotification object:nil];
 	
-	[[Reachability reachabilityForInternetConnection] startNotifer];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:@"kNetworkReachabilityChangedNotification" object:nil];
-	
 	[self begin];
 	[super startup];
 }
@@ -424,7 +421,6 @@ NSString * const TI_DB_VERSION = @"1";
 		[self queueEvent:@"ti.end" name:@"ti.end" data:nil immediate:YES];
 		[database close];
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTitaniumAnalyticsNotification object:nil];
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:@"kNetworkReachabilityChangedNotification" object:nil];
 	}
 }
 
