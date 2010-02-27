@@ -197,7 +197,6 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 	{
 		const char * retType = [methodSignature methodReturnType];
 		char t = retType[0];
-		NSLog(@"[DEBUG] primitive return type: %c for target:%@->%@",t,target,NSStringFromSelector(selector));
 		switch(t)
 		{
 			case 'v':

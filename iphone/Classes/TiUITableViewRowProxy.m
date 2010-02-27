@@ -237,6 +237,19 @@
 	cell.indentationLevel = [TiUtils intValue:[self valueForKey:@"indentionLevel"] def:0];
 }
 
+-(void)configureSelectionStyle:(UITableViewCell*)cell
+{
+	id value = [self valueForKey:@"selectionStyle"];
+	if (value!=nil)
+	{
+		cell.selectionStyle = [TiUtils intValue:value];
+	}
+	else
+	{
+		cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+	}
+}
+
 -(void)configureChildren:(UITableViewCell*)cell
 {
 	// this method is called when the cell is initially created
@@ -376,6 +389,7 @@
 	[self configureRightSide:cell];
 	[self configureBackground:cell];
 	[self configureIndentionLevel:cell];
+	[self configureSelectionStyle:cell];
 	[self configureChildren:cell];
 }
 
@@ -386,6 +400,7 @@
 	[self configureRightSide:cell];
 	[self configureBackground:cell];
 	[self configureIndentionLevel:cell];
+	[self configureSelectionStyle:cell];
 	[self updateChildren:cell];
 }
 
@@ -440,7 +455,8 @@
 }
 
 
-#pragma mark Delegate 
+#pragma mark Delegate
+
 
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy
 {
@@ -451,10 +467,9 @@
 		TableViewRowProperties = [[NSSet alloc] initWithObjects:
 					@"title", @"backgroundColor",@"backgroundImage",
 					@"leftImage",@"hasDetail",@"hasCheck",@"hasChild",	
-					@"indentionLevel",
+					@"indentionLevel",@"selectionStyle",
 					nil];
 	}
-	
 	
 	if ([TableViewRowProperties member:key]!=nil)
 	{
