@@ -93,14 +93,23 @@
 	}
 	if (view!=nil)
 	{
-		UIView *childView = [arg view];
+		TiUIView *childView = [(TiViewProxy *)arg view];
+		BOOL verticalNeedsRearranging = TiLayoutRuleIsVertical([childView layout]->layout);
 		if ([NSThread isMainThread])
 		{
 			[childView removeFromSuperview];
+			if (verticalNeedsRearranging)
+			{
+				[self layoutChildren];
+			}
 		}
 		else
 		{
 			[self performSelectorOnMainThread:@selector(removeFromSuperview) withObject:childView waitUntilDone:NO];
+			if (verticalNeedsRearranging)
+			{
+				[self performSelectorOnMainThread:@selector(layout) withObject:nil waitUntilDone:NO];
+			}
 		}
 	}
 }
@@ -158,39 +167,12 @@
 
 #pragma mark View
 
--(TiRect*)bounds
+
+-(TiRect*)size
 {
 	TiRect *rect = [[[TiRect alloc] init] autorelease];
 	[[self view] performSelectorOnMainThread:@selector(fillBoundsToRect:) withObject:rect waitUntilDone:YES];
 	return rect;
-}
-
--(NSNumber*)height
-{
-	TiRect *rect = [[[TiRect alloc] init] autorelease];
-	[[self view] performSelectorOnMainThread:@selector(fillBoundsToRect:) withObject:rect waitUntilDone:YES];
-	return [rect height];
-}
-
--(NSNumber*)width
-{
-	TiRect *rect = [[[TiRect alloc] init] autorelease];
-	[[self view] performSelectorOnMainThread:@selector(fillBoundsToRect:) withObject:rect waitUntilDone:YES];
-	return [rect width];
-}
-
--(NSNumber*)x
-{
-	TiRect *rect = [[[TiRect alloc] init] autorelease];
-	[[self view] performSelectorOnMainThread:@selector(fillBoundsToRect:) withObject:rect waitUntilDone:YES];
-	return [rect x];
-}
-
--(NSNumber*)y
-{
-	TiRect *rect = [[[TiRect alloc] init] autorelease];
-	[[self view] performSelectorOnMainThread:@selector(fillBoundsToRect:) withObject:rect waitUntilDone:YES];
-	return [rect y];
 }
 
 -(void)setParent:(TiViewProxy*)parent_
@@ -389,7 +371,7 @@
 
 		// make sure we do a layout of ourselves
 		LayoutConstraint layout;
-		ReadConstraintFromDictionary(&layout,[self allProperties],NULL);
+		ReadConstraintFromDictionary(&layout,[self allProperties]);
 		[view updateLayout:&layout withBounds:view.bounds];
 		
 		viewInitialized = YES;
@@ -401,29 +383,39 @@
 
 -(void)layoutChild:(TiViewProxy*)child;
 {
-	if (view!=nil)
+	if (view==nil)
 	{
-		CGRect bounds = [view bounds];
-
-		// layout out ourself
-		UIView *childView = [child view];
-	
-		if ([childView superview]!=view)
-		{
-			[view addSubview:childView];
-		}
-		
-		LayoutConstraint layout;
-		ReadConstraintFromDictionary(&layout,[child allProperties],NULL);
-		[[child view] updateLayout:&layout withBounds:bounds];
-		
-		// tell our children to also layout
-		[child layoutChildren];
+		return;
 	}
+
+	CGRect bounds = [view bounds];
+
+	// layout out ourself
+	UIView *childView = [child view];
+
+	if ([childView superview]!=view)
+	{
+		[view addSubview:childView];
+	}
+	
+	LayoutConstraint ourLayoutConstraint;
+	ReadConstraintFromDictionary(&ourLayoutConstraint,[child allProperties]);
+
+	if(TiLayoutRuleIsVertical(ourLayoutConstraint.layout)){
+		bounds.origin.y += verticalLayoutBoundary;
+		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
+		verticalLayoutBoundary += bounds.size.height;
+	}
+
+	[[child view] updateLayout:&ourLayoutConstraint withBounds:bounds];
+	
+	// tell our children to also layout
+	[child layoutChildren];
 }
 
 -(void)layoutChildren
 {
+	verticalLayoutBoundary = 0.0;
 	// now ask each of our children for their view
 	if (self.children!=nil)
 	{
@@ -521,12 +513,17 @@
 	return NO;
 }
 
+-(TiUIView *)barButtonView
+{
+	return nil;
+}
+
 -(UIBarButtonItem*)barButtonItem
 {
 	return nil;
 }
 
--(void)removeNavBarButtonView
+-(void)removeBarButtonView
 {
 	// called to remove
 }

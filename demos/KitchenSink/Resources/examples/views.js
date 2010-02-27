@@ -12,8 +12,8 @@ var data = [
 	{title:'Alert Dialog', hasChild:true, test:'../examples/alert.js'},
 	{title:'Options Dialog', hasChild:true, test:'../examples/options_dialog.js'},
 	{title:'Email Dialog', hasChild:true, test:'../examples/email_dialog.js'},
-	// {title:'Canvas Views', hasChild:true, test:'../examples/canvas_views.js'},
 	{title:'Mixing Views', hasChild:true, test:'../examples/mixing_views_1.js'},
+	{title:'Auto Height', hasChild:true, test:'../examples/views_auto_height.js'},
 
 ];
 

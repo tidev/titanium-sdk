@@ -26,7 +26,7 @@
 		searchView = [[UISearchBar alloc] init];
 		[searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		[TiUtils setView:searchView positionRect:[self bounds]];
-		[[self proxy] firePropertyChanges];
+		[(TiViewProxy *)[self proxy] firePropertyChanges];
 		[searchView setDelegate:(TiUISearchBarProxy*)[self proxy]];
 		[self addSubview:searchView];
 	}

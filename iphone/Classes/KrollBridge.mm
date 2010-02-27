@@ -13,6 +13,8 @@
 #import "TiUtils.h"
 #import "TitaniumApp.h"
 
+extern BOOL const TI_APPLICATION_ANALYTICS;
+
 @implementation TitaniumObject
 
 -(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_ context:(id<TiEvaluator>)pageContext_ baseURL:(NSURL*)baseURL_
@@ -21,14 +23,22 @@
 	[module setHost:host_];
 	[module _setBaseURL:baseURL_];
 	
+	pageContext = pageContext_;
+	
 	if (self = [super initWithTarget:module context:context_])
 	{
 		modules = [[NSMutableDictionary alloc] init];
 		host = [host_ retain];
 		
 		// pre-cache a few modules we always use
-		TiModule *ui = [host moduleNamed:@"UI"];
+		TiModule *ui = [host moduleNamed:@"UI" context:pageContext_];
 		[self addModule:@"UI" module:ui];
+		
+		if (TI_APPLICATION_ANALYTICS)
+		{
+			// force analytics to load on startup
+			[host moduleNamed:@"Analytics" context:pageContext_];
+		}
 	}
 	return self;
 }
@@ -66,7 +76,7 @@
 	{
 		return module;
 	}
-	module = [host moduleNamed:key];
+	module = [host moduleNamed:key context:pageContext];
 	if (module!=nil)
 	{
 		return [self addModule:key module:module];
@@ -87,7 +97,7 @@
 	return ko;
 }
 
--(TiModule*)moduleNamed:(NSString*)name
+-(TiModule*)moduleNamed:(NSString*)name context:(id<TiEvaluator>)context
 {
 	return [modules objectForKey:name];
 }
@@ -330,8 +340,6 @@
 	TiStringRelease(prop);
 	TiStringRelease(prop2);	
 	
-	[host registerContext:self forToken:[kroll contextId]];
-	
 	//if we have a preload dictionary, register those static key/values into our UI namespace
 	//in the future we may support another top-level module but for now UI is only needed
 	if (preload!=nil)
@@ -366,7 +374,6 @@
 		[[NSNotificationCenter defaultCenter] postNotification:notification];
 	}
 	[titanium gc];
-	[host unregisterContext:self forToken:[kroll contextId]];
 }
 
 -(void)didStopNewContext:(KrollContext*)kroll

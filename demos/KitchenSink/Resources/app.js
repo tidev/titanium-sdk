@@ -12,7 +12,6 @@ var tabGroup = Titanium.UI.createTabGroup();
 var win1 = Titanium.UI.createWindow({  
     url:'main_windows/base_ui.js',
     titleImage:'images/appcelerator_small.png',
-	barColor:'#111'
 });
 var tab1 = Titanium.UI.createTab({  
     icon:'images/tabs/KS_nav_views.png',
@@ -57,6 +56,7 @@ var win4 = Titanium.UI.createWindow({
 var tab4 = Titanium.UI.createTab({  
     icon:'images/tabs/KS_nav_platform.png',
     title:'Platform',
+active:true,
     window:win4
 });
 
@@ -88,10 +88,13 @@ tabGroup.addEventListener('open',function()
 	Titanium.UI.setBackgroundColor('#fff');
 });
 
+tabGroup.setActiveTab(1);
 // open tab group with a transition animation
 tabGroup.open({
 	transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
 });
+
+
 
 //
 //  TAB GROUP EVENTS
@@ -282,3 +285,5 @@ Ti.include("welcome.js");
 // test out logging to developer console
 Ti.API.info("Welcome to Kitchen Sink for Titanium/"+Titanium.version);
 Ti.API.debug("user agent set to "+Titanium.userAgent);
+
+

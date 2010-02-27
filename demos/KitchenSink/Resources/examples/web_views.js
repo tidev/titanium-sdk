@@ -1,5 +1,21 @@
 var win = Titanium.UI.currentWindow;
 
+// initialize to all modes
+win.orientationModes = [
+	Titanium.UI.PORTRAIT,
+	Titanium.UI.UPSIDE_PORTRAIT,
+	Titanium.UI.LANDSCAPE_LEFT,
+	Titanium.UI.LANDSCAPE_RIGHT,
+	Titanium.UI.FACE_UP,
+	Titanium.UI.FACE_DOWN,		
+]; 
+
+Ti.Gesture.addEventListener('orientationchange',function(e)
+{
+     Titanium.UI.orientation = e.orientation;
+});
+
+
 // create table view data object
 var data = [
 	{title:'External URL', hasChild:true, url:'http://www.google.com'},
@@ -109,13 +125,14 @@ tableview.addEventListener('click', function(e)
 		w.add(webview);
 
 		// hide toolbar for local web view
-		Ti.App.addEventListener('webview_hidetoolbar', function()
+		Ti.App.addEventListener('webview_hidetoolbar', function(e)
 		{
+			Ti.API.info('received hidetoolbar event, foo = ' + e.foo)
 			w.setToolbar(null,{animated:true});
 		});
 		webview.addEventListener('click', function()
 		{
-			Ti.UI.createAlertDialog({title:'Webview', message:'Received Click'}).show();
+			Ti.API.info('RECEIVED CLICK ON WEBVIEW')
 		})
 		win.tab.open(w);		
 	}

@@ -16,6 +16,8 @@
 	TiUIView *view;
 	TiViewProxy *parent;
 	BOOL viewInitialized;
+	
+	CGFloat verticalLayoutBoundary;
 }
 
 @property(nonatomic,readonly) NSArray *children;
@@ -40,9 +42,12 @@
 -(void)detachView;
 -(void)destroy;
 -(void)setParent:(TiProxy*)parent;
+
 -(BOOL)supportsNavBarPositioning;
 -(UIBarButtonItem*)barButtonItem;
--(void)removeNavBarButtonView;
+-(TiUIView*)barButtonView;
+-(void)removeBarButtonView;
+
 -(CGRect)appFrame;
 -(void)firePropertyChanges;
 -(void)willFirePropertyChanges;

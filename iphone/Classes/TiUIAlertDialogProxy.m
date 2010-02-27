@@ -10,19 +10,10 @@
 
 @implementation TiUIAlertDialogProxy
 
--(void)_destroy
-{
-	// we release our reteain in the show below but then
-	// set it to nil so that our subclass doesn't jack with it
-	RELEASE_TO_NIL(alert);
-	[super _destroy];
-}
-
 -(void)show:(id)args
 {
-	RELEASE_TO_NIL(alert);
-	
 	ENSURE_UI_THREAD(show,args);
+	RELEASE_TO_NIL(alert);
 	
 	NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
 	if (buttonNames==nil || (id)buttonNames == [NSNull null])
@@ -45,6 +36,7 @@
 	[self retain];
 	
 	[alert show];
+	RELEASE_TO_NIL(alert);
 }
 
 #pragma mark AlertView Delegate

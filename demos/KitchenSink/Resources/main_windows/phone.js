@@ -12,16 +12,16 @@ var data = [
 	{title:'Sound', hasChild:true, test:'../examples/sound.js'},
 	{title:'Shake', hasChild:true, test:'../examples/shake.js'},
 	{title:'Save to Gallery', hasChild:true, test:'../examples/photo_gallery_save.js'},
-	{title:'Contacts', hasChild:true, test:'../examples/contacts.js'},
-//	{title:'Contacts', hasChild:true, test:'../todo.js'},
-	{title:'Proximity Events', hasChild:true, test:'../todo.js'},
+	{title:'Contacts', hasChild:true, test:'../examples/contacts.js'}
 ];
 
 // add iphone specific tests
 if (Titanium.Platform.name == 'iPhone OS')
 {
+	data.push({title:'Proximity Events', hasChild:true, test:'../todo.js'});
 	data.push({title:'App Badge', hasChild:true, test:'../examples/app_badge.js'});
 	data.push({title:'Status Bar', hasChild:true, test:'../examples/statusbar.js'});
+	data.push({title:'Push Notifications', hasChild:true, test:'../examples/push_notification.js'}); 
 }
 
 // create table view

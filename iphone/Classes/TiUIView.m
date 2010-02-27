@@ -16,6 +16,88 @@
 #import "TiViewProxy.h"
 #import "TitaniumApp.h"
 
+
+void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFloat minimumContentHeight,CGRect responderRect)
+{
+	CGRect scrollVisibleRect;
+	scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:nil];
+	//First, find out how much we have to compensate.
+
+	CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;	
+	//ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
+
+	CGFloat unimportantArea = MAX(scrollVisibleRect.size.height - minimumContentHeight,0);
+	//It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
+
+	//As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
+
+	[scrollView setContentInset:UIEdgeInsetsMake(0, 0, MAX(0,obscuredHeight-unimportantArea), 0)];
+
+	scrollVisibleRect.size.height -= MAX(0,obscuredHeight);
+	
+	//Okay, the scrollVisibleRect.size now represents the actually visible area.
+	
+	CGPoint offsetPoint = [scrollView contentOffset];
+
+	CGPoint offsetForBottomRight;
+	offsetForBottomRight.x = responderRect.origin.x + responderRect.size.width - scrollVisibleRect.size.width;
+	offsetForBottomRight.y = responderRect.origin.y + responderRect.size.height - scrollVisibleRect.size.height;
+	
+	offsetPoint.x = MIN(responderRect.origin.x,MAX(offsetPoint.x,offsetForBottomRight.x));
+	offsetPoint.y = MIN(responderRect.origin.y,MAX(offsetPoint.y,offsetForBottomRight.y));
+
+	[scrollView setContentOffset:offsetPoint animated:YES];
+}
+
+void RestoreScrollViewFromKeyboard(UIScrollView * scrollView)
+{
+	CGSize scrollContentSize = [scrollView contentSize];
+	CGPoint scrollOffset = [scrollView contentOffset];
+	
+	[scrollView setContentInset:UIEdgeInsetsZero];
+
+	//Reposition the scroll to handle the uncovered area.
+	CGRect scrollVisibleRect = [scrollView bounds];
+	CGFloat maxYScrollOffset = scrollContentSize.height - scrollVisibleRect.size.height;
+	if (maxYScrollOffset < scrollOffset.y)
+	{
+		scrollOffset.y = maxYScrollOffset;
+		[scrollView setContentOffset:scrollOffset animated:YES];
+	}
+}
+
+CGFloat AutoWidthForView(UIView * superView,CGFloat suggestedWidth)
+{
+	CGFloat result = 0.0;
+	for (TiUIView * thisChildView in [superView subviews])
+	{
+		result = MAX(result,[thisChildView minimumParentWidthForWidth:suggestedWidth]);
+	}
+	return result;
+}
+
+CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth)
+{
+	CGFloat neededAbsoluteHeight=0.0;
+	CGFloat neededVerticalHeight=0.0;
+
+	for (TiUIView * thisChildView in [superView subviews])
+	{
+		CGFloat thisHeight = [thisChildView minimumParentHeightForWidth:suggestedWidth];
+		if (TiLayoutRuleIsVertical([thisChildView layout]->layout))
+		{
+			neededVerticalHeight += thisHeight;
+		}
+		else
+		{
+			neededAbsoluteHeight = MAX(neededAbsoluteHeight,thisHeight);
+		}
+	}
+	return MAX(neededVerticalHeight,neededAbsoluteHeight);
+}
+
+
+
 NSInteger zindexSort(TiUIView* view1, TiUIView* view2, void *reverse)
 {
 	int v1 = view1.zIndex;
@@ -331,10 +413,7 @@ DEFINE_EXCEPTIONS
 			result += layout.width.value;
 			break;
 		case TiDimensionTypeAuto:
-			if ([self respondsToSelector:@selector(autoWidthForWidth:)])
-			{
-				result += [self autoWidthForWidth:suggestedWidth - result];
-			}
+			result += [self autoWidthForWidth:suggestedWidth - result];
 	}
 	return result;
 }
@@ -349,14 +428,21 @@ DEFINE_EXCEPTIONS
 			result += layout.height.value;
 			break;
 		case TiDimensionTypeAuto:
-			if ([self respondsToSelector:@selector(autoHeightForWidth:)])
-			{
-				suggestedWidth -= TiDimensionCalculateValue(layout.left, 0)
-						+ TiDimensionCalculateValue(layout.right, 0);
-				result += [self autoHeightForWidth:suggestedWidth];
-			}
+			suggestedWidth -= TiDimensionCalculateValue(layout.left, 0)
+					+ TiDimensionCalculateValue(layout.right, 0);
+			result += [self autoHeightForWidth:suggestedWidth];
 	}
 	return result;
+}
+
+-(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
+{
+	return MIN(suggestedWidth,AutoWidthForView(self, suggestedWidth));
+}
+
+-(CGFloat)autoHeightForWidth:(CGFloat)width
+{
+	return AutoHeightForView(self, width);
 }
 
 -(void)updateTransform

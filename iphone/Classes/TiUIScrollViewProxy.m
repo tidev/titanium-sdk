@@ -36,6 +36,15 @@
 	}
 }
 
+-(void)layoutChildren
+{
+	if ([self viewAttached])
+	{
+		[(TiUIScrollView*)[self view] setVerticalLayoutBoundary:0.0];
+	}
+	[super layoutChildren];
+}
+
 -(void)layoutChild:(TiViewProxy*)child
 {
 	if (![self viewAttached])

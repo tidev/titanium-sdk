@@ -9,7 +9,6 @@
 <icon>default_app_logo.png</icon>
 <persistent-wifi>false</persistent-wifi>
 <prerendered-icon>false</prerendered-icon>
-<statusbar-style>opaque_black</statusbar-style>
 <statusbar-hidden>false</statusbar-hidden>
 <analytics>true</analytics>
 <guid>6fe33f33fd1f4e95a06d2d217170866d</guid>

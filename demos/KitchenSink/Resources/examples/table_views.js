@@ -39,6 +39,7 @@ var data = [
 	{title:'Table Empty AppendRow', hasChild:true, test:'../examples/table_view_api_empty_append.js'},
 	{title:'Table with Remote Images', hasChild:true, test:'../examples/table_view_api_remote_images.js'},
 	{title:'Table with Remote Images 2', hasChild:true, test:'../examples/table_view_remote_images_2.js'},
+	{title:'Table Custom Cell Selection', hasChild:true, test:'../examples/table_view_cell_selection.js'},
 
 ];
 

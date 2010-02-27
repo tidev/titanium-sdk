@@ -36,6 +36,40 @@ DEFINE_EXCEPTIONS
 	[super dealloc];
 }
 
+-(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
+{
+	if (autoWidth > 0)
+	{
+		return autoWidth;
+	}
+	if (width > 0)
+	{
+		return width;
+	}
+	if (container!=nil)
+	{
+		return container.bounds.size.width;
+	}
+	return 0;
+}
+
+-(CGFloat)autoHeightForWidth:(CGFloat)width
+{
+	if (autoHeight > 0)
+	{
+		return autoHeight;
+	}
+	if (height > 0)
+	{
+		return height;
+	}
+	if (container!=nil)
+	{
+		return container.bounds.size.height;
+	}
+	return 0;
+}
+
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	for (UIView *child in [self subviews])
@@ -160,11 +194,11 @@ DEFINE_EXCEPTIONS
 	{
 		if (width==0)
 		{
-			width = theimage.size.width;
+			autoWidth = theimage.size.width;
 		}
 		if (height==0)
 		{
-			height = theimage.size.height;
+			autoHeight = theimage.size.height;
 		}
 		theimage = [UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh image:theimage];
 	}
@@ -251,13 +285,8 @@ DEFINE_EXCEPTIONS
 		iv.contentMode = UIViewContentModeCenter;
 		iv.alpha = 0;
 		
-		if (width == 0 || height == 0)
-		{
-			width = image.size.width;
-			height = image.size.height;
-			[self.proxy replaceValue:NUMFLOAT(width) forKey:@"width" notification:NO];
-			[self.proxy replaceValue:NUMFLOAT(height) forKey:@"height" notification:NO];
-		}
+		autoWidth = image.size.width;
+		autoHeight = image.size.height;
 
 		[self addSubview:iv];
 		[TiUtils setView:iv positionRect:[self bounds]];
@@ -414,6 +443,8 @@ DEFINE_EXCEPTIONS
 		view.autoresizingMask = UIViewAutoresizingNone;
 		[self addSubview:view];
 		[view release];
+		autoHeight = image.size.height;
+		autoWidth = image.size.width;
 		[self.proxy replaceValue:arg forKey:@"image" notification:NO];
 	}
 	else if ([arg isKindOfClass:[TiFile class]])
@@ -424,6 +455,8 @@ DEFINE_EXCEPTIONS
 		image = [self scaleImageIfRequired:image];
 		UIImageView *view = [[UIImageView alloc] initWithImage:image];
 		view.autoresizingMask = UIViewAutoresizingNone;
+		autoHeight = image.size.height;
+		autoWidth = image.size.width;
 		[self addSubview:view];
 		[view release];
 		[self.proxy replaceValue:arg forKey:@"image" notification:NO];
@@ -523,9 +556,12 @@ DEFINE_EXCEPTIONS
 			}
 			if (defImage!=nil)
 			{
-				UIImageView *iv = [[UIImageView alloc] initWithImage:[self scaleImageIfRequired:defImage]];
+				UIImage *poster = [self scaleImageIfRequired:defImage];
+				UIImageView *iv = [[UIImageView alloc] initWithImage:poster];
 				iv.autoresizingMask = UIViewAutoresizingNone;
 				iv.contentMode = UIViewContentModeCenter;
+				autoWidth = poster.size.width;
+				autoHeight = poster.size.height;
 				[self addSubview:iv];
 				[iv release];
 			}
@@ -543,10 +579,8 @@ DEFINE_EXCEPTIONS
 			
 			if (width == 0 || height == 0)
 			{
-				width = image.size.width;
-				height = image.size.height;
-				[self.proxy replaceValue:NUMFLOAT(width) forKey:@"width" notification:NO];
-				[self.proxy replaceValue:NUMFLOAT(height) forKey:@"height" notification:NO];
+				autoWidth = image.size.width;
+				autoHeight = image.size.height;
 				[self reposition];
 			}
 			

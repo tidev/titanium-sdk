@@ -851,6 +851,11 @@
 	}
 }
 
+-(void)setEditable_:(id)args
+{
+	editable = [TiUtils boolValue:args];
+}
+
 -(void)setEditing_:(id)args withObject:(id)properties
 {
 	[self changeEditing:[TiUtils boolValue:args]];
@@ -999,7 +1004,7 @@
 		
 		return editing || moving;
 	}
-	return NO;
+	return editable;
 }
 
 - (BOOL)tableView:(UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath
@@ -1025,12 +1030,15 @@
 		TiUITableViewSectionProxy *section = [sections objectAtIndex:[indexPath section]];
 		NSInteger index = [self indexForIndexPath:indexPath];
 		UITableView *table = [self tableView];
+		NSIndexPath *path = [self indexPathFromInt:index];
+		
+		// note, trigger action before the update since on the last delete it will be gone..
+		[self triggerActionForIndexPath:indexPath fromPath:nil wasAccessory:NO search:NO name:@"delete"];
+		
 		[[section rows] removeObjectAtIndex:[indexPath row]];
 		[table beginUpdates];
-		NSIndexPath *path = [self indexPathFromInt:index];
 		[table deleteRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:UITableViewRowAnimationFade];
 		[table endUpdates];
-		[self triggerActionForIndexPath:indexPath fromPath:nil wasAccessory:NO search:NO name:@"delete"];
 	}
 }
 
@@ -1114,6 +1122,11 @@
 
 -(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
+	if(tableView == searchTableView)
+	{
+		return;
+	}
+	
 	TiUITableViewSectionProxy *section = [sections objectAtIndex:[indexPath section]];
 	TiUITableViewRowProxy *row = [section rowAtIndex:[indexPath row]];
 	NSString *color = [row valueForKey:@"backgroundColor"];
@@ -1157,6 +1170,11 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+	if(tableView == searchTableView)
+	{
+		return tableView.rowHeight;
+	}
+	
 	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
 	CGFloat height = [row rowHeight:tableView.bounds];
 	height = [self tableRowHeight:height];
@@ -1241,5 +1259,26 @@
 	return size;
 }
 
+-(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop forView:(TiUIView *)firstResponderView
+{
+	int lastSectionIndex = [sections count]-1;
+	ENSURE_CONSISTENCY(lastSectionIndex>=0);
+
+	lastFocusedView = firstResponderView;
+	CGRect responderRect = [self convertRect:[firstResponderView bounds] fromView:firstResponderView];
+
+	CGRect minimumContentRect = [tableview rectForSection:lastSectionIndex];
+	ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(tableview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y,responderRect);
+}
+
+-(void)keyboardDidHideForView:(TiUIView *)hidingView
+{
+	if(hidingView != lastFocusedView)
+	{
+		return;
+	}
+
+	RestoreScrollViewFromKeyboard(tableview);
+}
 
 @end

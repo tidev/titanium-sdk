@@ -65,8 +65,9 @@ static XHRBridge *xhrBridge = nil;
 	NSError *error = nil;
 	NSDictionary *event = [decoder fragmentWithString:arguments error:&error];
 	
-	TiModule *tiModule = (TiModule*)[[xhrBridge host] moduleNamed:module];
-	[tiModule setExecutionContext:[[xhrBridge host] contextForToken:pageToken]];
+	id<TiEvaluator> context = [[xhrBridge host] contextForToken:pageToken];
+	TiModule *tiModule = (TiModule*)[[xhrBridge host] moduleNamed:module context:context];
+	[tiModule setExecutionContext:context];
 	
 	BOOL executed = YES;
 	

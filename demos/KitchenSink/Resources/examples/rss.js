@@ -62,9 +62,9 @@ function displayItems(itemList){
 
 	for (var c=0;c < itemList.length;c++){	
 
-		//	Ti.API.info('item title :' + itemList.item(c).getElementsByTagName("title").item(0).nodeValue);
-		//	Ti.API.info('item description :' + itemList.item(c).getElementsByTagName("description").item(0).nodeValue);
-		//	Ti.API.info('item enclosure url :' + itemList.item(c).getElementsByTagName("enclosure").item(0).getAttribute("url"));
+		// Ti.API.info('item title :' + itemList.item(c).getElementsByTagName("title").item(0).text);
+		// Ti.API.info('item description :' + itemList.item(c).getElementsByTagName("description").item(0).text);
+		// Ti.API.info('item enclosure url :' + itemList.item(c).getElementsByTagName("enclosure").item(0).getAttribute("url"));
 		
 		var title = null;
 		var desc = null;
@@ -74,9 +74,9 @@ function displayItems(itemList){
 		if(itemList.item(c).getElementsByTagName("enclosure")!=null){
 
 			// Item title
-			title = itemList.item(c).getElementsByTagName("title").item(0).nodeValue;
+			title = itemList.item(c).getElementsByTagName("title").item(0).text;
 			// Item description
-			desc = itemList.item(c).getElementsByTagName("description").item(0).nodeValue.toString();
+			desc = itemList.item(c).getElementsByTagName("description").item(0).text;
 			// Clean up any nasty linebreaks in the title and description			
 			title = title.replace(/\n/gi, " ");			
 			desc = desc.replace(/\n/gi, " ");

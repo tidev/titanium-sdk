@@ -186,21 +186,72 @@ TiValueRef KrollCallAsFunction(TiContextRef jsContext, TiObjectRef func, TiObjec
 	
 	[invoker invoke];
 	 
-	id result = nil;
+	void* result = nil;
 	 
 	if ([methodSignature methodReturnLength] == sizeof(id)) 
 	{
-		 [invoker getReturnValue:&result];
+		[invoker getReturnValue:&result];
+		return result;
 	}
 	else 
 	{
-		// return a reference back to ourself so you can chain methods
-		// back to back
-		result = self;
+		const char * retType = [methodSignature methodReturnType];
+		char t = retType[0];
+		switch(t)
+		{
+			case 'v':
+				return nil;
+			case 'c':
+			{
+				char c;
+				[invoker getReturnValue:&c];
+				return [NSNumber numberWithChar:c];
+			}
+			case 'f':
+			{
+				float f;
+				[invoker getReturnValue:&f];
+				return [NSNumber numberWithFloat:f];
+			}
+			case 'i':
+			{
+				int i;
+				[invoker getReturnValue:&i];
+				return [NSNumber numberWithInt:i];
+			}
+			case 'd':
+			{
+				double d;
+				[invoker getReturnValue:&d];
+				return [NSNumber numberWithDouble:d];
+			}
+			case 'l':
+			{
+				long l;
+				[invoker getReturnValue:&l];
+				return [NSNumber numberWithLong:l];
+			}
+			case 'q':
+			{
+				long long l;
+				[invoker getReturnValue:&l];
+				return [NSNumber numberWithLongLong:l];
+			}
+			case 'Q':
+			{
+				unsigned long long l;
+				[invoker getReturnValue:&l];
+				return [NSNumber numberWithUnsignedLongLong:l];
+			}
+			default:
+			{
+				NSLog(@"[ERROR] unknown & unsupported primitive return type: %c for target:%@->%@",t,target,NSStringFromSelector(selector));
+				break;
+			}
+		}
 	}
  
-	// hold this during the return to give KJS the ability call Initializer on us
-	return result; 
+	return nil; 
 }
 
 @end

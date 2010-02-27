@@ -3,6 +3,7 @@ var data = [
 	{title:'Facebook', hasChild:true, test:'../examples/facebook.js'},
 	{title:'YQL', hasChild:true, test:'../examples/yql.js'},
 	{title:'Twitter', hasChild:true, test:'../examples/twitter.js'},
+	{title:'Foursquare', hasChild:true, test:'../examples/foursquare.js'},
 	{title:'SOAP', hasChild:true, test:'../examples/soap.js'},
 	{title:'RSS', hasChild:true, test:'../examples/rss.js', barColor:'#b40000'},
 

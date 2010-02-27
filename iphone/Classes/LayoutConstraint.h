@@ -18,12 +18,41 @@
 -(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth;
 -(CGFloat)autoHeightForWidth:(CGFloat)width;
 
+
 -(CGFloat)verifyWidth:(CGFloat)suggestedWidth;
 -(CGFloat)verifyHeight:(CGFloat)suggestedHeight;
 
 -(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing;
 
 @end
+
+typedef enum {
+	TiLayoutRuleAbsolute,
+	TiLayoutRuleVertical,
+} TiLayoutRule;
+
+
+TI_INLINE TiLayoutRule TiLayoutRuleFromObject(id object)
+{
+	if ([object isKindOfClass:[NSString class]])
+	{
+		if ([object caseInsensitiveCompare:@"vertical"]==NSOrderedSame)
+		{
+			return TiLayoutRuleVertical;
+		}
+	}
+	return TiLayoutRuleAbsolute;
+}
+
+TI_INLINE BOOL TiLayoutRuleIsAbsolute(TiLayoutRule rule)
+{
+	return rule==TiLayoutRuleAbsolute;
+}
+
+TI_INLINE BOOL TiLayoutRuleIsVertical(TiLayoutRule rule)
+{
+	return rule==TiLayoutRuleVertical;
+}
 
 
 typedef struct LayoutConstraint {
@@ -37,11 +66,14 @@ typedef struct LayoutConstraint {
 	TiDimension top;
 	TiDimension bottom;
 	TiDimension height;
+	
+	TiLayoutRule layout;
+	
 } LayoutConstraint;
 
 
 void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint,UIView * subView,UIView * superView,CGRect viewBounds,BOOL addToSuperview);
-void ReadConstraintFromDictionary(LayoutConstraint * constraint, NSDictionary * inputDict, LayoutConstraint * inheritance);
+void ReadConstraintFromDictionary(LayoutConstraint * constraint, NSDictionary * inputDict);
 CGFloat WidthFromConstraintGivenWidth(LayoutConstraint * constraint,CGFloat viewWidth);
 CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, UIView * subView, CGSize boundSize, UIViewAutoresizing * resultResizing);
 BOOL IsLayoutUndefined(LayoutConstraint *constraint);

@@ -197,16 +197,23 @@ void AQRecorder::SetupAudioFormat(UInt32 inFormatID)
 			// if we want pcm, default to signed 16-bit little-endian
 			mRecordFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
 			mRecordFormat.mBitsPerChannel = 16;
-			mRecordFormat.mBytesPerPacket = mRecordFormat.mBytesPerFrame = (mRecordFormat.mBitsPerChannel / 8) * mRecordFormat.mChannelsPerFrame;
+			mRecordFormat.mChannelsPerFrame = 1;
+			mRecordFormat.mBytesPerPacket = 2;
+			mRecordFormat.mBytesPerFrame = 2;			
 			mRecordFormat.mFramesPerPacket = 1;
+			mRecordFormat.mSampleRate = 22050.0;
 			break;
 		}
 		case kAudioFormatALaw:
 		case kAudioFormatULaw:
 		{
-			mRecordFormat.mSampleRate = 8000;
-			mRecordFormat.mChannelsPerFrame = 1;
+			mRecordFormat.mSampleRate = 8000.0;
+			mRecordFormat.mFormatFlags = 0;
 			mRecordFormat.mFramesPerPacket = 1;
+			mRecordFormat.mChannelsPerFrame = 1;
+			mRecordFormat.mBitsPerChannel = 8;
+			mRecordFormat.mBytesPerPacket = 1;
+			mRecordFormat.mBytesPerFrame = 1;
 			break;
 		}
 	}

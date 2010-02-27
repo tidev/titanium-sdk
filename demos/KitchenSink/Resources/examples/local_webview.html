@@ -30,8 +30,8 @@
 		// test isn't working
 		document.getElementById("foo").ontouchstart = function()
 		{
+			Ti.App.fireEvent('webview_hidetoolbar',{foo:'bar'});
 			Ti.API.info("clicked on local_webview link");
-			Ti.App.fireEvent('webview_hidetoolbar');
 		};
 	</script>
 	

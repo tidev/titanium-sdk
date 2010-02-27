@@ -47,6 +47,14 @@
 		243ED8EE11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ED8EC11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m */; };
 		243ED8EF11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ED8EC11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m */; };
 		243ED8F011288B4300639DF4 /* TiUITableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243ED8EC11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m */; };
+		245B3C3A11375A6600CE7530 /* UtilsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B3C3911375A6600CE7530 /* UtilsModule.m */; };
+		245B3C3B11375A6600CE7530 /* UtilsModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 245B3C3811375A6600CE7530 /* UtilsModule.h */; };
+		245B3C3C11375A6600CE7530 /* UtilsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B3C3911375A6600CE7530 /* UtilsModule.m */; };
+		245B3C3D11375A6600CE7530 /* UtilsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B3C3911375A6600CE7530 /* UtilsModule.m */; };
+		245B45611139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B45601139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m */; };
+		245B45621139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 245B455F1139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.h */; };
+		245B45631139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B45601139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m */; };
+		245B45641139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B45601139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m */; };
 		245E7621111A9A7700A18644 /* TitaniumModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8AA5111161FD0084E2DE /* TitaniumModule.h */; };
 		245E7622111A9A7800A18644 /* AccelerometerModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8B65111161FE0084E2DE /* AccelerometerModule.h */; };
 		245E7623111A9A7800A18644 /* APIModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8B59111161FE0084E2DE /* APIModule.h */; };
@@ -835,6 +843,10 @@
 		243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewSeparatorStyleProxy.m; sourceTree = "<group>"; };
 		243ED8EB11288B4300639DF4 /* TiUITableViewScrollPositionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewScrollPositionProxy.h; sourceTree = "<group>"; };
 		243ED8EC11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewScrollPositionProxy.m; sourceTree = "<group>"; };
+		245B3C3811375A6600CE7530 /* UtilsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UtilsModule.h; sourceTree = "<group>"; };
+		245B3C3911375A6600CE7530 /* UtilsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UtilsModule.m; sourceTree = "<group>"; };
+		245B455F1139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewCellSelectionStyleProxy.h; sourceTree = "<group>"; };
+		245B45601139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUITableViewCellSelectionStyleProxy.m; sourceTree = "<group>"; };
 		24A1E515112D33AF003DA834 /* TiMediaAudioSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMediaAudioSession.h; sourceTree = "<group>"; };
 		24A1E516112D33AF003DA834 /* TiMediaAudioSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMediaAudioSession.m; sourceTree = "<group>"; };
 		24A1E873112DF80B003DA834 /* TiUIPickerProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIPickerProxy.h; sourceTree = "<group>"; };
@@ -1370,6 +1382,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		245B3C3011375A4D00CE7530 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				245B3C3811375A6600CE7530 /* UtilsModule.h */,
+				245B3C3911375A6600CE7530 /* UtilsModule.m */,
+			);
+			name = Utils;
+			sourceTree = "<group>";
+		};
 		24A1E872112DF7E4003DA834 /* Picker */ = {
 			isa = PBXGroup;
 			children = (
@@ -1615,6 +1636,7 @@
 		24CA8A09111161D60084E2DE /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				245B3C3011375A4D00CE7530 /* Utils */,
 				24DEDAC21123719700398D86 /* XML */,
 				24CA8AA4111161FD0084E2DE /* TitaniumModule.m */,
 				24CA8AA5111161FD0084E2DE /* TitaniumModule.h */,
@@ -2018,6 +2040,8 @@
 				243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */,
 				243ED8EB11288B4300639DF4 /* TiUITableViewScrollPositionProxy.h */,
 				243ED8EC11288B4300639DF4 /* TiUITableViewScrollPositionProxy.m */,
+				245B455F1139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.h */,
+				245B45601139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m */,
 			);
 			name = iPhone;
 			sourceTree = "<group>";
@@ -2526,6 +2550,8 @@
 				24A1EAF9112F4C02003DA834 /* UIImage+Alpha.h in Headers */,
 				24A1EAFB112F4C02003DA834 /* UIImage+Resize.h in Headers */,
 				24A1EAFD112F4C02003DA834 /* UIImage+RoundedCorner.h in Headers */,
+				245B3C3B11375A6600CE7530 /* UtilsModule.h in Headers */,
+				245B45621139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2861,6 +2887,8 @@
 				24A1EAF6112F4C02003DA834 /* UIImage+Alpha.m in Sources */,
 				24A1EAF7112F4C02003DA834 /* UIImage+Resize.m in Sources */,
 				24A1EAF8112F4C02003DA834 /* UIImage+RoundedCorner.m in Sources */,
+				245B3C3D11375A6600CE7530 /* UtilsModule.m in Sources */,
+				245B45641139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3068,6 +3096,8 @@
 				24A1EAFF112F4C02003DA834 /* UIImage+Alpha.m in Sources */,
 				24A1EB00112F4C02003DA834 /* UIImage+Resize.m in Sources */,
 				24A1EB01112F4C02003DA834 /* UIImage+RoundedCorner.m in Sources */,
+				245B3C3A11375A6600CE7530 /* UtilsModule.m in Sources */,
+				245B45611139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3275,6 +3305,8 @@
 				24A1EAFA112F4C02003DA834 /* UIImage+Alpha.m in Sources */,
 				24A1EAFC112F4C02003DA834 /* UIImage+Resize.m in Sources */,
 				24A1EAFE112F4C02003DA834 /* UIImage+RoundedCorner.m in Sources */,
+				245B3C3C11375A6600CE7530 /* UtilsModule.m in Sources */,
+				245B45631139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

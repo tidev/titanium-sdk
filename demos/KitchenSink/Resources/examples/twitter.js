@@ -31,9 +31,9 @@ win.add(button);
 button.addEventListener('click', function()
 {
 	var xhr = Titanium.Network.createHTTPClient();
-	xhr.error = function(e)
+	xhr.onerror = function(e)
 	{
-		Ti.API.info("ERROR " + e.error)
+		alert("ERROR " + e.error)
 	}
 	xhr.onload = function()
 	{
