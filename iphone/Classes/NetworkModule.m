@@ -171,7 +171,10 @@ MAKE_SYSTEM_PROP_INT(NOTIFICATION_TYPE_SOUND,3);
 
 -(void)registerForPushNotifications:(id)args
 {
-	ENSURE_DICT(args);
+	ENSURE_SINGLE_ARG(args,NSDictionary);
+	
+	//TODO: remoteNotification
+	//TODO: handle if already registered
 	
 	UIApplication * app = [UIApplication sharedApplication];
 	UIRemoteNotificationType ourNotifications = [app enabledRemoteNotificationTypes];
@@ -216,6 +219,12 @@ MAKE_SYSTEM_PROP_INT(NOTIFICATION_TYPE_SOUND,3);
 	[app registerForRemoteNotificationTypes:ourNotifications];
 }
 
+-(void)unregisterForPushNotifications:(id)args
+{
+	UIApplication * app = [UIApplication sharedApplication];
+	[app unregisterForRemoteNotifications];
+}
+
 #pragma mark Push Notification Delegates
 
 -(void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
@@ -236,7 +245,7 @@ MAKE_SYSTEM_PROP_INT(NOTIFICATION_TYPE_SOUND,3);
 	// called by TitaniumApp
 	if (pushNotificationCallback!=nil)
 	{
-		id event = [SBJSON stringify:userInfo];
+		id event = [NSDictionary dictionaryWithObject:[SBJSON stringify:userInfo] forKey:@"data"];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
 	}
 }
