@@ -6,10 +6,12 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
@@ -51,23 +53,42 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 			textView.setPadding(4, 2, 4, 2);
 		}
 
-		public void setRowData(TiDict data)
+		public void setRowData(Item item)
 		{
-			textView.setText(data.getString("header"), TextView.BufferType.NORMAL);
+			if (item.headerText != null) {
+				textView.setText(item.headerText, TextView.BufferType.NORMAL);
+			} else if (item.footerText != null) {
+				textView.setText(item.footerText, TextView.BufferType.NORMAL);
+			}
 		}
 	}
 
 
-	public TiTableViewHeaderItem(Context context)
+	public TiTableViewHeaderItem(TiContext tiContext)
 	{
-		super(context);
+		super(tiContext);
 
 		this.handler = new Handler(this);
-		rowView = new RowView(context);
+		rowView = new RowView(tiContext.getActivity());
 		this.addView(rowView, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
+		setMinimumHeight(18);
 	}
 
-	public void setRowData(TiTableViewItemOptions defaults, TiDict template, TiDict data) {
-		rowView.setRowData(data);
+	public void setRowData(TiTableViewItemOptions defaults, Item item) {
+		rowView.setRowData(item);
+	}
+
+
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		measureChildren(widthMeasureSpec, heightMeasureSpec);
+		int w = MeasureSpec.getSize(widthMeasureSpec);
+		int h = Math.max(MeasureSpec.getSize(heightMeasureSpec), getSuggestedMinimumHeight());
+		setMeasuredDimension(resolveSize(w, widthMeasureSpec), resolveSize(h, heightMeasureSpec));
+	}
+
+	@Override
+	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+		rowView.layout(left, 0, right, bottom - top);
 	}
 }

@@ -32,6 +32,7 @@ public class TiUIButton extends TiUIView
 		}
 		Button btn = new Button(proxy.getContext());
 		btn.setOnClickListener(this);
+		btn.setPadding(0, 0, 0, 0);
 		setNativeView(btn);
 	}
 	

@@ -1,18 +1,21 @@
 package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,10 +31,6 @@ public class TiTableView extends FrameLayout
 	private static final String LCAT = "TiTableView";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	public static final int TYPE_HEADER = 0;
-	public static final int TYPE_NORMAL = 1;
-
-	private Handler handler;
 	private TableViewModel viewModel;
 	private ListView listView;
 	private TiTableViewItemOptions defaults;
@@ -39,8 +38,13 @@ public class TiTableView extends FrameLayout
 	private TiDict rowTemplate;
 	private OnItemClickedListener itemClickListener;
 
+	private HashMap<String, Integer> rowTypes;
+	private AtomicInteger rowTypeCounter;
+
 	private String filterAttribute;
 	private String filterText;
+
+	private TiContext tiContext;
 
 	public interface OnItemClickedListener {
 		public void onClick(TiDict item);
@@ -60,7 +64,7 @@ public class TiTableView extends FrameLayout
 
 		public void applyFilter() {
 
-			ArrayList<TiDict> items = viewModel.getViewModel();
+			ArrayList<Item> items = viewModel.getViewModel();
 			int count = items.size();
 
 			index.clear();
@@ -73,13 +77,14 @@ public class TiTableView extends FrameLayout
 				for(int i = 0; i < count; i++) {
 					boolean keep = true;
 
-					TiDict item = items.get(i);
-					if (item.containsKey(filterAttribute)) {
-						String t = item.getString(filterAttribute).toLowerCase();
-						if(t.indexOf(lfilter) < 0) {
-							keep = false;
-						}
-					}
+					Item item = items.get(i);
+// TODO fix filtering
+//					if (item.containsKey(filterAttribute)) {
+//						String t = item.getString(filterAttribute).toLowerCase();
+//						if(t.indexOf(lfilter) < 0) {
+//							keep = false;
+//						}
+//					}
 
 					if (keep) {
 						index.add(i);
@@ -108,45 +113,39 @@ public class TiTableView extends FrameLayout
 
 		@Override
 		public int getViewTypeCount() {
-			return 4;
+			return rowTypes.keySet().size();
 		}
 
 		@Override
 		public int getItemViewType(int position) {
-			TiDict o = (TiDict) getItem(position);
+			Item o = (Item) getItem(position);
 			return typeForItem(o);
 		}
 
-		private int typeForItem(TiDict o) {
-			int type = TYPE_NORMAL;
-			if (o != null) {
-				if (o.optBoolean("isDisplayHeader", false)) {
-					type = TYPE_HEADER;
-				}
-			}
-			return type;
+		private int typeForItem(Item item) {
+			return rowTypes.get(item.className);
 		}
 
 		public View getView(int position, View convertView, ViewGroup parent)
 		{
-			TiDict o = (TiDict) getItem(position);
+			Item item = (Item) getItem(position);
 			TiBaseTableViewItem v = null;
 
 			if (convertView != null) {
 				v = (TiBaseTableViewItem) convertView;
 			} else {
-				Context ctx = getContext();
-				switch(typeForItem(o)) {
-				case TYPE_HEADER :
-					v = new TiTableViewHeaderItem(ctx);
-					break;
-				case TYPE_NORMAL :
-					v = new TiTableViewNormalItem(ctx);
-					break;
+				if (item.className.equals(TableViewModel.CLASSNAME_HEADER)) {
+					v = new TiTableViewHeaderItem(tiContext);
+				} else if (item.className.equals(TableViewModel.CLASSNAME_NORMAL)) {
+					v = new TiTableViewRowProxyItem(tiContext);
+				} else if (item.className.equals(TableViewModel.CLASSNAME_DEFAULT)) {
+					v = new TiTableViewRowProxyItem(tiContext);
+				} else {
+					// TODO Create a generic row?
 				}
 			}
 
-			v.setRowData(defaults, rowTemplate, o);
+			v.setRowData(defaults, item);
 			return v;
 		}
 
@@ -158,8 +157,12 @@ public class TiTableView extends FrameLayout
 		@Override
 		public boolean isEnabled(int position) {
 			boolean enabled = true;
-			TiDict o = (TiDict) getItem(position);
-			enabled = !o.getBoolean("isDisplayHeader");
+			Item item = (Item) getItem(position);
+			if (item.className.equals(TableViewModel.CLASSNAME_HEADER)) {
+				enabled = false;
+			} else {
+				enabled = true;
+			}
 			return enabled;
 		}
 
@@ -179,10 +182,18 @@ public class TiTableView extends FrameLayout
 		}
 	}
 
-	public TiTableView(Context context)
+	public TiTableView(TiContext tiContext)
 	{
-		super(context);
-		this.handler = new Handler();
+		super(tiContext.getActivity());
+
+		this.tiContext = tiContext;
+
+		rowTypes = new HashMap<String, Integer>();
+		rowTypeCounter = new AtomicInteger(-1);
+
+		rowTypes.put(TableViewModel.CLASSNAME_HEADER, rowTypeCounter.incrementAndGet());
+		rowTypes.put(TableViewModel.CLASSNAME_NORMAL, rowTypeCounter.incrementAndGet());
+		rowTypes.put(TableViewModel.CLASSNAME_DEFAULT, rowTypeCounter.incrementAndGet());
 
 //TODO bookmark
 		this.defaults = new TiTableViewItemOptions();
@@ -196,7 +207,7 @@ public class TiTableView extends FrameLayout
 		defaults.put("scrollBar", "auto");
 		defaults.put("textAlign", "left");
 
-		this.viewModel = new TableViewModel();
+		this.viewModel = new TableViewModel(tiContext);
 
 		this.listView = new ListView(getContext()) {
 
@@ -249,17 +260,17 @@ public class TiTableView extends FrameLayout
 				if (itemClickListener != null) {
 					TiBaseTableViewItem v = (TiBaseTableViewItem) view;
 					String viewClicked = v.getLastClickedViewName();
-					TiDict item = viewModel.getViewModel().get(adapter.index.get(position));
+					Item item = viewModel.getViewModel().get(adapter.index.get(position));
 					TiDict event = new TiDict();
 
-					event.put("rowData", item);
-					event.put("section", item.getInt("section"));
-					event.put("row", item.getInt("sectionIndex"));
-					event.put("index", item.getInt("index"));
+					event.put("rowData", item.rowData);
+					event.put("section", item.sectionIndex);
+					event.put("row", item.indexInSection);
+					event.put("index", item.index);
 					event.put("detail", false);
-					if (item.containsKey("name")) {
-						event.put("name", item.getString("name"));
-					}
+//					if (item.containsKey("name")) {
+//						event.put("name", item.getString("name"));
+//					}
 
 					if (viewClicked != null) {
 						event.put("layoutName", viewClicked);
