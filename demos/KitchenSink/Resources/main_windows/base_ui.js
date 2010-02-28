@@ -9,6 +9,8 @@ var data = [
 	{title:'Views', hasChild:true, test:'../examples/views.js'},
 	{title:'Animation', hasChild:true, test:'../examples/animation.js'},
 	{title:'Custom Events', hasChild:true, test:'../examples/custom_events.js'},
+	{title:'Vertical Layout', hasChild:true, test:'../examples/vertical_layout.js'},
+
 ];
 
 // add iphone specific tests

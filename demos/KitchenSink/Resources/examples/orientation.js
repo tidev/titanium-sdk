@@ -84,6 +84,7 @@ b2.addEventListener('click', function()
 });
 
 
+
 var landscape = Titanium.UI.createButton({
 	title:'Allow Landscape Only',
 	width:200,
@@ -100,7 +101,47 @@ landscape.addEventListener('click', function()
 	Titanium.UI.orientation = Titanium.UI.LANDSCAPE_LEFT
 });
 
+//
+// open a new window
+//
+var b3 = Titanium.UI.createButton({
+	title:'Open A Window',
+	width:200,
+	height:40,
+	top:190
+});
+win.add(b3);
 
+b3.addEventListener('click', function()
+{
+	var win = Ti.UI.createWindow({
+		url:'vibrate.js',
+		backgroundColor:'purple', 
+	});
+	
+	win.orientationModes = [ 
+		Titanium.UI.PORTRAIT, 
+		Titanium.UI.UPSIDE_PORTRAIT, 
+		Titanium.UI.LANDSCAPE_LEFT, 
+		Titanium.UI.LANDSCAPE_RIGHT, 
+		Titanium.UI.FACE_UP, 
+		Titanium.UI.FACE_DOWN, 
+	];
+	
+	var close = Titanium.UI.createButton({
+		title:'close',
+		width:200,
+		height:40,
+		top:60
+	});
+	win.add(close);
+	close.addEventListener('click', function()
+	{
+		win.close();
+	})
+	win.open()
+	//Ti.UI.currentTab.open(win,{animated:true});
+});
 win.add(landscape);
 
 //

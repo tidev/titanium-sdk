@@ -75,8 +75,8 @@
 	if ([self _hasListeners:@"change"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-							   NUMINT([self networkType]), @"networkType",
-							   NUMBOOL([self online]), @"online",
+							   [self networkType], @"networkType",
+							   [self online], @"online",
 							   [self networkTypeName], @"networkTypeName",
 							   nil];
 		[self fireEvent:@"change" withObject:event];
@@ -127,16 +127,16 @@
 	return [[TitaniumApp app] remoteDeviceUUID];
 }
 
--(BOOL)online
+- (NSNumber*)online
 {
 	if (state!=TiNetworkConnectionStateNone && state!=TiNetworkConnectionStateUnknown)
 	{
-		return YES;
+		return NUMBOOL(YES);
 	}
-	return NO;
+	return NUMBOOL(NO);
 }
 
--(NSString*)networkTypeName
+- (NSString*)networkTypeName
 {
 	switch(state)
 	{
@@ -152,20 +152,20 @@
 	return @"UNKNOWN";
 }
 
--(NSInteger)networkType
+-(NSNumber*)networkType
 {
-	return state;
+	return NUMINT(state);
 }
 
-MAKE_SYSTEM_PROP_INT(NETWORK_NONE,TiNetworkConnectionStateNone);
-MAKE_SYSTEM_PROP_INT(NETWORK_WIFI,TiNetworkConnectionStateWifi);
-MAKE_SYSTEM_PROP_INT(NETWORK_MOBILE,TiNetworkConnectionStateMobile);
-MAKE_SYSTEM_PROP_INT(NETWORK_LAN,TiNetworkConnectionStateLan);
-MAKE_SYSTEM_PROP_INT(NETWORK_UNKNOWN,TiNetworkConnectionStateUnknown);
+MAKE_SYSTEM_PROP(NETWORK_NONE,TiNetworkConnectionStateNone);
+MAKE_SYSTEM_PROP(NETWORK_WIFI,TiNetworkConnectionStateWifi);
+MAKE_SYSTEM_PROP(NETWORK_MOBILE,TiNetworkConnectionStateMobile);
+MAKE_SYSTEM_PROP(NETWORK_LAN,TiNetworkConnectionStateLan);
+MAKE_SYSTEM_PROP(NETWORK_UNKNOWN,TiNetworkConnectionStateUnknown);
 
-MAKE_SYSTEM_PROP_INT(NOTIFICATION_TYPE_BADGE,1);
-MAKE_SYSTEM_PROP_INT(NOTIFICATION_TYPE_ALERT,2);
-MAKE_SYSTEM_PROP_INT(NOTIFICATION_TYPE_SOUND,3);
+MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_BADGE,1);
+MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_ALERT,2);
+MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 
 #pragma mark Push Notifications 
 

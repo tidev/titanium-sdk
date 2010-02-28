@@ -83,6 +83,10 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth)
 
 	for (TiUIView * thisChildView in [superView subviews])
 	{
+		if (![thisChildView respondsToSelector:@selector(minimumParentHeightForWidth:)])
+		{
+			continue;
+		}
 		CGFloat thisHeight = [thisChildView minimumParentHeightForWidth:suggestedWidth];
 		if (TiLayoutRuleIsVertical([thisChildView layout]->layout))
 		{

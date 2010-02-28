@@ -1,3 +1,11 @@
+var win = Ti.UI.currentWindow;
+
+// initialize to all modes
+win.orientationModes = [
+	Titanium.UI.PORTRAIT,
+	Titanium.UI.LANDSCAPE_LEFT,
+	Titanium.UI.LANDSCAPE_RIGHT,
+];
 Titanium.Media.openPhotoGallery({
 	success: function(event)
 	{
