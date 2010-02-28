@@ -409,6 +409,7 @@ NSString * const TI_DB_VERSION = @"1";
 	AnalyticsStarted = YES;
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(analyticsEvent:) name:kTitaniumAnalyticsNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteDeviceUUIDChanged:) name:kTitaniumRemoteDeviceUUIDNotification object:nil];
 	
 	[self begin];
 	[super startup];
@@ -421,6 +422,7 @@ NSString * const TI_DB_VERSION = @"1";
 		[self queueEvent:@"ti.end" name:@"ti.end" data:nil immediate:YES];
 		[database close];
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTitaniumAnalyticsNotification object:nil];
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTitaniumRemoteDeviceUUIDNotification object:nil];
 	}
 }
 
@@ -441,6 +443,14 @@ NSString * const TI_DB_VERSION = @"1";
 	{
 		NSLog(@"[ERROR] invalid analytics event received. excepted dictionary. was: %@",[userInfo class]);
 	}
+}
+
+-(void)remoteDeviceUUIDChanged:(NSNotification*)note
+{
+	id userInfo = [note userInfo];
+	NSString *deviceid = [userInfo objectForKey:@"deviceid"];
+	NSDictionary *event = [NSDictionary dictionaryWithObject:deviceid forKey:@"deviceid"];
+	[self queueEvent:@"app.settings" name:@"RemoteDeviceUUID" data:event immediate:NO];
 }
 
 #pragma mark Helper methods

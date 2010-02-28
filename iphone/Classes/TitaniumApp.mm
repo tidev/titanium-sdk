@@ -203,6 +203,13 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	NSSetUncaughtExceptionHandler(&MyUncaughtExceptionHandler);
     [self loadSplash];
 	
+	// get the current remote device UUID if we have one
+	NSString *curKey = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
+	if (curKey!=nil)
+	{
+		remoteDeviceUUID = [curKey copy];
+	}
+
 	launchOptions = [[NSMutableDictionary alloc] initWithDictionary:launchOptions_];
 	
 	NSURL *urlOptions = [launchOptions objectForKey:UIApplicationLaunchOptionsURLKey];
@@ -274,6 +281,8 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"withString:@""] 
 						stringByReplacingOccurrencesOfString:@">" withString:@""] 
 					   stringByReplacingOccurrencesOfString: @" " withString: @""];
+	
+	RELEASE_TO_NIL(remoteDeviceUUID);
 	remoteDeviceUUID = [token copy];
 	
 	NSString *curKey = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
@@ -282,6 +291,8 @@ void MyUncaughtExceptionHandler(NSException *exception)
 		// this is the first time being registered, we need to indicate to our backend that we have a 
 		// new registered device to enable this device to receive notifications from the cloud
 		[[NSUserDefaults standardUserDefaults] setObject:remoteDeviceUUID forKey:@"APNSRemoteDeviceUUID"];
+		NSDictionary *userInfo = [NSDictionary dictionaryWithObject:remoteDeviceUUID forKey:@"deviceid"];
+		[[NSNotificationCenter defaultCenter] postNotificationName:kTitaniumRemoteDeviceUUIDNotification object:self userInfo:userInfo];
 		NSLog(@"[DEBUG] registered new device ready for remote push notifications: %@",remoteDeviceUUID);
 	}
 	
