@@ -130,7 +130,9 @@ public class TiTabActivity extends ActivityGroup
 		Intent intent = getIntent();
 		if (intent != null) {
 			if (intent.getBooleanExtra("finishRoot", false)) {
-				((TiApplication) getApplication()).getRootActivity().finish();
+				if (getApplication() != null) {
+					getTiApp().getRootActivity().finish();
+				}
 			}
 		}
 		super.finish();
@@ -139,13 +141,13 @@ public class TiTabActivity extends ActivityGroup
 	@Override
 	protected void onPause() {
 		super.onPause();
-		((TiApplication) getApplication()).setWindowHandler(null);
+		getTiApp().setWindowHandler(null);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		((TiApplication) getApplication()).setWindowHandler(this);
+		getTiApp().setWindowHandler(this);
 	}
 
 }

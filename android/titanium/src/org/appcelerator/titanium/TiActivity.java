@@ -122,6 +122,9 @@ public class TiActivity extends Activity
 			        	} catch (RemoteException e) {
 			        		Log.e(LCAT, "Unable to message creator. finishing.");
 			        		me.finish();
+			        	} catch (RuntimeException e) {
+			        		Log.e(LCAT, "Unable to message creator. finishing.");
+			        		me.finish();
 			        	}
 			        }
 				}

@@ -223,7 +223,7 @@ public class TiConvert
 	}
 
 	public static String toString(Object value) {
-		return value == null ? "null" : value.toString();
+		return value == null ? null : value.toString();
 	}
 	public static String toString(TiDict d, String key) {
 		return toString(d.get(key));
