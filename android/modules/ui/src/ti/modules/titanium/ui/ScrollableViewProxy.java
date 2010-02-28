@@ -29,6 +29,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	public static final int MSG_MOVE_NEXT = MSG_FIRST_ID + 103;
 	public static final int MSG_SCROLL_TO = MSG_FIRST_ID + 104;
 	public static final int MSG_SET_VIEWS = MSG_FIRST_ID + 105;
+	public static final int MSG_ADD_VIEW = MSG_FIRST_ID + 106;
 	public static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	
 	protected AtomicBoolean inAnimation;
@@ -76,13 +77,19 @@ public class ScrollableViewProxy extends TiViewProxy
 				break;
 			case MSG_SCROLL_TO :
 				inScroll.set(true);
-				getView().doScrollToView(msg.arg1);
+				getView().doScrollToView(msg.obj);
 				inScroll.set(false);
 				handled = true;
 				break;
 			case MSG_SET_VIEWS:
 				getView().setViews(msg.obj);
 				handled = true;
+				break;
+			case MSG_ADD_VIEW:
+				if (msg.obj instanceof TiViewProxy) {
+					getView().addView((TiViewProxy)msg.obj);
+					handled = true;
+				}
 				break;
 			default :
 				handled = super.handleMessage(msg);
@@ -103,9 +110,15 @@ public class ScrollableViewProxy extends TiViewProxy
 		msg.sendToTarget();
 	}
 	
-	public void scrollToView(int position) {
+	public void addView(Object viewObject) {
+		Message msg = getUIHandler().obtainMessage(MSG_ADD_VIEW);
+		msg.obj = viewObject;
+		msg.sendToTarget();
+	}
+	
+	public void scrollToView(Object view) {
 		if (inScroll.get()) return;
-		getUIHandler().obtainMessage(MSG_SCROLL_TO, position, -1).sendToTarget();
+		getUIHandler().obtainMessage(MSG_SCROLL_TO, view).sendToTarget();
 	}
 	
 	public void movePrevious() {
