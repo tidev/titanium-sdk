@@ -21,6 +21,8 @@ Titanium.Network.registerForPushNotifications({
 		var deviceToken = e.deviceToken;
 		label.text = "Device registered. Device token: \n\n"+deviceToken;
 		Ti.API.info("Push notification device token is: "+deviceToken);
+		Ti.API.info("Push notification types: "+Titanium.Network.remoteNotificationTypes);
+		Ti.API.info("Push notification enabled: "+Titanium.Network.remoteNotificationsEnabled);
 	},
 	error:function(e)
 	{

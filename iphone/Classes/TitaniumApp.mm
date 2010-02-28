@@ -222,10 +222,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	}
 	if (notification!=nil)
 	{
-		[launchOptions setObject:notification forKey:@"notification"];
-		[launchOptions removeObjectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
-		// trigger manually since this method isn't called when we have this delegate implemented 
-		[self application:application didReceiveRemoteNotification:notification];
+		remoteNotification = [[notification objectForKey:@"aps"] retain];
 	}
 	
 	[self boot];
@@ -260,16 +257,20 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
 {
-	// NOTE: this is called when the app is *started* after receiving a push notification
+	// NOTE: this is called when the app is *running* after receiving a push notification
+	// otherwise, if the app is started from a push notification, this method will not be 
+	// called
+	RELEASE_TO_NIL(remoteNotification);
+	remoteNotification = [[userInfo objectForKey:@"aps"] retain];
+	
 	if (remoteNotificationDelegate!=nil)
 	{
-		remoteNotification = [[userInfo objectForKey:@"aps"] retain];
 		[remoteNotificationDelegate performSelector:@selector(application:didReceiveRemoteNotification:) withObject:application withObject:remoteNotification];
 	}
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
-{
+{ 
 	NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"withString:@""] 
 						stringByReplacingOccurrencesOfString:@">" withString:@""] 
 					   stringByReplacingOccurrencesOfString: @" " withString: @""];
@@ -366,6 +367,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	RELEASE_TO_NIL(networkActivity);
 	RELEASE_TO_NIL(userAgent);
 	RELEASE_TO_NIL(remoteDeviceUUID);
+	RELEASE_TO_NIL(remoteNotification);
     [super dealloc];
 }
 
