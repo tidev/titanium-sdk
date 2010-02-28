@@ -18,20 +18,20 @@
 	Reachability *reachability;
 }
 
-@property(nonatomic,readonly) BOOL online;
+@property(nonatomic,readonly) NSNumber* online;
 @property(nonatomic,readonly) NSString* networkTypeName;
-@property(nonatomic,readonly) NSInteger networkType;
+@property(nonatomic,readonly) NSNumber* networkType;
 @property(nonatomic,readonly) NSString* remoteDeviceUUID;
 
-@property(nonatomic,readonly) NSInteger NETWORK_NONE;
-@property(nonatomic,readonly) NSInteger NETWORK_WIFI;
-@property(nonatomic,readonly) NSInteger NETWORK_MOBILE;
-@property(nonatomic,readonly) NSInteger NETWORK_LAN;
-@property(nonatomic,readonly) NSInteger NETWORK_UNKNOWN;
+@property(nonatomic,readonly) NSNumber* NETWORK_NONE;
+@property(nonatomic,readonly) NSNumber* NETWORK_WIFI;
+@property(nonatomic,readonly) NSNumber* NETWORK_MOBILE;
+@property(nonatomic,readonly) NSNumber* NETWORK_LAN;
+@property(nonatomic,readonly) NSNumber* NETWORK_UNKNOWN;
 
-@property(nonatomic,readonly) NSInteger NOTIFICATION_TYPE_BADGE;
-@property(nonatomic,readonly) NSInteger NOTIFICATION_TYPE_ALERT;
-@property(nonatomic,readonly) NSInteger NOTIFICATION_TYPE_SOUND;
+@property(nonatomic,readonly) NSNumber* NOTIFICATION_TYPE_BADGE;
+@property(nonatomic,readonly) NSNumber* NOTIFICATION_TYPE_ALERT;
+@property(nonatomic,readonly) NSNumber* NOTIFICATION_TYPE_SOUND;
 
 
 -(id)encodeURIComponent:(id)args;

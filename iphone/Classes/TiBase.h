@@ -234,12 +234,6 @@ if (((x)<(minX)) || ((x)>(maxX))) \
 #define THROW_INVALID_ARG(m) \
 [self throwException:TiExceptionInvalidType subreason:m location:CODELOCATION]; \
 
-#define MAKE_SYSTEM_PROP_INT(name,map) \
--(NSInteger)name \
-{\
-return map;\
-}\
-
 #define MAKE_SYSTEM_PROP(name,map) \
 -(NSNumber*)name \
 {\
