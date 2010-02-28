@@ -94,7 +94,7 @@
 		}
 		case TiDimensionTypeAuto:
 		{
-			minimumContentHeight = AutoHeightForView(wrapperView, newContentSize.width);
+			minimumContentHeight = AutoHeightForView(wrapperView, newContentSize.width, TiLayoutRuleIsVertical([self layout]->layout));
 			break;
 		}
 		default:
@@ -130,7 +130,7 @@
 	CGRect bounds;
 	bounds.origin = CGPointZero;
 	bounds.size = [scrollView contentSize];
-	if (TiLayoutRuleIsVertical([childView layout]->layout))
+	if (TiLayoutRuleIsVertical([self layout]->layout))
 	{
 		bounds.origin.y += verticalLayoutBoundary;
 		bounds.size.height = [childView minimumParentHeightForWidth:bounds.size.width];

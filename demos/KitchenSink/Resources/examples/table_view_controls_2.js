@@ -15,7 +15,7 @@ function addRow()
 		right:10,
 		value:false
 	});
-
+	
 	row.add(sw);
 	
 	sw.addEventListener('change', function(e)
@@ -66,9 +66,8 @@ var tableView = Ti.UI.createTableView({
 	style: Titanium.UI.iPhone.TableViewStyle.GROUPED,
 	top:50
 });
-tableView.addEventListener('click', function()
+tableView.addEventListener('click', function(e)
 {
-	clickLabel.text = 'row clicked at ' + new Date();
-	
+	clickLabel.text = 'row clicked at ' + new Date()+', source='+e.source;
 });
 win.add(tableView);	

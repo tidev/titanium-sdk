@@ -21,7 +21,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 void RestoreScrollViewFromKeyboard(UIScrollView * scrollView);
 
 CGFloat AutoWidthForView(UIView * superView,CGFloat suggestedWidth);
-CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth);
+CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVertical);
+//CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth);
 
 
 @class TiViewProxy;

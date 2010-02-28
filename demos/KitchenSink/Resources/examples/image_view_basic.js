@@ -13,7 +13,7 @@ var l = Titanium.UI.createLabel({
 	text:'Click Image',
 	bottom:30,
 	color:'#999',
-	height:20,
+	height:'auto',
 	width:300,
 	textAlign:'center'
 });
@@ -22,7 +22,8 @@ win.add(l);
 function clicker()
 {
 	Titanium.UI.createAlertDialog({title:'Image View', message:'You clicked me!'}).show();
-	l.text = "Try again. You shouldn't get alert";
+	l.text = "Try again. You shouldn't get alert and the image should be different";
+	imageView.url = '../images/Kicking00.png';
 	imageView.removeEventListener('click',clicker);
 }
 

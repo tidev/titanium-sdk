@@ -122,11 +122,6 @@
 	[self removeEventListener:newargs];
 }
 
-- (NSString*) remoteDeviceUUID
-{
-	return [[TitaniumApp app] remoteDeviceUUID];
-}
-
 - (NSNumber*)online
 {
 	if (state!=TiNetworkConnectionStateNone && state!=TiNetworkConnectionStateUnknown)
@@ -169,12 +164,39 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 
 #pragma mark Push Notifications 
 
+- (NSString*) remoteDeviceUUID
+{
+	return [[TitaniumApp app] remoteDeviceUUID];
+}
+
+- (NSNumber*)remoteNotificationsEnabled
+{
+	UIRemoteNotificationType types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+	return NUMBOOL(types != UIRemoteNotificationTypeNone);
+}
+
+- (NSArray*)remoteNotificationTypes
+{
+	UIRemoteNotificationType types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+	NSMutableArray *result = [NSMutableArray array];
+	if ((types & UIRemoteNotificationTypeBadge)!=0)
+	{
+		[result addObject:NUMINT(1)];
+	}
+	if ((types & UIRemoteNotificationTypeAlert)!=0)
+	{
+		[result addObject:NUMINT(2)];
+	}
+	if ((types & UIRemoteNotificationTypeSound)!=0)
+	{
+		[result addObject:NUMINT(3)];
+	}
+	return result;
+}
+
 -(void)registerForPushNotifications:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSDictionary);
-	
-	//TODO: remoteNotification
-	//TODO: handle if already registered
 	
 	UIApplication * app = [UIApplication sharedApplication];
 	UIRemoteNotificationType ourNotifications = [app enabledRemoteNotificationTypes];
@@ -217,6 +239,15 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 	
 	[[TitaniumApp app] setRemoteNotificationDelegate:self];
 	[app registerForRemoteNotificationTypes:ourNotifications];
+	
+	// check to see upon registration if we were started with a push 
+	// notification and if so, go ahead and trigger our callback
+	id currentNotification = [[TitaniumApp app] remoteNotification];
+	if (currentNotification!=nil && pushNotificationCallback!=nil)
+	{
+		id event = [NSDictionary dictionaryWithObject:currentNotification forKey:@"data"];
+		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
+	}
 }
 
 -(void)unregisterForPushNotifications:(id)args
@@ -236,8 +267,6 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 		NSDictionary *event = [NSDictionary dictionaryWithObject:token forKey:@"deviceToken"];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationSuccess thisObject:nil];
 	}
-	
-	//TODO: fire register
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
@@ -245,7 +274,7 @@ MAKE_SYSTEM_PROP(NOTIFICATION_TYPE_SOUND,3);
 	// called by TitaniumApp
 	if (pushNotificationCallback!=nil)
 	{
-		id event = [NSDictionary dictionaryWithObject:[SBJSON stringify:userInfo] forKey:@"data"];
+		id event = [NSDictionary dictionaryWithObject:userInfo forKey:@"data"];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
 	}
 }

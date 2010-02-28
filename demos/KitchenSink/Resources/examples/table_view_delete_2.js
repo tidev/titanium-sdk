@@ -31,7 +31,7 @@ tableview.addEventListener('click', function(e)
 tableview.addEventListener('delete',function(e)
 {
 	var s = e.section;
-	Ti.API.info('rows ' + s.rows + ' rowCount ' + s.rowCount + ' headerTitle ' + s.headerTitle);
+	Ti.API.info('rows ' + s.rows + ' rowCount ' + s.rowCount + ' headerTitle ' + s.headerTitle + ' title ' + e.rowData.title);
 
 	Titanium.API.info("deleted - row="+e.row+", index="+e.index+", section="+e.section);
 });

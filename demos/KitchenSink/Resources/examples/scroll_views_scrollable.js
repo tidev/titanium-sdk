@@ -157,10 +157,13 @@ var flexSpace = Titanium.UI.createButton({
 	systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 });
 
-if (Titanium.Platform.name == 'iphone') {
+if (Titanium.Platform.osname == 'iphone') 
+{
 	// set toolbar
 	win.setToolbar([flexSpace,left,change,add,jump,right,flexSpace]);
-} else {
+} 
+else 
+{
 	var toolbar = Titanium.UI.createView({
 		bottom: 5,
 		width: 'auto',

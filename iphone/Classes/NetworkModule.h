@@ -22,6 +22,8 @@
 @property(nonatomic,readonly) NSString* networkTypeName;
 @property(nonatomic,readonly) NSNumber* networkType;
 @property(nonatomic,readonly) NSString* remoteDeviceUUID;
+@property(nonatomic,readonly) NSNumber* remoteNotificationsEnabled;
+@property(nonatomic,readonly) NSArray* remoteNotificationTypes;
 
 @property(nonatomic,readonly) NSNumber* NETWORK_NONE;
 @property(nonatomic,readonly) NSNumber* NETWORK_WIFI;

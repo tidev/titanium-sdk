@@ -3,7 +3,7 @@ win.layout = 'vertical';
 
 // HEADER
 var header = Ti.UI.createView({height:50});
-var headerLabel = Ti.UI.createLabel({color:'#777', textAlign:'center', height:'auto', text:'Header'});
+var headerLabel = Ti.UI.createLabel({color:'#777', top:10,textAlign:'center', height:'auto', text:'Header'});
 header.add(headerLabel);
 
 win.add(header);
