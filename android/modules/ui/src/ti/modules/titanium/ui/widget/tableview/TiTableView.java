@@ -2,15 +2,16 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
-import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -62,7 +63,9 @@ public class TiTableView extends FrameLayout
 			applyFilter();
 		}
 
-		public void applyFilter() {
+		public void applyFilter()
+		{
+			boolean classChange = false;
 
 			ArrayList<Item> items = viewModel.getViewModel();
 			int count = items.size();
@@ -78,6 +81,13 @@ public class TiTableView extends FrameLayout
 					boolean keep = true;
 
 					Item item = items.get(i);
+					if (!rowTypes.containsKey(item.className)) {
+						if (DBG) {
+							Log.i(LCAT, "Adding className " + item.className);
+						}
+						rowTypes.put(item.className, rowTypeCounter.incrementAndGet());
+						classChange = true;
+					}
 // TODO fix filtering
 //					if (item.containsKey(filterAttribute)) {
 //						String t = item.getString(filterAttribute).toLowerCase();
@@ -92,8 +102,22 @@ public class TiTableView extends FrameLayout
 				}
 			} else {
 				for(int i = 0; i < count; i++) {
+
+					Item item = items.get(i);
+					if (!rowTypes.containsKey(item.className)) {
+						if (DBG) {
+							Log.i(LCAT, "Adding className " + item.className);
+						}
+						rowTypes.put(item.className, rowTypeCounter.incrementAndGet());
+						classChange = true;
+					}
+
 					index.add(i);
 				}
+			}
+
+			if (classChange) {
+				listView.setAdapter(this);
 			}
 		}
 
@@ -113,7 +137,8 @@ public class TiTableView extends FrameLayout
 
 		@Override
 		public int getViewTypeCount() {
-			return rowTypes.keySet().size();
+			Set<String> types = rowTypes.keySet();
+			return types.size();
 		}
 
 		@Override
@@ -123,6 +148,12 @@ public class TiTableView extends FrameLayout
 		}
 
 		private int typeForItem(Item item) {
+			if(!rowTypes.containsKey(item.className)) {
+				rowTypes.put(item.className, rowTypeCounter.incrementAndGet());
+				if (DBG) {
+					Log.i(LCAT, "Adding row class type: " + item.className);
+				}
+			}
 			return rowTypes.get(item.className);
 		}
 
@@ -133,15 +164,25 @@ public class TiTableView extends FrameLayout
 
 			if (convertView != null) {
 				v = (TiBaseTableViewItem) convertView;
-			} else {
+				if (!v.getClassName().equals(item.className)) {
+					Log.w(LCAT, "Handed a view to convert with className " + v.getClassName() + " expected " + item.className);
+					v = null;
+				}
+			}
+
+			if (v == null) {
 				if (item.className.equals(TableViewModel.CLASSNAME_HEADER)) {
 					v = new TiTableViewHeaderItem(tiContext);
+					v.setClassName(TableViewModel.CLASSNAME_HEADER);
 				} else if (item.className.equals(TableViewModel.CLASSNAME_NORMAL)) {
 					v = new TiTableViewRowProxyItem(tiContext);
+					v.setClassName(TableViewModel.CLASSNAME_NORMAL);
 				} else if (item.className.equals(TableViewModel.CLASSNAME_DEFAULT)) {
 					v = new TiTableViewRowProxyItem(tiContext);
+					v.setClassName(TableViewModel.CLASSNAME_DEFAULT);
 				} else {
-					// TODO Create a generic row?
+					v = new TiTableViewRowProxyItem(tiContext);
+					v.setClassName(item.className);
 				}
 			}
 

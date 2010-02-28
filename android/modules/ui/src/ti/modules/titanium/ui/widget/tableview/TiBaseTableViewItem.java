@@ -26,6 +26,7 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 	protected Handler handler;
 	protected TiContext tiContext;
 	protected TiFileHelper tfh;
+	protected String className;
 
 	public TiBaseTableViewItem(TiContext tiContext)
 	{
@@ -58,5 +59,13 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 			tfh = new TiFileHelper(tiContext.getActivity());
 		}
 		return tfh.loadDrawable(url, false);
+	}
+
+	public String getClassName() {
+		return className;
+	}
+
+	public void setClassName(String className) {
+		this.className = className;
 	}
 }
