@@ -251,7 +251,7 @@ b.addEventListener('click', function()
 		}
 		case 1:
 		{
-			Titanium.Platform.openURL('tel:6504509671');
+			Titanium.Platform.openURL('tel:4043332222');
 			b.title='Open URL (tel)';
 			openURL++;
 			break;

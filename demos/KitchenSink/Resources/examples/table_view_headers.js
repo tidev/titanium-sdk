@@ -69,7 +69,8 @@ var search = Titanium.UI.createSearchBar({
 // create table view
 var tableview = Titanium.UI.createTableView({
 	data:data,
-	search:search
+	search:search,
+	filterAttribute:'title'
 });
 
 // create table view event listener

@@ -23,6 +23,7 @@ var data = [
 	{title:'Update Row Objects', hasChild:true, test:'../examples/table_view_update_row_objects.js'},
 	{title:'Composite (Partial Size)', hasChild:true, test:'../examples/table_view_composite.js'},
 	{title:'Grouped w/BG Image', hasChild:true, test:'../examples/table_view_grouped_bg_image.js'},
+	{title:'Table View w/Text Field', hasChild:true, test:'../examples/table_view_textfield.js'},
 
 	{title:'Table API Basic', hasChild:true, test:'../examples/table_view_api_basic.js', header:'New Programmatic API'},
 	{title:'Table Grouped View', hasChild:true, test:'../examples/table_view_api_grouped.js'},
