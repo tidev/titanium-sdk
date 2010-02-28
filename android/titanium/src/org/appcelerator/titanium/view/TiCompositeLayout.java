@@ -137,21 +137,23 @@ public class TiCompositeLayout extends ViewGroup
 		int maxHeight = h;
 
 		if (needsSort) {
-			Log.e("SORTING", "Sorting.....");
-			viewSorter.clear();
+			if (count > 1) { // No need to sort one item.
+				Log.e("SORTING", "Sorting.....");
+				viewSorter.clear();
 
-			for(int i = 0; i < count; i++) {
-				View child = getChildAt(i);
-				TiCompositeLayout.LayoutParams params =
-					(TiCompositeLayout.LayoutParams) child.getLayoutParams();
-				params.index = i;
-				viewSorter.add(child);
-			}
+				for(int i = 0; i < count; i++) {
+					View child = getChildAt(i);
+					TiCompositeLayout.LayoutParams params =
+						(TiCompositeLayout.LayoutParams) child.getLayoutParams();
+					params.index = i;
+					viewSorter.add(child);
+				}
 
-			detachAllViewsFromParent();
-			int i = 0;
-			for (View child : viewSorter) {
-				attachViewToParent(child, i++, child.getLayoutParams());
+				detachAllViewsFromParent();
+				int i = 0;
+				for (View child : viewSorter) {
+					attachViewToParent(child, i++, child.getLayoutParams());
+				}
 			}
 			needsSort = false;
 		}
