@@ -33,12 +33,12 @@
 	
 	BOOL keyboardShowing;
 	id remoteNotificationDelegate;
-	id remoteNotification;
+	NSDictionary* remoteNotification;
 }
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, assign) id remoteNotificationDelegate;
-@property (nonatomic, readonly) id remoteNotification;
+@property (nonatomic, readonly) NSDictionary* remoteNotification;
 
 +(TitaniumApp*)app;
 
