@@ -53,9 +53,13 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 			textView.setPadding(4, 2, 4, 2);
 		}
 
-		public void setRowData(TiDict data)
+		public void setRowData(Item item)
 		{
-			textView.setText(data.getString("header"), TextView.BufferType.NORMAL);
+			if (item.headerText != null) {
+				textView.setText(item.headerText, TextView.BufferType.NORMAL);
+			} else if (item.footerText != null) {
+				textView.setText(item.footerText, TextView.BufferType.NORMAL);
+			}
 		}
 	}
 
@@ -67,14 +71,24 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		this.handler = new Handler(this);
 		rowView = new RowView(tiContext.getActivity());
 		this.addView(rowView, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.FILL_PARENT));
+		setMinimumHeight(18);
 	}
 
 	public void setRowData(TiTableViewItemOptions defaults, Item item) {
-		rowView.setRowData((TiDict) item.rowData);
+		rowView.setRowData(item);
+	}
+
+
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		measureChildren(widthMeasureSpec, heightMeasureSpec);
+		int w = MeasureSpec.getSize(widthMeasureSpec);
+		int h = Math.max(MeasureSpec.getSize(heightMeasureSpec), getSuggestedMinimumHeight());
+		setMeasuredDimension(resolveSize(w, widthMeasureSpec), resolveSize(h, heightMeasureSpec));
 	}
 
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-
+		rowView.layout(left, 0, right, bottom - top);
 	}
 }
