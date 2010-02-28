@@ -127,6 +127,18 @@ b3.addEventListener('click', function()
 		Titanium.UI.FACE_UP, 
 		Titanium.UI.FACE_DOWN, 
 	];
+	
+	var close = Titanium.UI.createButton({
+		title:'close',
+		width:200,
+		height:40,
+		top:60
+	});
+	win.add(close);
+	close.addEventListener('click', function()
+	{
+		win.close();
+	})
 	win.open()
 	//Ti.UI.currentTab.open(win,{animated:true});
 });
