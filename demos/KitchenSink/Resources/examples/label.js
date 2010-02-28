@@ -18,7 +18,7 @@ var l2 = Titanium.UI.createLabel({
 	shadowColor:'#aaa',
 	shadowOffset:{x:5,y:5},
 	color:'#900',
-	font:{fontSize:48},
+	font:{fontSize:48,
 	top:170,
 	textAlign:'center'
 });

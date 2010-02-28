@@ -15,7 +15,7 @@ function addRow()
 		right:10,
 		value:false
 	});
-
+	
 	row.add(sw);
 	
 	sw.addEventListener('change', function(e)
