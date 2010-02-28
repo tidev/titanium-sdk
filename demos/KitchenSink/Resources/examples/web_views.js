@@ -32,6 +32,7 @@ var data = [
 	{title:'Local Pinch/Zoom', hasChild:true, url:'local_webview_pinchzoom.html', scale:true},
 	{title:'Local Eval', hasChild:true, url:'local_webview.html', evaljs:true},
 	{title:'Local HTML', hasChild:true, url:'local_webview.html', evalhtml:true},
+
 ];
 
 // create table view

@@ -16,7 +16,7 @@ NSString * const TI_APPLICATION_VERSION = @"1.0";
 NSString * const TI_APPLICATION_DESCRIPTION = @"No description provided";
 NSString * const TI_APPLICATION_COPYRIGHT = @"2010 by nwright";
 NSString * const TI_APPLICATION_GUID = @"6fe33f33fd1f4e95a06d2d217170866d";
-BOOL TI_APPLICATION_ANALYTICS = true;
+BOOL const TI_APPLICATION_ANALYTICS = true;
 
 int main(int argc, char *argv[]) {
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
