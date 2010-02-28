@@ -72,4 +72,9 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 	public void setRowData(TiTableViewItemOptions defaults, Item item) {
 		rowView.setRowData((TiDict) item.rowData);
 	}
+
+	@Override
+	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+
+	}
 }

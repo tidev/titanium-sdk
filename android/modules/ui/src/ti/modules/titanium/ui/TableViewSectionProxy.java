@@ -54,4 +54,19 @@ public class TableViewSectionProxy extends TiViewProxy
 
 		return result;
 	}
+
+	public void insertRowAt(int index, TableViewRowProxy row) {
+		rows.add(index, row);
+	}
+
+	public void removeRowAt(int index) {
+		rows.remove(index);
+	}
+
+	public void updateRowAt(int index, TableViewRowProxy row)
+	{
+		//TODO this may not be the most efficient way to handle this model change
+		rows.remove(index);
+		rows.add(index, row);
+	}
 }

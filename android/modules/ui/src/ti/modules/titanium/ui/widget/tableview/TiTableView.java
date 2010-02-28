@@ -10,7 +10,6 @@ import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -135,11 +134,10 @@ public class TiTableView extends FrameLayout
 			if (convertView != null) {
 				v = (TiBaseTableViewItem) convertView;
 			} else {
-				Context ctx = getContext();
 				if (item.className.equals(TableViewModel.CLASSNAME_HEADER)) {
 					v = new TiTableViewHeaderItem(tiContext);
 				} else if (item.className.equals(TableViewModel.CLASSNAME_NORMAL)) {
-					v = new TiTableViewNormalItem(tiContext);
+					v = new TiTableViewRowProxyItem(tiContext);
 				} else if (item.className.equals(TableViewModel.CLASSNAME_DEFAULT)) {
 					v = new TiTableViewRowProxyItem(tiContext);
 				} else {

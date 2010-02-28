@@ -9,21 +9,23 @@ package ti.modules.titanium.ui.widget.tableview;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiFileHelper;
 
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
-import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
-import android.widget.FrameLayout;
+import android.view.ViewGroup;
 
-public abstract class TiBaseTableViewItem extends FrameLayout implements Handler.Callback
+public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.Callback
 {
 	private static final String LCAT = "TitaniamBaseTableViewItem";
 	private static final boolean DBG = TiConfig.LOGD;
 
 	protected Handler handler;
 	protected TiContext tiContext;
+	protected TiFileHelper tfh;
 
 	public TiBaseTableViewItem(TiContext tiContext)
 	{
@@ -49,5 +51,12 @@ public abstract class TiBaseTableViewItem extends FrameLayout implements Handler
 
 	public BitmapDrawable createHasChildDrawable() {
 		return new BitmapDrawable(TiDict.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/btn_more.png"));
+	}
+
+	public Drawable loadDrawable(String url) {
+		if (tfh == null) {
+			tfh = new TiFileHelper(tiContext.getActivity());
+		}
+		return tfh.loadDrawable(url, false);
 	}
 }
