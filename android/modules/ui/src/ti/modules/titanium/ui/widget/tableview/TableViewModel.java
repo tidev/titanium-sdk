@@ -8,355 +8,608 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
 
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
+import org.appcelerator.titanium.util.TiConvert;
+
+import ti.modules.titanium.ui.TableViewRowProxy;
+import ti.modules.titanium.ui.TableViewSectionProxy;
 
 public class TableViewModel
 {
-	private static final String LCAT = "TableViewModel";
-	private static final boolean DUMP = false;
+    private static final String LCAT = "TableViewModel";
+    private static final boolean DUMP = false;
 
-	// Flat view
+    public static final String CLASSNAME_DEFAULT = "__default__";
+    public static final String CLASSNAME_HEADER = "__header__";
+    public static final String CLASSNAME_NORMAL = "__normal__";
 
-	public class Item {
-		public Item(int index) {
-			this.index = index;
-		}
-		public boolean hasHeader() {
-			return headerText != null;
-		}
+    class RowResult {
+    	int sectionIndex;
+    	TableViewSectionProxy section;
+    	TableViewRowProxy row;
+    	int rowIndexInSection;
+    }
 
-		public int index;
-		public int sectionIndex;
-		public int indexInSection;
-		public String headerText;
-		public String name;
-		public TiDict data;
-	}
+    // Flat view
 
-	private boolean dirty;
-	private ArrayList<Item> model;
-	private ArrayList<TiDict> viewModel;
+    public class Item {
+        public Item(int index) {
+            this.index = index;
+        }
+        public boolean hasHeader() {
+            return headerText != null;
+        }
 
-	// The unstructured set of data. Modifier operations are treated as edits to this
-	// and the section structure.
+        public int index;
+        public int sectionIndex;
+        public int indexInSection;
+        public String headerText;
+        public String footerText;
+        public String name;
+        public String className;
+        public TiViewProxy proxy;
+        public Object rowData;
+    }
 
-	public TableViewModel() {
-		model = new ArrayList<Item>();
-		viewModel = new ArrayList<TiDict>();
-		dirty = true;
-	}
+    private TiContext tiContext;
 
-	public int getRowCount() {
-		return model.size();
-	}
+    private boolean dirty;
+    private ArrayList<TableViewSectionProxy> sections;
 
-	public int getIndexByName(String name) {
-		int index = -1;
+    //private ArrayList<Item> model;
+    private ArrayList<Item> viewModel;
 
-		if (name != null) {
-			for(Item item : model) {
-				if (item.name != null) {
-					if (name.equals(item.name)) {
-						index = item.index;
-						break;
-					}
-				}
-			}
-		}
+    // The unstructured set of data. Modifier operations are treated as edits to this
+    // and the section structure.
 
-		if (DUMP) {
-			Log.e(LCAT, "Index of Name: " + name + " is " + index);
-		}
-		return index;
-	}
+    public TableViewModel(TiContext tiContext) {
+        this.tiContext = tiContext;
 
-	public void insertItemBefore(int index, TiDict data)
-	{
-		if (model.size() > 0) {
-			if (index < 0) {
-				index = 0;
-			}
+        sections = new ArrayList<TableViewSectionProxy>();
+//        model = new ArrayList<Item>();
+        viewModel = new ArrayList<Item>();
+        dirty = true;
+    }
 
-			Item item = model.get(index);
+    public int getRowCount() {
+    	int rowCount = 0;
+    	for(TableViewSectionProxy section : sections) {
+    		rowCount += section.getRowCount();
+    	}
+        return rowCount;
+    }
 
-			Item newItem = new Item(index);
-			if (data.containsKey("header")) {
-				newItem.headerText = data.getString("header");
-			}
-			if (data.containsKey("name")) {
-				newItem.name = data.getString("name");
-			}
-			newItem.data = data;
-			model.add(newItem.index, newItem);
+    public int getIndexByName(String name) {
+        int index = -1;
+        int idx = 0;
+        if (name != null) {
+        	for(TableViewSectionProxy section : sections) {
+        		for (TableViewRowProxy row : section.getRows()) {
+        			String rname = TiConvert.toString(row.getDynamicValue("name"));
+    				if(rname != null && name.equals(rname)) {
+    					index = idx;
+    					break;
+    				}
+        		}
+        		if (index > -1) {
+        			break;
+        		}
+        		idx++;
+        	}
+        }
 
-			updateIndexes(index+1);
+        if (DUMP) {
+            Log.e(LCAT, "Index of Name: " + name + " is " + index);
+        }
+        return index;
+    }
 
-			if (newItem.hasHeader()) {
-				newItem.sectionIndex = item.sectionIndex;
-				newItem.indexInSection = 0;
-				updateSectionData(index + 1, newItem.sectionIndex);
-			} else {
-				if (item.hasHeader()) {
-					newItem.headerText = item.headerText;
-					item.headerText = null;
-					newItem.sectionIndex = item.sectionIndex;
-					newItem.indexInSection = 0;
-					updateSectionData(index + 1, newItem.sectionIndex);
-				} else {
-					newItem.sectionIndex = item.sectionIndex;
-					updateIndexInSection(index, item.indexInSection);
-				}
-			}
-		} else {
-			insertFirstRow(data);
-		}
+    private boolean locateIndex(int index, RowResult rowResult)
+    {
+    	boolean found = false;
+    	int rowCount = 0;
+    	int sectionIndex = 0;
 
-		dirty = true;
+    	for(TableViewSectionProxy section : sections) {
+    		int sectionRowCount = (int) section.getRowCount();
+    		if (sectionRowCount + rowCount > index) {
+				rowResult.section = section;
+				rowResult.sectionIndex = sectionIndex;
+				rowResult.row = section.getRows()[index - rowCount];
+				rowResult.rowIndexInSection = index - rowCount;
+    		} else {
+    			rowCount += sectionRowCount;
+    		}
 
-		if (DUMP) {
-			Log.w(LCAT, "==== After insertItemBefore");
-			dumpModel();
-		}
-	}
+    		sectionIndex += 1;
+    	}
 
-	public void insertItemAfter(int index, TiDict data)
-	{
-		if (model.size() > 0) {
-			if (index > model.size()) {
-				index = model.size() - 1;
-			}
+    	return found;
+    }
 
-			Item item = model.get(index);
+    private String classNameForRow(TableViewRowProxy rowProxy) {
+        String className = TiConvert.toString(rowProxy.getDynamicValue("className"));
+        if (className == null) {
+        	className = CLASSNAME_DEFAULT;
+        }
+        return className;
+    }
+    private Item itemForObject(int index, Object data)
+    {
+        Item newItem = new Item(index);
+        TableViewRowProxy rowProxy = null;
 
-			Item newItem = new Item(index+1);
-			if (data.containsKey("header")) {
-				newItem.headerText = data.getString("header");
-			}
-			if (data.containsKey("name")) {
-				newItem.name = data.getString("name");
-			}
-			newItem.data = data;
-			model.add(newItem.index, newItem);
+        if (data instanceof TiDict) {
+            Object[] args = { data };
+            rowProxy = new TableViewRowProxy(tiContext, args);
+            rowProxy.setDynamicValue("className", CLASSNAME_NORMAL);
+            rowProxy.setDynamicValue("rowData", data);
+            newItem.proxy = rowProxy;
+            newItem.rowData = data;
+            newItem.className = CLASSNAME_NORMAL;
+        } else if (data instanceof TableViewRowProxy) {
+            rowProxy = (TableViewRowProxy) data;
+            newItem.proxy = rowProxy;
+            newItem.rowData = rowProxy;
+            String className = TiConvert.toString(rowProxy.getDynamicValue("className"));
+            if (className == null) {
+            	className = CLASSNAME_DEFAULT;
+            }
+            newItem.className = className;
+        } else if (data instanceof TableViewSectionProxy) {
+        	newItem.proxy = (TableViewSectionProxy) data;
+        } else {
+        	throw new IllegalStateException("Un-implemented type: " + data.getClass().getSimpleName());
+        }
 
-			updateIndexes(newItem.index);
+        return newItem;
+    }
 
-			if (newItem.hasHeader()) {
-				newItem.sectionIndex = item.sectionIndex + 1;
-				newItem.indexInSection = 0;
-				updateSectionData(newItem.index, newItem.sectionIndex);
-			} else {
-				newItem.sectionIndex = item.sectionIndex;
-				updateIndexInSection(newItem.index, item.indexInSection + 1);
-			}
-		} else {
-			insertFirstRow(data);
-		}
-		dirty = true;
+    private Item itemForHeader(int index, TableViewSectionProxy proxy, String headerText, String footerText) {
+    	Item newItem = new Item(index);
+    	newItem.className = CLASSNAME_HEADER;
+    	if (headerText != null) {
+    		newItem.headerText = headerText;
+    	} else if (footerText != null) {
+    		newItem.footerText = footerText;
+    	}
+    	newItem.proxy = proxy;
 
-		if (DUMP) {
-			Log.w(LCAT, "==== After insertItemAfter");
-			dumpModel();
-		}
-	}
+    	return newItem;
+    }
 
-	public void deleteItem(int index)
-	{
-		if (index >= 0 && index < model.size()) {
-			Item oldItem = model.get(index);
-			model.remove(index);
-			updateIndexes(index);
-			if (oldItem.hasHeader()) {
-				Item item = model.get(index);
-				if (item.hasHeader()) {
-					updateSectionData(index, oldItem.sectionIndex-1); // gets incremented on detection.
-				} else {
-					item.headerText = oldItem.headerText;
-					item.indexInSection = oldItem.indexInSection;
-					updateIndexInSection(index + 1, item.indexInSection + 1);
-				}
-			} else {
-				updateIndexInSection(index, oldItem.indexInSection);
-			}
-			dirty = true;
-		} else {
-			Log.w(LCAT, "Attempt to delete non-existant row with index " + index);
-		}
-		if (DUMP) {
-			Log.w(LCAT, "==== After deleteItem");
-			dumpModel();
-		}
-	}
+    public void insertItemBefore(int index, Object data)
+    {
 
-	public void updateItem(int index, TiDict data)
-	{
-		Item item = model.get(index);
-		item.data = data;
-		if (data.containsKey("header")) {
-			if (item.hasHeader()) {
-				item.headerText = data.getString("header");
-			} else {
-				// We need to insert a new section.
-				item.headerText = data.getString("header");
-				item.sectionIndex++;
-				item.indexInSection = 0;
+        if (sections != null) {
+            if (index < 0) {
+                index = 0;
+            }
 
-				updateSectionData(index+1, item.sectionIndex);
-			}
-		}
-		dirty = true;
-		if (DUMP) {
-			Log.w(LCAT, "==== After updateItem");
-			dumpModel();
-		}
-	}
+            //Item item = model.get(index);
+            RowResult rr = new RowResult();
+            if (locateIndex(index, rr)) {
+            	// TODO check for section
+                Item newItem = itemForObject(index, data);
+                TiDict props = newItem.proxy.getDynamicProperties();
 
-	public void setData(Object[] rows) {
-		if (model != null) {
-			model.clear();
-		}
-		dirty = true;
-		int sectionCounter = 0;
-		int sectionRowCounter = 0;
+                if (props.containsKey("header")) {
+                    newItem.headerText = props.getString("header");
+                }
+                if (props.containsKey("name")) {
+                    newItem.name = props.getString("name");
+                }
+            	rr.section.insertRowAt(rr.rowIndexInSection, (TableViewRowProxy) newItem.proxy);
+            } else {
+            	throw new IllegalStateException("Index out of range. Non-existant row at " + index);
+            }
 
-		if (rows != null) {
-			for(int i = 0; i < rows.length; i++) {
-				Item item = new Item(i);
-				TiDict row = (TiDict) rows[i];
-				if (row.containsKey("name")) {
-					item.name = row.getString("name");
-				}
-				item.data = row;
+//            model.add(newItem.index, newItem);
+//
+//            updateIndexes(index+1);
+//
+//            if (newItem.hasHeader()) {
+//                newItem.sectionIndex = item.sectionIndex;
+//                newItem.indexInSection = 0;
+//                updateSectionData(index + 1, newItem.sectionIndex);
+//            } else {
+//                if (item.hasHeader()) {
+//                    newItem.headerText = item.headerText;
+//                    item.headerText = null;
+//                    newItem.sectionIndex = item.sectionIndex;
+//                    newItem.indexInSection = 0;
+//                    updateSectionData(index + 1, newItem.sectionIndex);
+//                } else {
+//                    newItem.sectionIndex = item.sectionIndex;
+//                    updateIndexInSection(index, item.indexInSection);
+//                }
+//            }
+        } else {
+            insertFirstRow(data);
+        }
 
-				if (row.containsKey("header")) {
-					if (i > 0) {
-						sectionCounter++;
-						sectionRowCounter = 0;
-					}
-					item.headerText = row.getString("header");
-				}
+        dirty = true;
 
-				item.sectionIndex = sectionCounter;
-				item.indexInSection = sectionRowCounter;
+//        if (DUMP) {
+//            Log.w(LCAT, "==== After insertItemBefore");
+//            dumpModel();
+//        }
+    }
 
-				model.add(item);
-				sectionRowCounter++;
-			}
-		}
-		if (DUMP) {
-			Log.w(LCAT, "==== After setData");
-			dumpModel();
-		}
-	}
+    public void insertItemAfter(int index, Object data)
+    {
+        RowResult rr = new RowResult();
+        if (locateIndex(index, rr)) {
+        	// TODO check for section
+            Item newItem = itemForObject(index, data);
+            TiDict props = newItem.proxy.getDynamicProperties();
 
-	public ArrayList<TiDict> getViewModel() {
-		if (dirty) {
-			viewModel = new ArrayList<TiDict>(model.size());
-			TiDict o = null;
-			for (Item item : model) {
-				if (item.hasHeader()) {
-					o = new TiDict(item.data);
-					o.put("header", item.headerText);
-					o.put("isDisplayHeader", true);
-					viewModel.add(o);
-				}
-				o = new TiDict(item.data);
-				o.put("section", item.sectionIndex);
-				o.put("sectionIndex", item.indexInSection);
-				o.put("index", item.index);
-				o.put("isDisplayHeader", false);
-				viewModel.add(o);
-			}
-			dirty = false;
-		}
+            if (props.containsKey("header")) {
+                newItem.headerText = props.getString("header");
+            }
+            if (props.containsKey("name")) {
+                newItem.name = props.getString("name");
+            }
+        	rr.section.insertRowAt(rr.rowIndexInSection + 1, (TableViewRowProxy) newItem.proxy);
+        } else {
+        	throw new IllegalStateException("Index out of range. Non-existant row at " + index);
+        }
 
-		return viewModel;
-	}
+//        if (model.size() > 0) {
+//            if (index > model.size()) {
+//                index = model.size() - 1;
+//            }
+//
+//            Item item = model.get(index);
+//
+//            Item newItem = itemForObject(index+1, data);
+//            TiDict props = newItem.proxy.getDynamicProperties();
+//            if (props.containsKey("header")) {
+//                newItem.headerText = props.getString("header");
+//            }
+//            if (props.containsKey("name")) {
+//                newItem.name = props.getString("name");
+//            }
+//
+//            model.add(newItem.index, newItem);
+//
+//            updateIndexes(newItem.index);
+//
+//            if (newItem.hasHeader()) {
+//                newItem.sectionIndex = item.sectionIndex + 1;
+//                newItem.indexInSection = 0;
+//                updateSectionData(newItem.index, newItem.sectionIndex);
+//            } else {
+//                newItem.sectionIndex = item.sectionIndex;
+//                updateIndexInSection(newItem.index, item.indexInSection + 1);
+//            }
+//        } else {
+//            insertFirstRow(data);
+//        }
+        dirty = true;
 
-	public int getViewIndex(int index) {
-		int position = -1;
-		// the View index can be larger than model index if there are headers.
-		if (viewModel != null && index <= viewModel.size()) {
-			for(int i = 0; i < viewModel.size(); i++) {
-				TiDict o = viewModel.get(i);
-				if (o.containsKey("index") && index == o.getInt("index")) {
-					position = i;
-					break;
-				}
-			}
-		}
+//        if (DUMP) {
+//            Log.w(LCAT, "==== After insertItemAfter");
+//            dumpModel();
+//        }
+    }
 
-		return position;
-	}
+    public void deleteItem(int index)
+    {
+        RowResult rr = new RowResult();
+        if (locateIndex(index, rr)) {
+        	rr.section.removeRowAt(rr.rowIndexInSection);
+        } else {
+        	throw new IllegalStateException("Index out of range. Non-existant row at " + index);
+        }
 
-	public int getRowHeight(int position, int defaultHeight) {
-		int rowHeight = defaultHeight;
+//        if (index >= 0 && index < model.size()) {
+//            Item oldItem = model.get(index);
+//            model.remove(index);
+//            updateIndexes(index);
+//            if (oldItem.hasHeader()) {
+//                Item item = model.get(index);
+//                if (item.hasHeader()) {
+//                    updateSectionData(index, oldItem.sectionIndex-1); // gets incremented on detection.
+//                } else {
+//                    item.headerText = oldItem.headerText;
+//                    item.indexInSection = oldItem.indexInSection;
+//                    updateIndexInSection(index + 1, item.indexInSection + 1);
+//                }
+//            } else {
+//                updateIndexInSection(index, oldItem.indexInSection);
+//            }
+//            dirty = true;
+//        } else {
+//            Log.w(LCAT, "Attempt to delete non-existant row with index " + index);
+//        }
+//        if (DUMP) {
+//            Log.w(LCAT, "==== After deleteItem");
+//            dumpModel();
+//        }
+    }
 
-		TiDict o = viewModel.get(position);
-		if (o.containsKey("rowHeight")) {
-			rowHeight = o.getInt("rowHeight");
-		}
+    public void updateItem(int index, Object data)
+    {
+        RowResult rr = new RowResult();
+        if (locateIndex(index, rr)) {
+        	// TODO check for section
+            Item newItem = itemForObject(index, data);
+            TiDict props = newItem.proxy.getDynamicProperties();
 
-		return rowHeight;
-	}
+            if (props.containsKey("header")) {
+                newItem.headerText = props.getString("header");
+            }
+            if (props.containsKey("name")) {
+                newItem.name = props.getString("name");
+            }
+        	rr.section.updateRowAt(rr.rowIndexInSection, (TableViewRowProxy) newItem.proxy);
+        } else {
+        	throw new IllegalStateException("Index out of range. Non-existant row at " + index);
+        }
 
-	private void insertFirstRow(TiDict data)
-	{
-		Item newItem = new Item(0);
-		if (data.containsKey("header")) {
-			newItem.headerText = data.getString("header");
-		}
-		if (data.containsKey("name")) {
-			newItem.name = data.getString("name");
-		}
-		newItem.sectionIndex = 0;
-		newItem.indexInSection = 0;
-		newItem.index = 0;
-		newItem.data = data;
-		model.add(newItem.index, newItem);
-	}
+//        Item item = model.get(index);
+//        if (data instanceof TiDict) {
+//            Object[] args = { data };
+//            item.proxy = new TableViewRowProxy(tiContext, args);
+//            item.rowData = data;
+//        } else if (data instanceof TableViewRowProxy) {
+//            item.proxy = (TableViewRowProxy) data;
+//            item.rowData = data;
+//        }
+//        TiDict props = item.proxy.getDynamicProperties();
+//
+//        if (props.containsKey("header")) {
+//            if (item.hasHeader()) {
+//                item.headerText = props.getString("header");
+//            } else {
+//                // We need to insert a new section.
+//                item.headerText = props.getString("header");
+//                item.sectionIndex++;
+//                item.indexInSection = 0;
+//
+//                updateSectionData(index+1, item.sectionIndex);
+//            }
+//        }
+        dirty = true;
+//        if (DUMP) {
+//            Log.w(LCAT, "==== After updateItem");
+//            dumpModel();
+//        }
+    }
 
-	private void updateIndexes(int start) {
-		for(int i = start; i < model.size(); i++) {
-			model.get(i).index = i;
-		}
+    private TableViewSectionProxy addSection(TiContext tiContext)
+    {
+    	TableViewSectionProxy newSection = null;
 
-	}
+    	if (sections == null) {
+    		sections = new ArrayList<TableViewSectionProxy>();
+    	}
 
-	private void updateIndexInSection(int start, int sectionRowCounter) {
-		for(int i = start; i < model.size(); i++) {
-			Item itemInSection = model.get(i);
-			if (itemInSection.hasHeader()) {
-				break;
-			}
-			itemInSection.indexInSection = sectionRowCounter++;
-		}
-	}
+    	Object[] args = {};
+		newSection = new TableViewSectionProxy(tiContext, args);
+		sections.add(newSection);
 
-	private void updateSectionData(int start, int section) {
-		int sectionRowCounter = 0;
-		if (!model.get(start).hasHeader()) {
-			sectionRowCounter = 1;
-		}
-		for(int i = start; i < model.size(); i++) {
-			Item item = model.get(i);
-			if (item.hasHeader()) {
-				section++;
-				sectionRowCounter = 0;
-			}
-			item.sectionIndex = section;
-			item.indexInSection = sectionRowCounter;
-			sectionRowCounter++;
-		}
-	}
+		return newSection;
+    }
 
-	public void dumpModel() {
-		Log.i(LCAT, "");
-		for (int i = 0; i < model.size(); i++) {
-			Item item = model.get(i);
-			Log.i(LCAT, i + ": index: " +  item.index + " s:" + item.sectionIndex + " iis: " +
-					item.indexInSection +
-					" n: " + item.name + " h: " + item.headerText);
-		}
-	}
+    public void setData(Object[] rows) {
+        if (sections != null) {
+        	// TODO May needs to clear all row proxies
+            sections.clear();
+            sections = null;
+        }
+        dirty = true;
+
+        TableViewSectionProxy currentSection = null;
+
+        if (rows != null) {
+        	// TODO, fix. Handle multiple sections. Allow for first row
+        	// to be/specify a section.
+
+        	for(int i = 0; i < rows.length; i++) {
+                Item item = itemForObject(i, rows[i]);
+                TiDict props = item.proxy.getDynamicProperties();
+
+                if (item.proxy instanceof TableViewRowProxy) {
+                	TableViewRowProxy rowProxy = (TableViewRowProxy) item.proxy;
+
+                	if (props.containsKey("header")) {
+                		currentSection = addSection(tiContext);
+
+                		String headerTitle = props.getString("header");
+
+                		currentSection.setDynamicValue("headerTitle", headerTitle);
+                	}
+
+                	// If there is not a section for the current row, add one.
+                	if (sections == null) {
+                		currentSection = addSection(tiContext);
+                 	}
+
+            		String footerTitle = props.getString("footer");
+            		if (footerTitle != null) {
+            			currentSection.setDynamicValue("footerTitle", footerTitle);
+            		}
+
+                	currentSection.add(rowProxy);
+                } else if (item.proxy instanceof TableViewSectionProxy) {
+                	if (sections == null) {
+                		sections = new ArrayList<TableViewSectionProxy>();
+                	}
+                	sections.add((TableViewSectionProxy) item.proxy);
+                }
+        	}
+        }
+
+//        if (rows != null) {
+//            for(int i = 0; i < rows.length; i++) {
+//                Item item = itemForObject(i, rows[i]);
+//                TiDict props = item.proxy.getDynamicProperties();
+//                if (props.containsKey("name")) {
+//                    item.name = props.getString("name");
+//                }
+//
+//                if (props.containsKey("header")) {
+//                    item.headerText = props.getString("header");
+//                }
+//            }
+//        }
+//        if (DUMP) {
+//            Log.w(LCAT, "==== After setData");
+//            dumpModel();
+//        }
+    }
+
+    public ArrayList<Item> getViewModel() {
+        if (dirty) {
+        	//TODO try and create specific size.
+
+            viewModel = new ArrayList<Item>();
+            int sectionIndex = 0;
+            int indexInSection = 0;
+            int index = 0;
+
+            for (TableViewSectionProxy section : sections) {
+            	String headerTitle = TiConvert.toString(section.getDynamicValue("headerTitle"));
+            	if (headerTitle != null) {
+            		viewModel.add(itemForHeader(index, section, headerTitle, null));
+            	}
+            	for (TableViewRowProxy row : section.getRows()) {
+            		Item item = new Item(index);
+            		item.sectionIndex = sectionIndex;
+            		item.indexInSection = indexInSection;
+            		item.proxy = row;
+            		item.rowData = row; // TODO capture dictionary?
+            		item.className = classNameForRow(row);
+
+            		viewModel.add(item);
+            		index++;
+            		indexInSection++;
+            	}
+
+            	String footerTitle = TiConvert.toString(section.getDynamicValue("footerTitle"));
+            	if (footerTitle != null) {
+            		viewModel.add(itemForHeader(index, section, null, footerTitle));
+            	}
+
+            	sectionIndex++;
+            	indexInSection = 0;
+            }
+            TiDict o = null;
+//            for (Item item : model) {
+//                if (item.hasHeader()) {
+//                    o = item.rowProxy.getDynamicProperties();
+//                    o.put("header", item.headerText);
+//                    o.put("isDisplayHeader", true);
+//                    viewModel.add(o);
+//                }
+//            	viewModel.add(item);
+//                o = item.proxy.getDynamicProperties();
+//                o.put("section", item.sectionIndex);
+//                o.put("sectionIndex", item.indexInSection);
+//                o.put("index", item.index);
+//                o.put("isDisplayHeader", false);
+//                viewModel.add(o);
+//            }
+            dirty = false;
+        }
+
+        return viewModel;
+    }
+
+    public int getViewIndex(int index) {
+        int position = -1;
+        // the View index can be larger than model index if there are headers.
+        if (viewModel != null && index <= viewModel.size()) {
+            for(int i = 0; i < viewModel.size(); i++) {
+                Item item = viewModel.get(i);
+                if (index == item.index) {
+                    position = i;
+                    break;
+                }
+            }
+        }
+
+        return position;
+    }
+
+    public int getRowHeight(int position, int defaultHeight) {
+        int rowHeight = defaultHeight;
+
+        Item item = viewModel.get(position);
+        Object rh = item.proxy.getDynamicValue("rowHeight");
+        if (rh != null) {
+        	rowHeight = TiConvert.toInt(rh);
+        }
+
+        return rowHeight;
+    }
+
+    private void insertFirstRow(Object data)
+    {
+        Item newItem = itemForObject(0, data);
+//        TiDict props = newItem.rowProxy.getDynamicProperties();
+
+        // TODO fix
+//        if (props.containsKey("header")) {
+//            newItem.headerText = props.getString("header");
+//        }
+//        if (props.containsKey("name")) {
+//            newItem.name = props.getString("name");
+//        }
+        if (sections == null) {
+        	sections = new ArrayList<TableViewSectionProxy>();
+        }
+        Item item = itemForObject(0, data);
+        sections.get(0).add(item.proxy);
+        //model.add(newItem.index, newItem);
+    }
+
+//    private void updateIndexes(int start) {
+//        for(int i = start; i < model.size(); i++) {
+//            model.get(i).index = i;
+//        }
+//
+//    }
+//
+//    private void updateIndexInSection(int start, int sectionRowCounter) {
+//        for(int i = start; i < model.size(); i++) {
+//            Item itemInSection = model.get(i);
+//            if (itemInSection.hasHeader()) {
+//                break;
+//            }
+//            itemInSection.indexInSection = sectionRowCounter++;
+//        }
+//    }
+//
+//    private void updateSectionData(int start, int section) {
+//        int sectionRowCounter = 0;
+//        if (!model.get(start).hasHeader()) {
+//            sectionRowCounter = 1;
+//        }
+//        for(int i = start; i < model.size(); i++) {
+//            Item item = model.get(i);
+//            if (item.hasHeader()) {
+//                section++;
+//                sectionRowCounter = 0;
+//            }
+//            item.sectionIndex = section;
+//            item.indexInSection = sectionRowCounter;
+//            sectionRowCounter++;
+//        }
+//    }
+//
+//    public void dumpModel() {
+//        Log.i(LCAT, "");
+//        for (int i = 0; i < model.size(); i++) {
+//            Item item = model.get(i);
+//            Log.i(LCAT, i + ": index: " +  item.index + " s:" + item.sectionIndex + " iis: " +
+//                    item.indexInSection +
+//                    " n: " + item.name + " h: " + item.headerText);
+//        }
+//    }
 }

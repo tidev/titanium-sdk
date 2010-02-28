@@ -570,7 +570,7 @@
 	}
 }
 
-- (BOOL)hasPermission:(id)permission
+- (NSNumber*)hasPermission:(id)permission
 {
 	ENSURE_SINGLE_ARG(permission,NSString);
 	
@@ -585,7 +585,7 @@
 		}
 	}
 	[lock unlock];
-	return result;
+	return NUMBOOL(result);
 }
 
 - (NSDictionary*)permissions
@@ -613,8 +613,8 @@
 	[super startup];
 }
 
-MAKE_SYSTEM_PROP_INT(LOGIN_BUTTON_STYLE_WIDE,FBLoginButtonStyleWide);
-MAKE_SYSTEM_PROP_INT(LOGIN_BUTTON_STYLE_NORMAL,FBLoginButtonStyleNormal);
+MAKE_SYSTEM_PROP(LOGIN_BUTTON_STYLE_WIDE,FBLoginButtonStyleWide);
+MAKE_SYSTEM_PROP(LOGIN_BUTTON_STYLE_NORMAL,FBLoginButtonStyleNormal);
 				 
 
 

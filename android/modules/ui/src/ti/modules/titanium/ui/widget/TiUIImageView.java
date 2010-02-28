@@ -206,11 +206,7 @@ public class TiUIImageView extends TiUIView
 				if (!paused) {
 					if (index < drawables.length && index >= 0) {
 						setImage(drawables[index]);
-						if (!reverse) {
-							index++;
-						} else {
-							index--;
-						}
+						fireChange(index);
 					} else {
 						if (index < 0) {
 							index = drawables.length-1;
@@ -218,8 +214,14 @@ public class TiUIImageView extends TiUIView
 							index = 0;
 						}
 						setImage(drawables[index]);
+						fireChange(index);
 					}
-					fireChange(index);
+
+					if (!reverse) {
+						index++;
+					} else {
+						index--;
+					}
 				}
 			}
 		}

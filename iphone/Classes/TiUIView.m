@@ -76,15 +76,19 @@ CGFloat AutoWidthForView(UIView * superView,CGFloat suggestedWidth)
 	return result;
 }
 
-CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth)
+CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVertical)
 {
 	CGFloat neededAbsoluteHeight=0.0;
 	CGFloat neededVerticalHeight=0.0;
 
 	for (TiUIView * thisChildView in [superView subviews])
 	{
+		if (![thisChildView respondsToSelector:@selector(minimumParentHeightForWidth:)])
+		{
+			continue;
+		}
 		CGFloat thisHeight = [thisChildView minimumParentHeightForWidth:suggestedWidth];
-		if (TiLayoutRuleIsVertical([thisChildView layout]->layout))
+		if (isVertical)
 		{
 			neededVerticalHeight += thisHeight;
 		}
@@ -442,7 +446,7 @@ DEFINE_EXCEPTIONS
 
 -(CGFloat)autoHeightForWidth:(CGFloat)width
 {
-	return AutoHeightForView(self, width);
+	return AutoHeightForView(self, width,TiLayoutRuleIsVertical([self layout]->layout));
 }
 
 -(void)updateTransform
