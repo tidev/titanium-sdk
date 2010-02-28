@@ -158,7 +158,7 @@ public class TiScrollableView extends TiCompositeLayout
 	public boolean hasPrevious() {
 		return getSelectedItemPosition() > 0;
 	}
-
+ 
 	public boolean hasNext() {
 		synchronized (gallery) {
 			return getSelectedItemPosition() < gallery.getChildCount() - 1;
@@ -233,6 +233,7 @@ public class TiScrollableView extends TiCompositeLayout
 
 		if (viewsObject instanceof Object[]) {
 			Object[] views = (Object[])viewsObject;
+			gallery.removeAllViews();
 			for (int i = 0; i < views.length; i++) {
 				if (views[i] instanceof TiViewProxy) {
 					TiViewProxy tv = (TiViewProxy)views[i];
@@ -243,6 +244,14 @@ public class TiScrollableView extends TiCompositeLayout
 			if (views.length >= 0) {
 				((TiViewProxy)views[0]).show(new TiDict());
 			}
+		}
+	}
+	
+	public void addView(TiViewProxy proxy) 
+	{
+		if (proxy != null) {
+			this.views.add(proxy);
+			gallery.addView(proxy.getView(null).getNativeView());
 		}
 	}
 
@@ -264,9 +273,16 @@ public class TiScrollableView extends TiCompositeLayout
 			}
 		}
 	}
+	
+	public void doScrollToView(TiViewProxy view)
+	{
+		if (views.contains(view)) {
+			doScrollToView(views.indexOf(view));
+		}
+	}
 
 	public ArrayList<TiViewProxy> getViews() {
-		return views;
+		return views; 
 	}
 
 	@Override

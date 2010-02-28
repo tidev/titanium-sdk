@@ -46,6 +46,10 @@ public class TiUIScrollableView extends TiUIView
 		getView().setViews(viewsObject);
 	}
 	
+	public void addView(TiViewProxy proxy) {
+		getView().addView(proxy);
+	}
+	
 	public void showPager()
 	{
 		boolean showPagingControl = TiConvert.toBoolean(proxy.getDynamicValue("showPagingControl"));
@@ -69,9 +73,13 @@ public class TiUIScrollableView extends TiUIView
 		getView().doMovePrevious();
 	}
 	
-	public void doScrollToView(int position)
+	public void doScrollToView(Object view)
 	{
-		getView().doScrollToView(position);
+		if (view instanceof Number) {
+			getView().doScrollToView(((Number)view).intValue());
+		} else if (view instanceof TiViewProxy) {
+			getView().doScrollToView((TiViewProxy)view);
+		}
 	}
 	
 	public void setShowPagingControl(boolean showPagingControl)
