@@ -94,7 +94,7 @@
 	if (view!=nil)
 	{
 		TiUIView *childView = [(TiViewProxy *)arg view];
-		BOOL verticalNeedsRearranging = TiLayoutRuleIsVertical([childView layout]->layout);
+		BOOL verticalNeedsRearranging = TiLayoutRuleIsVertical([view layout]->layout);
 		if ([NSThread isMainThread])
 		{
 			[childView removeFromSuperview];
@@ -401,7 +401,7 @@
 	LayoutConstraint ourLayoutConstraint;
 	ReadConstraintFromDictionary(&ourLayoutConstraint,[child allProperties]);
 
-	if(TiLayoutRuleIsVertical(ourLayoutConstraint.layout)){
+	if(TiLayoutRuleIsVertical([view layout]->layout)){
 		bounds.origin.y += verticalLayoutBoundary;
 		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
 		verticalLayoutBoundary += bounds.size.height;
