@@ -46,20 +46,24 @@ public class TiConvert
 			int len = a.length;
 			if (len > 0) {
 				Object v = a[0];
-				Log.w(LCAT, "Array member is type: " + v.getClass().getSimpleName());
-				if (v instanceof String) {
+				if (v != null) {
+					Log.w(LCAT, "Array member is type: " + v.getClass().getSimpleName());
+				} else {
+					Log.w(LCAT, "First member of array is null");
+				}
+				if (v != null && v instanceof String) {
 					String[] sa = new String[len];
 					for(int i = 0; i < len; i++) {
 						sa[i] = (String) a[i];
 					}
 					d.put(key, sa);
-				} else if (v instanceof Double) {
+				} else if (v != null && v instanceof Double) {
 					double[] da = new double[len];
 					for(int i = 0; i < len; i++) {
 						da[i] = (Double) a[i];
 					}
 					d.put(key, da);
-				} else if (v instanceof KrollObject) {
+				} else if (v != null && v instanceof KrollObject) {
 					TiProxy[] pa = new TiProxy[len];
 					for(int i = 0; i < len; i++) {
 						KrollObject ko = (KrollObject) a[i];
@@ -76,7 +80,7 @@ public class TiConvert
 					//throw new IllegalArgumentException("Unsupported array property type " + v.getClass().getSimpleName());
 				}
 			} else {
-				d.put(key, (String[]) value);
+				d.put(key, (Object[]) value);
 			}
 		} else if (value == null) {
 			d.put(key, null);
