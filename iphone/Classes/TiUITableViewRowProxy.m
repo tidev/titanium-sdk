@@ -60,6 +60,13 @@
 -(void)setHeight:(id)value
 {
 	height = [TiUtils dimensionValue:value];
+	[self replaceValue:value forKey:@"height" notification:YES];
+}
+
+-(void)setLayout:(id)value
+{
+	layout = TiLayoutRuleFromObject(value);
+	[self replaceValue:value forKey:@"layout" notification:YES];
 }
 
 -(CGFloat)rowHeight:(CGRect)bounds
@@ -72,6 +79,7 @@
 	if (TiDimensionIsAuto(height))
 	{
 		SEL autoHeightSelector = @selector(minimumParentHeightForWidth:);
+		BOOL useVerticalLayout = TiLayoutRuleIsVertical(layout);
 		for (TiViewProxy * proxy in self.children)
 		{
 			if (![proxy respondsToSelector:autoHeightSelector])
@@ -80,7 +88,11 @@
 			}
 			
 			CGFloat newResult = [proxy minimumParentHeightForWidth:bounds.size.width];
-			if (newResult > result)
+			if (useVerticalLayout)
+			{
+				result += newResult;
+			}
+			else if (newResult > result)
 			{
 				result = newResult;
 			}
@@ -269,12 +281,23 @@
 		[view setBackgroundColor:[UIColor clearColor]];
 		[view setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		CGRect viewrect = [view bounds];
+		BOOL useVerticalLayout = TiLayoutRuleIsVertical(layout);
+		
 		for (TiViewProxy *proxy in self.children)
 		{
 			TiUIView *uiview = [proxy view];
-			[uiview insertIntoView:view bounds:viewrect];
 			uiview.parent = self;
 			uiview.touchDelegate = contentView;
+			if (useVerticalLayout)
+			{
+				viewrect.size.height = [uiview minimumParentHeightForWidth:viewrect.size.width];
+				[uiview insertIntoView:view bounds:viewrect];
+				viewrect.origin.y += viewrect.size.height;
+			}
+			else
+			{
+				[uiview insertIntoView:view bounds:viewrect];
+			}
 		}
 		[contentView addSubview:view];
 	}
