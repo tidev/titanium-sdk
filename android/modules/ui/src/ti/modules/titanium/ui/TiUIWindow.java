@@ -329,6 +329,22 @@ public class TiUIWindow extends TiUIView
 		return layout;
 	}
 
+	private void handleBackgroundColor(TiDict d)
+	{
+		if (proxy.getDynamicValue("backgroundColor") != null) {
+			Integer bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
+			Drawable cd = new ColorDrawable(bgColor);
+			if (lightWeight) {
+				nativeView.setBackgroundDrawable(cd);
+			} else {
+				Window w = windowActivity.getWindow();
+				w.setBackgroundDrawable(cd);
+			}
+		} else {
+			Log.w(LCAT, "Unable to set opacity w/o a backgroundColor");
+		}
+	}
+
 	@Override
 	public void processProperties(TiDict d)
 	{
@@ -364,30 +380,23 @@ public class TiUIWindow extends TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
 	{
 		if (key.equals("backgroundImage")) {
-			String path = proxy.getTiContext().resolveUrl(null, TiConvert.toString(newValue));
-			TiFileHelper tfh = new TiFileHelper(proxy.getTiContext().getTiApp());
-			Drawable bd = tfh.loadDrawable(path, false);
-			if (bd != null) {
-				if (!lightWeight) {
-					windowActivity.getWindow().setBackgroundDrawable(bd);
-				} else {
-					nativeView.setBackgroundDrawable(bd);
+			if (newValue != null) {
+				String path = proxy.getTiContext().resolveUrl(null, TiConvert.toString(newValue));
+				TiFileHelper tfh = new TiFileHelper(proxy.getTiContext().getTiApp());
+				Drawable bd = tfh.loadDrawable(path, false);
+				if (bd != null) {
+					if (!lightWeight) {
+						windowActivity.getWindow().setBackgroundDrawable(bd);
+					} else {
+						nativeView.setBackgroundDrawable(bd);
+					}
 				}
+			} else {
+				handleBackgroundColor(proxy.getDynamicProperties());
 			}
 		} else if (key.equals("opacity") || key.equals("backgroundColor")) {
 			TiDict d = proxy.getDynamicProperties();
-			if (proxy.getDynamicValue("backgroundColor") != null) {
-				Integer bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
-				Drawable cd = new ColorDrawable(bgColor);
-				if (lightWeight) {
-					nativeView.setBackgroundDrawable(cd);
-				} else {
-					Window w = windowActivity.getWindow();
-					w.setBackgroundDrawable(cd);
-				}
-			} else {
-				Log.w(LCAT, "Unable to set opacity w/o a backgroundColor");
-			}
+			handleBackgroundColor(d);
 		} else if (key.equals("width") || key.equals("height")) {
 			Window w = proxy.getTiContext().getActivity().getWindow();
 			int width = lastWidth;
