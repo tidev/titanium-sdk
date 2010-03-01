@@ -43,6 +43,10 @@ if platform.system() == "Darwin" and not ARGUMENTS.get('android',0):
 
 flags = ''
 
+only_package = False
+if ARGUMENTS.get("package",0):
+	only_package = True
+
 # TEMP until android is merged
 build_type = 'full'
 build_dirs = ['iphone', 'android']
@@ -60,10 +64,10 @@ if ARGUMENTS.get('COMPILER_FLAGS', 0):
 
 env = Environment()
 Export("env cwd version")
-if build_type in ['full', 'android']:
+if build_type in ['full', 'android'] and not only_package:
 	env.SConscript("android/SConscript", variant_dir="dist/android", duplicate=0)
 
-if build_type in ['full', 'iphone']:
+if build_type in ['full', 'iphone'] and not only_package:
 	d = os.getcwd()
 	os.chdir('iphone')
 	try:
