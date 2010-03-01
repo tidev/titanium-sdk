@@ -32,8 +32,11 @@
 -(void)_configure
 {
 	[super _configure];
+	// default to unknown network type on startup until reachability has figured it out
+	state = TiNetworkConnectionStateUnknown; 
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
-	[self performSelectorOnMainThread:@selector(startReachability) withObject:nil waitUntilDone:NO];
+	// wait until done is important to get the right state
+	[self performSelectorOnMainThread:@selector(startReachability) withObject:nil waitUntilDone:YES];
 }
 
 -(void)_destroy

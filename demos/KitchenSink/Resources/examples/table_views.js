@@ -1,3 +1,12 @@
+if (Ti.Platform.name == 'android') 
+{
+	Titanium.UI.currentWindow.backgroundColor = '#4e5c4d';
+}
+else
+{
+	Titanium.UI.currentWindow.backgroundColor = '#aebcad';
+}
+
 // create table view data object
 var data = [
 	{title:'Basic', hasChild:true, test:'../examples/table_view_basic.js', header:'Simple Table API'},
@@ -54,12 +63,10 @@ var tableViewOptions = {
 		style:Titanium.UI.iPhone.TableViewStyle.GROUPED,
 		headerTitle:'TableView examples and test cases',
 		footerTitle:"Wow. That was cool!",
-		backgroundColor: '#aebcad',
-		_backgroundImage:'../images/bg.png'
+		backgroundColor:'transparent',
+		rowBackgroundColor:'white'
 	};
-if (Ti.Platform.name == 'android') {
-	tableViewOptions.backgroundColor = '#4e5c4d';
-}
+
 
 var tableview = Titanium.UI.createTableView(tableViewOptions);
 
