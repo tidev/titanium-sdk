@@ -12,8 +12,9 @@
 #import "SBJSON.h"
 #import <sys/utsname.h>
 
-const NSString *kGeolocationURL = @"http://api.appcelerator.net/p/v1/geo";
+const NSString *kGeolocationURL = @"https://api.appcelerator.net/p/v1/geo";
 extern NSString * const TI_APPLICATION_GUID;
+extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @interface GeolocationCallback : NSObject
 {
@@ -380,7 +381,7 @@ extern NSString * const TI_APPLICATION_GUID;
 	[[TitaniumApp app] startNetwork];
 	
 	id aguid = TI_APPLICATION_GUID;
-	id sid = @"";	//FIXME -- session id
+	id sid = TI_APPLICATION_SESSION_ID;
 	
 	NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
 							direction, @"d",
@@ -614,10 +615,19 @@ MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS,kCLLocationAccuracyThreeKilometer
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
 {
+	NSDictionary *todict = [self locationDictionary:newLocation];
+	
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-						   [self locationDictionary:newLocation],@"coords",
+						   todict,@"coords",
 						   NUMBOOL(YES),@"success",
 						   nil];
+	
+	if (TI_APPLICATION_ANALYTICS)
+	{
+		NSDictionary *data = [NSDictionary dictionaryWithObjectsAndKeys:todict,@"to",[self locationDictionary:oldLocation],@"from",nil];
+		NSDictionary *geo = [NSDictionary dictionaryWithObjectsAndKeys:data,@"data",@"ti.geo",@"name",@"ti.geo",@"type",nil];
+		[[NSNotificationCenter defaultCenter] postNotificationName:kTitaniumAnalyticsNotification object:nil userInfo:geo]; 
+	}
 	
 	if ([self _hasListeners:@"location"])
 	{
@@ -677,7 +687,3 @@ MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS,kCLLocationAccuracyThreeKilometer
 }
 
 @end
-
-
-
-//TODO: analytics firing

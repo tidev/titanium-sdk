@@ -392,3 +392,4 @@ extern NSString * const kTitaniumShutdownNotification;
 extern NSString * const kTitaniumAnalyticsNotification;
 extern NSString * const kTitaniumRemoteDeviceUUIDNotification;
 
+extern NSString * TI_APPLICATION_SESSION_ID;
