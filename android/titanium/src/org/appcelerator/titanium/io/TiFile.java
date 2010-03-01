@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
 
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
@@ -167,8 +168,11 @@ public class TiFile extends TiBaseFile
 
 	@Override
 	public String nativePath()
-	{
-		return file.getAbsolutePath();
+	{	String p = null;
+		if (file != null) {
+			p = "file://" + file.getAbsolutePath();
+		}
+		return p;
 	}
 
 	public String toURL() {
