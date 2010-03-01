@@ -71,6 +71,14 @@ CGFloat AutoWidthForView(UIView * superView,CGFloat suggestedWidth)
 	CGFloat result = 0.0;
 	for (TiUIView * thisChildView in [superView subviews])
 	{
+		//TODO: This should be an unnecessary check, but this happening means the child class didn't override AutoWidth when it should have.
+		if(![thisChildView respondsToSelector:@selector(minimumParentWidthForWidth:)])
+		{
+			NSLog(@"[WARN] %@ contained %@, but called AutoWidthForView was called for it anyways."
+					"This typically means that -[TIUIView autoWidthForWidth] should have been overridden.",superView,thisChildView);
+			continue;
+		}
+		//END TODO
 		result = MAX(result,[thisChildView minimumParentWidthForWidth:suggestedWidth]);
 	}
 	return result;
