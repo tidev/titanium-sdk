@@ -204,16 +204,12 @@ view.add(toolbarView)
 var toolbar = Titanium.UI.createToolbar({
 	items:[flexSpace,one,flexSpace],
 	bottom:0,
-	width:'auto',
-	height:'auto',
 	borderTop:true,
 	borderBottom:true
 });
 var toolbar2 = Titanium.UI.createToolbar({
 	items:[flexSpace,two,flexSpace],
 	bottom:0,
-	width:'auto',
-	height:'auto',
 	borderTop:true,
 	borderBottom:true,
 	barColor:'black'
@@ -221,8 +217,6 @@ var toolbar2 = Titanium.UI.createToolbar({
 var toolbar3 = Titanium.UI.createToolbar({
 	items:[flexSpace,three,flexSpace],
 	bottom:0,
-	width:'auto',
-	height:'auto',
 	borderTop:true,
 	borderBottom:true,
 	barColor:'maroon'

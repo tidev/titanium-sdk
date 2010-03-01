@@ -19,7 +19,7 @@ tableview.addEventListener('click', function(e)
 	var section = e.section;
 	var row = e.row;
 	var rowdata = e.rowData;
-	Titanium.UI.createAlertDialog({title:'Table View',message:'row ' + row + ' index ' + index + ' section ' + section  + ' row data ' + rowdata}).show();
+	Titanium.UI.createAlertDialog({title:'Table View',message:'row ' + row + ' index ' + index + ' section ' + section  + ' title ' + rowdata.title}).show();
 });
 
 // add table view to the window
