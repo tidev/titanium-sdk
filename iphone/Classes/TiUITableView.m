@@ -1130,6 +1130,14 @@
 	TiUITableViewSectionProxy *section = [sections objectAtIndex:[indexPath section]];
 	TiUITableViewRowProxy *row = [section rowAtIndex:[indexPath row]];
 	NSString *color = [row valueForKey:@"backgroundColor"];
+	if (color==nil)
+	{
+		color = [self.proxy valueForKey:@"rowBackgroundColor"];
+		if (color==nil)
+		{
+			color = [self.proxy valueForKey:@"backgroundColor"];
+		}
+	}
 	if (color!=nil)
 	{
 		cell.backgroundColor = UIColorWebColorNamed(color);
