@@ -12,8 +12,8 @@ win.add(header);
 var body = Ti.UI.createView({height:'auto', layout:'vertical'});
 
 var bodyView1 = Ti.UI.createView({backgroundColor:'#336699', height:100, left:10, right:10});
-var bodyView2 = Ti.UI.createView({backgroundColor:'#ff0000', height:100, left:10, right:10, top:10});
-var bodyView3 = Ti.UI.createView({backgroundColor:'orange', height:100, left:10, right:10, top:10});
+var bodyView2 = Ti.UI.createView({backgroundColor:'#ff0000', height:50, left:10, right:10, top:10});
+var bodyView3 = Ti.UI.createView({backgroundColor:'orange', height:50, left:10, right:10, top:10});
 body.add(bodyView1);
 body.add(bodyView2);
 body.add(bodyView3);
