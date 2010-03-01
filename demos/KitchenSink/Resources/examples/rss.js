@@ -176,7 +176,7 @@ function loadRSSFeed(url){
 		// Find the channel element 
 		var channel = xml.documentElement.getElementsByTagName("channel");
 
-		feedTitle = channel.item(0).getElementsByTagName("title").item(0).nodeValue;
+		feedTitle = channel.item(0).getElementsByTagName("title").item(0).text;
 		
 		Ti.API.info("FEED TITLE " + feedTitle);
 		

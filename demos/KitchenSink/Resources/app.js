@@ -80,7 +80,12 @@ tabGroup.addTab(tab1);
 tabGroup.addTab(tab2);  
 tabGroup.addTab(tab3);
 tabGroup.addTab(tab4);
-tabGroup.addTab(tab5);
+
+// add iphone specific tests
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	tabGroup.addTab(tab5);
+}
 
 tabGroup.addEventListener('open',function()
 {

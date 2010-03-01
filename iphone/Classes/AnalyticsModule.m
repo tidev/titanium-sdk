@@ -26,8 +26,6 @@ extern NSString * const TI_APPLICATION_ID;
 extern NSString * const TI_APPLICATION_VERSION;
 extern NSString * const TI_APPLICATION_GUID;
 
-NSString * TI_APPLICATION_SESSION_ID;
-
 #define TI_DB_WARN_ON_ATTEMPT_COUNT 5
 #define TI_DB_RETRY_INTERVAL_IN_SEC 15
 #define TI_DB_FLUSH_INTERVAL_IN_SEC 5
@@ -46,17 +44,6 @@ NSString * const TI_DB_VERSION = @"1";
 	RELEASE_TO_NIL(flushTimer);
 	RELEASE_TO_NIL(url);
 	[super _destroy];
-}
-
--(void)_configure
-{
-	static NSString *sessionid;
-	if (sessionid==nil)
-	{
-		sessionid = [TiUtils createUUID];
-		TI_APPLICATION_SESSION_ID = sessionid;
-	}
-	[super _configure];
 }
 
 -(id)platform
@@ -234,7 +221,7 @@ NSString * const TI_DB_VERSION = @"1";
 	[dict setObject:TI_APPLICATION_GUID forKey:@"aguid"];
 	[dict setObject:name forKey:@"event"];
 	[dict setObject:type forKey:@"type"];
-	[dict setObject:TI_APPLICATION_SESSION_ID forKey:@"sid"];
+	[dict setObject:[[TitaniumApp app] sessionId] forKey:@"sid"];
 	if (data==nil)
 	{
 		[dict setObject:[NSNull null] forKey:@"data"];

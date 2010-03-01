@@ -1,5 +1,4 @@
 var win = Titanium.UI.currentWindow;
-var JSON = Titanium.JSON;
 win.backgroundColor = '#fff';
 
 var currentHeadingLabel = Titanium.UI.createLabel({
@@ -189,6 +188,7 @@ if (Titanium.Geolocation.locationServicesEnabled==false)
 }
 else
 {
+	
 	//
 	// IF WE HAVE COMPASS GET THE HEADING
 	//

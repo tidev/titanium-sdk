@@ -12,7 +12,6 @@ var tf1 = Titanium.UI.createTextField({
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
 });
 
-scrolly.add(tf1);
 
 var tf2 = Titanium.UI.createTextField({
 	value:'bezel border',
@@ -23,7 +22,6 @@ var tf2 = Titanium.UI.createTextField({
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_BEZEL
 });
 
-scrolly.add(tf2);
 
 var tf3 = Titanium.UI.createTextField({
 	value:'line border',
@@ -34,7 +32,6 @@ var tf3 = Titanium.UI.createTextField({
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_LINE
 });
 
-scrolly.add(tf3);
 
 var tf4 = Titanium.UI.createTextField({
 	value:'no border',
@@ -45,7 +42,6 @@ var tf4 = Titanium.UI.createTextField({
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_NONE
 });
 
-scrolly.add(tf4);
 
 var tf5 = Titanium.UI.createTextField({
 	hintText:'custom background image',
@@ -59,5 +55,14 @@ var tf5 = Titanium.UI.createTextField({
 	color:'#777',
 	clearOnEdit:true
 });
+
+// add iphone specific tests
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	scrolly.add(tf1);
+	scrolly.add(tf2);
+	scrolly.add(tf3);
+	scrolly.add(tf4);
+}
 
 scrolly.add(tf5);
