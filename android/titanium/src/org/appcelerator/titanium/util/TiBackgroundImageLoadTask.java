@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.util;
 
 import java.lang.ref.SoftReference;
+import java.util.concurrent.RejectedExecutionException;
 
 import org.appcelerator.titanium.TiContext;
 
@@ -32,6 +33,8 @@ public abstract class TiBackgroundImageLoadTask
 	protected Integer imageHeight;
 	protected Integer imageWidth;
 
+	private String url;
+
 	public TiBackgroundImageLoadTask(TiContext tiContext, Integer imageWidth, Integer imageHeight)
 	{
 		this.softTiContext = new SoftReference<TiContext>(tiContext);
@@ -41,7 +44,7 @@ public abstract class TiBackgroundImageLoadTask
 	protected Drawable doInBackground(String... arg) {
 
 		Drawable d = null;
-		String url = softTiContext.get().resolveUrl(null, arg[0]);
+		url = softTiContext.get().resolveUrl(null, arg[0]);
 
 		boolean retry = true;
 		int retryCount = 3;
@@ -94,6 +97,11 @@ public abstract class TiBackgroundImageLoadTask
 	}
 
 	public void load(String url) {
-		execute(url);
+		try {
+			execute(url);
+		} catch (RejectedExecutionException e) {
+			Log.w(LCAT, "Thread pool rejected attempt to load image: " + url);
+			Log.w(LCAT, "ADD Handler for retry");
+		}
 	}
 }
