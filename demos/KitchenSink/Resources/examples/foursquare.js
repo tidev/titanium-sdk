@@ -1,6 +1,5 @@
 var win = Titanium.UI.currentWindow;
 
-win.setTitleImage("../images/light-poweredby-foursquare.png");
 
 var username = Ti.UI.createTextField({
 	autocapitalization:Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
