@@ -57,19 +57,22 @@ fooBarList = xml2.documentElement.getElementsByTagName("FooBar");
 result = fooBarList!=null && fooBarList.length == 1 && fooBarList.item(0).text=="true";
 result = result && fooBarList.item(0).nodeName=="FooBar";
 
-// test XPath against Document
-result2 = xml2.evaluate("//FooBar/text()");
-result = result && result2.item(0).nodeValue == "true";
-
-// test XPath against Element
-result2 = xml2.documentElement.evaluate("//FooBar/text()");
-result = result && result2.item(0).text == "true";
-
-// test XPath against Element
-result2 = fooBarList.item(0).evaluate("text()");
-result = result && result2.item(0).text == "true";
-
-
+//TODO: remove when XPath is supported in android
+if (xml2.evaluate) {
+	// test XPath against Document
+	result2 = xml2.evaluate("//FooBar/text()");
+	result = result && result2.item(0).nodeValue == "true";
+	
+	// test XPath against Element
+	result2 = xml2.documentElement.evaluate("//FooBar/text()");
+	result = result && result2.item(0).text == "true";
+	
+	// test XPath against Element
+	result2 = fooBarList.item(0).evaluate("text()");
+	result = result && result2.item(0).text == "true";
+} else {
+	result = false;
+}
 var label2 = Ti.UI.createLabel({
 	top:150,
 	text:'XML Test.\nShould be true.\nResult was: ' + result,
