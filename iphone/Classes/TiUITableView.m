@@ -1281,4 +1281,37 @@
 	RestoreScrollViewFromKeyboard(tableview);
 }
 
+#pragma Scroll View Delegate
+
+- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView 
+{
+	// suspend image loader while we're scrolling to improve performance
+	[[ImageLoader sharedLoader] suspend];
+	return YES;
+}
+
+- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView 
+{
+	// resume image loader when we're done scrolling
+	[[ImageLoader sharedLoader] resume];
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView 
+{
+	// suspend image loader while we're scrolling to improve performance
+	[[ImageLoader sharedLoader] suspend];
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate 
+{
+	// resume image loader when we're done scrolling
+	[[ImageLoader sharedLoader] resume];
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView 
+{
+	// resume image loader when we're done scrolling
+	[[ImageLoader sharedLoader] resume];
+}
+
 @end
