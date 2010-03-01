@@ -1,8 +1,8 @@
 package ti.modules.titanium.ui.widget;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -23,11 +23,9 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Rect;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.View.OnClickListener;
 
@@ -373,5 +371,16 @@ public class TiUIImageView extends TiUIView
 		} else {
 			this.reverse = reverse;
 		}*/
+	}
+	
+	public TiBlob toBlob ()
+	{
+		Drawable drawable = getView().getImageDrawable();
+		if (drawable != null && drawable instanceof BitmapDrawable) {
+			Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
+			return TiBlob.blobFromImage(proxy.getTiContext(), bitmap);
+		}
+		
+		return null;
 	}
 }
