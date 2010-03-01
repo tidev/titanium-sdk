@@ -12,7 +12,7 @@
 #import "SBJSON.h"
 #import <sys/utsname.h>
 
-const NSString *kGeolocationURL = @"https://api.appcelerator.net/p/v1/geo";
+const NSString *kGeolocationURL = @"http://api.appcelerator.net/p/v1/geo";
 extern NSString * const TI_APPLICATION_GUID;
 extern BOOL const TI_APPLICATION_ANALYTICS;
 
@@ -261,15 +261,15 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	{
 		startHeading = YES;
 	}
-	else if (singleLocation!=nil && [singleLocation count] > 0)
+	if (singleLocation!=nil && [singleLocation count] > 0)
 	{
 		startLocation = YES;
 	}
-	else if ([self _hasListeners:@"heading"])
+	if (!startHeading && [self _hasListeners:@"heading"])
 	{
 		startHeading = YES;
 	}
-	else if ([self _hasListeners:@"location"])
+	if (!startLocation && [self _hasListeners:@"location"])
 	{
 		startLocation = YES;
 	}
@@ -381,7 +381,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	[[TitaniumApp app] startNetwork];
 	
 	id aguid = TI_APPLICATION_GUID;
-	id sid = TI_APPLICATION_SESSION_ID;
+	id sid = [[TitaniumApp app] sessionId];
 	
 	NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
 							direction, @"d",

@@ -34,6 +34,8 @@
 	BOOL keyboardShowing;
 	id remoteNotificationDelegate;
 	NSDictionary* remoteNotification;
+	
+	NSString *sessionId;
 }
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
@@ -59,6 +61,7 @@
 -(void)dismissModalController:(BOOL)animated;
 
 -(NSString*)userAgent;
+-(NSString*)sessionId;
 
 -(BOOL)isKeyboardShowing;
 

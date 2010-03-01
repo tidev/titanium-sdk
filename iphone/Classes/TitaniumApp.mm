@@ -171,6 +171,8 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (void)boot
 {
+	sessionId = [[TiUtils createUUID] retain];
+	
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];
 	xhrBridge = [[XHRBridge alloc] initWithHost:self];
 	
@@ -246,6 +248,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	RELEASE_TO_NIL(kjsBridge);
 	RELEASE_TO_NIL(xhrBridge);
 	RELEASE_TO_NIL(remoteNotification);
+	RELEASE_TO_NIL(sessionId);
 }
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
@@ -402,6 +405,11 @@ void MyUncaughtExceptionHandler(NSException *exception)
 -(NSString*)remoteDeviceUUID
 {
 	return remoteDeviceUUID;
+}
+
+-(NSString*)sessionId
+{
+	return sessionId;
 }
 
 #pragma mark Keyboard Delegates
