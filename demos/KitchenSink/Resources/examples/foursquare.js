@@ -1,5 +1,6 @@
 var win = Titanium.UI.currentWindow;
 
+
 var username = Ti.UI.createTextField({
 	autocapitalization:Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE,
 	width:300,
