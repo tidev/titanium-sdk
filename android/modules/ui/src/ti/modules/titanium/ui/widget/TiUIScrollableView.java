@@ -86,4 +86,14 @@ public class TiUIScrollableView extends TiUIView
 	{
 		getView().setShowPagingControl(showPagingControl);
 	}
+	
+	public int getCurrentPage()
+	{
+		return getView().getSelectedItemPosition();
+	}
+	
+	public void setCurrentPage(int page)
+	{
+		getView().doScrollToView(page);
+	}
 }
