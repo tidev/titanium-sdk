@@ -75,7 +75,7 @@ b3.addEventListener('click', function()
 });
 
 var b4 = Titanium.UI.createButton({
-	title:'Hide/Show Button 3',
+	title:'Hide/Show Button Above',
 	width:200,
 	height:40,
 	top:175

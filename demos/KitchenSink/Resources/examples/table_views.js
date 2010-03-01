@@ -3,11 +3,7 @@ var data = [
 	{title:'Basic', hasChild:true, test:'../examples/table_view_basic.js', header:'Simple Table API'},
 	{title:'Custom Row Data', hasChild:true, test:'../examples/table_view_custom_rowdata.js'},
 	{title:'Headers', hasChild:true, test:'../examples/table_view_headers.js'},
-	{title:'Headers with Filter', hasChild:true, test:'../examples/table_view_headers_filter.js'},
 	{title:'Footers', hasChild:true, test:'../examples/table_view_footers.js'},
-	{title:'Delete Mode', hasChild:true, test:'../examples/table_view_delete.js'},
-	{title:'Delete Mode (2)', hasChild:true, test:'../examples/table_view_delete_2.js'},
-	{title:'Move Mode', hasChild:true, test:'../examples/table_view_move.js'},
 	{title:'Table View (Layout)', hasChild:true, test:'../examples/table_view_layout.js'},
 	{title:'Table View (Layout 2)', hasChild:true, test:'../examples/table_view_layout_2.js'},
 	{title:'Table View (Layout 3)', hasChild:true, test:'../examples/table_view_layout_3.js'},
@@ -35,15 +31,23 @@ var data = [
 	{title:'Table Custom Row Header', hasChild:true, test:'../examples/table_view_api_custom_rowheader.js'},
 	{title:'Table Custom Footer', hasChild:true, test:'../examples/table_view_api_custom_footer.js'},
 	{title:'Table Section Header', hasChild:true, test:'../examples/table_view_section_header.js'},
-	{title:'Table View Options', hasChild:true, test:'../examples/table_view_options.js'},
 	{title:'Table Empty Dataset (Create)', hasChild:true, test:'../examples/table_view_api_emptydata.js'},
 	{title:'Table Empty AppendRow', hasChild:true, test:'../examples/table_view_api_empty_append.js'},
 	{title:'Table with Remote Images', hasChild:true, test:'../examples/table_view_api_remote_images.js'},
 	{title:'Table with Remote Images 2', hasChild:true, test:'../examples/table_view_remote_images_2.js'},
-	{title:'Table Custom Cell Selection', hasChild:true, test:'../examples/table_view_cell_selection.js'},
 
 ];
 
+// add iphone specific tests
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	data.push({title:'Headers with Filter', hasChild:true, test:'../examples/table_view_headers_filter.js'});
+	data.push({title:'Delete Mode', hasChild:true, test:'../examples/table_view_delete.js'});
+	data.push({title:'Delete Mode (2)', hasChild:true, test:'../examples/table_view_delete_2.js'});
+	data.push({title:'Move Mode', hasChild:true, test:'../examples/table_view_move.js'});
+	data.push({title:'Table View Options', hasChild:true, test:'../examples/table_view_options.js'});
+	data.push({title:'Table Custom Cell Selection', hasChild:true, test:'../examples/table_view_cell_selection.js'});
+}
 // create table view
 var tableViewOptions = {
 		data:data,

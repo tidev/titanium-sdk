@@ -24,6 +24,7 @@ cartoonGuy.start();
 
 cartoonGuy.addEventListener('touchstart', function(e)
 {
+	Ti.API.info('I WAS CLICKED');
 	cartoonGuy.stop();
 	cartoonGuy.images=_WhenMovingImgs;	
 	cartoonGuy.start();

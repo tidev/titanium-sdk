@@ -33,7 +33,7 @@ function addRow()
 // create table view data object
 var data = [];
 
-for (var x=1;x<10;x++)
+for (var x=0;x<10;x++)
 {
 	data[x] = addRow();
 }
