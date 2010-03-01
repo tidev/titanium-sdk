@@ -14,11 +14,10 @@
 
 //TODO:
 //
-// 1. geo
-// 2. internal feature events
-// 3. KS 
-// 4. device reg for push
-
+// 1. internal feature events
+// 2. KS instrumentation
+// 3. device reg for push
+// 
 
 extern BOOL const TI_APPLICATION_ANALYTICS;
 extern NSString * const TI_APPLICATION_NAME;
@@ -27,13 +26,13 @@ extern NSString * const TI_APPLICATION_ID;
 extern NSString * const TI_APPLICATION_VERSION;
 extern NSString * const TI_APPLICATION_GUID;
 
+NSString * TI_APPLICATION_SESSION_ID;
 
 #define TI_DB_WARN_ON_ATTEMPT_COUNT 5
 #define TI_DB_RETRY_INTERVAL_IN_SEC 15
 #define TI_DB_FLUSH_INTERVAL_IN_SEC 5
 
-////#define TI_ANALYTICS_URL "https://api.appcelerator.net/p/v2/mobile-track"
-#define TI_ANALYTICS_URL "http://localhost/analytics"
+#define TI_ANALYTICS_URL "https://api.appcelerator.net/p/v2/mobile-track"
 
 // version of our analytics DB
 NSString * const TI_DB_VERSION = @"1";
@@ -49,6 +48,16 @@ NSString * const TI_DB_VERSION = @"1";
 	[super _destroy];
 }
 
+-(void)_configure
+{
+	static NSString *sessionid;
+	if (sessionid==nil)
+	{
+		sessionid = [TiUtils createUUID];
+		TI_APPLICATION_SESSION_ID = sessionid;
+	}
+	[super _configure];
+}
 
 -(id)platform
 {
@@ -214,11 +223,6 @@ NSString * const TI_DB_VERSION = @"1";
 	}
 	
 	static int sequence = 0;
-	static NSString *sessionid;
-	if (sessionid==nil)
-	{
-		sessionid = [TiUtils createUUID];
-	}
 	
 	NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 	
@@ -230,7 +234,7 @@ NSString * const TI_DB_VERSION = @"1";
 	[dict setObject:TI_APPLICATION_GUID forKey:@"aguid"];
 	[dict setObject:name forKey:@"event"];
 	[dict setObject:type forKey:@"type"];
-	[dict setObject:sessionid forKey:@"sid"];
+	[dict setObject:TI_APPLICATION_SESSION_ID forKey:@"sid"];
 	if (data==nil)
 	{
 		[dict setObject:[NSNull null] forKey:@"data"];
@@ -493,6 +497,8 @@ NSString * const TI_DB_VERSION = @"1";
 	NSString *name = [args objectAtIndex:1];
 	id data = [args count] > 2 ? [args objectAtIndex:2] : [NSDictionary dictionary];
 	
+	NSLog(@"[INFO] Analytics->addEvent with type: %@, name: %@, data: %@",type,name,data);
+	
 	[self queueEvent:type name:name data:[self dataToDictionary:data] immediate:NO];
 }
 
@@ -511,6 +517,8 @@ NSString * const TI_DB_VERSION = @"1";
 	NSDictionary *payload = [NSDictionary dictionaryWithObjectsAndKeys:from,@"from",
 						   to,@"to",[self dataToDictionary:data],@"data",nil];
 	
+	NSLog(@"[INFO] Analytics->navEvent with from: %@, to: %@, event: %@, data: %@",from,to,event,data);
+
 	[self queueEvent:@"app.nav" name:event data:payload immediate:NO];
 }
 
@@ -537,21 +545,32 @@ NSString * const TI_DB_VERSION = @"1";
 							 duration,@"duration",
 							 [self dataToDictionary:data],@"data",nil];
 	
+	NSLog(@"[INFO] Analytics->timedEvent with event: %@, start: %@, stop: %@, duration: %@, data: %@",event,start,stop,duration,data);
+
 	[self queueEvent:@"app.timed_event" name:event data:payload immediate:NO];
 }
 
+#define PRINT_EVENT_DETAILS(name,args) \
+  id event = [args objectAtIndex:0];\
+  id data = [args count] > 1 ? [args objectAtIndex:1] : nil;\
+  NSLog(@"[INFO] Analytics->%s with event: %@, data: %@",#name,event,data);\
+
+
 -(void)featureEvent:(id)args
 {
+	PRINT_EVENT_DETAILS(featureEvent,args);
 	[self queueKeyValueEvent:args type:@"app.feature"];
 }
 
 -(void)settingsEvent:(id)args
 {
+	PRINT_EVENT_DETAILS(settingsEvent,args);
 	[self queueKeyValueEvent:args type:@"app.settings"];
 }
 
 -(void)userEvent:(id)args
 {
+	PRINT_EVENT_DETAILS(userEvent,args);
 	[self queueKeyValueEvent:args type:@"app.user"];
 }
 

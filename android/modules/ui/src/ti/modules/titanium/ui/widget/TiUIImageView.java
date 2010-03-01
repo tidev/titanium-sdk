@@ -256,7 +256,7 @@ public class TiUIImageView extends TiUIView
 			}
 		}
 	}
-	
+
 	public void resume()
 	{
 		if (animationTask != null) {
@@ -350,7 +350,7 @@ public class TiUIImageView extends TiUIView
 	public void onStop() {
 		stop();
 	}
-	
+
 	public void onClick(View view) {
 		proxy.fireEvent(EVENT_CLICK, null);
 	}
@@ -364,13 +364,13 @@ public class TiUIImageView extends TiUIView
 	}
 
 	public void setReverse(boolean reverse) {
-		/*if (animationTask != null) {
+		if (animationTask != null) {
 			synchronized(animationTask) {
 				this.reverse = reverse;
 			}
 		} else {
 			this.reverse = reverse;
-		}*/
+		}
 	}
 	
 	public TiBlob toBlob ()

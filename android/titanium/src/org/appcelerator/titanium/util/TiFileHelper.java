@@ -162,6 +162,9 @@ public class TiFileHelper
 				int len = "file:///android_asset/".length();
 				path = path.substring(len);
 				is = context.getAssets().open(path);
+			} else if (URLUtil.isFileUrl(path)) {
+				URL u = new URL(path);
+				is = u.openStream();
 			} else {
 				path = joinPaths("Resources", path);
 				is = context.getAssets().open(path);
