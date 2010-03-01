@@ -165,10 +165,20 @@
 	for (id mode in newOrientationModes)
 	{
 		UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:-1];
-		if ((orientation >= 0) && (orientation < MAX_ORIENTATIONS))
+		switch (orientation)
 		{
-			allowedOrientations[orientation] = YES;
-			noOrientations = NO;
+			case UIDeviceOrientationPortrait:
+			case UIDeviceOrientationPortraitUpsideDown:
+			case UIDeviceOrientationLandscapeLeft:
+			case UIDeviceOrientationLandscapeRight:
+				allowedOrientations[orientation] = YES;
+				noOrientations = NO;
+				break;
+			case -1:
+				break;
+			default:
+				NSLog(@"[WARN] An invalid orientation was requested. Ignoring.");
+				break;
 		}
 	}
 	
