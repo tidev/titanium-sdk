@@ -69,6 +69,7 @@
 @property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_IMA4;
 @property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_ILBC;
 @property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_APPLE_LOSSLESS;
+@property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_AAC;
 
 @property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_WAVE;
 @property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_AIFF;

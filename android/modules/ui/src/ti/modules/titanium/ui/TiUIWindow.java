@@ -23,6 +23,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Path.FillType;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -30,7 +31,9 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.view.ViewGroup.LayoutParams;
 
 public class TiUIWindow extends TiUIView
 	implements Handler.Callback
@@ -56,6 +59,9 @@ public class TiUIWindow extends TiUIView
 	protected Messenger messenger;
 	protected int messageId;
 
+	protected int lastWidth;
+	protected int lastHeight;
+
 	private static AtomicInteger idGenerator;
 
 	public TiUIWindow(TiViewProxy proxy, TiDict options, Messenger messenger, int messageId)
@@ -68,6 +74,9 @@ public class TiUIWindow extends TiUIView
 		this.messenger = messenger;
 		this.messageId = messageId;
 		this.handler = new Handler(this);
+
+		this.lastWidth = LayoutParams.FILL_PARENT;
+		this.lastHeight = LayoutParams.FILL_PARENT;
 
 		TiDict props = proxy.getDynamicProperties();
 		TiPropertyResolver resolver = new TiPropertyResolver(options, props);
@@ -379,6 +388,29 @@ public class TiUIWindow extends TiUIView
 			} else {
 				Log.w(LCAT, "Unable to set opacity w/o a backgroundColor");
 			}
+		} else if (key.equals("width") || key.equals("height")) {
+			Window w = proxy.getTiContext().getActivity().getWindow();
+			int width = lastWidth;
+			int height = lastHeight;
+
+			if (key.equals("width")) {
+				if (newValue != null) {
+					width = TiConvert.toInt(newValue);
+				} else {
+					width = LayoutParams.FILL_PARENT;
+				}
+			}
+			if (key.equals("height")) {
+				if (newValue != null) {
+					height = TiConvert.toInt(newValue);
+				} else {
+					height = LayoutParams.FILL_PARENT;
+				}
+			}
+			w.setLayout(width, height);
+
+			lastWidth = width;
+			lastHeight = height;
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

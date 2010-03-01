@@ -96,14 +96,10 @@ void AQRecorder::MyInputBufferHandler(	void *								inUserData,
 {
 	AQRecorder *aqr = (AQRecorder *)inUserData;
 	
-	// if paused, throw the packet away   -- JGH
-	if (aqr->IsPaused())
+	try 
 	{
-		return;
-	}
-	
-	try {
-		if (inNumPackets > 0) {
+		if (inNumPackets > 0 && !aqr->IsPaused())  //JGH check for pause
+		{
 			// write packets to file
 			XThrowIfError(AudioFileWritePackets(aqr->mRecordFile, FALSE, inBuffer->mAudioDataByteSize,
 												inPacketDesc, aqr->mRecordPacket, &inNumPackets, inBuffer->mAudioData),
@@ -113,8 +109,12 @@ void AQRecorder::MyInputBufferHandler(	void *								inUserData,
 		
 		// if we're not stopping, re-enqueue the buffe so that it gets filled again
 		if (aqr->IsRunning())
+		{
 			XThrowIfError(AudioQueueEnqueueBuffer(inAQ, inBuffer, 0, NULL), "AudioQueueEnqueueBuffer failed");
-	} catch (CAXException e) {
+		}
+	} 
+	catch (CAXException e) 
+	{
 		char buf[256];
 		fprintf(stderr, "Error: %s (%s)\n", e.mOperation, e.FormatError(buf));
 	}
@@ -194,14 +194,13 @@ void AQRecorder::SetupAudioFormat(UInt32 inFormatID)
 	{
 		case kAudioFormatLinearPCM:
 		{
-			// if we want pcm, default to signed 16-bit little-endian
-			mRecordFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
+			mRecordFormat.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;			
 			mRecordFormat.mBitsPerChannel = 16;
 			mRecordFormat.mChannelsPerFrame = 1;
-			mRecordFormat.mBytesPerPacket = 2;
-			mRecordFormat.mBytesPerFrame = 2;			
+			mRecordFormat.mBytesPerFrame = 2;		
 			mRecordFormat.mFramesPerPacket = 1;
-			mRecordFormat.mSampleRate = 22050.0;
+			mRecordFormat.mSampleRate = 44100.0;
+			mRecordFormat.mBytesPerPacket = 2;
 			break;
 		}
 		case kAudioFormatALaw:
@@ -214,6 +213,38 @@ void AQRecorder::SetupAudioFormat(UInt32 inFormatID)
 			mRecordFormat.mBitsPerChannel = 8;
 			mRecordFormat.mBytesPerPacket = 1;
 			mRecordFormat.mBytesPerFrame = 1;
+			break;
+		}
+		case kAudioFormatAppleIMA4:
+		{
+			mRecordFormat.mSampleRate = 44100.0;
+			mRecordFormat.mFormatFlags = 0;
+			mRecordFormat.mChannelsPerFrame = 1;
+			mRecordFormat.mBitsPerChannel = 0;
+			mRecordFormat.mFramesPerPacket = 64;
+			mRecordFormat.mBytesPerPacket = 68;
+			break;
+		}
+		case kAudioFormatAppleLossless:
+		{
+			mRecordFormat.mFormatFlags = 0;
+			mRecordFormat.mSampleRate = 44100.0;
+			mRecordFormat.mBitsPerChannel = 0;
+			mRecordFormat.mFramesPerPacket = 4096;
+			mRecordFormat.mBytesPerFrame = 0;
+			mRecordFormat.mChannelsPerFrame = 1;
+			mRecordFormat.mBytesPerPacket = 0;	
+			break;
+		}
+		case kAudioFormatMPEG4AAC:
+		{
+			mRecordFormat.mFormatFlags = 0;
+			mRecordFormat.mBitsPerChannel = 0;
+			mRecordFormat.mSampleRate = 44100.0;
+			mRecordFormat.mChannelsPerFrame = 1;
+			mRecordFormat.mBytesPerPacket = 0;
+			mRecordFormat.mBytesPerFrame = 0;
+			mRecordFormat.mFramesPerPacket = 1024;
 			break;
 		}
 	}
