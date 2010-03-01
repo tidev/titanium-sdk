@@ -655,6 +655,7 @@ static BOOL isiPhoneOS2;
 	
 	[self requestStarted];
 	
+	
 	[self setAuthenticationLock:[[[NSConditionLock alloc] initWithCondition:1] autorelease]];
 	
 	[self setComplete:NO];
@@ -824,7 +825,6 @@ static BOOL isiPhoneOS2;
 	// Wait for the request to finish
 	while (!complete) {
 		
-
 		// We won't let the request cancel until we're done with this cycle of the loop
 		[[self cancelledLock] lock];
 		

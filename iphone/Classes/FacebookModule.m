@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiBase.h"
+#import "TitaniumApp.h"
 #import "FacebookModule.h"
 #import "TiFacebookLoginButtonProxy.h"
 #import "SBJSON.h"
@@ -126,6 +127,16 @@
 	[super dealloc]; 
 }
 
+- (void)requestLoading:(FBRequest*)request
+{
+	[[TitaniumApp app] startNetwork];
+}
+
+- (void)requestWasCancelled:(FBRequest*)request
+{
+	[[TitaniumApp app] stopNetwork];
+}
+
 - (void)request:(FBRequest*)request didLoad:(id)result
 {
 #ifdef VERBOSE_LOG
@@ -142,6 +153,7 @@
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:result,@"data",[NSNumber numberWithBool:true],@"success",nil];
 	[module _fireEventToListener:@"query" withObject:event listener:callback thisObject:nil];
 	[self autorelease];
+	[[TitaniumApp app] stopNetwork];
 }
 
 - (void)request:(FBRequest*)request didFailWithError:(NSError*)error
@@ -150,6 +162,7 @@
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[error description],@"error",[NSNumber numberWithBool:false],@"success",nil];
 	[module _fireEventToListener:@"query" withObject:event listener:callback thisObject:nil];
 	[self autorelease];
+	[[TitaniumApp app] stopNetwork];
 }
 
 @end
