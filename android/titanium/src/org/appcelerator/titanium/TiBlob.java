@@ -6,14 +6,17 @@
  */
 package org.appcelerator.titanium;
 
+import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 
 
 public class TiBlob extends TiProxy
@@ -29,7 +32,7 @@ public class TiBlob extends TiProxy
 	private int type;
 	private Object data;
 	private String mimetype;
-
+	private int width, height;
 
 	private TiBlob(TiContext tiContext, int type, Object data, String mimetype)
 	{
@@ -37,6 +40,8 @@ public class TiBlob extends TiProxy
 		this.type = type;
 		this.data = data;
 		this.mimetype = mimetype;
+		this.width = 0;
+		this.height = 0;
 	}
 
 	public static TiBlob blobFromString(TiContext tiContext, String data)
@@ -55,7 +60,10 @@ public class TiBlob extends TiProxy
 	}
 
 	public static TiBlob blobFromImage(TiContext tiContext, Bitmap image) {
-		return new TiBlob(tiContext, TYPE_IMAGE, image, "image/bitmap");
+		TiBlob blob = new TiBlob(tiContext, TYPE_IMAGE, image, "image/bitmap");
+		blob.width = image.getWidth();
+		blob.height = image.getHeight();
+		return blob;
 	}
 
 	public static TiBlob blobFromData(TiContext tiContext, byte[] data) {
@@ -85,8 +93,12 @@ public class TiBlob extends TiProxy
 				throw new IllegalStateException("Not yet implemented. TYPE_FILE");
 				//break;
 			case TYPE_IMAGE :
-				throw new IllegalStateException("Not yet implemented TYPE_IMAGE");
-				// break;
+				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				Bitmap bitmap = (Bitmap)data;
+				if (bitmap.compress(CompressFormat.PNG, 100, bos)) {
+					return bos.toByteArray();
+				}
+				break;
 			default :
 				throw new IllegalArgumentException("Unknown Blob type id " + type);
 		}
@@ -134,5 +146,13 @@ public class TiBlob extends TiProxy
 
 	public int getType() {
 		return type;
+	}
+	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
 	}
 }

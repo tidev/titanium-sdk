@@ -1,5 +1,6 @@
 package ti.modules.titanium.ui;
 
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -47,5 +48,9 @@ public class ImageViewProxy extends ViewProxy {
 	
 	public void setReverse(boolean reverse) {
 		getImageView().setReverse(reverse);
+	}
+	
+	public TiBlob toBlob() {
+		return getImageView().toBlob();
 	}
 }
