@@ -2,7 +2,7 @@ var win = Ti.UI.currentWindow;
 win.layout = 'vertical';
 
 // HEADER
-var header = Ti.UI.createView({height:50});
+var header = Ti.UI.createView({height:50,borderWidth:1,borderColor:'#999'});
 var headerLabel = Ti.UI.createLabel({color:'#777', top:10,textAlign:'center', height:'auto', text:'Header'});
 header.add(headerLabel);
 
@@ -21,7 +21,7 @@ body.add(bodyView3);
 win.add(body)
 
 // FOOTER
-var footer = Ti.UI.createView({height:50});
+var footer = Ti.UI.createView({height:50,borderWidth:1,borderColor:'#999'});
 var footerLabel = Ti.UI.createLabel({color:'#777', textAlign:'center', height:'auto', text:'Footer'});
 footer.add(footerLabel);
 
