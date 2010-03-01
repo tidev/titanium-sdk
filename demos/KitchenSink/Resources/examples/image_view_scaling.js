@@ -16,7 +16,10 @@ var l = Titanium.UI.createLabel({
 });
 win.add(l);
 
-var blob = imageView.toBlob();
-l.text = blob.width + "x" + blob.height;
+setTimeout(function() {
+	// wait for URL to load
+	var blob = imageView.toBlob();
+	l.text = blob.width + "x" + blob.height;
+}, 2000);
 
 
