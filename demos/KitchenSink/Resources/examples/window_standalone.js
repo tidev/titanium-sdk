@@ -378,7 +378,7 @@ else
 	navButton.top = 310;
 	navButton.width = 200;
 	navButton.height = 40;
-	win.add(navButton);
+//	win.add(navButton);
 }
 
 

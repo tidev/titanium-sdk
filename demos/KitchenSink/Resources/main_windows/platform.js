@@ -30,7 +30,8 @@ tableview.addEventListener('click', function(e)
 	{
 		var win = Titanium.UI.createWindow({
 			url:e.rowData.test,
-			title:e.rowData.title
+			title:e.rowData.title,
+			backgroundColor:'#fff'
 		});
 		Titanium.UI.currentTab.open(win,{animated:true})
 	}

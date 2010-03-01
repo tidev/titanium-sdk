@@ -11,6 +11,7 @@
 #import "ImageLoader.h"
 #import "TiComplexValue.h"
 #import "TitaniumApp.h"
+#import "TiUITabController.h"
 
 @implementation TiUIWindowProxy
 
@@ -172,6 +173,7 @@
 			ourNCBar.tintColor = acolor;
 			ourNC.toolbar.tintColor = acolor;
 		}
+		[self performSelector:@selector(_refreshBackButton) withObject:nil afterDelay:0.0];
 	}
 }
 
@@ -298,7 +300,7 @@
 	}
 
 	UIViewController * parentController = [controllerArray objectAtIndex:controllerPosition-1];
-	UIBarButtonItem * backButton;
+	UIBarButtonItem * backButton = nil;
 
 	UIImage * backImage = [TiUtils image:[self valueForKey:@"backButtonTitleImage"] proxy:self];
 	if (backImage != nil)
@@ -308,16 +310,16 @@
 	else
 	{
 		NSString * backTitle = [TiUtils stringValue:[self valueForKey:@"backButtonTitle"]];
+		if ((backTitle == nil) && [parentController isKindOfClass:[TiUITabController class]])
+		{
+			backTitle = [TiUtils stringValue:[[(TiUITabController *)parentController window] valueForKey:@"title"]];
+		}
 		if (backTitle != nil)
 		{
 			backButton = [[UIBarButtonItem alloc] initWithTitle:backTitle style:UIBarButtonItemStylePlain target:nil action:nil];
 		}
-		else
-		{
-			backButton = nil;
-		}
 	}
-
+//	[[parentController navigationItem] setBackBarButtonItem:nil];
 	[[parentController navigationItem] setBackBarButtonItem:backButton];
 	[backButton release];
 }

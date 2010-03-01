@@ -162,6 +162,10 @@ public class TiImageView extends ViewGroup
 		scaleFactor = originalScaleFactor;
 		updateChangeMatrix(0);
 	}
+	
+	public Drawable getImageDrawable() {
+		return imageView.getDrawable();
+	}
 
 	public void setOnClickListener(OnClickListener clickListener) {
 		this.clickListener = clickListener;

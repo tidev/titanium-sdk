@@ -47,7 +47,6 @@ var customSliderLabel = Titanium.UI.createLabel({
 	height:'auto'
 });
 
-Titanium.UI.currentWindow.add(customSliderLabel);
 var customSlider = Titanium.UI.createSlider({
 	min:0,
 	max:100,
@@ -212,9 +211,6 @@ titleButton.addEventListener('click', function()
 
 win.add(basicSliderLabel);
 win.add(basicSlider);
-win.add(customSliderLabel);
-win.add(customSlider);
-win.add(changeButton);
 win.add(toggleButton);
 
 if (Titanium.Platform.osname == 'iphone')
@@ -222,4 +218,8 @@ if (Titanium.Platform.osname == 'iphone')
 	win.add(navbarButton);
 	win.add(toolbarButton);
 	win.add(titleButton);
+	win.add(customSliderLabel);
+	win.add(customSlider);
+	win.add(changeButton);
+
 }

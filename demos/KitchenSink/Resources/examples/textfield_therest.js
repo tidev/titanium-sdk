@@ -6,6 +6,7 @@ var tf1 = Titanium.UI.createTextField({
 	top:10,
 	left:10,
 	width:250,
+	height:40,
 	hintText:'hintText',
 	keyboardType:Titanium.UI.KEYBOARD_DEFAULT,
 	returnKeyType:Titanium.UI.RETURNKEY_DEFAULT,
