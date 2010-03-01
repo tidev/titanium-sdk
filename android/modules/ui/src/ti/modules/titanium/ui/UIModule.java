@@ -69,6 +69,13 @@ public class UIModule extends TiModule
 			constants.put("TEXT_ALIGNMENT_LEFT", "left");
 			constants.put("TEXT_ALIGNMENT_CENTER", "center");
 			constants.put("TEXT_ALIGNMENT_RIGHT", "right");
+
+			constants.put("PORTRAIT", 0);
+			constants.put("UPSIDE_PORTRAIT", 1);
+			constants.put("LANDSCAPE_LEFT", 2);
+			constants.put("LANDSCAPE_RIGHT", 3);
+			constants.put("FACE_UP", 4);
+			constants.put("FACE_DOWN", 5);
 		}
 
 		return constants;

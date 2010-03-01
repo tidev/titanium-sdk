@@ -303,6 +303,59 @@
 	}
 }
 
+-(void)reproxyChildren:(TiViewProxy*)proxy 
+				  view:(TiUIView*)uiview 
+				parent:(TiViewProxy*)newParent
+		 touchDelegate:(id)touchDelegate
+{
+	TiProxy *oldProxy = uiview.proxy;
+	
+	// change the proxy/view relationship before firing 
+	// events since certain properties (such as backgroundImage)
+	// rely on certain aspects of the proxy to be set (like baseURL)
+	// for them to work correctly
+	uiview.parent = newParent;
+	uiview.touchDelegate = touchDelegate;
+	uiview.proxy = proxy;
+	for (NSString *key in [proxy allProperties])
+	{
+		id oldValue = oldProxy==nil ? nil : [oldProxy valueForKey:key];
+		id newValue = [proxy valueForKey:key];
+		if ([oldValue isEqual:newValue]==NO)
+		{
+			// fire any property changes that are different from the old
+			// proxy to our new proxy
+			[uiview propertyChanged:key oldValue:oldValue newValue:newValue proxy:proxy];
+		}
+	}
+	uiview.proxy = newParent;
+	// re-assign the view to the new proxy so the right listeners get 
+	// any child view events that are fired
+	// we assign ourselves as the new parent so we can be in the 
+	// event propagation chain to insert row level event properties
+	[proxy exchangeView:uiview];
+	
+	// because proxies can have children, we need to recursively do this
+	NSArray *children_ = proxy.children;
+	if (children_!=nil && [children_ count]>0)
+	{
+		NSArray *subviews = [uiview subviews];
+		if ([subviews count] != [children_ count])
+		{
+			NSLog(@"[WARN] looks like we have a different table cell layout than expected.  Make sure you set the 'className' property of the table row when you have different cell layouts");
+			NSLog(@"[WARN] if you don't fix this, your tableview will suffer performance issues and also will not render properly");
+			return;
+		}
+		int c = 0;
+		for (TiViewProxy* child in children_)
+		{
+			[self reproxyChildren:child 
+							 view:[subviews objectAtIndex:c++]  
+						   parent:proxy touchDelegate:nil];
+		}
+	}
+}
+
 -(void)updateChildren:(UITableViewCell*)cell
 {
 	// this method is called with a cached table cell and we need
@@ -347,31 +400,7 @@
 				{
 					TiViewProxy *proxy = [self.children objectAtIndex:x];
 					TiUIView *uiview = [subviews objectAtIndex:x];
-					TiProxy *oldProxy = uiview.proxy;
-					// change the proxy/view relationship before firing 
-					// events since certain properties (such as backgroundImage)
-					// rely on certain aspects of the proxy to be set (like baseURL)
-					// for them to work correctly
-					uiview.parent = self;
-					uiview.touchDelegate = contentView;
-					uiview.proxy = proxy;
-					for (NSString *key in [proxy allProperties])
-					{
-						id oldValue = oldProxy==nil ? nil : [oldProxy valueForKey:key];
-						id newValue = [proxy valueForKey:key];
-						if ([oldValue isEqual:newValue]==NO)
-						{
-							// fire any property changes that are different from the old
-							// proxy to our new proxy
-							[uiview propertyChanged:key oldValue:oldValue newValue:newValue proxy:proxy];
-						}
-					}
-					uiview.proxy = self;
-					// re-assign the view to the new proxy so the right listeners get 
-					// any child view events that are fired
-					// we assign ourselves as the new parent so we can be in the 
-					// event propagation chain to insert row level event properties
-					[proxy exchangeView:uiview];
+					[self reproxyChildren:proxy view:uiview parent:self touchDelegate:contentView];
 				}
 				found = YES;
 				// once we find the container we can break
