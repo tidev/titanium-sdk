@@ -59,6 +59,7 @@
 
 	// Storage container for additional queue information.
 	NSDictionary *userInfo;
+	
 }
 
 // Convenience constructor

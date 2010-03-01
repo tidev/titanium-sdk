@@ -6,10 +6,48 @@
  */
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "ASIHTTPRequest.h"
+#import "ASINetworkQueue.h"
+
+@class ImageLoaderRequest;
+
+@protocol ImageLoaderDelegate
+@required
+-(void)imageLoadSuccess:(ImageLoaderRequest*)request image:(UIImage*)image;
+-(void)imageLoadFailed:(ImageLoaderRequest*)request error:(NSError*)error;
+@optional
+-(void)imageLoadCancelled:(ImageLoaderRequest*)request;
+@end
+
+@interface ImageLoaderRequest : NSObject {
+@private
+	ASIHTTPRequest *request;
+	NSObject<ImageLoaderDelegate>* delegate;
+	NSDictionary* userInfo;
+	NSURL *url;
+	BOOL completed;
+	BOOL cancelled;
+}
+
+-(void)setRequest:(ASIHTTPRequest*)request;
+
+@property(nonatomic,readwrite,assign) BOOL completed;
+@property(nonatomic,readonly) NSObject<ImageLoaderDelegate>* delegate;
+
+-(void)cancel;
+-(BOOL)cancelled;
+-(NSDictionary*)userInfo;
+-(NSURL*)url;
+
+
+@end
 
 @interface ImageLoader : NSObject {
 @private
 	NSMutableDictionary *cache;
+	ASINetworkQueue* queue;
+	NSMutableArray* timeout;
+	NSRecursiveLock* lock;
 }
 
 +(ImageLoader*)sharedLoader;
@@ -18,6 +56,11 @@
 -(UIImage *)loadImmediateImage:(NSURL *)url;
 -(UIImage *)loadImmediateStretchableImage:(NSURL *)url;
 
--(void)loadImage:(NSURL*)url callback:(id)callback selector:(SEL)selector;
+-(ImageLoaderRequest*)loadImage:(NSURL*)url 
+					   delegate:(NSObject<ImageLoaderDelegate>*)delegate 
+					   userInfo:(NSDictionary*)userInfo;
+
+-(void)suspend;
+-(void)resume;
 
 @end

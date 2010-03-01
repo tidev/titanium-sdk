@@ -11,7 +11,7 @@
 #import "TiUISearchBarProxy.h"
 #import "TiDimension.h"
 
-@interface TiUITableView : TiUIView<UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiUIScrollView> {
+@interface TiUITableView : TiUIView<UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiUIScrollView> {
 @private
 	UITableView *tableview;
 	NSMutableArray *sections;

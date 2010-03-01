@@ -159,7 +159,6 @@
 		245E768F111A9A7800A18644 /* Ti2DMatrix.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8AED111161FE0084E2DE /* Ti2DMatrix.h */; };
 		245E7690111A9A7800A18644 /* OperationQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8AFF111161FE0084E2DE /* OperationQueue.h */; };
 		245E7691111A9A7800A18644 /* Mimetypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8B03111161FE0084E2DE /* Mimetypes.h */; };
-		245E7692111A9A7800A18644 /* LayoutEntry.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8B09111161FE0084E2DE /* LayoutEntry.h */; };
 		245E7693111A9A7800A18644 /* LayoutConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8B0B111161FE0084E2DE /* LayoutConstraint.h */; };
 		245E7694111A9A7800A18644 /* ImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8B0D111161FE0084E2DE /* ImageLoader.h */; };
 		245E7695111A9A7800A18644 /* TiUITableViewRowProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24CA8B3A111161FE0084E2DE /* TiUITableViewRowProxy.h */; };
@@ -360,7 +359,6 @@
 		24CA8BDD111161FE0084E2DE /* Mimetypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B02111161FE0084E2DE /* Mimetypes.m */; };
 		24CA8BDE111161FE0084E2DE /* MediaModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B04111161FE0084E2DE /* MediaModule.m */; };
 		24CA8BDF111161FE0084E2DE /* MapModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B06111161FE0084E2DE /* MapModule.m */; };
-		24CA8BE0111161FE0084E2DE /* LayoutEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B08111161FE0084E2DE /* LayoutEntry.m */; };
 		24CA8BE1111161FE0084E2DE /* LayoutConstraint.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0A111161FE0084E2DE /* LayoutConstraint.m */; };
 		24CA8BE2111161FE0084E2DE /* ImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0C111161FE0084E2DE /* ImageLoader.m */; };
 		24CA8BE3111161FE0084E2DE /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0E111161FE0084E2DE /* GestureModule.m */; };
@@ -539,7 +537,6 @@
 		24CA901511116C490084E2DE /* Mimetypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B02111161FE0084E2DE /* Mimetypes.m */; };
 		24CA901611116C490084E2DE /* MediaModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B04111161FE0084E2DE /* MediaModule.m */; };
 		24CA901711116C490084E2DE /* MapModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B06111161FE0084E2DE /* MapModule.m */; };
-		24CA901811116C490084E2DE /* LayoutEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B08111161FE0084E2DE /* LayoutEntry.m */; };
 		24CA901911116C490084E2DE /* LayoutConstraint.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0A111161FE0084E2DE /* LayoutConstraint.m */; };
 		24CA901A11116C490084E2DE /* ImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0C111161FE0084E2DE /* ImageLoader.m */; };
 		24CA901B11116C490084E2DE /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0E111161FE0084E2DE /* GestureModule.m */; };
@@ -721,7 +718,6 @@
 		24CB0E74111A971B00A813AD /* Mimetypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B02111161FE0084E2DE /* Mimetypes.m */; };
 		24CB0E75111A971B00A813AD /* MediaModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B04111161FE0084E2DE /* MediaModule.m */; };
 		24CB0E76111A971B00A813AD /* MapModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B06111161FE0084E2DE /* MapModule.m */; };
-		24CB0E77111A971B00A813AD /* LayoutEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B08111161FE0084E2DE /* LayoutEntry.m */; };
 		24CB0E78111A971B00A813AD /* LayoutConstraint.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0A111161FE0084E2DE /* LayoutConstraint.m */; };
 		24CB0E79111A971B00A813AD /* ImageLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0C111161FE0084E2DE /* ImageLoader.m */; };
 		24CB0E7A111A971B00A813AD /* GestureModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B0E111161FE0084E2DE /* GestureModule.m */; };
@@ -1192,8 +1188,6 @@
 		24CA8B05111161FE0084E2DE /* MediaModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MediaModule.h; path = ../Classes/MediaModule.h; sourceTree = SOURCE_ROOT; };
 		24CA8B06111161FE0084E2DE /* MapModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MapModule.m; path = ../Classes/MapModule.m; sourceTree = SOURCE_ROOT; };
 		24CA8B07111161FE0084E2DE /* MapModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapModule.h; path = ../Classes/MapModule.h; sourceTree = SOURCE_ROOT; };
-		24CA8B08111161FE0084E2DE /* LayoutEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LayoutEntry.m; path = ../Classes/LayoutEntry.m; sourceTree = SOURCE_ROOT; };
-		24CA8B09111161FE0084E2DE /* LayoutEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LayoutEntry.h; path = ../Classes/LayoutEntry.h; sourceTree = SOURCE_ROOT; };
 		24CA8B0A111161FE0084E2DE /* LayoutConstraint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LayoutConstraint.m; path = ../Classes/LayoutConstraint.m; sourceTree = SOURCE_ROOT; };
 		24CA8B0B111161FE0084E2DE /* LayoutConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LayoutConstraint.h; path = ../Classes/LayoutConstraint.h; sourceTree = SOURCE_ROOT; };
 		24CA8B0C111161FE0084E2DE /* ImageLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ImageLoader.m; path = ../Classes/ImageLoader.m; sourceTree = SOURCE_ROOT; };
@@ -1691,8 +1685,6 @@
 				24CA8AFF111161FE0084E2DE /* OperationQueue.h */,
 				24CA8B02111161FE0084E2DE /* Mimetypes.m */,
 				24CA8B03111161FE0084E2DE /* Mimetypes.h */,
-				24CA8B09111161FE0084E2DE /* LayoutEntry.h */,
-				24CA8B08111161FE0084E2DE /* LayoutEntry.m */,
 				24CA8B0A111161FE0084E2DE /* LayoutConstraint.m */,
 				24CA8B0B111161FE0084E2DE /* LayoutConstraint.h */,
 				24CA8B0C111161FE0084E2DE /* ImageLoader.m */,
@@ -2490,7 +2482,6 @@
 				245E768F111A9A7800A18644 /* Ti2DMatrix.h in Headers */,
 				245E7690111A9A7800A18644 /* OperationQueue.h in Headers */,
 				245E7691111A9A7800A18644 /* Mimetypes.h in Headers */,
-				245E7692111A9A7800A18644 /* LayoutEntry.h in Headers */,
 				245E7693111A9A7800A18644 /* LayoutConstraint.h in Headers */,
 				245E7694111A9A7800A18644 /* ImageLoader.h in Headers */,
 				245E7695111A9A7800A18644 /* TiUITableViewRowProxy.h in Headers */,
@@ -2842,7 +2833,6 @@
 				24CA8BDD111161FE0084E2DE /* Mimetypes.m in Sources */,
 				24CA8BDE111161FE0084E2DE /* MediaModule.m in Sources */,
 				24CA8BDF111161FE0084E2DE /* MapModule.m in Sources */,
-				24CA8BE0111161FE0084E2DE /* LayoutEntry.m in Sources */,
 				24CA8BE1111161FE0084E2DE /* LayoutConstraint.m in Sources */,
 				24CA8BE2111161FE0084E2DE /* ImageLoader.m in Sources */,
 				24CA8BE3111161FE0084E2DE /* GestureModule.m in Sources */,
@@ -3051,7 +3041,6 @@
 				24CA901511116C490084E2DE /* Mimetypes.m in Sources */,
 				24CA901611116C490084E2DE /* MediaModule.m in Sources */,
 				24CA901711116C490084E2DE /* MapModule.m in Sources */,
-				24CA901811116C490084E2DE /* LayoutEntry.m in Sources */,
 				24CA901911116C490084E2DE /* LayoutConstraint.m in Sources */,
 				24CA901A11116C490084E2DE /* ImageLoader.m in Sources */,
 				24CA901B11116C490084E2DE /* GestureModule.m in Sources */,
@@ -3260,7 +3249,6 @@
 				24CB0E74111A971B00A813AD /* Mimetypes.m in Sources */,
 				24CB0E75111A971B00A813AD /* MediaModule.m in Sources */,
 				24CB0E76111A971B00A813AD /* MapModule.m in Sources */,
-				24CB0E77111A971B00A813AD /* LayoutEntry.m in Sources */,
 				24CB0E78111A971B00A813AD /* LayoutConstraint.m in Sources */,
 				24CB0E79111A971B00A813AD /* ImageLoader.m in Sources */,
 				24CB0E7A111A971B00A813AD /* GestureModule.m in Sources */,
@@ -3424,6 +3412,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -3435,6 +3424,8 @@
 				OTHER_CFLAGS = "-DDEBUG=1";
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos3.1.2;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
@@ -3444,6 +3435,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -3454,6 +3446,8 @@
 				);
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos3.1.2;
 				USER_HEADER_SEARCH_PATHS = "";
 			};

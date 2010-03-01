@@ -622,7 +622,8 @@ DEFINE_EXCEPTIONS
 		[key isEqualToString:@"top"] ||
 		[key isEqualToString:@"left"] ||
 		[key isEqualToString:@"right"] ||
-		[key isEqualToString:@"bottom"];
+		[key isEqualToString:@"bottom"] ||
+		[key isEqualToString:@"layout"];
 }
 
 -(void)repositionChange:(NSString*)key value:(id)inputVal
@@ -630,18 +631,9 @@ DEFINE_EXCEPTIONS
 #define READ_CONSTRAINT(k)	\
 if ([key isEqualToString:@#k])\
 {\
-if(inputVal != nil) \
-{ \
 layout.k = TiDimensionFromObject(inputVal); \
 [self reposition];\
 return;\
-} \
-else \
-{ \
-layout.k = TiDimensionUndefined; \
-[self reposition];\
-return;\
-}\
 }	
 	READ_CONSTRAINT(width);
 	READ_CONSTRAINT(height);
@@ -649,6 +641,12 @@ return;\
 	READ_CONSTRAINT(left);
 	READ_CONSTRAINT(right);
 	READ_CONSTRAINT(bottom);
+	if ([key isEqualToString:@"layout"])
+	{
+		layout.layout = TiLayoutRuleFromObject(inputVal);
+		[self reposition];
+		return;
+	}
 }
 
 -(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys

@@ -761,7 +761,8 @@
 		{
 			NSString *urlstring = [[url standardizedURL] path];
 			NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
-			NSString *appurlstr = [NSString stringWithFormat:@"%@",[urlstring stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"%@/",resourceurl] withString:@""]];
+			NSRange range = [urlstring rangeOfString:resourceurl];
+			NSString *appurlstr = [urlstring substringFromIndex:range.location + range.length + 1];
 			appurlstr = [appurlstr stringByReplacingOccurrencesOfString:@"." withString:@"_"];
 			if ([appurlstr hasPrefix:@"/"])
 			{
