@@ -18,6 +18,7 @@
 	TiUITableView *table;
 	TiUITableViewSectionProxy *section;
 	TiDimension height;
+	TiLayoutRule layout;
 	NSInteger row;
 }
 

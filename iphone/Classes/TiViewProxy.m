@@ -530,6 +530,7 @@
 
 #pragma mark For autosizing of table views
 
+//TODO: Implement autoHeightForWidth.
 
 -(CGFloat)minimumParentHeightForWidth:(CGFloat)suggestedWidth
 {

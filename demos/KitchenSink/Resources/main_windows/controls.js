@@ -10,7 +10,6 @@ var data = [
 	{title:'Picker', hasChild:true, test:'../examples/picker.js'},
 	{title:'Text Field', hasChild:true, test:'../examples/textfield.js'},
 	{title:'Text Area', hasChild:true, test:'../examples/textarea.js'},
-
 ];
 
 // add iphone specific tests

@@ -71,6 +71,14 @@ CGFloat AutoWidthForView(UIView * superView,CGFloat suggestedWidth)
 	CGFloat result = 0.0;
 	for (TiUIView * thisChildView in [superView subviews])
 	{
+		//TODO: This should be an unnecessary check, but this happening means the child class didn't override AutoWidth when it should have.
+		if(![thisChildView respondsToSelector:@selector(minimumParentWidthForWidth:)])
+		{
+			NSLog(@"[WARN] %@ contained %@, but called AutoWidthForView was called for it anyways."
+					"This typically means that -[TIUIView autoWidthForWidth] should have been overridden.",superView,thisChildView);
+			continue;
+		}
+		//END TODO
 		result = MAX(result,[thisChildView minimumParentWidthForWidth:suggestedWidth]);
 	}
 	return result;
@@ -622,7 +630,8 @@ DEFINE_EXCEPTIONS
 		[key isEqualToString:@"top"] ||
 		[key isEqualToString:@"left"] ||
 		[key isEqualToString:@"right"] ||
-		[key isEqualToString:@"bottom"];
+		[key isEqualToString:@"bottom"] ||
+		[key isEqualToString:@"layout"];
 }
 
 -(void)repositionChange:(NSString*)key value:(id)inputVal
@@ -630,18 +639,9 @@ DEFINE_EXCEPTIONS
 #define READ_CONSTRAINT(k)	\
 if ([key isEqualToString:@#k])\
 {\
-if(inputVal != nil) \
-{ \
 layout.k = TiDimensionFromObject(inputVal); \
 [self reposition];\
 return;\
-} \
-else \
-{ \
-layout.k = TiDimensionUndefined; \
-[self reposition];\
-return;\
-}\
 }	
 	READ_CONSTRAINT(width);
 	READ_CONSTRAINT(height);
@@ -649,6 +649,12 @@ return;\
 	READ_CONSTRAINT(left);
 	READ_CONSTRAINT(right);
 	READ_CONSTRAINT(bottom);
+	if ([key isEqualToString:@"layout"])
+	{
+		layout.layout = TiLayoutRuleFromObject(inputVal);
+		[self reposition];
+		return;
+	}
 }
 
 -(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys

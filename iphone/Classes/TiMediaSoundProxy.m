@@ -92,7 +92,7 @@
 		id preload = [self valueForKey:@"preload"];
 		if ([TiUtils boolValue:preload])
 		{
-			[self performSelectorOnMainThread:@selector(player) withObject:nil waitUntilDone:NO];
+			[self performSelectorOnMainThread:@selector(_prepare) withObject:nil waitUntilDone:NO];
 		}
 	}
 }
@@ -129,6 +129,11 @@
 		[player setCurrentTime:resumeTime];
 	}
 	return player;
+}
+
+-(void)_prepare
+{
+	[[self player] prepareToPlay];
 }
 
 #pragma mark Public APIs

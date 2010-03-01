@@ -1199,14 +1199,18 @@
 	BOOL hasTitle = NO;
 	if (view!=nil)
 	{
-		LayoutConstraint *layout = [view layout];
-		if (TiDimensionIsPixels(layout->height))
+		LayoutConstraint *viewLayout = [view layout];
+		switch (viewLayout->height.type)
 		{
-			size+=layout->height.value;
-		}
-		else 
-		{
-			size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+			case TiDimensionTypePixels:
+				size += viewLayout->height.value;
+				break;
+			case TiDimensionTypeAuto:
+				size += [view autoHeightForWidth:[tableView bounds].size.width];
+				break;
+			default:
+				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+				break;
 		}
 	}
 	else if ([sectionProxy headerTitle]!=nil)
@@ -1233,14 +1237,18 @@
 	BOOL hasTitle = NO;
 	if (view!=nil)
 	{
-		LayoutConstraint *layout = [view layout];
-		if (TiDimensionIsPixels(layout->height))
+		LayoutConstraint *viewLayout = [view layout];
+		switch (viewLayout->height.type)
 		{
-			size+=layout->height.value;
-		}
-		else 
-		{
-			size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+			case TiDimensionTypePixels:
+				size += viewLayout->height.value;
+				break;
+			case TiDimensionTypeAuto:
+				size += [view autoHeightForWidth:[tableView bounds].size.width];
+				break;
+			default:
+				size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+				break;
 		}
 	}
 	else if ([sectionProxy footerTitle]!=nil)
@@ -1279,6 +1287,39 @@
 	}
 
 	RestoreScrollViewFromKeyboard(tableview);
+}
+
+#pragma Scroll View Delegate
+
+- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView 
+{
+	// suspend image loader while we're scrolling to improve performance
+	[[ImageLoader sharedLoader] suspend];
+	return YES;
+}
+
+- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView 
+{
+	// resume image loader when we're done scrolling
+	[[ImageLoader sharedLoader] resume];
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView 
+{
+	// suspend image loader while we're scrolling to improve performance
+	[[ImageLoader sharedLoader] suspend];
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate 
+{
+	// resume image loader when we're done scrolling
+	[[ImageLoader sharedLoader] resume];
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView 
+{
+	// resume image loader when we're done scrolling
+	[[ImageLoader sharedLoader] resume];
 }
 
 @end

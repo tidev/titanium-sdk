@@ -190,6 +190,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 else
 {
 	actInd.show();
+	actInd.message = 'Loading...'
 	setTimeout(function()
 	{
 		actInd.hide();

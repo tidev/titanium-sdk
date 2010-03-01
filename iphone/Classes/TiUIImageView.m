@@ -33,6 +33,7 @@ DEFINE_EXCEPTIONS
 	RELEASE_TO_NIL(images);
 	RELEASE_TO_NIL(container);
 	RELEASE_TO_NIL(previous);
+	RELEASE_TO_NIL(urlRequest);
 	[super dealloc];
 }
 
@@ -166,11 +167,6 @@ DEFINE_EXCEPTIONS
 	
 	[images addObject:img];
 	[[OperationQueue sharedQueue] queue:@selector(loadImageInBackground:) target:self arg:[NSNumber numberWithInt:index_] after:nil on:nil ui:NO];
-}
-
--(void)queueURLImage:(NSURL*)url
-{
-	[[OperationQueue sharedQueue] queue:@selector(loadURLImageInBackground:) target:self arg:url after:nil on:nil ui:NO];
 }
 
 -(void)startTimer
@@ -521,6 +517,13 @@ DEFINE_EXCEPTIONS
 		return;
 	}
 	
+	// cancel a pending request if we have one pending
+	if (urlRequest!=nil)
+	{
+		[urlRequest cancel];
+		RELEASE_TO_NIL(urlRequest);
+	}
+	
 	if (img!=nil)
 	{
 		// remove current subview
@@ -566,7 +569,7 @@ DEFINE_EXCEPTIONS
 				[iv release];
 			}
 			placeholderLoading = YES;
-			[self queueURLImage:url_];
+			urlRequest = [[[ImageLoader sharedLoader] loadImage:url_ delegate:self userInfo:nil] retain];
 			return;
 		}
 		if (image!=nil)
@@ -612,11 +615,49 @@ DEFINE_EXCEPTIONS
 	reverse = [TiUtils boolValue:value];
 }
 
+-(void)setReload__:(id)value
+{
+	// this is internally called when we cancelled this image load to force
+	// the url to be reloaded - otherwise the tableview cell will think we 
+	// have the same url and not call us to re-render
+	[self setUrl_:[self.proxy valueForKey:@"url"]];
+}
+
 #pragma mark Configuration 
 
 -(void)configurationSet
 {
 	[self setUrl_:[self.proxy valueForKey:@"url"]];
+}
+
+
+#pragma mark ImageLoader delegates
+
+-(void)imageLoadSuccess:(ImageLoaderRequest*)request image:(UIImage*)image
+{
+	if (request == urlRequest)
+	{
+		image = [self scaleImageIfRequired:image];
+		[self setURLImageOnUIThread:image];
+		RELEASE_TO_NIL(urlRequest);
+	}
+}
+
+-(void)imageLoadFailed:(ImageLoaderRequest*)request error:(NSError*)error
+{
+	if (request == urlRequest)
+	{
+		NSLog(@"[ERROR] Failed to load image: %@, Error: %@",[request url], error);
+		RELEASE_TO_NIL(urlRequest);
+	}
+}
+
+-(void)imageLoadCancelled:(ImageLoaderRequest *)request
+{
+	// we place a value in the proxy to cause us to force a reload - since on a cancel
+	// the url will be the same and the table view won't call us unless the proxy value
+	// is different
+	[self.proxy replaceValue:NUMLONG([NSDate timeIntervalSinceReferenceDate]) forKey:@"reload_" notification:NO];	
 }
 
 
