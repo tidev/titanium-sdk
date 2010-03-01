@@ -26,11 +26,11 @@ def zip_dir(zf,dir,basepath):
 	for root, dirs, files in os.walk(dir):
 		for name in ignoreDirs:
 			if name in dirs:
-				dirs.remove(name)	# don't visit ignored directories			  
+				dirs.remove(name)	# don't visit ignored directories
 		for file in files:
 			e = os.path.splitext(file)
-			if len(e)==2 and e[1]=='.pyc':continue
-			from_ = os.path.join(root, file)	
+			if len(e)==2 and e[1]=='.pyc': continue
+			from_ = os.path.join(root, file)
 			to_ = from_.replace(dir, basepath, 1)
 			zf.write(from_, to_)
 
@@ -49,13 +49,13 @@ def zip_android(zf,basepath):
 	
 	android_module_jars = glob.glob(os.path.join(android_dist_dir, 'titanium-*.jar'))
 	for android_module_jar in android_module_jars:
-		 jarname = os.path.split(android_module_jar)[1] 
-		 zf.write(android_module_jar, '%s/android/modules/%s' % (basepath, jarname)) 
+		 jarname = os.path.split(android_module_jar)[1]
+		 zf.write(android_module_jar, '%s/android/modules/%s' % (basepath, jarname))
 	
-	zip_dir(zf, android_dir, basepath+'/android')
-	zip_dir(zf, os.path.join(android_dir, 'resources'), basepath+'/android/resources')
-	zip_dir(zf, os.path.join(android_dir, 'templates'), basepath+'/android/templates')
-	zip_dir(zf, os.path.join(android_dir, 'mako'), basepath+'/android/mako')
+	#zip_dir(zf, android_dir, basepath+'/android')
+	#zip_dir(zf, os.path.join(android_dir, 'resources'), basepath+'/android/resources')
+	#zip_dir(zf, os.path.join(android_dir, 'templates'), basepath+'/android/templates')
+	#zip_dir(zf, os.path.join(android_dir, 'mako'), basepath+'/android/mako')
 
 def zip_iphone(zf,basepath):
 	sys.path.append(iphone_dir)
@@ -80,7 +80,7 @@ def zip_iphone(zf,basepath):
 		if os.path.isfile(os.path.join(tp_headers_dir,f)) and os.path.splitext(f)[1]=='.h':
 			 zf.write(os.path.join(tp_headers_dir,f),'%s/iphone/include/TiCore/%s' % (basepath,f))
 	
-	xcode_templates_dir =  os.path.join(top_dir,'iphone','templates','xcode') 
+	xcode_templates_dir =  os.path.join(top_dir,'iphone','templates','xcode')
 	zip_dir(zf,xcode_templates_dir,basepath+'/iphone/xcode/templates')
 	
 	iphone_lib = os.path.join(top_dir,'iphone','iphone','build')
@@ -89,8 +89,8 @@ def zip_iphone(zf,basepath):
 	ticore_lib = os.path.join(top_dir,'iphone','lib')
 	zf.write(os.path.join(ticore_lib,'libTiCore.a'),'%s/iphone/libTiCore.a'%basepath)
 	
-	zip_dir(zf,iphone_dir,basepath+'/iphone')
-	zip_dir(zf,os.path.join(iphone_dir,'resources'),basepath+'/iphone/resources')
+	#zip_dir(zf,iphone_dir,basepath+'/iphone')
+	#zip_dir(zf,os.path.join(iphone_dir,'resources'),basepath+'/iphone/resources')
 	zip_dir(zf,osx_dir,basepath)
 	
 	modules_dir = os.path.join(top_dir,'iphone','Resources','modules')
@@ -128,4 +128,4 @@ class Packager(object):
 
 
 if __name__ == '__main__':
-	Packager().build(os.path.abspath('../dist'),"0.9.0")
+	Packager().build(os.path.abspath('../dist'), "0.9.0")
