@@ -23,6 +23,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Path.FillType;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -30,7 +31,9 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.view.ViewGroup.LayoutParams;
 
 public class TiUIWindow extends TiUIView
 	implements Handler.Callback
@@ -56,6 +59,9 @@ public class TiUIWindow extends TiUIView
 	protected Messenger messenger;
 	protected int messageId;
 
+	protected int lastWidth;
+	protected int lastHeight;
+
 	private static AtomicInteger idGenerator;
 
 	public TiUIWindow(TiViewProxy proxy, TiDict options, Messenger messenger, int messageId)
@@ -68,6 +74,9 @@ public class TiUIWindow extends TiUIView
 		this.messenger = messenger;
 		this.messageId = messageId;
 		this.handler = new Handler(this);
+
+		this.lastWidth = LayoutParams.FILL_PARENT;
+		this.lastHeight = LayoutParams.FILL_PARENT;
 
 		TiDict props = proxy.getDynamicProperties();
 		TiPropertyResolver resolver = new TiPropertyResolver(options, props);
@@ -320,6 +329,22 @@ public class TiUIWindow extends TiUIView
 		return layout;
 	}
 
+	private void handleBackgroundColor(TiDict d)
+	{
+		if (proxy.getDynamicValue("backgroundColor") != null) {
+			Integer bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
+			Drawable cd = new ColorDrawable(bgColor);
+			if (lightWeight) {
+				nativeView.setBackgroundDrawable(cd);
+			} else {
+				Window w = windowActivity.getWindow();
+				w.setBackgroundDrawable(cd);
+			}
+		} else {
+			Log.w(LCAT, "Unable to set opacity w/o a backgroundColor");
+		}
+	}
+
 	@Override
 	public void processProperties(TiDict d)
 	{
@@ -355,30 +380,46 @@ public class TiUIWindow extends TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue, TiProxy proxy)
 	{
 		if (key.equals("backgroundImage")) {
-			String path = proxy.getTiContext().resolveUrl(null, TiConvert.toString(newValue));
-			TiFileHelper tfh = new TiFileHelper(proxy.getTiContext().getTiApp());
-			Drawable bd = tfh.loadDrawable(path, false);
-			if (bd != null) {
-				if (!lightWeight) {
-					windowActivity.getWindow().setBackgroundDrawable(bd);
-				} else {
-					nativeView.setBackgroundDrawable(bd);
+			if (newValue != null) {
+				String path = proxy.getTiContext().resolveUrl(null, TiConvert.toString(newValue));
+				TiFileHelper tfh = new TiFileHelper(proxy.getTiContext().getTiApp());
+				Drawable bd = tfh.loadDrawable(path, false);
+				if (bd != null) {
+					if (!lightWeight) {
+						windowActivity.getWindow().setBackgroundDrawable(bd);
+					} else {
+						nativeView.setBackgroundDrawable(bd);
+					}
 				}
+			} else {
+				handleBackgroundColor(proxy.getDynamicProperties());
 			}
 		} else if (key.equals("opacity") || key.equals("backgroundColor")) {
 			TiDict d = proxy.getDynamicProperties();
-			if (proxy.getDynamicValue("backgroundColor") != null) {
-				Integer bgColor = TiConvert.toColor(d, "backgroundColor", "opacity");
-				Drawable cd = new ColorDrawable(bgColor);
-				if (lightWeight) {
-					nativeView.setBackgroundDrawable(cd);
+			handleBackgroundColor(d);
+		} else if (key.equals("width") || key.equals("height")) {
+			Window w = proxy.getTiContext().getActivity().getWindow();
+			int width = lastWidth;
+			int height = lastHeight;
+
+			if (key.equals("width")) {
+				if (newValue != null) {
+					width = TiConvert.toInt(newValue);
 				} else {
-					Window w = windowActivity.getWindow();
-					w.setBackgroundDrawable(cd);
+					width = LayoutParams.FILL_PARENT;
 				}
-			} else {
-				Log.w(LCAT, "Unable to set opacity w/o a backgroundColor");
 			}
+			if (key.equals("height")) {
+				if (newValue != null) {
+					height = TiConvert.toInt(newValue);
+				} else {
+					height = LayoutParams.FILL_PARENT;
+				}
+			}
+			w.setLayout(width, height);
+
+			lastWidth = width;
+			lastHeight = height;
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

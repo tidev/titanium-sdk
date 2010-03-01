@@ -10,14 +10,15 @@
 //For TableRows, we need to have minimumParentHeightForWidth:
 @interface TiViewProxy : TiProxy<LayoutAutosizing> 
 {
+@protected
+	CGFloat verticalLayoutBoundary;
+
 @private
 	NSRecursiveLock *childLock;
 	NSMutableArray *children;
 	TiUIView *view;
 	TiViewProxy *parent;
 	BOOL viewInitialized;
-	
-	CGFloat verticalLayoutBoundary;
 }
 
 @property(nonatomic,readonly) NSArray *children;
