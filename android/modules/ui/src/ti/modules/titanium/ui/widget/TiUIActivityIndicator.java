@@ -120,7 +120,7 @@ public class TiUIActivityIndicator extends TiUIView
 	protected void handleShow() {
 		TiDict d = proxy.getDynamicProperties();
 
-		String message = "Message not set...";
+		String message = "";
 		if (d.containsKey("message")) {
 			message = d.getString("message");
 		}
