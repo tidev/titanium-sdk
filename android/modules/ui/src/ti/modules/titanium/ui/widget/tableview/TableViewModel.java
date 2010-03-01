@@ -162,7 +162,7 @@ public class TableViewModel
         } else if (data instanceof TableViewSectionProxy) {
         	newItem.proxy = (TableViewSectionProxy) data;
         } else {
-        	throw new IllegalStateException("Un-implemented type: " + data.getClass().getSimpleName());
+        	throw new IllegalStateException("Un-implemented type: " + (data != null ? data.getClass().getSimpleName() : null));
         }
 
         return newItem;

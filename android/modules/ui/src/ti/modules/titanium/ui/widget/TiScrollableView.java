@@ -14,6 +14,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import ti.modules.titanium.ui.ScrollableViewProxy;
 import android.graphics.Color;
 import android.os.Handler;
+import android.text.method.MovementMethod;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -268,7 +269,7 @@ public class TiScrollableView extends TiCompositeLayout
 				}
 			} else if (current > position) {
 				while(getSelectedItemPosition() > position) {
-					TiScrollableView.this.proxy.movePrevious();
+					doMovePrevious();
 				}
 			}
 		}

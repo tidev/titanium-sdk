@@ -128,7 +128,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 	
 	public void moveNext() {
-		// was synchronzied(gallery) {
+		// was synchronized(gallery) {
 		if (inScroll.get() || inAnimation.get()) return;
 		getUIHandler().removeMessages(MSG_MOVE_NEXT);
 		getUIHandler().sendEmptyMessage(MSG_MOVE_NEXT);
@@ -153,8 +153,18 @@ public class ScrollableViewProxy extends TiViewProxy
 		if (hasListeners(EVENT_SCROLL)) {
 			TiDict options = new TiDict();
 			options.put("index", to);
+			options.put("view", this);
+			options.put("currentPage", getView().getCurrentPage());
 			TiEventHelper.fireViewEvent(this, EVENT_SCROLL, options);
 		}
+	}
+	
+	public int getCurrentPage() {
+		return getView().getCurrentPage();
+	}
+	
+	public void setCurrentPage(Object page) {
+		scrollToView(page);
 	}
 	
 	public void onAnimationRepeat(Animation anim) {
