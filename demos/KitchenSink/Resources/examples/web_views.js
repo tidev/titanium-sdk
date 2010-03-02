@@ -1,20 +1,5 @@
 var win = Titanium.UI.currentWindow;
 
-// initialize to all modes
-win.orientationModes = [
-	Titanium.UI.PORTRAIT,
-	Titanium.UI.UPSIDE_PORTRAIT,
-	Titanium.UI.LANDSCAPE_LEFT,
-	Titanium.UI.LANDSCAPE_RIGHT,
-	Titanium.UI.FACE_UP,
-	Titanium.UI.FACE_DOWN,		
-]; 
-
-Ti.Gesture.addEventListener('orientationchange',function(e)
-{
-     Titanium.UI.orientation = e.orientation;
-});
-
 
 // create table view data object
 var data = [
