@@ -10,6 +10,15 @@
 import os, sys, json, re
 from os.path import join, splitext, split, exists
 
+try:
+	from mako.template import Template
+except:
+	print "Crap, you don't have mako!\n"
+	print "Easy install that bitch:\n"
+	print ">  easy_install Mako"
+	print
+	sys.exit(1)
+
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
 ignoreFiles = ['.gitignore', '.cvsignore'];
@@ -47,8 +56,8 @@ class API(object):
 		self.returns = returns
 	def add_method(self,key,value):
 		self.methods.append({'name':key,'value':value})
-	def add_property(self,key,value):
-		self.properties.append({'name':key,'value':value})
+	def add_property(self,key,typev,value):
+		self.properties.append({'name':key,'type':typev,'value':value})
 	def add_event(self,key,value):
 		self.events.append({'name':key,'value':value,'properties':{}})
 	def add_event_property(self,event,key,value):
@@ -58,8 +67,8 @@ class API(object):
 				return
 	def add_platform(self,value):
 		self.platforms.append(value)
-	def add_example(self,value):
-		self.examples.append(value)
+	def add_example(self,desc,code):
+		self.examples.append({'description':desc,'code':code})
 	def add_parameter(self,name,typestr,desc):
 		self.parameters.append({'name':name,'type':typestr,'description':desc})
 	def to_json(self):
@@ -96,7 +105,11 @@ def tokenize_keyvalues(buf):
 		
 def emit_properties(line):
 	for tokens in tokenize_keyvalues(line):
-		current_api.add_property(tokens[0],tokens[1])
+		match = re.search('(.*)\[(.*)\]',tokens[0])
+		if match == None:
+			print "[ERROR] invalid property line: %s. Must be in the format [name[type]]:[description]" % line
+			sys.exit(1)
+		current_api.add_property(match.group(1), match.group(2), tokens[1])
 	
 def emit_methods(line):
 	for tokens in tokenize_keyvalues(line):
@@ -116,7 +129,11 @@ def emit_description(line):
 	current_api.set_description(line.strip())
 
 def emit_example(line):
-	current_api.add_example(line)
+	idx = line.find('<code>')
+	endx = line.find('</code>',idx)
+	desc = line[0:idx].strip()
+	code = line[idx+6:endx].strip()
+	current_api.add_example(desc,code)
 		
 def emit_type(line):
 	current_api.set_type(line.strip())
@@ -224,8 +241,97 @@ for root, dirs, files in os.walk(template_dir):
 			else:
 				buffer+='%s\n' % ln
 		emit_buffer(buffer)
-					  
-result = {}
-for key in apis:
-	result[key] = apis[key].to_json()
-print json.dumps(result,sort_keys=True,indent=4)
+			
+
+def produce_json(config):
+	result = {}
+	for key in apis:
+		result[key] = apis[key].to_json()
+	print json.dumps(result,sort_keys=True,indent=4)
+	
+def load_template(type):
+	template = os.path.join(template_dir,'templates','%s.html' % type)
+	if not os.path.exists(template):
+		print "Couldn't find template %s" % template
+		sys.exit(1)
+	return open(template).read()
+	
+def produce_devhtml_output(config,templates,outdir,theobj):
+	for name in theobj:
+		obj = theobj[name]
+		typestr = obj.typestr
+		template = None
+		if templates.has_key(typestr):
+			template = templates[typestr]
+		else:
+			template = load_template(typestr)
+			templates[typestr] = template
+			
+		output = Template(template).render(config=config,apis=apis,data=obj)
+		filename = os.path.join(outdir,'%s.html' % name)
+		f = open(filename,'w+')
+		f.write(output)
+		f.close()
+		
+		if obj.typestr == 'module':
+			toc_filename = os.path.join(outdir,'toc_%s.json' % name)
+			f = open(toc_filename,'w+')
+			methods = []
+			properties = []
+			for m in obj.methods:
+				methods.append(m['name'])
+			for m in obj.properties:
+				properties.append(m['name'])
+			methods.sort()
+			properties.sort()
+			f.write(json.dumps({'methods':methods,'properties':properties},indent=4))
+			f.close()
+	
+def produce_devhtml(config):
+	
+	if not config.has_key('output'):
+		print "Required command line argument 'output' not provided"
+		sys.exit(1)
+	
+	templates = {}
+	outdir = os.path.expanduser(config['output'])
+	produce_devhtml_output(config,templates,outdir,apis)
+
+	ns = []
+	for key in apis.keys():
+		if apis[key].typestr == 'module':
+			ns.append(key)
+	ns.sort()
+	toc = open(os.path.join(outdir,'toc.json'),'w+')
+	toc.write(json.dumps(ns,indent=4))
+	toc.close()	
+	
+def main(args):
+	if len(args) == 1:
+		print "Usage: %s <format>" % os.path.basename(args[0])
+		sys.exit(1)
+	format = args[1]
+	other_args = {}
+	c = 2
+	while c < len(args):
+		kv = args[c].split("=")
+		if len(kv) > 1:
+			other_args[kv[0].strip()]=kv[1].strip()
+		else:
+			other_args[kv[0].strip()]=True
+		c+=1
+		
+	if format == 'json':
+		produce_json(other_args)
+	elif format == 'devhtml':
+		produce_devhtml(other_args)
+	else:
+		print "Uh.... I don't understand that format: %s" % format
+		sys.exit(1)
+	sys.exit(0)
+						  
+if __name__ == "__main__":
+#	main(sys.argv)
+	main([sys.argv[0],'devhtml','output=~/Sites/application/apidoc/mobile/0.9/'])
+	
+	

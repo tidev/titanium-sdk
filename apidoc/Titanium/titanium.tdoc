@@ -25,8 +25,8 @@ android, iphone
 
 - properties
 
-version: the version of Titanium runtime that is being executed.
-userAgent: the Titanium userAgent string.
+version[string]: the version of Titanium runtime that is being executed.
+userAgent[string]: the Titanium userAgent string.
 
 - methods
 

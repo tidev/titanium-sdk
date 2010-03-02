@@ -34,21 +34,21 @@ fireEvent: fire an application-wide event
 
 - properties
 
-id: the application's app id as specified in Titanium Developer
-url: the application url
-guid: the application's globally unique id (this is system generated and consistent through all versions)
-name: the application's name
-version: the application's version
-publisher: the application's publisher 
-description: the application's description
-copyright: the application's copyright
+id[string]: the application's app id as specified in Titanium Developer
+url[string]: the application url
+guid[string]: the application's globally unique id (this is system generated and consistent through all versions)
+name[string]: the application's name
+version[string]: the application's version
+publisher[string]: the application's publisher 
+description[string]: the application's description
+copyright[string]: the application's copyright
 
-Properties: the Titanium.App.Properties namespace.
+Properties[namespace]: the Titanium.App.Properties namespace.
 
-idleTimerDisabled: property for controlling whether the phone screen will be locked on idle time. Can be set to true to disable the timer
+idleTimerDisabled[boolean]: property for controlling whether the phone screen will be locked on idle time. Can be set to true to disable the timer
 
-proximityState: the state of the device's proximity detector
-proximityDetection: a boolean to indicate whether proximity detection is enabled
+proximityState[int]: the state of the device's proximity detector
+proximityDetection[boolean]: a boolean to indicate whether proximity detection is enabled
 
 
 - events
