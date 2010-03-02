@@ -301,19 +301,17 @@ public class TiUIScrollView extends TiUIView {
 		int type = TYPE_VERTICAL;
 
 		if (d.containsKey("width") && d.containsKey("contentWidth")) {
-			int width = TiConvert.toInt(d, "width");
-			int contentWidth = TiConvert.toInt(d, "contentWidth");
-
-			if (width == contentWidth) {
-				type = TYPE_VERTICAL;
+			Object width = d.get("width");
+			Object contentWidth = d.get("contentWidth");
+			if (width.equals(contentWidth)) {
+				type = TYPE_VERTICAL;	
 			}
 		}
 
 		if (d.containsKey("height") && d.containsKey("contentHeight")) {
-			int height = TiConvert.toInt(d, "height");
-			int contentHeight = TiConvert.toInt(d, "contentHeight");
-
-			if (height == contentHeight) {
+			Object height = d.get("height");
+			Object contentHeight = d.get("contentHeight");
+			if (height.equals(contentHeight)) {
 				type = TYPE_HORIZONTAL;
 			}
 		}

@@ -90,7 +90,7 @@ win.add(start);
 
 // reverse animation
 var reverse = Titanium.UI.createButton({
-	title:'Reverse Animation',
+	title:'Reverse',
 	height:30,
 	width:120,
 	font:{fontSize:13, fontFamily:'Helvetica Neue'},

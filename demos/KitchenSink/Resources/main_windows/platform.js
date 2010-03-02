@@ -13,10 +13,12 @@ var data = [
 	{title:'Passing Data (windows)', hasChild:true, test:'../examples/custom_properties.js'},
 	{title:'Set Timeout (timer)', hasChild:true, test:'../examples/set_timeout.js'},
 	{title:'Set Interval (timer)', hasChild:true, test:'../examples/set_interval.js'},
-	{title:'XML DOM', hasChild:true, test:'../examples/xml_dom.js'},
-	{title:'XML RSS', hasChild:true, test:'../examples/xml_rss.js'},
-
 ];
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	data.push({title:'XML DOM', hasChild:true, test:'../examples/xml_dom.js'});
+	data.push({title:'XML RSS', hasChild:true, test:'../examples/xml_rss.js'});
+}
 
 // create table view
 var tableview = Titanium.UI.createTableView({
@@ -30,8 +32,7 @@ tableview.addEventListener('click', function(e)
 	{
 		var win = Titanium.UI.createWindow({
 			url:e.rowData.test,
-			title:e.rowData.title,
-			backgroundColor:'#fff'
+			title:e.rowData.title
 		});
 		Titanium.UI.currentTab.open(win,{animated:true})
 	}

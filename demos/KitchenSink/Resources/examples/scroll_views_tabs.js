@@ -60,7 +60,7 @@ win.add(scrollView);
 
 var view1 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:20,
+	borderRadius:20,borderWidth:1,borderColor:'#336699',
 	width:40,
 	height:40,
 	left:10
@@ -78,7 +78,7 @@ view1.add(l1);
 
 var view2 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:20,
+	borderRadius:20,borderWidth:1,borderColor:'#336699',
 	width:40,
 	height:40,
 	left:60
@@ -96,7 +96,7 @@ view2.add(l2);
 
 var view3 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:20,
+	borderRadius:20,borderWidth:1,borderColor:'#336699',
 	width:40,
 	height:40,
 	left:110
@@ -115,7 +115,7 @@ view3.add(l3);
 
 var view4 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:20,
+	borderRadius:20,borderWidth:1,borderColor:'#336699',
 	width:40,
 	height:40,
 	left:160
@@ -134,7 +134,7 @@ view4.add(l4);
 
 var view5 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:20,
+	borderRadius:20,borderWidth:1,borderColor:'#336699',
 	width:40,
 	height:40,
 	left:210
@@ -153,7 +153,7 @@ view5.add(l5);
 
 var view6 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:20,
+	borderRadius:20,borderWidth:1,borderColor:'#336699',
 	width:40,
 	height:40,
 	left:260
@@ -172,7 +172,7 @@ view6.add(l6);
 
 var view7 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:20,
+	borderRadius:20,borderWidth:1,borderColor:'#336699',
 	width:40,
 	height:40,
 	left:310
@@ -191,7 +191,7 @@ view7.add(l7);
 
 var view8 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:20,
+	borderRadius:20,borderWidth:1,borderColor:'#336699',
 	width:40,
 	height:40,
 	left:360
@@ -233,7 +233,7 @@ scrollView2.addEventListener('scroll', function(e)
 
 var view9 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:20,
+	borderRadius:20,borderWidth:1,borderColor:'#336699',
 	width:40,
 	height:40,
 	top:10
@@ -252,7 +252,7 @@ view9.add(l9);
 
 var view10 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:20,
+	borderRadius:20,borderWidth:1,borderColor:'#336699',
 	width:40,
 	height:40,
 	top:60
@@ -271,7 +271,7 @@ view10.add(l10);
 
 var view11 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:20,
+	borderRadius:20,borderWidth:1,borderColor:'#336699',
 	width:40,
 	height:40,
 	top:110
@@ -290,7 +290,7 @@ view11.add(l11);
 
 var view12 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:20,
+	borderRadius:20,borderWidth:1,borderColor:'#336699',
 	width:40,
 	height:40,
 	top:160
@@ -309,7 +309,7 @@ view12.add(l12);
 
 var view13 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:20,
+	borderRadius:20,borderWidth:1,borderColor:'#336699',
 	width:40,
 	height:40,
 	top:210
@@ -328,7 +328,7 @@ view13.add(l13);
 
 var view14 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:20,
+	borderRadius:20,borderWidth:1,borderColor:'#336699',
 	width:40,
 	height:40,
 	top:260
@@ -347,7 +347,7 @@ view14.add(l14);
 
 var view15 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:20,
+	borderRadius:20,borderWidth:1,borderColor:'#336699',
 	width:40,
 	height:40,
 	top:310
@@ -366,7 +366,7 @@ view15.add(l15);
 
 var view16 = Ti.UI.createView({
 	backgroundColor:'#336699',
-	borderRadius:20,
+	borderRadius:20,borderWidth:1,borderColor:'#336699',
 	width:40,
 	height:40,
 	top:360

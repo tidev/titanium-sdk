@@ -80,7 +80,7 @@ var button3 = Titanium.UI.createButton({
 
 button3.addEventListener('click', function()
 {
-	a.message = 'Four Buttons';
+	a.message = 'Three Buttons';
 	a.buttonNames = ['One', 'Two','Three'];
 	a.cancel = 1;
 	a.show();
