@@ -762,12 +762,16 @@
 			NSString *urlstring = [[url standardizedURL] path];
 			NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
 			NSRange range = [urlstring rangeOfString:resourceurl];
-			NSString *appurlstr = [urlstring substringFromIndex:range.location + range.length + 1];
-			appurlstr = [appurlstr stringByReplacingOccurrencesOfString:@"." withString:@"_"];
+			NSString *appurlstr = urlstring;
+			if (range.location!=NSNotFound)
+			{
+				appurlstr = [urlstring substringFromIndex:range.location + range.length + 1];
+			}
 			if ([appurlstr hasPrefix:@"/"])
 			{
 				appurlstr = [appurlstr substringFromIndex:1];
 			}
+			appurlstr = [appurlstr stringByReplacingOccurrencesOfString:@"." withString:@"_"];
 #ifdef DEBUG			
 			NSLog(@"[DEBUG] loading: %@, resource: %@",urlstring,appurlstr);
 #endif			
