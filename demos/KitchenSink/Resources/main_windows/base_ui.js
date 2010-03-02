@@ -6,7 +6,6 @@ var data = [
 	{title:'Window (Standalone)', hasChild:true, test:'../examples/window_standalone.js'},
 	{title:'Views', hasChild:true, test:'../examples/views.js'},
 	{title:'Custom Events', hasChild:true, test:'../examples/custom_events.js'},
-	{title:'Vertical Layout', hasChild:true, test:'../examples/vertical_layout.js'},
 
 ];
 
@@ -19,6 +18,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Window Toolbar', hasChild:true, test:'../examples/window_toolbar.js'});
 	data.push({title:'Window Constructor', hasChild:true, test:'../examples/window_constructor.js'});
 	data.push({title:'Animation', hasChild:true, test:'../examples/animation.js'});
+	data.push({title:'Vertical Layout', hasChild:true, test:'../examples/vertical_layout.js'});
 }
 
 // create table view

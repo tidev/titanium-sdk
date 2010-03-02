@@ -363,14 +363,14 @@ navButton.addEventListener('click', function()
 win.add(b1);
 win.add(b2);
 win.add(b3);
-win.add(b4);
-win.add(b5);
 win.add(b6);
 
 if (Titanium.Platform.name == 'iPhone OS')
 {
 	win.setRightNavButton(navButton);
 	win.add(b7);
+	win.add(b4);
+	win.add(b5);
 
 }
 else

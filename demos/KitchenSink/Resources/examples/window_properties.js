@@ -63,34 +63,7 @@ buttonWidthHeight.addEventListener('click', function()
 });
 win.add(buttonWidthHeight);
 
-//
-// TOGGLE BORDER PROPERTIES
-//
-var buttonBorder = Titanium.UI.createButton({
-	title:'Toggle Border Properties',
-	width:220,
-	height:40,
-	top:160
-});
-var border=true;
-buttonBorder.addEventListener('click', function()
-{
-	if (border)
-	{
-		win.borderWidth = 5;
-		win.borderColor = '#999';
-		win.borderRadius = 10;
-		border=false;
-	}
-	else
-	{
-		win.borderWidth = 0;
-		win.borderColor = null;
-		win.borderRadius = 0;
-		border=true;
-	}
-});
-win.add(buttonBorder);
+
 
 //
 // TOGGLE OPACITY PROPERTY
@@ -99,7 +72,7 @@ var buttonOpacity = Titanium.UI.createButton({
 	title:'Toggle Opacity',
 	width:220,
 	height:40,
-	top:210
+	top:160
 });
 var opacity=true;
 buttonOpacity.addEventListener('click', function()
@@ -125,7 +98,7 @@ var buttonLayout = Titanium.UI.createButton({
 	title:'Layout/Dimension Properties',
 	width:220,
 	height:40,
-	top:260
+	top:210
 });
 var layout=true;
 var win1 = null;
@@ -166,3 +139,36 @@ buttonLayout.addEventListener('click', function()
 });
 win.add(buttonLayout);
 
+//
+// TOGGLE BORDER PROPERTIES
+//
+var buttonBorder = Titanium.UI.createButton({
+	title:'Toggle Border Properties',
+	width:220,
+	height:40,
+	top:260
+});
+var border=true;
+buttonBorder.addEventListener('click', function()
+{
+	if (border)
+	{
+		win.borderWidth = 5;
+		win.borderColor = '#999';
+		win.borderRadius = 10;
+		border=false;
+	}
+	else
+	{
+		win.borderWidth = 0;
+		win.borderColor = null;
+		win.borderRadius = 0;
+		border=true;
+	}
+});
+
+// add iphone specific tests
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	win.add(buttonBorder);
+}

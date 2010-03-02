@@ -5,20 +5,26 @@ var win = Titanium.UI.currentWindow;
 var data = [
 	{title:'External URL', hasChild:true, url:'http://www.google.com'},
 	{title:'Local URL', hasChild:true, url:'local_webview.html'},
-	{title:'XHR to Filesystem', hasChild:true},
-	{title:'PDF URL', hasChild:true, url:'http://www.appcelerator.com/assets/The_iPad_App_Wave.pdf'},
+	{title:'XHR to Filesystem', hasChild:true},	
 	{title:'Image URL', hasChild:true, url:'http://www.appcelerator.com/wp-content/uploads/2010/01/TABWAVE_graph1.png'},
-	{title:'SVG URL', hasChild:true, url:'http://upload.wikimedia.org/wikipedia/commons/5/55/1st_Cavalry_Division_-_Shoulder_Sleeve_Insignia.svg'},
-	{title:'Inline HTML', hasChild:true, text:'<html><body>Hello from inline HTML.</body></html>'},
-	{title:'Inline HTML w/ Trans Bg', hasChild:true, text:'<html><body><div style="color:white;">Hello from inline HTML. You should see white text and black background</div></body></html>', bgcolor:'black'},
-	{title:'Inline HTML w/ Color Bg', hasChild:true, text:'<html><body><div style="color:red;">Hello from inline HTML. You should see red text and yellow background</div></body></html>', bgcolor:'yellow'},
-	{title:'Inline HTML w/ Border', hasChild:true, text:'<html><body><div>Hello from inline HTML. You should see red border</div></body></html>', border: true},
-	{title:'Logging and Unicode', hasChild:true, url:'webview_logging.html'},
-	{title:'Local Pinch/Zoom', hasChild:true, url:'local_webview_pinchzoom.html', scale:true},
-	{title:'Local Eval', hasChild:true, url:'local_webview.html', evaljs:true},
-	{title:'Local HTML', hasChild:true, url:'local_webview.html', evalhtml:true},
+	{title:'Inline HTML', hasChild:true, innerHTML:'<html><body>Hello from inline HTML.</body></html>'},
 
 ];
+
+// add iphone specific tests
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	data.push({title:'PDF URL', hasChild:true, url:'http://www.appcelerator.com/assets/The_iPad_App_Wave.pdf'});
+	data.push({title:'SVG URL', hasChild:true, url:'http://upload.wikimedia.org/wikipedia/commons/5/55/1st_Cavalry_Division_-_Shoulder_Sleeve_Insignia.svg'});
+	data.push({title:'Logging and Unicode', hasChild:true, url:'webview_logging.html'});
+	data.push({title:'Local Pinch/Zoom', hasChild:true, url:'local_webview_pinchzoom.html', scale:true});
+	data.push({title:'Local Eval', hasChild:true, url:'local_webview.html', evaljs:true});
+	data.push({title:'Local HTML', hasChild:true, url:'local_webview.html', evalhtml:true});
+	data.push({title:'Inline HTML w/ Trans Bg', hasChild:true, innerHTML:'<html><body><div style="color:white;">Hello from inline HTML. You should see white text and black background</div></body></html>', bgcolor:'black'});
+	data.push({title:'Inline HTML w/ Color Bg', hasChild:true, innerHTML:'<html><body><div style="color:red;">Hello from inline HTML. You should see red text and yellow background</div></body></html>', bgcolor:'yellow'});
+	data.push({title:'Inline HTML w/ Border', hasChild:true, innerHTML:'<html><body><div>Hello from inline HTML. You should see red border</div></body></html>', border: true});
+	
+}
 
 // create table view
 var tableview = Titanium.UI.createTableView({
@@ -67,7 +73,7 @@ tableview.addEventListener('click', function(e)
 		}
 		else
 		{
-			webview.html = rowdata.text;
+			webview.html = rowdata.innerHTML;
 		}
 		if (rowdata.scale)
 		{

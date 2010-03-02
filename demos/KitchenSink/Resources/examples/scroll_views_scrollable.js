@@ -165,22 +165,24 @@ if (Titanium.Platform.osname == 'iphone')
 else 
 {
 	var toolbar = Titanium.UI.createView({
-		bottom: 5,
-		width: 'auto',
-		height: 30,
-		backgroundColor: '#333'
+		bottom: 0,
+		height: 50,
+		backgroundColor: '#336699'
 	});
 	left.left = 25;
 	left.width = 30;
-	
+
 	change.left = 50;
-	change.width = 100;
+	change.width = 70;
+	change.height = 35;
 	
-	add.left = 155;
-	add.width = 50;
+	add.left = 130;
+	add.width = 70;
+	add.height = 35;
 	
 	jump.left = 210;
-	jump.width = 65;
+	jump.width = 70;
+	jump.height = 35;
 	
 	right.left = 280;
 	right.width = 30;
