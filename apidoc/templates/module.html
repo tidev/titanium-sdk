@@ -7,6 +7,13 @@
 % endfor
 </div>
 
+% if data.deprecated:
+<div class="deprecated">
+	This module was deprecated in <strong>${data.deprecated['version']}</strong>.
+	${data.deprecated['reason']}
+</div>
+% endif
+
 <div class="description">
 ${data.description}
 </div>
@@ -88,5 +95,13 @@ ${example['code']}
 ]]></script>
 
 % endfor
+
+% endif
+
+% if data.notes:
+
+<h3>Notes</h3>
+
+<div>${data.notes}</div>
 
 % endif

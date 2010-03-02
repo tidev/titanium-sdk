@@ -6,6 +6,13 @@
 % endfor
 </div>
 
+% if data.deprecated:
+<div class="deprecated">
+	This property was deprecated in <strong>${data.deprecated['version']}</strong>.
+	${data.deprecated['reason']}
+</div>
+% endif
+
 <div class="description">
 ${data.description}
 </div>

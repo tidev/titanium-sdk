@@ -44,6 +44,7 @@ class API(object):
 		self.since = '0.8'
 		self.deprecated = None
 		self.parameters = []
+		self.notes = None
 	def set_description(self,desc):
 		self.description = desc
 	def set_since(self,since):
@@ -54,6 +55,8 @@ class API(object):
 		self.typestr = typestr
 	def set_returns(self,returns):
 		self.returns = returns
+	def set_notes(self,notes):
+		self.notes = notes
 	def add_method(self,key,value):
 		self.methods.append({'name':key,'value':value})
 	def add_property(self,key,typev,value):
@@ -83,7 +86,8 @@ class API(object):
 			'returns' : self.returns,
 			'since' : self.since,
 			'deprecated' : self.deprecated,
-			'parameters' : self.parameters
+			'parameters' : self.parameters,
+			'notes' : self.notes
 		}
 		return result
 
@@ -102,7 +106,57 @@ def tokenize_keyvalues(buf):
 		if key == None: continue
 		array.append((key,value))
 	return array
+	
+def tickerize(line):
+	idx = line.find('`')
+	if idx == -1:
+		return line
+	idx2 = line.find('`',idx+1)
+	return tickerize(line[0:idx] + "<tt>%s</tt>" % line[idx+1:idx2] + line[idx2+1:])
 		
+def paragraphize(line):
+	content = ''
+	in_break = False
+	in_code = False
+	for p in line.strip().split('\n'):
+		if p == '' : continue
+		if p[0:6] == '<code>' or p[0:7] == '<script':
+			content += p
+			in_code = True
+			continue
+		elif p[0:7]=='</code>' or p[0:8] == '</script':
+			content += p
+			in_code = False
+			continue
+		if in_code:
+			content+= p + '\n'
+			continue
+		last = p[-1]
+		if last == '\\':
+			if not in_break: content+='<p>'
+			content+=p[0:len(p)-1]
+			in_break = True
+			continue
+		if in_break: 
+			content+=p
+		else:
+			content += '<p>%s' % p
+		in_break = False
+	if not in_code: content+='</p>'	
+	return tickerize(content)
+
+def wrap_code_block(line):
+	idx = line.find('<code>')
+	if idx == -1: return line
+	endx = line.find('</code>',idx)
+	desc = line[0:idx].strip()
+	code = line[idx+6:endx]
+	newcode = """
+<script type="syntaxhighlighter" class="brush: js"><![CDATA[%s]]></script>
+"""	% code
+	after = line[endx+7:]
+	return wrap_code_block(paragraphize(desc) + newcode + paragraphize(after))
+
 def emit_properties(line):
 	for tokens in tokenize_keyvalues(line):
 		match = re.search('(.*)\[(.*)\]',tokens[0])
@@ -126,14 +180,14 @@ def emit_namespace(line):
 	apis[current_api.namespace] = current_api
 	
 def emit_description(line):
-	current_api.set_description(line.strip())
+	current_api.set_description(paragraphize(line))
 
 def emit_example(line):
 	idx = line.find('<code>')
 	endx = line.find('</code>',idx)
 	desc = line[0:idx].strip()
 	code = line[idx+6:endx].strip()
-	current_api.add_example(desc,code)
+	current_api.add_example(paragraphize(desc),code)
 		
 def emit_type(line):
 	current_api.set_type(line.strip())
@@ -147,7 +201,10 @@ def emit_since(line):
 def emit_platforms(line):
 	for token in line.strip().split(","):
 		current_api.add_platform(token.strip())
-		
+
+def emit_notes(line):
+	current_api.set_notes(wrap_code_block(line))
+			
 def emit_deprecated(line):
 	line = line.strip()
 	idx = line.find(':')
@@ -206,6 +263,8 @@ def emit_buffer(line):
 		emit_deprecated(line)
 	elif state == 'parameters':
 		emit_parameters(line)
+	elif state == 'notes':
+		emit_notes(line)
 	elif state.find('event : ')!=-1:
 		emit_event_parameter(state,line)
 	else:
