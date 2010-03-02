@@ -1,14 +1,5 @@
 var win = Ti.UI.currentWindow;
 
-var clickLabel = Ti.UI.createLabel({
-	top:0,
-	height:'auto',
-	textAlign:'center',
-	font:{fontSize:13},
-	color:'#777'
-});
-win.add(clickLabel);
-
 function addRow()
 {
 	var row = Ti.UI.createTableViewRow({height:50});
@@ -21,11 +12,7 @@ function addRow()
 		borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
 	});	
 	row.add(tf1);
-	
-	tf1.addEventListener('change', function(e)
-	{
-		clickLabel.text = 'Text field changed to ' + e.value + ' at ' + new Date();
-	});
+	row.selectionStyle = Ti.UI.iPhone.TableViewCellSelectionStyle.NONE;
 	row.className = 'control';
 	return row;
 }
@@ -33,7 +20,7 @@ function addRow()
 // create table view data object
 var data = [];
 
-for (var x=1;x<10;x++)
+for (var x=0;x<10;x++)
 {
 	data[x] = addRow();
 }
@@ -41,11 +28,7 @@ for (var x=1;x<10;x++)
 var tableView = Ti.UI.createTableView({
 	data:data, 	
 	style: Titanium.UI.iPhone.TableViewStyle.GROUPED,
-	top:50
+
 });
-tableView.addEventListener('click', function()
-{
-	clickLabel.text = 'row clicked at ' + new Date();
-	
-});
+
 win.add(tableView);

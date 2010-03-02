@@ -13,4 +13,5 @@
     <statusbar-style>default</statusbar-style>
     <statusbar-hidden>false</statusbar-hidden>
     <analytics>true</analytics>
+    <guid></guid>
 </ti:app>

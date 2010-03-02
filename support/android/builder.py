@@ -217,7 +217,6 @@ class Builder(object):
 		apkbuilder = os.path.join(self.sdk,'tools','apkbuilder')
 		if platform.system() == "Windows":
 			aapt += ".exe"
-			dx += ".bat"
 			apkbuilder += ".bat"
 		
 		if keystore==None:
@@ -546,20 +545,25 @@ class Builder(object):
 
 			jarsigner = "jarsigner"	
 			javac = "javac"
+			java = "java"
 			if platform.system() == "Windows":
 				if os.environ.has_key("JAVA_HOME"):
 					home_jarsigner = os.path.join(os.environ["JAVA_HOME"], "bin", "jarsigner.exe")
 					home_javac = os.path.join(os.environ["JAVA_HOME"], "bin", "javac.exe")
+					home_java = os.path.join(os.environ["JAVA_HOME"], "bin", "java.exe")
 					if os.path.exists(home_jarsigner):
 						jarsigner = home_jarsigner
 					if os.path.exists(home_javac):
 						javac = home_javac
+					if os.path.exists(home_java):
+						java = home_java
 				else:
 					found = False
 					for path in os.environ['PATH'].split(os.pathsep):
 						if os.path.exists(os.path.join(path, 'jarsigner.exe')) and os.path.exists(os.path.join(path, 'javac.exe')):
 							jarsigner = os.path.join(path, 'jarsigner.exe')
 							javac = os.path.join(path, 'javac.exe')
+							java = os.path.join(path, 'java.exe')
 							found = True
 							break
 					if not found:
@@ -600,7 +604,16 @@ class Builder(object):
 			
 			classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')
 			android_module_jars = glob.glob(os.path.join(self.support_dir, 'modules', 'titanium-*.jar'))
-			dex_args = [dx, '-JXmx512M', '--dex', '--output='+classes_dex, classes_dir]
+			
+			# the dx.bat that ships with android in windows doesn't allow command line
+			# overriding of the java heap space, so we call the jar directly
+			if platform.system() == 'Windows':
+				framework_dir = os.path.join(self.tools_dir, 'lib')
+				dx_jar = os.path.join(framework_dir, 'dx.jar')
+				dex_args = [java, '-Xmx512M', '-Djava.ext.dirs=%s' % framework_dir, '-jar', dx_jar]
+			else:
+				dex_args = [dx, '-JXmx512M']
+			dex_args += ['--dex', '--output='+classes_dex, classes_dir]
 			dex_args += android_jars
 			dex_args += android_module_jars
 			

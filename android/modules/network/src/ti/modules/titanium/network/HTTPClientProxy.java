@@ -84,5 +84,8 @@ public class HTTPClientProxy extends TiProxy {
 		client.setRequestHeader(header, value);
 	}
 	
+	public String getLocation() {
+		return client.getLocation();
+	}
 	
 }

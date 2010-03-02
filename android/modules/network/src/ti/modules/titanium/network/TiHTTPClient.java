@@ -613,4 +613,15 @@ public class TiHTTPClient
 			Log.d(LCAT, "Leaving send()");
 		}
 	}
+	
+	public String getLocation() {
+		if (uri != null) {
+			return uri.toString();
+		}
+		return null;
+	}
+	
+	public String getConnectionType() {
+		return method;
+	}
 }

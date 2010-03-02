@@ -1,24 +1,24 @@
 // create table view data object
 var data = [
 	{title:'Tab Groups', hasChild:true, test:'../examples/tab_groups.js'},
-	{title:'Tabs', hasChild:true, test:'../examples/tabs.js'},
 	{title:'Window Properties', hasChild:true, test:'../examples/window_properties.js'},
 	{title:'Window Layout', hasChild:true, test:'../examples/window_layout.js'},
 	{title:'Window (Standalone)', hasChild:true, test:'../examples/window_standalone.js'},
-	{title:'Window Events', hasChild:true, test:'../examples/window_events.js'},
 	{title:'Views', hasChild:true, test:'../examples/views.js'},
-	{title:'Animation', hasChild:true, test:'../examples/animation.js'},
 	{title:'Custom Events', hasChild:true, test:'../examples/custom_events.js'},
-	{title:'Vertical Layout', hasChild:true, test:'../examples/vertical_layout.js'},
 
 ];
 
 // add iphone specific tests
 if (Titanium.Platform.name == 'iPhone OS')
 {
+	data.push({title:'Window Events', hasChild:true, test:'../examples/window_events.js'})
+	data.push({title:'Tabs', hasChild:true, test:'../examples/tabs.js'});
 	data.push({title:'Window NavBar', hasChild:true, test:'../examples/window_navbar.js'});
 	data.push({title:'Window Toolbar', hasChild:true, test:'../examples/window_toolbar.js'});
 	data.push({title:'Window Constructor', hasChild:true, test:'../examples/window_constructor.js'});
+	data.push({title:'Animation', hasChild:true, test:'../examples/animation.js'});
+	data.push({title:'Vertical Layout', hasChild:true, test:'../examples/vertical_layout.js'});
 }
 
 // create table view
