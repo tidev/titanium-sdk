@@ -75,7 +75,6 @@ def check_for_wwdr(props,line):
 		props['wwdr_message']=None
 	
 def check_for_iphone_dev(props,line):
-	if props.has_key('iphone_dev') and props['iphone_dev']==True: return
 	m = re.search(r'\"iPhone Developer: (.*)\"',line)
 	if not m == None:
 		name = m.group(1).strip()
@@ -91,7 +90,6 @@ def check_for_iphone_dev(props,line):
 		props['iphone_dev_message']=None
 
 def check_for_iphone_dist(props,line):
-	if props.has_key('iphone_dist') and props['iphone_dist']==True: return
 	m = re.search(r'\"iPhone Distribution: (.*)\"',line)
 	if not m == None:
 		name = m.group(1).strip()
