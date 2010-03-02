@@ -292,24 +292,42 @@
 
 	[self enforceOrientationModesFromWindow:(id)window_];
 	
+	TiWindowProxy * oldTopWindow = [windowProxies lastObject];
 	[windowProxies removeObject:window_];
-	if (![(TiWindowProxy *)window_ _isChildOfTab] && ([(TiWindowProxy *)window_ parent]==nil))
+	if ([(TiWindowProxy *)window_ _isChildOfTab] || ([(TiWindowProxy *)window_ parent]!=nil))
 	{
-		if (windowProxies==nil)
-		{
-			windowProxies = [[NSMutableArray alloc] initWithObjects:window_,nil];
-		}
-		else
-		{
-			[windowProxies addObject:window_];
-		}
-
+		return;
 	}
+	
+	if (windowProxies==nil)
+	{
+		windowProxies = [[NSMutableArray alloc] initWithObjects:window_,nil];
+	}
+	else
+	{
+		[windowProxies addObject:window_];
+	}
+	
+	if (oldTopWindow != window_)
+	{
+		[oldTopWindow _tabBlur];
+	}
+	
+	
 }
 
 -(void)windowClosed:(TiProxy *)window_
 {
+	BOOL focusChanged = [windowProxies lastObject] == window_;
 	[windowProxies removeObject:window_];
+	if (!focusChanged)
+	{
+		return; //Exit early. We're done here.
+	}
+	
+	TiWindowProxy * newTopWindow = [windowProxies lastObject];
+	[newTopWindow _tabFocus];
+	
 }
 
 -(void)windowUnfocused:(TiProxy*)window_
