@@ -63,6 +63,7 @@ turn off the accelerometer when you're not using it.
 
 You can turn off the accelerometer by simply removing your event listener function.  You can turn it \
 back on by re-adding the same function with `addEventListener`.
+
 <code>
 Titanium.Accelerometer.removeEventListener('update',myFunction);
 </code>
