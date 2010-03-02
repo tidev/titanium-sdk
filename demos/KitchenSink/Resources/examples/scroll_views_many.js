@@ -145,8 +145,7 @@ if (Titanium.Platform.name == 'iPhone OS')
 	});
 	view4.add(l4)
 	scrollView4.add(view4);
+	win.add(scrollView4);
 }
 
 
-
-win.add(scrollView4);
