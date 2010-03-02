@@ -1,0 +1,30 @@
+- namespace
+
+Titanium.Yahoo
+
+- type
+
+module
+
+- returns
+
+object
+
+- description
+
+The top level Yahoo module.  The Yahoo module is used for accessing Yahoo related API services.
+
+- since
+
+0.1
+
+- platforms
+
+android, iphone
+
+
+- methods
+
+- properties
+
+- events

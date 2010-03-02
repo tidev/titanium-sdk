@@ -1,0 +1,31 @@
+- namespace
+
+Titanium.Platform
+
+- type
+
+module
+
+- returns
+
+object
+
+- description
+
+The top level Platform module.  The Platform module is used accessing the device's platform
+related functionality.
+
+- since
+
+0.1
+
+- platforms
+
+android, iphone
+
+
+- methods
+
+- properties
+
+- events
