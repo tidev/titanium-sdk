@@ -18,4 +18,9 @@
 -(void)open:(id)args;
 -(void)close:(id)args;
 
+
+-(void)focusVisibleWindow;
+-(void)blurVisibleWindow;
+
+
 @end

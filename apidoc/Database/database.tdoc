@@ -1,0 +1,31 @@
+- namespace
+
+Titanium.Database
+
+- type
+
+module
+
+- returns
+
+object
+
+- description
+
+The top level Database module.  The Database module is used for creating and accessing the in-application
+Database.
+
+- since
+
+0.1
+
+- platforms
+
+android, iphone
+
+
+- methods
+
+- properties
+
+- events

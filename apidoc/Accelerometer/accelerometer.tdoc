@@ -12,7 +12,7 @@ object
 
 - description
 
-The top level Accelerometer module.  The Accelerometer modules contains
+The top level Accelerometer module.  The Accelerometer modules contains \
 methods and properties for using the device accelerometer.
 
 - since
@@ -44,9 +44,9 @@ timestamp: reference timestamp since the previous change. this is not a valid ti
 
 - example
 
-Adds an accelerometer update event listener which prints out the x, y and z axis as the 
-device is moved.  You should generally remove the event when not used to conserve device 
-resources.  If you do not have an active event listener, the accelerometer is turned off to 
+Adds an accelerometer update event listener which prints out the x, y and z axis as the \
+device is moved.  You should generally remove the event when not used to conserve device \
+resources.  If you do not have an active event listener, the accelerometer is turned off to \
 conserve device resources.
 
 <code>
@@ -56,4 +56,15 @@ conserve device resources.
 	});
 </code>
 
+- notes
+
+You'll want to be selective about turning on and off the device accelerometer.  It's recommended you \
+turn off the accelerometer when you're not using it.
+
+You can turn off the accelerometer by simply removing your event listener function.  You can turn it \
+back on by re-adding the same function with `addEventListener`.
+
+<code>
+Titanium.Accelerometer.removeEventListener('update',myFunction);
+</code>
 
