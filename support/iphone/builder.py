@@ -83,23 +83,6 @@ def main(args):
 
 	iphone_version = dequote(args[2].decode("utf-8"))
 	
-	#FIXME: for 0.9, we're going to hard code to latest 3.1+ compile since we
-	#require 3.1+ but Titanium Developer hasn't yet rev'd to fix it
-	if iphone_version=="3.0":
-		iphone_version = "3.1"
-		sdks = prereq.get_sdks()
-		try:
-			sdk.index('3.1.3')
-			iphone_version = "3.1.3"
-		except:
-			try:
-				sdk.index('3.1.2')
-				iphone_version = "3.1.2"
-			except:
-				pass
-	
-		print "[INFO] Detected iPhone SDK: %s (forcing this version)" % iphone_version
-	
 	simulator = os.path.abspath(os.path.join(template_dir,'iphonesim'))
 	
 	command = args[1].decode("utf-8")
