@@ -10,7 +10,7 @@ html += '</body></html>'
 
 var webView = Ti.UI.createWebView({
 	top:10,
-	height:70,
+	height:'auto',
 	width:300,
 	borderRadius:10,
 	backgroundColor:'#13386c',
