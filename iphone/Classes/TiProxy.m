@@ -593,9 +593,14 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 	[self _listenerRemoved:type count:count];
 }
 
+-(void)fireEvent:(NSString*)type
+{
+	[self fireEvent:type withObject:nil withSource:self propagate:YES];
+}
+
 -(void)fireEvent:(NSString*)type withObject:(id)obj
 {
-	[self fireEvent:type withObject:obj withSource:self];
+	[self fireEvent:type withObject:obj withSource:self propagate:YES];
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source
@@ -610,6 +615,11 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {
+	if (![self _hasListeners:type])
+	{
+		return;
+	}
+
 	[destroyLock lock];
 	
 	if (listeners!=nil)

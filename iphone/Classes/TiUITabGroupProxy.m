@@ -71,6 +71,16 @@
 	return NO;
 }
 
+-(void)_tabFocus
+{
+	[(TiUITabGroup *)[self view] focusVisibleWindow];
+}
+
+-(void)_tabBlur
+{
+	[(TiUITabGroup *)[self view] blurVisibleWindow];
+}
+
 #pragma mark Window Management
 
 -(BOOL)_handleOpen:(id)args

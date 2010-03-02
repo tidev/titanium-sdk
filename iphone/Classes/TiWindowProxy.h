@@ -32,6 +32,8 @@
 	UIView *closeView;
 }
 
+-(void)fireFocus:(BOOL)newFocused;
+
 #pragma mark Public APIs
 
 @property(nonatomic,readonly)	NSNumber *opened;
