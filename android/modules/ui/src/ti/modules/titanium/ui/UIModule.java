@@ -6,6 +6,9 @@ import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.app.Activity;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.view.Window;
 
@@ -98,6 +101,21 @@ public class UIModule extends TiModule
 			if (w != null) {
 				w.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor((String)newValue)));
 			}
+		} else if ("orientation".equals(key)) {
+			int requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+
+			switch (TiConvert.toInt(newValue)) {
+				case LANDSCAPE_LEFT :
+				case LANDSCAPE_RIGHT :
+					requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+					break;
+				case PORTRAIT :
+				case UPSIDE_PORTRAIT :
+					requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+					break;
+			}
+
+			getTiContext().getActivity().setRequestedOrientation(requestedOrientation);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
