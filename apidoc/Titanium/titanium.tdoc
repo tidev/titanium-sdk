@@ -12,7 +12,7 @@ object
 
 - description
 
-The top level Titanium namespace object.  This object can also be accessed by the 
+The top level Titanium namespace object.  This object can also be accessed by the \
 `Ti` property.
 
 - since
