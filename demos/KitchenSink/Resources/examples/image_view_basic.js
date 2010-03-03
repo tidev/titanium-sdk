@@ -23,7 +23,7 @@ function clicker()
 {
 	Titanium.UI.createAlertDialog({title:'Image View', message:'You clicked me!'}).show();
 	l.text = "Try again. You shouldn't get alert and the image should be different";
-	imageView.url = '../images/Kicking00.png';
+	imageView.url = 'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png';
 	imageView.removeEventListener('click',clicker);
 }
 

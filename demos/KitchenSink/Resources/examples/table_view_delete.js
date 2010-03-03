@@ -6,7 +6,7 @@ for (var c=0;c<50;c++)
 {
 	var row = Ti.UI.createTableViewRow();
 	row.height  =100;
-	
+	row.myid = c;
 	var user = Ti.UI.createLabel({
 		color:'#576996',
 		font:{fontSize:16,fontWeight:'bold', fontFamily:'Arial'},
@@ -42,7 +42,7 @@ var tableView = Titanium.UI.createTableView({
 // add delete event listener
 tableView.addEventListener('delete',function(e)
 {
-	Titanium.API.info("deleted - row="+e.row+", index="+e.index+", section="+e.section + ' table view row length = ' + tableView.section.data.length);
+	Titanium.API.info("row myid = " + e.row.myid + "deleted - row="+e.row+", index="+e.index+", section="+e.section);
 });
 
 win.add(tableView);

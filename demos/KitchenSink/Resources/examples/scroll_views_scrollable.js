@@ -1,6 +1,24 @@
 var win = Titanium.UI.currentWindow;
 win.backgroundColor = 'black';
 
+// initialize to all modes
+win.orientationModes = [
+	Titanium.UI.PORTRAIT,
+	Titanium.UI.LANDSCAPE_LEFT,
+	Titanium.UI.LANDSCAPE_RIGHT,
+]; 
+
+
+//
+// orientation change listener
+//
+Ti.Gesture.addEventListener('orientationchange',function(e)
+{
+	
+	// get orienation from event object
+	var orientation = getOrientation(e.orientation);
+});
+
 var view1 = Ti.UI.createView({
 	backgroundColor:'red'
 });

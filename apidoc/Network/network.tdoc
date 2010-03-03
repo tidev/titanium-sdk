@@ -22,9 +22,4 @@ The top level Network module.  The Network module is used accessing Networking r
 
 android, iphone
 
-
-- methods
-
-- properties
-
 - events
