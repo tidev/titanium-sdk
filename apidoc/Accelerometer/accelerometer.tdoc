@@ -23,14 +23,6 @@ methods and properties for using the device accelerometer.
 
 android, iphone
 
-- properties
-
-
-- methods
-
-addEventListener: add an event listener
-removeEventListener: remove an event listener
-
 - events
 
 update: fired when the accelerometer changes

@@ -241,14 +241,16 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Layout 
 
--(LayoutConstraint*)layout
+-(LayoutConstraint*)layoutProperties
 {
-	return &layout;
+	return [(TiViewProxy *)proxy layoutProperties];
+//	return &layoutProperties;
 }
 
--(void)setLayout:(LayoutConstraint *)layout_
+-(void)setLayoutProperties:(LayoutConstraint *)layout_
 {
-	layout = *layout_;
+	[(TiViewProxy *)proxy setLayoutProperties:layout_];
+//	layoutProperties = *layout_;
 }
 
 -(void)insertIntoView:(UIView*)newSuperview bounds:(CGRect)bounds
@@ -258,7 +260,7 @@ DEFINE_EXCEPTIONS
 		NSLog(@"[ERROR] invalid call to insertIntoView, new super view is same as myself");
 		return;
 	}
-	ApplyConstraintToViewWithinViewWithBounds(&layout, self, newSuperview, bounds,YES);
+	ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, newSuperview, bounds,YES);
 }
 
 -(void)reposition
@@ -279,7 +281,7 @@ DEFINE_EXCEPTIONS
 	if (repositioning==NO)
 	{
 		repositioning = YES;
-		ApplyConstraintToViewWithinViewWithBounds(&layout, self, [self superview], bounds, YES);
+		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
 		repositioning = NO;
 	}
 }
@@ -294,7 +296,7 @@ DEFINE_EXCEPTIONS
 #endif		
 		return;
 	}
-	[self setLayout:layout_];
+	[self setLayoutProperties:layout_];
 	[self relayout:bounds];
 }
 
@@ -353,43 +355,7 @@ DEFINE_EXCEPTIONS
 
 -(CGSize)sizeThatFits:(CGSize)testSize;
 {
-	CGSize result = testSize;
-
-	switch (layout.width.type)
-	{
-		case TiDimensionTypePixels:
-			result.width = layout.width.value;
-			break;
-		case TiDimensionTypeAuto:
-			if ([self respondsToSelector:@selector(autoWidthForWidth:)])
-			{
-				result.width = [self autoWidthForWidth:result.width];
-			}
-	}
-
-	if ([self respondsToSelector:@selector(verifyWidth:)])
-	{
-		result.width = [self verifyWidth:result.width];
-	}
-
-	switch (layout.height.type)
-	{
-		case TiDimensionTypePixels:
-			result.height = layout.height.value;
-			break;
-		case TiDimensionTypeAuto:
-			if ([self respondsToSelector:@selector(autoHeightForWidth:)])
-			{
-				result.height = [self autoHeightForWidth:result.width];
-			}
-	}
-
-	if ([self respondsToSelector:@selector(verifyHeight:)])
-	{
-		result.height = [self verifyHeight:result.height];
-	}
-
-	return result;
+	return SizeConstraintViewWithSizeAddingResizing([self layoutProperties], self, testSize, NULL);
 }
 
 
@@ -418,12 +384,13 @@ DEFINE_EXCEPTIONS
 
 -(CGFloat)minimumParentWidthForWidth:(CGFloat)suggestedWidth
 {
-	CGFloat result = TiDimensionCalculateValue(layout.left, 0)
-			+ TiDimensionCalculateValue(layout.right, 0);
-	switch (layout.width.type)
+	LayoutConstraint layoutProperties = *[self layoutProperties];
+	CGFloat result = TiDimensionCalculateValue(layoutProperties.left, 0)
+			+ TiDimensionCalculateValue(layoutProperties.right, 0);
+	switch (layoutProperties.width.type)
 	{
 		case TiDimensionTypePixels:
-			result += layout.width.value;
+			result += layoutProperties.width.value;
 			break;
 		case TiDimensionTypeAuto:
 			result += [self autoWidthForWidth:suggestedWidth - result];
@@ -433,16 +400,17 @@ DEFINE_EXCEPTIONS
 
 -(CGFloat)minimumParentHeightForWidth:(CGFloat)suggestedWidth
 {
-	CGFloat result = TiDimensionCalculateValue(layout.top, 0)
-			+ TiDimensionCalculateValue(layout.bottom, 0);
-	switch (layout.height.type)
+	LayoutConstraint layoutProperties = *[self layoutProperties];
+	CGFloat result = TiDimensionCalculateValue(layoutProperties.top, 0)
+			+ TiDimensionCalculateValue(layoutProperties.bottom, 0);
+	switch (layoutProperties.height.type)
 	{
 		case TiDimensionTypePixels:
-			result += layout.height.value;
+			result += layoutProperties.height.value;
 			break;
 		case TiDimensionTypeAuto:
-			suggestedWidth -= TiDimensionCalculateValue(layout.left, 0)
-					+ TiDimensionCalculateValue(layout.right, 0);
+			suggestedWidth -= TiDimensionCalculateValue(layoutProperties.left, 0)
+					+ TiDimensionCalculateValue(layoutProperties.right, 0);
 			result += [self autoHeightForWidth:suggestedWidth];
 	}
 	return result;
@@ -455,7 +423,7 @@ DEFINE_EXCEPTIONS
 
 -(CGFloat)autoHeightForWidth:(CGFloat)width
 {
-	return AutoHeightForView(self, width,TiLayoutRuleIsVertical([self layout]->layout));
+	return AutoHeightForView(self, width,TiLayoutRuleIsVertical([self layoutProperties]->layout));
 }
 
 -(void)updateTransform
@@ -640,7 +608,7 @@ DEFINE_EXCEPTIONS
 #define READ_CONSTRAINT(k)	\
 if ([key isEqualToString:@#k])\
 {\
-layout.k = TiDimensionFromObject(inputVal); \
+[self layoutProperties]->k = TiDimensionFromObject(inputVal); \
 [self reposition];\
 return;\
 }	
@@ -652,7 +620,7 @@ return;\
 	READ_CONSTRAINT(bottom);
 	if ([key isEqualToString:@"layout"])
 	{
-		layout.layout = TiLayoutRuleFromObject(inputVal);
+		[self layoutProperties]->layout = TiLayoutRuleFromObject(inputVal);
 		[self reposition];
 		return;
 	}

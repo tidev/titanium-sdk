@@ -94,7 +94,7 @@
 	if (view!=nil)
 	{
 		TiUIView *childView = [(TiViewProxy *)arg view];
-		BOOL verticalNeedsRearranging = TiLayoutRuleIsVertical([view layout]->layout);
+		BOOL verticalNeedsRearranging = TiLayoutRuleIsVertical([view layoutProperties]->layout);
 		if ([NSThread isMainThread])
 		{
 			[childView removeFromSuperview];
@@ -401,7 +401,7 @@
 	LayoutConstraint ourLayoutConstraint;
 	ReadConstraintFromDictionary(&ourLayoutConstraint,[child allProperties]);
 
-	if(TiLayoutRuleIsVertical([view layout]->layout)){
+	if(TiLayoutRuleIsVertical([view layoutProperties]->layout)){
 		bounds.origin.y += verticalLayoutBoundary;
 		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
 		verticalLayoutBoundary += bounds.size.height;
@@ -513,7 +513,7 @@
 	return NO;
 }
 
--(TiUIView *)barButtonView
+- (TiUIView *)barButtonViewForSize:(CGSize)bounds
 {
 	return nil;
 }
@@ -529,6 +529,17 @@
 }
 
 #pragma mark For autosizing of table views
+
+-(LayoutConstraint *)layoutProperties
+{
+	return &layoutProperties;
+}
+
+-(void)setLayoutProperties:(LayoutConstraint *)newLayout
+{
+	layoutProperties = *newLayout;
+}
+
 
 //TODO: Implement autoHeightForWidth.
 

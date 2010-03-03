@@ -105,15 +105,31 @@ TI_INLINE TiDimension TiDimensionFromObject(id object)
 	return TiDimensionUndefined;
 }
 
-TI_INLINE CGFloat TiDimensionCalculateValue(TiDimension dimension,CGFloat boundingValue)
+TI_INLINE BOOL TiDimensionDidCalculateValue(TiDimension dimension,CGFloat boundingValue,CGFloat * result)
 {
 	switch (dimension.type)
 	{
 		case TiDimensionTypePixels:
-			return dimension.value;
+			*result = dimension.value;
+			return YES;
 		case TiDimensionTypePercent:
-			return dimension.value * boundingValue;
+			*result = dimension.value * boundingValue;
+			return YES;
+	}
+	return NO;
+}
+
+TI_INLINE CGFloat TiDimensionCalculateValue(TiDimension dimension,CGFloat boundingValue)
+{
+	CGFloat result;
+	if(TiDimensionDidCalculateValue(dimension,boundingValue,&result))
+	{
+		return result;
 	}
 	return 0.0;
 }
 
+TI_INLINE CGFloat TiDimensionCalculateMargins(TiDimension dimension1, TiDimension dimension2, CGFloat boundingValue)
+{
+	return boundingValue - (TiDimensionCalculateValue(dimension1, boundingValue) + TiDimensionCalculateValue(dimension2, boundingValue));
+}

@@ -65,7 +65,7 @@
 			{
 				[button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
 			}
-			LayoutConstraint *layout = [self layout];
+			LayoutConstraint *layout = [self layoutProperties];
 			// attempt to set the size if a system button and auto
 			if (TiDimensionIsAuto(layout->width) ||
 				TiDimensionIsUndefined(layout->width))
@@ -113,7 +113,7 @@
 		[[self button] setImage:image forState:UIControlStateNormal];
 		
 		// if the layout is undefined or auto, we need to take the size of the image
-		LayoutConstraint *layout = [self layout];
+		LayoutConstraint *layout = [self layoutProperties];
 		BOOL reposition = NO;
 		
 		if (TiDimensionIsUndefined(layout->width) || TiDimensionIsAuto(layout->width))

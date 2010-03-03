@@ -1207,7 +1207,7 @@
 	BOOL hasTitle = NO;
 	if (view!=nil)
 	{
-		LayoutConstraint *viewLayout = [view layout];
+		LayoutConstraint *viewLayout = [view layoutProperties];
 		switch (viewLayout->height.type)
 		{
 			case TiDimensionTypePixels:
@@ -1245,7 +1245,7 @@
 	BOOL hasTitle = NO;
 	if (view!=nil)
 	{
-		LayoutConstraint *viewLayout = [view layout];
+		LayoutConstraint *viewLayout = [view layoutProperties];
 		switch (viewLayout->height.type)
 		{
 			case TiDimensionTypePixels:

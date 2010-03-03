@@ -33,7 +33,6 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 	TiProxy *proxy;
 	TiViewProxy *parent;
 	TiAnimation *animation;
-	LayoutConstraint layout;
 	
 	CGAffineTransform virtualParentTransform;
 	id transformMatrix;
@@ -60,7 +59,7 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 @property(nonatomic,readwrite,assign)	TiProxy *proxy;
 @property(nonatomic,readwrite,assign)	TiViewProxy *parent;
 @property(nonatomic,readonly)			unsigned	int zIndex;
-@property(nonatomic,readonly)			LayoutConstraint *layout;
+@property(nonatomic,readonly)			LayoutConstraint *layoutProperties;
 @property(nonatomic,readwrite,assign)	UIView *touchDelegate;
 @property(nonatomic,readonly)			id transformMatrix;
 

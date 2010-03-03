@@ -355,15 +355,7 @@
 
 	if ([titleControl isKindOfClass:[TiViewProxy class]])
 	{
-		newTitleView = [titleControl barButtonView];
-		if (CGRectIsEmpty([newTitleView bounds]))
-		{
-			CGRect f;
-			f.origin = CGPointZero;
-			f.size = [newTitleView sizeThatFits:[TiUtils navBarTitleViewSize]];
-			[newTitleView setBounds:f];
-		}
-		[newTitleView setAutoresizingMask:UIViewAutoresizingNone];
+		newTitleView = [titleControl barButtonViewForSize:[TiUtils navBarTitleViewSize]];
 	}
 	else
 	{
