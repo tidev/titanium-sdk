@@ -155,4 +155,9 @@ public class TiBlob extends TiProxy
 	public int getHeight() {
 		return height;
 	}
+	
+	public String toString()
+	{
+		return "[object TiBlob]";
+	}
 }
