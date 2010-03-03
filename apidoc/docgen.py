@@ -9,9 +9,11 @@
 # 
 import os, sys, json, re
 from os.path import join, splitext, split, exists
+import copy
 
 try:
 	from mako.template import Template
+	from mako import exceptions
 except:
 	print "Crap, you don't have mako!\n"
 	print "Easy install that bitch:\n"
@@ -33,6 +35,7 @@ current_api = None
 class API(object):
 	def __init__(self,name):
 		self.namespace = name
+		self.name = self.get_name()
 		self.description = None
 		self.typestr = None
 		self.returns = None
@@ -45,6 +48,16 @@ class API(object):
 		self.deprecated = None
 		self.parameters = []
 		self.notes = None
+	def get_name(self):
+		loc = self.namespace.rfind('.')
+		if loc == -1: # Top-level namespace
+			return self.namespace
+		return self.namespace[loc + 1:]
+	def get_parent_name(self):
+		loc = self.namespace.rfind('.')
+		if loc == -1:
+			return None
+		return self.namespace[:loc]
 	def set_description(self,desc):
 		self.description = desc
 	def set_since(self,since):
@@ -53,6 +66,15 @@ class API(object):
 		self.deprecated = {'version':version,'reason':note}
 	def set_type(self,typestr):
 		self.typestr = typestr
+
+		parent = get_api(self.get_parent_name())
+		if not parent:
+			return
+		lowered = typestr.lower()
+		if lowered == "function" or lowered == "method":
+			parent.methods.append(self)
+		else:
+			parent.properties.append(self)
 	def set_returns(self,returns):
 		self.returns = returns
 	def set_notes(self,notes):
@@ -70,14 +92,35 @@ class API(object):
 				return
 	def add_platform(self,value):
 		self.platforms.append(value)
+	def set_platform(self,value):
+		self.platforms = value
 	def add_example(self,desc,code):
 		self.examples.append({'description':desc,'code':code})
 	def add_parameter(self,name,typestr,desc):
 		self.parameters.append({'name':name,'type':typestr,'description':desc})
+	def shallow_copy(self):
+		shallow_copy = copy.copy(self)
+		shallow_copy.methods = []
+		shallow_copy.properties = []
+		shallow_copy.examples = []
+		return shallow_copy
+	def __cmp__(self, other):
+			if type(other) != type(self):
+				return 1
+			# Submodule first
+			if self.typestr == "module" and other.typestr != "module":
+				return 1
+			if other.typestr == "module" and self.typestr != "module":
+				return -11
+			else:
+				return cmp(self.name, other.name)
+
 	def to_json(self):
-		result = {
-			'methods' : self.methods,
-			'properties' : self.properties,
+		return {
+			'name' : self.name,
+			'namespace': self.namespace,
+			'methods' : [x.shallow_copy() for x in self.methods],
+			'properties' : [x.shallow_copy() for x in self.properties],
 			'events' : self.events,
 			'examples' : self.examples,
 			'platforms' : self.platforms,
@@ -89,7 +132,6 @@ class API(object):
 			'parameters' : self.parameters,
 			'notes' : self.notes
 		}
-		return result
 
 def split_keyvalue(line):
 	idx = line.find(":")
@@ -157,28 +199,22 @@ def wrap_code_block(line):
 	after = line[endx+7:]
 	return wrap_code_block(paragraphize(desc) + newcode + paragraphize(after))
 
-def emit_properties(line):
-	for tokens in tokenize_keyvalues(line):
-		match = re.search('(.*)\[(.*)\]',tokens[0])
-		if match == None:
-			print "[ERROR] invalid property line: %s. Must be in the format [name[type]]:[description]" % line
-			sys.exit(1)
-		current_api.add_property(match.group(1), match.group(2), tokens[1])
-	
-def emit_methods(line):
-	for tokens in tokenize_keyvalues(line):
-		current_api.add_method(tokens[0],tokens[1])
-	
 def emit_events(line):
 	for tokens in tokenize_keyvalues(line):
 		current_api.add_event(tokens[0],tokens[1])
 
+def get_api(namespace):
+	global apis
+	if not namespace:
+		return None
+	if not namespace in apis:
+		apis[namespace] = API(namespace)
+	return apis[namespace]
+
 def emit_namespace(line):
-	global apis, current_api
-	line = line.strip()
-	current_api = API(line)
-	apis[current_api.namespace] = current_api
-	
+	global current_api
+	current_api = get_api(line.strip())
+
 def emit_description(line):
 	current_api.set_description(paragraphize(line))
 
@@ -238,11 +274,7 @@ def emit_event_parameter(state,line):
 def emit_buffer(line):
 	global state
 	if line == '': return
-	
-	if state == 'properties':
-		emit_properties(line)
-	elif state == 'methods':
-		emit_methods(line)
+
 	elif state == 'events':
 		emit_events(line)
 	elif state == 'namespace':
@@ -278,36 +310,38 @@ def start_marker(line):
 	state = line[2:].strip()
 	
 
-for root, dirs, files in os.walk(template_dir):
-	for name in ignoreDirs:
-		if name in dirs:
-			dirs.remove(name)	# don't visit ignored directories			  
-	for file in files:
-		if splitext(file)[-1] != '.tdoc' or file=='template.tdoc':
-			continue
-		from_ = join(root, file)
-		content = open(from_).readlines()
-		buffer = ''
-		for line in content:
-			ln = line.strip()
-			if ln=='': continue
-			if ln[0:1] == '#':
+def build_api_from_filesystem():
+	for root, dirs, files in os.walk(template_dir):
+		for name in ignoreDirs:
+			if name in dirs:
+				dirs.remove(name)	# don't visit ignored directories
+		for file in files:
+			if splitext(file)[-1] != '.tdoc' or file=='template.tdoc':
 				continue
-			if ln[0:1] == '-':
-				emit_buffer(buffer)
-				buffer = ''
-				start_marker(ln)
-			else:
-				buffer+='%s\n' % ln
-		emit_buffer(buffer)
-			
+			from_ = join(root, file)
+			content = open(from_).readlines()
+			buffer = ''
+			for line in content:
+				ln = line.strip()
+				if ln=='': continue
+				if ln[0:1] == '#':
+					continue
+				if ln[0:1] == '-':
+					emit_buffer(buffer)
+					buffer = ''
+					start_marker(ln)
+				else:
+					buffer+='%s\n' % ln
+			emit_buffer(buffer)
 
 def produce_json(config):
-	result = {}
-	for key in apis:
-		result[key] = apis[key].to_json()
-	print json.dumps(result,sort_keys=True,indent=4)
-	
+	def json_encoder(obj):
+		if hasattr(obj, 'to_json'):
+			return obj.to_json()
+		raise TypeError(repr(o) + " is not JSON serializable")
+
+	print json.dumps(apis,sort_keys=True,indent=4,default=json_encoder)
+
 def load_template(type):
 	template = os.path.join(template_dir,'templates','%s.html' % type)
 	if not os.path.exists(template):
@@ -325,22 +359,27 @@ def produce_devhtml_output(config,templates,outdir,theobj):
 		else:
 			template = load_template(typestr)
 			templates[typestr] = template
-			
-		output = Template(template).render(config=config,apis=apis,data=obj)
+
+		try:
+			output = Template(template).render(config=config,apis=apis,data=obj)
+		except:
+			print exceptions.html_error_template().render()
+			continue
+
 		filename = os.path.join(outdir,'%s.html' % name)
 		f = open(filename,'w+')
 		f.write(output)
 		f.close()
-		
+
 		if obj.typestr == 'module':
 			toc_filename = os.path.join(outdir,'toc_%s.json' % name)
 			f = open(toc_filename,'w+')
 			methods = []
 			properties = []
 			for m in obj.methods:
-				methods.append(m['name'])
+				methods.append(m.name)
 			for m in obj.properties:
-				properties.append(m['name'])
+				properties.append(m.name)
 			methods.sort()
 			properties.sort()
 			f.write(json.dumps({'methods':methods,'properties':properties},indent=4))
@@ -379,18 +418,19 @@ def main(args):
 		else:
 			other_args[kv[0].strip()]=True
 		c+=1
-		
+
+	if format != 'json' and format != 'devhtml':
+		print "Uh.... I don't understand that format: %s" % format
+		sys.exit(1)
+
+	build_api_from_filesystem()
 	if format == 'json':
 		produce_json(other_args)
 	elif format == 'devhtml':
 		produce_devhtml(other_args)
-	else:
-		print "Uh.... I don't understand that format: %s" % format
-		sys.exit(1)
+
 	sys.exit(0)
-						  
+
 if __name__ == "__main__":
 #	main(sys.argv)
 	main([sys.argv[0],'devhtml','output=~/Sites/application/apidoc/mobile/0.9/'])
-	
-	

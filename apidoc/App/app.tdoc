@@ -23,34 +23,6 @@ at runtime.
 
 android, iphone
 
-
-- methods
-
-appURLToPath: convert an application URI into an absolute filesystem path
-arguments: return the arguments passed to the application on startup
-addEventListener: add an application-wide event listener
-removeEventListener: remove an application-wide event listener
-fireEvent: fire an application-wide event
-
-- properties
-
-id[string]: the application's app id as specified in Titanium Developer
-url[string]: the application url
-guid[string]: the application's globally unique id (this is system generated and consistent through all versions)
-name[string]: the application's name
-version[string]: the application's version
-publisher[string]: the application's publisher 
-description[string]: the application's description
-copyright[string]: the application's copyright
-
-Properties[namespace]: the Titanium.App.Properties namespace.
-
-idleTimerDisabled[boolean]: property for controlling whether the phone screen will be locked on idle time. Can be set to true to disable the timer
-
-proximityState[int]: the state of the device's proximity detector
-proximityDetection[boolean]: a boolean to indicate whether proximity detection is enabled
-
-
 - events
 
 proximity: fired when a proximity state changes
