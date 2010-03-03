@@ -6,12 +6,23 @@ import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.app.Activity;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.view.Window;
 
 public class UIModule extends TiModule
 {
 	private static TiDict constants;
+
+	public static final int PORTRAIT = 1;
+	public static final int UPSIDE_PORTRAIT = 2;
+	public static final int LANDSCAPE_LEFT = 3;
+	public static final int LANDSCAPE_RIGHT = 4;
+	public static final int FACE_UP = 5;
+	public static final int FACE_DOWN = 6;
+	public static final int UNKNOWN = 7;
 
 	public UIModule(TiContext tiContext)
 	{
@@ -70,12 +81,13 @@ public class UIModule extends TiModule
 			constants.put("TEXT_ALIGNMENT_CENTER", "center");
 			constants.put("TEXT_ALIGNMENT_RIGHT", "right");
 
-			constants.put("PORTRAIT", 0);
-			constants.put("UPSIDE_PORTRAIT", 1);
-			constants.put("LANDSCAPE_LEFT", 2);
-			constants.put("LANDSCAPE_RIGHT", 3);
-			constants.put("FACE_UP", 4);
-			constants.put("FACE_DOWN", 5);
+			constants.put("PORTRAIT", PORTRAIT);
+			constants.put("UPSIDE_PORTRAIT", UPSIDE_PORTRAIT);
+			constants.put("LANDSCAPE_LEFT", LANDSCAPE_LEFT);
+			constants.put("LANDSCAPE_RIGHT", LANDSCAPE_RIGHT);
+			constants.put("FACE_UP", FACE_UP);
+			constants.put("FACE_DOWN", FACE_DOWN);
+			constants.put("UNKNOWN", UNKNOWN);
 		}
 
 		return constants;
@@ -89,6 +101,21 @@ public class UIModule extends TiModule
 			if (w != null) {
 				w.setBackgroundDrawable(new ColorDrawable(TiConvert.toColor((String)newValue)));
 			}
+		} else if ("orientation".equals(key)) {
+			int requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+
+			switch (TiConvert.toInt(newValue)) {
+				case LANDSCAPE_LEFT :
+				case LANDSCAPE_RIGHT :
+					requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+					break;
+				case PORTRAIT :
+				case UPSIDE_PORTRAIT :
+					requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+					break;
+			}
+
+			getTiContext().getActivity().setRequestedOrientation(requestedOrientation);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

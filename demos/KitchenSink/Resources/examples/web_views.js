@@ -112,7 +112,7 @@ tableview.addEventListener('click', function(e)
 				title:'Click above to hide me'
 			});
 			w.setToolbar([button]);
-
+	
 		}
 		w.add(webview);
 

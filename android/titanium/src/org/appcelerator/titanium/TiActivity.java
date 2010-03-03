@@ -20,6 +20,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -221,6 +222,19 @@ public class TiActivity extends Activity
 			}
 		}
 		return super.onPrepareOptionsMenu(menu);
+	}
+
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		super.onConfigurationChanged(newConfig);
+
+		for (WeakReference<TiContext> contextRef : contexts) {
+			if (contextRef.get() != null) {
+				contextRef.get().dispatchOnConfigurationChanged(newConfig);
+			}
+		}
 	}
 
 	@Override

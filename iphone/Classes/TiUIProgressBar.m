@@ -109,13 +109,13 @@
 
 -(BOOL)isFrameUndefined
 {
-	return (TiDimensionIsUndefined(self.layout->top) && TiDimensionIsUndefined(self.layout->bottom));
+	return (TiDimensionIsUndefined(self.layoutProperties->top) && TiDimensionIsUndefined(self.layoutProperties->bottom));
 }
 
 -(BOOL)isFrameAuto
 {
-	return (TiDimensionIsAuto(self.layout->top) || TiDimensionIsAuto(self.layout->bottom) ||
-			TiDimensionIsAuto(self.layout->width) || TiDimensionIsAuto(self.layout->height));
+	return (TiDimensionIsAuto(self.layoutProperties->top) || TiDimensionIsAuto(self.layoutProperties->bottom) ||
+			TiDimensionIsAuto(self.layoutProperties->width) || TiDimensionIsAuto(self.layoutProperties->height));
 }
 
 //-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds

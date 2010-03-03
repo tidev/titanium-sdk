@@ -9,6 +9,7 @@
 #import "TiUITabProxy.h"
 #import "TiUtils.h"
 #import "TiUITabController.h"
+#import "TiWindowProxy.h"
 
 @implementation TiUITabGroup
 
@@ -80,21 +81,14 @@ DEFINE_EXCEPTIONS
 	[event setObject:NUMINT(previousIndex) forKey:@"previousIndex"];
 	[event setObject:NUMINT(index) forKey:@"index"];
 
-	if ([self.proxy _hasListeners:@"blur"])
-	{
-		[self.proxy fireEvent:@"blur" withObject:event];
-	}
+	[self.proxy fireEvent:@"blur" withObject:event];
 	[focused handleDidBlur:event];
 	
 	RELEASE_TO_NIL(focused);
 	focused = [newFocus retain];
 	[self.proxy replaceValue:focused forKey:@"activeTab" notification:NO];
 
-	if ([self.proxy _hasListeners:@"focus"])
-	{
-		[self.proxy fireEvent:@"focus" withObject:event];
-	}
-
+	[self.proxy fireEvent:@"focus" withObject:event];
 	[focused handleDidFocus:event];
 }
 
@@ -303,5 +297,29 @@ DEFINE_EXCEPTIONS
 	RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(focused);
 }
+
+
+-(void)focusVisibleWindow
+{
+	UINavigationController * ourCurrentNC = (UINavigationController *)[controller selectedViewController];
+	TiUITabController * ourCurrentVC = (TiUITabController *)[ourCurrentNC visibleViewController];
+	if([ourCurrentVC isKindOfClass:[TiUITabController class]])
+	{
+		TiWindowProxy * ourCurrentWindow = [ourCurrentVC window];
+		[ourCurrentWindow _tabFocus];
+	}
+}
+
+-(void)blurVisibleWindow
+{
+	UINavigationController * ourCurrentNC = (UINavigationController *)[controller selectedViewController];
+	TiUITabController * ourCurrentVC = (TiUITabController *)[ourCurrentNC visibleViewController];
+	if([ourCurrentVC isKindOfClass:[TiUITabController class]])
+	{
+		TiWindowProxy * ourCurrentWindow = [ourCurrentVC window];
+		[ourCurrentWindow _tabBlur];
+	}
+}
+
 
 @end

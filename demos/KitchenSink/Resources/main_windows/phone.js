@@ -9,6 +9,8 @@ var data = [
 
 ];
 
+data.push({title:'Orientation', hasChild:true, test:'../examples/orientation.js'});
+
 // add iphone specific tests
 if (Titanium.Platform.name == 'iPhone OS')
 {
@@ -17,13 +19,12 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Save to Gallery', hasChild:true, test:'../examples/photo_gallery_save.js'});
 	data.push({title:'Shake', hasChild:true, test:'../examples/shake.js'});
 	data.push({title:'Photo Gallery', hasChild:true, test:'../examples/photo_gallery.js'});
-	data.push({title:'Orientation', hasChild:true, test:'../examples/orientation.js'});
 	data.push({title:'Camera', hasChild:true, test:'../examples/camera.js'});
 	data.push({title:'Record Video', hasChild:true, test:'../examples/record_video.js'});
 	data.push({title:'Proximity Events', hasChild:true, test:'../todo.js'});
 	data.push({title:'App Badge', hasChild:true, test:'../examples/app_badge.js'});
 	data.push({title:'Status Bar', hasChild:true, test:'../examples/statusbar.js'});
-	data.push({title:'Push Notifications', hasChild:true, test:'../examples/push_notification.js'}); 
+	data.push({title:'Push Notifications', hasChild:true, test:'../examples/push_notification.js'});
 }
 
 // create table view

@@ -42,11 +42,7 @@
 	// happen after the JS context is fully up and ready
 	if (contextReady && context!=nil)
 	{
-		focused = YES;
-		if ([self _hasListeners:@"focus"])
-		{
-			[self fireEvent:@"focus" withObject:nil];
-		}
+		[self fireFocus:YES];
 		return YES;
 	}
 	
@@ -106,11 +102,7 @@
 	{
 		// if we don't have a tab, we need to fire blur
 		// events ourselves
-		focused = NO;
-		if ([self _hasListeners:@"blur"])
-		{
-			[self fireEvent:@"blur" withObject:nil];
-		}
+		[self fireFocus:NO];
 	}
 	return YES;
 }
@@ -363,15 +355,7 @@
 
 	if ([titleControl isKindOfClass:[TiViewProxy class]])
 	{
-		newTitleView = [titleControl barButtonView];
-		if (CGRectIsEmpty([newTitleView bounds]))
-		{
-			CGRect f;
-			f.origin = CGPointZero;
-			f.size = [newTitleView sizeThatFits:[TiUtils navBarTitleViewSize]];
-			[newTitleView setBounds:f];
-		}
-		[newTitleView setAutoresizingMask:UIViewAutoresizingNone];
+		newTitleView = [titleControl barButtonViewForSize:[TiUtils navBarTitleViewSize]];
 	}
 	else
 	{
@@ -590,11 +574,7 @@ else{\
 		// we can't fire focus here since we 
 		// haven't yet wired up the JS context at this point
 		// and listeners wouldn't be ready
-		focused = YES;
-		if ([self _hasListeners:@"focus"])
-		{
-			[self fireEvent:@"focus" withObject:nil];
-		}
+		[self fireFocus:YES];
 		[self setupWindowDecorations];
 	}
 	[super _tabFocus];
@@ -604,11 +584,7 @@ else{\
 {
 	if (focused)
 	{
-		focused = NO;
-		if ([self _hasListeners:@"blur"])
-		{
-			[self fireEvent:@"blur" withObject:nil];
-		}
+		[self fireFocus:NO];
 	}
 	[super _tabBlur];
 }

@@ -12,6 +12,7 @@
 {
 @protected
 	CGFloat verticalLayoutBoundary;
+	LayoutConstraint layoutProperties;
 
 @private
 	NSRecursiveLock *childLock;
@@ -20,6 +21,8 @@
 	TiViewProxy *parent;
 	BOOL viewInitialized;
 }
+
+@property(nonatomic,readwrite,assign) LayoutConstraint * layoutProperties;
 
 @property(nonatomic,readonly) NSArray *children;
 @property(nonatomic,readonly) TiViewProxy *parent;
@@ -46,7 +49,7 @@
 
 -(BOOL)supportsNavBarPositioning;
 -(UIBarButtonItem*)barButtonItem;
--(TiUIView*)barButtonView;
+- (TiUIView *)barButtonViewForSize:(CGSize)bounds;
 -(void)removeBarButtonView;
 
 -(CGRect)appFrame;

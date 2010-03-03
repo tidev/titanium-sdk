@@ -1,11 +1,19 @@
 
 <h1 class="namespace">${data.namespace}</h1>
 <div class="namespace_type">function</div>
+<div class="since">${data.since}</div>
 <div class="platforms">
 % for p in data.platforms:
 <span class="${p}">&nbsp;&nbsp;&nbsp;</span>
 % endfor
 </div>
+
+% if data.deprecated:
+<div class="deprecated">
+	This function was deprecated in <strong>${data.deprecated['version']}</strong>.
+	${data.deprecated['reason']}
+</div>
+% endif
 
 <div class="description">
 ${data.description}
