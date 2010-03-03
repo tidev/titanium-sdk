@@ -290,7 +290,10 @@ public class TiHTTPClient
  
 	public void sendError(String error) {
 		Log.i(LCAT, "Sending error " + error);
-		fireCallback(ON_ERROR, new Object[] {"\"" + error + "\""});
+		TiDict event = new TiDict();
+		event.put("error", error);
+		event.put("source", proxy);
+		fireCallback(ON_ERROR, new Object[] {event});
 	}
  
 	public String getResponseText()
