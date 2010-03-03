@@ -32,11 +32,11 @@ public class TiMimeTypeHelper
 	
 	public static boolean isBinaryMimeType(String mimeType) {
 		if (mimeType != null) {
-			if (mimeType.startsWith("application/") && !mimeType.equals("application/xml"))
+			if (mimeType.startsWith("application/") && !mimeType.startsWith("application/xml"))
 			{
 				return true;
 			}
-			else if (mimeType.startsWith("image/") && !mimeType.equals("image/svg+xml"))
+			else if (mimeType.startsWith("image/") && !mimeType.startsWith("image/svg+xml"))
 			{
 				return true;
 			}
