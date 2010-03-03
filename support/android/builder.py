@@ -86,8 +86,10 @@ class Builder(object):
 		if platform.system() == "Windows":
 			self.adb += ".exe"
 			self.home_dir = os.path.join(os.environ['USERPROFILE'], '.titanium')
+			self.android_home_dir = os.path.join(os.environ['USERPROFILE'], '.android')
 		else:
 			self.home_dir = os.path.join(os.path.expanduser('~'), '.titanium')
+			self.android_home_dir = os.path.join(os.path.expanduser('~'), '.android')
 		
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
@@ -126,7 +128,7 @@ class Builder(object):
 			print "[INFO] Created shared 10M SD card for use in Android emulator(s)"
 			run.run([mksdcard, '10M', sdcard])
 
-		avd_path = os.path.expanduser("~/.android/avd")
+		avd_path = os.path.join(self.android_home_dir, 'avd')
 		my_avd = os.path.join(avd_path,"%s.avd" % name)
 		if not os.path.exists(my_avd):
 			print "[INFO] creating new AVD %s %s" % (avd_id,avd_skin)
