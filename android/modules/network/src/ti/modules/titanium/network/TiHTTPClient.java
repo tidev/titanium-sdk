@@ -46,6 +46,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.apache.james.mime4j.util.MimeUtil;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
@@ -54,6 +55,9 @@ import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiMimeTypeHelper;
+
+import com.sun.xml.internal.messaging.saaj.packaging.mime.internet.ContentType;
 
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
@@ -82,6 +86,7 @@ public class TiHTTPClient
 	private DocumentProxy responseXml;
 	private int status;
 	private String statusText;
+	private boolean connected;
  
 	private HttpRequest request;
 	private HttpResponse response;
@@ -93,6 +98,7 @@ public class TiHTTPClient
  
 	private TiBlob responseData;
 	private String charset;
+	private String contentType;
  
 	private ArrayList<NameValuePair> nvPairs;
 	private HashMap<String, ContentBody> parts;
@@ -114,6 +120,7 @@ public class TiHTTPClient
 		public String handleResponse(HttpResponse response)
 				throws HttpResponseException, IOException
 		{
+			connected = true;
 	        String clientResponse = null;
  
 			if (client != null) {
@@ -144,11 +151,14 @@ public class TiHTTPClient
 				}
 				
 				entity = response.getEntity();
- 
+				contentType = entity.getContentType().getValue();
 				KrollCallback onDataStreamCallback = c.getCallback(ON_DATA_STREAM);
 				if (onDataStreamCallback != null) {
 					is = entity.getContent();
- 
+					charset = EntityUtils.getContentCharSet(entity);
+					
+					responseData = null;
+					
 					if (is != null) {
 						final KrollCallback cb = onDataStreamCallback;
 						long contentLength = entity.getContentLength();
@@ -167,28 +177,25 @@ public class TiHTTPClient
 							}
 						} else {
 							while((count = is.read(buf)) != -1) {
-								Log.d(LCAT, "Read " + count + " of " + contentLength + " bytes from HTTP stream");
-								
 								totalSize += count;
 								TiDict o = new TiDict();
 								o.put("totalCount", contentLength);
 								o.put("totalSize", totalSize);
 								o.put("size", count);
-								
+
 								byte[] newbuf = new byte[count];
-								for (int i = 0; i < count; i++) {
-									newbuf[i] = buf[i];
+								System.arraycopy(buf, 0, newbuf, 0, count);
+								if (responseData == null) {
+									responseData = TiBlob.blobFromData(proxy.getTiContext(), buf);
+								} else {
+									responseData.append(TiBlob.blobFromData(proxy.getTiContext(), buf));
 								}
- 
+								
 								TiBlob blob = TiBlob.blobFromData(proxy.getTiContext(), newbuf);
-								Log.d(LCAT, "data: " + new String(newbuf));
 								o.put("blob", blob);
 								o.put("progress", (((double)count)/((double)totalSize))*100);
 								
 								cb.callWithProperties(o);
-								//if(!entity.isStreaming()) {
-								//	break;
-								//}
 							}
 							if (entity != null) {
 								try {
@@ -234,6 +241,7 @@ public class TiHTTPClient
 		readyState = 0;
 		responseText = "";
 		credentials = null;
+		connected = false;
 		this.nvPairs = new ArrayList<NameValuePair>();
 		this.parts = new HashMap<String,ContentBody>();
 	}
@@ -282,11 +290,19 @@ public class TiHTTPClient
  
 	public void sendError(String error) {
 		Log.i(LCAT, "Sending error " + error);
-		fireCallback(ON_ERROR, new Object[] {"\"" + error + "\""});
+		TiDict event = new TiDict();
+		event.put("error", error);
+		event.put("source", proxy);
+		fireCallback(ON_ERROR, new Object[] {event});
 	}
  
 	public String getResponseText()
 	{
+		// avoid eating up tons of memory if we have a large binary data blob
+		if (TiMimeTypeHelper.isBinaryMimeType(contentType))
+		{
+			return null;
+		}
 		if (responseData != null && responseText == null) {
 			if (charset == null) {
 				charset = HTTP.DEFAULT_CONTENT_CHARSET;
@@ -309,6 +325,11 @@ public class TiHTTPClient
 	
 	public DocumentProxy getResponseXML()
 	{
+		// avoid eating up tons of memory if we have a large binary data blob
+		if (TiMimeTypeHelper.isBinaryMimeType(contentType))
+		{
+			return null;
+		}
 		if (responseXml == null && (responseData != null || responseText != null)) {
 			try {
 				responseXml = XMLModule.parse(proxy.getTiContext(), getResponseText());
@@ -598,6 +619,7 @@ public class TiHTTPClient
 					if(result != null) {
 						Log.d(LCAT, "Have result back from request len=" + result.length());
 					}
+					connected = false;
 					me.setResponseText(result);
 					me.setReadyState(READY_STATE_DONE);
 				} catch(Exception e) {
@@ -623,5 +645,9 @@ public class TiHTTPClient
 	
 	public String getConnectionType() {
 		return method;
+	}
+	
+	public boolean isConnected() {
+		return connected;
 	}
 }
