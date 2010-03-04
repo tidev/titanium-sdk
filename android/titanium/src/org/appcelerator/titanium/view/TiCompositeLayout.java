@@ -126,43 +126,22 @@ public class TiCompositeLayout extends ViewGroup
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 	{
-		int count = getChildCount();
-
 		int w = Math.max(MeasureSpec.getSize(widthMeasureSpec), getSuggestedMinimumWidth());
 		int wMode = MeasureSpec.getMode(widthMeasureSpec);
 		int h = Math.max(MeasureSpec.getSize(heightMeasureSpec), getSuggestedMinimumHeight());
 		int hMode = MeasureSpec.getMode(heightMeasureSpec);
 
-		int maxWidth = w;
-		int maxHeight = h;
-
-		if (needsSort) {
-			if (count > 1) { // No need to sort one item.
-				Log.e("SORTING", "Sorting.....");
-				viewSorter.clear();
-
-				for(int i = 0; i < count; i++) {
-					View child = getChildAt(i);
-					TiCompositeLayout.LayoutParams params =
-						(TiCompositeLayout.LayoutParams) child.getLayoutParams();
-					params.index = i;
-					viewSorter.add(child);
-				}
-
-				detachAllViewsFromParent();
-				int i = 0;
-				for (View child : viewSorter) {
-					attachViewToParent(child, i++, child.getLayoutParams());
-				}
-			}
-			needsSort = false;
-		}
+		int maxWidth = 0;
+		int maxHeight = 0;
 
 		for(int i = 0; i < getChildCount(); i++) {
 			View child = getChildAt(i);
 			if (child.getVisibility() != View.GONE) {
 				constrainChild(child, w, wMode, h, hMode);
 			}
+
+			maxWidth = Math.max(maxWidth, child.getMeasuredWidth());
+			maxHeight = Math.max(maxHeight, child.getMeasuredHeight());
 		}
 
 		// account for padding
@@ -193,107 +172,155 @@ public class TiCompositeLayout extends ViewGroup
 		LayoutParams p =
 			(LayoutParams) child.getLayoutParams();
 
-		int widthSpec = getWidthMeasureSpec(child);
-		int heightSpec = getHeightMeasureSpec(child);
+//		int widthSpec = getWidthMeasureSpec(child);
+//		int heightSpec = getHeightMeasureSpec(child);
+
+		int childDimension = LayoutParams.WRAP_CONTENT;
+		if (p.optionWidth != NOT_SET) {
+//			if (p.autoFillsWidth) {
+//				childDimension = LayoutParams.FILL_PARENT;
+//			} else {
+				childDimension = p.optionWidth;
+//			}
+		} else {
+			if (p.autoFillsWidth) {
+				childDimension = LayoutParams.FILL_PARENT;
+			}
+		}
+
+		int padding = 0;
+		if (p.optionLeft != NOT_SET) {
+			padding += p.optionLeft;
+		}
+		if (p.optionRight != NOT_SET) {
+			padding += p.optionRight;
+		}
+		int widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode), padding, childDimension);
+
+		childDimension = LayoutParams.WRAP_CONTENT;
+		if (p.optionHeight != NOT_SET) {
+//			if (p.autoFillsHeight) {
+//				childDimension = LayoutParams.FILL_PARENT;
+//			} else {
+				childDimension = p.optionHeight;
+//			}
+		} else {
+			if (p.autoFillsHeight) {
+				childDimension = LayoutParams.FILL_PARENT;
+			}
+		}
+
+		padding = 0;
+
+		if (p.optionTop != NOT_SET) {
+			padding += p.optionTop;
+		}
+		if (p.optionBottom != NOT_SET) {
+			padding += p.optionBottom;
+		}
+
+		int heightSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(height, hMode), padding, childDimension);
 
 		// Ask the child how big it would naturally like to be.
-		child.measure(MeasureSpec.makeMeasureSpec(maxWidth, widthSpec),
-				MeasureSpec.makeMeasureSpec(maxHeight, heightSpec));
+//		child.measure(MeasureSpec.makeMeasureSpec(maxWidth, widthSpec),
+//				MeasureSpec.makeMeasureSpec(maxHeight, heightSpec));
+
+		child.measure(widthSpec, heightSpec);
 
 		int childWidth = child.getMeasuredWidth();
 		int childHeight = child.getMeasuredHeight();
 
-		if (p.optionLeft != NOT_SET) {
-			p.mLeft = Math.min(p.optionLeft, width);
-			if (p.optionRight != NOT_SET) {
-				p.mRight = Math.max(p.mLeft, width - p.optionRight);
-			} else if (!p.autoWidth) {
-				p.mRight = Math.min(p.mLeft + p.optionWidth, width);
-			} else {
-				if (!p.autoFillsWidth) {
-					p.mRight = width;
-				} else {
-					p.mRight = Math.min(p.mLeft + childWidth, width);
-				}
-			}
-		} else if (p.optionRight != NOT_SET) {
-			p.mRight = Math.max(width-p.optionRight, 0);
-			if (!p.autoWidth) {
-				p.mLeft = Math.max(0, p.mRight - p.optionWidth);
-			} else {
-				if (p.autoFillsWidth) {
-					p.mLeft = 0;
-				} else {
-					p.mLeft = Math.max(p.mRight - childWidth, 0);
-				}
-			}
-		} else {
-			p.mLeft = 0;
-			p.mRight = width;
+//		if (p.optionLeft != NOT_SET) {
+//			p.mLeft = Math.min(p.optionLeft, width);
+//			if (p.optionRight != NOT_SET) {
+//				p.mRight = Math.max(p.mLeft, width - p.optionRight);
+//			} else if (!p.autoWidth) {
+//				p.mRight = Math.min(p.mLeft + p.optionWidth, width);
+//			} else {
+//				if (!p.autoFillsWidth) {
+//					p.mRight = width;
+//				} else {
+//					p.mRight = Math.min(p.mLeft + childWidth, width);
+//				}
+//			}
+//		} else if (p.optionRight != NOT_SET) {
+//			p.mRight = Math.max(width-p.optionRight, 0);
+//			if (!p.autoWidth) {
+//				p.mLeft = Math.max(0, p.mRight - p.optionWidth);
+//			} else {
+//				if (p.autoFillsWidth) {
+//					p.mLeft = 0;
+//				} else {
+//					p.mLeft = Math.max(p.mRight - childWidth, 0);
+//				}
+//			}
+//		} else {
+//			p.mLeft = 0;
+//			p.mRight = width;
+//
+//			int w = width;
+//
+//			if (p.optionWidth != NOT_SET) {
+//				w = Math.min(p.optionWidth, width);
+//			} else if (p.autoWidth && !p.autoFillsWidth) {
+//				w = Math.min(childWidth, width);
+//			}
+//
+//			int space = (width - w)/2;
+//			if (space > 0) {
+//				p.mLeft = space;
+//				p.mRight -= space;
+//			}
+//		}
+//
+//		if (p.optionTop != NOT_SET) {
+//			p.mTop = Math.min(p.optionTop, height);
+//			if (p.optionBottom != NOT_SET) {
+//				p.mBottom = Math.max(p.mTop, height - p.optionBottom);
+//			} else if (!p.autoHeight) {
+//				p.mBottom = Math.min(p.mTop + p.optionHeight, height);
+//			} else {
+//				if (p.autoFillsHeight) {
+//					p.mBottom = height;
+//				} else {
+//					p.mBottom = Math.min(p.mTop + childHeight, height);
+//				}
+//			}
+//		} else if (p.optionBottom != NOT_SET) {
+//			p.mBottom = Math.max(height-p.optionBottom, 0);
+//			if (!p.autoHeight) {
+//				p.mTop = Math.max(0, p.mBottom - p.optionHeight);
+//			} else {
+//				if (p.autoFillsHeight) {
+//					p.mTop = 0;
+//				} else {
+//					p.mTop = Math.max(p.mBottom - childHeight, 0);
+//				}
+//			}
+//		} else {
+//			p.mTop = 0;
+//			p.mBottom = height;
+//
+//			int h = height;
+//			if (p.optionHeight != NOT_SET) {
+//				h = Math.min(p.optionHeight, height);
+//			} else if (p.autoHeight && !p.autoFillsHeight) {
+//				h = Math.min(childHeight, height);
+//			}
+//
+//			int space = (height - h)/2;
+//			if (space > 0) {
+//				p.mTop = space;
+//				p.mBottom -= space;
+//			}
+//		}
 
-			int w = width;
-
-			if (p.optionWidth != NOT_SET) {
-				w = Math.min(p.optionWidth, width);
-			} else if (p.autoWidth && !p.autoFillsWidth) {
-				w = Math.min(childWidth, width);
-			}
-
-			int space = (width - w)/2;
-			if (space > 0) {
-				p.mLeft = space;
-				p.mRight -= space;
-			}
-		}
-
-		if (p.optionTop != NOT_SET) {
-			p.mTop = Math.min(p.optionTop, height);
-			if (p.optionBottom != NOT_SET) {
-				p.mBottom = Math.max(p.mTop, height - p.optionBottom);
-			} else if (!p.autoHeight) {
-				p.mBottom = Math.min(p.mTop + p.optionHeight, height);
-			} else {
-				if (p.autoFillsHeight) {
-					p.mBottom = height;
-				} else {
-					p.mBottom = Math.min(p.mTop + childHeight, height);
-				}
-			}
-		} else if (p.optionBottom != NOT_SET) {
-			p.mBottom = Math.max(height-p.optionBottom, 0);
-			if (!p.autoHeight) {
-				p.mTop = Math.max(0, p.mBottom - p.optionHeight);
-			} else {
-				if (p.autoFillsHeight) {
-					p.mTop = 0;
-				} else {
-					p.mTop = Math.max(p.mBottom - childHeight, 0);
-				}
-			}
-		} else {
-			p.mTop = 0;
-			p.mBottom = height;
-
-			int h = height;
-			if (p.optionHeight != NOT_SET) {
-				h = Math.min(p.optionHeight, height);
-			} else if (p.autoHeight && !p.autoFillsHeight) {
-				h = Math.min(childHeight, height);
-			}
-
-			int space = (height - h)/2;
-			if (space > 0) {
-				p.mTop = space;
-				p.mBottom -= space;
-			}
-		}
-
-		int childWidthSpec = MeasureSpec.makeMeasureSpec(
-				p.mRight-p.mLeft, wMode /*MeasureSpec.EXACTLY*/);
-		int childHeightSpec = MeasureSpec.makeMeasureSpec(
-				p.mBottom-p.mTop, hMode /*MeasureSpec.EXACTLY*/);
-
-		child.measure(childWidthSpec, childHeightSpec);
+//		int childWidthSpec = MeasureSpec.makeMeasureSpec(
+//				p.mRight-p.mLeft, wMode /*MeasureSpec.EXACTLY*/);
+//		int childHeightSpec = MeasureSpec.makeMeasureSpec(
+//				p.mBottom-p.mTop, hMode /*MeasureSpec.EXACTLY*/);
+//
+//		child.measure(childWidthSpec, childHeightSpec);
 	}
 
 	protected int getWidthMeasureSpec(View child)
@@ -319,13 +346,77 @@ public class TiCompositeLayout extends ViewGroup
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b)
 	{
-		for (int i = 0; i < getChildCount(); i++) {
+		int count = getChildCount();
+
+		int left = 0;
+		int top = 0;
+		int right = r - l;
+		int bottom = b - t;
+
+		if (needsSort) {
+			if (count > 1) { // No need to sort one item.
+				Log.e("SORTING", "Sorting.....");
+				viewSorter.clear();
+
+				for(int i = 0; i < count; i++) {
+					View child = getChildAt(i);
+					TiCompositeLayout.LayoutParams params =
+						(TiCompositeLayout.LayoutParams) child.getLayoutParams();
+					params.index = i;
+					viewSorter.add(child);
+				}
+
+				detachAllViewsFromParent();
+				int i = 0;
+				for (View child : viewSorter) {
+					attachViewToParent(child, i++, child.getLayoutParams());
+				}
+			}
+			needsSort = false;
+		}
+
+		int[] horizontal = new int[2];
+		int[] vertical = new int[2];
+
+		for (int i = 0; i < count; i++) {
 			View child = getChildAt(i);
 			TiCompositeLayout.LayoutParams params =
 				(TiCompositeLayout.LayoutParams) child.getLayoutParams();
 			if (child.getVisibility() != View.GONE) {
-				child.layout(params.mLeft, params.mTop, params.mRight, params.mBottom);
+				// Dimension is required from Measure. Positioning is determined here.
+
+				computePosition(params.optionLeft, params.optionRight, child.getMeasuredWidth(), left, right, horizontal);
+				computePosition(params.optionTop, params.optionBottom, child.getMeasuredHeight(), top, bottom, vertical);
+
+				Log.d("LAYOUT", child.getClass().getSimpleName() + " {" + horizontal[0] + "," + vertical[0] + "," + horizontal[1] + "," + vertical[1] + "}");
+
+				child.layout(horizontal[0], vertical[0], horizontal[1], vertical[1]);
 			}
+		}
+	}
+
+	// 0 is left/top, 1 is right/bottom
+	private void computePosition(int o0, int o1, int size, int p0, int p1, int[] pos)
+	{
+		int dist = p1 - p0;
+
+		if (o0 == NOT_SET && o1 == NOT_SET) {
+			// Center
+			int offset = (dist-size)/2;
+			pos[0] = p0 + offset;
+			pos[1] = pos[0] + size;
+		} else if (o0 == NOT_SET) {
+			// peg right
+			pos[0] = dist - o1 - size;
+			pos[1] = dist - o1;
+		} else if (o1 == NOT_SET) {
+			// peg left
+			pos[0] = p0 + o0;
+			pos[1] = p0 + o0 + size;
+		} else {
+			// pegged both. override and force.
+			pos[0] = p0 + o0;
+			pos[1] = p1 - o1;
 		}
 	}
 
@@ -347,10 +438,10 @@ public class TiCompositeLayout extends ViewGroup
 		public boolean autoFillsHeight = false;
 
 		// Used in onMeasure to assign size for onLayout
-		public int mLeft;
-		public int mTop;
-		public int mRight;
-		public int mBottom;
+//		public int mLeft;
+//		public int mTop;
+//		public int mRight;
+//		public int mBottom;
 
 		public LayoutParams() {
 			super(WRAP_CONTENT, WRAP_CONTENT);
