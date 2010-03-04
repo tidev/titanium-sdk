@@ -35,7 +35,7 @@ public class TiScrollableView extends TiCompositeLayout
 	protected RelativeLayout pager;
 	protected View glass;
 	protected boolean showPagingControl;
-	
+
 	protected ViewAnimator gallery;
 	protected TiAnimationPair animPrev;
 	protected TiAnimationPair animNext;
@@ -44,16 +44,16 @@ public class TiScrollableView extends TiCompositeLayout
 	protected ArrayList<TiViewProxy> views;
 	protected ScrollableViewProxy proxy;
 	protected Handler handler;
-	
+
 	public TiScrollableView(ScrollableViewProxy proxy, Handler handler)
 	{
 		super(proxy.getContext());
-		
+
 		this.proxy = proxy;
 		this.handler = handler;
 		me = this;
 		showPagingControl = true;
-		
+
 		//below this was in "doOpen"
 		//setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		setFocusable(true);
@@ -72,8 +72,9 @@ public class TiScrollableView extends TiCompositeLayout
 		gallery.setClickable(false);
 
 		TiCompositeLayout.LayoutParams p = new TiCompositeLayout.LayoutParams();
-		p.autoFillsHeight = p.autoFillsWidth = true;
-		
+		p.autoFillsHeight = true;
+		p.autoFillsWidth = true;
+
 		addView(gallery, p);
 		//gallery.setOnItemSelectedListener(this);
 
@@ -159,7 +160,7 @@ public class TiScrollableView extends TiCompositeLayout
 	public boolean hasPrevious() {
 		return getSelectedItemPosition() > 0;
 	}
- 
+
 	public boolean hasNext() {
 		synchronized (gallery) {
 			return getSelectedItemPosition() < gallery.getChildCount() - 1;
@@ -201,7 +202,7 @@ public class TiScrollableView extends TiCompositeLayout
 			}
 		}
 	}
-	
+
 	public void showPager() {
 		View v = null;
 		v = findViewById(PAGE_LEFT);
@@ -216,7 +217,7 @@ public class TiScrollableView extends TiCompositeLayout
 
 		pager.setVisibility(View.VISIBLE);
 	}
-	
+
 	public void hidePager() {
 		pager.setVisibility(View.INVISIBLE);
 	}
@@ -247,8 +248,8 @@ public class TiScrollableView extends TiCompositeLayout
 			}
 		}
 	}
-	
-	public void addView(TiViewProxy proxy) 
+
+	public void addView(TiViewProxy proxy)
 	{
 		if (proxy != null) {
 			this.views.add(proxy);
@@ -259,7 +260,7 @@ public class TiScrollableView extends TiCompositeLayout
 	public void setShowPagingControl(boolean showPagingControl) {
 		this.showPagingControl = showPagingControl;
 	}
-	
+
 	public void doScrollToView(int position) {
 		if(position < gallery.getChildCount()) {
 			int current = getSelectedItemPosition();
@@ -274,7 +275,7 @@ public class TiScrollableView extends TiCompositeLayout
 			}
 		}
 	}
-	
+
 	public void doScrollToView(TiViewProxy view)
 	{
 		if (views.contains(view)) {
@@ -283,7 +284,7 @@ public class TiScrollableView extends TiCompositeLayout
 	}
 
 	public ArrayList<TiViewProxy> getViews() {
-		return views; 
+		return views;
 	}
 
 	@Override

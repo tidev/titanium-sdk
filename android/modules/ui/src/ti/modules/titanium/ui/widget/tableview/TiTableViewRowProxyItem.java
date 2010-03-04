@@ -52,7 +52,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 		this.content = new TiCompositeLayout(tiContext.getActivity());
 		content.setMinimumHeight(48);
-		this.addView(content, new LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
+		this.addView(content, new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
 
 		this.rightImage = new ImageView(tiContext.getActivity());
 		rightImage.setVisibility(GONE);
@@ -186,12 +186,14 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			imageHMargin += RIGHT_MARGIN;
 		}
 
-		int adjustedWidth = w - leftImageWidth - rightImageWidth - imageHMargin;
+		//int adjustedWidth = w - leftImageWidth - rightImageWidth - imageHMargin;
+		int adjustedWidth = w;
 
 		measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode), heightMeasureSpec);
 
 		if(hMode == MeasureSpec.UNSPECIFIED) {
 			h = Math.max(h, Math.max(content.getMeasuredHeight(), Math.max(leftImageHeight, rightImageHeight)));
+			measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode), MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY));
 		}
 
 		setMeasuredDimension(w, Math.max(h, Math.max(leftImageHeight, rightImageHeight)));
@@ -200,8 +202,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 	{
-		int contentLeft = left;
-		int contentRight = right;
+		int contentLeft = 0;
+		int contentRight = right-left;
 		bottom = bottom - top;
 		top = 0;
 
@@ -226,6 +228,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			int offset = (height - h) / 2;
 			rightImage.layout(right-w-rightMargin, top+offset, right-rightMargin, top+offset+h);
 		}
+
+		contentLeft = left + LEFT_MARGIN;
+		contentRight = right - RIGHT_MARGIN;
 
 		content.layout(contentLeft, top, contentRight, bottom);
 	}
