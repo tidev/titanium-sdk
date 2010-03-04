@@ -25,7 +25,9 @@
 @property(nonatomic,retain,readonly) UIScrollView * scrollView;
 @property(nonatomic,readwrite,assign)	CGFloat verticalLayoutBoundary;
 
--(void)layoutChild:(TiUIView *)childView;
+//-(void)layoutChild:(TiUIView *)childView;
 -(void)setNeedsHandleContentSize;
+-(UIView *)wrapperView;
+
 
 @end
