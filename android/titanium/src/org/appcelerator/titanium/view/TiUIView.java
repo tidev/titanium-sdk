@@ -218,6 +218,15 @@ public abstract class TiUIView
 			if (nativeView != null) {
 				nativeView.requestLayout();
 			}
+		} else if (key.equals("zIndex")) {
+			if (newValue != null) {
+				layoutParams.optionZIndex = TiConvert.toInt(TiConvert.toString(newValue));
+			} else {
+				layoutParams.optionZIndex = 0;
+			}
+			if (nativeView != null) {
+				nativeView.requestLayout();
+			}
 		} else if (key.equals("visible")) {
 			nativeView.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else if (key.equals("opacity") || key.equals("backgroundColor")) {
@@ -258,7 +267,7 @@ public abstract class TiUIView
 			ShapeDrawable drawable = new ShapeDrawable();
 			drawable.getPaint().setColor(bgColor);
 			drawable.getPaint().setAntiAlias(true);
-			
+
 			nativeView.setBackgroundDrawable(drawable);
 		}
 		if (d.containsKey("visible")) {
