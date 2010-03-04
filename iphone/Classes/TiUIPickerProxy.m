@@ -86,4 +86,13 @@
 	//TODO
 }
 
+
+-(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
+{
+	return suggestedResizing & ~(UIViewAutoresizingFlexibleHeight);
+}
+
+USE_VIEW_FOR_VERIFY_HEIGHT
+
+
 @end

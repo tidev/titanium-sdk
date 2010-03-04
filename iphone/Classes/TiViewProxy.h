@@ -66,4 +66,19 @@
 -(void)viewDidDetach;
 -(void)exchangeView:(TiUIView*)newview;
 
+-(void)reposition;
+
 @end
+
+#define USE_VIEW_FOR_METHOD(resultType,methodname,inputType)	\
+-(resultType) methodname: (inputType)value	\
+{	\
+	return [[self view] methodname:value];	\
+}
+
+#define USE_VIEW_FOR_VERIFY_WIDTH	USE_VIEW_FOR_METHOD(CGFloat,verifyWidth,CGFloat)
+#define USE_VIEW_FOR_VERIFY_HEIGHT	USE_VIEW_FOR_METHOD(CGFloat,verifyHeight,CGFloat)
+#define USE_VIEW_FOR_AUTO_WIDTH		USE_VIEW_FOR_METHOD(CGFloat,autoWidthForWidth,CGFloat)
+#define USE_VIEW_FOR_AUTO_HEIGHT	USE_VIEW_FOR_METHOD(CGFloat,autoHeightForWidth,CGFloat)
+
+

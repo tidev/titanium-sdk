@@ -66,6 +66,7 @@ void RestoreScrollViewFromKeyboard(UIScrollView * scrollView)
 	}
 }
 
+
 CGFloat AutoWidthForView(UIView * superView,CGFloat suggestedWidth)
 {
 	CGFloat result = 0.0;
@@ -243,15 +244,38 @@ DEFINE_EXCEPTIONS
 
 -(LayoutConstraint*)layoutProperties
 {
+	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);	\
 	return [(TiViewProxy *)proxy layoutProperties];
 //	return &layoutProperties;
 }
 
 -(void)setLayoutProperties:(LayoutConstraint *)layout_
 {
+	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);	\
 	[(TiViewProxy *)proxy setLayoutProperties:layout_];
 //	layoutProperties = *layout_;
 }
+
+-(CGFloat)minimumParentWidthForWidth:(CGFloat)value
+{ { const char *__s = [[NSString stringWithFormat:@"[INFO] Using view proxy via redirection instead of directly for %@.",self] UTF8String]; if (__s[0]=='[') { fprintf(__stderrp,"%s\n", __s); fflush(__stderrp); } else { fprintf(__stderrp,"[DEBUG] %s\n", __s); fflush(__stderrp); }};
+	return [(TiViewProxy *)[self proxy] minimumParentWidthForWidth:value];
+}
+-(CGFloat)minimumParentHeightForWidth:(CGFloat)value { { const char *__s = [[NSString stringWithFormat:@"[INFO] Using view proxy via redirection instead of directly for %@.",self] UTF8String]; if (__s[0]=='[') { fprintf(__stderrp,"%s\n", __s); fflush(__stderrp); } else { fprintf(__stderrp,"[DEBUG] %s\n", __s); fflush(__stderrp); }}; return [(TiViewProxy *)[self proxy] minimumParentHeightForWidth:value]; }
+-(CGFloat)autoWidthForWidth:(CGFloat)value { { const char *__s = [[NSString stringWithFormat:@"[INFO] Using view proxy via redirection instead of directly for %@.",self] UTF8String]; if (__s[0]=='[') { fprintf(__stderrp,"%s\n", __s); fflush(__stderrp); } else { fprintf(__stderrp,"[DEBUG] %s\n", __s); fflush(__stderrp); }}; return [(TiViewProxy *)[self proxy] autoWidthForWidth:value]; }
+-(CGFloat)autoHeightForWidth:(CGFloat)value { { const char *__s = [[NSString stringWithFormat:@"[INFO] Using view proxy via redirection instead of directly for %@.",self] UTF8String]; if (__s[0]=='[') { fprintf(__stderrp,"%s\n", __s); fflush(__stderrp); } else { fprintf(__stderrp,"[DEBUG] %s\n", __s); fflush(__stderrp); }}; return [(TiViewProxy *)[self proxy] autoHeightForWidth:value]; }
+
+
+//USE_PROXY_FOR_MIN_PARENT_WIDTH
+//USE_PROXY_FOR_MIN_PARENT_HEIGHT
+//USE_PROXY_FOR_AUTO_HEIGHT
+//USE_PROXY_FOR_AUTO_WIDTH
+
+
+
+
+
+
+
 
 -(void)insertIntoView:(UIView*)newSuperview bounds:(CGRect)bounds
 {
@@ -261,19 +285,6 @@ DEFINE_EXCEPTIONS
 		return;
 	}
 	ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, newSuperview, bounds,YES);
-}
-
--(void)reposition
-{
-	if ([NSThread isMainThread])
-	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?
-		[self relayout:[self superview].bounds];
-	}
-	else 
-	{
-		[self performSelectorOnMainThread:@selector(reposition) withObject:nil waitUntilDone:NO];
-	}
-
 }
 
 -(void)relayout:(CGRect)bounds
@@ -296,7 +307,7 @@ DEFINE_EXCEPTIONS
 #endif		
 		return;
 	}
-	[self setLayoutProperties:layout_];
+//	[self setLayoutProperties:layout_];
 	[self relayout:bounds];
 }
 
@@ -353,12 +364,6 @@ DEFINE_EXCEPTIONS
 	// for subclasses to do crap
 }
 
--(CGSize)sizeThatFits:(CGSize)testSize;
-{
-	return SizeConstraintViewWithSizeAddingResizing([self layoutProperties], self, testSize, NULL);
-}
-
-
 
 -(void)setFrame:(CGRect)frame
 {
@@ -382,49 +387,6 @@ DEFINE_EXCEPTIONS
 	[self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:bounds];
 }
 
--(CGFloat)minimumParentWidthForWidth:(CGFloat)suggestedWidth
-{
-	LayoutConstraint layoutProperties = *[self layoutProperties];
-	CGFloat result = TiDimensionCalculateValue(layoutProperties.left, 0)
-			+ TiDimensionCalculateValue(layoutProperties.right, 0);
-	switch (layoutProperties.width.type)
-	{
-		case TiDimensionTypePixels:
-			result += layoutProperties.width.value;
-			break;
-		case TiDimensionTypeAuto:
-			result += [self autoWidthForWidth:suggestedWidth - result];
-	}
-	return result;
-}
-
--(CGFloat)minimumParentHeightForWidth:(CGFloat)suggestedWidth
-{
-	LayoutConstraint layoutProperties = *[self layoutProperties];
-	CGFloat result = TiDimensionCalculateValue(layoutProperties.top, 0)
-			+ TiDimensionCalculateValue(layoutProperties.bottom, 0);
-	switch (layoutProperties.height.type)
-	{
-		case TiDimensionTypePixels:
-			result += layoutProperties.height.value;
-			break;
-		case TiDimensionTypeAuto:
-			suggestedWidth -= TiDimensionCalculateValue(layoutProperties.left, 0)
-					+ TiDimensionCalculateValue(layoutProperties.right, 0);
-			result += [self autoHeightForWidth:suggestedWidth];
-	}
-	return result;
-}
-
--(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
-{
-	return MIN(suggestedWidth,AutoWidthForView(self, suggestedWidth));
-}
-
--(CGFloat)autoHeightForWidth:(CGFloat)width
-{
-	return AutoHeightForView(self, width,TiLayoutRuleIsVertical([self layoutProperties]->layout));
-}
 
 -(void)updateTransform
 {
@@ -590,40 +552,6 @@ DEFINE_EXCEPTIONS
 {
 	NSString *method = [NSString stringWithFormat:@"set%@%@_:", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
 	return NSSelectorFromString(method);
-}
-
--(BOOL)isRepositionProperty:(NSString*)key
-{
-	return [key isEqualToString:@"width"] ||
-		[key isEqualToString:@"height"] ||
-		[key isEqualToString:@"top"] ||
-		[key isEqualToString:@"left"] ||
-		[key isEqualToString:@"right"] ||
-		[key isEqualToString:@"bottom"] ||
-		[key isEqualToString:@"layout"];
-}
-
--(void)repositionChange:(NSString*)key value:(id)inputVal
-{
-#define READ_CONSTRAINT(k)	\
-if ([key isEqualToString:@#k])\
-{\
-[self layoutProperties]->k = TiDimensionFromObject(inputVal); \
-[self reposition];\
-return;\
-}	
-	READ_CONSTRAINT(width);
-	READ_CONSTRAINT(height);
-	READ_CONSTRAINT(top);
-	READ_CONSTRAINT(left);
-	READ_CONSTRAINT(right);
-	READ_CONSTRAINT(bottom);
-	if ([key isEqualToString:@"layout"])
-	{
-		[self layoutProperties]->layout = TiLayoutRuleFromObject(inputVal);
-		[self reposition];
-		return;
-	}
 }
 
 -(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys

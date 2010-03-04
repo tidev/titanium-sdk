@@ -118,7 +118,7 @@
 		TiViewProxy *viewproxy = [views objectAtIndex:index];
 		TiUIView *uiview = [viewproxy view];
 		[wrapper addSubview:uiview];
-		[uiview reposition];
+		[viewproxy reposition];
 		[viewproxy layoutChildren];
 	}
 }

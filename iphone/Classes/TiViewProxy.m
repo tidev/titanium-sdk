@@ -370,9 +370,9 @@
 		[self viewDidAttach];
 
 		// make sure we do a layout of ourselves
-		LayoutConstraint layout;
-		ReadConstraintFromDictionary(&layout,[self allProperties]);
-		[view updateLayout:&layout withBounds:view.bounds];
+//		LayoutConstraint layout;
+//		ReadConstraintFromDictionary(&layout,[self allProperties]);
+		[view updateLayout:NULL withBounds:view.bounds];
 		
 		viewInitialized = YES;
 	}
@@ -398,16 +398,18 @@
 		[view addSubview:childView];
 	}
 	
-	LayoutConstraint ourLayoutConstraint;
-	ReadConstraintFromDictionary(&ourLayoutConstraint,[child allProperties]);
+//	LayoutConstraint ourLayoutConstraint;
+//	ReadConstraintFromDictionary(&ourLayoutConstraint,[child allProperties]);
 
-	if(TiLayoutRuleIsVertical([view layoutProperties]->layout)){
+	if(TiLayoutRuleIsVertical(layoutProperties.layout)){
 		bounds.origin.y += verticalLayoutBoundary;
 		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
 		verticalLayoutBoundary += bounds.size.height;
 	}
 
-	[[child view] updateLayout:&ourLayoutConstraint withBounds:bounds];
+//	[child setLayoutProperties:<#(LayoutConstraint *)#>
+
+	[[child view] updateLayout:NULL withBounds:bounds];
 	
 	// tell our children to also layout
 	[child layoutChildren];
@@ -541,42 +543,125 @@
 }
 
 
-//TODO: Implement autoHeightForWidth.
-
--(CGFloat)minimumParentHeightForWidth:(CGFloat)suggestedWidth
+-(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
 {
-	if ([self viewAttached])
+	CGFloat result = 0.0;
+	for (TiViewProxy * thisChildProxy in children)
 	{
-		//Since it's expensive to extract from properties, let's cheat if the view already is there.
-		return [view minimumParentHeightForWidth:suggestedWidth];
+		result = MAX(result,[thisChildProxy minimumParentWidthForWidth:suggestedWidth]);
 	}
+	return MIN(suggestedWidth,result);
+//	return MIN(suggestedWidth,AutoWidthForView([self view], suggestedWidth));
+}
 
-	TiDimension topDimension = TiDimensionFromObject([self valueForKey:@"top"]);
-	TiDimension botDimension = TiDimensionFromObject([self valueForKey:@"bottom"]);
-	TiDimension heightDimension = TiDimensionFromObject([self valueForKey:@"height"]);	
+-(CGFloat)autoHeightForWidth:(CGFloat)width
+{
+	BOOL isVertical = TiLayoutRuleIsVertical(layoutProperties.layout);
+	CGFloat result=0.0;
 
-	CGFloat result = TiDimensionCalculateValue(topDimension, 0)
-			+ TiDimensionCalculateValue(botDimension, 0);
-	switch (heightDimension.type)
+	for (TiViewProxy * thisChildProxy in children)
 	{
-		case TiDimensionTypePixels:
+		CGFloat thisHeight = [thisChildProxy minimumParentHeightForWidth:width];
+		if (isVertical)
 		{
-			result += heightDimension.value;
-			break;
+			result += thisHeight;
 		}
-		case TiDimensionTypeAuto:
+		else if(result<thisHeight)
 		{
-			if ([self respondsToSelector:@selector(autoHeightForWidth:)])
-			{
-				TiDimension leftDimension = TiDimensionFromObject([self valueForKey:@"left"]);
-				TiDimension rightDimension = TiDimensionFromObject([self valueForKey:@"right"]);
-				suggestedWidth -= TiDimensionCalculateValue(leftDimension, 0)
-						+ TiDimensionCalculateValue(rightDimension, 0);
-				result += [self autoHeightForWidth:suggestedWidth];
-			}
+			result = thisHeight;
 		}
 	}
 	return result;
 }
+
+-(CGFloat)minimumParentWidthForWidth:(CGFloat)suggestedWidth
+{
+	CGFloat result = TiDimensionCalculateValue(layoutProperties.left, 0)
+			+ TiDimensionCalculateValue(layoutProperties.right, 0);
+	if (TiDimensionIsPixels(layoutProperties.width))
+	{
+		result += layoutProperties.width.value;
+	}
+	else if(TiDimensionIsAuto(layoutProperties.width))
+	{
+		result += [self autoWidthForWidth:suggestedWidth - result];
+	}
+	return result;
+}
+
+-(CGFloat)minimumParentHeightForWidth:(CGFloat)suggestedWidth
+{
+//	if ([self viewAttached])
+//	{
+//		//Since it's expensive to extract from properties, let's cheat if the view already is there.
+//		return [view minimumParentHeightForWidth:suggestedWidth];
+//	}
+
+	CGFloat result = TiDimensionCalculateValue(layoutProperties.top, 0)
+			+ TiDimensionCalculateValue(layoutProperties.bottom, 0);
+
+	if (TiDimensionIsPixels(layoutProperties.height))
+	{
+		result += layoutProperties.height.value;
+	}
+	else if(TiDimensionIsAuto(layoutProperties.height))
+	{
+		result += [self autoHeightForWidth:TiDimensionCalculateMargins(layoutProperties.left, layoutProperties.right, suggestedWidth)];
+	}
+	return result;
+}
+
+
+-(void)reposition
+{
+	if (![self viewAttached])
+	{
+		return;
+	}
+	if ([NSThread isMainThread])
+	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?
+		[[self view] relayout:[[self view] superview].bounds];
+	}
+	else 
+	{
+		[self performSelectorOnMainThread:@selector(reposition) withObject:nil waitUntilDone:NO];
+	}
+
+}
+
+#define LAYOUTPROPERTIES_SETTER(methodName,layoutName,converter)	\
+-(void)methodName:(id)value	\
+{	\
+	layoutProperties.layoutName = converter(value);	\
+	[self reposition];	\
+	[self replaceValue:value forKey:@#layoutName notification:YES];	\
+}
+
+LAYOUTPROPERTIES_SETTER(setTop,top,TiDimensionFromObject)
+LAYOUTPROPERTIES_SETTER(setBottom,bottom,TiDimensionFromObject)
+
+LAYOUTPROPERTIES_SETTER(setLeft,left,TiDimensionFromObject)
+LAYOUTPROPERTIES_SETTER(setRight,right,TiDimensionFromObject)
+
+LAYOUTPROPERTIES_SETTER(setWidth,width,TiDimensionFromObject)
+LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject)
+
+LAYOUTPROPERTIES_SETTER(setLayout,layout,TiLayoutRuleFromObject)
+
+-(void)setCenter:(id)value
+{
+	if (![value isKindOfClass:[NSDictionary class]])
+	{
+		layoutProperties.centerX = TiDimensionUndefined;
+		layoutProperties.centerY = TiDimensionUndefined;
+	}
+	else
+	{
+		layoutProperties.centerX = TiDimensionFromObject([value objectForKey:@"x"]);
+		layoutProperties.centerY = TiDimensionFromObject([value objectForKey:@"y"]);
+	}
+	[self reposition];
+}
+
 
 @end

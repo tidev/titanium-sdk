@@ -6,6 +6,8 @@
  */
 
 #import "TiUIButton.h"
+#import "TiUIButtonProxy.h"
+
 #import "TiUtils.h"
 #import "ImageLoader.h"
 #import "TiButtonUtil.h"
@@ -129,7 +131,7 @@
 		}
 		if (reposition)
 		{
-			[self reposition];
+			[(TiViewProxy *)[self proxy] reposition];
 		}
 	}
 	else

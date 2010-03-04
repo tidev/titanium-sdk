@@ -45,7 +45,7 @@
 	}
 	CGRect barBounds;
 	barBounds.origin = CGPointZero;
-	barBounds.size = SizeConstraintViewWithSizeAddingResizing(&barButtonLayout, barButtonView, bounds, NULL);
+	barBounds.size = SizeConstraintViewWithSizeAddingResizing(&barButtonLayout, self, bounds, NULL);
 	
 	[TiUtils setView:barButtonView positionRect:barBounds];
 	[barButtonView setAutoresizingMask:UIViewAutoresizingNone];

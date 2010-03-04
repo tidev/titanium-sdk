@@ -218,7 +218,7 @@ void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint, Ti
 	UIViewAutoresizing resultMask = UIViewAutoresizingNone;
 	CGRect resultBounds;
 	resultBounds.origin = CGPointZero;
-	resultBounds.size = SizeConstraintViewWithSizeAddingResizing(constraint, subView, viewBounds.size, &resultMask);
+	resultBounds.size = SizeConstraintViewWithSizeAddingResizing(constraint, [subView proxy], viewBounds.size, &resultMask);
 	
 	CGPoint resultCenter = PositionConstraintGivenSizeBoundsAddingResizing(constraint, resultBounds.size,
 			[[subView layer] anchorPoint], viewBounds.size, &resultMask);

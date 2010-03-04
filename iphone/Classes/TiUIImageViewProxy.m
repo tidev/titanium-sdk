@@ -80,12 +80,15 @@
 		}
 
 		// we're on the non-UI thread, we need to block to load
-		
+
 		image = [[ImageLoader sharedLoader] loadRemote:url_];
 		return [[[TiBlob alloc] initWithImage:image] autorelease];
 	}
 	return nil;
 }
 
+USE_VIEW_FOR_AUTO_WIDTH
+
+USE_VIEW_FOR_AUTO_HEIGHT
 
 @end
