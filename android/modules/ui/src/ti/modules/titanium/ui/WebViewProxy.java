@@ -7,8 +7,8 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.util.AsyncResult;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
@@ -38,7 +38,7 @@ public class WebViewProxy extends ViewProxy
 	public TiUIWebView getWebView() {
 		return (TiUIWebView)getView(getTiContext().getActivity());
 	}
-
+	
 	public void setUrl(String url)
 	{
 		if (getTiContext().isUIThread()) {

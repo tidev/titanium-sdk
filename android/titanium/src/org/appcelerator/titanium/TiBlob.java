@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -159,5 +160,10 @@ public class TiBlob extends TiProxy
 	public String toString()
 	{
 		return "[object TiBlob]";
+	}
+	
+	public String toBase64()
+	{
+		return new String(Base64.encodeBase64(getBytes()));
 	}
 }
