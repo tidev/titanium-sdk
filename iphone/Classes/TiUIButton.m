@@ -115,7 +115,7 @@
 		[[self button] setImage:image forState:UIControlStateNormal];
 		
 		// if the layout is undefined or auto, we need to take the size of the image
-		LayoutConstraint *layout = [self layoutProperties];
+		LayoutConstraint *layout = [(TiViewProxy *)[self proxy] layoutProperties];
 		BOOL reposition = NO;
 		
 		if (TiDimensionIsUndefined(layout->width) || TiDimensionIsAuto(layout->width))
