@@ -107,9 +107,4 @@
 	}
 }
 
--(BOOL)isRepositionProperty:(NSString*)key
-{
-	return NO;
-}
-
 @end

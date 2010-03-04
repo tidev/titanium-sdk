@@ -86,7 +86,6 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 
 -(void)updateLayout:(LayoutConstraint*)layout withBounds:(CGRect)bounds;
 -(void)relayout:(CGRect)bounds;
--(void)reposition;
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds;
 -(void)insertIntoView:(UIView*)view bounds:(CGRect)bounds;
 -(void)makeRootViewFirstResponder;
@@ -99,3 +98,21 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 -(BOOL)hasTouchableListener;
 
 @end
+
+#pragma mark TO REMOVE, used only during transition.
+
+#define USE_PROXY_FOR_METHOD(resultType,methodname,inputType)	\
+-(resultType)methodname:(inputType)value	\
+{	\
+	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);	\
+	return [(TiViewProxy *)[self proxy] methodname:value];	\
+}
+
+#define USE_PROXY_FOR_VERIFY_AUTORESIZING	USE_PROXY_FOR_METHOD(UIViewAutoresizing,verifyAutoresizing,UIViewAutoresizing)
+#define USE_PROXY_FOR_AUTO_HEIGHT			USE_PROXY_FOR_METHOD(CGFloat,autoWidthForWidth,CGFloat)
+#define USE_PROXY_FOR_AUTO_WIDTH			USE_PROXY_FOR_METHOD(CGFloat,autoHeightForWidth,CGFloat)
+#define USE_PROXY_FOR_MIN_PARENT_WIDTH		USE_PROXY_FOR_METHOD(CGFloat,minimumParentWidthForWidth,CGFloat)
+#define USE_PROXY_FOR_MIN_PARENT_HEIGHT		USE_PROXY_FOR_METHOD(CGFloat,minimumParentHeightForWidth,CGFloat)
+
+
+

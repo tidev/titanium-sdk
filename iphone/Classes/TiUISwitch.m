@@ -73,10 +73,6 @@
 	return [switchView sizeThatFits:CGSizeZero].height;
 }
 
--(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
-{
-	return suggestedResizing & ~(UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth);
-}
-
+USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 @end

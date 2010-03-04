@@ -11,6 +11,8 @@
 
 @implementation TiUILabelProxy
 
+USE_VIEW_FOR_AUTO_WIDTH
+
 -(CGFloat)autoHeightForWidth:(CGFloat)suggestedWidth
 {
 	NSString *value = [self valueForKey:@"text"];

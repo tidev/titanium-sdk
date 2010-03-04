@@ -111,8 +111,9 @@
 	[wrapperView setCenter:CGPointMake(newContentSize.width/2, newContentSize.height/2)];
 	for (TiUIView * thisChildView in subViews)
 	{
-		[thisChildView reposition];
-		[(TiViewProxy *)[thisChildView proxy] layoutChildren];
+		TiViewProxy * thisChildProxy = (TiViewProxy *)[thisChildView proxy];
+		[thisChildProxy reposition];
+		[thisChildProxy layoutChildren];
 	}
 
 	needsHandleContentSize = NO;

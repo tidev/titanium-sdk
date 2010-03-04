@@ -23,6 +23,8 @@
 	[super dealloc];
 }
 
+USE_PROXY_FOR_VERIFY_AUTORESIZING
+
 -(CGFloat)verifyHeight:(CGFloat)suggestedHeight
 {
 	// pickers have a forced height so we use it's height
