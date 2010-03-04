@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 
 import android.app.Application;
@@ -69,6 +70,8 @@ public class TiApplication extends Application
 
 		methodMap = new HashMap<Class<?>, HashMap<String,Method>>(25);
 		proxyMap = new HashMap<String, SoftReference<TiProxy>>(5);
+
+		TiPlatformHelper.initialize(this);
 
 		appProperties = new TiProperties(getApplicationContext(), "titanium", false);
 	}
@@ -176,7 +179,7 @@ public class TiApplication extends Application
 	public ITiAppInfo getAppInfo() {
 		return appInfo;
 	}
-	
+
 	public void registerProxy(TiProxy proxy) {
 		String proxyId = proxy.proxyId;
 		if (!proxyMap.containsKey(proxyId)) {
