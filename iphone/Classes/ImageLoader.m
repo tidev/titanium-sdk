@@ -211,7 +211,7 @@ DEFINE_EXCEPTIONS
 	if (queue == nil)
 	{
 		queue = [[ASINetworkQueue alloc] init];
-		[queue setMaxConcurrentOperationCount:5];
+		[queue setMaxConcurrentOperationCount:4];
 		[queue setShouldCancelAllRequestsOnFailure:NO];
 		[queue setDelegate:self];
 		[queue setRequestDidFailSelector:@selector(queueRequestDidFail:)];
@@ -298,6 +298,7 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Delegates
 
+
 -(void)queueRequestDidFinish:(ASIHTTPRequest*)request
 {
 	// hold while we're working with it (release below)
@@ -363,7 +364,6 @@ DEFINE_EXCEPTIONS
 
 -(void)queueRequestDidFail:(ASIHTTPRequest*)request
 {
-	ENSURE_UI_THREAD(queueRequestDidFail,request);
 	[[TitaniumApp app] stopNetwork];
 	ImageLoaderRequest *req = [[request userInfo] objectForKey:@"request"];
 	NSError *error = [request error];

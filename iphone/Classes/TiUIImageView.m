@@ -638,7 +638,7 @@ DEFINE_EXCEPTIONS
 	if (request == urlRequest)
 	{
 		image = [self scaleImageIfRequired:image];
-		[self setURLImageOnUIThread:image];
+		[self performSelectorOnMainThread:@selector(setURLImageOnUIThread:) withObject:image waitUntilDone:NO];
 		RELEASE_TO_NIL(urlRequest);
 	}
 }

@@ -1323,8 +1323,11 @@
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate 
 {
-	// resume image loader when we're done scrolling
-	[[ImageLoader sharedLoader] resume];
+	if (decelerate==NO)
+	{
+		// resume image loader when we're done scrolling
+		[[ImageLoader sharedLoader] resume];
+	}
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView 
