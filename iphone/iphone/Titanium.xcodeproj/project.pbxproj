@@ -214,6 +214,14 @@
 		24A1EAFF112F4C02003DA834 /* UIImage+Alpha.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1EAF1112F4C02003DA834 /* UIImage+Alpha.m */; };
 		24A1EB00112F4C02003DA834 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1EAF3112F4C02003DA834 /* UIImage+Resize.m */; };
 		24A1EB01112F4C02003DA834 /* UIImage+RoundedCorner.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1EAF5112F4C02003DA834 /* UIImage+RoundedCorner.m */; };
+		24C012891140D30B00A94CE2 /* TiUIMaskedImageProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24C012881140D30B00A94CE2 /* TiUIMaskedImageProxy.m */; };
+		24C0128A1140D30B00A94CE2 /* TiUIMaskedImageProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24C012871140D30B00A94CE2 /* TiUIMaskedImageProxy.h */; };
+		24C0128B1140D30B00A94CE2 /* TiUIMaskedImageProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24C012881140D30B00A94CE2 /* TiUIMaskedImageProxy.m */; };
+		24C0128C1140D30B00A94CE2 /* TiUIMaskedImageProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24C012881140D30B00A94CE2 /* TiUIMaskedImageProxy.m */; };
+		24C0128F1140D31C00A94CE2 /* TiUIMaskedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 24C0128E1140D31C00A94CE2 /* TiUIMaskedImage.m */; };
+		24C012901140D31C00A94CE2 /* TiUIMaskedImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 24C0128D1140D31C00A94CE2 /* TiUIMaskedImage.h */; };
+		24C012911140D31C00A94CE2 /* TiUIMaskedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 24C0128E1140D31C00A94CE2 /* TiUIMaskedImage.m */; };
+		24C012921140D31C00A94CE2 /* TiUIMaskedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 24C0128E1140D31C00A94CE2 /* TiUIMaskedImage.m */; };
 		24CA895B111161050084E2DE /* AFItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA890B111161050084E2DE /* AFItemView.m */; };
 		24CA895C111161050084E2DE /* AFOpenFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA890E111161050084E2DE /* AFOpenFlowView.m */; };
 		24CA895D111161050084E2DE /* AFUIImageReflection.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8910111161050084E2DE /* AFUIImageReflection.m */; };
@@ -859,6 +867,10 @@
 		24A1EAF3112F4C02003DA834 /* UIImage+Resize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImage+Resize.m"; path = "../Classes/UIImage+Resize.m"; sourceTree = SOURCE_ROOT; };
 		24A1EAF4112F4C02003DA834 /* UIImage+RoundedCorner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImage+RoundedCorner.h"; path = "../Classes/UIImage+RoundedCorner.h"; sourceTree = SOURCE_ROOT; };
 		24A1EAF5112F4C02003DA834 /* UIImage+RoundedCorner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImage+RoundedCorner.m"; path = "../Classes/UIImage+RoundedCorner.m"; sourceTree = SOURCE_ROOT; };
+		24C012871140D30B00A94CE2 /* TiUIMaskedImageProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIMaskedImageProxy.h; sourceTree = "<group>"; };
+		24C012881140D30B00A94CE2 /* TiUIMaskedImageProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIMaskedImageProxy.m; sourceTree = "<group>"; };
+		24C0128D1140D31C00A94CE2 /* TiUIMaskedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIMaskedImage.h; sourceTree = "<group>"; };
+		24C0128E1140D31C00A94CE2 /* TiUIMaskedImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIMaskedImage.m; sourceTree = "<group>"; };
 		24CA890A111161050084E2DE /* AFItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFItemView.h; sourceTree = "<group>"; };
 		24CA890B111161050084E2DE /* AFItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFItemView.m; sourceTree = "<group>"; };
 		24CA890C111161050084E2DE /* AFOpenFlowConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFOpenFlowConstants.h; sourceTree = "<group>"; };
@@ -1968,6 +1980,10 @@
 				24CA8A79111161FD0084E2DE /* TiUIImageViewProxy.h */,
 				24CA8A7A111161FD0084E2DE /* TiUIImageView.m */,
 				24CA8A7B111161FD0084E2DE /* TiUIImageView.h */,
+				24C012871140D30B00A94CE2 /* TiUIMaskedImageProxy.h */,
+				24C012881140D30B00A94CE2 /* TiUIMaskedImageProxy.m */,
+				24C0128D1140D31C00A94CE2 /* TiUIMaskedImage.h */,
+				24C0128E1140D31C00A94CE2 /* TiUIMaskedImage.m */,
 			);
 			name = ImageView;
 			sourceTree = "<group>";
@@ -2543,6 +2559,8 @@
 				24A1EAFD112F4C02003DA834 /* UIImage+RoundedCorner.h in Headers */,
 				245B3C3B11375A6600CE7530 /* UtilsModule.h in Headers */,
 				245B45621139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.h in Headers */,
+				24C0128A1140D30B00A94CE2 /* TiUIMaskedImageProxy.h in Headers */,
+				24C012901140D31C00A94CE2 /* TiUIMaskedImage.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2879,6 +2897,8 @@
 				24A1EAF8112F4C02003DA834 /* UIImage+RoundedCorner.m in Sources */,
 				245B3C3D11375A6600CE7530 /* UtilsModule.m in Sources */,
 				245B45641139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m in Sources */,
+				24C0128C1140D30B00A94CE2 /* TiUIMaskedImageProxy.m in Sources */,
+				24C012921140D31C00A94CE2 /* TiUIMaskedImage.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3087,6 +3107,8 @@
 				24A1EB01112F4C02003DA834 /* UIImage+RoundedCorner.m in Sources */,
 				245B3C3A11375A6600CE7530 /* UtilsModule.m in Sources */,
 				245B45611139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m in Sources */,
+				24C012891140D30B00A94CE2 /* TiUIMaskedImageProxy.m in Sources */,
+				24C0128F1140D31C00A94CE2 /* TiUIMaskedImage.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3295,6 +3317,8 @@
 				24A1EAFE112F4C02003DA834 /* UIImage+RoundedCorner.m in Sources */,
 				245B3C3C11375A6600CE7530 /* UtilsModule.m in Sources */,
 				245B45631139B41800CE7530 /* TiUITableViewCellSelectionStyleProxy.m in Sources */,
+				24C0128B1140D30B00A94CE2 /* TiUIMaskedImageProxy.m in Sources */,
+				24C012911140D31C00A94CE2 /* TiUIMaskedImage.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

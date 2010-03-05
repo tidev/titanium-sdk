@@ -14,6 +14,7 @@ var data = [
 if (Titanium.Platform.name == 'iPhone OS')
 {
 	data.push({title:'Image Blob', hasChild:true, test:'../examples/image_view_blob.js'});
+	data.push({title:'Image Masking', hasChild:true, test:'../examples/image_mask.js'});
 
 }
 
