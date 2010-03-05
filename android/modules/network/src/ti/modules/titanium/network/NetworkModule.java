@@ -142,7 +142,7 @@ public class NetworkModule extends TiModule {
 	{
 		boolean result = false;
 
-		NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+		NetworkInfo ni = getConnectivityManager().getActiveNetworkInfo();
 
 		if(ni != null && ni.isAvailable() && ni.isConnected()) {
 			result = true;
