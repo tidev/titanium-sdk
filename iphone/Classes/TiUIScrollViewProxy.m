@@ -43,7 +43,7 @@
 		return;
 	}
 
-	[[self view] handleContentSizeIfNeeded];
+	[(TiUIScrollView *)[self view] handleContentSizeIfNeeded];
 	[super layoutChildren];
 }
 
@@ -64,7 +64,7 @@
 	if ([childView superview]!=wrapperView)
 	{
 		[wrapperView addSubview:childView];
-		[[self view] setNeedsHandleContentSize];
+		[(TiUIScrollView *)[self view] setNeedsHandleContentSize];
 	}
 	
 	if(TiLayoutRuleIsVertical(layoutProperties.layout)){

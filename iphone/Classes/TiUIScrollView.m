@@ -77,7 +77,7 @@
 {
 	CGSize newContentSize = [self bounds].size;
 	
-	NSArray * subViews = [[self wrapperView] subviews];
+//	NSArray * subViews = [[self wrapperView] subviews];
 	
 	switch (contentWidth.type)
 	{

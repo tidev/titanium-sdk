@@ -26,7 +26,11 @@
 @property(nonatomic,readwrite,assign)	CGFloat verticalLayoutBoundary;
 
 //-(void)layoutChild:(TiUIView *)childView;
+
 -(void)setNeedsHandleContentSize;
+-(void)handleContentSizeIfNeeded;
+-(void)handleContentSize;
+
 -(UIView *)wrapperView;
 
 
