@@ -61,7 +61,7 @@ void RestoreScrollViewFromKeyboard(UIScrollView * scrollView)
 	CGFloat maxYScrollOffset = scrollContentSize.height - scrollVisibleRect.size.height;
 	if (maxYScrollOffset < scrollOffset.y)
 	{
-		scrollOffset.y = maxYScrollOffset;
+		scrollOffset.y = MAX(0.0,maxYScrollOffset);
 		[scrollView setContentOffset:scrollOffset animated:YES];
 	}
 }
