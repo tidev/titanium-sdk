@@ -47,6 +47,16 @@ def zip_android(zf,basepath):
 		jar_path = os.path.join(top_dir, 'android', 'titanium', 'lib', thirdparty_jar)
 		zf.write(jar_path, '%s/android/%s' % (basepath, thirdparty_jar))
 	
+	# include all module lib dependencies
+	modules_dir = os.path.join(top_dir, 'android', 'modules')
+	for module_dir in os.listdir(modules_dir):
+		module_lib_dir = os.path.join(modules_dir, module_dir, 'lib')
+		if os.path.exists(module_lib_dir):
+			for thirdparty_jar in os.listdir(module_lib_dir):
+				if thirdparty_jar.endswith('.jar'):
+					jar_path = os.path.join(module_lib_dir, thirdparty_jar)
+					zf.write(jar_path, '%s/android/%s' % (basepath, thirdparty_jar))
+
 	android_module_jars = glob.glob(os.path.join(android_dist_dir, 'titanium-*.jar'))
 	for android_module_jar in android_module_jars:
 		 jarname = os.path.split(android_module_jar)[1]

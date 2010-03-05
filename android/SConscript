@@ -6,23 +6,15 @@ modules = ['accelerometer', 'api', 'app', 'database', 'filesystem', 'geolocation
 
 print "Building Titanium Mobile (Android) %s..." % version
 
-if platform.platform() == 'Windows':
+if platform.system() == 'Windows':
 	default_android_sdk = 'C:\\android-sdk'
 else:
 	default_android_sdk = '/opt/android-sdk'
 
 android_sdk = ARGUMENTS.get("android_sdk", default_android_sdk)
 
-classpath = [ os.path.join(cwd, 'android', 'titanium', 'lib', 'js.jar'),
-	os.path.join(android_sdk, 'platforms', 'android-1.6', 'android.jar'),
-	os.path.join(cwd, 'android', 'titanium', 'lib', 'commons-codec-1.3.jar'),
-	os.path.join(cwd, 'android', 'titanium', 'lib', 'commons-logging-1.1.1.jar'),
-	os.path.join(cwd, 'android', 'modules', 'xml', 'lib', 'jaxen-1.1.1.jar')]
-
+classpath = [ os.path.join(android_sdk, 'platforms', 'android-1.6', 'android.jar')]
 sources = [os.path.join('titanium', 'src'), os.path.join('titanium', 'thirdparty')]
-
-env.Append(JAVASOURCEPATH=os.path.join('titanium', 'src'))
-env.Append(JAVACLASSPATH=classpath)
 
 titanium_src_dir = os.path.join(cwd, 'android', 'titanium', 'src')
 classes_dir = os.path.join(cwd, 'dist', 'android', 'classes')
@@ -43,6 +35,18 @@ def copy_resources(src_dir, dest_dir):
 				resources.append(dest_file)
 	return resources
 
+def list_jars(dir):
+	jars = []
+	if os.path.exists(dir):
+		for jar in os.listdir(dir):
+			if jar.endswith('.jar'): jars.append(os.path.join(dir, jar))
+	return jars
+
+
+classpath += list_jars(os.path.join(cwd, 'android', 'titanium', 'lib'))
+env.Append(JAVASOURCEPATH=os.path.join('titanium', 'src'))
+env.Append(JAVACLASSPATH=classpath)
+
 classes = env.Java(target = 'classes', source = sources)
 env.Jar(target = 'titanium.jar', source = classes + copy_resources(titanium_src_dir, classes_dir))
 titanium_jar = os.path.join(cwd, 'dist', 'android', 'titanium.jar')
@@ -55,7 +59,8 @@ for module in modules:
 last_jar = titanium_jar
 for module in modules:
 	module_sources = os.path.join('modules', module, 'src')
-	module_classes = env.Java(target = 'classes/%s' % module, source = module_sources, JAVACLASSPATH = classpath + [classes_dir])
+	module_jars = list_jars(os.path.join(cwd, 'android', 'modules', module, 'lib'))
+	module_classes = env.Java(target = 'classes/%s' % module, source = module_sources, JAVACLASSPATH = classpath + module_jars + [classes_dir])
 	module_classes_dir = os.path.join(classes_dir, module)
 	env.Depends(module_classes, last_jar)
 	module_classes = [ os.path.join('classes', module) ]
