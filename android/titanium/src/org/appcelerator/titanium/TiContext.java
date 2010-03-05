@@ -29,6 +29,7 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiFileHelper2;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Looper;
 import android.os.Message;
@@ -54,6 +55,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener
 	private ArrayList<WeakReference<OnEventListenerChange>> eventChangeListeners;
 	private ArrayList<WeakReference<OnLifecycleEvent>> lifecycleListeners;
 	private WeakReference<OnMenuEvent> weakMenuEvent;
+	private WeakReference<OnConfigurationChanged> weakConfigurationChangedListeners;
 
 	public static interface OnLifecycleEvent
 	{
@@ -62,6 +64,11 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener
 		void onPause();
 		void onStop();
 		void onDestroy();
+	}
+
+	public static interface OnConfigurationChanged
+	{
+		public void configurationChanged(Configuration newConfig);
 	}
 
 	public static interface OnMenuEvent
@@ -484,6 +491,9 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener
 						data = new TiDict();
 					}
 
+					data.put("source", tiProxy);
+					data.put("type", eventName);
+
 					Set<Entry<Integer, TiListener>> listenerSet = listeners.entrySet();
 					for(Entry<Integer, TiListener> entry : listenerSet) {
 						TiListener listener = entry.getValue();
@@ -579,6 +589,23 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener
 		}
 
 		return false;
+	}
+
+	public void setOnConfigurationChangedListener(OnConfigurationChanged listener) {
+		if (listener == null) {
+			weakConfigurationChangedListeners = null;
+		} else {
+			weakConfigurationChangedListeners = new WeakReference<OnConfigurationChanged>(listener);
+		}
+	}
+	public void dispatchOnConfigurationChanged(Configuration newConfig)
+	{
+		if (weakConfigurationChangedListeners != null) {
+			OnConfigurationChanged listener = weakConfigurationChangedListeners.get();
+			if (listener != null) {
+				listener.configurationChanged(newConfig);
+			}
+		}
 	}
 
 	public void dispatchOnStart()

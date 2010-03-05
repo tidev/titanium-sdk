@@ -1207,7 +1207,7 @@
 	BOOL hasTitle = NO;
 	if (view!=nil)
 	{
-		LayoutConstraint *viewLayout = [view layout];
+		LayoutConstraint *viewLayout = [view layoutProperties];
 		switch (viewLayout->height.type)
 		{
 			case TiDimensionTypePixels:
@@ -1245,7 +1245,7 @@
 	BOOL hasTitle = NO;
 	if (view!=nil)
 	{
-		LayoutConstraint *viewLayout = [view layout];
+		LayoutConstraint *viewLayout = [view layoutProperties];
 		switch (viewLayout->height.type)
 		{
 			case TiDimensionTypePixels:
@@ -1323,8 +1323,11 @@
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate 
 {
-	// resume image loader when we're done scrolling
-	[[ImageLoader sharedLoader] resume];
+	if (decelerate==NO)
+	{
+		// resume image loader when we're done scrolling
+		[[ImageLoader sharedLoader] resume];
+	}
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView 

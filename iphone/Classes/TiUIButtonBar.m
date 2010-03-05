@@ -43,43 +43,6 @@
 }
 
 
--(void)relayout:(CGRect)bounds
-{
-//TODO: Move this further up, because auto can be very very useful.
-	[super relayout:bounds];
-	BOOL inBar = [(TiUIWidgetProxy *)[self proxy] isUsingBarButtonItem];
-	BOOL autoWidth = inBar || TiDimensionIsAuto([self layout]->width);
-	BOOL autoHeight = inBar || TiDimensionIsAuto([self layout]->height);
-	
-	if (!autoWidth && !autoHeight)
-	{
-		return;
-	}
-
-	CGRect ourFrame = [TiUtils viewPositionRect:self];
-	CGSize wantedSize = [segmentedControl sizeThatFits:ourFrame.size];
-	
-	if (autoWidth)
-	{
-		ourFrame.origin.x += (ourFrame.size.width - wantedSize.width)/2;
-		ourFrame.size.width = wantedSize.width;
-	}
-
-	if (autoHeight)
-	{
-		ourFrame.origin.y += (ourFrame.size.height - wantedSize.height)/2;
-		ourFrame.size.height = wantedSize.height;
-	}
-
-	if (inBar)
-	{
-		ourFrame.origin = CGPointZero;
-	}
-	[TiUtils setView:self positionRect:ourFrame];
-
-}
-
-
 - (void)setTabbedBar: (BOOL)newIsTabbed;
 {
 	[[self segmentedControl] setMomentary:!newIsTabbed];
@@ -235,12 +198,6 @@
 		[self.proxy replaceValue:NUMINT(-1) forKey:@"index" notification:NO];
 	}
 }
-
--(CGSize)sizeThatFits:(CGSize)oldSize
-{
-	return [[self segmentedControl] sizeThatFits:oldSize];
-}
-
 
 -(CGFloat)autoWidthForWidth:(CGFloat)suggestedWidth
 {

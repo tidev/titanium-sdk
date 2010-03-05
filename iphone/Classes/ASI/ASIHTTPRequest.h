@@ -237,6 +237,8 @@ extern unsigned long const ASIWWANBandwidthThrottleAmount;
 	// This lock prevents the operation from being cancelled at an inopportune moment
 	NSRecursiveLock *cancelledLock;
 	
+	BOOL cancelled;
+	
 	// Called on the delegate when the request starts
 	SEL didStartSelector;
 	

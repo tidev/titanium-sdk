@@ -10,7 +10,6 @@ package ti.modules.titanium.map;
 import java.util.List;
 
 import org.appcelerator.titanium.TiDict;
-import org.appcelerator.titanium.TiProxy;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
@@ -196,7 +195,6 @@ public class TiMapView extends TiUIView
 
 		view = new LocalMapView(mapWindow.getContext(), apiKey);
 		TiMapActivity ma = (TiMapActivity) mapWindow.getContext();
-		ma.setContentView(mapWindow.getDecorView());
 
 		ma.setLifecycleListener(new OnLifecycleEvent()
 			{
@@ -387,14 +385,9 @@ public class TiMapView extends TiUIView
 			}
 			doSetAnnotations(anns);
 		}
-	}
 
-//		} catch (IllegalArgumentException e) {
-//			Log.e(LCAT, "Missing API Key: " + e.getMessage());
-//			Toast.makeText(proxy.getContext(), "Missing MAP API Key", Toast.LENGTH_LONG).show();
-//		}
-//
-//	}
+		super.processProperties(d);
+	}
 
 	public void doSetLocation(TiDict d)
 	{

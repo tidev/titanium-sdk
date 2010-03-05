@@ -86,11 +86,6 @@ void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> * target, NSS
 			[target performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO];
 		}
 	}
-	
-	if (([target superview]!=nil) && [target isRepositionProperty:key])
-	{
-		[target repositionChange:key value:newValue];
-	}
 }
 
 void DoProxyDispatchToSecondaryArg(UIView<TiProxyDelegate> * target, SEL sel, NSString *key, id newValue, TiProxy * proxy)

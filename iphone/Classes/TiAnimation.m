@@ -335,7 +335,7 @@ self.p = v;\
 	
 	BOOL transitionAnimation = [self isTransitionAnimation];
 	
-	UIView *view_ = transitionAnimation && view!=nil ? [view view] : [theview isKindOfClass:[TiViewProxy class]] ? [(TiViewProxy*)theview view] : theview;
+	TiUIView *view_ = transitionAnimation && view!=nil ? [view view] : [theview isKindOfClass:[TiViewProxy class]] ? [(TiViewProxy*)theview view] : (TiUIView *)theview;
 	TiUIView *transitionView = transitionAnimation ? [theview isKindOfClass:[TiViewProxy class]] ? (TiUIView*)[(TiViewProxy*)theview view] : (TiUIView*)theview : nil;
 	
 	if (transitionView!=nil)
@@ -343,7 +343,7 @@ self.p = v;\
 		// we need to first make sure our new view that we're transitioning to is sized but we don't want
 		// to add to the view hiearchry inside the animation block or you'll get the sizings as part of the
 		// animation.. which we don't want
-		LayoutConstraint *contraints = [(TiUIView*)view_ layout];
+		LayoutConstraint *contraints = [(TiViewProxy*)[view_ proxy] layoutProperties];
 		ApplyConstraintToViewWithinViewWithBounds(contraints, view_, transitionView, transitionView.bounds, NO);
 	}
 
@@ -415,7 +415,7 @@ self.p = v;\
 	if ([view_ isKindOfClass:[TiUIView class]])
 	{
 		TiUIView *uiview = (TiUIView*)view_;
-		LayoutConstraint *layout = [uiview layout];
+		LayoutConstraint *layout = [(TiViewProxy *)[uiview proxy] layoutProperties];
 		BOOL doReposition = NO;
 		
 #define CHECK_LAYOUT_CHANGE(a) \
@@ -439,7 +439,7 @@ if (a!=nil && layout!=NULL) \
 		
 		if (doReposition)
 		{
-			[uiview reposition];
+			[(TiViewProxy *)[uiview proxy] reposition];
 		}
 	}
 		

@@ -151,10 +151,7 @@
 	return [[self sliderView] sizeThatFits:CGSizeZero].height;
 }
 
--(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
-{
-	return suggestedResizing & ~UIViewAutoresizingFlexibleHeight;
-}
+USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 #pragma mark Delegates 
 

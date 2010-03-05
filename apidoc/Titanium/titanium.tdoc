@@ -12,7 +12,7 @@ object
 
 - description
 
-The top level Titanium namespace object.  This object can also be accessed by the 
+The top level Titanium namespace object.  This object can also be accessed by the \
 `Ti` property.
 
 - since
@@ -23,19 +23,9 @@ The top level Titanium namespace object.  This object can also be accessed by th
 
 android, iphone
 
-- properties
-
-version[string]: the version of Titanium runtime that is being executed.
-userAgent[string]: the Titanium userAgent string.
-
-- methods
-
-include: include one or more Javascript files in the current code at the point of execution
-
 - example
 
 <code>
 	Titanium.API.warn("I break for Appcelerator.");
 </code>
-
 

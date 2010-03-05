@@ -22,4 +22,8 @@ public class TextProxy extends CharacterDataProxy {
 	public TextProxy splitText(int offset) throws DOMException {
 		return getProxy(text.splitText(offset));
 	}
+	
+	public String getText() {
+		return this.text.getNodeValue();
+	}
 }

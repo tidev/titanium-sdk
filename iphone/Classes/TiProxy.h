@@ -40,13 +40,10 @@ typedef enum {
 @required
 
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy;
--(BOOL)isRepositionProperty:(NSString*)key;
 
 @optional
 
 -(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys;
-
--(void)repositionChange:(NSString*)key value:(id)inputVal;
 
 -(void)listenerAdded:(NSString*)type count:(int)count;
 -(void)listenerRemoved:(NSString*)type count:(int)count;

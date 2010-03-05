@@ -87,5 +87,12 @@ public class HTTPClientProxy extends TiProxy {
 	public String getLocation() {
 		return client.getLocation();
 	}
+
+	public String getConnectionType() {
+		return client.getConnectionType();
+	}
 	
+	public boolean getConnected() {
+		return client.isConnected();
+	}
 }

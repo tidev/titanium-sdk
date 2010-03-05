@@ -229,4 +229,8 @@ public class NodeProxy extends TiProxy {
 	public void setPrefix(String prefix) throws DOMException {
 		node.setPrefix(prefix);
 	}
+	
+	public XPathUtil.XPathNodeListProxy evaluate(String xpath) {
+		return XPathUtil.evaluate(this, xpath);
+	}
 }

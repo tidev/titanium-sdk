@@ -13,6 +13,7 @@ public class TiMimeTypeHelper
 	public static String getMimeType(String url) {
 		return getMimeType(url, "application/octet-stream");
 	}
+	
 	public static String getMimeType(String url, String defaultType)
 	{
  		MimeTypeMap mtm = MimeTypeMap.getSingleton();
@@ -27,5 +28,24 @@ public class TiMimeTypeHelper
 		}
 
 		return mimetype;
+	}
+	
+	public static boolean isBinaryMimeType(String mimeType) {
+		if (mimeType != null) {
+			if (mimeType.startsWith("application/") && !mimeType.startsWith("application/xml"))
+			{
+				return true;
+			}
+			else if (mimeType.startsWith("image/") && !mimeType.startsWith("image/svg+xml"))
+			{
+				return true;
+			}
+			else if (mimeType.startsWith("audio/") || mimeType.startsWith("video/")) 
+			{
+				return true;
+			}
+			else return false;
+		}
+		return false;
 	}
 }

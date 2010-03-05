@@ -473,51 +473,53 @@ public class TableViewModel
             int indexInSection = 0;
             int index = 0;
 
-            for (TableViewSectionProxy section : sections) {
-            	String headerTitle = TiConvert.toString(section.getDynamicValue("headerTitle"));
-            	if (headerTitle != null) {
-            		viewModel.add(itemForHeader(index, section, headerTitle, null));
-            	}
-            	for (TableViewRowProxy row : section.getRows()) {
-            		Item item = new Item(index);
-            		item.sectionIndex = sectionIndex;
-            		item.indexInSection = indexInSection;
-            		item.proxy = row;
-            		item.rowData = row; // TODO capture dictionary?
-            		item.className = classNameForRow(row);
+            if (sections != null) {
 
-            		viewModel.add(item);
-            		index++;
-            		indexInSection++;
-            	}
+	            for (TableViewSectionProxy section : sections) {
+	            	String headerTitle = TiConvert.toString(section.getDynamicValue("headerTitle"));
+	            	if (headerTitle != null) {
+	            		viewModel.add(itemForHeader(index, section, headerTitle, null));
+	            	}
+	            	for (TableViewRowProxy row : section.getRows()) {
+	            		Item item = new Item(index);
+	            		item.sectionIndex = sectionIndex;
+	            		item.indexInSection = indexInSection;
+	            		item.proxy = row;
+	            		item.rowData = row; // TODO capture dictionary?
+	            		item.className = classNameForRow(row);
 
-            	String footerTitle = TiConvert.toString(section.getDynamicValue("footerTitle"));
-            	if (footerTitle != null) {
-            		viewModel.add(itemForHeader(index, section, null, footerTitle));
-            	}
+	            		viewModel.add(item);
+	            		index++;
+	            		indexInSection++;
+	            	}
 
-            	sectionIndex++;
-            	indexInSection = 0;
-            }
-            TiDict o = null;
-//            for (Item item : model) {
-//                if (item.hasHeader()) {
-//                    o = item.rowProxy.getDynamicProperties();
-//                    o.put("header", item.headerText);
-//                    o.put("isDisplayHeader", true);
-//                    viewModel.add(o);
-//                }
-//            	viewModel.add(item);
-//                o = item.proxy.getDynamicProperties();
-//                o.put("section", item.sectionIndex);
-//                o.put("sectionIndex", item.indexInSection);
-//                o.put("index", item.index);
-//                o.put("isDisplayHeader", false);
-//                viewModel.add(o);
-//            }
-            dirty = false;
+	            	String footerTitle = TiConvert.toString(section.getDynamicValue("footerTitle"));
+	            	if (footerTitle != null) {
+	            		viewModel.add(itemForHeader(index, section, null, footerTitle));
+	            	}
+
+	            	sectionIndex++;
+	            	indexInSection = 0;
+	            }
+	            TiDict o = null;
+	//            for (Item item : model) {
+	//                if (item.hasHeader()) {
+	//                    o = item.rowProxy.getDynamicProperties();
+	//                    o.put("header", item.headerText);
+	//                    o.put("isDisplayHeader", true);
+	//                    viewModel.add(o);
+	//                }
+	//            	viewModel.add(item);
+	//                o = item.proxy.getDynamicProperties();
+	//                o.put("section", item.sectionIndex);
+	//                o.put("sectionIndex", item.indexInSection);
+	//                o.put("index", item.index);
+	//                o.put("isDisplayHeader", false);
+	//                viewModel.add(o);
+	//            }
+	            dirty = false;
+	        }
         }
-
         return viewModel;
     }
 

@@ -8,6 +8,8 @@
 #import "LayoutConstraint.h"
 #import "QuartzCore/QuartzCore.h"
 #import "TiUtils.h"
+#import "TiUIView.h"
+#import "TiViewProxy.h"
 
 /* BEGIN PSEUDOCODE
 
@@ -37,30 +39,26 @@ else (width is invalid)
 
 
 
-CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, UIView * subView, CGSize boundSize, UIViewAutoresizing * resultResizing)
+CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, NSObject<LayoutAutosizing> * autoSizer, CGSize boundSize, UIViewAutoresizing * resultResizing)
 {
 	//TODO: Refactor for elegance.
-	CGFloat width = boundSize.width;
+	CGFloat width;
 
 	switch (constraint->width.type)
 	{
 		case TiDimensionTypePercent:
-			width *= constraint->width.value;
-			break;
 		case TiDimensionTypePixels:
-			width = constraint->width.value;
+			width = TiDimensionCalculateValue(constraint->width, boundSize.width);
 			break;
 		default:
 			{
-				CGFloat desiredLeft = TiDimensionCalculateValue(constraint->left,width);
-				CGFloat desiredRight = TiDimensionCalculateValue(constraint->right,width);
-				width -= desiredLeft + desiredRight;
+				width = TiDimensionCalculateMargins(constraint->left, constraint->right, boundSize.width);
 				if (TiDimensionIsAuto(constraint->width) && 
-					[subView respondsToSelector:@selector(autoWidthForWidth:)])
+					[autoSizer respondsToSelector:@selector(autoWidthForWidth:)])
 				{
-					width = [(id<LayoutAutosizing>)subView autoWidthForWidth:width];
+					width = [autoSizer autoWidthForWidth:width];
 				}
-				else
+				else if(resultResizing != NULL)
 				{
 					*resultResizing |= UIViewAutoresizingFlexibleWidth;
 				}
@@ -68,9 +66,9 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, U
 			break;
 	}
 	
-	if ([subView respondsToSelector:@selector(verifyWidth:)])
+	if ([autoSizer respondsToSelector:@selector(verifyWidth:)])
 	{
-		width = [(id<LayoutAutosizing>)subView verifyWidth:width];
+		width = [autoSizer verifyWidth:width];
 	}
 	
 	CGFloat height = boundSize.height;
@@ -85,30 +83,31 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, U
 			break;
 		default:
 			{
-				CGFloat desiredTop = TiDimensionCalculateValue(constraint->top,height);
-				CGFloat desiredBottom = TiDimensionCalculateValue(constraint->bottom,height);
 				if (TiDimensionIsAuto(constraint->height) && 
-					[subView respondsToSelector:@selector(autoHeightForWidth:)])
+					[autoSizer respondsToSelector:@selector(autoHeightForWidth:)])
 				{
-					height = [(id<LayoutAutosizing>)subView autoHeightForWidth:width];
+					height = [autoSizer autoHeightForWidth:width];
 				}
 				else
 				{
-					height -= desiredTop + desiredBottom;
-					*resultResizing |= UIViewAutoresizingFlexibleHeight;
+					height = TiDimensionCalculateMargins(constraint->top, constraint->bottom, boundSize.height);
+					if(resultResizing != NULL)
+					{
+						*resultResizing |= UIViewAutoresizingFlexibleHeight;
+					}
 				}
 			}
 			break;
 	}
 
-	if ([subView respondsToSelector:@selector(verifyHeight:)])
+	if ([autoSizer respondsToSelector:@selector(verifyHeight:)])
 	{
-		height = [(id<LayoutAutosizing>)subView verifyHeight:height];
+		height = [autoSizer verifyHeight:height];
 	}
 
-	if ([subView respondsToSelector:@selector(verifyAutoresizing:)])
+	if ((resultResizing != NULL) && [autoSizer respondsToSelector:@selector(verifyAutoresizing:)])
 	{
-		*resultResizing = [(id<LayoutAutosizing>)subView verifyAutoresizing:*resultResizing];
+		*resultResizing = [autoSizer verifyAutoresizing:*resultResizing];
 	}
 	
 	return CGSizeMake(width, height);
@@ -119,80 +118,41 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, U
 CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * constraint, CGSize viewSize, CGPoint anchorPoint, CGSize superViewSize, UIViewAutoresizing * resultResizing)
 {
 	BOOL flexibleSize = *resultResizing & UIViewAutoresizingFlexibleWidth;
-	BOOL useMargins = YES;
+	BOOL ignoreMargins;
 	CGFloat centerX;
 
 	if(!flexibleSize)
-	{	
-		//The width will be flexible if and only if it was undefined.
-		switch (constraint->centerX.type)
-		{
-			case TiDimensionTypePercent:
-			{
-				centerX = superViewSize.width * constraint->centerX.value;
-				useMargins = NO;
-				break;
-			}
-			case TiDimensionTypePixels:
-			{
-				centerX = constraint->centerX.value;
-				useMargins = NO;
-				break;
-			}
-			//Auto and undefined are treated the same, using margins instead.
-		}
+	{
+		ignoreMargins = TiDimensionDidCalculateValue(constraint->centerX, superViewSize.width, &centerX);
 	}
+	else
+	{
+		ignoreMargins = NO;
+	}
+
 	
-	if (useMargins)
+	if (!ignoreMargins)
 	{
 		int marginSuggestions=0;
 		CGFloat frameLeft = 0.0;
-		switch (constraint->left.type)
+		if(TiDimensionDidCalculateValue(constraint->left, superViewSize.width, &frameLeft))
 		{
-			case TiDimensionTypePercent:
-			{
-				frameLeft += constraint->left.value * superViewSize.width;
-				marginSuggestions++;
-				break;
-			}
-			case TiDimensionTypePixels:
-			{
-				frameLeft += constraint->left.value;
-				marginSuggestions++;
-				break;
-			}
-			default:
-			{
-				if (!flexibleSize)
-				{
-					*resultResizing |= UIViewAutoresizingFlexibleLeftMargin;
-				}
-				break;
-			}
+			marginSuggestions++;
+		}
+		else if (!flexibleSize)
+		{
+			*resultResizing |= UIViewAutoresizingFlexibleLeftMargin;
 		}
 
-		switch (constraint->right.type)
+		CGFloat frameRight;
+		if(TiDimensionDidCalculateValue(constraint->right, superViewSize.width, &frameRight))
 		{
-			case TiDimensionTypePercent:
-			{
-				frameLeft += (1.0-constraint->right.value) * superViewSize.width - viewSize.width;
-				marginSuggestions++;
-				break;
-			}
-			case TiDimensionTypePixels:
-			{
-				frameLeft += (superViewSize.width - constraint->right.value) - viewSize.width;
-				marginSuggestions++;
-				break;
-			}
-			default:
-			{
-				if (!flexibleSize)
-				{
-					*resultResizing |= UIViewAutoresizingFlexibleRightMargin;
-				}
-				break;
-			}
+			marginSuggestions++;
+			frameLeft += superViewSize.width - viewSize.width - frameRight;
+		}
+		else if (!flexibleSize)
+		{
+			*resultResizing |= UIViewAutoresizingFlexibleRightMargin;
 		}
 		
 		if (marginSuggestions < 1)
@@ -205,83 +165,40 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 		}
 	}
 	
-	
-	
 	flexibleSize = *resultResizing & UIViewAutoresizingFlexibleHeight;
-	useMargins = YES;
 	CGFloat centerY;
 
 	if(!flexibleSize)
-	{	
-		//The width will be flexible if and only if it was undefined.
-		switch (constraint->centerY.type)
-		{
-			case TiDimensionTypePercent:
-			{
-				centerY = superViewSize.width * constraint->centerY.value;
-				useMargins = NO;
-				break;
-			}
-			case TiDimensionTypePixels:
-			{
-				centerY = constraint->centerY.value;
-				useMargins = NO;
-				break;
-			}
-			//Auto and undefined are treated the same, using margins instead.
-		}
+	{
+		ignoreMargins = TiDimensionDidCalculateValue(constraint->centerY, superViewSize.width, &centerY);
+	}
+	else
+	{
+		ignoreMargins = NO;
 	}
 	
-	if (useMargins)
+	if (!ignoreMargins)
 	{
 		int marginSuggestions=0;
 		CGFloat frameTop = 0.0;
-		switch (constraint->top.type)
+		if(TiDimensionDidCalculateValue(constraint->top, superViewSize.height, &frameTop))
 		{
-			case TiDimensionTypePercent:
-			{
-				frameTop += constraint->top.value * superViewSize.height;
-				marginSuggestions++;
-				break;
-			}
-			case TiDimensionTypePixels:
-			{
-				frameTop += constraint->top.value;
-				marginSuggestions++;
-				break;
-			}
-			default:
-			{
-				if (!flexibleSize)
-				{
-					*resultResizing |= UIViewAutoresizingFlexibleTopMargin;
-				}
-				break;
-			}
+			marginSuggestions++;
+		}
+		else if (!flexibleSize)
+		{
+			*resultResizing |= UIViewAutoresizingFlexibleTopMargin;
 		}
 
-		switch (constraint->bottom.type)
+		CGFloat frameBottom;
+		if(TiDimensionDidCalculateValue(constraint->bottom, superViewSize.height, &frameBottom))
 		{
-			case TiDimensionTypePercent:
-			{
-				frameTop += (1.0-constraint->bottom.value) * superViewSize.height - viewSize.height;
-				marginSuggestions++;
-				break;
-			}
-			case TiDimensionTypePixels:
-			{
-				frameTop += (superViewSize.height - constraint->bottom.value) - viewSize.height;
-				marginSuggestions++;
-				break;
-			}
-			default:
-			{
-				if (!flexibleSize)
-				{
-					*resultResizing |= UIViewAutoresizingFlexibleBottomMargin;
-				}
-				break;
-			}
+			marginSuggestions++;
+			frameTop += superViewSize.height - viewSize.height - frameBottom;
+		}
+		else if (!flexibleSize)
+		{
+			*resultResizing |= UIViewAutoresizingFlexibleBottomMargin;
 		}
 		
 		if (marginSuggestions < 1)
@@ -297,12 +214,12 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 	return CGPointMake(centerX, centerY);
 }
 
-void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint, UIView * subView, UIView * superView, CGRect viewBounds, BOOL addToSuperView)
+void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint, TiUIView * subView, UIView * superView, CGRect viewBounds, BOOL addToSuperView)
 {
 	UIViewAutoresizing resultMask = UIViewAutoresizingNone;
 	CGRect resultBounds;
 	resultBounds.origin = CGPointZero;
-	resultBounds.size = SizeConstraintViewWithSizeAddingResizing(constraint, subView, viewBounds.size, &resultMask);
+	resultBounds.size = SizeConstraintViewWithSizeAddingResizing(constraint,(TiViewProxy *)[subView proxy], viewBounds.size, &resultMask);
 	
 	CGPoint resultCenter = PositionConstraintGivenSizeBoundsAddingResizing(constraint, resultBounds.size,
 			[[subView layer] anchorPoint], viewBounds.size, &resultMask);

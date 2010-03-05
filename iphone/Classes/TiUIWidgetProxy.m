@@ -29,29 +29,35 @@
 	return [super view];
 }
 
-- (TiUIView *)barButtonView
+- (TiUIView *)barButtonViewForSize:(CGSize)bounds
 {
 	isUsingBarButtonItem = YES;
-	return [self view];
+	TiUIView * barButtonView = [self view];
+	//TODO: This logic should have a good place in case that refreshLayout is used.
+	LayoutConstraint barButtonLayout = layoutProperties;
+	if (TiDimensionIsUndefined(barButtonLayout.width))
+	{
+		barButtonLayout.width = TiDimensionAuto;
+	}
+	if (TiDimensionIsUndefined(barButtonLayout.height))
+	{
+		barButtonLayout.height = TiDimensionAuto;
+	}
+	CGRect barBounds;
+	barBounds.origin = CGPointZero;
+	barBounds.size = SizeConstraintViewWithSizeAddingResizing(&barButtonLayout, self, bounds, NULL);
+	
+	[TiUtils setView:barButtonView positionRect:barBounds];
+	[barButtonView setAutoresizingMask:UIViewAutoresizingNone];
+	
+	return barButtonView;
 }
 
 - (UIBarButtonItem *) barButtonItem
 {
 	if (barButtonItem == nil)
 	{
-		UIView * buttonView = [self barButtonView];
-		if (CGRectIsEmpty([buttonView bounds]))
-		{
-			CGRect newBounds;
-			newBounds.origin = CGPointZero;
-			newBounds.size = [buttonView sizeThatFits:CGSizeZero];
-			float width = [TiUtils floatValue:[self valueForKey:@"width"]];
-			if (width > 1.0) {
-				newBounds.size.width = width;
-			}
-			[buttonView setBounds:newBounds];
-		}
-		barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:buttonView];
+		barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self barButtonViewForSize:CGSizeZero]];
 	}
 	return barButtonItem;
 }

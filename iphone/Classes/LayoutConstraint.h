@@ -71,9 +71,9 @@ typedef struct LayoutConstraint {
 	
 } LayoutConstraint;
 
-
-void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint,UIView * subView,UIView * superView,CGRect viewBounds,BOOL addToSuperview);
+@class TiUIView;
+void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint, TiUIView * subView, UIView * superView, CGRect viewBounds, BOOL addToSuperView);
 void ReadConstraintFromDictionary(LayoutConstraint * constraint, NSDictionary * inputDict);
 CGFloat WidthFromConstraintGivenWidth(LayoutConstraint * constraint,CGFloat viewWidth);
-CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, UIView * subView, CGSize boundSize, UIViewAutoresizing * resultResizing);
+CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, NSObject<LayoutAutosizing> * autoSizer, CGSize boundSize, UIViewAutoresizing * resultResizing);
 BOOL IsLayoutUndefined(LayoutConstraint *constraint);

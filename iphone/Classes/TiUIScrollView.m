@@ -65,11 +65,19 @@
 	}
 }
 
+-(void)handleContentSizeIfNeeded
+{
+	if (needsHandleContentSize)
+	{
+		[self handleContentSize];
+	}
+}
+
 -(void)handleContentSize
 {
 	CGSize newContentSize = [self bounds].size;
 	
-	NSArray * subViews = [[self wrapperView] subviews];
+//	NSArray * subViews = [[self wrapperView] subviews];
 	
 	switch (contentWidth.type)
 	{
@@ -80,7 +88,10 @@
 		}
 		case TiDimensionTypeAuto:
 		{
-			newContentSize.width = MAX(newContentSize.width,AutoWidthForView(wrapperView, newContentSize.width));
+			for (TiViewProxy * thisChildProxy in [(TiViewProxy *)[self proxy] children])
+			{
+				newContentSize.width = MAX(newContentSize.width,[thisChildProxy minimumParentWidthForWidth:newContentSize.width]);
+			}
 			break;
 		}
 	}
@@ -94,7 +105,21 @@
 		}
 		case TiDimensionTypeAuto:
 		{
-			minimumContentHeight = AutoHeightForView(wrapperView, newContentSize.width, TiLayoutRuleIsVertical([self layout]->layout));
+			BOOL isVertical = TiLayoutRuleIsVertical([(TiViewProxy *)[self proxy] layoutProperties]->layout);
+			minimumContentHeight=0.0;
+
+			for (TiViewProxy * thisChildProxy in [(TiViewProxy *)[self proxy] children])
+			{
+				CGFloat thisHeight = [thisChildProxy minimumParentHeightForWidth:newContentSize.width];
+				if (isVertical)
+				{
+					minimumContentHeight += thisHeight;
+				}
+				else if(minimumContentHeight<thisHeight)
+				{
+					minimumContentHeight = thisHeight;
+				}
+			}
 			break;
 		}
 		default:
@@ -109,47 +134,21 @@
 	wrapperBounds.size = newContentSize;
 	[wrapperView setBounds:wrapperBounds];
 	[wrapperView setCenter:CGPointMake(newContentSize.width/2, newContentSize.height/2)];
-	for (TiUIView * thisChildView in subViews)
-	{
-		[thisChildView reposition];
-		[(TiViewProxy *)[thisChildView proxy] layoutChildren];
-	}
-
 	needsHandleContentSize = NO;
-}
-
--(void)layoutChild:(TiUIView *)childView
-{
-	// layout out ourself
-	if ([childView superview]!=[self wrapperView])
-	{
-		[wrapperView addSubview:childView];
-		[self setNeedsHandleContentSizeIfAutosizing];
-	}
-
-	CGRect bounds;
-	bounds.origin = CGPointZero;
-	bounds.size = [scrollView contentSize];
-	if (TiLayoutRuleIsVertical([self layout]->layout))
-	{
-		bounds.origin.y += verticalLayoutBoundary;
-		bounds.size.height = [childView minimumParentHeightForWidth:bounds.size.width];
-		verticalLayoutBoundary += bounds.size.height;
-	}
-
-	[childView relayout:bounds];
 }
 
 -(void)setContentWidth_:(id)value
 {
 	contentWidth = [TiUtils dimensionValue:value];
 	[self setNeedsHandleContentSize];
+	[(TiViewProxy *)[self proxy] layoutChildren];
 }
 
 -(void)setContentHeight_:(id)value
 {
 	contentHeight = [TiUtils dimensionValue:value];
 	[self setNeedsHandleContentSize];
+	[(TiViewProxy *)[self proxy] layoutChildren];
 }
 
 -(void)setShowHorizontalScrollIndicator_:(id)value

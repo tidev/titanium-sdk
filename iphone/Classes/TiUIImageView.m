@@ -288,7 +288,7 @@ DEFINE_EXCEPTIONS
 		[TiUtils setView:iv positionRect:[self bounds]];
 		[self sendSubviewToBack:iv];
 		[iv release];
-		[self reposition];
+		[(TiViewProxy *)[self proxy] reposition];
 
 		// do a nice fade in animation to replace the new incoming image
 		// with our placeholder
@@ -584,7 +584,7 @@ DEFINE_EXCEPTIONS
 			{
 				autoWidth = image.size.width;
 				autoHeight = image.size.height;
-				[self reposition];
+				[(TiViewProxy *)[self proxy] reposition];
 			}
 			
 			if ([self.proxy _hasListeners:@"load"])
@@ -638,7 +638,7 @@ DEFINE_EXCEPTIONS
 	if (request == urlRequest)
 	{
 		image = [self scaleImageIfRequired:image];
-		[self setURLImageOnUIThread:image];
+		[self performSelectorOnMainThread:@selector(setURLImageOnUIThread:) withObject:image waitUntilDone:NO];
 		RELEASE_TO_NIL(urlRequest);
 	}
 }
