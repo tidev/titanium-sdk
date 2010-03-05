@@ -186,14 +186,14 @@ public class TiHTTPClient
 								byte[] newbuf = new byte[count];
 								System.arraycopy(buf, 0, newbuf, 0, count);
 								if (responseData == null) {
-									responseData = TiBlob.blobFromData(proxy.getTiContext(), buf);
+									responseData = TiBlob.blobFromData(proxy.getTiContext(), newbuf, contentType);
 								} else {
-									responseData.append(TiBlob.blobFromData(proxy.getTiContext(), buf));
+									responseData.append(TiBlob.blobFromData(proxy.getTiContext(), newbuf));
 								}
 								
 								TiBlob blob = TiBlob.blobFromData(proxy.getTiContext(), newbuf);
 								o.put("blob", blob);
-								o.put("progress", (((double)count)/((double)totalSize))*100);
+								o.put("progress", ((double)totalSize)/((double)contentLength));
 								
 								cb.callWithProperties(o);
 							}

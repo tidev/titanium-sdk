@@ -114,71 +114,12 @@ public class TiUIScrollView extends TiUIView {
 
 			// We need to support an automatically growing contentArea, so this code is
 			LayoutParams p = (LayoutParams)child.getLayoutParams();
-			int absoluteRight = calculateAbsoluteRight(child);
-			int absoluteBottom = calculateAbsoluteBottom(child);
+			calculateAbsoluteRight(child);
+			calculateAbsoluteBottom(child);
 			int contentWidth = getContentProperty("contentWidth");
 			int contentHeight = getContentProperty("contentHeight");
 
-			if (p.optionLeft != NOT_SET) {
-				p.mLeft = Math.min(p.optionLeft, contentWidth);
-				if (p.optionRight != NOT_SET) {
-					p.mRight = Math.max(p.mLeft, absoluteRight - p.optionRight);
-				} else if (!p.autoWidth) {
-					p.mRight = Math.min(p.mLeft + p.optionWidth, contentWidth);
-				} else {
-					p.mRight = absoluteRight;
-				}
-			} else if (p.optionRight != NOT_SET) {
-				p.mRight = Math.max(absoluteRight - p.optionRight, 0);
-				if (!p.autoWidth) {
-					p.mLeft = Math.max(0, p.mRight - p.optionWidth);
-				} else {
-					p.mLeft = 0;
-				}
-			} else {
-				p.mLeft = 0;
-				p.mRight = absoluteRight;
-				int w = !p.autoWidth ? p.optionWidth : child.getMeasuredWidth();
-				int space = (p.mRight - w)/2;
-				if (space > 0) {
-					p.mLeft = space;
-					p.mRight -= space;
-				}
-			}
-
-			if (p.optionTop != NOT_SET) {
-				p.mTop = Math.min(p.optionTop, contentHeight);
-				if (p.optionBottom != NOT_SET) {
-					p.mBottom = Math.max(p.mTop, absoluteBottom - p.optionBottom);
-				} else if (!p.autoHeight) {
-					p.mBottom = Math.min(p.mTop + p.optionHeight, contentHeight);
-				} else {
-					p.mBottom = absoluteBottom;
-				}
-			} else if (p.optionBottom != NOT_SET) {
-				p.mBottom = Math.max(absoluteBottom - p.optionBottom, 0);
-				if (!p.autoHeight) {
-					p.mTop = Math.max(0, p.mBottom - p.optionHeight);
-				} else {
-					p.mTop = 0;
-				}
-			} else {
-				p.mTop = 0;
-				p.mBottom = absoluteBottom;
-				int h = !p.autoHeight ? p.optionHeight : child.getMeasuredHeight();
-				int space = (p.mBottom - h)/2;
-				if (space > 0) {
-					p.mTop = space;
-					p.mBottom -= space;
-				}
-			}
-
-			int childWidthSpec = MeasureSpec.makeMeasureSpec(
-					p.mRight-p.mLeft, wMode /*MeasureSpec.EXACTLY*/);
-			int childHeightSpec = MeasureSpec.makeMeasureSpec(
-					p.mBottom-p.mTop, hMode /*MeasureSpec.EXACTLY*/);
-
-			child.measure(childWidthSpec, childHeightSpec);
+			super.constrainChild(child, contentWidth, wMode, contentHeight, hMode);
 		}
 
 
@@ -304,7 +245,7 @@ public class TiUIScrollView extends TiUIView {
 			Object width = d.get("width");
 			Object contentWidth = d.get("contentWidth");
 			if (width.equals(contentWidth)) {
-				type = TYPE_VERTICAL;	
+				type = TYPE_VERTICAL;
 			}
 		}
 

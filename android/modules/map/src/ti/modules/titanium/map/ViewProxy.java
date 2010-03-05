@@ -40,6 +40,7 @@ public class ViewProxy extends TiViewProxy
 		TiApplication tiApp = getTiContext().getTiApp();
 		Intent intent = new Intent(tiApp, TiMapActivity.class);
 		mapWindow = lam.startActivity("TIMAP", intent);
+		lam.dispatchResume();
 		return new TiMapView(this, mapWindow);
 	}
 

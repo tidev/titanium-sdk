@@ -419,6 +419,10 @@
 {
 	verticalLayoutBoundary = 0.0;
 	// now ask each of our children for their view
+	if (view==nil)
+	{
+		return;
+	}
 	if (self.children!=nil)
 	{
 		[childLock lock];

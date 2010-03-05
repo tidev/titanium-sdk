@@ -6,7 +6,7 @@ win.orientationModes = [
 	Titanium.UI.PORTRAIT,
 	Titanium.UI.LANDSCAPE_LEFT,
 	Titanium.UI.LANDSCAPE_RIGHT,
-]; 
+];
 
 
 //
@@ -14,7 +14,7 @@ win.orientationModes = [
 //
 Ti.Gesture.addEventListener('orientationchange',function(e)
 {
-	
+
 	// get orienation from event object
 	var orientation = getOrientation(e.orientation);
 });
@@ -175,40 +175,53 @@ var flexSpace = Titanium.UI.createButton({
 	systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 });
 
-if (Titanium.Platform.osname == 'iphone') 
+if (Titanium.Platform.osname == 'iphone')
 {
 	// set toolbar
 	win.setToolbar([flexSpace,left,change,add,jump,right,flexSpace]);
-} 
-else 
+}
+else
 {
 	var toolbar = Titanium.UI.createView({
-		bottom: 0,
+		bottom: 10,
 		height: 50,
-		backgroundColor: '#336699'
+		backgroundColor: '#333333',
+		borderRadius: 10,
+		opacity: 0.3,
+		left: 10,
+		right: 10
 	});
-	left.left = 25;
+
+	var floater = Titanium.UI.createView({
+		width:320,
+		height: 'auto',
+		opacity: 0
+	})
+
+	toolbar.add(floater);
+
+	left.left = 10;
 	left.width = 30;
 
 	change.left = 50;
 	change.width = 70;
 	change.height = 35;
-	
+
 	add.left = 130;
 	add.width = 70;
 	add.height = 35;
-	
+
 	jump.left = 210;
 	jump.width = 70;
 	jump.height = 35;
-	
-	right.left = 280;
+
+	right.right = 10;
 	right.width = 30;
-	
-	toolbar.add(left);
-	toolbar.add(change);
-	toolbar.add(add);
-	toolbar.add(jump);
-	toolbar.add(right);
+
+	floater.add(left);
+	floater.add(change);
+	floater.add(add);
+	floater.add(jump);
+	floater.add(right);
 	win.add(toolbar);
 }

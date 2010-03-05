@@ -109,7 +109,7 @@
 		return;
 	}
 
-	NSLog(@"Rendering for view %d.",index);
+//	NSLog(@"Rendering for view %d.",index);
 
 	UIView *wrapper = [[sv subviews] objectAtIndex:index];
 	if ([[wrapper subviews] count]==0)
@@ -242,8 +242,8 @@
 {
 	if (!CGRectIsEmpty(visibleBounds))
 	{
-		UIScrollView *sv = [self scrollview];
-		BOOL readd = [sv subviews]==0 || [views count]!=[[sv subviews] count];
+	//	UIScrollView *sv = [self scrollview];
+		BOOL readd = YES; //[sv subviews]==0 || [views count]!=[[sv subviews] count];
 		[self refreshScrollView:visibleBounds readd:readd];
 	}
 }

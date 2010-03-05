@@ -32,10 +32,10 @@ public class TiUIButton extends TiUIView
 		}
 		Button btn = new Button(proxy.getContext());
 		btn.setOnClickListener(this);
-		btn.setPadding(0, 0, 0, 0);
+		btn.setPadding(8, 0, 8, 0);
 		setNativeView(btn);
 	}
-	
+
 	@Override
 	public void processProperties(TiDict d)
 	{
@@ -49,7 +49,7 @@ public class TiUIButton extends TiUIView
 					String url = getProxy().getTiContext().resolveUrl(null, (String)value);
 					TiBaseFile file = TiFileFactory.createTitaniumFile(getProxy().getTiContext(), new String[] { url }, false);
 					Bitmap bitmap = TiUIHelper.createBitmap(file.getInputStream());
-					
+
 					btn.setBackgroundDrawable(new BitmapDrawable(bitmap));
 				} catch (IOException e) {
 					Log.e(LCAT, "Error setting button image", e);

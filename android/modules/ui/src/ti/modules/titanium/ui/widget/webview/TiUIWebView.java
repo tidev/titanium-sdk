@@ -6,7 +6,11 @@
  */
 package ti.modules.titanium.ui.widget.webview;
 
+import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.WebViewProxy;
@@ -42,6 +46,32 @@ public class TiUIWebView extends TiUIView {
 	protected WebView getWebView()
 	{
 		return (WebView)getNativeView();
+	}
+	
+	@Override
+	public void processProperties(TiDict d) {
+		super.processProperties(d);
+		
+		if (d.containsKey("url")) {
+			setUrl(TiConvert.toString(d, "url"));
+		} else if (d.containsKey("html")) {
+			setHtml(TiConvert.toString(d, "html"));
+		} else if (d.containsKey("data")) {
+			Object value = d.get("data");
+			if (value instanceof TiBlob) {
+				TiBlob blob = (TiBlob)value;
+				
+				String mimeType = "text/html";
+				if (blob.getMimeType() != null) {
+					mimeType = blob.getMimeType();
+				}
+				if (TiMimeTypeHelper.isBinaryMimeType(mimeType)) {
+					getWebView().loadData(blob.toBase64(), mimeType, "base64");
+				} else {
+					getWebView().loadData(new String(blob.getBytes()), mimeType, "utf-8");
+				}
+			}
+		}
 	}
 	
 	public void setUrl(String url)
