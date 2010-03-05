@@ -41,7 +41,9 @@ tableview.addEventListener('click', function(e)
 			win = Titanium.UI.createWindow({
 				url:e.rowData.test,
 				title:e.rowData.title,
-				backgroundColor:'#fff'
+				backgroundColor:'#fff',
+				barColor:'#111'
+				
 			});
 		}
 		
