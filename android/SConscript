@@ -2,7 +2,7 @@ import os, sys, platform, glob, shutil
 Import("env cwd version")
 
 #TODO enable map - eventually detect these
-modules = ['accelerometer', 'api', 'app', 'database', 'filesystem', 'geolocation', 'gesture', 'json', 'media', 'xml', 'network', 'platform', 'ui' ]
+modules = ['accelerometer', 'api', 'app', 'database', 'filesystem', 'geolocation', 'json', 'media', 'xml', 'network', 'platform', 'ui', 'gesture' ]
 
 print "Building Titanium Mobile (Android) %s..." % version
 
@@ -16,7 +16,8 @@ android_sdk = ARGUMENTS.get("android_sdk", default_android_sdk)
 classpath = [ os.path.join(cwd, 'android', 'titanium', 'lib', 'js.jar'),
 	os.path.join(android_sdk, 'platforms', 'android-1.6', 'android.jar'),
 	os.path.join(cwd, 'android', 'titanium', 'lib', 'commons-codec-1.3.jar'),
-	os.path.join(cwd, 'android', 'titanium', 'lib', 'commons-logging-1.1.1.jar')]
+	os.path.join(cwd, 'android', 'titanium', 'lib', 'commons-logging-1.1.1.jar'),
+	os.path.join(cwd, 'android', 'modules', 'xml', 'lib', 'jaxen-1.1.1.jar')]
 
 sources = [os.path.join('titanium', 'src'), os.path.join('titanium', 'thirdparty')]
 
