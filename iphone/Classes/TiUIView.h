@@ -54,6 +54,9 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 	UIView *touchDelegate;		 // used for touch delegate forwarding
 	BOOL animating;
 	BOOL repositioning;
+	
+	//Resizing handling
+	CGSize oldSize;
 }
 
 @property(nonatomic,readwrite,assign)	TiProxy *proxy;

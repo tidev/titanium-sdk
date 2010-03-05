@@ -243,7 +243,7 @@
 	if (!CGRectIsEmpty(visibleBounds))
 	{
 		UIScrollView *sv = [self scrollview];
-		BOOL readd = [sv subviews]==0 || [views count]!=[[sv subviews] count];
+		BOOL readd = YES; //[sv subviews]==0 || [views count]!=[[sv subviews] count];
 		[self refreshScrollView:visibleBounds readd:readd];
 	}
 }

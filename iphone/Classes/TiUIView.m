@@ -381,10 +381,28 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(void)checkBounds
+{
+	CGRect newBounds = [self bounds];
+	if(!CGSizeEqualToSize(oldSize, newBounds.size))
+	{
+		oldSize = newBounds.size;
+		[self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:newBounds];
+	}
+}
+
+
+
 -(void)setBounds:(CGRect)bounds
 {
 	[super setBounds:bounds];
-	[self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:bounds];
+	[self checkBounds];
+}
+
+-(void)layoutSubviews
+{
+	[super layoutSubviews];
+	[self checkBounds];
 }
 
 
