@@ -156,6 +156,20 @@ def spit_html(options, api):
 	f.write(output)
 	f.close()
 	
+	if api.type == 'module':
+		toc_filename = os.path.join(outdir,'toc_%s.json' % api.namespace)
+		f = open(toc_filename,'w+')
+		methods = []
+		properties = []
+		for m in api.methods:
+			methods.append(m.name())
+		for m in api.properties:
+			properties.append(m.name())
+		methods.sort()
+		properties.sort()
+		f.write(json.dumps({'methods':methods,'properties':properties},indent=4))
+		f.close()
+	
 def crawl(srcdir, options):
 	for root, dirs, files in os.walk(srcdir):
 		for file in files:
@@ -167,6 +181,16 @@ def crawl(srcdir, options):
 				print "Processing %s" % file
 			add_api(open(file).read())
 
+def spit_toc(apis,outdir):
+	ns = []
+	for key in apis.keys():
+		if apis[key].type == 'module':
+			ns.append(key)
+	ns.sort()
+	toc = open(os.path.join(outdir,'toc.json'),'w+')
+	toc.write(json.dumps(ns,indent=4))
+	toc.close()
+	
 if __name__ == "__main__":
 	global template_dir
 
@@ -196,6 +220,7 @@ if __name__ == "__main__":
 			if options.verbose == 1:
 				print "Spitting HTML: %s" % api_name
 			spit_html(options, API.apis[api_name])
+		spit_toc(API.apis,options.outdir)	
 
 	# JSON forthcomming.
 	# if not options.html_only:
