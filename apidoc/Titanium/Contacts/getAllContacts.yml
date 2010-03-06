@@ -1,8 +1,8 @@
 ---
 namespace: Titanium.Contacts.getAllContacts
-type: method
+type: function
 description: 
 since: 0.8.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+platforms: ['android', 'iphone']
 returns: Array<Object>
 parameters: []

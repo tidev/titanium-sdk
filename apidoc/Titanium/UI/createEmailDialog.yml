@@ -1,9 +1,9 @@
 ---
 namespace: Titanium.UI.createEmailDialog
-type: method
+type: function
 description: Creates an UI.EmailDialog object Allows the user to send off a pre-made email
 since: 0.6.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+platforms: ['android', 'iphone']
 returns: object
 parameters: 
     - [object, properties, the properties to copy to the new UI.EmailDialog object during creation]

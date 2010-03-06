@@ -1,8 +1,8 @@
 ---
 namespace: Titanium.Media.beep
-type: method
+type: function
 description: Causes the system to make an alert noise and/or vibrate
 since: 0.4.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: string
 parameters: []

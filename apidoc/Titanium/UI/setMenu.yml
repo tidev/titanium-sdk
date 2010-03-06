@@ -1,9 +1,9 @@
 ---
 namespace: Titanium.UI.setMenu
-type: method
+type: function
 description: Associate a menu with the current window
 since: 0.4.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: string
 parameters: 
     - [MenuItem, m, A root menu item]

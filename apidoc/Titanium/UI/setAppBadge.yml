@@ -1,9 +1,9 @@
 ---
 namespace: Titanium.UI.setAppBadge
-type: method
+type: function
 description: "Sets the application's badge value"
 since: 0.8.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: string
 parameters: 
     - [int, badge, badge value]

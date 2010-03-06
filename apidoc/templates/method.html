@@ -1,57 +1,50 @@
 
-<h1 class="namespace">${data.namespace} method</h1>
+<h1 class="namespace">${data.namespace}</h1>
+<div class="namespace_type">function</div>
 
-% if hasattr(data, 'since'):
 <div class="since">${data.since}</div>
-%endif
-
-% if hasattr(data, 'platforms'):
 <div class="platforms">
 % for p in data.platforms:
-	<span class="${p}">&nbsp;&nbsp;&nbsp;</span>
-%endfor
+<span class="${p}">&nbsp;&nbsp;&nbsp;</span>
+% endfor
 </div>
-%endif
 
 % if data.deprecated:
 <div class="deprecated">
-	<h3>This method is deprecated:</h3>
-	${data.deprecated}
+	This function was deprecated in <strong>${data.deprecated['version']}</strong>.
+	${data.deprecated['reason']}
 </div>
 % endif
-
-<div class="signature">
-${data.returns} ${data.name()}(\
-% for i, param in enumerate(data.parameters):
-% if i != 0:
-, \
-%endif
-${param['type']} ${param['name']}\
-% endfor
-)
-</div>
 
 <div class="description">
 ${data.description}
 </div>
 
-% if len(data.parameters) != 0:
 <h3>Arguments</h3>
+% if len(data.parameters)==0:
+This function takes no arguments.
+% else:
 <table>
 <tr>
-	<th>Type</th>
 	<th>Name</th>
+	<th>Type</th>
 	<th>Description</th>
 </tr> 
-% for param in data.parameters:
+% for prop in data.parameters:
 <tr>
-	<td class="type">${param['type']}</td>
-	<td class="name">${param['name']}</td>
-	<td class="description">${param['description']}</td>
+	<td class="name">${prop['name']}</td>
+	<td class="type">${prop['type']}</td>
+	<td class="description">${prop['description']}</td>
 </tr>
 % endfor
 </table>
 % endif
+
+<h3>Return Type</h3>
+<div>
+${data.returns}
+</div>
+
 
 % if len(data.examples) > 0:
 <h3>Code Examples</h3>
@@ -60,7 +53,7 @@ ${data.description}
 <div>${example['description']}</div>
 
 <script type="syntaxhighlighter" class="brush: js"><![CDATA[
-	${example['code']}
+${example['code']}
 ]]></script>
 
 % endfor

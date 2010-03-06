@@ -1,9 +1,9 @@
 ---
 namespace: Titanium.Media.createVideoPlayer
-type: method
+type: function
 description: Creates a video-playing object
 since: 0.4.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+platforms: ['android', 'iphone']
 returns: Media.VideoPlayer
 parameters: 
     - [object, settings, Object specifying videoplayer properties. These include the contentURL (required), scalingMode (optional), backgroundColor (optional), and movieControlMode (optional).]

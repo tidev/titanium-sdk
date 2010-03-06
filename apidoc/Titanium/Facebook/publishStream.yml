@@ -1,10 +1,10 @@
 ---
 namespace: Titanium.Facebook.publishStream
-type: method
+type: function
 description: publish stream dialog for publishing data to wall
 since: 0.8.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: string
 parameters: 
     - [string, title, title of publish stream dialog]
     - [object, data, (optional) publish data as json object]

@@ -3,5 +3,5 @@ namespace: Titanium.UI.RETURNKEY_YAHOO
 type: property
 description: "A possible value for UI.TextView.returnKeyType or UI.TextField.returnKeyType; indicates the lower right keyboard button will be labelled \"Yahoo\""
 since: 0.5.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: string

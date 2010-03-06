@@ -1,9 +1,9 @@
 ---
 namespace: Titanium.UI.setActiveTab
-type: method
+type: function
 description: switch to new tab
 since: 0.6.2
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: string
 parameters: 
     - [object, Tab, The tab to switch to]

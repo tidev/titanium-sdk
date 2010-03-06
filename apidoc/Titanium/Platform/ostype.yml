@@ -3,5 +3,5 @@ namespace: Titanium.Platform.ostype
 type: property
 description: The architecture type of the system (either 32 bit or 64 bit)
 since: 0.4.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: string

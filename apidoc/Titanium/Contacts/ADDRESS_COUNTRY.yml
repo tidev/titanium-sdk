@@ -3,5 +3,5 @@ namespace: Titanium.Contacts.ADDRESS_COUNTRY
 type: property
 description: "Convenience key to use with an address entry in Contacts.Contact . To get the country name in the first address of a Contact.Contact called 'myContact', use myContact.address[0].value[ADDRESS_COUNTRY]."
 since: 0.8.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: string

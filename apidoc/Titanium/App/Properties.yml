@@ -1,6 +1,6 @@
 ---
 namespace: Titanium.App.Properties
-type: method
+type: function
 description: 
 since: 0.8.0
 returns: list

@@ -1,8 +1,8 @@
 ---
 namespace: Titanium.UI.GroupedView
-type: method
+type: function
 description: 
 since: 0.8.0
-returns: String
+returns: string
 parameters: 
     - [string, title, the title of the window]

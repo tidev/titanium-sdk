@@ -70,9 +70,12 @@ class API(object):
 		self.deprecated = False
 		self.description = ''
 		self.events = []
+		self.platforms = []
 
 	def update(self, data):
 		self.type = type = data['type']
+		if 'platforms' in data:
+			self.platforms = data['platforms']
 		if type == "property"		:
 			self.returns = data['returns']
 		if type == "method" or type == "function":
