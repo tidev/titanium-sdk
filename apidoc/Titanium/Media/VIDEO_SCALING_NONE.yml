@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Media.VIDEO_SCALING_NONE
+type: property
+description: scalingMode that leaves the movie unscaled. If the movie is smaller than the screen, the region between the edge of the movie and the edge of the screen is filled with the background color.
+since: 0.4.0
+platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+returns: String

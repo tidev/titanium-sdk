@@ -1,0 +1,10 @@
+---
+namespace: Titanium.Yahoo.setOAuthParameters
+type: method
+description: setup the application OAuth parameters - this must be called before any other methods
+since: 0.7.0
+platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+returns: String
+parameters: 
+    - [string, consumerkey, "your application's Yahoo consumer key"]
+    - [string, sharedsecret, "your application's Yahoo shared secret"]

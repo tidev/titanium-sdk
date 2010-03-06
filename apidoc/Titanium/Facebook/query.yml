@@ -1,0 +1,10 @@
+---
+namespace: Titanium.Facebook.query
+type: method
+description: invoke facebook FQL query (must be logged in)
+since: 0.7.0
+platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+returns: String
+parameters: 
+    - [string, fql, fql]
+    - [function, callback, callback function to be invoked with result of query]

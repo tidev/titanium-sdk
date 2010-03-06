@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.createTabbedBar
+type: method
+description: Create a new segmented control that acts as a modal tab bar. Pressing an element causes a the selection to change which lasts until a different element is touched
+since: 0.5.0
+platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+returns: UI.TabBar
+parameters: 
+    - [object, properties, Properties to apply to the new tab bar on creation]

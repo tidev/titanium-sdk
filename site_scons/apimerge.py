@@ -106,17 +106,17 @@ def main(mobile, a, b=None):
 		b_flat = flatten(b_normalized)
 
 	for key in a_flat:
-		platforms = {'iphone':['2.2.1','3.0','3.1']}
+		#platforms = {'iphone':['2.2.1','3.0','3.1']}
 		merged[key]=a_flat[key]
-		if b and b_flat.has_key(key):
-			platforms['android']=['1.5']
-		if mobile: merged[key]['platforms']=platforms
+		#if b and b_flat.has_key(key):
+		#	platforms['android']=['1.5']
+		#if mobile: merged[key]['platforms']=platforms
 	
 	if b:
 		for key in b_flat:
 			if not merged.has_key(key):
 				merged[key]=b_flat[key]
-				if mobile: merged[key]['platforms'] = {'android':['1.5']}		
+				#if mobile: merged[key]['platforms'] = {'android':['1.5']}		
 	
 	newmerged = denormalize(merged)
 	

@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.OptionDialog
+type: method
+description: 
+since: 0.8.0
+returns: boolean
+parameters: 
+    - [int, destructive, the new destructive index]

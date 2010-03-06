@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.createButton
+type: method
+description: "Creates a UI.Button button object for use in UI.Window's setLeftNavButton, setRightNavButton, or setToolbar methods"
+since: 0.8.0
+platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+returns: UI.Button
+parameters: 
+    - [mixed, properties, (optional) If object, the UI.Button properties to copy over on initialization.]
