@@ -34,7 +34,7 @@ public class TiApplication extends Application
 {
 	private static final String LCAT = "TiApplication";
 	private static final boolean DBG = TiConfig.LOGD;
-	private static final long STATS_WAIT = 1000;
+	private static final long STATS_WAIT = 300000;
 
 	private String baseUrl;
 	private String startUrl;
