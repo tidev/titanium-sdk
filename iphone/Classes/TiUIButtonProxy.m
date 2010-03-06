@@ -24,13 +24,13 @@
 	[super _configure];
 }
 
-USE_VIEW_FOR_AUTO_WIDTH
-
-USE_VIEW_FOR_AUTO_HEIGHT
+//USE_VIEW_FOR_AUTO_WIDTH
+//
+//USE_VIEW_FOR_AUTO_HEIGHT
 
 -(void)setStyle:(id)value
 {
-	style = [TiUtils intValue:value def:UIButtonTypeCustom];
+	styleCache = [TiUtils intValue:value def:UIButtonTypeCustom];
 	[self replaceValue:value forKey:@"style" notification:YES];
 }
 
@@ -51,7 +51,7 @@ USE_VIEW_FOR_AUTO_HEIGHT
 
 -(CGFloat) verifyWidth:(CGFloat)suggestedWidth
 {
-	switch(style)
+	switch(styleCache)
 	{
 		case UITitaniumNativeItemInfoLight:
 		case UITitaniumNativeItemInfoDark:
@@ -64,7 +64,7 @@ USE_VIEW_FOR_AUTO_HEIGHT
 
 -(CGFloat) verifyHeight:(CGFloat)suggestedHeight
 {
-	switch(style)
+	switch(styleCache)
 	{
 		case UITitaniumNativeItemInfoLight:
 		case UITitaniumNativeItemInfoDark:
@@ -78,12 +78,12 @@ USE_VIEW_FOR_AUTO_HEIGHT
 
 -(UIViewAutoresizing) verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
-	switch (style)
+	switch (styleCache)
 	{
 		case UITitaniumNativeItemInfoLight:
 		case UITitaniumNativeItemInfoDark:
 		case UITitaniumNativeItemDisclosure:
-			return UIViewAutoresizingNone;
+			return suggestedResizing & ~(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
 	}
 	return suggestedResizing;
 }
