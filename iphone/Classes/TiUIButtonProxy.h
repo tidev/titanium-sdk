@@ -10,6 +10,7 @@
 
 @interface TiUIButtonProxy : TiUIWidgetProxy {
 @private
+	UIButtonType style;
 	TiUINavBarButton *button;
 }
 

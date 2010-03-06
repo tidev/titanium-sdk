@@ -226,4 +226,14 @@
 	}
 }
 
+-(CGFloat)autoWidthForWidth:(CGFloat)value
+{
+	return [[self view] bounds].size.width;
+}
+
+-(CGFloat)autoHeightForWidth:(CGFloat)value
+{
+	return [[self view] bounds].size.height;
+}
+
 @end

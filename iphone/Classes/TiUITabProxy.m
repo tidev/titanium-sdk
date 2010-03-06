@@ -209,7 +209,7 @@
 		RELEASE_TO_NIL(current);
 	}
 	[window close:nil];
-	[window release];
+	RELEASE_TO_NIL(window);
 }
 
 -(void)windowClosing:(TiWindowProxy*)window animated:(BOOL)animated

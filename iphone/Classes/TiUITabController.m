@@ -11,6 +11,7 @@
 #import "Webcolor.h"
 
 @implementation TiUITabController
+@synthesize window,tab;
 
 -(void)dealloc
 {
@@ -40,16 +41,6 @@
 -(void)viewDidUnload
 {
 	[window _associateTab:nil navBar:nil tab:nil];
-}
-
--(TiWindowProxy*)window
-{
-	return window;
-}
-
--(TiUITabProxy*)tab
-{
-	return tab;
 }
 
 @end
