@@ -43,6 +43,22 @@ class API(object):
 			cls.apis[namespace] = API(namespace)
 		return cls.apis[namespace]
 
+	@classmethod
+	def validate(cls, options):
+		valid = True
+
+		for api_name in cls.apis:
+			if options.verbose == 1:
+				print "Validating %s" % api_name
+
+			api = cls.apis[api_name]
+			if not hasattr(api, "type"):
+				valid = False
+				print "API (namespace:'%s') does not have a type!" % api_name
+				print "Is there a file describing it?"
+
+		return valid
+
 	def __init__(self, namespace):
 		self.namespace = namespace
 		self.methods = []
@@ -50,6 +66,10 @@ class API(object):
 		self.objects = []
 		self.properties = []
 		self.examples = []
+		self.type = 'module'
+		self.deprecated = False
+		self.description = ''
+		self.events = []
 
 	def update(self, data):
 		self.type = type = data['type']
@@ -77,9 +97,7 @@ class API(object):
 		self.deprecated = 'deprecated' in data and data['deprecated']
 		if 'events' in data:
 			self.events = data['events']
-		else:
-			self.events = []
-		
+
 		if self.parent_name():
 			self.get_api(self.parent_name()).add_child(self)
 
@@ -145,7 +163,7 @@ def crawl(srcdir, options):
 				continue
 			file = path.join(root, file)
 
-			if options.debug:
+			if options.verbose == 1:
 				print "Processing %s" % file
 			add_api(open(file).read())
 
@@ -155,23 +173,27 @@ if __name__ == "__main__":
 	usage = "usage: %prog [options] arg1 arg2"
 	parser = OptionParser(usage=usage)
 	parser.add_option("-o", "--output-dir", dest="outdir", default='docout',
-	                  help="output rendered documentation to DIR", metavar="DIR")
+		help="output rendered documentation to DIR", metavar="DIR")
 	parser.add_option("-s", "--source-dir", dest="srcdir", default='.',
-	                  help="read documentation source from DIR")
+		help="read documentation source from DIR")
 	parser.add_option("-m", "--html-only", dest="html_only", default=False,
-	                  help="only render documentation to HTML")
+		help="only render documentation to HTML")
 	parser.add_option("-j", "--json-only", dest="json_only", default=False,
-	                  help="only render documentation to JSON")
-	parser.add_option("-d", "--debug", dest="debug", default=False,
-	                  help="print debugging information")
+		help="only render documentation to JSON")
+	parser.add_option('-v', '--verbose', dest='verbose', action='count',
+		help="Specifies verbose output")
+
 	(options, args) = parser.parse_args()
 	template_dir = options.srcdir
 
 	crawl(options.srcdir, options)
 
+	if not API.validate(options):
+		sys.exit(1)
+
 	if not options.json_only:
 		for api_name in API.apis:
-			if options.debug:
+			if options.verbose == 1:
 				print "Spitting HTML: %s" % api_name
 			spit_html(options, API.apis[api_name])
 
