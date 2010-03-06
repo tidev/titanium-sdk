@@ -28,7 +28,8 @@ search.addEventListener('cancel', function(e)
 // create table view
 var tableview = Titanium.UI.createTableView({
 	data:data,
-	search:search
+	search:search,
+	searchHidden:true
 });
 
 

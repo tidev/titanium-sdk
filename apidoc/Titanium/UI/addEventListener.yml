@@ -1,0 +1,10 @@
+---
+namespace: Titanium.UI.addEventListener
+type: method
+description: add application level listener
+since: 0.6.2
+platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+returns: int
+parameters: 
+    - [string, eventName, the name of the event.]
+    - [function, eventHander, the handler for the event]

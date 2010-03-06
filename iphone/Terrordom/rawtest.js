@@ -1,43 +1,103 @@
-// anchor_stretch.js
-
-// test case showing anchorPoint having no effect on animating width
-// Kosso
-
-
 var win = Titanium.UI.currentWindow;
+win.backgroundColor = '#fff';
 
-var label = Titanium.UI.createLabel({
-	text:'Click the rectangle to animate its width to 50 pixels over 1 second.\n\nShould be anchorPoint top-left\n set using:\nanchorPoint:{x:0,y:0}',
-	top:20,
-	width:290,
-	borderWidth:1,
-	borderColor:'#444',
-	height:'auto',
-	color:'#000',
-	textAlign:'center',
-	layout:'vertical'
+var view1 = Ti.UI.createView({
+	backgroundColor:'transparent'
 });
 
-win.add(label);
-
-
-// create a rectangular view with anchorPoint top-left
-var rectangle = Titanium.UI.createView({
-	height:50,
-	width:300,
-	borderWidth:1,
-	borderColor:'#444',
-	backgroundColor:'#FF0',
-	top:20,
-//	center:{x:0,y:0},
-	anchorPoint:{x:0,y:0},
-	layout:'vertical'
+var b1 = Titanium.UI.createButton({
+	backgroundImage:'ktswbutton.png',
+	top:10,
+    left:25,
+    width:75,
+    height:75
 });
 
-win.add(rectangle);
+var b2 = Titanium.UI.createButton({
+	backgroundImage:'campusmapbutton.png',
+	top:10,
+    left:120,
+    width:75,
+    height:75
+});
 
+var b3 = Titanium.UI.createButton({
+	backgroundImage:'directorybutton.png',
+	top:10,
+    left:215,
+    width:75,
+    height:75
+});
 
-// on click animate width to 50 over 1 second
-rectangle.addEventListener('click', function(){
-	rectangle.animate({width:50, duration:1000});	
+var b4 = Titanium.UI.createButton({
+	backgroundImage:'newsbutton.png',
+	top:105,
+    left:25,
+    width:75,
+    height:75
+});
+
+var b5 = Titanium.UI.createButton({
+    backgroundImage:'sportsbutton.png',
+    top:105,
+    left:120,
+    width:75,
+    height:75
+});
+
+view1.add(b1);
+view1.add(b2);
+view1.add(b3);
+view1.add(b4);
+view1.add(b5);
+
+var view2 = Ti.UI.createView({
+	backgroundColor:'transparent'
+});
+
+var b10 = Titanium.UI.createButton({
+	backgroundImage:'dininghallsbutton.png',
+	top:10,
+    left:25,
+    width:75,
+    height:75
+});
+
+var b11 = Titanium.UI.createButton({
+	backgroundImage:'bobcattubebutton.png',
+	top:10,
+    left:120,
+    width:75,
+    height:75
+});
+
+var b12 = Titanium.UI.createButton({
+	backgroundImage:'audiobutton.png',
+	top:10,
+    left:215,
+    width:75,
+    height:75
+});
+
+view2.add(b10);
+view2.add(b11);
+view2.add(b12);
+
+var scrollView = Titanium.UI.createScrollableView({
+	views:[view1,view2],
+	showPagingControl:true,
+	pagingControlHeight:30,
+    pagingControlColor:'#660000'
+});
+
+win.add(scrollView);
+
+b1.addEventListener('click', function()
+{
+    var win2 = Titanium.UI.createWindow({
+        url:'ktsw.js',
+        barColor:'#660000',
+        title:'KTSW 89.9 FM'
+    });
+    Titanium.UI.currentTab.open(win2,{animated:true});
 });

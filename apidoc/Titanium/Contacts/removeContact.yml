@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Contacts.removeContact
+type: method
+description: 
+since: 0.8.0
+platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+returns: String
+parameters: 
+    - [contact, Object, (Contacts.Contact) The contact to remove.]

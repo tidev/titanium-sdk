@@ -1,0 +1,8 @@
+---
+namespace: Titanium.App.getArguments
+type: method
+description: get a dictionary of application launch arguments or null if none
+since: 0.8.0
+platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+returns: object
+parameters: []

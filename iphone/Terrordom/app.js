@@ -1,3 +1,4 @@
+if (true){
 var tableView = Titanium.UI.createTableView({
 	backgroundColor:'transparent',
 	borderColor:'transparent'
@@ -111,14 +112,13 @@ try
 	var tab6 = Titanium.UI.createTab({icon:'images/KS_nav_phone.png',title:'Tab 6',badge:null});
 
 
-	tabGroup.addTab(tabX);
-	tabGroup.addTab(tab1);
-	tabGroup.addTab(tab2);
-	tabGroup.addTab(tab3);
-	tabGroup.addTab(tab4);
-	tabGroup.addTab(tab6);
-
-	tabX.open(Ti.UI.createWindow({url:'rawtest.js',backgroundColor:'669933'}),{animated:true});
+	tabX.open(Ti.UI.createWindow({url:'rawtest.js',backgroundColor:'669933',
+			orientationModes : [
+//			Titanium.UI.PORTRAIT,
+//			Titanium.UI.UPSIDE_PORTRAIT,
+			Titanium.UI.LANDSCAPE_LEFT,
+			Titanium.UI.LANDSCAPE_RIGHT]
+			}),{animated:true});
 	tab6.open(Ti.UI.createWindow({url:'scrollable.js',backgroundColor:'669933'}));
 
 	
@@ -191,6 +191,14 @@ try
 	tab3.open(tab2win, {animated:true,title:'Tab 3'});
 	tab4.open(tab4win, {animated:true});
 	
+	
+	tabGroup.addTab(tabX);
+	tabGroup.addTab(tab1);
+	tabGroup.addTab(tab2);
+	tabGroup.addTab(tab3);
+//	tabGroup.addTab(tab4);
+//	tabGroup.addTab(tab6);
+
 	tabGroup.open();
 	
 // 	/*
@@ -794,3 +802,4 @@ catch(EX)
 	Ti.API.error("Error = "+EX);
 }
 
+}

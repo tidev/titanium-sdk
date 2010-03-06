@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.createCompositeView
+type: method
+description: Create a composite view
+since: 0.7.0
+platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+returns: CompositeView
+parameters: 
+    - [object, options, a dictionary/hash of options]

@@ -32,7 +32,7 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	self.frame = CGRectIntegral(self.frame);
+	[TiUtils setView:self positionRect:CGRectIntegral([TiUtils viewPositionRect:self])];
 	[TiUtils setView:button positionRect:bounds];
 }
 
@@ -51,35 +51,35 @@
 		id backgroundImage = [self.proxy valueForKey:@"backgroundImage"];
 		UIButtonType defaultType = backgroundImage!=nil ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
 		id style_ = [[self.proxy valueForKey:@"style"] retain];
-		style = style_!=nil ? [TiUtils intValue:style_] : defaultType;
+		style = IS_NULL_OR_NIL(style_) ? defaultType : [TiUtils intValue:style_];
 		UIView *btn = [TiButtonUtil buttonWithType:style];
 		button = (UIButton*)[btn retain];
 		[self addSubview:button];
-		if (style_==nil)
-		{
+//		if (style_==nil)
+//		{
 			[TiUtils setView:button positionRect:self.bounds];
-		}
-		else
-		{
+//		}
+//		else
+//		{
 			// if we use a system button, we use it's frame
-			self.frame = btn.frame;
+//			self.frame = btn.frame;
 			if (style==UIButtonTypeCustom)
 			{
 				[button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
 			}
-			LayoutConstraint *layout = [self layoutProperties];
-			// attempt to set the size if a system button and auto
-			if (TiDimensionIsAuto(layout->width) ||
-				TiDimensionIsUndefined(layout->width))
-			{
-				[self.proxy replaceValue:NUMFLOAT(btn.frame.size.width) forKey:@"width" notification:YES];
-			}
-			if (TiDimensionIsAuto(layout->height) ||
-				TiDimensionIsUndefined(layout->height))
-			{
-				[self.proxy replaceValue:NUMFLOAT(btn.frame.size.height) forKey:@"height" notification:YES];
-			}
-		}
+//			LayoutConstraint *layout = [self layoutProperties];
+//			// attempt to set the size if a system button and auto
+//			if (TiDimensionIsAuto(layout->width) ||
+//				TiDimensionIsUndefined(layout->width))
+//			{
+//				[self.proxy replaceValue:NUMFLOAT(btn.frame.size.width) forKey:@"width" notification:YES];
+//			}
+//			if (TiDimensionIsAuto(layout->height) ||
+//				TiDimensionIsUndefined(layout->height))
+//			{
+//				[self.proxy replaceValue:NUMFLOAT(btn.frame.size.height) forKey:@"height" notification:YES];
+//			}
+//		}
 		[button addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
 	}
 	return button;
@@ -89,21 +89,20 @@
 
 -(void)setStyle_:(id)style_
 {
-	// since this is destructive, make sure the 
-	// style change is *actually* different
-	if (button!=nil && style_!=nil)
+	int s = [TiUtils intValue:style_ def:UIButtonTypeCustom];
+	if (s == style)
 	{
-		int s = [TiUtils intValue:style_];
-		if (s == style)
-		{
-			return;
-		}
-		style = s;
+		return;
 	}
-	if (button!=nil)
+	style = s;
+
+	
+	if (button==nil)
 	{
-		RELEASE_TO_NIL(button);
+		return;
 	}
+
+	RELEASE_TO_NIL(button);
 	[self button];
 }
 
@@ -224,6 +223,16 @@
 			[b setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
 		}
 	}
+}
+
+-(CGFloat)autoWidthForWidth:(CGFloat)value
+{
+	return [[self button] sizeThatFits:CGSizeMake(value, 0)].width;
+}
+
+-(CGFloat)autoHeightForWidth:(CGFloat)value
+{
+	return [[self button] sizeThatFits:CGSizeMake(value, 0)].height;
 }
 
 @end

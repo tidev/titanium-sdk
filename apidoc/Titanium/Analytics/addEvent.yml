@@ -1,0 +1,11 @@
+---
+namespace: Titanium.Analytics.addEvent
+type: method
+description: send an analytics event associated with the application
+since: 0.4.0
+platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+returns: String
+parameters: 
+    - [string, evttype, event type]
+    - [string, evtname, event name]
+    - [string, data, (optional) event data]

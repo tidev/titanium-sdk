@@ -1,0 +1,9 @@
+---
+namespace: Titanium.API.warn
+type: method
+description: "logs an object with severity \"warn\""
+since: 0.4.0
+platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+returns: String
+parameters: 
+    - [string, note, the value to log]

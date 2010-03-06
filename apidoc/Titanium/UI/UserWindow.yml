@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.UserWindow
+type: method
+description: 
+since: 0.8.0
+returns: String
+parameters: 
+    - [object, options, "set to {animated:false} to disable the navigation animation"]

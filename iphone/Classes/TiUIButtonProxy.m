@@ -24,26 +24,14 @@
 	[super _configure];
 }
 
--(CGFloat)autoHeightForWidth:(CGFloat)suggestedWidth
+//USE_VIEW_FOR_AUTO_WIDTH
+//
+//USE_VIEW_FOR_AUTO_HEIGHT
+
+-(void)setStyle:(id)value
 {
-	id style = [self valueForKey:@"style"];
-	int type = style!=nil ? [TiUtils intValue:style] : UIButtonTypeCustom;
-	switch(type)
-	{
-		case UITitaniumNativeItemInfoLight:
-		case UITitaniumNativeItemInfoDark:
-		case UITitaniumNativeItemDisclosure:
-		{
-			return 20;
-		}
-	}
-	TiDimension size = [TiUtils dimensionValue:[self valueForKey:@"height"]];
-	if (TiDimensionIsPixels(size))
-	{
-		return size.value;
-	}
-	// reasonable default?
-	return 50;
+	styleCache = [TiUtils intValue:value def:UIButtonTypeCustom];
+	[self replaceValue:value forKey:@"style" notification:YES];
 }
 
 -(UIBarButtonItem*)barButtonItem
@@ -60,6 +48,46 @@
 	}
 	return button;
 }
+
+-(CGFloat) verifyWidth:(CGFloat)suggestedWidth
+{
+	switch(styleCache)
+	{
+		case UITitaniumNativeItemInfoLight:
+		case UITitaniumNativeItemInfoDark:
+			return 18;
+		case UITitaniumNativeItemDisclosure:
+			return 29;
+	}
+	return suggestedWidth;
+}
+
+-(CGFloat) verifyHeight:(CGFloat)suggestedHeight
+{
+	switch(styleCache)
+	{
+		case UITitaniumNativeItemInfoLight:
+		case UITitaniumNativeItemInfoDark:
+			return 19;
+		case UITitaniumNativeItemDisclosure:
+			return 31;
+	}
+	return suggestedHeight;
+}
+
+
+-(UIViewAutoresizing) verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
+{
+	switch (styleCache)
+	{
+		case UITitaniumNativeItemInfoLight:
+		case UITitaniumNativeItemInfoDark:
+		case UITitaniumNativeItemDisclosure:
+			return suggestedResizing & ~(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+	}
+	return suggestedResizing;
+}
+
 
 -(void)removeBarButtonView
 {
