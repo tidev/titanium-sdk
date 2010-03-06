@@ -24,6 +24,7 @@ public class WebViewProxy extends ViewProxy
 
 	private static final int MSG_SET_URL = MSG_FIRST_ID + 100;
 	private static final int MSG_SET_HTML = MSG_FIRST_ID + 101;
+	private static final int MSG_EVAL_JS = MSG_FIRST_ID + 102;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	
 	public WebViewProxy(TiContext context, Object[] args) {
@@ -63,6 +64,18 @@ public class WebViewProxy extends ViewProxy
 		}
 	}
 	
+	public Object evalJS(String code) {
+		if (getTiContext().isUIThread()) {
+			return getWebView().getJSValue(code);
+		} else {
+			AsyncResult result = new AsyncResult(code);
+			Message msg = getUIHandler().obtainMessage(MSG_EVAL_JS, result);
+			msg.obj = result;
+			msg.sendToTarget();
+			return result.getResult();
+		}
+	}
+	
 	@Override
 	public boolean handleMessage(Message msg) {
 		switch (msg.what) {
@@ -71,6 +84,11 @@ public class WebViewProxy extends ViewProxy
 				return true;
 			case MSG_SET_HTML:
 				getWebView().setHtml((String)msg.obj);
+				return true;
+			case MSG_EVAL_JS:
+				AsyncResult result = (AsyncResult)msg.obj;
+				String value = getWebView().getJSValue((String)result.getArg());
+				result.setResult(value);
 				return true;
 		}
 		return super.handleMessage(msg);

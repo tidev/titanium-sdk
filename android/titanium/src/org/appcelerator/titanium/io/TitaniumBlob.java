@@ -94,6 +94,6 @@ public class TitaniumBlob extends TiBaseFile
 
 	@Override
 	public File getNativeFile() {
-		return null;
+		return new File(path);
 	}
 }

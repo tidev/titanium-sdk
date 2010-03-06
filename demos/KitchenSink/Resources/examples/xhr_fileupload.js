@@ -20,6 +20,7 @@ Titanium.Media.openPhotoGallery({
 
 	success:function(event)
 	{
+		Ti.API.info("success! event: " + JSON.stringify(event));
 		var image = event.media;
 	
 		var xhr = Titanium.Network.createHTTPClient();
