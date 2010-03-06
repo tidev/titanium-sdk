@@ -16,8 +16,8 @@
 
 % if data.deprecated:
 <div class="deprecated">
-	<h3>This object is deprecated:</h3>
-	${data.deprecated}
+	This function was deprecated in <strong>${data.deprecated['version']}</strong>.
+	${data.deprecated['reason']}
 </div>
 % endif
 

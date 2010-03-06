@@ -67,7 +67,7 @@ class API(object):
 		self.properties = []
 		self.examples = []
 		self.type = 'module'
-		self.deprecated = False
+		self.deprecated = None
 		self.description = ''
 		self.events = []
 		self.platforms = []
