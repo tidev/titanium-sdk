@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Map.HYBRID_TYPE
+type: property
+description: constant representing the hybrid map type
+since: 0.8.0
+platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+returns: String

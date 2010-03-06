@@ -1,0 +1,9 @@
+---
+namespace: Titanium.App.Properties
+type: method
+description: 
+since: 0.8.0
+returns: list
+parameters: 
+    - [string, name, the property name]
+    - [list, name, "a default value to return if the property doesn't exist"]

@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.createActivityIndicator
+type: method
+description: "Creates an UI.ActivityIndicator object Also known as a 'spinner'."
+since: 0.6.0
+platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+returns: object
+parameters: 
+    - [object, properties, the properties to copy to the new UI.ActivityIndicator object during creation]

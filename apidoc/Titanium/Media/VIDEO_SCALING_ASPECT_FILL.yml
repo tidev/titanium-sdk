@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Media.VIDEO_SCALING_ASPECT_FILL
+type: property
+description: scalingMode to scale the movie until the movie fills the entire screen. Content at the edges of the larger of the two dimensions is clipped so that the other dimension fits the screen exactly. The aspect ratio of the movie is preserved.
+since: 0.4.0
+platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+returns: String

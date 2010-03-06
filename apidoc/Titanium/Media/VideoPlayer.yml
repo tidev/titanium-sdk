@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Media.VideoPlayer
+type: method
+description: 
+since: 0.8.0
+returns: function
+parameters: 
+    - [string, type, "the type of Media.VideoPlayer event to listen for. Currently no events are generated. TODO: define events"]
+    - [method, listener, listener method]

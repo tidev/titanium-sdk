@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Database.DB
+type: method
+description: 
+since: 0.8.0
+returns: object
+parameters: 
+    - [string, sql, sql expression]
+    - [object, args, one or more arguments to be inserted in the expression. May be integer, float, string, or data blob]

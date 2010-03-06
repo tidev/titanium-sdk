@@ -1,0 +1,68 @@
+
+<h1 class="namespace">${data.namespace} method</h1>
+
+% if hasattr(data, 'since'):
+<div class="since">${data.since}</div>
+%endif
+
+% if hasattr(data, 'platforms'):
+<div class="platforms">
+% for p in data.platforms:
+	<span class="${p}">&nbsp;&nbsp;&nbsp;</span>
+%endfor
+</div>
+%endif
+
+% if data.deprecated:
+<div class="deprecated">
+	<h3>This method is deprecated:</h3>
+	${data.deprecated}
+</div>
+% endif
+
+<div class="signature">
+${data.returns} ${data.name()}(\
+% for i, param in enumerate(data.parameters):
+% if i != 0:
+, \
+%endif
+${param['type']} ${param['name']}\
+% endfor
+)
+</div>
+
+<div class="description">
+${data.description}
+</div>
+
+% if len(data.parameters) != 0:
+<h3>Arguments</h3>
+<table>
+<tr>
+	<th>Type</th>
+	<th>Name</th>
+	<th>Description</th>
+</tr> 
+% for param in data.parameters:
+<tr>
+	<td class="type">${param['type']}</td>
+	<td class="name">${param['name']}</td>
+	<td class="description">${param['description']}</td>
+</tr>
+% endfor
+</table>
+% endif
+
+% if len(data.examples) > 0:
+<h3>Code Examples</h3>
+
+% for example in data.examples :
+<div>${example['description']}</div>
+
+<script type="syntaxhighlighter" class="brush: js"><![CDATA[
+	${example['code']}
+]]></script>
+
+% endfor
+
+% endif
