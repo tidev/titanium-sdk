@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.TextField.rightButton
+type: property
+description: UI.Button placed in the right edge of the TextField. Replaces the clearButton
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

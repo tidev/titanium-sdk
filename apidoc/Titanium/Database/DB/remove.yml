@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Database.DB.remove
+type: method
+description: Remove this database from the device. This is a destructive operation.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

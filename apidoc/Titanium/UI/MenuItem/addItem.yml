@@ -1,0 +1,11 @@
+---
+namespace: Titanium.UI.MenuItem.addItem
+type: method
+description: Add a menu item
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: MenuItem
+parameters: 
+    - [string, label, Menu item label]
+    - [function, callback, Function to invoke when menu item is selected]
+    - [string, icon, Path to icon.]

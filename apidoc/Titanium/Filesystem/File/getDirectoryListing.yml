@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Filesystem.File.getDirectoryListing
+type: method
+description: Returns a list containing the names of items in a directory.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: list
+parameters: []

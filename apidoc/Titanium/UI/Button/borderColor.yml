@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.Button.borderColor
+type: property
+description: a web color of the corners behind the button. Default is transparent.
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

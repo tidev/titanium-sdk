@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Contacts.Contact.date
+type: property
+description: (multivalue of dates)
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

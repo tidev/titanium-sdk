@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Contacts.Contact.setCreationDate
+type: method
+description: saves the Contacts.Contact.creationDate property
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [Date, newCreationDate, The new date.]

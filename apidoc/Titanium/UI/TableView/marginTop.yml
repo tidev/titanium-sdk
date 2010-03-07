@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.TableView.marginTop
+type: property
+description: (dimension) The size of the space placed above the UI.TableView.
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

@@ -1,0 +1,10 @@
+---
+namespace: Titanium.Database.DB.execute
+type: method
+description: Perform an operation on the database.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: Database.ResultSet
+parameters: 
+    - [string, sql, the SQL text. Multiple statements, separated by semi-colons, are not supported on Android.]
+    - [integer|float|string, args, (optional) one or more arguments appearing after the sql parameter. Must be integer, float, string, or any data converted to string]

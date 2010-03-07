@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.MenuItem.isRoot
+type: method
+description: Determines if this menu item is the root item
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: boolean
+parameters: []

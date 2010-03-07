@@ -1,0 +1,8 @@
+---
+namespace: Titanium.App.SystemProperties.listProperties
+type: method
+description: Retrieve a list of property names
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: list
+parameters: []

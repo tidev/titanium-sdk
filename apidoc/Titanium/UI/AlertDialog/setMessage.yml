@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.AlertDialog.setMessage
+type: method
+description: Set the dialog message
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [string, message, message to display in the dialog]

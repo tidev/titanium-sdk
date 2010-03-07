@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Contacts.Contact.birthday
+type: property
+description: (date)
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

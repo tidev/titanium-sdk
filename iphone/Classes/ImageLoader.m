@@ -194,7 +194,7 @@ DEFINE_EXCEPTIONS
 	UIImage *image = [cache objectForKey:[url absoluteString]];
 	if (image!=nil)
 	{
-		[self performSelectorOnMainThread:@selector(notifyImageCompleted:) withObject:[NSArray arrayWithObjects:request,image,nil] waitUntilDone:NO];
+		[self performSelectorOnMainThread:@selector(notifyImageCompleted:) withObject:[NSArray arrayWithObjects:request,image,nil] waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 		return;
 	}
 	if ([url isFileURL])
@@ -202,7 +202,7 @@ DEFINE_EXCEPTIONS
 		UIImage *image = [self loadImmediateImage:url];
 		if (image!=nil)
 		{
-			[self performSelectorOnMainThread:@selector(notifyImageCompleted:) withObject:[NSArray arrayWithObjects:request,image,nil] waitUntilDone:NO];
+			[self performSelectorOnMainThread:@selector(notifyImageCompleted:) withObject:[NSArray arrayWithObjects:request,image,nil] waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 			return;
 		}
 	}

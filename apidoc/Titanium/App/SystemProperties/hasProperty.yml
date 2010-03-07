@@ -1,0 +1,9 @@
+---
+namespace: Titanium.App.SystemProperties.hasProperty
+type: method
+description: Detect existence of a property
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: boolean
+parameters: 
+    - [string, name, property name]

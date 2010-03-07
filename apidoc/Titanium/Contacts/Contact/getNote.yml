@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Contacts.Contact.getNote
+type: method
+description: retrieves the Contacts.Contact.note property
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: Array<Label/Value pair<String>>
+parameters: []

@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.iPhone.NONE
+type: property
+description: constant used to describe a row replacement where the new cell value appears as if the cell had just been reloaded.. In iPhone OS 2.2.1, this is a fade instead.
+since: 0.6.0
+platforms: ['android', 'iphone']
+returns: String

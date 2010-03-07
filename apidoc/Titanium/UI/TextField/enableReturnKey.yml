@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.TextField.enableReturnKey
+type: property
+description: if true, will have the return key enabled if and only if there field is not empty
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

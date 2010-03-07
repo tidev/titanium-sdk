@@ -15,7 +15,7 @@ USE_VIEW_FOR_AUTO_WIDTH
 
 -(CGFloat)autoHeightForWidth:(CGFloat)suggestedWidth
 {
-	NSString *value = [self valueForKey:@"text"];
+	NSString *value = [TiUtils stringValue:[self valueForKey:@"text"]];
 	id fontValue = [self valueForKey:@"font"];
 	UIFont *font = nil;
 	if (fontValue!=nil)

@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.currentWindow.removeEventListener
+type: method
+description: removes an event listener from focused or unfocused events
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

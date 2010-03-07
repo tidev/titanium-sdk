@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Map.MapView.selectAnnotation
+type: method
+description: select an annotation
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

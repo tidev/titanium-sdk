@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.TabbedBar.color
+type: property
+description: a web color that the label text should have, if the tabbed bar is in the content area.
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String
