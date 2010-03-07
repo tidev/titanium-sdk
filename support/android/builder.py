@@ -211,7 +211,7 @@ class Builder(object):
 				deploy_type = 'test'
 			else:
 				deploy_type = 'production'
-				
+		
 		aapt = os.path.join(self.tools_dir,'aapt')
 		android_jar = os.path.join(self.platform_dir,'android.jar')
 		titanium_jar = os.path.join(self.support_dir,'titanium.jar')
@@ -241,9 +241,17 @@ class Builder(object):
 					shutil.copy(jar, 'lib')
 
 			resources_dir = os.path.join(self.top_dir,'Resources')
-			assets_dir = os.path.join('bin','assets')
+			assets_dir = os.path.join(self.project_dir,'bin','assets')
 			asset_resource_dir = os.path.join(assets_dir,'Resources')
-
+			
+			if not os.path.exists(assets_dir):
+				os.makedirs(assets_dir)
+			
+			shutil.copy(os.path.join(self.top_dir,'tiapp.xml'), assets_dir)
+			finalxml = os.path.join(assets_dir,'tiapp.xml')
+			tiapp = TiAppXML(finalxml)
+			tiapp.setDeployType(deploy_type)
+			
 			# we re-run the create each time through in case any of our key files
 			# have changed
 			android = Android(self.name,self.app_id,self.sdk)
@@ -340,13 +348,13 @@ class Builder(object):
 			}
 			
 			VIDEO_ACTIVITY = """<activity
-			android:name="org.appcelerator.titanium.TitaniumVideoActivity"
+			android:name="ti.modules.titanium.media.TiVideoActivity"
 			android:configChanges="keyboardHidden|orientation"
 			android:launchMode="singleTask"
 	    	/>"""
 	
 			MAP_ACTIVITY = """<activity
-	    		android:name="org.appcelerator.titanium.module.map.TitaniumMapActivity"
+	    		android:name="ti.modules.titanium.map.TiMapActivity"
 	    		android:configChanges="keyboardHidden|orientation"
 	    		android:launchMode="singleTask"
 	    	/>
@@ -409,7 +417,7 @@ class Builder(object):
 			# build the permissions XML based on the permissions detected
 			permissions_required_xml = ""
 			for p in permissions_required:
-				permissions_required_xml+="<uses-permission android:name=\"android.permission.%s\"/>\n\t" % p				
+				permissions_required_xml+="<uses-permission android:name=\"android.permission.%s\"/>\n\t" % p
 			
 			use_maps = False
 			# copy any module image directories
@@ -426,14 +434,6 @@ class Builder(object):
 					copy_resources(img_dir,dest_img_dir)
 				
 
-			shutil.copy(os.path.join(self.top_dir,'tiapp.xml'), assets_dir)
-			
-			tiapp = open(os.path.join(assets_dir, 'tiapp.xml')).read()
-			
-			finalxml = os.path.join(assets_dir,'tiapp.xml')
-			tiapp = TiAppXML(finalxml)
-			tiapp.setDeployType(deploy_type)
-			
 			iconname = tiapp.properties['icon']
 			iconpath = os.path.join(asset_resource_dir,iconname)
 			iconext = os.path.splitext(iconpath)[1]
@@ -595,8 +595,8 @@ class Builder(object):
 						
 			classpath = android_jar + os.pathsep + titanium_jar + os.pathsep.join(jarlist)
 			# TODO re-enable me
-			#if use_maps:
-			#	classpath += os.pathsep + timapjar
+			if use_maps:
+				classpath += os.pathsep + timapjar
 			
 			javac_command = [javac, '-classpath', classpath, '-d', classes_dir, '-sourcepath', src_dir]
 			javac_command += srclist
