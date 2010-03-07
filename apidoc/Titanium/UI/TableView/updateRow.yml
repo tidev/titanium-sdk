@@ -1,8 +1,0 @@
----
-namespace: Titanium.UI.TableView.updateRow
-type: method
-description: replaces a row from the table view
-since: 0.6.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []
