@@ -625,8 +625,12 @@ class Builder(object):
 			rhino_jar = os.path.join(self.support_dir, 'js.jar')
 			run.run([aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', assets_dir, '-S', 'res', '-I', android_jar, '-I', titanium_jar, '-F', ap_])
 		
-			unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')	
-			run.run([apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', classes_dex, '-rf', src_dir, '-rj', titanium_jar, '-rj', rhino_jar])
+			unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
+			apk_build_cmd = [apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', classes_dex, '-rf', src_dir, '-rj', titanium_jar, '-rj', rhino_jar]
+			for module in android_module_jars:
+				apk_build_cmd += ['-rj', module]
+			
+			run.run(apk_build_cmd)
 	
 			if dist_dir:
 				app_apk = os.path.join(dist_dir, project_name + '.apk')	
