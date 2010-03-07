@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Platform.ostype
+type: property
+description: The architecture type of the system (either 32 bit or 64 bit)
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string

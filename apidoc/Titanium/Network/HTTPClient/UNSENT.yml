@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Network.HTTPClient.UNSENT
+type: property
+description: The UNSENT readyState property
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String

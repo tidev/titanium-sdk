@@ -3,7 +3,7 @@ var data = [
 	{title:'Row 1', hasChild:true},
 	{title:'Row 2', hasDetail:true},
 	{title:'Row 3'},
-	{title:'Append Row (first no anim)'}
+	{title:'Append Row & height=100'}
 	
 
 ];
@@ -22,6 +22,7 @@ tableview.addEventListener('click', function(e)
 	var index = e.index;
 	var section = e.section;
 	var row = e.row;
+	row.height = 100;
 	var rowdata = e.rowData;
 	
 	if (index == 3)

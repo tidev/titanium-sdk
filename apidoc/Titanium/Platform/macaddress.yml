@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Platform.macaddress
+type: property
+description: The primary MAC address of the system
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string

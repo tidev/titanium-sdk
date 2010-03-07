@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Platform.version
+type: property
+description: The operating system version
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string

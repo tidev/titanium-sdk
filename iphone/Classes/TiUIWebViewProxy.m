@@ -19,6 +19,8 @@
 	return [result text];
 }
 
+USE_VIEW_FOR_AUTO_HEIGHT
+
 - (NSString*)html
 {
 	NSString *html = [self evalJS:@"document.documentElement.outerHTML"];

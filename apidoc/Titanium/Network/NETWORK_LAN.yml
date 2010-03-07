@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Network.NETWORK_LAN
+type: property
+description: Indicates that there is an ethernet or wired network present.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: int

@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.PORTRAIT_AND_LANDSCAPE
+type: property
+description: integer that represents portrait or landscape (But not upside-down portrait) orientation
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string

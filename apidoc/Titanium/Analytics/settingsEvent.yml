@@ -1,0 +1,10 @@
+---
+namespace: Titanium.Analytics.settingsEvent
+type: function
+description: send an application settings event.
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: 
+    - [string, event, name of the event]
+    - [object, data, (optional) data to send with the event]

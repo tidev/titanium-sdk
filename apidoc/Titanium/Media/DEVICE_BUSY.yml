@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Media.DEVICE_BUSY
+type: property
+description: integer error indicating the camera or image picker is already in use
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string

@@ -3,5 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-filesystem"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/titanium-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/titanium-app"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

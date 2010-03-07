@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.ActivityIndicator.INDETERMINANT
+type: property
+description: Show activity as indeterminant
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String

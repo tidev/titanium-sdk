@@ -16,6 +16,9 @@ import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.kroll.KrollObject;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -24,6 +27,7 @@ import android.net.Uri;
 public class TiConvert
 {
     private static final String LCAT = "TiConvert";
+    private static final boolean DBG = TiConfig.LOGD;
 
     public static final String ASSET_URL = "file:///android_asset/"; // class scope on URLUtil
 
@@ -305,5 +309,68 @@ public class TiConvert
 
     public static TiBlob toBlob(TiDict object, String property) {
         return toBlob(object.get(property));
+    }
+
+    // JSON
+
+    public static JSONObject toJSON(TiDict data)
+    {
+    	JSONObject json = new JSONObject();
+
+    	for (String key : data.keySet()) {
+
+    		try {
+    			Object o = data.get(key);
+    			if (o == null) {
+    				json.put(key, JSONObject.NULL);
+    			} else if (o instanceof Number) {
+    				json.put(key, (Number) o);
+    			} else if (o instanceof String) {
+    				json.put(key, (String) o);
+    			} else if (o instanceof Boolean) {
+    				json.put(key, (Boolean) o);
+    			} else if (o instanceof TiDict) {
+    				json.put(key, toJSON((TiDict) o));
+    			} else if (o.getClass().isArray()) {
+    				json.put(key, toJSONArray((Object[]) o));
+    			}  else {
+    				Log.w(LCAT, "Unsupported type " + o.getClass());
+    			}
+    		} catch (JSONException e) {
+    			Log.w(LCAT, "Unable to JSON encode key: " + key);
+    		}
+    	}
+
+    	return json;
+    }
+
+    private static JSONArray toJSONArray(Object[] a) {
+    	JSONArray ja = new JSONArray();
+
+
+    	for (Object o : a) {
+    		if (o == null) {
+    			if (DBG) {
+    				Log.w(LCAT, "Skipping null value in array");
+    			}
+    			continue;
+    		}
+    		if (o == null) {
+    			ja.put(JSONObject.NULL);
+    		} else if (o instanceof Number) {
+				ja.put((Number) o);
+			} else if (o instanceof String) {
+				ja.put((String) o);
+			} else if (o instanceof Boolean) {
+				ja.put((Boolean) o);
+			} else if (o instanceof TiDict) {
+				ja.put(toJSON((TiDict) o));
+			} else if (o.getClass().isArray()) {
+				ja.put(toJSONArray((Object[]) o));
+			} else {
+				Log.w(LCAT, "Unsupported type " + o.getClass());
+			}
+    	}
+    	return ja;
     }
 }

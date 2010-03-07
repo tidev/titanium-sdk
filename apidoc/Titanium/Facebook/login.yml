@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Facebook.login
+type: function
+description: login to facebook - which will cause login dialog to show if necessary
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: 
+    - [function, callback, callback function to be invoked when completed with result object]

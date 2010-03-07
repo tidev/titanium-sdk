@@ -1,0 +1,10 @@
+---
+namespace: Titanium.Network.HTTPClient.open
+type: method
+description: open an HTTP connection
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [string, method, HTTP method (GET, POST, HEAD)]
+    - [string, url, Url to perform method on]

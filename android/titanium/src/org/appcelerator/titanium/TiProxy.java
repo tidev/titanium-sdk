@@ -10,7 +10,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.bridge.OnEventListenerChange;
-import org.appcelerator.titanium.kroll.KrollCallback;
+import org.appcelerator.titanium.kroll.IKrollCallable;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
@@ -246,11 +246,11 @@ public class TiProxy implements Handler.Callback, TiDynamicMethod, OnEventListen
 	public void fireSingleEvent(String eventName, Object listener, TiDict data)
 	{
 		if (listener != null) {
-			KrollCallback callback = (KrollCallback) listener;
+			IKrollCallable callable = (IKrollCallable) listener;
 			if (data == null) {
 				data = new TiDict();
 			}
-			callback.callWithProperties(data);
+			callable.callWithProperties(data);
 		}
 	}
 

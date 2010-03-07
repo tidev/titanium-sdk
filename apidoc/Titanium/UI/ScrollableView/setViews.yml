@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.ScrollableView.setViews
+type: method
+description: set views in scrollable
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [array, views, Array of Titanium views]

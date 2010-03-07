@@ -1,0 +1,9 @@
+---
+namespace: Titanium.App.SystemProperties.getList
+type: method
+description: Remove a property
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [string, name, property name]

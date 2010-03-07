@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.LANDSCAPE
+type: property
+description: integer that represents both landscape left or landscape right orientation - this is the same as Gesture.LANDSCAPE
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string

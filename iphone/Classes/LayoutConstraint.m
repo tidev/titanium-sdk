@@ -216,6 +216,12 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
 
 void ApplyConstraintToViewWithinViewWithBounds(LayoutConstraint * constraint, TiUIView * subView, UIView * superView, CGRect viewBounds, BOOL addToSuperView)
 {
+	if(constraint == NULL)
+	{
+		NSLog(@"[ERROR] Trying to constraint a view without a proxy's layout.");
+		return;
+	}
+
 	UIViewAutoresizing resultMask = UIViewAutoresizingNone;
 	CGRect resultBounds;
 	resultBounds.origin = CGPointZero;

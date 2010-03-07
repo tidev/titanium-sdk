@@ -1,15 +1,19 @@
 <h1 class="namespace">${data.namespace}</h1>
 <div class="namespace_type">property</div>
+
 <div class="since">${data.since}</div>
+
+% if hasattr(data, 'platforms'):
 <div class="platforms">
 % for p in data.platforms:
-<span class="${p}">&nbsp;&nbsp;&nbsp;</span>
-% endfor
+	<span class="${p}">&nbsp;&nbsp;&nbsp;</span>
+%endfor
 </div>
+%endif
 
 % if data.deprecated:
 <div class="deprecated">
-	This property was deprecated in <strong>${data.deprecated['version']}</strong>.
+	This function was deprecated in <strong>${data.deprecated['version']}</strong>.
 	${data.deprecated['reason']}
 </div>
 % endif
@@ -18,7 +22,7 @@
 ${data.description}
 </div>
 
-<h3>Return Type</h3>
+<h3>Type</h3>
 <div>
 ${data.returns}
 </div>

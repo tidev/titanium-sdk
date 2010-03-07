@@ -1,0 +1,10 @@
+---
+namespace: Titanium.Geolocation.forwardGeocoder
+type: function
+description: forward geocode an address into a latitude, longitude coordinate
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: 
+    - [string, address, address to forward geocode]
+    - [function, callback, function to callback]

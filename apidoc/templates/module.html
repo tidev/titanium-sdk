@@ -1,77 +1,89 @@
 
 <h1 class="namespace">${data.namespace}</h1>
 <div class="namespace_type">module</div>
+
+% if hasattr(data, 'since'):
 <div class="since">${data.since}</div>
+%endif
+
+% if hasattr(data, 'platforms'):
 <div class="platforms">
 % for p in data.platforms:
-<span class="${p}">&nbsp;&nbsp;&nbsp;</span>
-% endfor
+	<span class="${p}">&nbsp;&nbsp;&nbsp;</span>
+%endfor
 </div>
+%endif
 
 % if data.deprecated:
 <div class="deprecated">
-	This module was deprecated in <strong>${data.deprecated['version']}</strong>.
+	This function was deprecated in <strong>${data.deprecated['version']}</strong>.
 	${data.deprecated['reason']}
 </div>
 % endif
+
 
 <div class="description">
 ${data.description}
 </div>
 
-<h3>Methods</h3>
-% if len(data.methods)==0:
-This module has no methods
-% else:
+% if len(data.modules) != 0:
+<h3>Submodules</h3>
 <table>
+% for module in data.modules:
 <tr>
-	<th>Name</th>
-	<th>Description</th>
-</tr> 
-
-% for method in data.methods:
-<tr>
-	<td class="name">
-		<a href="${data.namespace}.${method.name}">${method.name}</a>
-(\
-% for i, param in enumerate(method.parameters):
-% if i != 0:
-, \
-%endif
-${param['type']} ${param['name']}\
-% endfor
-)
-	</td>
-	<td class="description">${method.description}</td>
+	<td class="name"><a href="${module.namespace}.html">${module.name()}</a></td>
+	<td class="description">${module.description}</td>
 </tr>
 % endfor
 </table>
 % endif
 
+% if len(data.objects) != 0:
+<h3>Objects</h3>
+<table>
+% for object in data.objects:
+<tr>
+	<td class="name"><a href="${object.namespace}.html">${object.name()}</a></td>
+	<td class="description">${object.description}</td>
+</tr>
+% endfor
+</table>
+% endif
+
+% if len(data.methods) != 0:
+<h3>Functions</h3>
+<table>
+% for method in data.methods:
+	<tr>
+		<td class="name">
+			<a href="${method.namespace}.html">${method.name()}</a>
+		</td>
+		<td class="description">${method.description}</td>
+	</tr>
+% endfor
+</table>
+% endif
+
+% if len(data.properties) != 0:
 <h3>Properties</h3>
-% if len(data.properties)==0:
-This module has no properties
-% else:
 <table>
 <tr>
-	<th>Name</th>
 	<th>Type</th>
+	<th>Name</th>
 	<th>Description</th>
 </tr> 
 % for prop in data.properties:
 <tr>
-	<td class="name"><a href="${data.namespace}.${prop.name}">${prop.name}</a></td>
 	<td class="type">${prop.returns}</td>
+	<td class="name"><a href="${prop.namespace}.html">${prop.name()}</a></td>
 	<td class="description">${prop.description}</td>
 </tr>
 % endfor
 </table>
 % endif
 
+% if len(data.events) != 0:
 <h3>Events</h3>
-% if len(data.events)==0:
-This module has no events
-% else:
 <table>
 <tr>
 	<th>Name</th>
@@ -79,14 +91,16 @@ This module has no events
 </tr> 
 % for event in data.events:
 <tr>
-	<td class="name"><a href="${data.namespace}.${event['name']}">${event['name']}</a></td>
+	<td class="name">${event['name']}</a></td>
 	<td class="description">
-		${event['value']}
-% if event.has_key('properties') :		
+		${event['description']}
+% if 'properties' in event:
 		<h4>Event properties</h4>
 		<table class="event">
-% for prop in event['properties']:			
-			<tr><td class="name">${prop}</td><td>${event['properties'][prop]}</td></tr>
+% for prop in event['properties']:
+% for name in prop:
+			<tr><td class="name">${name}</td><td>${prop[name]}</td></tr>
+% endfor
 % endfor
 		</table>
 	</td>
@@ -103,17 +117,14 @@ This module has no events
 <div>${example['description']}</div>
 
 <script type="syntaxhighlighter" class="brush: js"><![CDATA[
-${example['code']}
+	${example['code']}
 ]]></script>
 
 % endfor
 
 % endif
 
-% if data.notes:
-
+% if hasattr(data, 'notes'):
 <h3>Notes</h3>
-
 <div>${data.notes}</div>
-
 % endif

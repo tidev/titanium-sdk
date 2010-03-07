@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.TextArea.keyboardType
+type: property
+description: the style of software keyboard used for entry. If unset, UI.KEYBOARD_DEFAULT is used.
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

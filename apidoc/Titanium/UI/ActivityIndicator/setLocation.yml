@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.ActivityIndicator.setLocation
+type: method
+description: Set the location of the activity indicator
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [int, location, STATUS_BAR or DIALOG]

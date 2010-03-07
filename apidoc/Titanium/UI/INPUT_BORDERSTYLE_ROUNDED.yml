@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
+type: property
+description: A possible value for UI.TextField.borderStyle; indicates a round-rectangle-shaped bezel will be used.
+since: 0.5.0
+platforms: ['android', 'iphone']
+returns: string

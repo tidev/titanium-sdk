@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.MenuItem.isSeparator
+type: method
+description: "Determine if this menu item is a separator Android doesn't have the concept of a separator, so these items are ignored."
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: boolean
+parameters: []

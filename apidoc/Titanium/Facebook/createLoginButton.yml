@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Facebook.createLoginButton
+type: function
+description: create facebook login/logout button (will auto login)
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: object
+parameters: 
+    - [object, properties, properties such as id (required), style (optional), apikey (optional), secret (optional)]

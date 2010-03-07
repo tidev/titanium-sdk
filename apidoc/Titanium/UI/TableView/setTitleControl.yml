@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.TableView.setTitleControl
+type: method
+description: Replaces the title area of the nav bar with a UI.Button
+since: 0.5.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [UI.Button, titleControl, Control to place. Pass in null to remove the current UI.Button and reveal the title image or title.]

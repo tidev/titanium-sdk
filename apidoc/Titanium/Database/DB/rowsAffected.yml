@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Database.DB.rowsAffected
+type: property
+description: Same as getRowsAffected method.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: int

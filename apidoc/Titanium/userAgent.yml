@@ -1,0 +1,7 @@
+---
+namespace: Titanium.userAgent
+type: property
+description: titanium platform userAgent property
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string

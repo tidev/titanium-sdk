@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Contacts.Contact.displayLabel
+type: property
+description: "(read-only string) Accessor returns displayName if it is defined. Else, returns organization[0].value.company if is defined. Else, returns phone[0].value if it is defined. Else, returns 'No Name'."
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

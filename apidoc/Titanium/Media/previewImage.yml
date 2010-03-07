@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Media.previewImage
+type: function
+description: Start the photo gallery on a specific image.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: 
+    - [object, options, hash/dictionary of viewing options.]

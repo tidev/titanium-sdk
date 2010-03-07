@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.TextField.borderStyle
+type: property
+description: the style of border used by the TextField. If unset, UI.INPUT_BORDERSTYLE_NONE is used.
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

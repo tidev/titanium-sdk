@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.createMenu
+type: function
+description: Create a new root menu item
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: MenuItem
+parameters: []

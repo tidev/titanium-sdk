@@ -1,0 +1,8 @@
+---
+namespace: Titanium.App.getURL
+type: function
+description: get the application url
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: []

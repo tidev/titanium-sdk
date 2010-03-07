@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.TableView.close
+type: method
+description: Closes a window - pops it from the navigation and returns to the parent window
+since: 0.5.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

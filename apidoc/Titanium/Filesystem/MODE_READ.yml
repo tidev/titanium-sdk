@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Filesystem.MODE_READ
+type: property
+description: Flag for opening in read mode.
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: string

@@ -10,11 +10,16 @@
 	Hello from local webview. You should see an indicator in the middle and my text should be blue.
 	We are also including JQuery
 	<div id="foo" style="margin-top:20px;font-weight:bold">hello</div>
+	
 	<script>
-		my_global_variable = 10;
+		Ti.API.info('before image')
+		var i = new Image();
+		Ti.API.info('image '  + i);
+		window.my_global_variable = 10;
 		
 		Ti.App.addEventListener('show_indicator',function(e)
 		{
+			Ti.API.info("removeEventListener: a="+e.a);
 			Ti.App.removeEventListener('show_indicator',this);
 			setTimeout(function()
 			{

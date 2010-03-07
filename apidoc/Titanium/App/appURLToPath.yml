@@ -1,0 +1,9 @@
+---
+namespace: Titanium.App.appURLToPath
+type: function
+description: "get a full path from an application using app: URL"
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: 
+    - [string, url, the url, relative or absolute, to translate.]

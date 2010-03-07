@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.iPhone
+type: property
+description: iPhone specific functions and properties.
+since: 0.4.0
+platforms: ['iphone']
+returns: string

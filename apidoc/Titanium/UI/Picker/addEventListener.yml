@@ -1,0 +1,10 @@
+---
+namespace: Titanium.UI.Picker.addEventListener
+type: method
+description: Add a listener.
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: int
+parameters: 
+    - [string, eventName, "The name of the event. Supports:"]
+    - [function, listener, The event listener]

@@ -1,0 +1,8 @@
+---
+namespace: Titanium.App.getCopyright
+type: function
+description: get the application copyright
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: []

@@ -1,0 +1,10 @@
+---
+namespace: Titanium.UI.CompositeView.addView
+type: method
+description: add a view
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [View, view, A Titanium view]
+    - [Object, layout, layout parameters for the view]

@@ -26,6 +26,10 @@ b.addEventListener('click', function()
 	w2.numProp1 = 1;
 	w2.numProp2 = 2;
 	w2.objProp1 = {name:'Jane', age:30};
+	w2.myFunc = function()
+	{
+		return 'myFunc was called';
+	}
 	tab.open(w2,{animated:true});	
 });
 win.add(b);

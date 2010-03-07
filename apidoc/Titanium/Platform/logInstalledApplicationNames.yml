@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Platform.logInstalledApplicationNames
+type: function
+description: a developer helper method to see installed applications. This api will most likely be replaced in the future. It should not be used in production.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: []

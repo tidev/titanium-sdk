@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.Android.SystemIcon.ZOOM
+type: property
+description: icon
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String

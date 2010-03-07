@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Contacts.Contact.setMiddleName
+type: method
+description: saves the Contacts.Contact.middleName property
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [String, newMiddleName, The new string.]

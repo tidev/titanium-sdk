@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Network.HTTPClient
+type: object
+description: 
+since: 0.8.0
+returns: object
+parameters: 
+    - [string, connectionType, "either \"GET\" or \"POST\""]
+    - [string, location, URL to connect to]

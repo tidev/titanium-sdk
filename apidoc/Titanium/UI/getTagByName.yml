@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.getTagByName
+type: function
+description: get the tab that corresponds to the window id/name listed in tiapp.xml
+since: 0.6.2
+platforms: ['android', 'iphone']
+returns: Tab
+parameters: 
+    - [string, name, the tab name.]

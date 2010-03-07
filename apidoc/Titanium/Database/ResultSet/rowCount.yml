@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Database.ResultSet.rowCount
+type: method
+description: Returns the number of rows of the result set
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

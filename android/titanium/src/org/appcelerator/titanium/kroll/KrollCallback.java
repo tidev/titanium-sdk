@@ -11,7 +11,7 @@ import org.appcelerator.titanium.util.Log;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 
-public class KrollCallback
+public class KrollCallback implements IKrollCallable
 {
 	private static final String LCAT = "KrollCallback";
 

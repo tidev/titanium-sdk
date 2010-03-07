@@ -4,7 +4,7 @@ import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiModule;
-import org.appcelerator.titanium.kroll.KrollCallback;
+import org.appcelerator.titanium.kroll.IKrollCallable;
 
 public class AppModule extends TiModule
 {
@@ -25,7 +25,7 @@ public class AppModule extends TiModule
 		super.onDestroy();
 	}
 
-	public int addEventListener(String event, KrollCallback listener)
+	public int addEventListener(String event, IKrollCallable listener)
 	{
 		return super.addEventListener(event, listener);
 	}
