@@ -7,6 +7,7 @@
 
 package ti.modules.titanium.ui.widget.webview;
 
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
@@ -34,9 +35,12 @@ public class TiWebViewClient extends WebViewClient
 	}
 	
 	@Override
-	public void onPageStarted(WebView view, String url, Bitmap favicon) {
+	public void onPageFinished(WebView view, String url) {
+		super.onPageFinished(view, url);
 		
-		super.onPageStarted(view, url, favicon);
+		TiDict data = new TiDict();
+		data.put("url", url);
+		proxy.fireEvent("load", data);
 	}
 	
 	public TiWebViewBinding getBinding() {

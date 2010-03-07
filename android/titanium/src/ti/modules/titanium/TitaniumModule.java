@@ -12,6 +12,10 @@ import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.kroll.KrollCallback;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 
 public class TitaniumModule
 	extends TiModule
@@ -103,5 +107,6 @@ public class TitaniumModule
 
 	public void alert(String message) {
 		Log.i("ALERT", message);
+		TiUIHelper.doOkDialog(getTiContext().getActivity(), "Alert", message, null);
 	}
 }

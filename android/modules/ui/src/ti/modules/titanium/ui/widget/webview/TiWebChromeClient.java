@@ -9,12 +9,12 @@ package ti.modules.titanium.ui.widget.webview;
 
 import java.lang.ref.SoftReference;
 
-import org.appcelerator.titanium.TiActivity;
-import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
-
+import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
@@ -63,10 +63,14 @@ public class TiWebChromeClient extends WebChromeClient {
 	}
 
 	public boolean onJsAlert(WebView view, String url, String message, final android.webkit.JsResult result)
-    {
-		Log.i(LCAT, message);
-   		result.confirm();
-        return true;
+	{
+		TiUIHelper.doOkDialog(view.getContext(), "Alert", message, new OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				result.confirm();
+			}
+		});
+		
+   		return true;
     }
 }
 

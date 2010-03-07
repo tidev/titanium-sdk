@@ -26,8 +26,8 @@ public class TiWebViewBinding {
 	{
 		this.webView = webView;
 		
-		webView.addJavascriptInterface(new APIBinding(context), "_TiAPI");
-		webView.addJavascriptInterface(new AppBinding(context), "_TiApp");
+		webView.addJavascriptInterface(new APIBinding(context), "TiAPI");
+		webView.addJavascriptInterface(new AppBinding(context), "TiApp");
 		webView.addJavascriptInterface(new TiReturn(), "_TiReturn");
 		
 		evalJS(getClass().getClassLoader().getResourceAsStream("ti/modules/titanium/ui/widget/webview/json2.js"));
@@ -50,7 +50,6 @@ public class TiWebViewBinding {
 	
 	private void evalJS(String code)
 	{
-		Log.d(LCAT, "evaluating code: " + code);
 		webView.loadUrl("javascript:"+code);
 	}
 	
@@ -58,7 +57,9 @@ public class TiWebViewBinding {
 	private String returnValue;
 	public String getJSValue(String expression)
 	{
-		webView.loadUrl("javascript:_TiReturn.setValue((function(){return "+expression+"})());");
+		String code = "javascript:_TiReturn.setValue((function(){return "+expression+"+\"\";})());";
+		Log.d(LCAT, "getJSValue:"+code);
+		webView.loadUrl(code);
 		try {
 			returnSemaphore.acquire();
 			return returnValue;
@@ -70,11 +71,9 @@ public class TiWebViewBinding {
 	
 	
 	private class TiReturn {
-		public void setValue(Object value) {
-			if (value instanceof String) {
-				returnValue = (String)value;
-			} else {
-				returnValue = value.toString();
+		public void setValue(String value) {
+			if (value != null) {
+				returnValue = value;
 			}
 			returnSemaphore.release();
 		}
@@ -144,15 +143,24 @@ public class TiWebViewBinding {
 		public void fireEvent(String event, String json)
 		{
 			try {
-				module.fireEvent(event, new TiDict(new JSONObject(json)));
+				TiDict dict = new TiDict();
+				if (json != null && !json.equals("undefined")) {
+					dict = new TiDict(new JSONObject(json));
+				}
+				module.fireEvent(event, dict);
 			} catch (JSONException e) {
 				Log.e(LCAT, "Error parsing event JSON", e);
 			}
 		}
 		
-		public void addEventListener(String event, int id)
+		public int addEventListener(String event, int id)
 		{
-			module.addEventListener(event, new WebViewCallback(id));
+			return module.addEventListener(event, new WebViewCallback(id));
+		}
+		
+		public void removeEventListener(String event, int id)
+		{
+			module.removeEventListener(event, id);
 		}
 	}
 }
