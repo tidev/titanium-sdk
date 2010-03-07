@@ -66,10 +66,7 @@
 -(BOOL)becomeFirstResponder
 {
 	BOOL result = [super becomeFirstResponder];
-	if (result)
-	{
-		[self makeRootViewFirstResponder];
-	}
+	[self makeRootViewFirstResponder];
 	return result;
 }
 
