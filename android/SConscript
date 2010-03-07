@@ -1,8 +1,8 @@
 import os, sys, platform, glob, shutil, time
 Import("env cwd version")
 
-#TODO enable map - eventually detect these
-modules = ['accelerometer', 'analytics', 'api', 'app', 'database', 'filesystem', 'geolocation', 'json', 'media', 'xml', 'network', 'platform', 'ui', 'gesture', 'utils' ]
+#TODO detect these
+modules = ['accelerometer', 'analytics', 'api', 'app', 'database', 'filesystem', 'geolocation', 'json', 'media', 'xml', 'network', 'platform', 'ui', 'gesture', 'utils', 'map' ]
 
 print "Building Titanium Mobile (Android) %s..." % version
 
@@ -13,7 +13,17 @@ else:
 
 android_sdk = ARGUMENTS.get("android_sdk", default_android_sdk)
 
-classpath = [ os.path.join(android_sdk, 'platforms', 'android-1.6', 'android.jar')]
+android_16_dir = os.path.join(android_sdk, 'platforms', 'android-1.6')
+google_apis_4r02 = os.path.join(android_sdk, 'add-ons', 'google_apis-4_r02')
+if not os.path.exists(android_16_dir):
+	print >>sys.stderr, 'Error: Android 1.6 directory not found at %s' % android_16_dir
+	sys.exit(-1)
+if not os.path.exists(google_apis_4r02):
+	print >>sys.stderr, 'Error: Google APIs v4 r02 not found at %s' % google_apis_4r02
+	sys.exit(-1)
+
+classpath = [ os.path.join(android_16_dir, 'android.jar'),
+	os.path.join(google_apis_4r02, 'libs', 'maps.jar') ]
 sources = [os.path.join('titanium', 'src'), os.path.join('titanium', 'thirdparty')]
 
 titanium_src_dir = os.path.join(cwd, 'android', 'titanium', 'src')

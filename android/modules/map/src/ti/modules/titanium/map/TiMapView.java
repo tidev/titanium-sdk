@@ -9,7 +9,9 @@ package ti.modules.titanium.map;
 
 import java.util.List;
 
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiDict;
+import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.TiContext.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
@@ -48,7 +50,10 @@ public class TiMapView extends TiUIView
 	private static final String LCAT = "TiMapView";
 	private static final boolean DBG = TiConfig.LOGD;
 
-	private static final String API_KEY = "ti.android.google.map.api.key";
+	private static final String TI_DEVELOPMENT_KEY = "0Rq5tT4bUSXcVQ3F0gt8ekVBkqgn05ZJBQMj6uw";
+	private static final String OLD_API_KEY = "ti.android.google.map.api.key";
+	private static final String DEVELOPMENT_API_KEY = "ti.android.google.map.api.key.development";
+	private static final String PRODUCTION_API_KEY = "ti.android.google.map.api.key.production";
 
 	public static final String EVENT_CLICK = "click";
 	public static final String EVENT_REGION_CHANGED = "regionChanged";
@@ -191,7 +196,16 @@ public class TiMapView extends TiUIView
 		this.handler = new Handler(this);
 
 		//TODO MapKey
-		String apiKey = "0Rq5tT4bUSXcVQ3F0gt8ekVBkqgn05ZJBQMj6uw";//tmm.getApplication().getAppInfo().getSystemProperties().getString(API_KEY, null);
+		TiApplication app = proxy.getTiContext().getTiApp();
+		TiProperties appProperties = app.getAppProperties();
+		String oldKey = appProperties.getString(OLD_API_KEY, TI_DEVELOPMENT_KEY);
+		String developmentKey = appProperties.getString(DEVELOPMENT_API_KEY, oldKey);
+		String productionKey = appProperties.getString(PRODUCTION_API_KEY, oldKey);
+		
+		String apiKey = developmentKey;
+		if (app.getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION)) {
+			apiKey = productionKey;
+		}
 
 		view = new LocalMapView(mapWindow.getContext(), apiKey);
 		TiMapActivity ma = (TiMapActivity) mapWindow.getContext();
