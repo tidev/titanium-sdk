@@ -151,26 +151,17 @@
 
 -(void)setBackgroundImage_:(id)value
 {
-	if (value!=nil)
-	{
-		[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateNormal];
-	}
+	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateNormal];
 }
 
 -(void)setBackgroundSelectedImage_:(id)value
 {
-	if (value!=nil)
-	{
-		[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
-	}
+	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
 }
 
 -(void)setBackgroundDisabledImage_:(id)value
 {
-	if (value!=nil)
-	{
-		[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateDisabled];
-	}
+	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateDisabled];
 }
 
 -(void)setBackgroundColor_:(id)value

@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.MenuItem.enable
+type: method
+description: enable a menu item
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

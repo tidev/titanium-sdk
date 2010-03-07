@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.UserWindow.showNavBar
+type: method
+description: Makes the nav bar visible, resizing the web page if necessary.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

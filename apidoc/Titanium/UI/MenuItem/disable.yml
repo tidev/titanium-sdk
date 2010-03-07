@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.MenuItem.disable
+type: method
+description: disable a menu item
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

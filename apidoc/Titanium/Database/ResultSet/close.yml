@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Database.ResultSet.close
+type: method
+description: Releases the state associated with the result set
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

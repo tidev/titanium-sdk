@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Network.HTTPClient.getReadyState
+type: method
+description: the state of the network operation
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: int
+parameters: []

@@ -1,9 +1,9 @@
 ---
 namespace: Titanium.Accelerometer.removeEventListener
-type: method
+type: function
 description: removes an event listener from Accelerometer events
 since: 0.4.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+platforms: ['android', 'iphone']
 returns: boolean
 parameters: 
     - [string, type, the type of event to be removed from addEventListener]

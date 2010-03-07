@@ -108,7 +108,7 @@
 			[self performSelectorOnMainThread:@selector(removeFromSuperview) withObject:childView waitUntilDone:NO];
 			if (verticalNeedsRearranging)
 			{
-				[self performSelectorOnMainThread:@selector(layout) withObject:nil waitUntilDone:NO];
+				[self performSelectorOnMainThread:@selector(layout) withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 			}
 		}
 	}
@@ -632,6 +632,15 @@
 	}
 
 }
+
+-(void)setNeedsRepositionIfAutoSized
+{
+	if (TiDimensionIsAuto(layoutProperties.width) || TiDimensionIsAuto(layoutProperties.height))
+	{
+		[self reposition];
+	}
+}
+
 
 #define LAYOUTPROPERTIES_SETTER(methodName,layoutName,converter)	\
 -(void)methodName:(id)value	\

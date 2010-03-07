@@ -1,9 +1,9 @@
 ---
 namespace: Titanium.Gesture.addEventListener
-type: method
+type: function
 description: add an event listener to be called for a gesture event and returns the function to use when removing
 since: 0.4.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+platforms: ['android', 'iphone']
 returns: function
 parameters: 
     - [string, type, "the type of gesture event to listen for. May be either 'shake' or 'orientationchange'"]

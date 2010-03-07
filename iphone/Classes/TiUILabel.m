@@ -69,6 +69,11 @@
 	{
 		[(TiViewProxy *)[self proxy] reposition];
 	}
+	else
+	{
+		[[self proxy] setNeedsRepositionIfAutoSized];
+	}
+
 }
 
 -(void)setColor_:(id)color

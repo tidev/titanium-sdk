@@ -1,9 +1,9 @@
 ---
 namespace: Titanium.Geolocation.clearWatch
-type: method
+type: function
 description: stops querying the Geolocation services
 since: 0.4.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: string
 parameters: 
     - [object, token, the token created by Geolocation.getCurrentPosition, Geolocation.getCurrentHeading, Geolocation.watchPosition or Geolocation.watchHeading]

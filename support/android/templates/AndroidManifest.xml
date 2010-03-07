@@ -44,7 +44,7 @@
 		/>
 
 		<service
-			android:name="org.appcelerator.titanium.TiAnalyticsService"
+			android:name="org.appcelerator.titanium.analytics.TiAnalyticsService"
 			android:exported="false"
 		/>
 	</application>

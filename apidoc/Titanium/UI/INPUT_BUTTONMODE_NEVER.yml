@@ -3,5 +3,5 @@ namespace: Titanium.UI.INPUT_BUTTONMODE_NEVER
 type: property
 description: A possible value for UI.TextField.clearButtonMode, UI.TextField.leftButtonMode, or UI.TextField.rightButtonMode; indicates that the control or button will never appear
 since: 0.5.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: string

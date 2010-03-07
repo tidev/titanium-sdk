@@ -1,9 +1,9 @@
 ---
 namespace: Titanium.UI.createTextArea
-type: method
+type: function
 description: Create a new multi-line text area
 since: 0.5.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+platforms: ['android', 'iphone']
 returns: UI.TextArea
 parameters: 
     - [object, properties, Properties to apply to the new text area on creation]

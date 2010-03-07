@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.UserWindow.setTitleImage
+type: method
+description: "Sets the window title image, visible in the middle of the window's bav bar"
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

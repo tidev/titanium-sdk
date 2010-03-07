@@ -3,5 +3,8 @@ namespace: Titanium.UI.currentView
 type: property
 description: Object that represents the current webView. Can be used like a UI.WebView
 since: 0.6.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: string
+deprecated: 
+    version: 0.9.0
+    reason: No longer supported.

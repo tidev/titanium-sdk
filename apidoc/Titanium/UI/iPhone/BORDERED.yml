@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.iPhone.BORDERED
+type: property
+description: constant representing the bordered button style. The button will appear slightly darker background than the bar, in a recessed rounded rectangle shape.
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

@@ -67,6 +67,7 @@
 -(void)exchangeView:(TiUIView*)newview;
 
 -(void)reposition;
+-(void)setNeedsRepositionIfAutoSized;
 
 @end
 

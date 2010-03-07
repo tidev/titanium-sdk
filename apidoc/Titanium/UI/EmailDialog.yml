@@ -1,8 +1,8 @@
 ---
 namespace: Titanium.UI.EmailDialog
-type: method
+type: object
 description: 
 since: 0.8.0
-returns: String
+returns: string
 parameters: 
     - [object, newCcRecipients, array of strings, each an email address that will appear in the CC field]

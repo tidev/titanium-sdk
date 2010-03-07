@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.TabbedBar.backgroundColor
+type: property
+description: a web color that indicates the tint, if the tabbed bar is in the tool bar.
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

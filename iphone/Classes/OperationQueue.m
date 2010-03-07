@@ -78,11 +78,11 @@ OperationQueue *sharedQueue = nil;
 				// if UI thread, just use perform
 				if ([methodSignature2 numberOfArguments]==3)
 				{
-					[afterTarget performSelectorOnMainThread:after withObject:result waitUntilDone:YES];
+					[afterTarget performSelectorOnMainThread:after withObject:result waitUntilDone:YES modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 				}
 				else 
 				{
-					[afterTarget performSelectorOnMainThread:after withObject:nil waitUntilDone:NO];
+					[afterTarget performSelectorOnMainThread:after withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 				}
 			}
 			else 

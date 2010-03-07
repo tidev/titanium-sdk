@@ -1,0 +1,10 @@
+---
+namespace: Titanium.Media.Sound.addEventListener
+type: method
+description: "Add event listener, currently supports 'complete' and 'error' events."
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: int
+parameters: 
+    - [string, eventName, Name of event.]
+    - [function, listener, listener for the event in eventName]

@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.ScrollableView.scrollToView
+type: method
+description: scroll to a particular view
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [Object, view, A view or index]

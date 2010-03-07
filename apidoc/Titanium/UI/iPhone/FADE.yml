@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.iPhone.FADE
+type: property
+description: constant used to describe a row animation where the inserted or deleted row or rows fades into or out of the table view.
+since: 0.6.0
+platforms: ['android', 'iphone']
+returns: String

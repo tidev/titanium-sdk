@@ -1,0 +1,8 @@
+---
+namespace: Titanium.App.Properties.setDouble
+type: method
+description: set value
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

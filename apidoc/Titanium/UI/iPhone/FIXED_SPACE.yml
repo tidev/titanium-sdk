@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.iPhone.FIXED_SPACE
+type: property
+description: "Set a UI.Button's \"systemButton\" property to this in order to have a space of a fixed size to place between tool bar buttons"
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Network.HTTPClient.HEADERS_RECEIVED
+type: property
+description: The HEADERS_RECEIVED readyState property
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String

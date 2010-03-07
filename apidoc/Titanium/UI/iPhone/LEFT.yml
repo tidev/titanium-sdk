@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.iPhone.LEFT
+type: property
+description: constant used to describe a row animation where the nserted row or rows slides in from the left; the deleted row or rows slides out to the left.
+since: 0.6.0
+platforms: ['android', 'iphone']
+returns: String

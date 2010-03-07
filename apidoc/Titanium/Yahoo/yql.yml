@@ -1,10 +1,10 @@
 ---
 namespace: Titanium.Yahoo.yql
-type: method
+type: function
 description: run a YQL query
 since: 0.7.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: string
 parameters: 
     - [string, sql, sql statement in YQL format]
     - [function, callback, callback function to receive result]

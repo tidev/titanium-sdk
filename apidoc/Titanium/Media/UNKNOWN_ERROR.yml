@@ -3,5 +3,5 @@ namespace: Titanium.Media.UNKNOWN_ERROR
 type: property
 description: integer error indicating an unknown error occured with the camera or image picker
 since: 0.4.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: string

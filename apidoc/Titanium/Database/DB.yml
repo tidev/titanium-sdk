@@ -1,7 +1,7 @@
 ---
 namespace: Titanium.Database.DB
-type: method
-description: 
+type: object
+description: Database instance returns by either `Titanium.Database.open` or `Titanium.Database.install`
 since: 0.8.0
 returns: object
 parameters: 

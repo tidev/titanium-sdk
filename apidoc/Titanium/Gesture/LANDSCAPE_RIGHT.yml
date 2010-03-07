@@ -3,5 +3,5 @@ namespace: Titanium.Gesture.LANDSCAPE_RIGHT
 type: property
 description: integer that represents landscape orientation where the home button is to the right of the screen
 since: 0.4.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: string

@@ -3,5 +3,5 @@ namespace: Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION
 type: property
 description: A possible value for UI.TextView.keyboardType or UI.TextField.keyboardType; indicates the keyboard will be the standard QUERTY keyboard, but displaying numbers and punctuation by default
 since: 0.5.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: string

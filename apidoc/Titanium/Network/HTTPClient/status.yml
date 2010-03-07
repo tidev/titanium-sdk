@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Network.HTTPClient.status
+type: property
+description: Get the status code of the request
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: int

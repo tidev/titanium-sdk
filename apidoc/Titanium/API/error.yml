@@ -1,9 +1,9 @@
 ---
 namespace: Titanium.API.error
-type: method
-description: "logs an object with severity \"error\""
+type: function
+description: "logs note with severity \"error\" to console"
 since: 0.4.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: void
 parameters: 
     - [string, note, the value to log]

@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.UserWindow.setBarColor
+type: method
+description: Sets the tint and style of the nav bar and tool bar. If foreground, this is animated.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

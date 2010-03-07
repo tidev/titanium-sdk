@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.TextArea.autocorrect
+type: property
+description: the autocorrection behavior. If the default is to be used, provide null instead
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

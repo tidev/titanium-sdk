@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.DatePicker.MODE_DATE
+type: property
+description: Date and Time
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: String

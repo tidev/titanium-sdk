@@ -1,8 +1,8 @@
 ---
 namespace: Titanium.Filesystem.getApplicationDataDirectory
-type: method
+type: function
 description: "Returns a file object pointing to the application's on device data directory."
 since: 0.4.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
+platforms: ['android', 'iphone']
 returns: File
 parameters: []

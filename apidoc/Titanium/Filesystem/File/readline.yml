@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Filesystem.File.readline
+type: method
+description: Returns one line (separated by line ending) from a file
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: []

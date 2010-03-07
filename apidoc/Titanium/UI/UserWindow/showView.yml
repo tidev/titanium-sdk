@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.currentWindow.showView
+type: method
+description: Changes the view that the current window is showing
+since: 0.6.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

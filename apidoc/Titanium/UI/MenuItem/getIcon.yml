@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.MenuItem.getIcon
+type: method
+description: Get the current icon path
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string,path
+parameters: []

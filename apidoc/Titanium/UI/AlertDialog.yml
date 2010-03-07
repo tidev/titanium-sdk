@@ -1,6 +1,6 @@
 ---
 namespace: Titanium.UI.AlertDialog
-type: method
+type: object
 description: 
 since: 0.8.0
 returns: function

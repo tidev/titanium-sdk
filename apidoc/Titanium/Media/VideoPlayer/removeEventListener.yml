@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Media.VideoPlayer.removeEventListener
+type: method
+description: removes an event listener from Media.VideoPlayer events
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

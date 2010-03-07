@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.TextArea.setId
+type: method
+description: embeds the UI.TextArea onto the web page, taking the location and size of the div specified on the page, if those properties have not already been defined.
+since: 0.5.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [string, div, the name of the div element in the current window to take the position of. Note that this position is not updated if the div is moved.]

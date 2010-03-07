@@ -1,10 +1,10 @@
 ---
 namespace: Titanium.Facebook.publishFeed
-type: method
+type: function
 description: publish feed to users wall invoking feed dialog
 since: 0.7.0
-platforms: ['android-1.5', 'iphone-2.2.1', 'iphone-3.0', 'iphone-3.0', 'iphone-3.1']
-returns: String
+platforms: ['android', 'iphone']
+returns: string
 parameters: 
     - [integer, templateId, application template id]
     - [object, templateData, (optional) template data as json object]
