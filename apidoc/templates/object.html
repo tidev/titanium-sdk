@@ -31,19 +31,8 @@ ${data.description}
 % for method in data.methods:
 	<tr>
 		<td class="name">
-			<a href="${method.namespace}.html">\
-			${method.returns} ${method.name()}((\
-% for i, param in enumerate(method.parameters):
-% if i != 0:
-, \
-%endif
-<span class="param_type">${param['type']}</span>
-<span class="param_name">${param['name']}</span>\
-% endfor
-)</a>
+			<a href="${method.namespace}.html">${method.name()}</a>
 		</td>
-	</tr>
-	<tr>
 		<td class="description">${method.description}</td>
 	</tr>
 % endfor
