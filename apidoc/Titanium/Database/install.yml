@@ -1,0 +1,10 @@
+---
+namespace: Titanium.Database.install
+type: function
+description: Install (if not already installed) and opens a database
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: object
+parameters: 
+    - [string, path, database path or url]
+    - [string, name, database name]

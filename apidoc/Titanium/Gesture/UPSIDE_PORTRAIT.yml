@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Gesture.UPSIDE_PORTRAIT
+type: property
+description: integer that represents an upside-down portrait orientation
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string

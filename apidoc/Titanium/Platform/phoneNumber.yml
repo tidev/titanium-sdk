@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Platform.phoneNumber
+type: property
+description: The phone number of the device. Null if not a phone
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string

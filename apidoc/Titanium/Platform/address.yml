@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Platform.address
+type: property
+description: The primary IP address of the system
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string

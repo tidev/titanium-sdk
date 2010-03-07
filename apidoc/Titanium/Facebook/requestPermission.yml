@@ -1,0 +1,10 @@
+---
+namespace: Titanium.Facebook.requestPermission
+type: function
+description: invoke facebook FQL query (must be logged in)
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: 
+    - [string, permission, permission requesting]
+    - [function, callback, callback function to be invoked with result of permission request]

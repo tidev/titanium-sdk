@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Network.encodeURIComponent
+type: function
+description: Encodes a URI Component
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: 
+    - [string, value, value to encode]

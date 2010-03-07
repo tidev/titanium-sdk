@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.EmailDialog
+type: function
+description: 
+since: 0.8.0
+returns: string
+parameters: 
+    - [object, newCcRecipients, array of strings, each an email address that will appear in the CC field]

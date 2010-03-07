@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Network.networkTypeName
+type: property
+description: The human-readable name of kind of network that the device is connected to.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string

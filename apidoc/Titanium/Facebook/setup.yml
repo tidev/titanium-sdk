@@ -1,0 +1,10 @@
+---
+namespace: Titanium.Facebook.setup
+type: function
+description: initialize the facebook connection session
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: 
+    - [string, apikey, facebook application api key]
+    - [string, secret, facebook application secret]

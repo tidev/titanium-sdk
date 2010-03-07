@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Media.saveToPhotoGallery
+type: function
+description: Saves an image blob to the camera roll. This can be done automatically with showCamera or openPhotoGallery with the saveToPhotoGallery boolean.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: 
+    - [object, image, Image blob to store.]

@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.createAlertDialog
+type: function
+description: Creates an UI.alertDialog object
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: object
+parameters: 
+    - [mixed, properties, (optional) UI.alertDialog properties to copy over on initialization]

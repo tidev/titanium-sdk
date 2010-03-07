@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.INPUT_BUTTONMODE_ALWAYS
+type: property
+description: A possible value for UI.TextField.clearButtonMode, UI.TextField.leftButtonMode, or UI.TextField.rightButtonMode; indicates that the control or button will always appear
+since: 0.5.0
+platforms: ['android', 'iphone']
+returns: string

@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Network.addConnectivityListener
+type: function
+description: Adds a connectivity change listener that fires when the system connects or disconnects from the internet
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: integer
+parameters: 
+    - [method, listener, a callback method to be fired when the system connects or disconnects from the internet]

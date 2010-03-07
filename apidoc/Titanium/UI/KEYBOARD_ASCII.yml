@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.KEYBOARD_ASCII
+type: property
+description: A possible value for UI.TextView.keyboardType or UI.TextField.keyboardType; indicates the keyboard will be standard QWERTY keyboard
+since: 0.5.0
+platforms: ['android', 'iphone']
+returns: string

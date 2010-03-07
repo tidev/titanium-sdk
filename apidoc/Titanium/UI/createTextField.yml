@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.createTextField
+type: function
+description: Create a new single-line text field
+since: 0.5.0
+platforms: ['android', 'iphone']
+returns: UI.TextField
+parameters: 
+    - [object, properties, Properties to apply to the new text field on creation]

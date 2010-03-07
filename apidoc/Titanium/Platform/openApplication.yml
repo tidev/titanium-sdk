@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Platform.openApplication
+type: function
+description: Launch an Android application use the helper method logInstalledApplicationNames to discover applications.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: bool
+parameters: 
+    - [string, app, Android application name.]

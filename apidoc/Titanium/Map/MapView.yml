@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Map.MapView
+type: function
+description: 
+since: 0.8.0
+returns: string
+parameters: 
+    - [string, title, annotation title string]
+    - [boolean, animated, animated (default to true)]

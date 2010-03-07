@@ -2,7 +2,7 @@ import os, sys, platform, glob, shutil
 Import("env cwd version")
 
 #TODO enable map - eventually detect these
-modules = ['accelerometer', 'api', 'app', 'database', 'filesystem', 'geolocation', 'json', 'media', 'xml', 'network', 'platform', 'ui', 'gesture' ]
+modules = ['accelerometer', 'analytics', 'api', 'app', 'database', 'filesystem', 'geolocation', 'json', 'media', 'xml', 'network', 'platform', 'ui', 'gesture' ]
 
 print "Building Titanium Mobile (Android) %s..." % version
 

@@ -1,0 +1,10 @@
+---
+namespace: Titanium.UI.currentView
+type: property
+description: Object that represents the current webView. Can be used like a UI.WebView
+since: 0.6.0
+platforms: ['android', 'iphone']
+returns: string
+deprecated: 
+    version: 0.9.0
+    reason: No longer supported.

@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Network.NETWORK_WIFI
+type: property
+description: Indicates that there is a WiFi network present.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: int

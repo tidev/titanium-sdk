@@ -1,0 +1,10 @@
+---
+namespace: Titanium.UI.createGroupedView
+type: function
+description: Create a new grouped view.
+since: 0.5.0
+platforms: ['android', 'iphone']
+returns: UI.GroupedView
+parameters: 
+    - [object, properties, Properties to apply to the grouped view on creation]
+    - [function, callback, Function to invoke when a row is selected]

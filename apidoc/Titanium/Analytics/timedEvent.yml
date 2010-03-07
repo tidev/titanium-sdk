@@ -1,0 +1,13 @@
+---
+namespace: Titanium.Analytics.timedEvent
+type: function
+description: send an application timed event.
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: 
+    - [string, event, name of the event]
+    - [Date, start, (optional) Start date, a Javascript Date]
+    - [Date, stop, (optional) End date, a Javascript Date]
+    - [string, duration, (optional) duration in seconds]
+    - [object, data, (optional) data to send with the event]

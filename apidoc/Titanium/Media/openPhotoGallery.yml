@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Media.openPhotoGallery
+type: function
+description: Presents the image picker interface to the user to let them choose an image from their image gallery
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: boolean
+parameters: 
+    - [object, settings, Object specifying camera properties and callbacks. These include the cancel, error, and success callbacks; and animated, allowImageEditing, and saveToPhotoGallery booleans]

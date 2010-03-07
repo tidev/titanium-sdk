@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.MAP_VIEW_STANDARD
+type: property
+description: Standard map view
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: string

@@ -1,0 +1,12 @@
+---
+namespace: Titanium.Analytics.navEvent
+type: function
+description: send an application nav event
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: 
+    - [string, from, The from string]
+    - [string, to, The to string]
+    - [string, event, (optional) name of the event]
+    - [object, data, (optional) data to send with the event]

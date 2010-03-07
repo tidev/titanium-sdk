@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.createWebView
+type: function
+description: Creates an UI.WebView object
+since: 0.6.0
+platforms: ['android', 'iphone']
+returns: object
+parameters: 
+    - [object, properties, the properties to copy to the new UI.WebView object during creation]

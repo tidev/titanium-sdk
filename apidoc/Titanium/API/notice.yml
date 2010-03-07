@@ -1,0 +1,9 @@
+---
+namespace: Titanium.API.notice
+type: function
+description: "logs note with severity \"notice\" to console"
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: void
+parameters: 
+    - [string, note, the value to log]

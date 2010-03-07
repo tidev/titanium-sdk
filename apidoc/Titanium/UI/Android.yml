@@ -1,0 +1,6 @@
+---
+namespace: Titanium.UI.Android
+type: module
+description: Android specific functions and properties.
+since: 0.4.0
+platforms: ['android']

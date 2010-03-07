@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.createScrollableView
+type: function
+description: Create a scrollable view
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: ScrollableView
+parameters: 
+    - [object, options, a dictionary/hash of options]

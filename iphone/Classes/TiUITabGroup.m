@@ -220,6 +220,7 @@ DEFINE_EXCEPTIONS
 		{
 			[controllers addObject:[tabProxy controller]];
 		}
+		[self tabController].viewControllers = nil;
 		[self tabController].viewControllers = controllers;
 		[controllers release];
 		if (focused == nil)
@@ -241,7 +242,10 @@ DEFINE_EXCEPTIONS
 	UIViewController *active = nil;
 	
 //	NSArray * tabViewControllers = [[self tabController] viewControllers];
-
+	if (controller == nil)
+	{
+		return;
+	}
 	if ([value isKindOfClass:[TiUITabProxy class]])
 	{
 		

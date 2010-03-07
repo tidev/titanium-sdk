@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Facebook.getUserId
+type: function
+description: returns the unique user id for the logged in user or null if not logged in
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: integer
+parameters: []
