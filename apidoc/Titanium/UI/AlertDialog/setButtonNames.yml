@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.AlertDialog.setButtonNames
+type: method
+description: Text to display on each button
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [string array, names, One to three names to apply to buttons. Android only supports up to 3 buttons.]

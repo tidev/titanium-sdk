@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.TableView.deleteRow
+type: method
+description: deletes a row from the table view Keep in mind that after this is called, all rows afterward are renumbered appropriately.
+since: 0.6.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

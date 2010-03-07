@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.OptionDialog.options
+type: property
+description: Array of strings that represent the buttons that the user can choose from
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

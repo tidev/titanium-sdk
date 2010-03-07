@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.iPhone.CURL_UP
+type: property
+description: constant used to describe an animation where the current view curls up, revealing the new view UI.iPhone.AnimationStyle.CURL_UP is used by UI.currentWindow.showView and UI.UserWindow.showView
+since: 0.6.0
+platforms: ['android', 'iphone']
+returns: String

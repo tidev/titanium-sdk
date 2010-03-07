@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.TableView.setData
+type: method
+description: set options data describing view
+since: 0.5.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [string, data, options data]

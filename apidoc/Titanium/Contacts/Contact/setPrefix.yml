@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Contacts.Contact.setPrefix
+type: method
+description: saves the Contacts.Contact.prefix property
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [String, newPrefix, The new string.]

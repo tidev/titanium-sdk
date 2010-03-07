@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Database.ResultSet.fieldByName
+type: method
+description: Retrieve the contents of a column on the current row using the column name.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: 
+    - [string, fieldName, the column name]

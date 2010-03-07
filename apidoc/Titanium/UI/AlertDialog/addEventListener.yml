@@ -1,0 +1,10 @@
+---
+namespace: Titanium.UI.AlertDialog.addEventListener
+type: method
+description: "Add a listener for the 'click' event."
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: int
+parameters: 
+    - [string, eventName, name of the event to listen for]
+    - [function, listener, function to call when button is clicked.]

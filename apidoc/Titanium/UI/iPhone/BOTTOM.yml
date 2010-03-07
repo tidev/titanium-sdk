@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.iPhone.BOTTOM
+type: property
+description: constant used to describe a row animation where the inserted row or rows slides in from the bottom; the deleted row or rows slides out toward the bottom.
+since: 0.6.0
+platforms: ['android', 'iphone']
+returns: String

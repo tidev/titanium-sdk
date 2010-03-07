@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.Notifier.setTitle
+type: method
+description: Set the title for a notification Android currently uses Toast, so title is not displayed.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [string, title, The title]

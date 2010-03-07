@@ -66,6 +66,7 @@ def write_yaml(path, key, data):
 			type(platforms) == types.UnicodeType:
 			platforms = platforms.split('|')
 		
+		platforms = ['android', 'iphone']
 		write_yaml_line(f, "platforms", str([str(x) for x in platforms]), escape=False)
 
 	if atype == 'property' or atype == 'method':
@@ -142,6 +143,7 @@ def write_yaml(path, key, data):
 #			
 #	f.close()
 
+
 def to_path(key, data):
 	parts = key.split('.')
 	path = "out/" + "/".join(parts[:-1])
@@ -150,27 +152,35 @@ def to_path(key, data):
 
 	path = os.path.join(path, parts[-1])
 	#write_tdoc(path + '.tdoc', key, data)
-	write_yaml(path + '.yml', key, data)
+	if not os.path.exists(path + ".yml"):
+		write_yaml(path + '.yml', key, data)
 
-data = json.loads(open('apicoverage.json').read())
-for key in data:
-	if len(key) > 0:
-		real_key = "Titanium." + key.strip()
+
+def add_key(fullpath, key_name, data):
+	if type(data) != types.DictType:
+		return
+
+	if ((not 'method' in data) and (not 'property' in data)) or \
+		('object' in data and data['object'] == True):
+		for sub_key in data:
+
+			# Mobile: strip everything before the last dot, because some APIs
+			# are overspecified in the apicoverage file.
+			real_key_name = sub_key.split('.')[-1]
+
+			add_key(fullpath + '.' + real_key_name, real_key_name, data[sub_key])
+		to_path(fullpath, {'module': True})
+
 	else:
-		real_key = "Titanium"
-	to_path(real_key, data[key])
+		# Desktop - handle wonky Desktop output
+		# if key_name.find(".") != -1:
+		# 	print fullpath + "." + key_name
+		# 	building = ""
+		# 	for part in key_name.split(".")[:-1]:
+		# 		building += part
+		# 		to_path(fullpath + "." + building.strip(), {'object': True})
+		# 		building += "."
 
-	for sub_key in data[key]:
-		if type(data[key][sub_key]) != types.DictType:
-			continue
+		to_path(fullpath, data)
 
-		building = ""
-		if sub_key.find(".") != -1:
-			for part in sub_key.split(".")[:-1]:
-				building += part
-				print real_key + "." + building.strip()
-				to_path(real_key + "." + building.strip(), {'object': True})
-				building += "."
-
-		real_sub_key = real_key + "." + sub_key.strip()
-		to_path(real_sub_key, data[key][sub_key])
+add_key("Titanium", "", json.loads(open('apicoverage.json').read()))

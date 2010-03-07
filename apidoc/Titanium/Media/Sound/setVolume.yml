@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Media.Sound.setVolume
+type: method
+description: Set volume for this Sound.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [double, v, value between 0.0 and 1.0]

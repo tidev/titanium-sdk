@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.MapView.setCenterCoordinate
+type: method
+description: center map view at coordinate
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [object, coordinate, An object with longitude and latitude members]

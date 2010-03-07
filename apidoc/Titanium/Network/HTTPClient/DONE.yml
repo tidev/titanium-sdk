@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Network.HTTPClient.DONE
+type: property
+description: The DONE readyState property
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String

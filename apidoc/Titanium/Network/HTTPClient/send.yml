@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Network.HTTPClient.send
+type: method
+description: Send data through the HTTP connection
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [string, data, (optional) zero or more data segments to transmit.]

@@ -1,0 +1,10 @@
+---
+namespace: Titanium.UI.DatePicker.removeEventListener
+type: method
+description: Add a listener.
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [string, eventName, "The name of the event. Supports:"]
+    - [function, listenerId, The event listener id returned by addEventListener]

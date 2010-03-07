@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.iPhone.BIG
+type: property
+description: constant representing a large (37 pixels wide) white activity indicator
+since: 0.6.0
+platforms: ['android', 'iphone']
+returns: String

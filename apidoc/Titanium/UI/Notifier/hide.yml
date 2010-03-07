@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.Notifier.hide
+type: method
+description: Hide the notifier
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [boolean, animate, ignored on Android]

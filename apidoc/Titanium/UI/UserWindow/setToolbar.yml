@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.UserWindow.setToolbar
+type: method
+description: replaces the contents of the tool bar with an array of UI.Buttons, UI.Sliders, UI.ButtonBar, or UI.TabbedBar.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

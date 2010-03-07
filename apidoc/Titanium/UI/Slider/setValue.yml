@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.Slider.setValue
+type: method
+description: set the value.
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [int, value, value to set the slider too]

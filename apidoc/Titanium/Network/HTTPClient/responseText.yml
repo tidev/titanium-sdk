@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Network.HTTPClient.responseText
+type: property
+description: Get the response as XML from the operation
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: object
