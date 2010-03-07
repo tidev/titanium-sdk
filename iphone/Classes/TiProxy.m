@@ -83,7 +83,7 @@ void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> * target, NSS
 		}
 		else
 		{
-			[target performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO];
+			[target performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 		}
 	}
 }
@@ -149,7 +149,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target
 		}
 		else
 		{
-			[target performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO];
+			[target performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 		}
 
 	}
