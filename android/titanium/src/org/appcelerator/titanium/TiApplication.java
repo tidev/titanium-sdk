@@ -208,7 +208,7 @@ public class TiApplication extends Application
 	{
 		for (TiProxy appEventProxy : appEventProxies)
 		{
-			appEventProxy.getTiContext().dispatchEvent(eventName, data);
+			appEventProxy.getTiContext().dispatchEvent(eventName, data, false);
 		}
 	}
 
