@@ -4,14 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package ti.modules.titanium.ui.iphone;
+package org.appcelerator.titanium.kroll;
 
-import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiModule;
+import org.appcelerator.titanium.TiDict;
 
-public class iPhoneModule extends TiModule {
+public interface IKrollCallable {
 
-	public iPhoneModule(TiContext tiContext) {
-		super(tiContext);
-	}
+	public void call();
+	public void call(Object[] args);
+	public void callWithProperties(TiDict data);
 }

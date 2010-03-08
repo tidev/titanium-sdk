@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget.webview;
 
+import java.util.concurrent.Semaphore;
+
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -20,11 +22,12 @@ import android.webkit.WebView;
 
 public class TiUIWebView extends TiUIView {
 
+	private TiWebViewBinding binding;
+	private TiWebViewClient client;
+	
 	public TiUIWebView(TiViewProxy proxy)
 	{
 		super(proxy);
-		getLayoutParams().autoFillsHeight = true;
-		getLayoutParams().autoFillsWidth = true;
 		
 		WebView webView = new WebView(proxy.getContext());
 		webView.setVerticalScrollbarOverlay(true);
@@ -38,8 +41,10 @@ public class TiUIWebView extends TiUIView {
 		settings.setLightTouchEnabled(true);
 		
 		webView.setWebChromeClient(new TiWebChromeClient(this));
-		webView.setWebViewClient(new TiWebViewClient((WebViewProxy)proxy));
+		client = new TiWebViewClient((WebViewProxy)proxy, webView);
+		webView.setWebViewClient(client);
 		
+		//binding = new TiWebViewBinding(proxy.getTiContext(), webView);
 		setNativeView(webView);
 	}
 	
@@ -59,17 +64,7 @@ public class TiUIWebView extends TiUIView {
 		} else if (d.containsKey("data")) {
 			Object value = d.get("data");
 			if (value instanceof TiBlob) {
-				TiBlob blob = (TiBlob)value;
-				
-				String mimeType = "text/html";
-				if (blob.getMimeType() != null) {
-					mimeType = blob.getMimeType();
-				}
-				if (TiMimeTypeHelper.isBinaryMimeType(mimeType)) {
-					getWebView().loadData(blob.toBase64(), mimeType, "base64");
-				} else {
-					getWebView().loadData(new String(blob.getBytes()), mimeType, "utf-8");
-				}
+				setData((TiBlob)value);
 			}
 		}
 	}
@@ -89,5 +84,23 @@ public class TiUIWebView extends TiUIView {
 	public void setHtml(String html)
 	{
 		getWebView().loadData(html, "text/html", "utf-8");
+	}
+	
+	public void setData(TiBlob blob)
+	{
+		String mimeType = "text/html";
+		if (blob.getMimeType() != null) {
+			mimeType = blob.getMimeType();
+		}
+		if (TiMimeTypeHelper.isBinaryMimeType(mimeType)) {
+			getWebView().loadData(blob.toBase64(), mimeType, "base64");
+		} else {
+			getWebView().loadData(new String(blob.getBytes()), mimeType, "utf-8");
+		}
+	}
+	
+	public String getJSValue(String expression)
+	{
+		return client.getBinding().getJSValue(expression);
 	}
 }

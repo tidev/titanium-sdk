@@ -84,7 +84,7 @@ class Android(object):
 
 	def build_app_info(self, project_dir):
 		tiapp = ElementTree()
-		tiapp.parse(open(os.path.join(project_dir, 'tiapp.xml'), 'r'))
+		tiapp.parse(open(os.path.join(project_dir, 'build', 'android', 'bin', 'assets', 'tiapp.xml'), 'r'))
 		self.app_info = {}
 		self.app_properties = {}
 		for key in ['id', 'name', 'version', 'publisher', 'url', 'copyright',

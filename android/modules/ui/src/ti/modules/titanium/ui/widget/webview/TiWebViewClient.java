@@ -7,11 +7,13 @@
 
 package ti.modules.titanium.ui.widget.webview;
 
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
 import ti.modules.titanium.ui.WebViewProxy;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
@@ -22,10 +24,27 @@ public class TiWebViewClient extends WebViewClient
 	private static final String LCAT = "TiWVC";
 	private static final boolean DBG = TiConfig.LOGD;
 	private WebViewProxy proxy;
+	private WebView webView;
+	private TiWebViewBinding binding;
 	
-	public TiWebViewClient(WebViewProxy proxy) {
+	public TiWebViewClient(WebViewProxy proxy, WebView webView) {
 		super();
 		this.proxy = proxy;
+		this.webView = webView;
+		binding = new TiWebViewBinding(proxy.getTiContext(), webView);
+	}
+	
+	@Override
+	public void onPageFinished(WebView view, String url) {
+		super.onPageFinished(view, url);
+		
+		TiDict data = new TiDict();
+		data.put("url", url);
+		proxy.fireEvent("load", data);
+	}
+	
+	public TiWebViewBinding getBinding() {
+		return binding;
 	}
 	
 	@Override
