@@ -3,6 +3,6 @@ namespace: Titanium.App.triggerLoad
 type: function
 description: (Internal, Android only) Method to signal switching to the webView in the activity. Normally called automatically when the page end event fires.
 since: 0.4.0
-platforms: ['android', 'iphone']
+platforms: ['iphone']
 returns: string
 parameters: []

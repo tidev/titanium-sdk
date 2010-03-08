@@ -8,3 +8,6 @@ returns: UI.GroupedSection
 parameters: 
     - [object, properties, Properties to apply to the table view on creation]
     - [function, callback, Function to invoke when a row is selected]
+deprecated: 
+    version: 0.9.0
+    reason: No longer supported. Use the new Table View API.

@@ -7,3 +7,6 @@ platforms: ['android', 'iphone']
 returns: Notifier
 parameters: 
     - [hash, options, (optional) Configuration options]
+deprecated: 
+    version: 0.9.0
+    reason: No longer supported.

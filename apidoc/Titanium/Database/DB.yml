@@ -7,3 +7,12 @@ returns: object
 parameters: 
     - [string, sql, sql expression]
     - [object, args, one or more arguments to be inserted in the expression. May be integer, float, string, or data blob]
+examples:
+  - |
+      Open a DB and run a simple SQL query.
+      <pre><code>
+      	var db = Titanium.DB.open("hello");
+      	var results = db.execute("select * from bar where id = ?", 1);
+      	results.close();
+      	db.close();
+      </code></pre>

@@ -1,5 +1,22 @@
 ---
 namespace: Titanium.Media
 type: module
-description: No description provided.
-since: 0.8.5 or earlier
+description: |
+  <p>The top level Media module. The Media module is used
+  for handling media related functions such as playing and 
+  recording audio, video or interacting with the devices's
+  camera or photo gallery and related functions.</p>
+since: 0.5
+examples:
+  - |
+      Create a native video player to an embedded video resource
+      and play it.
+      <pre><code>
+      var activeMovie = Titanium.Media.createVideoPlayer({
+      	contentURL:'movie.mp4',
+      	backgroundColor:'#111',
+      	movieControlMode:Titanium.Media.VIDEO_CONTROL_DEFAULT,
+      	scalingMode:Titanium.Media.VIDEO_SCALING_MODE_FILL
+      });
+      activeMovie.play();
+      </code></pre>

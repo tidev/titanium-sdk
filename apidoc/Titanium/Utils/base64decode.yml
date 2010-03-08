@@ -1,0 +1,15 @@
+---
+namespace: Titanium.Utils.base64decode
+type: function
+description: decodes a string from base 64
+since: 0.9
+platforms: ['android', 'iphone']
+returns: string
+parameters: 
+    - [string, contents, string to decode]
+examples:
+  - |
+      Decode a string from base64.
+      <pre><code>
+      	Titanium.API.debug(Titanium.Utils.base64decode("abc"));
+      </code></pre>

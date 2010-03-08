@@ -1,5 +1,8 @@
 ---
 namespace: Titanium.App
 type: module
-description: No description provided.
-since: 0.8.5 or earlier
+description: |
+  <p>The top level App module. The App module is used
+  for retrieving application built-time information such
+  as the version of the application.</p>
+since: 0.4

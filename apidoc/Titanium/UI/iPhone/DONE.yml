@@ -3,5 +3,5 @@ namespace: Titanium.UI.iPhone.DONE
 type: property
 description: constant representing the done button style. The button will appear with a blue background, in a recessed rounded rectangle shape.
 since: 0.8.0
-platforms: ['android', 'iphone']
+platforms: ['iphone']
 returns: String

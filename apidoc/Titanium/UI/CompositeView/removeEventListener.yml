@@ -8,3 +8,6 @@ returns: String
 parameters: 
     - [string, eventName, The event name]
     - [int, listenerId, id returned from addEventListener]
+deprecated: 
+    version: 0.9.0
+    reason: No longer supported. Use Titanium.UI.createView.
