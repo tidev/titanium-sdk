@@ -245,6 +245,11 @@
 	//	UIScrollView *sv = [self scrollview];
 		BOOL readd = YES; //[sv subviews]==0 || [views count]!=[[sv subviews] count];
 		[self refreshScrollView:visibleBounds readd:readd];
+		
+		if (![scrollview isDecelerating] && ![scrollview isDragging] && ![scrollview isTracking])
+		{
+			[scrollview setContentOffset:CGPointMake([views count]*visibleBounds.size.width,0)];
+		}
 	}
 }
 

@@ -17,4 +17,7 @@
 	return result;
 }
 
+USE_VIEW_FOR_AUTO_WIDTH
+USE_VIEW_FOR_AUTO_HEIGHT
+
 @end
