@@ -51,6 +51,7 @@ public class TiUIWindow extends TiUIView
 	private static final String LCAT = "TiUIWindow";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	private static final int WINDOW_ZINDEX = Integer.MAX_VALUE - 2; // Arbitrary number;
 	private static final int MSG_ACTIVITY_CREATED = 1000;
 	private static final int MSG_POST_OPEN = 1001;
 	private static final int MSG_BOOTED = 1002;
@@ -138,20 +139,20 @@ public class TiUIWindow extends TiUIView
 		motionEvents.put(MotionEvent.ACTION_MOVE, "touchmove");
 		motionEvents.put(MotionEvent.ACTION_CANCEL, "touchcancel");
 	}
-	
+
 	private TiDict dictFromEvent(MotionEvent e) {
 		TiDict data = new TiDict();
 		data.put("x", (double)e.getX());
 		data.put("y", (double)e.getY());
 		return data;
 	}
-	
+
 	protected void handlePostOpen() {
 		//TODO unique key per window, params for intent
 		activityKey = "window$" + idGenerator.incrementAndGet();
 		TiDict props = proxy.getDynamicProperties();
 
-		final GestureDetector detector = new GestureDetector(proxy.getTiContext().getActivity(), 
+		final GestureDetector detector = new GestureDetector(proxy.getTiContext().getActivity(),
 			new SimpleOnGestureListener() {
 				@Override
 				public boolean onDoubleTap(MotionEvent e) {
@@ -159,7 +160,7 @@ public class TiUIWindow extends TiUIView
 					boolean handledClick = proxy.fireEvent("dblclick", dictFromEvent(e));
 					return handledTap || handledClick;
 				}
-				
+
 				@Override
 				public boolean onSingleTapConfirmed(MotionEvent e) {
 					boolean handledTap = proxy.fireEvent("singletap", dictFromEvent(e));
@@ -167,7 +168,7 @@ public class TiUIWindow extends TiUIView
 					return handledTap || handledClick;
 				}
 			});
-		
+
 		getLayout().setOnTouchListener(new OnTouchListener() {
 			public boolean onTouch(View view, MotionEvent event) {
 				boolean handled = detector.onTouchEvent(event);
@@ -177,14 +178,14 @@ public class TiUIWindow extends TiUIView
 				return handled;
 			}
 		});
-		
+
 		getLayout().setOnFocusChangeListener(new OnFocusChangeListener() {
 			public void onFocusChange(View view, boolean hasFocus) {
 				boolean handled = false;
 				handled = proxy.fireEvent(hasFocus ? "focus" : "blur", new TiDict());
 			}
 		});
-		
+
 		// if url, create a new context.
 		if (props.containsKey("url")) {
 
@@ -316,7 +317,9 @@ public class TiUIWindow extends TiUIView
 		if (lightWeight) {
 			ITiWindowHandler windowHandler = proxy.getTiContext().getTiApp().getWindowHandler();
 			if (windowHandler != null) {
-				windowHandler.addWindow(liteWindow, getLayoutParams());
+				TiCompositeLayout.LayoutParams params = getLayoutParams();
+				params.optionZIndex = WINDOW_ZINDEX;
+				windowHandler.addWindow(liteWindow, params);
 			}
 			handler.obtainMessage(MSG_ANIMATE).sendToTarget();
 		}
@@ -325,7 +328,7 @@ public class TiUIWindow extends TiUIView
 		TiDict data = new TiDict();
 		data.put("source", proxy);
 		proxy.fireEvent("close", data);
-		
+
 		if (!lightWeight) {
 			if (windowActivity != null) {
 				windowActivity.finish();
