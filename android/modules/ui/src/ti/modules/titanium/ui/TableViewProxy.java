@@ -34,8 +34,15 @@ public class TableViewProxy extends TiViewProxy
     	int rowIndexInSection;
     }
 
+    private ArrayList<TableViewSectionProxy> localSections;
+
 	public TableViewProxy(TiContext tiContext, Object[] args) {
 		super(tiContext, args);
+
+		Object o = getDynamicValue("data");
+		if (o != null) {
+			processData((Object[]) o);
+		}
 	}
 
 	@Override
@@ -53,7 +60,7 @@ public class TableViewProxy extends TiViewProxy
 		ArrayList<TableViewSectionProxy> sections = getSections();
 		if (sections.size() == 0) {
 			Object[] data = { rowProxy };
-			setData(data, options);
+			processData(data);
 		} else {
 			TableViewSectionProxy lastSection = sections.get(sections.size() - 1);
 			rowProxy.setDynamicValue("section", lastSection);
@@ -111,7 +118,7 @@ public class TableViewProxy extends TiViewProxy
         } else {
         	// Add first row.
             Object[] args = { rowProxyFor(data) };
-            setData(args, options);
+            processData(args);
         }
 	}
 
@@ -133,17 +140,17 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	@SuppressWarnings("unchecked")
-	protected ArrayList<TableViewSectionProxy> getSections()
+	public ArrayList<TableViewSectionProxy> getSections()
 	{
-		ArrayList<TableViewSectionProxy> sections = (ArrayList<TableViewSectionProxy>) getDynamicValue("data");
+		ArrayList<TableViewSectionProxy> sections = localSections;
 		if (sections == null) {
 			sections = new ArrayList<TableViewSectionProxy>();
-			setDynamicValue("data", sections);
+			localSections = sections;
 		}
 		return sections;
 	}
 
-	public void setData(Object[] data, TiDict options)
+	public void processData(Object[] data)
 	{
 		ArrayList<TableViewSectionProxy> sections = getSections();
 		sections.clear();
@@ -161,7 +168,7 @@ public class TableViewProxy extends TiViewProxy
 	            rowProxy.setDynamicValue("rowData", data);
 
 	            if (currentSection == null || d.containsKey("header")) {
-	            	currentSection = new TableViewSectionProxy(getTiContext(), null);
+	            	currentSection = new TableViewSectionProxy(getTiContext(), new Object[0]);
 	            	sections.add(currentSection);
 	            }
 	            if (d.containsKey("header")) {
@@ -176,7 +183,7 @@ public class TableViewProxy extends TiViewProxy
 				TiDict d = rowProxy.getDynamicProperties();
 
 	            if (currentSection == null || d.containsKey("header")) {
-	            	currentSection = new TableViewSectionProxy(getTiContext(), null);
+	            	currentSection = new TableViewSectionProxy(getTiContext(), new Object[0]);
 	            	sections.add(currentSection);
 	            }
 	            if (d.containsKey("header")) {
