@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.iPhone.SystemButton
+type: property
+description: "object containing iPhone system-provided button constants. Refer to http://developer.apple.com/iphone/library/documentation/UserExperience/Conceptual/MobileHIG/SystemProvided/SystemProvided.html"
+since: 0.8.0
+platforms: ['iphone']
+returns: String

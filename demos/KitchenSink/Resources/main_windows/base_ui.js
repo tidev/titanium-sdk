@@ -6,13 +6,12 @@ var data = [
 	{title:'Window (Standalone)', hasChild:true, test:'../examples/window_standalone.js'},
 	{title:'Views', hasChild:true, test:'../examples/views.js'},
 	{title:'Custom Events', hasChild:true, test:'../examples/custom_events.js'},
-
+	{title:'Window Events', hasChild:true, test:'../examples/window_events.js'}
 ];
 
 // add iphone specific tests
 if (Titanium.Platform.name == 'iPhone OS')
 {
-	data.push({title:'Window Events', hasChild:true, test:'../examples/window_events.js'})
 	data.push({title:'Tabs', hasChild:true, test:'../examples/tabs.js'});
 	data.push({title:'Window NavBar', hasChild:true, test:'../examples/window_navbar.js'});
 	data.push({title:'Window Toolbar', hasChild:true, test:'../examples/window_toolbar.js'});

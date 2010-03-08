@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.TextField.getValue
+type: method
+description: get the value.
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: string
+parameters: []

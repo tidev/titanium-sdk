@@ -1,5 +1,14 @@
 ---
 namespace: Titanium.API
 type: module
-description: No description provided.
-since: 0.8.5 or earlier
+description: |
+  <p>The top level API module. The API module is used
+  manually for logging.</p>
+since: 0.4
+examples:
+  - |
+      Log output to the console.
+      <pre><code>
+      Ti.API.debug("Dude, Appcelerator is awesome!");
+      </code></pre>
+  

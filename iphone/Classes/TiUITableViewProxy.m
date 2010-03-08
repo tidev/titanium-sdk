@@ -26,6 +26,20 @@
 	[self replaceValue:NUMBOOL(NO) forKey:@"autoHideSearch" notification:NO];
 }
 
+-(id<NSFastEnumeration>)allKeys
+{
+	NSArray * result = (NSArray *)[super allKeys];
+	if (![result containsObject:@"data"])
+	{
+		return result;
+	}
+	result = [NSMutableArray arrayWithArray:result];
+	[(NSMutableArray *)result removeObject:@"data"];
+	[(NSMutableArray *)result insertObject:@"data" atIndex:0];
+	return result;
+}
+
+
 -(TiUITableView*)tableView
 {
 	return (TiUITableView*)[self view];
@@ -333,6 +347,7 @@
 	Class sectionClass = [TiUITableViewSectionProxy class];
 	Class rowClass = [TiUITableViewRowProxy class];
 	
+	BOOL tableAttached = [self viewAttached];
 	TiUITableView *table = [self tableView];
 	
 	NSMutableArray *data = [NSMutableArray array];
@@ -391,9 +406,11 @@
 	}
 	
 	[self replaceValue:data forKey:@"data" notification:NO];
-	
-	TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:nil animation:properties section:0 type:TiUITableViewActionSetData] autorelease];
-	[table dispatchAction:action];
+//	if (tableAttached)
+	{
+		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:nil animation:properties section:0 type:TiUITableViewActionSetData] autorelease];
+		[table dispatchAction:action];
+	}
 }
 
 -(void)setData:(id)args

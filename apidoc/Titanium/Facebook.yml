@@ -1,5 +1,20 @@
 ---
 namespace: Titanium.Facebook
 type: module
-description: No description provided.
-since: 0.8.5 or earlier
+description: |
+  <p>The top level Facebook module. The Facebook module is used
+  for communicating with Facebook via the Facebook Connect API.</p>
+since: 0.8
+examples:
+  - |
+      Perform a Facebook FQL query and return a list of connected friends.
+      <pre><code>
+      Titanium.Facebook.query("select uid,name from user order by last_name",function(r)
+      {
+            for (var c=0;c<r.data.length;c++)
+            {
+                var row = r.data[c];
+                Titanium.API.info("name: "+row.name+", uid: "+row.uid);
+            }
+      });
+      </code></pre>

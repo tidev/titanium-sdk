@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,6 +13,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 import org.json.JSONObject;
 
+import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
 import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemClickedListener;
@@ -26,15 +27,6 @@ public class TiUITableView extends TiUIView
 	private static final String LCAT = "TitaniumTableView";
 
 	private static final String EVENT_CLICK = "click";
-
-	private static final int MSG_SETDATA = 302;
-	private static final int MSG_DELETEROW = 303;
-	private static final int MSG_UPDATEROW = 304;
-	private static final int MSG_INSERTBEFORE = 305;
-	private static final int MSG_INSERTAFTER = 306;
-	private static final int MSG_INDEXBYNAME = 307;
-	private static final int MSG_SCROLLTOINDEX = 308;
-	private static final int MSG_SET_TEMPLATE = 309;
 
 	private String callback;
 	private String searchBarName;
@@ -65,7 +57,7 @@ public class TiUITableView extends TiUIView
 		getLayoutParams().autoFillsWidth = true;
 
 		this.modifySemaphore = new Semaphore(0);
-		TiTableView tv = new TiTableView(proxy.getTiContext());
+		TiTableView tv = new TiTableView(proxy.getTiContext(), (TableViewProxy) proxy);
 		tv.setOnItemClickListener(this);
 		setNativeView(tv);
 		//this.hasBeenOpened = false;
@@ -85,15 +77,12 @@ public class TiUITableView extends TiUIView
 	{
 		TiTableView tv = getView();
 
-		if (d.containsKey("template")) {
-			tv.setTemplate(d.getTiDict("template"));
-		}
-		if (d.containsKey("data")) {
-			tv.setData((Object[]) d.get("data"));
-		}
-		if (d.containsKey("rowHeight")) {
-			tv.setRowHeight(d.getString("rowHeight"));
-		}
+//		if (d.containsKey("data")) {
+//			tv.setData((Object[]) d.get("data"));
+//		}
+//		if (d.containsKey("rowHeight")) {
+//			tv.setRowHeight(d.getString("rowHeight"));
+//		}
 //		if (d.containsKey("fontSize")) {
 //			tv.setFontSize(d.get("fontSize"));
 //		}
@@ -171,113 +160,6 @@ public class TiUITableView extends TiUIView
 //		}
 //	}
 //
-//	public void setTemplate(String template) {
-//		try {
-//			JSONObject t = new JSONObject(template);
-//			handler.obtainMessage(MSG_SET_TEMPLATE, t).sendToTarget();
-//			acquireModifySemaphore();
-//		} catch (JSONException e) {
-//			Log.e(LCAT, "Unable to load template: " + e.getMessage(), e);
-//		}
-//	}
-//
-//	public void doSetTemplate(JSONObject template) {
-//		this.rowTemplate = template;
-//	}
-//
-//	public void setData(String data) {
-//		handler.obtainMessage(MSG_SETDATA, data).sendToTarget();
-//		acquireModifySemaphore();
-//	}
-//
-//	public void doSetData(String data) {
-//		viewModel.setData(data);
-//		handler.post(dataSetChanged);
-//	}
-//
-//	public void deleteRow(int index) {
-//		handler.obtainMessage(MSG_DELETEROW, index, -1).sendToTarget();
-//		acquireModifySemaphore();
-//	}
-//
-//	public void doDeleteRow(int index) {
-//		viewModel.deleteItem(index);
-//		handler.post(dataSetChanged);
-//	}
-//
-//	public void insertRowAfter(int index, String json) {
-//		handler.obtainMessage(MSG_INSERTAFTER, index, -1, json).sendToTarget();
-//		acquireModifySemaphore();
-//	}
-//
-//	public void doInsertRowAfter(int index, String json) {
-//		try {
-//			viewModel.insertItemAfter(index, new JSONObject(json));
-//			handler.post(dataSetChanged);
-//		} catch (JSONException e) {
-//			Log.e(LCAT, "Error trying to insert row: ", e);
-//		}
-//	}
-//
-//	public void insertRowBefore(int index, String json) {
-//		handler.obtainMessage(MSG_INSERTBEFORE, index, -1, json).sendToTarget();
-//		acquireModifySemaphore();
-//}
-//
-//	public void doInsertRowBefore(int index, String json) {
-//		try {
-//			viewModel.insertItemBefore(index, new JSONObject(json));
-//			handler.post(dataSetChanged);
-//		} catch (JSONException e) {
-//			Log.e(LCAT, "Error trying to insert row: ", e);
-//		}
-//	}
-//
-//	public void updateRow(int index, String json) {
-//		handler.obtainMessage(MSG_UPDATEROW, index, -1, json).sendToTarget();
-//		acquireModifySemaphore();
-//}
-//
-//	public void doUpdateRow(int index, String json) {
-//		try {
-//			viewModel.updateItem(index, new JSONObject(json));
-//			handler.post(dataSetChanged);
-//		} catch (JSONException e) {
-//			Log.e(LCAT, "Error trying to update row: ", e);
-//		}
-//	}
-//
-//	public void appendRow(String rowData, String json) {
-//		insertRowAfter(viewModel.getRowCount()-1, rowData);
-//	}
-//
-//	public int getRowCount() {
-//		return viewModel.getRowCount();
-//	}
-//
-//	public int getIndexByName(String name) {
-//		IndexHolder h = new IndexHolder();
-//		h.index = -1;
-//
-//		Message m = handler.obtainMessage(MSG_INDEXBYNAME, h);
-//		m.getData().putString("name", name);
-//		m.sendToTarget();
-//
-//		try {
-//			h.acquire();
-//		} catch (InterruptedException e) {
-//			Log.w(LCAT, "Interrupted while waiting for index.");
-//		}
-//		return h.index;
-//	}
-//	public int doGetIndexByName(String name) {
-//		return viewModel.getIndexByName(name);
-//	}
-//
-//	public void setRowHeight(String height) {
-//		defaults.put("rowHeight", height);
-//	}
-//
 //	public void scrollToIndex(int index, String options) {
 //		handler.obtainMessage(MSG_SCROLLTOINDEX, index, -1, options).sendToTarget();
 //	}
@@ -334,55 +216,6 @@ public class TiUITableView extends TiUIView
 //		}
 //	}
 
-//	public boolean handleMessage(Message msg)
-//	{
-//		boolean handled = false;
-//
-//		if (!handled) {
-//			switch(msg.what) {
-//			case MSG_SETDATA:
-//				doSetData((String) msg.obj);
-//				releaseModifySemaphore();
-//				return true;
-//			case MSG_DELETEROW:
-//				doDeleteRow(msg.arg1);
-//				releaseModifySemaphore();
-//				return true;
-//			case MSG_INSERTAFTER:
-//				doInsertRowAfter(msg.arg1, (String) msg.obj);
-//				releaseModifySemaphore();
-//				return true;
-//			case MSG_INSERTBEFORE:
-//				doInsertRowBefore(msg.arg1, (String) msg.obj);
-//				releaseModifySemaphore();
-//				return true;
-//			case MSG_UPDATEROW:
-//				doUpdateRow(msg.arg1, (String) msg.obj);
-//				releaseModifySemaphore();
-//				return true;
-//			case MSG_INDEXBYNAME :
-//				IndexHolder h = (IndexHolder) msg.obj;
-//				String name = msg.getData().getString("name");
-//				h.index = doGetIndexByName(name);
-//				h.release();
-//				return true;
-//			case MSG_SCROLLTOINDEX :
-//				JSONObject options = null;
-//				try {
-//					options = new JSONObject((String) msg.obj);
-//				} catch (Exception e) {
-//					Log.w(LCAT, "Error converting options to JSON: " + msg.obj);
-//				}
-//				doScrollToIndex(msg.arg1, options);
-//				return true;
-//			case MSG_SET_TEMPLATE :
-//				doSetTemplate((JSONObject) msg.obj);
-//				releaseModifySemaphore();
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
 
 	private void acquireModifySemaphore() {
 		try {

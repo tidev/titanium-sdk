@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.TableView.scrollToIndex
+type: method
+description: scroll to the item referenced by index.
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [int, index, row index]

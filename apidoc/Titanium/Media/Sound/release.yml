@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Media.Sound.release
+type: method
+description: Release native resources associated with this Sound object. This should release a Sound object as soon as you are finished with it.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

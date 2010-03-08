@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.Slider.y
+type: property
+description: the vertical position of the slider to make, if the slider is in the content area.
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

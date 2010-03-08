@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.GroupedView.setTitle
+type: method
+description: "Sets the title of a window, visible in the middle of the window's nav bar and as the back button in the child window's nav bar"
+since: 0.5.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

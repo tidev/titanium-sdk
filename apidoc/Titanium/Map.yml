@@ -1,5 +1,25 @@
 ---
 namespace: Titanium.Map
 type: module
-description: No description provided.
-since: 0.8.5 or earlier
+description: |
+  <p>The top level Map module. The Map module is used
+  for working with native mapping views inside the application.</p>
+since: 0.8
+examples:
+  - |
+      Create a native map and place it in the current window (assumes you're
+      in a subcontext created by Titanium.UI.createWindow with a URL to JS).
+      <pre><code>
+      var mapview = Titanium.Map.createView({
+      	mapType: Titanium.Map.STANDARD_TYPE,
+      	region: {latitude:33.74511, longitude:-84.38993, 
+      	    latitudeDelta:0.01, longitudeDelta:0.01},
+      	animate:true,
+      	regionFit:true,
+      	userLocation:true
+      });
+      Ti.UI.currentWindow.add(mapview);
+      </code></pre>
+
+
+

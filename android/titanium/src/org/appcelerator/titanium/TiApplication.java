@@ -32,6 +32,11 @@ import android.content.Intent;
 // Naming TiHost to more closely match other implementations
 public class TiApplication extends Application
 {
+	public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
+	public static final String DEPLOY_TYPE_TEST = "test";
+	public static final String DEPLOY_TYPE_PRODUCTION = "production";
+	
+	private static final String PROPERTY_DEPLOY_TYPE = "ti.deploytype";
 	private static final String LCAT = "TiApplication";
 	private static final boolean DBG = TiConfig.LOGD;
 	private static final long STATS_WAIT = 300000;
@@ -50,7 +55,6 @@ public class TiApplication extends Application
 	protected TiAnalyticsModel analyticsModel;
 	protected Intent analyticsIntent;
 	private static long lastAnalyticsTriggered = 0;
-
 
 	public TiApplication() {
 		Log.checkpoint("checkpoint, app created.");
@@ -200,12 +204,15 @@ public class TiApplication extends Application
 		appEventProxies.remove(appEventProxy);
 	}
 
-	public void fireAppEvent(String eventName, TiDict data)
+	public boolean fireAppEvent(String eventName, TiDict data)
 	{
+		boolean handled = false;
 		for (TiProxy appEventProxy : appEventProxies)
 		{
-			appEventProxy.getTiContext().dispatchEvent(eventName, data);
+			boolean proxyHandled = appEventProxy.getTiContext().dispatchEvent(eventName, data);
+			handled = handled || proxyHandled;
 		}
+		return handled;
 	}
 
 	public TiProperties getAppProperties()
@@ -318,4 +325,8 @@ public class TiApplication extends Application
 		}
 	}
 
+	public String getDeployType()
+	{
+		return getAppProperties().getString(PROPERTY_DEPLOY_TYPE, DEPLOY_TYPE_DEVELOPMENT);
+	}
 }

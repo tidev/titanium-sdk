@@ -1,0 +1,10 @@
+---
+namespace: Titanium.App.SystemProperties.setString
+type: method
+description: Store a string property
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [string, name, property name]
+    - [string, value, property value]

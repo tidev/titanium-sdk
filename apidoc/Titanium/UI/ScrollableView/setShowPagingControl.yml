@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.ScrollableView.setShowPagingControl
+type: method
+description: turn paging on and off.
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [boolean, view, true if you want paging controls.]

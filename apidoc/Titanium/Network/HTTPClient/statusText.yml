@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Network.HTTPClient.statusText
+type: property
+description: Get the status text of the request
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: string

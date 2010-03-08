@@ -1,0 +1,10 @@
+---
+namespace: Titanium.App.SystemProperties.setList
+type: method
+description: "Store a list of JSON'able objects"
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [string, name, property name]
+    - [list, def, value to store]

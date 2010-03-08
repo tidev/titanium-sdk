@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.iPhone.ActivityIndicatorStyle
+type: property
+description: Possible styles for UI.ActivityIndicator
+since: 0.6.0
+platforms: ['iphone']
+returns: String

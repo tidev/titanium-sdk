@@ -31,19 +31,8 @@ ${data.description}
 % for method in data.methods:
 	<tr>
 		<td class="name">
-			<a href="${method.namespace}.html">\
-			${method.returns} ${method.name()}((\
-% for i, param in enumerate(method.parameters):
-% if i != 0:
-, \
-%endif
-<span class="param_type">${param['type']}</span>
-<span class="param_name">${param['name']}</span>\
-% endfor
-)</a>
+			<a href="${method.namespace}.html">${method.name()}</a>
 		</td>
-	</tr>
-	<tr>
 		<td class="description">${method.description}</td>
 	</tr>
 % endfor
@@ -83,8 +72,10 @@ ${data.description}
 % if 'properties' in event:
 		<h4>Event properties</h4>
 		<table class="event">
-% for prop in event['properties']:			
-			<tr><td class="name">${prop}</td><td>${event['properties'][prop]}</td></tr>
+% for prop in event['properties']:
+% for name in prop:
+			<tr><td class="name">${name}</td><td>${prop[name]}</td></tr>
+% endfor
 % endfor
 		</table>
 	</td>
@@ -98,15 +89,11 @@ ${data.description}
 <h3>Code Examples</h3>
 
 % for example in data.examples :
-<div>${example['description']}</div>
-
-<script type="syntaxhighlighter" class="brush: js"><![CDATA[
-	${example['code']}
-]]></script>
-
+<div>${example}</div>
 % endfor
 
 % endif
+
 
 % if hasattr(data, 'notes'):
 <h3>Notes</h3>

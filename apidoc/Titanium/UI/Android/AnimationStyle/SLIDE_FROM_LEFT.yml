@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.Android.AnimationStyle.SLIDE_FROM_LEFT
+type: property
+description: Slide the new view from left pushing the current view off right.
+since: 0.6.2
+platforms: ['android', 'iphone']
+returns: String

@@ -1,0 +1,6 @@
+---
+namespace: Titanium.UI.Android.SystemIcon
+type: module
+description: Android specific System Icons
+since: 0.8
+platforms: ['android']

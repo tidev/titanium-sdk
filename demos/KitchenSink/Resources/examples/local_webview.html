@@ -15,10 +15,11 @@
 		Ti.API.info('before image')
 		var i = new Image();
 		Ti.API.info('image '  + i);
-		my_global_variable = 10;
+		window.my_global_variable = 10;
 		
 		Ti.App.addEventListener('show_indicator',function(e)
 		{
+			Ti.API.info("removeEventListener: a="+e.a);
 			Ti.App.removeEventListener('show_indicator',this);
 			setTimeout(function()
 			{

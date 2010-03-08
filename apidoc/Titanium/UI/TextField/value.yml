@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.TextField.value
+type: property
+description: the starting text for the UI.TextField
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

@@ -1,0 +1,8 @@
+---
+namespace: Titanium.App.Properties.hasProperty
+type: method
+description: check to see if a property exists
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

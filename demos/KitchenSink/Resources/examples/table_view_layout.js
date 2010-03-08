@@ -46,11 +46,15 @@ var data = [
 
 // tableview object
 var tableView = Titanium.UI.createTableView({
-	width:300,
 	backgroundColor:'transparent',
 	data:data,
 	separatorStyle:Ti.UI.iPhone.TableViewSeparatorStyle.NONE,
 	top:10
 });
 
-win.add(tableView);
+var wrapperView = Titanium.UI.createView({backgroundColor:'transparent',width:300});
+
+wrapperView.add(tableView);
+win.add(wrapperView);
+
+//win.add(tableView);

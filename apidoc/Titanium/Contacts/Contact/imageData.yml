@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Contacts.Contact.imageData
+type: property
+description: (dataBlob) represents the image that is displayed to the left of the name in the contacts picker.
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

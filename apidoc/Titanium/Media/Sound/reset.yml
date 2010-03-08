@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Media.Sound.reset
+type: method
+description: Moves the starting point to the beginning. If the music was paused, this is the same as pressing stop. If the music was playing, the sound will start playing from the start.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

@@ -1,0 +1,9 @@
+---
+namespace: Titanium.Contacts.Contact.setNote
+type: method
+description: saves the Contacts.Contact.note property
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [Array<Label/Value pair<String>>, newNote, The new multivalue of strings.]

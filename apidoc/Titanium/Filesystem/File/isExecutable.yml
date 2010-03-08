@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Filesystem.File.isExecutable
+type: method
+description: Checks whether a file is an executable file
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: boolean
+parameters: []

@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.Android.AnimationStyle.SLIDE_FROM_TOP
+type: property
+description: Slide new view from top pushing current view off bottom.
+since: 0.6.2
+platforms: ['android', 'iphone']
+returns: String

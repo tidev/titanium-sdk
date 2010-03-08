@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.AlertDialog.show
+type: method
+description: Show the alert dialog
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

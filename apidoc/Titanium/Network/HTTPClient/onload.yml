@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Network.HTTPClient.onload
+type: property
+description: The handler function that will be fired when the ready-state code of an HTTPClient object changes to ready state (DONE)
+since: 0.5.0
+platforms: ['android', 'iphone']
+returns: String

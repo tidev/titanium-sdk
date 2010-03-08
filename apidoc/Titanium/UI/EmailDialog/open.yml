@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.EmailDialog.open
+type: method
+description: Open the dialog, no configuration allowed after opening.
+since: 0.6.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

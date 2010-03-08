@@ -1,0 +1,6 @@
+---
+namespace: Titanium.UI.Android.AnimationStyle
+type: module
+description: Animation Style specific to android.
+platforms: ['android']
+since: 0.8

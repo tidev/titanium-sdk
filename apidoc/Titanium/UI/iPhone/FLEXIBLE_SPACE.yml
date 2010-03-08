@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.iPhone.FLEXIBLE_SPACE
+type: property
+description: "Set a UI.Button's \"systemButton\" property to this in order to have a spacer to place between tool bar buttons to seperate them as much as possible"
+since: 0.8.0
+platforms: ['iphone']
+returns: String

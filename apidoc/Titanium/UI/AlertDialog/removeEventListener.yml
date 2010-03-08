@@ -1,0 +1,10 @@
+---
+namespace: Titanium.UI.AlertDialog.removeEventListener
+type: method
+description: "Remove listener added for the 'click' event."
+since: 0.5.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [string, eventName, name of the event to listen for.]
+    - [int, listenerId, id returned by addEventListener]

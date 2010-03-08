@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Media.Sound.pause
+type: method
+description: Pause a playing sound.
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

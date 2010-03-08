@@ -1,0 +1,10 @@
+---
+namespace: Titanium.UI.TableView.insertRowAfter
+type: method
+description: insert a row after the given index
+since: 0.6.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [int, index, row index of an existing row]
+    - [object, options, row data]

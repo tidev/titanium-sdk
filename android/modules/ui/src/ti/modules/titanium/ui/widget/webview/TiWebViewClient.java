@@ -7,11 +7,13 @@
 
 package ti.modules.titanium.ui.widget.webview;
 
+import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 
 import ti.modules.titanium.ui.WebViewProxy;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
@@ -22,17 +24,34 @@ public class TiWebViewClient extends WebViewClient
 	private static final String LCAT = "TiWVC";
 	private static final boolean DBG = TiConfig.LOGD;
 	private WebViewProxy proxy;
-	
-	public TiWebViewClient(WebViewProxy proxy) {
+	private WebView webView;
+	private TiWebViewBinding binding;
+
+	public TiWebViewClient(WebViewProxy proxy, WebView webView) {
 		super();
 		this.proxy = proxy;
+		this.webView = webView;
+		binding = new TiWebViewBinding(proxy.getTiContext(), webView);
 	}
-	
+
+	@Override
+	public void onPageFinished(WebView view, String url) {
+		super.onPageFinished(view, url);
+
+		TiDict data = new TiDict();
+		data.put("url", url);
+		proxy.fireEvent("load", data);
+	}
+
+	public TiWebViewBinding getBinding() {
+		return binding;
+	}
+
 	@Override
 	public void onReceivedError(WebView view, int errorCode, String description, String failingUrl)
 	{
 		super.onReceivedError(view, errorCode, description, failingUrl);
-		
+
 		//TODO report this to the user
 		String text = "Javascript Error("+errorCode+"): " + description;
 		Log.e(LCAT, "Received on error" + text);
@@ -46,13 +65,8 @@ public class TiWebViewClient extends WebViewClient
 
 		if (URLUtil.isAssetUrl(url) || URLUtil.isContentUrl(url) || URLUtil.isFileUrl(url)) {
 			// go through the proxy to ensure we're on the UI thread
-			proxy.setUrl(url);
+			proxy.setDynamicValue("url", url);
 			return true;
-		} else if (URLUtil.isNetworkUrl(url)) {
-            Intent i = new Intent( Intent.ACTION_VIEW, Uri.parse(url) );
-            i.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK);
-            view.getContext().startActivity(i);
-            return true;
 		} else if(url.startsWith(WebView.SCHEME_TEL)) {
 			Log.i(LCAT, "Launching dialer for " + url);
 			Intent dialer = Intent.createChooser(new Intent(Intent.ACTION_DIAL, Uri.parse(url)), "Choose Dialer");

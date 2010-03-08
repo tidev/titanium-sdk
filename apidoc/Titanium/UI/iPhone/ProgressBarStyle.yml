@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.iPhone.ProgressBarStyle
+type: property
+description: Possible styles for UI.ProgressBar
+since: 0.6.0
+platforms: ['iphone']
+returns: String

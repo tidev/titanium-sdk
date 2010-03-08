@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Contacts.Contact.getDate
+type: method
+description: retrieves the Contacts.Contact.date property
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: Array<Label/Value pair<Date>>
+parameters: []

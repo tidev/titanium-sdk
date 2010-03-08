@@ -317,7 +317,7 @@ DEFINE_EXCEPTIONS
 {
 	UIImage *image = [[ImageLoader sharedLoader] loadRemote:url];
 	image = [self scaleImageIfRequired:image];
-	[self performSelectorOnMainThread:@selector(setURLImageOnUIThread:) withObject:image waitUntilDone:NO];
+	[self performSelectorOnMainThread:@selector(setURLImageOnUIThread:) withObject:image waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 }
 
 -(void)loadImageInBackground:(NSNumber*)pos
@@ -331,7 +331,9 @@ DEFINE_EXCEPTIONS
 	}
 	if (theimage!=nil)
 	{
-		[self performSelectorOnMainThread:@selector(setImageOnUIThread:) withObject:[NSArray arrayWithObjects:theimage,pos,nil] waitUntilDone:NO];
+		[self performSelectorOnMainThread:@selector(setImageOnUIThread:)
+				withObject:[NSArray arrayWithObjects:theimage,pos,nil]
+				waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 	}
 	else 
 	{
@@ -542,7 +544,7 @@ DEFINE_EXCEPTIONS
 			// use a placeholder image - which the dev can specify with the
 			// defaultImage property or we'll provide the Titanium stock one
 			// if not specified
-			UIImage *defImage = nil;
+			/*UIImage *defImage = nil;
 			id defaultImage = [self.proxy valueForKey:@"defaultImage"];
 			if (defaultImage!=nil)
 			{
@@ -568,7 +570,7 @@ DEFINE_EXCEPTIONS
 				[self addSubview:iv];
 				[iv release];
 			}
-			placeholderLoading = YES;
+			placeholderLoading = YES;*/
 			urlRequest = [[[ImageLoader sharedLoader] loadImage:url_ delegate:self userInfo:nil] retain];
 			return;
 		}
@@ -638,7 +640,7 @@ DEFINE_EXCEPTIONS
 	if (request == urlRequest)
 	{
 		image = [self scaleImageIfRequired:image];
-		[self performSelectorOnMainThread:@selector(setURLImageOnUIThread:) withObject:image waitUntilDone:NO];
+		[self performSelectorOnMainThread:@selector(setURLImageOnUIThread:) withObject:image waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 		RELEASE_TO_NIL(urlRequest);
 	}
 }

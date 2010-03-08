@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.iPhone.OPAQUE_BLACK
+type: property
+description: constant representing the opaque black status bar style. The status bar appears opaque and black.
+since: 0.8.0
+platforms: ['iphone']
+returns: String

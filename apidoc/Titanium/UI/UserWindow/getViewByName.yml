@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.currentWindow.getViewByName
+type: method
+description: finds the first view that has its name property set to the specified value
+since: 0.6.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

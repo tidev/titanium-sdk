@@ -1,0 +1,9 @@
+---
+namespace: Titanium.UI.Switch.setValue
+type: method
+description: set the value.
+since: 0.7.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: 
+    - [boolean, value, value to set the switch too]

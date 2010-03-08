@@ -1,0 +1,8 @@
+---
+namespace: Titanium.Database.DB.getRowsAffected
+type: method
+description: The number of rows affected by the last operation
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: int
+parameters: []

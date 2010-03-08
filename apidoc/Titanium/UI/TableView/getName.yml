@@ -1,0 +1,8 @@
+---
+namespace: Titanium.UI.TableView.getName
+type: method
+description: get tableview name
+since: 0.6.0
+platforms: ['android', 'iphone']
+returns: String
+parameters: []

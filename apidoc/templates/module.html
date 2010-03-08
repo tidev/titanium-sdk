@@ -97,8 +97,10 @@ ${data.description}
 % if 'properties' in event:
 		<h4>Event properties</h4>
 		<table class="event">
-% for prop in event['properties']:			
-			<tr><td class="name">${prop}</td><td>${event['properties'][prop]}</td></tr>
+% for prop in event['properties']:
+% for name in prop:
+			<tr><td class="name">${name}</td><td>${prop[name]}</td></tr>
+% endfor
 % endfor
 		</table>
 	</td>
@@ -112,12 +114,7 @@ ${data.description}
 <h3>Code Examples</h3>
 
 % for example in data.examples :
-<div>${example['description']}</div>
-
-<script type="syntaxhighlighter" class="brush: js"><![CDATA[
-	${example['code']}
-]]></script>
-
+<div>${example}</div>
 % endfor
 
 % endif

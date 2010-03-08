@@ -6,10 +6,11 @@
  */
 package ti.modules.titanium.network;
  
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
@@ -46,7 +47,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.apache.james.mime4j.util.MimeUtil;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiDict;
 import org.appcelerator.titanium.TiProxy;
@@ -56,8 +56,6 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
-
-import com.sun.xml.internal.messaging.saaj.packaging.mime.internet.ContentType;
 
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
@@ -79,7 +77,8 @@ public class TiHTTPClient
 	private static final String ON_LOAD = "onload";
 	private static final String ON_ERROR = "onerror";
 	private static final String ON_DATA_STREAM = "ondatastream";
-    
+	private static final String ON_SEND_STREAM = "onsendstream";
+	
 	private TiProxy proxy;
 	private int readyState;
 	private String responseText;
@@ -151,7 +150,9 @@ public class TiHTTPClient
 				}
 				
 				entity = response.getEntity();
-				contentType = entity.getContentType().getValue();
+				if (entity.getContentType() != null) {
+					contentType = entity.getContentType().getValue();
+				}
 				KrollCallback onDataStreamCallback = c.getCallback(ON_DATA_STREAM);
 				if (onDataStreamCallback != null) {
 					is = entity.getContent();
@@ -231,6 +232,101 @@ public class TiHTTPClient
 		}
 	}
  
+	private interface ProgressListener {
+		public void progress(int progress);
+	}
+	
+	private class ProgressEntity implements HttpEntity
+	{
+		private HttpEntity delegate;
+		private ProgressListener listener;
+		public ProgressEntity(HttpEntity delegate, ProgressListener listener)
+		{
+			this.delegate = delegate;
+			this.listener = listener;
+		}
+		
+		public void consumeContent() throws IOException {
+			delegate.consumeContent();
+		}
+		
+		public InputStream getContent() throws IOException,
+				IllegalStateException {
+			return delegate.getContent();
+		}
+		
+		public Header getContentEncoding() {
+			return delegate.getContentEncoding();
+		}
+		
+		public long getContentLength() {
+			return delegate.getContentLength();
+		}
+		
+		public Header getContentType() {
+			return delegate.getContentType();
+		}
+		
+		public boolean isChunked() {
+			return delegate.isChunked();
+		}
+		
+		public boolean isRepeatable() {
+			return delegate.isRepeatable();
+		}
+		
+		public boolean isStreaming() {
+			return delegate.isStreaming();
+		}
+		
+		public void writeTo(OutputStream stream) throws IOException {
+			OutputStream progressOut = new ProgressOutputStream(stream, listener);
+			delegate.writeTo(progressOut);
+		}
+	}
+	
+	private class ProgressOutputStream extends FilterOutputStream
+	{
+		private ProgressListener listener;
+		private int transferred = 0, lastTransferred = 0;
+		
+		public ProgressOutputStream(OutputStream delegate, ProgressListener listener)
+		{
+			super(delegate);
+			this.listener = listener;
+		}
+		
+		private void fireProgress() {
+			// filter to 512 bytes of granularity
+			if (transferred - lastTransferred >= 512) {
+				lastTransferred = transferred;
+				new Thread(new Runnable() {
+					public void run() {
+						proxy.getTiContext().getActivity().runOnUiThread(new Runnable() {
+							public void run() {
+								listener.progress(transferred);
+							}
+						});
+					}
+				}).start();
+			}
+		}
+		
+		@Override
+		public void write(byte[] b, int off, int len) throws IOException {
+			super.write(b, off, len);
+			transferred += len;
+			fireProgress();
+		}
+		
+		@Override
+		public void write(int b) throws IOException {
+			super.write(b);
+			transferred++;
+			fireProgress();
+		}
+	}
+	
 	public TiHTTPClient(TiProxy proxy)
 	{
 		this.proxy = proxy;
@@ -469,20 +565,22 @@ public class TiHTTPClient
 		try {
 			parts.put(name, new StringBody(value));
 		} catch (UnsupportedEncodingException e) {
-			nvPairs.add(new BasicNameValuePair(name,value));
+			nvPairs.add(new BasicNameValuePair(name,value.toString()));
 		}
 	}
- 
-	public void addTitaniumFileAsPostData(String name, Object value) {
+	
+	public int addTitaniumFileAsPostData(String name, Object value) {
 		try {
 			if (value instanceof TiBaseFile) {
 				TiBaseFile baseFile = (TiBaseFile) value;
 				InputStreamBody body = new InputStreamBody(baseFile.getInputStream(), name);
 				parts.put(name, body);
+				return (int)baseFile.getNativeFile().length();
 			} else if (value instanceof TiBlob) {
 				TiBlob blob = (TiBlob) value;
-				InputStreamBody body = new InputStreamBody(new ByteArrayInputStream(blob.getBytes()), name);
+				InputStreamBody body = new InputStreamBody(blob.getInputStream(), name);
 				parts.put(name, body);
+				return blob.getLength();
 			} else {
 				if (value != null) {
 					Log.e(LCAT, name + " is a " + value.getClass().getSimpleName());
@@ -493,6 +591,7 @@ public class TiHTTPClient
 		} catch (IOException e) {
 			Log.e(LCAT, "Error adding post data ("+name+"): " + e.getMessage());
 		}
+		return 0;
 	}
  
 	public void send(Object userData)
@@ -500,6 +599,7 @@ public class TiHTTPClient
 	{
 		// TODO consider using task manager
 		final TiHTTPClient me = this;
+		double totalLength = 0;
 		if (userData != null)
 		{
 			if (userData instanceof TiDict) {
@@ -509,10 +609,12 @@ public class TiHTTPClient
 					Object value = data.get(key);
  
 					if (method.equals("POST")) {
-						if (value instanceof TiBaseFile) {
-							addTitaniumFileAsPostData(key, value);
+						if (value instanceof TiBaseFile || value instanceof TiBlob) {
+							totalLength += addTitaniumFileAsPostData(key, value);
 						} else {
-							addPostData(key, TiConvert.toString(value));
+							String str = TiConvert.toString(value);
+							addPostData(key, str);
+							totalLength += str.length();
 						}
 					} else if (method.equals("GET")) {
 						uri = uri.buildUpon().appendQueryParameter(
@@ -525,7 +627,11 @@ public class TiHTTPClient
 		}
  
 		request = new DefaultHttpRequestFactory().newHttpRequest(method, uri.toString());
- 
+		for (String header : headers.keySet()) {
+			request.setHeader(header, headers.get(header));
+		}
+		
+		final double fTotalLength = totalLength;
 		clientThread = new Thread(new Runnable(){
 			public void run() {
 				try {
@@ -568,7 +674,6 @@ public class TiHTTPClient
  
 						if(parts.size() > 0) {
 							mpe = new MultipartEntity();
- 
 							for(String name : parts.keySet()) {
 								mpe.addPart(name, parts.get(name));
 							}
@@ -585,14 +690,30 @@ public class TiHTTPClient
 							}
  
 							HttpEntityEnclosingRequest e = (HttpEntityEnclosingRequest) request;
+							Log.d(LCAT, "totalLength="+fTotalLength);
+							
+							/*ProgressEntity progressEntity = new ProgressEntity(mpe, new ProgressListener() {
+								public void progress(int progress) {
+									KrollCallback cb = getCallback(ON_SEND_STREAM);
+									if (cb != null) {
+										TiDict data = new TiDict();
+										data.put("progress", ((double)progress)/fTotalLength);
+										data.put("source", proxy);
+										cb.callWithProperties(data);
+									}
+								}
+							});*/
+							//e.setEntity(progressEntity);
+
 							e.setEntity(mpe);
+							e.addHeader("Length", fTotalLength+"");
 						} else {
 							if (data!=null)
 							{
 								try
 								{
 									StringEntity requestEntity = new StringEntity(data, "UTF-8");
-									Header header = request.getFirstHeader("contentType");
+									Header header = request.getFirstHeader("Content-Type");
 									if(header == null) {
 										requestEntity.setContentType("application/x-www-form-urlencoded");
 									} else {

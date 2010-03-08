@@ -108,7 +108,7 @@
 			[self performSelectorOnMainThread:@selector(removeFromSuperview) withObject:childView waitUntilDone:NO];
 			if (verticalNeedsRearranging)
 			{
-				[self performSelectorOnMainThread:@selector(layout) withObject:nil waitUntilDone:NO];
+				[self performSelectorOnMainThread:@selector(layout) withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 			}
 		}
 	}
@@ -306,11 +306,7 @@
 {
 	[self willFirePropertyChanges];
 	
-	id<NSFastEnumeration> values = [self validKeys];
-	if (values == nil)
-	{
-		values = [dynprops allKeys];
-	}
+	id<NSFastEnumeration> values = [self allKeys];
 	
 	[view readProxyValuesWithKeys:values];
 
@@ -632,6 +628,15 @@
 	}
 
 }
+
+-(void)setNeedsRepositionIfAutoSized
+{
+	if (TiDimensionIsAuto(layoutProperties.width) || TiDimensionIsAuto(layoutProperties.height))
+	{
+		[self reposition];
+	}
+}
+
 
 #define LAYOUTPROPERTIES_SETTER(methodName,layoutName,converter)	\
 -(void)methodName:(id)value	\

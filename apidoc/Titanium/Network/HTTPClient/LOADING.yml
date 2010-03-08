@@ -1,0 +1,7 @@
+---
+namespace: Titanium.Network.HTTPClient.LOADING
+type: property
+description: The LOADING readyState property
+since: 0.4.0
+platforms: ['android', 'iphone']
+returns: String

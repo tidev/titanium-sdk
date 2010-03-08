@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.media;
 
 import java.io.File;
@@ -27,6 +33,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.media.MediaScannerConnection;
+import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 import android.net.Uri;
 import android.os.Vibrator;
 import android.provider.MediaStore;
@@ -313,6 +321,11 @@ public class MediaModule extends TiModule
 			});
 	}
 
+	public void saveToPhotoGallery(Object object)
+	{
+		Log.w(LCAT, "saveToPhotoGallery not yet implemented in Android");
+	}
+	
 	TiDict createDictForImage(String path, String mimeType) {
 		TiDict d = new TiDict();
 

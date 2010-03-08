@@ -1,0 +1,7 @@
+---
+namespace: Titanium.UI.TextField.clearButtonMode
+type: property
+description: Indicates when the TextField clear button is shown when the TextField is not empty. When the TextField is empty, the clearButton is always hidden.
+since: 0.8.0
+platforms: ['android', 'iphone']
+returns: String

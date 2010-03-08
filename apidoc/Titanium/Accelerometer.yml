@@ -8,16 +8,16 @@ description: |
 events:
     - name: update
       description: fired when the accelerometer changes
-      parameters:
-          - x: the x axis of the device
-          - y: the y axis of the device
-          - z: the z axis of the device
-          - timestamp: | 
+      properties:
+            - x: the x axis of the device
+            - y: the y axis of the device
+            - z: the z axis of the device
+            - timestamp: |
                 Reference timestamp since the previous change. this is
                 not a valid timestamp and should simply be used to determine
                 the time between events and not an exact timestamp.
 
-since: 0.8.5 or earlier
+since: 0.4
 examples:
   - |
       Adds an accelerometer update event listener which prints out
@@ -25,10 +25,10 @@ examples:
       remove the event when not used to conserve device 
       resources.  If you do not have an active event listener, the 
       accelerometer is turned off to conserve device resources.
-      <code>
+      <pre><code>
       	Titanium.Accelerometer.addEventListener('update',function(e)
       	{
       		Ti.API.debug("accelerometer - x:"+e.x+",y:"+e.y+",z:"+e.z);
       	});
-      </code>
+      </code></pre>
   

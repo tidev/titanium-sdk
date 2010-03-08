@@ -67,6 +67,7 @@
 -(void)exchangeView:(TiUIView*)newview;
 
 -(void)reposition;
+-(void)setNeedsRepositionIfAutoSized;
 
 @end
 
@@ -75,6 +76,16 @@
 {	\
 	return [[self view] methodname:value];	\
 }
+
+#define USE_VIEW_FOR_UI_METHOD(methodname)	\
+-(void)methodname:(id)args	\
+{	\
+	if ([self viewAttached])	\
+	{	\
+		[[self view] performSelectorOnMainThread:@selector(methodname:) withObject:args waitUntilDone:NO];	\
+	}	\
+}
+
 
 #define USE_VIEW_FOR_VERIFY_WIDTH	USE_VIEW_FOR_METHOD(CGFloat,verifyWidth,CGFloat)
 #define USE_VIEW_FOR_VERIFY_HEIGHT	USE_VIEW_FOR_METHOD(CGFloat,verifyHeight,CGFloat)
