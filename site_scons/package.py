@@ -4,7 +4,9 @@
 #
 import os, types, glob, shutil, sys, platform
 import zipfile
-import importresolver
+
+if platform.system() != 'Windows':
+	import importresolver
 
 cur_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 top_dir = os.path.abspath(os.path.join(os.path.dirname(sys._getframe(0).f_code.co_filename),'..'))

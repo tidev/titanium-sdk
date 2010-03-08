@@ -150,7 +150,9 @@ public class TiHTTPClient
 				}
 				
 				entity = response.getEntity();
-				contentType = entity.getContentType().getValue();
+				if (entity.getContentType() != null) {
+					contentType = entity.getContentType().getValue();
+				}
 				KrollCallback onDataStreamCallback = c.getCallback(ON_DATA_STREAM);
 				if (onDataStreamCallback != null) {
 					is = entity.getContent();
@@ -625,6 +627,10 @@ public class TiHTTPClient
 		}
  
 		request = new DefaultHttpRequestFactory().newHttpRequest(method, uri.toString());
+		for (String header : headers.keySet()) {
+			request.setHeader(header, headers.get(header));
+		}
+		
 		final double fTotalLength = totalLength;
 		clientThread = new Thread(new Runnable(){
 			public void run() {
@@ -707,7 +713,7 @@ public class TiHTTPClient
 								try
 								{
 									StringEntity requestEntity = new StringEntity(data, "UTF-8");
-									Header header = request.getFirstHeader("contentType");
+									Header header = request.getFirstHeader("Content-Type");
 									if(header == null) {
 										requestEntity.setContentType("application/x-www-form-urlencoded");
 									} else {
