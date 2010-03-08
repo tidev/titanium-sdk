@@ -3,5 +3,5 @@ namespace: Titanium.UI.iPhone.FAST_FORWARD
 type: property
 description: "Set a UI.Button's \"systemButton\" property to this in order to get the system-provided \"FastForward\" button when in the toolbar or nav bar"
 since: 0.8.0
-platforms: ['android', 'iphone']
+platforms: ['iphone']
 returns: String

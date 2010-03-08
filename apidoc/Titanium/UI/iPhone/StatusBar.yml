@@ -3,5 +3,5 @@ namespace: Titanium.UI.iPhone.StatusBar
 type: property
 description: object containing iPhone status bar style constants
 since: 0.8.0
-platforms: ['android', 'iphone']
+platforms: ['iphone']
 returns: String

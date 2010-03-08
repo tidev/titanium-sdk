@@ -8,4 +8,4 @@ description: |
   used to augment additional context or application-specific
   information which can then be accessed during
   analysis using Analytics.</p>
-since: 0.8.5 or earlier
+since: 0.4

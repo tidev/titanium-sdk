@@ -3,7 +3,7 @@ namespace: Titanium.UI.setTabBadge
 type: function
 description: "Sets the tab bar's badge value, must be on the root of the nav controller"
 since: 0.8.0
-platforms: ['android', 'iphone']
+platforms: ['iphone']
 returns: string
 parameters: 
     - [string, badge, badge value]

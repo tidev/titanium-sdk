@@ -8,3 +8,9 @@ returns: void
 parameters: 
     - [string, severity, the severity of the message]
     - [string, note, the value to log]
+examples:
+  - |
+      Prints out a message to the console.
+      <pre><code>
+      	Titanium.API.log("debug","Appcelerator rocks!");
+      </code></pre>

@@ -3,5 +3,5 @@ namespace: Titanium.UI.iPhone.FLIP_FROM_LEFT
 type: property
 description: constant used to describe an animation where the current view flips over with the new view on the opposite side. The leftmost edge is foreground UI.iPhone.AnimationStyle.FLIP_FROM_LEFT is used by UI.currentWindow.showView and UI.UserWindow.showView
 since: 0.6.0
-platforms: ['android', 'iphone']
+platforms: ['iphone']
 returns: String

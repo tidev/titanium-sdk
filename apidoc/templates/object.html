@@ -89,15 +89,11 @@ ${data.description}
 <h3>Code Examples</h3>
 
 % for example in data.examples :
-<div>${example['description']}</div>
-
-<script type="syntaxhighlighter" class="brush: js"><![CDATA[
-	${example['code']}
-]]></script>
-
+<div>${example}</div>
 % endfor
 
 % endif
+
 
 % if hasattr(data, 'notes'):
 <h3>Notes</h3>

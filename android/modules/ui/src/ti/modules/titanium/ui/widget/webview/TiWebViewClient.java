@@ -26,32 +26,32 @@ public class TiWebViewClient extends WebViewClient
 	private WebViewProxy proxy;
 	private WebView webView;
 	private TiWebViewBinding binding;
-	
+
 	public TiWebViewClient(WebViewProxy proxy, WebView webView) {
 		super();
 		this.proxy = proxy;
 		this.webView = webView;
 		binding = new TiWebViewBinding(proxy.getTiContext(), webView);
 	}
-	
+
 	@Override
 	public void onPageFinished(WebView view, String url) {
 		super.onPageFinished(view, url);
-		
+
 		TiDict data = new TiDict();
 		data.put("url", url);
 		proxy.fireEvent("load", data);
 	}
-	
+
 	public TiWebViewBinding getBinding() {
 		return binding;
 	}
-	
+
 	@Override
 	public void onReceivedError(WebView view, int errorCode, String description, String failingUrl)
 	{
 		super.onReceivedError(view, errorCode, description, failingUrl);
-		
+
 		//TODO report this to the user
 		String text = "Javascript Error("+errorCode+"): " + description;
 		Log.e(LCAT, "Received on error" + text);
@@ -65,7 +65,7 @@ public class TiWebViewClient extends WebViewClient
 
 		if (URLUtil.isAssetUrl(url) || URLUtil.isContentUrl(url) || URLUtil.isFileUrl(url)) {
 			// go through the proxy to ensure we're on the UI thread
-			proxy.setUrl(url);
+			proxy.setDynamicValue("url", url);
 			return true;
 		} else if(url.startsWith(WebView.SCHEME_TEL)) {
 			Log.i(LCAT, "Launching dialer for " + url);

@@ -72,6 +72,13 @@ class API(object):
 		self.events = []
 		self.platforms = []
 
+	def codeize(self,code):
+		code = code.replace('<pre><code>','<script type="syntaxhighlighter" class="brush: js"><![CDATA[')
+		code = code.replace('</code></pre>',']]></script>')
+		code = code.replace('<code>','<script type="syntaxhighlighter" class="brush: js"><![CDATA[')
+		code = code.replace('</code>',']]></script>')
+		return code
+		
 	def update(self, data):
 		self.type = type = data['type']
 		if 'platforms' in data:
@@ -97,10 +104,11 @@ class API(object):
 				})
 		desc = data['description']
 		if desc:
-			desc = desc.replace('<pre><code>','<script type="syntaxhighlighter" class="brush: js"><![CDATA[')
-			desc = desc.replace('</code></pre>',']]></script>')
-		self.description = desc
+			self.description = self.codeize(desc)
 		self.since = data['since']
+		if 'examples' in data:
+			for example in data['examples']:
+				self.examples.append(self.codeize(example))
 		self.deprecated = 'deprecated' in data and data['deprecated']
 		if 'events' in data:
 			self.events = data['events']
@@ -202,7 +210,7 @@ def crawl(srcdir, options):
 def spit_toc(apis,outdir):
 	ns = []
 	for key in apis.keys():
-		if apis[key].type == 'module':
+		if apis[key].type == 'module' and len(key.split(".")) == 2:
 			print ">> found module: %s" % key
 			ns.append(key)
 	ns.sort()

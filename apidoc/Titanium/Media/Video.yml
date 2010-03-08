@@ -1,5 +1,5 @@
 ---
 namespace: Titanium.Media.Video
-type: object
-description: No description provided.
-since: 0.8.5 or earlier
+type: module
+description: Video namespace.
+since: 0.4

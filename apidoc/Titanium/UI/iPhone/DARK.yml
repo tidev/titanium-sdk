@@ -3,5 +3,5 @@ namespace: Titanium.UI.iPhone.DARK
 type: property
 description: constant representing a small (20 pixels wide) gray activity indicator
 since: 0.6.0
-platforms: ['android', 'iphone']
+platforms: ['iphone']
 returns: String

@@ -7,3 +7,9 @@ platforms: ['android', 'iphone']
 returns: void
 parameters: 
     - [string, note, the value to log]
+examples:
+  - |
+      Prints out a message to the console.
+      <pre><code>
+      	Titanium.API.error("I break for Appcelerator!");
+      </code></pre>

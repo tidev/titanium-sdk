@@ -54,9 +54,9 @@ public class TiCompositeLayout extends ViewGroup
 					}
 				} else if (p2.optionZIndex != NOT_SET) {
 					if (p2.optionZIndex < 0) {
-						result = -1;
-					} if (p2.optionZIndex > 0) {
 						result = 1;
+					} if (p2.optionZIndex > 0) {
+						result = -1;
 					}
 				}
 
