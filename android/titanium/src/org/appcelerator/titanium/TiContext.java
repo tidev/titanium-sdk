@@ -14,6 +14,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -449,8 +450,12 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener
 		return result;
 	}
 
-
 	public void dispatchEvent(String eventName, TiDict data)
+	{
+		dispatchEvent(eventName, data, true);
+	}
+	
+	public void dispatchEvent(String eventName, TiDict data, boolean checkKeep)
 	{
 		if (eventName != null) {
 			HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
@@ -459,7 +464,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener
 					data = new TiDict();
 				}
 
-				Set<Entry<Integer, TiListener>> listenerSet = listeners.entrySet();
+				Set<Entry<Integer, TiListener>> listenerSet = new TreeSet<Entry<Integer,TiListener>>(listeners.entrySet());
 				for(Entry<Integer, TiListener> entry : listenerSet) {
 					boolean keep = false;
 					try {
@@ -468,7 +473,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener
 						Log.e(LCAT, "Error invoking listener with id " + entry.getKey() + " on eventName '" + eventName + "'", e);
 					}
 
-					if (!keep) {
+					if (checkKeep && !keep) {
 						listeners.remove(entry.getKey());
 						Log.i(LCAT, "Listener with id " + entry.getKey() + " removed due to invocation failure.");
 					}
