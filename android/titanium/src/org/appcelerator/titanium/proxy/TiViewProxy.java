@@ -469,9 +469,8 @@ public abstract class TiViewProxy extends TiProxy implements Handler.Callback
 		boolean handled = super.fireEvent(eventName, data);
 		
 		if (parent != null && parent.get() != null) {
-			if (!handled) {
-				handled = parent.get().fireEvent(eventName, data);
-			}
+			boolean parentHandled = parent.get().fireEvent(eventName, data);
+			handled = handled || parentHandled;
 		}
 		return handled;
 	}
