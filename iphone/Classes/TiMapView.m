@@ -80,7 +80,7 @@
 -(void)refreshAnnotation:(TiMapAnnotationProxy*)proxy readd:(BOOL)yn
 {
 	NSArray *selected = map.selectedAnnotations;
-	BOOL wasSelected = selected!=nil && [selected count] > 0 && [selected containsObject:proxy];
+	BOOL wasSelected = [selected containsObject:proxy]; //If selected == nil, this still returns FALSE.
 	if (yn==NO)
 	{
 		[map deselectAnnotation:proxy animated:NO];
@@ -478,6 +478,17 @@
 		}
 	}
 }
+
+
+//-(void)applyAnnotation:(TiMapAnnotationProxy *)ann toView:(MKPinAnnotationView *)annView
+//{
+//
+//
+//
+//
+//}
+
+
 
 // mapView:viewForAnnotation: provides the view for each annotation.
 // This method may be called for all or some of the added annotations.

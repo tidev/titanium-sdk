@@ -306,11 +306,7 @@
 {
 	[self willFirePropertyChanges];
 	
-	id<NSFastEnumeration> values = [self validKeys];
-	if (values == nil)
-	{
-		values = [dynprops allKeys];
-	}
+	id<NSFastEnumeration> values = [self allKeys];
 	
 	[view readProxyValuesWithKeys:values];
 
