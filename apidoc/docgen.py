@@ -66,7 +66,7 @@ class API(object):
 		self.objects = []
 		self.properties = []
 		self.examples = []
-		self.type = 'module'
+		self.type = 'object'
 		self.deprecated = None
 		self.description = ''
 		self.events = []
@@ -95,7 +95,11 @@ class API(object):
 					'name': param[1],
 					'description': param[2]
 				})
-		self.description = data['description']
+		desc = data['description']
+		if desc:
+			desc = desc.replace('<pre><code>','<script type="syntaxhighlighter" class="brush: js"><![CDATA[')
+			desc = desc.replace('</code></pre>',']]></script>')
+		self.description = desc
 		self.since = data['since']
 		self.deprecated = 'deprecated' in data and data['deprecated']
 		if 'events' in data:
@@ -129,7 +133,7 @@ class API(object):
 	def get_html_template(self):
 		global template_dir
 		if not self.type in API.templates:
-			tpath = path.join(template_dir, 'templates', '%s.html' % self.type)
+			tpath = path.join(template_dir, '%s.html' % self.type)
 			if not path.exists(tpath):
 				print "Couldn't find template: %s" % tpath
 				sys.exit(1)
@@ -145,19 +149,30 @@ def add_api(yaml_string):
 	api.update(data)
 
 def spit_html(options, api):
+	global search_json
+	
 	try:
-		output = Template(api.get_html_template()).render(data=api)
+		template = api.get_html_template()
+		output = Template(template).render(data=api)
 	except:
 		print exceptions.html_error_template().render()
 		return
+
 
 	outdir = options.outdir
 	if not path.exists(outdir):
 		os.makedirs(outdir)
 
-	f = open(path.join(outdir, '%s.html' % api.namespace), 'w')
+	f = open(path.join(outdir, '%s.html' % api.namespace), 'w+')
 	f.write(output)
 	f.close()
+	
+	# simply create a search index of tokens that the webserver will use to do doc searchs against
+	search_json.append({
+		'filename':api.namespace,
+		'content':'%s %s %s' % (api.namespace," ".join(api.namespace.split('.')),api.description),
+		'type':api.type
+	})
 	
 	if api.type == 'module':
 		toc_filename = os.path.join(outdir,'toc_%s.json' % api.namespace)
@@ -188,20 +203,28 @@ def spit_toc(apis,outdir):
 	ns = []
 	for key in apis.keys():
 		if apis[key].type == 'module':
+			print ">> found module: %s" % key
 			ns.append(key)
 	ns.sort()
 	toc = open(os.path.join(outdir,'toc.json'),'w+')
 	toc.write(json.dumps(ns,indent=4))
 	toc.close()
 	
+def spit_search_json(searchjson,outdir):
+	out = open(os.path.join(outdir,'search.json'),'w+')
+	out.write(json.dumps(searchjson,indent=4))
+	out.close()
+		
 if __name__ == "__main__":
-	global template_dir
+	global template_dir, search_json
 
 	usage = "usage: %prog [options] arg1 arg2"
 	parser = OptionParser(usage=usage)
 	parser.add_option("-o", "--output-dir", dest="outdir", default='docout',
 		help="output rendered documentation to DIR", metavar="DIR")
 	parser.add_option("-s", "--source-dir", dest="srcdir", default='.',
+		help="read documentation source from DIR")
+	parser.add_option("-t", "--template-dir", dest="template_dir", default='X',
 		help="read documentation source from DIR")
 	parser.add_option("-m", "--html-only", dest="html_only", default=False,
 		help="only render documentation to HTML")
@@ -211,7 +234,11 @@ if __name__ == "__main__":
 		help="Specifies verbose output")
 
 	(options, args) = parser.parse_args()
-	template_dir = options.srcdir
+	if options.template_dir == 'X':
+		template_dir = os.path.join(options.srcdir,'templates')
+	else:
+		template_dir = options.template_dir
+	search_json = []
 
 	crawl(options.srcdir, options)
 
@@ -224,6 +251,7 @@ if __name__ == "__main__":
 				print "Spitting HTML: %s" % api_name
 			spit_html(options, API.apis[api_name])
 		spit_toc(API.apis,options.outdir)	
+		spit_search_json(search_json,options.outdir)
 
 	# JSON forthcomming.
 	# if not options.html_only:
