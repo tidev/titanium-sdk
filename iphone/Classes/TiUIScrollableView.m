@@ -248,7 +248,7 @@
 		
 		if (![scrollview isDecelerating] && ![scrollview isDragging] && ![scrollview isTracking])
 		{
-			[scrollview setContentOffset:CGPointMake([views count]*visibleBounds.size.width,0)];
+			[scrollview setContentOffset:CGPointMake(currentPage*visibleBounds.size.width,0)];
 		}
 	}
 }
