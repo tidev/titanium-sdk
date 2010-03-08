@@ -450,81 +450,45 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener
 		return result;
 	}
 
-	public void dispatchEvent(String eventName, TiDict data)
+	public boolean dispatchEvent(String eventName, TiDict data)
 	{
-		dispatchEvent(eventName, data, true);
+		return dispatchEvent(eventName, data, null);
 	}
-	
-	public void dispatchEvent(String eventName, TiDict data, boolean checkKeep)
+
+	public boolean dispatchEvent(String eventName, TiDict data, TiProxy tiProxy)
 	{
+		boolean dispatched = false;
 		if (eventName != null) {
 			HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
 			if (listeners != null) {
 				if (data == null) {
 					data = new TiDict();
 				}
+				data.put("type", eventName);
 
-				Set<Entry<Integer, TiListener>> listenerSet = new TreeSet<Entry<Integer,TiListener>>(listeners.entrySet());
+				Set<Entry<Integer, TiListener>> listenerSet = listeners.entrySet();
 				for(Entry<Integer, TiListener> entry : listenerSet) {
-					boolean keep = false;
-					try {
-						keep = entry.getValue().invoke(eventName, data);
-					} catch (Exception e) {
-						Log.e(LCAT, "Error invoking listener with id " + entry.getKey() + " on eventName '" + eventName + "'", e);
-					}
-
-					if (checkKeep && !keep) {
-						listeners.remove(entry.getKey());
-						Log.i(LCAT, "Listener with id " + entry.getKey() + " removed due to invocation failure.");
-					}
-				}
-				listenerSet.clear();
-				listenerSet = null;
-			}
-		} else {
-			throw new IllegalStateException("removeEventListener expects a non-null eventName");
-		}
-	}
-
-	public void dispatchEvent(TiProxy tiProxy, String eventName, TiDict data)
-	{
-		if (tiProxy != null) {
-			if (eventName != null) {
-				HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
-				if (listeners != null) {
-					if (data == null) {
-						data = new TiDict();
-					}
-
-					data.put("source", tiProxy);
-					data.put("type", eventName);
-
-					Set<Entry<Integer, TiListener>> listenerSet = listeners.entrySet();
-					for(Entry<Integer, TiListener> entry : listenerSet) {
-						TiListener listener = entry.getValue();
-						if (listener.isSameProxy(tiProxy)) {
-							boolean keep = false;
-							try {
-								keep = listener.invoke(eventName, data);
-							} catch (Exception e) {
-								Log.e(LCAT, "Error invoking listener with id " + entry.getKey() + " on eventName '" + eventName + "'", e);
+					TiListener listener = entry.getValue();
+					if (tiProxy == null || (tiProxy != null && listener.isSameProxy(tiProxy))) {
+						boolean invoked = false;
+						try {
+							if (listener.weakTiProxy.get() != null) {
+								data.put("source", listener.weakTiProxy.get());
+								invoked = listener.invoke(eventName, data);
 							}
-
-							if (!keep) {
-								listeners.remove(entry.getKey());
-								Log.i(LCAT, "Listener with id " + entry.getKey() + " removed due to invocation failure.");
-							}
+						} catch (Exception e) {
+							Log.e(LCAT, "Error invoking listener with id " + entry.getKey() + " on eventName '" + eventName + "'", e);
 						}
+						dispatched = dispatched || invoked;
 					}
-				} else {
-					Log.w(LCAT, "No listeners for eventName: " + eventName);
 				}
 			} else {
-				throw new IllegalStateException("dispatchEvent expects a non-null eventName");
+				Log.w(LCAT, "No listeners for eventName: " + eventName);
 			}
 		} else {
-			throw new IllegalStateException("dispatchEvent requires a non-null tiProxy");
+			throw new IllegalStateException("dispatchEvent expects a non-null eventName");
 		}
+		return dispatched;
 	}
 
 	public void addOnLifecycleEventListener(OnLifecycleEvent listener) {

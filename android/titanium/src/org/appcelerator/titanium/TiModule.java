@@ -26,8 +26,8 @@ public abstract class TiModule
 
 	public void postCreate() {}
 	
-	public void fireEvent(String eventName, TiDict data) {
-		getTiContext().dispatchEvent(this, eventName, data);
+	public boolean fireEvent(String eventName, TiDict data) {
+		return getTiContext().dispatchEvent(eventName, data, this);
 	}
 
 	public Object createProxy(Object[] args, String name)

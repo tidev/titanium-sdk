@@ -36,9 +36,9 @@ public class AppModule extends TiModule
 		super.removeEventListener(event, listener);
 	}
 
-	public void fireEvent(String event, TiDict data)
+	public boolean fireEvent(String event, TiDict data)
 	{
-		getTiContext().getTiApp().fireAppEvent(event, data);
+		return getTiContext().getTiApp().fireAppEvent(event, data);
 	}
 
 	public String getID() {

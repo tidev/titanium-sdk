@@ -204,12 +204,15 @@ public class TiApplication extends Application
 		appEventProxies.remove(appEventProxy);
 	}
 
-	public void fireAppEvent(String eventName, TiDict data)
+	public boolean fireAppEvent(String eventName, TiDict data)
 	{
+		boolean handled = false;
 		for (TiProxy appEventProxy : appEventProxies)
 		{
-			appEventProxy.getTiContext().dispatchEvent(eventName, data, false);
+			boolean proxyHandled = appEventProxy.getTiContext().dispatchEvent(eventName, data);
+			handled = handled || proxyHandled;
 		}
+		return handled;
 	}
 
 	public TiProperties getAppProperties()
