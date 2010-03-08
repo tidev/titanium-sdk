@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -52,6 +53,7 @@ public class TiTableView extends FrameLayout
 	private String filterText;
 
 	private TiContext tiContext;
+	private TableViewProxy proxy;
 
 	public interface OnItemClickedListener {
 		public void onClick(TiDict item);
@@ -177,15 +179,15 @@ public class TiTableView extends FrameLayout
 			}
 
 			if (v == null) {
-				if (item.className.equals(TableViewModel.CLASSNAME_HEADER)) {
+				if (item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
 					v = new TiTableViewHeaderItem(tiContext);
-					v.setClassName(TableViewModel.CLASSNAME_HEADER);
-				} else if (item.className.equals(TableViewModel.CLASSNAME_NORMAL)) {
+					v.setClassName(TableViewProxy.CLASSNAME_HEADER);
+				} else if (item.className.equals(TableViewProxy.CLASSNAME_NORMAL)) {
 					v = new TiTableViewRowProxyItem(tiContext);
-					v.setClassName(TableViewModel.CLASSNAME_NORMAL);
-				} else if (item.className.equals(TableViewModel.CLASSNAME_DEFAULT)) {
+					v.setClassName(TableViewProxy.CLASSNAME_NORMAL);
+				} else if (item.className.equals(TableViewProxy.CLASSNAME_DEFAULT)) {
 					v = new TiTableViewRowProxyItem(tiContext);
-					v.setClassName(TableViewModel.CLASSNAME_DEFAULT);
+					v.setClassName(TableViewProxy.CLASSNAME_DEFAULT);
 				} else {
 					v = new TiTableViewRowProxyItem(tiContext);
 					v.setClassName(item.className);
@@ -205,7 +207,7 @@ public class TiTableView extends FrameLayout
 		public boolean isEnabled(int position) {
 			boolean enabled = true;
 			Item item = (Item) getItem(position);
-			if (item.className.equals(TableViewModel.CLASSNAME_HEADER)) {
+			if (item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
 				enabled = false;
 			} else {
 				enabled = true;
@@ -229,18 +231,19 @@ public class TiTableView extends FrameLayout
 		}
 	}
 
-	public TiTableView(TiContext tiContext)
+	public TiTableView(TiContext tiContext, TableViewProxy proxy)
 	{
 		super(tiContext.getActivity());
 
 		this.tiContext = tiContext;
+		this.proxy = proxy;
 
 		rowTypes = new HashMap<String, Integer>();
 		rowTypeCounter = new AtomicInteger(-1);
 
-		rowTypes.put(TableViewModel.CLASSNAME_HEADER, rowTypeCounter.incrementAndGet());
-		rowTypes.put(TableViewModel.CLASSNAME_NORMAL, rowTypeCounter.incrementAndGet());
-		rowTypes.put(TableViewModel.CLASSNAME_DEFAULT, rowTypeCounter.incrementAndGet());
+		rowTypes.put(TableViewProxy.CLASSNAME_HEADER, rowTypeCounter.incrementAndGet());
+		rowTypes.put(TableViewProxy.CLASSNAME_NORMAL, rowTypeCounter.incrementAndGet());
+		rowTypes.put(TableViewProxy.CLASSNAME_DEFAULT, rowTypeCounter.incrementAndGet());
 
 //TODO bookmark
 		this.defaults = new TiTableViewItemOptions();
@@ -254,7 +257,7 @@ public class TiTableView extends FrameLayout
 		defaults.put("scrollBar", "auto");
 		defaults.put("textAlign", "left");
 
-		this.viewModel = new TableViewModel(tiContext);
+		this.viewModel = new TableViewModel(tiContext, proxy);
 
 		this.listView = new ListView(getContext()) {
 
@@ -315,9 +318,6 @@ public class TiTableView extends FrameLayout
 					event.put("row", item.indexInSection);
 					event.put("index", item.index);
 					event.put("detail", false);
-//					if (item.containsKey("name")) {
-//						event.put("name", item.getString("name"));
-//					}
 
 					if (viewClicked != null) {
 						event.put("layoutName", viewClicked);
@@ -333,7 +333,6 @@ public class TiTableView extends FrameLayout
 	}
 
 	private void dataSetChanged() {
-		//handler.post(dataSetChanged);
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
 		}
@@ -343,24 +342,9 @@ public class TiTableView extends FrameLayout
 		this.itemClickListener = listener;
 	}
 
-	public void setTemplate(TiDict rowTemplate) {
-		this.rowTemplate = rowTemplate;
-		dataSetChanged();
-	}
-
-	public void setData(Object[] rows) {
-		viewModel.setData(rows);
-		dataSetChanged();
-	}
-
-	public void setRowHeight(String rowHeight) {
-//TODO
-	}
-//	@Override
-//	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
-//	{
-//		if (changed) {
-//			listView.layout(left, top, right, bottom);
-//		}
+//	public void setData(Object[] rows) {
+//		viewModel.setData(rows);
+//		dataSetChanged();
 //	}
+
 }
