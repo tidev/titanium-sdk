@@ -1,3 +1,9 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 package ti.modules.titanium.ui.widget;
 
 import java.io.ByteArrayInputStream;
@@ -84,7 +90,7 @@ public class TiUIImageView extends TiUIView
 	{
 		if (image instanceof TiBlob) {
 			TiBlob blob = (TiBlob)image;
-			return new BitmapDrawable(TiUIHelper.createBitmap(new ByteArrayInputStream(blob.getBytes())));
+			return new BitmapDrawable(TiUIHelper.createBitmap(blob.getInputStream()));
 		} else if (image instanceof FileProxy) {
 			FileProxy file = (FileProxy)image;
 			try {
@@ -103,7 +109,7 @@ public class TiUIImageView extends TiUIView
 		} else if (image instanceof TiDict) {
 			TiBlob blob = TiUIHelper.getImageFromDict((TiDict)image);
 			if (blob != null) {
-				return new BitmapDrawable(TiUIHelper.createBitmap(new ByteArrayInputStream(blob.getBytes())));
+				return new BitmapDrawable(TiUIHelper.createBitmap(blob.getInputStream()));
 			} else {
 				Log.e(LCAT, "Couldn't find valid image in object: " + image.toString());
 			}

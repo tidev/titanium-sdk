@@ -290,15 +290,15 @@ public class TiActivity extends Activity
 		}
 	}
 
-//	@Override
-//	public void finish()
-//	{
-//		Intent intent = getIntent();
-//		if (intent != null) {
-//			if (intent.getBooleanExtra("finishRoot", false)) {
-//				((TiApplication) getApplication()).getRootActivity().finish();
-//			}
-//		}
-//		super.finish();
-//	}
+	@Override
+	public void finish()
+	{
+		TiDict data = new TiDict();
+		for (WeakReference<TiContext> contextRef : contexts) {
+			if (contextRef.get() != null) {
+				contextRef.get().dispatchEvent("close", data);
+			}
+		}
+		super.finish();
+	}
 }
