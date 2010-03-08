@@ -201,6 +201,9 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
+	public void setData(Object[] data, TiDict options) {
+		processData(data);
+	}
 	public Object getData() {
 		return getSections();
 	}
