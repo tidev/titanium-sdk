@@ -172,6 +172,7 @@ public class TiConvert
             } else {
             	layoutParams.optionZIndex = 0;
             }
+            dirty = true;
         }
 
         return dirty;
