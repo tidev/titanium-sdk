@@ -6,7 +6,7 @@ var data = [
 	{title:'Accelerometer', hasChild:true, test:'../examples/accelerometer.js'},
 	{title:'Sound', hasChild:true, test:'../examples/sound.js'},
 	// {title:'Contacts', hasChild:true, test:'../examples/contacts.js'}
-
+	{title:'Photo Gallery', hasChild:true, test:'../examples/photo_gallery.js'}
 ];
 
 data.push({title:'Orientation', hasChild:true, test:'../examples/orientation.js'});
@@ -18,7 +18,6 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Screenshot', hasChild:true, test:'../examples/screenshot.js'});
 	data.push({title:'Save to Gallery', hasChild:true, test:'../examples/photo_gallery_save.js'});
 	data.push({title:'Shake', hasChild:true, test:'../examples/shake.js'});
-	data.push({title:'Photo Gallery', hasChild:true, test:'../examples/photo_gallery.js'});
 	data.push({title:'Camera', hasChild:true, test:'../examples/camera.js'});
 	data.push({title:'Record Video', hasChild:true, test:'../examples/record_video.js'});
 	data.push({title:'Proximity Events', hasChild:true, test:'../todo.js'});

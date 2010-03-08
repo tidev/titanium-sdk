@@ -90,7 +90,7 @@ public class TiUIImageView extends TiUIView
 	{
 		if (image instanceof TiBlob) {
 			TiBlob blob = (TiBlob)image;
-			return new BitmapDrawable(TiUIHelper.createBitmap(new ByteArrayInputStream(blob.getBytes())));
+			return new BitmapDrawable(TiUIHelper.createBitmap(blob.getInputStream()));
 		} else if (image instanceof FileProxy) {
 			FileProxy file = (FileProxy)image;
 			try {
@@ -109,7 +109,7 @@ public class TiUIImageView extends TiUIView
 		} else if (image instanceof TiDict) {
 			TiBlob blob = TiUIHelper.getImageFromDict((TiDict)image);
 			if (blob != null) {
-				return new BitmapDrawable(TiUIHelper.createBitmap(new ByteArrayInputStream(blob.getBytes())));
+				return new BitmapDrawable(TiUIHelper.createBitmap(blob.getInputStream()));
 			} else {
 				Log.e(LCAT, "Couldn't find valid image in object: " + image.toString());
 			}
