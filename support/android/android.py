@@ -10,6 +10,7 @@ from mako.template import Template
 from xml.etree.ElementTree import ElementTree
 from os.path import join, splitext, split, exists
 from shutil import copyfile
+from androidsdk import AndroidSDK
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
@@ -157,10 +158,7 @@ class Android(object):
 			if not os.path.exists(home_dir):
 				os.makedirs(home_dir)
 		
-			android = os.path.join(self.sdk,'tools','android')
-			if platform.system() == "Windows":
-				android += ".bat"
-			avd_output = run([android,'list','avd'])
+			avd_output = run([self.sdk.get_android(),'list','avd'])
 		
 			sdcard = os.path.join(home_dir,'android.sdcard')
 		
@@ -168,19 +166,11 @@ class Android(object):
 			if len(re.findall('titanium\.avd',avd_output))==0:
 				# create a special AVD for the project
 				inputgen = os.path.join(template_dir,'input.py')
-				pipe([sys.executable, inputgen], [android, '--verbose', 'create', 'avd', '--name', 'titanium', '--target', '2', '--force'])
+				pipe([sys.executable, inputgen], [self.sdk.get_android(), '--verbose', 'create', 'avd', '--name', 'titanium', '--target', '2', '--force'])
 			
 			# create a 10M SDCard for the project
 			if not os.path.exists(sdcard):
-				mksdcard = os.path.join(self.sdk,'tools','mksdcard')
-				if platform.system() == "Windows":
-					mksdcard += ".exe"
-			
-				run([mksdcard, '10M', sdcard])
-			
-				#cmd = "\"%s\" 10M \"%s\"" %(mksdcard,sdcard)
-				#print cmd
-				#os.system(cmd)
+				run([self.sdk.get_mksdcard(), '10M', sdcard])
 		
 
 if __name__ == '__main__':
@@ -189,6 +179,7 @@ if __name__ == '__main__':
 		print "Usage: %s <name> <id> <directory> <sdk>" % os.path.basename(sys.argv[0])
 		sys.exit(1)
 
-
-	android = Android(sys.argv[1],sys.argv[2],sys.argv[4])
+	
+	sdk = AndroidSDK(sys.argv[4], 4)
+	android = Android(sys.argv[1],sys.argv[2],sdk)
 	android.create(sys.argv[3])

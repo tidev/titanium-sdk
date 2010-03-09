@@ -19,6 +19,7 @@ var tf2 = Titanium.UI.createTextField({
 	top:55,
 	left:10,
 	width:250,
+	font:{fontSize:25},
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_BEZEL
 });
 
@@ -29,6 +30,7 @@ var tf3 = Titanium.UI.createTextField({
 	top:100,
 	left:10,
 	width:250,
+	font:{fontSize:15},
 	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_LINE
 });
 

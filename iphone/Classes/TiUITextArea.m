@@ -5,6 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiUITextArea.h"
+#import "TiUITextAreaProxy.h"
+
 #import "TiUtils.h"
 #import "TiRange.h"
 #import "Webcolor.h"
@@ -65,8 +67,13 @@
 
 -(BOOL)becomeFirstResponder
 {
-	BOOL result = [super becomeFirstResponder];
+	if ([textWidgetView isFirstResponder])
+	{
+		return NO;
+	}
+
 	[self makeRootViewFirstResponder];
+	BOOL result = [super becomeFirstResponder];
 	return result;
 }
 
@@ -99,10 +106,7 @@
 
 - (void)textViewDidChange:(UITextView *)tv
 {
-	if ([self.proxy _hasListeners:@"change"])
-	{
-		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:[(UITextView *)textWidgetView text] forKey:@"value"]];
-	}
+	[(TiUITextAreaProxy *)[self proxy] noteValueChange:[(UITextView *)textWidgetView text]];
 }
 
 - (void)textViewDidChangeSelection:(UITextView *)tv
@@ -123,19 +127,8 @@
 
 - (BOOL)textView:(UITextView *)tv shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
-	NSString *curText = [tv text];
-	
-	if ([text isEqualToString:@""])
-	{
-		// this is delete
-		curText = [curText substringToIndex:[curText length]-range.length];
-	}
-	else
-	{
-		curText = [NSString stringWithFormat:@"%@%@",curText,text];
-	}
-	
-	[self.proxy replaceValue:curText forKey:@"value" notification:NO];
+	NSString *curText = [[tv text] stringByReplacingCharactersInRange:range withString:text];
+	[(TiUITextAreaProxy *)self.proxy noteValueChange:curText];
 
 	return TRUE;
 }

@@ -288,7 +288,7 @@ DEFINE_EXCEPTIONS
 		[TiUtils setView:iv positionRect:[self bounds]];
 		[self sendSubviewToBack:iv];
 		[iv release];
-		[(TiViewProxy *)[self proxy] reposition];
+		[(TiViewProxy *)[self proxy] setNeedsReposition];
 
 		// do a nice fade in animation to replace the new incoming image
 		// with our placeholder
@@ -586,7 +586,7 @@ DEFINE_EXCEPTIONS
 			{
 				autoWidth = image.size.width;
 				autoHeight = image.size.height;
-				[(TiViewProxy *)[self proxy] reposition];
+				[(TiViewProxy *)[self proxy] setNeedsReposition];
 			}
 			
 			if ([self.proxy _hasListeners:@"load"])

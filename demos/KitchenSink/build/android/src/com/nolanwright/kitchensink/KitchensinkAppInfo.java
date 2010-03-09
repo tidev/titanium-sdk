@@ -18,6 +18,8 @@ public class KitchensinkAppInfo implements ITiAppInfo
 					
 		properties.setBool("ti.android.debug", true);
 					
+		properties.setString("ti.deploytype", "development");
+					
 		properties.setString("ti.android.google.map.api.key", "0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg");
 	}
 	
@@ -30,7 +32,7 @@ public class KitchensinkAppInfo implements ITiAppInfo
 	}
 	
 	public String getVersion() {
-		return "1.2.2";
+		return "1.0";
 	}
 	
 	public String getPublisher() {
@@ -42,11 +44,11 @@ public class KitchensinkAppInfo implements ITiAppInfo
 	}
 	
 	public String getCopyright() {
-		return "2009 by nwright";
+		return "2010 by nwright";
 	}
 	
 	public String getDescription() {
-		return "demo app for mobile";
+		return "No description provided";
 	}
 	
 	public String getIcon() {

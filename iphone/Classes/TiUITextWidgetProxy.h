@@ -12,6 +12,12 @@
 
 }
 
+//Internal values
+-(void)noteValueChange:(NSString *)newValue;
+
+
+
+
 -(BOOL)focused;
 
 @end

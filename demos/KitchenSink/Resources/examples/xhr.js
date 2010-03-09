@@ -9,10 +9,10 @@ var data = [
 	{title:'UTF-8 + GET/POST', hasChild:true, test:'../examples/xhr_utf8.js'}
 ];
 // add iphone specific tests
-//if (Titanium.Platform.name == 'iPhone OS')
-//{
+if (Titanium.Platform.name == 'iPhone OS')
+{
 	data.push({title:'File Upload', hasChild:true, test:'../examples/xhr_fileupload.js'});
-//}
+}
 // create table view
 var tableview = Titanium.UI.createTableView({
 	data:data

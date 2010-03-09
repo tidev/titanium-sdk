@@ -13,8 +13,8 @@
 -(void)_initWithProperties:(NSDictionary *)properties
 {
 	[self replaceValue:NUMINT(0) forKey:@"currentPage" notification:NO];
-	[self replaceValue:NUMINT(1) forKey:@"minZoomScale" notification:NO];
-	[self replaceValue:NUMINT(1) forKey:@"maxZoomScale" notification:NO];
+	[self replaceValue:NUMFLOAT(1) forKey:@"minZoomScale" notification:NO];
+	[self replaceValue:NUMFLOAT(1) forKey:@"maxZoomScale" notification:NO];
 	[super _initWithProperties:properties];
 }
 

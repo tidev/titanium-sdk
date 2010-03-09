@@ -389,7 +389,7 @@
 		if (currentPage==pageNum)
 		{
 			currentPage = [views count]-1;
-			[self.proxy replaceValue:NUMINT(pageNum) forKey:@"currentPage" notification:NO];
+			[self.proxy replaceValue:NUMINT(currentPage) forKey:@"currentPage" notification:NO];
 		}
 		TiViewProxy *viewproxy = [views objectAtIndex:pageNum];
 		[viewproxy setParent:nil];
