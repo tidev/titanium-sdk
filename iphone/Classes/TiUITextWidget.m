@@ -92,11 +92,19 @@
 
 -(BOOL)resignFirstResponder
 {
+	if (![textWidgetView isFirstResponder])
+	{
+		return NO;
+	}
 	return [[self textWidgetView] resignFirstResponder];
 }
 
 -(BOOL)becomeFirstResponder
 {
+	if ([textWidgetView isFirstResponder])
+	{
+		return NO;
+	}
 	return [[self textWidgetView] becomeFirstResponder];
 }
 

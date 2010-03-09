@@ -65,8 +65,13 @@
 
 -(BOOL)becomeFirstResponder
 {
-	BOOL result = [super becomeFirstResponder];
+	if ([textWidgetView isFirstResponder])
+	{
+		return NO;
+	}
+
 	[self makeRootViewFirstResponder];
+	BOOL result = [super becomeFirstResponder];
 	return result;
 }
 
