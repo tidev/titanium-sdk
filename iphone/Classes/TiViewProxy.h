@@ -7,6 +7,9 @@
 #import "TiProxy.h"
 #import "TiUIView.h"
 
+#define NEEDS_REPOSITION	0
+#define NEEDS_LAYOUT_CHILDREN	1
+
 //For TableRows, we need to have minimumParentHeightForWidth:
 @interface TiViewProxy : TiProxy<LayoutAutosizing> 
 {
@@ -14,7 +17,7 @@
 	CGFloat verticalLayoutBoundary;
 	LayoutConstraint layoutProperties;
 
-	int needsReposition;	//For atomic actions, best to be explicit about the 32 bitness.
+	int dirtyflags;	//For atomic actions, best to be explicit about the 32 bitness.
 
 @private
 	NSRecursiveLock *childLock;
@@ -71,9 +74,12 @@
 -(void)viewDidDetach;
 -(void)exchangeView:(TiUIView*)newview;
 
+-(void)childResized:(TiViewProxy *)child;
 -(void)reposition;
+-(void)repositionWithBounds:(CGRect)bounds;
 -(void)repositionIfNeeded;
 -(void)setNeedsReposition;
+-(void)clearNeedsReposition;
 -(void)setNeedsRepositionIfAutoSized;
 
 @end

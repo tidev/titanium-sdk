@@ -427,6 +427,7 @@
 	{
 		return;
 	}
+	OSAtomicTestAndSetBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
 	if (self.children!=nil)
 	{
 		[childLock lock];
@@ -436,6 +437,7 @@
 		}
 		[childLock unlock];
 	}
+	OSAtomicTestAndClearBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
 }
 
 -(CGRect)appFrame
@@ -613,6 +615,39 @@
 	return result;
 }
 
+-(void)layoutChildrenIfNeeded
+{
+	BOOL wasSet=OSAtomicTestAndSetBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
+	if (wasSet && [self viewAttached])
+	{
+		[self repositionIfNeeded];
+		[self layoutChildren];
+	}
+}
+
+-(void)childResized:(TiViewProxy *)child
+{
+	BOOL alreadySet = OSAtomicTestAndSetBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
+	if (alreadySet)
+	{
+		return;
+	}
+	
+	ENSURE_CONSISTENCY([children containsObject:child]);
+	[self setNeedsRepositionIfAutoSized];
+
+	if (TiLayoutRuleIsVertical(layoutProperties.layout))
+	{
+		[self performSelectorOnMainThread:@selector(layoutChildrenIfNeeded) withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+	}
+}
+
+-(void)repositionWithBounds:(CGRect)bounds
+{
+	OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
+	[[self view] relayout:bounds];
+	[self layoutChildren];
+}
 
 -(void)reposition
 {
@@ -622,8 +657,7 @@
 	}
 	if ([NSThread isMainThread])
 	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?
-		needsReposition = 0;
-		[[self view] relayout:[[self view] superview].bounds];
+		[self repositionWithBounds:[[self view] superview].bounds];
 	}
 	else 
 	{
@@ -634,8 +668,8 @@
 
 -(void)repositionIfNeeded
 {
-	BOOL wasSet=OSAtomicTestAndClearBarrier(0, &needsReposition);
-	if (wasSet)
+	BOOL wasSet=OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
+	if (wasSet && [self viewAttached])
 	{
 		[self reposition];
 	}
@@ -647,13 +681,18 @@
 	{
 		return;
 	}
-	BOOL alreadySet = OSAtomicTestAndSetBarrier(0, &needsReposition);
+	BOOL alreadySet = OSAtomicTestAndSetBarrier(NEEDS_REPOSITION, &dirtyflags);
 	if (alreadySet)
 	{
 		return;
 	}
 
 	[self performSelectorOnMainThread:@selector(repositionIfNeeded) withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+}
+
+-(void)clearNeedsReposition
+{
+	OSAtomicTestAndClearBarrier(NEEDS_REPOSITION, &dirtyflags);
 }
 
 -(void)setNeedsRepositionIfAutoSized
