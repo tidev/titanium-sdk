@@ -1,7 +1,0 @@
----
-namespace: Titanium.Map.ANNOTATION_RED
-type: property
-description: constant representing the annotation red pin type
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: string

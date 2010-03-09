@@ -1,9 +1,0 @@
----
-namespace: Titanium.UI.Notifier.setDelay
-type: method
-description: Set how long notification is displayed. Android uses one or greater for long delay, zero for short delay
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: 
-    - [int, delay, Period to delay.]

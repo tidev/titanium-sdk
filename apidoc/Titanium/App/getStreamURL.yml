@@ -1,9 +1,0 @@
----
-namespace: Titanium.App.getStreamURL
-type: function
-description: Not implemented yet
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string
-parameters: 
-    - [string, stream, deploytype (TBD)]

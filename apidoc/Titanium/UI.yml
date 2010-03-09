@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI
-type: module
-description: |
-  <p>The top level UI module. The UI module is used
-  for handling user interface functions.</p>
-since: 0.4

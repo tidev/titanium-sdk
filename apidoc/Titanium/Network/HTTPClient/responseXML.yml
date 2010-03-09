@@ -1,7 +1,0 @@
----
-namespace: Titanium.Network.HTTPClient.responseXML
-type: property
-description: Get the response as blob
-since: 0.7.0
-platforms: ['android', 'iphone']
-returns: Blob

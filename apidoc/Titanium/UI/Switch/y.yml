@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.Switch.y
-type: property
-description: the vertical position of the switch to make, if the switch is in the content area.
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

@@ -1,8 +1,0 @@
----
-namespace: Titanium.Map.MapView.addAnnotation
-type: method
-description: add an annotation
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

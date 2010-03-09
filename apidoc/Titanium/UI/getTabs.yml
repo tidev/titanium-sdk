@@ -1,8 +1,0 @@
----
-namespace: Titanium.UI.getTabs
-type: function
-description: get a list of the tabs
-since: 0.6.2
-platforms: ['android', 'iphone']
-returns: object
-parameters: []

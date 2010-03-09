@@ -1,9 +1,0 @@
----
-namespace: Titanium.UI.Notifier.setIcon
-type: method
-description: Set an icon for the notification Android currently uses Toast, icon will not display.
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: 
-    - [string, iconUrl, The path to the icon]

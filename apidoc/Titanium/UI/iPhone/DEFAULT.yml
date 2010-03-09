@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.iPhone.DEFAULT
-type: property
-description: constant representing the default status bar style. The status bar appears opaque and gray. This is the same as gray
-since: 0.8.0
-platforms: ['iphone']
-returns: String

@@ -1,7 +1,0 @@
----
-namespace: Titanium.Gesture.PORTRAIT
-type: property
-description: integer that represents portrait orientation
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string

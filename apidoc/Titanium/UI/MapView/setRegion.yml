@@ -1,9 +1,0 @@
----
-namespace: Titanium.UI.MapView.setRegion
-type: method
-description: set the region to view
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: 
-    - [object, coordinate, An object with coordinate and span]

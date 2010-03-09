@@ -1,7 +1,0 @@
----
-namespace: Titanium.Platform.id
-type: property
-description: The unique machine id of the system
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string

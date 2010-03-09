@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.Button.style
-type: property
-description: one of the UI.iPhone.SystemButtonStyle constants to choose a button style
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

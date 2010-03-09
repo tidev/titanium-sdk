@@ -1,0 +1,41 @@
+- namespace
+
+Titanium.UI.Toolbar
+
+- type
+
+object
+
+- subtype
+
+view
+
+- description
+
+A Toolbar is created by the method `Titanium.UI.createToolbar`.  A Toolbar can be placed at the bottom of a window and contain buttons.
+
+- since
+
+0.8
+
+- platforms
+
+iphone
+
+- properties
+
+
+- methods
+
+- events
+
+- example
+
+<code>
+</code>
+
+- notes
+
+
+
+

@@ -1,8 +1,0 @@
----
-namespace: Titanium.App.Properties.getString
-type: method
-description: get value as string
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

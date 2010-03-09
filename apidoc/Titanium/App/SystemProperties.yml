@@ -1,5 +1,0 @@
----
-namespace: Titanium.App.SystemProperties
-type: module
-description: System level properties object.
-since: 0.4

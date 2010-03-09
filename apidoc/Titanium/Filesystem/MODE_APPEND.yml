@@ -1,7 +1,0 @@
----
-namespace: Titanium.Filesystem.MODE_APPEND
-type: property
-description: Flag for opening in append mode.
-since: 0.7.0
-platforms: ['android', 'iphone']
-returns: string

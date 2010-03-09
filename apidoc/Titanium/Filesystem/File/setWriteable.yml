@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.File.setWriteable
-type: method
-description: Makes the file or directory writeable
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: boolean
-parameters: []

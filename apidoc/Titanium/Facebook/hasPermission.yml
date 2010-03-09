@@ -1,9 +1,0 @@
----
-namespace: Titanium.Facebook.hasPermission
-type: function
-description: returns true if user has permission (must be logged in)
-since: 0.7.0
-platforms: ['android', 'iphone']
-returns: boolean
-parameters: 
-    - [string, permission, permission name]

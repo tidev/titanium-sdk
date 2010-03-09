@@ -1,8 +1,0 @@
----
-namespace: Titanium.Contacts.Contact.getAddress
-type: method
-description: retrieves the Contacts.Contact.address property
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: Array<Label/Value pair<Object>>
-parameters: []

@@ -1,8 +1,0 @@
----
-namespace: Titanium.Facebook.getPermissions
-type: function
-description: get all the user permissions (must be logged in)
-since: 0.7.0
-platforms: ['android', 'iphone']
-returns: object
-parameters: []

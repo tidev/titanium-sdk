@@ -1,0 +1,62 @@
+- namespace
+
+Titanium.UI.TableViewSection
+
+- type
+
+object
+
+- subtype
+
+view
+
+- description
+
+A TableView section object created by the method `Titanium.UI.createTableViewSection`.
+
+- since
+
+0.9
+
+- platforms
+
+android, iphone
+
+- properties
+
+headerTitle[string]: the title of the section header
+headerView[object]: a view to use instead of the default label when rendering the section header
+footerTitle[string]: the title of the section footer
+footerView[object]: a view to use instead of the default label when rendering the section footer
+rowCount[int]: the (readonly) number of rows in the section
+
+- methods
+
+rowAtIndex: retrieve the row object at a specific index
+add: add a row to the section
+remove: remove a remove from the section
+
+- method : add
+
+row[object]: the row object to add to the section
+
+- method : remove
+
+row[object]: the row object to remove from the section
+
+- events
+
+- example
+
+In this example, we create a section with the header `Hello` and add two rows to it.
+
+<code>
+var section = Titanium.UI.createTableViewSection();
+section.headerTitle = "Hello";
+var row1 = Titanium.UI.createTableViewRow({title:"Hello 1"});
+var row2 = Titanium.UI.createTableViewRow({title:"Hello 2"});
+section.add(row1);
+section.add(row2);
+tableview.add(section);
+</code>
+

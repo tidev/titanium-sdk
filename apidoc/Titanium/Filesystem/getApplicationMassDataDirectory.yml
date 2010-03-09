@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.getApplicationMassDataDirectory
-type: function
-description: "Returns a file object pointing to the application's off device data directory."
-since: 0.7.2
-platforms: ['android', 'iphone']
-returns: File
-parameters: []

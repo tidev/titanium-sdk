@@ -1,9 +1,0 @@
----
-namespace: Titanium.Contacts.Contact.setDate
-type: method
-description: saves the Contacts.Contact.date property
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: 
-    - [Array<Label/Value pair<Date>>, newDate, The new multivalue of dates.]

@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.TextField.height
-type: property
-description: the height of the text field to make, if it is in the content area.
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

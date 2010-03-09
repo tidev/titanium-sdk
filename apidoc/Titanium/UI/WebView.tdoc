@@ -1,0 +1,78 @@
+- namespace
+
+Titanium.UI.WebView
+
+- type
+
+object
+
+- subtype
+
+view
+
+
+- description
+
+The Web View allows you to open an HTML5 based view which can load either local or remote content. The content can be any valid web content such as HTML, PDF, SVG or other WebKit supported content types. The Web View is created by the method `Titanium.UI.createWebView`.
+
+- since
+
+0.8
+
+- platforms
+
+android, iphone
+
+- properties
+
+url[string]: the url to the web document
+backgroundColor[string]: the background color for the webview
+html[string]: the html content of the web document
+data[object]: a data blob or file that is used to load the web document
+scalesPageToFit[boolean]: whether the webview should scale it's contents or not
+
+- methods
+
+evalJS: invoke JavaScript inside the context of the webview and optionally, return a result
+
+- method : evalJS, string
+
+content[string]: JavaScript code as a string. The code will be evaluated inside the webview context.
+
+- events
+
+beforeload: fired before the webview starts loading its content
+load: fired when the webview is loaded
+error: fired when the webview cannot load the content
+
+- event : beforeload
+
+url: the url of the web document
+
+- event : load
+
+url: the url of the web document
+
+- event : error
+
+url: the url of the web document
+message: the error message
+
+
+- example
+
+Create a web view to a remote URL and open the window as modal.
+
+<code>
+	var webview = Titanium.UI.createWebView({url:'http://www.appcelerator.com'});
+	var window = Titanium.UI.createWindow();
+	window.add(webview);
+	window.open({modal:true});
+</code>
+
+- notes
+
+Creating webviews are more expensive than creating pure native views because of the requirement to\
+load the HTML browser into memory.
+
+

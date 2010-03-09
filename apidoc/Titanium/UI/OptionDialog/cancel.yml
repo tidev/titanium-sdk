@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.OptionDialog.cancel
-type: property
-description: Index of the cancel option. This button will have a black background. Default is -1, to indicate none
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

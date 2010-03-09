@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.File.setReadonly
-type: method
-description: Makes the file or directory readonly
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: boolean
-parameters: []

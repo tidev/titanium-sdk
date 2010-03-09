@@ -1,9 +1,0 @@
----
-namespace: Titanium.Contacts.addContact
-type: function
-description: 
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: string
-parameters: 
-    - [contact, object, (Contacts.Contact) The contact to add.]

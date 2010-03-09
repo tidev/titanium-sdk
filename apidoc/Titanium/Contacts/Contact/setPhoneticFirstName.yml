@@ -1,9 +1,0 @@
----
-namespace: Titanium.Contacts.Contact.setPhoneticFirstName
-type: method
-description: saves the Contacts.Contact.phoneticFirstName property
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: 
-    - [String, newPhoneticFirstName, The new string.]

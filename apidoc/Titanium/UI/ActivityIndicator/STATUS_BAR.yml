@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.ActivityIndicator.STATUS_BAR
-type: property
-description: Display activity indicator in status bar
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String

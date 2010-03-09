@@ -1,0 +1,73 @@
+- namespace
+
+Titanium.UI.Picker
+
+- type
+
+object
+
+- subtype
+
+proxy
+
+- description
+
+A Picker is created by the method `Titanium.UI.createPicker`.  A Picker can be used to select one or more fixed values.
+
+- since
+
+0.8
+
+- platforms
+
+android, iphone
+
+- properties
+
+columns[array]: array of column values
+type[int]: the type constant for the picker
+selectionIndicator[boolean]: for basic picker, boolean value to indicate whether the visual selection style is shown. On the iPhone, this is a blue selected bar.
+
+
+- methods
+
+reloadColumn: causes the picker to reload the values from the new column
+
+- method : reloadColumn
+
+column[object]: new column to load
+
+- events
+
+change: fired when the value of a picker row and/or column changes
+
+- event : change
+
+selectedValue: the array of selected values
+rowIndex: the selected row index
+columnIndex: the selected column index
+column: the column object
+row: the row object
+
+- example
+
+In this basic picker example, we create a one column picker with 4 rows. 
+
+<code>
+var picker = Ti.UI.createPicker();
+
+var data = [];
+data[0]=Ti.UI.createPickerRow({title:'Bananas',custom_item:'b'});
+data[1]=Ti.UI.createPickerRow({title:'Strawberries',custom_item:'s'});
+data[2]=Ti.UI.createPickerRow({title:'Mangos',custom_item:'m'});
+data[3]=Ti.UI.createPickerRow({title:'Grapes',custom_item:'g'});
+
+picker.add(data);
+</code>
+
+- notes
+
+In iPhone 1.0, only basic pickers are supported. However, `Date`, `Time` and `DateTime` pickers will be supported in a point release just after 1.0.
+
+Android does not support the `DateTime` picker type.
+

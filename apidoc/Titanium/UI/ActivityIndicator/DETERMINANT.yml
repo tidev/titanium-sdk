@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.ActivityIndicator.DETERMINANT
-type: property
-description: Show activity as determinant
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String

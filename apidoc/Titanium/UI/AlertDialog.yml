@@ -1,8 +1,0 @@
----
-namespace: Titanium.UI.AlertDialog
-type: object
-description: 
-since: 0.8.0
-returns: function
-parameters: 
-    - [object, params, "a set of configurable parameters"]

@@ -1,7 +1,0 @@
----
-namespace: Titanium.Contacts.Contact.url
-type: property
-description: (multivalue of strings)
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

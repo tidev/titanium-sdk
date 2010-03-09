@@ -1,9 +1,0 @@
----
-namespace: Titanium.Map.createView
-type: function
-description: create a google map view
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: Map.MapView
-parameters: 
-    - [object, properties, view properties]

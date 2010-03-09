@@ -1,7 +1,0 @@
----
-namespace: Titanium.Geolocation.hasCompass
-type: property
-description: returns true if the device has compass capabilities
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: string

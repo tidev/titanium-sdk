@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.File.exists
-type: method
-description: Checks whether a file or directory exists in the users system
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: boolean
-parameters: []

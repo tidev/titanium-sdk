@@ -1,9 +1,0 @@
----
-namespace: Titanium.Network.decodeURIComponent
-type: function
-description: Decodes a URI component
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string
-parameters: 
-    - [string, value, value to decode]

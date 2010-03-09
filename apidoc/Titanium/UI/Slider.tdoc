@@ -1,0 +1,64 @@
+- namespace
+
+Titanium.UI.Slider
+
+- type
+
+object
+
+- subtype
+
+view
+
+- description
+
+A Slider is created by the method `Titanium.UI.createSlider`.
+
+- since
+
+0.8
+
+- platforms
+
+android, iphone
+
+- properties
+
+value[string]: the value of the slider
+enabled[boolean]: boolean to indicate the enabled state of the slider
+min[float]: the minimum slider value
+max[float]: the maximum slider value
+thumbImage[string]: the image url to the slider thumb
+selectedThumbImage[string]: the image url of the slider thumb when in the selected state
+highlightedThumbImage[string]: the image url of the slider thumb when in the highlighted state
+disabledThumbImage[string]: the image url of the slider thumb when in the disabled state
+leftTrackImage[string]: the image url of the slider left track
+selectedLeftTrackImage[string]: the image url of the slider left track when in the selected state
+highlightedLeftTrackImage[string]: the image url of the slider left track when in the highlighted state
+disabledLeftTrackImage[string]: the image url of the slider left track when in the disabled state
+rightTrackImage[string]: the image url of the slider right track
+selectedRightTrackImage[string]: the image url of the slider right track when in the selected state
+highlightedRightTrackImage[string]: the image url of the slider right track when in the highlighted state
+disabledRightTrackImage[string]: the image url of the slider right track when in the disabled state
+
+
+- methods
+
+- events
+
+change: fired when the value of the slider changes
+
+- event : change
+
+value[string]: the new value of the slider
+
+- example
+
+<code>
+</code>
+
+- notes
+
+
+
+

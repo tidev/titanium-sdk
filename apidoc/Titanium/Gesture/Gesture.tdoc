@@ -1,0 +1,40 @@
+- namespace
+
+Titanium.Gesture
+
+- type
+
+module
+
+- returns
+
+object
+
+- description
+
+The top level Gestures module.  The Gesture module is responsible for high level device gestures that are device-wide.
+
+- since
+
+0.8
+
+- platforms
+
+android, iphone
+
+
+- events
+
+shake: fired when the device is shaken
+orientationchange: fired when the device orientation changes
+
+
+- event : shake
+
+timestamp: timestamp reference since previous shake
+
+- event : orientationchange
+
+orientation: the orientation constant
+
+

@@ -1,7 +1,0 @@
----
-namespace: Titanium.Media.UNKNOWN_ERROR
-type: property
-description: integer error indicating an unknown error occured with the camera or image picker
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string

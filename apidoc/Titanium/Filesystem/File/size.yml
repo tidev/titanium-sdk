@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.File.size
-type: method
-description: Returns the size of the file in bytes
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: double
-parameters: []

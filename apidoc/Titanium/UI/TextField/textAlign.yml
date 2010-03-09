@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.TextField.textAlign
-type: property
-description: "the alignment of the text inside the TextField. May be either 'left', 'center', or 'right'"
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

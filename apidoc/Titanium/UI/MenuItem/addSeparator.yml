@@ -1,8 +1,0 @@
----
-namespace: Titanium.UI.MenuItem.addSeparator
-type: method
-description: Add a separator to a menu
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: MenuItem
-parameters: []

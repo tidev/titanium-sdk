@@ -1,8 +1,0 @@
----
-namespace: Titanium.UI.GroupedView.setLeftNavButton
-type: method
-description: replaces the button or item on the left side of the nav bar with an UI.Button.
-since: 0.5.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

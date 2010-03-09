@@ -1,7 +1,0 @@
----
-namespace: Titanium.Platform.processorCount
-type: property
-description: The number of processors for the machine
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string

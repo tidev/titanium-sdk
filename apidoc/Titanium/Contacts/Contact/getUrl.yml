@@ -1,8 +1,0 @@
----
-namespace: Titanium.Contacts.Contact.getUrl
-type: method
-description: retrieves the Contacts.Contact.url property
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: Array<Label/Value pair<String>>
-parameters: []

@@ -1,0 +1,62 @@
+- namespace
+
+Titanium.UI.Button
+
+- type
+
+object
+
+- subtype
+
+view
+
+- description
+
+A Button is created by the method `Titanium.UI.createButton`.
+
+- since
+
+0.8
+
+- platforms
+
+android, iphone
+
+- properties
+
+title[string]: button title
+enabled[boolean]: boolean that indicates if the button is enabled or not
+backgroundColor[string]: the buttons background color
+color[string]: the foreground color of the button text
+selectedColor[string]: the selected color of the button text when the button is in the selected state
+font[object]: the font properties of the button
+backgroundImage[string]: url to a button image that is drawn as the background of the button
+backgroundSelectedImage[string]: url to a button image that is drawn as the background of the button when the button is in the selected state
+backgroundDisabledImage[string]: url to a button image that is drawn as the background of the button when the button is in the disabled state
+style[int]: style constant for the type of button
+image[string]: the image to display on the button to the left of the title
+
+- methods
+
+- events
+
+click: fired when the user presses the button
+
+- example
+
+<code>
+var button = Titanium.UI.createButton({
+   title: 'Hello'
+});
+button.addEventListener('click',function(e)
+{
+   Titanium.API.info("You clicked the button");
+});
+</code>
+
+- notes
+
+
+
+
+

@@ -1,5 +1,0 @@
----
-namespace: Titanium.UI.ButtonBar
-type: module
-description: Button Bar class.
-since: 0.8

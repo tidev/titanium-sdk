@@ -1,0 +1,114 @@
+- namespace
+
+Titanium.UI.TextField
+
+- type
+
+object
+
+- subtype
+
+view
+
+- description
+
+A Text Area is created by the method `Titanium.UI.createTextField`. The Text Field is a single line field.
+
+- since
+
+0.8
+
+- platforms
+
+android, iphone
+
+- properties
+
+paddingLeft[float]: the left padding of the text field
+leftButtonPadding[float]: the left padding of the space between the button and the edge of the field
+paddingRight[float]: the right padding of the text field
+rightButtonPadding[float]: the right padding of the space between the button and the edge of the field
+backgroundImage[string]: the image url to the background image of the field
+backgroundDisabledImage[string]: the image url to the background image of the field when in the disabled state
+hintText[string]: the hint text to display when the field is unfocused
+clearOnEdit[boolean]: boolean that indicates if the value of the field is cleared upon editing
+borderStyle[int]: the border style constant for the field
+clearButtonMode[int]: the mode constant for how to handle displaying the clear button
+leftButton[object]: the left button view
+leftButtonMode[int]: the mode of the left button view
+rightButton[object]: the right button view
+rightButtonMode[int]: the mode of the right button view
+verticalAlign[int,string]: the constant or string value for the fields vertical alignment.
+enabled[boolean]: boolean indicating the enabled state of the field
+editable[boolean]: boolean indicating if the field is editable
+backgroundColor[string]: value of the background color of the field
+value[string]: value of the field
+keyboardToolbar[array]: array of toolbar button objects to be used when the keyboard is displayed
+keyboardToolbarColor[string]: the color of the keyboard toolbar 
+keyboardToolbarHeight[float]: the height of the keyboard toolbar
+
+- methods
+
+blur: force the field to gain focus
+focus: force the field to lose focus
+hasText: return boolean (true) if the field has text
+
+- events
+
+focus: fired when the field gains focus
+blur: fired when the field loses focus
+return: fired when the field return key is pressed on the keyboard
+change: fired when the field value changes
+
+- event : change
+
+value: the value of the field upon change
+
+- event : blur
+
+value: the value of the field upon blur
+
+- event : focus
+
+value: the value of the field upon focus
+
+
+- example
+
+Create a simple text field with a round border style.
+
+<code>
+var tf1 = Titanium.UI.createTextField({
+	color:'#336699',
+	height:35,
+	top:10,
+	left:10,
+	width:250,
+	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED
+});
+</code>
+
+- notes
+
+On iPhone, the borderStyle can be set with a constant from `Titanium.UI`.
+
+
+Both Text Areas and Text Fields can control the buttons displayed in a button bar above the keyboard when it's visible.
+
+Example using a custom keyboard toolbar:
+
+<code>
+var textfield = Titanium.UI.createTextField({
+	color:'#336699',
+	value:'Focus to see keyboard w/ toolbar',
+	height:35,
+	width:300,
+	top:10,
+	borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
+	keyboardToolbar:[flexSpace,camera, flexSpace,tf,flexSpace, send,flexSpace],
+	keyboardToolbarColor: '#999',	
+	keyboardToolbarHeight: 40,
+});
+</code>
+
+

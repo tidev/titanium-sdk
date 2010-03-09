@@ -1,0 +1,125 @@
+- namespace
+
+Titanium.UI.Window
+
+- type
+
+object
+
+- subtype
+
+view
+
+- description
+
+The Window is an empty drawing surface or container. The Window is created by the method `Titanium.UI.createWindow`. Unlike Views, Windows can be opened and closed and can have special display properties such as `fullscreen` or `modal`.
+
+- since
+
+0.9
+
+- platforms
+
+android, iphone
+
+- properties
+
+fullscreen[boolean]: boolean indicates if the window is fullscreen (no device chrome)
+modal[boolean]: boolean to indicate if the window should be opened modal in front of other windows
+url[string]: url to a JavaScript file with the windows instructions. this window will create a new JavaScript sub-context that will run in its own thread and global variable space.
+
+- methods
+
+open: open the window
+close: close the window
+
+- method : open
+
+options[object]: open the window with optional animation or display properties
+
+- method : close
+
+options[object]: close the window with optional animation or display properties
+
+- events
+
+open: fired when the window is opened
+close: fired when the window is closed
+focus: fired when the window gains focus
+blur: fired when the window loses focus
+
+
+- example
+
+Create a fullscreen window with a red background.
+
+<code>
+var window = Titanium.UI.createWindow({
+   backgroundColor:'red'
+});
+window.open({fullscreen:true});
+</code>
+
+- notes
+
+When creating a window with a URL to a JavaScript file, a new JavaScript sub-context and global variable space will be created on a new thread.  Variables in one window are not accessible or visible to other windows or the `app.js`.
+
+You can give permission to the window for it to use certain objects.  This is done by variable assignment after creating the window instance. For example:
+
+<code>
+var foo = 123;
+function bar() 
+{ 
+	return 'abc';
+};
+var window = Titanium.UI.createWindow({'url':'a.js'});
+window.bar = bar;
+window.foo = foo;
+</code>
+
+In the above example, the new window will have 2 properties which are visible in it's sub-context that will be references to the variable `foo` and function `bar` in the `app.js` context.  It's important to understand that these are real references and not copies of the values so any changes in either contexts will be reflected immediately in the other.
+
+For security reasons, you cannot load remote code into a window using the `url` property. Code that you need to load into a window must be referenced in source code and must be available in your project during compilation.  If you attempt to load a remote JavaScript file in a window, an exception will occur.
+
+Windows can be opened or closed with animation.  In the example below, we create a window that will open from small to large with a bounce effect.  This is done by applying a transformation at initialization time that scales the original size of the window to 0.  When the window is opened, a new 2D transformation is applied that will scale the window size from 0 to 110% of it's original size and then, after 1/20th of a second, will scale it back to it's original size at 100%. This gives the bounce effect during animation. 
+
+<code>
+var t = Titanium.UI.create2DMatrix().scale(0);
+
+// create a window with the initial transform scaled to 0
+var w = Titanium.UI.createWindow({
+	backgroundColor:'#336699',
+	borderWidth:8,
+	borderColor:'#999',
+	height:400,
+	width:300,
+	borderRadius:10,
+	opacity:0.92,
+	transform:t
+});
+
+// create first transform to go beyond normal size
+var t1 = Titanium.UI.create2DMatrix().scale(1.1);
+
+var a = Titanium.UI.createAnimation();
+a.transform = t1;
+a.duration = 200;
+
+// when this animation completes, scale to normal size
+a.addEventListener('complete', function()
+{
+    // we can use the identity transform to take it back to it's real size
+	var t2 = Titanium.UI.create2DMatrix();
+	w.animate({transform:t2, duration:200});
+});
+</code>
+
+
+
+
+
+
+
+
+
+

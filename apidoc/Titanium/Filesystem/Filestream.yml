@@ -1,5 +1,0 @@
----
-namespace: Titanium.Filesystem.Filestream
-type: module
-description: Filestream object
-since: 0.4

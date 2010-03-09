@@ -1,8 +1,0 @@
----
-namespace: Titanium.UI.TextField.focus
-type: method
-description: "captures the user's focus, bringing up the keyboard."
-since: 0.5.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

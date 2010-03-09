@@ -1,8 +1,0 @@
----
-namespace: Titanium.App.getDescription
-type: function
-description: get the application description
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string
-parameters: []

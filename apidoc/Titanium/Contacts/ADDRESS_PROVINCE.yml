@@ -1,7 +1,0 @@
----
-namespace: Titanium.Contacts.ADDRESS_PROVINCE
-type: property
-description: "Convenience key to use with an address entry in Contacts.Contact . To get the province name in the first address of a Contact.Contact called 'myContact', use myContact.address[0].value[ADDRESS_PROVINCE]. Identical to ADDRESS_STATE."
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: string

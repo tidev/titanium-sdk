@@ -1,8 +1,0 @@
----
-namespace: Titanium.UI.TableView
-type: object
-description: 
-since: 0.8.0
-returns: int
-parameters: 
-    - [object, options, "set to {animated:false} to disable the navigation animation"]

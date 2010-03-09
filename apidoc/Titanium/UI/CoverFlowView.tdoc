@@ -1,0 +1,68 @@
+- namespace
+
+Titanium.UI.CoverFlowView
+
+- type
+
+object
+
+- subtype
+
+view
+
+- description
+
+The Cover Flow view is container for showing  animated, three dimensional images in a nice UI. The Cover Flow view is created by the method `Titanium.UI.createCoverFlowView`.
+
+- since
+
+0.8
+
+- platforms
+
+android, iphone
+
+- properties
+
+images[array]: array of images to display in the view
+selected[int]: index to make selected
+
+- methods
+
+setURL: change an image for a index
+
+- method : setURL
+
+index[int]: index to change
+url[string]: url to the new image
+
+- events
+
+change: fired when the user changes the image using a gesture
+click: fired when the user clicks on an image
+
+- event : change
+
+index: the index of the image that is now visible
+previous: the previous index of the image that was visible
+
+- event : click
+
+index: the index of the image that is now visible
+previous: the previous index of the image that was visible
+
+
+- example
+
+Create a rounded view.
+
+<code>
+var view = Titanium.UI.createCoverFlowView({
+	images:['a.png','b.png','c.png'],
+	backgroundColor:'#000'
+});
+window.add(view);
+</code>
+
+- notes
+

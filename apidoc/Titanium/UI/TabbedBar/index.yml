@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.TabbedBar.index
-type: property
-description: the index of the section that should be selected when tabbedBar is placed
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

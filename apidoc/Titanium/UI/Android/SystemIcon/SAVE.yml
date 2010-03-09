@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.Android.SystemIcon.SAVE
-type: property
-description: icon
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String

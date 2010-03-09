@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.isExternalStoragePresent
-type: function
-description: Check to see if external media storage exists
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: boolean
-parameters: []

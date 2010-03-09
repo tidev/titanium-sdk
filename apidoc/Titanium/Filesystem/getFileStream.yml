@@ -1,9 +1,0 @@
----
-namespace: Titanium.Filesystem.getFileStream
-type: function
-description: Returns a file stream, optionally joining multiple arguments together in an OS specific way
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: FileStream
-parameters: 
-    - [string, arguments, one or more path segments to join.]

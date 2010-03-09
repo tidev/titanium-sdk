@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.File.setExecutable
-type: method
-description: Makes the file or directory executable
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: boolean
-parameters: []

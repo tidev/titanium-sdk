@@ -1,7 +1,0 @@
----
-namespace: Titanium.Network.HTTPClient.onerror
-type: property
-description: Set or get the error handler.
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

@@ -1,0 +1,70 @@
+- namespace
+
+Titanium.UI.AlertDialog
+
+- type
+
+object
+
+- subtype
+
+proxy
+
+- description
+
+The Alert Dialog is created by `Titanium.UI.createAlertDialog` and allows you to show a modal application dialog.
+
+- since
+
+0.8
+
+- platforms
+
+android, iphone
+
+- properties
+
+buttonNames[array]: array of button names as strings
+title[string]: the title of the dialog
+message[string]: the message of the dialog
+cancel[int]: an index to indicate which button should be the cancel button.
+
+- methods
+
+show: cause the dialog to become visible
+
+- events
+
+click: fired when a button in the dialog is clicked
+
+- event : click
+
+index: the button index that was pressed
+cancel: boolean to indicate if the cancel button was pressed
+
+- example
+
+In this example, we show a simple alert dialog.
+
+<code>
+var alertDialog = Titanium.UI.createAlertDialog({
+	title: 'Hello',
+	message: 'You got mail',
+	buttonNames: ['OK','Doh!']
+});
+alertDialog.show();
+</code>
+
+- notes
+
+the global method `alert` is aliased to this object and can be invoked with a single message. For example:
+
+<code>
+alert("this is a message");
+</code>
+
+Note: you should be careful not to call alert more than once while a pending alert is visible.
+
+
+
+

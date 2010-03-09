@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.RETURNKEY_JOIN
-type: property
-description: "A possible value for UI.TextView.returnKeyType or UI.TextField.returnKeyType; indicates the lower right keyboard button will be labelled \"Join\""
-since: 0.5.0
-platforms: ['android', 'iphone']
-returns: string

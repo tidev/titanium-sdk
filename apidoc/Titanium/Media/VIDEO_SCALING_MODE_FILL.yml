@@ -1,7 +1,0 @@
----
-namespace: Titanium.Media.VIDEO_SCALING_MODE_FILL
-type: property
-description: scalingMode to scale the movie until both dimensions fit the screen exactly. The aspect ratio of the movie is not preserved.
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string

@@ -1,0 +1,20 @@
+- namespace
+
+Titanium.XML.DOMDocument
+
+- type
+
+object
+
+- description
+
+The DOMDocument returned from `Titanium.XML.parseString`. The result is an object that implementes the DOM Level 2 API.
+
+- since
+
+0.9
+
+- platforms
+
+android, iphone
+

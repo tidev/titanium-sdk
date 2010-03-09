@@ -1,7 +1,0 @@
----
-namespace: Titanium.Network.HTTPClient.OPENED
-type: property
-description: The OPENED readyState property
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String

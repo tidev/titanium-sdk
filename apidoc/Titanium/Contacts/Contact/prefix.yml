@@ -1,7 +1,0 @@
----
-namespace: Titanium.Contacts.Contact.prefix
-type: property
-description: "(string) The text that preceeds the contact's name, such as Dr for doctor."
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

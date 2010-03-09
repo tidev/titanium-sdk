@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.Slider.min
-type: property
-description: the minimum value allowed for the UI.Slider
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

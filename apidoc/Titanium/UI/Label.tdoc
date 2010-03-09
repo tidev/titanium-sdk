@@ -1,0 +1,59 @@
+- namespace
+
+Titanium.UI.Label
+
+- type
+
+object
+
+- subtype
+
+view
+
+- description
+
+A Label is created by the method `Titanium.UI.createLabel`.
+
+- since
+
+0.8
+
+- platforms
+
+android, iphone
+
+- properties
+
+font[object]: the label font object properties
+text[string]: the text of the label
+color[string]: the color of the label
+highlightedColor[string]: the color of the label when in the highlighted state
+textAlign[string,int]: the alignment constant or string value such as `left`, `center` or `right` 
+shadowColor[string]: the text shadow color
+shadowOffset[object]: the shadow offset as a dictionary with the properties `x` and `y`
+
+- methods
+
+- events
+
+- example
+
+Create a label with a nice text shadow, 48px font that's aligned `center` and height `auto`.
+
+<code>
+var l2 = Titanium.UI.createLabel({
+	text:'Appcelerator',
+	height:'auto',
+	width:'auto',
+	shadowColor:'#aaa',
+	shadowOffset:{x:5,y:5},
+	color:'#900',
+	font:{fontSize:48},
+	textAlign:'center'
+});
+</code>
+
+- notes
+
+
+

@@ -1,7 +1,0 @@
----
-namespace: Titanium.Network.HTTPClient.ondatastream
-type: property
-description: receive data as a blob a chunk at a time.
-since: 0.7.0
-platforms: ['android', 'iphone']
-returns: String

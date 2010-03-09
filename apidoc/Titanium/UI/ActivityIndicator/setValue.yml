@@ -1,9 +1,0 @@
----
-namespace: Titanium.UI.ActivityIndicator.setValue
-type: method
-description: Set the current indicator position between min and max
-since: 0.6.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: 
-    - [int, n, the position]

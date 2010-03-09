@@ -1,7 +1,0 @@
----
-namespace: Titanium.Platform.username
-type: property
-description: "The platform's user name"
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string

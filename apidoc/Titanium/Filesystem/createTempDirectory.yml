@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.createTempDirectory
-type: function
-description: Creates a temporary directory
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: File
-parameters: []

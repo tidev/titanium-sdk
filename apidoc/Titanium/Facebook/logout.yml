@@ -1,9 +1,0 @@
----
-namespace: Titanium.Facebook.logout
-type: function
-description: logout of facebook and remove any session data
-since: 0.7.0
-platforms: ['android', 'iphone']
-returns: string
-parameters: 
-    - [function, callback, callback function to be invoked when completed]

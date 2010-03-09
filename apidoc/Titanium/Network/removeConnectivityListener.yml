@@ -1,9 +1,0 @@
----
-namespace: Titanium.Network.removeConnectivityListener
-type: function
-description: Removes a connectivity change listener
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string
-parameters: 
-    - [integer, id, the callback id of the method]

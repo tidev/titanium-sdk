@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.TabbedBar.labels
-type: property
-description: An array of strings specifying labels to use in the segments.
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

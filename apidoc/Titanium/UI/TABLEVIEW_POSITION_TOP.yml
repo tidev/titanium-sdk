@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.TABLEVIEW_POSITION_TOP
-type: property
-description: Position the row at the top of the tableview.
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: string

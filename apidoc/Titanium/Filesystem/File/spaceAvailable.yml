@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.File.spaceAvailable
-type: method
-description: Returns the space available on the filesystem
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: double
-parameters: []

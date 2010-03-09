@@ -1,8 +1,0 @@
----
-namespace: Titanium.UI.TableView.open
-type: method
-description: "Opens a window if wasn't previously opened - pushes it to the navigation and hides the parent window. Properties that were set are applied now."
-since: 0.5.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []
