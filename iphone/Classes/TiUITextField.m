@@ -5,6 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiUITextField.h"
+#import "TiUITextFieldProxy.h"
+
 #import "TiUtils.h"
 #import "TiRange.h"
 #import "TiViewProxy.h"
@@ -415,11 +417,7 @@ NSLog(@"Right view (%fx%f) %@",[value bounds].size.width,[value bounds].size.hei
 		curText = [NSString stringWithFormat:@"%@%@",curText,string];
 	}
 
-	[self.proxy replaceValue:curText forKey:@"value" notification:NO];
-	if ([self.proxy _hasListeners:@"change"])
-	{
-		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:curText forKey:@"value"]];
-	}
+	[(TiUITextFieldProxy *)self.proxy noteValueChange:curText];
 	return YES;
 }
 
@@ -433,10 +431,7 @@ NSLog(@"Right view (%fx%f) %@",[value bounds].size.width,[value bounds].size.hei
 
 - (void)textFieldDidChange:(UITextField *)tf
 {
-	if ([self.proxy _hasListeners:@"change"])
-	{
-		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:[tf text] forKey:@"value"]];
-	}
+	[(TiUITextFieldProxy *)self.proxy noteValueChange:[tf text]];
 }
 
 - (BOOL)textFieldShouldEndEditing:(UITextField *)tf
@@ -447,12 +442,7 @@ NSLog(@"Right view (%fx%f) %@",[value bounds].size.width,[value bounds].size.hei
 - (BOOL)textFieldShouldClear:(UITextField *)tf
 {
 	// we notify proxy so he can serialize in the model
-	[self.proxy setValue:@"" forKey:@"text"];
-	
-	if ([self.proxy _hasListeners:@"change"])
-	{
-		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:@"" forKey:@"value"]];
-	}
+	[(TiUITextFieldProxy *)self.proxy noteValueChange:@""];
 	return YES;
 }
 
