@@ -544,7 +544,7 @@ DEFINE_EXCEPTIONS
 			// use a placeholder image - which the dev can specify with the
 			// defaultImage property or we'll provide the Titanium stock one
 			// if not specified
-			/*UIImage *defImage = nil;
+			UIImage *defImage = nil;
 			id defaultImage = [self.proxy valueForKey:@"defaultImage"];
 			if (defaultImage!=nil)
 			{
@@ -570,7 +570,7 @@ DEFINE_EXCEPTIONS
 				[self addSubview:iv];
 				[iv release];
 			}
-			placeholderLoading = YES;*/
+			placeholderLoading = YES;
 			urlRequest = [[[ImageLoader sharedLoader] loadImage:url_ delegate:self userInfo:nil] retain];
 			return;
 		}

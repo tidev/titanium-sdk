@@ -31,7 +31,9 @@ public class WebViewProxy extends ViewProxy
 
 	@Override
 	public TiUIView createView(Activity activity) {
-		return new TiUIWebView(this);
+		TiUIWebView webView = new TiUIWebView(this);
+		webView.focus();
+		return webView;
 	}
 
 	public TiUIWebView getWebView() {
