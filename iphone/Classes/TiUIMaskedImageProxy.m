@@ -6,11 +6,17 @@
  */
 
 #import "TiUIMaskedImageProxy.h"
+#import "TiUIMaskedImage.h"
 
 #import "TiUtils.h"
 
 @implementation TiUIMaskedImageProxy
 
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+	[self replaceValue:NUMINT(kCGBlendModeSourceIn) forKey:@"mode" notification:NO];
+	[super _initWithProperties:properties];
+}
 
 
 @end

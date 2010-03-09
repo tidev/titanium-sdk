@@ -8,13 +8,11 @@ package ti.modules.titanium.utils;
 
 import java.io.UnsupportedEncodingException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiModule;
 import org.appcelerator.titanium.util.Log;
-
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 public class UtilsModule extends TiModule
 {
@@ -26,7 +24,7 @@ public class UtilsModule extends TiModule
 
 	public String base64encode(String data) {
 		try {
-			return Base64.encode(data.getBytes("UTF-8"));
+			return new String(Base64.encodeBase64(data.getBytes("UTF-8")), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			Log.e(LCAT, "UTF-8 is not a supported encoding type");
 		}
@@ -36,11 +34,9 @@ public class UtilsModule extends TiModule
 	public String base64decode(String data)
 	{
 		try {
-			return new String(Base64.decode(data), "UTF-8");
+			return new String(Base64.decodeBase64(data.getBytes("UTF-8")), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			Log.e(LCAT, "UTF-8 is not a supported encoding type");
-		} catch (Base64DecodingException e) {
-			Log.e(LCAT, "Unable to base64decode: " + e.getMessage());
 		}
 
 		return null;
