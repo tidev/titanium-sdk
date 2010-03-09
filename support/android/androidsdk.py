@@ -1,13 +1,14 @@
 #!/usr/bin/python
+# An autodetection utility for the Android SDK
 
 import os, sys, platform, glob
 
 android_platforms = {
-	'1.6': ['android-1.6', 'android-4']
+	'r4': ['android-1.6', 'android-4']
 }
 
 google_apis = {
-	'r4': ['google_apis-4_r01', 'google_apis-4_r02']
+	'r4': ['google_apis-4*']
 }
 
 class AndroidSDK:
@@ -28,13 +29,18 @@ class AndroidSDK:
 			
 		self.android_sdk = self.get_dir('ANDROID_SDK', default_android_sdk, android_sdk)
 
-	def find_dir(self, version, prefix, map):
+	def find_dir(self, version, prefix, map, globpath=False):
 		if version not in map:
 			return None
 	
 		dirs = map[version]
 		for dir in dirs:
 			d = os.path.join(self.android_sdk, prefix, dir)
+			if globpath:
+				globbed = glob.glob(d)
+				if len(globbed) > 0:
+					d = globbed[0]
+			
 			if os.path.exists(d):
 				return d
 		return None
@@ -43,7 +49,7 @@ class AndroidSDK:
 		return self.find_dir(version, 'platforms', android_platforms)
 	
 	def find_google_apis_dir(self, version):
-		return self.find_dir(version, 'add-ons', google_apis)
+		return self.find_dir(version, 'add-ons', google_apis, True)
 		
 	def find_maps_jar(self, version):
 		google_apis_dir = self.find_google_apis_dir(version)
