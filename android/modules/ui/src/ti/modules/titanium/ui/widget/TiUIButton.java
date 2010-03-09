@@ -26,7 +26,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 public class TiUIButton extends TiUIView
-	implements OnClickListener
 {
 	private static final String LCAT = "TiUIButton";
 	private static final boolean DBG = TiConfig.LOGD;
@@ -85,9 +84,5 @@ public class TiUIButton extends TiUIView
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
-	}
-
-	public void onClick(View v) {
-		proxy.fireEvent("click", null);
 	}
 }
