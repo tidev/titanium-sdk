@@ -130,7 +130,7 @@
 		}
 		if (reposition)
 		{
-			[(TiViewProxy *)[self proxy] reposition];
+			[(TiViewProxy *)[self proxy] setNeedsReposition];
 		}
 	}
 	else

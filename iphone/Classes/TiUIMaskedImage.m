@@ -45,14 +45,14 @@
 -(void)setImage_:(id)newImage
 {
 	RELEASE_TO_NIL(image);
-	image = [[[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:newImage proxy:self.proxy]] retain];
+	image = [[TiUtils toImage:newImage proxy:self.proxy] retain];
 	[self setNeedsDisplay];
 }
 
 -(void)setMask_:(id)newMask
 {
 	RELEASE_TO_NIL(mask);
-	mask = [[[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:newMask proxy:self.proxy]] retain];
+	mask = [[TiUtils toImage:newMask proxy:self.proxy] retain];
 	[self setNeedsDisplay];
 }
 

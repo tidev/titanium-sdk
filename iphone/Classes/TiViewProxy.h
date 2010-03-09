@@ -14,6 +14,8 @@
 	CGFloat verticalLayoutBoundary;
 	LayoutConstraint layoutProperties;
 
+	int needsReposition;	//For atomic actions, best to be explicit about the 32 bitness.
+
 @private
 	NSRecursiveLock *childLock;
 	NSMutableArray *children;
@@ -28,6 +30,9 @@
 @property(nonatomic,readonly) TiViewProxy *parent;
 @property(nonatomic,readonly) TiPoint *center;
 
+//NOTE: DO NOT SET VIEW UNLESS IN A TABLE VIEW, AND EVEN THEN.
+@property(nonatomic,readwrite,retain)TiUIView * view;
+
 #pragma mark Public
 -(void)add:(id)arg;
 -(void)remove:(id)arg;
@@ -36,7 +41,7 @@
 -(void)animate:(id)arg;
 
 #pragma mark Framework
--(TiUIView*)view;
+
 -(BOOL)viewAttached;
 -(BOOL)viewInitialized;
 -(void)layoutChildren;
@@ -67,6 +72,8 @@
 -(void)exchangeView:(TiUIView*)newview;
 
 -(void)reposition;
+-(void)repositionIfNeeded;
+-(void)setNeedsReposition;
 -(void)setNeedsRepositionIfAutoSized;
 
 @end
