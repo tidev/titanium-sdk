@@ -9,9 +9,9 @@ modules = ['accelerometer', 'analytics', 'api', 'app', 'database', 'filesystem',
 
 print "Building Titanium Mobile (Android) %s..." % version
 
-sdk = AndroidSDK(ARGUMENTS.get("android_sdk", None))
-android_dir = sdk.find_platform_dir("r4")
-google_apis = sdk.find_google_apis_dir("r4")
+sdk = AndroidSDK(ARGUMENTS.get("android_sdk", None), 4)
+android_dir = sdk.get_platform_dir()
+google_apis = sdk.get_google_apis_dir()
 
 if not os.path.exists(android_dir):
 	print >>sys.stderr, 'Error: Android 1.6 directory not found at %s' % android_dir
@@ -20,7 +20,7 @@ if not os.path.exists(google_apis):
 	print >>sys.stderr, 'Error: Google APIs v4 not found at %s' % google_apis
 	sys.exit(-1)
 
-classpath = [ sdk.find_android_jar('r4'), sdk.find_maps_jar('r4') ]
+classpath = [ sdk.get_android_jar(), sdk.get_maps_jar() ]
 sources = [os.path.join('titanium', 'src'), os.path.join('titanium', 'thirdparty')]
 
 titanium_src_dir = os.path.join(cwd, 'android', 'titanium', 'src')
