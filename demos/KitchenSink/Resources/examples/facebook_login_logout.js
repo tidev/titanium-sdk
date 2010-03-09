@@ -8,9 +8,7 @@ var label = Ti.UI.createLabel({
 	font:{fontSize:14},
 	height:'auto',
 	top:10,
-	textAlign:'center',
-	borderWidth:2,
-	borderColor:'red'
+	textAlign:'center'
 });
 win.add(label);
 
