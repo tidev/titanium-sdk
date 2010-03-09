@@ -5,6 +5,7 @@
 #
 import os, platform, subprocess, sys, run
 import run
+from androidsdk import AndroidSDK
 
 def dequote(s):
     if s[0:1] == '"':
@@ -17,11 +18,7 @@ def get_avds(sdk):
 	name = None
 	theid = None
 	
-	android = os.path.join(sdk,'tools','android')
-	if platform.system() == "Windows":
-		android += ".bat"
-	
-	for line in run.run([android,'list','target'],debug=False).split("\n"):
+	for line in run.run([sdk.get_android(),'list','target'],debug=False).split("\n"):
 		line = line.strip()
 		if line.find("id: ")!=-1:
 			theid = line[4:]
@@ -44,5 +41,6 @@ if __name__ == '__main__':
 		print "Usage: %s <directory>" % os.path.basename(sys.argv[0])
 		sys.exit(1)
 
-	print get_avds(os.path.expanduser(dequote(sys.argv[1])))
+	sdk = AndroidSDK(os.path.expanduser(dequote(sys.argv[1])), 4)
+	print get_avds(sdk)
 

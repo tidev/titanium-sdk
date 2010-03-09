@@ -241,7 +241,7 @@ class Builder(object):
 			
 			# we re-run the create each time through in case any of our key files
 			# have changed
-			android = Android(self.name,self.app_id,self.sdk.get_android_sdk())
+			android = Android(self.name,self.app_id,self.sdk)
 			android.create(os.path.abspath(os.path.join(self.top_dir,'..')),True)
 
 			# transform resources
@@ -290,7 +290,7 @@ class Builder(object):
 			google_apis_supported = False
 				
 			# find the AVD we've selected and determine if we support Google APIs
-			for avd_props in avd.get_avds(self.sdk.get_android_sdk()):
+			for avd_props in avd.get_avds(self.sdk):
 				if avd_props['id'] == avd_id:
 					my_avd = avd_props
 					google_apis_supported = (my_avd['name'].find('Google')!=-1)
