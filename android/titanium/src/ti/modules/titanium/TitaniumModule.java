@@ -29,7 +29,7 @@ public class TitaniumModule
 	private static TiDict constants;
 	private static String buildVersion;
 	private static String buildTimestamp;
-	
+
 	static {
 		buildVersion = "1.0";
 		buildTimestamp = "N/A";
@@ -131,8 +131,9 @@ public class TitaniumModule
 		clearTimeout(timerId);
 	}
 
-	public void alert(String message) {
-		Log.i("ALERT", message);
-		TiUIHelper.doOkDialog(getTiContext().getActivity(), "Alert", message, null);
+	public void alert(Object message) {
+		String msg = (message == null? null : message.toString());
+		Log.i("ALERT", msg);
+		TiUIHelper.doOkDialog(getTiContext().getActivity(), "Alert", msg, null);
 	}
 }
