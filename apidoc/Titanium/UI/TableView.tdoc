@@ -1,0 +1,138 @@
+- namespace
+
+Titanium.UI.TableView
+
+- type
+
+object
+
+- subtype
+
+view
+
+- description
+
+A Table View allows you to create a scrollable table of content in a list-based fashion. The Table View is created by the method `Titanium.UI.createTableView`.
+
+- since
+
+0.8
+
+- platforms
+
+android, iphone
+
+- properties
+
+backgroundColor[string]: the background color of the table view
+backgroundImage[string]: the background image to render in the background of the table view
+separatorStyle[int]: the separator style constant. For iPhone, Titanium.UI.iPhone.TableViewSeparatorStyle
+separatorColor[string]: the separator color color as a hex or named value
+headerTitle[string]: the table view header title
+footerTitle[string]: the table view footer title
+headerView[object]: the table view header as a view that will be rendered instead of a label
+footerView[object]: the table view footer as a view that will be rendered instead of a label
+search[object]: the search field to use for the table view
+autoHideSearch[boolean]: boolean to indicate if the table view should autohide the search field
+searchHidden[boolean]: boolean to control the visibility of the search field
+filterAttribute[string]: the filter attribute to be used when searching. this property maps to your data object or a property on the row object
+index[array]: an array of objects (with title and index properties) to control the table view index
+editable[boolean]: allow the table view to be editable (this must be true for swipe-to-delete)
+editing[boolean]: boolean to control the editing state of the table view
+moving[boolean]: boolean to control the moveable state of the table view
+rowHeight[float]: default row height for table view rows
+minRowHeight[float]: min row height for table view rows
+maxRowHeight[float]: max row height for table view rows
+data[array]: the data array of objects to be used for the rows of the table view
+
+- methods
+
+setData: set the data in the table, optionally with animation
+appendRow: append a row to the table, optionally with animation
+updateRow: update an existing row, optionally with animation
+deleteRow: delete an existing row, optionally with animation
+insertRowAfter: insert a row before another row, optionally with animation
+insertRowBefore: insert a row after another row, optionally with animation
+scrollToIndex: scroll to a specific row index and ensure that that row is on screen
+
+- method : setData
+
+data[array]: data array of rows either as objects or row objects
+properties[object]: animation properties
+
+- method : appendRow
+
+row[object]: row to append
+properties[object]: animation properties
+
+- method : updateRow
+
+row[object]: row data to update
+properties[object]: animation properties
+
+- method : deleteRow
+
+row[object]: row to delete
+properties[object]: animation properties
+
+- method : insertRowAfter
+
+index[int]: index
+row[object]: row to insert
+properties[object]: animation properties
+
+- method : insertRowBefore
+
+index[int]: index
+row[object]: row to insert
+properties[object]: animation properties
+
+- method : scrollToIndex
+
+index[int]: index
+properties[object]: animation properties. `position` property controls the position constant to use for position (on iPhone, use constants from Titanium.UI.iPhone.TableViewScrollPosition).
+
+
+- events
+
+delete: fired when a table row is delete by the user
+move: fired when a table row is moved by the user
+click: fired when a table row is clicked
+
+- event : delete
+
+index: table view row index
+section: table view section object
+row: table view row object
+detail: boolean to indicate if the right area was clicked
+searchMode: boolean to indicate if the table is in search mode
+rowData: table view row data object
+
+- event : move
+
+index: table view row index
+section: table view section object
+row: table view row object
+detail: boolean to indicate if the right area was clicked
+searchMode: boolean to indicate if the table is in search mode
+rowData: table view row data object
+
+- event : click
+
+index: table view row index
+section: table view section object
+row: table view row object
+detail: boolean to indicate if the right area was clicked
+searchMode: boolean to indicate if the table is in search mode
+rowData: table view row data object
+
+- example
+
+The most basic example of a table view.
+
+<code>
+var data = [{title:"Row 1"},{title:"Row 2"}];
+var table = Titanium.UI.createTableView({data:data});
+win.add(table);
+</code>
+

@@ -1,0 +1,118 @@
+- namespace
+
+Titanium.UI
+
+- type
+
+module
+
+- description
+
+The main `Titanium.UI` module.
+
+- since
+
+0.4
+
+- platforms
+
+android, iphone
+
+- properties
+
+ANIMATION_CURVE_EASE_IN_OUT[int]: animation curve constant
+ANIMATION_CURVE_EASE_IN[int]: animation curve constant
+ANIMATION_CURVE_EASE_OUT[int]: animation curve constant
+ANIMATION_CURVE_LINEAR[int]: animation curve constant
+
+TEXT_ALIGNMENT_LEFT[int]: text align constant
+TEXT_ALIGNMENT_CENTER[int]: text align constant
+TEXT_ALIGNMENT_RIGHT[int]: text align constant
+
+TEXT_VERTICAL_ALIGNMENT_TOP[int]: text vertical align constant
+TEXT_VERTICAL_ALIGNMENT_CENTER[int]: text vertical align constant
+TEXT_VERTICAL_ALIGNMENT_BOTTOM[int]: text vertical align constant
+
+RETURNKEY_DEFAULT[int]: textfield return key constant
+RETURNKEY_GO[int]: textfield return key constant
+RETURNKEY_GOOGLE[int]: textfield return key constant
+RETURNKEY_JOIN[int]: textfield return key constant
+RETURNKEY_NEXT[int]: textfield return key constant
+RETURNKEY_ROUTE[int]: textfield return key constant
+RETURNKEY_SEARCH[int]: textfield return key constant
+RETURNKEY_SEND[int]: textfield return key constant
+RETURNKEY_YAHOO[int]: textfield return key constant
+RETURNKEY_DONE[int]: textfield return key constant
+RETURNKEY_EMERGENCY_CALL[int]: textfield return key constant
+
+KEYBOARD_DEFAULT[int]: textfield keyboard constant
+KEYBOARD_ASCII[int]: textfield keyboard constant
+KEYBOARD_NUMBERS_PUNCTUATION[int]: textfield keyboard constant
+KEYBOARD_URL[int]: textfield keyboard constant
+KEYBOARD_NUMBER_PAD[int]: textfield keyboard constant
+KEYBOARD_PHONE_PAD[int]: textfield keyboard constant
+KEYBOARD_NAMEPHONE_PAD[int]: textfield keyboard constant
+KEYBOARD_EMAIL[int]: textfield keyboard constant
+
+KEYBOARD_APPEARANCE_DEFAULT[int]: textfield keyboard appearance constant
+KEYBOARD_APPEARANCE_ALERT[int]: textfield keyboard appearance constant
+
+TEXT_AUTOCAPITALIZATION_NONE[int]: text capitalization constant
+TEXT_AUTOCAPITALIZATION_WORDS[int]: text capitalization constant
+TEXT_AUTOCAPITALIZATION_SENTENCES[int]: text capitalization constant
+TEXT_AUTOCAPITALIZATION_ALL[int]: text capitalization constant
+
+INPUT_BUTTONMODE_NEVER[int]: input button mode constant
+INPUT_BUTTONMODE_ALWAYS[int]: input button mode constant
+INPUT_BUTTONMODE_ONFOCUS[int]: input button mode constant
+INPUT_BUTTONMODE_ONBLUR[int]: input button mode constant
+
+INPUT_BORDERSTYLE_NONE[int]: input border style constant
+INPUT_BORDERSTYLE_LINE[int]: input border style constant
+INPUT_BORDERSTYLE_BEZEL[int]: input border style constant
+INPUT_BORDERSTYLE_ROUNDED[int]: input border style constant
+
+PORTRAIT[int]: orientation constant
+LANDSCAPE_LEFT[int]: orientation constant
+LANDSCAPE_RIGHT[int]: orientation constant
+UPSIDE_PORTRAIT[int]: orientation constant
+UNKNOWN[int]: orientation constant
+FACE_UP[int]: orientation constant
+FACE_DOWN[int]: orientation constant
+
+PICKER_TYPE_PLAIN[int]: picker type constant
+PICKER_TYPE_DATE_AND_TIME[int]: picker type constant
+PICKER_TYPE_DATE[int]: picker type constant
+PICKER_TYPE_TIME[int]: picker type constant
+PICKER_TYPE_COUNT_DOWN_TIMER[int]: picker type constant
+
+BLEND_MODE_NORMAL[int]: image mode constant
+BLEND_MODE_MULTIPLY[int]: image mode constant
+BLEND_MODE_SCREEN[int]: image mode constant
+BLEND_MODE_OVERLAY[int]: image mode constant
+BLEND_MODE_DARKEN[int]: image mode constant
+BLEND_MODE_LIGHTEN[int]: image mode constant
+BLEND_MODE_COLOR_DODGE[int]: image mode constant
+BLEND_MODE_COLOR_BURN[int]: image mode constant
+BLEND_MODE_SOFT_LIGHT[int]: image mode constant
+BLEND_MODE_HARD_LIGHT[int]: image mode constant
+BLEND_MODE_DIFFERENCE[int]: image mode constant
+BLEND_MODE_EXCLUSION[int]: image mode constant
+BLEND_MODE_HUE[int]: image mode constant
+BLEND_MODE_SATURATION[int]: image mode constant
+BLEND_MODE_COLOR[int]: image mode constant
+BLEND_MODE_LUMINOSITY[int]: image mode constant
+BLEND_MODE_CLEAR[int]: image mode constant
+BLEND_MODE_COPY[int]: image mode constant
+BLEND_MODE_SOURCE_IN[int]: image mode constant
+BLEND_MODE_SOURCE_OUT[int]: image mode constant
+BLEND_MODE_SOURCE_ATOP[int]: image mode constant
+BLEND_MODE_DESTINATION_OVER[int]: image mode constant
+BLEND_MODE_DESTINATION_IN[int]: image mode constant
+BLEND_MODE_DESTINATION_OUT[int]: image mode constant
+BLEND_MODE_DESTINATION_ATOP[int]: image mode constant
+BLEND_MODE_XOR[int]: image mode constant
+BLEND_MODE_PLUS_DARKER[int]: image mode constant
+BLEND_MODE_PLUS_LIGHTER[int]: image mode constant
+
+

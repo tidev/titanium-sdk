@@ -1,0 +1,59 @@
+- namespace
+
+Titanium.UI.ButtonBar
+
+- type
+
+object
+
+- subtype
+
+view
+
+- description
+
+A Button Bar is created by the method `Titanium.UI.createButtonBar`.
+
+- since
+
+0.8
+
+- platforms
+
+iphone
+
+- properties
+
+backgroundColor[string]: the background color of the button bar
+index[int]: the selected index
+style[int]: the style of the button bar
+labels[array]: the array of labels for the button bar. each object should have the properties `title`, `image`, `width` and `enabled`.
+
+- methods
+
+- events
+
+click: fired when a button on the button bar is clicked
+
+- event : click
+
+index[int]: the index of the button that was clicked
+
+- example
+
+<code>
+var bb1 = Titanium.UI.createButtonBar({
+	labels:['One', 'Two', 'Three'],
+	backgroundColor:'#336699',
+	top:50,
+	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
+	height:25,
+	width:200
+});
+win.add(bb1);
+</code>
+
+- notes
+
+For iPhone, the style constants are available in the constants defined in `Titanium.UI.iPhone.SystemButtonStyle`.
+

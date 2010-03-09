@@ -1,0 +1,52 @@
+
+<h1 class="namespace">${data.namespace}</h1>
+<div class="namespace_type">function</div>
+<div class="platforms">
+% for p in data.platforms:
+<span class="${p}">&nbsp;&nbsp;&nbsp;</span>
+% endfor
+</div>
+
+<div class="description">
+${data.description}
+</div>
+
+<h3>Arguments</h3>
+% if len(data.parameters)==0:
+This function takes no arguments.
+% else:
+<table>
+<tr>
+	<th>Name</th>
+	<th>Type</th>
+	<th>Description</th>
+</tr> 
+% for prop in data.parameters:
+<tr>
+	<td class="name">${prop['name']}</td>
+	<td class="type">${prop['type']}</td>
+	<td class="description">${prop['description']}</td>
+</tr>
+% endfor
+</table>
+% endif
+
+<h3>Return Type</h3>
+<div>
+${data.returns}
+</div>
+
+
+% if len(data.examples) > 0:
+<h3>Code Examples</h3>
+
+% for example in data.examples :
+<div>${example['description']}</div>
+
+<script type="syntaxhighlighter" class="brush: js"><![CDATA[
+${example['code']}
+]]></script>
+
+% endfor
+
+% endif

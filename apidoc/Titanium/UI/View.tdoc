@@ -1,0 +1,46 @@
+- namespace
+
+Titanium.UI.View
+
+- type
+
+object
+
+- subtype
+
+view
+
+- description
+
+The View is an empty drawing surface or container. The View is created by the method `Titanium.UI.createView`.
+
+- since
+
+0.9
+
+- platforms
+
+android, iphone
+
+- properties
+
+- methods
+
+- events
+
+- example
+
+Create a rounded view.
+
+<code>
+var view = Titanium.UI.createView({
+   borderRadius:10,
+   backgroundColor:'red',
+   width:50,
+   height:50
+});
+window.add(view);
+</code>
+
+- notes
+

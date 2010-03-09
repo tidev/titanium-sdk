@@ -1,0 +1,58 @@
+- namespace
+
+Titanium.UI.SearchBar
+
+- type
+
+object
+
+- subtype
+
+view
+
+- description
+
+A Search Bar is created by the method `Titanium.UI.createSearchBar`.
+
+- since
+
+0.8
+
+- platforms
+
+android, iphone
+
+- properties
+
+value[string]: the value of the search bar
+showCancel[boolean]: boolean indicates whether the cancel button is displayed
+barColor[string]: the bar color of the search bar view
+
+- methods
+
+focus: called to force the search bar to focus
+blur: called to force the search bar to lose focus
+
+- events
+
+focus: fired when the search bar gains focus
+blur: fired when the search bar loses focus
+change: fired when the value of the search bar changes
+return: fired when keyboard search button is pressed
+cancel: fired when the cancel button is pressed
+
+- example
+
+<code>
+var search = Titanium.UI.createSearchBar({
+	barColor:'#000', 
+	showCancel:true,
+	height:43,
+	top:0,
+});
+</code>
+
+- notes
+
+
+

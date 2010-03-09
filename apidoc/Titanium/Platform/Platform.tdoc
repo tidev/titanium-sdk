@@ -1,0 +1,70 @@
+- namespace
+
+Titanium.Platform
+
+- type
+
+module
+
+- description
+
+The top level Platform module.  The Platform module is used accessing the device's platform
+related functionality.
+
+- since
+
+0.1
+
+- platforms
+
+android, iphone
+
+- methods
+
+openURL: open a URL in the system default manner
+createUUID: create a globally unique identifier
+
+- method : openURL
+
+url[string]: the url to open
+
+- method : createUUID, string
+
+
+- properties
+
+id[string]: the unique id of the device
+name[string]: the name of the platform returned by the device
+version[string]: the version of the platform returned by the device
+processorCount[int]: the number of processors the device reports
+username[string]: the username of the device, if set
+ostype[string]: the OS architecture, such as 32 bit
+osname[string]: the shortname of the operating system. for example, on an iPhone, will return `iphone`, iPad will return `ipad` and Android will return `android`.
+address[string]: the ip address that the device reports
+macaddress[string]: the mac address that the device reports
+architecture[string]: the processor architecture that the device reports
+model[string]: the model of the phone that the device reports
+locale[string]: the primary language of the device that the user has enabled
+displayCaps[object]: return the DisplayCaps object for platform
+availableMemory[double]: return the amount of memory available on the device in bytes
+batteryMonitoring[boolean] : boolean to indicate if battery monitoring is enabled
+batteryState[int]: constant that represents the state of the battery. this property is only accessible if `batteryMonitoring` is enabled
+batteryLevel[float]: the current device battery level. this property is only accessible if `batteryMonitoring` is enabled. on iPhone, this level only changes at 5% intervals.
+
+BATTERY_STATE_UNKNOWN[int]: the battery state is unknown or not monitoring is not enabled
+BATTERY_STATE_UNPLUGGED[int]: the device is unplugged
+BATTERY_STATE_CHARGING[int]: the device is plugged in and currently being charged
+BATTERY_STATE_FULL[int]: the battery is fully charged
+
+- events
+
+battery: fired when the battery state changes.  the battery state changes are only tracked on iPhone at 5% increments.
+
+- event : battery
+
+state: the new battery state
+level: the new battery level
+
+
+
+

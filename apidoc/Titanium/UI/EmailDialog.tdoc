@@ -1,0 +1,83 @@
+- namespace
+
+Titanium.UI.EmailDialog
+
+- type
+
+object
+
+- subtype
+
+proxy
+
+
+- description
+
+The Email Dialog is created by `Titanium.UI.createEmailDialog` and allows you to send in \
+application emails on behalf of the application user.
+
+- since
+
+0.8
+
+- platforms
+
+android, iphone
+
+- properties
+
+subject[string]: the subject line for the email
+messageBody[string]: the email message body
+toRecipients[array]: array of email recipients
+bccRecipients[array]: array of email BCC: recipients
+ccRecipients[array]: array of email CC: recipients
+html[boolean]: boolean to indicate whether the email messageBody should be sent as HTML content type. defaults to false
+barColor[string]: the bar color of the email dialog window when opened
+SENT[int]: constant for the SENT status result
+SAVED[int]: constant for the SAVED status result
+CANCELLED[int]: constant for the CANCELLED status result
+FAILED[int]: constant for the FAILED status result
+
+- methods
+
+open: open the email dialog. the email dialog itself is a modal window
+addAttachment: add an attachment to the email. the attachment can either be a Blob or File object.
+
+- method : open
+
+properties[object]: object of animation properties. pass `animated` property (as boolean) to indicate if the dialog should be animated on open.
+
+- method : addAttachment
+
+attachment[object]: attachment object as either a Blob or File object
+
+- events
+
+complete: fired when the email dialog has completed sending the email
+
+- event : complete
+
+result: result status either as SENT, SAVED, CANCELLED or FAILED
+success: boolean to indicate if the email was successfully sent
+error: string message of the error or null if successfully sent
+
+
+- example
+
+In this example, we send an email with a file attachment.
+
+<code>
+var emailDialog = Titanium.UI.createEmailDialog()
+emailDialog.subject = "Hello from Titanium";
+emailDialog.toRecipients = ['foo@yahoo.com'];
+emailDialog.messageBody = '<b>Appcelerator Titanium Rocks!</b>';
+var f = Ti.Filesystem.getFile('cricket.wav');
+emailDialog.addAttachment(f);
+emailDialog.open();
+</code>
+
+- notes
+
+
+
+

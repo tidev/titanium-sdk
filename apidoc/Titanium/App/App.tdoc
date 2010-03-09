@@ -1,0 +1,60 @@
+- namespace
+
+Titanium.App
+
+- type
+
+module
+
+- returns
+
+object
+
+- description
+
+The top level App module.  The App module is mainly used for accessing information about the application at runtime.
+
+- since
+
+0.1
+
+- platforms
+
+android, iphone
+
+
+- methods
+
+arguments: return the arguments passed to the application on startup
+
+
+- method : arguments, string
+
+
+- properties
+
+id[string]: the application's app id as specified in Titanium Developer
+url[string]: the application url
+guid[string]: the application's globally unique id (this is system generated and consistent through all versions)
+name[string]: the application's name
+version[string]: the application's version
+publisher[string]: the application's publisher 
+description[string]: the application's description
+copyright[string]: the application's copyright
+
+idleTimerDisabled[boolean]: property for controlling whether the phone screen will be locked on idle time. Can be set to true to disable the timer
+
+proximityState[int]: the state of the device's proximity detector
+proximityDetection[boolean]: a boolean to indicate whether proximity detection is enabled
+
+
+- events
+
+proximity: fired when a proximity state changes
+
+- event : proximity
+
+state: the proximity state value
+
+
+

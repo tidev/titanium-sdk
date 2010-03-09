@@ -1,0 +1,58 @@
+- namespace
+
+Titanium.UI.Switch
+
+- type
+
+object
+
+- subtype
+
+view
+
+- description
+
+A Switch is created by the method `Titanium.UI.createSwitch`.
+
+- since
+
+0.8
+
+- platforms
+
+android, iphone
+
+- properties
+
+enabled[boolean]: boolean for the state of the switch
+value[boolean]: boolean value of the switch where true is the switch is `on` and false the switch if `off`
+
+- methods
+
+- events
+
+change: fired when the switch value is changed
+
+- event : change
+
+value[boolean]: the new value of the switch
+
+
+- example
+
+The following is a simple example of a switch and receiving `change` events.
+
+<code>
+var basicSwitch = Titanium.UI.createSwitch({
+	value:false
+});
+basicSwitch.addEventListener('change',function(e)
+{
+	Titanium.API.info('Basic Switch value = ' + e.value + ' act val ' + basicSwitch.value);
+});
+</code>
+
+- notes
+
+
+

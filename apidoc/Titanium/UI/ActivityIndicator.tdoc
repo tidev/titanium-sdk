@@ -1,0 +1,52 @@
+- namespace
+
+Titanium.UI.ActivityIndicator
+
+- type
+
+object
+
+- description
+
+An Activity Indicator is created by the method `Titanium.UI.createActivityIndicator`.  An activity indicator can be used to show the progress of an operation in the UI to let the user know some action is taking place.
+
+- since
+
+0.8
+
+- platforms
+
+android, iphone
+
+- properties
+
+font[object]: the font object for the activity message label
+color[string]: the color of the message label
+message[string]: the activity message label text
+style[int]: the style constant of the activity indicator
+
+
+- methods
+
+show: call show to make the activity indicator visible and start spinning
+hide: call hide to make the activity indicator hidden and stop spinning
+
+- events
+
+- example
+
+In this example, we create a basic activity indicator and start it.
+
+<code>
+var actInd = Titanium.UI.createActivityIndicator({
+	height:50,
+	width:10
+});
+actInd.show();
+</code>
+
+- notes
+
+For iPhone, the style can be set from the constants `Titanium.UI.iPhone.ActivityIndicatorStyle`.
+
+
