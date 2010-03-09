@@ -43,21 +43,5 @@ win.rightNavButton = button;
 
 button.addEventListener('click', function()
 {
-	var row = tableview.data[(tableview.data.length-1)];
-	Ti.API.info('delete clicked row:'  + row + ' name ' + row.name)
-
-	// if name is present, use it
-	if (row.name)
-	{
-		var row = tableview.getIndexByName(row.name);
-		tableview.deleteRow(row);
-	}
-	// otherwise delete last row
-	else
-	{
-		Ti.API.info('deleting by index:'  + (tableview.data.length-1))
-
-		tableview.deleteRow((tableview.data.length-1),{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});
-		
-	}
+	tableview.deleteRow((tableview.data.length-1),{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});
 });

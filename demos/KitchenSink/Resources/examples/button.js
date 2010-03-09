@@ -54,6 +54,7 @@ b3.addEventListener('click', function()
 			b3.font = {fontSize:25,fontFamily:'Marker Felt', fontWeight:'bold'};
 			b3.title = 'I am red';
 			b3.backgroundImage = '../images/BUTT_red_off.png';
+			b3.backgroundSelectedImage = '../images/BUTT_red_on.png';
 			b3.color = '#222';
 			state++;
 			break;

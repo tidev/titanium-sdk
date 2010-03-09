@@ -74,7 +74,7 @@ var scrollView = Titanium.UI.createScrollableView({
 
 win.add(scrollView);
 
-var i=0;
+var i=1;
 var activeView = view1;
 
 scrollView.addEventListener('scroll', function(e)

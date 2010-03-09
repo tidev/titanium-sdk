@@ -49,6 +49,13 @@
 	[self setNeedsDisplay];
 }
 
+-(void)setMask_:(id)newMask
+{
+	RELEASE_TO_NIL(mask);
+	mask = [[[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:newMask proxy:self.proxy]] retain];
+	[self setNeedsDisplay];
+}
+
 -(void)setTint_:(id)tint_
 {
 	RELEASE_TO_NIL(tint);
@@ -65,18 +72,31 @@
 - (void)drawRect:(CGRect)rect 
 {
 	CGContextRef ourContext = UIGraphicsGetCurrentContext();
-	
-	CGImageRef ourCGImage = [image CGImage];
-	CGColorRef ourColor = [tint CGColor];
-	
 	CGRect bounds = [self bounds];
-	
-	CGContextClearRect(ourContext, bounds);
-	CGContextDrawImage(ourContext, bounds, ourCGImage);
-	
+
+	if (mask != nil)
+	{
+		CGContextClearRect(ourContext, bounds);
+		CGContextDrawImage(ourContext, bounds, [mask CGImage]);
+	}
+	else
+	{
+		CGContextSetGrayFillColor(ourContext, 1.0, 1.0);
+		CGContextFillRect(ourContext, bounds);
+	}
+
 	CGContextSetBlendMode(ourContext, mode);
-	CGContextSetFillColorWithColor(ourContext, ourColor);
-	CGContextFillRect(ourContext, bounds);
+
+	if (image != nil)
+	{
+		CGContextDrawImage(ourContext, bounds, [image CGImage]);
+	}
+
+	if (tint != nil)
+	{
+		CGContextSetFillColorWithColor(ourContext, [tint CGColor]);
+		CGContextFillRect(ourContext, bounds);
+	}
 }
 
 @end

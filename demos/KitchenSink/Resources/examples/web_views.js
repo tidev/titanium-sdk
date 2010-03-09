@@ -33,15 +33,14 @@ var tableview = Titanium.UI.createTableView({
 tableview.addEventListener('click', function(e)
 {
 	var rowdata = e.rowData;
-	var w = Ti.UI.createWindow({orientationModes : [
-//	Titanium.UI.PORTRAIT,
-//	Titanium.UI.UPSIDE_PORTRAIT,
-	Titanium.UI.LANDSCAPE_LEFT,
-	Titanium.UI.LANDSCAPE_RIGHT]});
-	var webview = Ti.UI.createWebView({zIndex:1});
+	var w = Ti.UI.createWindow();
+	w.orientationModes = [
+		Titanium.UI.PORTRAIT,
+		Titanium.UI.LANDSCAPE_LEFT,
+		Titanium.UI.LANDSCAPE_RIGHT
+	];
 
-
-
+	var webview = Ti.UI.createWebView();
 
 	// handle xhr to filesystem case first
 	if (e.index == 2)

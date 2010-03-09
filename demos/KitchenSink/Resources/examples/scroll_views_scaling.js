@@ -70,7 +70,7 @@ var bb = Titanium.UI.createButtonBar({
 	top:50,
 	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
 	height:25,
-	width:200
+	width:100
 });
 
 win.setRightNavButton(bb);
