@@ -10,6 +10,7 @@
 @interface TiUIMaskedImage : TiUIView {
 @private
 	UIImage * image;
+	UIImage * mask;
 	UIColor * tint;
 	CGBlendMode mode;	
 }
