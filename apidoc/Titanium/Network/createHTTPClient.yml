@@ -1,8 +1,0 @@
----
-namespace: Titanium.Network.createHTTPClient
-type: function
-description: Creates an HTTPClient object
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: object
-parameters: []

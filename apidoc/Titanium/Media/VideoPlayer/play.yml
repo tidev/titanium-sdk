@@ -1,8 +1,0 @@
----
-namespace: Titanium.Media.VideoPlayer.play
-type: method
-description: Presents the video player and plays the file referenced by a VideoPlayer object
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

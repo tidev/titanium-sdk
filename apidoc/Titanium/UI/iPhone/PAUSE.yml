@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.iPhone.PAUSE
-type: property
-description: "Set a UI.Button's \"systemButton\" property to this in order to get the system-provided \"Pause\" button when in the toolbar or nav bar"
-since: 0.8.0
-platforms: ['iphone']
-returns: String

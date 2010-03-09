@@ -1,9 +1,0 @@
----
-namespace: Titanium.UI.GroupedView.addSection
-type: method
-description: Add a UI.GroupedSection to a UI.GroupedView. UI changes only take effect upon UI.GroupedView.open()
-since: 0.5.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: 
-    - [UI.GroupedSection, section, Section to add]

@@ -1,8 +1,0 @@
----
-namespace: Titanium.Map.MapView.removeEventListener
-type: method
-description: remove event listener
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

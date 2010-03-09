@@ -1,8 +1,0 @@
----
-namespace: Titanium.Database.ResultSet
-type: object
-description: 
-since: 0.8.0
-returns: string
-parameters: 
-    - [integer, fieldIndex, the zero-based index of the desired field]

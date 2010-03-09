@@ -1,9 +1,0 @@
----
-namespace: Titanium.UI.EmailDialog.addAttachment
-type: method
-description: Allows adding a single attachment to the message
-since: 0.6.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: 
-    - [object, attachment, Supports a path or an Image blob.]

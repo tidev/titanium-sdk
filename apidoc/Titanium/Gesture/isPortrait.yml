@@ -1,9 +1,0 @@
----
-namespace: Titanium.Gesture.isPortrait
-type: function
-description: indicates whether or not the passed in value is a portrait view.
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: boolean
-parameters: 
-    - [int, orientation, orientation to check. In the orientationchange event, this may be either the to property or from property.]

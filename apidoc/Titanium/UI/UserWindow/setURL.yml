@@ -1,8 +1,0 @@
----
-namespace: Titanium.UI.UserWindow.setURL
-type: method
-description: Sets the url for a window
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

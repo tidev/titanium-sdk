@@ -1,8 +1,0 @@
----
-namespace: Titanium.Network.HTTPClient.getAllResponseHeaders
-type: method
-description: get all response headers
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: list
-parameters: []

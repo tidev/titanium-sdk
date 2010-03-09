@@ -1,9 +1,0 @@
----
-namespace: Titanium.Filesystem.File.move
-type: method
-description: Moves a file to a specified location
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: boolean
-parameters: 
-    - [string, destination, destination to move to.]

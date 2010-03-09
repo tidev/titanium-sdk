@@ -1,9 +1,0 @@
----
-namespace: Titanium.UI.createProgressBar
-type: function
-description: Creates an UI.ProgressBar object
-since: 0.6.0
-platforms: ['android', 'iphone']
-returns: object
-parameters: 
-    - [object, properties, the properties to copy to the new UI.ProgressBar object during creation]

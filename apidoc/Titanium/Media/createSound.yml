@@ -1,9 +1,0 @@
----
-namespace: Titanium.Media.createSound
-type: function
-description: Creates a sound object
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: Media.Sound
-parameters: 
-    - [string, path, relative or absolute url to the sound file]

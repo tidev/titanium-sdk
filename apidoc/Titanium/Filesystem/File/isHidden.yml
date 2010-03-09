@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.File.isHidden
-type: method
-description: Checks whether a file or directory is hidden
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: boolean
-parameters: []

@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.Android.AnimationStyle.SCALE
-type: property
-description: Scale the new view in while scaling the current view out.
-since: 0.6.2
-platforms: ['android', 'iphone']
-returns: String

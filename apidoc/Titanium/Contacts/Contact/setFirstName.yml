@@ -1,9 +1,0 @@
----
-namespace: Titanium.Contacts.Contact.setFirstName
-type: method
-description: saves the Contacts.Contact.FirstName property
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: 
-    - [String, newFirstName, The new string.]

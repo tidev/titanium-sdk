@@ -1,7 +1,0 @@
----
-namespace: Titanium.Network.HTTPClient.onreadystatechange
-type: property
-description: Set or get the ready stage change handler
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String

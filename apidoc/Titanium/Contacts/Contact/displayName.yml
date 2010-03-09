@@ -1,7 +1,0 @@
----
-namespace: Titanium.Contacts.Contact.displayName
-type: property
-description: (read-only string) Accessor returns prefix + firstName + middleName + lastName + suffix.
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

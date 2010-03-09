@@ -1,7 +1,0 @@
----
-namespace: Titanium.Platform.architecture
-type: property
-description: The operating system architecture
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string

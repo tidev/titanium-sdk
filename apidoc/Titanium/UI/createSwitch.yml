@@ -1,9 +1,0 @@
----
-namespace: Titanium.UI.createSwitch
-type: function
-description: Create a new switch
-since: 0.5.0
-platforms: ['android', 'iphone']
-returns: UI.Switch
-parameters: 
-    - [object, properties, Properties to apply to the new switch on creation]

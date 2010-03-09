@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.iPhone.PLAIN
-type: property
-description: constant representing the blue and white style often seen when a progress bar is not in the toolbar
-since: 0.6.0
-platforms: ['iphone']
-returns: String

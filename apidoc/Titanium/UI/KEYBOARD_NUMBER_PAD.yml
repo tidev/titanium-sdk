@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.KEYBOARD_NUMBER_PAD
-type: property
-description: A possible value for UI.TextView.keyboardType or UI.TextField.keyboardType; indicates the keyboard will be a 12-key keypad, with a blank key to the left of the 0, and delete to the right
-since: 0.5.0
-platforms: ['android', 'iphone']
-returns: string

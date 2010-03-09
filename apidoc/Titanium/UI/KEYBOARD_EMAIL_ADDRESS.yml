@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.KEYBOARD_EMAIL_ADDRESS
-type: property
-description: A possible value for UI.TextView.keyboardType or UI.TextField.keyboardType; indicates the keyboard will be the standard QWERTY keyboard, but with @ and period keys next to the space key
-since: 0.5.0
-platforms: ['android', 'iphone']
-returns: string

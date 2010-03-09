@@ -1,8 +1,0 @@
----
-namespace: Titanium.UI.TableView.getIndexByName
-type: method
-description: returns the index of the first row whose name property is the value provided
-since: 0.6.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

@@ -1,7 +1,0 @@
----
-namespace: Titanium.Media.VIDEO_CONTROL_VOLUME_ONLY
-type: property
-description: movieControlMode that allows showing only volume controls while playing a movie
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string

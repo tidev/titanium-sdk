@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.File.nativePath
-type: method
-description: Returns the full native path of a file or directory
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string
-parameters: []

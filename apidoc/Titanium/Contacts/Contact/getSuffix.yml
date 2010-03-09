@@ -1,8 +1,0 @@
----
-namespace: Titanium.Contacts.Contact.getSuffix
-type: method
-description: retrieves the Contacts.Contact.suffix property
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

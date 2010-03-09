@@ -1,9 +1,0 @@
----
-namespace: Titanium.Contacts.Contact.setSuffix
-type: method
-description: saves the Contacts.Contact.suffix property
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: 
-    - [String, newSuffix, The new string.]

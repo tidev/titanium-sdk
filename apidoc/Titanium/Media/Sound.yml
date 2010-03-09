@@ -1,9 +1,0 @@
----
-namespace: Titanium.Media.Sound
-type: object
-description: 
-since: 0.8.0
-returns: boolean
-parameters: 
-    - [string, type, the type of event to be removed from addEventListener]
-    - [function, id, the function to be removed from addEventListener]

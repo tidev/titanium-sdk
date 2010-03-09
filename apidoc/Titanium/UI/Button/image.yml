@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.Button.image
-type: property
-description: "relative or app: path to the image that will appear if systemButton is not used"
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

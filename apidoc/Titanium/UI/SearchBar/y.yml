@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.SearchBar.y
-type: property
-description: "(dimension) Used only when embedded in a web view. As a float, the vertical position of the Switch. Overrides the Id's y property."
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

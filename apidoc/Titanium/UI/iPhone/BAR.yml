@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.iPhone.BAR
-type: property
-description: constant representing the toolbar style for both UI.ButtonBar and UI.TabbedBar. The native element will be shorter in hieght and will honor the tinting color, even when not in the toolbar
-since: 0.6.0
-platforms: ['iphone']
-returns: String

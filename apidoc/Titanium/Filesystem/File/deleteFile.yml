@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.File.deleteFile
-type: method
-description: Deletes a file
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: boolean
-parameters: []

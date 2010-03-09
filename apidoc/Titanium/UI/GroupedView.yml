@@ -1,8 +1,0 @@
----
-namespace: Titanium.UI.GroupedView
-type: object
-description: 
-since: 0.8.0
-returns: string
-parameters: 
-    - [string, title, the title of the window]

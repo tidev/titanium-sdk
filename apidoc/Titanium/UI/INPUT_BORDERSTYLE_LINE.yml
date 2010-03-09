@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.INPUT_BORDERSTYLE_LINE
-type: property
-description: A possible value for UI.TextField.borderStyle; indicates a simple line will be used.
-since: 0.5.0
-platforms: ['android', 'iphone']
-returns: string

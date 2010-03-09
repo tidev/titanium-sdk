@@ -1,9 +1,0 @@
----
-namespace: Titanium.UI.createSearchBar
-type: function
-description: has a side effect that if the id property is set in this manner, the setId side effect happens.
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: object
-parameters: 
-    - [args, object, (optional) (optional object) can contain various properties that will be copied into the new object on initialization.]

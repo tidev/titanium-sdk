@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.getResourcesDirectory
-type: function
-description: "Returns a file object pointing to the application's Resources."
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: File
-parameters: []

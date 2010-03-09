@@ -1,9 +1,0 @@
----
-namespace: Titanium.UI.SearchBar.show
-type: method
-description: 
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: 
-    - [options, Object, (optional) (optional animation object.)]

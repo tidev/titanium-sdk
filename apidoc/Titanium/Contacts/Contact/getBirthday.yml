@@ -1,8 +1,0 @@
----
-namespace: Titanium.Contacts.Contact.getBirthday
-type: method
-description: retrieves the Contacts.Contact.birthday property
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: Date
-parameters: []

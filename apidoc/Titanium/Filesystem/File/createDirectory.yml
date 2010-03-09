@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.File.createDirectory
-type: method
-description: Creates a new directory
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

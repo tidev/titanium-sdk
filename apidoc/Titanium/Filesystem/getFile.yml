@@ -1,9 +1,0 @@
----
-namespace: Titanium.Filesystem.getFile
-type: function
-description: Returns a file path, optionally joining multiple arguments together in an OS specific way
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: File
-parameters: 
-    - [string, arguments, one or more path segments to join.]

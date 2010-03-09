@@ -1,8 +1,0 @@
----
-namespace: Titanium.Contacts.Contact.getDisplayLabel
-type: method
-description: retrieves the Contacts.Contact.displayLabel property
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String|Object
-parameters: []

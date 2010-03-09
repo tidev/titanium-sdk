@@ -1,8 +1,0 @@
----
-namespace: Titanium.Database.ResultSet.fieldName
-type: method
-description: Returns the name of the specified field in the current result set taken from the SQL statement which was executed
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

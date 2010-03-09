@@ -1,8 +1,0 @@
----
-namespace: Titanium.Database.DB.getLastInsertRowId
-type: method
-description: the row id of the last insert operation.
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: int
-parameters: []

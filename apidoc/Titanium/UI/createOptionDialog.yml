@@ -1,9 +1,0 @@
----
-namespace: Titanium.UI.createOptionDialog
-type: function
-description: Creates an UI.optionDialog object
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: object
-parameters: 
-    - [mixed, properties, (optional) UI.optionDialog properties to copy over on initialization]

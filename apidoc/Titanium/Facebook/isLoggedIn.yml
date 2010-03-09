@@ -1,8 +1,0 @@
----
-namespace: Titanium.Facebook.isLoggedIn
-type: function
-description: returns true if the user is logged in
-since: 0.7.0
-platforms: ['android', 'iphone']
-returns: boolean
-parameters: []

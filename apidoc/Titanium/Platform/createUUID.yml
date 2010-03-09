@@ -1,8 +1,0 @@
----
-namespace: Titanium.Platform.createUUID
-type: function
-description: Creates a globally unique id
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string
-parameters: []

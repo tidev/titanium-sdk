@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.TableView.borderColor
-type: property
-description: (webColor) Specifies the color of the lines between rows.
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

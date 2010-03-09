@@ -1,8 +1,0 @@
----
-namespace: Titanium.Media.VideoPlayer.release
-type: method
-description: Invalidates the VideoPlayer object and frees associated memory
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

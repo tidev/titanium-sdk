@@ -1,8 +1,0 @@
----
-namespace: Titanium.Database.ResultSet.field
-type: method
-description: Returns the contents of the specified field in the current row
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

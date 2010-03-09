@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.File.toString
-type: method
-description: Get the string representation
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string
-parameters: []

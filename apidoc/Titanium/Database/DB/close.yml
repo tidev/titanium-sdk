@@ -1,8 +1,0 @@
----
-namespace: Titanium.Database.DB.close
-type: method
-description: close the database. This should be called to prevent resource leaks.
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

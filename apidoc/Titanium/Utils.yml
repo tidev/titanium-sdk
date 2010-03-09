@@ -1,6 +1,0 @@
----
-namespace: Titanium.Utils
-type: module
-description: |
-  <p>The top level Utils module. The Utils module is a collection of commonly used functions.</p>
-since: 0.9

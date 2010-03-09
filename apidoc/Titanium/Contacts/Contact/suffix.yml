@@ -1,7 +1,0 @@
----
-namespace: Titanium.Contacts.Contact.suffix
-type: property
-description: "(string) The text that follows the contact's name, such as Jr, Sr."
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

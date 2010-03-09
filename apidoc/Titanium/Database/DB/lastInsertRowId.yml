@@ -1,7 +1,0 @@
----
-namespace: Titanium.Database.DB.lastInsertRowId
-type: property
-description: Same as getLastInsertRowId method.
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: int

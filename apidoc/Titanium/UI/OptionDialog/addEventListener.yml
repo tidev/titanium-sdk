@@ -1,8 +1,0 @@
----
-namespace: Titanium.UI.OptionDialog.addEventListener
-type: method
-description: add an event listener to be called for a click event and returns the function to use when removing
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

@@ -1,7 +1,0 @@
----
-namespace: Titanium.Platform
-type: module
-description: |
-  <p>The top level Platform module. The Platform module is used
-  for retrieving platform related information.</p>
-since: 0.4

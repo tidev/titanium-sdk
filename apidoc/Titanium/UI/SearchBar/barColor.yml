@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.SearchBar.barColor
-type: property
-description: "(webColor) The tint of the gradient behind the SearchBar text area. Use null to indicate the default blue, 'transparent' for the translucent black gradient. Otherwise, provide a color. Default is null."
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

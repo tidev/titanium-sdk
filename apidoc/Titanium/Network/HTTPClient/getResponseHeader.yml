@@ -1,9 +1,0 @@
----
-namespace: Titanium.Network.HTTPClient.getResponseHeader
-type: method
-description: Get the value of a response header
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string
-parameters: 
-    - [string, header, Name of header value to retrieve]

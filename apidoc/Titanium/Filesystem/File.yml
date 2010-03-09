@@ -1,5 +1,0 @@
----
-namespace: Titanium.Filesystem.File
-type: module
-description: File system object.
-since: 0.4

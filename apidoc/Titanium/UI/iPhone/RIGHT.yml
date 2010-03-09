@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.iPhone.RIGHT
-type: property
-description: constant used to describe a row animation where the inserted row or rows slides in from the right; the deleted row or rows slides out to the right.
-since: 0.6.0
-platforms: ['iphone']
-returns: String

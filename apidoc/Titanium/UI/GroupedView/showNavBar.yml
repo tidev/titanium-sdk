@@ -1,8 +1,0 @@
----
-namespace: Titanium.UI.GroupedView.showNavBar
-type: method
-description: Makes the nav bar visible, resizing the web page if necessary.
-since: 0.5.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

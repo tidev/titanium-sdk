@@ -1,9 +1,0 @@
----
-namespace: Titanium.UI.EmailDialog.setBccRecipients
-type: method
-description: 
-since: 0.6.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: 
-    - [array, addrs, The list of addresses as strings. Also allows for a single string address]

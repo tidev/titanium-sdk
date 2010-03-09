@@ -1,9 +1,0 @@
----
-namespace: Titanium.UI.EmailDialog.setMessageBody
-type: method
-description: Set the message body text.
-since: 0.6.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: 
-    - [string, msg, the message text.]

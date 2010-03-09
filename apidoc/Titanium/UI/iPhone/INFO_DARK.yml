@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.iPhone.INFO_DARK
-type: property
-description: "Set a UI.Button's \"systemButton\" property to this in order to get a dark system-provided \"info\" button"
-since: 0.8.0
-platforms: ['iphone']
-returns: String

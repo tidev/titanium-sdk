@@ -1,7 +1,0 @@
----
-namespace: Titanium.Gesture
-type: module
-description: |
-  <p>The top level Gesture module. The Gesture module is used
-  for handling of device-specific Gesture events.</p>
-since: 0.5

@@ -1,7 +1,0 @@
----
-namespace: Titanium.Network.NETWORK_MOBILE
-type: property
-description: Indicates that there is either an EDGE or 3G network present.
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: int

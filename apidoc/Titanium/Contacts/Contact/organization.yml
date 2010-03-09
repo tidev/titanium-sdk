@@ -1,7 +1,0 @@
----
-namespace: Titanium.Contacts.Contact.organization
-type: property
-description: (multivalue of objects) For consistency, organization is a multivalue. However, for the iPhone, only the organization[0].value properties are saved.
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

@@ -1,9 +1,0 @@
----
-namespace: Titanium.Filesystem.File.rename
-type: method
-description: Renames a file
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: boolean
-parameters: 
-    - [string, destination, new name]

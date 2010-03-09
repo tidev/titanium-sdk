@@ -1,5 +1,0 @@
----
-namespace: Titanium.UI.ActivityIndicator
-type: module
-description: Activity Indicator object.
-since: 0.7

@@ -1,9 +1,0 @@
----
-namespace: Titanium.Contacts.Contact.setRelatives
-type: method
-description: saves the Contacts.Contact.relatives property
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: 
-    - [Array<Label/Value pair<String>>, newRelatives, The new multivalue of strings.]

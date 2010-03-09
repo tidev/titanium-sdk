@@ -1,8 +1,0 @@
----
-namespace: Titanium.UI.MenuItem.getLabel
-type: method
-description: Get the current label
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string, label
-parameters: []

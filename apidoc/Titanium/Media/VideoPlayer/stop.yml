@@ -1,8 +1,0 @@
----
-namespace: Titanium.Media.VideoPlayer.stop
-type: method
-description: If this videoPlayer is playing, stops the video player and hides it.
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

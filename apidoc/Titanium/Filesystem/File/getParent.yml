@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.File.getParent
-type: method
-description: Returns the parent directory of a file or directory
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: File
-parameters: []

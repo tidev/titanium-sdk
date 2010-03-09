@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.Android.AnimationStyle.FADE
-type: property
-description: Fade the current view out while fading the new view in.
-since: 0.6.2
-platforms: ['android', 'iphone']
-returns: String

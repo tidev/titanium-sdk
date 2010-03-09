@@ -1,9 +1,0 @@
----
-namespace: Titanium.UI.MapView.setType
-type: method
-description: set the type of map to view
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: 
-    - [int, type, Titanium.UI.MAP_VIEW_STANDARD | Titanium.UI.MAP_VIEW_SATELLITE | Titanium.UI.MAP_VIEW_HYBRID]

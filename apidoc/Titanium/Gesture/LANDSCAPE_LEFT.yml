@@ -1,7 +1,0 @@
----
-namespace: Titanium.Gesture.LANDSCAPE_LEFT
-type: property
-description: integer that represents landscape orientation where the home button is to the left of the screen
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: string

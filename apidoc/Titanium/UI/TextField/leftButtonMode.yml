@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.TextField.leftButtonMode
-type: property
-description: Indicates when the TextField leftButton is shown
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

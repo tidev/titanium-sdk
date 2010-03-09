@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.File.modificationTimestamp
-type: method
-description: Returns the last modified timestamp of a file or directory
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: double
-parameters: []

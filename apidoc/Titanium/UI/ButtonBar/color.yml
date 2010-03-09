@@ -1,7 +1,0 @@
----
-namespace: Titanium.UI.ButtonBar.color
-type: property
-description: a web color that the label text should have, if the button is in the content area.
-since: 0.8.0
-platforms: ['android', 'iphone']
-returns: String

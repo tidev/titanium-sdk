@@ -1,8 +1,0 @@
----
-namespace: Titanium.UI.OptionDialog.show
-type: method
-description: "Display the optionDialog to the user. Properties are applied at this point. If no options are listed, 'OK' is used."
-since: 0.4.0
-platforms: ['android', 'iphone']
-returns: String
-parameters: []

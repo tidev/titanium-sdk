@@ -1,8 +1,0 @@
----
-namespace: Titanium.Filesystem.File.toURL
-type: method
-description: Returns the url to a file or directory
-since: 0.7.0
-platforms: ['android', 'iphone']
-returns: string
-parameters: []
