@@ -8,7 +8,9 @@ var label = Ti.UI.createLabel({
 	font:{fontSize:14},
 	height:'auto',
 	top:10,
-	textAlign:'center'
+	textAlign:'center',
+	borderWidth:2,
+	borderColor:'red'
 });
 win.add(label);
 
@@ -25,7 +27,9 @@ var fbButton = Titanium.Facebook.createLoginButton({
 	'style':'wide',
 	'apikey':'9494e611f2a93b8d7bfcdfa8cefdaf9f',
 	'sessionProxy':'http://api.appcelerator.net/p/fbconnect/',
-	top:30
+	bottom:30,
+	height:30,
+	width:300
 });
 win.add(fbButton);
 

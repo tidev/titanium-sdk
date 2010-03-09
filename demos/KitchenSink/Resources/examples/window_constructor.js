@@ -31,7 +31,7 @@ button.addEventListener('click', function(e)
 	var win = Titanium.UI.createWindow({
 		rightNavButton:bb,
 		backgroundColor:'#13386c',
-		barColor:'#000',
+		barColor:'#336699',
 		translucent:true,
 		titleImage:'../images/slider_thumb.png'
 	});

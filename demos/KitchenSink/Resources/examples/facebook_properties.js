@@ -6,7 +6,9 @@ var fbButton = Titanium.Facebook.createLoginButton({
 	'style':'wide',
 	'apikey':'9494e611f2a93b8d7bfcdfa8cefdaf9f',
 	'sessionProxy':'http://api.appcelerator.net/p/fbconnect/',
-	bottom:10
+	bottom:10,
+	height:30,
+	width:300
 });
 win.add(fbButton);
 
