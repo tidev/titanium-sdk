@@ -10,13 +10,17 @@ var data = [
 	{title:'Platform Data', hasChild:true, test:'../examples/platform.js'},
 	{title:'Filesystem', hasChild:true, test:'../examples/filesystem.js'},
 	{title:'JS Includes', hasChild:true, test:'../examples/js_include.js'},
-	{title:'Passing Data (windows)', hasChild:true, test:'../examples/custom_properties.js'},
 	{title:'Set Timeout (timer)', hasChild:true, test:'../examples/set_timeout.js'},
 	{title:'Set Interval (timer)', hasChild:true, test:'../examples/set_interval.js'},
 	{title:'XML DOM', hasChild:true, test:'../examples/xml_dom.js'},
 	{title:'XML RSS', hasChild:true, test:'../examples/xml_rss.js'}
 	
 ];
+
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	data.push({title:'Passing Data (windows)', hasChild:true, test:'../examples/custom_properties.js'});
+}
 
 // create table view
 var tableview = Titanium.UI.createTableView({
