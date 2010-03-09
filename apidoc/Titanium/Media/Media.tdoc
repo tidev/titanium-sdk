@@ -25,6 +25,127 @@ android, iphone
 
 - methods
 
+isMediaTypeSupported: return boolean to indicate if the media type is supported
+isCameraSupported: return boolean to indicate if the device has camera support
+showCamera: show the camera
+openPhotoGallery: open the photo gallery picker
+takeScreenshot: take a screen shot of the visible UI on the device
+saveToPhotoGallery: save media to photo gallery / camera roll
+beep: play a device beep notification
+vibrate: play a device vibration
+takePicture: use the device camera to capture a photo. this must be called after calling `showCamera` and only when `autohide` is set to false. this method will cause the media capture device to capture a photo and call the `success` callback.
+hideCamera: hide the device camera UI. this must be called after calling `showCamera` and only when `autohide` is set to false. this method will cause the media capture device be hidden.
+startMicrophoneMonitor: start the monitoring of microphone sound level
+stopMicrophoneMonitor: stop the monitoring of microphone sound level
+
+
+- method : isMediaTypeSupported, boolean
+
+media[string]: media type as a string of either `camera`, `photo` or `photogallery`.
+type[string]: the type of media to check
+
+
+- method : isCameraSupported, boolean
+
+- method : showCamera
+
+options[object]: pass a dictionary with the following supported keys: `success` a function that will be called when the camera is completed, `error` a function that will be called upon receiving an error, `cancel` a function that will be called if the user presses the cancel button, `autohide` boolean if the camera should auto hide after the media capture is completed (defaults to true), `animated` boolean if the dialog should be animated (defaults to true) upon showing and hiding, `saveToPhotoGallery` boolean if the media should be saved to the photo gallery upon successful capture, `allowEditing` boolean if the media should be editable after capture in the UI interface, `mediaTypes` an array of media type constants supported by the capture device UI, `videoMaximumDuration` float duration on how long in milliseconds to allow capture before completing, `videoQuality` constant to indicate the video quality during capture, `showControls` boolean to indicate if the built-in UI controls should be displayed, `overlay` view which is added as an overlay to the camera UI (on top), `transform` an transformation matrix that applies to the camera UI transform.
+
+- method : openPhotoGallery
+
+
+options[object]: pass a dictionary with the following supported keys: `success` a function that will be called when the camera is completed, `error` a function that will be called upon receiving an error, `cancel` a function that will be called if the user presses the cancel button, `autohide` boolean if the camera should auto hide after the media capture is completed (defaults to true), `animated` boolean if the dialog should be animated (defaults to true) upon showing and hiding, `saveToPhotoGallery` boolean if the media should be saved to the photo gallery upon successful capture, `allowEditing` boolean if the media should be editable after capture in the UI interface, `mediaTypes` an array of media type constants supported by the capture device UI, `showControls` boolean to indicate if the built-in UI controls should be displayed, `overlay` view which is added as an overlay to the UI (on top), `transform` an transformation matrix that applies to the UI transform.
+
+- method : takeScreenshot
+
+callback[function] : function that will be called upon capture. the event property `media` will contain an image Blob object of the screenshot
+
+- method : saveToPhotoGallery
+
+media[object]: save the media passed to the cameras photo roll/media gallery. must be one of Blob object or File object or an error will be generated.
+
+
+
 - properties
 
+UNKNOWN_ERROR[int]: constant for unknown media error
+DEVICE_BUSY[int]: constant for media device busy error
+NO_CAMERA[int]: constant for media no camera error
+NO_VIDEO[int]: constant for media no video error
+
+VIDEO_CONTROL_DEFAULT[int]: constant for video controls default
+VIDEO_CONTROL_VOLUME_ONLY[int]: constant for video controls volume only
+VIDEO_CONTROL_HIDDEN[int]: constant for video controls hidden
+
+VIDEO_SCALING_NONE[int]: constant for video scaling where the scaling is turn off. The movie will not be scaled.
+
+VIDEO_SCALING_ASPECT_FIT[int]: constant for video aspect fit where the movie will be scaled until one dimension fits on the screen exactly. In the other dimension, the region between the edge of the movie and the edge of the screen is filled with a black bar. The aspect ratio of the movie is preserved.
+
+VIDEO_SCALING_ASPECT_FILL[int]: constant for video aspect where the movie will be scaled until the movie fills the entire screen. Content at the edges of the larger of the two dimensions is clipped so that the other dimension fits the screen exactly. The aspect ratio of the movie is preserved.
+
+VIDEO_SCALING_MODE_FILL[int]: constant for video aspect where the movie will be scaled until both dimensions fit the screen exactly. The aspect ratio of the movie is not preserved.
+
+MEDIA_TYPE_VIDEO[int]: media type constant to signify video
+MEDIA_TYPE_PHOTO[int]: media type constant to signify photo
+
+QUALITY_HIGH[int]: media type constant to use high-quality video recording. Recorded files are suitable for on-device playback and for wired transfer to the Desktop using Image Capture; they are likely to be too large for transfer using Wi-Fi.
+
+QUALITY_MEDIUM[int]: media type constant to use medium-quality video recording. Recorded files can usually be transferred using Wi-Fi. This is the default video quality setting.
+
+QUALITY_LOW[int]: media type constant to use use low-quality video recording. Recorded files can usually be transferred over the cellular network.
+
+AUDIO_HEADPHONES[int]: constant for line type headphones
+AUDIO_HEADSET_INOUT[int]: constant line type headset in/out
+AUDIO_RECEIVER_AND_MIC[int]: constant line type receiver and microphone
+AUDIO_HEADPHONES_AND_MIC[int]: constant line type headphones and microphone
+AUDIO_LINEOUT[int]: constant line type line out
+AUDIO_SPEAKER[int]: constant line type speaker
+AUDIO_MICROPHONE[int]: constant line type microphone
+AUDIO_MUTED[int]: constant line type muted switch is on 
+AUDIO_UNAVAILABLE[int]: constant line type unavailable
+AUDIO_UNKNOWN[int]: constant line type unknown or not determined
+
+AUDIO_FORMAT_LINEAR_PCM[int]: audio format Linear 16-bit, PCM encoding
+AUDIO_FORMAT_ULAW[int]: audio format 8-bit muLaw encoding
+AUDIO_FORMAT_ALAW[int]: audio format 8-bit aLaw encoding
+AUDIO_FORMAT_IMA4[int]: audio format Apple IMA4 encoding
+AUDIO_FORMAT_ILBC[int]: audio format iLBC encoding
+AUDIO_FORMAT_APPLE_LOSSLESS[int]: audio format apple lossless encoding
+AUDIO_FORMAT_AAC[int]: audio format MPEG4 AAC encoding
+
+AUDIO_FILEFORMAT_WAVE[int]: audio file format WAVE
+AUDIO_FILEFORMAT_AIFF[int]: audio file format AIFF
+AUDIO_FILEFORMAT_MP3[int]: audio file format MP3
+AUDIO_FILEFORMAT_MP4[int]: audio file format MP4
+AUDIO_FILEFORMAT_MP4A[int]: audio file format MP4A
+AUDIO_FILEFORMAT_CAF[int]: audio file format Apple Compressed Audio Format (CAF)
+AUDIO_FILEFORMAT_3GPP[int]: audio file format 3GPP
+AUDIO_FILEFORMAT_3GP2[int]: audio file format 3GPP-2
+AUDIO_FILEFORMAT_AMR[int]: audio file format AMR
+
+volume[float]: the current volume of the playback device
+audioPlaying[boolean]: returns true if the device is playing audio
+audioLineType[int]: returns the line type constant for the current line type
+availableCameraMediaTypes[array]: return an array of media type constants supported for the camera
+availablePhotoMediaTypes[array]: return an array of media type constants supported for the photo
+availablePhotoGalleryMediaTypes[array]: return an array of media type constants supported for saving to the photo gallery
+
+
+peakMicrophonePower[float]: return the current microphone level peak power in dB or -1 if microphone monitoring is disabled
+
+averageMicrophonePower[float]: return the current average microphone level in dB or -1 if microphone monitoring is disabled
+
 - events
+
+linechange: fired when a audio line type change is detected
+volume: fired when the volume output changes
+
+- event : volume
+
+volume: float of the new volume in dB
+
+
+
+
+
+
