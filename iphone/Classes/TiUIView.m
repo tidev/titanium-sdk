@@ -285,6 +285,7 @@ DEFINE_EXCEPTIONS
 		return;
 	}
 	ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, newSuperview, bounds,YES);
+	[(TiViewProxy *)[self proxy] clearNeedsReposition];
 }
 
 -(void)relayout:(CGRect)bounds
@@ -293,6 +294,7 @@ DEFINE_EXCEPTIONS
 	{
 		repositioning = YES;
 		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
+		[(TiViewProxy *)[self proxy] clearNeedsReposition];
 		repositioning = NO;
 	}
 }
@@ -388,6 +390,8 @@ DEFINE_EXCEPTIONS
 	{
 		oldSize = newBounds.size;
 		[self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:newBounds];
+//		TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
+//		[[ourProxy parent] childResized:ourProxy];
 	}
 }
 
