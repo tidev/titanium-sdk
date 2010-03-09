@@ -49,4 +49,13 @@
 	return result;
 }
 
+-(void)noteValueChange:(NSString *)newValue
+{
+	if (![[self valueForKey:@"value"] isEqual:newValue])
+	{
+		[self replaceValue:newValue forKey:@"value" notification:NO];
+		[self fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+	}
+}
+
 @end
