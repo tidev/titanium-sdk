@@ -3,7 +3,7 @@ var win = Titanium.UI.currentWindow;
 var label = Ti.UI.createLabel({
 	text:'Running...',
 	font:{fontFamily:'Helvetica Neue',fontSize:24,fontWeight:'bold'},
-	color:'black',
+	color:'#999',
 	textAlign:'center'
 });
 
