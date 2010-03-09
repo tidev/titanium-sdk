@@ -582,6 +582,66 @@ DEFINE_EXCEPTIONS
 	DoProxyDelegateChangedValuesWithProxy(self, key, oldValue, newValue, proxy_);
 }
 
+-(void)transferProxy:(TiViewProxy*)newProxy
+{
+	TiViewProxy * oldProxy = (TiViewProxy *)[self proxy];
+	NSArray * oldProperties = (NSArray *)[oldProxy allKeys];
+	NSArray * newProperties = (NSArray *)[newProxy allKeys];
+	[oldProxy retain];
+	[self retain];
+
+	[oldProxy setView:nil];
+	[newProxy setView:self];
+	[self setProxy:newProxy];
+
+	for (NSString * thisKey in oldProperties)
+	{
+		if([newProperties containsObject:thisKey])
+		{
+			continue;
+		}
+		SEL method = SetterForKrollProperty(thisKey);
+		if([self respondsToSelector:method])
+		{
+			[self performSelector:method withObject:nil];
+			continue;
+		}
+		
+		method = SetterWithObjectForKrollProperty(thisKey);
+		if([self respondsToSelector:method])
+		{
+			[self performSelector:method withObject:nil withObject:nil];
+		}		
+	}
+
+	for (NSString * thisKey in newProperties)
+	{
+		id newValue = [newProxy valueForKey:thisKey];
+		id oldValue = [oldProxy valueForKey:thisKey];
+		if([newValue isEqual:oldValue])
+		{
+			continue;
+		}
+		
+		SEL method = SetterForKrollProperty(thisKey);
+		if([self respondsToSelector:method])
+		{
+			[self performSelector:method withObject:newValue];
+			continue;
+		}
+		
+		method = SetterWithObjectForKrollProperty(thisKey);
+		if([self respondsToSelector:method])
+		{
+			[self performSelector:method withObject:newValue withObject:nil];
+		}		
+	}
+
+	[oldProxy release];
+	[self release];
+}
+
+
 -(id)proxyValueForKey:(NSString *)key
 {
 	return [proxy valueForKey:key];

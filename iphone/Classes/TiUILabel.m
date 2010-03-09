@@ -67,11 +67,11 @@
 	[[self label] setText:[TiUtils stringValue:text]];
 	if (requiresLayout)
 	{
-		[(TiViewProxy *)[self proxy] reposition];
+		[(TiViewProxy *)[self proxy] setNeedsReposition];
 	}
 	else
 	{
-		[[self proxy] setNeedsRepositionIfAutoSized];
+		[(TiViewProxy *)[self proxy] setNeedsRepositionIfAutoSized];
 	}
 
 }
@@ -91,7 +91,7 @@
 	[[self label] setFont:[[TiUtils fontValue:font] font]];
 	if (requiresLayout)
 	{
-		[(TiViewProxy *)[self proxy] reposition];
+		[(TiViewProxy *)[self proxy] setNeedsReposition];
 	}
 }
 

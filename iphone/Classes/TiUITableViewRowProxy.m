@@ -308,32 +308,36 @@
 				parent:(TiViewProxy*)newParent
 		 touchDelegate:(id)touchDelegate
 {
-	TiProxy *oldProxy = uiview.proxy;
-	
-	// change the proxy/view relationship before firing 
-	// events since certain properties (such as backgroundImage)
-	// rely on certain aspects of the proxy to be set (like baseURL)
-	// for them to work correctly
-	uiview.parent = newParent;
-	uiview.touchDelegate = touchDelegate;
-	uiview.proxy = proxy;
-	for (NSString *key in [proxy allProperties])
-	{
-		id oldValue = oldProxy==nil ? nil : [oldProxy valueForKey:key];
-		id newValue = [proxy valueForKey:key];
-		if ([oldValue isEqual:newValue]==NO)
-		{
-			// fire any property changes that are different from the old
-			// proxy to our new proxy
-			[uiview propertyChanged:key oldValue:oldValue newValue:newValue proxy:proxy];
-		}
-	}
-	uiview.proxy = newParent;
-	// re-assign the view to the new proxy so the right listeners get 
-	// any child view events that are fired
-	// we assign ourselves as the new parent so we can be in the 
-	// event propagation chain to insert row level event properties
-	[proxy exchangeView:uiview];
+//	TiProxy *oldProxy = uiview.proxy;
+//	
+//	// change the proxy/view relationship before firing 
+//	// events since certain properties (such as backgroundImage)
+//	// rely on certain aspects of the proxy to be set (like baseURL)
+//	// for them to work correctly
+//	uiview.parent = newParent;
+//	uiview.touchDelegate = touchDelegate;
+//	uiview.proxy = proxy;
+////	uiview.proxy = newParent;
+//
+//	for (NSString *key in [proxy allProperties])
+//	{
+//		id oldValue = oldProxy==nil ? nil : [oldProxy valueForKey:key];
+//		id newValue = [proxy valueForKey:key];
+//		if ([oldValue isEqual:newValue]==NO)
+//		{
+//			// fire any property changes that are different from the old
+//			// proxy to our new proxy
+//			[uiview propertyChanged:key oldValue:oldValue newValue:newValue proxy:proxy];
+//		}
+//	}
+//	uiview.proxy = newParent;
+//	// re-assign the view to the new proxy so the right listeners get 
+//	// any child view events that are fired
+//	// we assign ourselves as the new parent so we can be in the 
+//	// event propagation chain to insert row level event properties
+//	[proxy exchangeView:uiview];
+
+	[uiview transferProxy:proxy];
 	
 	// because proxies can have children, we need to recursively do this
 	NSArray *children_ = proxy.children;
@@ -354,6 +358,7 @@
 						   parent:proxy touchDelegate:nil];
 		}
 	}
+	[proxy reposition];
 }
 
 -(void)updateChildren:(UITableViewCell*)cell

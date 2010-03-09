@@ -6,6 +6,8 @@
  */
 
 #import "TiUIWebView.h"
+#import "TiUIWebViewProxy.h"
+
 #import "TiUtils.h"
 #import "TiProxy.h"
 #import "SBJSON.h"
@@ -500,10 +502,7 @@ NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={
 	
 	TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
 	
-	if (TiDimensionIsAuto([ourProxy layoutProperties]->height))
-	{
-		[ourProxy reposition];
-	}
+	[ourProxy setNeedsRepositionIfAutoSized];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
