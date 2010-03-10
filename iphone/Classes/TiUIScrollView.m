@@ -65,12 +65,15 @@
 	}
 }
 
--(void)handleContentSizeIfNeeded
+
+-(BOOL)handleContentSizeIfNeeded
 {
 	if (needsHandleContentSize)
 	{
 		[self handleContentSize];
+		return YES;
 	}
+	return NO;
 }
 
 -(void)handleContentSize
@@ -135,20 +138,19 @@
 	[wrapperView setBounds:wrapperBounds];
 	[wrapperView setCenter:CGPointMake(newContentSize.width/2, newContentSize.height/2)];
 	needsHandleContentSize = NO;
+	[(TiViewProxy *)[self proxy] layoutChildren];
 }
 
 -(void)setContentWidth_:(id)value
 {
 	contentWidth = [TiUtils dimensionValue:value];
 	[self setNeedsHandleContentSize];
-	[(TiViewProxy *)[self proxy] layoutChildren];
 }
 
 -(void)setContentHeight_:(id)value
 {
 	contentHeight = [TiUtils dimensionValue:value];
 	[self setNeedsHandleContentSize];
-	[(TiViewProxy *)[self proxy] layoutChildren];
 }
 
 -(void)setShowHorizontalScrollIndicator_:(id)value

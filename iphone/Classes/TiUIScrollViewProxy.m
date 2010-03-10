@@ -43,8 +43,21 @@
 		return;
 	}
 
-	[(TiUIScrollView *)[self view] handleContentSizeIfNeeded];
-	[super layoutChildren];
+	if (![(TiUIScrollView *)[self view] handleContentSizeIfNeeded])
+	{
+		[super layoutChildren];
+	}
+}
+
+-(BOOL)willBeRelaying
+{
+	return [super willBeRelaying]; // || 
+}
+
+-(void)childWillResize:(TiViewProxy *)child
+{
+	[super childWillResize:child];
+	[(TiUIScrollView *)[self view] setNeedsHandleContentSizeIfAutosizing];
 }
 
 -(void)layoutChild:(TiViewProxy*)child

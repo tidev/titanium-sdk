@@ -28,7 +28,8 @@
 //-(void)layoutChild:(TiUIView *)childView;
 
 -(void)setNeedsHandleContentSize;
--(void)handleContentSizeIfNeeded;
+-(void)setNeedsHandleContentSizeIfAutosizing;
+-(BOOL)handleContentSizeIfNeeded;
 -(void)handleContentSize;
 
 -(UIView *)wrapperView;

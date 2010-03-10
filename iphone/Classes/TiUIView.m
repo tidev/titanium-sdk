@@ -390,8 +390,6 @@ DEFINE_EXCEPTIONS
 	{
 		oldSize = newBounds.size;
 		[self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:newBounds];
-//		TiViewProxy * ourProxy = (TiViewProxy *)[self proxy];
-//		[[ourProxy parent] childResized:ourProxy];
 	}
 }
 

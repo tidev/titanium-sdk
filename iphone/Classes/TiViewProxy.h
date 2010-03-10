@@ -82,6 +82,9 @@
 -(void)clearNeedsReposition;
 -(void)setNeedsRepositionIfAutoSized;
 
+-(BOOL)willBeRelaying;
+-(void)childWillResize:(TiViewProxy *)child;
+
 @end
 
 #define USE_VIEW_FOR_METHOD(resultType,methodname,inputType)	\
