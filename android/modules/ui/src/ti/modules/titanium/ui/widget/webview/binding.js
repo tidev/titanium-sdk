@@ -32,7 +32,7 @@ var Ti = {
 				
 				var l = Ti.getEventListenerByKey('systemId', listener);
 				if (l != null) {
-					Ti._event_listeners.remove(l.index);
+					Ti._event_listeners.splice(l.index, 1);
 				}
 			} else {
 				var l = Ti.getEventListenerByKey('listener', listener);
