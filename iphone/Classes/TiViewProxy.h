@@ -74,7 +74,6 @@
 -(void)viewDidDetach;
 -(void)exchangeView:(TiUIView*)newview;
 
--(void)childResized:(TiViewProxy *)child;
 -(void)reposition;
 -(void)repositionWithBounds:(CGRect)bounds;
 -(void)repositionIfNeeded;

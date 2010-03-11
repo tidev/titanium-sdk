@@ -471,6 +471,11 @@
 	[self triggerRowUpdate];
 }
 
+-(void)childWillResize:(TiViewProxy *)child
+{
+	[self triggerRowUpdate];
+}
+
 -(void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
 {
 	// merge in any row level properties for the event
