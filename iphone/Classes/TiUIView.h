@@ -101,6 +101,8 @@ CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVerti
 -(BOOL)interactionDefault;
 -(BOOL)hasTouchableListener;
 
+-(void)setVisible_:(id)visible;
+
 @end
 
 #pragma mark TO REMOVE, used only during transition.

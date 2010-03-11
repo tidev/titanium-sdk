@@ -12,8 +12,34 @@
 
 @implementation TiUIMaskedImage
 
+-(UIImage *)image
+{
+	id value = imageURL;
+	TiProxy * ourProxy = [self proxy];
+
+	if (value == nil)
+	{
+		value = [ourProxy valueForKey:@"image"];
+	}
+	return [TiUtils toImage:value proxy:ourProxy];
+}
+
+-(UIImage *)mask
+{
+	id value = maskURL;
+	TiProxy * ourProxy = [self proxy];
+
+	if (value == nil)
+	{
+		value = [ourProxy valueForKey:@"mask"];
+	}
+	return [TiUtils toImage:value proxy:ourProxy];
+}
+
+
 -(CGFloat)autoWidthForWidth:(CGFloat)value
 {
+	UIImage * image = [self image];
 	if (image!=nil)
 	{
 		return image.size.width;
@@ -23,6 +49,7 @@
 
 -(CGFloat)autoHeightForWidth:(CGFloat)value
 {
+	UIImage * image = [self image];
 	if (image!=nil)
 	{
 		return image.size.height;
@@ -32,7 +59,8 @@
 
 - (void)dealloc 
 {
-	RELEASE_TO_NIL(image);
+	RELEASE_TO_NIL(maskURL)
+	RELEASE_TO_NIL(imageURL);
 	RELEASE_TO_NIL(tint);
     [super dealloc];
 }
@@ -44,15 +72,15 @@
 
 -(void)setImage_:(id)newImage
 {
-	RELEASE_TO_NIL(image);
-	image = [[TiUtils toImage:newImage proxy:self.proxy] retain];
+	RELEASE_TO_NIL(imageURL);
+	imageURL = [[TiUtils toURL:newImage proxy:self.proxy] retain];	//If this results in a nil, then it's a proxy.
 	[self setNeedsDisplay];
 }
 
 -(void)setMask_:(id)newMask
 {
-	RELEASE_TO_NIL(mask);
-	mask = [[TiUtils toImage:newMask proxy:self.proxy] retain];
+	RELEASE_TO_NIL(maskURL);
+	maskURL = [[TiUtils toURL:newMask proxy:self.proxy] retain];
 	[self setNeedsDisplay];
 }
 
@@ -69,10 +97,27 @@
 	[self setNeedsDisplay];
 }
 
+-(void)setVisible_:(id)visible
+{
+	[super setVisible_:visible];
+	if(![self isHidden])
+	{
+		[self setNeedsDisplay];
+	}
+}
+
 - (void)drawRect:(CGRect)rect 
 {
+	if([self isHidden])
+	{
+		NSLog(@"Why are we drawing %@/%@ while hidden?",imageURL,maskURL);
+		return;
+	}
+	NSLog(@"Rendering image %@/%@",imageURL,maskURL);
+
 	CGContextRef ourContext = UIGraphicsGetCurrentContext();
 	CGRect bounds = [self bounds];
+	UIImage * mask = [self mask];
 
 	if (mask != nil)
 	{
@@ -87,6 +132,7 @@
 
 	CGContextSetBlendMode(ourContext, mode);
 
+	UIImage * image = [self image];
 	if (image != nil)
 	{
 		CGContextDrawImage(ourContext, bounds, [image CGImage]);

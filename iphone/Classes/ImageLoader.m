@@ -98,12 +98,27 @@ DEFINE_EXCEPTIONS
 
 -(void)didReceiveMemoryWarning:(id)sender
 {
-	if (cache!=nil)
+	NSString * doomedKey;
+	int cacheCount = [cache count];
+	do
 	{
-		NSLog(@"[DEBUG] low memory, removing %d cached image objects",[cache count]);
-		[cache autorelease];
-		cache = nil;
-	}
+		doomedKey = nil;
+		for (NSString * thisKey in cache)
+		{
+			id thisValue = [cache valueForKey:thisKey];
+			if ([thisValue retainCount]<2)
+			{
+				doomedKey = thisKey;
+				break;
+			}
+		}
+		if (doomedKey != nil)
+		{
+			NSLog(@"[INFO] Due to memory conditions, releasing cached image: %@",doomedKey);
+			[cache removeObjectForKey:doomedKey];
+		}
+	} while (doomedKey != nil);
+	NSLog(@"[INFO] %d of %d images remain in cache.",[cache count],cacheCount);
 }
 
 +(ImageLoader*)sharedLoader
@@ -125,6 +140,7 @@ DEFINE_EXCEPTIONS
 	{
 		cache = [[NSMutableDictionary alloc] init];
 	}
+	NSLog(@"[INFO] Caching image %@: %@",url,image);
 	[cache setObject:image forKey:[url absoluteString]];
 	return image;
 }
