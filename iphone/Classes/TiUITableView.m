@@ -898,6 +898,13 @@
 
 #pragma mark Datasource 
 
+
+#define RETURN_IF_SEARCH_TABLE_VIEW(result)	\
+if(tableView == searchTableView)	\
+{	\
+	return result;	\
+}
+
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section
 {
 	if(table == searchTableView)
@@ -963,29 +970,20 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-	if(tableView == searchTableView)
-	{
-		return 1;
-	}
+	RETURN_IF_SEARCH_TABLE_VIEW(1);
 	return sections!=nil ? [sections count] : 0;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-	if(tableView==searchTableView)
-	{
-		return nil;
-	}	
+	RETURN_IF_SEARCH_TABLE_VIEW(nil);
 	TiUITableViewSectionProxy *sectionProxy = [sections objectAtIndex:section];
 	return [sectionProxy headerTitle];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
 {
-	if(tableView==searchTableView)
-	{
-		return nil;
-	}	
+	RETURN_IF_SEARCH_TABLE_VIEW(nil);
 	TiUITableViewSectionProxy *sectionProxy = [sections objectAtIndex:section];
 	return [sectionProxy footerTitle];
 }
@@ -993,6 +991,7 @@
 // Individual rows can opt out of having the -editing property set for them. If not implemented, all rows are assumed to be editable.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
+	RETURN_IF_SEARCH_TABLE_VIEW(NO);
 	if (editing || moving)
 	{
 		TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
@@ -1010,6 +1009,7 @@
 
 - (BOOL)tableView:(UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath
 {
+	RETURN_IF_SEARCH_TABLE_VIEW(NO);
 	if (moving)
 	{
 		return NO;
@@ -1026,6 +1026,7 @@
 // After a row has the minus or plus button invoked (based on the UITableViewCellEditingStyle for the cell), the dataSource must commit the change
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
+	RETURN_IF_SEARCH_TABLE_VIEW();
 	if (editingStyle==UITableViewCellEditingStyleDelete)
 	{
 		TiUITableViewSectionProxy *section = [sections objectAtIndex:[indexPath section]];
@@ -1046,6 +1047,7 @@
 // Allows the reorder accessory view to optionally be shown for a particular row. By default, the reorder control will be shown only if the datasource implements -tableView:moveRowAtIndexPath:toIndexPath:
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
+	RETURN_IF_SEARCH_TABLE_VIEW(NO);
 	if (moving)
 	{
 		TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
@@ -1056,6 +1058,7 @@
 
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
 {
+	RETURN_IF_SEARCH_TABLE_VIEW();
 	int fromSectionIndex = [sourceIndexPath section];
 	int toSectionIndex = [destinationIndexPath section];
 	
@@ -1121,12 +1124,10 @@
 	[self triggerActionForIndexPath:indexPath fromPath:nil wasAccessory:NO search:NO name:@"click"];
 }
 
+
 -(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	if(tableView == searchTableView)
-	{
-		return;
-	}
+	RETURN_IF_SEARCH_TABLE_VIEW();
 	
 	TiUITableViewSectionProxy *section = [sections objectAtIndex:[indexPath section]];
 	TiUITableViewRowProxy *row = [section rowAtIndex:[indexPath row]];
@@ -1148,6 +1149,8 @@
 // Allows customization of the editingStyle for a particular cell located at 'indexPath'. If not implemented, all editable cells will have UITableViewCellEditingStyleDelete set for them when the table has editing property set to YES.
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+	RETURN_IF_SEARCH_TABLE_VIEW(UITableViewCellEditingStyleNone);
+
 	if (moving)
 	{
 		return UITableViewCellEditingStyleNone;
@@ -1161,6 +1164,7 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+	RETURN_IF_SEARCH_TABLE_VIEW(nil);
 	//TODO
 	return NSLocalizedString(@"Delete",@"Table View Delete Confirm");
 }
@@ -1172,6 +1176,8 @@
 
 - (NSInteger)tableView:(UITableView *)tableView indentationLevelForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+	RETURN_IF_SEARCH_TABLE_VIEW(0);
+
 	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
 	id indent = [row valueForKey:@"indentionLevel"];
 	return indent == nil ? 0 : [TiUtils intValue:indent];
@@ -1179,10 +1185,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	if(tableView == searchTableView)
-	{
-		return tableView.rowHeight;
-	}
+	RETURN_IF_SEARCH_TABLE_VIEW(tableView.rowHeight);
 	
 	TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
 	CGFloat height = [row rowHeight:tableView.bounds];
@@ -1192,16 +1195,19 @@
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
+	RETURN_IF_SEARCH_TABLE_VIEW(nil);
 	return [self sectionView:section forLocation:@"headerView" section:nil];
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 {
+	RETURN_IF_SEARCH_TABLE_VIEW(nil);
 	return [self sectionView:section forLocation:@"footerView" section:nil];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
+	RETURN_IF_SEARCH_TABLE_VIEW(tableView.sectionHeaderHeight);
 	TiUITableViewSectionProxy *sectionProxy = nil;
 	TiUIView *view = [self sectionView:section forLocation:@"headerView" section:&sectionProxy];
 	CGFloat size = 0;
@@ -1240,6 +1246,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
+	RETURN_IF_SEARCH_TABLE_VIEW(tableView.sectionFooterHeight);
 	TiUITableViewSectionProxy *sectionProxy = nil;
 	TiUIView *view = [self sectionView:section forLocation:@"footerView" section:&sectionProxy];
 	CGFloat size = 0;
