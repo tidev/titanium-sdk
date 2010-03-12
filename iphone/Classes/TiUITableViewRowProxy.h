@@ -21,6 +21,7 @@
 	TiLayoutRule layout;
 	
 	UIView * rowContainerView;
+	BOOL modifyingRow;
 	NSInteger row;
 }
 

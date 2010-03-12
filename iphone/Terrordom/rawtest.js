@@ -16,6 +16,7 @@ var bodyOutline = Ti.UI.createMaskedImage({mask:'body_lines.png',
 
 var head = Ti.UI.createMaskedImage({mask:'head_mask.png',
 	top:-10,left:25,height:120,width:80,
+//	mode:Titanium.UI.BLEND_MODE_SOURCE_IN,
 	});
 
 win.add(bodyTone);

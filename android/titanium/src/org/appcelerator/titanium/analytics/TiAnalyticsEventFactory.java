@@ -63,7 +63,7 @@ public class TiAnalyticsEventFactory
 			json.put("mac_addr", TiPlatformHelper.getMacaddress());
 			json.put("app_name", tiApp.getAppInfo().getName());
 			json.put("oscpu", TiPlatformHelper.getProcessorCount());
-			json.put("TiPlatformHelper", "android");
+			json.put("platform", TiPlatformHelper.getName());
 			json.put("app_id", tiApp.getAppInfo().getId());
 			json.put("ostype", TiPlatformHelper.getOstype());
 			json.put("osarch", TiPlatformHelper.getArchitecture());

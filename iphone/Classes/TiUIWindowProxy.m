@@ -363,7 +363,7 @@
 		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:path];
 		if (image!=nil)
 		{
-			newTitleView = [[UIImageView alloc] initWithImage:image];
+			newTitleView = [[[UIImageView alloc] initWithImage:image] autorelease];
 		}
 	}
 

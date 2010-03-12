@@ -12,9 +12,10 @@ import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -337,16 +338,18 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener
 		if (eventName != null) {
 			if (tiProxy != null) {
 				if (listener != null) {
-					HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
-					if (listeners == null) {
-						listeners = new HashMap<Integer, TiListener>();
-						eventListeners.put(eventName, listeners);
-					}
+					synchronized (eventListeners) {
+						HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
+						if (listeners == null) {
+							listeners = new HashMap<Integer, TiListener>();
+							eventListeners.put(eventName, listeners);
+						}
 
-					listenerId = listenerIdGenerator.incrementAndGet();
-					listeners.put(listenerId, new TiListener(tiProxy, listener));
-					Log.i(LCAT, "Added for eventName '" + eventName + "' with id " + listenerId);
-					dispatchOnEventChange(true, eventName, listeners.size(), tiProxy);
+						listenerId = listenerIdGenerator.incrementAndGet();
+						listeners.put(listenerId, new TiListener(tiProxy, listener));
+						Log.i(LCAT, "Added for eventName '" + eventName + "' with id " + listenerId);
+						dispatchOnEventChange(true, eventName, listeners.size(), tiProxy);
+					}
 				} else {
 					throw new IllegalStateException("addEventListener expects a non-null listener");
 				}
@@ -459,7 +462,7 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener
 	{
 		boolean dispatched = false;
 		if (eventName != null) {
-			HashMap<Integer, TiListener> listeners = eventListeners.get(eventName);
+			Map<Integer, TiListener> listeners = eventListeners.get(eventName);
 			if (listeners != null) {
 				if (data == null) {
 					data = new TiDict();
@@ -467,19 +470,21 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener
 				data.put("type", eventName);
 
 				Set<Entry<Integer, TiListener>> listenerSet = listeners.entrySet();
-				for(Entry<Integer, TiListener> entry : listenerSet) {
-					TiListener listener = entry.getValue();
-					if (tiProxy == null || (tiProxy != null && listener.isSameProxy(tiProxy))) {
-						boolean invoked = false;
-						try {
-							if (listener.weakTiProxy.get() != null) {
-								data.put("source", listener.weakTiProxy.get());
-								invoked = listener.invoke(eventName, data);
+				synchronized(eventListeners) {
+					for(Entry<Integer, TiListener> entry : listenerSet) {
+						TiListener listener = entry.getValue();
+						if (tiProxy == null || (tiProxy != null && listener.isSameProxy(tiProxy))) {
+							boolean invoked = false;
+							try {
+								if (listener.weakTiProxy.get() != null) {
+									data.put("source", listener.weakTiProxy.get());
+									invoked = listener.invoke(eventName, data);
+								}
+							} catch (Exception e) {
+								Log.e(LCAT, "Error invoking listener with id " + entry.getKey() + " on eventName '" + eventName + "'", e);
 							}
-						} catch (Exception e) {
-							Log.e(LCAT, "Error invoking listener with id " + entry.getKey() + " on eventName '" + eventName + "'", e);
+							dispatched = dispatched || invoked;
 						}
-						dispatched = dispatched || invoked;
 					}
 				}
 			} else {

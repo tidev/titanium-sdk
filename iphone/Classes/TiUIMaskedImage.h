@@ -9,8 +9,8 @@
 
 @interface TiUIMaskedImage : TiUIView {
 @private
-	UIImage * image;
-	UIImage * mask;
+	NSURL * imageURL;
+	NSURL * maskURL;
 	UIColor * tint;
 	CGBlendMode mode;	
 }

@@ -50,36 +50,15 @@
 	{
 		id backgroundImage = [self.proxy valueForKey:@"backgroundImage"];
 		UIButtonType defaultType = backgroundImage!=nil ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
-		id style_ = [[self.proxy valueForKey:@"style"] retain];
-		style = IS_NULL_OR_NIL(style_) ? defaultType : [TiUtils intValue:style_];
+		style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:defaultType];
 		UIView *btn = [TiButtonUtil buttonWithType:style];
 		button = (UIButton*)[btn retain];
 		[self addSubview:button];
-//		if (style_==nil)
-//		{
-			[TiUtils setView:button positionRect:self.bounds];
-//		}
-//		else
-//		{
-			// if we use a system button, we use it's frame
-//			self.frame = btn.frame;
-			if (style==UIButtonTypeCustom)
-			{
-				[button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
-			}
-//			LayoutConstraint *layout = [self layoutProperties];
-//			// attempt to set the size if a system button and auto
-//			if (TiDimensionIsAuto(layout->width) ||
-//				TiDimensionIsUndefined(layout->width))
-//			{
-//				[self.proxy replaceValue:NUMFLOAT(btn.frame.size.width) forKey:@"width" notification:YES];
-//			}
-//			if (TiDimensionIsAuto(layout->height) ||
-//				TiDimensionIsUndefined(layout->height))
-//			{
-//				[self.proxy replaceValue:NUMFLOAT(btn.frame.size.height) forKey:@"height" notification:YES];
-//			}
-//		}
+		[TiUtils setView:button positionRect:self.bounds];
+		if (style==UIButtonTypeCustom)
+		{
+			[button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+		}
 		[button addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
 	}
 	return button;

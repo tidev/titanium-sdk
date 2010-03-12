@@ -103,6 +103,7 @@
 
 -(void)updateRow:(NSDictionary *)data withObject:(NSDictionary *)properties
 {
+	modifyingRow = YES;
 	[super _initWithProperties:data];
 	
 	// check to see if we have a section header change, too...
@@ -118,6 +119,7 @@
 		// we can return since we're reloading the section, will cause the 
 		// row to be repainted at the same time
 	}
+	modifyingRow = NO;
 }
 
 -(void)configureTitle:(UITableViewCell*)cell
@@ -427,6 +429,7 @@
 
 -(void)initializeTableViewCell:(UITableViewCell*)cell
 {
+	modifyingRow = YES;
 	[self configureTitle:cell];
 	[self configureLeftSide:cell];
 	[self configureRightSide:cell];
@@ -434,10 +437,12 @@
 	[self configureIndentionLevel:cell];
 	[self configureSelectionStyle:cell];
 	[self configureChildren:cell];
+	modifyingRow = NO;
 }
 
 -(void)renderTableViewCell:(UITableViewCell*)cell
 {
+	modifyingRow = YES;
 	[self configureTitle:cell];
 	[self configureLeftSide:cell];
 	[self configureRightSide:cell];
@@ -445,6 +450,7 @@
 	[self configureIndentionLevel:cell];
 	[self configureSelectionStyle:cell];
 	[self updateChildren:cell];
+	modifyingRow = NO;
 }
 
 -(BOOL)isAttached
@@ -454,7 +460,7 @@
 
 -(void)triggerRowUpdate
 {
-	if ([self isAttached])
+	if ([self isAttached] && !modifyingRow)
 	{
 		TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithRow:self animation:nil section:section.section type:TiUITableViewActionRowReload] autorelease];
 		[table dispatchAction:action];
@@ -467,6 +473,11 @@
 }
 
 -(void)childRemoved:(id)child
+{
+	[self triggerRowUpdate];
+}
+
+-(void)childWillResize:(TiViewProxy *)child
 {
 	[self triggerRowUpdate];
 }
