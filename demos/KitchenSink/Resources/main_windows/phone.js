@@ -10,6 +10,7 @@ var data = [
 ];
 
 data.push({title:'Orientation', hasChild:true, test:'../examples/orientation.js'});
+data.push({title:'Camera', hasChild:true, test:'../examples/camera.js'});
 
 // add iphone specific tests
 if (Titanium.Platform.name == 'iPhone OS')
@@ -18,7 +19,6 @@ if (Titanium.Platform.name == 'iPhone OS')
 	data.push({title:'Screenshot', hasChild:true, test:'../examples/screenshot.js'});
 	data.push({title:'Save to Gallery', hasChild:true, test:'../examples/photo_gallery_save.js'});
 	data.push({title:'Shake', hasChild:true, test:'../examples/shake.js'});
-	data.push({title:'Camera', hasChild:true, test:'../examples/camera.js'});
 	data.push({title:'Record Video', hasChild:true, test:'../examples/record_video.js'});
 	data.push({title:'Proximity Events', hasChild:true, test:'../todo.js'});
 	data.push({title:'App Badge', hasChild:true, test:'../examples/app_badge.js'});
