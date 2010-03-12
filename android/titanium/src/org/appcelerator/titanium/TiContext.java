@@ -145,6 +145,9 @@ public class TiContext implements TiEvaluator, ITiMenuDispatcherListener
 	}
 
 	public void setJSContext(TiEvaluator evaluator) {
+		if (DBG) {
+			Log.i(LCAT, "Setting JS Context");
+		}
 		this.softTiEvaluator = new SoftReference<TiEvaluator>(evaluator);
 	}
 

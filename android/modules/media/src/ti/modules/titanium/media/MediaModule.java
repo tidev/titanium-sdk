@@ -33,8 +33,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
-import android.media.MediaScannerConnection;
-import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 import android.net.Uri;
 import android.os.Vibrator;
 import android.provider.MediaStore;
@@ -155,13 +153,7 @@ public class MediaModule extends TiModule
 				}
 			} else {
 				if (activity.getIntent() != null) {
-					//TODO Integrate with compiled data
-//					TiIntentWrapper intent = new TiIntentWrapper(activity.getIntent());
-//					TitaniumAppInfo appInfo = intent.getAppInfo(activity);
-//					String name = appInfo.getAppName();
-
-
-					String name = "TempApp";
+					String name = getTiContext().getTiApp().getAppInfo().getName();
 					imageDir = new File(PHOTO_DCIM_CAMERA, name);
 					if (!imageDir.exists()) {
 						imageDir.mkdirs();
@@ -325,7 +317,7 @@ public class MediaModule extends TiModule
 	{
 		Log.w(LCAT, "saveToPhotoGallery not yet implemented in Android");
 	}
-	
+
 	TiDict createDictForImage(String path, String mimeType) {
 		TiDict d = new TiDict();
 

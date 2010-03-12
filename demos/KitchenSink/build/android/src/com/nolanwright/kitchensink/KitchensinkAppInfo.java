@@ -18,7 +18,7 @@ public class KitchensinkAppInfo implements ITiAppInfo
 					
 		properties.setBool("ti.android.debug", true);
 					
-		properties.setString("ti.deploytype", "development");
+		properties.setString("ti.deploytype", "test");
 					
 		properties.setString("ti.android.google.map.api.key", "0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg");
 	}

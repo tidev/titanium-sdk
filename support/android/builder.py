@@ -305,7 +305,7 @@ class Builder(object):
 			android_sdk_version = '4'
 			
 			# NOTE: these are built-in permissions we need -- we probably need to refine when these are needed too
-			permissions_required = ['INTERNET','ACCESS_WIFI_STATE','ACCESS_NETWORK_STATE']
+			permissions_required = ['INTERNET','ACCESS_WIFI_STATE','ACCESS_NETWORK_STATE', 'WRITE_EXTERNAL_STORAGE']
 			
 			GEO_PERMISSION = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION', 'ACCESS_MOCK_LOCATION']
 			CONTACTS_PERMISSION = ['READ_CONTACTS']
