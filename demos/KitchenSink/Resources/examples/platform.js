@@ -1,7 +1,7 @@
 var win = Titanium.UI.currentWindow;
 
-// for battery level to work, you have to turn it 
-// on first otherwise it will report -1.  if you 
+// for battery level to work, you have to turn it
+// on first otherwise it will report -1.  if you
 // add a battery listener, it will turn it on for you
 // automagically
 Titanium.Platform.batteryMonitoring = true;
@@ -263,7 +263,7 @@ b.addEventListener('click', function()
 			openURL=0;
 			break;
 		}
-		
+
 	}
 });
 
@@ -279,3 +279,4 @@ Titanium.Platform.addEventListener('battery', function(e)
 });
 
 Titanium.API.info("Current Phone Locale is "+Titanium.Platform.locale);
+Titanium.API.info("OS name is " + Titanium.Platform.osname);

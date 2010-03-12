@@ -75,6 +75,14 @@ public class PlatformModule extends TiModule
 		return TiPlatformHelper.getName();
 	}
 
+	public String getOsname() {
+		return TiPlatformHelper.getName();
+	}
+
+	public String getLocale() {
+		return TiPlatformHelper.getLocale();
+	}
+
 	public DisplayCapsProxy getDisplayCaps() {
 		if (displayCaps == null) {
 			displayCaps = new DisplayCapsProxy(getTiContext());

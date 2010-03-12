@@ -9,6 +9,7 @@ package org.appcelerator.titanium.util;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.UUID;
 
 import org.appcelerator.titanium.ITiAppInfo;
@@ -96,6 +97,10 @@ public class TiPlatformHelper
 
 	public static String getSessionId() {
 		return sessionId;
+	}
+
+	public static String getLocale() {
+		return Locale.getDefault().getLanguage();
 	}
 
 	public static String createEventId() {
