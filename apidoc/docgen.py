@@ -181,7 +181,14 @@ class API(object):
 		props = {}
 		props['type'] = 'the name of the event fired'
 		props['source'] = 'the source object that fired the event'
-		self.events.append({'name':key,'value':value,'properties':props})
+		found = False
+		for e in self.events:
+			if e['name']==key:
+				e['value']=value
+				found = True
+				break
+		if found==False:			
+			self.events.append({'name':key,'value':value,'properties':props})
 		self.events.sort(namesort)
 	def add_event_property(self,event,key,value):
 		for e in self.events:
