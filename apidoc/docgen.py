@@ -154,7 +154,15 @@ class API(object):
 	def set_notes(self,notes):
 		self.notes = notes
 	def add_method(self,key,value,returntype='void'):
-		self.methods.append({'name':key,'value':value,'parameters':[],'returntype':returntype})
+		found = False
+		for e in self.methods:
+			if e['name'] == key:
+				found = True
+				e['value']=value
+				e['returntype']=returntype
+				break
+		if found==False:
+			self.methods.append({'name':key,'value':value,'parameters':[],'returntype':returntype})
 		self.methods.sort(namesort)
 	def set_method_returntype(self,key,value):
 		for m in self.methods:

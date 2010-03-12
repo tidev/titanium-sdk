@@ -25,10 +25,16 @@ android, iphone
 
 - methods
 
-arguments: return the arguments passed to the application on startup
+getArguments: return the arguments passed to the application on startup as a dictionary
+fireEvent: fire a cross-context application event.  listeners in any Javascript context can receive these events if they have added themselves as a listener with the event name.  NOTE: you can only pass JSON serializable data in the data payload of the event object since the data must be transportable between contexts.
 
 
-- method : arguments, string
+- method : getArguments, object
+
+- method : fireEvent
+
+name[string]: the event name
+data[object]: optional data payload for the event. NOTE: you can only pass JSON serializable data since the data must be transportable between contexts.
 
 
 - properties
