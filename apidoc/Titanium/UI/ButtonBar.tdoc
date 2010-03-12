@@ -39,7 +39,7 @@ click: fired when a button on the button bar is clicked
 
 index[int]: the index of the button that was clicked
 
-- example
+- example : Simple 3 button button bar
 
 <code>
 var bb1 = Titanium.UI.createButtonBar({

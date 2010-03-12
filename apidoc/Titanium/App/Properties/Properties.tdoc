@@ -1,0 +1,127 @@
+- namespace
+
+Titanium.App.Properties
+
+- type
+
+module
+
+- returns
+
+object
+
+- description
+
+The App Properties module is used for storing application related property/value pairs which persist beyond application sessions.
+
+- since
+
+0.5
+
+- platforms
+
+iphone, android
+
+- methods
+
+getBool: return a boolean value
+getDouble: return a double value
+getInt: return an integer value
+getString: return a string value
+getList: return a value as an array
+setBool: set a property as a boolean value
+setDouble: set a property as a double value
+setInt: set a property as an integer value
+setString: set a property as a string value
+setList: set a property as an array value
+removeProperty: remove an existing property
+hasProperty: returns true if the property exists
+listProperties: return an array of property propertys
+
+
+- method : setBool
+
+property[string]: property name
+value[boolean]: value
+
+- method : setInt
+
+property[string]: property name
+value[int]: value
+
+- method : setDouble
+
+property[string]: property name
+value[double]: value
+
+- method : setInt
+
+property[string]: property name
+value[int]: value
+
+- method : setString
+
+property[string]: property name
+value[string]: value
+
+- method : setList
+
+property[string]: property name
+value[array]: value
+
+- method : removeProperty
+
+property[string]: property name to remove
+
+- method : hasProperty, boolean
+
+property[string]: property name to check
+
+- method : listProperties,array
+
+- method : getBool, boolean
+
+property[string]: return a boolean value for property
+default[boolean]: optional default value if property is not found
+
+- method : getDouble, double
+
+property[string]: return a double value for property
+default[double]: optional default value if property is not found
+
+- method : getInt, int
+
+property[string]: return a integer value for property
+default[int]: optional default value if property is not found
+
+- method : getString, string
+
+property[string]: return a string value for property
+default[string]: optional default value if property is not found
+
+- method : getList, array
+
+property[string]: return an array value for property
+default[array]: optional default value if property is not found
+
+
+- example : store a property
+
+In this example, we store a string property:
+
+<code>
+Titanium.App.Properties.setString("my_prop","cool");
+</code>
+
+- example : enumerate over saved properties
+
+In this example, we print out all the saved properties to the console:
+
+<code>
+var props = Titanium.App.Properties.listProperties();
+for (var c=0;c<props.length;c++)
+{
+	var value = Titanium.App.Properties.getString(props[c]);
+	Titanium.API.info(props[c]+" = "+value);
+}
+</code>

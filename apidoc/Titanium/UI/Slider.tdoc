@@ -52,11 +52,6 @@ change: fired when the value of the slider changes
 
 value[string]: the new value of the slider
 
-- example
-
-<code>
-</code>
-
 - notes
 
 

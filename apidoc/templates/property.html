@@ -19,11 +19,8 @@ ${data.returns}
 <h3>Code Examples</h3>
 
 % for example in data.examples :
-<div>${example['description']}</div>
-
-<script type="syntaxhighlighter" class="brush: js"><![CDATA[
-${example['code']}
-]]></script>
+<h4 class="code_example_title">${example['description']}</h4>
+<div class="code_example">${example['code']}</div>
 
 % endfor
 

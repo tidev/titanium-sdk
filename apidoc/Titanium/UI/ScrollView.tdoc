@@ -61,7 +61,7 @@ y: the new y location
 decelerating: boolean to indicate if the scroll is decelerating
 dragging: boolean to indicate if the scroll is based on a dragging gesture
 
-- example
+- example : Simple Scroll View
 
 Create a scroll view with content.
 

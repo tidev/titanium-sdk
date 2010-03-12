@@ -49,7 +49,7 @@ focus: fired when the window gains focus
 blur: fired when the window loses focus
 
 
-- example
+- example : Full Screen Window example
 
 Create a fullscreen window with a red background.
 

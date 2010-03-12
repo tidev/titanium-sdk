@@ -59,7 +59,7 @@ url: the url of the web document
 message: the error message
 
 
-- example
+- example : Basic Web View to external URL example
 
 Create a web view to a remote URL and open the window as modal.
 

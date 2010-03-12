@@ -38,7 +38,7 @@ change: fired when the switch value is changed
 value[boolean]: the new value of the switch
 
 
-- example
+- example : Simple Switch Example
 
 The following is a simple example of a switch and receiving `change` events.
 

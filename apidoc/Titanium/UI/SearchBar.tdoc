@@ -41,7 +41,7 @@ change: fired when the value of the search bar changes
 return: fired when keyboard search button is pressed
 cancel: fired when the cancel button is pressed
 
-- example
+- example : Simple Search Bar
 
 <code>
 var search = Titanium.UI.createSearchBar({

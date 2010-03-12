@@ -126,7 +126,7 @@ detail: boolean to indicate if the right area was clicked
 searchMode: boolean to indicate if the table is in search mode
 rowData: table view row data object
 
-- example
+- example : Simple Table View with basic rows
 
 The most basic example of a table view.
 

@@ -22,9 +22,43 @@ The top level Map module.  The Map module is used for creating in-application na
 
 android, iphone
 
-
-- methods
-
 - properties
 
-- events
+STANDARD_TYPE[int]: Displays a street map that shows the position of all roads and some road names.
+SATELLITE_TYPE[int]: Displays satellite imagery of the area.
+HYBRID_TYPE[int]: Displays a satellite image of the area with road and road name information layered on top.
+
+ANNOTATION_RED[int]:The head of the pin is red. Red pins indicate destination points on the map.
+ANNOTATION_GREEN[int]:The head of the pin is green. Green pins indicate starting points on the map.
+ANNOTATION_PURPLE[int]:The head of the pin is purple. Purple pins indicate user-specified points on the map.
+
+
+- example : Map Example
+
+This is a basic map example that uses a custom annotation on the map.
+
+<code>
+var mountainView = Titanium.Map.createAnnotation({
+	latitude:37.390749,
+	longitude:-122.081651,
+	title:"Appcelerator Headquarters",
+	subtitle:'Mountain View, CA',
+	pincolor:Titanium.Map.ANNOTATION_RED,
+	animate:true,
+	leftButton: '../images/appcelerator_small.png',
+	myid:1 // CUSTOM ATTRIBUTE THAT IS PASSED INTO EVENT OBJECTS
+});
+
+var mapview = Titanium.Map.createView({
+	mapType: Titanium.Map.STANDARD_TYPE,
+	region: {latitude:33.74511, longitude:-84.38993, 
+			latitudeDelta:0.01, longitudeDelta:0.01},
+	animate:true,
+	regionFit:true,
+	userLocation:true,
+	annotations:[mountainView]
+});
+
+win.add(mapview);
+</code>
+

@@ -33,7 +33,7 @@ hide: call hide to make the activity indicator hidden and stop spinning
 
 - events
 
-- example
+- example : Simple Activity Indicator
 
 In this example, we create a basic activity indicator and start it.
 

@@ -36,7 +36,7 @@ shadowOffset[object]: the shadow offset as a dictionary with the properties `x` 
 
 - events
 
-- example
+- example : Basic Label
 
 Create a label with a nice text shadow, 48px font that's aligned `center` and height `auto`.
 

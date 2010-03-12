@@ -53,7 +53,7 @@ transition[int]: during a transition animation, this is the constant to the type
 start: fired when the animation starts
 complete: fired when the animation completes
 
-- example
+- example : Animation applied to a view
 
 Create a simple animation and apply it to the view.  In this example, the view will animate from red to black to orange over 2 seconds.
 

@@ -65,7 +65,7 @@ view: the current page view
 currentPage: the current page index
 view: the current page view
 
-- example
+- example : Simple Scrollable View with 3 Views
 
 Create three views and place each into a scrollable view.
 

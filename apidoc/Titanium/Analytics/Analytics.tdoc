@@ -71,7 +71,7 @@ name[string] : the event name
 data[object] : event data or null if not specified. the object must be serializable as JSON
 
 
-- example
+- example : Custom Feature Event
 
 This examples shows how to send a featureEvent during an application session to indicate some feature was triggered/used by the user that you would like to track.
 

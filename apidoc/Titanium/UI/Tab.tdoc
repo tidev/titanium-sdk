@@ -36,7 +36,7 @@ badge[string]: the badge value for the tab group for this tab. null indicates no
 
 - events
 
-- example
+- example : Simple Tab Example
 
 In this example, we create a simple tab and add it to a tab group.
 

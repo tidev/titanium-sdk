@@ -32,7 +32,7 @@ message[string]: the progress bar message
 
 - events
 
-- example
+- example : Simple Progress Bar
 
 In this example we create a progress bar with the min value of `0` and the max value of `10` and the current value of `0`.  The change the value of the progress bar to cause it to move, we would set the `value` property to a value between `min` and `max`.
 

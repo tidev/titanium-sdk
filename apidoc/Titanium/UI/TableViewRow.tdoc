@@ -25,7 +25,7 @@ android, iphone
 - properties
 
 height[float]: the height of the row. specify `auto` to calculate the row height based on the size of the child views of the row
-tableClass[string]: the class name of the table. each table view cell must have a unique class name if the cell layout is different. however, use the same name for rows that have the same structural layout (even if the content is different) to provide maximum rendering performance.
+className[string]: the class name of the table. each table view cell must have a unique class name if the cell layout is different. however, use the same name for rows that have the same structural layout (even if the content is different) to provide maximum rendering performance.
 layout[string]: the layout algorithm to use for the layout. either absolute (default) or vertical.
 title[string]: the title cell value. do not specify if using views as children of the row
 backgroundColor[string]: the background cell color
@@ -54,7 +54,7 @@ searchMode: boolean to indicate if the table is in search mode
 rowData: table view row data object
 
 
-- example
+- example : Simple Table View Row example
 
 In this simple example, we create a table view row with a red square in the cell.
 <code>

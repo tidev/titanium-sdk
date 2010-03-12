@@ -62,7 +62,7 @@ success: boolean to indicate if the email was successfully sent
 error: string message of the error or null if successfully sent
 
 
-- example
+- example : Simple Email Dialog with Attachment
 
 In this example, we send an email with a file attachment.
 

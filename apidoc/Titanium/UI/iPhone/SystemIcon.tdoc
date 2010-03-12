@@ -1,0 +1,36 @@
+- namespace
+
+Titanium.UI.iPhone.SystemIcon
+
+- type
+
+object
+
+- description
+
+A set of constants for the system icon styles that can be used on a tab group tab.
+
+- since
+
+0.8
+
+- platforms
+
+iphone
+
+- properties
+
+BOOKMARKS[int]: Bookmark style icon
+CONTACTS[int]: Contacts style icon
+DOWNLOADS[int]: Downloads style icon
+FAVORITES[int]: Favorites style icon
+FEATURED[int]: Featured style icon
+HISTORY[int]: History style icon
+MORE[int]: More style icon
+MOST_RECENT[int]: Most recent style icon
+MOST_VIEWED[int]: Most viewed style icon
+RECENTS[int]: Recents style icon
+SEARCH[int]: Search style icon
+TOP_RATED[int]: Top rated style icon
+
+

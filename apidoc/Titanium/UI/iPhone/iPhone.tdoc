@@ -1,0 +1,38 @@
+- namespace
+
+Titanium.UI.iPhone
+
+- type
+
+module
+
+- returns
+
+object
+
+- description
+
+The iPhone specific UI capabilities.
+
+- since
+
+0.5
+
+- platforms
+
+iphone
+
+- properties
+
+statusBarHidden[boolean]: control the status bar visibility
+statusBarStyle[int]: constant that controls the status bar color style
+appBadge[string]: set the application badge for the application's icon in the springboard
+appSupportsShakeToEdit[boolean]: control whether the shake to edit system wide capability is enabled
+
+- methods
+
+hideStatusBar: convenience method to hide the status bar
+showStatusBar: convenience method to show the status bar
+
+
+

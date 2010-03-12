@@ -46,7 +46,7 @@ row[object]: the row object to remove from the section
 
 - events
 
-- example
+- example : Simple Table View Section Example
 
 In this example, we create a section with the header `Hello` and add two rows to it.
 

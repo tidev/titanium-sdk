@@ -49,7 +49,7 @@ columnIndex: the selected column index
 column: the column object
 row: the row object
 
-- example
+- example : Basic Single Column Picker
 
 In this basic picker example, we create a one column picker with 4 rows. 
 

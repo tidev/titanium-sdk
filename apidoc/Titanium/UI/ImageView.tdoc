@@ -63,7 +63,7 @@ state: either `url` to indicate the url property is loaded or `images` when all 
 
 index: the index of the image frame being displayed
 
-- example
+- example : Basic Image View
 
 In this example, we create a simple image view:
 

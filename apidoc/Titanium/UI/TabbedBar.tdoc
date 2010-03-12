@@ -39,7 +39,7 @@ click: fired when a button on the tabbed bar is clicked
 
 index[int]: the index of the button that was clicked
 
-- example
+- example : Simple Tabbed Bar with 3 items
 
 <code>
 var bb1 = Titanium.UI.createTabbedBar({

@@ -39,7 +39,7 @@ index: the button index that was pressed
 cancel: boolean to indicate if the cancel button was pressed
 destructive: boolean to indicate if the destructive button was pressed
 
-- example
+- example : Simple Options Dialog with 2 Options
 
 In this example, we show a simple option dialog.
 

@@ -42,7 +42,7 @@ click: fired when a button in the dialog is clicked
 index: the button index that was pressed
 cancel: boolean to indicate if the cancel button was pressed
 
-- example
+- example : Simple Alert Dialog
 
 In this example, we show a simple alert dialog.
 

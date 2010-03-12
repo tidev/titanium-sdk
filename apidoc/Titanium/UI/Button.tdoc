@@ -42,7 +42,7 @@ image[string]: the image to display on the button to the left of the title
 
 click: fired when the user presses the button
 
-- example
+- example : Simple Button Example
 
 <code>
 var button = Titanium.UI.createButton({

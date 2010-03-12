@@ -1,0 +1,36 @@
+- namespace
+
+Titanium.Map.Annotation
+
+- type
+
+object
+
+- subtype
+
+proxy
+
+- description
+
+An Annotation object that is created by the method `Titanium.Map.createAnnotation`. This object gives you low level control over annotations that can be added to a Map View.
+
+- since
+
+0.9
+
+- platforms
+
+android, iphone
+
+- properties
+
+title[string]: the primary title of the annotation view
+subtitle[string]: the secondary title of the annotation view
+pincolor[int]: the pin color as one of `Titanium.Map.ANNOTATION_RED`, `Titanium.Map.ANNOTATION_GREEN` or `Titanium.Map.ANNOTATION_PURPLE`.
+animate[boolean]: boolean to indicate whether the pin should animate when dropped
+leftButton[int,string]: the left button image on the annotation. must either be a button type constant or url
+rightButton[int,string]: the right button image on the annotation. must either be a button type constant or url
+leftView[object]: a left view that is displayed on the annotation
+rightView[object]: a right view that is displayed on the annotation
+
+

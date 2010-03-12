@@ -52,7 +52,7 @@ index: the index of the image that is now visible
 previous: the previous index of the image that was visible
 
 
-- example
+- example : Simple 3 image cover flow example
 
 Create a rounded view.
 

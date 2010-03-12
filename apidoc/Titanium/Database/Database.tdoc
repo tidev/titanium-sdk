@@ -12,8 +12,7 @@ object
 
 - description
 
-The top level Database module.  The Database module is used for creating and accessing the in-application
-Database.
+The top level Database module.  The Database module is used for creating and accessing the in-application Database.
 
 - since
 

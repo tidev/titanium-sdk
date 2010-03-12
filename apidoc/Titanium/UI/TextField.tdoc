@@ -73,7 +73,7 @@ value: the value of the field upon blur
 value: the value of the field upon focus
 
 
-- example
+- example : Basic Text Field with rounded border
 
 Create a simple text field with a round border style.
 
