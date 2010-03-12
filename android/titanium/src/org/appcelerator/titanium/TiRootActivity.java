@@ -8,13 +8,13 @@ package org.appcelerator.titanium;
 
 import java.io.IOException;
 import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
+import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.view.ITiWindowHandler;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
@@ -31,6 +31,9 @@ import android.view.View;
 public class TiRootActivity extends ActivityGroup
 	implements TiActivitySupport, ITiWindowHandler
 {
+	private static final String LCAT = "TiRootActivity";
+	private static final boolean DBG = TiConfig.LOGD;
+
 	private static AtomicInteger windowIdGenerator;
 
 	protected TiContext tiContext;
@@ -66,6 +69,9 @@ public class TiRootActivity extends ActivityGroup
 			@Override
 			public void run() {
 				try {
+					if (DBG) {
+						Log.i(LCAT, "eval app.js");
+					}
 					tiContext.evalFile("app://app.js");
 				} catch (IOException e) {
 					e.printStackTrace();
