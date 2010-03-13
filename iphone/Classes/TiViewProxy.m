@@ -343,6 +343,7 @@
 		
 		// on open we need to create a new view
 		view = [self newView];
+
 		view.proxy = self;
 		view.parent = parent;
 		view.layer.transform = CATransform3DIdentity;
@@ -354,6 +355,7 @@
 
 		// fire property changes for all properties to our delegate
 		[self firePropertyChanges];
+
 
 		[view didSendConfiguration];
 
@@ -374,12 +376,18 @@
 		[self viewDidAttach];
 
 		// make sure we do a layout of ourselves
-//		LayoutConstraint layout;
-//		ReadConstraintFromDictionary(&layout,[self allProperties]);
-		[view updateLayout:NULL withBounds:view.bounds];
+		[self setNeedsReposition];
 		
 		viewInitialized = YES;
 	}
+
+	CGRect bounds = [view bounds];
+	if (!CGPointEqualToPoint(bounds.origin, CGPointZero))
+	{
+		NSLog(@"Unusual bounds origin again! (%f,%f) %@",bounds.origin.x, bounds.origin.y,view);
+		[view setBounds:CGRectMake(0, 0, bounds.size.width, bounds.size.height)];
+	}
+	
 	return view;
 }
 
@@ -395,15 +403,6 @@
 	CGRect bounds = [view bounds];
 
 	// layout out ourself
-	UIView *childView = [child view];
-
-	if ([childView superview]!=view)
-	{
-		[view addSubview:childView];
-	}
-	
-//	LayoutConstraint ourLayoutConstraint;
-//	ReadConstraintFromDictionary(&ourLayoutConstraint,[child allProperties]);
 
 	if(TiLayoutRuleIsVertical(layoutProperties.layout)){
 		bounds.origin.y += verticalLayoutBoundary;
@@ -411,9 +410,8 @@
 		verticalLayoutBoundary += bounds.size.height;
 	}
 
-//	[child setLayoutProperties:<#(LayoutConstraint *)#>
-
-	[[child view] updateLayout:NULL withBounds:bounds];
+	UIView *childView = [child view];
+	[childView insertIntoView:view bounds:bounds];
 	
 	// tell our children to also layout
 	[child layoutChildren];

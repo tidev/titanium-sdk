@@ -54,6 +54,7 @@
 
 -(UIImage *)loadRemote:(NSURL*)url;
 -(UIImage *)loadImmediateImage:(NSURL *)url;
+-(UIImage *)loadImmediateImage:(NSURL *)url withSize:(CGSize)imageSize;
 -(UIImage *)loadImmediateStretchableImage:(NSURL *)url;
 
 -(ImageLoaderRequest*)loadImage:(NSURL*)url 

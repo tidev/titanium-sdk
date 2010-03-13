@@ -151,6 +151,17 @@ DEFINE_EXCEPTIONS
 	[super dealloc];
 }
 
+- (id) init
+{
+	self = [super init];
+	if (self != nil)
+	{
+		
+	}
+	return self;
+}
+
+
 -(BOOL)viewSupportsBaseTouchEvents
 {
 	// give the ability for the subclass to turn off our event handling
@@ -284,17 +295,30 @@ DEFINE_EXCEPTIONS
 		NSLog(@"[ERROR] invalid call to insertIntoView, new super view is same as myself");
 		return;
 	}
-	ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, newSuperview, bounds,YES);
-	[(TiViewProxy *)[self proxy] clearNeedsReposition];
+	if (repositioning==NO)
+	{
+		repositioning = YES;		
+		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, newSuperview, bounds,YES);
+		[(TiViewProxy *)[self proxy] clearNeedsReposition];
+		repositioning = NO;
+	}
 }
 
 -(void)relayout:(CGRect)bounds
 {
+	if (animating)
+	{
+#ifdef DEBUG		
+		// changing the layout while animating is bad, ignore for now
+		NSLog(@"[DEBUG] ignoring new layout while animating..");
+#endif		
+		return;
+	}
 	if (repositioning==NO)
 	{
-		repositioning = YES;
+		repositioning = YES;		
 		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
-		[(TiViewProxy *)[self proxy] clearNeedsReposition];
+		[(TiViewProxy *)proxy clearNeedsReposition];
 		repositioning = NO;
 	}
 }
@@ -398,6 +422,7 @@ DEFINE_EXCEPTIONS
 -(void)setBounds:(CGRect)bounds
 {
 	[super setBounds:bounds];
+	if(!CGPointEqualToPoint(CGPointZero, bounds.origin))
 	[self checkBounds];
 }
 

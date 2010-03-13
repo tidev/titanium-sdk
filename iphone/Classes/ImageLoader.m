@@ -11,6 +11,77 @@
 #import "ASIHTTPRequest.h"
 #import "TitaniumApp.h"
 
+@interface ImageCacheEntry : NSObject
+{
+	UIImage * fullImage;
+	UIImage * thumbnail;
+}
+
+@property(nonatomic,readwrite,retain) UIImage * fullImage;
+-(UIImage *)imageForSize:(CGSize)imageSize;
+
+@end
+
+@implementation ImageCacheEntry
+@synthesize fullImage;
+
+-(UIImage *)imageForSize:(CGSize)imageSize
+{
+	if (CGSizeEqualToSize(imageSize, CGSizeZero))
+	{
+		return fullImage;
+	}
+
+	CGSize fullImageSize = [fullImage size];
+
+	if (imageSize.width == 0)
+	{
+		imageSize.width = fullImageSize.width * imageSize.height/fullImageSize.height;
+	}
+	else if(imageSize.height == 0)
+	{
+		imageSize.height = fullImageSize.height * imageSize.width/fullImageSize.width;
+	}
+
+	if (CGSizeEqualToSize(imageSize, fullImageSize))
+	{
+		return fullImage;
+	}
+
+	CGSize thumbnailSize = [thumbnail size];
+	if (CGSizeEqualToSize(imageSize, thumbnailSize))
+	{
+		return thumbnail;
+	}
+
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+	CGContextRef thumbnailContext = CGBitmapContextCreate (NULL, imageSize.width,imageSize.height, 8,0, colorSpace, kCGImageAlphaPremultipliedLast);
+    CGColorSpaceRelease(colorSpace);	
+
+	CGImageRef fullImageRef = [fullImage CGImage];
+	CGContextDrawImage(thumbnailContext, CGRectMake(0, 0, imageSize.width, imageSize.height), fullImageRef);
+
+	CGImageRef thumbnailRef = CGBitmapContextCreateImage(thumbnailContext);
+	CGContextRelease(thumbnailContext);
+
+	[thumbnail release];
+	thumbnail = [[UIImage alloc] initWithCGImage:thumbnailRef];
+	CGImageRelease(thumbnailRef);
+
+	return thumbnail;
+}
+
+
+@end
+
+
+
+
+
+
+
+
+
 ImageLoader *sharedLoader = nil;
 
 @implementation ImageLoaderRequest
@@ -169,6 +240,12 @@ DEFINE_EXCEPTIONS
 }
 
 -(UIImage *)loadImmediateImage:(NSURL *)url
+{
+	return [self loadImmediateImage:url withSize:CGSizeZero];
+}
+
+
+-(UIImage *)loadImmediateImage:(NSURL *)url withSize:(CGSize)imageSize;
 {
 	if (url==nil) return nil;
 	UIImage *image = [cache objectForKey:[url absoluteString]];

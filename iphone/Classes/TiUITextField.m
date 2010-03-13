@@ -448,12 +448,15 @@ NSLog(@"Right view (%fx%f) %@",[value bounds].size.width,[value bounds].size.hei
 
 -(BOOL)textFieldShouldReturn:(UITextField *)tf 
 {
-	[tf resignFirstResponder];
+//	[tf resignFirstResponder];
 	if ([self.proxy _hasListeners:@"return"])
 	{
 		[self.proxy fireEvent:@"return" withObject:[NSDictionary dictionaryWithObject:[tf text] forKey:@"value"]];
 	}
-	[self makeRootViewFirstResponder];
+
+	
+
+//	[self makeRootViewFirstResponder];
 	return YES;
 }
 	
