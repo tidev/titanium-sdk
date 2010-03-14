@@ -55,5 +55,5 @@ win.add(bb1);
 
 - notes
 
-For iPhone, the style constants are available in the constants defined in `Titanium.UI.iPhone.SystemButtonStyle`.
+For iPhone, the style constants are available in the constants defined in [Titanium.UI.iPhone.SystemButtonStyle](Titanium.UI.iPhone.SystemButtonStyle).
 

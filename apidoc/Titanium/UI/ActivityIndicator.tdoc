@@ -47,6 +47,6 @@ actInd.show();
 
 - notes
 
-For iPhone, the style can be set from the constants `Titanium.UI.iPhone.ActivityIndicatorStyle`.
+For iPhone, the style can be set from the constants [Titanium.UI.iPhone.ActivityIndicatorStyle](Titanium.UI.iPhone.ActivityIndicatorStyle).
 
 

@@ -9,6 +9,7 @@
 # 
 import os, sys, json, re
 from os.path import join, splitext, split, exists
+from htmlentitydefs import name2codepoint 
 
 try:
 	from mako.template import Template
@@ -16,6 +17,15 @@ except:
 	print "Crap, you don't have mako!\n"
 	print "Easy install that bitch:\n"
 	print ">  easy_install Mako"
+	print
+	sys.exit(1)
+try:
+	import markdown
+except:
+	print "Crap, you don't have markdown!\n"
+	print "Easy install that bitch:\n"
+	print ">  easy_install ElementTree"
+	print ">  easy_install Markdown"
 	print
 	sys.exit(1)
 
@@ -250,40 +260,41 @@ def tickerize(line):
 		return line
 	idx2 = line.find('`',idx+1)
 	return tickerize(line[0:idx] + "<tt>%s</tt>" % line[idx+1:idx2] + line[idx2+1:])
-		
+
+def htmlerize(content):
+	begin = 0
+	end = len(content)
+	idx = content.find('\\')
+	buf = ''
+	while idx > 0:
+		buf+=content[begin:idx]
+		begin = idx+2
+		idx = content.find('\\',begin)
+		if idx < 0: break
+	if begin < end: buf+=content[begin:]
+	return html_unescape(markdown.markdown(tickerize(buf),['extra'],output_format='html4'))
+			
 def paragraphize(line):
-	content = ''
-	in_break = False
-	in_code = False
-	for p in line.strip().split('\n'):
-		if p == '' : continue
-		if p[0:6] == '<code>' or p[0:7] == '<script':
-			content += "\n" + p.strip()
-			in_code = True
-			continue
-		elif p[0:7]=='</code>' or p[0:8] == '</script':
-			content += p.strip() + "\n"
-			in_code = False
-			continue
-		if in_code:
-			content+= p + '\n'
-			continue
-		last = p[-1]
-		if last == '\\':
-			if not in_break: content+='<p>'
-			content+=p[0:len(p)-1]
-			in_break = True
-			continue
-		if in_break: 
-			content+=p
-		else:
-			content += '<p>%s' % p
-		in_break = False
-	if not in_code: content+='</p>'	
-	return tickerize(content)
+	return htmlerize(line)
 
 def wrap_code_block(line):
-	return tickerize(line)
+	return htmlerize(line)
+
+def replace_entities(match):
+    try:
+        ent = match.group(1)
+        if ent[0] == "#":
+            if ent[1] == 'x' or ent[1] == 'X':
+                return unichr(int(ent[2:], 16))
+            else:
+                return unichr(int(ent[1:], 10))
+        return unichr(name2codepoint[ent])
+    except:
+        return match.group()
+
+entity_re = re.compile(r'&(#?[A-Za-z0-9]+?);')
+def html_unescape(data):
+    return entity_re.sub(replace_entities, data)
 
 def emit_properties(line):
 	for tokens in tokenize_keyvalues(line):
@@ -292,7 +303,7 @@ def emit_properties(line):
 			print "[ERROR] in file: %s at line: %d" % (current_file, current_line)
 			print "[ERROR] invalid property line: %s. Must be in the format [name[type]]:[description]" % line
 			sys.exit(1)
-		current_api.add_property(match.group(1), match.group(2), tickerize(tokens[1]))
+		current_api.add_property(match.group(1), match.group(2), htmlerize(tokens[1]))
 	
 def emit_methods(line):
 	for tokens in tokenize_keyvalues(line):
@@ -309,7 +320,7 @@ def emit_namespace(line):
 	apis[current_api.namespace] = current_api
 	
 def emit_description(line):
-	current_api.set_description(paragraphize(line))
+	current_api.set_description(htmlerize(line))
 		
 def emit_type(line):
 	current_api.set_type(line.strip())
@@ -337,7 +348,7 @@ def emit_deprecated(line):
 		print "[ERROR] in file: %s at line: %d" % (current_file, current_line)
 		print "[ERROR] invalid deprecation line: %s. Must be in the format [version]:[description]" % line
 		sys.exit(1)
-	current_api.set_deprecated(tickerize(line[0:idx].strip()),tickerize(line[idx+1:].strip()))
+	current_api.set_deprecated(tickerize(line[0:idx].strip()),htmlerize(line[idx+1:].strip()))
 	
 def emit_parameters(lines):
 	for line in lines.split("\n"):
@@ -355,18 +366,18 @@ def emit_parameters(lines):
 			print "[ERROR] in file: %s at line: %d" % (current_file, current_line)
 			print "[ERROR] invalid parameters line: %s. Must be in the format [name[type]]:[description]" % line
 			sys.exit(1)
-		current_api.add_parameter(match.group(1), tickerize(match.group(2)), tickerize(desc))
+		current_api.add_parameter(match.group(1), tickerize(match.group(2)), htmlerize(desc))
 					
 def emit_event_parameter(state,line):
 	idx = state.find(":")
 	event = state[idx+1:].strip()
 	for tokens in tokenize_keyvalues(line):
-		current_api.add_event_property(event,tickerize(tokens[0]),tickerize(tokens[1]))
+		current_api.add_event_property(event,tickerize(tokens[0]),htmlerize(tokens[1]))
 
 def emit_example_parameter(state,line):
 	idx = state.find(":")
 	desc = state[idx+1:].strip()
-	current_api.add_example(tickerize(desc),paragraphize(line))
+	current_api.add_example(tickerize(desc),htmlerize(line))
 						
 def emit_method_parameter(state,line):
 	idx = state.find(":")
@@ -462,11 +473,9 @@ for root, dirs, files in os.walk(template_dir):
 		for line in content:
 			current_line = current_line + 1
 			ln = line.strip()
-			#print '[%s]' % ln
-			if ln=='': continue
-			if ln[0:1] == '#':
+			if ln[0:1] == '#' and line[1:2] == ' ':
 				continue
-			if ln[0:1] == '-':
+			if ln[0:1] == '-' and line[1:2] == ' ':
 				emit_buffer(buffer)
 				buffer = ''
 				start_marker(ln)

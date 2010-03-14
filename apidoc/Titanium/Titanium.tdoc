@@ -1,0 +1,39 @@
+- namespace
+
+Titanium
+
+- type
+
+module
+
+- description
+
+The top level Titanium module.
+
+- since
+
+0.1
+
+- platforms
+
+android, iphone
+
+- properties
+
+userAgent[string]: the user-agent string used by Titanium
+version[string]: the version of Titanium that is executing
+
+- methods
+
+include: one or more filenames to include as if the Javascript code was written in place.  This is similar to a C `#include` function.
+
+- method : include
+
+name[string]: filename to include
+
+
+
+
+
+
+

@@ -12,7 +12,7 @@ view
 
 - description
 
-The Window is an empty drawing surface or container. The Window is created by the method `Titanium.UI.createWindow`. Unlike Views, Windows can be opened and closed and can have special display properties such as `fullscreen` or `modal`.
+The Window is an empty drawing surface or container. The Window is created by the method `Titanium.UI.createWindow`. Unlike [Views](Titanium.UI.View), Windows can be opened and closed and can have special display properties such as `fullscreen` or `modal`.
 
 - since
 
@@ -60,30 +60,99 @@ var window = Titanium.UI.createWindow({
 window.open({fullscreen:true});
 </code>
 
+
 - notes
 
-When creating a window with a URL to a JavaScript file, a new JavaScript sub-context and global variable space will be created on a new thread.  Variables in one window are not accessible or visible to other windows or the `app.js`.
+### Sub-contexts
 
-You can give permission to the window for it to use certain objects.  This is done by variable assignment after creating the window instance. For example:
+Windows can be loaded from another Javascript file by specifying the property `url` and reference a file relative to your application `Resources` folder.  It's important to note that Titanium will refuse to load Javascript files from a remote URL. Loading remote Javascript from a URL and providing it with the full capabilities of the Titanium API would be very dangerous. 
 
-<code>
-var foo = 123;
-function bar() 
-{ 
-	return 'abc';
-};
-var window = Titanium.UI.createWindow({'url':'a.js'});
-window.bar = bar;
-window.foo = foo;
-</code>
+When you Window is loaded from a separate Javascript file, the code will be executed in a separate Javascript context (called a "sub-context") than your `app.js` global context.  It will also execute in its own separate thread.  
 
-In the above example, the new window will have 2 properties which are visible in it's sub-context that will be references to the variable `foo` and function `bar` in the `app.js` context.  It's important to understand that these are real references and not copies of the values so any changes in either contexts will be reflected immediately in the other.
+The special property `Titanium.UI.currentWindow` is available inside a sub-context that points to the Javascript instance by reference in the global context.  
 
-For security reasons, you cannot load remote code into a window using the `url` property. Code that you need to load into a window must be referenced in source code and must be available in your project during compilation.  If you attempt to load a remote JavaScript file in a window, an exception will occur.
+
+### Passing Data
+
+By default, sub-context variables cannot access Javascript references in the global context.  However, the global context can allow its sub-contexts the ability to have access to properties and functions in the global context by reference assignment.  An example best illustrates how to do this.
+
+In `app.js`, you could define a function and a property.
+
+~~~
+var a = 1;
+function b()
+{
+	return "hello";
+}
+~~~
+
+Now, you can create a new Window - let's call it `foo.js` - in your `app.js`.
+
+~~~
+var w = Titanium.UI.createWindow({
+	url:'foo.js'
+});
+~~~
+
+To _give_ your new window access to both `a` and `b`, you would need to assign them to the \
+new window reference `w`.
+
+~~~
+w.a = a;
+w.b = b;
+~~~
+
+Of course, you could give them a different name than their original names.  However, what name you give them in your `app.js` is how you will reference them in `foo.js`.  Now, let's look at the code for `foo.js`.
+
+~~~
+alert("b() = "+Titanium.UI.currentWindow.b());
+~~~
+
+In the above code, the `foo.js` will execute the function `b` in the global context and return the result.  Since `b` is a reference (vs. a copy by value), any changes made to these Javascript references will be immediately available in all sub-contexts.
+
+### Events
+
+If you'd like to send events to a window from the global context and vice versa, you could use the built-in event mechanism.  For example, you could define a custom event called `foo`. The window could listen for this event and then respond with some action.  For example, in your sub-context you might define:
+
+~~~
+Titanium.UI.currentWindow.addEventListener('foo',function(e)
+{
+	Titanium.API.info("foo event received = "+JSON.stringify(e));
+});
+~~~
+
+You could now fire the event from `app.js` like this:
+
+~~~
+var window = Titanium.UI.createWindow({
+	url:'bar.js'
+});
+window.open();
+window.fireEvent('foo',{a:'b'});
+~~~
+
+It's worth noting two important limitations of the example above:
+
+* You must open the event before you can send events to it. You also may have to fire the event after a specified amount of time if you intend to immediately send data to the window.  This is because windows are opened asynchronously and on a separate thread than the caller thread.
+* You can only send JSON-serializable data in a fireEvent.  If you attempt to send objects that have function references, they will be null.
+
+
+### Animations
+
+Windows can be animated like any normal [View](Titanium.UI.View).  To transition between 2 windows, you can use the `transition` property on an animation.  For example, to flip right-to-left between two windows, you could do the following:
+
+~~~
+var window2 = Titanium.UI.createWindow({url:'foo.js'});
+var t = Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT;
+window1.animate({view:window2,transition:t});
+~~~
+
+In the above example, the `window2` view will be animated from the right-to-left over `window1`.
+
 
 Windows can be opened or closed with animation.  In the example below, we create a window that will open from small to large with a bounce effect.  This is done by applying a transformation at initialization time that scales the original size of the window to 0.  When the window is opened, a new 2D transformation is applied that will scale the window size from 0 to 110% of it's original size and then, after 1/20th of a second, will scale it back to it's original size at 100%. This gives the bounce effect during animation. 
 
-<code>
+~~~
 var t = Titanium.UI.create2DMatrix().scale(0);
 
 // create a window with the initial transform scaled to 0
@@ -112,7 +181,7 @@ a.addEventListener('complete', function()
 	var t2 = Titanium.UI.create2DMatrix();
 	w.animate({transform:t2, duration:200});
 });
-</code>
+~~~
 
 
 

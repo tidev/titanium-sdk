@@ -90,7 +90,7 @@ var tf1 = Titanium.UI.createTextField({
 
 - notes
 
-On iPhone, the borderStyle can be set with a constant from `Titanium.UI`.
+On iPhone, the borderStyle can be set with a constant from [Titanium.UI](Titanium.UI).
 
 
 Both Text Areas and Text Fields can control the buttons displayed in a button bar above the keyboard when it's visible.

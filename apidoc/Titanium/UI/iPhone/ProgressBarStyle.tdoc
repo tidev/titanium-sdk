@@ -8,7 +8,7 @@ object
 
 - description
 
-A set of constants for the bar styles used on the `style` property of `Titanium.UI.ProgressBar`.
+A set of constants for the bar styles used on the `style` property of [Titanium.UI.ProgressBar](Titanium.UI.ProgressBar).
 
 - since
 

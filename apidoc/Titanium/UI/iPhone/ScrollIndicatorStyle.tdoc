@@ -8,7 +8,7 @@ object
 
 - description
 
-A set of constants for the styles available for `Titanium.UI.ActivityIndicator` objects.
+A set of constants for the styles available for [Titanium.UI.ActivityIndicator](Titanium.UI.ActivityIndicator) objects.
 
 - since
 
