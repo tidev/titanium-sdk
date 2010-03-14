@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -180,7 +180,7 @@ void GetHWAddresses()
 		return;
 	}
 	
-	ifr = ifc.ifc_req;
+//	ifr = ifc.ifc_req;
 	
 	cplim = buffer + ifc.ifc_len;
 	

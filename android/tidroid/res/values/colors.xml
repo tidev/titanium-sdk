@@ -1,8 +1,0 @@
-<!--Copyright(c) 2009 by Appcelerator, Inc. All Rights Reserved.       -->
-<!-- This is proprietary software. Do not redistribute without express -->
-<!-- written permission.                                               -->
-
-<resources>
-	<color name="background">#606060</color>
-	<color name="apps_app_name">#FFFFFF</color>
-</resources>

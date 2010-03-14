@@ -1,5 +1,0 @@
-1: This is text1.txt
-2:
-3: There are 5 lines in this file.
-4:
-5: The End

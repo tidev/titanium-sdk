@@ -7,6 +7,7 @@
 
 import os, sys, uuid, subprocess, shutil, signal, time, re, run, glob, codecs
 from compiler import Compiler
+from dependscompiler import DependencyCompiler
 from os.path import join, splitext, split, exists
 from shutil import copyfile
 
@@ -87,6 +88,10 @@ def main(args):
 	deploytype = 'development'
 	debug = False
 	
+	#FIXME: for 0.9, we're going to hard code to 3.1 compile since we
+	#require 3.1+ but Titanium Developer hasn't yet rev'd to fix it
+	iphone_version = "3.1"
+	
 	if command == 'distribute':
 		appuuid = dequote(args[6].decode("utf-8"))
 		dist_name = dequote(args[7].decode("utf-8"))
@@ -94,11 +99,12 @@ def main(args):
 		target = 'Release'
 		deploytype = 'production'
 	elif command == 'simulator':
-		deploytype = 'test'
+		deploytype = 'development'
 		debug = True
 	elif command == 'install':
 		appuuid = dequote(args[6].decode("utf-8"))
 		dist_name = dequote(args[7].decode("utf-8"))
+		deploytype = 'test'
 		
 	
 	iphone_dir = os.path.abspath(os.path.join(project_dir,'build','iphone'))
@@ -131,11 +137,27 @@ def main(args):
 	# compile resources
 	compiler = Compiler(appid,project_dir,encrypt,debug)
 	compiler.compile()
+	
+	# compiler dependencies
+	dependscompiler = DependencyCompiler()
+	dependscompiler.compile(template_dir,project_dir)
 
 	# copy over main since it can change with each release
 	main_template = codecs.open(os.path.join(template_dir,'main.m'),'r','utf-8','replace').read()
 	main_template = main_template.replace('__PROJECT_NAME__',name)
 	main_template = main_template.replace('__PROJECT_ID__',appid)
+	main_template = main_template.replace('__DEPLOYTYPE__',deploytype)
+	main_template = main_template.replace('__APP_ID__',appid)
+	main_template = main_template.replace('__APP_ANALYTICS__',ti.properties['analytics'])
+	main_template = main_template.replace('__APP_PUBLISHER__',ti.properties['publisher'])
+	main_template = main_template.replace('__APP_URL__',ti.properties['url'])
+	main_template = main_template.replace('__APP_NAME__',ti.properties['name'])
+	main_template = main_template.replace('__APP_VERSION__',ti.properties['version'])
+	main_template = main_template.replace('__APP_DESCRIPTION__',ti.properties['description'])
+	main_template = main_template.replace('__APP_COPYRIGHT__',ti.properties['copyright'])
+	main_template = main_template.replace('__APP_GUID__',ti.properties['guid'])
+	
+	
 	main_dest = codecs.open(os.path.join(iphone_dir,'main.m'),'w','utf-8','replace')
 	main_dest.write(main_template.encode("utf-8"))
 	main_dest.close()
@@ -173,104 +195,10 @@ def main(args):
 	if os.path.exists(project_module_dir):
 		copy_module_resources(project_module_dir,iphone_tmp_dir)
 	
-	# see if the user has app data and if so, compile in the user data
-	# such that it can be accessed automatically using Titanium.App.Properties.getString
-	app_data_cfg = os.path.join(project_dir,"appdata.cfg")
-	if os.path.exists(app_data_cfg):
-		props = read_properties(open(app_data_cfg,"r"))
-		module_data = ''
-		for key in props.keys():
-			value = props[key]
-			data = str(value).encode("hex")
-			module_data+="[[NSUserDefaults standardUserDefaults] setObject:[[[NSString alloc] initWithData:dataWithHexString(@\"%s\") encoding:NSUTF8StringEncoding] autorelease] forKey:@\"%s\"];\n" % (data,key)
-		print("[DEBUG] detected user application data at = %s"% app_data_cfg)
-		sys.stdout.flush()
-		dtf = os.path.join(iphone_tmp_module_dir,"UserDataModule.m")
-		if os.path.exists(dtf):
-			os.remove(dtf)
-		ctf = codecs.open(dtf,'w','utf-8','replace')
-		cf_template = codecs.open(os.path.join(template_dir,'UserDataModule.m'),'r','utf-8','replace').read()
-		cf_template = cf_template.replace('__MODULE_BODY__',module_data)
-		ctf.write(cf_template.encode("utf-8"))
-		ctf.close()
-		compiler.modules.append('Userdata')
-	
-	# we build a new libTitanium that is basically only the modules used by the application all injected into the 
-	# final libTitanium that is used by xcode
-	os.chdir(iphone_tmp_module_dir)
-	modules_detected=['Userdata']
-	for arch in ['i386','armv6']:
-		os.mkdir(os.path.join(iphone_tmp_module_dir,arch))
-		os.chdir(os.path.join(iphone_tmp_module_dir,arch))
-		for module_name in compiler.modules:
-			module_normalized_name = module_name[0:1].capitalize() + module_name[1:]
-			if len(module_normalized_name) == 2:
-			    module_normalized_name = module_normalized_name.upper()
-			libname = "lib%s-%s.a" % (module_normalized_name,iphone_version)
-			libpath = os.path.join(template_dir,libname)
-			if not os.path.exists(libpath):
-				# check to see if its in the user's project module dir
-				libpath = os.path.join(project_module_dir,libname)
-			if os.path.exists(libpath):
-				if not module_normalized_name in modules_detected:
-					modules_detected.append(module_normalized_name)
-					print "[DEBUG] module library dependency detected Titanium.%s" % (module_normalized_name)
-				os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo \"%s\" -thin %s -o tmp.a" % (libpath,arch))
-				os.system("ar -x tmp.a")
-				os.remove("tmp.a")	
-			else:
-				if not os.path.exists(os.path.join(project_module_dir,"%sModule.m"%module_normalized_name)) and module_normalized_name!='Userdata':
-					print "[WARN] couldn't find module library for Titanium.%s" % module_normalized_name
-				elif not module_normalized_name in modules_detected:
-					print "[DEBUG] module library dependency detected Titanium.%s" % (module_normalized_name)
-					modules_detected.append(module_normalized_name)
-
-	os.chdir(iphone_tmp_module_dir)
-	
-	# copy any module image directories
-	for module in modules_detected:
-		img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
-		if os.path.exists(img_dir):
-			dest_img_dir = os.path.join(iphone_tmp_dir,'modules',module.lower(),'images')
-			if os.path.exists(dest_img_dir):
-				shutil.rmtree(dest_img_dir)
-			os.makedirs(dest_img_dir)
-			copy_module_resources(img_dir,dest_img_dir)
-			
-	
-	for arch in ['i386','armv6']:
-		arch_dir = os.path.join(iphone_tmp_module_dir,arch)
-		if not os.path.exists(arch_dir):
-			os.mkdir(arch_dir)
-
-	# extract our main libTitanium by architecture and then rebuild the final static library which includes
-	# libTitanium as well as our dependent modules only
-	os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo \"%s\" -thin i386 -output \"%s\"" % (os.path.join(template_dir,'libTitanium-%s.a'%iphone_version),os.path.join(iphone_tmp_module_dir,'i386','libTitanium-i386.a')))
-	os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo \"%s\" -thin armv6 -output \"%s\"" % (os.path.join(template_dir,'libTitanium-%s.a'%iphone_version),os.path.join(iphone_tmp_module_dir,'armv6','libTitanium-armv6.a')))
-
-	for arch in ['i386','armv6']:
-		os.chdir(os.path.join(iphone_tmp_module_dir,arch))
-		os.system("ar -x \"%s\"" % os.path.join(iphone_tmp_module_dir,arch,"libTitanium-%s.a"%arch))
-
-		#compile in any user source
-		import inliner
-		include_dir = os.path.join(template_dir,"include")
-		if os.path.exists(include_dir) and os.path.exists(project_module_dir):
-			inliner.inliner(include_dir,iphone_version,arch,project_module_dir,os.path.join(iphone_tmp_module_dir,arch))
-
-		if os.path.exists(include_dir) and os.path.exists(iphone_tmp_module_dir):
-			inliner.inliner(include_dir,iphone_version,arch,iphone_tmp_module_dir,os.path.join(iphone_tmp_module_dir,arch))
-        
-		os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/libtool -static -o \"%s\" *.o" % os.path.join(iphone_tmp_module_dir,"libTitanium-%s.a"%arch))
-    
-	os.chdir(iphone_tmp_module_dir)
 
 	sys.stdout.flush()
 	
-	# remake the combined architecture lib
-	os.system("/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo libTitanium-i386.a libTitanium-armv6.a -create -output \"%s\"" % os.path.join(iphone_resources_dir,'libTitanium.a'))
-	
-	shutil.rmtree(iphone_tmp_module_dir)
+	shutil.copy(os.path.join(template_dir,'libTiCore.a'),os.path.join(iphone_resources_dir,'libTiCore.a'))
 
 	# must copy the XIBs each time since they can change per SDK
 	os.chdir(template_dir)
@@ -291,42 +219,27 @@ def main(args):
 		if not os.path.exists(dir):		
 			os.makedirs(dir)
 	
-		plist_f = os.path.join(dir,'tiapp.plist')
-		plist = open(plist_f,'w+')
-	
-		module_str = ''
 		# write out the modules we're using in the APP
-		for m in compiler.modules:
-			module_str += '   <key>%s</key>\n   <real>0.0</real>\n' % (m.lower())
+		for m in dependscompiler.required_modules:
+			print "[INFO] Detected required module: Titanium.%s" % (m)
 	
-		tip = TiPlist(ti)
-
 		if command == 'install':
-			version = tip.tiapp.properties['version']
+			version = ti.properties['version']
 			# we want to make sure in debug mode the version always changes
 			version = "%s.%d" % (version,time.time())
-			tip.tiapp.properties['version']=version
+			ti.properties['version']=version
 
-		plist_template = tip.generate(module_str,appid,deploytype)
-	
-		# write out the generated tiapp.plist
-		plist.write(plist_template)
-		plist.close()
-		
 		
 		# write out the updated Info.plist
 		infoplist_tmpl = os.path.join(iphone_dir,'Info.plist.template')
 		infoplist = os.path.join(iphone_dir,'Info.plist')
-		appicon = tip.generate_infoplist(infoplist,infoplist_tmpl,appid)
+		appicon = ti.generate_infoplist(infoplist,infoplist_tmpl,appid)
 		
 		# copy the app icon to the build resources
 		iconf = os.path.join(iphone_tmp_dir,appicon)
 		iconf_dest = os.path.join(dir,appicon)
 		if os.path.exists(iconf):
 			shutil.copy(iconf, iconf_dest)
-	
-		# compile to binary plist
-		os.system("/usr/bin/plutil -convert binary1 \"%s\"" % plist_f)
 	
 	try:
 		os.chdir(iphone_dir)

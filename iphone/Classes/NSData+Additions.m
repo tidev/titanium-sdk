@@ -1,34 +1,23 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <Foundation/Foundation.h>
 #import "NSData+Additions.h"
-#import "base64.h"
+#import "Base64Transcoder.h"
+#import <CommonCrypto/CommonCryptor.h>
 
-
-#pragma mark Base64
+#pragma mark Base64 
 
 NSData * decode64 (NSData * thedata) 
 {
 	const char *str = (const char*)[thedata bytes];
-	int decodedLength = Base64decode_len(str);
+	size_t decodedLength = EstimateBas64DecodedDataSize([thedata length]);
 	char* decoded = (char*)malloc(sizeof(char) * decodedLength);
-	Base64decode(decoded,str);
+	Base64DecodeData(str,[thedata length],decoded,&decodedLength);
 	NSData *result = [NSData dataWithBytesNoCopy:decoded length:decodedLength freeWhenDone:YES];
-	return result;
-}
-
-NSData * encode64 (NSData * thedata)
-{
-	const char *str = (const char*)[thedata bytes];
-	int encodedLength = Base64encode_len([thedata length]);
-	char* encoded = (char*)malloc(sizeof(char) * encodedLength);
-	Base64encode(encoded,str,[thedata length]);
-	NSData *result = [NSData dataWithBytesNoCopy:encoded length:encodedLength freeWhenDone:YES];
 	return result;
 }
 
@@ -56,7 +45,7 @@ NSData * dataWithHexString (NSString * hexString)
 		6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 10, 11, 12, 13, 14, 15, 0, 0, 
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 		0, 0, 0, 10, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	
 	// If we have an odd number of characters, add an extra digit, rounding the
 	// size of the NSData up to the nearest byte
@@ -85,25 +74,6 @@ NSData * dataWithHexString (NSString * hexString)
 	return [NSData dataWithData:result];
 }
 
-NSString * hexString (NSData * thedata)
-{
-	int i;
-	const char * data = [thedata bytes];
-	NSMutableString *result;
-	NSString *immutableResult;
-	
-	// Iterate through NSData's buffer, converting every byte into hex
-	// and appending the result to a string.
-	result = [[NSMutableString alloc] init];
-	for (i = 0; i < [thedata length]; i++) {
-		[result appendFormat:@"%02x", data[i] & 0xff];
-	}
-	
-	immutableResult = [NSString stringWithString:result];
-	[result release];
-	return immutableResult;
-}
-
 #pragma mark AES128
 
 // we use 128 bits vs 256 as a much better performance alternative
@@ -121,6 +91,7 @@ NSString * hexString (NSData * thedata)
 // so suck it...
 //
 
+#ifdef INCLUDE_ENCRYPT
 NSData * AES128EncryptWithKey (NSData * thedata, NSString * key) 
 {
 	// 'key' should be 16 bytes for AES128, will be null-padded otherwise
@@ -153,8 +124,9 @@ NSData * AES128EncryptWithKey (NSData * thedata, NSString * key)
 	free(buffer); //free the buffer;
 	return nil;
 }
+#endif
 
-NSData * AES128DecryptWithKey(NSData * thedata, NSString * key) 
+NSData * decodeDataWithKey(NSData * thedata, NSString * key) 
 {
 	// 'key' should be 16 bytes for AES128, will be null-padded otherwise
 	char keyPtr[kCCKeySizeAES128+1]; // room for terminator (unused)
@@ -187,4 +159,3 @@ NSData * AES128DecryptWithKey(NSData * thedata, NSString * key)
 	free(buffer); //free the buffer;
 	return nil;
 }
-

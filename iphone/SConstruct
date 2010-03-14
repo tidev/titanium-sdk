@@ -2,27 +2,17 @@
 #
 # Scons script for building the iphone library
 #
-import os,platform,sys
+import os,platform,sys,urllib,gzip
+from progressbar import ProgressBar
 
-# add your module here for it to get compiled into
-# the library
-modules = [	'api',
-		'app',
-		'ui',
-		'database',
-		'accelerometer',
-		'geolocation',
-		'media',
-		'filesystem',
-		'network',
-		'platform',
-      		'analytics',
-		'gesture',
-		'notification',
-		'facebook',
-		'yahoo',
-		'contacts',
-		'map']
+ticore_version = '1'
+
+libname = 'libTiCore-%s.a' % ticore_version
+thirdparty_name = '%s.gz' % libname
+libfile = 'lib/%s' % libname
+outfile = 'lib/libTiCore.a'
+markerfile = 'lib/%s.txt' % ticore_version
+url = 'http://timobile.appcelerator.com.s3.amazonaws.com/%s' % (thirdparty_name)
 
 try:
 	# pull in the version from the top-level SConstruct
@@ -34,10 +24,6 @@ except:
 		version = '0.0.0'
 
 defines='TI_VERSION=%s ' % version
-
-for api in modules:
-	defines+="MODULE_TI_%s=1 " % (api.upper())
-
 
 config = 'Release'
 
@@ -52,44 +38,67 @@ sys.path.append(iphone_dir)
 
 import run,prereq
 
-quick_build = ARGUMENTS.get('BUILD_TYPE',0) == 'iphone'
-
-
-def build(name):
+def fetch():
+	print "You don't seem to have the appropriate thirdparty files. I'll fetch them."
+	print "This could take awhile.. Might want to grab a cup of Joe or make fun on Nolan."
+	print "Downloading %s" % url
+ 
+	pbar = ProgressBar().start()
+	try:
+		def progress_callback(count, block_size, total_size):
+			if (total_size < 0):
+				raise Exception("Could not fetch archive! Does it exist on the server?")
+			percent = int(count * block_size * 100/total_size)
+			pbar.update(percent)
+ 
+		fname, msg = urllib.urlretrieve(url, reporthook=progress_callback)
+ 
+		print "Fetched it (%s). I'm going to unpack it now..." % (fname)
+		
+		if not os.path.exists('lib'):
+			os.makedirs('lib')
+		
+		ofile = open(outfile,'wb')
+		gfile = gzip.open(fname,'rb')
+		ofile.write(gfile.read())
+		ofile.close()
+		gfile.close()
+		
+		mfile = open(markerfile,'w')
+		mfile.write('DO NOT DELETE THIS FILE.')
+		mfile.close()
+		
+	finally:
+		urllib.urlcleanup()
+		pbar.finish()
+	
+def build(dir,name,apiversion):
     # execute the phone and simulator release builds
 
+    curdir = os.path.abspath(os.curdir)
+    os.chdir(dir)
+
+
     if os.path.exists('/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%s.sdk' % apiversion):
-    	output = os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target lib%s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s %s' clean build" % (apiversion,name,config,defines,flags))
+    	output = os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target %s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s %s' clean build" % (apiversion,name,config,defines,flags))
 	if output!=0:
 		sys.exit(output)
 
     if os.path.exists('/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator%s.sdk' % apiversion):
-    	output = os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target lib%s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='DEBUG=1 %s %s' clean build" % (apiversion,name,config,defines,flags))
+    	output = os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target %s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='DEBUG=1 %s %s' clean build" % (apiversion,name,config,defines,flags))
 
 	if output!=0:
 		sys.exit(-1)
 	
 
     # build the merged library using lipo
-    os.system("lipo build/%s-iphonesimulator/lib%s.a build/%s-iphoneos/lib%s.a -create -output build/lib%s-%s.a" %(config,name,config,name,name,apiversion))
+    os.system("lipo build/%s-iphonesimulator/lib%s.a build/%s-iphoneos/lib%s.a -create -output build/lib%s.a" %(config,name,config,name,name))
+   
+    os.chdir(curdir)
 
-def forversion():
-    build('Titanium')
-    # build each of the modules
-    for module in modules:
-    	module_name = module[0:1].capitalize()+module[1:]
-      	if len(module)==2:
-        	module_name = module.upper()
-      	build(module_name)
+if not os.path.exists(markerfile):
+	fetch()
 
+build('iphone','Titanium','3.1.2')
 
-if quick_build:
-	apiversion = '3.0'
-	forversion()
-else:
-	for apiversion in prereq.get_sdks():
-		forversion()
-
-	
-    
 sys.exit(0)

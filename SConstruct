@@ -42,14 +42,19 @@ if platform.system() == "Darwin" and not ARGUMENTS.get('android',0):
 	build_dirs.append('iphone')
 
 flags = ''
-build_type = 'full'
 
+
+# TEMP until android is merged
+build_type = 'full'
+build_dirs = ['iphone', 'android']
 
 if ARGUMENTS.get('iphone',0):
 	build_type='iphone'
+	build_dirs=['iphone']
 
 if ARGUMENTS.get('android',0):
 	build_type='android'
+	build_dirs=['android']
 
 if ARGUMENTS.get('COMPILER_FLAGS', 0):
 	flags = ARGUMENTS.get('COMPILER_FLAGS')
@@ -58,6 +63,7 @@ for dir in build_dirs:
 	d = os.getcwd()
 	os.chdir(dir)
 	try:
+		#output = 0
 		output = os.system("scons PRODUCT_VERSION=%s COMPILER_FLAGS='%s' BUILD_TYPE='%s'" % (version,flags,build_type))	
 		if output!=0:
 			sys.stderr.write("BUILD FAILED!!!!\n")
@@ -71,4 +77,5 @@ for dir in build_dirs:
 	finally:
 		os.chdir(d)
 
-package.Packager().build('dist',version)
+print "Packaging MobileSDK (%s)..." % version
+package.Packager().build(os.path.abspath('dist'),version)

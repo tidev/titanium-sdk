@@ -1,62 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?><ti:app xmlns:ti="http://ti.appcelerator.org">
-<id>com.nolanwright.kitchensink</id>
+<id>com.appcelerator.KitchenSink</id>
 <name>KitchenSink</name>
-<version>1.2.2</version>
-<publisher>nwright</publisher>
+<version>1.3.0</version>
+<publisher>Appcelerator</publisher>
 <url>appcelerator.com</url>
-<copyright>2009 by nwright</copyright>
-<description>demo app for mobile</description>
-<icon>default_app_logo.png</icon>
+<copyright>2010 by Appcelerator</copyright>
+<description>Kitchen Sink Demo Application</description>
+<icon>appicon.png</icon>
 <analytics>true</analytics>
-    <windows>
-        <window>
-            <id>Phone</id>
-            <url>phone.html</url>
- 			<title>Phone</title>
- 			<icon>KS_nav_phone.png</icon>
-			<orientation>either</orientation>
-			<backButtonTitle>Back</backButtonTitle>
-			<backgroundImage>brown_bg_482.png</backgroundImage>
-			<barColor>#19613b</barColor>
-        </window>
-        <window>
-            <id>UI</id>
-            <url>ui.html</url>
-			<preload>true</preload> 
- 			<title>UI</title>
- 			<icon>KS_nav_ui.png</icon>
-			<orientation>either</orientation>
-        </window>
-        <window>
-            <id>Views</id>
-            <url>view_main.html</url>
-			<preload>true</preload> 
- 			<title>Views</title>
- 			<icon>KS_nav_views.png</icon>
-			<orientation>either</orientation>
-        </window>
-        <window>
-            <id>Mashups</id>
-            <url>mashups.html</url>
-			<preload>true</preload> 
- 			<title>Mashups</title>
- 			<icon>KS_nav_mashup.png</icon>
-			<orientation>either</orientation>
-        </window>
-        <window>
-            <id>Platform</id>
-            <url>platform.html</url>
-			<preload>true</preload> 
- 			<title>Platform</title>
- 			<icon>KS_nav_platform.png</icon>
-			<orientation>either</orientation>
-			<backButtonTitleImage>chat.png</backButtonTitleImage>
-			<backgroundImage>images/tableview/bg2_482.png</backgroundImage>
-			<barColor>#111</barColor>
-        </window>
-    </windows>
-    <guid>6fe33f33fd1f4e95a06d2d217170866d</guid>
-	<property name="ti.android.debug" type="bool">false</property>
-    <!-- this will only work with our dev keystore and not on a production device! -->
-	<property name="ti.android.google.map.api.key">0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg</property>
+<guid>6fe33f33fd1f4e95a06d2d217170866d</guid>
+<property name="ti.android.debug" type="bool">false</property>
+<!-- this will only work with our dev keystore and not on a production device! -->
+<property name="ti.android.google.map.api.key">0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg</property>
 </ti:app>

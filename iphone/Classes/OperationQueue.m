@@ -1,10 +1,11 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
+#import "TiBase.h"
 #import "OperationQueue.h"
 
 
@@ -40,9 +41,9 @@ OperationQueue *sharedQueue = nil;
 
 -(void)dealloc
 {
-	[target release];
-	[arg release];
-	[afterTarget release];
+	RELEASE_TO_NIL(target);
+	RELEASE_TO_NIL(arg);
+	RELEASE_TO_NIL(afterTarget);
 	[super dealloc];
 }
 
@@ -122,7 +123,7 @@ OperationQueue *sharedQueue = nil;
 
 -(void)dealloc
 {
-	[queue release];
+	RELEASE_TO_NIL(queue);
 	[super dealloc];
 }
 

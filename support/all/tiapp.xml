@@ -3,26 +3,14 @@
     <id>__PROJECT_ID__</id>
     <name>__PROJECT_NAME__</name>
     <version>__PROJECT_VERSION__</version>
+    <publisher>not specified</publisher>
+    <url>not specified</url>
+    <description>not specified</description>
+    <copyright>not specified</copyright>
     <icon>appicon.png</icon>
-	<persistent-wifi>false</persistent-wifi>
-	<prerendered-icon>false</prerendered-icon>
-	<statusbar-style>opaque</statusbar-style>
-    <windows>
-        <window>
-            <id>initial</id>
-            <url>index.html</url>
-            <backgroundColor>#111</backgroundColor>
-			<icon>ti://featured</icon>
-			<barColor>#000</barColor>
-			<fullscreen>false</fullscreen>
-        </window>
-        <window>
-            <id>about</id>
-            <url>about.html</url>
-            <backgroundColor>#111</backgroundColor>
-			<icon>ti://top rated</icon>
-            <barColor>#000</barColor>
-			<fullscreen>false</fullscreen>
-        </window>
-    </windows>
+    <persistent-wifi>false</persistent-wifi>
+    <prerendered-icon>false</prerendered-icon>
+    <statusbar-style>default</statusbar-style>
+    <statusbar-hidden>false</statusbar-hidden>
+    <analytics>true</analytics>
 </ti:app>

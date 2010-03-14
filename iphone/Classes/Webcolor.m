@@ -1,22 +1,38 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #import "Webcolor.h"
+#import "TiBase.h"
 
+
+UIColor * checkmarkColor = nil;
 NSMutableDictionary * colorLookup = nil;
 
 BOOL isASCIIHexDigit(unichar c) { return (c >= '0' && c <= '9') || ((c | 0x20) >= 'a' && (c | 0x20) <= 'f'); }
 int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 
+UIColor * UIColorCheckmarkColor()
+{
+	if(checkmarkColor==nil)
+	{
+		checkmarkColor = RGBACOLOR(55.0,79.0,130.0,1);
+	}
+	return checkmarkColor;
+}
+
 UIColor * UIColorWebColorNamed(NSString * colorName)
 {
-	if (![colorName isKindOfClass:[NSString class]]) return nil;
+	if (![colorName isKindOfClass:[NSString class]])
+	{
+		return nil;
+	}
 	colorName = [colorName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-	if (colorLookup == nil){
+	if (colorLookup == nil)
+	{
 		UIColor * white = [UIColor whiteColor];
 		UIColor * black = [UIColor blackColor];
 		colorLookup = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
@@ -35,6 +51,17 @@ UIColor * UIColorWebColorNamed(NSString * colorName)
 					   [UIColor purpleColor],@"purple",
 					   [UIColor brownColor],@"brown",
 					   [UIColor clearColor],@"transparent",
+					   
+					   // these are also defined by the W3C HTML spec so we support them
+					   UIColorForHex(@"#0ff"),@"aqua",
+					   UIColorForHex(@"#f0f"),@"fuchsia",
+					   UIColorForHex(@"#0f0"),@"lime",
+					   UIColorForHex(@"#800"),@"maroon",
+					   UIColorForHex(@"#FFC0CB"),@"pink",
+					   UIColorForHex(@"#000080"),@"navy",
+					   UIColorForHex(@"#c0c0c0"),@"silver",
+					   UIColorForHex(@"#808000"),@"olive",
+					   UIColorForHex(@"#008080"),@"teal",
 
 					   white,@"fff",
 					   white,@"ffff",
@@ -46,32 +73,47 @@ UIColor * UIColorWebColorNamed(NSString * colorName)
 					   black,@"ff000000",
 					   nil];
 	}
-	if ([colorName hasPrefix:@"#"]) colorName = [colorName substringFromIndex:1];
+	if ([colorName hasPrefix:@"#"]) 
+	{
+		colorName = [colorName substringFromIndex:1];
+	}
 	colorName = [colorName lowercaseString];
 	UIColor * result = [colorLookup objectForKey:colorName];
 
-	if (result != nil) return result;
+	if (result != nil)
+	{
+		return result;
+	}
 	
 	result = UIColorForHex(colorName);
 	
-	if (result == nil){
+	if (result == nil)
+	{
 		result = UIColorForRGBFunction(colorName);
 	}
 	
-	if (result != nil) {
+	if (result != nil) 
+	{
 		[colorLookup setObject:result forKey:colorName];
 	}
 	
 	return result;
 }
 
-UIColor * UIColorForRGBFunction(NSString * functionString){ //TODO: Make pretty.
+UIColor * UIColorForRGBFunction(NSString * functionString)
+{ 
 	int stringLength=[functionString length];
 	NSRange openParensRange = [functionString rangeOfString:@"("];
-	if (openParensRange.location == NSNotFound) return nil;
+	if (openParensRange.location == NSNotFound) 
+	{
+		return nil;
+	}
 
 	//Last char must be terminating ).
-	if ([functionString characterAtIndex:stringLength-1] != ')') return nil;
+	if ([functionString characterAtIndex:stringLength-1] != ')') 
+	{
+		return nil;
+	}
 
 	NSRange searchRange;
 	NSRange nextTokenRange;
@@ -81,7 +123,10 @@ UIColor * UIColorForRGBFunction(NSString * functionString){ //TODO: Make pretty.
 	searchRange.length = stringLength - searchRange.location - 1; //-1 for terminating ).
 
 	nextTokenRange = [functionString rangeOfString:@"," options:NSLiteralSearch range:searchRange];
-	if (nextTokenRange.location == NSNotFound) return nil;
+	if (nextTokenRange.location == NSNotFound)
+	{
+		return nil;
+	}
 
 	segmentLength = nextTokenRange.location - searchRange.location; //This does NOT include a comma.
 	float firstArg = [[functionString substringWithRange:NSMakeRange(searchRange.location, segmentLength)] floatValue];
@@ -89,7 +134,10 @@ UIColor * UIColorForRGBFunction(NSString * functionString){ //TODO: Make pretty.
 	searchRange.location += segmentLength + 1;	searchRange.length -= segmentLength + 1;
 
 	nextTokenRange = [functionString rangeOfString:@"," options:NSLiteralSearch range:searchRange];
-	if (nextTokenRange.location == NSNotFound) return nil;
+	if (nextTokenRange.location == NSNotFound) 
+	{
+		return nil;
+	}
 	
 	segmentLength = nextTokenRange.location - searchRange.location; //This does NOT include a comma.
 	float secondArg = [[functionString substringWithRange:NSMakeRange(searchRange.location, segmentLength)] floatValue];
@@ -99,15 +147,18 @@ UIColor * UIColorForRGBFunction(NSString * functionString){ //TODO: Make pretty.
 	nextTokenRange = [functionString rangeOfString:@"," options:NSLiteralSearch range:searchRange];
 
 	float thirdArg, fourthArg = 1.0;
-	if (nextTokenRange.location == NSNotFound) {
+	if (nextTokenRange.location == NSNotFound) 
+	{
 		thirdArg = [[functionString substringWithRange:searchRange] floatValue];
-	} else {
+	} 
+	else 
+	{
 		segmentLength = nextTokenRange.location - searchRange.location;
 		thirdArg = [[functionString substringWithRange:NSMakeRange(searchRange.location, segmentLength)] floatValue];
 		fourthArg = [[functionString substringWithRange:NSMakeRange(nextTokenRange.location+1,searchRange.length - segmentLength - 1)] floatValue];
 	}
 	
-	return [UIColor colorWithRed:(firstArg/255.0) green:(secondArg/255.0) blue:(thirdArg/255.0) alpha:fourthArg];
+	return RGBACOLOR(firstArg,secondArg,thirdArg,fourthArg);
 }
 
 
@@ -115,19 +166,27 @@ UIColor * UIColorForHex(NSString * hexCode)
 {
     unsigned length = [hexCode length];
 	float alpha = 1.0;
-    if ((length != 3) && (length != 4) && (length != 6) && (length != 8))
+    if ((length != 3) && (length != 4) && (length != 6) && (length!=7) && (length != 8))
+	{
+		NSLog(@"[WARN] Hex color passed looks invalid: %@",hexCode);
         return nil;
+	}
     unsigned value = 0;
 
-    for (unsigned i = 0; i < length; ++i) {
+    for (size_t i = 0; i < length; ++i) 
+	{
 		unichar thisChar = [hexCode characterAtIndex:i];
+		if (thisChar=='#') continue;
         if (!isASCIIHexDigit(thisChar))
+		{
             return nil;
+		}
         value <<= 4;
         value |= toASCIIHexValue(thisChar);
     }
 
-	if (length < 6) {
+	if (length < 6) 
+	{
 		value = ((value & 0xF000) << 16) |
 				((value & 0xFF00) << 12) |
 				((value & 0xFF0) << 8) |
@@ -135,7 +194,8 @@ UIColor * UIColorForHex(NSString * hexCode)
 				(value & 0xF);
 	}
 
-	if((length % 4)==0){
+	if((length % 4)==0)
+	{
 		alpha = ((value >> 24) & 0xFF) / 255.0;
 	}
 
@@ -143,10 +203,11 @@ UIColor * UIColorForHex(NSString * hexCode)
 	int green = (value >> 8) & 0xFF;
 	int blue = value & 0xFF;
 
-	return [UIColor colorWithRed:(red/255.0) green:(green/255.0) blue:(blue/255.0) alpha:alpha];
+	return RGBACOLOR(red,green,blue,alpha);
 }
 
-void UIColorFlushCache(){
-	[colorLookup release];
-	colorLookup = nil;
+void UIColorFlushCache()
+{
+	RELEASE_TO_NIL(colorLookup);
+	RELEASE_TO_NIL(checkmarkColor);
 }

@@ -1,22 +1,36 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-
+#import "TiBase.h"
 #import "WebFont.h"
 
-@implementation TitaniumFontDescription
+@implementation WebFont
 
 @synthesize family, size, isBoldWeight, isNormalWeight;
 
 -(void)dealloc
 {
-	[font release];
-	[family release];
+	RELEASE_TO_NIL(font);
+	RELEASE_TO_NIL(family);
 	[super dealloc];
+}
+
+-(CGFloat) size
+{
+	if (size < 4) 
+	{
+		size=14;
+	}
+	return size;
+}
+
+-(BOOL) isSizeNotSet
+{
+	return size < 4;
 }
 
 -(UIFont *) font
@@ -24,8 +38,31 @@
 	if (font == nil)
 	{
 		UIFont * result;
-		if (self.family!=nil)
+		if (family!=nil)
 		{
+			if (isBoldWeight)
+			{
+				// bold weight for non system fonts are based on the name of the 
+				// font family, not actually settable - so we need to attempt to 
+				// resolve it in a terribly inconsistently named font way
+				if ([family rangeOfString:@"Bold"].location==NSNotFound)
+				{
+					// this means we aren't asking for the bold font name, so but 
+					// we've set a property for bold, now we need to see if we can find it
+					for (NSString *name in [UIFont fontNamesForFamilyName:family])
+					{
+						// see if the font name has Bold in it (since the names aren't based on any pattern)
+						if ([name rangeOfString:@"Bold"].location!=NSNotFound)
+						{
+							RELEASE_TO_NIL(family);
+							family = [name retain];
+							break;
+						}
+					}
+					// if we don't find it, oh well, just let it fall through to the non bold
+				}
+			}
+			
 			result = [UIFont fontWithName:self.family size:self.size];
 		}
 		else
@@ -41,9 +78,7 @@
 	return font;
 }
 
-@end
-
-BOOL UpdateFontDescriptionFromDict(NSDictionary * fontDict,TitaniumFontDescription * result,TitaniumFontDescription * inheritance)
+-(BOOL)updateWithDict:(NSDictionary *)fontDict inherits:(WebFont *)inheritedFont;
 {
 	BOOL didChange = NO;
 	
@@ -60,27 +95,27 @@ BOOL UpdateFontDescriptionFromDict(NSDictionary * fontDict,TitaniumFontDescripti
 	
 	if([sizeObject respondsToSelector:@selector(floatValue)]){
 		float fontSize = multiplier * [sizeObject floatValue];
-		if (fontSize != result.size){
+		if (fontSize != self.size){
 			didChange = YES;
-			result.size = fontSize;
+			self.size = fontSize;
 		}
-	} else if((inheritance != NULL) && (sizeObject == nil)) {
-		float fontSize = inheritance.size;
-		if(result.size != fontSize){
+	} else if((inheritedFont != NULL) && (sizeObject == nil)) {
+		float fontSize = inheritedFont.size;
+		if(self.size != fontSize){
 			didChange = YES;
-			result.size = fontSize;
+			self.size = fontSize;
 		}
 	}
 	
 	id familyObject = [fontDict objectForKey:@"fontFamily"];
 	if ([familyObject isKindOfClass:[NSString class]])
 	{
-		result.family = familyObject;
+		self.family = familyObject;
 		didChange = YES;
 	}
-	else if (inheritance!=nil && inheritance.family!=nil)
+	else if (inheritedFont!=nil && inheritedFont.family!=nil)
 	{
-		result.family = inheritance.family;
+		self.family = inheritedFont.family;
 		didChange = YES;
 	}
 
@@ -89,27 +124,61 @@ BOOL UpdateFontDescriptionFromDict(NSDictionary * fontDict,TitaniumFontDescripti
 	if([fontWeightObject isKindOfClass:[NSString class]]){
 		fontWeightObject = [fontWeightObject lowercaseString];
 		if([fontWeightObject isEqualToString:@"bold"]){
-			didChange |= !(result.isBoldWeight)||(result.isNormalWeight);
-			result.isBoldWeight = YES;
-			result.isNormalWeight = NO;
+			didChange |= !(self.isBoldWeight)||(self.isNormalWeight);
+			self.isBoldWeight = YES;
+			self.isNormalWeight = NO;
 		} else if([fontWeightObject isEqualToString:@"normal"]){
-			didChange |= (result.isBoldWeight)||!(result.isNormalWeight);
-			result.isBoldWeight = NO;
-			result.isNormalWeight = YES;
+			didChange |= (self.isBoldWeight)||!(self.isNormalWeight);
+			self.isBoldWeight = NO;
+			self.isNormalWeight = YES;
 		}
-	} else if((inheritance != NULL) && (fontWeightObject == nil)) {
-		BOOL isBoldBool = inheritance.isBoldWeight;
-		if(result.isBoldWeight != isBoldBool){
+	} else if((inheritedFont != NULL) && (fontWeightObject == nil)) {
+		BOOL isBoldBool = inheritedFont.isBoldWeight;
+		if(self.isBoldWeight != isBoldBool){
 			didChange = YES;
-			result.isBoldWeight = isBoldBool;
+			self.isBoldWeight = isBoldBool;
 		}
-		BOOL isNormalBool = inheritance.isNormalWeight;
-		if(result.isNormalWeight != isNormalBool){
+		BOOL isNormalBool = inheritedFont.isNormalWeight;
+		if(self.isNormalWeight != isNormalBool){
 			didChange = YES;
-			result.isNormalWeight = isNormalBool;
+			self.isNormalWeight = isNormalBool;
 		}
 	}
 
 	return didChange;
 }
 
+
++(WebFont *)defaultBoldFont
+{
+	WebFont * result = [[self alloc] init];
+	result.size = 15;
+	result.isBoldWeight = YES;
+	return [result autorelease];
+}
+
+
++(WebFont *)defaultFont
+{
+	WebFont * result = [[self alloc] init];
+	result.size = 15;
+	return [result autorelease];
+}
+
++(WebFont *)fontWithName:(NSString*)name
+{
+	WebFont * result = [[self alloc] init];
+	result.family = [name copy];
+	result.size = 15;
+	return [result autorelease];
+}
+
++(WebFont *)tableRowFont
+{
+	WebFont * result = [[self alloc] init];
+	result.isBoldWeight = YES;
+	result.size = 20;
+	return [result autorelease];
+}
+
+@end
