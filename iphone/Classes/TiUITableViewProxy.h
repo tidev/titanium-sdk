@@ -4,27 +4,11 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiViewProxy.h"
-#import "TiUITableViewBase.h"
+#include "TiViewProxy.h"
 
-@interface TiUITableViewProxy : TiViewProxy 
+@interface TiUITableViewProxy : TiViewProxy
 {
 }
-
-#pragma mark Internal
-
--(void)enqueueAction:(id)args withType:(TiUITableViewDispatchType)type;
-
-#pragma mark Public APIs
-
-- (void) insertRowAfter:(NSArray *)args;
-- (void) insertRowBefore:(NSArray *)args;
-- (void) deleteRow:(NSArray *)args;
-- (void) updateRow:(NSArray *)args;
-- (void) appendRow:(NSArray *)args;
-- (void) scrollToIndex:(NSArray *)args;
-
-- (void) setEditing:(NSNumber*)edit withObject:(id)obj;
-- (void) setMoving:(NSNumber*)edit withObject:(id)obj;
+-(void)setData:(id)args withObject:(id)properties;
 
 @end

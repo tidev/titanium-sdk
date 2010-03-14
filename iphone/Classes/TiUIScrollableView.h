@@ -7,20 +7,16 @@
 #import "TiUIView.h"
 
 @interface TiUIScrollableView : TiUIView<UIScrollViewDelegate> {
-
 @private
-	UIScrollView * scrollingView;
-	UIPageControl * pageControl;
-	NSMutableIndexSet * loadedViews;
-	
+	UIScrollView *scrollview;
+	UIPageControl *pageControl;
+	NSMutableArray *views;
+	int currentPage;
 	BOOL showPageControl;
 	CGFloat pageControlHeight;
-	
 	BOOL handlingPageControlEvent;
+	CGFloat maxScale;
+	CGFloat minScale;
 }
-
--(void)scrollToPageNumber:(NSNumber *)newPageNum;
-- (IBAction)pageControlTouched:(id)sender;
-
 
 @end

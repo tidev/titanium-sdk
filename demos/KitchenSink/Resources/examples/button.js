@@ -7,7 +7,6 @@ var b1 = Titanium.UI.createButton({
 	top:10
 });
 
-win.add(b1);
 
 var b2 = Titanium.UI.createButton({
 	title:'I am a Button',
@@ -16,8 +15,6 @@ var b2 = Titanium.UI.createButton({
 	height:40,
 	top:60
 });
-
-win.add(b2);
 
 
 var b3 = Titanium.UI.createButton({
@@ -32,7 +29,6 @@ var b3 = Titanium.UI.createButton({
 	title:'Click Me'
 });
 
-win.add(b3);
 
 var state = 0;
 b3.addEventListener('click', function()
@@ -58,6 +54,7 @@ b3.addEventListener('click', function()
 			b3.font = {fontSize:25,fontFamily:'Marker Felt', fontWeight:'bold'};
 			b3.title = 'I am red';
 			b3.backgroundImage = '../images/BUTT_red_off.png';
+			b3.backgroundSelectedImage = '../images/BUTT_red_on.png';
 			b3.color = '#222';
 			state++;
 			break;
@@ -75,13 +72,11 @@ b3.addEventListener('click', function()
 });
 
 var b4 = Titanium.UI.createButton({
-	title:'Hide/Show Button 3',
+	title:'Hide/Show Button Above',
 	width:200,
 	height:40,
 	top:175
 });
-
-win.add(b4);
 
 var visible = true;
 b4.addEventListener('click', function()
@@ -97,4 +92,14 @@ b4.addEventListener('click', function()
 		visible=false;
 	}
 });
+
+win.add(b1);
+win.add(b3);
+win.add(b4);
+
+// add iphone specific tests
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	win.add(b2);
+}
 

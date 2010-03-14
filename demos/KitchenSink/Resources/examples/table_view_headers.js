@@ -63,9 +63,14 @@ var data = [
 	{title:'Potsie'}
 ];
 
+var search = Titanium.UI.createSearchBar({
+	showCancel:false
+});
 // create table view
 var tableview = Titanium.UI.createTableView({
-	data:data
+	data:data,
+	search:search,
+	filterAttribute:'title'
 });
 
 // create table view event listener
@@ -76,6 +81,8 @@ tableview.addEventListener('click', function(e)
 	var section = e.section;
 	var row = e.row;
 	var rowdata = e.rowData;
+	
+	e.section.headerTitle = e.section.headerTitle + ' section has been clicked';
 	Titanium.UI.createAlertDialog({title:'Table View',message:'row ' + row + ' index ' + index + ' section ' + section  + ' row data ' + rowdata}).show();
 });
 // add table view to the window

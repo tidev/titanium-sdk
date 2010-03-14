@@ -13,6 +13,8 @@
 #import "Mimetypes.h"
 #import "TiViewProxy.h"
 #import "Ti2DMatrix.h"
+#import "SCListener.h"
+#import "TiMediaAudioSession.h"
 
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVAudioPlayer.h>
@@ -54,34 +56,52 @@ enum
 	RELEASE_TO_NIL(pickerCancelCallback);
 }
 
+-(void)dispatchCallback:(NSArray*)args
+{
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	NSString *type = [args objectAtIndex:0];
+	id object = [args objectAtIndex:1];
+	id listener = [args objectAtIndex:2];
+	// we have to give our modal picker view time to 
+	// dismiss with animation or if you do anything in a callback that 
+	// attempt to also touch a modal controller, you'll get into deep doodoo
+	// wait for the picker to dismiss with animation
+	[NSThread sleepForTimeInterval:0.5];
+	[self _fireEventToListener:type withObject:object listener:listener thisObject:nil];
+	[pool release];
+}
+
 -(void)sendPickerError:(int)code
 {
-	if (pickerErrorCallback!=nil)
+	id listener = [[pickerErrorCallback retain] autorelease];
+	[self destroyPicker];
+	if (listener!=nil)
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(false),@"success",NUMINT(code),@"code",nil];
-		[self _fireEventToListener:@"error" withObject:event listener:pickerErrorCallback thisObject:nil];
+		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
 	}
-	[self destroyPicker];
 }
 
 -(void)sendPickerCancel
 {
-	if (pickerCancelCallback!=nil)
-	{
-		[self _fireEventToListener:@"cancel" withObject:nil listener:pickerCancelCallback thisObject:nil];
-	}
+	id listener = [[pickerCancelCallback retain] autorelease];
 	[self destroyPicker];
+	if (listener!=nil)
+	{
+		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"cancel",[NSDictionary dictionary],listener,nil]];
+	}
 }
 
 -(void)sendPickerSuccess:(id)event
 {
-	if (pickerSuccessCallback!=nil)
-	{
-		[self _fireEventToListener:@"success" withObject:event listener:pickerSuccessCallback thisObject:nil];
-	}
+	id listener = [[pickerSuccessCallback retain] autorelease];
 	if (autoHidePicker)
 	{
 		[self destroyPicker];
+	}
+	if (listener!=nil)
+	{
+		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"success",event,listener,nil]];
 	}
 }
 
@@ -176,7 +196,7 @@ enum
 		id videoMaximumDuration = [args objectForKey:@"videoMaximumDuration"];
 		if ([videoMaximumDuration respondsToSelector:@selector(doubleValue)] && [picker respondsToSelector:@selector(setVideoMaximumDuration:)])
 		{
-			[picker setVideoMaximumDuration:[videoMaximumDuration doubleValue]];
+			[picker setVideoMaximumDuration:[videoMaximumDuration doubleValue]/1000];
 		}
 		id videoQuality = [args objectForKey:@"videoQuality"];
 		if ([videoQuality respondsToSelector:@selector(doubleValue)] && [picker respondsToSelector:@selector(setVideoQuality:)])
@@ -208,7 +228,7 @@ enum
 			ENSURE_TYPE(cameraView,TiViewProxy);
 			UIView *view = [cameraView view];
 			[TiUtils setView:view positionRect:[picker view].bounds];
-			[cameraView layoutChildren:view.bounds];
+			[cameraView layoutChildren];
 			[picker setCameraOverlayView:view];
 			[picker setWantsFullScreenLayout:YES];
 		}
@@ -227,8 +247,7 @@ enum
 		}
 	}
 	
-	
-	[[TitaniumApp app] showModalController:picker animated:animatedPicker];
+	[[[TitaniumApp app] controller] presentModalViewController:picker animated:animatedPicker];
 }
 
 #pragma mark Public APIs
@@ -252,6 +271,50 @@ MAKE_SYSTEM_STR(MEDIA_TYPE_PHOTO,kUTTypeImage);
 MAKE_SYSTEM_PROP(QUALITY_HIGH,UIImagePickerControllerQualityTypeHigh);
 MAKE_SYSTEM_PROP(QUALITY_MEDIUM,UIImagePickerControllerQualityTypeMedium);
 MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
+
+MAKE_SYSTEM_PROP(AUDIO_HEADPHONES,TiMediaAudioSessionInputHeadphones);
+MAKE_SYSTEM_PROP(AUDIO_HEADSET_INOUT,TiMediaAudioSessionInputHeadsetInOut);
+MAKE_SYSTEM_PROP(AUDIO_RECEIVER_AND_MIC,TiMediaAudioSessionInputReceiverAndMicrophone);
+MAKE_SYSTEM_PROP(AUDIO_HEADPHONES_AND_MIC,TiMediaAudioSessionInputHeadphonesAndMicrophone);
+MAKE_SYSTEM_PROP(AUDIO_LINEOUT,TiMediaAudioSessionInputLineOut);
+MAKE_SYSTEM_PROP(AUDIO_SPEAKER,TiMediaAudioSessionInputSpeaker);
+MAKE_SYSTEM_PROP(AUDIO_MICROPHONE,TiMediaAudioSessionInputMicrophoneBuiltin);
+MAKE_SYSTEM_PROP(AUDIO_MUTED,TiMediaAudioSessionInputMuted);
+MAKE_SYSTEM_PROP(AUDIO_UNAVAILABLE,TiMediaAudioSessionInputUnavailable);
+MAKE_SYSTEM_PROP(AUDIO_UNKNOWN,TiMediaAudioSessionInputUnknown);
+
+MAKE_SYSTEM_UINT(AUDIO_FORMAT_LINEAR_PCM,kAudioFormatLinearPCM);
+MAKE_SYSTEM_UINT(AUDIO_FORMAT_ULAW,kAudioFormatULaw);
+MAKE_SYSTEM_UINT(AUDIO_FORMAT_ALAW,kAudioFormatALaw);
+MAKE_SYSTEM_UINT(AUDIO_FORMAT_IMA4,kAudioFormatAppleIMA4);
+MAKE_SYSTEM_UINT(AUDIO_FORMAT_ILBC,kAudioFormatiLBC);
+MAKE_SYSTEM_UINT(AUDIO_FORMAT_APPLE_LOSSLESS,kAudioFormatAppleLossless);
+MAKE_SYSTEM_UINT(AUDIO_FORMAT_AAC,kAudioFormatMPEG4AAC);
+
+MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_WAVE,kAudioFileWAVEType);
+MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_AIFF,kAudioFileAIFFType);
+MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_MP3,kAudioFileMP3Type);
+MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_MP4,kAudioFileMPEG4Type);
+MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_MP4A,kAudioFileM4AType);
+MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_CAF,kAudioFileCAFType);
+MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_3GPP,kAudioFile3GPType);
+MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_3GP2,kAudioFile3GP2Type);
+MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_AMR,kAudioFileAMRType);
+
+-(CGFloat)volume
+{
+	return [[TiMediaAudioSession sharedSession] volume];
+}
+
+-(BOOL)audioPlaying
+{
+	return [[TiMediaAudioSession sharedSession] isAudioPlaying];
+}
+
+-(NSInteger)audioLineType
+{
+	return [[TiMediaAudioSession sharedSession] inputType];
+}
 
 -(NSArray*)availableCameraMediaTypes
 {
@@ -337,7 +400,8 @@ MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 	UIGraphicsEndImageContext();
 	
 	TiBlob *blob = [[[TiBlob alloc] initWithImage:image] autorelease];
-	[self _fireEventToListener:@"screenshot" withObject:blob listener:arg thisObject:nil];
+	NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"media"];
+	[self _fireEventToListener:@"screenshot" withObject:event listener:arg thisObject:nil];
 }
 
 -(void)saveToPhotoGallery:(id)arg
@@ -525,5 +589,79 @@ MAKE_SYSTEM_PROP(QUALITY_LOW,UIImagePickerControllerQualityTypeLow);
 	[self sendPickerCancel];
 }
 
+#pragma mark Microphone support
+
+-(void)startMicrophoneMonitor:(id)args
+{
+	[[SCListener sharedListener] listen];
+}
+
+-(void)stopMicrophoneMonitor:(id)args
+{
+	[[SCListener sharedListener] stop];
+}
+
+-(CGFloat)peakMicrophonePower
+{
+	if ([[SCListener sharedListener] isListening])
+	{
+		return [[SCListener sharedListener] peakPower];
+	}
+	return -1;
+}
+
+-(CGFloat)averageMicrophonePower
+{
+	if ([[SCListener sharedListener] isListening])
+	{
+		return [[SCListener sharedListener] averagePower];
+	}
+	return -1;
+}
+
+#pragma mark Delegates
+
+-(void)audioRouteChanged:(NSNotification*)note
+{
+	NSDictionary *event = [note userInfo];
+	[self fireEvent:@"linechange" withObject:event];
+}
+
+-(void)audioVolumeChanged:(NSNotification*)note
+{
+	NSMutableDictionary *event = [NSMutableDictionary dictionary];
+	[event setObject:NUMFLOAT([self volume]) forKey:@"volume"];
+	[self fireEvent:@"volume" withObject:event];
+}
+
+#pragma mark Listener Management
+
+-(void)_listenerAdded:(NSString *)type count:(int)count
+{
+	if (count == 1 && [type isEqualToString:@"linechange"])
+	{
+		[[TiMediaAudioSession sharedSession] startAudioSession];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioRouteChanged:) name:kTiMediaAudioSessionRouteChange object:[TiMediaAudioSession sharedSession]];
+	}
+	else if (count == 1 && [type isEqualToString:@"volume"])
+	{
+		[[TiMediaAudioSession sharedSession] startAudioSession];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioVolumeChanged:) name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
+	}
+}
+
+-(void)_listenerRemoved:(NSString *)type count:(int)count
+{
+	if (count == 0 && [type isEqualToString:@"linechange"])
+	{
+		[[TiMediaAudioSession sharedSession] stopAudioSession];
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionRouteChange object:[TiMediaAudioSession sharedSession]];
+	}
+	else if (count == 0 && [type isEqualToString:@"volume"])
+	{
+		[[TiMediaAudioSession sharedSession] stopAudioSession];
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
+	}
+}
 
 @end

@@ -19,6 +19,8 @@
 @property(nonatomic,readonly) id nodeValue;
 @property(nonatomic,readonly) id nodeType;
 
+@property(nonatomic,readonly) id text;
+
 @property(nonatomic,readonly) id parentNode;
 @property(nonatomic,readonly) id childNodes;
 @property(nonatomic,readonly) id firstChild;

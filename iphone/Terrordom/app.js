@@ -1,3 +1,31 @@
+if (true){
+var tableView = Titanium.UI.createTableView({
+	backgroundColor:'transparent',
+	borderColor:'transparent'
+});
+
+
+//
+// view-level event handler
+//
+function buttonHandler(e)
+{
+	// row object
+	var row = e.row;
+	
+	// properties on row object
+	var index = row.index;
+	var section = row.section;
+	var rowNum = row.row;
+	var customProp = row.foo;
+	
+	// get button
+	var button = row[0];
+	
+	// set button title
+	button.title = 'you clicked me';
+};
+
 var tableData = 
 [
 	{title:'Make editable',name:'edit'},
@@ -71,7 +99,7 @@ var tableViewProps =
 
 try
 {
-	var tableView = Titanium.UI.createTableView(tableViewProps);
+//	var tableView = Titanium.UI.createTableView();
 	
 
 	var tabGroup = Titanium.UI.createTabGroup();
@@ -84,16 +112,15 @@ try
 	var tab6 = Titanium.UI.createTab({icon:'images/KS_nav_phone.png',title:'Tab 6',badge:null});
 
 
-	tabGroup.addTab(tab1);
-	tabGroup.addTab(tab2);
-	tabGroup.addTab(tab3);
-	tabGroup.addTab(tab6);
-	tabGroup.addTab(tab4);
-	tabGroup.addTab(tabX);
-
-	tabX.open(Ti.UI.createWindow({url:'rawtest.js',backgroundColor:'669933'}),{animated:true});
-
+	tabX.open(Ti.UI.createWindow({url:'rawtest.js',backgroundColor:'669933',
+			orientationModes : [
+//			Titanium.UI.PORTRAIT,
+//			Titanium.UI.UPSIDE_PORTRAIT,
+			Titanium.UI.LANDSCAPE_LEFT,
+			Titanium.UI.LANDSCAPE_RIGHT]
+			}),{animated:true});
 	tab6.open(Ti.UI.createWindow({url:'scrollable.js',backgroundColor:'669933'}));
+
 	
 	var tab1win = Ti.UI.createWindow({url:'subapp.js'});
 	var tab2win = Ti.UI.createWindow({url:'audio.js'});
@@ -164,6 +191,14 @@ try
 	tab3.open(tab2win, {animated:true,title:'Tab 3'});
 	tab4.open(tab4win, {animated:true});
 	
+	
+	tabGroup.addTab(tabX);
+	tabGroup.addTab(tab1);
+	tabGroup.addTab(tab2);
+	tabGroup.addTab(tab3);
+//	tabGroup.addTab(tab4);
+//	tabGroup.addTab(tab6);
+
 	tabGroup.open();
 	
 // 	/*
@@ -767,3 +802,4 @@ catch(EX)
 	Ti.API.error("Error = "+EX);
 }
 
+}

@@ -8,10 +8,19 @@
 #import "TiColor.h"
 #import "TiDimension.h"
 #import "WebFont.h"
+#import "TiFile.h"
 
 @interface TiUtils : NSObject {
 
 }
+
++(NSString *)UTCDateForDate:(NSDate*)data;
+
++(NSString *)UTCDate;
+
++(NSString*)createUUID;
+
++(TiFile*)createTempFile:(NSString*)extension;
 
 +(NSData *)loadAppResource:(NSURL*)url;
 
@@ -19,6 +28,7 @@
 
 +(NSString *)encodeURIParameters:(NSString *)unencodedString;
 
++(UIImage*)toImage:(id)object proxy:(TiProxy*)proxy;
 +(NSURL*)toURL:(id)object proxy:(TiProxy*)proxy;
 
 +(UIImage *)image:(id)object proxy:(TiProxy*)proxy;
@@ -137,9 +147,10 @@
 
 +(CGRect)centerRect:(CGRect)smallerRect inRect:(CGRect)largerRect;
 
-
 +(void)setView:(UIView *)view positionRect:(CGRect)frameRect;
 
 +(CGRect)viewPositionRect:(UIView *)view;
+
++(void)queueAnalytics:(NSString*)type name:(NSString*)name data:(NSDictionary*)data;
 
 @end

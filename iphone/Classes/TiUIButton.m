@@ -6,6 +6,8 @@
  */
 
 #import "TiUIButton.h"
+#import "TiUIButtonProxy.h"
+
 #import "TiUtils.h"
 #import "ImageLoader.h"
 #import "TiButtonUtil.h"
@@ -16,23 +18,22 @@
 
 -(void)dealloc
 {
+	[button removeTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
 	RELEASE_TO_NIL(button);
 	[super dealloc];
 }
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+-(BOOL)hasTouchableListener
 {
-	if (!CGRectIsEmpty(bounds) && !CGRectEqualToRect(bounds, self.frame))
-	{
-		[TiUtils setView:button positionRect:bounds];
-	}
+	// since this guy only works with touch events, we always want them
+	// just always return YES no matter what listeners we have registered
+	return YES;
 }
 
--(BOOL)viewSupportsBaseTouchEvents
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	// since we need to control enabled events and click events, we turn off base
-	// class event handling
-	return NO;
+	[TiUtils setView:self positionRect:CGRectIntegral([TiUtils viewPositionRect:self])];
+	[TiUtils setView:button positionRect:bounds];
 }
 
 -(void)clicked:(id)event
@@ -49,25 +50,15 @@
 	{
 		id backgroundImage = [self.proxy valueForKey:@"backgroundImage"];
 		UIButtonType defaultType = backgroundImage!=nil ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
-		id style = [self.proxy valueForKey:@"style"];
-		int type = style!=nil ? [TiUtils intValue:style] : defaultType;
-		UIView *btn = [TiButtonUtil buttonWithType:type];
+		style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:defaultType];
+		UIView *btn = [TiButtonUtil buttonWithType:style];
 		button = (UIButton*)[btn retain];
-		if (style==nil)
-		{
-			[TiUtils setView:button positionRect:self.bounds];
-		}
-		else
-		{
-			// if we use a system button, we use it's frame
-			self.frame = btn.frame;
-			if (style==UIButtonTypeCustom)
-			{
-				[button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
-			}
-			[TiUtils setView:button positionRect:btn.frame];
-		}
 		[self addSubview:button];
+		[TiUtils setView:button positionRect:self.bounds];
+		if (style==UIButtonTypeCustom)
+		{
+			[button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+		}
 		[button addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
 	}
 	return button;
@@ -75,12 +66,22 @@
 
 #pragma mark Public APIs
 
--(void)setStyle_:(id)style
+-(void)setStyle_:(id)style_
 {
-	if (button!=nil)
+	int s = [TiUtils intValue:style_ def:UIButtonTypeCustom];
+	if (s == style)
 	{
-		RELEASE_TO_NIL(button);
+		return;
 	}
+	style = s;
+
+	
+	if (button==nil)
+	{
+		return;
+	}
+
+	RELEASE_TO_NIL(button);
 	[self button];
 }
 
@@ -92,7 +93,7 @@
 		[[self button] setImage:image forState:UIControlStateNormal];
 		
 		// if the layout is undefined or auto, we need to take the size of the image
-		LayoutConstraint *layout = [self layout];
+		LayoutConstraint *layout = [(TiViewProxy *)[self proxy] layoutProperties];
 		BOOL reposition = NO;
 		
 		if (TiDimensionIsUndefined(layout->width) || TiDimensionIsAuto(layout->width))
@@ -108,7 +109,7 @@
 		}
 		if (reposition)
 		{
-			[self reposition];
+			[(TiViewProxy *)[self proxy] setNeedsReposition];
 		}
 	}
 	else
@@ -129,26 +130,17 @@
 
 -(void)setBackgroundImage_:(id)value
 {
-	if (value!=nil)
-	{
-		[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateNormal];
-	}
+	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateNormal];
 }
 
 -(void)setBackgroundSelectedImage_:(id)value
 {
-	if (value!=nil)
-	{
-		[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
-	}
+	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateHighlighted];
 }
 
 -(void)setBackgroundDisabledImage_:(id)value
 {
-	if (value!=nil)
-	{
-		[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateDisabled];
-	}
+	[[self button] setBackgroundImage:[self loadImage:value] forState:UIControlStateDisabled];
 }
 
 -(void)setBackgroundColor_:(id)value
@@ -201,6 +193,16 @@
 			[b setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
 		}
 	}
+}
+
+-(CGFloat)autoWidthForWidth:(CGFloat)value
+{
+	return [[self button] sizeThatFits:CGSizeMake(value, 0)].width;
+}
+
+-(CGFloat)autoHeightForWidth:(CGFloat)value
+{
+	return [[self button] sizeThatFits:CGSizeMake(value, 0)].height;
 }
 
 @end

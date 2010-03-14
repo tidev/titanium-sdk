@@ -16,7 +16,7 @@ NSString * const TI_APPLICATION_VERSION = @"__APP_VERSION__";
 NSString * const TI_APPLICATION_DESCRIPTION = @"__APP_DESCRIPTION__";
 NSString * const TI_APPLICATION_COPYRIGHT = @"__APP_COPYRIGHT__";
 NSString * const TI_APPLICATION_GUID = @"__APP_GUID__";
-BOOL TI_APPLICATION_ANALYTICS = __APP_ANALYTICS__;
+BOOL const TI_APPLICATION_ANALYTICS = __APP_ANALYTICS__;
 
 int main(int argc, char *argv[]) {
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 	NSString *documentsDirectory = [paths objectAtIndex:0];
 	NSString *logPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%s.log",STRING(__LOG__ID__)]];
-	freopen([logPath cStringUsingEncoding:NSASCIIStringEncoding],"w+",stderr);
+	freopen([logPath cStringUsingEncoding:NSUTF8StringEncoding],"w+",stderr);
 	fprintf(stderr,"[INFO] Application started\n");
 #endif
 

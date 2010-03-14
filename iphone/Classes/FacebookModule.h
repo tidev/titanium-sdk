@@ -24,8 +24,8 @@
 -(void)setPermissions:(NSDictionary*)dict;
 -(NSNumber*)userId;
 
-@property(nonatomic,readonly) NSNumber *LOGIN_BUTTON_STYLE_WIDE;
-@property(nonatomic,readonly) NSNumber *LOGIN_BUTTON_STYLE_NORMAL;
+@property(nonatomic,readonly) NSNumber* LOGIN_BUTTON_STYLE_WIDE;
+@property(nonatomic,readonly) NSNumber* LOGIN_BUTTON_STYLE_NORMAL;
 
 
 @end

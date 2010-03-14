@@ -4,7 +4,14 @@
       android:versionCode="${config['appversion']}"
       android:versionName="${config['appversion']}"
 >
-	<uses-sdk android:minSdkVersion="3" />
+	<uses-sdk android:minSdkVersion="4" />
+	
+	<supports-screens android:smallScreens="false"
+                android:normalScreens="true"
+                android:largeScreens="true"
+                android:anyDensity="false"
+    />
+    
 	<application
     	android:icon="@drawable/appicon"
       	android:label="${config['appname']}"
@@ -14,34 +21,32 @@
     	<activity
         	android:name=".${config['classname']}Activity"
             android:label="${config['appname']}"
-            android:configChanges="keyboardHidden|orientation"
-            android:launchMode="singleTask"
 			android:theme="@style/Theme.Titanium"
+            android:configChanges="keyboardHidden|orientation"
         >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+		<!-- TI_ACTIVITIES -->
 		<activity
         	android:name="org.appcelerator.titanium.TiActivity"
         	android:configChanges="keyboardHidden|orientation"
       	/>
-
-		<!-- TI_ACTIVITIES -->
-		
-<!--
-		<provider
-			android:authorities="${config['appid']}.titanium"
-			android:name="org.appcelerator.titanium.TitaniumContentProvider"
+		<activity android:name="ti.modules.titanium.ui.TiTabActivity"
+			android:configChanges="keyboardHidden|orientation"
 		/>
--->
-		<!-- TODO: re-enable analytics when it's implemented
+		<activity android:name="ti.modules.titanium.media.TiVideoActivity"
+			android:configChanges="keyboardHidden|orientation"
+			android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+		/>
+
 		<service
-			android:name="org.appcelerator.titanium.TitaniumAnalyticsService"
+			android:name="org.appcelerator.titanium.analytics.TiAnalyticsService"
 			android:exported="false"
 		/>
-		-->
 	</application>
 	
 	<!-- TI_PERMISSIONS -->

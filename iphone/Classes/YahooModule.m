@@ -12,7 +12,11 @@
 #import "SBJSON.h"
 #import "TitaniumApp.h"
 
+#ifdef YQL_OAUTH
 const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/yql?format=json";
+#else
+const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=json&env=http%3A%2F%2Fdatatables.org%2Falltables.env";
+#endif
 
 @implementation YQLCallback
 
@@ -78,6 +82,17 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/yql?format=json";
 	[super dealloc];
 }
 
+-(NSString*)encode:(NSString*)str
+{
+	NSString *result = (NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+                                                                           (CFStringRef)str,
+                                                                           NULL, CFSTR("!*'();:@&=+$,/?%#[]"),
+                                                                           kCFStringEncodingUTF8);
+    [result autorelease];
+	return result;
+}
+
+#ifdef YQL_OAUTH	
 -(NSString *)nonce
 {	
 	NSString *nonce = nil;
@@ -91,16 +106,6 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/yql?format=json";
 -(NSString *)timestamp
 {
 	return [NSString stringWithFormat:@"%d", time(NULL)];
-}
-
--(NSString*)base64:(NSString*)str
-{
-	NSString *result = (NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-                                                                           (CFStringRef)str,
-                                                                           NULL, CFSTR("!*'();:@&=+$,/?%#[]"),
-                                                                           kCFStringEncodingUTF8);
-    [result autorelease];
-	return result;
 }
 
 -(NSString*)hmac:(NSString*)key_ data:(NSString*)data_
@@ -123,13 +128,16 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/yql?format=json";
     
 	return [[[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding] autorelease];
 }
+#endif
 
 -(void)setOAuthParameters:(id)args
 {
+#ifdef YQL_OAUTH	
 	RELEASE_TO_NIL(key);
 	RELEASE_TO_NIL(secret);
 	key = [[TiUtils stringValue:[args objectAtIndex:0]] retain];
 	secret = [[TiUtils stringValue:[args objectAtIndex:1]] retain];
+#endif
 }
 
 -(void)yql:(id)args
@@ -140,7 +148,8 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/yql?format=json";
 	KrollCallback *callback = [args objectAtIndex:1];
 	
 	ENSURE_TYPE(callback,KrollCallback);
-	
+
+#ifdef YQL_OAUTH	
 	int location = [apiEndpoint rangeOfString:@"?"].location;
 	NSString *url = [apiEndpoint substringToIndex:location];
 	NSString *theHeader = [apiEndpoint substringFromIndex:location+1];
@@ -151,13 +160,16 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/yql?format=json";
 	[theBody appendString:@"&oauth_signature_method=HMAC-SHA1"];
 	[theBody appendFormat:@"&oauth_timestamp=%@",[self timestamp]];
 	[theBody appendString:@"&oauth_version=1.0"];
-	[theBody appendFormat:@"&q=%@",[self base64:apiQuery]];
+	[theBody appendFormat:@"&q=%@",[self encode:apiQuery]];
 	
-	NSString *theData = [NSString stringWithFormat:@"GET&%@&%@%@",[self base64:url],[self base64:theHeader],[self base64:theBody]];
+	NSString *theData = [NSString stringWithFormat:@"GET&%@&%@%@",[self encode:url],[self encode:theHeader],[self encode:theBody]];
 	NSString *theSig = [self hmac:[NSString stringWithFormat:@"%@&",secret] data:theData];
-	NSString *theurl = [NSString stringWithFormat:@"%@%@&oauth_signature=%@",apiEndpoint,theBody,[self base64:theSig]];
+	NSString *theurl = [NSString stringWithFormat:@"%@%@&oauth_signature=%@",apiEndpoint,theBody,[self encode:theSig]];
 	
 	[theBody release];
+#else
+	NSString *theurl = [NSString stringWithFormat:@"%@&q=%@",apiEndpoint,[self encode:apiQuery]];
+#endif
 	
 	YQLCallback *job = [[YQLCallback alloc] initWithCallback:callback module:self];
 	ASIHTTPRequest *req = [ASIHTTPRequest requestWithURL:[NSURL URLWithString:theurl]];

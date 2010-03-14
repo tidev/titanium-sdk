@@ -37,7 +37,9 @@ var l = Titanium.UI.createLabel({
 	top:50,
 	left:10,
 	width:300,
+	height:'auto',
 	color:'#777',
+	height:'auto',
 	font:{fontSize:13},
 	text:'do something like click a button...'
 });

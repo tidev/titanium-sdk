@@ -14,6 +14,7 @@ template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filena
 sys.path.append(os.path.join(template_dir,'..'))
 from tiapp import *
 from android import Android
+from androidsdk import AndroidSDK
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
 ignoreDirs = ['.git','.svn','_svn', 'CVS'];
@@ -69,22 +70,20 @@ class Builder(object):
 	def __init__(self, name, sdk, project_dir, support_dir, app_id):
 		self.top_dir = project_dir
 		self.project_dir = os.path.join(project_dir,'build','android')
-		self.sdk = sdk
+		# this is hardcoded for now
+		self.sdk = AndroidSDK(sdk, 4)
 		self.name = name
 		self.app_id = app_id
 		self.support_dir = support_dir
-		self.platform_dir = os.path.join(sdk,'platforms','android-1.5')
-		self.tools_dir = os.path.join(self.platform_dir,'tools')
-		self.emulator = os.path.join(self.sdk,'tools','emulator')
-		self.android = os.path.join(self.sdk,'tools','android')
-		if platform.system() == "Windows":
-			self.android += ".bat"
-			self.emulator += ".exe"
-		self.adb = os.path.join(self.sdk,'tools','adb')
-		if platform.system() == "Windows":
-			self.adb += ".exe"
+		
 		# we place some files in the users home
-		self.home_dir = os.path.join(os.path.expanduser('~'), '.titanium')
+		if platform.system() == "Windows":
+			self.home_dir = os.path.join(os.environ['USERPROFILE'], '.titanium')
+			self.android_home_dir = os.path.join(os.environ['USERPROFILE'], '.android')
+		else:
+			self.home_dir = os.path.join(os.path.expanduser('~'), '.titanium')
+			self.android_home_dir = os.path.join(os.path.expanduser('~'), '.android')
+		
 		if not os.path.exists(self.home_dir):
 			os.makedirs(self.home_dir)
 		self.sdcard = os.path.join(self.home_dir,'android.sdcard')
@@ -96,7 +95,7 @@ class Builder(object):
 		sys.stdout.flush()
 		t = time.time()
 		while True:
-			output = run.run([self.adb,"-%s" % type, 'devices'],True)
+			output = run.run([self.sdk.get_adb(),"-%s" % type, 'devices'],True)
 			print "[TRACE] wait_for_device returned: %s" % output
 			if output != None: 
 				if output.find("emulator-")!=None or (time.time()-t > 0.2):
@@ -112,23 +111,19 @@ class Builder(object):
 	
 	def create_avd(self,avd_id,avd_skin):
 		name = "titanium_%s_%s" % (avd_id,avd_skin)
-		home_dir = os.path.join(os.path.expanduser('~'), '.titanium')
-		if not os.path.exists(home_dir):
-			os.makedirs(home_dir)
-		sdcard = os.path.abspath(os.path.join(home_dir,'android.sdcard'))
+		if not os.path.exists(self.home_dir):
+			os.makedirs(self.home_dir)
+		sdcard = os.path.abspath(os.path.join(self.home_dir,'android.sdcard'))
 		if not os.path.exists(sdcard):
-			mksdcard = os.path.join(self.sdk,'tools','mksdcard')
-			if platform.system() == "Windows":
-				mksdcard += ".exe"
 			print "[INFO] Created shared 10M SD card for use in Android emulator(s)"
-			run.run([mksdcard, '10M', sdcard])
+			run.run([self.sdk.get_mksdcard(), '10M', sdcard])
 
-		avd_path = os.path.expanduser("~/.android/avd")
+		avd_path = os.path.join(self.android_home_dir, 'avd')
 		my_avd = os.path.join(avd_path,"%s.avd" % name)
 		if not os.path.exists(my_avd):
 			print "[INFO] creating new AVD %s %s" % (avd_id,avd_skin)
 			inputgen = os.path.join(template_dir,'input.py')
-			pipe([sys.executable, inputgen], [self.android, '--verbose', 'create', 'avd', '--name', name, '--target', avd_id, '-s', avd_skin, '--force', '--sdcard', sdcard])
+			pipe([sys.executable, inputgen], [self.sdk.get_android(), '--verbose', 'create', 'avd', '--name', name, '--target', avd_id, '-s', avd_skin, '--force', '--sdcard', sdcard])
 			inifile = os.path.join(my_avd,'config.ini')
 			inifilec = open(inifile,'r').read()
 			inifiledata = open(inifile,'w')
@@ -141,7 +136,7 @@ class Builder(object):
 	def run_emulator(self,avd_id,avd_skin):
 		
 		print "[INFO] Launching Android emulator...one moment"
-		print "[DEBUG] From: " + self.emulator
+		print "[DEBUG] From: " + self.sdk.get_emulator()
 		print "[DEBUG] SDCard: " + self.sdcard
 		print "[DEBUG] AVD ID: " + avd_id
 		print "[DEBUG] AVD Skin: " + avd_skin
@@ -157,7 +152,7 @@ class Builder(object):
 
 		# start the emulator
 		p = subprocess.Popen([
-			self.emulator,
+			self.sdk.get_emulator(),
 			'-avd',
 			avd_name,
 			'-port',
@@ -198,7 +193,7 @@ class Builder(object):
 
 		print "[INFO] Android Emulator has exited"
 		sys.exit(rc)
-		
+	
 	def build_and_run(self, install, avd_id, keystore=None, keystore_pass='tirocks', keystore_alias='tidev', dist_dir=None):
 		deploy_type = 'development'
 		if install:
@@ -206,22 +201,18 @@ class Builder(object):
 				deploy_type = 'test'
 			else:
 				deploy_type = 'production'
-				
-		aapt = os.path.join(self.tools_dir,'aapt')
-		jar = os.path.join(self.platform_dir,'android.jar')
-		dx = os.path.join(self.tools_dir,'dx')
-		apkbuilder = os.path.join(self.sdk,'tools','apkbuilder')
-		if platform.system() == "Windows":
-			aapt += ".exe"
-			dx += ".bat"
-			apkbuilder += ".bat"
+		
+		aapt = self.sdk.get_aapt()
+		android_jar = self.sdk.get_android_jar()
+		titanium_jar = os.path.join(self.support_dir,'titanium.jar')
+		dx = self.sdk.get_dx()
+		apkbuilder = self.sdk.get_apkbuilder()
 		
 		if keystore==None:
 			keystore = os.path.join(self.support_dir,'dev_keystore')
 		
 		curdir = os.getcwd()
-		tijar = os.path.join(self.support_dir,'titanium.jar')
-		rhino_jar = os.path.join(self.support_dir, 'js.jar')
+		android_jars = glob.glob(os.path.join(self.support_dir, '*.jar'))
 		timapjar = os.path.join(self.support_dir, 'modules', 'titanium-map.jar')
 		ti_resources_dir = os.path.join(self.support_dir, 'resources')
 		
@@ -233,13 +224,21 @@ class Builder(object):
 			os.makedirs('bin')
 			
 			if os.path.exists('lib'):
-				shutil.copy(tijar,'lib')
-				shutil.copy(rhino_jar, 'lib')
+				for jar in android_jars:
+					shutil.copy(jar, 'lib')
 
 			resources_dir = os.path.join(self.top_dir,'Resources')
-			assets_dir = os.path.join('bin','assets')
+			assets_dir = os.path.join(self.project_dir,'bin','assets')
 			asset_resource_dir = os.path.join(assets_dir,'Resources')
-
+			
+			if not os.path.exists(assets_dir):
+				os.makedirs(assets_dir)
+			
+			shutil.copy(os.path.join(self.top_dir,'tiapp.xml'), assets_dir)
+			finalxml = os.path.join(assets_dir,'tiapp.xml')
+			tiapp = TiAppXML(finalxml)
+			tiapp.setDeployType(deploy_type)
+			
 			# we re-run the create each time through in case any of our key files
 			# have changed
 			android = Android(self.name,self.app_id,self.sdk)
@@ -303,10 +302,10 @@ class Builder(object):
 			compiler.compile()
 			
 			# Android SDK version --- FIXME: this is hardcoded until i hook in Nolan's code from Developer
-			android_sdk_version = '3'
+			android_sdk_version = '4'
 			
 			# NOTE: these are built-in permissions we need -- we probably need to refine when these are needed too
-			permissions_required = ['INTERNET','ACCESS_WIFI_STATE','ACCESS_NETWORK_STATE']
+			permissions_required = ['INTERNET','ACCESS_WIFI_STATE','ACCESS_NETWORK_STATE', 'WRITE_EXTERNAL_STORAGE']
 			
 			GEO_PERMISSION = [ 'ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION', 'ACCESS_MOCK_LOCATION']
 			CONTACTS_PERMISSION = ['READ_CONTACTS']
@@ -336,13 +335,13 @@ class Builder(object):
 			}
 			
 			VIDEO_ACTIVITY = """<activity
-			android:name="org.appcelerator.titanium.TitaniumVideoActivity"
+			android:name="ti.modules.titanium.media.TiVideoActivity"
 			android:configChanges="keyboardHidden|orientation"
 			android:launchMode="singleTask"
 	    	/>"""
 	
 			MAP_ACTIVITY = """<activity
-	    		android:name="org.appcelerator.titanium.module.map.TitaniumMapActivity"
+	    		android:name="ti.modules.titanium.map.TiMapActivity"
 	    		android:configChanges="keyboardHidden|orientation"
 	    		android:launchMode="singleTask"
 	    	/>
@@ -405,7 +404,7 @@ class Builder(object):
 			# build the permissions XML based on the permissions detected
 			permissions_required_xml = ""
 			for p in permissions_required:
-				permissions_required_xml+="<uses-permission android:name=\"android.permission.%s\"/>\n\t" % p				
+				permissions_required_xml+="<uses-permission android:name=\"android.permission.%s\"/>\n\t" % p
 			
 			use_maps = False
 			# copy any module image directories
@@ -422,14 +421,6 @@ class Builder(object):
 					copy_resources(img_dir,dest_img_dir)
 				
 
-			shutil.copy(os.path.join(self.top_dir,'tiapp.xml'), assets_dir)
-			
-			tiapp = open(os.path.join(assets_dir, 'tiapp.xml')).read()
-			
-			finalxml = os.path.join(assets_dir,'tiapp.xml')
-			tiapp = TiAppXML(finalxml)
-			tiapp.setDeployType(deploy_type)
-			
 			iconname = tiapp.properties['icon']
 			iconpath = os.path.join(asset_resource_dir,iconname)
 			iconext = os.path.splitext(iconpath)[1]
@@ -488,7 +479,7 @@ class Builder(object):
 			manifest_contents = open(android_manifest_to_read,'r').read()
 			manifest_contents = manifest_contents.replace('<!-- TI_ACTIVITIES -->',"\n\n\t\t".join(activities))
 			manifest_contents = manifest_contents.replace('<!-- TI_PERMISSIONS -->',permissions_required_xml)
-			manifest_contents = manifest_contents.replace('<uses-sdk android:minSdkVersion="3" />', '<uses-sdk android:minSdkVersion="%s" />' % android_sdk_version)
+			manifest_contents = manifest_contents.replace('<uses-sdk android:minSdkVersion="4" />', '<uses-sdk android:minSdkVersion="%s" />' % android_sdk_version)
 
 			# write out the new manifest
 			amf = open(android_manifest,'w')
@@ -496,7 +487,7 @@ class Builder(object):
 			amf.close()
 			
 			res_dir = os.path.join(self.project_dir, 'res')
-			output = run.run([aapt, 'package', '-m', '-J', src_dir, '-M', android_manifest, '-S', res_dir, '-I', jar])
+			output = run.run([aapt, 'package', '-m', '-J', src_dir, '-M', android_manifest, '-S', res_dir, '-I', android_jar])
 			if output == None:
 				sys.exit(1)
 			success = re.findall(r'ERROR (.*)',output)
@@ -543,20 +534,25 @@ class Builder(object):
 
 			jarsigner = "jarsigner"	
 			javac = "javac"
+			java = "java"
 			if platform.system() == "Windows":
 				if os.environ.has_key("JAVA_HOME"):
 					home_jarsigner = os.path.join(os.environ["JAVA_HOME"], "bin", "jarsigner.exe")
 					home_javac = os.path.join(os.environ["JAVA_HOME"], "bin", "javac.exe")
+					home_java = os.path.join(os.environ["JAVA_HOME"], "bin", "java.exe")
 					if os.path.exists(home_jarsigner):
 						jarsigner = home_jarsigner
 					if os.path.exists(home_javac):
 						javac = home_javac
+					if os.path.exists(home_java):
+						java = home_java
 				else:
 					found = False
 					for path in os.environ['PATH'].split(os.pathsep):
 						if os.path.exists(os.path.join(path, 'jarsigner.exe')) and os.path.exists(os.path.join(path, 'javac.exe')):
 							jarsigner = os.path.join(path, 'jarsigner.exe')
 							javac = os.path.join(path, 'javac.exe')
+							java = os.path.join(path, 'java.exe')
 							found = True
 							break
 					if not found:
@@ -584,7 +580,8 @@ class Builder(object):
 					ctf.close()
 					srclist.append(dtf)
 						
-			classpath = jar + os.pathsep + tijar + os.pathsep.join(jarlist)
+			classpath = android_jar + os.pathsep + titanium_jar + os.pathsep.join(jarlist)
+			# TODO re-enable me
 			if use_maps:
 				classpath += os.pathsep + timapjar
 			
@@ -596,18 +593,29 @@ class Builder(object):
 			
 			classes_dex = os.path.join(self.project_dir, 'bin', 'classes.dex')
 			android_module_jars = glob.glob(os.path.join(self.support_dir, 'modules', 'titanium-*.jar'))
-			dex_args = [dx, '-JXmx512M', '--dex', '--output='+classes_dex, classes_dir, tijar, rhino_jar]
-			#if platform.system() == "Windows":
-			#	dex_args.insert(1, '-JXmx512M')
+			
+			# the dx.bat that ships with android in windows doesn't allow command line
+			# overriding of the java heap space, so we call the jar directly
+			if platform.system() == 'Windows':
+				dex_args = [java, '-Xmx512M', '-Djava.ext.dirs=%s' % self.sdk.get_platform_tools_dir(), '-jar', self.sdk.get_dx_jar()]
+			else:
+				dex_args = [dx, '-JXmx512M']
+			dex_args += ['--dex', '--output='+classes_dex, classes_dir]
+			dex_args += android_jars
 			dex_args += android_module_jars
 			
 			run.run(dex_args)
 			
-			ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')	
-			run.run([aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', assets_dir, '-S', 'res', '-I', jar, '-I', tijar, '-F', ap_])
+			ap_ = os.path.join(self.project_dir, 'bin', 'app.ap_')
+			rhino_jar = os.path.join(self.support_dir, 'js.jar')
+			run.run([aapt, 'package', '-f', '-M', 'AndroidManifest.xml', '-A', assets_dir, '-S', 'res', '-I', android_jar, '-I', titanium_jar, '-F', ap_])
 		
-			unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')	
-			run.run([apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', classes_dex, '-rf', src_dir, '-rj', tijar])
+			unsigned_apk = os.path.join(self.project_dir, 'bin', 'app-unsigned.apk')
+			apk_build_cmd = [apkbuilder, unsigned_apk, '-u', '-z', ap_, '-f', classes_dex, '-rf', src_dir, '-rj', titanium_jar, '-rj', rhino_jar]
+			for module in android_module_jars:
+				apk_build_cmd += ['-rj', module]
+			
+			run.run(apk_build_cmd)
 	
 			if dist_dir:
 				app_apk = os.path.join(dist_dir, project_name + '.apk')	
@@ -634,7 +642,7 @@ class Builder(object):
 			if dist_dir:
 				sys.exit(0)			
 
-			out = subprocess.Popen([self.adb,'get-state'], stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
+			out = subprocess.Popen([self.sdk.get_adb(),'get-state'], stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
 			out = str(out).strip()
 			
 			# try a few times as sometimes it fails waiting on boot
@@ -643,7 +651,7 @@ class Builder(object):
 			launch_failed = False
 			while attempts < 5:
 				try:
-					cmd = [self.adb]
+					cmd = [self.sdk.get_adb()]
 					if install:
 						self.wait_for_device('d')
 						print "[INFO] Installing application on emulator"
@@ -664,7 +672,7 @@ class Builder(object):
 			if launched:
 				print "[INFO] Launching application ... %s" % self.name
 				sys.stdout.flush()
-				run.run([self.adb, '-e' , 'shell', 'am', 'start', '-a', 'android.intent.action.MAIN', '-c','android.intent.category.LAUNCHER', '-n', '%s/.%sActivity' % (self.app_id , self.classname)])
+				run.run([self.sdk.get_adb(), '-e' , 'shell', 'am', 'start', '-a', 'android.intent.action.MAIN', '-c','android.intent.category.LAUNCHER', '-n', '%s/.%sActivity' % (self.app_id , self.classname)])
 				print "[INFO] Deployed %s ... Application should be running." % self.name
 			elif launch_failed==False:
 				print "[INFO] Application installed. Launch from drawer on Home Screen"
@@ -716,7 +724,7 @@ if __name__ == "__main__":
 		s.build_and_run(True,avd_id,key,password,alias,output_dir)
 	else:
 		print "[ERROR] Unknown command"
-		sys.exit(1)		
+		sys.exit(1)
 
 	sys.exit(0)
 	

@@ -8,8 +8,9 @@ var l = Titanium.UI.createLabel({
 	text:'You have not clicked anything',
 	color:'#777',
 	font:{fontSize:13, fontFamily:'Helvetica Neue'},
-	top:10,
-	left:10
+	width:'auto',
+	height:'auto',
+	textAlign:'center'
 });
 win.add(l);
 
@@ -103,6 +104,20 @@ tb3.addEventListener('click', function(e)
 	l.text = 'You clicked index = ' + e.index;
 });
 
+
+// title control
+var tb4 = Titanium.UI.createTabbedBar({
+	labels:['One', 'Two'],
+	index:0,
+	backgroundColor:'red',
+	style:Titanium.UI.iPhone.SystemButtonStyle.BAR
+});
+win.setTitleControl(tb4);
+
+tb4.addEventListener('click', function(e)
+{
+	l.text = 'You clicked index = ' + e.index;
+});
 
 //
 // CUSTOM TABBED BAR

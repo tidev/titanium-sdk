@@ -1,0 +1,28 @@
+- namespace
+
+Titanium.XML
+
+- type
+
+module
+
+- description
+
+The top level XML module.  The XML module is used parsing and processing XML-based content.
+
+- since
+
+0.9
+
+- platforms
+
+android, iphone
+
+- methods
+
+parseString: parse an XML string into a DOMDocument
+
+- method : parseString, object
+
+xml[string]: the XML content as a string
+

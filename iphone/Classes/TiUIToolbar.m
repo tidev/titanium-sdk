@@ -90,14 +90,14 @@
 -(void)setBorderTop_:(id)value
 {
 	hideTopBorder = ![TiUtils boolValue:value def:YES];
-	[self reposition];
+	[(TiViewProxy *)[self proxy] setNeedsReposition];
 	//The default is that a top border exists.
 }
 
 -(void)setBorderBottom_:(id)value
 {
 	showBottomBorder = [TiUtils boolValue:value def:NO];
-	[self reposition];
+	[(TiViewProxy *)[self proxy] setNeedsReposition];
 	//The default is that there is no bottom border.
 }
 
@@ -121,7 +121,6 @@
 		return;
 	}
 
-	[[self toolBar] setTranslucent:NO];
 	[toolBar setBarStyle:UIBarStyleBlack];
 	[toolBar setTintColor:newBarColor];
 }
@@ -143,11 +142,6 @@
 		result += 1.0;
 	}
 	return result;
-}
-
--(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
-{
-	return suggestedResizing & ~UIViewAutoresizingFlexibleHeight;
 }
 
 @end

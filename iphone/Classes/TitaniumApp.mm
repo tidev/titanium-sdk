@@ -4,17 +4,19 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#include <stdio.h>
+#include <execinfo.h>
 
 #import "TitaniumApp.h"
 #import "Webcolor.h"
+#import "TiBase.h"
 #import "TitaniumErrorController.h"
-#include <stdio.h>
-#include <execinfo.h>
 #import <QuartzCore/QuartzCore.h>
 
 TitaniumApp* sharedApp;
 
 NSString * const kTitaniumUserAgentPrefix = @"Appcelerator Titanium"; 
+extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 //
 // thanks to: http://www.restoroot.com/Blog/2008/10/18/crash-reporter-for-iphone-applications/
@@ -70,7 +72,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 @implementation TitaniumApp
 
-@synthesize window;
+@synthesize window, remoteNotificationDelegate;
 
 + (TitaniumApp*)app
 {
@@ -134,7 +136,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	// attach our main view controller
 	controller = [[TitaniumViewController alloc] init];
 	[window addSubview:controller.view];
-	controller.view.backgroundColor = [UIColor blueColor];
+	controller.view.backgroundColor = [UIColor clearColor];
 	
 	
 	// create our loading view
@@ -169,6 +171,8 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (void)boot
 {
+	sessionId = [[TiUtils createUUID] retain];
+	
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];
 	xhrBridge = [[XHRBridge alloc] initWithHost:self];
 	
@@ -201,6 +205,13 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	NSSetUncaughtExceptionHandler(&MyUncaughtExceptionHandler);
     [self loadSplash];
 	
+	// get the current remote device UUID if we have one
+	NSString *curKey = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
+	if (curKey!=nil)
+	{
+		remoteDeviceUUID = [curKey copy];
+	}
+
 	launchOptions = [[NSMutableDictionary alloc] initWithDictionary:launchOptions_];
 	
 	NSURL *urlOptions = [launchOptions objectForKey:UIApplicationLaunchOptionsURLKey];
@@ -220,10 +231,7 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	}
 	if (notification!=nil)
 	{
-		[launchOptions setObject:notification forKey:@"notification"];
-		[launchOptions removeObjectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
-		// trigger manually since this method isn't called when we have this delegate implemented 
-		[self application:application didReceiveRemoteNotification:notification];
+		remoteNotification = [[notification objectForKey:@"aps"] retain];
 	}
 	
 	[self boot];
@@ -233,12 +241,14 @@ void MyUncaughtExceptionHandler(NSException *exception)
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"titanium.shutdown" object:self];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTitaniumShutdownNotification object:self];
 	
 	[kjsBridge shutdown];
 	[xhrBridge shutdown];
 	RELEASE_TO_NIL(kjsBridge);
 	RELEASE_TO_NIL(xhrBridge);
+	RELEASE_TO_NIL(remoteNotification);
+	RELEASE_TO_NIL(sessionId);
 }
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
@@ -248,6 +258,62 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	[xhrBridge gc];
 }
 
+-(id)remoteNotification
+{
+	return remoteNotification;
+}
+
+#pragma mark Push Notification Delegates
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
+{
+	// NOTE: this is called when the app is *running* after receiving a push notification
+	// otherwise, if the app is started from a push notification, this method will not be 
+	// called
+	RELEASE_TO_NIL(remoteNotification);
+	remoteNotification = [[userInfo objectForKey:@"aps"] retain];
+	
+	if (remoteNotificationDelegate!=nil)
+	{
+		[remoteNotificationDelegate performSelector:@selector(application:didReceiveRemoteNotification:) withObject:application withObject:remoteNotification];
+	}
+}
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{ 
+	NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"withString:@""] 
+						stringByReplacingOccurrencesOfString:@">" withString:@""] 
+					   stringByReplacingOccurrencesOfString: @" " withString: @""];
+	
+	RELEASE_TO_NIL(remoteDeviceUUID);
+	remoteDeviceUUID = [token copy];
+	
+	NSString *curKey = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
+	if (curKey==nil || ![curKey isEqualToString:remoteDeviceUUID])
+	{
+		// this is the first time being registered, we need to indicate to our backend that we have a 
+		// new registered device to enable this device to receive notifications from the cloud
+		[[NSUserDefaults standardUserDefaults] setObject:remoteDeviceUUID forKey:@"APNSRemoteDeviceUUID"];
+		NSDictionary *userInfo = [NSDictionary dictionaryWithObject:remoteDeviceUUID forKey:@"deviceid"];
+		[[NSNotificationCenter defaultCenter] postNotificationName:kTitaniumRemoteDeviceUUIDNotification object:self userInfo:userInfo];
+		NSLog(@"[DEBUG] registered new device ready for remote push notifications: %@",remoteDeviceUUID);
+	}
+	
+	if (remoteNotificationDelegate!=nil)
+	{
+		[remoteNotificationDelegate performSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:) withObject:application withObject:deviceToken];
+	}
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
+{
+	if (remoteNotificationDelegate!=nil)
+	{
+		[remoteNotificationDelegate performSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:) withObject:application withObject:error];
+	}
+}
+
+
 -(TitaniumViewController*)controller
 {
 	return controller;
@@ -256,6 +322,11 @@ void MyUncaughtExceptionHandler(NSException *exception)
 //TODO: this should be compiled out in production mode
 -(void)showModalError:(NSString*)message
 {
+	if ([TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"])
+	{
+		NSLog(@"[ERROR] application received error: %@",message);
+		return;
+	}
 	ENSURE_UI_THREAD(showModalError,message);
 	TitaniumErrorController *error = [[[TitaniumErrorController alloc] initWithError:message] autorelease];
 	[controller presentModalViewController:error animated:YES];
@@ -266,7 +337,8 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	UINavigationController *navController = [controller navigationController];
 	if (navController==nil)
 	{
-		navController = [controller currentNavController];
+//TODO: Fix me!
+//		navController = [controller currentNavController];
 	}
 	// if we have a nav controller, use him, otherwise use our root controller
 	if (navController!=nil)
@@ -282,6 +354,10 @@ void MyUncaughtExceptionHandler(NSException *exception)
 -(void)dismissModalController:(BOOL)animated
 {
 	UINavigationController *navController = [controller navigationController];
+	if (navController==nil)
+	{
+//		navController = [controller currentNavController];
+	}
 	if (navController!=nil)
 	{
 		[navController dismissModalViewControllerAnimated:animated];
@@ -304,6 +380,8 @@ void MyUncaughtExceptionHandler(NSException *exception)
 	RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(networkActivity);
 	RELEASE_TO_NIL(userAgent);
+	RELEASE_TO_NIL(remoteDeviceUUID);
+	RELEASE_TO_NIL(remoteNotification);
     [super dealloc];
 }
 
@@ -322,6 +400,16 @@ void MyUncaughtExceptionHandler(NSException *exception)
 -(BOOL)isKeyboardShowing
 {
 	return keyboardShowing;
+}
+
+-(NSString*)remoteDeviceUUID
+{
+	return remoteDeviceUUID;
+}
+
+-(NSString*)sessionId
+{
+	return sessionId;
 }
 
 #pragma mark Keyboard Delegates

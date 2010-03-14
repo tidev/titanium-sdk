@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiUIView.h"
-
+#import "ImageLoader.h"
 
 //
 // this is a re-implementation (sort of) of the UIImageView object used for
@@ -13,7 +13,7 @@
 // problemmatic and we try and solve it here.
 //
 
-@interface TiUIImageView : TiUIView 
+@interface TiUIImageView : TiUIView <ImageLoaderDelegate>
 {
 @private
 	NSMutableArray *images;
@@ -26,12 +26,21 @@
 	UIView *container;
 	BOOL ready;
 	BOOL stopped;
+	BOOL reverse;
+	BOOL paused;
+	BOOL placeholderLoading;
+	CGFloat width;
+	CGFloat height;
+	CGFloat autoHeight;
+	CGFloat autoWidth;
 	NSInteger loadCount;
 	NSInteger readyCount;
 	NSInteger loadTotal;
+	ImageLoaderRequest *urlRequest;
 }
 
--(void)start:(id)args;
--(void)stop:(id)args;
+-(void)start;
+-(void)stop;
+-(void)pause;
 
 @end

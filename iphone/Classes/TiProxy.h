@@ -17,6 +17,9 @@ extern NSString * const TiExceptionInvalidType;
 extern NSString * const TiExceptionNotEnoughArguments;
 extern NSString * const TiExceptionRangeError;
 
+//This is when a normally allowed command is not allowed (Say, adding a row to a table when it already is added elsewhere)
+extern NSString * const TiExceptionInternalInconsistency;
+
 //Should be rare, but also useful if arguments are used improperly.
 extern NSString * const TiExceptionInternalInconsistency;
 
@@ -32,9 +35,6 @@ typedef enum {
 } TiProxyBridgeType;
 
 
-//
-// delegate for receiving property changes
-//
 @protocol TiProxyDelegate
 
 @required
@@ -42,13 +42,23 @@ typedef enum {
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy;
 
 @optional
+
+-(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys;
+
 -(void)listenerAdded:(NSString*)type count:(int)count;
 -(void)listenerRemoved:(NSString*)type count:(int)count;
 
 @end
 
+SEL SetterForKrollProperty(NSString * key);
+SEL SetterWithObjectForKrollProperty(NSString * key);
 
-@interface TiProxy : NSObject<KrollDynamicMethodProxy,KrollTargetable> {
+void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> * target, NSString * key, id oldValue, id newValue, TiProxy * proxy);
+void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target, id<NSFastEnumeration> keys, TiProxy * proxy);
+//Why are these here? Because they can be commonly used between TiUIView and TiUITableViewCell.
+
+
+@interface TiProxy : NSObject<KrollTargetable> {
 @private
 	NSMutableDictionary *listeners;
 	BOOL destroyed;
@@ -59,14 +69,13 @@ typedef enum {
 	NSRecursiveLock *destroyLock;
 @protected
 	NSMutableDictionary *dynprops;
+	NSRecursiveLock *dynPropsLock;
 	id<TiEvaluator> pageContext;
 	id<TiEvaluator> executionContext;
-	NSString *proxyId;
 }
 
 @property(readonly,nonatomic)			id<TiEvaluator> pageContext;
 @property(readonly,nonatomic)			id<TiEvaluator> executionContext;
-@property(readonly,nonatomic)			NSString *proxyId;
 
 @property(nonatomic,assign,readwrite)	id<TiProxyDelegate> modelDelegate;
 
@@ -80,7 +89,7 @@ typedef enum {
 -(void)_fireEventToListener:(NSString*)type withObject:(id)obj listener:(KrollCallback*)listener thisObject:(TiProxy*)thisObject_;
 -(id)_proxy:(TiProxyBridgeType)type;
 -(void)_willChangeValue:(id)property value:(id)value;
--(void)_diChangeValue:(id)property value:(id)value;
+-(void)_didChangeValue:(id)property value:(id)value;
 -(void)_contextDestroyed;
 -(void)contextWasShutdown:(KrollBridge*)bridge;
 -(TiHost*)_host;
@@ -95,14 +104,19 @@ typedef enum {
 -(void)contextShutdown:(id)sender;
 
 #pragma mark Public
--(id<NSFastEnumeration>)validKeys;
--(id)resultForUndefinedMethod:(NSString*)name args:(NSArray*)args;
+-(id<NSFastEnumeration>)allKeys;
 -(void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues usingKeys:(id<NSFastEnumeration>)keys;
 +(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
 -(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
 -(void)addEventListener:(NSArray*)args;
 -(void)removeEventListener:(NSArray*)args;
+
+-(void)fireEvent:(NSString*)type;
 -(void)fireEvent:(NSString*)type withObject:(id)obj;
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source;
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)yn;
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn;
+
 -(NSDictionary*)allProperties;
 -(void)replaceValue:(id)value forKey:(NSString*)key notification:(BOOL)notify;
 -(void)setExecutionContext:(id<TiEvaluator>)context;

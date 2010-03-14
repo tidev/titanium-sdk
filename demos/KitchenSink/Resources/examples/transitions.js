@@ -64,7 +64,7 @@ b2.addEventListener('click', function()
 	var b = Ti.UI.createButton({title:'Close Me',width:200,height:40});
 	b.addEventListener('click',function()
 	{
-		win.animate({view:view,transition:Ti.UI.iPhone.AnimationStyle.CURL_UP})
+		win.animate({view:view,transition:Ti.UI.iPhone.AnimationStyle.CURL_UP});
 	})
 	view2.add(b);
 	
@@ -138,18 +138,22 @@ var bb1 = Titanium.UI.createButtonBar({
 	labels:['One', 'Two', 'Three', 'Four', 'Five'],
 	backgroundColor:'maroon',
 	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
+	width:'auto',
+	height:'auto'
 });
 var bb2 = Titanium.UI.createButtonBar({
 	labels:['Six', 'Seven', 'Eight'],
 	backgroundColor:'#336699',
 	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
-	
+	width:'auto',
+	height:'auto'
 });
 var bb3 = Titanium.UI.createButtonBar({
 	labels:['Nine', 'Ten', 'Eleven', 'Twelve'],
 	backgroundColor:'#ff9900',
 	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
-	
+	width:'auto',
+	height:'auto'
 });
 bb1.addEventListener('click', function()
 {
@@ -275,7 +279,9 @@ b2.addEventListener('click', function()
 })
 var bViewLabel = Titanium.UI.createLabel({
 	text:'Ouch!',
-	color:'#fff'
+	color:'#fff',
+	width:'auto',
+	height:'auto'
 });
 b2.add(bViewLabel);
 

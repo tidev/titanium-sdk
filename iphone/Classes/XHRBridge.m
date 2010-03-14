@@ -4,20 +4,21 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
+#import "TiBase.h"
 #import "XHRBridge.h"
 #import "TiHost.h"
 #import "TiProxy.h"
 #import "SBJSON.h"
 #import "TiModule.h"
+#import "Mimetypes.h"
 
 static XHRBridge *xhrBridge = nil;
 
-@implementation TiProtocolHandler
+@implementation AppProtocolHandler
 
 + (NSString*) specialProtocolScheme 
 {
-	return @"ti";
+	return @"app";
 }
 
 + (void) registerSpecialProtocol 
@@ -25,7 +26,7 @@ static XHRBridge *xhrBridge = nil;
 	static BOOL inited = NO;
 	if ( ! inited ) 
 	{
-		[NSURLProtocol registerClass:[TiProtocolHandler class]];
+		[NSURLProtocol registerClass:[AppProtocolHandler class]];
 		inited = YES;
 	}
 }
@@ -46,17 +47,17 @@ static XHRBridge *xhrBridge = nil;
     return request;
 }
 
-- (void)startLoading
+-(void)handleAppToTiRequest
 {
 	id<NSURLProtocolClient> client = [self client];
     NSURLRequest *request = [self request];
 	NSURL *url = [request URL];
 
-	NSString *pageToken = [url host];
 	NSArray *parts = [[[url path] substringFromIndex:1] componentsSeparatedByString:@"/"];
-	NSString *module = [parts objectAtIndex:0];
-	NSString *method = [parts objectAtIndex:1];
-	NSString *prearg = [parts objectAtIndex:2];
+	NSString *pageToken = [[parts objectAtIndex:0] stringByReplacingOccurrencesOfString:@"_TiA0_" withString:@""];
+	NSString *module = [parts objectAtIndex:1];
+	NSString *method = [parts objectAtIndex:2];
+	NSString *prearg = [url query];
 	NSString *arguments = prearg==nil ? @"" : [prearg stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	
 	
@@ -64,8 +65,9 @@ static XHRBridge *xhrBridge = nil;
 	NSError *error = nil;
 	NSDictionary *event = [decoder fragmentWithString:arguments error:&error];
 	
-	TiModule *tiModule = (TiModule*)[[xhrBridge host] moduleNamed:module];
-	[tiModule setExecutionContext:[[xhrBridge host] contextForToken:pageToken]];
+	id<TiEvaluator> context = [[xhrBridge host] contextForToken:pageToken];
+	TiModule *tiModule = (TiModule*)[[xhrBridge host] moduleNamed:module context:context];
+	[tiModule setExecutionContext:context];
 	
 	BOOL executed = YES;
 	
@@ -95,12 +97,58 @@ static XHRBridge *xhrBridge = nil;
 		executed = NO;
 	}
 	
-	NSData *data = executed ? [[NSString stringWithFormat:@"{'success':true}"] dataUsingEncoding:NSUTF8StringEncoding] : nil;
+	NSData *data = executed ? [NSData data] : nil;
 	
 	if (data!=nil)
 	{
 		NSURLCacheStoragePolicy caching = NSURLCacheStorageNotAllowed;
-		NSURLResponse *response = [[NSURLResponse alloc] initWithURL:url MIMEType:@"text/javascript" expectedContentLength:[data length] textEncodingName:@"utf-8"];
+		NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:url MIMEType:@"text/plain" expectedContentLength:[data length] textEncodingName:@"utf-8"];
+		[client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:caching];
+		[client URLProtocol:self didLoadData:data];
+		[client URLProtocolDidFinishLoading:self];
+		[response release];
+	}
+	else 
+	{
+		NSLog(@"[ERROR] Error loading %@",url);
+		[client URLProtocol:self didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorResourceUnavailable userInfo:nil]];
+		[client URLProtocolDidFinishLoading:self];
+	}
+}
+
+- (void)startLoading
+{
+	id<NSURLProtocolClient> client = [self client];
+    NSURLRequest *request = [self request];
+	NSURL *url = [request URL];
+	
+	// check to see if this is a bridge request through a webview
+	if ([[url path] hasPrefix:@"/_TiA0_"])
+	{
+		[self handleAppToTiRequest];
+		return;
+	}
+
+#ifdef DEBUG	
+	NSLog(@"[DEBUG] app protocol, loading: %@",url);
+#endif
+		
+	// see if it's a compiled resource
+	NSData *data = [TiUtils loadAppResource:url];
+	if (data==nil)
+	{
+		// check to see if it's a local resource in the bundle, could be
+		// a bundled image, etc. - or we could be running from XCode :)
+		NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
+		NSString *path = [NSString stringWithFormat:@"%@%@",resourceurl,[url path]];
+		data = [[[NSData alloc] initWithContentsOfFile:path] autorelease];
+	}
+	
+	if (data!=nil)
+	{
+		NSURLCacheStoragePolicy caching = NSURLCacheStorageAllowedInMemoryOnly;
+		NSString *mime = [Mimetypes mimeTypeForExtension:[url path]];
+		NSURLResponse *response = [[NSURLResponse alloc] initWithURL:url MIMEType:mime expectedContentLength:[data length] textEncodingName:@"utf-8"];
 		[client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:caching];
 		[client URLProtocol:self didLoadData:data];
 		[client URLProtocolDidFinishLoading:self];
@@ -120,7 +168,6 @@ static XHRBridge *xhrBridge = nil;
 
 @end
 
-
 @implementation XHRBridge
 
 -(id)init
@@ -134,7 +181,7 @@ static XHRBridge *xhrBridge = nil;
 
 -(void)boot:(id)callback url:(NSURL*)url preload:(NSDictionary*)preload
 {
-	[TiProtocolHandler registerSpecialProtocol];
+	[AppProtocolHandler registerSpecialProtocol];
 }
 
 -(void)shutdown

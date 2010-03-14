@@ -11,8 +11,13 @@
 
 -(void)contextShutdown:(NSNotification*)note
 {
-	[[self retain] autorelease];
-	[proxy removeEventListener:[NSArray arrayWithObjects:type,listener,nil]];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kKrollShutdownNotification object:context];
+	removed=YES;
+	if (type!=nil)
+	{
+		[proxy removeEventListener:[NSArray arrayWithObjects:type,listener,nil]];
+	}
+	RELEASE_TO_NIL(context);
 }
 
 -(id)initWithListener:(id)listener_ context:(id<TiEvaluator>)context_ proxy:(TiProxy*)proxy_ type:(NSString*)type_
@@ -21,8 +26,8 @@
 	{
 		assert(context_);
 		listener = [listener_ retain];
-		context = context_;// don't retain
-		proxy = proxy_; // don't retain
+		context = [context_ retain];
+		proxy = [proxy_ retain];
 		type = [type_ retain];
 		// since a context can get shutdown while we're holding him.. we listener for shutdown events so we can automatically remove ourselves
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contextShutdown:) name:kKrollShutdownNotification object:context];
@@ -32,9 +37,14 @@
 
 -(void)dealloc
 {
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kKrollShutdownNotification object:context];
+	if (removed==NO)
+	{
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:kKrollShutdownNotification object:context];
+	}
 	RELEASE_TO_NIL(listener);
 	RELEASE_TO_NIL(type);
+	RELEASE_TO_NIL(context);
+	RELEASE_TO_NIL(proxy);
 	[super dealloc];
 }
 

@@ -61,6 +61,8 @@ change.addEventListener('click', function()
 	toolbar2.barColor = '#000';
 	toolbar2.width = 300;
 	
+	change.width = "160";
+	change.title = "Change Toolbar (!)";
 });
 var revert = Titanium.UI.createButton({
 	title:'Revert Toolbar',
@@ -73,6 +75,8 @@ revert.addEventListener('click', function()
 	toolbar2.barColor = '#336699';
 	toolbar2.width = null;
 	
+	change.width = 0; // 0 means auto
+	change.title = "Change Toolbar";
 });
 
 var toolbar2 = Titanium.UI.createToolbar({

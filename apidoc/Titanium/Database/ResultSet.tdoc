@@ -1,0 +1,49 @@
+- namespace
+
+Titanium.Database.ResultSet
+
+- type
+
+object
+
+- description
+
+The ResultSet instance returned by invoking a database SQL `execute`.
+
+- since
+
+0.1
+
+- platforms
+
+android, iphone
+
+
+- methods
+
+close: close the result set and release resources. once closed, this result set must no longer be used
+next:iterate to the next row in the result set. returns false if no more results are available
+field: retrieve a row value by field index
+fieldByName: retrieve a row value by field name
+fieldCount: return the number of columns in the result set
+isValidRow: return true if the row is a valid row
+
+- method : next, boolean
+
+- method : field, object
+
+index[int] : column index (which is zero based)
+
+- method : fieldByName, object
+
+name[string] : column name from SQL query
+
+- method : fieldCount, int
+
+- method : isValidRow, boolean
+
+- properties
+
+rowCount[int] : the number of rows in the result set
+validRow[boolean] : returns true if the current row is still valid
+

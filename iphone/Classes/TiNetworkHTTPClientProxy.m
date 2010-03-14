@@ -95,26 +95,26 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	return @"[object TiNetworkClient]";
 }
 
--(NSNumber*)status
+-(NSInteger)status
 {
 	if (request!=nil)
 	{
-		return [NSNumber numberWithInt:[request responseStatusCode]];
+		return [request responseStatusCode];
 	}
 	else 
 	{
-		return [NSNumber numberWithInt:-1];
+		return -1;
 	}
 }
 
--(NSNumber*)readyState
+-(NSInteger)readyState
 {
-	return [NSNumber numberWithInt:readyState];
+	return readyState;
 }
 
--(NSNumber*)connected
+-(BOOL)connected
 {
-	return [NSNumber numberWithBool:connected];
+	return connected;
 }
 
 -(NSString*)responseText
@@ -122,10 +122,11 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	if (request!=nil && [request error]==nil)
 	{
 		NSData *data = [request responseData];
-		if (data==nil) 
+		if (data==nil || [data length]==0) 
 		{
 			return nil;
 		}
+		[[data retain] autorelease];
 		NSString * result = [[[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:[request responseEncoding]] autorelease];
 		if (result==nil)
 		{
@@ -176,29 +177,29 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	return [[request url] absoluteString];
 }
 
--(NSNumber*)UNSENT
+-(NSInteger)UNSENT
 {
-	return [NSNumber numberWithInt:NetworkClientStateUnsent];
+	return NetworkClientStateUnsent;
 }
 
--(NSNumber*)OPENED
+-(NSInteger)OPENED
 {
-	return [NSNumber numberWithInt:NetworkClientStateOpened];
+	return NetworkClientStateOpened;
 }
 
--(NSNumber*)HEADERS_RECEIVED
+-(NSInteger)HEADERS_RECEIVED
 {
-	return [NSNumber numberWithInt:NetworkClientStateHeaders];
+	return NetworkClientStateHeaders;
 }
 
--(NSNumber*)LOADING
+-(NSInteger)LOADING
 {
-	return [NSNumber numberWithInt:NetworkClientStateLoading];
+	return NetworkClientStateLoading;
 }
 
--(NSNumber*)DONE
+-(NSInteger)DONE
 {
-	return [NSNumber numberWithInt:NetworkClientStateDone];
+	return NetworkClientStateDone;
 }
 
 -(void)_fireReadyStateChange:(NetworkClientState) state
@@ -209,13 +210,13 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	{
 		[self _fireEventToListener:@"readystatechange" withObject:nil listener:onreadystatechange thisObject:thisPointer];
 	}
-	if (onload!=nil && state==NetworkClientStateDone)
+	if (onload!=nil && state==NetworkClientStateDone && connected)
 	{
 		[self _fireEventToListener:@"load" withObject:nil listener:onload thisObject:thisPointer];
 	}
 }
 
--(void)abort
+-(void)abort:(id)args
 {
 	if (request!=nil && connected)
 	{
@@ -253,10 +254,13 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 		[request setDownloadProgressDelegate:self];
 	}
 	
-	//TODO: setup useragent, etc
 	[request addRequestHeader:@"User-Agent" value:[[TitaniumApp app] userAgent]];
 	[request setRequestMethod:method];
 	[request setDefaultResponseEncoding:NSUTF8StringEncoding];
+	// don't cache credentials, session etc since each request might be to
+	// different URI and cause security compromises if we do 
+	[request setUseSessionPersistance:NO];
+	[request setUseKeychainPersistance:NO];
 	[self _fireReadyStateChange:NetworkClientStateOpened];
 	[self _fireReadyStateChange:NetworkClientStateHeaders];
 }
@@ -267,6 +271,10 @@ NSStringEncoding ExtractEncodingFromData(NSData * inputData)
 	
 	NSString *key = [TiUtils stringValue:[args objectAtIndex:0]];
 	NSString *value = [TiUtils stringValue:[args objectAtIndex:1]];
+	if ([key isEqualToString:@"User-Agent"])
+	{
+		value = [NSString stringWithFormat:@"%@ %@",value,[[TitaniumApp app] userAgent]];
+	}
 	[request addRequestHeader:key value:value];
 }
 

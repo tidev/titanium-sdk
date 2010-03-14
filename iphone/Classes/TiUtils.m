@@ -14,9 +14,48 @@
 #import "WebFont.h"
 #import "TiDimension.h"
 #import "TiColor.h"
-
+#import "TiFile.h"
+#import "TiBlob.h"
 
 @implementation TiUtils
+
++(void)queueAnalytics:(NSString*)type name:(NSString*)name data:(NSDictionary*)data
+{
+	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+						   VAL_OR_NSNULL(type),@"type",
+						   VAL_OR_NSNULL(name),@"name",
+						   VAL_OR_NSNULL(data),@"data",
+						   nil];
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTitaniumAnalyticsNotification object:nil userInfo:event];
+}
+
++(NSString *)UTCDateForDate:(NSDate*)data
+{
+	NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
+	NSTimeZone *timeZone = [NSTimeZone timeZoneWithName:@"UTC"];
+	[dateFormatter setTimeZone:timeZone];
+	//Example UTC full format: 2009-06-15T21:46:28.685+0000
+	[dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000"];
+	return [dateFormatter stringFromDate:[NSDate date]];
+}
+
++(NSString *)UTCDate
+{
+	return [TiUtils UTCDateForDate:[NSDate date]];
+}
+
++(NSString*)createUUID
+{
+	CFUUIDRef resultID = CFUUIDCreate(NULL);
+	NSString * resultString = (NSString *) CFUUIDCreateString(NULL, resultID);
+	CFRelease(resultID);
+	return [resultString autorelease];
+}
+
++(TiFile*)createTempFile:(NSString*)extension
+{
+	return [TiFile createTempFile:extension];
+}
 
 +(NSString *)encodeQueryPart:(NSString *)unencodedString
 {
@@ -180,6 +219,25 @@
 	return nil;
 }
 
++(UIImage*)toImage:(id)object proxy:(TiProxy*)proxy
+{
+	if ([object isKindOfClass:[TiBlob class]])
+	{
+		return [(TiBlob *)object image];
+	}
+
+	if ([object isKindOfClass:[TiFile class]])
+	{
+		TiFile *file = (TiFile*)object;
+		UIImage *image = [UIImage imageWithContentsOfFile:[file path]];
+		return image;
+	}
+
+	NSURL * urlAttempt = [self toURL:object proxy:proxy];
+	UIImage * image = [[ImageLoader sharedLoader] loadImmediateImage:urlAttempt];
+	return image;
+	//Note: If url is a nonimmediate image, this returns nil.
+}
 
 +(NSURL*)toURL:(id)object proxy:(TiProxy*)proxy
 {
@@ -190,6 +248,12 @@
 		if ([object hasPrefix:@"/"])
 		{
 			return [NSURL fileURLWithPath:object];
+		}
+		if ([object hasPrefix:@"sms:"] || 
+			[object hasPrefix:@"tel:"] ||
+			[object hasPrefix:@"mailto:"])
+		{
+			return [NSURL URLWithString:object];
 		}
 		url = [NSURL URLWithString:object relativeToURL:[proxy _baseURL]];
 		if (url==nil)
@@ -580,28 +644,23 @@
 
 +(UIDeviceOrientation)orientationValue:(id)value def:(UIDeviceOrientation)def
 {
-	UIDeviceOrientation orientation = def;
-	
 	if ([value isKindOfClass:[NSString class]])
 	{
 		if ([value isEqualToString:@"portrait"])
 		{
-			orientation = UIDeviceOrientationPortrait;
+			return UIDeviceOrientationPortrait;
 		}
-		else if ([value isEqualToString:@"landscape"])
+		if ([value isEqualToString:@"landscape"])
 		{
-			orientation = UIInterfaceOrientationLandscapeRight;
-		}
-		else
-		{
-			orientation = [TiUtils doubleValue:value];
+			return UIInterfaceOrientationLandscapeRight;
 		}
 	}
-	else if ([value isKindOfClass:[NSNumber class]])
+
+	if ([value respondsToSelector:@selector(intValue)])
 	{
-		orientation = [TiUtils doubleValue:value];
+		return [value intValue];
 	}
-	return orientation;
+	return def;
 }
 
 +(BOOL)isOrientationPortait
@@ -710,7 +769,7 @@
 
 +(NSData *)loadAppResource:(NSURL*)url
 {
-	if ([url isFileURL])
+	if ([url isFileURL] || [[url scheme] hasPrefix:@"app"])
 	{
 		static id AppRouter;
 		if (AppRouter==nil)
@@ -719,10 +778,22 @@
 		}
 		if (AppRouter!=nil)
 		{
-			NSString *urlstring = [url path];
+			NSString *urlstring = [[url standardizedURL] path];
 			NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
-			NSString *appurlstr = [NSString stringWithFormat:@"%@",[urlstring stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"%@/",resourceurl] withString:@""]];
+			NSRange range = [urlstring rangeOfString:resourceurl];
+			NSString *appurlstr = urlstring;
+			if (range.location!=NSNotFound)
+			{
+				appurlstr = [urlstring substringFromIndex:range.location + range.length + 1];
+			}
+			if ([appurlstr hasPrefix:@"/"])
+			{
+				appurlstr = [appurlstr substringFromIndex:1];
+			}
 			appurlstr = [appurlstr stringByReplacingOccurrencesOfString:@"." withString:@"_"];
+#ifdef DEBUG			
+			NSLog(@"[DEBUG] loading: %@, resource: %@",urlstring,appurlstr);
+#endif			
 			return [AppRouter performSelector:@selector(resolveAppAsset:) withObject:appurlstr];
 		}
 	}

@@ -5,15 +5,112 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import <QuartzCore/QuartzCore.h>
-
+#import "TiBase.h"
 #import "TiUIView.h"
 #import "TiColor.h"
+#import "TiRect.h"
 #import "TiUtils.h"
 #import "ImageLoader.h"
 #import "Ti2DMatrix.h"
 #import "Ti3DMatrix.h"
 #import "TiViewProxy.h"
 #import "TitaniumApp.h"
+
+
+void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFloat minimumContentHeight,CGRect responderRect)
+{
+	CGRect scrollVisibleRect;
+	scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:nil];
+	//First, find out how much we have to compensate.
+
+	CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;	
+	//ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
+
+	CGFloat unimportantArea = MAX(scrollVisibleRect.size.height - minimumContentHeight,0);
+	//It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
+
+	//As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
+
+	[scrollView setContentInset:UIEdgeInsetsMake(0, 0, MAX(0,obscuredHeight-unimportantArea), 0)];
+
+	scrollVisibleRect.size.height -= MAX(0,obscuredHeight);
+	
+	//Okay, the scrollVisibleRect.size now represents the actually visible area.
+	
+	CGPoint offsetPoint = [scrollView contentOffset];
+
+	CGPoint offsetForBottomRight;
+	offsetForBottomRight.x = responderRect.origin.x + responderRect.size.width - scrollVisibleRect.size.width;
+	offsetForBottomRight.y = responderRect.origin.y + responderRect.size.height - scrollVisibleRect.size.height;
+	
+	offsetPoint.x = MIN(responderRect.origin.x,MAX(offsetPoint.x,offsetForBottomRight.x));
+	offsetPoint.y = MIN(responderRect.origin.y,MAX(offsetPoint.y,offsetForBottomRight.y));
+
+	[scrollView setContentOffset:offsetPoint animated:YES];
+}
+
+void RestoreScrollViewFromKeyboard(UIScrollView * scrollView)
+{
+	CGSize scrollContentSize = [scrollView contentSize];
+	CGPoint scrollOffset = [scrollView contentOffset];
+	
+	[scrollView setContentInset:UIEdgeInsetsZero];
+
+	//Reposition the scroll to handle the uncovered area.
+	CGRect scrollVisibleRect = [scrollView bounds];
+	CGFloat maxYScrollOffset = scrollContentSize.height - scrollVisibleRect.size.height;
+	if (maxYScrollOffset < scrollOffset.y)
+	{
+		scrollOffset.y = MAX(0.0,maxYScrollOffset);
+		[scrollView setContentOffset:scrollOffset animated:YES];
+	}
+}
+
+
+CGFloat AutoWidthForView(UIView * superView,CGFloat suggestedWidth)
+{
+	CGFloat result = 0.0;
+	for (TiUIView * thisChildView in [superView subviews])
+	{
+		//TODO: This should be an unnecessary check, but this happening means the child class didn't override AutoWidth when it should have.
+		if(![thisChildView respondsToSelector:@selector(minimumParentWidthForWidth:)])
+		{
+			NSLog(@"[WARN] %@ contained %@, but called AutoWidthForView was called for it anyways."
+					"This typically means that -[TIUIView autoWidthForWidth] should have been overridden.",superView,thisChildView);
+			//Treating this as if we had no autosize, and thus, 
+			return suggestedWidth;
+		}
+		//END TODO
+		result = MAX(result,[thisChildView minimumParentWidthForWidth:suggestedWidth]);
+	}
+	return result;
+}
+
+CGFloat AutoHeightForView(UIView * superView,CGFloat suggestedWidth,BOOL isVertical)
+{
+	CGFloat neededAbsoluteHeight=0.0;
+	CGFloat neededVerticalHeight=0.0;
+
+	for (TiUIView * thisChildView in [superView subviews])
+	{
+		if (![thisChildView respondsToSelector:@selector(minimumParentHeightForWidth:)])
+		{
+			continue;
+		}
+		CGFloat thisHeight = [thisChildView minimumParentHeightForWidth:suggestedWidth];
+		if (isVertical)
+		{
+			neededVerticalHeight += thisHeight;
+		}
+		else
+		{
+			neededAbsoluteHeight = MAX(neededAbsoluteHeight,thisHeight);
+		}
+	}
+	return MAX(neededVerticalHeight,neededAbsoluteHeight);
+}
+
+
 
 NSInteger zindexSort(TiUIView* view1, TiUIView* view2, void *reverse)
 {
@@ -54,6 +151,17 @@ DEFINE_EXCEPTIONS
 	[super dealloc];
 }
 
+- (id) init
+{
+	self = [super init];
+	if (self != nil)
+	{
+		
+	}
+	return self;
+}
+
+
 -(BOOL)viewSupportsBaseTouchEvents
 {
 	// give the ability for the subclass to turn off our event handling
@@ -78,10 +186,12 @@ DEFINE_EXCEPTIONS
 			[proxy _hasListeners:@"dblclick"];
 } 
 
--(void)initializerState
+-(void)initializeState
 {
+	virtualParentTransform = CGAffineTransformIdentity;
 	multipleTouches = NO;
 	twoFingerTapIsPossible = NO;
+	touchEnabled = YES;
 	BOOL touchEventsSupported = [self viewSupportsBaseTouchEvents];
 	handlesTaps = touchEventsSupported && [self proxyHasTapListener];
 	handlesTouches = touchEventsSupported && [self proxyHasTouchListener];
@@ -94,11 +204,29 @@ DEFINE_EXCEPTIONS
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 }
 
--(void)setProxy:(TiViewProxy *)p
+-(void)willSendConfiguration
+{
+}
+
+-(void)didSendConfiguration
+{
+	configured = YES;
+}
+
+-(void)configurationSet
+{
+	// can be used to trigger things after all properties are set
+}
+
+-(BOOL)viewConfigured
+{
+	return configured;
+}
+
+-(void)setProxy:(TiProxy *)p
 {
 	proxy = p;
 	proxy.modelDelegate = self;
-	[self initializerState];
 }
 
 -(void)setParent:(TiViewProxy *)p
@@ -125,20 +253,40 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Layout 
 
--(LayoutConstraint*)layout
+-(LayoutConstraint*)layoutProperties
 {
-	return &layout;
+	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);	\
+	return [(TiViewProxy *)proxy layoutProperties];
+//	return &layoutProperties;
 }
 
--(void)setLayout:(LayoutConstraint *)layout_
+-(void)setLayoutProperties:(LayoutConstraint *)layout_
 {
-	layout.left = layout_->left;
-	layout.right = layout_->right;
-	layout.width = layout_->width;
-	layout.top = layout_->top;
-	layout.bottom = layout_->bottom;
-	layout.height = layout_->height;
+	NSLog(@"[INFO] Using view proxy via redirection instead of directly for %@.",self);	\
+	[(TiViewProxy *)proxy setLayoutProperties:layout_];
+//	layoutProperties = *layout_;
 }
+
+-(CGFloat)minimumParentWidthForWidth:(CGFloat)value
+{ { const char *__s = [[NSString stringWithFormat:@"[INFO] Using view proxy via redirection instead of directly for %@.",self] UTF8String]; if (__s[0]=='[') { fprintf(__stderrp,"%s\n", __s); fflush(__stderrp); } else { fprintf(__stderrp,"[DEBUG] %s\n", __s); fflush(__stderrp); }};
+	return [(TiViewProxy *)[self proxy] minimumParentWidthForWidth:value];
+}
+-(CGFloat)minimumParentHeightForWidth:(CGFloat)value { { const char *__s = [[NSString stringWithFormat:@"[INFO] Using view proxy via redirection instead of directly for %@.",self] UTF8String]; if (__s[0]=='[') { fprintf(__stderrp,"%s\n", __s); fflush(__stderrp); } else { fprintf(__stderrp,"[DEBUG] %s\n", __s); fflush(__stderrp); }}; return [(TiViewProxy *)[self proxy] minimumParentHeightForWidth:value]; }
+-(CGFloat)autoWidthForWidth:(CGFloat)value { { const char *__s = [[NSString stringWithFormat:@"[INFO] Using view proxy via redirection instead of directly for %@.",self] UTF8String]; if (__s[0]=='[') { fprintf(__stderrp,"%s\n", __s); fflush(__stderrp); } else { fprintf(__stderrp,"[DEBUG] %s\n", __s); fflush(__stderrp); }}; return [(TiViewProxy *)[self proxy] autoWidthForWidth:value]; }
+-(CGFloat)autoHeightForWidth:(CGFloat)value { { const char *__s = [[NSString stringWithFormat:@"[INFO] Using view proxy via redirection instead of directly for %@.",self] UTF8String]; if (__s[0]=='[') { fprintf(__stderrp,"%s\n", __s); fflush(__stderrp); } else { fprintf(__stderrp,"[DEBUG] %s\n", __s); fflush(__stderrp); }}; return [(TiViewProxy *)[self proxy] autoHeightForWidth:value]; }
+
+
+//USE_PROXY_FOR_MIN_PARENT_WIDTH
+//USE_PROXY_FOR_MIN_PARENT_HEIGHT
+//USE_PROXY_FOR_AUTO_HEIGHT
+//USE_PROXY_FOR_AUTO_WIDTH
+
+
+
+
+
+
+
 
 -(void)insertIntoView:(UIView*)newSuperview bounds:(CGRect)bounds
 {
@@ -147,28 +295,30 @@ DEFINE_EXCEPTIONS
 		NSLog(@"[ERROR] invalid call to insertIntoView, new super view is same as myself");
 		return;
 	}
-	ApplyConstraintToViewWithinViewWithBounds(&layout, self, newSuperview, bounds,YES);
-}
-
--(void)reposition
-{
-	if ([NSThread isMainThread])
-	{	//NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?
-		[self relayout:[self superview].bounds];
-	}
-	else 
+	if (repositioning==NO)
 	{
-		[self performSelectorOnMainThread:@selector(reposition) withObject:nil waitUntilDone:NO];
+		repositioning = YES;		
+		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, newSuperview, bounds,YES);
+		[(TiViewProxy *)[self proxy] clearNeedsReposition];
+		repositioning = NO;
 	}
-
 }
 
 -(void)relayout:(CGRect)bounds
 {
+	if (animating)
+	{
+#ifdef DEBUG		
+		// changing the layout while animating is bad, ignore for now
+		NSLog(@"[DEBUG] ignoring new layout while animating..");
+#endif		
+		return;
+	}
 	if (repositioning==NO)
 	{
-		repositioning = YES;
-		ApplyConstraintToViewWithinViewWithBounds(&layout, self, [self superview], bounds, YES);
+		repositioning = YES;		
+		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
+		[(TiViewProxy *)proxy clearNeedsReposition];
 		repositioning = NO;
 	}
 }
@@ -183,14 +333,24 @@ DEFINE_EXCEPTIONS
 #endif		
 		return;
 	}
-	[self setLayout:layout_];
+//	[self setLayoutProperties:layout_];
 	[self relayout:bounds];
 }
 
 -(void)performZIndexRepositioning
 {
+	if ([[self subviews] count] == 0)
+	{
+		return;
+	}
+	
+	if (![NSThread isMainThread])
+	{
+		[self performSelectorOnMainThread:@selector(performZIndexRepositioning) withObject:nil waitUntilDone:NO];
+		return;
+	}
+	
 	// sort by zindex
-	/*
 	NSArray *children = [[NSArray arrayWithArray:[self subviews]] sortedArrayUsingFunction:zindexSort context:NULL];
 						 
 	// re-configure all the views by zindex order
@@ -200,7 +360,7 @@ DEFINE_EXCEPTIONS
 		[child removeFromSuperview];
 		[self addSubview:child];
 		[child release];
-	}*/
+	}
 }
 
 -(unsigned int)zIndex
@@ -210,7 +370,11 @@ DEFINE_EXCEPTIONS
 
 -(void)repositionZIndex
 {
-	[[parent view] performZIndexRepositioning];
+	if (parent!=nil && [parent viewAttached])
+	{
+		TiUIView *parentView = [parent view];
+		[parentView performZIndexRepositioning];
+	}
 }
 
 -(BOOL)animationFromArgument:(id)args
@@ -226,50 +390,77 @@ DEFINE_EXCEPTIONS
 	// for subclasses to do crap
 }
 
+
+-(void)setFrame:(CGRect)frame
+{
+	[super setFrame:frame];
+	
+	// this happens when a view is added to another view but not
+	// through the framework (such as a tableview header) and it
+	// means we need to force the layout of our children
+	if (childrenInitialized==NO && 
+		CGRectIsEmpty(frame)==NO &&
+		[self.proxy isKindOfClass:[TiViewProxy class]])
+	{
+		childrenInitialized=YES;
+		[(TiViewProxy*)self.proxy layoutChildren];
+	}
+}
+
+-(void)checkBounds
+{
+	CGRect newBounds = [self bounds];
+	if(!CGSizeEqualToSize(oldSize, newBounds.size))
+	{
+		oldSize = newBounds.size;
+		[self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:newBounds];
+	}
+}
+
+
+
 -(void)setBounds:(CGRect)bounds
 {
 	[super setBounds:bounds];
-	[self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:bounds];
+	if(!CGPointEqualToPoint(CGPointZero, bounds.origin))
+	[self checkBounds];
 }
 
--(CGFloat)minimumParentWidthForWidth:(CGFloat)suggestedWidth
+-(void)layoutSubviews
 {
-	CGFloat result = TiDimensionCalculateValue(layout.left, 0)
-			+ TiDimensionCalculateValue(layout.right, 0);
-	switch (layout.width.type)
-	{
-		case TiDimensionTypePixels:
-			result += layout.width.value;
-			break;
-		case TiDimensionTypeAuto:
-			if ([self respondsToSelector:@selector(autoWidthForWidth:)])
-			{
-				result += [self autoWidthForWidth:suggestedWidth - result];
-			}
-	}
-	return result;
+	[super layoutSubviews];
+	[self checkBounds];
 }
 
--(CGFloat)minimumParentHeightForWidth:(CGFloat)suggestedWidth
+
+-(void)updateTransform
 {
-	CGFloat result = TiDimensionCalculateValue(layout.top, 0)
-			+ TiDimensionCalculateValue(layout.bottom, 0);
-	switch (layout.height.type)
+	if ([transformMatrix isKindOfClass:[Ti2DMatrix class]])
 	{
-		case TiDimensionTypePixels:
-			result += layout.height.value;
-			break;
-		case TiDimensionTypeAuto:
-			if ([self respondsToSelector:@selector(autoWidthForWidth:)])
-			{
-				suggestedWidth -= TiDimensionCalculateValue(layout.left, 0)
-						+ TiDimensionCalculateValue(layout.right, 0);
-				result += [self autoHeightForWidth:suggestedWidth];
-			}
+		self.transform = CGAffineTransformConcat(virtualParentTransform, [(Ti2DMatrix*)transformMatrix matrix]);
 	}
-	return result;
+	else if ([transformMatrix isKindOfClass:[Ti3DMatrix class]])
+	{
+		self.layer.transform = CATransform3DConcat(CATransform3DMakeAffineTransform(virtualParentTransform),[(Ti3DMatrix*)transformMatrix matrix]);
+	}
+	else
+	{
+		self.transform = virtualParentTransform;
+	}
 }
 
+
+-(void)setVirtualParentTransform:(CGAffineTransform)newTransform
+{
+	virtualParentTransform = newTransform;
+	[self updateTransform];
+}
+
+-(void)fillBoundsToRect:(TiRect*)rect
+{
+	CGRect r = [self bounds];
+	[rect setRect:r];
+}
 
 #pragma mark Public APIs
 
@@ -331,14 +522,7 @@ DEFINE_EXCEPTIONS
 {
 	RELEASE_TO_NIL(transformMatrix);
 	transformMatrix = [transform_ retain];
-	if ([transformMatrix isKindOfClass:[Ti2DMatrix class]])
-	{
-		self.transform = [(Ti2DMatrix*)transformMatrix matrix];
-	}
-	else if ([transformMatrix isKindOfClass:[Ti3DMatrix class]])
-	{
-		self.layer.transform = [(Ti3DMatrix*)transformMatrix matrix];
-	}
+	[self updateTransform];
 }
 
 -(void)setCenter_:(id)point
@@ -363,12 +547,17 @@ DEFINE_EXCEPTIONS
 	[self animate:arg];
 }
 
+-(void)setTouchEnabled_:(id)arg
+{
+	touchEnabled = [TiUtils boolValue:arg];
+}
+
 -(void)animate:(id)arg
 {
 	ENSURE_UI_THREAD(animate,arg);
 	RELEASE_TO_NIL(animation);
 	
-	if ([self.proxy viewReady]==NO)
+	if ([self.proxy isKindOfClass:[TiViewProxy class]] && [(TiViewProxy*)self.proxy viewReady]==NO)
 	{
 #ifdef DEBUG
 		NSLog(@"[DEBUG] animated called and we're not ready ... (will try again)");
@@ -410,103 +599,79 @@ DEFINE_EXCEPTIONS
 	return NSSelectorFromString(method);
 }
 
--(BOOL)isRepositionProperty:(NSString*)key
+-(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys
 {
-	return [key isEqualToString:@"width"] ||
-		[key isEqualToString:@"height"] ||
-		[key isEqualToString:@"top"] ||
-		[key isEqualToString:@"left"] ||
-		[key isEqualToString:@"right"] ||
-		[key isEqualToString:@"bottom"];
+	DoProxyDelegateReadValuesWithKeysFromProxy(self, keys, proxy);
 }
 
--(void)repositionChange:(NSString*)key value:(id)inputVal
+-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy_
 {
-#define READ_CONSTRAINT(k)	\
-if ([key isEqualToString:@#k])\
-{\
-if(inputVal != nil) \
-{ \
-layout.k = TiDimensionFromObject(inputVal); \
-[self reposition];\
-return;\
-} \
-else \
-{ \
-layout.k = TiDimensionUndefined; \
-[self reposition];\
-return;\
-}\
-}	
-	READ_CONSTRAINT(width);
-	READ_CONSTRAINT(height);
-	READ_CONSTRAINT(top);
-	READ_CONSTRAINT(left);
-	READ_CONSTRAINT(right);
-	READ_CONSTRAINT(bottom);
+	DoProxyDelegateChangedValuesWithProxy(self, key, oldValue, newValue, proxy_);
 }
 
--(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy
+-(void)transferProxy:(TiViewProxy*)newProxy
 {
-	// default implementation will simply invoke the setter property for this object
-	// on the main UI thread
-	SEL sel = [self selectorForProperty:key];
-	if ([self respondsToSelector:sel])
+	TiViewProxy * oldProxy = (TiViewProxy *)[self proxy];
+	NSArray * oldProperties = (NSArray *)[oldProxy allKeys];
+	NSArray * newProperties = (NSArray *)[newProxy allKeys];
+	[oldProxy retain];
+	[self retain];
+
+	[oldProxy setView:nil];
+	[newProxy setView:self];
+	[self setProxy:newProxy];
+
+	for (NSString * thisKey in oldProperties)
 	{
-		if ([NSThread isMainThread])
+		if([newProperties containsObject:thisKey])
 		{
-			[self performSelector:sel withObject:newValue];
+			continue;
 		}
-		else
+		SEL method = SetterForKrollProperty(thisKey);
+		if([self respondsToSelector:method])
 		{
-			[self performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO];
+			[self performSelector:method withObject:nil];
+			continue;
 		}
+		
+		method = SetterWithObjectForKrollProperty(thisKey);
+		if([self respondsToSelector:method])
+		{
+			[self performSelector:method withObject:nil withObject:nil];
+		}		
 	}
 
-	if ([self isRepositionProperty:key] && [self superview]!=nil)
+	for (NSString * thisKey in newProperties)
 	{
-		[self repositionChange:key value:newValue];
+		id newValue = [newProxy valueForKey:thisKey];
+		id oldValue = [oldProxy valueForKey:thisKey];
+		if([newValue isEqual:oldValue])
+		{
+			continue;
+		}
+		
+		SEL method = SetterForKrollProperty(thisKey);
+		if([self respondsToSelector:method])
+		{
+			[self performSelector:method withObject:newValue];
+			continue;
+		}
+		
+		method = SetterWithObjectForKrollProperty(thisKey);
+		if([self respondsToSelector:method])
+		{
+			[self performSelector:method withObject:newValue withObject:nil];
+		}		
 	}
+
+	[oldProxy release];
+	[self release];
 }
+
 
 -(id)proxyValueForKey:(NSString *)key
 {
 	return [proxy valueForKey:key];
-}
-
--(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys
-{
-	BOOL isMainThread = [NSThread isMainThread];
-	NSNull * nullObject = [NSNull null];
-
-	for (NSString * thisKey in keys)
-	{
-		SEL sel = [self selectorForProperty:thisKey];
-		if (![self respondsToSelector:sel])
-		{
-			continue;
-		}
-		
-		id newValue = [proxy valueForKey:thisKey];
-		if (newValue == nil)
-		{
-			continue;
-		}
-		if (newValue == nullObject)
-		{
-			newValue = nil;
-		}
-		
-		if (isMainThread)
-		{
-			[self performSelector:sel withObject:newValue];
-		}
-		else
-		{
-			[self performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO];
-		}
-
-	}
 }
 
 #pragma mark First Responder delegation
@@ -559,17 +724,48 @@ return;\
 	}
 }
 
+- (BOOL)interactionDefault
+{
+	return YES;
+}
+
+- (BOOL)interactionEnabled
+{
+	if (touchEnabled)
+	{
+		// we allow the developer to turn off touch with this property but make the default the
+		// result of the internal method interactionDefault. some components (like labels) by default
+		// don't want or need interaction if not explicitly enabled through an addEventListener
+		return [self interactionDefault];
+	}
+	return NO;
+}
+
+- (BOOL)hasTouchableListener
+{
+	return (handlesSwipes|| handlesTaps || handlesTouches);
+}
+
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
 {
-    UIView* subview = [super hitTest:point withEvent:event];
+	BOOL hasTouchListeners = [self hasTouchableListener];
 	
 	// delegate to our touch delegate if we're hit but it's not for us
-	if (subview==nil && touchDelegate!=nil)
+	if (hasTouchListeners==NO && touchDelegate!=nil)
 	{
 		return touchDelegate;
 	}
 	
-    return subview;
+	// if we don't have any touch listeners, see if interaction should
+	// be handled at all.. NOTE: we don't turn off the views interactionEnabled
+	// property since we need special handling ourselves and if we turn it off
+	// on the view, we'd never get this event
+	if (hasTouchListeners == NO && [self interactionEnabled]==NO)
+	{
+		return nil;
+	}
+	
+    return [super hitTest:point withEvent:event];
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
@@ -606,17 +802,22 @@ return;\
 		
 		if ([proxy _hasListeners:@"touchstart"])
 		{
-			[proxy fireEvent:@"touchstart" withObject:evt];
+			[proxy fireEvent:@"touchstart" withObject:evt propagate:(touchDelegate==nil)];
 		}
 		
 		if ([touch tapCount] == 1 && [proxy _hasListeners:@"click"])
 		{
-			[proxy fireEvent:@"click" withObject:evt];
+			[proxy fireEvent:@"click" withObject:evt propagate:(touchDelegate==nil)];
 		}
 		else if ([touch tapCount] == 2 && [proxy _hasListeners:@"dblclick"])
 		{
-			[proxy fireEvent:@"dblclick" withObject:evt];
+			[proxy fireEvent:@"dblclick" withObject:evt propagate:(touchDelegate==nil)];
 		}
+	}
+	
+	if (touchDelegate!=nil)
+	{
+		[touchDelegate touchesBegan:touches withEvent:event];
 	}
 }
 
@@ -629,7 +830,7 @@ return;\
 		NSDictionary *evt = [TiUtils pointToDictionary:point];
 		if ([proxy _hasListeners:@"touchmove"])
 		{
-			[proxy fireEvent:@"touchmove" withObject:evt];
+			[proxy fireEvent:@"touchmove" withObject:evt propagate:(touchDelegate==nil)];
 		}
 	}
 	if (handlesSwipes)
@@ -650,6 +851,11 @@ return;\
 			}
 		}
 	}
+	
+	if (touchDelegate!=nil)
+	{
+		[touchDelegate touchesMoved:touches withEvent:event];
+	}
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
@@ -659,7 +865,8 @@ return;\
 		BOOL allTouchesEnded = ([touches count] == [[event touchesForView:self] count]);
 		
 		// first check for plain single/double tap, which is only possible if we haven't seen multiple touches
-		if (!multipleTouches) {
+		if (!multipleTouches) 
+		{
 			UITouch *touch = [touches anyObject];
 			tapLocation = [touch locationInView:self];
 			
@@ -738,12 +945,17 @@ return;\
 		NSDictionary *evt = [TiUtils pointToDictionary:point];
 		if ([proxy _hasListeners:@"touchend"])
 		{
-			[proxy fireEvent:@"touchend" withObject:evt];
+			[proxy fireEvent:@"touchend" withObject:evt propagate:(touchDelegate==nil)];
 		}
 	}
 	if (handlesSwipes)
 	{
 		touchLocation = CGPointZero;
+	}
+	
+	if (touchDelegate!=nil)
+	{
+		[touchDelegate touchesEnded:touches withEvent:event];
 	}
 }
 
@@ -761,12 +973,17 @@ return;\
 		NSDictionary *evt = [TiUtils pointToDictionary:point];
 		if ([proxy _hasListeners:@"touchcancel"])
 		{
-			[proxy fireEvent:@"touchcancel" withObject:evt];
+			[proxy fireEvent:@"touchcancel" withObject:evt propagate:(touchDelegate==nil)];
 		}
 	}
 	if (handlesSwipes)
 	{
 		touchLocation = CGPointZero;
+	}
+	
+	if (touchDelegate!=nil)
+	{
+		[touchDelegate touchesCancelled:touches withEvent:event];
 	}
 }
 

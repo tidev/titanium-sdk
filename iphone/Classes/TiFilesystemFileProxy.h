@@ -14,14 +14,14 @@
 -(id)initWithFile:(NSString*)path;
 
 +(id)makeTemp:(BOOL)isDirectory;
-;
+
 @property(nonatomic,readonly) id name;
 @property(nonatomic,readonly) id nativePath;
-@property(nonatomic,readonly,getter=isReadonly) id readonly;
-@property(nonatomic,readonly,getter=isWritable) id writable;
-@property(nonatomic,readonly,getter=isSymbolicLink) id symbolicLink;
-@property(nonatomic,readonly,getter=isExecutable) id executable;
-@property(nonatomic,readonly,getter=isHidden) id hidden;
+@property(nonatomic,readonly) id readonly;
+@property(nonatomic,readonly) id writable;
+@property(nonatomic,readonly) id symbolicLink;
+@property(nonatomic,readonly) id executable;
+@property(nonatomic,readonly) id hidden;
 
 
 

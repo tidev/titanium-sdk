@@ -8,14 +8,9 @@
 #import "TiUIButtonProxy.h"
 #import "TiUIButton.h"
 #import "TiUINavBarButton.h"
+#import "TiUtils.h"
 
 @implementation TiUIButtonProxy
-
--(void)dealloc
-{
-	RELEASE_TO_NIL(button);
-	[super dealloc];
-}
 
 -(void)_destroy
 {
@@ -27,6 +22,16 @@
 {	
 	[self replaceValue:NUMBOOL(YES) forKey:@"enabled" notification:NO];
 	[super _configure];
+}
+
+//USE_VIEW_FOR_AUTO_WIDTH
+//
+//USE_VIEW_FOR_AUTO_HEIGHT
+
+-(void)setStyle:(id)value
+{
+	styleCache = [TiUtils intValue:value def:UIButtonTypeCustom];
+	[self replaceValue:value forKey:@"style" notification:YES];
 }
 
 -(UIBarButtonItem*)barButtonItem
@@ -44,7 +49,47 @@
 	return button;
 }
 
--(void)removeNavBarButtonView
+-(CGFloat) verifyWidth:(CGFloat)suggestedWidth
+{
+	switch(styleCache)
+	{
+		case UITitaniumNativeItemInfoLight:
+		case UITitaniumNativeItemInfoDark:
+			return 18;
+		case UITitaniumNativeItemDisclosure:
+			return 29;
+	}
+	return suggestedWidth;
+}
+
+-(CGFloat) verifyHeight:(CGFloat)suggestedHeight
+{
+	switch(styleCache)
+	{
+		case UITitaniumNativeItemInfoLight:
+		case UITitaniumNativeItemInfoDark:
+			return 19;
+		case UITitaniumNativeItemDisclosure:
+			return 31;
+	}
+	return suggestedHeight;
+}
+
+
+-(UIViewAutoresizing) verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
+{
+	switch (styleCache)
+	{
+		case UITitaniumNativeItemInfoLight:
+		case UITitaniumNativeItemInfoDark:
+		case UITitaniumNativeItemDisclosure:
+			return suggestedResizing & ~(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+	}
+	return suggestedResizing;
+}
+
+
+-(void)removeBarButtonView
 {
 	RELEASE_TO_NIL(button);
 }

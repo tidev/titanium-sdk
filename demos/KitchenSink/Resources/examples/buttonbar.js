@@ -7,7 +7,8 @@ var l = Titanium.UI.createLabel({
 	text:'You have not clicked anything',
 	color:'#777',
 	font:{fontSize:13, fontFamily:'Helvetica Neue'},
-	top:10
+	height:'auto',
+	width:'auto'
 });
 win.add(l);
 

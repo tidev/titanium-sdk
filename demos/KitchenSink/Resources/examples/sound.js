@@ -4,9 +4,14 @@ var data = [
 	{title:'Local with File', hasChild:true, test:'../examples/sound_file.js'},
 	{title:'Local with File URL', hasChild:true, test:'../examples/sound_file_url.js'},
 	{title:'Remote URL', hasChild:true, test:'../examples/sound_remote_url.js'},
-	{title:'Remote Streaming', hasChild:true, test:'../examples/sound_remote.js'},
 ];
 
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	data.push({title:'Remote Streaming', hasChild:true, test:'../examples/sound_remote.js'});
+	data.push({title:'Record', hasChild:true, test:'../examples/sound_record.js'});
+
+}
 // create table view
 var tableview = Titanium.UI.createTableView({
 	data:data

@@ -2,11 +2,10 @@ var win = Titanium.UI.currentWindow;
 
 // create table view data
 var data = [
-	{title:'Change Me', header:'Section 0'},
+	{title:'Change Me (No Anim)', header:'Section 0'},
 	{title:'Change Me', name:'row2'},
 	{title:'Change Me'},
 	{title:'Change Me'},
-	{title:'Click to go HTML'},
 	{title:'Click to go title (above)'},
 	{title:'Row7'},
 	{title:'Row8',header:'Section 1'},
@@ -31,7 +30,7 @@ tableView.addEventListener('click',function(e)
 		case 0:
 		{
 			var data = {title:'New Row 1 Title', header:'New Section Header'};
-			tableView.updateRow(0,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});				
+			tableView.updateRow(0,data);				
 			break;
 		}
 		case 1:
@@ -57,18 +56,13 @@ tableView.addEventListener('click',function(e)
 
 		case 4:
 		{
-			data = {html:'<div>I am div</div>'};
-			tableView.updateRow(4,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
-			break;
-		}
-		case 5:
-		{
 			data = {title:'I am a title'};
 			tableView.updateRow(4,data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
 			break;
 		}
 		
 	}
+
 	
 });
 

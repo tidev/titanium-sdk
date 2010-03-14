@@ -6,6 +6,7 @@ var tf1 = Titanium.UI.createTextField({
 	top:10,
 	left:10,
 	width:250,
+	height:40,
 	hintText:'hintText',
 	keyboardType:Titanium.UI.KEYBOARD_DEFAULT,
 	returnKeyType:Titanium.UI.RETURNKEY_DEFAULT,
@@ -274,7 +275,9 @@ var l = Titanium.UI.createLabel({
 	text:'Click buttons to toggle properties',
 	left:10,
 	top:305,
-	color:'#777'
+	color:'#777',
+	width:'auto',
+	height:'auto'
 });
 
 win.add(l);

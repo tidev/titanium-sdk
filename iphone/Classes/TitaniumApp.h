@@ -29,11 +29,18 @@
 	
 	TitaniumViewController *controller;
 	NSString *userAgent;
+	NSString *remoteDeviceUUID;
 	
 	BOOL keyboardShowing;
+	id remoteNotificationDelegate;
+	NSDictionary* remoteNotification;
+	
+	NSString *sessionId;
 }
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
+@property (nonatomic, assign) id remoteNotificationDelegate;
+@property (nonatomic, readonly) NSDictionary* remoteNotification;
 
 +(TitaniumApp*)app;
 
@@ -42,6 +49,7 @@
 -(UIView*)splash;
 -(UIView*)attachSplash;
 -(NSDictionary*)launchOptions;
+-(NSString*)remoteDeviceUUID;
 
 -(void)startNetwork;
 -(void)stopNetwork;
@@ -53,6 +61,7 @@
 -(void)dismissModalController:(BOOL)animated;
 
 -(NSString*)userAgent;
+-(NSString*)sessionId;
 
 -(BOOL)isKeyboardShowing;
 

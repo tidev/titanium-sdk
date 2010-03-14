@@ -7,6 +7,11 @@
 
 #import "TiModule.h"
 
+// because alert is linked in Kroll and the user can use that
+// in their code instead of the full API, we need to create
+// an explicit compile time dependency to UI
+#import "TiUIAlertDialogProxy.h"
+
 @interface UIModule : TiModule {
 
 @private
@@ -74,6 +79,42 @@
 @property(nonatomic,readonly) NSNumber *UNKNOWN;
 @property(nonatomic,readonly) NSNumber *FACE_UP;
 @property(nonatomic,readonly) NSNumber *FACE_DOWN;
+
+@property(nonatomic,readonly) NSNumber *PICKER_TYPE_PLAIN;
+@property(nonatomic,readonly) NSNumber *PICKER_TYPE_DATE_AND_TIME;
+@property(nonatomic,readonly) NSNumber *PICKER_TYPE_DATE;
+@property(nonatomic,readonly) NSNumber *PICKER_TYPE_TIME;
+@property(nonatomic,readonly) NSNumber *PICKER_TYPE_COUNT_DOWN_TIMER;
+
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_NORMAL;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_MULTIPLY;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_SCREEN;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_OVERLAY;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_DARKEN;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_LIGHTEN;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_COLOR_DODGE;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_COLOR_BURN;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_SOFT_LIGHT;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_HARD_LIGHT;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_DIFFERENCE;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_EXCLUSION;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_HUE;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_SATURATION;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_COLOR;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_LUMINOSITY;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_CLEAR;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_COPY;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_SOURCE_IN;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_SOURCE_OUT;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_SOURCE_ATOP;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_DESTINATION_OVER;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_DESTINATION_IN;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_DESTINATION_OUT;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_DESTINATION_ATOP;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_XOR;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_PLUS_DARKER;
+@property(nonatomic,readonly) NSNumber *BLEND_MODE_PLUS_LIGHTER;
+
 
 -(id)create2DMatrix:(id)args;
 -(id)create3DMatrix:(id)args;

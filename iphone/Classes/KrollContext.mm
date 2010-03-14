@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
+#import "TiBase.h"
 #import "KrollContext.h"
 #import "KrollObject.h"
 #import "KrollTimer.h"
@@ -75,18 +75,27 @@ TiValueRef ThrowException (TiContextRef ctx, NSString *message, TiValueRef *exce
 	return TiValueMakeUndefined(ctx);
 }
 
+static NSLock *timerIDLock = [[NSLock alloc] init];
+
 static TiValueRef MakeTimer(TiContextRef context, TiObjectRef jsFunction, TiValueRef fnRef, TiObjectRef jsThis, TiValueRef durationRef, BOOL onetime)
 {
 	static double kjsNextTimer = 0;
-	
+	[timerIDLock lock];
 	double timerID = ++kjsNextTimer;
 	
 	KrollContext *ctx = GetKrollContext(context);
 	TiGlobalContextRef globalContext = TiContextGetGlobalContext(context);
-	KrollTimer *timer = [[KrollTimer alloc] initWithContext:globalContext function:fnRef jsThis:jsThis duration:TiValueToNumber(context, durationRef, NULL) onetime:onetime kroll:ctx timerId:timerID];
+	TiValueRef exception = NULL;
+	double duration = TiValueToNumber(context, durationRef, &exception);
+	if (exception!=NULL)
+	{
+		NSLog(@"[ERROR] timer duration conversion failed");
+	}
+	KrollTimer *timer = [[KrollTimer alloc] initWithContext:globalContext function:fnRef jsThis:jsThis duration:duration onetime:onetime kroll:ctx timerId:timerID];
 	[ctx registerTimer:timer timerId:timerID];
 	[timer start];
 	[timer release];
+	[timerIDLock unlock];
 	return TiValueMakeNumber(context, timerID);
 }
 
@@ -288,8 +297,8 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 	{
 		timers = [[NSMutableDictionary alloc] init];
 	}
-	
-	[timers setObject:timer forKey:[NSString stringWithFormat:@"%d",timerId]];
+	NSString *key = [[NSNumber numberWithDouble:timerId] stringValue];
+	[timers setObject:timer forKey:key];
 	[timerLock unlock];
 }
 
@@ -298,7 +307,7 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 	[timerLock lock];
 	if (timers!=nil)
 	{
-		NSString *timer = [NSString stringWithFormat:@"%d",timerId];
+		NSString *timer = [[NSNumber numberWithDouble:timerId] stringValue];
 		KrollTimer *t = [timers objectForKey:timer];
 		if (t!=nil)
 		{
@@ -608,7 +617,7 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 		NSLog(@"CONTEXT<%@>: woke up for new event (count=%d)",self,KrollContextCount);
 #endif
 	}
-
+	
 	// call before we start the shutdown while context and timers are alive
 	if (delegate!=nil && [delegate respondsToSelector:@selector(willStopNewContext:)])
 	{
@@ -617,9 +626,9 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 	
 	[timerLock lock];
 	// stop any running timers
-	if (timers!=nil)
+	if (timers!=nil && [timers count]>0)
 	{
-		for (id timerId in timers)
+		for (id timerId in [NSDictionary dictionaryWithDictionary:timers])
 		{
 			KrollTimer *t = [timers objectForKey:timerId];
 			[t cancel];

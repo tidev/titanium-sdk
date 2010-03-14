@@ -22,13 +22,14 @@ var closeText = (Titanium.App.Properties.getString('window_close_event'))
 //
 var focusLabel = Titanium.UI.createLabel({
 	text:focusText,
-	color:'#333',
 	font:{
 		fontFamily:'Helvetica Neue',
 		fontSize:13
 	},
 	left:10,
-	top:10
+	top:10,
+	height:'auto',
+	width:'auto'
 });
 
 win.add(focusLabel);
@@ -43,7 +44,9 @@ var blurLabel = Titanium.UI.createLabel({
 		fontSize:13
 	},
 	left:10,
-	top:30
+	top:30,
+	height:'auto',
+	width:'auto'
 });
 
 win.add(blurLabel);
@@ -58,7 +61,9 @@ var openLabel = Titanium.UI.createLabel({
 		fontSize:13
 	},
 	left:10,
-	top:50
+	top:50,
+	height:'auto',
+	width:'auto'
 });
 
 win.add(openLabel);
@@ -73,7 +78,9 @@ var closeLabel = Titanium.UI.createLabel({
 		fontSize:13
 	},
 	left:10,
-	top:70
+	top:70,
+	height:'auto',
+	width:'auto'
 });
 
 win.add(closeLabel);
@@ -83,6 +90,7 @@ var l0 = Titanium.UI.createLabel({
 	text:'try to trigger each event',
 	bottom:50,
 	width:300,
+	height:'auto',
 	textAlign:'center'
 });
 
@@ -92,6 +100,7 @@ var l1 = Titanium.UI.createLabel({
 	text:'touchstart not fired',
 	top:90,
 	width:300,
+	height:'auto',
 	font:{fontSize:14,fontFamily:'Helvetica Neue'}
 });
 
@@ -102,6 +111,7 @@ var l2 = Titanium.UI.createLabel({
 	top:110,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
@@ -112,6 +122,7 @@ var l3 = Titanium.UI.createLabel({
 	top:130,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
@@ -122,6 +133,7 @@ var l4 = Titanium.UI.createLabel({
 	top:270,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
@@ -132,6 +144,7 @@ var l5 = Titanium.UI.createLabel({
 	top:150,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
@@ -142,6 +155,7 @@ var l6 = Titanium.UI.createLabel({
 	top:170,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
@@ -152,6 +166,7 @@ var l7 = Titanium.UI.createLabel({
 	top:190,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
@@ -162,6 +177,7 @@ var l8 = Titanium.UI.createLabel({
 	top:210,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
@@ -172,6 +188,7 @@ var l9 = Titanium.UI.createLabel({
 	top:230,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
@@ -182,37 +199,55 @@ var l10 = Titanium.UI.createLabel({
 	top:250,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
 win.add(l10);
+
+function pad (x)
+{
+	if (x < 10)
+	{
+		return '0' + x;
+	}
+	return x;
+}
+function formatTime()
+{
+	var date = new Date();
+	var h = date.getHours();
+	var m = date.getMinutes();
+	var s = date.getSeconds();
+	return pad(h) + ':' + pad(m) + ':' + pad(s);
+}
 
 //
 //  EVENT LISTENERS
 //
 win.addEventListener('open', function()
 {
-	var date = new Date();
-	Titanium.App.Properties.setString('window_open_event', date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds());
-	openLabel.text = 'Open fired ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+	var date = formatTime();
+	Titanium.App.Properties.setString('window_open_event', date);
+	openLabel.text = 'Open fired ' + date;
 });
 win.addEventListener('close', function()
 {
-	var date = new Date();
-	Titanium.App.Properties.setString('window_close_event', date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds());
-	closeLabel.text = 'Close fired ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+	var date = formatTime();
+	Titanium.App.Properties.setString('window_close_event', date);
+	closeLabel.text = 'Close fired ' + date;
 });
 win.addEventListener('focus', function()
 {
-	var date = new Date();
-	Titanium.App.Properties.setString('window_focus_event', date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds());
-	focusLabel.text = 'Focus fired ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+	var date = formatTime();
+	Titanium.App.Properties.setString('window_focus_event', date);
+	focusLabel.text = 'Focus fired ' + date;
 });
 win.addEventListener('blur', function()
 {
-	var date = new Date();
-	Titanium.App.Properties.setString('window_blur_event',  date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds());
-	blurLabel.text = 'Blur fired ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+	var date = formatTime();
+	Titanium.App.Properties.setString('window_blur_event',  date);
+	blurLabel.text = 'Blur fired ' + date;
 });
 win.addEventListener('click', function()
 {

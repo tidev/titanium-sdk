@@ -10,6 +10,8 @@
 #import "TiUIViewProxy.h"
 #import "ImageLoader.h"
 #import "TiComplexValue.h"
+#import "TitaniumApp.h"
+#import "TiUITabController.h"
 
 @implementation TiUIWindowProxy
 
@@ -40,6 +42,7 @@
 	// happen after the JS context is fully up and ready
 	if (contextReady && context!=nil)
 	{
+		[self fireFocus:YES];
 		return YES;
 	}
 	
@@ -49,8 +52,6 @@
 	//
 	
 	NSURL *url = [TiUtils toURL:[self valueForKey:@"url"] proxy:self];
-	
-	//TODO: modal, etc
 	
 	if (url!=nil)
 	{
@@ -73,15 +74,7 @@
 		}
 		else 
 		{
-			id firstarg = args!=nil && [args count] > 0 ? [args objectAtIndex:0] : nil;
-			NSMutableDictionary *args_ = [firstarg isKindOfClass:[NSDictionary class]] ? [NSMutableDictionary dictionaryWithDictionary:firstarg] : [NSMutableDictionary dictionary];
-			[args_ setObject:url forKey:@"url"];
-			
-			// we need to create a webview implicitly if a url is passed to a window
-			/*TiUIWebViewProxy *webview = [[TiUIWebViewProxy alloc] _initWithPageContext:[self pageContext] args:[NSArray arrayWithObject:args_]];
-			[self add:[NSArray arrayWithObject:webview]];
-			[webview open:args];
-			[webview release];*/
+			NSLog(@"[ERROR] url not supported in a window. %@",url);
 		}
 	}
 	
@@ -105,6 +98,12 @@
 		BOOL animate = args!=nil && [args count]>0 ? [TiUtils boolValue:@"animate" properties:[args objectAtIndex:0] def:YES] : YES;
 		[tab windowClosing:self animated:animate];
 	}
+	else
+	{
+		// if we don't have a tab, we need to fire blur
+		// events ourselves
+		[self fireFocus:NO];
+	}
 	return YES;
 }
 
@@ -116,7 +115,8 @@
 	{
 		id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
 		BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-		[navbar setNavigationBarHidden:NO animated:animated];
+		[[controller navigationController] setNavigationBarHidden:NO animated:animated];
+//		[navController setNavigationBarHidden:NO animated:animated];
 	}
 }
 
@@ -128,7 +128,8 @@
 	{
 		id properties = (args!=nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
 		BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
-		[navbar setNavigationBarHidden:YES animated:animated];
+		[[controller navigationController] setNavigationBarHidden:YES animated:animated];
+//		[navController setNavigationBarHidden:YES animated:animated];
 		//TODO: need to fix height
 	}
 }
@@ -140,20 +141,31 @@
 	[self replaceValue:color forKey:@"barColor" notification:NO];
 	if (controller!=nil)
 	{
+		UINavigationController * ourNC = [controller navigationController];
+		UINavigationBar * ourNCBar = [ourNC navigationBar];
 		//TODO: do we need to be more flexible in the bar styles?
 		
 		if ([color isEqualToString:@"transparent"])
 		{
-			navbar.navigationBar.barStyle = UIBarStyleBlackTranslucent;
-			navbar.navigationBar.translucent = YES;
+			ourNCBar.barStyle = UIBarStyleBlackTranslucent;
+			ourNCBar.translucent = YES;
 		}
 		else 
 		{
 			UIColor *acolor = UIColorWebColorNamed(color);
-			navbar.navigationBar.tintColor = acolor;
-			navbar.toolbar.tintColor = acolor;
-			navbar.navigationBar.barStyle = UIBarStyleDefault;
+			UIBarStyle newStyle = UIBarStyleDefault;
+			if (acolor != nil)
+			{
+				if ([ourNCBar barStyle] == UIBarStyleDefault)
+				{
+					newStyle = UIBarStyleBlack;
+				}
+			}
+			ourNCBar.barStyle = newStyle;
+			ourNCBar.tintColor = acolor;
+			ourNC.toolbar.tintColor = acolor;
 		}
+		[self performSelector:@selector(_refreshBackButton) withObject:nil afterDelay:0.0];
 	}
 }
 
@@ -163,8 +175,14 @@
 	[self replaceValue:value forKey:@"translucent" notification:NO];
 	if (controller!=nil)
 	{
-		navbar.navigationBar.translucent = [TiUtils boolValue:value];
+		[controller navigationController].navigationBar.translucent = [TiUtils boolValue:value];
 	}
+}
+
+-(void)setOrientationModes:(id)value
+{
+	[self replaceValue:value forKey:@"orientationModes" notification:YES];
+	[[[TitaniumApp app] controller] performSelectorOnMainThread:@selector(refreshOrientationModesIfNeeded:) withObject:self waitUntilDone:NO];
 }
 
 -(void)setRightNavButton:(id)proxy withObject:(id)properties
@@ -180,7 +198,7 @@
 			UIBarButtonItem *item = controller.navigationItem.rightBarButtonItem;
 			if (item!=nil && [item isKindOfClass:[TiViewProxy class]])
 			{
-				[(TiViewProxy*)item removeNavBarButtonView];
+				[(TiViewProxy*)item removeBarButtonView];
 			}
 			if (proxy!=nil)
 			{
@@ -218,7 +236,7 @@
 			UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
 			if (item!=nil && [item isKindOfClass:[TiViewProxy class]])
 			{
-				[(TiViewProxy*)item removeNavBarButtonView];
+				[(TiViewProxy*)item removeBarButtonView];
 			}
 			if (proxy!=nil)
 			{
@@ -243,53 +261,134 @@
 	}
 }
 
+-(void)setTabBarHidden:(id)value
+{
+	ENSURE_UI_THREAD_1_ARG(value);
+	[self replaceValue:value forKey:@"tabBarHidden" notification:NO];
+	if (controller!=nil)
+	{
+		[controller setHidesBottomBarWhenPushed:[TiUtils boolValue:value]];
+	}
+}
+
+-(void)hideTabBar:(id)value
+{
+	[self setTabBarHidden:[NSNumber numberWithBool:YES]];	
+}
+
+-(void)showTabBar:(id)value
+{
+	[self setTabBarHidden:[NSNumber numberWithBool:NO]];
+}
+
+-(void)_refreshBackButton
+{
+	ENSURE_UI_THREAD_0_ARGS;
+	NSArray * controllerArray = [[controller navigationController] viewControllers];
+	int controllerPosition = [controllerArray indexOfObject:controller];
+	if ((controllerPosition == 0) || (controllerPosition == NSNotFound))
+	{
+		return;
+	}
+
+	UIViewController * parentController = [controllerArray objectAtIndex:controllerPosition-1];
+	UIBarButtonItem * backButton = nil;
+
+	UIImage * backImage = [TiUtils image:[self valueForKey:@"backButtonTitleImage"] proxy:self];
+	if (backImage != nil)
+	{
+		backButton = [[UIBarButtonItem alloc] initWithImage:backImage style:UIBarButtonItemStylePlain target:nil action:nil];
+	}
+	else
+	{
+		NSString * backTitle = [TiUtils stringValue:[self valueForKey:@"backButtonTitle"]];
+		if ((backTitle == nil) && [parentController isKindOfClass:[TiUITabController class]])
+		{
+			backTitle = [TiUtils stringValue:[[(TiUITabController *)parentController window] valueForKey:@"title"]];
+		}
+		if (backTitle != nil)
+		{
+			backButton = [[UIBarButtonItem alloc] initWithTitle:backTitle style:UIBarButtonItemStylePlain target:nil action:nil];
+		}
+	}
+//	[[parentController navigationItem] setBackBarButtonItem:nil];
+	[[parentController navigationItem] setBackBarButtonItem:backButton];
+	[backButton release];
+}
+
+-(void)setBackButtonTitle:(id)proxy
+{
+	ENSURE_UI_THREAD_1_ARG(proxy);
+	[self replaceValue:proxy forKey:@"backButtonTitle" notification:NO];
+	if (controller!=nil)
+	{
+		[self _refreshBackButton];	//Because this is actually a property of a DIFFERENT view controller, we can't attach this until 
+	}
+}
+
+-(void)setBackButtonTitleImage:(id)proxy
+{
+	ENSURE_UI_THREAD_1_ARG(proxy);
+	[self replaceValue:proxy forKey:@"backButtonTitleImage" notification:NO];
+	if (controller!=nil)
+	{
+		[self _refreshBackButton];	//Because this is actually a property of a DIFFERENT view controller, we can't attach this until 
+	}
+}
+
+-(void)updateTitleView
+{
+	UIView * newTitleView = nil;
+	UINavigationItem * ourNavItem = [controller navigationItem];
+
+	TiViewProxy * titleControl = [self valueForKey:@"titleControl"];
+
+	UIView * oldView = [ourNavItem titleView];
+	if ([oldView isKindOfClass:[TiUIView class]])
+	{
+		TiViewProxy * oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
+		if (oldProxy != titleControl)
+		{
+			[oldProxy removeBarButtonView];
+		}
+	}
+
+	if ([titleControl isKindOfClass:[TiViewProxy class]])
+	{
+		newTitleView = [titleControl barButtonViewForSize:[TiUtils navBarTitleViewSize]];
+	}
+	else
+	{
+		NSURL * path = [TiUtils toURL:[self valueForKey:@"titleImage"] proxy:self];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:path];
+		if (image!=nil)
+		{
+			newTitleView = [[[UIImageView alloc] initWithImage:image] autorelease];
+		}
+	}
+
+	[ourNavItem setTitleView:newTitleView];
+}
+
+
 -(void)setTitleControl:(id)proxy
 {
 	ENSURE_UI_THREAD(setTitleControl,proxy);
 	[self replaceValue:proxy forKey:@"titleControl" notification:NO];
 	if (controller!=nil)
 	{
-		ENSURE_TYPE_OR_NIL(proxy,TiViewProxy);
-		
-		if (proxy!=nil)
-		{
-			UIView * newTitleView = [proxy view];
-			if (CGRectIsEmpty([newTitleView bounds]))
-			{
-				CGRect f;
-				f.origin = CGPointZero;
-				f.size = [newTitleView sizeThatFits:[TiUtils navBarTitleViewSize]];
-				[proxy view].bounds = f;
-			}
-			[newTitleView setAutoresizingMask:UIViewAutoresizingNone];
-			controller.navigationItem.titleView = newTitleView;
-		}
-		else 
-		{
-			controller.navigationItem.titleView = nil;
-		}
+		[self updateTitleView];
 	}
 }
 
 -(void)setTitleImage:(id)image
 {
 	ENSURE_UI_THREAD(setTitleImage,image);
-	[self replaceValue:image forKey:@"titleImage" notification:NO];
+	NSURL *path = [TiUtils toURL:image proxy:self];
+	[self replaceValue:[path absoluteString] forKey:@"titleImage" notification:NO];
 	if (controller!=nil)
 	{
-		NSURL *path = [TiUtils toURL:image proxy:self];
-		if (path!=nil)
-		{
-			UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:path];
-			if (path!=nil)
-			{
-				UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-				controller.navigationItem.titleView = imageView;
-				[imageView release];
-				return;
-			}
-		}
-		controller.navigationItem.titleView = nil;
+		[self updateTitleView];
 	}
 }
 
@@ -325,13 +424,14 @@
 		
 		// detatch the current ones
 		NSArray *existing = [controller toolbarItems];
+		UINavigationController * ourNC = [controller navigationController];
 		if (existing!=nil)
 		{
 			for (id current in existing)
 			{
 				if ([current isKindOfClass:[TiViewProxy class]])
 				{
-					[(TiViewProxy*)current removeNavBarButtonView];
+					[(TiViewProxy*)current removeBarButtonView];
 				}
 			}
 		}
@@ -355,8 +455,8 @@
 			}
 			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
 			[controller setToolbarItems:array animated:animated];
-			[navbar setToolbarHidden:NO animated:animated];
-			[navbar.toolbar setTranslucent:translucent];
+			[ourNC setToolbarHidden:NO animated:animated];
+			[ourNC.toolbar setTranslucent:translucent];
 			[array release];
 			hasToolbar=YES;
 		}
@@ -364,8 +464,8 @@
 		{
 			BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
 			[controller setToolbarItems:nil animated:animated];
-			[navbar setToolbarHidden:YES animated:animated];
-			[navbar.toolbar setTranslucent:translucent];
+			[ourNC setToolbarHidden:YES animated:animated];
+			[ourNC.toolbar setTranslucent:translucent];
 			hasToolbar=NO;
 		}
 	}
@@ -417,20 +517,26 @@ else{\
 
 -(void)setupWindowDecorations
 {
-	if (navbar!=nil)
+	if (controller!=nil)
 	{
-		[navbar setToolbarHidden:!hasToolbar animated:YES];
+		[[controller navigationController] setToolbarHidden:!hasToolbar animated:YES];
+//		[navController setToolbarHidden:!hasToolbar animated:YES];
 	}
 	
 	SETPROP(@"title",setTitle);
 	SETPROP(@"titlePrompt",setTitlePrompt);
-	SETPROP(@"titleImage",setTitleImage);
-	SETPROP(@"titleControl",setTitleControl);
+	[self updateTitleView];
+//	SETPROP(@"titleImage",setTitleImage);
+//	SETPROP(@"titleControl",setTitleControl);
 	SETPROP(@"barColor",setBarColor);
 	SETPROP(@"translucent",setTranslucent);
+
+	SETPROP(@"tabBarHidden",setTabBarHidden);
+
 	SETPROPOBJ(@"leftNavButton",setLeftNavButton);
 	SETPROPOBJ(@"rightNavButton",setRightNavButton);
 	SETPROPOBJ(@"toolbar",setToolbar);
+	[self _refreshBackButton];
 	
 	id navBarHidden = [self valueForKey:@"navBarHidden"];
 	if (navBarHidden!=nil)
@@ -447,15 +553,29 @@ else{\
 	}
 }
 
--(void)_tabFocus
+-(void)_tabBeforeFocus
 {
 	if (focused==NO)
 	{
 		[self setupWindowDecorations];
-		if ([self _hasListeners:@"focus"])
-		{
-			[self fireEvent:@"focus" withObject:nil];
-		}
+	}
+	[super _tabBeforeFocus];
+}
+
+-(void)_tabBeforeBlur
+{
+	[super _tabBeforeBlur];
+}
+
+-(void)_tabFocus
+{
+	if (focused==NO)
+	{
+		// we can't fire focus here since we 
+		// haven't yet wired up the JS context at this point
+		// and listeners wouldn't be ready
+		[self fireFocus:YES];
+		[self setupWindowDecorations];
 	}
 	[super _tabFocus];
 }
@@ -464,13 +584,15 @@ else{\
 {
 	if (focused)
 	{
-		if ([self _hasListeners:@"blur"])
-		{
-			[self fireEvent:@"blur" withObject:nil];
-		}
+		[self fireFocus:NO];
 	}
 	[super _tabBlur];
 }
 
+-(void)_associateTab:(UIViewController*)controller_ navBar:(UINavigationController*)navbar_ tab:(TiProxy<TiTab>*)tab_ 
+{
+	[super _associateTab:controller_ navBar:navbar_ tab:tab_];
+	SETPROP(@"tabBarHidden",setTabBarHidden);
+}
 
 @end

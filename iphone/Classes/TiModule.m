@@ -40,17 +40,15 @@
 
 -(void)startup
 {
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:@"titanium.shutdown" object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTitaniumShutdownNotification object:nil];
 }
 
--(id)init
+-(void)_configure
 {
-	if (self = [super init])
-	{
-		[self startup];
-	}
-	return self;
+	[self startup];
+	[super _configure];
 }
+
 
 //
 // we dynamically create proxies so we don't create an unnecessary

@@ -7,6 +7,7 @@
 
 #import "APIModule.h"
 #import "TiUtils.h"
+#import "TiBase.h"
 
 @implementation APIModule
 

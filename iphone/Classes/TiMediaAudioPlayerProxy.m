@@ -7,6 +7,7 @@
 
 #import "TiMediaAudioPlayerProxy.h"
 #import "TiUtils.h"
+#import "TiMediaAudioSession.h"
 
 @implementation TiMediaAudioPlayerProxy
 
@@ -15,10 +16,12 @@
 -(void)_initWithProperties:(NSDictionary *)properties
 {
 	url = [[TiUtils toURL:[properties objectForKey:@"url"] proxy:self] retain];
+	[[TiMediaAudioSession sharedSession] startAudioSession];
 }
 
 -(void)_destroy
 {
+	[[TiMediaAudioSession sharedSession] stopAudioSession];
 	if (timer!=nil)
 	{
 		[timer invalidate];
@@ -171,6 +174,8 @@ PLAYER_PROP_DOUBLE(state,state);
 -(void)start:(id)args
 {
 	ENSURE_UI_THREAD(start,args);
+	// indicate we're going to start playing
+	[[TiMediaAudioSession sharedSession] playback];
 	[[self player] start];
 }
 

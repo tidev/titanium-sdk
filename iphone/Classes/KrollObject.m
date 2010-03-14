@@ -335,6 +335,7 @@ void KrollFinalizer(TiObjectRef ref)
 #endif
 	
 	[o release];
+	o = nil;
 }
 
 
@@ -541,11 +542,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 	{
 		// this is a request for a setter method
 		// a.setFoo('bar')
-		SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@:",key]);
-		if ([target respondsToSelector:selector])
-		{
-			return [[[KrollMethod alloc] initWithTarget:target selector:selector argcount:1 type:KrollMethodSetter name:nil context:[self context]] autorelease];
-		}
+		SEL selector;
 		// setter can also have a special 2nd parameter, let's check that
 		// right now we only support 2 but easy to add more
 		// form is foo.setFoo('bar','foo')
@@ -553,6 +550,11 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 		if ([target respondsToSelector:selector])
 		{
 			return [[[KrollMethod alloc] initWithTarget:target selector:selector argcount:2 type:KrollMethodSetter name:nil context:[self context]] autorelease];
+		}
+		selector = NSSelectorFromString([NSString stringWithFormat:@"%@:",key]);
+		if ([target respondsToSelector:selector])
+		{
+			return [[[KrollMethod alloc] initWithTarget:target selector:selector argcount:1 type:KrollMethodSetter name:nil context:[self context]] autorelease];
 		}
 		// we simply return a method delegator against the target to set the property directly on the target
 		return [[[KrollMethod alloc] initWithTarget:target selector:selector argcount:1 type:KrollMethodPropertySetter name:[self _propertyGetterSetterKey:key] context:[self context]] autorelease];
@@ -628,28 +630,59 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 				}
 				return result;
 			}
-			/***
-			// check if a static property
-			result = [target valueForKey:key];
-			if (result!=nil)
-			{
-				return result;
-			}
-			// check and see if our target responds to the special method named selectorForUndefinedMethod and if
-			// so, call it to determine the right method selector
-			if ([target conformsToProtocol:@protocol(KrollDynamicMethodProxy)])
-			{
-				// we'll dispatch against this method for the dynamic proxy to answer the invocations as if this 
-				// method existed directly on the object.
-				return [[[KrollMethod alloc] initWithTarget:target selector:@selector(resultForUndefinedMethod:args:) argcount:1 type:KrollMethodDynamicProxy name:key context:[self context]] autorelease];
-			}***/
 		}
 		else 
 		{
-		    SEL selector = NSSelectorFromString([NSString stringWithCString:property_getName(p) encoding:NSUTF8StringEncoding]);
-			if ([target respondsToSelector:selector])
+			NSString *attributes = [NSString stringWithCString:property_getAttributes(p) encoding:NSUTF8StringEncoding];
+			SEL selector = NSSelectorFromString([NSString stringWithCString:property_getName(p) encoding:NSUTF8StringEncoding]);
+			if ([attributes hasPrefix:@"T@"])
 			{
+				// this means its a return type of id
 				return [target performSelector:selector];
+			}
+			else
+			{
+				// it's probably a primitive type - check for them
+				NSMethodSignature *methodSignature = [target methodSignatureForSelector:selector];
+				NSInvocation *invoker = [NSInvocation invocationWithMethodSignature:methodSignature];
+				[invoker setSelector:selector];
+				[invoker setTarget:target];
+				[invoker invoke];
+				if ([attributes hasPrefix:@"Td,"])
+				{
+					double result;
+					[invoker getReturnValue:&result];
+					return [NSNumber numberWithDouble:result];
+				}
+				else if ([attributes hasPrefix:@"Tf,"])
+				{
+					float result;
+					[invoker getReturnValue:&result];
+					return [NSNumber numberWithFloat:result];
+				}
+				else if ([attributes hasPrefix:@"Ti,"])
+				{
+					int result;
+					[invoker getReturnValue:&result];
+					return [NSNumber numberWithInt:result];
+				}
+				else if ([attributes hasPrefix:@"Tl,"])
+				{
+					long result;
+					[invoker getReturnValue:&result];
+					return [NSNumber numberWithLong:result];
+				}
+				else if ([attributes hasPrefix:@"Tc,"])
+				{
+					char result;
+					[invoker getReturnValue:&result];
+					return [NSNumber numberWithChar:result];
+				}
+				else 
+				{
+					// let it fall through and return undefined
+					NSLog(@"[WARN] unsupported property: %@ for %@, attributes = %@",key,target,attributes);
+				}
 			}
 		}
 	}
@@ -696,23 +729,20 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 		value = nil;
 	}
 	NSString *name = [self propercase:key index:0];
-	SEL selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:",name]);
+	SEL selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:withObject:",name]);
+	if ([target respondsToSelector:selector])
+	{
+		[target performSelector:selector withObject:value withObject:nil];
+		return;
+	}
+	selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:",name]);
 	if ([target respondsToSelector:selector])
 	{
 		[target performSelector:selector withObject:value];
 	}
 	else 
 	{
-		// see if we support a with object
-		selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:withObject:",name]);
-		if ([target respondsToSelector:selector])
-		{
-			[target performSelector:selector withObject:value withObject:nil];
-		}
-		else
-		{
-			[target setValue:value forKey:key];
-		}
+		[target setValue:value forKey:key];
 	}
 }
 

@@ -18,10 +18,11 @@
 @private
 	NSMutableDictionary *modules;
 	TiHost *host;
+	id<TiEvaluator> pageContext;
 }
--(id)initWithContext:(KrollContext*)context host:(TiHost*)host_;
+-(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_ context:(id<TiEvaluator>)context baseURL:(NSURL*)baseURL_;
 -(KrollObject*)addModule:(NSString*)name module:(TiModule*)module;
--(TiModule*)moduleNamed:(NSString*)name;
+-(TiModule*)moduleNamed:(NSString*)name context:(id<TiEvaluator>)context;
 @end
 
 
@@ -30,6 +31,7 @@
 	KrollContext *context;
 	NSDictionary *preload;
 	TitaniumObject *titanium;
+	BOOL shutdown;
 }
 - (void)boot:(id)callback url:(NSURL*)url preload:(NSDictionary*)preload;
 - (void)evalJS:(NSString*)code;

@@ -56,6 +56,11 @@
 	return [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
 }
 
+-(NSString*)tempDirectory
+{
+	return NSTemporaryDirectory();
+}
+
 -(NSString*)separator
 {
 	return @"/";

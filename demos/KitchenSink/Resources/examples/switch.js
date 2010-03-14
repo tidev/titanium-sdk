@@ -12,6 +12,7 @@ var basicSwitchLabel = Titanium.UI.createLabel({
 	},
 	textAlign:'center',
 	top:10,
+	height:'auto'
 });
 
 var basicSwitch = Titanium.UI.createSwitch({
@@ -23,9 +24,6 @@ basicSwitch.addEventListener('change',function(e)
 {
 	basicSwitchLabel.text = 'Basic Switch value = ' + e.value + ' act val ' + basicSwitch.value;
 });
-
-win.add(basicSwitchLabel);
-win.add(basicSwitch);
 
 //
 // CHANGE SWITCH
@@ -47,8 +45,30 @@ changeButton.addEventListener('click', function()
 		basicSwitch.value = false;
 	}
 });
-win.add(changeButton);
 
+//
+// HIDE/SHOW SWITCH
+//
+var hideShowButton = Titanium.UI.createButton({
+	title:'Hide/Show Switch',
+	height:40,
+	width:200,
+	top:140
+});
+var hidden=false;
+hideShowButton.addEventListener('click', function()
+{
+	if (hidden==true)
+	{
+		basicSwitch.show();
+		hidden=false;
+	}
+	else
+	{
+		basicSwitch.hide();
+		hidden=true;
+	}
+});
 
 //
 // SWITCH IN TOOLBAR
@@ -57,7 +77,7 @@ var toolbarButton = Titanium.UI.createButton({
 	title:'Toggle Switch in Toolbar',
 	height:40,
 	width:200,
-	top:140
+	top:240
 });
 var inToolbar = false;
 toolbarButton.addEventListener('click', function()
@@ -76,7 +96,6 @@ toolbarButton.addEventListener('click', function()
 		win.setToolbar(null,{animated:true})
 	}
 });
-win.add(toolbarButton);
 
 //
 // SWITCH IN NAVBAR
@@ -104,32 +123,6 @@ navbarButton.addEventListener('click', function()
 		inNavbar = false;
 	}
 });
-win.add(navbarButton);
-
-//
-// HIDE/SHOW SWITCH
-//
-var hideShowButton = Titanium.UI.createButton({
-	title:'Hide/Show Switch',
-	height:40,
-	width:200,
-	top:240
-});
-var hidden=false;
-hideShowButton.addEventListener('click', function()
-{
-	if (hidden==true)
-	{
-		basicSwitch.show();
-		hidden=false;
-	}
-	else
-	{
-		basicSwitch.hide();
-		hidden=true;
-	}
-});
-win.add(hideShowButton);
 
 //
 // SWITCH TO TITLE CONTROL 
@@ -160,4 +153,17 @@ titleButton.addEventListener('click', function()
 		inTitle=true;
 	}
 });
-win.add(titleButton);
+
+
+
+win.add(basicSwitchLabel);
+win.add(basicSwitch);
+win.add(changeButton);
+win.add(hideShowButton);
+
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	win.add(toolbarButton);
+	win.add(navbarButton);
+	win.add(titleButton);
+}

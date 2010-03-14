@@ -260,7 +260,6 @@ static BOOL isiPhoneOS2;
 	[super dealloc];
 }
 
-
 #pragma mark setup request
 
 - (void)addRequestHeader:(NSString *)header value:(NSString *)value
@@ -401,6 +400,7 @@ static BOOL isiPhoneOS2;
 - (void)cancel
 {
 	[[self cancelledLock] lock];
+	cancelled = YES;
 
 	if ([self isCancelled] || [self complete]) {
 		[[self cancelledLock] unlock];
@@ -460,6 +460,12 @@ static BOOL isiPhoneOS2;
 // Create the request
 - (void)main
 {
+	// need to first check if we're cancelled
+	
+	if ([self isCancelled] || cancelled)
+	{
+		return;
+	}
 	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
@@ -655,6 +661,7 @@ static BOOL isiPhoneOS2;
 	
 	[self requestStarted];
 	
+	
 	[self setAuthenticationLock:[[[NSConditionLock alloc] initWithCondition:1] autorelease]];
 	
 	[self setComplete:NO];
@@ -824,7 +831,6 @@ static BOOL isiPhoneOS2;
 	// Wait for the request to finish
 	while (!complete) {
 		
-
 		// We won't let the request cancel until we're done with this cycle of the loop
 		[[self cancelledLock] lock];
 		
@@ -1285,7 +1291,8 @@ static BOOL isiPhoneOS2;
 	}
 	// Let the queue know we have started
 	if ([[self queue] respondsToSelector:@selector(requestDidStart:)]) {
-		[[self queue] performSelectorOnMainThread:@selector(requestDidStart:) withObject:self waitUntilDone:[NSThread isMainThread]];		
+		//[[self queue] performSelectorOnMainThread:@selector(requestDidStart:) withObject:self waitUntilDone:[NSThread isMainThread]];		
+		[[self queue] performSelector:@selector(requestDidStart:) withObject:self];		
 	}
 	
 	// Let the delegate know we have started
@@ -1303,7 +1310,8 @@ static BOOL isiPhoneOS2;
 	}
 	// Let the queue know we are done
 	if ([[self queue] respondsToSelector:@selector(requestDidFinish:)]) {
-		[[self queue] performSelectorOnMainThread:@selector(requestDidFinish:) withObject:self waitUntilDone:[NSThread isMainThread]];		
+		//[[self queue] performSelectorOnMainThread:@selector(requestDidFinish:) withObject:self waitUntilDone:[NSThread isMainThread]];		
+		[[self queue] performSelector:@selector(requestDidFinish:) withObject:self];		
 	}
 	
 	// Let the delegate know we are done
@@ -1329,7 +1337,8 @@ static BOOL isiPhoneOS2;
 
 		// Let the queue know something went wrong
 		if ([[self queue] respondsToSelector:@selector(requestDidFail:)]) {
-			[[self queue] performSelectorOnMainThread:@selector(requestDidFail:) withObject:mRequest waitUntilDone:[NSThread isMainThread]];		
+			//			[[self queue] performSelectorOnMainThread:@selector(requestDidFail:) withObject:mRequest waitUntilDone:[NSThread isMainThread]];		
+			[[self queue] performSelector:@selector(requestDidFail:) withObject:mRequest];		
 		}
 	
 	} else {
@@ -1337,7 +1346,8 @@ static BOOL isiPhoneOS2;
 		
 		// Let the queue know something went wrong
 		if ([[self queue] respondsToSelector:@selector(requestDidFail:)]) {
-			[[self queue] performSelectorOnMainThread:@selector(requestDidFail:) withObject:self waitUntilDone:[NSThread isMainThread]];		
+			//[[self queue] performSelectorOnMainThread:@selector(requestDidFail:) withObject:self waitUntilDone:[NSThread isMainThread]];		
+			[[self queue] performSelector:@selector(requestDidFail:) withObject:self];		
 		}
 		
 		// Let the delegate know something went wrong

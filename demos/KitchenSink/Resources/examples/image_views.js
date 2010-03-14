@@ -2,9 +2,21 @@
 var data = [
 	{title:'Basic', hasChild:true, test:'../examples/image_view_basic.js'},
 	{title:'Animated', hasChild:true, test:'../examples/image_view_animated.js'},
-	{title:'Image Blob', hasChild:true, test:'../examples/image_view_blob.js'},
 	{title:'Image File', hasChild:true, test:'../examples/image_view_file.js'},
+	{title:'Remote Image', hasChild:true, test:'../examples/image_view_remote.js'},
+	{title:'Image Scaling', hasChild:true, test:'../examples/image_view_scaling.js'},
+	{title:'Image Rapid Update', hasChild:true, test:'../examples/image_view_updateimages.js'},
+	{title:'Image View Positioning', hasChild:true, test:'../examples/image_view_positioning.js'},
+
 ];
+
+// add iphone specific tests
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	data.push({title:'Image Blob', hasChild:true, test:'../examples/image_view_blob.js'});
+	data.push({title:'Image Masking', hasChild:true, test:'../examples/image_mask.js'});
+
+}
 
 // create table view
 var tableview = Titanium.UI.createTableView({

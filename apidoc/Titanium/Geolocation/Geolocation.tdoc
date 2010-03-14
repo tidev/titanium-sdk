@@ -1,0 +1,40 @@
+- namespace
+
+Titanium.Geolocation
+
+- type
+
+module
+
+- returns
+
+object
+
+- description
+
+The top level Geolocation module.  The Geolocation module is used for accessing device location based information.
+
+- since
+
+0.1
+
+- platforms
+
+android, iphone
+
+- methods
+
+setShowCalibration: configure the calibration UI. set the false to disable the calibration display.
+
+- properties
+
+ACCURACY_BEST[int]: accuracy constant
+ACCURACY_NEAREST_TEN_METERS[int]: accuracy constant
+ACCURACY_HUNDRED_METERS[int]: accuracy constant
+ACCURACY_KILOMETER[int]: accuracy constant
+ACCURACY_THREE_KILOMETERS[int]: accuracy constant
+
+locationServicesEnabled[boolean]: returns true if the user has enabled or disable location services for the device (not the application).  This is an iPhone only property.
+showCalibration[boolean]: returns true if the calibration UI can show
+
+

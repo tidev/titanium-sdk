@@ -26,7 +26,7 @@
 -(void)dealloc
 {
 	RELEASE_TO_NIL(tabGroup);
-	RELEASE_TO_NIL(controller);
+	RELEASE_TO_NIL(rootController);
 	RELEASE_TO_NIL(current);
 	[super dealloc];
 }
@@ -41,23 +41,29 @@
 
 -(void)removeFromTabGroup
 {
-	RELEASE_TO_NIL(controller);
+//	RELEASE_TO_NIL(controller);
+//I'm assuming that this happens automatically now that we base off of whatnot.
+}
+
+-(TiUITabController *)rootController
+{
+	if (rootController == nil)
+	{
+		TiWindowProxy *window = [self valueForKey:@"window"];
+		rootController = [[TiUITabController alloc] initWithProxy:window tab:self];
+	}
+	return rootController;
 }
 
 -(UINavigationController*)controller
 {
 	if (controller==nil)
 	{
-		TiWindowProxy *window = [self valueForKey:@"window"];
-		TiUITabController *root = [[TiUITabController alloc] initWithProxy:window tab:self];
-		controller = [[UINavigationController alloc] initWithRootViewController:root];
+		controller = [[UINavigationController alloc] initWithRootViewController:[self rootController]];
 		controller.delegate = self;
-
 		[self setTitle:[self valueForKey:@"title"]];
 		[self setIcon:[self valueForKey:@"icon"]];
 		[self setBadge:[self valueForKey:@"badge"]];
-
-		[root release];
 	}
 	return controller;
 }
@@ -70,16 +76,41 @@
 
 #pragma mark Delegates
 
-- (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+- (void)handleWillShowViewController:(UIViewController *)viewController
 {
+	if (current==viewController)
+	{
+		return;
+	}
+
+	if (current!=nil)
+	{
+		TiWindowProxy *currentWindow = [current window];
+		[currentWindow _tabBeforeBlur];
+	}
+	
+	[[(TiUITabController*)viewController window] _tabBeforeFocus];
+}
+
+- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+{
+	[self handleWillShowViewController:viewController];
+
+}
+
+- (void)handleDidShowViewController:(UIViewController *)viewController
+{
+	if (current==viewController)
+	{
+		return;
+	}
+
 	if (current!=nil)
 	{
 		TiWindowProxy *currentWindow = [current window];
 		[currentWindow _tabBlur];
 		
 		// close the window if it's not our root window
-		TiUITabController *rootController = [controller.viewControllers objectAtIndex:0];
-		
 		// check to make sure that we're not actually push a window on the stack
 		if (opening==NO && [rootController window]!=currentWindow)
 		{
@@ -92,14 +123,52 @@
 	current = [viewController retain];
 	
 	TiWindowProxy *newWindow = [current window];
-	[newWindow _tabFocus];
 	
 	if (![TiUtils boolValue:newWindow.opened])
 	{
 		[newWindow open:nil];
 	}
+	
+	[newWindow _tabFocus];
 
 	opening = NO;
+}
+
+- (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+{
+	[self handleDidShowViewController:viewController];
+}
+
+- (void)handleWillBlur
+{
+	TiWindowProxy *currentWindow = [current window];
+	[currentWindow _tabBeforeBlur];
+}
+
+- (void)handleDidBlur:(NSDictionary *)event
+{
+	if ([self _hasListeners:@"blur"])
+	{
+		[self fireEvent:@"blur" withObject:event];
+	}
+	TiWindowProxy *currentWindow = [current window];
+	[currentWindow _tabBlur];
+}
+
+- (void)handleWillFocus
+{
+	TiWindowProxy *currentWindow = [current window];
+	[currentWindow _tabBeforeFocus];
+}
+
+- (void)handleDidFocus:(NSDictionary *)event
+{
+	if ([self _hasListeners:@"focus"])
+	{
+		[self fireEvent:@"focus" withObject:event];
+	}
+	TiWindowProxy *currentWindow = [current window];
+	[currentWindow _tabFocus];
 }
 
 
@@ -121,7 +190,10 @@
 	opening = YES;
 	BOOL animated = args!=nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
 	TiUITabController *root = [[TiUITabController alloc] initWithProxy:window tab:self];
-	[[self controller] pushViewController:root animated:animated];
+
+	[self controller];
+//	[[self controller] pushViewController:root animated:animated];
+	[[rootController navigationController] pushViewController:root animated:animated];
 	[root release];
 }
 
@@ -137,14 +209,14 @@
 		RELEASE_TO_NIL(current);
 	}
 	[window close:nil];
-	[window release];
+	RELEASE_TO_NIL(window);
 }
 
 -(void)windowClosing:(TiWindowProxy*)window animated:(BOOL)animated
 {
 	if (current!=nil && [current window]==window)
 	{
-		[[self controller] popViewControllerAnimated:animated];
+		[[rootController navigationController] popViewControllerAnimated:animated];
 	}
 }
 
@@ -174,10 +246,10 @@
 {
 	[self replaceValue:title forKey:@"title" notification:NO];
 	ENSURE_UI_THREAD(setTitle,title);
-	if (controller!=nil)
+	if (rootController!=nil)
 	{
-		controller.tabBarItem.title = title;
-		controller.title = title;
+		rootController.tabBarItem.title = title;
+		rootController.title = title;
 	}
 }
 
@@ -185,17 +257,17 @@
 {
 	[self replaceValue:icon forKey:@"icon" notification:NO];
 	ENSURE_UI_THREAD(setIcon,icon);
-	if (controller!=nil)
+	if (rootController!=nil)
 	{
 		// check to see if its a system defined icon
 		if ([icon isKindOfClass:[NSNumber class]])
 		{
 			// need to remember the badge in case there's one set
-			id badgeValue = controller.tabBarItem.badgeValue;
+			id badgeValue = rootController.tabBarItem.badgeValue;
 			int value = [TiUtils intValue:icon];
 			UITabBarItem *newItem = [[[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value] autorelease];
-			controller.tabBarItem = newItem;
-			controller.tabBarItem.badgeValue = badgeValue;
+			rootController.tabBarItem = newItem;
+			rootController.tabBarItem.badgeValue = badgeValue;
 			systemTab = YES;
 		}
 		else
@@ -216,14 +288,14 @@
 			if (systemTab)
 			{
 				systemTab = NO;
-				id badgeValue = controller.tabBarItem.badgeValue;
+				id badgeValue = rootController.tabBarItem.badgeValue;
 				UITabBarItem *newItem = [[[UITabBarItem alloc] initWithTitle:[self valueForKey:@"title"] image:image tag:0] autorelease];
-				controller.tabBarItem = newItem;
-				controller.tabBarItem.badgeValue = badgeValue;
+				rootController.tabBarItem = newItem;
+				rootController.tabBarItem.badgeValue = badgeValue;
 			}
 			else
 			{
-				controller.tabBarItem.image = image;
+				rootController.tabBarItem.image = image;
 			}
 		}
 	}
@@ -233,9 +305,9 @@
 {
 	[self replaceValue:badge forKey:@"badge" notification:NO];
 	ENSURE_UI_THREAD(setBadge,badge);
-	if (controller!=nil)
+	if (rootController!=nil)
 	{
-		controller.tabBarItem.badgeValue = badge == nil ? nil : [TiUtils stringValue:badge];
+		rootController.tabBarItem.badgeValue = badge == nil ? nil : [TiUtils stringValue:badge];
 	}
 }
 

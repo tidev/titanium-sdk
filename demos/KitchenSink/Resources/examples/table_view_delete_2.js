@@ -2,10 +2,10 @@ var win = Titanium.UI.currentWindow;
 
 // create table view data object
 var data = [
-	{title:'Row 1', hasChild:true},
-	{title:'Row 2', hasDetail:true},
-	{title:'Row 3'},
-	{title:'Row 4'}
+	{title:'Row 1', hasChild:true, foo:'row1'},
+	{title:'Row 2', hasDetail:true, foo:'row2'},
+	{title:'Row 3', foo:'row3'},
+	{title:'Row 4', foo:'row4'}
 	
 
 ];
@@ -30,7 +30,10 @@ tableview.addEventListener('click', function(e)
 // add delete event listener
 tableview.addEventListener('delete',function(e)
 {
-	Titanium.API.info("deleted - row="+e.row+", index="+e.index+", section="+e.section + ' table view row length = ' + tableview.data.length);
+	var s = e.section;
+	Ti.API.info('rows ' + s.rows + ' rowCount ' + s.rowCount + ' headerTitle ' + s.headerTitle + ' title ' + e.rowData.title);
+
+	Titanium.API.info("deleted - row="+e.row+", index="+e.index+", section="+e.section + ' foo ' + e.rowData.foo);
 });
 
 // add table view to the window

@@ -14,8 +14,10 @@ b1.addEventListener('click', function()
 {
 	var b = Titanium.UI.createButton({
 		title:'Button',
-		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED
+		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED,
+		enabled:false
 	});
+	b.enabled = false;
 	win.setToolbar([b]);
 })
 win.add(b1);

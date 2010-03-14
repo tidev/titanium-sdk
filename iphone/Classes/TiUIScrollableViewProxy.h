@@ -6,41 +6,8 @@
  */
 #import "TiViewProxy.h"
 
-@interface TiUIScrollableViewProxy : TiViewProxy<UIScrollViewDelegate> {
-
-@private
-	NSMutableArray * views;
-	int pageIndex;
+@interface TiUIScrollableViewProxy : TiViewProxy 
+{
 }
 
-#pragma mark For use with the view
-@property(readwrite,nonatomic,assign)	int pageIndex;
-
--(int)countOfViews;
--(TiViewProxy *)objectInViewsAtIndex:(int)index;
--(void)fireScrollEvent:(int)newIndex;
-
-#pragma mark Javascript-facing values
-@property(readwrite,nonatomic,copy) NSArray * views;	//Normally we'd let dynamic take care of this, but we need to control the mutability.
-
-
--(void)addView:(id)args; //Arg 1: view to add.
--(void)scrollToView:(id)args; //Arg 1: Integer or view to scroll to.
-
 @end
-
-/*
-
-	UIView * wrapperView; // Contains pagedView and pageControl
-	UIScrollView * pagedView;
-	UIPageControl * pageControl;
-	
-	BOOL showPagingControl;
-	int pageControlHeight;
-	int currentPage;
-	int lastAnnouncedPage;
-	NSMutableIndexSet * visiblePages;
-	NSMutableArray * contentViewControllers;
-
-
-*/

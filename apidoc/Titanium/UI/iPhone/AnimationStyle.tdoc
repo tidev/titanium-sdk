@@ -1,0 +1,28 @@
+- namespace
+
+Titanium.UI.iPhone.AnimationStyle
+
+- type
+
+object
+
+- description
+
+A set of constants for the Animation Styles used for transitions.
+
+- since
+
+0.9
+
+- platforms
+
+iphone
+
+- properties
+
+NONE[int]: No animation
+CURL_UP[int]: Curl upwards during a transition animation
+CURL_DOWN[int]: Curl downwards during a transition animation
+FLIP_FROM_LEFT[int]: Flip from left to right during a transition animation
+FLIP_FROM_RIGHT[int]: Flip from right to left during a transition animation
+

@@ -7,6 +7,10 @@
 
 #import "TiBlob.h"
 #import "Mimetypes.h"
+#import "TiUtils.h"
+#import "UIImage+Alpha.h"
+#import "UIImage+Resize.h"
+#import "UIImage+RoundedCorner.h"
 
 @implementation TiBlob
 
@@ -22,6 +26,68 @@
 -(id)description
 {
 	return @"[object TiBlob]";
+}
+
+-(BOOL)isImageMimeType
+{
+	return [mimetype hasPrefix:@"image/"];
+}
+
+-(void)ensureImageLoaded
+{
+	if (image == nil && [self isImageMimeType])
+	{
+		image = [[self image] retain];
+	}
+}
+
+-(NSInteger)width
+{
+	[self ensureImageLoaded];
+	if (image!=nil)
+	{
+		return image.size.width;
+	}
+	return 0;
+}
+
+-(NSInteger)height
+{
+	[self ensureImageLoaded];
+	if (image!=nil)
+	{
+		return image.size.height;
+	}
+	return 0;
+}
+
+-(NSInteger)size
+{
+	[self ensureImageLoaded];
+	if (image!=nil)
+	{
+		return image.size.width * image.size.height;
+	}
+	switch (type)
+	{
+		case TiBlobTypeData:
+		{
+			return [data length];
+		}
+		case TiBlobTypeFile:
+		{
+			NSFileManager *fm = [NSFileManager defaultManager];
+			NSError *error = nil; 
+			NSDictionary * resultDict = [fm attributesOfItemAtPath:path error:&error];
+			id result = [resultDict objectForKey:NSFileSize];
+			if (error!=NULL)
+			{
+				return 0;
+			}
+			return [result intValue];
+		}
+	}
+	return 0;
 }
 
 -(id)initWithImage:(UIImage*)image_
@@ -67,6 +133,24 @@
 	return mimetype;
 }
 
+-(NSString*)text
+{
+	switch (type)
+	{
+		case TiBlobTypeFile:
+		{
+			NSData *fdata = [self data];
+			return [[[NSString alloc] initWithData:fdata encoding:NSUTF8StringEncoding] autorelease];
+		}
+		case TiBlobTypeData:
+		{
+			return [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+		}
+	}
+	// anything else we refuse to write out
+	return nil;
+}
+
 -(NSData*)data
 {
 	switch(type)
@@ -100,6 +184,13 @@
 	return image;
 }
 
+-(void)setData:(NSData*)data_
+{
+	RELEASE_TO_NIL(data);
+	type = TiBlobTypeData;
+	data = [data_ retain];
+}
+
 -(void)setImage:(UIImage *)image_
 {
 	RELEASE_TO_NIL(image);
@@ -121,12 +212,12 @@
 
 -(BOOL)writeTo:(NSString*)destination error:(NSError**)error
 {
-	NSFileManager *fm = [NSFileManager defaultManager];
 	NSData *writeData = nil;
 	switch(type)
 	{
 		case TiBlobTypeFile:
 		{
+			NSFileManager *fm = [NSFileManager defaultManager];
 			return [fm copyItemAtPath:path toPath:destination error:error];
 		}
 		case TiBlobTypeImage:
@@ -146,5 +237,73 @@
 	}
 	return NO;
 }
+
+#pragma mark Image Manipulations
+
+- (id)imageWithAlpha:(id)args
+{
+	[self ensureImageLoaded];
+	if (image!=nil)
+	{
+		return [[[TiBlob alloc] initWithImage:[UIImageAlpha imageWithAlpha:image]] autorelease];
+	}
+	return nil;
+}
+
+- (id)imageWithTransparentBorder:(id)args
+{
+	[self ensureImageLoaded];
+	if (image!=nil)
+	{
+		ENSURE_SINGLE_ARG(args,NSObject);
+		NSUInteger size = [TiUtils intValue:args];
+		return [[[TiBlob alloc] initWithImage:[UIImageAlpha transparentBorderImage:size image:image]] autorelease];
+	}
+	return nil;
+}
+
+- (id)imageWithRoundedCorner:(id)args
+{
+	[self ensureImageLoaded];
+	if (image!=nil)
+	{
+		NSUInteger cornerSize = [TiUtils intValue:[args objectAtIndex:0]];
+		NSUInteger borderSize = [args count] > 1 ? [TiUtils intValue:[args objectAtIndex:1]] : 1;
+		return [[[TiBlob alloc] initWithImage:[UIImageRoundedCorner roundedCornerImage:cornerSize borderSize:borderSize image:image]] autorelease];
+	}
+	return nil;
+}
+
+- (id)imageAsThumbnail:(id)args
+{
+	[self ensureImageLoaded];
+	if (image!=nil)
+	{
+		NSUInteger size = [TiUtils intValue:[args objectAtIndex:0]];
+		NSUInteger borderSize = [args count] > 1 ? [TiUtils intValue:[args objectAtIndex:1]] : 1;
+		NSUInteger cornerRadius = [args count] > 2 ? [TiUtils intValue:[args objectAtIndex:2]] : 0;
+		return [[[TiBlob alloc] initWithImage:[UIImageResize thumbnailImage:size 
+												  transparentBorder:borderSize
+													   cornerRadius:cornerRadius
+											   interpolationQuality:kCGInterpolationHigh
+															  image:image]] 
+				autorelease];
+	}
+	return nil;
+}
+
+- (id)imageAsResized:(id)args
+{
+	[self ensureImageLoaded];
+	if (image!=nil)
+	{
+		ENSURE_ARG_COUNT(args,2);
+		NSUInteger width = [TiUtils intValue:[args objectAtIndex:0]];
+		NSUInteger height = [TiUtils intValue:[args objectAtIndex:1]];
+		return [[[TiBlob alloc] initWithImage:[UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh image:image]] autorelease];
+	}
+	return nil;
+}
+
 
 @end

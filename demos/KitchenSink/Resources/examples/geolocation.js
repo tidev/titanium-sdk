@@ -1,4 +1,5 @@
 var win = Titanium.UI.currentWindow;
+win.backgroundColor = '#fff';
 
 var currentHeadingLabel = Titanium.UI.createLabel({
 	text:'Current Heading (One Shot)',
@@ -132,11 +133,35 @@ var updatedLocationTime = Titanium.UI.createLabel({
 });
 win.add(updatedLocationTime);
 
-var reverseGeoLabel = Titanium.UI.createLabel({
-	text:'Reverse Geo (Address)',
+
+
+var forwardGeoLabel = Titanium.UI.createLabel({
+	text:'Forward Geo (Addr->Coords)',
 	font:{fontSize:12, fontWeight:'bold'},
 	color:'#111',
 	top:250,
+	left:10,
+	height:15,
+	width:300
+});
+win.add(forwardGeoLabel);
+
+var forwardGeo = Titanium.UI.createLabel({
+	text:'',
+	font:{fontSize:11},
+	color:'#444',
+	top:270,
+	left:10,
+	height:15,
+	width:300
+});
+win.add(forwardGeo);
+
+var reverseGeoLabel = Titanium.UI.createLabel({
+	text:'Reverse Geo (Coords->Addr)',
+	font:{fontSize:12, fontWeight:'bold'},
+	color:'#111',
+	top:290,
 	left:10,
 	height:15,
 	width:300
@@ -147,7 +172,7 @@ var reverseGeo = Titanium.UI.createLabel({
 	text:'',
 	font:{fontSize:11},
 	color:'#444',
-	top:270,
+	top:310,
 	left:10,
 	height:15,
 	width:300
@@ -163,6 +188,7 @@ if (Titanium.Geolocation.locationServicesEnabled==false)
 }
 else
 {
+	
 	//
 	// IF WE HAVE COMPASS GET THE HEADING
 	//
@@ -262,7 +288,7 @@ else
 	{
 		if (e.error)
 		{
-			currentLocation.text = 'error: ' + e.error
+			currentLocation.text = 'error: ' + JSON.stringify(e.error);
 			return;
 		}
 
@@ -287,7 +313,7 @@ else
 	{
 		if (e.error)
 		{
-			updatedLocation.text = 'error:' + e.error;
+			updatedLocation.text = 'error:' + JSON.stringify(e.error);
 			updatedLatitude.text = '';
 			updatedLocationAccuracy.text = '';
 			updatedLocationTime.text = '';
@@ -335,13 +361,17 @@ else
 
 	
 }
+var addr = "444 Castro Street, Mountain View, CA 94041";
 
-Titanium.Geolocation.forwardGeocoder("444 Castro Street, Mountain View, CA 94041",function(evt)
+Titanium.Geolocation.forwardGeocoder(addr,function(evt)
 {
-	Ti.API.debug("forward geolocation result = "+evt.latitude+","+evt.longitude);
+	forwardGeo.text = "lat:"+evt.latitude+", long:"+evt.longitude;
 	Titanium.Geolocation.reverseGeocoder(evt.latitude,evt.longitude,function(evt)
 	{
-		Ti.API.debug("reverse geolocation result = "+JSON.stringify(evt));
+		var text = "";
+		for (var i = 0; i < evt.places.length; i++) {
+			text += "" + i + ") " + evt.places[i].displayAddress + "\n"; 
+		}
 	});
 });
 

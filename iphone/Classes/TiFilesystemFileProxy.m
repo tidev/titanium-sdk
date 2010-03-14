@@ -48,19 +48,19 @@ NSDictionary * resultDict = [fm attributesOfItemAtPath:path error:&error];\
 if (error!=nil && x) return NUMBOOL(NO);\
 return w([resultDict objectForKey:attr]!=nil);\
 
--(id)isReadonly
+-(id)readonly
 {
 	FILEATTR(NSFileImmutable,NO,NUMBOOL);
 }
 
--(id)isSymbolicLink
+-(id)symbolicLink
 {
 	FILEATTR(NSFileTypeSymbolicLink,NO,NUMBOOL);
 }
 
--(id)isWritable
+-(id)writable
 {
-	return NUMBOOL(![self isReadonly]);
+	return NUMBOOL(![self readonly]);
 }
 
 #define FILENOOP(name) \
@@ -69,8 +69,8 @@ return w([resultDict objectForKey:attr]!=nil);\
 	return NUMBOOL(NO);\
 }\
 
-FILENOOP(isExecutable);
-FILENOOP(isHidden);
+FILENOOP(executable);
+FILENOOP(hidden);
 FILENOOP(setReadonly:(id)x);
 FILENOOP(setExecutable:(id)x);
 FILENOOP(setHidden:(id)x);
@@ -96,11 +96,6 @@ FILENOOP(setHidden:(id)x);
 	return resultArray;
 }
 
--(id)size:(id)args
-{
-	FILEATTR(NSFileSize,YES,NUMLONG);
-}
-
 -(id)spaceAvailable:(id)args
 {
 	NSError *error = nil; 
@@ -109,7 +104,7 @@ FILENOOP(setHidden:(id)x);
 	return NUMBOOL([resultDict objectForKey:NSFileSystemFreeSize]!=nil);
 }
 
--(id)resultForUndefinedMethod:(NSString*)name args:(NSArray*)args
+/*-(id)resultForUndefinedMethod:(NSString*)name args:(NSArray*)args
 {
 	//NOTE: copy is already a built-in NSObject method and conflicts with ours so we 
 	//have to deal with it through the dynamic route
@@ -124,7 +119,7 @@ FILENOOP(setHidden:(id)x);
 		return NUMBOOL(result);	
 	}
 	return nil;
-}
+}*/
 
 -(id)createDirectory:(id)args
 {

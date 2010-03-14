@@ -30,7 +30,11 @@ activeMovie.addEventListener('load',function()
 	// animate label
 	var t = Titanium.UI.create2DMatrix();
 	t = t.scale(3);
-	movieLabel.animate({trasform:t, duration:1000});
+	movieLabel.animate({transform:t, duration:500, color:'red'},function()
+	{
+		var t = Titanium.UI.create2DMatrix();
+		movieLabel.animate({transform:t, duration:500, color:'white'});
+	});
 });
 activeMovie.addEventListener('complete',function()
 {

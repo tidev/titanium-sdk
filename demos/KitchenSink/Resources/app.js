@@ -1,8 +1,10 @@
 // this sets the background color of the master UIView (when there are no windows/tab groups on it)
 Titanium.UI.setBackgroundColor('#000');
 
+
 // create tab group
 var tabGroup = Titanium.UI.createTabGroup();
+
 
 
 //
@@ -10,8 +12,10 @@ var tabGroup = Titanium.UI.createTabGroup();
 //
 var win1 = Titanium.UI.createWindow({  
     url:'main_windows/base_ui.js',
-    title:'Base UI'
+    titleImage:'images/appcelerator_small.png'
 });
+
+
 var tab1 = Titanium.UI.createTab({  
     icon:'images/tabs/KS_nav_views.png',
     title:'Base UI',
@@ -55,6 +59,7 @@ var win4 = Titanium.UI.createWindow({
 var tab4 = Titanium.UI.createTab({  
     icon:'images/tabs/KS_nav_platform.png',
     title:'Platform',
+active:true,
     window:win4
 });
 
@@ -78,7 +83,12 @@ tabGroup.addTab(tab1);
 tabGroup.addTab(tab2);  
 tabGroup.addTab(tab3);
 tabGroup.addTab(tab4);
-tabGroup.addTab(tab5);
+
+// add iphone specific tests
+if (Titanium.Platform.name == 'iPhone OS')
+{
+	tabGroup.addTab(tab5);
+}
 
 tabGroup.addEventListener('open',function()
 {
@@ -86,10 +96,13 @@ tabGroup.addEventListener('open',function()
 	Titanium.UI.setBackgroundColor('#fff');
 });
 
+tabGroup.setActiveTab(1);
 // open tab group with a transition animation
 tabGroup.open({
-	transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT,
+	transition:Titanium.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
 });
+
+
 
 //
 //  TAB GROUP EVENTS
@@ -98,20 +111,23 @@ var messageWin = Titanium.UI.createWindow({
 	height:30,
 	width:250,
 	bottom:70,
-	borderRadius:10
+	borderRadius:10,
+	touchEnabled:false
 });
 var messageView = Titanium.UI.createView({
 	height:30,
 	width:250,
 	borderRadius:10,
 	backgroundColor:'#000',
-	opacity:0.7
+	opacity:0.7,
+	touchEnabled:false
 });
 
 var messageLabel = Titanium.UI.createLabel({
 	text:'',
 	color:'#fff',
 	width:250,
+	height:'auto',
 	font:{
 		fontFamily:'Helvetica Neue',
 		fontSize:13
@@ -157,8 +173,8 @@ tabGroup.addEventListener('focus', function(e)
 	messageWin.open();
 	setTimeout(function()
 	{
-		Ti.API.info('tab ' + e.tab.title  + ' prevTab = ' + e.previousTab.title);
-		messageLabel.text = 'active title ' + e.tab.title + ' old title ' + e.previousTab.title;
+		Ti.API.info('tab ' + e.tab.title  + ' prevTab = ' + (e.previousTab ? e.previousTab.title : null));
+		messageLabel.text = 'active title ' + e.tab.title + ' old title ' + (e.previousTab ? e.previousTab.title : null);
 	},1000);
 	
 	setTimeout(function()
@@ -234,6 +250,8 @@ function showIndicator()
 	var message = Titanium.UI.createLabel({
 		text:'Loading',
 		color:'#fff',
+		width:'auto',
+		height:'auto',
 		font:{fontSize:20,fontWeight:'bold'},
 		bottom:20
 	});
@@ -262,4 +280,18 @@ Titanium.App.addEventListener('hide_indicator', function(e)
 	Ti.API.info("IN HIDE INDICATOR");
 	hideIndicator();
 });
+
+// trap app shutdown event
+Titanium.App.addEventListener('close',function(e)
+{
+	Ti.API.info("The application is being shutdown");
+});
+
+// test for loading in a root-level include
+Ti.include("welcome.js");
+
+// test out logging to developer console
+Ti.API.info("Welcome to Kitchen Sink for Titanium/"+Titanium.version);
+Ti.API.debug("user agent set to "+Titanium.userAgent);
+
 

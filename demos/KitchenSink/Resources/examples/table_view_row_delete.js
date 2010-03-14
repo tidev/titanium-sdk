@@ -4,8 +4,8 @@ var win = Titanium.UI.currentWindow;
 var data = [
 	{title:'Row 1', hasChild:true},
 	{title:'Row 2', hasDetail:true},
-	{title:'Row 3', name:'foo'},
-	{title:'Row 4', name:'bar'},
+	{title:'Row 3 (no animation)', name:'foo'},
+	{title:'Row 4 (no animation)', name:'bar'},
 	{title:'Row 5'}
 	
 
@@ -43,21 +43,5 @@ win.rightNavButton = button;
 
 button.addEventListener('click', function()
 {
-	var row = tableview.data[(tableview.data.length-1)];
-	Ti.API.info('delete clicked row:'  + row + ' name ' + row.name)
-
-	// if name is present, use it
-	if (row.name)
-	{
-		var row = tableview.getIndexByName(row.name);
-		tableview.deleteRow(row,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.RIGHT});
-	}
-	// otherwise delete last row
-	else
-	{
-		Ti.API.info('deleting by index:'  + (tableview.data.length-1))
-
-		tableview.deleteRow((tableview.data.length-1),{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});
-		
-	}
+	tableview.deleteRow((tableview.data.length-1),{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});
 });

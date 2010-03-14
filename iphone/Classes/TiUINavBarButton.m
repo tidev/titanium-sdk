@@ -12,10 +12,29 @@
 #import "TiButtonUtil.h"
 #import "TiUIView.h"
 
+#define NAVBAR_MEMORY_DEBUG 0
+
 @implementation TiUINavBarButton
+
+#if NAVBAR_MEMORY_DEBUG==1
+-(id)retain
+{
+	NSLog(@"Retaining %X (%d)",self,[self retainCount]);
+	return [super retain];
+}
+
+-(void)release
+{
+	NSLog(@"Releasing %X (%d)",self,[self retainCount]);
+	[super release];
+}
+#endif
 
 -(void)dealloc
 {
+#if NAVBAR_MEMORY_DEBUG==1
+	NSLog(@"Deallocing %X (%d)",self,[self retainCount]);
+#endif
 	RELEASE_TO_NIL(activityDelegate);
 	[super dealloc];
 }
@@ -49,7 +68,7 @@
 			{
 				// we need to wrap our activity indicator view into a UIView that will delegate
 				// to our proxy
-				activityDelegate = [[[TiUIView alloc] initWithFrame:button.frame] autorelease];
+				activityDelegate = [[TiUIView alloc] initWithFrame:button.frame];
 				[activityDelegate addSubview:button];
 				activityDelegate.proxy = (TiViewProxy*)proxy_;
 				button = activityDelegate;
@@ -86,6 +105,17 @@
 	self.width = [TiUtils floatValue:[proxy_ valueForKey:@"width"]];
 	//A width of 0 is treated as Auto by the iPhone OS, so this is safe.
 
+	// we need to listen manually to proxy change events if we want to be
+	// able to change them dynamically
+	proxy.modelDelegate = self;
+	
+	// we need to manually check for this property on init
+	id enabled = [proxy valueForKey:@"enabled"];
+	if (enabled!=nil)
+	{
+		[self performSelector:@selector(setEnabled_:) withObject:enabled];
+	}
+	
 	return self;
 }
 
@@ -94,6 +124,40 @@
 	if ([proxy _hasListeners:@"click"])
 	{
 		[proxy fireEvent:@"click" withObject:nil];
+	}
+}
+
+-(void)setWidth_:(id)obj
+{
+	CGFloat width = [TiUtils floatValue:obj];
+	[self setWidth:width];
+}
+
+-(void)setEnabled_:(id)value
+{
+	BOOL enabled = [TiUtils boolValue:value];
+	[self setEnabled:enabled];
+}
+
+-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy_
+{
+	if ([key isEqualToString:@"title"])
+	{
+		[self performSelectorOnMainThread:@selector(setTitle:) withObject:newValue waitUntilDone:NO];
+	}
+	else if ([key isEqualToString:@"image"])
+	{
+		NSURL *url = [TiUtils toURL:newValue proxy:proxy_];
+		UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url];
+		[self performSelectorOnMainThread:@selector(setImage:) withObject:theimage waitUntilDone:NO];
+	}
+	else if ([key isEqualToString:@"width"])
+	{
+		[self performSelectorOnMainThread:@selector(setWidth_:) withObject:newValue waitUntilDone:NO];
+	}
+	else if ([key isEqualToString:@"enabled"])
+	{
+		[self performSelectorOnMainThread:@selector(setEnabled_:) withObject:newValue waitUntilDone:NO];
 	}
 }
 

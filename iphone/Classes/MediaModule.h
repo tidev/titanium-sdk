@@ -7,6 +7,7 @@
 
 #import "TiModule.h"
 #import "KrollCallback.h"
+#import "TiMediaAudioSession.h"
 
 @interface MediaModule : TiModule<UINavigationControllerDelegate,UIImagePickerControllerDelegate> {
 @private
@@ -18,6 +19,12 @@
 	KrollCallback *pickerErrorCallback;
 	KrollCallback *pickerCancelCallback;
 }
+
+@property(nonatomic,readonly) CGFloat volume;
+@property(nonatomic,readonly) CGFloat peakMicrophonePower;
+@property(nonatomic,readonly) CGFloat averageMicrophonePower;
+@property(nonatomic,readonly) NSInteger audioLineType;
+@property(nonatomic,readonly) BOOL audioPlaying;
 
 
 @property(nonatomic,readonly) NSNumber* UNKNOWN_ERROR;
@@ -44,5 +51,34 @@
 
 @property(nonatomic,readonly) NSString* MEDIA_TYPE_VIDEO;
 @property(nonatomic,readonly) NSString* MEDIA_TYPE_PHOTO;
+
+@property(nonatomic,readonly) NSNumber* AUDIO_HEADSET_INOUT;
+@property(nonatomic,readonly) NSNumber* AUDIO_RECEIVER_AND_MIC;
+@property(nonatomic,readonly) NSNumber* AUDIO_HEADPHONES_AND_MIC;
+@property(nonatomic,readonly) NSNumber* AUDIO_LINEOUT;
+@property(nonatomic,readonly) NSNumber* AUDIO_HEADPHONES;
+@property(nonatomic,readonly) NSNumber* AUDIO_SPEAKER;
+@property(nonatomic,readonly) NSNumber* AUDIO_MICROPHONE;
+@property(nonatomic,readonly) NSNumber* AUDIO_MUTED;
+@property(nonatomic,readonly) NSNumber* AUDIO_UNAVAILABLE;
+@property(nonatomic,readonly) NSNumber* AUDIO_UNKNOWN;
+
+@property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_LINEAR_PCM;
+@property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_ULAW;
+@property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_ALAW;
+@property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_IMA4;
+@property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_ILBC;
+@property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_APPLE_LOSSLESS;
+@property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_AAC;
+
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_WAVE;
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_AIFF;
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_MP3;
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_MP4;
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_MP4A;
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_CAF;
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_3GPP;
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_3GP2;
+@property(nonatomic,readonly) NSNumber* AUDIO_FILEFORMAT_AMR;
 
 @end

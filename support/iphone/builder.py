@@ -10,6 +10,7 @@ from compiler import Compiler
 from dependscompiler import DependencyCompiler
 from os.path import join, splitext, split, exists
 from shutil import copyfile
+import prereq
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(os.path.join(template_dir,'../'))
@@ -33,16 +34,18 @@ def copy_module_resources(source, target):
 		for name in ignoreDirs:
 			if name in dirs:
 				dirs.remove(name)	# don't visit ignored directories			  
-			for file in files:
-				if splitext(file)[-1] in ('.html', '.js', '.css', '.a', '.m', '.c', '.cpp', '.h', '.mm'):
-					continue
-				if file in ignoreFiles:
-					continue
-				from_ = join(root, file)			  
-				to_ = os.path.expanduser(from_.replace(source, target, 1))
-				to_directory = os.path.expanduser(split(to_)[0])
-				if not exists(to_directory):
-					os.makedirs(to_directory)
+		for file in files:
+			if splitext(file)[-1] in ('.html', '.js', '.css', '.a', '.m', '.c', '.cpp', '.h', '.mm'):
+				continue
+			if file in ignoreFiles:
+				continue
+			from_ = join(root, file)			  
+			to_ = os.path.expanduser(from_.replace(source, target, 1))
+			to_directory = os.path.expanduser(split(to_)[0])
+			if not exists(to_directory):
+				os.makedirs(to_directory)
+			# only copy if different filesize or doesn't exist
+			if not os.path.exists(to_) or os.path.getsize(from_)!=os.path.getsize(to_):
 				copyfile(from_, to_)
 
 def read_properties(propFile):
@@ -71,26 +74,24 @@ def main(args):
 		print "  install       install the app to itunes for testing on iphone"
 		print "  simulator     build and run on the iphone simulator"
 		print "  distribute    build final distribution bundle"
-
+	
 		sys.exit(1)
 
 	print "[INFO] One moment, building ..."
 	sys.stdout.flush()
+	start_time = time.time()
+
+	iphone_version = dequote(args[2].decode("utf-8"))
 	
 	simulator = os.path.abspath(os.path.join(template_dir,'iphonesim'))
 	
 	command = args[1].decode("utf-8")
-	iphone_version = dequote(args[2].decode("utf-8"))
 	project_dir = os.path.expanduser(dequote(args[3].decode("utf-8")))
 	appid = dequote(args[4].decode("utf-8"))
 	name = dequote(args[5].decode("utf-8"))
 	target = 'Debug'
 	deploytype = 'development'
 	debug = False
-	
-	#FIXME: for 0.9, we're going to hard code to 3.1 compile since we
-	#require 3.1+ but Titanium Developer hasn't yet rev'd to fix it
-	iphone_version = "3.1"
 	
 	if command == 'distribute':
 		appuuid = dequote(args[6].decode("utf-8"))
@@ -125,6 +126,13 @@ def main(args):
 	
 	cwd = os.getcwd()
 	
+	app_js = os.path.join(project_dir,'Resources','app.js')
+	if not os.path.exists(app_js):
+		print "[ERROR] This project looks to not be ported to 0.9+."
+		print "[ERROR] Your project is missing app.js.  Please make sure to port your application to 0.9+ API"
+		print "[ERROR] before continuing or choose a previous version of the SDK."
+		sys.exit(1)
+	
 	tiapp_xml = os.path.join(project_dir,'tiapp.xml')
 	if not os.path.exists(tiapp_xml):
 		print "Missing tiapp.xml at %s" % tiapp_xml
@@ -137,10 +145,48 @@ def main(args):
 	# compile resources
 	compiler = Compiler(appid,project_dir,encrypt,debug)
 	compiler.compile()
+
+	# find the module directory relative to the root of the SDK	
+	tp_module_dir = os.path.abspath(os.path.join(template_dir,'..','..','..','..','modules','iphone'))
+	
+	tp_modules = []
+	
+	for module in ti.properties['modules']:
+		tp_name = module['name'].lower()
+		tp_version = module['version']
+		tp_dir = os.path.join(tp_module_dir,tp_name,tp_version)
+		if not os.path.exists(tp_dir):
+			print "[ERROR] Third-party module: %s/%s detected in tiapp.xml but not found at %s" % (tp_name,tp_version,tp_dir)
+			#sys.exit(1)
+		tp_module = os.path.join(tp_dir,'lib%s.a' % tp_name)
+		if not os.path.exists(tp_module):
+			print "[ERROR] Third-party module: %s/%s missing library at %s" % (tp_name,tp_version,tp_module)
+			#sys.exit(1)
+		tp_modules.append(tp_module)	
+		print "[INFO] Detected third-party module: %s/%s" % (tp_name,tp_version)
+		# copy module resources
+		img_dir = os.path.join(tp_dir,'assets','images')
+		if os.path.exists(img_dir):
+			dest_img_dir = os.path.join(iphone_tmp_dir,'modules',tp_name,'images')
+			if os.path.exists(dest_img_dir):
+				shutil.rmtree(dest_img_dir)
+			os.makedirs(dest_img_dir)
+			copy_module_resources(img_dir,dest_img_dir)
 	
 	# compiler dependencies
 	dependscompiler = DependencyCompiler()
-	dependscompiler.compile(template_dir,project_dir)
+	dependscompiler.compile(template_dir,project_dir,tp_modules)
+	
+	# copy any module image directories
+	for module in dependscompiler.modules:
+		img_dir = os.path.abspath(os.path.join(template_dir,'modules',module.lower(),'images'))
+		if os.path.exists(img_dir):
+			dest_img_dir = os.path.join(iphone_tmp_dir,'modules',module.lower(),'images')
+			if os.path.exists(dest_img_dir):
+				shutil.rmtree(dest_img_dir)
+			os.makedirs(dest_img_dir)
+			copy_module_resources(img_dir,dest_img_dir)
+	
 
 	# copy over main since it can change with each release
 	main_template = codecs.open(os.path.join(template_dir,'main.m'),'r','utf-8','replace').read()
@@ -162,11 +208,13 @@ def main(args):
 	main_dest.write(main_template.encode("utf-8"))
 	main_dest.close()
 	
-	# migrate the xcode project given that it can change per release of sdk
-	if iphone_version == '2.2.1':
-		xcodeproj = codecs.open(os.path.join(template_dir,'project_221.pbxproj'),'r','utf-8','replace').read()
+	# attempt to use a slightly faster xcodeproject template when simulator which avoids
+	# optimizing PNGs etc
+	if deploytype == 'simulator':
+		xcodeproj = codecs.open(os.path.join(template_dir,'project_simulator.pbxproj'),'r','utf-8','replace').read()
 	else:
 		xcodeproj = codecs.open(os.path.join(template_dir,'project.pbxproj'),'r','utf-8','replace').read()
+		
 	xcodeproj = xcodeproj.replace('__PROJECT_NAME__',name)
 	xcodeproj = xcodeproj.replace('__PROJECT_ID__',appid)
 	xcode_dir = os.path.join(iphone_dir,name+'.xcodeproj')
@@ -181,13 +229,9 @@ def main(args):
 		if os.path.exists(target_png):
 			os.remove(target_png)
 		shutil.copy(default_png,target_png)	
+		
 	
-	iphone_tmp_module_dir = os.path.join(iphone_dir,"_modules")
-	if os.path.exists(iphone_tmp_module_dir):
-		shutil.rmtree(iphone_tmp_module_dir)
-	
-	os.mkdir(iphone_tmp_module_dir)
-	
+	# TODO: review this with new module SDK
 	# in case the developer has their own modules we can pick them up
 	project_module_dir = os.path.join(project_dir,"modules","iphone")
 	
@@ -195,15 +239,22 @@ def main(args):
 	if os.path.exists(project_module_dir):
 		copy_module_resources(project_module_dir,iphone_tmp_dir)
 	
-
 	sys.stdout.flush()
 	
-	shutil.copy(os.path.join(template_dir,'libTiCore.a'),os.path.join(iphone_resources_dir,'libTiCore.a'))
+	source_lib=os.path.join(template_dir,'libTiCore.a')
+	target_lib=os.path.join(iphone_resources_dir,'libTiCore.a')
+	
+	# attempt to only copy (this takes ~7sec) if its changed
+	if not os.path.exists(target_lib) or os.path.getsize(source_lib)!=os.path.getsize(target_lib):
+		shutil.copy(os.path.join(template_dir,'libTiCore.a'),os.path.join(iphone_resources_dir,'libTiCore.a'))
 
 	# must copy the XIBs each time since they can change per SDK
 	os.chdir(template_dir)
 	for xib in glob.glob('*.xib'):
-		shutil.copy(os.path.join(template_dir,xib),os.path.join(iphone_resources_dir,xib))
+		s = os.path.join(template_dir,xib)
+		t = os.path.join(iphone_resources_dir,xib)
+		if not os.path.exists(t) or os.path.getsize(s)!=os.path.getsize(t): 	
+			shutil.copy(s,t)
 	os.chdir(cwd)		
 		
 	def is_adhoc(uuid):
@@ -248,6 +299,8 @@ def main(args):
 		# write out plist
 		add_plist(os.path.join(iphone_dir,'Resources'))
 
+		print "[DEBUG] compile checkpoint: %0.2f seconds" % (time.time()-start_time)
+
 		print "[INFO] Executing XCode build..."
 		print "[BEGIN_VERBOSE] Executing XCode Compiler  <span>[toggle output]</span>"
 		
@@ -290,7 +343,8 @@ def main(args):
 			# start the logger
 			log = subprocess.Popen([
 			  	logger,
-				str(log_id)+'.log'
+				str(log_id)+'.log',
+				iphone_version
 			])	
 			
 			sim = None
@@ -330,7 +384,9 @@ def main(args):
 			cmd = "osascript \"%s\"" % ass
 			os.system(cmd)
 			
-			print "[INFO] Launched application in Simulator"
+			end_time = time.time()-start_time
+			
+			print "[INFO] Launched application in Simulator (%0.2f seconds)" % end_time
 			sys.stdout.flush()
 			sys.stderr.flush()
 			

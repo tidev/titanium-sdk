@@ -17,8 +17,6 @@ var changeTitleButton = Titanium.UI.createButton({
 	width:200
 });
 
-win.add(changeTitleButton);
-
 changeTitleButton.addEventListener('click', function(e)
 {
 	if (tab.title == 'Base UI')
@@ -42,7 +40,6 @@ var tabBadgeButton = Titanium.UI.createButton({
 	height:40,
 	width:200
 });
-win.add(tabBadgeButton);
 
 tabBadgeButton.addEventListener('click', function(e)
 {
@@ -66,7 +63,6 @@ var changeIconButton = Titanium.UI.createButton({
 	height:40,
 	width:200
 });
-Titanium.UI.currentWindow.add(changeIconButton);
 
 changeIconButton.addEventListener('click', function(e)
 {
@@ -89,7 +85,6 @@ var setActiveTabButton = Titanium.UI.createButton({
 	height:40,
 	width:200
 });
-Titanium.UI.currentWindow.add(setActiveTabButton);
 
 setActiveTabButton.addEventListener('click', function(e)
 {
@@ -119,7 +114,6 @@ var systemTabIconsButton = Titanium.UI.createButton({
 	height:40,
 	width:200
 });
-Titanium.UI.currentWindow.add(setActiveTabButton);
 
 var systemIcon = false;
 systemTabIconsButton.addEventListener('click', function(e)
@@ -143,7 +137,6 @@ systemTabIconsButton.addEventListener('click', function(e)
 		systemIcon=false;
 	}
 });
-Titanium.UI.currentWindow.add(systemTabIconsButton);
 
 //
 // CURRENT TAB 
@@ -157,8 +150,19 @@ var label = Titanium.UI.createLabel({
 	},
 	textAlign:'center',
 	top:260,
-	width:300
+	width:300,
+	height:'auto'
 });
 
-Titanium.UI.currentWindow.add(label);
 
+// add views based on platform
+if (Titanium.Platform.osname == 'iphone')
+{
+	win.add(tabBadgeButton);
+	win.add(systemTabIconsButton);
+}
+
+win.add(changeTitleButton);
+win.add(changeIconButton);
+win.add(setActiveTabButton);
+win.add(label);

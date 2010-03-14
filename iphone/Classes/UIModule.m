@@ -77,29 +77,58 @@ MAKE_SYSTEM_PROP(INPUT_BORDERSTYLE_LINE,UITextBorderStyleLine);
 MAKE_SYSTEM_PROP(INPUT_BORDERSTYLE_BEZEL,UITextBorderStyleBezel);
 MAKE_SYSTEM_PROP(INPUT_BORDERSTYLE_ROUNDED,UITextBorderStyleRoundedRect);
 
+MAKE_SYSTEM_PROP(PICKER_TYPE_PLAIN,-1);
+MAKE_SYSTEM_PROP(PICKER_TYPE_DATE_AND_TIME,UIDatePickerModeDateAndTime);
+MAKE_SYSTEM_PROP(PICKER_TYPE_DATE,UIDatePickerModeDate);
+MAKE_SYSTEM_PROP(PICKER_TYPE_TIME,UIDatePickerModeTime);
+MAKE_SYSTEM_PROP(PICKER_TYPE_COUNT_DOWN_TIMER,UIDatePickerModeCountDownTimer);
 
+MAKE_SYSTEM_PROP(BLEND_MODE_NORMAL,kCGBlendModeNormal);
+MAKE_SYSTEM_PROP(BLEND_MODE_MULTIPLY,kCGBlendModeMultiply);
+MAKE_SYSTEM_PROP(BLEND_MODE_SCREEN,kCGBlendModeScreen);
+MAKE_SYSTEM_PROP(BLEND_MODE_OVERLAY,kCGBlendModeOverlay);
+MAKE_SYSTEM_PROP(BLEND_MODE_DARKEN,kCGBlendModeDarken);
+MAKE_SYSTEM_PROP(BLEND_MODE_LIGHTEN,kCGBlendModeLighten);
+MAKE_SYSTEM_PROP(BLEND_MODE_COLOR_DODGE,kCGBlendModeColorDodge);
+MAKE_SYSTEM_PROP(BLEND_MODE_COLOR_BURN,kCGBlendModeColorBurn);
+MAKE_SYSTEM_PROP(BLEND_MODE_SOFT_LIGHT,kCGBlendModeSoftLight);
+MAKE_SYSTEM_PROP(BLEND_MODE_HARD_LIGHT,kCGBlendModeHardLight);
+MAKE_SYSTEM_PROP(BLEND_MODE_DIFFERENCE,kCGBlendModeDifference);
+MAKE_SYSTEM_PROP(BLEND_MODE_EXCLUSION,kCGBlendModeExclusion);
+MAKE_SYSTEM_PROP(BLEND_MODE_HUE,kCGBlendModeHue);
+MAKE_SYSTEM_PROP(BLEND_MODE_SATURATION,kCGBlendModeSaturation);
+MAKE_SYSTEM_PROP(BLEND_MODE_COLOR,kCGBlendModeColor);
+MAKE_SYSTEM_PROP(BLEND_MODE_LUMINOSITY,kCGBlendModeLuminosity);
+MAKE_SYSTEM_PROP(BLEND_MODE_CLEAR,kCGBlendModeClear);
+MAKE_SYSTEM_PROP(BLEND_MODE_COPY,kCGBlendModeCopy);
+MAKE_SYSTEM_PROP(BLEND_MODE_SOURCE_IN,kCGBlendModeSourceIn);
+MAKE_SYSTEM_PROP(BLEND_MODE_SOURCE_OUT,kCGBlendModeSourceOut);
+MAKE_SYSTEM_PROP(BLEND_MODE_SOURCE_ATOP,kCGBlendModeSourceAtop);
+MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_OVER,kCGBlendModeDestinationOver);
+MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_IN,kCGBlendModeDestinationIn);
+MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_OUT,kCGBlendModeDestinationOut);
+MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_ATOP,kCGBlendModeDestinationAtop);
+MAKE_SYSTEM_PROP(BLEND_MODE_XOR,kCGBlendModeXOR);
+MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_DARKER,kCGBlendModePlusDarker);
+MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
+				 
 
 -(void)setBackgroundColor:(id)color
 {
-	// this sets it on the root level window
-	ENSURE_UI_THREAD(setBackgroundColor,color);
-	UIViewController *controller = [[TitaniumApp app] controller];
-	controller.view.backgroundColor = UIColorWebColorNamed(color);
-	[controller.view superview].backgroundColor = controller.view.backgroundColor;
+	TitaniumViewController *controller = [[TitaniumApp app] controller];
+	[controller setBackgroundColor:UIColorWebColorNamed(color)];
 }
 
 -(void)setBackgroundImage:(id)image
 {
-	// this sets it on the root level window
-	ENSURE_UI_THREAD(setBackgroundImage,image);
-	UIViewController *controller = [[TitaniumApp app] controller];
+	TitaniumViewController *controller = [[TitaniumApp app] controller];
 	UIImage *resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:image proxy:self]];
 	if (resultImage==nil && [image isEqualToString:@"Default.png"])
 	{
 		// special case where we're asking for Default.png and it's in Bundle not path
 		resultImage = [UIImage imageNamed:image];
 	}
-	controller.view.layer.contents = (id)resultImage.CGImage;
+	[controller setBackgroundImage:resultImage];
 }
 
 #pragma mark Factory methods 
@@ -145,58 +174,26 @@ MAKE_SYSTEM_PROP(INPUT_BORDERSTYLE_ROUNDED,UITextBorderStyleRoundedRect);
 -(void)setOrientation:(id)mode
 {
 	ENSURE_UI_THREAD(setOrientation,mode);
-	UIDeviceOrientation orientation = [TiUtils orientationValue:mode def:UIDeviceOrientationPortrait];
-	UIWindow *win = [[UIApplication sharedApplication] keyWindow];
-	[UIView beginAnimations:@"orientation" context:nil];
-	[UIView setAnimationDuration:[UIApplication sharedApplication].statusBarOrientationAnimationDuration];
-	CGAffineTransform transform = CGAffineTransformIdentity;
-	CGRect rect;
-	switch (orientation)
-	{
-		case UIDeviceOrientationPortrait:
-		case UIDeviceOrientationUnknown:
-		case UIDeviceOrientationPortraitUpsideDown:
-		{
-			rect = CGRectMake(0, 0, 320, 480);
-			break;
-		}
-		case UIDeviceOrientationLandscapeRight:
-		{
-			transform = CGAffineTransformMakeRotation( -90 * M_PI / 180 );
-			transform = CGAffineTransformTranslate( transform, -90.0, -90.0 );
-			rect = CGRectMake(10, -10, 480, 320);
-			break;
-		}
-		case UIDeviceOrientationLandscapeLeft:
-		{
-			transform = CGAffineTransformMakeRotation( 90 * M_PI / 180 );
-			transform = CGAffineTransformTranslate( transform, 90.0, 90.0 );
-			rect = CGRectMake(10, -10, 480, 320);
-			break;
-		}
-	}
-	[win setTransform:transform];	
-	[TiUtils setView:win positionRect:rect];
-	[UIApplication sharedApplication].statusBarOrientation = orientation;	
-	[UIView commitAnimations];	
+	UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:UIInterfaceOrientationPortrait];
+	[[[TitaniumApp app] controller] manuallyRotateToOrientation:orientation];
 }
 
-MAKE_SYSTEM_PROP(PORTRAIT,UIDeviceOrientationPortrait);
-MAKE_SYSTEM_PROP(LANDSCAPE_LEFT,UIDeviceOrientationLandscapeLeft);
-MAKE_SYSTEM_PROP(LANDSCAPE_RIGHT,UIDeviceOrientationLandscapeRight);
-MAKE_SYSTEM_PROP(UPSIDE_PORTRAIT,UIDeviceOrientationPortraitUpsideDown);
+MAKE_SYSTEM_PROP(PORTRAIT,UIInterfaceOrientationPortrait);
+MAKE_SYSTEM_PROP(LANDSCAPE_LEFT,UIInterfaceOrientationLandscapeLeft);
+MAKE_SYSTEM_PROP(LANDSCAPE_RIGHT,UIInterfaceOrientationLandscapeRight);
+MAKE_SYSTEM_PROP(UPSIDE_PORTRAIT,UIInterfaceOrientationPortraitUpsideDown);
 MAKE_SYSTEM_PROP(UNKNOWN,UIDeviceOrientationUnknown);
 MAKE_SYSTEM_PROP(FACE_UP,UIDeviceOrientationFaceUp);
 MAKE_SYSTEM_PROP(FACE_DOWN,UIDeviceOrientationFaceDown);
 
 -(NSNumber*)isLandscape:(id)args
 {
-	return NUMBOOL([UIApplication sharedApplication].statusBarOrientation!=UIDeviceOrientationPortrait);
+	return NUMBOOL([UIApplication sharedApplication].statusBarOrientation!=UIInterfaceOrientationPortrait);
 }
 
 -(NSNumber*)isPortrait:(id)args
 {
-	return NUMBOOL([UIApplication sharedApplication].statusBarOrientation==UIDeviceOrientationPortrait);
+	return NUMBOOL([UIApplication sharedApplication].statusBarOrientation==UIInterfaceOrientationPortrait);
 }
 
 -(NSNumber*)orientation

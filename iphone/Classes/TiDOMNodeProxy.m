@@ -65,6 +65,11 @@
 	return [node stringValue];
 }
 
+-(id)text
+{
+	return [node stringValue];
+}
+
 -(id)parentNode
 {
 	//TODO:

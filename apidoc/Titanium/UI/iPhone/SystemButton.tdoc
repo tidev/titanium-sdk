@@ -1,0 +1,52 @@
+- namespace
+
+Titanium.UI.iPhone.SystemIcon
+
+- type
+
+object
+
+- description
+
+A set of constants for the system button style for buttons.
+
+- since
+
+0.8
+
+- platforms
+
+iphone
+
+- properties
+
+ACTION[int]: action icon
+CAMERA[int]: camera icon
+COMPOSE[int]: compose icon
+BOOKMARKS[int]: bookmarks icon
+ADD[int]: add icon
+TRASH[int]: trash icon
+REPLY[int]: reply icon
+STOP[int]: stop icon
+REFRESH[int]: refresh icon
+PLAY[int]: play icon
+PAUSE[int]: pause icon
+FAST_FORWARD[int]: fast forward icon
+REWIND[int]: rewind icon
+EDIT[int]: edit icon. localized.
+CANCEL[int]: cancel icon. localized.
+SAVE[int]: save icon. localized.
+ORGANIZE[int]: organize icon
+DONE[int]: done icon. localized.
+FLEXIBLE_SPACE[int]: Blank space to add between other items. The space is distributed equally between the other items. Other item properties are ignored when this value is set.
+FIXED_SPACE[int]: Blank space to add between other items. Only the `width` property is used when this value is set.
+
+ACTIVITY[int]: special style that shows an activity indicator. when visible, the activity indicator is already started.
+
+INFO_LIGHT[int]: a light style info circle icon
+INFO_DARK[int]: a dark style info circle icon
+
+DISCLOSURE[int]: disclosure style icon
+CONTACT_ADD[int]: green style plus (+) icon
+
+

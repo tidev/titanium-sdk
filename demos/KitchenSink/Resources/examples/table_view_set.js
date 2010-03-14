@@ -1,9 +1,11 @@
+//JGH: FIXME - remove HTML
+
 var win = Titanium.UI.currentWindow;
 
 var data = [
-	{title:'Set TableView 1', header:'Section 0'},
-	{title:'Set TableView 2'},
-	{title:'Set TableView 3'},
+	{title:'Set 1 (no animation)', header:'Section 0'},
+	{title:'Set 2'},
+	{title:'Set 3'},
 	{title:'Row4'},
 	{title:'Row5'},
 	{title:'Row6'},
@@ -30,31 +32,17 @@ tableView.addEventListener('click',function(e)
 	{
 		case 0:
 		{
-			var data = [
-				{html:'<div style="font-family:Helvetica Neue">Set TableView 1</div>', hasDetail:true, header:'Section 0'},
-
-				{html:'<div style="font-family:Helvetica Neue">Set TableView 2</div> ', hasChild:true},
-
-				{html:'<div style="font-family:Helvetica Neue">Set TableView 3</div> '},
-
-				{html:'<div style="font-family:Helvetica Neue">Row 4</div> '},
-
-				{html:'<div style="font-family:Helvetica Neue">Row 5</div> '},
-
-				{html:'<div style="font-family:Helvetica Neue">Row 6</div> ', hasDetail:true, header:'Section 1'},
-
-				{html:'<div style="font-family:Helvetica Neue">Row 7</div> ', hasChild:true},
-
-				{html:'<div style="font-family:Helvetica Neue">Row 8</div> '},
-
-				{html:'<div style="font-family:Helvetica Neue">Row 9</div> '},
-
-				{html:'<div style="font-family:Helvetica Neue">Row 10</div> '}
-
-
-			];
-			
-			tableView.setData(data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});				
+			var data = [];
+			for (var c=0;c<10;c++)
+			{
+				var row = Ti.UI.createTableViewRow();
+				row.title = "Row "+ (c+1);
+				row.hasCheck = true;
+				row.backgroundColor = '#aaa';
+				data[c]=row;
+			}
+			tableView.separatorStyle = Ti.UI.iPhone.TableViewSeparatorStyle.NONE;
+			tableView.setData(data);				
 			break;
 		}
 		case 1:
@@ -68,8 +56,9 @@ tableView.addEventListener('click',function(e)
 				{title:'Row 7', image:'Mail.png'}
 
 			];
+			tableView.separatorStyle = Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE;
+			tableView.separatorColor = null;
 			tableView.setData(data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.DOWN});
-
 			break;
 		}
 		case 2:
@@ -86,8 +75,9 @@ tableView.addEventListener('click',function(e)
 				{title:'Row 9'}
 
 			];
+			tableView.separatorStyle = Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE;
+			tableView.separatorColor = "red";
 			tableView.setData(data,{animationStyle:Titanium.UI.iPhone.RowAnimationStyle.UP});
-
 			break;
 		}
 		

@@ -237,6 +237,8 @@ extern unsigned long const ASIWWANBandwidthThrottleAmount;
 	// This lock prevents the operation from being cancelled at an inopportune moment
 	NSRecursiveLock *cancelledLock;
 	
+	BOOL cancelled;
+	
 	// Called on the delegate when the request starts
 	SEL didStartSelector;
 	
@@ -318,6 +320,7 @@ extern unsigned long const ASIWWANBandwidthThrottleAmount;
 	// This only affects credentials stored in the session cache when useSessionPersistance is YES. Credentials from the keychain are never presented unless the server asks for them
 	// Default is YES
 	BOOL shouldPresentCredentialsBeforeChallenge;
+	
 }
 
 #pragma mark init / dealloc
@@ -577,6 +580,7 @@ extern unsigned long const ASIWWANBandwidthThrottleAmount;
 // Used for generating Authorization header when using basic authentication when shouldPresentCredentialsBeforeChallenge is true
 // And also by ASIS3Request
 + (NSString *)base64forData:(NSData *)theData;
+
 
 #pragma mark ===
 

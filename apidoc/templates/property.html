@@ -1,0 +1,27 @@
+<h1 class="namespace">${data.namespace}</h1>
+<div class="namespace_type">property</div>
+<div class="platforms">
+% for p in data.platforms:
+<span class="${p}">&nbsp;&nbsp;&nbsp;</span>
+% endfor
+</div>
+
+<div class="description">
+${data.description}
+</div>
+
+<h3>Return Type</h3>
+<div>
+${data.returns}
+</div>
+
+% if len(data.examples) > 0:
+<h3>Code Examples</h3>
+
+% for example in data.examples :
+<h4 class="code_example_title">${example['description']}</h4>
+<div class="code_example">${example['code']}</div>
+
+% endfor
+
+% endif

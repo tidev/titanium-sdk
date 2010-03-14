@@ -6,23 +6,33 @@
  */
 #import "TiUIView.h"
 
-@interface TiUIScrollView : TiUIView<UIScrollViewDelegate> {
+@interface TiUIScrollView : TiUIView<TiUIScrollView,UIScrollViewDelegate> {
 
 @private
 	UIScrollView * scrollView;
 	UIView * wrapperView;
 	TiDimension contentWidth;
 	TiDimension contentHeight;
-
-	//TiDimension minimumZoom;
-	//TiDimension maximumZoom;
+	
+	CGFloat minimumContentHeight;
+	CGFloat verticalLayoutBoundary;
 	
 	BOOL needsHandleContentSize;
+	
+	id	lastFocusedView; //DOES NOT RETAIN.
 }
 
 @property(nonatomic,retain,readonly) UIScrollView * scrollView;
+@property(nonatomic,readwrite,assign)	CGFloat verticalLayoutBoundary;
 
--(void)layoutChild:(TiUIView *)childView;
+//-(void)layoutChild:(TiUIView *)childView;
+
 -(void)setNeedsHandleContentSize;
+-(void)setNeedsHandleContentSizeIfAutosizing;
+-(BOOL)handleContentSizeIfNeeded;
+-(void)handleContentSize;
+
+-(UIView *)wrapperView;
+
 
 @end

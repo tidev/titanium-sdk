@@ -12,30 +12,83 @@
 
 @implementation TiUIScrollViewProxy
 
--(void)add:(id)arg
+-(void)_initWithProperties:(NSDictionary *)properties
 {
-	ENSURE_ARG_COUNT(arg,1);
-	ENSURE_UI_THREAD_1_ARG(arg);
-	
-	[super add:arg];
-	
+	// set the initial scale to 1.0 which is the default
+	[self replaceValue:NUMFLOAT(1.0) forKey:@"scale" notification:NO];
+	[super _initWithProperties:properties];
+}
+
+
+-(void)childAdded:(id)child
+{
 	if ([self viewAttached])
 	{
 		[(TiUIScrollView *)[self view] setNeedsHandleContentSize];
 	}
 }
 
--(void)layoutChild:(TiViewProxy*)child bounds:(CGRect)bounds
+-(void)childRemoved:(id)child
+{
+	if ([self viewAttached])
+	{
+		[(TiUIScrollView *)[self view] setNeedsHandleContentSize];
+	}
+}
+
+-(void)layoutChildren
 {
 	if (![self viewAttached])
 	{
 		return;
 	}
-	TiUIView *childView = [child view];
 
-	[(TiUIScrollView *)[self view] layoutChild:childView];
+	if (![(TiUIScrollView *)[self view] handleContentSizeIfNeeded])
+	{
+		[super layoutChildren];
+	}
+}
 
-	[child layoutChildren:childView.bounds];
+-(BOOL)willBeRelaying
+{
+	return [super willBeRelaying]; // || 
+}
+
+-(void)childWillResize:(TiViewProxy *)child
+{
+	[super childWillResize:child];
+	[(TiUIScrollView *)[self view] setNeedsHandleContentSizeIfAutosizing];
+}
+
+-(void)layoutChild:(TiViewProxy*)child
+{
+	if (![self viewAttached])
+	{
+		return;
+	}
+
+	UIView * wrapperView = [(TiUIScrollView *)[self view] wrapperView];
+
+	CGRect bounds = [wrapperView bounds];
+
+	// layout out ourself
+	UIView *childView = [child view];
+
+	if ([childView superview]!=wrapperView)
+	{
+		[wrapperView addSubview:childView];
+		[(TiUIScrollView *)[self view] setNeedsHandleContentSize];
+	}
+	
+	if(TiLayoutRuleIsVertical(layoutProperties.layout)){
+		bounds.origin.y += verticalLayoutBoundary;
+		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
+		verticalLayoutBoundary += bounds.size.height;
+	}
+	[[child view] relayout:bounds];
+	
+	// tell our children to also layout
+	[child layoutChildren];
 }
 
 -(void)scrollTo:(id)args
@@ -55,13 +108,27 @@
 	TiPoint * offsetPoint = [[TiPoint alloc] initWithPoint:offset];
 	[self replaceValue:offsetPoint forKey:@"contentOffset" notification:NO];
 
-	[self fireEvent:@"scroll" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
-			[NSNumber numberWithFloat:offset.x],@"x",
-			[NSNumber numberWithFloat:offset.y],@"y",
-			[NSNumber numberWithBool:[scrollView isDecelerating]],@"decelerating",
-			[NSNumber numberWithBool:[scrollView isDragging]],@"dragging",
-			nil]];
+	if ([self _hasListeners:@"scroll"])
+	{
+		[self fireEvent:@"scroll" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
+				NUMFLOAT(offset.x),@"x",
+				NUMFLOAT(offset.y),@"y",
+				NUMBOOL([scrollView isDecelerating]),@"decelerating",
+				NUMBOOL([scrollView isDragging]),@"dragging",
+				nil]];
+	}
+}
 
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(float)scale
+{
+	[self replaceValue:NUMFLOAT(scale) forKey:@"scale" notification:NO];
+	
+	if ([self _hasListeners:@"scale"])
+	{
+		[self fireEvent:@"scale" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
+											  NUMFLOAT(scale),@"scale",
+											  nil]];
+	}
 }
 
 @end

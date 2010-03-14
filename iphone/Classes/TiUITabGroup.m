@@ -9,6 +9,7 @@
 #import "TiUITabProxy.h"
 #import "TiUtils.h"
 #import "TiUITabController.h"
+#import "TiWindowProxy.h"
 
 @implementation TiUITabGroup
 
@@ -48,66 +49,157 @@ DEFINE_EXCEPTIONS
 	return -1;
 }
 
+#pragma mark Dispatching focus change
+
+- (void)handleWillShowTab:(TiUITabProxy *)newFocus
+{
+	[focused handleWillBlur];
+	[newFocus handleWillFocus];
+}
+
+- (void)handleDidShowTab:(TiUITabProxy *)newFocus
+{
+	NSMutableDictionary * event = [NSMutableDictionary dictionaryWithCapacity:4];
+
+	NSArray * tabArray = [controller viewControllers];
+
+	int previousIndex = -1;
+	int index = -1;
+
+	if (focused != nil)
+	{
+		[event setObject:focused forKey:@"previousTab"];
+		previousIndex = [tabArray indexOfObject:[(TiUITabProxy *)focused controller]];
+	}
+	
+	if (newFocus != nil)
+	{
+		[event setObject:newFocus forKey:@"tab"];
+		index = [tabArray indexOfObject:[(TiUITabProxy *)newFocus controller]];
+	}
+
+	[event setObject:NUMINT(previousIndex) forKey:@"previousIndex"];
+	[event setObject:NUMINT(index) forKey:@"index"];
+
+	[self.proxy fireEvent:@"blur" withObject:event];
+	[focused handleDidBlur:event];
+	
+	RELEASE_TO_NIL(focused);
+	focused = [newFocus retain];
+	[self.proxy replaceValue:focused forKey:@"activeTab" notification:NO];
+
+	[self.proxy fireEvent:@"focus" withObject:event];
+	[focused handleDidFocus:event];
+}
+
+
+#pragma mark More tab delegate
+
+-(void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated	
+{
+	NSArray * moreViewControllerStack = [navigationController viewControllers];
+	int stackHeight = [moreViewControllerStack count];
+	if (stackHeight > 1)
+	{
+		UIViewController * rootController = [moreViewControllerStack objectAtIndex:1];
+		if ([rootController respondsToSelector:@selector(tab)])
+		{
+			[(TiUITabProxy *)[(id)rootController tab] handleWillShowViewController:viewController];
+		}
+	}
+	else
+	{
+		[self handleWillShowTab:nil];
+	}
+
+}
+
+
+- (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+{
+	NSArray * moreViewControllerStack = [navigationController viewControllers];
+	int stackHeight = [moreViewControllerStack count];
+	if (stackHeight < 2) //No more faux roots.
+	{
+		if (focused != nil)
+		{
+			[self handleDidShowTab:nil];
+		}
+		return;
+	}
+
+	UIViewController * rootController = [moreViewControllerStack objectAtIndex:1];
+	if (![rootController respondsToSelector:@selector(tab)])
+	{
+		return;
+	}
+	
+	TiUITabProxy * tabProxy = (TiUITabProxy *)[(id)rootController tab];
+	if (stackHeight == 2)	//One for the picker, one for the faux root.
+	{
+		if (tabProxy != focused)
+		{
+			[self handleDidShowTab:tabProxy];
+		}
+	}
+
+	[tabProxy handleDidShowViewController:viewController];
+}
+
 #pragma mark TabBarController Delegates
 
-- (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController
+- (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController
 {
-	if ([viewController isKindOfClass:[UINavigationController class]])
+	TiUITabProxy * target=nil;
+	if ([tabBarController moreNavigationController] == viewController)
 	{
-		UINavigationController *navController = (UINavigationController*)viewController;
-		TiUITabProxy *tab = (TiUITabProxy*)navController.delegate;
-		
-		int selectedIndex = [tabBarController selectedIndex];
-		int previousIndex = [self findIndexForTab:focused];
-		
-		// hold for the event below
-		id oldTab = [[focused retain] autorelease];
-		
-		if (focused)
+		if (self != [(UINavigationController *)viewController delegate])
 		{
-			BOOL tbBlur = [self.proxy _hasListeners:@"blur"];
-			BOOL tBlur = [focused _hasListeners:@"blur"];
-			// check to see if the tabGroup and/or tab has a blur and fire to him
-			if (tbBlur || tBlur)
-			{
-				NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:tab,@"tab",NUMINT(selectedIndex),@"index",NUMINT(previousIndex),@"previousIndex",focused,@"previousTab",nil];
-				if (tbBlur)
-				{
-					[self.proxy fireEvent:@"blur" withObject:event];
-				}
-				if (tBlur)
-				{
-					[focused fireEvent:@"blur" withObject:event];
-				}
-			}
-			
-			RELEASE_TO_NIL(focused);
+			[(UINavigationController *)viewController setDelegate:self];
 		}
-		
-		// set our new focused tab reference so we can keep track
-		focused = [tab retain];
-		
-		// set our activeTab property
-		[self.proxy replaceValue:focused forKey:@"activeTab" notification:NO];
-		
-		BOOL tbFocus = [self.proxy _hasListeners:@"focus"];
-		BOOL tFocus = [focused _hasListeners:@"focus"];
-		
-		// check to see if we have a focus listener(s) and fire event to him (against tabGroup)
-		if (tbFocus || tFocus)
+		NSArray * moreViewControllerStack = [(UINavigationController *)viewController viewControllers];
+		if ([moreViewControllerStack count]>1)
 		{
-			NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focused,@"tab",NUMINT(selectedIndex),@"index",NUMINT(previousIndex),@"previousIndex",oldTab,@"previousTab",nil];
-			if (tbFocus)
+			viewController = [moreViewControllerStack objectAtIndex:1];
+			if ([viewController respondsToSelector:@selector(tab)])
 			{
-				[self.proxy fireEvent:@"focus" withObject:event];
-			}
-			if (tFocus)
-			{
-				[focused fireEvent:@"focus" withObject:event];
+				target = (TiUITabProxy *)[(id)viewController tab];
 			}
 		}
 	}
+	else
+	{
+		target = (TiUITabProxy *)[(UINavigationController *)viewController delegate];
+	}
+
+	[self handleWillShowTab:target];
+
+	return YES;
 }
+
+- (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController
+{
+	if ([tabBarController moreNavigationController] == viewController)
+	{
+		if (self != [(UINavigationController *)viewController delegate])
+		{
+			[(UINavigationController *)viewController setDelegate:self];
+		}
+		NSArray * moreViewControllerStack = [(UINavigationController *)viewController viewControllers];
+		if ([moreViewControllerStack count]>1)
+		{
+			viewController = [moreViewControllerStack objectAtIndex:1];
+		}
+		else
+		{
+			viewController = nil;
+		}
+
+	}
+
+	[self handleDidShowTab:(TiUITabProxy *)[(UINavigationController *)viewController delegate]];
+}
+
 
 - (void)tabBarController:(UITabBarController *)tabBarController willEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed
 {
@@ -128,6 +220,7 @@ DEFINE_EXCEPTIONS
 		{
 			[controllers addObject:[tabProxy controller]];
 		}
+		[self tabController].viewControllers = nil;
 		[self tabController].viewControllers = controllers;
 		[controllers release];
 		if (focused == nil)
@@ -148,8 +241,14 @@ DEFINE_EXCEPTIONS
 {
 	UIViewController *active = nil;
 	
+//	NSArray * tabViewControllers = [[self tabController] viewControllers];
+	if (controller == nil)
+	{
+		return;
+	}
 	if ([value isKindOfClass:[TiUITabProxy class]])
 	{
+		
 		TiUITabProxy *tab = (TiUITabProxy*)value;
 		for (UIViewController *c in [self tabController].viewControllers)
 		{
@@ -178,6 +277,11 @@ DEFINE_EXCEPTIONS
 	UIView *view = [self tabController].view;
 	[TiUtils setView:view positionRect:[self bounds]];
 	[self addSubview:view];
+
+	// on an open, make sure we send the focus event to initial tab
+	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focused,@"tab",NUMINT(0),@"index",NUMINT(-1),@"previousIndex",[NSNull null],@"previousTab",nil];
+	[self.proxy fireEvent:@"focus" withObject:event];
+	[focused handleDidFocus:event];
 }
 
 -(void)close:(id)args
@@ -197,5 +301,29 @@ DEFINE_EXCEPTIONS
 	RELEASE_TO_NIL(controller);
 	RELEASE_TO_NIL(focused);
 }
+
+
+-(void)focusVisibleWindow
+{
+	UINavigationController * ourCurrentNC = (UINavigationController *)[controller selectedViewController];
+	TiUITabController * ourCurrentVC = (TiUITabController *)[ourCurrentNC visibleViewController];
+	if([ourCurrentVC isKindOfClass:[TiUITabController class]])
+	{
+		TiWindowProxy * ourCurrentWindow = [ourCurrentVC window];
+		[ourCurrentWindow _tabFocus];
+	}
+}
+
+-(void)blurVisibleWindow
+{
+	UINavigationController * ourCurrentNC = (UINavigationController *)[controller selectedViewController];
+	TiUITabController * ourCurrentVC = (TiUITabController *)[ourCurrentNC visibleViewController];
+	if([ourCurrentVC isKindOfClass:[TiUITabController class]])
+	{
+		TiWindowProxy * ourCurrentWindow = [ourCurrentVC window];
+		[ourCurrentWindow _tabBlur];
+	}
+}
+
 
 @end

@@ -21,7 +21,7 @@ var apple = Titanium.Map.createAnnotation({
 	subtitle:'Cupertino, CA',
 	pincolor:Titanium.Map.ANNOTATION_GREEN,
 	animate:true,
-	rightButton: '..images/apple_logo.jpg',
+	rightButton: '../images/apple_logo.jpg',
 	myid:2 // CUSTOM ATTRIBUTE THAT IS PASSED INTO EVENT OBJECTS
 });
 
@@ -32,7 +32,7 @@ var atlanta = Titanium.Map.createAnnotation({
 	subtitle:'Atlanta Braves Stadium',
 	pincolor:Titanium.Map.ANNOTATION_PURPLE,
 	animate:true,
-	leftButton:'images/atlanta.jpg',
+	leftButton:'../images/atlanta.jpg',
 	rightButton: Titanium.UI.iPhone.SystemButton.DISCLOSURE,
 	myid:3 // CUSTOM ATTRIBUTE THAT IS PASSED INTO EVENT OBJECTS	
 });
@@ -46,7 +46,7 @@ var mapview = Titanium.Map.createView({
 	animate:true,
 	regionFit:true,
 	userLocation:true,
-	annotations:[mountainView, apple, atlanta]
+	annotations:[apple, atlanta]
 });
 
 win.add(mapview);
@@ -72,7 +72,7 @@ atl.addEventListener('click', function()
 	mapview.setLocation(regionAtlanta);
 	
 	// activate annotation
-	mapview.selectAnnotation(mapview.annotations[2].title,true);
+	mapview.selectAnnotation(mapview.annotations[1].title,true);
 });
 
 // button to change to SV
@@ -87,7 +87,7 @@ sv.addEventListener('click', function()
 	mapview.setLocation(regionSV);
 	
 	// activate annotation
-	mapview.selectAnnotation(mapview.annotations[1].title,true);
+	mapview.selectAnnotation(mapview.annotations[0].title,true);
 	
 });
 
@@ -160,6 +160,8 @@ mapview.addEventListener('regionChanged',function(evt)
 	Titanium.API.info('maps region has updated to '+evt.longitude+','+evt.latitude);
 });
 
+var annotationAdded = false;
+
 // map view click event listener
 mapview.addEventListener('click',function(evt)
 {
@@ -184,6 +186,18 @@ mapview.addEventListener('click',function(evt)
 		evt.annotation.subtitle = 'Appcelerator used to be near here';
 		evt.annotation.leftButton = 'images/appcelerator_small.png';
 		
+	}
+	if (myid == 2 && annotationAdded==false)
+	{
+		Ti.API.info('adding mountain view annotation')
+		mapview.addAnnotation(mountainView);
+		annotationAdded=true;
+	}
+	else
+	{
+		Ti.API.info('removing mountain view annotation')
+		mapview.removeAnnotation(mountainView);
+		annotationAdded=false;
 	}
 });
 

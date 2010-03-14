@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
+#import "TiBase.h"
 #import "KrollBridge.h"
 #import "KrollCallback.h"
 #import "KrollObject.h"
@@ -13,18 +13,32 @@
 #import "TiUtils.h"
 #import "TitaniumApp.h"
 
+extern BOOL const TI_APPLICATION_ANALYTICS;
+
 @implementation TitaniumObject
 
--(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_
+-(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_ context:(id<TiEvaluator>)pageContext_ baseURL:(NSURL*)baseURL_
 {
-	if (self = [super initWithTarget:[[[TitaniumModule alloc] init] autorelease] context:context_])
+	TitaniumModule *module = [[[TitaniumModule alloc] _initWithPageContext:pageContext_] autorelease];
+	[module setHost:host_];
+	[module _setBaseURL:baseURL_];
+	
+	pageContext = pageContext_;
+	
+	if (self = [super initWithTarget:module context:context_])
 	{
 		modules = [[NSMutableDictionary alloc] init];
 		host = [host_ retain];
 		
 		// pre-cache a few modules we always use
-		TiModule *ui = [host moduleNamed:@"UI"];
+		TiModule *ui = [host moduleNamed:@"UI" context:pageContext_];
 		[self addModule:@"UI" module:ui];
+		
+		if (TI_APPLICATION_ANALYTICS)
+		{
+			// force analytics to load on startup
+			[host moduleNamed:@"Analytics" context:pageContext_];
+		}
 	}
 	return self;
 }
@@ -62,7 +76,7 @@
 	{
 		return module;
 	}
-	module = [host moduleNamed:key];
+	module = [host moduleNamed:key context:pageContext];
 	if (module!=nil)
 	{
 		return [self addModule:key module:module];
@@ -83,7 +97,7 @@
 	return ko;
 }
 
--(TiModule*)moduleNamed:(NSString*)name
+-(TiModule*)moduleNamed:(NSString*)name context:(id<TiEvaluator>)context
 {
 	return [modules objectForKey:name];
 }
@@ -275,13 +289,10 @@
 	// called to inject any Titanium patches in JS before a context is loaded... nice for 
 	// setting up backwards compat type APIs
 	
-	NSMutableString *js = [[[NSMutableString alloc] init] autorelease];
-	
-	[js appendString:@"Ti.UI.iPhone.createGroupedSection = function(a,b,c){ return Ti.UI.createGroupedSection(a,b,c); };"];
-	[js appendString:@"Ti.UI.iPhone.createGroupedView = function(a,b,c) { return Ti.UI.createGroupedView(a,b,c); };"];
+	NSMutableString *js = [[NSMutableString alloc] init];
 	[js appendString:@"function alert(msg) { Ti.UI.createAlertDialog({title:'Alert',message:msg}).show(); };"];
-	
 	[self evalJS:js];
+	[js release];
 }
 
 -(void)shutdown
@@ -289,11 +300,16 @@
 #if KROLLBRIDGE_MEMORY_DEBUG==1
 	NSLog(@"DESTROY: %@",self);
 #endif
-	// fire a notification event to our listeners
-	NSNotification *notification = [NSNotification notificationWithName:kKrollShutdownNotification object:self];
-	[[NSNotificationCenter defaultCenter] postNotification:notification];
-
-	[context stop];
+	
+	if (shutdown==NO)
+	{
+		shutdown = YES;
+		// fire a notification event to our listeners
+		NSNotification *notification = [NSNotification notificationWithName:kKrollShutdownNotification object:self];
+		[[NSNotificationCenter defaultCenter] postNotification:notification];
+		
+		[context stop];
+	}
 }
 
 -(void)gc
@@ -311,7 +327,8 @@
 -(void)didStartNewContext:(KrollContext*)kroll
 {
 	// create Titanium global object
-	titanium = [[TitaniumObject alloc] initWithContext:kroll host:host];
+	NSString *basePath = (url==nil) ? [[NSBundle mainBundle] resourcePath] : [[url path] stringByDeletingLastPathComponent];
+	titanium = [[TitaniumObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
 	TiContextRef jsContext = [kroll context];
 	TiValueRef tiRef = [KrollObject toValue:kroll value:titanium];
 
@@ -322,8 +339,6 @@
 	TiObjectSetProperty(jsContext, globalRef, prop2, tiRef, NULL, NULL);
 	TiStringRelease(prop);
 	TiStringRelease(prop2);	
-	
-	[host registerContext:self forToken:[kroll contextId]];
 	
 	//if we have a preload dictionary, register those static key/values into our UI namespace
 	//in the future we may support another top-level module but for now UI is only needed
@@ -351,8 +366,14 @@
 
 -(void)willStopNewContext:(KrollContext*)kroll
 {
+	if (shutdown==NO)
+	{
+		shutdown = YES;
+		// fire a notification event to our listeners
+		NSNotification *notification = [NSNotification notificationWithName:kKrollShutdownNotification object:self];
+		[[NSNotificationCenter defaultCenter] postNotification:notification];
+	}
 	[titanium gc];
-	[host unregisterContext:self forToken:[kroll contextId]];
 }
 
 -(void)didStopNewContext:(KrollContext*)kroll

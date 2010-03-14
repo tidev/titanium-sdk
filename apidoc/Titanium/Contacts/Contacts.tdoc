@@ -1,0 +1,30 @@
+- namespace
+
+Titanium.Contacts
+
+- type
+
+module
+
+- returns
+
+object
+
+- description
+
+The top level Contacts module.  The Contacts module is used accessing the device Address Book.
+
+- since
+
+0.8
+
+- platforms
+
+android, iphone
+
+
+- methods
+
+- properties
+
+- events

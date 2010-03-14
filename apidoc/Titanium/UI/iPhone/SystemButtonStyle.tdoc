@@ -1,0 +1,25 @@
+- namespace
+
+Titanium.UI.iPhone.SystemButtonStyle
+
+- type
+
+object
+
+- description
+
+A set of constants for the system button styles that can be used for the button `style` property.
+
+- since
+
+0.8
+
+- platforms
+
+iphone
+
+- properties
+
+DONE[int]: The style for a done button - for example, a button that completes some task and returns to the previous view. 
+BORDERED[int]: A simple button style with a border.
+PLAIN[int]: Glows when tapped. The default item style.

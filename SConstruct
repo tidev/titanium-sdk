@@ -43,6 +43,9 @@ if platform.system() == "Darwin" and not ARGUMENTS.get('android',0):
 
 flags = ''
 
+only_package = False
+if ARGUMENTS.get("package",0):
+	only_package = True
 
 # TEMP until android is merged
 build_type = 'full'
@@ -59,9 +62,14 @@ if ARGUMENTS.get('android',0):
 if ARGUMENTS.get('COMPILER_FLAGS', 0):
 	flags = ARGUMENTS.get('COMPILER_FLAGS')
 
-for dir in build_dirs:
+env = Environment()
+Export("env cwd version")
+if build_type in ['full', 'android'] and not only_package:
+	env.SConscript("android/SConscript", variant_dir="dist/android", duplicate=0)
+
+if build_type in ['full', 'iphone'] and not only_package:
 	d = os.getcwd()
-	os.chdir(dir)
+	os.chdir('iphone')
 	try:
 		#output = 0
 		output = os.system("scons PRODUCT_VERSION=%s COMPILER_FLAGS='%s' BUILD_TYPE='%s'" % (version,flags,build_type))	
@@ -77,5 +85,12 @@ for dir in build_dirs:
 	finally:
 		os.chdir(d)
 
-print "Packaging MobileSDK (%s)..." % version
-package.Packager().build(os.path.abspath('dist'),version)
+def package_sdk(target, source, env):
+	print "Packaging MobileSDK (%s)..." % version
+	android = build_type in ['full', 'android']
+	iphone = build_type in ['full', 'iphone']
+	package.Packager().build(os.path.abspath('dist'), version, android, iphone)
+
+package_builder = Builder(action = package_sdk)
+env.Append(BUILDERS = {'PackageMobileSDK': package_builder})
+env.PackageMobileSDK("#dummy-sdk-target", [])

@@ -23,7 +23,9 @@ winContainer.add(view);
 var label = Titanium.UI.createLabel({
 	text:'Hovering tip...',
 	color:'#fff',
-	textAlign:'center'
+	textAlign:'center',
+	width:'auto',
+	height:'auto'
 });
 winContainer.add(label);
 

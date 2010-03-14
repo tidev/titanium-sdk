@@ -6,20 +6,9 @@
  */
 
 #import "TiViewProxy.h"
-#include "AFOpenFlow/AFOpenFlowView.h"
 
-
-@interface TiUICoverFlowViewProxy : TiViewProxy<AFOpenFlowViewDataSource,AFOpenFlowViewDelegate> {
-	NSMutableArray * imageUrls;
+@interface TiUICoverFlowViewProxy : TiViewProxy 
+{
 }
-
-@property(nonatomic,copy)NSArray * images;
-
--(void)setURL:(int)index withObject:(id)newUrl;
-
-//			"res.setSelected=function(i){ res.selected = i; };"
-//			"res.getSelected=function(){ return res.selected; };"
-//			"res.setURL=function(i,newUrl){if(this._TOKEN){Ti.UI._CFLVWACT(this._TOKEN," STRINGVAL(COVERFLOWVIEW_SETURL) ",[i,newUrl]);}};"
-
 
 @end

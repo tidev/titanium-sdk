@@ -66,6 +66,41 @@
 	}
 }
 
+-(void)setTabs:(NSArray *)newTabs
+{
+	if (newTabs == tabs)
+	{
+		return;
+	}
+
+	ENSURE_TYPE_OR_NIL(newTabs,NSArray);
+	for (id thisTab in newTabs)
+	{
+		ENSURE_TYPE(thisTab,TiUITabProxy);
+	}
+
+	[tabs release];
+	tabs = [newTabs mutableCopy];
+
+	[self replaceValue:tabs forKey:@"tabs" notification:YES];
+}
+
+
+-(BOOL)handleFocusEvents
+{
+	return NO;
+}
+
+-(void)_tabFocus
+{
+	[(TiUITabGroup *)[self view] focusVisibleWindow];
+}
+
+-(void)_tabBlur
+{
+	[(TiUITabGroup *)[self view] blurVisibleWindow];
+}
+
 #pragma mark Window Management
 
 -(BOOL)_handleOpen:(id)args
@@ -81,6 +116,7 @@
 	{
 		[tabGroup close:args];
 	}
+	[self detachView];
 	return YES;
 }
 

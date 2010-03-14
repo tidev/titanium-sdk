@@ -6,6 +6,11 @@
  */
 #import "TiUIImageViewProxy.h"
 #import "TiUIImageView.h"
+#import "OperationQueue.h"
+#import "ASIHTTPRequest.h"
+#import "TitaniumApp.h"
+#import "ImageLoader.h"
+#import "TiBlob.h"
 
 @implementation TiUIImageViewProxy
 
@@ -14,21 +19,33 @@
 
 -(void)_configure
 {
-	[self replaceValue:[NSNumber numberWithBool:NO] forKey:@"animating" notification:NO];
+	[self replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
+	[self replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
+	[self replaceValue:NUMBOOL(NO) forKey:@"reverse" notification:NO];
 }
 
 -(void)start:(id)args
 {
 	ENSURE_UI_THREAD(start,args);
 	TiUIImageView *iv= (TiUIImageView*)[self view];
-	[iv start:args];
+	[iv start];
 }
 
 -(void)stop:(id)args
 {
-	ENSURE_UI_THREAD(stop,args);
+	if ([self viewAttached])
+	{
+		ENSURE_UI_THREAD(stop,args);
+		TiUIImageView *iv= (TiUIImageView*)[self view];
+		[iv stop];
+	}
+}
+
+-(void)pause:(id)args
+{
+	ENSURE_UI_THREAD(pause,args);
 	TiUIImageView *iv= (TiUIImageView*)[self view];
-	[iv stop:args];
+	[iv pause];
 }
 
 -(void)viewWillDetach
@@ -49,6 +66,29 @@
 	[super _destroy];
 }
 
+-(id)toBlob:(id)args
+{
+	id url = [self valueForKey:@"url"];
+	if (url!=nil)
+	{
+		NSURL *url_ = [TiUtils toURL:url proxy:self];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_];
+		
+		if (image!=nil)
+		{
+			return [[[TiBlob alloc] initWithImage:image] autorelease];
+		}
 
+		// we're on the non-UI thread, we need to block to load
+
+		image = [[ImageLoader sharedLoader] loadRemote:url_];
+		return [[[TiBlob alloc] initWithImage:image] autorelease];
+	}
+	return nil;
+}
+
+USE_VIEW_FOR_AUTO_WIDTH
+
+USE_VIEW_FOR_AUTO_HEIGHT
 
 @end

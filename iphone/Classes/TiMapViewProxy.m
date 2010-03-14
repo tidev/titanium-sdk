@@ -6,15 +6,14 @@
  */
 
 #import "TiMapViewProxy.h"
+#import "TiMapView.h"
 
 @implementation TiMapViewProxy
 
--(void)zoom:(id)args
-{
-	if ([self viewAttached])
-	{
-		[[self view] performSelectorOnMainThread:@selector(zoom:) withObject:args waitUntilDone:NO];
-	}
-}
+USE_VIEW_FOR_UI_METHOD(zoom)
+USE_VIEW_FOR_UI_METHOD(selectAnnotation)
+USE_VIEW_FOR_UI_METHOD(deselectAnnotation)
+USE_VIEW_FOR_UI_METHOD(addAnnotation)
+USE_VIEW_FOR_UI_METHOD(removeAnnotation)
 
 @end

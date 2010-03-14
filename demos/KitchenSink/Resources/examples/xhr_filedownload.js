@@ -30,7 +30,8 @@ b1.addEventListener('click', function()
 
 	c.onload = function()
 	{
-		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'test.pdf');
+		var filename = Titanium.Platform.name == 'android' ? 'test.png' : 'test.pdf';
+		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,filename);
 		f.write(this.responseData);
 		var wv = Ti.UI.createWebView({
 			url:f.nativePath,
@@ -46,8 +47,14 @@ b1.addEventListener('click', function()
 		ind.value = e.progress ;
 		Ti.API.info('ONDATASTREAM1 - PROGRESS: ' + e.progress);
 	}
+	
 	// open the client
-	c.open('GET','http://www.appcelerator.com/assets/The_iPad_App_Wave.pdf');
+	if (Titanium.Platform.name == 'android') {
+		//android's WebView doesn't support embedded PDF content
+		c.open('GET', 'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png');
+	} else {
+		c.open('GET','http://www.appcelerator.com/assets/The_iPad_App_Wave.pdf');
+	}
 
 	// send the data
 	c.send();
@@ -80,11 +87,34 @@ b2.addEventListener('click', function()
 		ind.value = e.progress ;
 		Ti.API.info('ONDATASTREAM2 - PROGRESS: ' + e.progress);
 	}
+
 	// open the client
-	c.open('GET','http://www.appcelerator.com/assets/The_iPad_App_Wave.pdf');
+	if (Titanium.Platform.name == 'android') {
+		//android's WebView doesn't support embedded PDF content
+		c.open('GET', 'http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png');
+	} else {
+		c.open('GET','http://www.appcelerator.com/assets/The_iPad_App_Wave.pdf');
+	}
 
 	// send the data
 	c.send();
 	
 });
 win.add(b2);
+
+var abort = Titanium.UI.createButton({
+	title:'Abort',
+	height:40,
+	width:200,
+	top:170
+});
+win.add(abort);
+abort.addEventListener('click', function()
+{
+	c.abort();
+	
+	alert("request aborted");
+	
+	c = Titanium.Network.createHTTPClient();
+	ind.value = 0;
+});

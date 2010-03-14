@@ -21,7 +21,9 @@ var l = Titanium.UI.createLabel({
 	textAlign:'center',
 	bottom:100,
 	color:'#336699',
-	font:{fontSize:13}
+	font:{fontSize:13},
+	width:'auto',
+	height:'auto'
 });
 win.add(l);
 
@@ -70,7 +72,7 @@ win.add(button2);
 //  ALERT WITH 4 BUTTONS
 //
 var button3 = Titanium.UI.createButton({
-	title:'Alert 4 Buttons',
+	title:'Alert 3 Buttons',
 	height:40,
 	width:200,
 	top:110
@@ -78,11 +80,12 @@ var button3 = Titanium.UI.createButton({
 
 button3.addEventListener('click', function()
 {
-	a.message = 'Four Buttons';
-	a.buttonNames = ['One', 'Two','Three','Four'];
+	a.message = 'Three Buttons';
+	a.buttonNames = ['One', 'Two','Three'];
 	a.cancel = 1;
 	a.show();
 });
 
 win.add(button3);
+
 

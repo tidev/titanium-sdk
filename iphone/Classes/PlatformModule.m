@@ -6,8 +6,9 @@
  */
 
 #import "PlatformModule.h"
-
 #import "IPAddress.h"
+#import "TitaniumApp.h"
+
 #import <sys/sysctl.h>  
 #import <mach/mach.h>
 #import <sys/utsname.h>
@@ -29,6 +30,14 @@
 		processorCount = [[NSNumber numberWithInt:1] retain];
 		username = [theDevice name];
 		ostype = [@"32bit" retain];
+		
+#ifdef IPAD 	
+		// ipad is a constant for Ti.Platform.osname
+		[self replaceValue:@"ipad" forKey:@"osname" notification:NO];
+#else
+		// iphone is a constant for Ti.Platform.osname
+		[self replaceValue:@"iphone" forKey:@"osname" notification:NO];
+#endif
 		
 		//TODO: save CPU and RAM by moving these into dynamic properties
 		
@@ -127,6 +136,7 @@
 	RELEASE_TO_NIL(address);
 	RELEASE_TO_NIL(ostype);
 	RELEASE_TO_NIL(availableMemory);
+	RELEASE_TO_NIL(capabilities);
 	[super dealloc];
 }
 
@@ -134,9 +144,15 @@
 {
 	if (count == 1 && [type isEqualToString:@"battery"])
 	{
-		[[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryStateDidChangeNotification object:nil];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryLevelDidChangeNotification object:nil];
+		UIDevice *device = [UIDevice currentDevice];
+		// set a flag to temporarily turn on battery enablement
+		if (batteryEnabled==NO && device.batteryMonitoringEnabled==NO)
+		{
+			batteryEnabled = YES;
+			[device setBatteryMonitoringEnabled:YES];
+		}
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryStateDidChangeNotification object:device];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:) name:UIDeviceBatteryLevelDidChangeNotification object:device];
 	}
 }
 
@@ -144,13 +160,26 @@
 {
 	if (count == 0 && [type isEqualToString:@"battery"])
 	{
-		[[UIDevice currentDevice] setBatteryMonitoringEnabled:NO];
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceBatteryStateDidChangeNotification object:nil];
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceBatteryLevelDidChangeNotification object:nil];
+		UIDevice *device = [UIDevice currentDevice];
+		if (batteryEnabled)
+		{
+			[device setBatteryMonitoringEnabled:NO];
+		}
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceBatteryStateDidChangeNotification object:device];
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceBatteryLevelDidChangeNotification object:device];
 	}
 }
 
 #pragma mark Public APIs
+
+-(NSString*)locale
+{
+	// this will return the locale that the user has set the phone in
+	// not the region where the phone is
+	NSUserDefaults* defs = [NSUserDefaults standardUserDefaults];
+	NSArray* languages = [defs objectForKey:@"AppleLanguages"];
+	return [languages count] > 0 ? [languages objectAtIndex:0] : @"en";
+}
 
 -(id)id
 {
@@ -159,10 +188,7 @@
 
 - (NSString *)createUUID:(id)args
 {
-	CFUUIDRef resultID = CFUUIDCreate(NULL);
-	NSString * resultString = (NSString *) CFUUIDCreateString(NULL, resultID);
-	CFRelease(resultID);
-	return [resultString autorelease];
+	return [TiUtils createUUID];
 }
 
 - (NSNumber*)availableMemory
@@ -193,8 +219,21 @@
 
 -(PlatformModuleDisplayCapsProxy*)displayCaps
 {
-	//TODO: cache
-	return [[[PlatformModuleDisplayCapsProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
+	if (capabilities == nil)
+	{
+		return [[[PlatformModuleDisplayCapsProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+	}
+	return capabilities;
+}
+
+-(void)setBatteryMonitoring:(NSNumber *)yn
+{
+	[[UIDevice currentDevice] setBatteryMonitoringEnabled:[TiUtils boolValue:yn]];
+}
+
+-(NSNumber*)batteryMonitoring
+{
+	return NUMBOOL([UIDevice currentDevice].batteryMonitoringEnabled);
 }
 
 -(NSNumber*)batteryState
@@ -212,6 +251,7 @@ MAKE_SYSTEM_PROP(BATTERY_STATE_UNPLUGGED,UIDeviceBatteryStateUnplugged);
 MAKE_SYSTEM_PROP(BATTERY_STATE_CHARGING,UIDeviceBatteryStateCharging);
 MAKE_SYSTEM_PROP(BATTERY_STATE_FULL,UIDeviceBatteryStateFull);
 
+
 #pragma mark Delegates
 
 -(void)batteryStateChanged:(NSNotification*)note
@@ -219,5 +259,12 @@ MAKE_SYSTEM_PROP(BATTERY_STATE_FULL,UIDeviceBatteryStateFull);
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[self batteryState],@"state",[self batteryLevel],@"level",nil];
 	[self fireEvent:@"battery" withObject:event];
 }
+
+-(void)didReceiveMemoryWarning:(NSNotification*)notification
+{
+	RELEASE_TO_NIL(capabilities);
+	[super didReceiveMemoryWarning:notification];
+}
+
 
 @end

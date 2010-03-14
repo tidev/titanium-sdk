@@ -12,7 +12,6 @@
 @interface TiHost : NSObject 
 {
 	NSMutableDictionary *modules;
-	NSMutableDictionary *proxies;
 	NSMutableDictionary *contexts;
 	NSURL *startURL;
 	NSURL *baseURL;
@@ -22,15 +21,11 @@
 -(NSURL*)baseURL;
 -(NSURL*)startURL;
 
--(id)moduleNamed:(NSString*)name;
+-(id)moduleNamed:(NSString*)name context:(id<TiEvaluator>)context;
 
 -(void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)remove context:(id<TiEvaluator>)context thisObject:(TiProxy*)thisObject_;
 -(void)removeListener:(id)listener context:(id<TiEvaluator>)context;
 -(void)evaluateJS:(NSString*)js context:(id<TiEvaluator>)context;
-
--(void)registerProxy:(TiProxy*)proxy;
--(void)unregisterProxy:(NSString*)proxyid;
--(TiProxy*)proxyForId:(NSString*)proxyid;
 
 -(void)registerContext:(id<TiEvaluator>)context forToken:(NSString*)token;
 -(void)unregisterContext:(id<TiEvaluator>)context forToken:(NSString*)token;

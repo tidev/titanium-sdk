@@ -1,0 +1,83 @@
+- namespace
+
+Titanium.Network
+
+- type
+
+module
+
+- description
+
+The top level Network module.  The Network module is used accessing Networking related functionality.
+
+- since
+
+0.1
+
+- platforms
+
+android, iphone
+
+
+- methods
+
+createHTTPClient : returns an HttpClient instance
+registerForPushNotifications: register for push notifications with the Apple Push Notification Service. Only available on iPhone.
+encodeURIComponent: encode a URI component part using URI encoding
+decodeURIComponent: decode a URI component part using URI encoding
+addConnectivityListener: adds a connectivity listener to listen for network changes. This method has been deprecated in favor of listening for a `change` event. 
+removeConnectivityListener: removes a connectivity listener. This method has been deprecated in favor of listening for a `change` event. 
+
+- method : addConnectivityListener
+
+callback[function]: callback function to invoke upon network connectivity changes
+
+- method : removeConnectivityListener
+
+callback[function]: callback function to remove
+
+- method : encodeURIComponent, string
+
+value[string]: input value to be encoded
+
+- method : decodeURIComponent, string
+
+value[string]: input value to be decoded
+
+- method : createHTTPClient, object
+
+- method : registerForPushNotifications
+
+config[object]: dictionary of the following: `types` is an array of type constants that the application would like to receive, `success` is a callback function that is called when the push registration is successfully completed, `error` is a callback function that is called when an error is received during registration and `callback` is a callback function that is invoked upon receiving a new push notification. This method should be called at application startup.
+
+- properties
+
+NETWORK_NONE[int]: constant value to indicate that the network is not available
+NETWORK_WIFI[int]: constant value to indicate that the network is WIFI
+NETWORK_MOBILE[int]: constant value to indicate that the network is MOBILE
+NETWORK_LAN[int]: constant value to indicate that the network is LAN
+NETWORK_UNKNOWN[int]: constant value to indicate that the network is not known
+
+NOTIFICATION_TYPE_BADGE[int]: constant value for the push notification badge type
+NOTIFICATION_TYPE_ALERT[int]: constant value for the push notification alert type
+NOTIFICATION_TYPE_SOUND[int]: constant value for the push notification sound type
+
+
+online[boolean]: readonly boolean value that indicates if the network is reachable to the Internet either via WIFI or Carrier network
+networkTypeName[string]: the network type name constant. Returns one of `NONE`, `WIFI`, `LAN` or `MOBILE`.
+networkType[int]: the network type value as a constant.
+remoteDeviceUUID[string]: the remote device UUID if the device was registered with the Apple Push Notification Service or null if not set. Only available on iPhone.
+remoteNotificationsEnabled[boolean]: returns true if remote notifications have been enabled. Only available on iPhone.
+remoteNotificationTypes[array]: returns an array of network type constants enabled for the application. Only available on iPhone.
+
+
+- events
+
+change: fired upon a network connectivity change
+
+- event : change
+
+networkType: the new network type
+networkTypeName: the new network type as a string
+online: boolean to indicate if the network is online
+

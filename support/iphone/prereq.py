@@ -5,7 +5,7 @@
 #
 
 import os, sys, subprocess, re, types
-import poorjson, run, tempfile, codecs
+import json, run, tempfile, codecs
 
 template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 
@@ -29,7 +29,7 @@ def get_sdks():
 			cmd = line[i+5:]
 			if cmd.find("iphoneos")==0:
 				ver = cmd[8:]
-				if ver[0]=='3':
+				if ver[0]=='3' and ver!='3.0':
 					found.append(ver)
 	return found
 	
@@ -112,6 +112,8 @@ def check_certs(props):
 	props['iphone_dist_message'] = 'Missing iPhone Distribution Certificate'
 	props['iphone_dev_message'] = 'Missing iPhone Developer Certificate'
 	output = run.run(['security','dump-keychain'])
+# FOR TESTING ONLY
+#	output = open(os.path.expanduser("~/Downloads/distribution_only_out.txt")).read()
 	for i in output.split('\n'):
 		check_for_wwdr(props,i)
 		check_for_iphone_dev(props,i)
@@ -123,7 +125,7 @@ def check_for_package():
 	check_itunes_version(props)
 	check_certs(props)
 	props['sdks']=get_sdks()
-	print poorjson.PoorJSON().dump(props).encode("utf-8")
+	print json.encode(props).decode('utf-8')
 			
 def main(args):
 	if len(args)!=2:
@@ -138,5 +140,9 @@ def main(args):
 	sys.exit(0)
 
 if __name__ == "__main__":
-    main(sys.argv)
+	main(sys.argv)
+
+
+# FOR TESTING
+#check_for_package()
 

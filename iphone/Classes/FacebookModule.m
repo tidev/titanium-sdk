@@ -4,7 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
+#import "TiBase.h"
+#import "TitaniumApp.h"
 #import "FacebookModule.h"
 #import "TiFacebookLoginButtonProxy.h"
 #import "SBJSON.h"
@@ -126,6 +127,16 @@
 	[super dealloc]; 
 }
 
+- (void)requestLoading:(FBRequest*)request
+{
+	[[TitaniumApp app] startNetwork];
+}
+
+- (void)requestWasCancelled:(FBRequest*)request
+{
+	[[TitaniumApp app] stopNetwork];
+}
+
 - (void)request:(FBRequest*)request didLoad:(id)result
 {
 #ifdef VERBOSE_LOG
@@ -142,6 +153,7 @@
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:result,@"data",[NSNumber numberWithBool:true],@"success",nil];
 	[module _fireEventToListener:@"query" withObject:event listener:callback thisObject:nil];
 	[self autorelease];
+	[[TitaniumApp app] stopNetwork];
 }
 
 - (void)request:(FBRequest*)request didFailWithError:(NSError*)error
@@ -150,6 +162,7 @@
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[error description],@"error",[NSNumber numberWithBool:false],@"success",nil];
 	[module _fireEventToListener:@"query" withObject:event listener:callback thisObject:nil];
 	[self autorelease];
+	[[TitaniumApp app] stopNetwork];
 }
 
 @end
@@ -314,7 +327,7 @@
 	if (permissions==nil)
 	{
 		pendingPermissions = YES;
-	  	NSDictionary* params = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"select status_update,photo_upload,sms,create_listing,email,create_event,rsvp_event,publish_stream,read_stream,share_item,create_note from permissions where uid = %@",[self userId]] forKey:@"query"];
+	  	NSDictionary* params = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"select status_update,photo_upload,sms,email,create_event,rsvp_event,publish_stream,read_stream,share_item,create_note from permissions where uid = %@",[self userId]] forKey:@"query"];
 		FBPermissionPrefetch *prefetch = [[FBPermissionPrefetch alloc] initWithModule:self];
 	  	[[FBRequest requestWithDelegate:prefetch] call:@"facebook.fql.query" params:params];
 	}
@@ -335,19 +348,7 @@
 
 #pragma mark Public APIs
 
-- (void)login:(id)args
-{
-	if (session!=nil && ([session expirationDate]==nil || [session resume]==NO))
-	{
-		[self performSelectorOnMainThread:@selector(showDialog) withObject:nil waitUntilDone:NO];
-	}
-	else if (session!=nil)
-	{
-		[self fetchPermissions:nil];
-	}
-}
-
-- (void)logout:(id)args 
+- (void)logout
 {
 	if (session!=nil)
 	{
@@ -384,9 +385,9 @@
 {
 	if (session!=nil)
 	{
-		return NUMLONGLONG([session uid]);
+		return [NSNumber numberWithUnsignedLongLong:[session uid]];
 	}
-	return NUMINT(0);
+	return NUMLONG(0);
 }
 
 - (void)query:(id)args
@@ -414,7 +415,6 @@
 	NSString *target = [TiUtils stringValue:[args objectAtIndex:2]];
 	KrollCallback *callback = [args objectAtIndex:3];
 
-	
 	FBStreamCallback *cb = [[FBStreamCallback alloc] initWithCallback:callback module:self title:title data:data target:target session:session];
 	[self performSelectorOnMainThread:@selector(showDialog:) withObject:cb waitUntilDone:NO];
 }
@@ -445,9 +445,9 @@
 	{
 		dataParam = [(TiBlob*)data data];
 	}
-	else 
+	else if (data != nil && ![data isKindOfClass:[NSNull class]])
 	{
-		NSString *msg = [NSString stringWithFormat:@"data should either be a path or blob, was: %@",[data class]];
+		NSString *msg = [NSString stringWithFormat:@"data should either be a path, blob or null, was: %@",[data class]];
 		THROW_INVALID_ARG(msg);
 	}
 	
@@ -480,7 +480,7 @@
 	
 	if ([session resume]==NO)
 	{
-		[self logout:nil];
+		[self logout];
 	}
 }
 
@@ -588,17 +588,17 @@
 	ENSURE_SINGLE_ARG(permission,NSString);
 	
 	[lock lock];
-	NSNumber *result = [NSNumber numberWithBool:NO];
+	BOOL result = NO;
 	if (permissions!=nil)
 	{
 		NSNumber *value = [permissions objectForKey:permission];
 		if (value!=nil && [value respondsToSelector:@selector(boolValue)] && [value boolValue])
 		{
-			result = [NSNumber numberWithBool:YES];
+			result = YES;
 		}
 	}
 	[lock unlock];
-	return result;
+	return NUMBOOL(result);
 }
 
 - (NSDictionary*)permissions

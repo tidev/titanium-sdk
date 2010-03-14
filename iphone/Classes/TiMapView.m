@@ -71,6 +71,7 @@
 	}
 	ENSURE_TYPE(arg,NSDictionary);
 	TiMapAnnotationProxy *proxy = [[[TiMapAnnotationProxy alloc] _initWithPageContext:[self.proxy pageContext] args:[NSArray arrayWithObject:arg]] autorelease];
+
 	[proxy setDelegate:self];
 	return proxy;
 }
@@ -79,14 +80,17 @@
 -(void)refreshAnnotation:(TiMapAnnotationProxy*)proxy readd:(BOOL)yn
 {
 	NSArray *selected = map.selectedAnnotations;
-	BOOL wasSelected = selected!=nil && [selected count] > 0 && [selected containsObject:proxy];
+	BOOL wasSelected = [selected containsObject:proxy]; //If selected == nil, this still returns FALSE.
 	if (yn==NO)
 	{
 		[map deselectAnnotation:proxy animated:NO];
 	}
 	else
 	{
+//		MKAnnotationView * doomedView = [map viewForAnnotation:proxy];
+//		[map deselectAnnotation:proxy animated:NO];
 		[map removeAnnotation:proxy];
+//		[doomedView prepareForReuse];
 		[map addAnnotation:proxy];
 		[map setNeedsLayout];
 	}
@@ -350,7 +354,6 @@
 								[NSNumber numberWithDouble:region.span.longitudeDelta],@"longitudeDelta",nil];
 		[self.proxy fireEvent:@"regionChanged" withObject:props];
 	}
-	[self autorelease];
 }
 
 - (void)mapViewWillStartLoadingMap:(MKMapView *)mapView
@@ -391,6 +394,10 @@
 		{
 			if ([annotation tag] == pinview.tag)
 			{
+				if ([annotation needsRefreshingWithSelection])
+				{
+//					return nil;
+				}
 				return annotation;
 			}
 		}
@@ -472,6 +479,17 @@
 	}
 }
 
+
+//-(void)applyAnnotation:(TiMapAnnotationProxy *)ann toView:(MKPinAnnotationView *)annView
+//{
+//
+//
+//
+//
+//}
+
+
+
 // mapView:viewForAnnotation: provides the view for each annotation.
 // This method may be called for all or some of the added annotations.
 // For MapKit provided annotations (eg. MKUserLocation) return nil to use the MapKit provided annotation view.
@@ -481,13 +499,18 @@
 	{
 		TiMapAnnotationProxy *ann = (TiMapAnnotationProxy*)annotation;
 		static NSString *identifier = @"timap";
-		MKPinAnnotationView *annView =(MKPinAnnotationView*) [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
+		MKPinAnnotationView *annView = nil;
+		
+		if (![(TiMapAnnotationProxy *)annotation needsRefreshingWithSelection])
+		{
+			annView = (MKPinAnnotationView*) [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
+		}
 		if (annView==nil)
 		{
 			annView=[[[TiMapPinAnnotationView alloc] initWithAnnotation:ann reuseIdentifier:identifier map:self] autorelease];
 		}
 		annView.pinColor = [ann pinColor];
-		annView.animatesDrop = [ann animatesDrop];
+		annView.animatesDrop = [ann animatesDrop] && ![(TiMapAnnotationProxy *)annotation needsRefreshingWithSelection];
 		annView.canShowCallout = YES;
 		annView.calloutOffset = CGPointMake(-5, 5);
 		annView.enabled = YES;

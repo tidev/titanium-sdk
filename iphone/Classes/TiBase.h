@@ -40,6 +40,7 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 
 
 #define RELEASE_TO_NIL(x) { if (x!=nil) { [x release]; x = nil; } }
+#define RELEASE_TO_NIL_AUTORELEASE(x) { if (x!=nil) { [x autorelease]; x = nil; } }
 
 #define CODELOCATION	[NSString stringWithFormat:@" in %s (%@:%d)",__FUNCTION__,[[NSString stringWithFormat:@"%s",__FILE__] lastPathComponent],__LINE__]
 
@@ -47,7 +48,7 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 
 #define ENSURE_UI_THREAD_1_ARG(x)	\
 if (![NSThread isMainThread]) { \
-[self performSelectorOnMainThread:_cmd withObject:x waitUntilDone:NO]; \
+[self performSelectorOnMainThread:_cmd withObject:x waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]]; \
 return; \
 } \
 
@@ -179,18 +180,30 @@ if ([x count]<c)\
 [self throwException:TiExceptionNotEnoughArguments subreason:[NSString stringWithFormat:@"expected %d arguments, received: %d",c,[x count]] location:CODELOCATION]; \
 }\
 
+#define VALUE_AT_INDEX_OR_NIL(x,i)	\
+({ NSArray * y = (x); ([y count]>i)?[y objectAtIndex:i]:nil; })
+
+
 #define ENSURE_CONSISTENCY(x) \
 if (!(x)) \
 { \
 [self throwException:TiExceptionInternalInconsistency subreason:nil location:CODELOCATION]; \
 }\
 
-#define ENSURE_VALUE_CONSISTENCY(x,v) ENSURE_CONSISTENCY((x)==(v))\
+#define ENSURE_VALUE_CONSISTENCY(x,v) \
+{	\
+__typeof__(x) __x = (x);	\
+__typeof__(v) __v = (v);	\
+if(__x != __v)	\
+{	\
+[self throwException:TiExceptionInternalInconsistency subreason:[NSString stringWithFormat:@"(" #x ") was not (" #v ")"] location:CODELOCATION];	\
+}	\
+}
 
 #define ENSURE_VALUE_RANGE(x,minX,maxX) \
 if (((x)<(minX)) || ((x)>(maxX))) \
 { \
-[self throwException:TiExceptionRangeError subreason:[NSString stringWithFormat:@"%d was > %d and < %d",x,maxX,minX] location:CODELOCATION]; \
+[self throwException:TiExceptionRangeError subreason:[NSString stringWithFormat:@"%d was not > %d and < %d",x,maxX,minX] location:CODELOCATION]; \
 }\
 
 
@@ -221,7 +234,6 @@ if (((x)<(minX)) || ((x)>(maxX))) \
 #define THROW_INVALID_ARG(m) \
 [self throwException:TiExceptionInvalidType subreason:m location:CODELOCATION]; \
 
-
 #define MAKE_SYSTEM_PROP(name,map) \
 -(NSNumber*)name \
 {\
@@ -238,6 +250,12 @@ return [NSNumber numberWithDouble:map];\
 -(NSString*)name \
 {\
 return (NSString*)map;\
+}\
+
+#define MAKE_SYSTEM_UINT(name,map) \
+-(NSNumber*)name \
+{\
+return [NSNumber numberWithUnsignedInt:map];\
 }\
 
 #define NUMBOOL(x) \
@@ -346,15 +364,31 @@ return value;\
 	if (__s[0]=='[')\
 	{\
 	    fprintf(stderr,"%s\n", __s);\
+		fflush(stderr);\
 	}\
 	else\
 	{\
 	    fprintf(stderr,"[DEBUG] %s\n", __s);\
+		fflush(stderr);\
 	}\
 }
+
+#define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
 
 NSData * dataWithHexString (NSString * hexString);
 NSString * hexString (NSData * thedata);
 
+typedef enum {
+	TiNetworkConnectionStateNone = 0,
+	TiNetworkConnectionStateWifi = 1,
+	TiNetworkConnectionStateMobile = 2,
+	TiNetworkConnectionStateLan = 3,
+	TiNetworkConnectionStateUnknown = 4,	
+} TiNetworkConnectionState;
+
 
 extern NSString * const kKrollShutdownNotification;
+extern NSString * const kTitaniumShutdownNotification;
+extern NSString * const kTitaniumAnalyticsNotification;
+extern NSString * const kTitaniumRemoteDeviceUUIDNotification;
+

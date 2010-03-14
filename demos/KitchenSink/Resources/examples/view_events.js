@@ -8,7 +8,8 @@ var l0 = Titanium.UI.createLabel({
 	text:'try to trigger each event',
 	bottom:50,
 	width:300,
-	textAlign:'center'
+	textAlign:'center',
+	height:'auto'
 });
 
 view.add(l0);
@@ -17,6 +18,7 @@ var l1 = Titanium.UI.createLabel({
 	text:'touchstart not fired',
 	top:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:14,fontFamily:'Helvetica Neue'}
 });
 
@@ -27,6 +29,7 @@ var l2 = Titanium.UI.createLabel({
 	top:30,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
@@ -37,6 +40,7 @@ var l3 = Titanium.UI.createLabel({
 	top:50,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
@@ -47,6 +51,7 @@ var l4 = Titanium.UI.createLabel({
 	top:190,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
@@ -57,6 +62,7 @@ var l5 = Titanium.UI.createLabel({
 	top:90,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
@@ -67,6 +73,7 @@ var l6 = Titanium.UI.createLabel({
 	top:110,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
@@ -77,6 +84,7 @@ var l7 = Titanium.UI.createLabel({
 	top:130,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
@@ -87,6 +95,7 @@ var l8 = Titanium.UI.createLabel({
 	top:150,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
@@ -97,6 +106,7 @@ var l9 = Titanium.UI.createLabel({
 	top:170,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 
@@ -107,6 +117,7 @@ var l10 = Titanium.UI.createLabel({
 	top:70,
 	left:10,
 	width:300,
+	height:'auto',
 	font:{fontSize:13,fontFamily:'Helvetica Neue'}
 });
 

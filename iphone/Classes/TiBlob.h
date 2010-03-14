@@ -22,10 +22,23 @@ typedef enum {
 	NSString *path;
 }
 
+// these are only appropriate for image type and return 0 otherwise
+@property(nonatomic,readonly) NSInteger width;
+@property(nonatomic,readonly) NSInteger height;
+
+// return a textual representation of the blob
+@property(nonatomic,readonly) NSString* text;
+
+
+// for file, data returns the size in bytes
+// for image, returns the width x height
+@property(nonatomic,readonly) NSInteger size;
+
 -(id)initWithImage:(UIImage*)image;
 -(id)initWithData:(NSData*)data_ mimetype:(NSString*)mimetype_;
 -(id)initWithFile:(NSString*)path;
 
+-(void)setData:(NSData*)data;
 -(void)setImage:(UIImage*)image;
 -(void)setMimeType:(NSString*)mime type:(TiBlobType)type;
 
@@ -37,6 +50,8 @@ typedef enum {
 -(NSString*)path;
 
 -(BOOL)writeTo:(NSString*)path error:(NSError**)error;
+
+#pragma mark Image specific blob manipulations
 
 
 @end

@@ -4,12 +4,14 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
+#import "TiBase.h"
 #import "TiUIEmailDialogProxy.h"
 #import "TiUtils.h"
 #import "TiBlob.h"
 #import "TiColor.h"
 #import "TitaniumApp.h"
+#import "TiFile.h"
+#import "Mimetypes.h"
 
 @implementation TiUIEmailDialogProxy
 
@@ -27,19 +29,13 @@
 
 -(NSArray *)attachments
 {
-	return [[attachments copy] autorelease];
+	return attachments;
 }
 
--(void)setAttachments:(NSArray *)newAttachments
+-(void)addAttachment:(id)ourAttachment
 {
-	ENSURE_TYPE_OR_NIL(newAttachments,NSArray);
-	[attachments autorelease];
-	attachments = [newAttachments mutableCopy];
-}
-
--(void)addAttachment:(id)ourAttachment;
-{
-	ENSURE_SINGLE_ARG_OR_NIL(ourAttachment,TiBlob);
+	ENSURE_SINGLE_ARG(ourAttachment,NSObject);
+	
 	if (attachments == nil)
 	{
 		attachments = [[NSMutableArray alloc] initWithObjects:ourAttachment,nil];
@@ -50,6 +46,10 @@
 	}
 }
 
+- (id)isSupported:(id)args
+{
+	return NUMBOOL([MFMailComposeViewController canSendMail]);
+}
 
 - (void)open:(id)args
 {
@@ -63,12 +63,17 @@
 	ENSURE_CLASS_OR_NIL(ccArray,arrayClass);
 
 	ENSURE_UI_THREAD(open,args);
+		
 	NSString * subject = [TiUtils stringValue:[self valueForKey:@"subject"]];
 	NSString * message = [TiUtils stringValue:[self valueForKey:@"messageBody"]];
 
 	if (![MFMailComposeViewController canSendMail])
 	{
-		//TODO: What to do? Throw an exception or call a similar nsurl?
+		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(MFMailComposeResultFailed),@"result",
+							   NUMBOOL(NO),@"success",
+							   @"system can't send email",@"error",
+							   nil];
+		[self fireEvent:@"complete" withObject:event];
 		return;
 	}
 
@@ -85,52 +90,69 @@
 	[composer setToRecipients:toArray];
 	[composer setBccRecipients:bccArray];
 	[composer setCcRecipients:ccArray];
-	[composer setMessageBody:message isHTML:NO];
-	if(attachments != nil)
+	[composer setMessageBody:message isHTML:[TiUtils boolValue:[self valueForKey:@"html"] def:NO]];
+	
+	if (attachments != nil)
 	{
-		for (TiBlob * thisAttachment in attachments)
+		for (id attachment in attachments)
 		{
-			[composer addAttachmentData:[thisAttachment data]
-									mimeType:[thisAttachment mimeType]
-									fileName:[[thisAttachment path] lastPathComponent]];
+			if ([attachment isKindOfClass:[TiBlob class]])
+			{
+				NSString *path = [attachment path];
+				if (path==nil)
+				{
+					path = @"attachment";
+				}
+				else
+				{
+					path = [path lastPathComponent];
+				}
+				[composer addAttachmentData:[attachment data]
+										mimeType:[attachment mimeType]
+										fileName:path];
+			}
+			else if ([attachment isKindOfClass:[TiFile class]])
+			{
+				TiFile *file = (TiFile*)attachment;
+				NSString *path = [file path];
+				NSData *data = [NSData dataWithContentsOfFile:path];
+				NSString *mimetype = [Mimetypes mimeTypeForExtension:path];
+				[composer addAttachmentData:data mimeType:mimetype fileName:[path lastPathComponent]];
+			}
 		}
 	}
-
-	UIViewController *controller = [[TitaniumApp app] controller];
 	
 	BOOL animated = [TiUtils boolValue:[self valueForKey:@"animated"] def:YES];
-	[controller presentModalViewController:composer animated:animated];
+	[[TitaniumApp app] showModalController:composer animated:animated];
 }
 
-- (void)mailComposeController:(MFMailComposeViewController *)composer didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error;
+MAKE_SYSTEM_PROP(SENT,MFMailComposeResultSent);
+MAKE_SYSTEM_PROP(SAVED,MFMailComposeResultSaved);
+MAKE_SYSTEM_PROP(CANCELLED,MFMailComposeResultCancelled);
+MAKE_SYSTEM_PROP(FAILED,MFMailComposeResultFailed);
+
+#pragma mark Delegate 
+
+- (void)mailComposeController:(MFMailComposeViewController *)composer didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
 {
-	if(error){
+	if(error!=nil)
+	{
 		NSLog(@"[ERROR] Unexpected composing error: %@",error);
 	}
-
-	switch (result) {
-		case MFMailComposeResultSent:
-			break;
-		case MFMailComposeResultSaved:
-			break;
-		case MFMailComposeResultCancelled:
-			break;
-		case MFMailComposeResultFailed:
-			break;
-		default:
-			break;
-	}
-	
-	//TODO: Now what?
 	
 	BOOL animated = [TiUtils boolValue:[self valueForKey:@"animated"] def:YES];
 
-	UIViewController *controller = [[TitaniumApp app] controller];
-	
-	ENSURE_CONSISTENCY(composer == [controller modalViewController]);
-
-	[[[TitaniumApp app] controller] dismissModalViewControllerAnimated:animated];
+	[[TitaniumApp app] dismissModalController:animated];
 	[composer autorelease];
+
+	if ([self _hasListeners:@"complete"])
+	{
+		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMINT(result),@"result",
+							   NUMBOOL(result==MFMailComposeResultSent),@"success",
+							   error,@"error",
+							   nil];
+		[self fireEvent:@"complete" withObject:event];
+	}
 }
 
 @end

@@ -22,6 +22,12 @@
 	return self;
 }
 
+-(BOOL)hasTouchableListener
+{
+	// since this guy only works with touch events, we always want them
+	// just always return YES no matter what listeners we have registered
+	return YES;
+}
 
 -(UISegmentedControl *)segmentedControl
 {
@@ -34,43 +40,6 @@
 		[self addSubview:segmentedControl];
 	}
 	return segmentedControl;
-}
-
-
--(void)relayout:(CGRect)bounds
-{
-//TODO: Move this further up, because auto can be very very useful.
-	[super relayout:bounds];
-	BOOL inBar = [(TiUIWidgetProxy *)[self proxy] isUsingBarButtonItem];
-	BOOL autoWidth = inBar || TiDimensionIsAuto([self layout]->width);
-	BOOL autoHeight = inBar || TiDimensionIsAuto([self layout]->height);
-	
-	if (!autoWidth && !autoHeight)
-	{
-		return;
-	}
-
-	CGRect ourFrame = [TiUtils viewPositionRect:self];
-	CGSize wantedSize = [segmentedControl sizeThatFits:ourFrame.size];
-	
-	if (autoWidth)
-	{
-		ourFrame.origin.x += (ourFrame.size.width - wantedSize.width)/2;
-		ourFrame.size.width = wantedSize.width;
-	}
-
-	if (autoHeight)
-	{
-		ourFrame.origin.y += (ourFrame.size.height - wantedSize.height)/2;
-		ourFrame.size.height = wantedSize.height;
-	}
-
-	if (inBar)
-	{
-		ourFrame.origin = CGPointZero;
-	}
-	[TiUtils setView:self positionRect:ourFrame];
-
 }
 
 

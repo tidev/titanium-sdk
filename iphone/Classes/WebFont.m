@@ -42,6 +42,19 @@
 		{
 			if (isBoldWeight)
 			{
+				// cache key must include size or .... yeah, you know what
+				NSString *cacheKey = [NSString stringWithFormat:@"%@-%f",family,self.size];
+				// optimize font caching for bold lookup
+				static NSMutableDictionary *cache;
+				if (cache == nil)
+				{
+					cache = [[NSMutableDictionary alloc] init];
+				}
+				id cn = [cache objectForKey:cacheKey];
+				if (cn!=nil)
+				{
+					return cn;
+				}
 				// bold weight for non system fonts are based on the name of the 
 				// font family, not actually settable - so we need to attempt to 
 				// resolve it in a terribly inconsistently named font way
@@ -52,11 +65,16 @@
 					for (NSString *name in [UIFont fontNamesForFamilyName:family])
 					{
 						// see if the font name has Bold in it (since the names aren't based on any pattern)
-						if ([name rangeOfString:@"Bold"].location!=NSNotFound)
+						// but filter out italic-style fonts
+						if ([name rangeOfString:@"Bold"].location!=NSNotFound &&
+							[name rangeOfString:@"Italic"].location==NSNotFound &&
+							[name rangeOfString:@"Oblique"].location==NSNotFound)
 						{
+							result = [UIFont fontWithName:name size:self.size];
+							[cache setObject:result forKey:cacheKey];
 							RELEASE_TO_NIL(family);
 							family = [name retain];
-							break;
+							return result;
 						}
 					}
 					// if we don't find it, oh well, just let it fall through to the non bold

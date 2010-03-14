@@ -16,10 +16,12 @@
 	NSMutableDictionary *listeners;
 	AppModule *appModule;
 	NSString *pageToken;
+	BOOL scalingOverride;
+	UIView *delegateView;
 }
 
 @property(nonatomic,readonly) id url;
 
--(void)evalJS:(NSString*)code;
+-(void)evalJS:(NSArray*)args;
 
 @end

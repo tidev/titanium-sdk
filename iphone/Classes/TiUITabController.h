@@ -14,7 +14,7 @@
 }
 
 -(id)initWithProxy:(TiWindowProxy*)proxy tab:(TiUITabProxy*)tab;
--(TiWindowProxy*)window;
--(TiUITabProxy*)tab;
+@property(nonatomic,readonly)	TiWindowProxy *window;
+@property(nonatomic,readonly)	TiUITabProxy *tab;
 
 @end

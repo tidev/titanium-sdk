@@ -6,17 +6,25 @@
  */
 
 #import "TiUILabel.h"
+#import "TiUILabelProxy.h"
 #import "TiUtils.h"
 
 @implementation TiUILabel
 
 #pragma mark Internal
 
+- (BOOL)interactionDefault
+{
+	// by default, labels don't have any interaction unless you explicitly add
+	// it via addEventListener
+	return NO;
+}
+
 -(CGSize)sizeForFont:(CGFloat)suggestedWidth
 {
 	NSString *value = [label text];
 	UIFont *font = [label font];
-	CGSize maxSize = CGSizeMake(suggestedWidth, 1000);
+	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 1000);
 	requiresLayout = YES;
 	return [value sizeWithFont:font constrainedToSize:maxSize lineBreakMode:UILineBreakModeTailTruncation];
 }
@@ -59,8 +67,13 @@
 	[[self label] setText:[TiUtils stringValue:text]];
 	if (requiresLayout)
 	{
-		[self reposition];
+		[(TiViewProxy *)[self proxy] setNeedsReposition];
 	}
+	else
+	{
+		[(TiViewProxy *)[self proxy] setNeedsRepositionIfAutoSized];
+	}
+
 }
 
 -(void)setColor_:(id)color
@@ -78,7 +91,7 @@
 	[[self label] setFont:[[TiUtils fontValue:font] font]];
 	if (requiresLayout)
 	{
-		[self reposition];
+		[(TiViewProxy *)[self proxy] setNeedsReposition];
 	}
 }
 

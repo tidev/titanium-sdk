@@ -1,6 +1,8 @@
 var label = Titanium.UI.createLabel({
 	text:'This test decorates a window pre-open',
-	top:10
+	top:10,
+	width:'auto',
+	height:'auto'
 });
 Titanium.UI.currentWindow.add(label);
 
@@ -29,8 +31,9 @@ button.addEventListener('click', function(e)
 	var win = Titanium.UI.createWindow({
 		rightNavButton:bb,
 		backgroundColor:'#13386c',
-		barColor:'#000',
-		translucent:true
+		barColor:'#336699',
+		translucent:true,
+		titleImage:'../images/slider_thumb.png'
 	});
 	
 	var winview = Ti.UI.createView({backgroundColor:'yellow'});

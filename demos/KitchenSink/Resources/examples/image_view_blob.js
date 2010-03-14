@@ -1,5 +1,11 @@
 var win = Titanium.UI.currentWindow;
 
+// start a blob async and notify callback when completed
+win.tabGroup.toImage(function(e)
+{
+	Ti.API.info("tiGroup blob has been rendered: "+e.blob.width+"x"+e.blob.height);
+});
+
 //
 //  you can call toImage() on any view and get a blob  
 //	then pass the blob to an image view via the image property
@@ -16,7 +22,9 @@ win.add(imageView);
 var l = Titanium.UI.createLabel({
 	text:'Click Image of Tab Group',
 	bottom:20,
-	color:'#999'
+	color:'#999',
+	width:'auto',
+	height:'auto'
 });
 win.add(l);
 

@@ -11,6 +11,7 @@
 #import "Webcolor.h"
 
 @implementation TiUITabController
+@synthesize window,tab;
 
 -(void)dealloc
 {
@@ -25,6 +26,7 @@
 	{
 		window = [window_ retain];
 		tab = [tab_ retain];
+		[window _associateTab:self navBar:self.navigationController tab:tab];		
 	}
 	return self;
 }
@@ -41,14 +43,21 @@
 	[window _associateTab:nil navBar:nil tab:nil];
 }
 
--(TiWindowProxy*)window
+- (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
 {
-	return window;
+	NSLog(@"%@, %@",CODELOCATION,self);
 }
-
--(TiUITabProxy*)tab
+- (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
 {
-	return tab;
+	NSLog(@"%@, %@",CODELOCATION,self);
+}
+- (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
+{
+	NSLog(@"%@, %@",CODELOCATION,self);
+}
+- (void)viewDidDisappear:(BOOL)animated;  // Called after the view was dismissed, covered or otherwise hidden. Default does nothing
+{
+	NSLog(@"%@, %@",CODELOCATION,self);
 }
 
 @end

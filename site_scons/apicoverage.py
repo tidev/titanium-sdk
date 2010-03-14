@@ -17,9 +17,8 @@ baseVersion = titanium_version.version
 t = baseVersion.split(".")
 defaultVersion = "%s.%s" % (t[0],t[1])
 
-default_desktop_platforms = {"win32":[""], "linux":[""], "osx": [""]}
-default_mobile_platforms = {"android":["1.5"], "iphone" : ["2.2.1","3.0","3.1"]}
-default_platforms = default_desktop_platforms
+default_mobile_platforms = ["android-1.5", "iphone-2.2.1", "iphone-3.0", "iphone-3.0", "iphone-3.1"]
+default_platforms = default_mobile_platforms
 
 class GlobDirectoryWalker:
 	# a forward iterator that traverses a directory tree
@@ -204,6 +203,7 @@ class API(dict):
 			self['platforms'] = platforms
 		else:
 			self['platforms'] = default_platforms	
+		print self['platforms']
 		if self.has_key('method') == False and self.has_key('property') == False:
 			raise Exception("invalid metadata for %s - missing either 'property' or 'method'"  % self.name) 
 	

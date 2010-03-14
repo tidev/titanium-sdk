@@ -10,8 +10,10 @@
 #import "TiMediaVideoPlayerProxy.h"
 #import "TiUtils.h"
 #import "Webcolor.h"
+#import "TiFile.h"
 #import "TiViewProxy.h"
-
+#import "TiBlob.h"
+#import "TiMediaAudioSession.h"
 
 @implementation TiMediaVideoPlayerProxy
 
@@ -21,7 +23,14 @@
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
-	url = [[TiUtils toURL:[properties objectForKey:@"contentURL"] proxy:self] retain];
+	if ([properties objectForKey:@"media"])
+	{
+		[self performSelector:@selector(setMedia:) withObject:[properties objectForKey:@"media"]];
+	}
+	else
+	{
+		url = [[TiUtils toURL:[properties objectForKey:@"contentURL"] proxy:self] retain];
+	}
 	
 	id color = [TiUtils stringValue:@"backgroundColor" properties:properties];
 	if (color!=nil)
@@ -47,6 +56,7 @@
 	playing = NO;
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIWindowDidBecomeKeyNotification object:nil];
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
+	RELEASE_TO_NIL(tempFile);
 	[super _destroy];
 }
 
@@ -54,6 +64,7 @@
 {
 	RELEASE_TO_NIL(movie);
 	RELEASE_TO_NIL(url);
+	RELEASE_TO_NIL(tempFile);
 	[self _destroy];
 	[super dealloc];
 }
@@ -126,6 +137,37 @@
 	return NUMINT(movieControlMode);
 }
 
+-(void)setMedia:(id)media_
+{
+	if ([media_ isKindOfClass:[TiFile class]])
+	{
+		[self setUrl:[media_ path]];
+	}
+	else if ([media_ isKindOfClass:[TiBlob class]])
+	{
+		TiBlob *blob = (TiBlob*)media_;
+		if ([blob type] == TiBlobTypeFile)
+		{
+			[self setUrl:[blob path]];
+		}
+		else if ([blob type] == TiBlobTypeData)
+		{
+			RELEASE_TO_NIL(tempFile);
+			tempFile = [[TiUtils createTempFile:@"mov"] retain];
+			[blob writeTo:[tempFile path] error:nil];
+			[self setUrl:[NSURL fileURLWithPath:[tempFile path]]];
+		}
+		else
+		{
+			NSLog(@"[ERROR] unsupported blob for video player. %@",media_);
+		}
+	}
+	else 
+	{
+		[self setUrl:media_];
+	}
+}
+
 -(void)setUrl:(id)url_
 {
 	RELEASE_TO_NIL(url);
@@ -179,9 +221,8 @@
 {
 	ENSURE_UI_THREAD(play,args);
 	
-	//NOTE: this code will ensure that the SILENCE switch is respected when movie plays
-	UInt32 sessionCategory = kAudioSessionCategory_SoloAmbientSound;
-	AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(sessionCategory), &sessionCategory);
+	// indicate we're going to start recording
+	[[TiMediaAudioSession sharedSession] playback];
 	
 	if (playing)
 	{
@@ -276,14 +317,18 @@
 		if (views!=nil && [views count]>0)
 		{
 			UIWindow *window = [note object];
-			// get the window background view and place it on there - it's already rotated
-			// and will give us better positioning on the right surface area
-			UIView *subview = [[window subviews] objectAtIndex:0];
+			
+			// get the window background views surface and place it on there
+			// it's already rotated and will give us better positioning 
+			// on the right surface area
+			UIView *subview = [[[[window subviews] objectAtIndex:0] subviews] objectAtIndex:0];
+			
+			CGRect bounds = [subview bounds];
+			
 			for (TiViewProxy *proxy in views)
 			{
 				TiUIView *view = [proxy view];
-				[view insertIntoView:subview bounds:subview.bounds];
-				view.transform = CGAffineTransformMakeRotation(M_PI/2.0);
+				[view insertIntoView:subview bounds:bounds];
 			}
 		}
 	}

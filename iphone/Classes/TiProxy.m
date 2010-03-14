@@ -13,6 +13,7 @@
 #import "KrollBridge.h"
 #import "TiModule.h"
 #import "ListenerEntry.h"
+#import "TiComplexValue.h"
 
 //Common exceptions to throw when the function call was improper
 NSString * const TiExceptionInvalidType = @"Invalid type passed to function";
@@ -26,12 +27,139 @@ NSString * const TiExceptionInternalInconsistency = @"Value was not the value ex
 NSString * const TiExceptionUnimplementedFunction = @"Subclass did not implement required method";
 
 
-static int tiProxyId = 0;
+
+SEL SetterForKrollProperty(NSString * key)
+{
+	NSString *method = [NSString stringWithFormat:@"set%@%@_:", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
+	return NSSelectorFromString(method);
+}
+
+SEL SetterWithObjectForKrollProperty(NSString * key)
+{
+	NSString *method = [NSString stringWithFormat:@"set%@%@_:withObject:", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
+	return NSSelectorFromString(method);
+}
+
+void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> * target, NSString * key, id oldValue, id newValue, TiProxy * proxy)
+{
+	// default implementation will simply invoke the setter property for this object
+	// on the main UI thread
+	
+	// first check to see if the property is defined by a <key>:withObject: signature
+	SEL sel = SetterWithObjectForKrollProperty(key);
+	if ([target respondsToSelector:sel])
+	{
+		id firstarg = newValue;
+		id secondarg = [NSDictionary dictionary];
+		
+		if ([firstarg isKindOfClass:[TiComplexValue class]])
+		{
+			firstarg = [(TiComplexValue*)newValue value];
+			secondarg = [(TiComplexValue*)newValue properties];
+		}
+		
+		if ([NSThread isMainThread])
+		{
+			[target performSelector:sel withObject:firstarg withObject:secondarg];
+		}
+		else
+		{
+			if (![key hasPrefix:@"set"])
+			{
+				key = [NSString stringWithFormat:@"set%@%@_", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
+			}
+			NSArray *arg = [NSArray arrayWithObjects:key,firstarg,secondarg,target,nil];
+			[proxy performSelectorOnMainThread:@selector(_dispatchWithObjectOnUIThread:) withObject:arg waitUntilDone:NO];
+		}
+		return;
+	}
+	
+	sel = SetterForKrollProperty(key);
+	if ([target respondsToSelector:sel])
+	{
+		if ([NSThread isMainThread])
+		{
+			[target performSelector:sel withObject:newValue];
+		}
+		else
+		{
+			[target performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+		}
+	}
+}
+
+void DoProxyDispatchToSecondaryArg(UIView<TiProxyDelegate> * target, SEL sel, NSString *key, id newValue, TiProxy * proxy)
+{
+	id firstarg = newValue;
+	id secondarg = [NSDictionary dictionary];
+	
+	if ([firstarg isKindOfClass:[TiComplexValue class]])
+	{
+		firstarg = [(TiComplexValue*)newValue value];
+		secondarg = [(TiComplexValue*)newValue properties];
+	}
+	
+	if ([NSThread isMainThread])
+	{
+		[target performSelector:sel withObject:firstarg withObject:secondarg];
+	}
+	else
+	{
+		if (![key hasPrefix:@"set"])
+		{
+			key = [NSString stringWithFormat:@"set%@%@_", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
+		}
+		NSArray *arg = [NSArray arrayWithObjects:key,firstarg,secondarg,target,nil];
+		[proxy performSelectorOnMainThread:@selector(_dispatchWithObjectOnUIThread:) withObject:arg waitUntilDone:NO];
+	}
+}
+
+void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> * target, id<NSFastEnumeration> keys, TiProxy * proxy)
+{
+	BOOL isMainThread = [NSThread isMainThread];
+	NSNull * nullObject = [NSNull null];
+
+	for (NSString * thisKey in keys)
+	{
+		// use valueForUndefined since this should really come from dynprops
+		// not against the real implementation
+		id newValue = [proxy valueForUndefinedKey:thisKey];
+		if (newValue == nil)
+		{
+			continue;
+		}
+		if (newValue == nullObject)
+		{
+			newValue = nil;
+		}
+		SEL sel = SetterWithObjectForKrollProperty(thisKey);
+		if ([target respondsToSelector:sel])
+		{
+			DoProxyDispatchToSecondaryArg(target,sel,thisKey,newValue,proxy);
+			continue;
+		}
+		sel = SetterForKrollProperty(thisKey);
+		if (![target respondsToSelector:sel])
+		{
+			continue;
+		}
+		if (isMainThread)
+		{
+			[target performSelector:sel withObject:newValue];
+		}
+		else
+		{
+			[target performSelectorOnMainThread:sel withObject:newValue waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
+		}
+
+	}
+}
+
 
 
 @implementation TiProxy
 
-@synthesize pageContext, executionContext, proxyId;
+@synthesize pageContext, executionContext;
 @synthesize modelDelegate;
 
 
@@ -62,7 +190,6 @@ static int tiProxyId = 0;
 	if (self = [self init])
 	{
 		pageContext = (id)context; // do not retain 
-		proxyId = [[NSString stringWithFormat:@"proxy$%d",tiProxyId++] retain];
 
 		contextListeners = [[NSMutableDictionary alloc] init];
 		if (context!=nil)
@@ -75,9 +202,6 @@ static int tiProxyId = 0;
 			[contextListeners setObject:pageContext forKey:[pageContext description]];
 		}
 		
-		// register our proxy
-		[[pageContext host] registerProxy:self];
-
 		// allow subclasses to configure themselves
 		[self _configure];
 	}
@@ -91,6 +215,7 @@ static int tiProxyId = 0;
 -(void)contextShutdown:(NSNotification*)sender
 {
 	KrollBridge *bridge = (KrollBridge*)[sender object];
+	[[bridge retain] autorelease];
 	if (contextListeners!=nil)
 	{
 		id key = [bridge description];
@@ -143,15 +268,7 @@ static int tiProxyId = 0;
 
 -(void)_initWithProperties:(NSDictionary*)properties
 {
-	for (id key in properties)
-	{
-		id value = [properties objectForKey:key];
-		if (value == [NSNull null])
-		{
-			value = nil;
-		}
-		[self replaceValue:value forKey:key notification:NO];
-	}	
+	[self setValuesForKeysWithDictionary:properties];
 }
 
 -(void)_initWithCallback:(KrollCallback*)callback
@@ -211,9 +328,6 @@ static int tiProxyId = 0;
 #if PROXY_MEMORY_TRACK == 1
 	NSLog(@"DESTROY: %@ (%d)",self,[self hash]);
 #endif
-	[[NSNotificationCenter defaultCenter] removeObserver:self
-													name:UIApplicationDidReceiveMemoryWarningNotification  
-												  object:nil];  
 	
 	if (executionContext!=nil)
 	{
@@ -256,19 +370,19 @@ static int tiProxyId = 0;
 		}
 		[contextListeners removeAllObjects];
 	}
-	if (pageContext!=nil && proxyId!=nil)
+	if (dynprops!=nil)
 	{
-		[[self _host] unregisterProxy:proxyId];
-		proxyId = nil;
+		[dynPropsLock lock];
+		[dynprops removeAllObjects];
+		[dynPropsLock unlock];
 	}
-	[dynprops removeAllObjects];
 	[listeners removeAllObjects];
-	RELEASE_TO_NIL(proxyId);
 	RELEASE_TO_NIL(dynprops);
 	RELEASE_TO_NIL(listeners);
 	RELEASE_TO_NIL(baseURL);
 	RELEASE_TO_NIL(krollDescription);
 	RELEASE_TO_NIL(contextListeners);
+	RELEASE_TO_NIL(dynPropsLock);
 	pageContext=nil;
 	modelDelegate=nil;
 	[destroyLock unlock];
@@ -279,6 +393,9 @@ static int tiProxyId = 0;
 #if PROXY_MEMORY_TRACK == 1
 	NSLog(@"DEALLOC: %@ (%d)",self,[self hash]);
 #endif
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:UIApplicationDidReceiveMemoryWarningNotification  
+												  object:nil];  
 	[self _destroy];
 	RELEASE_TO_NIL(destroyLock);
 	[super dealloc];
@@ -328,8 +445,11 @@ static int tiProxyId = 0;
 
 -(void)_setBaseURL:(NSURL*)url
 {
-	RELEASE_TO_NIL(baseURL);
-	baseURL = [[url absoluteURL] retain];
+	if (url!=baseURL)
+	{
+		RELEASE_TO_NIL(baseURL);
+		baseURL = [[url absoluteURL] retain];
+	}
 }
 
 -(BOOL)_hasListeners:(NSString*)type
@@ -343,7 +463,7 @@ static int tiProxyId = 0;
 	// the value is the old value before the change
 }
 
--(void)_diChangeValue:(id)property value:(id)value
+-(void)_didChangeValue:(id)property value:(id)value
 {
 	// called after a dynamic property is set againt this instance
 	// the value is the new value after the change
@@ -398,9 +518,9 @@ static int tiProxyId = 0;
 
 #pragma mark Public
 
--(id<NSFastEnumeration>)validKeys
+-(id<NSFastEnumeration>)allKeys
 {
-	return nil;
+	return [dynprops allKeys];
 }
 
 -(void)addEventListener:(NSArray*)args
@@ -421,30 +541,8 @@ static int tiProxyId = 0;
 		[listeners setObject:l forKey:type];
 		[l release];
 	}
-	
-	/*
-	// we need to listener for the execution context shutdown in the case it's not the 
-	// same as our pageContext. we basically will then remove the listener
-	if (pageContext!=executionContext)
-	{
-		id key = [executionContext description];
-		id found = [contextListeners objectForKey:key];
-		if (found==nil)
-		{
-			[[NSNotificationCenter defaultCenter] addObserver:self 
-													 selector:@selector(contextShutdown:) 
-														 name:kKrollShutdownNotification 
-													   object:executionContext];	
-			[contextListeners setObject:executionContext forKey:key];
-		}
-	}
-	
-	[l addObject:listener];
-	 */
-
 	ListenerEntry *entry = [[[ListenerEntry alloc] initWithListener:listener context:[self executionContext] proxy:self type:type] autorelease];
 	[l addObject:entry];
-	
 	[self _listenerAdded:type count:[l count]];
 }
 	  
@@ -463,7 +561,7 @@ static int tiProxyId = 0;
 	{
 		for (ListenerEntry *entry in [NSArray arrayWithArray:l])
 		{
-			if ([entry listener] == listener)
+			if ([[entry listener] isEqual:listener])
 			{
 				[l removeObject:entry];
 				break;
@@ -489,9 +587,34 @@ static int tiProxyId = 0;
 	[[self _host] removeListener:listener context:ctx];
 	[self _listenerRemoved:type count:count];
 }
-	  
+
+-(void)fireEvent:(NSString*)type
+{
+	[self fireEvent:type withObject:nil withSource:self propagate:YES];
+}
+
 -(void)fireEvent:(NSString*)type withObject:(id)obj
 {
+	[self fireEvent:type withObject:obj withSource:self propagate:YES];
+}
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source
+{
+	[self fireEvent:type withObject:obj withSource:source propagate:YES];
+}
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn
+{
+	[self fireEvent:type withObject:obj withSource:self propagate:yn];
+}
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
+{
+	if (![self _hasListeners:type])
+	{
+		return;
+	}
+
 	[destroyLock lock];
 	
 	if (listeners!=nil)
@@ -513,7 +636,7 @@ static int tiProxyId = 0;
 			
 			// common event properties for all events we fire
 			[eventObject setObject:type forKey:@"type"];
-			[eventObject setObject:self forKey:@"source"];
+			[eventObject setObject:source forKey:@"source"];
 			
 			// unfortunately we have to make a copy to be able to mutate and still iterate
 			NSMutableArray *_listeners = [NSMutableArray arrayWithArray:l];
@@ -580,7 +703,17 @@ DEFINE_EXCEPTIONS
 	}
 	if (dynprops != nil)
 	{
-		return [dynprops objectForKey:key];
+		[dynPropsLock lock];
+		id result = [dynprops objectForKey:key];
+		[dynPropsLock unlock];
+		// if we have a stored value as complex, just unwrap 
+		// it and return the internal value
+		if ([result isKindOfClass:[TiComplexValue class]])
+		{
+			TiComplexValue *value = (TiComplexValue*)result;
+			return [value value];
+		}
+		return result;
 	}
 	//NOTE: we need to return nil here since in JS you can ask for properties
 	//that don't exist and it should return undefined, not an exception
@@ -595,6 +728,11 @@ DEFINE_EXCEPTIONS
 		value = [NSNull null];
 	}
 	id current = nil;
+	if (dynPropsLock==nil)
+	{
+		dynPropsLock = [[NSRecursiveLock alloc] init];
+	}
+	[dynPropsLock lock];
 	if (dynprops==nil)
 	{
 		dynprops = [[NSMutableDictionary alloc] init];
@@ -612,6 +750,7 @@ DEFINE_EXCEPTIONS
 	{
 		[dynprops setValue:value forKey:key];
 	}
+	[dynPropsLock unlock];
 	
 	if (notify && self.modelDelegate!=nil)
 	{
@@ -622,15 +761,20 @@ DEFINE_EXCEPTIONS
 - (void) setValue:(id)value forUndefinedKey: (NSString *) key
 {
 	// if the object specifies a validKeys set, we enforce setting against only those keys
-	if (self.validKeys!=nil)
-	{
-		if ([(id)self.validKeys containsObject:key]==NO)
-		{
-			[self throwException:[NSString stringWithFormat:@"property '%@' not supported",key] subreason:nil location:CODELOCATION];
-		}
-	}
+//	if (self.validKeys!=nil)
+//	{
+//		if ([(id)self.validKeys containsObject:key]==NO)
+//		{
+//			[self throwException:[NSString stringWithFormat:@"property '%@' not supported",key] subreason:nil location:CODELOCATION];
+//		}
+//	}
 	
 	id current = nil;
+	if (dynPropsLock==nil)
+	{
+		dynPropsLock = [[NSRecursiveLock alloc] init];
+	}
+	[dynPropsLock lock];
 	if (dynprops!=nil)
 	{
 		// hold it for this invocation since set may cause it to be deleted
@@ -642,7 +786,6 @@ DEFINE_EXCEPTIONS
 	}
 	else
 	{
-		//TODO: make this non-retaining?
 		dynprops = [[NSMutableDictionary alloc] init];
 	}
 
@@ -661,31 +804,24 @@ DEFINE_EXCEPTIONS
 	if (current!=value)
 	{
 		[dynprops setValue:propvalue forKey:key];
+		[dynPropsLock unlock];
 		if (self.modelDelegate!=nil)
 		{
 			[[(NSObject*)self.modelDelegate retain] autorelease];
 			[self.modelDelegate propertyChanged:key oldValue:current newValue:value proxy:self];
 		}
+		return; // so we don't unlock twice
 	}
+	[dynPropsLock unlock];
 }
 
 -(NSDictionary*)allProperties
 {
-	return dynprops;
-}
-
-#pragma mark KrollDynamicMethodProxy
-
--(id)resultForUndefinedMethod:(NSString*)name args:(NSArray*)args
-{
-	// by default, the base model class will just raise an exception
-	NSString *msg = [NSString stringWithFormat:@"method named '%@' not supported against %@",name,self];
-	NSLog(@"[WARN] %@",msg);
-	[self throwException:msg subreason:nil location:CODELOCATION];
-	return nil;
+	return [[dynprops copy] autorelease];
 }
 
 #pragma mark Memory Management
+
 -(void)didReceiveMemoryWarning:(NSNotification*)notification
 {
 	//FOR NOW, we're not dropping anything but we'll want to do before release
@@ -700,6 +836,7 @@ DEFINE_EXCEPTIONS
 	id method = [args objectAtIndex:0];
 	id firstobj = [args count] > 1 ? [args objectAtIndex:1] : nil;
 	id secondobj = [args count] > 2 ? [args objectAtIndex:2] : nil;
+	id target = [args count] > 3 ? [args objectAtIndex:3] : self;
 	if (firstobj == [NSNull null])
 	{
 		firstobj = nil;
@@ -709,7 +846,7 @@ DEFINE_EXCEPTIONS
 		secondobj = nil;
 	}
 	SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@:withObject:",method]);
-	[self performSelector:selector withObject:firstobj withObject:secondobj];
+	[target performSelector:selector withObject:firstobj withObject:secondobj];
 }
 
 #pragma mark Description for nice toString in JS

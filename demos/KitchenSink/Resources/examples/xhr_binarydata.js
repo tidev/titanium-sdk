@@ -11,7 +11,9 @@ var l = Titanium.UI.createLabel({
 win.add(l);
 var imageView = Titanium.UI.createImageView({
 	top:50,
-	left:10
+	left:10,
+	height:100,
+	width:80
 });
 win.add(imageView);
 
@@ -19,7 +21,9 @@ var xhr = Titanium.Network.createHTTPClient();
 
 xhr.onload = function()
 {
-	imageView.image = this.responseData;
+	var f = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory,'ti.png');
+	f.write(this.responseData);
+	imageView.url = f.nativePath;
 };
 // open the client
 xhr.open('GET','http://www.appcelerator.com/wp-content/uploads/2009/06/titanium_desk.png');
