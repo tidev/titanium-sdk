@@ -422,7 +422,6 @@ DEFINE_EXCEPTIONS
 -(void)setBounds:(CGRect)bounds
 {
 	[super setBounds:bounds];
-	if(!CGPointEqualToPoint(CGPointZero, bounds.origin))
 	[self checkBounds];
 }
 
