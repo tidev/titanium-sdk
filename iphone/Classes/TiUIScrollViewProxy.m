@@ -85,7 +85,10 @@
 		bounds.size.height = [child minimumParentHeightForWidth:bounds.size.width];
 		verticalLayoutBoundary += bounds.size.height;
 	}
-	[[child view] relayout:bounds];
+
+	[[child view] updateLayout:NULL withBounds:bounds];
+//TODO: Reintegrate
+//	[[child view] relayout:bounds];
 	
 	// tell our children to also layout
 	[child layoutChildren];

@@ -376,7 +376,10 @@
 		[self viewDidAttach];
 
 		// make sure we do a layout of ourselves
-		[self setNeedsReposition];
+
+		[view updateLayout:NULL withBounds:view.bounds];
+		//TODO: reintegrate
+//		[self setNeedsReposition];
 		
 		viewInitialized = YES;
 	}
@@ -411,7 +414,14 @@
 	}
 
 	UIView *childView = [child view];
-	[childView insertIntoView:view bounds:bounds];
+
+	if ([childView superview]!=view)
+	{
+		[view addSubview:childView];
+	}
+	[[child view] updateLayout:NULL withBounds:bounds];
+//TODO: reintegrate.
+//	[childView insertIntoView:view bounds:bounds];
 	
 	// tell our children to also layout
 	[child layoutChildren];

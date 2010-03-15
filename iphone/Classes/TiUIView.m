@@ -286,8 +286,6 @@ DEFINE_EXCEPTIONS
 
 
 
-
-
 -(void)insertIntoView:(UIView*)newSuperview bounds:(CGRect)bounds
 {
 	if (newSuperview==self)
@@ -295,33 +293,56 @@ DEFINE_EXCEPTIONS
 		NSLog(@"[ERROR] invalid call to insertIntoView, new super view is same as myself");
 		return;
 	}
+	ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, newSuperview, bounds,YES);
+	[(TiViewProxy *)[self proxy] clearNeedsReposition];
+}
+
+-(void)relayout:(CGRect)bounds
+{
 	if (repositioning==NO)
 	{
-		repositioning = YES;		
-		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, newSuperview, bounds,YES);
+		repositioning = YES;
+		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
 		[(TiViewProxy *)[self proxy] clearNeedsReposition];
 		repositioning = NO;
 	}
 }
 
--(void)relayout:(CGRect)bounds
-{
-	if (animating)
-	{
-#ifdef DEBUG		
-		// changing the layout while animating is bad, ignore for now
-		NSLog(@"[DEBUG] ignoring new layout while animating..");
-#endif		
-		return;
-	}
-	if (repositioning==NO)
-	{
-		repositioning = YES;		
-		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
-		[(TiViewProxy *)proxy clearNeedsReposition];
-		repositioning = NO;
-	}
-}
+//TODO: Reintegrate this.
+//-(void)insertIntoView:(UIView*)newSuperview bounds:(CGRect)bounds
+//{
+//	if (newSuperview==self)
+//	{
+//		NSLog(@"[ERROR] invalid call to insertIntoView, new super view is same as myself");
+//		return;
+//	}
+//	if (repositioning==NO)
+//	{
+//		repositioning = YES;		
+//		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, newSuperview, bounds,YES);
+//		[(TiViewProxy *)[self proxy] clearNeedsReposition];
+//		repositioning = NO;
+//	}
+//}
+//
+//-(void)relayout:(CGRect)bounds
+//{
+//	if (animating)
+//	{
+//#ifdef DEBUG		
+//		// changing the layout while animating is bad, ignore for now
+//		NSLog(@"[DEBUG] ignoring new layout while animating..");
+//#endif		
+//		return;
+//	}
+//	if (repositioning==NO)
+//	{
+//		repositioning = YES;		
+//		ApplyConstraintToViewWithinViewWithBounds([(TiViewProxy *)proxy layoutProperties], self, [self superview], bounds, YES);
+//		[(TiViewProxy *)proxy clearNeedsReposition];
+//		repositioning = NO;
+//	}
+//}
 
 -(void)updateLayout:(LayoutConstraint*)layout_ withBounds:(CGRect)bounds
 {
