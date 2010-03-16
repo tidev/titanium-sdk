@@ -347,10 +347,11 @@
 	if ([oldView isKindOfClass:[TiUIView class]])
 	{
 		TiViewProxy * oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
-		if (oldProxy != titleControl)
+		if (oldProxy == titleControl)
 		{
-			[oldProxy removeBarButtonView];
+			return;	//No need to update?
 		}
+		[oldProxy removeBarButtonView];
 	}
 
 	if ([titleControl isKindOfClass:[TiViewProxy class]])
