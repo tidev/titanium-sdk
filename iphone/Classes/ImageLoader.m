@@ -14,11 +14,14 @@
 @interface ImageCacheEntry : NSObject
 {
 	UIImage * fullImage;
+	CGFloat thumbnailScale;
 	UIImage * thumbnail;
 }
 
 @property(nonatomic,readwrite,retain) UIImage * fullImage;
 -(UIImage *)imageForSize:(CGSize)imageSize;
+
+-(BOOL)purgable;
 
 @end
 
@@ -27,39 +30,38 @@
 
 -(UIImage *)imageForSize:(CGSize)imageSize
 {
-	if (CGSizeEqualToSize(imageSize, CGSizeZero))
-	{
-		return fullImage;
-	}
-
 	CGSize fullImageSize = [fullImage size];
-
-	if (imageSize.width == 0)
+	CGFloat scale = 1.0;
+	
+	if (imageSize.height > 1.0)
 	{
-		imageSize.width = fullImageSize.width * imageSize.height/fullImageSize.height;
+		scale = MIN(scale,imageSize.height/fullImageSize.height);
 	}
-	else if(imageSize.height == 0)
+	if (imageSize.width > 1.0)
 	{
-		imageSize.height = fullImageSize.height * imageSize.width/fullImageSize.width;
+		scale = MIN(scale,imageSize.width/fullImageSize.width);
 	}
 
-	if (CGSizeEqualToSize(imageSize, fullImageSize))
+	if (scale == 1.0)
 	{
 		return fullImage;
 	}
 
-	CGSize thumbnailSize = [thumbnail size];
-	if (CGSizeEqualToSize(imageSize, thumbnailSize))
+	if (thumbnailScale == scale)
 	{
 		return thumbnail;
 	}
 
+	thumbnailScale = scale;
+	CGFloat width = ceilf(scale*fullImageSize.width);
+	CGFloat height = ceilf(scale*fullImageSize.height);
+
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-	CGContextRef thumbnailContext = CGBitmapContextCreate (NULL, imageSize.width,imageSize.height, 8,0, colorSpace, kCGImageAlphaPremultipliedLast);
-    CGColorSpaceRelease(colorSpace);	
+	CGContextRef thumbnailContext = CGBitmapContextCreate (NULL, width,height, 8,0, colorSpace, kCGImageAlphaPremultipliedLast);
+    CGColorSpaceRelease(colorSpace);
 
 	CGImageRef fullImageRef = [fullImage CGImage];
-	CGContextDrawImage(thumbnailContext, CGRectMake(0, 0, imageSize.width, imageSize.height), fullImageRef);
+	CGContextDrawImage(thumbnailContext, CGRectMake(0, 0, width, height), fullImageRef);
 
 	CGImageRef thumbnailRef = CGBitmapContextCreateImage(thumbnailContext);
 	CGContextRelease(thumbnailContext);
@@ -69,6 +71,21 @@
 	CGImageRelease(thumbnailRef);
 
 	return thumbnail;
+}
+
+-(BOOL)purgable
+{
+	if ([thumbnail retainCount]<2)
+	{
+		RELEASE_TO_NIL(thumbnail)
+		//Because we may need new thumbnails later on.
+		if ([fullImage retainCount]<2)
+		{
+			RELEASE_TO_NIL(fullImage);
+			return YES;
+		}
+	}
+	return NO;
 }
 
 
@@ -86,7 +103,7 @@ ImageLoader *sharedLoader = nil;
 
 @implementation ImageLoaderRequest
 
-@synthesize completed, delegate;
+@synthesize completed, delegate, imageSize;
 
 DEFINE_EXCEPTIONS
 
@@ -176,8 +193,8 @@ DEFINE_EXCEPTIONS
 		doomedKey = nil;
 		for (NSString * thisKey in cache)
 		{
-			id thisValue = [cache valueForKey:thisKey];
-			if ([thisValue retainCount]<2)
+			ImageCacheEntry * thisValue = [cache objectForKey:thisKey];
+			if ([thisValue purgable])
 			{
 				doomedKey = thisKey;
 				break;
@@ -201,8 +218,9 @@ DEFINE_EXCEPTIONS
 	return sharedLoader;
 }
 
--(id)cache:(UIImage*)image forURL:(NSURL*)url
+-(id)cache:(UIImage*)image forURL:(NSURL*)url size:(CGSize)imageSize
 {
+
 	if (image==nil) 
 	{
 		return nil;
@@ -211,15 +229,24 @@ DEFINE_EXCEPTIONS
 	{
 		cache = [[NSMutableDictionary alloc] init];
 	}
+	ImageCacheEntry * newEntry = [[[ImageCacheEntry alloc] init] autorelease];
+	[newEntry setFullImage:image];
+	
 	NSLog(@"[INFO] Caching image %@: %@",url,image);
-	[cache setObject:image forKey:[url absoluteString]];
-	return image;
+	[cache setObject:newEntry forKey:[url absoluteString]];
+	return [newEntry imageForSize:imageSize];
 }
+
+-(id)cache:(UIImage*)image forURL:(NSURL*)url
+{
+	return [self cache:image forURL:url size:CGSizeZero];
+}
+
 
 -(id)loadRemote:(NSURL*)url
 {
 	if (url==nil) return nil;
-	UIImage *image = [cache objectForKey:[url absoluteString]];
+	UIImage *image = [[cache objectForKey:[url absoluteString]] imageForSize:CGSizeZero];
 	if (image!=nil)
 	{
 		return image;
@@ -248,21 +275,21 @@ DEFINE_EXCEPTIONS
 -(UIImage *)loadImmediateImage:(NSURL *)url withSize:(CGSize)imageSize;
 {
 	if (url==nil) return nil;
-	UIImage *image = [cache objectForKey:[url absoluteString]];
+	UIImage *image = [[cache objectForKey:[url absoluteString]] imageForSize:imageSize];
 	if (image!=nil)
 	{
 		return image;
 	}
 	if ([url isFileURL])
 	{
-		return [self cache:[UIImage imageWithContentsOfFile:[url path]] forURL:url];
+		return [self cache:[UIImage imageWithContentsOfFile:[url path]] forURL:url size:imageSize];
 	}
 	return nil;
 }
 
 -(UIImage *)loadImmediateStretchableImage:(NSURL *)url
 {
-	UIImage * result = [self loadImmediateImage:url];
+	UIImage * result = [self loadImmediateImage:url withSize:CGSizeZero];
 	if (result != nil){
 		CGSize imageSize = [result size];
 		return [result stretchableImageWithLeftCapWidth:imageSize.width/2 topCapHeight:imageSize.height/2];
@@ -284,7 +311,7 @@ DEFINE_EXCEPTIONS
 {
 	NSURL *url = [request url];
 	
-	UIImage *image = [cache objectForKey:[url absoluteString]];
+	UIImage *image = [[cache objectForKey:[url absoluteString]] imageForSize:[request imageSize]];
 	if (image!=nil)
 	{
 		[self performSelectorOnMainThread:@selector(notifyImageCompleted:) withObject:[NSArray arrayWithObjects:request,image,nil] waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];

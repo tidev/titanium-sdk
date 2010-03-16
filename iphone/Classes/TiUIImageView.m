@@ -34,6 +34,7 @@ DEFINE_EXCEPTIONS
 	RELEASE_TO_NIL(container);
 	RELEASE_TO_NIL(previous);
 	RELEASE_TO_NIL(urlRequest);
+	RELEASE_TO_NIL(imageView);
 	[super dealloc];
 }
 
@@ -196,7 +197,9 @@ DEFINE_EXCEPTIONS
 		{
 			autoHeight = theimage.size.height;
 		}
-		theimage = [UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh image:theimage];
+
+//		theimage = [UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh image:theimage];
+		theimage = [UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationDefault image:theimage];
 	}
 	return theimage;
 }
@@ -341,6 +344,26 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(UIImageView *)imageView
+{
+	UIImageView * imageView = nil;
+
+	if (imageView == nil)
+	{
+		imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
+		[imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+		[imageView setContentMode:UIViewContentModeCenter];
+		[self addSubview:imageView];
+	}
+	
+	[imageView autorelease];
+	
+	return imageView;
+}
+
+
+
+
 #pragma mark Public APIs
 
 -(void)stop
@@ -437,10 +460,13 @@ DEFINE_EXCEPTIONS
 	{
 		TiBlob *blob = (TiBlob*)arg;
 		UIImage *image = [self scaleImageIfRequired:[blob image]];
-		UIImageView *view = [[UIImageView alloc] initWithImage:image];
-		view.autoresizingMask = UIViewAutoresizingNone;
-		[self addSubview:view];
-		[view release];
+//		UIImageView *view = [[UIImageView alloc] initWithImage:image];
+//		view.autoresizingMask = UIViewAutoresizingNone;
+//		[self addSubview:view];
+//		[view release];
+
+		[[self imageView] setImage:image];
+
 		autoHeight = image.size.height;
 		autoWidth = image.size.width;
 		[self.proxy replaceValue:arg forKey:@"image" notification:NO];
@@ -448,15 +474,17 @@ DEFINE_EXCEPTIONS
 	else if ([arg isKindOfClass:[TiFile class]])
 	{
 		TiFile *file = (TiFile*)arg;
-		NSData *data = [NSData dataWithContentsOfFile:[file path]];
-		UIImage *image = [[[UIImage alloc] initWithData:data] autorelease];
-		image = [self scaleImageIfRequired:image];
-		UIImageView *view = [[UIImageView alloc] initWithImage:image];
-		view.autoresizingMask = UIViewAutoresizingNone;
+		NSURL * fileUrl = [NSURL fileURLWithPath:[file path]];		
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl withSize:CGSizeMake(width, height)];
+
+//		UIImageView *view = [[UIImageView alloc] initWithImage:image];
+//		view.autoresizingMask = UIViewAutoresizingNone;
 		autoHeight = image.size.height;
 		autoWidth = image.size.width;
-		[self addSubview:view];
-		[view release];
+//		[self addSubview:view];
+//		[view release];
+		[[self imageView] setImage:image];
+
 		[self.proxy replaceValue:arg forKey:@"image" notification:NO];
 	}
 	else
@@ -533,42 +561,44 @@ DEFINE_EXCEPTIONS
 		{
 			if ([view isKindOfClass:[UIImageView class]])
 			{
+				if (view == imageView)
+				{
+					RELEASE_TO_NIL(imageView);
+				}
 				[view removeFromSuperview];
 			}
 		}
 		
 		NSURL *url_ = [TiUtils toURL:img proxy:self.proxy];
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_];
+		CGSize imageSize = CGSizeMake(width, height);
+
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_ withSize:imageSize];
 		if (image==nil)
 		{
 			// use a placeholder image - which the dev can specify with the
 			// defaultImage property or we'll provide the Titanium stock one
 			// if not specified
-			UIImage *defImage = nil;
-			id defaultImage = [self.proxy valueForKey:@"defaultImage"];
-			if (defaultImage!=nil)
+			NSURL *defURL = [TiUtils toURL:[self.proxy valueForKey:@"defaultImage"] proxy:self.proxy];
+
+			if ((defURL == nil) && ![TiUtils boolValue:[self.proxy valueForKey:@"preventDefaultImage"] def:NO])
 			{
-				NSURL *defURL = [TiUtils toURL:defaultImage proxy:self.proxy];
-				defImage = [[ImageLoader sharedLoader] loadImmediateImage:defURL];
+				NSString * filePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"modules/ui/images/photoDefault.png"];
+				defURL = [NSURL fileURLWithPath:filePath];
 			}
-			else
+			if (defURL!=nil)
 			{
-				id prev = [self.proxy valueForKey:@"preventDefaultImage"];
-				if ([TiUtils boolValue:prev def:NO]==NO)
-				{
-					defImage = [UIImage imageNamed:@"modules/ui/images/photoDefault.png"];
-				}
-			}
-			if (defImage!=nil)
-			{
-				UIImage *poster = [self scaleImageIfRequired:defImage];
-				UIImageView *iv = [[UIImageView alloc] initWithImage:poster];
-				iv.autoresizingMask = UIViewAutoresizingNone;
-				iv.contentMode = UIViewContentModeCenter;
+				UIImage *poster = [[ImageLoader sharedLoader] loadImmediateImage:defURL withSize:imageSize];
+
+//				UIImageView *iv = [[UIImageView alloc] initWithImage:poster];
+//				iv.autoresizingMask = UIViewAutoresizingNone;
+//				iv.contentMode = UIViewContentModeCenter;
+
 				autoWidth = poster.size.width;
 				autoHeight = poster.size.height;
-				[self addSubview:iv];
-				[iv release];
+//				[self addSubview:iv];
+//				[iv release];
+				[[self imageView] setImage:poster];
+
 			}
 			placeholderLoading = YES;
 			urlRequest = [[[ImageLoader sharedLoader] loadImage:url_ delegate:self userInfo:nil] retain];
@@ -576,11 +606,13 @@ DEFINE_EXCEPTIONS
 		}
 		if (image!=nil)
 		{
-			image = [self scaleImageIfRequired:image];
-			UIImageView *view = [[UIImageView alloc] initWithImage:image];
-			view.autoresizingMask = UIViewAutoresizingNone;
-			[self addSubview:view];
-			[view release];
+//			image = [self scaleImageIfRequired:image];
+//			UIImageView *view = [[UIImageView alloc] initWithImage:image];
+//			view.autoresizingMask = UIViewAutoresizingNone;
+//			[self addSubview:view];
+//			[view release];
+			[[self imageView] setImage:image];
+
 			
 			if (width == 0 || height == 0)
 			{
@@ -639,7 +671,15 @@ DEFINE_EXCEPTIONS
 {
 	if (request == urlRequest)
 	{
-		image = [self scaleImageIfRequired:image];
+		UIImage * bestImage = [[ImageLoader sharedLoader] loadImmediateImage:[request url] withSize:CGSizeMake(width, height)];
+		if (bestImage != nil)
+		{
+			image = bestImage;
+		}
+		else
+		{
+			image = [self scaleImageIfRequired:image];
+		}
 		[self performSelectorOnMainThread:@selector(setURLImageOnUIThread:) withObject:image waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 		RELEASE_TO_NIL(urlRequest);
 	}

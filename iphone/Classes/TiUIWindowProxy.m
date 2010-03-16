@@ -360,7 +360,7 @@
 	else
 	{
 		NSURL * path = [TiUtils toURL:[self valueForKey:@"titleImage"] proxy:self];
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:path];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:path withSize:[TiUtils navBarTitleViewSize]];
 		if (image!=nil)
 		{
 			newTitleView = [[[UIImageView alloc] initWithImage:image] autorelease];
