@@ -1,5 +1,12 @@
 var win = Titanium.UI.currentWindow;
 
+// initialize to all modes
+win.orientationModes = [
+	Titanium.UI.PORTRAIT,
+	Titanium.UI.LANDSCAPE_LEFT,
+	Titanium.UI.LANDSCAPE_RIGHT,
+]; 
+
 var tf1 = Titanium.UI.createTextField({
 	color:'#336699',
 	height:35,
@@ -99,4 +106,12 @@ showHide.addEventListener('click', function()
 		visible = false;
 	}
 });
+
+var instructions = Ti.UI.createLabel({
+	text:'Rotate device while keyboard is up',
+	bottom:10,
+	height:30,
+	color:'#777'
+});
+win.add(instructions);
 
