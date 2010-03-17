@@ -32,7 +32,7 @@ flags = ''
 if ARGUMENTS.get('COMPILER_FLAGS', 0):
 	flags = ARGUMENTS.get('COMPILER_FLAGS')
 
-
+build_type = ARGUMENTS.get("BUILD_TYPE", None)
 iphone_dir = os.path.abspath(os.path.join(os.path.dirname(sys._getframe(0).f_code.co_filename),'../','support','iphone'))
 sys.path.append(iphone_dir)
 
@@ -71,34 +71,46 @@ def fetch():
 	finally:
 		urllib.urlcleanup()
 		pbar.finish()
-	
-def build(dir,name,apiversion):
-    # execute the phone and simulator release builds
 
-    curdir = os.path.abspath(os.curdir)
-    os.chdir(dir)
-
-
-    if os.path.exists('/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%s.sdk' % apiversion):
-    	output = os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target %s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s %s' clean build" % (apiversion,name,config,defines,flags))
+def build_titanium_target(name,apiversion,target):
+	# execute the phone and simulator release builds
+	if os.path.exists('/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%s.sdk' % apiversion):
+		output = os.system("xcodebuild -sdk iphoneos%s -project Titanium.xcodeproj -target %s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='%s %s' %s" % (apiversion,name,config,defines,flags,target))
 	if output!=0:
 		sys.exit(output)
 
-    if os.path.exists('/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator%s.sdk' % apiversion):
-    	output = os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target %s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='DEBUG=1 %s %s' clean build" % (apiversion,name,config,defines,flags))
+	if os.path.exists('/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator%s.sdk' % apiversion):
+		output = os.system("xcodebuild -sdk iphonesimulator%s -project Titanium.xcodeproj -target %s -configuration %s GCC_PREPROCESSOR_DEFINITIONS='DEBUG=1 %s %s' %s" % (apiversion,name,config,defines,flags,target))
 
 	if output!=0:
 		sys.exit(-1)
-	
 
-    # build the merged library using lipo
-    os.system("lipo build/%s-iphonesimulator/lib%s.a build/%s-iphoneos/lib%s.a -create -output build/lib%s.a" %(config,name,config,name,name))
-   
-    os.chdir(curdir)
+def clean(dir,name,apiversion):
+	curdir = os.path.abspath(os.curdir)
+	os.chdir(dir)
+
+	build_titanium_target(name,apiversion,"clean")
+	
+	os.chdir(curdir)
+
+def build(dir,name,apiversion):
+	curdir = os.path.abspath(os.curdir)
+	os.chdir(dir)
+	
+	build_titanium_target(name,apiversion,"build")
+	
+	# build the merged library using lipo
+	os.system("lipo build/%s-iphonesimulator/lib%s.a build/%s-iphoneos/lib%s.a -create -output build/lib%s.a" %(config,name,config,name,name))
+	
+	os.chdir(curdir)
 
 if not os.path.exists(markerfile):
 	fetch()
 
-build('iphone','Titanium','3.1.2')
+
+if build_type == "clean":
+	clean('iphone','Titanium','3.1.2')
+else:
+	build('iphone','Titanium','3.1.2')
 
 sys.exit(0)

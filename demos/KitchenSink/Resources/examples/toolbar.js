@@ -1,5 +1,12 @@
 var win = Titanium.UI.currentWindow;
 
+// initialize to all modes
+win.orientationModes = [
+	Titanium.UI.PORTRAIT,
+	Titanium.UI.LANDSCAPE_LEFT,
+	Titanium.UI.LANDSCAPE_RIGHT,
+]; 
+
 var flexSpace = Titanium.UI.createButton({
 	systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 });
@@ -38,7 +45,7 @@ send.addEventListener('click', function()
 // create and add toolbar
 var toolbar1 = Titanium.UI.createToolbar({
 	items:[flexSpace,camera, flexSpace,tf,flexSpace, send,flexSpace],
-	top:30,
+	bottom:0,
 	borderTop:true,
 	borderBottom:false,
 	translucent:true,

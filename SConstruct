@@ -85,6 +85,7 @@ if build_type in ['full', 'iphone'] and not only_package:
 	os.chdir('iphone')
 	try:
 		#output = 0
+		if clean: build_type = "clean"
 		output = os.system("scons PRODUCT_VERSION=%s COMPILER_FLAGS='%s' BUILD_TYPE='%s'" % (version,flags,build_type))	
 		if output!=0:
 			sys.stderr.write("BUILD FAILED!!!!\n")
@@ -107,3 +108,7 @@ def package_sdk(target, source, env):
 package_builder = Builder(action = package_sdk)
 env.Append(BUILDERS = {'PackageMobileSDK': package_builder})
 env.PackageMobileSDK("#dummy-sdk-target", [])
+
+if clean:
+	# don't error 
+	Exit(0)
