@@ -108,3 +108,7 @@ def package_sdk(target, source, env):
 package_builder = Builder(action = package_sdk)
 env.Append(BUILDERS = {'PackageMobileSDK': package_builder})
 env.PackageMobileSDK("#dummy-sdk-target", [])
+
+if clean:
+	# don't error 
+	Exit(0)
