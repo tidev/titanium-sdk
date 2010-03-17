@@ -347,10 +347,11 @@
 	if ([oldView isKindOfClass:[TiUIView class]])
 	{
 		TiViewProxy * oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
-		if (oldProxy != titleControl)
+		if (oldProxy == titleControl)
 		{
-			[oldProxy removeBarButtonView];
+			return;	//No need to update?
 		}
+		[oldProxy removeBarButtonView];
 	}
 
 	if ([titleControl isKindOfClass:[TiViewProxy class]])
@@ -360,7 +361,7 @@
 	else
 	{
 		NSURL * path = [TiUtils toURL:[self valueForKey:@"titleImage"] proxy:self];
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:path];
+		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:path withSize:[TiUtils navBarTitleViewSize]];
 		if (image!=nil)
 		{
 			newTitleView = [[[UIImageView alloc] initWithImage:image] autorelease];

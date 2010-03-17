@@ -25,6 +25,7 @@
 	NSObject<ImageLoaderDelegate>* delegate;
 	NSDictionary* userInfo;
 	NSURL *url;
+	CGSize imageSize;
 	BOOL completed;
 	BOOL cancelled;
 }
@@ -32,6 +33,7 @@
 -(void)setRequest:(ASIHTTPRequest*)request;
 
 @property(nonatomic,readwrite,assign) BOOL completed;
+@property(nonatomic,readwrite,assign) CGSize imageSize;
 @property(nonatomic,readonly) NSObject<ImageLoaderDelegate>* delegate;
 
 -(void)cancel;

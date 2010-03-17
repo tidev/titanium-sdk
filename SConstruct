@@ -65,7 +65,18 @@ if ARGUMENTS.get('COMPILER_FLAGS', 0):
 env = Environment()
 Export("env cwd version")
 if build_type in ['full', 'android'] and not only_package:
-	env.SConscript("android/SConscript", variant_dir="dist/android", duplicate=0)
+	os.chdir('android')
+	ant_jar = os.path.join('build', 'lib', 'ant.jar')
+	ant_launcher_jar = os.path.join('build', 'lib', 'ant-launcher.jar')
+	xerces_jar = os.path.join('build', 'lib', 'xercesImpl.jar')
+	xml_apis_jar = os.path.join('build', 'lib', 'xml-apis.jar')
+	ant_nodeps_jar = os.path.join('build', 'lib', 'ant-nodeps.jar')
+	ant_cmd = \
+		'java -cp %s:%s:%s:%s:%s org.apache.tools.ant.launch.Launcher' \
+		' -Dant.home=build -Dbuild.version=%s' % \
+		(ant_launcher_jar, ant_jar, xerces_jar, xml_apis_jar, ant_nodeps_jar, version)
+	print ant_cmd
+	os.system(ant_cmd)
 
 if build_type in ['full', 'iphone'] and not only_package:
 	d = os.getcwd()
