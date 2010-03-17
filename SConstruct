@@ -13,7 +13,7 @@ from SCons.Script import *
 cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(path.join(cwd,"build"))
 sys.path.append(path.join(cwd,"support","android"))
-import titanium_version
+import titanium_version, ant
 from androidsdk import AndroidSDK
 version = titanium_version.version
 
@@ -49,6 +49,8 @@ only_package = False
 if ARGUMENTS.get("package",0):
 	only_package = True
 
+clean = "clean" in COMMAND_LINE_TARGETS or ARGUMENTS.get("clean", 0)
+
 # TEMP until android is merged
 build_type = 'full'
 build_dirs = ['iphone', 'android']
@@ -67,20 +69,16 @@ if ARGUMENTS.get('COMPILER_FLAGS', 0):
 env = Environment()
 Export("env cwd version")
 if build_type in ['full', 'android'] and not only_package:
+	d = os.getcwd()
 	os.chdir('android')
-	sdk = AndroidSDK(ARGUMENTS.get("android_sdk", None), 4)
-	ant_jar = os.path.join('build', 'lib', 'ant.jar')
-	ant_launcher_jar = os.path.join('build', 'lib', 'ant-launcher.jar')
-	xerces_jar = os.path.join('build', 'lib', 'xercesImpl.jar')
-	xml_apis_jar = os.path.join('build', 'lib', 'xml-apis.jar')
-	ant_nodeps_jar = os.path.join('build', 'lib', 'ant-nodeps.jar')
-	ant_cmd = \
-		'java -cp %s:%s:%s:%s:%s org.apache.tools.ant.launch.Launcher' \
-		' -Dant.home=build -Dbuild.version=%s -Dandroid.sdk=%s -Dandroid.platform=%s -Dgoogle.apis=%s ' % \
-		(ant_launcher_jar, ant_jar, xerces_jar, xml_apis_jar, ant_nodeps_jar, version,
-			sdk.get_android_sdk(), sdk.get_platform_dir(), sdk.get_google_apis_dir())
-	print ant_cmd
-	os.system(ant_cmd)
+	try:
+		sdk = AndroidSDK(ARGUMENTS.get("android_sdk", None), 4)
+		target = ""
+		if clean: target = "clean"
+		ant.build(target=target, properties={"build.version": version,
+			"android.sdk": sdk.get_android_sdk(), "android.platform": sdk.get_platform_dir(), "google.apis": sdk.get_google_apis_dir()})
+	finally:
+		os.chdir(d)
 
 if build_type in ['full', 'iphone'] and not only_package:
 	d = os.getcwd()
