@@ -14,12 +14,14 @@
 @interface ImageCacheEntry : NSObject
 {
 	UIImage * fullImage;
+	UIImage * stretchableImage;
 	CGFloat thumbnailScale;
 	UIImage * thumbnail;
 }
 
 @property(nonatomic,readwrite,retain) UIImage * fullImage;
 -(UIImage *)imageForSize:(CGSize)imageSize;
+-(UIImage *)stretchableImage;
 
 -(BOOL)purgable;
 
@@ -73,19 +75,51 @@
 	return thumbnail;
 }
 
+-(UIImage *)stretchableImage
+{
+	if (stretchableImage == nil)
+	{
+		CGSize imageSize = [fullImage size];
+		stretchableImage = [[fullImage stretchableImageWithLeftCapWidth:imageSize.width/2 topCapHeight:imageSize.height/2] retain];
+	}
+	return stretchableImage;
+}
+
 -(BOOL)purgable
 {
+	BOOL canPurge = YES;
 	if ([thumbnail retainCount]<2)
 	{
 		RELEASE_TO_NIL(thumbnail)
-		//Because we may need new thumbnails later on.
-		if ([fullImage retainCount]<2)
-		{
-			RELEASE_TO_NIL(fullImage);
-			return YES;
-		}
+	}
+	else
+	{
+		canPurge = NO;
+	}
+
+	if ([stretchableImage retainCount]<2)
+	{
+		RELEASE_TO_NIL(stretchableImage)
+	}
+	else
+	{
+		canPurge = NO;
+	}
+
+	if (canPurge && [fullImage retainCount]<2)
+	{
+		RELEASE_TO_NIL(fullImage);
+		return YES;
 	}
 	return NO;
+}
+
+- (void) dealloc
+{
+	RELEASE_TO_NIL(thumbnail);
+	RELEASE_TO_NIL(stretchableImage);
+	RELEASE_TO_NIL(fullImage);
+	[super dealloc];
 }
 
 
@@ -218,10 +252,9 @@ DEFINE_EXCEPTIONS
 	return sharedLoader;
 }
 
--(id)cache:(UIImage*)image forURL:(NSURL*)url size:(CGSize)imageSize
+-(ImageCacheEntry *)setImage:(UIImage *)image forKey:(NSString *)urlString
 {
-
-	if (image==nil) 
+	if (image==nil)
 	{
 		return nil;
 	}
@@ -232,9 +265,35 @@ DEFINE_EXCEPTIONS
 	ImageCacheEntry * newEntry = [[[ImageCacheEntry alloc] init] autorelease];
 	[newEntry setFullImage:image];
 	
-	NSLog(@"[INFO] Caching image %@: %@",url,image);
-	[cache setObject:newEntry forKey:[url absoluteString]];
-	return [newEntry imageForSize:imageSize];
+	NSLog(@"[INFO] Caching image %@: %@",urlString,image);
+	[cache setObject:newEntry forKey:urlString];
+	return newEntry;
+}
+
+-(ImageCacheEntry *)entryForKey:(NSURL *)url
+{
+	if (url == nil)
+	{
+		return nil;
+	}
+
+	NSString * urlString = [url absoluteString];
+	ImageCacheEntry * result = [cache objectForKey:urlString];
+	
+	if ((result == nil) && [url isFileURL])
+	{//Well, let's make it for them!
+		UIImage * resultImage = [UIImage imageWithContentsOfFile:[url path]];
+		result = [self setImage:resultImage forKey:urlString];
+	}
+	
+	return result;
+}
+
+
+
+-(id)cache:(UIImage*)image forURL:(NSURL*)url size:(CGSize)imageSize
+{
+	return [[self setImage:image forKey:[url absoluteString]] imageForSize:imageSize];
 }
 
 -(id)cache:(UIImage*)image forURL:(NSURL*)url
@@ -246,7 +305,7 @@ DEFINE_EXCEPTIONS
 -(id)loadRemote:(NSURL*)url
 {
 	if (url==nil) return nil;
-	UIImage *image = [[cache objectForKey:[url absoluteString]] imageForSize:CGSizeZero];
+	UIImage *image = [[self entryForKey:url] imageForSize:CGSizeZero];
 	if (image!=nil)
 	{
 		return image;
@@ -260,7 +319,8 @@ DEFINE_EXCEPTIONS
 	
 	if (req!=nil && [req error]==nil)
 	{
-		return [self cache:[[[UIImage alloc] initWithData:[req responseData]] autorelease] forURL:url];
+		UIImage * resultImage = [UIImage imageWithData:[req responseData]];
+		return [[self setImage:resultImage forKey:[url absoluteString]] imageForSize:CGSizeZero];
 	}
 	
 	return nil;
@@ -274,27 +334,12 @@ DEFINE_EXCEPTIONS
 
 -(UIImage *)loadImmediateImage:(NSURL *)url withSize:(CGSize)imageSize;
 {
-	if (url==nil) return nil;
-	UIImage *image = [[cache objectForKey:[url absoluteString]] imageForSize:imageSize];
-	if (image!=nil)
-	{
-		return image;
-	}
-	if ([url isFileURL])
-	{
-		return [self cache:[UIImage imageWithContentsOfFile:[url path]] forURL:url size:imageSize];
-	}
-	return nil;
+	return [[self entryForKey:url] imageForSize:imageSize];
 }
 
 -(UIImage *)loadImmediateStretchableImage:(NSURL *)url
 {
-	UIImage * result = [self loadImmediateImage:url withSize:CGSizeZero];
-	if (result != nil){
-		CGSize imageSize = [result size];
-		return [result stretchableImageWithLeftCapWidth:imageSize.width/2 topCapHeight:imageSize.height/2];
-	}
-	return nil;
+	return [[self entryForKey:url] stretchableImage];
 }
 
 -(void)notifyImageCompleted:(NSArray*)args
@@ -311,20 +356,11 @@ DEFINE_EXCEPTIONS
 {
 	NSURL *url = [request url];
 	
-	UIImage *image = [[cache objectForKey:[url absoluteString]] imageForSize:[request imageSize]];
+	UIImage *image = [[self entryForKey:url] imageForSize:[request imageSize]];
 	if (image!=nil)
 	{
 		[self performSelectorOnMainThread:@selector(notifyImageCompleted:) withObject:[NSArray arrayWithObjects:request,image,nil] waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 		return;
-	}
-	if ([url isFileURL])
-	{
-		UIImage *image = [self loadImmediateImage:url];
-		if (image!=nil)
-		{
-			[self performSelectorOnMainThread:@selector(notifyImageCompleted:) withObject:[NSArray arrayWithObjects:request,image,nil] waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
-			return;
-		}
 	}
 	
 	// we don't have it local or in the cache so we need to fetch it remotely

@@ -353,6 +353,9 @@ DEFINE_EXCEPTIONS
 		imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
 		[imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		[imageView setContentMode:UIViewContentModeCenter];
+	}
+	if ([imageView superview] != self)
+	{
 		[self addSubview:imageView];
 	}
 	
