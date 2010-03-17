@@ -94,7 +94,7 @@
 	if (view!=nil)
 	{
 		TiUIView *childView = [(TiViewProxy *)arg view];
-		BOOL verticalNeedsRearranging = TiLayoutRuleIsVertical([view layoutProperties]->layout);
+		BOOL verticalNeedsRearranging = TiLayoutRuleIsVertical(layoutProperties.layout);
 		if ([NSThread isMainThread])
 		{
 			[childView removeFromSuperview];
@@ -105,7 +105,7 @@
 		}
 		else
 		{
-			[self performSelectorOnMainThread:@selector(removeFromSuperview) withObject:childView waitUntilDone:NO];
+			[childView performSelectorOnMainThread:@selector(removeFromSuperview) withObject:nil waitUntilDone:NO];
 			if (verticalNeedsRearranging)
 			{
 				[self performSelectorOnMainThread:@selector(layout) withObject:nil waitUntilDone:NO modes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
