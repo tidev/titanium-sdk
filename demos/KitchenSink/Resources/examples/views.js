@@ -9,7 +9,9 @@ var data = [
 	{title:'Alert Dialog', hasChild:true, test:'../examples/alert.js'},
 	{title:'Options Dialog', hasChild:true, test:'../examples/options_dialog.js'},
 	{title:'Map View', hasChild:true, test:'../examples/map_view.js'},
-	{title:'Mixing Views', hasChild:true, test:'../examples/mixing_views_1.js'}
+	{title:'Mixing Views', hasChild:true, test:'../examples/mixing_views_1.js'},
+	{title:'Remove Views', hasChild:true, test:'../examples/remove_views.js'}
+
 ];
 
 if (Titanium.Platform.name == 'iPhone OS')
