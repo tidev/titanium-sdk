@@ -18,7 +18,7 @@ public class KitchensinkAppInfo implements ITiAppInfo
 					
 		properties.setBool("ti.android.debug", true);
 					
-		properties.setString("ti.deploytype", "test");
+		properties.setString("ti.deploytype", "development");
 					
 		properties.setString("ti.android.google.map.api.key", "0ZnKXkWA2dIAu2EM-OV4ZD2lJY3sEWE5TSgjJNg");
 	}
@@ -32,11 +32,11 @@ public class KitchensinkAppInfo implements ITiAppInfo
 	}
 	
 	public String getVersion() {
-		return "1.0";
+		return "1.3.0";
 	}
 	
 	public String getPublisher() {
-		return "nwright";
+		return "Appcelerator";
 	}
 	
 	public String getUrl() {
@@ -44,11 +44,11 @@ public class KitchensinkAppInfo implements ITiAppInfo
 	}
 	
 	public String getCopyright() {
-		return "2010 by nwright";
+		return "2010 by Appcelerator";
 	}
 	
 	public String getDescription() {
-		return "No description provided";
+		return "Kitchen Sink is a demo application";
 	}
 	
 	public String getIcon() {

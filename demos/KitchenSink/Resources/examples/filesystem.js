@@ -36,15 +36,4 @@ Ti.API.info('spaceAvailable = ' + dir.spaceAvailable());
 var l = Titanium.UI.createLabel({text:'Check Log for details', width:300, height:'auto', textAlign:'center'});
 win.add(l)
 
-// TODO:WRITE TESTS FOR THESE
-//
-// -(id)createDirectory:(id)args
-// -(id)createFile:(id)args
-// -(id)deleteDirectory:(id)args
-// -(id)deleteFile:(id)args
-// -(id)move:(id)args
-// -(id)rename:(id)args
-// -(id)read:(id)args
-// -(id)write:(id)args
-// -(id)description
-// +(id)makeTemp:(BOOL)isDirectory
+
