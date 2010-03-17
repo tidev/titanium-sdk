@@ -4,7 +4,6 @@ Titanium.Media.showCamera({
 	{
 		var cropRect = event.cropRect;
 		var image = event.media;
-		var thumbnail = event.thumbnail;
 		
 		Titanium.Media.saveToPhotoGallery(image);
 		

@@ -16,7 +16,6 @@ Titanium.Media.openPhotoGallery({
 	{
 		var cropRect = event.cropRect;
 		var image = event.media;
-		var thumbnail = event.thumbnail;
 		
 		// set image view
 		imageView.image = image;
