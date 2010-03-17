@@ -7,7 +7,6 @@ Titanium.Media.showCamera({
 	{
 		var cropRect = event.cropRect;
 		var image = event.media;
-		var thumbnail = event.thumbnail;
 		
 		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,'camera_photo.png');
 		f.write(image);

@@ -3,8 +3,6 @@ Titanium.Media.showCamera({
 	success:function(event)
 	{
 		var video = event.media;
-		var thumbnail = event.thumbnail;
-
 		Titanium.Media.saveToPhotoGallery(video);
 		
 		Titanium.UI.createAlertDialog({title:'Photo Gallery',message:'Check your photo gallery'}).show();		

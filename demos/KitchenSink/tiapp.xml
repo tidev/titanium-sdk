@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><ti:app xmlns:ti="http://ti.appcelerator.org">
 <id>com.nolanwright.kitchensink</id>
 <name>KitchenSink</name>
-<version>1.3.0</version>
-<publisher>Appcelerator</publisher>
+<version>1.0</version>
+<publisher>nwright</publisher>
 <url>appcelerator.com</url>
-<copyright>2010 by Appcelerator</copyright>
-<description>Kitchen Sink is a demo application</description>
+<copyright>2010 by nwright</copyright>
+<description>No description provided</description>
 <icon>default_app_logo.png</icon>
 <persistent-wifi>false</persistent-wifi>
 <prerendered-icon>false</prerendered-icon>

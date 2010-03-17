@@ -9,12 +9,12 @@
 
 NSString * const TI_APPLICATION_DEPLOYTYPE = @"development";
 NSString * const TI_APPLICATION_ID = @"com.nolanwright.kitchensink";
-NSString * const TI_APPLICATION_PUBLISHER = @"Appcelerator";
+NSString * const TI_APPLICATION_PUBLISHER = @"nwright";
 NSString * const TI_APPLICATION_URL = @"appcelerator.com";
 NSString * const TI_APPLICATION_NAME = @"KitchenSink";
-NSString * const TI_APPLICATION_VERSION = @"1.3.0";
-NSString * const TI_APPLICATION_DESCRIPTION = @"Kitchen Sink is a demo application";
-NSString * const TI_APPLICATION_COPYRIGHT = @"2010 by Appcelerator";
+NSString * const TI_APPLICATION_VERSION = @"1.0";
+NSString * const TI_APPLICATION_DESCRIPTION = @"No description provided";
+NSString * const TI_APPLICATION_COPYRIGHT = @"2010 by nwright";
 NSString * const TI_APPLICATION_GUID = @"6fe33f33fd1f4e95a06d2d217170866d";
 BOOL const TI_APPLICATION_ANALYTICS = true;
 

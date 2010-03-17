@@ -6,11 +6,11 @@ Titanium.Media.showCamera({
 	{
 		var cropRect = event.cropRect;
 		var image = event.media;
-		var thumbnail = event.thumbnail;
-		
+
 		// set image view
-		var imageView = Ti.UI.createImageView({image:event.media});
+		var imageView = Ti.UI.createImageView({top:100,image:event.media});
 		win.add(imageView);
+		
 		
 		Titanium.API.info('CAMERA SUCCESS cropRect.x ' + cropRect.x + ' cropRect.y ' + cropRect.y  + ' cropRect.height ' + cropRect.height + ' cropRect.width ' + cropRect.width);
 		
