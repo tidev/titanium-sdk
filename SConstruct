@@ -85,6 +85,7 @@ if build_type in ['full', 'iphone'] and not only_package:
 	os.chdir('iphone')
 	try:
 		#output = 0
+		if clean: build_type = "clean"
 		output = os.system("scons PRODUCT_VERSION=%s COMPILER_FLAGS='%s' BUILD_TYPE='%s'" % (version,flags,build_type))	
 		if output!=0:
 			sys.stderr.write("BUILD FAILED!!!!\n")
