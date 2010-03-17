@@ -12,7 +12,9 @@ from SCons.Script import *
 # this is used by other python scripts too
 cwd = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 sys.path.append(path.join(cwd,"build"))
+sys.path.append(path.join(cwd,"support","android"))
 import titanium_version
+from androidsdk import AndroidSDK
 version = titanium_version.version
 
 # allow it to be overriden on command line or in env
@@ -66,6 +68,7 @@ env = Environment()
 Export("env cwd version")
 if build_type in ['full', 'android'] and not only_package:
 	os.chdir('android')
+	sdk = AndroidSDK(ARGUMENTS.get("android_sdk", None), 4)
 	ant_jar = os.path.join('build', 'lib', 'ant.jar')
 	ant_launcher_jar = os.path.join('build', 'lib', 'ant-launcher.jar')
 	xerces_jar = os.path.join('build', 'lib', 'xercesImpl.jar')
@@ -73,8 +76,9 @@ if build_type in ['full', 'android'] and not only_package:
 	ant_nodeps_jar = os.path.join('build', 'lib', 'ant-nodeps.jar')
 	ant_cmd = \
 		'java -cp %s:%s:%s:%s:%s org.apache.tools.ant.launch.Launcher' \
-		' -Dant.home=build -Dbuild.version=%s' % \
-		(ant_launcher_jar, ant_jar, xerces_jar, xml_apis_jar, ant_nodeps_jar, version)
+		' -Dant.home=build -Dbuild.version=%s -Dandroid.sdk=%s -Dandroid.platform=%s -Dgoogle.apis=%s ' % \
+		(ant_launcher_jar, ant_jar, xerces_jar, xml_apis_jar, ant_nodeps_jar, version,
+			sdk.get_android_sdk(), sdk.get_platform_dir(), sdk.get_google_apis_dir())
 	print ant_cmd
 	os.system(ant_cmd)
 

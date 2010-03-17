@@ -1,13 +1,16 @@
 <project default="build">
-	
+	<property file="build.properties"/>
 	<property name="distdir" value="${basedir}/../dist/android"/>
 	<property name="classesdir" value="${distdir}/classes"/>
-	<property name="android-sdk" value="/opt/android-sdk"/>
 	<property name="build.version" value="1.0.0"/>
-
+	
+	<property name="android.sdk" value="/opt/android-sdk"/>
+	<property name="android.platform" value="${android.sdk}/platforms/android-1.6"/>
+	<property name="google.apis" value="${android.sdk}/add-ons/google_apis-4_r02"/>
+	
 	<path id="android">
-		<pathelement path="${android-sdk}/platforms/android-1.6/android.jar"/>
-		<pathelement path="${android-sdk}/add-ons/google_apis-4_r02/libs/maps.jar"/>
+		<pathelement path="${android.platform}/android.jar"/>
+		<pathelement path="${google.apis}/libs/maps.jar"/>
 	</path>
 
 	<path id="titanium">
