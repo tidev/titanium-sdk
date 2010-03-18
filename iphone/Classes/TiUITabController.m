@@ -20,6 +20,11 @@
 	[super dealloc];
 }
 
+-(TiWindowProxy *)proxy;
+{
+	return window;
+}
+
 -(id)initWithProxy:(TiWindowProxy*)window_ tab:(TiUITabProxy*)tab_
 {
 	if (self = [super init])

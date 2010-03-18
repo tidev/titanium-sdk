@@ -17,4 +17,6 @@
 @property(nonatomic,readonly)	TiWindowProxy *window;
 @property(nonatomic,readonly)	TiUITabProxy *tab;
 
+-(TiWindowProxy *)proxy;
+
 @end

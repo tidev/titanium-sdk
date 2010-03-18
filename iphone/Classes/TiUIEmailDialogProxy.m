@@ -142,7 +142,7 @@ MAKE_SYSTEM_PROP(FAILED,MFMailComposeResultFailed);
 	
 	BOOL animated = [TiUtils boolValue:[self valueForKey:@"animated"] def:YES];
 
-	[[TitaniumApp app] dismissModalController:animated];
+	[[TitaniumApp app] hideModalController:composer animated:animated];
 	[composer autorelease];
 
 	if ([self _hasListeners:@"complete"])

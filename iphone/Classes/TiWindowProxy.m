@@ -64,6 +64,15 @@
 @implementation TiWindowProxy
 @synthesize navController, controller;
 
+-(UIViewController *)controller
+{
+	if (controller == nil)
+	{
+		controller = [[WindowViewController alloc] initWithWindow:self];
+	}
+	return controller;
+}
+
 -(void)dealloc
 {
 	RELEASE_TO_NIL(controller);
@@ -201,23 +210,20 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 -(void)_tabFocus
 {
 	focused = YES;
-	[[[TitaniumApp app] controller] windowFocused:self];
+	[[[TitaniumApp app] controller] windowFocused:[self controller]];
 }
 
 -(void)_tabBlur
 {
 	focused = NO;
-	[[[TitaniumApp app] controller] windowUnfocused:self];
 }
 
 -(void)_tabBeforeFocus
 {
-	[[[TitaniumApp app] controller] windowBeforeFocused:self];
 }
 
 -(void)_tabBeforeBlur
 {
-	[[[TitaniumApp app] controller] windowBeforeUnfocused:self];
 }
 
 -(void)setupWindowDecorations
@@ -322,7 +328,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			[self setNavController:nc];
 			BOOL animated = args!=nil && [args isKindOfClass:[NSDictionary class]] ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
 			[self setupWindowDecorations];
-			[[[TitaniumApp app] controller] presentModalViewController:nc animated:animated];
+			[[TitaniumApp app] showModalController:nc animated:animated];
 		}
 		if (animation==nil)
 		{
@@ -340,14 +346,15 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	{
 		return;
 	}
+
+	UIViewController *vc = [self controller];
 	
-	[[[TitaniumApp app] controller] windowClosed:self];
+	[[[TitaniumApp app] controller] windowClosed:vc];
 
 	if (modal)
 	{
-		UIViewController *vc = [self controller];
 		BOOL animated = args!=nil && [args isKindOfClass:[NSDictionary class]] ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:0] def:YES] : YES;
-		[vc dismissModalViewControllerAnimated:animated];
+		[[TitaniumApp app] hideModalController:vc animated:animated];
 		if (animated)
 		{
 			// if animated, we don't want to immediately remove our view but instead need
@@ -380,12 +387,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 			[child windowWillClose];
 		}
 	}
-	
-	if (![self _isChildOfTab])
-	{
-		[[[TitaniumApp app] controller] windowUnfocused:self];
-	}	
-	
+
 	if ([self _handleClose:args])
 	{
 		TiAnimation *animation = [TiAnimation animationFromArg:args context:[self pageContext] create:NO];
@@ -450,7 +452,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	if (![self _isChildOfTab])
 	{
 		[rootView addSubview:view];
-		[[[TitaniumApp app] controller] windowFocused:self];
+		[[[TitaniumApp app] controller] windowFocused:[self controller]];
 	}
 
 	[self layoutChildren];

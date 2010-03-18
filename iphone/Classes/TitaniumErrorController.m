@@ -7,6 +7,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import "TitaniumErrorController.h"
+#import "TitaniumApp.h"
 #import "TiBase.h"
 #import "TiUtils.h"
 
@@ -45,7 +46,7 @@
 
 -(void)dismiss:(id)sender
 {
-	[self dismissModalViewControllerAnimated:YES];
+	[[TitaniumApp app] hideModalController:self animated:YES];
 }
 
 - (void)loadView 

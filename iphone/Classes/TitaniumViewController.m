@@ -38,7 +38,7 @@
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(windowProxies);
+	RELEASE_TO_NIL(windowViewControllers);
 	[super dealloc];
 }
 
@@ -102,7 +102,7 @@
 	self.view = rootView;
 	[self updateBackground];
 	[self resizeView];
-	for (TiWindowProxy * thisWindowProxy in windowProxies)
+	for (TiWindowProxy * thisWindowProxy in windowViewControllers)
 	{
 		TiUIView * thisView = [thisWindowProxy view];
 		[rootView addSubview:thisView];
@@ -250,7 +250,7 @@
 	{
 		[self setOrientationModes:candidateOrientationModes];
 	}
-	else if(noPrefrenceTab)
+	else if(noPrefrenceTab) // || (currentWindow == nil))
 	{
 		[self setOrientationModes:nil];
 	}
@@ -292,65 +292,57 @@
 }
 
 
--(void)windowFocused:(TiProxy*)window_
+-(void)windowFocused:(UIViewController*)focusedViewController
 {
-	if (![window_ isKindOfClass:[TiWindowProxy class]])
+	TiWindowProxy * focusedProxy = nil;
+
+	if ([focusedViewController respondsToSelector:@selector(proxy)])
 	{
-		return;
+		focusedProxy = (TiWindowProxy *)[(id)focusedViewController proxy];
 	}
 
-	[self enforceOrientationModesFromWindow:(id)window_];
+	[self enforceOrientationModesFromWindow:(id)focusedProxy];
 	
-	TiWindowProxy * oldTopWindow = [windowProxies lastObject];
-	[windowProxies removeObject:window_];
-	if ([(TiWindowProxy *)window_ _isChildOfTab] || ([(TiWindowProxy *)window_ parent]!=nil))
+	TiWindowProxy * oldTopWindow = [windowViewControllers lastObject];
+	[windowViewControllers removeObject:focusedViewController];
+	if ([(TiWindowProxy *)focusedProxy _isChildOfTab] || ([(TiWindowProxy *)focusedProxy parent]!=nil))
 	{
 		return;
 	}
 	
-	if (windowProxies==nil)
+	if (windowViewControllers==nil)
 	{
-		windowProxies = [[NSMutableArray alloc] initWithObjects:window_,nil];
+		windowViewControllers = [[NSMutableArray alloc] initWithObjects:focusedViewController,nil];
 	}
 	else
 	{
-		[windowProxies addObject:window_];
+		[windowViewControllers addObject:focusedViewController];
 	}
 	
-	if (oldTopWindow != window_)
+	if ((oldTopWindow != focusedProxy) && [oldTopWindow respondsToSelector:@selector(proxy)])
 	{
-		[oldTopWindow _tabBlur];
+		[(TiWindowProxy *)[(id)oldTopWindow proxy] _tabBlur];
 	}
 	
 	
 }
 
--(void)windowClosed:(TiProxy *)window_
+-(void)windowClosed:(UIViewController *)closedViewController
 {
-	BOOL focusChanged = [windowProxies lastObject] == window_;
-	[windowProxies removeObject:window_];
+	BOOL focusChanged = [windowViewControllers lastObject] == closedViewController;
+	[windowViewControllers removeObject:closedViewController];
 	if (!focusChanged)
 	{
 		return; //Exit early. We're done here.
 	}
 	
-	TiWindowProxy * newTopWindow = [windowProxies lastObject];
-	[newTopWindow _tabFocus];
+	UIViewController * newTopWindow = [windowViewControllers lastObject];
 	
-}
-
--(void)windowUnfocused:(TiProxy*)window_
-{
-}
-
--(void)windowBeforeFocused:(TiProxy*)window_
-{
-
-}
-
--(void)windowBeforeUnfocused:(TiProxy*)window_
-{
-
+	if ([newTopWindow respondsToSelector:@selector(proxy)])
+	{
+		[(TiWindowProxy *)[(id)newTopWindow proxy] _tabFocus];
+	}
+	
 }
 
 @end

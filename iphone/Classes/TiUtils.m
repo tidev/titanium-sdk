@@ -47,9 +47,15 @@
 	NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
 	NSTimeZone *timeZone = [NSTimeZone timeZoneWithName:@"UTC"];
 	[dateFormatter setTimeZone:timeZone];
+
+	NSLocale * USLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
+	[dateFormatter setLocale:USLocale];
+	[USLocale release];
+
+
 	//Example UTC full format: 2009-06-15T21:46:28.685+0000
 	[dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000"];
-	return [dateFormatter stringFromDate:[NSDate date]];
+	return [dateFormatter stringFromDate:data];
 }
 
 +(NSString *)UTCDate
