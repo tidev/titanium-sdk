@@ -1352,7 +1352,9 @@ static BOOL isiPhoneOS2;
 		
 		// Let the delegate know something went wrong
 		if ([self didFailSelector] && [[self delegate] respondsToSelector:[self didFailSelector]]) {
-			[[self delegate] performSelectorOnMainThread:[self didFailSelector] withObject:self waitUntilDone:[NSThread isMainThread]];	
+			//[[self delegate] performSelectorOnMainThread:[self didFailSelector] withObject:self waitUntilDone:[NSThread isMainThread]];	
+			[[self delegate] performSelector:[self didFailSelector] withObject:self];	
+
 		}
 	}
 }
@@ -1858,7 +1860,7 @@ static BOOL isiPhoneOS2;
 			}
 			[delegateAuthenticationLock unlock];
 		}
-		[self cancelLoad];
+		//[self cancelLoad];
 		[self failWithError:ASIAuthenticationError];
 		return;
 	}
@@ -2066,8 +2068,9 @@ static BOOL isiPhoneOS2;
 			}
 			[delegateAuthenticationLock unlock];
 		}
-		[self cancelLoad];
 		[self failWithError:ASIAuthenticationError];
+	//	[self cancelLoad];
+
 		return;
 	}
 	
